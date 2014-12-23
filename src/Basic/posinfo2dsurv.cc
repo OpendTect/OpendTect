@@ -976,6 +976,33 @@ float Survey::Geometry2D::averageTrcDist() const
 }
 
 
+Survey::Geometry::RelationType Survey::Geometry2D::compare(
+				const Geometry& geom, bool usezrg ) const
+{
+    mDynamicCastGet( const Survey::Geometry2D*, geom2d, &geom );
+    if ( !geom2d )
+	return UnRelated;
+
+    const PosInfo::Line2DData& mydata = data();
+    const PosInfo::Line2DData& otherdata = geom2d->data();
+    if ( !mydata.coincidesWith(otherdata) )
+	return UnRelated;
+
+    const StepInterval<int> mytrcrg = mydata.trcNrRange();
+    const StepInterval<int> othtrcrg = otherdata.trcNrRange();
+    const StepInterval<float> myzrg = mydata.zRange();
+    const StepInterval<float> othzrg = otherdata.zRange();
+    if ( mytrcrg == othtrcrg && (!usezrg || myzrg.isEqual(othzrg,1e-3)) )
+	return Identical;
+    if ( mytrcrg.includes(othtrcrg) && (!usezrg || myzrg.includes(othzrg)) )
+	return SuperSet;
+    if ( othtrcrg.includes(mytrcrg) && (!usezrg || othzrg.includes(myzrg)) )
+	return SubSet;
+
+    return Related;
+}
+
+
 StepInterval<float> Survey::Geometry2D::zRange() const
 {
     return data_.zRange();

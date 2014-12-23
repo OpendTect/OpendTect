@@ -41,6 +41,9 @@ mExpClass(Basic) Geometry
 public:
 
     typedef Pos::GeomID	ID;
+    enum RelationType	{ UnRelated=0, Related, SubSet, SuperSet, Identical };
+			/*!< 'Related' means the two geometries have the same
+			  transform but neither includes the other. */
 
     virtual bool	is2D() const			= 0;
     Pos::SurvID		getSurvID() const;
@@ -68,6 +71,8 @@ public:
     const TrcKeyZSampling&	sampling() const	{ return sampling_; }
 
     virtual float		averageTrcDist() const			= 0;
+    virtual RelationType	compare(const Geometry&,bool usezrg) const
+				{ return UnRelated; }
 
     //Convenience functions for the most commone geometries
     virtual Geometry2D*		as2D()			{ return 0; }
@@ -120,6 +125,10 @@ public:
     bool			getList(BufferStringSet& names,
 					TypeSet<Geometry::ID>& ids,
 					bool is2d) const;
+    Geometry::ID		findRelated(const Geometry&,
+					    Geometry::RelationType&,
+					    bool usezrg) const;
+				//!<Returns cUndefGeomID() if none found
 
     static TrcKey::SurvID	get2DSurvID()	{ return surv2did_; }
     TrcKey::SurvID		default3DSurvID() const;

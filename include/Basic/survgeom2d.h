@@ -47,6 +47,8 @@ public:
     static BufferString  	makeUniqueLineName(const char* lsnm,
 	    					   const char* lnm);
     float			averageTrcDist() const;
+    RelationType		compare(const Geometry&,bool usezrg) const;
+
 protected:
 
                     		~Geometry2D();

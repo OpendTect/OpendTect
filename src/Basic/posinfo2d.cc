@@ -343,3 +343,44 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
 
     max = mCast( float, Math::Sqrt(maxsq) );
 }
+
+
+bool PosInfo::Line2DData::coincidesWith( const PosInfo::Line2DData& oth ) const
+{
+    const TypeSet<Line2DPos>& mypos = positions();
+    const TypeSet<Line2DPos>& othpos = oth.positions();
+    if ( mypos.isEmpty() || othpos.isEmpty() )
+	return false;
+
+    const int startnr = mMAX( mypos.first().nr_, othpos.first().nr_ );
+    const int stopnr = mMIN( mypos.last().nr_, othpos.last().nr_ );
+    bool found = false;
+    const int mystartidx = gtIndex( startnr, found );
+    const int mystopidx = gtIndex( stopnr, found );
+    const int othstartidx = oth.gtIndex( startnr, found );
+    const int othstopidx = oth.gtIndex( stopnr, found );
+    if ( mystartidx < 0 || mystopidx < 0 || othstartidx < 0 || othstopidx < 0 )
+	return false;
+
+    int myidx = mystartidx, othidx = othstartidx;
+    bool foundcommon = false;
+    while ( myidx <= mystopidx && othidx <= othstopidx )
+    {
+	const int trcnr = mypos[myidx].nr_;
+	if ( trcnr == othpos[othidx].nr_ )
+	{
+	    foundcommon = true;
+	    if ( !mIsEqual(mypos[myidx].coord_.x,othpos[othidx].coord_.x,1.0) ||
+		 !mIsEqual(mypos[myidx].coord_.y,othpos[othidx].coord_.y,1.0) )
+		return false;
+
+	    myidx++; othidx++;
+	}
+	else if ( trcnr < othpos[othidx].nr_ )
+	    myidx++;
+	else
+	    othidx++;
+    }
+
+    return foundcommon;
+}

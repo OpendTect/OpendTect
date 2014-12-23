@@ -455,4 +455,36 @@ bool GeometryManager::getList( BufferStringSet& names,
     return true;
 }
 
+
+Geometry::ID GeometryManager::findRelated( const Geometry& ref,
+					   Geometry::RelationType& reltype,
+					   bool usezrg ) const
+{
+    int identicalidx=-1, supersetidx=-1, subsetidx=-1, relatedidx=-1;
+    for ( int idx=0; identicalidx<0 && idx<geometries_.size(); idx++ )
+    {
+	Geometry::RelationType rt = geometries_[idx]->compare( ref, usezrg );
+	switch(rt)
+	{
+	    case Geometry::Identical : identicalidx = idx; break;
+	    case Geometry::SuperSet : supersetidx = idx; break;
+	    case Geometry::SubSet : subsetidx = idx; break;
+	    case Geometry::Related : relatedidx = idx; break;
+	    default: break;
+	}
+    }
+
+    if ( identicalidx >= 0 )
+    { reltype = Geometry::Identical; return geometries_[identicalidx]->getID();}
+    if ( supersetidx >= 0 )
+    { reltype = Geometry::SuperSet; return geometries_[supersetidx]->getID(); }
+    if ( subsetidx >= 0 )
+    { reltype = Geometry::SubSet; return geometries_[subsetidx]->getID(); }
+    if ( relatedidx >= 0 )
+    { reltype = Geometry::Related; return geometries_[relatedidx]->getID(); }
+
+    reltype = Geometry::UnRelated; return cUndefGeomID();
+}
+
+
 } // namespace Survey

@@ -377,6 +377,14 @@ TrcKeyValue::TrcKeyValue( const BinIDValue& bidv )
 {}
 
 
+bool Pos::IdxPair2Coord::operator==( const Pos::IdxPair2Coord& oth ) const
+{
+    return mIsEqual(xtr.a,oth.xtr.a,1.) && mIsEqual(ytr.a,oth.ytr.a,1.)
+	&& mIsEqual(xtr.b,oth.xtr.b,1e-3) && mIsEqual(ytr.b,oth.ytr.b,1e-3)
+	&& mIsEqual(xtr.c,oth.xtr.c,1e-3) && mIsEqual(ytr.c,oth.ytr.c,1e-3);
+}
+
+
 bool Pos::IdxPair2Coord::set3Pts( const Coord& c0, const Coord& c1,
 			  const Coord& c2, const Pos::IdxPair& ip0,
 			  const Pos::IdxPair& ip1, od_int32 crl2 )

@@ -66,6 +66,7 @@ public:
     void		setGeomData(const Pos::IdxPair2Coord&,
 					const TrcKeyZSampling&,float zscl);
     float		averageTrcDist() const;
+    RelationType	compare(const Geometry&,bool usezrg) const;
 
     Geometry3D*		as3D()			{ return this; }
 

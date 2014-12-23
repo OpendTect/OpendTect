@@ -105,6 +105,11 @@ public:
     Coord		getNormal(int trcnr) const;
     void		compDistBetwTrcsStats(float& max, float& median) const;
 
+    bool		coincidesWith(const Line2DData&) const;
+			/*!< A true return value means they have at least one
+			  trace number in common and all common trace numbers
+			  have the same coordinates on either line. */
+
 protected:
 
     StepInterval<float> zrg_;

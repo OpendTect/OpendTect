@@ -201,6 +201,37 @@ float Survey::Geometry3D::crlDistance() const
 }
 
 
+Survey::Geometry::RelationType Survey::Geometry3D::compare(
+				const Geometry& geom, bool usezrg ) const
+{
+    mDynamicCastGet( const Survey::Geometry3D*, geom3d, &geom );
+    if ( !geom3d )
+	return UnRelated;
+
+    const bool havesametransform = b2c_ == geom3d->b2c_;
+    if ( !havesametransform )
+	return UnRelated;
+
+    const StepInterval<int> myinlrg = inlRange();
+    const StepInterval<int> mycrlrg = crlRange();
+    const StepInterval<float> myzrg = zRange();
+    const StepInterval<int> othinlrg = geom3d->inlRange();
+    const StepInterval<int> othcrlrg = geom3d->crlRange();
+    const StepInterval<float> othzrg = geom3d->zRange();
+    if ( myinlrg == othinlrg && mycrlrg == othcrlrg &&
+	    (!usezrg || myzrg.isEqual(othzrg,1e-3)) )
+	return Identical;
+    if ( myinlrg.includes(othinlrg) && mycrlrg.includes(othcrlrg) &&
+	    (!usezrg || myzrg.includes(othzrg)) )
+	return SuperSet;
+    if ( othinlrg.includes(myinlrg) && othcrlrg.includes(mycrlrg) &&
+	    (!usezrg || othzrg.includes(myzrg)) )
+	return SubSet;
+
+    return Related;
+}
+
+
 //==============================================================================
 
 

@@ -21,7 +21,7 @@ namespace Pos
 {
 
 
-/*!\brief Encapsulates linear transform from (i,j) index to (x,y) coordinates. */
+/*!\brief Encapsulates linear transform from (i,j) index to (x,y) coordinates.*/
 
 mExpClass(Basic) IdxPair2Coord
 {
@@ -31,6 +31,7 @@ public:
 
 			IdxPair2Coord()		{}
 
+    bool		operator==(const IdxPair2Coord&) const;
     bool		isValid() const		{ return xtr.valid(ytr); }
     Coord		firstDir() const	{ return Coord(xtr.b,ytr.b); }
     Coord		secondDir() const	{ return Coord(xtr.c,ytr.c); }
