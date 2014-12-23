@@ -46,9 +46,19 @@ const Interval<float> Well::Track::zRange() const
 {
     if ( isEmpty() )
 	return Interval<float>( 0, 0 );
+    
+    float zstart = mCast(float,pos_[0].z);
+    float zstop = mCast(float,pos_[0].z);
 
-    const float zstart = mCast(float,pos_.first().z);
-    const float zstop = mCast(float,pos_.last().z);
+    for ( int idx=1; idx<size(); idx++ )
+    {
+	const float zval = mCast(float,pos_[idx].z);
+	if ( zval < zstart )
+	    zstart = zval;
+	else if ( zval > zstop )
+	    zstop = zval;
+    }
+
     return Interval<float> ( zstart, zstop );
 }
 
