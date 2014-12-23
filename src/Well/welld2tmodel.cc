@@ -341,25 +341,28 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
 				    float replvel )
 {
     setEmpty();
+    if ( track.isEmpty() )
+	return;
+
     const float srddepth = mCast( float, -1.f * SI().seismicReferenceDatum() );
     const float kb  = track.getKbElev();
     const float bulkshift = mIsUdf( replvel ) ? 0.f
 			  : ( kb+srddepth )* ( (2.f / vel) - (2.f / replvel) );
 
     int idahofminz = 0;
-    int idahofmaxz = track.size()-1;
-    float tvdmin = 1e10;
-    float tvdmax = -1;
-    for ( int idx=0; idx<track.size(); idx++ )
+    int idahofmaxz = 0;
+    float tvdmin = mCast(float,track.pos(0).z);
+    float tvdmax = mCast(float,track.pos(0).z);
+
+    for ( int idx=1; idx<track.size(); idx++ )
     {
-	const float zpostrack = (float)track.pos(idx).z;
+	const float zpostrack = mCast(float,track.pos(idx).z);
 	if ( zpostrack > tvdmax )
 	{
 	    tvdmax = zpostrack;
 	    idahofmaxz = idx;
 	}
-
-	if ( zpostrack < tvdmin )
+	else if ( zpostrack < tvdmin )
 	{
 	    tvdmin = zpostrack;
 	    idahofminz = idx;
