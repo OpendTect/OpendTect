@@ -133,15 +133,17 @@ bool uiWaveletMatchDlg::calcFilter()
 
     const float* wref = refwvlt->samples();
     const int refsz = refwvlt->size();
+    float* autorefptr = mVarLenArr( autoref );
     genericCrossCorrelation( refsz, 0, wref,
 			     refsz, 0, wref,
-			     filtersz, -filtersz2, autoref );
+			     filtersz, -filtersz2, autorefptr );
 
     const float* wtar = tarwvlt->samples();
     const int tarsz = tarwvlt->size();
+    float* crossrefptr = mVarLenArr( crossref );
     genericCrossCorrelation( refsz, 0, wref,
 			     tarsz, 0, wtar,
-			     filtersz, -filtersz2, crossref );
+			     filtersz, -filtersz2, crossrefptr );
 
 //  Solve Ax=b
     outputwvlt_.reSize( filtersz );
@@ -154,7 +156,8 @@ bool uiWaveletMatchDlg::calcFilter()
 
 //  QC: Convolve result with reference wavelet
     mAllocVarLenArr(float,wqc,tarsz)
-    GenericConvolve( refsz,0,wref, filtersz,-filtersz/2,x, tarsz,0,wqc );
+    float* wqcptr = mVarLenArr( wqc );
+    GenericConvolve( refsz,0,wref, filtersz,-filtersz/2,x, tarsz,0,wqcptr );
     wvlt1disp_->setY2Vals( tarwvlt->samplePositions(), wqc, tarsz );
 
 //  Make y2 axis identical to y1
@@ -165,7 +168,7 @@ bool uiWaveletMatchDlg::calcFilter()
     wvlt1disp_->draw();
 
 //  Calculate similarity between QC and target wavelet
-    const float simi = similarity( wtar, wqc.ptr(), tarsz, true );
+    const float simi = similarity( wtar, wqcptr, tarsz, true );
     uiString title( tr("Target/Result: %1") );
     title.arg( simi );
     wvlt1disp_->setTitle( title );
