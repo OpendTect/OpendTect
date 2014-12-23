@@ -36,6 +36,7 @@ public:
     virtual		~Wavelet();
 
     static Wavelet*	get(const IOObj*);
+    static IOObj*	getIOObj(const char* wvltnm);
     bool		put(const IOObj*) const;
 
     float*		samples()		{ return samps_; }
