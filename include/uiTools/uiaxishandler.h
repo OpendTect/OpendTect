@@ -127,9 +127,10 @@ public:
     void		updateScene(); //!< update gridlines if appropriate
     void		annotAtEnd(const uiString&);
 
-    const Setup&	setup() const	{ return setup_; }
-    Setup&		setup()	{ return setup_; }
-    StepInterval<float>	range() const	{ return rg_; }
+    const Setup&	setup() const		{ return setup_; }
+    Setup&		setup()			{ return setup_; }
+    StepInterval<float>	range() const		{ return rg_; }
+    float		annotStart() const	{ return annotstart_; }
     bool		isHor() const	{ return uiRect::isHor(setup_.side_); }
     int			pixToEdge(bool withborder=true) const;
     int			pixBefore() const;
@@ -170,7 +171,7 @@ protected:
     uiTextItem*		nameitm_;
     void		reCalc();
     int			calcwdth_;
-    uiStringSet	strs_;
+    uiStringSet		strs_;
     TypeSet<float>	pos_;
     float		endpos_;
     int			devsz_;

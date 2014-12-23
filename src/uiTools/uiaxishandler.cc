@@ -63,6 +63,7 @@ void uiAxisHandler::setCaption( const uiString& caption )
     reCalc();
 }
 
+
 bool uiAxisHandler::doPlotExtreme( float plottedxtrmval, bool isstart ) const
 {
     const float actxtrmval = isstart ? rg_.start : rg_.stop;
@@ -85,6 +86,7 @@ bool uiAxisHandler::doPlotExtreme( float plottedxtrmval, bool isstart ) const
 	      : actxtrmvalendpix < plottedxtrmvalendpix;
     return !doesannotcoincide;
 }
+
 
 void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 {
@@ -131,13 +133,15 @@ int uiAxisHandler::getNrAnnotCharsForDisp() const
     int nrofpredecimalchars = mMAX(stoplogval,startlogval) + 1;
     // number of chars needed for pre decimal part for maximum value
     if ( nrofpredecimalchars < 1 )
-    nrofpredecimalchars = 1;
+	nrofpredecimalchars = 1;
+
     int nrofpostdecimalchars = sDefNrDecimalPlaces - widthlogval;
     // number of chars needed for decimal places on the basis of range
     if ( setup_.annotinint_ || nrofpostdecimalchars < 0 )
 	nrofpostdecimalchars = 0;
     else
 	nrofpostdecimalchars += 1; // +1 for the decimal itself
+
     const int nrannotchars = nrofpredecimalchars + nrofpostdecimalchars;
     return setup_.maxnrchars_ && nrannotchars>setup_.maxnrchars_
 		? setup_.maxnrchars_ : nrannotchars;
@@ -164,6 +168,7 @@ void uiAxisHandler::reCalc()
     int nrsteps = annotrg.nrSteps();
     if ( !rg_.includes(annotrg.atIndex(nrsteps),false) )
 	nrsteps--;
+
     const int reqnrchars = getNrAnnotCharsForDisp();
     if ( doPlotExtreme(annotstart_,true) )
     {
