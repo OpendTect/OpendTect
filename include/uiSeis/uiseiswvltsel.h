@@ -62,8 +62,8 @@ mExpClass(uiSeis) uiWaveletSel : public uiIOObjSel
 { mODTextTranslationClass(uiWaveletSel)
 public:
 			uiWaveletSel(uiParent*,bool forread,
-				     const char* lbltxt=0);
-    Wavelet*		getWavelet() const;
+				     const uiIOObjSel::Setup&);
+    Wavelet*		getWavelet(bool noerr) const;
 };
 
 #endif

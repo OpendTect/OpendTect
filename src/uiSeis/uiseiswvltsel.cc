@@ -195,18 +195,21 @@ void uiSeisWaveletSel::rebuildList()
 
 
 // uiWaveletSel
-#define mSelTxt seltxt && *seltxt ? \
+#define mSelTxt(seltxt) !seltxt.isEmpty() ? \
 	seltxt : ( forread ? "Input Wavelet" : "Output Wavelet" )
 
-uiWaveletSel::uiWaveletSel( uiParent* p, bool forread, const char* seltxt )
-    : uiIOObjSel(p,mRWIOObjContext(Wavelet,forread),mSelTxt)
+uiWaveletSel::uiWaveletSel( uiParent* p, bool forread,
+			    const uiIOObjSel::Setup& setup )
+    : uiIOObjSel(p,mRWIOObjContext(Wavelet,forread),setup)
 {
+    if ( setup.seltxt_.isEmpty() )
+	setLabelText( forread ? tr("Input Wavelet") : tr("Output Wavelet") );
     fillEntries();
 }
 
 
-Wavelet* uiWaveletSel::getWavelet() const
+Wavelet* uiWaveletSel::getWavelet( bool noerr ) const
 {
-    const IOObj* selioobj = ioobj();
+    const IOObj* selioobj = ioobj( noerr );
     return selioobj ? Wavelet::get( selioobj ) : 0;
 }

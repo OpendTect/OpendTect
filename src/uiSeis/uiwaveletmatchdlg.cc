@@ -14,9 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "genericnumer.h"
+#include "linsolv.h"
 #include "wavelet.h"
 #include "waveletattrib.h"
 
+#include "uiaxishandler.h"
 #include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -30,6 +32,7 @@ static const int sDispHeight = 150;
 uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Match Wavelets"),mNoDlgTitle,mNoHelpKey))
     , wvltid_(MultiID::udf())
+    , outputwvlt_(*new Wavelet)
 {
     uiFunctionDisplay::Setup fds;
     fds.canvasheight(sDispHeight).canvaswidth(sDispWidth);
@@ -46,11 +49,16 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     wvltoutdisp_->attach( rightTo, wvlt1disp_ );
     wvltoutdisp_->attach( heightSameAs, wvlt1disp_ );
 
-    wvlt0fld_ = new uiWaveletSel( this, true, "Source Wavelet" );
+    uiIOObjSel::Setup setup0( tr("Reference Wavelet") );
+    setup0.filldef(false).withclear(true);
+    wvlt0fld_ = new uiWaveletSel( this, true, setup0 );
     wvlt0fld_->attach( alignedBelow, wvlt0disp_ );
     wvlt0fld_->setStretch( 0, 0 );
     wvlt0fld_->selectionDone.notify( mCB(this,uiWaveletMatchDlg,inpSelCB) );
-    wvlt1fld_ = new uiWaveletSel( this, true, "Target Wavelet" );
+
+    uiIOObjSel::Setup setup1( tr("Target Wavelet") );
+    setup1.filldef(false).withclear(true);
+    wvlt1fld_ = new uiWaveletSel( this, true, setup1 );
     wvlt1fld_->attach( alignedBelow,  wvlt0fld_ );
     wvlt1fld_->setStretch( 0, 0 );
     wvlt1fld_->selectionDone.notify( mCB(this,uiWaveletMatchDlg,inpSelCB) );
@@ -60,9 +68,15 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     filterszfld_->valuechanging.notify( mCB(this,uiWaveletMatchDlg,filterSzCB));
     filterszfld_->attach( rightOf, wvlt1fld_ );
 
-    wvltoutfld_ = new uiWaveletSel( this, false, "Output Wavelet" );
+    wvltoutfld_ = new uiWaveletSel( this, false, uiIOObjSel::Setup() );
     wvltoutfld_->attach( alignedBelow, wvlt1fld_ );
     wvltoutfld_->setStretch( 0, 0 );
+}
+
+
+uiWaveletMatchDlg::~uiWaveletMatchDlg()
+{
+    delete &outputwvlt_;
 }
 
 
@@ -71,7 +85,7 @@ void uiWaveletMatchDlg::inpSelCB( CallBacker* cb )
     mDynamicCastGet(uiWaveletSel*,inpfld,cb)
     if ( !inpfld ) return;
 
-    PtrMan<Wavelet> wvlt = inpfld->getWavelet();
+    PtrMan<Wavelet> wvlt = inpfld->getWavelet( true );
     if ( !wvlt ) return;
 
     uiFunctionDisplay* fd = inpfld==wvlt0fld_ ? wvlt0disp_ : wvlt1disp_;
@@ -87,63 +101,33 @@ void uiWaveletMatchDlg::filterSzCB( CallBacker* )
 }
 
 
-/*
-static void solveSymToeplitzsystem( int systdim, float* r, float* g,
-				    float* f, float* a)
+static void solveAxb( int sz, float* a, float* b, float* x )
 {
-    if ( r[0] < 0.001 && r[0] > -0.001 ) return; //check mIsZero(r[0],0.001)
-
-    if ( systdim<1 )
-	return;
-
-    a[0] = 1;
-    float v = r[0];
-    f[0] = g[0]/r[0];
-
-    for ( int j=1; j<systdim; j++ )
+    Array2DImpl<float> A( sz, sz );
+    A.setAll( 0 );
+    for ( int idx=0; idx<sz; idx++ )
     {
-	a[j] = 0;
-	f[j] = 0;
-	float tmpvar = 0;		// corresponds to e in Clearbout, FGDP
-	for ( int i=0; i<j; i++ )
-	    tmpvar += a[i]*r[j-i];
-
-	float coef = tmpvar/v;		// corresponds to c in Clearbout, FGDP
-	v -= coef*tmpvar;
-	if ( v < 0.001 && v > -0.001 )
-	    v = 0.001;
-
-	for ( int i=0; i<=j/2; i++ )
+	for ( int idy=0; idy<sz; idy++ )
 	{
-	    float bot = a[j-i]-coef*a[i];
-	    a[i] -= coef*a[j-i];
-	    a[j-i] = bot;
+	    const int vecidx = Math::Abs(idy-idx) + sz/2;
+	    if ( vecidx<sz )
+		A.set( idx, idy, a[vecidx] );
 	}
-
-	// use a and v above to get f[i], i = 0,1,2,...,j
-
-	float w; int i;
-	for ( i=0,w=0; i<j; i++ )
-	    w += f[i]*r[j-i];
-
-	coef = (w-g[j])/v;
-	for ( i=0; i<=j; i++ )
-	    f[i] -= coef*a[j-i];
     }
+
+    LinSolver<float> ls( A );
+    ls.apply( b, x );
 }
-*/
 
 
 bool uiWaveletMatchDlg::calcFilter()
 {
-    // Call to genericCrossCorrelation didn't compile: CDash Error
-
-    /*
-    PtrMan<Wavelet> refwvlt = wvlt0fld_->getWavelet();
-    PtrMan<Wavelet> tarwvlt = wvlt1fld_->getWavelet();
+    PtrMan<Wavelet> refwvlt = wvlt0fld_->getWavelet( true );
+    PtrMan<Wavelet> tarwvlt = wvlt1fld_->getWavelet( true );
     if ( !refwvlt || !tarwvlt ) return false;
 
     const int filtersz = filterszfld_->getIntValue();
+    const int filtersz2 = mCast(int,filtersz/2);
     mAllocVarLenArr(float,autoref,filtersz);
     mAllocVarLenArr(float,crossref,filtersz);
 
@@ -151,26 +135,40 @@ bool uiWaveletMatchDlg::calcFilter()
     const int refsz = refwvlt->size();
     genericCrossCorrelation( refsz, 0, wref,
 			     refsz, 0, wref,
-			     filtersz, 0, autoref );
+			     filtersz, -filtersz2, autoref );
 
     const float* wtar = tarwvlt->samples();
     const int tarsz = tarwvlt->size();
     genericCrossCorrelation( refsz, 0, wref,
 			     tarsz, 0, wtar,
-			     filtersz, 0, crossref );
+			     filtersz, -filtersz2, crossref );
 
-    mAllocVarLenArr( float, wiener, filtersz );
-    mAllocVarLenArr( float, spiker, filtersz );
-    solveSymToeplitzsystem( filtersz, autoref, crossref, wiener, spiker );
+//  Solve Ax=b
+    outputwvlt_.reSize( filtersz );
+    outputwvlt_.setCenterSample( filtersz2 );
+    float* x = outputwvlt_.samples();
+    solveAxb( filtersz, autoref, crossref, x );
 
-    Interval<float> intv( -filtersz/2, filtersz/2 );
-    wvltoutdisp_->setVals( intv, wiener, filtersz );
+    Interval<float> intv( -(float)filtersz2, (float)filtersz2 );
+    wvltoutdisp_->setVals( intv, x, filtersz );
 
-    mAllocVarLenArr(float,wqc,filtersz)
-    GenericConvolve(refsz,0,wref,filtersz,0,wiener,filtersz,0,wqc);
-    wvlt0disp_->setY2Vals( intv, wqc, filtersz );
+//  QC: Convolve result with reference wavelet
+    mAllocVarLenArr(float,wqc,tarsz)
+    GenericConvolve( refsz,0,wref, filtersz,-filtersz/2,x, tarsz,0,wqc );
+    wvlt1disp_->setY2Vals( tarwvlt->samplePositions(), wqc, tarsz );
 
-    */
+//  Make y2 axis identical to y1
+    const uiAxisHandler* y1axis = wvlt1disp_->yAxis(false);
+    float annotstart = y1axis->annotStart();
+    const StepInterval<float> yrg = y1axis->range();
+    wvlt1disp_->yAxis(true)->setRange( yrg, &annotstart );
+    wvlt1disp_->draw();
+
+//  Calculate similarity between QC and target wavelet
+    const float simi = similarity( wtar, wqc.ptr(), tarsz, true );
+    uiString title( tr("Target/Result: %1") );
+    title.arg( simi );
+    wvlt1disp_->setTitle( title );
 
     return true;
 }
@@ -178,47 +176,10 @@ bool uiWaveletMatchDlg::calcFilter()
 
 bool uiWaveletMatchDlg::acceptOK( CallBacker* )
 {
-    Wavelet* srcwvlt = wvlt0fld_->getWavelet();
-    if ( !srcwvlt ) return false;
+    const IOObj* ioobj = wvltoutfld_->ioobj();
+    if ( !ioobj ) return false;
 
-    Wavelet* tarwvlt = wvlt1fld_->getWavelet();
-    if ( !tarwvlt ) return false;
-
-    const IOObj* outioobj = wvltoutfld_->ioobj();
-    if ( !outioobj ) return false;
-
-    const int sz = mMAX(srcwvlt->size(),tarwvlt->size());
-    if ( sz != srcwvlt->size() )
-	srcwvlt->reSample( mCast(float,sz) );
-    else
-	tarwvlt->reSample( mCast(float,sz) );
-
-// TODO: Apply window before FFT?
-    Array1DImpl<float_complex> fftsrcwvlt( sz );
-    WaveletAttrib wvltattr( *srcwvlt );
-    wvltattr.transform( fftsrcwvlt, sz );
-
-    Array1DImpl<float_complex> ffttarwvlt( sz );
-    wvltattr.setNewWavelet( *tarwvlt );
-    wvltattr.transform( ffttarwvlt, sz );
-
-    Array1DImpl<float_complex> fftnewwvlt( sz );
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	float_complex val = ffttarwvlt.get(idx) / fftsrcwvlt.get(idx);
-	fftnewwvlt.set( idx, val );
-    }
-
-    Array1DImpl<float> newwvlt( sz );
-    WaveletAttrib::transformBack( fftnewwvlt, newwvlt );
-
-    Wavelet wvlt;
-    wvlt.reSize( sz );
-    wvlt.setCenterSample( sz/2 );
-    for ( int idx=0; idx<sz; idx++ )
-	wvlt.set( idx, newwvlt.get(idx) );
-
-    const bool res = wvlt.put( outioobj );
+    const bool res = outputwvlt_.put( ioobj );
     if ( !res )
     {
 	uiMSG().error( tr("Cannot store new wavelet") );

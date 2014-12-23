@@ -65,7 +65,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	optbox_ = new uiCheckBox( this, su.seltxt_ );
 	optbox_->activated.notify( mCB(this,uiIOSelect,optCheck) );
     }
-    else if ( !su.seltxt_.isEmpty() )
+    else
     {
 	lbl_ = new uiLabel( this, su.seltxt_ );
 	lbl_->setAlignment( Alignment::Right );
