@@ -18,19 +18,22 @@ headerfile=$1
 
 shift
 
-searchpath=""
+tmpfile=/tmp/checkhelpid_$$.tmp
+rm -rf ${tmpfile}
+
 while [ $# -gt 0 ]
 do
   basedir=$1
-  searchpath="${searchpath} ${basedir}/src/*/*.cc ${basedir}/include/*/*.h ${basedir}/plugins/*/* ${basedir}/plugins/*/src/*/* ${basedir}/plugins/*/include/*/* ${basedir}/spec/*/*"
+  cat ${basedir}/src/*/*.cc ${basedir}/include/*/*.h ${basedir}/plugins/*/* ${basedir}/plugins/*/src/*/* ${basedir}/plugins/*/include/*/* ${basedir}/spec/*/* 2> /dev/null >> ${tmpfile}
 
   shift
 
 done
 
-if [ ! -f $headerfile ];
+if [ ! -f ${headerfile} ];
 then
-   echo "File $headerfile does not exists."
+   echo "File ${headerfile} does not exists."
+   rm -rf ${tmpfile}
    exit 1
 fi
 
@@ -39,8 +42,8 @@ helpids=`egrep '^[[:space:]]*#[[:space:]]*define[[:space:]]+[A-Za-z0-9]+[[:space
 haserror=0
 for helpid in ${helpids}
 do
-  count=`echo ${searchpath} | xargs -n 2000 grep ${helpid} 2> /dev/null | wc -l`
-  if [ $count -lt 2 ]; then
+  count=`grep ${helpid} ${tmpfile} 2> /dev/null | wc -l`
+  if [ ${count} -lt 2 ]; then
       if [ ${haserror} -ne 1 ]; then
           echo -n "The following HelpIDs are found in ${headerfile} but are not"
 	  echo " found in any source-code:"
@@ -49,6 +52,8 @@ do
       echo " ${helpid}"
   fi
 done
+
+rm -rf ${tmpfile}
 
 if [ ${haserror} -ne 1 ]; then
     exit 0
