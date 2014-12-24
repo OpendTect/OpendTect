@@ -29,6 +29,16 @@ static const char* rcsID mUsedVar = "$Id$";
 static const int sDispWidth = 150;
 static const int sDispHeight = 150;
 
+
+static void initFunctionDisplay( uiFunctionDisplay& fd )
+{
+    fd.enableScrollZoom();
+    fd.setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    fd.setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    fd.setDragMode( uiGraphicsViewBase::ScrollHandDrag );
+}
+
+
 uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Match Wavelets"),mNoDlgTitle,mNoHelpKey))
     , wvltid_(MultiID::udf())
@@ -37,22 +47,31 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     uiFunctionDisplay::Setup fds;
     fds.canvasheight(sDispHeight).canvaswidth(sDispWidth);
     wvlt0disp_ = new uiFunctionDisplay( this, fds );
-    wvlt0disp_->setTitle( tr("Reference") );
+    wvlt0disp_->setTitle( tr("Reference Wavelet") );
+    initFunctionDisplay( *wvlt0disp_ );
 
     wvlt1disp_ = new uiFunctionDisplay( this, fds );
-    wvlt1disp_->setTitle( tr("Target") );
+    wvlt1disp_->setTitle( tr("Target Wavelet") );
     wvlt1disp_->attach( rightTo, wvlt0disp_ );
     wvlt1disp_->attach( heightSameAs, wvlt0disp_ );
+    initFunctionDisplay( *wvlt1disp_ );
 
     wvltoutdisp_ = new uiFunctionDisplay( this, fds );
-    wvltoutdisp_->setTitle( tr("Output") );
-    wvltoutdisp_->attach( rightTo, wvlt1disp_ );
+    wvltoutdisp_->setTitle( tr("Output Wavelet") );
+    wvltoutdisp_->attach( alignedBelow, wvlt0disp_ );
     wvltoutdisp_->attach( heightSameAs, wvlt1disp_ );
+    initFunctionDisplay( *wvltoutdisp_ );
+
+    wvltqcdisp_ = new uiFunctionDisplay( this, fds );
+    wvltqcdisp_->setTitle( tr("QC") );
+    wvltqcdisp_->attach( rightTo, wvltoutdisp_ );
+    wvltqcdisp_->attach( heightSameAs, wvlt1disp_ );
+    initFunctionDisplay( *wvltqcdisp_ );
 
     uiIOObjSel::Setup setup0( tr("Reference Wavelet") );
     setup0.filldef(false).withclear(true);
     wvlt0fld_ = new uiWaveletSel( this, true, setup0 );
-    wvlt0fld_->attach( alignedBelow, wvlt0disp_ );
+    wvlt0fld_->attach( alignedBelow, wvltoutdisp_ );
     wvlt0fld_->setStretch( 0, 0 );
     wvlt0fld_->selectionDone.notify( mCB(this,uiWaveletMatchDlg,inpSelCB) );
 
@@ -154,24 +173,25 @@ bool uiWaveletMatchDlg::calcFilter()
     Interval<float> intv( -(float)filtersz2, (float)filtersz2 );
     wvltoutdisp_->setVals( intv, x, filtersz );
 
+    wvltqcdisp_->setVals( tarwvlt->samplePositions(), wtar, tarsz );
 //  QC: Convolve result with reference wavelet
     mAllocVarLenArr(float,wqc,tarsz)
     float* wqcptr = mVarLenArr( wqc );
     GenericConvolve( refsz,0,wref, filtersz,-filtersz/2,x, tarsz,0,wqcptr );
-    wvlt1disp_->setY2Vals( tarwvlt->samplePositions(), wqc, tarsz );
+    wvltqcdisp_->setY2Vals( tarwvlt->samplePositions(), wqc, tarsz );
 
 //  Make y2 axis identical to y1
     const uiAxisHandler* y1axis = wvlt1disp_->yAxis(false);
     float annotstart = y1axis->annotStart();
     const StepInterval<float> yrg = y1axis->range();
-    wvlt1disp_->yAxis(true)->setRange( yrg, &annotstart );
-    wvlt1disp_->draw();
+    wvltqcdisp_->yAxis(true)->setRange( yrg, &annotstart );
+    wvltqcdisp_->draw();
 
 //  Calculate similarity between QC and target wavelet
     const float simi = similarity( wtar, wqcptr, tarsz, true );
-    uiString title( tr("Target/Result: %1") );
+    uiString title( tr("QC - Similarity: %1") );
     title.arg( simi );
-    wvlt1disp_->setTitle( title );
+    wvltqcdisp_->setTitle( title );
 
     return true;
 }
