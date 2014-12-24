@@ -13,8 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "zaxistransform.h"
+
 #include "callback.h"
+#include "velocitycalc.h"
+#include "zaxistransform.h"
 
 
 namespace Well { class Data; }
@@ -56,8 +58,7 @@ protected:
 				~WellT2DTransform();
 
     Well::Data*			data_;
-    TypeSet<float>		times_;
-    TypeSet<float>		depths_;
+    TimeDepthModel		tdmodel_;
 
     bool			calcDepths();
     void			doTransform(const SamplingData<float>&,
