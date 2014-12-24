@@ -74,6 +74,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     finpspec.setDefaultValue( Interval<float>(0,30) );
     angleinpfld_ = new uiGenInput( toppargrp, "Angle Range", finpspec );
     angleinpfld_->attach( alignedBelow, psselfld_ );
+    angleinpfld_->valuechanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
 
     uiRayTracer1D::Setup rsu; rsu.dooffsets(true).convertedwaves(true);
     rtsel_ = new uiRayTracerSel( toppargrp, rsu );
