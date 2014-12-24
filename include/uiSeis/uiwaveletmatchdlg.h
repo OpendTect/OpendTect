@@ -39,6 +39,7 @@ protected:
     uiFunctionDisplay*	wvlt0disp_;
     uiFunctionDisplay*	wvlt1disp_;
     uiFunctionDisplay*	wvltoutdisp_;
+    uiFunctionDisplay*	wvltqcdisp_;
 
     uiWaveletSel*	wvlt0fld_;
     uiWaveletSel*	wvlt1fld_;
