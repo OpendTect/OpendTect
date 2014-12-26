@@ -616,8 +616,8 @@ Table::FormatDesc* WaveletAscIO::getDesc()
     fd->headerinfos_ += new Table::TargetInfo( "Sample interval",
 			FloatInpSpec(SI().zRange(true).step), Table::Required,
 			PropertyRef::surveyZType() );
-    fd->headerinfos_ += new Table::TargetInfo( "Center sample",
-						IntInpSpec(), Table::Optional );
+    fd->headerinfos_ += new Table::TargetInfo( "Center sample", IntInpSpec(0),
+	    				       Table::Optional );
     fd->bodyinfos_ += new Table::TargetInfo( "Data samples", FloatInpSpec(),
 					     Table::Required );
     return fd;
