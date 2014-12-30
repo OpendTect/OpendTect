@@ -335,6 +335,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     datadir_ = si.datadir_;
     dirname_ = si.dirname_;
     xyinfeet_ = si.xyinfeet_;
+    depthsinfeet_ = si.depthsinfeet_;
     b2c_ = si.b2c_;
     survdatatype_ = si.survdatatype_;
     survdatatypeknown_ = si.survdatatypeknown_;
@@ -345,7 +346,14 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     }
     tkzs_ = si.tkzs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
     seisrefdatum_ = si.seisrefdatum_;
+    rdxtr_ = si.rdxtr_; rdytr_ = si.rdytr_;
     sipnm_ = si.sipnm_;
+
+    if ( s3dgeom_ )
+	s3dgeom_->setGeomData( b2c_, sampling(false), zScale() );
+
+    if ( work_s3dgeom_ )
+	work_s3dgeom_->setGeomData( b2c_, sampling(true), zScale() );
 
     return *this;
 }
