@@ -531,7 +531,7 @@ bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
     const Well::Log* logdatain = wd.logs().getLog( logdata.name() );
     const Well::Log* logfillin = !logfill ? 0
 					  : wd.logs().getLog( logfill->name() );
-    if ( !logdatain || ( logfill && !logfillin ) )
+    if ( !logdatain || (logfill && !logfillin) || logdata.isEmpty() )
 	return false;
 
     float start = logdata.dah( 0 );
