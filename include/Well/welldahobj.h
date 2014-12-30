@@ -72,7 +72,7 @@ protected:
     if ( mIsUdf(v) ) return false;\
     if ( dah_.isEmpty() || dh >= dah_[dah_.size()-1] )\
     {\
-	if ( ascendingvalonly && v <= vals[dah_.size()-1] )\
+	if ( !dah_.isEmpty() && ascendingvalonly && v <= vals[dah_.size()-1] )\
 	    return false;\
 	dah_ += dh; vals += val;\
     }\
