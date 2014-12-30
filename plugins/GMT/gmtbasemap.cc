@@ -84,7 +84,8 @@ bool GMTBaseMap::execute( od_ostream& strm, const char* fnm )
     comm += cTitleBoxHeight; comm += "c/BL ";
     if ( !closeps ) comm += "-K ";
 
-    comm += "-UBL/0/0 ";
+    comm += "-UBL/"; comm += mapdim.start + xmargin; comm += "c/";
+    comm += 0; comm += "c ";
     comm += "1>> "; comm += fileName( fnm );
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay title box")
@@ -98,9 +99,8 @@ bool GMTBaseMap::execute( od_ostream& strm, const char* fnm )
     BufferStringSet remset;
     get( ODGMT::sKeyRemarks(), remset );
     for ( int idx=0; idx<remset.size(); idx++ )
-	*sd.ostrm << "L 12 4 C '" << remset.get(idx) << "'" << std::endl;
+	*sd.ostrm << "L 12 4 C " << remset.get(idx) << std::endl;
 
-    *sd.ostrm << std::endl;
     sd.close();
     strm << "Done" << od_endl;
     return true;
