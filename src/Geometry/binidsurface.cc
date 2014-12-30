@@ -438,9 +438,11 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
     const int colsz = depths_->info().getSize(1);
     const int row = index / colsz;
     const int col = index % colsz;
+    if ( !depths_->info().validPos(row,col) )
+	return res;
+
     posz = depths_->get( row, col );
     res = Coord3( knotcoord, posz );
-
     if ( !mIsUdf(posz) || !interpolifudf )
 	return res;
     
