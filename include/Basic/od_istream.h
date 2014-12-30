@@ -42,6 +42,10 @@ public:
     bool		reOpen();
 
     od_istream&		get(char&);
+			/*<!Use this function to get regular text inputs.
+			  If you want to analyze an alien stream char-by-char,
+			  use peek()-ignore(1) call pairs.*/
+
     od_istream&		get(unsigned char&);
     od_istream&		get(od_int16&);
     od_istream&		get(od_uint16&);

@@ -512,39 +512,39 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 }
 
 
+static bool isAtEndOfRSFHeader( od_istream& strm )
+{
+    for ( int idx=0; idx<3; idx++ )
+    {
+	if ( strm.peek() == sKeyRSFEndOfHeader[idx] )
+	    strm.ignore( 1 );
+	else
+	    return false;
+    }
+
+    return true;
+}
+
+
 void MadStream::fillHeaderParsFromStream()
 {
     delete headerpars_; headerpars_ = 0;
 
     headerpars_ = new IOPar;
-    char linebuf[256];
     if ( !istrm_ ) return;
 
-    while ( istrm_->isOK() )
+    while ( istrm_->isOK() && !isAtEndOfRSFHeader(*istrm_) )
     {
-	int idx = 0, nullcount = 0;
-	while( istrm_->isOK() && nullcount<3 )
-	{
-	    if ( idx >= 255 )
-		mErrRet(tr("Error reading RSF header"))
+	BufferString linebuf;
+	if ( !istrm_->getLine(linebuf) )
+	    break;
 
-	    char c;
-	    istrm_->get( c );
-	    if ( c == '\n' ) { linebuf[idx] = '\0'; break; }
-	    else if ( !iswspace(c) )
-		linebuf[idx++] = c;
-
-	    if ( c==sKeyRSFEndOfHeader[nullcount] )
-		nullcount++;
-	}
-
-	if ( nullcount > 2 ) break;
-
-	char* valstr = firstOcc( linebuf, '=' );
+	char* valstr = linebuf.find( '=' );
 	if ( !valstr )continue;
 
 	*valstr = '\0'; valstr++;
-	headerpars_->set( linebuf, valstr );
+	linebuf.trimBlanks();
+	headerpars_->set( linebuf.buf(), valstr );
     }
 
     if ( !headerpars_->size() )
