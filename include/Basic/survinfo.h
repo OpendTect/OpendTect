@@ -264,6 +264,7 @@ public:
     void		setRange(const TrcKeyZSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
+    void		update3DGeometry();
 
     static const char*	curSurveyName();
 
