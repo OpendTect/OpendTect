@@ -83,6 +83,11 @@ static void convertSeis2DTranslators()
 
 	if ( ioobj->translator() == TwoDDataSeisTrcTranslator::translKey() )
 	{
+	    PtrMan<IOObj> duplobj = IOM().getLocal( ioobj->name().buf(),
+		    				mTranslGroupName(SeisTrc2D) );
+	    if ( duplobj )
+		continue;
+
 	    ioobj->setGroup( mTranslGroupName(SeisTrc2D) );
 	    ioobj->setTranslator( CBVSSeisTrc2DTranslator::translKey() );
 	    iodir.commitChanges( ioobj );
@@ -219,7 +224,7 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg,
 							TaskRunner* taskrnr )
 {
-    mDefineStaticLocalObject( OD_2DLineSetTo2DDataSetConverter, converter, );
+    OD_2DLineSetTo2DDataSetConverter converter;
     converter.doConversion( errmsg, taskrnr );
 }
 
