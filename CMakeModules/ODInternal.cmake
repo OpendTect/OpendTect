@@ -62,16 +62,9 @@ install( DIRECTORY doc/Credits/base
 	 DESTINATION doc/Credits
 	 PATTERN ".svn" EXCLUDE )
 
-install( FILES doc/User/base/WindowLinkTable.txt
-	 DESTINATION doc/User/base )
-install( FILES doc/User/base/.mnuinfo
-	 DESTINATION doc/User/base )
-
 OD_CURRENT_MONTH( MONTH )
 OD_CURRENT_YEAR( YEAR )
 
-configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/about.html.in
-		${CMAKE_BINARY_DIR}/doc/about.html @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in
 		${CMAKE_BINARY_DIR}/CMakeModules/license.txt @ONLY )
 
@@ -201,18 +194,6 @@ if ( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
 	OD_INSTALL_SYSTEM_LIBRARY( /lib/libgcc_s.so.1 Release )
     endif()
 endif()
-
-add_custom_target( docpackages ${CMAKE_COMMAND}
-        -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR}
-        -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR}
-        -DOpendTect_VERSION_DETAIL=${OpendTect_VERSION_DETAIL}
-        -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-        -DOD_PLFSUBDIR=${OD_PLFSUBDIR}
-        -DPSD=${PROJECT_SOURCE_DIR}
-        -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
-         COMMENT "Preparing doc packages" )
-
 
 # Build information
 include ( ODSubversion )
