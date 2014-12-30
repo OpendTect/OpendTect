@@ -264,6 +264,7 @@ public:
     void		setRange(const CubeSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
+    void		update3DGeometry();
     void		setComment( const char* s )	{ comment_ = s; }
 
     // DEPRECATED:

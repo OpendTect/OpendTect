@@ -283,12 +283,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     seisrefdatum_ = si.seisrefdatum_;
     rdxtr_ = si.rdxtr_; rdytr_ = si.rdytr_;
     sipnm_ = si.sipnm_;
-
-    if ( s3dgeom_ )
-	s3dgeom_->setGeomData( b2c_, sampling(false), zScale() );
-    
-    if ( work_s3dgeom_ )
-	work_s3dgeom_->setGeomData( b2c_, sampling(true), zScale() );
+    update3DGeometry();
 
     return *this;
 }
@@ -1045,6 +1040,16 @@ bool SurveyInfo::has2D() const
 
 bool SurveyInfo::has3D() const
 { return survdatatype_ == No2D || survdatatype_ == Both2DAnd3D; }
+
+
+void SurveyInfo::update3DGeometry()
+{
+    if ( s3dgeom_ )
+	s3dgeom_->setGeomData( b2c_, sampling(false), zScale() );
+    
+    if ( work_s3dgeom_ )
+	work_s3dgeom_->setGeomData( b2c_, sampling(true), zScale() );
+}
 
 
 RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const

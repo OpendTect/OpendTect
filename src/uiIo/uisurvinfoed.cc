@@ -504,6 +504,7 @@ bool uiSurveyInfoEditor::doApply()
     else if ( !setRelation() )
 	return false;
 
+    si_.update3DGeometry();
     survParChanged.trigger();
     return true;
 }
