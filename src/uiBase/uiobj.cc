@@ -288,6 +288,10 @@ static BufferString getCleanName( const char* nm )
 }
 
 
+
+static int iconsz_ = -1;
+static int fldsz_ = -1;
+
 uiObject::uiObject( uiParent* p, const char* nm )
     : uiBaseObject( getCleanName(nm), 0 )
     , setGeometry(this)
@@ -594,21 +598,30 @@ int uiObject::height() const
 }
 
 
-#define mDefSzFn(nm,key,def) \
-\
-int uiObject::nm##Size() \
-{ \
-    static int sz = -1; \
-    if ( sz < 0 ) \
-    { \
-	sz = def; \
-	Settings::common().get( key, sz ); \
-    } \
-    return sz; \
+int uiObject::iconSize()
+{
+    if ( iconsz_ < 0 )
+    {
+	const BufferString key =
+	    IOPar::compKey( SettingsAccess::sKeyIcons(), "size" );
+	iconsz_ = 32;
+	Settings::common().get( key, iconsz_ );
+    }
+
+    return iconsz_;
 }
 
-mDefSzFn(icon,SettingsAccess::sKeyIcons(),32)
-mDefSzFn(baseFld,"dTect.Field.size",10)
+
+int uiObject::baseFldSize()
+{
+    if ( fldsz_ < 0 )
+    {
+	fldsz_ = 10;
+	Settings::common().get( "dTect.Field.size", fldsz_ );
+    }
+
+    return fldsz_;
+}
 
 
 void uiObject::updateToolTips()
