@@ -96,7 +96,7 @@ static const char* getMenuText( bool is2d, bool issteering, bool endmenu )
     if ( is2d )
 	menutext = issteering ? "Stee&ring 2D Data" : "&Stored 2D Data";
     else
-	menutext = issteering ? "Steer&ing Cubes" : "Stored &Cubes";
+	menutext = issteering ? "Steer&ingCubes" : "Stored &Cubes";
 
     if ( endmenu ) menutext.add( " ..." );
 
@@ -1297,7 +1297,7 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 					  DescID& attribid,
 					  TypeSet<int>& selectedcomps )
 {
-    //Trick for old steering cubes: fake good component names
+    //Trick for old SteeringCubes: fake good component names
     if ( !is2d && issteering && complist.isPresent("Component 1") )
     {
 	complist.erase();
@@ -1318,7 +1318,7 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 	    //Using const_cast for compiler but ads won't be modified anyway
 	    attribid = const_cast<DescSet*>(ads)
 			->getStoredID( idlkey, selectedcomps[0], false );
-	    //Trick for old steering cubes: fake good component names
+	    //Trick for old SteeringCubes: fake good component names
 	    if ( !is2d && issteering )
 	    {
 		Attrib::Desc* desc = ads->getDesc(attribid);
@@ -1354,7 +1354,7 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 
 	desc->getDefStr(bfs);
 	as.setDefString(bfs.buf());
-	//Trick for old steering cubes: fake good component names
+	//Trick for old SteeringCubes: fake good component names
 	if ( !is2d && issteering )
 	{
 	    mFakeCompName( "Component 1", "Inline Dip" );

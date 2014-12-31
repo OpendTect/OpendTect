@@ -120,7 +120,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	StringListInpSpec spec;
 	spec.addString( "Input data cube" );
 	spec.addString( "Generated attribute cube" );
-	spec.addString( "Steering cube" );
+	spec.addString( "SteeringCube" );
 	typefld_ = new uiGenInput( this, "Cube type", spec );
 	typefld_->attach( alignedBelow, finpfld_ );
 	typefld_->valuechanged.notify( mCB(this,uiSeisImpCBVS,typeChg) );
