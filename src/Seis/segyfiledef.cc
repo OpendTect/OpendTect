@@ -76,7 +76,8 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     const BufferString seisdirky( mIOObjContext(SeisTrc).getSelKey() );
     if ( tmp )
     {
-	BufferString idstr( seisdirky, IOObj::tmpID() );
+	MultiID idstr( seisdirky );
+	idstr.add( IOObj::tmpID() );
 	iostrm = new IOStream( fname_, idstr );
     }
     else
