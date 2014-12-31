@@ -318,6 +318,8 @@ bool uiRayTracer1D::isOffsetFldsDisplayed() const
 
 void uiRayTracer1D::displayOffsetFlds( bool yn )
 {
+    if ( !offsetfld_ ) return;
+
     offsetfld_->display( yn );
     offsetstepfld_->display( yn );
     offsetChanged.trigger();
