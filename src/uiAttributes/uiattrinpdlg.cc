@@ -50,7 +50,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->setText( txt );
     txtfld->attach( alignedBelow, infolbl );
 
-    BufferString seltext = issteer ? "Input Steering cube" : "Input Seismics";
+    BufferString seltext = issteer ? "Input SteeringCube" : "Input Seismics";
     if ( prevrefnm )
     {
 	seltext += "\n (replacing '";

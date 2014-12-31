@@ -55,7 +55,7 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     StringListInpSpec spec;
     spec.addString( "Input data cube" );
     spec.addString( "Generated attribute cube" );
-    spec.addString( "Steering cube" );
+    spec.addString( "SteeringCube" );
     typefld_ = new uiGenInput( this, tr("Cube type"), spec );
     typefld_->attach( alignedBelow, inpfld_ );
     typefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,typeChg) );
