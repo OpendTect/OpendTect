@@ -8,7 +8,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "qstreambuf.h"
 
-#include <QIODevice>
+#ifndef OD_NO_QT
+# include <QIODevice>
+#endif
 
 
 qstreambuf::qstreambuf( QIODevice& p )
