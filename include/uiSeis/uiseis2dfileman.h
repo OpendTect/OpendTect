@@ -43,9 +43,7 @@ protected:
 
     void		fillLineBox();
     void		redoAllLists();
-    bool		rename(const char*,BufferString&);
     void		lineSel(CallBacker*);
-    void		renameLine(CallBacker*);
     void		removeLine(CallBacker*);
     void		mergeLines(CallBacker*);
     void		browsePush(CallBacker*);

@@ -68,8 +68,6 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linefld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,lineSel) );
 
     linegrp_ = new uiManipButGrp( lllb );
-    linegrp_->addButton( uiManipButGrp::Rename, "Rename line",
-			mCB(this,uiSeis2DFileMan,renameLine) );
     linegrp_->addButton( uiManipButGrp::Remove, "Remove line",
 			mCB(this,uiSeis2DFileMan,removeLine) );
     linegrp_->addButton( "mergelines", "Merge lines",
@@ -214,43 +212,6 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
 	linefld_->removeItem( linenm );
     }
 
-}
-
-
-bool uiSeis2DFileMan::rename( const char* oldnm, BufferString& newnm )
-{
-    BufferString titl( "Rename '" );
-    titl += oldnm; titl += "'";
-    uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(oldnm) );
-    if ( !dlg.go() ) return false;
-    newnm = dlg.text();
-    return newnm != oldnm;
-}
-
-
-void uiSeis2DFileMan::renameLine( CallBacker* )
-{
-    BufferStringSet linenms;
-    linefld_->getChosen( linenms );
-    if ( linenms.isEmpty() ) return;
-
-    const char* linenm = linenms.get(0);
-    BufferString newnm;
-    if ( !rename(linenm,newnm) ) return;
-
-    if ( linefld_->isPresent(newnm) )
-    {
-	uiMSG().error( tr("Linename already in use") );
-	return;
-    }
-
-    /*if ( !dataset_->renameLine( linenm, newnm ) )
-    {
-	uiMSG().error( "Could not rename line" );
-	return;
-    }*/
-
-    fillLineBox();
 }
 
 
