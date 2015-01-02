@@ -169,6 +169,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
     gatefld_ = new uiGenInput( prnt, gatelabel,
 			FloatInpIntervalSpec().setName("Z Interval Start",0)
 					      .setName("Z Interval Stop",1) );
+    gatefld_->setValues(0.f, 0.f);
     gatefld_->attach( alignedBelow, seissubselfld_ );
     uiLabel* lbl = new uiLabel( prnt, SI().getZUnitString() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
@@ -417,7 +418,14 @@ bool uiAttrTrcSelOut::fillPar()
 
     Interval<float> zinterval;
     if ( gatefld_ )
+    {
 	zinterval = gatefld_->getFInterval();
+	if ( mIsUdf(zinterval.start) )
+	    zinterval.start = 0;
+
+	if ( mIsUdf(zinterval.stop) )
+	    zinterval.stop = 0;
+    }
     else
     {
 	zinterval.start = extraztopfld_->getfValue();
