@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "datainpspec.h"
 #include "ptrman.h"
-#include "seisread.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "linekey.h"
 #include "trckeyzsampling.h"
@@ -415,14 +415,8 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 
     compfld_->box()->setCurrentItem(0);
     const MultiID key( ioobjkey.buf() );
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    SeisTrcReader rdr( ioobj );
-    if ( !rdr.prepareWork(Seis::PreScan) ) return;
-
-    SeisTrcTranslator* transl = rdr.seisTranslator();
-    if ( !transl ) return;
     BufferStringSet compnms;
-    transl->getComponentNames( compnms );
+    SeisIOObjInfo::getCompNames( key, compnms );
     compfld_->box()->setEmpty();
     compfld_->box()->addItem( uiStrings::sAll() );
 
