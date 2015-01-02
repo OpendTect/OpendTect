@@ -285,13 +285,6 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     updateColorTable( visid, attrib );
 }
 
-#define mSetPar \
-IOPar iop; \
-if ( ctseq ) \
-    iop.set( sKey::Name(), ctseq->name() ); \
-if ( mapper ) \
-    mapper->fillPar( iop ); \
-iop.write( fp.fullPath(), sKey::Pars() );
 
 void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
 {
@@ -306,5 +299,12 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
 
     FilePath fp( ioobj->fullUserExpr(true) );
     fp.setExtension( "par" );
-    mSetPar;
+    IOPar iop;
+    if ( ctseq )
+	iop.set( sKey::Name(), ctseq->name() );
+
+    if ( mapper )
+	mapper->fillPar( iop );
+
+    iop.write( fp.fullPath(), sKey::Pars() );
 }
