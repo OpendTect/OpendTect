@@ -217,13 +217,20 @@ void TileResolutionData::calcNormals( bool allownormalinvalid )
 
 void TileResolutionData::setDisplayTransformation( const mVisTrans* t )
 { 
-       vertices_->setDisplayTransformation( t ); 
+    vertices_->setDisplayTransformation( t ); 
 }
 
 
 void TileResolutionData::dirtyGeometry()
 {
-    osg::Geode* geode = mGetOsgGeode( geodes_, dispgeometrytype_ );
+    for ( int type =dispgeometrytype_; type<WireFrame; type++ )
+	dirtyGeometry( type );
+}
+
+
+void TileResolutionData::dirtyGeometry( int type )
+{
+    osg::Geode* geode = mGetOsgGeode( geodes_, type );
 
     if ( geode )
     {
@@ -231,7 +238,6 @@ void TileResolutionData::dirtyGeometry()
 	mGetOsgGeometry( geode )->dirtyDisplayList();
     }
 }
-
 
 osg::BoundingBox& TileResolutionData::updateBBox()
 {
@@ -392,7 +398,7 @@ void TileResolutionData::setPrimitiveSet( unsigned int geometrytype,
 if ( geomtype##osgps_ )\
     unRefOsgPtr(  geomtype##osgps_ );\
 geomtype##osgps_ = new osg::DrawElementsUShort( *geomtype##ps_ );\
-refOsgPtr(geomtype##osgps_);\
+refOsgPtr( geomtype##osgps_ );\
 setPrimitiveSet( geom, geomtype##osgps_ );\
 
 

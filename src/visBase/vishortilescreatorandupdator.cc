@@ -169,7 +169,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	       Threads::WorkManager::cDefaultQueueID() );
     }
    horsection_->tesselationlock_ = true;
-
+   horsection_->updatePrimitiveSets();
    horsection_->setUpdateVar( horsection_->forceupdate_,  true );
 }
 

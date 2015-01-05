@@ -144,6 +144,8 @@ private:
 						   const osg::Array* arr,
 						   osg::StateSet*stateset,
 						   int geometrytype);
+    void			dirtyGeometry(int type);
+
 public:
     bool			getTextureCoordinates(unsigned int unit,
 						      TypeSet<Coord>&) const;

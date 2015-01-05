@@ -105,7 +105,6 @@ int TileTesselator::nextStep()
 {
     tile_->updateNormals( res_ );
     tile_->tesselateResolution( res_, false );
-    tile_->updatePrimitiveSets();
     return SequentialTask::Finished();
 }
 

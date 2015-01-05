@@ -270,8 +270,11 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 
     for ( int idx=0; idx<tilesz; idx++ )
     {
-	tileptrs[idx]->setDisplayTransformation( nt );
-	tileptrs[idx]->dirtyGeometry();
+	if ( tileptrs[idx] )
+	{
+	    tileptrs[idx]->setDisplayTransformation( nt );
+	    tileptrs[idx]->dirtyGeometry();
+	}
     }
 
 }
@@ -597,6 +600,7 @@ void HorizonSection::setResolution( char res, TaskRunner* tr )
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
     hortilescreatorandupdator_->setFixedResolution( desiredresolution_, tr );
+    updatePrimitiveSets();
     setUpdateVar( forceupdate_, true );
 }
 
