@@ -733,7 +733,7 @@ void uiSurvey::newButPushed( CallBacker* )
     SurveyInfo* newsurvinfo = SurveyInfo::read( fp.fullPath() );
     if ( !newsurvinfo )
     {
-	uiString errmsg = tr("Cannot read software default survey\n" 
+	uiString errmsg = tr("Cannot read software default survey\n"
 			     "Try to reinstall the OpendTect package");
 	mErrRetVoid( errmsg )
     }
@@ -1015,7 +1015,9 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
     dlg.survParChanged.notify( mCB(this,uiSurvey,updateInfo) );
     if ( !dlg.go() )
     {
-	readSurvInfoFromFile();
+	if ( !isnew )
+	    readSurvInfoFromFile();
+
 	return false;
     }
 
