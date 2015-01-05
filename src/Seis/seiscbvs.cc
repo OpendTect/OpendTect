@@ -114,6 +114,7 @@ void CBVSSeisTrcTranslator::setCoordPol( bool dowrite, bool intrailer )
 
 void CBVSSeisTrcTranslator::set2D( bool yn )
 {
+    setIs2D( yn );
     is2d_ = yn;
     if ( is2d_ )
     {
