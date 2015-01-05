@@ -1014,7 +1014,9 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
     dlg.survParChanged.notify( mCB(this,uiSurvey,updateInfo) );
     if ( !dlg.go() )
     {
-	readSurvInfoFromFile();
+	if ( !isnew )
+	    readSurvInfoFromFile();
+
 	return false;
     }
 
