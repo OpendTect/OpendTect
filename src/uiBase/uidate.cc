@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilineedit.h"
 #include "uibutton.h"
 #include "uidialog.h"
-
+#include "uistrings.h"
 #include <QCalendarWidget>
 
 mUseQtnamespace
@@ -75,7 +75,7 @@ uiDateSel::uiDateSel( uiParent* p, const uiString& label, const DateInfo* di )
     yearfld_->setMaxLength( 4 );
     yearfld_->attach( rightOf, monthfld_ );
 
-    showcalendarbut_ = new uiPushButton( this, "Select",
+    showcalendarbut_ = new uiPushButton( this, uiStrings::sSelect(true),
 	    mCB(this,uiDateSel,showCalendarCB), false );
     showcalendarbut_->attach( rightOf, yearfld_ );
 

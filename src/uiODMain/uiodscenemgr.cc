@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui3dviewer.h"
 #include "uiscenepropdlg.h"
 #include "uistatusbar.h"
+#include "uistrings.h"
 #include "uitoolbar.h"
 #include "uitreeitemmanager.h"
 #include "uitreeview.h"
@@ -534,7 +535,8 @@ void uiODSceneMgr::setKeyBindings()
 
     StringListInpSpec* inpspec = new StringListInpSpec( keyset );
     inpspec->setText( scenes_[0]->vwr3d_->getCurrentKeyBindings(), 0 );
-    uiGenInputDlg dlg( &appl_, tr("Select Mouse Controls"), "Select", inpspec );
+    uiGenInputDlg dlg( &appl_, tr("Select Mouse Controls"), 
+		       uiStrings::sSelect(true), inpspec );
     dlg.setHelpKey(mODHelpKey(mODSceneMgrsetKeyBindingsHelpID) );
     if ( dlg.go() )
 	mDoAllScenes(vwr3d_,setKeyBindings,dlg.text());

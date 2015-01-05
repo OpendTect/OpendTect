@@ -439,8 +439,8 @@ void uiODMenuMgr::fillManMenu()
 			"man_picks" );
     mInsertPixmapItem( manmnu_, tr("Probability Density Functions ..."),
 		 mManPDFMnuItm, "man_prdfs" );
-    add2D3DMenuItem( *manmnu_, "man_seis", tr("Seismics"), mManSeis2DMnuItm,
-                     mManSeis3DMnuItm );
+    add2D3DMenuItem( *manmnu_, "man_seis", uiStrings::sSeismics(true), 
+		     mManSeis2DMnuItm, mManSeis3DMnuItm );
     add2D3DMenuItem( *manmnu_, "man_ps", tr("Seismics Prestack"),
 		     mManSeisPS2DMnuItm, mManSeisPS3DMnuItm );
     mInsertPixmapItem( manmnu_, tr("Sessions ..."), mManSessMnuItm, "empty" )
