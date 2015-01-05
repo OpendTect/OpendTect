@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitextfile.h"
 #include "uibatchjobdispatchersel.h"
 #include "uibatchjobdispatcherlauncher.h"
@@ -51,7 +52,7 @@ static bool enabClusterProc()
 
 
 uiProcSettings::uiProcSettings( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,tr("Processing"),setts)
+    : uiSettingsGroup(p,uiStrings::sProcessing(),setts)
 {
     nrinl_ = InlineSplitJobDescProv::defaultNrInlPerJob();
     nrinlfld_ = new uiGenInput( this, tr("Default number of inlines per job"),
