@@ -404,6 +404,9 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	}
 
 	editSelectToggleCB( 0 );
+	if ( areSticksAccessible() )
+	    appl_.applMgr().visServer()->setViewMode( false );
+
 	processOutputName();
 	enableToolbar( true );
 
@@ -609,7 +612,7 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
 	    toolbar_->turnOn( selectmode_ ? selbutidx_ : editbutidx_, false );
     }
 
-    if ( areSticksAccessible() )
+    if ( cb && areSticksAccessible() )
 	appl_.applMgr().visServer()->setViewMode( false );
 
     if ( curfssd_ )
