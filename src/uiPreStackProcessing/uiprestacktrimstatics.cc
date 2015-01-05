@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitoolbutton.h"
 
@@ -60,7 +61,8 @@ uiTrimStatics::uiTrimStatics( uiParent* p, TrimStatics* trimstat )
 
     BufferStringSet outputs;
     outputs.add( "Pilot trace" ).add( "Shift" ).add( "Trim Statics" );
-    outputfld_ = new uiGenInput( this, "Output", StringListInpSpec(outputs) );
+    outputfld_ = new uiGenInput( this, uiStrings::sOutput(), 
+		 StringListInpSpec(outputs) );
     outputfld_->setValue( processor_->getOutput() );
     outputfld_->attach( leftAlignedBelow, table_ );
 
