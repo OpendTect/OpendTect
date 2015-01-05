@@ -50,7 +50,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "uistrings.h"
 
 #ifndef GLX_NONE_EXT
 #define GLX_NONE_EXT  0x8000
