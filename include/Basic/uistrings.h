@@ -48,7 +48,7 @@ public:
     static uiString sDisplay()		{ return tr("Display"); }
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
-    static uiString sExamine()	{ return tr("Examine"); }
+    static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sEmptyString()	{ return uiString(""); }
     static uiString sExport()		{ return tr("Export"); }

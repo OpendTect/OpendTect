@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicursor.h"
 #include "uilabel.h"
 #include "uimenu.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 
 
@@ -534,7 +535,7 @@ void CmdDriver::prepareForResume()
 		{
 		    InteractSpec ispec( false );
 		    ispec.dlgtitle_= "Waiting for OpendTect to become inactive";
-		    ispec.cancelbuttext_ = "Hide";
+		    ispec.cancelbuttext_ = uiStrings::sHide();
 		    interact( &ispec );
 		}
 	    }
