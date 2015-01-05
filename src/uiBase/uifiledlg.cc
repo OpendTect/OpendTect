@@ -198,7 +198,7 @@ int uiFileDialog::go()
     foreach(QPushButton* qpb,qpblst)
     {
 	if ( qpb->text() == uiStrings::sSave(true).getQtString() ||
-	     qpb->text() == tr("Open").getQtString() ||
+	     qpb->text() == uiStrings::sOpen(true).getQtString() ||
 	     qpb->text() == "Choose" )
 	     qpb->setText( "OK" );
     }
