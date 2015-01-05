@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseispartserv.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 
@@ -273,7 +274,8 @@ void uiImportHorizon2D::formatSel( CallBacker* cb )
 
 void uiImportHorizon2D::addHor( CallBacker* )
 {
-    uiGenInputDlg dlg( this, "Add Horizon", "Name", new StringInpSpec() );
+    uiGenInputDlg dlg( this, "Add Horizon", uiStrings::sName(), 
+		       new StringInpSpec() );
     if ( !dlg.go() ) return;
 
     const char* hornm = dlg.text();

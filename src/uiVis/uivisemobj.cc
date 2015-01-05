@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uimenuhandler.h"
 #include "uiseedpropdlg.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uivispartserv.h"
 
@@ -463,7 +464,8 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==changesectionnamemnuitem_.id )
     {
 	StringInpSpec* spec = new StringInpSpec( emobj->sectionName(sid) );
-	uiGenInputDlg dlg(uiparent_,tr("Change section-name"), "Name", spec);
+	uiGenInputDlg dlg(uiparent_,tr("Change section-name"), 
+			  uiStrings::sName(), spec);
 	while ( dlg.go() )
 	{
 	    if ( emobj->setSectionName(sid,dlg.text(), true ) )

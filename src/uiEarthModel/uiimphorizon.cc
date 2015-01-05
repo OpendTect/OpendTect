@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          June 2002
+ Author:	Nanne Hemstra
+ Date:		June 2002
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiscaler.h"
 #include "uiseparator.h"
 #include "uistratlvlsel.h"
+#include "uistrings.h"
 #include "uitblimpexpdatasel.h"
 #include "uitoolbutton.h"
 
@@ -67,7 +68,7 @@ void uiImportHorizon::initClass()
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 				 mODHelpKey(mImportHorAttribHelpID) )
-                                 .modal(false))
+				 .modal(false))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , isgeom_(isgeom)
     , filludffld_(0)
@@ -106,7 +107,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 				mCB(this,uiImportHorizon,addAttribCB) );
     addbut->attach( rightTo, attrllb );
     uiToolButton* rmbut = new uiToolButton( this, "stop", 
-                                            uiStrings::sRemove(true),
+					    uiStrings::sRemove(true),
 				mCB(this,uiImportHorizon,rmAttribCB) );
     rmbut->attach( alignedBelow, addbut );
     uiToolButton* clearbut = new uiToolButton( this, "clear", tr("Clear list"),
@@ -117,7 +118,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     sep->attach( stretchedBelow, attrllb );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                  mODHelpKey(mTableImpDataSel3DSurfacesHelpID) );
+		  mODHelpKey(mTableImpDataSel3DSurfacesHelpID) );
     dataselfld_->attach( alignedBelow, attrllb );
     dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
@@ -136,7 +137,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
     outputfld_ = new uiIOObjSel( this, ctio_ );
     outputfld_->setLabelText( isgeom_ ? tr("Output Horizon") 
-                                      : tr("Add to Horizon") );
+				      : tr("Add to Horizon") );
 
     if ( !isgeom_ )
     {
@@ -246,7 +247,8 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 
 void uiImportHorizon::addAttribCB( CallBacker* )
 {
-    uiGenInputDlg dlg( this, "Add Attribute", "Name", new StringInpSpec() );
+    uiGenInputDlg dlg( this, "Add Attribute", uiStrings::sName(),
+		       new StringInpSpec() );
     if ( !dlg.go() ) return;
 
     const char* attrnm = dlg.text();
@@ -302,13 +304,13 @@ void uiImportHorizon::scanPush( CallBacker* )
     scanner_->launchBrowser();
 }
 
-
-#define mNotCompatibleRet(ic) \
+    
+    #define mNotCompatibleRet(ic) \
     const int df = n##ic##lnrg.start - ic##rg.start; \
     if ( df%2 && !(ic##rg.step%2) && !(n##ic##lnrg.step%2) ) \
     { \
-	uiString msg = tr("The horizon is not compatible with survey " \
-	                  "trace, do you want to continue?"); \
+	uiString msg = "The horizon is not compatible with survey " \
+		       "trace, do you want to continue?"; \
 	if ( !uiMSG().askGoOn(msg) ) \
 	    return false; \
     }
@@ -415,7 +417,7 @@ bool uiImportHorizon::doImport()
     if ( scanner_->nrPositions() == 0 )
     {
 	uiString msg( "No valid positions found\n"
-	              "Please re-examine input file and format definition" );
+		      "Please re-examine input file and format definition" );
 	uiMSG().message( msg );
 	return false;
     }
@@ -512,7 +514,7 @@ bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 	if ( !File::exists(fnm) )
 	{
 	    uiString errmsg = tr("Cannot find input file:\n%1")
-	                    .arg(fnm);
+			    .arg(fnm);
 	    deepErase( filenames );
 	    mErrRet( errmsg );
 	}

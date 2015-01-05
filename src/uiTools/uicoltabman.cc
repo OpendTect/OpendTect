@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uispinbox.h"
 #include "uisplitter.h"
+#include "uistrings.h"
 #include "uitreeview.h"
 #include "uiworld2ui.h"
 #include "uistrings.h"
@@ -297,7 +298,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
     BufferString newname = ctab_.name();
     if ( saveas )
     {
-	uiGenInputDlg dlg( this, tr("Colortable name"), "Name",
+	uiGenInputDlg dlg( this, tr("Colortable name"), uiStrings::sName(),
 			   new StringInpSpec(newname) );
 	if ( !dlg.go() ) return false;
 	newname = dlg.text();
