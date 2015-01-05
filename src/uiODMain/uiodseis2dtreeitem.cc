@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
+#include "uistrings.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uitaskrunner.h"
@@ -778,7 +779,7 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
 
 uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
     : uiODAttribTreeItem( pt )
-    , attrnoneitm_(tr("None"))
+    , attrnoneitm_(uiStrings::sNone())
     , storeditm_(tr("Stored 2D data"))
     , steeringitm_(tr("Steering 2D data"))
     , zattritm_(tr("ZDomain Atrrib 2D data"))

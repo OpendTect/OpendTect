@@ -677,7 +677,7 @@ print_visual_attribs_short(const struct visual_attribs *attribs)
    else
       caveat = "None";
 #else
-   caveat = "None";
+      caveat = "None";
 #endif 
 
    printf("0x%2x %2d %2s %2d %2d %2d %1s %2s %2s %2d %2d %2d %2d %2d %2d %2d",
