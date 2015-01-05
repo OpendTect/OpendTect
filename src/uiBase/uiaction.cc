@@ -442,7 +442,8 @@ uiAction* uiActionContainer::findAction( const char* itmtxt )
 
 uiAction* uiActionContainer::findAction( const uiString& itmtxt )
 {
-    return findAction( itmtxt.getFullString().buf() );
+    const BufferString txt = itmtxt.getFullString().buf();
+    return findAction( txt.buf() );
 }
 
 

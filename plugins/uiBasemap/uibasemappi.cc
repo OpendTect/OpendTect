@@ -40,7 +40,7 @@ mDefODPluginInfo(uiBasemap)
 
 
 class uiBasemapMgr :  public CallBacker
-{
+{ mODTextTranslationClass(uiBasemapMgr)
 public:
 			uiBasemapMgr(uiODMain*);
 			~uiBasemapMgr();
@@ -87,8 +87,13 @@ void uiBasemapMgr::updateToolBar( CallBacker* )
 void uiBasemapMgr::updateMenu( CallBacker* )
 {
     delete dlg_; dlg_ = 0;
+    const uiString itmtxt = tr("Basemap ...");
+    uiMenu* vwmnu = appl_->menuMgr().viewMnu();
+    if ( vwmnu->findAction(itmtxt) )
+	return;
+
     uiAction* newitem =
-	new uiAction( "&Basemap ...", mCB(this,uiBasemapMgr,showCB), "basemap");
+	new uiAction( itmtxt, mCB(this,uiBasemapMgr,showCB), "basemap" );
     appl_->menuMgr().viewMnu()->insertItem( newitem );
 }
 
