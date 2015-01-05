@@ -50,7 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include "uistrings.h"
 
 #ifndef GLX_NONE_EXT
 #define GLX_NONE_EXT  0x8000
@@ -464,7 +464,8 @@ print_screen_info(Display *dpy, int scrnum, Bool allowDirect, GLboolean limits)
       }
       printf("display: %s  screen: %d\n", displayName, scrnum);
       free(displayName);
-      printf("direct rendering: %s\n", glXIsDirect(dpy, ctx) ? "Yes" : "No");
+      printf("direct rendering: %s\n", glXIsDirect(dpy, ctx) ? "Yes" 
+							     : uiStrings::sNo());
       printf("server glx vendor string: %s\n", serverVendor);
       printf("server glx version string: %s\n", serverVersion);
       printf("server glx extensions:\n");
