@@ -362,7 +362,7 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( expwvlt );
     expmnu_->insertSeparator();
 
-    uiMenu* expseissgy = new uiMenu( &appl_, tr("SEG-Y") );
+    uiMenu* expseissgy = new uiMenu( &appl_, uiStrings::sSEGY() );
     mInsertItem( expseissgy, uiStrings::s2D(false), mExpSeisSEGY2DMnuItm );
     mInsertItem( expseissgy, uiStrings::s3D(false), mExpSeisSEGY3DMnuItm );
     mInsertItem( expseissgy, tr("Prestack 3D ..."),
