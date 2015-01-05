@@ -7,13 +7,14 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "odplugin.h"
+#include "basemaptr.h"
 #include "basemapmod.h"
 
 mDefODPluginEarlyLoad(Basemap)
 mDefODPluginInfo(Basemap)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-	"Basemap (base)",
+	"Basemap (Base)",
 	"OpendTect",
 	"dGB (Nanne)",
 	"=od",
@@ -24,5 +25,7 @@ mDefODPluginInfo(Basemap)
 
 mDefODInitPlugin(Basemap)
 {
+    BasemapTranslatorGroup::initClass();
+    odBasemapTranslator::initClass();
     return 0;
 }

@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "transl.h"
 
 
+
 // uiBasemapTreeTop
 uiBasemapTreeTop::uiBasemapTreeTop( uiTreeView* tv )
     : uiTreeTopItem(tv)
@@ -78,6 +79,7 @@ void uiBasemapGroup::setItemName( const char* nm )
 
 const char* uiBasemapGroup::itemName() const
 { return namefld_ ? namefld_->text() : defaultname_.buf(); }
+
 
 HelpKey uiBasemapGroup::getHelpKey() const
 { return HelpKey::emptyHelpKey(); }
@@ -346,6 +348,8 @@ bool uiBasemapTreeItem::handleSubMenu(int)
 bool uiBasemapTreeItem::usePar( const IOPar& par )
 {
     pars_ = par;
+    const uiBasemapItem* itm = BMM().getBasemapItem( familyid_ );
+    if ( itm ) pars_.set( sKey::Type(), itm->factoryKeyword() );
 
     BufferString nm;
     if ( par.get(sKey::Name(),nm) )
@@ -392,11 +396,45 @@ void uiBasemapManager::init()
 void uiBasemapManager::setBasemap( uiBaseMap& bm )
 { basemap_ = &bm; }
 
+
 uiBaseMap& uiBasemapManager::getBasemap()
 { return *basemap_; }
 
+
 void uiBasemapManager::setTreeTop( uiTreeTopItem& tt )
 { treetop_ = &tt; }
+
+
+void uiBasemapManager::addfromPar( const IOPar& treepar )
+{
+    int nrtreeitems = 0;
+    treepar.get( sKey::NrItems(), nrtreeitems );
+
+    for ( int key=0; key<nrtreeitems; key++ )
+    {
+	PtrMan<IOPar> itmpars = treepar.subselect( key );
+	if ( !itmpars ) continue;
+
+	BufferString itmnm;
+	itmpars->get( sKey::Name(), itmnm );
+
+	BufferString factkw;
+	itmpars->get( sKey::Type(), factkw );
+
+	uiBasemapItem* itm = getBasemapItem( factkw );
+	uiBasemapTreeItem* treeitm = itm->createTreeItem( itmnm );
+
+	treeitm->setFamilyID( itm->ID() );
+	if ( !treeitm->usePar(*itmpars) )
+	{
+	    delete treeitm;
+	    continue;
+	}
+
+	treeitems_.push( treeitm );
+	treetop_->addChild( treeitm, true );
+    }
+}
 
 
 void uiBasemapManager::add( int itemid )
@@ -455,6 +493,19 @@ void uiBasemapManager::edit( int itemid, int treeitemid )
     if ( !itmpars ) return;
 
     treeitm->usePar( *itmpars );
+}
+
+
+uiBasemapItem* uiBasemapManager::getBasemapItem( const char* factkw )
+{
+    const FixedString factkeyw = factkw;
+    for ( int idx=0; idx<basemapitems_.size(); idx++ )
+    {
+	if ( factkeyw == basemapitems_[idx]->factoryKeyword() )
+	    return basemapitems_[idx];
+    }
+
+    return 0;
 }
 
 

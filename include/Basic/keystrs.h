@@ -65,8 +65,8 @@ namespace sKey
     inline FixedString Horizon()	{ return "Horizon"; }
     inline FixedString ID()		{ return "ID"; }
     inline FixedString Input()		{ return "Input"; }
-    inline FixedString IOSelection()	{ return "I/O Selection"; }
     inline FixedString Inline()		{ return "In-line"; }
+    inline FixedString IOSelection()	{ return "I/O Selection"; }
     inline FixedString Keys()		{ return "Keys"; }
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line()		{ return "Line"; }
@@ -81,6 +81,7 @@ namespace sKey
     inline FixedString NewLine()	{ return "\n"; }
     inline FixedString No()		{ return "No"; }
     inline FixedString None()		{ return "None"; }
+    inline FixedString NrItems()	{ return "Nr Items";}
     inline FixedString Offset()		{ return "Offset"; }
     inline FixedString Output()		{ return "Output"; }
     inline FixedString Pars()		{ return "Parameters"; }

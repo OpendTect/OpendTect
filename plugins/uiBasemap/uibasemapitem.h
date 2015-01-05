@@ -161,6 +161,7 @@ public:
 			~uiBasemapManager();
 
     void		add(int itmid);
+    void		addfromPar(const IOPar&);
     void		edit(int itmid,int treeitmid);
 
     void		setBasemap(uiBaseMap&);
@@ -168,6 +169,8 @@ public:
     void		setTreeTop(uiTreeTopItem&);
 
     const ObjectSet<uiBasemapItem>&	items() const	{ return basemapitems_;}
+    const ObjectSet<uiBasemapTreeItem>& treeitems() const { return treeitems_;}
+    uiBasemapItem*	getBasemapItem(const char*);
     uiBasemapItem*	getBasemapItem(int id);
     uiBasemapTreeItem*	getBasemapTreeItem(int id);
 

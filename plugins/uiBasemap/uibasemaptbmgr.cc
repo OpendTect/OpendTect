@@ -20,11 +20,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimainwin.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiioobjseldlg.h"
 #include "uisellinest.h"
 #include "uisurvmap.h"
 #include "uistrings.h"
 #include "uitoolbar.h"
 
+#include "basemaptr.h"
 #include "survinfo.h"
 
 
@@ -59,10 +61,10 @@ void uiBaseMapTBMgr::createitemTB()
 	itemtoolbar_->insertAction( action, itm->ID() );
     }
 
-    removebut_ = new uiToolButton( itemtoolbar_, "trashcan",
-				   tr("Remove selected items"),
-				   mCB(this, uiBaseMapTBMgr, removeCB) );
-    itemtoolbar_->addButton( removebut_ );
+    removebut_ = itemtoolbar_->addButton( "trashcan",
+					  tr("Remove selected items"),
+					  mCB(this, uiBaseMapTBMgr, removeCB),
+					  false );
 }
 
 
@@ -70,17 +72,22 @@ void uiBaseMapTBMgr::createviewTB()
 {
     vwtoolbar_ = new uiToolBar( &mainwin_, "Viewer Tools", uiToolBar::Left );
 
-    viewbut_ = new uiToolButton( vwtoolbar_, "altview", tr(""),
-				 mCB(this,uiBaseMapTBMgr,viewCB) );
-    vwtoolbar_->addButton( viewbut_ );
-
+    viewbut_ = vwtoolbar_->addButton( "altview", tr("Switch to pick mode"),
+				      mCB(this,uiBaseMapTBMgr,viewCB),
+				      false );
+    savebut_ = vwtoolbar_->addButton( "save", tr("save current BaseMap"),
+				      mCB(this,uiBaseMapTBMgr,saveCB),
+				      false );
+    readbut_ = vwtoolbar_->addButton( "open", tr("restore previous BaseMap"),
+				      mCB(this,uiBaseMapTBMgr,readCB),
+				      false );
     vwtoolbar_->addObject(
 	    basemapview_.view().getSaveImageButton(vwtoolbar_) );
 
     vworientationid_ = vwtoolbar_->addButton( "northarrow",
-				tr("Display Orientation"),
-				mCB(this,uiBaseMapTBMgr,vworientationCB),
-				true );
+				    tr("Display Orientation"),
+				    mCB(this,uiBaseMapTBMgr,vworientationCB),
+				    true );
     vwtoolbar_->turnOn( vworientationid_, true );
 
     vwmapscaleid_ = vwtoolbar_->addButton( "scale",
@@ -100,8 +107,8 @@ void uiBaseMapTBMgr::createviewTB()
 
 void uiBaseMapTBMgr::updateViewMode()
 {
-    viewbut_->setIcon( pickmode_ ? "altpick" : "altview" );
-    viewbut_->setToolTip( pickmode_ ? "Switch to view mode"
+    vwtoolbar_->setIcon( viewbut_, pickmode_ ? "altpick" : "altview" );
+    vwtoolbar_->setToolTip( viewbut_, pickmode_ ? "Switch to view mode"
 				    : "Switch to pick mode" );
     basemapview_.view().setDragMode(
 	pickmode_ ? uiGraphicsViewBase::NoDrag
@@ -209,4 +216,46 @@ void uiBaseMapTBMgr::vworientationCB( CallBacker* )
 {
     const bool ison = vwtoolbar_->isOn( vworientationid_ );
     basemapview_.getNorthArrow()->show( ison );
+}
+
+
+void uiBaseMapTBMgr::saveCB( CallBacker* )
+{
+    const ObjectSet<uiBasemapTreeItem>& treeitms = BMM().treeitems();
+    int nrtreeitems = treeitms.size();
+    IOPar itmpars;
+    itmpars.set( sKey::NrItems(), nrtreeitems );
+
+    for ( int idx=0; idx<nrtreeitems; idx++ )
+	itmpars.mergeComp( treeitms[idx]->pars(), toString(idx) );
+
+    CtxtIOObj ctio( mIOObjContext(Basemap) );
+    ctio.ctxt.forread = true;
+
+    uiIOObjSelDlg dlg( &mainwin_, ctio);
+    if ( !dlg.go() ) return;
+
+    BufferString errmsg;
+
+    if( !BasemapTranslator::store( itmpars, dlg.ioObj(), errmsg ) )
+	uiMSG().error( errmsg );
+}
+
+
+void uiBaseMapTBMgr::readCB( CallBacker* )
+{
+    CtxtIOObj ctio( mIOObjContext(Basemap) );
+    ctio.ctxt.forread = true;
+    uiIOObjSelDlg dlg( &mainwin_, ctio );
+
+    if ( dlg.go() )
+    {
+	BufferString errmsg; IOPar itmpars;
+	if ( !BasemapTranslator::retrieve( itmpars, dlg.ioObj(), errmsg ) )
+	    uiMSG().error( errmsg );
+	else
+	{
+	    BMM().addfromPar( itmpars );
+	}
+    }
 }

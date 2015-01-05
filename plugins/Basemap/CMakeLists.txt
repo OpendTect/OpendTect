@@ -15,6 +15,7 @@ SET(OD_MODULE_SOURCES
 	basemappickset.cc
 	basemappolygon.cc
 	basemaprandomline.cc
+	basemaptr.cc
 	basemapwell.cc
 )
 OD_INIT_MODULE()

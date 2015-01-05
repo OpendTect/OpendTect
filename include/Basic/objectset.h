@@ -42,7 +42,7 @@ public:
     inline 			ObjectSet();
     inline			ObjectSet(const ObjectSet<T>&);
     inline virtual		~ObjectSet()		{}
-    inline ObjectSet<T>&	operator =(const ObjectSet<T>&);
+    inline ObjectSet<T>&	operator=(const ObjectSet<T>&);
     virtual bool		isManaged() const	{ return false; }
 
     inline bool			nullAllowed() const	{ return allow0_; }
