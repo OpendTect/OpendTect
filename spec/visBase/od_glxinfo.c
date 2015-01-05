@@ -464,7 +464,7 @@ print_screen_info(Display *dpy, int scrnum, Bool allowDirect, GLboolean limits)
       printf("display: %s  screen: %d\n", displayName, scrnum);
       free(displayName);
       printf("direct rendering: %s\n", glXIsDirect(dpy, ctx) ? "Yes" 
-							     : uiStrings::sNo());
+							     : "No" );
       printf("server glx vendor string: %s\n", serverVendor);
       printf("server glx version string: %s\n", serverVersion);
       printf("server glx extensions:\n");
