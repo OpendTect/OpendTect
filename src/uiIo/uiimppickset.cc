@@ -266,7 +266,7 @@ bool uiImpExpPickSet::acceptOK( CallBacker* )
     uiString msg = tr("Pickset successfully %1\n"
 		      "Do you want to %2 more PickSets?")
 		 .arg(import_ ? tr("imported") : tr("exported"))
-		 .arg(import_ ? tr("import") : uiStrings::sExport());
+		 .arg(import_ ? uiStrings::sImport() : uiStrings::sExport());
     return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
 }
 
