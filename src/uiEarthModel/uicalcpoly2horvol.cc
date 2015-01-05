@@ -114,10 +114,10 @@ void uiCalcHorVol::haveChg( CallBacker* )
 void uiCalcHorVol::calcReq( CallBacker* )
 {
     const Pick::Set* ps = getPickSet();
-    if ( !ps ) mErrRet( tr("No %1 selected").arg("PickSet") );
+    if ( !ps ) mErrRet( tr("No PickSet selected") );
     
     const EM::Horizon3D* hor = getHorizon();
-    if ( !hor ) mErrRet( tr("No %1 selected").arg("Horizon") );
+    if ( !hor ) mErrRet( tr("No Horizon selected") );
 
     float vel = 1;
     if ( velfld_ )

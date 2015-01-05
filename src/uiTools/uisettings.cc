@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uivirtualkeyboard.h"
 
@@ -308,7 +309,8 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 
     setts_.getYN( SettingsAccess::sKeyColorBarVertical(), vertcoltab_ );
     colbarhvfld_ = new uiGenInput( this, tr("Color bar orientation"),
-		BoolInpSpec(vertcoltab_,tr("Vertical"),tr("Horizontal")) );
+		BoolInpSpec(vertcoltab_,tr("Vertical"),
+			    uiStrings::sHorizontal()) );
     colbarhvfld_->attach( alignedBelow, iconszfld_ );
 
     setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
