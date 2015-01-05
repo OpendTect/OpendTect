@@ -183,6 +183,7 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
 uiSpinBox::~uiSpinBox()
 {
     valueChanged.remove( mCB(this,uiSpinBox,snapToStep) );
+    delete body_;
 }
 
 
