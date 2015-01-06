@@ -54,12 +54,12 @@ uiGMTOverlayGrp* uiGMTContourGrp::createInstance( uiParent* p )
 
 uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Contour")
-    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , sd_(*new EM::SurfaceIOData)
     , hor_(0)
     , lsfld_(0)
 {
-    inpfld_ = new uiIOObjSel( this, ctio_, uiStrings::sHorizon(true) );
+    inpfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
+			      uiStrings::sHorizon(true) );
     inpfld_->selectionDone.notify( mCB(this,uiGMTContourGrp,objSel) );
 
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
@@ -109,7 +109,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
 
 uiGMTContourGrp::~uiGMTContourGrp()
 {
-    delete &sd_; delete &ctio_;
+    delete &sd_;
     if ( hor_ ) hor_->unRef();
 }
 
@@ -144,10 +144,7 @@ void uiGMTContourGrp::drawSel( CallBacker* )
 
 void uiGMTContourGrp::objSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput() )
-	return;
-
-    IOObj* ioobj = ctio_.ioobj;
+    const IOObj* ioobj = inpfld_->ioobj();
     if ( !ioobj ) return;
 
     EM::IOObjInfo eminfo( ioobj->key() );
@@ -259,10 +256,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 
 void uiGMTContourGrp::readCB( CallBacker* )
 {
-    if ( !inpfld_->commitInput() )
-	return;
-
-    IOObj* ioobj = ctio_.ioobj;
+    const IOObj* ioobj = inpfld_->ioobj();
     if ( !ioobj ) return;
 
     TrcKeySampling hs = subselfld_->envelope().hrg;
@@ -315,7 +309,9 @@ bool uiGMTContourGrp::loadHor()
     if ( hor_ )
 	hor_->unRef();
 
-    IOObj* ioobj = ctio_.ioobj;
+    const IOObj* ioobj = inpfld_->ioobj();
+    if ( !ioobj ) return false;
+
     EM::EMObject* obj = 0;
     EM::ObjectID id = EM::EMM().getObjectID( ioobj->key() );
     if ( id < 0 || !EM::EMM().getObject(id)->isFullyLoaded() )
@@ -351,11 +347,11 @@ bool uiGMTContourGrp::loadHor()
 
 bool uiGMTContourGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput() || !ctio_.ioobj )
-	mErrRet(tr("Please select a Horizon"))
+    const IOObj* ioobj = inpfld_->ioobj();
+    if ( !ioobj ) return false;
 
     inpfld_->fillPar( par );
-    par.set( sKey::Name(), ctio_.ioobj->name() );
+    par.set( sKey::Name(), ioobj->name() );
     const int attribidx = attribfld_->currentItem();
     par.set( ODGMT::sKeyAttribName(), attribfld_->textOfItem(attribidx) );
     IOPar subpar;

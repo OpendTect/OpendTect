@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uigmtoverlay.h"
 
-class CtxtIOObj;
 class uiCheckBox;
 class uiColorTableSel;
 class uiComboBox;
@@ -45,7 +44,6 @@ protected:
     static uiGMTOverlayGrp*	createInstance(uiParent*);
     static int			factoryid_;
 
-    CtxtIOObj&		ctio_;
     EM::Horizon3D*	hor_;
     EM::SurfaceIOData&	sd_;
     Interval<float>	valrg_;
