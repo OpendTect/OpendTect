@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsurvranges.h"
 #include "uislider.h"
 #include "uispinbox.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -103,7 +104,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tools", showSettingsCB, tr("Settings"), false );
+    mAddButton( "tools", showSettingsCB, uiStrings::sSettings(true), false );
 
     seedconmodefld_ = new uiComboBox( toolbar_, "Seed connect mode" );
     seedconmodefld_->setToolTip( tr("Seed connect mode") );
