@@ -21,16 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "iopar.h"
 #include "oddirs.h"
 #include "plugins.h"
 #include "settings.h"
 #include "separstr.h"
-#include "strmdata.h"
-#include "strmoper.h"
-#include "strmprov.h"
 #include "odver.h"
 #include "od_helpids.h"
-#include "od_strstream.h"
+#include "od_istream.h"
 
 
 const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
@@ -44,29 +42,6 @@ struct PluginProduct
     BufferString	    iconnm_;
     bool		    isselected_;
 };
-
-
-static const char* getVendorName( const char* creatorname )
-{
-    const FixedString crnm( creatorname );
-    if ( crnm == "dGB Earth Sciences" )
-	return "dgb";
-    if ( crnm == "ARK CLS" )
-	return "arkcls";
-    if ( crnm == "Earthworks & ARK CLS" )
-	return "earthworks";
-    if ( crnm == "ARKeX" )
-	return crnm;
-
-    return "sitfal";
-}
-
-
-static BufferString getTrueProductName( BufferString prodnm )
-{
-    prodnm.replace( '(', '\0' );
-    return prodnm;
-}
 
 
 class uiVendorTreeItem : public uiTreeViewItem
@@ -134,12 +109,16 @@ uiPluginSel::uiPluginSel( uiParent* p )
                             mODHelpKey(mPluginSelHelpID) )
 			.savebutton(true)
 			.savetext(tr("Show this dialog at startup")))
+	, vendornamepars_(*new IOPar("Vendors"))
 {
     BufferString titl( "OpendTect V" );
     titl += GetFullODVersion(); titl +=
 			  tr(": Candidate auto-loaded plugins").getFullString();
     setCaption( tr(titl) );
-
+    
+    const FilePath vendfp( GetSoftwareDir(false), "data", "Vendors" ); 
+    vendornamepars_.read( vendfp.fullPath(), ".par" );
+    
     setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
     readPackageList();
@@ -152,20 +131,27 @@ uiPluginSel::uiPluginSel( uiParent* p )
 uiPluginSel::~uiPluginSel()
 {
     deepErase( products_ );
+    delete &vendornamepars_;
+}
+
+
+BufferString uiPluginSel::getVendorShortName( const char* vendornm ) const
+{
+    BufferString vendorshortnm;
+    vendornamepars_.get( vendornm, vendorshortnm );
+    return vendorshortnm;
 }
 
 
 void uiPluginSel::readPackageList()
 {
     const FilePath prodlistfp( GetSoftwareDir(true), "data", "prodlist.txt" );
-    StreamData prodlistsd(
-			StreamProvider(prodlistfp.fullPath()).makeIStream() );
-    od_istream istrm( prodlistsd.istrm );
-    while ( istrm.isOK() )
+    od_istream prodstrm( prodlistfp.fullPath() ) ;
+    while ( prodstrm.isOK() )
     {
 	BufferString line;
-	StrmOper::readLine( *prodlistsd.istrm, &line );
-	FileMultiString sepline( line );
+	prodstrm.getLine( line );
+	const FileMultiString sepline( line );
 	PluginProduct* product = new PluginProduct;
 	product->productname_ = sepline[0];
 	product->pckgnm_ = sepline[1];
@@ -190,15 +176,13 @@ void uiPluginSel::makeProductList(
 	    if ( data.info_->lictype_ != PluginInfo::COMMERCIAL || isodprod )
 		continue;
 
-	    const int prodidx = getProductIndex(
-				getTrueProductName(data.info_->productname_) );
+	    const int prodidx = getProductIndex( data.info_->productname_ );
 	    const char* modulenm = PIM().moduleName(data.name_);
 	    vendors_.addIfNew( data.info_->creator_ );
 	    if ( prodidx<0 )
 	    {
 		PluginProduct* product = new PluginProduct();
-		product->productname_ =
-		    getTrueProductName( data.info_->productname_ );
+		product->productname_ = data.info_->productname_;
 		product->creator_ = data.info_->creator_;
 		product->libs_.add( modulenm );
 		product->isselected_ = !dontloadlist.isPresent( modulenm );
@@ -214,6 +198,13 @@ void uiPluginSel::makeProductList(
 	    }
 	}
     }
+
+    const BufferString dgbes( "dGB Earth Sciences" ); 
+    if ( vendors_.size() > 1 && vendors_.isPresent(dgbes.buf()) )
+    {
+	const int idx = vendors_.indexOf( dgbes.buf() );
+	vendors_.swap( idx, 0 );
+    }
 }
 
 
@@ -223,7 +214,7 @@ void uiPluginSel::createUI()
     grp->setFrame( true );
 
     uiGraphicsViewBase* banner = new uiGraphicsViewBase( grp, "OpendTect" );
-    uiPixmap pm("banner.png");
+    uiPixmap pm( "banner.png" );
     uiPixmapItem* pmitem = new uiPixmapItem( uiPixmap(pm) );
     banner->scene().addItem( pmitem );
     banner->setPrefHeight( pm.height() );
@@ -240,7 +231,7 @@ void uiPluginSel::createUI()
 	uiVendorTreeItem* venditem =
 	    new uiVendorTreeItem( treefld_, vendorname,
 					       isVendorSelected(vendorname)  );
-	const BufferString iconfnm( getVendorName(vendorname), ".png" );
+	const BufferString iconfnm( getVendorShortName(vendorname), ".png" );
 	venditem->setIcon( 0, iconfnm );
 	height++;
 	for ( int idx=0; idx< products_.size(); idx++ )
