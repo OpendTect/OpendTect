@@ -309,7 +309,7 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 
     setts_.getYN( SettingsAccess::sKeyColorBarVertical(), vertcoltab_ );
     colbarhvfld_ = new uiGenInput( this, tr("Color bar orientation"),
-		BoolInpSpec(vertcoltab_,tr("Vertical"),
+		BoolInpSpec(vertcoltab_,uiStrings::sVertical(),
 			    uiStrings::sHorizontal()) );
     colbarhvfld_->attach( alignedBelow, iconszfld_ );
 

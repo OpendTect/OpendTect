@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 #include "arraynd.h"
 #include "bufstring.h"
@@ -43,7 +44,7 @@ uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
     , usemydrawrg_(false)
     , drawRangeChanged(this)
 {
-    xAxis()->setCaption( tr("Value") );
+    xAxis()->setCaption( uiStrings::sValue() );
     yAxis(false)->setCaption( tr("Count") );
 }
 
