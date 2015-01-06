@@ -271,25 +271,51 @@ bool ParallelReader::doFinish( bool success )
 
 
 
-// ParallelReader2D
+// ParallelReader2D (probably replace by a Sequential reader)
 ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
-				    const TrcKeyZSampling& cs )
-    : arrays_(new ObjectSet<Array2D<float> >)
-    , geomid_(geomid)
-    , tkzs_(cs)
+				    const TrcKeyZSampling* tkzs,
+				    const TypeSet<int>* comps )
+    : geomid_(geomid)
     , ioobj_(ioobj.clone())
-    , totalnr_(cs.hrg.nrCrl())
+    , dpclaimed_(false)
 {
-    SeisIOObjInfo seisinfo( ioobj );
-    const int nrcomponents = seisinfo.nrComponents();
-    for ( int idx=0; idx<nrcomponents; idx++ )
-	components_ += idx;
+    SeisIOObjInfo info( ioobj );
+    if ( !comps )
+    {
+	const int nrcomps = info.nrComponents( geomid );
+	for ( int idx=0; idx<nrcomps; idx++ )
+	    components_ += idx;
+    }
+    else
+	components_ = *comps;
+
+    if ( !tkzs )
+    {
+	StepInterval<int> trcrg;
+	info.getRanges( geomid, trcrg, tkzs_.zsamp_ );
+	tkzs_.hsamp_.set( Interval<int>(geomid,geomid), trcrg );
+    }
+    else
+	tkzs_ = *tkzs;
+
+    totalnr_ = tkzs_.hsamp_.totalNr();
+
+    dp_ = new SampledAttribDataPack( Seis::nameOf(info.geomType()) );
+    dp_->setSampling( tkzs );
+
+    BufferStringSet compnames;
+    info.getComponentNames( compnames );
+    for ( int idx=0; idx<components_.size(); idx++ )
+    {
+	const int cidx = components_[idx];
+	dp_->addComponent(
+		compnames.validIdx(cidx) ? compnames.get(cidx).buf() : "" );
+    }
 }
 
 
 ParallelReader2D::~ParallelReader2D()
 {
-    delete arrays_;
     delete ioobj_;
 }
 
@@ -298,57 +324,17 @@ uiString ParallelReader2D::uiNrDoneText() const
 { return "Traces read"; }
 
 uiString ParallelReader2D::uiMessage() const
-{ return errmsg_.isEmpty() ? "Reading" : errmsg_; }
+{ return msg_.isEmpty() ? "Reading" : msg_; }
 
 od_int64 ParallelReader2D::nrIterations() const
 { return totalnr_; }
 
 
-bool ParallelReader2D::doPrepare( int nrthreads )
-{
-    const uiString allocprob = tr("Cannot allocate memory");
-
-    for ( int idx=0; idx<components_.size(); idx++ )
-    {
-	const Array2DInfoImpl sizes( tkzs_.nrCrl(), tkzs_.nrZ() );
-	bool setbg = false;
-	if ( idx>=arrays_->size() )
-	{
-	    mDeclareAndTryAlloc( Array2D<float>*, arr,
-				 Array2DImpl<float>( sizes ) );
-	    if ( !arr || !arr->isOK() )
-	    {
-		errmsg_ = allocprob;
-		return false;
-	    }
-
-	    (*arrays_) +=  arr;
-	    setbg = true;
-	}
-	else
-	{
-	    if ( (*arrays_)[idx]->info()!=sizes )
-	    {
-		if ( !(*arrays_)[idx]->setInfo(sizes) )
-		{
-		    errmsg_ = allocprob;
-		    return false;
-		}
-
-		setbg = true;
-	    }
-	}
-
-	if ( setbg )
-	    (*arrays_)[idx]->setAll( mUdf(float) );
-    }
-
-    return true;
-}
-
-
 bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 {
+    if ( !dp_ || dp_->nrComponents()==0 )
+	return false;
+
     PtrMan<IOObj> ioobj = ioobj_->clone();
     const Seis2DDataSet dataset( *ioobj );
     const int lidx = dataset.indexOf( geomid_ );
@@ -366,25 +352,25 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
     trl->toStart();
     curbid = trl->readMgr()->binID();
 
+    const Array3D<float>& firstarr = dp_->data( 0 );
+    const int nrz = firstarr.info().getSize( 2 );
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	curbid.crl() = trcrg.atIndex( mCast(int,idx) );
 	if ( trl->goTo(curbid) && trl->read(trc) )
 	{
 	    const StepInterval<float> trczrg = trc.zRange();
-	    for ( int idz=(*arrays_)[0]->info().getSize(1)-1; idz>=0; idz--)
+	    for ( int idz=nrz-1; idz>=0; idz--)
 	    {
 		float val;
 		const float z = tkzs_.zsamp_.atIndex( idz );
 		if ( trczrg.includes(z,false) )
 		{
-		    for ( int idc=arrays_->size()-1; idc>=0; idc-- )
+		    for ( int idc=0; idc<dp_->nrComponents(); idc++ )
 		    {
+			Array3D<float>& arr = dp_->data( idc );
 			val = trc.getValue( z, components_[idc] );
-			if ( !mIsUdf(val) )
-			{
-			    (*arrays_)[idc]->set( mCast(int,idx), idz, val );
-			}
+			arr.set( 0, mCast(int,idx), idz, val );
 		    }
 		}
 	    }
@@ -399,6 +385,13 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 
 bool ParallelReader2D::doFinish( bool success )
 { return success; }
+
+
+SampledAttribDataPack* ParallelReader2D::getDataPack()
+{
+    dpclaimed_ = true;
+    return dp_;
+}
 
 
 
@@ -439,36 +432,67 @@ protected:
 
 
 SequentialReader::SequentialReader( const IOObj& ioobj,
-				    const TypeSet<int>& comps,
-				    const TrcKeyZSampling& tkzs )
+				    const TrcKeyZSampling* tkzs,
+				    const TypeSet<int>* comps )
     : Executor("Reader")
-    , tkzs_(tkzs)
-    , dp_(new SampledAttribDataPack(0))
-    , components_(comps)
+    , dpclaimed_(false)
+    , dp_(0)
 {
+    SeisIOObjInfo info( ioobj );
+    if ( !comps )
+    {
+	const int nrcomps = info.nrComponents();
+	for ( int idx=0; idx<nrcomps; idx++ )
+	    components_ += idx;
+    }
+    else
+	components_ = *comps;
+
+    if ( !tkzs )
+	info.getRanges( tkzs_ );
+    else
+	tkzs_ = *tkzs;
+
+    totalnr_ = tkzs_.hsamp_.totalNr();
+    nrdone_ = 0;
+
     queueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::MultiThread,
 				"SequentialReader" );
     mDynamicCast(CBVSSeisTrcTranslator*,trl_,ioobj.createTranslator())
-    sd_ = new Seis::RangeSelData( tkzs );
-    trl_->setSelData( sd_ );
-    trl_->initRead( ioobj.getConn(Conn::Read) );
+    sd_ = new Seis::RangeSelData( tkzs_ );
+    if ( trl_ )
+    {
+	trl_->setSelData( sd_ );
+	trl_->initRead( ioobj.getConn(Conn::Read) );
+    }
 
-    nrdone_ = 0;
-    totalnr_ = tkzs_.hsamp_.totalNr();
-
+    dp_ = new SampledAttribDataPack( Seis::nameOf(info.geomType()) );
     dp_->setSampling( tkzs );
-    for ( int idx=0; idx<comps.size(); idx++ )
-	dp_->addComponent( 0, "" );
+
+    BufferStringSet compnames;
+    info.getComponentNames( compnames );
+    for ( int idx=0; idx<components_.size(); idx++ )
+    {
+	const int cidx = components_[idx];
+	dp_->addComponent(
+		compnames.validIdx(cidx) ? compnames.get(cidx).buf() : "" );
+    }
 }
 
 
 SequentialReader::~SequentialReader()
 {
     delete trl_;
+    if ( !dpclaimed_ )
+	delete dp_;
 
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
+
+
+SampledAttribDataPack* SequentialReader::getDataPack()
+{ dpclaimed_ = true; return dp_; }
 
 
 int SequentialReader::nextStep()

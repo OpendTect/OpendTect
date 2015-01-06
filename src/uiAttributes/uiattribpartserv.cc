@@ -48,6 +48,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randcolor.h"
 #include "seisbuf.h"
 #include "seisinfo.h"
+#include "seispreload.h"
 #include "survinfo.h"
 #include "settingsaccess.h"
 #include "zdomain.h"
@@ -73,18 +74,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-int uiAttribPartServer::evDirectShowAttr()	    { return 0; }
-int uiAttribPartServer::evNewAttrSet()		    { return 1; }
-int uiAttribPartServer::evAttrSetDlgClosed()	    { return 2; }
-int uiAttribPartServer::evEvalAttrInit()	    { return 3; }
-int uiAttribPartServer::evEvalCalcAttr()	    { return 4; }
-int uiAttribPartServer::evEvalShowSlice()	    { return 5; }
-int uiAttribPartServer::evEvalStoreSlices()	    { return 6; }
-int uiAttribPartServer::evEvalRestore()	    { return 7; }
-int uiAttribPartServer::objNLAModel2D()		    { return 100; }
-int uiAttribPartServer::objNLAModel3D()		    { return 101; }
+int uiAttribPartServer::evDirectShowAttr()	{ return 0; }
+int uiAttribPartServer::evNewAttrSet()		{ return 1; }
+int uiAttribPartServer::evAttrSetDlgClosed()	{ return 2; }
+int uiAttribPartServer::evEvalAttrInit()	{ return 3; }
+int uiAttribPartServer::evEvalCalcAttr()	{ return 4; }
+int uiAttribPartServer::evEvalShowSlice()	{ return 5; }
+int uiAttribPartServer::evEvalStoreSlices()	{ return 6; }
+int uiAttribPartServer::evEvalRestore()		{ return 7; }
+int uiAttribPartServer::objNLAModel2D()		{ return 100; }
+int uiAttribPartServer::objNLAModel3D()		{ return 101; }
 
-const char* uiAttribPartServer::attridstr()	    { return "Attrib ID"; }
+const char* uiAttribPartServer::attridstr()	{ return "Attrib ID"; }
 
 static const int cMaxNrClasses = 100;
 static const int cMaxMenuSize = 150;
@@ -159,7 +160,7 @@ void uiAttribPartServer::useAutoSet( bool is2d )
     MultiID id;
     const char* idkey = is2d ? uiAttribDescSetEd::sKeyAuto2DAttrSetID
 			     : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
-    Attrib::DescSetMan* setmgr = eDSHolder().getDescSetMan(is2d);
+    DescSetMan* setmgr = eDSHolder().getDescSetMan(is2d);
     if ( SI().pars().get(idkey,id) )
     {
 	PtrMan<IOObj> ioobj = IOM().get( id );
@@ -296,7 +297,7 @@ void uiAttribPartServer::attrsetDlgApply( CallBacker* )
 {
     const bool is2d = attrsetdlg_->getSet()->is2D();
     DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
-    adsman->setDescSet( new Attrib::DescSet( *attrsetdlg_->getSet() ) );
+    adsman->setDescSet( new DescSet( *attrsetdlg_->getSet() ) );
     adsman->attrsetid_ = attrsetdlg_->curSetID();
     set2DEvent( is2d );
     sendEvent( evNewAttrSet() );
@@ -315,7 +316,7 @@ void uiAttribPartServer::attrsetDlgCloseTimTick( CallBacker* )
     {
 	bool is2d = attrsetdlg_->getSet()->is2D();
 	DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
-	adsman->setDescSet( new Attrib::DescSet( *attrsetdlg_->getSet() ) );
+	adsman->setDescSet( new DescSet( *attrsetdlg_->getSet() ) );
 	adsman->attrsetid_ = attrsetdlg_->curSetID();
 	set2DEvent( is2d );
 	sendEvent( evNewAttrSet() );
@@ -479,7 +480,7 @@ bool uiAttribPartServer::setSaved( bool is2d ) const
 
 int uiAttribPartServer::use3DMode() const
 {
-    const Attrib::DescSet* ads = getUserPrefDescSet();
+    const DescSet* ads = getUserPrefDescSet();
     if ( !ads ) return -1;
     return DSHolder().getDescSetMan(true)
 		&& ads==DSHolder().getDescSet(true,false) ? 0 : 1;
@@ -488,8 +489,8 @@ int uiAttribPartServer::use3DMode() const
 
 const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
 {
-    const Attrib::DescSet* ds3d = DSHolder().getDescSet( false, false );
-    const Attrib::DescSet* ds2d = DSHolder().getDescSet( true, false );
+    const DescSet* ds3d = DSHolder().getDescSet( false, false );
+    const DescSet* ds2d = DSHolder().getDescSet( true, false );
     if ( !ds3d && !ds2d ) return 0;
     if ( !(ds3d && ds2d) ) return ds3d ? ds3d : ds2d;
     if ( !SI().has3D() ) return ds2d;
@@ -502,8 +503,8 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     int res = uiMSG().askGoOnAfter( tr("Which attributes do you want to use?"),
 				    0, uiStrings::s2D(true),
                                     uiStrings::s3D(true) );
-    if ( res == 2 ) return 0;
-    return res == 0 ? ds2d : ds3d;
+    if ( res == -1 ) return 0;
+    return res == 1 ? ds2d : ds3d;
 }
 
 
@@ -548,12 +549,12 @@ void uiAttribPartServer::setTargetSelSpec( const SelSpec& selspec )
 
 Attrib::DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
 {
-    return targetspecs_.size() <= nr ? Attrib::DescID::undef()
+    return targetspecs_.size() <= nr ? DescID::undef()
 				     : targetspecs_[nr].id();
 }
 
 
-EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* cs,
+EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 					     const Pos::GeomID& geomid )
 {
     if ( targetspecs_.isEmpty() ||
@@ -562,7 +563,7 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* cs,
 
     const bool istargetstored = targetspecs_[0].isStored();
     const bool is2d = targetspecs_[0].is2D();
-    Attrib::DescSet* curdescset = eDSHolder().getDescSet(is2d,istargetstored);
+    DescSet* curdescset = eDSHolder().getDescSet(is2d,istargetstored);
     if ( !curdescset )
 	{ pErrMsg("No attr set"); return 0; }
 
@@ -590,15 +591,15 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* cs,
     aem->setAttribSet( curdescset );
     aem->setNLAModel( getNLAModel(is2d) );
     aem->setAttribSpecs( targetspecs_ );
-    if ( cs )
-	aem->setTrcKeyZSampling( *cs );
+    if ( tkzs )
+	aem->setTrcKeyZSampling( *tkzs );
     aem->setGeomID( geomid );
 
     return aem;
 }
 
 
-DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& cs,
+DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 					       DataPack::ID cacheid )
 {
     DataPackRef<DataPack> datapack =
@@ -606,18 +607,18 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& cs,
     if ( !datapack )
 	datapack = DPM( DataPackMgr::CubeID() ).obtain( cacheid );
 
-    const Attrib::DataCubes* cache = 0;
+    const DataCubes* cache = 0;
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack.ptr());
     if ( cdp ) cache = &cdp->cube();
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack.ptr());
+    mDynamicCastGet(const Flat3DDataPack*,fdp,datapack.ptr());
     if ( fdp ) cache = &fdp->cube();
-    const DataCubes* output = createOutput( cs, cache );
+    const DataCubes* output = createOutput( tkzs, cache );
     if ( !output || !output->nrCubes() )  return DataPack::cNoID();
 
-    const bool isflat = cs.isFlat();
+    const bool isflat = tkzs.isFlat();
     DataPack* newpack;
     if ( isflat )
-	newpack = new Attrib::Flat3DDataPack( targetID(false), *output, 0 );
+	newpack = new Flat3DDataPack( targetID(false), *output, 0 );
     else
 	newpack = new Attrib::CubeDataPack( targetID(false), *output, 0 );
     newpack->setName( targetspecs_[0].userRef() );
@@ -630,10 +631,10 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& cs,
 
 
 const Attrib::DataCubes* uiAttribPartServer::createOutput(
-				const TrcKeyZSampling& cs, 
+				const TrcKeyZSampling& tkzs,
 				const DataCubes* cache )
 {
-    PtrMan<EngineMan> aem = createEngMan( &cs, 0 );
+    PtrMan<EngineMan> aem = createEngMan( &tkzs, 0 );
     if ( !aem ) return 0;
 
     BufferString defstr;
@@ -646,6 +647,22 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	attrds->getDesc(targetspecs_[0].id())->getDefStr(defstr);
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = 0;
+    }
+
+    if ( targetdesc && targetdesc->isStored() )
+    {
+	const MultiID mid( targetdesc->getStoredID() );
+	mDynamicCastGet(SampledAttribDataPack*,sdp,Seis::PLDM().get(mid));
+	if ( sdp )
+	{
+	    DataCubes* dc = new DataCubes();
+	    dc->ref();
+	    dc->setSizeAndPos( sdp->sampling() );
+	    mDynamicCastGet(Array3DImpl<float>*,arr3dimpl,&sdp->data())
+	    if ( arr3dimpl )
+		dc->addCube( *arr3dimpl );
+	    cache = dc;
+	}
     }
 
     uiString errmsg;
@@ -661,8 +678,10 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 
     const bool isstored =
 	targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
-    const bool isinl = cs.isFlat() && cs.defaultDir() == TrcKeyZSampling::Inl;
-    const bool iscrl = cs.isFlat() && cs.defaultDir() == TrcKeyZSampling::Crl;
+    const bool isinl =
+		tkzs.isFlat() && tkzs.defaultDir() == TrcKeyZSampling::Inl;
+    const bool iscrl =
+		tkzs.isFlat() && tkzs.defaultDir() == TrcKeyZSampling::Crl;
     const bool hideprogress = isstored &&
 	( (isinl&&!showinlprogress) || (iscrl&&!showcrlprogress) );
 
@@ -772,8 +791,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 	return DataPack::cNoID();
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    DataPack* newpack = new Attrib::FlatRdmTrcsDataPack( targetID(false),
-							 output, path );
+    DataPack* newpack = new FlatRdmTrcsDataPack( targetID(false), output, path);
     newpack->setName( targetspecs_[0].userRef() );
     dpman.add( newpack );
     return newpack->id();
@@ -803,11 +821,11 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 }
 
 
-DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& cs,
+DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 						 const Pos::GeomID& geomid,
 						 TaskRunner& taskrunner )
 {
-    PtrMan<EngineMan> aem = createEngMan( &cs, geomid );
+    PtrMan<EngineMan> aem = createEngMan( &tkzs, geomid );
     if ( !aem ) return DataPack::cNoID();
 
     uiString errmsg;
@@ -821,19 +839,18 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& cs,
 
     int component = 0;
     const bool isstored = targetspecs_[0].isStored();
-    Attrib::DescID adid = targetID(true);
-    const Attrib::DescSet* curds =
-			DSHolder().getDescSet( true, isstored );
+    DescID adid = targetID(true);
+    const DescSet* curds = DSHolder().getDescSet( true, isstored );
     if ( curds )
     {
-	const Attrib::Desc* targetdesc = curds->getDesc( adid );
+	const Desc* targetdesc = curds->getDesc( adid );
 	if ( targetdesc )
 	    component = targetdesc->selectedOutput();
     }
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    mDeclareAndTryAlloc( Flat2DDHDataPack*, newpack,
-	    Attrib::Flat2DDHDataPack(adid,*data2d,geomid,false,component) );
+    mDeclareAndTryAlloc(Flat2DDHDataPack*,newpack,
+			Flat2DDHDataPack(adid,*data2d,geomid,false,component));
     if ( !newpack || !newpack->isOK() )
 	return DataPack::cNoID();
 
@@ -873,7 +890,7 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
     const DescSet* ads = DSHolder().getDescSet( dpss[0]->is2D(), false );
     if ( !ads ) { pErrMsg("No attr set"); return 0; }
 
-    Attrib::EngineMan aem;
+    EngineMan aem;
     uiTaskRunner taskrunner( parent() );
     bool somesuccess = false;
     bool somefail = false;
@@ -938,7 +955,7 @@ bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod,
 					 float velocity )
 {
     //TODO: force 3D to avoid crash for 2D, need workaround for 2D later
-    const Attrib::DescSet* ds = DSHolder().getDescSet( false, false );
+    const DescSet* ds = DSHolder().getDescSet( false, false );
     if ( !ds )
 	return false;
 
@@ -997,12 +1014,12 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
     int nritems = bfset.size();
     if ( nritems <= cMaxMenuSize )
     {
-	    const int start = 0; const int stop = nritems;
-	    if ( issteer )
-	    { mInsertItems(steernms_,mnu,isstored); }
-	    else
-	    { mInsertItems(ioobjnms_,mnu,isstored); }
-	}
+	const int start = 0; const int stop = nritems;
+	if ( issteer )
+	{ mInsertItems(steernms_,mnu,isstored); }
+	else
+	{ mInsertItems(ioobjnms_,mnu,isstored); }
+    }
 
     menu->text = getMenuText( is2d, issteer, nritems>cMaxMenuSize );
 }
@@ -1246,8 +1263,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     BufferString bfs;
     if ( attribid.asInt() != SelSpec::cAttribNotSel().asInt() )
     {
-	const Attrib::DescSet* attrset = DSHolder().getDescSet(is2d, isstored);
-	const Attrib::Desc* desc = attrset ? attrset->getDesc( attribid ) : 0;
+	const DescSet* attrset = DSHolder().getDescSet(is2d, isstored);
+	const Desc* desc = attrset ? attrset->getDesc( attribid ) : 0;
 	if ( desc  )
 	{
 	    desc->getDefStr( bfs );
@@ -1325,7 +1342,7 @@ bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
 	    //Trick for old steering cubes: fake good component names
 	    if ( !is2d && issteering )
 	    {
-		Attrib::Desc* desc = ads->getDesc(attribid);
+		Desc* desc = ads->getDesc(attribid);
 		if ( !desc ) return false;
 		mFakeCompName( "Component 1", "Inline Dip" );
 		mFakeCompName( "Component 2", "Crossline Dip" );
@@ -1353,7 +1370,7 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	DescID did = ads->getStoredID( multiid, selectedcomps[idx], true );
 	SelSpec as( 0, did );
 	BufferString bfs;
-	Attrib::Desc* desc = ads->getDesc(did);
+	Desc* desc = ads->getDesc(did);
 	if ( !desc ) return false;
 
 	desc->getDefStr(bfs);
@@ -1383,12 +1400,12 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 }
 
 
-IOObj* uiAttribPartServer::getIOObj( const Attrib::SelSpec& as ) const
+IOObj* uiAttribPartServer::getIOObj( const SelSpec& as ) const
 {
     if ( as.isNLA() ) return 0;
 
-    const Attrib::DescSet* attrset = DSHolder().getDescSet( as.is2D(), true );
-    const Attrib::Desc* desc = attrset ? attrset->getDesc( as.id() ) : 0;
+    const DescSet* attrset = DSHolder().getDescSet( as.is2D(), true );
+    const Desc* desc = attrset ? attrset->getDesc( as.id() ) : 0;
     if ( !desc )
     {
         attrset = DSHolder().getDescSet( as.is2D(), false );
@@ -1485,10 +1502,9 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 
 	if ( crossevaldlg )
 	{
-	    const TypeSet<Attrib::DescID>& cids =
-		crossevaldlg->evaluateChildIds();
+	    const TypeSet<DescID>& cids = crossevaldlg->evaluateChildIds();
 	    BufferString ds = crossevaldlg->acceptedDefStr();
-	    Attrib::DescSet* ads = attrsetdlg_->getSet();
+	    DescSet* ads = attrsetdlg_->getSet();
 	    for ( int idx=0; idx<cids.size(); idx++ )
 	    {
 		Desc* ad = ads->getDesc( cids[idx] );
@@ -1587,7 +1603,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 	if ( !errmsgs.isEmpty() )
 	{
 	    uiString basemsg = tr("Error during restore of %1 Attribute Set")
-	                     .arg(is2d ? uiStrings::s2D(true) 
+			     .arg(is2d ? uiStrings::s2D(true)
                                        : uiStrings::s3D(true));
 	uiMSG().errorWithDetails( errmsgs, basemsg );
 	}

@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapackbase.h"
 
 #include "arrayndimpl.h"
-#include "bindatadesc.h"
 #include "bufstringset.h"
 #include "convmemvalseries.h"
 #include "flatposdata.h"
@@ -23,9 +22,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-TrcKeyDataPack::TrcKeyDataPack( const char* cat )
+TrcKeyDataPack::TrcKeyDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
     , zdominfo_(new ZDomain::Info(ZDomain::SI()))
+    , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
 {}
 
 
@@ -46,8 +46,9 @@ const ZDomain::Info& TrcKeyDataPack::zDomain() const
 { return *zdominfo_; }
 
 
-SampledAttribDataPack::SampledAttribDataPack( const char* cat )
-    : TrcKeyDataPack(cat)
+SampledAttribDataPack::SampledAttribDataPack( const char* cat,
+					      const BinDataDesc* bdd )
+    : TrcKeyDataPack(cat,bdd)
 {
     sampling_.init( false );
 }
@@ -89,8 +90,7 @@ const TrcKeyZSampling& SampledAttribDataPack::sampling() const
 { return sampling_; }
 
 
-bool SampledAttribDataPack::addComponent( const BinDataDesc* desc,
-					  const char* nm )
+bool SampledAttribDataPack::addComponent( const char* nm )
 {
     if ( !sampling_.isDefined() )
 	return false;
@@ -100,7 +100,7 @@ bool SampledAttribDataPack::addComponent( const BinDataDesc* desc,
     const int sz2 = sampling_.nrZ();
     float dummy; const BinDataDesc floatdesc( dummy );
     Array3DImpl<float>* arr = 0;
-    if ( !desc || (*desc)==floatdesc )
+    if ( desc_ == floatdesc )
     {
 	arr = new Array3DImpl<float>( sz0, sz1, sz2 );
 	if ( !arr->isOK() )
@@ -113,7 +113,7 @@ bool SampledAttribDataPack::addComponent( const BinDataDesc* desc,
     {
 	 arr = new Array3DImpl<float>( 0, 0, 0 );
 	 ConvMemValueSeries<float>* stor =
-				new ConvMemValueSeries<float>(0,*desc);
+				new ConvMemValueSeries<float>( 0, desc_ );
 	 arr->setStorage( stor );
 	 arr->setSize( sz0, sz1, sz2 );
 	 if ( !stor->storArr() )
@@ -149,7 +149,7 @@ Array3D<float>& SampledAttribDataPack::data( int component )
 
 float SampledAttribDataPack::nrKBytes() const
 {
-    return mCast(float,sampling_.totalNr()); // * desc->nrBytes();
+    return mCast(float,sampling_.totalNr()) * desc_.nrBytes() / 1024.f;
 }
 
 

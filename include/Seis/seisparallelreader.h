@@ -94,30 +94,32 @@ mExpClass(Seis) ParallelReader2D : public ParallelTask
 { mODTextTranslationClass(ParallelReader2D)
 public:
 			ParallelReader2D(const IOObj&,Pos::GeomID,
-					 const TrcKeyZSampling&);
+					 const TrcKeyZSampling* =0,
+					 const TypeSet<int>* comps=0);
 			/*!<Calculates nr of comps and allocates arrays to
 			    fit the cs. */
 
 			~ParallelReader2D();
 
-    const ObjectSet<Array2D<float> >* getArrays() const { return arrays_; }
+    SampledAttribDataPack* getDataPack(); // The caller now owns the datapack
 
     uiString		uiNrDoneText() const;
     uiString		uiMessage() const;
 
 protected:
     od_int64		nrIterations() const;
-    bool		doPrepare(int nrthreads);
     bool		doWork(od_int64,od_int64,int);
     bool		doFinish(bool);
 
+    SampledAttribDataPack*	dp_;
     TypeSet<int>		components_;
-    ObjectSet<Array2D<float> >* arrays_;
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     IOObj*			ioobj_;
     od_int64			totalnr_;
-    uiString			errmsg_;
+    uiString			msg_;
+
+    bool			dpclaimed_;
 };
 
 
@@ -125,9 +127,11 @@ mExpClass(Seis) SequentialReader : public Executor
 {
 public:
 			SequentialReader(const IOObj&,
-					 const TypeSet<int>& components,
-					 const TrcKeyZSampling&);
+					 const TrcKeyZSampling* =0,
+					 const TypeSet<int>* components=0);
 			~SequentialReader();
+
+    SampledAttribDataPack* getDataPack(); // The caller now owns the datapack
 
     uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return "Traces read"; }
@@ -139,8 +143,8 @@ protected:
 
     CBVSSeisTrcTranslator*	trl_;
     Seis::SelData*		sd_;
-    TrcKeyZSampling		tkzs_;
     SampledAttribDataPack*	dp_;
+    TrcKeyZSampling		tkzs_;
     TypeSet<int>		components_;
     Interval<int>		samprg_;
     unsigned char**		blockbufs_;
@@ -150,6 +154,9 @@ protected:
     od_int64			totalnr_;
     od_int64			nrdone_;
     uiString			msg_;
+
+    bool			dpclaimed_;
+
 };
 
 } // namespace Seis

@@ -15,9 +15,11 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "bufstringset.h"
+#include "datapackbase.h"
 #include "multiid.h"
 #include "ranges.h"
 #include "task.h"
+
 class IOObj;
 
 namespace Seis
@@ -26,12 +28,11 @@ namespace Seis
 mExpClass(Seis) PreLoader
 { mODTextTranslationClass(PreLoader);
 public:
+			PreLoader(const MultiID&,TaskRunner* tr=0);
 
-			PreLoader( const MultiID& ky, TaskRunner* trans=0 )
-			    : id_(ky), tr_(trans)		{}
     void		setID( const MultiID& ky )	{ id_ = ky; }
     const MultiID&	id() const			{ return id_; }
-    void		setRunner( TaskRunner& t )	{ tr_ = &t; }
+    void		setTaskRunner( TaskRunner& t )	{ tr_ = &t; }
 
     IOObj*		getIOObj() const;
     Interval<int>	inlRange() const;
@@ -39,15 +40,14 @@ public:
     void		getLineNames(BufferStringSet&) const;
     			//!< Line 2D only.
 
-    bool		loadVol() const;
-    bool		loadLines() const;
-    bool		loadLines(const BufferStringSet& lnms) const;
+    bool		loadVol(const TrcKeyZSampling&) const;
+    bool		loadLine(Pos::GeomID,const TrcKeyZSampling&) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
     bool		loadPS2D(const char* lnm=0) const;	//!< null => all
     bool		loadPS2D(const BufferStringSet&) const;
 
     void		unLoad() const;
-    uiString		errMsg() const			{ return errmsg_;}
+    uiString		errMsg() const			{ return errmsg_; }
 
     static void		load(const IOPar&,TaskRunner* tr=0);
     			//!< Seis.N.[loadObj_fmt]
@@ -56,7 +56,6 @@ public:
     void		fillPar(IOPar&) const;
 
     static const char*	sKeyLines();
-    static const char*	sKeyAttrs();
 
 protected:
 
@@ -70,7 +69,35 @@ protected:
 };
 
 
-} // namespace
+
+mExpClass(Seis) PreLoadDataManager
+{
+public:
+    void		add(const MultiID&,DataPack*);
+    void		remove(const MultiID&);
+    void		remove(int dpid);
+    DataPack*		get(const MultiID&);
+    DataPack*		get(int dpid);
+    const DataPack*	get(const MultiID&) const;
+    const DataPack*	get(int dpid) const;
+    void		getInfo(const MultiID&,BufferString&) const;
+
+    void		getIDs(TypeSet<MultiID>&) const;
+
+protected:
+
+    DataPackMgr&	dpmgr_;
+    TypeSet<MultiID>	mids_;
+    TypeSet<Pos::GeomID> geomids_;
+    TypeSet<int>	dpids_;
+
+public:
+			PreLoadDataManager();
+			~PreLoadDataManager();
+};
+
+mGlobal(Seis) PreLoadDataManager& PLDM();
+
+} // namespace Seis
 
 #endif
-

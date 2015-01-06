@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 
+#include "bindatadesc.h"
 #include "bufstringset.h"
 #include "datapack.h"
 #include "position.h"
@@ -39,8 +40,7 @@ public:
     virtual TrcKey		getTrcKey(od_int64 globaltrcidx)	= 0;
     virtual od_int64		getGlobalIdx(const TrcKey&) const	= 0;
 
-    virtual bool		addComponent(const BinDataDesc*,
-					     const char* nm)		= 0;
+    virtual bool		addComponent(const char* nm)		= 0;
 
     virtual int			nrComponents() const			= 0;
     virtual const char*		getComponentName(int comp=0) const	= 0;
@@ -56,31 +56,33 @@ public:
     const SamplingData<float>&	getScale(int comp) const;
 
 protected:
-					TrcKeyDataPack(const char*);
+					TrcKeyDataPack(const char*,
+						       const BinDataDesc*);
     TypeSet<SamplingData<float> >	scales_;
     ZDomain::Info*			zdominfo_;
+    BinDataDesc				desc_;
 };
 
 
 mExpClass(General) SampledAttribDataPack : public TrcKeyDataPack
 {
 public:
-				SampledAttribDataPack(const char* cat);
+				SampledAttribDataPack(const char* cat,
+						      const BinDataDesc* bdd=0);
 				~SampledAttribDataPack();
 
     od_int64			nrTrcs() const;
     TrcKey			getTrcKey(od_int64 globaltrcidx);
     od_int64			getGlobalIdx(const TrcKey& tk) const;
     const OffsetValueSeries<float> getTrcData(int comp,
-					    od_int64 globaltrcidx) const;
+					      od_int64 globaltrcidx) const;
 
     const StepInterval<float>	getZInterval(od_int64 gidx) const;
 
     void			setSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	sampling() const;
 
-    bool			addComponent(const BinDataDesc*,
-					     const char* nm);
+    bool			addComponent(const char* nm);
 
     int				nrComponents() const;
     const char*			getComponentName(int comp=0) const;

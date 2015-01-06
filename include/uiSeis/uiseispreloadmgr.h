@@ -14,7 +14,9 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "bufstringset.h"
+#include "multiid.h"
+
+class BufferStringSet;
 class uiListBox;
 class uiTextEdit;
 
@@ -22,7 +24,7 @@ class uiTextEdit;
 /*!\brief Shows loaded plugins and allows adding */
 
 mExpClass(uiSeis) uiSeisPreLoadMgr : public uiDialog
-{  mODTextTranslationClass(uiSeisPreLoadMgr);
+{ mODTextTranslationClass(uiSeisPreLoadMgr)
 public:
 			uiSeisPreLoadMgr(uiParent*);
 
@@ -30,7 +32,7 @@ protected:
 
     uiListBox*		listfld_;
     uiTextEdit*		infofld_;
-    BufferStringSet	ids_;
+    TypeSet<MultiID>	ids_;
 
     void		fillList();
     void		fullUpd(CallBacker*);
@@ -42,10 +44,6 @@ protected:
     void		unloadPush(CallBacker*);
     void		openPush(CallBacker*);
     void		savePush(CallBacker*);
-
-    BufferString	getLinesText(const BufferStringSet&) const;
-    BufferString	getFilesText(const BufferStringSet&,float&) const;
-
 };
 
 
