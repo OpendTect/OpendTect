@@ -12,21 +12,34 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivirtualkeyboard.h"
 
-#include "pixmap.h"
-#include "oddirs.h"
 #include "uicombobox.h"
+#include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsviewbase.h"
-#include "uigraphicsitemimpl.h"
 #include "uilineedit.h"
 #include "uispinbox.h"
 #include "uitable.h"
+
+#include "oddirs.h"
+#include "pixmap.h"
+#include "settings.h"
 
 
 static int nractivevirtualkeyboards_ = 0;
 
 bool uiVirtualKeyboard::isVirtualKeyboardActive()
 { return nractivevirtualkeyboards_; }
+
+const char* uiVirtualKeyboard::sKeyEnabVirtualKeyboard()
+{ return "dTect.Enable Virtual Keyboard"; }
+
+bool uiVirtualKeyboard::isVirtualKeyboardEnabled()
+{
+    Settings& setts = Settings::common();
+    bool enabled = false;
+    setts.getYN( sKeyEnabVirtualKeyboard(), enabled );
+    return enabled;
+}
 
 
 uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )

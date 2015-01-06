@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitable.h"
+#include "uivirtualkeyboard.h"
 
 static const char* sKeyCommon = "<general>";
 
@@ -321,6 +322,8 @@ mUpdateSettings( int, set )
 mUpdateSettings( const OD::String&, set )
 
 
+HiddenParam<uiGeneralSettingsGroup,char> enabvirtkeybgrp( false );
+HiddenParam<uiGeneralSettingsGroup,uiGenInput*> virtkeybfldgrp( 0 );
 
 // uiGeneralSettingsGroup
 uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
@@ -349,6 +352,17 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 	    "Show progress when loading stored data on cross-lines",
 	    BoolInpSpec(showcrlprogress_) );
     showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
+
+    bool enabvirtualkeyboard = false;
+    setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
+		  enabvirtualkeyboard );
+    enabvirtkeybgrp.setParam( this, enabvirtualkeyboard );
+
+    uiGenInput* virtualkeyboardfld = new uiGenInput( this,
+		"Enable Virtual Keyboard",
+		BoolInpSpec(enabvirtualkeyboard) );
+    virtualkeyboardfld->attach( alignedBelow, showcrlprogressfld_ );
+    virtkeybfldgrp.setParam( this, virtualkeyboardfld );
 }
 
 
@@ -380,6 +394,13 @@ bool uiGeneralSettingsGroup::acceptOK()
 		    mShowInlProgress );
     updateSettings( showcrlprogress_, showcrlprogressfld_->getBoolValue(),
 		    mShowCrlProgress );
+
+    const bool enabvirtualkeyboard = enabvirtkeybgrp.getParam( this );
+    uiGenInput* virtualkeyboardfld = virtkeybfldgrp.getParam( this );
+    const bool newval = virtualkeyboardfld ? virtualkeyboardfld->getBoolValue()
+					   : enabvirtualkeyboard;
+    updateSettings( enabvirtualkeyboard, newval,
+		    uiVirtualKeyboard::sKeyEnabVirtualKeyboard() );
 
     return true;
 }
