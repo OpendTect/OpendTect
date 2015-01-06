@@ -459,12 +459,6 @@ Pos::GeomID uiSeis2DLineNameSel::getInputGeomID() const
 }
 
 
-int uiSeis2DLineNameSel::getLineIndex() const
-{
-    return fld_->currentItem();
-}
-
-
 void uiSeis2DLineNameSel::setInput( const char* nm )
 {
     if ( fld_->isPresent(nm) )

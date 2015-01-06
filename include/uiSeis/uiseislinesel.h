@@ -128,8 +128,6 @@ public:
     void		setDataSet(const MultiID&); //!< Only when forread
     void		fillWithAll();
 
-    int			getLineIndex() const; //!< Only usable when forread
-
     Notifier<uiSeis2DLineNameSel>	nameChanged;
 
 protected:
