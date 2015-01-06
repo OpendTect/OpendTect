@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uisurvey.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
@@ -141,7 +142,8 @@ bool uiSurveySelectDlg::isNewSurvey() const
 // uiSurveySelect
 uiSurveySelect::uiSurveySelect( uiParent* p, bool forread, 
 				bool needvalidrootdir, const char* lbl )
-    : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl : "Survey" ),
+    : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl 
+						  : uiStrings::sSurvey() ),
 		 mCB(this,uiSurveySelect,selectCB))
     , dataroot_(GetBaseDataDir())
     , forread_(forread)
