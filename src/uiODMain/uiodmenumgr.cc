@@ -620,7 +620,7 @@ void uiODMenuMgr::fillSceneMenu()
     lastsceneitm_ = scenemnu_->insertSeparator();
 
     mInsertItem( scenemnu_, tr("Cascade"), mCascadeMnuItm );
-    uiMenu* tileitm = new uiMenu( &appl_, tr("Tile") );
+    uiMenu* tileitm = new uiMenu( &appl_, uiStrings::sTile() );
     scenemnu_->insertItem( tileitm );
 
     mInsertItem( tileitm, tr("Auto"), mTileAutoMnuItm );
