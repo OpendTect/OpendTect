@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolor.h"
 #include "uifiledlg.h"
 #include "uimainwin.h"
-
+#include "uistrings.h"
 
 namespace CmdDrive
 {
@@ -141,7 +141,8 @@ bool ColorOkCmd::act( const char* parstr )
 	}
     }
 
-    mParChannel( "Transparency", parnexxxt, partail, transparency, true );
+    mParChannel( uiStrings::sTransparency(), parnexxxt, partail, 
+		 transparency, true );
     col.setTransparency( transparency );
     mParTail( partail );
 
