@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uistrings.h"
 #include "datainpspec.h"
 #include "survinfo.h"
 #include "binidvalue.h"
@@ -354,7 +355,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
 		mCB(this,uiGenInputInputFld,valChangedNotify) );
 	step->setReadOnly( false );
 
-	lbl = new uiLabel(&intvalGrp, "Step" );
+	lbl = new uiLabel(&intvalGrp, uiStrings::sStep() );
     }
 
     intvalGrp.setHAlignObj( &start );

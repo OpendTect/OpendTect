@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uilineedit.h"
 #include "uilabel.h"
+#include "uistrings.h"
 
 static const int cUnLim = 1000000;
 static const float cMaxUnsnappedZStep = 0.999f;
@@ -101,7 +102,7 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 	    StepInterval<int>(mNINT32(limitrg.step),mNINT32(limitrg.width()),
 		    		  mNINT32(limitrg.step)) );
 	stepfld_->doSnap( cansnap_ );
-	lbl = new uiLabel( this, tr("step"), stepfld_ );
+	lbl = new uiLabel( this, uiStrings::sStep(), stepfld_ );
 	lbl->attach( rightOf, stopfld_ );
     }
 
@@ -289,7 +290,7 @@ void uiSelNrRange::makeInpFields( const char* lbltxt, StepInterval<int> limitrg,
 		    	    limitrg.step) );
 	stepfld_->doSnap( true );
 	stepfld_->valueChanging.notify( cb );
-	lbl = new uiLabel( this, "step", stepfld_ );
+	lbl = new uiLabel( this, uiStrings::sStep(), stepfld_ );
 	if ( stopfld )
 	    lbl->attach( rightOf, stopfld );
     }

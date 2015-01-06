@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 
 static const StepInterval<float> sDefaultOffsetRange( 0.f, 6000.f, 100.f );
 
@@ -167,7 +168,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	offsetfld_->valuechanged.notify(
 		mCB(this,uiRayTracer1D,offsetChangedCB) );
 
-	offsetstepfld_ = new uiGenInput( this, tr("step") );
+	offsetstepfld_ = new uiGenInput( this, uiStrings::sStep() );
 	offsetstepfld_->attach( rightOf, offsetfld_ );
 	offsetstepfld_->setElemSzPol( uiObject::Small );
 	offsetstepfld_->setValue( s.offsetrg_.step );

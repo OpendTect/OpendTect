@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uistratlvlsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "stratlevel.h"
 #include "survinfo.h"
 #include "valseriesevent.h"
@@ -75,7 +76,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 	    nosteplbl_->attach( rightOf, usestepfld_ );
 	}
 
-	extrstepfld_ = new uiGenInput( this, tr("Step"), 
+	extrstepfld_ = new uiGenInput( this, uiStrings::sStep(), 
 				       FloatInpSpec(defstep) );
 	extrstepfld_->setElemSzPol( uiObject::Small );
 	if ( usestepfld_ )

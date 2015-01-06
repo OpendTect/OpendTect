@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uishortcutsmgr.h"
 #include "uispinbox.h"
+#include "uistrings.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
@@ -36,7 +37,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
     sliceposbox_ = new uiSpinBox( toolbar_, 0, "Slice position" );
     sliceposbox_->valueChanging.notify( mCB(this,uiSlicePos,slicePosChg) );
 
-    uiLabel* steplabel = new uiLabel( toolbar_, tr("Step") );
+    uiLabel* steplabel = new uiLabel( toolbar_, uiStrings::sStep() );
 
     slicestepbox_ = new uiSpinBox( toolbar_, 0, "Slice step" );
     slicestepbox_->valueChanged.notify( mCB(this,uiSlicePos,sliceStepChg) );
@@ -124,7 +125,8 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
     else if ( orientation == OD::CrosslineSlice )
 	curcs_.hrg.start.crl() = curcs_.hrg.stop.crl() = posbox->getValue();
     else
-	curcs_.zsamp_.start = curcs_.zsamp_.stop = (float)posbox->getValue()/zfactor_;
+	curcs_.zsamp_.start = curcs_.zsamp_.stop 
+			    = (float)posbox->getValue()/zfactor_;
 
     if ( oldcs == curcs_ )
 	return;
