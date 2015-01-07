@@ -62,8 +62,7 @@ int main( int argc, char** argv )
     }
     else
     {
-	TypeSet<int> comps; comps += 0;
-	Seis::SequentialReader rdr( *ioobj, comps, tkzs );
+	Seis::SequentialReader rdr( *ioobj );
 	rdr.execute();
     }
 
