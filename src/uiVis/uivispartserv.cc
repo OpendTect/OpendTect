@@ -1933,8 +1933,8 @@ void uiVisPartServer::updateManipulatorStatus( visBase::DataObject* dobj,
 	return;
     }
 
-    const bool showmanipulator =  !so->isLocked() && 
-	workmode_==uiVisPartServer::Interactive && 
+    const bool showmanipulator =  !so->isLocked() &&
+	workmode_==uiVisPartServer::Interactive &&
 	isselected;
 
     if ( showmanipulator!=so->isManipulatorShown() )
@@ -1946,7 +1946,7 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,sel,cb);
     visBase::DataObject* dobj = visBase::DM().getObject( sel );
- 
+
     updateManipulatorStatus( dobj, true );
 
     selattrib_ = -1;
@@ -2004,20 +2004,19 @@ void uiVisPartServer::setMarkerPos( const Coord3& worldpos, int dontsetscene )
 
 void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 {
-    mDynamicCastGet( visSurvey::Scene*,scene,cb )
-	if ( !scene ) return;
+    mDynamicCastGet(visSurvey::Scene*,scene,cb)
+    if ( !scene ) return;
 
-    Coord3 worldpos = xytmousepos_ = scene->getMousePos( true );
-    if ( xytmousepos_.isDefined() && scene->getZAxisTransform() )
-	worldpos.z = scene->getZAxisTransform()->transformBack( xytmousepos_ );
+    xytmousepos_ = scene->getMousePos( true, true );
 
-    setMarkerPos( worldpos,scene->id() );
+    const Coord3 worldpos = scene->getMousePos( true, false );
+    setMarkerPos( worldpos, scene->id() );
 
     MouseCursorExchange::Info info( worldpos );
-    mousecursorexchange_->notifier.trigger( info,this );
+    mousecursorexchange_->notifier.trigger( info, this );
 
     eventmutex_.lock();
-    inlcrlmousepos_ = scene->getMousePos( false );
+    inlcrlmousepos_ = scene->getMousePos( false, true );
     mouseposval_ = scene->getMousePosValue();
     mouseposstr_ = scene->getMousePosString();
     zfactor_ = scene->zDomainUserFactor();
@@ -2240,7 +2239,7 @@ void uiVisPartServer::lock( int id, bool yn )
 
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
     so->lock( yn );
-   
+
     updateManipulatorStatus( dobj, selected.isPresent(id) );
 }
 

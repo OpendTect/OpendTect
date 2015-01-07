@@ -594,15 +594,29 @@ const Selector<Coord3>* Scene::getSelector() const
 }
 
 
-Coord3 Scene::getMousePos( bool xyt ) const
+Coord3 Scene::getMousePos( bool xyt, bool displayspace ) const
 {
-   if ( xyt ) return xytmousepos_;
+    if ( xyt && displayspace ) return xytmousepos_;
 
-   Coord3 res = xytmousepos_;
-   BinID binid = SI().transform( Coord(res.x,res.y) );
-   res.x = binid.inl();
-   res.y = binid.crl();
-   return res;
+    Coord3 res = xytmousepos_;
+    if ( !displayspace && datatransform_ && res.isDefined() )
+    {
+	BufferString linenm; int trcnr = -1;
+	infopar_.get( sKey::LineKey(), linenm );
+	infopar_.get( sKey::TraceNr(), trcnr );
+	if ( !linenm.isEmpty() && trcnr>=0 )
+	    res.z = datatransform_->transformBack2D( linenm, trcnr,
+						     (float)xytmousepos_.z );
+	else
+	    res.z = datatransform_->transformBack( xytmousepos_ );
+    }
+
+    if ( xyt ) return res;
+
+    BinID binid = SI().transform( Coord(res.x,res.y) );
+    res.x = binid.inl();
+    res.y = binid.crl();
+    return res;
 }
 
 

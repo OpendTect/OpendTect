@@ -124,7 +124,7 @@ public:
     Notifier<Scene>		mouseposchange;
     Notifier<Scene>		mousecursorchange;
     Notifier<Scene>		sceneboundingboxupdated;
-    Coord3			getMousePos(bool xyt) const;
+    Coord3			getMousePos(bool xyt,bool displayspace) const;
 				/*! If not xyt it is inlcrlt */
     BufferString		getMousePosValue() const;
     BufferString		getMousePosString() const;
