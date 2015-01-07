@@ -248,11 +248,13 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 
     TypeSet<Pos::GeomID> geomids;
     ss2d->selectedGeomIDs( geomids );
-    TrcKeyZSampling cs;
+    TrcKeyZSampling tkzs;
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	ss2d->getSampling( cs, idx );
-	if ( !spl.loadLine(geomids[idx],cs) )
+	const Pos::GeomID& geomid = geomids[idx];
+	ss2d->getSampling( tkzs, idx );
+	tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+	if ( !spl.loadLine(geomid,tkzs) )
 	{
 	    const uiString emsg = spl.errMsg();
 	    if ( !emsg.isEmpty() )

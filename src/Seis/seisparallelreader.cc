@@ -301,7 +301,7 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
     totalnr_ = tkzs_.hsamp_.totalNr();
 
     dp_ = new SampledAttribDataPack( Seis::nameOf(info.geomType()) );
-    dp_->setSampling( tkzs );
+    dp_->setSampling( tkzs_ );
 
     BufferStringSet compnames;
     info.getComponentNames( compnames );
