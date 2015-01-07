@@ -387,17 +387,19 @@ bool uiODRandomLineTreeItem::init()
 void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID()!=displayID() || istb )
+    if ( !menu || menu->menuID()!=displayID() )
 	return;
 
-    mAddMenuItem( menu, &create2dgridmnuitem_, true, false );
+    mAddMenuOrTBItem( istb, 0, menu, &create2dgridmnuitem_, true, false );
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv_->getObject(displayid_));
     if (  rtd->nrKnots() <= 0 ) return;
     const bool islocked = rtd->isGeometryLocked() || rtd->isLocked();
-    mAddMenuItem( &displaymnuitem_, &editnodesmnuitem_, !islocked, false );
-    mAddMenuItem( &displaymnuitem_, &insertnodemnuitem_, !islocked, false );
+    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &editnodesmnuitem_,
+		      !islocked, false );
+    mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &insertnodemnuitem_,
+		      !islocked, false );
     insertnodemnuitem_.removeItems();
 
     for ( int idx=0; !islocked && idx<=rtd->nrKnots(); idx++ )
@@ -418,8 +420,8 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 			    rtd->canAddKnot(idx), false );
     }
 
-    mAddMenuItem( menu, &saveasmnuitem_, true, false );
-    mAddMenuItem( menu, &saveas2dmnuitem_, true, false );
+    mAddMenuOrTBItem( istb, 0, menu, &saveasmnuitem_, true, false );
+    mAddMenuOrTBItem( istb, 0, menu, &saveas2dmnuitem_, true, false );
 }
 
 
