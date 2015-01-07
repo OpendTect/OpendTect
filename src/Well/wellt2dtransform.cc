@@ -1,4 +1,3 @@
-
 /*+
 ________________________________________________________________________
 
@@ -126,9 +125,17 @@ bool WellT2DTransform::setWellID( const MultiID& mid )
 }
 
 
-bool WellT2DTransform::usePar( const IOPar& iop )
+void WellT2DTransform::fillPar( IOPar& par ) const
 {
-    if ( !ZAxisTransform::usePar(iop) )
+    ZAxisTransform::fillPar( par );
+    if ( data_ )
+	par.set( sKey::ID(), data_->multiID() );
+}
+
+
+bool WellT2DTransform::usePar( const IOPar& par )
+{
+    if ( !ZAxisTransform::usePar(par) )
 	return false;
 
     if ( !tozdomaininfo_.hasID() )
