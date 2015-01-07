@@ -549,8 +549,10 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
 {
     BufferString dlgcaption( "Edit '", log.name(), "' log" );
     setCaption( dlgcaption );
-    uiTable::Setup ts( log_.size(), 2 );
+    uiTable::Setup ts( log_.size(), 2 ); ts.rowgrow(true);
     table_ = new uiTable( this, ts, "Well log table" );
+    table_->setSelectionMode( uiTable::Multi );
+    table_->setSelectionBehavior( uiTable::SelectRows );
     table_->valueChanged.notify( mCB(this,uiWellLogEditor,valChgCB) );
 
     BufferStringSet colnms; colnms.add("MD").add(log_.name());
