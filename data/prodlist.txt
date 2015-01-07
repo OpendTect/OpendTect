@@ -6,16 +6,16 @@ Fluid Contact Finder`dgbccb
 Well Correlation Panel`dgbwcp
 SynthRock`dgbstrat
 Velocity Model Building`dgbvmb
-Workstation Access `arkclswsa
-Petrel Connector `arkclsodc
-PDF3D `arkclspdf3d
-Seismic Coloured Inversion `arkclssciplugin
-Seismic Spectral Blueing `arkclsssbplugin
-Seismic Feature Enhancement `arkclssfe
-Seismic Net Pay `arkclssnp
-GeoDataSync Accelerate `arkclsgdsa
-MPSI UltraFast Stochastic Inversion `arkclsmpsi
-MPSI `arkclsmpsi
-XField `arkclsxf2
+Workstation Access`arkclswsa
+Petrel Connector`arkclsodc
+PDF3D`arkclspdf3d
+Seismic Coloured Inversion`arkclssciplugin
+Seismic Spectral Blueing`arkclsssbplugin
+Seismic Feature Enhancement`arkclssfe
+Seismic Net Pay`arkclssnp
+GeoDataSync Accelerate`arkclsgdsa
+MPSI UltraFast Stochastic Inversion`arkclsmpsi
+MPSI`arkclsmpsi
+XField`arkclsxf2
 CLAS Computer Log Analysis Software`clas
-ethos(TM) Processing System `ethos
+ethos(TM) Processing System`ethos

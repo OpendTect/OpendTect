@@ -43,12 +43,14 @@ protected:
     void			createUI();
     int				getProductIndex(const char* prodnm) const;
     bool			isVendorSelected(const char*) const;
+    BufferString		getVendorShortName(const char*) const;
 
     bool			acceptOK(CallBacker*);
 
     ObjectSet<PluginProduct>	products_;
     BufferStringSet		vendors_;
     uiTreeView*			treefld_;
+    IOPar&			vendornamepars_;
 };
 
 
