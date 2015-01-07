@@ -25,7 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded("Seis");
-    
+    OD::ModDeps().ensureLoaded("Well");
+
     TrcKeyZSampling outputcs;
     if ( !outputcs.hrg.usePar( pars() ) )
     { outputcs.hrg.init( true ); }
@@ -40,28 +41,28 @@ bool BatchProgram::go( od_ostream& strm )
     MultiID inputmid;
     if ( !pars().get( ProcessTime2Depth::sKeyInputVolume(), inputmid) )
     {
-	strm << "Cannot read input volume id"; 
+	strm << "Cannot read input volume id";
 	return false;
     }
 
     PtrMan<IOObj> inputioobj = IOM().get( inputmid );
     if ( !inputioobj )
     {
-	strm << "Cannot read input volume object"; 
+	strm << "Cannot read input volume object";
 	return false;
     }
 
     MultiID outputmid;
     if ( !pars().get( ProcessTime2Depth::sKeyOutputVolume(), outputmid ) )
     {
-	strm << "Cannot read output volume id"; 
+	strm << "Cannot read output volume id";
 	return false;
     }
 
     PtrMan<IOObj> outputioobj = IOM().get( outputmid );
     if ( !outputioobj )
     {
-	strm << "Cannot read output volume object"; 
+	strm << "Cannot read output volume object";
 	return false;
     }
 
@@ -94,7 +95,7 @@ bool BatchProgram::go( od_ostream& strm )
 	strm << "Cannot read direction";
 	return false;
     }
-    
+
     VelocityDesc veldesc;
     const bool isvel = veldesc.usePar( inputioobj->pars() ) &&
 			veldesc.isVelocity();
@@ -111,10 +112,10 @@ bool BatchProgram::go( od_ostream& strm )
 	exec->setVelTypeIsVint( veldesc.type_ == VelocityDesc::Interval );
 
 	const bool isvrms = veldesc.type_ == VelocityDesc::RMS;
-	if ( isvrms )                                                           
-	{                                                                       
-	    exec->setVelTypeIsVrms( isvrms );                                   
-	    strm << "\nDetected that the input cube contains RMS velocities.\n" 
+	if ( isvrms )
+	{
+	    exec->setVelTypeIsVrms( isvrms );
+	    strm << "\nDetected that the input cube contains RMS velocities.\n"
 		"RMS velocities are not present in Depth domain;\n"
 		"a conversion to interval velocities will thus be processed.\n";
 	}
