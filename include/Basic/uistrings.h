@@ -101,6 +101,10 @@ public:
     static uiString sSelect(bool immediate);
     static uiString sSettings(bool immediate);
     static uiString sSetup()		{ return tr("Setup"); }
+    static uiString sSeedData()		{ 
+					  return tr("Which one is "
+						    "your seed data.");
+					}
     static uiString sShift(bool immediate);
     static uiString sShow()             { return tr("Show"); }
     static uiString sSteering()		{ return tr("Steering"); }

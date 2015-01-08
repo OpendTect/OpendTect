@@ -308,7 +308,7 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 	const bool wvavisible = editor_->viewer().isVisible(true);
 	if ( vdvisible && wvavisible )
 	{
-	    if ( !uiMSG().question(tr("Which one is your seed data."),
+	    if ( !uiMSG().question(uiStrings::sSeedData(),
 				   tr("VD"), uiStrings::sWiggle()) )
 		pickinvd = false;
 	}
