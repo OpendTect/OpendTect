@@ -589,25 +589,23 @@ void uiWellMan::wellsChgd()
     if ( nrsel < 1 ) \
 	mErrRet(msgtxt)
 
-#define mGetWL(msgtxt2) \
-    currdrs_[0]->getLogs(); \
-    const Well::LogSet& wls = curwds_[0]->logs(); \
-    const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() ); \
-    const Well::Log* wl = wls.getLog( lognm ); \
-    if ( !wl ) \
-	mErrRet( msgtxt2 )
 
 
 
 void uiWellMan::viewLogPush( CallBacker* )
 {
     mEnsureLogSelected(tr("No log selected"))
-	mGetWL(tr("Cannot read selected log"))
+    currdrs_[0]->getLogs();
+    const Well::LogSet& wls = curwds_[0]->logs();
+    const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() );
+    const Well::Log* wl = wls.getLog( lognm );
+    if ( !wl )
+	mErrRet( tr("Cannot read selected log") )
 
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
     const int maxnrchosen = curwds_.size()*lognms.size();
-  //TODO Work for more than 2 logs
+
     if ( !maxnrchosen || maxnrchosen > 2 )
 	return;
 
@@ -615,11 +613,10 @@ void uiWellMan::viewLogPush( CallBacker* )
     const Well::Log* wl2=0;
     if ( curwds_[0] )
     {
-	currdrs_[0]->getLogs();
 	const Well::LogSet& wls1 = curwds_[0]->logs();
-	wl1 = wls1.getLog( lognms.get( 0 ) );
+	wl1 = wls1.getLog( lognms.get(0) );
 	if (  lognms.size() == 2 )
-	    wl2 = wls1.getLog( lognms.get( 1 ) );
+	    wl2 = wls1.getLog( lognms.get(1) );
     }
 
     if ( curwds_.size() > 1 && curwds_[1] )
