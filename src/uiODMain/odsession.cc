@@ -227,7 +227,7 @@ mDefSimpleTranslatorioContext(ODSession,Misc)
 bool ODSessionTranslator::retrieve( ODSession& session,
 				    const IOObj* ioobj, uiString& err )
 {
-    if ( !ioobj ) { err = uiStrings::sObjDatBas(); return false; }
+    if ( !ioobj ) { err = uiStrings::sCantFindODB(); return false; }
     PtrMan<ODSessionTranslator> trans =
 		dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans ) 

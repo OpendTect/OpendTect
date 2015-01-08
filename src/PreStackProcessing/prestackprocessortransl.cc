@@ -32,7 +32,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 {
     if ( !ioobj )
     {
-	msg = uiStrings::sObjDatBas();
+	msg = uiStrings::sCantFindODB();
 	return false;
     }
     mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> ptrl,

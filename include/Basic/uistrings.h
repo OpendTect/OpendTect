@@ -81,7 +81,7 @@ static uiString sCantReadInpData()	{
     static uiString sNext()		{ return tr("Next >"); }
     static uiString sNo()		{ return tr("No"); }
     static uiString sNone()		{ return tr("None"); }
-    static uiString sObjDatBas()	{ 
+    static uiString sCantFindODB()	{ 
 					  return tr("Cannot find object "
 						    "in data base");    
 					}

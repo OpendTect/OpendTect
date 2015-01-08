@@ -84,7 +84,7 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 					const IOObj* ioobj, uiString& bs)
 {
-    if (!ioobj) { bs = uiStrings::sObjDatBas(); return false; }
+    if (!ioobj) { bs = uiStrings::sCantFindODB(); return false; }
     PtrMan<AttribDescSetTranslator> trans
 	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
     if (!trans)

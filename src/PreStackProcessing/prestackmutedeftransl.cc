@@ -40,7 +40,7 @@ int MuteDefTranslatorGroup::selector( const char* key )
 bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 				  uiString& msg )
 {
-    if ( !ioobj ) { msg = uiStrings::sObjDatBas(); return false; }
+    if ( !ioobj ) { msg = uiStrings::sCantFindODB(); return false; }
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
     if ( !mdtrl )
