@@ -34,8 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static IOObjContext mkCtxt()
 {
-    IOObjContext ret( mIOObjContext(Survey::SurvGeom) );
-    ret.toselect.allowtransls_= Survey::dgb2DSurvGeomTranslator::translKey();
+    IOObjContext ret( mIOObjContext(SurvGeom2D) );
     return ret;
 }
 
@@ -62,11 +61,17 @@ class uiManageLineGeomDlg : public uiDialog
 { mODTextTranslationClass(uiManageLineGeomDlg);
 public:
 
-uiManageLineGeomDlg( uiParent* p, const char* linenm )
+uiManageLineGeomDlg( uiParent* p, const char* linenm, bool readonly )
     : uiDialog(p,uiDialog::Setup("Manage Line Geometry",mNoDlgTitle,
 				 mODHelpKey(mManageLineGeomDlgHelpID)))
-    , linenm_(linenm)
+    , linenm_(linenm),readonly_(readonly)
 {
+    if ( readonly )
+    {
+	setCtrlStyle( CloseOnly );
+	setCaption( "Browse Line Geometry" );
+    }
+
     BufferString lbl( "Linename : ");
     lbl.add( linenm );
 
@@ -88,15 +93,21 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
     BufferStringSet collbls;
     collbls.add( "Trace Number" ); collbls.add( "X" ); collbls.add( "Y" );
     table_->setColumnLabels( collbls );
+    if ( readonly )
+	table_->setTableReadOnly( true );
 
     FloatInpIntervalSpec spec( true );
     rgfld_ = new uiGenInput( this, "Z-Range", spec );
     rgfld_->attach( leftAlignedBelow, table_ );
     rgfld_->setValue( geom2d->data().zRange() );
+    rgfld_->setReadOnly( readonly );
 
-    readnewbut_ = new uiPushButton( this, "Import New Geometry ...",
-			mCB(this,uiManageLineGeomDlg,impLineGeom), true );
-    readnewbut_->attach( centeredBelow, rgfld_ );
+    if ( !readonly )
+    {
+	readnewbut_ = new uiPushButton( this, "Import New Geometry ...",
+			    mCB(this,uiManageLineGeomDlg,impLineGeom), true );
+	readnewbut_->attach( centeredBelow, rgfld_ );
+    }
 
     fillTable( geom2d->data() );
 }
@@ -134,6 +145,9 @@ bool acceptOK( CallBacker* )
 
 void impLineGeom( CallBacker* )
 {
+    if ( readonly_ )
+	return;
+
     uiGeom2DImpDlg dlg( this, linenm_ );
     if ( !dlg.go() ) return;
 
@@ -203,6 +217,7 @@ bool acceptOK( CallBacker* )
 }
 
     const char*		linenm_;
+    bool		readonly_;
     uiTable*		table_;
     uiGenInput*		rgfld_;
     uiPushButton*	readnewbut_;
@@ -216,7 +231,12 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    uiManageLineGeomDlg dlg( this, curioobj_->name() );
+    PtrMan<Translator> transl = curioobj_->createTranslator();
+    if ( !transl )
+	return;
+
+    uiManageLineGeomDlg dlg( this, curioobj_->name(),
+			     !transl->isUserSelectable(false) );
     dlg.go();
 }
 

@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
+#include "survgeometrytransl.h"
 #include "seis2dlineio.h"
 #include "uistring.h"
 
@@ -98,6 +99,23 @@ protected:
     BufferString		fname_;
     SEGYSeisTrcTranslator*	tr_;
     const int			trcsperstep_;
+
+};
+
+
+mExpClass(General) SEGYDirectSurvGeom2DTranslator : public SurvGeom2DTranslator
+{
+			isTranslator(SEGYDirect,SurvGeom2D);
+public:
+			SEGYDirectSurvGeom2DTranslator(const char* s1,
+						       const char* s2)
+			    : SurvGeom2DTranslator(s1,s2)	{}
+
+    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const;
+    bool		writeGeometry(IOObj&,Survey::Geometry&,uiString&) const;
+    bool		isUserSelectable(bool fr) const		{ return fr; }
+
+    static const char*	sKeySEGYDirectID();
 
 };
 

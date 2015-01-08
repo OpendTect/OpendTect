@@ -17,44 +17,44 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "transl.h"
 
-namespace Survey
-{
+//TODO: Make Translator/Group classes for 3D when needed.
 
-mExpClass(General) SurvGeomTranslatorGroup : public TranslatorGroup
+mExpClass(General) SurvGeom2DTranslatorGroup : public TranslatorGroup
 {
-			isTranslatorGroup(SurvGeom);
-
+			isTranslatorGroup(SurvGeom2D);
 public:
-			mDefEmptyTranslatorGroupConstructor(SurvGeom);
+			mDefEmptyTranslatorGroupConstructor(SurvGeom2D);
     const char*		defExtension() const	{ return "geom"; }
     static FixedString	keyword();
 };
 
 
-mExpClass(General) SurvGeomTranslator : public Translator
+mExpClass(General) SurvGeom2DTranslator : public Translator
 {
 public:
-			mDefEmptyTranslatorBaseConstructor(SurvGeom);
+				mDefEmptyTranslatorBaseConstructor(SurvGeom2D);
+
+    virtual Survey::Geometry*	readGeometry(const IOObj&,uiString&) const = 0;
+    virtual bool		writeGeometry(IOObj&,Survey::Geometry&,
+					      uiString&) const		   = 0;
+
+    static Pos::GeomID	getGeomID(const IOObj&);
+    static IOObj*	createEntry(const char* objname,const char* trnm);
+
 };
 
 
-mExpClass(General) dgb2DSurvGeomTranslator : public SurvGeomTranslator
+mExpClass(General) dgbSurvGeom2DTranslator : public SurvGeom2DTranslator
 {
-			isTranslator(dgb2D,SurvGeom);
+			isTranslator(dgb,SurvGeom2D);
 public:
-			mDefEmptyTranslatorConstructor(dgb2D,SurvGeom);
+			dgbSurvGeom2DTranslator(const char* s1,const char* s2)
+			    : SurvGeom2DTranslator(s1,s2)	{}
+
+    Survey::Geometry*	readGeometry(const IOObj&,uiString&) const;
+    bool		writeGeometry(IOObj&,Survey::Geometry&,uiString&) const;
 
 };
 
-
-mExpClass(General) dgb3DSurvGeomTranslator : public SurvGeomTranslator
-{
-			isTranslator(dgb3D,SurvGeom);
-public:
-			mDefEmptyTranslatorConstructor(dgb3D,SurvGeom);
-
-};
-
-} // namespace Survey
 
 #endif

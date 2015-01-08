@@ -7,6 +7,15 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "segydirect2d.h"
+
+#include "dirlist.h"
+#include "executor.h"
+#include "file.h"
+#include "filepath.h"
+#include "ioman.h"
+#include "keystrs.h"
+#include "posinfo2d.h"
+#include "ptrman.h"
 #include "segydirectdef.h"
 #include "segydirecttr.h"
 #include "segytr.h"
@@ -14,17 +23,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispacketinfo.h"
 #include "seisselection.h"
 #include "seisbuf.h"
-#include "posinfo2d.h"
-#include "dirlist.h"
-#include "executor.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
-#include "keystrs.h"
-#include "file.h"
-#include "filepath.h"
-#include "ptrman.h"
 
 #define mCapChar '^'
+
 static const char* sExtSEGDirect = "sgydef";
 
 int SEGYDirect2DLineIOProvider::factid_
@@ -368,5 +371,44 @@ bool SEGYDirect2DLinePutter::close()
     bool ret = tr_->close();
     if ( ret ) errmsg_ = tr_->errMsg();
     return ret;
+}
+
+
+const char* SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID()
+{ return "SEGY Direct ID"; }
+
+Survey::Geometry* SEGYDirectSurvGeom2DTranslator::readGeometry(
+				const IOObj& ioobj, uiString& errmsg ) const
+{
+    MultiID segydirectid;
+    if ( !ioobj.pars().get(sKeySEGYDirectID(),segydirectid) )
+	return 0;
+
+    PtrMan<IOObj> segydirectobj = IOM().get( segydirectid );
+    if ( !segydirectobj )
+	return 0;
+
+    const Survey::Geometry::ID geomid = ioobj.key().ID( 1 );
+    const OD::String& segydeffnm =
+	SEGYDirect2DLineIOProvider::getFileName( *segydirectobj, geomid );
+    SEGY::DirectDef sgydef( segydeffnm );
+    const PosInfo::Line2DData& ld = sgydef.lineData();
+    if ( ld.isEmpty() )
+	return 0;
+
+    PosInfo::Line2DData* data = new PosInfo::Line2DData( ld );
+    data->setLineName( ioobj.name() );
+    Survey::Geometry2D* geom = new Survey::Geometry2D( data );
+    geom->setID( geomid );
+    return geom;
+}
+
+
+bool SEGYDirectSurvGeom2DTranslator::writeGeometry( IOObj& ioobj,
+						    Survey::Geometry& geom,
+						    uiString& errmsg ) const
+{
+    pErrMsg("This function should not be called");
+    return false;
 }
 

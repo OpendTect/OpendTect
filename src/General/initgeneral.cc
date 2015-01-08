@@ -51,8 +51,8 @@ mDefModInitFn(General)
     Survey::GeometryWriter3D::initClass();
     Survey::GeometryReader3D::initClass();
     Survey::GeometryReader2D::initClass();
-    Survey::SurvGeomTranslatorGroup::initClass();
-    Survey::dgb2DSurvGeomTranslator::initClass();
+    SurvGeom2DTranslatorGroup::initClass();
+    dgbSurvGeom2DTranslator::initClass();
 
     IOM(); //Trigger createion & reading of geometries
 

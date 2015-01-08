@@ -59,27 +59,21 @@ protected:
     int nextStep()
     {
 	const IOObj* ioobj = objs_[mCast(int,nrdone_)];
-	if ( ioobj->translator() != dgb2DSurvGeomTranslator::translKey() ||
-	     ioobj->key().nrKeys() != 2 )
-	    mReturn
-
-	const Geometry::ID geomid = ioobj->key().ID( 1 );
+	const Geometry::ID geomid = SurvGeom2DTranslator::getGeomID( *ioobj );
 	if ( updateonly_ && isLoaded(geomid) )
 	    mReturn
 
-	od_istream strm( ioobj->fullUserExpr() );
-	if ( !strm.isOK() )
+	mDynamicCastGet(SurvGeom2DTranslator*,transl,ioobj->createTranslator())
+	if ( !transl )
 	    mReturn
 
-	PosInfo::Line2DData* data = new PosInfo::Line2DData;
-	if ( !data->read(strm,false) )
-	    { delete data; mReturn }
-
-	data->setLineName( ioobj->name() );
-	Geometry2D* geom = new Geometry2D( data );
-	geom->setID( geomid );
-	geom->ref();
-	geometries_ += geom;
+	uiString errmsg;
+	Geometry* geom = transl->readGeometry( *ioobj, errmsg );
+	if ( geom )
+	{
+	    geom->ref();
+	    geometries_ += geom;
+	}
 
 	mReturn
     }
@@ -108,7 +102,10 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
     if ( !ioobj || ioobj->key().nrKeys() != 2)
 	return false;
 
-    geom2d->setID( ioobj->key().ID(1) );
+    mDynamicCastGet(SurvGeom2DTranslator*,transl,ioobj->createTranslator())
+    if ( !transl )
+	return false;
+
     const FixedString crfromstr( createfromstr );
     if ( !crfromstr.isEmpty() )
     {
@@ -116,13 +113,7 @@ bool GeometryWriter2D::write( Geometry& geom, uiString& errmsg,
 	IOM().commitChanges( *ioobj );
     }
 
-    od_ostream strm( ioobj->fullUserExpr() );
-    const bool res = !strm.isOK() ? false
-		   : geom2d->data().write( strm, false, true );
-    if ( !res )
-	errmsg = strm.errMsg();
-
-    return res;
+    return transl->writeGeometry( *ioobj, geom, errmsg );
 }
 
 
@@ -131,22 +122,14 @@ Geometry::ID GeometryWriter2D::createNewGeomID( const char* name ) const
     PtrMan<IOObj> geomobj = createEntry( name );
     if ( !geomobj )
 	return Survey::GM().cUndefGeomID();
-    return geomobj->key().ID( 1 );
+    return SurvGeom2DTranslator::getGeomID( *geomobj );
 }
 
 
 IOObj* GeometryWriter2D::createEntry( const char* name ) const
 {
-    const IOObjContext& iocontext = mIOObjContext(SurvGeom);
-    if ( !IOM().to(iocontext.getSelKey()) )
-	return 0;
-
-    CtxtIOObj ctio( iocontext );
-    ctio.ctxt.setName( name );
-    if ( ctio.fillObj() == 0 )
-	return 0;
-
-    return ctio.ioobj;
+    return SurvGeom2DTranslator::createEntry( name,
+					dgbSurvGeom2DTranslator::translKey() );
 }
 
 
@@ -159,7 +142,7 @@ void GeometryWriter3D::initClass()
 bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 			     TaskRunner* tr ) const
 {
-    const IOObjContext& iocontext = mIOObjContext(SurvGeom);
+    const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
     const IODir iodir( iocontext.getSelKey() );
     if ( iodir.isBad() )
 	return false;
@@ -173,7 +156,7 @@ bool GeometryReader2D::read( ObjectSet<Geometry>& geometries,
 bool GeometryReader2D::updateGeometries( ObjectSet<Geometry>& geometries,
 					 TaskRunner* tr ) const
 {
-    const IOObjContext& iocontext = mIOObjContext(SurvGeom);
+    const IOObjContext& iocontext = mIOObjContext(SurvGeom2D);
     const IODir iodir( iocontext.getSelKey() );
     if ( iodir.isBad() )
 	return false;

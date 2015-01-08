@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segyscanner.h"
 #include "segydirectdef.h"
 #include "segydirecttr.h"
+#include "segydirect2d.h"
 #include "seispsioprov.h"
 #include "file.h"
 #include "od_strstream.h"
@@ -77,7 +78,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	if ( Seis::is2D(setup_.geom_) )
 	{
 	    outfld_->setConfirmOverwrite( false );
-	    lnmfld_ = new uiSeis2DLineSel( this );
+	    lnmfld_ = new uiSeis2DLineNameSel( this, false );
 	    lnmfld_->attach( alignedBelow, outfld_ );
 	}
 
@@ -123,12 +124,11 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 bool uiSEGYScanDlg::doWork( const IOObj& )
 {
     BufferString pathnm, lnm;
-
     if ( outfld_ )
     {
 	if ( lnmfld_ )
 	{
-	    lnm = lnmfld_->lineName();
+	    lnm = lnmfld_->getInput();
 	    if ( lnm.isEmpty() )
 		mErrRet("Please select the line name",0)
 	}
@@ -175,7 +175,25 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	js.pars_.merge( pars_ );
 	js.pars_.set( sKey::Output(), outfld_->key(true) );
 	if ( lnmfld_ )
-	    js.pars_.set( sKey::GeomID(), lnmfld_->geomID() );
+	{
+	    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+	    if ( geomid == mUdfGeomID )
+	    {
+		PtrMan<IOObj> geomobj = SurvGeom2DTranslator::createEntry( lnm,
+				SEGYDirectSurvGeom2DTranslator::translKey() );
+		if ( !geomobj )
+		    mErrRet("Cannot create geometry entry for 2D line",lnm)
+
+		geomobj->pars().set(
+			SEGYDirectSurvGeom2DTranslator::sKeySEGYDirectID(),
+			outfld_->key(true) );
+		IOM().commitChanges( *geomobj );
+		geomid = SurvGeom2DTranslator::getGeomID( *geomobj );
+	    }
+
+	    js.pars_.set( sKey::GeomID(), geomid );
+	}
+
 	return batchfld_->start();
     }
 

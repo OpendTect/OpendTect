@@ -26,8 +26,7 @@ ________________________________________________________________________
 
 static IOObjContext getIOObjContext()
 {
-    IOObjContext ctxt( mIOObjContext(Survey::SurvGeom) );
-    ctxt.fixTranslator( Survey::dgb2DSurvGeomTranslator::translKey() );
+    IOObjContext ctxt( mIOObjContext(SurvGeom2D) );
     return ctxt;
 }
 

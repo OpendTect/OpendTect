@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uisegyreaddlg.h"
 namespace SEGY { class Scanner; class FileIndexer; }
 class uiSeisSel;
-class uiSeis2DLineSel;
+class uiSeis2DLineNameSel;
 class uiBatchJobDispatcherSel;
 
 
@@ -43,8 +43,9 @@ protected:
     bool		forsurvsetup_;
 
     uiSeisSel*		outfld_;
-    uiBatchJobDispatcherSel* batchfld_;
-    uiSeis2DLineSel*	lnmfld_;
+
+    uiBatchJobDispatcherSel*	batchfld_;
+    uiSeis2DLineNameSel*	lnmfld_;
 
     virtual bool	doWork(const IOObj&);
 

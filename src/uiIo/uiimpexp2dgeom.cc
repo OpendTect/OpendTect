@@ -30,7 +30,7 @@ uiExp2DGeom::uiExp2DGeom( uiParent* p )
 {
     setOkText( uiStrings::sExport() );
 
-    IOObjContext ctxt = mIOObjContext( Survey::SurvGeom );
+    IOObjContext ctxt = mIOObjContext( SurvGeom2D );
     geomfld_ = new uiIOObjSelGrp( this, ctxt,
 				  uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
