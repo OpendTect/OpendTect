@@ -448,10 +448,10 @@ void uiODSceneMgr::setToWorkMode( uiVisPartServer::WorkMode wm )
     bool yn = ( wm == uiVisPartServer::View ) ? true : false;
 
     mDoAllScenes(sovwr_,setViewMode,yn);
-    visServ().setWorkMode( wm , false );
     if ( appl_.menuMgrAvailable() ) 
 	appl_.menuMgr().updateViewMode( yn );
 
+    visServ().setWorkMode( wm , false );
     updateStatusBar();
 }
 
