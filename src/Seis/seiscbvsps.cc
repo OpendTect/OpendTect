@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmoper.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "od_iostream.h"
 #include <string.h>
 
@@ -462,7 +463,7 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
 	return false;
     }
 
-    errmsg_ = "";
+    errmsg_ = uiStrings::sEmptyString();
     trans = CBVSSeisTrcTranslator::make( filenm, false, false, &errmsg_ );
     return tr_;
 }

@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
-
+#include "uistrings.h"
 
 static const IOObj* nullioobj = 0;
 
@@ -53,7 +53,7 @@ void SeisMSCProvider::init()
 {
     readstate_ = NeedStart;
     intofloats_ = workstarted_ = false;
-    errmsg_ = "";
+    errmsg_ = uiStrings::sEmptyString();
     estnrtrcs_ = -2;
     reqmask_ = 0;
     bufidx_ = -1;
@@ -586,14 +586,16 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 }
 
 
-bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs, TaskRunner* trans)
-{ return readData( cs, Survey::GM().cUndefGeomID(), trans ); }
+bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs, 
+				     TaskRunner* taskr)
+{ return readData( cs, Survey::GM().cUndefGeomID(), taskr ); }
 
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
-				      const Pos::GeomID geomid, TaskRunner* trans )
+				      const Pos::GeomID geomid, 
+				      TaskRunner* taskr )
 {
     if ( !ioobj_ )
 	mErrRet( "Failed to find the input dataset" )
@@ -621,7 +623,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 
     PtrMan<TrcDataLoader> loader =
 	new TrcDataLoader( *seisrdr, *data_, tkzs_.hrg, is2d );
-    const bool res = TaskRunner::execute( trans, *loader );
+    const bool res = TaskRunner::execute( taskr, *loader );
     if ( !res )
 	mErrRet( "Failed to read input dataset" )
 

@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posimpexppars.h"
 #include "zdomain.h"
 #include "msgh.h"
+#include "uistrings.h"
 
 #include <math.h>
 
@@ -429,7 +430,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 
 int SeisIOSimple::readExpTrc()
 {
-    errmsg_ = "";
+    errmsg_ = uiStrings::sEmptyString();
     rdr_->setComponent( data_.compidx_ );
     int readres = rdr_->get( trc_.info() );
     if ( readres == 0 )

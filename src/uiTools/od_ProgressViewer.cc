@@ -193,7 +193,8 @@ void uiProgressViewer::doWork( CallBacker* )
 	    strm_.getAll( curline_ );
 	    txtfld->setText( curline_ );
 	    txtfld->scrollToBottom();
-	    statusBar()->message( processEnded() ? "Processing ended" : "" );
+	    statusBar()->message( processEnded() ? "Processing ended" 
+						 : uiStrings::sEmptyString() );
 	    return;
 	}
 

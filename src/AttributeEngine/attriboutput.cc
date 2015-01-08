@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiswrite.h"
 #include "separstr.h"
 #include "survinfo.h"
-
+#include "uistrings.h"
 
 namespace Attrib
 {
@@ -364,7 +364,7 @@ static bool isDataType( const char* reqtp )
 
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
-    errmsg_ = "";
+    errmsg_ = uiStrings::sEmptyString();
     PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output(),0) );
     if ( !outppar )
 	outppar = pars.subselect( IOPar::compKey(sKey::Output(),1) );

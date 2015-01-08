@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "selector.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 namespace EM
 {
@@ -152,7 +153,7 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
 			bool addtoundo )
 {
     if ( pid.objectID()!=id() )
-	mRetErr("");
+	mRetErr(uiStrings::sEmptyString());
 
     return setPos( pid.sectionID(), pid.subID(), newpos, addtoundo );
 }
@@ -162,7 +163,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 			const Coord3& newpos, bool addtoundo )
 {
     Geometry::Element* element = sectionGeometryInternal( sid );
-    if ( !element ) mRetErr( "" );
+    if ( !element ) mRetErr( uiStrings::sEmptyString() );
 
     const Coord3 oldpos = element->getPosition( subid );
 

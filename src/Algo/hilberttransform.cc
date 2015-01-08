@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "arrayndinfo.h"
 #include "odmemory.h"
+#include "uistrings.h"
 #include "valseries.h"
 
 
@@ -66,7 +67,7 @@ void HilbertTransform::setCalcRange( int startidx, int convstartidx )
 
 bool HilbertTransform::init()
 {
-    errmsg_ = "";
+    errmsg_ = uiStrings::sEmptyString();
     hilbwindow_ = makeHilbWindow( halflen_ );
     return true;
 }

@@ -210,7 +210,7 @@ inline uiString uiStrings::sSeismics( bool immediate )
 { return immediate ? tr("Seismics") : tr("Seismics ..."); }
 
 inline uiString uiStrings::sSelect(bool immediate)
-{ return immediate ? tr( "Select" ) : tr( "Select ..." ); }
+{ return immediate ? tr("Select") : tr("Select ..."); }
 
 inline uiString uiStrings::sSettings( bool immediate )
 { return immediate ? tr("Settings") : tr("Settings ..."); }

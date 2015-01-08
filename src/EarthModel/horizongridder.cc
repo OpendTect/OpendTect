@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "faulttrace.h"
 #include "statruncalc.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 const char* HorizonGridder::sKeyMethod()	{ return "Method"; }
 const char* HorizonGridder::sKeyNrFaults()	{ return "Nr Faults"; }
@@ -43,7 +44,7 @@ void HorizonGridder::setTrcKeySampling( const TrcKeySampling& hs )
 
 bool HorizonGridder::init( TaskRunner* taskrunner )
 {
-    infomsg_ = "";
+    infomsg_ = uiStrings::sEmptyString();
     if ( !fltdataprov_ && !faultids_.isEmpty() )
 	fltdataprov_ = new FaultTrcDataProvider();
 

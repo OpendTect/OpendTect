@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "file.h"
 #include "iopar.h"
-
+#include "uistrings.h"
 
 #define mUndefPtr(clss) ((clss*)0xdeadbeef) // Like on AIX. Nothing special.
 
@@ -517,7 +517,7 @@ bool SeisTrcReader::mkNextFetcher()
     else
     {
 	if ( nrfetchers > 0 )
-	{ errmsg_ = ""; return false; }
+	{ errmsg_ = uiStrings::sEmptyString(); return false; }
 
 	bool found = false;
 	for ( ; curlineidx<nrlines; curlineidx++ )

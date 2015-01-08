@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
-
+#include "uistrings.h"
 
 namespace Attrib
 {
@@ -716,7 +716,10 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
-uiString uiNrDoneText() const { return proc_ ? proc_->uiNrDoneText() : ""; }
+uiString uiNrDoneText() const 
+{ 
+    return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString(); 
+}
 
 uiString uiMessage() const
 {
@@ -882,7 +885,10 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
-uiString uiNrDoneText() const { return proc_ ? proc_->uiNrDoneText() : ""; }
+uiString uiNrDoneText() const 
+{ 
+    return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString(); 
+}
 
 uiString uiMessage() const
 {
@@ -966,7 +972,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 
     DescID outid = outattribs[0];
 
-    errmsg = "";
+    errmsg = uiStrings::sEmptyString();
     bool doeval = false;
     if ( !attrspecs_[0].isNLA() )
     {

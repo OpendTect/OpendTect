@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "array2dinterpol.h"
 #include "trckeyzsampling.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 namespace EM
 {
@@ -200,7 +201,7 @@ Hor2DTo3D::~Hor2DTo3D()
 
 uiString Hor2DTo3D::uiNrDoneText() const
 {
-    return curinterp_ ? curinterp_->uiNrDoneText() : "";
+    return curinterp_ ? curinterp_->uiNrDoneText() : uiStrings::sEmptyString();
 }
 
 

@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "iopar.h"
 #include "perthreadrepos.h"
-
+#include "uistrings.h"
 
 PosInfo::Detector::Detector( const Setup& su )
 	: sorting_(*new BinIDSorting(su.is2d_))
@@ -255,7 +255,7 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 	offsrg_.start = offsrg_.stop = cbo.offset_;
     nrpos_ = nruniquepos_ = nroffsthispos_ = 1;
     addLine();
-    errmsg_ = "";
+    errmsg_ = uiStrings::sEmptyString();
 }
 
 

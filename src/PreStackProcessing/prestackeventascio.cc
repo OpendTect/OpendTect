@@ -30,7 +30,7 @@ EventExporter::EventExporter( od_ostream& strm, EventManager& events )
     , nrdone_(0)
     , fileidx_(0)
     , locations_(0,false)
-    , message_("")
+    , message_(uiStrings::sEmptyString())
 {
     events_.ref();
     events_.getLocations( locations_ );
@@ -135,7 +135,7 @@ EventImporter::EventImporter( const char* filenm, const Table::FormatDesc& fd,
     , ascio_(0)
     , event_(0)
     , lasthorid_(-1)
-    , message_("")
+    , message_(uiStrings::sEmptyString())
 {
     if ( strm_.isOK() )
 	ascio_ = new EventAscIO( fd, strm_ );

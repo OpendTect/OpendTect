@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "globexpr.h"
 #include "ptrman.h"
 #include "od_iostream.h"
-
+#include "uistrings.h"
 
 ODMad::ProgInfo& ODMad::PI()
 {
@@ -42,7 +42,7 @@ void ODMad::ProgInfo::cleanUp()
 
 void ODMad::ProgInfo::doPreScanCheck()
 {
-    errmsg_ = "";
+    errmsg_ = uiStrings::sEmptyString();
 
     if ( rsfroot_.isEmpty() )
     {

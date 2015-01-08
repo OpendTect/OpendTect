@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "task.h"
+#include "uistrings.h"
 #include "valseriesinterpol.h"
 
 
@@ -1115,7 +1116,7 @@ uiString Provider::prepare( Desc& desc )
     if ( prov && prov->isOK() )
 	return 0;
 
-    errmsg = "";
+    errmsg = uiStrings::sEmptyString();
     if ( prov )
 	errmsg = prov->errMsg();
     if ( errmsg.isEmpty() )
