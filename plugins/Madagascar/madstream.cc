@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
+#include "uistrings.h"
 #include "od_iostream.h"
 #include <iostream>
 
@@ -218,7 +219,7 @@ void MadStream::initRead( IOPar* par )
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *ioobj );
 
-	if (!psrdr_) mErrRet(tr("Cannot read input data"));
+	if (!psrdr_) mErrRet(uiStrings::sCantReadInpData());
 
 	fillHeaderParsFromPS( seldata );
     }
@@ -325,7 +326,7 @@ uiString MadStream::sCannotWritePosFile()
 
 void MadStream::fillHeaderParsFromSeis()
 {
-    if (!seisrdr_) mErrRet(tr("Cannot read input data"));
+    if (!seisrdr_) mErrRet(uiStrings::sCantReadInpData());
 
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 
@@ -429,7 +430,7 @@ void MadStream::fillHeaderParsFromSeis()
 
 void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 {
-    if (!psrdr_) mErrRet(tr("Cannot read input data"));
+    if (!psrdr_) mErrRet(uiStrings::sCantReadInpData());
 
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 

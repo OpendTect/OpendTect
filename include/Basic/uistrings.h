@@ -40,6 +40,10 @@ public:
     static uiString sCancel(bool)	{ return sCancel(); }
     static uiString sCantLoadHor()	{ return tr("Cannot load horizon"); }
 static uiString sCantOpenInpFile()	{ return tr("Cannot open input file"); }
+static uiString sCantReadInpData()	{ 
+					  return tr("Cannot read "
+						    "input data");
+					}
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable(bool immediate);
