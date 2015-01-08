@@ -423,7 +423,7 @@ final class TextLinter extends ArcanistLinter {
 
     $matches = null;
     $preg = preg_match_all(
-      '/#define[^\n]+tr[[:blank:]]*\([[:blank:]]*"/m',
+      '/#define[^\n]+[^a-zA-Z_]+tr[[:blank:]]*\([[:blank:]]*"/m',
       $data,
       $matches,
       PREG_OFFSET_CAPTURE);
