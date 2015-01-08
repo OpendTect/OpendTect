@@ -38,7 +38,8 @@ public:
     static uiString sCalculate()	{ return tr("Calculate"); }
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCancel(bool)	{ return sCancel(); }
-    static uiString sCantOpenInpFile()	{ return tr("Cannot open input file"); }
+    static uiString sCantLoadHor()	{ return tr("Cannot load horizon"); }
+static uiString sCantOpenInpFile()	{ return tr("Cannot open input file"); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable(bool immediate);

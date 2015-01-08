@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 #include "od_ostream.h"
 
@@ -108,7 +109,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     PtrMan<EM::SurfaceIODataSelection> sel = new EM::SurfaceIODataSelection(sd);
     PtrMan<Executor> exec = EM::EMM().objectLoader( id, sel );
     if ( !exec || !exec->execute() )
-	mErrStrmRet(tr("Cannot load horizon"))
+	mErrStrmRet(uiStrings::sCantLoadHor())
 
     EM::ObjectID objid = EM::EMM().getObjectID( id );
     EM::EMObject* obj = EM::EMM().getObject( objid );

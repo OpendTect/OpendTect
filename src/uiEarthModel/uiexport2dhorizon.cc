@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -113,7 +114,7 @@ bool uiExport2DHorizon::doExport()
     {
 	PtrMan<Executor> exec = em.objectLoader( horid );
 	if ( !exec || !exec->execute() )
-	    mErrRet(tr("Cannot load horizon"))
+	    mErrRet(uiStrings::sCantLoadHor())
 
 	obj = em.getObject( em.getObjectID(horid) );
 	if ( !obj ) return false;
@@ -123,7 +124,7 @@ bool uiExport2DHorizon::doExport()
 
     mDynamicCastGet(EM::Horizon2D*,hor,obj);
     if ( !hor )
-	mErrRet(tr("Cannot load horizon"))
+	mErrRet(uiStrings::sCantLoadHor())
 
     EM::SectionID sid = hor->sectionID( 0 );
     const Geometry::Horizon2DLine* geom = hor->geometry().sectionGeometry(sid);
