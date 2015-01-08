@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "undo.h"
 
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uiworld2ui.h"
 
 namespace MPE
@@ -340,7 +341,7 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 	if ( vdvisible && wvavisible )
 	{
 	    if ( !uiMSG().question(tr("Which one is your seed data."),
-				   tr("VD"), tr("Wiggle")) )
+				   tr("VD"), uiStrings::sWiggle()) )
 		pickinvd = false;
 	}
 	else if ( vdvisible )

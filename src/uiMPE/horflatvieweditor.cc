@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undo.h"
 
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uiworld2ui.h"
 
 
@@ -308,7 +309,7 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 	if ( vdvisible && wvavisible )
 	{
 	    if ( !uiMSG().question(tr("Which one is your seed data."),
-				   tr("VD"), tr("Wiggle")) )
+				   tr("VD"), uiStrings::sWiggle()) )
 		pickinvd = false;
 	}
 	else if ( vdvisible )

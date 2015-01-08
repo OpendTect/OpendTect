@@ -12,13 +12,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
+#include "basicmod.h"
 #include "fixedstring.h"
 #include "uistring.h"
 
 //Common strings. Use these and extend when needed
 
-mExpClass(uiBase) uiStrings
+mClass(Basic) uiStrings
 { mODTextTranslationClass(uiStrings);
 public:
     static uiString s2D(bool immediate);
@@ -123,6 +123,7 @@ public:
     static uiString sVertical()		{ return tr("Vertical"); }
     static uiString sView()		{ return tr("View"); }
     static uiString sWells(bool immediate);
+    static uiString sWiggle()		{ return tr("Wiggle"); }
     static uiString sYes()		{ return tr("Yes"); }
 };
 
