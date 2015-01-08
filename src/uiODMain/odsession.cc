@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "settings.h"
 #include "survinfo.h"
-
+#include "uistrings.h"
 #include "uitextedit.h"
 #include "od_helpids.h"
 
@@ -227,7 +227,7 @@ mDefSimpleTranslatorioContext(ODSession,Misc)
 bool ODSessionTranslator::retrieve( ODSession& session,
 				    const IOObj* ioobj, uiString& err )
 {
-    if ( !ioobj ) { err = tr("Cannot find object in data base"); return false; }
+    if ( !ioobj ) { err = uiStrings::sObjDatBas(); return false; }
     PtrMan<ODSessionTranslator> trans =
 		dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans ) 

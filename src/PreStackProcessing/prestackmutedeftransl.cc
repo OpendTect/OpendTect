@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "odver.h"
 #include "streamconn.h"
+#include "uistrings.h"
 
 static const char* sKeyPBMFSetup = "PBMF setup";
 
@@ -39,7 +40,7 @@ int MuteDefTranslatorGroup::selector( const char* key )
 bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 				  uiString& msg )
 {
-    if ( !ioobj ) { msg = tr("Cannot find object in data base"); return false; }
+    if ( !ioobj ) { msg = uiStrings::sObjDatBas(); return false; }
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
     if ( !mdtrl )

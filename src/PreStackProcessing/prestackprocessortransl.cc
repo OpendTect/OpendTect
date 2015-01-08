@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prestackprocessor.h"
 #include "ascstream.h"
+#include "uistrings.h"
 
 defineTranslatorGroup(PreStackProc,"Prestack Processor");
 defineTranslator(dgb,PreStackProc,mDGBKey);
@@ -31,7 +32,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 {
     if ( !ioobj )
     {
-	msg = tr("Cannot find object in data base");
+	msg = uiStrings::sObjDatBas();
 	return false;
     }
     mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> ptrl,

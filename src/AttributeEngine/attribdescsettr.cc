@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "ptrman.h"
-
+#include "uistrings.h"
 
 mDefSimpleTranslatorSelector(AttribDescSet, sKeyAttribDescSetTranslatorGroup)
 mDefSimpleTranslatorioContext(AttribDescSet, Attr)
@@ -84,7 +84,7 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 					const IOObj* ioobj, uiString& bs)
 {
-    if (!ioobj) { bs = tr("Cannot find object in data base"); return false; }
+    if (!ioobj) { bs = uiStrings::sObjDatBas(); return false; }
     PtrMan<AttribDescSetTranslator> trans
 	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
     if (!trans)
