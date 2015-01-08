@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "od_iostream.h"
 #include "tabledef.h"
+#include "uistrings.h"
 #include "unitofmeasure.h"
 
 
@@ -140,7 +141,7 @@ EventImporter::EventImporter( const char* filenm, const Table::FormatDesc& fd,
 	ascio_ = new EventAscIO( fd, strm_ );
     totalnr_ = File::getFileSize( filenm );
     evmgr_.ref();
-    message_ = ascio_ ? tr("Importing") : tr("Cannot open input file");
+    message_ = ascio_ ? tr("Importing") : uiStrings::sCantOpenInpFile();
 }
 
 

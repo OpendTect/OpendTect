@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
 
@@ -86,7 +87,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 	return false;
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( tr("Cannot open input file") )
+	mErrRet( uiStrings::sCantOpenInpFile() )
 
     WaveletAscIO aio( fd_ );
     PtrMan<Wavelet> wvlt = aio.get( strm );

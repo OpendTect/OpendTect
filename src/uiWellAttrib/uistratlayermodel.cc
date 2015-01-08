@@ -59,6 +59,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistratsynthcrossplot.h"
 #include "uistratsynthdisp.h"
 #include "uistrattreewin.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -749,7 +750,7 @@ bool uiStratLayerModel::openGenDesc()
     const BufferString fnm( descctio_.ioobj->fullUserExpr(true) );
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	{ uiMSG().error( "Cannot open input file" ); return false; }
+	{ uiMSG().error( uiStrings::sCantOpenInpFile() ); return false; }
 
     delete elpropsel_; elpropsel_ = 0;
     deepErase( desc_ );

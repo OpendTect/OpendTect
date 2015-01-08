@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjseldlg.h"
 #include "uiioobjmanip.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uitabstack.h"
 #include "uitoolbutton.h"
 
@@ -475,7 +476,7 @@ bool uiElasticPropSelDlg::openPropSel()
     const BufferString fnm( ctio_.ioobj->fullUserExpr(true) );
     StreamData sd( StreamProvider(fnm).makeIStream() );
     if ( !sd.usable() )
-	mErrRet( tr("Cannot open input file"), return false; )
+	mErrRet( uiStrings::sCantOpenInpFile(), return false; )
     sd.close();
 
     if ( !doRead( ctio_.ioobj->key() ) )

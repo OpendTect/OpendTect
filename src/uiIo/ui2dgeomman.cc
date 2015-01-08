@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
@@ -141,7 +142,7 @@ void impLineGeom( CallBacker* )
     {
 	od_istream strm( filenm );
 	if ( !strm.isOK() )
-	{ uiMSG().error(tr("Cannot open input file")); return; }
+	{ uiMSG().error(uiStrings::sCantOpenInpFile()); return; }
 
 	PosInfo::Line2DData geom( linenm_ );
 	Geom2dAscIO geomascio( dlg.dataselfld_->desc(), strm );

@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "datachar.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "od_istream.h"
 
 static const float cNanoFac = 1e-9;
@@ -158,7 +159,7 @@ int DZT::Importer::nextStep()
     if ( !fh_.isOK() )
     {
 	if ( !istream_.isOK() )
-	    mErrRet(tr("Cannot open input file"))
+	    mErrRet(uiStrings::sCantOpenInpFile())
 	else
 	    return ErrorOccurred();
     }

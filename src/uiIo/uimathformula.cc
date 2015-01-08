@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 #include "mathformula.h"
 #include "mathspecvars.h"
@@ -427,7 +428,7 @@ void uiMathFormula::readReq( CallBacker* )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	{ uiMSG().error(tr("Cannot open input file")); return; }
+	{ uiMSG().error(uiStrings::sCantOpenInpFile()); return; }
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(Math::Formula::sKeyFileType()) )

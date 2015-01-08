@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 #include "ctxtioobj.h"
 #include "posvecdatasettr.h"
@@ -86,7 +87,7 @@ bool uiImpPVDS::acceptOK( CallBacker* )
 	return false;
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet(tr("Cannot open input file"))
+	mErrRet(uiStrings::sCantOpenInpFile())
 
     DataPointSet dps( is2d_ );
     MouseCursorManager::setOverride( MouseCursor::Wait );

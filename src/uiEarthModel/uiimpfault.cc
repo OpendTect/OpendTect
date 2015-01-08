@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
@@ -237,7 +238,7 @@ bool uiImportFault::handleAscii()
 
     od_istream strm( infld_->fileName() );
     if ( !strm.isOK() )
-	mErrRet( "Cannot open input file" )
+	mErrRet( uiStrings::sCantOpenInpFile() )
 
     mDynamicCastGet(EM::Fault3D*,fault3d,fault)
 

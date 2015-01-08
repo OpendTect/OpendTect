@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 #include "uiunitsel.h"
@@ -300,7 +301,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
     {
 	od_istream strm( dlg.fnm_ );
 	if ( !strm.isOK() )
-	    { uiMSG().error( tr("Cannot open input file") ); return; }
+	    { uiMSG().error( uiStrings::sCantOpenInpFile() ); return; }
 
 	Well::TrackAscIO wellascio(fd_, strm );
 	if ( !wellascio.getData( wd_, true ) )

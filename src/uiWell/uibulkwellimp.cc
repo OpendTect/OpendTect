@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifiledlg.h"
 #include "uifileinput.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 #include "uid2tmodelgrp.h"
@@ -195,7 +196,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( "Cannot open input file" )
+	mErrRet( uiStrings::sCantOpenInpFile() )
 
     if ( !dataselfld_->commit() )
 	return false;
@@ -335,7 +336,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( "Cannot open input file" )
+	mErrRet( uiStrings::sCantOpenInpFile() )
 
     if ( !dataselfld_->commit() )
 	return false;
@@ -469,7 +470,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( "Cannot open input file" )
+	mErrRet( uiStrings::sCantOpenInpFile() )
 
     if ( !dataselfld_->commit() )
 	return false;

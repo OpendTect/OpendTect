@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uiioobjseldlg.h"
+#include "uistrings.h"
 
 #include "stratreftree.h"
 #include "stratlayermodel.h"
@@ -163,7 +164,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
     {
 	od_istream strm( fnm );
 	if ( !strm.isOK() )
-	    uiMSG().error( tr("Cannot open input file") );
+	    uiMSG().error( uiStrings::sCantOpenInpFile() );
 	else
 	    rv = attrset_.getFrom( strm );
     }
