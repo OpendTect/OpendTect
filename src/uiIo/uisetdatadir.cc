@@ -195,8 +195,15 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 
 	if ( File::exists(omffnm) )
 	{
-	    // must be a survey directory (see IOMan::isValidDataRoot())
-	    datadir = FilePath(datadir).pathOnly();
+	    // most likely a survey directory (see IOMan::isValidDataRoot())
+	    const BufferString parentdir = FilePath(datadir).pathOnly();
+	    uiString msg = tr( "Target directory:\n%1\nappears to be a survey "
+		"directory. Do you want to set its parent:\n%2\nas the "
+		"OpendTect Data Root directory?").arg(datadir).arg(parentdir);
+	    if ( !uiMSG().askGoOn(msg) )
+		return false;
+
+	    datadir = parentdir;
 	    omffnm = mCrOmfFname;
 	    offerunzipsurv = false;
 	    continue;
