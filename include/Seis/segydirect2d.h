@@ -103,7 +103,7 @@ protected:
 };
 
 
-mExpClass(General) SEGYDirectSurvGeom2DTranslator : public SurvGeom2DTranslator
+mExpClass(Seis) SEGYDirectSurvGeom2DTranslator : public SurvGeom2DTranslator
 {
 			isTranslator(SEGYDirect,SurvGeom2D);
 public:
