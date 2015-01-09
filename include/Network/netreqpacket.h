@@ -119,6 +119,7 @@ public:
     static int		sizeFor(const T&);
     template <class T>
     static int		sizeFor(const T*,int nrelems,bool rawmode=false);
+    static int		sizeFor(bool);
     static int		sizeFor(const char*);
     static int		sizeFor(const OD::String&);
     static int		sizeFor(const BufferStringSet&);
@@ -128,6 +129,7 @@ public:
     template <class T>
 	void		put(const T*,int nrelems,bool rawmode=false) const;
     void		put(const char*) const;
+    void		put(bool) const;
     void		put(const OD::String&) const;
     void		put(const BufferStringSet&) const;
 
@@ -157,6 +159,7 @@ public:
 				    , curpos_(startpos) {}
 
     template <class T> void	get(T&) const;
+    inline bool			getBool() const;
     inline int			getInt() const;
     inline float		getFloat() const;
     inline double		getDouble() const;
@@ -186,6 +189,10 @@ inline int PacketFiller::sizeFor( const T& var )
 {
     return sizeof(T);
 }
+inline int PacketFiller::sizeFor( bool var )
+{
+    return sizeFor( ((int)var) );
+}
 
 template <class T>
 inline int PacketFiller::sizeFor( const T* arr, int nrelems, bool rawmode )
@@ -209,6 +216,13 @@ inline int PacketFiller::sizeFor( const BufferStringSet& bss )
     for ( int idx=0; idx<bss.size(); idx++ )
 	ret += sizeFor( bss.get(idx) );
     return ret;
+}
+
+
+inline void PacketFiller::put( bool var ) const
+{
+    const int toput = var ? 1 : 0;
+    put( toput );
 }
 
 
@@ -289,6 +303,8 @@ inline void PacketInterpreter::get( BufferString& var ) const
 
 inline int PacketInterpreter::peekInt() const
 { int ret = 0; peek(ret); return ret; }
+inline bool PacketInterpreter::getBool() const
+{ int ret = 0; get(ret); return ret != 0; }
 inline int PacketInterpreter::getInt() const
 { int ret = 0; get(ret); return ret; }
 inline float PacketInterpreter::getFloat() const
