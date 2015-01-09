@@ -639,6 +639,21 @@ Coord3 Scene::getMousePos( bool xyt ) const
 }
 
 
+void Scene::transformBack( Coord3& pos ) const
+{
+    if ( !datatransform_ || !pos.isDefined() )
+	return;
+
+    BufferString linenm; int trcnr = -1;
+    infopar_.get( sKey::LineKey(), linenm );
+    infopar_.get( sKey::TraceNr(), trcnr );
+    if ( !linenm.isEmpty() && trcnr>=0 )
+	pos.z = datatransform_->transformBack2D( linenm, trcnr, (float)pos.z );
+    else
+	pos.z = datatransform_->transformBack( pos );
+}
+
+
 BufferString Scene::getMousePosValue() const
 { return BufferString(mouseposval_); }
 
@@ -1024,7 +1039,7 @@ void Scene::fillPar( IOPar& par ) const
 
     par.set( sKey::Scale(), zscale_ );
 
-    
+
     if ( topimg_ )
     {
 	IOPar topimgpar;

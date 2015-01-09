@@ -191,6 +191,8 @@ public:
 
     static const char*		sKeyZStretch();
 
+    void			transformBack(Coord3& pos) const;
+
 protected:
 				~Scene();
 

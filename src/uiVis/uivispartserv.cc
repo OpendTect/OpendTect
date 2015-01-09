@@ -1946,8 +1946,8 @@ void uiVisPartServer::updateManipulatorStatus( visBase::DataObject* dobj,
 	return;
     }
 
-    const bool showmanipulator =  !so->isLocked() && 
-	workmode_==uiVisPartServer::Interactive && 
+    const bool showmanipulator =  !so->isLocked() &&
+	workmode_==uiVisPartServer::Interactive &&
 	isselected;
 
     if ( showmanipulator!=so->isManipulatorShown() )
@@ -1959,7 +1959,7 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,sel,cb);
     visBase::DataObject* dobj = visBase::DM().getObject( sel );
- 
+
     updateManipulatorStatus( dobj, true );
 
     selattrib_ = -1;
@@ -2021,8 +2021,7 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     if ( !scene ) return;
 
     Coord3 worldpos = xytmousepos_ = scene->getMousePos(true);
-    if ( xytmousepos_.isDefined() && scene->getZAxisTransform() )
-	worldpos.z = scene->getZAxisTransform()->transformBack( xytmousepos_ );
+    scene->transformBack( worldpos );
 
     setMarkerPos( worldpos, scene->id() );
 
@@ -2253,7 +2252,7 @@ void uiVisPartServer::lock( int id, bool yn )
 
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
     so->lock( yn );
-   
+
     updateManipulatorStatus( dobj, selected.isPresent(id) );
 }
 
