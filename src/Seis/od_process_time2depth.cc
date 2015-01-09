@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded("Seis");
+    OD::ModDeps().ensureLoaded("Well");
     
     CubeSampling outputcs;
     if ( !outputcs.hrg.usePar( pars() ) )
