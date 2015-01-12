@@ -49,6 +49,7 @@ public:
 
     bool			setWellID(const MultiID&);
 
+    void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
 protected:
