@@ -91,7 +91,7 @@ uiString dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
 					  Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return tr("Internal error: bad connection");
+	return uiStrings::sBadConnection();
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
@@ -112,7 +112,7 @@ uiString dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
 					     Conn& conn)
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return tr("Internal error: bad connection");
+	return uiStrings::sBadConnection();
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(PreStackProc) );

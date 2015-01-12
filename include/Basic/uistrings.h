@@ -34,6 +34,10 @@ public:
     static uiString sASCII(bool immediate);
     static uiString sAttribute()	{ return tr("Attribute"); }
     static uiString sAttributes(bool immediate);
+    static uiString sBadConnection()	{ 
+					  return tr("Internal error: "
+						    "bad connection"); 
+					}
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sCalculate()	{ return tr("Calculate"); }
     static uiString sCancel()		{ return tr("Cancel"); }

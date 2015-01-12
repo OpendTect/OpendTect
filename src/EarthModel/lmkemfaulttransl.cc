@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "ascstream.h"
 #include "od_istream.h"
+#include "uistrings.h"
 
 
 const char* lmkEMFault3DTranslator::pointtypestr() { return "FAULT_PTYPE"; }
@@ -119,7 +120,7 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
     }
 
     if ( !conn->forRead() || !conn->isStream() )
-	{ msg = "Internal error: Bad connection"; error = true; return; }
+	{ msg = uiStrings::sBadConnection(); error = true; return; }
 
     error = false;
 }
