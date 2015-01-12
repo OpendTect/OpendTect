@@ -85,6 +85,7 @@ public:
     static uiString sImport()		{ return tr("Import"); }
     static uiString sInline()		{ return tr("Inline"); }
     static uiString sInput()		{ return tr("Input"); }
+    static uiString sInputData()	{ return tr("Input Data"); }
     static uiString sLoad(bool immediate);
     static uiString sLock()		{ return tr("Lock"); }
     static uiString sLogs(bool immediate);

@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uimsg.h"
-
+#include "uistrings.h"
 
 uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* grpname,
 			      uiString fldtxt, DataInpSpec* spec )
@@ -103,7 +103,7 @@ bool uiGenInputGrp::acceptOK( CallBacker* )
 
 uiGenInputDlg::uiGenInputDlg( uiParent* p, const uiString&  dlgtitle,
 			      uiString fldtxt, DataInpSpec* spec )
-	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpKey))
+	: uiDialog(p,Setup(uiStrings::sInputData(),dlgtitle,mNoHelpKey))
 {
     group = new uiGenInputGrp( this, dlgtitle.getFullString(), fldtxt, spec );
     postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
@@ -112,7 +112,7 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const uiString&  dlgtitle,
 
 uiGenInputDlg::uiGenInputDlg( uiParent* p, const uiString&  dlgtitle,
 			      ObjectSet<uiGenInputDlgEntry>* e )
-	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpKey))
+	: uiDialog(p,Setup(uiStrings::sInputData(),dlgtitle,mNoHelpKey))
 {
     group = new uiGenInputGrp( this, dlgtitle.getFullString(), e );
     postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );

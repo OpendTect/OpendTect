@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidatapointset.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 #include <iostream>
 
@@ -490,7 +491,7 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 
 bool uiNLAPartServer::doDPSDlg()
 {
-    uiDataPointSet::Setup su( tr("Input data"), true );
+    uiDataPointSet::Setup su( uiStrings::sInputData(), true );
     su.isconst(false).allowretrieve(false).canaddrow(false);
     delete uidps_;
     uidps_ = new uiDataPointSet( appserv().parent(), dps(), su, dpsdispmgr_ );

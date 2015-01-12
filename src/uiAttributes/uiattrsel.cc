@@ -45,6 +45,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "od_helpids.h"
 
 const Attrib::DescSet& emptyads2d()
@@ -532,7 +533,7 @@ void uiAttrSelDlg::replaceStoredByInMem()
 }
 
 
-uiString uiAttrSel::cDefLabel() { return tr("Input Data"); }
+uiString uiAttrSel::cDefLabel() { return uiStrings::sInputData(); }
 
 uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 		      DescID curid, bool isinp4otherattrib )
