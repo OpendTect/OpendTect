@@ -413,7 +413,7 @@ BufferString uiMathFormula::getIOFileName( bool forread )
     fnm = dlg.ioObj()->fullUserExpr( forread );
     const bool doesexist = File::exists( fnm );
     if ( forread && !doesexist )
-	{ uiMSG().error(tr("File does not exist")); fnm.setEmpty(); }
+	{ uiMSG().error(uiStrings::sFileDoesntExist()); fnm.setEmpty(); }
 
     ctio_.setObj( dlg.ioObj()->clone() );
     return fnm;

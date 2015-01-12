@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uifiledlg.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "plugins.h"
 #include "oddirs.h"
 #include "envvars.h"
@@ -177,7 +178,7 @@ void uiPluginMan::loadPush( CallBacker* )
 
     BufferString fnm = dlg.fileName();
     if ( !File::exists(fnm) )
-	uiMSG().error( tr("File does not exist") );
+	uiMSG().error( uiStrings::sFileDoesntExist() );
     else if ( !PIM().load(fnm) )
 	uiMSG().error( tr("Couldn't load plugin") );
     else

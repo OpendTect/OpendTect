@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstringset.h"
 #include "file.h"
-
+#include "uistrings.h"
 #include <QImage>
 #include <QColor>
 #include <QColormap>
@@ -173,7 +173,7 @@ OD::RGBImage* uiRGBImageLoader::loadImage( const char* fnm,
 {
     if ( !File::exists(fnm) )
     {
-	errmsg = tr("File does not exist");
+	errmsg = uiStrings::sFileDoesntExist();
 	return 0;
     }
 

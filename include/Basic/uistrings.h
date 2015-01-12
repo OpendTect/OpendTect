@@ -69,6 +69,7 @@ public:
     static uiString sExport()		{ return tr("Export"); }
     static uiString sFaults(bool immediate);
     static uiString sFile()	        { return tr("File"); }
+    static uiString sFileDoesntExist()	{ return tr("File does not exist"); }
     static uiString sGo()	        { return tr("Go"); }
     static uiString sHelp()		{ return tr("Help"); }
     static uiString sHelp(bool)		{ return sHelp(); }
