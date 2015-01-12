@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 namespace Attrib
 {
@@ -674,7 +675,7 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 
 	BufferString attribname;
 	if ( !Desc::getAttribName( defstring.buf(), attribname ) )
-	    mHandleParseErr( "Cannot find attribute name" );
+	    mHandleParseErr( uiStrings::sCantFindAttrName() );
 
 	handleOldAttributes( attribname, *descpar, defstring, par.odVersion() );
 	if ( errmsgs && !errmsg_.isEmpty() )
@@ -800,7 +801,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 
     BufferString attribname;
     if ( !Desc::getAttribName(steeringdef,attribname) )
-	mHandleSteeringParseErr(tr("Cannot find attribute name"));
+	mHandleSteeringParseErr(uiStrings::sCantFindAttrName());
 
     RefMan<Desc> stdesc = PF().createDescCopy(attribname);
     if ( !stdesc )

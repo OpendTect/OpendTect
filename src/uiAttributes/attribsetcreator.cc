@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "uistrings.h"
 
 using namespace Attrib;
 MultiID storhint_;
@@ -342,7 +343,7 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     BufferString attribname;
     if ( !Desc::getAttribName(defstr,attribname) )
     {
-	uiMSG().error(tr("Cannot find attribute name"));
+	uiMSG().error(uiStrings::sCantFindAttrName());
 	return 0;
     }
 
