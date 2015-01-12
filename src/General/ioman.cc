@@ -955,5 +955,9 @@ bool IOMan::isValidDataRoot( const char* d )
     if ( !File::exists(fp.fullPath()) )
 	return false;
 
+    fp.setFileName( ".survey" );
+    if ( File::exists(fp.fullPath()) )
+	return false;
+
     return true;
 }
