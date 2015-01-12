@@ -50,7 +50,8 @@ public:
     static uiString sCantFindODB()	{
 					  return tr("Cannot find object "
 						    "in data base");
-					}    
+					}
+    static uiString sCantFindSurf()	{ return tr("Cannot find surface"); }
     static uiString sCantLoadHor()	{ return tr("Cannot load horizon"); }
     static uiString sCantOpenInpFile()	{ return tr("Cannot open input file"); }
     static uiString sCantReadInpData()	{ 
@@ -67,9 +68,9 @@ public:
     static uiString sDisplay()		{ return tr("Display"); }
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
+    static uiString sEmptyString()	{ return uiString(""); }
     static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExamine(bool)	{ return sExamine(); }
-    static uiString sEmptyString()	{ return uiString(""); }
     static uiString sExport()		{ return tr("Export"); }
     static uiString sFaults(bool immediate);
     static uiString sFile()	        { return tr("File"); }
@@ -133,7 +134,6 @@ public:
     static uiString sStop()		{ return tr("Stop"); }
     static uiString sStored(bool immediate);
     static uiString sStratigraphy(bool immediate);
-    static uiString sCantFindSurf()	{ return tr("Cannot find surface"); }
     static uiString sSurvey()		{ return tr("Survey"); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
