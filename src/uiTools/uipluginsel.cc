@@ -44,6 +44,15 @@ struct PluginProduct
 };
 
 
+struct PluginVendor
+{
+    BufferString	vendorkey_;
+    BufferString	vendorname_;
+    BufferStringSet	aliases_;
+    int			nrprods_;
+};
+
+
 class uiVendorTreeItem : public uiTreeViewItem
 {
 public:
@@ -109,15 +118,13 @@ uiPluginSel::uiPluginSel( uiParent* p )
                             mODHelpKey(mPluginSelHelpID) )
 			.savebutton(true)
 			.savetext(tr("Show this dialog at startup")))
-	, vendornamepars_(*new IOPar("Vendors"))
 {
     BufferString titl( "OpendTect V" );
     titl += GetFullODVersion(); titl +=
 			  tr(": Candidate auto-loaded plugins").getFullString();
     setCaption( tr(titl) );
     
-    const FilePath vendfp( GetSoftwareDir(false), "data", "Vendors" ); 
-    vendornamepars_.read( vendfp.fullPath(), ".par" );
+    readVendorList();
     
     setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
@@ -131,15 +138,37 @@ uiPluginSel::uiPluginSel( uiParent* p )
 uiPluginSel::~uiPluginSel()
 {
     deepErase( products_ );
-    delete &vendornamepars_;
+    deepErase( vendors_ );
+}
+
+void uiPluginSel::readVendorList()
+{
+    const FilePath vendfp( GetSoftwareDir(false), "data", "Vendors" );
+    IOPar vendorpars;
+    if ( !vendorpars.read(vendfp.fullPath(),".par") )
+	return;
+
+    for ( int idx=0; idx<vendorpars.size(); idx++ )
+    {
+	PluginVendor* pv = new PluginVendor;
+	pv->vendorkey_ = vendorpars.getKey(idx);
+	vendorpars.get( pv->vendorkey_, pv->aliases_ );
+	pv->vendorname_ = pv->aliases_.get(0);
+	pv->nrprods_ = 0;
+	vendors_ += pv;
+    }
 }
 
 
-BufferString uiPluginSel::getVendorShortName( const char* vendornm ) const
+int uiPluginSel::getVendorIndex( const char* vendornm ) const
 {
-    BufferString vendorshortnm;
-    vendornamepars_.get( vendornm, vendorshortnm );
-    return vendorshortnm;
+    for ( int idx=0; idx<vendors_.size(); idx++ )
+    {
+	if ( vendors_[idx]->aliases_.isPresent(vendornm) )
+	    return idx;
+    }
+
+    return -1;
 }
 
 
@@ -178,7 +207,14 @@ void uiPluginSel::makeProductList(
 
 	    const int prodidx = getProductIndex( data.info_->productname_ );
 	    const char* modulenm = PIM().moduleName(data.name_);
-	    vendors_.addIfNew( data.info_->creator_ );
+	    const int vidx = getVendorIndex( data.info_->creator_ );
+	    if ( vidx < 0 )
+	    {
+		//TODO:ADD to Vendors_;
+	    }
+	    else
+		vendors_[vidx]->nrprods_++;
+
 	    if ( prodidx<0 )
 	    {
 		PluginProduct* product = new PluginProduct();
@@ -197,13 +233,6 @@ void uiPluginSel::makeProductList(
 					!dontloadlist.isPresent( modulenm );
 	    }
 	}
-    }
-
-    const BufferString dgbes( "dGB Earth Sciences" ); 
-    if ( vendors_.size() > 1 && vendors_.isPresent(dgbes.buf()) )
-    {
-	const int idx = vendors_.indexOf( dgbes.buf() );
-	vendors_.swap( idx, 0 );
     }
 }
 
@@ -227,17 +256,19 @@ void uiPluginSel::createUI()
     float height = 0.0f;
     for ( int idv=0; idv<vendors_.size(); idv++ )
     {
-	const FixedString vendorname = vendors_[idv]->buf();
+	if ( !vendors_[idv]->nrprods_ )
+	    continue;
+
+	const BufferString& vendorname = vendors_[idv]->vendorname_;
 	uiVendorTreeItem* venditem =
-	    new uiVendorTreeItem( treefld_, vendorname,
-					       isVendorSelected(vendorname)  );
-	const BufferString iconfnm( getVendorShortName(vendorname), ".png" );
+	    new uiVendorTreeItem( treefld_, vendorname, isVendorSelected(idv) );
+	const BufferString iconfnm( vendors_[idv]->vendorkey_, ".png" );
 	venditem->setIcon( 0, iconfnm );
 	height++;
 	for ( int idx=0; idx< products_.size(); idx++ )
 	{
 	    PluginProduct& pprod = *products_[idx];
-	    if ( vendorname != pprod.creator_ )
+	    if ( getVendorIndex(pprod.creator_) != idv )
 		continue;
 	    uiProductTreeItem* item = new uiProductTreeItem( venditem, pprod );
 	    item->setPixmap( 0, uiPixmap(pprod.iconnm_) );
@@ -283,12 +314,11 @@ int uiPluginSel::getProductIndex( const char* prodnm ) const
 }
 
 
-bool uiPluginSel::isVendorSelected( const char* vendnm ) const
+bool uiPluginSel::isVendorSelected( int vendoridx ) const
 {
     for ( int idx=0; idx<products_.size(); idx++ )
     {
-	if ( products_[idx]->creator_ == vendnm
-	    && products_[idx]->isselected_ )
+	if ( getVendorIndex(products_[idx]->creator_) == vendoridx )
 	    return true;
     }
 

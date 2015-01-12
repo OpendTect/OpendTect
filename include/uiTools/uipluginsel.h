@@ -22,6 +22,7 @@ class uiButton;
 class uiCheckBox;
 class uiTreeView;
 struct PluginProduct;
+struct PluginVendor;
 class IOPar;
 
 
@@ -43,15 +44,15 @@ protected:
 					const ObjectSet<PluginManager::Data>&);
     void			createUI();
     int				getProductIndex(const char* prodnm) const;
-    bool			isVendorSelected(const char*) const;
-    BufferString		getVendorShortName(const char*) const;
+    bool			isVendorSelected(int) const;
+    int				getVendorIndex(const char*) const;
+    void			readVendorList();
 
     bool			acceptOK(CallBacker*);
 
     ObjectSet<PluginProduct>	products_;
-    BufferStringSet		vendors_;
+    ObjectSet<PluginVendor>	vendors_;
     uiTreeView*			treefld_;
-    IOPar&			vendornamepars_;
 };
 
 #endif
