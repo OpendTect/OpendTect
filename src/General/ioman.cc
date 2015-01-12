@@ -957,7 +957,12 @@ bool IOMan::isValidDataRoot( const char* d )
 
     fp.setFileName( ".survey" );
     if ( File::exists(fp.fullPath()) )
-	return false;
+    {
+	// probably we're in a survey. Still let's be sure:
+	fp.setFileName( "Seismics" );
+	if ( File::isDirectory(fp.fullPath()) )
+	    return false;
+    }
 
     return true;
 }
