@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pca.h"
 #include "toplist.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 namespace EM {
 
@@ -958,7 +959,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 {
     PtrMan<IOObj> ioobj = IOM().get( surface_.multiID() );
     if ( !ioobj )
-	{ surface_.errmsg_ = tr("Cannot find surface"); return 0; }
+	{ surface_.errmsg_ = uiStrings::sCantFindSurf(); return 0; }
 
     PtrMan<EMSurfaceTranslator> trans =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
@@ -1008,7 +1009,7 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
     const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
-	{ surface_.errmsg_ = tr("Cannot find surface"); return 0; }
+	{ surface_.errmsg_ = uiStrings::sCantFindSurf(); return 0; }
 
     PtrMan<EMSurfaceTranslator> trans =
 			(EMSurfaceTranslator*)ioobj->createTranslator();

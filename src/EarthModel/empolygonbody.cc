@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceio.h"
 #include "ioman.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "undo.h"
 
 namespace EM {
@@ -287,7 +288,7 @@ Executor* PolygonBody::saver( IOObj* inpioobj )
 Executor* PolygonBody::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    if ( !ioobj ) { errmsg_ = "Cannot find surface"; return 0; }
+    if ( !ioobj ) { errmsg_ = uiStrings::sCantFindSurf(); return 0; }
 
     EM::dgbSurfaceReader* rd = new EM::dgbSurfaceReader( *ioobj, typeStr() );
     if ( !rd->isOK() )
@@ -316,7 +317,7 @@ Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 {
     const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) { surface_.setErrMsg("Cannot find surface" ); return 0; }
+    if ( !ioobj ) { surface_.setErrMsg(uiStrings::sCantFindSurf() ); return 0; }
 
     return surface_.saver( ioobj );
 }

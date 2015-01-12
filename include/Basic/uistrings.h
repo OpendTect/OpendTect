@@ -133,6 +133,7 @@ public:
     static uiString sStop()		{ return tr("Stop"); }
     static uiString sStored(bool immediate);
     static uiString sStratigraphy(bool immediate);
+    static uiString sCantFindSurf()	{ return tr("Cannot find surface"); }
     static uiString sSurvey()		{ return tr("Survey"); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }

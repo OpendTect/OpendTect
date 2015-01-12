@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "settings.h"
 #include "strmprov.h"
+#include "uistrings.h"
 #include "varlenarray.h"
 
 namespace EM
@@ -201,7 +202,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
     {
-	horizon_.setErrMsg( tr("Cannot find surface") );
+	horizon_.setErrMsg( uiStrings::sCantFindSurf() );
 	return 0;
     }
 
@@ -260,7 +261,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
     {
-	horizon_.setErrMsg( tr("Cannot find surface") );
+	horizon_.setErrMsg( uiStrings::sCantFindSurf() );
 	return 0;
     }
 
