@@ -388,6 +388,7 @@ void uiWellPropSel::createLogPushed( CallBacker* cb )
     {
 	logCreated.trigger();
 	propflds_[idxofbut]->setCurrent( dlg.getOutputLogName() );
+	propflds_[idxofbut]->setUOM( *dlg.getLogUnit() );
     }
 }
 

@@ -23,6 +23,7 @@ class uiGenInput;
 class uiCheckBox;
 class uiComboBox;
 class uiMathFormula;
+class UnitOfMeasure;
 namespace Math { class Formula; }
 namespace Well { class D2TModel; class Log; class LogSet; class Track;}
 
@@ -40,6 +41,7 @@ public:
 
     void			setOutputLogName(const char* nm);
     const char*			getOutputLogName() const;
+    const UnitOfMeasure*	getLogUnit() const;
 
 protected:
 

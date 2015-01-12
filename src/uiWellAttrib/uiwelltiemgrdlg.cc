@@ -224,7 +224,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
     const MultiID& wellid = wellobj->key();
     if ( wd_ )
 	wd_->tobedeleted.remove( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
-    wd_ = Well::MGR().get( wellid, false );
+    wd_ = Well::MGR().get( wellid, true );
     if ( !wd_ ) mErrRet( "Canot read well data.")
 
     wd_->tobedeleted.notify( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
