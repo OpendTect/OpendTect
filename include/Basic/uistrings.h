@@ -38,6 +38,7 @@ public:
     static uiString sCalculate()	{ return tr("Calculate"); }
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCancel(bool)	{ return sCancel(); }
+    static uiString sCantCreateHor()	{ return tr("Cannot create horizon"); }
     static uiString sCantFindAttrName()	{ 
 					  return tr("Cannot find "
 						    "attribute name"); 
@@ -45,7 +46,7 @@ public:
     static uiString sCantFindODB()	{
 					  return tr("Cannot find object "
 						    "in data base");
-					}
+					}    
     static uiString sCantLoadHor()	{ return tr("Cannot load horizon"); }
     static uiString sCantOpenInpFile()	{ return tr("Cannot open input file"); }
     static uiString sCantReadInpData()	{ 

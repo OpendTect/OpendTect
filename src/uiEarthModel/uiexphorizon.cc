@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uit2dconvsel.h"
 #include "uiunitsel.h"
@@ -230,7 +231,7 @@ bool uiExportHorizon::writeAscii()
     sels.selvalues.erase();
 
     RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
-    if ( !emobj ) mErrRet(tr("Cannot create horizon"))
+    if ( !emobj ) mErrRet(uiStrings::sCantCreateHor())
 
     emobj->setMultiID( ioobj->key() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())

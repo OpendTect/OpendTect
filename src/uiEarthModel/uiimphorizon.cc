@@ -614,7 +614,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 
     mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
     if ( !horizon )
-	mErrRet( tr("Cannot create horizon") );
+	mErrRet( uiStrings::sCantCreateHor() );
 
     horizon->change.disable();
     horizon->setMultiID( mid );

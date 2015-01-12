@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 
 
@@ -183,7 +184,7 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     
     mDynamicCastGet(EM::Horizon*,horizon,em.getObject(objid));
     if ( !horizon )
-	mErrRet( tr("Cannot create horizon") );
+	mErrRet( uiStrings::sCantCreateHor() );
     
     newhorizon_ = horizon;      
     newhorizon_->ref();
