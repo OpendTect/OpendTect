@@ -453,7 +453,7 @@ void uiMathFormula::writeReq( CallBacker* )
     FilePath fp( fnm ); fp.setExtension( "formula" );
     od_ostream strm( fp.fullPath() );
     if ( !strm.isOK() )
-	{ uiMSG().error(tr("Cannot open output file")); return; }
+	{ uiMSG().error(uiStrings::sCantOpenOutpFile()); return; }
     ascostream astrm( strm );
     if ( !astrm.putHeader(Math::Formula::sKeyFileType()) )
 	{ uiMSG().error(tr("Cannot write file header")); return; }

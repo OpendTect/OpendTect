@@ -169,7 +169,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
 	mErrRet( tr("Empty wavelet") )
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( tr("Cannot open output file") )
+	mErrRet( uiStrings::sCantOpenOutpFile() )
 
     const bool addz = addzfld_->getBoolValue();
     const float zfac = mCast( float, SI().zDomain().userFactor() );

@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 #include "ctxtioobj.h"
 #include "file.h"
@@ -75,7 +76,7 @@ bool uiExportMute::writeAscii()
     if ( !sdo.usable() )
     {
 	sdo.close();
-	mErrRet( tr("Cannot open output file") );
+	mErrRet( uiStrings::sCantOpenOutpFile() );
     }
 
     const bool isxy = coordfld_->getBoolValue();

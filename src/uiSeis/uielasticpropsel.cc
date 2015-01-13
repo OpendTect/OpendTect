@@ -452,7 +452,7 @@ bool uiElasticPropSelDlg::doStore( const IOObj& ioobj )
     StreamData sd( StreamProvider(fnm).makeOStream() );
     bool rv = false;
     if ( !sd.usable() )
-	uiMSG().error( tr("Cannot open output file") );
+	uiMSG().error( uiStrings::sCantOpenOutpFile() );
     else if ( !elpropsel_.put(&ioobj) )
 	uiMSG().error( tr("Cann not write file") );
     else

@@ -722,7 +722,7 @@ bool uiStratLayerModel::saveGenDesc() const
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	uiMSG().error( "Cannot open output file" );
+	uiMSG().error( uiStrings::sCantOpenOutpFile() );
     else if ( !desc_.putTo(strm) )
 	uiMSG().error(desc_.errMsg());
     else

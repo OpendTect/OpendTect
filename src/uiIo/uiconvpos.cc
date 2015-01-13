@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidialog.h"
 #include "uifileinput.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "od_iostream.h"
 #include "od_helpids.h"
 
@@ -151,7 +152,7 @@ void uiConvertPos::convFile( CallBacker* )
     const BufferString outfnm = outfilefld->fileName();
     od_ostream ostream( outfnm );
     if ( !ostream.isOK() )
-    { mErrRet(tr("Cannot open output file") ); }
+    { mErrRet(uiStrings::sCantOpenOutpFile()); }
 
     lastinpfile = inpfnm; lastoutfile = outfnm;
 

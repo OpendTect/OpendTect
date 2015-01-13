@@ -333,7 +333,7 @@ bool uiExportHorizon::writeAscii()
 
 	if ( stream.isBad() )
 	{
-            mErrRet( tr("Cannot open output file") );
+            mErrRet( uiStrings::sCantOpenOutpFile() );
 	}
 
 	if ( dogf )

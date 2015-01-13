@@ -146,7 +146,7 @@ bool uiExport2DHorizon::doExport()
 
     od_ostream strm( outfld_->fileName() );
     if ( !strm.isOK() )
-	mErrRet(tr("Cannot open output file"))
+	mErrRet(uiStrings::sCantOpenOutpFile())
 
     writeHeader( strm );
     for ( int idx=0; idx< linenms.size(); idx++ )

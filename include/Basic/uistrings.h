@@ -54,6 +54,10 @@ public:
     static uiString sCantFindSurf()	{ return tr("Cannot find surface"); }
     static uiString sCantLoadHor()	{ return tr("Cannot load horizon"); }
     static uiString sCantOpenInpFile()	{ return tr("Cannot open input file"); }
+    static uiString sCantOpenOutpFile() { 
+					  return tr("Cannot open "
+						    "output file"); 
+					}
     static uiString sCantReadInpData()	{ 
 					  return tr("Cannot read "
 						    "input data");

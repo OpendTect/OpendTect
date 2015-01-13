@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          May 2008
+ Author:	Nanne Hemstra
+ Date:		May 2008
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -38,12 +39,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
 #define mGetTitle(tp) \
-    mGet( tp, tr("Export FaultStickSet"), tr("Export Fault") )
+    mGet( tp, "Export FaultStickSet", "Export Fault" )
 
 uiExportFault::uiExportFault( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
-                                 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
-				          mODHelpKey(mExportFaultHelpID)) ))
+				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
+				 mODHelpKey(mExportFaultHelpID)) ))
     , ctio_(mGetCtio(typ))
     , linenmfld_(0)
 {
@@ -62,7 +63,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     bool setchk = true;
     if ( SI().zIsTime() )
 	zbox_ = new uiGenInput( this, tr("Z in"), 
-                                BoolInpSpec(true,tr("msec"),tr("s")) );
+				BoolInpSpec(true,tr("msec"),tr("s")) );
     else
     {
 	zbox_ = new uiGenInput( this, tr("Z in"),
@@ -82,7 +83,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     if ( mGet(typ,true,false) )
     {
 	linenmfld_ = new uiCheckBox( this, 
-                                     tr("Write line name if picked on 2D") );
+				     tr("Write line name if picked on 2D") );
 	linenmfld_->setChecked( true );
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
@@ -160,7 +161,7 @@ bool uiExportFault::writeAscii()
     if ( !sdo.usable() )
     {
 	sdo.close();
-	mErrRet( tr("Cannot open output file") );
+	mErrRet( uiStrings::sCantOpenOutpFile() );
     }
 
     BufferString str;

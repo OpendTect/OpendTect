@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uisegydef.h"
 #include "uiselsimple.h"
+#include "uistrings.h"
 
 #include "segyhdrdef.h"
 #include "segyhdrcalc.h"
@@ -760,7 +761,7 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
 
     od_ostream outstrm( outfp.fullPath() );
     if ( !outstrm.isOK() )
-	{ mErrRet(tr("Cannot open output file") ) }
+	{ mErrRet(uiStrings::sCantOpenOutpFile()) }
 
     txthdr_.setText( txthdrfld_->text() );
     calcset_.reSetSeqNr( 1 );

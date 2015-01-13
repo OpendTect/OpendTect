@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
@@ -490,7 +491,7 @@ RokDocExporter( const char* fnm )
 bool put1DPDF( const Sampled1DProbDenFunc& pdf )
 {
     if ( !strm_.isOK() )
-	{ errmsg_ = tr("Cannot open output file"); return false; }
+	{ errmsg_ = uiStrings::sCantOpenOutpFile(); return false; }
 
     strm_ << "Probability Density Function 1D \"" << pdf.name()
 	 << "\" output by OpendTect " << GetFullODVersion()
@@ -528,7 +529,7 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
 bool put2DPDF( const Sampled2DProbDenFunc& pdf )
 {
     if ( !strm_.isOK() )
-	{ errmsg_ = tr("Cannot open output file"); return false; }
+	{ errmsg_ = uiStrings::sCantOpenOutpFile(); return false; }
 
     strm_ << "Probability Density Function 2D \"" << pdf.name()
 	 << "\" output by OpendTect " << GetFullODVersion()
