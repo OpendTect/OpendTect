@@ -822,9 +822,9 @@ bool SurveyDataTreePreparer::prepSurv()
     PtrMan<IOObj> ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
-    if ( !IOM().toRoot() || IOM().isBad() )
+    IOM().toRoot();
+    if ( IOM().isBad() )
 	{ errmsg_ = "Can't go to root of survey"; return false; }
-
     IODir* topdir = IOM().dirptr_;
     if ( !topdir->main() || topdir->main()->name() == "Appl dir" )
 	return true;
@@ -957,7 +957,12 @@ bool IOMan::isValidDataRoot( const char* d )
 
     fp.setFileName( ".survey" );
     if ( File::exists(fp.fullPath()) )
-	return false;
+    {
+	// probably we're in a survey. Still let's be sure:
+	fp.setFileName( "Seismics" );
+	if ( File::isDirectory(fp.fullPath()) )
+	    return false;
+    }
 
     return true;
 }
