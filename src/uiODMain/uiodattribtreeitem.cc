@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uistrings.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
@@ -36,7 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiString uiODAttribTreeItem::sKeySelAttribMenuTxt()
-{ return tr("Select Attribute"); }
+{ return uiStrings::sSelAttrib(); }
 
 
 uiString uiODAttribTreeItem::sKeyColSettingsMenuTxt()

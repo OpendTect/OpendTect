@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitreeview.h"
 #include "filepath.h"
@@ -39,7 +40,7 @@ uiODVW2DWiggleVarAreaTreeItem::uiODVW2DWiggleVarAreaTreeItem()
     : uiODVw2DTreeItem( "Wiggle" )
     , dummyview_(0)
     , menu_(0)
-    , selattrmnuitem_(tr("Select Attribute"))
+    , selattrmnuitem_(uiStrings::sSelAttrib())
 {}
 
 

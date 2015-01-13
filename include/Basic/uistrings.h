@@ -135,6 +135,7 @@ public:
 					}
     static uiString sSEGY()		{ return tr("SEG-Y"); }
     static uiString sSeismics(bool immediate);
+    static uiString sSelAttrib()	{ return tr("Select Attribute"); }
     static uiString sSelect(bool immediate);
     static uiString sSelOutpFile()	{ 
 					  return tr("Please select "

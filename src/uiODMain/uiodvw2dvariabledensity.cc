@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitreeview.h"
 
@@ -43,7 +44,7 @@ uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
     , dummyview_(0)
     , menu_(0)
     , coltabinitialized_(false)
-    , selattrmnuitem_(tr("Select Attribute"))
+    , selattrmnuitem_(uiStrings::sSelAttrib())
 {}
 
 
