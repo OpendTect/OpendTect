@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsscene.h"
 #include "uimain.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uipixmap.h"
 #include "uispinbox.h"
 
@@ -129,7 +130,7 @@ void uiGraphicsSaveImageDlg::writeToSettings()
     fillPar( iopar, true );
     settings_.mergeComp( iopar, "2D" );
     if ( !settings_.write() )
-	uiMSG().error( tr("Cannot write settings") );
+	uiMSG().error( uiStrings::sCantWriteSet() );
 }
 
 

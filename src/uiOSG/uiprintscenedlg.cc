@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipixmap.h"
 #include "uirgbarray.h"
 #include "uispinbox.h"
+#include "uistrings.h"
 #include "ui3dviewer.h"
 
 #include "filepath.h"
@@ -349,7 +350,7 @@ void uiPrintSceneDlg::writeToSettings()
     fillPar( iopar, false );
     settings_.mergeComp( iopar, "3D" );
     if ( !settings_.write() )
-	uiMSG().error( tr("Cannot write settings") );
+	uiMSG().error( uiStrings::sCantWriteSet() );
 }
 
 
