@@ -278,7 +278,7 @@ bool uiImpExpPickSet::checkInpFlds()
 	mErrRet( tr("Please select input file") );
 
     if ( !import_ && filenm.isEmpty() )
-	mErrRet( tr("Please select output file") );
+	mErrRet( uiStrings::sSelOutpFile() );
 
     if ( !objfld_->commitInput() )
 	return false;

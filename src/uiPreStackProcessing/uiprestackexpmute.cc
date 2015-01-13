@@ -115,7 +115,7 @@ bool uiExportMute::acceptOK( CallBacker* )
 {
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( tr("Please select output file") );
+	mErrRet( uiStrings::sSelOutpFile() );
 
     if ( File::exists(outfnm)
 	    && !uiMSG().askContinue(tr("Output file exists. Continue?")) )

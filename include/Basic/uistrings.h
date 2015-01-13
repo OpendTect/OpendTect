@@ -133,6 +133,10 @@ public:
     static uiString sSEGY()		{ return tr("SEG-Y"); }
     static uiString sSeismics(bool immediate);
     static uiString sSelect(bool immediate);
+    static uiString sSelOutpFile()	{ 
+					  return tr("Please select "
+						    "output file");
+					}
     static uiString sSettings(bool immediate);
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift(bool immediate);
