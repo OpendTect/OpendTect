@@ -24,7 +24,8 @@ class uiListBox;
 namespace Attrib { class Desc; class DescSet; };
 
 /*! \brief Dialog used to determine which outputs of an attribute will be
-computed at once and stored as multiple components when creating a volume output */
+  computed at once and stored as multiple components when creating a volume
+  output */
 
 mExpClass(uiAttributes) uiMultOutSel : public uiDialog
 {
@@ -73,7 +74,7 @@ protected:
     void		doRemove(CallBacker*);
     void		moveUp(CallBacker*);
     void		moveDown(CallBacker*);
-    void		entrySel(CallBacker*);
+    void		entrySel(CallBacker*);	//do not use, will be removed
 
     const Attrib::DescSet&  descset_;
     TypeSet<Attrib::DescID> allids_;
@@ -81,7 +82,7 @@ protected:
 
     uiListBox*		attribfld_;
     uiListBox*		selfld_;
-    uiCheckBox*         allcompfld_;
+    uiCheckBox*		allcompfld_;	//not used anymore
 };
 
 #endif
