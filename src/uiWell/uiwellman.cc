@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
 #include "uiwelldlgs.h"
@@ -490,7 +491,7 @@ void uiWellMan::logUOMPush( CallBacker* )
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
     if ( lognms.isEmpty() )
-	mErrRet(tr("No log selected"))
+	mErrRet(uiStrings::sNoLogSel())
 
     BufferStringSet wellnms;
     selGroup()->getListField()->getChosen( wellnms );
@@ -515,7 +516,7 @@ void uiWellMan::editLogPush( CallBacker* )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
     const int selidx = logsfld_->firstChosen();
     if ( selidx < 0 )
-	mErrRet(tr("No log selected"))
+	mErrRet(uiStrings::sNoLogSel())
 
     currdrs_[0]->getLogs();
     const char* lognm = logsfld_->textOfItem( selidx );
@@ -594,7 +595,7 @@ void uiWellMan::wellsChgd()
 
 void uiWellMan::viewLogPush( CallBacker* )
 {
-    mEnsureLogSelected(tr("No log selected"))
+    mEnsureLogSelected(uiStrings::sNoLogSel())
     currdrs_[0]->getLogs();
     const Well::LogSet& wls = curwds_[0]->logs();
     const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() );
@@ -639,7 +640,7 @@ void uiWellMan::viewLogPush( CallBacker* )
 
 void uiWellMan::renameLogPush( CallBacker* )
 {
-    mEnsureLogSelected(tr("No log selected"));
+    mEnsureLogSelected(uiStrings::sNoLogSel());
     BufferString lognm( logsfld_->getText() );
     const BufferString titl( "Rename '",lognm, "'" );
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
@@ -662,7 +663,7 @@ void uiWellMan::renameLogPush( CallBacker* )
 
 void uiWellMan::removeLogPush( CallBacker* )
 {
-    mEnsureLogSelected(tr("No log selected"));
+    mEnsureLogSelected(uiStrings::sNoLogSel());
 
     uiString msg;
     msg = tr("%1will be removed from disk.\nDo you wish to continue?")
@@ -690,7 +691,7 @@ void uiWellMan::removeLogPush( CallBacker* )
 
 void uiWellMan::exportLogs( CallBacker* )
 {
-    mEnsureLogSelected(tr("No log selected"));
+    mEnsureLogSelected(uiStrings::sNoLogSel());
 
     BufferStringSet sellogs; logsfld_->getChosen( sellogs );
 

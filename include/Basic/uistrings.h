@@ -102,6 +102,7 @@ public:
     static uiString sNew(bool immediate);
     static uiString sNext()		{ return tr("Next >"); }
     static uiString sNo()		{ return tr("No"); }
+    static uiString sNoLogSel()		{ return tr("No log selected"); }
     static uiString sNone()		{ return tr("None"); }
     static uiString sNoObjStoreSetDB()	{ 
 					  return tr("No object to store "
