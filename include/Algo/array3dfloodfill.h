@@ -229,17 +229,15 @@ void Array3DFloodfill<T>::setOutput( int x0, int x1, int x2, bool addseed )
 
     const T inputval = input_.get( x0, x1, x2 );
 
-    if ( (aboveisovalue_ && inputval<threshold_) ||
-	 (!aboveisovalue_ && inputval>threshold_) )
-    {
-	output_.set( x0, x1, x2, useinputval_ ? inputval : outsideval_ );
-	compartments_[cellidx]->lock_.writeUnLock();
-	return;
-    }
+    T val = inputval;
+    if ( !useinputval_ && ((aboveisovalue_ && inputval<threshold_) ||
+			   (!aboveisovalue_ && inputval>threshold_)) )
+	val = outsideval_;
 
-    output_.set( x0, x1, x2, useinputval_ ? inputval : insideval_ );
+    output_.set( x0, x1, x2, val );
 
-    if ( addseed )
+    if ( addseed && ((aboveisovalue_ && inputval>=threshold_) ||
+		     (!aboveisovalue_ && inputval<=threshold_) ) )
     {
 	int dummy;
 	int seed[] = { x0, x1, x2 };
