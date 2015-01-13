@@ -14,5 +14,4 @@ Soon done for today. I'm tracing this one down ... Not yet. ... Still Waiting.
 I may have found it. Mailing kitware ... .. kitware replied. Found problems in
 the script.
 
-testing continuous integration
 $Id$
