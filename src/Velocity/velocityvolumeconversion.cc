@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiswrite.h"
 #include "seispacketinfo.h"
 #include "sorting.h"
+#include "uistrings.h"
 #include "varlenarray.h"
 #include "velocitycalc.h"
 
@@ -48,7 +49,7 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     {
 	delete reader_;
 	reader_ = 0;
-	errmsg_ = tr("Cannot read input");
+	errmsg_ = uiStrings::sCantReadInp();
 	return;
     }
 
@@ -148,7 +149,7 @@ bool VolumeConverter::doPrepare( int nrthreads )
 	{
 	    delete reader_;
 	    reader_ = 0;
-	    errmsg_ = tr("Cannot read input");
+	    errmsg_ = uiStrings::sCantReadInp();
 	    return false;
 	}
 
@@ -285,7 +286,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
     }
 
     if ( res==-1 )
-	errmsg_ = tr("Cannot read input");
+	errmsg_ = uiStrings::sCantReadInp();
 
     delete reader_;
     reader_ = 0;

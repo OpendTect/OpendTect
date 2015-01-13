@@ -58,6 +58,7 @@ public:
 					  return tr("Cannot open "
 						    "output file"); 
 					}
+    static uiString sCantReadInp()	{ return tr("Cannot read input"); }
     static uiString sCantReadInpData()	{ 
 					  return tr("Cannot read "
 						    "input data");
