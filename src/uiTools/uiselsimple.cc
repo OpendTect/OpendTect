@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uilistboxfilter.h"
 #include "uichecklist.h"
+#include "uistrings.h"
 #include "globexpr.h"
 #include "bufstringset.h"
 
@@ -115,7 +116,7 @@ bool uiGetObjectName::acceptOK( CallBacker* )
 
 uiGetChoice::uiGetChoice( uiParent* p, const char* qn, bool wcncl,
 			  const HelpKey& helpkey )
-    : uiDialog(p,uiDialog::Setup(tr("Please specify"),qn,helpkey))
+    : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,helpkey))
     , allowcancel_(wcncl)
 {
     inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );
@@ -124,7 +125,7 @@ uiGetChoice::uiGetChoice( uiParent* p, const char* qn, bool wcncl,
 
 uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
 			  const char* qn, bool wcncl, const HelpKey& helpkey )
-    : uiDialog(p,uiDialog::Setup(tr("Please specify"),qn,helpkey))
+    : uiDialog(p,uiDialog::Setup(uiStrings::sSpecify(),qn,helpkey))
     , allowcancel_(wcncl)
 {
     inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );

@@ -141,6 +141,7 @@ public:
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift(bool immediate);
     static uiString sShow()             { return tr("Show"); }
+    static uiString sSpecify()		{ return tr("Please specify"); }
     static uiString sSteering()		{ return tr("Steering"); }
     static uiString sStep()		{ return tr("Step"); }
     static uiString sStop()		{ return tr("Stop"); }

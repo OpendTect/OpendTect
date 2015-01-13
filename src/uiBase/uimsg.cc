@@ -221,7 +221,7 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
     if ( txt.isEmpty() )
 	return -1;
 
-    mCapt( title.isEmpty() ? tr("Please specify") : title );
+    mCapt( title.isEmpty() ? uiStrings::sSpecify() : title );
     const int refnr = beginCmdRecEvent( utfwintitle );
 
     PtrMan<QMessageBox> mb = createMessageBox( icon, parent, txt, yestxt,
