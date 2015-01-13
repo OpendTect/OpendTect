@@ -2,13 +2,14 @@ Dip Steering`dgbds
 HorizonCube`dgbhc
 Sequence Stratigraphic Interpretation System`dgbssis
 Neural Networks`dgbnn
+Direct Petrel Link`dgbpetrel
 Fluid Contact Finder`dgbccb
 Well Correlation Panel`dgbwcp
 SynthRock`dgbstrat
 Velocity Model Building`dgbvmb
+PDF3D`dgbpdf3d
 Workstation Access`arkclswsa
-Petrel Connector`arkclsodc
-PDF3D`arkclspdf3d
+Open Data Connector`arkclsodc
 Seismic Coloured Inversion`arkclssciplugin
 Seismic Spectral Blueing`arkclsssbplugin
 Seismic Feature Enhancement`arkclssfe

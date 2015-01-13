@@ -39,7 +39,6 @@ struct PluginProduct
     BufferString	    creator_;
     BufferStringSet	    libs_;
     BufferString	    pckgnm_;
-    BufferString	    iconnm_;
     bool		    isselected_;
 };
 
@@ -98,7 +97,7 @@ protected:
 uiProductTreeItem::uiProductTreeItem( uiTreeViewItem* p,
 					PluginProduct& prod )
     : uiTreeViewItem(p, Setup(uiString(prod.productname_))
-		    .iconname(prod.iconnm_).type(uiTreeViewItem::CheckBox))
+		    .iconname(prod.pckgnm_).type(uiTreeViewItem::CheckBox))
     , product_(prod)
 {
     setChecked( prod.isselected_, true );
@@ -184,7 +183,6 @@ void uiPluginSel::readPackageList()
 	PluginProduct* product = new PluginProduct;
 	product->productname_ = sepline[0];
 	product->pckgnm_ = sepline[1];
-	product->iconnm_ = BufferString( product->pckgnm_, ".png" );
 	products_ += product;
     }
 }
@@ -271,7 +269,7 @@ void uiPluginSel::createUI()
 	    if ( getVendorIndex(pprod.creator_) != idv )
 		continue;
 	    uiProductTreeItem* item = new uiProductTreeItem( venditem, pprod );
-	    item->setPixmap( 0, uiPixmap(pprod.iconnm_) );
+	    item->setPixmap( 0, uiPixmap(pprod.pckgnm_) );
 	    height++;
 	}
     }
