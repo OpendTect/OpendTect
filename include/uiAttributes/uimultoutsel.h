@@ -74,7 +74,6 @@ protected:
     void		doRemove(CallBacker*);
     void		moveUp(CallBacker*);
     void		moveDown(CallBacker*);
-    void		entrySel(CallBacker*);
 
     const Attrib::DescSet&  descset_;
     TypeSet<Attrib::DescID> allids_;
@@ -82,7 +81,6 @@ protected:
 
     uiListBox*		attribfld_;
     uiListBox*		selfld_;
-    uiCheckBox*         allcompfld_;
 };
 
 #endif
