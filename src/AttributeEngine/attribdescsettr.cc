@@ -111,7 +111,7 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
 {
     if (!ioobj)
     {
-	bs = tr("No object to store set in data base"); return false;
+	bs = uiStrings::sNoObjStoreSetDB(); return false;
     }
     PtrMan<AttribDescSetTranslator> trans
 	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());

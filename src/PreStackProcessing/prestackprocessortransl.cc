@@ -60,7 +60,7 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
 {
     if ( !ioobj )
     {
-	msg = tr("No object to store set in data base");
+	msg = uiStrings::sNoObjStoreSetDB();
 	return false;
     }
 

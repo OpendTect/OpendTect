@@ -248,7 +248,7 @@ bool ODSessionTranslator::store( const ODSession& session,
 				 const IOObj* ioobj, uiString& err )
 {
     if ( !ioobj ) 
-    { err = tr("No object to store set in data base"); return false; }
+    { err = uiStrings::sNoObjStoreSetDB(); return false; }
     PtrMan<ODSessionTranslator> trans
 	 = dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans )

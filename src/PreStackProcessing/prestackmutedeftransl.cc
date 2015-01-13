@@ -63,7 +63,7 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
 {
     if ( !ioobj )
     {
-	msg = tr("No object to store set in data base");
+	msg = uiStrings::sNoObjStoreSetDB();
 	return false;
     }
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
