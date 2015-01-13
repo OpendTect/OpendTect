@@ -8,7 +8,7 @@ SET( LIBLIST omf Attribs BasicSurvey ColTabs MouseControls BatchPrograms
 	     BatchHosts_example FileFormats UnitsOfMeasure Properties odSettings
 	     EnvVars ShortCuts *.ico *.png *.html icons.Default
 	     RockPhysics ModDeps.od Strat
-	     prodlist.txt
+	     prodlist.txt Vendors
 	     BatchHosts_example_for_nodes_of_a_linux_server.txt
 	     BatchHosts_example_for_nodes_of_a_windows_server.txt Scripts )
 SET( EXECLIST  )
