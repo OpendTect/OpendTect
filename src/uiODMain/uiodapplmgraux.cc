@@ -67,6 +67,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsimple.h"
 #include "uishortcuts.h"
 #include "uistrattreewin.h"
+#include "uistrings.h"
 #include "uiveldesc.h"
 #include "uivelocityfunctionimp.h"
 #include "uivisdatapointsetdisplaymgr.h"
@@ -398,7 +399,7 @@ void uiODApplMgrDispatcher::openXPlot()
     if ( !rv )
     { uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-    { uiMSG().error(tr("Selected data set is empty")); return; }
+    { uiMSG().error(uiStrings::sSelDataSetEmp()); return; }
 
     DataPointSet* newdps = new DataPointSet( pvds, false );
     newdps->setName( seldlg.ioObj()->name() );

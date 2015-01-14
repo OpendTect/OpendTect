@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uistatsdisplaywin.h"
 #include "uistatusbar.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitoolbar.h"
 #include "uivariogram.h"
@@ -1327,7 +1328,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-	{ uiMSG().error(tr("Selected data set is empty")); return; }
+	{ uiMSG().error(uiStrings::sSelDataSetEmp()); return; }
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
 					     dps_.isMinimal() );
     if ( newdps->isEmpty() )

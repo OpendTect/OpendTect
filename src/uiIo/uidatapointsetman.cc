@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$";
 #include "uiioobjseldlg.h"
 #include "uiioobjmanip.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 #include "bufstring.h"
 #include "datapointset.h"
@@ -88,7 +89,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     if ( !rv )
     { uiMSG().error( errmsg ); return; }
     if ( spvds.data().isEmpty() )
-    { uiMSG().error(tr("Selected data set is empty")); return; }
+    { uiMSG().error(uiStrings::sSelDataSetEmp()); return; }
 
     DataPointSet* sdps =
 	new DataPointSet( spvds, dps->is2D(), dps->isMinimal() );

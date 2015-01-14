@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiarray2dinterpol.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
@@ -169,7 +170,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-    { uiMSG().error(tr("Selected data set is empty")); return; }
+    { uiMSG().error(uiStrings::sSelDataSetEmp()); return; }
 
     Pick::Set* pickset = psd_ ? psd_->getSet() : 0;
     if ( !pickset ) return;
