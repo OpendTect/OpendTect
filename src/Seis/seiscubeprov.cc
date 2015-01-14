@@ -132,7 +132,7 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
     if ( !workstarted_ && !startWork() )
     {
 	if ( errmsg_.isEmpty() ) errmsg_ = rdr_.errMsg();
-	if ( errmsg_.isEmpty() ) errmsg_ = tr("No valid data found");
+	if ( errmsg_.isEmpty() ) errmsg_ = uiStrings::sNoValidData();
 	return Error;
     }
 

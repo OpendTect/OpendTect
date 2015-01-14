@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "tabledef.h"
 #include "trigonometry.h"
+#include "uistrings.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
 
@@ -39,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM {
 
 class AuxDataImporter : public Executor
-{
+{ mODTextTranslationClass(AuxDataImporter);
 public:
 
 AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
@@ -57,12 +58,12 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
     , nrattribs_(-1)
 {
     if ( bvss_.isEmpty() || attribnames.isEmpty() )
-	{ msg_ = "Internal error: empty input"; return; }
+	{ msg_ = tr("Internal error: empty input"); return; }
     nrattribs_ = attribnames.size();
     for ( int idx=0; idx<bvss_.size(); idx++ )
 	totalnr_ += bvss_[idx]->nrInls();
     if ( totalnr_ < 1 )
-	{ msg_ = "No valid data found"; return; }
+	{ msg_ = uiStrings::sNoValidData(); return; }
 
     for ( int iattr=0; iattr<nrattribs_; iattr++ )
     {
@@ -73,9 +74,9 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
     }
 
     if ( nrattribs_ == 1 )
-	{ msg_ = "Getting "; msg_ += attribnames.get( 0 ); }
+	{ msg_ = tr("Getting %1").arg(attribnames.get( 0 )); }
     else
-	msg_ = "Getting horizon attribute values";
+	msg_ = tr("Getting horizon attribute values");
 }
 
 
@@ -137,7 +138,7 @@ protected:
     const ObjectSet<BinIDValueSet>&	bvss_;
     Horizon3D&			horizon_;
     const TrcKeySampling		hs_;
-    BufferString		msg_;
+    uiString			msg_;
     int				nrattribs_;
     int				startidx_;
     TypeSet<int>		attrindexes_;

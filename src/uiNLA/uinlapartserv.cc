@@ -550,7 +550,7 @@ uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 		    { firstgooddps = iset; break; }
 	    }
 	    if ( firstgooddps == -1 )
-		mErrRet(tr("No valid data found"))
+		mErrRet(uiStrings::sNoValidData())
 
 	    const PosVecDataSet& vds = dpss[firstgooddps]->dataSet();
 	    const int orgnrvals = vds.nrCols();

@@ -116,6 +116,7 @@ public:
 					  return tr("No object to store "
 						    "set in data base"); 
 					}
+    static uiString sNoValidData()	{ return tr("No valid data found"); }
     static uiString sOk()		{ return tr("OK"); }
     static uiString sOk(bool)		{ return sOk(); }
     static uiString sOpen(bool immediate);
