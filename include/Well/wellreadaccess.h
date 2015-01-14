@@ -21,6 +21,7 @@ class BufferStringSet;
 namespace Well
 {
 class Data;
+class Log;
 
 /*!\brief Base class for object reading data from data store into Well::Data */
 
@@ -51,6 +52,9 @@ public:
 protected:
 
     Data&		wd_;
+
+    bool		addToLogSet(Log*) const;
+
 };
 
 }; // namespace Well

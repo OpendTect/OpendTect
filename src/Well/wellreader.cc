@@ -49,6 +49,21 @@ const char* Well::odIO::sExtDispProps() { return ".disp"; }
 const char* Well::odIO::sExtWellTieSetup() { return ".tie"; }
 
 
+bool Well::ReadAccess::addToLogSet( Well::Log* newlog ) const
+{
+    if ( !newlog )
+	return false;
+
+    newlog->removeTopBottomUdfs();
+    newlog->updateAfterValueChanges();
+    if ( newlog->isEmpty() )
+	return false;
+
+    wd_.logs().add( newlog );
+    return true;
+}
+
+
 Well::Reader::Reader( const IOObj& ioobj, Well::Data& wd )
     : ra_(0)
 {
@@ -594,11 +609,7 @@ bool Well::odReader::addLog( od_istream& strm ) const
 	    newlog->valArr()[idx] = mUdf(float);
     }
 
-    newlog->removeTopBottomUdfs();
-    newlog->updateAfterValueChanges();
-    wd_.logs().add( newlog );
-
-    return true;
+    return addToLogSet( newlog );
 }
 
 
