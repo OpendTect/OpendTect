@@ -49,11 +49,6 @@ public:
     bool		getLog(const char* lognm) const; //!< Read this one only
     void		getLogInfo(BufferStringSet& lognms) const;
 
-    Interval<float>	getLogDahRange(const char* lognm) const;
-			//!< If no log with this name, returns [undef,undef]
-    Interval<float>	getAllLogsDahRange() const;
-			//!< If no log returns [undef,undef]
-
     const OD::String&	errMsg() const		{ return errmsg_; }
 
 protected:

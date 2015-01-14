@@ -44,9 +44,6 @@ public:
     virtual bool	getLog(const char* lognm) const	= 0;
     virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
 
-    virtual Interval<float> getLogDahRange(const char*) const = 0;
-    virtual Interval<float> getAllLogsDahRange() const	= 0;
-
     virtual const OD::String& errMsg() const		= 0;
 
 protected:

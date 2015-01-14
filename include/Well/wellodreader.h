@@ -59,9 +59,6 @@ public:
     bool		getCSMdl(od_istream&) const;
     bool		getDispProps(od_istream&) const;
 
-    Interval<float>	getLogDahRange(const char* lognm) const;
-    Interval<float>	getAllLogsDahRange() const;
-
 protected:
 
     bool		getOldTimeWell(od_istream&) const;

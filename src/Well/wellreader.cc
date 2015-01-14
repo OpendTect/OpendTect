@@ -122,9 +122,6 @@ mImplSimpleWRFn(getCSMdl)
 mImplSimpleWRFn(getDispProps)
 
 mImplWRFn(bool,getLog,const char*,lognm,false)
-mImplWRFn(Interval<float>,getLogDahRange,const char*,lognm,
-						Interval<float>::udf())
-mImplWRFn(Interval<float>,getAllLogsDahRange,,,Interval<float>::udf())
 void Well::Reader::getLogInfo( BufferStringSet& lognms ) const
 { if ( ra_ ) ra_->getLogInfo( lognms ); }
 
@@ -455,59 +452,6 @@ void Well::odReader::getLogInfo( BufferStringSet& nms,
 	    }
 	}
     }
-}
-
-
-Interval<float> Well::odReader::getLogDahRange( const char* nm ) const
-{
-    Interval<float> ret( mUdf(float), mUdf(float) );
-    if ( !nm || !*nm ) return ret;
-
-    for ( int idx=1;  ; idx++ )
-    {
-	mGetInpStream( sExtLog(), idx, false, break );
-
-	double version = 0.0;
-	if ( !rdHdr(strm,sKeyLog(),version) )
-	    continue;
-
-	int bintype = 0;
-	PtrMan<Well::Log> log = rdLogHdr( strm, bintype, wd_.logs().size() );
-	if ( log->name() != nm )
-	    continue;
-
-	readLogData( *log, strm, bintype );
-	if ( log->isEmpty() )
-	    continue;
-
-	const bool valinmtr = SI().zInFeet() && (version < 4.195);
-
-	ret.start = valinmtr ? (log->dah(0) * mToFeetFactorF) : log->dah(0);
-	ret.stop = valinmtr ? (log->dah(log->size()-1) * mToFeetFactorF )
-			    : log->dah( log->size()-1 );
-	break;
-    }
-
-    return ret;
-}
-
-
-Interval<float> Well::odReader::getAllLogsDahRange() const
-{
-    Interval<float> ret( mUdf(float), mUdf(float) );
-    BufferStringSet lognms; getLogInfo( lognms );
-
-    int ilog = 0;
-    for ( ; mIsUdf(ret.start) && ilog<lognms.size(); ilog++ )
-	ret = getLogDahRange( lognms.get(ilog) );
-
-    for ( ; ilog<lognms.size(); ilog++ )
-    {
-	Interval<float> dahrg = getLogDahRange( lognms.get(ilog) );
-	if ( mIsUdf(dahrg.start) ) continue;
-	ret.include( dahrg );
-    }
-    return ret;
 }
 
 
