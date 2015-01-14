@@ -764,9 +764,7 @@ uiTreeViewItem::~uiTreeViewItem()
 	delete getChild( idx );
 
     odqtobjects_.remove( *this );
-//  Not sure whether the qtreeitem_ should be delete here.
-//  When enabled od crashes, so commented for now
-//    delete qtreeitem_;
+    delete qtreeitem_;
 }
 
 
