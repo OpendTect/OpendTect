@@ -57,7 +57,8 @@ macro ( OD_ADD_MODULES )
 
     foreach( OD_MODULE_NAME ${ARGV} )
 	if ( NOT ${OD_MODULE_NAME} STREQUAL ${DIR} )
-	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} )
+	    add_subdirectory( ${DIR}/${OD_MODULE_NAME} 
+		    	      ${DIR}/${OD_MODULE_NAME} )
 	endif()
     endforeach()
 endmacro()

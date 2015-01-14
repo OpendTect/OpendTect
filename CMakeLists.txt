@@ -104,6 +104,12 @@ OD_WRITE_FINDFILE()
 OD_WRITE_TEST_PROJECT_DESC( ${OD_BINARY_BASEDIR}/test )
 OD_WRITE_ALOFILES( ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR} )
 
+set( PLUGIN_DIR ""  CACHE PATH "Path to eventual extra plugins" )
+if ( EXISTS ${PLUGIN_DIR}/CMakeLists.txt )
+    include ( ${PLUGIN_DIR}/CMakeLists.txt )
+endif()
+
+
 #OD_ADD_KEYWORD_TEST( strcmp strcmp )
 OD_ADD_KEYWORD_TEST( "sqrt(" sqrt "Use Math::Sqrt() instead of sqrt" )
 OD_ADD_KEYWORD_TEST( "atan2(" atan2 "Use Math::Atan2() instead of atan2" )
