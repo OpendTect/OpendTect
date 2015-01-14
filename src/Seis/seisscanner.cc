@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "conn.h"
 #include "math2.h"
 #include "file.h"
-
+#include "uistrings.h"
 
 SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
 	: Executor( "Scan seismic data" )
@@ -31,7 +31,7 @@ SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
 	, dtctor_(*new PosInfo::Detector(
 		    PosInfo::Detector::Setup(Seis::is2D(gt))
 			    .isps(Seis::isPS(gt)).reqsorting(true) ) )
-	, curmsg_(tr("Scanning"))
+	, curmsg_(uiStrings::sScanning())
 	, totalnr_(mtr < 0 ? -2 : mtr)
 	, maxnrtrcs_(mtr)
 	, nrnulltraces_(0)

@@ -142,6 +142,7 @@ public:
     static uiString sSave(bool immediate);
     static uiString sSaveAs(bool immediate);
     static uiString sSaveAsDefault()    { return tr("Save as default"); }
+    static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScenes()		{ return tr("Scenes"); }
     static uiString sSeedData()		{
 					  return tr("Which one is "

@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "tabledef.h"
+#include "uistrings.h"
 #include "survgeom2d.h"
 
 
@@ -48,7 +49,7 @@ void Horizon2DScanner::init()
 
 uiString Horizon2DScanner::uiMessage() const
 {
-    return tr("Scanning");
+    return uiStrings::sScanning();
 }
 
 

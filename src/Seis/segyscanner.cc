@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "executor.h"
 #include "iopar.h"
+#include "uistrings.h"
 
 #define mDefMembInit \
       Executor("SEG-Y file scan") \
@@ -201,7 +202,7 @@ int SEGY::Scanner::readNext()
 
 int SEGY::Scanner::openNext()
 {
-    msg_ = tr("Scanning");
+    msg_ = uiStrings::sScanning();
     curfidx_++;
     if ( curfidx_ >= fnms_.size() )
     {
