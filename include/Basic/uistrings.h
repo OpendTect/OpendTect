@@ -91,6 +91,10 @@ public:
     static uiString sHorizontal()	{ return tr("Horizontal"); }
     static uiString sImport()		{ return tr("Import"); }
     static uiString sInline()		{ return tr("Inline"); }
+    static uiString sInpParMis()	{ 
+					  return tr("Input parameters "
+						    "missing");
+					}
     static uiString sInput()		{ return tr("Input"); }
     static uiString sInputData()	{ return tr("Input Data"); }
     static uiString sLoad(bool immediate);

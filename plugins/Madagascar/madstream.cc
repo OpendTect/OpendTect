@@ -84,7 +84,7 @@ MadStream::MadStream( IOPar& par )
     else
     {
 	PtrMan<IOPar> inpar = par.subselect( sKeyInput );
-	if (!inpar) mErrRet(tr("Input parameters missing"));
+	if (!inpar) mErrRet(uiStrings::sInpParMis());
 
 	initRead( inpar );
     }

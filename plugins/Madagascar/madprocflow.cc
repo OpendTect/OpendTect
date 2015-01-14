@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistype.h"
 #include "ascstream.h"
 #include "ioman.h"
+#include "uistrings.h"
 
 const char* ODMad::ProcFlow::sKeyInp()		{ return sKey::Input(); }
 const char* ODMad::ProcFlow::sKeyOutp()		{ return sKey::Output(); }
@@ -72,7 +73,7 @@ void ODMad::ProcFlow::setIOType( IOPar& iop, ODMad::ProcFlow::IOType iot )
 bool ODMad::ProcFlow::isOK(uiString& errmsg) const
 {
     if ( !inpiop_.size() )
-	mRetFalse(tr("Input parameters missing"))
+	mRetFalse(uiStrings::sInpParMis())
     if ( !outiop_.size() )
 	mRetFalse(tr("Output parameters missing"))
 

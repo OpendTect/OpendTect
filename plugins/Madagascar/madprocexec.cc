@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "progressmeter.h"
 #include "perthreadrepos.h"
+#include "uistrings.h"
 #include <iostream>
 
 const char* ODMad::ProcExec::sKeyFlowStage()	{ return "Flow Stage"; }
@@ -74,7 +75,7 @@ bool ODMad::ProcExec::init()
 
 	PtrMan<IOPar> inpar = pars_.subselect( ODMad::ProcFlow::sKeyInp() );
 	if ( !inpar || !inpar->size() )
-	    mErrRet(tr("Input parameters missing"))
+	    mErrRet(uiStrings::sInpParMis())
 
 	ODMad::ProcFlow::IOType inptyp = ODMad::ProcFlow::ioType( *inpar );
 	const char* comm = getProcString();
