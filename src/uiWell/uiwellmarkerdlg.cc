@@ -422,7 +422,7 @@ bool acceptOK( CallBacker* )
 {
     fnm_ = fnmfld_->fileName();
     if ( File::isEmpty(fnm_) )
-	{ uiMSG().error( tr("Invalid input file") ); return false; }
+	{ uiMSG().error( uiStrings::sInvInpFile() ); return false; }
 
     if ( !dataselfld_->commit() )
 	return false;

@@ -134,7 +134,7 @@ uiGeom2DImpDlg( uiParent* p, const char* linenm )
 bool acceptOK( CallBacker* )
 {
     if ( File::isEmpty(geom2dinfld_->fileName()) )
-    { uiMSG().error(tr("Invalid input file")); return false; }
+    { uiMSG().error(uiStrings::sInvInpFile()); return false; }
     return true;
 }
 

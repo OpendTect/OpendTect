@@ -282,7 +282,7 @@ bool acceptOK( CallBacker* )
     track_.setEmpty();
     fnm_ = wtinfld_->fileName();
     if ( File::isEmpty(fnm_.buf()) )
-	{ uiMSG().error( tr("Invalid input file") ); return false; }
+	{ uiMSG().error( uiStrings::sInvInpFile() ); return false; }
     return true;
 }
 

@@ -101,6 +101,7 @@ public:
 					}
     static uiString sInput()		{ return tr("Input"); }
     static uiString sInputData()	{ return tr("Input Data"); }
+    static uiString sInvInpFile()	{ return tr("Invalid input file"); }
     static uiString sLoad(bool immediate);
     static uiString sLock()		{ return tr("Lock"); }
     static uiString sLogs(bool immediate);
