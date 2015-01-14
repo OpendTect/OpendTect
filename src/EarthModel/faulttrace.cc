@@ -1069,8 +1069,12 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
 	return false;
 
     TypeSet<int> coordindices;
-    for ( int index = 0; index< idxps->size(); index++ )
+    for ( int index=1; index<idxps->size(); index+=2 )
+    {
+	coordindices += idxps->get( index-1 );
 	coordindices += idxps->get( index );
+	coordindices += -1;
+    }
 
     FaultTrace* flttrc = clist->clone();
     flttrc->ref();
