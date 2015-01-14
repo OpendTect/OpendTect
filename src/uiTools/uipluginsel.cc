@@ -316,7 +316,8 @@ bool uiPluginSel::isVendorSelected( int vendoridx ) const
 {
     for ( int idx=0; idx<products_.size(); idx++ )
     {
-	if ( getVendorIndex(products_[idx]->creator_) == vendoridx )
+	if ( getVendorIndex(products_[idx]->creator_) == vendoridx
+		&& products_[idx]->isselected_ )
 	    return true;
     }
 
