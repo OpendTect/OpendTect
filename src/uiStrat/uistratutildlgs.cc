@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipixmap.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
-
+#include "uistrings.h"
 
 static const char* sNoLevelTxt      = "--Undefined--";
 
@@ -444,7 +444,7 @@ bool acceptOK( CallBacker* )
     nm.clean( BufferString::NoSpecialChars );
     if ( nm.isEmpty() )
     {
-	uiMSG().error( tr("Please enter a valid name") );
+	uiMSG().error( uiStrings::sEntValidName() );
 	return false;
     }
     cont_.setName( nm );

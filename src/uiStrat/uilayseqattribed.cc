@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uistratselunits.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "od_helpids.h"
 
 static BufferString gtDlgTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
@@ -269,7 +270,7 @@ bool uiLaySeqAttribEd::acceptOK( CallBacker* )
     const BufferString oldnm( attr_.name() );
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() )
-	{ uiMSG().error( tr("Please enter a valid name") ); return false; }
+	{ uiMSG().error( uiStrings::sEntValidName() ); return false; }
     if ( oldnm != newnm )
     {
 	const Strat::LaySeqAttribSet& lsas = attr_.attrSet();

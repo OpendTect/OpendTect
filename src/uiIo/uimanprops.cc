@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimathpropeddlg.h"
 #include "uimsg.h"
 #include "uirockphysform.h"
+#include "uistrings.h"
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
 #include "unitofmeasure.h"
@@ -246,7 +247,7 @@ bool uiEditPropRef::acceptOK( CallBacker* )
 {
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() || !iswalpha(newnm[0]) || newnm.size() < 2 )
-	mErrRet(tr("Please enter a valid name"));
+	mErrRet(uiStrings::sEntValidName());
     const BufferString definitionstr( definitionfld_->text() );
     const bool isfund = definitionfld_->isChecked();
     if ( isfund && definitionstr.isEmpty() )

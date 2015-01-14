@@ -75,6 +75,10 @@ public:
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
     static uiString sEmptyString()	{ return uiString(""); }
+    static uiString sEntValidName()	{ 
+					  return tr("Please enter a "
+						    "valid name"); 
+					}
     static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sExport()		{ return tr("Export"); }

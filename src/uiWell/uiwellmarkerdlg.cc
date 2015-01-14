@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 #include "uitoolbutton.h"
@@ -205,7 +206,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 	const char* markernm = table_->text( rc );
 	if ( !markernm || !*markernm )
 	{
-	    uiMSG().error( tr("Please enter a valid name") );
+	    uiMSG().error( uiStrings::sEntValidName() );
 	    table_->clearCell( rc );
 	    return;
 	}

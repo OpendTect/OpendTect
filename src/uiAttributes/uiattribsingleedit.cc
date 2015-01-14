@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescsetman.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "od_helpids.h"
 
 
@@ -54,7 +55,7 @@ bool uiSingleAttribEd::acceptOK( CallBacker* )
     const BufferString oldnm( desc_.userRef() );
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() )
-	{ uiMSG().error( tr("Please enter a valid name") ); return false; }
+	{ uiMSG().error( uiStrings::sEntValidName() ); return false; }
 
     if ( oldnm != newnm )
     {
