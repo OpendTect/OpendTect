@@ -81,6 +81,7 @@ public:
 					}
     static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExamine(bool)	{ return sExamine(); }
+    static uiString sExitOD()		{ return tr("Exit OpendTect"); }
     static uiString sExport()		{ return tr("Export"); }
     static uiString sFaults(bool immediate);
     static uiString sFile()	        { return tr("File"); }

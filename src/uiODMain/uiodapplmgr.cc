@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
 #include "uistratlayermodel.h"
+#include "uistrings.h"
 #include "uisurvey.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
@@ -215,7 +216,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 		"its database before using it in OpendTect 5.0." )
 		.arg(IOM().surveyName()) );
 	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
-			     tr("Exit OpendTect") ) )
+			     uiStrings::sExitOD() ) )
 	    return false;
 
 	ExitProgram( 0 );
@@ -232,7 +233,7 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 
 	const int res = uiMSG().question( msg, tr("Convert now"),
 					  tr("Select another survey"),
-					  tr("Exit OpendTect") );
+					  uiStrings::sExitOD() );
 	if ( res < 0 )
 	    ExitProgram( 0 );
 
@@ -282,7 +283,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
 
     const int res = uiMSG().question( msg, tr("Convert now"),
 					   tr("Do it later"),
-					   tr("Exit OpendTect") );
+					   uiStrings::sExitOD() );
     if ( res < 0 )
 	ExitProgram( 0 );
 
