@@ -538,8 +538,13 @@ void Flat2DDHDataPack::setPosData()
 	for ( int idx=1; idx<nrpos; idx++ )
 	{
 	    Coord crd = geometry->toCoord( geomid_, tracerange_.atIndex(idx) );
-	    pos[idx] = mCast(float,(pos[idx-1] + prevcrd.distTo(crd)));
-	    prevcrd = crd;
+	    if ( crd.isUdf() )
+		pos[idx] = mCast(float,(pos[idx-1]));
+	    else
+	    {
+		pos[idx] = mCast(float,(pos[idx-1] + prevcrd.distTo(crd)));
+		prevcrd = crd;
+	    }
 	}
 	posdata_.setX1Pos( pos, nrpos, 0 );
     }
