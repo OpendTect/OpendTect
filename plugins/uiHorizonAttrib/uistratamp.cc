@@ -76,7 +76,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     selfld_= new uiGenInput( this, tr("Add result as an attribute to"),
 			     BoolInpSpec(true,
-                             tr("Top Horizon"),uiStrings::sBottomHor()) );
+                             uiStrings::sTopHor(),uiStrings::sBottomHor()) );
     selfld_->valuechanged.notify( mCB(this,uiStratAmpCalc,setParFileNameCB) );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
@@ -111,7 +111,7 @@ void uiStratAmpCalc::choiceSel( CallBacker* )
 {
     usesingle_ = winoption_->getBoolValue();
     horfld1_->setLabelText( usesingle_ ? uiStrings::sHorizon(true) 
-				       : tr("Top Horizon") );
+				       : uiStrings::sTopHor() );
     horfld2_->display( !usesingle_ );
     selfld_->display( !usesingle_ );
 }

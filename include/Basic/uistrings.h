@@ -192,6 +192,7 @@ public:
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
     static uiString sTools()		{ return tr("Tools"); }
+    static uiString sTopHor()		{ return tr("Top Horizon"); }
     static uiString sTrack(bool immediate);
     static uiString sTransparency()     { return tr("Transparency"); }
     static uiString sType()             { return tr("Type"); }

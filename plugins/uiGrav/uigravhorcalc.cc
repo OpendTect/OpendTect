@@ -36,7 +36,7 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     setTitleText( tr("Calculate gravity at '%1'").arg( horioobj_->name() ) );
 
     const IOObjContext ctxt( mIOObjContext(EMHorizon3D) );
-    uiIOObjSel::Setup su( "Top Horizon" );
+    uiIOObjSel::Setup su( uiStrings::sTopHor() );
     su.optional_ = true;
     uiGroup* inpgrp = new uiGroup( this, "Upper group" );
 

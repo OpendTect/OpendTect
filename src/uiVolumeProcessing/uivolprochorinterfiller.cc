@@ -43,7 +43,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     usetophorfld_->valuechanged.notify(mCB(this, uiHorInterFiller,updateFlds));
     if ( hf->getTopHorizonID() )
 	topctio_->setObj( *hf->getTopHorizonID() );
-    tophorfld_ = new uiIOObjSel( this, *topctio_, tr("Top Horizon") );
+    tophorfld_ = new uiIOObjSel( this, *topctio_, uiStrings::sTopHor() );
     tophorfld_->attach( alignedBelow, usetophorfld_ );
     topvalfld_ = new uiGenInput( this, tr("Top Value"),
 				 FloatInpSpec( hf->getTopValue() ) );

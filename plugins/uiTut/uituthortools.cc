@@ -46,7 +46,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     inpfld2_->attach( alignedBelow, inpfld_ );
 
     selfld_= new uiGenInput( this, tr("Add Result as an Attribute to "),
-	                BoolInpSpec(true, tr("Top Horizon"), 
+	                BoolInpSpec(true, uiStrings::sTopHor(), 
                                     uiStrings::sBottomHor()) ); 
     selfld_->attach( alignedBelow, inpfld2_ );
 
@@ -75,7 +75,8 @@ uiTutHorTools::~uiTutHorTools()
 void uiTutHorTools::choiceSel( CallBacker* )
 {
     const bool isthick = taskfld_->getBoolValue();
-    inpfld_->setLabelText( isthick ? tr("Top Horizon") : tr("Input Horizon") );
+    inpfld_->setLabelText( isthick ? uiStrings::sTopHor() 
+				   : tr("Input Horizon") );
     inpfld2_->display( isthick );
     selfld_->display( isthick );
     attribnamefld_->display( isthick );
