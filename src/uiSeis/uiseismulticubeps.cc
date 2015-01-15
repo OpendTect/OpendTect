@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uiseparator.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "seismulticubeps.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
@@ -112,7 +113,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     offsfld_->attach( alignedBelow, bgrp );
     offsfld_->attach( ensureBelow, sep );
 
-    outfld_ = new uiIOObjSel( this, ctio_, tr("Output data store") );
+    outfld_ = new uiIOObjSel( this, ctio_, uiStrings::sOutpDataStore() );
     outfld_->attach( alignedBelow, offsfld_ );
 
     if ( ctio_.ioobj )

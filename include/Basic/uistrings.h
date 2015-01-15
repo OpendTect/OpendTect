@@ -128,11 +128,12 @@ public:
     static uiString sOperator()		{ return tr("Operator"); }
     static uiString sOptions()		{ return tr("Options"); }
     static uiString sOptions(bool)	{ return sOptions(); }
-    static uiString sOutput()           { return tr("Output"); }
+    static uiString sOutpDataStore()	{ return tr("Output data store"); }
     static uiString sOutpFileOverw()	{ 
 					  return tr("Output file exists. "
 						    "Overwrite?");
 					}
+    static uiString sOutput()           { return tr("Output"); }
     static uiString sOverwrite()        { return tr("Overwrite"); }
     static uiString sPause()            { return tr("Pause"); }
     static uiString sPickSet()		{ return tr("Pickset"); }

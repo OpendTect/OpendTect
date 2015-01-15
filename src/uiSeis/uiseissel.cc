@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 #include "zdomain.h"
 #include "ctxtioobj.h"
@@ -52,7 +53,7 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
     case Seis::Line:
 	return forread ?  tr("Input Data Set") : tr("Output Data Set");
     default:
-	return forread ? tr("Input Data Store") : tr("Output Data Store");
+	return forread ? tr("Input Data Store") : uiStrings::sOutpDataStore();
     }
 }
 

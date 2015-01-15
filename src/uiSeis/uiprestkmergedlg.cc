@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uilabel.h"
+#include "uistrings.h"
 #include "trckeyzsampling.h"
 #include "posinfo.h"
 #include "ptrman.h"
@@ -78,7 +79,7 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
 				BoolInpSpec(true,tr("Stack"),tr("Use first")) );
     stackfld_->valuechanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
-    outpfld_ = new uiIOObjSel( this, outctio_, tr("Output Data Store") );
+    outpfld_ = new uiIOObjSel( this, outctio_, uiStrings::sOutpDataStore() );
     uiPosSubSel::Setup psssu( false, false );
     psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
 	 .withstep( false );
@@ -316,7 +317,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     offsrgfld_->attach( alignedBelow, subselfld_ );
 
     outctio_.ctxt.forread = false;
-    outpfld_ = new uiIOObjSel( this, outctio_, tr("Output Data Store") );
+    outpfld_ = new uiIOObjSel( this, outctio_, uiStrings::sOutpDataStore() );
     outpfld_->attach( alignedBelow, offsrgfld_ );
     postFinalise().notify( mCB(this,uiPreStackCopyDlg,objSel) );
 }
