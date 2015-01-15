@@ -103,22 +103,22 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 
     PtrMan<IOPar> subpar = subselect( sKey::Selection() );
     if ( !subpar )
-	mErrStrmRet(tr("Missing subselection"))
+	mErrStrmRet("Missing subselection")
 
     sd.rg.usePar( *subpar );
     PtrMan<EM::SurfaceIODataSelection> sel = new EM::SurfaceIODataSelection(sd);
     PtrMan<Executor> exec = EM::EMM().objectLoader( id, sel );
     if ( !exec || !exec->execute() )
-	mErrStrmRet(uiStrings::sCantLoadHor())
+	mErrStrmRet("Cannot load horizon")
 
     EM::ObjectID objid = EM::EMM().getObjectID( id );
     EM::EMObject* obj = EM::EMM().getObject( objid );
     if ( !obj )
-	mErrStrmRet(tr("Failed"));
+	mErrStrmRet("Failed");
 
     mDynamicCastGet( EM::Horizon3D*, hor, obj );
     if ( !hor )
-	mErrStrmRet(tr("Failed"));
+	mErrStrmRet("Failed");
 
     strm << "Done" << od_endl;
     hor->ref();
@@ -132,7 +132,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 	const int selidx = sd.valnames.indexOf( attribnm.str() );
 	exec = hor->auxdata.auxDataLoader( selidx );
 	if ( !exec || !exec->execute() )
-	    mErrStrmRet(tr("Failed"));
+	    mErrStrmRet("Failed");
 
 	exec.erase();
 	strm << "Done" << od_endl;
@@ -144,7 +144,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 
     strm << "Creating color pallette file ...  ";
     if ( !makeCPT(cptfnm.buf()) )
-	mErrStrmRet(tr("Failed"))
+	mErrStrmRet("Failed")
 
     strm << "Done" << od_endl;
     strm << "Creating grid 100 X 100 ...  ";
@@ -166,7 +166,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     comm += " -I100 | surface "; comm += rstr; comm += " -I100 -T0.7 -N250 -G";
     comm += grd100fnm;
     StreamData sdata = makeOStream( comm, strm );
-    if ( !sdata.usable() ) mErrStrmRet(tr("Failed"))
+    if ( !sdata.usable() ) mErrStrmRet("Failed")
 
     TrcKeySamplingIterator iter( sd.rg );
     BinID bid;
@@ -196,7 +196,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     fp.setExtension( "gd2" );
     comm += fileName( fp.fullPath() );
     if ( !execCmd(comm,strm) )
-	mErrStrmRet(tr("Failed"))
+	mErrStrmRet("Failed")
 
     strm << "Done" << od_endl;
 
@@ -212,7 +212,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 	comm += " -O -Q -C"; comm += fileName( cptfnm );
 	comm += " -K 1>> "; comm += fileName( fnm );
 	if ( !execCmd(comm,strm) )
-	    mErrStrmRet(tr("Failed"))
+	    mErrStrmRet("Failed")
 
 	strm << "Done" << od_endl;
     }
@@ -232,7 +232,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 	comm += " -W"; comm += lsstr;
 	comm += " -K 1>> "; comm += fileName( fnm );
 	if ( !execCmd(comm,strm) )
-	    mErrStrmRet(tr("Failed"))
+	    mErrStrmRet("Failed")
 
 	strm << "Done" << od_endl;
     }
