@@ -60,6 +60,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uisplitter.h"
 #include "uistoredattrreplacer.h"
+#include "uistrings.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -241,7 +242,7 @@ void uiAttribDescSetEd::createGroups()
 				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
 
-    attrnmfld_ = new uiGenInput( rightgrp, tr("Attribute name") );
+    attrnmfld_ = new uiGenInput( rightgrp, uiStrings::sAttribName() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, degrp );
     attrnmfld_->updateRequested.notify( mCB(this,uiAttribDescSetEd,addPush) );

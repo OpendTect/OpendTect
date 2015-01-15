@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uibatchjobdispatchersel.h"
+#include "uistrings.h"
 #include "od_helpids.h"
 
 using namespace Attrib;
@@ -43,7 +44,8 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     setHelpKey( mODHelpKey(mAttrSurfaceOutHelpID) );
     setCtrlStyle( RunAndClose );
 
-    attrnmfld_ = new uiGenInput( this, tr("Attribute name"), StringInpSpec() );
+    attrnmfld_ = new uiGenInput( this, uiStrings::sAttribName(), 
+				 StringInpSpec() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, attrfld_ );
 

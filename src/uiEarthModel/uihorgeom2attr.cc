@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uihorsavefieldgrp.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 
 #include "emhorizon3d.h"
 #include "executor.h"
@@ -41,7 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiHorGeom2Attr::uiHorGeom2Attr( uiParent* p, EM::Horizon3D& hor )
     : uiGetObjectName(p, Setup("Store Z values as attribute",
-				getItems(hor)).inptxt("Attribute name") )
+			       getItems(hor)).inptxt(uiStrings::sAttribName()) )
     , hor_(hor)
     , msfld_(0)
 {

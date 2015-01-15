@@ -84,7 +84,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 	    		       BoolInpSpec(false) ) ;
     foldfld_->attach( alignedBelow, selfld_ );
 
-    attribnamefld_ = new uiGenInput( this, tr("Attribute name"),
+    attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
 			             StringInpSpec("Stratal Amplitude") );
     attribnamefld_->valuechanged.notify(
 	    			mCB(this,uiStratAmpCalc,setParFileNameCB) );

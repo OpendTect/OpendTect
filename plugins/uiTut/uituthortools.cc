@@ -50,7 +50,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
                                     uiStrings::sBottomHor()) ); 
     selfld_->attach( alignedBelow, inpfld2_ );
 
-    attribnamefld_ = new uiGenInput( this, tr("Attribute name"),
+    attribnamefld_ = new uiGenInput( this, uiStrings::sAttribName(),
 	    		StringInpSpec( sKey::Thickness() ) );
     attribnamefld_->attach( alignedBelow, selfld_ );
 

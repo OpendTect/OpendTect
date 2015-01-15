@@ -32,6 +32,7 @@ public:
     static uiString sApply()		{ return tr("Apply"); }
     static uiString sApply(bool)	{ return sApply(); }
     static uiString sASCII(bool immediate);
+    static uiString sAttribName()	{ return tr("Attribute name"); }
     static uiString sAttribute()	{ return tr("Attribute"); }
     static uiString sAttributes(bool immediate);
     static uiString sBadConnection()	{ 

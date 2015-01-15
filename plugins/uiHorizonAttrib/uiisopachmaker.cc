@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -57,7 +58,8 @@ uiIsopachMakerGrp::uiIsopachMakerGrp( uiParent* p, EM::ObjectID horid )
 	horsel_->attach( alignedBelow, basesel_ );
     }
 
-    attrnmfld_ = new uiGenInput( this, tr("Attribute name"), StringInpSpec() );
+    attrnmfld_ = new uiGenInput( this, uiStrings::sAttribName(), 
+				 StringInpSpec() );
     attrnmfld_->attach( alignedBelow, horsel_ );
     toHorSel(0);
 
