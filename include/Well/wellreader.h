@@ -48,14 +48,16 @@ public:
     bool		getLog(const char* lognm) const; //!< Read this one only
     void		getLogInfo(BufferStringSet& lognms) const;
 
-    Interval<float>	getLogDahRange(const char* lognm) const;
-			//!< If no log with this name, returns [undef,undef]
-    Interval<float>	getAllLogsDahRange() const;
-			//!< If no log returns [undef,undef]
-
     const OD::String&	errMsg() const		{ return errmsg_; }
 
-    /* DEPRECATED, will only read from OD internal data store! */
+    // DEPRECATED: will go away after 5.0
+    Interval<float>	getLogDahRange(const char* lognm) const;
+			//!< If no log with this name, returns [undef,undef]
+    // DEPRECATED: will go away after 5.0
+    Interval<float>	getAllLogsDahRange() const;
+			//!< If no log returns [undef,undef]
+    // DEPRECATED: will go away after 5.0
+    // It will only read from OD internal data store!
 			Reader(const char*,Data&);
 
 protected:

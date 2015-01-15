@@ -59,6 +59,7 @@ public:
     bool		getCSMdl(od_istream&) const;
     bool		getDispProps(od_istream&) const;
 
+    // DEPRECATED: will go away after 5.0
     Interval<float>	getLogDahRange(const char* lognm) const;
     Interval<float>	getAllLogsDahRange() const;
 

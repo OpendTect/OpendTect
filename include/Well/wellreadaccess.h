@@ -44,6 +44,7 @@ public:
     virtual bool	getLog(const char* lognm) const = 0;
     virtual void	getLogInfo(BufferStringSet& lognms) const = 0;
 
+    // DEPRECATED: will go away after 5.0
     virtual Interval<float> getLogDahRange(const char*) const = 0;
     virtual Interval<float> getAllLogsDahRange() const	= 0;
 
