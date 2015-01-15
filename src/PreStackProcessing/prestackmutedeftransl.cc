@@ -44,7 +44,7 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
     if ( !mdtrl )
-	{ msg = tr("Selected object is not a Mute Definition"); return false; }
+	{ msg = uiStrings::sSelObjNotMuteDef(); return false; }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -70,7 +70,7 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
 		 ioobj->createTranslator());
     if ( !mdtrl )
     {
-	msg = tr("Selected object is not a Mute Definition");
+	msg = uiStrings::sSelObjNotMuteDef();
 	return false;
     }
 

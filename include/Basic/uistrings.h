@@ -171,6 +171,10 @@ public:
 						    "set is empty");
 					}
     static uiString sSelect(bool immediate);
+    static uiString sSelObjNotMuteDef() { 
+					  return tr("Selected object is "
+						    "not a Mute Definition"); 
+					}
     static uiString sSelOutpFile()	{
 					  return tr("Please select "
 						    "output file");

@@ -39,7 +39,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 		 ioobj->createTranslator());
     if ( !ptrl )
     {
-	msg = tr("Selected object is not a Mute Definition");
+	msg = uiStrings::sSelObjNotMuteDef();
 	return false;
     }
     
@@ -68,7 +68,7 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
 		 ioobj->createTranslator());
     if ( !ptrl )
     {
-	msg = tr("Selected object is not a Mute Definition");
+	msg = uiStrings::sSelObjNotMuteDef();
 	return false;
     }
 
