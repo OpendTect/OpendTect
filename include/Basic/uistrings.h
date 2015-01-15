@@ -173,6 +173,10 @@ public:
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift(bool immediate);
     static uiString sShow()             { return tr("Show"); }
+    static uiString sSpecGenPar()	{
+					  return tr("Specify generation "
+						    "parameters"); 
+					}
     static uiString sSpecify()		{ return tr("Please specify"); }
     static uiString sSteering()		{ return tr("Steering"); }
     static uiString sStep()		{ return tr("Step"); }

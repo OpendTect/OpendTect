@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     : uiDialog( p, Setup(uiStrings::sCreateRandLines(),
-                         tr("Specify generation parameters"),
+                         uiStrings::sSpecGenPar(),
 			 mODHelpKey(mGenRanLinesByContourHelpID) ) )
     , horctio_(*mMkCtxtIOObj(EMHorizon3D))
     , polyctio_(*mMkCtxtIOObj(PickSet))
@@ -201,7 +201,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 
 uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     : uiDialog( p, Setup(uiStrings::sCreateRandLines(),
-			 "Specify generation parameters",
+			 uiStrings::sSpecGenPar(),
 			 mODHelpKey(mGenRanLinesByShiftHelpID) ) )
     , inctio_(*mMkCtxtIOObj(RandomLineSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
@@ -292,7 +292,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 
 uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     : uiDialog( p, Setup(uiStrings::sCreateRandLines(),
-			 "Specify generation parameters",
+			 uiStrings::sSpecGenPar(),
 			 mODHelpKey(mGenRanLinesFromPolygonHelpID) ) )
     , inctio_(*mMkCtxtIOObj(PickSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
