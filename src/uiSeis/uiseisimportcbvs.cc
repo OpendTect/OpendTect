@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "uiseistransf.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -199,7 +200,7 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 
     if ( dolink )
     {
-	uiMSG().message( tr("Import successful") );
+	uiMSG().message( uiStrings::sImpSuccess() );
 	return false;
     }
 

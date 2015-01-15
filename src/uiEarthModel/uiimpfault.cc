@@ -259,7 +259,7 @@ bool uiImportFault::handleAscii()
     else
 	fault->unRef();
 
-    uiMSG().message( tr("Import successful") );
+    uiMSG().message( uiStrings::sImpSuccess() );
     return false;
 }
 

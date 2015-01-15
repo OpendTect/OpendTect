@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
 #include "uitaskrunner.h"
@@ -140,7 +141,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !functions->store( ctio_.ioobj->key() ) )
 	mErrRet( "Cannot store velocity functions" );
 
-    uiMSG().message( tr("Import succeeded") );
+    uiMSG().message( uiStrings::sImpSuccess() );
     return false;
 }
 

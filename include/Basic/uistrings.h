@@ -94,6 +94,7 @@ public:
     static uiString sHorizons(bool immediate);
     static uiString sHorizontal()	{ return tr("Horizontal"); }
     static uiString sImport()		{ return tr("Import"); }
+    static uiString sImpSuccess()	{ return tr("Import successful"); }
     static uiString sInline()		{ return tr("Inline"); }
     static uiString sInpParMis()	{ 
 					  return tr("Input parameters "
