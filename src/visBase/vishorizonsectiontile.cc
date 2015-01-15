@@ -371,7 +371,7 @@ void HorizonSectionTile::setDisplayTransformation( const mVisTrans* nt )
     for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
     {
 	tileresolutiondata_[res]->setDisplayTransformation( nt );
-	updateNormals( res );
+	tileresolutiondata_[res]->calcNormals( true );
     }
     righttileglue_->setDisplayTransformation( nt );
     bottomtileglue_->setDisplayTransformation( nt );

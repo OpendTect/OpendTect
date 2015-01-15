@@ -149,6 +149,7 @@ private:
 						   const osg::Array* arr,
 						   osg::StateSet*stateset,
 						   int geometrytype);
+    void			dirtyGeometry(int type);
 };
 
 }
