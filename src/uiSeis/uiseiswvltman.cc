@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseiswvltgen.h"
 #include "uiseiswvltimpexp.h"
 #include "uiselobjothersurv.h"
+#include "uistrings.h"
 #include "uitextedit.h"
 #include "uiwaveletextraction.h"
 #include "uiwaveletmatchdlg.h"
@@ -46,7 +47,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisWvltMan)
 
 
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup(tr("Manage Wavelets"),mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup(uiStrings::sManWav(),mNoDlgTitle,
                                      mODHelpKey(mSeisWvltManHelpID) )
 				     .nrstatusflds(1).modal(false),
 		   WaveletTranslatorGroup::ioContext() )

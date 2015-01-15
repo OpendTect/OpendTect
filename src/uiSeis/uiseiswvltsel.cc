@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicombobox.h"
 #include "uiseiswvltman.h"
+#include "uistrings.h"
 #include "uitoolbutton.h"
 #include "uiwaveletextraction.h"
 
@@ -46,7 +47,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
     if ( withman )
     {
 	uiToolButton* tb = new uiToolButton( this, "man_wvlt",
-		tr("Manage wavelets"), mCB(this,uiSeisWaveletSel,startMan) );
+		uiStrings::sManWav(), mCB(this,uiSeisWaveletSel,startMan) );
 	tb->attach( rightOf, lastfld );
     }
 

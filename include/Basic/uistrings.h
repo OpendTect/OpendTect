@@ -45,7 +45,7 @@ public:
     static uiString sCantCreateHor()	{ return tr("Cannot create horizon"); }
     static uiString sCantFindAttrName()	{ 
 					  return tr("Cannot find "
-						    "attribute name"); 
+						    "attribute name");
 					}
     static uiString sCantFindODB()	{
 					  return tr("Cannot find object "
@@ -109,6 +109,7 @@ public:
     static uiString sLock()		{ return tr("Lock"); }
     static uiString sLogs(bool immediate);
     static uiString sManual()		{ return tr("Manual"); }
+    static uiString sManWav()		{ return tr("Manage wavelets"); }
     static uiString sMarkers(bool immediate);
     static uiString sName()		{ return tr("Name"); }
     static uiString sNew(bool immediate);

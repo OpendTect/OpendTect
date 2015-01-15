@@ -944,7 +944,7 @@ void uiODMenuMgr::fillManTB()
     mAddTB(mantb_,"man_wll",tr("Manage Well data"),false,manWll);
     mAddTB(mantb_,"man_picks",tr("Manage PickSets/Polygons"),false,manPick);
     mAddTB(mantb_,"man_body",tr("Manage Bodies/Regions"),false,manBody);
-    mAddTB(mantb_,"man_wvlt",tr("Manage Wavelets"),false,manWvlt);
+    mAddTB(mantb_,"man_wvlt",uiStrings::sManWav(),false,manWvlt);
     mAddTB(mantb_,"man_strat",tr("Manage Stratigraphy"),false,manStrat);
 
     uiMenu* seispopmnu = new uiMenu( &appl_, tr("Seismics Menu") );
