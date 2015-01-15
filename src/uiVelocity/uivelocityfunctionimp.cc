@@ -100,7 +100,7 @@ void uiImportVelFunc::formatSel( CallBacker* )
 }
 
 
-#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
 bool uiImportVelFunc::acceptOK( CallBacker* )
 {
@@ -114,7 +114,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 
     od_istream strm( inpfld_->fileName() );
     if ( !strm.isOK() )
-	 mErrRet( "Cannot open input file" );
+	 mErrRet( uiStrings::sCantOpenInpFile() );
 
     const od_int64 filesize = File::getKbSize( inpfld_->fileName() );
     FunctionAscIO velascio( fd_, strm, filesize ? filesize : -1 );
@@ -131,7 +131,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 
 
     if ( !success )
-	mErrRet( "Failed to convert into compatible data" );
+	mErrRet( uiStrings::sFailConvCompData() );
 
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0)

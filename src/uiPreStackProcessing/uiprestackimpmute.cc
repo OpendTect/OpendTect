@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitblimpexpdatasel.h"
 
 #include "ctxtioobj.h"
@@ -92,7 +93,7 @@ void uiImportMute::changePrefPosInfo( CallBacker* cb )
 }
 
 
-#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
 bool uiImportMute::acceptOK( CallBacker* )
 {
@@ -110,7 +111,7 @@ bool uiImportMute::acceptOK( CallBacker* )
     if ( haveInpPosData() )
     {
 	if ( !muteascio.getMuteDef(mutedef) )
-	    mErrRet( "Failed to convert into compatible data" );
+	    mErrRet( uiStrings::sFailConvCompData() );
     }
     else
     {
@@ -123,7 +124,7 @@ bool uiImportMute::acceptOK( CallBacker* )
 	    mErrRet( "Please enter Inl/Crl within survey range" )
 
 	else if ( !muteascio.getMuteDef(mutedef, inlcrlfld_->getBinID()) )
-	    mErrRet( "Failed to convert into compatible data" )
+	    mErrRet( uiStrings::sFailConvCompData() )
     }
 
     if ( !outfld_->commitInput() )

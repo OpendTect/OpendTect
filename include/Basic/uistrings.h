@@ -88,6 +88,10 @@ public:
     static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sExitOD()		{ return tr("Exit OpendTect"); }
     static uiString sExport()		{ return tr("Export"); }
+    static uiString sFailConvCompData()	{ 
+					  return tr("Failed to convert into "
+						    "compatible data");
+					}
     static uiString sFaults(bool immediate);
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return tr("File does not exist"); }

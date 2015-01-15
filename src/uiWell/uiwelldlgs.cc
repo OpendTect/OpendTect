@@ -305,7 +305,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
 
 	Well::TrackAscIO wellascio(fd_, strm );
 	if ( !wellascio.getData( wd_, true ) )
-	    uiMSG().error( tr("Failed to convert into compatible data") );
+	    uiMSG().error( uiStrings::sFailConvCompData() );
 
 	tbl_->clearTable();
 	if ( !fillTable() )
