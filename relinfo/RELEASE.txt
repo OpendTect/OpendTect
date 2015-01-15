@@ -1,8 +1,36 @@
 OpendTect V5.0.x : Release info
 
-In general, all fixes in the stable 4.6 are also applied in the 5.0 releases.
-
 ----
+v5.0.4: January 15, 2015
+ * Added 'Enable Virtual Keyboard' option in OpendTect Settings
+   window (under the 'General' tab)
+ * Random line menu option 'Edit nodes' is renamed to 'Positions'
+ * Fix for crash while changing Z-scale during horizon tracking
+   using track from seed option
+ * Fix for crash when switching to view mode while editing a fault
+ * Fix for deletion of current survey when aborting new survey creation
+ * Fix for crash while closing OpendTect main window after changing markers
+   size from 'Well display properties' window
+ * Newly created 2D lines from 'Create 2D grid' tool can now be displayed
+   without restarting OpendTect
+ * Fix for appearance of occasional unsorted traces in exported 2D SEGY files
+ * Color settings can now be saved/retrieved per 2D Seismic dataset
+ * Removed 'Rename line' button from Manage 2D Seismics as renaming can and
+   should be done via 'Manage 2D Geometry'
+ * Fix for incorrect/non- opening of user documentation on certain KDE systems
+ * Fix for undesired entries in the Survey .omf file for imported SEGY files
+ * Fix to ensure correct updating of the survey map on pressing 'Apply' in
+  'Edit survey parameters' window
+ * Fix for errors while reading header files of results during
+   Madagascar processing
+ * Fix for displaying title-box in GMT maps
+ * Fix for disappearance of volume box from the scene while dragging in
+   certain surveys
+ * Separated shading settings for Volume rendering and Surface rendering
+ * Fix for crash while changing gather display in case of 2D Seismic
+ * Fix for closing 'Please specify' window while loading default cube
+   when no default cube is set
+
 v5.0.3: December 11, 2014
  * Fix for crash while tracking 2D horizon
  * Fix for crash while copying wavelet from another survey
