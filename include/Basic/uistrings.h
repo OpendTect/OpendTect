@@ -69,6 +69,7 @@ public:
     static uiString sColorTable(bool immediate);
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sCreate(bool immediate);
+    static uiString sCreateRandLines()	{ return tr("Create random lines"); }
     static uiString sCrossline()        { return tr("Crossline"); }
     static uiString sDepth()	        { return tr("Depth"); }
     static uiString sDisplay()		{ return tr("Display"); }
