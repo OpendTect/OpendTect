@@ -32,4 +32,5 @@ mDefModInitFn(uiSeis)
 
     uiSEGYDirectVolInserter::initClass();
     uiSEGYDirect2DInserter::initClass();
+    uiSEGYDirectPS3DInserter::initClass();
 }

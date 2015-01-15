@@ -122,3 +122,59 @@ void uiSEGYDirect2DInserter::initClass()
     factory().addCreator( create,
 			  mSEGYDirect2DTranslInstance.getDisplayName() );
 }
+
+//Prestack 3D 
+
+#define mSEGYDirectPS3DTranslInstance mTranslTemplInstance(SeisPS3D,SEGYDirect)
+
+uiSEGYDirectPS3DInserter::uiSEGYDirectPS3DInserter()
+    : uiIOObjInserter(mSEGYDirectPS3DTranslInstance)
+{
+}
+
+
+uiToolButtonSetup* uiSEGYDirectPS3DInserter::getButtonSetup() const
+{
+    uiSEGYDirectPS3DInserter* self =
+				   const_cast<uiSEGYDirectPS3DInserter*>(this);
+    uiToolButtonSetup* ret = new uiToolButtonSetup( "segydirect_ins",
+						    tr("Scan a SEG-Y file"),
+	    mCB(self,uiSEGYDirectPS3DInserter,startScan), "SEG-Y" );
+    return ret;
+}
+
+
+void uiSEGYDirectPS3DInserter::startScan( CallBacker* cb )
+{
+    mDynamicCastGet(uiButton*,but,cb)
+    uiParent* par = 0;
+    if ( but ) par = but->mainwin();
+    if ( !par )
+    { pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
+
+    uiSEGYRead::Setup srsu( uiSEGYRead::DirectDef );
+    srsu.geoms_.erase(); srsu.geoms_ += Seis::VolPS;
+    segyread_ = new uiSEGYRead( but->parent(), srsu );
+    mAttachCB( segyread_->processEnded,
+				    uiSEGYDirectPS3DInserter::scanComplete );
+}
+
+
+void uiSEGYDirectPS3DInserter::scanComplete( CallBacker* )
+{
+    if ( segyread_->state() != uiVarWizard::cFinished() )
+	return;
+
+    const MultiID outky( segyread_->outputID() );
+    CBCapsule<MultiID> caps( outky, this );
+    objectInserted.trigger( &caps );
+}
+
+
+void uiSEGYDirectPS3DInserter::initClass()
+{
+    factory().addCreator( create, 
+	mSEGYDirectPS3DTranslInstance.getDisplayName() );
+}
+
+

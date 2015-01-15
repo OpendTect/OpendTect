@@ -62,4 +62,24 @@ protected:
 };
 
 
+mExpClass(uiSeis) uiSEGYDirectPS3DInserter : public uiIOObjInserter
+{ mODTextTranslationClass(uiSEGYDirectPS3DInserter);
+public:
+
+				uiSEGYDirectPS3DInserter();
+				
+    virtual uiToolButtonSetup*	getButtonSetup() const;
+    static uiIOObjInserter*	create()
+				{ return new uiSEGYDirectPS3DInserter;  }
+
+    static void			initClass();
+
+protected:
+
+    uiSEGYRead*		segyread_;
+
+    void		startScan(CallBacker*);
+    void		scanComplete(CallBacker*);
+
+};
 #endif
