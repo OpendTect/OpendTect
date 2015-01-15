@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uipixmap.h"
 #include "uispinbox.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -151,7 +152,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     maniptb_.addButton( "xplotprop", uiStrings::sProperties(true),
 			mCB(this,uiDataPointSetCrossPlotWin,editProps) );
-    maniptb_.addButton( "prdfs", tr("Create Probability Density Function"),
+    maniptb_.addButton( "prdfs", uiStrings::sCreateProbDesFunc(),
 			mCB(this,uiDataPointSetCrossPlotWin,exportPDF) );
     overlayproptbid_ = maniptb_.addButton( "overlayattr",
 	    tr("Select Overlay Attribute"), mCB(this,uiDataPointSetCrossPlotWin,

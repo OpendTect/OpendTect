@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprobdenfunvarsel.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 
 #include "arrayndimpl.h"
@@ -38,7 +39,7 @@ static int cMaxNrPDFs = 3;
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				const uiDataPointSetCrossPlotter* plotter )
-    : uiDialog(p,uiDialog::Setup(tr("Create Probability Density Function"),
+    : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , plotter_(plotter)
     , dps_(plotter_->dps())
@@ -53,7 +54,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
 				bool restricted )
-    : uiDialog(p,uiDialog::Setup(tr("Create Probability Density Function"),
+    : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , plotter_(0)
     , dps_(dps)
