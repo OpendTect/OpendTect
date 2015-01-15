@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsurvranges.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "emsurfacetr.h"
 #include "ctxtioobj.h"
 #include "survinfo.h"
@@ -51,7 +52,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     issingfld_->attach( alignedBelow, surf1fld_ );
     issingfld_->valuechanged.notify( selcb );
 
-    surf2fld_ = new uiIOObjSel( this, ctio2_, "Bottom Horizon" );
+    surf2fld_ = new uiIOObjSel( this, ctio2_, uiStrings::sBottomHor() );
     surf2fld_->attach( alignedBelow, issingfld_ );
 
     BufferString txt;

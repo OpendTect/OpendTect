@@ -39,6 +39,7 @@ public:
 						    "bad connection"); 
 					}
     static uiString sBottom()		{ return tr("Bottom"); }
+    static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
     static uiString sCalculate()	{ return tr("Calculate"); }
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCancel(bool)	{ return sCancel(); }

@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -41,12 +42,12 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     inpfld_->attach( alignedBelow, taskfld_ );
 
     // For thickness calculation
-    inpfld2_ = new uiIOObjSel( this, ctxt, tr("Bottom Horizon") );
+    inpfld2_ = new uiIOObjSel( this, ctxt, uiStrings::sBottomHor() );
     inpfld2_->attach( alignedBelow, inpfld_ );
 
     selfld_= new uiGenInput( this, tr("Add Result as an Attribute to "),
 	                BoolInpSpec(true, tr("Top Horizon"), 
-                                    tr("Bottom Horizon")) ); 
+                                    uiStrings::sBottomHor()) ); 
     selfld_->attach( alignedBelow, inpfld2_ );
 
     attribnamefld_ = new uiGenInput( this, tr("Attribute name"),

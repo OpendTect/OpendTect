@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiioobjsel.h"
 #include "uipossubsel.h"
+#include "uistrings.h"
 #include "od_helpids.h"
 
 
@@ -51,7 +52,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     horfld1_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld1_->attach( alignedBelow, winoption_ );
 
-    horfld2_ = new uiIOObjSel( this, horctio2_, "Bottom Horizon" );
+    horfld2_ = new uiIOObjSel( this, horctio2_, uiStrings::sBottomHor() );
     horfld2_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld2_->attach( alignedBelow, horfld1_ );
 
@@ -75,7 +76,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 
     selfld_= new uiGenInput( this, tr("Add result as an attribute to"),
 			     BoolInpSpec(true,
-                             tr("Top Horizon"),tr("Bottom Horizon")) );
+                             tr("Top Horizon"),uiStrings::sBottomHor()) );
     selfld_->valuechanged.notify( mCB(this,uiStratAmpCalc,setParFileNameCB) );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 

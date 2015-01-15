@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
+#include "uistrings.h"
 #include "uit2dconvsel.h"
 
 
@@ -57,7 +58,7 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
 	    			   FloatInpSpec(1000) );
     denvaluefld_->attach( alignedBelow, denvarfld_ );
 
-    su.seltxt_ = tr("Bottom Horizon");
+    su.seltxt_ = uiStrings::sBottomHor();
     botfld_ = new uiIOObjSel( inpgrp, ctxt, su );
     botfld_->setInput( MultiID("") );
     botfld_->attach( alignedBelow, denattrfld_ );

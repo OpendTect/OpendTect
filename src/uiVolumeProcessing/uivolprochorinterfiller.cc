@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uivolprocchain.h"
 
 #include "ctxtioobj.h"
@@ -57,7 +58,8 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
 
     if ( hf->getBottomHorizonID() )
 	bottomctio_->setObj( *hf->getBottomHorizonID() );
-    bottomhorfld_ = new uiIOObjSel( this, *bottomctio_, tr("Bottom Horizon") );
+    bottomhorfld_ = new uiIOObjSel( this, *bottomctio_, 
+				    uiStrings::sBottomHor() );
     bottomhorfld_->attach( alignedBelow, usebottomhorfld_ );
 
     usegradientfld_ = new uiGenInput( this, tr("Slope type"),
