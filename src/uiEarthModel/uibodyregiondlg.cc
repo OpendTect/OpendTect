@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uipossubsel.h"
 #include "uistepoutsel.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
 #include "varlenarray.h"
@@ -58,7 +59,8 @@ class BodyExtractorFromHorizons : public ParallelTask
 public:
 BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const TrcKeyZSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
+	const TrcKeyZSampling& cs, Array3D<float>& res, 
+	const ODPolygon<float>& p )
     : res_(res)
     , tkzs_(cs)
     , plg_(p)
@@ -97,8 +99,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const int inlidx = idx/crlsz;
 	const int crlidx = idx%crlsz;
 	const BinID bid = tkzs_.hrg.atIndex(inlidx,crlidx);
-	if ( bid.inl()==tkzs_.hrg.start.inl() || bid.inl()==tkzs_.hrg.stop.inl() ||
-	     bid.crl()==tkzs_.hrg.start.crl() || bid.crl()==tkzs_.hrg.stop.crl() )
+	if ( bid.inl()==tkzs_.hrg.start.inl() || 
+	     bid.inl()==tkzs_.hrg.stop.inl()  ||
+	     bid.crl()==tkzs_.hrg.start.crl() || 
+	     bid.crl()==tkzs_.hrg.stop.crl() )
 	    continue;/*Extended one layer*/
 
 	if ( usepolygon )
@@ -152,7 +156,8 @@ class ImplicitBodyRegionExtractor : public ParallelTask
 public:
 ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const TrcKeyZSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
+	const TrcKeyZSampling& cs, Array3D<float>& res, 
+	const ODPolygon<float>& p )
     : res_(res)
     , tkzs_(cs)
     , plg_(p)
@@ -974,7 +979,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     EM::EMM().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
-	mRetErrDelHoridx( tr("Body saving failed") )
+	mRetErrDelHoridx( uiStrings::sSaveBodyFail() )
 
     MultiID key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
@@ -986,7 +991,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     }
 
     if ( !TaskRunner::execute( &taskrunner, *exec ) )
-	mRetErrDelHoridx(tr("Saving body failed"));
+	mRetErrDelHoridx(uiStrings::sSaveBodyFail());
 
     return true;
 }

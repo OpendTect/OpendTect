@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uipixmap.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitoolbutton.h"
 #include "uitreeview.h"
@@ -333,7 +334,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     EM::EMM().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
-	mRetErr(tr("Body saving failed"))
+	mRetErr(uiStrings::sSaveBodyFail())
 
     MultiID key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
@@ -484,7 +485,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     EM::EMM().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
-	mRetErr( tr("Body saving failed") );
+	mRetErr( uiStrings::sSaveBodyFail() );
 
     PtrMan<IOObj> ioobj = IOM().get( outputfld_->key() );
     if ( !ioobj->pars().find(sKey::Type()) )
@@ -496,7 +497,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     }
 
     if ( !TaskRunner::execute(&taskrunner,*exec) )
-	mRetErr(tr("Saving body failed"));
+	mRetErr(uiStrings::sSaveBodyFail());
 
     return true;
 }
