@@ -1,6 +1,9 @@
 OpendTect V4.6.x : Release info
 
 ----
+v4.6.0s: January 15, 2015
+ * Fix for crash while changing gather display in case of 2D Seismic
+
 v4.6.0r: December 11, 2014
  * Fix for crash while clicking on 'Edit markers' tool when well track is empty
  * Fix for alignment of well headers in scene
