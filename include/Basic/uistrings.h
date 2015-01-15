@@ -193,6 +193,7 @@ public:
     static uiString sValue()		{ return tr("Value"); }
     static uiString sVertical()		{ return tr("Vertical"); }
     static uiString sView()		{ return tr("View"); }
+    static uiString sWavelet()		{ return tr("Wavelet"); }
     static uiString sWells(bool immediate);
     static uiString sWiggle()		{ return tr("Wiggle"); }
     static uiString sYes()		{ return tr("Yes"); }

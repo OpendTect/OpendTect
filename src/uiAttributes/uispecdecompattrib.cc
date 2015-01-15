@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uispinbox.h"
+#include "uistrings.h"
 #include "uitrcpositiondlg.h"
 
 #include "attribstorprovider.h"
@@ -83,7 +84,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     stepfld_->box()->valueChanged.notify( 
 	    			mCB(this,uiSpecDecompAttrib,stepChg) );
 
-    waveletfld_ = new uiGenInput( this, tr("Wavelet"), 
+    waveletfld_ = new uiGenInput( this, uiStrings::sWavelet(), 
 	    			 StringListInpSpec(CWT::WaveletTypeNames()) );
     waveletfld_->attach( alignedBelow, typefld_ );
 

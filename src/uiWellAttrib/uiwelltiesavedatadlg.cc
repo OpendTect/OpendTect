@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
@@ -77,7 +78,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     uiGroup* wvltgrp = new uiGroup( this, "Wavelet parameters" );
     wvltgrp->attach( ensureBelow, horSepar );
 
-    wvltchk_ = new uiCheckBox( wvltgrp, tr("Wavelet") );
+    wvltchk_ = new uiCheckBox( wvltgrp, uiStrings::sWavelet() );
     wvltchk_->activated.notify( mCB(this,uiSaveDataDlg,saveWvltSelCB) );
 
     IOObjContext ctxt = mIOObjContext(Wavelet);
