@@ -222,18 +222,18 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     valstr = pars.find( "Z" );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
     float zval = mUdf(float);
-    if ( valstr && *valstr )
+    if ( valstr )
     {
 	mesg.addTab().add( "Depth : " );
 	zval = toFloat( valstr );
 	mesg.add( toString(zval) ).add( SI().getZUnitString() );
-	zval /= SI().showZ2UserFactor();
     }
 
     if ( mIsUdf(zval) || layerModel().size()<=modelidx || modelidx<0 )
 	return;
     if ( d2tmodels_->validIdx(modelidx) )
     {
+	zval /= SI().showZ2UserFactor();
 	const float depth = (*d2tmodels_)[modelidx]->getDepth( zval );
 	const Strat::LayerSequence& curseq = layerModel().sequence( modelidx );
 	for ( int lidx=0; lidx<curseq.size(); lidx++ )
@@ -263,19 +263,19 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     {
 	mAddSep();
 	if ( issame )
-	    { if ( !vdstr || !*vdstr ) vdstr = wvastr; }
+	    { if ( vdstr.isEmpty() ) vdstr = wvastr; }
 	else
-	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
-	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
+	    { if ( vdstr.isEmpty() ) vdstr = "VD Val"; }
+	float val = !vdvalstr.isEmpty() ? vdvalstr.toFloat() : mUdf(float);
 	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr;
 	mesg += " ("; mesg += vdstr; mesg += ")";
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
-	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
+	float val = !wvavalstr.isEmpty() ? wvavalstr.toFloat() : mUdf(float);
 	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
-	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
+	if ( wvastr.isEmpty() ) wvastr = "WVA Val";
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
 
