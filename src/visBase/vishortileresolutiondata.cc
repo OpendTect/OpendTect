@@ -120,7 +120,10 @@ void TileResolutionData::enableGeometryTypeDisplay( GeometryType type, bool yn )
     if ( type >=Triangle && type <= WireFrame )
     {
         osgswitch_->setValue( type, yn );
-	if ( yn ) dispgeometrytype_ = type;
+	if ( yn ) 
+	    dispgeometrytype_ = type;
+	else
+	    dispgeometrytype_ = Triangle;
     }
     
 }
@@ -223,8 +226,11 @@ void TileResolutionData::setDisplayTransformation( const mVisTrans* t )
 
 void TileResolutionData::dirtyGeometry()
 {
-    for ( int type =dispgeometrytype_; type<WireFrame; type++ )
-	dirtyGeometry( type );
+    for ( int type =0; type<=WireFrame; type++ )
+    {
+	if ( osgswitch_->getValue((unsigned int)type) )
+	    dirtyGeometry( type );
+    }
 }
 
 
