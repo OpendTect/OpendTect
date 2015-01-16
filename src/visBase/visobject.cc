@@ -191,6 +191,11 @@ bool VisualObjectImpl::usePar( const IOPar& iopar )
     bool isonsw;
     if ( iopar.getYN(sKeyIsOn(),isonsw) )
 	turnOn( isonsw );
+    
+    const FixedString nm = iopar.find( sKey::Name() );
+    
+    if ( !nm.isEmpty() )
+	setName( nm );
 
     return true;
 }
@@ -207,6 +212,11 @@ void VisualObjectImpl::fillPar( IOPar& iopar ) const
     }
 
     iopar.setYN( sKeyIsOn(), isOn() );
+
+    const FixedString nm = name();
+    if ( !nm.isEmpty() )
+	iopar.set( sKey::Name(),nm );
+
 }
 
 
