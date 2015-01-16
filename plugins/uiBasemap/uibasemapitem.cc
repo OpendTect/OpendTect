@@ -514,6 +514,8 @@ void uiBasemapManager::removeAllItems()
 {
     for ( int idx=0; idx<treeitems_.size(); idx++ )
 	treetop_->removeChild( treeitems_[idx] );
+    treetop_->getTreeView()->setEmpty();
+
     basemap_->resetChangeFlag();
 }
 
