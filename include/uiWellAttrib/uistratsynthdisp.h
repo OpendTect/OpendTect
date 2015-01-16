@@ -207,6 +207,7 @@ protected:
 public:
     void		updateRelativeViewRect();
     void		reDisplayPostStackSynthetic(bool wva=true);
+    void		makeInfoMsg(BufferString& msg,IOPar&);
 };
 
 

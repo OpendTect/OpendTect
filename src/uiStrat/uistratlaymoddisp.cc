@@ -537,7 +537,11 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 	    {
 		const PropertyRef* pr = seq.propertyRefs()[dispprop_];
 		const float val = getLayerPropValue(lay,pr,dispprop_);
+		statusbarmsg.set( "Layer", lay.name() );
+		statusbarmsg.set( "Lithology", lay.lithology().name() );
 		statusbarmsg.set( pr->name(), val );
+		if ( !lay.content().isUnspecified() )
+		    statusbarmsg.set( "Content", lay.content().name() );
 		break;
 	    }
 	}

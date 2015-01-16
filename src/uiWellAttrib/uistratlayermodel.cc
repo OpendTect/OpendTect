@@ -1155,7 +1155,7 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
     if ( !moddisp )
     {
 	BufferString mesg;
-	uiFlatViewWin::makeInfoMsg( mesg, pars );
+	synthdisp_->makeInfoMsg( mesg, pars );
 	statusBar()->message( mesg.buf() );
     }
     else
