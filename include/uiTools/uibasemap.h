@@ -28,6 +28,8 @@ public:
     				uiBaseMapObject(BaseMapObject*);
     virtual			~uiBaseMapObject();
 
+    bool			hasChanged() const	{ return changed_; }
+    void			resetChangeFlag() { changed_ = false; }
     const char*			name() const;
     void			setTransform(const uiWorld2Ui*);
     virtual void		show(bool yn);
@@ -44,6 +46,7 @@ protected:
     uiGraphicsItemGroup&	itemgrp_;
     const uiWorld2Ui*		transform_;
 
+    bool			changed_;
     BaseMapObject*		bmobject_;
 };
 
@@ -55,6 +58,9 @@ public:
     virtual			~uiBaseMap();
 
     void			addObject(BaseMapObject*);
+    bool			hasChanged();
+    inline void			setChangeFlag() { changed_ = true; }
+    void			resetChangeFlag();
     				//!Owned by caller
     void			removeObject(const BaseMapObject*);
     void			show(const BaseMapObject&,bool yn);
@@ -64,8 +70,8 @@ public:
 
     const char*			nameOfItemAt(const Geom::Point2D<int>&) const;
 
-    uiGraphicsView&		view()			{ return view_; }
-    const uiWorld2Ui&		transform() const	{ return w2ui_; }
+    inline uiGraphicsView&	view()			{ return view_; }
+    inline const uiWorld2Ui&	transform() const	{ return w2ui_; }
 
 protected:
 
@@ -73,13 +79,12 @@ protected:
 
     uiGraphicsView&		view_;
     ObjectSet<uiBaseMapObject>	objects_;
+    bool			changed_;
 
     uiWorld2Ui&			w2ui_;
 
     void			reSizeCB(CallBacker*)		{ reDraw(); }
     virtual void		reDraw(bool deep=true);
-
 };
 
 #endif
-

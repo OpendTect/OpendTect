@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
+#include "uisellinest.h"
 #include "uistrings.h"
 
 #include "basemaprandomline.h"
@@ -27,6 +28,11 @@ ________________________________________________________________________
 uiBasemapRandomLineGroup::uiBasemapRandomLineGroup( uiParent* p, bool isadd )
     : uiBasemapIOObjGroup(p,mIOObjContext(RandomLineSet),isadd)
 {
+    uiSelLineStyle::Setup stu; stu.drawstyle( false );
+    LineStyle lst;
+    lsfld_ = new uiSelLineStyle( this, lst, stu );
+    lsfld_->attach( alignedBelow, uiBasemapIOObjGroup::lastObject() );
+
     addNameField();
 }
 
@@ -43,9 +49,14 @@ bool uiBasemapRandomLineGroup::acceptOK()
 }
 
 
-bool uiBasemapRandomLineGroup::fillPar( IOPar& par ) const
+bool uiBasemapRandomLineGroup::fillItemPar( int idx, IOPar& par ) const
 {
-    const bool res = uiBasemapIOObjGroup::fillPar( par );
+    const bool res = uiBasemapIOObjGroup::fillItemPar( idx, par );
+
+    BufferString lsstr;
+    lsfld_->getStyle().toString( lsstr );
+    par.set( sKey::LineStyle(), lsstr );
+
     return res;
 }
 
@@ -53,16 +64,28 @@ bool uiBasemapRandomLineGroup::fillPar( IOPar& par ) const
 bool uiBasemapRandomLineGroup::usePar( const IOPar& par )
 {
     const bool res = uiBasemapIOObjGroup::usePar( par );
+
+    BufferString lsstr;
+    par.get( sKey::LineStyle(), lsstr );
+    LineStyle ls; ls.fromString( lsstr );
+    lsfld_->setStyle( ls );
+
     return res;
 }
+
+
+uiObject* uiBasemapRandomLineGroup::lastObject()
+{ return lsfld_->attachObj(); }
 
 
 // uiBasemapRandomLineItem
 const char* uiBasemapRandomLineItem::iconName() const
 { return "randomline"; }
 
+
 uiBasemapGroup* uiBasemapRandomLineItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapRandomLineGroup( p, isadd ); }
+
 
 uiBasemapTreeItem* uiBasemapRandomLineItem::createTreeItem( const char* nm )
 { return new uiBasemapRandomLineTreeItem( nm ); }
@@ -83,6 +106,11 @@ bool uiBasemapRandomLineTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
+    BufferString lsstr;
+    par.get( sKey::LineStyle(), lsstr );
+    LineStyle ls;
+    ls.fromString( lsstr );
+
     int nrobjs = 0;
     par.get( uiBasemapGroup::sKeyNrObjs(), nrobjs );
 
@@ -98,12 +126,18 @@ bool uiBasemapRandomLineTreeItem::usePar( const IOPar& par )
 	if ( basemapobjs_.validIdx(idx) )
 	{
 	    mDynamicCastGet(Basemap::RandomLineObject*,obj,basemapobjs_[idx])
-	    if ( obj ) obj->setMultiID( mid );
+	    if ( obj )
+	    {
+		obj->setMultiID( mid );
+		obj->setLineStyle( ls );
+		obj->updateGeometry();
+	    }
 	}
 	else
 	{
 	    Basemap::RandomLineObject* obj =
 		new Basemap::RandomLineObject( mid );
+	    obj->setLineStyle( ls );
 	    addBasemapObject( *obj );
 	    obj->updateGeometry();
 	}
@@ -125,9 +159,7 @@ bool uiBasemapRandomLineTreeItem::showSubMenu()
 bool uiBasemapRandomLineTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid==0 )
-    {
 	BMM().edit( getFamilyID(), ID() );
-    }
     else
 	return false;
 

@@ -37,13 +37,18 @@ private:
     void		readCB(CallBacker*);
     void		removeCB(CallBacker*);
     void		saveCB(CallBacker*);
+    void		saveAsCB(CallBacker*);
     void		viewCB(CallBacker*);
     void		vworientationCB(CallBacker*);
     void		vwmapscaleCB(CallBacker*);
 
+    void		save(bool saveas);
+
+    MultiID		curbasemapid_;
     bool		pickmode_;
     int			readbut_;
     int			removebut_;
+    int			saveasbut_;
     int			savebut_;
     int			viewbut_;
     int			vwmapscaleid_;

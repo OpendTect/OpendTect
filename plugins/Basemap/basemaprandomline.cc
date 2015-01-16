@@ -49,16 +49,28 @@ void RandomLineObject::setMultiID( const MultiID& mid )
     BufferString msg;
     const bool res = RandomLineSetTranslator::retrieve( rdlset_, ioobj, msg );
     if ( !res ) return;
+}
 
-    updateGeometry();
+
+void RandomLineObject::setLineStyle( const LineStyle& ls )
+{
+    ls_ = ls;
+}
+
+
+void RandomLineObject::setLineStyle( int shapeidx, const LineStyle& ls )
+{
+    setLineStyle( ls );
 }
 
 
 void RandomLineObject::updateGeometry()
 { changed.trigger(); }
 
+
 int RandomLineObject::nrShapes() const
 { return rdlset_.isEmpty() ? 0 : 1; }
+
 
 const char* RandomLineObject::getShapeName( int idx ) const
 { return name().buf(); }
@@ -75,6 +87,7 @@ void RandomLineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
 
 const MarkerStyle2D* RandomLineObject::getMarkerStyle( int ) const
 { return 0; }
+
 
 void RandomLineObject::setMarkerStyle( int, const MarkerStyle2D& ms )
 { ms_ = ms; }

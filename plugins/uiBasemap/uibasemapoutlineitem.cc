@@ -28,8 +28,9 @@ static const char* sKeyLS()	{ return "Line Style"; }
 uiBasemapOutlineGroup::uiBasemapOutlineGroup( uiParent* p, bool isadd )
     : uiBasemapIOObjGroup(p,*Seis::getIOObjContext(Seis::Vol,true),isadd)
 {
+    uiSelLineStyle::Setup stu; stu.drawstyle( false );
     LineStyle lst;
-    lsfld_ = new uiSelLineStyle( this, lst, "Line style" );
+    lsfld_ = new uiSelLineStyle( this, lst, stu );
     lsfld_->attach( alignedBelow, uiBasemapIOObjGroup::lastObject() );
 
     addNameField();

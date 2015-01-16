@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uisellinest.h"
 #include "uistrings.h"
 
 #include "basemapgeom2d.h"
@@ -35,6 +36,11 @@ static IOObjContext getIOObjContext()
 uiBasemapGeom2DGroup::uiBasemapGeom2DGroup( uiParent* p, bool isadd )
     : uiBasemapIOObjGroup(p,getIOObjContext(),isadd)
 {
+    uiSelLineStyle::Setup stu; stu.drawstyle( false );
+    LineStyle lst;
+    lsfld_ = new uiSelLineStyle( this, lst, stu );
+    lsfld_->attach( alignedBelow, uiBasemapIOObjGroup::lastObject() );
+
     addNameField();
 }
 
@@ -51,9 +57,14 @@ bool uiBasemapGeom2DGroup::acceptOK()
 }
 
 
-bool uiBasemapGeom2DGroup::fillPar( IOPar& par ) const
+bool uiBasemapGeom2DGroup::fillItemPar( int idx, IOPar& par ) const
 {
-    const bool res = uiBasemapIOObjGroup::fillPar( par );
+    const bool res = uiBasemapIOObjGroup::fillItemPar( idx, par );
+
+    BufferString lsstr;
+    lsfld_->getStyle().toString( lsstr );
+    par.set( sKey::LineStyle(), lsstr );
+
     return res;
 }
 
@@ -61,8 +72,19 @@ bool uiBasemapGeom2DGroup::fillPar( IOPar& par ) const
 bool uiBasemapGeom2DGroup::usePar( const IOPar& par )
 {
     const bool res = uiBasemapIOObjGroup::usePar( par );
+
+    BufferString lsstr;
+    par.get( sKey::LineStyle(), lsstr );
+    LineStyle ls; ls.fromString( lsstr );
+    lsfld_->setStyle( ls );
+
     return res;
 }
+
+
+uiObject* uiBasemapGeom2DGroup::lastObject()
+{ return lsfld_->attachObj(); }
+
 
 
 // uiBasemapGeom2DItem
@@ -91,6 +113,11 @@ bool uiBasemapGeom2DTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
+    BufferString lsstr;
+    par.get( sKey::LineStyle(), lsstr );
+    LineStyle ls;
+    ls.fromString( lsstr );
+
     int nrobjs = 0;
     par.get( uiBasemapGroup::sKeyNrObjs(), nrobjs );
 
@@ -106,12 +133,18 @@ bool uiBasemapGeom2DTreeItem::usePar( const IOPar& par )
 	if ( basemapobjs_.validIdx(idx) )
 	{
 	    mDynamicCastGet(Basemap::Geom2DObject*,obj,basemapobjs_[idx])
-	    if ( obj ) obj->setMultiID( mid );
+	    if ( obj )
+	    {
+		obj->setMultiID( mid );
+		obj->setLineStyle( ls );
+		obj->updateGeometry();
+	    }
 	}
 	else
 	{
 	    Basemap::Geom2DObject* obj =
 		new Basemap::Geom2DObject( mid );
+	    obj->setLineStyle( ls );
 	    addBasemapObject( *obj );
 	    obj->updateGeometry();
 	}

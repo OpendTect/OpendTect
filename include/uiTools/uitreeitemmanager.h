@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 /*!\brief
 are helping classes for uiTreeViews, wich makes it easy to bundle inteligence
-and data to treeitems. Usage is normally to create the uiTreeTopItem, run the
+and data to treeitems. Usage is normally to create the uiTreeTopItem, run
 its init() and add Childrens.
 */
 
@@ -152,7 +152,7 @@ protected:
 				    If downwards is true, it tries to add it
 				    to its children if it does not fit.
 				    \param below specifies wether the child
-				    shoule be added above or below eventual
+				    should be added above or below eventual
 				    existing siblings.
 				*/
 
@@ -219,7 +219,7 @@ public:
 
     void		disabRightClick(bool yn)	{ disabrightclick_=yn; }
     void		disabAnyClick(bool yn)		{ disabanyclick_=yn; }
-
+    uiTreeView*		getTreeView() const		{ return listview_; }
 			~uiTreeTopItem();
 protected:
 
@@ -295,7 +295,7 @@ bool inline uiTreeItem::getProperty( const char* propertykey, T& res ) const
 }
 
 
-inline bool uiTreeItem::getPropertyPtr( const char* propertykey, void*& res ) const
+inline bool uiTreeItem::getPropertyPtr(const char* propertykey,void*& res) const
 {
     if ( properties_.getPtr( propertykey, res ))
 	return true;

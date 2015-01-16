@@ -434,6 +434,7 @@ void uiBasemapManager::addfromPar( const IOPar& treepar )
 	treeitems_.push( treeitm );
 	treetop_->addChild( treeitm, true );
     }
+    basemap_->resetChangeFlag();
 }
 
 
@@ -493,6 +494,27 @@ void uiBasemapManager::edit( int itemid, int treeitemid )
     if ( !itmpars ) return;
 
     treeitm->usePar( *itmpars );
+}
+
+
+void uiBasemapManager::removeSelectedItems()
+{
+    uiTreeView* treeview = treetop_->getTreeView();
+    const int nrsel = treeview->nrSelected();
+    if ( nrsel==0 ) return;
+
+    if ( !uiMSG().askContinue(
+	     "All selected items will be removed from the basemap") )
+	return;
+    treeview->removeSelectedItems();
+}
+
+
+void uiBasemapManager::removeAllItems()
+{
+    for ( int idx=0; idx<treeitems_.size(); idx++ )
+	treetop_->removeChild( treeitems_[idx] );
+    basemap_->resetChangeFlag();
 }
 
 

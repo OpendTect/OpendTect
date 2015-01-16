@@ -174,6 +174,9 @@ public:
     uiBasemapItem*	getBasemapItem(int id);
     uiBasemapTreeItem*	getBasemapTreeItem(int id);
 
+    void		removeSelectedItems();
+    void		removeAllItems();
+
     void		updateMouseCursor(const Coord3&);
 
 private:

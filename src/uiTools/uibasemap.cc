@@ -21,6 +21,7 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
     , itemgrp_(*new uiGraphicsItemGroup(true))
     , transform_(0)
+    , changed_(false)
 {
     if ( bmobject_ )
 	bmobject_->changed.notify( mCB(this,uiBaseMapObject,changedCB) );
@@ -40,8 +41,12 @@ const char* uiBaseMapObject::name() const
 void uiBaseMapObject::show( bool yn )
 { yn ? itemgrp_.show() : itemgrp_.hide(); }
 
+
 void uiBaseMapObject::changedCB( CallBacker* )
-{ update(); }
+{
+    changed_ = true;
+    update();
+}
 
 
 void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
@@ -175,6 +180,7 @@ uiBaseMap::uiBaseMap( uiParent* p )
     : uiGroup(p,"Basemap")
     , view_(*new uiGraphicsView(this,"Basemap"))
     , w2ui_(*new uiWorld2Ui)
+    , changed_(false)
 {
     view_.reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
 }
@@ -200,12 +206,34 @@ void uiBaseMap::addObject( BaseMapObject* obj )
 	if ( !uiobj )
 	    return;
 
-	addObject( uiobj );
+	addObject( uiobj ); // it already has the line 'changed = true'
     }
     else
     {
 	objects_[index]->update();
     }
+    // Does update() change the object? If yes, line 'changed = true' should go
+    // inside it
+}
+
+
+bool uiBaseMap::hasChanged()
+{
+    if ( changed_ ) return true;
+
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	if ( objects_[idx]->hasChanged() ) return true;
+
+    return false;
+}
+
+
+void uiBaseMap::resetChangeFlag()
+{
+    changed_ = false;
+
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	objects_[idx]->resetChangeFlag();
 }
 
 
@@ -214,6 +242,7 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
     view_.scene().addItem( &uiobj->itemGrp() );
     objects_ += uiobj;
     uiobj->setTransform( &w2ui_ );
+    changed_ = true;
 }
 
 
@@ -250,6 +279,7 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
 
     view_.scene().removeItem( &objects_[index]->itemGrp() );
     delete objects_.removeSingle( index );
+    changed_ = true;
 }
 
 

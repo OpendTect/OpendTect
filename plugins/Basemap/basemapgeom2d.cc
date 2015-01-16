@@ -24,7 +24,6 @@ Geom2DObject::Geom2DObject( const MultiID& mid )
     , mid_(mid)
 {
     setMultiID( mid );
-    ls_.width_ = 3;
 }
 
 
@@ -62,6 +61,18 @@ void Geom2DObject::setMultiID( const MultiID& mid )
 }
 
 
+void Geom2DObject::setLineStyle( const LineStyle& ls )
+{
+    ls_ = ls;
+}
+
+
+void Geom2DObject::setLineStyle( int shapeidx, const LineStyle& ls )
+{
+    setLineStyle( ls );
+}
+
+
 void Geom2DObject::updateGeometry()
 { changed.trigger(); }
 
@@ -69,10 +80,13 @@ void Geom2DObject::updateGeometry()
 int Geom2DObject::nrShapes() const
 { return 1; }
 
+
 const char* Geom2DObject::getShapeName( int ) const
 { return 0; }
 
+
 void Geom2DObject::getPoints( int, TypeSet<Coord>& crds ) const
 { crds = bptcoords_; }
+
 
 } // namespace Basemap

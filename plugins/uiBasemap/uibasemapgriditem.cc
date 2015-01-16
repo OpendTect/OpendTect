@@ -40,7 +40,6 @@ static const char* sKeyShowInlX()    { return "Show Inl/X Grid"; }
 static const char* sKeyShowCrlY()    { return "Show Crl/Y Grid"; }
 static const char* sKeyInlCrl()      { return "Inl/Crl"; }
 static const char* sKeyXY()	     { return "X/Y"; }
-static const char* sKeyLS()	     { return "Line Style"; }
 
 // uiBasemapGridGroup
 uiBasemapGridGroup::uiBasemapGridGroup( uiParent* p, bool isadd )
@@ -180,7 +179,7 @@ bool uiBasemapGridGroup::fillPar( IOPar& par ) const
 
     BufferString lsstr;
     lsfld_->getStyle().toString( lsstr );
-    ipar.set( sKeyLS(), lsstr );
+    ipar.set( sKey::LineStyle(), lsstr );
 
     const BufferString key = IOPar::compKey( sKeyItem(), 0 );
     par.mergeComp( ipar, key );
@@ -221,7 +220,7 @@ bool uiBasemapGridGroup::usePar( const IOPar& par )
     }
 
     BufferString lsstr;
-    par.get( sKeyLS(), lsstr );
+    par.get( sKey::LineStyle(), lsstr );
     LineStyle ls;
     ls.fromString( lsstr );
     lsfld_->setStyle( ls );
@@ -252,7 +251,7 @@ bool uiBasemapGridTreeItem::usePar( const IOPar& par )
     uiBasemapTreeItem::usePar( par );
 
     BufferString lsstr;
-    par.get( sKeyLS(), lsstr );
+    par.get( sKey::LineStyle(), lsstr );
     LineStyle ls;
     ls.fromString( lsstr );
 

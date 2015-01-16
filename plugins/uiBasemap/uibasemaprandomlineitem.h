@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
+class uiSelLineStyle;
+
 mExpClass(uiBasemap) uiBasemapRandomLineGroup : public uiBasemapIOObjGroup
 {
 public:
@@ -22,11 +24,12 @@ public:
 			~uiBasemapRandomLineGroup();
 
     bool		acceptOK();
-    bool		fillPar(IOPar&) const;
+    bool		fillItemPar(int idx,IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
-
+    virtual uiObject*	lastObject();
+    uiSelLineStyle*	lsfld_;
 };
 
 

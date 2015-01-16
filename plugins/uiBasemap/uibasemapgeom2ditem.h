@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
+class uiSelLineStyle;
+
 mExpClass(uiBasemap) uiBasemapGeom2DGroup : public uiBasemapIOObjGroup
 {
 public:
@@ -22,11 +24,12 @@ public:
 			~uiBasemapGeom2DGroup();
 
     bool		acceptOK();
-    bool		fillPar(IOPar&) const;
+    bool		fillItemPar(int idx,IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
-
+    virtual uiObject*	lastObject();
+    uiSelLineStyle*	lsfld_;
 };
 
 
