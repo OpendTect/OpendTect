@@ -7,6 +7,9 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisiosimple.h"
+
+#include "envvars.h"
+#include "genc.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seisimporter.h"
@@ -39,8 +42,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
-    	: scaler_(0)
-    	, resampler_(0)
+	: scaler_(0)
+	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
 	, linekey_(*new LineKey)
 	, geom_(gt)
@@ -57,7 +60,7 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 
 
 SeisIOSimple::Data::Data( const SeisIOSimple::Data& d )
-    	: scaler_(0)
+	: scaler_(0)
 	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
 	, linekey_(*new LineKey)
@@ -145,17 +148,17 @@ void SeisIOSimple::Data::clear( bool survchg )
 
 
 SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
-    	: Executor( imp ? "Import Seismics from simple file"
+	: Executor( imp ? "Import Seismics from simple file"
 			: "Export Seismics to simple file" )
 	, data_(d)
-    	, trc_(*new SeisTrc)
+	, trc_(*new SeisTrc)
 	, isimp_(imp)
-    	, strm_(0)
-    	, rdr_(0)
-    	, wrr_(0)
-    	, importer_(0)
-    	, nrdone_(0)
-    	, firsttrc_(true)
+	, strm_(0)
+	, rdr_(0)
+	, wrr_(0)
+	, importer_(0)
+	, nrdone_(0)
+	, firsttrc_(true)
 	, offsnr_(0)
 	, prevbid_(mUdf(int),0)
 	, prevnr_(mUdf(int))
@@ -223,7 +226,7 @@ class SeisIOSimpleImportReader : public SeisImporter::Reader
 public:
 
 SeisIOSimpleImportReader( SeisIOSimple& sios )
-    	: sios_(sios)		{}
+	: sios_(sios)		{}
 
 const char* name() const	{ return "Simple File"; }
 const char* implName() const	{ return sios_.iStream().fileName(); }
@@ -258,7 +261,7 @@ void SeisIOSimple::startImpRead()
 
     trc_.info().sampling = data_.sd_;
     importer_ = new SeisImporter( new SeisIOSimpleImportReader(*this),
-	    			  *wrr_, data_.geom_ );
+				  *wrr_, data_.geom_ );
 }
 
 
@@ -394,8 +397,10 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 #   define mApplyScalerAndSetTrcVal \
 	if ( data_.scaler_ ) \
 	    val = (float) data_.scaler_->scale( val ); \
+	if ( isswapped ) SwapBytes( &val, sizeof(float) ); \
 	trc.set( idx, val, 0 )
 
+    static const bool isswapped = GetEnvVarYN("OD_SIMPLE_FILE_BINARY_SWAPPED");
     if ( !data_.isasc_ )
     {
 	for ( int idx=0; idx<data_.nrsamples_; idx++ )
@@ -517,10 +522,12 @@ int SeisIOSimple::writeExpTrc()
     }
 
     float val;
+    static const bool isswapped = GetEnvVarYN("OD_SIMPLE_FILE_BINARY_SWAPPED");
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
     {
 	val = trc_.get( idx, 0 );
 	if ( data_.scaler_ ) val = (float) data_.scaler_->scale( val );
+	if ( isswapped ) SwapBytes( &val, sizeof(float) );
 	binstrm.add( val, idx == data_.nrsamples_-1 ? od_newline : od_tab );
     }
 
