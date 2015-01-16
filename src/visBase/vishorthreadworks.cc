@@ -103,8 +103,11 @@ TileTesselator::TileTesselator( HorizonSectionTile* tile, char res )
 
 int TileTesselator::nextStep()
 {
-    tile_->updateNormals( res_ );
-    tile_->tesselateResolution( res_, false );
+    if ( tile_ )
+    {
+	tile_->updateNormals( res_ );
+	tile_->tesselateResolution( res_, false );
+    }
     return SequentialTask::Finished();
 }
 
@@ -116,7 +119,8 @@ TileGlueTesselator::TileGlueTesselator( HorizonSectionTile* tile )
 
 int TileGlueTesselator::nextStep()
 {
-    tile_->ensureGlueTesselated();
+    if ( tile_ )
+        tile_->ensureGlueTesselated();
     return SequentialTask::Finished();
 }
 
@@ -162,6 +166,9 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
     
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
+	if ( !hrtiles_[idx] )
+	     continue;
+
 	const RowCol& origin = hrtiles_[idx]->origin_;
 	TypeSet<Coord3> positions;
 	positions.setCapacity( (nrcrdspertileside_)*(nrcrdspertileside_),
