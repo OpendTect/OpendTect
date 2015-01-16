@@ -350,7 +350,7 @@ void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 	{
 	    cstinpidx++;
 	    params += EvalParam( form_.variableName(idx),
-				 Attrib::Mathematics::cstStr(), 0, idx );
+				 Attrib::Mathematics::cstStr(), 0, cstinpidx );
 	}
     }
 }
