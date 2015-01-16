@@ -64,8 +64,15 @@ RandomTrackDisplay::RandomTrackDisplay()
     {
 	mDynamicCastGet( const RandomTrackDisplay*, rtd,
 			 visBase::DM().getObject(randomlines[idx]) );
-	if ( rtd == this )
+	if ( rtd==this ) continue;
+
+	if ( rtd==0 )
+	{
+#	    ifdef __debug__
+		pErrMsg( "Invalid random track display." );
+#	    endif
 	    continue;
+	}
 
 	if ( rtd->nameNr()>highestnamenr )
 	    highestnamenr = rtd->nameNr();
