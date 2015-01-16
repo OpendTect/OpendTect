@@ -88,7 +88,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     lbl->attach( rightOf, dispbelowfld_ );
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Name size") );
-    nmsizefld_->box()->setInterval(5,72,2);
+    nmsizefld_->box()->setInterval( 5, 500, 2 );
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
 
     uiStringSet fontstyles;
@@ -174,7 +174,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     colfld_->setSensitive( singlecolfld_->isChecked() );
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Names size") );
-    nmsizefld_->box()->setInterval(5,72,2);
+    nmsizefld_->box()->setInterval( 10, 500, 1 );
     nmsizefld_->attach( alignedBelow, shapefld_ );
 
     uiStringSet styles;
