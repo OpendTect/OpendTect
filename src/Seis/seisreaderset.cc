@@ -86,7 +86,10 @@ bool SeisTrcReaderSet::get( ObjectSet<SeisTrc>& trcs )
     for ( int irdr=0; irdr<size(); irdr++ )
     {
 	if ( !(*this)[irdr]->get(*trcs[irdr]) )
+	{
+	    errmsg_ = (*this)[irdr]->errMsg();
 	    return false;
+	}
     }
 
     return true;
