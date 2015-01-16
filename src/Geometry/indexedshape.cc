@@ -164,7 +164,7 @@ void IndexedGeometry::appendCoordIndices( const TypeSet<int>& indices,
 {
     if ( primitivesettype_ == RangeSet ) return;
 
-    if ( indices.size()<=2  ) return;
+    if ( indices.size()<2  ) return;
 
     switch ( primitivetype_ )
     {
