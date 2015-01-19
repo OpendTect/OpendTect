@@ -268,12 +268,12 @@ void uiBaseMapTBMgr::readCB( CallBacker* )
     uiIOObjSelDlg dlg( &mainwin_, ctio );
     if ( !dlg.go() ) return;
 
-    if ( curbasemapid_ == dlg.chosenID() and !basemapview_.hasChanged() )
+    if ( curbasemapid_ == dlg.chosenID() && !basemapview_.hasChanged() )
     {
 	if ( !uiMSG().askContinue(
 		 tr("Are you trying to reload the same Basemap?")) ) return;
     }
-    else if ( !curbasemapid_.isUdf() and basemapview_.hasChanged() )
+    else if ( !curbasemapid_.isUdf() && basemapview_.hasChanged() )
     {
 	if ( !uiMSG().askContinue(
 		 tr("Any unsaved changes will be lost. Are you sure "
