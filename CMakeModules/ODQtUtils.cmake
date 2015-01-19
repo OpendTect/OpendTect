@@ -149,7 +149,21 @@ macro(OD_SETUP_QT)
 
 	    endif()
 	endif()
+
     endif( OD_NO_QT )
 endmacro( OD_SETUP_QT )
 
+macro ( SETUP_QT_TRANSLATION )
+    if ( EXISTS ${QT_LRELEASE_EXECUTABLE} )
+	add_custom_target( Translations ALL 
+	    ${CMAKE_SOURCE_DIR}/dtect/compile_translations
+	    ${QT_LRELEASE_EXECUTABLE} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
+	    VERBATIM
+	COMMENT "Compiling translations" )
+    
+	install(DIRECTORY data/localizations/ DESTINATION data/localizations
+          FILES_MATCHING PATTERN "*.qm")
+	
+    endif()
+endmacro( SETUP_QT_TRANSLATION )
 

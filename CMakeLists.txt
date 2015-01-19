@@ -126,6 +126,8 @@ if ( UNIX )
     add_test( "PNGCompression" ${CMAKE_SOURCE_DIR}/dtect/FindCompactablePNGs.csh )
 endif()
 
+SETUP_QT_TRANSLATION()
+
 set ( OD_TESTS_IGNORE_CONTINUOUS
       "${OD_TESTS_IGNORE_CONTINUOUS} SVNPropertyTest" )
 OD_SETUP_TEST_FILTER()
