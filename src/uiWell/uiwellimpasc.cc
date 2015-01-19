@@ -76,7 +76,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
-    const uiString zunit = UnitOfMeasure::zUnitAnnot(false,true,true);
+    const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
     uiString kblbl = tr( "KB Elevation %1" ).arg( zunit );
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->attach( alignedBelow, coordfld_ );
@@ -197,23 +197,22 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     if ( zinfeet && zun_ )
 	dispval = zun_->userValue( info.replvel );
 
-    uiString lbl = tr("Replacement velocity %/s")
-		.arg( UnitOfMeasure::zUnitAnnot(false,true,false) );
-
+    uiString lbl = tr("Replacement velocity %1")
+		      .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
     replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
 
     dispval = info.groundelev;
     if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundelev );
     lbl = tr("Ground level elevation %1")
-		.arg( UnitOfMeasure::zUnitAnnot(false,true,true) );
+	     .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
     gdelevfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
 
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, gdelevfld );
 
-    idfld = new uiGenInput( this, tr("Well ID (UWI)"), 
+    idfld = new uiGenInput( this, tr("Well ID (UWI)"),
 			    StringInpSpec(info.uwid) );
     idfld->attach( alignedBelow, gdelevfld );
 
@@ -224,7 +223,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     statefld = new uiGenInput( this, tr("State"), StringInpSpec(info.state) );
     statefld->attach( alignedBelow, operfld );
 
-    countyfld = new uiGenInput( this, tr("County"), 
+    countyfld = new uiGenInput( this, tr("County"),
 				StringInpSpec(info.county) );
     countyfld->attach( rightTo, statefld );
 }

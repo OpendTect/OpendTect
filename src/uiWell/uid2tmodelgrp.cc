@@ -40,8 +40,8 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
     {
-	BufferString velllbl( "Temporary model velocity ");
-	velllbl.add( VelocityDesc::getVelUnit( true ) );
+	const uiString velllbl = tr("Temporary model velocity %1")
+		     .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
 	const float vel = getGUIDefaultVelocity();
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );

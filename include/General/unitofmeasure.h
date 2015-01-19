@@ -77,9 +77,13 @@ public:
     void		setSource( Repos::Source s )	{ source_ = s; }
 
     static const UnitOfMeasure* surveyDefZUnit();
-    static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);
+    static const UnitOfMeasure* surveyDefTimeUnit();
     static const UnitOfMeasure* surveyDefDepthUnit();
+    static const UnitOfMeasure* surveyDefVelUnit();
+    static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);
+    static uiString	surveyDefTimeUnitAnnot(bool symbol,bool withparens);
     static uiString	surveyDefDepthUnitAnnot(bool symbol,bool withparens);
+    static uiString	surveyDefVelUnitAnnot(bool symbol,bool withparens);
     static uiString	zUnitAnnot(bool time,bool symbol,bool withparens);
 
     static IOPar&	currentDefaults();

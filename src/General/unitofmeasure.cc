@@ -111,16 +111,13 @@ const UnitOfMeasure* UnitOfMeasure::getGuessed( const char* nm )
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
 {
-    if ( SI().zIsTime() )
-	return UoMR().get( "Milliseconds" );
-    else
-	return surveyDefDepthUnit();
+    return SI().zIsTime() ? surveyDefTimeUnit() : surveyDefDepthUnit();
 }
 
 
-uiString UnitOfMeasure::surveyDefZUnitAnnot( bool symb, bool withparens )
+const UnitOfMeasure* UnitOfMeasure::surveyDefTimeUnit()
 {
-    return zUnitAnnot( SI().zIsTime(), symb, withparens );
+    return UoMR().get( "Milliseconds" );
 }
 
 
@@ -130,35 +127,59 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 }
 
 
+const UnitOfMeasure* UnitOfMeasure::surveyDefVelUnit()
+{
+    return UoMR().get( SI().depthsInFeet() ? "Feet/second" : "Meter/second" );
+}
+
+
+uiString UnitOfMeasure::surveyDefZUnitAnnot( bool symb, bool withparens )
+{
+    return zUnitAnnot( SI().zIsTime(), symb, withparens );
+}
+
+
+uiString UnitOfMeasure::surveyDefTimeUnitAnnot( bool symb, bool withparens )
+{
+    return zUnitAnnot( true, symb, withparens );
+}
+
+
 uiString UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb, bool withparens )
 {
     return zUnitAnnot( false, symb, withparens );
 }
 
 
-uiString UnitOfMeasure::zUnitAnnot( bool time, bool symbol,
-				    bool withparens )
+uiString UnitOfMeasure::zUnitAnnot( bool time, bool symbol, bool withparens )
 {
-    if ( time )
-    {
-	if ( !symbol )
-	    return tr("Milliseconds");
-	else
-	    return withparens ? tr("(ms)") : tr("ms");
-    }
+    uiString str;
+    const UnitOfMeasure* uom = time  ? surveyDefTimeUnit()
+				     : surveyDefDepthUnit();
+    if ( !uom )
+	return str;
 
-    if ( SI().depthsInFeet() )
-    {
-	if ( !symbol )
-	    return tr("Feet");
-	return withparens ? tr("(ft)") : tr("ft");
-    }
+    if ( withparens )
+	str.append( "(" );
 
-    if ( !symbol )
-	return tr("Meter");
+    str.append( tr(symbol ? uom->symbol() : uom->name()) );
+    if ( withparens )
+	str.append( ")" );
 
-    return withparens ? tr("(m)") : tr("m");
+    return str;
 }
+
+
+uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
+{
+    uiString lbl = zUnitAnnot( false, symb, false );
+    lbl.append( "/" );
+    lbl.append( tr("s") );
+
+    return withparens ? tr("(%1)").arg(lbl) : tr("%1").arg(lbl);
+}
+
+
 
 
 bool UnitOfMeasure::isImperial() const

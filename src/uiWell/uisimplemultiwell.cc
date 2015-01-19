@@ -73,12 +73,13 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     const char* xunstr = SI().getXYUnitString();
     tbl_->setColumnLabel( 1, BufferString("[X",xunstr,"]") );
     tbl_->setColumnLabel( 2, BufferString("[Y",xunstr,"]") );
-    const char* zunstr = zinft_ ? " (ft" : " (m";
-    tbl_->setColumnLabel( 3, BufferString("[KB",zunstr,")]") );
+    const uiString zun = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
+    const char* zunstr = zun.getFullString();
+    tbl_->setColumnLabel( 3, BufferString("[KB",zunstr,"]") );
     tbl_->setColumnToolTip( 3, "Reference Datum elevation" );
-    tbl_->setColumnLabel( 4, BufferString("[TD",zunstr,")]") );
+    tbl_->setColumnLabel( 4, BufferString("[TD",zunstr,"]") );
     tbl_->setColumnToolTip( 4, "Total Depth" );
-    tbl_->setColumnLabel( 5, BufferString("[GL",zunstr,")]") );
+    tbl_->setColumnLabel( 5, BufferString("[GL",zunstr,"]") );
     tbl_->setColumnToolTip( 5, "Ground level elevation" );
     tbl_->setColumnLabel( 6, "[UWI]" );
     tbl_->setColumnToolTip( 6, "Unique Well Identifier" );
@@ -90,8 +91,9 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     if ( SI().zIsTime() )
     {
 	const float defvel = getGUIDefaultVelocity();
-	velfld_ = new uiGenInput( this, BufferString("Velocity",zunstr,"/s)"),
-				  FloatInpSpec(defvel) );
+	const uiString velunstr = tr( "Velocity %1" )
+		       .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
+	velfld_ = new uiGenInput( this, velunstr, FloatInpSpec(defvel) );
 	velfld_->attach( rightTo, pb );
 	velfld_->attach( rightBorder );
     }
