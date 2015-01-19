@@ -27,7 +27,7 @@ endif()
 set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackViewer
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
 	     GMT uiGMT uiImpGPR Madagascar uiMadagascar
-	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM )
+	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM Basemap uiBasemap )
 #Only for windows base package
 set( WINEXECLIST od_start_dtect od_main_console od_runinst )
 
