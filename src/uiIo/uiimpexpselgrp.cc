@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include "uitoolbutton.h"
 
 #include "ascstream.h"
@@ -238,7 +239,7 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
 	nmfld_->setStretch( 2, 0 );
     }
 
-    infobut_ = new uiToolButton( this, "info", "Info",
+    infobut_ = new uiToolButton( this, "info", uiStrings::sInfo(),
 				 mCB(this,uiSGSelGrp,showInfo) );
     infobut_->attach( rightTo, listfld_ );
 

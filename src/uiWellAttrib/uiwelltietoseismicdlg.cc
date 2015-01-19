@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistatusbar.h"
+#include "uistrings.h"
 #include "uitoolbar.h"
 #include "uitaskrunner.h"
 #include "uiwelldlgs.h"
@@ -232,7 +233,7 @@ void uiTieWin::drawFields()
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, horSepar );
 
-    uiPushButton* infobut = new uiPushButton( this, tr("Info"),
+    uiPushButton* infobut = new uiPushButton( this, uiStrings::sInfo(),
 			mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );

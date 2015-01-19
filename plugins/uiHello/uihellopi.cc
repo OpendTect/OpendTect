@@ -28,6 +28,7 @@ mDefODInitPlugin(uiHello)
 #include "uimenu.h"
 #include "uidialog.h"
 #include "uigeninput.h"
+#include "uistrings.h"
 
 mDefODPluginInfo(uiHello)
 {
@@ -76,7 +77,8 @@ uiHelloMsgBringer( uiParent* p )
     txtfld = new uiGenInput( this, "Hello message",
 				StringInpSpec("Hello world") );
     typfld = new uiGenInput( this, "Message type",
-				BoolInpSpec(true,"Info","Warning") );
+				BoolInpSpec(true,uiStrings::sInfo(),
+					    "Warning") );
     typfld->attach( alignedBelow, txtfld );
 }
 
