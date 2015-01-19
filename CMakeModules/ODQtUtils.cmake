@@ -158,9 +158,9 @@ macro ( SETUP_QT_TRANSLATION )
 	if ( WIN32 )
 	    set ( COMPILE_TRANSLATIONS_EXTENSION cmd )
 	else()
-	    set ( COMPILE_TRANSLATIONS_EXTENSION csh )
+	    set ( COMPILE_TRANSLATIONS_EXTENSION sh )
 	endif()
-	add_custom_target( Translations ALL 
+	add_custom_target( Compile_Translations ALL 
 	    ${CMAKE_SOURCE_DIR}/dtect/compile_translations.${COMPILE_TRANSLATIONS_EXTENSION}
 	    ${QT_LRELEASE_EXECUTABLE} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
 	    VERBATIM
