@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislicesel.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
+#include "uistrings.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivisisosurface.h"
@@ -94,7 +95,7 @@ bool uiODVolrenParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(true)), mAddIdx );
-    mnu.insertItem( new uiAction(tr("Add color blended")), mAddCBIdx );
+    mnu.insertItem( new uiAction(uiStrings::sAddColBlend()), mAddCBIdx );
     const int mnuid = mnu.exec();
     if ( mnuid==mAddIdx || mnuid==mAddCBIdx )
     {

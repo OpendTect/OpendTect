@@ -124,7 +124,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     mnu.insertItem( new uiAction(tr("Add Stored ...")), 7 );
 
     uiMenu* rgbmnu =
-	new uiMenu( getUiParent(), tr("Add Color blended") );
+	new uiMenu( getUiParent(), uiStrings::sAddColBlend() );
     rgbmnu->insertItem( new uiAction(tr("Empty")), 8 );
     rgbmnu->insertItem( new uiAction(uiStrings::sStored(false)), 9 );
     mnu.insertItem( rgbmnu );

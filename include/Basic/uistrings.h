@@ -26,6 +26,7 @@ public:
     static uiString sAbort()		{ return tr("Abort"); }
     static uiString sAction()		{ return tr("Action"); }
     static uiString sAdd(bool immediate);
+    static uiString sAddColBlend()	{ return tr("Add color blended"); }
     static uiString sAdvanced()		{ return tr("Advanced"); }
     static uiString sAll()		{ return tr("All"); }
     static uiString sAnalysis()		{ return tr("Analysis"); }

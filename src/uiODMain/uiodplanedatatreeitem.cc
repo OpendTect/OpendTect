@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseispartserv.h"
 #include "uishortcutsmgr.h"
 #include "uislicesel.h"
+#include "uistrings.h"
 #include "uivispartserv.h"
 #include "uivisslicepos3d.h"
 #include "uiwellpartserv.h"
@@ -63,7 +64,7 @@ uiString uiODPlaneDataTreeItem::sAddDefaultData()
 
 
 uiString uiODPlaneDataTreeItem::sAddColorBlended()
-{ return tr("Add color blended"); }
+{ return uiStrings::sAddColBlend(); }
 
 
 uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
