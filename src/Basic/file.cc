@@ -48,7 +48,7 @@ namespace File
 {
 
 class RecursiveCopier : public Executor
-{
+{ mODTextTranslationClass(RecursiveCopier);
 public:
 			RecursiveCopier(const char* from,const char* to)
 			    : Executor("Copying Directory")
@@ -64,7 +64,7 @@ public:
     od_int64		nrDone() const		{ return nrdone_ / mMBFactor; }
     od_int64		totalNr() const		{ return totalnr_ / mMBFactor; }
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "MBytes copied"; }
+    uiString		uiNrDoneText() const	{ return tr("MBytes copied"); }
 
 protected:
 
