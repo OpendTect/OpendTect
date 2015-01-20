@@ -401,8 +401,8 @@ bool uiBodyOperatorDlg::BodyOperand::isOK() const
 {
     if ( !defined_ ) return false;
 
-    return (!mid_.isEmpty() && act_!=sKeyUdf()) ||
-           (mid_.isEmpty() && act_==sKeyUdf());
+    return (!mid_.isEmpty() && act_==sKeyUdf()) ||
+           (mid_.isEmpty() && act_!=sKeyUdf());
 }
 
 
