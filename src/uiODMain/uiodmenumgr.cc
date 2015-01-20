@@ -1037,7 +1037,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
                 "disppars", 0 );
     cointb_->setButtonMenu( coltabid_, colbarmnu );
 
-    mAddTB(cointb_,"snapshot",tr("Take snapshot"),false,mkSnapshot);
+    mAddTB(cointb_,"snapshot",uiStrings::sTakeSnapshot(),false,mkSnapshot);
     polyselectid_ = cointb_->addButton( "polygonselect",
 	tr("Polygon Selection mode"), mCB(this,uiODMenuMgr,selectionMode),
         true );
