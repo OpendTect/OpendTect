@@ -489,10 +489,10 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	ctrl->infoChanged.notify(
 		mCB(this,uiStoredViewer2DMainWin,displayInfo) );
 	ctrl->toolBar()->addButton(
-		"snapshot", "Get snapshot",
+		"snapshot", uiStrings::sTakeSnapshot(),
 		mCB(this,uiStoredViewer2DMainWin,snapshotCB) );
 	ctrl->toolBar()->addButton(
-		"preprocessing", "Pre processing",
+		"preprocessing", tr("Pre processing"),
 		mCB(this,uiViewer2DMainWin,preprocessingCB) );
 	control_ = ctrl;
 
@@ -500,7 +500,7 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 	if ( tb )
 	{
 	    tb->addObject(
-		new uiToolButton( tb, "mute", "Load Mute",
+		new uiToolButton( tb, "mute", tr("Load Mute"),
 		    mCB(this,uiViewer2DMainWin,loadMuteCB) ) );
 
 	    if  ( isStored() )
@@ -509,7 +509,7 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 		if ( storedwin && !storedwin->is2D() )
 		{
 		    uiToolButtonSetup adtbsu(
-			    "anglegather", "Display Angle Data",
+			    "anglegather", tr("Display Angle Data"),
 			    mCB(this,uiStoredViewer2DMainWin,angleDataCB) );
 		    adtbsu.istoggle( true );
 		    tb->addObject( new uiToolButton(tb,adtbsu) );

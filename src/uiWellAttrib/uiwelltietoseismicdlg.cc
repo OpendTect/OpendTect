@@ -187,10 +187,10 @@ void uiTieWin::reDrawAll( CallBacker* )
     toolbar_->addButton( pm, tip, mCB(this,uiTieWin,func) )
 void uiTieWin::addToolBarTools()
 {
-    toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right );
+    toolbar_ = new uiToolBar( this, tr("Well Tie Control"), uiToolBar::Right );
     mAddButton( "z2t", editD2TPushed, tr("View/Edit Model") );
     mAddButton( "save", saveDataPushed, tr("Save Data") );
-    mAddButton( "snapshot", snapshotCB, tr("Get snapshot") );
+    mAddButton( "snapshot", snapshotCB, uiStrings::sTakeSnapshot() );
 }
 
 

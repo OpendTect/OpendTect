@@ -197,6 +197,7 @@ public:
     static uiString sStored(bool immediate);
     static uiString sStratigraphy(bool immediate);
     static uiString sSurvey()		{ return tr("Survey"); }
+    static uiString sTakeSnapshot()	{ return tr("Take snapshot"); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
     static uiString sTools()		{ return tr("Tools"); }

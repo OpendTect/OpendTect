@@ -348,11 +348,12 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     moddisp_ = seqdisp_->getLayModDisp( *modtools_, lmp_, opt );
     if ( !moddisp_ )
 	return;
-    analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
-    uiToolButtonSetup tbsu( "xplot", "Attributes vs model properties",
+    analtb_ = new uiToolBar( this, tr("Analysis toolbar"), uiToolBar::Right );
+    uiToolButtonSetup tbsu( "xplot", tr("Attributes vs model properties"),
 			    mCB(this,uiStratLayerModel,xPlotReq) );
     synthdisp_->control()->getToolBar(0)->addButton(
-	    "snapshot", "Get snapshot", mCB(this,uiStratLayerModel,snapshotCB));
+	    "snapshot", uiStrings::sTakeSnapshot(),
+	    mCB(this,uiStratLayerModel,snapshotCB));
     synthdisp_->synthsChanged.notify(
 		mCB(this,uiStratLayerModel,syntheticsChangedCB) );
     analtb_->addButton( tbsu );
@@ -366,7 +367,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
 
-    uiToolBar* helptb = new uiToolBar( this, "Help toolbar", uiToolBar::Right );
+    uiToolBar* helptb = new uiToolBar( this, tr("Help toolbar"), uiToolBar::Right );
     uiToolButtonSetup htbsu( "contexthelp", uiStrings::sHelp(),
 			     mCB(this,uiStratLayerModel,helpCB) );
     helptb->addButton( htbsu );
