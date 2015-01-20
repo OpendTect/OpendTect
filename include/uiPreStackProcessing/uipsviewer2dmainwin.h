@@ -49,7 +49,7 @@ public:
 
 mExpClass(uiPreStackProcessing) uiViewer2DMainWin : public uiObjectItemViewWin
 						  , public uiFlatViewWin
-{
+{ mODTextTranslationClass(uiViewer2DMainWin);
 public:    
 			uiViewer2DMainWin(uiParent*,const char* title);
 			~uiViewer2DMainWin();
