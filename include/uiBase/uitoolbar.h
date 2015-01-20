@@ -46,7 +46,7 @@ public:
 	    All=0xf	//!< All areas.
     };
 
-			uiToolBar(uiParent*,const char* nm,
+			uiToolBar(uiParent*,const uiString& nm,
 				  ToolBarArea d=Top,bool newline=false);
 			~uiToolBar();
 

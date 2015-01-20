@@ -35,16 +35,16 @@ ObjectSet<uiToolBar>& uiToolBar::toolBars()
 
 
 
-uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
+uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
 		      bool newline )
-    : uiParent(nm,0)
+    : uiParent(nm.getFullString(),0)
     , parent_(parnt)
     , tbarea_(tba)
     , buttonClicked(this)
     , toolbarmenuaction_(0)
-    , qtoolbar_(new QToolBar(QString(nm), parnt ? parnt->getWidget() : 0))
+    , qtoolbar_(new QToolBar(nm.getQtString(), parnt ? parnt->getWidget() : 0))
 {
-    qtoolbar_->setObjectName( nm );
+    qtoolbar_->setObjectName( nm.getQtString() );
     msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
 
     mDynamicCastGet(uiMainWin*,uimw,parnt)
