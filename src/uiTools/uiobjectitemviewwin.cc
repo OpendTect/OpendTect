@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 
 #define mSldUnits 250
-#define mMaxObjectSize 50 //30 x object size
+#define mMaxObjectSize 100 //60 x object size
 #define mScrollBarSize mainviewer_->scrollBarSize(false).width()-2
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
