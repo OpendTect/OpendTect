@@ -70,6 +70,7 @@ public:
     bool 			useexistingd2tm_;
     CorrType			corrtype_;
 
+    void			supportOldPar(const IOPar&);
     void			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
