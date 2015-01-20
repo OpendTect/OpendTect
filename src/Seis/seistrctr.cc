@@ -341,7 +341,9 @@ bool SeisTrcTranslator::writeBlock()
 		nrperpos++;
 	    }
 	}
-	trcblock_.enforceNrTrcs( nrperpos, keyfld );
+
+	if ( !isPS() )
+	    trcblock_.enforceNrTrcs( nrperpos, keyfld );
 	sz = trcblock_.size();
     }
 
