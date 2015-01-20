@@ -37,6 +37,18 @@ DefineEnumNames(Setup,CorrType,0,"Check Shot Corrections")
 { "None", "Automatic", "Use editor", 0 };
 
 
+void Setup::supportOldPar( const IOPar& iop )
+{
+    const int majver = iop.majorVersion();
+    const int minver = iop.minorVersion();
+    if ( majver<=0 || majver>=5 || (majver==4 && minver>=4) )
+	return;
+
+    iop.get( sKeyVelLogName, denlognm_ );
+    iop.get( sKeyDensLogName, vellognm_ );
+}
+
+
 void Setup::usePar( const IOPar& iop )
 {
     iop.get( sKeySeisID, seisid_ );
@@ -51,6 +63,8 @@ void Setup::usePar( const IOPar& iop )
     iop.get( sKeySeisLineID, lk );
     if ( linenm_.isEmpty() && !lk.lineName().isEmpty() ) //copy old key to new
 	linenm_ = lk.lineName();
+
+    supportOldPar( iop );
 }
 
 
@@ -184,7 +198,8 @@ IOPar* Reader::getIOPar( const char* subsel, od_istream& strm ) const
     if ( !rdHdr(strm,sKeyWellTieSetup()) )
 	return 0;
 
-    ascistream astrm( strm, false );
+    strm.setPosition( 0 );
+    ascistream astrm( strm );
     IOPar iop; iop.getFrom( astrm );
     return subsel ? iop.subselect( subsel ) : new IOPar(iop);
 }
