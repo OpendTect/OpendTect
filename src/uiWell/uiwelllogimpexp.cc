@@ -193,7 +193,9 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( !wtr.putLogs() )
 	mErrRet( "Cannot write logs to disk" )
 
-    return true;
+    BufferString msg( "Logs are successfully imported." );
+    msg.addNewLine().add( "Do you want to import more logs?" );
+    return !uiMSG().askGoOn( msg );
 }
 
 
