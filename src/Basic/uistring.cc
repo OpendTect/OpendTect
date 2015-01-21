@@ -225,6 +225,12 @@ bool uiStringData::fillQString( QString& res,
 # define mInitImpl(var,acts) str_ = 0; var->ref(); acts; mSetDBGStr
 #endif
 
+uiString::uiString()
+    : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
+    , datalock_( true )
+{
+    mInitImpl( data_,  );
+}
 
 uiString::uiString( const char* str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
@@ -388,6 +394,12 @@ uiString& uiString::operator=( const OD::String& str )
 
 uiString& uiString::operator=( const char* str )
 {
+    return set( str );
+}
+
+
+uiString& uiString::set( const char* str )
+{
     Threads::Locker datalocker( datalock_ );
     makeIndependent();
     Threads::Locker contentlocker( data_->contentlock_ );
@@ -447,7 +459,8 @@ uiString& uiString::append( const uiString& txt, bool withnewline )
     if ( isEmpty() )
 	withnewline = false;
 
-    *this = uiString( withnewline ? "%1\n%2" : "%1%2").arg( self ).arg( txt );
+    *this = mkUiString( withnewline ? "%1\n%2" : "%1%2" )
+		.arg( self ).arg( txt );
 
     mSetDBGStr;
     return *this;
@@ -460,7 +473,7 @@ uiString& uiString::append( const OD::String& a, bool withnewline )
 
 uiString& uiString::append( const char* newarg, bool withnewline )
 {
-    return append( uiString(newarg), withnewline );
+    return append( mkUiString(newarg), withnewline );
 }
 
 
@@ -505,7 +518,7 @@ uiString uiString::getOrderString( int val )
 			tr("th", "eighteenth"), //18
 			tr("th", "ninetheenth"), //19
 			tr("th", "twentieth") }; //20
-    return uiString( "%1%2" ).arg( val ).arg( rets[nr] );
+    return mkUiString( "%1%2" ).arg( val ).arg( rets[nr] );
 }
 
 
@@ -552,7 +565,7 @@ uiString uiStringSet::createOptionString( bool use_and,
     uiStringSet arguments;
     const char spacestring[] = { space, 0 };
 
-    arguments += spacestring;
+    arguments += BufferString(spacestring);
     bool firsttime = true;
 
     int nritems = 0;
@@ -602,3 +615,8 @@ uiString uiStringSet::createOptionString( bool use_and,
 
     return res;
 }
+
+
+uiString mkUiString(const char* var) { return uiString().set( var ); }
+
+

@@ -38,7 +38,6 @@ private: \
 mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 
 
-
 /*!
    String that is able to hold wide character strings for the user interface.
    These strings can be in different encodings and should only be used to pass
@@ -50,7 +49,7 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
    If the string holds %N arguments, these can be replaced by arguments:
 
  \code
-   uiString string = uiString( "%1 plus %2 is %3")
+   uiString string = mkUiString( "%1 plus %2 is %3")
 			.arg( 4 )
 			.arg( 5 )
 			.arg( 4+5 );
@@ -88,11 +87,12 @@ mExpClass(Basic) uiString
 { mODTextTranslationClass(uiString);
 public:
 
+		uiString();
 		uiString(const uiString&);	//!< no copy, ref counted
-		uiString(const char* inp=0);
 		uiString(const OD::String&);
 		~uiString();
 
+    uiString&	set(const char*);
     bool	isSet() const			{ return !isEmpty(); }
     bool	isEmpty() const;
     void	setEmpty();
@@ -148,6 +148,10 @@ public:
 
 		//Only for expert users
 
+		uiString(const char* inp);
+		/*!<Don't use. May be depreciated. Use mkUiString("My text")
+		    function instead. */
+
     bool	operator==(const uiString& b) const;
 		//!<Don't use, will force crash. Only here to keep TypeSet happy
     bool	operator!=(const uiString& b) const { return !(*this==b); }
@@ -202,11 +206,13 @@ public:
 };
 
 
+mGlobal(Basic) uiString mkUiString(const char* var);
+
+
 template <class T> inline
 uiString& uiString::arg( const T& var )
 {
-    uiString thearg( toString(var) );
-    return arg( thearg );
+    return arg( mkUiString(toString(var)) );
 }
 
 
