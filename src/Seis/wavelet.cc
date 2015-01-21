@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wvltfact.h"
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
+#include "ctxtioobj.h"
 #include "fourier.h"
 #include "hilberttransform.h"
 #include "ascstream.h"
@@ -111,6 +112,17 @@ Wavelet::~Wavelet()
 {
     delete [] samps_;
     delete intpol_;
+}
+
+
+IOObj* Wavelet::getIOObj( const char* waveletnm )
+{
+    if ( !waveletnm || !*waveletnm )
+	return 0;
+
+    IOObjContext ctxt( mIOObjContext(Wavelet) );
+    IOM().to( ctxt.getSelKey() );
+    return IOM().getLocal( waveletnm, mTranslGroupName(Wavelet) );
 }
 
 
