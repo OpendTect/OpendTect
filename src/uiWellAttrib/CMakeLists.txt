@@ -28,6 +28,7 @@ SET( OD_MODULE_SOURCES
 	uistratsynthdisp.cc
 	uistratsynthexport.cc
 	uisynthtorealscale.cc
+	uisynthseis.cc
 	uisynthgendlg.cc
 	inituiwellattrib.cc
 )

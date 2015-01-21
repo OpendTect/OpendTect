@@ -120,6 +120,7 @@ namespace sKey
     inline FixedString User()		{ return "User"; }
     inline FixedString Value()		{ return "Value"; }
     inline FixedString Version()	{ return "Version"; }
+    inline FixedString WaveletID()	{ return "Wavelet ID"; }
     inline FixedString Weight()		{ return "Weight"; }
     inline FixedString Well()		{ return "Well"; }
     inline FixedString XCoord()		{ return "X-Coord"; }

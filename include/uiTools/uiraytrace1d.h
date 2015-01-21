@@ -28,17 +28,16 @@ public:
     mExpClass(uiTools) Setup 		
     {
 	public:	
-			Setup()
-			    : convertedwaves_(false)
-			    , doreflectivity_(true)
-			    , dooffsets_(false)
-			    , offsetrg_(0,6000,100)
-			    {}
+			Setup();
 
 	mDefSetupMemb(bool,convertedwaves);
 	mDefSetupMemb(bool,dooffsets);
 	mDefSetupMemb(bool,doreflectivity);
 	mDefSetupMemb(StepInterval<float>,offsetrg);
+
+	void		showzerooffsetfld(bool);
+	bool		showzerooffsetfld_() const;
+			~Setup();
     };
 
     mDefineFactory2ParamInClass(uiRayTracer1D,uiParent*,const Setup&,factory);
@@ -62,6 +61,16 @@ protected:
     uiGenInput* 	offsetfld_;
     uiGenInput* 	offsetstepfld_;
     uiGenInput*		lastfld_;
+
+    void		zeroOffsetChecked(CallBacker*);
+    void		offsetChangedCB(CallBacker*);
+public:
+    bool		isOffsetFldsDisplayed() const;
+    bool		hasZeroOffsetFld() const;
+    bool		isZeroOffset() const;
+    Notifier<uiRayTracer1D>& offsetchanged();
+
+			~uiRayTracer1D();
 };
 
 

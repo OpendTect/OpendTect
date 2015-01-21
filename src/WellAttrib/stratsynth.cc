@@ -45,10 +45,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "survinfo.h"
+#include "synthseis.h"
 #include "statruncalc.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
-#include "synthseis.h"
 #include "unitofmeasure.h"
 #include "timeser.h"
 #include "wavelet.h"
@@ -61,8 +61,8 @@ static const char* sKeyDispPar()		{ return "Display Parameter"; }
 static const char* sKeyInput()			{ return "Input Synthetic"; }
 static const char* sKeyAngleRange()		{ return "Angle Range"; }
 static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
-static const char* sKeySimpleRayTracer()	{ return "VrmsRayTracer"; }
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
+#define sDefaultOffsetRange StepInterval<float>( 0.f, 6000.f, 100.f )
 
 
 DefineEnumNames(SynthGenParams,SynthType,3,"Synthetic Type")
@@ -85,9 +85,7 @@ void SynthGenParams::setDefaultValues()
 {
     anglerg_ = sDefaultAngleRange;
     raypars_.setEmpty();
-    BufferString defrayparstr =
-	synthtype_==ZeroOffset ? sKeySimpleRayTracer()
-			       : sKeyAdvancedRayTracer();
+    FixedString defrayparstr = sKeyAdvancedRayTracer();
     const BufferStringSet& facnms = RayTracer1D::factory().getNames();
     if ( !facnms.isEmpty() )
     {
@@ -96,7 +94,16 @@ void SynthGenParams::setDefaultValues()
 	raypars_.set( sKey::Type(), facnm );
     }
 
-    RayTracer1D::setIOParsToZeroOffset( raypars_ );
+    if ( synthtype_==ZeroOffset )
+	RayTracer1D::setIOParsToZeroOffset( raypars_ );
+    else
+    {
+	const StepInterval<float> offsetrg = sDefaultOffsetRange;
+	TypeSet<float> offsets;
+	for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
+	    offsets += offsetrg.atIndex( idx );
+	raypars_.set( RayTracer1D::sKeyOffset(), offsets );
+    }
 }
 
 

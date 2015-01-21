@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "factory.h"
 #include "fourier.h"
 #include "genericnumer.h"
+#include "ioman.h"
 #include "muter.h"
 #include "reflectivitysampler.h"
 #include "raytrace1d.h"
@@ -76,6 +77,13 @@ bool SynthGenBase::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
 
 void SynthGenBase::fillPar( IOPar& par ) const
 {
+    if ( wavelet_ )
+    {
+	PtrMan<IOObj> wvlobj = Wavelet::getIOObj( wavelet_->name() );
+	if ( wvlobj )
+	    par.set( sKey::WaveletID(), wvlobj->key() );
+    }
+
     par.setYN( sKeyFourier(), isfourier_ );
     par.setYN( sKeyNMO(), applynmo_ );
     par.setYN( sKeyInternal(), dointernalmultiples_ );
@@ -87,6 +95,14 @@ void SynthGenBase::fillPar( IOPar& par ) const
 
 bool SynthGenBase::usePar( const IOPar& par )
 {
+    MultiID waveletid;
+    if ( par.get(sKey::WaveletID(),waveletid) )
+    {
+	waveletismine_ = true;
+	IOObj* ioobj = IOM().get( waveletid );
+	wavelet_ = Wavelet::get( ioobj );
+    }
+
     return par.getYN( sKeyNMO(), applynmo_ )
 	&& par.getYN( sKeyFourier(), isfourier_ )
 	&& par.getYN( sKeyInternal(), dointernalmultiples_ )

@@ -47,19 +47,19 @@ public:
 protected:
     void			updateFieldSensitivity();
 
-    uiSeisWaveletSel*		wvltfld_;
+    uiSeisWaveletSel*		wvltfld_;	//Deprecated, not used
     uiComboBox*			typefld_;
     uiLabeledComboBox*		psselfld_;
     uiGenInput*  		angleinpfld_;
     uiGenInput*  		namefld_;
-    uiRayTracerSel*		rtsel_;
+    uiRayTracerSel*		rtsel_;		//Deprecated, not used
     uiPushButton*		gennewbut_;
     uiPushButton*		applybut_;
     uiPushButton*		revertbut_;
     uiPushButton*		savebut_;
     uiListBox*			synthnmlb_;
     StratSynth&			stratsynth_;
-    uiSynthCorrectionsGrp*	uisynthcorrgrp_;
+    uiSynthCorrectionsGrp*	uisynthcorrgrp_; //Deprecated, not used
 
 
     void			getPSNames(BufferStringSet&);
@@ -72,31 +72,10 @@ protected:
     void			nameChanged(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			finaliseDone(CallBacker*);
+
+				~uiSynthGenDlg();
 };
 
-
-class uiSynthCorrAdvancedDlg;
-
-mExpClass(uiWellAttrib) uiSynthCorrectionsGrp : public uiGroup
-{
-public:
-				uiSynthCorrectionsGrp(uiParent*);
-
-    bool			wantNMOCorr() const;
-    float			getStrechtMutePerc() const;
-    float			getMuteLength() const;
-    void			setValues(bool,float mutelen,float stretchlim);
-
-    Notifier<uiSynthCorrectionsGrp> nmoparsChanged_;
-
-protected:
-    uiGenInput* 		nmofld_;
-    uiPushButton*		advbut_;
-    uiSynthCorrAdvancedDlg*	uiscadvdlg_;
-
-    void			getAdvancedPush(CallBacker*);
-    void			parsChanged(CallBacker*);
-};
 
 #endif
 

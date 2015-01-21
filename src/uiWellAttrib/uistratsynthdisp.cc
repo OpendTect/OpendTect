@@ -1392,8 +1392,6 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 			    mCB(this,uiStratSynthDisp,genNewSynthetic) );
     }
 
-    synthgendlg_->updateSynthNames();
-    synthgendlg_->putToScreen();
     synthgendlg_->go();
 }
 

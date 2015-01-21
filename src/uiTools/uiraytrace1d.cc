@@ -8,11 +8,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiraytrace1d.h"
 
+#include "hiddenparam.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
+
+static HiddenParam< uiRayTracer1D::Setup,BoolTypeSetType >
+						showzerooffsetfldset( true );
+static HiddenParam< uiRayTracer1D, Notifier<uiRayTracer1D>* >
+						offsetchangedset(0);
+static HiddenParam< uiRayTracer1D, uiCheckBox* > iszerooffsetfldset(0);
+
+static const StepInterval<float> sDefaultOffsetRange( 0.f, 6000.f, 100.f );
 
 
 mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
@@ -46,7 +55,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	{
 	    grps_ += grp;
 	    if ( grp->doOffsets() )
-		grp->offsetChanged().notify(
+		grp->offsetchanged().notify(
 			mCB(this,uiRayTracerSel,offsChangedCB) );
 	    if ( raytracerselfld_ )
 	    {
@@ -144,6 +153,35 @@ bool uiRayTracerSel::setCurrent( int selidx )
 }
 
 
+uiRayTracer1D::Setup::Setup()
+    : convertedwaves_(false)
+    , doreflectivity_(true)
+    , dooffsets_(false)
+    , offsetrg_(0,6000,100)
+{
+    showzerooffsetfldset.setParam( this, true );
+}
+
+
+uiRayTracer1D::Setup::~Setup()
+{
+    showzerooffsetfldset.removeParam( this );
+}
+
+
+void uiRayTracer1D::Setup::showzerooffsetfld( bool yn )
+{
+    showzerooffsetfldset.setParam( this, yn );
+}
+
+
+bool uiRayTracer1D::Setup::showzerooffsetfld_() const
+{
+    bool yn = showzerooffsetfldset.getParam( this );
+    return yn;
+}
+
+
 uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     : uiGroup( p )
     , doreflectivity_(s.doreflectivity_)
@@ -153,6 +191,9 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     , offsetstepfld_( 0 )
     , lastfld_( 0 )
 {
+    Notifier<uiRayTracer1D>* offschanged = new Notifier<uiRayTracer1D>(this);
+    offsetchangedset.setParam( this, offschanged );
+    iszerooffsetfldset.setParam( this, 0 );
     BufferString xylbl( SI().getXYUnitString(true) );
 
     if ( s.dooffsets_ )
@@ -162,11 +203,24 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	offsetfld_->setValue(
 			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));
 	offsetfld_->setElemSzPol( uiObject::Small );
+	offsetfld_->valuechanged.notify(
+		mCB(this,uiRayTracer1D,offsetChangedCB) );
 
 	offsetstepfld_ = new uiGenInput( this, "step" );
 	offsetstepfld_->attach( rightOf, offsetfld_ );
 	offsetstepfld_->setElemSzPol( uiObject::Small );
 	offsetstepfld_->setValue( s.offsetrg_.step );
+	if ( s.showzerooffsetfld_() )
+	{
+	    uiCheckBox * iszerooffsetfld =
+		new uiCheckBox( this, "Zero Offset",
+				mCB(this,uiRayTracer1D,zeroOffsetChecked) );
+	    iszerooffsetfld->attach( rightTo, offsetstepfld_ );
+	    iszerooffsetfldset.setParam( this, iszerooffsetfld );
+	}
+
+
+
 	lastfld_ = offsetfld_;
     }
 
@@ -189,8 +243,62 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 }
 
 
-Notifier<uiGenInput>& uiRayTracer1D::offsetChanged()
-{ return offsetfld_->valuechanged; }
+uiRayTracer1D::~uiRayTracer1D()
+{
+    uiCheckBox* iszerooffsetfld = iszerooffsetfldset.getParam( this );
+    iszerooffsetfldset.removeParam( this );
+    delete iszerooffsetfld;
+    Notifier<uiRayTracer1D>* offschanged = offsetchangedset.getParam( this );
+    offsetchangedset.removeParam( this );
+    delete offschanged;
+}
+
+
+Notifier<uiRayTracer1D>& uiRayTracer1D::offsetchanged()
+{
+    Notifier<uiRayTracer1D>* offschanged = offsetchangedset.getParam( this );
+    return *offschanged;
+}
+
+
+void uiRayTracer1D::offsetChangedCB( CallBacker* )
+{
+    Notifier<uiRayTracer1D>* offschanged = offsetchangedset.getParam( this );
+    offschanged->trigger();
+}
+
+
+bool uiRayTracer1D::hasZeroOffsetFld() const
+{
+    uiCheckBox* iszerooffsetfld = iszerooffsetfldset.getParam( this );
+    return iszerooffsetfld;
+}
+
+
+bool uiRayTracer1D::isZeroOffset() const
+{
+    uiCheckBox* iszerooffsetfld = iszerooffsetfldset.getParam( this );
+    if ( iszerooffsetfld )
+	return iszerooffsetfld->isChecked();
+    return !isOffsetFldsDisplayed();
+}
+
+
+void uiRayTracer1D::zeroOffsetChecked( CallBacker* )
+{
+    uiCheckBox* iszerooffsetfld = iszerooffsetfldset.getParam( this );
+    displayOffsetFlds( !iszerooffsetfld->isChecked() );
+}
+
+#define mIsZeroOffset( offsets ) \
+    (offsets.isEmpty() || (offsets.size()==1 && mIsZero(offsets[0],mDefEps)))
+bool isZeroOffset( TypeSet<float> offsets )
+{
+    if ( offsets.isEmpty() )
+	return true;
+    const bool iszero = mIsZero(offsets[0],mDefEps);
+    return offsets.size()==1 && iszero;
+}
 
 
 bool uiRayTracer1D::usePar( const IOPar& par )
@@ -205,7 +313,9 @@ bool uiRayTracer1D::usePar( const IOPar& par )
     }
 
     TypeSet<float> offsets; par.get( RayTracer1D::sKeyOffset(), offsets );
-    if ( offsets.size()>1 )
+    const bool isps = !mIsZeroOffset(offsets);
+    displayOffsetFlds( isps );
+    if ( isps )
     {
 	const float convfactor = SI().xyInFeet() ? mToFeetFactorF : 1;
 	Interval<float> offsetrg( offsets[0], offsets[offsets.size()-1] );
@@ -215,10 +325,15 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	if ( offsetfld_ && offsetstepfld_  )
 	{
 	    offsetfld_->setValue( offsetrg );
-	    const float step = offsets.size() > 1 ? offsets[1]-offsets[0] : 0;
+	    const float step = offsets.size() > 1 ? offsets[1]-offsets[0]
+						  : sDefaultOffsetRange.step;
 	    offsetstepfld_->setValue( step * convfactor );
 	}
     }
+
+    uiCheckBox* iszerooffsetfld = iszerooffsetfldset.getParam( this );
+    if ( iszerooffsetfld )
+	iszerooffsetfld->setChecked( !isps );
 
     return true;
 }
@@ -236,7 +351,7 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
     tmpsetup.fillPar( par );
 
     StepInterval<float> offsetrg;
-    if ( offsetfld_ && offsetstepfld_ && offsetfld_->attachObj()->isDisplayed())
+    if ( !isZeroOffset() )
     {
 	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
 	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
@@ -262,10 +377,22 @@ void uiRayTracer1D::setOffsetRange( StepInterval<float> rg )
 
 
 
+bool uiRayTracer1D::isOffsetFldsDisplayed() const
+{
+    return offsetfld_ && offsetstepfld_ &&
+	   offsetfld_->attachObj()->isDisplayed() &&
+	   offsetstepfld_->attachObj()->isDisplayed();
+}
+
+
 void uiRayTracer1D::displayOffsetFlds( bool yn )
 {
+    if ( !offsetfld_ ) return;
+
     offsetfld_->display( yn );
     offsetstepfld_->display( yn );
+    Notifier<uiRayTracer1D>* offschanged = offsetchangedset.getParam( this );
+    offschanged->trigger();
 }
 
 
