@@ -30,19 +30,15 @@ public:
 		VolProc::BodyFiller::sFactoryDisplayName());
 
 protected:
-				uiBodyFiller(uiParent*, BodyFiller*);
-   				~uiBodyFiller();
+				uiBodyFiller(uiParent*,BodyFiller*);
     static uiStepDialog*	createInstance(uiParent*, Step*);
 
     bool			acceptOK(CallBacker*);
     void			bodySel(CallBacker*);
-    void			updateFlds(CallBacker*);
 
     BodyFiller*			bodyfiller_;
 
-    uiIOObjSel*			uinputselfld_;			
-    uiGenInput*			useinsidefld_;
-    uiGenInput*			useoutsidefld_;
+    uiIOObjSel*			uinputselfld_;
     uiGenInput*			insidevaluefld_;
     uiGenInput*			outsidevaluefld_;
 };

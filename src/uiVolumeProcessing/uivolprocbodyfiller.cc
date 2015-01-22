@@ -28,8 +28,8 @@ void uiBodyFiller::initClass()
     str += BodyFiller::sKeyOldType();
 
     uiStepDialog::factory().addCreator( createInstance, str,
-	    			        sFactoryDisplayName() );
-}    
+				        sFactoryDisplayName() );
+}
 
 
 uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
@@ -40,37 +40,20 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
 
     IOObjContext ctxt = mIOObjContext( EMBody );
     ctxt.forread = true;
-    uinputselfld_ = new uiIOObjSel( this, ctxt, tr("Input Body") );
+    uinputselfld_ = new uiIOObjSel( this, ctxt, tr("Input body") );
     uinputselfld_->selectionDone.notify( mCB(this,uiBodyFiller,bodySel) );
     if ( mp )
 	uinputselfld_->setInput( mp->getSurfaceID() );
-    
-    const bool showinside = !mIsUdf( mp->getInsideValue() ); 
-    useinsidefld_ = new uiGenInput( this, tr("Inside"),
-	    BoolInpSpec( showinside, uiStrings::sValue(), tr("Transparent") ) );
-    useinsidefld_->attach( alignedBelow, uinputselfld_ );
-    useinsidefld_->valuechanged.notify( mCB(this,uiBodyFiller,updateFlds) );
-    insidevaluefld_ = new uiGenInput( this, tr("Inside-Value"),
-	    FloatInpSpec( showinside ? mp->getInsideValue() : -2000 ) );
-    insidevaluefld_->attach( alignedBelow, useinsidefld_ );
-    
-    const bool showoutside = !mIsUdf( mp->getOutsideValue() ); 
-    useoutsidefld_ = new uiGenInput( this, tr("Outside"),
-	    BoolInpSpec( showoutside, uiStrings::sValue(), tr("Transparent") ));
-    useoutsidefld_->attach( alignedBelow, insidevaluefld_ );
-    useoutsidefld_->valuechanged.notify(
-	    mCB(this,uiBodyFiller, updateFlds) );
-    outsidevaluefld_ = new uiGenInput( this, tr("Outside-Value"),
-	    FloatInpSpec( showoutside ? mp->getOutsideValue() : 2000 ) );
-    outsidevaluefld_->attach( alignedBelow, useoutsidefld_ );
+
+    insidevaluefld_ = new uiGenInput( this, tr("Inside value"),
+	    FloatInpSpec(mp ? mp->getInsideValue() : 1e30) );
+    insidevaluefld_->attach( alignedBelow, uinputselfld_ );
+
+    outsidevaluefld_ = new uiGenInput( this, tr("Outside value"),
+	    FloatInpSpec(mp ? mp->getOutsideValue() : 1e30) );
+    outsidevaluefld_->attach( alignedBelow, insidevaluefld_ );
 
     addNameFld( outsidevaluefld_ );
-    updateFlds( 0 );
-}
-
-
-uiBodyFiller::~uiBodyFiller()
-{
 }
 
 
@@ -79,13 +62,6 @@ void uiBodyFiller::bodySel( CallBacker* )
     const IOObj* ioobj = uinputselfld_->ioobj();
     if ( ioobj )
 	namefld_->setText( ioobj->name() );
-}
-
-
-void uiBodyFiller::updateFlds( CallBacker* )
-{
-    insidevaluefld_->display( useinsidefld_->getBoolValue() );
-    outsidevaluefld_->display( useoutsidefld_->getBoolValue() );
 }
 
 
@@ -103,54 +79,23 @@ bool uiBodyFiller::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
 
-    const IOObj* ioobj = uinputselfld_->ioobj();
-    if ( !ioobj ) return false;
-
-    bodyfiller_->setSurface( ioobj->key() );
-
-    if ( useinsidefld_->getBoolValue() && !useoutsidefld_->getBoolValue() )
+    if ( mIsUdf(insidevaluefld_->getfValue()) &&
+	 mIsUdf(outsidevaluefld_->getfValue()) )
     {
-	if ( mIsUdf(insidevaluefld_->getfValue()) ) 
-	{
-	    uiMSG().error(tr("Set the inside value"));
-	    return false;
-	}
-
-	bodyfiller_->setInsideOutsideValue( 
-		insidevaluefld_->getfValue(), mUdf(float) );
-    }
-
-    if ( useoutsidefld_->getBoolValue() && !useinsidefld_->getBoolValue() )
-    {
-	if ( mIsUdf(outsidevaluefld_->getfValue()) ) 
-	{
-	    uiMSG().error(tr("Set the outside value"));
-	    return false;
-	}
-
-	bodyfiller_->setInsideOutsideValue( 
-		mUdf(float), outsidevaluefld_->getfValue() );
-    }
-
-
-    if ( useinsidefld_->getBoolValue() && useoutsidefld_->getBoolValue() )
-    {
-	if ( mIsUdf(insidevaluefld_->getfValue()) &&
-      	     mIsUdf(outsidevaluefld_->getfValue()) ) 
-	{
-	    uiMSG().error(tr("Set at lease one value"));
-	    return false;
-	}
-
-	bodyfiller_->setInsideOutsideValue( 
-		insidevaluefld_->getfValue(), outsidevaluefld_->getfValue() );
-    }
-
-    if ( !useinsidefld_->getBoolValue() && !useoutsidefld_->getBoolValue() )
-    {
-	uiMSG().error(tr("Select either Inside or Outside value to proceed."));
+	uiMSG().error(tr("Set at lease one defined value"));
 	return false;
     }
+
+    const IOObj* ioobj = uinputselfld_->ioobj();
+    if ( !ioobj )
+    {
+	uiMSG().error(tr("Invalid empty input body"));
+	return false;
+    }
+
+    bodyfiller_->setSurface( ioobj->key() );
+    bodyfiller_->setInsideOutsideValue( insidevaluefld_->getfValue(),
+					outsidevaluefld_->getfValue() );
 
     return true;
 }
