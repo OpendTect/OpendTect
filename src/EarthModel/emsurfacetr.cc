@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 
 #include "emfaultauxdata.h"
+#include "emioobjinfo.h"
 #include "emsurface.h"
 #include "emsurfaceio.h"
 #include "emsurfauxdataio.h"
@@ -160,8 +161,8 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( ioobj )
     {
-	IOObjInfo ioinfo( ioobj );
-	if ( ioinfo.type() == IOObjInfo::Fault )
+	EM::IOObjInfo ioinfo( *ioobj );
+	if ( ioinfo.type() == EM::IOObjInfo::Fault )
 	{
 	    EM::FaultAuxData fad( ioobj->key() );
 	    fad.removeAllData();
@@ -198,8 +199,8 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 {
     if ( ioobj )
     {
-	IOObjInfo ioinfo( ioobj );
-	if ( ioinfo.type() == IOObjInfo::Fault )
+	EM::IOObjInfo ioinfo( ioobj );
+	if ( ioinfo.type() == EM::IOObjInfo::Fault )
 	{
 	    FilePath fp( newnm );
 	    fp.setExtension("");
