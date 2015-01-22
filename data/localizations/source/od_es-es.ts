@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="nl_NL">
+<TS version="2.0" language="es_ES">
 <context>
     <name>AngleMuteComputer</name>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackanglemutecomputer.cc" line="71"/>
         <source>Cannot find MuteDef ID in Object Manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar MudoDef ID en Gerente de Objeto</translation>
     </message>
 </context>
 <context>
@@ -14,12 +14,12 @@
     <message>
         <location filename="../../../plugins/HorizonAttrib/horizonattrib.cc" line="91"/>
         <source>Selected Horizon Data name does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El nombre de Datos de Horizontes no existe</translation>
     </message>
     <message>
         <location filename="../../../plugins/HorizonAttrib/horizonattrib.cc" line="177"/>
         <source>Loading Horizon Data %1 failed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló en cargar los Datos de Horizonte %1</translation>
     </message>
 </context>
 <context>
@@ -27,19 +27,19 @@
     <message>
         <location filename="../../../src/AttributeEngine/attribdescsettr.cc" line="69"/>
         <source>File %1 does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Epediente %1 no existe</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribdescsettr.cc" line="92"/>
         <location filename="../../../src/AttributeEngine/attribdescsettr.cc" line="120"/>
         <source>Selected object is not an Attribute Set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El objeto seleccionado no es un Conjunto de Atributos</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribdescsettr.cc" line="98"/>
         <location filename="../../../src/AttributeEngine/attribdescsettr.cc" line="125"/>
         <source>Cannot open %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir %1</translation>
     </message>
 </context>
 <context>
@@ -47,22 +47,22 @@
     <message>
         <location filename="../../../src/WellAttrib/createattriblog.cc" line="32"/>
         <source>%1 from well %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 de pozo %2</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createattriblog.cc" line="46"/>
         <source>No positions extracted </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay posiciones extraídos</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createattriblog.cc" line="52"/>
         <source>No data extracted</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos extraídos</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createattriblog.cc" line="58"/>
         <source>Unable to create Log</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No es capaz de crear el Log</translation>
     </message>
 </context>
 <context>
@@ -70,17 +70,17 @@
     <message>
         <location filename="../../../src/uiAttributes/attribsetcreator.cc" line="230"/>
         <source>The attributes cannot be converted</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se pueden convertir los atributos</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/attribsetcreator.cc" line="353"/>
         <source>Cannot find factory-entry for %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar entrada de fábrica para %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/attribsetcreator.cc" line="361"/>
         <source>Cannot parse: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede analizar: %1</translation>
     </message>
 </context>
 <context>
@@ -89,13 +89,13 @@
         <location filename="../../../src/MPEEngine/autotracker.cc" line="70"/>
         <location filename="../../../src/MPEEngine/autotracker.cc" line="347"/>
         <source>Step: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paso: %1</translation>
     </message>
     <message>
         <location filename="../../../src/MPEEngine/autotracker.cc" line="81"/>
         <location filename="../../../src/MPEEngine/autotracker.cc" line="378"/>
         <source>Step: %1%</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paso: %1</translation>
     </message>
 </context>
 <context>
@@ -103,13 +103,13 @@
     <message>
         <location filename="../../../src/General/batchjobdispatch.cc" line="124"/>
         <source>Batch job is not suited for %1 executions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Trabajo por lotes no es adecuado por %1 ejecuciónes</translation>
     </message>
     <message>
         <location filename="../../../src/General/batchjobdispatch.cc" line="196"/>
         <source>Cannot write parameter file:
  %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir expediente de parámetros: %1</translation>
     </message>
 </context>
 <context>
@@ -117,13 +117,14 @@
     <message>
         <location filename="../../../src/MMProc/mmbatchjobdispatch.cc" line="33"/>
         <source>The job will be split into parts that can each run on a separate computer.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El trabajo dividirá en partes para ejecutar cada uno en computadoras separadas</translation>
     </message>
     <message>
         <location filename="../../../src/MMProc/mmbatchjobdispatch.cc" line="104"/>
         <source>The job cannot be handled Multi-Machine.
 Try single-machine execution.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede hacer el trabajo en Múlti-Máquina.
+Prueba ejecutar una máquina síngula.</translation>
     </message>
 </context>
 <context>
@@ -131,7 +132,7 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/General/batchjobdispatch.cc" line="225"/>
         <source>The job will be executed on one computer, in a single process.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El trabajo será ejecutado solo en una computadora y solo un proceso</translation>
     </message>
 </context>
 <context>
@@ -139,7 +140,7 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/Algo/binidsorting.cc" line="130"/>
         <source>Input data is not sorted on inline or crossline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos de entrada no son ordenados en línea o línea cruzada</translation>
     </message>
 </context>
 <context>
@@ -147,12 +148,12 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/Geometry/binidsurface.cc" line="204"/>
         <source>Row to remove does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fila para borrar no existe</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/binidsurface.cc" line="248"/>
         <source>Column to remove does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Columna para borrar no existe</translation>
     </message>
 </context>
 <context>
@@ -160,7 +161,7 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/Algo/bodyvolumecalc.cc" line="43"/>
         <source>Computing volume</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Computando volumen</translation>
     </message>
 </context>
 <context>
@@ -168,32 +169,32 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/Seis/seiscbvs.cc" line="59"/>
         <source>Empty file name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre de expediente esta vacía</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiscbvs.cc" line="136"/>
         <source>Cannot open CBVS file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente CBVS</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiscbvs.cc" line="141"/>
         <source>Object manager provides wrong type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gerente de objeto proporciona tipo equivocado</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiscbvs.cc" line="148"/>
         <source>Wrong connection from Object Manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Connección equivocado del Gerente de Objeto</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiscbvs.cc" line="239"/>
         <source>Input contains no relevant data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrada no tiene datos pertinentes</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiscbvs.cc" line="261"/>
         <source>Out of memory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fuera de la memoria</translation>
     </message>
 </context>
 <context>
@@ -201,22 +202,22 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocchain.cc" line="762"/>
         <source>Cannot create Volume processing step %1. Perhaps all plugins are not loaded?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear el paso %1 procesamiento del Volumen. ¿Tal vez todos plugins no estan cargados?</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocchain.cc" line="771"/>
         <source>Cannot parse Volume Processing&apos;s parameters: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede analizar los parámetros del Procesamiento de Volumen: %1</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocchain.cc" line="798"/>
         <source>Cannot parse Connection %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede analizar la Connección %1</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocchain.cc" line="804"/>
         <source>Cannot add connection </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede añadir connección </translation>
     </message>
 </context>
 <context>
@@ -224,7 +225,7 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/uiIo/uiclusterjobprov.cc" line="81"/>
         <source>Nr jobs created</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Numero de trajabos creados</translation>
     </message>
 </context>
 <context>
@@ -232,7 +233,7 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/uiCmdDriver/cmdcomposer.cc" line="342"/>
         <source>CmdComposer test-callback handler</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">CmdComponer de prueba-recuperar manejador</translation>
     </message>
 </context>
 <context>
@@ -240,32 +241,32 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/Geometry/cubicbeziercurve.cc" line="147"/>
         <source>Cannot add position that is not a neighbor to an existing position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede añadir posición que no es vecino a la posicíon que existe</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/cubicbeziercurve.cc" line="176"/>
         <source>Cannot insert undefined position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede insertar una posición indefinido</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/cubicbeziercurve.cc" line="199"/>
         <source>Cannot remove non-existing position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede borrar una posición que no existe</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/cubicbeziercurve.cc" line="222"/>
         <source>Cannot remove positions since too few positions will be left</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede borrar posiciones por que no quedan suficientes posiciones</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/cubicbeziercurve.cc" line="234"/>
         <source>Cannot remove positions in the middle of a curve, since that would split the curve.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede borrar posiciónes del medio de la curvatura, por que se dividiría la curvatura</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/cubicbeziercurve.cc" line="280"/>
         <source>No corresponding position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay posición correspondiente</translation>
     </message>
 </context>
 <context>
@@ -273,12 +274,12 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/Geometry/cubicbeziersurface.cc" line="425"/>
         <source>Row to remove does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fila para borrar no existe</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/cubicbeziersurface.cc" line="501"/>
         <source>Column to remove does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Columna para borrar no existe</translation>
     </message>
 </context>
 <context>
@@ -286,7 +287,7 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/WellAttrib/welltied2tmodelmanager.cc" line="40"/>
         <source>Cannot generate depth/time model. Check your velocity log</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede generar modelo de profundidad/tiempo. Debe checar su log de velocidad</translation>
     </message>
 </context>
 <context>
@@ -294,7 +295,7 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/uiIo/dpsdensitycalc.cc" line="34"/>
         <source>Points done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Puntos hechos</translation>
     </message>
 </context>
 <context>
@@ -302,7 +303,7 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../plugins/uiImpGPR/dztimporter.cc" line="132"/>
         <source>Handling traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Haciendo rastros</translation>
     </message>
 </context>
 <context>
@@ -310,183 +311,183 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="79"/>
         <source>Cannot read well data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer datos del pozo</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="82"/>
         <source>No depth/time model computed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay modelo de profundidad/tiempo computado</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="85"/>
         <source>Could not setup for raytracing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía ajustar para rastrear rayos</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="88"/>
         <source>Could not compute the synthetic trace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía computar el rastro sintético</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="91"/>
         <source>Could not copy the AI model to composite logs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía copiar el modelo AI para componer logs</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="105"/>
         <source>Cannot read seismic data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer datos sísmicos</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="126"/>
         <source>Can not extract seismic: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede extraer sísmica: %1</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="154"/>
         <source>Cannot update synthetics: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede actualizar sintéticos: %1</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="180"/>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="215"/>
         <source>Cross-correlation window not set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de correlación cruzada no esta ajustada</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="183"/>
         <source>Synthetic and seismic traces do not have same length</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Los rastros de sintético y sísmica no tienen longitudes iguales</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="186"/>
         <source>Seismic/Synthetic data too short</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos Sísmicos/Sintéticos son demasiado corto</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="192"/>
         <source>Cross-correlation too short</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Correlación cruzada es demasiado corta</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="197"/>
         <source>The cross-correlation window must be smaller than the synthetic/seismic traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La pantalla de correlación cruzada tiene que ser menor que de los rastros sintéticos/sísmicos</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="218"/>
         <source>Cross-correlation window is not valid</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de correlación cruzada no es válida</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="221"/>
         <source>Cannot extraction seismic for cross-correlation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede extraer sísmica para correlación cruzada</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="224"/>
         <source>Cannot extraction synthetic for cross-correlation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede extraer séntetico para correlación cruzada</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="243"/>
         <source>Wavelet estimation window not set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de estimación de onda no esta ajustada</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="246"/>
         <source>Wavelet estimation window is not valid</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de estimación de onda no es válida</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="249"/>
         <source>Cannot extraction reflectivity for wavelet estimation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede extraer reflectividad para estimación de onda</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="252"/>
         <source>Cannot extraction seismic for wavelet estimation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede extraer sísmica para estimación de onda</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="258"/>
         <source>Cannot allocate memory for estimated wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede asignar memoria para estimación de onda</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="289"/>
         <source>Waveform extraction window not set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de extracción de onda no esta ajustada</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="297"/>
         <source>Internal: Cannot allocate memory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: no se puede asignar memoria</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="338"/>
         <source>Extraction window not set for reflectivity computation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de extracción no esta ajustada para computación de reflectividad</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="344"/>
         <source>Reflectivity series too short</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La serie de reflectividad es demasiado corta</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="364"/>
         <source>The wavelet estimation window must start above the first spike at %1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de estimación de onda tiene que iniciar arriba de la primera punta a %1 ms</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="372"/>
         <source>The wavelet estimation window must stop before the last spike at %1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de estimación de onda tiene que parar antes de la última punta a %1 ms</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="380"/>
         <source>The wavelet estimation window must be smaller than the reflectivity series</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de estimación de onda tiene que ser menor que la serie de reflectividad</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="387"/>
         <source>Cannot allocate memory for reflectivity series</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede asignar memoria para la serie de reflectividad</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="397"/>
         <source>Mismatch between spike twt and seismic twt</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Desajuste entre punto twt y sísmica twt</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="454"/>
         <source>Please consider editing your logs.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor considera editar sus logs.</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="484"/>
         <source>Cannot create synthetic: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear sintético: %1</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="490"/>
         <source>Could not retrieve the reflectivities after ray-tracing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía recoger la reflectividad después de rastrear los rayos</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="506"/>
         <source>Internal: No data found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: no encontró datos</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="629"/>
         <source>Can not find log &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar log &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="645"/>
         <source>%1: log size too small, please check your input log</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1: tamaño del log es demasiado pequeño, por favor checa su log de entrada</translation>
     </message>
 </context>
 <context>
@@ -495,17 +496,17 @@ Try single-machine execution.</source>
         <location filename="../../../src/Network/odnetworkaccess.cc" line="458"/>
         <source>Oops! Something went wrong.
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Algo salió mal</translation>
     </message>
     <message>
         <location filename="../../../src/Network/odnetworkaccess.cc" line="460"/>
         <source>Details: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Detalles: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Network/odnetworkaccess.cc" line="476"/>
         <source>KBytes uploaded</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">KBytes estan actualizados</translation>
     </message>
 </context>
 <context>
@@ -513,7 +514,7 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/uiIo/densitycalc.h" line="139"/>
         <source>Points done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Puntos hechos</translation>
     </message>
 </context>
 <context>
@@ -521,29 +522,31 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/AttributeEngine/attribdescset.cc" line="456"/>
         <source>Cannot use old Math expression</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede usar expresión matemático viejo</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribdescset.cc" line="514"/>
         <source>Cannot find factory-entry for %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar entrada de fábrica para %1</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribdescset.cc" line="522"/>
         <source>Cannot parse: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede analizar: %1</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribdescset.cc" line="623"/>
         <source>Impossible to find stored data &apos;%1&apos;used as input for other attribute(s). 
 Data might have been deleted or corrupted.
 Please check your attribute set and select valid stored data as input.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Es imposible encontrar los datos almacenados &apos;%1&apos; usados por entrada para otros atributo(s). 
+Los datos podrían estar borrados o corrompidos. 
+Por favor checa su conjunto de atributos y selecciona datos almacenados válidos para entrada.</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribdescset.cc" line="632"/>
         <source>%1 for %2 attribute.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 para %2 atributo.</translation>
     </message>
 </context>
 <context>
@@ -551,7 +554,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiBase/uihelpview.cc" line="122"/>
         <source>Cannot open developer&apos;s documentation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir documentación del programador</translation>
     </message>
 </context>
 <context>
@@ -559,17 +562,17 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/EarthModel/emhorizon3d.cc" line="61"/>
         <source>Internal error: empty input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error interno: entrada vacía</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emhorizon3d.cc" line="77"/>
         <source>Getting %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cogiendo %1</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emhorizon3d.cc" line="79"/>
         <source>Getting horizon attribute values</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cogiendo valores de atributos horizontes</translation>
     </message>
 </context>
 <context>
@@ -577,7 +580,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../include/EarthModel/emhorizon2d.h" line="157"/>
         <source>2D Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Horizonte 2D</translation>
     </message>
 </context>
 <context>
@@ -585,7 +588,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../include/EarthModel/emhorizon3d.h" line="141"/>
         <source>3D Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Horizonte 3D</translation>
     </message>
 </context>
 <context>
@@ -593,7 +596,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../include/EarthModel/emmarchingcubessurface.h" line="81"/>
         <source>Marching Cubes Body</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Marchando Parte Principal de los Cubos</translation>
     </message>
 </context>
 <context>
@@ -601,7 +604,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../include/EarthModel/empolygonbody.h" line="103"/>
         <source>Polygon Body</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parte Principal del Polígono</translation>
     </message>
 </context>
 <context>
@@ -609,7 +612,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../include/EarthModel/emrandomposbody.h" line="79"/>
         <source>Random Position Body</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición del Parte Principal al Azar</translation>
     </message>
 </context>
 <context>
@@ -617,7 +620,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/EarthModel/emsurfacetr.cc" line="82"/>
         <source>Fault</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falla</translation>
     </message>
 </context>
 <context>
@@ -625,7 +628,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/EarthModel/emsurfacetr.cc" line="88"/>
         <source>Fault Stick Set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conjunto de Fallas</translation>
     </message>
 </context>
 <context>
@@ -633,12 +636,12 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/WellAttrib/stratsynth.cc" line="647"/>
         <source>Generating elastic model</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Generando modelo elastico</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/stratsynth.cc" line="652"/>
         <source>Models done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modelos estan hechos</translation>
     </message>
 </context>
 <context>
@@ -647,33 +650,33 @@ Please check your attribute set and select valid stored data as input.</source>
         <location filename="../../../src/AttributeEngine/attribengman.cc" line="440"/>
         <source>Invalid definition string for NLA model:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Definición de cadena para modelo NLA es inválido: %1</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribengman.cc" line="476"/>
         <source>NLA input &apos;%1&apos; cannot be found in the provided set.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar entrada NLA &apos;%1&apos; en el conjunto previsto</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribengman.cc" line="489"/>
         <source>Output %1 not present.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay salida %1.</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribengman.cc" line="967"/>
         <source>No attribute set or input specs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay atributo o especificaciones de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribengman.cc" line="980"/>
         <source>Attribute set not valid</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El atributo ajustado no es válido</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribengman.cc" line="1100"/>
         <source>Cannot find specified &apos;%1&apos;</source>
         <comment> in object management</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar &apos;%1&apos; especificado</translation>
     </message>
 </context>
 <context>
@@ -681,32 +684,32 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="758"/>
         <source>Input file %1 is not a directory.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expediente de entrada %1 no es un directorio</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="769"/>
         <source>Cannot overwrite %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede sobrescribir %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="776"/>
         <source>Cannot create %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="814"/>
         <source>%1 is not a directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 no es un directorio</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="823"/>
         <source>Copying %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiando %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="827"/>
         <source>Cannot copy %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede copiar %1 a %2</translation>
     </message>
 </context>
 <context>
@@ -714,17 +717,17 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventascio.cc" line="51"/>
         <source>CDP&apos;s exported</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">CDPs estan exportados</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventascio.cc" line="61"/>
         <source>Reading</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Leendo</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventascio.cc" line="84"/>
         <source>Writing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escribiendo</translation>
     </message>
 </context>
 <context>
@@ -732,17 +735,17 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventascio.cc" line="144"/>
         <source>Importing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importando</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventascio.cc" line="153"/>
         <source>Nr bytes read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Número de bytes leídos</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventascio.cc" line="172"/>
         <source>Error during read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al leer</translation>
     </message>
 </context>
 <context>
@@ -750,52 +753,52 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="266"/>
         <source>Error: Cannot read horizon information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error: no se puede leer información del horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="328"/>
         <source>Error: %1 is not a directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error: %1 no es un directorio</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="336"/>
         <source>Error: Cannot read sampling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error: no se puede leer muestreo</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="404"/>
         <source>Cannot add patch reader. %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede añadir lector de parche %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="447"/>
         <source>Cannot open %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="454"/>
         <source>Cannot read %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="465"/>
         <source>Cannot parse %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede analizar %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="477"/>
         <source>Cannot parse horizon </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede analizar horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="502"/>
         <source>Cannot parse primary dip-source</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede analizar el primer fuente buzamiento</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="509"/>
         <source>Cannot parse secondary dip-source</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede analizar el segundo fuente buzamiento</translation>
     </message>
 </context>
 <context>
@@ -803,12 +806,12 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventtracker.cc" line="81"/>
         <source>Cannot find MuteDef ID in Object Manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar MudoDef ID en Gerente de Objeto</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventtracker.cc" line="85"/>
         <source>Cannot create new mute definition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear un mudo definición nuevo</translation>
     </message>
 </context>
 <context>
@@ -816,27 +819,27 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="565"/>
         <source>Cannot remove %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede borrar %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="572"/>
         <source>Cannot create directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear directorio %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="719"/>
         <source>Cannot open %1 for writing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir %1 para escribir</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="728"/>
         <source>Cannot write to %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir a %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="736"/>
         <source>Cannot close %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede cerrar %1</translation>
     </message>
 </context>
 <context>
@@ -844,37 +847,37 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocattrib.cc" line="179"/>
         <source>Cannot find the processing setup.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar la disposición del procesamiento</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocattrib.cc" line="190"/>
         <source>Cannot read processing setup.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer la disposición del procesamiento</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocattrib.cc" line="193"/>
         <source> Reason given: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La razón: %1</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocattrib.cc" line="211"/>
         <source>There are no steps in the processing chain.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay pasos en la cadena del procesamiento</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocattrib.cc" line="224"/>
         <source>Cannot calculate at this location</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede calcular en este área</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocattrib.cc" line="233"/>
         <source>Error while calculating.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error a la calculación</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocattrib.cc" line="239"/>
         <source>No output produced</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay salida producida</translation>
     </message>
 </context>
 <context>
@@ -882,28 +885,28 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/EarthModel/emfaultauxdata.cc" line="375"/>
         <source>No valid surface data to store</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos válidos de la superficie para almacenar</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emfaultauxdata.cc" line="389"/>
         <source>Cannot open file to write, check your disk I/O permission</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir el expediente para escribir, checa su permiso del disco I/O</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emfaultauxdata.cc" line="461"/>
         <location filename="../../../src/EarthModel/emfaultauxdata.cc" line="467"/>
         <source>Surface data does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos de la superficie no existen</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emfaultauxdata.cc" line="471"/>
         <source>Cannot open file, check your file read permission</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir el expediente, checa su permiso del expediente leído</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emfaultauxdata.cc" line="477"/>
         <source>Wrong file type, not fault aux data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo de expediente equivocado, no hay datos de la falla</translation>
     </message>
 </context>
 <context>
@@ -911,7 +914,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttoolman.cc" line="202"/>
         <source>Will not undo saving the output file!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¡No deshará guardar el expediente de salida!</translation>
     </message>
 </context>
 <context>
@@ -919,7 +922,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/EarthModel/faulttrace.cc" line="963"/>
         <source>Extracting Fault Traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extrayendo Rastros de Fallas</translation>
     </message>
 </context>
 <context>
@@ -927,23 +930,23 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/Network/odnetworkaccess.cc" line="267"/>
         <source>%1 Didn&apos;t have permission to write to: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 no tenia permiso para escribir a %2</translation>
     </message>
     <message>
         <location filename="../../../src/Network/odnetworkaccess.cc" line="293"/>
         <source>Oops! Something went wrong.
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Algo salió mal.</translation>
     </message>
     <message>
         <location filename="../../../src/Network/odnetworkaccess.cc" line="295"/>
         <source>Details: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Detalles: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Network/odnetworkaccess.cc" line="311"/>
         <source>KBytes downloaded</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">KBytes cargados</translation>
     </message>
 </context>
 <context>
@@ -951,7 +954,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/Attributes/freqfilterattrib.cc" line="165"/>
         <source>Minimum and maximum frequencies are the same.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frecuencias de mínimo y máximo son iguales</translation>
     </message>
 </context>
 <context>
@@ -959,7 +962,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../plugins/GMT/gmtarray2dinterpol.cc" line="173"/>
         <source>Invalid positions found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posiciónes encontrados son inválidos</translation>
     </message>
 </context>
 <context>
@@ -967,32 +970,32 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../plugins/GMT/gmtfault.cc" line="94"/>
         <source>Failed to fetch LineStyles</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de traer Estilo Líneas</translation>
     </message>
     <message>
         <location filename="../../../plugins/GMT/gmtfault.cc" line="100"/>
         <source>Failed to execute GMT command</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de ejecutar comando GMT</translation>
     </message>
     <message>
         <location filename="../../../plugins/GMT/gmtfault.cc" line="156"/>
         <source>Selected ZSlice and %1 are not intersected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La rebanada Z seleccionada y %1 son intersectados</translation>
     </message>
     <message>
         <location filename="../../../plugins/GMT/gmtfault.cc" line="182"/>
         <source>Selected Horizon and %1 are not intersected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El Horizonte seleccionado y %1 no son intersectados</translation>
     </message>
     <message>
         <location filename="../../../plugins/GMT/gmtfault.cc" line="290"/>
         <source>No faults selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay fallas seleccionadas</translation>
     </message>
     <message>
         <location filename="../../../plugins/GMT/gmtfault.cc" line="304"/>
         <source>Failed to load faults</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de cargar fallas</translation>
     </message>
 </context>
 <context>
@@ -1000,17 +1003,17 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../plugins/GMT/gmtarray2dinterpol.cc" line="257"/>
         <source>Nearest neighbor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vecino mas cerca</translation>
     </message>
     <message>
         <location filename="../../../plugins/GMT/gmtarray2dinterpol.cc" line="285"/>
         <source>The selected algorithm will work only after loading GMT plugin</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El algoritmo seleccionado no funcionará solamente después de cargar el plugin GMT</translation>
     </message>
     <message>
         <location filename="../../../plugins/GMT/gmtarray2dinterpol.cc" line="309"/>
         <source>Search radius parameter missing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falta el parámetro del radio de búzqueda</translation>
     </message>
 </context>
 <context>
@@ -1018,17 +1021,17 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../plugins/GMT/gmtarray2dinterpol.cc" line="187"/>
         <source>Continuous curvature</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">curvatura continua</translation>
     </message>
     <message>
         <location filename="../../../plugins/GMT/gmtarray2dinterpol.cc" line="215"/>
         <source>The selected algorithm will work only after loading GMT plugin</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El algoritmo seleccionado no funcionará solamente después de cargar el plugin GMT</translation>
     </message>
     <message>
         <location filename="../../../plugins/GMT/gmtarray2dinterpol.cc" line="239"/>
         <source>Tension parameter missing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falta parámetro de tensión</translation>
     </message>
 </context>
 <context>
@@ -1037,13 +1040,13 @@ Please check your attribute set and select valid stored data as input.</source>
         <location filename="../../../src/PreStackProcessing/prestackgather.cc" line="89"/>
         <location filename="../../../src/PreStackProcessing/prestackgather.cc" line="121"/>
         <source>No valid gather selected.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conjunto seleccionado no es válido</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackgather.cc" line="105"/>
         <location filename="../../../src/PreStackProcessing/prestackgather.cc" line="137"/>
         <source>This Prestack data store cannot be handled.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede manejar este almacenamiento de datos Antes del Apilamiente.</translation>
     </message>
 </context>
 <context>
@@ -1052,7 +1055,8 @@ Please check your attribute set and select valid stored data as input.</source>
         <location filename="../../../src/Basic/survgeom.cc" line="310"/>
         <source>Unable to convert 2D geometries to OD5.0 format.
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Incapaz de convertir geometrías 2D al formato OD5.0. 
+%1</translation>
     </message>
 </context>
 <context>
@@ -1060,22 +1064,22 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../plugins/uiGrav/gravhorcalc.cc" line="22"/>
         <source>Loading horizons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cargando horizontes</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGrav/gravhorcalc.cc" line="44"/>
         <source>Positions done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posiciónes estan hechos</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGrav/gravhorcalc.cc" line="44"/>
         <source>Horizons loaded</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Horizontes estan cargados</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGrav/gravhorcalc.cc" line="60"/>
         <source>TODO</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Que hacer</translation>
     </message>
 </context>
 <context>
@@ -1083,7 +1087,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiCmdDriver/drivercommands.cc" line="363"/>
         <source>This info bears on window &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Este información esta soportado en la pantalla &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -1091,7 +1095,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/EarthModel/emhor2dto3d.cc" line="103"/>
         <source>No data in selected area</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos en la área seleccionada</translation>
     </message>
 </context>
 <context>
@@ -1099,7 +1103,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/EMAttrib/gridcreator.cc" line="369"/>
         <source>Positions done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Puntos estan hechos</translation>
     </message>
 </context>
 <context>
@@ -1107,12 +1111,12 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uiimphorizon2d.cc" line="69"/>
         <source>Horizon Import</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importación del horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uiimphorizon2d.cc" line="75"/>
         <source>Positions written:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posiciónes estan escribidos</translation>
     </message>
 </context>
 <context>
@@ -1120,7 +1124,7 @@ Please check your attribute set and select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiEMAttrib/horizon2dscanner.cc" line="58"/>
         <source>Positions handled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posiciones estan hechos</translation>
     </message>
 </context>
 <context>
@@ -1129,17 +1133,17 @@ Please check your attribute set and select valid stored data as input.</source>
         <location filename="../../../src/uiMPE/horflatvieweditor.cc" line="176"/>
         <location filename="../../../src/uiMPE/horflatvieweditor.cc" line="321"/>
         <source>No data to choose from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos para elegir</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor.cc" line="218"/>
         <source>2D tracking cannot handle picks on 3D lines.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El rastreo 2D no se puede manejar picos en líneas 3D</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor.cc" line="223"/>
         <source>3D tracking cannot handle picks on 2D lines.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El rastreo 3D no se puede manejar picos en líneas 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor.cc" line="312"/>
@@ -1151,7 +1155,9 @@ Please check your attribute set and select valid stored data as input.</source>
         <source>Saved setup has different attribute. 
 Either change setup attribute or change
 display attribute you want to track on</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La disposición guardado tiene atributos diferentes. 
+Debe cambiar la disposición del atributo o cambiar 
+la pantalla del atributo a lo que quiere ratrear</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor.cc" line="343"/>
@@ -1161,7 +1167,12 @@ but what you see is %2.
 To continue seeds picking either
 change displayed attribute or
 change input data in Tracking Setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La disposición sugiere que el rastreo esta hecho en %1 
+pero lo que ve es %2.
+
+Para continuar marcar picos debe 
+cambiar el atributo mostrado o 
+cambiar los datos de entrada en la Disposición del Rastreo</translation>
     </message>
 </context>
 <context>
@@ -1174,14 +1185,16 @@ change input data in Tracking Setup</source>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor2d.cc" line="363"/>
         <source>No data to choose from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos para elegir</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor2d.cc" line="373"/>
         <source>Saved setup has different attribute. 
 Either change setup attribute or change
 display attribute you want to track on</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La disposición guardada tiene un atributo diferente. 
+Debe cambiar la disposición del atributo o cambiar 
+la pantalla del atributo a lo que quiere rastrear</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor2d.cc" line="387"/>
@@ -1189,7 +1202,10 @@ display attribute you want to track on</source>
 But what you see is: &apos;%2&apos;.
 To continue seed picking either change displayed attribute or
 change input data in Tracking Setup.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La disposición sugiere que el rastreo esta hecho en &apos;%1&apos;. 
+Pero lo que ve es &apos;%2&apos;. 
+Para continuar marcar picos debe cambiar el atributo mostrado o 
+cambiar los datos de entrada en la Disposición del Rastreo.</translation>
     </message>
 </context>
 <context>
@@ -1202,14 +1218,16 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor3d.cc" line="353"/>
         <source>No data to choose from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No ha datos para elegir</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor3d.cc" line="363"/>
         <source>Saved setup has different attribute. 
 Either change setup attribute or change
 display attribute you want to track on</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La disposición guardada tiene un atributo diferente. 
+Debe cambiar la disposición del atributo o cambiar 
+la pantalla del atributo a lo que quiere rastrear</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/horflatvieweditor3d.cc" line="377"/>
@@ -1217,7 +1235,10 @@ display attribute you want to track on</source>
 But what you see is: &apos;%2&apos;.
 To continue seed picking either change displayed attribute or
 change input data in Tracking Setup.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La disposición sugiere que el rastreo esta hecho en &apos;%1&apos;. 
+Pero lo que ve es &apos;%2&apos;. 
+Para continuar marcar picos debe cambiar el atributo mostrado o 
+cambiar datos de entrada de la Disposición del Rastreo.</translation>
     </message>
 </context>
 <context>
@@ -1225,7 +1246,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/EarthModel/horizongridder.cc" line="53"/>
         <source>Cannot read Faults</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer Fallas</translation>
     </message>
 </context>
 <context>
@@ -1233,12 +1254,12 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/WellAttrib/welltiedata.cc" line="172"/>
         <source>Cannot get database entry for selected horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede traer entrada  de base de datos para el horizonte seleccionado</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/welltiedata.cc" line="196"/>
         <source>Cannot load %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede cargar %1.</translation>
     </message>
 </context>
 <context>
@@ -1246,7 +1267,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihorizonrelations.cc" line="119"/>
         <source>&apos;%1&apos; crosses &apos;%2&apos; at %3 positions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&apos;%1&apos; cruza &apos;%2&apos; en %3 posiciones</translation>
     </message>
 </context>
 <context>
@@ -1254,7 +1275,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/EarthModel/horizonscanner.cc" line="71"/>
         <source>Positions handled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posiciones estan hechos</translation>
     </message>
 </context>
 <context>
@@ -1262,17 +1283,17 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/EarthModel/horizonsorter.cc" line="189"/>
         <source>Could not load all horizons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía cargar todos horizontes</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/horizonsorter.cc" line="196"/>
         <source>Loaded object is not a horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El objeto cargado no es un horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/horizonsorter.cc" line="207"/>
         <source>Could not load 2D geometry.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía cargar geometría 2D</translation>
     </message>
 </context>
 <context>
@@ -1280,7 +1301,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/Network/hostdata.cc" line="699"/>
         <source>Errors in Host information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hay errores en la información del Anfitrión</translation>
     </message>
 </context>
 <context>
@@ -1288,17 +1309,17 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/EarthModel/emioobjinfo.cc" line="248"/>
         <source>Cannot find surface in object database</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar la superficie en base de datos del objeto</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emioobjinfo.cc" line="251"/>
         <source>Cannot find file on disk</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar expediente en el disco</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emioobjinfo.cc" line="275"/>
         <source>Cannot read &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -1306,7 +1327,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodannotimagetreeitem.cc" line="27"/>
         <source>Select image ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona un imagen ...</translation>
     </message>
 </context>
 <context>
@@ -1314,7 +1335,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../plugins/HorizonAttrib/isopachmaker.cc" line="139"/>
         <source>No thickness values collected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No ha recogido valores espesos</translation>
     </message>
 </context>
 <context>
@@ -1327,12 +1348,12 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/Network/jobcommunic.cc" line="145"/>
         <source>Error writing status to Master: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al leer estado al Maestro: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Network/jobcommunic.cc" line="162"/>
         <source>Master sent an unkown response code. %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Maestro ha enviado un códico de respuesta desconocido. %1</translation>
     </message>
 </context>
 <context>
@@ -1340,17 +1361,17 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/MMProc/jobrunner.cc" line="147"/>
         <source>Failed to listen to Port %1 on %2 on </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de escuchar a Porta %1 en %2 en </translation>
     </message>
     <message>
         <location filename="../../../src/MMProc/jobrunner.cc" line="530"/>
         <source>Processing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Procesando</translation>
     </message>
     <message>
         <location filename="../../../src/MMProc/jobrunner.cc" line="533"/>
         <source>Jobs completed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Trabajos completos</translation>
     </message>
 </context>
 <context>
@@ -1358,68 +1379,68 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="186"/>
         <source>%1 for well %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 para pozo %2</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="208"/>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="268"/>
         <source>No wells to process</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay pozos para procesar</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="214"/>
         <source>Cannot append well name with multiple wells</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede anexar el nombre del pozo con pozos múltiples</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="228"/>
         <source>Internal: no well name found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: no encontró nombre de pozo</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="249"/>
         <source>Volume: &apos;%1&apos; is already present as another type and won&apos;t be created</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Volumen: &apos;%1&apos; ya esta presente como otro tipo y no lo va a crear</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="254"/>
         <source>Volume: &apos;%1&apos; is already present</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Volumen: &apos;%1&apos; ya esta presente</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="298"/>
         <source>One or several log cubes could not be computed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Uno o mas cubos de log no podían estar computados</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="324"/>
         <source>No data for log %1: no cube created</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos para log %1: no hay cubo creado</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="352"/>
         <source>Internal: No well data at iteration %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: no hay datos del pozo a la iteración %1</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="361"/>
         <source>Internal: No log cube data for well %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: no hay cubo de log para pozo %1</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="367"/>
         <source>No depth/time model found for well %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró modelo de profundidad/tiempo para pozo %1</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="376"/>
         <source>%1 for well $2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 para pozo %2</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="394"/>
         <source>Cannot allocate memory for output log for well %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede asignar memoria para log de salida para pozo %1</translation>
     </message>
 </context>
 <context>
@@ -1427,22 +1448,22 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="41"/>
         <source>Internal: no output file specified</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: no hay expedientie de salida especificado</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="44"/>
         <source>Cannot write new trace to disk</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir el rastro nuevo al disco</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="74"/>
         <source>Internal: no ioobj specified</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: no hay objeto especificado</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="82"/>
         <source>Cannot write new trace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir un rastro nuevo</translation>
     </message>
 </context>
 <context>
@@ -1450,17 +1471,17 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="96"/>
         <source>Cannot open well</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir el pozo</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="102"/>
         <source>Internal: unable to extract track positions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: no es capaz de extraer posiciones del rastreo</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/createlogcube.cc" line="107"/>
         <source>Cannot use a well outside of the survey area</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede usar un pozo fuera de la área del estudio</translation>
     </message>
 </context>
 <context>
@@ -1468,7 +1489,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/MMProc/mmexecproxy.cc" line="15"/>
         <source>Not started</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No esta iniciado</translation>
     </message>
 </context>
 <context>
@@ -1477,17 +1498,17 @@ change input data in Tracking Setup.</source>
         <location filename="../../../src/General/property.cc" line="223"/>
         <location filename="../../../src/General/property.cc" line="230"/>
         <source>Input &apos;%1&apos; is dependent on itself</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrada &apos;%1&apos; depende de sí mismo</translation>
     </message>
     <message>
         <location filename="../../../src/General/property.cc" line="243"/>
         <source>No valid definition for &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay definición válido para &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../../../src/General/property.cc" line="261"/>
         <source>Missing input &apos;%1&apos; for &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falta entrada &apos;%1&apos; para &apos;%2&apos;</translation>
     </message>
 </context>
 <context>
@@ -1495,7 +1516,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="77"/>
         <source>Cannot find shared library %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar biblioteca compartida %1</translation>
     </message>
     <message>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="86"/>
@@ -1503,24 +1524,24 @@ change input data in Tracking Setup.</source>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="117"/>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="191"/>
         <source>Cannot find function %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar función %1</translation>
     </message>
     <message>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="89"/>
         <source>Cannot initialize shared library</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede inicializar bibioteca compartida</translation>
     </message>
     <message>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="122"/>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="150"/>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="167"/>
         <source>Function %1 returned false</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Función %1 regresó falso</translation>
     </message>
     <message>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="175"/>
         <source>This plugin has not been linked to MATLAB.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Este plugin no esta enlazado a MATLAB</translation>
     </message>
 </context>
 <context>
@@ -1528,7 +1549,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../plugins/MATLABLink/matlablibmgr.cc" line="276"/>
         <source>Cannot initialize MATLAB application</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede inicializar aplicación MATLAB</translation>
     </message>
 </context>
 <context>
@@ -1536,17 +1557,17 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackmute.cc" line="95"/>
         <source>No MuteDef ID provided.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">MudoDef ID no esta previsto.</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackmute.cc" line="98"/>
         <source>Cannot find MuteDef ID &apos;%1&apos; in Object Manager.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar MudoDef ID &apos;%1&apos; en Gerente de Objeto.</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackmute.cc" line="102"/>
         <source>Mute definition &quot; %1 &quot; cannot be read.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer definición mudo &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
@@ -1555,7 +1576,7 @@ change input data in Tracking Setup.</source>
         <location filename="../../../src/PreStackProcessing/prestackmutedeftransl.cc" line="52"/>
         <location filename="../../../src/PreStackProcessing/prestackmutedeftransl.cc" line="80"/>
         <source>Cannot open %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir %1</translation>
     </message>
 </context>
 <context>
@@ -1563,22 +1584,22 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/NLA/nlacrdesc.cc" line="104"/>
         <source>Internal: No input DataPointSets to transfer data from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: no hay  Conjunto de Datos de Puntos de entrada para recoger los datos</translation>
     </message>
     <message>
         <location filename="../../../src/NLA/nlacrdesc.cc" line="114"/>
         <source>Cannot find training data set specified</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar conjunto de datos del entrenamiento especificado</translation>
     </message>
     <message>
         <location filename="../../../src/NLA/nlacrdesc.cc" line="121"/>
         <source>Invalid input data set specified</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conjunto de datos de entrada especificado es inválido</translation>
     </message>
     <message>
         <location filename="../../../src/NLA/nlacrdesc.cc" line="134"/>
         <source>No data vectors found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró datos de vectores</translation>
     </message>
 </context>
 <context>
@@ -1586,33 +1607,33 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/Network/netsocket.cc" line="85"/>
         <source>Trying to connect already used connection.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tratando de connectar a una connección que ya esta usada</translation>
     </message>
     <message>
         <location filename="../../../src/Network/netsocket.cc" line="234"/>
         <source>Write timeout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escribir tiempo de espera</translation>
     </message>
     <message>
         <location filename="../../../src/Network/netsocket.cc" line="356"/>
         <location filename="../../../src/Network/netsocket.cc" line="402"/>
         <source>Out of memory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fuera de la memoria</translation>
     </message>
     <message>
         <location filename="../../../src/Network/netsocket.cc" line="391"/>
         <source>Received packet is not OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El paquete recibido no es OK</translation>
     </message>
     <message>
         <location filename="../../../src/Network/netsocket.cc" line="444"/>
         <source>No connection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay connección</translation>
     </message>
     <message>
         <location filename="../../../src/Network/netsocket.cc" line="459"/>
         <source>Read timeout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Leer tiempo de espera</translation>
     </message>
 </context>
 <context>
@@ -1620,7 +1641,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/Network/oddlsite.cc" line="103"/>
         <source>Cannot open %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir %1</translation>
     </message>
 </context>
 <context>
@@ -1629,37 +1650,37 @@ change input data in Tracking Setup.</source>
         <location filename="../../../plugins/Madagascar/madio.cc" line="37"/>
         <location filename="../../../plugins/Madagascar/madio.cc" line="146"/>
         <source>Directory &apos;%1&apos; is not writable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir en el directorio &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madio.cc" line="44"/>
         <source>File &apos;%1&apos; is not readable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer en el expediente &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madio.cc" line="56"/>
         <source>No file name provided</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El nombre del expediente no esta previsto</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madio.cc" line="135"/>
         <source>File &apos;%1&apos; does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expediente &apos;%1&apos; no existe</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madio.cc" line="137"/>
         <source>File &apos;%1&apos; is empty</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expediente &apos;%1&apos; esta vacío</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madio.cc" line="144"/>
         <source>Directory &apos;%1&apos; does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Directorio &apos;%1&apos; no existe</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madio.cc" line="152"/>
         <source>File &apos;%1&apos; cannot be opened</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir el expediente &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -1667,157 +1688,157 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="80"/>
         <source>Output parameters missing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faltan parámetros de salida</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="180"/>
         <source>Error reading RSF header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al leer encabezamiento RSF</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="186"/>
         <source>Cannot read RSF data file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer expediente de datos RSF</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="199"/>
         <source>Input ID missing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falta entrada ID</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="202"/>
         <source>Cannot find input data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar datos de entrada</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="238"/>
         <source>Output data ID missing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faltan datos de salida</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="241"/>
         <source>Cannot find output object</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar objeto de salida</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="248"/>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="257"/>
         <source>Cannot write to output object</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir al objeto de salida</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="301"/>
         <source>Cannot create Pos file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear Expediente Pos</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="306"/>
         <source>Cannot write to Pos file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir al Expediente Pos</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="342"/>
         <source>No nput object</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay objeto de entrada</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="346"/>
         <source>Invalid data subselection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos de subselección son inválidos</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="349"/>
         <source>2D Line not found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró la Línea 2D</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="387"/>
         <source>Incomplete Geometry Information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Información Geometría no esta completa</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="456"/>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="476"/>
         <source>No data available in the given range</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos en los rangos especificados</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="462"/>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="489"/>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="500"/>
         <source>No data to read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos para leer</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="494"/>
         <source>First position has only one trace in the gather. 		    Please ensure regular offset throught the data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Primera posición solo tiene un rastro en el conjunto. --&gt; --&gt; Por favor ensegura offset regular en entre los datos</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="552"/>
         <source>Empty or corrupt RSF Header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encabezamiento RSF esta vacío o corrupto</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="586"/>
         <source>Header parameters not found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró parámetros del encabezamiento</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="634"/>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="637"/>
         <source>Cannot read traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer rastros</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="667"/>
         <source>No data source found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró fuente de datos</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="686"/>
         <source>Cannot Open Pos File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir Expediente Pos</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="692"/>
         <source>Cannot Read Pos File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer Expediente Pos</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="698"/>
         <source>No positions in Pos File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay posiciones en Expediente Pos</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="721"/>
         <source>Cannot initialize writing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede inicializar escribir</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="749"/>
         <source>Geometry data missing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faltan datos de geometría</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="800"/>
         <source>Cannot write trace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir el rastro</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="826"/>
         <source>Position data not available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos de posiciones</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="848"/>
         <source>Line geometry doesn&apos;t match with data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Línea geometría no esta igual a los datos</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madstream.cc" line="874"/>
         <source>Error writing traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al escribir los rastros</translation>
     </message>
 </context>
 <context>
@@ -1825,7 +1846,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../plugins/Madagascar/madproc.cc" line="126"/>
         <source>Cannot find RSF file %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar expediente RSF %1</translation>
     </message>
 </context>
 <context>
@@ -1833,27 +1854,27 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../plugins/Madagascar/madprocexec.cc" line="108"/>
         <source>Failed to create output stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de crear un stream de salida</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madprocexec.cc" line="112"/>
         <source>Failed to get RSF header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de coger un encabezamiento RSF</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madprocexec.cc" line="122"/>
         <source>Failed to put RSF header in plot stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de poner el encabezamiento RSF en stream gráfico</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madprocexec.cc" line="288"/>
         <source>Working</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Trabajando</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madprocexec.cc" line="292"/>
         <source>Traces handled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastros estan manejados</translation>
     </message>
 </context>
 <context>
@@ -1861,17 +1882,17 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../plugins/Madagascar/madprocflow.cc" line="78"/>
         <source>Output parameters missing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faltan parámetros de salida</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madprocflow.cc" line="83"/>
         <source>Empty proc found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encontró procesamiento vacío</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/madprocflow.cc" line="86"/>
         <source>Invalid command: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comando inválido: %1</translation>
     </message>
 </context>
 <context>
@@ -1879,14 +1900,16 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../plugins/Madagascar/maddefs.cc" line="49"/>
         <source>RSFROOT not set - no program definitions available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">RSFROOT no esta ajustado -no hay definiciónes del programma</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/maddefs.cc" line="54"/>
         <source>$RSFROOT (Madagascar) is invalid:
 %1
 The directory does not exist or cannot be read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">$RSFROOT (Madagascar) es inválido:
+%1 
+El directorio no existe o no se puede leerlo</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/maddefs.cc" line="77"/>
@@ -1894,7 +1917,10 @@ The directory does not exist or cannot be read</source>
 %1
 does not exist. You need to issue the command:
 $RSFROOT/bin/sfdoc -t $RSFROOT/doc/txt</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Instalación de Madagascar no esta preparado. Directorio: 
+%1 
+no existe. Necesita emitir el comando: 
+$RSFROOT/bin/sfdoc -t $RSFROOT/doc/txt</translation>
     </message>
 </context>
 <context>
@@ -1904,22 +1930,24 @@ $RSFROOT/bin/sfdoc -t $RSFROOT/doc/txt</source>
         <source>Madagascar Definition directory:
 %1
 contains no definition files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Madagascar Definición directorio:
+%1 
+no tiene expedientes de definición</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/maddefs.cc" line="124"/>
         <source>Scanning files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escaneando expedientes</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/maddefs.cc" line="126"/>
         <source>Scanning %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escaneando %1</translation>
     </message>
     <message>
         <location filename="../../../plugins/Madagascar/maddefs.cc" line="130"/>
         <source>Files scanned</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expedientes escaneados</translation>
     </message>
 </context>
 <context>
@@ -1927,18 +1955,18 @@ contains no definition files</source>
     <message>
         <location filename="../../../src/uiODMain/odsession.cc" line="234"/>
         <source>Selected object is not an Session</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Objecto seleccionado no es una sesión</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/odsession.cc" line="238"/>
         <location filename="../../../src/uiODMain/odsession.cc" line="261"/>
         <source>Cannot open %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/odsession.cc" line="256"/>
         <source>Selected object is not an OpendTect Session</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El objeto seleccionado no es una Sesión de OpendTect</translation>
     </message>
 </context>
 <context>
@@ -1946,12 +1974,12 @@ contains no definition files</source>
     <message>
         <location filename="../../../src/Seis/seis2ddatafmtconverter.cc" line="250"/>
         <source>Failed to update 2D database. Most probably the survey or its &apos;Seismics&apos; folder is not writable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de actualizar base de datos 2D. Probablemente no se puede escribir en el estudio o su carpeta &apos;Sísmicas&apos;</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2ddatafmtconverter.cc" line="438"/>
         <source>Error while converting 2D Seismic data: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al convertir datos Sísmicos 2D: %1</translation>
     </message>
 </context>
 <context>
@@ -1959,22 +1987,22 @@ contains no definition files</source>
     <message>
         <location filename="../../../src/Seis/seisparallelreader.cc" line="77"/>
         <source>Traces read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastros estan leídos</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisparallelreader.cc" line="81"/>
         <source>Reading</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Leendo</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisparallelreader.cc" line="151"/>
         <source>Cannot open storage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir el almacenamiento</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisparallelreader.cc" line="167"/>
         <source>Storage does not support random access</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El almacenamiento no soporte acceso al azar</translation>
     </message>
 </context>
 <context>
@@ -1982,12 +2010,12 @@ contains no definition files</source>
     <message>
         <location filename="../../../src/Geometry/parametricsurface.cc" line="125"/>
         <source>New rc does not have any support</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nuevo rc no esta soportado</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/parametricsurface.cc" line="201"/>
         <source>Cannot unset non-existing knot</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede desajustar un nudo que no existe</translation>
     </message>
 </context>
 <context>
@@ -1995,12 +2023,12 @@ contains no definition files</source>
     <message>
         <location filename="../../../src/General/posinfodetector.cc" line="266"/>
         <source>trace number</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Número de rastro</translation>
     </message>
     <message>
         <location filename="../../../src/General/posinfodetector.cc" line="266"/>
         <source>position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición</translation>
     </message>
     <message>
         <location filename="../../../src/General/posinfodetector.cc" line="268"/>
@@ -2012,7 +2040,9 @@ contains no definition files</source>
         <source>Sorting inconsistency at %1.
 Last valid sorting &apos;%2&apos;
 The previous position was %3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Clasificando inconsistencia a %1. 
+Última clasificación válida &apos;%2&apos;
+La posición anterior era %3</translation>
     </message>
 </context>
 <context>
@@ -2020,12 +2050,12 @@ The previous position was %3</source>
     <message>
         <location filename="../../../src/AttributeEngine/attribposvecoutput.cc" line="41"/>
         <source>Done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hecho</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribposvecoutput.cc" line="69"/>
         <source>Positions handled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posiciones estan manejados</translation>
     </message>
 </context>
 <context>
@@ -2033,27 +2063,27 @@ The previous position was %3</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="873"/>
         <source>Cannot read #events from stream (bin)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer #eventos del stream(bin)</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="884"/>
         <source>Cannot read #events from stream (asc)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer #eventos del stream (asc)</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="903"/>
         <source>Cannot read header (bin)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer encabezamiento (bin)</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="912"/>
         <source>Cannot read header (asc)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer encabezamiento (asc)</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="956"/>
         <source>Cannot write header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir encabezamiento</translation>
     </message>
 </context>
 <context>
@@ -2061,39 +2091,41 @@ The previous position was %3</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1041"/>
         <source>Bad input file: cannot read events</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expediente de entrada malo: no se puede leer eventos</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1048"/>
         <source>Invalid filetype: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo filtro inválido: %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1087"/>
         <source>Could not read file header from %1. %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía leer encabezamiento del expediente de %1. %2</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1172"/>
         <source>Could not read %1 from %2 at %3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podia leer %1 de %2 a %3</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1180"/>
         <source>nr events</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Número de eventos</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1193"/>
         <source>nr picks.
 Event nr=%1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Número de picos. 
+Número de evento = %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1224"/>
         <source>event.
 Event nr=%1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Evento. 
+Número de evento = %1</translation>
     </message>
 </context>
 <context>
@@ -2101,22 +2133,22 @@ Event nr=%1</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1435"/>
         <source>Cannot open file %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1446"/>
         <source>Cannot write file header in %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir encabezamiento del expediente en %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1460"/>
         <source>Cannot close file %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede cerrar expediente %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackeventio.cc" line="1510"/>
         <source>Error during write to %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al escribir a %1</translation>
     </message>
 </context>
 <context>
@@ -2124,7 +2156,7 @@ Event nr=%1</source>
     <message>
         <location filename="../../../include/PreStackProcessing/prestackeventio.h" line="62"/>
         <source>Loading events</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cargando eventos</translation>
     </message>
 </context>
 <context>
@@ -2132,7 +2164,7 @@ Event nr=%1</source>
     <message>
         <location filename="../../../include/PreStackProcessing/prestackeventio.h" line="116"/>
         <source>Storing events</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Almacenando eventos</translation>
     </message>
 </context>
 <context>
@@ -2141,7 +2173,7 @@ Event nr=%1</source>
         <location filename="../../../src/PreStackProcessing/prestackprocessortransl.cc" line="49"/>
         <location filename="../../../src/PreStackProcessing/prestackprocessortransl.cc" line="79"/>
         <source>Cannot open %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir %1</translation>
     </message>
 </context>
 <context>
@@ -2149,12 +2181,12 @@ Event nr=%1</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uipsviewer2dmainwin.cc" line="378"/>
         <source>Set properties for data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustar propiedades para los datos</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uipsviewer2dmainwin.cc" line="384"/>
         <source>Select gather</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona conjunto</translation>
     </message>
 </context>
 <context>
@@ -2163,7 +2195,8 @@ Event nr=%1</source>
         <location filename="../../../src/uiPreStackProcessing/uipsviewer2dmainwin.cc" line="124"/>
         <source>Current settings are not saved.
 Do you want to save them?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustes actuales no estan guardados. 
+¿Quiere guardarlos?</translation>
     </message>
 </context>
 <context>
@@ -2171,58 +2204,58 @@ Do you want to save them?</source>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="33"/>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Apariencia</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="50"/>
         <source>Z grid lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Líneas cuadrículas Z</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="57"/>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="79"/>
         <source>Automatic sampling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Muestreo automático</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="62"/>
         <source>Z grid sampling (start/step)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Muestreo de cuadrícula Z (inicio/paso)</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="72"/>
         <source>Offset grid lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Offset líneas cuadrículas</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="85"/>
         <source>Offset grid sampling (start/step)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Offset muestreo de cuadrículas (inicio/paso)</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="190"/>
         <source>Cannot write  default settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir ajustes predeterminados</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="222"/>
         <source>Z sampling start is not defined.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Inicio de muestreo Z no esta definido</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="224"/>
         <source>Z sampling step is not defined.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paso de muestreo Z no esta definido</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="250"/>
         <source>Offset sampling start is not defined.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Inicio de muestreo offset no esta definido</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="252"/>
         <source>Offset sampling step is not defined.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paso de muestreo offset no esta definido</translation>
     </message>
 </context>
 <context>
@@ -2230,47 +2263,47 @@ Do you want to save them?</source>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="50"/>
         <source>Display Prestack Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar Datos Antes del Apilamiento</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="51"/>
         <source>Show position window ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar pantalla de posición</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="53"/>
         <source>Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Resolución</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="54"/>
         <source>View in 2D panel ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ver en panel 2D ...</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="55"/>
         <source>Amplitude spectrum ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Espectro amplitud ...</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="304"/>
         <source>No object selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay objeto seleccionado</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="312"/>
         <source>Display panel is not set.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de panel no esta ajustado</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="525"/>
         <source>Can not find %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar %1</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="530"/>
         <source>No data found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró datos</translation>
     </message>
 </context>
 <context>
@@ -2278,27 +2311,27 @@ Do you want to save them?</source>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerposdlg.cc" line="56"/>
         <source>Immediate update</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Actualización inmediato</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerposdlg.cc" line="59"/>
         <source>Update Now</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Actualizar ahora</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerposdlg.cc" line="160"/>
         <source>The cross-line should be between %1 and %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La línea-cruzada debe estar entre %1 y %2</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerposdlg.cc" line="176"/>
         <source>The in-line should be between %1 and %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La línea debe estar entre %1 y %2</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerposdlg.cc" line="197"/>
         <source>The trace number should be between %1 and %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El número de rastros debe estar entre %1 y %2</translation>
     </message>
 </context>
 <context>
@@ -2306,12 +2339,12 @@ Do you want to save them?</source>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerpreproctab.cc" line="24"/>
         <source>Preprocessing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Preprocesamiento</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerpreproctab.cc" line="83"/>
         <source>Preprocessing failed!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¡Preprocesamiento ha fallado!</translation>
     </message>
 </context>
 <context>
@@ -2319,34 +2352,34 @@ Do you want to save them?</source>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="95"/>
         <source>Cannot write  default settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir ajustes predeterminados</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="143"/>
         <source>Range is not set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rango no esta ajustado</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="152"/>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="190"/>
         <source>Clipping rate is not set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tasa de recorte no esta ajustado</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="158"/>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="177"/>
         <source>Clip percentage should between 0 and 100</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Porcentaje de recorte debe estar entre 0 y 100</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="165"/>
         <source>Midvalue is not set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Medio valor no esta ajustado</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="183"/>
         <source>Clip percentage sum is between 0 and 100</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La suma del procentaje de recorte esta entre 0 y 100</translation>
     </message>
 </context>
 <context>
@@ -2354,12 +2387,12 @@ Do you want to save them?</source>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewersettingdlg.cc" line="29"/>
         <source>Prestack display properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades de la pantalla antes del apilamiento</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewersettingdlg.cc" line="48"/>
         <source>Apply to all viewers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aplicar a todos espectadores</translation>
     </message>
 </context>
 <context>
@@ -2367,32 +2400,32 @@ Do you want to save them?</source>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewershapetab.cc" line="34"/>
         <source>Shape</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Forma</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewershapetab.cc" line="43"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anchura</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewershapetab.cc" line="44"/>
         <source>Relative</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Relativo</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewershapetab.cc" line="44"/>
         <source>Absolute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Absoluto</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewershapetab.cc" line="68"/>
         <source>Switch View Side</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cambiar Lado de Vista</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiPreStackViewer/uipsviewershapetab.cc" line="168"/>
         <source>Cannot write default settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir ajustes predeterminados</translation>
     </message>
 </context>
 <context>
@@ -2401,27 +2434,27 @@ Do you want to save them?</source>
         <location filename="../../../src/Geometry/probdenfunctr.cc" line="43"/>
         <location filename="../../../src/Geometry/probdenfunctr.cc" line="72"/>
         <source>Cannot create Translator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear Traductor</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/probdenfunctr.cc" line="51"/>
         <source>Cannot open &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/probdenfunctr.cc" line="61"/>
         <source>Cannot read PDF from &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer PDF de &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/probdenfunctr.cc" line="80"/>
         <source>Cannot write to &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir a &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../../../src/Geometry/probdenfunctr.cc" line="88"/>
         <source>Cannot write PDF to &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir PDF a &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -2429,18 +2462,19 @@ Do you want to save them?</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackprocessor.cc" line="390"/>
         <source>Could not find name for processing step %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía encontrar el nombre para pocesamiento del paso %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackprocessor.cc" line="398"/>
         <source>Could not parse processing step %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía analizar procesamiento del paso %1</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackprocessor.cc" line="400"/>
         <source>
 Are all plugins loaded?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">
+¿Todos plugins estan cargados?</translation>
     </message>
 </context>
 <context>
@@ -2449,36 +2483,39 @@ Are all plugins loaded?</source>
         <location filename="../../../src/AttributeEngine/attribprocessor.cc" line="142"/>
         <location filename="../../../src/AttributeEngine/attribprocessor.cc" line="227"/>
         <source>Error during data read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al leer los datos</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprocessor.cc" line="151"/>
         <source>No trace info available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay información de rastro</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprocessor.cc" line="157"/>
         <source>No positions processed.
 Most probably, your input volume(s) are not available in the 
 selected region or the required stepout traces are not available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay posiciones procesados. 
+Probablemente su volumen de entrada no esta disponible en la 
+área seleccionada o los pasos apretados de los rastros necesarios no estan disponibles</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprocessor.cc" line="232"/>
         <source>This stored cube contains no data in selected area.
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Este cubo almacenado no tiene datos en la área seleccionada</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprocessor.cc" line="420"/>
         <source>Not possible to output required attribute in this area.
 Please confront stepouts/timegates with available data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No es possible poner el atributo nesecario en la salida de este área. 
+Por favor enfrenta los pasos apretados/puertas de tiempo con los datos disponibles</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprocessor.cc" line="489"/>
         <source>Processing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Procesando</translation>
     </message>
 </context>
 <context>
@@ -2487,7 +2524,7 @@ Please confront stepouts/timegates with available data</source>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="120"/>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="241"/>
         <source>No attribute set specified</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay conjunto de atributo especificado</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="132"/>
@@ -2496,42 +2533,46 @@ used as input for other attribute(s).
 Data might have been deleted or corrupted.
 Please check your attribute set 
 Please select valid stored data.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Es imposible encontrar los datos almacenados &apos;%1&apos; 
+usados como entrada para otros atributo(s). 
+Tal vez los datos estan borrados o corrompidos. 
+Por favor checa su conjunto de atributos 
+Por favor selecciona datos almacenados válidos.</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="142"/>
         <source>%1 for &apos;%2&apos; attribute.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 para &apos;%2&apos; atributo.</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="148"/>
         <source>Error in definition of %1 attribute.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error en la definición de %1 atributo.</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="180"/>
         <source>Input is not correct. One of the inputs depend on itself</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrada no es correcto. Una de las entrada depende de sí mísma</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="195"/>
         <source>Cannot load Stored Cube &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede cargar Cubo Almacenado &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="200"/>
         <source>Attribute &quot;%1&quot; of type &quot;%2&quot; cannot be initialized</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede inicializar atributo &quot;%1&quot; de tipo &quot;%2&quot;</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="1042"/>
         <source>Failed to allocate memory. Probably the data you are loading is too big.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de asignar la memoria. Probablemente los datos que usted esta cargando son demasiado grande.</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribprovider.cc" line="1124"/>
         <source>Cannot initialise &apos;%1&apos; Attribute properly</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede inicializar &apos;%1&apos; propiedad del Atributo</translation>
     </message>
 </context>
 <context>
@@ -2539,27 +2580,27 @@ Please select valid stored data.</source>
     <message>
         <location filename="../../../src/Seis/synthseis.cc" line="720"/>
         <source>No AI model found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró modelo AI</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/synthseis.cc" line="729"/>
         <source>Raytracing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastreo de rayos</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/synthseis.cc" line="755"/>
         <source>Generating synthetics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Generando sintéticos</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/synthseis.cc" line="818"/>
         <source>Layers done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Capas estan hechos</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/synthseis.cc" line="818"/>
         <source>Models done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modelos estan hechos</translation>
     </message>
 </context>
 <context>
@@ -2567,33 +2608,33 @@ Please select valid stored data.</source>
     <message>
         <location filename="../../../src/Algo/raytrace1d.cc" line="66"/>
         <source>Raytracer not found. Perhaps all plugins are not loaded</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró rastreo de rayos. Tal vez todos plugins on estan cargados</translation>
     </message>
     <message>
         <location filename="../../../src/Algo/raytrace1d.cc" line="159"/>
         <source>Internal: Offsets must be set before the model</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: offsets deben ajustarse antes del modelo</translation>
     </message>
     <message>
         <location filename="../../../src/Algo/raytrace1d.cc" line="160"/>
         <location filename="../../../src/Algo/raytrace1d.cc" line="202"/>
         <source>Cannot do raytracing.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede hacer rastreo de rayos</translation>
     </message>
     <message>
         <location filename="../../../src/Algo/raytrace1d.cc" line="180"/>
         <source>Model has only one layer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El modelo solo tiene una capa</translation>
     </message>
     <message>
         <location filename="../../../src/Algo/raytrace1d.cc" line="182"/>
         <source>Model is empty</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modelo esta vacío</translation>
     </message>
     <message>
         <location filename="../../../src/Algo/raytrace1d.cc" line="184"/>
         <source>Model has invalid values on layer: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El modelo tiene valores inválidos en la capa: %1</translation>
     </message>
 </context>
 <context>
@@ -2601,7 +2642,7 @@ Please select valid stored data.</source>
     <message>
         <location filename="../../../src/General/raytracerrunner.cc" line="79"/>
         <source>Wrong input for raytracing on model: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrada equivocada para el rastreo de rayos en modelo: %1</translation>
     </message>
 </context>
 <context>
@@ -2609,12 +2650,12 @@ Please select valid stored data.</source>
     <message>
         <location filename="../../../src/Network/netreqconnection.cc" line="104"/>
         <source>Error reading from socket</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al leer del enchufe</translation>
     </message>
     <message>
         <location filename="../../../src/Network/netreqconnection.cc" line="112"/>
         <source>Garbled network packet received. Disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paquete de red ilegible recibido. Desconnectado.</translation>
     </message>
 </context>
 <context>
@@ -2622,7 +2663,7 @@ Please select valid stored data.</source>
     <message>
         <location filename="../../../src/Network/netreqconnection.cc" line="271"/>
         <source>Cannot start listening on port %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede iniciar escuchando en porta %1</translation>
     </message>
 </context>
 <context>
@@ -2630,42 +2671,42 @@ Please select valid stored data.</source>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="120"/>
         <source>Cannot open input file to determine nr of dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de entrada para determinar el número de dimensiones</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="135"/>
         <source>Can only handle 1D and 2D PDFs. Dimension found: </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede manejar PDFs 1D y 2D. No encontró dimensión</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="154"/>
         <source>Cannot open input file to import 1D PDF data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de entrada para importar datos de PDF 1D</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="177"/>
         <source>Could not find size for X variable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía encontrar tamaño para el variable X</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="206"/>
         <source>Cannot open input file to import 2D PDF data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de entrada para importar datos de PDF 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="238"/>
         <source>Could not find size for %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía encontrar tamaño para %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="239"/>
         <source>X variable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Variable X</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="239"/>
         <source>Y variable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Variable Y</translation>
     </message>
 </context>
 <context>
@@ -2673,70 +2714,70 @@ Please select valid stored data.</source>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="521"/>
         <source>Cannot find output object</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar objeto de salida</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="531"/>
         <source>2D Line ID not specified</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Línea 2D ID  no esta especificada</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="566"/>
         <source>Output filename empty</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El nombre del expediente de salida esta vacío</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="575"/>
         <source>Cannot create directory for output:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear directorio para salida: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="582"/>
         <source>Output directory is not writable:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir en el directorio de salida: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="592"/>
         <source>Cannot overwrite output file:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede sobrescribir en el expediente de salida: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="596"/>
         <source>Setting up output indexing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustando indexación de salida</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="604"/>
         <source>Cannot write to file %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir al expediente %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="622"/>
         <source>No files scanned</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay expedientes escaneados</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="630"/>
         <source>No traces found in any of the files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró rastros en ningúno de los expedientes</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="631"/>
         <source>No traces found in file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró rastros en el expediente</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="638"/>
         <source>Cannot complete file output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede completar expediente de salida</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect.cc" line="663"/>
         <source>Traces scanned</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastros estan escaneados</translation>
     </message>
 </context>
 <context>
@@ -2745,22 +2786,23 @@ Please select valid stored data.</source>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="90"/>
         <source>&apos;%1&apos; is a %2.
 These are not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&apos;%1&apos; es un %2. 
+Estos no estan soportados.</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="93"/>
         <source>named constant</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El nombre es constante</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="93"/>
         <source>recursive expression</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expresión recursiva</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="107"/>
         <source> Found variable: &apos;%1&apos;, which is not a header field</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encontró variable: &apos;%1&apos;, que no es un campo encabezamiento</translation>
     </message>
 </context>
 <context>
@@ -2768,84 +2810,86 @@ These are not supported.</source>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="74"/>
         <source>Reading scan data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Leendo datos de scan</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="82"/>
         <source>Cannot find provided input in data manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar entrada prevista en el gerente de datos</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="93"/>
         <source>Input must be scanned SEG-Y cube</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrada debe ser un cubo SEG-Y escaneado</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="101"/>
         <source>Cannot open SEG-Y scan file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir el expediente SEG-Y de scan</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="124"/>
         <source>2D seismics not supported</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sísmicas 2D no estan soportados</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="138"/>
         <source>Empty input scan</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Scan de entrada esta vacío</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="230"/>
         <source>No positions in input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay posiciones en la entrada</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="234"/>
         <source>Handling traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manejando rastros</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="328"/>
         <source>Cannot open output file:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de salida: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="376"/>
         <source>Cannot open input file:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de entrada: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="398"/>
         <source>Cannot read SEG-Y file header. Empty file? -
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer encabezamiento del expediente SEG-Y. ¿Expediente vacío? - %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="408"/>
         <source>Cannot read SEG-Y file details. Corrupt file? -
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer los detalles del expediente SEG-Y. ¿Expediente corrupto? - %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="421"/>
         <source>Cannot read trace.
 File: %1
 Trace: %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer rastro. 
+Expediente: %1 
+Rastro: %2</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="437"/>
         <source>Cannot write file header to: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir encabezamiento del expediente a: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyresorter.cc" line="446"/>
         <source>Cannot write trace to:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir rastro a: %1</translation>
     </message>
 </context>
 <context>
@@ -2853,17 +2897,17 @@ Trace: %2</source>
     <message>
         <location filename="../../../src/Seis/segyscanner.cc" line="211"/>
         <source>No valid file found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró expediente válido</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyscanner.cc" line="228"/>
         <source>Cannot open this file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir este expediente</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyscanner.cc" line="281"/>
         <source>Wrong #samples: %1(must be same as first file: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">#Muestras equivocadas: %1 (tiene que ser igual al primer expediente: %2)</translation>
     </message>
 </context>
 <context>
@@ -2872,13 +2916,13 @@ Trace: %2</source>
         <location filename="../../../src/Seis/segydirect2d.cc" line="336"/>
         <source>Cannot open 2D line file:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de línea 2D: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirect2d.cc" line="359"/>
         <source>Cannot write %1 trace to 2D line file:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir %1 rastro al expediente línea 2D: %2</translation>
     </message>
 </context>
 <context>
@@ -2886,33 +2930,33 @@ Trace: %2</source>
     <message>
         <location filename="../../../src/Seis/segydirecttr.cc" line="322"/>
         <source>Cannot open definition file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de definición</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirecttr.cc" line="330"/>
         <source>Empty input file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El expediente esta vacío</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirecttr.cc" line="350"/>
         <source>Could not open new definition file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía abrir nuevo expediente de definición</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirecttr.cc" line="362"/>
         <source>Cannot open new SEG-Y file:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir nuevo expediente SEG-Y: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirecttr.cc" line="384"/>
         <source>No (selected) trace found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró rastro (seleccionado)</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segydirecttr.cc" line="402"/>
         <source>Cannot write header for %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir encabezamiento para %1</translation>
     </message>
 </context>
 <context>
@@ -2920,34 +2964,36 @@ Trace: %2</source>
     <message>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="202"/>
         <source>Handling traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manejando rastros</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="210"/>
         <source>Cannot read file headers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer encabezamientos del expediente</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="223"/>
         <source>Cannot write to output file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir al expediente de salida</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="233"/>
         <source>Traces handled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastros estan manejados</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="247"/>
         <source>Unexpected early end of input file encountered</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Descubrimiento temprano y inesperado del final de un expediente de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segyhdrcalc.cc" line="253"/>
         <source>Cannot write to output file.
 Wrote %1 traces.
 Total: %2 available in input file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir al expediente de salida. 
+Escribió %1 rastros. 
+Total: %2 disponibles en el expediente de entrada</translation>
     </message>
 </context>
 <context>
@@ -2956,35 +3002,38 @@ Total: %2 available in input file</source>
         <location filename="../../../src/Seis/segytr.cc" line="137"/>
         <location filename="../../../src/Seis/segytr.cc" line="142"/>
         <source>Cannot read SEG-Y Text header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer encabezamiento de Texto SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="171"/>
         <source>No traces found in the SEG-Y file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró rastros en el expediente SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="184"/>
         <source>SEG-Y format &apos;4&apos; (fixed point/gain code) not supported</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">SEG-Y formato &apos;4&apos; (punto fijado/ganancia dódico) no esta soportado</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="216"/>
         <source>SEG-Y format &apos;%1&apos; found.
 	Replaced with &apos;1&apos; (4-byte floating point)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">no encontró SEG-Y formato &apos;%1&apos;. 
+--&gt; reemplazado con &apos;1&apos; (4-byte punto flotante)</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="224"/>
         <source>Bad position found. Such traces are ignored.
 First occurrence %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encontró posición malo. Esos rastro estan ignorados. 
+Primer occurido %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="229"/>
         <source>Zero sample interval found in trace header.
 First occurrence </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encontró cero intervalo muestro en el encabezamiento de rastros. 
+Primera occurencia </translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="238"/>
@@ -2993,7 +3042,11 @@ These are not supported.
 Will bluntly load them as rectangular coordinates (which they are most often).
 Beware that the positions may therefore not be correct.
 First occurrence %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encabezamiento de rastros indica Coordinades Geografías (byte 89). 
+Estos no estan soportados. 
+Estarán cargados como coordinades rectangulares (el mayor de veces así lo son). 
+Ten cuidado que los posiciones pueden estar incorrecto. 
+Primera occurencia %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="247"/>
@@ -3001,13 +3054,17 @@ First occurrence %1</source>
 This may be incorrect - please check the coordinate scaling.
 Overrule if necessary.
 Coordinate found: %1 at %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encontró un coordenada sospechosamente grande. 
+Puede ser incorrecto - por favor checa la escalada de la coordenada. 
+Debe anular sí es necesario. 
+La coordenada encontrada: %1 a %2</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="254"/>
         <source>SEG-Y REV.1 header indicates the presence of
 %1 Extended Textual File Header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encabezamiento SEG-Y REV 1 indica la presencia de 
+%1 Encabezamiento del Expediente Textual Extendido</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="257"/>
@@ -3015,57 +3072,63 @@ Coordinate found: %1 at %2</source>
 This is rarely correct. Please set the variable:
 OD_SEIS_SEGY_REV1_STANZAS
 if the file indeed contains these.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1. 
+Esto es raramente correcto. Por favor ajuste el variable: 
+OD-SEIS-SEGY-REV1-STANZAS 
+sí el expediente contiene estos de veraz.</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="263"/>
         <source>SEG-Y REV.1 header indicates variable length traces.
 OpendTect will assume fixed trace length anyway.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encabezamiento SEG-Y REV 1 indica rastros de longitud variables. 
+OpendTect va a asumir que la longitud de los rastros estan fijados.</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="367"/>
         <source>Cannot open coordinate file:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de coordenada: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="376"/>
         <source>Coordinate file bad (need at least 2 points):
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expediente de coordenada mala (necesita al menos 2 puntos): %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="414"/>
         <source>Cannot write SEG-Y textual header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir encabezamiento textual de SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="428"/>
         <source>Cannot write SEG-Y binary header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir encabezamiento binario de SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="574"/>
         <source>Cannot find a reasonable number of samples.
 Found: %1.
 Please &apos;Overrule&apos; to set something usable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar números de muestras razonables. 
+Número encontrado: %1. 
+Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="799"/>
         <source>Read error during trace skipping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lee error mientras saltando rastros</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="810"/>
         <source>Cannot write trace header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir encabezamiento de rastros</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="894"/>
         <source>Cannot write trace data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir datos de rastros</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="905"/>
@@ -3076,7 +3139,7 @@ Please &apos;Overrule&apos; to set something usable</source>
     <message>
         <location filename="../../../src/Seis/segytr.cc" line="906"/>
         <source>In file &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">En expediente &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -3084,18 +3147,18 @@ Please &apos;Overrule&apos; to set something usable</source>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="130"/>
         <source>Cannot create %1 for cross-plot selections. Check write permissions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear %1 para cross-plot selecciones. Checa permiso para escribir</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="147"/>
         <source>Cannot open Cross-plot Selection index.txt file for write</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente .txt de Cross-plot selección índice para escribir</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="163"/>
         <source>Error writing Cross-plot Selection index file.
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al escribir expediente Cross-plot Selección índice. %1</translation>
     </message>
 </context>
 <context>
@@ -3103,7 +3166,7 @@ Please &apos;Overrule&apos; to set something usable</source>
     <message>
         <location filename="../../../src/Seis/seiscube2linedata.cc" line="84"/>
         <source>Line geometry not available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay línea geometría</translation>
     </message>
 </context>
 <context>
@@ -3111,7 +3174,7 @@ Please &apos;Overrule&apos; to set something usable</source>
     <message>
         <location filename="../../../src/EMAttrib/gridcreator.cc" line="148"/>
         <source>Traces done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastros estan hechos</translation>
     </message>
 </context>
 <context>
@@ -3120,13 +3183,13 @@ Please &apos;Overrule&apos; to set something usable</source>
         <location filename="../../../src/EMAttrib/gridcreator.cc" line="119"/>
         <source>Error reading input trace
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al leer rastro de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/EMAttrib/gridcreator.cc" line="126"/>
         <source>Error writing output trace
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al escribir rastro de salida</translation>
     </message>
 </context>
 <context>
@@ -3134,17 +3197,17 @@ Please &apos;Overrule&apos; to set something usable</source>
     <message>
         <location filename="../../../src/Seis/seis2dlineio.cc" line="270"/>
         <source>Cannot find 2D Geometry of Line &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar Geometría 2D de Línea &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dlineio.cc" line="278"/>
         <source>No data in %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos en %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dlineio.cc" line="281"/>
         <source>Cannot create a reader for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear un lector para %1</translation>
     </message>
 </context>
 <context>
@@ -3152,52 +3215,52 @@ Please &apos;Overrule&apos; to set something usable</source>
     <message>
         <location filename="../../../include/Seis/seis2dto3d.h" line="114"/>
         <source>interpolating</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interpolando</translation>
     </message>
     <message>
         <location filename="../../../include/Seis/seis2dto3d.h" line="117"/>
         <source>Done</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hecho</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dto3d.cc" line="86"/>
         <source>No processing parameters found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró procesamiento de parámetros</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dto3d.cc" line="110"/>
         <source>2DDataSet not found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró Conjunto de Datos 2D</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dto3d.cc" line="115"/>
         <source>Output cube entry not found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró entrada para el cubo de salida</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dto3d.cc" line="122"/>
         <source>No volume processing area found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró una área para el procesamiento volumen</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dto3d.cc" line="138"/>
         <source> step is not set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paso no esta ajustado</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dto3d.cc" line="143"/>
         <source>Internal: Maximum velocity is not set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: la velocidad máxima no esta ajustada</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dto3d.cc" line="155"/>
         <source>Input dataset has no lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El conjunto de datos de entrada no tiene líneas</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dto3d.cc" line="226"/>
         <source>Can not write trace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir rastro</translation>
     </message>
 </context>
 <context>
@@ -3205,7 +3268,7 @@ Please &apos;Overrule&apos; to set something usable</source>
     <message>
         <location filename="../../../src/Seis/seisstor.cc" line="268"/>
         <source>TODO: create PS Reader from IOPar</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Que hacer: crear PS Reader de IOPar</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisstor.cc" line="283"/>
@@ -3218,7 +3281,7 @@ Please &apos;Overrule&apos; to set something usable</source>
     <message>
         <location filename="../../../src/Seis/seispreload.cc" line="37"/>
         <source>Cannot find ID in object manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar ID en objeto gerente</translation>
     </message>
 </context>
 <context>
@@ -3226,7 +3289,7 @@ Please &apos;Overrule&apos; to set something usable</source>
     <message>
         <location filename="../../../src/Seis/seisbayesclass.cc" line="57"/>
         <source>2D not implemented</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">2D no esta implementado</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisbayesclass.cc" line="59"/>
@@ -3307,7 +3370,7 @@ ID found is %2)</source>
     <message>
         <location filename="../../../src/Seis/seisbuf.cc" line="618"/>
         <source>Reading traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Leendo rastros</translation>
     </message>
 </context>
 <context>
@@ -3316,7 +3379,7 @@ ID found is %2)</source>
         <location filename="../../../src/Seis/seiscbvs2d.cc" line="394"/>
         <source>Cannot open 2D line file:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir línea 2D expediente: %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiscbvs2d.cc" line="417"/>
@@ -3330,7 +3393,7 @@ ID found is %2)</source>
     <message>
         <location filename="../../../src/Seis/seiscbvsps.cc" line="611"/>
         <source>Line %1 does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Línea %1 no existe</translation>
     </message>
 </context>
 <context>
@@ -3338,7 +3401,7 @@ ID found is %2)</source>
     <message>
         <location filename="../../../src/Seis/seiscbvsps.cc" line="387"/>
         <source>Directory &apos;%1&apos; contains no usable prestack data files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Directorio &apos;%1&apos; no tiene expedientes de datos de apilamientos válidos</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiscbvsps.cc" line="462"/>
@@ -3351,7 +3414,7 @@ ID found is %2)</source>
     <message>
         <location filename="../../../src/Seis/seiscbvsps.cc" line="206"/>
         <source>No matching files found in data store</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró expedientes comparados en base de datos</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiscbvsps.cc" line="266"/>
@@ -3385,7 +3448,7 @@ ID found is %2)</source>
     <message>
         <location filename="../../../src/Seis/seiscubeprov.cc" line="574"/>
         <source>Cannot read 2D geometry</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer geometría 2D</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiscubeprov.cc" line="580"/>
@@ -3398,7 +3461,7 @@ ID found is %2)</source>
     <message>
         <location filename="../../../src/Seis/seisiosimple.cc" line="274"/>
         <source>Handling traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Haciendo rastros</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisiosimple.cc" line="292"/>
@@ -3411,7 +3474,7 @@ ID found is %2)</source>
     <message>
         <location filename="../../../include/Seis/seisimpbpsif.h" line="76"/>
         <source>Shots handled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Haciendo tiros</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisimpbpsif.cc" line="53"/>
@@ -3439,7 +3502,7 @@ ID found is %2)</source>
     <message>
         <location filename="../../../include/uiSeis/uiseiscbvsimpfromothersurv.h" line="47"/>
         <source>Importing CBVS</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importando CBVS</translation>
     </message>
     <message>
         <location filename="../../../include/uiSeis/uiseiscbvsimpfromothersurv.h" line="49"/>
@@ -3462,7 +3525,7 @@ ID found is %2)</source>
     <message>
         <location filename="../../../src/Seis/seisimporter.cc" line="81"/>
         <source>Importing from %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importando de %1</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisimporter.cc" line="94"/>
@@ -3516,7 +3579,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../include/Seis/seis2dto3d.h" line="47"/>
         <source>interpolating</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interpolando</translation>
     </message>
     <message>
         <location filename="../../../include/Seis/seis2dto3d.h" line="52"/>
@@ -3529,7 +3592,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seisjobexecprov.cc" line="69"/>
         <source>Cannot find specified output seismic ID</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar sísmica ID de salida especificada</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisjobexecprov.cc" line="161"/>
@@ -3552,7 +3615,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seiscubeprov.cc" line="263"/>
         <source>No valid/selected trace found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró rastro válido/seleccionado</translation>
     </message>
 </context>
 <context>
@@ -3561,7 +3624,7 @@ For Simple File consider re-sorting with a text tool.
         <location filename="../../../src/Seis/seismerge.cc" line="44"/>
         <location filename="../../../src/Seis/seismerge.cc" line="99"/>
         <source>Nothing to merge</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay nada para fundir</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seismerge.cc" line="46"/>
@@ -3579,7 +3642,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../include/Seis/seispscubetr.h" line="59"/>
         <source>No write to PS Cube</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir a PS Cubo</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seispsioprov.cc" line="277"/>
@@ -3597,7 +3660,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seisimpps.cc" line="142"/>
         <source>Output data store not in object mgr</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Almacén de datos de salida no esta en objeto gerente</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisimpps.cc" line="149"/>
@@ -3610,7 +3673,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seispsmerge.cc" line="29"/>
         <source>Handling gathers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Haciendo conjuntos</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seispsmerge.cc" line="69"/>
@@ -3628,7 +3691,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seisrandlineto2d.cc" line="203"/>
         <source>Writing traces...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escribiendo rastros ...</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisrandlineto2d.cc" line="206"/>
@@ -3641,7 +3704,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seisscanner.cc" line="63"/>
         <source>Traces handled</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastros hechos</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisscanner.cc" line="222"/>
@@ -3675,7 +3738,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seiswrite.cc" line="449"/>
         <source>Announced trace is out of sequence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastro anunciado esta fuera la secuencia</translation>
     </message>
 </context>
 <context>
@@ -3683,7 +3746,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seissingtrcproc.cc" line="103"/>
         <source>Cannot find input seismic data object</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar datos de sísmica de entrada del objeto</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seissingtrcproc.cc" line="151"/>
@@ -3711,7 +3774,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seis2dlineio.cc" line="147"/>
         <source>Cannot reconstruct 2D filename</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede reconstruir el nombre del expediente en 2D</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dlineio.cc" line="153"/>
@@ -3729,7 +3792,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seisread.cc" line="96"/>
         <source>Info for input seismic data not found in Object Manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró información sobre datos de entrada sísmica en Objeto Gerente</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisread.cc" line="104"/>
@@ -3768,7 +3831,7 @@ For Simple File consider re-sorting with a text tool.
         <location filename="../../../src/AttributeEngine/attriboutput.cc" line="335"/>
         <location filename="../../../src/AttributeEngine/attriboutput.cc" line="416"/>
         <source>Cannot find seismic data with ID: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar datos sísmicas con ID: %1</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attriboutput.cc" line="374"/>
@@ -3791,7 +3854,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seistrctr.cc" line="161"/>
         <source>Empty first trace</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El primer rastro esta vacío</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seistrctr.cc" line="177"/>
@@ -3819,7 +3882,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/Seis/seiswrite.cc" line="133"/>
         <source>Info for output seismic data not found in Object Manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró información sobra datos de salida sísmica en Objeto Gerente</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seiswrite.cc" line="140"/>
@@ -3862,7 +3925,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/WellAttrib/welltieextractdata.cc" line="65"/>
         <source>No position extracted from well track</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay posición extraído del rastro pozo</translation>
     </message>
 </context>
 <context>
@@ -3870,7 +3933,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="442"/>
         <source>Cannot open specified file to write</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente especificado para escribir</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="460"/>
@@ -3888,7 +3951,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="385"/>
         <source>Cannot open specified file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente especificado</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="406"/>
@@ -3901,7 +3964,7 @@ For Simple File consider re-sorting with a text tool.
     <message>
         <location filename="../../../src/AttributeEngine/attribstorprovider.cc" line="103"/>
         <source>No dataset available for &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay conjunto de datos para &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attribstorprovider.cc" line="142"/>
@@ -3969,7 +4032,9 @@ For Simple File consider re-sorting with a text tool.
         <source>%1 - Formula cannot be resolved:
 &apos;%2&apos;
 Cannot find &apos;%3&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 - No se puede resolver la formula:
+&apos;%2&apos;
+No se puede encontrar &apos;%3&apos;</translation>
     </message>
 </context>
 <context>
@@ -3977,7 +4042,7 @@ Cannot find &apos;%3&apos;</source>
     <message>
         <location filename="../../../src/Strat/stratseqattrib.cc" line="373"/>
         <source>Extracting layer attributes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extrayendo atributos de capas</translation>
     </message>
     <message>
         <location filename="../../../src/Strat/stratseqattrib.cc" line="407"/>
@@ -4005,7 +4070,7 @@ Cannot find &apos;%3&apos;</source>
     <message>
         <location filename="../../../src/Strat/stratseqgen.cc" line="52"/>
         <source>Generating layer sequences</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Generando secuencias de capas</translation>
     </message>
 </context>
 <context>
@@ -4013,7 +4078,7 @@ Cannot find &apos;%3&apos;</source>
     <message>
         <location filename="../../../src/Strat/stratseqgen.cc" line="151"/>
         <source>Bad header found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encontró encabezamiento malo</translation>
     </message>
     <message>
         <location filename="../../../src/Strat/stratseqgen.cc" line="179"/>
@@ -4041,7 +4106,7 @@ Cannot find &apos;%3&apos;</source>
     <message>
         <location filename="../../../src/Strat/stratunitrepos.cc" line="101"/>
         <source>New, empty stratigraphic tree created</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nuevo, árbol de stratigrafía vacía esta creado</translation>
     </message>
     <message>
         <location filename="../../../src/Strat/stratunitrepos.cc" line="116"/>
@@ -4079,7 +4144,7 @@ Cannot find &apos;%3&apos;</source>
     <message>
         <location filename="../../../src/WellAttrib/stratsynth.cc" line="780"/>
         <source>Empty layer model.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modelo de capas vacío</translation>
     </message>
     <message>
         <location filename="../../../src/WellAttrib/stratsynth.cc" line="840"/>
@@ -4104,7 +4169,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/WellAttrib/stratsynthexp.cc" line="134"/>
         <source>Exporting syntheic data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportando datos sintéticos</translation>
     </message>
 </context>
 <context>
@@ -4112,7 +4177,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/VolumeProcessing/volprocsurfacelimitedfiller.cc" line="147"/>
         <source>Object does not exist, could not find entry for ID: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Objeto no existe, no podía encontrar entrada para ID: %1</translation>
     </message>
 </context>
 <context>
@@ -4120,7 +4185,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/Seis/synthseis.cc" line="67"/>
         <source>No valid wavelet given</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No dió onda válida</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/synthseis.cc" line="142"/>
@@ -4138,7 +4203,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/Seis/synthseis.cc" line="275"/>
         <source>Cannot make synthetics without wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear sintéticos sin ondas</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/synthseis.cc" line="278"/>
@@ -4178,7 +4243,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
         <location filename="../../../src/Network/issuereporter.cc" line="44"/>
         <location filename="../../../src/Network/issuereporter.cc" line="90"/>
         <source>%1 does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 no existe</translation>
     </message>
     <message>
         <location filename="../../../src/Network/issuereporter.cc" line="54"/>
@@ -4207,7 +4272,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/Basic/task.cc" line="113"/>
         <source>Working</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Trabajando</translation>
     </message>
     <message>
         <location filename="../../../src/Basic/task.cc" line="127"/>
@@ -4220,7 +4285,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/Basic/texttranslator.cc" line="163"/>
         <source>Cannot load %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede cargar %1</translation>
     </message>
     <message>
         <location filename="../../../src/Basic/texttranslator.cc" line="170"/>
@@ -4239,7 +4304,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
         <location filename="../../../src/Attributes/textureattrib.cc" line="92"/>
         <source>Minimum and Maximum values cannot be the same.
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valores de Mínimo y Máximo no pueden ser igual</translation>
     </message>
     <message>
         <location filename="../../../src/Attributes/textureattrib.cc" line="93"/>
@@ -4252,7 +4317,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/Seis/timedepthconv.cc" line="98"/>
         <source>Provided velocity is not usable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede usar la velociad dada</translation>
     </message>
 </context>
 <context>
@@ -4260,7 +4325,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/Algo/velocitycalc.cc" line="207"/>
         <source>Only RMS, Avg and Interval allowed for time based models</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Solo RMS, Avg y Interval tienen permiso para modelos basado de tiempo</translation>
     </message>
     <message>
         <location filename="../../../src/Algo/velocitycalc.cc" line="213"/>
@@ -4285,7 +4350,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/Seis/timedepthconv.cc" line="213"/>
         <source>Reading velocity model</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Leendo modelo de velocidad</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/timedepthconv.cc" line="214"/>
@@ -4299,7 +4364,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
         <location filename="../../../src/Algo/velocitycalc.cc" line="164"/>
         <location filename="../../../src/Algo/velocitycalc.cc" line="168"/>
         <source>Out of memory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fuera de la memoria</translation>
     </message>
 </context>
 <context>
@@ -4307,7 +4372,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
     <message>
         <location filename="../../../src/AttributeEngine/attriboutput.cc" line="1027"/>
         <source>Cannot find seismic data with ID: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar datos sísmicas con ID: %1</translation>
     </message>
     <message>
         <location filename="../../../src/AttributeEngine/attriboutput.cc" line="1034"/>
@@ -4326,7 +4391,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../src/Seis/seis2dlineio.cc" line="94"/>
         <source>Cannot reconstruct 2D filename</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede reconstruir el nombre de expediente en 2D</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dlineio.cc" line="97"/>
@@ -4339,7 +4404,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../src/General/unitofmeasure.cc" line="145"/>
         <source>Milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Milisegundos</translation>
     </message>
     <message>
         <location filename="../../../src/General/unitofmeasure.cc" line="147"/>
@@ -4388,7 +4453,7 @@ Cannot create 2D output.</source>
         <location filename="../../../src/uiSeis/uivelocityvolumeconversion.cc" line="26"/>
         <location filename="../../../src/uiSeis/uivelocityvolumeconversion.cc" line="27"/>
         <source>Velocity conversion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Converción de velocidad</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uivelocityvolumeconversion.cc" line="33"/>
@@ -4416,7 +4481,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../src/VolumeProcessing/velocitygridder.cc" line="594"/>
         <source>Cannot create a velocity source of type %1. %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear un fuente de velocidad de tipo %1 %2</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/velocitygridder.cc" line="604"/>
@@ -4429,7 +4494,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../include/Seis/timedepthconv.h" line="158"/>
         <source>Position scanned</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición escaneado</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/timedepthconv.cc" line="731"/>
@@ -4452,7 +4517,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../src/VolumeProcessing/volproclateralsmoother.cc" line="61"/>
         <source>Smothing laterally</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Suavizando laterlmente</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volproclateralsmoother.cc" line="62"/>
@@ -4465,7 +4530,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../plugins/MATLABLink/matlabstep.cc" line="188"/>
         <source>%1 not provided.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 no esta incluído</translation>
     </message>
     <message>
         <location filename="../../../plugins/MATLABLink/matlabstep.cc" line="196"/>
@@ -4478,7 +4543,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../plugins/MATLABLink/matlabstep.cc" line="147"/>
         <source>No MATLAB output generated</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay un MATLAB de salida generado</translation>
     </message>
 </context>
 <context>
@@ -4486,7 +4551,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../plugins/uiMATLABLink/uimatlabstep.cc" line="112"/>
         <source>Cannot read number of inputs from input file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer el número de entradas del expediente de entrada</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiMATLABLink/uimatlabstep.cc" line="150"/>
@@ -4499,7 +4564,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../plugins/uiVoxelConnectivityFilter/uivoxelconnectivityfilter.cc" line="50"/>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mantener</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiVoxelConnectivityFilter/uivoxelconnectivityfilter.cc" line="58"/>
@@ -4577,7 +4642,7 @@ Cannot create 2D output.</source>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocattrib.cc" line="70"/>
         <source>Cannot read processing setup.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer la disposición procesando</translation>
     </message>
     <message>
         <location filename="../../../src/VolumeProcessing/volprocattrib.cc" line="73"/>
@@ -4602,7 +4667,9 @@ Cannot create 2D output.</source>
         <source>Optical Stack only works on elements
 which define an horizontal direction:
 inlines, crosslines and random lines.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pila Óptica solamente funcione en elementos
+que definen una dirección horizontal:
+líneas, líneas cruzadas y líneas al azar.</translation>
     </message>
 </context>
 <context>
@@ -4610,7 +4677,7 @@ inlines, crosslines and random lines.</source>
     <message>
         <location filename="../../../src/Velocity/velocityvolumeconversion.cc" line="111"/>
         <source>Either input or output cannot be found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar entrada o salida</translation>
     </message>
     <message>
         <location filename="../../../src/Velocity/velocityvolumeconversion.cc" line="120"/>
@@ -4639,7 +4706,8 @@ inlines, crosslines and random lines.</source>
         <location filename="../../../src/Algo/raytrace1d.cc" line="458"/>
         <source>Can not compute layer %1
  most probably the velocity is not correct</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede computar capa %1
+probablemente la velocidad no es correcto</translation>
     </message>
 </context>
 <context>
@@ -4647,7 +4715,7 @@ inlines, crosslines and random lines.</source>
     <message>
         <location filename="../../../src/Seis/wavelet.cc" line="664"/>
         <source>TODO: WaveletAscIO::put not implemented</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Que hacer: WaveletAscIO::put no esta implementado</translation>
     </message>
 </context>
 <context>
@@ -4655,7 +4723,7 @@ inlines, crosslines and random lines.</source>
     <message>
         <location filename="../../../src/Seis/waveletextractor.cc" line="39"/>
         <source>Extracting wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extrayendo ondas</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/waveletextractor.cc" line="136"/>
@@ -4683,7 +4751,7 @@ inlines, crosslines and random lines.</source>
     <message>
         <location filename="../../../src/Well/wellelasticmodelcomputer.cc" line="64"/>
         <source>Internal: Velocity log must be set first. Another log was set first</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interno: log de Velocidad deber ser hecho primero. Un otro log esta hecho primero</translation>
     </message>
     <message>
         <location filename="../../../src/Well/wellelasticmodelcomputer.cc" line="76"/>
@@ -4753,7 +4821,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/Well/wellextractdata.cc" line="401"/>
         <source>Please Enter a valid step value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor Entra un paso de valor válido</translation>
     </message>
 </context>
 <context>
@@ -4761,7 +4829,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/Well/wellextractdata.cc" line="660"/>
         <source>Extracting &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extrayendo &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -4769,7 +4837,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/Well/wellextractdata.cc" line="1065"/>
         <source>No log found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró log</translation>
     </message>
     <message>
         <location filename="../../../src/Well/wellextractdata.cc" line="1068"/>
@@ -4802,7 +4870,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/Well/wellextractdata.cc" line="470"/>
         <source>No well logs specified</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay pozos especificados</translation>
     </message>
 </context>
 <context>
@@ -4810,7 +4878,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/Well/wellextractdata.cc" line="152"/>
         <source>Top distance is equal to bottom distance</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La distancia superior esta igual a la distancia inferior</translation>
     </message>
 </context>
 <context>
@@ -4818,7 +4886,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/Well/wellt2dtransform.cc" line="116"/>
         <source>Z Transform: Cannot find Well with ID %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Z Transformar: No se puede encontrar Pozo con ID %1</translation>
     </message>
     <message>
         <location filename="../../../src/Well/wellt2dtransform.cc" line="142"/>
@@ -4831,7 +4899,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiecontrolview.cc" line="203"/>
         <source>Display Markers/Horizons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar Marcadores/Horizontes</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiecontrolview.cc" line="211"/>
@@ -4855,7 +4923,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/General/ziputils.cc" line="126"/>
         <source>Unzip failed in the command: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abriendo falló en el comando: %1</translation>
     </message>
 </context>
 <context>
@@ -4863,7 +4931,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackprocessortransl.cc" line="98"/>
         <source>Cannot read from input file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer del expediente de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/PreStackProcessing/prestackprocessortransl.cc" line="100"/>
@@ -4891,7 +4959,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/EarthModel/emsurfauxdataio.cc" line="283"/>
         <source>Error in reading data characteristics (int64)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al leer los datos característicos (int64)</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emsurfauxdataio.cc" line="292"/>
@@ -4905,7 +4973,7 @@ Invalid values will be interpolated.</source>
         <location filename="../../../src/EarthModel/emsurfauxdataio.cc" line="141"/>
         <location filename="../../../src/EarthModel/emsurfauxdataio.cc" line="180"/>
         <source>Error in writing data information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error al escribir datos de información</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emsurfauxdataio.cc" line="177"/>
@@ -4923,7 +4991,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/EarthModel/emsurfaceio.cc" line="269"/>
         <source>Inconsistency in horizon file header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Inconsecuencia en cabezamiento del expediente del horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emsurfaceio.cc" line="323"/>
@@ -4961,7 +5029,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/EarthModel/emsurfaceio.cc" line="1659"/>
         <source>Gridlines written</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Líneas cuadrículas estan escribido</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/emsurfaceio.cc" line="1686"/>
@@ -4975,7 +5043,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/EarthModel/lmkemfaulttransl.cc" line="65"/>
         <source>No format file name specified</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay un nombre de expediente de formato especificado</translation>
     </message>
     <message>
         <location filename="../../../src/EarthModel/lmkemfaulttransl.cc" line="69"/>
@@ -5009,7 +5077,7 @@ Invalid values will be interpolated.</source>
         <location filename="../../../src/Basic/od_iostream.cc" line="368"/>
         <location filename="../../../src/Basic/od_iostream.cc" line="383"/>
         <source>Out of memory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fuera de la memoria</translation>
     </message>
     <message>
         <location filename="../../../src/Basic/od_iostream.cc" line="371"/>
@@ -5075,7 +5143,7 @@ Invalid values will be interpolated.</source>
     <message>
         <location filename="../../../src/uiIo/ui2dgeomman.cc" line="42"/>
         <source>Manage 2D Geometry</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Geometría 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/ui2dgeomman.cc" line="261"/>
@@ -5094,7 +5162,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="130"/>
         <source>Prefix for parallel lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Prefijo para líneas paralelas</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="131"/>
@@ -5107,7 +5175,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="168"/>
         <source>In-lines (comma separated)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Líneas (coma separada)</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="181"/>
@@ -5120,7 +5188,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="338"/>
         <source>Parallel line spacing %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Línea paralela espaciado %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="354"/>
@@ -5143,7 +5211,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiIo/ui2dsip.cc" line="157"/>
         <source>Coordinate ranges are less than one trace distance</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Coordinar rangos son menos que una distancia rastra</translation>
     </message>
 </context>
 <context>
@@ -5151,7 +5219,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackagc.cc" line="36"/>
         <source>AGC setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">AGC disposición</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackagc.cc" line="46"/>
@@ -5174,7 +5242,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldisplaymarkeredit.cc" line="37"/>
         <source>Edit Marker</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar Marcador</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldisplaymarkeredit.cc" line="37"/>
@@ -5197,7 +5265,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiVelocity/uiselectvelocityfunction.cc" line="177"/>
         <source>Add velocity function source</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir fuente de función de velocidad</translation>
     </message>
 </context>
 <context>
@@ -5205,7 +5273,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiTools/uiamplspectrum.cc" line="38"/>
         <source>Amplitude Spectrum</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Espectro Amplitud</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiamplspectrum.cc" line="53"/>
@@ -5263,7 +5331,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackanglemute.cc" line="308"/>
         <source>Frequency where the cosine tapering window starts: Amplitude=input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frecuencia donde el coseno ventana empieza: Amplitud = entrada</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackanglemute.cc" line="310"/>
@@ -5276,7 +5344,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackanglemute.cc" line="40"/>
         <source>Input Velocity</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Velocidad de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackanglemute.cc" line="46"/>
@@ -5314,7 +5382,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackanglemute.cc" line="332"/>
         <source>AngleMute setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Disposición de AngleMute</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackanglemute.cc" line="341"/>
@@ -5342,7 +5410,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackanglemutecomputer.cc" line="31"/>
         <source>Angle Mute Computer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Computadora Ángulo Mudo</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackanglemutecomputer.cc" line="69"/>
@@ -5355,7 +5423,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiTools/uiarray2dchg.cc" line="23"/>
         <source>Filter type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo de filtro</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiarray2dchg.cc" line="24"/>
@@ -5378,7 +5446,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiTools/uiarray2dchg.cc" line="47"/>
         <source>Filter parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parámetros de filtro</translation>
     </message>
 </context>
 <context>
@@ -5386,7 +5454,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiTools/uiarray1dinterpol.cc" line="22"/>
         <source>Array2D Interpolation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Colección 2D Interpolación</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiarray1dinterpol.cc" line="32"/>
@@ -5424,7 +5492,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="30"/>
         <source>Array2D Interpolation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Colección 2D Interpolación</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="43"/>
@@ -5462,7 +5530,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiVis/uiarrowdlg.cc" line="25"/>
         <source>Arrow properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades de flechas</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uiarrowdlg.cc" line="40"/>
@@ -5475,7 +5543,7 @@ This will invalidate all other data associated with this geometry</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattr2dsel.cc" line="51"/>
         <source>Select Dataset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona Conjunto de Datos</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattr2dsel.cc" line="241"/>
@@ -5489,7 +5557,7 @@ This will invalidate all other data associated with this geometry</source>
         <location filename="../../../src/uiAttributes/uiattrdesced.cc" line="49"/>
         <location filename="../../../src/uiAttributes/uiattrdesced.cc" line="121"/>
         <source>The suggested attribute for input %1 is incompatible with the input (wrong datatype)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El atributo sugerido para entrada %1 es incapaz con la entrada (tipo de datos equivocado)</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattrdesced.cc" line="294"/>
@@ -5509,7 +5577,7 @@ Please select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uiattremout.cc" line="58"/>
         <source>Please select the output quantity</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona la cantidad de salida</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uiattremout.cc" line="72"/>
@@ -5523,7 +5591,7 @@ Please select valid stored data as input.</source>
         <location filename="../../../src/uiAttributes/uiattrinpdlg.cc" line="31"/>
         <location filename="../../../src/uiAttributes/uiattrinpdlg.cc" line="81"/>
         <source>Attribute set definition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Definición de conjunto de atributos</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattrinpdlg.cc" line="32"/>
@@ -5553,7 +5621,7 @@ Please select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattrsel.cc" line="768"/>
         <source>Please select the input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona la entrada</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattrsel.cc" line="774"/>
@@ -5566,7 +5634,7 @@ Please select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattrsel.cc" line="283"/>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filtrar</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattrsel.cc" line="286"/>
@@ -5594,7 +5662,7 @@ Please select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattrsetman.cc" line="29"/>
         <source>Manage Attribute Sets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Conjunto de Atributos</translation>
     </message>
 </context>
 <context>
@@ -5602,7 +5670,7 @@ Please select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uiattrsurfout.cc" line="52"/>
         <source>Fill undefined parts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Llenar partes indefinidos</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uiattrsurfout.cc" line="96"/>
@@ -5635,7 +5703,7 @@ Please select valid stored data as input.</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uiattrtrcselout.cc" line="107"/>
         <source>Set Extra Options</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner opciónes extras</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uiattrtrcselout.cc" line="111"/>
@@ -5735,7 +5803,7 @@ want to continue and overwrite existing attribute?</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattrvolout.cc" line="72"/>
         <source>Create Data Attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Datos de Atributo</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattrvolout.cc" line="73"/>
@@ -5784,7 +5852,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattribcrossplot.cc" line="48"/>
         <source>Attribute cross-plotting</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atributo cross-plot</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattribcrossplot.cc" line="49"/>
@@ -5813,7 +5881,8 @@ Do you want to continue?</source>
         <location filename="../../../src/uiAttributes/uiattribsetbuild.cc" line="89"/>
         <source>Seismic Attribute Set not saved.
 Do you want to save it now?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conjunto Atributo Sísmica no esta guardado.
+¿Quiere guardarlo ahora?</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattribsetbuild.cc" line="91"/>
@@ -5837,7 +5906,7 @@ Attribute Set is %1. Current definition is %2</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattrdescseted.cc" line="83"/>
         <source>Attribute Set 2D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conjunto de Atributos 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattrdescseted.cc" line="84"/>
@@ -6093,7 +6162,7 @@ Save now?</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattribpartserv.cc" line="503"/>
         <source>Which attributes do you want to use?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¿Cuales atributos quiere usar?</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattribpartserv.cc" line="522"/>
@@ -6147,7 +6216,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiVis/uiattribtransdlg.cc" line="19"/>
         <source>Attribute transparency</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Transparencia de atributo</translation>
     </message>
 </context>
 <context>
@@ -6155,7 +6224,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiAttributes/uiautoattrdescset.cc" line="44"/>
         <source>Auto-load Attribute Set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cargar Conjunto de Atributo automaticamente</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiautoattrdescset.cc" line="45"/>
@@ -6198,7 +6267,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiTools/uicolortable.cc" line="34"/>
         <source>Ranges/Clipping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rangos/Recortar</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uicolortable.cc" line="43"/>
@@ -6231,7 +6300,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../plugins/uiBasemap/uibasemaptbmgr.cc" line="129"/>
         <source>Scale Properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades de escala</translation>
     </message>
 </context>
 <context>
@@ -6239,7 +6308,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../plugins/uiBasemap/uibasemaptbmgr.cc" line="67"/>
         <source>Remove selected items</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Borrar artículos seleccionados</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiBasemap/uibasemaptbmgr.cc" line="77"/>
@@ -6292,7 +6361,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../plugins/uiBasemap/uibasemappi.cc" line="90"/>
         <source>Basemap ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mapa base</translation>
     </message>
 </context>
 <context>
@@ -6300,7 +6369,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiIo/uibatchhostsdlg.cc" line="42"/>
         <source>Setup Multi Machine Processing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configurar Multi Maquina Procesamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uibatchhostsdlg.cc" line="62"/>
@@ -6399,7 +6468,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiTools/uibatchjobdispatcher.cc" line="258"/>
         <source>Cannot start required program</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede iniciar el programa necesario</translation>
     </message>
 </context>
 <context>
@@ -6407,7 +6476,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiTools/uibatchjobdispatcher.cc" line="84"/>
         <source>Execute in Batch</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ejecutar en Lote</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uibatchjobdispatcher.cc" line="92"/>
@@ -6420,7 +6489,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uibatchprestackproc.cc" line="29"/>
         <source>Prestack Processing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Procesamiento antes del apilamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uibatchprestackproc.cc" line="111"/>
@@ -6443,7 +6512,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiIo/uibatchprogs.cc" line="170"/>
         <source>Run batch program</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ejecutar programa de lote</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uibatchprogs.cc" line="171"/>
@@ -6477,7 +6546,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocbatchsetup.cc" line="34"/>
         <source>Volume Builder: Create output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Creador Volumen: Crear salida</translation>
     </message>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocbatchsetup.cc" line="42"/>
@@ -6490,7 +6559,7 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../src/uiSeis/uibatchtime2depthsetup.cc" line="27"/>
         <source>Time to depth volume conversion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conversión del volumen de tiempo a profundidad</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uibatchtime2depthsetup.cc" line="28"/>
@@ -6539,7 +6608,8 @@ Do you want to use the partially loaded/computed data?</source>
         <location filename="../../../src/uiTools/uibinidtable.cc" line="85"/>
         <source>Position %1 is probably wrong.
 Do you wish to discard it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición %1 probablemente es equivocado.
+¿Desea descartarlo?</translation>
     </message>
 </context>
 <context>
@@ -6547,7 +6617,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocbodyfiller.cc" line="43"/>
         <source>Input Body</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parte Principal de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocbodyfiller.cc" line="49"/>
@@ -6601,7 +6671,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uibodyoperatordlg.cc" line="42"/>
         <source>Apply Body Operations</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aplicar operaciónes del Parte Principal</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uibodyoperatordlg.cc" line="49"/>
@@ -6674,7 +6744,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uibodyposprovgroup.cc" line="34"/>
         <source>Inside</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dentro</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uibodyposprovgroup.cc" line="35"/>
@@ -6692,7 +6762,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uibodyregiondlg.cc" line="633"/>
         <source>Region constructor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Constructor del región</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uibodyregiondlg.cc" line="633"/>
@@ -6770,7 +6840,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiTools/uibuildlistfromlist.cc" line="188"/>
         <source>Open stored set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abrir conjunto almacenado</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uibuildlistfromlist.cc" line="190"/>
@@ -6798,7 +6868,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiWell/uibulkwellimp.cc" line="447"/>
         <source>Multi-Well Import: D2TModel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pozo-Multi Importar: D2TModelo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uibulkwellimp.cc" line="492"/>
@@ -6826,7 +6896,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uibulkhorizonimp.cc" line="90"/>
         <source>Import Multiple Horizons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar múltiples horizontes</translation>
     </message>
 </context>
 <context>
@@ -6834,7 +6904,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiWell/uibulkwellimp.cc" line="227"/>
         <source>Multi-Well Import: Logs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pozo-Multi Importar: Logs</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uibulkwellimp.cc" line="233"/>
@@ -6887,7 +6957,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiWell/uibulkwellimp.cc" line="314"/>
         <source>Multi-Well Import: Markers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pozo-Multi Importar: Marcadores</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uibulkwellimp.cc" line="362"/>
@@ -6915,7 +6985,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiWell/uibulkwellimp.cc" line="49"/>
         <source>Multi-Well Import: Well Tracks</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pozo-Multi Importar: Rastros de Pozos</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uibulkwellimp.cc" line="135"/>
@@ -6948,7 +7018,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswriteopts.cc" line="77"/>
         <source>Storage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Almacenamiento</translation>
     </message>
 </context>
 <context>
@@ -6956,7 +7026,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswriteopts.cc" line="32"/>
         <source>Storage</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Almacenamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswriteopts.cc" line="38"/>
@@ -6969,7 +7039,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uicalcpoly2horvol.cc" line="38"/>
         <source>Calculate volume</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Calcular volumen</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uicalcpoly2horvol.cc" line="73"/>
@@ -7007,7 +7077,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocchain.cc" line="194"/>
         <source>Volume Builder: Setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Creador Volumen: Configurar</translation>
     </message>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocchain.cc" line="202"/>
@@ -7096,7 +7166,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uichangesurfacedlg.cc" line="132"/>
         <source>Not enough horizon data for section %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay suficientes datos  para sección %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uichangesurfacedlg.cc" line="151"/>
@@ -7114,7 +7184,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiecheckshotedit.cc" line="78"/>
         <source>Apply Checkshot correction</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aplicar Tiros de Prueba corrección</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiecheckshotedit.cc" line="79"/>
@@ -7172,7 +7242,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiIo/uiclusterjobprov.cc" line="165"/>
         <source>Cluster job generator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Trabajo clúster generador</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiclusterjobprov.cc" line="176"/>
@@ -7240,7 +7310,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiSeis/uiclusterproc.cc" line="218"/>
         <source>Cluster Processing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Procesamiento clúster</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiclusterproc.cc" line="218"/>
@@ -7263,7 +7333,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiCmdDriver/uicmddriverdlg.cc" line="324"/>
         <source>Invalid command file selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comando expediente seleccionado es inválido</translation>
     </message>
     <message>
         <location filename="../../../src/uiCmdDriver/uicmddriverdlg.cc" line="332"/>
@@ -7286,7 +7356,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiCmdDriver/uicmddriverdlg.cc" line="40"/>
         <source>Command interaction</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comando interacción</translation>
     </message>
 </context>
 <context>
@@ -7294,7 +7364,7 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiTools/uicoltabimport.cc" line="38"/>
         <source>Import Color Tables</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Tabla Colores</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uicoltabimport.cc" line="45"/>
@@ -7338,7 +7408,7 @@ Overwrite?</source>
     <message>
         <location filename="../../../src/uiTools/uicoltabmarker.cc" line="281"/>
         <source>Remove color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Borrar color</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uicoltabmarker.cc" line="282"/>
@@ -7361,7 +7431,7 @@ Overwrite?</source>
     <message>
         <location filename="../../../src/uiTools/uicoltabmarker.cc" line="39"/>
         <source>Manage Marker</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Marcador</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uicoltabmarker.cc" line="40"/>
@@ -7394,7 +7464,7 @@ Overwrite?</source>
     <message>
         <location filename="../../../src/uiStrat/uistratdisplay.cc" line="130"/>
         <source>View Columns</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ver Columnas</translation>
     </message>
 </context>
 <context>
@@ -7402,7 +7472,7 @@ Overwrite?</source>
     <message>
         <location filename="../../../src/uiVis/uiviscoltabed.cc" line="135"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Salir</translation>
     </message>
 </context>
 <context>
@@ -7411,7 +7481,7 @@ Overwrite?</source>
         <location filename="../../../include/uiBase/uicolor.h" line="85"/>
         <location filename="../../../src/uiBase/uicolor.cc" line="73"/>
         <source>Select color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seleccionar color</translation>
     </message>
     <message>
         <location filename="../../../src/uiBase/uicolor.cc" line="154"/>
@@ -7424,7 +7494,7 @@ Overwrite?</source>
     <message>
         <location filename="../../../src/uiTools/uicolortable.cc" line="414"/>
         <source>Ranges/Clipping ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rangos/Recortar</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uicolortable.cc" line="418"/>
@@ -7442,7 +7512,7 @@ Overwrite?</source>
     <message>
         <location filename="../../../src/uiTools/uicoltabman.cc" line="52"/>
         <source>Manage Color Tables</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Tabla Colores</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uicoltabman.cc" line="53"/>
@@ -7527,7 +7597,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uicontourtreeitem.cc" line="579"/>
         <source>Invalid step value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valor de paso inválido</translation>
     </message>
 </context>
 <context>
@@ -7535,7 +7605,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uicontourtreeitem.cc" line="605"/>
         <source>Contour areas</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Áreas de contorno</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uicontourtreeitem.cc" line="781"/>
@@ -7558,7 +7628,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uicontourtreeitem.cc" line="153"/>
         <source>Contour elements added</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Elementos de contorno añadido</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uicontourtreeitem.cc" line="154"/>
@@ -7571,7 +7641,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiecontrolview.cc" line="67"/>
         <source>Set display parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner mostrar parámetros</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiecontrolview.cc" line="68"/>
@@ -7614,7 +7684,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiIo/uiconvpos.cc" line="30"/>
         <source>Convert Positions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Convertir Posiciónes</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiconvpos.cc" line="34"/>
@@ -7673,7 +7743,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiAttributes/uiconvolveattrib.cc" line="72"/>
         <source>Filter type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo de filtro</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiconvolveattrib.cc" line="77"/>
@@ -7691,7 +7761,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiIo/uicrdevenv.cc" line="44"/>
         <source>Create Work Enviroment</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Trabajo Medio Ambiente</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uicrdevenv.cc" line="45"/>
@@ -7790,7 +7860,7 @@ Instead, a directory like &apos;My Documents&apos; would be OK.</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="736"/>
         <source>Following lines are already there. Do you want to overwrite? Lines : </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Las siguientes líneas ya estan ahí.¿Quiere sobrescribir? Líneas: </translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="772"/>
@@ -7803,7 +7873,7 @@ Instead, a directory like &apos;My Documents&apos; would be OK.</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uicreateattriblogdlg.cc" line="55"/>
         <source>Create Attribute Log</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Log Atributo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uicreateattriblogdlg.cc" line="99"/>
@@ -7848,7 +7918,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location filename="../../../src/uiVis/uivisdatapointsetdisplaymgr.cc" line="138"/>
         <source>Create new Body</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Parte Principal nuevo</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivisdatapointsetdisplaymgr.cc" line="146"/>
@@ -7866,7 +7936,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location filename="../../../src/uiIo/uicreatedpspdf.cc" line="66"/>
         <source>View/Edit after creation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ver/Editar despues de crear</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uicreatedpspdf.cc" line="80"/>
@@ -7899,7 +7969,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uicreatehorizon.cc" line="41"/>
         <source>Z Value </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valor Z</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uicreatehorizon.cc" line="51"/>
@@ -7932,7 +8002,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uicreatelogcubedlg.cc" line="30"/>
         <source>Create Log Cube</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Cubo Log</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uicreatelogcubedlg.cc" line="31"/>
@@ -7955,7 +8025,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uicreatelogcubedlg.cc" line="87"/>
         <source>Duplicate trace around the track</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Duplicar rastros sobre la pista</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uicreatelogcubedlg.cc" line="97"/>
@@ -7978,7 +8048,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location filename="../../../src/uiVis/uivisdatapointsetdisplaymgr.cc" line="193"/>
         <source>Selection Group</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Grupo de selección</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivisdatapointsetdisplaymgr.cc" line="210"/>
@@ -7991,7 +8061,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location filename="../../../src/uiAttributes/uicrossattrevaluatedlg.cc" line="36"/>
         <source>Cross attribute parameter evaluation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cruzar evaluación del parámetro atributo</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uicrossattrevaluatedlg.cc" line="38"/>
@@ -8024,7 +8094,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltieview.cc" line="430"/>
         <source>Lags (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Retrasos (ms)</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltieview.cc" line="431"/>
@@ -8042,7 +8112,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldlgs.cc" line="632"/>
         <source> Time is TWT</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tiempo es TWT</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldlgs.cc" line="637"/>
@@ -8159,7 +8229,7 @@ Auto-correct?
     <message>
         <location filename="../../../src/uiWell/uid2tmodelgrp.cc" line="59"/>
         <source>Is this checkshot data?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¿Estos son datos de tiros de prueba?</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uid2tmodelgrp.cc" line="86"/>
@@ -8204,7 +8274,7 @@ Change your format definition or edit your data or press cancel.</source>
     <message>
         <location filename="../../../src/uiIo/uidpsaddcolumndlg.cc" line="26"/>
         <source>Add Column</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir Columna</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidpsaddcolumndlg.cc" line="34"/>
@@ -8232,7 +8302,7 @@ Change your format definition or edit your data or press cancel.</source>
     <message>
         <location filename="../../../src/uiIo/uidpscrossplotpropdlg.cc" line="763"/>
         <source>Cannot put negative size for size.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede poner tamaño por tamaño negativo</translation>
     </message>
 </context>
 <context>
@@ -8240,7 +8310,7 @@ Change your format definition or edit your data or press cancel.</source>
     <message>
         <location filename="../../../src/uiIo/uidpscrossplotpropdlg.cc" line="158"/>
         <source>Clipping percentage must be between 0 and 100</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recortar porcentaje tiene que estar entre 0 y 100</translation>
     </message>
 </context>
 <context>
@@ -8248,7 +8318,7 @@ Change your format definition or edit your data or press cancel.</source>
     <message>
         <location filename="../../../plugins/uiDPSDemo/uidpsdemo.cc" line="38"/>
         <source>DataPointSet demo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Demostración del Conjunto de Datos Puntos</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiDPSDemo/uidpsdemo.cc" line="39"/>
@@ -8276,7 +8346,7 @@ Change your format definition or edit your data or press cancel.</source>
     <message>
         <location filename="../../../src/uiIo/uidpscrossplotpropdlg.cc" line="803"/>
         <source>Current Number of Points (including undefined values) %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Números de Puntos actuales (incluyendo valores indefinidos) %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidpscrossplotpropdlg.cc" line="889"/>
@@ -8289,7 +8359,7 @@ Change your format definition or edit your data or press cancel.</source>
     <message>
         <location filename="../../../src/uiIo/uidpsoverlayattrdlg.cc" line="22"/>
         <source>Overlay Properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cubrir Propiedades</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidpsoverlayattrdlg.cc" line="23"/>
@@ -8312,7 +8382,7 @@ Change your format definition or edit your data or press cancel.</source>
     <message>
         <location filename="../../../src/uiIo/uidpsrefineseldlg.cc" line="28"/>
         <source>Refine selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Refinar selección</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidpsrefineseldlg.cc" line="29"/>
@@ -8350,7 +8420,7 @@ Change your format definition or edit your data or press cancel.</source>
     <message>
         <location filename="../../../src/uiIo/uidpsselgrpdlg.cc" line="28"/>
         <source>Selection Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustes de selección</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidpsselgrpdlg.cc" line="31"/>
@@ -8399,7 +8469,8 @@ Change your format definition or edit your data or press cancel.</source>
         <location filename="../../../src/uiIo/uidpsselectednessdlg.cc" line="45"/>
         <source>A new column will be added with selectedness values.
 Specify the name of the new column.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadirá una nueva columna para seleccionar valores.
+Especifica el nombre de la nueva columna.</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidpsselectednessdlg.cc" line="53"/>
@@ -8432,7 +8503,7 @@ Specify the name of the new column.</source>
     <message>
         <location filename="../../../src/uiIo/uidpscrossplotpropdlg.cc" line="396"/>
         <source>Expression for Y%1 is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expressión para Y%1 es inválido</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidpscrossplotpropdlg.cc" line="407"/>
@@ -8455,7 +8526,7 @@ Specify the name of the new column.</source>
     <message>
         <location filename="../../../plugins/uiImpGPR/uiimpgprpi.cc" line="142"/>
         <source>Please enter the input file name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor entra el nombre del expediente de entrada</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiImpGPR/uiimpgprpi.cc" line="144"/>
@@ -8473,7 +8544,7 @@ Specify the name of the new column.</source>
     <message>
         <location filename="../../../src/uiIo/uidatapointset.cc" line="300"/>
         <source>Save data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar datos</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidatapointset.cc" line="302"/>
@@ -8659,7 +8730,7 @@ or by holding down the shift key when clicking.</source>
     <message>
         <location filename="../../../src/uiIo/uidatapointset.cc" line="141"/>
         <source>Extracted data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos extraídos</translation>
     </message>
 </context>
 <context>
@@ -8667,7 +8738,7 @@ or by holding down the shift key when clicking.</source>
     <message>
         <location filename="../../../src/uiIo/uidatapointsetcrossplotwin.cc" line="83"/>
         <source>Percentage of points displayed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Porcentaje de puntos mostrado</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidatapointsetcrossplotwin.cc" line="89"/>
@@ -8785,7 +8856,7 @@ Note: Density plot cannot have Y2 axis</source>
         <location filename="../../../src/uiIo/uidatapointsetcrossplot.cc" line="99"/>
         <location filename="../../../src/uiIo/uidatapointsetcrossplot.cc" line="172"/>
         <source>Calculating Density</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Calcular Densidad</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidatapointsetcrossplot.cc" line="286"/>
@@ -8798,7 +8869,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiIo/uidatapointsetman.cc" line="33"/>
         <source>Manage Cross-plot Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Datos Cross-plot</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidatapointsetman.cc" line="84"/>
@@ -8811,7 +8882,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiIo/uidatapointsetmerger.cc" line="382"/>
         <source>Choose a proper horizontal search radius</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Elegir un horizonte radio de búsqueda adecuado</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidatapointsetmerger.cc" line="387"/>
@@ -8824,7 +8895,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiIo/uidatapointset.cc" line="1404"/>
         <source>Please select the output file name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona el nombre del expediente de salida</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uidatapointset.cc" line="1409"/>
@@ -8837,7 +8908,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiODMain/uiodvolproctreeitem.cc" line="37"/>
         <source>Select setup ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona disposición</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodvolproctreeitem.cc" line="135"/>
@@ -8850,7 +8921,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiAttributes/uideltaresampleattrib.cc" line="33"/>
         <source>Input is periodic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrada es periódico</translation>
     </message>
 </context>
 <context>
@@ -8858,7 +8929,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiSeis/uiveldesc.cc" line="510"/>
         <source>Velocity Model</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modelo de Velocidad</translation>
     </message>
 </context>
 <context>
@@ -8866,7 +8937,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiAttributes/uidipfilterattrib.cc" line="60"/>
         <source>Filter size</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tamaño filtro</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uidipfilterattrib.cc" line="82"/>
@@ -8899,7 +8970,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiVis/uivisdirlightdlg.cc" line="35"/>
         <source>Light options</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Opciónes de luz</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivisdirlightdlg.cc" line="36"/>
@@ -8984,7 +9055,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldisplaymarkeredit.cc" line="89"/>
         <source>Edit Markers Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar Diálogo de Marcadores</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldisplaymarkeredit.cc" line="99"/>
@@ -9034,7 +9105,7 @@ Note: Density plot cannot have Y2 axis</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiemauxdatasel.cc" line="35"/>
         <source>Horizon/Attributes Selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selección de Horizonte/Atributos</translation>
     </message>
 </context>
 <context>
@@ -9043,7 +9114,8 @@ Note: Density plot cannot have Y2 axis</source>
         <location filename="../../../src/uiEarthModel/uiempartserv.cc" line="546"/>
         <source>%1 &apos;%2&apos; has changed.
 Do you want to save it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 &apos;%2&apos; ha cambiado.
+¿Quiere Guardarlo?</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiempartserv.cc" line="696"/>
@@ -9126,7 +9198,7 @@ and that the mouse pointer is in the scene.</source>
     <message>
         <location filename="../../../src/uiVelocity/uiselectvelocityfunction.cc" line="229"/>
         <source>Edit velocity functions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar funciónes de velocidad</translation>
     </message>
 </context>
 <context>
@@ -9134,7 +9206,7 @@ and that the mouse pointer is in the scene.</source>
     <message>
         <location filename="../../../src/uiIo/uieditpdf.cc" line="758"/>
         <source>A zero correlation is not a correlation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Una cero correlación no es una correlación</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uieditpdf.cc" line="798"/>
@@ -9168,7 +9240,7 @@ Do you wish to leave uncorrelated variables?</source>
     <message>
         <location filename="../../../src/uiIo/uimanprops.cc" line="254"/>
         <source>Please un-check the &apos;Fixed Definition&apos; - or provide one</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor desmarque la &apos;Definición Fijada&apos; - o proporciona una</translation>
     </message>
 </context>
 <context>
@@ -9176,7 +9248,7 @@ Do you wish to leave uncorrelated variables?</source>
     <message>
         <location filename="../../../src/uiIo/uieditpdf.cc" line="195"/>
         <source>Please enter all dimension names</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor entra todos nombres de dimensiónes</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uieditpdf.cc" line="197"/>
@@ -9194,7 +9266,7 @@ Do you wish to leave uncorrelated variables?</source>
     <message>
         <location filename="../../../src/uiSeis/uielasticmodelprov.cc" line="41"/>
         <source>Input type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uielasticmodelprov.cc" line="42"/>
@@ -9275,7 +9347,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiSeis/uielasticpropsel.cc" line="314"/>
         <source>Elastic Model</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modelo Elástico</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uielasticpropsel.cc" line="315"/>
@@ -9323,7 +9395,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiSeis/uielasticpropsel.cc" line="142"/>
         <source>Compute from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Computar forma</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uielasticpropsel.cc" line="143"/>
@@ -9357,7 +9429,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiSeis/uielasticpropsel.cc" line="39"/>
         <source>For</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uielasticpropsel.cc" line="65"/>
@@ -9370,7 +9442,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiAttributes/uienergyattrib.cc" line="49"/>
         <source>Compute gradient</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Computar gradiente</translation>
     </message>
 </context>
 <context>
@@ -9378,7 +9450,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiAttributes/uievaluatedlg.cc" line="274"/>
         <source>Evaluate attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Evaluar atributo</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uievaluatedlg.cc" line="274"/>
@@ -9416,7 +9488,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiAttributes/uieventattrib.cc" line="60"/>
         <source>Single event</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Evento singular</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uieventattrib.cc" line="60"/>
@@ -9459,7 +9531,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackexpevent.cc" line="30"/>
         <source>Export Prestack Events</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Eventos Antes del Apilamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackexpevent.cc" line="37"/>
@@ -9487,7 +9559,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../plugins/uiExpAttribs/uieventfreqattrib.cc" line="28"/>
         <source>Frequency</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frecuencia</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiExpAttribs/uieventfreqattrib.cc" line="29"/>
@@ -9500,7 +9572,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackimpevent.cc" line="35"/>
         <source>Import Prestack Events</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Eventos Antes del Apilamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackimpevent.cc" line="51"/>
@@ -9518,7 +9590,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiTools/uivalseriestracker.cc" line="24"/>
         <source>Event tracker</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastreador de eventos</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uivalseriestracker.cc" line="34"/>
@@ -9586,7 +9658,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiIo/uiimpexp2dgeom.cc" line="53"/>
         <source>Please enter the output file name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor entra un nombre para el expediente de salida</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexp2dgeom.cc" line="60"/>
@@ -9604,7 +9676,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="595"/>
         <source>Can only export 1D and 2D sampled PDFs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Solo puede exportar 1D y 2D de PDFs muestreados</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="606"/>
@@ -9617,7 +9689,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="991"/>
         <source>Please select an ouput name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona un nombre salida</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="997"/>
@@ -9630,7 +9702,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiexport2dhorizon.cc" line="48"/>
         <source>Export 2D Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Horizonte 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiexport2dhorizon.cc" line="62"/>
@@ -9678,7 +9750,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiexpfault.cc" line="59"/>
         <source>Write coordinates as</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escribir coordinades como</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiexpfault.cc" line="60"/>
@@ -9752,7 +9824,7 @@ chosen model type and source.</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiexphorizon.cc" line="54"/>
         <source>Export Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiexphorizon.cc" line="67"/>
@@ -9836,7 +9908,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwelllogimpexp.cc" line="240"/>
         <source>Export Well logs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Pozo logs</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelllogimpexp.cc" line="251"/>
@@ -9904,7 +9976,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackexpmute.cc" line="34"/>
         <source>Export Mute Function</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Función Mudo</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackexpmute.cc" line="42"/>
@@ -9937,7 +10009,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="464"/>
         <source>Extension</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extensión</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="466"/>
@@ -9955,7 +10027,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="608"/>
         <source>Nr steps must be &gt; 0.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Número de pasos tiene que ser &gt; 0</translation>
     </message>
 </context>
 <context>
@@ -9963,7 +10035,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uifkspectrum.cc" line="69"/>
         <source>Vel (m/s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Velocidad (m/s)</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uifkspectrum.cc" line="70"/>
@@ -10017,7 +10089,8 @@ Do you wish to continue?</source>
         <location filename="../../../src/uiAttributes/uifingerprintattrib.cc" line="751"/>
         <source>Please choose the pickset from which
 the ranges will be computed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor elige un conjunto de picos a que
+los rangos estarán computados</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uifingerprintattrib.cc" line="810"/>
@@ -10030,7 +10103,7 @@ the ranges will be computed</source>
     <message>
         <location filename="../../../src/uiVis/uifltdispoptgrp.cc" line="21"/>
         <source>Construction algorithms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Construcción de algoritmos</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uifltdispoptgrp.cc" line="29"/>
@@ -10048,7 +10121,7 @@ the ranges will be computed</source>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttoolman.cc" line="57"/>
         <source>Faultstick transfer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Transferir palo de fallas</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttoolman.cc" line="58"/>
@@ -10071,7 +10144,7 @@ the ranges will be computed</source>
     <message>
         <location filename="../../../src/uiBase/uifiledlg.cc" line="147"/>
         <source>Specify file name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Especifica nombre de expediente</translation>
     </message>
     <message>
         <location filename="../../../src/uiBase/uifiledlg.cc" line="148"/>
@@ -10099,7 +10172,7 @@ the ranges will be computed</source>
     <message>
         <location filename="../../../src/uiTools/uifileinput.cc" line="273"/>
         <source>Cannot launch file browser</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede lanzar navegador del expediente</translation>
     </message>
 </context>
 <context>
@@ -10107,7 +10180,7 @@ the ranges will be computed</source>
     <message>
         <location filename="../../../src/uiAttributes/uifingerprintattrib.cc" line="109"/>
         <source>Reference position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición de referencia</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uifingerprintattrib.cc" line="113"/>
@@ -10179,7 +10252,7 @@ them or go to &apos;Advanced...&apos; to do it manually</source>
     <message>
         <location filename="../../../src/uiFlatView/uiflatviewpropdlg.cc" line="898"/>
         <source>No data selected for Wiggle or VD display.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay datos seleccionados por mostrar Menear o VD</translation>
     </message>
 </context>
 <context>
@@ -10187,7 +10260,7 @@ them or go to &apos;Advanced...&apos; to do it manually</source>
     <message>
         <location filename="../../../src/uiFlatView/uiflatviewstdcontrol.cc" line="44"/>
         <source>Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiFlatView/uiflatviewstdcontrol.cc" line="58"/>
@@ -10225,7 +10298,7 @@ them or go to &apos;Advanced...&apos; to do it manually</source>
     <message>
         <location filename="../../../src/uiTools/uifontsel.cc" line="25"/>
         <source>Fonts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fuentes</translation>
     </message>
 </context>
 <context>
@@ -10233,7 +10306,7 @@ them or go to &apos;Advanced...&apos; to do it manually</source>
     <message>
         <location filename="../../../src/uiAttributes/uifreqfilterattrib.cc" line="39"/>
         <source>Filtering method</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Métodos de filtrar</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uifreqfilterattrib.cc" line="40"/>
@@ -10294,7 +10367,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../src/uiTools/uifreqfilter.cc" line="24"/>
         <source>Filter type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo filtro</translation>
     </message>
 </context>
 <context>
@@ -10302,7 +10375,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../src/uiSeis/uifreqtaper.cc" line="39"/>
         <source>Frequency taper</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afilación de frecuencia</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uifreqtaper.cc" line="40"/>
@@ -10335,7 +10408,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../src/uiSeis/uifreqtaper.cc" line="233"/>
         <source>Start/Stop frequency(Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Iniciar/Parar frecuencia(Hz)</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uifreqtaper.cc" line="259"/>
@@ -10353,7 +10426,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../src/uiAttributes/uifrequencyattrib.cc" line="55"/>
         <source>Normalize</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Normalizar</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uifrequencyattrib.cc" line="147"/>
@@ -10367,7 +10440,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../src/uiTools/uifunctiondisplay.cc" line="89"/>
         <source>Press Ctrl-P to save as image</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pulsa Ctrl-P para guardar como imagen</translation>
     </message>
 </context>
 <context>
@@ -10375,7 +10448,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../plugins/uiGLCM/uiGLCM_attrib.cc" line="106"/>
         <source>Min / Max of Input Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mínimo/Máximo de Datos de Entrada</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGLCM/uiGLCM_attrib.cc" line="113"/>
@@ -10408,7 +10481,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../plugins/uiGMT/uigmt2dlines.cc" line="53"/>
         <source>Post Line names</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Eviar nombres de líneas</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmt2dlines.cc" line="61"/>
@@ -10441,7 +10514,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtadv.cc" line="39"/>
         <source>Customized GMT command</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">comandos de GMT perzonalizados</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtadv.cc" line="58"/>
@@ -10454,7 +10527,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtbasemap.cc" line="29"/>
         <source>Basemap</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mapa base</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtbasemap.cc" line="31"/>
@@ -10533,7 +10606,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtclip.cc" line="44"/>
         <source>Start clipping</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Iniciar recortar</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtclip.cc" line="45"/>
@@ -10556,7 +10629,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtcoastline.cc" line="44"/>
         <source>UTM zone / CM</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Área de UTM / CM</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtcoastline.cc" line="47"/>
@@ -10599,7 +10672,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtcontour.cc" line="75"/>
         <source>Value range </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rango de valor</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtcontour.cc" line="80"/>
@@ -10662,7 +10735,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtfaults.cc" line="112"/>
         <source>No faults available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay fallas</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtfaults.cc" line="129"/>
@@ -10675,7 +10748,7 @@ within the allowed range: 0 to 100 (%).</source>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtinfodlg.cc" line="26"/>
         <source>GMT Mapping Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Instrumento de Cartografía GMT</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtinfodlg.cc" line="30"/>
@@ -10728,7 +10801,10 @@ Also make sure that the environment variable GMT_SHAREDIR is to set </source>
 before you can use this utility
 Also make sure that the environment variable GMTROOT is set to the GMT installation directory
  and your PATH variable includes the GMT bin directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Necesita instalar el conjunto de cartografía GMT
+antes de que se puede usar este utilidad
+También asegura que el medio ambiente del variable GMTROOT esta hecho en el directorio de la instalación de GMT
+y su variable de PATH incluye el directorio bin de GMT</translation>
     </message>
 </context>
 <context>
@@ -10736,7 +10812,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../plugins/uiGMT/uigmtlocations.cc" line="81"/>
         <source>Please select a pickset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona un conjunto de picos</translation>
     </message>
 </context>
 <context>
@@ -10744,7 +10820,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../plugins/uiGMT/uigmtmainwin.cc" line="41"/>
         <source>GMT Mapping Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Instrumento de Cartografía GMT</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtmainwin.cc" line="72"/>
@@ -10858,7 +10934,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../plugins/uiGMT/uigmtarray2dinterpol.cc" line="171"/>
         <source>No GMT installation found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró instalación de GMT</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtarray2dinterpol.cc" line="177"/>
@@ -10871,7 +10947,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../plugins/uiGMT/uigmtpolyline.cc" line="59"/>
         <source>Fill Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Llenar Color</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtpolyline.cc" line="91"/>
@@ -10884,7 +10960,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../plugins/uiGMT/uigmtrandlines.cc" line="59"/>
         <source>Post label</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enviar etiqueta</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtrandlines.cc" line="61"/>
@@ -10908,7 +10984,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../plugins/uiGMT/uigmtarray2dinterpol.cc" line="88"/>
         <source>No GMT installation found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró instalación de GMT</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtarray2dinterpol.cc" line="94"/>
@@ -10921,7 +10997,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../plugins/uiGMT/uigmtsymbolpars.cc" line="35"/>
         <source>Symbol shape</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Forma de símbolo</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtsymbolpars.cc" line="41"/>
@@ -10944,7 +11020,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../plugins/uiGMT/uigmtwells.cc" line="47"/>
         <source>Well(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pozo(s)</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGMT/uigmtwells.cc" line="66"/>
@@ -10972,7 +11048,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../src/uiAttributes/uigainanalysisdlg.cc" line="27"/>
         <source>Analyse Gain</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Analizar la ganancia</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uigainanalysisdlg.cc" line="54"/>
@@ -11030,7 +11106,7 @@ Also make sure that the environment variable GMTROOT is set to the GMT installat
     <message>
         <location filename="../../../src/uiAttributes/uigapdeconattrib.cc" line="84"/>
         <source>Examine ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Examinar ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uigapdeconattrib.cc" line="97"/>
@@ -11126,7 +11202,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uipsviewer2dposdlg.cc" line="102"/>
         <source>Dynamic %1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dinámica %1 %2</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uipsviewer2dposdlg.cc" line="105"/>
@@ -11154,7 +11230,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiTools/uigeninputdlg.cc" line="92"/>
         <source>Please enter a value for &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor entra un valor para &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -11162,7 +11238,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiIo/uicreatepicks.cc" line="159"/>
         <source>PickSet would contain %1 points which might consume unexpected time &amp; memory.Do you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conjunto de picos contendría %1 puntos que pueden consumir tiempo y memoria inesperada. ¿Quiere continuar?</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uicreatepicks.cc" line="172"/>
@@ -11175,7 +11251,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEarthModel/uirandlinegen.cc" line="62"/>
         <source>Contour Z range</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Contorno de rango Z</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uirandlinegen.cc" line="67"/>
@@ -11223,7 +11299,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiIo/uicreatepicks.cc" line="325"/>
         <source>Please Select a valid horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona un horizonte válido</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uicreatepicks.cc" line="327"/>
@@ -11274,7 +11350,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattrgetfile.cc" line="40"/>
         <source>Get Attribute Set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recoge Conjunto de Atributos</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattrgetfile.cc" line="40"/>
@@ -11307,7 +11383,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexp2dlines.cc" line="34"/>
         <source>Export selected 2D seismics to KML</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Sísmicas 2D a KML</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexp2dlines.cc" line="35"/>
@@ -11330,7 +11406,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexppolygon.cc" line="26"/>
         <source>Export Polygon to KML</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Polígonos a KML</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexppolygon.cc" line="27"/>
@@ -11348,7 +11424,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexprandline.cc" line="28"/>
         <source>Export Random Line to KML</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Líneas al Azar a KML</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexprandline.cc" line="29"/>
@@ -11371,7 +11447,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexpsurv.cc" line="26"/>
         <source>Export Survey boundaries to KML</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar límites del Estudio a KML</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexpsurv.cc" line="27"/>
@@ -11389,7 +11465,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexpwells.cc" line="31"/>
         <source>Export Wells to KML</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Pozos a KML</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleexpwells.cc" line="32"/>
@@ -11407,7 +11483,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleiopi.cc" line="161"/>
         <source>Can only export Polygons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Solo puede exportar Polígonos</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGoogleIO/uigoogleiopi.cc" line="163"/>
@@ -11425,7 +11501,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiTools/uigraphicsview.cc" line="32"/>
         <source>Save image</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar imagen</translation>
     </message>
 </context>
 <context>
@@ -11433,7 +11509,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiGrav/uigravhorcalc.cc" line="27"/>
         <source>Calculate Gravity</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Calcular gravedad</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGrav/uigravhorcalc.cc" line="35"/>
@@ -11496,7 +11572,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiVis/uigridlinesdlg.cc" line="38"/>
         <source>GridLines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cuadrículas</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uigridlinesdlg.cc" line="38"/>
@@ -11544,7 +11620,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiTools/uigridder2d.cc" line="22"/>
         <source>Gridding</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Haciendo cuadrículas</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uigridder2d.cc" line="45"/>
@@ -11557,7 +11633,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiExpAttribs/uigrubbsfilterattrib.cc" line="47"/>
         <source>Cutoff Grubbs Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cortar Grubbs Valor</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiExpAttribs/uigrubbsfilterattrib.cc" line="61"/>
@@ -11570,7 +11646,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiTools/uihandledlsitefail.cc" line="59"/>
         <source>Exit Program</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Salir del programa</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uihandledlsitefail.cc" line="59"/>
@@ -11603,7 +11679,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiHello/uihellopi.cc" line="63"/>
         <source>Display Hello Message ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar Hola Mensaje</translation>
     </message>
 </context>
 <context>
@@ -11611,7 +11687,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiHello/uihellopi.cc" line="90"/>
         <source>Please type a message text</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor escribe un texto de mensaje</translation>
     </message>
 </context>
 <context>
@@ -11619,7 +11695,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiTools/uihistogramdisplay.cc" line="48"/>
         <source>Count</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Contar</translation>
     </message>
 </context>
 <context>
@@ -11627,7 +11703,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uihor2dfrom3ddlg.cc" line="73"/>
         <source>Cannot read or create 3D horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer o crear horizonte 3D</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uihor2dfrom3ddlg.cc" line="126"/>
@@ -11650,7 +11726,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihor3dfrom2ddlg.cc" line="37"/>
         <source>Derive 3D Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Derivar Horizonte 3D</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uihor3dfrom2ddlg.cc" line="45"/>
@@ -11684,7 +11760,7 @@ and the Correlation window fields</source>
         <location filename="../../../plugins/uiHorizonAttrib/uihorattribpi.cc" line="156"/>
         <location filename="../../../plugins/uiHorizonAttrib/uihorattribpi.cc" line="248"/>
         <source>Cannot add extra attribute layers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede añadir capas extras de atributos</translation>
     </message>
 </context>
 <context>
@@ -11692,7 +11768,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprochorinterfiller.cc" line="40"/>
         <source>Top boundary</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Límite superior</translation>
     </message>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprochorinterfiller.cc" line="42"/>
@@ -11780,7 +11856,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihorsavefieldgrp.cc" line="44"/>
         <source>Save horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uihorsavefieldgrp.cc" line="146"/>
@@ -11813,7 +11889,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uihorizonattrib.cc" line="56"/>
         <source>Relative</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Relativo</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uihorizonattrib.cc" line="59"/>
@@ -11831,7 +11907,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihorauxdatasel.cc" line="185"/>
         <source>Horizon Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos de Horizonte</translation>
     </message>
 </context>
 <context>
@@ -11839,7 +11915,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="43"/>
         <source>Horizon Gridding</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hacer cuadrículos en Horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="44"/>
@@ -11883,7 +11959,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihorizonmergedlg.cc" line="34"/>
         <source>Merge 3D Horizons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fundir Horizontes 3D</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uihorizonmergedlg.cc" line="39"/>
@@ -11921,7 +11997,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="201"/>
         <source>No valid objects found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró objetos válidos</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="254"/>
@@ -11941,7 +12017,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihorizonrelations.cc" line="44"/>
         <source>Horizon relations</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Relaciónes del horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uihorizonrelations.cc" line="48"/>
@@ -11979,7 +12055,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiVis/uivisemobj.cc" line="573"/>
         <source>Default Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Resolución predeterminado</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivisemobj.cc" line="582"/>
@@ -11992,7 +12068,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiMPE/uihorizontracksetup.cc" line="111"/>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modo</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/uihorizontracksetup.cc" line="114"/>
@@ -12127,7 +12203,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uihorizonshiftdlg.cc" line="152"/>
         <source>Calculate now?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¿Calcular ahora?</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uihorizonshiftdlg.cc" line="178"/>
@@ -12145,7 +12221,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihorizonsortdlg.cc" line="35"/>
         <source>Horizon sorter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Clasificador de Horizontes</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uihorizonsortdlg.cc" line="35"/>
@@ -12163,7 +12239,7 @@ and the Correlation window fields</source>
     <message>
         <location filename="../../../src/uiIo/uiioobj.cc" line="35"/>
         <source>Remove &apos;%1&apos;%2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Borrar &apos;%1&apos;%2</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiioobj.cc" line="37"/>
@@ -12216,7 +12292,7 @@ Remove entry from list anyway?</source>
     <message>
         <location filename="../../../src/uiIo/uiioobjmanip.cc" line="281"/>
         <source>Name already in use</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El nombre ya existe</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiioobjmanip.cc" line="289"/>
@@ -12257,7 +12333,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiIo/uiioobjsel.cc" line="449"/>
         <source>Please select the %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona el %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiioobjsel.cc" line="450"/>
@@ -12270,7 +12346,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiIo/uiioobjsel.cc" line="117"/>
         <source>Select input %1%2</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona entrada %1%2</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiioobjsel.cc" line="119"/>
@@ -12298,7 +12374,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiIo/uiioobjselgrp.cc" line="411"/>
         <source>Please select the %1 or press Cancelor press Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona el %1 o pulsa Cancelar</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiioobjselgrp.cc" line="418"/>
@@ -12332,7 +12408,7 @@ If you are sure, please remove the existing object first</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="79"/>
         <source>Calculated attributes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atributos calculados</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="89"/>
@@ -12350,7 +12426,7 @@ If you are sure, please remove the existing object first</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattrgetfile.cc" line="163"/>
         <source>Import Attribute Set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Conjunto de Atributos</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattrgetfile.cc" line="176"/>
@@ -12374,7 +12450,7 @@ Do you want to import more Attribute Sets?</source>
     <message>
         <location filename="../../../src/uiIo/uiimppickset.cc" line="51"/>
         <source>Import Pickset/Polygon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Conjunto de Picos/Polígonos</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimppickset.cc" line="52"/>
@@ -12453,7 +12529,7 @@ Do you want to %2 more PickSets?</source>
     <message>
         <location filename="../../../src/uiIo/uiimppvds.cc" line="39"/>
         <source>Import Cross-plot Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Datos Cross-plot</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimppvds.cc" line="59"/>
@@ -12487,7 +12563,7 @@ Do you want to %2 more PickSets?</source>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="45"/>
         <source>Import Probability Density Function</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Función de Probabilidad Densidad</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexppdf.cc" line="56"/>
@@ -12536,7 +12612,7 @@ Do you want to %2 more PickSets?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiimpbodycaldlg.cc" line="28"/>
         <source>Calculate volume</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Calcular volumen</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiimpbodycaldlg.cc" line="28"/>
@@ -12569,7 +12645,7 @@ Do you want to %2 more PickSets?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uibodyoperatordlg.cc" line="440"/>
         <source>Cannot read input body</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer parte principal de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uibodyoperatordlg.cc" line="445"/>
@@ -12587,7 +12663,7 @@ Do you want to %2 more PickSets?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiimpfault.cc" line="52"/>
         <source>Import FaultStickSet 2D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Palo de Fallas 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiimpfault.cc" line="53"/>
@@ -12620,7 +12696,7 @@ Do you want to %2 more PickSets?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiimphorizon.cc" line="83"/>
         <source>Import Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiimphorizon.cc" line="83"/>
@@ -12754,7 +12830,7 @@ Do you want to %2 more PickSets?</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uiimphorizon2d.cc" line="194"/>
         <source>Import 2D Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Horizonte 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uiimphorizon2d.cc" line="201"/>
@@ -12844,7 +12920,7 @@ Please re-examine input files and format definition</source>
     <message>
         <location filename="../../../src/uiWell/uiwelllogimpexp.cc" line="47"/>
         <source>Import Well Logs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Pozo Logs</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelllogimpexp.cc" line="57"/>
@@ -12946,7 +13022,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackimpmute.cc" line="38"/>
         <source>Import Mute Function</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Función Mudo</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackimpmute.cc" line="49"/>
@@ -12974,7 +13050,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../src/uiVelocity/uivelocityfunctionimp.cc" line="40"/>
         <source>Import Velocity Function</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Función de Velocidad</translation>
     </message>
     <message>
         <location filename="../../../src/uiVelocity/uivelocityfunctionimp.cc" line="71"/>
@@ -12987,7 +13063,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltietoseismicdlg.cc" line="541"/>
         <source>Cross-checking parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cruzar macando parámetros</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltietoseismicdlg.cc" line="571"/>
@@ -13072,7 +13148,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../src/uiAttributes/uiinstantattrib.cc" line="64"/>
         <source>Specify angle (deg)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Especifica ángulo (grado)</translation>
     </message>
 </context>
 <context>
@@ -13081,7 +13157,8 @@ Please remove %4 from the existing logs before import.</source>
         <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="486"/>
         <source>Please enter a positive value for the search radius
 (or uncheck the field)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor entra un valor positivo para el radio de búsqueda
+(o desmarque el campo)</translation>
     </message>
 </context>
 <context>
@@ -13089,7 +13166,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="496"/>
         <source>Inverse distance - parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Distancia inversa - parámetros</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="497"/>
@@ -13127,7 +13204,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="319"/>
         <source>Inverse distance</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Distancia inversa</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="330"/>
@@ -13151,7 +13228,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiisopachmaker.cc" line="174"/>
         <source>Attribute name %1 already exists, Overwrite?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre de atributo %1 ya existe. ¿Sobrescribir?</translation>
     </message>
 </context>
 <context>
@@ -13159,7 +13236,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiisopachmaker.cc" line="238"/>
         <source>Cannot load selected horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede cargar el horizonte seleccionado</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiisopachmaker.cc" line="245"/>
@@ -13172,7 +13249,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiisopachmaker.cc" line="68"/>
         <source>Output in</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Salida en</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiisopachmaker.cc" line="69"/>
@@ -13195,7 +13272,7 @@ Please remove %4 from the existing logs before import.</source>
     <message>
         <location filename="../../../src/uiTools/uiissuereporter.cc" line="27"/>
         <source>Problem reporter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reportero de problemas</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiissuereporter.cc" line="33"/>
@@ -13275,7 +13352,7 @@ Would you like to retry sending the report using different proxy settings?</sour
     <message>
         <location filename="../../../src/uiIo/uilatlong.cc" line="225"/>
         <source>Please fill all fields</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor llena todos campos</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uilatlong.cc" line="227"/>
@@ -13310,7 +13387,7 @@ The definition will work this OpendTect session only</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolproclateralsmoother.cc" line="36"/>
         <source>In-line stepout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Apretar el paso de la línea</translation>
     </message>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolproclateralsmoother.cc" line="44"/>
@@ -13353,7 +13430,7 @@ The definition will work this OpendTect session only</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestacklateralstack.cc" line="41"/>
         <source>Super Gather setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Súper Reunir configuración</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestacklateralstack.cc" line="45"/>
@@ -13386,7 +13463,7 @@ The definition will work this OpendTect session only</source>
     <message>
         <location filename="../../../src/uiStrat/uilayseqattribed.cc" line="39"/>
         <source>Add attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir atributo</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uilayseqattribed.cc" line="40"/>
@@ -13445,7 +13522,7 @@ The definition will work this OpendTect session only</source>
         <location filename="../../../src/uiTools/uislicesel.cc" line="604"/>
         <location filename="../../../src/uiTools/uislicesel.cc" line="621"/>
         <source>Select line position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona posición de la línea</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uislicesel.cc" line="614"/>
@@ -13464,7 +13541,7 @@ The definition will work this OpendTect session only</source>
         <location filename="../../../src/uiVis/uimaterialdlg.cc" line="72"/>
         <location filename="../../../src/uiVis/uimaterialdlg.cc" line="76"/>
         <source>Line style</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Estilo Línea</translation>
     </message>
 </context>
 <context>
@@ -13472,7 +13549,7 @@ The definition will work this OpendTect session only</source>
     <message>
         <location filename="../../../src/uiVelocity/uilinearveltrans.cc" line="58"/>
         <source>Gradient (1/s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gradiente (1/s)</translation>
     </message>
     <message>
         <location filename="../../../src/uiVelocity/uilinearveltrans.cc" line="127"/>
@@ -13495,7 +13572,7 @@ The definition will work this OpendTect session only</source>
     <message>
         <location filename="../../../src/uiBase/uilistbox.cc" line="521"/>
         <source>Check all (Ctrl-A)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Marque todo (Ctrl-A)</translation>
     </message>
     <message>
         <location filename="../../../src/uiBase/uilistbox.cc" line="523"/>
@@ -13523,7 +13600,7 @@ The definition will work this OpendTect session only</source>
     <message>
         <location filename="../../../src/uiIo/uilistboxchoiceio.cc" line="66"/>
         <source>Cannot open : %1 for read</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir: %1 para leer</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uilistboxchoiceio.cc" line="74"/>
@@ -13541,7 +13618,7 @@ The definition will work this OpendTect session only</source>
     <message>
         <location filename="../../../src/uiIo/uimmbatchjobdispatch.cc" line="126"/>
         <source>Available hosts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anfitriónes disponibles</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uimmbatchjobdispatch.cc" line="147"/>
@@ -13634,7 +13711,7 @@ The definition will work this OpendTect session only</source>
     <message>
         <location filename="../../../src/uiVis/uimpeman.cc" line="110"/>
         <source>Seed connect mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modo connección inicio</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uimpeman.cc" line="117"/>
@@ -13810,7 +13887,7 @@ change input data in Tracking Setup.</source>
     <message>
         <location filename="../../../src/uiMPE/uimpepartserv.cc" line="164"/>
         <source>Could not create tracker for this object</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No pudía crear rastreador para este objeto</translation>
     </message>
     <message>
         <location filename="../../../src/uiMPE/uimpepartserv.cc" line="263"/>
@@ -13847,7 +13924,7 @@ Please check whether the file is writable</source>
     <message>
         <location filename="../../../plugins/uiMadagascarAttribs/uimadagcattrib.cc" line="32"/>
         <source>Z smoothing radius</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Radio suavizando Z</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiMadagascarAttribs/uimadagcattrib.cc" line="35"/>
@@ -13870,7 +13947,7 @@ Please check whether the file is writable</source>
     <message>
         <location filename="../../../plugins/uiTutMadagascar/uitutodmadpi.cc" line="46"/>
         <source>Display Madagascar data ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar datos de Madagascar ...</translation>
     </message>
 </context>
 <context>
@@ -13878,7 +13955,7 @@ Please check whether the file is writable</source>
     <message>
         <location filename="../../../plugins/uiMadagascar/uimadbldcmd.cc" line="192"/>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Grupo</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiMadagascar/uimadbldcmd.cc" line="194"/>
@@ -13941,7 +14018,7 @@ Please check whether the file is writable</source>
     <message>
         <location filename="../../../plugins/uiMadagascar/uimadagascarmain.cc" line="37"/>
         <source>Madagascar processing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Procesamiento Madagascar</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiMadagascar/uimadagascarmain.cc" line="92"/>
@@ -13999,7 +14076,7 @@ Please check whether the file is writable</source>
     <message>
         <location filename="../../../src/uiIo/uimanprops.cc" line="355"/>
         <source>Layer Properties - Definition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades de Capas - Definición</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uimanprops.cc" line="356"/>
@@ -14024,7 +14101,7 @@ Please check file/directory permissions there.</source>
     <message>
         <location filename="../../../src/uiIo/ui2dgeomman.cc" line="85"/>
         <source>Cannot find geometry for %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar geometriá por %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/ui2dgeomman.cc" line="187"/>
@@ -14038,7 +14115,7 @@ This will affect all associated data.</source>
     <message>
         <location filename="../../../src/uiWell/uiwellmarkerdlg.cc" line="63"/>
         <source>Edit Well Markers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar Pozo Marcadores</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellmarkerdlg.cc" line="87"/>
@@ -14152,7 +14229,7 @@ This will affect all associated data.</source>
     <message>
         <location filename="../../../src/uiTools/uimarkerstyle.cc" line="50"/>
         <source>Marker Shape</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Forma Marcador</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uimarkerstyle.cc" line="53"/>
@@ -14165,7 +14242,7 @@ This will affect all associated data.</source>
     <message>
         <location filename="../../../src/uiVis/uimarkerstyledlg.cc" line="20"/>
         <source>Specify marker style properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Especifica propiedades de estilo marcador</translation>
     </message>
 </context>
 <context>
@@ -14173,7 +14250,7 @@ This will affect all associated data.</source>
     <message>
         <location filename="../../../src/uiWell/uiwellmarkerdlg.cc" line="535"/>
         <source>Markers List</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lista de Marcadores</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellmarkerdlg.cc" line="535"/>
@@ -14199,7 +14276,7 @@ This will affect all associated data.</source>
     <message>
         <location filename="../../../src/uiTools/uimathexpression.cc" line="43"/>
         <source>Set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conjunto</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uimathexpression.cc" line="72"/>
@@ -14212,7 +14289,7 @@ This will affect all associated data.</source>
     <message>
         <location filename="../../../src/uiTools/uimathexpressionvariable.cc" line="64"/>
         <source>Value for &apos;c0&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valor de &apos;c0&apos;</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uimathexpressionvariable.cc" line="184"/>
@@ -14235,7 +14312,7 @@ This will affect all associated data.</source>
     <message>
         <location filename="../../../src/uiIo/uimathformula.cc" line="99"/>
         <source>Set start values for recursion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner inicio de valores para recursividad</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uimathformula.cc" line="103"/>
@@ -14275,7 +14352,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiIo/uimathformula.cc" line="378"/>
         <source>Please specify all values</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor espicifica todos valores</translation>
     </message>
 </context>
 <context>
@@ -14283,7 +14360,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiIo/uimathpropeddlg.cc" line="23"/>
         <source>Math property</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades matemáticas</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uimathpropeddlg.cc" line="86"/>
@@ -14301,7 +14378,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiTools/uimeasuredlg.cc" line="36"/>
         <source>Measure Distance</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Calcular Distancia</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uimeasuredlg.cc" line="91"/>
@@ -14329,7 +14406,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiIo/uipicksetmgr.cc" line="182"/>
         <source>Please select at least two sets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona al menos dos conjuntos</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uipicksetmgr.cc" line="184"/>
@@ -14342,7 +14419,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiSeis/uimergeseis.cc" line="36"/>
         <source>Seismic file merging</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fusión de expediente sísmica</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uimergeseis.cc" line="37"/>
@@ -14381,7 +14458,7 @@ The maximum number is %2</source>
         <location filename="../../../src/uiBase/uimsg.cc" line="248"/>
         <location filename="../../../src/uiBase/uimsg.cc" line="449"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Información</translation>
     </message>
     <message>
         <location filename="../../../src/uiBase/uimsg.cc" line="259"/>
@@ -14435,7 +14512,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiSeis/uimultcomputils.cc" line="22"/>
         <source>Multi-Attribute selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selección de Múlti-Atributo</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uimultcomputils.cc" line="26"/>
@@ -14452,7 +14529,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiSeis/uimultcomputils.cc" line="122"/>
         <source>Components selection dialog</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Diálogo de selección de componentes</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uimultcomputils.cc" line="125"/>
@@ -14475,7 +14552,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiAttributes/uimultoutsel.cc" line="43"/>
         <source>Multiple attributes selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selección de atributos múltiples</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uimultoutsel.cc" line="44"/>
@@ -14493,7 +14570,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiFlatView/uimultiflatviewcontrol.cc" line="179"/>
         <source>Set display parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner mostrar parámetros</translation>
     </message>
 </context>
 <context>
@@ -14501,7 +14578,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiTools/uimapperrangeeditordlg.cc" line="45"/>
         <source>Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Estadística</translation>
     </message>
 </context>
 <context>
@@ -14509,7 +14586,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiEarthModel/uimultisurfaceread.cc" line="158"/>
         <source>The following selections will not be loaded %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Los siguientess selecciones no estarán cargados %1</translation>
     </message>
 </context>
 <context>
@@ -14517,7 +14594,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldisppropdlg.cc" line="210"/>
         <source>Select Well</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona Pozo</translation>
     </message>
 </context>
 <context>
@@ -14525,7 +14602,7 @@ The maximum number is %2</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackmute.cc" line="38"/>
         <source>Mute setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Configuración mudo</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackmute.cc" line="45"/>
@@ -14554,7 +14631,8 @@ The maximum number is %2</source>
         <location filename="../../../src/uiIo/uisurvey.cc" line="150"/>
         <source>A survey &apos;%1&apos; already exists.
 You will have to remove it first</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Un estudio &apos;%1&apos; ya existe.
+Debe borrarlo primero</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uisurvey.cc" line="159"/>
@@ -14572,7 +14650,7 @@ You will have to remove it first</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldlgs.cc" line="1496"/>
         <source>New Well</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pozo nuevo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldlgs.cc" line="1497"/>
@@ -14596,7 +14674,7 @@ Wells can be removed in &apos;Manage wells&apos;</source>
     <message>
         <location filename="../../../src/uiTools/uinotsaveddlg.cc" line="70"/>
         <source>Saved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardado</translation>
     </message>
 </context>
 <context>
@@ -14604,7 +14682,7 @@ Wells can be removed in &apos;Manage wells&apos;</source>
     <message>
         <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="783"/>
         <source>Stored 2D data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos 2D almacenados</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="784"/>
@@ -14622,7 +14700,7 @@ Wells can be removed in &apos;Manage wells&apos;</source>
     <message>
         <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="415"/>
         <source>Show linename</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar nombre de línea</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="416"/>
@@ -14657,7 +14735,9 @@ Wells can be removed in &apos;Manage wells&apos;</source>
         <source>The annotation group %1 is not saved.
 
 Do you want to save it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Grupo de anotación %1 no esta guardado.
+
+¿Quiere guardarlo?</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodannottreeitem.cc" line="389"/>
@@ -14676,7 +14756,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodannottreeitem.cc" line="218"/>
         <source>Cannot add Annotations to this scene (yet)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede añadir Anotaciónes a esta escena (todavia)</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodannottreeitem.cc" line="246"/>
@@ -14690,7 +14770,7 @@ Do you wish to overwrite it?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodapplmgr.cc" line="214"/>
         <source>The survey %1 appears to be too old. Please open this survey first in OpendTect 4.6 to update its database before using it in OpendTect 5.0.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El estudio %1 parece demasiado viejo. Por favor abre este estudio primero en OpendTect 4.6 para actualizar su base de datos antes de usarlo en OpendTect 5.0.</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodapplmgr.cc" line="218"/>
@@ -14824,7 +14904,8 @@ is not present in the set and cannot be created</source>
         <location filename="../../../src/uiODMain/uiodapplmgraux.cc" line="419"/>
         <source>If you make changes to the application,
 please restart OpendTect for the changes to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sí haga cambios a la aplicación,
+por favor reanuda OpendTect antes de que los cambios surtirán efecto.</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodapplmgraux.cc" line="422"/>
@@ -14837,7 +14918,7 @@ please restart OpendTect for the changes to take effect.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodattribtreeitem.cc" line="44"/>
         <source>Save Color Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar Ajustes de Colores</translation>
     </message>
 </context>
 <context>
@@ -14845,7 +14926,7 @@ please restart OpendTect for the changes to take effect.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodbodydisplaytreeitem.cc" line="80"/>
         <source>Cannot add Bodies to this scene</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede añadir Partes Principales a esta escena</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodbodydisplaytreeitem.cc" line="86"/>
@@ -14863,7 +14944,7 @@ please restart OpendTect for the changes to take effect.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="543"/>
         <source>Flat survey, disabled cross-line display</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Estudio plano, dishabilitó pantalla de línea-cruzada</translation>
     </message>
 </context>
 <context>
@@ -14871,7 +14952,7 @@ please restart OpendTect for the changes to take effect.</source>
     <message>
         <location filename="../../../src/uiODMain/uioddatatreeitem.cc" line="44"/>
         <source>Move</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mover</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uioddatatreeitem.cc" line="45"/>
@@ -14914,7 +14995,7 @@ please restart OpendTect for the changes to take effect.</source>
     <message>
         <location filename="../../../src/uiODMain/uioddisplaytreeitem.cc" line="72"/>
         <source>Volume Processing Attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atributo de Procesamiento Volumen</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uioddisplaytreeitem.cc" line="74"/>
@@ -14927,7 +15008,7 @@ please restart OpendTect for the changes to take effect.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodemsurftreeitem.cc" line="431"/>
         <source>Z values</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valores Z</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodemsurftreeitem.cc" line="432"/>
@@ -14971,7 +15052,7 @@ Please save attribute first</source>
     <message>
         <location filename="../../../src/uiODMain/uiodemsurftreeitem.cc" line="61"/>
         <source>Create flattened scene</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear escena plana</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodemsurftreeitem.cc" line="64"/>
@@ -15001,7 +15082,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodeditattribcolordlg.cc" line="30"/>
         <source>Color Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustes de Color</translation>
     </message>
 </context>
 <context>
@@ -15009,7 +15090,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttreeitem.cc" line="93"/>
         <source>Display all</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar todo</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttreeitem.cc" line="95"/>
@@ -15052,7 +15133,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttreeitem.cc" line="418"/>
         <source>Cannot add FaultStickSets to this scene</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede añadir Palo de Fallas a este escena</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttreeitem.cc" line="429"/>
@@ -15075,7 +15156,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttreeitem.cc" line="672"/>
         <source>Z values</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valores Z</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttreeitem.cc" line="673"/>
@@ -15098,7 +15179,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttoolman.cc" line="244"/>
         <source>Edit sticks</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar palos</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodfaulttoolman.cc" line="247"/>
@@ -15196,7 +15277,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodhelpmenumgr.cc" line="46"/>
         <source>Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Documentación</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodhelpmenumgr.cc" line="48"/>
@@ -15229,7 +15310,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="576"/>
         <source>Track new ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pista nueva ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="578"/>
@@ -15252,7 +15333,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="710"/>
         <source>Workflows</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Flujos de trabajo</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="711"/>
@@ -15275,7 +15356,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="91"/>
         <source>Add at sections only ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir solo a secciones ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="92"/>
@@ -15318,7 +15399,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="280"/>
         <source>Horizon Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos de Horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="282"/>
@@ -15356,7 +15437,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="504"/>
         <source>Flat survey, disabled inline display</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Estudio plano, dishabilitó la pantalla de línea</translation>
     </message>
 </context>
 <context>
@@ -15364,7 +15445,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="106"/>
         <source>Create 2D Grid From 3D ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Cuadrículo 2D de 3D ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="108"/>
@@ -15425,7 +15506,7 @@ Continue saving?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodmain.cc" line="121"/>
         <source>OpendTect Main Window</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla Principal de OpendTect</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodmain.cc" line="156"/>
@@ -15477,7 +15558,7 @@ Store the changes now?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodmenumgr.cc" line="198"/>
         <source>Select/Setup ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona/Configura ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodmenumgr.cc" line="201"/>
@@ -15507,7 +15588,7 @@ Store the changes now?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodmenumgr.cc" line="226"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Salir</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodmenumgr.cc" line="239"/>
@@ -16274,7 +16355,7 @@ only for newly launched objects.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodpseventstreeitem.cc" line="83"/>
         <source>Failed to load prestack event</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló en cargar el evento antes del apilamiento</translation>
     </message>
 </context>
 <context>
@@ -16282,7 +16363,7 @@ only for newly launched objects.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodpicksettreeitem.cc" line="121"/>
         <source>Add PickSet ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir Conjunto de Picos ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodpicksettreeitem.cc" line="122"/>
@@ -16345,7 +16426,7 @@ only for newly launched objects.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodpicksettreeitem.cc" line="234"/>
         <source>Set directions ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner direcciones</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodpicksettreeitem.cc" line="235"/>
@@ -16374,7 +16455,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="63"/>
         <source>Add default data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir datos predeterminados</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="71"/>
@@ -16402,7 +16483,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodrandlinetreeitem.cc" line="123"/>
         <source>Add Empty</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir Vacío</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodrandlinetreeitem.cc" line="124"/>
@@ -16466,7 +16547,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodrandlinetreeitem.cc" line="338"/>
         <source>Position ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodrandlinetreeitem.cc" line="339"/>
@@ -16489,7 +16570,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodscenemgr.cc" line="394"/>
         <source>No scenes available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay escenas</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodscenemgr.cc" line="538"/>
@@ -16517,7 +16598,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodtreeitem.cc" line="240"/>
         <source>Top/Bottom image ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Superior/Inferior imagen ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodtreeitem.cc" line="241"/>
@@ -16535,7 +16616,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiSysAdm/uiodsysadm.cc" line="59"/>
         <source>OpendTect System Administration</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sistema de Administración de OpendTect</translation>
     </message>
     <message>
         <location filename="../../../src/uiSysAdm/uiodsysadm.cc" line="71"/>
@@ -16565,7 +16646,7 @@ nor to:%1</source>
     <message>
         <location filename="../../../src/uiSysAdm/uiodsysadmcoltabs.cc" line="30"/>
         <source>Manage color bars</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar bares de colores</translation>
     </message>
     <message>
         <location filename="../../../src/uiSysAdm/uiodsysadmcoltabs.cc" line="97"/>
@@ -16578,7 +16659,7 @@ nor to:%1</source>
     <message>
         <location filename="../../../src/uiODMain/uiodtreeitem.cc" line="157"/>
         <source>Show all items</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar todos artículos</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodtreeitem.cc" line="158"/>
@@ -16603,7 +16684,7 @@ Do you want to continue?</source>
         <location filename="../../../src/uiODMain/uiodviewer2d.cc" line="368"/>
         <location filename="../../../src/uiODMain/uiodviewer2d.cc" line="540"/>
         <source>Polygon Selection mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Modo selección del Polígono</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodviewer2d.cc" line="370"/>
@@ -16626,7 +16707,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodvolrentreeitem.cc" line="294"/>
         <source>Amplitude Spectrum ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Espectro de Amplitud ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodvolrentreeitem.cc" line="295"/>
@@ -16646,7 +16727,9 @@ Do you want to continue?</source>
         <source>Can only display one fixed-function volume per scene.
 If available, enabling OpenGL shading for volumes
 in the &apos;Look and Feel&apos; settings may help.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Solamente puede mostrar un función volumen fijado por escena.
+Sí esta disponible, permitir OpenGL sombreado por volumen
+en los ajustes de &apos;Ver y Sentir&apos; pueden ayudar.</translation>
     </message>
 </context>
 <context>
@@ -16654,7 +16737,7 @@ in the &apos;Look and Feel&apos; settings may help.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodvolrentreeitem.cc" line="398"/>
         <source>Convert to body</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Convertir a parte principal</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodvolrentreeitem.cc" line="548"/>
@@ -16667,7 +16750,7 @@ in the &apos;Look and Feel&apos; settings may help.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodvolrentreeitem.cc" line="153"/>
         <source>Position ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición ...</translation>
     </message>
 </context>
 <context>
@@ -16675,7 +16758,7 @@ in the &apos;Look and Feel&apos; settings may help.</source>
     <message>
         <location filename="../../../src/uiODMain/uiodvw2dpicksettreeitem.cc" line="168"/>
         <source>Set &amp;direction ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner dirección ...</translation>
     </message>
 </context>
 <context>
@@ -16683,7 +16766,7 @@ in the &apos;Look and Feel&apos; settings may help.</source>
     <message>
         <location filename="../../../include/uiODMain/uiodvw2dtreeitem.h" line="48"/>
         <source>Change setup...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cambiar disposición</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodvw2dtreeitem.cc" line="185"/>
@@ -16712,7 +16795,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodwelltreeitem.cc" line="54"/>
         <source>Tie Well to Seismic ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atar Pozo a Sísmica ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodwelltreeitem.cc" line="55"/>
@@ -16763,7 +16846,7 @@ Do you want to continue?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodwelltreeitem.cc" line="240"/>
         <source>Could not load well</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía cargar pozo</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodwelltreeitem.cc" line="414"/>
@@ -16777,7 +16860,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiWell/uiwellwriteopts.cc" line="29"/>
         <source>Binary</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Binario</translation>
     </message>
 </context>
 <context>
@@ -16785,7 +16868,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="582"/>
         <source>Flat survey, disabled z display</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Estudio plano, pantalla z inhabilitado</translation>
     </message>
 </context>
 <context>
@@ -16793,7 +16876,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiIo/uiobjfileman.cc" line="87"/>
         <source>Notes:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Notas:</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiobjfileman.cc" line="91"/>
@@ -16811,7 +16894,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiTools/uiobjectitemviewwin.cc" line="466"/>
         <source>Switch view mode (Esc)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cambiar modo de vista (Esc)</translation>
     </message>
 </context>
 <context>
@@ -16819,7 +16902,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiTools/uiobjectitemviewwin.cc" line="132"/>
         <source>Fit to screen</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cabar en la pantalla</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiobjectitemviewwin.cc" line="146"/>
@@ -16832,7 +16915,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiTools/uiofferinfo.cc" line="34"/>
         <source>View info</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ver información</translation>
     </message>
 </context>
 <context>
@@ -16840,7 +16923,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiIo/uipickpartserv.cc" line="256"/>
         <source>No 2D lines are available in this survey</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay líneas 2D disponibles en este estudio</translation>
     </message>
 </context>
 <context>
@@ -16848,7 +16931,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiVis/uipickpropdlg.cc" line="31"/>
         <source>Specify picks style</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Especifica estilo de picos</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uipickpropdlg.cc" line="32"/>
@@ -16876,7 +16959,7 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiIo/uipicksetman.cc" line="34"/>
         <source>Manage PickSets/Polygons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Conjunto de picos/Polígonos</translation>
     </message>
 </context>
 <context>
@@ -16885,7 +16968,8 @@ Do you want to save it?</source>
         <location filename="../../../src/uiIo/uipicksetmgr.cc" line="70"/>
         <source>The PickSet &apos;%1&apos; no longer has an entry in the data store.
 Please use &apos;Save As&apos; to store this set.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El Conjunto de Picos &apos;%1&apos; ya no tiene permiso a la base de datos.
+Por favor usa &apos;Guardar Como&apos; para almancenar este conjunto.</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uipicksetmgr.cc" line="233"/>
@@ -16931,7 +17015,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiTools/uipluginsel.cc" line="119"/>
         <source>Show this dialog at startup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar este diálogo al inicio</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uipluginsel.cc" line="123"/>
@@ -16962,7 +17046,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiIo/uiposfilterset.cc" line="82"/>
         <source>No position filters available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay posiciones filtros disponibles</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiposfilterset.cc" line="92"/>
@@ -16975,7 +17059,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiIo/uiposprovider.cc" line="77"/>
         <source>No position providers available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay posiciones proveedores disponibles</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiposprovider.cc" line="90"/>
@@ -16988,7 +17072,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiTools/uipositiontable.cc" line="47"/>
         <source>Node outside Survey</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nodo fuera del Estudio</translation>
     </message>
 </context>
 <context>
@@ -16996,7 +17080,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiIo/uiprobdenfunvarsel.cc" line="32"/>
         <source>Range</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rango</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiprobdenfunvarsel.cc" line="36"/>
@@ -17009,7 +17093,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiAttributes/uiprestackattrib.cc" line="53"/>
         <source>Preprocess</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Procesamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiprestackattrib.cc" line="61"/>
@@ -17062,7 +17146,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiSeis/uiprestkmergedlg.cc" line="298"/>
         <source>Copy Prestack Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar Datos Antes del Apilamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiprestkmergedlg.cc" line="305"/>
@@ -17090,7 +17174,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiSeis/uiprestacksel.cc" line="24"/>
         <source>Select Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona Datos</translation>
     </message>
 </context>
 <context>
@@ -17098,7 +17182,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackmmproc.cc" line="48"/>
         <source>Multi-Machine PreStack Processing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pocesamiento de Múlti-Máquina Antes del apilamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackmmproc.cc" line="49"/>
@@ -17136,7 +17220,7 @@ Please use &apos;Save As&apos; to store this set.</source>
     <message>
         <location filename="../../../src/uiSeis/uiprestkmergedlg.cc" line="45"/>
         <source>Merge Prestack Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fundir Datos Antes del Apilamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiprestkmergedlg.cc" line="46"/>
@@ -17186,7 +17270,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uiprestacksel.cc" line="121"/>
         <source>Please select a valid input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona una entrada váldia</translation>
     </message>
 </context>
 <context>
@@ -17194,7 +17278,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiNLA/uinlapartserv.cc" line="227"/>
         <source>Please enter a valid number of points per class</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor entra un número válido de puntos por clase</translation>
     </message>
     <message>
         <location filename="../../../src/uiNLA/uinlapartserv.cc" line="232"/>
@@ -17207,7 +17291,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiOSG/uiprintscenedlg.cc" line="58"/>
         <source>Make snapshot of</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hacer una foto de</translation>
     </message>
     <message>
         <location filename="../../../src/uiOSG/uiprintscenedlg.cc" line="232"/>
@@ -17225,7 +17309,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiIo/uiprobdenfuncgen.cc" line="100"/>
         <source>Generate a PDF</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Generar a PDF</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiprobdenfuncgen.cc" line="105"/>
@@ -17254,7 +17338,8 @@ Continue?</source>
         <location filename="../../../src/uiIo/uiprobdenfuncgen.cc" line="260"/>
         <source>You have requested a total of %1 bins.
 Are you sure this is what you want?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ha solicitado un total de %1 bins
+¿Esta seguro de hacerlo?</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiprobdenfuncgen.cc" line="271"/>
@@ -17277,7 +17362,7 @@ Are you sure this is what you want?</source>
     <message>
         <location filename="../../../src/uiIo/uiprobdenfuncman.cc" line="33"/>
         <source>Manage Probability Density Functions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Funciones de Probabilidad Densidad</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiprobdenfuncman.cc" line="76"/>
@@ -17295,7 +17380,7 @@ Are you sure this is what you want?</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackprocessorsel.cc" line="100"/>
         <source>Save on OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar al OK</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackprocessorsel.cc" line="116"/>
@@ -17309,7 +17394,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiIo/uibatchlaunch.cc" line="58"/>
         <source>Default number of inlines per job</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Número predeterminado de líneas por trabajo</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uibatchlaunch.cc" line="62"/>
@@ -17322,7 +17407,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackprocessor.cc" line="54"/>
         <source>Add method</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir método</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackprocessor.cc" line="67"/>
@@ -17370,7 +17455,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiVis/uimpeman.cc" line="1350"/>
         <source>QC display properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades de la pantalla QC</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uimpeman.cc" line="1367"/>
@@ -17384,7 +17469,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiVis/uimaterialdlg.cc" line="35"/>
         <source>Display properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar propiedades</translation>
     </message>
 </context>
 <context>
@@ -17392,7 +17477,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiTools/uiproxydlg.cc" line="28"/>
         <source>Connection Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustes de connección</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiproxydlg.cc" line="31"/>
@@ -17440,7 +17525,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodrandlinetreeitem.cc" line="84"/>
         <source>Please select at least two points on TimeSlice/Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona al menos dos puntos a TiempoRebanado/Horizonte</translation>
     </message>
 </context>
 <context>
@@ -17448,7 +17533,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiTools/uiraytrace1d.cc" line="162"/>
         <source>offset range %1(start/stop)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Offset rango %1 (iniciar/parar)</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiraytrace1d.cc" line="178"/>
@@ -17481,7 +17566,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiTools/uiraytrace1d.cc" line="34"/>
         <source>Ray-Tracer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rastreador de Rayos</translation>
     </message>
 </context>
 <context>
@@ -17489,7 +17574,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiWell/uiwellmarkerdlg.cc" line="398"/>
         <source>Import Markers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Marcadores</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellmarkerdlg.cc" line="411"/>
@@ -17512,7 +17597,7 @@ Do you want to discard them?</source>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="674"/>
         <source>Selected Selection-Group set is corrupted</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El seleccionado conjunto Grupo-Selección esta corrupto</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="881"/>
@@ -17542,7 +17627,7 @@ as they fall outside the value ranges of the plot</source>
         <location filename="../../../src/uiAttributes/uireferenceattrib.cc" line="63"/>
         <location filename="../../../src/uiAttributes/uireferenceattrib.cc" line="68"/>
         <source>Desired Output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Salida deseada</translation>
     </message>
 </context>
 <context>
@@ -17550,7 +17635,7 @@ as they fall outside the value ranges of the plot</source>
     <message>
         <location filename="../../../src/uiSeis/uisegyresortdlg.cc" line="32"/>
         <source>Re-sort SEG-Y scanned</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Re-ordenar SEG-Y escaneado</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyresortdlg.cc" line="33"/>
@@ -17593,7 +17678,7 @@ as they fall outside the value ranges of the plot</source>
     <message>
         <location filename="../../../src/uiTools/uirockphysform.cc" line="114"/>
         <source>Property Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo Propiedad</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uirockphysform.cc" line="134"/>
@@ -17617,7 +17702,7 @@ as they fall outside the value ranges of the plot</source>
     <message>
         <location filename="../../../src/uiSeis/uisegymanip.cc" line="51"/>
         <source>SEG-Y Binary Header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encabezamiento de SEG-Y binario</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegymanip.cc" line="106"/>
@@ -17646,7 +17731,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uisegydefdlg.cc" line="73"/>
         <source>File type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo filtro</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegydefdlg.cc" line="87"/>
@@ -17659,7 +17744,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uisegydefdlg.cc" line="36"/>
         <source>SEG-Y tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Instrumento SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegydefdlg.cc" line="36"/>
@@ -17672,7 +17757,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uisegydirectinserter.cc" line="88"/>
         <source>Scan a SEG-Y file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escanea un expediente SEG-Y</translation>
     </message>
 </context>
 <context>
@@ -17680,7 +17765,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uisegydirectinserter.cc" line="141"/>
         <source>Scan a SEG-Y file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escanea un expediente SEG-Y</translation>
     </message>
 </context>
 <context>
@@ -17688,7 +17773,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uisegydirectinserter.cc" line="35"/>
         <source>Scan a SEG-Y file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escanea un expediente SEG-Y</translation>
     </message>
 </context>
 <context>
@@ -17696,7 +17781,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uisegyexamine.cc" line="72"/>
         <source>File header information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Información sobre el encabezamiento del expediente</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyexamine.cc" line="74"/>
@@ -17729,7 +17814,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uisegyexamine.cc" line="47"/>
         <source>SEG-Y Examiner</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Examinador SEG-Y</translation>
     </message>
 </context>
 <context>
@@ -17781,7 +17866,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiSeis/uisegyexp.cc" line="265"/>
         <source>2D SEG-Y multi-export</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar-múlti SEG-Y 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyexp.cc" line="266"/>
@@ -17820,7 +17905,7 @@ That will then be replaced by the line name</source>
     <message>
         <location filename="../../../src/uiSeis/uisegyexp.cc" line="62"/>
         <source>Define SEG-Y Text Header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Definir Encabezamiento de Texto SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyexp.cc" line="68"/>
@@ -17877,7 +17962,7 @@ must never be redefined</source>
     <message>
         <location filename="../../../src/uiSeis/uisegymanip.cc" line="189"/>
         <source>Manipulate SEG-Y File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manipular expediente SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegymanip.cc" line="209"/>
@@ -17966,7 +18051,7 @@ must never be redefined</source>
     <message>
         <location filename="../../../src/uiSeis/uisegymanip.cc" line="639"/>
         <source>Specify range</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Especificar rango</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegymanip.cc" line="658"/>
@@ -17984,7 +18069,7 @@ must never be redefined</source>
     <message>
         <location filename="../../../src/uiSeis/uisegymanip.cc" line="430"/>
         <source>Header Calculation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Calculación Encabezamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegymanip.cc" line="431"/>
@@ -18017,7 +18102,7 @@ must never be redefined</source>
     <message>
         <location filename="../../../src/uiSeis/uisegydef.cc" line="780"/>
         <source>Base positioning on</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posicionamiento de base en</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegydef.cc" line="781"/>
@@ -18103,7 +18188,7 @@ actually contain the right coordinates</source>
     <message>
         <location filename="../../../src/uiSeis/uisegydef.cc" line="340"/>
         <source>SEG-Y &apos;format&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&apos;Formato&apos; SEG-Y</translation>
     </message>
 </context>
 <context>
@@ -18111,7 +18196,7 @@ actually contain the right coordinates</source>
     <message>
         <location filename="../../../src/uiSeis/uisegydef.cc" line="76"/>
         <source>Manipulate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manipular</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegydef.cc" line="89"/>
@@ -18139,7 +18224,7 @@ actually contain the right coordinates</source>
     <message>
         <location filename="../../../src/uiSeis/uisegyimpdlg.cc" line="95"/>
         <source>Import more, similar files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar mas expedientes similares</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyimpdlg.cc" line="102"/>
@@ -18167,7 +18252,7 @@ actually contain the right coordinates</source>
     <message>
         <location filename="../../../src/uiSeis/uisegyimpdlg.cc" line="128"/>
         <source>2D SEG-Y multi-import</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar-múlti 2D SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyimpdlg.cc" line="129"/>
@@ -18206,7 +18291,7 @@ That will then become the line name</source>
     <message>
         <location filename="../../../src/uiSeis/uisegyread.cc" line="168"/>
         <source>New SEG-Y setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nuevo disposición SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyread.cc" line="200"/>
@@ -18233,7 +18318,7 @@ In the survey setup window.
     <message>
         <location filename="../../../src/uiSeis/uisegyreaddlg.cc" line="102"/>
         <source>The operation was successful, but there %1:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La operación fue exitoso, pero %1:</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyreaddlg.cc" line="103"/>
@@ -18256,7 +18341,7 @@ In the survey setup window.
     <message>
         <location filename="../../../src/uiSeis/uisegyreaddlg.cc" line="25"/>
         <source>SEG-Y Scan</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escanear SEG-Y</translation>
     </message>
 </context>
 <context>
@@ -18264,7 +18349,7 @@ In the survey setup window.
     <message>
         <location filename="../../../src/uiSeis/uisegyread.cc" line="221"/>
         <source>SEG-Y Scan</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escanear SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyread.cc" line="229"/>
@@ -18282,7 +18367,7 @@ In the survey setup window.
     <message>
         <location filename="../../../src/uiSeis/uisegyread.cc" line="338"/>
         <source>Determine SEG-Y revision</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Determinar revisión SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyread.cc" line="347"/>
@@ -18296,7 +18381,8 @@ In the survey setup window.
         <location filename="../../../src/uiSeis/uisegysip.cc" line="41"/>
         <source>To be able to scan your data
 You must define the specific properties of your SEG-Y file(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Para ser capaz de escanear sus datos
+Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translation>
     </message>
 </context>
 <context>
@@ -18304,7 +18390,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uisegyscandlg.cc" line="64"/>
         <source>Press Go or hit enter to start SEG-Y scan</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pulsa Ir o pulsa entra para iniciar escanear SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uisegyscandlg.cc" line="99"/>
@@ -18322,7 +18408,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uisegysip.cc" line="68"/>
         <source>Survey setup (SEG-Y)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Disposición del estudio (SEG-Y)</translation>
     </message>
 </context>
 <context>
@@ -18330,7 +18416,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwellimpsegyvsp.cc" line="105"/>
         <source>Select SEG-Y setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona una disposición SEG-Y</translation>
     </message>
 </context>
 <context>
@@ -18338,7 +18424,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiIo/uiimpexpselgrp.cc" line="550"/>
         <source>Cross-plot Selections</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciones cross-plot</translation>
     </message>
 </context>
 <context>
@@ -18346,7 +18432,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="44"/>
         <source>Save current data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar datos actuales</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiesavedatadlg.cc" line="45"/>
@@ -18429,7 +18515,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiTools/uisaveimagedlg.cc" line="61"/>
         <source>Create snapshot</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear una foto</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uisaveimagedlg.cc" line="75"/>
@@ -18489,7 +18575,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiODMain/uiodannotscalebaritem.cc" line="49"/>
         <source>%1 properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 propiedades</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodannotscalebaritem.cc" line="62"/>
@@ -18508,7 +18594,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiTools/uiscaler.cc" line="41"/>
         <source>Shift/Factor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cambio/Factor</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiscaler.cc" line="51"/>
@@ -18574,7 +18660,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiVis/uiscenecolorbarmgr.cc" line="21"/>
         <source>Color Bar Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustes de Bares de Colores</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uiscenecolorbarmgr.cc" line="27"/>
@@ -18597,7 +18683,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiVis/uiscenepropdlg.cc" line="37"/>
         <source>Scene properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades de la escena</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uiscenepropdlg.cc" line="54"/>
@@ -18681,7 +18767,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dfileman.cc" line="53"/>
         <source>Manage 2D Seismic Lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Líneas Sísmicas 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dfileman.cc" line="65"/>
@@ -18699,7 +18785,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dfileman.cc" line="233"/>
         <source>Merge lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fundir líneas</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dfileman.cc" line="233"/>
@@ -18783,7 +18869,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dfrom3d.cc" line="26"/>
         <source>Extract 2D data from 3D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraer datos 2D de 3D</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dfrom3d.cc" line="70"/>
@@ -18796,7 +18882,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uiseislinesel.cc" line="409"/>
         <source>Line name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">nombre de línea</translation>
     </message>
 </context>
 <context>
@@ -18804,7 +18890,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uiseislinesel.cc" line="329"/>
         <source>Please select the line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona una línea</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseislinesel.cc" line="356"/>
@@ -18822,7 +18908,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uiseislinesel.cc" line="539"/>
         <source>Select 2D Lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona Líneas 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseislinesel.cc" line="545"/>
@@ -18840,7 +18926,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uiseissubsel.cc" line="255"/>
         <source>Please select at least one line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona al menos una línea</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseissubsel.cc" line="265"/>
@@ -18853,7 +18939,7 @@ You must define the specific properties of your SEG-Y file(s)</source>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dto3d.cc" line="32"/>
         <source>Create 3D cube from to 2DDataSet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear cubos 3D de Conjunto de Datos 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dto3d.cc" line="74"/>
@@ -18910,7 +18996,7 @@ in survey setup to display/use the cube</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisbayesclass.cc" line="245"/>
         <source>[2] Normalization/Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">[2] Normalización/Escalada</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisbayesclass.cc" line="263"/>
@@ -18948,7 +19034,7 @@ in survey setup to display/use the cube</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisbayesclass.cc" line="506"/>
         <source>%1- Output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 - Salida</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisbayesclass.cc" line="507"/>
@@ -18981,7 +19067,7 @@ in survey setup to display/use the cube</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisbayesclass.cc" line="103"/>
         <source>[1] Specify PDF input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">[1] Especifica entrada de PDF</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisbayesclass.cc" line="116"/>
@@ -19010,7 +19096,7 @@ is not compatible with the first</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisbayesclass.cc" line="414"/>
         <source>%1- Seismics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 - Sísmicas</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisbayesclass.cc" line="415"/>
@@ -19033,7 +19119,7 @@ is not compatible with the first</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisbrowser.cc" line="633"/>
         <source>Initialising</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Inicializando</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisbrowser.cc" line="670"/>
@@ -19129,7 +19215,7 @@ is not compatible with the first</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisbrowser.cc" line="85"/>
         <source>Browse %1 &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">navegar %1 &apos;%2&apos;</translation>
     </message>
 </context>
 <context>
@@ -19137,7 +19223,7 @@ is not compatible with the first</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisbrowser.cc" line="444"/>
         <source>Reposition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reposición</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisbrowser.cc" line="445"/>
@@ -19155,7 +19241,7 @@ is not compatible with the first</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiscopy.cc" line="34"/>
         <source>Copy cube</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Copiar cubo</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiscopy.cc" line="46"/>
@@ -19168,7 +19254,7 @@ is not compatible with the first</source>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dgeom.cc" line="35"/>
         <source>Dump 2D line geometry to file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arrojar línea 2D geometría a expediente</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseis2dgeom.cc" line="49"/>
@@ -19191,7 +19277,7 @@ is not compatible with the first</source>
     <message>
         <location filename="../../../src/uiEMAttrib/uiseiseventsnapper.cc" line="41"/>
         <source>Snap horizon to seismic event</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tomar una foto del horizonte al evento sísmica</translation>
     </message>
     <message>
         <location filename="../../../src/uiEMAttrib/uiseiseventsnapper.cc" line="61"/>
@@ -19214,7 +19300,7 @@ is not compatible with the first</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisfmtscale.cc" line="63"/>
         <source>Format / Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formato/Escalada</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisfmtscale.cc" line="70"/>
@@ -19237,7 +19323,7 @@ is not compatible with the first</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisioobjinfo.cc" line="57"/>
         <source>No output cube produced</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No ha producido cubo de salida</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisioobjinfo.cc" line="86"/>
@@ -19276,7 +19362,7 @@ Available on disk: %2 MB</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisiosimple.cc" line="63"/>
         <source>Import seismics from simple flat file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar sísmicas de expediente plano simple</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisiosimple.cc" line="64"/>
@@ -19446,7 +19532,7 @@ Available on disk: %2 MB</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiscbvsimpfromothersurv.cc" line="40"/>
         <source>Import CBVS cube from other survey</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar cubo CBVS de otro estudio</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiscbvsimpfromothersurv.cc" line="41"/>
@@ -19479,7 +19565,7 @@ Available on disk: %2 MB</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisimportcbvs.cc" line="44"/>
         <source>Import CBVS cube</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar cubo CBVS</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisimportcbvs.cc" line="60"/>
@@ -19523,7 +19609,7 @@ See log file for details</source>
     <message>
         <location filename="../../../src/uiSeis/uiseismmproc.cc" line="99"/>
         <source>Dismiss</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Despedir</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseismmproc.cc" line="103"/>
@@ -19583,7 +19669,7 @@ This may mean the job is not fit for Multi-Job/Machine execution</source>
     <message>
         <location filename="../../../src/uiSeis/uiseismulticubeps.cc" line="51"/>
         <source>Edit/Create MultiCube Prestack data store</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar/Crear almacenamiento MúltiCubo datos Antes del Apilamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseismulticubeps.cc" line="52"/>
@@ -19628,7 +19714,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseispartserv.cc" line="230"/>
         <source>Select 2D Lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona Líneas 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseispartserv.cc" line="241"/>
@@ -19641,7 +19727,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseispreloadmgr.cc" line="46"/>
         <source>Seismic Data Pre-load Manager</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gerente de Datos Sísmicas Precargados</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseispreloadmgr.cc" line="66"/>
@@ -19733,7 +19819,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseispreloadmgr.cc" line="301"/>
         <source>Select data store</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona almacenameinto de datos</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseispreloadmgr.cc" line="305"/>
@@ -19756,7 +19842,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisrandto2dline.cc" line="40"/>
         <source>Input RandomLine</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrada de Líneas al Azar</translation>
     </message>
 </context>
 <context>
@@ -19764,7 +19850,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseisrandto2dline.cc" line="100"/>
         <source>Save as 2D line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar como línea 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseisrandto2dline.cc" line="110"/>
@@ -19802,7 +19888,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseissel.cc" line="52"/>
         <source>Input Cube</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cubo de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseissel.cc" line="52"/>
@@ -19856,7 +19942,7 @@ Please import 3D seismic data.</source>
         <location filename="../../../src/uiSeis/uiseistransf.cc" line="42"/>
         <location filename="../../../src/uiSeis/uiseistransf.cc" line="45"/>
         <source>Null traces</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cero rastros</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseistransf.cc" line="54"/>
@@ -19869,7 +19955,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltsel.cc" line="41"/>
         <source>Extract</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraer</translation>
     </message>
 </context>
 <context>
@@ -19877,7 +19963,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltgen.cc" line="53"/>
         <source>Please enter a name for the new Wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor entra un nombre para la nueva Onda</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltgen.cc" line="56"/>
@@ -19890,7 +19976,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltimpexp.cc" line="139"/>
         <source>Export Wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exporart Onda</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltimpexp.cc" line="163"/>
@@ -19918,7 +20004,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltgen.cc" line="71"/>
         <source>Create Wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Onda</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltgen.cc" line="72"/>
@@ -19966,7 +20052,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltimpexp.cc" line="37"/>
         <source>Import Wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Onda</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltimpexp.cc" line="57"/>
@@ -20009,7 +20095,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltman.cc" line="101"/>
         <source>Generate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Generar</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltman.cc" line="105"/>
@@ -20057,7 +20143,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltgen.cc" line="122"/>
         <source>Merge Wavelets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fundir Ondas</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltgen.cc" line="123"/>
@@ -20110,7 +20196,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltattr.cc" line="66"/>
         <source>Phase rotation Slider</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Deslizador de fase rotación</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltattr.cc" line="68"/>
@@ -20123,7 +20209,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltattr.cc" line="106"/>
         <source>Taper Wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Afilador de Ondas</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltattr.cc" line="109"/>
@@ -20181,7 +20267,7 @@ Please import 3D seismic data.</source>
     <message>
         <location filename="../../../src/uiAttributes/attribsetcreator.cc" line="38"/>
         <source>Specify inputs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Especifica entradas</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/attribsetcreator.cc" line="39"/>
@@ -20205,7 +20291,7 @@ Please contact support for possible workarounds.</source>
     <message>
         <location filename="../../../src/uiTools/uisellinest.cc" line="49"/>
         <source>Line style</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Estilo Línea</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uisellinest.cc" line="72"/>
@@ -20228,7 +20314,7 @@ Please contact support for possible workarounds.</source>
     <message>
         <location filename="../../../src/uiIo/uiselobjothersurv.cc" line="27"/>
         <source>Select survey</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona estudio</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uiselobjothersurv.cc" line="50"/>
@@ -20241,7 +20327,7 @@ Please contact support for possible workarounds.</source>
     <message>
         <location filename="../../../src/uiTools/uiselsimple.cc" line="30"/>
         <source>No items available for selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay arctículos disponibles para selección</translation>
     </message>
 </context>
 <context>
@@ -20249,7 +20335,7 @@ Please contact support for possible workarounds.</source>
     <message>
         <location filename="../../../src/uiIo/uidatapointset.cc" line="745"/>
         <source>Position entered is not valid.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición entrada no es válida</translation>
     </message>
 </context>
 <context>
@@ -20257,7 +20343,7 @@ Please contact support for possible workarounds.</source>
     <message>
         <location filename="../../../src/uiAttributes/uiscalingattrib.cc" line="470"/>
         <source>Number of traces specified is more than in the dataset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Número de rastros especificados es mas que en el conjunto de datos</translation>
     </message>
 </context>
 <context>
@@ -20265,7 +20351,7 @@ Please contact support for possible workarounds.</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uisemblancealgo.cc" line="20"/>
         <source>Semblance parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parámetros semblanzas</translation>
     </message>
 </context>
 <context>
@@ -20273,7 +20359,7 @@ Please contact support for possible workarounds.</source>
     <message>
         <location filename="../../../src/uiAttributes/uisemblanceattrib.cc" line="64"/>
         <source>Extension</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extención</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uisemblanceattrib.cc" line="70"/>
@@ -20286,7 +20372,7 @@ Please contact support for possible workarounds.</source>
     <message>
         <location filename="../../../src/uiVis/uimpeman.cc" line="802"/>
         <source>Set Cube Position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner Posición del Cubo</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uimpeman.cc" line="808"/>
@@ -20299,7 +20385,7 @@ Please contact support for possible workarounds.</source>
     <message>
         <location filename="../../../src/uiIo/uisetdatadir.cc" line="55"/>
         <source>Set Data Directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner Directorio de Datos</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uisetdatadir.cc" line="56"/>
@@ -20385,7 +20471,7 @@ Most probably you have no write permissions for:
     <message>
         <location filename="../../../src/uiAttributes/uisetpickdirs.cc" line="50"/>
         <source>Add direction to Pick Set</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir dirección al Conjunto de Picos</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uisetpickdirs.cc" line="51"/>
@@ -20443,7 +20529,7 @@ Most probably you have no write permissions for:
     <message>
         <location filename="../../../src/uiTools/uisettings.cc" line="65"/>
         <source>Set User Settings value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner valor de Ajustes del Usador</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uisettings.cc" line="73"/>
@@ -20466,7 +20552,7 @@ Most probably you have no write permissions for:
     <message>
         <location filename="../../../src/uiTools/uisettings.cc" line="433"/>
         <source>OpendTect Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustes de OpendTect</translation>
     </message>
 </context>
 <context>
@@ -20474,7 +20560,7 @@ Most probably you have no write permissions for:
     <message>
         <location filename="../../../src/uiAttributes/uishiftattrib.cc" line="48"/>
         <source>Use steering</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usar manejar</translation>
     </message>
 </context>
 <context>
@@ -20482,7 +20568,7 @@ Most probably you have no write permissions for:
     <message>
         <location filename="../../../src/uiTools/uishortcuts.cc" line="26"/>
         <source>Set up shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner atajos</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uishortcuts.cc" line="27"/>
@@ -20495,7 +20581,7 @@ Most probably you have no write permissions for:
     <message>
         <location filename="../../../src/uiAttributes/uisimilarityattrib.cc" line="89"/>
         <source>Extension</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extención</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uisimilarityattrib.cc" line="95"/>
@@ -20528,7 +20614,7 @@ Most probably you have no write permissions for:
     <message>
         <location filename="../../../plugins/uiExpAttribs/uisimilaritybyaw.cc" line="36"/>
         <source>Ref time gate (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ref puerta de tiempo (ms)</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiExpAttribs/uisimilaritybyaw.cc" line="40"/>
@@ -20541,7 +20627,7 @@ Most probably you have no write permissions for:
     <message>
         <location filename="../../../src/uiWell/uisimplemultiwell.cc" line="58"/>
         <source>Import Simple Wells</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Pozos Simples</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uisimplemultiwell.cc" line="60"/>
@@ -20581,7 +20667,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiWell/uisimplemultiwell.cc" line="166"/>
         <source>Multi-well creation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Creación de Múlti-pozo</translation>
     </message>
 </context>
 <context>
@@ -20589,7 +20675,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiAttributes/uiattribsingleedit.cc" line="24"/>
         <source>Add attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir atributo</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uiattribsingleedit.cc" line="24"/>
@@ -20612,7 +20698,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiTools/uibatchjobdispatcher.cc" line="317"/>
         <source>Batch execution parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parámetros del ejecución lotes</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uibatchjobdispatcher.cc" line="318"/>
@@ -20635,7 +20721,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiStrat/uistratlayseqgendesc.cc" line="624"/>
         <source>Edit layer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar capas</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratlayseqgendesc.cc" line="624"/>
@@ -20663,7 +20749,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiTools/uislicepos.cc" line="46"/>
         <source>Previous position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición anterior</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uislicepos.cc" line="48"/>
@@ -20676,7 +20762,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiTools/uislicesel.cc" line="144"/>
         <source>Scrolling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Volutar</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uislicesel.cc" line="172"/>
@@ -20709,7 +20795,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiTools/uislicesel.cc" line="67"/>
         <source>Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Volutar</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uislicesel.cc" line="76"/>
@@ -20722,7 +20808,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiTools/uislicesel.cc" line="583"/>
         <source>Positioning</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posicionamiento</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uislicesel.cc" line="584"/>
@@ -20735,7 +20821,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocsmoother.cc" line="40"/>
         <source>Stepout</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Apretar el paso</translation>
     </message>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocsmoother.cc" line="99"/>
@@ -20753,7 +20839,7 @@ Well not created</source>
     <message>
         <location filename="../../../src/uiAttributes/uispecdecompattrib.cc" line="60"/>
         <source>Transform type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Transformar tipo</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uispecdecompattrib.cc" line="61"/>
@@ -20783,7 +20869,7 @@ and will be snapped to nearest suitable frequency</source>
     <message>
         <location filename="../../../src/uiIo/uisrchprocfiles.cc" line="29"/>
         <source>Find job specification file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encontrar expediente de trabajo especificado</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uisrchprocfiles.cc" line="30"/>
@@ -20826,7 +20912,7 @@ and will be snapped to nearest suitable frequency</source>
     <message>
         <location filename="../../../src/uiIo/uibatchlaunch.cc" line="221"/>
         <source>Could not remove job file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía borrar expediente de trabajo</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uibatchlaunch.cc" line="257"/>
@@ -20844,7 +20930,7 @@ and will be snapped to nearest suitable frequency</source>
     <message>
         <location filename="../../../src/uiIo/uisurvey.cc" line="240"/>
         <source>Create New Survey</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Estudio Nuevo</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uisurvey.cc" line="241"/>
@@ -20908,7 +20994,7 @@ Please remove it first or use another survey name</source>
     <message>
         <location filename="../../../src/uiSeis/uistaticsdesc.cc" line="34"/>
         <source>Statics elevation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Evaluación de Estadísticas</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uistaticsdesc.cc" line="37"/>
@@ -20936,7 +21022,7 @@ Please remove it first or use another survey name</source>
     <message>
         <location filename="../../../src/uiTools/uistatsdisplay.cc" line="60"/>
         <source>Data Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre de Datos</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uistatsdisplay.cc" line="65"/>
@@ -20964,7 +21050,7 @@ Please remove it first or use another survey name</source>
     <message>
         <location filename="../../../src/uiAttributes/uisteeringsel.cc" line="219"/>
         <source>Selected Steering input is not valid</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manejar entrada seleccionada no as válida</translation>
     </message>
 </context>
 <context>
@@ -20972,7 +21058,7 @@ Please remove it first or use another survey name</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocchain.cc" line="45"/>
         <source>Edit step</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar paso</translation>
     </message>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocchain.cc" line="122"/>
@@ -20990,7 +21076,7 @@ Please remove it first or use another survey name</source>
     <message>
         <location filename="../../../src/uiOSG/uistereodlg.cc" line="21"/>
         <source>Stereo viewing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Viendo estéreo</translation>
     </message>
     <message>
         <location filename="../../../src/uiOSG/uistereodlg.cc" line="22"/>
@@ -21015,7 +21101,9 @@ Please remove it first or use another survey name</source>
         <source>This surface already has an attribute called:
 %1
 Do you wish to overwrite this data?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Este superficie ya tiene un atributo llamado:
+%1
+¿Desea sobrescribir estos datos?</translation>
     </message>
 </context>
 <context>
@@ -21023,7 +21111,7 @@ Do you wish to overwrite this data?</source>
     <message>
         <location filename="../../../src/uiAttributes/uistoredattrreplacer.cc" line="223"/>
         <source>No valid steering input selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manejar entrada seleccionada no es válida</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uistoredattrreplacer.cc" line="297"/>
@@ -21036,7 +21124,7 @@ Do you wish to overwrite this data?</source>
     <message>
         <location filename="../../../src/uiVelocity/uivelocityfunctionstored.cc" line="28"/>
         <source>Stored Functions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Funciones Almacenadas</translation>
     </message>
     <message>
         <location filename="../../../src/uiVelocity/uivelocityfunctionstored.cc" line="105"/>
@@ -21049,7 +21137,7 @@ Do you wish to overwrite this data?</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uistratamp.cc" line="35"/>
         <source>StratalAmplitude</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Amplitud de Estratigrafía</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uistratamp.cc" line="45"/>
@@ -21110,7 +21198,7 @@ Please Check Top / Bottom Horizon</source>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="543"/>
         <source>Manage Contents</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Genstionar el contenido</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="544"/>
@@ -21123,7 +21211,7 @@ Please Check Top / Bottom Horizon</source>
     <message>
         <location filename="../../../src/uiStrat/uistratdisplay.cc" line="113"/>
         <source>Display between Ages (My)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar entre Edad (Mio)</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratdisplay.cc" line="249"/>
@@ -21141,7 +21229,7 @@ Please Check Top / Bottom Horizon</source>
     <message>
         <location filename="../../../src/uiStrat/uistratdisplay.cc" line="529"/>
         <source>&lt;Click to add&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;Haz clic para añadir&gt;</translation>
     </message>
 </context>
 <context>
@@ -21149,7 +21237,7 @@ Please Check Top / Bottom Horizon</source>
     <message>
         <location filename="../../../src/uiStrat/uistrateditlayer.cc" line="30"/>
         <source>Layer properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades de capas</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistrateditlayer.cc" line="31"/>
@@ -21192,7 +21280,7 @@ Please Check Top / Bottom Horizon</source>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymodtools.cc" line="60"/>
         <source>Open stored generation description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abrir descripción de generación almacenado</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymodtools.cc" line="63"/>
@@ -21220,7 +21308,7 @@ Please Check Top / Bottom Horizon</source>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymodtools.cc" line="130"/>
         <source>Displayed property</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedad mostrado</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymodtools.cc" line="135"/>
@@ -21263,7 +21351,7 @@ Please Check Top / Bottom Horizon</source>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymodtools.cc" line="444"/>
         <source>Property Selector</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selector de Propiedades</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymodtools.cc" line="445"/>
@@ -21318,7 +21406,8 @@ Please specify which one to use as: </source>
         <location filename="../../../src/uiStrat/uistratlayseqattrsetbuild.cc" line="76"/>
         <source>Well Attribute Set not saved.
 Do you want to save it now?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conjunto de Atributos Pozos no esta guardado.
+¿Quiere guardarlo ahora?</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratlayseqattrsetbuild.cc" line="78"/>
@@ -21351,7 +21440,7 @@ Do you want to save it now?</source>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymoddisp.cc" line="162"/>
         <source>&lt;---empty---&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&lt;--vacío--&gt;</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymoddisp.cc" line="164"/>
@@ -21374,7 +21463,7 @@ Do you want to save it now?</source>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymoddisp.cc" line="189"/>
         <source>Read dumped models</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Leer modelos arrojados</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratlaymoddisp.cc" line="189"/>
@@ -21432,7 +21521,7 @@ for write</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratlayermodel.cc" line="135"/>
         <source>Select modeling type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona tipo modelo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratlayermodel.cc" line="140"/>
@@ -21460,7 +21549,7 @@ for write</source>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="554"/>
         <source>Create/Edit level</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear/Editar nivel</translation>
     </message>
 </context>
 <context>
@@ -21468,7 +21557,7 @@ for write</source>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="783"/>
         <source>Link Marker to %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Enlazar Marcador a %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="798"/>
@@ -21496,7 +21585,7 @@ for write</source>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="257"/>
         <source>Manage Lithologies</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar litologías</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="272"/>
@@ -21534,7 +21623,7 @@ for write</source>
     <message>
         <location filename="../../../src/uiStrat/uistratlvllist.cc" line="28"/>
         <source>Regional markers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Marcadores regionales</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratlvllist.cc" line="39"/>
@@ -21582,7 +21671,7 @@ for write</source>
     <message>
         <location filename="../../../src/uiStrat/uistratreftree.cc" line="189"/>
         <source>Create sub-unit...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear sub-unidad ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratreftree.cc" line="191"/>
@@ -21610,7 +21699,7 @@ for write</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratseisevent.cc" line="41"/>
         <source>Snap synthetics to event</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tomar una foto sintética al evento</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratseisevent.cc" line="49"/>
@@ -21639,7 +21728,7 @@ for write</source>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="421"/>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="422"/>
         <source>Add content</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir contenido</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="421"/>
@@ -21662,7 +21751,7 @@ for write</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratsynthcrossplot.cc" line="52"/>
         <source>Layer model/synthetics cross-plotting</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cross-plotting capas de model/sintéticas</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratsynthcrossplot.cc" line="59"/>
@@ -21707,7 +21796,7 @@ Most likely, no synthetics are available.</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratsynthdisp.cc" line="103"/>
         <source>Wiggle View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Menear Vista</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratsynthdisp.cc" line="110"/>
@@ -21782,7 +21871,7 @@ to real amplitudes along a horizon</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratsynthexport.cc" line="125"/>
         <source>Save synthetic seismics and horizons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar sísmicas sintéticas y horizontes</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratsynthexport.cc" line="131"/>
@@ -21903,7 +21992,7 @@ end traces will be clipped</source>
     <message>
         <location filename="../../../src/uiStrat/uistrattreewin.cc" line="66"/>
         <source>Manage Stratigraphy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Estatigrafía</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistrattreewin.cc" line="99"/>
@@ -21983,7 +22072,7 @@ Your work will be lost. Continue anyway ?</source>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="598"/>
         <source>Subdivide Stratigraphic Unit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Subdividir Unidad Estratigrafía</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="599"/>
@@ -22043,7 +22132,7 @@ Please correct it.</source>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="40"/>
         <source>Stratigraphic Unit Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editor de Unidad Estratigrafía</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratutildlgs.cc" line="41"/>
@@ -22086,7 +22175,7 @@ Please correct it.</source>
     <message>
         <location filename="../../../src/uiStrat/uistratdisplay.cc" line="614"/>
         <source>Zoom in</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zoom</translation>
     </message>
     <message>
         <location filename="../../../src/uiStrat/uistratdisplay.cc" line="615"/>
@@ -22233,552 +22322,552 @@ Please correct it.</source>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="26"/>
         <source>Abort</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abortar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="27"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Acción</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="29"/>
         <source>Add color blended</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir color mezclado</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="30"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Avanzado</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="31"/>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Todo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="32"/>
         <source>Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Análisis</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="33"/>
         <source>Apply</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aplicar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="36"/>
         <source>Attribute name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre atributo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="37"/>
         <source>Attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atributo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="40"/>
         <source>Internal error: bad connection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error interno: mala connección</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="43"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fondo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="44"/>
         <source>Bottom Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fondo horizonte</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="45"/>
         <source>Calculate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Calcular</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="46"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cancelar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="48"/>
         <source>Cannot create horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede crear horizonte</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="50"/>
         <source>Cannot find attribute name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar nombre atributo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="54"/>
         <source>Cannot find object in data base</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar objeto en base de datos</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="57"/>
         <source>Cannot find surface</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede encontrar la superficie</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="58"/>
         <source>Cannot load horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede cargar horizonte</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="59"/>
         <source>Cannot open input file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de entrada</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="61"/>
         <source>Cannot open output file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrir expediente de salida</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="64"/>
         <source>Cannot read input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer entrada</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="66"/>
         <source>Cannot read input data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer datos de entrada</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="69"/>
         <source>Cannot write settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede escribir ajustes</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="70"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cerrar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="71"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Color</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="73"/>
         <source>Continue</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Continuar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="76"/>
         <source>Create Probability Density Function</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Función de Probabilidad Densidad</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="79"/>
         <source>Create random lines</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear líneas al azar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="80"/>
         <source>Crossline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Línea cruzada</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="81"/>
         <source>Depth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Profundidad</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="82"/>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Visualización</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="83"/>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abajo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="87"/>
         <source>Please enter a valid name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor entre un nombre válido</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="90"/>
         <source>Examine</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Examinar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="92"/>
         <source>Exit OpendTect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Salir de OpendTect</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="93"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="95"/>
         <source>Failed to convert into compatible data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló de convertir en datos compatibles</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="99"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expediente</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="100"/>
         <source>File does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expediente no existe</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="101"/>
         <source>Go</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ir</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="102"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ayuda</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="104"/>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ocultar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="108"/>
         <source>Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Horizontal</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="109"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="110"/>
         <source>Import successful</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importación exitoso</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="111"/>
         <source>info</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Información</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="112"/>
         <source>Inline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Línea</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="114"/>
         <source>Input parameters missing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Faltan parámetros de entrada</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="117"/>
         <source>Input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrada</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="118"/>
         <source>Input Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos de entrada</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="119"/>
         <source>Invalid input file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expediente de entrada inválido</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="121"/>
         <source>Lock</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bloquear</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="123"/>
         <source>Manual</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manual</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="124"/>
         <source>Manage wavelets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar ondas</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="126"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nombre</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="128"/>
         <source>Next &gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Proximo &gt;</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="129"/>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="130"/>
         <source>No log selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No log seleccionado</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="131"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ningún</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="133"/>
         <source>No object to store set in data base</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No hay objecto para almacenar en base de datos</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="136"/>
         <source>No valid data found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró datos válidos</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="137"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="140"/>
         <source>Operator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Operador</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="141"/>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Opciones</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="143"/>
         <source>Output data store</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Almacén de datos de salida</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="145"/>
         <source>Output file exists. Overwrite?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expediente de entrada existe. ¿Sobrescribir?</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="148"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Salida</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="149"/>
         <source>Overwrite</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sobrescribir</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="150"/>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pausa</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="151"/>
         <source>Pickset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Conjunto de picos</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="152"/>
         <source>Polygon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Polígono</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="153"/>
         <source>Processing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Procedimiento</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="155"/>
         <source>Rectangle</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rectángulo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="156"/>
         <source>Redo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rehacer</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="157"/>
         <source>Reload</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recargar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="161"/>
         <source>Save as default</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar como predeterminada</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="162"/>
         <source>Save body failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Falló guardar parte principal</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="163"/>
         <source>Scanning</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escaneando</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="164"/>
         <source>Scenes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escenas</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="166"/>
         <source>Which one is your seed data.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cuals es su punto de inicio.</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="169"/>
         <source>SEG-Y</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="171"/>
         <source>Select Attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seleccionar atributo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="173"/>
         <source>Selected data set is empty</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El conjunto de datos seleccionado es vacío</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="178"/>
         <source>Selected object is not a Mute Definition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">El objecto seleccionado no es un Mudo Definicíon</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="182"/>
         <source>Please select output file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona un expediente salida</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="186"/>
         <source>Setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Disposicíon</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="188"/>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="190"/>
         <source>Specify generation parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Especificar parámetros de generación</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="193"/>
         <source>Please specify</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor especifique</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="194"/>
         <source>Steering</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Manejando</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="195"/>
         <source>Step</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Paso</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="196"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Para</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="199"/>
         <source>Survey</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Estudio</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="200"/>
         <source>Tile</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Azulejo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="201"/>
         <source>Time</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tiempo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="202"/>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Instrumentos</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="203"/>
         <source>Top Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Horizonte superior</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="205"/>
         <source>Transparency</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Transparencia</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="206"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="207"/>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Deshacer</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="208"/>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arriba</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="209"/>
         <source>Use</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="210"/>
         <source>Utilities</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Utilidades</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="211"/>
         <source>Value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Valor</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="212"/>
         <source>Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vertical</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="213"/>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vista</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="214"/>
         <source>Wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Onda</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="216"/>
         <source>Wiggle</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Menear</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="217"/>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Si</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="223"/>
@@ -22803,12 +22892,12 @@ Please correct it.</source>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="229"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="229"/>
         <source>Add ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="232"/>
@@ -22823,92 +22912,92 @@ Please correct it.</source>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="235"/>
         <source>Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atributos</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="235"/>
         <source>Attributes ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atributos ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="238"/>
         <source>ColorTable</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tabla Colores</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="238"/>
         <source>ColorTable ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tabla Colores ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="241"/>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="241"/>
         <source>Create ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="244"/>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="244"/>
         <source>Edit ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="247"/>
         <source>Faults</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fallas</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="247"/>
         <source>Faults ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fallas ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="250"/>
         <source>Histogram</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Histograma</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="250"/>
         <source>Histogram ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Histograma ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="253"/>
         <source>Horizon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Horizonte</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="253"/>
         <source>Horizon ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Horizonte ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="256"/>
         <source>Horizons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Horizontes</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="256"/>
         <source>Horizons ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Horizontes ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="259"/>
         <source>Load</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cargar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="259"/>
         <source>Load ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cargar ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="262"/>
@@ -22923,152 +23012,152 @@ Please correct it.</source>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="265"/>
         <source>Markers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Marcadores</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="265"/>
         <source>Markers ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Marcadores ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="268"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nuevo</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="268"/>
         <source>New ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nuevo ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="271"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abrir</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="271"/>
         <source>Open ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abrir ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="274"/>
         <source>Properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="274"/>
         <source>Properties ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="277"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Borrar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="277"/>
         <source>Remove ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Borrar ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="280"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="280"/>
         <source>Save ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="283"/>
         <source>Save as</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar como</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="283"/>
         <source>Save as ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar como ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="286"/>
         <source>Seismics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sísmica</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="286"/>
         <source>Seismics ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sísmica ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="289"/>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seleccionar</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="289"/>
         <source>Select ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seleccionar ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="292"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustes</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="292"/>
         <source>Settings ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustes ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="295"/>
         <source>Shift</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cambio</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="295"/>
         <source>Shift ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cambio ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="298"/>
         <source>Stored</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Almacenada</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="298"/>
         <source>Stored ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Almacenada ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="301"/>
         <source>Stratigraphy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Estratigrafía</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="301"/>
         <source>Stratigraphy ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Estratigrafía ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="304"/>
         <source>Track</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pista</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="304"/>
         <source>Track ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pista ...</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="307"/>
         <source>Wells</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pozos</translation>
     </message>
     <message>
         <location filename="../../../include/Basic/uistrings.h" line="307"/>
         <source>Wells ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pozos ...</translation>
     </message>
 </context>
 <context>
@@ -23076,7 +23165,7 @@ Please correct it.</source>
     <message>
         <location filename="../../../plugins/uiGLCM/uiGLCM_attrib.cc" line="275"/>
         <source>Select data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona datos</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiGLCM/uiGLCM_attrib.cc" line="275"/>
@@ -23105,7 +23194,7 @@ Please correct it.</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocsurfacelimitedfiller.cc" line="90"/>
         <source>Start value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Iniciar valor</translation>
     </message>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocsurfacelimitedfiller.cc" line="97"/>
@@ -23174,7 +23263,7 @@ Please correct it.</source>
     <message>
         <location filename="../../../src/uiEarthModel/uisurfaceman.cc" line="156"/>
         <source>Horizon Data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datos de Horizonte</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uisurfaceman.cc" line="162"/>
@@ -23249,7 +23338,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uisurfaceposprov.cc" line="43"/>
         <source>Not implemented for 2D</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No esta implementado para 2D</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uisurfaceposprov.cc" line="50"/>
@@ -23282,7 +23371,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="502"/>
         <source>Please select input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor selecciona entrada</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="505"/>
@@ -23295,7 +23384,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uisurfaceman.cc" line="689"/>
         <source>Cannot change color of regional marker</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede cambiar color o marcador regional</translation>
     </message>
 </context>
 <context>
@@ -23303,7 +23392,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="356"/>
         <source>Output Stickset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Salida de Conjunto de Picos</translation>
     </message>
     <message>
         <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="358"/>
@@ -23326,7 +23415,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiVis/uisurvtopbotimg.cc" line="160"/>
         <source>Top/Bottom Images</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Imagenes superiores/inferiores</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uisurvtopbotimg.cc" line="161"/>
@@ -23339,7 +23428,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiVis/uisurvtopbotimg.cc" line="47"/>
         <source>Vertical position (Z)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición vertical (Z)</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uisurvtopbotimg.cc" line="61"/>
@@ -23357,7 +23446,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiIo/uisurvey.cc" line="381"/>
         <source>Survey Setup and Selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Disposición y Selección del Estudio</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uisurvey.cc" line="399"/>
@@ -23561,7 +23650,7 @@ No changes committed.</source>
     <message>
         <location filename="../../../src/uiIo/uisurvinfoed.cc" line="50"/>
         <source>Edit Survey Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar Parámetros del Estudio</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uisurvinfoed.cc" line="101"/>
@@ -23780,7 +23869,8 @@ No changes committed.</source>
         <location filename="../../../src/uiIo/uisurveyselect.cc" line="205"/>
         <source>Selected directory does not exist.
 Please specify the full path</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Directorio seleccionado no existe.
+Por favor especifique un camino completo</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uisurveyselect.cc" line="208"/>
@@ -23798,7 +23888,7 @@ Please specify the full path</source>
     <message>
         <location filename="../../../src/uiIo/uisurveyselect.cc" line="37"/>
         <source>Select Data Root and Survey</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona Datos de Raíz y Estudio</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uisurveyselect.cc" line="99"/>
@@ -23816,7 +23906,7 @@ Please specify the full path</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthseis.cc" line="278"/>
         <source>Synthetic Corrections advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Opciones avanzados de Correcciones Sintéticos</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthseis.cc" line="279"/>
@@ -23839,7 +23929,7 @@ Please specify the full path</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthseis.cc" line="223"/>
         <source>Apply NMO corrections</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aplicar correcciones NMO</translation>
     </message>
 </context>
 <context>
@@ -23847,7 +23937,7 @@ Please specify the full path</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthgendlg.cc" line="32"/>
         <source>Specify Synthetic Parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Especificar Parámetros Sintéticos</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthgendlg.cc" line="41"/>
@@ -23915,7 +24005,7 @@ Please specify the full path</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthseis.cc" line="52"/>
         <source>Compute internal multiples</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Computar múltiples internos</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthseis.cc" line="56"/>
@@ -23928,7 +24018,7 @@ Please specify the full path</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratsynthdisp.cc" line="1687"/>
         <source>Previous position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición anterior</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratsynthdisp.cc" line="1690"/>
@@ -23941,7 +24031,7 @@ Please specify the full path</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthtorealscale.cc" line="137"/>
         <source>Scale synthetics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escala de sintéticos</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthtorealscale.cc" line="138"/>
@@ -24001,7 +24091,7 @@ Please check file permissions</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthtorealscale.cc" line="346"/>
         <source>Collecting</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recogiendo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uisynthtorealscale.cc" line="365"/>
@@ -24014,7 +24104,7 @@ Please check file permissions</source>
     <message>
         <location filename="../../../src/uiIo/uit2dconvsel.cc" line="46"/>
         <source>Convert to %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Convertir a %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiIo/uit2dconvsel.cc" line="48"/>
@@ -24027,7 +24117,7 @@ Please check file permissions</source>
     <message>
         <location filename="../../../src/uiTools/uitblimpexpdatasel.cc" line="402"/>
         <source>Format definition</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Definición de formato</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uitblimpexpdatasel.cc" line="403"/>
@@ -24071,7 +24161,7 @@ Please check file permissions</source>
     <message>
         <location filename="../../../src/uiTools/uitblimpexpdatasel.cc" line="616"/>
         <source>File header</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Encabezamiento de expediente</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uitblimpexpdatasel.cc" line="621"/>
@@ -24124,7 +24214,7 @@ Please check file permissions</source>
     <message>
         <location filename="../../../src/uiTools/uitblimpexpdatasel.cc" line="64"/>
         <source>provide</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">proveer</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uitblimpexpdatasel.cc" line="65"/>
@@ -24162,7 +24252,7 @@ Please check file permissions</source>
     <message>
         <location filename="../../../src/uiTools/uitaskrunner.cc" line="44"/>
         <source>Executing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ejecutar</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uitaskrunner.cc" line="70"/>
@@ -24190,7 +24280,7 @@ Please check file permissions</source>
     <message>
         <location filename="../../../src/uiTools/uitextfile.cc" line="291"/>
         <source>Quit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dejar</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uitextfile.cc" line="318"/>
@@ -24208,7 +24298,7 @@ Please check file permissions</source>
     <message>
         <location filename="../../../src/uiAttributes/uitextureattrib.cc" line="97"/>
         <source>Compute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Computar</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uitextureattrib.cc" line="148"/>
@@ -24227,7 +24317,7 @@ Values represent the clipping range of the input.</source>
     <message>
         <location filename="../../../src/uiVis/uimaterialdlg.cc" line="107"/>
         <source>Texture</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Textura</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uimaterialdlg.cc" line="115"/>
@@ -24254,7 +24344,11 @@ Repeat the picking operation if needed.
 To cross-check your operation, press the &apos;Display additional information&apos; button.
 
 Press &apos;OK/Save&apos; to store your new depth/time model.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Para correlar sintéticos a sísmica, elige su modo rastro, coge uno o mas eventos sintéticos y enlazalos con los eventos sísmicos. Cada evento sintético tiene que juntarse con un evento sísmico. Cuando esta satisfecho con sus eventos, pulsa &apos;Añadir Cambios&apos; para computar un nuevo modelo de profundidad/tiempo y re-extrae los datos.
+Repite la operación sí es necesario.
+Para verificación cruzada de su operación, pulsa el botón &apos;Mostrar información adicional&apos;.
+
+Pulsa &apos;OK/Guardar&apos; para almacenar su nuevo modelo de profundidad/tiempo.</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltietoseismicdlg.cc" line="191"/>
@@ -24373,7 +24467,7 @@ Cannot go further</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiemgrdlg.cc" line="58"/>
         <source>Tie Well To Seismics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Atar Pozo a Sísmicas</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiemgrdlg.cc" line="59"/>
@@ -24429,7 +24523,7 @@ Or select a new dataset.</source>
     <message>
         <location filename="../../../src/uiSeis/uiveldesc.cc" line="484"/>
         <source>Velocity volume</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Volumen de velocidad</translation>
     </message>
 </context>
 <context>
@@ -24438,7 +24532,7 @@ Or select a new dataset.</source>
         <location filename="../../../src/uiSeis/uitrcpositiondlg.cc" line="96"/>
         <location filename="../../../src/uiSeis/uitrcpositiondlg.cc" line="159"/>
         <source>Attribute trace position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Posición rastro del atributo</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uitrcpositiondlg.cc" line="141"/>
@@ -24472,7 +24566,7 @@ Or select a new dataset.</source>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="392"/>
         <source>Inverse distance</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Distancia inversa</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="394"/>
@@ -24495,7 +24589,7 @@ Or select a new dataset.</source>
     <message>
         <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="560"/>
         <source>Maximum distance must be &gt; 0. </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">La Máxima distancia tiene que ser &gt; 0.</translation>
     </message>
 </context>
 <context>
@@ -24503,7 +24597,7 @@ Or select a new dataset.</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestacktrimstatics.cc" line="44"/>
         <source>Trim Statics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recortar estáticas</translation>
     </message>
 </context>
 <context>
@@ -24511,7 +24605,7 @@ Or select a new dataset.</source>
     <message>
         <location filename="../../../plugins/uiTut/uituthortools.cc" line="31"/>
         <source>Tut Horizon tools</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Intrumentos de Horizonte tut</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiTut/uituthortools.cc" line="32"/>
@@ -24582,7 +24676,7 @@ Do you wish to overwrite this data?</source>
     <message>
         <location filename="../../../plugins/uiTut/uitutpi.cc" line="68"/>
         <source>Tut Well Tools ...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Instrumentos de Pozo Tut ...</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiTut/uitutpi.cc" line="71"/>
@@ -24616,7 +24710,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../plugins/uiTutMadagascar/uitutodmad.cc" line="27"/>
         <source>Display Madagascar data dialog</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar diálogo de datos de Madagascar</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiTutMadagascar/uitutodmad.cc" line="28"/>
@@ -24649,7 +24743,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../plugins/uiTut/uitutseistools.cc" line="30"/>
         <source>Tut seismic tools</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Instrumentos sísmicas tut</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiTut/uitutseistools.cc" line="31"/>
@@ -24692,7 +24786,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../plugins/uiTut/uitutwelltools.cc" line="31"/>
         <source>Log Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Suavizando Log</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiTut/uitutwelltools.cc" line="32"/>
@@ -24747,7 +24841,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../plugins/uiTut/uitutorialattrib.cc" line="52"/>
         <source>Smoothing direction</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Suavizando dirección</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiTut/uitutorialattrib.cc" line="58"/>
@@ -24775,7 +24869,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiTools/uivarwizard.cc" line="62"/>
         <source>Finish</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Terminar</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uivarwizard.cc" line="71"/>
@@ -24789,7 +24883,7 @@ Perhaps it&apos;s not stored yet?</source>
         <location filename="../../../src/uiTools/uivariogram.cc" line="128"/>
         <location filename="../../../src/uiTools/uivariogram.cc" line="129"/>
         <source>Variogram analysis</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Análisis del variograma</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uivariogram.cc" line="142"/>
@@ -24827,7 +24921,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiTools/uivariogram.cc" line="40"/>
         <source>Semi-variogram parameters</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parámetros de semi-variograma</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uivariogram.cc" line="41"/>
@@ -24840,7 +24934,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiSeis/uiveldesc.cc" line="433"/>
         <source>Cannot read velocity information for selected model</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer información de velocidad para el modelo seleccionado</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiveldesc.cc" line="456"/>
@@ -24858,7 +24952,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiSeis/uiveldesc.cc" line="40"/>
         <source>Velocity type</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tipo de velocidad</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiveldesc.cc" line="45"/>
@@ -24876,7 +24970,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiSeis/uiveldesc.cc" line="135"/>
         <source>Specify velocity information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Especificar información de velocidad</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiveldesc.cc" line="140"/>
@@ -24899,7 +24993,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivelocitygridder.cc" line="49"/>
         <source>Velocity sources</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fuentes de velocidad</translation>
     </message>
 </context>
 <context>
@@ -24907,7 +25001,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uipsviewer2dmainwin.cc" line="1274"/>
         <source>Set positions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Poner posiciónes</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uipsviewer2dmainwin.cc" line="1276"/>
@@ -24930,7 +25024,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uipsviewer2dposdlg.cc" line="450"/>
         <source>Select gather data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seleccionar datos de reunión</translation>
     </message>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uipsviewer2dposdlg.cc" line="451"/>
@@ -24958,7 +25052,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiBase/uivirtualkeyboard.cc" line="46"/>
         <source>Virtual Keyboard</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Teclado virtual</translation>
     </message>
 </context>
 <context>
@@ -24966,7 +25060,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiVis/uivisdatapointsetdisplaymgr.cc" line="41"/>
         <source>Create Body</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Parte Principal</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivisdatapointsetdisplaymgr.cc" line="42"/>
@@ -24984,7 +25078,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiVis/uivisemobj.cc" line="214"/>
         <source>Use single color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usar color singular</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivisemobj.cc" line="216"/>
@@ -25037,7 +25131,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiVis/uivisisosurface.cc" line="38"/>
         <source>Iso surface threshold</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Superficie iso umbral</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivisisosurface.cc" line="47"/>
@@ -25100,7 +25194,7 @@ Perhaps it&apos;s not stored yet?</source>
     <message>
         <location filename="../../../src/uiVis/uivispartserv.cc" line="102"/>
         <source>Reset Manipulation</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reajustar Manipulación</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivispartserv.cc" line="104"/>
@@ -25130,7 +25224,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiVis/uivisplanedatadisplaydragprop.cc" line="21"/>
         <source>Mouse interaction</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Interacción de la mausa</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivisplanedatadisplaydragprop.cc" line="39"/>
@@ -25143,7 +25237,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiVis/uivispolygonsurfbezierdlg.cc" line="23"/>
         <source>Shape smoothness</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Formar suavidad</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivispolygonsurfbezierdlg.cc" line="29"/>
@@ -25166,7 +25260,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiTools/uisettings.cc" line="381"/>
         <source>Use OpenGL shading when available:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usar OpenGL formar cuando esta disponible:</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uisettings.cc" line="383"/>
@@ -25209,7 +25303,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocattrib.cc" line="33"/>
         <source>Volume Builder setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Disposición de Creador Volumen</translation>
     </message>
 </context>
 <context>
@@ -25217,7 +25311,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocpartserv.cc" line="56"/>
         <source>Cannot read volume builder setup</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede leer disposición de creador volumen</translation>
     </message>
 </context>
 <context>
@@ -25225,7 +25319,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocvolreader.cc" line="76"/>
         <source>Cannot use selected volume</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede usar el volumen seleccionado</translation>
     </message>
 </context>
 <context>
@@ -25233,7 +25327,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiAttributes/uivolstatsattrib.cc" line="69"/>
         <source>Shape</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Forma</translation>
     </message>
     <message>
         <location filename="../../../src/uiAttributes/uivolstatsattrib.cc" line="82"/>
@@ -25276,7 +25370,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiewavelet.cc" line="125"/>
         <source>Rotate phase</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rotar fase</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiewavelet.cc" line="129"/>
@@ -25289,7 +25383,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltattr.cc" line="295"/>
         <source>Frequency (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frecuencia (Hz)</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltattr.cc" line="296"/>
@@ -25322,7 +25416,7 @@ remove selected part of %1?</source>
     <message>
         <location filename="../../../src/uiSeis/uiwaveletextraction.cc" line="46"/>
         <source>Extract Wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraer Onda</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiwaveletextraction.cc" line="87"/>
@@ -25404,7 +25498,7 @@ Please change selection</source>
     <message>
         <location filename="../../../src/uiSeis/uiwaveletmatchdlg.cc" line="43"/>
         <source>Match Wavelets</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Igualar Ondas</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiwaveletmatchdlg.cc" line="50"/>
@@ -25444,7 +25538,7 @@ Please change selection</source>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltsel.cc" line="207"/>
         <source>Input Wavelet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Onda de entrada</translation>
     </message>
     <message>
         <location filename="../../../src/uiSeis/uiseiswvltsel.cc" line="207"/>
@@ -25457,7 +25551,7 @@ Please change selection</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelltiewavelet.cc" line="67"/>
         <source>Set active Wavelet : </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustar Onda activa</translation>
     </message>
 </context>
 <context>
@@ -25465,7 +25559,7 @@ Please change selection</source>
     <message>
         <location filename="../../../src/uiWell/uiwellrdmlinedlg.cc" line="352"/>
         <source>Create Random line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear Línea al Azar</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellrdmlinedlg.cc" line="353"/>
@@ -25518,7 +25612,7 @@ Please change selection</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwellattribxplot.cc" line="25"/>
         <source>Attribute/Well cross-plotting</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cross-plotting de Atributo/Pozo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwellattribxplot.cc" line="26"/>
@@ -25536,7 +25630,7 @@ Please change selection</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwellattribpartserv.cc" line="114"/>
         <source>SEG-Y Tool</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Instrumento SEG-Y</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwellattribpartserv.cc" line="115"/>
@@ -25616,7 +25710,8 @@ Please change selection</source>
         <location filename="../../../src/uiWell/uiwelldisplaymarkeredit.cc" line="528"/>
         <source>Some markers have been edited. 
 Do you want to save those changes? </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Algunos marcadores ya estan editados.
+¿Quiere guardar esos cambios?</translation>
     </message>
 </context>
 <context>
@@ -25624,7 +25719,7 @@ Do you want to save those changes? </source>
     <message>
         <location filename="../../../src/uiWell/uiwelldisppropdlg.cc" line="31"/>
         <source>Well display properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Propiedades de la pantalla pozo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldisppropdlg.cc" line="54"/>
@@ -25679,7 +25774,7 @@ Do you want to save those changes? </source>
     <message>
         <location filename="../../../src/uiWell/uimultiwelllogsel.cc" line="252"/>
         <source>Extract in time</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extraer en tiempo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uimultiwelllogsel.cc" line="290"/>
@@ -25692,7 +25787,7 @@ Do you want to save those changes? </source>
     <message>
         <location filename="../../../src/uiWell/uiwellimpasc.cc" line="45"/>
         <source>Import Well Track</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Pista de Pozo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellimpasc.cc" line="52"/>
@@ -25769,7 +25864,7 @@ Is this correct?</source>
     <message>
         <location filename="../../../src/uiWell/uiwellimpasc.cc" line="178"/>
         <source>Import well: Advanced/Optional</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar pozo: Avanzado/Opcional</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellimpasc.cc" line="179"/>
@@ -25812,7 +25907,7 @@ Is this correct?</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwellimpsegyvsp.cc" line="125"/>
         <source>Import Zero-offset VSP</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Cero offset VSP</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwellimpsegyvsp.cc" line="142"/>
@@ -25892,7 +25987,7 @@ Is this correct?</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelllogattrib.cc" line="42"/>
         <source>Select Log</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Seleccionar Log</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelllogattrib.cc" line="47"/>
@@ -25905,7 +26000,7 @@ Is this correct?</source>
     <message>
         <location filename="../../../src/uiWell/uiwelllogcalc.cc" line="94"/>
         <source>Calculate new logs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Calcular logs nuevos</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelllogcalc.cc" line="106"/>
@@ -26006,7 +26101,7 @@ Please enter a different name for the new log</source>
     <message>
         <location filename="../../../src/uiWell/uiwelllogcalc.cc" line="258"/>
         <source>Rock Physics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rocas Físicas</translation>
     </message>
 </context>
 <context>
@@ -26014,7 +26109,7 @@ Please enter a different name for the new log</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldispprop.cc" line="320"/>
         <source>Well log</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Log de pozo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldispprop.cc" line="321"/>
@@ -26133,7 +26228,7 @@ Please enter a different name for the new log</source>
     <message>
         <location filename="../../../src/uiWell/uiwelllogtools.cc" line="545"/>
         <source>Edit Well log</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar log de pozo</translation>
     </message>
 </context>
 <context>
@@ -26141,7 +26236,7 @@ Please enter a different name for the new log</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelllogextract.cc" line="188"/>
         <source>No wells found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No encontró pozos</translation>
     </message>
     <message>
         <location filename="../../../src/uiWellAttrib/uiwelllogextract.cc" line="198"/>
@@ -26161,7 +26256,7 @@ Please enter a different name for the new log</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uiwellloginterpolator.cc" line="39"/>
         <source>Vertical Extension</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extensión vertical</translation>
     </message>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uiwellloginterpolator.cc" line="44"/>
@@ -26184,7 +26279,7 @@ Please enter a different name for the new log</source>
     <message>
         <location filename="../../../src/uiWell/uiwelllogtools.cc" line="171"/>
         <source>Log Tools Window</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla de Instrumentos Log</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelllogtools.cc" line="218"/>
@@ -26228,7 +26323,7 @@ Please select a different extension for the new logs</source>
     <message>
         <location filename="../../../src/uiWell/uiwelllogtools.cc" line="50"/>
         <source>Select Well(s) and Log(s) for Editing</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona Pozo(s) y Log(s) para Editar</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelllogtools.cc" line="65"/>
@@ -26246,7 +26341,7 @@ Please select a different extension for the new logs</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldlgs.cc" line="1556"/>
         <source>Set units of measure for logs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustar unidades de calculaciones para logs</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldlgs.cc" line="1619"/>
@@ -26259,7 +26354,7 @@ Please select a different extension for the new logs</source>
     <message>
         <location filename="../../../src/uiWell/uiwellman.cc" line="58"/>
         <source>Manage Wells</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gestionar Pozos</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellman.cc" line="106"/>
@@ -26345,7 +26440,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldispprop.cc" line="157"/>
         <source>Cylinder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cilindro</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldispprop.cc" line="157"/>
@@ -26433,7 +26528,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwellsel.cc" line="65"/>
         <source>Select Wells</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selecciona Pozos</translation>
     </message>
 </context>
 <context>
@@ -26442,7 +26537,7 @@ Do you wish to continue?</source>
         <location filename="../../../src/uiWell/uiwellpartserv.cc" line="226"/>
         <source>Could not write display properties for 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía escribir mostrar propiedades por %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellpartserv.cc" line="285"/>
@@ -26480,7 +26575,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwellposprov.cc" line="39"/>
         <source>Extension</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Extensión</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellposprov.cc" line="78"/>
@@ -26493,7 +26588,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwellpropertyrefsel.cc" line="222"/>
         <source>Create a log from other logs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear un log de otros logs</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellpropertyrefsel.cc" line="225"/>
@@ -26511,7 +26606,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwellpartserv.cc" line="300"/>
         <source>Rock Physics - Well Logs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Roca Física - Logs de Pozo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellpartserv.cc" line="301"/>
@@ -26524,7 +26619,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwellrdmlinedlg.cc" line="81"/>
         <source>Use only wells&apos; top position</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usar solamente posición superior de los pozos</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellrdmlinedlg.cc" line="97"/>
@@ -26558,7 +26653,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwellt2dconv.cc" line="55"/>
         <source>Could not create well-transform</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No podía crear pozo-transformar</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwellt2dconv.cc" line="69"/>
@@ -26571,7 +26666,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldispprop.cc" line="82"/>
         <source>Above</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Arriba</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldispprop.cc" line="84"/>
@@ -26614,7 +26709,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldlgs.cc" line="60"/>
         <source>Edit Well Track</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Editar Pista de Pozo</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uiwelldlgs.cc" line="83"/>
@@ -26718,7 +26813,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiWell/uiwelldlgs.cc" line="267"/>
         <source>Import New Well Track</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importar Nueva Pista de Pozo</translation>
     </message>
 </context>
 <context>
@@ -26726,7 +26821,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiWell/uimultiwelllogsel.cc" line="76"/>
         <source>Start / stop %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Iniciar/parar %1</translation>
     </message>
     <message>
         <location filename="../../../src/uiWell/uimultiwelllogsel.cc" line="107"/>
@@ -26739,7 +26834,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiTools/uiwindowfuncseldlg.cc" line="276"/>
         <source>Window/Taper display</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pantalla/Pantalla de afilamiento</translation>
     </message>
 </context>
 <context>
@@ -26747,7 +26842,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiTools/uiwindowgrabber.cc" line="48"/>
         <source>Desktop grabber</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Capturador del escritorio</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uiwindowgrabber.cc" line="49"/>
@@ -26795,7 +26890,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiVis/uivispartserv.cc" line="1295"/>
         <source>Set work volume</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajustar trabajo volumen</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uivispartserv.cc" line="1300"/>
@@ -26808,7 +26903,7 @@ Continue?</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiflattenedcube.cc" line="39"/>
         <source>Create flattened seismics</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Crear sísmicas planas</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiflattenedcube.cc" line="104"/>
@@ -26821,7 +26916,7 @@ Continue?</source>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiflattenedcube.cc" line="120"/>
         <source>Creating cube</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Creando cubo</translation>
     </message>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiflattenedcube.cc" line="129"/>
@@ -26834,7 +26929,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiEarthModel/uiiosurfacedlg.cc" line="44"/>
         <source>Output selection</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Selección de salida</translation>
     </message>
 </context>
 <context>
@@ -26842,7 +26937,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiTools/uizaxistransform.cc" line="99"/>
         <source>Z transform</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Transformar Z</translation>
     </message>
     <message>
         <location filename="../../../src/uiTools/uizaxistransform.cc" line="206"/>
@@ -26865,7 +26960,7 @@ Continue?</source>
     <message>
         <location filename="../../../src/uiVis/uiviszstretchdlg.cc" line="35"/>
         <source>Z Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escalada Z</translation>
     </message>
     <message>
         <location filename="../../../src/uiVis/uiviszstretchdlg.cc" line="35"/>
