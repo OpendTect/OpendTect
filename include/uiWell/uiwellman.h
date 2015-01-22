@@ -41,6 +41,7 @@ protected:
     uiListBox*			logsfld_;
     uiGroup*			logsgrp_;
 
+    bool			iswritable_;
     ObjectSet<Well::Data>	curwds_;
     ObjectSet<Well::Reader>	currdrs_;
     TypeSet<MultiID>		curmultiids_;
@@ -62,8 +63,8 @@ protected:
     uiToolButton*		csbut_;
     uiToolButton*		markerbut_;
 
-    void			setToolButtonProperties();
-    void			checkButtons();
+    void			setWellToolButtonProperties();
+    void			setLogToolButtonProperties();
     void			ownSelChg();
     void			getCurrentWells();
     void			mkFileInfo();

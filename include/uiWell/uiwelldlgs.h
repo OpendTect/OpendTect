@@ -51,6 +51,7 @@ protected:
     Well::Data&		wd_;
     Well::Track&	track_;
     Well::Track*	orgtrack_;
+    bool		writable_;
 
     Table::FormatDesc&	fd_;
     uiTable*		tbl_;
@@ -97,6 +98,7 @@ protected:
 
     Well::Data&		wd_;
     bool		cksh_;
+    bool		writable_;
     Well::D2TModel*	orgd2t_; // Must be declared *below* others
     float		origreplvel_;
 

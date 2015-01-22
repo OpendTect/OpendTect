@@ -45,6 +45,8 @@ public:
 
     virtual const OD::String& errMsg() const		= 0;
 
+    virtual bool	isFunctional() const		{ return true; }
+
 protected:
 
     const Data&		wd_;

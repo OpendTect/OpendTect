@@ -23,7 +23,11 @@ class Data;
 class Log;
 class WriteAccess;
 
-/*!\brief Writes Well::Data to any data storage. */
+/*!\brief Writes Well::Data to any data storage.
+
+  It is essential that creating a writer does not imply writing any actual data.
+
+ */
 
 mExpClass(Well) Writer
 {
@@ -46,6 +50,11 @@ public:
     bool		putLog(const Log&) const;
 
     const OD::String&	errMsg() const		{ return errmsg_; }
+
+    bool		isFunctional() const;
+
+    static bool		isFunctional(const MultiID&);
+    static bool		isFunctional(const IOObj&);
 
 protected:
 

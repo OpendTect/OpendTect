@@ -62,6 +62,8 @@ protected:
 
     bool		binwrlogs_;
 
+    virtual bool	isFunctional() const;
+
     bool		putLog(od_ostream&,const Log&) const;
     bool		wrHdr(od_ostream&,const char*) const;
     bool		putTrack(od_ostream&) const;

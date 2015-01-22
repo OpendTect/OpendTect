@@ -27,6 +27,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 
 
+bool Well::Writer::isFunctional( const MultiID& ky )
+{
+    PtrMan<IOObj> ioobj = IOM().get( ky );
+    return ioobj ? isFunctional(*ioobj) : false;
+}
+
+
+bool Well::Writer::isFunctional( const IOObj& ioobj )
+{
+    Well::Data wd;
+    Well::Writer wrr( ioobj, wd );
+    return wrr.isFunctional();
+}
+
+
 Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
     : wa_(0)
 {
@@ -82,6 +97,7 @@ mImplSimpleWWFn(putMarkers)
 mImplSimpleWWFn(putD2T)
 mImplSimpleWWFn(putCSMdl)
 mImplSimpleWWFn(putDispProps)
+mImplSimpleWWFn(isFunctional)
 
 mImplWWFn(bool,putLog,const Log&,wl,false)
 
@@ -104,6 +120,7 @@ Well::odWriter::odWriter( const char* f, const Well::Data& w, BufferString& e )
     init();
 }
 
+
 Well::odWriter::odWriter( const IOObj& ioobj, const Well::Data& w,
 			  BufferString& e )
     : Well::odIO(ioobj.fullUserExpr(false),e)
@@ -119,6 +136,12 @@ void Well::odWriter::init()
 {
     binwrlogs_ = true;
     mSettUse(getYN,"dTect.Well logs","Binary format",binwrlogs_);
+}
+
+
+bool Well::odWriter::isFunctional() const
+{
+    return !basenm_.isEmpty();
 }
 
 

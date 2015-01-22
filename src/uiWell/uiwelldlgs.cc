@@ -44,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "welltransl.h"
 #include "wellreader.h"
+#include "wellwriter.h"
 #include "welltrack.h"
 #include "wellimpasc.h"
 #include "od_helpids.h"
@@ -56,17 +57,35 @@ static const int cYCol = 1;
 static const int cZCol = 2;
 static const int cMDTrackCol = 3;
 
+static BufferString getWinTitle( const char* objtyp, const MultiID& wllky,
+				 bool& iswr )
+{
+    iswr = Well::Writer::isFunctional( wllky );
+    return BufferString( iswr ? "Edit" : "View", " ", objtyp );
+}
+
+
+#define mGetDlgSetup(wd,objtyp,hid) \
+    uiDialog::Setup( getWinTitle(objtyp,wd.multiID(),writable_), \
+		     mNoDlgTitle, mODHelpKey(hid) )
+#define mTDName(iscksh) iscksh ? "Checkshot Data" : "Time-Depth Model"
+#define mTDOpName(op,iscksh) \
+    BufferString( op, " ", mTDName(iscksh) )
+
+#define mAddSetBut(fld,cb) \
+    if ( writable_ ) \
+    { \
+	setbut = new uiPushButton( actbutgrp, tr("Set"), \
+				mCB(this,uiWellTrackDlg,cb), true ); \
+	setbut->attach( rightOf, fld ); \
+    }
+
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
-	: uiDialog(p,uiDialog::Setup(tr("Edit Well Track"),mNoDlgTitle,
-				     mODHelpKey(mWellTrackDlgHelpID)))
+	: uiDialog(p,mGetDlgSetup(d,"Well Track",mWellTrackDlgHelpID))
 	, wd_(d)
 	, track_(d.track())
 	, orgtrack_(new Well::Track(d.track()))
 	, fd_( *Well::TrackAscIO::getDesc() )
-	, zinftfld_(0)
-	, wellheadxfld_(0)
-	, wellheadyfld_(0)
-	, kbelevfld_(0)
 	, origpos_(mUdf(Coord3))
 	, origgl_(d.info().groundelev)
 {
@@ -79,6 +98,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     tbl_->setNrRows( nremptyrows );
     tbl_->setPrefWidth( 500 );
     tbl_->setPrefHeight( 400 );
+    tbl_->setTableReadOnly( !writable_ );
 
     zinftfld_ = new uiCheckBox( this, tr("Z in Feet") );
     zinftfld_->setChecked( SI().depthsInFeet() );
@@ -88,41 +108,44 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
     uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
 
-    uiPushButton* updbut = new uiPushButton( actbutgrp, tr("Update display"),
+    uiPushButton* updbut = !writable_ ? 0
+		: new uiPushButton( actbutgrp, tr("Update display"),
 				   mCB(this,uiWellTrackDlg,updNow), true );
-
+    uiPushButton* setbut = 0;
     wellheadxfld_ = new uiGenInput( actbutgrp, tr("X-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
-    wellheadxfld_->attach( ensureBelow, updbut );
-    uiPushButton* setbut = new uiPushButton( actbutgrp, tr("Set"),
-				    mCB(this,uiWellTrackDlg,updateXpos), true );
-    setbut->attach( rightOf, wellheadxfld_ );
+    mAddSetBut( wellheadxfld_, updateXpos )
+    if ( !updbut )
+	actbutgrp->attach( ensureBelow, zinftfld_ );
+    else
+    {
+	wellheadxfld_->attach( ensureBelow, updbut );
+	actbutgrp->attach( ensureBelow, tbl_ );
+    }
+    if ( !writable_ ) wellheadxfld_-> setReadOnly( true );
 
     wellheadyfld_ = new uiGenInput( actbutgrp, tr("Y-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
     wellheadyfld_->attach( alignedBelow, wellheadxfld_ );
-    setbut = new uiPushButton( actbutgrp, tr("Set"),
-				    mCB(this,uiWellTrackDlg,updateYpos), true );
-    setbut->attach( rightOf, wellheadyfld_ );
+    mAddSetBut( wellheadyfld_, updateYpos )
+    if ( !writable_ ) wellheadyfld_-> setReadOnly( true );
 
     kbelevfld_ = new uiGenInput( actbutgrp, tr("Reference Datum Elevation"),
 				 FloatInpSpec(mUdf(float)) );
-    setbut = new uiPushButton( actbutgrp, tr("Set"),
-			     mCB(this,uiWellTrackDlg,updateKbElev), true );
-    setbut->attach( rightOf, kbelevfld_ );
+    mAddSetBut( kbelevfld_, updateKbElev )
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
-
-    actbutgrp->attach( centeredBelow, tbl_ );
+    if ( !writable_ ) kbelevfld_-> setReadOnly( true );
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   OD::Horizontal );
-    uiButton* readbut = new uiPushButton( iobutgrp, uiStrings::sImport(),
-					    mCB(this,uiWellTrackDlg,readNew),
-					    false );
+    uiButton* readbut = !writable_ ? 0
+		: new uiPushButton( iobutgrp, uiStrings::sImport(),
+				    mCB(this,uiWellTrackDlg,readNew), false );
     uiButton* expbut = new uiPushButton( iobutgrp, uiStrings::sExport(),
 					 mCB(this,uiWellTrackDlg,exportCB),
 					 false );
-    expbut->attach( rightOf, readbut );
+    if ( readbut )
+	expbut->attach( rightOf, readbut );
     iobutgrp->attach( leftAlignedBelow, actbutgrp );
 
     if ( !track_.isEmpty() )
@@ -195,17 +218,15 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     kbelevfld_->setTitleText(
 			tr("Reference Datum Elevation %1").arg(depthunit) );
 
-    const Coord wellhead = wd_.info().surfacecoord;
-    if ( !mIsUdf(wellhead.x) )
-	wellheadxfld_->setValue( wellhead.x );
-
-    if ( !mIsUdf(wellhead.y) )
-	wellheadyfld_->setValue( wellhead.y );
+    Coord wellhead = wd_.info().surfacecoord;
+    if ( mIsZero(wellhead.x,0.001) )
+	{ wellhead.x = wellhead.y = mUdf(float); }
+    wellheadxfld_->setValue( wellhead.x );
+    wellheadyfld_->setValue( wellhead.y );
 
     float kbelev = track_.getKbElev();
     if ( !mIsUdf(kbelev) && zinftfld_->isChecked() )
 	kbelev *= mToFeetFactorF;
-
     kbelevfld_->setValue( kbelev );
 }
 
@@ -283,6 +304,7 @@ bool acceptOK( CallBacker* )
     fnm_ = wtinfld_->fileName();
     if ( File::isEmpty(fnm_.buf()) )
 	{ uiMSG().error( uiStrings::sInvInpFile() ); return false; }
+
     return true;
 }
 
@@ -502,6 +524,9 @@ bool uiWellTrackDlg::rejectOK( CallBacker* )
 
 bool uiWellTrackDlg::acceptOK( CallBacker* )
 {
+    if ( !writable_ )
+	return true;
+
     if ( !updNow( 0 ) )
 	return false;
 
@@ -582,19 +607,9 @@ static const int cTVDCol = 1;
 
 #define mD2TModel (cksh_ ? wd_.checkShotModel() : wd_.d2TModel())
 
-static const char* getD2TModelCaption( const char* prefix, bool cksh )
-{
-    mDeclStaticString( ret );
-    ret = prefix; ret.addSpace().add( cksh ? "Checkshot" : "Time/Depth" );
-    ret.addSpace().add( "Model" );
-    return ret.buf();
-}
-
 
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
-	: uiDialog(p,uiDialog::Setup(getD2TModelCaption("Edit",cksh),
-				     mNoDlgTitle,
-				     mODHelpKey(mD2TModelDlgHelpID)))
+	: uiDialog(p,mGetDlgSetup(wd,mTDName(cksh),mD2TModelDlgHelpID))
 	, wd_(wd)
 	, cksh_(cksh)
 	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
@@ -609,8 +624,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 				.rowgrow(true)
 				.defrowlbl("")
 				.selmode(uiTable::Single)
-				.removeselallowed(false),
-		  BufferString( cksh_ ? "CheckShot" : "Time-Depth", " model" ));
+				.removeselallowed(false), mTDName(cksh) );
     BufferStringSet header;
     getColLabels( header );
     tbl_->setColumnLabels( header );
@@ -628,6 +642,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     tbl_->setColumnToolTip( getVintCol(),
 	    "Interval velocity above this control point (read-only)" );
     tbl_->setPrefWidth( 700 );
+    tbl_->setTableReadOnly( !writable_ );
 
     timefld_ = new uiCheckBox( this, tr(" Time is TWT") );
     timefld_->setChecked( true );
@@ -637,38 +652,40 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     unitfld_ = new uiCheckBox( this, tr(" Z in feet") );
     unitfld_->setChecked( SI().depthsInFeet() );
     unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
-    unitfld_->attach( rightAlignedBelow, timefld_ );
+    unitfld_->attach( leftOf, timefld_ );
 
-    uiGroup* actbutgrp = 0;
     if ( !cksh_ )
     {
-	actbutgrp = new uiGroup( this, "Action buttons" );
-	uiButton* updbut = new uiPushButton( actbutgrp, tr("Update display"),
-				       mCB(this,uiD2TModelDlg,updNow), true );
-
-	replvelfld_ = new uiGenInput( actbutgrp, tr("Replacement velocity"),
+	replvelfld_ = new uiGenInput( this, tr("Replacement velocity"),
 				      FloatInpSpec(mUdf(float)) );
-	replvelfld_->attach( ensureBelow, updbut );
-	replvelfld_->updateRequested.notify(
+	if ( !writable_ )
+	    replvelfld_-> setReadOnly( true );
+	else
+	{
+	    uiButton* updbut = new uiPushButton( this, tr("Update display"),
+				       mCB(this,uiD2TModelDlg,updNow), true );
+	    updbut->attach( ensureBelow, tbl_ );
+	    replvelfld_->updateRequested.notify(
 					mCB(this,uiD2TModelDlg,updReplVelNow) );
-	updbut = new uiPushButton( actbutgrp, tr("Set"),
-			  mCB(this,uiD2TModelDlg,updReplVelNow), true );
-	updbut->attach( rightOf, replvelfld_ );
-
-	actbutgrp->attach( ensureBelow, tbl_ );
+	    uiPushButton* setbut = new uiPushButton( this, tr("Set"),
+			      mCB(this,uiD2TModelDlg,updReplVelNow), true );
+	    setbut->attach( rightOf, replvelfld_ );
+	}
+	replvelfld_->attach( ensureBelow, unitfld_ );
 	unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillReplVel) );
     }
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   OD::Horizontal );
-    new uiPushButton( iobutgrp, uiStrings::sImport(),
-        mCB(this,uiD2TModelDlg,readNew), false );
+    if ( writable_ )
+	new uiPushButton( iobutgrp, uiStrings::sImport(),
+	    mCB(this,uiD2TModelDlg,readNew), false );
     new uiPushButton( iobutgrp, uiStrings::sExport(),
         mCB(this,uiD2TModelDlg,expData), false );
-    if ( actbutgrp )
-	iobutgrp->attach( ensureBelow, actbutgrp );
+    if ( replvelfld_ )
+	iobutgrp->attach( ensureBelow, replvelfld_ );
     else
-	iobutgrp->attach( ensureBelow, tbl_ );
+	iobutgrp->attach( ensureBelow, unitfld_ );
 
     correctD2TModelIfInvalid();
 
@@ -1190,9 +1207,8 @@ class uiD2TModelReadDlg : public uiDialog
 public:
 
 uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
-	: uiDialog(p,uiDialog::Setup(getD2TModelCaption("Import",cksh),
-				     mNoDlgTitle,
-                                     mODHelpKey(mD2TModelReadDlgHelpID) ))
+	: uiDialog(p,uiDialog::Setup( mTDOpName("Import",cksh), mNoDlgTitle,
+		     mODHelpKey(mD2TModelReadDlgHelpID) ))
 	, cksh_(cksh)
 	, wd_(wd)
 {
@@ -1481,6 +1497,9 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 
 bool uiD2TModelDlg::acceptOK( CallBacker* )
 {
+    if ( !writable_ )
+	return true;
+
     if ( !getFromScreen() )
 	return false;
 
