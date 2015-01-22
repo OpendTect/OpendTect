@@ -279,11 +279,7 @@ void uiColorTableMan::removeCB( CallBacker* )
 
 void uiColorTableMan::saveCB( CallBacker* )
 {
-    if ( saveColTab(true) )
-    {
-	ColTab::SM().write();
-	ColTab::SM().refresh();
-    }
+    saveColTab( true );
     tableAddRem.trigger();
 }
 
@@ -340,13 +336,8 @@ bool uiColorTableMan::saveColTab( bool saveas )
     newctab.fillPar( *ctpar );
     ColTab::SM().set(newctab);
     ColTab::SM().write();
-    ColTab::SM().refresh();
 
     refreshColTabList( newctab.name() );
-
-    delete orgctab_;
-    orgctab_ = new ColTab::Sequence( newctab );
-    issaved_ = true;
     selChg(0);
     return true;
 }
