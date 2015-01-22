@@ -163,7 +163,8 @@ void uiWellMan::getCurrentWells()
     deepErase( curwds_ );
     curmultiids_.erase();
 
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const int nrsel = selGroup()->nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
@@ -183,7 +184,8 @@ void uiWellMan::getCurrentWells()
 void uiWellMan::fillLogsFld()
 {
     logsfld_->setEmpty();
-    if ( currdrs_.isEmpty() ) return;
+    if ( currdrs_.isEmpty() )
+	return;
 
     availablelognms_.erase();
     currdrs_[0]->getLogInfo( availablelognms_ );
@@ -477,6 +479,7 @@ void uiWellMan::logTools( CallBacker* )
     logsfld_->getChosen( lognms );
     TypeSet<MultiID> chosnmids;
     selGroup()->getChosen( chosnmids );
+
     for ( int midx=0; midx<chosnmids.size(); midx ++ )
     {
 	const IOObj* ioobj = IOM().get( chosnmids[midx] );
@@ -755,6 +758,9 @@ void uiWellMan::mkFileInfo()
     const Well::Reader currdr( *curioobj_, curwd );
     BufferString txt;
 
+    if ( currdr.getInfo() )
+    {
+
     const Well::Info& info = curwd.info();
     const Well::Track& track = curwd.track();
 
@@ -826,6 +832,8 @@ void uiWellMan::mkFileInfo()
 
     if ( txt.isEmpty() )
 	txt.set( "<No specific info available>\n" );
+
+    } // if ( currdr.getInfo() )
 
     txt.add( getFileInfo() );
     setInfo( txt );

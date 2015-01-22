@@ -19,7 +19,13 @@ ________________________________________________________________________
 class uiStratLevelSel;
 class uiCheckBox;
 class uiTable;
-namespace Well { class Marker; class Track; class MarkerSet; }
+namespace Well {
+    class Data;
+    class Marker;
+    class Track;
+    class MarkerSet;
+    class Reader;
+}
 
 /*! \brief Dialog for marker specifications */
 
@@ -30,7 +36,7 @@ public:
 				~uiMarkerDlg();
 
     void			setMarkerSet(const Well::MarkerSet&,
-	    				     bool addtoexisting=false);
+					     bool addtoexisting=false);
     bool			getMarkerSet(Well::MarkerSet&) const;
 
 protected:
@@ -68,6 +74,28 @@ protected:
     Well::Marker*		getMarker(int rowidx,bool fromname) const;
 
 };
+
+
+/*! \brief Dialog for Viewing the markers for a well */
+
+mExpClass(uiWell) uiMarkerViewDlg : public uiDialog
+{
+public:
+				uiMarkerViewDlg(uiParent*,const Well::Reader&);
+				uiMarkerViewDlg(uiParent*,const Well::Data&);
+protected:
+
+    uiTable*			table_;
+    const Well::Data*		wd_;
+
+    void			exportCB(CallBacker*);
+
+private:
+
+    void			init();
+
+};
+
 
 #endif
 

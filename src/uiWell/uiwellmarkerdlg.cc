@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 #include "uitoolbutton.h"
+#include "uilabel.h"
 
 #include "ctxtioobj.h"
 #include "file.h"
@@ -41,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellimpasc.h"
 #include "welltrack.h"
 #include "welltransl.h"
+#include "wellreader.h"
 #include "od_helpids.h"
 
 static const int cNrEmptyRows = 5;
@@ -57,6 +59,105 @@ static const int cTVDCol = 2;
 static const int cTVDSSCol = 3;
 static const int cColorCol = 4;
 static const int cLevelCol = 5;
+
+
+static void getColumnLabels( BufferStringSet& lbls, uiCheckBox* unfld,
+				bool withlvls )
+{
+    const bool zinfeet = unfld ? unfld->isChecked() : SI().depthsInFeet();
+
+    lbls.add( sKeyName() );
+    BufferString curlbl;
+
+    curlbl = sKeyMD();
+    curlbl.add( getDistUnitString(zinfeet,true) );
+    lbls.add( curlbl );
+
+    curlbl = sKeyTVD();
+    curlbl.add( getDistUnitString(zinfeet,true) );
+    lbls.add( curlbl );
+
+    curlbl = sKeyTVDSS();
+    curlbl.add( getDistUnitString(zinfeet,true) );
+    lbls.add( curlbl );
+
+    lbls.add( sKeyColor() );
+    if ( withlvls )
+	lbls.add( sKeyRegMarker() );
+}
+
+
+static uiTable* createMarkerTable( uiParent* p, int nrrows, bool editable )
+{
+    uiTable* ret = new uiTable( p, uiTable::Setup().rowdesc("Marker")
+					        .rowgrow(editable).defrowlbl("")
+						.selmode(uiTable::Multi),
+			  "Well Marker Table" );
+    BufferStringSet colnms;
+    getColumnLabels( colnms, 0, editable );
+    ret->setColumnLabels( colnms );
+    ret->setColumnResizeMode( uiTable::ResizeToContents );
+    ret->setColumnStretchable( cLevelCol, true );
+    ret->setNrRows( nrrows );
+    ret->setColumnReadOnly( cColorCol, true );
+    ret->setPrefWidth( 650 );
+
+    return ret;
+}
+
+
+static float uiMarkerDlgzFactor( uiCheckBox* cb=0 )
+{
+    const bool isinm = cb ? !cb->isChecked() : !SI().depthsInFeet();
+
+    if ( SI().zIsTime() )
+	return isinm ? 1 : mToFeetFactorF;
+
+    return ((SI().zInFeet() && !isinm) ||
+	    (SI().zInMeter() && isinm)) ? 1
+					  : ( SI().zInFeet() && isinm )
+					      ? mFromFeetFactorF
+					      : mToFeetFactorF;
+}
+
+
+static void exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
+			const Well::Track& trck, uiCheckBox* cb=0 )
+{
+    uiFileDialog fdlg( p, false, 0, 0, "File name for export" );
+    fdlg.setDirectory( GetDataDir() );
+    if ( !fdlg.go() )
+	return;
+
+    od_ostream strm( fdlg.fileName() );
+    if ( !strm.isOK() )
+    {
+	BufferString msg( "Cannot open '", fdlg.fileName(), "' for write" );
+	strm.addErrMsgTo( msg );
+	return;
+    }
+
+    BufferStringSet colnms;
+    getColumnLabels( colnms, cb, false );
+    strm << colnms.get( cDepthCol ) << od_tab
+	 << colnms.get( cTVDCol ) << od_tab
+	 << colnms.get( cTVDSSCol ) << od_tab
+	 << colnms.get( cNameCol ) << od_newline;
+
+    const float kbelev = trck.getKbElev();
+    const float zfac = uiMarkerDlgzFactor( cb );
+    for ( int idx=0; idx<mset.size(); idx++ )
+    {
+	const Well::Marker& mrkr = *mset[idx];
+	const float dah = mrkr.dah();
+	const float tvdss = mCast(float,trck.getPos(dah).z);
+	const float tvd = tvdss + kbelev;
+	strm << dah * zfac << od_tab
+	     << tvd * zfac << od_tab
+	     << tvdss * zfac << od_tab
+	     << mrkr.name() << od_newline;
+    }
+}
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
@@ -123,26 +224,7 @@ uiMarkerDlg::~uiMarkerDlg()
 
 void uiMarkerDlg::getColLabels( BufferStringSet& lbls ) const
 {
-    const bool zinfeet = unitfld_ ? unitfld_->isChecked()
-				  : SI().depthsInFeet();
-
-    lbls.add( sKeyName() );
-    BufferString curlbl;
-
-    curlbl = sKeyMD();
-    curlbl.add( getDistUnitString(zinfeet,false) );
-    lbls.add( curlbl );
-
-    curlbl = sKeyTVD();
-    curlbl.add( getDistUnitString(zinfeet,false) );
-    lbls.add( curlbl );
-
-    curlbl = sKeyTVDSS();
-    curlbl.add( getDistUnitString(zinfeet,false) );
-    lbls.add( curlbl );
-
-    lbls.add( sKeyColor() );
-    lbls.add( sKeyRegMarker() );
+    getColumnLabels( lbls, unitfld_, true );
 }
 
 
@@ -220,25 +302,16 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 
 float uiMarkerDlg::zFactor() const
 {
-    const bool unitval = !unitfld_->isChecked();
-
-    if ( SI().zIsTime() )
-	return unitval ? 1 : mToFeetFactorF;
-
-    return ((SI().zInFeet() && !unitval) ||
-	    (SI().zInMeter() && unitval)) ? 1
-					  : ( SI().zInFeet() && unitval )
-					      ? mFromFeetFactorF
-					      : mToFeetFactorF;
+    return uiMarkerDlgzFactor( unitfld_ );
 }
 
 
 void uiMarkerDlg::unitChangedCB( CallBacker* )
 {
     NotifyStopper notifystop( table_->valueChanged );
-    BufferStringSet header;
-    getColLabels( header );
-    table_->setColumnLabels( header );
+    BufferStringSet colnms;
+    getColLabels( colnms );
+    table_->setColumnLabels( colnms );
     const float zfac = unitfld_->isChecked() ? mToFeetFactorF
 					     : mFromFeetFactorF;
 
@@ -619,38 +692,7 @@ void uiMarkerDlg::exportCB( CallBacker* )
 	return;
     }
 
-    uiFileDialog fdlg( this, false, 0, 0, tr("File name for export") );
-    fdlg.setDirectory( GetDataDir() );
-    if ( !fdlg.go() )
-	return;
-
-    od_ostream strm( fdlg.fileName() );
-    if ( !strm.isOK() )
-    {
-	BufferString msg("Cannot open '", fdlg.fileName(), "' for write");
-	strm.addErrMsgTo(msg);
-	return;
-    }
-
-    BufferStringSet header;
-    getColLabels( header );
-    strm << header.get( cDepthCol ) << od_tab
-	 << header.get( cTVDCol ) << od_tab
-	 << header.get( cTVDSSCol ) << od_tab
-	 << header.get( cNameCol ) << od_newline;
-
-    const float kbelev = track_.getKbElev();
-    const float zfac = zFactor();
-    for ( int idx=0; idx<mset.size(); idx++ )
-    {
-	const float dah = mset[idx]->dah();
-	const float tvdss = mCast(float,track_.getPos(dah).z);
-	const float tvd = tvdss + kbelev;
-	strm << dah * zfac << od_tab
-	     << tvd * zfac << od_tab
-	     << tvdss * zfac << od_tab
-	     << mset[idx]->name() << od_newline;
-    }
+    exportMarkerSet( this, mset, track_, unitfld_ );
 }
 
 
@@ -799,3 +841,85 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
     return oldval * zFactor();
 }
 
+
+
+uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Reader& wr )
+    : uiDialog(p,uiDialog::Setup("Well Markers",mNoDlgTitle,mTODOHelpKey))
+    , table_(0)
+    , wd_(wr.data())
+{
+    if ( !wd_ )
+	{ new uiLabel( this, "No valid well data found" ); return; }
+
+    wr.getTrack();
+
+    if ( !wr.getMarkers() )
+    {
+	BufferString txt( "Cannot get Markers" );
+	const BufferString emsg( wr.errMsg() );
+	if ( !emsg.isEmpty() )
+	    txt.add( ":\n" ).add( emsg );
+	new uiLabel( this, txt );
+	return;
+    }
+
+    init();
+}
+
+
+uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
+    : uiDialog(p,uiDialog::Setup("Well Markers",mNoDlgTitle,mTODOHelpKey))
+    , table_(0)
+    , wd_(&wd)
+{
+    init();
+}
+
+
+void uiMarkerViewDlg::init()
+{
+    if ( !wd_ )
+	return;
+
+    setCtrlStyle( CloseOnly );
+    setTitleText( BufferString("Markers for well '",wd_->name(),"'") );
+
+    const Well::MarkerSet& mset = wd_->markers();
+    const int nrmrks = mset.size();
+    if ( nrmrks < 1 )
+	{ new uiLabel( this, "No markers for this well" ); return; }
+
+    table_ = createMarkerTable( this, nrmrks, false );
+
+    const float zfac = uiMarkerDlgzFactor();
+    const Well::Track& trck = wd_->track();
+    const float kbelev = trck.getKbElev();
+
+    for ( int irow=0; irow<nrmrks; irow++ )
+    {
+	const Well::Marker& mrkr = *mset[irow];
+	table_->setText( RowCol(irow,cNameCol), mrkr.name() );
+	table_->setColor( RowCol(irow,cColorCol), mrkr.color() );
+
+	const float dah = mrkr.dah();
+	table_->setValue( RowCol(irow,cDepthCol), dah * zfac );
+	const float tvdss = (float)trck.getPos(dah).z;
+	table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev) * zfac );
+	table_->setValue( RowCol(irow,cTVDSSCol), tvdss * zfac );
+    }
+
+
+    uiButton* expbut = new uiPushButton( this, "&Export",
+				    mCB(this,uiMarkerViewDlg,exportCB), false );
+    expbut->setIcon( "export" );
+    expbut->attach( centeredBelow, table_ );
+}
+
+
+void uiMarkerViewDlg::exportCB( CallBacker* )
+{
+    if ( !wd_ )
+	return;
+
+    exportMarkerSet( this, wd_->markers(), wd_->track() );
+}

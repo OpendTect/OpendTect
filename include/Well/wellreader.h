@@ -50,6 +50,9 @@ public:
     void		getLogInfo(BufferStringSet& lognms) const;
 
     const OD::String&	errMsg() const		{ return errmsg_; }
+    Well::Data*		data();
+    const Well::Data*	data() const
+			{ return const_cast<Reader*>(this)->data(); }
 
 protected:
 

@@ -124,6 +124,8 @@ mImplSimpleWRFn(getDispProps)
 mImplWRFn(bool,getLog,const char*,lognm,false)
 void Well::Reader::getLogInfo( BufferStringSet& lognms ) const
 { if ( ra_ ) ra_->getLogInfo( lognms ); }
+Well::Data* Well::Reader::data()
+{ return ra_ ? &ra_->data() : 0; }
 
 
 

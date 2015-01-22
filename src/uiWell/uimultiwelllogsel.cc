@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellextractdata.h"
 #include "wellmarker.h"
 #include "wellreader.h"
+#include "wellwriter.h"
 
 #include "uicombobox.h"
 #include "uibutton.h"
@@ -427,6 +428,22 @@ void uiMultiWellLogSel::init()
     }
 
     zchoicefld_->attach( alignedBelow, llbw ? llbw : llbl );
+}
+
+
+void uiMultiWellLogSel::selectOnlyWritableWells()
+{
+    for ( int idx=0; idx<wellobjs_.size(); idx++ )
+    {
+	IOObj* ioobj = wellobjs_[idx];
+	if ( !Well::Writer::isFunctional(*ioobj) )
+	{
+	    wellobjs_.removeSingle(idx);
+	    wellsfld_->removeItem( idx );
+	    delete ioobj;
+	    idx--;
+	}
+    }
 }
 
 

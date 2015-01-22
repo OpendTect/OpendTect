@@ -54,6 +54,7 @@ uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
     uiWellExtractParams::Setup su;
     su.withzintime_ = su.withextractintime_ = false;
     welllogselfld_ = new uiMultiWellLogSel( this, su, welllnms, lognms );
+    welllogselfld_->selectOnlyWritableWells();
 }
 
 
