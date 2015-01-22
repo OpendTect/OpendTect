@@ -250,6 +250,10 @@ bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
 	return false;
     }
 
+    if ( si_->getDirName() == SI().getDirName() &&
+	 si_->getDataDirName() == SI().getDataDirName() )
+	SI().getLatlong2Coord() = ll2c_;
+
     return true;
 }
 

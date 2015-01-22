@@ -234,6 +234,7 @@ public:
     static const char*	sKeyBasicSurveyName()		{ return "BasicSurvey";}
 
     BufferString	getDirName() const	{ return dirname_; }
+    BufferString	getDataDirName() const	{ return datadir_; }
     void		updateDirName(); //!< May be used after setName()
 
 			DeclareEnumUtils(Pol2D);
