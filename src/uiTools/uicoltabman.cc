@@ -337,12 +337,12 @@ bool uiColorTableMan::saveColTab( bool saveas )
     newctab.setUndefColor( undefcolfld_->color() );
     newctab.setMarkColor( markercolfld_->color() );
 
-    ColTab::SM().write();
     IOPar* ctpar = new IOPar;
     newctab.fillPar( *ctpar );
     ColTab::SM().set(newctab);
-    refreshColTabList( newctab.name() );
+    ColTab::SM().write();
 
+    refreshColTabList( newctab.name() );
     selChg(0);
     return true;
 }
