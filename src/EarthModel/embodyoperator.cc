@@ -581,7 +581,7 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
     if ( !oprt )
     {
 	const MultiID mid = body0 ? inputbody0_ : inputbody1_;
-	const BufferString translt = IOM().get( mid )->translator();
+	const BufferString translt = EMM().objectType(mid);
 	EM::EMObject* obj = EMM().createTempObject( translt );
 
 	if ( !obj ) return 0;

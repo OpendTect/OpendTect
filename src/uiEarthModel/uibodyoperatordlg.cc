@@ -103,7 +103,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     oprselfld_->box()->selectionChanged.notify(
 	    mCB(this,uiBodyOperatorDlg,oprSel) );
 
-    outputfld_ = new uiIOObjSel( lgrp, mWriteIOObjContext(EMBody) );
+    outputfld_ = new uiIOObjSel( lgrp, mWriteIOObjContext(EMBody), "Output" );
     outputfld_->setHSzPol( uiObject::MedVar );
     outputfld_->attach( leftAlignedBelow, tree_ );
 
@@ -399,8 +399,8 @@ bool uiBodyOperatorDlg::bodyOprand::isOK() const
 {
     if ( !defined ) return false;
 
-    return (!mid.isEmpty() && act!=sKeyUdf()) ||
-	   (mid.isEmpty() && act==sKeyUdf());
+    return (!mid.isEmpty() && act==sKeyUdf()) ||
+	   (mid.isEmpty() && act!=sKeyUdf());
 }
 
 
