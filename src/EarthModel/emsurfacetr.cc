@@ -158,12 +158,6 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
 
 bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
 {
-    if ( ioobj )
-    {
-	EM::FaultAuxData fad( ioobj->key() );
-	fad.removeAllData();
-    }
-
     mImplStart(remove(false));
 
     int gap = 0;
@@ -192,14 +186,6 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
 bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 				      const CallBack* cb ) const
 {
-    if ( ioobj )
-    {
-	FilePath fp( newnm );
-	fp.setExtension("");
-	EM::FaultAuxData fad( ioobj->key() );
-	fad.renameFault( fp.fileName() );
-    }
-
     mImplStart(rename(newnm,cb));
 
     int gap = 0;
