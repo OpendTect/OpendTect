@@ -604,6 +604,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    const bool isdef = IOObj::isSurveyDefault( objid );
 	    const bool ispl = StreamProvider::isPreLoaded( objid.buf(), true );
 
+	    ioobjnm = ioobj->name();
 	    dispnm.setEmpty();
 	    if ( isdef ) dispnm += "> ";
 	    if ( ispl ) dispnm += "/ ";
