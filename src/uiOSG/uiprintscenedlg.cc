@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "visscene.h"
 #include "viscamera.h"
+#include "hiddenparam.h"
 
 #include "uirgbarray.h"
 #include <osgViewer/View>
@@ -37,6 +38,12 @@ static bool prevbuttonstate = true;
 #define mAttachToAbove( fld ) \
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
 	fldabove = fld
+
+
+#define FOREGROUND_TRANSPARENCY 128
+#define BACKGROUND_TRANSPARENCY 255
+
+HiddenParam<uiPrintSceneDlg,unsigned char> transparency_( 0 );
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<ui3DViewer>& vwrs )
@@ -84,6 +91,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     updateFilter();
     setSaveButtonChecked( prevbuttonstate );
     unitChg( 0 );
+    transparency_.setParam( this, BACKGROUND_TRANSPARENCY );
 }
 
 
@@ -187,9 +195,11 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     ui3DViewer::WheelMode curmode = vwr->getWheelDisplayMode();
     vwr->setWheelDisplayMode( ui3DViewer::Never );
+    transparency_.setParam( this, FOREGROUND_TRANSPARENCY );
     osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage( hudview );
     vwr->setWheelDisplayMode( curmode );
 
+    transparency_.setParam( this, BACKGROUND_TRANSPARENCY );
     osg::ref_ptr<osg::Image> mainviewimage =
 					offScreenRenderViewToImage( mainview );
 
@@ -278,7 +288,10 @@ bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
 	return false;
 
     if ( rgbhudimage.bufferSize()>0 )
-	rgbmainimage.blendWith( rgbhudimage, false, true );
+    {
+	rgbmainimage.blendWith( rgbhudimage, true, 
+	    FOREGROUND_TRANSPARENCY, false, true );
+    }
 
     rgbmainimage.save( filepath.fullPath().buf(),fmt );
 
@@ -288,7 +301,7 @@ bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
 
 
 osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
-			     osgViewer::View* view )
+			     osgViewer::View* view)
 {
     osg::Image* outputimage = 0;
 
@@ -298,6 +311,7 @@ osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
 	mNINT32( sizepix_.height() ) );
 
     tileoffrenderer.setOutputBackgroundTransparency( 0 );
+    tileoffrenderer.setForegroundTransparency( transparency_.getParam(this) );
 
     if ( tileoffrenderer.createOutput() )
     {

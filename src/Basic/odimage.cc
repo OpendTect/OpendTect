@@ -163,6 +163,69 @@ bool RGBImage::blendWith( const RGBImage& sourceimage,
 }
 
 
+bool RGBImage::blendWith( const RGBImage& sourceimage, 
+			  bool blendtransparency,
+			  unsigned char blendtransparencyval,
+			  bool blendequaltransparency,
+			  bool with_opacity )
+{
+    if ( sourceimage.bufferSize() != bufferSize() )
+	return false;
+
+    const int xsize = getSize( true );
+    const int ysize = getSize( false );
+
+    if ( sourceimage.getSize( true )  != xsize || 
+	 sourceimage.getSize( false ) != ysize )
+	return false;
+
+
+    for ( int idx=0; idx<xsize; idx++ )
+    {
+	for ( int idy=0; idy<ysize; idy++ )
+	{
+	    const Color color = get( idx, idy );
+	    const Color srccolor = sourceimage.get( idx, idy );
+
+	    double a2 = .0f;
+	    double a1 = .0f;
+	    bool forceblendsourceimg = 
+		blendtransparency && srccolor.t()== blendtransparencyval;
+
+	    if ( forceblendsourceimg )
+	    {
+		a1 = 0; a2 = 1.0f;
+	    }
+	    else if ( !blendequaltransparency )
+	    {
+		 a1 = ( color.t()==srccolor.t() ) ? 1.0f : color.t() / 255.0f;
+		 a2 = ( color.t()==srccolor.t() ) ? 0.0f : srccolor.t()/255.0f;
+	    }
+	    else
+	    {
+		a1 = color.t() / 255.0f;
+		a2 = srccolor.t()/255.0f;
+	    }
+
+	    const unsigned char r = 
+		(unsigned char)(a1 * color.r() + a2 * (1 - a1) * srccolor.r());
+	    const unsigned char g = 
+		(unsigned char)(a1 * color.g() + a2 * (1 - a1) * srccolor.g());
+	    const unsigned char b = 
+		(unsigned char)(a1 * color.b() + a2 * (1 - a1) * srccolor.b());
+	    
+	    unsigned char t = forceblendsourceimg ? 255 :
+		(unsigned char)( 255 * (a1 + a2 * (1 - a1) ) );
+
+	    if ( !set( idx, idy, Color( r, g, b, with_opacity ? 255-t : t ) ) )
+		return false;
+	}
+    }
+
+    return true;
+}
+
+
 bool RGBImage::putFromBitmap(const unsigned char* bitmap,
     const unsigned char* maskptr )
 {
