@@ -169,13 +169,13 @@ void uiIOObjManipGroup::selChg()
 	tt.set( oper ).add(" '").add( curioobj->name() ).add("'"); \
     tb->setToolTip( tt )
 
+    mDynamicCastGet(IOStream*,curiostrm,curioobj)
     if ( locbut )
     {
-	mDynamicCastGet(IOStream*,iostrm,curioobj)
-	const bool canreloc = iostrm && !iostrm->implReadOnly();
+	const bool canreloc = curiostrm && !curiostrm->implReadOnly();
 	mSetTBStateAndTT4Cur( locbut, canreloc, "Relocate" );
     }
-    mSetTBStateAndTT4Cur( renbut, true, "Rename" );
+    mSetTBStateAndTT4Cur( renbut, curiostrm, "Rename" );
 
 #define mSetTBStateAndTT4Chosen(tb,cond,oper) \
     tb->setSensitive( cond ); \
@@ -185,9 +185,10 @@ void uiIOObjManipGroup::selChg()
 	tt.set( oper ).add(" ").add( chosennames.getDispString(3) ); \
     tb->setToolTip( tt )
 
-    const bool cantoggro = firstchosenioobj
-			&& firstchosenioobj->implExists(true);
-    const bool isro = cantoggro && firstchosenioobj->implReadOnly();
+    mDynamicCastGet(IOStream*,firstchoseniostrm,firstchosenioobj)
+    const bool cantoggro = firstchoseniostrm
+			&& firstchoseniostrm->implExists(true);
+    const bool isro = cantoggro && firstchoseniostrm->implReadOnly();
     useAlternative( robut, !isro );
     mSetTBStateAndTT4Chosen( robut, cantoggro, isro ? "Unlock":"Lock" );
 
