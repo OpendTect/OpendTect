@@ -23,8 +23,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "envvars.h"
 #include "settings.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "ioman.h"
+
+
+bool Well::Writer::isFunctional( const MultiID& ky )
+{
+    PtrMan<IOObj> ioobj = IOM().get( ky );
+    return ioobj ? isFunctional(*ioobj) : false;
+}
+
+
+bool Well::Writer::isFunctional( const IOObj& ioobj )
+{
+    // hack for 5.0 only
+    mDynamicCastGet(const IOStream*,iostrm,&ioobj)
+    return iostrm;
+}
 
 
 Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )

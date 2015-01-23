@@ -49,6 +49,9 @@ public:
     void		getLogInfo(BufferStringSet& lognms) const;
 
     const OD::String&	errMsg() const		{ return errmsg_; }
+    Well::Data*		data();
+    const Well::Data*	data() const
+			{ return const_cast<Reader*>(this)->data(); }
 
     // DEPRECATED: will go away after 5.0
     Interval<float>	getLogDahRange(const char* lognm) const;

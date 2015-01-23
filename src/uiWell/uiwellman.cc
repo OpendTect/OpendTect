@@ -53,6 +53,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
+// Hack for 5.0 only
+static bool iswritable_ = true;
+
 
 uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Wells",mNoDlgTitle,
@@ -153,9 +156,20 @@ void uiWellMan::addTool( uiButton* but )
 
 void uiWellMan::ownSelChg()
 {
+    iswritable_ = curioobj_ && Well::Writer::isFunctional(*curioobj_);
     getCurrentWells();
     fillLogsFld();
     setToolButtonProperties();
+}
+
+
+static void getBasicInfo( Well::Reader* rdr )
+{
+    if ( rdr )
+    {
+	rdr->getInfo();
+	rdr->getTrack();
+    }
 }
 
 
@@ -166,7 +180,8 @@ void uiWellMan::getCurrentWells()
     deepErase( curwds_ );
     curmultiids_.erase();
 
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const int nrsel = selGroup()->nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
@@ -178,7 +193,7 @@ void uiWellMan::getCurrentWells()
 	curfnms_.add( BufferString( obj->fullUserExpr( true ) ) );
 	curwds_ += new Well::Data;
 	currdrs_ += new Well::Reader( *obj, *curwds_[idx] );
-	currdrs_[idx]->getInfo();
+	getBasicInfo( currdrs_[idx] );
     }
 }
 
@@ -186,7 +201,8 @@ void uiWellMan::getCurrentWells()
 void uiWellMan::fillLogsFld()
 {
     logsfld_->setEmpty();
-    if ( currdrs_.isEmpty() ) return;
+    if ( currdrs_.isEmpty() )
+	return;
 
     availablelognms_.erase();
     currdrs_[0]->getLogInfo( availablelognms_ );
@@ -216,100 +232,120 @@ void uiWellMan::fillLogsFld()
 
 void uiWellMan::checkButtons()
 {
-    addlogsbut_->setSensitive( curwds_.size() == 1 );
+    addlogsbut_->setSensitive( iswritable_ && curwds_.size() == 1 );
+    calclogsbut_->setSensitive( iswritable_ );
+
     logSel(0);
 }
 
 
-#define mSetButToolTip(but,front,curwellnm,end,deftt) \
-    if ( !but->sensitive() ) \
-	but->setToolTip( deftt ); \
-    else \
-    { \
-	tt.setEmpty(); \
-	tt.add( front ).add( curwellnm ).add( end ); \
-	but->setToolTip( tt ); \
+static void setButToolTip( uiButton* but, const char* oper, const char* objtyp,
+			const char* obj, const char* end=0 )
+{
+    if ( !but )
+	return;
+
+    BufferString tt( oper, " ", objtyp );
+    if ( but->sensitive() && obj )
+	tt.add( " for '" ).add( obj ).add( "'" );
+
+    if ( end )
+	tt.add( end );
+
+    but->setToolTip( tt );
+}
+
+
+#define mSetWellButToolTip(but,objtyp) \
+    setButToolTip( but, edvwstr, objtyp, curwellnm )
+
+
+void uiWellMan::setWellToolButtonProperties()
+{
+    const char* curwellnm = curioobj_ ? curioobj_->name().str() : 0;
+    const char* edvwstr = iswritable_ ? "Edit" : "View";
+
+    mSetWellButToolTip( welltrackbut_, "Well Track" );
+    if ( d2tbut_ )
+	mSetWellButToolTip( d2tbut_, "Depth/Time model" );
+
+    if ( csbut_ )
+	mSetWellButToolTip( csbut_, "Checkshot Data" );
+
+    mSetWellButToolTip( markerbut_, "Markers" );
+}
+
+
+#define mSetLogButToolTip(but,oper,end) \
+    setButToolTip( but, oper, curlognm, curwellnm, end )
+
+
+void uiWellMan::setLogToolButtonProperties()
+{
+    const int nrlogs = logsfld_->size();
+    const int curidx = logsfld_->currentItem();
+    logdownbut_->setSensitive( iswritable_ && curidx>=0 && curidx<nrlogs-1 );
+    logupbut_->setSensitive( iswritable_ && curidx>0 );
+
+    TypeSet<MultiID> wellids; selGroup()->getChosen( wellids );
+    BufferStringSet lognms; logsfld_->getChosen( lognms );
+    const int nrchosenlogs = lognms.size();
+    const int nrchosenwells = wellids.size();
+    const bool oneormorelog = nrchosenlogs > 0;
+
+    logrenamebut_->setSensitive( iswritable_ && nrlogs > 0 );
+    logrmbut_->setSensitive( iswritable_ && oneormorelog );
+    logexpbut_->setSensitive( oneormorelog );
+    loguombut_->setSensitive( iswritable_ && nrlogs > 0 );
+    logedbut_->setSensitive( iswritable_ && nrlogs > 0 );
+
+    const char* curwellnm = curioobj_ ? curioobj_->name().str() : 0;
+    const char* curlognm = logsfld_->getText();
+
+    mSetLogButToolTip( logupbut_, "Move", " up" );
+    mSetLogButToolTip( logdownbut_, "Move", " down" );
+    mSetLogButToolTip( logrenamebut_, "Rename", 0 );
+    mSetLogButToolTip( loguombut_, "View/edit units of measure for ", 0 );
+    mSetLogButToolTip( logedbut_, "Edit", 0 );
+
+    setButToolTip( logrmbut_, "Remove", lognms.getDispString(3), curwellnm, 0 );
+    setButToolTip( logexpbut_, "Export", lognms.getDispString(3),
+			nrchosenwells==1 ? curwellnm : 0, 0 );
+
+    const int nrlogs2vw = nrchosenwells * nrchosenlogs ;
+    const bool canview = nrlogs2vw == 1 || nrlogs2vw == 2;
+    logvwbut_->setSensitive( canview );
+
+    if ( !canview )
+	logvwbut_->setToolTip( "View log(s)" );
+    else
+    {
+	BufferStringSet wellnms;
+	for ( int midx=0; midx<wellids.size(); midx++ )
+	{
+	    IOObj* ioobj = IOM().get( wellids[midx] );
+	    if ( ioobj )
+		wellnms.add( ioobj->name() );
+	    delete ioobj;
+	}
+
+	BufferString tt( "View ", lognms.getDispString(2), " for " );
+	tt.add( wellnms.getDispString(2) );
+	logvwbut_->setToolTip( tt );
     }
+}
+
 
 void uiWellMan::setToolButtonProperties()
 {
-    BufferString tt, curwellnm;
-    if ( curioobj_ )
-	curwellnm.add( curioobj_->name() );
-
-    mSetButToolTip(welltrackbut_,"Edit Well Track for '",curwellnm,"'",
-		   "Edit Well Track")
-    if ( d2tbut_ )
-    {
-	mSetButToolTip(d2tbut_,"Edit Depth/Time model for '",curwellnm,"'",
-		       "Edit Depth/Time Model")
-    }
-
-    if ( csbut_ )
-    {
-	mSetButToolTip(csbut_,"Edit Checkshot Data for '",curwellnm,"'",
-		       "Edit Checkshot Data")
-    }
-
-    mSetButToolTip(markerbut_,"Edit '",curwellnm,"' markers","Edit markers")
-
-    const int nrlogs = logsfld_->size();
-    const int curidx = logsfld_->currentItem();
-    logdownbut_->setSensitive( curidx >= 0 && curidx < nrlogs-1 );
-    logupbut_->setSensitive( curidx > 0 );
-
-    const int nrchosenlogs = logsfld_->nrChosen();
-    const bool oneormorelog = nrchosenlogs > 0;
-
-    logrenamebut_->setSensitive( nrlogs > 0 );
-    logrmbut_->setSensitive( oneormorelog );
-    logexpbut_->setSensitive( oneormorelog );
-    loguombut_->setSensitive( nrlogs > 0 );
-    logedbut_->setSensitive( nrlogs > 0 );
-
-    mSetButToolTip(logupbut_,"Move '",logsfld_->getText(),"' up","Move up");
-    mSetButToolTip(logdownbut_,"Move '",logsfld_->getText(),"' down",
-		   "Move down");
-    mSetButToolTip(logrenamebut_,"Rename '",logsfld_->getText(),"' ",
-		   "Rename selected log");
-    mSetButToolTip(loguombut_,"View/edit '",logsfld_->getText(),
-		   "' unit of measure","View/edit unit of measure");
-    mSetButToolTip(logedbut_,"Edit '",logsfld_->getText(),"'",
-		   "Edit selected log" );
-    BufferStringSet lognms;
-    logsfld_->getChosen( lognms );
-    if ( nrchosenlogs )
-    {
-	mSetButToolTip(logrmbut_,"Remove ",lognms.getDispString(3),"",
-		       "Remove selected log(s)");
-	mSetButToolTip(logexpbut_,"Export ",lognms.getDispString(3),"",
-		       "Export log(s)");
-    }
-
-    const int nrchosenwls = selGroup()->getListField()->nrChosen();
-    const int maxnrchosen = nrchosenwls*nrchosenlogs;
-    logvwbut_->setSensitive( maxnrchosen && maxnrchosen<=2 );
-    TypeSet<MultiID> chsnmids;
-    selGroup()->getChosen( chsnmids );
-    BufferStringSet wellnms;
-    for ( int midx=0; midx<chsnmids.size(); midx++ )
-    {
-	IOObj* obj = IOM().get( chsnmids[midx] );
-	if ( !obj ) continue;
-	wellnms.add( obj->name() );
-    }
-
-    BufferString vwlogtt;
-    vwlogtt.add( nrchosenwls > 1 ? " of wells " : " of well " );
-    vwlogtt.add( wellnms.getDispString(2) );
-    mSetButToolTip(logvwbut_,"View ",lognms.getDispString(2),vwlogtt,
-		   "View selected log(s)");
+    setWellToolButtonProperties();
+    setLogToolButtonProperties();
 }
 
 
 void uiWellMan::logSel( CallBacker* )
 {
-    setToolButtonProperties();
+    setLogToolButtonProperties();
 }
 
 
@@ -319,7 +355,14 @@ void uiWellMan::logSel( CallBacker* )
 
 void uiWellMan::edMarkers( CallBacker* )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
+	return;
+
+    if ( !iswritable_ )
+    {
+	uiMarkerViewDlg dlg( this, *currdrs_[0] );
+	dlg.go(); return;
+    }
 
     Well::Data* wd;
     MultiID curmid( curioobj_->key() );
@@ -338,7 +381,8 @@ void uiWellMan::edMarkers( CallBacker* )
     wd->track().setName( curioobj_->name() );
     uiMarkerDlg dlg( this, wd->track() );
     dlg.setMarkerSet( wd->markers() );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     dlg.getMarkerSet( wd->markers() );
     Well::Writer wtr( curmid, *wd );
@@ -371,7 +415,8 @@ void uiWellMan::edWellTrack( CallBacker* )
     const float origgl = wd->info().groundelev;
 
     uiWellTrackDlg dlg( this, *wd );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() || !iswritable_ )
+	return;
 
     Well::Writer wtr( curmid, *wd );
     if ( !wtr.putInfoAndTrack( ) )
@@ -423,22 +468,26 @@ void uiWellMan::defD2T( bool chkshot )
 	wd->setCheckShotModel( new Well::D2TModel );
 
     const float oldreplvel = wd->info().replvel;
-    Well::D2TModel* origd2t =
-	new Well::D2TModel(*(chkshot ? wd->checkShotModel() : wd->d2TModel()));
+    Well::D2TModel* inpmdl = chkshot ? wd->checkShotModel() : wd->d2TModel();
+    PtrMan<Well::D2TModel> origd2t = 0;
+    if ( inpmdl )
+	origd2t = new Well::D2TModel( *inpmdl );
 
     uiD2TModelDlg dlg( this, *wd, chkshot );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() || !iswritable_ )
+	return;
 
     BufferString errmsg;
     Well::Writer wtr( curmid, *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
     {
 	errmsg.add( "Cannot write new model to disk" );
+	Well::D2TModel* toput = origd2t.release();
 	if ( chkshot )
-	    wd->setCheckShotModel( origd2t );
+	    wd->setCheckShotModel( toput );
 	else
 	{
-	    wd->setD2TModel( origd2t );
+	    wd->setD2TModel( toput );
 	    wd->info().replvel = oldreplvel;
 	}
     }

@@ -64,6 +64,8 @@ protected:
     uiToolButton*		markerbut_;
 
     void			setToolButtonProperties();
+    void			setWellToolButtonProperties();
+    void			setLogToolButtonProperties();
     void			checkButtons();
     void			ownSelChg();
     void			getCurrentWells();

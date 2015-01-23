@@ -49,6 +49,8 @@ public:
     virtual Interval<float> getAllLogsDahRange() const	= 0;
 
     virtual const OD::String& errMsg() const		= 0;
+    Data&		data()				{ return wd_; }
+    const Data&		data() const			{ return wd_; }
 
 protected:
 

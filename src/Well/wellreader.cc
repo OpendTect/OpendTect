@@ -134,6 +134,8 @@ mImplWRFn(Interval<float>,getLogDahRange,const char*,lognm,
 mImplWRFn(Interval<float>,getAllLogsDahRange,,,Interval<float>::udf())
 void Well::Reader::getLogInfo( BufferStringSet& lognms ) const
 { if ( ra_ ) ra_->getLogInfo( lognms ); }
+Well::Data* Well::Reader::data()
+{ return ra_ ? &ra_->data() : 0; }
 
 
 

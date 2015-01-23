@@ -140,6 +140,8 @@ public:
 					const MultiID& singlewid);
 			~uiMultiWellLogSel();
 
+    void		selectOnlyWritableWells();
+
     void		getSelLogNames(BufferStringSet&) const;
     void		getSelWellNames(BufferStringSet&) const;
     void		getSelWellIDs(BufferStringSet&) const;
