@@ -112,8 +112,8 @@ public:
     void			setWheelDisplayMode(WheelMode);
     WheelMode			getWheelDisplayMode() const;
 
-    void			setAnimationEnabled(bool) {} // OSG-TODO
-    bool			isAnimationEnabled()	{ return true; }
+    void			setAnimationEnabled(bool);
+    bool			isAnimationEnabled();
     void			showRotAxis(bool);
     bool			isAxisShown() const;
     void			setAnnotColor(const Color&);

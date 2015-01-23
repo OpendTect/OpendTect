@@ -669,6 +669,30 @@ void ui3DViewerBody::thumbWheelRotationCB(CallBacker* cb )
 }
 
 
+void ui3DViewerBody::setAnimationEnabled( bool yn )
+{
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
+
+    if ( manip )
+	manip->setAllowThrow( yn );
+} 
+
+
+bool ui3DViewerBody::isAnimationEnabled()
+{ 
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
+    
+    if ( manip )
+	return manip->getAllowThrow();
+
+    return false;
+}
+
+
 void ui3DViewerBody::toggleViewMode(CallBacker* cb )
 {
     setViewMode( !isViewMode(), true );
