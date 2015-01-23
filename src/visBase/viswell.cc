@@ -216,13 +216,8 @@ void Well::setPixelDensity(float dpi)
 {
     DataObject::setPixelDensity( dpi );
     pixeldensity_ = dpi;
-
     track_->setPixelDensity( dpi );
     markerset_->setPixelDensity( dpi );
-    welltoptxt_->setPixelDensity( dpi );
-    wellbottxt_->setPixelDensity( dpi );
-    markernames_->setPixelDensity( dpi );
-
 }
 
 
@@ -302,7 +297,7 @@ void Well::updateText( Text* tx, const uiString& chr, const Coord3* pos,
     tx->setPosition( *pos );
     tx->setJustification( Text::Left );
     tx->setCharacterSizeMode( Text::Object );
-    tx->setAxisAlignment( Text::OnScreen);
+    tx->setAxisAlignment( Text::OnScreen );
 }
 
 
