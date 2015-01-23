@@ -154,7 +154,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 
     mGetInterpols();
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, pols,
-					    "Interpolate undefined values?");
+			       "Inter/extrapolate input logs?" );
     interppolfld_ = lcb->box();
     interppolfld_->setCurrentItem( 2 );
     lcb->attach( alignedBelow, srfld_ );
@@ -529,39 +529,24 @@ Well::Log* uiWellLogCalc::getInpLog( Well::LogSet& wls, int inpidx,
 }
 
 
-static bool selectInpVals( const TypeSet<float>& noudfinpvals,
+static void selectInpVals( const TypeSet<float>& noudfinpvals,
 			const int interppol, TypeSet<float>& inpvals )
 {
-    if ( interppol == mInterpAll )
-	{ inpvals = noudfinpvals; return true; }
+    const int sz = inpvals.size();
+    if ( sz == 0 || interppol == mInterpNone )
+	return;
 
     int nrudf = 0;
-    const int sz = inpvals.size();
-    if ( sz == 0 )
-	return true;
-
     for ( int idx=0; idx<sz; idx++ )
 	if ( mIsUdf(inpvals[idx]) )
 	    nrudf++;
+    if ( nrudf == 0 )
+	return;
 
-    if ( interppol == mInterpNone )
-	return nrudf == 0;
-
-    const bool ismax1 = interppol == mInterpMax1;
-
-    if ( sz == 1 )
-    {
-	if ( !ismax1 )
-	    return nrudf == 0;
+    if ( (interppol == mInterpAll)
+      || (interppol == mInterpMax1 && nrudf < 2)
+      || (interppol == mInterpNotAll && nrudf != sz) )
 	inpvals = noudfinpvals;
-	return true;
-    }
-
-    if ( nrudf == 0 || nrudf == sz || (ismax1 && nrudf > 1) )
-	return nrudf == 0;
-
-    inpvals = noudfinpvals;
-    return true;
 }
 
 
@@ -645,8 +630,8 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	}
 
 	float formval = mUdf(float);
-	if ( selectInpVals(noudfinpvals,interppol,inpvals) )
-	    formval = form_.getValue( inpvals.arr(), false );
+	selectInpVals( noudfinpvals, interppol, inpvals );
+	formval = form_.getValue( inpvals.arr(), false );
 	wlout.addValue( dah, formval );
     }
 
