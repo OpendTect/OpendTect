@@ -22,8 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 
 
-static const char* sKeyLS()	{ return "Line Style"; }
-
 // uiBasemapOutlineGroup
 uiBasemapOutlineGroup::uiBasemapOutlineGroup( uiParent* p, bool isadd )
     : uiBasemapIOObjGroup(p,*Seis::getIOObjContext(Seis::Vol,true),isadd)
@@ -55,7 +53,7 @@ bool uiBasemapOutlineGroup::fillItemPar( int idx, IOPar& par ) const
 
     BufferString lsstr;
     lsfld_->getStyle().toString( lsstr );
-    par.set( sKeyLS(), lsstr );
+    par.set( sKey::LineStyle(), lsstr );
 
     return res;
 }
@@ -66,7 +64,7 @@ bool uiBasemapOutlineGroup::usePar( const IOPar& par )
     const bool res = uiBasemapIOObjGroup::usePar( par );
 
     BufferString lsstr;
-    par.get( sKeyLS(), lsstr );
+    par.get( sKey::LineStyle(), lsstr );
     LineStyle ls; ls.fromString( lsstr );
     lsfld_->setStyle( ls );
 
@@ -96,7 +94,7 @@ bool uiBasemapOutlineTreeItem::usePar( const IOPar& par )
     uiBasemapTreeItem::usePar( par );
 
     BufferString lsstr;
-    par.get( sKeyLS(), lsstr );
+    par.get( sKey::LineStyle(), lsstr );
     LineStyle ls;
     ls.fromString( lsstr );
 
