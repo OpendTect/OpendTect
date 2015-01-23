@@ -284,10 +284,13 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
     if ( !desc )
 	return 0;
 
+    errmsg_.setEmpty();
+
     if ( desc->isSatisfied() == Desc::Error )
     {
 	const uiString derrmsg( desc->errMsg() );
-	if ( !desc->isStored() || derrmsg != DescSet::storedIDErrStr() )
+	if ( !desc->isStored()
+		|| derrmsg.getFullString() != DescSet::storedIDErrStr() )
 	    errmsg_ = derrmsg;
 	else
 	{

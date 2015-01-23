@@ -620,12 +620,38 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	    FixedString dscerr = dsc.errMsg();
 	    if ( dscerr==DescSet::storedIDErrStr() && dsc.isStored() )
 	    {
+		IOPar tmpcpypar( copypar );
+		BufferString depattribnm;
+		bool found = true;
+		while ( found )
+		{
+		    CompoundKey compkey =
+			tmpcpypar.findKeyFor( toString( ids_[idx].asInt() ) );
+		    found = !compkey.isEmpty();
+		    if ( found )
+		    {
+			if ( compkey.nrKeys()>1
+			  && compkey.key(1)==sKey::Input() )
+			{
+			    CompoundKey usrrefkey(compkey.key(0));
+			    usrrefkey += userRefStr();
+			    copypar.get( usrrefkey.buf(), depattribnm );
+			    break;
+			}
+			else
+			    tmpcpypar.removeWithKey( compkey.buf() );
+		    }
+		}
 		err = tr( "Impossible to find stored data '%1'"
-			"used as input for other attribute(s). \n"
+			"used as input for another attribute %2 '%3'. \n"
 			"Data might have been deleted or corrupted.\n"
 			"Please check your attribute set "
 			"and select valid stored data as input." )
-			.arg( dsc.userRef() );
+			.arg( dsc.userRef() )
+			.arg( depattribnm.isEmpty() ? uiString::emptyString()
+						    : tr("called"))
+			.arg( depattribnm.isEmpty() ? uiString::emptyString()
+						    : depattribnm.buf() );
 	    }
 	    else
 	    {
@@ -1026,13 +1052,23 @@ DescSet* DescSet::optimizeClone( const BufferStringSet& targetsstr ) const
 
 bool DescSet::isAttribUsed( const DescID& id ) const
 {
+    BufferString tmpstr;
+    return isAttribUsed( id, tmpstr );
+}
+
+
+bool DescSet::isAttribUsed( const DescID& id, BufferString& depdescnm ) const
+{
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Desc& dsc = *descs_[idx];
 	for ( int inpnr=0; inpnr<dsc.nrInputs(); inpnr++ )
 	{
 	    if ( dsc.inputId(inpnr) == id )
+	    {
+		depdescnm = dsc.userRef();
 		return true;
+	    }
 	}
     }
 
@@ -1069,7 +1105,7 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 
 	    if ( iscandidate )
 	    {
-		if ( !isAttribUsed(descid) )
+		if ( !isAttribUsed( descid ) )
 		    { torem += descid; count++; }
 	    }
 	}
