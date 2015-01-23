@@ -379,13 +379,13 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    offsnr_++;
     }
 
-    if ( !strm_->isOK() )
+    trc.info() = trc_.info();
+    if ( !strm_->isOK() || !trc.reSize(data_.nrsamples_,0) )
 	return Finished();
 
     mPIEPAdj(BinID,bid,true); mPIEPAdj(Coord,coord,true);
     mPIEPAdj(TrcNr,nr,true); mPIEPAdj(Offset,offs,true);
-    trc.info() = trc_.info();
-    trc.reSize( data_.nrsamples_, 0 );
+
     trc.info().binid = bid;
     prevbid_ = bid;
     trc.info().coord = coord;
