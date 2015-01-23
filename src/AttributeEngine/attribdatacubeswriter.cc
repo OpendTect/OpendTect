@@ -103,7 +103,7 @@ int DataCubesWriter::nextStep()
 
     for ( int idx=0; idx<cubeindices_.size(); idx++ )
     {
-	for ( int zidx=0; zidx<cube_.getZSz(); zidx++ )
+	for ( int zidx=0; zidx<=zrg_.width(); zidx++ )
 	{
 	    const int zpos = zrg_.start+zidx;
 	    const float value = cube_.getCube(cubeindices_[idx]).get(
