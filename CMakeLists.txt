@@ -12,20 +12,21 @@ else()
     cmake_policy( SET CMP0020 OLD )
 endif()
 
-if ( CMAKE_VERSION VERSION_LESS 3.0.0 )
-else()
-    cmake_policy( SET CMP0042 OLD )
-endif()
-
 set( OpendTect_VERSION_MAJOR 5 )
 set( OpendTect_VERSION_MINOR 1 )
-set( OpendTect_VERSION_DETAIL 0 )
-#Default patch value
 if ( NOT DEFINED OpendTect_VERSION_PATCH OR OpendTect_VERSION_PATCH STREQUAL "" )
-    set( OpendTect_VERSION_PATCH a )
+    set( OpendTect_VERSION_PATCH 0 )
 endif()
 
-PROJECT( "OpendTect" )
+if ( CMAKE_VERSION VERSION_LESS 3.0.0 )	
+    project( "OpendTect" )
+else()
+    cmake_policy( SET CMP0042 OLD )
+	cmake_policy( SET CMP0048 NEW )
+	project( "OpendTect" VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
+endif()
+
+
 
 include( CTest )
 
