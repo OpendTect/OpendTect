@@ -575,7 +575,11 @@ bool SeisIOObjInfo::isFullyRectAndRegular() const
 {
     PtrMan<Translator> trl = ioobj_->createTranslator();
     mDynamicCastGet(CBVSSeisTrcTranslator*,cbvstrl,trl.ptr())
-    if ( !cbvstrl || !cbvstrl->readMgr() ) return false;
+    if ( !cbvstrl ) return false;
+
+    Conn* conn = ioobj_->getConn( Conn::Read );
+    if ( !cbvstrl->initRead(conn) || !cbvstrl->readMgr() )
+	return false;
 
     const CBVSInfo& info = cbvstrl->readMgr()->info();
     return info.geom_.fullyrectandreg;
