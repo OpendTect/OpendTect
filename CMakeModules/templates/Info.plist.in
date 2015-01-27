@@ -5,7 +5,7 @@
 	<key>CFBundleExecutable</key>
 	<string>@BUNDLEEXEC@</string>
 	<key>CFBundleGetInfoString</key>
-	<string>OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.@OpendTect_VERSION_DETAIL@</string>
+	<string>OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.@OpendTect_VERSION_PATCH@</string>
 	<key>CFBundleIconFile</key>
 	<string>@BUNDLEICON@</string>
 	<key>CFBundleIdentifier</key>
