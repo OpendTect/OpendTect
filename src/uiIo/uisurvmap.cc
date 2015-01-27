@@ -216,7 +216,7 @@ uiMapScaleObject::uiMapScaleObject( BaseMapObject* bmo )
     : uiBaseMapObject(bmo)
     , scalestyle_(*new LineStyle(LineStyle::Solid,1,Color::Black()))
 {
-    scalelen_ = (float)( 0.05 * ( SI().maxCoord(false).x - 
+    scalelen_ = (float)( 0.05 * ( SI().maxCoord(false).x -
 				  SI().minCoord(false).x ) );
     scalelen_ = (float)( 100 * mCast(int,scalelen_ / 100) );
 
@@ -275,9 +275,9 @@ void uiMapScaleObject::update()
     const float uiscalelen = (float)xmax - transform_->toUiX( worldref );
 
     const int lastx = xmax - 1 - sideoffs;
-    const int firsty = ymin - 1;
+    const int firsty = ymin + 50;
 
-    const Geom::Point2D<float> origin( (float)lastx - uiscalelen, 
+    const Geom::Point2D<float> origin( (float)lastx - uiscalelen,
 				       (float)firsty );
     const Geom::Point2D<float> end( (float)lastx, (float)firsty );
     scaleline_->setLine( origin, end );
@@ -374,7 +374,7 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 	view_.setViewArea( 0, 0, view_.scene().width(),
 				 view_.scene().height() );
 
-	uiBorder border( 20, title_ ? 70 : 20, 20, 20 );
+	uiBorder border( 20, title_ ? 70 : 20, 20, mapscale_ ? 70 : 20 );
 	uiSize sz( (int)view_.scene().width(), (int)view_.scene().height() );
 	uiRect rc = border.getRect( sz );
 	w2ui_.set( rc, *survinfo_ );
