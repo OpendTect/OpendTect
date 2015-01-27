@@ -75,7 +75,7 @@ static BufferString getWinTitle( const char* objtyp, const MultiID& wllky,
 #define mAddSetBut(fld,cb) \
     if ( writable_ ) \
     { \
-	setbut = new uiPushButton( actbutgrp, tr("Set"), \
+	setbut = new uiPushButton( actbutgrp, uiStrings::sSet(), \
 				mCB(this,uiWellTrackDlg,cb), true ); \
 	setbut->attach( rightOf, fld ); \
     }
@@ -115,13 +115,10 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     wellheadxfld_ = new uiGenInput( actbutgrp, tr("X-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
     mAddSetBut( wellheadxfld_, updateXpos )
-    if ( !updbut )
-	actbutgrp->attach( ensureBelow, zinftfld_ );
-    else
-    {
+    actbutgrp->attach( ensureBelow, zinftfld_ );
+    if ( updbut )
 	wellheadxfld_->attach( ensureBelow, updbut );
-	actbutgrp->attach( ensureBelow, tbl_ );
-    }
+
     if ( !writable_ ) wellheadxfld_-> setReadOnly( true );
 
     wellheadyfld_ = new uiGenInput( actbutgrp, tr("Y-Coordinate of well head"),

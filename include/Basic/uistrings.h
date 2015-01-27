@@ -216,6 +216,7 @@ public:
     static uiString sWells(bool immediate);
     static uiString sWiggle()		{ return tr("Wiggle"); }
     static uiString sYes()		{ return tr("Yes"); }
+    static uiString sSet()		{ return tr("Set"); }
 };
 
 // Implementations uiStrings
