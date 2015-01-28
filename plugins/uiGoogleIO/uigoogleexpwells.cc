@@ -78,7 +78,7 @@ bool uiGoogleExportWells::acceptOK( CallBacker* )
 
 	Well::Data wd;
 	Well::Reader wllrdr( *wellids_[idx], wd );
-	if ( !wllrdr.getInfo() || !wllrdr.getTrack() )
+	if ( !wllrdr.getInfo() )
 	    continue;
 
 	Coord surfcoord( wd.info().surfacecoord );
