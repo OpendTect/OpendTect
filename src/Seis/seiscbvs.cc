@@ -440,6 +440,13 @@ Pos::IdxPair2Coord CBVSSeisTrcTranslator::getTransform() const
 }
 
 
+bool CBVSSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd )
+{
+    cd = readMgr()->info().geom_.cubedata;
+    return true;
+}
+
+
 bool CBVSSeisTrcTranslator::startWrite()
 {
     BufferString fnm; if ( !getFileName(fnm) ) return false;

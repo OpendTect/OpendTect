@@ -42,6 +42,7 @@ public:
     virtual void	setLineStyle(int shapeidx,const LineStyle&);
 
 protected:
+    bool		fullyrect_;
     LineStyle&		ls_;
     MultiID		seismid_;
     ObjectSet< ODPolygon<float> >    polygons_;

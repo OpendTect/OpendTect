@@ -8,29 +8,32 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisread.h"
-#include "seispsread.h"
-#include "seistrctr.h"
-#include "seis2ddata.h"
+
+#include "seisbounds.h"
+#include "seisbuf.h"
+#include "seiscbvs.h"
+#include "seispacketinfo.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
-#include "seisbuf.h"
-#include "seisbounds.h"
-#include "seistrc.h"
-#include "seispacketinfo.h"
 #include "seisselectionimpl.h"
+#include "seistrc.h"
+#include "seistrctr.h"
+#include "seis2ddata.h"
+
+#include "binidvalset.h"
 #include "executor.h"
+#include "file.h"
+#include "iopar.h"
 #include "iostrm.h"
-#include "streamconn.h"
-#include "survinfo.h"
-#include "posinfo2dsurv.h"
 #include "keystrs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
+#include "posinfo2dsurv.h"
+#include "streamconn.h"
+#include "survinfo.h"
 #include "trckeyzsampling.h"
-#include "binidvalset.h"
-#include "file.h"
-#include "iopar.h"
 #include "uistrings.h"
+
 
 #define mUndefPtr(clss) ((clss*)0xdeadbeef) // Like on AIX. Nothing special.
 
@@ -815,4 +818,12 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     } // iiter = 0 or 1
 
     return b2d;
+}
+
+
+bool SeisTrcReader::getGeometryInfo( PosInfo::CubeData& cd )
+{
+    if ( !isPrepared() && !prepareWork(Seis::Prod) ) return false;
+
+    return strl() ? strl()->getGeometryInfo( cd ) : false;
 }

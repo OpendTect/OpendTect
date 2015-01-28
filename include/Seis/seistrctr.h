@@ -30,6 +30,7 @@ class SeisTrcInfo;
 class TrcKeyZSampling;
 class SeisPacketInfo;
 class BufferStringSet;
+namespace PosInfo	{ class CubeData; }
 namespace Seis		{ class SelData; }
 
 
@@ -205,6 +206,8 @@ public:
 				  const char* linekey=0);
     static bool		getRanges(const IOObj&,TrcKeyZSampling&,
 				  const char* linekey=0);
+
+    virtual bool	getGeometryInfo(PosInfo::CubeData&) { return false; }
 
     static bool		is2D(const IOObj&,bool only_internal=false);
     static bool		isPS(const IOObj&);

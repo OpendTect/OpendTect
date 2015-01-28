@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "isocontourtracer.h"
+#include "posinfo.h"
 #include "ptrman.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
@@ -31,6 +32,7 @@ OutlineObject::OutlineObject( const MultiID& mid )
     , seismid_(mid)
     , ls_(*new LineStyle)
     , seisarea_(*new TrcKeySampling)
+    , fullyrect_(false)
 {
     setMultiID( mid );
 }
@@ -74,7 +76,7 @@ void OutlineObject::updateGeometry()
 
 
 int OutlineObject::nrShapes() const
-{ return polygons_.size(); }
+{ return fullyrect_ ? 1 : polygons_.size(); }
 
 
 const char* OutlineObject::getShapeName(int) const
@@ -83,61 +85,35 @@ const char* OutlineObject::getShapeName(int) const
 
 bool OutlineObject::extractPolygons()
 {
+    const SeisIOObjInfo ioobjinfo( seismid_ );
+
     TrcKeyZSampling tkzs;
-    const SeisIOObjInfo info( seismid_ );
-    if ( !info.getRanges(tkzs) )
-	return false;
+    if ( !ioobjinfo.getRanges(tkzs) ) return false;
+    seisarea_ = tkzs.hsamp_;
 
-    if ( info.isFullyRectAndRegular() )
-    {
-	ODPolygon<float>* polygon = new ODPolygon<float>();
-	polygon->setClosed( false );
+    if ( ioobjinfo.isFullyRectAndRegular() ) return fullyrect_ = true;
 
-	const Coord& startpt = SI().transform(tkzs.hrg.start_);
-	const Coord& stoppt = SI().transform(tkzs.hrg.stop_);
-
-#define mPoint(x,y) \
-    Geom::Point2D<float>( mCast(float,x), mCast(float,y) )
-
-	polygon->insert( 0, mPoint(startpt.x,startpt.y) );
-	polygon->insert( 1, mPoint(stoppt.x,startpt.y) );
-	polygon->insert( 2, mPoint(stoppt.x,stoppt.y) );
-	polygon->insert( 3, mPoint(startpt.x,stoppt.y) );
-
-	polygons_.insertAt( polygon, 0 );
-	return true;
-    }
+    const int lines = seisarea_.nrLines();
+    const int traces = seisarea_.nrTrcs();
     // creates matrix of 0.0 and 1.0
     // area[x][y] == 1.0 => valid trace
     // area[x][y] == 0.0 => invalid trace
-    seisarea_ = tkzs.hsamp_;
-    const int lines = seisarea_.nrLines();
-    const int traces = seisarea_.nrTrcs();
-    // line below allow data on the edge to be drawn
     Array2DImpl<float> area( lines+2 , traces+2 );
     area.setAll( 0.0f );
+    // +2 allow data on the edge to be drawn
 
-    PtrMan<IOObj> seisobj = IOM().get( seismid_ );
-    if ( !seisobj ) return false;
+    SeisTrcReader rdr( ioobjinfo.ioObj() );
 
-    SeisTrcReader seistrcrdr( seisobj );
-    seistrcrdr.prepareWork( Seis::Prod );
-    seistrcrdr.setSelData( new Seis::RangeSelData(tkzs) );
-    SeisTrcInfo si;
+    PosInfo::CubeData cubedata;
+    if ( !rdr.getGeometryInfo(cubedata) ) return false;
 
-    while ( true )
+    PosInfo::CubeDataPos cubedatapos;
+    while ( cubedata.toNext(cubedatapos) )
     {
-	const int res = seistrcrdr.get( si );
-	if ( res == 0 ) break;
-	if ( res > 1 ) continue;
-	if ( res == 1 )
-	{
-	    const BinID bid = si.binid;
-	    const int lineidx = seisarea_.lineIdx( bid.inl() );
-	    const int trcidx = seisarea_.trcIdx( bid.crl() );
-	    area.set( lineidx + 1, trcidx + 1, 1.0f );
-	}
-	if ( res < 0 ) return false;
+	const BinID bid = cubedata.binID( cubedatapos );
+	const int lineidx = seisarea_.lineIdx( bid.inl() );
+	const int trcidx = seisarea_.trcIdx( bid.crl() );
+	area.set( lineidx+1, trcidx+1, 1.0f );
     }
 
     IsoContourTracer outline( area );
@@ -148,8 +124,21 @@ bool OutlineObject::extractPolygons()
 
 void OutlineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
 {
-    if ( !polygons_.validIdx(shapeidx) )
+    if ( fullyrect_ )
+    {
+	const Coord startpt = SI().transform(seisarea_.start_);
+	const Coord stoppt = SI().transform(seisarea_.stop_);
+
+	pts.add( startpt );
+	pts.add( Coord(stoppt.x,startpt.y) );
+	pts.add( stoppt );
+	pts.add( Coord(startpt.x,stoppt.y) );
+	pts.add( startpt );
+
 	return;
+    }
+
+    if ( !polygons_.validIdx(shapeidx) ) return;
 
     const ODPolygon<float>& poly = *polygons_[shapeidx];
     for ( int idy=0; idy<poly.size(); idy++ )
@@ -159,6 +148,5 @@ void OutlineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
 	pts.add( SI().transform(bid) );
     }
 }
-
 
 } // namepace Basemap
