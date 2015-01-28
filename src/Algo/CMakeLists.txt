@@ -9,6 +9,7 @@ set(OD_MODULE_DEPS Basic )
 
 set( OD_TEST_PROGS
 	array2dmatrix.cc
+	checksum.cc
 	gaussianprobdenfunc.cc
 	simpnumer.cc
 	velocitycalc.cc
@@ -28,6 +29,7 @@ set( OD_MODULE_SOURCES
 	bendpoints2coords.cc
 	binidsorting.cc
 	bodyvolumecalc.cc
+	checksum.cc
 	conncomponents.cc
 	convolve2d.cc
 	curvature.cc
