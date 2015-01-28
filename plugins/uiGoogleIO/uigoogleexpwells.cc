@@ -76,20 +76,12 @@ bool uiGoogleExportWells::acceptOK( CallBacker* )
 	if ( !selfld_->isChosen(idx) )
 	    continue;
 
-	Well::Data wd;
+	Well::Data wd; Coord coord;
 	Well::Reader wllrdr( *wellids_[idx], wd );
-	if ( !wllrdr.getInfo() )
+	if ( !wllrdr.getMapLocation(coord) )
 	    continue;
 
-	Coord surfcoord( wd.info().surfacecoord );
-	if ( (mIsZero(surfcoord.x,0.001) && mIsZero(surfcoord.x,0.001))
-	  || (mIsUdf(surfcoord.x) && mIsUdf(surfcoord.x)) )
-	{
-	    if ( !wllrdr.getTrack() || wd.track().isEmpty() )
-		continue;
-	    surfcoord = wd.track().pos(0);
-	}
-	wrr.writePlaceMark( "wellpin", surfcoord, selfld_->textOfItem(idx) );
+	wrr.writePlaceMark( "wellpin", coord, selfld_->textOfItem(idx) );
 	if ( !wrr.isOK() )
 	    { uiMSG().error(wrr.errMsg()); return false; }
     }

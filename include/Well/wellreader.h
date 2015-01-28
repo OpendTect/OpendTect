@@ -54,6 +54,8 @@ public:
     const Well::Data*	data() const
 			{ return const_cast<Reader*>(this)->data(); }
 
+    bool		getMapLocation(Coord&) const;
+
 protected:
 
     ReadAccess*		ra_;
