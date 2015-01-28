@@ -499,14 +499,27 @@ void uiBasemapManager::edit( int itemid, int treeitemid )
 
 void uiBasemapManager::removeSelectedItems()
 {
-    uiTreeView* treeview = treetop_->getTreeView();
-    const int nrsel = treeview->nrSelected();
-    if ( nrsel==0 ) return;
+    ObjectSet<uiBasemapTreeItem> selitms;
+    for ( int idx=0; idx<treeitems_.size(); idx++ )
+    {
+	uiBasemapTreeItem* itm = treeitems_[idx];
+	if ( itm->isSelected() )
+	    selitms += itm;
+    }
 
-    if ( !uiMSG().askContinue(
+    if ( selitms.isEmpty() ) return;
+
+    if ( !uiMSG().askRemove(
 	     "All selected items will be removed from the basemap") )
 	return;
-    treeview->removeSelectedItems();
+
+    while ( !selitms.isEmpty() )
+    {
+	uiBasemapTreeItem* itm = selitms[0];
+	treeitems_ -= itm;
+	treetop_->removeChild( itm );
+	selitms.removeSingle( 0 );
+    }
 }
 
 
@@ -514,8 +527,8 @@ void uiBasemapManager::removeAllItems()
 {
     for ( int idx=0; idx<treeitems_.size(); idx++ )
 	treetop_->removeChild( treeitems_[idx] );
-    treetop_->getTreeView()->setEmpty();
 
+    treeitems_.erase();
     basemap_->resetChangeFlag();
 }
 

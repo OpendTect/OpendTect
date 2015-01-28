@@ -403,14 +403,22 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
 	return;
     }
 
-    if ( uitreeviewitem_ )
-        uitreeviewitem_->removeItem( treeitem->getItem() );
+    removeItem( treeitem->getItem() );
 
     delete children_.removeSingle( idx );
     mEnabSelChg( true )
 }
 
 
+void uiTreeItem::removeItem( uiTreeViewItem* itm )
+{
+    if ( uitreeviewitem_ )
+	uitreeviewitem_->removeItem( itm );
+}
+
+
+
+// uiTreeTopItem
 uiTreeTopItem::uiTreeTopItem( uiTreeView* listview, bool disab )
     : uiTreeItem( listview->name() )
     , disabselcngresp_(disab)
@@ -448,6 +456,13 @@ bool uiTreeTopItem::addChld( uiTreeItem* newitem, bool below, bool downwards )
 {
     downwards = true;		//We are at the top, so we should go downwards
     return addChildImpl( listview_, newitem, below, downwards );
+}
+
+
+void uiTreeTopItem::removeItem( uiTreeViewItem* itm )
+{
+    if ( listview_ )
+	listview_->takeItem( itm );
 }
 
 

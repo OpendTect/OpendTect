@@ -81,17 +81,18 @@ public:
 				    existing siblings.
 				    \note child becomes mine regardless of
 					  return value.  */
-    virtual void		removeChild( uiTreeItem* );
-    virtual const uiTreeItem*	findChild( const char* name ) const;
+    virtual void		removeChild(uiTreeItem*);
+
+    virtual const uiTreeItem*	findChild(const char* name) const;
 				/*!<Finds a child in the tree below
 				    this item.  */
-    virtual const uiTreeItem*	findChild( int selkey ) const;
+    virtual const uiTreeItem*	findChild(int selkey) const;
 				/*!<Finds a child in the tree below
 				    this item.  */
-    virtual uiTreeItem*		findChild( const char* name );
+    virtual uiTreeItem*		findChild(const char* name);
 				/*!<Finds a child in the tree below
 				    this item.  */
-    virtual uiTreeItem*		findChild( int selkey );
+    virtual uiTreeItem*		findChild(int selkey);
 				/*!<Finds a child in the tree below
 				    this item.  */
     virtual void		findChildren(const char*,
@@ -99,7 +100,7 @@ public:
 				/*!<Finds all children in the tree below this
 				    item. */
 
-    template<class T> inline void setProperty(const char* key, const T&);
+    template<class T> inline void setProperty(const char* key,const T&);
 				/*!<Sets a keyed value that has been retrieved
 				    with getProperty().
 				    \note		Should not be used if T
@@ -160,9 +161,10 @@ protected:
 				/*!<\returns typeid(parentclass).name() */
     virtual bool		init() { return true; }
 
-    virtual bool		rightClick(uiTreeViewItem* item);
-    virtual bool		anyButtonClick(uiTreeViewItem* item);
-    virtual void		setTreeViewItem( uiTreeViewItem* );
+    virtual bool		rightClick(uiTreeViewItem*);
+    virtual bool		anyButtonClick(uiTreeViewItem*);
+    virtual void		setTreeViewItem(uiTreeViewItem*);
+    virtual void		removeItem(uiTreeViewItem*);
     uiTreeViewItem*		getItem()	{ return uitreeviewitem_; }
     const uiTreeViewItem*	getItem() const { return uitreeviewitem_; }
 
@@ -211,7 +213,9 @@ protected:
 mExpClass(uiTools) uiTreeTopItem : public uiTreeItem
 {
 public:
-                        uiTreeTopItem(uiTreeView*, bool=false );
+			uiTreeTopItem(uiTreeView*, bool=false );
+			~uiTreeTopItem();
+
     virtual bool	addChild(uiTreeItem*,bool below);
     virtual void	updateSelection(int selectionkey, bool=false );
 			/*!< Does only update the display */
@@ -220,10 +224,11 @@ public:
     void		disabRightClick(bool yn)	{ disabrightclick_=yn; }
     void		disabAnyClick(bool yn)		{ disabanyclick_=yn; }
     uiTreeView*		getTreeView() const		{ return listview_; }
-			~uiTreeTopItem();
+
 protected:
 
     virtual bool	addChld(uiTreeItem*,bool below,bool downwards);
+    virtual void	removeItem(uiTreeViewItem*);
 
     void		selectionChanged(CallBacker*);
     void		rightClickCB(CallBacker*);
