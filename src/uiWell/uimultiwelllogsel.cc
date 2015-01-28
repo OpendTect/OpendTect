@@ -433,17 +433,20 @@ void uiMultiWellLogSel::init()
 
 void uiMultiWellLogSel::selectOnlyWritableWells()
 {
+    NotifyStopper ns( wellsfld_->selectionChanged );
     for ( int idx=0; idx<wellobjs_.size(); idx++ )
     {
 	IOObj* ioobj = wellobjs_[idx];
 	if ( !Well::Writer::isFunctional(*ioobj) )
 	{
-	    wellobjs_.removeSingle(idx);
 	    wellsfld_->removeItem( idx );
+	    wellobjs_.removeSingle(idx);
 	    delete ioobj;
 	    idx--;
 	}
     }
+
+    updateLogsFldCB( 0 );
 }
 
 
