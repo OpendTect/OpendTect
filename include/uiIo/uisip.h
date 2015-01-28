@@ -17,8 +17,9 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "ranges.h"
 
-class TrcKeyZSampling;
+class LatLong;
 class SurveyInfo;
+class TrcKeyZSampling;
 class uiDialog;
 
 
@@ -53,6 +54,8 @@ public:
     virtual uiDialog*		dialog(uiParent*)	= 0;
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
+    virtual bool		getLatLongAnchor(Coord&,LatLong&)
+							{ return false; }
     virtual void		fillPar(IOPar&)		{}
     virtual bool		isAvailable() const	{ return true; }
 

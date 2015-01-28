@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "systeminfo.h"
 #include "settings.h"
+#include "latlong.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -743,10 +744,13 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     if ( !dlg || !dlg->go() ) return;
 
     TrcKeyZSampling cs; Coord crd[3];
-    if ( sip->getInfo(dlg,cs,crd) )
-	sip->fillPar( si_.getPars() );
-    else
+    if ( !sip->getInfo(dlg,cs,crd) )
 	return;
+
+    sip->fillPar( si_.getPars() );
+    Coord llcrd; LatLong llll;
+    if ( sip->getLatLongAnchor(llcrd,llll) )
+	si_.getLatlong2Coord().set( llll, llcrd );
 
     if ( sip->tdInfo() == uiSurvInfoProvider::Time )
 	zunitfld_->setCurrentItem( 0 );
