@@ -440,7 +440,7 @@ Pos::IdxPair2Coord CBVSSeisTrcTranslator::getTransform() const
 }
 
 
-bool CBVSSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd )
+bool CBVSSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 {
     cd = readMgr()->info().geom_.cubedata;
     return true;

@@ -48,7 +48,7 @@ public:
     const CBVSReadMgr*	readMgr() const			{ return rdmgr_; }
     Pos::IdxPair2Coord	getTransform() const;
 
-    virtual bool	getGeometryInfo(PosInfo::CubeData&);
+    virtual bool	getGeometryInfo(PosInfo::CubeData&) const;
 
     virtual bool	implRemove(const IOObj*) const;
     virtual bool	implRename(const IOObj*,const char*,

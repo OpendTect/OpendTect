@@ -207,7 +207,8 @@ public:
     static bool		getRanges(const IOObj&,TrcKeyZSampling&,
 				  const char* linekey=0);
 
-    virtual bool	getGeometryInfo(PosInfo::CubeData&) { return false; }
+    virtual bool	getGeometryInfo(PosInfo::CubeData&) const
+							{ return false; }
 
     static bool		is2D(const IOObj&,bool only_internal=false);
     static bool		isPS(const IOObj&);
