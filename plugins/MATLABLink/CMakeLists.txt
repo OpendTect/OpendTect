@@ -19,7 +19,17 @@ if ( NOT MATLAB_DIR STREQUAL "" )
     )
 
     list( APPEND OD_MODULE_INCLUDESYSPATH ${MATLAB_DIR}/extern/include )
-    list( APPEND OD_MODULE_EXTERNAL_LIBS ${MATLAB_DIR}/bin/glnxa64/libmx.so ${MATLAB_DIR}/bin/glnxa64/libmwmclmcr.so )
+    if ( APPLE )
+    elseif ( WIN32 )
+        list( APPEND OD_MODULE_EXTERNAL_LIBS
+	        ${MATLAB_DIR}/extern/lib/win64/microsoft/libmx.lib
+		${MATLAB_DIR}/extern/lib/win64/microsoft/mclbase.lib
+		${MATLAB_DIR}/extern/lib/win64/microsoft/mclmcr.lib )
+    else()
+        list( APPEND OD_MODULE_EXTERNAL_LIBS
+	    ${MATLAB_DIR}/bin/glnxa64/libmx.so
+	    ${MATLAB_DIR}/bin/glnxa64/libmwmclmcr.so )
+    endif()
     add_definitions( -DHAS_MATLAB )
 
     set( OD_PLUGIN_ALO_EXEC ${OD_VOLUME_EXECS} )
