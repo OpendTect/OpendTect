@@ -14,7 +14,6 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "arraynd.h"
 #include "emobject.h"
 #include "samplingdata.h"

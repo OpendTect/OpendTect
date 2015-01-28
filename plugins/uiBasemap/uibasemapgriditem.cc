@@ -68,7 +68,7 @@ uiBasemapGridGroup::uiBasemapGridGroup( uiParent* p, bool isadd )
 				     DoubleInpIntervalSpec(true) );
     crlyspacingfld_->attach( alignedBelow, crlyfld_ );
 
-    LineStyle lst;
+    LineStyle lst( LineStyle::Solid, 1, Color(0,170,0,0) );
     lsfld_ = new uiSelLineStyle( this, lst, "Line style" );
     lsfld_->attach( alignedBelow, crlyspacingfld_ );
 
