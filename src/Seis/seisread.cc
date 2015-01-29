@@ -147,9 +147,9 @@ bool SeisTrcReader::startWork()
 
 	pscditer_ = new PosInfo::CubeDataIterator( psrdr_->posData() );
 	if (!pscditer_->next(curpsbid_))
-	{ 
-	    errmsg_ = tr("Prestack Data storage is empty"); 
-	    return false; 
+	{
+	    errmsg_ = tr("Prestack Data storage is empty");
+	    return false;
 	}
 	pscditer_->reset();
 	return true;
@@ -755,22 +755,28 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 {
     if ( isPS() )
     {
-	if ( !ioobj_ ) return 0;
-	if ( is2D() ) return 0; //TODO 2D prestack
-	SeisPSReader* r = SPSIOPF().get3DReader( *ioobj_ );
-	mDynamicCastGet(SeisPS3DReader*,rdr,r)
-	if ( !rdr ) return 0;
-	const PosInfo::CubeData& cd = rdr->posData();
+	if ( !ioobj_ || is2D() ) // TODO PS 2D
+	    return 0;
+
+	SeisPSReader* psrdr = SPSIOPF().get3DReader( *ioobj_ );
+	mDynamicCastGet(SeisPS3DReader*,rdr3d,psrdr)
+	if ( !rdr3d )
+	    return 0;
+
+	const PosInfo::CubeData& cd = rdr3d->posData();
 	StepInterval<int> inlrg, crlrg;
 	cd.getInlRange( inlrg ); cd.getInlRange( crlrg );
 	return get3DBounds( inlrg, crlrg, SI().sampling(false).zsamp_ );
     }
-    if ( !is2D() )
+    else if ( !is2D() )
     {
-	if ( !trl_ ) return 0;
+	if ( !trl_ )
+	    return 0;
 	return get3DBounds( strl()->packetInfo().inlrg,
 			strl()->packetInfo().crlrg, strl()->packetInfo().zrg );
     }
+
+    // From here post-stack 2D
 
     if ( !dataset_ || dataset_->nrLines() < 1 )
 	return 0;
@@ -823,7 +829,27 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 
 bool SeisTrcReader::getGeometryInfo( PosInfo::CubeData& cd )
 {
-    if ( !isPrepared() && !prepareWork(Seis::Prod) ) return false;
+    if ( is2D() )
+    {
+	// not really meant for 2D, this function
+	return false;
+    }
+    else if ( !isPrepared() && !prepareWork(Seis::Prod) )
+	return false;
 
-    return strl() ? strl()->getGeometryInfo( cd ) : false;
+    if ( !isPS() )
+	return strl() ? strl()->getGeometryInfo( cd ) : false;
+
+    if ( ioobj_ )
+    {
+	SeisPSReader* psrdr = SPSIOPF().get3DReader( *ioobj_ );
+	mDynamicCastGet(SeisPS3DReader*,rdr3d,psrdr)
+	if ( rdr3d )
+	{
+	    cd = rdr3d->posData();
+	    return true;
+	}
+    }
+
+    return false;
 }
