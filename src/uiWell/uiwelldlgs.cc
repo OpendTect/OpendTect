@@ -118,13 +118,10 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     wellheadxfld_ = new uiGenInput( actbutgrp, "X-Coordinate of well head",
 				    DoubleInpSpec(mUdf(double)) );
     mAddSetBut( wellheadxfld_, updateXpos )
-    if ( !updbut )
-	actbutgrp->attach( ensureBelow, zinftfld_ );
-    else
-    {
+    actbutgrp->attach( ensureBelow, zinftfld_ );
+    if ( updbut )
 	wellheadxfld_->attach( ensureBelow, updbut );
-	actbutgrp->attach( ensureBelow, tbl_ );
-    }
+
     if ( !writable_ ) wellheadxfld_-> setReadOnly( true );
 
     wellheadyfld_ = new uiGenInput( actbutgrp, "Y-Coordinate of well head",
