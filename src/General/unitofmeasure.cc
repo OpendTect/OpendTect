@@ -295,6 +295,8 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	    return "kg/m3 / us/m";
     break;
     case 'G' : case 'g':
+	if ( caseInsensitiveEqual(nm,"gAPI",0) )
+	    return "API";
 	if ( fsnm.startsWith("G/cm2s",CaseInsensitive) )
 	    return "m/s x g/cc";
 	if ( fsnm.startsWith("G/C",CaseInsensitive)
@@ -312,6 +314,10 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	    return "us/ft";
 	else if ( fsnm.startsWith("USEC/M",CaseInsensitive) )
 	    return "us/m";
+    break;
+    case 'm':
+	if ( caseInsensitiveEqual(nm,"m3/m3",0) ) // Petrel special
+	    return "";
     break;
     }
 

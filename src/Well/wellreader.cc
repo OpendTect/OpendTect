@@ -138,6 +138,26 @@ Well::Data* Well::Reader::data()
 { return ra_ ? &ra_->data() : 0; }
 
 
+bool Well::Reader::getMapLocation( Coord& coord ) const
+{
+    if ( !data() || !getInfo() )
+	return false;
+    const Well::Data& wd = *data();
+
+    coord = wd.info().surfacecoord;
+    if ( (mIsZero(coord.x,0.001) && mIsZero(coord.x,0.001))
+	|| (mIsUdf(coord.x) && mIsUdf(coord.x)) )
+    {
+	if ( !getTrack() || wd.track().isEmpty() )
+	    return false;
+
+	coord = wd.track().pos(0);
+    }
+
+    return true;
+}
+
+
 
 Well::odIO::odIO( const char* f, BufferString& e )
     : basenm_(f)

@@ -53,6 +53,8 @@ public:
     const Well::Data*	data() const
 			{ return const_cast<Reader*>(this)->data(); }
 
+    bool		getMapLocation(Coord&) const;
+
     // DEPRECATED: will go away after 5.0
     Interval<float>	getLogDahRange(const char* lognm) const;
 			//!< If no log with this name, returns [undef,undef]
