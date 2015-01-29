@@ -308,7 +308,7 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
 void uiWellLogToolWin::handleSpikeSelCB( CallBacker* )
 {
     const int act = replacespikefld_->box()->currentItem();
-    replacespikevalfld_->display( act == 3 );
+    replacespikevalfld_->display( act == 2 );
 }
 
 
