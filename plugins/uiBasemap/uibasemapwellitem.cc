@@ -91,18 +91,18 @@ bool uiBasemapWellTreeItem::usePar( const IOPar& par )
 
     for ( int idx=0; idx<nrwells; idx++ )
     {
-	MultiID mid;
-	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
+	MultiID wllkey;
+	if ( !par.get(IOPar::compKey(sKey::ID(),idx),wllkey) )
 	    continue;
 
 	if ( basemapobjs_.validIdx(idx) )
 	{
 	    mDynamicCastGet(Basemap::WellObject*,obj,basemapobjs_[idx])
-	    if ( obj ) obj->setMultiID( mid );
+	    if ( obj ) obj->setKey( wllkey );
 	}
 	else
 	{
-	    Basemap::WellObject* obj = new Basemap::WellObject( mid );
+	    Basemap::WellObject* obj = new Basemap::WellObject( wllkey );
 	    addBasemapObject( *obj );
 	    obj->updateGeometry();
 	}
@@ -136,7 +136,7 @@ bool uiBasemapWellTreeItem::handleSubMenu( int mnuid )
 	    mDynamicCastGet(Basemap::WellObject*,obj,basemapobjs_[idx])
 	    if ( !obj ) continue;
 
-	    ODMainWin()->sceneMgr().addWellItem( obj->getMultiID() );
+	    ODMainWin()->sceneMgr().addWellItem( obj->getKey() );
 	}
     }
     else
@@ -144,4 +144,3 @@ bool uiBasemapWellTreeItem::handleSubMenu( int mnuid )
 
     return true;
 }
-

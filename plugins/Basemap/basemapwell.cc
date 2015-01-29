@@ -18,58 +18,87 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "welldata.h"
 #include "wellreader.h"
+#include "survinfo.h"
 
-namespace Basemap
-{
+using namespace Basemap;
+
 
 WellObject::WellObject( const MultiID& mid )
     : BaseMapObject(0)
-    , wellmid_(mid)
-    , wd_(*new Well::Data)
+    , key_(mid)
+    , data_(*new Well::Data)
+    , rdr_(0)
 {
-    setMultiID( mid );
+    setKey( mid );
 }
 
 
 WellObject::~WellObject()
 {
-    delete &wd_;
+    delete rdr_;
+    delete &data_;
 }
 
 
-void WellObject::setMultiID( const MultiID& mid )
+void WellObject::setInvalid()
 {
-    wellmid_ = mid;
-    wd_.setEmpty();
-    PtrMan<IOObj> ioobj = IOM().get( wellmid_ );
-    if ( !ioobj ) return;
+    delete rdr_; rdr_ = 0;
+    data_.setEmpty();
+}
 
+
+void WellObject::setKey( const MultiID& mid )
+{
+    key_ = mid;
+    setInvalid();
+
+    PtrMan<IOObj> ioobj = IOM().get( key_ );
+    if ( !ioobj )
+    {
+	setName( BufferString("<ID=",mid,">") );
+	return;
+    }
     setName( ioobj->name() );
-    Well::Reader rdr( *ioobj, wd_ );
-    rdr.getInfo();
 
+    rdr_ = new Well::Reader( *ioobj, data_ );
+    Coord coord;
+    rdr_->getMapLocation( coord );
+    if ( !SI().isReasonable(coord) )
+	{ setInvalid(); return; }
+
+    coord_ = coord;
     updateGeometry();
 }
 
 
 void WellObject::updateGeometry()
-{ changed.trigger(); }
+{
+    changed.trigger();
+}
 
 
 int WellObject::nrShapes() const	{ return 1; }
 
 const char* WellObject::getShapeName( int ) const
-{ return name().buf(); }
+{
+    return name();
+}
 
 
 void WellObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
-{ pts.add( wd_.info().surfacecoord ); }
+{
+    if ( isOK() )
+	pts.add( coord_ );
+}
 
 
 const MarkerStyle2D* WellObject::getMarkerStyle( int ) const
-{ return &ms_; }
+{
+    return &ms_;
+}
+
 
 void WellObject::setMarkerStyle( int, const MarkerStyle2D& ms )
-{ ms_ = ms; }
-
-} // namespace Basemap
+{
+    ms_ = ms;
+}
