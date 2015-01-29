@@ -513,10 +513,12 @@ void uiAttribDescSetEd::rmPush( CallBacker* )
     Desc* curdesc = curDesc();
     if ( !curdesc ) return;
 
-    if ( attrset_->isAttribUsed( curdesc->id() ) )
+    BufferString depattribnm;
+    if ( attrset_->isAttribUsed( curdesc->id(), depattribnm ) )
     {
-	uiMSG().error( "Cannot remove this attribute. It is used\n"
-		       "as input for another attribute" );
+	uiMSG().error( BufferString("Cannot remove this attribute. It is used\n"
+		       "as input for another attribute called '",
+		       depattribnm, "'." ) );
 	return;
     }
 
@@ -681,10 +683,15 @@ bool uiAttribDescSetEd::doAcceptInputs()
 	const char* errmsg = curDescEd()->errMsgStr( desc );
 	if ( errmsg )
 	{
+		if ( desc->isStored() )
+			uiMSG().error( errmsg );
+		else
+		{
 	    const char* attribname = desc->userRef();
 	    BufferString msg ( "Input is not correct for attribute '",
 				attribname, "'. " );
 	    uiMSG().error( msg, errmsg );
+		}
 	    return false;
 	}
     }

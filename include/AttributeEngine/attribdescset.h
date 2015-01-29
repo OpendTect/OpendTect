@@ -104,7 +104,8 @@ public:
 			//!< Removes unused hidden attributes, stored attribs
     			//!< if not available or if removestored flag is true.
 			//!< Returns total removed.
-    bool 		isAttribUsed(const DescID&) const;
+    bool		isAttribUsed(const DescID&,BufferString&) const;
+    bool		isAttribUsed(const DescID&) const;
     void		cleanUpDescsMissingInputs();
 
     void		fillPar(IOPar&) const;

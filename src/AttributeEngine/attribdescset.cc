@@ -1031,13 +1031,23 @@ DescSet* DescSet::optimizeClone( const BufferStringSet& targetsstr ) const
 
 bool DescSet::isAttribUsed( const DescID& id ) const
 {
+    BufferString tmpstr;
+    return isAttribUsed( id, tmpstr );
+}
+
+
+bool DescSet::isAttribUsed( const DescID& id, BufferString& depdescnm ) const
+{
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Desc& dsc = *descs_[idx];
 	for ( int inpnr=0; inpnr<dsc.nrInputs(); inpnr++ )
 	{
 	    if ( dsc.inputId(inpnr) == id )
+	    {
+		depdescnm = dsc.userRef();
 		return true;
+	    }
 	}
     }
 
@@ -1074,7 +1084,7 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 
 	    if ( iscandidate )
 	    {
-		if ( !isAttribUsed(descid) )
+		if ( !isAttribUsed( descid ) )
 		    { torem += descid; count++; }
 	    }
 	}
