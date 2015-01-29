@@ -47,7 +47,7 @@ class CellObject
 
     uiObject*		object_;
     QWidget*		qwidget_;
-    RowCol			rowcol_;
+    RowCol		rowcol_;
 };
 
 
@@ -86,6 +86,10 @@ public:
 
 protected:
     virtual void	mouseReleaseEvent(QMouseEvent*);
+    virtual void	keyPressEvent(QKeyEvent*);
+
+    void		copy();
+    void		paste();
 
     ObjectSet<CellObject> cellobjects_;
 
@@ -175,6 +179,63 @@ void uiTableBody::mouseReleaseEvent( QMouseEvent* ev )
 
     QAbstractItemView::mouseReleaseEvent( ev );
     handle_.buttonstate_ = OD::NoButton;
+}
+
+
+void uiTableBody::keyPressEvent( QKeyEvent* ev )
+{
+    if ( ev->matches(QKeySequence::Copy) )
+	copy();
+    else if ( ev->matches(QKeySequence::Paste) )
+	paste();
+    else
+	QTableWidget::keyPressEvent( ev );
+}
+
+
+void uiTableBody::copy()
+{
+    QList<QTableWidgetSelectionRange> ranges = selectedRanges();
+    if ( ranges.isEmpty() ) return;
+
+    const QTableWidgetSelectionRange& range = ranges.first();
+    QString str;
+    for ( int i=0; i<range.rowCount(); i++ )
+    {
+	if ( i > 0 ) str += "\n";
+
+	for ( int j=0; j<range.columnCount(); j++ )
+	{
+	    if ( j > 0 ) str += "\t";
+
+	    QTableWidgetItem* itm =
+		item( range.topRow()+i, range.leftColumn()+j );
+	    str += itm ? itm->text() : "";
+	}
+    }
+
+    str += "\n";
+    QApplication::clipboard()->setText( str );
+}
+
+
+void uiTableBody::paste()
+{
+    const QString str = QApplication::clipboard()->text();
+    const QStringList rows = str.split( '\n' );
+    const int nrrows = rows.count()-1;
+    const int nrcols = rows.first().count('\t') + 1;
+
+    for ( int i = 0; i<nrrows; i++ )
+    {
+	QStringList columns = rows[i].split( '\t' );
+	for ( int j=0; j<nrcols; j++ )
+	{
+	    QTableWidgetItem* itm = item( currentRow()+i, currentColumn()+j );
+	    if ( itm )
+		itm->setText( columns[j] );
+	}
+    }
 }
 
 
