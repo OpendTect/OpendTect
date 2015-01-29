@@ -130,7 +130,7 @@ if ( mIsUdf(rg.start) || mIsUdf(rg.stop) ) \
 else \
 { \
     const double eps = 1e-4; \
-    if ( mIsZero(limit.step,eps) ) \
+    if ( mIsZero(limit.step,eps) || mIsUdf(limit.step) ) \
 	limit.step = 1; \
 \
     const double realstartdif = double(rg.start) - double(limit.start); \
@@ -138,7 +138,9 @@ else \
     const double realstepfac = double(rg.step) / double(limit.step); \
     const bool useoldstep = !mIsZero(realstartidx-mNINT32(realstartidx),eps) ||\
 			    !mIsZero(realstepfac-mNINT32(realstepfac),eps); \
-    const int stepfac = useoldstep ? 1 : mNINT32(realstepfac); \
+    int stepfac = useoldstep ? 1 : mNINT32(realstepfac); \
+    if ( stepfac == 0 ) \
+	stepfac = 1; \
 \
     int startidx = mNINT32( ceil(realstartidx-eps) ); \
     if ( startidx < 0 ) \
