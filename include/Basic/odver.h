@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "odversion.h"
+#include "bufstringset.h"
 
 #include "gendefs.h"
 
@@ -31,6 +32,11 @@ mGlobal(Basic) const char* GetQtVersion();
 
 void mGlobal(Basic) GetSpecificODVersion(const char* typ,BufferString&);
 /*!< 'typ' can be "doc" or other like vendor name. if null -> platform */
+
+
+mGlobal(Basic) const BufferStringSet&	GetLegalInformation();
+mGlobal(Basic) void			AddLegalInformation(const char*);
+
 
 #endif
 
