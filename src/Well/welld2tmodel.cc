@@ -462,9 +462,10 @@ bool Well::D2TModel::ensureValid( const Well::Track& track, float replvel )
     D2TModel origmodel = *this;
     setEmpty();
 
-    add( 0.f, timeatkbelev ); //set KB
     if ( srdbelowkb )
 	add( track.getDahForTVD(srddepth,0.f), 0.f ); //set SRD
+    else
+	add( 0.f, timeatkbelev );
 
     if ( idah < sz && times[zidxs[idah]] > 1e-6f )
 	add( dahs[zidxs[idah]], times[zidxs[idah]] );
