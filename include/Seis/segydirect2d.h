@@ -76,7 +76,7 @@ public:
 };
 
 
-class SEGYDirect2DLineGetter : public Seis2DLineGetter
+mExpClass(Seis) SEGYDirect2DLineGetter : public Seis2DLineGetter
 {
 public:
 			SEGYDirect2DLineGetter(const char* fnm,SeisTrcBuf&,
