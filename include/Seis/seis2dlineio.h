@@ -116,7 +116,7 @@ protected:
 };
 
 
-ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
+mGlobal(Seis) ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 //!< Sort of factory. Add a new type via this function.
 
 
