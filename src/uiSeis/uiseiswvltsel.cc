@@ -142,6 +142,7 @@ void uiSeisWaveletSel::extractionDoneCB( CallBacker* )
 void uiSeisWaveletSel::startMan( CallBacker* )
 {
     uiSeisWvltMan dlg( this );
+    dlg.setModal( true );
     dlg.go();
     rebuildList();
     selChg( nmfld_ );
