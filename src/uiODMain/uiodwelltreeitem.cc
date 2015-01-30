@@ -410,7 +410,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
-    if ( wd->hasChanged() )
+    if ( wd && wd->hasChanged() )
     {
 	BufferString warnstr = "This well has changed since the last save.\n";
 	warnstr += "Do you want to save it?";
@@ -421,5 +421,6 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 	    applMgr()->wellServer()->storeWell( wd->getWellCoords(),
 		                                wd->name(), mid );
     }
+
     return true;
 }
