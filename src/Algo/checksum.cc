@@ -19,36 +19,38 @@ static const char* rcsID mUsedVar = "$Id: probdenfunc.cc 36757 2014-10-03 15:48:
  * Xor_In: 0xffffffffffffffff
  * Reflected_Out: True
  * Xor_Out: 0x0
- * Check("123456789"): 0xe9c6d914c4b8d9ca
- *
- * Copyright (c) 2012, Salvatore Sanfilippo <antirez at gmail dot com>
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *   * Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *   * Neither the name of Redis nor the names of its contributors may be used
- *     to endorse or promote products derived from this software without
- *     specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE. */
- 
+ * Check("123456789"): 0xe9c6d914c4b8d9ca " */
+
+static const char* legaltext =
+" Copyright (c) 2012, Salvatore Sanfilippo <antirez at gmail dot com> \n"
+" All rights reserved. \n"
+" \n"
+" Redistribution and use in source and binary forms, with or without \n"
+" modification, are permitted provided that the following conditions are met:\n"
+" \n"
+"   * Redistributions of source code must retain the above copyright notice, \n"
+"     this list of conditions and the following disclaimer. \n"
+"   * Redistributions in binary form must reproduce the above copyright \n"
+"     notice, this list of conditions and the following disclaimer in the \n"
+"     documentation and/or other materials provided with the distribution. \n"
+"   * Neither the name of Redis nor the names of its contributors may be used\n"
+"     to endorse or promote products derived from this software without \n"
+"     specific prior written permission. \n"
+" \n"
+" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS'\n"
+" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE \n"
+" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE \n"
+" ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE \n"
+" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR \n"
+" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF \n"
+" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS \n"
+" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN \n"
+" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) \n"
+" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE \n"
+" POSSIBILITY OF SUCH DAMAGE. */ \n";
+
 #include <stdint.h>
+#include <odver.h>
 
 static const uint64_t crc64_tab[256] = {
     od_uint64(0x0000000000000000), od_uint64(0x7ad870c830358979),
@@ -181,6 +183,12 @@ static const uint64_t crc64_tab[256] = {
     od_uint64(0x536fa08fdfd90e51), od_uint64(0x29b7d047efec8728),
 };
 
+
+void initChecksum()
+{
+    AddLegalInformation( legaltext );
+}
+
 od_uint64 checksum64( const unsigned char *s, od_uint64 l, od_uint64 crc )
 {
     for ( od_int64 j=0; j<l; j++ )
@@ -191,13 +199,3 @@ od_uint64 checksum64( const unsigned char *s, od_uint64 l, od_uint64 crc )
 
     return crc;
 }
-
-/* Test main */
-#ifdef TEST_MAIN
-#include <stdio.h>
-int main(void) {
-        printf("e9c6d914c4b8d9ca == %016llx\n",
-		        (unsigned long long) crc64(0,(unsigned char*)"123456789",9));
-	    return 0;
-}
-#endif
