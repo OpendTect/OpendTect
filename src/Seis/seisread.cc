@@ -8,6 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisread.h"
+#include "seiscbvs.h"
 #include "seispsread.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
@@ -19,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seispacketinfo.h"
 #include "seisselectionimpl.h"
+#include "cbvsreadmgr.h"
 #include "executor.h"
 #include "iostrm.h"
 #include "streamconn.h"
@@ -811,4 +813,46 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     } // iiter = 0 or 1
 
     return b2d;
+}
+
+
+bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd )
+{
+    if ( is2D() )
+    {
+	// not really meant for 2D, this function
+	return false;
+    }
+
+    if ( !isPrepared() && !prepareWork(Seis::Prod) )
+	return false;
+
+    if ( !isPS() )
+    {
+	mDynamicCastGet(const CBVSSeisTrcTranslator*,cbvstr,seisTranslator());
+	if ( cbvstr )
+	{
+	    cd = cbvstr->readMgr()->info().geom_.cubedata;
+	    return true;
+	}
+
+	CubeSampling cs;
+	if ( ioobj_ )
+	    SeisTrcTranslator::getRanges( *ioobj_, cs );
+
+	cd.generate( cs.hrg.start, cs.hrg.stop, cs.hrg.step );
+	return false;
+    }
+
+    if ( ioobj_ )
+    {
+	SeisPSReader* psrdr = SPSIOPF().get3DReader( *ioobj_ );
+	mDynamicCastGet(SeisPS3DReader*,rdr3d,psrdr)
+	if ( rdr3d )
+	{
+	    cd = rdr3d->posData();
+	    return true;
+	}
+    }
+    return false;
 }

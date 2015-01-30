@@ -21,7 +21,7 @@ class Executor;
 class HorSampling;
 class SeisTrcBuf;
 class SeisPS3DReader;
-namespace PosInfo { class Line2DData; class CubeDataIterator; }
+namespace PosInfo { class CubeData; class CubeDataIterator; class Line2DData; }
 namespace Seis { class Bounds; class Bounds2D; }
 
 
@@ -76,6 +76,7 @@ public:
     bool		isPrepared() const		{ return prepared; }
     Seis::Bounds*	getBounds() const;
 			//!< use after prepareWork(). If not avail: survinfo
+    bool		get3DGeometryInfo(PosInfo::CubeData&);
     void		setComponent( int ic )		{ selcomp_ = ic; }
 			//!< use before startWork()
 			//!< -1 (default) is all components
