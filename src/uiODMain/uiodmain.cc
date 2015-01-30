@@ -152,15 +152,22 @@ uiODMain::uiODMain( uiMain& a )
     IOM().afterSurveyChange.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     timer_.tick.notify( mCB(this,uiODMain,timerCB) );
 
-    statusBar()->setToolTip( mMemStatusFld,
-		     tr("System memory: Free/Available | CPU: Used/Available"));
+    const int systemnrcpus = Threads::getSystemNrProcessors();
+    const int odnrcpus = Threads::getNrProcessors();
+    const bool useallcpus = systemnrcpus == odnrcpus;
+
+    uiString statustt = tr( "System memory: Free/Available" );
+    if ( !useallcpus )
+	statustt.append( tr("| CPU: Used/Available") );
+    statusBar()->setToolTip( mMemStatusFld, statustt );
     statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
     memtimer_.tick.notify( mCB(this,uiODMain,memTimerCB) );
     memtimer_.start( 1000 );
 
-    cputxt_ = "[cpu] ";
-    cputxt_.add( Threads::getNrProcessors() ).add( "/" )
-	   .add( Threads::getSystemNrProcessors() );
+    if ( !useallcpus )
+	cputxt_.set( "[cpu] " ).add( odnrcpus ).add( "/" ).add( systemnrcpus );
+    else
+	cputxt_.setEmpty();
 }
 
 
@@ -561,7 +568,9 @@ void uiODMain::memTimerCB( CallBacker* )
     txt.add( converter.getString( free, 1, false ));
     txt.add( "/" );
     txt.add( converter.getString( tot,1,true ));
-    txt.add( " | " ).add( cputxt_ );
+    if ( !cputxt_.isEmpty() )
+	txt.add( " | " ).add( cputxt_ );
+
     statusBar()->message( txt, mMemStatusFld );
 }
 
