@@ -617,6 +617,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 
     fillListBox();
     setCurrent( curidx );
+    selChg( 0 );
 }
 
 
