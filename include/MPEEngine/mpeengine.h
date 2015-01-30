@@ -1,6 +1,6 @@
 #ifndef mpeengine_h
 #define mpeengine_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "emposid.h"
 #include "survgeom.h"
-#include "trackplane.h"
 
 class BufferStringSet;
 class Executor;
@@ -33,14 +32,13 @@ class TaskRunner;
 
 namespace Attrib { class SelSpec; }
 namespace EM { class EMObject; }
-namespace Geometry { class Element; };
+namespace Geometry { class Element; }
 template <class T> class Selector;
 
 namespace MPE
 {
 
 class EMTracker;
-class TrackPlane;
 class ObjectEditor;
 
 /*!
@@ -63,7 +61,7 @@ mExpClass(MPEEngine) DataHolder : public AbstDataHolder
 {
 public:
 				DataHolder();
-	    
+
     bool			is2D() const		{ return is2d_; }
     void			setTrcKeyZSampling(const TrcKeyZSampling tkzs)
 				{ tkzs_ = tkzs; }
@@ -105,7 +103,7 @@ public:
     const TrcKeyZSampling&	activeVolume() const;
     void		setActiveVolume(const TrcKeyZSampling&);
     static TrcKeyZSampling	getDefaultActiveVolume();
-    void		setActiveVolShown(bool bn)	
+    void		setActiveVolShown(bool bn)
     			{ isactivevolshown_ = bn; }
     bool		isActiveVolShown()	{ return isactivevolshown_; }
     Notifier<Engine>	activevolumechange;
@@ -113,18 +111,10 @@ public:
     void		setActive2DLine(Pos::GeomID);
     Pos::GeomID 	activeGeomID() const;
     BufferString	active2DLineName() const;
-    
-    const TrackPlane&	trackPlane() const;
-    bool		setTrackPlane(const TrackPlane&,bool track);
-    void		setTrackMode(TrackPlane::TrackMode);
-    TrackPlane::TrackMode getTrackMode() { return trackplane_.getTrackMode(); }
-    Notifier<Engine>	trackplanechange;
-    Notifier<Engine>	trackplanetrack;
 
     Notifier<Engine>	loadEMObject;
     MultiID		midtoload;
 
-    bool		trackAtCurrentPlane();
     void		updateSeedOnlyPropagation(bool);
     Executor*		trackInVolume();
     void		removeSelectionInPolygon(const Selector<Coord3>&,
@@ -183,7 +173,7 @@ public:
 			  2DViewer tree is not in place */
     Notifier<Engine>    activefaultchanged_;
     void		setActiveFaultObjID(EM::ObjectID objid)
-			{ 
+			{
 			    activefaultid_ = objid;
 			    activefaultchanged_.trigger();
 			}
@@ -208,7 +198,6 @@ protected:
 
     BufferString		errmsg_;
     TrcKeyZSampling		activevolume_;
-    TrackPlane			trackplane_;
     bool			isactivevolshown_;
 
     Pos::GeomID 		activegeomid_;
@@ -227,12 +216,12 @@ protected:
 					Survey::GeometryManager::cUndefGeomID())
 				    : attrsel_(as),geomid_(geomid)
 				{}
-				
+
 	Attrib::SelSpec		attrsel_;
 	Pos::GeomID		geomid_;
     };
 
-    TypeSet<DataPack::ID>  		attribcachedatapackids_;   
+    TypeSet<DataPack::ID>		attribcachedatapackids_;
     ObjectSet<const DataHolder>	attribcache_;
     ObjectSet<CacheSpecs>		attribcachespecs_;
     TypeSet<DataPack::ID>               attribbkpcachedatapackids_;
@@ -247,7 +236,7 @@ protected:
 				    flatcs_.setEmpty();
 				}
 	TrcKeyZSampling		flatcs_;
-	int			nrseeds_;	
+	int			nrseeds_;
     };
 
     ObjectSet<ObjectSet<FlatCubeInfo> >	flatcubescontainer_;

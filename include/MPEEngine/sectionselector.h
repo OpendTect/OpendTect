@@ -1,6 +1,6 @@
 #ifndef sectionselector_h
 #define sectionselector_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -23,8 +23,6 @@ ________________________________________________________________________
 namespace MPE
 {
 
-class TrackPlane;
-
 /*!
 \brief SequentialTask to select source of an EM section with ID EM::SectionID.
 */
@@ -37,8 +35,6 @@ public:
 
     EM::SectionID		sectionID() const;
     virtual void		reset();
-
-    virtual void		setTrackPlane(const MPE::TrackPlane&);
 
     int				nextStep();
     const char*			errMsg() const;
@@ -54,7 +50,7 @@ protected:
     BufferString		errmsg_;
 };
 
-};
+} // namespace MPE
 
 #endif
 

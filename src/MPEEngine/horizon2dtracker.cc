@@ -11,14 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "horizon2dtracker.h"
 
-#include "cubicbeziercurve.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "horizonadjuster.h"
 #include "horizon2dextender.h"
 #include "horizon2dseedpicker.h"
 #include "horizon2dselector.h"
-#include "mpeengine.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
 
@@ -65,7 +63,6 @@ SectionTracker* Horizon2DTracker::createSectionTracker( EM::SectionID sid )
 
     return new SectionTracker( *emObject(), sid,
 	    new Horizon2DSelector(*getHorizon2D(),sid),
-//	    new Horizon2DExtender(*getHorizon2D(),sid),
 	    ExtenderFactory().create( getTypeStr(),getHorizon2D(),sid),
 	    new HorizonAdjuster(*getHorizon2D(),sid) );
 }
@@ -91,8 +88,8 @@ EM::Horizon2D* Horizon2DTracker::getHorizon2D()
 }
 
 
-const EM::Horizon2D* Horizon2DTracker::getHorizon2D() const 
+const EM::Horizon2D* Horizon2DTracker::getHorizon2D() const
 { return const_cast<Horizon2DTracker*>(this)->getHorizon2D(); }
 
 
-}; // namespace MPE
+} // namespace MPE

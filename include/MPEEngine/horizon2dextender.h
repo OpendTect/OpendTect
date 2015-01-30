@@ -1,6 +1,6 @@
 #ifndef horizon2dextender_h
 #define horizon2dextender_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 #include "binidvalue.h"
 
-namespace EM { class Horizon2D; };
+namespace EM { class Horizon2D; }
 
 namespace MPE
 {
@@ -61,9 +61,7 @@ protected:
     Pos::GeomID 	geomid_;
 };
 
-
-}; // namespace MPE
+} // namespace MPE
 
 #endif
-
 

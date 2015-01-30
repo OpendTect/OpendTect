@@ -176,7 +176,7 @@ int HorizonAdjuster::nextStep()
 	if ( res )
 	    setHorizonPick( targetbid, targetz );
 	else if ( removeonfailure_ )
-	    setHorizonPick(targetbid, mUdf(float) );
+	    setHorizonPick( targetbid, mUdf(float) );
     }
 
     return Finished();
@@ -184,15 +184,17 @@ int HorizonAdjuster::nextStep()
 
 
 bool HorizonAdjuster::track( const BinID& from, const BinID& to,
-			     float& targetz) const 
+			     float& targetz) const
 {
     //const Array3D<float>& cube = attrdata_->getCube(0);
     TrcKeyZSampling cs = attrdata_->getTrcKeyZSampling();
-    const int toinlidx = cs.hrg.inlRange().nearestIndex( attrDataBinId(to).inl());
+    const int toinlidx =
+	cs.hrg.inlRange().nearestIndex( attrDataBinId(to).inl() );
     if ( toinlidx<0 || toinlidx>=cs.nrInl() )
 	return false;
 
-    const int tocrlidx = cs.hrg.crlRange().nearestIndex( attrDataBinId(to).crl());
+    const int tocrlidx =
+	cs.hrg.crlRange().nearestIndex( attrDataBinId(to).crl() );
     if ( tocrlidx<0 || tocrlidx>=cs.nrCrl() )
 	return false;
 
@@ -216,14 +218,14 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	tooffset = arr.info().getOffset( component, dhidx, 0 );
     }
 
-    if ( !storage ) return false; 
+    if ( !storage ) return false;
 
     const int zsz = cs.nrZ();
 
     const SamplingData<double> sd( cs.zsamp_.start,cs.zsamp_.step );
 
-    const OffsetValueSeries<float> toarr( 
-		    const_cast<ValueSeries<float>&>(*storage), tooffset ); 
+    const OffsetValueSeries<float> toarr(
+		    const_cast<ValueSeries<float>&>(*storage), tooffset );
 
     if ( !horizon_.isDefined(sectionid_, to.toInt64()) )
 	return false;
@@ -234,12 +236,12 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
     if ( from.inl()!=-1 && from.crl()!=-1 )
     {
-	const int frominlidx = 
+	const int frominlidx =
 	    cs.hrg.inlRange().nearestIndex(attrDataBinId(from).inl());
 	if ( frominlidx<0 || frominlidx>=cs.nrInl() )
 	    return false;
 
-	const int fromcrlidx = 
+	const int fromcrlidx =
 	    cs.hrg.crlRange().nearestIndex(attrDataBinId(from).crl());
 	if ( fromcrlidx<0 || fromcrlidx>=cs.nrCrl() )
 	    return false;
@@ -260,11 +262,12 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	    fromoffset = arr.info().getOffset( component, dhidx, 0 );
 	}
 
-	const OffsetValueSeries<float> fromarr( 
-		    const_cast<ValueSeries<float>&>(*storage), fromoffset ); 
+	const OffsetValueSeries<float> fromarr(
+		    const_cast<ValueSeries<float>&>(*storage), fromoffset );
 	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
 	    return false;
-	const float fromz = (float) horizon_.getPos(sectionid_,from.toInt64()).z;
+
+	const float fromz = (float)horizon_.getPos(sectionid_,from.toInt64()).z;
 	tracker_->setSource( &fromarr, zsz, sd.getfIndex(fromz) );
 
 	if ( !tracker_->isOK() )
@@ -312,7 +315,8 @@ void HorizonAdjuster::getNeededAttribs(
 }
 
 
-TrcKeyZSampling HorizonAdjuster::getAttribCube( const Attrib::SelSpec& sp ) const
+TrcKeyZSampling
+	HorizonAdjuster::getAttribCube( const Attrib::SelSpec& sp ) const
 {
     if ( !attribsel_ || sp != *attribsel_ )
 	return SectionAdjuster::getAttribCube( sp );
@@ -339,10 +343,11 @@ bool HorizonAdjuster::is2D() const
 }
 
 
-const BinID HorizonAdjuster::attrDataBinId( const BinID& bid ) const 
+const BinID HorizonAdjuster::attrDataBinId( const BinID& bid ) const
 {
     return is2D() && attrdata_->getTrcKeyZSampling().nrInl()==1
-	? BinID( attrdata_->getTrcKeyZSampling().hrg.inlRange().start, bid.crl() )
+	? BinID( attrdata_->getTrcKeyZSampling().hrg.inlRange().start,
+		 bid.crl() )
 	: bid;
 }
 
@@ -426,7 +431,7 @@ bool HorizonAdjuster::usePar( const IOPar& iopar )
 	    tracker_->useSimilarity( !byvalue );
     }
 
-    //The ranges was written in OD3.2, so this can be 
+    //The ranges was written in OD3.2, so this can be
     //removed when OD5 is released.
     //Range is now stored with tracker
     Interval<float> permzrange;

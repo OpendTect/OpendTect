@@ -62,16 +62,9 @@ SectionTracker* Horizon3DTracker::createSectionTracker( EM::SectionID sid )
     if ( !getHorizon() ) return 0;
 
     return new SectionTracker( *emObject(), sid,
-	    new BinIDSurfaceSourceSelector(*getHorizon(),sid),
-	   // new Horizon3DExtender(*getHorizon(),sid),
-	    ExtenderFactory().create( getTypeStr(),getHorizon(),sid),
-	    new HorizonAdjuster(*getHorizon(),sid) );
-}
-
-
-bool Horizon3DTracker::trackIntersections( const TrackPlane& plane )
-{
-    return true;
+		new BinIDSurfaceSourceSelector(*getHorizon(),sid),
+		ExtenderFactory().create( getTypeStr(),getHorizon(),sid),
+		new HorizonAdjuster(*getHorizon(),sid) );
 }
 
 
@@ -95,7 +88,7 @@ EM::Horizon3D* Horizon3DTracker::getHorizon()
 }
 
 
-const EM::Horizon3D* Horizon3DTracker::getHorizon() const 
+const EM::Horizon3D* Horizon3DTracker::getHorizon() const
 { return const_cast<Horizon3DTracker*>(this)->getHorizon(); }
 
 

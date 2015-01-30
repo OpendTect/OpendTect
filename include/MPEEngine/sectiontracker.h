@@ -1,6 +1,6 @@
 #ifndef sectiontracker_h
 #define sectiontracker_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -27,8 +27,6 @@ namespace EM { class EMObject; }
 namespace MPE
 {
 
-class TrackPlane;
-
 class SectionSourceSelector;
 class SectionExtender;
 class SectionAdjuster;
@@ -50,8 +48,6 @@ public:
     virtual bool		init();
 
     void			reset();
-
-    bool			trackWithPlane( const TrackPlane& plane );
 
     SectionSourceSelector*	selector();
     const SectionSourceSelector* selector() const;
@@ -107,7 +103,7 @@ protected:
     SectionExtender*		extender_;
     SectionAdjuster*		adjuster_;
 
-    
+
 
     static const char*		trackerstr;
     static const char*		useadjusterstr;

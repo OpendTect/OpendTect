@@ -82,10 +82,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
     EM::EMM().undo().undoredochange.notify(
 			mCB(this,uiMPEMan,updateButtonSensitivity) );
-    engine().trackplanechange.notify(
-			mCB(this,uiMPEMan,updateButtonSensitivity) );
-    engine().trackplanetrack.notify(
-			mCB(this,uiMPEMan,trackPlaneTrackCB) );
     engine().trackeraddremove.notify(
 			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
     MPE::engine().activevolumechange.notify(
@@ -190,10 +186,6 @@ uiMPEMan::~uiMPEMan()
     EM::EMM().undo().undoredochange.remove(
 			mCB(this,uiMPEMan,updateButtonSensitivity) );
     deleteVisObjects();
-    engine().trackplanechange.remove(
-			mCB(this,uiMPEMan,updateButtonSensitivity) );
-    engine().trackplanetrack.remove(
-			mCB(this,uiMPEMan,trackPlaneTrackCB) );
     engine().trackeraddremove.remove(
 			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
     MPE::engine().activevolumechange.remove(
@@ -366,8 +358,6 @@ void uiMPEMan::seedClick( CallBacker* )
     }
 
     mGetDisplays(false);
-    const bool trackerisshown = displays.size() &&
-			        displays[0]->isDraggerShown();
 
     bool ctrlshiftclicked = clickcatcher_->info().isCtrlClicked() &&
 			    clickcatcher_->info().isShiftClicked();
@@ -409,15 +399,6 @@ void uiMPEMan::seedClick( CallBacker* )
 	    mSeedClickReturn();
 
 	newvolume = clickcatcher_->info().getObjCS();
-	const TrcKeyZSampling trkplanecs = engine.trackPlane().boundingBox();
-
-	if ( trackerisshown && trkplanecs.zsamp_.includes(seedpos.z,true) &&
-	     trkplanecs.hrg.includes( SI().transform(seedpos) ) &&
-	     trkplanecs.defaultDir()==newvolume.defaultDir() )
-	{
-	    newvolume = trkplanecs;
-	}
-
 	if ( newvolume.isEmpty() || !newvolume.isDefined() )
 	    mSeedClickReturn();
 
@@ -425,13 +406,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	{
 	    if ( oldactivevol_.isEmpty() )
 	    {
-		if ( newvolume == trkplanecs )
-		    loadPostponedData();
-		else
-		    engine.swapCacheAndItsBackup();
-
+		engine.swapCacheAndItsBackup();
 		oldactivevol_ = engine.activeVolume();
-		oldtrackplane_ = engine.trackPlane();
 	    }
 
 	    NotifyStopper notifystopper( engine.activevolumechange );
@@ -540,12 +516,10 @@ void uiMPEMan::restoreActiveVol()
     MPE::Engine& engine = MPE::engine();
     if ( !oldactivevol_.isEmpty() )
     {
-	if ( engine.activeVolume() != oldtrackplane_.boundingBox() )
-	    engine.swapCacheAndItsBackup();
+	engine.swapCacheAndItsBackup();
 	NotifyStopper notifystopper( engine.activevolumechange );
 	engine.setActiveVolume( oldactivevol_ );
 	notifystopper.restore();
-	engine.setTrackPlane( oldtrackplane_, false );
 	engine.unsetOneActiveTracker();
 	engine.activevolumechange.trigger();
 
@@ -620,7 +594,6 @@ void uiMPEMan::updateOldActiveVol()
     {
 	MPE::engine().swapCacheAndItsBackup();
 	oldactivevol_ = MPE::engine().activeVolume();
-	oldtrackplane_ = MPE::engine().trackPlane();
     }
 }
 
@@ -1108,13 +1081,6 @@ void uiMPEMan::updateSeedPickState()
 }
 
 
-void uiMPEMan::trackPlaneTrackCB( CallBacker* )
-{
-    if ( engine().trackPlane().getTrackMode() != TrackPlane::Erase )
-	loadPostponedData();
-}
-
-
 void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
 {
     if ( !engine().nrTrackersAlive() )
@@ -1185,8 +1151,6 @@ void uiMPEMan::trackInVolume( CallBacker* )
 	displays[idx]->updateMPEActiveVolume();
     loadPostponedData();
 
-    const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
-    engine().setTrackMode(TrackPlane::Extend);
     updateButtonSensitivity();
 
     NotifyStopper selstopper( EM::EMM().undo().changenotifier );
@@ -1206,7 +1170,6 @@ void uiMPEMan::trackInVolume( CallBacker* )
     }
 
     MouseCursorManager::restoreOverride();
-    engine().setTrackMode(tm);
     updateButtonSensitivity();
 }
 
@@ -1550,7 +1513,6 @@ void uiMPEMan::movePlaneCB( CallBacker* )
 {
     const bool ison = toolbar_->isOn( moveplaneidx_ );
     showTracker( ison );
-    engine().setTrackMode( ison ? TrackPlane::Move : TrackPlane::None );
 
     if ( ison )
     {
@@ -1711,14 +1673,7 @@ void uiMPEMan::initFromDisplay()
 	    toolbar_->turnOn( showcubeidx_, displays[idx]->isBoxDraggerShown());
     }
 
-    bool showtracker = engine().trackPlane().getTrackMode()!=TrackPlane::None;
-    if ( !engine().nrTrackersAlive() )
-    {
-	engine().setTrackMode( TrackPlane::None );
-	showtracker = false;
-    }
-
-    showTracker( showtracker );
+    showTracker( false );
     updateButtonSensitivity(0);
 }
 
@@ -1784,8 +1739,7 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const bool hasdlg = propdlg_ && !propdlg_->isHidden();
     toolbar_->setSensitive( clrtabidx_, !is2d && trackerisshown && !hasdlg );
 
-    const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
-    toolbar_->turnOn( moveplaneidx_, trackerisshown && tm==TrackPlane::Move );
+    toolbar_->turnOn( moveplaneidx_, false );
 
     toolbar_->setSensitive( tracker );
     if ( seedpicker &&

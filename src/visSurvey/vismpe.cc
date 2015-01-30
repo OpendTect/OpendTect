@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannel2rgba.h"
 
 #include "arrayndsubsel.h"
+#include "binidvalue.h"
 #include "attribdatapack.h"
 #include "keystrs.h"
 #include "mpeengine.h"
@@ -527,9 +528,6 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 		dim_ = 0;
 
 	    setSliceDimension( 0, dim_ );
-	    MPE::TrackPlane ntp = engine_.trackPlane();
-	    getPlanePosition( ntp.boundingBox() );
-	    engine_.setTrackPlane( ntp, false );
 	    updateRanges( true, true );   // to do: check
 	    movement.trigger();
 	    planeOrientationChange.trigger();
@@ -542,19 +540,6 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	      !OD::altKeyboardButton(eventinfo.buttonstate_) &&
 	      eventinfo.pickedobjids.isPresent(id()) && isDraggerShown() )
     {
-	if ( eventinfo.pressed )
-	{
-	    const MPE::TrackPlane::TrackMode tm =
-					engine_.trackPlane().getTrackMode();
-	    if ( tm==MPE::TrackPlane::Move )
-		engine_.setTrackMode( MPE::TrackPlane::Extend );
-	    else if ( tm==MPE::TrackPlane::Extend )
-		engine_.setTrackMode( MPE::TrackPlane::ReTrack );
-	    else if ( tm==MPE::TrackPlane::ReTrack )
-		engine_.setTrackMode( MPE::TrackPlane::Erase );
-	    else
-		engine_.setTrackMode( MPE::TrackPlane::Move );
-	}
 	sceneeventcatcher_->setHandled();
     }
     else if ( OD::leftMouseButton(eventinfo.buttonstate_) &&
@@ -678,10 +663,7 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
 
 float MPEDisplay::maxDist() const
 {
-    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-    float maxzdist = zfactor * scene_->getFixedZStretch() * SI().zStep() / 2;
-    return engine_.trackPlane().boundingBox().nrZ()==1
-				? maxzdist : SurveyObject::sDefMaxDist();
+    return mUdf(float);
 }
 
 
@@ -1081,7 +1063,7 @@ float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 float MPEDisplay::getValue( const Coord3& pos_ ) const
 {
     if ( !volumecache_ ) return mUdf(float);
-    const BinIDValue bidv( SI().transform(pos_), (float) pos_.z );
+    const BinIDValue bidv( SI().transform(pos_), (float)pos_.z );
     float val;
     if ( !volumecache_->cube().getValue(0,bidv,&val,false) )
         return mUdf(float);
@@ -1151,68 +1133,8 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 
     if ( isSelected() ) return;
 
-    while ( true )
-    {
-	MPE::TrackPlane newplane = engine_.trackPlane();
-	TrcKeyZSampling& planebox = newplane.boundingBox();
-	// get the position of the plane from the dragger
-	getPlanePosition( planebox );
-
-	// nothing to do if dragger is in sync with engine
-	if ( planebox==engine_.trackPlane().boundingBox() )
-	    return;
-
-	const TrcKeyZSampling& engineplane = engine_.trackPlane().boundingBox();
-	const int dim = slice->getDragger()->getDim();
-	if ( dim==cInLine() &&
-	     planebox.hrg.start.inl()==engineplane.hrg.start.inl() )
-	    return;
-	if ( dim==cCrossLine() &&
-	     planebox.hrg.start.crl()==engineplane.hrg.start.crl() )
-	    return;
-	if ( dim==cTimeSlice() &&
-	     mIsEqual(planebox.zsamp_.start, engineplane.zsamp_.start,
-		      0.1*SI().zStep()) )
-	    return;
-
-	if ( dim==cInLine() )
-	{
-	    const bool inc =
-		planebox.hrg.start.inl()>engineplane.hrg.start.inl();
-	    int& start = planebox.hrg.start.inl();
-	    int& stop =  planebox.hrg.stop.inl();
-	    const int step = SI().inlStep();
-	    start = stop = engineplane.hrg.start.inl() + ( inc ? step : -step );
-	    newplane.setMotion( inc ? step : -step, 0, 0 );
-	}
-	else if ( dim==cCrossLine() )
-	{
-	    const bool inc =
-		planebox.hrg.start.crl()>engineplane.hrg.start.crl();
-	    int& start = planebox.hrg.start.crl();
-	    int& stop =  planebox.hrg.stop.crl();
-	    const int step = SI().crlStep();
-	    start = stop = engineplane.hrg.start.crl() + ( inc ? step : -step );
-	    newplane.setMotion( 0, inc ? step : -step, 0 );
-	}
-	else if ( dim==cTimeSlice() )
-	{
-	    const bool inc = planebox.zsamp_.start>engineplane.zsamp_.start;
-	    float& start = planebox.zsamp_.start;
-	    float& stop =  planebox.zsamp_.stop;
-	    const double step = SI().zStep();
-	    start = stop = (float) ( engineplane.zsamp_.start +
-						( inc ? step : -step ) );
-	    newplane.setMotion( 0, 0, (float) ( inc ? step : -step ) );
-	}
-
-	const MPE::TrackPlane::TrackMode trkmode = newplane.getTrackMode();
-	engine_.setTrackPlane( newplane, trkmode==MPE::TrackPlane::Extend
-				      || trkmode==MPE::TrackPlane::ReTrack
-				      || trkmode==MPE::TrackPlane::Erase );
-	movement.trigger();
-	planeOrientationChange.trigger();
-    }
+    movement.trigger();
+    planeOrientationChange.trigger();
 }
 
 
@@ -1404,6 +1326,5 @@ bool MPEDisplay::isPickingEnabled() const
     return !slices_.isEmpty() && slices_[0]->isPickingEnabled();
 }
 
-
-}; // namespace vissurvey
+} // namespace vissurvey
 

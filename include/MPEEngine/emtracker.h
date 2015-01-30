@@ -1,6 +1,6 @@
 #ifndef emtracker_h
 #define emtracker_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -21,15 +21,14 @@ ________________________________________________________________________
 
 class Executor;
 
-namespace Geometry { class Element; };
-namespace EM { class EMObject; };
+namespace Geometry { class Element; }
+namespace EM { class EMObject; }
 namespace Attrib { class SelSpec; }
 
 namespace MPE
 {
 
 class SectionTracker;
-class TrackPlane;
 class EMSeedPicker;
 
 /*!
@@ -37,7 +36,7 @@ class EMSeedPicker;
 */
 
 mExpClass(MPEEngine) EMTracker
-{ mRefCountImpl(EMTracker);
+{ mRefCountImpl(EMTracker)
 public:
     				EMTracker( EM::EMObject* );
 
@@ -53,8 +52,6 @@ public:
     virtual bool		isEnabled() const	{ return isenabled_; }
     virtual void		enable(bool yn)		{ isenabled_=yn; }
 
-    virtual bool		trackSections(const TrackPlane&);
-    virtual bool		trackIntersections(const TrackPlane&);
     virtual Executor*		trackInVolume();
     virtual bool		snapPositions( const TypeSet<EM::PosID>& );
 
@@ -97,7 +94,7 @@ private:
 mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );
 
 
-}; // namespace MPE
+} // namespace MPE
 
 #endif
 

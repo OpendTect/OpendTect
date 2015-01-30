@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribsel.h"
 #include "bidvsetarrayadapter.h"
+#include "binidvalue.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "datapointset.h"
@@ -909,7 +910,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
     surf->setDisplayTransformation( transformation_ );
     surf->setZAxisTransform( zaxistransform_, trans );
     if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
-    
+
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, trans );

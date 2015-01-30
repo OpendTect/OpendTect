@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "emhorizon2d.h"
 
-namespace MPE 
+namespace MPE
 {
 
 Horizon2DSelector::Horizon2DSelector( const EM::Horizon2D& hor,
@@ -26,30 +26,15 @@ Horizon2DSelector::Horizon2DSelector( const EM::Horizon2D& hor,
 {}
 
 
-void Horizon2DSelector::setTrackPlane( const TrackPlane& trackplane )
-{
-    trackplane_ = trackplane;
-}
-
-
 int Horizon2DSelector::nextStep()
 {
-    if ( !trackplane_.isVertical() )
-	return 0;
+    pErrMsg( "Fix inlrg, crlrg and zrg" );
+    StepInterval<int> inlrg;
+    StepInterval<int> crlrg;
+    const StepInterval<float > zrg;
 
-    const TrackPlane::TrackMode trackmode = trackplane_.getTrackMode();
-    if ( trackmode==TrackPlane::None || trackmode==TrackPlane::Move )
-	return 0;
-
-    const bool selectall = trackmode==TrackPlane::ReTrack ||
-			   trackmode==TrackPlane::Erase;
-
-    StepInterval<int> inlrg = trackplane_.boundingBox().hrg.inlRange();
-    StepInterval<int> crlrg = trackplane_.boundingBox().hrg.crlRange();
-    const StepInterval<float >& zrg = trackplane_.boundingBox().zsamp_;
-
-    inlrg.include( inlrg.start+trackplane_.motion().inl() );
-    crlrg.include( crlrg.start+trackplane_.motion().crl() );
+//    inlrg.include( inlrg.start+trackplane_.motion().inl() );
+//    crlrg.include( crlrg.start+trackplane_.motion().crl() );
 
     PtrMan<EM::EMObjectIterator> iterator =
 				horizon_.createIterator( sectionid_ );
@@ -68,12 +53,11 @@ int Horizon2DSelector::nextStep()
 	     !zrg.includes( pos.z,true ) )
 	    continue;
 
-	if ( selectall || horizon_.isAtEdge(pid) )
+	if ( horizon_.isAtEdge(pid) )
 	    selpos_ += subid;
     }
 
     return 0;
 }
 
-
-};
+} // namespace MPE

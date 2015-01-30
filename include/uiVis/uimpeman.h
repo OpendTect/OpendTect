@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uivismod.h"
 #include "uiparent.h"
-#include "trackplane.h"
+#include "trckeyzsampling.h"
 
 namespace EM { class EMObject; }
 namespace MPE { class EMTracker; }
@@ -52,7 +52,7 @@ public:
     bool			isSeedPickingOn() const;
     void			turnQCPlaneOff();
 
-    void                        visObjectLockedCB(CallBacker*);
+    void			visObjectLockedCB(CallBacker*);
     void			updateButtonSensitivity(CallBacker* = 0);
 
 protected:
@@ -96,7 +96,6 @@ protected:
     void			retrackAllCB(CallBacker*);
 
     void			updateSeedPickState();
-    void			trackPlaneTrackCB(CallBacker*);
     void			trackerAddedRemovedCB(CallBacker*);
     void			addSeedCB(CallBacker*);
     void			seedConnectModeSel(CallBacker*);
@@ -108,7 +107,7 @@ protected:
     void			showTracker(bool yn);
     void			changeTrackerOrientation(int orient);
 
-    void                        onColTabClosing(CallBacker*);
+    void			onColTabClosing(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
     void			restoreActiveVol();
@@ -146,7 +145,6 @@ protected:
     bool			polyselstoppedseedpick_;
     bool			mpeintropending_;
 
-    MPE::TrackPlane		oldtrackplane_;
     TrcKeyZSampling		oldactivevol_;
 
     static const char*		sKeyNoAttrib() { return "No attribute"; }

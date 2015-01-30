@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sectionselector.h"
 #include "survinfo.h"
 
-namespace MPE 
+namespace MPE
 {
 
 const char* SectionTracker::trackerstr = "Tracker";
@@ -74,52 +74,6 @@ void SectionTracker::reset()
 }
 
 
-bool SectionTracker::trackWithPlane( const TrackPlane& plane )
-{
-    if ( !selector_ && !extender_ )
-    {
-	errmsg = "Internal: No selector or extender available.";
-	return false;
-    }
-
-    reset();
-
-    selector_->setTrackPlane( plane );
-    if ( !select() )
-	return false;
-
-    TypeSet<EM::SubID> lockedseeds;
-    getLockedSeeds( lockedseeds );
-
-    if ( plane.getTrackMode()==TrackPlane::Erase )
-    {
-	if ( !erasePositions(selector_->selectedPositions(),lockedseeds,true) )
-	{
-	    errmsg = "Could not remove all nodes since that would "
-		     "divide the section in multiple parts.";
-	    return false;
-	}
-
-	return true;
-    }
-
-    extender_->setDirection( plane.motion() );
-    extender_->excludePositions( &lockedseeds );
-    const bool res = extend();
-    extender_->excludePositions(0);
-    if ( !res ) 
-	return false;
-
-    TypeSet<EM::SubID> addedpos = extender_->getAddedPositions();
-
-    if ( adjusterUsed() && !adjust() )
-	return false;
-
-    removeUnSupported( addedpos );
-    return true;
-}
-
-
 void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
 {
     if ( !emobject.isGeometryChecksEnabled() )
@@ -160,7 +114,7 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 	for ( int idx=0; idx<subids.size(); idx++ )
 	{
 	    pid.setSubID(subids[idx]);
-	    if ( excludedpos.isPresent(subids[idx]) || 
+	    if ( excludedpos.isPresent(subids[idx]) ||
 		 emobject.unSetPos(pid,addtoundo) )
 	    {
 		subids.removeSingle(idx--);
@@ -173,13 +127,13 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 }
 
 
-void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds ) 
+void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
 {
     lockedseeds.erase();
     if ( !emobject.isPosAttribLocked( EM::EMObject::sSeedNode() ) )
 	return;
 
-    const TypeSet<EM::PosID>* seedlist = 
+    const TypeSet<EM::PosID>* seedlist =
 	emobject.getPosAttribList( EM::EMObject::sSeedNode() );
     const int nrseeds = seedlist ? seedlist->size() : 0;
 
@@ -187,7 +141,7 @@ void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
     {
 	const Coord3 seedpos = emobject.getPos( (*seedlist)[idx] );
 	const BinID seedbid = SI().transform( seedpos );
-	if ( (*seedlist)[idx].sectionID()==sid && 
+	if ( (*seedlist)[idx].sectionID()==sid &&
 	     engine().activeVolume().hrg.includes(seedbid) )
 	{
 	    lockedseeds += (*seedlist)[idx].subID();
@@ -233,7 +187,7 @@ bool SectionTracker::select()
 bool SectionTracker::extend()
 {
     if ( !extender_ ) return true;
-   
+
     if ( selector_ )
 	extender_->setStartPositions( selector_->selectedPositions() );
 
@@ -253,7 +207,7 @@ bool SectionTracker::extend()
 bool SectionTracker::adjust()
 {
     if ( !adjuster_ ) return true;
-   
+
     if ( extender_ )
 	adjuster_->setPositions( extender_->getAddedPositions(),
     				 &extender_->getAddedPositionsSource() );
@@ -288,13 +242,14 @@ const char* SectionTracker::errMsg() const
 { return errmsg.str(); }
 
 
-TrcKeyZSampling SectionTracker::getAttribCube( const Attrib::SelSpec& spec ) const
+TrcKeyZSampling
+	SectionTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 {
     return adjuster_ ? adjuster_->getAttribCube(spec) : engine().activeVolume();
 }
 
 
-void SectionTracker::getNeededAttribs( 
+void SectionTracker::getNeededAttribs(
 				ObjectSet<const Attrib::SelSpec>& res ) const
 {
     if ( adjuster_ ) adjuster_->getNeededAttribs( res );
@@ -367,4 +322,4 @@ bool SectionTracker::usePar( const IOPar& par )
     return res;
 }
 
-}; // namespace MPE
+} // namespace MPE

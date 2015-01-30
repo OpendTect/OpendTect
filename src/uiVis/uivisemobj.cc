@@ -372,6 +372,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     seedsmenuitem_.removeItems();
 
+    mResetMenuItem( &lockseedsmnuitem_ );
     MenuItem* trackmnu = menu->findItem( uiVisEMObject::trackingmenutxt() );
     if ( trackmnu )
     {
@@ -383,10 +384,6 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
 		      !hastransform && seeds && seeds->size(), false );
 	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
-	lockseedsmnuitem_.text =
-	    emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ?
-	    tr("Unlock") : uiStrings::sLock() ;
-	mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
 	mAddMenuItem( trackmnu, &seedsmenuitem_,
 		      seedsmenuitem_.nrItems(), false );
     }
@@ -407,7 +404,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 }
 
 
-void uiVisEMObject::addToToolBarCB( CallBacker* cb )
+void uiVisEMObject::addToToolBarCB( CallBacker* )
 {
 }
 
@@ -464,7 +461,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==changesectionnamemnuitem_.id )
     {
 	StringInpSpec* spec = new StringInpSpec( emobj->sectionName(sid) );
-	uiGenInputDlg dlg(uiparent_,tr("Change section-name"), 
+	uiGenInputDlg dlg(uiparent_,tr("Change section-name"),
 			  uiStrings::sName(), spec);
 	while ( dlg.go() )
 	{

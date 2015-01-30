@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "autotracker.h"
 
 #include "arraynd.h"
+#include "binidvalue.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emundo.h"
@@ -27,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "thread.h"
 
-namespace MPE 
+namespace MPE
 {
 
 AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
@@ -58,20 +59,20 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     {
 	if ( horadj->useAbsThreshold() )
 	{
-	    if ( horadj->getAmplitudeThresholds().size()>0 ) 
+	    if ( horadj->getAmplitudeThresholds().size()>0 )
 	    {
 		stepcntapmtthesld_ = 0;
 		stepcntallowedvar_ = -1;
 		if ( horadj->getAmplitudeThresholds().size() > 1 )
 		    adjuster_->removeOnFailure( true );
-		const float th = 
+		const float th =
 		    horadj->getAmplitudeThresholds()[stepcntapmtthesld_];
 		horadj->setAmplitudeThreshold( th );
 		execmsg_ = tr("Step: %1").arg(th);
 	    }
 	}
-	else if ( horadj->getAllowedVariances().size()>0 ) 
-	{ 
+	else if ( horadj->getAllowedVariances().size()>0 )
+	{
 	    stepcntallowedvar_ = 0;
 	    stepcntapmtthesld_ = -1;
 	    if ( horadj->getAllowedVariances().size()>1 )
@@ -144,10 +145,10 @@ void AutoTracker::manageCBbuffer( bool block )
     if ( !block )
     {
 	geomelem_->blockCallBacks( false, true );
-	nrflushes_ = 0; flushcntr_ = 0; 
+	nrflushes_ = 0; flushcntr_ = 0;
 	return;
     }
-    
+
     // progressive flushing (i.e. wait one extra cycle for every next flush)
     flushcntr_++;
     if ( flushcntr_ >= nrflushes_ )
@@ -259,7 +260,7 @@ int AutoTracker::nextStep()
     }
 
     extender_->reset();
-    extender_->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
+    extender_->setDirection( BinIDValue(BinID(0,0),mUdf(float)) );
     extender_->setStartPositions(currentseeds_);
     int res;
     while ( (res=extender_->nextStep())>0 )
@@ -273,7 +274,7 @@ int AutoTracker::nextStep()
 	    addedpos, addedpossrc, blacklist_ );
     blacklistshrubber.execute();
 
-    adjuster_->reset();    
+    adjuster_->reset();
     adjuster_->setPositions(addedpos, &addedpossrc);
     while ( (res=adjuster_->nextStep())>0 )
 	;
@@ -301,7 +302,7 @@ int AutoTracker::nextStep()
     // Make all new nodes seeds
     currentseeds_ = addedpos;
     nrdone_ += currentseeds_.size();
-    
+
     int status =  currentseeds_.size() ? MoreToDo() : Finished();
     if ( status == Finished() )
     {
@@ -376,7 +377,7 @@ int AutoTracker::nextStep()
 	    const float var = horadj->getAllowedVariances()[stepcntallowedvar_];
 	    horadj->setAllowedVariance( var );
 	    execmsg_ = tr("Step: %1%").arg(var * 100);
-	    nrdone_ = 1;	    
+	    nrdone_ = 1;
 	}
 
 	blacklist_.erase();
@@ -401,7 +402,7 @@ bool AutoTracker::addSeed( const EM::PosID& pid )
     if ( !emobject_.isAtEdge(pid) )	return false;
 
     const Coord3& pos = emobject_.getPos(pid);
-    if ( !engine().activeVolume().zsamp_.includes(pos.z,false) )	
+    if ( !engine().activeVolume().zsamp_.includes(pos.z,false) )
 	return false;
     const BinID bid = SI().transform(pos);
     if ( !engine().activeVolume().hrg.includes(bid) )	return false;

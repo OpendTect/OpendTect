@@ -12,8 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "sectionselectorimpl.h"
 
-namespace MPE 
+namespace MPE
 {
+
 SectionSourceSelector::SectionSourceSelector( const EM::SectionID& sid )
     : sectionid_( sid )
 {}
@@ -21,23 +22,14 @@ SectionSourceSelector::SectionSourceSelector( const EM::SectionID& sid )
 
 EM::SectionID SectionSourceSelector::sectionID() const { return sectionid_; }
 
-
 void SectionSourceSelector::reset() { selpos_.erase(); }
 
-
-void SectionSourceSelector::setTrackPlane( const MPE::TrackPlane& ) {}
-
-
 int SectionSourceSelector::nextStep() { return 0; }
-
 
 const char* SectionSourceSelector::errMsg() const
 { return errmsg_.str(); }
 
-
 const TypeSet<EM::SubID>& SectionSourceSelector::selectedPositions() const
 { return selpos_;}
 
-
-
-};
+} // namespace MPE

@@ -1,6 +1,6 @@
 #ifndef horizon3dextender_h
 #define horizon3dextender_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "sectionextender.h"
 #include "binidvalue.h"
 
-namespace EM { class Horizon3D; };
+namespace EM { class Horizon3D; }
 
 namespace MPE
 {
@@ -68,9 +68,7 @@ public:
 						  const EM::SectionID& sid);
 };
 
-
-}; // namespace MPE
+} // namespace MPE
 
 #endif
-
 

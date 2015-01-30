@@ -11,10 +11,12 @@ ___________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "sectionextender.h"
+
+#include "binidvalue.h"
 #include "mpeengine.h"
 #include "position.h"
 
-namespace MPE 
+namespace MPE
 {
 
 mImplFactory2Param( SectionExtender, EM::EMObject*, const EM::SectionID&,
@@ -73,7 +75,7 @@ setDirection(BinIDValue(inl,crl,z)); \
 while ( (res=nextStep())>0 )\
     ;\
 \
-if ( res==-1 ) return 
+if ( res==-1 ) return
 
 void SectionExtender::extendInVolume(const BinID& bidstep, float zstep)
 {
@@ -110,7 +112,7 @@ void SectionExtender::setExtBoundary( const TrcKeyZSampling& cs )
 { extboundary_ = cs; }
 
 
-void SectionExtender::unsetExtBoundary() 
+void SectionExtender::unsetExtBoundary()
 { extboundary_.setEmpty(); }
 
 

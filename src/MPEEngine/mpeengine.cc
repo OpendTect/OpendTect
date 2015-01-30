@@ -53,7 +53,7 @@ DataHolder::DataHolder()
 	, is2d_( false )
 	, dcdata_( 0 )
 	, d2dhdata_( 0 )
-{ 
+{
     tkzs_.setEmpty();
 }
 
@@ -66,19 +66,19 @@ DataHolder::~DataHolder()
 
 void DataHolder::set3DData( const Attrib::DataCubes* dc )
 {
-    releaseMemory(); 
-    is2d_ = false; 
-    dcdata_ = dc; 
-    refPtr( dcdata_ ); 
+    releaseMemory();
+    is2d_ = false;
+    dcdata_ = dc;
+    refPtr( dcdata_ );
 }
 
 
 void DataHolder::set2DData( const Attrib::Data2DArray* d2h )
 {
-    releaseMemory(); 
-    is2d_ = true; 
-    d2dhdata_ = d2h; 
-    refPtr( d2dhdata_ ); 
+    releaseMemory();
+    is2d_ = true;
+    d2dhdata_ = d2h;
+    refPtr( d2dhdata_ );
 }
 
 
@@ -95,7 +95,7 @@ int DataHolder::nrCubes() const
 }
 
 
-void DataHolder::releaseMemory() 
+void DataHolder::releaseMemory()
 {
     unRefAndZeroPtr( dcdata_ );
     unRefAndZeroPtr( d2dhdata_ );
@@ -103,9 +103,7 @@ void DataHolder::releaseMemory()
 
 
 Engine::Engine()
-    : trackplanechange( this )
-    , trackplanetrack( this )
-    , activevolumechange( this )
+    : activevolumechange( this )
     , trackeraddremove( this )
     , loadEMObject( this )
     , oneactivetracker_( 0 )
@@ -154,32 +152,6 @@ const TrcKeyZSampling& Engine::activeVolume() const
 void Engine::setActiveVolume( const TrcKeyZSampling& nav )
 {
     activevolume_ = nav;
-
-    int dim = 0;
-    if ( trackplane_.boundingBox().hrg.start.crl()==
-	 trackplane_.boundingBox().hrg.stop.crl() )
-	dim = 1;
-    else if ( !trackplane_.boundingBox().zsamp_.width() )
-	dim = 2;
-
-    TrackPlane ntp;
-    TrcKeyZSampling& ncs = ntp.boundingBox();
-    ncs = nav;
-
-    if ( !dim )
-	ncs.hrg.start.inl() = ncs.hrg.stop.inl() =
-	    SI().inlRange(true).snap(
-		(ncs.hrg.start.inl()+ncs.hrg.stop.inl())/2);
-    else if ( dim==1 )
-	ncs.hrg.start.crl() = ncs.hrg.stop.crl() =
-	    SI().crlRange(true).snap(
-		(ncs.hrg.start.crl()+ncs.hrg.stop.crl())/2);
-    else
-	ncs.zsamp_.start = ncs.zsamp_.stop =
-	    SI().zRange(true).snap(ncs.zsamp_.center());
-
-    ntp.setTrackMode( trackPlane().getTrackMode() );
-    setTrackPlane( ntp, false );
     activevolumechange.trigger();
 }
 
@@ -192,49 +164,6 @@ Pos::GeomID Engine::activeGeomID() const
 
 BufferString Engine::active2DLineName() const
 { return Survey::GM().getName( activegeomid_ ); }
-
-
-const TrackPlane& Engine::trackPlane() const
-{ return trackplane_; }
-
-
-bool Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
-{
-    trackplane_ = ntp;
-    trackplanechange.trigger();
-    if ( ntp.getTrackMode()==TrackPlane::Move ||
-	    ntp.getTrackMode()==TrackPlane::None )
-	dotrack = false;
-
-    return dotrack ? trackAtCurrentPlane() : true;
-}
-
-
-#define mTrackAtCurrentPlane(func) \
-    for ( int idx=0; idx<trackers_.size(); idx++ ) \
-    { \
-	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() ) \
-	    continue; \
-	EM::ObjectID oid = trackers_[idx]->objectID(); \
-	if ( EM::EMM().getObject(oid)->isLocked() ) \
-	    continue; \
-	if ( !trackers_[idx]->func( trackplane_ ) ) \
-	{ \
-	    errmsg_ = "Error while tracking "; \
-	    errmsg_ += trackers_[idx]->objectName(); \
-	    errmsg_ += ": "; \
-	    errmsg_ += trackers_[idx]->errMsg(); \
-	    return false; \
-	} \
-    }
-
-bool Engine::trackAtCurrentPlane()
-{
-    trackplanetrack.trigger();
-    mTrackAtCurrentPlane(trackSections);
-    mTrackAtCurrentPlane(trackIntersections);
-    return true;
-}
 
 
 void Engine::updateSeedOnlyPropagation( bool yn )
@@ -293,41 +222,9 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	EM::EMObject* emobj = EM::EMM().getObject( oid );
 	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )
 	{
-	    int dim = 0;
-	    if ( trackplane_.boundingBox().hrg.start.crl()==
-		 trackplane_.boundingBox().hrg.stop.crl() )
-		dim = 1;
-	    else if ( !trackplane_.boundingBox().zsamp_.width() )
-		dim = 2;
-
-	    TrackPlane ntp;
-	    TrcKeyZSampling& ncs = ntp.boundingBox();
-	    ncs = emobj->getRemovedPolySelectedPosBox();
-
-	    if ( !dim )
-		ncs.hrg.start.inl() = ncs.hrg.stop.inl() =
-		    SI().inlRange(true).snap(
-			    (ncs.hrg.start.inl()+ncs.hrg.stop.inl())/2);
-	    else if ( dim==1 )
-		ncs.hrg.start.crl() = ncs.hrg.stop.crl() =
-		    SI().crlRange(true).snap(
-			    (ncs.hrg.start.crl()+ncs.hrg.stop.crl())/2);
-	    else
-		ncs.zsamp_.start = ncs.zsamp_.stop = SI().zRange(true).snap(
-							ncs.zsamp_.center());
-	    ntp.setTrackMode( trackPlane().getTrackMode() );
-	    setTrackPlane( ntp, false );
-	    //setActiveVolume( emobj->getRemovedPolySelectedPosBox() );
 	    emobj->emptyRemovedPolySelectedPosBox();
 	}
     }
-}
-
-
-void Engine::setTrackMode( TrackPlane::TrackMode tm )
-{
-    trackplane_.setTrackMode( tm );
-    trackplanechange.trigger();
 }
 
 
@@ -873,10 +770,6 @@ void Engine::fillPar( IOPar& iopar ) const
 
     iopar.set( sKeyNrTrackers(), trackeridx );
     activevolume_.fillPar( iopar );
-
-    IOPar tppar;
-    trackplane_.fillPar( tppar );
-    iopar.mergeComp( tppar, sKeyTrackPlane() );
 }
 
 
@@ -886,11 +779,7 @@ bool Engine::usePar( const IOPar& iopar )
 
     TrcKeyZSampling newvolume;
     if ( newvolume.usePar(iopar) )
-    {
 	setActiveVolume( newvolume );
-	PtrMan<IOPar> tppar = iopar.subselect( sKeyTrackPlane() );
-	if ( tppar ) trackplane_.usePar( *tppar );
-    }
 
     /* The setting of the active volume must be above the initiation of the
        trackers to avoid a trigger of dataloading. */

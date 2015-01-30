@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
-#include "trackplane.h"
 #include "iopar.h"
 
 #include "ioman.h"
@@ -32,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mpesetup.h"
 
 
-namespace MPE 
+namespace MPE
 {
 
 mImplFactory1Param( EMTracker, EM::EMObject*, TrackerFactory );
@@ -61,42 +60,6 @@ EM::ObjectID EMTracker::objectID() const
 { return emobject_ ? emobject_->id() : -1; }
 
 
-bool EMTracker::trackSections( const TrackPlane& plane )
-{
-    if ( !emobject_ || !isenabled_ || plane.getTrackMode()==TrackPlane::Move ||
-	    plane.getTrackMode()==TrackPlane::None )
-	return true;
-
-
-    bool success = true;
-    for ( int idx=0; idx<emobject_->nrSections(); idx++ )
-    {
-	const EM::SectionID sid = emobject_->sectionID( idx );
-	SectionTracker* sectiontracker = getSectionTracker( sid, true );
-	if ( !sectiontracker ) continue;
-	if ( !sectiontracker->hasInitializedSetup() && 
-	     plane.getTrackMode()!=TrackPlane::Erase )
-	    continue;
-
-	EM::PosID posid( emobject_->id(), sid );
-	if ( !sectiontracker->trackWithPlane(plane) )
-	{
-	    errmsg_ = sectiontracker->errMsg();
-	    success = false;
-	}
-    }
-
-    if ( !success )
-	return false;
-
-    return true;
-}
-
-
-bool EMTracker::trackIntersections( const TrackPlane& )
-{ return true; }
-
-
 Executor* EMTracker::trackInVolume()
 {
     ExecutorGroup* res = 0;
@@ -106,13 +69,13 @@ Executor* EMTracker::trackInVolume()
 	SectionTracker* sectiontracker = getSectionTracker( sid, true );
 	if ( !sectiontracker || !sectiontracker->hasInitializedSetup() )
 	    continue;
-	
+
 	// check whether data loading was cancelled by user
 	ObjectSet<const Attrib::SelSpec> attrselset;
 	sectiontracker->getNeededAttribs( attrselset );
 	if ( attrselset.isEmpty() || !engine().getAttribCache(*attrselset[0]) )
 	    continue;
-	
+
 	if ( !res )
 	{
 	    res = new ExecutorGroup("Autotracker", true );
@@ -126,7 +89,7 @@ Executor* EMTracker::trackInVolume()
 }
 
 
-bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids ) 
+bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
 {
     if ( !emobject_ ) return false;
 
@@ -232,7 +195,7 @@ SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )
 
     if ( defaultsetupidx >= 0 )
 	applySetupAsDefault( sectiontrackers_[defaultsetupidx]->sectionID() );
-    
+
     return sectiontracker;
 }
 
@@ -246,7 +209,7 @@ void EMTracker::applySetupAsDefault( const EM::SectionID sid )
 	if ( sectiontrackers_[idx]->sectionID() == sid )
 	    defaultsetuptracker = sectiontrackers_[idx];
     }
-    if ( !defaultsetuptracker || !defaultsetuptracker->hasInitializedSetup() ) 
+    if ( !defaultsetuptracker || !defaultsetuptracker->hasInitializedSetup() )
 	return;
 
     IOPar par;
@@ -257,7 +220,7 @@ void EMTracker::applySetupAsDefault( const EM::SectionID sid )
 	if ( !sectiontrackers_[idx]->hasInitializedSetup() )
 	    sectiontrackers_[idx]->usePar( par );
     }
-}    
+}
 
 
 void EMTracker::erasePositions( EM::SectionID sectionid,
@@ -300,11 +263,11 @@ bool EMTracker::usePar( const IOPar& iopar )
 	if ( !localpar->get(sectionidStr(),sid) ) { idx++; continue; }
 	SectionTracker* st = getSectionTracker( (EM::SectionID)sid, true );
 	if ( !st ) { idx++; continue; }
-	
+
 	MultiID setupid;
 	if ( !localpar->get(setupidStr(),setupid) )
 	{
-	    st->usePar( *localpar );    
+	    st->usePar( *localpar );
 	}
 	else  // old policy for restoring session
 	{
@@ -321,7 +284,7 @@ bool EMTracker::usePar( const IOPar& iopar )
 	    setup.fillPar( setuppar );
 	    st->usePar( setuppar );
 	}
-	
+
 	idx++;
     }
 
@@ -329,11 +292,11 @@ bool EMTracker::usePar( const IOPar& iopar )
 }
 
 
-void EMTracker::setEMObject( EM::EMObject* no ) 
+void EMTracker::setEMObject( EM::EMObject* no )
 {
     if ( emobject_ ) emobject_->unRef();
     emobject_ = no;
     if ( emobject_ ) emobject_->ref();
 }
 
-}; // namespace MPE
+} // namespace MPE

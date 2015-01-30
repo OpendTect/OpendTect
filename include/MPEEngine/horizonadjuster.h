@@ -1,6 +1,6 @@
 #ifndef horizonadjuster_h
 #define horizonadjuster_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -15,10 +15,9 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "sectionadjuster.h"
 #include "ranges.h"
-#include "trackplane.h"
 #include "valseriesevent.h"
 
-namespace EM { class Horizon; };
+namespace EM { class Horizon; }
 class EventTracker;
 
 
@@ -63,7 +62,7 @@ public:
     float 		allowedVariance() const;
     void		setUseAbsThreshold(bool abs);
     bool		useAbsThreshold() const;
-                                                          
+
     void		setSimilarityWindow(const Interval<float>& rg);
     Interval<float>	similarityWindow() const;
     void		setSimilarityThreshold(float th);

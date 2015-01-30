@@ -12,9 +12,8 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "sectionselector.h"
-#include "trackplane.h"
 
-namespace EM { class Horizon2D; };
+namespace EM { class Horizon2D; }
 
 namespace MPE
 {
@@ -28,16 +27,13 @@ mExpClass(MPEEngine) Horizon2DSelector : public SectionSourceSelector
 public:
     				Horizon2DSelector(const EM::Horizon2D&,
 						  const EM::SectionID&);
-    void			setTrackPlane(const TrackPlane&);
     int				nextStep();
 
 protected:
     const EM::Horizon2D&	horizon_;
-    TrackPlane			trackplane_;
 };
 
-};
-
+} // namespace MPE
 
 #endif
 

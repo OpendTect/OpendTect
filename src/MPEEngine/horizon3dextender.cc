@@ -17,11 +17,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "horizon3dtracker.h"
 #include "survinfo.h"
-#include "trackplane.h"
 #include "mpeengine.h"
 
 
-namespace MPE 
+namespace MPE
 {
 
 
@@ -85,9 +84,9 @@ void BaseHorizon3DExtender::preallocExtArea()
 int BaseHorizon3DExtender::nextStep()
 {
     const bool alldirs = direction.inl()==0 && direction.crl()==0;
-    
+
     TypeSet<BinID> sourcenodes;
-    
+
     for ( int idx=0; idx<startpos_.size(); idx++ )
     {
 	BinID dummy = BinID::fromInt64( startpos_[idx] );
@@ -97,16 +96,7 @@ int BaseHorizon3DExtender::nextStep()
     if ( sourcenodes.size() == 0 )
 	return 0;
 
-    const BinID sidehash( direction.crl() ? SI().inlStep() : 0,
-	    		  direction.inl() ? SI().crlStep() : 0 );
-    // const BinID firstnode = sourcenodes[0];
-    // const BinID lastnode = sourcenodes[sourcenodes.size()-1];
-
-    const bool extend = 
-	engine().trackPlane().getTrackMode()==TrackPlane::Extend;
-
     bool change = true;
-
     while ( change )
     {
 	change = false;
@@ -146,12 +136,12 @@ int BaseHorizon3DExtender::nextStep()
 		{
 		    const RowCol step( surface.geometry().step() );
 		    const od_int64 serc = addedpossrc_[previndex];
-		    const RowCol oldsrc( (RowCol::fromInt64(serc))/step );   
+		    const RowCol oldsrc( (RowCol::fromInt64(serc))/step );
 		    const RowCol dst( (RowCol::fromInt64(serc))/step );
 		    const RowCol cursrc( srcbid/step );
 
 		    const int olddist = (int)oldsrc.sqDistTo(dst);
-		    if ( cursrc.sqDistTo( dst )<olddist ) 
+		    if ( cursrc.sqDistTo( dst )<olddist )
 		    {
 			addedpossrc_[previndex] = srcbid.toInt64();
 		//surface.setPos( neighbor, Coord3(0,0,depth), setundo_ );
@@ -162,11 +152,8 @@ int BaseHorizon3DExtender::nextStep()
 		    continue;
 		}
 
-		//This test must be below the one above since the result
-		//of this test will ruin the one above.
-		if ( extend && surface.isDefined(neighbor) )
+		if ( surface.isDefined(neighbor) )
 		    continue;
-
 
 		if ( !isExcludedPos(neighbor.subID()) &&
 		     //surface.setPos(neighbor, Coord3(0,0,depth), setundo_) )
@@ -195,6 +182,4 @@ float BaseHorizon3DExtender::getDepth( const BinID& srcbid,
 const TrcKeyZSampling& BaseHorizon3DExtender::getExtBoundary() const
 { return extboundary_.isEmpty() ? engine().activeVolume() : extboundary_; }
 
-
-
-};  // namespace MPE
+} // namespace MPE

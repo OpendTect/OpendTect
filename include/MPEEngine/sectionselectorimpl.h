@@ -1,6 +1,6 @@
 #ifndef sectionselectorimpl_h
 #define sectionselectorimpl_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -31,7 +31,6 @@ mExpClass(MPEEngine) BinIDSurfaceSourceSelector : public SectionSourceSelector
 public:
     			BinIDSurfaceSourceSelector(const EM::Horizon3D&,
 			       			   const EM::SectionID&);
-    void		setTrackPlane(const MPE::TrackPlane&);
     int			nextStep() { return 0; }
 
 protected:
@@ -48,7 +47,6 @@ mExpClass(MPEEngine) SurfaceSourceSelector : public SectionSourceSelector
 public:
     		SurfaceSourceSelector(const EM::EMObject&,
 				      const EM::SectionID&);
-    void	setTrackPlane(const MPE::TrackPlane&);
     int		nextStep() { return 0; }
 
 protected:
@@ -56,8 +54,6 @@ protected:
 };
 
 
-};
+} // namespace MPE
 
 #endif
-
-
