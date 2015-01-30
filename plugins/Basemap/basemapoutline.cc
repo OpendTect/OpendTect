@@ -105,7 +105,7 @@ bool OutlineObject::extractPolygons()
     SeisTrcReader rdr( ioobjinfo.ioObj() );
 
     PosInfo::CubeData cubedata;
-    if ( !rdr.getGeometryInfo(cubedata) ) return false;
+    if ( !rdr.get3DGeometryInfo(cubedata) ) return false;
 
     PosInfo::CubeDataPos cubedatapos;
     while ( cubedata.toNext(cubedatapos) )
