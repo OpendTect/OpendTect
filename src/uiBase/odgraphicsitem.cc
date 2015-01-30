@@ -373,7 +373,10 @@ QRectF ODViewerTextItem::boundingRect() const
     const float txtwidth = qfm.width( QString(text_) );
     const float txtheight = qfm.height();
 
-    const double paintangle = Math::ASin(transform().m12());
+    const QPointF v00 = transform().map( QPointF(0,0) );
+    const QPointF v10 = transform().map( QPointF(1,0) );
+    const double paintangle = Math::Atan2( v10.y()-v00.y(), v10.x()-v00.x() );
+
     const float boundingwidth = txtwidth * cos(paintangle) +
 				txtheight * fabs(sin(paintangle));
     const float boundingheight = txtheight + txtwidth * fabs(sin(paintangle));
@@ -400,7 +403,10 @@ void ODViewerTextItem::paint( QPainter* painter,
 
     QPointF paintpos( 0, 0 );
     paintpos = painter->worldTransform().map( paintpos );
-    const double paintangle = Math::ASin(painter->worldTransform().m12());
+
+    const QPointF v10 = painter->worldTransform().map( QPointF(1,0) );
+    const double paintangle =
+	Math::Atan2( v10.y()-paintpos.y(), v10.x()-paintpos.x() );
 
     painter->save();
     painter->resetTransform();
