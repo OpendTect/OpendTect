@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "thread.h"
 #include "winutils.h"
+#include "systeminfo.h"
 
 #include <fstream>
 
@@ -100,6 +101,9 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
     unfilteredreport.add( ODInst::getPkgVersion ( "base" ) );
     unfilteredreport.add( "\nUser's platform is : " );
     unfilteredreport.add( OD::Platform::local().longName() );
+
+    unfilteredreport.add( "\nOpendTect System ID: ");
+    unfilteredreport.add( System::uniqueSystemID() );
 
     IOPar dumppar; OD::dumpMemInfo( dumppar );
     BufferString dumpmemstr;

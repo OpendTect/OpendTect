@@ -29,12 +29,19 @@ namespace System
 						   BufferString* msg=0);
 
     mGlobal(Network) void		macAddresses(BufferStringSet& names,
-						    BufferStringSet& addresses);
+						    BufferStringSet& addresses,
+						    bool onlyactive=false);
 
     mGlobal(Network) int		getFreeMBOnDisk(const char* path);
     mGlobal(Network) int		getFreeMBOnDisk(const IOObj&);
     mGlobal(Network) void		getFreeMBOnDiskMsg(int,BufferString&);
     mGlobal(Network) const char*	getFileSystemName(const char* path);
+
+    mGlobal(Network) od_uint64		uniqueSystemID();
+					/*!<Returns a string that is unique to
+					    this computer. It is based on a
+					    scrambled version of the mac-address
+					*/
 }
 
 #endif

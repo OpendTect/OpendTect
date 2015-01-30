@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstring.h"
 #include "bufstringset.h"
+#include "checksum.h"
 #include "file.h"
 #include "filepath.h"
 #include "iostrm.h"
@@ -41,6 +42,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace System
 {
+
+od_uint64 uniqueSystemID()
+{
+    BufferStringSet addresses;
+    BufferStringSet names;
+    macAddresses( names, addresses, true );
+
+    if ( addresses.isEmpty() )
+	return 0;
+
+    addresses.sort();
+
+    const BufferString address = addresses.get(0);
+    return checksum64( (const unsigned char*) address.buf(), address.size() );
+}
 
 const char* localHostName()
 {
@@ -131,7 +147,8 @@ bool lookupHost( const char* host_ip, BufferString* msg )
 }
 
 
-void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
+void macAddresses( BufferStringSet& names, BufferStringSet& addresses,
+		   bool onlyactive )
 {
 #ifndef OD_NO_QT
     QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
@@ -140,6 +157,9 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
 	QNetworkInterface& qni = allif[idx];
 	QNetworkInterface::InterfaceFlags flags = qni.flags();
 	if ( !flags.testFlag(QNetworkInterface::CanBroadcast) )
+	    continue;
+
+	if ( onlyactive && !flags.testFlag(QNetworkInterface::IsUp) )
 	    continue;
 
 	names.add( qni.name() );
