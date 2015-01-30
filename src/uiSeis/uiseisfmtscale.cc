@@ -89,7 +89,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 
     if ( Seis::is3D(gt) && !Seis::isPS(gt_) )
     {
-	optimfld_ = new uiGenInput(this, tr("Optimize horizontal slice access"),
+	optimfld_ = new uiGenInput(this, tr("Optimize for Z-slice viewing"),
 				   BoolInpSpec(true));
 	optimfld_->setValue( data_.optim_ );
 	if ( trcgrowfld_ )

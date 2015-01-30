@@ -34,8 +34,8 @@ uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
     stortypfld_->setValue( (int)DataCharacteristics::Auto );
 
     optimdirfld_ =
-		new uiCheckBox(this, 
-			       tr("Optimize for horizontal slice access"));
+		new uiCheckBox(this,
+			       tr("Optimize for Z-slice viewing"));
     optimdirfld_->attach( alignedBelow, stortypfld_ );
 
     setHAlignObj( stortypfld_ );
