@@ -64,6 +64,24 @@ bool Well::ReadAccess::addToLogSet( Well::Log* newlog ) const
 }
 
 
+bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel,
+				      const Well::Track& track,
+				      float replvel,
+				      bool ischeckshot ) const
+
+{
+    if ( !dtmodel || !dtmodel->ensureValid(track,replvel) )
+	return false;
+
+    if ( ischeckshot )
+	wd_.setCheckShotModel( dtmodel );
+    else
+	wd_.setD2TModel( dtmodel );
+
+    return true;
+}
+
+
 Well::Reader::Reader( const IOObj& ioobj, Well::Data& wd )
     : ra_(0)
 {
@@ -393,11 +411,12 @@ bool Well::odReader::getOldTimeWell( od_istream& strm ) const
 
     // create T2D
     D2TModel* d2t = new D2TModel( Well::D2TModel::sKeyTimeWell() );
-    wd_.setD2TModel( d2t );
     for ( int idx=0; idx<wd_.track().size(); idx++ )
 	d2t->add( wd_.track().dah(idx),(float) wd_.track().pos(idx).z );
 
-    return true;
+    updateDTModel( d2t, wd_.track(), wd_.info().replvel, false );
+
+    return d2t && d2t->size() > 1;
 }
 
 
@@ -756,15 +775,12 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
 	if ( !strm.isOK() ) break;
 	d2t->add( dah, val );
     }
-    if ( d2t->size() < (csmdl ? 1 : 2) )
+    if ( d2t->size() < 2 )
 	{ delete d2t; d2t = 0; }
 
-    if ( csmdl )
-	wd_.setCheckShotModel( d2t );
-    else
-	wd_.setD2TModel( d2t );
+    updateDTModel( d2t, wd_.track(), wd_.info().replvel, csmdl );
 
-    if ( !d2t )
+    if ( !d2t || d2t->size() < 2 )
 	mErrRetStrmOper( "read valid D2T model" )
 
     return true;

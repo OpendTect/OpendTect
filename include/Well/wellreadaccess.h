@@ -20,8 +20,10 @@ class BufferStringSet;
 
 namespace Well
 {
+class D2TModel;
 class Data;
 class Log;
+class Track;
 
 /*!\brief Base class for object reading data from data store into Well::Data */
 
@@ -57,6 +59,8 @@ protected:
     Data&		wd_;
 
     bool		addToLogSet(Log*) const;
+    bool		updateDTModel(D2TModel*,const Track&,float replvel,
+				      bool ischeckshot) const;
 
 };
 
