@@ -95,7 +95,7 @@ LogCubeCreator::WellData::WellData( const MultiID& wid )
     if ( !wd_ )
 	mErrRet( tr( "Cannot open well" ), true, return )
 
-    wd_->tobedeleted.notify( mCB(this,WellData,wellToBeDeleted) );
+    wd_->ref();
     Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, true);
     wtextr.setSampling( SI().zRange(true) );
     if ( !wtextr.execute() )
@@ -108,21 +108,11 @@ LogCubeCreator::WellData::WellData( const MultiID& wid )
 }
 
 
-void LogCubeCreator::WellData::wellToBeDeleted( CallBacker* )
-{
-    wd_ = Well::MGR().get( wd_->multiID() );
-    if ( wd_ )
-	wd_->tobedeleted.notify( mCB(this,WellData,wellToBeDeleted) );
-}
-
-
 LogCubeCreator::WellData::~WellData()
 {
     if ( wd_ )
-    {
-	wd_->tobedeleted.remove( mCB(this,WellData,wellToBeDeleted) );
-	delete Well::MGR().release( wd_->multiID() );
-    }
+	wd_->unRef();
+
     deepErase( trcs_ );
 }
 
@@ -354,15 +344,15 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 	mErrRet( msg, errmsg_.isEmpty(), return false )
     }
 
-    const Well::Data& wd = *welldata_[iwll]->wd_;
-    const BufferString wllnm = wd.name();
+    ConstRefMan<Well::Data> wd = welldata_[iwll]->wd_;
+    const BufferString wllnm = wd->name();
     if ( logcubes_.isEmpty() )
     {
 	msg = tr( "Internal: No log cube data for well %1" ).arg( wllnm );
 	mErrRet( msg, errmsg_.isEmpty(), return false )
     }
 
-    if ( SI().zIsTime() && !wd.haveD2TModel() )
+    if ( SI().zIsTime() && !wd->haveD2TModel() )
     {
 	msg = tr("No depth/time model found for well %1").arg( wllnm );
 	mErrRet( msg, errmsg_.isEmpty(), return false )
@@ -370,7 +360,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 
     BufferStringSet lognms;
     getLogNames( lognms );
-    Well::LogSampler logsamp( wd, extractparams_, lognms );
+    Well::LogSampler logsamp( *wd, extractparams_, lognms );
     if ( !logsamp.execute() )
     {
 	msg = tr( "%1 for well $2" ).arg( logsamp.errMsg() ).arg( wllnm );
@@ -398,7 +388,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 
 	logtrcs[ilog]->info().sampling = sampling;
 	welldata_[iwll]->trcs_ += new SeisTrcBuf( true );
-	logispresent += wd.logs().getLog( lognms.get(ilog) );
+	logispresent += wd->logs().getLog( lognms.get(ilog) );
     }
 
     StepInterval<float> logzrg( logsamp.zRange().start, logsamp.zRange().stop,

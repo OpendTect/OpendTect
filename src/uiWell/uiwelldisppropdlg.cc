@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 #define mDispNot (is2ddisplay_? wd_->disp2dparschanged : wd_->disp3dparschanged)
-#define mDelNot wd_->tobedeleted
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	: uiDialog(p,uiDialog::Setup(tr("Well display properties"),mNoDlgTitle,
@@ -98,12 +97,14 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
 
     tabSel( 0 );
+    wd_->ref();
 }
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
     detachAllNotifiers();
+    wd_->unRef();
 }
 
 
@@ -127,15 +128,9 @@ void uiWellDispPropDlg::setWDNotifiers( bool yn )
     if ( !wd_ ) return;
 
     if ( yn )
-    {
 	mAttachCB( mDispNot, uiWellDispPropDlg::wdChg );
-	mAttachCB( mDelNot, uiWellDispPropDlg::welldataDelNotify );
-    }
     else
-    {
 	mDetachCB( mDispNot, uiWellDispPropDlg::wdChg );
-	mDetachCB( mDelNot, uiWellDispPropDlg::welldataDelNotify );
-    }
 }
 
 
@@ -194,6 +189,7 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 }
 
 
+//uiMultiWellDispPropDlg
 uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 					        ObjectSet<Well::Data>& wds,
 						bool is2ddisplay )
@@ -214,6 +210,14 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	wellselfld_->attach( hCentered );
 	ts_->attach( ensureBelow, wellselfld_ );
     }
+
+    deepRef( wds_ );
+}
+
+
+uiMultiWellDispPropDlg::~uiMultiWellDispPropDlg()
+{
+    deepUnRef( wds_ );
 }
 
 
@@ -264,16 +268,11 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
     {
 	wd_ = wds_[idx];
 	if ( yn )
-	{
 	    mAttachCB( mDispNot, uiMultiWellDispPropDlg::wdChg );
-	    mAttachCB( mDelNot, uiMultiWellDispPropDlg::welldataDelNotify);
-	}
 	else
-	{
 	    mDetachCB( mDispNot, uiMultiWellDispPropDlg::wdChg );
-	    mDetachCB( mDelNot, uiMultiWellDispPropDlg::welldataDelNotify);
-	}
     }
+
     wd_ = curwd;
 }
 

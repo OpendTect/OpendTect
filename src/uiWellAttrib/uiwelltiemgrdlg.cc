@@ -187,7 +187,8 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
 	delete extractwvltdlg_;
 
     if ( wd_ )
-	wd_->tobedeleted.remove( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
+	wd_->unRef();
+
     delete &wtsetup_;
     delete &elpropsel_;
 }
@@ -222,11 +223,12 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
     const char* wllfilenm = Well::odIO::getMainFileName( *wellobj );
     const MultiID& wellid = wellobj->key();
     if ( wd_ )
-	wd_->tobedeleted.remove( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
-    wd_ = Well::MGR().get( wellid, false );
+	wd_->unRef();
+
+    wd_ = Well::MGR().get( wellid, true );
     if ( !wd_ ) mErrRet( "Canot read well data.")
 
-    wd_->tobedeleted.notify( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
+    wd_->ref();
     logsfld_->wellid_ = wellid;
     BufferStringSet notokpropnms;
     if ( !logsfld_->setAvailableLogs(wd_->logs(),notokpropnms) )
@@ -464,12 +466,13 @@ bool uiTieWinMGRDlg::initSetup()
 
     const MultiID& wellid = wellfld_->ctxtIOObj().ioobj->key();
     if ( wd_ )
-	wd_->tobedeleted.remove( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
+	wd_->unRef();
+
     wd_ = Well::MGR().get( wellid, false );
     if ( !wd_ )
 	mErrRet("Cannot read the well data")
 
-    wd_->tobedeleted.notify( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
+    wd_->ref();
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
 	uiTieWin* win = welltiedlgset_[idx];
@@ -615,13 +618,5 @@ bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
     return !is2D && !islineset;
 }
 
-
-void uiTieWinMGRDlg::wellToBeDeleted( CallBacker* )
-{
-    const MultiID& tobedelwdid = wd_->multiID();
-    wd_ = Well::MGR().get( tobedelwdid, false );
-    if ( wd_ )
-	wd_->tobedeleted.notify( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
-}
 
 }; //namespace

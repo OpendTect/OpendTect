@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define		mPickSz	3
 #define         mPickType	3
 
-#define mGetWD(act) Well::Data* wd = getWD(); if ( !wd ) { act; }
+#define mGetWD(act) RefMan<Well::Data> wd = getWD(); if ( !wd ) { act; }
 #define mMeter2Feet(val) val *= mToFeetFactorF;
 #define mFeet2Meter(val) val *= mFromFeetFactorF;
 #define mGetDispPar(param) wd->displayProperties().param
@@ -134,10 +134,9 @@ WellDisplay::~WellDisplay()
     if ( transformation_ ) transformation_->unRef();
 
     if ( wd_ )
-	wd_->tobedeleted.remove( mCB(this,WellDisplay,welldataDelNotify) );
+	wd_->unRef();
 
     delete dispprop_;
-    delete Well::MGR().release( wellid_ );
     unRefAndZeroPtr( markerset_ );
     setBaseMap( 0 );
     if ( pseudotrack_ )
@@ -163,19 +162,20 @@ Well::Data* WellDisplay::getWD() const
     if ( !wd_ )
     {
 	WellDisplay* self = const_cast<WellDisplay*>( this );
-	Well::Data* wd = Well::MGR().get( wellid_, false );
+	RefMan<Well::Data> wd = Well::MGR().get( wellid_, false );
 	self->wd_ = wd;
 	if ( wd )
 	{
-	    wd->tobedeleted.notify(
-		    mCB(self,WellDisplay,welldataDelNotify) );
 	    wd->trackchanged.notify( mCB(self,WellDisplay,fullRedraw) );
 	    wd->markerschanged.notify( mCB(self,WellDisplay,updateMarkers) );
 	    wd->disp3dparschanged.notify( mCB(self,WellDisplay,fullRedraw) );
 	    if ( zistime_ )
 		wd->d2tchanged.notify( mCB(self,WellDisplay,fullRedraw) );
+
+	    wd_->ref();
 	}
     }
+
     return wd_;
 }
 
@@ -296,10 +296,6 @@ void WellDisplay::fullRedraw( CallBacker* )
 #define mErrRet(s) { errmsg_ = s; return false; }
 bool WellDisplay::setMultiID( const MultiID& multiid )
 {
-    Well::Data* oldwd = getWD();
-    if ( oldwd )
-	delete Well::MGR().release( wellid_ );
-
     wellid_ = multiid; wd_ = 0;
     mGetWD(return false);
 

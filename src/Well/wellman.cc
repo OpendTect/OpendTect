@@ -30,15 +30,15 @@ Well::Man& Well::MGR()
 
 Well::Man::~Man()
 {
-    removeAll();
+    deepUnRef( wells_ );
 }
 
 
-void Well::Man::removeAll()
+void Well::Man::removeObject( const Well::Data* wd )
 {
-    ObjectSet<Well::Data> wellcopy = wells_;
-    wells_.erase();
-    deepErase( wellcopy );
+    const int idx = wells_.indexOf( wd );
+    if ( idx < 0 ) return;
+    wells_.removeSingle( idx );
 }
 
 
@@ -72,25 +72,29 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
     {
-	delete wd;
 	msg_.set( "Cannot find well ID " ).add( key ).add( "in data store." );
 	return 0;
     }
+
     wd = new Well::Data;
+    wd->ref();
     Well::Reader wr( *ioobj, *wd );
     if ( !wr.get() )
     {
-	delete wd;
 	msg_.set( "Cannot read '" ).add( ioobj->name() )
 	    .add( "':\n" ).add( wr.errMsg() );
 	return 0;
     }
 
     if ( mustreplace )
-	delete wells_.replace( wllidx, wd );
+    {
+	wells_.replace( wllidx, wd )->unRef();
+	wd->ref();
+    }
     else
 	add( key, wd );
 
+    wd->unRefNoDelete();
     return wd;
 }
 
@@ -132,14 +136,14 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
 	const IODirEntryList del( iodir, ctio->ctxt );
-	Well::Data data;
+	RefMan<Well::Data> data = new Well::Data;
 	for ( int idx=0; idx<del.size(); idx++ )
 	{
 	    const IOObj* ioobj = del[idx]->ioobj_;
 	    if ( !ioobj ) continue;
 
-	    Well::Reader wr( *ioobj, data );
-	    if ( wr.getInfo() && data.info().uwid == uwi )
+	    Well::Reader wr( *ioobj, *data );
+	    if ( wr.getInfo() && data->info().uwid == uwi )
 		return ioobj->clone();
 	}
     }

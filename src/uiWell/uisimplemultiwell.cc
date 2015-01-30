@@ -237,22 +237,22 @@ bool uiSimpleMultiWellCreate::wantDisplay() const
 bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 					  const IOObj& ioobj )
 {
-    Well::Data wd( wcd.nm_ );
-    wd.info().surfacecoord = wcd.coord_;
-    wd.info().uwid = wcd.uwi_;
-    wd.info().groundelev = wcd.gl_;
+    RefMan<Well::Data> wd = new Well::Data( wcd.nm_ );
+    wd->info().surfacecoord = wcd.coord_;
+    wd->info().uwid = wcd.uwi_;
+    wd->info().groundelev = wcd.gl_;
 
     Interval<float> drg( -wcd.elev_, wcd.td_-wcd.elev_ );
-    wd.track().addPoint( wcd.coord_, drg.start, 0 );
-    wd.track().addPoint( wcd.coord_, drg.stop, wcd.td_ );
+    wd->track().addPoint( wcd.coord_, drg.start, 0 );
+    wd->track().addPoint( wcd.coord_, drg.stop, wcd.td_ );
     if ( velfld_ )
     {
 	Well::D2TModel* d2t = new Well::D2TModel("Simple");
-	d2t->makeFromTrack(  wd.track(), vel_, wd.info().replvel );
-	wd.setD2TModel( d2t );
+	d2t->makeFromTrack(  wd->track(), vel_, wd->info().replvel );
+	wd->setD2TModel( d2t );
     }
 
-    Well::Writer wr( ioobj, wd );
+    Well::Writer wr( ioobj, *wd );
     if ( !wr.put() )
     {
 	uiString msg = tr( "Cannot write data for '%1':\n%2" )

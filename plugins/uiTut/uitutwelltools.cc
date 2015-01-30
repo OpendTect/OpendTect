@@ -36,7 +36,8 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
 {
     if ( !wd_ )
 	return;
-    wd_->tobedeleted.notify( mCB(this,uiTutWellTools,wellToBeDeleted) );
+
+    wd_->ref();
     const Well::LogSet& logs = wd_->logs();
     inplogfld_ = new uiLabeledListBox( this, tr("Select Input Log") );
     inplogfld_->box()->setHSzPol( uiObject::Wide );
@@ -58,16 +59,8 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
 
 uiTutWellTools::~uiTutWellTools()
 {
-    if ( !wd_ ) return;
-    wd_->tobedeleted.remove( mCB(this,uiTutWellTools,wellToBeDeleted) );
-    delete Well::MGR().release( wd_->multiID() );
-}
-
-
-void uiTutWellTools::wellToBeDeleted( CallBacker* cb )
-{
-    wd_ = Well::MGR().get( wd_->multiID() );
-    wd_->tobedeleted.notify( mCB(this,uiTutWellTools,wellToBeDeleted) );
+    if ( wd_ )
+	wd_->unRef();
 }
 
 

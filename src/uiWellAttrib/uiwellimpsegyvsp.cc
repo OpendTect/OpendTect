@@ -210,7 +210,8 @@ void uiWellImportSEGYVSP::wllSel( CallBacker* )
     const IOObj* ioobj = wellfld_->ioobj(true);
     if ( ioobj )
     {
-	Well::Data wd; Well::Reader wr( *ioobj, wd );
+	RefMan<Well::Data> wd = new Well::Data;
+	Well::Reader wr( *ioobj, *wd );
 	wr.getLogInfo( existinglognms_ );
     }
 
@@ -335,7 +336,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     const MultiID key( ioobj->key() );
     const bool wasloaded = Well::MGR().isLoaded( key );
 
-    Well::Data* wd = Well::MGR().get( ioobj->key() );
+    RefMan<Well::Data> wd = Well::MGR().get( ioobj->key() );
     if ( !wd )
 	mErrRet(tr("Cannot load the selected well"))
     if ( !isdpth_ && !wd->d2TModel() )
@@ -385,8 +386,6 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 
     if ( wasloaded )
 	Well::MGR().reload( key );
-    else
-	delete Well::MGR().release( key );
 
     return true;
 }

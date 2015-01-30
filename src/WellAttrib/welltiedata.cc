@@ -253,10 +253,8 @@ WellDataMgr::WellDataMgr( const MultiID& wellid )
 
 WellDataMgr::~WellDataMgr()
 {
-    if ( wd_ )
-	wd_->tobedeleted.remove( mCB(this,WellDataMgr,wellDataDelNotify));
-    wd_ = 0;
-    delete Well::MGR().release( wellid_ );
+    if( wd_ )
+	wd_->unRef();
 }
 
 
@@ -270,8 +268,7 @@ Well::Data* WellDataMgr::wellData() const
     {
 	WellDataMgr* self = const_cast<WellDataMgr*>( this );
 	self->wd_ = Well::MGR().get( wellid_, false );
-	if ( wd_ )
-	    wd_->tobedeleted.notify( mCB(self,WellDataMgr,wellDataDelNotify) );
+	wd_->ref();
     }
     return wd_;
 }

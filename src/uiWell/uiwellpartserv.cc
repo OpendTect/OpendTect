@@ -76,7 +76,6 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
 uiWellPartServer::~uiWellPartServer()
 {
     delete rdmlinedlg_;
-    Well::MGR().removeAll();
     delete manwelldlg_;
 }
 
@@ -169,7 +168,7 @@ bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
 {
     allapplied_ = false;
-    Well::Data* wd = Well::MGR().get( mid );
+    RefMan<Well::Data> wd = Well::MGR().get( mid );
     if ( !wd ) return false;
 
     if ( isdisppropopened_ == false )
@@ -190,7 +189,7 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
     isdisppropopened_ = false;
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
-    const Well::Data* edwd = dlg->wellData();
+    ConstRefMan<Well::Data> edwd = dlg->wellData();
     if ( !edwd ) { pErrMsg("well data has been deleted"); return; }
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
@@ -232,7 +231,7 @@ void uiWellPartServer::applyAll( CallBacker* cb )
 {
     mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
-    const Well::Data* edwd = dlg->wellData();
+    ConstRefMan<Well::Data> edwd = dlg->wellData();
     const Well::DisplayProperties& edprops = edwd->displayProperties();
 
     ObjectSet<Well::Data>& wds = Well::MGR().wells();
@@ -251,7 +250,7 @@ void uiWellPartServer::applyAll( CallBacker* cb )
 
 void uiWellPartServer::displayIn2DViewer( const MultiID& mid )
 {
-    Well::Data* wd = Well::MGR().get( mid );
+    RefMan<Well::Data> wd = Well::MGR().get( mid );
     if ( !wd ) return;
 
     uiWellDisplayWin* welldispwin = new uiWellDisplayWin( parent(), *wd );
@@ -261,7 +260,7 @@ void uiWellPartServer::displayIn2DViewer( const MultiID& mid )
 
 bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 {
-    const Well::Data* wd = Well::MGR().get( wellid );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
     return wd && wd->logs().size();
 }
 
@@ -269,7 +268,7 @@ bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 void uiWellPartServer::getLogNames( const MultiID& wellid,
 					BufferStringSet& lognms ) const
 {
-    const Well::Data* wd = Well::MGR().get( wellid );
+    ConstRefMan<Well::Data> wd = Well::MGR().get( wellid );
     if ( !wd ||  wd->logs().isEmpty() ) return;
     for ( int idx=0; idx<wd->logs().size(); idx++ )
 	lognms.add( wd->logs().getLog(idx).name() );
@@ -427,7 +426,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     if ( !ctio->fillObj() )
 	mErrRet(tr("Cannot create an entry in the data store"))
 
-    PtrMan<Well::Data> well = new Well::Data( wellname );
+    RefMan<Well::Data> well = new Well::Data( wellname );
     Well::D2TModel* d2t = SI().zIsTime() ? new Well::D2TModel : 0;
     const float vel = mCast( float, d2t ? 3000 : 1 );
     const Coord3& c0( coords[0] );
@@ -459,7 +458,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 
 bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
 {
-    const Well::Data* wd = Well::MGR().get( mid );
+    const RefMan<Well::Data> wd = Well::MGR().get( mid );
     if ( !wd || wd->logs().isEmpty()  )
 	return false;
 

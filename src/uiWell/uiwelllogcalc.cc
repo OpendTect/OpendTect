@@ -181,7 +181,8 @@ void uiWellLogCalc::getAllLogs()
 	IOObj* ioobj = IOM().get( wellids_[idx] );
 	if ( !ioobj ) continue;
 
-	Well::Data wd; Well::Reader wr( *ioobj, wd );
+	RefMan<Well::Data> wd = new Well::Data;
+	Well::Reader wr( *ioobj, *wd );
 	BufferStringSet nms; wr.getLogInfo( nms );
 	bool havenewlog = false;
 	for ( int inm=0; inm<nms.size(); inm++ )
@@ -196,9 +197,9 @@ void uiWellLogCalc::getAllLogs()
 	if ( havenewlog )
 	{
 	    wr.getLogs();
-	    for ( int ilog=0; ilog<wd.logs().size(); ilog++ )
+	    for ( int ilog=0; ilog<wd->logs().size(); ilog++ )
 	    {
-		const Well::Log& wl = wd.logs().getLog( ilog );
+		const Well::Log& wl = wd->logs().getLog( ilog );
 		if ( !superwls_.getLog(wl.name()) )
 		    superwls_.add( new Well::Log(wl) );
 	    }
@@ -416,12 +417,12 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	if ( !ioobj )
 	    mErrContinue( tr("Cannot find %1").arg(wellids_[iwell]) )
 
-	Well::Data wd;
-	Well::Reader rdr( *ioobj, wd );
+	RefMan<Well::Data> wd = new Well::Data;
+	Well::Reader rdr( *ioobj, *wd );
 	if ( !rdr.getLogs() )
 	    mErrContinue( tr("Cannot read logs for %1").arg(ioobj->name()) )
 
-	Well::LogSet& wls = wd.logs();
+	Well::LogSet& wls = wd->logs();
 	TypeSet<InpData> inpdatas;
 	if ( !getInpDatas(wls,inpdatas) )
 	    continue;
@@ -432,7 +433,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
 	Well::Log* newwl = new Well::Log( newnm );
 	wls.add( newwl );
-	if ( !calcLog(*newwl,inpdatas,wd.track(),wd.d2TModel()) )
+	if ( !calcLog(*newwl,inpdatas,wd->track(),wd->d2TModel()) )
 	    mErrContinue( tr("Cannot compute log for %1").arg(ioobj->name()))
 
 	const UnitOfMeasure* outun = outunfld_->getUnit();
@@ -452,7 +453,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	if ( outun )
 	    newwl->setUnitMeasLabel( outun->name() );
 
-	Well::Writer wtr( *ioobj, wd );
+	Well::Writer wtr( *ioobj, *wd );
 	if ( !wtr.putLog(*newwl) )
 	    mErrContinue( tr("Cannot write new log for %1")
 			.arg(ioobj->name()) )

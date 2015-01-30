@@ -72,6 +72,7 @@ public:
 				uiMultiWellDispPropDlg(uiParent*,
 						ObjectSet<Well::Data>&,
 						bool is2ddisplay);
+				~uiMultiWellDispPropDlg();
 
 protected:
 

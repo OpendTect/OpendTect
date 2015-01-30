@@ -79,7 +79,6 @@ protected:
 	TypeSet<BinID>		binidsalongtrack_;
 	ObjectSet<SeisTrcBuf>	trcs_;
 	uiString		errmsg_;
-	void			wellToBeDeleted(CallBacker*);
     };
 
     ObjectSet<LogCube>		logcubes_;

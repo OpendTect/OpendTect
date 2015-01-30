@@ -40,10 +40,12 @@ class WellLogInfo
 public:
 WellLogInfo( const MultiID& mid, const char* lognm )
     : mid_(mid), logname_(lognm), wd_(*new Well::Data)
-{}
+{
+    wd_.ref();
+}
 
 ~WellLogInfo()
-{ delete &wd_; }
+{ wd_.unRef(); }
 
 bool init()
 {

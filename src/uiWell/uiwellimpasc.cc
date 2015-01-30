@@ -88,6 +88,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
 
+    wd_.ref();
     float dispval = wd_.info().replvel;
     if ( !mIsUdf(dispval) )
 	wd_.info().replvel = dispval;
@@ -120,7 +121,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 uiWellImportAsc::~uiWellImportAsc()
 {
     delete &fd_;
-    delete &wd_;
+    wd_.unRef();
 }
 
 

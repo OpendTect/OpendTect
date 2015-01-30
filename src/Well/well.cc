@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "iopar.h"
 #include "stratlevel.h"
+#include "wellman.h"
 
 const char* Well::Info::sKeyuwid()	{ return "Unique Well ID"; }
 const char* Well::Info::sKeyoper()	{ return "Operator"; }
@@ -144,7 +145,6 @@ Well::Data::Data( const char* nm )
     , trackchanged(this)
     , disp2dparschanged(this)
     , disp3dparschanged(this)
-    , tobedeleted(this)
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
@@ -153,8 +153,6 @@ Well::Data::Data( const char* nm )
 
 Well::Data::~Data()
 {
-    tobedeleted.trigger();
-
     delete &track_;
     delete &logs_;
     delete &disp2d_;
@@ -165,6 +163,12 @@ Well::Data::~Data()
 
     Strat::eLVLS().levelToBeRemoved.remove(
 				mCB(this, Well::Data, levelToBeRemoved ) );
+}
+
+
+void Well::Data::prepareForDelete() const
+{
+	Well::MGR().removeObject( this );
 }
 
 

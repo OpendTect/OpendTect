@@ -73,7 +73,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
 uiBulkTrackImport::~uiBulkTrackImport()
 {
     delete fd_;
-    deepErase( wells_ );
+    deepUnRef( wells_ );
 }
 
 
@@ -116,6 +116,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	{
 	    wd = new Well::Data( wellnm );
 	    wd->info().uwid = uwi;
+	    wd->ref();
 	    wells_ += wd;
 	}
 
@@ -140,7 +141,7 @@ void uiBulkTrackImport::addD2T( uiString& errmsg )
     const float twtvel = vel * .5f;
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
-	Well::Data* wd = wells_[idx];
+	RefMan<Well::Data> wd = wells_[idx];
 	const Well::Track& track = wd->track();
 
 	const float srd = mCast(float,SI().seismicReferenceDatum());
@@ -163,7 +164,7 @@ void uiBulkTrackImport::write( uiStringSet& errors )
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
     for ( int idx=0; idx<wells_.size(); idx++ )
     {
-	Well::Data* wd = wells_[idx];
+	RefMan<Well::Data> wd = wells_[idx];
 	PtrMan<IOObj> ioobj = IOM().getLocal( wd->name(),
 					      ctio->ctxt.trgroup->userName() );
 	if ( !ioobj )
@@ -277,8 +278,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	const bool isloaded = Well::MGR().isLoaded( ioobj->key() );
-	Well::Data* wd = Well::MGR().get( ioobj->key() );
+	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key() );
 	if ( !wd )
 	{
 	    errors.add(tr("%1: Cannot find well information in database")
@@ -293,8 +293,6 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 
 	Well::Writer wtr( *ioobj, *wd );
 	wtr.putLogs();
-	if ( !isloaded )
-	    delete Well::MGR().release( ioobj->key() );
     }
 
     if ( errors.isEmpty() )
@@ -363,8 +361,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	const bool isloaded = MGR().isLoaded( ioobj->key() );
-	Data* wd = MGR().get( ioobj->key() );
+	RefMan<Well::Data> wd = MGR().get( ioobj->key() );
 	if ( !wd )
 	{
 	    errors.add(tr("%1: Cannot load well").arg(wellnm));
@@ -391,8 +388,6 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 	}
 
 	wd->markerschanged.trigger();
-	if ( !isloaded )
-	    delete MGR().release( ioobj->key() );
     }
 
     if ( errors.isEmpty() )
@@ -493,8 +488,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	    continue;
 	}
 
-	const bool isloaded = MGR().isLoaded( ioobj->key() );
-	Data* wd = MGR().get( ioobj->key() );
+	RefMan<Well::Data> wd = MGR().get( ioobj->key() );
 	if ( !wd )
 	{
 	    errors.add(tr("%1: Cannot load well").arg(wellnm));
@@ -512,8 +506,6 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	}
 
 	wd->d2tchanged.trigger();
-	if ( !isloaded )
-	    delete MGR().release( ioobj->key() );
     }
 
     if ( errors.isEmpty() )

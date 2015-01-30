@@ -108,10 +108,9 @@ void uiWellDisplay::setControl( uiWellDisplayControl& ctrl )
 
 void uiWellDisplay::setDahData()
 {
-    uiWellDahDisplay::Data data;
+    uiWellDahDisplay::Data data( &wd_ );
     data.zrg_ = zrg_;
     data.dispzinft_ = dispzinft_;
-    data.wd_ = &wd_;
 
     for ( int idx=0; idx<logdisps_.size(); idx++ )
 	logdisps_[idx]->setData( data );
@@ -169,7 +168,7 @@ uiWellDisplayWin::uiWellDisplayWin(uiParent* p, Well::Data& wd )
     welldisp_->setPrefHeight( 600 );
     welldisp_->control()->posChanged.notify(
 				    mCB(this,uiWellDisplayWin,dispInfoMsg) );
-    wd_.tobedeleted.notify( mCB(this,uiWellDisplayWin,closeWin) );
+    wd_.ref();
 }
 
 
@@ -177,6 +176,7 @@ void uiWellDisplayWin::closeWin( CallBacker* )
 {
     delete welldisp_;
     welldisp_ = 0;
+    wd_.unRef();
     close(); 
 }
 

@@ -13,11 +13,13 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "sets.h"
-#include "multiid.h"
-#include "position.h"
-#include "namedobj.h"
+
 #include "callback.h"
+#include "multiid.h"
+#include "namedobj.h"
+#include "position.h"
+#include "refcount.h"
+#include "sets.h"
 #include "welld2tmodel.h"
 
 
@@ -84,11 +86,11 @@ public:
 */
 
 mExpClass(Well) Data : public CallBacker
-{
+{ mRefCountImplWithDestructor(Data, virtual ~Data(),
+{prepareForDelete(); delete this; } );
 public:
 
 				Data(const char* nm=0);
-				~Data();
 
     const MultiID&		multiID() const		{ return mid_; }
     void			setMultiID( const MultiID& mid ) const
@@ -129,9 +131,9 @@ public:
     Notifier<Well::Data>	trackchanged;
     Notifier<Well::Data>	disp3dparschanged;
     Notifier<Well::Data>	disp2dparschanged;
-    Notifier<Well::Data>	tobedeleted;
 
 protected:
+    void		prepareForDelete() const;
 
     Info		info_;
     mutable MultiID	mid_;

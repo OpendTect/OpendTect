@@ -92,7 +92,6 @@ protected:
     float		curz_;
     int			curwellidx_;
     bool		toNextWell();
-    void		wellToBeDeleted(CallBacker*);
 
 public:
 

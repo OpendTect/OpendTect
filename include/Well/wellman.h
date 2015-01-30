@@ -34,8 +34,7 @@ mExpClass(Well) Man
 public:
     			~Man();
 
-    void		removeAll();
-
+    void		removeObject( const Well::Data* );
     Data*		get(const MultiID&,bool force_reload=false);
     void		add(const MultiID&,Data*);
     			//!< Data becomes mine

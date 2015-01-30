@@ -119,19 +119,28 @@ public:
 
     mStruct(uiWell) Data
     {
-				    Data()
+				    Data( const Well::Data* wd )
 				    : zrg_(mUdf(float),mUdf(float))
 				    , zistime_(SI().zIsTime())
 				    , dispzinft_(SI().depthsInFeet())
-				    , wd_(0)
-				    {}
+				    , wd_(wd)
+				    { if ( wd_ ) wd_->ref(); }
+				    ~Data()
+				    { if ( wd_ ) wd_->unRef(); }
 
 	void copyFrom(const uiWellDahDisplay::Data& d)
 	{
+	    if ( &d == this )
+		return;
+
 	    zrg_     	= d.zrg_;
 	    zistime_ 	= d.zistime_;
 	    dispzinft_ 	= d.dispzinft_;
+	    if ( wd_ )
+		wd_->unRef();
 	    wd_ 	= d.wd_;
+	    if ( wd_ )
+		wd_->ref();
 	}
 	const Well::D2TModel*	d2T() const { return wd_ ? wd_->d2TModel() : 0;}
 	const Well::Track*	track() const {return wd_ ? &wd_->track() : 0; }
@@ -213,7 +222,6 @@ protected:
     void			dataChanged();
     void			init(CallBacker*);
     void			reSized(CallBacker*);
-    void			wellDataToBeDeleted(CallBacker*);
 
     friend class                uiWellDisplay;
     friend class                uiWellDisplayControl;

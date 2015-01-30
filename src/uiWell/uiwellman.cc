@@ -132,7 +132,7 @@ uiWellMan::uiWellMan( uiParent* p )
 uiWellMan::~uiWellMan()
 {
     deepErase( currdrs_ );
-    deepErase( curwds_ );
+    deepUnRef( curwds_ );
 }
 
 
@@ -160,7 +160,7 @@ void uiWellMan::getCurrentWells()
 {
     curfnms_.erase();
     deepErase( currdrs_ );
-    deepErase( curwds_ );
+    deepUnRef( curwds_ );
     curmultiids_.erase();
 
     if ( !curioobj_ )
@@ -174,10 +174,13 @@ void uiWellMan::getCurrentWells()
 
 	curmultiids_ += obj->key();
 	curfnms_.add( BufferString( obj->fullUserExpr( true ) ) );
-	curwds_ += new Well::Data;
+	Well::Data* wd = new Well::Data;
+	curwds_ += wd;
 	currdrs_ += new Well::Reader( *obj, *curwds_[idx] );
 	getBasicInfo( currdrs_[idx] );
     }
+
+    deepRef( curwds_ );
 }
 
 
@@ -329,7 +332,7 @@ void uiWellMan::edMarkers( CallBacker* )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() )
 	return;
 
-    Well::Data* wd;
+    RefMan<Well::Data> wd = new Well::Data;
     MultiID curmid( curioobj_->key() );
     if ( Well::MGR().isLoaded(curmid) )
 	wd = Well::MGR().get( curmid );
@@ -365,7 +368,7 @@ void uiWellMan::edWellTrack( CallBacker* )
 {
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
-    Well::Data* wd;
+    RefMan<Well::Data> wd = new Well::Data;
     MultiID curmid( curioobj_->key() );
     if ( Well::MGR().isLoaded(curmid) )
 	wd = Well::MGR().get( curmid );
@@ -413,7 +416,7 @@ void uiWellMan::defD2T( bool chkshot )
 {
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
-    Well::Data* wd;
+    RefMan<Well::Data> wd = new Well::Data;
     MultiID curmid( curioobj_->key() );
     if ( Well::MGR().isLoaded(curmid) )
 	wd = Well::MGR().get( curmid );
@@ -754,15 +757,15 @@ void uiWellMan::mkFileInfo()
     if ( !curioobj_ )
 	{ setInfo( "" ); return; }
 
-    Well::Data curwd( curioobj_->name() ) ;
-    const Well::Reader currdr( *curioobj_, curwd );
+    RefMan<Well::Data> curwd = new Well::Data( curioobj_->name() );
+    const Well::Reader currdr( *curioobj_, *curwd );
     BufferString txt;
 
     if ( currdr.getInfo() )
     {
 
-    const Well::Info& info = curwd.info();
-    const Well::Track& track = curwd.track();
+    const Well::Info& info = curwd->info();
+    const Well::Track& track = curwd->track();
 
     const BufferString posstr( info.surfacecoord.toString(), " ",
 		SI().transform(info.surfacecoord).toString() );

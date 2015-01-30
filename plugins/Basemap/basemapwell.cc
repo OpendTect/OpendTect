@@ -30,13 +30,14 @@ WellObject::WellObject( const MultiID& mid )
     , rdr_(0)
 {
     setKey( mid );
+    data_.ref();
 }
 
 
 WellObject::~WellObject()
 {
     delete rdr_;
-    delete &data_;
+    data_.unRef();
 }
 
 

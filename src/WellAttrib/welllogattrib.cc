@@ -84,8 +84,8 @@ void WellLog::prepareForComputeData()
     if ( !ioobj )
 	return;
 
-    Well::Data wd;
-    Well::Reader rdr( *ioobj, wd );
+    RefMan<Well::Data> wd = new Well::Data;
+    Well::Reader rdr( *ioobj, *wd );
     if ( !rdr.isUsable() )
 	return;
 
@@ -100,7 +100,7 @@ void WellLog::prepareForComputeData()
     pars.samppol_ = (Stats::UpscaleType)upscaletype_;
 
     BufferStringSet lognms; lognms.add( logname_ );
-    Well::LogSampler logsamp( wd, pars, lognms );
+    Well::LogSampler logsamp( *wd, pars, lognms );
     if ( !logsamp.executeParallel(false) )
 	return;
 

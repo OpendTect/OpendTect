@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "ioobj.h"
+#include "ptrman.h"
 #include "welldata.h"
 #include "welllogset.h"
 #include "wellman.h"
@@ -25,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uiwellsel.h"
 #include "od_helpids.h"
+
 
 using namespace Attrib;
 
@@ -60,13 +62,10 @@ void uiWellLogAttrib::selDone( CallBacker* )
     if ( !ioobj ) return;
 
     const MultiID wellid = ioobj->key();
-    const bool isloaded = Well::MGR().isLoaded( wellid );
-    Well::Data* wd = Well::MGR().get( wellid );
+    RefMan<Well::Data> wd = Well::MGR().get( wellid );
     const Well::LogSet& logs = wd->logs();
     BufferStringSet lognms; logs.getNames( lognms );
     logsfld_->addItems( lognms );
-    if ( !isloaded )
-	delete Well::MGR().release( wellid );
 }
 
 

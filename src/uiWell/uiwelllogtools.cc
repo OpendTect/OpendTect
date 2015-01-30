@@ -69,16 +69,17 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
 	const MultiID& wid = wellids[idx]->buf();
-	Well::Data wd; Well::Reader wr( wid, wd );
+	RefMan<Well::Data> wd = new Well::Data;
+	Well::Reader wr( wid, *wd );
 	if ( !wr.get() )
 	    continue;
 
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
-	Well::LogSet* wls = new Well::LogSet( wd.logs() );
+	Well::LogSet* wls = new Well::LogSet( wd->logs() );
 	uiWellLogToolWin::LogData* ldata =
-	    new uiWellLogToolWin::LogData( *wls, wd.d2TModel(), &wd.track());
+	    new uiWellLogToolWin::LogData( *wls, wd->d2TModel(), &wd->track());
 	const Well::ExtractParams& params = welllogselfld_->params();
-	ldata->dahrg_ = params.calcFrom( wd, lognms, true );
+	ldata->dahrg_ = params.calcFrom( *wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
 	if ( !ldata->setSelectedLogs( lognms ) )
 	    { delete ldata; continue; }
@@ -109,8 +110,9 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 	ObjectSet<uiWellLogToolWin::LogData> lds; win->getLogDatas( lds );
 	for ( int idx=0; idx<lds.size(); idx++ )
 	{
-	    Well::Data wd; lds[idx]->getOutputLogs( wd.logs() );
-	    Well::Writer wrr( lds[idx]->wellid_, wd );
+	    RefMan<Well::Data> wd = new Well::Data;
+	    lds[idx]->getOutputLogs( wd->logs() );
+	    Well::Writer wrr( lds[idx]->wellid_, *wd );
 	    wrr.putLogs();
 	    Well::MGR().reload( lds[idx]->wellid_ );
 	}

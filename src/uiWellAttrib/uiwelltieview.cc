@@ -167,8 +167,7 @@ void uiTieView::setLogsParams()
     {
 	logsdisp_[idx]->logData(true).setLog( 0 );
 	logsdisp_[idx]->logData(false).setLog( 0 );
-	uiWellDahDisplay::Data data;
-	data.wd_ = wd;
+	uiWellDahDisplay::Data data( wd );
 	data.dispzinft_ = params_.iszinft_;
 	data.zistime_ = params_.iszintime_;
 	logsdisp_[idx]->setData( data );

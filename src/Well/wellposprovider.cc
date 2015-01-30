@@ -51,12 +51,7 @@ WellProvider3D::WellProvider3D( const WellProvider3D& pp )
 
 WellProvider3D::~WellProvider3D()
 {
-    for ( int idx=0; idx<wellids_.size(); idx++ )
-    {
-	welldata_[idx]->tobedeleted.remove(
-		mCB(this,WellProvider3D,wellToBeDeleted) );
-	delete Well::MGR().release( wellids_[idx] );
-    }
+    deepUnRef( welldata_ );
     delete &hs_;
 }
 
@@ -65,7 +60,9 @@ WellProvider3D& WellProvider3D::operator =( const WellProvider3D& pp )
 {
     if ( &pp != this )
     {
+	deepUnRef( welldata_ );
 	welldata_ = pp.welldata_;
+	deepRef( welldata_ );
 	hs_ = pp.hs_;
 	zrg_ = pp.zrg_;
     }
@@ -105,39 +102,19 @@ void WellProvider3D::setHS()
 
 bool WellProvider3D::initialize( TaskRunner* )
 {
-    for ( int idx=0; idx<welldata_.size(); idx++ )
-    {
-	welldata_[idx]->tobedeleted.remove(
-		mCB(this,WellProvider3D,wellToBeDeleted) );
-	delete Well::MGR().release( welldata_[idx]->multiID() );
-    }
-
-    welldata_.erase();
+    deepUnRef( welldata_ );
     for ( int idx=0; idx<wellids_.size(); idx++ )
     {
 	Well::Data* wd = Well::MGR().get( wellids_[idx] );
-	wd->tobedeleted.notify( mCB(this,WellProvider3D,wellToBeDeleted) );
 	welldata_ += wd;
     }
 
+    deepRef( welldata_ );
     if ( welldata_.isEmpty() ) return false;
 
     setHS();
     curz_ = zrg_.start-zrg_.step;
     return true;
-}
-
-
-void WellProvider3D::wellToBeDeleted( CallBacker* cb )
-{
-    mDynamicCastGet(Well::Data*,wd,cb);
-    if ( !wd ) return;
-    const int wellidx = welldata_.indexOf( wd );
-    Well::Data* newwd = Well::MGR().get( wd->multiID() );
-    if ( newwd )
-	welldata_.replace( wellidx, newwd );
-    else
-	welldata_.removeSingle( wellidx );
 }
 
 

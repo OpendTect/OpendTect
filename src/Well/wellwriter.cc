@@ -36,8 +36,8 @@ bool Well::Writer::isFunctional( const MultiID& ky )
 
 bool Well::Writer::isFunctional( const IOObj& ioobj )
 {
-    Well::Data wd;
-    Well::Writer wrr( ioobj, wd );
+    RefMan<Well::Data> wd = new Well::Data;
+    Well::Writer wrr( ioobj, *wd );
     return wrr.isFunctional();
 }
 

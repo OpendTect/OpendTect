@@ -64,7 +64,6 @@ protected:
     bool			calcDepths();
     void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;
-    void			wellToBeDeleted(CallBacker*);
 };
 
 #endif

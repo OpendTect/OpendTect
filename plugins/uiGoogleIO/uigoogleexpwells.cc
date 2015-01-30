@@ -76,8 +76,9 @@ bool uiGoogleExportWells::acceptOK( CallBacker* )
 	if ( !selfld_->isChosen(idx) )
 	    continue;
 
-	Well::Data wd; Coord coord;
-	Well::Reader wllrdr( *wellids_[idx], wd );
+	RefMan<Well::Data> wd;
+	Coord coord;
+	Well::Reader wllrdr( *wellids_[idx], *wd );
 	if ( !wllrdr.getMapLocation(coord) )
 	    continue;
 

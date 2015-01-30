@@ -433,8 +433,9 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
 	const IOObj* ioobj = IOM().getLocal( wellnms.get(idx), "Well" );
-	Well::Data data; Coord maploc;
-	Well::Reader rdr( *ioobj, data );
+	RefMan<Well::Data> data = new Well::Data;
+	Coord maploc;
+	Well::Reader rdr( *ioobj, *data );
 	if ( !rdr.getMapLocation(maploc) )
 	    mErrStrmRet(BufferString("Cannot get location for ",ioobj->name()))
 

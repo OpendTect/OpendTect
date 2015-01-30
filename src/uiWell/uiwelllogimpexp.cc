@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellwriter.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "ptrman.h"
 
 
 static const float defundefval = -999.25;
@@ -92,7 +93,8 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm ) return;
 
-    Well::Data wd; Well::LASImporter wdai( wd );
+    RefMan<Well::Data> wd = new Well::Data;
+    Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
     const char* res = wdai.getLogInfo( lasfnm, lfi );
     if ( res ) { uiMSG().error( res ); return; }
@@ -130,12 +132,12 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     const IOObj* wellioobj = wellfld_->ioobj();
     if ( !wellioobj ) return false;
 
-    Well::Data wd;
-    Well::Reader rdr( *wellioobj, wd );
+    RefMan<Well::Data> wd = new Well::Data;
+    Well::Reader rdr( *wellioobj, *wd );
     if ( !rdr.getLogs() )
 	mErrRet( tr("Cannot read logs for selected well") )
 
-    Well::LASImporter wdai( wd );
+    Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
 
     lfi.undefval = udffld_->getfValue();
@@ -163,7 +165,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     for ( int idx=lognms.size()-1; idx>=0; idx-- )
     {
 	const char* lognm = lognms.get(idx).buf();
-	if ( wd.logs().getLog(lognm) )
+	if ( wd->logs().getLog(lognm) )
 	{
 	    existlogs.add( lognm );
 	    lognms.removeSingle( idx );
@@ -190,7 +192,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( res )
 	mErrRet( res )
 
-    Well::Writer wtr( *wellioobj, wd );
+    Well::Writer wtr( *wellioobj, *wd );
     if ( !wtr.putLogs() )
 	mErrRet( tr("Cannot write logs to disk") )
 

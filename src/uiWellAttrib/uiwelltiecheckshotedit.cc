@@ -103,8 +103,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     driftdisplay_ = new uiWellDahDisplay( this, dsu );
     driftdisplay_->setToolTip( tr("Pick to edit drift curve"));
 
-    uiWellDahDisplay::Data data;
-    data.wd_ = &wd_;
+    uiWellDahDisplay::Data data( &wd_ );
     data.dispzinft_ = SI().zInFeet();
     data.zistime_ = false;
     d2tdisplay_->setData( data );

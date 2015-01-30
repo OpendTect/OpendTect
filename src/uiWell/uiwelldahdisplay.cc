@@ -92,6 +92,7 @@ uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
     , setup_(su)
     , ld1_(new DahObjData(scene(),true,su))
     , ld2_(new DahObjData(scene(),false,su))
+    , zdata_(0)
 {
     disableScrollZoom();
     setStretch( 2, 2 );
@@ -114,9 +115,6 @@ uiWellDahDisplay::~uiWellDahDisplay()
 void uiWellDahDisplay::setData( const Data& data )
 {
     zdata_.copyFrom( data );
-    Well::Data* wd = const_cast<Well::Data*>( zdata_.wd_ );
-    mAttachCBIfNotAttached(
-	    wd->tobedeleted, uiWellDahDisplay::wellDataToBeDeleted );
     dataChanged();
 }
 
@@ -468,16 +466,6 @@ void uiWellDahDisplay::init( CallBacker* )
 {
     dataChanged();
     show();
-}
-
-
-void uiWellDahDisplay::wellDataToBeDeleted( CallBacker* cb )
-{
-    mDynamicCastGet(Well::Data*,welldata,cb);
-    if ( !welldata || welldata!=zdata_.wd_ ) return;
-
-    zdata_.wd_ = Well::MGR().get( welldata->multiID(), false );
-    setData( zdata_ );
 }
 
 
