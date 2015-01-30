@@ -73,6 +73,7 @@ public:
 
     QTableWidgetItem*	getItem(const RowCol&,bool createnew=true);
 
+    void		clearTable();
     void		clearCellObject(const RowCol&);
     uiObject*		getCellObject(const RowCol&) const;
     void		setCellObject(const RowCol&,uiObject*);
@@ -146,6 +147,13 @@ uiTableBody::~uiTableBody()
 {
     deepErase( cellobjects_ );
     delete &messenger_;
+}
+
+
+void uiTableBody::clearTable()
+{
+    deepErase( cellobjects_ );
+    clearContents();
 }
 
 
@@ -1359,7 +1367,7 @@ void uiTable::updateCellSizes( const uiSize* size )
 void uiTable::clearTable()
 {
     mBlockCmdRec;
-    body_->clearContents();
+    body_->clearTable();
 }
 
 
