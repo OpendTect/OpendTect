@@ -1229,7 +1229,7 @@ bool acceptOK( CallBacker* )
 	uiMSG().warning( d2tgrp->warnMsg() );
 
     Well::D2TModel* d2t = mD2TModel;
-    if ( d2t )
+    if ( d2t && d2t->size()>1 )
 	d2t->deInterpolate();
 
     return true;
@@ -1262,7 +1262,7 @@ void uiD2TModelDlg::expData( CallBacker* )
 {
     Well::D2TModel* d2t = mD2TModel;
     getModel( *d2t );
-    if ( d2t->size() < 2 )
+    if ( !d2t || d2t->size() < 2 )
 	{ uiMSG().error( tr("No valid data entered") ); return; }
 
     uiFileDialog dlg( this, false, 0, 0, tr("Filename for export") );
@@ -1331,7 +1331,7 @@ bool uiD2TModelDlg::getFromScreen()
     if ( wd_.track().zRange().stop < SI().seismicReferenceDatum() && !d2t )
 	return true;
 
-    if ( d2t->size() < 2 )
+    if ( !d2t || d2t->size() < 2 )
 	mErrRet( tr("Please define at least two control points.") )
 
     return true;
@@ -1344,7 +1344,7 @@ void uiD2TModelDlg::updNow( CallBacker* )
 	return;
 
     Well::D2TModel* d2t = mD2TModel;
-    if ( d2t )
+    if ( d2t && d2t->size() > 1 )
 	wd_.d2tchanged.trigger();
 
     wd_.trackchanged.trigger();
@@ -1367,7 +1367,8 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 
     Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
-    if ( track.zRange().stop < SI().seismicReferenceDatum() && !d2t )
+    if ( track.zRange().stop < SI().seismicReferenceDatum() &&
+	 ( !d2t || d2t->size() < 2 ) )
     {
 	wd_.info().replvel = replvel;
 	updNow(0);
@@ -1459,8 +1460,11 @@ bool uiD2TModelDlg::rejectOK( CallBacker* )
 void uiD2TModelDlg::correctD2TModelIfInvalid()
 {
     Well::D2TModel* d2t = mD2TModel;
+    if ( !d2t || d2t->size() < 2 )
+	return;
+
     bool needrestore = false;
-    if ( !d2t->ensureValid( wd_.track(), wd_.info().replvel ) ||
+    if ( !d2t->ensureValid(wd_.track(),wd_.info().replvel) ||
 	 d2t->size() < 2 )
     {
 	uiMSG().warning( tr("Invalid model detected\n"
