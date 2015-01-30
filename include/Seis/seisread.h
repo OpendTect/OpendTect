@@ -77,7 +77,7 @@ public:
     bool		isPrepared() const		{ return prepared; }
     Seis::Bounds*	getBounds() const;
 			//!< use after prepareWork(). If not avail: survinfo
-    bool		getGeometryInfo(PosInfo::CubeData&);
+    bool		get3DGeometryInfo(PosInfo::CubeData&);
     void		setComponent( int ic )		{ selcomp_ = ic; }
 			//!< use before startWork()
 			//!< -1 (default) is all components

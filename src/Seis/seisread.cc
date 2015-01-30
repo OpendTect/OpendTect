@@ -827,7 +827,7 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 }
 
 
-bool SeisTrcReader::getGeometryInfo( PosInfo::CubeData& cd )
+bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd )
 {
     if ( is2D() )
     {
