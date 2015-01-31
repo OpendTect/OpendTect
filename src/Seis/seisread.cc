@@ -772,6 +772,9 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     {
 	if ( !trl_ )
 	    return 0;
+	if ( !isPrepared() &&
+		!const_cast<SeisTrcReader*>(this)->prepareWork(Seis::Prod) )
+	    return 0;
 	return get3DBounds( strl()->packetInfo().inlrg,
 			strl()->packetInfo().crlrg, strl()->packetInfo().zrg );
     }
@@ -827,29 +830,27 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 }
 
 
-bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd )
+bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd ) const
 {
     if ( is2D() )
-    {
-	// not really meant for 2D, this function
-	return false;
-    }
-    else if ( !isPrepared() && !prepareWork(Seis::Prod) )
 	return false;
 
     if ( !isPS() )
-	return strl() ? strl()->getGeometryInfo( cd ) : false;
-
-    if ( ioobj_ )
     {
-	SeisPSReader* psrdr = SPSIOPF().get3DReader( *ioobj_ );
-	mDynamicCastGet(SeisPS3DReader*,rdr3d,psrdr)
-	if ( rdr3d )
-	{
-	    cd = rdr3d->posData();
-	    return true;
-	}
+	if ( !isPrepared() &&
+		!const_cast<SeisTrcReader*>(this)->prepareWork(Seis::Prod) )
+	    return false;
+	return strl() ? strl()->getGeometryInfo( cd ) : false;
     }
+    else if ( !ioobj_ )
+	return false;
 
-    return false;
+    SeisPSReader* psrdr = SPSIOPF().get3DReader( *ioobj_ );
+    mDynamicCastGet(SeisPS3DReader*,rdr3d,psrdr)
+    if ( !rdr3d )
+	return false;
+
+    cd = rdr3d->posData();
+    delete rdr3d;
+    return true;
 }

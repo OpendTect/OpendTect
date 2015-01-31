@@ -92,7 +92,7 @@ protected:
     Seis2DDataSet*		dataset_;
     Seis::SelData*		seldata_;
     const SeisPSIOProvider*	psioprov_;
-    uiString			errmsg_;
+    mutable uiString		errmsg_;
 
     SeisTrcTranslator*		strl() const;
 
