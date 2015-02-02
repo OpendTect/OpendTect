@@ -43,24 +43,31 @@ float Well::Track::getKbElev() const
 }
 
 
-const Interval<float> Well::Track::zRange() const
+const Interval<double> Well::Track::zRangeD() const
 {
     if ( isTrackEmpty() )
-	return Interval<float>( 0, 0 );
-    
-    float zstart = mCast(float,pos_[0].z);
-    float zstop = mCast(float,pos_[0].z);
+	return Interval<double>( 0., 0. );
+
+    double zstart = pos_[0].z;
+    double zstop = pos_[0].z;
 
     for ( int idx=1; idx<size(); idx++ )
     {
-	const float zval = mCast(float,pos_[idx].z);
+	const double zval = pos_[idx].z;
 	if ( zval < zstart )
 	    zstart = zval;
 	else if ( zval > zstop )
 	    zstop = zval;
     }
 
-    return Interval<float> ( zstart, zstop );
+    return Interval<double> ( zstart, zstop );
+}
+
+
+const Interval<float> Well::Track::zRange() const
+{
+    Interval<double> zrange = zRangeD();
+    return Interval<float> ( (float) zrange.start, (float) zrange.stop );
 }
 
 
@@ -73,16 +80,24 @@ const Interval<float> Well::Track::dahRange() const
 }
 
 
-void Well::Track::addPoint( const Coord& c, float z, float dahval )
+void Well::Track::addPoint( const Coord3& c, float dahval )
 {
-    pos_ += Coord3(c,z);
+    pos_ += c;
     if ( mIsUdf(dahval) )
     {
 	const int previdx = dah_.size() - 1;
-	dahval = previdx < 0 && previdx < pos_.size()-1 ? 0
-	    : (float) (dah_[previdx] + pos_[previdx].distTo( pos_[previdx+1] ));
+	dahval = previdx < 0 && previdx < pos_.size()-1 ? 0.f
+	    : mCast(float,pos_[previdx].distTo(pos_[previdx+1])+dah_[previdx] );
     }
+
     dah_ += dahval;
+}
+
+
+void Well::Track::addPoint( const Coord& c, float z, float dahval )
+{
+    Coord3 c3( c, z );
+    addPoint( c3, dahval );
 }
 
 
@@ -90,7 +105,7 @@ void Well::Track::insertAfterIdx( int aftidx, const Coord3& c )
 {
     const int oldsz = pos_.size();
     if ( aftidx > oldsz-2 )
-	{ addPoint( c, (float) c.z ); return; }
+	{ addPoint( c ); return; }
 
     double extradah, owndah = 0;
     if ( aftidx == -1 )
@@ -109,27 +124,27 @@ void Well::Track::insertAfterIdx( int aftidx, const Coord3& c )
 }
 
 
-int Well::Track::insertPoint( const Coord& c, float z )
+int Well::Track::insertPoint( const Coord3& c )
 {
     const int oldsz = pos_.size();
     if ( oldsz < 1 )
-	{ addPoint( c, z ); return oldsz; }
+	{ addPoint( c ); return oldsz; }
 
-    Coord3 cnew( c.x, c.y, z );
+    Coord3 cnew( c );
     if ( oldsz < 2 )
     {
 	Coord3 oth( pos_[0] );
 	if ( oth.z < cnew.z )
 	{
-	    addPoint( c, z );
+	    addPoint( c );
 	    return oldsz;
 	}
 	else
 	{
 	    pos_.erase(); dah_.erase();
 	    pos_ += cnew; pos_ += oth;
-	    dah_ += 0;
-	    dah_ += (float) oth.distTo( cnew );
+	    dah_ += 0.f;
+	    dah_ += mCast(float,oth.distTo( cnew ));
 	    return 0;
 	}
     }
@@ -138,8 +153,9 @@ int Well::Track::insertPoint( const Coord& c, float z )
     // at the new point is maximal
     // This boils down to min(sum of sq distances / product of distances)
 
-    float minval = 1e30; int minidx = -1;
-    float mindist = (float) pos_[0].distTo(cnew); int mindistidx = 0;
+    double minval = 1e30; int minidx = -1;
+    int mindistidx = 0;
+    double mindist = pos_[mindistidx].distTo(cnew);
     for ( int idx=1; idx<oldsz; idx++ )
     {
 	const Coord3& c0 = pos_[idx-1];
@@ -149,22 +165,22 @@ int Well::Track::insertPoint( const Coord& c, float z )
 	const double d1 = c1.distTo( cnew );
 	if ( mIsZero(d0,1e-4) || mIsZero(d1,1e-4) )
 	    return -1; // point already present
-	float val = (float) (( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1));
+	double val = (( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1));
 	if ( val < minval )
 	    { minidx = idx-1; minval = val; }
 	if ( d1 < mindist )
-	    { mindist = (float) d1; mindistidx = idx; }
+	    { mindist = d1; mindistidx = idx; }
 	if ( idx == oldsz-1 && minval > 0 )
 	{
 	    if ( mindistidx == oldsz-1)
 	    {
-		addPoint( c, z );
+		addPoint( c );
 		return oldsz;
 	    }
 	    else if ( mindistidx > 0 && mindistidx < oldsz-1 )
 	    {
-		float prevdist = (float) pos_[mindistidx-1].distTo(cnew);
-		float nextdist = (float) pos_[mindistidx+1].distTo(cnew);
+		double prevdist = pos_[mindistidx-1].distTo(cnew);
+		double nextdist = pos_[mindistidx+1].distTo(cnew);
 		minidx = prevdist > nextdist ? mindistidx : mindistidx -1;
 	    }
 	    else
@@ -200,6 +216,13 @@ int Well::Track::insertPoint( const Coord& c, float z )
 }
 
 
+int  Well::Track::insertPoint( const Coord& c, float z )
+{
+    Coord3 c3( c, z );
+    return insertPoint( c3 );
+}
+
+
 bool Well::Track::insertAtDah( float dh, float zpos )
 {
     if ( dah_.isEmpty() )
@@ -208,7 +231,7 @@ bool Well::Track::insertAtDah( float dh, float zpos )
     if ( dh < dah_[0] )
     {
 	dah_.insert( 0, dh );
-	Coord3 crd( pos_[0] ); crd.z = zpos;
+	Coord3 crd( pos_[0] ); crd.z = mCast(double,zpos);
 	pos_.insert( 0, crd );
     }
     if ( dh > dah_[size()-1] )
@@ -233,25 +256,33 @@ bool Well::Track::insertAtDah( float dh, float zpos )
 }
 
 
-void Well::Track::setPoint( int idx, const Coord& c, float z )
+void Well::Track::setPoint( int idx, const Coord3& c )
 {
     const int nrpts = pos_.size();
     if ( idx<0 || idx>=nrpts ) return;
 
     Coord3 oldpt( pos_[idx] );
-    Coord3 newpt( c.x, c.y, z );
-    float olddist0 = idx > 0 ? (float) oldpt.distTo(pos_[idx-1]) : 0;
-    float newdist0 = idx > 0 ? (float) newpt.distTo(pos_[idx-1]) : 0;
-    float olddist1 = 0, newdist1 = 0;
+    Coord3 newpt( c );
+    double olddist0 = idx > 0 ? oldpt.distTo(pos_[idx-1]) : 0;
+    double newdist0 = idx > 0 ? newpt.distTo(pos_[idx-1]) : 0;
+    double olddist1 = 0, newdist1 = 0;
     if ( idx < nrpts-1 )
     {
-	olddist1 = (float) oldpt.distTo(pos_[idx+1]);
-	newdist1 = (float) newpt.distTo(pos_[idx+1]);
+	olddist1 = oldpt.distTo(pos_[idx+1]);
+	newdist1 = newpt.distTo(pos_[idx+1]);
     }
 
     pos_[idx] = newpt;
-    dah_[idx] += newdist0 - olddist0;
-    addToDahFrom( idx+1, newdist0 - olddist0 + newdist1 - olddist1 );
+    dah_[idx] += mCast( float, newdist0 - olddist0 );
+    const float dist = mCast(float, newdist0 - olddist0 + newdist1 - olddist1 );
+    addToDahFrom( idx+1, dist );
+}
+
+
+void Well::Track::setPoint( int idx, const Coord& c, float z )
+{
+    Coord3 c3( c, z );
+    setPoint( idx, c3 );
 }
 
 
@@ -297,64 +328,68 @@ Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
     const Coord3& c1 = pos_[idx1];
     const Coord3& c2 = pos_[idx2];
     const double f =  1. / (d1 + d2);
-    return Coord3( f * ( d1 * c2.x + d2 * c1.x ), 
+    return Coord3( f * ( d1 * c2.x + d2 * c1.x ),
 		   f * ( d1 * c2.y + d2 * c1.y ),
 		   f * ( d1 * c2.z + d2 * c1.z ) );
 }
 
 
-float Well::Track::getDahForTVD( float z, float prevdah ) const
+float Well::Track::getDahForTVD( double z, float prevdah ) const
 {
     const bool haveprevdah = !mIsUdf(prevdah);
     const int sz = dah_.size();
     if ( sz < 1 )
 	return mUdf(float);
     if ( zistime_ )
-	{ pErrMsg("getDahForTVD called for time well");
-	    return haveprevdah ? prevdah : dah_[0]; }
-
-    static const float eps = 1e-3; // do not use lower for float
-    if ( sz == 1 )
-	return mIsEqual(z,value(0),eps) ? dah_[0] : mUdf(float);
-
-    float minz = 1e6;
-    float maxz = -1e6;
-    for ( int idz=0; idz<sz; idz++ )
     {
-	if ( value(idz) < minz )
-	    minz = value(idz);
-	if ( value(idz) > maxz )
-	    maxz = value(idz);
+	pErrMsg("getDahForTVD called for time well");
+	const float res = haveprevdah ? prevdah : dah_[0];
+	return mCast(double,res);
     }
-    if ( z < minz-eps || z > maxz+eps )
-	return mUdf(float);
+
+    static const double eps = 1e-3; // do not use lower for float precision
+    static const double epsf = 1e-3f; // do not use lower for float precision
+    if ( sz == 1 )
+	return mIsEqual(z,pos_[0].z,eps) ? (double)dah_[0] : mUdf(double);
+
+    const Interval<double> zrange = zRangeD();
+    if ( !zrange.includes(z,false) )
+	return mUdf(double);
 
 #define mZInRg() \
     (zrg.start-eps < z  && zrg.stop+eps  > z) \
  || (zrg.stop-eps  < z  && zrg.start+eps > z)
 
-    Interval<double> zrg( minz, 0 );
+    Interval<double> zrg( zrange.start, 0 );
     int idxafter = -1;
     for ( int idx=1; idx<sz; idx++ )
     {
-	if ( !haveprevdah || prevdah+eps < dah_[idx] )
+	if ( !haveprevdah || prevdah+epsf < dah_[idx] )
 	{
-	    zrg.stop = value(idx);
+	    zrg.stop = pos_[idx].z;
 	    if ( mZInRg() )
 		{ idxafter = idx; break; }
 	}
 	zrg.start = zrg.stop;
     }
     if ( idxafter < 1 )
-	return mUdf(float);
+	return mUdf(double);
 
-    const int idx1 = idxafter - 1; const int idx2 = idxafter;
-    const float z1 = value(idx1);
-    const float z2 = value(idx2);
-    const float dah1 = dah_[idx1];
-    const float dah2 = dah_[idx2];
-    const float zdiff = z2 - z1;
-    return mIsZero(zdiff,eps) ? dah2 : ((z-z1) * dah2 + (z2-z) * dah1) / zdiff;
+    const int idx1 = idxafter - 1;
+    const int idx2 = idxafter;
+    const double z1 = pos_[idx1].z;
+    const double z2 = pos_[idx2].z;
+    const double dah1 = mCast(double,dah_[idx1]);
+    const double dah2 = mCast(double,dah_[idx2]);
+    const double zdiff = z2 - z1;
+    const double res = ( (z-z1) * dah2 + (z2-z) * dah1 ) / zdiff;
+    return mIsZero(zdiff,eps) ? dah_[idx2] : mCast( float, res );
+}
+
+
+float Well::Track::getDahForTVD( float z, float prevdah ) const
+{
+    return mCast( float, getDahForTVD( (double)z, prevdah ) );
 }
 
 
@@ -364,7 +399,7 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 
     if ( dah_.size() < 2 ) return dah_[1];
 
-    const float zfac = mCast( float, zistime_ ? 2000 : 1 );
+    const double zfac = zistime_ ? 2000. : 1.;
     Coord3 reqpos( posin ); reqpos.z *= zfac;
     Coord3 curpos( getPos( dah_[0] ) ); curpos.z *= zfac;
     double sqneardist = curpos.sqDistTo( reqpos );
@@ -395,24 +430,27 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 	    break;
     }
 
-    const float neardist = (float) Math::Sqrt( sqneardist );
-    const float secdist = (float) Math::Sqrt( sqsecdist );
-    return (neardist*dah_[secondidx] + secdist * dah_[nearidx])
-         / (neardist + secdist);
+    const double neardist = Math::Sqrt( sqneardist );
+    const double secdist = Math::Sqrt( sqsecdist );
+    const double dahnear = mCast(double,dah_[nearidx]);
+    const double dahsec = mCast(double,dah_[secondidx]);
+    const double res = ( neardist*dahsec+secdist*dahnear )/( neardist+secdist );
+    return mCast( float, res );
 }
 
 
 bool Well::Track::alwaysDownward() const
 {
-    if ( pos_.size() < 2 )
-	return pos_.size();
+    if ( size() < 2 )
+	return size();
 
-    float prevz = (float) pos_[0].z;
+    double prevz = pos_[0].z;
     for ( int idx=1; idx<pos_.size(); idx++ )
     {
-	float curz = (float) pos_[idx].z;
+	double curz = pos_[idx].z;
 	if ( curz <= prevz )
 	    return false;
+
 	prevz = curz;
     }
 
