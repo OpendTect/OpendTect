@@ -31,7 +31,7 @@ static const int cTxtHeadNrLines = 40;
 static const int cTxtHeadCharsPerLine = 80;
 
 bool& SEGY::TxtHeader::info2D()
-{ static bool is2d = false; return is2d; }
+{ mDefineStaticLocalObject( bool, is2d, = false ); return is2d; }
 
 static void Ebcdic2Ascii( unsigned char *chbuf, int len )
 {
@@ -352,7 +352,7 @@ void SEGY::BinHeader::unSwap()
 
 const SEGY::HdrDef& SEGY::BinHeader::hdrDef()
 {
-    static SEGY::HdrDef def( true );
+    mDefineStaticLocalObject( SEGY::HdrDef, def, (true) );
     return def;
 }
 
@@ -416,7 +416,7 @@ SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
 
 const SEGY::HdrDef& SEGY::TrcHeader::hdrDef()
 {
-    static SEGY::HdrDef def( false );
+    mDefineStaticLocalObject( SEGY::HdrDef, def, (false) );
     return def;
 }
 
@@ -538,9 +538,9 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     // Then we'd expect this to be 4 byte. Sigh. How far do we need to go
     // to support crap from SEG-Y vandals?
     HdrEntry he( *hdrDef()[EntryTrwf()] );
-    static bool postscale_byte_established = false;
-    static int bnr = he.bytepos_;
-    static bool smallbtsz = he.small_;
+    mDefineStaticLocalObject( bool, postscale_byte_established, = false );
+    mDefineStaticLocalObject( int, bnr, = he.bytepos_ );
+    mDefineStaticLocalObject( bool, smallbtsz, = he.small_ );
     if ( !postscale_byte_established )
     {
 	postscale_byte_established = true;
@@ -582,7 +582,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( mIsZero(extcoordsc,1e-8)
 	    && !GetEnvVarYN("OD_ALLOW_ZERO_COORD_SCALING") )
     {
-	static bool warningdone = false;
+	mDefineStaticLocalObject( bool, warningdone, = false );
 	if ( !warningdone )
 	{
 	    ErrMsg( "Replacing requested zero scaling with 1" );
@@ -599,7 +599,8 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( delrt == 0 )
     {
 	delrt = - (short)entryVal( EntryLagA() ); // HRS and Petrel
-	static const bool smt_bad_laga = GetEnvVarYN("OD_SEGY_BAD_LAGA");
+	mDefineStaticLocalObject( const bool, smt_bad_laga,
+				  = GetEnvVarYN("OD_SEGY_BAD_LAGA") );
 	if ( smt_bad_laga )
 	    delrt = -delrt;
 	float startz = delrt * zfac;
@@ -645,7 +646,7 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     else
     {
 	// Trick to set trace number to sequence number when no trnr_ defined
-	static int seqnr;
+	mDefineStaticLocalObject( Threads::Atomic<int>, seqnr, (0) );
 	if ( hdef_.trnr_.bytepos_ == -5 )
 	    seqnr++;
 	else
