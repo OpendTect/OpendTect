@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprogressbar.h"
 #include "uistatusbar.h"
 #include "uilabel.h"
+#include "uibutton.h"
 
 #include "fixedstring.h"
 #include "timer.h"
@@ -64,7 +65,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
     progbar_->setPrefWidthInChar( 50 );
 
     tim_.tick.notify( mCB( this, uiTaskRunner, timerTick ) );
-    preFinalise().notify( mCB( this, uiTaskRunner, onFinalise ) );
+    postFinalise().notify( mCB( this, uiTaskRunner, onFinalise ) );
 
     statusBar()->addMsgFld( "Current activity", Alignment::Left, 2 );
     statusBar()->addMsgFld( "Counted items", Alignment::Right, 2 );
@@ -102,8 +103,10 @@ bool uiTaskRunner::execute( Task& t )
 
 void uiTaskRunner::onFinalise( CallBacker* )
 {
-    tim_.start( 100, true );
+    button(OK)->setIcon( "pause" );
+    button(CANCEL)->setIcon( "abort" );
 
+    tim_.start( 100, true );
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
     thread_ = new Threads::Thread( mCB(this,uiTaskRunner,doWork) );
 }
@@ -214,11 +217,13 @@ bool uiTaskRunner::acceptOK( CallBacker* )
     {
 	task_->controlWork( Task::Run );
 	setOkText("Pause" );
+	button(OK)->setIcon( "pause" );
     }
     else if ( state==Task::Run )
     {
 	task_->controlWork( Task::Pause );
 	setOkText("Resume" );
+	button(OK)->setIcon( "resume" );
     }
 
     return false;
