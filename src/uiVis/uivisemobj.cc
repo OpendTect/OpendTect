@@ -446,6 +446,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     seedsmenuitem_.removeItems();
 
+    mResetMenuItem( &lockseedsmnuitem_ );
     MenuItem* trackmnu = menu->findItem( uiVisEMObject::trackingmenutxt() );
     if ( trackmnu )
     {
@@ -459,10 +460,6 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
 		      !hastransform && seeds && seeds->size(), false );
 	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
-	lockseedsmnuitem_.text =
-	    emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ?
-	    "Unlock" : "Lock" ;
-	mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
 	mAddMenuItem( trackmnu, &seedsmenuitem_,
 		      seedsmenuitem_.nrItems(), false );
     }
