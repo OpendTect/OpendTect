@@ -63,7 +63,6 @@ namespace sKey
     inline FixedString Geometry()	{ return "Geometry"; }
     inline FixedString GeomID()		{ return "GeomID"; }
     inline FixedString Horizon()	{ return "Horizon"; }
-    inline FixedString HorizonCube()	{ return "HorizonCube"; }
     inline FixedString ID()		{ return "ID"; }
     inline FixedString Input()		{ return "Input"; }
     inline FixedString Inline()		{ return "In-line"; }
