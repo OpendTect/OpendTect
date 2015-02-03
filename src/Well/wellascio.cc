@@ -50,80 +50,239 @@ Table::FormatDesc* TrackAscIO::getDesc()
 }
 
 
-bool TrackAscIO::getData( Data& wd, bool tosurf ) const
+bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<float>& mdvals,
+				float& kbelevinfile ) const
 {
     if ( !getHdrVals(strm_) )
 	return false;
 
-    static const Coord3 c000( 0, 0, 0 );
-    Coord3 c, prevc;
-    Coord3 surfcoord;
-    float dah = 0;
-
     const bool isxy = fd_.bodyinfos_[0]->selection_.form_ == 0;
+    const uiString nozpts = tr("At least one point had neither Z nor MD");
+    bool nozptsfound = false;
 
-    while ( true )
+    while( true )
     {
 	const int ret = getNextBodyVals( strm_ );
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	c.x = getdValue(0); c.y = getdValue(1);
-	if ( !isxy && !mIsUdf(c.x) && !mIsUdf(c.y) )
+	Coord3 curpos;
+	curpos.x = getdValue(0);
+	curpos.y = getdValue(1);
+	if ( !isxy && !mIsUdf(curpos.x) && !mIsUdf(curpos.y) )
 	{
-	    Coord wc( SI().transform( BinID( mNINT32(c.x), mNINT32(c.y) ) ) );
-	    c.x = wc.x; c.y = wc.y;
+	    Coord wc( SI().transform(
+			BinID( mNINT32(curpos.x), mNINT32(curpos.y) ) ) );
+	    curpos.x = wc.x; curpos.y = wc.y;
 	}
-	if ( mIsUdf(c.x) || mIsUdf(c.y) )
+	if ( mIsUdf(curpos.x) || mIsUdf(curpos.y) )
 	    continue;
 
-	c.z = getdValue(2);
-	float newdah = getfValue( 3 );
-	const bool havez = !mIsUdf(c.z);
-	const bool havedah = !mIsUdf(newdah);
-	if ( !havez && !havedah )
-	    continue;
-        else if ( !havez && havedah )
-            c.z = newdah;
-        else if ( havez && !havedah )
-            newdah = mCast( float, c.z );
-
-	if ( wd.track().size() == 0 )
+	curpos.z = getdValue(2);
+	const float dah = getfValue(3);
+	if ( mIsUdf(curpos.z) && mIsUdf(dah) )
 	{
-	    if ( !SI().isReasonable(wd.info().surfacecoord) )
-		wd.info().surfacecoord = c;
+	    if ( !nozptsfound )
+		warnmsg_.append( nozpts, true );
+	    else
+		nozptsfound = true;
 
-	    surfcoord.x = wd.info().surfacecoord.x;
-	    surfcoord.y = wd.info().surfacecoord.y;
-	    surfcoord.z = c.z;
-
-	    prevc = tosurf && c.z >=0 ? surfcoord : c;
+	    continue;
 	}
 
-	if ( mIsUdf(newdah) )
-	    dah += (float) c.distTo( prevc );
-	else
+	pos += curpos;
+	mdvals += dah;
+	if ( mIsUdf(kbelevinfile) && !mIsUdf(curpos.z) && !mIsUdf(dah) )
+	    kbelevinfile = dah - mCast(float,curpos.z);
+    }
+
+    return !pos.isEmpty();
+}
+
+
+#define mErrRet(s) { errmsg_ = s; return false; }
+#define mScaledValue(s,uom) ( uom ? uom->userValue(s) : s )
+bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
+				       TypeSet<float>& mdvals,
+				       float& kbelevinfile ) const
+{
+    if ( pos.isEmpty() || mdvals.isEmpty() || pos.size() != mdvals.size() )
+	return false;
+
+    Coord3 prevpos = pos[0];
+    float prevdah = mdvals[0];
+    if ( mIsUdf(prevpos.z) && mIsUdf(prevdah) )
+	return false;
+
+    if ( mIsUdf(kbelevinfile) )
+	kbelevinfile = 0.f;
+
+    if ( mIsUdf(prevpos.z) )
+    {
+	prevpos.z = mCast( double, prevdah - kbelevinfile );
+	pos[0].z = prevpos.z;
+    }
+
+    if ( mIsUdf(prevdah) )
+    {
+	prevdah = mCast( float, prevpos.z ) + kbelevinfile;
+	mdvals[0] = prevdah;
+    }
+
+    const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
+    const uiString uomlbl(UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
+    for ( int idz=1; idz<pos.size(); idz++ )
+    {
+	Coord3& curpos = pos[idz];
+	float& dah = mdvals[idz];
+	if ( mIsUdf(curpos) && mIsUdf(dah) )
+	    return false;
+	else if ( mIsUdf(curpos) )
 	{
-	    if ( mIsUdf(c.z) )
+	    const double dist = mCast( double, dah - prevdah );
+	    const double hdist = Coord(curpos).distTo( Coord(prevpos) );
+	    if ( dist < hdist )
 	    {
-		float d = newdah - dah;
-		const float hdist = (float)Coord(c).distTo( Coord(prevc) );
-		c.z = prevc.z;
-		if ( d > hdist )
-		    c.z += Math::Sqrt( d*d - hdist*hdist );
+		const BufferString val = toString( mScaledValue( dah, uom), 2 );
+		mErrRet( tr("Impossible MD to TVD transformation for MD=%1%2" )
+			 .arg(val)
+			 .arg(uomlbl) )
 	    }
-	    dah = newdah;
-	}
 
-	if ( c.distTo(c000) < 1 )
+	    curpos.z = prevpos.z + Math::Sqrt( dist*dist - hdist*hdist );
+	}
+	else if ( mIsUdf(dah) )
+	{
+	    const double dist = curpos.distTo( prevpos );
+	    if ( dist < 0. )
+	    {
+		const BufferString val = toString(mScaledValue(curpos.z,uom),2);
+		mErrRet( tr( "Impossible TVD to MD transformation for Z=%1%2" )
+			  .arg(val)
+			  .arg(uomlbl) )
+	    }
+
+	    dah = prevdah + mCast(float, dist );
+	}
+	prevpos = curpos;
+	prevdah = dah;
+    }
+
+    return true;
+}
+
+
+static void adjustKBIfNecessary( TypeSet<Coord3>& pos, float kbelevinfile,
+				 float kbelev )
+{
+    if ( mIsUdf(kbelev) || mIsUdf(kbelevinfile) )
+	return;
+
+    const float kbshift = kbelev - kbelevinfile;
+    for ( int idz=0; idz<pos.size(); idz++ )
+    {
+	if ( !mIsUdf(pos[idz].z) )
+	    pos[idz].z -= kbshift;
+    }
+}
+
+
+static void addOriginIfNecessary( TypeSet<Coord3>& pos, TypeSet<float>& mdvals )
+{
+    if ( mdvals.isEmpty() || mdvals[0] < mDefEpsF )
+	return;
+
+    Coord3 surfloc = pos[0];
+    surfloc.z = mCast(float, surfloc.z ) - mdvals[0];
+
+    pos.insert( 0, surfloc );
+    mdvals.insert( 0, 0.f );
+}
+
+
+static void adjustToTDIfNecessary( TypeSet<Coord3>& pos,
+				   TypeSet<float>& mdvals, float td )
+{
+    if ( mIsUdf(td) || pos.size() != mdvals.size() )
+	return;
+
+    for ( int idz=pos.size()-1; idz>=0; idz-- )
+    {
+	if ( mdvals[idz] <= td )
 	    break;
 
-	if ( wd.track().isEmpty() && dah > mDefEps )
-	    wd.track().addPoint( c, mCast(float,c.z)-dah, 0.f );
-
-	wd.track().addPoint( c, (float) c.z, dah );
-	prevc = c;
+	mdvals.removeSingle( idz );
+	pos.removeSingle( idz );
     }
+
+    const int sz = pos.size();
+    if ( mIsEqual(mdvals[sz-1],td,mDefEpsF) )
+	return;
+
+    Coord3 tdpos = pos[sz-1];
+    tdpos.z += mCast(double,td) - mCast(double,mdvals[sz-1]);
+
+    pos += tdpos;
+    mdvals += td;
+}
+
+
+bool TrackAscIO::adjustSurfaceLocation( TypeSet<Coord3>& pos,
+					Coord& surfacecoord ) const
+{
+    if ( pos.isEmpty() )
+	return true;
+
+    if ( mIsZero(surfacecoord.x,mDefEps) && mIsZero(surfacecoord.y,mDefEps) )
+    {
+	if ( mIsZero(pos[0].x,mDefEps) && mIsZero(pos[0].y,mDefEps) )
+	    mErrRet( tr("Relative easting/northing found\n"
+			"Please enter a valid surface coordinate in"
+			" the advanced dialog") )
+
+	surfacecoord = Coord( pos[0].x, pos[0].y );
+	return true;
+    }
+
+    const double xshift = surfacecoord.x - pos[0].x;
+    const double yshift = surfacecoord.y - pos[0].y;
+    for ( int idz=0; idz<pos.size(); idz++ )
+    {
+	pos[idz].x += xshift;
+	pos[idz].y += yshift;
+    }
+
+    return true;
+}
+
+
+bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
+{
+    TypeSet<Coord3> pos;
+    TypeSet<float> mdvals;
+    float kbelevinfile = mUdf(float);
+    if ( !readTrackData(pos,mdvals,kbelevinfile) )
+	return false;
+
+    if ( mIsUdf(kbelev) && mIsUdf(kbelevinfile) )
+	mErrRet( tr( "Reference Datum Elevation was not provided"
+		     " and cannot be computed" ) )
+
+    if ( !computeMissingValues(pos,mdvals,kbelevinfile) )
+	return false;
+
+    adjustKBIfNecessary( pos, kbelevinfile, kbelev );
+    addOriginIfNecessary( pos, mdvals );
+    adjustToTDIfNecessary( pos, mdvals, td );
+    if ( !adjustSurfaceLocation(pos,wd.info().surfacecoord) )
+	return false;
+
+    if ( pos.size() < 2 || mdvals.size() < 2 )
+	mErrRet( tr("Insufficent data for importing the track") )
+
+    wd.track().setEmpty();
+    for ( int idz=0; idz<pos.size(); idz++ )
+	wd.track().addPoint( pos[idz], mdvals[idz] );
 
     return !wd.track().isEmpty();
 }
@@ -183,9 +342,9 @@ bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 	}
     }
 
-    while ( true )
+    while( true )
     {
-	int ret = getNextBodyVals( strm );
+	const int ret = getNextBodyVals( strm );
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
@@ -348,7 +507,8 @@ static bool removePairsAtOrAboveDatum( TypeSet<double>& zvals,
     originz += mDefEps;
     bool needremove = false;
     int idz=0;
-    while( true )
+    const int sz = zvals.size();
+    while( true && idz < sz )
     {
 	if ( zvals[idz] > originz )
 	    break;
@@ -429,8 +589,6 @@ static bool truncateToTD( TypeSet<double>& zvals,
 }
 
 
-#define mScaledValue(s,uom) ( uom ? uom->userValue(s) : s )
-
 static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
 				      uiString& msg )
 {
@@ -446,17 +604,17 @@ static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
 	else
 	{
 	    msg = "Input error with the replacement velocity\n";
-	    const UnitOfMeasure* uomdepth = UnitOfMeasure::surveyDefDepthUnit();
+	    const UnitOfMeasure* uomvel = UnitOfMeasure::surveyDefVelUnit();
 	    const uiString veluomlbl(
-		    UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
+		    UnitOfMeasure::surveyDefVelUnitAnnot(true,false) );
 	    const BufferString fileval =
-			       toString(mScaledValue(vreplinfile,uomdepth), 2 );
+			       toString(mScaledValue(vreplinfile,uomvel), 2 );
 	    msg.append(
 		uiString( "Your time-depth model suggests a replacement "
 		 "velocity of %1%3\nbut the replacement velocity was set to: "
 		 "%2%3\n Velocity information from file was overruled." )
 		    .arg( fileval )
-		    .arg( toString(mScaledValue(info.replvel,uomdepth), 2) )
+		    .arg( toString(mScaledValue(info.replvel,uomvel), 2) )
 		    .arg( veluomlbl ) );
 	}
     }
@@ -509,6 +667,7 @@ static void convertDepthsToMD( const Track& track, TypeSet<double>& zvals )
 }
 
 
+#undef mErrRet
 #define mErrRet(s) { errmsg = s; return false; }
 #define mNewLn(s) { s.addNewLine(); }
 
@@ -573,9 +732,9 @@ bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
     const int tmopt = formOf( false, 1 );
     const bool istvd = dpthopt > 0;
     TypeSet<double> zvals, tvals;
-    while ( true )
+    while( true )
     {
-	int ret = getNextBodyVals( strm );
+	const int ret = getNextBodyVals( strm );
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
