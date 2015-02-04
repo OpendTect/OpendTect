@@ -1213,6 +1213,12 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	}
     }
 
+    if ( !strm.isOK() )
+    {
+	msg_ = sMsgReadError();
+	return false;
+    }
+
     RowCol rc( currentRow(), 0 );
     bool didread = false;
     const SectionID sectionid = sectionids_[sectionindex_];
