@@ -153,14 +153,6 @@ bool Well::Reader::getMapLocation( Coord& coord ) const
     const Well::Data& wd = *data();
 
     coord = wd.info().surfacecoord;
-    if ( (mIsZero(coord.x,0.001) && mIsZero(coord.x,0.001))
-	|| (mIsUdf(coord.x) && mIsUdf(coord.x)) )
-    {
-	if ( !getTrack() || wd.track().isEmpty() )
-	    return false;
-
-	coord = wd.track().pos(0);
-    }
 
     return true;
 }
@@ -356,18 +348,14 @@ bool Well::odReader::getInfo( od_istream& strm ) const
 	    wd_.info().groundelev = astrm.getFValue();
     }
 
-    if ( !getTrack(strm) )
-	return false;
-
-    if ( SI().zInFeet() && version < 4.195 )
+    Coord surfcoord = wd_.info().surfacecoord;
+    if ( (mIsZero(surfcoord.x,0.001) && mIsZero(surfcoord.x,0.001))
+	    || (mIsUdf(surfcoord.x) && mIsUdf(surfcoord.x)) )
     {
-	Well::Track& welltrack = wd_.track();
-	for ( int idx=0; idx<welltrack.size(); idx++ )
-	{
-	    Coord3 pos = welltrack.pos( idx );
-	    pos.z *= mToFeetFactorF;
-	    welltrack.setPoint( idx, pos, (float) pos.z );
-	}
+	if ( !getTrack(strm) )
+	    return false;
+
+	wd_.info().surfacecoord = wd_.track().pos( 0 );
     }
 
     return true;
@@ -413,6 +401,7 @@ bool Well::odReader::getOldTimeWell( od_istream& strm ) const
 bool Well::odReader::getTrack( od_istream& strm ) const
 {
     Coord3 c, c0; float dah;
+    wd_.track().setEmpty();
     while ( strm.isOK() )
     {
 	strm >> c.x >> c.y >> c.z >> dah;
@@ -422,8 +411,6 @@ bool Well::odReader::getTrack( od_istream& strm ) const
     if ( wd_.track().isEmpty() )
 	mErrRetStrmOper( "find track data" )
 
-    if ( wd_.info().surfacecoord == Coord(0,0) )
-	wd_.info().surfacecoord = wd_.track().pos(0);
     return true;
 }
 
