@@ -459,7 +459,7 @@ int dgbSurfaceReader::nrSections() const
 
 SectionID dgbSurfaceReader::sectionID( int idx ) const
 {
-    return sectionids_[idx];
+    return sectionids_.validIdx(idx) ? sectionids_[idx] : -1;
 }
 
 
