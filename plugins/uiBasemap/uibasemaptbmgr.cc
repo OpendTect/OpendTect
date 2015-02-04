@@ -13,17 +13,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemaptbmgr.h"
 
-#include "uidialog.h"
+#include "uibasemapiomgr.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uilistbox.h"
-#include "uimainwin.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiioobjseldlg.h"
 #include "uisellinest.h"
 #include "uisurvmap.h"
-#include "uistrings.h"
 #include "uitoolbar.h"
 
 #include "basemaptr.h"
@@ -35,7 +33,8 @@ uiBaseMapTBMgr::uiBaseMapTBMgr( uiMainWin& mw, uiSurveyMap& sm )
     : mainwin_(mw)
     , basemapview_(sm)
     , pickmode_(false)
-    , curbasemapid_(MultiID::udf())
+    , iomgr_(new uiBasemapIOMgr(&mw))
+    , isstored_(false)
 {
     createviewTB();
     createitemTB();
@@ -45,6 +44,7 @@ uiBaseMapTBMgr::uiBaseMapTBMgr( uiMainWin& mw, uiSurveyMap& sm )
 
 uiBaseMapTBMgr::~uiBaseMapTBMgr()
 {
+    delete iomgr_;
 }
 
 
@@ -225,7 +225,7 @@ void uiBaseMapTBMgr::vworientationCB( CallBacker* )
 
 
 void uiBaseMapTBMgr::saveCB( CallBacker* )
-{ save( curbasemapid_.isUdf() ); }
+{ save( !isstored_ ); }
 
 
 void uiBaseMapTBMgr::saveAsCB( CallBacker* )
@@ -234,60 +234,15 @@ void uiBaseMapTBMgr::saveAsCB( CallBacker* )
 
 void uiBaseMapTBMgr::save( bool saveas )
 {
-    const ObjectSet<uiBasemapTreeItem>& treeitms = BMM().treeitems();
-    int nrtreeitems = treeitms.size();
-    IOPar itmpars;
-    itmpars.set( sKey::NrItems(), nrtreeitems );
-
-    for ( int idx=0; idx<nrtreeitems; idx++ )
-	itmpars.mergeComp( treeitms[idx]->pars(), toString(idx) );
-
-    if ( saveas )
-    {
-	CtxtIOObj ctio( mIOObjContext(Basemap) );
-	ctio.ctxt.forread = false;
-	uiIOObjSelDlg dlg( &mainwin_, ctio );
-	if ( !dlg.go() ) return;
-
-	curbasemapid_ = dlg.chosenID();
-    }
+    if ( !iomgr_->save(saveas) ) return;
 
     basemapview_.resetChangeFlag();
-
-    PtrMan<IOObj> ioobj = IOM().get( curbasemapid_ );
-    BufferString errmsg;
-    if ( !BasemapTranslator::store(itmpars,ioobj,errmsg) )
-	uiMSG().error( errmsg );
+    isstored_ = true;
 }
 
 
 void uiBaseMapTBMgr::readCB( CallBacker* )
 {
-    CtxtIOObj ctio( mIOObjContext(Basemap) );
-    ctio.ctxt.forread = true;
-    uiIOObjSelDlg dlg( &mainwin_, ctio );
-    if ( !dlg.go() ) return;
-
-    if ( curbasemapid_ == dlg.chosenID() && !basemapview_.hasChanged() )
-    {
-	if ( !uiMSG().askContinue(
-		 tr("Are you trying to reload the same Basemap?")) ) return;
-    }
-    else if ( !curbasemapid_.isUdf() && basemapview_.hasChanged() )
-    {
-	if ( !uiMSG().askContinue(
-		 tr("Any unsaved changes will be lost. Are you sure "
-		     "you want to continue?")) ) return;
-    }
-
-    curbasemapid_ = dlg.chosenID();
-
-    BufferString errmsg; IOPar itmpars;
-    if ( !BasemapTranslator::retrieve(itmpars,dlg.ioObj(),errmsg) )
-	uiMSG().error( errmsg );
-    else
-    {
-	BMM().removeAllItems();
-	BMM().addfromPar( itmpars );
-    }
+    if ( iomgr_->read(basemapview_.hasChanged()) )
+	isstored_ = true;
 }

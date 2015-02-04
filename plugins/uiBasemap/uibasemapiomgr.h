@@ -1,16 +1,36 @@
 #ifndef uibasemapiomgr_h
 #define uibasemapiomgr_h
 
-#include "uibasemapmod.h"
-#include "uibasemap.h"
+/*+
+________________________________________________________________________
 
-mExpClass(uiBasemap) uiBasemapIOMgr //: public uiBasemap
-{
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Henrique Mageste
+ Date:		January 2015
+ RCS:		$Id$
+________________________________________________________________________
+
+-*/
+
+#include "uibasemapmod.h"
+#include "uibasemapitem.h"
+
+class uiParent;
+
+mExpClass(uiBasemap) uiBasemapIOMgr
+{mODTextTranslationClass(uiBasemapIOMgr)
 public:
 
-    uiBasemapIOMgr();
+	    uiBasemapIOMgr(uiParent*);
 
-    ~uiBasemapIOMgr();
+	    ~uiBasemapIOMgr();
+
+    bool    save(bool saveas);
+    bool    read(bool haschanged);
+
+private:
+    uiParent*		parent_;
+    MultiID		curbasemapid_;
 };
 
 #endif

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
+class uiBasemapIOMgr;
 class uiMainWin;
 class uiSelLineStyle;
 class uiSurveyMap;
@@ -44,7 +45,7 @@ private:
 
     void		save(bool saveas);
 
-    MultiID		curbasemapid_;
+    bool		isstored_;
     bool		pickmode_;
     int			readbut_;
     int			removebut_;
@@ -54,6 +55,7 @@ private:
     int			vwmapscaleid_;
     int			vworientationid_;
 
+    uiBasemapIOMgr*	iomgr_;
     uiMainWin&		mainwin_;
     uiSurveyMap&	basemapview_;
     uiToolBar*		itemtoolbar_;
