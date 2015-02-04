@@ -30,7 +30,8 @@ public:
 
     struct Setup : public uiPosProvGroup::Setup
     {
-	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon };
+	enum ChoiceType { All, OnlySeisTypes, OnlyRanges, RangewithPolygon,
+			  VolumeTypes };
 
 			Setup( bool is_2d, bool with_step, bool with_z )
 			    : uiPosProvGroup::Setup(is_2d,with_step,with_z)
