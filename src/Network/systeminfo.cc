@@ -161,6 +161,9 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses,
 
 	if ( onlyactive && !flags.testFlag(QNetworkInterface::IsUp) )
 	    continue;
+	
+	if ( qni.name().isEmpty() || qni.hardwareAddress().isEmpty() )
+	    continue;
 
 	names.add( qni.name() );
 	addresses.add( qni.hardwareAddress() );
