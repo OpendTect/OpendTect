@@ -790,7 +790,7 @@ void uiWellMan::mkFileInfo()
     const Well::Reader currdr( *curioobj_, curwd );
     BufferString txt;
 
-    if ( currdr.getInfo() )
+    if ( currdr.getInfo() && currdr.getTrack() )
     {
 
     const Well::Info& info = curwd.info();
