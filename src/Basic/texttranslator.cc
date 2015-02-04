@@ -133,7 +133,7 @@ uiString TextTranslateMgr::getLanguageUserName(int idx) const
 	return ret;
     }
 
-    return uiString("English");
+    return mkUiString("English");
 }
 
 

@@ -133,7 +133,7 @@ void dumpInfo( IOPar& iop ) const
 
 #define mBytesToMB(bytes) ( bytes / (1024*1024) )
 class StreamProviderPreLoadedData : public Executor
-{
+{ mODTextTranslationClass(StreamProviderPreLoadedData);
 public:
 
 StreamProviderPreLoadedData( const char* nm, const char* id )
@@ -142,14 +142,14 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
     , id_(id)
     , filesz_(0)
     , chunkidx_(0)
-    , msg_("Reading '")
+    , msg_(tr("Reading '"))
     , fnm_(nm)
 {
-    FilePath fp( nm ); msg_ += fp.fileName(); msg_ += "'";
+    FilePath fp(nm); msg_.append(fp.fileName()).arg(uiString::emptyString());
 
     sd_ = StreamProvider(nm).makeIStream(true,false);
     if ( !sd_.usable() )
-	{ msg_ = "Cannot open '"; msg_ += nm; msg_ += "'"; }
+	{ msg_ = tr("Cannot open '%1'").arg(nm); }
     else
     {
 	od_int64 bufsz = File::getKbSize( nm ) + 1;
@@ -158,8 +158,8 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
 	mTryAlloc(buf,char [ bufsz ])
 	if ( !buf )
 	{
-	    msg_ = "Failed to allocate "; msg_ += mBytesToMB( bufsz );
-	    msg_ += " MB of memory";
+	    msg_ = tr("Failed to allocate %1 MB of memory")
+		 .arg(mBytesToMB( bufsz ));
 	}
 	else
 	{
@@ -184,8 +184,8 @@ const OD::String& fileName() const
     return dp_ ? dp_->name() : fnm_;
 }
 
-uiString uiMessage() const { return msg_.buf(); }
-uiString uiNrDoneText() const { return "MBs read"; }
+uiString uiMessage() const { return msg_; }
+uiString uiNrDoneText() const { return tr("MBs read"); }
 od_int64 nrDone() const { return mBytesToMB( filesz_ ); }
 od_int64 totalNr() const { return dp_ ? mBytesToMB(dp_->size()) : -1; }
 
@@ -209,7 +209,7 @@ int nextStep()
 	return Finished();
     }
 
-    msg_ = "Read error for '"; msg_ += fnm_; msg_ += "'";
+    msg_ = tr( "Read error for '%1'").arg( fnm_ );
     return ErrorOccurred();
 }
 
@@ -228,7 +228,7 @@ bool isOK() const
     BufferDataPack*	dp_;
     int			chunkidx_;
     od_int64		filesz_;
-    BufferString	msg_;
+    uiString		msg_;
     BufferString	fnm_;
 
     char		buf_[mPreLoadChunkSz];

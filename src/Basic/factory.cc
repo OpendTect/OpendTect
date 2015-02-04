@@ -38,7 +38,8 @@ void FactoryBase::addNames( const char* name, const uiString& username )
     SeparString sep( name, cSeparator() );
     names_.add( (const char*) sep[0] );
     aliases_.add( name );
-    usernames_.add( !username.isEmpty() ? username : (const char*) sep[0] );
+    usernames_.add(
+	!username.isEmpty() ? username : mkUiString((const char*) sep[0]));
 }
 
 
@@ -48,7 +49,8 @@ void FactoryBase::setNames( int idx, const char* name,
     SeparString sep( name, cSeparator() );
     (*names_[idx]) = (const char*) sep[0];
     (*aliases_[idx]) = name;
-    usernames_[idx] = !username.isEmpty() ? username : (const char*) sep[0];
+    usernames_[idx] =
+	!username.isEmpty() ? username : mkUiString((const char*) sep[0]);
 }
 
 

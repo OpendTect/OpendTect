@@ -107,7 +107,7 @@ uiString Task::uiMessage() const
     {
 	pErrMsgOnce("Use uiMessage() in your implementation "
 		    "instead of message()");
-	return oldmsg;
+	return mkUiString(oldmsg);
     }
 
     return tr("Working");
@@ -121,7 +121,7 @@ uiString Task::uiNrDoneText() const
     {
 	pErrMsgOnce("Use uiNrDoneText() in your implementation instead of "
 		"nrDoneText()");
-	return oldmsg;
+	return mkUiString(oldmsg);
     }
 
     return tr("Nr Done");
@@ -165,7 +165,7 @@ uiString TaskGroup::uiMessage() const
     Threads::Locker locker( lock_ );
     return tasks_.validIdx(curtask_)
 	? tasks_[curtask_]->uiMessage()
-	: 0;
+	: uiString::emptyString();
 }
 
 
@@ -174,7 +174,7 @@ uiString TaskGroup::uiNrDoneText() const
     Threads::Locker locker( lock_ );
     return tasks_.validIdx(curtask_)
 	? tasks_[curtask_]->uiNrDoneText()
-	: 0;
+	: uiString::emptyString();
 }
 
 
