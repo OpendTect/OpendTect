@@ -120,6 +120,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
     if ( inputzsz==0 || outputzsz==0 || inlsz==0 || crlsz==0 )
 	return false;
 
+    TypeSet<float> trcvals;
     for ( int idx=(int) start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const int inlidx = idx / crlsz;
@@ -129,8 +130,15 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	outpsampler.setBinID( bid );
 	outpsampler.computeCache( Interval<int>(0,outputzsz-1) );
 
-	float* outputptr = output_->getData() +
-	    output_->info().getOffset(inlidx,crlidx,0);
+	float* outputptr = 0;
+	if ( output_->getData() )
+	    outputptr = output_->getData() +
+			       output_->info().getOffset(inlidx,crlidx,0);
+	else
+	{
+	    trcvals.setSize( outputzsz, 0 );
+	    outputptr = trcvals.arr();
+	}
 
 	if ( input_->getData() )
 	{
@@ -173,6 +181,15 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	    inputfunc.setInterpolate( interpolate_ );
 
 	    reSample( inputfunc, outpsampler, outputptr, outputzsz );
+	}
+
+	if ( !output_->getData() )
+	{
+	    for ( int zidx=0; zidx<outputzsz; zidx++ )
+	    {
+		const float val = trcvals[zidx];
+		output_->set( inlidx, crlidx, zidx, val );
+	    }
 	}
     }
 
