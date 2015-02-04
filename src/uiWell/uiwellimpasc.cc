@@ -78,16 +78,20 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 
     BufferString zlbl = " ";
     zlbl.add( UnitOfMeasure::zUnitAnnot(false,true,true) ).add(" ");
-    BufferString kblbl( "KB Elevation" ); kblbl += zlbl;
+    BufferString kblbl( "Reference Datum Elevation " ); kblbl += zlbl;
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
-    kbelevfld_->attach( alignedBelow, coordfld_ );
+    kbelevfld_->setWithCheck();
+    kbelevfld_->setChecked( false );
+    kbelevfld_->attach( alignedBelow, dataselfld_ );
 
-    BufferString tdlbl( "TD" ); tdlbl += zlbl;
+    BufferString tdlbl( "TD " ); tdlbl += zlbl;
     tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
+    tdfld_->setWithCheck();
+    tdfld_->setChecked( false );
     tdfld_->attach( alignedBelow, kbelevfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, dataselfld_ );
+    sep->attach( stretchedBelow, tdfld_ );
 
     float dispval = wd_.info().replvel;
     if ( !mIsUdf(dispval) )
@@ -136,8 +140,8 @@ void uiWellImportAsc::haveTrckSel( CallBacker* )
     dataselfld_->display( havetrck );
     vertwelllbl_->display( !havetrck );
     coordfld_->display( !havetrck );
-    kbelevfld_->display( !havetrck );
-    tdfld_->display( !havetrck );
+    kbelevfld_->setChecked( !havetrck );
+    tdfld_->setChecked( !havetrck );
 }
 
 
@@ -145,6 +149,9 @@ void uiWellImportAsc::inputChgd( CallBacker* )
 {
     FilePath fnmfp( trckinpfld_->fileName() );
     outfld_->setInputText( fnmfp.baseName() );
+    kbelevfld_->setValue(0);
+    tdfld_->setChecked( false );
+    tdfld_->setValue( mUdf(float) );
 }
 
 
@@ -154,19 +161,26 @@ void uiWellImportAsc::trckFmtChg( CallBacker* )
     if ( !fd.isGood() )
 	return;
 
+    bool havez = false;
+    bool havemd = false;
     for ( int idx=0; idx<fd.bodyinfos_.size(); idx++ )
     {
 	const Table::TargetInfo& ti = *fd.bodyinfos_[idx];
-	if ( ti.name() == "Z" || ti.name() == "MD" )
-	{
-	    if ( ti.selection_.isInFile(0) )
-		return;
-	}
+	if ( ti.name() == "Z" && ti.selection_.isInFile(0) )
+	    havez = true;
+
+	if ( ti.name() == "MD" && ti.selection_.isInFile(0) )
+	    havemd = true;
     }
 
-    uiMSG().error( "The format you defined has neither Z nor MD."
-		   "\nYou should define at least one."
-		   "\nAs it is now, the track will not load." );
+    if ( !havez && !havemd )
+    {
+	uiMSG().error( "The format you defined has neither Z nor MD."
+			  "\nYou should define at least one."
+			  "\nAs it is now, the track will not load.");
+    }
+
+    kbelevfld_->setChecked( !havez || !havemd );
 }
 
 
@@ -298,34 +312,50 @@ bool uiWellImportAsc::doWork()
     if ( !outioobj )
 	return false;
 
-    FileMultiString datasrcnms;
+    float kbelev = kbelevfld_->getfValue();
+    if ( mIsUdf(kbelev) )
+	kbelev = 0;
+    else if ( SI().depthsInFeet() && zun_ )
+	kbelev = zun_->internalValue( kbelev );
 
+    float td = tdfld_->getfValue();
+    if ( !mIsUdf(td) && SI().depthsInFeet() && zun_ )
+	td = zun_->internalValue( td ) ;
+
+    BufferStringSet datasrcnms;
     if ( havetrckbox_->isChecked() )
     {
 	const BufferString fnm( trckinpfld_->fileName() );
-	datasrcnms += fnm;
+	datasrcnms.add( fnm );
 	od_istream strm( fnm );
 	if ( !strm.isOK() )
 	    mErrRet( "Cannot open track file" )
+
 	Well::TrackAscIO wellascio( fd_, strm );
-	if ( !wellascio.getData(wd_,true) )
+	if ( !kbelevfld_->isChecked() )
+	    kbelev = mUdf(float);
+
+	if ( !tdfld_->isChecked() )
+	    td = mUdf(float);
+
+	if ( !wellascio.getData(wd_,kbelev,td) )
 	{
 	    BufferString msg( "The track file cannot be loaded:\n" );
 	    msg += wellascio.errMsg();
-	    mErrRet( msg.buf() );
+	    mErrRet( msg )
+	}
+
+	if ( wellascio.warnMsg() )
+	{
+	    BufferString msg( "The track file loading issued a warning:" );
+	    msg.addNewLine().add( wellascio.warnMsg() );
+	    uiMSG().warning( msg );
 	}
     }
     else
     {
-	datasrcnms += "[Vertical]";
-	float kbelev = kbelevfld_->getfValue();
-	if ( mIsUdf(kbelev) ) kbelev = 0;
-	else if ( SI().depthsInFeet() && zun_ )
-	    kbelev = zun_->internalValue( kbelev );
+	datasrcnms.add( "[Vertical]" );
 
-	float td = tdfld_->getfValue();
-	if ( !mIsUdf(td) && SI().depthsInFeet() && zun_ )
-	    td = zun_->internalValue( td ) ;
 	if ( mIsUdf(td) || td < 1e-6 )
 	{
 	    float survzstop = SI().zRange(false).stop;
@@ -354,12 +384,16 @@ bool uiWellImportAsc::doWork()
 			" Depth to Time model file" );
 	    mErrRet( errmsg );
 	}
-	else if ( d2tgrp_->warnMsg() )
+
+	if ( d2tgrp_->warnMsg() )
 	{
-	    uiMSG().warning( d2tgrp_->warnMsg() );
+	    BufferString msg( "The Time-Depth Model file loading issued"
+			      " a warning:" );
+	    msg.addNewLine().add( d2tgrp_->warnMsg() );
+	    uiMSG().warning( msg );
 	}
 
-	datasrcnms += d2tgrp_->dataSourceName();
+	datasrcnms.add( d2tgrp_->dataSourceName() );
 	if ( d2tgrp_->wantAsCSModel() )
 	    wd_.setCheckShotModel( new Well::D2TModel( *wd_.d2TModel() ) );
     }
@@ -368,7 +402,7 @@ bool uiWellImportAsc::doWork()
     if ( !wwr.put() )
 	mErrRet( wwr.errMsg() );
 
-    outioobj->pars().update( sKey::CrFrom(), datasrcnms );
+    outioobj->pars().update( sKey::CrFrom(), datasrcnms.cat("`") );
     outioobj->updateCreationPars();
     IOM().commitChanges( *outioobj );
 
@@ -399,6 +433,12 @@ bool uiWellImportAsc::checkInpFlds()
 			"\nIs this correct?") )
 		return false;
 	}
+
+	if ( !kbelevfld_->isChecked() )
+	    mErrRet(BufferString("Please specify a Reference Datum Elevation"))
+
+	if ( !tdfld_->isChecked() )
+	    mErrRet(BufferString("Please specify a Total Depth"))
     }
 
     if ( !outfld_->commitInput() )

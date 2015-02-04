@@ -67,14 +67,14 @@ public:
     const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
     const char*		getLogInfo(od_istream& lasstrm,FileInfo&) const;
     const char*		getLogs(const char* lasfnm,const FileInfo&,
-	    			bool istvd=true);
+				bool istvd=true);
     const char*		getLogs(od_istream& lasstrm,const FileInfo&,
-	    			bool istvd=true);
+				bool istvd=true);
 
     bool		willConvertToSI() const		{ return useconvs_; }
-    			//!< Note that depth is always converted
+			//!< Note that depth is always converted
     void		setConvertToSI( bool yn )	{ useconvs_ = yn; }
-    			//!< Note that depth is always converted
+			//!< Note that depth is always converted
 
 protected:
 
@@ -86,7 +86,7 @@ protected:
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
     const char*		getLogData(od_istream&,const BoolTypeSet&,
-	    			   const FileInfo&,bool,int,int);
+				   const FileInfo&,bool,int,int);
 
 };
 
@@ -98,17 +98,27 @@ protected:
 mExpClass(Well) TrackAscIO : public Table::AscIO
 {
 public:
-    				TrackAscIO( const Table::FormatDesc& fd,
+				TrackAscIO( const Table::FormatDesc& fd,
 					   od_istream& strm )
 				    : Table::AscIO(fd)
-	      		    	    , strm_(strm)	{}
+				    , strm_(strm)	{}
 
     static Table::FormatDesc*	getDesc();
-    bool 			getData(Data&,bool first_is_surface) const;
+    bool			getData(Data&,bool first_is_surface) const;
+    bool			getData(Data&,float kbelev=mUdf(float),
+					float td=mUdf(float)) const;
 
 protected:
 
-    od_istream&		strm_;
+    od_istream&			strm_;
+    bool			readTrackData(TypeSet<Coord3>&,
+					      TypeSet<float>&,
+					      float& kbelevinfile) const;
+    bool			computeMissingValues(TypeSet<Coord3>&,
+						     TypeSet<float>&,
+						     float& kbelevinfile) const;
+    bool			adjustSurfaceLocation(TypeSet<Coord3>&,
+						     Coord& surfacecoord) const;
 
 };
 
@@ -118,7 +128,7 @@ protected:
 */
 
 mExpClass(Well) D2TModelAscIO : public Table::AscIO
-{   
+{
     public:
 				D2TModelAscIO( const Table::FormatDesc& fd )
 				: Table::AscIO(fd)          {}
@@ -128,7 +138,7 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
     static void                 createDescBody(Table::FormatDesc*,bool unitfld);
 
     bool                        get(od_istream&,Well::D2TModel&,
-	    			    const Well::Data&) const;
+				    const Well::Data&) const;
 };
 
 
@@ -139,7 +149,7 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
 mExpClass(Well) MarkerSetAscIO : public Table::AscIO
 {
 public:
-    			MarkerSetAscIO( const Table::FormatDesc& fd )
+			MarkerSetAscIO( const Table::FormatDesc& fd )
 			    : Table::AscIO(fd)		{}
 
     static Table::FormatDesc*	getDesc();
