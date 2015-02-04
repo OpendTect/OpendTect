@@ -110,7 +110,8 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
     if ( !input_ ) return true;
 
     ZAxisTransformSampler outpsampler( transform_, forward_,
-	SamplingData<double>(outputcs_.zsamp_.start, outputcs_.zsamp_.step), false );
+	SamplingData<double>(outputcs_.zsamp_.start, outputcs_.zsamp_.step), 
+	false );
 
     const int inputzsz = input_->info().getSize(mZ);
     const int outputzsz = output_->info().getSize(mZ);
@@ -120,6 +121,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
     if ( inputzsz==0 || outputzsz==0 || inlsz==0 || crlsz==0 )
 	return false;
 
+    TypeSet<float> trcvals;
     for ( int idx=(int) start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const int inlidx = idx / crlsz;
@@ -129,15 +131,23 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	outpsampler.setTrcKey( trck );
 	outpsampler.computeCache( Interval<int>(0,outputzsz-1) );
 
-	float* outputptr = output_->getData() +
-	    output_->info().getOffset(inlidx,crlidx,0);
+	float* outputptr = 0;
+	if ( output_->getData() )
+	    outputptr = output_->getData() +
+			       output_->info().getOffset(inlidx,crlidx,0);
+	else
+	{
+	    trcvals.setSize( outputzsz, 0 );
+	    outputptr = trcvals.arr();
+	}
 
 	if ( input_->getData() )
 	{
 	    const float* inputptr = input_->getData() +
 		input_->info().getOffset(inlidx,crlidx,0);
 	    SampledFunctionImpl<float,const float*> inputfunc(
-	       inputptr, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step);
+	       inputptr, inputzsz, inputcs_.zsamp_.atIndex(0), 
+	       inputcs_.zsamp_.step);
 
 	    inputfunc.setHasUdfs( true );
 	    inputfunc.setInterpolate( interpolate_ );
@@ -173,6 +183,15 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	    inputfunc.setInterpolate( interpolate_ );
 
 	    reSample( inputfunc, outpsampler, outputptr, outputzsz );
+	}
+
+	if ( !output_->getData() )
+	{
+	    for ( int zidx=0; zidx<outputzsz; zidx++ )
+	    {
+		const float val = trcvals[zidx];
+		output_->set( inlidx, crlidx, zidx, val );
+	    }
 	}
     }
 
