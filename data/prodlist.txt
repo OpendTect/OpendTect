@@ -7,7 +7,7 @@ Well Correlation Panel`dgbwcp
 SynthRock`dgbstrat
 Velocity Model Building`dgbvmb
 Workstation Access`arkclswsa
-PDF3D`arkclspdf3d
+PDF3D`dgbpdf3d
 Seismic Coloured Inversion`arkclssciplugin
 Seismic Spectral Blueing`arkclsssbplugin
 Seismic Feature Enhancement`arkclssfe
