@@ -230,6 +230,7 @@ Provider::Provider( Desc& nd )
     , prevtrcnr_( 0 )
     , needinterp_( 0 )
     , useshortcuts_( 0 )
+    , refz0_( 0 )
 {
     desc_.ref();
     inputs_.allowNull(true);

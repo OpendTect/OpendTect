@@ -336,6 +336,8 @@ protected:
     float			getExtraZFromSampPos(float) const;
     float			getExtraZFromSampInterval(int,int) const;
     virtual bool		useInterTrcDist() const;
+    float			getZAtSample(int idx) const
+    				{ return refz0_ + idx*refstep_; }
 
     bool                        zIsTime() const;
     float			zFactor() const;
@@ -356,7 +358,7 @@ protected:
     BinID			desbufferstepout_;
     BinID			reqbufferstepout_;
     TrcKeyZSampling*		desiredvolume_;
-    TrcKeyZSampling*               possiblevolume_;
+    TrcKeyZSampling*            possiblevolume_;
     TypeSet< Interval<int> >	localcomputezintervals_;
     ObjectSet<Provider>		allexistingprov_;
     TypeSet<float>      	exactz_;//only used for outputs which require
@@ -374,6 +376,7 @@ protected:
     BinID                       trcinfobid_;
     bool			useshortcuts_;
 
+    float			refz0_;
     float                       refstep_;
     bool 			alreadymoved_;
 
