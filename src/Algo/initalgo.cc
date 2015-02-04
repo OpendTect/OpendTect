@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posfilterstd.h"
 #include "raytrace1d.h"
 #include "statrand.h"
+#include "checksum.h"
 #include "windowfunction.h"
 
 mDefModInitFn(Algo)
@@ -41,4 +42,6 @@ mDefModInitFn(Algo)
 
     VrmsRayTracer1D::initClass();
     ZSliceInterpolationModel::initClass();
+
+    initChecksum();
 }

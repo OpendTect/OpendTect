@@ -28,6 +28,7 @@ set( OD_MODULE_SOURCES
 	bendpoints2coords.cc
 	binidsorting.cc
 	bodyvolumecalc.cc
+	checksum.cc
 	conncomponents.cc
 	convolve2d.cc
 	curvature.cc
