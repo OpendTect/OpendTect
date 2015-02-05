@@ -11,6 +11,7 @@ set( OD_TEST_PROGS
 	array2dmatrix.cc
 	gaussianprobdenfunc.cc
 	simpnumer.cc
+	checksum.cc
 	velocitycalc.cc
 )
 
