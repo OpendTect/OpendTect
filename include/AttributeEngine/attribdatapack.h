@@ -108,6 +108,9 @@ public:
     bool		isOK() const		{ return dataholderarr_; }
 
     const Data2DArray*	dataarray() const	{ return dataholderarr_; }
+    void		setDataArray(const Data2DArray*);
+    void		setRefNrs(TypeSet<float>);
+
     virtual const char*	sourceType() const	{ return "2D"; }
 
     void		getPosDataTable(TypeSet<int>& trcnrs,
@@ -239,6 +242,9 @@ public:
 
     const SeisTrcBuf&	seisBuf() const		{ return *seisbuf_; }
     Array2D<float>&	data()			{ return *arr2d_; }
+
+    void		setSeisTrcBuf(const SeisTrcBuf*);
+    void		setRefNrs(TypeSet<float>);
 
     Coord3		getCoord(int,int) const;
     double		getAltDim0Value(int,int) const;

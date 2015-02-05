@@ -614,6 +614,7 @@ void Seis2DDisplay::createDisplayDataPacks( int attrib )
 					&slice2d, dp2ddh->getGeomID(),
 					data2dh.trcinfoset_[0]->sampling,
 					dp2ddh->getTraceRange() );
+	dp2d->setDataArray( &data2dh );
 	dp2d->setName( dp2ddh->name() );
 	dpm.add( dp2d );
 	dpids += dp2d->id();

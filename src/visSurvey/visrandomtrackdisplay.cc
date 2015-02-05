@@ -696,6 +696,7 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
 	const Attrib::DescID descid = rdmtrcsdp->descID();
 	Attrib::FlatRdmTrcsDataPack* dprdm =
 	    new Attrib::FlatRdmTrcsDataPack( descid, array, sd, &path );
+	dprdm->setSeisTrcBuf( &seisbuf );
 	dprdm->setName( rdmtrcsdp->name() );
 	dpm.add( dprdm );
 	dpids += dprdm->id();

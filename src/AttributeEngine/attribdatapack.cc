@@ -27,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "zaxistransform.h"
 
+#include "hiddenparam.h"
+
 #define mStepIntvD( rg ) \
     StepInterval<double>( rg.start, rg.stop, rg.step )
 
@@ -389,6 +391,8 @@ const char* Flat2DDataPack::dimName( bool dim0 ) const
 }
 
 
+HiddenParam< Flat2DDHDataPack, TypeSet<float>* >	refnrs_( 0 );
+
 Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
 				    bool usesingtrc, int component,
 				    const Pos::GeomID& geomid )
@@ -399,6 +403,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
     , dataholderarr_( 0 )
     , array2dslice_( 0 )
 {
+    refnrs_.setParam( this, new TypeSet<float> );
     if ( !dh.trcinfoset_.isEmpty() )
     {
 	tracerange_ = StepInterval<int>( dh.trcinfoset_[0]->nr,
@@ -459,6 +464,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Array2D<float>* arr2d,
     , dataholderarr_(0)
     , array2dslice_(0)
 {
+    refnrs_.setParam( this, new TypeSet<float> );
     arr2d_ = new Array2DImpl<float>( *arr2d );
     setPosData();
 }
@@ -468,6 +474,25 @@ Flat2DDHDataPack::~Flat2DDHDataPack()
 {
     if ( dataholderarr_ )
 	dataholderarr_->unRef();
+    delete refnrs_.getParam(this);
+    refnrs_.removeParam(this);
+}
+
+
+void Flat2DDHDataPack::setDataArray( const Data2DArray* dataarr )
+{
+    if ( dataholderarr_ )
+	dataholderarr_->unRef();
+
+    dataholderarr_ = dataarr;
+    if ( dataholderarr_ )
+	dataholderarr_->ref();
+}
+
+
+void Flat2DDHDataPack::setRefNrs( TypeSet<float> refnrs )
+{
+    *refnrs_.getParam(this) = refnrs;
 }
 
 
@@ -573,6 +598,7 @@ double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 	case SeisTrcInfo::TrcNr:	return tracerange_.atIndex(i0);
 	case SeisTrcInfo::CoordX:	return getCoord(i0,0).x;
 	case SeisTrcInfo::CoordY:	return getCoord(i0,0).y;
+	case SeisTrcInfo::RefNr:	return (*refnrs_.getParam(this))[i0];
 	default:		return FlatDataPack::getAltDim0Value(ikey,i0);
     }
 }
@@ -647,11 +673,14 @@ void CubeDataPack::getAuxInfo( int, int, int, IOPar& ) const
 }
 
 
+HiddenParam< FlatRdmTrcsDataPack, TypeSet<float>* >	refnrs1_( 0 );
+
 FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
 					  TypeSet<BinID>* path )
     : Flat2DDataPack(did)
     , path_(0)
 {
+    refnrs1_.setParam( this, new TypeSet<float> );
     if ( path )
 	path_ = new TypeSet<BinID>(*path);
     
@@ -680,6 +709,7 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did,
     , seisbuf_(0)
     , path_(0)
 {
+    refnrs1_.setParam( this, new TypeSet<float> );
     if ( path )
 	path_ = new TypeSet<BinID>(*path);
 
@@ -692,6 +722,23 @@ FlatRdmTrcsDataPack::~FlatRdmTrcsDataPack()
 {
     if ( seisbuf_ ) seisbuf_->erase();
     delete path_;
+    delete refnrs1_.getParam(this);
+    refnrs1_.removeParam(this);
+}
+
+
+void FlatRdmTrcsDataPack::setSeisTrcBuf( const SeisTrcBuf* seisbuf )
+{
+    if ( seisbuf_ )
+	seisbuf_->erase();
+    seisbuf_ = new SeisTrcBuf( true );
+    seisbuf->copyInto(*seisbuf_);
+}
+
+
+void FlatRdmTrcsDataPack::setRefNrs( TypeSet<float> refnrs )
+{
+    *refnrs1_.getParam(this) = refnrs;
 }
 
 
@@ -742,6 +789,9 @@ double FlatRdmTrcsDataPack::getAltDim0Value( int ikey, int i0 ) const
 	case SeisTrcInfo::TrcNr:	return TrcKey((*path_)[i0]).trcNr();
 	case SeisTrcInfo::CoordX:	return getCoord(i0,0).x;
 	case SeisTrcInfo::CoordY:	return getCoord(i0,0).y;
+	case SeisTrcInfo::RefNr:
+				return refnrs1_.getParam(this)->validIdx(i0) ?
+				   (*refnrs1_.getParam(this))[i0] : mUdf(float);
 	default:		return FlatDataPack::getAltDim0Value(ikey,i0);
     }
 }
@@ -933,12 +983,34 @@ bool FlatDataPackZAxisTransformer::doFinish( bool success )
     FlatDataPack* outputdp = 0;
     const SamplingData<float> sd( zrange_.start, zrange_.step );
     if ( dp2ddh )
-	outputdp = new Flat2DDHDataPack( dp2ddh->descID(), arr2d_[0],
-					 dp2ddh->getGeomID(), sd,
-					 dp2ddh->getTraceRange() );
+    {
+	Flat2DDHDataPack* outputf2ddp =
+	    new Flat2DDHDataPack( dp2ddh->descID(), arr2d_[0],
+				  dp2ddh->getGeomID(), sd,
+				  dp2ddh->getTraceRange() );
+	const Data2DArray* dataarr = dp2ddh->dataarray();
+	if ( dataarr )
+	{
+	    TypeSet<float> refnrs;
+	    for ( int idx=0; idx<dataarr->trcinfoset_.size(); idx++ )
+		refnrs += dataarr->trcinfoset_[idx]->getValue(
+						SeisTrcInfo::RefNr );
+	    outputf2ddp->setRefNrs( refnrs );
+	}
+	outputdp = outputf2ddp;
+    }
     else if ( dprdm )
-	outputdp = new FlatRdmTrcsDataPack( dprdm->descID(), arr2d_[0], sd,
+    {
+	FlatRdmTrcsDataPack* outputdprdm =
+	    new FlatRdmTrcsDataPack( dprdm->descID(), arr2d_[0], sd,
 			const_cast<TypeSet<BinID>* >(dprdm->pathBIDs()) );
+	TypeSet<float> refnrs;
+	for ( int idx=0; idx<dprdm->seisBuf().size(); idx++ )
+	    refnrs += dprdm->seisBuf().get(idx)->info().getValue(
+						SeisTrcInfo::RefNr );
+	outputdprdm->setRefNrs( refnrs );
+	outputdp = outputdprdm;
+    }
 
     outputdp->setName( fdp->name() );
     dpm_.add( outputdp );
