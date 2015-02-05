@@ -51,7 +51,6 @@ protected:
     IOObj*		getInpIOObj(const char*) const;
 
     bool		acceptOK(CallBacker*);
-    void		procToBeDoneCB(CallBacker*);
 
 };
 

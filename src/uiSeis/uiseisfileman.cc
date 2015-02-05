@@ -275,6 +275,7 @@ void uiSeisFileMan::mkFileInfo()
 	}
     }
 
+    BufferString dsstr = curioobj_->pars().find( sKey::DataStorage() );
     if ( mIsOfTranslType(CBVS) )
     {
 	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
@@ -284,11 +285,12 @@ void uiSeisFileMan::mkFileInfo()
 	    const BasicComponentInfo& bci =
 		*tri->readMgr()->info().compinfo_[0];
 	    const DataCharacteristics::UserType ut = bci.datachar.userType();
-	    BufferString etxt = DataCharacteristics::getUserTypeString(ut);
-	    txt.add( "\nStorage: " ).add( etxt.buf() + 4 );
+	    dsstr = DataCharacteristics::getUserTypeString(ut);
 	}
 	delete tri;
     }
+    if ( dsstr.size() > 4 )
+	txt.add( "\nStorage: " ).add( dsstr.buf() + 4 );
 
     const int nrcomp = oinf.nrComponents();
     if ( nrcomp > 1 )
