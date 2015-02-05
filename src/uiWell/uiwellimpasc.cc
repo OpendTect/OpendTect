@@ -391,7 +391,12 @@ bool uiWellImportAsc::doWork()
 	}
 
 	if ( d2tgrp_->warnMsg().isSet() )
-	    uiMSG().warning( d2tgrp_->warnMsg() );
+	{
+	    uiString msg = tr( "The Time-Depth Model file loading issued"
+			       " a warning:\n%1" )
+			       .arg( d2tgrp_->warnMsg() );
+	    uiMSG().warning( msg );
+	}
 
 	datasrcnms.add( d2tgrp_->dataSourceName() );
 	if ( d2tgrp_->wantAsCSModel() )
