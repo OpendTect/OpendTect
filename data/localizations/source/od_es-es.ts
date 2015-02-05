@@ -4312,7 +4312,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
     <message>
         <location filename="../../../src/Basic/texttranslator.cc" line="247"/>
         <source>Language Name</source>
-        <translation>Nombre de Idioma</translation>
+        <translation type="unfinished">Español</translation>
     </message>
 </context>
 <context>
