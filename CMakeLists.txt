@@ -95,6 +95,11 @@ OD_ADD_MODULES( src ${OD_MODULES} )
 OD_ADD_MODULES( plugins ${OD_PLUGINS} )
 OD_ADD_MODULES( spec ${OD_SPECPROGS} )
 
+set( PLUGIN_DIR ""  CACHE PATH "Path to eventual extra plugins" )
+if ( EXISTS ${PLUGIN_DIR}/CMakeLists.txt )
+    include ( ${PLUGIN_DIR}/CMakeLists.txt )
+endif()
+
 OD_WRITE_MODDEPS( ${OD_BINARY_BASEDIR}/data )
 OD_WRITE_FINDFILE()
 OD_WRITE_TEST_PROJECT_DESC( ${OD_BINARY_BASEDIR}/test )
