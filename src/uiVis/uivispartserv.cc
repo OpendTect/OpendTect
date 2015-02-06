@@ -1572,18 +1572,6 @@ bool uiVisPartServer::isPicking() const
 }
 
 
-void uiVisPartServer::turnQCPlaneOff()
-{
-    if ( isViewMode() )
-	return;
-
-    if ( !mpetools_ )
-	return;
-
-    mpetools_->turnQCPlaneOff();
-}
-
-
 void uiVisPartServer::getPickingMessage( BufferString& str ) const
 {
     str = "";

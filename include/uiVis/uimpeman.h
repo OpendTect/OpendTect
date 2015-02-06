@@ -50,17 +50,12 @@ public:
 
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
-    void			turnQCPlaneOff();
 
     void			visObjectLockedCB(CallBacker*);
     void			updateButtonSensitivity(CallBacker* = 0);
 
 protected:
     void			addButtons();
-    visSurvey::MPEDisplay*	getDisplay(int sceneid,bool create=false);
-
-    uiPropertiesDialog*		propdlg_;
-    bool			showtexture_;
 
     uiToolBar*			toolbar_;
 
@@ -70,19 +65,10 @@ protected:
     int				clickablesceneid_;
 
     uiComboBox*			seedconmodefld_;
-    uiSpinBox*			nrstepsbox_;
-
-    void			boxDraggerStatusChangeCB(CallBacker*);
-    void			showCubeCB(CallBacker*);
-    void			setCubePosCB(CallBacker*);
-
-    void			attribSel(CallBacker*);
 
     void			undoPush(CallBacker*);
     void			redoPush(CallBacker*);
     void			savePush(CallBacker*);
-    void			moveBackward(CallBacker*);
-    void			moveForward(CallBacker*);
     void			trackFromSeedsOnly(CallBacker*);
     void			trackFromSeedsAndEdges(CallBacker*);
     void			trackInVolume(CallBacker*);
@@ -99,15 +85,6 @@ protected:
     void			trackerAddedRemovedCB(CallBacker*);
     void			addSeedCB(CallBacker*);
     void			seedConnectModeSel(CallBacker*);
-    void			setColorbarCB(CallBacker*);
-    void			movePlaneCB(CallBacker*);
-    void			handleOrientationClick(CallBacker*);
-    void			planeOrientationChangedCB(CallBacker*);
-    void			mouseEraseModeCB(CallBacker*);
-    void			showTracker(bool yn);
-    void			changeTrackerOrientation(int orient);
-
-    void			onColTabClosing(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
     void			restoreActiveVol();
@@ -115,7 +92,6 @@ protected:
     MPE::EMTracker*		getSelectedTracker();
 
     void 			finishMPEDispIntro(CallBacker*);
-    void			loadPostponedData();
 
     int				cureventnr_;
     void			beginSeedClickEvent(EM::EMObject*);
@@ -126,12 +102,7 @@ protected:
     void			updateClickCatcher();
 
     int				seedidx_;
-    int				clrtabidx_;
-    int				moveplaneidx_;
-    int				showcubeidx_, displayidx_;
-    int				mouseeraseridx_;
     int				undoidx_, redoidx_;
-    int				trackforwardidx_, trackbackwardidx_;
     int				trackwithseedonlyidx_;
     int				trackinvolidx_;
     int 			polyselectidx_;
@@ -139,15 +110,12 @@ protected:
     int				displayatsectionidx_;
     int				retrackallidx_;
     int				saveidx_;
-    bool			trackerwasonbeforemouseerase_;
 
     bool			seedpickwason_;
     bool			polyselstoppedseedpick_;
     bool			mpeintropending_;
 
     TrcKeyZSampling		oldactivevol_;
-
-    static const char*		sKeyNoAttrib() { return "No attribute"; }
 };
 
 #endif

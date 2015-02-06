@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "survinfo.h"
 
-namespace MPE 
+namespace MPE
 {
 
 Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor,
@@ -84,7 +84,7 @@ void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
     BinID neighbrbid = srcbid;
     const TrcKeyZSampling& boundary = getExtBoundary();
 
-    do 
+    do
     {
 	neighbrbid += BinID( 0, upwards ? colrange.step : -colrange.step );
 	if ( !colrange.includes(neighbrbid.crl(),false) )
@@ -128,5 +128,4 @@ float Horizon2DExtender::getDepth( const EM::SubID& srcrc,
     return (float) surface_.getPos( sid_, srcrc ).z;
 }
 
-
-};  // namespace MPE
+}  // namespace MPE

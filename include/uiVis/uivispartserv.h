@@ -337,7 +337,6 @@ public:
 				     is handling left-mouse picks on other
 				     objects, so the picks won't be handled by
 				     the selman. */
-    void			turnQCPlaneOff();
     void			getPickingMessage(BufferString&) const;
 
     static int			evLoadPostponedData();

@@ -467,7 +467,6 @@ void uiODVw2DHor3DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 	oldactivevolupdated_ = true;
     }
 
-    applMgr()->visServer()->turnQCPlaneOff();
 }
 
 

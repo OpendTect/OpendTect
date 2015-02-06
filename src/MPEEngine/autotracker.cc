@@ -416,4 +416,4 @@ uiString AutoTracker::uiMessage() const
 { return execmsg_; }
 
 
-}; // namespace MPE
+} // namespace MPE
