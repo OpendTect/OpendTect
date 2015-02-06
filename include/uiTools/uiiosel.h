@@ -145,7 +145,6 @@ public:
 
 			// Some standard types of files
     static IOPar&	ixtablehistory();
-    static IOPar&	devicehistory();
     static IOPar&	tmpstoragehistory();
 
 protected:

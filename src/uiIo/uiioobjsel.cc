@@ -267,6 +267,7 @@ uiIOObjSel::~uiIOObjSel()
 
 void uiIOObjSel::preFinaliseCB( CallBacker* )
 {
+    fillEntries();
     fillDefault();
     updateInput();
 }

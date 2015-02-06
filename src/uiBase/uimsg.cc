@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobj.h"
 #include "uiparentbody.h"
 #include "uipixmap.h"
+#include "uibutton.h"
 #include "uistatusbar.h"
 #include "uistring.h"
 #include "uistrings.h"
@@ -186,27 +187,31 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     mb->setText( txt.getQtString() );
     addStayOnTopFlag( *mb );
 
+    const bool withics = uiButton::haveCommonPBIcons();
     QIcon qicon; // null icon to avoid icons on the pushbuttons
 
     if ( !yestxt.isEmpty() )
     {
 	QPushButton* yesbut = mb->addButton( QMessageBox::Yes );
 	yesbut->setText(yestxt.getQtString() );
-	yesbut->setIcon( qicon );
+	if ( !withics )
+	    yesbut->setIcon( qicon );
     }
 
     if ( !notxt.isEmpty() )
     {
 	QPushButton* nobut = mb->addButton( QMessageBox::No );
 	nobut->setText( notxt.getQtString() );
-	nobut->setIcon( qicon );
+	if ( !withics )
+	    nobut->setIcon( qicon );
     }
 
     if ( !cncltxt.isEmpty() )
     {
 	QPushButton* rejbut = mb->addButton( QMessageBox::Abort );
 	rejbut->setText( cncltxt.getQtString() );
-	rejbut->setIcon( qicon );
+	if ( !withics )
+	    rejbut->setIcon( qicon );
     }
 
     return mb;

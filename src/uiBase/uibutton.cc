@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "objdisposer.h"
 #include "odiconfile.h"
 #include "perthreadrepos.h"
-#include "settings.h"
 
 
 #include <QApplication>
@@ -38,6 +37,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QToolButton>
 
 mUseQtnamespace
+
+bool uiButton::havecommonpbics_ = false;
+
 
 
 class uiButtonBody : public uiObjectBody
@@ -239,7 +241,8 @@ void uiButton::translateText()
 
 
 static uiButton* crStd( uiParent* p, uiButton::StdType typ,
-	const CallBack& cb, bool immediate, const uiString* buttxt )
+	const CallBack& cb, bool immediate, const uiString* buttxt,
+	bool pbics=false )
 {
     uiString txt = uiStrings::sEmptyString();
     uiString tt = uiStrings::sEmptyString();
@@ -278,7 +281,6 @@ static uiButton* crStd( uiParent* p, uiButton::StdType typ,
     else
     {
 	ret = new uiPushButton( p, txt, cb, immediate );
-	static bool pbics = Settings::common().isTrue( "Ui.Icons.PushButtons" );
 	if ( pbics )
 	    ret->setIcon( icid );
     }
@@ -289,7 +291,7 @@ static uiButton* crStd( uiParent* p, uiButton::StdType typ,
 uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
 	const CallBack& cb, bool immediate, const uiString& buttxt )
 {
-    return crStd( p, typ, cb, immediate, &buttxt );
+    return crStd( p, typ, cb, immediate, &buttxt, havecommonpbics_ );
 }
 
 uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
@@ -298,10 +300,10 @@ uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
     if ( txt )
     {
 	const uiString buttxt( txt );
-	return crStd( p, typ, cb, immediate, &buttxt );
+	return crStd( p, typ, cb, immediate, &buttxt, havecommonpbics_ );
     }
 
-    return crStd( p, typ, cb, immediate, 0 );
+    return crStd( p, typ, cb, immediate, 0, havecommonpbics_ );
 }
 
 

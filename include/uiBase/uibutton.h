@@ -58,11 +58,15 @@ public:
 				const char* nonstd_text=0);
     static uiButton*	getStd(uiParent*,StdType,const CallBack&,bool immediate,
 				const uiString& nonstd_text);
+    static bool		haveCommonPBIcons()	{ return havecommonpbics_; }
+    static void		setHaveCommonPBIcons( bool yn=true )
+    						{ havecommonpbics_ = yn; }
 
 protected:
 
     uiString		text_;
     float		iconscale_;
+    static bool		havecommonpbics_;
 
     virtual void	translateText();
     virtual void	setPM(const uiPixmap&);

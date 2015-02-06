@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "uicursor.h"
+#include "uibutton.h"
+#include "settings.h"
 
 #include "uihelpview.h"
 #include "uirgbarray.h"
@@ -18,6 +20,14 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefModInitFn(uiBase)
 {
     mIfNotFirstTime( return );
+
+#ifdef __debug__
+    uiButton::setHaveCommonPBIcons(
+	    	!Settings::common().isFalse("Ui.Icons.PushButtons") );
+#else
+    uiButton::setHaveCommonPBIcons(
+	    	Settings::common().isTrue("Ui.Icons.PushButtons") );
+#endif
 
     uiCursorManager::initClass();
     FlareHelpProvider::initODHelp();

@@ -21,8 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 IOPar& uiIOFileSelect::ixtablehistory()
 { return *new IOPar("IXTable selection history"); }
-IOPar& uiIOFileSelect::devicehistory()
-{ return *new IOPar("Device selection history"); }
 IOPar& uiIOFileSelect::tmpstoragehistory()
 { return *new IOPar("Temporay storage selection history"); }
 
