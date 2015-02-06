@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 bool testChecksum()
 {
     mRunStandardTest(
-	    checksum64( (unsigned char*) "123456789",9,0 )==0xe9c6d914c4b8d9ca,
+	 checksum64( (unsigned char*) "123456789",9,0 )==0xe9c6d914c4b8d9caULL,
 	    "64 bit checksum" );
 
     return true;
