@@ -32,10 +32,9 @@ public:
     bool		terminate();
 
     void*		getFunction(const char*) const;
-    bool		getParameters(BufferStringSet& nms,
+    bool		getParameters(int& nrin,int& nrout,
+				      BufferStringSet& nms,
 				      BufferStringSet& values) const;
-    int			getNrInputs() const;
-    int			getNrOutputs() const;
     uiString		errMsg() const		{ return errmsg_; }
 
 protected:

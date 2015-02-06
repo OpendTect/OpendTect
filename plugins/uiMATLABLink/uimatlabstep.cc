@@ -102,16 +102,10 @@ void uiMatlabStep::loadCB( CallBacker* )
 	return;
     }
 
+    int nrinputs=1, nroutputs=1;
     BufferStringSet parnames, parvalues;
-    mla->getParameters( parnames, parvalues );
+    mla->getParameters( nrinputs, nroutputs, parnames, parvalues );
     fillParTable( parnames, parvalues );
-
-    const int nrinputs = mla->getNrInputs();
-    if ( nrinputs < 0 )
-    {
-	uiMSG().error( tr("Cannot read number of inputs from input file") );
-	return;
-    }
 
     mDynamicCastGet(MatlabStep*,step,step_)
     if ( step ) step->setNrInputs( nrinputs );

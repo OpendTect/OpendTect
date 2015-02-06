@@ -31,13 +31,11 @@ extern "C" {
     typedef void (*termfn)();			// XX_cTerminate(void)
 
     typedef bool (*getparfn)(int,mxArray**);	// mlfOd_getparameters
-    typedef bool (*getnrinfn)(int,mxArray**);	// mlfOd_getnrinputs
-    typedef bool (*getnroutfn)(int,mxArray**);	// mlfOd_getnroutputs
 };
 
 static const char* sGetParametersStr = "mlfOd_getparameters";
-static const char* sGetNrInputsStr = "mlfOd_getnrinputs";
-static const char* sGetNrOutputsStr = "mlfOd_getnroutputs";
+static const char* sNrInputsStr = "nrinputs";
+static const char* sNrOutputsStr = "nroutputs";
 
 #endif
 
@@ -108,9 +106,27 @@ bool MatlabLibAccess::terminate()
 }
 
 
-bool MatlabLibAccess::getParameters( BufferStringSet& names,
+static bool getFieldValue( mxArray* mxarr, int idx, BufferString& res )
+{
+    mxArray* vals = mxGetFieldByNumber( mxarr, 0, idx );
+    if ( !vals )
+    {
+	res.setEmpty();
+	return false;
+    }
+
+    res = mxGetScalar( vals );
+    return true;
+}
+
+
+bool MatlabLibAccess::getParameters( int& nrinputs, int& nroutputs,
+				     BufferStringSet& names,
 				     BufferStringSet& values ) const
 {
+    nrinputs = 1;
+    nroutputs = 1;
+
     const char* getparfnm = sGetParametersStr;
     getparfn fn = (getparfn)sla_->getFunction( getparfnm );
     if ( !fn )
@@ -125,49 +141,26 @@ bool MatlabLibAccess::getParameters( BufferStringSet& names,
     for ( int idx=0; idx<nrvars; idx++ )
     {
 	BufferString str = mxGetFieldNameByNumber( parsarr, idx );
-	names.add( str );
+	if ( str==sNrInputsStr && getFieldValue(parsarr,idx,str) )
+	{
+	    nrinputs = toInt( str.buf() );
+	    continue;
+	}
+	if ( str==sNrOutputsStr && getFieldValue(parsarr,idx,str) )
+	{
+	    nroutputs = toInt( str.buf() );
+	    continue;
+	}
 
-	mxArray* vals = mxGetFieldByNumber( parsarr, 0, idx );
-	if ( !vals ) continue;
-
-	str = mxGetScalar( vals );
-	values.add( str );
+	const BufferString parnm = str;
+	if ( getFieldValue(parsarr,idx,str) )
+	{
+	    names.add( parnm );
+	    values.add( str );
+	}
     }
 
     return res;
-}
-
-int MatlabLibAccess::getNrInputs() const
-{
-    const char* funcnm = sGetNrInputsStr;
-    getnrinfn fn = (getnrinfn)sla_->getFunction( funcnm );
-    if ( !fn )
-	return 1;
-
-    mxArray* mxarr = NULL;
-    const bool res = (*fn)( 1, &mxarr );
-    if ( !res )
-	mErrRet( tr("Function %1 returned false").arg(funcnm) );
-
-    const int nr = mCast(int,mxGetScalar(mxarr));
-    return nr;
-}
-
-
-int MatlabLibAccess::getNrOutputs() const
-{
-    const char* funcnm = sGetNrOutputsStr;
-    getnroutfn fn = (getnroutfn)sla_->getFunction( funcnm );
-    if ( !fn )
-	return 1;
-
-    mxArray* mxarr = NULL;
-    const bool res = (*fn)( 1, &mxarr );
-    if ( !res )
-	mErrRet( tr("Function %1 returned false").arg(funcnm) );
-
-    const int nr = mCast(int,mxGetScalar(mxarr));
-    return nr;
 }
 
 #else
@@ -177,8 +170,6 @@ bool MatlabLibAccess::terminate()	{ return true; }
 bool MatlabLibAccess::getParameters( BufferStringSet& names,
 				     BufferStringSet& values ) const
 { return true; }
-int MatlabLibAccess::getNrInputs() const    { return 1; }
-int MatlabLibAccess::getNrOutputs() const   { return 1; }
 #endif
 
 
