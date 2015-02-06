@@ -5,7 +5,7 @@
  * FUNCTION :
 -*/
 
-static const char* rcsID mUsedVar = "$Id: callback.cc 33379 2014-02-18 07:54:56Z kristofer.tingdahl@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "checksum.h"
 #include "testprog.h"
@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id: callback.cc 33379 2014-02-18 07:54:56Z
 bool testChecksum()
 {
     mRunStandardTest(
-	    checksum64( (unsigned char*) "123456789",9,0 )==0xe9c6d914c4b8d9ca,
+	  checksum64( (unsigned char*) "123456789",9,0 )==0xe9c6d914c4b8d9caULL,
 	    "64 bit checksum" );
 
     return true;
