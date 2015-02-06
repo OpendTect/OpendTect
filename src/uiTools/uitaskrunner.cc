@@ -12,18 +12,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 
 #include "mousecursor.h"
+
+#include "uibutton.h"
+#include "uilabel.h"
+#include "uimsg.h"
 #include "uiprogressbar.h"
 #include "uistatusbar.h"
-#include "uilabel.h"
-#include "uibutton.h"
 
 #include "fixedstring.h"
 #include "keystrs.h"
-#include "timer.h"
-#include "uimsg.h"
+#include "settings.h"
 #include "thread.h"
 #include "threadlock.h"
 #include "timefun.h"
+#include "timer.h"
 
 #include <math.h>
 
@@ -104,8 +106,12 @@ bool uiTaskRunner::execute( Task& t )
 
 void uiTaskRunner::onFinalise( CallBacker* )
 {
-    button(OK)->setIcon( "pause" );
-    button(CANCEL)->setIcon( "abort" );
+    static bool pbics = Settings::common().isTrue( "Ui.Icons.PushButtons" );
+    if ( pbics )
+    {
+	button(OK)->setIcon( "pause" );
+	button(CANCEL)->setIcon( "abort" );
+    }
 
     tim_.start( 100, true );
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
