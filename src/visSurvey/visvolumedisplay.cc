@@ -1169,8 +1169,23 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 
 	SI().snap( res.hrg.start );
 	SI().snap( res.hrg.stop );
-	SI().snapZ( res.zsamp_.start );
-	SI().snapZ( res.zsamp_.stop );
+
+	if ( !datatransform_ )
+	{
+	    SI().snapZ( res.zsamp_.start );
+	    SI().snapZ( res.zsamp_.stop );
+	}
+	else
+	{
+	    StepInterval<float> zrg = datatransform_->getZInterval(false);
+	    if ( scene_ )
+		zrg.step = scene_->getTrcKeyZSampling().zsamp_.step;
+	    else
+		zrg.step = datatransform_->getGoodZStep();
+
+	    zrg.snap( res.zsamp_.start );
+	    zrg.snap( res.zsamp_.stop );
+	}
     }
 
     const bool alreadytf = alreadyTransformed( attrib );
