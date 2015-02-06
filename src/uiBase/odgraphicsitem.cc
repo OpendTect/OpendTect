@@ -396,6 +396,14 @@ QPointF ODGraphicsTextItem::getAlignment() const
 }
 
 
+static double getPaintAngle( const QTransform& transform )
+{
+    const QPointF v00 = transform.map( QPointF(0,0) );
+    const QPointF v10 = transform.map( QPointF(1,0) );
+    return Math::Atan2( v10.y()-v00.y(), v10.x()-v00.x() );
+}
+
+
 static int border = 5;
 
 QRectF ODGraphicsTextItem::boundingRect() const
@@ -404,7 +412,7 @@ QRectF ODGraphicsTextItem::boundingRect() const
     const float txtwidth = qfm.width( QString(text_) );
     const float txtheight = qfm.height();
 
-    const double paintangle = Math::ASin(transform().m12());
+    const double paintangle = getPaintAngle( transform() );
     const float boundingwidth = txtwidth * cos(paintangle) +
 				txtheight * fabs(sin(paintangle));
     const float boundingheight = txtheight + txtwidth * fabs(sin(paintangle));
@@ -431,7 +439,9 @@ void ODGraphicsTextItem::paint( QPainter* painter,
 
     QPointF paintpos( 0, 0 );
     paintpos = painter->worldTransform().map( paintpos );
-    const double paintangle = Math::ASin(painter->worldTransform().m12());
+
+    const double paintangle = getPaintAngle( painter->worldTransform() );
+    //<-- NOTE: Angle should be obtained before resetting the transform.
 
     painter->save();
     painter->resetTransform();
