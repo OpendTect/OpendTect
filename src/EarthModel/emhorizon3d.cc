@@ -193,6 +193,8 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	    arr->setAll( mUdf(float) );
 	    horarrays_ += arr;
 	}
+	else
+	    msg_ = "No Valid Positions";
     }
 
     horizon_.enableGeometryChecks( false );
@@ -210,7 +212,8 @@ uiString	uiNrDoneText() const	{ return "Positions handled"; }
 
 int nextStep()
 {
-    if ( nrvals_ == -1 ) return ErrorOccurred();
+    if ( nrvals_ == -1 || horarrays_.isEmpty() ) 
+	return ErrorOccurred();
 
     if ( sectionidx_ >= bvss_.size() )
     {
