@@ -21,6 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QApplication>
 #include <QGesture>
 #include <QGraphicsView>
+#include <QPrinter>
+#include <QPrintDialog>
 #include <QScrollBar>
 #include <QTouchEvent>
 #include <QWheelEvent>
@@ -642,4 +644,18 @@ void uiGraphicsViewBase::translateText()
 {
     uiObject::translateText();
     scene_->translateText();
+}
+
+
+bool uiGraphicsViewBase::print()
+{
+    QPrinter printer;
+    QPrintDialog printdlg( &printer );
+    if ( printdlg.exec() == QDialog::Rejected )
+	return false;
+
+    QPainter painter( &printer );
+    painter.setRenderHint( QPainter::Antialiasing );
+    body_->render( &painter );
+    return true;
 }

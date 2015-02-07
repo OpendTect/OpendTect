@@ -77,6 +77,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     {
 	vwr_.rgbCanvas().enableImageSave();
 	tb_->addObject( vwr_.rgbCanvas().getSaveImageButton(tb_) );
+	tb_->addObject( vwr_.rgbCanvas().getPrintImageButton(tb_) );
     }
 
     tb_->addSeparator();

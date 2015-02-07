@@ -24,12 +24,15 @@ public:
 				uiGraphicsView(uiParent*,const char* nm);
 
     uiToolButton*		getSaveImageButton(uiParent*);
+    uiToolButton*		getPrintImageButton(uiParent*);
+
     void			enableImageSave();
     void			disableImageSave();
 
 protected:
     bool			enableimagesave_;
     void 			saveImageCB(CallBacker*);
+    void 			printImageCB(CallBacker*);
 };
 
 #endif

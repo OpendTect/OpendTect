@@ -12,9 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigraphicsview.h"
 
-#include "uitoolbutton.h"
 #include "uigraphicssaveimagedlg.h"
 #include "uigraphicsscene.h"
+#include "uitoolbutton.h"
 
 
 uiGraphicsView::uiGraphicsView( uiParent* p, const char* nm )
@@ -34,6 +34,13 @@ uiToolButton* uiGraphicsView::getSaveImageButton( uiParent* p )
 }
 
 
+uiToolButton* uiGraphicsView::getPrintImageButton( uiParent* p )
+{
+    return new uiToolButton( p, "printer", tr("Print image"),
+			mCB(this,uiGraphicsView,printImageCB) );
+}
+
+
 void uiGraphicsView::enableImageSave()	{ enableimagesave_ = true; }
 void uiGraphicsView::disableImageSave()	{ enableimagesave_ = false; }
 
@@ -43,4 +50,10 @@ void uiGraphicsView::saveImageCB( CallBacker* )
 
     uiGraphicsSaveImageDlg dlg( parent(), scene_ );
     dlg.go();
+}
+
+
+void uiGraphicsView::printImageCB( CallBacker* )
+{
+    print();
 }

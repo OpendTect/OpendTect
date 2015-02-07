@@ -83,6 +83,8 @@ public:
     void			setCtrlPressed( bool yn )
 				{ isctrlpressed_ = yn; }
 
+    bool			print();
+
     MouseEventHandler&		getNavigationMouseEventHandler();
 				/*!<This eventhandler handles events related to
 				    navigation (rubberbands & panning).
