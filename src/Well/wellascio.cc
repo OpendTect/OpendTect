@@ -274,7 +274,7 @@ bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
 	return false;
 
     if ( mIsUdf(kbelev) && mIsUdf(kbelevinfile) )
-	mErrRet( BufferString("Reference Datum Elevation was not provided"
+	mErrRet( BufferString(Well::Info::sKeykbelev(), " was not provided"
 		     " and cannot be computed") )
 
     if ( !computeMissingValues(pos,mdvals,kbelevinfile) )
@@ -604,6 +604,7 @@ static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
     if ( mIsUdf(vreplinfile) )
 	return;
 
+    FixedString replvelbl( Well::Info::sKeyreplvel() );
     if ( !mIsEqual((float)vreplinfile,info.replvel,mDefEpsF) )
     {
 	if ( mIsEqual(info.replvel,Well::getDefaultVelocity(),mDefEpsF) )
@@ -612,16 +613,16 @@ static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
 	}
 	else
 	{
-	    msg.set( "Input error with the replacement velocity" ).addNewLine();
+	    msg.set( "Input error with the " ).add( replvelbl ).addNewLine();
 	    const UnitOfMeasure* uomdepth = UnitOfMeasure::surveyDefDepthUnit();
 	    const BufferString veluomlbl(
-		    UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
+		    UnitOfMeasure::surveyDefDepthUnitAnnot(true,false), "/s" );
 
-	    msg.add( "Your time-depth model suggests "
-		     "a replacement velocity of " );
+	    msg.add( "Your time-depth model suggests a " );
+	    msg.add( replvelbl ).add( " of " );
 	    msg.add( toString(mScaledValue(vreplinfile,uomdepth), 2 ) );
-	    msg.add( veluomlbl ).addNewLine();
-	    msg.add( "but the replacement velocity was set to: " );
+	    msg.add( veluomlbl ).addNewLine().add( "but the " );
+	    msg.add( replvelbl ).add( " was set to: " );
 	    msg.add( toString(mScaledValue(info.replvel,uomdepth), 2) );
 	    msg.add( veluomlbl );
 	}
@@ -793,7 +794,8 @@ Table::FormatDesc* BulkTrackAscIO::getDesc()
     fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
     fd->bodyinfos_ +=
 	new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional );
-    fd->bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
+    fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyuwid(),
+					     Table::Optional );
     return fd;
 }
 

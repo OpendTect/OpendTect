@@ -75,13 +75,13 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     tbl_->setColumnLabel( 2, BufferString("[Y",xunstr,"]") );
     const char* zunstr = zinft_ ? " (ft" : " (m";
     tbl_->setColumnLabel( 3, BufferString("[KB",zunstr,")]") );
-    tbl_->setColumnToolTip( 3, "Reference Datum elevation" );
+    tbl_->setColumnToolTip( 3, Well::Info::sKeykbelev() );
     tbl_->setColumnLabel( 4, BufferString("[TD",zunstr,")]") );
-    tbl_->setColumnToolTip( 4, "Total Depth" );
+    tbl_->setColumnToolTip( 4, Well::Info::sKeyTD() );
     tbl_->setColumnLabel( 5, BufferString("[GL",zunstr,")]") );
-    tbl_->setColumnToolTip( 5, "Ground level elevation" );
+    tbl_->setColumnToolTip( 5, Well::Info::sKeygroundelev() );
     tbl_->setColumnLabel( 6, "[UWI]" );
-    tbl_->setColumnToolTip( 6, "Unique Well Identifier" );
+    tbl_->setColumnToolTip( 6, Well::Info::sKeyuwid() );
 
     uiPushButton* pb = new uiPushButton( this, "Read file",
 	    mCB(this,uiSimpleMultiWellCreate,rdFilePush), false );
@@ -89,9 +89,9 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
 
     if ( SI().zIsTime() )
     {
-	const float defvel = getGUIDefaultVelocity();
-	velfld_ = new uiGenInput( this, BufferString("Velocity",zunstr,"/s)"),
-				  FloatInpSpec(defvel) );
+	const float defvel = uiD2TModelGroup::getDefaultTemporaryVelocity();
+	BufferString velbl( uiD2TModelGroup::sKeyTemporaryVel(),zunstr,"/s)" );
+	velfld_ = new uiGenInput( this, velbl, FloatInpSpec(defvel) );
 	velfld_->attach( rightTo, pb );
 	velfld_->attach( rightBorder );
     }
@@ -174,12 +174,13 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     fd_.bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd_.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     Table::TargetInfo* ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( "KB Elevation" ); fd_.bodyinfos_ += ti;
+    ti->setName( Well::Info::sKeykbelev() ); fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( "TD" ); fd_.bodyinfos_ += ti;
+    ti->setName( Well::Info::sKeyTD() ); fd_.bodyinfos_ += ti;
     ti = Table::TargetInfo::mkDepthPosition( false );
-    ti->setName( "Ground Level Elevation" ); fd_.bodyinfos_ += ti;
-    fd_.bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
+    ti->setName( Well::Info::sKeygroundelev() ); fd_.bodyinfos_ += ti;
+    fd_.bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyuwid(),
+					     Table::Optional );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
                                        mODHelpKey(mTableImpDataSelwellsHelpID));

@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "survinfo.h"
 #include "systeminfo.h"
+#include "unitofmeasure.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -41,8 +42,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 extern "C" const char* GetBaseDataDir();
 
-static const char* sKeySRDMeter = "Seismic Reference Datum (m) ";
-static const char* sKeySRDFeet = "Seismic Reference Datum (ft) ";
+static const char* sKeySRD( bool infeet )
+{
+    const UnitOfMeasure* uomsi = UoMR().get( "Meter" );
+    const UnitOfMeasure* uomimp = UoMR().get( "Feet" );
+    const UnitOfMeasure* uom = uomimp && infeet ? uomimp : uomsi;
+    BufferString lbl( SurveyInfo::sKeySeismicRefDatum() );
+    lbl.add( "(" ).add( uom ? uom->symbol() : "m"  ).add( ")" );
+
+    return lbl;
+}
+
+
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					bool isnew )
@@ -259,9 +270,9 @@ void uiSurveyInfoEditor::mkRangeGrp()
     if ( depthinft && si_.zIsTime() )
 	srd *= mToFeetFactorD;
 
-    refdatumfld_ = new uiGenInput( rangegrp_,
-			depthinft ? sKeySRDFeet : sKeySRDMeter,
-			DoubleInpSpec(srd) );
+
+    refdatumfld_ = new uiGenInput( rangegrp_, sKeySRD( depthinft ),
+				   DoubleInpSpec(srd) );
     refdatumfld_->attach( alignedBelow, depthdispfld_ );
 
     rangegrp_->setHAlignObj( inlfld_ );
@@ -843,11 +854,10 @@ void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 {
     const BufferString labeltext = refdatumfld_->titleText().getFullString();
     const bool showdepthinft = !depthdispfld_->getBoolValue();
-    const bool needsupdate =
-	labeltext != ( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
+    const bool needsupdate = labeltext != sKeySRD( showdepthinft );
     if ( !needsupdate ) return;
 
-    refdatumfld_->setTitleText( !showdepthinft ? sKeySRDMeter : sKeySRDFeet );
+    refdatumfld_->setTitleText( sKeySRD( showdepthinft ) );
     double refdatum = refdatumfld_->getdValue( 0.0 );
     refdatum *= showdepthinft ? mToFeetFactorD : mFromFeetFactorD;
     refdatumfld_->setValue( refdatum );
