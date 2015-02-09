@@ -292,6 +292,9 @@ void Well::Track::removePoint( int idx )
 
 Coord3 Well::Track::getPos( float dh ) const
 {
+    if ( pos_.isEmpty() )
+	return mUdf(Coord3);
+
     int idx1;
     if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
 	return pos_[idx1];
@@ -330,21 +333,22 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
     const int sz = dah_.size();
     if ( sz < 1 )
 	return mUdf(float);
+
     if ( zistime_ )
     {
 	pErrMsg("getDahForTVD called for time well");
 	const float res = haveprevdah ? prevdah : dah_[0];
-	return mCast(double,res);
+	return res;
     }
 
     static const double eps = 1e-3; // do not use lower for float precision
     static const double epsf = 1e-3f; // do not use lower for float precision
     if ( sz == 1 )
-	return mIsEqual(z,pos_[0].z,eps) ? (double)dah_[0] : mUdf(double);
+	return mIsEqual(z,pos_[0].z,eps) ? dah_[0] : mUdf(float);
 
     const Interval<double> zrange = zRangeD();
     if ( !zrange.includes(z,false) )
-	return mUdf(double);
+	return mUdf(float);
 
 #define mZInRg() \
     (zrg.start-eps < z  && zrg.stop+eps  > z) \
@@ -363,7 +367,7 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
 	zrg.start = zrg.stop;
     }
     if ( idxafter < 1 )
-	return mUdf(double);
+	return mUdf(float);
 
     const int idx1 = idxafter - 1;
     const int idx2 = idxafter;
@@ -379,7 +383,7 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
 
 float Well::Track::getDahForTVD( float z, float prevdah ) const
 {
-    return mCast( float, getDahForTVD( (double)z, prevdah ) );
+    return getDahForTVD( (double)z, prevdah );
 }
 
 
