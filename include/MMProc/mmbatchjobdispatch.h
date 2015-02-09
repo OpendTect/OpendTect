@@ -51,7 +51,7 @@ public:
     virtual bool	canResume(const JobSpec&) const;
 
     mDefaultFactoryInstantiation(JobDispatcher,MMJobDispatcher,
-				 "Multi-Machine",tr("Multi-Machine"));
+				 "Multi-Machine","Multi-Machine");
 
     static void		addDef(MMProgDef*);
 
