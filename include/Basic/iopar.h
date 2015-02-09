@@ -22,6 +22,7 @@ class BufferStringSet;
 class SeparString;
 class ascistream;
 class ascostream;
+class uiString;
 
 /*!
 \brief Generalized set of parameters of the keyword-value type.
@@ -149,6 +150,7 @@ public:
     bool		get(const char*,MultiID&) const;
     bool		get(const char*,Color&) const;
     bool		get(const char*,SeparString&) const;
+    bool		get(const char*,uiString&) const;
     bool		get(const char*,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&,
@@ -226,6 +228,7 @@ public:
     void		set(const char*,const MultiID&);
     void		set(const char*,const Color&);
     void		set(const char*,const SeparString&);
+    void		set(const char*,const uiString&);
     void		set(const char*,const OD::String&);
     void		set(const char*,const OD::String&,
 					const OD::String&);

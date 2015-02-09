@@ -915,6 +915,21 @@ bool IOPar::get( const char* keyw, BufferString& bs ) const
 }
 
 
+bool IOPar::get( const char* keyw, uiString& uis ) const
+{
+    BufferString hex;
+    uiString res;
+    if ( !get( keyw, hex ) || !res.setFromHexEncoded( hex.buf() ) )
+	return false;
+
+    if ( hex.size() && res.isEmpty() )
+	return false;
+
+    uis = res;
+    return true;
+}
+
+
 bool IOPar::get( const char* keyw, BufferString& bs1, BufferString& bs2 ) const
 {
     mGetStartAllowEmpty(pval);
@@ -949,6 +964,14 @@ bool IOPar::get( const char* keyw, BufferStringSet& bss ) const
 void IOPar::set( const char* keyw, const SeparString& ss )
 {
     set( keyw, ss.buf() );
+}
+
+
+void IOPar::set( const char* keyw, const uiString& uis )
+{
+    BufferString buf;
+    uis.getHexEncoded( buf );
+    set( keyw, buf );
 }
 
 

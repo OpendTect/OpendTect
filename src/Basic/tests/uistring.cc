@@ -121,12 +121,35 @@ bool testOptionStrings()
 }
 
 
+bool testHexEncoding()
+{
+    uiString str;
+    mRunStandardTest( str.setFromHexEncoded("517420697320677265617421") &&
+	              str.getFullString()=="Qt is great!",
+	   	      "Reading hard-coded string" );
+
+
+    BufferString msg( "Espana" );
+    msg[4] = 241;
+
+    uiString original( msg );
+    BufferString encoding;
+    original.getHexEncoded( encoding );
+    
+    mRunStandardTest( str.setFromHexEncoded( encoding ) &&
+	              original.isEqualTo(str), "Reading encoded string" );
+    
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
 
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
-	 !testOptionStrings() )
+	 !testOptionStrings() || !testHexEncoding() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );

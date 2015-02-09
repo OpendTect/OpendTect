@@ -133,6 +133,11 @@ public:
     const char*		getOriginalString() const;
     const mQtclass(QString)& getQtString() const;
 
+    void		getHexEncoded(BufferString&) const;
+    			/*!<Encodes translated string into a const char*
+			    buffer that can has only 0-9 A-F */
+    bool		setFromHexEncoded(const char*);
+    			//!Reads hex-data and sets the translated string.
 private:
 
 #ifdef __debug__

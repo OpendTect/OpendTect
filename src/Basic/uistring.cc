@@ -617,6 +617,23 @@ uiString uiStringSet::createOptionString( bool use_and,
 }
 
 
+void uiString::getHexEncoded( BufferString& str ) const
+{
+    const QString qstr = getQtString();
+    const QString hex( qstr.toUtf8().toHex() );
+
+    str = BufferString( hex );
+}
+
+
+bool uiString::setFromHexEncoded( const char* str )
+{
+    const QByteArray qba = QByteArray::fromHex( str );
+    setFrom( QString::fromUtf8( qba.data(), qba.size() ) );
+    return true;
+}
+
+
 uiString mkUiString(const char* var) { return uiString().set( var ); }
 
 
