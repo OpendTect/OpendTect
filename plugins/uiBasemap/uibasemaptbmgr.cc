@@ -88,6 +88,8 @@ void uiBaseMapTBMgr::createviewTB()
 				      false );
     vwtoolbar_->addObject(
 	    basemapview_.view().getSaveImageButton(vwtoolbar_) );
+    vwtoolbar_->addObject(
+	    basemapview_.view().getPrintImageButton(vwtoolbar_) );
 
     vworientationid_ = vwtoolbar_->addButton( "northarrow",
 				    tr("Display Orientation"),
