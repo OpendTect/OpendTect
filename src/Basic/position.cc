@@ -385,6 +385,30 @@ bool Pos::IdxPair2Coord::operator==( const Pos::IdxPair2Coord& oth ) const
 }
 
 
+bool Pos::IdxPair2Coord::isNodeOn( const Pos::IdxPair2Coord& oth,
+				      int i0, int i1 ) const
+{
+    const Coord mycrd( transform(IdxPair(i0,i1)) );
+    const Coord othcrd( oth.transform(oth.transformBack(mycrd)) );
+    return mycrd.sqDistTo(othcrd) < 0.1;
+}
+
+
+bool Pos::IdxPair2Coord::isSubsetOf( const Pos::IdxPair2Coord& oth ) const
+{
+    return isNodeOn(oth,0,0)
+	&& isNodeOn(oth,1,1)
+	&& isNodeOn(oth,2,2)
+	&& isNodeOn(oth,3,3)
+	&& isNodeOn(oth,5,5)
+	&& isNodeOn(oth,7,7)
+	&& isNodeOn(oth,11,11)
+	&& isNodeOn(oth,0,1000)
+	&& isNodeOn(oth,1000,0)
+	&& isNodeOn(oth,1000,1000);
+}
+
+
 bool Pos::IdxPair2Coord::set3Pts( const Coord& c0, const Coord& c1,
 			  const Coord& c2, const Pos::IdxPair& ip0,
 			  const Pos::IdxPair& ip1, od_int32 crl2 )

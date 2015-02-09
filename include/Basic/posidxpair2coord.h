@@ -32,6 +32,7 @@ public:
 			IdxPair2Coord()		{}
 
     bool		operator==(const IdxPair2Coord&) const;
+    bool		isSubsetOf(const IdxPair2Coord&) const;
     bool		isValid() const		{ return xtr.valid(ytr); }
     Coord		firstDir() const	{ return Coord(xtr.b,ytr.b); }
     Coord		secondDir() const	{ return Coord(xtr.c,ytr.c); }
@@ -40,7 +41,7 @@ public:
     IdxPair		transformBack(const Coord&) const;
 			    /*!< Transforms Coord to nearest IdxPair.  */
     IdxPair		transformBack(const Coord&,const IdxPair& start,
-	    				const IdxPairStep&) const;
+					const IdxPairStep&) const;
 			    /*!< Transforms Coord to IdxPair, with snap.  */
 
     Coord		transformBackNoSnap(const Coord&) const;
@@ -51,7 +52,7 @@ public:
 				 first == X, second == Y. */
 
     bool		set3Pts(const Coord& c0,const Coord& c1,const Coord& c2,
-	    			const IdxPair& rc0,const IdxPair& rc1,
+				const IdxPair& rc0,const IdxPair& rc1,
 				od_int32 col2 );
 			    /*!<Sets up the transform using three points.
 				\note that the third point is assumed to be on
@@ -88,10 +89,11 @@ protected:
     DirTransform	xtr;
     DirTransform	ytr;
 
+    bool		isNodeOn(const Pos::IdxPair2Coord&,int,int) const;
+
 };
 
 
 } // namespace Pos
 
 #endif
-
