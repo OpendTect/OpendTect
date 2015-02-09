@@ -113,13 +113,17 @@ bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
     step_.getParameters( names, values );
     mxArray* pars = createParameterArray( names, values );
 
-/* Single input (remove these lines when tested)
-    ArrayNDCopier arrndcopier( input_ );
+// Single input (remove these lines when tested)
+    const Attrib::DataCubes* input =
+	step_.getInput( step_.getInputSlotID(0) );
+    if ( !input ) return false;
+
+    ArrayNDCopier arrndcopier( input->getCube(0) );
     arrndcopier.init( true );
     arrndcopier.execute();
     mxArray* mxarrin = arrndcopier.getMxArray();
-*/
 
+    /*
     // for multiple inputs:
     mwSize dims[1]; dims[0] = step_.getNrInputs();
     mxArray* mxarrin = mxCreateCellArray( 1, dims );
@@ -139,6 +143,7 @@ bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
 	arrndcopier.execute();
 	mxSetCell( mxarrin, mwSize(idx), arrndcopier.getMxArray() );
     }
+    */
 
     mxArray* mxarrout = 0;
     (*fn)( 1, &mxarrout, pars, mxarrin );
@@ -210,10 +215,12 @@ Task* MatlabStep::createTask()
 
 
 void MatlabStep::setNrInputs( int nrinp )
-{ nrinputs_ = nrinp; }
+{ nrinputs_ = nrinp;
+}
 
 int MatlabStep::getNrInputs() const
-{ return nrinputs_; }
+{ return Step::getNrInputs(); }
+//    return nrinputs_; }
 
 
 void MatlabStep::setSharedLibFileName( const char* fnm )
