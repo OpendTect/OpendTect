@@ -1113,8 +1113,23 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 
 	SI().snap( res.hrg.start );
 	SI().snap( res.hrg.stop );
-	SI().snapZ( res.zrg.start );
-	SI().snapZ( res.zrg.stop );
+
+	if ( !datatransform_ )
+	{
+	    SI().snapZ( res.zrg.start );
+	    SI().snapZ( res.zrg.stop );
+	}
+	else
+	{
+	    StepInterval<float> zrg = datatransform_->getZInterval(false);
+	    if ( scene_ )
+		zrg.step = scene_->getCubeSampling().zrg.step;
+	    else
+		zrg.step = datatransform_->getGoodZStep();
+
+	    zrg.snap( res.zrg.start );
+	    zrg.snap( res.zrg.stop );
+	}
     }
     else
     {
