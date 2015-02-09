@@ -175,6 +175,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Names size") );
     nmsizefld_->box()->setInterval( 10, 500, 1 );
+    nmsizefld_->box()->setValue( 2 * mp.size_ );
     nmsizefld_->attach( alignedBelow, shapefld_ );
 
     uiStringSet styles;
@@ -279,7 +280,9 @@ void uiWellMarkersDispProperties::doPutToScreen()
     shapefld_->box()->setCurrentItem( mrkprops().shapeint_ );
     cylinderheightfld_->box()->setValue( mrkprops().cylinderheight_ );
     singlecolfld_->setChecked( mrkprops().issinglecol_ );
-    nmsizefld_->box()->setValue( mrkprops().font_.pointSize()/fontsizefactor );
+    const int sz = mrkprops().font_.pointSize();
+    if ( sz > 0 )
+	nmsizefld_->box()->setValue( sz/fontsizefactor );
 
     int style = mrkprops().font_.weight()>FontData::Normal ? 1 : 0;
     if ( mrkprops().font_.isItalic() )
