@@ -31,18 +31,23 @@ class DataCubes;
 */
 
 mExpClass(AttributeEngine) DataCubesWriter : public Executor
-{
+{ mODTextTranslationClass(DataCubesWriter);
 public:
     			DataCubesWriter(const MultiID&,const Attrib::DataCubes&,
 				       const TypeSet<int>& cubeindices);
 			~DataCubesWriter();
 
-    void		setSelection(const TrcKeySampling&,const Interval<int>&);
+    void		setSelection(const TrcKeySampling&,
+				     const Interval<int>&);
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;		
-    uiString		uiMessage() const	{ return "Writing out data!"; }
-    uiString		uiNrDoneText() const	{ return "Traces written:"; }
+    uiString		uiMessage() const	{ 
+						return tr("Writing out data!"); 
+						}
+    uiString		uiNrDoneText() const	{ 
+						return tr("Traces written:"); 
+						}
     int			nextStep();
 
 private:

@@ -688,7 +688,7 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 
 
 class AEMFeatureExtracter : public Executor
-{
+{ mODTextTranslationClass(AEMFeatureExtracter);
 public:
 AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 		     const ObjectSet<BinIDValueSet>& bivsets )
@@ -725,7 +725,7 @@ uiString uiMessage() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_
-	: (proc_ ? proc_->uiMessage() : "Cannot create output" );
+	: (proc_ ? proc_->uiMessage() : tr("Cannot create output") );
 }
 
 int haveError( const uiString& msg )
@@ -736,7 +736,7 @@ int haveError( const uiString& msg )
 
 int nextStep()
 {
-    if ( !proc_ ) return haveError( 0 );
+    if ( !proc_ ) return haveError( uiString::emptyString() );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
@@ -858,7 +858,7 @@ Processor* EngineMan::createLocationOutput( uiString& errmsg,
 //TODO TableOutput should later on replace at least Location- and TrcSel-Output
 //AEMFeatureExtractor will also be replaced by AEMTableExtractor
 class AEMTableExtractor : public Executor
-{
+{ mODTextTranslationClass(AEMTableExtractor);
 public:
 AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 		   const Attrib::DescSet& descset, int firstcol )
@@ -894,7 +894,7 @@ uiString uiMessage() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_
-	: (proc_ ? proc_->Task::uiMessage() : "Cannot create output");
+	: (proc_ ? proc_->Task::uiMessage() : tr("Cannot create output"));
 }
 
 int haveError( const uiString& msg )
@@ -905,7 +905,7 @@ int haveError( const uiString& msg )
 
 int nextStep()
 {
-    if ( !proc_ ) return haveError( 0 );
+    if ( !proc_ ) return haveError( uiString::emptyString() );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;

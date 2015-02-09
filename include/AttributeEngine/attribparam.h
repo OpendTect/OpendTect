@@ -35,7 +35,7 @@ namespace Attrib
 */
 
 mExpClass(AttributeEngine) BinIDParam : public ValParam
-{
+{ mODTextTranslationClass(BinIDParam);
 public:
 				BinIDParam(const char*);
 				BinIDParam(const char*,const BinID&,
@@ -63,7 +63,7 @@ public:
 */
 
 mExpClass(AttributeEngine) BoolParam : public ValParam
-{
+{ mODTextTranslationClass(BoolParam);
 public:
 				BoolParam(const char*);
 				BoolParam(const char*,bool, bool isreq=true);
@@ -82,7 +82,7 @@ public:
 */
 
 mExpClass(AttributeEngine) EnumParam : public ValParam
-{
+{ mODTextTranslationClass(EnumParam);
 public:
 				EnumParam(const char*);
 				EnumParam(const char*,int defval,
@@ -104,7 +104,7 @@ public:
 */
 
 mExpClass(AttributeEngine) StringParam : public ValParam
-{
+{ mODTextTranslationClass(StringParam);
 public:
 				StringParam(const char* key);
 				StringParam(const char* key,const char* defstr,
@@ -125,7 +125,7 @@ For example: IntParam, FloatParam and DoubleParam.
 
 template <class T>
 mClass(AttributeEngine) NumParam : public ValParam
-{
+{ mODTextTranslationClass(NumParam);
 public:
 				NumParam(const char* key)
 				    : ValParam(key,new NumInpSpec<T>()) {}
@@ -248,7 +248,7 @@ For example: IntGateParam, FloatGateParam, DoubleGateParam and ZGateParam.
 
 template <class T>
 mClass(AttributeEngine) NumGateParam : public ValParam
-{
+{ mODTextTranslationClass(NumGateParam);
 public:
 				NumGateParam(const char* key)
 				    : ValParam(key,new NumInpIntervalSpec<T>())
@@ -402,7 +402,7 @@ typedef NumGateParam<float>		ZGateParam;
 */
 
 mExpClass(AttributeEngine) SeisStorageRefParam : public StringParam
-{
+{ mODTextTranslationClass(SeisStorageRefParam);
 public:
 				SeisStorageRefParam(const char* key);
     SeisStorageRefParam*	clone() const;

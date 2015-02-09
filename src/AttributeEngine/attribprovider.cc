@@ -1108,14 +1108,14 @@ bool Provider::checkInpAndParsAtStart()
 uiString Provider::prepare( Desc& desc )
 {
     if ( !desc.needProvInit() )
-	return 0;
+	return uiString::emptyString();
 
     desc.setNeedProvInit( false );
 
     uiString errmsg;
     RefMan<Provider> prov = PF().create( desc );
     if ( prov && prov->isOK() )
-	return 0;
+	return uiStrings::sEmptyString();
 
     errmsg = uiStrings::sEmptyString();
     if ( prov )

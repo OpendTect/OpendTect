@@ -304,7 +304,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
     , trc_(0)
     , prevpos_(-1,-1)
     , storinited_(0)
-    , errmsg_(0)
+    , errmsg_(uiStrings::sEmptyString())
     , scaler_(0)
     , growtrctosi_(false)
 {

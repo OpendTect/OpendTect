@@ -48,7 +48,7 @@ public:
     od_int64			nrDone() const;
     uiString			uiMessage() const;
     uiString			uiNrDoneText() const
-    				{ return "Positions processed"; }
+    				{ return tr("Positions processed"); }
 
     void			addOutputInterest(int sel);
     bool			setZIntervals(TypeSet< Interval<int> >&,

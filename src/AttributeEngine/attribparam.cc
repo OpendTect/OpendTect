@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
-
+#include "uistrings.h"
 #include "datapack.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -115,11 +115,13 @@ BufferString BinIDParam::getDefaultValue() const
 
 
 BoolParam::BoolParam( const char* nm )
-    : ValParam(nm,new BoolInpSpec(true,"yes","no",false))
+    : ValParam(nm,new BoolInpSpec(true,uiStrings::sYes(),
+				  uiStrings::sNo(),false))
 {}
 
 BoolParam::BoolParam( const char* nm, bool defval, bool isreq )
-    : ValParam(nm,new BoolInpSpec(true,"yes","no",false))
+    : ValParam(nm,new BoolInpSpec(true,uiStrings::sYes(),
+				  uiStrings::sNo(),false))
 {
     setValue( defval );
     setDefaultValue( defval );
