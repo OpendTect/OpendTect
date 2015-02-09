@@ -31,7 +31,7 @@ const double  mInitValue = 1e+10;
 
 
 class MarchingCubesSurfaceWriter: public Executor
-{
+{ mODTextTranslationClass(MarchingCubesSurfaceWriter);
 public:
 	MarchingCubesSurfaceWriter( od_ostream& strm,
 		const MarchingCubesSurface& s, bool binary )
@@ -49,7 +49,7 @@ public:
 
     od_int64	totalNr() const		{ return totalnr_; }
     od_int64	nrDone() const		{ return nrdone_; }
-    uiString	uiNrDoneText() const	{ return "Positions written"; }
+    uiString	uiNrDoneText() const	{ return tr("Positions written"); }
 
     int	nextStep()
 		{
@@ -100,7 +100,7 @@ protected:
 
 
 class MarchingCubesSurfaceReader : public Executor
-{
+{ mODTextTranslationClass(MarchingCubesSurfaceReader);
 public:
 MarchingCubesSurfaceReader( od_istream& strm, MarchingCubesSurface& s,
 			    const DataInterpreter<od_int32>* dt )
@@ -114,7 +114,7 @@ MarchingCubesSurfaceReader( od_istream& strm, MarchingCubesSurface& s,
 
 od_int64 totalNr() const	{ return totalnr_; }
 od_int64 nrDone() const		{ return nrdone_; }
-uiString uiNrDoneText() const	{ return "Positions read"; }
+uiString uiNrDoneText() const	{ return tr("Positions read"); }
 
 int nextStep()
 {

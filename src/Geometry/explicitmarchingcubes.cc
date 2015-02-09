@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mBucketSize 16
 
 class ExplicitMarchingCubesSurfaceUpdater : public ParallelTask
-{
+{ mODTextTranslationClass(ExplicitMarchingCubesSurfaceUpdater);
 public:
     ExplicitMarchingCubesSurfaceUpdater( ExplicitMarchingCubesSurface& is,
 	bool updatecoords )
@@ -66,10 +66,10 @@ protected:
     od_int64 nrIterations() const { return totalnr_; }
     uiString uiMessage() const
     {
-	return updatecoords_ ? "Triangulation: updating coordinates"
-	    : "Triangulation: updating indices";
+	return updatecoords_ ? tr("Triangulation: updating coordinates")
+	    : tr("Triangulation: updating indices");
     }
-    uiString uiNrDoneText() const	{ return "Positions updated"; }
+    uiString uiNrDoneText() const	{ return tr("Positions updated"); }
 
     bool doWork( od_int64 start, od_int64 stop, int thread )
     {

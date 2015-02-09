@@ -116,7 +116,7 @@ public:
 
 
 mExpClass(Geometry) Implicit2MarchingCubes : public ParallelTask
-{
+{ mODTextTranslationClass(Implicit2MarchingCubes);
 public:
     		Implicit2MarchingCubes(int posx, int posy, int posz,
 				const Array3D<float>&, float threshold,
@@ -126,7 +126,7 @@ public:
     od_int64	nrIterations() const;
     bool	doWork(od_int64,od_int64,int);
     uiString	uiMessage() const
-    		{ return "Implicit body to MarchingCubes: Contouring"; }
+    		{ return tr("Implicit body to MarchingCubes: Contouring"); }
 
 
 protected:
@@ -148,7 +148,7 @@ protected:
 */
 
 mExpClass(Geometry) MarchingCubes2Implicit : public ParallelTask
-{
+{ mODTextTranslationClass(MarchingCubes2Implicit);
 public:
 		MarchingCubes2Implicit(const MarchingCubesSurface&,
 					Array3D<int>&,
@@ -163,7 +163,7 @@ public:
 
     float	threshold() const { return 0; }
     uiString	uiMessage() const
-		{ return "Processing MarchingCubes2Implicit."; }
+		{ return tr("Processing MarchingCubes2Implicit."); }
 
 protected:
     od_int64	nrDone() const;
