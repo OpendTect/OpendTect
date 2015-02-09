@@ -102,7 +102,9 @@ public:
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;
 				//!< Slow: if you need the choices
-    TrcKeySampling			range(SectionID sid=-1) const;
+
+    TrcKeySampling		range() const;
+    Interval<float>		getZRange() const;
 
     void			removeAll();
     Horizon3DGeometry&		geometry();

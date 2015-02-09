@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emhorizon3d.h"
 #include "emhorizonascio.h"
+#include "emioobjinfo.h"
 
 #include "array2dinterpol.h"
 #include "arrayndimpl.h"
@@ -371,11 +372,24 @@ TrcKey::SurvID Horizon3D::getSurveyID() const
 }
 
 
-TrcKeySampling Horizon3D::range( SectionID sid ) const
+TrcKeySampling Horizon3D::range() const
 {
     TrcKeySampling hs( false );
+    const SectionID sid = -1;
     hs.set( geometry().rowRange(sid), geometry().colRange(sid,-1) );
     return hs;
+}
+
+
+Interval<float> Horizon3D::getZRange() const
+{
+    if ( isFullyLoaded() )
+    {
+	IOObjInfo ioobjinfo( multiID() );
+	return ioobjinfo.getZRange();
+    }
+    else
+	return Interval<float>::udf();
 }
 
 

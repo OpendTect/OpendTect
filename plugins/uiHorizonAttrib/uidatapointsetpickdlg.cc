@@ -412,7 +412,7 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
 
     float auxvals[3];
     const EM::SectionID sid = hor3d->sectionID( 0 );
-    tks_ = hor3d->range( sid );
+    tks_ = hor3d->range();
     auxvals[1] = sid;
     PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
     while ( true )
