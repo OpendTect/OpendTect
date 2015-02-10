@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiamplspectrum.h"
 #include "uibulkwellimp.h"
+#include "uid2tmodelgrp.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
@@ -414,36 +415,71 @@ bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
     return ( dlg.uiResult() == 1 );
 }
 
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
 bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
-				  const char* wellname, MultiID& mid )
+				  const char* wellname, MultiID& mid,
+				  bool addwellhead )
 {
     if ( coords.isEmpty() )
 	mErrRet("Empty well track")
+
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->setObj(0); ctio->setName( wellname );
     if ( !ctio->fillObj() )
 	mErrRet("Cannot create an entry in the data store")
 
     PtrMan<Well::Data> well = new Well::Data( wellname );
-    Well::D2TModel* d2t = SI().zIsTime() ? new Well::D2TModel : 0;
-    const float vel = mCast( float, d2t ? 3000 : 1 );
-    const Coord3& c0( coords[0] );
-    const float minz = (float) c0.z * vel;
-    well->track().addPoint( c0, minz, minz );
-    well->info().surfacecoord = Coord( c0.x, c0.y );
-    if ( d2t ) d2t->add( minz, (float) c0.z );
+    Well::Track& track = well->track();
+    TypeSet<Coord3> pos = coords;
+    const double srddepth = -1. * SI().seismicReferenceDatum();
+    const double refz = SI().zIsTime() ? 0. : srddepth;
+    if ( coords[0].z > refz+mDefEps && addwellhead )
+	pos.insert( 0, Coord3( coords[0].x, coords[0].y, refz ) );
 
-    for ( int idx=1; idx<coords.size(); idx++ )
+    well->info().surfacecoord = Coord( pos[0].x, pos[0].y );
+
+    const double vrepl = (double) Well::getDefaultVelocity();
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+    double vtmp = (double)uiD2TModelGroup::getDefaultTemporaryVelocity();
+    if ( SI().zIsTime() && SI().depthsInFeet() && zun )
+	vtmp = zun->internalValue( vtmp );
+
+    if ( SI().zIsTime() )
     {
-	const Coord3& c( coords[idx] );
-	well->track().addPoint( c, (float) c.z*vel );
-	if ( d2t ) d2t->add( well->track().dah(idx), (float) c.z );
+	for ( int idx=0; idx<pos.size(); idx++ )
+	{
+	    double& z = pos[idx].z; z /= 2.; // z is TWT
+	    z *= z < mDefEps ? vrepl : vtmp; // z becomes Depth-SRD
+	    z += srddepth;		     // z becomes Depth-TVDSS
+	}
     }
 
-    well->setD2TModel( d2t );
+    track.addPoint( pos[0], 0.f );
+    for ( int idx=1; idx<pos.size(); idx++ )
+    {
+	const float dist = mCast( float, pos[idx].distTo( pos[idx-1] ) );
+	track.addPoint( pos[idx], track.dah(idx-1) + dist );
+    }
+
+    const Interval<double> trackrg = track.zRangeD();
+    const double belowdatumsz = trackrg.stop - srddepth;
+    if ( SI().zIsTime() && belowdatumsz > 0. )
+    {
+	Well::D2TModel* d2t = new Well::D2TModel;
+	const double vrepldz = trackrg.start - srddepth;
+	const double bulkshift = vrepldz > mDefEps ? 2. * vrepldz / vrepl : 0.;
+	d2t->add( bulkshift>0. ? 0.f : track.getDahForTVD(srddepth), bulkshift);
+
+	const float deepestdah = track.getDahForTVD( trackrg.stop );
+	const double stoptwt = 2. * belowdatumsz / vtmp;
+	d2t->add( deepestdah, mCast( float, stoptwt + bulkshift ) );
+
+	well->setD2TModel( d2t );
+    }
+
     Well::Writer wwr( *ctio->ioobj, *well );
     if ( !wwr.put() )
 	mErrRet( wwr.errMsg() )
