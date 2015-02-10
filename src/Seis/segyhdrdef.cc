@@ -194,56 +194,70 @@ void SEGY::HdrDef::mkTrc()
     mAddHead4( "fldr", "field record number" );
     mAddHead4( "tracf", "trace number within field record" );
     mAddHead4( "ep", "energy source point number" );
-    mAddHead4( "cdp", "CDP ensemble number" ); // 5
+    mAddHead4( "cdp", "CDP ensemble number" );			// 5
     mAddHead4( "cdpt", "trace number within CDP ensemble" );
     mAddHead( "trid", "trace identification code: anything < 2 is good." );
     mAddHead( "nvs", "number of vertically summed traces" );
     mAddHead( "nhs", "number of horizontally summed traces" );
-    mAddHead( "duse", "data use: 1 = production 2 = test" ); // 10
-    mAddHead4( "offset", "distance from source point to receiver group (negative if opposite to direction in which the line was shot)" );
-    mAddHead4( "gelev", "receiver group elevation from sea level (above sea level is positive)" );
-    mAddHead4( "selev", "source elevation from sea level (above sea level is positive)" );
+    mAddHead( "duse", "data use: 1 = production 2 = test" );	// 10
+    mAddHead4( "offset", "distance from source point to receiver group "
+	    "(negative if opposite to direction in which the line was shot)" );
+    mAddHead4( "gelev", "receiver group elevation from sea level "
+	    "(above sea level is positive)" );
+    mAddHead4( "selev", "source elevation from sea level "
+	    "(above sea level is positive)" );
     mAddHead4( "sdepth", "source depth (positive)" );
-    mAddHead4( "gdel", "datum elevation at receiver group" ); // 15
+    mAddHead4( "gdel", "datum elevation at receiver group" );	// 15
     mAddHead4( "sdel", "datum elevation at source" );
     mAddHead4( "swdep", "water depth at source" );
     mAddHead4( "gwdep", "water depth at receiver group" );
-    mAddHead( "scalel", "scale factor for gelev-gwdep fields with value plus or minus 10 to the power 0, 1, 2, 3, or 4 (if positive, multiply, if negative divide)" );
-    mAddHead( "scalco", "scale factor for coordinate fields (sx, sy, gx and gy) with value plus or minus 10 to the power 0, 1, 2, 3, or 4 (if positive, multiply, if negative divide)" ); // 20
+    mAddHead( "scalel", "scale factor for gelev-gwdep fields with value "
+	    "plus or minus 10 to the power 0, 1, 2, 3, or 4 "
+	    "(if positive, multiply, if negative divide)" );
+    mAddHead( "scalco", "scale factor for coordinate fields "
+	    "(sx, sy, gx and gy) with value plus or minus 10 to the power "
+	    "0, 1, 2, 3, or 4 (if positive, multiply, if negative divide)" );
+								// 20
     mAddHead4( "sx", "X source coordinate" );
     mAddHead4( "sy", "Y source coordinate" );
     mAddHead4( "gx", "X group coordinate" );
     mAddHead4( "gy", "Y group coordinate" );
-    mAddHead( "counit", "coordinate units code for sx, sy, gx and gy: 1 = length (meters or feet), 2 = seconds of arc, 3 = decimal degrees, 4 = degrees, minutes, seconds" ); // 25
+    mAddHead( "counit", "coordinate units code for sx, sy, gx and gy: "
+	    "1 = length (meters or feet), 2 = seconds of arc, "
+	    "3 = decimal degrees, 4 = degrees, minutes, seconds" ); // 25
     mAddHead( "wevel", "weathering velocity" );
     mAddHead( "swevel", "subweathering velocity" );
     mAddHead( "sut", "uphole time at source" );
     mAddHead( "gut", "uphole time at receiver group" );
-    mAddHead( "sstat", "source " "static correction" ); // 30
-    mAddHead( "gstat", "group " "static correction" );
-    mAddHead( "tstat", "total " "static applied" );
-    mAddHead( "laga", "lag time A, time in ms between end of 240-byte trace identification header and time break, positive if time break occurs after end of header" );
-    mAddHead( "lagb", "lag time B, time in ms between the time break and the initiation time of the energy source, may be positive or negative" );
-    mAddHead( "delrt", "delay recording time, time in ms between initiation time of energy source and time when recording of data samples begins" ); // 35
+    mAddHead( "sstat", "source static correction" );		// 30
+    mAddHead( "gstat", "group static correction" );
+    mAddHead( "tstat", "total static applied" );
+    mAddHead( "laga", "lag time A, time in ms between end of 240-byte trace "
+	    "identification header and time break, positive if time break "
+	    "occurs after end of header" );
+    mAddHead( "lagb", "lag time B, time in ms between the time break and the "
+	    "initiation time of the energy source, "
+	    "may be positive or negative" );
+    mAddHead( "delrt", "delay recording time, time in ms between initiation "
+	    "time of energy source and time when recording of data samples "
+	    "begins" );						// 35
     mAddHead( "muts", "mute time--start" );
-    mAddHead( "mute", "mute time--end" ); // 37
+    mAddHead( "mute", "mute time--end" );			// 37
 
 	/* This is NOT defined in the SEG-Y standard. But: SU does this and it
 	makes sense, so I followed their lead. It extends the Z possibilities
-	of SEG-Y with a factor 2.
-	Shows how easy it is to not see what's coming: of course these should
-	have been 4-byte fields. */
+	of SEG-Y with a factor 2. */
     dtyp = HdrEntry::UInt;
-    mAddHead( "ns", "number of samples in this trace" ); // 38
-    mAddHead( "dt", "sample interval; in micro-seconds" ); // 39
+    mAddHead( "ns", "number of samples in this trace" );	// 38
+    mAddHead( "dt", "sample interval; in micro-seconds" );	// 39
 
     dtyp = HdrEntry::SInt;
-    mAddHead( "gain", "gain type of field instruments code" ); // 40
+    mAddHead( "gain", "gain type of field instruments code" );	// 40
     mAddHead( "igc", "instrument gain constant" );
     mAddHead( "igi", "instrument early or initial gain" );
     mAddHead( "corr", "correlated: 1 = no 2 = yes" );
     mAddHead( "sfs", "sweep frequency at start" );
-    mAddHead( "sfe", "sweep frequency at end" ); // 45
+    mAddHead( "sfe", "sweep frequency at end" );		// 45
     mAddHead( "slen", "sweep length in ms" );
     mAddHead( "styp", "sweep type code" );
     mAddHead( "stas", "sweep trace length at start in ms" );
@@ -258,7 +272,7 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "lcs", "low cut slope" );
     mAddHead( "hcs", "high cut slope" );
     mAddHead( "year", "year data recorded" );
-    mAddHead( "day", "day of year" ); // 60
+    mAddHead( "day", "day of year" );				// 60
     mAddHead( "hour", "hour of day (24 hour clock)" );
     mAddHead( "minute", "minute of hour" );
     mAddHead( "sec", "second of minute" );
@@ -268,17 +282,17 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "grnofr", "geophone group number of trace one within original field record" );
     mAddHead( "grnlof", "geophone group number of last trace within original field record" );
     mAddHead( "gaps", "gap size (total number of groups dropped)" );
-    mAddHead( "otrav", "overtravel taper code" ); // 70
+    mAddHead( "otrav", "overtravel taper code" );		// 70
     mAddHead4( "Xcdp", "X coordinate of CDP (scalco applies)" ); // 71
     mAddHead4( "Ycdp", "Y coordinate of CDP (scalco applies)" ); // 72
-    mAddHead4( "Inline", "Inline number of CDP" ); // 73
-    mAddHead4( "Crossline", "Crossline number of CDP" ); // 74
-    mAddHead4( "SP", "Shotpoint number" ); // 75
+    mAddHead4( "Inline", "Inline number of CDP" );		// 73
+    mAddHead4( "Crossline", "Crossline number of CDP" );	// 74
+    mAddHead4( "SP", "Shotpoint number" );			// 75
     mAddHead( "SPscale", "Shotpoint number scaling (as scalco)" ); // 76
     mAddHead( "Tunit", "Trace value measurement unit" );
     mAddHead( "TCpart1", "Transduction Constant (part 1)" );
     mAddHead( "TCpart2", "Transduction Constant (part 2)" );
-    mAddHead( "TCpart3", "Transduction Constant (part 3)" ); // 80
+    mAddHead( "TCpart3", "Transduction Constant (part 3)" );	// 80
     mAddHead( "TU", "Transduction Unit" );
     mAddHead( "DTI", "Device/Trace Identifier" );
     mAddHead( "TimSc", "Time Scaler" );
@@ -288,12 +302,12 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "SEDpart3", "Source Energy Direction part 3" );
     mAddHead( "SMpart1", "Source Measurement part 1" );
     mAddHead( "SMpart2", "Source Measurement part 2" );
-    mAddHead( "SMpart3", "Source Measurement part 3" ); // 90
+    mAddHead( "SMpart3", "Source Measurement part 3" );		// 90
     mAddHead( "SMU", "Source Measurement Unit" );
     mAddHead( "Unass1", "Unassigned 1" );
     mAddHead( "Unass2", "Unassigned 2" );
     mAddHead( "Unass3", "Unassigned 3" );
-    mAddHead( "Unass4", "Unassigned 4" ); // 95
+    mAddHead( "Unass4", "Unassigned 4" );			// 95
 }
 
 
@@ -308,13 +322,13 @@ void SEGY::HdrDef::mkBin()
     mAddHead( "nart", "number of auxiliary traces per record" );
 
 	/* See the remark above in the trace header ns and dt stuff */
-    dtyp = HdrEntry::UInt; // entry: 5
+    dtyp = HdrEntry::UInt;					// entry: 5
     mAddHead( "hdt", "sample interval (micro secs or mm)" );
     mAddHead( "dto", "sample interval for original field recording" );
     mAddHead( "hns", "number of samples per trace" );
     mAddHead( "nso", "#samples per trace for original field recording" );
 
-    dtyp = HdrEntry::SInt; // entry: 9
+    dtyp = HdrEntry::SInt;					// entry: 9
     mAddHead( "format", "sample format (1,5=float, 3=16 bits, 8=8-bits)" );
     mAddHead( "fold", "CDP fold expected per CDP ensemble" );
     mAddHead( "tsort", "trace sorting code" );
@@ -326,7 +340,7 @@ void SEGY::HdrDef::mkBin()
     mAddHead( "schn", "trace number of sweep channel" );
     mAddHead( "hstas", "sweep trace taper length at start" );
     mAddHead( "hstae", "sweep trace taper length at end" );
-    mAddHead( "htatyp", "sweep trace taper type code" ); // entry: 20
+    mAddHead( "htatyp", "sweep trace taper type code" );	// entry: 20
     mAddHead( "hcorr", "correlated data traces code" );
     mAddHead( "bgrcv", "binary gain recovered code" );
     mAddHead( "rcvm", "amplitude recovery method code" );
@@ -346,7 +360,7 @@ void SEGY::HdrDef::mkBin()
 	}
 	else
 	{
-	    dtyp = HdrEntry::UInt; // entry 147
+	    dtyp = HdrEntry::UInt;				// entry 147-9
 	    mAddHead( "RevCode", "SEG-Y revision code (Rev1=256)" );
 	    mAddHead( "FixedSize", "Fixed trace size (1=all traces equal)" );
 	    dtyp = HdrEntry::SInt;
