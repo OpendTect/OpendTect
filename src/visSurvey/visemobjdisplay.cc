@@ -659,24 +659,27 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     const int attribindex = posattribs_.indexOf(attrib);
     if ( attribindex==-1 ) return;
 
+    const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList( attrib );
+    if ( !pids || pids->size()<= 0 ) return;
+
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
     markerset->setMarkersSingleColor(
 	emobject_->getPosAttrMarkerStyle(attrib).color_ );
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
     markerset->setDisplayTransformation(transformation_);
     markerset->setMaximumScale( (float) 10*lineStyle()->width_ );
-
-    const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList(attrib);
-
+    
+    markerset->clearMarkers();
     for ( int idx=0; pids && idx<pids->size(); idx++ )
     {
-	const Coord3 pos = emobject_->getPos((*pids)[idx]);
+	const Coord3 pos = emobject_->getPos( (*pids)[idx] );
 	if ( !pos.isDefined() )
 	{
 	    pErrMsg("Undefined point.");
+	    continue;
 	}
 
-        markerset->setPos( idx, pos, false );
+        markerset->addPos( pos, false );
     }
 
     markerset->forceRedraw( true );
