@@ -495,7 +495,7 @@ void uiWellMan::defD2T( bool chkshot )
 	      !wtr.putInfoAndTrack() )
     {
 	if ( !errmsg.isEmpty() ) errmsg.addNewLine();
-	errmsg.add( "Cannot write new " ).add( Well::Info::sKeykbelev() );
+	errmsg.add( "Cannot write new " ).add( Well::Info::sKeyreplvel() );
 	errmsg.add( " to disk" );
 	wd->info().replvel = oldreplvel;
     }
