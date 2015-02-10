@@ -45,7 +45,8 @@ protected:
     void		setFldVals(CallBacker*);
     void		sceneSel(CallBacker*);
     bool		acceptOK(CallBacker*);
-    osg::Image*		offScreenRenderViewToImage(osgViewer::View*);
+    osg::Image*		offScreenRenderViewToImage(osgViewer::View*,
+						   unsigned char transparency);
 			/*! The returned image is not referenced yet. */
     int			validateImages(const osg::Image*,const osg::Image*);
     bool		hasImageValidFormat(const osg::Image*);

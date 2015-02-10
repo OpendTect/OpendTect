@@ -39,11 +39,14 @@ static bool prevbuttonstate = true;
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
 	fldabove = fld
 
+#define FOREGROUND_TRANSPARENCY 128
+#define BACKGROUND_TRANSPARENCY 255
+
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<ui3DViewer>& vwrs )
-    : uiSaveImageDlg(p,false)
-    , viewers_(vwrs)
-    , scenefld_(0)
+    : uiSaveImageDlg( p, false )
+    , viewers_( vwrs )
+    , scenefld_( 0 )
 {
     screendpi_ = uiMain::getDPI();
 
@@ -190,11 +193,12 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     ui3DViewer::WheelMode curmode = vwr->getWheelDisplayMode();
     vwr->setWheelDisplayMode( ui3DViewer::Never );
-    osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage( hudview );
+    osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage( 
+	hudview, FOREGROUND_TRANSPARENCY );
     vwr->setWheelDisplayMode( curmode );
 
-    osg::ref_ptr<osg::Image> mainviewimage =
-					offScreenRenderViewToImage( mainview );
+    osg::ref_ptr<osg::Image> mainviewimage = offScreenRenderViewToImage( 
+	mainview,BACKGROUND_TRANSPARENCY );
 
     if ( changedpi )
         vwr->setScenesPixelDensity( scenesDPI );
@@ -281,8 +285,10 @@ bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
 	return false;
 
     if ( rgbhudimage.bufferSize()>0 )
-	rgbmainimage.blendWith( rgbhudimage, false, true );
-
+    {
+	rgbmainimage.blendWith( rgbhudimage, true,
+	    FOREGROUND_TRANSPARENCY, false, true );
+    }
     rgbmainimage.save( filepath.fullPath().buf(),fmt );
 
     return true;
@@ -291,7 +297,7 @@ bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
 
 
 osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
-			     osgViewer::View* view )
+			    osgViewer::View* view, unsigned char transparency )
 {
     osg::Image* outputimage = 0;
 
@@ -301,6 +307,7 @@ osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
 	mNINT32( sizepix_.height() ) );
 
     tileoffrenderer.setOutputBackgroundTransparency( 0 );
+    tileoffrenderer.setForegroundTransparency( transparency );
 
     if ( tileoffrenderer.createOutput() )
     {
