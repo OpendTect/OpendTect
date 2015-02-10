@@ -207,10 +207,6 @@ void Well::setPixelDensity(float dpi)
 
     track_->setPixelDensity( dpi );
     markerset_->setPixelDensity( dpi );
-    welltoptxt_->setPixelDensity( dpi );
-    wellbottxt_->setPixelDensity( dpi );
-    markernames_->setPixelDensity( dpi );
-
 }
 
 
