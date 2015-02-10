@@ -42,13 +42,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 extern "C" const char* GetBaseDataDir();
 
-static const char* sKeySRD( bool infeet )
+static BufferString sKeySRD( bool infeet )
 {
     const UnitOfMeasure* uomsi = UoMR().get( "Meter" );
     const UnitOfMeasure* uomimp = UoMR().get( "Feet" );
     const UnitOfMeasure* uom = uomimp && infeet ? uomimp : uomsi;
     BufferString lbl( SurveyInfo::sKeySeismicRefDatum() );
-    lbl.add( "(" ).add( uom ? uom->symbol() : "m"  ).add( ")" );
+    lbl.addSpace().add( "(" ).add( uom ? uom->symbol() : "m"  ).add( ")" );
 
     return lbl;
 }
@@ -271,7 +271,7 @@ void uiSurveyInfoEditor::mkRangeGrp()
 	srd *= mToFeetFactorD;
 
 
-    refdatumfld_ = new uiGenInput( rangegrp_, sKeySRD( depthinft ),
+    refdatumfld_ = new uiGenInput( rangegrp_, sKeySRD(depthinft),
 				   DoubleInpSpec(srd) );
     refdatumfld_->attach( alignedBelow, depthdispfld_ );
 
@@ -854,10 +854,10 @@ void uiSurveyInfoEditor::depthDisplayUnitSel( CallBacker* )
 {
     const BufferString labeltext = refdatumfld_->titleText().getFullString();
     const bool showdepthinft = !depthdispfld_->getBoolValue();
-    const bool needsupdate = labeltext != sKeySRD( showdepthinft );
+    const bool needsupdate = labeltext != sKeySRD(showdepthinft);
     if ( !needsupdate ) return;
 
-    refdatumfld_->setTitleText( sKeySRD( showdepthinft ) );
+    refdatumfld_->setTitleText( sKeySRD(showdepthinft) );
     double refdatum = refdatumfld_->getdValue( 0.0 );
     refdatum *= showdepthinft ? mToFeetFactorD : mFromFeetFactorD;
     refdatumfld_->setValue( refdatum );
