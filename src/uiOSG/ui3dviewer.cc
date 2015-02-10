@@ -942,6 +942,30 @@ void ui3DViewerBody::viewAll( bool animate )
 }
 
 
+void ui3DViewerBody::setAnimationEnabled( bool yn )
+{
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
+
+    if ( manip )
+	manip->setAllowThrow( yn );
+} 
+
+
+bool ui3DViewerBody::isAnimationEnabled() const
+{ 
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
+    
+    if ( manip )
+	return manip->getAllowThrow();
+
+    return false;
+}
+
+
 void ui3DViewerBody::requestRedraw()
 {
     if ( !view_ )
