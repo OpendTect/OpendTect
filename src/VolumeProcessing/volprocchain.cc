@@ -801,7 +801,7 @@ bool Chain::usePar( const IOPar& par )
 
 	    if ( !addConnection(newconn) )
 	    {
-		errmsg_ = tr( "Cannot add connection ").arg( toString(idx) );
+		errmsg_ = tr( "Cannot add connection %1").arg( toString(idx) );
 		return false;
 	    }
 	}
