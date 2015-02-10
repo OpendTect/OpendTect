@@ -36,7 +36,9 @@ public:
 
      virtual od_int64	nrDone() const		{ return seqnr_; }
      virtual od_int64	totalNr() const		{ return nrseqs_; }
-     virtual uiString	uiNrDoneText() const	{ return "Sequences generated";}
+     virtual uiString	uiNrDoneText() const	{ 
+					    return tr("Sequences generated");
+						}
      virtual uiString	uiMessage() const	{ return msg_; }
      virtual int	nextStep();
 
