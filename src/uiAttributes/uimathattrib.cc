@@ -172,6 +172,12 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 		    form_.setInputDef( iinp, toString(param.getdValue()) );
 		    formfld_->inpFld(iinp)->use( form_ );
 		}
+		BufferString ccststr ( "C", idx );
+		if ( (BufferString) form_.variableName(iinp) == ccststr )
+		{
+		    form_.setInputDef( iinp, toString(param.getdValue()) );
+		    formfld_->inpFld(iinp)->use( form_ );
+		}
 	    }
 	}
     }

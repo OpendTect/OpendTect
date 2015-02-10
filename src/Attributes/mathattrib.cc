@@ -126,6 +126,9 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
 	    BufferString cststr ( "c", idx );
 	    if ( (BufferString) formula_->variableName(iinp) == cststr )
 		formula_->setInputDef( iinp, toString(param.getdValue()) );
+	    BufferString ccststr ( "C", idx );
+	    if ( (BufferString) formula_->variableName(iinp) == ccststr )
+		formula_->setInputDef( iinp, toString(param.getdValue()) );
 	}
     }
 
