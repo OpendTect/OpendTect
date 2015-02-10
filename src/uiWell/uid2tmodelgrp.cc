@@ -28,6 +28,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "od_helpids.h"
 
+const char* uiD2TModelGroup::sKeyTemporaryVel()
+{ return "Temporary model velocity"; }
+
+
+float uiD2TModelGroup::getDefaultTemporaryVelocity()
+{ return getGUIDefaultVelocity() * 1.25f; }
+
+
 uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     : uiGroup(p,"D2TModel group")
     , velfld_(0)
@@ -40,9 +48,10 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 				uiFileInput::Setup().withexamine(true) );
     if ( setup_.fileoptional_ )
     {
-	const uiString velllbl = tr("Temporary model velocity %1")
+	const uiString velllbl = tr("%1 %2")
+		     .arg( sKeyTemporaryVel() )
 		     .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
-	const float vel = getGUIDefaultVelocity();
+	const float vel = getDefaultTemporaryVelocity();
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 	velfld_ = new uiGenInput( this, velllbl, FloatInpSpec(vel) );

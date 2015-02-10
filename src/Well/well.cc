@@ -24,11 +24,14 @@ const char* Well::Info::sKeyoper()	{ return "Operator"; }
 const char* Well::Info::sKeystate()	{ return "State"; }
 const char* Well::Info::sKeycounty()	{ return "County"; }
 const char* Well::Info::sKeycoord()	{ return "Surface coordinate"; }
-const char* Well::Info::sKeykbelev()	{ return "Reference Datum elevation"; }
+const char* Well::Info::sKeykbelev(){ return "Reference Datum elevation [KB]"; }
 const char* Well::Info::sKeyOldelev()	{ return "Surface elevation"; }
-const char* Well::Info::sKeySRD()	{ return "Seismic Reference Datum"; }
-const char* Well::Info::sKeyreplvel()	{ return "Replacement velocity"; }
-const char* Well::Info::sKeygroundelev(){ return "Ground level elevation"; }
+const char* Well::Info::sKeySRD()
+{ return SurveyInfo::sKeySeismicRefDatum(); }
+const char* Well::Info::sKeyreplvel()
+{ return "Replacement velocity [from KB to SRD]"; }
+const char* Well::Info::sKeygroundelev(){ return "Ground Level elevation [GL]";}
+const char* Well::Info::sKeyTD()	{ return "Total Depth [TD]"; }
 
 int Well::Info::legacyLogWidthFactor()
 {

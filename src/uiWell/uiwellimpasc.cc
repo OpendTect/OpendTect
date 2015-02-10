@@ -77,13 +77,15 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
     const uiString zunit = UnitOfMeasure::surveyDefDepthUnitAnnot( true, true );
-    uiString kblbl = tr( "Reference Datum Elevation %1" ).arg( zunit );
+    uiString kblbl = tr( "%1 %2" )
+		     .arg(Well::Info::sKeykbelev()).arg( zunit );
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->setWithCheck();
     kbelevfld_->setChecked( false );
     kbelevfld_->attach( alignedBelow, dataselfld_ );
 
-    uiString tdlbl = tr( "TD %1" ).arg( zunit );
+    uiString tdlbl = tr( "%1 %2" )
+		     .arg(Well::Info::sKeyTD()).arg( zunit );
     tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
     tdfld_->setWithCheck();
     tdfld_->setChecked( false );
@@ -212,33 +214,36 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     if ( zinfeet && zun_ )
 	dispval = zun_->userValue( info.replvel );
 
-    uiString lbl = tr("Replacement velocity %1")
-		      .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
+    uiString lbl = tr("%1 %2")
+		   .arg( Well::Info::sKeyreplvel() )
+		   .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
     replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
 
     dispval = info.groundelev;
     if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundelev );
-    lbl = tr("Ground level elevation %1")
-	     .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
+    lbl = tr("%1 %2")
+		  .arg( Well::Info::sKeygroundelev() )
+	      .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
     gdelevfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
 
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, gdelevfld );
 
-    idfld = new uiGenInput( this, tr("Well ID (UWI)"),
+    idfld = new uiGenInput( this, Well::Info::sKeyuwid(),
 			    StringInpSpec(info.uwid) );
     idfld->attach( alignedBelow, gdelevfld );
 
-    operfld = new uiGenInput( this, uiStrings::sOperator(),
-                              StringInpSpec(info.oper) );
+    operfld = new uiGenInput( this, Well::Info::sKeyoper(),
+			      StringInpSpec(info.oper) );
     operfld->attach( alignedBelow, idfld );
 
-    statefld = new uiGenInput( this, tr("State"), StringInpSpec(info.state) );
+    statefld = new uiGenInput( this, Well::Info::sKeystate(),
+			       StringInpSpec(info.state) );
     statefld->attach( alignedBelow, operfld );
 
-    countyfld = new uiGenInput( this, tr("County"),
+    countyfld = new uiGenInput( this, Well::Info::sKeycounty(),
 				StringInpSpec(info.county) );
     countyfld->attach( rightTo, statefld );
 }
@@ -440,10 +445,10 @@ bool uiWellImportAsc::checkInpFlds()
 	}
 
 	if ( !kbelevfld_->isChecked() )
-	    mErrRet(tr("Please specify a Reference Datum Elevation"))
+	    mErrRet(tr("Please specify a %1").arg(Well::Info::sKeykbelev()))
 
 	if ( !tdfld_->isChecked() )
-	    mErrRet(tr("Please specify a Total Depth"))
+	    mErrRet(tr("Please specify a %1").arg(Well::Info::sKeyTD()))
     }
 
     if ( !outfld_->commitInput() )

@@ -50,6 +50,9 @@ public:
     bool		wantAsCSModel() const;
     BufferString	dataSourceName() const;
 
+    static const char*	sKeyTemporaryVel();
+    static float	getDefaultTemporaryVelocity();
+
 protected:
 
     Setup		setup_;

@@ -68,6 +68,7 @@ public:
     static const char*	sKeycounty();
     static const char*	sKeycoord();
     static const char*	sKeykbelev();
+    static const char*	sKeyTD();
     static const char*	sKeyOldelev();
     static const char*	sKeySRD();
     static const char*	sKeyreplvel();

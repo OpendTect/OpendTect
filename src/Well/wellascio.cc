@@ -265,8 +265,8 @@ bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
 	return false;
 
     if ( mIsUdf(kbelev) && mIsUdf(kbelevinfile) )
-	mErrRet( tr( "Reference Datum Elevation was not provided"
-		     " and cannot be computed" ) )
+	mErrRet( tr( "%1 was not provided and cannot be computed" )
+		     .arg(Well::Info::sKeykbelev()) )
 
     if ( !computeMissingValues(pos,mdvals,kbelevinfile) )
 	return false;
@@ -595,6 +595,7 @@ static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
     if ( mIsUdf(vreplinfile) )
 	return;
 
+    FixedString replvelbl( Well::Info::sKeyreplvel() );
     if ( !mIsEqual((float)vreplinfile,info.replvel,mDefEpsF) )
     {
 	if ( mIsEqual(info.replvel,Well::getDefaultVelocity(),mDefEpsF) )
@@ -603,19 +604,18 @@ static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
 	}
 	else
 	{
-	    msg = "Input error with the replacement velocity\n";
 	    const UnitOfMeasure* uomvel = UnitOfMeasure::surveyDefVelUnit();
 	    const uiString veluomlbl(
 		    UnitOfMeasure::surveyDefVelUnitAnnot(true,false) );
 	    const BufferString fileval =
 			       toString(mScaledValue(vreplinfile,uomvel), 2 );
-	    msg.append(
-		uiString( "Your time-depth model suggests a replacement "
-		 "velocity of %1%3\nbut the replacement velocity was set to: "
-		 "%2%3\n Velocity information from file was overruled." )
-		    .arg( fileval )
-		    .arg( toString(mScaledValue(info.replvel,uomvel), 2) )
-		    .arg( veluomlbl ) );
+	    msg = "Input error with the %1\n"
+		  "Your time-depth model suggests a %1 of %2%4\n "
+		  "but the %1 was set to: %3%4\n"
+		  "Velocity information from file was overruled.";
+	    msg.arg( replvelbl ).arg( fileval )
+	       .arg( toString(mScaledValue(info.replvel,uomvel), 2) )
+	       .arg( veluomlbl );
 	}
     }
 }
@@ -786,7 +786,8 @@ Table::FormatDesc* BulkTrackAscIO::getDesc()
     fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
     fd->bodyinfos_ +=
 	new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional );
-    fd->bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
+    fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyuwid(),
+					     Table::Optional );
     return fd;
 }
 
