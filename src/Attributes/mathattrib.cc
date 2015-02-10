@@ -126,6 +126,9 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
 	    BufferString cststr ( "c", idx );
 	    if ( (BufferString) formula_->variableName(iinp) == cststr )
 		formula_->setInputDef( iinp, toString(param.getdValue()) );
+	    BufferString ccststr ( "C", idx );
+	    if ( (BufferString) formula_->variableName(iinp) == ccststr )
+		formula_->setInputDef( iinp, toString(param.getdValue()) );
 	}
     }
 
@@ -228,7 +231,7 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 		const Attrib::DataHolder* inpdh = inputdata_[inpdataidx];
 		inpvals += inpdh ? mCast( double, getInputValue( *inpdh,
 						  inputidxs_[inpdataidx],
-						  idx+reqshifts[ishft],z0 ) ) 
+						  idx+reqshifts[ishft],z0 ) )
 				 : mUdf(double);
 	    }
 	}
