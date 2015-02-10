@@ -33,7 +33,6 @@ public:
     int			getNrInputs() const;
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return true; }
-    bool		areSamplesIndependent() const	{ return false; }
     uiString		errMsg() const			{ return errmsg_; }
 
     Task*		createTask();
