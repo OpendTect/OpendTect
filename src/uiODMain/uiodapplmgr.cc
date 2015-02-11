@@ -740,7 +740,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	}
     }
 
-    updateColorTable( visid, attrib );
+    updateColorTable( visid, visserv_->getSelAttribNr() );
     return res;
 }
 
