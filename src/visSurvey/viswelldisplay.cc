@@ -767,10 +767,16 @@ void WellDisplay::setDisplayTransformation( const mVisTrans* nt )
 const mVisTrans* WellDisplay::getDisplayTransformation() const
 { return well_->getDisplayTransformation(); }
 
+#define mEventReturn \
+{ \
+    eventcatcher_->setHandled(); \
+    return; \
+}
 
 void WellDisplay::pickCB( CallBacker* cb )
 {
-    if ( !isSelected() || !picksallowed_ || !markerset_ || isLocked() ) return;
+    if ( !isSelected() || !picksallowed_ || !markerset_ || isLocked() )
+	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseClick ||
@@ -792,94 +798,81 @@ void WellDisplay::pickCB( CallBacker* cb )
     if ( eventinfo.pressed )
     {
 	mousepressid_ = eventid;
-	mousepressposition_ = eventid==-1
-	    ? Coord3::udf() : eventinfo.displaypickedpos;
-	eventcatcher_->setHandled();
+	mousepressposition_ = eventid == -1
+			    ? Coord3::udf() : eventinfo.displaypickedpos;
+	mEventReturn
     }
-    else
+
+    if ( OD::altKeyboardButton(eventinfo.buttonstate_) ||
+	 OD::shiftKeyboardButton(eventinfo.buttonstate_) ||
+	 eventid != mousepressid_ ||
+	 eventinfo.pickedobjids.isEmpty() )
+	mEventReturn
+
+    if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
+	removePick();
+    else if ( !OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
+	addPick( eventinfo, eventid );
+
+    mEventReturn
+}
+
+
+void WellDisplay::removePick()
+{
+    if ( mousepressid_ == -1 )
+	mEventReturn
+
+    markerset_->removeMarker( mousepressid_ );
+    pseudotrack_->removePoint( mousepressid_ );
+
+    TypeSet<Coord3> wcoords = getWellCoords();
+    well_->setTrack( wcoords );
+    needsave_ = true;
+    changed_.trigger();
+}
+
+
+void WellDisplay::addPick( const visBase::EventInfo& eventinfo, int eventid )
+{
+    const int sz = eventinfo.pickedobjids.size();
+    bool validpicksurface = false;
+    for ( int idx=0; idx<sz; idx++ )
     {
-	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-	     !OD::altKeyboardButton(eventinfo.buttonstate_) &&
-	     !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
+	const DataObject* pickedobj =
+	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+	mDynamicCastGet(const SurveyObject*,so,pickedobj)
+	if ( so && so->allowsPicks() )
 	{
-	    const float zfactor = scene_ ? scene_->getZScale(): SI().zScale();
-	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
-	    {
-		if ( mousepressid_!= -1 )
-		{
-		    markerset_->removeMarker( mousepressid_ );
-		    pseudotrack_->removePoint( mousepressid_ );
-		    TypeSet<Coord3> wcoords;
-		    for ( int idx=0; idx<pseudotrack_->size(); idx++ )
-		    {
-			wcoords += pseudotrack_->pos(idx);
-			wcoords[idx].z /= zfactor;
-		    }
-
-		    well_->setTrack(wcoords);
-		    needsave_ = true;
-		    changed_.trigger();
-		}
-	    }
-
-	    eventcatcher_->setHandled();
-	}
-	else if ( !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-		  !OD::altKeyboardButton(eventinfo.buttonstate_) &&
-		  !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
-	{
-	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
-	    {
-		const int sz = eventinfo.pickedobjids.size();
-		bool validpicksurface = false;
-
-		for ( int idx=0; idx<sz; idx++ )
-		{
-		    const DataObject* pickedobj =
-			visBase::DM().getObject(eventinfo.pickedobjids[idx]);
-		    mDynamicCastGet(const SurveyObject*,so,pickedobj)
-		    if ( so && so->allowsPicks() )
-		    {
-			validpicksurface = true;
-			break;
-		    }
-		}
-
-		if ( validpicksurface )
-		{
-		    Coord3 newpos = eventinfo.worldpickedpos;
-		    mDynamicCastGet(SurveyObject*,so,
-				    visBase::DM().getObject(eventid))
-		    if ( so ) so->snapToTracePos( newpos );
-		    addPick( newpos );
-		}
-	    }
-
-	    eventcatcher_->setHandled();
+	    validpicksurface = true;
+	    break;
 	}
     }
+
+    if ( !validpicksurface )
+	return;
+
+    Coord3 newpos = eventinfo.worldpickedpos;
+    mDynamicCastGet(SurveyObject*,so,visBase::DM().getObject(eventid))
+    if ( so ) so->snapToTracePos( newpos );
+    addPick( newpos );
 }
 
 
 void WellDisplay::addPick( Coord3 pos )
 {
-    int insertidx = -1;
-    if ( pseudotrack_ )
-    {
-	TypeSet<Coord3> wcoords;
-	const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-	insertidx = pseudotrack_->insertPoint( Coord(pos.x, pos.y),
-					       (float) (pos.z * zfactor)  );
-	for ( int idx=0; idx<pseudotrack_->size(); idx++ )
-	{
-	    wcoords += pseudotrack_->pos(idx);
-	    wcoords[idx].z /= zfactor;
-	}
+    if ( !pseudotrack_ )
+	return;
 
-	well_->setTrack(wcoords);
-	needsave_ = true;
-	changed_.trigger();
-    }
+    const double zfactor = mCast(double,
+			   scene_ ? scene_->getZScale() : SI().zScale() );
+    const int insertidx = pseudotrack_->insertPoint(
+					Coord3(pos.x,pos.y,pos.z*zfactor) );
+
+    TypeSet<Coord3> wcoords = getWellCoords();
+    well_->setTrack( wcoords );
+    needsave_ = true;
+    changed_.trigger();
 
     if ( insertidx > -1 )
     {
@@ -891,21 +884,19 @@ void WellDisplay::addPick( Coord3 pos )
 
 void WellDisplay::addKnownPos()
 {
-    TypeSet<Coord3> wcoords;
-    if ( pseudotrack_ )
-    {
-	for ( int idx=0; idx<pseudotrack_->size(); idx++ )
-	    wcoords += pseudotrack_->pos(idx);
+    if ( !pseudotrack_ )
+	return;
 
-	well_->setTrack( wcoords );
-	needsave_ = true;
-	changed_.trigger();
-    }
+    TypeSet<Coord3> wcoords;
+    for ( int idx=0; idx<pseudotrack_->size(); idx++ )
+	wcoords += pseudotrack_->pos(idx);
+
+    well_->setTrack( wcoords );
+    needsave_ = true;
+    changed_.trigger();
 
     for ( int idx=0; idx<pseudotrack_->size(); idx++ )
-    {
 	markerset_->addPos( wcoords[idx] );
-    }
 }
 
 
@@ -985,14 +976,12 @@ void WellDisplay::showKnownPositions()
 
 TypeSet<Coord3> WellDisplay::getWellCoords() const
 {
-    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
+    const double zfactor = mCast( double,
+			   scene_ ? scene_->getZScale() : SI().zScale() );
 
-    TypeSet<Coord3> coords;
-    for ( int idx=0; idx<pseudotrack_->size(); idx++ )
-    {
-	coords += pseudotrack_->pos(idx);
+    TypeSet<Coord3> coords = pseudotrack_->getAllPos();
+    for ( int idx=0; idx<coords.size(); idx++ )
 	coords[idx].z /= zfactor;
-    }
 
     return coords;
 }
