@@ -144,7 +144,7 @@ void OD::ModDepMgr::ensureLoaded( const char* nm ) const
 	FilePath fp( GetBinPlfDir(), libnm );
 	SharedLibAccess* sla = new SharedLibAccess( fp.fullPath() );
 	if ( !sla->isOK() )
-	    { delete sla; continue; }
+	    { ErrMsg( sla->errMsg() ); delete sla; continue; }
 
 	loadedmods_.add( modnm );
 	shlibaccs_ += sla;

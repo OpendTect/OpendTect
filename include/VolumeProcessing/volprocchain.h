@@ -68,6 +68,7 @@ public:
     virtual InputSlotID		getInputSlotID(int idx) const;
     virtual void		getInputSlotName(InputSlotID,
 						 BufferString&) const;
+    virtual bool		isInputPrevStep() const		{ return true; }
 
     virtual int			getNrOutputs() const		{ return 1; }
     virtual OutputSlotID	getOutputSlotID(int idx) const;
@@ -129,7 +130,7 @@ protected:
     BufferString			username_;
     ID					id_;
 
-    TrcKeySampling				tks_;
+    TrcKeySampling			tks_;
     StepInterval<int>			zrg_;
     TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
 
@@ -192,6 +193,7 @@ public:
 
     bool			addConnection(const Connection&);
     void			removeConnection(const Connection&);
+    void			updateConnections();
     const Web&			getWeb() const	{ return web_; }
 
     void			setZStep( float z, bool zist )

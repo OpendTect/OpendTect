@@ -77,7 +77,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
 			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
-	    ErrMsg( ptr );
+	    errmsg_ = ptr;
 	}
     }
 
@@ -88,7 +88,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	handle_ = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
 
 	if ( !handle_ )
-	    ErrMsg( dlerror() );
+	    errmsg_ = dlerror();
     }
 
 #endif

@@ -12,7 +12,9 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "bufstring.h"
 #include "gendefs.h"
+
 #ifdef __win__
 #   include "windows.h"
     typedef HMODULE Handletype;
@@ -32,6 +34,7 @@ public:
 		SharedLibAccess(const char* file_name);
 		//!< handle is only closed if you do it explicitly.
     bool	isOK() const		{ return handle_; }
+    const char*	errMsg() const		{ return errmsg_.buf(); }
 
     void	close();
 
@@ -46,7 +49,8 @@ public:
 
 protected:
 
-    Handletype	handle_;
+    Handletype		handle_;
+    BufferString	errmsg_;
 
 };
 

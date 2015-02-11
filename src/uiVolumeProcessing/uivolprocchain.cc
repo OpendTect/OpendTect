@@ -60,11 +60,15 @@ void uiStepDialog::addMultiInputFld()
     multiinpfld_ = new uiTable( this, ts, "Step inputs" );
     multiinpfld_->setColumnLabel( 0, "Input" );
     initInputTable( nrinp );
+}
 
+
+void uiStepDialog::setInputsFromWeb()
+{
     const Chain::Web& web = step_->getChain().getWeb();
     TypeSet<Chain::Connection> connections;
     web.getConnections( step_->getID(), true, connections );
-    for ( int idx=0; idx<nrinp; idx++ )
+    for ( int idx=0; idx<step_->getNrInputs(); idx++ )
     {
 	Step::InputSlotID inpslotid = step_->getInputSlotID( idx );
 	Step::ID outputstepid = Step::cUndefID();

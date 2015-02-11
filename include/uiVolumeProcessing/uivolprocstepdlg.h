@@ -44,6 +44,7 @@ protected:
 
     void		addMultiInputFld();
     void		initInputTable(int nrinputs);
+    void		setInputsFromWeb();
     void		getStepNames(BufferStringSet&) const;
     void		addNameFld(uiObject* alignobj,bool leftal=false);
     void		addNameFld(uiGroup* aligngrp,bool leftal=false);

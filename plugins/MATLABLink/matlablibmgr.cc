@@ -76,7 +76,7 @@ bool MatlabLibAccess::init()
 
     sla_ = new SharedLibAccess( shlibfnm_ );
     if ( !sla_->isOK() )
-	return false;
+	mErrRet( sla_->errMsg() );
 
     const BufferString initfnm = getFnm( shlibfnm_, true );
     initfn ifn = (initfn)sla_->getFunction( initfnm.buf() );

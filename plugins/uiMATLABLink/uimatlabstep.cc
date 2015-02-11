@@ -59,19 +59,22 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
 
     addNameFld( partable_ );
 
+    if ( !step ) return;
+
     const BufferString fnm = step->sharedLibFileName();
-    if ( !fnm.isEmpty() && File::exists(fnm) )
-    {
-	filefld_->setFileName( fnm );
-	fileSelCB( 0 );
-	loadCB( 0 );
-    }
-    else
-    {
-	BufferStringSet parnames, parvalues;
-	step->getParameters( parnames, parvalues );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
+	return;
+
+    filefld_->setFileName( fnm );
+    fileSelCB( 0 );
+    loadCB( 0 );
+
+    BufferStringSet parnames, parvalues;
+    step->getParameters( parnames, parvalues );
+    if ( !parvalues.isEmpty() )
 	fillParTable( parnames, parvalues );
-    }
+
+    setInputsFromWeb();
 }
 
 
@@ -93,6 +96,8 @@ void uiMatlabStep::fileSelCB( CallBacker* )
 void uiMatlabStep::loadCB( CallBacker* )
 {
     if ( fileloaded_ ) return;
+
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
     MatlabLibAccess* mla =
 	MLM().getMatlabLibAccess( filefld_->fileName(), true );

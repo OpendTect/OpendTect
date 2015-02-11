@@ -523,7 +523,7 @@ bool Chain::Connection::isUdf() const
 }
 
 
-bool Chain::Connection::operator==( const VolProc::Chain::Connection& b ) const
+bool Chain::Connection::operator==( const Chain::Connection& b ) const
 {
     return outputstepid_==b.outputstepid_ &&
 	    outputslotid_==b.outputslotid_ &&
@@ -546,7 +546,7 @@ bool Chain::Connection::usePar( const IOPar& iopar, const char* key )
 }
 
 
-bool Chain::Connection::operator!=( const VolProc::Chain::Connection& b ) const
+bool Chain::Connection::operator!=( const Chain::Connection& b ) const
 {
     return !((*this)==b);
 }
@@ -565,25 +565,49 @@ Chain::~Chain()
 { deepErase( steps_ ); }
 
 
-bool Chain::addConnection(const VolProc::Chain::Connection& c )
+bool Chain::addConnection(const Chain::Connection& c )
 {
     if ( !validConnection(c) )
 	return false;
 
     web_.getConnections().addIfNew( c );
-
     return true;
 }
 
 
-
-void Chain::removeConnection(const VolProc::Chain::Connection& c )
+void Chain::removeConnection(const Chain::Connection& c )
 {
     web_.getConnections() -= c;
 }
 
 
-bool Chain::validConnection( const VolProc::Chain::Connection& c ) const
+void Chain::updateConnections()
+{
+    const Chain::Web oldweb = web_;
+    web_.getConnections().erase();
+
+    for ( int idx=1; idx<steps_.size(); idx++ )
+    {
+	Step* step = steps_[idx];
+	if ( step->isInputPrevStep() )
+	{
+	    Step* prevstep = steps_[idx-1];
+	    Chain::Connection connection( prevstep->getID(), 0,
+		    step->getID(), step->getInputSlotID(0) );
+	    addConnection( connection );
+	}
+	else
+	{
+	    TypeSet<Chain::Connection> conns;
+	    oldweb.getConnections( step->getID(), true, conns );
+	    for ( int cidx=0; cidx<conns.size(); cidx++ )
+		addConnection( conns[cidx] );
+	}
+    }
+}
+
+
+bool Chain::validConnection( const Chain::Connection& c ) const
 {
     if ( c.isUdf() )
 	return false;
@@ -657,12 +681,16 @@ void Chain::insertStep( int idx, Step* r )
 void Chain::swapSteps( int o1, int o2 )
 {
     steps_.swap( o1, o2 );
+    updateConnections();
 }
 
 
-void Chain::removeStep( int idx )
+void Chain::removeStep( int sidx )
 {
-    delete steps_.removeSingle( idx );
+    if ( !steps_.validIdx(sidx) ) return;
+
+    delete steps_.removeSingle( sidx );
+    updateConnections();
 }
 
 
