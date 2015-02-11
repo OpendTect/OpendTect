@@ -410,6 +410,9 @@ bool Well::D2TModel::getTimeDepthModel( const Well::Data& wd,
 
 bool Well::D2TModel::ensureValid( const Well::Track& track, float replvel )
 {
+    if ( track.isEmpty() )
+	return false;
+
     const int sz = size();
     if ( sz < 2 )
 	return false;
