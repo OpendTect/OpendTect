@@ -85,10 +85,7 @@ public:
 	surface.setInlSampling( inlsampling );
 	surface.setCrlSampling( crlsampling );
 	surface.setZSampling( zsampling );
-
-	Color col;
-	if ( par.get( sKey::Color(), col ) )
-	    surface.setPreferredColor( col );
+	surface.usePar( par );
 
 	exec_ = surface.surface().readFrom(strm,int32interpreter_);
     }

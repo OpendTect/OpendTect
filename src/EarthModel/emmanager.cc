@@ -423,7 +423,7 @@ bool EMManager::readParsFromGeometryInfoFile(
 bool EMManager::writeDisplayPars( const MultiID& mid,const IOPar& inpar ) const
 {
     IOObjInfo ioobjinfo( mid );
-    if( !ioobjinfo.isOK() || !ioobjinfo.isHorizon() )
+    if( !ioobjinfo.isOK() )
 	return false;
 
     IOPar displaypar;
