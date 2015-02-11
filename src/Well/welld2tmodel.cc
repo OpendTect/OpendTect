@@ -344,19 +344,20 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
     if ( track.isEmpty() )
 	return;
 
-    const float srddepth = mCast( float, -1.f * SI().seismicReferenceDatum() );
-    const float kb  = track.getKbElev();
-    const float bulkshift = mIsUdf( replvel ) ? 0.f
-			  : ( kb+srddepth )* ( (2.f / vel) - (2.f / replvel) );
+    const double srddepth = -1.f * SI().seismicReferenceDatum();
+    const double kb  = mCast(double,track.getKbElev());
+    const double veld = mCast(double,vel);
+    const double bulkshift = mIsUdf( replvel ) ? 0. : ( kb+srddepth ) *
+			     ( (2. / veld) - (2. / mCast(double,replvel) ) );
 
     int idahofminz = 0;
     int idahofmaxz = 0;
-    float tvdmin = mCast(float,track.pos(0).z);
-    float tvdmax = mCast(float,track.pos(0).z);
+    double tvdmin = track.pos(0).z;
+    double tvdmax = track.pos(0).z;
 
     for ( int idx=1; idx<track.size(); idx++ )
     {
-	const float zpostrack = mCast(float,track.pos(idx).z);
+	const double zpostrack = track.pos(idx).z;
 	if ( zpostrack > tvdmax )
 	{
 	    tvdmax = zpostrack;
@@ -379,8 +380,10 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
 	firstdah = track.getDahForTVD( tvdmin );
     }
 
-    add( firstdah, 2.f*( tvdmin-srddepth )/vel + bulkshift );
-    add( track.dah(idahofmaxz), 2.f*( tvdmax-srddepth )/vel + bulkshift );
+    const float lastdah = track.dah( idahofmaxz );
+
+    add( firstdah, mCast(float,2.*( tvdmin-srddepth )/veld + bulkshift) );
+    add( lastdah, mCast(float,2.*( tvdmax-srddepth )/veld + bulkshift) );
 }
 
 
