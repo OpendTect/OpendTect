@@ -33,7 +33,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     setHelpKey( mODHelpKey(mVolumeSmootherHelpID) );
 
     uiWindowFunctionSel::Setup su; su.label_= "Operator";
-    su.winname_ = smoother_->getOperatorName(); 
+    su.winname_ = smoother_->getOperatorName();
     su.winparam_= smoother_->getOperatorParam();
     operatorselfld_ = new uiWindowFunctionSel( this, su );
 
@@ -111,6 +111,5 @@ bool uiSmoother::acceptOK( CallBacker* cb )
     return true;
 }
 
-
-};//namespace
+} // namespace VolProc
 

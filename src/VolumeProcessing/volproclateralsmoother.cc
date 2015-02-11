@@ -427,7 +427,6 @@ Task* LateralSmoother::createTask()
     Interval<int> crlsamples(input->crlsampling_.nearestIndex(tks_.start.crl()),
 			     input->crlsampling_.nearestIndex(tks_.stop.crl()));
 
-
     return new LateralSmootherTask( input->getCube( 0 ),
 	    input->inlsampling_.start,
 	    input->crlsampling_.start,
@@ -438,8 +437,6 @@ Task* LateralSmoother::createTask()
 	    output->z0_,
 	    inlsamples, crlsamples, zrg_,
 	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );
-
-    //return 0;
 }
 
 } // namespace VolProc

@@ -119,7 +119,7 @@ void uiStepDialog::addNameFld( uiObject* alignobj, bool leftalign )
 	sep->attach( stretchedBelow, alignobj );
     }
 
-    namefld_ = new uiGenInput( this, tr("Name for this step"), 
+    namefld_ = new uiGenInput( this, tr("Name for this step"),
 			       step_->userName() );
     namefld_->setElemSzPol( uiObject::Wide );
     if ( alignobj )
@@ -542,7 +542,7 @@ void uiChain::addStepPush(CallBacker*)
 }
 
 
-void uiChain::removeStepPush(CallBacker*)
+void uiChain::removeStepPush( CallBacker* )
 {
     int curitm = steplist_->firstChosen();
     if ( curitm < 0 )
@@ -560,7 +560,7 @@ void uiChain::removeStepPush(CallBacker*)
 }
 
 
-void uiChain::moveUpCB(CallBacker*)
+void uiChain::moveUpCB( CallBacker* )
 {
     const int idx = steplist_->firstChosen();
 
@@ -574,7 +574,7 @@ void uiChain::moveUpCB(CallBacker*)
 }
 
 
-void uiChain::moveDownCB(CallBacker*)
+void uiChain::moveDownCB( CallBacker* )
 {
     const int idx = steplist_->firstChosen();
     if ( idx<0 || idx>=chain_.nrSteps() )
@@ -587,7 +587,7 @@ void uiChain::moveDownCB(CallBacker*)
 }
 
 
-void uiChain::propertiesCB(CallBacker*)
+void uiChain::propertiesCB( CallBacker* )
 {
     const int idx = steplist_->firstChosen();
     if ( idx<0 ) return;

@@ -27,13 +27,14 @@ namespace VolProc
 /*!
 \brief Lateral smoother. Subclass of Step.
 */
-  
+
 mExpClass(VolumeProcessing) LateralSmoother : public Step
 { mODTextTranslationClass(LateralSmoother);
 public:
-    mDefaultFactoryInstantiation( VolProc::Step,
-	    LateralSmoother, "LateralSmoother", "Lateral Smoother" );
-    
+			mDefaultFactoryInstantiation(
+				VolProc::Step, LateralSmoother,
+				"LateralSmoother", "Lateral Smoother" )
+
 			LateralSmoother();
 			~LateralSmoother();
 
@@ -52,19 +53,19 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    
+
     bool		canInputAndOutputBeSame() const {return true;}
     bool		needsFullVolume() const		{return false;}
 
     Task*		createTask();
 
 protected:
-    static const char*	sKeyIsMedian()	{ return "Is Median"; }
-    static const char*	sKeyIsWeighted(){ return "Is Weighted"; }
-    static const char*	sKeyMirrorEdges(){ return "Mirror Edges"; }
-    static const char*	sKeyInterpolateUdf(){ return "Interpolate Udf";}
-    static const char*	sKeyFixedValue() { return "Fixed Value"; }
-    
+    static const char*	sKeyIsMedian()		{ return "Is Median"; }
+    static const char*	sKeyIsWeighted()	{ return "Is Weighted"; }
+    static const char*	sKeyMirrorEdges()	{ return "Mirror Edges"; }
+    static const char*	sKeyInterpolateUdf()	{ return "Interpolate Udf";}
+    static const char*	sKeyFixedValue()	{ return "Fixed Value"; }
+
     Array2DFilterPars	pars_;
 
     bool		mirroredges_;
@@ -72,8 +73,7 @@ protected:
     float		fixedvalue_;
 };
 
-}; //namespace
-
+} // namespace VolProc
 
 #endif
 

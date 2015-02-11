@@ -568,4 +568,4 @@ bool SurfaceLimitedFiller::isOK() const
     return true;
 }
 
-}; //namespace
+} // namespace VolProc

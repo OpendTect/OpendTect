@@ -153,7 +153,6 @@ protected:
     double		valrange_;
 };
 
-}; //namespace
-
+} // namespace VolProc
 
 #endif

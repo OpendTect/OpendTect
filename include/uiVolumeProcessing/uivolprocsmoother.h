@@ -49,7 +49,7 @@ protected:
 
 };
 
-}; //namespace
+} // namespace VolProc
 
 #endif
 

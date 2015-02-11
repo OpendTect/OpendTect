@@ -29,14 +29,15 @@ namespace VolProc
 mExpClass(VolumeProcessing) Smoother : public Step
 {
 public:
-			mDefaultFactoryInstantiation( VolProc::Step,
-			    Smoother, "Smoother", sFactoryKeyword() );
-    
+			mDefaultFactoryInstantiation(
+				VolProc::Step, Smoother,
+				"Smoother", sFactoryKeyword() )
+
     			~Smoother();
 			Smoother();
 
     bool		needsInput() const { return true; }
-    TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
+    TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
     StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
 
     bool		setOperator(const char*,float param,
@@ -58,15 +59,13 @@ public:
     Task*		createTask();
 
 protected:
-    static const char*		sKeyZStepout()		{ return "ZStepout"; }
+    static const char*	sKeyZStepout()		{ return "ZStepout"; }
 
-    bool                        prepareComp(int)	{ return true; }
+    bool		prepareComp(int)	{ return true; }
 
-    Smoother3D<float>*		smoother_;
+    Smoother3D<float>*	smoother_;
 };
 
-}; //namespace
-
+} // namespace VolProc
 
 #endif
-

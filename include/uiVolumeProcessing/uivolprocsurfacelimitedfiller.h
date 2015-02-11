@@ -40,18 +40,18 @@ public:
 
 protected:
 
-    				uiSurfaceLimitedFiller(uiParent*,
+				uiSurfaceLimitedFiller(uiParent*,
 						       SurfaceLimitedFiller*);
 				~uiSurfaceLimitedFiller();
 
-    static uiStepDialog* 	createInstance(uiParent*,Step*);
+    static uiStepDialog*	createInstance(uiParent*,Step*);
     bool			acceptOK(CallBacker*);
 
     void			addSurfaceCB(CallBacker*);
     void			removeSurfaceCB(CallBacker*);
     void			addSurfaceTableEntry(const IOObj&,
 						     bool isfault,char side);
-    				/*Current row==surfaces size */
+				/*Current row==surfaces size */
 
     void			refDepthTypeChangeCB(CallBacker*);
     void			useStartValCB(CallBacker*);
@@ -79,7 +79,6 @@ protected:
     uiIOObjSel*			refhorizonfld_;
 };
 
-
-}; //namespace
+} // namespace VolProc
 
 #endif

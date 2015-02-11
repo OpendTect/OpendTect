@@ -54,11 +54,11 @@ protected:
 
     uiGenInput*			udfhandling_;
     uiGenInput*			udffixedvalue_;
-    
+
 
 };
 
-}; //namespace
+} // namespace VolProc
 
 #endif
 

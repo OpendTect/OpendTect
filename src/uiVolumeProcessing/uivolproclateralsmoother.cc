@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-
 uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     : uiStepDialog( p, LateralSmoother::sFactoryDisplayName(), hf )
     , smoother_( hf )
@@ -34,7 +33,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     stepoutgroup->setFrame( true );
 
     inllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("In-line stepout"), 0,
-	    			  	"Inline_spinbox" );
+					"Inline_spinbox" );
 
     const BinID step( SI().inlStep(), SI().crlStep() );
     inllenfld_->box()->setInterval( 0, 200*step.inl(), step.inl() );
@@ -42,7 +41,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
 	inllenfld_->box()->setValue( step.inl()*pars->stepout_.row() );
 
     crllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("Cross-line stepout"),0,
-	    			       "Crline_spinbox" );
+				       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, 200*step.crl(), step.crl() );
     if ( pars )
 	crllenfld_->box()->setValue( step.crl()*pars->stepout_.col() );
@@ -157,6 +156,5 @@ void uiLateralSmoother::updateFlds( CallBacker* )
 			     udfhandling_->getIntValue()==1 );
 }
 
-
-};//namespace
+} // namespace VolProc
 

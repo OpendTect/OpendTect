@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-
 uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
     : uiStepDialog( p, VolumeReader::sFactoryDisplayName(), vr )
     , volumereader_( vr )
@@ -78,5 +77,4 @@ bool uiVolumeReader::acceptOK( CallBacker* cb )
     return true;
 }
 
-
-};//namespace
+} // namespace VolProc

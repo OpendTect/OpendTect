@@ -82,8 +82,7 @@ protected:
     uiIOObjSel*			objfld_;
 };
 
-
-}; //namespace
+} // namespace VolProc
 
 #endif
 

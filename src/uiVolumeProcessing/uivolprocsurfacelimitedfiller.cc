@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-
 uiStepDialog* uiSurfaceLimitedFiller::createInstance( uiParent* upt, Step* ps )
 {
     mDynamicCastGet( SurfaceLimitedFiller*, hp, ps );
@@ -380,6 +379,5 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
     return true;
 }
 
-
-};//namespace
+} // namespace VolProc
 
