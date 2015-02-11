@@ -190,7 +190,7 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
     {
 	startsample = 0;
 	signalsz = trc.size();
-	return true;
+	return signalsz >= wvltsize_;
     }
 
     if ( trc.zRange().width(false) <  wvlt_.samplePositions().width(false) )
@@ -373,7 +373,8 @@ bool WaveletExtractor::rotateWavelet()
     {
 	const float realval = wvlt_.samples()[idx];
 	const float imagval = -rotatewvlt.arr()[idx];
-	wvlt_.samples()[idx] = (float) (realval*cos(angle) - imagval*sin(angle));
+	wvlt_.samples()[idx] = (float) (realval*cos(angle) -
+					imagval*sin(angle));
     }
 
     return true;
