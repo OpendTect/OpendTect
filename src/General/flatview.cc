@@ -13,11 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "arrayndimpl.h"
 #include "settings.h"
-#include "survinfo.h"
-#include "keystrs.h"
-#include "coltab.h"
-#include "coltabmapper.h"
-#include "datapackbase.h"
 #include "zaxistransform.h"
 
 namespace FlatView
@@ -42,12 +37,12 @@ const char* DataDispPars::sKeyBlocky()	 { return "Blocky"; }
 const char* DataDispPars::sKeyAutoScale(){ return "Auto scale"; }
 const char* DataDispPars::sKeyClipPerc() { return "Percentage Clip"; }
 const char* DataDispPars::sKeyWiggCol()  { return "Wiggle color"; }
-const char* DataDispPars::sKeyMidCol()	 { return "Mid color"; }
-const char* DataDispPars::sKeyLeftCol()  { return "Left color"; }
-const char* DataDispPars::sKeyRightCol() { return "Right color"; }
+const char* DataDispPars::sKeyRefLineCol()	{ return "Ref line color"; }
+const char* DataDispPars::sKeyLowFillCol()	{ return "Low fill color"; }
+const char* DataDispPars::sKeyHighFillCol()	{ return "High fill color"; }
 const char* DataDispPars::sKeyOverlap()  { return "Overlap"; }
 const char* DataDispPars::sKeySymMidValue()  { return "Sym Mid value"; }
-const char* DataDispPars::sKeyMidLineValue() { return "Mid Line value"; }
+const char* DataDispPars::sKeyRefLineValue() { return "Ref Line value"; }
 
 }
 
@@ -327,12 +322,12 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 	       wva_.mappersetup_.type_ == ColTab::MapperSetup::Auto );
     mIOPDoWVA( set, sKeyClipPerc(), wva_.mappersetup_.cliprate_ );
     mIOPDoWVA( set, sKeyWiggCol(), wva_.wigg_ );
-    mIOPDoWVA( set, sKeyMidCol(), wva_.mid_ );
-    mIOPDoWVA( set, sKeyLeftCol(), wva_.left_ );
-    mIOPDoWVA( set, sKeyRightCol(), wva_.right_ );
+    mIOPDoWVA( set, sKeyRefLineCol(), wva_.refline_ );
+    mIOPDoWVA( set, sKeyLowFillCol(), wva_.lowfill_ );
+    mIOPDoWVA( set, sKeyHighFillCol(), wva_.highfill_ );
     mIOPDoWVA( set, sKeyOverlap(), wva_.overlap_ );
     mIOPDoWVA( set, sKeySymMidValue(), wva_.mappersetup_.symmidval_ );
-    mIOPDoWVA( set, sKeyMidLineValue(), wva_.midlinevalue_ );
+    mIOPDoWVA( set, sKeyRefLineValue(), wva_.reflinevalue_ );
 }
 
 
@@ -372,12 +367,12 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
 					: ColTab::MapperSetup::Fixed;
     mIOPDoWVA( get, sKeyClipPerc(), wva_.mappersetup_.cliprate_ );
     mIOPDoWVA( get, sKeyWiggCol(), wva_.wigg_ );
-    mIOPDoWVA( get, sKeyMidCol(), wva_.mid_ );
-    mIOPDoWVA( get, sKeyLeftCol(), wva_.left_ );
-    mIOPDoWVA( get, sKeyRightCol(), wva_.right_ );
+    mIOPDoWVA( get, sKeyRefLineCol(), wva_.refline_ );
+    mIOPDoWVA( get, sKeyLowFillCol(), wva_.lowfill_ );
+    mIOPDoWVA( get, sKeyHighFillCol(), wva_.highfill_ );
     mIOPDoWVA( get, sKeyOverlap(), wva_.overlap_ );
     mIOPDoWVA( get, sKeySymMidValue(), wva_.mappersetup_.symmidval_ );
-    mIOPDoWVA( get, sKeyMidLineValue(), wva_.midlinevalue_ );
+    mIOPDoWVA( get, sKeyRefLineValue(), wva_.reflinevalue_ );
 }
 
 

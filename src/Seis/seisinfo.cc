@@ -194,7 +194,7 @@ bool Seis::isPSGeom( const IOPar& iop )
 DefineEnumNames(SeisTrcInfo,Fld,1,"Header field") {
 	"Trace number",
 	"Pick position",
-	"Reference position",
+	"Ref/SP number",
 	"X-coordinate",
 	"Y-coordinate",
 	"In-line",

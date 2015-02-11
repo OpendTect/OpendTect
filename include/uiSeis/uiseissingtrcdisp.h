@@ -32,7 +32,6 @@ public:
     void	addRefZ(float);
     			//!< Wavelet automatically get 0 as ref,
     			//!< traces zref or pick if n0t 0 and not undef
-    void	removeRefs();
 
     int			compnr_;
     DataPack::ID	curid_;

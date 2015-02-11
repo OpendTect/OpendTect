@@ -12,10 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
 
-#include "uibutton.h"
 #include "uicolor.h"
 #include "uicolortable.h"
-#include "uicombobox.h"
 #include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -23,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisellinest.h"
 #include "uiseparator.h"
 
-#include "datapackbase.h"
 #include "od_helpids.h"
 
 
@@ -70,7 +67,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     symclipratiofld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
-    usemidvalfld_ = new uiGenInput( this, "Use mid value", BoolInpSpec(true) );
+    usemidvalfld_ = new uiGenInput(this,"Specify mid value",BoolInpSpec(true));
     usemidvalfld_->attach( alignedBelow, symclipratiofld_ );
     usemidvalfld_->display( useclipfld_->getIntValue()==1 );
     usemidvalfld_->valuechanged.notify(
@@ -321,38 +318,36 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     overlapfld_->setElemSzPol(uiObject::Small);
     overlapfld_->attach( alignedBelow, lastcommonfld_ );
 
-    leftcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.left_).
-			lbltxt("Left fill").withcheck(true).withdesc(false),
-			"Left fill color" );
+    leftcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.lowfill_).
+			lbltxt("Negative fill").withcheck(true).withdesc(false),
+			"Negative fill color" );
     leftcolsel_->attach( alignedBelow, overlapfld_ );
 
-    rightcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.right_).
-			 lbltxt("Right fill").withcheck(true).withdesc(false),
-			 "Right fill color" );
+    rightcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.highfill_).
+			lbltxt("Positive fill").withcheck(true).withdesc(false),
+			 "Positive fill color" );
     rightcolsel_->attach( rightTo, leftcolsel_ );
 
     wigcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.wigg_).
 			lbltxt("Draw Wiggles").withcheck(true).withdesc(false),
 			"Draw wiggles color" );
-
     wigcolsel_->attach( alignedBelow, leftcolsel_ );
 
-    midlcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.mid_).
-			lbltxt("Middle line").withcheck(true).withdesc(false),
-			"Middle line color" );
+    reflcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.refline_).
+			lbltxt("Ref line     ").withcheck(true).withdesc(false),
+			"Ref line color" );
+    reflcolsel_->attach( rightOf, wigcolsel_ );
+    rightcolsel_->attach( alignedWith, reflcolsel_ );
+    reflcolsel_->doDrawChanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
 
-    midlcolsel_->attach( rightOf, wigcolsel_ );
-    rightcolsel_->attach( alignedWith, midlcolsel_ );
-    midlcolsel_->doDrawChanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
-
-    midlinefld_ = new uiGenInput( this, "Display middle line at",
+    reflinefld_ = new uiGenInput( this, "Display reference line at",
 			BoolInpSpec(true,"Specified value","Median value") );
-    midlinefld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
-    midlinefld_->attach( alignedBelow, wigcolsel_ );
+    reflinefld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
+    reflinefld_->attach( alignedBelow, wigcolsel_ );
 
-    midvalfld_ = new uiGenInput( this, "Middle line value", FloatInpSpec() );
-    midvalfld_->setElemSzPol(uiObject::Small);
-    midvalfld_->attach( alignedBelow, midlinefld_ );
+    refvalfld_ = new uiGenInput( this, "Reference line value", FloatInpSpec() );
+    refvalfld_->setElemSzPol(uiObject::Small);
+    refvalfld_->attach( alignedBelow, reflinefld_ );
 
     mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
     if ( uivwr )
@@ -376,21 +371,20 @@ BufferString uiFVWVAPropTab::dataName() const
 void uiFVWVAPropTab::handleFieldDisplay( bool dodisp )
 {
     wigcolsel_->display( dodisp );
-    midlcolsel_->display( dodisp );
+    reflcolsel_->display( dodisp );
     leftcolsel_->display( dodisp );
     rightcolsel_->display( dodisp );
     overlapfld_->display( dodisp );
-
-    midlineSel( 0 );
+    reflineSel( 0 );
 }
 
 
-void uiFVWVAPropTab::midlineSel(CallBacker*)
+void uiFVWVAPropTab::reflineSel(CallBacker*)
 {
     const bool dodisp = doDisp();
-    const bool havecol = midlcolsel_->doDraw();
-    midvalfld_->display( dodisp && havecol && midlinefld_->getBoolValue() );
-    midlinefld_->display( dodisp && havecol );
+    const bool havecol = reflcolsel_->doDraw();
+    refvalfld_->display( dodisp && havecol && reflinefld_->getBoolValue() );
+    reflinefld_->display( dodisp && havecol );
 }
 
 
@@ -403,18 +397,18 @@ void uiFVWVAPropTab::dispChgCB( CallBacker* )
 void uiFVWVAPropTab::putToScreen()
 {
     overlapfld_->setValue( pars_.overlap_ );
-    midlinefld_->setValue( !mIsUdf(pars_.midlinevalue_) );
-    midvalfld_->setValue( pars_.midlinevalue_ );
+    reflinefld_->setValue( !mIsUdf(pars_.reflinevalue_) );
+    refvalfld_->setValue( pars_.reflinevalue_ );
 
 #define mSetCol(fld,memb) \
     havecol = pars_.memb.isVisible(); \
     fld->setColor( havecol ? pars_.memb : Color::Black() ); \
     fld->setDoDraw( havecol )
 
-    bool mSetCol(leftcolsel_,left_);
-    mSetCol(rightcolsel_,right_);
+    bool mSetCol(leftcolsel_,lowfill_);
+    mSetCol(rightcolsel_,highfill_);
     mSetCol(wigcolsel_,wigg_);
-    mSetCol(midlcolsel_,mid_);
+    mSetCol(reflcolsel_,refline_);
 
 #undef mSetCol
 
@@ -430,14 +424,14 @@ bool uiFVWVAPropTab::acceptOK()
     if ( !pars_.show_ ) return true;
 
     pars_.overlap_ = overlapfld_->getfValue();
-    pars_.midlinevalue_ = midlinefld_->getBoolValue() ? midvalfld_->getfValue()
+    pars_.reflinevalue_ = reflinefld_->getBoolValue() ? refvalfld_->getfValue()
 						      : mUdf(float);
 #define mSetCol(fld,memb) \
     pars_.memb = fld->doDraw() ? fld->color(): Color::NoColor()
-    mSetCol(leftcolsel_,left_);
-    mSetCol(rightcolsel_,right_);
+    mSetCol(leftcolsel_,lowfill_);
+    mSetCol(rightcolsel_,highfill_);
     mSetCol(wigcolsel_,wigg_);
-    mSetCol(midlcolsel_,mid_);
+    mSetCol(reflcolsel_,refline_);
 #undef mSetCol
 
     return true;

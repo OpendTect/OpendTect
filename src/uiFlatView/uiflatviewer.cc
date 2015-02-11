@@ -113,15 +113,16 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 }
 
 
-void uiFlatViewer::updateAnnotCB( CallBacker* )
+void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 {
     axesdrawer_.setWorldCoords( wr_ );
     if ( !wr_.checkCorners( !appearance().annot_.x1_.reversed_,
 			    appearance().annot_.x2_.reversed_ ) )
     {
-    	setView( wr_ ); //Will update the flipping
+	updateBitmapCB( cb ); //<<-- To redraw bitmaps with wiggles flipped.
+	setView( wr_ ); //<<-- To flip the resultant image.
     }
-    
+
     reSizeCB(0); // Needed as annotation changes may make view-area
     		 // larger or smaller.
     annotChanged.trigger();

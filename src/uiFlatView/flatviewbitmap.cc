@@ -82,10 +82,12 @@ void FlatView::BitMapMgr::setup()
 	WVAA2DBitMapGenerator* wvagen
 	    		= new WVAA2DBitMapGenerator( *data_, *pos_ );
 	wvagen->wvapars().drawwiggles_ = wvapars.wigg_.isVisible();
-	wvagen->wvapars().drawmid_ = wvapars.mid_.isVisible();
-	wvagen->wvapars().fillleft_ = wvapars.left_.isVisible();
-	wvagen->wvapars().fillright_ = wvapars.right_.isVisible();
+	wvagen->wvapars().drawrefline_ = wvapars.refline_.isVisible();
+	wvagen->wvapars().filllow_ = wvapars.lowfill_.isVisible();
+	wvagen->wvapars().fillhigh_ = wvapars.highfill_.isVisible();
 	wvagen->wvapars().overlap_ = wvapars.overlap_;
+	wvagen->wvapars().reflinevalue_ = wvapars.reflinevalue_;
+	wvagen->wvapars().x1reversed_ = app.annot_.x1_.reversed_;
 	gen_ = wvagen;
     }
 
@@ -283,12 +285,12 @@ void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp,
 		continue;
 
 	    Color col( pars.wigg_ );
-	    if ( bmpval == WVAA2DBitMapGenPars::cLeftFill() )
-		col = pars.left_;
-	    else if ( bmpval == WVAA2DBitMapGenPars::cRightFill() )
-		col = pars.right_;
-	    else if ( bmpval == WVAA2DBitMapGenPars::cZeroLineFill() )
-		col = pars.mid_;
+	    if ( bmpval == WVAA2DBitMapGenPars::cLowFill() )
+		col = pars.lowfill_;
+	    else if ( bmpval == WVAA2DBitMapGenPars::cHighFill() )
+		col = pars.highfill_;
+	    else if ( bmpval == WVAA2DBitMapGenPars::cRefLineFill() )
+		col = pars.refline_;
 
 	    if ( col.isVisible() )
 		arr_.set( ix, iy, col );

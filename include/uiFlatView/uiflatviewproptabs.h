@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewmod.h"
-#include "coltab.h"
 #include "coltabsequence.h"
 #include "flatview.h"
 #include "uidlggroup.h"
@@ -112,16 +111,16 @@ protected:
     virtual BufferString	 dataName() const;
 
     uiGenInput*		overlapfld_;
-    uiGenInput*		midlinefld_;
-    uiGenInput*		midvalfld_;
+    uiGenInput*		reflinefld_;
+    uiGenInput*		refvalfld_;
     uiColorInput*       wigcolsel_;
-    uiColorInput*       midlcolsel_;
+    uiColorInput*	reflcolsel_;
     uiColorInput*       leftcolsel_;
     uiColorInput*       rightcolsel_;
 
     virtual void	handleFieldDisplay(bool);
     void		dispSel(CallBacker*);
-    void		midlineSel(CallBacker*);
+    void		reflineSel(CallBacker*);
     void		dispChgCB(CallBacker*);
 };
 

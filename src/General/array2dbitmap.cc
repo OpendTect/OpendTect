@@ -7,21 +7,14 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "array2dbitmapimpl.h"
-#include "arraynd.h"
-#include "sorting.h"
 #include "interpol2d.h"
-#include "statrand.h"
 #include "statruncalc.h"
-#include "envvars.h"
-#include <math.h>
-#include <iostream>
-
 
 char A2DBitMapGenPars::cNoFill()		{ return -127; }
-char WVAA2DBitMapGenPars::cZeroLineFill()	{ return -126; }
+char WVAA2DBitMapGenPars::cRefLineFill()	{ return -126; }
 char WVAA2DBitMapGenPars::cWiggFill()		{ return -125; }
-char WVAA2DBitMapGenPars::cLeftFill()		{ return -124; }
-char WVAA2DBitMapGenPars::cRightFill()		{ return -123; }
+char WVAA2DBitMapGenPars::cLowFill()		{ return -124; }
+char WVAA2DBitMapGenPars::cHighFill()		{ return -123; }
 char VDA2DBitMapGenPars::cMinFill()		{ return -120; }
 char VDA2DBitMapGenPars::cMaxFill()		{ return 120; }
 
@@ -29,7 +22,6 @@ char VDA2DBitMapGenPars::cMaxFill()		{ return 120; }
 #define mMaxNrStatPts 5000
 #define mXPMStartLn '"'
 #define mXPMEndLn "\",\n"
-
 
 
 Interval<float> A2DBitMapInpData::scale( const Interval<float>& clipratio,
@@ -281,6 +273,13 @@ Interval<int> WVAA2DBitMapGenerator::getDispTrcIdxs() const
 }
 
 
+float WVAA2DBitMapGenerator::getDim0Offset( float val ) const
+{
+    const float valratio = (val - scalerg_.start) / scalewidth_;
+    return (valratio - 0.5f) * stripwidth_ * (wvapars().x1reversed_ ? -1 : 1);
+}
+
+
 int WVAA2DBitMapGenerator::dim0SubSampling( int nrdisptrcs ) const
 {
     const float nrpixperdim0 = setup_.availableXPix() / mCast(float,nrdisptrcs);
@@ -315,9 +314,7 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
 
     float midval = wvapars().midvalue_;
     if ( mIsUdf(midval) ) midval = data_.midVal();
-    const float midratio = (midval - scalerg_.start) / scalewidth_;
-    const float offs = (midratio-0.5f) * stripwidth_;
-    const float middim0pos = dim0pos_[idim0] + offs;
+    const float middim0pos = dim0pos_[idim0] + getDim0Offset(midval);
     const float dim1wdth = dim1pos_.width();
     const float dim1fac = (szdim1_ - 1) / (dim1wdth ? dim1wdth : 1);
 
@@ -366,37 +363,49 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
     mPrepVal();
 
     const float centerdim0pos = dim0pos_[idim0];
-    const float valratio = (val - scalerg_.start) / scalewidth_;
-    const float valdim0offs = (valratio-0.5f) * stripwidth_;
-    const float valdim0pos = centerdim0pos + valdim0offs;
+    const float valdim0pos = centerdim0pos + getDim0Offset(val);
 
-    const bool isleft = val < midval;
+    const bool& x1reversed = wvapars().x1reversed_;
+    const bool isleft = x1reversed ? val>midval : val<midval;
     const int midpix = setup_.getPix( 0, middim0pos );
     const int valpix = setup_.getPix( 0, valdim0pos );
 
-    if ( isleft && wvapars().fillleft_ )
+    if ( isleft && (x1reversed ? wvapars().fillhigh_ : wvapars().filllow_) )
     {
+	const char leftfill = x1reversed ? WVAA2DBitMapGenPars::cHighFill()
+					 : WVAA2DBitMapGenPars::cLowFill();
 	for ( int ix=valpix; ix<=midpix; ix++ )
-	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cLeftFill() );
+	    bitmap_->set( ix, iy, leftfill );
     }
 
-    if ( !isleft && wvapars().fillright_ )
+    if ( !isleft && (x1reversed ? wvapars().filllow_ : wvapars().fillhigh_) )
     {
+	const char rightfill = x1reversed ? WVAA2DBitMapGenPars::cLowFill()
+					  : WVAA2DBitMapGenPars::cHighFill();
 	for ( int ix=midpix; ix<=valpix; ix++ )
-	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cRightFill() );
+	    bitmap_->set( ix, iy, rightfill );
     }
 
-    if ( wvapars().drawmid_ && midpix >= 0 && midpix < setup_.nrXPix() )
-	bitmap_->set( midpix, iy, WVAA2DBitMapGenPars::cZeroLineFill() );
+    if ( wvapars().drawrefline_ )
+    {
+	int refpix = midpix;
+	const float reflineval = wvapars().reflinevalue_;
+	if ( !mIsUdf(reflineval) )
+	{
+	    const float refdim0pos = centerdim0pos + getDim0Offset(reflineval);
+	    refpix = setup_.getPix( 0, refdim0pos );
+	}
+
+	if ( refpix>=0 && refpix<setup_.nrXPix() )
+	    bitmap_->set( refpix, iy, WVAA2DBitMapGenPars::cRefLineFill() );
+    }
 
     if ( wvapars().drawwiggles_ && setup_.isInside(0,valdim0pos) )
     {
 	if ( mIsUdf(prevval) ) prevval = val;
 	prevval = scalerg_.limitValue( prevval );
 
-	const float prevvalratio = (prevval - scalerg_.start) / scalewidth_;
-	const float prevvaldim0offs = (prevvalratio-0.5f) * stripwidth_;
-	const float prevvaldim0pos = centerdim0pos + prevvaldim0offs;
+	const float prevvaldim0pos = centerdim0pos + getDim0Offset(prevval);
 	const int prevvalpix = setup_.getPix( 0, prevvaldim0pos );
 
 	int from, to;

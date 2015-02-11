@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "array2dbitmap.h"
-#include "task.h"
 
 /*!
 \brief Common parameters for A2DBitMapGenerators.
@@ -23,26 +22,30 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
 {
 		WVAA2DBitMapGenPars()
 		  : drawwiggles_(true)
-		  , drawmid_(false)
-		  , fillleft_(false)
-		  , fillright_(true)
+		  , drawrefline_(false)
+		  , filllow_(false)
+		  , fillhigh_(true)
 		  , minpixperdim0_(2)
-		  , overlap_(0.5)	{ midvalue_ = 0; }
+		  , overlap_(0.5)
+		  , reflinevalue_(mUdf(float))
+		  , x1reversed_(false)	{ midvalue_ = 0; }
 
     bool	drawwiggles_;	//!< Draw the wiggles themselves
-    bool	drawmid_;	//!< Draw mid line for each trace
-    bool	fillleft_;	//!< Fill the left loops
-    bool	fillright_;	//!< Fill the right loops
+    bool	drawrefline_;	//!< Draw reference line for each trace
+    bool	filllow_;	//!< Fill the left loops
+    bool	fillhigh_;	//!< Fill the right loops
+    bool	x1reversed_;	//!< If reversed, draw wiggles flipped
 
     float	overlap_;	//!< If > 0, part of the trace is drawn on
     				//!< both neighbours' display strip
     				//!< If < 0, uses less than entire strip
+    float	reflinevalue_;
     int		minpixperdim0_;	//!< Set to 0 or neg for dump everything
 
-    static char		cZeroLineFill();		// => -126
+    static char		cRefLineFill();		// => -126
     static char		cWiggFill();		// => -125
-    static char		cLeftFill();		// => -124
-    static char		cRightFill();		// => -123
+    static char		cLowFill();		// => -124
+    static char		cHighFill();		// => -123
 };
 
 
@@ -60,8 +63,6 @@ public:
     WVAA2DBitMapGenPars&	wvapars()		{ return gtPars(); }
     const WVAA2DBitMapGenPars&	wvapars() const		{ return gtPars(); }
 
-    int				dim0SubSampling(int nrdisptrcs) const;
-
 protected:
 
     inline WVAA2DBitMapGenPars& gtPars() const
@@ -73,7 +74,10 @@ protected:
 					const WVAA2DBitMapGenerator&);
 				//!< Not implemented to prevent usage
 				//!< Copy the pars instead
+
     Interval<int>		getDispTrcIdxs() const;
+    float			getDim0Offset(float val) const;
+    int				dim0SubSampling(int nrdisptrcs) const;
 
     void			doFill();
     void			drawTrace(int);

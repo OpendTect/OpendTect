@@ -31,9 +31,7 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.overlap_ = 0;
     app.ddpars_.wva_.mappersetup_.cliprate_ = Interval<float>(0,0);
-    app.ddpars_.wva_.left_ = Color::NoColor();
-    app.ddpars_.wva_.right_ = Color::Black();
-    app.ddpars_.wva_.mid_ = Color::Black();
+    app.ddpars_.wva_.refline_ = Color::Black();
     app.ddpars_.wva_.mappersetup_.symmidval_ = mUdf(float);
     app.setDarkBG( false );
 
@@ -43,7 +41,7 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
 
 void uiSeisSingleTraceDisplay::cleanUp()
 {
-    removeRefs();
+    removeAllAuxData();
     removePack( curid_ );
     curid_ = DataPack::cNoID();
 }
@@ -113,12 +111,6 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 
     handleChange( mCast(unsigned int,All) );
     setViewToBoundingBox();
-}
-
-
-void uiSeisSingleTraceDisplay::removeRefs()
-{
-    removeAllAuxData();
 }
 
 

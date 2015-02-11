@@ -131,7 +131,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     if ( valstr && valstr!="0" )
 	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
 
-    valstr = pars.find( "Reference position" );
+    valstr = pars.find( "Ref/SP number" );
     if ( valstr && *valstr )
 	{ mAddSep(); mesg += "Ref/SP="; mesg += valstr; }
 }

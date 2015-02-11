@@ -149,8 +149,6 @@ void uiTieView::initFlatViewer()
     app.annot_.x2_.showgridlines_ = true;
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.mappersetup_.cliprate_.set(0.0,0.0);
-    app.ddpars_.wva_.overlap_ = 1;
-    app.ddpars_.wva_.right_= app.ddpars_.wva_.wigg_ = Color::Black();
     app.annot_.x1_.name_ = data_.sKeySeismic();
     app.annot_.x2_.name_ =  "TWT (ms)";
     app.annot_.title_ ="Synthetics<---------------------------------->Seismics";

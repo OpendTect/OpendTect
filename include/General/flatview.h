@@ -12,13 +12,9 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "bufstring.h"
 #include "coltabmapper.h"
-#include "geometry.h"
-#include "position.h"
 #include "datapackbase.h"
 #include "draw.h"
-#include "samplingdata.h"
 
 class FlatView_CB_Rcvr;
 class ZAxisTransform;
@@ -210,17 +206,18 @@ public:
 
 		    WVA()
 			: wigg_(Color::Black())
-			, mid_(Color::NoColor())
-			, left_(Color::NoColor())
-			, right_(Color::Black())
-			, overlap_(1)		{ midlinevalue_ = 0; }
+			, refline_(Color::NoColor())
+			, lowfill_(Color::NoColor())
+			, highfill_(Color::Black())
+			, overlap_(1)
+			, reflinevalue_(mUdf(float))	{}
 
 	Color		wigg_;
-	Color		mid_;
-	Color		left_;
-	Color		right_;
+	Color		refline_;
+	Color		lowfill_;
+	Color		highfill_;
 	float		overlap_;
-	float		midlinevalue_;
+	float		reflinevalue_;
     };
 
     			DataDispPars()		{}
@@ -244,12 +241,12 @@ public:
     static const char*  sKeyAutoScale();
     static const char*	sKeyClipPerc();
     static const char*	sKeyWiggCol();
-    static const char*	sKeyMidCol();
-    static const char*	sKeyLeftCol();
-    static const char*	sKeyRightCol();
+    static const char*	sKeyRefLineCol();
+    static const char*	sKeyLowFillCol();
+    static const char*	sKeyHighFillCol();
     static const char*	sKeyOverlap();
     static const char*	sKeySymMidValue();
-    static const char*	sKeyMidLineValue();
+    static const char*	sKeyRefLineValue();
 };
 
 
