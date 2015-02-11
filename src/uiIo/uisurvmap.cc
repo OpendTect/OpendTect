@@ -146,6 +146,12 @@ void uiNorthArrowObject::setSurveyInfo( const SurveyInfo* si )
 }
 
 
+void uiNorthArrowObject::setPixelPos(int x,int y)
+{
+    uistartposition_.setXY( x, y );
+}
+
+
 void uiNorthArrowObject::setVisibility( bool yn )
 {
     itemGrp().setVisible( yn );
@@ -172,14 +178,13 @@ void uiNorthArrowObject::update()
 
     const bool northisleft = mathang < M_PI_2f;
     const int arrowlen = 30;
-    const int sideoffs = 10;
+    const int sideoffs = 80;
     const int yarrowtop = 20;
 
     float dx = arrowlen * tan( M_PI_2f-mathang );
     const int dxpix = mNINT32( dx );
-    float worldxmin, worldxmax;
-    transform_->getWorldXRange( worldxmin, worldxmax );
-    const int xmax = transform_->toUiX( worldxmax );
+
+    const int xmax = uistartposition_.x;
     const int lastx = xmax - 1 - sideoffs;
     const uiPoint origin( lastx - (northisleft?dxpix:0), arrowlen + yarrowtop );
     const uiPoint arrowtop( origin.x, yarrowtop );
@@ -247,6 +252,12 @@ void uiMapScaleObject::setSurveyInfo( const SurveyInfo* si )
 }
 
 
+void uiMapScaleObject::setPixelPos(int x, int y)
+{
+    uistartposition_.setXY( x, y );
+}
+
+
 void uiMapScaleObject::setVisibility( bool yn )
 {
     itemGrp().setVisible( yn );
@@ -259,23 +270,17 @@ void uiMapScaleObject::update()
 	{ setVisibility( false ); return; }
 
     const float worldscalelen = scalelen_;
-    const int sideoffs = 30;
+    const int sideoffs = 80;
     const int scalecornerlen = 2;
 
-    float worldxmin, worldxmax;
-    transform_->getWorldXRange( worldxmin, worldxmax );
+    const int xmax = uistartposition_.x;
+    const int ymin = uistartposition_.y;
 
-    float worldymin, worldymax;
-    transform_->getWorldYRange( worldymin, worldymax );
-
-    const int xmax = transform_->toUiX( worldxmax );
-    const int ymin = transform_->toUiY( worldymin );
-
-    const float worldref = worldxmax - worldscalelen;
+    const float worldref = transform_->toWorldX(xmax) - worldscalelen;
     const float uiscalelen = (float)xmax - transform_->toUiX( worldref );
 
     const int lastx = xmax - 1 - sideoffs;
-    const int firsty = ymin + 50;
+    const int firsty = ymin - 70;
 
     const Geom::Point2D<float> origin( (float)lastx - uiscalelen,
 				       (float)firsty );
@@ -360,12 +365,21 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 {
     survinfo_ = si;
 
+    const unsigned int width = view().width();
+    const unsigned int height = view().height();
+
     if ( survbox_ )
 	survbox_->setSurveyInfo( survinfo_ );
     if ( northarrow_ )
+    {
 	northarrow_->setSurveyInfo( survinfo_ );
+	northarrow_->setPixelPos( width, height );
+    }
     if ( mapscale_ )
+    {
 	mapscale_->setSurveyInfo( survinfo_ );
+	mapscale_->setPixelPos( width, height );
+    }
     if ( title_ )
 	title_->setVisible( survinfo_ );
 

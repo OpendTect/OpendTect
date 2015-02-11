@@ -54,8 +54,10 @@ public:
 
     void		update();
     void		setSurveyInfo(const SurveyInfo*);
+    void		setPixelPos(int x,int y);
 
 protected:
+    uiPoint		uistartposition_;
 
     uiArrowItem*	arrow_;
     uiLineItem*		angleline_;
@@ -77,6 +79,7 @@ public:
 
     void		update();
     void		setSurveyInfo(const SurveyInfo*);
+    void		setPixelPos(int x,int y);
 
     inline float	getScaleLen() const { return scalelen_; }
     inline LineStyle&	getScaleStyle() const { return scalestyle_; }
@@ -85,6 +88,8 @@ public:
     void		setScaleStyle(const LineStyle&);
 protected:
     float		scalelen_;
+    uiPoint		uistartposition_;
+
     LineStyle&		scalestyle_;
     uiLineItem*		scaleline_;
     uiLineItem*		leftcornerline_;
