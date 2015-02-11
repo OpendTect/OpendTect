@@ -285,15 +285,18 @@ bool Well::odReader::get() const
 {
     wd_.setD2TModel( 0 );
     wd_.setCheckShotModel( 0 );
-    if ( !getInfo() )
+    if ( !getTrack() )
 	return false;
-    else if ( wd_.d2TModel() )
-	return true;
 
+    if ( SI().zIsTime() && !getD2T() )
+	return false;
+
+    getInfo();
     getLogs();
     getMarkers();
-    getD2T();
-    getCSMdl();
+    if ( SI().zIsTime() )
+	getCSMdl();
+
     getDispProps();
     return true;
 }
