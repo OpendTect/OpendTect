@@ -25,9 +25,11 @@ class ArrayNDCopier : public ParallelTask
 public:
 			ArrayNDCopier(const ArrayND<float>&);
 			~ArrayNDCopier();
-   bool			init(bool managemxarr);
+    bool		init(bool managemxarr);
 
-   mxArray*		getMxArray()		{ return mxarr_; }
+    mxArray*		getMxArray()		{ return mxarr_; }
+
+    uiString		uiNrDoneText() const	{ return "Values copied"; }
 
 protected:
 
@@ -47,6 +49,7 @@ public:
 			mxArrayCopier(const mxArray&,ArrayND<float>&);
 			~mxArrayCopier();
     bool		init();
+    uiString		uiNrDoneText() const	{ return "Values copied"; }
 
 protected:
 
