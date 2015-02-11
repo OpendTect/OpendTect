@@ -879,8 +879,8 @@ void WellDisplay::addPick( Coord3 pos )
 
     const double zfactor = mCast(double,
 			   scene_ ? scene_->getZScale() : SI().zScale() );
-    int insertidx = -1;
-    insertidx = pseudotrack_->insertPoint( Coord3(pos.x,pos.y,pos.z*zfactor) );
+    const int insertidx = pseudotrack_->insertPoint(
+					Coord3(pos.x,pos.y,pos.z*zfactor) );
 
     TypeSet<Coord3> wcoords = getWellCoords();
     well_->setTrack( wcoords );
@@ -897,7 +897,7 @@ void WellDisplay::addPick( Coord3 pos )
 
 void WellDisplay::addKnownPos()
 {
-    if ( pseudotrack_ )
+    if ( !pseudotrack_ )
 	return;
 
     TypeSet<Coord3> wcoords;

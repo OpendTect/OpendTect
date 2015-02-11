@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwellpartserv.h"
 
+#include "velocitycalc.h"
 #include "welltransl.h"
 #include "wellman.h"
 #include "welldata.h"
@@ -416,6 +417,29 @@ bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
 }
 
 
+static void makeTimeDepthModel( bool addwellhead, double z0, double srddepth,
+				const Well::Info& info, TimeDepthModel& model )
+{
+    TypeSet<float> dpths, times;
+    const bool wllheadbelowsrd = !addwellhead && z0 > 0.;
+    const double vrepl = mCast(double,info.replvel);
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+    double vtmp = (double)uiD2TModelGroup::getDefaultTemporaryVelocity();
+    if ( SI().zIsTime() && SI().depthsInFeet() && zun )
+	vtmp = zun->internalValue( vtmp );
+
+    double originz = srddepth;
+    if ( wllheadbelowsrd )
+	originz += vrepl * z0 / 2.;
+
+    dpths.setSize( 3, (float)originz );
+    times.setSize( 3, wllheadbelowsrd ? z0 : 0.f );
+    dpths[0] -= (float)vtmp; times[0] -= mCast(float, 2. * vtmp / vrepl);
+    dpths[2] += (float)vtmp; times[2] += 2.f;
+    model.setModel( dpths.arr(), times.arr(), dpths.size() );
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
@@ -441,20 +465,13 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 
     well->info().surfacecoord = Coord( pos[0].x, pos[0].y );
 
-    const double vrepl = (double) Well::getDefaultVelocity();
-    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
-    double vtmp = (double)uiD2TModelGroup::getDefaultTemporaryVelocity();
-    if ( SI().zIsTime() && SI().depthsInFeet() && zun )
-	vtmp = zun->internalValue( vtmp );
-
+    TimeDepthModel tdmodel;
     if ( SI().zIsTime() )
     {
+	makeTimeDepthModel( addwellhead, pos[0].z, srddepth, well->info(),
+			    tdmodel );
 	for ( int idx=0; idx<pos.size(); idx++ )
-	{
-	    double& z = pos[idx].z; z /= 2.; // z is TWT
-	    z *= z < mDefEps ? vrepl : vtmp; // z becomes Depth-SRD
-	    z += srddepth;		     // z becomes Depth-TVDSS
-	}
+	    pos[idx].z = mCast( float,tdmodel.getDepth( (float)pos[idx].z ) );
     }
 
     track.addPoint( pos[0], 0.f );
@@ -465,17 +482,16 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     }
 
     const Interval<double> trackrg = track.zRangeD();
-    const double belowdatumsz = trackrg.stop - srddepth;
-    if ( SI().zIsTime() && belowdatumsz > 0. )
+    const double startz = mMAX( srddepth, trackrg.start );
+    if ( SI().zIsTime() && trackrg.stop > startz )
     {
 	Well::D2TModel* d2t = new Well::D2TModel;
-	const double vrepldz = trackrg.start - srddepth;
-	const double bulkshift = vrepldz > mDefEps ? 2. * vrepldz / vrepl : 0.;
-	d2t->add( bulkshift>0. ? 0.f : track.getDahForTVD(srddepth), bulkshift);
+	const double startdah = trackrg.start > srddepth
+			      ? 0.f : track.getDahForTVD(srddepth);
+	d2t->add( startdah, tdmodel.getTime( (float)startz ) );
 
-	const float deepestdah = track.getDahForTVD( trackrg.stop );
-	const double stoptwt = 2. * belowdatumsz / vtmp;
-	d2t->add( deepestdah, mCast( float, stoptwt + bulkshift ) );
+	const float stopdah = track.getDahForTVD( trackrg.stop );
+	d2t->add( stopdah, tdmodel.getTime( (float)trackrg.stop ) );
 
 	well->setD2TModel( d2t );
     }
