@@ -67,8 +67,6 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , attrset2d_( 0 )
     , activetrackerid_(-1)
     , eventattrselspec_( 0 )
-    , blockdataloading_( false )
-    , postponedcs_( false )
     , temptrackerid_(-1)
     , cursceneid_(-1)
     , trackercurrentobject_(-1)
@@ -78,7 +76,6 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , seedswithoutattribsel_(false)
     , setupgrp_(0)
 {
-    MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
     MPE::engine().activevolumechange.notify(
 	    mCB(this, uiMPEPartServer, activeVolumeChange) );
     MPE::engine().loadEMObject.notify(
@@ -86,7 +83,6 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     MPE::engine().trackeraddremove.notify(
 	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
     EM::EMM().addRemove.notify( mCB(this,uiMPEPartServer,nrHorChangeCB) );
-    trackerseedbox_.setEmpty();
 }
 
 
@@ -164,20 +160,6 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 	uiMSG().error(tr("Could not create tracker for this object"));
 	return -1;
     }
-
-    blockDataLoading( true );
-
-    if ( pickedpos.isDefined() )
-    {
-	TrcKeyZSampling poscs(false);
-	const BinID bid = SI().transform(pickedpos);
-	poscs.hrg.start = poscs.hrg.stop = bid;
-	poscs.zsamp_.start = poscs.zsamp_.stop = (float) pickedpos.z;
-	expandActiveVolume( poscs );
-    }
-
-    blockDataLoading( false );
-    postponeLoadingCurVol();
 
     return res;
 }
@@ -415,26 +397,9 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 
     setupgrp_ = 0;
 
-    if ( seedhasbeenpicked_ )
-	adjustSeedBox();
-
-    // finishing time
-    blockDataLoading( true );
-    //sendEvent( uiMPEPartServer::evEndSeedPick() );
-    blockDataLoading( false );
-
-    blockDataLoading( true );
-
-    if ( seedpicker->doesModeUseVolume() && !trackerseedbox_.isEmpty() )
-	expandActiveVolume( trackerseedbox_ );
-
     if ( !seedhasbeenpicked_ || !seedpicker->doesModeUseVolume() )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );
 
-    blockDataLoading( false );
-
-    postponeLoadingCurVol();
-    //sendEvent( uiMPEPartServer::evMPEDispIntro() );
     sendEvent( uiMPEPartServer::evShowToolbar() );
     if ( seedpicker->doesModeUseSetup() )
 	saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
@@ -445,45 +410,6 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     initialundoid_ = mUdf(int);
     seedhasbeenpicked_ = false;
     setupbeingupdated_ = false;
-}
-
-
-void uiMPEPartServer::adjustSeedBox()
-{
-    const int trackerid = getTrackerID( trackercurrentobject_ );
-    const MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    if ( !tracker ) return;
-
-    const EM::ObjectID objid = tracker->objectID();
-    EM::EMObject* emobj = EM::EMM().getObject( objid );
-    if ( !emobj ) return;
-
-    const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
-    PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator( sid );
-    while( true )
-    {
-	const EM::PosID pid = iterator->next();
-	if ( pid.objectID() == -1 )
-	    break;
-
-	const Coord3 pos = emobj->getPos( pid );
-	if ( !pos.isDefined() ||
-	     !emobj->isPosAttrib(pid, EM::EMObject::sSeedNode()) )
-	    continue;
-
-	const BinID bid = SI().transform(pos);
-	if ( trackerseedbox_.isEmpty() )
-	{
-	    trackerseedbox_.hrg.start = trackerseedbox_.hrg.stop = bid;
-	    trackerseedbox_.zsamp_.start = (float) pos.z;
-	    trackerseedbox_.zsamp_.stop  = (float) pos.z;
-	}
-	else
-	{
-	    trackerseedbox_.hrg.include( bid );
-	    trackerseedbox_.zsamp_.include( (float)pos.z );
-	}
-    }
 }
 
 
@@ -573,10 +499,6 @@ void uiMPEPartServer::retrack( const EM::ObjectID& oid )
 	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
 	    MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
 	    notifystopper.restore();
-
-	    const TrcKeyZSampling curvol =  MPE::engine().activeVolume();
-	    if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
-		loadAttribData();
 
 	    seedpicker->reTrack();
 	}
@@ -694,7 +616,6 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     if ( setupgrp_ ) setupgrp_->commitToTracker();
 
     tracker->applySetupAsDefault( sid );
-    loadAttribData();
 
     return true;
 }
@@ -727,7 +648,7 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
     const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
     if ( !emobj )
 	return;
-    
+
     readSetup( emobj->multiID() );
 
     MPE::SectionTracker* sectiontracker =
@@ -784,83 +705,8 @@ void uiMPEPartServer::set2DSelSpec(const Attrib::SelSpec& as)
 { lineselspec_ = as; }
 
 
-bool uiMPEPartServer::isDataLoadingBlocked() const
-{ return blockdataloading_; }
-
-
-void uiMPEPartServer::blockDataLoading( bool yn )
-{ blockdataloading_ = yn; }
-
-
-void uiMPEPartServer::postponeLoadingCurVol()
-{ postponedcs_ = MPE::engine().activeVolume(); }
-
-
-void uiMPEPartServer::loadPostponedVolume()
-{
-    if ( postponedcs_ == MPE::engine().activeVolume() )
-    {
-	postponedcs_.setEmpty();
-	loadAttribData();
-    }
-    else
-	postponedcs_.setEmpty();
-}
-
-
 void uiMPEPartServer::activeVolumeChange( CallBacker* )
 {
-    if ( MPE::engine().activeVolume()==MPE::engine().getDefaultActiveVolume() )
-    {
-	postponeLoadingCurVol();
-	return;
-    }
-
-    loadAttribData();
-}
-
-
-void uiMPEPartServer::loadAttribData()
-{
-    if ( blockdataloading_ || postponedcs_==MPE::engine().activeVolume() )
-	return;
-
-    MouseCursorChanger changer( MouseCursor::Wait );
-
-    ObjectSet<const Attrib::SelSpec> attribselspecs;
-    MPE::engine().getNeededAttribs(attribselspecs);
-    if ( attribselspecs.size() == 0 ) return;
-
-    for ( int idx=0; idx<attribselspecs.size(); idx++ )
-    {
-	if ( attribselspecs[idx]->is2D() ) // TODO
-	{
-	    eventattrselspec_ = attribselspecs[idx];
-	    const bool isloaded =
-		getAttribCacheID(*eventattrselspec_) != DataPack::cNoID();
-	    if ( !isloaded )
-		sendEvent( evGetAttribData() );
-	    continue;
-	}
-
-	eventattrselspec_ = attribselspecs[idx];
-	const TrcKeyZSampling desiredcs = getAttribVolume( *eventattrselspec_ );
-
-	TrcKeyZSampling possiblecs;
-	if ( !desiredcs.getIntersection(SI().sampling(false),possiblecs) )
-	    continue;
-
-	if ( MPE::engine().cacheIncludes(*eventattrselspec_,possiblecs) )
-	    continue;
-
-	const float marginfraction = 0.9;
-	const TrcKeyZSampling mincs = MPE::engine().activeVolume();
-	if ( MPE::engine().cacheIncludes(*eventattrselspec_,mincs) &&
-	     marginfraction*desiredcs.nrZ() < mincs.nrZ() )
-	    continue;
-
-	sendEvent( evGetAttribData() );
-    }
 }
 
 
@@ -877,58 +723,6 @@ const MPE::DataHolder*
 TrcKeyZSampling uiMPEPartServer::getAttribVolume(
 					const Attrib::SelSpec& as )const
 { return MPE::engine().getAttribCube(as); }
-
-
-bool uiMPEPartServer::activeVolumeIsDefault() const
-{
-    const TrcKeyZSampling activecs = MPE::engine().activeVolume();
-    if ( activecs==MPE::engine().getDefaultActiveVolume() )
-	return true;
-
-    return false;
-}
-
-
-void uiMPEPartServer::expandActiveVolume(const TrcKeyZSampling& seedcs)
-{
-    if ( MPE::engine().isActiveVolShown() )
-	return;
-
-    const TrcKeyZSampling activecs = MPE::engine().activeVolume();
-    const bool isdefault = activeVolumeIsDefault();
-
-
-    TrcKeyZSampling newcube = isdefault ||
-	activecs.isFlat() ? seedcs : activecs;
-    newcube.zsamp_.step = SI().zStep();
-    if ( !isdefault )
-    {
-	newcube.hrg.include( seedcs.hrg.start );
-	newcube.hrg.include( seedcs.hrg.stop );
-	newcube.zsamp_.include( seedcs.zsamp_.start );
-	newcube.zsamp_.include( seedcs.zsamp_.stop );
-    }
-
-    const int minnr = 20;
-    if ( newcube.nrInl() < minnr )
-    {
-	newcube.hrg.start.inl() -= minnr*newcube.hrg.step.inl();
-	newcube.hrg.stop.inl() += minnr*newcube.hrg.step.inl();
-    }
-
-    if ( newcube.nrCrl() < minnr )
-    {
-	newcube.hrg.start.crl() -= minnr*newcube.hrg.step.crl();
-	newcube.hrg.stop.crl() += minnr*newcube.hrg.step.crl();
-    }
-
-    if ( isdefault )
-	newcube.zsamp_.widen( 0.05 );
-
-    newcube.snapToSurvey();
-    newcube.limitTo( SI().sampling(true) );
-    MPE::engine().setActiveVolume( newcube );
-}
 
 
 void uiMPEPartServer::loadEMObjectCB(CallBacker*)
@@ -1244,8 +1038,6 @@ bool uiMPEPartServer::usePar( const IOPar& par )
 
 	if ( MPE::engine().nrTrackersAlive() )
 	    sendEvent( evShowToolbar() );
-
-	loadAttribData();
     }
 
     return res;
@@ -1266,7 +1058,7 @@ void uiMPEPartServer::saveUnsaveEMObject()
 			 .arg(EM::EMM().getObject(objid)->getTypeStr())
 			 .arg(EM::EMM().getObject( objid )->name());
 
-	    if ( uiMSG().askGoOn(msg, uiStrings::sSave(true), 
+	    if ( uiMSG().askGoOn(msg, uiStrings::sSave(true),
                                  uiStrings::sRemove(true)) )
 		sendEvent( uiMPEPartServer::evSaveUnsavedEMObject() );
 	    else

@@ -339,15 +339,6 @@ public:
 				     the selman. */
     void			getPickingMessage(BufferString&) const;
 
-    static int			evLoadPostponedData();
-    void			loadPostponedData() const;
-
-    static int			evPostponedLoadingData();
-    void			postponedLoadingData() const;
-
-    static int			evToggleBlockDataLoad();
-    void			toggleBlockDataLoad() const;
-
     static int			evShowSetupDlg();
     bool			sendShowSetupDlgEvent();
 
@@ -361,10 +352,6 @@ public:
     void			introduceMPEDisplay();
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
-    void			fireLoadAttribDataInMPEServ();
-    static int		        evLoadAttribDataInMPEServ();
-    void			updateOldActiVolInuiMPEMan();
-    void			restoreActiveVolInuiMPEMan();
     static int			evFromMPEManStoreEMObject();
     void			fireFromMPEManStoreEMObject();
 

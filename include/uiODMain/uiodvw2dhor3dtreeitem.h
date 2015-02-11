@@ -39,7 +39,7 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory 
+mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory
     : public uiODVw2DTreeItemFactory
 {
 public:
@@ -74,11 +74,10 @@ protected:
     void		deSelCB(CallBacker*);
     void		mousePressInVwrCB(CallBacker*);
     void		mouseReleaseInVwrCB(CallBacker*);
-    void		msRelEvtCompletedInVwrCB(CallBacker*);
     void		displayMiniCtab();
 
     void		emobjChangeCB(CallBacker*);
-    
+
     EM::ObjectID        emid_;
     Vw2DHorizon3D*	horview_;
     bool		oldactivevolupdated_;

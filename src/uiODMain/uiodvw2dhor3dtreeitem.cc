@@ -162,8 +162,6 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
 		mCB(this,uiODVw2DHor3DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.remove(
 		mCB(this,uiODVw2DHor3DTreeItem,mouseReleaseInVwrCB) );
-	meh->buttonReleased.remove(
-		mCB(this,uiODVw2DHor3DTreeItem,msRelEvtCompletedInVwrCB) );
     }
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -241,15 +239,6 @@ bool uiODVw2DHor3DTreeItem::init()
     if ( deselnotify )
 	deselnotify->notify( mCB(this,uiODVw2DHor3DTreeItem,deSelCB) );
 
-    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
-	MouseEventHandler* meh =
-		    &vwr.rgbCanvas().scene().getMouseEventHandler();
-	meh->buttonReleased.notify(
-		mCB(this,uiODVw2DHor3DTreeItem,msRelEvtCompletedInVwrCB) );
-    }
-
     return true;
 }
 
@@ -302,26 +291,6 @@ bool uiODVw2DHor3DTreeItem::select()
 
     viewer2D()->dataMgr()->setSelected( horview_ );
     horview_->selected( isChecked() );
-
-    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
-	MouseEventHandler* meh =
-			&vwr.rgbCanvas().scene().getMouseEventHandler();
-	meh->buttonReleased.remove(
-		mCB(this,uiODVw2DHor3DTreeItem,msRelEvtCompletedInVwrCB) );
-    }
-
-
-    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
-	MouseEventHandler* meh =
-			&vwr.rgbCanvas().scene().getMouseEventHandler();
-	meh->buttonReleased.notify(
-		mCB(this,uiODVw2DHor3DTreeItem,msRelEvtCompletedInVwrCB) );
-    }
-
 
     return true;
 }
@@ -448,38 +417,6 @@ void uiODVw2DHor3DTreeItem::mousePressInVwrCB( CallBacker* )
 
 void uiODVw2DHor3DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 {
-    if ( !uitreeviewitem_->isSelected() || !horview_ )
-	return;
-
-    if ( !viewer2D()->viewwin()->nrViewers() )
-	return;
-
-    if ( !applMgr()->visServer()->isPicking() )
-	return;
-
-    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( 0 );
-    ConstDataPackRef<Attrib::Flat3DDataPack> dp3d = vwr.obtainPack(true,true);
-    if ( !dp3d ) return;
-
-    if ( MPE::engine().activeVolume() != dp3d->cube().cubeSampling() )
-    {
-	applMgr()->visServer()->updateOldActiVolInuiMPEMan();
-	oldactivevolupdated_ = true;
-    }
-
-}
-
-
-void uiODVw2DHor3DTreeItem::msRelEvtCompletedInVwrCB( CallBacker* )
-{
-    if ( !uitreeviewitem_->isSelected() || !horview_ ||
-	 !viewer2D()->viewwin()->nrViewers() )
-	return;
-
-    if ( oldactivevolupdated_ )
-       applMgr()->visServer()->restoreActiveVolInuiMPEMan();
-
-    oldactivevolupdated_ = false;
 }
 
 

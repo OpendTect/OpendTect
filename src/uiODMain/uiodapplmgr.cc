@@ -1496,12 +1496,6 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	return mpeserv_->showSetupGroupOnTop( emod->getObjectID(),
 					      visserv_->getTopSetupGroupName());
     }
-    else if ( evid == uiVisPartServer::evPostponedLoadingData() )
-	mpeserv_->postponeLoadingCurVol();
-    else if ( evid == uiVisPartServer::evLoadPostponedData() )
-	mpeserv_->loadPostponedVolume();
-    else if ( evid == uiVisPartServer::evToggleBlockDataLoad() )
-	mpeserv_->blockDataLoading( !mpeserv_->isDataLoadingBlocked() );
     else if ( evid == uiVisPartServer::evDisableSelTracker() )
     {
 	mGetSelTracker( tracker );
@@ -1511,8 +1505,6 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if ( evid == uiVisPartServer::evColorTableChange() )
 	updateColorTable( visserv_->getEventObjId(),
 			  visserv_->getEventAttrib() );
-    else if ( evid == uiVisPartServer::evLoadAttribDataInMPEServ() )
-	mpeserv_->fireLAttribData();
     else if ( evid == uiVisPartServer::evFromMPEManStoreEMObject() )
 	storeEMObject();
     else

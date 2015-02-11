@@ -108,7 +108,6 @@ Engine::Engine()
     , loadEMObject( this )
     , oneactivetracker_( 0 )
     , activetracker_( 0 )
-    , isactivevolshown_( false )
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , activefaultid_( -1 )
     , activefssid_( -1 )
@@ -715,28 +714,6 @@ const char* Engine::errMsg() const
 { return errmsg_.str(); }
 
 
-TrcKeyZSampling Engine::getDefaultActiveVolume()
-{
-    TrcKeyZSampling cs;
-    cs.hrg.start.inl()=(5*SI().inlRange(true).start+
-			3*SI().inlRange(true).stop)/8;
-    cs.hrg.start.crl()=(5*SI().crlRange(true).start+
-			3*SI().crlRange(true).stop)/8;
-    cs.hrg.stop.inl() =(3*SI().inlRange(true).start+
-			5*SI().inlRange(true).stop)/8;
-    cs.hrg.stop.crl() =(3*SI().crlRange(true).start+
-			5*SI().crlRange(true).stop)/8;
-    cs.zsamp_.start = (5*SI().zRange(true).start+3*SI().zRange(true).stop)/ 8;
-    cs.zsamp_.stop = (3*SI().zRange(true).start+5*SI().zRange(true).stop)/8;
-    SI().snap( cs.hrg.start, BinID(0,0) );
-    SI().snap( cs.hrg.stop, BinID(0,0) );
-    float z0 = SI().zRange(true).snap( cs.zsamp_.start ); cs.zsamp_.start = z0;
-    float z1 = SI().zRange(true).snap( cs.zsamp_.stop ); cs.zsamp_.stop = z1;
-    return cs;
-}
-
-
-
 BufferString Engine::setupFileName( const MultiID& mid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
@@ -849,7 +826,6 @@ void Engine::init()
     deepUnRef( attribbackupcache_ );
     deepErase( attribbackupcachespecs_ );
     deepErase( flatcubescontainer_ );
-    setActiveVolume( getDefaultActiveVolume() );
 }
 
 } // namespace MPE

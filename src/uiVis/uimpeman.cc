@@ -365,14 +365,8 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    seedpicker->setSelSpec( clickedas );
 
-	    if ( !seedpicker->doesModeUseSetup() )
-		visserv_->toggleBlockDataLoad();
-
 	    engine.setOneActiveTracker( tracker );
 	    engine.activevolumechange.trigger();
-
-	    if ( !seedpicker->doesModeUseSetup() )
-		visserv_->toggleBlockDataLoad();
 	}
     }
 
@@ -438,31 +432,6 @@ void uiMPEMan::endSeedClickEvent( EM::EMObject* emobj )
 	setUndoLevel( cureventnr_ );
 	cureventnr_ = mUdf(int);
     }
-
-    restoreActiveVol();
-}
-
-
-void uiMPEMan::restoreActiveVolume()
-{
-    restoreActiveVol();
-}
-
-
-void uiMPEMan::restoreActiveVol()
-{
-    MPE::Engine& engine = MPE::engine();
-    if ( !oldactivevol_.isEmpty() )
-    {
-	engine.swapCacheAndItsBackup();
-	NotifyStopper notifystopper( engine.activevolumechange );
-	engine.setActiveVolume( oldactivevol_ );
-	notifystopper.restore();
-	engine.unsetOneActiveTracker();
-	engine.activevolumechange.trigger();
-
-	oldactivevol_.setEmpty();
-    }
 }
 
 
@@ -482,16 +451,6 @@ bool uiMPEMan::isPickingWhileSetupUp() const
 {
     return isSeedPickingOn() &&
 	visserv_->isTrackingSetupActive();
-}
-
-
-void uiMPEMan::updateOldActiveVol()
-{
-    if ( oldactivevol_.isEmpty() )
-    {
-	MPE::engine().swapCacheAndItsBackup();
-	oldactivevol_ = MPE::engine().activeVolume();
-    }
 }
 
 
@@ -533,8 +492,6 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 	if ( clickcatcher_ )
 	    clickcatcher_->turnOn( false );
-
-	restoreActiveVol();
     }
 
     visserv_->sendPickingStatusChangeEvent();
@@ -838,7 +795,7 @@ void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
     if ( !engine().nrTrackersAlive() )
     {
 	seedpickwason_ = false;
-	engine().setActiveVolume( engine().getDefaultActiveVolume() );
+	engine().setActiveVolume( TrcKeyZSampling() );
     }
 }
 
@@ -958,7 +915,7 @@ void uiMPEMan::workAreaChgCB( CallBacker* )
 {
     if ( !SI().sampling(true).includes( engine().activeVolume() ) )
     {
-	engine().setActiveVolume( engine().getDefaultActiveVolume() );
+	engine().setActiveVolume( SI().sampling(true) );
     }
 }
 
@@ -1019,10 +976,6 @@ void uiMPEMan::retrackAllCB( CallBacker* )
 	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
 	    MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
 	    notifystopper.restore();
-
-	    const TrcKeyZSampling curvol =  MPE::engine().activeVolume();
-	    if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
-		visserv_->fireLoadAttribDataInMPEServ();
 
 	    seedpicker->reTrack();
 	}

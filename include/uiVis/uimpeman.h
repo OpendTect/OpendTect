@@ -45,9 +45,6 @@ public:
     void			initFromDisplay();
     void			trackInVolume();
 
-    void			updateOldActiveVol();
-    void			restoreActiveVolume();
-
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
 
@@ -87,7 +84,6 @@ protected:
     void			seedConnectModeSel(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
-    void			restoreActiveVol();
 
     MPE::EMTracker*		getSelectedTracker();
 

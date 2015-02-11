@@ -102,10 +102,6 @@ public:
 
     const TrcKeyZSampling&	activeVolume() const;
     void		setActiveVolume(const TrcKeyZSampling&);
-    static TrcKeyZSampling	getDefaultActiveVolume();
-    void		setActiveVolShown(bool bn)
-    			{ isactivevolshown_ = bn; }
-    bool		isActiveVolShown()	{ return isactivevolshown_; }
     Notifier<Engine>	activevolumechange;
 
     void		setActive2DLine(Pos::GeomID);
@@ -198,7 +194,6 @@ protected:
 
     BufferString		errmsg_;
     TrcKeyZSampling		activevolume_;
-    bool			isactivevolshown_;
 
     Pos::GeomID 		activegeomid_;
     BufferString		active2dlinename_;

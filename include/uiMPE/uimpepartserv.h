@@ -119,29 +119,20 @@ public:
     static int			evRemoveUnsavedEMObject();
     static int			evRetrackInVolume();
 
-    bool			isDataLoadingBlocked() const;
-    void			blockDataLoading(bool);
-    void			postponeLoadingCurVol();
-    void			loadPostponedVolume();
-
     void			loadTrackSetupCB(CallBacker*);
     bool 			prepareSaveSetupAs(const MultiID&);
     bool 			saveSetupAs(const MultiID&);
     bool 			saveSetup(const MultiID&);
     bool 			readSetup(const MultiID&);
-    bool                        fireAddTreeObjectEvent();
+    bool			fireAddTreeObjectEvent();
 
-    void                        saveUnsaveEMObject();
-	
+    void			saveUnsaveEMObject();
+
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    void			fireLAttribData()	{ loadAttribData(); }
 
 protected:
-    bool			activeVolumeIsDefault() const;
-    void			expandActiveVolume(const TrcKeyZSampling&);
     void			activeVolumeChange(CallBacker*);
-    void			loadAttribData();
     void			loadEMObjectCB(CallBacker*);
     void			mergeAttribSets(const Attrib::DescSet& newads,
 						MPE::EMTracker&);
@@ -152,10 +143,6 @@ protected:
 
     const Attrib::DescSet*	attrset3d_;
     const Attrib::DescSet*	attrset2d_;
-    bool			blockdataloading_;
-    				/*!<Is checked when cb is issued from the
-				    MPE::Engine about changed active volume */
-    TrcKeyZSampling		postponedcs_;
 
 				//Interaction variables
     const Attrib::SelSpec*	eventattrselspec_;
@@ -166,12 +153,11 @@ protected:
     				//2D interaction
     Pos::GeomID 		geomid_;
     Attrib::SelSpec		lineselspec_;
-    
+
     void			aboutToAddRemoveSeed(CallBacker*);
     EM::ObjectID        	trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
 
-    TrcKeyZSampling		trackerseedbox_;
     int				initialundoid_;
     bool			seedhasbeenpicked_;
     bool			setupbeingupdated_;
@@ -184,13 +170,12 @@ protected:
 
     void			nrHorChangeCB(CallBacker*);
 
-    void			adjustSeedBox();
     void			noTrackingRemoval();
-    void			retrack( const EM::ObjectID& );
+    void			retrack(const EM::ObjectID&);
 
     void			cleanSetupDependents();
 
-    MPE::uiSetupGroup*          setupgrp_;
+    MPE::uiSetupGroup*		setupgrp_;
 };
 
 

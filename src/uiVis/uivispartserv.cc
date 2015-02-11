@@ -74,12 +74,8 @@ int uiVisPartServer::evToHomePos()		    { return 10; }
 int uiVisPartServer::evPickingStatusChange()	    { return 11; }
 int uiVisPartServer::evViewModeChange()		    { return 12; }
 int uiVisPartServer::evShowSetupDlg()		    { return 13; }
-int uiVisPartServer::evLoadPostponedData()	    { return 14; }
-int uiVisPartServer::evToggleBlockDataLoad()	    { return 15; }
 int uiVisPartServer::evDisableSelTracker()	    { return 16; }
 int uiVisPartServer::evColorTableChange()	    { return 17; }
-int uiVisPartServer::evLoadAttribDataInMPEServ()    { return 18; }
-int uiVisPartServer::evPostponedLoadingData()	    { return 19; }
 int uiVisPartServer::evFromMPEManStoreEMObject()    { return 20; }
 int uiVisPartServer::evShowSetupGroupOnTop()	    { return 21; }
 
@@ -1583,27 +1579,6 @@ void uiVisPartServer::getPickingMessage( BufferString& str ) const
 }
 
 
-void uiVisPartServer::loadPostponedData() const
-{
-    eventmutex_.lock();
-    sendEvent( evLoadPostponedData() );
-}
-
-
-void uiVisPartServer::postponedLoadingData() const
-{
-    eventmutex_.lock();
-    sendEvent( evPostponedLoadingData() );
-}
-
-
-void uiVisPartServer::toggleBlockDataLoad() const
-{
-    eventmutex_.lock();
-    sendEvent( evToggleBlockDataLoad() );
-}
-
-
 visSurvey::Scene* uiVisPartServer::getScene( int sceneid )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
@@ -2141,26 +2116,11 @@ void uiVisPartServer::initMPEStuff()
 }
 
 
-void uiVisPartServer::fireLoadAttribDataInMPEServ()
-{
-    eventmutex_.lock();
-    sendEvent( evLoadAttribDataInMPEServ() );
-}
-
-
 void uiVisPartServer::fireFromMPEManStoreEMObject()
 {
     eventmutex_.lock();
     sendEvent( evFromMPEManStoreEMObject() );
 }
-
-
-void uiVisPartServer::updateOldActiVolInuiMPEMan()
-{ mpetools_->updateOldActiveVol(); }
-
-
-void uiVisPartServer::restoreActiveVolInuiMPEMan()
-{ mpetools_->restoreActiveVolume(); }
 
 
 bool uiVisPartServer::canBDispOn2DViewer( int id ) const
