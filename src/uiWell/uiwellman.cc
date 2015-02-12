@@ -495,7 +495,8 @@ void uiWellMan::defD2T( bool chkshot )
 	      !wtr.putInfoAndTrack() )
     {
 	if ( !errmsg.isEmpty() ) errmsg.addNewLine();
-	errmsg.add( "Cannot write new replacement velocity to disk" );
+	errmsg.add( "Cannot write new " ).add( Well::Info::sKeyreplvel() );
+	errmsg.add( " to disk" );
 	wd->info().replvel = oldreplvel;
     }
 
@@ -778,7 +779,7 @@ void uiWellMan::exportLogs( CallBacker* )
 
 #define mAddWellInfo(key,str) \
     if ( !str.isEmpty() ) \
-    { txt += key; txt += ": "; txt += str; txt += "\n"; }
+    { txt.add( key ).add( colonstr ).add( str ).addNewLine(); }
 
 
 void uiWellMan::mkFileInfo()
@@ -796,6 +797,7 @@ void uiWellMan::mkFileInfo()
     const Well::Info& info = curwd.info();
     const Well::Track& track = curwd.track();
 
+    FixedString colonstr( ": " );
     const BufferString posstr( info.surfacecoord.toString(), " ",
 		SI().transform(info.surfacecoord).toString() );
     mAddWellInfo(Well::Info::sKeycoord(),posstr)
@@ -806,53 +808,55 @@ void uiWellMan::mkFileInfo()
 	const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
 	if ( !mIsZero(rdelev,1e-4) && !mIsUdf(rdelev) )
 	{
-	    txt += "Reference Datum Elevation (KB): ";
-	    txt += zun ? zun->userValue(rdelev) : rdelev;
+	    txt.add( Well::Info::sKeykbelev() ).add( colonstr );
+	    txt.add( zun ? zun->userValue(rdelev) : rdelev );
 	    if ( zun ) txt.add( zun->symbol() );
-	    txt.add( "\n" );
+	    txt.addNewLine();
 	}
 
 	const float td = track.dahRange().stop;
 	if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
 	{
-	    txt += "Total Depth (TD): ";
-	    txt += zun ? zun->userValue(td) : td;
+	    txt.add( Well::Info::sKeyTD() ).add( colonstr );
+	    txt.add( zun ? zun->userValue(td) : td );
 	    if ( zun ) txt.add( zun->symbol() );
-	    txt.add( "\n" );
+	    txt.addNewLine();
 	}
 
 	const float srdelev = info.srdelev;
 	const float srd = mCast(float,SI().seismicReferenceDatum());
 	if ( !mIsZero(srd,1e-4f) )
 	{
-	    txt.add( "Seismic Reference Datum (SRD): " );
+	    txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
 	    txt.add( zun ? zun->userValue(srd) : srd );
 	    if ( zun ) txt.add( zun->symbol() );
-	    txt.add( "\n" );
+	    txt.addNewLine();
 	}
 	if ( !mIsEqual(srd,srdelev,1e-2f) &&
 	     !mIsUdf(srdelev) && !mIsZero(srdelev,1e-2f) )
 	{
-	    txt.add( "Warning: Seismic Reference Datum (SRD) from well " );
-	    txt.add( "is no longer supported.\n" );
-	    txt.add("This later is ignored, using SRD from survey settings.\n");
+	    txt.add( "Warning: " ).add( SurveyInfo::sKeySeismicRefDatum() );
+	    txt.add( " from well " ).add( "is no longer supported." );
+	    txt.addNewLine().add( "This later is ignored, " );
+	    txt.add( "using SRD from survey settings." ).addNewLine();
 	}
 
 	const float replvel = info.replvel;
 	if ( !mIsUdf(replvel) )
 	{
-	     txt += "Replacement velocity (from KB to SRD): ";
-	     txt += zun ? zun->userValue(replvel) : replvel;
-	     txt += UnitOfMeasure::zUnitAnnot( false, true, false );
-	     txt += "/s\n";
+	     txt.add( Well::Info::sKeyreplvel() ).add( colonstr );
+	     txt.add( zun ? zun->userValue(replvel) : replvel );
+	     txt.add( UnitOfMeasure::zUnitAnnot(false,true,false) );
+	     txt.add( "/s" ).addNewLine();
 	}
 
 	const float groundelev = info.groundelev;
 	if ( !mIsUdf(groundelev) )
 	{
-	    txt += "Ground level elevation (GL): ";
-	    txt += zun ? zun->userValue(groundelev) : groundelev;
-	    txt += zun->symbol(); txt += "\n";
+	    txt.add( Well::Info::sKeygroundelev() ).add( colonstr );
+	    txt.add( zun ? zun->userValue(groundelev) : groundelev );
+	    if ( zun ) txt.add( zun->symbol() );
+	    txt.addNewLine();
 	}
     }
 

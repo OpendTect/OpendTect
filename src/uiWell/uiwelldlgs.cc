@@ -130,7 +130,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     mAddSetBut( wellheadyfld_, updateYpos )
     if ( !writable_ ) wellheadyfld_-> setReadOnly( true );
 
-    kbelevfld_ = new uiGenInput( actbutgrp, "Reference Datum Elevation",
+    kbelevfld_ = new uiGenInput( actbutgrp, Well::Info::sKeykbelev(),
 				 FloatInpSpec(mUdf(float)) );
     mAddSetBut( kbelevfld_, updateKbElev )
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
@@ -215,8 +215,8 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
 
     wellheadxfld_->setTitleText( BufferString("X", coordlbl) );
     wellheadyfld_->setTitleText( BufferString("Y", coordlbl) );
-    kbelevfld_->setTitleText(
-		    uiString("Reference Datum Elevation %1").arg(depthunit) );
+    kbelevfld_->setTitleText( uiString("%1 %2").arg( Well::Info::sKeykbelev() )
+					       .arg(depthunit) );
 
     Coord wellhead = wd_.info().surfacecoord;
     if ( mIsZero(wellhead.x,0.001) )
@@ -469,7 +469,8 @@ void uiWellTrackDlg::updateKbElev( CallBacker* )
     float kbelevorig = track_.isEmpty() ? 0.f : track_.getKbElev();
     if ( mIsUdf(newkbelev) )
     {
-	uiMSG().error( "Please enter a valid elevation" );
+	uiMSG().error(
+	     BufferString("Please enter a valid ",Well::Info::sKeykbelev()) );
 	kbelevfld_->setValue( kbelevorig );
 	return;
     }
@@ -633,10 +634,11 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     tbl_->setNrRows( nremptyrows );
     tbl_->valueChanged.notify( mCB(this,uiD2TModelDlg,dtpointChangedCB) );
     tbl_->rowDeleted.notify( mCB(this,uiD2TModelDlg,dtpointRemovedCB) );
+    FixedString kbstr( Well::Info::sKeykbelev() );
     tbl_->setColumnToolTip( cMDCol,
-	   "Measured depth along the borehole, origin at Reference Datum" );
+	   BufferString("Measured depth along the borehole, origin at ",kbstr));
     tbl_->setColumnToolTip( cTVDCol,
-	    "True Vertical Depth, origin at Reference Datum" );
+	    BufferString( "True Vertical Depth, origin at ", kbstr ) );
     tbl_->setColumnToolTip( getTVDSSCol(),
 	    "True Vertical Depth Sub-Sea, positive downwards" );
     tbl_->setColumnToolTip( getTimeCol(),
@@ -658,7 +660,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 
     if ( !cksh_ )
     {
-	replvelfld_ = new uiGenInput( this, "Replacement velocity",
+	replvelfld_ = new uiGenInput( this, Well::Info::sKeyreplvel(),
 				      FloatInpSpec(mUdf(float)) );
 	if ( !writable_ )
 	    replvelfld_-> setReadOnly( true );
@@ -847,8 +849,9 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 void uiD2TModelDlg::fillReplVel( CallBacker* )
 {
     NotifyStopper ns( replvelfld_->updateRequested );
-    BufferString lbl( "Replacement velocity (",
-		      getDistUnitString(unitfld_->isChecked(),false), "/s)" );
+    BufferString unitlbl( " (", getDistUnitString(unitfld_->isChecked(),false),
+			  "/s)" );
+    BufferString lbl( Well::Info::sKeyreplvel(), unitlbl );
     replvelfld_->setTitleText( lbl );
     float replvel = wd_.info().replvel;
     if ( !mIsUdf(replvel) && unitfld_->isChecked() )
@@ -1364,7 +1367,8 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     float replvel = replvelfld_->getfValue();
     if ( mIsUdf(replvel) || replvel < 0.001f )
     {
-	uiMSG().error( "Please enter a valid replacement velocity" );
+	uiMSG().error( BufferString("Please enter a valid ",
+				    Well::Info::sKeyreplvel()) );
 	replvelfld_->setValue( !unitfld_->isChecked() ? wd_.info().replvel
 			       : wd_.info().replvel * mToFeetFactorF );
 	return;
