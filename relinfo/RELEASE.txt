@@ -1,6 +1,40 @@
 OpendTect V5.0.x : Release info
 
 ----
+v5.0.5: February 12, 2015
+ * Made the 'Allow spin animation' option in Scene properties window work
+ * Added 'Delete rows' option in well log editor
+ * Implemented copy/paste functionality from OpendTect tables to external
+   spreadsheets and vice-versa
+ * Improved synchronization of cursor position between scenes
+ * Improved ASCII import of Well time-depth models
+ * Improvements in well track import
+ * Fix for crash while evaluating Mathematics attribute
+ * Fix for crash while creating seismic cube with selected depth range using
+   volume builder tool
+ * Fix for crash while trying to save horizon without tracking anything
+ * Fix for crash while importing Seismic data from simple file
+ * Fix for displaying seed based iso-surface volume in scene
+ * Fix for displaying of connection line between previous node and new node
+   while picking fault plane
+ * Fix for exporting of prestack data store into a SEGY
+ * Fix for displaying of correct log units in 'Tie well to seismics' window
+ * Fix for change of active color bar after saving active color bar with a
+   new name
+ * Fix for Splicing two logs using Mathematics engine in "Calculate new logs"
+   window in well tie module
+ * Fix for well name size not keeping up with snapshot resolution
+ * Removed the 'Retrack all' button from Horizon tracking toolbar
+ * Fix for displaying 2D lines with missing traces in 2D viewer
+ * Fix for missing Random line names in restored sessions
+ * Fix for tiled display of Horizon after changing Z Scale
+ * Fix for creating Implicit body objects
+ * Data from/to Simple binary files can be swapped during import/export by
+   setting the environment variable OD_SIMPLE_FILE_BINARY_SWAPPED to 'Yes'.
+   This allows reading/writing of (big endian) image files on windows
+   and Linux workstations
+
+
 v5.0.4: January 15, 2015
  * Added 'Enable Virtual Keyboard' option in OpendTect Settings
    window (under the 'General' tab)
