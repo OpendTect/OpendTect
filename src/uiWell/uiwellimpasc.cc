@@ -324,11 +324,11 @@ bool uiWellImportAsc::doWork()
     float kbelev = kbelevfld_->getfValue();
     if ( mIsUdf(kbelev) )
 	kbelev = 0;
-    else if ( SI().depthsInFeet() && zun_ )
+    else if ( zun_ )
 	kbelev = zun_->internalValue( kbelev );
 
     float td = tdfld_->getfValue();
-    if ( !mIsUdf(td) && SI().depthsInFeet() && zun_ )
+    if ( !mIsUdf(td) && zun_ )
 	td = zun_->internalValue( td ) ;
 
     BufferStringSet datasrcnms;

@@ -105,7 +105,10 @@ protected:
 
 //!> Converts from one unit into another.
 //!> Both units may be null (hence the non-member function).
-template <class T> void convUserValue(T& val,
+template <class T> void convValue(T& val,
+		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit);
+
+template <class T> inline T getConvertedValue(T val,
 		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit);
 
 
@@ -191,18 +194,24 @@ template <class T> inline T UnitOfMeasure::userValue( T inp ) const
 }
 
 
-template <class T> void convUserValue( T& val,
+template <class T> void convValue( T& val,
+		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit )
+{ val = getConvertedValue( val, oldunit, newunit ); }
+
+
+template <class T> inline T getConvertedValue( T val,
 		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit )
 {
     if ( oldunit == newunit || mIsUdf(val) )
-	return;
+	return val;
 
     if ( oldunit )
-	val = oldunit->internalValue( val );
+       val = oldunit->internalValue( val );
     if ( newunit )
 	val = newunit->userValue( val );
-}
 
+    return val;
+}
 
 #endif
 

@@ -103,7 +103,7 @@ protected:
     float		origreplvel_;
 
     uiTable*		tbl_;
-    uiCheckBox*		unitfld_;
+    uiCheckBox*		zinftfld_;
     uiCheckBox*		timefld_;
     uiGenInput*		replvelfld_;
 
@@ -133,6 +133,10 @@ protected:
     bool		rowIsIncomplete(int row) const;
     int			getPreviousCompleteRowIdx(int row) const;
     int			getNextCompleteRowIdx(int row) const;
+    void		setDepthValue(int irow,int icol,float);
+    float		getDepthValue(int irow,int icol) const;
+    void		setTimeValue(int irow,float);
+    float		getTimeValue(int irow) const;
 };
 
 

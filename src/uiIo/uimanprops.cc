@@ -131,7 +131,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     , withform_(supportform)
     , curunit_(0)
 {
-    namefld_ = new uiGenInput( this, uiStrings::sName(), 
+    namefld_ = new uiGenInput( this, uiStrings::sName(),
                                StringInpSpec(pr.name()) );
     SeparString ss;
     for ( int idx=0; idx<pr_.aliases().size(); idx++ )
@@ -207,8 +207,8 @@ void uiEditPropRef::unitSel( CallBacker* )
 	return;
 
     Interval<double> vintv( rgfld_->getDInterval() );
-    convUserValue( vintv.start, curunit_, newun );
-    convUserValue( vintv.stop, curunit_, newun );
+    convValue( vintv.start, curunit_, newun );
+    convValue( vintv.stop, curunit_, newun );
     rgfld_->setValue( vintv );
     if ( !pr_.disp_.defval_ || pr_.disp_.defval_->isValue() )
     {

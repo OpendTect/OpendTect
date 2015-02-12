@@ -258,7 +258,7 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
 	return;
 
     for ( int idx=0; idx<vals_.size(); idx++ )
-	convUserValue( vals_[idx], curuom, touom );
+	convValue( vals_[idx], curuom, touom );
 
     if ( touom )
 	unitmeaslbl_ = touom->symbol();
