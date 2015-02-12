@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwellpartserv.h"
 
+#include "velocitycalc.h"
 #include "welltransl.h"
 #include "wellman.h"
 #include "welldata.h"
@@ -24,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiamplspectrum.h"
 #include "uibulkwellimp.h"
+#include "uid2tmodelgrp.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
@@ -414,36 +416,86 @@ bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
     return ( dlg.uiResult() == 1 );
 }
 
+
+static void makeTimeDepthModel( bool addwellhead, double z0, double srddepth,
+				const Well::Info& info, TimeDepthModel& model )
+{
+    TypeSet<float> dpths, times;
+    const bool wllheadbelowsrd = !addwellhead && z0 > 0.;
+    const double vrepl = mCast(double,info.replvel);
+    const UnitOfMeasure* zun = UnitOfMeasure::surveyDefDepthUnit();
+    double vtmp = (double)uiD2TModelGroup::getDefaultTemporaryVelocity();
+    if ( SI().zIsTime() && SI().depthsInFeet() && zun )
+	vtmp = zun->internalValue( vtmp );
+
+    double originz = srddepth;
+    if ( wllheadbelowsrd )
+	originz += vrepl * z0 / 2.;
+
+    dpths.setSize( 3, (float)originz );
+    times.setSize( 3, wllheadbelowsrd ? z0 : 0.f );
+    dpths[0] -= (float)vtmp; times[0] -= mCast(float, 2. * vtmp / vrepl);
+    dpths[2] += (float)vtmp; times[2] += 2.f;
+    model.setModel( dpths.arr(), times.arr(), dpths.size() );
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
 bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
-				  const char* wellname, MultiID& mid )
+				  const char* wellname, MultiID& mid,
+				  bool addwellhead )
 {
     if ( coords.isEmpty() )
 	mErrRet("Empty well track")
+
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->setObj(0); ctio->setName( wellname );
     if ( !ctio->fillObj() )
 	mErrRet("Cannot create an entry in the data store")
 
     PtrMan<Well::Data> well = new Well::Data( wellname );
-    Well::D2TModel* d2t = SI().zIsTime() ? new Well::D2TModel : 0;
-    const float vel = mCast( float, d2t ? 3000 : 1 );
-    const Coord3& c0( coords[0] );
-    const float minz = (float) c0.z * vel;
-    well->track().addPoint( c0, minz, minz );
-    well->info().surfacecoord = Coord( c0.x, c0.y );
-    if ( d2t ) d2t->add( minz, (float) c0.z );
+    Well::Track& track = well->track();
+    TypeSet<Coord3> pos = coords;
+    const double srddepth = -1. * SI().seismicReferenceDatum();
+    const double refz = SI().zIsTime() ? 0. : srddepth;
+    if ( coords[0].z > refz+mDefEps && addwellhead )
+	pos.insert( 0, Coord3( coords[0].x, coords[0].y, refz ) );
 
-    for ( int idx=1; idx<coords.size(); idx++ )
+    well->info().surfacecoord = Coord( pos[0].x, pos[0].y );
+
+    TimeDepthModel tdmodel;
+    if ( SI().zIsTime() )
     {
-	const Coord3& c( coords[idx] );
-	well->track().addPoint( c, (float) c.z*vel );
-	if ( d2t ) d2t->add( well->track().dah(idx), (float) c.z );
+	makeTimeDepthModel( addwellhead, pos[0].z, srddepth, well->info(),
+			    tdmodel );
+	for ( int idx=0; idx<pos.size(); idx++ )
+	    pos[idx].z = mCast( float,tdmodel.getDepth( (float)pos[idx].z ) );
     }
 
-    well->setD2TModel( d2t );
+    track.addPoint( pos[0], 0.f );
+    for ( int idx=1; idx<pos.size(); idx++ )
+    {
+	const float dist = mCast( float, pos[idx].distTo( pos[idx-1] ) );
+	track.addPoint( pos[idx], track.dah(idx-1) + dist );
+    }
+
+    const Interval<double> trackrg = track.zRangeD();
+    const double startz = mMAX( srddepth, trackrg.start );
+    if ( SI().zIsTime() && trackrg.stop > startz )
+    {
+	Well::D2TModel* d2t = new Well::D2TModel;
+	const double startdah = trackrg.start > srddepth
+			      ? 0.f : track.getDahForTVD(srddepth);
+	d2t->add( startdah, tdmodel.getTime( (float)startz ) );
+
+	const float stopdah = track.getDahForTVD( trackrg.stop );
+	d2t->add( stopdah, tdmodel.getTime( (float)trackrg.stop ) );
+
+	well->setD2TModel( d2t );
+    }
+
     Well::Writer wwr( *ctio->ioobj, *well );
     if ( !wwr.put() )
 	mErrRet( wwr.errMsg() )

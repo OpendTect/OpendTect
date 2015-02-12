@@ -77,10 +77,9 @@ public:
 
     void			createWellFromPicks();
     const char*			askWellName();
-    bool			setupNewWell(BufferString&, Color&);
-
+    bool			setupNewWell(BufferString&,Color&);
     bool			storeWell(const TypeSet<Coord3>&,const char* nm,
-					  MultiID&);
+					  MultiID&,bool addwellhead=false);
 
     void			setSceneID( int id )	{ cursceneid_ = id; }
     int				getSceneID() const	{ return cursceneid_; }
