@@ -127,6 +127,8 @@ mGlobal(Basic) const char* getYesNoString(bool);
 	/*!< returns ptr to static buffer with "yes" or "No". */
 mGlobal(Basic) const char* getDistUnitString(bool isfeet,bool withparentheses);
 	/*!< returns ptr to static buffer with "m" or "ft" */
+mGlobal(Basic) const char* getVelUnitString(bool isfeet,bool withparentheses);
+	/*!< returns ptr to static buffer with "m/s" or "ft/s" */
 
 mGlobal(Basic) const char* getRankPostFix(int);
 	/*!< returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */

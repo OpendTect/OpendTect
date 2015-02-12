@@ -362,6 +362,15 @@ const char* getDistUnitString( bool isfeet, bool wb )
 }
 
 
+const char* getVelUnitString( bool isfeet, bool wb )
+{
+    if ( isfeet )
+	return wb ? "(ft/s)" : "ft/s";
+
+    return wb ? "(m/s)" : "m/s";
+}
+
+
 bool yesNoFromString( const char* str )
 {
     if ( !str ) return false;
