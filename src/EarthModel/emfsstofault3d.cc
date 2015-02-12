@@ -77,8 +77,8 @@ Coord3 FSStoFault3DConverter::FaultStick::findPlaneNormal() const
     if ( oninl == oncrl )
 	return Coord3( Coord::udf(), 0 );
 
-    return oncrl>oninl ? Coord3( SI().binID2Coord().inlDir(), 0 ) :
-			 Coord3( SI().binID2Coord().crlDir(), 0 );
+    return oncrl>oninl ? Coord3( SI().binID2Coord().crlDir(), 0 ) :
+			 Coord3( SI().binID2Coord().inlDir(), 0 );
 }
 
 
