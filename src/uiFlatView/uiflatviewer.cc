@@ -116,10 +116,12 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 {
     axesdrawer_.setWorldCoords( wr_ );
-    if ( !wr_.checkCorners( !appearance().annot_.x1_.reversed_,
-			    appearance().annot_.x2_.reversed_ ) )
+    const FlatView::Annotation& annot = appearance().annot_;
+    if ( !wr_.checkCorners(!annot.x1_.reversed_,annot.x2_.reversed_) )
     {
-	updateBitmapCB( cb ); //<<-- To redraw bitmaps with wiggles flipped.
+	if ( isVisible(true) && wr_.revX()!=annot.x1_.reversed_ )
+	    updateBitmapCB( cb ); //<<-- To redraw bitmaps with wiggles flipped.
+
 	setView( wr_ ); //<<-- To flip the resultant image.
     }
 
