@@ -111,16 +111,13 @@ const UnitOfMeasure* UnitOfMeasure::getGuessed( const char* nm )
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
 {
-    if ( SI().zIsTime() )
-	return UoMR().get( "Milliseconds" );
-    else
-	return surveyDefDepthUnit();
+    return SI().zIsTime() ? surveyDefTimeUnit() : surveyDefDepthUnit();
 }
 
 
-const char* UnitOfMeasure::surveyDefZUnitAnnot( bool symb, bool withparens )
+const UnitOfMeasure* UnitOfMeasure::surveyDefTimeUnit()
 {
-    return zUnitAnnot( SI().zIsTime(), symb, withparens );
+    return UoMR().get( "Milliseconds" );
 }
 
 
@@ -130,34 +127,61 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 }
 
 
+const UnitOfMeasure* UnitOfMeasure::surveyDefVelUnit()
+{
+    return UoMR().get( SI().depthsInFeet() ? "Feet/second" : "Meter/second" );
+}
+
+
+const char* UnitOfMeasure::surveyDefZUnitAnnot( bool symb, bool withparens )
+{
+    return zUnitAnnot( SI().zIsTime(), symb, withparens );
+}
+
+
+const char* UnitOfMeasure::surveyDefTimeUnitAnnot( bool symb, bool withparens )
+{
+    return zUnitAnnot( true, symb, withparens );
+}
+
+
 const char* UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb, bool withparens )
 {
     return zUnitAnnot( false, symb, withparens );
 }
 
+#define mCreateLbl() \
+{ \
+	retstr.setEmpty(); \
+    if ( withparens ) retstr.add( "(" ); \
+    retstr.add( symb ? uom->symbol() : uom->name() ); \
+    if ( withparens ) retstr.add( ")" ); \
+}
 
-const char* UnitOfMeasure::zUnitAnnot( bool time, bool symbol,
-				       bool withparens )
+const char* UnitOfMeasure::zUnitAnnot( bool time, bool symb, bool withparens )
 {
-    if ( time )
-    {
-	if ( !symbol )
-	    return "Milliseconds";
-	else
-	    return withparens ? "(ms)" : "ms";
-    }
+    const UnitOfMeasure* uom = time  ? surveyDefTimeUnit()
+				     : surveyDefDepthUnit();
+    if ( !uom )
+	return OD::String::empty();
 
-    if ( SI().depthsInFeet() )
-    {
-	if ( !symbol )
-	    return "Feet";
-	return withparens ? "(ft)" : "ft";
-    }
+    mDeclStaticString( retstr );
+    mCreateLbl()
 
-    if ( !symbol )
-	return "Meter";
+    return retstr;
+}
 
-    return withparens ? "(m)" : "m";
+
+const char* UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
+{
+    const UnitOfMeasure* uom = surveyDefVelUnit();
+    if ( !uom )
+	return OD::String::empty();
+
+    mDeclStaticString( retstr );
+    mCreateLbl()
+
+    return retstr;
 }
 
 

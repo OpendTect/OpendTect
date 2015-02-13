@@ -36,6 +36,7 @@ namespace Well { class Data; class Track; class D2TModel; class Log;
 		 class LogSet;}
 
 
+
 /*! \brief Dialog for D2T Model editing. */
 
 mExpClass(uiWell) uiWellTrackDlg : public uiDialog
@@ -129,6 +130,10 @@ protected:
     bool		rowIsIncomplete(int row) const;
     int			getPreviousCompleteRowIdx(int row) const;
     int			getNextCompleteRowIdx(int row) const;
+    void		setDepthValue(int irow,int icol,float);
+    float		getDepthValue(int irow,int icol) const;
+    void		setTimeValue(int irow,float);
+    float		getTimeValue(int irow) const;
 };
 
 

@@ -89,6 +89,11 @@ public:
 			//!< store as a user setting on Survey level
 			//!< this will be done automatically at survey changes
 
+    static const UnitOfMeasure* surveyDefTimeUnit();
+    static const UnitOfMeasure* surveyDefVelUnit();
+    static const char*	surveyDefTimeUnitAnnot(bool symbol,bool withparens);
+    static const char*	surveyDefVelUnitAnnot(bool symbol,bool withparens);
+
 protected:
 
     BufferString	symbol_;
@@ -102,6 +107,9 @@ protected:
 //!> Converts from one unit into another.
 //!> Both units may be null (hence the non-member function).
 template <class T> void convUserValue(T& val,
+		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit);
+
+template <class T> inline T getConvertedValue(T val,
 		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit);
 
 
@@ -189,16 +197,22 @@ template <class T> inline T UnitOfMeasure::userValue( T inp ) const
 
 template <class T> void convUserValue( T& val,
 		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit )
+{ val = getConvertedValue( val, oldunit, newunit ); }
+
+
+template <class T> inline T getConvertedValue( T val,
+		const UnitOfMeasure* oldunit, const UnitOfMeasure* newunit )
 {
     if ( oldunit == newunit || mIsUdf(val) )
-	return;
+	return val;
 
     if ( oldunit )
 	val = oldunit->internalValue( val );
     if ( newunit )
 	val = newunit->userValue( val );
-}
 
+    return val;
+}
 
 #endif
 

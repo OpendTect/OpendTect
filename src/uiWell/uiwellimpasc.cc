@@ -76,15 +76,14 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
-    BufferString zlbl;
-    zlbl.addSpace().add(UnitOfMeasure::zUnitAnnot(false,true,true)).addSpace();
-    BufferString kblbl( Well::Info::sKeykbelev() ); kblbl += zlbl;
+    FixedString zlbl( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
+    BufferString kblbl( Well::Info::sKeykbelev(), " ", zlbl);
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->setWithCheck();
     kbelevfld_->setChecked( false );
     kbelevfld_->attach( alignedBelow, dataselfld_ );
 
-    BufferString tdlbl( Well::Info::sKeyTD() ); tdlbl += zlbl;
+    BufferString tdlbl( Well::Info::sKeyTD(), " ",zlbl );
     tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
     tdfld_->setWithCheck();
     tdfld_->setChecked( false );
@@ -212,14 +211,14 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	dispval = zun_->userValue( info.replvel );
 
     BufferString lbl = Well::Info::sKeyreplvel();
-    lbl.add(" (").add( UnitOfMeasure::zUnitAnnot(false,true,false) ).add("/s)");
+    lbl.addSpace().add( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
     replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
 
     dispval = info.groundelev;
     if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundelev );
     lbl = Well::Info::sKeygroundelev();
-    lbl.addSpace().add( UnitOfMeasure::zUnitAnnot(false,true,true) );
+    lbl.addSpace().add( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
     gdelevfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
 
@@ -319,11 +318,11 @@ bool uiWellImportAsc::doWork()
     float kbelev = kbelevfld_->getfValue();
     if ( mIsUdf(kbelev) )
 	kbelev = 0;
-    else if ( SI().depthsInFeet() && zun_ )
+    else if ( zun_ )
 	kbelev = zun_->internalValue( kbelev );
 
     float td = tdfld_->getfValue();
-    if ( !mIsUdf(td) && SI().depthsInFeet() && zun_ )
+    if ( !mIsUdf(td) && zun_ )
 	td = zun_->internalValue( td ) ;
 
     BufferStringSet datasrcnms;
