@@ -70,7 +70,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     symclipratiofld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
-    usemidvalfld_ = new uiGenInput( this, "Use mid value", BoolInpSpec(true) );
+    usemidvalfld_ = new uiGenInput(this,"Specify mid value",BoolInpSpec(true));
     usemidvalfld_->attach( alignedBelow, symclipratiofld_ );
     usemidvalfld_->display( useclipfld_->getIntValue()==1 );
     usemidvalfld_->valuechanged.notify(
@@ -322,13 +322,13 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     overlapfld_->attach( alignedBelow, lastcommonfld_ );
 
     leftcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.left_).
-			lbltxt("Left fill").withcheck(true).withdesc(false),
-			"Left fill color" );
+			lbltxt("Negative fill").withcheck(true).withdesc(false),
+			"Negative fill color" );
     leftcolsel_->attach( alignedBelow, overlapfld_ );
 
     rightcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.right_).
-			 lbltxt("Right fill").withcheck(true).withdesc(false),
-			 "Right fill color" );
+			lbltxt("Positive fill").withcheck(true).withdesc(false),
+			 "Positive fill color" );
     rightcolsel_->attach( rightTo, leftcolsel_ );
 
     wigcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.wigg_).
@@ -338,19 +338,19 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     wigcolsel_->attach( alignedBelow, leftcolsel_ );
 
     midlcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.mid_).
-			lbltxt("Middle line").withcheck(true).withdesc(false),
-			"Middle line color" );
+			lbltxt("Ref line     ").withcheck(true).withdesc(false),
+			"Ref line color" );
 
     midlcolsel_->attach( rightOf, wigcolsel_ );
     rightcolsel_->attach( alignedWith, midlcolsel_ );
     midlcolsel_->doDrawChanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
 
-    midlinefld_ = new uiGenInput( this, "Display middle line at",
+    midlinefld_ = new uiGenInput( this, "Display reference line at",
 			BoolInpSpec(true,"Specified value","Median value") );
     midlinefld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
     midlinefld_->attach( alignedBelow, wigcolsel_ );
 
-    midvalfld_ = new uiGenInput( this, "Middle line value", FloatInpSpec() );
+    midvalfld_ = new uiGenInput( this, "Reference line value", FloatInpSpec() );
     midvalfld_->setElemSzPol(uiObject::Small);
     midvalfld_->attach( alignedBelow, midlinefld_ );
 
