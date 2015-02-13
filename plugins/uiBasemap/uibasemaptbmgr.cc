@@ -137,7 +137,8 @@ uiBarSettingsDialog( uiParent* p, uiMapScaleObject& ms )
     scalelen_ = msobj_.getScaleLen();
 
     const double mv = SI().maxCoord(false).x - SI().minCoord(false).x;
-    maxscalelen_ = mCast(float,100 * mCast(int,mv/100));
+    const int imv = mCast(int,mv/100);
+    maxscalelen_ = mCast(float,100*imv);
 
     const BufferString lbl( "Scale Size ", SI().getXYUnitString() );
     scalelenfld_ = new uiGenInput( this, lbl, FloatInpSpec(scalelen_) );
@@ -145,7 +146,7 @@ uiBarSettingsDialog( uiParent* p, uiMapScaleObject& ms )
 		mCB(this,uiBarSettingsDialog,scalebarChg) );
 
     uiSelLineStyle::Setup stu; stu.drawstyle( false );
-    const LineStyle lst( msobj_.getScaleStyle() );
+    const LineStyle lst( msobj_.getLineStyle() );
     scalestylefld_ = new uiSelLineStyle( this, lst, stu );
     scalestylefld_->changed.notify(
 		mCB(this,uiBarSettingsDialog,scalebarChg) );
@@ -169,7 +170,7 @@ void scalebarChg( CallBacker* )
 	scalelen_ = newlen;
     }
 
-    msobj_.setScaleStyle( scalestylefld_->getStyle() );
+    msobj_.setLineStyle( scalestylefld_->getStyle() );
 }
 
     float		scalelen_;

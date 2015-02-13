@@ -64,6 +64,9 @@ void uiBasemapWin::initView()
     basemapview_->view().enableScrollZoom();
     basemapview_->view().setSceneBorder( 20 );
 
+    const LineStyle ls( LineStyle::Dot, 1, Color::Red() );
+    basemapview_->getSurveyBox()->setLineStyle( ls );
+
     basemapview_->view().getMouseEventHandler().movement.notify(
 	mCB(this,uiBasemapWin,mouseMoveCB) );
     basemapview_->view().scene().setMouseEventActive( true );

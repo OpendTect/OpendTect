@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
     : uiBaseMapObject(bmo)
+    , ls_(LineStyle::Solid,3,Color::Red())
 {
     for ( int idx=0; idx<4; idx++ )
     {
@@ -34,13 +35,11 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
 	vertices_ += markeritem;
     }
 
-    Color red( 255, 0, 0, 0);
-    LineStyle ls( LineStyle::Solid, 3, red );
     for ( int idx=0; idx<4; idx++ )
     {
 	uiLineItem* lineitem = new uiLineItem();
-	lineitem->setPenColor( red );
-	lineitem->setPenStyle( ls );
+	lineitem->setPenColor( ls_.color_ );
+	lineitem->setPenStyle( ls_ );
 	itemgrp_.add( lineitem );
 	edges_ += lineitem;
     }
@@ -59,6 +58,17 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
 	textitem->setZValue( 1 );
 	itemgrp_.add( textitem );
 	labels_ += textitem;
+    }
+}
+
+
+void uiSurveyBoxObject::setLineStyle( const LineStyle& ls )
+{
+    ls_ = ls;
+    for ( int idx=0; idx<edges_.size(); idx++ )
+    {
+	edges_[idx]->setPenColor( ls.color_ );
+	edges_[idx]->setPenStyle( ls );
     }
 }
 
@@ -116,9 +126,10 @@ void uiSurveyBoxObject::update()
 }
 
 
+// uiNorthArrowObject
 uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
     : uiBaseMapObject(bmo)
-    , angleline_(0),anglelabel_(0)
+    , angleline_(0), anglelabel_(0)
 {
     ArrowStyle arrowstyle( 3, ArrowStyle::HeadOnly );
     arrowstyle.linestyle_.width_ = 3;
@@ -217,9 +228,10 @@ void uiNorthArrowObject::update()
 }
 
 
+// uiMapScaleObject
 uiMapScaleObject::uiMapScaleObject( BaseMapObject* bmo )
     : uiBaseMapObject(bmo)
-    , scalestyle_(*new LineStyle(LineStyle::Solid,1,Color::Black()))
+    , ls_(LineStyle::Solid,1,Color::Black())
 {
     scalelen_ = (float)( 0.05 * ( SI().maxCoord(false).x -
 				  SI().minCoord(false).x ) );
@@ -286,15 +298,15 @@ void uiMapScaleObject::update()
 				       (float)firsty );
     const Geom::Point2D<float> end( (float)lastx, (float)firsty );
     scaleline_->setLine( origin, end );
-    scaleline_->setPenStyle( scalestyle_ );
+    scaleline_->setPenStyle( ls_ );
 
-    leftcornerline_->setLine( origin , 0.0f, (float)scalecornerlen,
-				       0.0f, (float)scalecornerlen );
-    leftcornerline_->setPenStyle( scalestyle_ );
+    leftcornerline_->setLine( origin, 0.0f, (float)scalecornerlen,
+				      0.0f, (float)scalecornerlen );
+    leftcornerline_->setPenStyle( ls_ );
 
-    rightcornerline_->setLine( end , 0.0f, (float)scalecornerlen,
-				     0.0f, (float)scalecornerlen );
-    rightcornerline_->setPenStyle( scalestyle_ );
+    rightcornerline_->setLine( end, 0.0f, (float)scalecornerlen,
+				    0.0f, (float)scalecornerlen );
+    rightcornerline_->setPenStyle( ls_ );
 
     BufferString label_origin = "0";
     BufferString label_end; label_end.set( worldscalelen, 0 );
@@ -316,12 +328,15 @@ void uiMapScaleObject::setScaleLen( const float scalelen )
     update();
 }
 
-void uiMapScaleObject::setScaleStyle( const LineStyle& ls )
+
+void uiMapScaleObject::setLineStyle( const LineStyle& ls )
 {
-    scalestyle_ = ls;
+    ls_ = ls;
     update();
 }
 
+
+// uiSurveyMap
 uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle,
 			  bool withnortharrow, bool withmapscale )
     : uiBaseMap(p)
@@ -365,21 +380,24 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 {
     survinfo_ = si;
 
-    const unsigned int width = view().width();
-    const unsigned int height = view().height();
+    const int width = view().width();
+    const int height = view().height();
 
     if ( survbox_ )
 	survbox_->setSurveyInfo( survinfo_ );
+
     if ( northarrow_ )
     {
 	northarrow_->setSurveyInfo( survinfo_ );
 	northarrow_->setPixelPos( width, height );
     }
+
     if ( mapscale_ )
     {
 	mapscale_->setSurveyInfo( survinfo_ );
 	mapscale_->setPixelPos( width, height );
     }
+
     if ( title_ )
 	title_->setVisible( survinfo_ );
 

@@ -14,23 +14,29 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uibasemap.h"
+#include "draw.h"
 
-class SurveyInfo;
 class uiArrowItem;
 class uiLineItem;
 class uiMarkerItem;
 class uiTextItem;
+
 class BaseMapObject;
+class SurveyInfo;
+
 
 mExpClass(uiIo) uiSurveyBoxObject : public uiBaseMapObject
 {
 public:
     			uiSurveyBoxObject(BaseMapObject*,bool);
 
-    const char*		getType() const		{ return "SurveyBox"; }
+    const char*		getType() const			{ return "SurveyBox"; }
 
     void		update();
     void		setSurveyInfo(const SurveyInfo*);
+
+    const LineStyle&	getLineStyle() const	{ return ls_; }
+    void		setLineStyle(const LineStyle&);
 
 protected:
 
@@ -39,6 +45,7 @@ protected:
     ObjectSet<uiTextItem>	labels_;
 
     const SurveyInfo*		survinfo_;
+    LineStyle			ls_;
 
     void			setVisibility(bool);
 
@@ -50,7 +57,7 @@ mExpClass(uiIo) uiNorthArrowObject : public uiBaseMapObject
 public:
     			uiNorthArrowObject(BaseMapObject*,bool);
 
-    const char*		getType() const { return "NorthArrow"; }
+    const char*		getType() const			{ return "NorthArrow"; }
 
     void		update();
     void		setSurveyInfo(const SurveyInfo*);
@@ -75,22 +82,23 @@ mExpClass(uiIo) uiMapScaleObject : public uiBaseMapObject
 public:
 			uiMapScaleObject(BaseMapObject*);
 
-    inline const char*	getType() const { return "MapScale"; }
+    inline const char*	getType() const			{ return "MapScale"; }
 
     void		update();
     void		setSurveyInfo(const SurveyInfo*);
     void		setPixelPos(int x,int y);
 
-    inline float	getScaleLen() const { return scalelen_; }
-    inline LineStyle&	getScaleStyle() const { return scalestyle_; }
-
     void		setScaleLen(const float);
-    void		setScaleStyle(const LineStyle&);
+    float		getScaleLen() const		{ return scalelen_; }
+
+    const LineStyle&	getLineStyle() const		{ return ls_; }
+    void		setLineStyle(const LineStyle&);
+
 protected:
     float		scalelen_;
     uiPoint		uistartposition_;
 
-    LineStyle&		scalestyle_;
+    LineStyle		ls_;
     uiLineItem*		scaleline_;
     uiLineItem*		leftcornerline_;
     uiLineItem*		rightcornerline_;
@@ -113,8 +121,9 @@ public:
 
     void		setSurveyInfo(const SurveyInfo*);
 
-    uiMapScaleObject*	getMapScale()	const { return mapscale_; }
-    uiNorthArrowObject* getNorthArrow() const { return northarrow_; }
+    uiMapScaleObject*	getMapScale()	const	{ return mapscale_; }
+    uiNorthArrowObject* getNorthArrow() const	{ return northarrow_; }
+    uiSurveyBoxObject*	getSurveyBox() const	{ return survbox_; }
 
 protected:
     uiMapScaleObject*	mapscale_;
