@@ -151,35 +151,37 @@ uiString UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb, bool withparens )
 }
 
 
-uiString UnitOfMeasure::zUnitAnnot( bool time, bool symbol, bool withparens )
+uiString UnitOfMeasure::zUnitAnnot( bool time, bool symb, bool withparens )
 {
-    uiString str;
     const UnitOfMeasure* uom = time  ? surveyDefTimeUnit()
 				     : surveyDefDepthUnit();
     if ( !uom )
-	return str;
+	return uiString::emptyString();
 
+    uiString lbl;
     if ( withparens )
-	str.append( "(" );
+	lbl.append( "(" );
 
-    str.append( tr(symbol ? uom->symbol() : uom->name()) );
+    lbl.append( tr(symb ? uom->symbol() : uom->name()) );
     if ( withparens )
-	str.append( ")" );
+	lbl.append( ")" );
 
-    return str;
+    return lbl;
 }
 
 
 uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
 {
-    uiString lbl = zUnitAnnot( false, symb, false );
+    const UnitOfMeasure* uom = UoMR().get( "Seconds" );
+    if ( !uom )
+	return uiString::emptyString();
+
+    uiString lbl = surveyDefDepthUnitAnnot( symb, false );
     lbl.append( "/" );
-    lbl.append( tr("s") );
+    lbl.append( tr(symb ? uom->symbol() : uom->name()) );
 
     return withparens ? tr("(%1)").arg(lbl) : tr("%1").arg(lbl);
 }
-
-
 
 
 bool UnitOfMeasure::isImperial() const
