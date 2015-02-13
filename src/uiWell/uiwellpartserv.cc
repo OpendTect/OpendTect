@@ -433,7 +433,7 @@ static void makeTimeDepthModel( bool addwellhead, double z0, double srddepth,
 	originz += vrepl * z0 / 2.;
 
     dpths.setSize( 3, (float)originz );
-    times.setSize( 3, wllheadbelowsrd ? z0 : 0.f );
+    times.setSize( 3, wllheadbelowsrd ? mCast(float,z0) : 0.f );
     dpths[0] -= (float)vtmp; times[0] -= mCast(float, 2. * vtmp / vrepl);
     dpths[2] += (float)vtmp; times[2] += 2.f;
     model.setModel( dpths.arr(), times.arr(), dpths.size() );
@@ -486,7 +486,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     if ( SI().zIsTime() && trackrg.stop > startz )
     {
 	Well::D2TModel* d2t = new Well::D2TModel;
-	const double startdah = trackrg.start > srddepth
+	const float startdah = trackrg.start > srddepth
 			      ? 0.f : track.getDahForTVD(srddepth);
 	d2t->add( startdah, tdmodel.getTime( (float)startz ) );
 
