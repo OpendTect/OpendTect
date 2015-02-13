@@ -959,7 +959,7 @@ void uiD2TModelDlg::fillReplVel( CallBacker* )
     NotifyStopper ns( replvelfld_->updateRequested );
     BufferString lbl( Well::Info::sKeyreplvel(), " ",
 		      getVelUnitString(zinftfld_->isChecked(),true) );
-    if ( !zinftfld_->isChecked() ) lbl.addSpace();
+    if ( zinftfld_->isChecked() ) lbl.addSpace();
     replvelfld_->setTitleText( lbl );
     replvelfld_->setValue( mConvertVal(wd_.info().replvel,true) );
 }
