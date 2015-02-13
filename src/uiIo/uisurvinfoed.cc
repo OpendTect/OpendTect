@@ -50,6 +50,7 @@ static BufferString sKeySRD( bool infeet )
     const UnitOfMeasure* uomimp = UoMR().get( "Feet" );
     const UnitOfMeasure* uom = uomimp && infeet ? uomimp : uomsi;
     BufferString lbl( SurveyInfo::sKeySeismicRefDatum() );
+    if ( infeet ) lbl.addSpace();
     lbl.addSpace().add( "(" ).add( uom ? uom->symbol() : "m"  ).add( ")" );
 
     return lbl;
