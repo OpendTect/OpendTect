@@ -8,7 +8,6 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "wavelet.h"
-#include "wvltfact.h"
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "ctxtioobj.h"
@@ -29,6 +28,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "valseriesinterpol.h"
 
 #include <math.h>
+
+defineTranslatorGroup(Wavelet,"Wavelet");
+defineTranslator(dgb,Wavelet,mDGBKey);
+
 
 static const char* sKeyScaled = "Scaled";
 #define mDefaultSnapdist (1e-4f);
