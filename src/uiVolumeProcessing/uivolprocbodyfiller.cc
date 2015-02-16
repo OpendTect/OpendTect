@@ -45,12 +45,13 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
     if ( mp )
 	uinputselfld_->setInput( mp->getSurfaceID() );
 
+    const float udfval = mUdf(float);
     insidevaluefld_ = new uiGenInput( this, tr("Inside value"),
-	    FloatInpSpec(mp ? mp->getInsideValue() : 1e30) );
+	    FloatInpSpec(mp ? mp->getInsideValue() : udfval) );
     insidevaluefld_->attach( alignedBelow, uinputselfld_ );
 
     outsidevaluefld_ = new uiGenInput( this, tr("Outside value"),
-	    FloatInpSpec(mp ? mp->getOutsideValue() : 1e30) );
+	    FloatInpSpec(mp ? mp->getOutsideValue() : udfval) );
     outsidevaluefld_->attach( alignedBelow, insidevaluefld_ );
 
     addNameFld( outsidevaluefld_ );
