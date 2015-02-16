@@ -120,6 +120,8 @@ protected:
     void		pathbutPush(CallBacker*);
     void		appButPushed(CallBacker*);
 
+    static uiString	getSRDString(bool infeet);
+
     friend class	uiSurvey;
 
 };
