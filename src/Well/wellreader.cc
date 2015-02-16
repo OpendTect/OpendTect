@@ -316,6 +316,10 @@ bool Well::odReader::getInfo() const
     strm.addErrMsgTo( errmsg_ ); todo; }
 #define mErrRetStrmOper(oper) mErrStrmOper(oper,return false)
 
+static const char* sKeyOldSRD()		{ return "Seismic Reference Datum"; }
+static const char* sKeyOldreplvel()	{ return "Replacement velocity"; }
+static const char* sKeyOldgroundelev()	{ return "Ground Level elevation"; }
+
 bool Well::odReader::getInfo( od_istream& strm ) const
 {
     double version = 0.0;
@@ -352,11 +356,14 @@ bool Well::odReader::getInfo( od_istream& strm ) const
 	    wd_.info().srdelev = mIsUdf(readsurfelev ) ? 0  :
 				    -1.f * readsurfelev;
 	}
-	else if ( astrm.hasKeyword(Well::Info::sKeySRD()) )
+	else if ( astrm.hasKeyword(sKeyOldSRD()) ||
+		  astrm.hasKeyword(Well::Info::sKeySRD()) )
 	    wd_.info().srdelev = astrm.getFValue();
-	else if ( astrm.hasKeyword(Well::Info::sKeyreplvel()) )
+	else if ( astrm.hasKeyword(sKeyOldreplvel()) ||
+		  astrm.hasKeyword(Well::Info::sKeyreplvel()) )
 	    wd_.info().replvel = astrm.getFValue();
-	else if ( astrm.hasKeyword(Well::Info::sKeygroundelev()) )
+	else if ( astrm.hasKeyword(sKeyOldgroundelev()) ||
+		  astrm.hasKeyword(Well::Info::sKeygroundelev()) )
 	    wd_.info().groundelev = astrm.getFValue();
     }
 
