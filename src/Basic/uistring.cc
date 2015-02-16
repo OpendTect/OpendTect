@@ -619,18 +619,24 @@ uiString uiStringSet::createOptionString( bool use_and,
 
 void uiString::getHexEncoded( BufferString& str ) const
 {
+#ifndef OD_NO_QT
     const QString qstr = getQtString();
     const QString hex( qstr.toUtf8().toHex() );
 
     str = BufferString( hex );
+#endif
 }
 
 
 bool uiString::setFromHexEncoded( const char* str )
 {
+#ifndef OD_NO_QT
     const QByteArray qba = QByteArray::fromHex( str );
-    setFrom( QString::fromUtf8( qba.data(), qba.size() ) );
+    setFrom( QString::fromUtf8(qba.data(),qba.size()) );
     return true;
+#else
+    return false;
+#endif
 }
 
 
