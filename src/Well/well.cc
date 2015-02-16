@@ -25,9 +25,6 @@ const char* Well::Info::sKeystate()	{ return "State"; }
 const char* Well::Info::sKeycounty()	{ return "County"; }
 const char* Well::Info::sKeycoord()	{ return "Surface coordinate"; }
 const char* Well::Info::sKeykbelev(){ return "Reference Datum elevation [KB]"; }
-const char* Well::Info::sKeyOldelev()	{ return "Surface elevation"; }
-const char* Well::Info::sKeySRD()
-{ return SurveyInfo::sKeySeismicRefDatum(); }
 const char* Well::Info::sKeyreplvel()
 { return "Replacement velocity [from KB to SRD]"; }
 const char* Well::Info::sKeygroundelev(){ return "Ground Level elevation [GL]";}
@@ -241,7 +238,6 @@ void Well::Info::fillPar(IOPar& par) const
     par.set( sKeycounty(), county );
 
     par.set( sKeycoord(), surfacecoord.toString() );
-    par.set( sKeySRD(), srdelev );
     par.set( sKeyreplvel(), replvel );
     par.set( sKeygroundelev(), groundelev );
 }
@@ -256,7 +252,6 @@ void Well::Info::usePar( const IOPar& par )
     par.get( sKeycounty(), county );
 
     surfacecoord.fromString( par.find(sKeycoord()) );
-    par.get( sKeySRD(), srdelev );
     par.get( sKeyreplvel(), replvel );
     par.get( sKeygroundelev(), groundelev );
 

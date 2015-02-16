@@ -44,7 +44,6 @@ public:
 
 			Info( const char* nm )
 			    : ::NamedObject(nm)
-			    , srdelev(0)
 			    , replvel(Well::getDefaultVelocity())
 			    , groundelev(mUdf(float))	{}
 
@@ -58,7 +57,6 @@ public:
     BufferString	source_; //!< filename for OD storage
 
     Coord		surfacecoord;
-    float		srdelev;
     float		replvel;
     float		groundelev;
 
@@ -69,8 +67,6 @@ public:
     static const char*	sKeycoord();
     static const char*	sKeykbelev();
     static const char*	sKeyTD();
-    static const char*	sKeyOldelev();
-    static const char*	sKeySRD();
     static const char*	sKeyreplvel();
     static const char*	sKeygroundelev();
     static int		legacyLogWidthFactor();

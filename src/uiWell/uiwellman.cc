@@ -793,22 +793,13 @@ void uiWellMan::mkFileInfo()
 	    txt.addNewLine();
 	}
 
-	const float srdelev = info.srdelev;
-	const float srd = mCast(float,SI().seismicReferenceDatum());
-	if ( !mIsZero(srd,1e-4f) )
+	const double srd = SI().seismicReferenceDatum();
+	if ( !mIsZero(srd,1e-4) )
 	{
 	    txt.add( SurveyInfo::sKeySeismicRefDatum() ).add( colonstr );
 	    txt.add( zun ? zun->userValue(srd) : srd );
 	    if ( zun ) txt.add( zun->symbol() );
 	    txt.addNewLine();
-	}
-	if ( !mIsEqual(srd,srdelev,1e-2f) &&
-	     !mIsUdf(srdelev) && !mIsZero(srdelev,1e-2f) )
-	{
-	    txt.add( "Warning: " ).add( SurveyInfo::sKeySeismicRefDatum() );
-	    txt.add( " from well " ).add( "is no longer supported." );
-	    txt.addNewLine().add( "This later is ignored, " );
-	    txt.add( "using SRD from survey settings." ).addNewLine();
 	}
 
 	const float replvel = info.replvel;
