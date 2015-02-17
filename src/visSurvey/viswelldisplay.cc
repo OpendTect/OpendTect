@@ -371,6 +371,7 @@ void WellDisplay::updateMarkers( CallBacker* )
     fillMarkerParams( mp );
     well_->setMarkerSetParams( mp );
 
+    const Well::Track& track = needsConversionToTime() ? *timetrack_ : wd->track();
     const BufferStringSet selnms(
 		wd->displayProperties(false).markers_.selmarkernms_ );
     for ( int idx=0; idx<wd->markers().size(); idx++ )
@@ -379,13 +380,8 @@ void WellDisplay::updateMarkers( CallBacker* )
 	if ( !selnms.isPresent( wellmarker->name() ) )
 	    continue;
 
-	Coord3 pos = wd->track().getPos( wellmarker->dah() );
-	if ( !pos.x && !pos.y && !pos.z ) continue;
-
-	if ( needsConversionToTime() )
-	    pos.z = wd->d2TModel()->getTime( wellmarker->dah(), wd->track() );
-
-	if ( mIsUdf( pos.z ) )
+	Coord3 pos = track.getPos( wellmarker->dah() );
+	if ( pos.isUdf() )
 	    continue;
 
 	mp.pos_ = &pos;	mp.name_ = wellmarker->name();
@@ -459,7 +455,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	return;
     }
 
-    const Well::Track& track = wd->track();
+    const Well::Track& track = needsConversionToTime() ? *timetrack_ : wd->track();
     float minval=mUdf(float), maxval=-mUdf(float);
     float minvalF=mUdf(float), maxvalF=-mUdf(float);
 
@@ -474,9 +470,6 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	Coord3 pos = track.getPos( dah );
 	if ( pos.isUdf() )
 	    continue;
-
-	if ( needsConversionToTime() )
-	    pos.z = wd->d2TModel()->getTime( dah, wd->track() );
 
 	if ( mIsUdf(pos.z) )
 	    continue;
