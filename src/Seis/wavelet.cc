@@ -8,6 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "wavelet.h"
+#include "waveletio.h"
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "ctxtioobj.h"
@@ -411,6 +412,36 @@ void Wavelet::normalize()
 }
 
 
+bool Wavelet::trimPaddedZeros()
+{
+    if ( sz_ < 4 )
+	return false;
+
+    Interval<int> nonzerorg( 0, sz_-1 );
+    while ( samps_[nonzerorg.start] == 0 && nonzerorg.start < nonzerorg.stop )
+	nonzerorg.start++;
+    while ( samps_[nonzerorg.stop] == 0 && nonzerorg.stop > nonzerorg.start )
+	nonzerorg.stop--;
+    if ( nonzerorg.start < 2 && nonzerorg.stop > sz_-3 )
+	return false;
+
+    const Interval<int> newrg( nonzerorg.start-1, nonzerorg.stop+1 );
+    const int newsz = newrg.width() + 1;
+    float* newsamps = new float [newsz];
+    if ( !newsamps )
+	return false;
+
+    for ( int idx=0; idx<newsz; idx++ )
+	newsamps[idx] = samps_[newrg.start+idx];
+
+    delete samps_;
+    samps_ = newsamps;
+    sz_ = newsz;
+    cidx_ += newrg.start;
+    return true;
+}
+
+
 float Wavelet::getExtrValue( bool ismax ) const
 {
     Interval<float> vals;
@@ -556,7 +587,7 @@ static const char* sSampRate	= "Sample Rate";
 
 bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 {
-    if ( !conn.forRead() || !conn.isStream() )	return false;
+    if ( !wv || !conn.forRead() || !conn.isStream() )	return false;
 
     ascistream astream( ((StreamConn&)conn).iStream() );
     if ( !astream.isOfFileType(mTranslGroupName(Wavelet)) )
@@ -581,25 +612,29 @@ bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() >> wv->samples()[idx];
 
+    wv->trimPaddedZeros();
     return astream.isOK();
 }
 
 
-bool dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
+bool dgbWaveletTranslator::write( const Wavelet* inwv, Conn& conn )
 {
-    if ( !conn.forWrite() || !conn.isStream() )	return false;
+    if ( !inwv || !conn.forWrite() || !conn.isStream() )	return false;
+
+    Wavelet wv( *inwv );
+    wv.trimPaddedZeros();
 
     ascostream astream( ((StreamConn&)conn).oStream() );
     const BufferString head( mTranslGroupName(Wavelet), " file" );
     if ( !astream.putHeader( head ) ) return false;
 
-    if ( *(const char*)wv->name() ) astream.put( sKey::Name(), wv->name() );
-    astream.put( sLength, wv->size() );
-    astream.put( sIndex, -wv->centerSample() );
-    astream.put( sSampRate, wv->sampleRate() * SI().zDomain().userFactor() );
+    if ( *(const char*)wv.name() ) astream.put( sKey::Name(), wv.name() );
+    astream.put( sLength, wv.size() );
+    astream.put( sIndex, -wv.centerSample() );
+    astream.put( sSampRate, wv.sampleRate() * SI().zDomain().userFactor() );
     astream.newParagraph();
-    for ( int idx=0; idx<wv->size(); idx++ )
-	astream.stream() << wv->samples()[idx] << '\n';
+    for ( int idx=0; idx<wv.size(); idx++ )
+	astream.stream() << wv.samples()[idx] << '\n';
     astream.newParagraph();
 
     return astream.isOK();
@@ -658,6 +693,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     ret->setCenterSample( centersmp  );
     ret->setSampleRate( sr );
     OD::memCopy( ret->samples(), samps.arr(), ret->size() * sizeof(float) );
+    ret->trimPaddedZeros();
     return ret;
 }
 

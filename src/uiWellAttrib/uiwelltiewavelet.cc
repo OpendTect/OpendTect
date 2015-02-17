@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "survinfo.h"
 #include "wavelet.h"
+#include "waveletio.h"
 
 #include "uiaxishandler.h"
 #include "uiflatviewer.h"

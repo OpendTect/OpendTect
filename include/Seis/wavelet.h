@@ -16,11 +16,8 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "namedobj.h"
 #include "ranges.h"
-#include "transl.h"
-#include "tableascio.h"
 #include "valseries.h"
 #include "uistring.h"
-class Conn;
 class IOObj;
 template <class T> class ValueSeriesInterpolator;
 
@@ -72,6 +69,7 @@ public:
     void		transform(float b,float a);
 			//!< a*X+b transformation
     void		normalize();
+    bool		trimPaddedZeros(); //!< returns whether any change
     float		getExtrValue(bool ismax = true) const;
     void		getExtrValues(Interval<float>&) const;
     int			getPos(float val,bool closetocenteronly=false) const;
@@ -153,50 +151,4 @@ inline ValueSeries<float>* WaveletValueSeries::clone() const
 { return new WaveletValueSeries( wv_ ); }
 
 
-mExpClass(Seis) WaveletTranslatorGroup : public TranslatorGroup
-{			       isTranslatorGroup(Wavelet)
-public:
-			mDefEmptyTranslatorGroupConstructor(Wavelet)
-
-    const char*		 defExtension() const		{ return "wvlt"; }
-};
-
-mExpClass(Seis) WaveletTranslator : public Translator
-{ mODTextTranslationClass(WaveletTranslator);
-public:
-			mDefEmptyTranslatorBaseConstructor(Wavelet)
-
-    virtual bool	read(Wavelet*,Conn&)		= 0;
-    virtual bool	write(const Wavelet*,Conn&)	= 0;
-
-};
-
-
-
-mExpClass(Seis) dgbWaveletTranslator : public WaveletTranslator
-{			     isTranslator(dgb,Wavelet)
-public:
-			mDefEmptyTranslatorConstructor(dgb,Wavelet)
-
-    bool		read(Wavelet*,Conn&);
-    bool		write(const Wavelet*,Conn&);
-
-};
-
-
-mExpClass(Seis) WaveletAscIO : public Table::AscIO
-{ mODTextTranslationClass(WaveletAscIO);
-public:
-				WaveletAscIO( const Table::FormatDesc& fd )
-				    : Table::AscIO(fd)		{}
-
-    static Table::FormatDesc*	getDesc();
-
-    Wavelet*			get(od_istream&) const;
-    bool			put(od_ostream&) const;
-
-};
-
-
 #endif
-

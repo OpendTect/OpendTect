@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispscubetr.h"
 #include "segydirecttr.h"
 #include "segydirect2d.h"
-#include "wavelet.h"
+#include "waveletio.h"
 #include "seismulticubeps.h"
 #include "seispacketinfo.h"
 

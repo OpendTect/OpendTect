@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "survinfo.h"
 #include "wavelet.h"
+#include "waveletio.h"
 
 
 uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,

@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "velocitycalc.h"
 #include "wavelet.h"
+#include "ioobj.h"
 
 
 namespace Seis

@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribfactory.h"
 #include "ioman.h"
 #include "survinfo.h"
-#include "wavelet.h"
+#include "waveletio.h"
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"

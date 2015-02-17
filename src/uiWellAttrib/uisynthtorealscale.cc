@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statparallelcalc.h"
 #include "picksettr.h"
 #include "wavelet.h"
+#include "waveletio.h"
 #include "ioman.h"
 
 #include "uislider.h"

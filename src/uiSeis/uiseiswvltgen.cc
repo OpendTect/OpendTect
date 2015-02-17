@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "survinfo.h"
 #include "wavelet.h"
+#include "waveletio.h"
 #include "waveletattrib.h"
 
 #include "uibutton.h"

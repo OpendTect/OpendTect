@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "statruncalc.h"
+#include "ctxtioobj.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "wellelasticmodelcomputer.h"

@@ -44,7 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "velocitycalc.h"
-#include "wavelet.h"
+#include "waveletio.h"
 
 
 static const int cMarkerSize = 6;

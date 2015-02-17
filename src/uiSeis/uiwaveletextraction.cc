@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselectionimpl.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "waveletio.h"
 #include "wavelet.h"
 #include "waveletextractor.h"
 #include "od_helpids.h"
