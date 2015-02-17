@@ -131,18 +131,16 @@ WellDisplay::~WellDisplay()
     removeChild( well_->osgNode() );
     well_->unRef(); well_ = 0;
     setSceneEventCatcher(0);
-    if ( transformation_ ) transformation_->unRef();
-
+    if ( transformation_ )
+	transformation_->unRef();
     if ( wd_ )
 	wd_->unRef();
 
     delete dispprop_;
     unRefAndZeroPtr( markerset_ );
     setBaseMap( 0 );
-    if ( pseudotrack_ )
-	delete pseudotrack_;
-    if ( timetrack_ )
-	delete timetrack_;
+    delete pseudotrack_;
+    delete timetrack_;
 }
 
 
@@ -371,7 +369,8 @@ void WellDisplay::updateMarkers( CallBacker* )
     fillMarkerParams( mp );
     well_->setMarkerSetParams( mp );
 
-    const Well::Track& track = needsConversionToTime() ? *timetrack_ : wd->track();
+    const Well::Track& track = needsConversionToTime() ? *timetrack_
+						       : wd->track();
     const BufferStringSet selnms(
 		wd->displayProperties(false).markers_.selmarkernms_ );
     for ( int idx=0; idx<wd->markers().size(); idx++ )
@@ -455,7 +454,8 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	return;
     }
 
-    const Well::Track& track = needsConversionToTime() ? *timetrack_ : wd->track();
+    const Well::Track& track = needsConversionToTime() ? *timetrack_
+						       : wd->track();
     float minval=mUdf(float), maxval=-mUdf(float);
     float minvalF=mUdf(float), maxvalF=-mUdf(float);
 
