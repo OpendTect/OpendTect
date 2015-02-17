@@ -425,7 +425,9 @@ bool Wavelet::trimPaddedZeros()
     if ( nonzerorg.start < 2 && nonzerorg.stop > sz_-3 )
 	return false;
 
-    const Interval<int> newrg( nonzerorg.start-1, nonzerorg.stop+1 );
+    Interval<int> newrg( nonzerorg.start-1, nonzerorg.stop+1 );
+    if ( newrg.start < 0 ) newrg.start = 0;
+    if ( newrg.stop > sz_-1 ) newrg.stop = sz_-1;
     const int newsz = newrg.width() + 1;
     float* newsamps = new float [newsz];
     if ( !newsamps )
