@@ -291,7 +291,9 @@ int FaultEditor::getSecondKnotNr( const Geometry::FaultStickSurface& surface,
 	const Coord3 p3 = mWorldScale( surface.getKnot(
 				       RowCol(refnr,colrange1.stop) ) );
 
-	if ( p0.distTo(p2)+p1.distTo(p3) < p0.distTo(p3)+p1.distTo(p2) )
+	const Coord3 d0 = p1 - p0;
+	const Coord3 d1 = p3 - p2;
+	if ( d0.dot(d1) > 0.0 )
 	    res = colrange0.start - colrange0.step;
 
 	return res;
@@ -533,7 +535,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 
 	float sqdist = 0;
 	if ( sowinghistory_.isEmpty() || sowinghistory_[0]!=pos )
-	    sqdist = (float)mCustomScale(pos).sqDistTo( mCustomScale(mousepos) );
+	    sqdist = (float) mCustomScale(pos).sqDistTo(mCustomScale(mousepos));
 
 	if ( nearestknotidx==-1 || sqdist<minsqdist )
 	{
