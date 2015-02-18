@@ -70,7 +70,13 @@ public:
 			//!< cstvel: velocity of the TD model
 			//!< replvel: Replacement velocity, above SRD
     bool		ensureValid(const Well::Track&,float replvel);
+			//!< Do NOT use, will be removed after 5.0
+    bool		ensureValid(const Well::Data&,TypeSet<double>* zvals=0,
+				    TypeSet<double>* tvals=0,
+				    BufferString* errmsg=0,
+				    BufferString* warnmsg=0);
 			//!< Returns corrected model if necessary
+			//!< May eventually also correct info().replvel
 
 protected:
 

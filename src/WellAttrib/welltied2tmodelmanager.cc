@@ -76,7 +76,7 @@ void D2TModelMgr::shiftModel( float shift)
 
     for ( int dahidx=1; dahidx<d2t->size(); dahidx++ )
 	d2t->valArr()[dahidx] += shift;
-    
+
     mRemoveSameTimeValues(d2t);
     setAsCurrent( d2t );
 }
@@ -87,7 +87,7 @@ void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
     if ( !d2t || !wd_ )
     { pErrMsg("Bad D2TMdl: ignoring"); return; }
 
-    if ( !d2t->ensureValid( wd_->track(), wd_->info().replvel) )
+    if ( !d2t->ensureValid(*wd_) )
     { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
 
     if ( d2t->size() < 2 )
@@ -103,7 +103,7 @@ void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
 
 bool D2TModelMgr::undo()
 {
-    if ( !prvd2t_ ) return false; 
+    if ( !prvd2t_ ) return false;
     Well::D2TModel* tmpd2t =  new Well::D2TModel( *prvd2t_ );
     setAsCurrent( tmpd2t );
     return true;
@@ -124,7 +124,7 @@ bool D2TModelMgr::cancel()
 bool D2TModelMgr::updateFromWD()
 {
     if ( !wd_ || mIsUnvalidD2TM( (*wd_) ) || !d2T() )
-       return false;	
+       return false;
     setAsCurrent( d2T() );
     return true;
 }
@@ -132,7 +132,7 @@ bool D2TModelMgr::updateFromWD()
 
 bool D2TModelMgr::commitToWD()
 {
-    if ( !datawriter_.writeD2TM() ) 
+    if ( !datawriter_.writeD2TM() )
 	return false;
 
     if ( wd_ ) wd_->d2tchanged.trigger();

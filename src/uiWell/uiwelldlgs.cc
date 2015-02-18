@@ -1570,8 +1570,7 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 	return;
 
     bool needrestore = false;
-    if ( !d2t->ensureValid(wd_.track(),wd_.info().replvel) ||
-	 d2t->size() < 2 )
+    if ( !d2t->ensureValid(wd_) || d2t->size() < 2 )
     {
 	uiMSG().warning( "Invalid model detected\n"
 			    "But could not autocorrect the current model" );

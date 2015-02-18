@@ -70,7 +70,7 @@ bool Well::ReadAccess::updateDTModel( D2TModel* dtmodel,
 				      bool ischeckshot ) const
 
 {
-    if ( !dtmodel || !dtmodel->ensureValid(track,replvel) )
+    if ( !dtmodel || !dtmodel->ensureValid(wd_) )
 	return false;
 
     if ( ischeckshot )
