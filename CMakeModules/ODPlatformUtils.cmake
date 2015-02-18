@@ -124,6 +124,7 @@ if(UNIX) #Apple an Linux
 
     else() # Intel compiler
 	set ( CMAKE_SKIP_RPATH TRUE )
+	set (EXTRA_LIBS "imf" "m") #avoid bogus warning: https://wiki.hpcc.msu.edu/display/Issues/feupdateenv+is+not+implemented+and+will+always+fail
     endif( OD_GCC_COMPILER )
 
 endif(UNIX)
