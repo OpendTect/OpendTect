@@ -31,14 +31,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-uiSeisWvltCreate::uiSeisWvltCreate( uiParent* p, uiDialog::Setup su ) 
+uiSeisWvltCreate::uiSeisWvltCreate( uiParent* p, uiDialog::Setup su )
 	: uiDialog(p,su)
 	, ctio_(*mMkCtxtIOObj(Wavelet))
 {
     ctio_.ctxt.forread = false;
     wvltfld_ = new uiIOObjSel( this, ctio_ );
 }
-	
+
 
 uiSeisWvltCreate::~uiSeisWvltCreate()
 {
@@ -92,7 +92,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
 
     peakamplfld_ = new uiGenInput(this, tr("Peak amplitude"), FloatInpSpec(1));
     peakamplfld_->attach( alignedBelow, srfld_ );
-   
+
     wvltfld_->attach( alignedBelow, peakamplfld_ );
 }
 
@@ -112,9 +112,7 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
 
     const float realsr = sr / SI().zDomain().userFactor();
     Wavelet wvlt( isrickfld_->getBoolValue(), freq, realsr, peakampl );
-    putWvlt( wvlt );
-
-    return true;
+    return putWvlt( wvlt );
 }
 
 
@@ -123,8 +121,8 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     : uiSeisWvltCreate(p,uiDialog::Setup(tr("Merge Wavelets"),
 			tr("Select two ore more wavelets to be stacked"),
 				 mODHelpKey(mSeisWvltMergeHelpID) ))
-    , maxwvltsize_(0)					      
-    , stackedwvlt_(0)					      
+    , maxwvltsize_(0)
+    , stackedwvlt_(0)
     , curwvltnm_(curwvltnm)
 {
     normalizefld_ = new uiCheckBox( this, tr("Normalize wavelets") );
@@ -135,8 +133,8 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     centerfld_->attach( rightOf, normalizefld_ );
     centerchoicefld_ = new uiLabeledComboBox( this, tr("at") );
     centerchoicefld_->box()->addItems( centernms );
-    centerchoicefld_->box()->selectionChanged.notify( 
-	    				mCB(this,uiSeisWvltMerge,reloadAll) );
+    centerchoicefld_->box()->selectionChanged.notify(
+					mCB(this,uiSeisWvltMerge,reloadAll) );
     centerchoicefld_->attach( rightOf, centerfld_ );
     centerchoicefld_->display( false );
 
@@ -152,7 +150,7 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     {
 	wvltdrawer_[idx]->setAsCurrent( curwvltnm );
 	wvltdrawer_[idx]->display( !idx );
-	wvltdrawer_[idx]->funclistselChged.notify( 
+	wvltdrawer_[idx]->funclistselChged.notify(
 				mCB(this,uiSeisWvltMerge,funcSelChg) );
 	normalizefld_->attach( alignedAbove, wvltdrawer_[idx] );
 	wvltfld_->attach( ensureBelow, wvltdrawer_[idx] );
@@ -163,7 +161,7 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
 uiSeisWvltMerge::~uiSeisWvltMerge()
 {
     for ( int idx=0; idx<wvltdrawer_.size(); idx++ )
-	wvltdrawer_[idx]->funclistselChged.remove( 
+	wvltdrawer_[idx]->funclistselChged.remove(
 				mCB(this,uiSeisWvltMerge,funcSelChg) );
     deepErase( wvltset_ );
     deepErase( wvltfuncset_ );
@@ -177,7 +175,7 @@ void uiSeisWvltMerge::funcSelChg( CallBacker* )
     mGetCurDrawer();
     NotifyStopper nsf( wd->funclistselChged );
     const int selsz = wd->getNrSel();
-    if ( selsz==1 && wd->isSelected( wd->getListSize()-1 ) ) 
+    if ( selsz==1 && wd->isSelected( wd->getListSize()-1 ) )
 	return;
 
     clearStackedWvlt( wd );
@@ -224,7 +222,7 @@ void uiSeisWvltMerge::makeStackedWvlt()
 	    const int shift = maxwvltsize_%2 ? 1 : 0;
 	    const float coeff = mCast( float, 2*idx-maxwvltsize_ + shift );
 	    const float val = func->getValue( coeff*5*SI().zStep());
-	    stackedwvlt_->samples()[idx] += val/selsize; 
+	    stackedwvlt_->samples()[idx] += val/selsize;
 	}
     }
     WvltMathFunction* stackedfunc = new WvltMathFunction( stackedwvlt_ );
@@ -249,7 +247,7 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
 	if ( maxval > maxhght ) maxhght = maxval;
 	delete wvlt;
     }
-    const float stopx = SI().zStep()*maxwvltsize_*5; 
+    const float stopx = SI().zStep()*maxwvltsize_*5;
     const float startx = -stopx;
     const StepInterval<float> xaxrg( startx, stopx, ( stopx - startx)/20 );
     const StepInterval<float> yaxrg( minhght, maxhght, (maxhght-minhght)/8);
@@ -272,7 +270,7 @@ void uiSeisWvltMerge::reloadWvlts()
     deepErase( wvltset_ ); deepErase( namelist_ ); stackedwvlt_ = 0;
     const IODir iodir( ctio_.ctxt.getSelKey() );
     const IODirEntryList del( iodir, ctio_.ctxt );
-    if ( del.size() < 2 ) 
+    if ( del.size() < 2 )
     { uiMSG().error( tr("not enough wavelets available") ); return; }
 
     for ( int delidx=0; delidx<del.size(); delidx++ )
@@ -309,7 +307,7 @@ void uiSeisWvltMerge::reloadFunctions()
 	for ( int idx=0; idx<wvltset_.size(); idx++ )
 	{
 	    wvltfuncset_ += new WvltMathFunction( wvltset_[idx] );
-	    wvltdrawer_[widx]->addFunction( namelist_[idx]->buf(), 
+	    wvltdrawer_[widx]->addFunction( namelist_[idx]->buf(),
 					    wvltfuncset_[idx] );
 	}
     }
@@ -337,13 +335,13 @@ void uiSeisWvltMerge::centerToMaxEnergyPos( Wavelet& wvlt )
     Array1DImpl<float> hilb ( wvlt.size() );
     wvltattr.getHilbert( hilb );
 
-    float max = 0; 	int centeridx = 0;
+    float max = 0;	int centeridx = 0;
     for ( int idx=0; idx<wvlt.size(); idx++ )
     {
 	float val = fabs( hilb.get(idx) );
 	if ( max < val )
 	{
-	    max = val; 
+	    max = val;
 	    centeridx = idx;
 	}
     }
@@ -386,10 +384,10 @@ bool uiSeisWvltMerge::acceptOK( CallBacker* )
 
 
 uiSeisWvltMerge::WvltMathFunction::WvltMathFunction( const Wavelet* wvlt )
-    		: samples_(wvlt->samples())
-		, samppos_(wvlt->samplePositions())  
-		, size_(wvlt->size())				       
-		{}  
+		: samples_(wvlt->samples())
+		, samppos_(wvlt->samplePositions())
+		, size_(wvlt->size())
+		{}
 
 float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 {
@@ -403,13 +401,13 @@ float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
     const float val1 = samples_[x1];
     const int x2 = x1+1 ;
     const float val2 = samples_[x2];
-    const float factor = ( x-x1 )/( x2-x1 ); 
+    const float factor = ( x-x1 )/( x2-x1 );
 
     if ( x1==0 || x2 == size_-1 )
 	return Interpolate::linearReg1D( val1, val2, factor );
     else
     {
-	float val0 = samples_[x1-1]; 
+	float val0 = samples_[x1-1];
 	float val3 = samples_[x2+1];
 	Interpolate::PolyReg1D<float> pr;
 	pr.set( val0, val1, val2, val3 );
