@@ -14,8 +14,12 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "commondefs.h"
 #include <streambuf>
+#include <vector>
+
+#include <QSharedPointer>
 
 mFDQtclass( QIODevice );
+mFDQtclass( QProcess );
 
 
 /*!
@@ -32,15 +36,29 @@ mFDQtclass( QIODevice );
 mExpClass(Basic) qstreambuf : public std::streambuf
 {
 public:
-				qstreambuf(QIODevice&);
+				qstreambuf(QIODevice&,bool isstderr);
 				~qstreambuf();
 
-    virtual std::streamsize	showmanyc();
-    virtual std::streamsize	xsgetn(char_type*,std::streamsize);
-    virtual std::streamsize	xsputn(const char_type*,std::streamsize);
+    void			detachDevice(bool readall);
+				/*!<Don't use device after this call.
+				    \param readall true if device should be
+					   emptied for all pending messages
+					   before.
+				*/
+
+    virtual std::streambuf::int_type	underflow();
+    virtual std::streamsize		xsputn(const char_type*,
+					       std::streamsize);
 
 private:
-    QIODevice*	iodevice_;
+    void			readAll();
+
+    std::vector<char>		buffer_;
+
+    QByteArray			readbuffer_;
+    QProcess*			process_;
+    QIODevice*			iodevice_;
+    bool			isstderr_;
 };
 
 #endif

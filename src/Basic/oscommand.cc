@@ -11,16 +11,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "file.h"
 #include "oddirs.h"
-#include "od_ostream.h"
+#include "od_iostream.h"
 #include "filepath.h"
 #include "perthreadrepos.h"
 #include "fixedstring.h"
 #include "separstr.h"
 #include "iopar.h"
+#include "qstreambuf.h"
+
+#include <QProcess>
+#include <iostream>
 
 #ifdef __win__
 # include "winutils.h"
-# include "od_istream.h"
 # include <windows.h>
 #include <stdlib.h>
 #endif
@@ -324,14 +327,44 @@ BufferString OS::MachineCommand::getLocalCommand() const
 OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
     : odprogressviewer_(FilePath(GetBinPlfDir(),sODProgressViewerProgName)
 			    .fullPath())
+    , process_( 0 )
+    , stderror_( 0 )
+    , stdoutput_( 0 )
+    , stdinput_( 0 )
+    , stderrorbuf_( 0 )
+    , stdoutputbuf_( 0 )
+    , stdinputbuf_( 0 )
 {
     set( mc );
 }
 
 
+OS::CommandLauncher::~CommandLauncher()
+{
+    if ( process_ && process_->state()!=QProcess::NotRunning )
+	process_->waitForFinished();
+
+    reset();
+}
+
+
+int OS::CommandLauncher::processID() const
+{
+    return process_ ? process_->pid() : 0;
+}
+
+
 void OS::CommandLauncher::reset()
 {
-    processid_ = 0;
+    deleteAndZeroPtr( stderror_ );
+    deleteAndZeroPtr( stdoutput_ );
+    deleteAndZeroPtr( stdinput_ );
+
+    stderrorbuf_ = 0;
+    stdoutputbuf_ = 0;
+    stdinputbuf_ = 0;
+
+    deleteAndZeroPtr( process_ );
     errmsg_.setEmpty();
     monitorfnm_.setEmpty();
     progvwrcmd_.setEmpty();
@@ -417,112 +450,145 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 
 
 bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
-								bool inconsole )
+				     bool inconsole )
 {
     if ( *comm == '@' )
 	comm++;
     if ( !*comm )
-	{ errmsg_.set( "Command is empty" ); return false; }
+	{ errmsg_ = tr( "Command is empty" ); return false; }
+
+    if ( process_ )
+    {
+	errmsg_ = tr( "Command is already running" );
+	return false;
+    }
+
+    BufferString cmd = comm;
+    const bool needsshell = cmd.find('|') || cmd.find('<') || cmd.find( '>' );
+    if ( needsshell )
+    {
+	if ( cmd.find( "\"" ) )
+	{
+	    pErrMsg("Commands with quote-signs not supported");
+	}
+#ifdef __msvc__
+	cmd = "cmd -c \"";
+#else
+	cmd = "sh -c \"";
+#endif
+	cmd.add( comm );
+	cmd.add( "\"" );
+    }
 
 #ifdef __debug__
-    od_cout() << "About to execute:\n" << comm << od_endl;
+    od_cout() << "About to execute:\n" << cmd << od_endl;
 #endif
 
-# ifndef __win__
+    process_ = new QProcess;
 
-    BufferString oscmd( comm );
-    if ( !wt4finish )
-	oscmd += "&";
-    int res = system( oscmd );
-    return !res;
+    stdinputbuf_ = new qstreambuf( *process_, false);
+    stdinput_ = new od_ostream( new std::ostream( stdinputbuf_ ) );
 
-# else
+    stdoutputbuf_ = new qstreambuf( *process_, false );
+    stdoutput_ = new od_istream( new std::istream( stdoutputbuf_ ) );
 
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
+    stderrorbuf_ = new qstreambuf( *process_, true );
+    stderror_ = new od_istream( new std::istream( stderrorbuf_ ) );
 
-    ZeroMemory(&si, sizeof(STARTUPINFO));
-    ZeroMemory( &pi, sizeof(pi) );
-    si.cb = sizeof(STARTUPINFO);
-    HANDLE hlog = 0;
-    if ( redirectoutput_ )
+    process_->start( cmd.buf(), QIODevice::ReadWrite );
+    if ( !process_->waitForStarted(10000) ) //Timeout of 10 secs
     {
-	SECURITY_ATTRIBUTES sa;
-	sa.nLength = sizeof(sa);
-	sa.lpSecurityDescriptor = NULL;
-	sa.bInheritHandle = TRUE;
-
-	hlog = CreateFile( monitorfnm_,
-			   FILE_APPEND_DATA,
-			   FILE_SHARE_WRITE | FILE_SHARE_READ,
-			   &sa,
-			   OPEN_ALWAYS,
-			   FILE_ATTRIBUTE_NORMAL,
-			   NULL );
-
-	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
-	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
-	si.hStdError = hlog;
-	si.hStdOutput = hlog;
+	return !catchError();
     }
 
-    const bool HINH = !monitorfnm_.isEmpty();
-    DWORD FLAG = inconsole ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW;
-
-    //Start the child process.
-    int res = CreateProcess( NULL,	// No module name (use command line).
-			     const_cast<char*>( comm ),
-			     NULL,	// Process handle not inheritable.
-			     NULL,	// Thread handle not inheritable.
-			     HINH,	// Set handle inheritance.
-			     FLAG,	// Creation flags.
-			     NULL,	// Use parent's environment block.
-			     NULL,	// Use parent's starting directory.
-			     &si, &pi );
-
-    if ( res )
+    if ( wt4finish )
     {
-	if ( wt4finish )  WaitForSingleObject( pi.hProcess, INFINITE );
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-	processid_ = pi.dwProcessId;
-    }
-    else
-    {
-	char *errmsg = 0;
-	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		       FORMAT_MESSAGE_FROM_SYSTEM,
-		       0, GetLastError(), 0, (char*)&errmsg, 1024, NULL) ;
+	if ( process_->state()==QProcess::Running )
+	    process_->waitForFinished(-1);
 
-	errmsg_ = errmsg;
-	LocalFree(errmsg);
+	const bool res = process_->exitStatus()==QProcess::NormalExit;
+
+	stderrorbuf_->detachDevice( true );
+	stdoutputbuf_->detachDevice( true );
+	stdinputbuf_->detachDevice( false );
+
+	deleteAndZeroPtr( process_ );
+
+	return res;
     }
 
-    CloseHandle( hlog );
-    return res;
-
-# endif
+    return true;
 }
 
 
-static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isodprog )
+int OS::CommandLauncher::catchError()
+{
+    if ( !process_ )
+	return 0;
+
+    if ( errmsg_.isSet() )
+	return 1;
+
+    switch ( process_->error() )
+    {
+	case QProcess::FailedToStart :
+	    errmsg_ = tr( "Cannot start process %1." );
+	    break;
+	case QProcess::Crashed :
+	    errmsg_ = tr( "%1 crashed." );
+	    break;
+	case QProcess::Timedout :
+	    errmsg_ = tr( "%1 timeout" );
+	    break;
+	case QProcess::ReadError :
+	    errmsg_ = tr( "Read error from process %1");
+	    break;
+	case QProcess::WriteError :
+	    errmsg_ = tr( "Read error from process %1");
+	    break;
+	default :
+	    break;
+    }
+
+    if ( errmsg_.isSet() )
+    {
+	return process_->exitCode();
+    }
+
+    return 0;
+}
+
+
+static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isodprog,
+			 BufferString* stdoutput, BufferString* stderror )
 {
     const OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars cp( isodprog );
     cp.launchtype( ltyp );
-    return cl.execute( cp );
+    const bool ret = cl.execute( cp );
+    if ( stdoutput )
+	cl.getStdOutput()->getAll( *stdoutput );
+
+    if ( stderror )
+	cl.getStdError()->getAll( *stderror );
+
+    return ret;
 }
 
 
-bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp )
+bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp, BufferString* out,
+		      BufferString* err )
 {
-    return doExecOSCmd( cmd, ltyp, false );
+    if ( ltyp!=Wait4Finish )
+	out = 0;
+
+    return doExecOSCmd( cmd, ltyp, false, out, err );
 }
 
 
 bool ExecODProgram( const char* prognm, const char* args, OS::LaunchType ltyp )
 {
     const BufferString cmd( prognm, " ", args );
-    return doExecOSCmd( cmd, ltyp, true );
+    return doExecOSCmd( cmd, ltyp, true, 0, 0 );
 }

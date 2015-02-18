@@ -14,6 +14,12 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstring.h"
+#include "uistring.h"
+
+mFDQtclass(QProcess);
+class od_istream;
+class od_ostream;
+class qstreambuf;
 
 namespace OS
 {
@@ -103,36 +109,52 @@ protected:
 /*!\brief Launches machine commands */
 
 mExpClass(Basic) CommandLauncher
-{
+{ mODTextTranslationClass(CommandLauncher);
 public:
 			CommandLauncher(const MachineCommand&);
+			~CommandLauncher();
 
     void		set(const MachineCommand&);
 
     bool		execute(const CommandExecPars& pars=CommandExecPars());
 
-    int			processID() const	{ return processid_; }
+    int			processID() const;
     const char*		monitorFileName() const	{ return monitorfnm_; }
-    const char*		errorMsg() const	{ return errmsg_; }
+    uiString		errorMsg() const	{ return errmsg_; }
+
+    od_istream*		getStdOutput() { return stdoutput_; }
+    od_istream*		getStdError() { return stderror_; }
+    od_ostream*		getStdInput() { return stdinput_; }
 
 protected:
 
     void		reset();
     bool		doExecute(const char* comm,bool wait4finish,
 							bool incosole = false);
+    int			catchError();
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
     bool		redirectoutput_;
-    int			processid_;
+
     BufferString	progvwrcmd_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     const BufferString	odprogressviewer_;
+    QProcess*		process_;
+    od_istream*		stdoutput_;
+    od_istream*		stderror_;
+    od_ostream*		stdinput_;
+
+    qstreambuf*		stdoutputbuf_;
+    qstreambuf*		stderrorbuf_;
+    qstreambuf*		stdinputbuf_;
 };
 
 
 /*! convenience function; for specific options use the CommandLauncher */
-mGlobal(Basic) bool ExecCommand(const char* cmd,LaunchType lt=Wait4Finish);
+mGlobal(Basic) bool ExecCommand(const char* cmd,LaunchType lt=Wait4Finish,
+				BufferString* stdoutput=0,
+				BufferString* stderror=0);
 
 
 } // namespace OS
