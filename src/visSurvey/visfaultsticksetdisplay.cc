@@ -578,10 +578,10 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
 	    if ( !colrg.width() )
 	    {
-		if ( isSelected() )
+		rc.col() = colrg.start;
+		if ( isSelected() || sksts->isKnotHidden(rc) )
 		    continue;
 
-		rc.col() = colrg.start;
 		for ( int dim=0; dim<3; dim++ )
 		{
 		    const float step = dim==2 ? s3dgeom_->zStep()
@@ -589,9 +589,6 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
 		    for ( int dir=-1; dir<=1; dir+=2 )
 		    {
-			if ( sksts->isKnotHidden(rc) )
-			    continue;
-
 			Coord3 pos = fss->getKnot( rc );
 			pos[dim] += step * 0.5 * dir;
 			const int ci = poly->getCoordinates()->addPos( pos );
@@ -605,12 +602,17 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	    for ( rc.col()=colrg.start; rc.col()<colrg.stop;
 		  rc.col()+=colrg.step )
 	    {
+		if ( sksts->isKnotHidden(rc) )
+		    continue;
 		
 		RowCol nextrc( rc );
 		nextrc.col() += colrg.step;
 
-		if( sksts->isKnotHidden(rc) || sksts->isKnotHidden(nextrc) )
+		if ( sksts->isKnotHidden(nextrc) )
+		{
+		    addPolyLineCoordBreak( coordidxlist );
 		    continue;
+		}
 
 		TypeSet<Coord3> coords;
 		coords += fss->getKnot( rc );
@@ -621,9 +623,12 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
 		for ( int idx=0; idx<coords.size(); idx++ )
 		{
-		    const Coord3& pos = coords[idx];
-		    const int ci = poly->getCoordinates()->addPos( pos );
-		    addPolyLineCoordIdx( coordidxlist, ci );
+		    if ( idx || coordidxlist.size()%2==0 )
+		    {
+			const Coord3& pos = coords[idx];
+			const int ci = poly->getCoordinates()->addPos( pos );
+			addPolyLineCoordIdx( coordidxlist, ci );
+		    }
 		}
 	    }
 	    addPolyLineCoordBreak( coordidxlist );
@@ -1079,16 +1084,19 @@ void FaultStickSetDisplay::otherObjectsMoved(
 }
 
 
+#define mHideKnotTolerance 2.0
+
 bool FaultStickSetDisplay::coincidesWith2DLine(
 			const Geometry::FaultStickSet& fss, int sticknr,
 			Pos::GeomID geomid, const EM::SectionID sid ) 
 {
+    bool res = false;
     RowCol rc( sticknr, 0 );
     SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
     const StepInterval<int> rowrg = fss.rowRange();
     if ( !scene_ || !rowrg.includes(sticknr,false) ||
 	 rowrg.snap(sticknr)!=sticknr || !sksts )
-	return false;
+	return res;
 
     for ( int idx=0; idx<scene_->size(); idx++ )
     {
@@ -1097,33 +1105,32 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	if ( !s2dd || !s2dd->isOn() || geomid!=s2dd->getGeomID() )
 	    continue;
 
-	const Interval<float> zrg = s2dd->getZRange( false );
 	const double onestepdist = Coord3(1,1,mZScale()).dot(
 		s3dgeom_->oneStepTranslation(Coord3(0,0,1)) );
 
-	bool coincide = false;
+	bool curobjcoincides = false;
+	TypeSet<int> showcols;
+
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
 	    Coord3 pos = fss.getKnot(rc);
-            if( !zrg.includes(pos.z,false)  )
-	    {
-		sksts->hideKnot( rc, displayonlyatsections_ );
-		continue;
-	    }
 	    if ( displaytransform_ )
 		displaytransform_->transform( pos );
 
-	    if ( s2dd->calcDist( pos ) <= 0.5*onestepdist )
-		coincide = true;
-	    else 
-		sksts->hideKnot( rc, displayonlyatsections_ );
+	    const float curdist = s2dd->calcDist( pos );
+	    if ( curdist <= 0.5*onestepdist )
+		curobjcoincides = true;
+	    if ( curdist <= (mHideKnotTolerance+0.5)*onestepdist )
+		showcols += rc.col();
 	}
+	res = res || curobjcoincides;
 
-	if ( coincide )
-	    return true;
+	for ( int idy=showcols.size()-1; curobjcoincides && idy>=0; idy-- )
+	    sksts->hideKnot( RowCol(sticknr,showcols[idy]), false );
     }
-    return true;
+
+    return res;
 }
 
 
@@ -1146,8 +1153,6 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
 	if ( !plane || !plane->isOn() )
 	    continue;
-	const TrcKeyZSampling tks = plane->getTrcKeyZSampling();
-	const Interval<float> zrg( tks.zsamp_ );
 
 	const Coord3 vec1 = fss.getEditPlaneNormal(sticknr).normalize();
 	const Coord3 vec2 = plane->getNormal(Coord3()).normalize();
@@ -1160,25 +1165,21 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	float prevdist = -1;
 	Coord3 prevpos;
 
+	bool curobjcoincides = false;
+	TypeSet<int> showcols;
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
 	    Coord3 curpos = fss.getKnot(rc);
-	    const BinID bid = SI().transform( Coord(curpos.x,curpos.y) );
-	    if ( !zrg.includes(curpos.z,false) || !tks.hsamp_.includes(bid) )
-	    {
-		sksts->hideKnot( rc, displayonlyatsections_ );
-		continue;
-	    }
-
 	    if ( displaytransform_ )
 		displaytransform_->transform( curpos );
 
 	    const float curdist = plane->calcDist( curpos );
 	    if ( curdist <= 0.5*onestepdist )
 	    {
-		res = res || coincidemode;
 		intersectpoints += curpos;
+		if ( coincidemode )
+		    curobjcoincides = true;
 	    }
 	    else if ( rc.col() != colrg.start )
 	    {
@@ -1190,15 +1191,24 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 		    if ( prevdist <= 0.5*onestepdist )
 			intersectpoints.removeSingle(intersectpoints.size()-1);
 
-		    res = res || coincidemode;
 		    intersectpoints += interpos;
+		    if ( coincidemode )
+			curobjcoincides = true;
 		}
 	    }
+
+	    if ( coincidemode && curdist<=(mHideKnotTolerance+0.5)*onestepdist )
+		showcols += rc.col();
 
 	    prevdist = curdist;
 	    prevpos = curpos;
 	}
+	res = res || curobjcoincides;
+
+	for ( int idy=showcols.size()-1; curobjcoincides && idy>=0; idy-- )
+	    sksts->hideKnot( RowCol(sticknr,showcols[idy]), false );
     }
+
     return res;
 }
 
@@ -1210,6 +1220,8 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 
     NotifyStopper ns( fsseditor_->editpositionchange );
     deepErase( stickintersectpoints_ );
+
+    const EM::PosID curdragger = viseditor_->getActiveDragger();
 
     for ( int sidx=0; sidx<emfss_->nrSections(); sidx++ )
     {
@@ -1229,7 +1241,11 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 	    {
 		for( rc.col() = colrg.start; rc.col()<=colrg.stop;
 		     rc.col() += colrg.step )
-		 sksts->hideKnot( rc, false );
+		{
+		    sksts->hideKnot( rc, displayonlyatsections_ );
+		    if ( curdragger==EM::PosID(emfss_->id(),sid,rc.toInt64()) )
+			sksts->hideKnot( rc, false );
+		}
 	    }
 	    
 	    TypeSet<Coord3> intersectpoints;
