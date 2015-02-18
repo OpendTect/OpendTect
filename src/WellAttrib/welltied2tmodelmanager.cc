@@ -84,7 +84,7 @@ void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
     if ( !d2t || !wd_ )
     { pErrMsg("Bad D2TMdl: ignoring"); return; }
 
-    if ( !d2t->ensureValid( wd_->track(), wd_->info().replvel) )
+    if ( !d2t->ensureValid(*wd_) )
     { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
 
     if ( d2t->size() < 2 )

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "welldahobj.h"
 
 class TimeDepthModel;
+class uiString;
 
 namespace Well
 {
@@ -69,8 +70,12 @@ public:
 				      float replvel);
 			//!< cstvel: velocity of the TD model
 			//!< replvel: Replacement velocity, above SRD
-    bool		ensureValid(const Well::Track&,float replvel);
+    bool		ensureValid(const Well::Data&,TypeSet<double>* zvals=0,
+				    TypeSet<double>* tvals=0,
+				    uiString* errmsg=0,
+				    uiString* warnmsg=0);
 			//!< Returns corrected model if necessary
+			//!< May eventually also correct info().replvel
 
 protected:
 
