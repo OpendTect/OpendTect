@@ -129,6 +129,14 @@ bool RegularSeisDataPack::addComponent( const char* nm )
 }
 
 
+bool RegularSeisDataPack::isEmpty() const
+{ return arrays_.isEmpty(); }
+
+
+bool RegularSeisDataPack::validComp( int idx ) const
+{ return arrays_.validIdx( idx ); }
+
+
 int RegularSeisDataPack::nrComponents() const
 { return arrays_.size(); }
 

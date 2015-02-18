@@ -85,6 +85,8 @@ public:
 
     bool			addComponent(const char* nm);
 
+    bool			isEmpty() const;
+    bool			validComp(int) const;
     int				nrComponents() const;
     const char*			getComponentName(int comp=0) const;
 
