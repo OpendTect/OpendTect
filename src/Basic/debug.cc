@@ -124,11 +124,11 @@ bool crashOnNaN()
     return !dohide;
 }
 
+static bool maskgot = false;
+static int themask = 0;
 
 static int getMask()
 {
-    mDefineStaticLocalObject( bool, maskgot, = false );
-    mDefineStaticLocalObject( int, themask, = 0 );
     if ( maskgot ) return themask;
     maskgot = true;
 
@@ -164,6 +164,14 @@ static int getMask()
 
     return themask;
 }
+
+
+void turnOn( int mask )
+{
+    themask = mask;
+    maskgot = true;
+}
+
 
 
 bool isOn( int flag )

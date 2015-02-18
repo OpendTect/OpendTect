@@ -32,9 +32,10 @@ namespace google_breakpad { class ExceptionHandler; }
 
 namespace DBG
 {
+    mGlobal(Basic) void	turnOn( int flag );
+    //!<Overrides the envirnonment variable
     mGlobal(Basic) bool isOn( int flag=0xffff );
-
-    mGlobal(Basic) void message( const char* );     // default: to stderr
+    mGlobal(Basic) void message( const char* );     //!< default: to stderr
     mGlobal(Basic) void message( int flag, const char* msg );
 // { if ( isOn(flag) ) message(msg); }
     mGlobal(Basic) void putProgInfo(int,char**);
