@@ -106,7 +106,7 @@ bool uiTaskRunner::execute( Task& t )
 
 void uiTaskRunner::onFinalise( CallBacker* )
 {
-    static bool pbics = Settings::common().isTrue( "Ui.Icons.PushButtons" );
+    const bool pbics = Settings::common().isTrue( "Ui.Icons.PushButtons" );
     if ( pbics )
     {
 	button(OK)->setIcon( "pause" );
