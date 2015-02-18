@@ -9,7 +9,7 @@ option( NO_AUTOMATIC_UISTRING_CAST "Disable const char* to uiString casts" OFF )
 
 if ( NO_AUTOMATIC_UISTRING_CAST )
     add_definitions( -DmNoAutoUiString )
-endif()
+    endif()
 
 set( OD_USEQT Core )
 set( OD_USEBREAKPAD Yes )
