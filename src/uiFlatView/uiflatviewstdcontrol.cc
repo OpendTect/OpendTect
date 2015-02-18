@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolortable.h"
 #include "uiflatviewcoltabed.h"
 #include "uiflatviewer.h"
-#include "uiflatviewthumbnail.h"
 #include "uigraphicsscene.h"
 #include "uimainwin.h"
 #include "uimenuhandler.h"
@@ -46,7 +45,6 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , editbut_(0)
     , zoominbut_(0)
     , zoomoutbut_(0)
-    , thumbnail_(0)
 {
     uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left
 						    : uiToolBar::Top );
@@ -105,9 +103,6 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     mAttachCB( menu_.createnotifier, uiFlatViewStdControl::createMenuCB );
     mAttachCB( menu_.handlenotifier, uiFlatViewStdControl::handleMenuCB );
     mAttachCB( zoomChanged, uiFlatViewStdControl::zoomChgCB );
-
-    if ( setup.withthumbnail_ )
-	thumbnail_ = new uiFlatViewThumbnail( this, vwr );
 }
 
 
@@ -169,12 +164,6 @@ void uiFlatViewStdControl::dispChgCB( CallBacker* )
 void uiFlatViewStdControl::zoomChgCB( CallBacker* )
 {
     updatePosButtonStates();
-}
-
-
-void uiFlatViewStdControl::vwChgCB( CallBacker* )
-{
-    if ( thumbnail_ ) thumbnail_->draw();
 }
 
 

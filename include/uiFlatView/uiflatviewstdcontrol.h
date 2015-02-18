@@ -36,7 +36,6 @@ public:
 			    : parent_(p)
 			    , withcoltabed_(true)
 			    , withedit_(false)
-			    , withthumbnail_(true)		      
 			    , withstates_(true)
 			    , withhanddrag_(true)
 			    , withsnapshot_(true)
@@ -48,7 +47,6 @@ public:
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withcoltabed)
 	mDefSetupMemb(bool,withedit)
-	mDefSetupMemb(bool,withthumbnail)
 	mDefSetupMemb(bool,withhanddrag)
 	mDefSetupMemb(bool,withstates)
 	mDefSetupMemb(int,tba)		//!< uiToolBar::ToolBarArea preference
@@ -83,7 +81,6 @@ protected:
 
     uiFlatViewer&		vwr_;
     uiFlatViewColTabEd*		ctabed_;
-    uiFlatViewThumbnail*	thumbnail_;
 
     virtual void	finalPrepare();
     void		clearToolBar();
@@ -103,7 +100,6 @@ protected:
     virtual void	parsCB(CallBacker*);
     virtual void	stateCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}
-    virtual void	vwChgCB(CallBacker*);
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
     virtual void	pinchZoomCB(CallBacker*);

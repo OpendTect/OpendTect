@@ -151,7 +151,8 @@ void uiTieView::initFlatViewer()
     app.ddpars_.wva_.mappersetup_.cliprate_.set(0.0,0.0);
     app.annot_.x1_.name_ = data_.sKeySeismic();
     app.annot_.x2_.name_ =  "TWT (ms)";
-    app.annot_.title_ ="Synthetics<---------------------------------->Seismics";
+    app.annot_.title_ = "Synthetics<--------------------"
+			"------------------------------->Seismics";
     vwr_->viewChanged.notify( mCB(this,uiTieView,zoomChg) );
     vwr_->rgbCanvas().scene().getMouseEventHandler().movement.notify(
 					mCB( this, uiTieView, setInfoMsg ) );

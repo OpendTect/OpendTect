@@ -184,7 +184,6 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     vwr.appearance().annot_.editable_ = false;
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
-    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::vwChgCB );
 
     reInitZooms();
     setViewerType( &vwr, true );

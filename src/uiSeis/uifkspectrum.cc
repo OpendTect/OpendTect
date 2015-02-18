@@ -52,8 +52,7 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     app.ddpars_.wva_.allowuserchange_ = false;
     app.ddpars_.vd_.show_ = true;
     app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0.005,0.005);
-    addControl( new uiFlatViewStdControl(vwr,
-			uiFlatViewStdControl::Setup(0).withthumbnail(false)) );
+    addControl( new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
 
     vwr.rgbCanvas().getMouseEventHandler().movement.notify(
 	mCB(this,uiFKSpectrum,mouseMoveCB) );
