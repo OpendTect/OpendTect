@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "statrand.h"
 #include "perthreadrepos.h"
+#include "uistrings.h"
 
 static const char* nladatatyps[] = { "Training data", "Test data",
 		"Misclassified training data", "Misclassified test data", 0 };
@@ -116,7 +117,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 	mDeclStaticString( errmsg );
 	PosVecDataSet vds;
 	if ( !vds.getFrom(ioobj->fullUserExpr(true),errmsg) )
-	    return errmsg.buf();
+	    return errmsg;
 	if ( vds.pars().isEmpty() || vds.data().isEmpty() )
 	    return tr("Invalid input data set specified");
 
@@ -203,5 +204,5 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
     }
 
     dps.dataChanged();
-    return 0;
+    return uiStrings::sEmptyString();
 }
