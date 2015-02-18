@@ -1570,10 +1570,18 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 	return;
 
     bool needrestore = false;
-    if ( !d2t->ensureValid(wd_) || d2t->size() < 2 )
+    BufferString errmsg, warnmsg;
+    if ( !d2t->ensureValid(wd_,0,0,&errmsg,&warnmsg) || d2t->size() < 2 )
     {
-	uiMSG().warning( "Invalid model detected\n"
-			    "But could not autocorrect the current model" );
+	BufferString msg( "Invalid model detected" );
+	if ( !errmsg.isEmpty() )
+	    msg.addNewLine().add( errmsg );
+
+	if ( !warnmsg.isEmpty() )
+	    msg.addNewLine().add( warnmsg );
+
+	msg.addNewLine().add( "But could not autocorrect the current model" );
+	uiMSG().warning( msg );
 	if ( *d2t != *orgd2t_ )
 	    needrestore = true;
     }
@@ -1581,15 +1589,19 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
     {
 	if ( *d2t != *orgd2t_ )
 	{
-	    needrestore = !uiMSG().askGoOn( "Invalid model detected\n"
-					       "Auto-correct?\n"
-	    "(New model will only by saved on disk on successful exit of"
-	    " the editor)");
+	    BufferString msg( "Invalid model detected" );
+	    if ( !errmsg.isEmpty() )
+		msg.addNewLine().add( errmsg );
 
+	    if ( !warnmsg.isEmpty() )
+		msg.addNewLine().add( warnmsg );
+
+	    msg.addNewLine().add( "Auto-correct?" ).addNewLine();
+	    msg.add( "(New model will only by saved on disk on successful "
+		     "exit of the editor" );
+	    needrestore = !uiMSG().askGoOn( msg );
 	    if ( !needrestore )
-	    {
 		uiMSG().message( "Time-depth model succesfully corrected" );
-	    }
 	}
     }
 
