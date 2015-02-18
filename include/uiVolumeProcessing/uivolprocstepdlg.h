@@ -33,7 +33,7 @@ mExpClass(uiVolumeProcessing) uiStepDialog : public uiDialog
 public:
     mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);
 
-			uiStepDialog(uiParent*,const char* stepnm,Step*);
+			uiStepDialog(uiParent*,const uiString&,Step*);
     virtual bool	isOK() const		{ return true; }
 
 protected:

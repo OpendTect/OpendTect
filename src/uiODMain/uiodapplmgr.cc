@@ -503,7 +503,7 @@ void uiODApplMgr::addTimeDepthScene()
     }
 
     snm += " (using '";
-    snm += ztrans->factoryDisplayName();
+    snm += ztrans->factoryDisplayName().getFullString();
     snm += "')";
 
     sceneMgr().tile();
@@ -527,8 +527,9 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
 
     const MultiID hormid( transform->fromZDomainInfo().getID() );
     PtrMan<IOObj> ioobj = IOM().get( hormid );
-    const BufferString hornm =
-		ioobj ? ioobj->name().buf() : transform->factoryDisplayName();
+    const BufferString hornm = ioobj
+		? ioobj->name().buf()
+		: transform->factoryDisplayName().getFullString();
     BufferString scenenm( "Flattened on '", hornm,  "'" );
     sceneMgr().tile();
     sceneMgr().addScene( true, transform, scenenm );

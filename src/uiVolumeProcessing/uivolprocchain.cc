@@ -41,7 +41,7 @@ mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiStepDialog::factory );
 
 
 // uiStepDialog
-uiStepDialog::uiStepDialog( uiParent* p, const char* stepnm, Step* step )
+uiStepDialog::uiStepDialog( uiParent* p, const uiString& stepnm, Step* step )
     : uiDialog( p, uiDialog::Setup(tr("Edit step"),stepnm,mNoHelpKey) )
     , step_(step)
     , multiinpfld_(0)
@@ -391,7 +391,7 @@ void uiChain::updateList()
 	const char* displayname = username;
 	if ( !displayname )
 	{
-	    displayname = chain_.getStep(idx)->factoryDisplayName();
+	    displayname = chain_.getStep(idx)->factoryDisplayName().getFullString();
 	    if ( !displayname )
 		displayname = key;
 	}
