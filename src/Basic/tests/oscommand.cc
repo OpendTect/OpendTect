@@ -159,6 +159,7 @@ static void testServer()
 
 int main( int argc, char** argv )
 {
+    DBG::turnOn( 0 ); //Turn off all debug-stuff as it screwes the pipes
     mInitTestProg();
 
     if ( clparser.hasKey( "testpipes" ) )
