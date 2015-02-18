@@ -135,8 +135,8 @@ WellDisplay::~WellDisplay()
     removeChild( well_->osgNode() );
     well_->unRef(); well_ = 0;
     setSceneEventCatcher(0);
-    if ( transformation_ ) transformation_->unRef();
-
+    if ( transformation_ )
+	transformation_->unRef();
     if ( wd_ )
 	wd_->tobedeleted.remove( mCB(this,WellDisplay,welldataDelNotify) );
 
@@ -144,12 +144,10 @@ WellDisplay::~WellDisplay()
     delete Well::MGR().release( wellid_ );
     unRefAndZeroPtr( markerset_ );
     setBaseMap( 0 );
-    if ( pseudotrack_ )
-	delete pseudotrack_;
+    delete pseudotrack_;
     Well::Track* timetrack = welldisplaytimetrack_.getParam( this );
     welldisplaytimetrack_.removeParam( this );
-    if ( timetrack )
-	delete timetrack;
+    delete timetrack;
 }
 
 
@@ -383,6 +381,8 @@ void WellDisplay::updateMarkers( CallBacker* )
     fillMarkerParams( mp );
     well_->setMarkerSetParams( mp );
 
+    const Well::Track& track = !needsConversionToTime() ? wd->track()
+			     : *welldisplaytimetrack_.getParam( this );
     const BufferStringSet selnms(
 		wd->displayProperties(false).markers_.selmarkernms_ );
     for ( int idx=0; idx<wd->markers().size(); idx++ )
@@ -391,13 +391,8 @@ void WellDisplay::updateMarkers( CallBacker* )
 	if ( !selnms.isPresent( wellmarker->name() ) )
 	    continue;
 
-	Coord3 pos = wd->track().getPos( wellmarker->dah() );
-	if ( !pos.x && !pos.y && !pos.z ) continue;
-
-	if ( needsConversionToTime() )
-	    pos.z = wd->d2TModel()->getTime( wellmarker->dah(), wd->track() );
-
-	if ( mIsUdf( pos.z ) )
+	Coord3 pos = track.getPos( wellmarker->dah() );
+	if ( pos.isUdf() )
 	    continue;
 
 	mp.pos_ = &pos;	mp.name_ = wellmarker->name();
@@ -466,12 +461,10 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	logfill = new Well::Log( wd->logs().getLog( lp.filllogidx_ ) );
 
     if ( !upscaleLogs(*wd,logdata,logfill,lp) )
-    {
-	if ( logfill ) delete logfill;
-	return;
-    }
+	{ delete logfill; return; }
 
-    const Well::Track& track = wd->track();
+    const Well::Track& track = !needsConversionToTime() ? wd->track()
+			     : *welldisplaytimetrack_.getParam( this );
     float minval=mUdf(float), maxval=-mUdf(float);
     float minvalF=mUdf(float), maxvalF=-mUdf(float);
 
@@ -487,12 +480,6 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	if ( pos.isUdf() )
 	    continue;
 
-	if ( needsConversionToTime() )
-	    pos.z = wd->d2TModel()->getTime( dah, wd->track() );
-
-	if ( mIsUdf(pos.z) )
-	    continue;
-
 	float val = logdata.value(idx);
 	if ( mIsUdf(val) )
 	    continue;
@@ -502,7 +489,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	maxval = getmaxVal(maxval,val);
 	crdvals += visBase::Well::Coord3Value( pos, val );
 
-	if( isfilled )
+	if ( isfilled )
 	{
 	    const float valfill = logfill->value(idx);
 	    if ( !mIsUdf(valfill) )
@@ -514,8 +501,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	    crdvalsF += visBase::Well::Coord3Value( pos, valfill );
 	}
     }
-    if ( logfill )
-	delete logfill;
+    delete logfill;
 
     if ( crdvals.isEmpty() && crdvalsF.isEmpty() )
 	return;
