@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uiiosel.h"
+#include "uistrings.h"
 #include "helpview.h"
 
 class IOObj;
@@ -42,7 +43,7 @@ public:
     mExpClass(uiIo) Setup : public uiIOSelect::Setup
     {
     public:
-			Setup( const uiString& seltext=0 )
+			Setup(const uiString& seltext=uiStrings::sEmptyString())
 			    : uiIOSelect::Setup(seltext)
 			    , confirmoverwr_(true)
 			    , withwriteopts_(true)
