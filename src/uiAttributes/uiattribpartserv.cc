@@ -652,7 +652,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     if ( targetdesc && targetdesc->isStored() )
     {
 	const MultiID mid( targetdesc->getStoredID() );
-	mDynamicCastGet(SampledAttribDataPack*,sdp,Seis::PLDM().get(mid));
+	mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
 	if ( sdp )
 	{
 	    DataCubes* dc = new DataCubes();

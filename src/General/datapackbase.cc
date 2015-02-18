@@ -22,75 +22,75 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-TrcKeyDataPack::TrcKeyDataPack( const char* cat, const BinDataDesc* bdd )
+SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
     , zdominfo_(new ZDomain::Info(ZDomain::SI()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
 {}
 
 
-TrcKeyDataPack::~TrcKeyDataPack()
+SeisDataPack::~SeisDataPack()
 {
     deleteAndZeroPtr( zdominfo_ );
 }
 
 
-void TrcKeyDataPack::setZDomain( const ZDomain::Info& zinf )
+void SeisDataPack::setZDomain( const ZDomain::Info& zinf )
 {
     delete zdominfo_;
     zdominfo_ = new ZDomain::Info( zinf );
 }
 
 
-const ZDomain::Info& TrcKeyDataPack::zDomain() const
+const ZDomain::Info& SeisDataPack::zDomain() const
 { return *zdominfo_; }
 
 
-SampledAttribDataPack::SampledAttribDataPack( const char* cat,
+RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					      const BinDataDesc* bdd )
-    : TrcKeyDataPack(cat,bdd)
+    : SeisDataPack(cat,bdd)
 {
     sampling_.init( false );
 }
 
-od_int64 SampledAttribDataPack::nrTrcs() const
+od_int64 RegularSeisDataPack::nrTrcs() const
 { return sampling_.hsamp_.totalNr(); }
 
 
-TrcKey SampledAttribDataPack::getTrcKey(od_int64 globaltrcidx)
+TrcKey RegularSeisDataPack::getTrcKey( od_int64 globaltrcidx ) const
 { return sampling_.hsamp_.trcKeyAt(globaltrcidx); }
 
 
-od_int64 SampledAttribDataPack::getGlobalIdx(const TrcKey& tk) const
+od_int64 RegularSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 { return sampling_.hsamp_.globalIdx(tk); }
 
 
 const OffsetValueSeries<float>
-SampledAttribDataPack::getTrcData(int comp, od_int64 globaltrcidx) const
+RegularSeisDataPack::getTrcData(int comp, od_int64 globaltrcidx) const
 {
     return OffsetValueSeries<float>( *arrays_[comp]->getStorage(),
 			 globaltrcidx*arrays_[comp]->info().getSize(2) );
 }
 
 
-const StepInterval<float> SampledAttribDataPack::getZInterval( od_int64 ) const
+const StepInterval<float> RegularSeisDataPack::getZRange() const
 { return sampling_.zsamp_; }
 
 
-SampledAttribDataPack::~SampledAttribDataPack()
+RegularSeisDataPack::~RegularSeisDataPack()
 {
     deepErase( arrays_ );
 }
 
 
-void SampledAttribDataPack::setSampling( const TrcKeyZSampling& tkzs )
+void RegularSeisDataPack::setSampling( const TrcKeyZSampling& tkzs )
 { sampling_ = tkzs; }
 
-const TrcKeyZSampling& SampledAttribDataPack::sampling() const
+const TrcKeyZSampling& RegularSeisDataPack::sampling() const
 { return sampling_; }
 
 
-bool SampledAttribDataPack::addComponent( const char* nm )
+bool RegularSeisDataPack::addComponent( const char* nm )
 {
     if ( !sampling_.isDefined() )
 	return false;
@@ -129,25 +129,25 @@ bool SampledAttribDataPack::addComponent( const char* nm )
 }
 
 
-int SampledAttribDataPack::nrComponents() const
+int RegularSeisDataPack::nrComponents() const
 { return arrays_.size(); }
 
 
-const char* SampledAttribDataPack::getComponentName( int component ) const
+const char* RegularSeisDataPack::getComponentName( int component ) const
 {
     return componentnames_.validIdx(component)
 	? componentnames_[component]->buf()
 	: 0;
 }
 
-const Array3D<float>& SampledAttribDataPack::data( int component ) const
+const Array3DImpl<float>& RegularSeisDataPack::data( int component ) const
 { return *arrays_[component]; }
 
-Array3D<float>& SampledAttribDataPack::data( int component )
+Array3DImpl<float>& RegularSeisDataPack::data( int component )
 { return *arrays_[component]; }
 
 
-float SampledAttribDataPack::nrKBytes() const
+float RegularSeisDataPack::nrKBytes() const
 {
     return mCast(float,sampling_.totalNr()) * desc_.nrBytes() / 1024.f;
 }

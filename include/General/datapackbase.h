@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 template <class T> class Array3D;
+template <class T> class Array3DImpl;
 
 class BinDataDesc;
 class BufferStringSet;
@@ -32,12 +33,12 @@ class TaskRunner;
 namespace ZDomain { class Info; }
 
 
-mExpClass(General) TrcKeyDataPack : public DataPack
+mExpClass(General) SeisDataPack : public DataPack
 {
 public:
-				~TrcKeyDataPack();
+				~SeisDataPack();
     virtual od_int64		nrTrcs() const				= 0;
-    virtual TrcKey		getTrcKey(od_int64 globaltrcidx)	= 0;
+    virtual TrcKey		getTrcKey(od_int64 globaltrcidx) const	= 0;
     virtual od_int64		getGlobalIdx(const TrcKey&) const	= 0;
 
     virtual bool		addComponent(const char* nm)		= 0;
@@ -47,7 +48,7 @@ public:
 
     virtual const OffsetValueSeries<float> getTrcData(int comp,
 					    od_int64 globaltrcidx) const = 0;
-    virtual const StepInterval<float>	getZInterval(od_int64 gidx) const = 0;
+    virtual const StepInterval<float>	getZRange() const		= 0;
 
     void			setZDomain(const ZDomain::Info&);
     const ZDomain::Info&	zDomain() const;
@@ -56,28 +57,28 @@ public:
     const SamplingData<float>&	getScale(int comp) const;
 
 protected:
-					TrcKeyDataPack(const char*,
-						       const BinDataDesc*);
+					SeisDataPack(const char*,
+						     const BinDataDesc*);
     TypeSet<SamplingData<float> >	scales_;
     ZDomain::Info*			zdominfo_;
     BinDataDesc				desc_;
 };
 
 
-mExpClass(General) SampledAttribDataPack : public TrcKeyDataPack
+mExpClass(General) RegularSeisDataPack : public SeisDataPack
 {
 public:
-				SampledAttribDataPack(const char* cat,
-						      const BinDataDesc* bdd=0);
-				~SampledAttribDataPack();
+				RegularSeisDataPack(const char* cat,
+						    const BinDataDesc* bdd=0);
+				~RegularSeisDataPack();
 
     od_int64			nrTrcs() const;
-    TrcKey			getTrcKey(od_int64 globaltrcidx);
+    TrcKey			getTrcKey(od_int64 globaltrcidx) const;
     od_int64			getGlobalIdx(const TrcKey& tk) const;
     const OffsetValueSeries<float> getTrcData(int comp,
 					      od_int64 globaltrcidx) const;
 
-    const StepInterval<float>	getZInterval(od_int64 gidx) const;
+    const StepInterval<float>	getZRange() const;
 
     void			setSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	sampling() const;
@@ -87,14 +88,14 @@ public:
     int				nrComponents() const;
     const char*			getComponentName(int comp=0) const;
 
-    const Array3D<float>&	data(int component=0) const;
-    Array3D<float>&		data(int component=0);
+    const Array3DImpl<float>&	data(int component=0) const;
+    Array3DImpl<float>&		data(int component=0);
 
     float			nrKBytes() const;
 
 protected:
 
-    ObjectSet<Array3D<float> >	arrays_;
+    ObjectSet<Array3DImpl<float> >	arrays_;
     BufferStringSet		componentnames_;
 
     TrcKeyZSampling		sampling_;

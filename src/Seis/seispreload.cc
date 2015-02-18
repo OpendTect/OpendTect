@@ -101,7 +101,7 @@ bool Seis::PreLoader::loadVol( const TrcKeyZSampling& tkzs ) const
 	return false;
     }
 
-    SampledAttribDataPack* dp = rdr.getDataPack();
+    RegularSeisDataPack* dp = rdr.getDataPack();
     Seis::PLDM().add( ioobj->key(), dp );
     return true;
 }

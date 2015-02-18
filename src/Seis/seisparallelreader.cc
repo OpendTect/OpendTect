@@ -300,7 +300,7 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
 
     totalnr_ = tkzs_.hsamp_.totalNr();
 
-    dp_ = new SampledAttribDataPack( Seis::nameOf(info.geomType()) );
+    dp_ = new RegularSeisDataPack( Seis::nameOf(info.geomType()) );
     dp_->setSampling( tkzs_ );
 
     BufferStringSet compnames;
@@ -387,7 +387,7 @@ bool ParallelReader2D::doFinish( bool success )
 { return success; }
 
 
-SampledAttribDataPack* ParallelReader2D::getDataPack()
+RegularSeisDataPack* ParallelReader2D::getDataPack()
 {
     dpclaimed_ = true;
     return dp_;
@@ -399,7 +399,7 @@ SampledAttribDataPack* ParallelReader2D::getDataPack()
 class ArrayFiller : public SequentialTask
 {
 public:
-ArrayFiller( SampledAttribDataPack& dp, SeisTrc& trc )
+ArrayFiller( RegularSeisDataPack& dp, SeisTrc& trc )
     : dp_(dp)
     , trc_(trc)
 {}
@@ -426,7 +426,7 @@ int nextStep()
 
 protected:
 
-    SampledAttribDataPack&	dp_;
+    RegularSeisDataPack&	dp_;
     SeisTrc&			trc_;
 };
 
@@ -467,7 +467,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 	trl_->initRead( ioobj.getConn(Conn::Read) );
     }
 
-    dp_ = new SampledAttribDataPack( Seis::nameOf(info.geomType()) );
+    dp_ = new RegularSeisDataPack( Seis::nameOf(info.geomType()) );
     dp_->setSampling( tkzs );
 
     BufferStringSet compnames;
@@ -491,7 +491,7 @@ SequentialReader::~SequentialReader()
 }
 
 
-SampledAttribDataPack* SequentialReader::getDataPack()
+RegularSeisDataPack* SequentialReader::getDataPack()
 { dpclaimed_ = true; return dp_; }
 
 

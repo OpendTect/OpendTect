@@ -22,7 +22,7 @@ ________________________________________________________________________
 class BinIDValueSet;
 class CBVSSeisTrcTranslator;
 class IOObj;
-class SampledAttribDataPack;
+class RegularSeisDataPack;
 
 template <class T> class Array2D;
 template <class T> class Array3D;
@@ -101,7 +101,7 @@ public:
 
 			~ParallelReader2D();
 
-    SampledAttribDataPack* getDataPack(); // The caller now owns the datapack
+    RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
 
     uiString		uiNrDoneText() const;
     uiString		uiMessage() const;
@@ -111,7 +111,7 @@ protected:
     bool		doWork(od_int64,od_int64,int);
     bool		doFinish(bool);
 
-    SampledAttribDataPack*	dp_;
+    RegularSeisDataPack*	dp_;
     TypeSet<int>		components_;
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
@@ -131,7 +131,7 @@ public:
 					 const TypeSet<int>* components=0);
 			~SequentialReader();
 
-    SampledAttribDataPack* getDataPack(); // The caller now owns the datapack
+    RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
 
     uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return "Traces read"; }
@@ -143,7 +143,7 @@ protected:
 
     CBVSSeisTrcTranslator*	trl_;
     Seis::SelData*		sd_;
-    SampledAttribDataPack*	dp_;
+    RegularSeisDataPack*	dp_;
     TrcKeyZSampling		tkzs_;
     TypeSet<int>		components_;
     Interval<int>		samprg_;
