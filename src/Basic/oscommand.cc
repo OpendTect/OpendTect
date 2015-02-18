@@ -350,7 +350,14 @@ OS::CommandLauncher::~CommandLauncher()
 
 int OS::CommandLauncher::processID() const
 {
+    if ( !process_ )
+	return 0;
+#ifdef __win__
+    const PROCESS_INFORMATION* pi = (PROCESS_INFORMATION*) process_->pid();
+    return pi->dwProcessId;
+#else
     return process_ ? process_->pid() : 0;
+#endif
 }
 
 

@@ -54,6 +54,7 @@ static bool testAllPipes()
     cp.launchtype( OS::RunInBG );
 
     mRunStandardTest( cl.execute( cp ), "Launching triple pipes" );
+    mRunStandardTest( cl.processID(), "Launched process has valid PID" );
     *cl.getStdInput() << mGoodMessage << " ";
     cl.getStdInput()->flush();
 
