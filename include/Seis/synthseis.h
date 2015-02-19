@@ -65,6 +65,8 @@ public:
 
     void		setStretchLimit(float n){ stretchlimit_ = n; }
     float		getStretchLimit() const;
+    void		doSampledReflectivity(bool yn)
+			{ dosampledreflectivities_ = yn; }
 
     virtual void	enableFourierDomain(bool fourier)
 			{ isfourier_ = fourier; }
@@ -95,7 +97,8 @@ protected:
     bool			waveletismine_;
     const Wavelet*		wavelet_;
     StepInterval<float>		outputsampling_;
-    bool	                dointernalmultiples_;
+    bool			dointernalmultiples_;
+    bool			dosampledreflectivities_;
     float			surfreflcoeff_;
 
     uiString			errmsg_;
@@ -128,8 +131,7 @@ public:
 			/*<! available after execution */
     const TypeSet<float_complex>& freqReflectivities() const
 			{ return freqreflectivities_; }
-    const TypeSet<float>& reflectivities() const
-			{ return reflectivities_; }
+    void		getSampledRM(ReflectivityModel&) const;
 
 
 protected:
@@ -154,8 +156,7 @@ protected:
     int				convolvesize_;
     SeisTrc&			outtrc_;
 
-    TypeSet<float>		reflectivities_;
-    TypeSet<float_complex>	creflectivities_;
+    ReflectivityModel		sampledrefmodel_;
     TypeSet<float_complex>	freqreflectivities_;
     TypeSet<float_complex>	freqwavelet_;
 
@@ -175,7 +176,8 @@ public:
 				    const ObjectSet<const ReflectivityModel>&);
 
     void			getResult(ObjectSet<SeisTrc>&);
-    void			getSampledReflectivities(TypeSet<float>&) const;
+    void			getSampledRMs(
+					ObjectSet<const ReflectivityModel>&);
 
     uiString			uiMessage() const
 					{ return "Generating synthetics..."; }
@@ -188,7 +190,8 @@ protected:
     bool                        doPrepare(int);
     virtual bool	doWork(od_int64,od_int64,int);
 
-    const ObjectSet<const ReflectivityModel>* models_;
+    const ObjectSet<const ReflectivityModel>*	models_;
+    ObjectSet<const ReflectivityModel>		sampledrefmodels_;
     ObjectSet<SynthGenerator>	synthgens_;
     ObjectSet<SeisTrc>		trcs_;
     TypeSet<int>		trcidxs_;
@@ -210,8 +213,8 @@ public:
 
 	void		getTraces(ObjectSet<SeisTrc>&,bool steal);
 	void		getD2T(ObjectSet<TimeDepthModel>&,bool steal);
-	void		getRefs(ObjectSet<const ReflectivityModel>&,bool steal);
-	void		getSampledRefs(TypeSet<float>&) const;
+	void		getRefs(ObjectSet<const ReflectivityModel>&,bool steal,
+				bool sampled=false);
 	void		forceReflTimes(const StepInterval<float>&);
 
 	const SeisTrc*	stackedTrc() const;
@@ -220,7 +223,7 @@ public:
 	ObjectSet<SeisTrc>			outtrcs_; //this is a gather
 	ObjectSet<TimeDepthModel>		t2dmodels_;
 	ObjectSet<const ReflectivityModel>	refmodels_;
-	TypeSet<float>			sampledrefs_;
+	ObjectSet<const ReflectivityModel>	sampledrefmodels_;
 
 	friend class				RaySynthGenerator;
 

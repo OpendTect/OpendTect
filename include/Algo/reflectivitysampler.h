@@ -36,12 +36,8 @@ public:
 
 			~ReflectivitySampler();
 
-				/*<! In addition to frequency domain! */
-    void			doTimeReflectivities();
-
 				/*<! Available after execution */
-    TypeSet<float_complex>&	reflectivities(bool time) const;
-    void			getTimeReflectivities(TypeSet<float>&) const;
+    void			getReflectivities(ReflectivityModel&);
 
 protected:
     od_int64			nrIterations() const	{return model_.size();}
@@ -51,15 +47,13 @@ protected:
     bool			doFinish(bool);
 
     void			removeBuffers();
-    bool			applyInvFFT();
-    void			sortOutput();
+    bool			applyInvFFT(TypeSet<float_complex>&);
 
     const ReflectivityModel&	model_;
     const StepInterval<float>	outsampling_;
     TypeSet<float_complex>&	freqreflectivities_;
     TypeSet<float_complex>*	creflectivities_;
     bool			usenmotime_;
-    Fourier::CC*		fft_;
 
     ObjectSet<float_complex>	buffers_;
 };

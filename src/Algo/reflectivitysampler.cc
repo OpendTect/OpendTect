@@ -21,8 +21,6 @@ ReflectivitySampler::ReflectivitySampler(const ReflectivityModel& model,
     , outsampling_(outsampling)
     , freqreflectivities_(freqreflectivities)
     , usenmotime_(usenmotime)
-    , fft_(0)
-    , creflectivities_(0)
 {
     buffers_.allowNull( true );
 }
@@ -31,36 +29,38 @@ ReflectivitySampler::ReflectivitySampler(const ReflectivityModel& model,
 ReflectivitySampler::~ReflectivitySampler()
 {
     removeBuffers();
-    if ( fft_ )
+}
+
+
+void ReflectivitySampler::getReflectivities( ReflectivityModel& sampledrefmodel)
+{
+    const int sz = outsampling_.nrSteps() + 1;
+    TypeSet<float_complex> creflectivities;
+    applyInvFFT( creflectivities );
+    sampledrefmodel.setSize( creflectivities.size(), ReflectivitySpike() );
+    const float step = outsampling_.step;
+    float start = mCast( float, mCast( int, outsampling_.start/step ) ) * step;
+    if ( start < outsampling_.start - 1e-4f )
+	start += step;
+    const float width = step * sz;
+    const int nperiods = mCast( int, floor( start/width ) ) + 1;
+    const SamplingData<float> fftsampling( start, step );
+    const float stoptwt = start + width;
+    float twt = width * nperiods - step;
+    for ( int idx=0; idx<creflectivities.size(); idx++ )
     {
-	delete fft_;
-	delete creflectivities_;
+	twt += step;
+	if ( twt > stoptwt - 1e-4f )
+	    twt -= width;
+	const int idy = fftsampling.nearestIndex( twt );
+	if ( idy < 0 || idy > sz-1 )
+	    continue;
+	ReflectivitySpike& spike = sampledrefmodel[idx];
+	spike.reflectivity_ = creflectivities[idx];;
+	spike.time_ = twt;
+	spike.correctedtime_ = twt;
+	spike.depth_ = twt;
     }
-}
-
-
-void ReflectivitySampler::doTimeReflectivities()
-{
-    fft_ = new Fourier::CC;
-    creflectivities_ = new TypeSet<float_complex>;
-}
-
-
-TypeSet<float_complex>& ReflectivitySampler::reflectivities( bool time ) const
-{
-    return time && fft_ && creflectivities_ ? *creflectivities_
-					    : freqreflectivities_;
-}
-
-
-void ReflectivitySampler::getTimeReflectivities( TypeSet<float>& refls ) const
-{
-    if ( !fft_ || !creflectivities_ )
-	return;
-
-    refls.setEmpty();
-    for ( int idx=0; idx<creflectivities_->size(); idx++ )
-	refls += (*creflectivities_)[idx].real();
 }
 
 
@@ -74,18 +74,10 @@ bool ReflectivitySampler::doPrepare( int nrthreads )
 {
     removeBuffers();
     int sz = outsampling_.nrSteps() + 1;
-    if ( fft_ )
-    {
-	creflectivities_->erase();
-	sz = fft_->getFastSize( sz );
-	creflectivities_->setSize( sz, float_complex(0,0) );
-	fft_->setInputInfo( Array1DInfoImpl(sz) );
-	fft_->setDir( false );
-	fft_->setNormalization( true );
-    }
-
+    PtrMan<Fourier::CC> fft = new Fourier::CC;
+    const int fftsz = fft->getFastSize( sz );
     freqreflectivities_.erase();
-    freqreflectivities_.setSize( sz, float_complex(0,0) );
+    freqreflectivities_.setSize( fftsz, float_complex(0,0) );
     buffers_ += 0;
     for ( int idx=1; idx<nrthreads; idx++ )
 	buffers_ += new float_complex[freqreflectivities_.size()];
@@ -165,65 +157,25 @@ bool ReflectivitySampler::doFinish( bool success )
 	res++;
     }
 
-    if ( fft_ )
-    {
-	applyInvFFT();
-	sortOutput();
-    }
 
     return true;
 }
 
 
-bool ReflectivitySampler::applyInvFFT()
+bool ReflectivitySampler::applyInvFFT( TypeSet<float_complex>& creflectivities )
 {
-    if ( !fft_ || !creflectivities_ )
+    PtrMan<Fourier::CC> fft = new Fourier::CC;
+    if ( !fft )
 	return false;
 
-    fft_->setInput( freqreflectivities_.arr() );
-    fft_->setOutput( creflectivities_->arr() );
+    const int fftsz = freqreflectivities_.size();
+    creflectivities.setSize( fftsz, float_complex(0,0) );
+    fft->setInputInfo( Array1DInfoImpl(fftsz) );
+    fft->setDir( false );
+    fft->setNormalization( true );
+    fft->setInput( freqreflectivities_.arr() );
+    fft->setOutput( creflectivities.arr() );
 
-    return fft_->run( true );
-}
-
-
-void ReflectivitySampler::sortOutput()
-{
-    if ( !fft_ || !creflectivities_ )
-	return;
-
-    const int fftsz = creflectivities_->size();
-    const float step =  outsampling_.step;
-    float start = mCast( float, mCast( int, outsampling_.start/step ) ) * step;
-    if ( start <  outsampling_.start - 1e-4f )
-	start += step;
-
-    const float width = step * fftsz;
-    const int nperiods = mCast( int, floor( start/width ) ) + 1;
-    const SamplingData<float> fftsampling( start, step );
-    const int sz = outsampling_.nrSteps() + 1;
-
-    mDeclareAndTryAlloc( float_complex*, fftrefl, float_complex[fftsz] );
-    if ( !fftrefl ) return;
-    float_complex* realres = creflectivities_->arr();
-    OD::memCopy( fftrefl, realres, fftsz * sizeof(float_complex) );
-    OD::memZero( realres, sz*sizeof(float_complex) );
-
-    const float stoptwt = start + width;
-    float twt = width * nperiods - step;
-    for ( int idx=0; idx<fftsz; idx++ )
-    {
-	twt += step;
-	if ( twt > stoptwt - 1e-4f )
-	    twt -= width;
-
-	const int idy = fftsampling.nearestIndex( twt );
-	if ( idy < 0 || idy > sz-1 )
-	    continue;
-
-	realres[idy] = fftrefl[idx];
-    }
-
-    delete [] fftrefl;
+    return fft->run( true );
 }
 
