@@ -36,7 +36,8 @@ public:
 
     struct Setup
     {
-	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon };
+	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon,
+	    		  VolumeTypes };
 			Setup( bool is_2d, bool with_z )
 			    : seltxt_( is_2d	? "Trace subselection"
 				   : ( with_z	? "Volume subselection"

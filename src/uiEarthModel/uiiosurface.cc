@@ -103,7 +103,7 @@ void uiIOSurface::mkRangeFld( bool multisubsel )
 
     uiPosSubSel::Setup su( is2d, false );
     if ( multisubsel )
-	su.choicetype( uiPosSubSel::Setup::OnlySeisTypes );
+	su.choicetype( uiPosSubSel::Setup::VolumeTypes );
     rgfld_ = new uiPosSubSel( this, su );
     rgfld_->selChange.notify( mCB(this,uiIOSurface,ioDataSelChg) );
     if ( sectionfld_ ) rgfld_->attach( ensureBelow, sectionfld_ );

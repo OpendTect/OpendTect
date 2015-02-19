@@ -47,7 +47,11 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	{
 	    reqnms.add( sKey::Table() );
 	    reqnms.add( sKey::Polygon() );
+	}
+	else if ( setup_.choicetype_ == Setup::VolumeTypes )
+	{
 	    reqnms.add( sKey::Well() );
+	    reqnms.add( sKey::Polygon() );
 	    reqnms.add( sKey::Body() );
 	}
 	else if ( setup_.choicetype_ == Setup::RangewithPolygon )
