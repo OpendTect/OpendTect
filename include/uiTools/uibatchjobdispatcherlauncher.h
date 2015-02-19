@@ -42,7 +42,8 @@ public:
     Batch::JobDispatcher&	dispatcher()		{ return gtDsptchr(); }
     const Batch::JobDispatcher& dispatcher() const;
 
-    const char*		name() const { return factoryDisplayName().getOriginalString(); }
+    const char*			name() const 
+				{ return factoryDisplayName().getFullString(); }
 
     mDefineFactory1ParamInClass(uiBatchJobDispatcherLauncher,
 			Batch::JobSpec&,factory);
