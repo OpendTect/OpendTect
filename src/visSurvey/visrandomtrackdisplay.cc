@@ -426,11 +426,12 @@ void RandomTrackDisplay::removeKnot( int knotidx )
 
 void RandomTrackDisplay::removeAllKnots()
 {
-    for ( int idx=0; idx<knots_.size(); idx++ )
+    for ( int idx=knots_.size()-1; idx>=0; idx-- )
 	dragger_->removeKnot( idx );
 
     knots_.erase();
     updatePanelStripPath();
+    moving_.trigger();
 }
 
 
