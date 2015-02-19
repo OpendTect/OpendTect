@@ -40,9 +40,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
-    : uiDialog( p, uiDialog::Setup("Horizon Gridding","Gridding parameters",
-				   mODHelpKey(mBulkHorizonImportHelpID) )
-                                   .modal(true) )
+    : uiDialog(p,uiDialog::Setup("Horizon Gridding","Gridding parameters",
+			mODHelpKey(mInverseDistanceArray2DInterpolHelpID) )
+			.modal(true))
     , horizon_( hor )
     , is2d_( is2d )
     , inputhorsel_( 0 )
@@ -59,7 +59,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     else
     {
 	IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
-	    			 : EMHorizon3DTranslatorGroup::ioContext();
+				 : EMHorizon3DTranslatorGroup::ioContext();
 	ctxt.forread = true;
 	inputhorsel_ = new uiIOObjSel( this, ctxt );
     }
@@ -128,7 +128,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( interpolhor3dsel_->isFullSurvey() )
 	savefldgrp_->setFullSurveyArray( true );
 
-    if ( !savefldgrp_->acceptOK(0) ) 
+    if ( !savefldgrp_->acceptOK(0) )
 	return false;
 
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
@@ -150,7 +150,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	rowrg.step = steps.inl();
 	StepInterval<int> colrg = hor3d->geometry().colRange();
 	colrg.step = steps.crl();
-	
+
 	HorSampling hs( false );
 	hs.set( rowrg, colrg );
 	interpolator->setHorSampling( hs );
@@ -164,7 +164,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	    ErrMsg( msg ); continue;
 	}
 
-        arr->setAll( mUdf(float) );	
+	arr->setAll( mUdf(float) );
 
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
 	if ( !iterator )
@@ -219,13 +219,13 @@ bool uiHorizonInterpolDlg::interpolate2D()
     mDynamicCastGet(EM::Horizon2D*,usedhor2d,usedhor)
     if ( !usedhor2d )
 	return false;
-    
+
     mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_)
     if ( !hor2d )
 	return false;
 
     const EM::Horizon2DGeometry& geom = hor2d->geometry();
-	
+
     uiTaskRunner tr( this );
 
     for ( int isect=0; isect<geom.nrSections(); isect++ )
@@ -237,7 +237,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 
 	interpol1dsel_->setInterpolators( geom.nrLines() );
 	interpol1dsel_->setArraySet( arr1d );
-	
+
 	ExecutorGroup execgrp( "Interpolator", true );
 	for ( int idx=0; idx<arr1d.size(); idx++ )
 	    execgrp.add( interpol1dsel_->getResult(idx) );
@@ -265,7 +265,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
     if ( !isok )
 	return false;
 
-    if ( inputhorsel_ ) 
+    if ( inputhorsel_ )
     {
 	const IOObj* ioobj = inputhorsel_->ioobj();
 	if ( !ioobj )
@@ -283,7 +283,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
 	mErrRet( "Missing horizon!" );
 
     MouseCursorChanger mcc( MouseCursor::Wait );
-    
+
     if ( !is2d_ )
     {
 	if ( !interpolate3D(par) )
@@ -421,7 +421,7 @@ uiHor3DInterpol::uiHor3DInterpol( uiParent* p )
 void uiInvDistHor3DInterpol::initClass()
 {
     uiHor3DInterpol::factory().addCreator( create,
-	    	uiInvDistHor3DInterpol::sFactoryKeyword() );
+		uiInvDistHor3DInterpol::sFactoryKeyword() );
 }
 
 
@@ -446,8 +446,8 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
     radiusfld_->checked.notify( mCB(this,uiInvDistHor3DInterpol,useRadiusCB) );
     radiusfld_->attach( alignedBelow, fltselfld_ );
 
-    parbut_ = new uiPushButton( this, "&Parameters", 
-		    	mCB(this,uiInvDistHor3DInterpol,doParamDlg),
+    parbut_ = new uiPushButton( this, "&Parameters",
+			mCB(this,uiInvDistHor3DInterpol,doParamDlg),
 			false );
     parbut_->attach( rightOf, radiusfld_ );
 
@@ -529,10 +529,10 @@ uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol(uiParent* p)
     useneighborfld_ = new uiCheckBox( this, "Use nearest neighbor" );
     useneighborfld_->setChecked( false );
     useneighborfld_->activated.notify(
-	    	mCB(this,uiTriangulationHor3DInterpol,useNeighborCB) );
+		mCB(this,uiTriangulationHor3DInterpol,useNeighborCB) );
     useneighborfld_->attach( alignedBelow, fltselfld_ );
-    
-    BufferString titletext( "Max interpolate distance ", 
+
+    BufferString titletext( "Max interpolate distance ",
 			    SI().getXYUnitString() );
     maxdistfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
     maxdistfld_->setWithCheck( true );
@@ -603,7 +603,7 @@ bool uiExtensionHor3DInterpol::fillPar( IOPar& par ) const
 {
     if ( nrstepsfld_->getIntValue()<1 )
     {
-	uiMSG().error( "Nr steps must be > 0." );	
+	uiMSG().error( "Nr steps must be > 0." );
 	return false;
     }
 
