@@ -106,8 +106,7 @@ bool uiTaskRunner::execute( Task& t )
 
 void uiTaskRunner::onFinalise( CallBacker* )
 {
-    const bool pbics = Settings::common().isTrue( "Ui.Icons.PushButtons" );
-    if ( pbics )
+    if ( uiButton::haveCommonPBIcons() )
     {
 	button(OK)->setIcon( "pause" );
 	button(CANCEL)->setIcon( "abort" );
