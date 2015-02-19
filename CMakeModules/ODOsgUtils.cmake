@@ -8,69 +8,9 @@
 
 set(OSG_DIR "" CACHE PATH "OSG Location" )
 
-if ( (EXISTS ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeLists.txt) AND
-    ((NOT DEFINED osgGeo_DIR) OR
-	(osgGeo_DIR STREQUAL "") OR
-	(osgGeo_DIR MATCHES "-NOTFOUND")) AND
-    (DEFINED OSG_DIR) AND
-    (NOT OSG_DIR STREQUAL "") AND
-    (NOT OSG_DIR MATCHES "-NOTFOUND") )
-    set ( osgGeo_DIR ${CMAKE_BINARY_DIR}/external/osgGeo CACHE PATH
-	  "osgGeo location" FORCE )
-
-    if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
-	 (CMAKE_GENERATOR STREQUAL "Ninja") OR
-	 (CMAKE_GENERATOR STREQUAL "NMake Makefiles") )
-	if ( NOT EXISTS ${CMAKE_BINARY_DIR}/external/osgGeo )
-	    execute_process ( COMMAND ${CMAKE_COMMAND} -E make_directory
-			      "${osgGeo_DIR}" )
-
-	endif()
-	execute_process ( COMMAND ${CMAKE_COMMAND} -DOSG_DIR=${OSG_DIR}
-		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-		--build ${CMAKE_BINARY_DIR}/external/osgGeo
-		-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
-		-G${CMAKE_GENERATOR}
-		${CMAKE_SOURCE_DIR}/external/osgGeo/ 
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/external/osgGeo/ )
-
-	execute_process ( COMMAND ${CMAKE_COMMAND}
-		    --build ${CMAKE_BINARY_DIR}/external/osgGeo
-		    --target osgGeo )
-    else()
-	execute_process ( COMMAND ${CMAKE_COMMAND} . -DOSG_DIR=${OSG_DIR}
-		-G${CMAKE_GENERATOR}
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external/osgGeo/ )
-	execute_process ( COMMAND ${CMAKE_COMMAND}
-		--build ${CMAKE_SOURCE_DIR}/external/osgGeo
-		--target osgGeo
-		--config Debug )
-	execute_process ( COMMAND ${CMAKE_COMMAND}
-		--build ${CMAKE_SOURCE_DIR}/external/osgGeo
-		--target osgGeo
-		--config Release )
-    endif()
-endif()
-
-if ( osgGeo_DIR MATCHES "${CMAKE_SOURCE_DIR}/external/osgGeo" )
-    if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
-	 (CMAKE_GENERATOR STREQUAL "Ninja") OR
-	 (CMAKE_GENERATOR STREQUAL "NMake Makefiles") )
-	add_custom_target( osgGeo ALL COMMAND ${CMAKE_COMMAND}
-		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
-		    --target osgGeo )
-    else()
-	add_custom_target( osgGeo ALL
-		${CMAKE_COMMAND}
-		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
-		    --target osgGeo
-		    --config Debug
-		COMMAND ${CMAKE_COMMAND}
-		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
-		    --config Release
-		    --target osgGeo )
-    endif()
-endif()
+add_subdirectory( ${CMAKE_SOURCE_DIR}/external/osgGeo/src/osgGeo 
+		  ${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo )
+set ( OSGGEO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/osgGeo/src )
 
 macro(OD_SETUP_OSG)
 
@@ -91,13 +31,12 @@ macro(OD_SETUP_OSG)
 
     find_package( OpenGL )
     find_package(OSG)
-    find_package(osgGeo)
 
     #RESTORE DEBUG POSTFIX
     set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
 
-    if ( (NOT DEFINED OSG_FOUND) OR (NOT DEFINED OSGGEO_FOUND) )
-	MESSAGE( FATAL_ERROR "OSG_DIR and/or osgGeo not set")
+    if ( (NOT DEFINED OSG_FOUND) )
+	MESSAGE( FATAL_ERROR "OSG_DIR not set")
     endif()
 
 
@@ -122,8 +61,7 @@ macro(OD_SETUP_OSG)
 		OSGVOLUME
 		OPENTHREADS
 		OSGTEXT
-		OSGSIM
-		OSGGEO )
+		OSGSIM )
 
 	foreach( OSGMODULE ${OSGMODULES} )
 	    if ( ${OSGMODULE}_LIBRARY )
@@ -132,6 +70,8 @@ macro(OD_SETUP_OSG)
 		message(FATAL_ERROR "${OSGMODULE}_LIBRARY is missing")
 	    endif()
 	endforeach()
+
+	list ( APPEND OD_OSG_LIBS osgGeo )
 
 	if ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
 	    foreach ( BUILD_TYPE Debug Release )
