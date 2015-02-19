@@ -889,18 +889,19 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     uiTaskRunner uitr( ODMainWin() );
     Attrib::SelSpec myas;
     bool usemcomp = false;
+    BufferString attrnm;
     if ( storeditm_.itemIndex(mnuid)!=-1 )
     {
 	menu->setIsHandled(true);
-	displayStoredData(
-		storeditm_.findItem(mnuid)->text.getFullString(), -1, uitr );
+	attrnm = storeditm_.findItem(mnuid)->text.getFullString();
+	displayStoredData( attrnm, -1, uitr );
     }
     else if ( steeringitm_.itemIndex(mnuid)!=-1 )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
-	displayStoredData(
-	    steeringitm_.findItem(mnuid)->text.getFullString(), 1, uitr );
+	attrnm = steeringitm_.findItem(mnuid)->text.getFullString();
+	displayStoredData( attrnm, 1, uitr );
     }
     else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas,usemcomp))
     {
@@ -911,8 +912,8 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     {
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
-	displayStoredData(
-	    zattritm_.findItem(mnuid)->text.getFullString(), -1, uitr );
+	attrnm = zattritm_.findItem(mnuid)->text.getFullString();
+	displayStoredData( attrnm, -1, uitr );
     }
     else if ( mnuid==attrnoneitm_.id )
     {
