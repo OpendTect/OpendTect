@@ -50,7 +50,7 @@ mInitAttribUI(uiSemblanceAttrib,Semblance,"Semblance",sKeyBasicGrp())
 
 
 uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mODHelpKey(mSimilarityAttribHelpID) )
+	: uiAttrDescEd(p,is2d,mODHelpKey(mSemblanceAttribHelpID))
 
 {
     inpfld = createInpFld( is2d );
