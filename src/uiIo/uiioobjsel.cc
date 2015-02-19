@@ -293,6 +293,8 @@ void uiIOObjSel::fillEntries()
     if ( !inctio_.ctxt.forread )
 	return;
 
+    const bool hadselioobj = workctio_.ioobj;
+
     const IODir iodir ( inctio_.ctxt.getSelKey() );
     IODirEntryList del( iodir, inctio_.ctxt );
     BufferStringSet keys;
@@ -305,6 +307,9 @@ void uiIOObjSel::fillEntries()
     }
 
     addToHistory( keys );
+
+    if ( !hadselioobj )
+	workctio_.setObj( 0 );
 }
 
 
