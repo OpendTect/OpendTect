@@ -42,6 +42,14 @@ set( OD_DGB_DIR "" CACHE PATH "Place where closed source part is found" )
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 
 set( OD_SUBSYSTEM "od" )
+
+#Add osgGeo
+add_subdirectory( ${CMAKE_SOURCE_DIR}/external/osgGeo/src/osgGeo 
+		  ${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo )
+set ( OSGGEO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/osgGeo/src )
+
+
+
 include( OD_SetupOD )
 include( ODInternal )
 
