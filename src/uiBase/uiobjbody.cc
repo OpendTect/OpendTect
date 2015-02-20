@@ -38,7 +38,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     , is_hidden( false )
     , finalised_( false )
     , display_( true )
-    , display_maximised( false )
+    , display_maximized( false )
     , pref_width_( 0 )
     , pref_height_( 0 )
     , pref_width_set( - 1 )
@@ -71,10 +71,10 @@ uiObjectBody::~uiObjectBody()
 }
 
 
-void uiObjectBody::display( bool yn, bool shrink, bool maximised )
+void uiObjectBody::display( bool yn, bool shrink, bool maximized )
 {
     display_ = yn;
-    display_maximised = maximised;
+    display_maximized = maximized;
 
     if ( !display_ && shrink )
     {
@@ -102,7 +102,7 @@ void uiObjectBody::doDisplay( CallBacker* )
     if ( display_ )
     {
 	is_hidden = false;
-	if ( display_maximised )
+	if ( display_maximized )
 	    qwidget()->showMaximized();
 	else
 	    qwidget()->show();

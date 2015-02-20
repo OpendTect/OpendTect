@@ -74,7 +74,7 @@ public:
 
     void		translateText();
 
-    void		display(bool yn,bool shrink=false,bool maximised=false);
+    void		display(bool yn,bool shrink=false,bool maximized=false);
     void		setFocus();
     bool		hasFocus() const;
     void		disabFocus();

@@ -385,10 +385,10 @@ void uiObject::translateText()
 }
 
 
-void uiObject::display( bool yn, bool shrink, bool maximise )
+void uiObject::display( bool yn, bool shrink, bool maximize )
 {
     finalise();
-    mBody()->display(yn,shrink,maximise);
+    mBody()->display(yn,shrink,maximize);
 }
 
 void uiObject::setFocus()

@@ -44,17 +44,17 @@ public:
 
     void		setToolTip(const uiString&);
 
-    void 		display(bool yn,bool shrink=false,
-				bool maximised=false);
+    void		display(bool yn,bool shrink=false,
+				bool maximized=false);
     void		uisetFocus();
     bool		uihasFocus() const;
     bool		uiCloseOK()	{ return uiObjHandle().closeOK(); }
     bool		isDisplayed() const { return display_; }
 
     Color		uibackgroundColor() const;
-    void              	uisetBackgroundColor(const Color&);
+    void	uisetBackgroundColor(const Color&);
     void		uisetBackgroundPixmap(const uiPixmap&);
-    void              	uisetTextColor(const Color&);
+    void	uisetTextColor(const Color&);
     void		uisetSensitive(bool yn=true);
     bool		uisensitive() const;
     bool		uivisible() const;
@@ -73,7 +73,7 @@ public:
     void		setMinimumHeight(int);
     void		setMaximumHeight(int);
 
-    void               	setStretch(int,int);
+    void	setStretch(int,int);
     virtual int		stretch(bool,bool retUndef=false) const;
 
     virtual int		nrTxtLines() const	{ return -1; }
@@ -84,12 +84,12 @@ public:
 			       int m=-1,bool r=true)
 			    { attach(t,other->mainObject(),m,r ); }
 
-    void 		uisetFont(const uiFont&);
+    void		uisetFont(const uiFont&);
     const uiFont*	uifont() const;
 
     virtual uiSize	actualsize(bool include_border=true) const;
-    			//!< Beware! this is during layout only
-    			//!< use uiObject::width() and height() for 'live' objs
+			//!< Beware! this is during layout only
+			//!< use uiObject::width() and height() for 'live' objs
 
     virtual uiSize	minimumsize() const
 			{ return uiSize(mUdf(int),mUdf(int)); }
@@ -137,7 +137,7 @@ protected:
     virtual void	finalise_()             {}
 
 
-    void 		doDisplay(CallBacker*);
+    void		doDisplay(CallBacker*);
 
     int			fontWdtFor(const char*) const;
 
@@ -147,7 +147,7 @@ protected:
 private:
 
     i_LayoutItem*	layoutItem_;
-    uiParentBody* 	parent_;
+    uiParentBody*	parent_;
     const uiFont*	font_;
 
     bool		allowshrnk;
@@ -155,7 +155,7 @@ private:
     bool		is_hidden;
     bool		finalised_;
     bool		display_;
-    bool		display_maximised;
+    bool		display_maximized;
 
     int			pref_width_;
     int			pref_height_;
@@ -175,7 +175,7 @@ private:
     uiObject::SzPolicy	hszpol;
     uiObject::SzPolicy	vszpol;
 
-    void               	gtFntWdtHgt() const;
+    void	gtFntWdtHgt() const;
     void		getSzHint();
 
 #ifdef USE_DISPLAY_TIMER
