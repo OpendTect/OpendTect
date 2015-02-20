@@ -11,6 +11,7 @@
 #include "executor.h"
 #include "trckeyzsampling.h"
 #include "samplingdata.h"
+#include "uistrings.h"
 
 class IOObj;
 class SeisTrc;
@@ -22,7 +23,7 @@ namespace Tut
 {
 
 mExpClass(Tut) SeisTools : public Executor
-{
+{ mODTextTranslationClass(SeisTools);
 public:
 
     enum Action		{ Scale, Square, Smooth, ChgSD };
@@ -54,7 +55,7 @@ public:
     uiString		uiMessage() const;
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
-    uiString		uiNrDoneText() const	{ return "Traces handled"; }
+    uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
 			// This is where it actually happens
     int			nextStep();
 

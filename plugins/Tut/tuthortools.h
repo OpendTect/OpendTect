@@ -12,6 +12,7 @@
 #include "emposid.h"
 #include "trckeysampling.h"
 #include "ranges.h"
+#include "uistrings.h"
 
 class TrcKeySamplingIterator;
 
@@ -21,7 +22,7 @@ namespace Tut
 {
 
 mExpClass(Tut) HorTool : public Executor
-{
+{ mODTextTranslationClass(HorTool);
 public:
     virtual		~HorTool();
 
@@ -30,7 +31,7 @@ public:
     od_int64		nrDone() const		{ return nrdone_; }
     void		setHorSamp(const StepInterval<int>& inlrg,
 		    		   const StepInterval<int>& crlrg);
-    uiString		uiNrDoneText() const	{ return "Positions done"; }
+    uiString		uiNrDoneText() const	{ return tr("Positions done"); }
 
 protected:
 			HorTool(const char* title);
@@ -50,7 +51,7 @@ protected:
 
 
 mExpClass(Tut) ThicknessCalculator : public HorTool
-{
+{ mODTextTranslationClass(ThicknessCalculator);
 public:
     			ThicknessCalculator();
 
@@ -58,7 +59,9 @@ public:
     Executor*		dataSaver();
     void		init(const char*);
 
-    uiString		uiMessage() const { return "Calculating thickness"; }
+    uiString		uiMessage() const { 
+					return tr("Calculating thickness"); 
+					  }
 
 protected:
 
@@ -70,7 +73,7 @@ protected:
 
 
 mExpClass(Tut) HorSmoother : public HorTool
-{
+{ mODTextTranslationClass(HorSmoother);
 public:
 			HorSmoother();
 			   
@@ -78,7 +81,7 @@ public:
     void		setWeak( bool yn )	{ weak_ = yn; }
     Executor*		dataSaver(const MultiID&);
 
-    uiString		uiMessage() const	{ return "Smoothing"; }
+    uiString		uiMessage() const	{ return tr("Smoothing"); }
 
 protected:
 
