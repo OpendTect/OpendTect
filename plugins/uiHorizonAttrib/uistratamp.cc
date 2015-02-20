@@ -71,7 +71,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     rangefld_->attach( alignedBelow, tophorshiftfld_ );
 
     ampoptionfld_ = new uiLabeledComboBox( this, statstrs,
-	    				   "Amplitude Option" );
+	    				   tr("Amplitude Option") );
     ampoptionfld_->attach( alignedBelow, rangefld_ );
 
     selfld_= new uiGenInput( this, tr("Add result as an attribute to"),

@@ -139,7 +139,7 @@ const char* uiIsopachMakerGrp::attrName() const
 
 //uiIsopachMakerBatch
 uiIsopachMakerBatch::uiIsopachMakerBatch( uiParent* p )
-    : uiDialog( p,Setup("Create isopach",mNoDlgTitle,mTODOHelpKey) )
+    : uiDialog( p,Setup(tr("Create isopach"),mNoDlgTitle,mTODOHelpKey) )
 {
     grp_ = new uiIsopachMakerGrp( this, -1 );
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
@@ -196,7 +196,7 @@ bool uiIsopachMakerBatch::acceptOK( CallBacker* )
 
 //uiIsopachMakerDlg
 uiIsopachMakerDlg::uiIsopachMakerDlg( uiParent* p, EM::ObjectID emid )
-    : uiDialog(p,Setup("Create isopach",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Create isopach"),mNoDlgTitle,
                         mODHelpKey(mIsopachMakerHelpID) ))
     , dps_( new DataPointSet(false,true) )
 {
@@ -205,7 +205,7 @@ uiIsopachMakerDlg::uiIsopachMakerDlg( uiParent* p, EM::ObjectID emid )
     title += " for '";
     title += grp_->getHorNm( emid );
     title += "'";
-    setTitleText( title.buf() );
+    setTitleText( title );
 }
 
 
