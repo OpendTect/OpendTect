@@ -152,9 +152,10 @@ void uiBasemapIOObjGroup::selChg( CallBacker* )
 	setItemName( IOM().nameOf(ioobjfld_->currentID()) );
     else
     {
-	BufferString typestr = ioobjfld_->getContext().trgroup->userName();
-	typestr.add( "s" );
-	setItemName( typestr );
+	BufferStringSet strs; ioobjfld_->getChosen( strs );
+	BufferString catstr = strs.cat( "," );
+
+	setItemName( catstr );
     }
 }
 
@@ -287,6 +288,7 @@ uiBasemapTreeItem::uiBasemapTreeItem( const char* nm )
     mDefineStaticLocalObject( Threads::Atomic<int>, treeitmid, (1000) );
     id_ = treeitmid++;
 }
+
 
 uiBasemapTreeItem::~uiBasemapTreeItem()
 {

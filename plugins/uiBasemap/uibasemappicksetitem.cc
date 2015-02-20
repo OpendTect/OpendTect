@@ -125,6 +125,7 @@ bool uiBasemapPickSetTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
     mnu.insertItem( new uiAction("Show in 3D"), 1 );
+    mnu.insertItem( new uiAction("Remove"), 2 );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );
 }
@@ -146,6 +147,10 @@ bool uiBasemapPickSetTreeItem::handleSubMenu( int mnuid )
 
 	    ODMainWin()->sceneMgr().addPickSetItem( obj->getMultiID() );
 	}
+    }
+    else if ( mnuid==2 )
+    {
+	parent_->removeChild( this );
     }
     else
 	return false;

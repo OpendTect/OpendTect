@@ -26,8 +26,9 @@ class uiToolButton;
 mExpClass(uiBasemap) uiBaseMapTBMgr : public CallBacker
 { mODTextTranslationClass(uiBaseMapTBMgr)
 public:
-		uiBaseMapTBMgr(uiMainWin&,uiSurveyMap&);
-		~uiBaseMapTBMgr();
+			uiBaseMapTBMgr(uiMainWin&,uiSurveyMap&);
+			~uiBaseMapTBMgr();
+
 private:
     void		createitemTB();
     void		createviewTB();
@@ -47,11 +48,14 @@ private:
 
     bool		isstored_;
     bool		pickmode_;
-    int			readbut_;
-    int			removebut_;
-    int			saveasbut_;
-    int			savebut_;
-    int			viewbut_;
+
+    int			addid_;
+    int			removeid_;
+
+    int			viewid_;
+    int			openid_;
+    int			saveid_;
+    int			saveasid_;
     int			vwmapscaleid_;
     int			vworientationid_;
 

@@ -14,9 +14,8 @@ ________________________________________________________________________
 
 #include "basemapmod.h"
 #include "basemap.h"
-#include "draw.h"
-#include "multiid.h"
 #include "coord.h"
+#include "multiid.h"
 
 namespace Well { class Reader; class Data; }
 

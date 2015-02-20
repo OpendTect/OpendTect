@@ -58,7 +58,7 @@ public:
 			mDefaultFactoryInstantiation(
 				uiBasemapItem,
 				uiBasemapRandomLineItem,
-				"RandomLines",
+				"Random lines",
 				sFactoryKeyword())
 
     const char*		iconName() const;

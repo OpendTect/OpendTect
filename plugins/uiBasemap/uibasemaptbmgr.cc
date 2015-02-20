@@ -54,18 +54,22 @@ void uiBaseMapTBMgr::createitemTB()
     CallBack cb = mCB(this,uiBaseMapTBMgr,iconClickCB);
     const ObjectSet<uiBasemapItem>& itms = BMM().items();
 
+    addid_ = itemtoolbar_->addButton( "basemap-add", tr("Add Basemap Items") );
+    uiMenu* itemmnu = new uiMenu( tr("Item Menu") );
+
     for ( int idx=0; idx<itms.size(); idx++ )
     {
 	const uiBasemapItem* itm = itms[idx];
 
 	uiString str( "Add " ); str.append( itm->factoryDisplayName() );
 	uiAction* action = new uiAction( str, cb, itm->iconName() );
-	itemtoolbar_->insertAction( action, itm->ID() );
+	itemmnu->insertAction( action, itm->ID() );
     }
+    itemtoolbar_->setButtonMenu( addid_, itemmnu, uiToolButton::InstantPopup );
 
-    removebut_ = itemtoolbar_->addButton( "trashcan",
+    removeid_ = itemtoolbar_->addButton( "trashcan",
 					  tr("Remove selected items"),
-					  mCB(this, uiBaseMapTBMgr, removeCB),
+					  mCB(this,uiBaseMapTBMgr,removeCB),
 					  false );
 }
 
@@ -74,38 +78,33 @@ void uiBaseMapTBMgr::createviewTB()
 {
     vwtoolbar_ = new uiToolBar( &mainwin_, "Viewer Tools", uiToolBar::Left );
 
-    viewbut_ = vwtoolbar_->addButton( "altview", tr("Switch to pick mode"),
-				      mCB(this,uiBaseMapTBMgr,viewCB),
-				      false );
-    savebut_ = vwtoolbar_->addButton( "save", tr("save current BaseMap"),
-				      mCB(this,uiBaseMapTBMgr,saveCB),
-				      false );
-    saveasbut_ = vwtoolbar_->addButton( "saveas", tr("save a BaseMap"),
-					  mCB(this,uiBaseMapTBMgr,saveAsCB),
-					  false );
-    readbut_ = vwtoolbar_->addButton( "open", tr("restore previous BaseMap"),
-				      mCB(this,uiBaseMapTBMgr,readCB),
-				      false );
+    viewid_ = vwtoolbar_->addButton( "altview", tr("Switch to pick mode"),
+				mCB(this,uiBaseMapTBMgr,viewCB), false );
+
+    openid_ = vwtoolbar_->addButton( "open", uiStrings::sOpen(false),
+				mCB(this,uiBaseMapTBMgr,readCB), false );
+    saveid_ = vwtoolbar_->addButton( "save", uiStrings::sSave(true),
+				mCB(this,uiBaseMapTBMgr,saveCB), false );
+    saveasid_ = vwtoolbar_->addButton( "saveas", uiStrings::sSaveAs(false),
+				mCB(this,uiBaseMapTBMgr,saveAsCB), false );
     vwtoolbar_->addObject(
-	    basemapview_.view().getSaveImageButton(vwtoolbar_) );
+		basemapview_.view().getSaveImageButton(vwtoolbar_) );
     vwtoolbar_->addObject(
-	    basemapview_.view().getPrintImageButton(vwtoolbar_) );
+		basemapview_.view().getPrintImageButton(vwtoolbar_) );
 
     vworientationid_ = vwtoolbar_->addButton( "northarrow",
-				    tr("Display Orientation"),
-				    mCB(this,uiBaseMapTBMgr,vworientationCB),
-				    true );
+				tr("Display Orientation"),
+				mCB(this,uiBaseMapTBMgr,vworientationCB), true);
     vwtoolbar_->turnOn( vworientationid_, true );
 
     vwmapscaleid_ = vwtoolbar_->addButton( "scale",
 				tr("Display Map Scale"),
-				mCB(this,uiBaseMapTBMgr,vwmapscaleCB),
-				true );
-    uiMenu* scalemnu = new uiMenu( tr("Map Scale Menu") );
+				mCB(this,uiBaseMapTBMgr,vwmapscaleCB), true );
 
+    uiMenu* scalemnu = new uiMenu( tr("Map Scale Menu") );
     uiAction* item = new uiAction( uiStrings::sSettings(false),
-				   mCB(this,uiBaseMapTBMgr,barSettingsCB),
-				   "disppars" );
+				mCB(this,uiBaseMapTBMgr,barSettingsCB),
+				"disppars" );
     scalemnu->insertItem( item, vwmapscaleid_ );
     vwtoolbar_->setButtonMenu( vwmapscaleid_, scalemnu );
     vwtoolbar_->turnOn( vwmapscaleid_, true );
@@ -114,8 +113,8 @@ void uiBaseMapTBMgr::createviewTB()
 
 void uiBaseMapTBMgr::updateViewMode()
 {
-    vwtoolbar_->setIcon( viewbut_, pickmode_ ? "altpick" : "altview" );
-    vwtoolbar_->setToolTip( viewbut_, pickmode_ ? "Switch to view mode"
+    vwtoolbar_->setIcon( viewid_, pickmode_ ? "altpick" : "altview" );
+    vwtoolbar_->setToolTip( viewid_, pickmode_ ? "Switch to view mode"
 				    : "Switch to pick mode" );
     basemapview_.view().setDragMode(
 	pickmode_ ? uiGraphicsViewBase::NoDrag

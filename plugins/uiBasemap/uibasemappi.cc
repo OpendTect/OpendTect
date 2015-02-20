@@ -137,12 +137,12 @@ mDefODInitPlugin(uiBasemap)
     mgr = new uiBasemapMgr( ODMainWin() );
 
     uiBasemapGeom2DItem::initClass();
-    uiBasemapWellItem::initClass();
-    uiBasemapRandomLineItem::initClass();
+    uiBasemapGridItem::initClass();
     uiBasemapPickSetItem::initClass();
     uiBasemapPolygonItem::initClass();
-    uiBasemapGridItem::initClass();
+    uiBasemapRandomLineItem::initClass();
     uiBasemapOutlineItem::initClass();
+    uiBasemapWellItem::initClass();
 
     return 0;
 }

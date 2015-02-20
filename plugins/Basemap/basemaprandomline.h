@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "basemapmod.h"
 #include "basemap.h"
-#include "draw.h"
 #include "multiid.h"
 
 namespace Geometry { class RandomLineSet; }

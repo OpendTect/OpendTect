@@ -54,7 +54,7 @@ public:
 			mDefaultFactoryInstantiation(
 				uiBasemapItem,
 				uiBasemapOutlineItem,
-				"Outline",
+				"Seismic Outline",
 				sFactoryKeyword())
 
     const char*		iconName() const;

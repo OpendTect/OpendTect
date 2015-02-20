@@ -13,12 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+#include "draw.h"
 #include "namedobj.h"
 #include "threadlock.h"
 
 namespace OD { class RGBImage; }
 
-class Alignment;
 class MarkerStyle2D;
 class LineStyle;
 

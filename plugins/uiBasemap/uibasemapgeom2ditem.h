@@ -58,7 +58,7 @@ public:
 			mDefaultFactoryInstantiation(
 				uiBasemapItem,
 				uiBasemapGeom2DItem,
-				"Geom2Ds",
+				"2D Lines",
 				sFactoryKeyword())
 
     const char*		iconName() const;
