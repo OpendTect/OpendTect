@@ -13,8 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-#include "uidialog.h"
-#include "uidialog.h"
+#include "uidlggroup.h"
+#include "uivarwizarddlg.h"
 class PropertyRef;
 class PropertyRefSet;
 class PropertyRefSelection;
@@ -55,14 +55,15 @@ protected:
 
  */
 
-mExpClass(uiIo) uiSelectPropRefs : public uiDialog
-{ mODTextTranslationClass(uiSelectPropRefs);
+mExpClass(uiIo) uiSelectPropRefsGrp : public uiDlgGroup
+{ mODTextTranslationClass(uiSelectPropRefsGrp);
 public:
 
-			uiSelectPropRefs(uiParent*,PropertyRefSelection&,
-					 const char* lbltxt=0);
+			uiSelectPropRefsGrp(uiParent*,PropertyRefSelection&,
+					    const char* lbltxt=0);
 
     bool		structureChanged() const	{ return structchg_; }
+    bool		acceptOK();
 
 protected:
 
@@ -72,13 +73,37 @@ protected:
 
     void		fillList();
     void		manPROPS(CallBacker*);
-    bool		acceptOK(CallBacker*);
 
     const PropertyRefSet& props_; // PROPS()
     const PropertyRef*	thref_; // &PropertyRef::thickness()
-
 };
 
+
+mExpClass(uiIo) uiSelectPropRefs : public uiDialog
+{ mODTextTranslationClass(uiSelectPropRefs);
+public:
+				uiSelectPropRefs(uiParent*,
+						 PropertyRefSelection&,
+						 const char* lbltxt=0);
+    bool		structureChanged() const
+    			{ return proprefgrp_->structureChanged(); }
+protected:
+    uiSelectPropRefsGrp*	proprefgrp_;
+    
+    bool			acceptOK(CallBacker*);
+};
+
+
+mExpClass(uiIo) uiSelectPropRefsVWDlg : public uiVarWizardDlg
+{ mODTextTranslationClass(uiSelectPropRefsVWDlg);
+public:
+			uiSelectPropRefsVWDlg(uiParent*,PropertyRefSelection&,
+					      IOPar&,int,const char* lbltxt=0);
+protected:
+    uiSelectPropRefsGrp*	proprefgrp_;
+    
+    bool			acceptOK(CallBacker*);
+};
 
 #endif
 

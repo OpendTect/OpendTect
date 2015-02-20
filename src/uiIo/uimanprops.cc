@@ -396,12 +396,40 @@ bool uiManPROPS::haveUserChange() const
 }
 
 
-
-uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
-			      const char* lbl )
+uiSelectPropRefs::uiSelectPropRefs( uiParent* p,PropertyRefSelection& prs,
+				    const char* lbl )
     : uiDialog(p,uiDialog::Setup("Layer Properties - Selection",
-				"Select layer properties to use",
-                                mODHelpKey(mSelectPropRefsHelpID) ))
+				 "Select layer properties to use",
+                                 mODHelpKey(mSelectPropRefsHelpID) ))
+{
+    proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
+}
+
+
+bool uiSelectPropRefs::acceptOK( CallBacker* )
+{ return proprefgrp_->acceptOK(); }
+
+
+uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
+	uiParent* p, PropertyRefSelection& prs, IOPar& pars, int pos,
+	const char* lbl )
+    : uiVarWizardDlg(p,uiDialog::Setup("Layer Properties - Selection",
+				       "Select layer properties to use",
+				       mODHelpKey(mSelectPropRefsHelpID)),
+	    	     pars, (uiVarWizardDlg::Position)pos )
+{
+    proprefgrp_ = new uiSelectPropRefsGrp( this, prs, lbl );
+}
+
+
+bool uiSelectPropRefsVWDlg::acceptOK( CallBacker* )
+{ return proprefgrp_->acceptOK(); }
+
+
+
+uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
+					  const char* lbl )
+    : uiDlgGroup(p,tr("Layer Properties"))
     , props_(PROPS())
     , prsel_(prs)
     , thref_(&PropertyRef::thickness())
@@ -421,7 +449,7 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 
     uiToolButton* manpropsbut = new uiToolButton( this, "man_props",
 					"Manage available properties",
-					mCB(this,uiSelectPropRefs,manPROPS) );
+					mCB(this,uiSelectPropRefsGrp,manPROPS));
     if ( llb )
 	manpropsbut->attach( centeredRightOf, llb );
     else
@@ -429,7 +457,7 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 }
 
 
-void uiSelectPropRefs::fillList()
+void uiSelectPropRefsGrp::fillList()
 {
     PropertyRefSelection prs( PropertyRefSelection::getAll(false) );
     BufferStringSet dispnms; addNames( prs, dispnms );
@@ -452,7 +480,7 @@ void uiSelectPropRefs::fillList()
 }
 
 
-void uiSelectPropRefs::manPROPS( CallBacker* )
+void uiSelectPropRefsGrp::manPROPS( CallBacker* )
 {
     BufferStringSet orgnms;
     for ( int idx=0; idx<prsel_.size(); idx++ )
@@ -476,7 +504,7 @@ void uiSelectPropRefs::manPROPS( CallBacker* )
 }
 
 
-bool uiSelectPropRefs::acceptOK( CallBacker* )
+bool uiSelectPropRefsGrp::acceptOK()
 {
     prsel_.erase();
     prsel_.insertAt( &PropertyRef::thickness(), 0 );
