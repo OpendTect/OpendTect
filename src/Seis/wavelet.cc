@@ -435,7 +435,7 @@ bool Wavelet::trimPaddedZeros()
     delete samps_;
     samps_ = newsamps;
     sz_ = newsz;
-    cidx_ += newrg.start;
+    cidx_ -= newrg.start;
     return true;
 }
 
@@ -585,7 +585,7 @@ static const char* sSampRate	= "Sample Rate";
 
 bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 {
-    if ( !conn.forRead() || !conn.isStream() )	return false;
+    if ( !wv || !conn.forRead() || !conn.isStream() )	return false;
 
     ascistream astream( ((StreamConn&)conn).iStream() );
     if ( !astream.isOfFileType(mTranslGroupName(Wavelet)) )
@@ -666,9 +666,14 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     else if ( sr < 0 )
 	sr = -sr;
 
-    int centersmp = -1 * getIntValue( 1 );
-    if ( !mIsUdf(centersmp) && centersmp < 0 )
-	centersmp = -centersmp - 1 - fd_.nrHdrLines();
+    int centersmp = getIntValue( 1 );
+    if ( !mIsUdf(centersmp) )
+    {
+	if ( centersmp < 0 )
+	    centersmp = -centersmp;
+	else
+	    centersmp--;
+    }
 
     TypeSet<float> samps;
     while ( true )
