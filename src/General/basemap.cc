@@ -27,6 +27,12 @@ void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
 { }
 
 
+Alignment BaseMapObject::getAlignment(int shapeidx) const
+{
+    return Alignment();
+}
+
+
 const OD::RGBImage* BaseMapObject::getImage(Coord& origin,Coord& p11) const
 { return 0; }
 

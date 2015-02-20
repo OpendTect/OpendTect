@@ -82,7 +82,7 @@ int Geom2DObject::nrShapes() const
 
 
 const char* Geom2DObject::getShapeName( int ) const
-{ return 0; }
+{ return name().buf(); }
 
 
 void Geom2DObject::getPoints( int, TypeSet<Coord>& crds ) const

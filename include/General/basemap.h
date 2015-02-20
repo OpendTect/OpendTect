@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 namespace OD { class RGBImage; }
 
+class Alignment;
 class MarkerStyle2D;
 class LineStyle;
 
@@ -45,6 +46,7 @@ public:
     virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const;
 				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
+    virtual Alignment		getAlignment(int shapeidx) const;
 
     virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
     virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}

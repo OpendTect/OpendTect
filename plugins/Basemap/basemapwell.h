@@ -41,6 +41,8 @@ public:
     virtual const MarkerStyle2D* getMarkerStyle(int) const;
     virtual void		setMarkerStyle(int,const MarkerStyle2D&);
 
+    virtual Alignment		getAlignment(int shapeidx) const;
+
 private:
 
     MultiID		key_;

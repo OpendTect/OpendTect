@@ -103,3 +103,9 @@ void WellObject::setMarkerStyle( int, const MarkerStyle2D& ms )
 {
     ms_ = ms;
 }
+
+
+Alignment WellObject::getAlignment( int shapeidx ) const
+{
+    return Alignment( Alignment::HCenter, Alignment::Bottom );
+}

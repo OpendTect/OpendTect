@@ -164,7 +164,10 @@ void uiBaseMapObject::update()
 
 	    mDynamicCastGet(uiTextItem*,itm,itemgrp_.getUiItem(itemnr));
 	    itm->setText( shapenm );
-	    itm->setPos( transform_->transform(uiWorldPoint(crds[0])) );
+	    itm->setPos( transform_->transform(uiWorldPoint(crds[0])) +
+			 uiPoint(0,-3) );
+	    Alignment al = bmobject_->getAlignment( idx );
+	    itm->setAlignment( al );
 	    itemnr++;
 	}
     }
