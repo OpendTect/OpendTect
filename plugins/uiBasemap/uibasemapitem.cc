@@ -123,6 +123,7 @@ uiBasemapIOObjGroup::uiBasemapIOObjGroup( uiParent* p, const IOObjContext& ctxt,
 {
     ioobjfld_ = new uiIOObjSelGrp( this, ctxt,
 				   uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+    ioobjfld_->itemChosen.notify( mCB(this,uiBasemapIOObjGroup,selChg) );
     ioobjfld_->selectionChanged.notify( mCB(this,uiBasemapIOObjGroup,selChg) );
 
     if ( isadd )
@@ -149,13 +150,12 @@ void uiBasemapIOObjGroup::selChg( CallBacker* )
     ioobjfld_->getChosen( mids_ );
     const int nrsel = ioobjfld_->nrChosen();
     if ( nrsel==1 )
-	setItemName( IOM().nameOf(ioobjfld_->currentID()) );
+	setItemName( IOM().nameOf(ioobjfld_->chosenID()) );
     else
     {
 	BufferStringSet strs; ioobjfld_->getChosen( strs );
-	BufferString catstr = strs.cat( "," );
-
-	setItemName( catstr );
+	const BufferString catstr = strs.cat( "," );
+	setItemName( catstr.buf() );
     }
 }
 
