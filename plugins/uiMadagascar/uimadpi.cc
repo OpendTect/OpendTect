@@ -51,7 +51,7 @@ static bool checkEnvVars( BufferString& msg )
 
 
 class uiMadagascarLink	: public CallBacker
-{
+{ mODTextTranslationClass(uiMadagascarLink);
 public:
 			uiMadagascarLink(uiODMain&);
 			~uiMadagascarLink();
@@ -92,7 +92,7 @@ uiMadagascarLink::~uiMadagascarLink()
 
 void uiMadagascarLink::updateToolBar( CallBacker* )
 {
-    mnumgr.dtectTB()->addButton( "madagascar", "Madagascar link",
+    mnumgr.dtectTB()->addButton( "madagascar", tr("Madagascar link"),
 	    			 mCB(this,uiMadagascarLink,doMain) );
 }
 
@@ -100,7 +100,7 @@ void uiMadagascarLink::updateToolBar( CallBacker* )
 void uiMadagascarLink::updateMenu( CallBacker* )
 {
     delete madwin_; madwin_ = 0; ishidden_ = false;
-    uiAction* newitem = new uiAction( "Madagascar ...",
+    uiAction* newitem = new uiAction( tr("Madagascar ..."),
 	    				  mCB(this,uiMadagascarLink,doMain),
 	   				  "madagascar" );
     mnumgr.procMnu()->insertItem( newitem );
