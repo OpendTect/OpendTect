@@ -232,9 +232,13 @@ void uiIOSelect::addToHistory( const BufferStringSet& bss )
     }
     if ( havenew )
     {
-	updateFromEntries();
+	{
+	    NotifyStopper ns( selectionDone );
+	    updateFromEntries();
+	}
+
 	if ( !haveold )
-	    selDone(0);
+	    selDone(0 );
     }
 }
 
