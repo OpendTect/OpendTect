@@ -36,9 +36,9 @@ public:
     static uiString sAttribName()	{ return tr("Attribute name"); }
     static uiString sAttribute()	{ return tr("Attribute"); }
     static uiString sAttributes(bool immediate);
-    static uiString sBadConnection()	{ 
+    static uiString sBadConnection()	{
 					  return tr("Internal error: "
-						    "bad connection"); 
+						    "bad connection");
 					}
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
@@ -46,7 +46,7 @@ public:
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCancel(bool)	{ return sCancel(); }
     static uiString sCantCreateHor()	{ return tr("Cannot create horizon"); }
-    static uiString sCantFindAttrName()	{ 
+    static uiString sCantFindAttrName()	{
 					  return tr("Cannot find "
 						    "attribute name");
 					}
@@ -57,12 +57,12 @@ public:
     static uiString sCantFindSurf()	{ return tr("Cannot find surface"); }
     static uiString sCantLoadHor()	{ return tr("Cannot load horizon"); }
     static uiString sCantOpenInpFile()	{ return tr("Cannot open input file"); }
-    static uiString sCantOpenOutpFile() { 
+    static uiString sCantOpenOutpFile() {
 					  return tr("Cannot open "
-						    "output file"); 
+						    "output file");
 					}
     static uiString sCantReadInp()	{ return tr("Cannot read input"); }
-    static uiString sCantReadInpData()	{ 
+    static uiString sCantReadInpData()	{
 					  return tr("Cannot read "
 						    "input data");
 					}
@@ -72,26 +72,26 @@ public:
     static uiString sColorTable(bool immediate);
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sCreate(bool immediate);
-    static uiString sCreateProbDesFunc(){ 
+    static uiString sCreateProbDesFunc(){
 					  return tr("Create Probability "
 						    "Density Function");
 					}
     static uiString sCreateRandLines()	{ return tr("Create random lines"); }
-    static uiString sCrossline()        { return tr("Crossline"); }
+    static uiString sCrossline()        { return tr("Cross-line"); }
     static uiString sDepth()	        { return tr("Depth"); }
     static uiString sDisplay()		{ return tr("Display"); }
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
     static uiString sEmptyString()	{ return uiString(""); }
-    static uiString sEntValidName()	{ 
+    static uiString sEntValidName()	{
 					  return tr("Please enter a "
-						    "valid name"); 
+						    "valid name");
 					}
     static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sExitOD()		{ return tr("Exit OpendTect"); }
     static uiString sExport()		{ return tr("Export"); }
-    static uiString sFailConvCompData()	{ 
+    static uiString sFailConvCompData()	{
 					  return tr("Failed to convert into "
 						    "compatible data");
 					}
@@ -109,8 +109,8 @@ public:
     static uiString sImport()		{ return tr("Import"); }
     static uiString sImpSuccess()	{ return tr("Import successful"); }
     static uiString sInfo()		{ return tr("info"); }
-    static uiString sInline()		{ return tr("Inline"); }
-    static uiString sInpParMis()	{ 
+    static uiString sInline()		{ return tr("In-line"); }
+    static uiString sInpParMis()	{
 					  return tr("Input parameters "
 						    "missing");
 					}
@@ -129,9 +129,9 @@ public:
     static uiString sNo()		{ return tr("No"); }
     static uiString sNoLogSel()		{ return tr("No log selected"); }
     static uiString sNone()		{ return tr("None"); }
-    static uiString sNoObjStoreSetDB()	{ 
+    static uiString sNoObjStoreSetDB()	{
 					  return tr("No object to store "
-						    "set in data base"); 
+						    "set in data base");
 					}
     static uiString sNoValidData()	{ return tr("No valid data found"); }
     static uiString sOk()		{ return tr("OK"); }
@@ -141,7 +141,7 @@ public:
     static uiString sOptions()		{ return tr("Options"); }
     static uiString sOptions(bool)	{ return sOptions(); }
     static uiString sOutpDataStore()	{ return tr("Output data store"); }
-    static uiString sOutpFileOverw()	{ 
+    static uiString sOutpFileOverw()	{
 					  return tr("Output file exists. "
 						    "Overwrite?");
 					}
@@ -174,9 +174,9 @@ public:
 						    "set is empty");
 					}
     static uiString sSelect(bool immediate);
-    static uiString sSelObjNotMuteDef() { 
+    static uiString sSelObjNotMuteDef() {
 					  return tr("Selected object is "
-						    "not a Mute Definition"); 
+						    "not a Mute Definition");
 					}
     static uiString sSelOutpFile()	{
 					  return tr("Please select "
@@ -188,7 +188,7 @@ public:
     static uiString sShow()             { return tr("Show"); }
     static uiString sSpecGenPar()	{
 					  return tr("Specify generation "
-						    "parameters"); 
+						    "parameters");
 					}
     static uiString sSpecify()		{ return tr("Please specify"); }
     static uiString sSteering()		{ return tr("Steering"); }
