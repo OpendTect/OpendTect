@@ -298,7 +298,7 @@ void uiIOObjSel::fillEntries()
     const IODir iodir ( inctio_.ctxt.getSelKey() );
     IODirEntryList del( iodir, inctio_.ctxt );
     BufferStringSet keys;
-    if ( setup_.withclear_ )
+    if ( setup_.withclear_ || !setup_.filldef_ )
 	keys.add( "" );
     for ( int idx=0; idx<del.size(); idx++ )
     {
