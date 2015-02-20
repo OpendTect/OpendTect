@@ -44,10 +44,14 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 set( OD_SUBSYSTEM "od" )
 
 #Add osgGeo
+set(OSG_DIR "" CACHE PATH "OSG Location" )
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
+find_package( OpenGL )
+find_package( OSG )
 add_subdirectory( ${CMAKE_SOURCE_DIR}/external/osgGeo/src/osgGeo 
 		  ${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo )
 set ( OSGGEO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/osgGeo/src )
-
 
 
 include( OD_SetupOD )
