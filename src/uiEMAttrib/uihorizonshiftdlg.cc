@@ -93,7 +93,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	calbut_->attach( rightTo, attrinpfld_ );
 	calbut_->activated.notify( mCB(this,uiHorizonShiftDialog,calcAttrib) );
 
-	storefld_ = new uiCheckBox( this, "Store Horizons on pressing Ok" );
+	storefld_ = new uiCheckBox( this, "Store Horizons on pressing OK" );
 	storefld_->attach( alignedBelow, attrinpfld_ );
 	storefld_->setChecked( false );
 	storefld_->activated.notify(

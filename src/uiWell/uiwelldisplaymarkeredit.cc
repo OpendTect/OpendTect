@@ -96,7 +96,7 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     , ispicking_(true)
     , pickmodechanged(this)
 {
-    setOkText( tr("Ok/Save") );
+    setOkText( tr("OK/Save") );
 
     mrklist_ = new uiListBox( this, "Markers" );
     mrklist_->rightButtonClicked.notify(

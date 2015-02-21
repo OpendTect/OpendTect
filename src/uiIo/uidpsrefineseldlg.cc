@@ -29,7 +29,7 @@ uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
 					  tr("Define mathematical operation"),
 					  mODHelpKey(mSelectionSettDlgHelpID) )
 			    .savebutton(!p.isADensityPlot())
-			    .savetext(tr("Select on Ok")).modal(false) )
+			    .savetext(tr("Select on OK")).modal(false) )
     , plotter_(p)
     , mathobj_(0)
     , mathexprstring_(plotter_.mathObjStr())

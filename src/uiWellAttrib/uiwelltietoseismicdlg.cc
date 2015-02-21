@@ -228,7 +228,7 @@ void uiTieWin::drawFields()
     horSepar->attach( stretchedBelow, disppropgrp );
     horSepar->attach( ensureBelow, vwrtaskgrp );
 
-    uiPushButton* okbut = new uiPushButton( this, tr("Ok/Save"),
+    uiPushButton* okbut = new uiPushButton( this, tr("OK/Save"),
 			mCB(this,uiTieWin,acceptOK), true );
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, horSepar );

@@ -28,12 +28,11 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     : uiDialog( p.parent(), uiDialog::Setup(tr("Selection Settings"),0, 
                                      mODHelpKey(mSelectionSettDlgHelpID) )
 				    .savebutton(!p.isADensityPlot())
-				    .savetext(tr("Select on Ok")).modal(false) )
+				    .savetext(tr("Select on OK")).modal(false) )
     , plotter_( p )
     , selgrps_(p.selectionGrps())
 {
     setPrefHeight( 500 );
-    TypeSet<int> colids;
 
     uiTable::Setup su( selgrps_.size(), 2 );
     su.rowdesc("Selection Group").selmode(uiTable::Single);
