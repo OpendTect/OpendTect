@@ -12,11 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "ioman.h"
-#include "ioobj.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "wellextractdata.h"
+#include "wellman.h"
 #include "wellreader.h"
 
 #include <math.h>
@@ -80,17 +79,33 @@ bool WellLog::allowParallelComputation() const
 
 void WellLog::prepareForComputeData()
 {
-    PtrMan<IOObj> ioobj = IOM().get( wellid_ );
-    if ( !ioobj )
-	return;
-
     RefMan<Well::Data> wd = new Well::Data;
-    Well::Reader rdr( *ioobj, *wd );
-    if ( !rdr.isUsable() )
-	return;
+    if ( Well::MGR().isLoaded(wellid_) )
+    {
+	wd = Well::MGR().get( wellid_ );
+	if ( !wd )
+	{
+	    errmsg_ = Well::MGR().errMsg();
+	    return;
+	}
+    }
+    else
+    {
+	Well::Reader wrdr( wellid_, *wd );
+	const bool hastrack = wrdr.getTrack();
+	const bool hasd2t = wrdr.getD2T();
+	const bool haslog = wrdr.getLog( logname_ );
+	if ( !hastrack || ( SI().zIsTime() && !hasd2t ) || !haslog )
+	{
+	    errmsg_ = !hastrack ? "Cannot read track"
+				: !haslog ? "Cannot read log"
+					  : "Cannot read time-depth model";
+	    if ( wd->name() )
+		errmsg_.append( " for well ").append( wd->name() );
 
-    rdr.getD2T();
-    rdr.getLog( logname_ );
+	    return;
+	}
+    }
 
     Well::ExtractParams pars;
     pars.setFixedRange( SI().zRange(true), SI().zDomain().isTime() );

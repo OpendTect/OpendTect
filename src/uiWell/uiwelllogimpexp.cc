@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "unitofmeasure.h"
 #include "welldata.h"
 #include "wellimpasc.h"
+#include "wellman.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -33,7 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellwriter.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "ptrman.h"
 
 
 static const float defundefval = -999.25;
@@ -129,13 +129,20 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 
 bool uiImportLogsDlg::acceptOK( CallBacker* )
 {
-    const IOObj* wellioobj = wellfld_->ioobj();
-    if ( !wellioobj ) return false;
-
+    const MultiID wmid = wellfld_->key();
     RefMan<Well::Data> wd = new Well::Data;
-    Well::Reader rdr( *wellioobj, *wd );
-    if ( !rdr.getLogs() )
-	mErrRet( tr("Cannot read logs for selected well") )
+    if ( Well::MGR().isLoaded(wmid) )
+    {
+	wd = Well::MGR().get( wmid );
+	if ( !wd )
+	    uiMSG().error( Well::MGR().errMsg() );
+    }
+    else
+    {
+	Well::Reader rdr( wmid, *wd );
+	if ( !rdr.getLogs() )
+	    mErrRet( tr("Cannot read logs for selected well") )
+    }
 
     Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
@@ -192,7 +199,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( res )
 	mErrRet( res )
 
-    Well::Writer wtr( *wellioobj, *wd );
+    Well::Writer wtr( wmid, *wd );
     if ( !wtr.putLogs() )
 	mErrRet( tr("Cannot write logs to disk") )
 

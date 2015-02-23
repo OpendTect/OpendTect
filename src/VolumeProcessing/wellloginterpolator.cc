@@ -11,9 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arraynd.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
-#include "ioman.h"
-#include "ioobj.h"
-#include "ptrman.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "welllog.h"
@@ -39,32 +36,42 @@ class WellLogInfo
 {
 public:
 WellLogInfo( const MultiID& mid, const char* lognm )
-    : mid_(mid), logname_(lognm), wd_(*new Well::Data)
-{
-    wd_.ref();
-}
+    : mid_(mid), logname_(lognm)
+{}
 
 ~WellLogInfo()
-{ wd_.unRef(); }
+{
+    delete track_;
+    delete log_;
+}
 
 bool init()
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid_ );
-    if ( !ioobj ) return false;
-
-    Well::Reader rdr( *ioobj, wd_ );
-    if ( !rdr.getTrack() || !rdr.getD2T() || !rdr.getLog(logname_) )
-	return false;
-
-    PtrMan<Well::Track> timetrack = 0;
-    if ( SI().zIsTime() )
+    RefMan<Well::Data> wd = new Well::Data;
+    if ( Well::MGR().isLoaded(mid_) )
     {
-	timetrack = new Well::Track( wd_.track() );
-	timetrack->toTime( wd_ );
+	wd = Well::MGR().get( mid_ );
+	if ( !wd )
+	    return false;
+    }
+    else
+    {
+	Well::Reader wrdr( mid_, *wd );
+	if ( !wrdr.getTrack() || ( SI().zIsTime() && !wrdr.getD2T() ) ||
+	     !wrdr.getLog(logname_) )
+	    return false;
     }
 
-    const Well::Track& track = SI().zIsTime() ? *timetrack : wd_.track();
-    trackpos_ = track.getAllPos();
+    if ( SI().zIsTime() )
+    {
+	track_ = new Well::Track;
+	track_->toTime( *wd );
+    }
+    else
+	track_ = &wd->track();
+
+    log_ = wd->logs().getLog( logname_ );
+
     return true;
 }
 
@@ -73,15 +80,7 @@ void computeLayerModelIntersection(
 {
     intersections_.setSize( layermodel.nrLayers(), mUdf(float) );
 
-    PtrMan<Well::Track> timetrack = 0;
-    if ( SI().zIsTime() )
-    {
-	timetrack = new Well::Track( wd_.track() );
-	timetrack->toTime( wd_ );
-    }
-
-    const Well::Track& track = SI().zIsTime() ? *timetrack : wd_.track();
-    StepInterval<float> dahrg = track.dahRange(); dahrg.step = 5;
+    StepInterval<float> dahrg = track_->dahRange(); dahrg.step = 5;
     const int nrdah = dahrg.nrSteps() + 1;
     for ( int lidx=0; lidx<layermodel.nrLayers(); lidx++ )
     {
@@ -89,8 +88,8 @@ void computeLayerModelIntersection(
 	{
 	    const float prevdah = dahrg.atIndex( dahidx-1 );
 	    const float dah = dahrg.atIndex( dahidx );
-	    const Coord3 prevpos = track.getPos( prevdah );
-	    const Coord3 pos = track.getPos( dah );
+	    const Coord3 prevpos = track_->getPos( prevdah );
+	    const Coord3 pos = track_->getPos( dah );
 	    const float prevlayerz =
 		layermodel.getZ( SI().transform(prevpos), lidx );
 	    const float layerz = layermodel.getZ( SI().transform(pos), lidx );
@@ -107,11 +106,11 @@ void computeLayerModelIntersection(
 }
 
 
-Well::Data&	wd_;
+Well::Track*	track_;
 TrcKeyZSampling bbox_;
 MultiID		mid_;
 BufferString	logname_;
-TypeSet<Coord3>	trackpos_;
+Well::Log*	log_;
 TypeSet<float>	intersections_;
 
 };
@@ -307,9 +306,9 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	TypeSet<float> logvals;
 	for ( int idy=0; idy<infos_.size(); idy++ )
 	{
+	    if ( !infos_.validIdx(idy) ) continue;
 	    WellLogInfo* info = infos_[idy];
-	    const Well::Data& wd = info->wd_;
-	    const Well::Log* log = wd.logs().getLog( logname_ );
+	    const Well::Log* log = info ? info->log_ : 0;
 	    if ( !log ) continue;
 
 	    TypeSet<float> mds = getMDs( *info, layeridx );
@@ -322,8 +321,8 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 		if ( mIsUdf(lv) )
 		    continue;
 
-		const Coord pos = wd.track().getPos( mds[idz] );
-		if ( mIsUdf(pos.x) || mIsUdf(pos.y) )
+		const Coord pos = info->track_->getPos( mds[idz] );
+		if ( pos.isUdf() )
 		    continue;
 
 		wellposes += pos;

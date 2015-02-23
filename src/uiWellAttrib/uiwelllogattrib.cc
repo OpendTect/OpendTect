@@ -20,10 +20,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "welllogset.h"
 #include "wellman.h"
+#include "wellreader.h"
 
 #include "uiattribfactory.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
+#include "uimsg.h"
 #include "uiwellsel.h"
 #include "od_helpids.h"
 
@@ -58,13 +60,26 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
 void uiWellLogAttrib::selDone( CallBacker* )
 {
     logsfld_->setEmpty();
-    const IOObj* ioobj = wellfld_->ioobj( true );
-    if ( !ioobj ) return;
+    const MultiID wellid = wellfld_->key();
+    RefMan<Well::Data> wd = new Well::Data;
+    BufferStringSet lognms;
+    if ( Well::MGR().isLoaded(wellid) )
+    {
+	wd = Well::MGR().get( wellid );
+	if ( !wd )
+	{
+	    uiMSG().error( Well::MGR().errMsg() );
+	    return;
+	}
 
-    const MultiID wellid = ioobj->key();
-    RefMan<Well::Data> wd = Well::MGR().get( wellid );
-    const Well::LogSet& logs = wd->logs();
-    BufferStringSet lognms; logs.getNames( lognms );
+	wd->logs().getNames( lognms );
+    }
+    else
+    {
+	Well::Reader wrdr( wellid, *wd );
+	wrdr.getLogInfo( lognms );
+    }
+
     logsfld_->addItems( lognms );
 }
 

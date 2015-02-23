@@ -10,8 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "iodir.h"
 #include "iodirentry.h"
-#include "ioman.h"
-#include "ioobj.h"
 #include "welltransl.h"
 #include "ptrman.h"
 #include "welldata.h"
@@ -59,36 +57,27 @@ Well::Data* Well::Man::release( const MultiID& key )
 Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 {
     msg_.setEmpty();
-    int wllidx = gtByKey( key );
     bool mustreplace = false;
-    if ( wllidx >= 0 )
+    if ( isLoaded(key) )
     {
 	if ( !forcereload )
-	    return wells_[wllidx];
+	    return wells_[gtByKey(key)];
+
 	mustreplace = true;
     }
 
-    Well::Data* wd = 0;
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj )
-    {
-	msg_.set( "Cannot find well ID " ).add( key ).add( "in data store." );
-	return 0;
-    }
-
-    wd = new Well::Data;
+    Well::Data* wd = new Well::Data;
     wd->ref();
-    Well::Reader wr( *ioobj, *wd );
+    Well::Reader wr( key, *wd );
     if ( !wr.get() )
     {
-	msg_.set( "Cannot read '" ).add( ioobj->name() )
-	    .add( "':\n" ).add( wr.errMsg() );
+	msg_.set( wr.errMsg() );
 	return 0;
     }
 
     if ( mustreplace )
     {
-	wells_.replace( wllidx, wd )->unRef();
+	wells_.replace( gtByKey(key), wd )->unRef();
 	wd->ref();
     }
     else

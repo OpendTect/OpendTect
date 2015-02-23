@@ -28,11 +28,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "mathformula.h"
 #include "mathspecvars.h"
+#include "ptrman.h"
 #include "survinfo.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "wellman.h"
 #include "wellreader.h"
 #include "welltrack.h"
 #include "wellwriter.h"
@@ -178,12 +180,22 @@ void uiWellLogCalc::getAllLogs()
 {
     for ( int idx=0; idx<wellids_.size(); idx++ )
     {
-	IOObj* ioobj = IOM().get( wellids_[idx] );
-	if ( !ioobj ) continue;
-
+	const MultiID wmid = wellids_[idx];
 	RefMan<Well::Data> wd = new Well::Data;
-	Well::Reader wr( *ioobj, *wd );
-	BufferStringSet nms; wr.getLogInfo( nms );
+	PtrMan<Well::Reader> wrdr;
+	BufferStringSet nms;
+	if ( Well::MGR().isLoaded(wmid ) )
+	{
+	    wd = Well::MGR().get( wmid );
+	    if ( !wd ) continue;
+	    wd->logs().getNames( nms );
+	}
+	else
+	{
+	    wrdr = new Well::Reader( wmid, *wd );
+	    wrdr->getLogInfo( nms );
+	}
+
 	bool havenewlog = false;
 	for ( int inm=0; inm<nms.size(); inm++ )
 	{
@@ -194,9 +206,10 @@ void uiWellLogCalc::getAllLogs()
 		lognms_.add( lognm );
 	    }
 	}
+
 	if ( havenewlog )
 	{
-	    wr.getLogs();
+	    if ( wrdr && !wrdr->getLogs() ) continue;
 	    for ( int ilog=0; ilog<wd->logs().size(); ilog++ )
 	    {
 		const Well::Log& wl = wd->logs().getLog( ilog );
@@ -204,7 +217,6 @@ void uiWellLogCalc::getAllLogs()
 		    superwls_.add( new Well::Log(wl) );
 	    }
 	}
-	delete ioobj;
     }
 }
 
@@ -413,28 +425,21 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     bool successfulonce = false;
     for ( int iwell=0; iwell<wellids_.size(); iwell++ )
     {
-	PtrMan<IOObj> ioobj = IOM().get( wellids_[iwell] );
-	if ( !ioobj )
-	    mErrContinue( tr("Cannot find %1").arg(wellids_[iwell]) )
+	const MultiID wmid = wellids_[iwell];
 
-	RefMan<Well::Data> wd = new Well::Data;
-	Well::Reader rdr( *ioobj, *wd );
-	if ( !rdr.getLogs() )
-	    mErrContinue( tr("Cannot read logs for %1").arg(ioobj->name()) )
+	RefMan<Well::Data> wd = Well::MGR().get( wmid );
+	if ( !wd )
+	    mErrContinue( tr("%1").arg(Well::MGR().errMsg()) )
 
 	Well::LogSet& wls = wd->logs();
 	TypeSet<InpData> inpdatas;
 	if ( !getInpDatas(wls,inpdatas) )
 	    continue;
 
-	if ( SI().zIsTime() && !rdr.getD2T() )
-	    mErrContinue( tr("Cannot read Time-Depth model for %1")
-			.arg(ioobj->name()) )
-
 	Well::Log* newwl = new Well::Log( newnm );
 	wls.add( newwl );
 	if ( !calcLog(*newwl,inpdatas,wd->track(),wd->d2TModel()) )
-	    mErrContinue( tr("Cannot compute log for %1").arg(ioobj->name()))
+	    mErrContinue( tr("Cannot compute log for %1").arg(wd->name()))
 
 	const UnitOfMeasure* outun = outunfld_->getUnit();
 	if ( outun )
@@ -453,10 +458,10 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	if ( outun )
 	    newwl->setUnitMeasLabel( outun->name() );
 
-	Well::Writer wtr( *ioobj, *wd );
+	Well::Writer wtr( wmid, *wd );
 	if ( !wtr.putLog(*newwl) )
 	    mErrContinue( tr("Cannot write new log for %1")
-			.arg(ioobj->name()) )
+			.arg(wd->name()) )
 
 	successfulonce = true;
     }

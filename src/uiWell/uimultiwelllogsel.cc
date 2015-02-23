@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "unitofmeasure.h"
 #include "welldata.h"
 #include "wellextractdata.h"
+#include "welllogset.h"
+#include "wellman.h"
 #include "wellmarker.h"
 #include "wellreader.h"
 #include "wellwriter.h"
@@ -500,40 +502,46 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 {
     logsfld_->setEmpty();
     TypeSet<MultiID> mids;
-    ObjectSet<Well::Reader> currdrs;
-    ObjectSet<Well::Data> curwds;
     getSelWellIDs( mids );
-    if ( !mids.size() )
+    if ( mids.isEmpty() )
 	return;
 
     BufferStringSet availablelognms;
     BufferStringSet availablemrkrs;
     for ( int midx=0; midx<mids.size(); midx++ )
     {
-	IOObj* obj = IOM().get( mids[midx] );
-	Well::Data* wd = new Well::Data;
-	curwds += wd;
-	Well::Reader* wrdr = new Well::Reader( *obj, *wd );
-	currdrs += wrdr;
-	currdrs[midx]->getInfo();
-	currdrs[midx]->getMarkers();
-	if ( midx == 0 )
+	const MultiID wmid = mids[midx];
+	RefMan<Well::Data> wd = new Well::Data;
+	BufferStringSet lognms;
+	if ( Well::MGR().isLoaded(wmid) )
 	{
-	    currdrs[0]->getLogInfo( availablelognms );
-	    curwds[0]->markers().getNames( availablemrkrs );
+	    wd = Well::MGR().get( wmid );
+	    if ( !wd ) continue;
+	    wd->logs().getNames( lognms );
 	}
 	else
 	{
-	    BufferStringSet lognms;
-	    currdrs[midx]->getLogInfo( lognms );
+	    Well::Reader* wrdr = new Well::Reader( wmid, *wd );
+	    wrdr->getLogInfo( lognms );
+	    if ( !wrdr->getMarkers() )
+		continue;
+	}
+
+	BufferStringSet mrkrnms;
+	wd->markers().getNames( mrkrnms );
+	if ( midx == 0 )
+	{
+	    availablelognms = lognms;
+	    availablemrkrs = mrkrnms;
+	}
+	else
+	{
 	    for ( int lidx=availablelognms.size()-1; lidx>=0; lidx-- )
 	    {
 		if (!lognms.isPresent(availablelognms.get(lidx)) )
 		    availablelognms.removeSingle( lidx );
 	    }
 
-	    BufferStringSet mrkrnms;
-	    curwds[midx]->markers().getNames( mrkrnms );
 	    for ( int mrkidx=availablemrkrs.size()-1; mrkidx>=0; mrkidx-- )
 	    {
 		if (!mrkrnms.isPresent(availablemrkrs.get(mrkidx)) )
@@ -542,9 +550,7 @@ void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
 	}
     }
 
-    for ( int ldx=0; ldx<availablelognms.size(); ldx++ )
-	logsfld_->addItem( availablelognms.get(ldx) );
-
+    logsfld_->addItems( availablelognms );
     setMarkers( availablemrkrs );
 }
 
@@ -555,7 +561,7 @@ void uiMultiWellLogSel::getSelWellIDs( TypeSet<MultiID>& mids ) const
     {
 	mids.add( wellobjs_[0]->key() );
     }
-    else
+    else if ( wellsfld_ )
     {
 	for ( int idx=0; idx<wellsfld_->size(); idx++ )
 	{

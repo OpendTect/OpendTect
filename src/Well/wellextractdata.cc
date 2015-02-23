@@ -7,8 +7,9 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "wellextractdata.h"
-#include "wellreader.h"
+#include "wellman.h"
 #include "wellmarker.h"
+#include "wellreader.h"
 #include "welltrack.h"
 #include "welld2tmodel.h"
 #include "welllogset.h"
@@ -100,12 +101,31 @@ int Well::InfoCollector::nextStep()
     const IOObj* ioobj = (*direntries_)[curidx_]->ioobj_;
     ids_ += new MultiID( ioobj->key() );
 
-    if ( dologs_ || domrkrs_ || dotracks_ )
+    if ( dotracks_ || dologs_ || domrkrs_ )
     {
 	RefMan<Well::Data> wd = new Well::Data;
 	Well::Reader wr( *ioobj, *wd );
 	const bool hasinfo = wr.getInfo();
+	if ( !hasinfo )
+	    return ErrorOccurred();
+
 	infos_ += new Well::Info( wd->info() );
+	if ( hasinfo && dotracks_ )
+	{
+	    if ( !wr.getTrack() )
+		return ErrorOccurred();
+
+	    const Well::Track& trk = wd->track();
+	    if ( mIsUdf(trackstvdrg_.start) )
+		trackstvdrg_.setFrom( trk.zRange() );
+	    else
+	    {
+		Interval<float> tvdrg( trk.zRange() );
+		if ( !mIsUdf( tvdrg.start ) )
+		    trackstvdrg_.include( tvdrg );
+	    }
+	}
+
 	if ( dologs_ )
 	{
 	    BufferStringSet* newlognms = new BufferStringSet;
@@ -123,19 +143,6 @@ int Well::InfoCollector::nextStep()
 		deepCopy( *newset, wd->markers() );
 	}
 
-	if ( hasinfo && dotracks_ )
-	{
-	    wr.getTrack();
-	    const Well::Track& trk = wd->track();
-	    if ( mIsUdf(trackstvdrg_.start) )
-		trackstvdrg_.setFrom( trk.zRange() );
-	    else
-	    {
-		Interval<float> tvdrg( trk.zRange() );
-		if ( !mIsUdf( tvdrg.start ) )
-		    trackstvdrg_.include( tvdrg );
-	    }
-	}
     }
 
     return ++curidx_ >= totalnr_ ? Finished() : MoreToDo();
@@ -249,24 +256,6 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
     else \
 	tvd = mCast( float, track.getPos( dah ).z ); \
 }
-Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
-			    const BufferStringSet& lognms, bool todah ) const
-{
-    Interval<float> dahrg( mUdf(float), mUdf(float) );
-
-    RefMan<Well::Data> wd = new Well::Data;
-    Well::Reader wr( ioobj, *wd );
-    if ( !wr.getInfo() )
-	return dahrg;
-
-    wr.getTrack();
-    wr.getD2T();
-    wr.getMarkers();
-    wr.getLogs();
-
-    return calcFrom( *wd, lognms, todah );
-}
-
 
 
 Interval<float> Well::ZRangeSelector::calcFrom( const Well::Data& wd,
@@ -456,7 +445,6 @@ static int closeDPSS( ObjectSet<DataPointSet>& dpss )
 }
 
 #define mRetNext() { \
-    delete ioobj; \
     curid_++; \
     return curid_ >= ids_.size() ? closeDPSS(dpss_) : MoreToDo(); }
 
@@ -481,18 +469,15 @@ int Well::TrackSampler::nextStep()
 	dahcolnr_ = dps->nrCols() - 1;
     }
 
-    IOObj* ioobj = IOM().get( MultiID(ids_.get(curid_)) );
-    if ( !ioobj ) mRetNext()
-    RefMan<Well::Data> wd = new Well::Data;
-    Well::Reader wr( *ioobj, *wd );
-    if ( !wr.getInfo() )
+    RefMan<Well::Data> wd = Well::MGR().get( MultiID(ids_.get(curid_)) );
+    if ( !wd )
+    {
+	errmsg_ = Well::MGR().errMsg();
 	mRetNext()
-    if ( ( params_.extractzintime_ || zistime_ ) && !wr.getD2T() )
-	mRetNext()
+    }
 
-    zrg_ = params_.calcFrom( *ioobj, lognms_ );
-
-    if ( mIsUdf(zrg_.start) || mIsUdf(zrg_.stop ) )
+    zrg_ = params_.calcFrom( *wd, lognms_ );
+    if ( zrg_.isUdf() )
 	mRetNext()
 
     getData( *wd, *dps );
@@ -647,7 +632,6 @@ void Well::LogDataExtracter::usePar( const IOPar& pars )
 
 #undef mRetNext
 #define mRetNext() { \
-    delete ioobj; \
     curid_++; \
     return curid_ >= ids_.size() ? Finished() : MoreToDo(); }
 
@@ -656,35 +640,32 @@ int Well::LogDataExtracter::nextStep()
     if ( curid_ >= ids_.size() )
 	return 0;
     if ( msg_.isEmpty() )
-    { 
-	msg_ = tr("Extracting '%1'").arg(lognm_); 
-        return MoreToDo(); 
+    {
+	msg_ = tr("Extracting '%1'").arg(lognm_);
+	return MoreToDo();
     }
 
-    IOObj* ioobj = 0;
     if ( dpss_.size() <= curid_ ) mRetNext()
     DataPointSet& dps = *dpss_[curid_];
     if ( dps.isEmpty() ) mRetNext()
 
-    ioobj = IOM().get( MultiID(ids_.get(curid_)) );
-    if ( !ioobj ) mRetNext()
-    RefMan<Well::Data> wd = new Well::Data;
-    Well::Reader wr( *ioobj, *wd );
-    if ( !wr.getInfo() )
+    RefMan<Well::Data> wd = Well::MGR().get( MultiID(ids_.get(curid_)) );
+    PtrMan<Well::Track> track = 0;
+    if ( !wd )
+    {
+	msg_ = Well::MGR().errMsg();
 	mRetNext()
+    }
 
-    PtrMan<Well::Track> timetrack = 0;
     if ( zistime_ )
     {
-	if ( !wr.getD2T() ) mRetNext()
-	timetrack = new Well::Track( wd->track() );
-	timetrack->toTime( *wd );
+	track = new Well::Track;
+	track->toTime( *wd );
     }
-    const Well::Track& track = zistime_ ? *timetrack : wd->track();
-    if ( track.size() < 2 ) mRetNext()
-    if ( !wr.getLogs() ) mRetNext()
+    else
+	track = &wd->track();
 
-    getData( dps, *wd, track );
+    getData( dps, *wd, *track );
     mRetNext();
 }
 

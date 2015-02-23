@@ -38,6 +38,7 @@ public:
     bool		isUsable() const	{ return ra_; }
 
     bool		get() const;		//!< Just read all
+			// Should use Well::MGR().get instead to get all
 
     bool		getInfo() const;	//!< Read Info only
     bool		getTrack() const;	//!< Read Track only

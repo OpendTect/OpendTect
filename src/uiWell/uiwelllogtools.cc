@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellman.h"
 #include "wellmarker.h"
 #include "welltransl.h"
-#include "wellreader.h"
 #include "wellwriter.h"
 
 #include "uibutton.h"
@@ -66,13 +65,16 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     if ( wellids.isEmpty() ) mErrRet( tr("Please select at least one well") )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas;
+    BufferStringSet msgs;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
-	const MultiID& wid = wellids[idx]->buf();
-	RefMan<Well::Data> wd = new Well::Data;
-	Well::Reader wr( wid, *wd );
-	if ( !wr.get() )
+	const MultiID& wmid = wellids[idx]->buf();
+	RefMan<Well::Data> wd = Well::MGR().get( wmid );
+	if ( !wd )
+	{
+	    msgs += new BufferString( Well::MGR().errMsg() );
 	    continue;
+	}
 
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd->logs() );
@@ -83,13 +85,18 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	ldata->wellname_ = wellnms[idx]->buf();
 	if ( !ldata->setSelectedLogs( lognms ) )
 	    { delete ldata; continue; }
-	ldata->wellid_ = wid;
+	ldata->wellid_ = wmid;
 
 	logdatas += ldata;
     }
+
     if ( logdatas.isEmpty() )
-	mErrRet(tr("Please select at least one valid "
-		   "log for the selected well(s)"))
+	mErrRet(tr("%1\nPlease select at least one valid "
+		   "log for the selected well(s)")
+		   .arg(msgs.cat()) )
+    else if ( !msgs.isEmpty() )
+	uiMSG().warning( tr("%1\nWill process the other wells only")
+			     .arg( msgs.cat() ) );
 
     uiWellLogToolWin* win = new uiWellLogToolWin( this, logdatas );
     win->show();

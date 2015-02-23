@@ -46,7 +46,7 @@ protected:
     const Well::Track&		track_;
     Well::MarkerSet*		oldmrkrs_;
 
-    //TODO will go with the Strat level Sel 
+    //TODO will go with the Strat level Sel
 
     void			getColLabels(BufferStringSet&) const;
     int				getNrRows() const;
@@ -70,7 +70,7 @@ protected:
     bool			updateMarkerDepths(int rowidx,bool md2tvdss);
     float			getOldMarkerVal(Well::Marker*) const;
 
-    				//This marker is now yours
+				//This marker is now yours
     Well::Marker*		getMarker(int rowidx,bool fromname) const;
 
 };
@@ -81,18 +81,14 @@ protected:
 mExpClass(uiWell) uiMarkerViewDlg : public uiDialog
 {
 public:
-				uiMarkerViewDlg(uiParent*,const Well::Reader&);
 				uiMarkerViewDlg(uiParent*,const Well::Data&);
+
 protected:
 
     uiTable*			table_;
     const Well::Data*		wd_;
 
     void			exportCB(CallBacker*);
-
-private:
-
-    void			init();
 
 };
 

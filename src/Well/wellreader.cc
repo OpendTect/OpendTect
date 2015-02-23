@@ -622,7 +622,11 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
     if ( iopar.isEmpty() )
 	mErrRetStrmOper( "find anything in file" )
 
-    const float stopz = wd_.track().dahRange().stop;
+
+    if ( wd_.track().isEmpty() )
+	getTrack();
+
+    const Interval<float> trackdahrg = wd_.track().dahRange();
     wd_.markers().erase();
     BufferString bs;
     for ( int idx=1;  ; idx++ )
@@ -651,7 +655,7 @@ bool Well::odReader::getMarkers( od_istream& strm ) const
 	    wm->setColor( col );
 	}
 
-	if ( wm->dah() > stopz )
+	if ( !trackdahrg.includes(wm->dah(),false) )
 	    delete wm;
 	else
 	    wd_.markers().insertNew( wm );
@@ -701,6 +705,9 @@ bool Well::odReader::doGetD2T( od_istream& strm, bool csmdl ) const
     }
     if ( d2t->size() < 2 )
 	{ delete d2t; d2t = 0; }
+
+    if ( wd_.track().isEmpty() )
+	getTrack();
 
     updateDTModel( d2t, wd_.track(), wd_.info().replvel, csmdl );
 

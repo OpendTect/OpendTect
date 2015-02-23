@@ -176,7 +176,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     wellfld_->attach( ensureBelow, sep );
     wellfld_->selectionDone.notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, 
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
 						    tr("Output log name") );
     lcb->attach( alignedBelow, wellfld_ );
     lognmfld_ = lcb->box();
@@ -207,11 +207,22 @@ uiWellImportSEGYVSP::~uiWellImportSEGYVSP()
 void uiWellImportSEGYVSP::wllSel( CallBacker* )
 {
     existinglognms_.erase();
-    const IOObj* ioobj = wellfld_->ioobj(true);
-    if ( ioobj )
+    const MultiID wmid = wellfld_->key();
+    RefMan<Well::Data> wd = new Well::Data;
+    if ( Well::MGR().isLoaded(wmid) )
     {
-	RefMan<Well::Data> wd = new Well::Data;
-	Well::Reader wr( *ioobj, *wd );
+	wd = Well::MGR().get( wmid );
+	if ( !wd )
+	{
+	    uiMSG().error( Well::MGR().errMsg() );
+	    return;
+	}
+
+	wd->logs().getNames( existinglognms_ );
+    }
+    else
+    {
+	Well::Reader wr( wmid, *wd );
 	wr.getLogInfo( existinglognms_ );
     }
 
@@ -330,15 +341,13 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 				     const Interval<float>& ozr,
 				     const char* lognm )
 {
-    const IOObj* ioobj = wellfld_->ioobj(true);
-    if ( !ioobj )
-	return false;
-    const MultiID key( ioobj->key() );
+    const MultiID key(	wellfld_->key() );
     const bool wasloaded = Well::MGR().isLoaded( key );
 
-    RefMan<Well::Data> wd = Well::MGR().get( ioobj->key() );
+    RefMan<Well::Data> wd = Well::MGR().get( key );
     if ( !wd )
-	mErrRet(tr("Cannot load the selected well"))
+	mErrRet(tr("Cannot load the selected well\n%1")
+			.arg(Well::MGR().errMsg()))
     if ( !isdpth_ && !wd->d2TModel() )
 	mErrRet(tr("Selected well has no Depth vs Time model"))
 
@@ -381,7 +390,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 
     wd->logs().add( wl );
 
-    Well::Writer wtr( *ioobj, *wd );
+    Well::Writer wtr( key, *wd );
     wtr.putLog( *wl );
 
     if ( wasloaded )

@@ -659,7 +659,7 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 
     if ( !msg.isEmpty() )
     {
-	msg.arg(tr("%1already set as regional marker(s)." 
+	msg.arg(tr("%1already set as regional marker(s)."
 		   "Press Continue to update properties.")
 	      .arg(mid > 1 ? tr("are ") : tr("is ")));
 	const bool res = uiMSG().askContinue( msg );
@@ -714,12 +714,12 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     if ( !getKey(mid) )
 	return;
 
-    Well::Data* wd =0;
-    if ( Well::MGR().isLoaded( mid ) )
-	wd = Well::MGR().get( mid );
-
+    RefMan<Well::Data> wd = Well::MGR().get( mid );
     if ( !wd )
+    {
+	uiMSG().error( Well::MGR().errMsg() );
 	return;
+    }
 
     getMarkerSet( wd->markers() );
     wd->markerschanged.trigger();
@@ -732,15 +732,14 @@ bool uiMarkerDlg::rejectOK( CallBacker* )
     if ( !getKey(mid) )
 	return true;
 
-    Well::Data* wd =0;
-    if ( Well::MGR().isLoaded( mid ) )
+    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    if ( !wd )
+	return true;
+
+    if ( oldmrkrs_ )
     {
-	wd = Well::MGR().get( mid );
-	if ( oldmrkrs_ && wd )
-	{
-	    deepCopy<Well::Marker,Well::Marker>( wd->markers(),*oldmrkrs_ );
-	    wd->markerschanged.trigger();
-	}
+	deepCopy<Well::Marker,Well::Marker>( wd->markers(),*oldmrkrs_ );
+	wd->markerschanged.trigger();
     }
 
     return true;
@@ -770,7 +769,7 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
 			.arg( inval * zfac ).arg( trckrg.start * zfac )
 			.arg( trckrg.stop * zfac )
 			.arg( !unitfld_->isChecked() ? "m" : "ft" )
-			.arg( md2tvdss ? sKeyMD() : istvd ? sKeyTVD() 
+			.arg( md2tvdss ? sKeyMD() : istvd ? sKeyTVD()
 							  : sKeyTVDSS() );
 	Well::Marker* marker = getMarker( row, true );
 	uiMSG().error( errmsg );
@@ -843,40 +842,10 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
 
 
 
-uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Reader& wr )
-    : uiDialog(p,uiDialog::Setup("Well Markers",mNoDlgTitle,mTODOHelpKey))
-    , table_(0)
-    , wd_(wr.data())
-{
-    if ( !wd_ )
-	{ new uiLabel( this, "No valid well data found" ); return; }
-
-    wr.getTrack();
-
-    if ( !wr.getMarkers() )
-    {
-	BufferString txt( "Cannot get Markers" );
-	const BufferString emsg( wr.errMsg() );
-	if ( !emsg.isEmpty() )
-	    txt.add( ":\n" ).add( emsg );
-	new uiLabel( this, txt );
-	return;
-    }
-
-    init();
-}
-
-
 uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
     : uiDialog(p,uiDialog::Setup("Well Markers",mNoDlgTitle,mTODOHelpKey))
     , table_(0)
     , wd_(&wd)
-{
-    init();
-}
-
-
-void uiMarkerViewDlg::init()
 {
     if ( !wd_ )
 	return;
@@ -885,10 +854,10 @@ void uiMarkerViewDlg::init()
     setTitleText( BufferString("Markers for well '",wd_->name(),"'") );
 
     const Well::MarkerSet& mset = wd_->markers();
-    const int nrmrks = mset.size();
-    if ( nrmrks < 1 )
+    if ( mset.isEmpty() )
 	{ new uiLabel( this, "No markers for this well" ); return; }
 
+    const int nrmrks = mset.size();
     table_ = createMarkerTable( this, nrmrks, false );
 
     const float zfac = uiMarkerDlgzFactor();
