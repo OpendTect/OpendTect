@@ -17,11 +17,11 @@ ________________________________________________________________________
 
 class uiSelLineStyle;
 
-mExpClass(uiBasemap) uiBasemapOutlineGroup : public uiBasemapIOObjGroup
+mExpClass(uiBasemap) uiBasemapSeisOutlineGroup : public uiBasemapIOObjGroup
 {
 public:
-			uiBasemapOutlineGroup(uiParent*, bool isadd);
-			~uiBasemapOutlineGroup();
+			uiBasemapSeisOutlineGroup(uiParent*, bool isadd);
+			~uiBasemapSeisOutlineGroup();
 
     bool		acceptOK();
     bool		fillItemPar(int idx,IOPar&) const;
@@ -33,11 +33,11 @@ protected:
 };
 
 
-mExpClass(uiBasemap) uiBasemapOutlineTreeItem : public uiBasemapTreeItem
+mExpClass(uiBasemap) uiBasemapSeisOutlineTreeItem : public uiBasemapTreeItem
 {
 public:
-			uiBasemapOutlineTreeItem(const char*);
-			~uiBasemapOutlineTreeItem();
+			uiBasemapSeisOutlineTreeItem(const char*);
+			~uiBasemapSeisOutlineTreeItem();
     bool		usePar(const IOPar&);
 
 protected:
@@ -48,12 +48,12 @@ protected:
 };
 
 
-mExpClass(uiBasemap) uiBasemapOutlineItem : public uiBasemapItem
+mExpClass(uiBasemap) uiBasemapSeisOutlineItem : public uiBasemapItem
 {
 public:
 			mDefaultFactoryInstantiation(
 				uiBasemapItem,
-				uiBasemapOutlineItem,
+				uiBasemapSeisOutlineItem,
 				"Seismic Outline",
 				sFactoryKeyword())
 

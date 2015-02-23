@@ -13,10 +13,10 @@ SET(OD_MODULE_SOURCES
 	basemapgeom2d.cc
 	basemapgrid.cc
 	basemaphorizon3d.cc
-	basemapoutline.cc
 	basemappickset.cc
 	basemappolygon.cc
 	basemaprandomline.cc
+	basemapseisoutline.cc
 	basemaptr.cc
 	basemapwell.cc
 )

@@ -11,9 +11,9 @@ ________________________________________________________________________
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uibasemapoutlineitem.h"
+#include "uibasemapseisoutlineitem.h"
 
-#include "basemapoutline.h"
+#include "basemapseisoutline.h"
 
 #include "uimenu.h"
 #include "uisellinest.h"
@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 // uiBasemapOutlineGroup
-uiBasemapOutlineGroup::uiBasemapOutlineGroup( uiParent* p, bool isadd )
+uiBasemapSeisOutlineGroup::uiBasemapSeisOutlineGroup( uiParent* p, bool isadd )
     : uiBasemapIOObjGroup(p,*Seis::getIOObjContext(Seis::Vol,true),isadd)
 {
     uiSelLineStyle::Setup stu; stu.drawstyle( false );
@@ -35,19 +35,19 @@ uiBasemapOutlineGroup::uiBasemapOutlineGroup( uiParent* p, bool isadd )
 }
 
 
-uiBasemapOutlineGroup::~uiBasemapOutlineGroup()
+uiBasemapSeisOutlineGroup::~uiBasemapSeisOutlineGroup()
 {
 }
 
 
-bool uiBasemapOutlineGroup::acceptOK()
+bool uiBasemapSeisOutlineGroup::acceptOK()
 {
     const bool res = uiBasemapIOObjGroup::acceptOK();
     return res;
 }
 
 
-bool uiBasemapOutlineGroup::fillItemPar( int idx, IOPar& par ) const
+bool uiBasemapSeisOutlineGroup::fillItemPar( int idx, IOPar& par ) const
 {
     const bool res = uiBasemapIOObjGroup::fillItemPar( idx, par );
 
@@ -59,7 +59,7 @@ bool uiBasemapOutlineGroup::fillItemPar( int idx, IOPar& par ) const
 }
 
 
-bool uiBasemapOutlineGroup::usePar( const IOPar& par )
+bool uiBasemapSeisOutlineGroup::usePar( const IOPar& par )
 {
     const bool res = uiBasemapIOObjGroup::usePar( par );
 
@@ -72,24 +72,24 @@ bool uiBasemapOutlineGroup::usePar( const IOPar& par )
 }
 
 
-uiObject* uiBasemapOutlineGroup::lastObject()
+uiObject* uiBasemapSeisOutlineGroup::lastObject()
 { return lsfld_->attachObj(); }
 
 
 
-// uiBasemapOutlineTreeItem
-uiBasemapOutlineTreeItem::uiBasemapOutlineTreeItem( const char* nm )
+// uiBasemapSeisOutlineTreeItem
+uiBasemapSeisOutlineTreeItem::uiBasemapSeisOutlineTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
 {
 }
 
 
-uiBasemapOutlineTreeItem::~uiBasemapOutlineTreeItem()
+uiBasemapSeisOutlineTreeItem::~uiBasemapSeisOutlineTreeItem()
 {
 }
 
 
-bool uiBasemapOutlineTreeItem::usePar( const IOPar& par )
+bool uiBasemapSeisOutlineTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
@@ -112,7 +112,7 @@ bool uiBasemapOutlineTreeItem::usePar( const IOPar& par )
 
 	if ( basemapobjs_.validIdx(idx) )
 	{
-	    mDynamicCastGet(Basemap::OutlineObject*,obj,basemapobjs_[idx])
+	    mDynamicCastGet(Basemap::SeisOutlineObject*,obj,basemapobjs_[idx])
 	    if ( obj )
 	    {
 		obj->setMultiID( mid );
@@ -122,8 +122,8 @@ bool uiBasemapOutlineTreeItem::usePar( const IOPar& par )
 	}
 	else
 	{
-	    Basemap::OutlineObject* obj =
-		new Basemap::OutlineObject( mid );
+	    Basemap::SeisOutlineObject* obj =
+		new Basemap::SeisOutlineObject( mid );
 	    obj->setLineStyle( ls );
 	    addBasemapObject( *obj );
 	    obj->updateGeometry();
@@ -134,7 +134,7 @@ bool uiBasemapOutlineTreeItem::usePar( const IOPar& par )
 }
 
 
-bool uiBasemapOutlineTreeItem::showSubMenu()
+bool uiBasemapSeisOutlineTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
@@ -143,7 +143,7 @@ bool uiBasemapOutlineTreeItem::showSubMenu()
 }
 
 
-bool uiBasemapOutlineTreeItem::handleSubMenu( int mnuid )
+bool uiBasemapSeisOutlineTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid==0 )
 	BMM().edit( getFamilyID(), ID() );
@@ -155,12 +155,12 @@ bool uiBasemapOutlineTreeItem::handleSubMenu( int mnuid )
 
 
 
-// uiBasemapOutlineItem
-const char* uiBasemapOutlineItem::iconName() const
+// uiBasemapSeisOutlineItem
+const char* uiBasemapSeisOutlineItem::iconName() const
 { return "cube_z"; }
 
-uiBasemapGroup* uiBasemapOutlineItem::createGroup( uiParent* p, bool isadd )
-{ return new uiBasemapOutlineGroup( p, isadd ); }
+uiBasemapGroup* uiBasemapSeisOutlineItem::createGroup( uiParent* p, bool isadd )
+{ return new uiBasemapSeisOutlineGroup( p, isadd ); }
 
-uiBasemapTreeItem* uiBasemapOutlineItem::createTreeItem( const char* nm )
-{ return new uiBasemapOutlineTreeItem( nm ); }
+uiBasemapTreeItem* uiBasemapSeisOutlineItem::createTreeItem( const char* nm )
+{ return new uiBasemapSeisOutlineTreeItem( nm ); }

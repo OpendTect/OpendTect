@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "basemapoutline.h"
+#include "basemapseisoutline.h"
 
 #include "arrayndimpl.h"
 #include "draw.h"
@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Basemap
 {
 
-OutlineObject::OutlineObject( const MultiID& mid )
+SeisOutlineObject::SeisOutlineObject( const MultiID& mid )
     : BaseMapObject(0)
     , seismid_(mid)
     , ls_(*new LineStyle)
@@ -38,7 +38,7 @@ OutlineObject::OutlineObject( const MultiID& mid )
 }
 
 
-OutlineObject::~OutlineObject()
+SeisOutlineObject::~SeisOutlineObject()
 {
     delete &ls_;
     delete &seisarea_;
@@ -46,7 +46,7 @@ OutlineObject::~OutlineObject()
 }
 
 
-void OutlineObject::setMultiID( const MultiID& mid )
+void SeisOutlineObject::setMultiID( const MultiID& mid )
 {
     seismid_ = mid;
     PtrMan<IOObj> ioobj = IOM().get( seismid_ );
@@ -57,33 +57,33 @@ void OutlineObject::setMultiID( const MultiID& mid )
 }
 
 
-void OutlineObject::setLineStyle( const LineStyle& ls )
+void SeisOutlineObject::setLineStyle( const LineStyle& ls )
 {
     ls_ = ls;
 }
 
 
-void OutlineObject::setLineStyle( int shapeidx, const LineStyle& ls )
+void SeisOutlineObject::setLineStyle( int shapeidx, const LineStyle& ls )
 {
     setLineStyle( ls );
 }
 
 
-void OutlineObject::updateGeometry()
+void SeisOutlineObject::updateGeometry()
 {
     changed.trigger();
 }
 
 
-int OutlineObject::nrShapes() const
+int SeisOutlineObject::nrShapes() const
 { return fullyrect_ ? 1 : polygons_.size(); }
 
 
-const char* OutlineObject::getShapeName(int) const
+const char* SeisOutlineObject::getShapeName(int) const
 { return name().buf(); }
 
 
-bool OutlineObject::extractPolygons()
+bool SeisOutlineObject::extractPolygons()
 {
     const SeisIOObjInfo ioobjinfo( seismid_ );
 
@@ -122,7 +122,7 @@ bool OutlineObject::extractPolygons()
 }
 
 
-void OutlineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
+void SeisOutlineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
 {
     if ( fullyrect_ )
     {

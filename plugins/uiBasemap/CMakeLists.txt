@@ -15,10 +15,10 @@ SET(OD_MODULE_SOURCES
 	uibasemaphorizon3ditem.cc
 	uibasemapiomgr.cc
 	uibasemapitem.cc
-	uibasemapoutlineitem.cc
 	uibasemappicksetitem.cc
 	uibasemappolygonitem.cc
 	uibasemaprandomlineitem.cc
+	uibasemapseisoutlineitem.cc
 	uibasemaptbmgr.cc
 	uibasemapwellitem.cc
 	uibasemapwin.cc

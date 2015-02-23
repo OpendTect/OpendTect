@@ -23,15 +23,15 @@ class TrcKeySampling;
 namespace Basemap
 {
 
-mExpClass(Basemap) OutlineObject : public BaseMapObject
+mExpClass(Basemap) SeisOutlineObject : public BaseMapObject
 {
 public:
-			OutlineObject(const MultiID&);
-			~OutlineObject();
+			SeisOutlineObject(const MultiID&);
+			~SeisOutlineObject();
 
     const MultiID&	getMultiID() const	{ return seismid_; }
     void		setMultiID(const MultiID&);
-    const char*		getType() const     { return "Outline"; }
+    const char*		getType() const     { return "Seismic Outline"; }
     void		updateGeometry();
 
     int			nrShapes() const;
