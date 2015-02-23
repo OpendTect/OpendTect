@@ -69,7 +69,7 @@ foreach ( PACKAGE ${PACKAGELIST} )
     elseif( ${PACK} STREQUAL "classdoc" )
 	    create_docpackages( classdoc )
     else()
-	if ( UNIX AND ("${OD_ENABLE_BREAKPAD}" STREQUAL "ON") )
+	if ( "${OD_ENABLE_BREAKPAD}" STREQUAL "ON" )
 	    #Genarate Symbols and then Strip the binaries
 	    set( ALLLIBS ${LIBLIST} ${PLUGINS} )
 	    OD_GENERATE_BREAKPAD_SYMBOLS( "${ALLLIBS}" "${EXECLIST}" )
