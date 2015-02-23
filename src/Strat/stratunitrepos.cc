@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratreftree.h"
 #include "safefileio.h"
 #include "ioman.h"
+#include "uistrings.h"
 
 const char* Strat::RepositoryAccess::fileNameBase() 	{ return "StratUnits"; }
 
@@ -113,7 +114,7 @@ Strat::RefTree* Strat::RepositoryAccess::readTree( Repos::Source src )
     const BufferString fnm( rfp.fileName(src) );
     SafeFileIO sfio( fnm );
     if ( !sfio.open(true) )
-	{ msg_ = tr("Cannot open %1").arg(fnm); return 0; }
+	{ msg_ = uiStrings::sCantOpen(mkUiString(fnm)); return 0; }
 
     RefTree* rt = new RefTree;
     if ( !rt->read(sfio.istrm()) )

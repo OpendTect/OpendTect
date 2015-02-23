@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "strmoper.h"
 #include "offsetazimuth.h"
-
+#include "uistrings.h"
 
 #define mHeaderEventSize (sizeof(int)+sizeof(int)+sizeof(int))
 
@@ -444,7 +444,7 @@ bool EventReader::readAuxData(const char* fnm)
     SafeFileIO fileio( auxfilenm );
     if ( !fileio.open( true ) )
     {
-	errmsg_ = tr("Cannot open %1").arg(auxfilenm);
+	errmsg_ = uiStrings::sCantOpen(mkUiString(auxfilenm));
 	return false;
     }
 

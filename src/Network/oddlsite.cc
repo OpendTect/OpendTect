@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "settings.h"
 #include "timefun.h"
+#include "uistrings.h"
 
 static const char* sKeyTimeOut = "Download.Timout";
 
@@ -100,7 +101,7 @@ bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
 
     StreamData sd( StreamProvider(inpfnm).makeIStream() );
     if ( !sd.usable() )
-	{ errmsg_ = tr("Cannot open %1").arg( inpfnm ); return false; }
+	{ errmsg_ = uiStrings::sCantOpen(mkUiString(inpfnm)); return false; }
     BufferString bs;
     const bool isok = StrmOper::readFile( *sd.istrm, bs );
     sd.close();
