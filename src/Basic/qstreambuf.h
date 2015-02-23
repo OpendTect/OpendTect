@@ -36,7 +36,8 @@ mFDQtclass( QProcess );
 mExpClass(Basic) qstreambuf : public std::streambuf
 {
 public:
-				qstreambuf(QIODevice&,bool isstderr);
+				qstreambuf(QIODevice&,bool isstderr,
+					   bool takeoverdevice);
 				~qstreambuf();
 
     void			detachDevice(bool readall);
@@ -54,6 +55,7 @@ private:
     void			readAll();
 
     std::vector<char>		buffer_;
+    bool			ownsdevice_;
 
     QByteArray			readbuffer_;
     QProcess*			process_;

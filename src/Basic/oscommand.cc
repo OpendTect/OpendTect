@@ -493,13 +493,13 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 
     process_ = new QProcess;
 
-    stdinputbuf_ = new qstreambuf( *process_, false);
+    stdinputbuf_ = new qstreambuf( *process_, false, false );
     stdinput_ = new od_ostream( new std::ostream( stdinputbuf_ ) );
 
-    stdoutputbuf_ = new qstreambuf( *process_, false );
+    stdoutputbuf_ = new qstreambuf( *process_, false, false  );
     stdoutput_ = new od_istream( new std::istream( stdoutputbuf_ ) );
 
-    stderrorbuf_ = new qstreambuf( *process_, true );
+    stderrorbuf_ = new qstreambuf( *process_, true, false  );
     stderror_ = new od_istream( new std::istream( stderrorbuf_ ) );
 
     process_->start( cmd.buf(), QIODevice::ReadWrite );

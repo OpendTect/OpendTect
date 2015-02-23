@@ -8,6 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "qstreambuf.h"
 
+#include "ptrman.h"
+
 #ifndef OD_NO_QT
 # include <QProcess>
 #endif
@@ -18,10 +20,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mTIMEOUT	100
 
 
-qstreambuf::qstreambuf( QIODevice& p, bool isstderr )
+qstreambuf::qstreambuf( QIODevice& p, bool isstderr, bool own )
     : iodevice_( &p )
     , isstderr_( isstderr )
     , buffer_( mPUSH_BACK+mBUFFER_SIZE )
+    , ownsdevice_( own )
 {
     mDynamicCast( QProcess*, process_, iodevice_ );
 
@@ -31,7 +34,10 @@ qstreambuf::qstreambuf( QIODevice& p, bool isstderr )
 
 
 qstreambuf::~qstreambuf()
-{ }
+{
+    if ( ownsdevice_ )
+	deleteAndZeroPtr( iodevice_ );
+}
 
 
 std::streambuf::int_type qstreambuf::underflow()
@@ -74,6 +80,9 @@ void qstreambuf::detachDevice( bool readall )
 {
     if ( readall )
 	readAll();
+
+    if ( ownsdevice_ )
+	delete iodevice_; 
 
     iodevice_ = 0;
     process_ = 0;
