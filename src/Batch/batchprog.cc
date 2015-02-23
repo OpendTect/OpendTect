@@ -260,15 +260,15 @@ bool BatchProgram::pauseRequested() const
     { return comm_ ? comm_->pauseRequested() : false; }
 
 
-bool BatchProgram::errorMsg( uiString msg, bool cc_stderr )
+bool BatchProgram::errorMsg( const char* msg, bool cc_stderr )
 {
     if ( sdout_.ostrm )
-	*sdout_.ostrm << '\n' << msg.getFullString() << '\n' << std::endl;
+	*sdout_.ostrm << '\n' << msg << '\n' << std::endl;
 
     if ( !sdout_.ostrm || cc_stderr )
-	std::cerr << '\n' << msg.getFullString() << '\n' << std::endl;
+	std::cerr << '\n' << msg << '\n' << std::endl;
 
-    if ( comm_ && comm_->ok() ) return comm_->sendErrMsg(msg.getFullString());
+    if ( comm_ && comm_->ok() ) return comm_->sendErrMsg(msg);
 
     return true;
 }

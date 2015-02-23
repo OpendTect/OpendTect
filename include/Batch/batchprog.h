@@ -67,7 +67,7 @@ public:
 			//! pause requested (via socket) by master?
     mExp(Batch) bool	pauseRequested() const;
 
-    mExp(Batch) bool	errorMsg( uiString msg, bool cc_stderr=false);
+    mExp(Batch) bool	errorMsg( const char* msg, bool cc_stderr=false);
     mExp(Batch) bool	infoMsg( const char* msg, bool cc_stdout=false);
 
     mExp(Batch) static void	deleteInstance();
