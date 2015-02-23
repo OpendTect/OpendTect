@@ -152,7 +152,10 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
     {
 	QNetworkInterface& qni = allif[idx];
 	QNetworkInterface::InterfaceFlags flags = qni.flags();
-	if ( !flags.testFlag(QNetworkInterface::CanBroadcast) )
+	if ( !qni.isValid() || !flags.testFlag(QNetworkInterface::CanBroadcast) 
+			    || !flags.testFlag(QNetworkInterface::CanMulticast)
+			    || !flags.testFlag(QNetworkInterface::IsRunning) 
+			    || !flags.testFlag(QNetworkInterface::IsUp) )
 	    continue;
 		
 	if ( qni.name().isEmpty() || qni.hardwareAddress().isEmpty() )
