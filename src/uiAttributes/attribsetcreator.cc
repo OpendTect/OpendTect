@@ -223,8 +223,8 @@ AttributeSetCreator::AttributeSetCreator( uiParent* p_,
 
 bool AttributeSetCreator::create()
 {
-    const int nrdescs = attrset->size();
-    if ( !attrset || nrdescs < 1 )
+    const int nrdescs = attrset ? attrset->size() : 0;
+    if ( nrdescs < 1 )
     {
 	uiMSG().error( "The attributes cannot be converted" );
 	return false;
