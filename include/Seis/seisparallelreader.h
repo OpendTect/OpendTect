@@ -58,6 +58,7 @@ public:
 			~ParallelReader();
 
     const ObjectSet<Array3D<float> >* getArrays() const	{ return arrays_; }
+    uiString		uiMsg() const			{ return uiMessage(); }
 
 protected:
     od_int64		nrIterations() const { return totalnr_; }
