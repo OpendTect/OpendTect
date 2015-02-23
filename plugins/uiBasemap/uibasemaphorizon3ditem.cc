@@ -169,14 +169,14 @@ bool uiBasemapHorizon3DTreeItem::usePar( const IOPar& par )
     Coord pt;
     for ( int idw=0; idw<rgbarr->getSize(true); ++idw)
     {
-	const int idx = transf.toWorldX( idw );
+	const float xcoord = transf.toWorldX( idw );
 	for ( int idh=0; idh<rgbarr->getSize(false); ++idh )
 	{
-	    const int idy = transf.toWorldY( idh );
-	    pt = Coord( mCast(double,idx), mCast(double,idy) );
+	    const float ycoord = transf.toWorldY( idh );
+	    pt = Coord( mCast(double,xcoord), mCast(double,ycoord) );
 	    bid = SI().transform( pt );
 
-	    const double zvalue = horizonptr->getZ( bid );
+	    const float zvalue = horizonptr->getZ( bid );
 	    if ( !mIsUdf(zvalue) )
 		rgbarr->set( idw, idh, index.color(zvalue) );
 	}

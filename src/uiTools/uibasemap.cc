@@ -168,8 +168,10 @@ void uiBaseMapObject::update()
 
 	    mDynamicCastGet(const uiRGBArray*,rgbptr,bmobject_->getImage(idx));
 	    uiPixmap pixmap( *rgbptr );
-	    const int uixstart = transform_->toUiX( SI().minCoord(false).x );
-	    const int uiystart = transform_->toUiY( SI().maxCoord(false).y );
+	    const int uixstart = transform_->toUiX(
+					mCast(float,SI().minCoord(false).x) );
+	    const int uiystart = transform_->toUiY(
+					mCast(float,SI().maxCoord(false).y) );
 	    itm->setOffset( uixstart, uiystart );
 	    itm->setPixmap( pixmap );
 
