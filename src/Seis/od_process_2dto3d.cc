@@ -160,7 +160,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    if ( res > 0 )
 	    {
 		if ( comm_ && !comm_->updateProgress(nriter+1) )
-		    mRetHostErr( comm_->errMsg() )
+		    mRetHostErr( comm_->errMsg().getFullString() )
 
 		if ( proc->nrDone()>nrdone )
 		{
