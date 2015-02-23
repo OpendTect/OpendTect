@@ -214,16 +214,19 @@ SeisLineSetCopier::SeisLineSetCopier( const IOObj& inobj, const IOObj& outobj,
 	if ( !linepar->get(sKey::GeomID(),geomid) )
 	    continue;
 
+	selgeomids_ += geomid;
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
 	if ( !linepar->get(sKey::TrcRange(),trcrg) ||
 		!linepar->get(sKey::ZRange(),zrg))
 	    continue;
 
-	selgeomids_ += geomid;
 	trcrgs_ += trcrg;
 	zrgs_ += zrg;
     }
+
+    if ( trcrgs_.size() != selgeomids_.size() ) trcrgs_.erase();
+    if ( zrgs_.size() != selgeomids_.size() ) zrgs_.erase();
 
     FixedString scalestr = par.find( sKey::Scale() );
     if ( !scalestr.isEmpty() )
@@ -253,11 +256,17 @@ bool SeisLineSetCopier::initNextLine()
     delete wrr_; wrr_ = new SeisTrcWriter( &outioobj_ );
 
     lineidx_++;
-    if ( lineidx_ >= selgeomids_.size() || lineidx_ >= trcrgs_.size() )
+    if ( lineidx_ >= selgeomids_.size() )
 	return false;
 
-    seldata_.cubeSampling().hrg.setCrlRange( trcrgs_[lineidx_] );
-    seldata_.cubeSampling().zsamp_ = zrgs_[lineidx_];
+    if ( trcrgs_.isEmpty() )
+	seldata_.setIsAll( true );
+    else
+    {
+	seldata_.cubeSampling().hrg.setCrlRange( trcrgs_[lineidx_] );
+	seldata_.cubeSampling().zsamp_ = zrgs_[lineidx_];
+    }
+
     seldata_.setGeomID( selgeomids_[lineidx_] );
     rdr_->setSelData( seldata_.clone() );
     wrr_->setSelData( seldata_.clone() );
