@@ -56,7 +56,6 @@ public:
     virtual bool	usePar(const IOPar&);
 
     static const char*	sKeyNrObjs();
-    static const char*	sKeyNrItems();
     static const char*	sKeyItem();
 
 protected:

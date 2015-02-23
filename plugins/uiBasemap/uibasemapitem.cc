@@ -44,7 +44,6 @@ uiBasemapTreeTop::~uiBasemapTreeTop()
 
 // uiBasemapGroup
 const char* uiBasemapGroup::sKeyNrObjs()	{ return "Nr Objects"; }
-const char* uiBasemapGroup::sKeyNrItems()	{ return "Nr Items"; }
 const char* uiBasemapGroup::sKeyItem()		{ return "Item"; }
 
 uiBasemapGroup::uiBasemapGroup( uiParent* p )
@@ -212,7 +211,7 @@ bool uiBasemapIOObjGroup::fillPar( IOPar& par ) const
     bool res = uiBasemapGroup::fillPar( par );
 
     const int nritems = nrItems();
-    par.set( sKeyNrItems(), nritems );
+    par.set( sKey::NrItems(), nritems );
     for ( int idx=0; idx<nritems; idx++ )
     {
 	IOPar ipar;
@@ -453,7 +452,7 @@ void uiBasemapManager::add( int itemid )
     dlg.fillPar( pars );
 
     int nritems = 1;
-    pars.get( uiBasemapGroup::sKeyNrItems(), nritems );
+    pars.get( sKey::NrItems(), nritems );
     for ( int idx=0; idx<nritems; idx++ )
     {
 	const BufferString key = IOPar::compKey(uiBasemapGroup::sKeyItem(),idx);

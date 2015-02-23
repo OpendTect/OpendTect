@@ -56,11 +56,14 @@ public:
     virtual bool		fill(int shapeidx) const	{ return false;}
     virtual bool		close(int shapeidx) const	{ return false;}
 
-    virtual const OD::RGBImage*	getImage(Coord& origin,Coord& p11) const;
+    virtual void		setImage(int idx,OD::RGBImage*)     {}
+    virtual const OD::RGBImage* getImage(int shapeidx) const	{ return 0;}
+
+    virtual const OD::RGBImage* createImage(Coord& origin,Coord& p11) const;
 				/*!<Returns image in xy plane. p11 is the
 				    coordinate of the corner opposite of the
 				    origin. */
-    virtual const OD::RGBImage*	getPreview(int approxdiagonal) const;
+    virtual const OD::RGBImage* createPreview(int approxdiagonal) const;
 				/*!<Returns a preview image that has
 				    approximately the size of the specified
 				    diagonal. */

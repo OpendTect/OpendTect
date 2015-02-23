@@ -14,7 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
+#include "uipixmap.h"
+#include "uirgbarray.h"
 #include "uiworld2ui.h"
+
+#include "survinfo.h"
 
 
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
@@ -147,6 +151,31 @@ void uiBaseMapObject::update()
 	    }
 	}
 
+	if ( bmobject_->getImage( idx ) )
+	{
+	    while ( itemgrp_.size()<itemnr )
+	    {
+		mDynamicCastGet(uiPixmapItem*,itm,itemgrp_.getUiItem(itemnr));
+		if ( !itm )
+		    itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
+		else break;
+	    }
+
+	    if ( itemgrp_.size()<=itemnr )
+		itemgrp_.add( new uiPixmapItem() );
+
+	    mDynamicCastGet(uiPixmapItem*,itm,itemgrp_.getUiItem(itemnr));
+
+	    mDynamicCastGet(const uiRGBArray*,rgbptr,bmobject_->getImage(idx));
+	    uiPixmap pixmap( *rgbptr );
+	    const int uixstart = transform_->toUiX( SI().minCoord(false).x );
+	    const int uiystart = transform_->toUiY( SI().maxCoord(false).y );
+	    itm->setOffset( uixstart, uiystart );
+	    itm->setPixmap( pixmap );
+
+	    itemnr++;
+	}
+
 	const char* shapenm = bmobject_->getShapeName( idx );
 	if ( shapenm && !crds.isEmpty() )
 	{
@@ -173,9 +202,7 @@ void uiBaseMapObject::update()
     }
 
     while ( itemgrp_.size()>itemnr )
-    {
 	itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
-    }
 }
 
 

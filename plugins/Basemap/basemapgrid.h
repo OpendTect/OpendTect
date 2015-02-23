@@ -28,8 +28,8 @@ public:
 				GridObject();
 				~GridObject();
 
-    const char*			getType() const		    { return "grid"; }
-    void			updateGeometry();
+    virtual const char*		getType() const     { return "grid"; }
+    virtual void		updateGeometry();
 
     void			setInlCrlGrid(const StepInterval<double>& inlrg,
 					      const StepInterval<double>& crlrg,
@@ -41,11 +41,11 @@ public:
 					bool showx,bool showy,
 					const LineStyle&);
 
-    int				nrShapes() const;
-    const char*			getShapeName(int shapeidx) const;
-    void			getPoints(int shapeidx,TypeSet<Coord>&) const;
-    const LineStyle*		getLineStyle(int shapeidx) const
-				{ return &ls_; }
+    virtual int			nrShapes() const;
+    virtual const char*		getShapeName(int shapeidx) const;
+    virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const;
+    virtual const LineStyle*	getLineStyle(int shapeidx) const
+						    { return &ls_; }
 
 protected:
     LineStyle			ls_;

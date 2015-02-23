@@ -27,17 +27,17 @@ void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
 { }
 
 
-Alignment BaseMapObject::getAlignment(int shapeidx) const
+Alignment BaseMapObject::getAlignment( int shapeidx ) const
 {
     return Alignment();
 }
 
 
-const OD::RGBImage* BaseMapObject::getImage(Coord& origin,Coord& p11) const
+const OD::RGBImage* BaseMapObject::createImage( Coord& origin,Coord& p11 ) const
 { return 0; }
 
 
-const OD::RGBImage* BaseMapObject::getPreview(int approxdiagonal) const
+const OD::RGBImage* BaseMapObject::createPreview( int approxdiagonal ) const
 { return 0; }
 
 

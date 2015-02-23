@@ -157,7 +157,7 @@ bool uiBasemapGridGroup::fillPar( IOPar& par ) const
 {
     const bool res = uiBasemapGroup::fillPar( par );
 
-    par.set( sKeyNrItems(), 1 );
+    par.set( sKey::NrItems(), 1 );
 
     IOPar ipar;
     ipar.set( sKey::Name(), itemName() );
