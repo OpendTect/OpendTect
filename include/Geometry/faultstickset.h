@@ -69,14 +69,17 @@ public:
     bool		isTwisted(int sticknr1,int sticknr2,
 				  double zscale) const;
 
-    enum StickStatus	{ NoStatus=0, Selected=1, Hidden=2, Preferred=4 };
+    enum StickStatus	{ NoStatus=0, Selected=1, Preferred=2,
+			  HiddenLowestBit=4 };
+
     void		selectStick(int sticknr,bool yn);
     bool		isStickSelected(int sticknr) const;
-    void		hideStick(int sticknr,bool yn);
-    bool		isStickHidden(int sticknr) const;
     void		preferStick(int sticknr);
     int			preferredStickNr() const;
-
+    void		hideStick(int sticknr,bool yn,int sceneidx=-1);
+    bool		isStickHidden(int sticknr,int sceneidx=-1) const;
+    void		hideKnot(const RowCol&,bool yn,int sceneidx=-1);
+    bool		isKnotHidden(const RowCol&,int sceneidx=-1) const;
 
 protected:
     double			interStickDist(int sticknr1,int sticknr2,
@@ -89,6 +92,8 @@ protected:
     
     TypeSet<Coord3>		editplanenormals_;
     TypeSet<unsigned int>	stickstatus_;
+
+    ObjectSet<TypeSet<unsigned int> > knotstatus_;
 };
 
 };

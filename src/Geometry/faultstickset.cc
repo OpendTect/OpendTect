@@ -28,6 +28,14 @@ namespace Geometry
     if ( knotidx<-extra || knotidx>=sticks_[stickidx]->size()+extra ) \
 	return errorres;
 
+#define mMaxSceneIdx 7
+#define mGetValidHiddenMask( hiddenmask, sceneidx, errorres ) \
+\
+    if ( sceneidx<-1 || sceneidx>mMaxSceneIdx ) \
+	return errorres; \
+\
+    const unsigned int hiddenmask = HiddenLowestBit<<(sceneidx+1);
+
     
 FaultStickSet::FaultStickSet()
     : firstrow_(0)
@@ -37,6 +45,7 @@ FaultStickSet::FaultStickSet()
 FaultStickSet::~FaultStickSet()
 {
     deepErase( sticks_ );
+    deepErase( knotstatus_ );
 }
 
 
@@ -48,6 +57,7 @@ Element* FaultStickSet::clone() const
     res->firstrow_ = firstrow_;
     res->editplanenormals_ = editplanenormals_;
     res->stickstatus_ = stickstatus_;
+    deepCopy( res->knotstatus_, knotstatus_ );
 
     return res;
 }
@@ -81,6 +91,7 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
 	editplanenormals_ += normvec;
 	stickstatus_ += NoStatus;
 	firstcols_ += firstcol;
+	knotstatus_ += new TypeSet<unsigned int>;
     }
     else
     {
@@ -88,9 +99,11 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
 	editplanenormals_.insert( stickidx, normvec );
 	stickstatus_.insert( stickidx, NoStatus );
 	firstcols_.insert( stickidx, firstcol );
+	knotstatus_.insertAt( new TypeSet<unsigned int>, stickidx );
     }
 
     sticks_[stickidx]->insert( 0, firstpos );
+    knotstatus_[stickidx]->insert( 0, NoStatus );
 
     triggerNrPosCh( RowCol(stickidx,StickInsert).toInt64() );
     if ( blocksCallBacks() )
@@ -104,10 +117,11 @@ bool FaultStickSet::removeStick( int sticknr )
 {
     mGetValidStickIdx( stickidx, sticknr, 0, false );
 
-    sticks_.removeSingle( stickidx );
+    delete sticks_.removeSingle( stickidx );
     editplanenormals_.removeSingle( stickidx );
     stickstatus_.removeSingle( stickidx );
     firstcols_.removeSingle( stickidx );
+    delete knotstatus_.removeSingle( stickidx );
 
     if ( !stickidx )
 	firstrow_++;
@@ -134,9 +148,15 @@ bool FaultStickSet::insertKnot( const RowCol& rc, const Coord3& pos )
     }
 
     if ( knotidx==sticks_[stickidx]->size() )
+    {
 	(*sticks_[stickidx]) += pos;
+	(*knotstatus_[stickidx]) += NoStatus;
+    }
     else
+    {
 	sticks_[stickidx]->insert( knotidx, pos );
+	knotstatus_[stickidx]->insert( knotidx, NoStatus );
+    }
 
     triggerNrPosCh( RowCol(stickidx,StickChange).toInt64() );
 
@@ -153,6 +173,7 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
 	return removeStick( rc.row() );
 
     sticks_[stickidx]->removeSingle( knotidx );
+    knotstatus_[stickidx]->removeSingle( knotidx );
 
     if ( !knotidx )
 	firstcols_[stickidx]++;
@@ -204,9 +225,7 @@ StepInterval<int> FaultStickSet::colRange( int sticknr ) const
 bool FaultStickSet::setKnot( const RowCol& rc, const Coord3& pos )
 {
     if ( !pos.isDefined() )
-    {
 	return removeKnot( rc );
-    }
 
     mGetValidStickIdx( stickidx, rc.row(), 0, false );
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
@@ -258,6 +277,7 @@ void FaultStickSet::addUdfRow( int sticknr, int firstknotnr, int nrknots )
     firstcols_ += firstknotnr;
     stickstatus_ += NoStatus;
     sticks_ += new TypeSet<Coord3>( nrknots, Coord3::udf() );
+    knotstatus_ += new TypeSet<unsigned int>( nrknots, NoStatus );
 }
 
 
@@ -425,26 +445,28 @@ bool FaultStickSet::isStickSelected( int sticknr ) const
 }
 
 
-void FaultStickSet::hideStick( int sticknr, bool yn )
+void FaultStickSet::hideStick( int sticknr, bool yn, int sceneidx )
 {
-    if ( yn == isStickHidden(sticknr) )
+    if ( yn == isStickHidden(sticknr,sceneidx) )
 	return;
 
     mGetValidStickIdx( stickidx, sticknr, 0, );
+    mGetValidHiddenMask( hiddenmask, sceneidx, );
 
     if ( yn )
-	stickstatus_[stickidx] |= Hidden;
+	stickstatus_[stickidx] |= hiddenmask;
     else
-	stickstatus_[stickidx] &= ~Hidden;
+	stickstatus_[stickidx] &= ~hiddenmask;
 
     triggerNrPosCh( RowCol(stickidx,StickHide).toInt64() );
 }
 
 
-bool FaultStickSet::isStickHidden( int sticknr ) const
+bool FaultStickSet::isStickHidden( int sticknr, int sceneidx ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, false );
-    return stickstatus_[stickidx] & Hidden;
+    mGetValidHiddenMask( hiddenmask, sceneidx, false );
+    return stickstatus_[stickidx] & hiddenmask;
 }
 
 
@@ -467,6 +489,34 @@ int FaultStickSet::preferredStickNr() const
     }
 
     return  mUdf(int);
+}
+
+
+void FaultStickSet::hideKnot( const RowCol& rc, bool yn, int sceneidx )
+{
+    if ( yn == isKnotHidden(rc,sceneidx) )
+	return;
+
+    mGetValidStickIdx( stickidx, rc.row(), 0, );
+    mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, );
+    mGetValidHiddenMask( hiddenmask, sceneidx, );
+
+    if ( yn )
+	(*knotstatus_[stickidx])[knotidx] |= hiddenmask;
+    else
+	(*knotstatus_[stickidx])[knotidx] &= ~hiddenmask;
+
+    // TODO if also sticks of faults are pruned for display only at sections:
+    // triggerNrPosCh( RowCol(stickidx,KnotHide).toInt64() );
+}
+
+
+bool FaultStickSet::isKnotHidden( const RowCol& rc, int sceneidx ) const
+{
+    mGetValidStickIdx( stickidx, rc.row(), 0, false );
+    mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
+    mGetValidHiddenMask( hiddenmask, sceneidx, false );
+    return (*knotstatus_[stickidx])[knotidx] & hiddenmask;
 }
 
 

@@ -50,6 +50,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace visSurvey
 {
 
+#define mSceneIdx (scene_ ? scene_->fixedIdx() : -1)
+
 const char* FaultDisplay::sKeyEarthModelID()	{ return "EM ID"; }
 const char* FaultDisplay::sKeyTriProjection()	{ return "TriangulateProj"; }
 const char* FaultDisplay::sKeyDisplayPanels()	{ return "Display panels"; }
@@ -1629,7 +1631,7 @@ void FaultDisplay::updateEditorMarkers()
 	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row();
 	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
-	viseditor_->turnOnMarker( pid, !fs->isStickHidden(sticknr) );
+	viseditor_->turnOnMarker( pid, !fs->isStickHidden(sticknr,mSceneIdx) );
     }
 }
 
@@ -1689,7 +1691,7 @@ void FaultDisplay::updateKnotMarkers()
 	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row();
 	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
-	if ( !fs || fs->isStickHidden( sticknr ) )
+	if ( !fs || fs->isStickHidden(sticknr,mSceneIdx) )
 	    continue;
 
 	groupidx = fs->isStickSelected( sticknr ) ? 1 : 0;
@@ -1822,13 +1824,13 @@ void FaultDisplay::updateStickHiding()
 	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
 	    TypeSet<Coord3> intersectpoints;
-	    fss->hideStick( rc.row(), true );
+	    fss->hideStick( rc.row(), true, mSceneIdx );
 
 	    if ( !areIntersectionsDisplayed() ||
 		 coincidesWith2DLine(*fss, rc.row()) ||
 		 coincidesWithPlane(*fss, rc.row(), intersectpoints) )
 	    {
-		fss->hideStick( rc.row(), false );
+		fss->hideStick( rc.row(), false, mSceneIdx );
 		continue;
 	    }
 

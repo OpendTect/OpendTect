@@ -47,142 +47,7 @@ const char* FaultStickSetDisplay::sKeyDisplayOnlyAtSections()
 					{ return "Display only at sections"; }
 
 #define mDefaultMarkerSize 3
-
-
-#define mGetValidStickIdx( stickidx, sticknr, extra, errorres ) \
-\
-    int stickidx = sticknr - firstrow_; \
-    if ( stickidx<-extra || stickidx>=knotsstatus_.size()+extra ) \
-	return errorres;
-
-#define mGetValidKnotIdx( knotidx, knotnr, stickidx, extra, errorres ) \
-\
-    if ( !firstcols_.size() ) return errorres; \
-    int knotidx = knotnr - firstcols_[stickidx]; \
-    if ( knotidx<-extra || knotidx>=knotsstatus_[stickidx].size()+extra ) \
-	return errorres;
-
-
-void FaultStickSetDisplay::SectionKnotsStatus::addUdfRow( int firstrow, 
-    int firstcol, int nrknots )
-{
-    firstrow_ = firstrow;
-    firstcols_ += firstcol;
-    knotsstatus_ += 
-	TypeSet<unsigned int>( nrknots, Geometry::FaultStickSet::NoStatus );
-}
-
-
-bool FaultStickSetDisplay::SectionKnotsStatus::insertStickKnotStatus( 
-    int sticknr, int firstcol )
-{
-    if( knotsstatus_.size()==0 )
-	firstrow_ = sticknr;
-
-    mGetValidStickIdx(stickidx,sticknr,1,false);
-
-    if( stickidx==-1 )
-    {
-	firstrow_--;
-	stickidx++;
-    }
-
-    if( stickidx==knotsstatus_.size() )
-    {
-	firstcols_ += firstcol;
-	knotsstatus_ += TypeSet<unsigned int>();
-    }
-    else
-    {
-	knotsstatus_.insert( stickidx,TypeSet<unsigned int>() );
-	firstcols_.insert( stickidx,firstcol );
-    }
-
-    knotsstatus_[stickidx].insert( 0, Geometry::FaultStickSet::NoStatus );
-
-    return true;
-}
-
-
-bool FaultStickSetDisplay::SectionKnotsStatus::removeStickKnotStatus(
-    int sticknr )
-{
-    mGetValidStickIdx(stickidx,sticknr,0,false);
-    firstcols_.removeSingle( stickidx );
-    knotsstatus_.removeSingle( stickidx );
-
-    if(!stickidx)
-	firstrow_++;
-
-    return true;
-}
-
-
-bool FaultStickSetDisplay::SectionKnotsStatus::insertKnotStatus(
-    const RowCol& rc )
-{
-    mGetValidStickIdx(stickidx,rc.row(),0,false);
-    mGetValidKnotIdx(knotidx,rc.col(),stickidx,1,false);
-
-    if( knotidx==-1 )
-    {
-	firstcols_[stickidx]--;
-	knotidx++;
-    }
-
-    if( knotidx==knotsstatus_[stickidx].size() )
-	knotsstatus_[stickidx] += Geometry::FaultStickSet::NoStatus;
-    else
-	knotsstatus_[stickidx].insert(
-	knotidx,Geometry::FaultStickSet::NoStatus );
-
-    return true;
-
-}
-
-
-bool FaultStickSetDisplay::SectionKnotsStatus::removeKnotStatus(
-    const RowCol& rc )
-{
-    mGetValidStickIdx(stickidx,rc.row(),0,false);
-    mGetValidKnotIdx(knotidx,rc.col(),stickidx,0,false);
-
-    if( knotsstatus_[stickidx].size() <= 1 )
-	return removeStickKnotStatus( rc.row() );
-
-    knotsstatus_[stickidx].removeSingle(knotidx);
-
-    if( !knotidx )
-	firstcols_[stickidx]++;
-
-    return true;
-}
-
-
-bool FaultStickSetDisplay::SectionKnotsStatus::hideKnot( 
-    const RowCol& rc, bool yn )
-{
-    mGetValidStickIdx(stickidx,rc.row(),0,false);
-    mGetValidKnotIdx(knotidx,rc.col(),stickidx,0,false);
-
-    if(yn)
-	knotsstatus_[stickidx][knotidx] |= Geometry::FaultStickSet::Hidden;
-    else
-	knotsstatus_[stickidx][knotidx] &= ~Geometry::FaultStickSet::Hidden;
-
-    return true;
-}
-
-
-bool FaultStickSetDisplay::SectionKnotsStatus::isKnotHidden( 
-    const RowCol& rc ) const
-{
-    mGetValidStickIdx(stickidx,rc.row(),0,false);
-    mGetValidKnotIdx(knotidx,rc.col(),stickidx,0,false);
-
-    return knotsstatus_[stickidx][knotidx] & Geometry::FaultStickSet::Hidden;
-}
-
+#define mSceneIdx (scene_ ? scene_->fixedIdx() : -1)
 
 FaultStickSetDisplay::FaultStickSetDisplay()
     : VisualObjectImpl(true)
@@ -274,20 +139,6 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     }
 
     deepErase( stickintersectpoints_ );
-    deepErase( sectionknotsstatus_ );
-}
-
-
-FaultStickSetDisplay::SectionKnotsStatus* 
-FaultStickSetDisplay::getSectionKnotsStatus( EM::SectionID sid )
-{
-    for ( int idx = 0; idx<sectionknotsstatus_.size(); idx++ )
-    {
-	if ( sectionknotsstatus_[idx]->sid_==sid )
-	    return sectionknotsstatus_[idx];
-    }
-
-    return 0;
 }
 
 
@@ -384,30 +235,6 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
     mSetStickIntersectPointColor( emfss_->preferredColor() );
     viseditor_->setMarkerSize( mDefaultMarkerSize );
 
-    for( int sidx = 0; sidx<emfss_->nrSections(); sidx++ )
-    {
-	const EM::SectionID sid = emfss_->sectionID( sidx );
-	mDynamicCastGet( const Geometry::FaultStickSet*, fss,
-			 emfss_->sectionGeometry( sid ) );
-
-	SectionKnotsStatus* sksts = new SectionKnotsStatus( sid );
-	if ( fss->isEmpty() )
-	{
-	    sksts->addUdfRow( 0, 0, 0 );
-	}
-	else
-	{
-	    const int nrsticks = fss->nrSticks();
-	    for( int idy = 0; idy<nrsticks; idy++ )
-	    {
-		const int firstrow = fss->rowRange().start;
-		const int firstcol = fss->colRange().start;
-		sksts->addUdfRow( firstrow, firstcol, fss->nrKnots(idy) );
-	    }
-	}
-	sectionknotsstatus_ += sksts;
-    }
-
     updateSticks();
     updateKnotMarkers();
     return true;
@@ -486,26 +313,24 @@ void FaultStickSetDisplay::updateEditPids()
     for ( int sidx=0; displayknots && sidx<emfss_->nrSections(); sidx++ )
     {
 	EM::SectionID sid = emfss_->sectionID( sidx );
-	const SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
 	mDynamicCastGet( const Geometry::FaultStickSet*, fss,
 			 emfss_->sectionGeometry( sid ) );
-	if ( fss->isEmpty() || !sksts )
+	if ( fss->isEmpty() )
 	    continue;
 
 	RowCol rc;
 	const StepInterval<int> rowrg = fss->rowRange();
 	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
-	    if ( fss->isStickHidden(rc.row()) )
+	    if ( fss->isStickHidden(rc.row(),mSceneIdx) )
 		continue;
 
 	    const StepInterval<int> colrg = fss->colRange( rc.row() );
 	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
 		  rc.col()+=colrg.step )
 	    {
-		if( sksts->isKnotHidden(rc) )
-		    continue;
-		editpids_ += EM::PosID( emfss_->id(), sid, rc.toInt64() );
+		if ( !fss->isKnotHidden(rc,mSceneIdx) )
+		    editpids_ += EM::PosID(emfss_->id(), sid, rc.toInt64());
 	    }
 	}
     }
@@ -549,10 +374,9 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
     for ( int sidx=0; sidx<emfss_->nrSections(); sidx++ )
     {
 	const EM::SectionID sid = emfss_->sectionID( sidx );
-	const SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
 	mDynamicCastGet( const Geometry::FaultStickSet*, fss,
 			 emfss_->sectionGeometry( sid ) );
-	if ( fss->isEmpty() || !sksts )
+	if ( fss->isEmpty() )
 	    continue;
 
 	RowCol rc;
@@ -562,7 +386,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	    if ( activeonly && rc.row()!=activesticknr_ )
 		continue;
 
-	    if ( fss->isStickHidden(rc.row()) )
+	    if ( fss->isStickHidden(rc.row(),mSceneIdx) )
 		continue;
 
 	    Seis2DDisplay* s2dd = 0;
@@ -579,7 +403,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	    if ( !colrg.width() )
 	    {
 		rc.col() = colrg.start;
-		if ( isSelected() || sksts->isKnotHidden(rc) )
+		if ( isSelected() || fss->isKnotHidden(rc,mSceneIdx) )
 		    continue;
 
 		for ( int dim=0; dim<3; dim++ )
@@ -602,13 +426,13 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	    for ( rc.col()=colrg.start; rc.col()<colrg.stop;
 		  rc.col()+=colrg.step )
 	    {
-		if ( sksts->isKnotHidden(rc) )
+		if ( fss->isKnotHidden(rc,mSceneIdx) )
 		    continue;
-		
+
 		RowCol nextrc( rc );
 		nextrc.col() += colrg.step;
 
-		if ( sksts->isKnotHidden(nextrc) )
+		if ( fss->isKnotHidden(nextrc,mSceneIdx) )
 		{
 		    addPolyLineCoordBreak( coordidxlist );
 		    continue;
@@ -790,23 +614,10 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 	editpids_.erase();
 	const int rmnr = mousepid.getRowCol().row();
-	SectionKnotsStatus* sksts = getSectionKnotsStatus(mousepid.sectionID());
 	if ( fssg.nrKnots(mousepid.sectionID(), rmnr) == 1 )
-	{
 	    fssg.removeStick( mousepid.sectionID(), rmnr, true );
-	    if ( sksts )
-		sksts->removeStickKnotStatus( rmnr );
-	}
 	else
-	{
-	    if ( fssg.removeKnot(mousepid.sectionID(),mousepid.subID(),true) )
-	    {
-		const RowCol rc = RowCol::fromInt64( mousepid.subID() );
-		if ( sksts )
-    		    sksts->removeKnotStatus( rc );
-	    }
-
-	}
+	    fssg.removeKnot( mousepid.sectionID(), mousepid.subID(), true);
 
 	mSetUserInteractionEnd();
 	updateEditPids();
@@ -833,27 +644,17 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	const EM::SectionID sid = emfss_->sectionID(0);
 	Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
 
-	SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
-	if ( !sksts )
-	    return;
-
 	const int insertsticknr =
 			!fss || fss->isEmpty() ? 0 : fss->rowRange().stop+1;
 
 	editpids_.erase();
 
-	bool insert = false;
 	if ( pickedgeomid == Survey::GeometryManager::cUndefGeomID() )
-	{
-	    insert = fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
+	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
 			      pickedmid, pickednm, true );
-	}
 	else
-	    insert = fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
+	    fssg.insertStick( sid, insertsticknr, 0, pos, editnormal,
 			      pickedgeomid, true );
-
-	if ( insert && sksts )
-	    sksts->insertStickKnotStatus( insertsticknr, 0 );
 
 	const EM::SubID subid = RowCol(insertsticknr,0).toInt64();
 	fsseditor_->setLastClicked( EM::PosID(emfss_->id(),sid,subid) );
@@ -865,14 +666,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     {
 	// Add knot
 	editpids_.erase();
-	if ( fssg.insertKnot(insertpid.sectionID(),insertpid.subID(),pos,true) )
-	{
-	    const RowCol rc = RowCol::fromInt64( insertpid.subID() );
-	    SectionKnotsStatus* sksts = 
-		getSectionKnotsStatus( insertpid.sectionID() );
-	    if( sksts ) 
-		sksts->insertKnotStatus( rc );
-	}
+	fssg.insertKnot( insertpid.sectionID(), insertpid.subID(), pos, true );
 	fsseditor_->setLastClicked( insertpid );
 	mSetUserInteractionEnd();
 	updateEditPids();
@@ -1087,15 +881,14 @@ void FaultStickSetDisplay::otherObjectsMoved(
 #define mHideKnotTolerance 2.0
 
 bool FaultStickSetDisplay::coincidesWith2DLine(
-			const Geometry::FaultStickSet& fss, int sticknr,
-			Pos::GeomID geomid, const EM::SectionID sid ) 
+			Geometry::FaultStickSet& fss, int sticknr,
+			Pos::GeomID geomid )
 {
     bool res = false;
     RowCol rc( sticknr, 0 );
-    SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
     const StepInterval<int> rowrg = fss.rowRange();
     if ( !scene_ || !rowrg.includes(sticknr,false) ||
-	 rowrg.snap(sticknr)!=sticknr || !sksts )
+	 rowrg.snap(sticknr)!=sticknr )
 	return res;
 
     for ( int idx=0; idx<scene_->size(); idx++ )
@@ -1106,11 +899,10 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	    continue;
 
 	const double onestepdist = Coord3(1,1,mZScale()).dot(
-		s3dgeom_->oneStepTranslation(Coord3(0,0,1)) );
+				s3dgeom_->oneStepTranslation(Coord3(0,0,1)) );
 
 	bool curobjcoincides = false;
 	TypeSet<int> showcols;
-
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
@@ -1127,7 +919,7 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	res = res || curobjcoincides;
 
 	for ( int idy=showcols.size()-1; curobjcoincides && idy>=0; idy-- )
-	    sksts->hideKnot( RowCol(sticknr,showcols[idy]), false );
+	    fss.hideKnot( RowCol(sticknr,showcols[idy]), false, mSceneIdx );
     }
 
     return res;
@@ -1135,16 +927,14 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 
 
 bool FaultStickSetDisplay::coincidesWithPlane(
-			const Geometry::FaultStickSet& fss, int sticknr,
-			TypeSet<Coord3>& intersectpoints,
-			const EM::SectionID sid )
+			Geometry::FaultStickSet& fss, int sticknr,
+			TypeSet<Coord3>& intersectpoints )
 {
     bool res = false;
-    SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
     RowCol rc( sticknr, 0 );
     const StepInterval<int> rowrg = fss.rowRange();
     if ( !scene_ || !rowrg.includes(sticknr,false) ||
-	  rowrg.snap(sticknr)!=sticknr || !sksts )
+	  rowrg.snap(sticknr)!=sticknr )
 	return res;
 
     for ( int idx=0; idx<scene_->size(); idx++ )
@@ -1171,6 +961,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
 	    Coord3 curpos = fss.getKnot(rc);
+
 	    if ( displaytransform_ )
 		displaytransform_->transform( curpos );
 
@@ -1206,9 +997,8 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	res = res || curobjcoincides;
 
 	for ( int idy=showcols.size()-1; curobjcoincides && idy>=0; idy-- )
-	    sksts->hideKnot( RowCol(sticknr,showcols[idy]), false );
+	    fss.hideKnot( RowCol(sticknr,showcols[idy]), false, mSceneIdx );
     }
-
     return res;
 }
 
@@ -1226,7 +1016,6 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
     for ( int sidx=0; sidx<emfss_->nrSections(); sidx++ )
     {
 	const EM::SectionID sid = emfss_->sectionID( sidx );
-	SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
 	mDynamicCastGet( Geometry::FaultStickSet*, fss,
 			 emfss_->sectionGeometry( sid ) );
 	if ( fss->isEmpty() )
@@ -1237,19 +1026,16 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
 	{
 	    const StepInterval<int> colrg = fss->colRange();
-	    if ( sksts )
+	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
+		  rc.col()+=colrg.step )
 	    {
-		for( rc.col() = colrg.start; rc.col()<=colrg.stop;
-		     rc.col() += colrg.step )
-		{
-		    sksts->hideKnot( rc, displayonlyatsections_ );
-		    if ( curdragger==EM::PosID(emfss_->id(),sid,rc.toInt64()) )
-			sksts->hideKnot( rc, false );
-		}
+		fss->hideKnot( rc, displayonlyatsections_, mSceneIdx );
+		if ( curdragger==EM::PosID(emfss_->id(),sid,rc.toInt64()) )
+		    fss->hideKnot( rc, false, mSceneIdx );
 	    }
 	    
 	    TypeSet<Coord3> intersectpoints;
-	    fss->hideStick( rc.row(), displayonlyatsections_ );
+	    fss->hideStick( rc.row(), displayonlyatsections_, mSceneIdx );
 	    if ( !displayonlyatsections_ )
 		continue;
 
@@ -1257,18 +1043,18 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 	    {
 		const Pos::GeomID geomid =
 				emfss_->geometry().pickedGeomID(sid,rc.row());
-		if ( coincidesWith2DLine(*fss,rc.row(),geomid,sid) )
+		if ( coincidesWith2DLine(*fss,rc.row(),geomid) )
 		{
-		    fss->hideStick( rc.row(), false );
+		    fss->hideStick( rc.row(), false, mSceneIdx );
 		    continue;
 		}
 	    }
 
-	    if ( coincidesWithPlane(*fss, rc.row(), intersectpoints,sid) )
+	    if ( coincidesWithPlane(*fss, rc.row(), intersectpoints) )
 	    {
 		if ( emfss_->geometry().pickedOnPlane(sid,rc.row()) )
 		{
-		    fss->hideStick( rc.row(), false );
+		    fss->hideStick( rc.row(), false, mSceneIdx );
 		    continue;
 		}
 	    }
@@ -1437,10 +1223,9 @@ void FaultStickSetDisplay::updateKnotMarkers()
 
 	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row();
-	const SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
 	Geometry::FaultStickSet* fss = emfss_->geometry().sectionGeometry(sid);
-	if ( !fss || fss->isStickHidden(sticknr) || !sksts ||
-	    sksts->isKnotHidden(pid.getRowCol()) )
+	if ( !fss || fss->isStickHidden(sticknr,mSceneIdx) ||
+	    fss->isKnotHidden(pid.getRowCol(),mSceneIdx) )
 	    continue;
 	groupidx = fss->isStickSelected(sticknr) ? 1 : 0;
 

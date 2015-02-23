@@ -136,14 +136,12 @@ protected:
 
     void			displayOnlyAtSectionsUpdate();
     bool			coincidesWith2DLine(
-					const Geometry::FaultStickSet&,
-					int sticknr,Pos::GeomID,
-					const EM::SectionID sid);
+					Geometry::FaultStickSet&,
+					int sticknr,Pos::GeomID);
     bool			coincidesWithPlane(
-					const Geometry::FaultStickSet&,
+					Geometry::FaultStickSet&,
 					int sticknr,
-					TypeSet<Coord3>& intersectpoints,
-					const EM::SectionID sid);
+					TypeSet<Coord3>& intersectpoints);
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		displaytransform_;
@@ -180,30 +178,6 @@ protected:
     };
 
     ObjectSet<StickIntersectPoint> stickintersectpoints_;
-
-    struct SectionKnotsStatus
-    {
-	SectionKnotsStatus(EM::SectionID sid)
-	    : firstrow_( 0 )
-	    , sid_( sid )
-	{}
-	void addUdfRow(int,int,int);
-	bool insertStickKnotStatus(int,int);
-	bool removeStickKnotStatus(int);
-	bool insertKnotStatus(const RowCol&);
-	bool removeKnotStatus(const RowCol&);
-	bool hideKnot(const RowCol&,bool);
-	bool isKnotHidden(const RowCol&)const;
-
-	const EM::SectionID	sid_;
-	int 			firstrow_;
-	TypeSet<int>		firstcols_;
-	TypeSet< TypeSet<unsigned int> > knotsstatus_;
-    };
-
-    ObjectSet<SectionKnotsStatus> sectionknotsstatus_;
-    SectionKnotsStatus*	  getSectionKnotsStatus(EM::SectionID);
-
 };
 
 } // namespace VisSurvey

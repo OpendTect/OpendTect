@@ -65,6 +65,7 @@ public:
     EventCatcher&	eventCatcher();
 
     int			getUpdateQueueID() const	{return updatequeueid_;}
+    int			fixedIdx() const		{ return fixedidx_; }
 
     void		setName(const char*);
 
@@ -87,6 +88,7 @@ private:
 
     int			mousedownid_;
     int			updatequeueid_;
+    int			fixedidx_;
 
     void		mousePickCB(CallBacker*);
 

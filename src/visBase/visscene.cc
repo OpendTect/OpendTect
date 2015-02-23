@@ -38,6 +38,8 @@ mCreateFactoryEntry( visBase::Scene );
 namespace visBase
 {
 
+static TypeSet<int> sortedfixedidxs_;
+
 Scene::Scene()
     : polygonoffset_( new PolygonOffset )
     , light_( new Light )
@@ -82,6 +84,13 @@ Scene::Scene()
 
     updatequeueid_ = Threads::WorkManager::twm().addQueue(
                                 Threads::WorkManager::Manual, "Scene update" );
+
+    for ( fixedidx_=0; fixedidx_<sortedfixedidxs_.size(); fixedidx_++ )
+    {
+	if ( fixedidx_ != sortedfixedidxs_[fixedidx_] )
+	    break;
+    }
+    sortedfixedidxs_.insert( fixedidx_, fixedidx_ );
 }
 
 
@@ -124,6 +133,8 @@ Scene::~Scene()
     events_.unRef();
 
     light_->unRef();
+
+    sortedfixedidxs_.removeSingle( sortedfixedidxs_.indexOf(fixedidx_) );
 }
 
 
