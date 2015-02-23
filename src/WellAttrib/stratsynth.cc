@@ -76,7 +76,7 @@ DefineEnumNames(SynthGenParams,SynthType,3,"Synthetic Type")
 
 SynthGenParams::SynthGenParams()
 {
-    synthtype_ = PreStack;	//init to avoid nasty crash in generateSD!
+    synthtype_ = ZeroOffset;	//init to avoid nasty crash in generateSD!
     setDefaultValues();
 }
 
