@@ -755,15 +755,15 @@ void Seis2DDisplay::updateLineNamePos()
 }
 
 
-SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
+SurveyObject* Seis2DDisplay::duplicate( TaskRunner* taskr ) const
 {
     Seis2DDisplay* s2dd = new Seis2DDisplay;
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( trcdisplayinfo_.zrg_ );
     s2dd->setTraceNrRange( getTraceNrRange() );
-    s2dd->setResolution( getResolution(), tr );
+    s2dd->setResolution( getResolution(), taskr );
     s2dd->setGeomID( geomid_ );
-    s2dd->setZAxisTransform( datatransform_, tr );
+    s2dd->setZAxisTransform( datatransform_, taskr );
     s2dd->showPanel( panelstrip_->isOn() );
 
     while ( nrAttribs() > s2dd->nrAttribs() )
@@ -773,11 +773,11 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     {
 	const Attrib::SelSpec* selspec = getSelSpec( idx );
 	if ( selspec ) s2dd->setSelSpec( idx, *selspec );
-	s2dd->setDataPackID( idx, getDataPackID(idx), tr );
+	s2dd->setDataPackID( idx, getDataPackID(idx), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
-	if ( mappersetup ) s2dd->setColTabMapperSetup( idx, *mappersetup, tr );
+	if ( mappersetup ) s2dd->setColTabMapperSetup( idx, *mappersetup, taskr );
 	const ColTab::Sequence* colseq = getColTabSequence( idx );
-	if ( colseq ) s2dd->setColTabSequence( idx, *colseq, tr );
+	if ( colseq ) s2dd->setColTabSequence( idx, *colseq, taskr );
     }
 
     return s2dd;
@@ -858,7 +858,7 @@ int Seis2DDisplay::nrResolutions() const
 { return 3; }
 
 
-void Seis2DDisplay::setResolution( int res, TaskRunner* tr )
+void Seis2DDisplay::setResolution( int res, TaskRunner* taskr )
 {
     if ( res==resolution_ )
 	return;
@@ -1157,7 +1157,7 @@ Coord Seis2DDisplay::getNormal( int trcnr ) const
 }
 
 
-bool Seis2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool Seis2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* taskr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
