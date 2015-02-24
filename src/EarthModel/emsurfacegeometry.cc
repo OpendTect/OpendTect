@@ -965,7 +965,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !trans || !trans->startRead(*ioobj) )
 	{ surface_.errmsg_ = trans ? trans->errMsg() :
-	    "Cannot find Translator"; return 0; }
+	    tr("Cannot find Translator"); return 0; }
 
     SurfaceIODataSelection& sel = trans->selections();
     if ( newsel && !sel.rg.isEmpty() )

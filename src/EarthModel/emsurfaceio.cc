@@ -130,7 +130,7 @@ void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
 
     BufferString exnm( "Reading surface '", objname, "'" );
     setName( exnm.buf() );
-    setNrDoneText( "Nr done" );
+    setNrDoneText( tr("Nr done") );
     auxdataexecs_.allowNull(true);
 
     if ( conn_ )
@@ -1474,7 +1474,7 @@ void dgbSurfaceWriter::init( const char* fulluserexpr )
     geometry_ = reinterpret_cast<const EM::RowColSurfaceGeometry*>(
 							&surface_.geometry() );
     surface_.ref();
-    setNrDoneText( "Nr done" );
+    setNrDoneText( tr("Nr done") );
     par_->set( dgbSurfaceReader::sKeyDBInfo(), surface_.dbInfo() );
 
     for ( int idx=0; idx<nrSections(); idx++ )

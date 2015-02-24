@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-
+#include "uistrings.h"
 
 namespace Pos
 {
@@ -355,7 +355,8 @@ void EMSurfaceProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 
 void EMSurfaceProvider3D::initClass()
-{ Provider3D::factory().addCreator( create, sKey::Surface(), "Horizon" ); }
+{ Provider3D::factory().addCreator( create, sKey::Surface(), 
+				    uiStrings::sHorizon(true) ); }
 
 
 // ***** EMSurfaceProvider2D ****

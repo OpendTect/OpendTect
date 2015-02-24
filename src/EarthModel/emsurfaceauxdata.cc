@@ -211,7 +211,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     if ( !transl || !transl->startRead(*ioobj) )
     {
 	horizon_.setErrMsg( transl ? transl->errMsg()
-				   : "Cannot find Translator" );
+				   : tr("Cannot find Translator") );
 	return 0;
     }
 
@@ -278,7 +278,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     }
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface attributes saver" );
-    grp->setNrDoneText( "Nr done" );
+    grp->setNrDoneText( tr("Nr done") );
     for ( int selidx=0; selidx<nrAuxData(); selidx++ )
     {
 	if ( dataidx >= 0 && dataidx != selidx ) continue;

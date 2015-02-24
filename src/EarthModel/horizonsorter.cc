@@ -27,7 +27,7 @@ HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
     , iterator_(0)
     , result_(0)
     , is2d_(is2d)
-    , message_("Sorting")
+    , message_(tr("Sorting"))
 {
 }
 
@@ -165,7 +165,7 @@ int HorizonSorter::getNrCrossings( const MultiID& mid1,
 
 uiString HorizonSorter::uiMessage() const	{ return message_; }
 
-uiString HorizonSorter::uiNrDoneText() const { return "Positions done"; }
+uiString HorizonSorter::uiNrDoneText() const { return tr("Positions done"); }
 
 od_int64 HorizonSorter::nrDone() const		{ return nrdone_; }
 

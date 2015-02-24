@@ -132,7 +132,7 @@ int nextStep()
 uiString	uiMessage() const	{ return msg_; }
 od_int64	totalNr() const		{ return totalnr_; }
 od_int64	nrDone() const		{ return nrdone_; }
-uiString	uiNrDoneText() const	{ return "Positions handled"; }
+uiString	uiNrDoneText() const	{ return tr("Positions handled"); }
 
 protected:
 
@@ -155,7 +155,7 @@ protected:
 
 
 class HorizonImporter : public Executor
-{
+{ mODTextTranslationClass(HorizonImporter);
 public:
 
 HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
@@ -209,7 +209,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 uiString	uiMessage() const	{ return msg_; }
 od_int64	totalNr() const		{ return totalnr_; }
 od_int64	nrDone() const		{ return nrdone_; }
-uiString	uiNrDoneText() const	{ return "Positions handled"; }
+uiString	uiNrDoneText() const	{ return tr("Positions handled"); }
 
 int nextStep()
 {

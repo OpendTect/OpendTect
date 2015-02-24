@@ -28,10 +28,11 @@ patches will not be included.
 
 mExpClass(EarthModel) HorizonZTransform : public ZAxisTransform
 			 , public CallBacker
-{
+{ mODTextTranslationClass(HorizonZTransform);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, HorizonZTransform,
-				  "HorizonZTransform", sFactoryKeyword() );
+				  "HorizonZTransform", 
+				  mkUiString(sFactoryKeyword()));
 
     static const char*	sKeyHorizonID()		{ return "Horizon"; }
 

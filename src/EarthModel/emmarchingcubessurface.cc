@@ -27,14 +27,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "separstr.h"
 #include "od_iostream.h"
-
+#include "uistrings.h"
 #include "emmanager.h"
 
 namespace EM
 {
 
 class MarchingCubesSurfaceReader : public Executor
-{
+{ mODTextTranslationClass(MarchingCubesSurfaceReader);
 public:
     ~MarchingCubesSurfaceReader()
     {
@@ -114,12 +114,13 @@ public:
 
     od_int64	totalNr() const { return exec_ ? exec_->totalNr() : -1; }
     od_int64	nrDone() const { return exec_ ? exec_->nrDone() : -1; }
-    uiString	uiNrDoneText() const
-			{ return exec_ ? exec_->uiNrDoneText() : 0; }
+    uiString	uiNrDoneText() const { 
+	return exec_ ? exec_->uiNrDoneText() : uiStrings::sEmptyString(); 
+				     }
     uiString	uiMessage() const
     {
 	return errmsg_.isEmpty()
-	    ? "Loading body"
+	    ? tr("Loading body")
 	    : errmsg_;
      }
 
@@ -135,7 +136,7 @@ protected:
 
 
 class MarchingCubesSurfaceWriter : public Executor
-{
+{ mODTextTranslationClass(MarchingCubesSurfaceWriter);
 public:
 ~MarchingCubesSurfaceWriter()
 {
@@ -196,11 +197,12 @@ int nextStep()
 
 od_int64 totalNr() const { return exec_ ? exec_->totalNr() : -1; }
 od_int64 nrDone() const { return exec_ ? exec_->nrDone() : -1; }
-uiString uiNrDoneText() const { return exec_ ? exec_->uiNrDoneText() : 0; }
+uiString uiNrDoneText() const { return exec_ ? exec_->uiNrDoneText() 
+					     : uiStrings::sEmptyString(); }
 uiString uiMessage() const
 {
     return errmsg_.isEmpty()
-	? "Loading body"
+	? tr("Loading body")
 	: errmsg_;
 }
 

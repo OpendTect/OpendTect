@@ -70,7 +70,8 @@ public:
 
 			mDefaultFactoryInstantiation( HorizonGridder,
 				InvDistHor3DGridder,
-				"Inverse Distance", sFactoryKeyword() )
+				"Inverse Distance", 
+				mkUiString(sFactoryKeyword()))
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
@@ -92,8 +93,8 @@ mExpClass(EarthModel) TriangulationHor3DGridder
 public:
 
 			mDefaultFactoryInstantiation( HorizonGridder,
-				TriangulationHor3DGridder,
-				"Triangulation", sFactoryKeyword() )
+				TriangulationHor3DGridder, "Triangulation",
+				mkUiString(sFactoryKeyword()))
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
@@ -116,7 +117,7 @@ public:
 
 			mDefaultFactoryInstantiation( HorizonGridder,
 				ExtensionHor3DGridder,
-				"Extension", sFactoryKeyword() )
+				"Extension", mkUiString(sFactoryKeyword()))
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);

@@ -26,7 +26,7 @@ class Horizon;
 */
 
 mExpClass(EarthModel) HorizonZTransformer : public Executor
-{
+{ mODTextTranslationClass(HorizonZTransformer);
 public:
 			HorizonZTransformer(const ZAxisTransform&,
 					    const Horizon&,bool isforward);
@@ -34,7 +34,7 @@ public:
 
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	{ return "Positions done"; }
+    uiString		uiNrDoneText() const	{ return tr("Positions done"); }
 
     void		setOutputHorizon(Horizon&);
     void		setReferenceZ(float z);

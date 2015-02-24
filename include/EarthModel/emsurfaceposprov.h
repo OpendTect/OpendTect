@@ -37,7 +37,7 @@ namespace Pos
 */
 
 mExpClass(EarthModel) EMSurfaceProvider : public virtual Filter
-{
+{ mODTextTranslationClass(EMSurfaceProvider);
 public:
 			EMSurfaceProvider();
 			~EMSurfaceProvider();
@@ -122,7 +122,7 @@ protected:
 
 mExpClass(EarthModel) EMSurfaceProvider3D : public Provider3D
 			  , public EMSurfaceProvider
-{
+{ mODTextTranslationClass(EMSurfaceProvider3D);
 public:
 
 			EMSurfaceProvider3D()
@@ -160,7 +160,7 @@ public:
 
 mExpClass(EarthModel) EMSurfaceProvider2D : public Provider2D
 			  , public EMSurfaceProvider
-{
+{ mODTextTranslationClass(EMSurfaceProvider2D);
 public:
 
 			EMSurfaceProvider2D()
@@ -200,7 +200,7 @@ public:
 
 mExpClass(EarthModel) EMSurface2DProvider3D : public Provider3D
 			    , public EMSurfaceProvider
-{
+{ mODTextTranslationClass(EMSurface2DProvider3D);
 public:
     				EMSurface2DProvider3D();
 				EMSurface2DProvider3D(
@@ -244,7 +244,7 @@ protected:
 */
 
 mExpClass(EarthModel) EMImplicitBodyProvider : public Provider3D
-{
+{ mODTextTranslationClass(EMImplicitBodyProvider);
 public:
 
 				EMImplicitBodyProvider();

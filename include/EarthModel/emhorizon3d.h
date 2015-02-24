@@ -36,7 +36,7 @@ class SurfaceAuxData;
 */
 
 mExpClass(EarthModel) Horizon3DGeometry : public HorizonGeometry
-{
+{ mODTextTranslationClass(Horizon3DGeometry);
 public:
 				Horizon3DGeometry(Surface&);
 

@@ -36,7 +36,7 @@ namespace EM
 #define mOnBodyVal	0
 
 class BodyOperatorArrayFiller: public ParallelTask
-{
+{ mODTextTranslationClass(BodyOperatorArrayFiller);
 public:
 BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
 	const StepInterval<int>& inlrg, const StepInterval<int>& crlrg,
@@ -52,7 +52,7 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
 {}
 
 od_int64 nrIterations() const { return arr_.info().getTotalSz(); }
-uiString uiMessage() const { return "Calculating implicit body operation"; }
+uiString uiMessage() const { return tr("Calculating implicit body operation"); }
 
 protected:
 

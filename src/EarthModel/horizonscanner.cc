@@ -62,7 +62,7 @@ void HorizonScanner::init()
 
 uiString HorizonScanner::uiMessage() const
 {
-    return curmsg_.buf();
+    return curmsg_;
 }
 
 
