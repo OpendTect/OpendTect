@@ -1262,7 +1262,7 @@ bool uiAttribDescSetEd::is2D() const
 
 void uiAttribDescSetEd::exportToDotCB( CallBacker* )
 {
-    if ( !attrset_ ) return;
+    if ( !attrset_ || attrlistfld_->isEmpty() ) return;
 
     const BufferString fnm = FilePath::getTempName( "dot" );
     const char* attrnm = IOM().nameOf( setid_ );
