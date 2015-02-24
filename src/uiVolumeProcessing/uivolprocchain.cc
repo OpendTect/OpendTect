@@ -202,7 +202,8 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 {
     chain_.ref();
 
-    uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
+    uiToolBar* tb = new uiToolBar( this, tr("Load/Save toolbar"), 
+				   uiToolBar::Right);
     tb->addButton( "open", tr("Read stored setup"), mCB(this,uiChain,readPush));
     tb->addButton( "save", tr("Save setup"), mCB(this,uiChain,savePush) );
     tb->addButton( "saveas", tr("Save setup as"), mCB(this,uiChain,saveAsPush));
@@ -388,10 +389,10 @@ void uiChain::updateList()
     {
 	const char* key = chain_.getStep(idx)->factoryKeyword();
 	const char* username = chain_.getStep(idx)->userName();
-	const char* displayname = username;
+	uiString displayname = mkUiString(username);
 	if ( !displayname )
 	{
-	    displayname = chain_.getStep(idx)->factoryDisplayName().getFullString();
+	    displayname = chain_.getStep(idx)->factoryDisplayName();
 	    if ( !displayname )
 		displayname = key;
 	}
