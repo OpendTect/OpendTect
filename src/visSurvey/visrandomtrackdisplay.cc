@@ -221,7 +221,7 @@ Interval<float> RandomTrackDisplay::getDepthInterval() const
 }
 
 
-void RandomTrackDisplay::setResolution( int res, TaskRunner* tr )
+void RandomTrackDisplay::setResolution( int res, TaskRunner* taskr )
 {
     if ( res==resolution_ )
 	return;
@@ -468,7 +468,7 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 
 
 bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
-			TaskRunner* tr )
+			TaskRunner* taskr )
 {
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
@@ -1041,7 +1041,7 @@ bool RandomTrackDisplay::isGeometryLocked() const
 { return lockgeometry_; }
 
 
-SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* tr ) const
+SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 {
     RandomTrackDisplay* rtd = new RandomTrackDisplay;
     rtd->setDepthInterval( getDataTraceRange() );
@@ -1050,7 +1050,7 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* tr ) const
 	positions += getKnotPos( idx );
     rtd->setKnotPositions( positions );
     rtd->lockGeometry( isGeometryLocked() );
-    rtd->setZAxisTransform( datatransform_, tr );
+    rtd->setZAxisTransform( datatransform_, taskr );
 
     while ( nrAttribs() > rtd->nrAttribs() )
 	rtd->addAttrib();
@@ -1059,11 +1059,12 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* tr ) const
     {
 	const Attrib::SelSpec* selspec = getSelSpec( idx );
 	if ( selspec ) rtd->setSelSpec( idx, *selspec );
-	rtd->setDataPackID( idx, getDataPackID(idx), tr );
+	rtd->setDataPackID( idx, getDataPackID(idx), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
-	if ( mappersetup ) rtd->setColTabMapperSetup( idx, *mappersetup, tr );
+	if ( mappersetup ) rtd->setColTabMapperSetup( idx, *mappersetup, 
+						      taskr );
 	const ColTab::Sequence* colseq = getColTabSequence( idx );
-	if ( colseq ) rtd->setColTabSequence( idx, *colseq, tr );
+	if ( colseq ) rtd->setColTabSequence( idx, *colseq, taskr );
     }
 
     return rtd;
