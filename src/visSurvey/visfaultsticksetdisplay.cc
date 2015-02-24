@@ -860,7 +860,7 @@ bool  FaultStickSetDisplay::isManipulatorShown() const
 
 
 void FaultStickSetDisplay::removeSelection( const Selector<Coord3>& sel,
-	TaskRunner* tr )
+	TaskRunner* taskr )
 {
     if ( fsseditor_ )
 	fsseditor_->removeSelection( sel );
