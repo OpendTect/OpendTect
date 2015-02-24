@@ -33,7 +33,7 @@ mExpClass(PreStackProcessing) Mute : public Processor
 public:
 			mDefaultFactoryInstantiation(
 				Processor, Mute,
-				"Mute", sFactoryKeyword() )
+				"Mute", mkUiString(sFactoryKeyword()))
 
  			Mute();
     			~Mute();

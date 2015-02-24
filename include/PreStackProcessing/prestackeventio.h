@@ -141,7 +141,7 @@ public:
     od_int64		totalNr() const { return totalnr_; }
     od_int64		nrDone() const { return totalnr_ - filestocopy_.size();}
     uiString		uiMessage() const { return message_; }
-    uiString		uiNrDoneText() const { return "Files copied"; }
+    uiString		uiNrDoneText() const { return tr("Files copied"); }
 
     int			nextStep();
     uiString		errMsg() const { return errmsg_; }

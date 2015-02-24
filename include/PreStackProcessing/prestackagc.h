@@ -25,11 +25,11 @@ namespace PreStack
 */
 
 mExpClass(PreStackProcessing) AGC : public Processor
-{
+{ mODTextTranslationClass(AGC)
 public:
     				mDefaultFactoryInstantiation(
-					Processor, AGC,
-					"AGC", sFactoryKeyword() )
+					Processor, AGC, "AGC", 
+					mkUiString(sFactoryKeyword()))
 
 				AGC();
     bool			prepareWork();

@@ -39,7 +39,7 @@ AngleMuteComputer::~AngleMuteComputer()
 
 
 uiString AngleMuteComputer::uiMessage() const
-{ return "Computing mute"; }
+{ return tr("Computing mute"); }
 
 
 void AngleMuteComputer::fillPar( IOPar& par ) const

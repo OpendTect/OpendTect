@@ -853,7 +853,7 @@ EventPatchFileHeader::EventPatchFileHeader()
     , int32interpreter_( 0 )
     , int16interpreter_( 0 )
     , nrevents_( 0 )
-    , errmsg_( 0 )
+    , errmsg_( uiStrings::sEmptyString() )
 {}
 
 

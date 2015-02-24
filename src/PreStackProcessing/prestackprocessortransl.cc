@@ -101,7 +101,7 @@ uiString dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
     if ( atEndOfSection(astrm) ) astrm.next();
     const IOPar par( astrm );
 
-    if ( md.usePar( par ) ) return 0;
+    if ( md.usePar( par ) ) return uiStrings::sEmptyString();
 
     return md.errMsg().isSet() ? md.errMsg()
 			       : tr("Could not read processing info.");

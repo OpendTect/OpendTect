@@ -32,8 +32,8 @@ mExpClass(PreStackProcessing) TrimStatics : public Processor
 { mODTextTranslationClass(TrimStatics)
 public:
 			mDefaultFactoryInstantiation(
-				Processor, TrimStatics,
-				"Trim Statics", sFactoryKeyword() )
+				Processor, TrimStatics, "Trim Statics", 
+				mkUiString(sFactoryKeyword()))
 
  				TrimStatics();
     				~TrimStatics();

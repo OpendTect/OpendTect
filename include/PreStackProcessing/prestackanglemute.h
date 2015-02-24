@@ -78,10 +78,10 @@ protected:
 */
 
 mExpClass(PreStackProcessing) AngleMute : public Processor, public AngleMuteBase
-{
+{ mODTextTranslationClass(AngleMute);
 public:
     			mDefaultFactoryInstantiation(Processor,
-				AngleMute,"AngleMute", "Angle Mute" )
+				AngleMute,"AngleMute", tr("Angle Mute") )
 
 			AngleMute();
 			~AngleMute();

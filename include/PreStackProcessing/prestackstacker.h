@@ -26,10 +26,10 @@ namespace PreStack
 */
 
 mExpClass(PreStackProcessing) Stack : public Processor
-{
+{ mODTextTranslationClass(Stack);
 public:
 				mDefaultFactoryInstantiation( Processor, Stack,
-					"Stack", sFactoryKeyword() )
+				    "Stack", mkUiString(sFactoryKeyword()))
 
  				Stack();
     				~Stack();
