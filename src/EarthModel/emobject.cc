@@ -165,8 +165,6 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
     Geometry::Element* element = sectionGeometryInternal( sid );
     if ( !element ) mRetErr( uiStrings::sEmptyString() );
 
-    const Coord3 oldpos = element->getPosition( subid );
-
     if ( !element->setPosition(subid,newpos) )
 	 mRetErr( element->errMsg() );
 
@@ -186,6 +184,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 
     if ( addtoundo )
     {
+	const Coord3 oldpos = element->getPosition( subid );
 	UndoEvent* undo = new SetPosUndoEvent( oldpos, pid );
 	EMM().undo().addEvent( undo, 0 );
     }
@@ -526,7 +525,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    {
 		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
 					      = bid;
-		removebypolyposbox_.zsamp_.start = 
+		removebypolyposbox_.zsamp_.start =
 		    removebypolyposbox_.zsamp_.stop = (float) pos.z;
 	    }
 	    else
@@ -571,7 +570,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    {
 		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
 					      = bid;
-		removebypolyposbox_.zsamp_.start = 
+		removebypolyposbox_.zsamp_.start =
 		removebypolyposbox_.zsamp_.stop = pos.z;
 	    }
 	    else
