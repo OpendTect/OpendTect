@@ -52,13 +52,14 @@ class HorizonDisplay;
 */
 
 mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
-{
+{ mODTextTranslationClass(FaultDisplay);
 public:
 				FaultDisplay();
 
 				mDefaultFactoryInstantiation(
 				visSurvey::SurveyObject,FaultDisplay,
-				"FaultDisplay", sFactoryKeyword() );
+				"FaultDisplay", 
+				mkUiString(sFactoryKeyword()));
 
 
     MultiID			getMultiID() const;

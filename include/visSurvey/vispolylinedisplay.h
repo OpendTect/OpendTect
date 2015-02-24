@@ -29,12 +29,13 @@ namespace visSurvey
 
 mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
 				    public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(PolyLineDisplay);
 public:
 				PolyLineDisplay();
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,PolyLineDisplay,
-				    "PolyLineDisplay", sFactoryKeyword() );
+				    "PolyLineDisplay",
+				    mkUiString(sFactoryKeyword()));
 
     void			fillPolyLine(const TypeSet<Coord>&);
     void                        fillPolyLine(const Coord3&);

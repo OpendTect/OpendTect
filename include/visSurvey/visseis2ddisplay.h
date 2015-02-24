@@ -43,12 +43,13 @@ namespace visSurvey
 */
 
 mExpClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject
-{
+{ mODTextTranslationClass(Seis2DDisplay);
 public:
 				Seis2DDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Seis2DDisplay,
-				    "Seis2DDisplay", sFactoryKeyword() )
+				    "Seis2DDisplay", 
+				    mkUiString(sFactoryKeyword()))
 
     void			setGeomID(Pos::GeomID geomid);
     const char*			getLineName() const;

@@ -28,12 +28,13 @@ namespace visSurvey
 class Seis2DDisplay;
 
 mExpClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
-{
+{ mODTextTranslationClass(Horizon2DDisplay);
 public:
 				Horizon2DDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Horizon2DDisplay,
-				    "Horizon2DDisplay", sFactoryKeyword() );
+				    "Horizon2DDisplay", 
+				    mkUiString(sFactoryKeyword()));
 
     void			setDisplayTransformation(const mVisTrans*);
 

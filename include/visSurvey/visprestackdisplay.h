@@ -44,7 +44,8 @@ public:
 				PreStackDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PreStackDisplay,
-				    "PreStackDisplay", sFactoryKeyword() );
+				    "PreStackDisplay", 
+				    mkUiString(sFactoryKeyword()) );
 
     void			allowShading(bool yn);
     void			setMultiID(const MultiID& mid);

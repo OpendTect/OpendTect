@@ -50,7 +50,7 @@ class Scene;
 
 mExpClass(visSurvey) PlaneDataDisplay :
 				public visSurvey::MultiTextureSurveyObject
-{
+{ mODTextTranslationClass(PlaneDataDisplay);
 public:
 
     typedef OD::SliceType	SliceType;
@@ -61,7 +61,7 @@ public:
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,
 				    PlaneDataDisplay, "PlaneDataDisplay",
-				    sFactoryKeyword() );
+				    mkUiString(sFactoryKeyword()));
 
     bool			isInlCrl() const { return true; }
 

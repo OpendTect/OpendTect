@@ -31,13 +31,14 @@ namespace visSurvey
 */
 
 mExpClass(visSurvey) PickSetDisplay : public LocationDisplay
-{
+{ mODTextTranslationClass(PickSetDisplay);
 public:
 
 				PickSetDisplay();
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,PickSetDisplay,
-				    "PickSetDisplay", sFactoryKeyword() );
+				    "PickSetDisplay", 
+				    mkUiString(sFactoryKeyword()));
     
     void			setSet(Pick::Set*);
 

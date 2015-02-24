@@ -43,14 +43,15 @@ class Seis2DDisplay;
 
 mExpClass(visSurvey) FaultStickSetDisplay : public visBase::VisualObjectImpl
 					  , public SurveyObject
-{
+{ mODTextTranslationClass(FaultStickSetDisplay);
 public:
 				FaultStickSetDisplay();
 
 				mDefaultFactoryInstantiation(
 				visSurvey::SurveyObject,
-				FaultStickSetDisplay, "FaultStickSetDisplay",
-				sFactoryKeyword() );
+				FaultStickSetDisplay, 
+				"FaultStickSetDisplay",
+				mkUiString(sFactoryKeyword()) );
 
 
     MultiID			getMultiID() const;

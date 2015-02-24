@@ -46,12 +46,13 @@ class Scene;
 
 mExpClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
 
-{
+{ mODTextTranslationClass(RandomTrackDisplay);
 public:
 				RandomTrackDisplay();
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,RandomTrackDisplay,
-				    "RandomTrackDisplay", sFactoryKeyword() );
+				    "RandomTrackDisplay", 
+				    mkUiString(sFactoryKeyword()));
 
     int				nameNr() const { return namenr_; }
     				/*!<\returns a number that is unique for 
