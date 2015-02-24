@@ -217,7 +217,7 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
     bool isreverted;
     if ( propref.stdType() == logun->propType() )
 	isreverted = false;
-    else if ( altpropref->stdType() == logun->propType() )
+    else if ( altpropref && altpropref->stdType() == logun->propType() )
 	isreverted = true;
     else return;
     fld->setUseAlternate( isreverted );
