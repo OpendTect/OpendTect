@@ -111,7 +111,7 @@ Well::Track*	track_;
 TrcKeyZSampling bbox_;
 MultiID		mid_;
 BufferString	logname_;
-Well::Log*	log_;
+const Well::Log*	log_;
 TypeSet<float>	intersections_;
 
 };
