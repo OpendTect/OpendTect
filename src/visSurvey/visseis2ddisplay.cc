@@ -348,7 +348,7 @@ const StepInterval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 
 
 bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
-				   TaskRunner* tr )
+				   TaskRunner* taskr )
 {
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
@@ -356,7 +356,7 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( !dp2d )
     {
 	dpman.release( dpid );
-	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, tr );
+	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, taskr );
 	channels_->turnOn( false );
 	return false;
     }
