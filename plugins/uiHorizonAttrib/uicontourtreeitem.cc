@@ -243,8 +243,9 @@ void uiContourTreeItemContourGenerator::addContourData(
 
     for ( int idx=0; idx<newcontourdata.contourcoordrgs_.size(); idx++ )
     {
-	Geometry::RangePrimitiveSet* ps =
-	    Geometry::RangePrimitiveSet::create();
+	Geometry::RangePrimitiveSet* ps = Geometry::RangePrimitiveSet::create();
+	if ( !ps ) continue;
+
 	ps->setRange( newcontourdata.contourcoordrgs_[idx] + lastcoordidxrg );
 	contourdata_.contourprimitivesets_.push( ps );
     }
