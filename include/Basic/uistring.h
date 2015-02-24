@@ -150,12 +150,12 @@ private:
     static const uiString	emptystring_;
 
 public:
-
+#ifndef mNoAutoUiString
 		//Only for expert users
-
 		uiString(const char* inp);
 		/*!<Don't use. May be depreciated. Use mkUiString("My text")
 		    function instead. */
+#endif
 
     bool	operator==(const uiString& b) const;
 		//!<Don't use, will force crash. Only here to keep TypeSet happy

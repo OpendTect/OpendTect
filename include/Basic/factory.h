@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "typeset.h"
 #include "uistring.h"
+#include "uistrings.h"
 
 /*!
 \brief Base class for Factories ( Factory, Factory1Param, Factory2Param
@@ -65,7 +66,7 @@ protected:
 private:
 
     BufferStringSet		names_;
-    uiStringSet		usernames_;
+    uiStringSet			usernames_;
     BufferStringSet		aliases_;
     BufferString		defaultname_;
 };
@@ -116,11 +117,11 @@ variable is needed in the creation.
 
 template <class T>
 mClass(Basic) Factory : public FactoryBase
-{
+{ mODTextTranslationClass(Factory);
 public:
     typedef			T* (*Creator)();
     inline void			addCreator(Creator,const char* nm,
-					   const uiString& username = 0);
+			const uiString& username = uiString::emptyString());
 				/*!<Name may be not be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
@@ -186,11 +187,11 @@ variable is needed in the creation.
 
 template <class T, class P>
 mClass(Basic) Factory1Param : public FactoryBase
-{
+{ mODTextTranslationClass(Factory1Param);
 public:
     typedef			T* (*Creator)(P);
     inline void			addCreator(Creator,const char* nm=0,
-					   const uiString& usernm = 0);
+			const uiString& usernm = uiStrings::sEmptyString());
 				/*!<Name may be be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
@@ -284,9 +285,9 @@ protected:
 #define mDefaultFactoryCreatorImpl( baseclss, clss ) \
 static baseclss*	createInstance() { return new clss; } \
 
-#define mDefaultFactoryInstantiation( baseclss, clss, keywrd, usernm ) \
+#define mDefaultFactoryInstantiation( baseclss, clss, usernm, keywrd ) \
     mDefaultFactoryCreatorImpl( baseclss, clss ); \
-    mDefaultFactoryInstanciationBase( keywrd, usernm ) \
+    mDefaultFactoryInstanciationBase( usernm, keywrd ) \
     mDefaultFactoryInitClassImpl( baseclss, createInstance )
 
 

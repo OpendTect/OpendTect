@@ -83,9 +83,12 @@ public:
     static uiString sCrossline()        { return tr("Cross-line"); }
     static uiString sDepth()	        { return tr("Depth"); }
     static uiString sDisplay()		{ return tr("Display"); }
+    static uiString sDoesntExist(uiString s)  {
+					  return tr("%1 does not exist").arg(s);
+					      }
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
-    static uiString sEmptyString()	{ return uiString(""); }
+    static uiString sEmptyString()	{ return tr(""); }
     static uiString sEntValidName()	{
 					  return tr("Please enter a "
 						    "valid name");
