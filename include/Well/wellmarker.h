@@ -126,7 +126,7 @@ mExpClass(Well) MarkerRange
 public:
 
 			MarkerRange(const MarkerSet&,
-				const Interval<int>& idxrg=Interval<int>(-1,-1));
+			    const Interval<int>& idxrg=Interval<int>(-1,-1));
 			MarkerRange(const MarkerSet&,
 				const char*,const char*);
 
@@ -145,6 +145,7 @@ public:
     const MarkerSet&	markers() const		{ return markers_; }
     const Interval<int>& idxRange() const	{ return rg_; }
     Interval<int>&	idxRange()		{ return rg_; }
+    float		thickness() const;
 
 protected:
 
@@ -164,7 +165,7 @@ mExpClass(Well) MarkerChgRange : public MarkerRange
 public:
 
 			MarkerChgRange( MarkerSet& ms,
-				const Interval<int>& idxrg=Interval<int>(-1,-1) )
+			    const Interval<int>& idxrg=Interval<int>(-1,-1) )
 			    : MarkerRange(ms,idxrg)	{}
 			MarkerChgRange( MarkerSet& ms, const char* m1,
 							const char* m2 )

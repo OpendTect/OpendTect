@@ -367,7 +367,8 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
 
-    uiToolBar* helptb = new uiToolBar( this, tr("Help toolbar"), uiToolBar::Right );
+    uiToolBar* helptb =
+	new uiToolBar( this, tr("Help toolbar"), uiToolBar::Right );
     uiToolButtonSetup htbsu( "contexthelp", uiStrings::sHelp(),
 			     mCB(this,uiStratLayerModel,helpCB) );
     helptb->addButton( htbsu );
@@ -916,6 +917,14 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 
     lmp_.setBaseModel( newmodl );
     uiWorldRect prevrelzoomwr = synthdisp_->getRelativeViewRect();
+    Interval<float> reldepthrg = moddisp_->relDepthZoneOfInterest();
+    if ( !reldepthrg.isUdf() )
+    {
+	prevrelzoomwr.setTop( reldepthrg.start );
+	prevrelzoomwr.setBottom( reldepthrg.stop );
+	moddisp_->reSetRelDepthZoneOfInterest();
+    }
+
     handleNewModel();
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();

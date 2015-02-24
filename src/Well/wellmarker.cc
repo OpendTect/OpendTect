@@ -472,6 +472,12 @@ bool Well::MarkerRange::isIncluded( float z ) const
 }
 
 
+float Well::MarkerRange::thickness() const
+{
+    return markers_[rg_.stop]->dah() - markers_[rg_.start]->dah();
+}
+
+
 void Well::MarkerRange::getNames( BufferStringSet& nms ) const
 {
     if ( !isValid() ) return;
