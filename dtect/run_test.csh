@@ -79,15 +79,15 @@ if ( "$config" == "" ) then
 endif
 
 if ( $?LD_LIBRARY_PATH ) then
-    setenv LD_LIBRARY_PATH ${qtdir}/lib:${LD_LIBRARY_PATH}
+    setenv LD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}:${LD_LIBRARY_PATH}
 else
-    setenv LD_LIBRARY_PATH ${qtdir}/lib
+    setenv LD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}
 endif
 
 if ( $?DYLD_LIBRARY_PATH ) then
-    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${DYLD_LIBRARY_PATH}
+    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}:${DYLD_LIBRARY_PATH}
 else
-    setenv DYLD_LIBRARY_PATH ${qtdir}/lib
+    setenv DYLD_LIBRARY_PATH ${qtdir}/lib:${wdir}/bin/${plf}/${config}
 endif
 
 
