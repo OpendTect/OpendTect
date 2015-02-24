@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uibaseobject.h"
 #include "draw.h"
 #include "uistring.h"
-
+#include "uistrings.h"
 
 mFDQtclass(QStatusBar)
 class uiStatusBarBody;
