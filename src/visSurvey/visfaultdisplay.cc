@@ -361,7 +361,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 
 
 void FaultDisplay::removeSelection( const Selector<Coord3>& selector,
-	TaskRunner* tr )
+				    TaskRunner* taskr )
 {
     if ( faulteditor_ )
 	faulteditor_->removeSelection( selector );
@@ -1152,12 +1152,12 @@ int FaultDisplay::nrResolutions() const
 { return 1; }
 
 
-void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* tr ) const
+void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* taskr ) const
 {
     if ( explicitpanels_ )
     {
 	MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
-	explicitpanels_->getTexturePositions( dpset, tr );
+	explicitpanels_->getTexturePositions( dpset, taskr );
 	paneldisplay_->touch( false, false );
     }
 }
@@ -1191,7 +1191,7 @@ void FaultDisplay::setRandomPosData( int attrib, const DataPointSet* dpset,
 
 
 void FaultDisplay::setRandomPosDataInternal( int attrib,
-    const DataPointSet* dpset, int column, TaskRunner* tr )
+    const DataPointSet* dpset, int column, TaskRunner* taskr )
 {
     if ( attrib>=nrAttribs() || !dpset || dpset->nrCols()<3 ||
 	 !explicitpanels_ )
@@ -1234,7 +1234,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     channels_->setSize( attrib, 1, texturedata->info().getSize(0),
 			texturedata->info().getSize(1) );
     channels_->setUnMappedData( attrib, 0, texturedata->getData(),
-				OD::UsePtr, tr );
+				OD::UsePtr, taskr );
     validtexture_ = true;
     updateSingleColor();
 }
@@ -1281,7 +1281,7 @@ const Array2D<float>* FaultDisplay::getTextureData( int attrib )
 { return texuredatas_.validIdx(attrib) ? texuredatas_[attrib] : 0; }
 
 
-void FaultDisplay::setResolution( int res, TaskRunner* tr )
+void FaultDisplay::setResolution( int res, TaskRunner* taskr )
 {
     if ( res==resolution_ )
 	return;
@@ -1906,7 +1906,7 @@ int FaultDisplay::addDataPack( const DataPointSet& dpset ) const
 
 
 bool FaultDisplay::setDataPackID( int attrib, DataPack::ID dpid,
-				  TaskRunner* tr )
+				  TaskRunner* taskr )
 {
     if ( !datapackids_.validIdx(attrib) )
 	return false;
