@@ -364,7 +364,7 @@ void uiTreeView::addColumns( const BufferStringSet& lbls )
     uiStringSet strings;
     for ( int idx=0; idx<lbls.size(); idx++ )
     {
-	strings += uiString( lbls[idx]->buf() );
+	strings += mkUiString( lbls[idx]->buf() );
     }
 
     addColumns( strings );
