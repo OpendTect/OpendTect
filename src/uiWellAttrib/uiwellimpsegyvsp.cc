@@ -205,11 +205,24 @@ uiWellImportSEGYVSP::~uiWellImportSEGYVSP()
 void uiWellImportSEGYVSP::wllSel( CallBacker* )
 {
     existinglognms_.erase();
-    const IOObj* ioobj = wellfld_->ioobj(true);
-    if ( ioobj )
+    const MultiID wmid = wellfld_->key();
+    const bool isloaded = Well::MGR().isLoaded( wmid );
+    Well::Data* wd = isloaded ? Well::MGR().get( wmid ) : new Well::Data;
+    if ( isloaded )
     {
-	Well::Data wd; Well::Reader wr( *ioobj, wd );
+	if ( !wd )
+	{
+	    uiMSG().error( Well::MGR().errMsg() );
+	    return;
+	}
+
+	wd->logs().getNames( existinglognms_ );
+    }
+    else
+    {
+	Well::Reader wr( wmid, *wd );
 	wr.getLogInfo( existinglognms_ );
+	delete wd;
     }
 
     BufferString curlognm = lognmfld_->text();
@@ -217,6 +230,7 @@ void uiWellImportSEGYVSP::wllSel( CallBacker* )
     lognmfld_->addItems( existinglognms_ );
     if ( curlognm.isEmpty() )
 	curlognm = "VSP";
+
     lognmfld_->setText( curlognm );
 }
 
@@ -327,15 +341,14 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 				     const Interval<float>& ozr,
 				     const char* lognm )
 {
-    const IOObj* ioobj = wellfld_->ioobj(true);
-    if ( !ioobj )
-	return false;
-    const MultiID key( ioobj->key() );
+    const MultiID key(	wellfld_->key() );
     const bool wasloaded = Well::MGR().isLoaded( key );
 
-    Well::Data* wd = Well::MGR().get( ioobj->key() );
+    Well::Data* wd = Well::MGR().get( key );
     if ( !wd )
-	mErrRet("Cannot load the selected well")
+	mErrRet( BufferString("Cannot load the selected well",
+			      Well::MGR().errMsg()) )
+
     if ( !isdpth_ && !wd->d2TModel() )
 	mErrRet("Selected well has no Depth vs Time model")
 
@@ -378,13 +391,11 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 
     wd->logs().add( wl );
 
-    Well::Writer wtr( *ioobj, *wd );
+    Well::Writer wtr( key, *wd );
     wtr.putLog( *wl );
 
     if ( wasloaded )
 	Well::MGR().reload( key );
-    else
-	delete Well::MGR().release( key );
 
     return true;
 }

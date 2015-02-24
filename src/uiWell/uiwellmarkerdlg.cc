@@ -701,12 +701,12 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     if ( !getKey(mid) )
 	return;
 
-    Well::Data* wd =0;
-    if ( Well::MGR().isLoaded( mid ) )
-	wd = Well::MGR().get( mid );
-
+    Well::Data* wd = Well::MGR().get( mid );
     if ( !wd )
+    {
+	uiMSG().error( Well::MGR().errMsg() );
 	return;
+    }
 
     getMarkerSet( wd->markers() );
     wd->markerschanged.trigger();
@@ -719,15 +719,14 @@ bool uiMarkerDlg::rejectOK( CallBacker* )
     if ( !getKey(mid) )
 	return true;
 
-    Well::Data* wd =0;
-    if ( Well::MGR().isLoaded( mid ) )
+    Well::Data* wd = Well::MGR().get( mid );
+    if ( !wd )
+	return true;
+
+    if ( oldmrkrs_ )
     {
-	wd = Well::MGR().get( mid );
-	if ( oldmrkrs_ && wd )
-	{
-	    deepCopy<Well::Marker,Well::Marker>( wd->markers(),*oldmrkrs_ );
-	    wd->markerschanged.trigger();
-	}
+	deepCopy<Well::Marker,Well::Marker>( wd->markers(),*oldmrkrs_ );
+	wd->markerschanged.trigger();
     }
 
     return true;
@@ -871,10 +870,10 @@ void uiMarkerViewDlg::init()
     setTitleText( BufferString("Markers for well '",wd_->name(),"'") );
 
     const Well::MarkerSet& mset = wd_->markers();
-    const int nrmrks = mset.size();
-    if ( nrmrks < 1 )
+    if ( mset.isEmpty() )
 	{ new uiLabel( this, "No markers for this well" ); return; }
 
+    const int nrmrks = mset.size();
     table_ = createMarkerTable( this, nrmrks, false );
 
     const float zfac = uiMarkerDlgzFactor();

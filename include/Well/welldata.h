@@ -79,6 +79,10 @@ public:
 /*!
 \brief The holder of all data concerning a certain well.
 
+  For Well::Data from database this object gets filled with either calls to
+  Well::MGR().get to get everything or Well::Reader::get*() to only get some
+  of it (only track, only logs, ...).
+
   Note that a well is not a POSC well in the sense that it describes the data
   for one well bore. Thus, a well has a single track. This may mean duplication
   when more well tracks share an upper part.

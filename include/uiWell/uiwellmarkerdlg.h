@@ -81,7 +81,9 @@ protected:
 mExpClass(uiWell) uiMarkerViewDlg : public uiDialog
 {
 public:
+				// DEPRECATED: will go away after 5.0
 				uiMarkerViewDlg(uiParent*,const Well::Reader&);
+				// Use that one instead:
 				uiMarkerViewDlg(uiParent*,const Well::Data&);
 protected:
 

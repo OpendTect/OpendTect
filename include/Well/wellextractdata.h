@@ -83,6 +83,8 @@ public :
     //get
     Interval<float>	calcFrom(const Data&,const BufferStringSet& logs,
 					bool todah=true) const;
+
+    // DEPRECATED: will go away after 5.0
     Interval<float>	calcFrom(const IOObj&,const BufferStringSet& lgs,
 					bool todah=true) const;
 
@@ -91,7 +93,7 @@ public :
     float		botOffset() const	{ return below_; }
     const char*		topMarker() const	{ return topmrkr_; }
     const char*		botMarker() const	{ return botmrkr_; }
-    Interval<float>	getFixedRange() const 	{ return fixedzrg_; }
+    Interval<float>	getFixedRange() const	{ return fixedzrg_; }
     bool		isInTime() const	{ return zselection_ == Times; }
 
 protected:
@@ -370,7 +372,7 @@ public:
 			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
     int		nrZSamples() const;
-    Interval<float>	zRange() const 	{ return zrg_; } //can be in time
+    Interval<float>	zRange() const	{ return zrg_; } //can be in time
 
 protected:
     void		init (const Well::D2TModel*,const Interval<float>&,

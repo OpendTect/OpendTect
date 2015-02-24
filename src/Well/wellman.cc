@@ -59,35 +59,26 @@ Well::Data* Well::Man::release( const MultiID& key )
 Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 {
     msg_.setEmpty();
-    int wllidx = gtByKey( key );
     bool mustreplace = false;
-    if ( wllidx >= 0 )
+    if ( isLoaded(key) )
     {
 	if ( !forcereload )
-	    return wells_[wllidx];
+	    return wells_[gtByKey(key)];
+
 	mustreplace = true;
     }
 
-    Well::Data* wd = 0;
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj )
-    {
-	delete wd;
-	msg_.set( "Cannot find well ID " ).add( key ).add( "in data store." );
-	return 0;
-    }
-    wd = new Well::Data;
-    Well::Reader wr( *ioobj, *wd );
+    Well::Data* wd = new Well::Data;
+    Well::Reader wr( key, *wd );
     if ( !wr.get() )
     {
 	delete wd;
-	msg_.set( "Cannot read '" ).add( ioobj->name() )
-	    .add( "':\n" ).add( wr.errMsg() );
+	msg_.set( wr.errMsg() );
 	return 0;
     }
 
     if ( mustreplace )
-	delete wells_.replace( wllidx, wd );
+	delete wells_.replace( gtByKey(key), wd );
     else
 	add( key, wd );
 

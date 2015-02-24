@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "welldata.h"
 #include "wellextractdata.h"
+#include "wellman.h"
 #include "wellreader.h"
 
 #include <math.h>
@@ -80,17 +81,32 @@ bool WellLog::allowParallelComputation() const
 
 void WellLog::prepareForComputeData()
 {
-    PtrMan<IOObj> ioobj = IOM().get( wellid_ );
-    if ( !ioobj )
+    const bool isloaded = Well::MGR().isLoaded( wellid_ );
+    Well::Data* wd = isloaded ? Well::MGR().get( wellid_ )
+			      : new Well::Data;
+    if ( isloaded && !wd )
+    {
+	errmsg_ = Well::MGR().errMsg();
 	return;
+    }
+    else if ( !isloaded )
+    {
+	Well::Reader wrdr( wellid_, *wd );
+	const bool hastrack = wrdr.getTrack();
+	const bool hasd2t = wrdr.getD2T();
+	const bool haslog = wrdr.getLog( logname_ );
+	if ( !hastrack || ( SI().zIsTime() && !hasd2t ) || !haslog )
+	{
+	    errmsg_ = !hastrack ? "Cannot read track"
+				: !haslog ? "Cannot read log"
+					  : "Cannot read time-depth model";
+	    if ( wd->name() )
+		errmsg_.append( " for well ").append( wd->name() );
 
-    Well::Data wd;
-    Well::Reader rdr( *ioobj, wd );
-    if ( !rdr.isUsable() )
-	return;
-
-    rdr.getD2T();
-    rdr.getLog( logname_ );
+	    delete wd;
+	    return;
+	}
+    }
 
     Well::ExtractParams pars;
     pars.setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
@@ -100,9 +116,12 @@ void WellLog::prepareForComputeData()
     pars.samppol_ = (Stats::UpscaleType)upscaletype_;
 
     BufferStringSet lognms; lognms.add( logname_ );
-    Well::LogSampler logsamp( wd, pars, lognms );
+    Well::LogSampler logsamp( *wd, pars, lognms );
     if ( !logsamp.executeParallel(false) )
 	return;
+
+    if ( !isloaded )
+	delete wd;
 
     StepInterval<float> zrg = logsamp.zRange();
     zrg.step = SI().zStep();

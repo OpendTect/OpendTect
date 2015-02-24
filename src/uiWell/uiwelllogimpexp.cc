@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "unitofmeasure.h"
 #include "welldata.h"
 #include "wellimpasc.h"
+#include "wellman.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -127,15 +128,24 @@ void uiImportLogsDlg::lasSel( CallBacker* )
 
 bool uiImportLogsDlg::acceptOK( CallBacker* )
 {
-    const IOObj* wellioobj = wellfld_->ioobj();
-    if ( !wellioobj ) return false;
+    const MultiID wmid = wellfld_->key();
+    const bool isloaded = Well::MGR().isLoaded( wmid );
+    Well::Data* wd = isloaded ? Well::MGR().get( wmid ) : new Well::Data;
+    if ( isloaded && !wd )
+    {
+	uiMSG().error( Well::MGR().errMsg() );
+    }
+    else if ( !isloaded )
+    {
+	Well::Reader rdr( wmid, *wd );
+	if ( !rdr.getLogs() )
+	{
+	    delete wd;
+	    mErrRet( "Cannot read logs for selected well" )
+	}
+    }
 
-    Well::Data wd;
-    Well::Reader rdr( *wellioobj, wd );
-    if ( !rdr.getLogs() )
-	mErrRet( "Cannot read logs for selected well" )
-
-    Well::LASImporter wdai( wd );
+    Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
 
     lfi.undefval = udffld_->getfValue();
@@ -163,7 +173,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     for ( int idx=lognms.size()-1; idx>=0; idx-- )
     {
 	const char* lognm = lognms.get(idx).buf();
-	if ( wd.logs().getLog(lognm) )
+	if ( wd->logs().getLog(lognm) )
 	{
 	    existlogs.add( lognm );
 	    lognms.removeSingle( idx );
@@ -189,9 +199,12 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( res )
 	mErrRet( res )
 
-    Well::Writer wtr( *wellioobj, wd );
+    Well::Writer wtr( wmid, *wd );
     if ( !wtr.putLogs() )
 	mErrRet( "Cannot write logs to disk" )
+
+    if ( !isloaded )
+	delete wd;
 
     BufferString msg( "Logs are successfully imported." );
     msg.addNewLine().add( "Do you want to import more logs?" );

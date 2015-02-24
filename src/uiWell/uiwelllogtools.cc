@@ -66,28 +66,44 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     if ( wellids.isEmpty() ) mErrRet( "Please select at least one well" )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas;
+    BufferStringSet msgs;
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
-	const MultiID& wid = wellids[idx]->buf();
-	Well::Data wd; Well::Reader wr( wid, wd );
-	if ( !wr.get() )
+	const MultiID& wmid = wellids[idx]->buf();
+	Well::Data* wd = Well::MGR().get( wmid );
+	if ( !wd )
+	{
+	    msgs += new BufferString( Well::MGR().errMsg() );
 	    continue;
+	}
 
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
-	Well::LogSet* wls = new Well::LogSet( wd.logs() );
+	Well::LogSet* wls = new Well::LogSet( wd->logs() );
 	uiWellLogToolWin::LogData* ldata =
-	    new uiWellLogToolWin::LogData( *wls, wd.d2TModel(), &wd.track());
+	    new uiWellLogToolWin::LogData( *wls, wd->d2TModel(), &wd->track());
 	const Well::ExtractParams& params = welllogselfld_->params();
-	ldata->dahrg_ = params.calcFrom( wd, lognms, true );
+	ldata->dahrg_ = params.calcFrom( *wd, lognms, true );
 	ldata->wellname_ = wellnms[idx]->buf();
 	if ( !ldata->setSelectedLogs( lognms ) )
 	    { delete ldata; continue; }
-	ldata->wellid_ = wid;
+	ldata->wellid_ = wmid;
 
 	logdatas += ldata;
     }
+
     if ( logdatas.isEmpty() )
-	mErrRet("Please select at least one valid log for the selected well(s)")
+    {
+	BufferString errmsg( msgs.cat() );
+	errmsg.addNewLine().add( "Please select at least one valid log for the "
+				 "selected well(s)" );
+	mErrRet( errmsg )
+    }
+    else if ( !msgs.isEmpty() )
+    {
+	BufferString warnmsg( msgs.cat() );
+	warnmsg.addNewLine().add( "Will process the other wells only" );
+	uiMSG().warning( warnmsg );
+    }
 
     uiWellLogToolWin* win = new uiWellLogToolWin( this, logdatas );
     win->show();
