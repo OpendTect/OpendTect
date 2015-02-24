@@ -118,6 +118,7 @@ uiAction::~uiAction()
     }
 
     delete msgr_;
+    delete qaction_;
 }
 
 
