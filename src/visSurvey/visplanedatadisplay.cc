@@ -363,7 +363,8 @@ float PlaneDataDisplay::maxDist() const
 }
 
 
-bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat, 
+					  TaskRunner* taskr )
 {
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
@@ -554,7 +555,7 @@ int PlaneDataDisplay::nrResolutions() const
 }
 
 
-void PlaneDataDisplay::setResolution( int res, TaskRunner* tr )
+void PlaneDataDisplay::setResolution( int res, TaskRunner* taskr )
 {
     if ( res==resolution_ )
 	return;
@@ -562,7 +563,7 @@ void PlaneDataDisplay::setResolution( int res, TaskRunner* tr )
     resolution_ = res;
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	updateFromDisplayIDs( idx, tr );
+	updateFromDisplayIDs( idx, taskr );
 }
 
 
@@ -659,12 +660,12 @@ void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* ) const
 
 
 void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
-					 TaskRunner* tr )
+					 TaskRunner* taskr )
 {
     if ( attrib>=nrAttribs() )
 	return;
 
-    setRandomPosDataNoCache( attrib, &data->bivSet(), tr );
+    setRandomPosDataNoCache( attrib, &data->bivSet(), taskr );
 
     if ( rposcache_[attrib] )
 	delete rposcache_[attrib];
@@ -1009,7 +1010,7 @@ void PlaneDataDisplay::setDisplayDataPackIDs( int attrib,
 }
 
 
-void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
+void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* taskr )
 {
     const TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
     int sz = dpids.size();
@@ -1050,14 +1051,14 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	    if ( resolution_<1 )
 		dparr.getAll( tmparr );
 	    else
-		interpolArray( attrib, tmparr, sz0, sz1, dparr, tr );
+		interpolArray( attrib, tmparr, sz0, sz1, dparr, taskr );
 
 	    arr = tmparr;
 	    cp = OD::TakeOverPtr;
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, tr );
+	channels_->setUnMappedData( attrib, idx, arr, cp, taskr );
     }
 
     channels_->turnOn( true );
@@ -1065,11 +1066,12 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 
 
 void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
-			      const Array2D<float>& inp, TaskRunner* tr ) const
+				      const Array2D<float>& inp, 
+				      TaskRunner* taskr ) const
 {
     Array2DReSampler<float,float> resampler( inp, res, sz0, sz1, true );
     resampler.setInterpolate( true );
-    TaskRunner::execute( tr, resampler );
+    TaskRunner::execute( taskr, resampler );
 }
 
 
@@ -1193,12 +1195,12 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
 }
 
 
-SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tr ) const
+SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
 {
     PlaneDataDisplay* pdd = new PlaneDataDisplay();
     pdd->setOrientation( orientation_ );
     pdd->setTrcKeyZSampling( getTrcKeyZSampling(false,true,0) );
-    pdd->setZAxisTransform( datatransform_, tr );
+    pdd->setZAxisTransform( datatransform_, taskr );
 
     while ( nrAttribs() > pdd->nrAttribs() )
 	pdd->addAttrib();
@@ -1208,11 +1210,12 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tr ) const
 	if ( !getSelSpec(idx) ) continue;
 
 	pdd->setSelSpec( idx, *getSelSpec(idx) );
-	pdd->setDataPackID( idx, getDataPackID(idx), tr );
+	pdd->setDataPackID( idx, getDataPackID(idx), taskr );
 	if ( getColTabMapperSetup( idx ) )
-	    pdd->setColTabMapperSetup( idx, *getColTabMapperSetup( idx ), tr );
+	    pdd->setColTabMapperSetup( idx, *getColTabMapperSetup( idx ), 
+				       taskr );
 	if ( getColTabSequence( idx ) )
-	    pdd->setColTabSequence( idx, *getColTabSequence( idx ), tr );
+	    pdd->setColTabSequence( idx, *getColTabSequence( idx ), taskr );
     }
 
     return pdd;
