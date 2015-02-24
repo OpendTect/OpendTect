@@ -5,9 +5,11 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-if ( ITTNOTIFY_DIR )
+set ( ITTNOTIFY_DIR "" CACHE PATH "Directory of ITT notify" )
+
+if ( EXISTS ${ITTNOTIFY_DIR} )
     find_package( IttNotify )
     if ( ITTNOTIFY_FOUND )
 	add_definitions( -D__ittnotify__ )
     endif ( ITTNOTIFY_FOUND )
-endif ( ITTNOTIFY_DIR )
+endif ()
