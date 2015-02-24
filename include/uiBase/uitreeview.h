@@ -34,7 +34,7 @@ mExpClass(uiBase) uiTreeView : public uiObject
 { mODTextTranslationClass(uiTreeView);
 public:
 			uiTreeView(uiParent* parnt,
-				   uiString nm=tr("uiTreeView"),
+				   const char* nm="uiTreeView",
 				   int preferredNrLines=0,
 				   bool rootdecorated=true);
     virtual		~uiTreeView();
