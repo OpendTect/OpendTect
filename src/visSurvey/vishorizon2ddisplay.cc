@@ -148,7 +148,7 @@ void Horizon2DDisplay::setLineStyle( const LineStyle& lst )
 }
 
 
-bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
+bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* taskr )
 {
     visBase::PolyLine3D* pl = visBase::PolyLine3D::create();
     pl->ref();
@@ -573,9 +573,10 @@ void Horizon2DDisplay::otherObjectsMoved(
 }
 
 
-bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
+bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid, 
+				    TaskRunner* taskr )
 {
-    if ( !EMObjectDisplay::setEMObject( newid, tr ) )
+    if ( !EMObjectDisplay::setEMObject( newid, taskr ) )
 	return false;
 
     getMaterial()->setColor( emobject_->preferredColor() );
@@ -583,7 +584,8 @@ bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
 }
 
 
-bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
+bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, 
+					  TaskRunner* taskr )
 {
     CallBack cb = mCB(this,Horizon2DDisplay,zAxisTransformChg);
     if ( zaxistransform_ )
