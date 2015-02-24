@@ -47,17 +47,17 @@ WellLogInfo( const MultiID& mid, const char* lognm )
 
 bool init()
 {
+    const bool isloaded = Well::MGR().isLoaded( mid_ );
     RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(mid_) )
+    if ( isloaded && !wd )
     {
-	wd = Well::MGR().get( mid_ );
-	if ( !wd )
-	    return false;
+	return false;
     }
-    else
+    else if ( !isloaded )
     {
 	Well::Reader wrdr( mid_, *wd );
-	if ( !wrdr.getTrack() || ( SI().zIsTime() && !wrdr.getD2T() ) ||
+	if ( !wrdr.getTrack() ||
+	     ( SI().zIsTime() && ( !wrdr.getInfo() || !wrdr.getD2T() ) ) ||
 	     !wrdr.getLog(logname_) )
 	    return false;
     }
@@ -68,9 +68,10 @@ bool init()
 	track_->toTime( *wd );
     }
     else
-	track_ = &wd->track();
+	track_ = isloaded ? &wd->track() : new Well::Track( wd->track() );
 
-    log_ = wd->logs().getLog( logname_ );
+    const Well::Log* log = wd->logs().getLog( logname_ );
+    log_ = isloaded ? log : new Well::Log( *log );
 
     return true;
 }

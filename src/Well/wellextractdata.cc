@@ -99,22 +99,36 @@ int Well::InfoCollector::nextStep()
 	return ErrorOccurred();
 
     const IOObj* ioobj = (*direntries_)[curidx_]->ioobj_;
-    ids_ += new MultiID( ioobj->key() );
+    const MultiID wmid( ioobj->key() );
+    ids_ += new MultiID( wmid );
+    const bool isloaded = Well::MGR().isLoaded( wmid );
 
     if ( dotracks_ || dologs_ || domrkrs_ )
     {
 	RefMan<Well::Data> wd = new Well::Data;
-	Well::Reader wr( *ioobj, *wd );
-	const bool hasinfo = wr.getInfo();
-	if ( !hasinfo )
-	    return ErrorOccurred();
-
-	infos_ += new Well::Info( wd->info() );
-	if ( hasinfo && dotracks_ )
+	BufferStringSet* newlognms = new BufferStringSet;
+	if ( isloaded )
 	{
-	    if ( !wr.getTrack() )
+	    if ( !wd )
 		return ErrorOccurred();
 
+	    wd->logs().getNames( *newlognms );
+	}
+	else if ( !isloaded )
+	{
+	    Well::Reader wrdr( wmid, *wd );
+	    if ( !wrdr.getInfo() ||
+		 ( dotracks_ && !wrdr.getTrack() ) ||
+		 ( domrkrs_ && !wrdr.getMarkers() ) )
+		return ErrorOccurred();
+
+	    if ( dologs_ ) wrdr.getLogInfo( *newlognms );
+	}
+
+	infos_ += new Well::Info( wd->info() );
+
+	if ( dotracks_ )
+	{
 	    const Well::Track& trk = wd->track();
 	    if ( mIsUdf(trackstvdrg_.start) )
 		trackstvdrg_.setFrom( trk.zRange() );
@@ -127,20 +141,13 @@ int Well::InfoCollector::nextStep()
 	}
 
 	if ( dologs_ )
-	{
-	    BufferStringSet* newlognms = new BufferStringSet;
-	    if ( hasinfo )
-		wr.getLogInfo( *newlognms );
-
 	    logs_ += newlognms;
-	}
 
 	if ( domrkrs_ )
 	{
 	    Well::MarkerSet* newset = new Well::MarkerSet;
 	    markers_ += newset;
-	    if ( hasinfo && wr.getMarkers() )
-		deepCopy( *newset, wd->markers() );
+	    deepCopy( *newset, wd->markers() );
 	}
 
     }
