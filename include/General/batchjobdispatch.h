@@ -125,7 +125,7 @@ public:
     virtual bool	isSuitedFor(const char*) const	{ return true; }
 
     mDefaultFactoryInstantiation(JobDispatcher,SingleJobDispatcher,
-				 "Single Process","Single Process");
+				 "Single Process",tr("Single Process"));
 
     BufferString	remotehost_;
     BufferString	remoteexec_;

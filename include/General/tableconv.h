@@ -82,20 +82,20 @@ protected:
 
 
 mExpClass(General) Converter : public Executor
-{
+{ mODTextTranslationClass(Converter);
 public:
 			Converter( ImportHandler& i, ExportHandler& o )
 			    : Executor("Data import")
 			    , imphndlr_(i), exphndlr_(o)
 			    , rowsdone_(0), selcolnr_(-1), atend_(false)
-			    , msg_("Importing")		{}
+			    , msg_(tr("Importing"))		{}
     // Setup
     TypeSet<int>	selcols_;
     uiString		msg_;
 
     virtual int		nextStep();
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "Records read"; }
+    uiString		uiNrDoneText() const	{ return tr("Records read"); }
     od_int64		nrDone() const		{ return rowsdone_; }
 
     struct RowManipulator

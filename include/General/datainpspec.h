@@ -21,13 +21,14 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "keystrs.h"
 #include "uistring.h"
+#include "uistrings.h"
 
 /*!
 \brief Data type.
 */
 
 mExpClass(General) DataType
-{
+{ mODTextTranslationClass(DataType);
 public:
 
     enum		Rep  { intTp, floatTp, doubleTp, boolTp, stringTp };
@@ -59,7 +60,7 @@ protected:
 
 template<class T>
 mClass(General) DataTypeImpl : public DataType
-{
+{ mODTextTranslationClass(DataTypeImpl);
 public:
 
 
@@ -85,7 +86,7 @@ With it, user interface parts can be constructed (uiGenInput).
 
 */
 mExpClass(General) DataInpSpec
-{
+{ mODTextTranslationClass(DataInpSpec);
 public:
 
 
@@ -168,7 +169,7 @@ private:
 */
 template <class T>
 mClass(General) NumInpSpec : public DataInpSpec
-{
+{ mODTextTranslationClass(NumInpSpec);
 public:
 			NumInpSpec()
 			    : DataInpSpec( DataTypeImpl<T>() )
@@ -300,7 +301,7 @@ typedef NumInpSpec<double>	DoubleInpSpec;
 */
 template <class T>
 mClass(General) NumInpIntervalSpec : public DataInpSpec
-{
+{ mODTextTranslationClass(NumInpIntervalSpec);
 public:
 			NumInpIntervalSpec( bool withstep=false )
 			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
@@ -563,7 +564,7 @@ typedef NumInpIntervalSpec<double>	DoubleInpIntervalSpec;
 
 /*! \brief Specifications for character string inputs. */
 mExpClass(General) StringInpSpec : public DataInpSpec
-{
+{ mODTextTranslationClass(StringInpSpec);
 public:
 			StringInpSpec( const char* s=0 );
     virtual bool	isUndef(int idx=0) const;
@@ -593,7 +594,7 @@ protected:
 /*! \brief Specifications for file-name inputs.
 */
 mExpClass(General) FileNameInpSpec : public StringInpSpec
-{
+{ mODTextTranslationClass(FileNameInpSpec);
 public:
 				FileNameInpSpec( const char* fname=0 );
     virtual DataInpSpec*	clone() const;
@@ -613,7 +614,7 @@ It does not change the underlying true/false texts.
 
 
 mExpClass(General) BoolInpSpec : public DataInpSpec
-{
+{ mODTextTranslationClass(BoolInpSpec);
 public:
 			BoolInpSpec(bool yesno,
 				    const uiString& truetxt=sKey::Yes(),
@@ -663,11 +664,11 @@ protected:
 /*! \brief Specifications for list of character string inputs.
 */
 mExpClass(General) StringListInpSpec : public DataInpSpec
-{
+{ mODTextTranslationClass(StringListInpSpec);
 public:
 			StringListInpSpec(const BufferStringSet&);
 			StringListInpSpec(const uiStringSet&);
-			StringListInpSpec(const char** sl=0);
+		StringListInpSpec(const char** sl=0);
 			StringListInpSpec(const StringListInpSpec&);
 			~StringListInpSpec();
 
@@ -677,7 +678,7 @@ public:
 
     const uiStringSet& strings() const;
 
-    void		addString(const char* txt);
+    void		addString(uiString txt);
     virtual const char*	text(int idx=0) const;
     void		setItemText(int idx, const uiString&);
     virtual bool	setText(const char* s,int nr);
@@ -714,7 +715,7 @@ protected:
 /*! \brief Specifications for BinID/Coordinate/TrcNrs and offsets */
 
 mExpClass(General) PositionInpSpec : public DataInpSpec
-{
+{ mODTextTranslationClass(PositionInpSpec);
 public:
 
     struct Setup

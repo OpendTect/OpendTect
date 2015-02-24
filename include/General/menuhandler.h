@@ -76,7 +76,8 @@ private:
 mExpClass(General) MenuItem : public MenuItemHolder
 {
 public:
-				MenuItem(const uiString& text=0,
+				MenuItem(const uiString& 
+					 text=uiString::emptyString(),
 					 int placement=-1);
     void			createItems(const BufferStringSet&);
 
@@ -105,10 +106,10 @@ public:
 
 
 mExpClass(General) SeparatorItem : public MenuItem
-{
+{ mODTextTranslationClass(SeparatorItem);
 public:
 				SeparatorItem(int plmnt=-1)
-				    : MenuItem("Separator",plmnt)	{}
+				    : MenuItem(tr("Separator"),plmnt)	{}
 };
 
 

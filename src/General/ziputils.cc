@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "winutils.h"
 #include "oscommand.h"
 #include "fixedstring.h"
+#include "uistrings.h"
 #include "ziparchiveinfo.h"
 
 
@@ -27,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDirCheck( dir ) \
     if ( !File::exists(dir) ) \
 { \
-    errmsg_ = uiString("%1 does not exist").arg( dir ); \
+    errmsg_ = uiStrings::sDoesntExist(mkUiString(dir)); \
     return false; \
 } \
 
@@ -216,14 +217,14 @@ od_int64 Zipper::totalNr() const
 
 
 uiString Zipper::uiNrDoneText() const
-{ return "MBytes processed: "; }
+{ return tr("MBytes processed: "); }
 
 
 uiString Zipper::uiMessage() const
 {
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )
-	return "Archiving data";
+	return tr("Archiving data");
     else
 	return errmsg;
 }
@@ -304,14 +305,14 @@ od_int64 UnZipper::totalNr() const
 
 
 uiString UnZipper::uiNrDoneText() const
-{ return "MBytes Processed: "; }
+{ return tr("MBytes Processed: "); }
 
 
 uiString UnZipper::uiMessage() const
 {
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )
-	return "Extracting data";
+	return tr("Extracting data");
     else
 	return errmsg;
 }

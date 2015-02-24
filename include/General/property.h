@@ -29,7 +29,7 @@ class PropertySet;
  */
 
 mExpClass(General) Property
-{
+{ mODTextTranslationClass(Property);
 public:
 
 			Property( const PropertyRef& pr )
@@ -46,7 +46,9 @@ public:
     virtual void	reset()			     { lastval_ = mUdf(float); }
     virtual bool	init(const PropertySet&) const;
 			    //!< clears 'memory' and makes property usable
-    virtual uiString	errMsg() const			{ return 0; }
+    virtual uiString	errMsg() const			{ 
+					    return uiString::emptyString(); 
+							}
 
     virtual bool	isUdf() const			= 0;
     virtual bool	dependsOn(const Property&) const { return false; }

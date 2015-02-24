@@ -83,7 +83,7 @@ should not use it directly instead use ZipUtils::makeZip.
 */
 
 mExpClass(General) Zipper : public Executor
-{
+{ mODTextTranslationClass(Zipper)
 public:
 				Zipper(const char*,const BufferStringSet&, 
                                        ZipHandler::CompLevel);
@@ -113,7 +113,7 @@ ZipUtils::UnZipFile() to take one file out of zip archive.
 */
 
 mExpClass(General) UnZipper : public Executor
-{
+{ mODTextTranslationClass(UnZipper)
 public:
 				UnZipper(const char*,const char*);
 
