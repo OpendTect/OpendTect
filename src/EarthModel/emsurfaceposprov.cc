@@ -121,13 +121,13 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 }
 
 
-bool EMSurfaceProvider::initialize( TaskRunner* tr )
+bool EMSurfaceProvider::initialize( TaskRunner* taskr )
 {
     if ( nrSurfaces() == 0 ) return false;
 
     EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(id1_) );
     if ( !emobj )
-	emobj = EM::EMM().loadIfNotFullyLoaded( id1_, tr );
+	emobj = EM::EMM().loadIfNotFullyLoaded( id1_, taskr );
     mDynamicCastGet(EM::Surface*,surf1,emobj)
     if ( !surf1 ) return false;
     surf1_ = surf1; surf1_->ref();
@@ -138,7 +138,7 @@ bool EMSurfaceProvider::initialize( TaskRunner* tr )
     {
 	emobj = EM::EMM().getObject( EM::EMM().getObjectID(id2_) );
 	if ( !emobj )
-	    emobj = EM::EMM().loadIfNotFullyLoaded( id2_, tr );
+	    emobj = EM::EMM().loadIfNotFullyLoaded( id2_, taskr );
 	mDynamicCastGet(EM::Surface*,surf2,emobj)
 	if ( !surf2 ) return false;
 	surf2_ = surf2; surf2_->ref();
@@ -526,9 +526,9 @@ void EMSurface2DProvider3D::mkDPS( const EM::Surface& s, DataPointSet& dps )
 }
 
 
-bool EMSurface2DProvider3D::initialize( TaskRunner* tr )
+bool EMSurface2DProvider3D::initialize( TaskRunner* taskr )
 {
-    if ( !EMSurfaceProvider::initialize(tr) || !surf1_ )
+    if ( !EMSurfaceProvider::initialize(taskr) || !surf1_ )
 	return false;
 
     mkDPS( *surf1_, dpssurf1_ );
@@ -640,12 +640,12 @@ void EMImplicitBodyProvider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 { cs = useinside_ ? tkzs_ : bbox_; }
 
 
-bool EMImplicitBodyProvider::initialize( TaskRunner* tr )
+bool EMImplicitBodyProvider::initialize( TaskRunner* taskr )
 {
     if ( !embody_ ) 
 	return false;
 
-    EM::ImplicitBody* body = embody_->createImplicitBody(tr,false);
+    EM::ImplicitBody* body = embody_->createImplicitBody(taskr,false);
     if ( !body || !body->arr_ )
     {
 	delete imparr_; imparr_ = 0;
