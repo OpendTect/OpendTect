@@ -51,7 +51,9 @@ protected:
     bool			doPrepare(int);
     bool			doFinish(bool);
     bool			doWork(od_int64,od_int64,int);
-    uiString			uiNrDoneText() const { return "Traces written";}
+    uiString			uiNrDoneText() const { 
+						return tr("Traces written");
+						     }
 
     char			getNewTrace(SeisTrc&,int threadidx);
 

@@ -63,7 +63,8 @@ mExpClass(Velocity) VolumeFunctionSource : public FunctionSource
 { mODTextTranslationClass(VolumeFunctionSource);
 public:
 				mDefaultFactoryInstanciationBase(
-					"Velocity volume", sFactoryKeyword() );
+				"Velocity volume", 
+				mkUiString(sFactoryKeyword()));
     				VolumeFunctionSource();
 
     const VelocityDesc&		getDesc() const 	{ return desc_; }

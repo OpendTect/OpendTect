@@ -47,10 +47,11 @@ protected:
 
 
 mExpClass(Velocity) StoredFunctionSource : public FunctionSource
-{
+{ mODTextTranslationClass(StoredFunctionSource);
 public:
 				mDefaultFactoryInstanciationBase(
-					"StoredVelFunc", sFactoryKeyword() );
+				    "StoredVelFunc", 
+				    mkUiString(sFactoryKeyword()));
 
     				StoredFunctionSource();
     static IOObjContext&	ioContext();
