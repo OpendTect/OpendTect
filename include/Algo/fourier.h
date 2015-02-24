@@ -28,9 +28,9 @@ class FFTCC1D;
 */
 
 mExpClass(Algo) CC : public GenericTransformND
-{
+{ mODTextTranslationClass(CC);
 public:
-    mDefaultFactoryInstantiation( CC, CC, "PFAFFT", "FFT" );
+    mDefaultFactoryInstantiation( CC, CC, "PFAFFT", tr("FFT") );
     static ::Factory<CC>& factory();
 
     static CC*		createDefault();

@@ -43,13 +43,13 @@ public:
 
 
 mExpClass(Algo) ZSliceInterpolationModel : public InterpolationLayerModel
-{
+{ mODTextTranslationClass(ZSliceInterpolationModel);
 public:
 			mDefaultFactoryInstantiation(
 				InterpolationLayerModel,
 				ZSliceInterpolationModel,
 				"ZSlices",
-				"Z Slices")
+				tr("Z Slices"))
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
 

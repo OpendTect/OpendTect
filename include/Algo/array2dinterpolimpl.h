@@ -49,11 +49,11 @@ class Extension2DInterpolExecutor;
 */
 
 mExpClass(Algo) InverseDistanceArray2DInterpol : public Array2DInterpol
-{
+{ mODTextTranslationClass(InverseDistanceArray2DInterpol);
 public:
 		mDefaultFactoryInstantiation(Array2DInterpol, 
 			InverseDistanceArray2DInterpol,
-			"Inverse distance",sFactoryKeyword())
+			"Inverse distance", mkUiString(sFactoryKeyword()))
 
 		InverseDistanceArray2DInterpol();
 		~InverseDistanceArray2DInterpol();
@@ -86,7 +86,7 @@ public:
 protected:
     virtual bool	doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const	{ return totalnr_; }
-    uiString		uiNrDoneText() const	{ return "Nodes gridded"; }
+    uiString		uiNrDoneText() const	{ return tr("Nodes gridded"); }
 
     bool		doPrepare(int);
     virtual bool	initFromArray(TaskRunner*);
@@ -134,11 +134,11 @@ protected:
 */
 
 mExpClass(Algo) TriangulationArray2DInterpol : public Array2DInterpol
-{
+{ mODTextTranslationClass(TriangulationArray2DInterpol);
 public:
 		mDefaultFactoryInstantiation(Array2DInterpol,
 			TriangulationArray2DInterpol,
-			"Triangulation",sFactoryKeyword())
+			"Triangulation", mkUiString(sFactoryKeyword()))
 
     		TriangulationArray2DInterpol();
     		~TriangulationArray2DInterpol();
@@ -163,7 +163,7 @@ protected:
     int			minThreadSize() const	{ return 10000; }
     bool		doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const	{ return totalnr_; }
-    uiString		uiNrDoneText() const	{ return "Nodes gridded"; }
+    uiString		uiNrDoneText() const	{ return tr("Nodes gridded"); }
 
     bool		doPrepare(int);
     virtual bool	initFromArray(TaskRunner*);
@@ -192,10 +192,11 @@ protected:
 */
 
 mExpClass(Algo) ExtensionArray2DInterpol : public Array2DInterpol
-{
+{ mODTextTranslationClass(ExtensionArray2DInterpol);
 public:
 		mDefaultFactoryInstantiation(Array2DInterpol,
-			ExtensionArray2DInterpol,"Extension",sFactoryKeyword())
+		    ExtensionArray2DInterpol, "Extension", 
+		    mkUiString(sFactoryKeyword()))
 
     		ExtensionArray2DInterpol();
     		~ExtensionArray2DInterpol();

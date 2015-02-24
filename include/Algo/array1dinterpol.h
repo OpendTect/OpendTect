@@ -24,7 +24,7 @@ template <class T> class Array1D;
 */
 
 mExpClass(Algo) Array1DInterpol : public Executor
-{
+{ mODTextTranslationClass(Array1DInterpol);
 public:
     virtual		~Array1DInterpol();
 
@@ -43,7 +43,7 @@ public:
 protected:
 			Array1DInterpol();
     uiString		uiNrDoneText() const
-    			{ return "Points interpolated "; }
+    			{ return tr("Points interpolated"); }
 
     Array1D<float>*	arr_;
     bool		arrstarted_;

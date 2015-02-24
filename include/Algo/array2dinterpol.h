@@ -61,7 +61,9 @@ public:
 				    AND the mask. If no mask is given, the
 				    filltype will be used alone. */
 
-    virtual uiString		infoMsg() const		{ return 0; }
+    virtual uiString		infoMsg() const	{ 
+						return uiString::emptyString();
+						}
 
     mExpClass(Algo) ArrayAccess
     {
@@ -84,7 +86,7 @@ public:
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    uiString			uiMessage() const { return "Gridding"; }
+    uiString			uiMessage() const { return tr("Gridding"); }
 
     static const char*		sKeyFillType();
     static const char*		sKeyRowStep();

@@ -27,11 +27,11 @@ Adaptions to different data-types are done in subclasses.
 */
 
 mExpClass(Algo) BendPointFinderBase : public ParallelTask
-{
+{ mODTextTranslationClass(BendPointFinderBase);
 public:
 
     const TypeSet<int>&	bendPoints() const	{ return bendpts_; }
-    uiString		uiNrDoneText() const	{ return "Positions done"; }
+    uiString		uiNrDoneText() const	{ return tr("Positions done"); }
 
 protected:
 			BendPointFinderBase( int sz, float eps );

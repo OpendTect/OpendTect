@@ -148,7 +148,7 @@ protected:
 */
 
 mExpClass(Algo) DelaunayTriangulator : public ParallelTask
-{
+{ mODTextTranslationClass(DelaunayTriangulator);
 public:
 			DelaunayTriangulator(DAGTriangleTree&);
 			~DelaunayTriangulator();
@@ -167,8 +167,8 @@ protected:
     bool		doPrepare(int);
 
     uiString		uiNrDoneText() const
-			{ return "Points triagulated"; }
-    uiString		uiMessage() const { return "Triangulating"; }
+			{ return tr("Points triangulated"); }
+    uiString		uiMessage() const { return tr("Triangulating"); }
 
     od_int64*		permutation_;
     bool		israndom_;

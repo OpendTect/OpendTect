@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class Dip3DCalculator : public ParallelTask
-{
+{ mODTextTranslationClass(Dip3DCalculator);
 public:
 Dip3DCalculator( Dip3D& fd )    
     : fd_(fd)
@@ -25,7 +25,7 @@ Dip3DCalculator( Dip3D& fd )
 
 protected:
 od_int64 nrIterations() const	{ return fd_.input_.info().getTotalSz(); }
-uiString uiMessage() const	{ return "Dip/Azimuth calculating.."; }
+uiString uiMessage() const	{ return tr("Dip/Azimuth calculating.."); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
@@ -146,7 +146,7 @@ Dip3D& fd_;
 
 
 class Dip2DCalculator : public ParallelTask
-{
+{ mODTextTranslationClass(Dip2DCalculator);
 public:
 Dip2DCalculator( Dip2D& fd )    
     : fd_(fd)
@@ -154,7 +154,7 @@ Dip2DCalculator( Dip2D& fd )
 
 protected:
 od_int64 nrIterations() const	{ return fd_.input_.info().getTotalSz(); }
-uiString uiMessage() const	{ return "Dip calculating.."; }
+uiString uiMessage() const	{ return tr("Dip calculating.."); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {

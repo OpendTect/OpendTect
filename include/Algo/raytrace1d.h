@@ -119,8 +119,9 @@ mExpClass(Algo) VrmsRayTracer1D : public RayTracer1D
 { mODTextTranslationClass(VrmsRayTracer1D);
 public:
 
-    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, "VrmsRayTracer",
-				"Simple RayTracer" );
+    mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, 
+				  "VrmsRayTracer",
+				  tr("Simple RayTracer") );
 
     RayTracer1D::Setup&		setup()	{ return setup_; }
     const RayTracer1D::Setup&	setup() const	{ return setup_; }

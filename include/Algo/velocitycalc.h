@@ -230,8 +230,9 @@ public:
 mExpClass(Algo) DixConversion : public Vrms2Vint
 { mODTextTranslationClass(DixConversion)
 public:
-		mDefaultFactoryInstantiation( Vrms2Vint, DixConversion, "Dix",
-					      sFactoryKeyword() );
+		mDefaultFactoryInstantiation( Vrms2Vint, DixConversion, 
+					      "Dix",
+					      mkUiString(sFactoryKeyword()));
 
     bool	compute(const float* Vrms, float t0, float v0,
 	    		const float* t, int nrlayers, float* Vint)

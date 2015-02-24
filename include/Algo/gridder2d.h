@@ -109,11 +109,11 @@ protected:
 */
 
 mExpClass(Algo) InverseDistanceGridder2D : public Gridder2D 
-{
+{ mODTextTranslationClass(InverseDistanceGridder2D);
 public:
     mDefaultFactoryInstantiation( Gridder2D,
 				InverseDistanceGridder2D,
-				"InverseDistance", "Inverse distance" );
+				"InverseDistance", tr("Inverse distance") );
 
 		InverseDistanceGridder2D();
 		InverseDistanceGridder2D(const InverseDistanceGridder2D&);
@@ -146,11 +146,11 @@ inverse distance between the neighbors.
 */
 
 mExpClass(Algo) TriangulatedGridder2D: public Gridder2D
-{
+{ mODTextTranslationClass(TriangulatedGridder2D);
 public:
     mDefaultFactoryInstantiation( Gridder2D,
 				TriangulatedGridder2D,
-				"Triangulated", "Triangulation" );
+				"Triangulated", tr("Triangulation") );
     			TriangulatedGridder2D();
 			TriangulatedGridder2D(
 				const TriangulatedGridder2D&);

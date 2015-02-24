@@ -55,15 +55,15 @@ DefineEnumNames( Array2DInterpol, FillType, 1, "Filltypes" )
 mImplFactory( Array2DInterpol, Array2DInterpol::factory );
 
 class Extension2DInterpolExecutor : public Executor
-{
+{ mODTextTranslationClass(Extension2DInterpolExecutor);
 public:
 		Extension2DInterpolExecutor(ExtensionArray2DInterpol&);
 		~Extension2DInterpolExecutor()  { deleteStateArr(); }
 
     int		nextStep();
-    uiString	uiMessage() const		{ return curmsg_; }
+    uiString	uiMessage() const	{ return curmsg_; }
     od_int64	nrDone() const		{ return curlvl_ + 1; }
-    uiString	uiNrDoneText() const	{ return "Interpolation level"; }
+    uiString	uiNrDoneText() const	{ return tr("Interpolation level"); }
     od_int64	totalNr() const		{ return aie_.getNrSteps(); }
 
 protected:
@@ -81,7 +81,7 @@ protected:
     short**	state_;
     int		curlvl_;
     float	diagdist_;
-    const char*	curmsg_;
+    uiString	curmsg_;
 
     ExtensionArray2DInterpol&	aie_;
 };
@@ -1521,7 +1521,7 @@ Extension2DInterpolExecutor::Extension2DInterpolExecutor(
     , state_(0)
     , curlvl_(-1)
     , diagdist_(mUdf(float))
-    , curmsg_("Setting up interpolation")
+    , curmsg_(tr("Setting up interpolation"))
 {
     createStateArr();
 }
