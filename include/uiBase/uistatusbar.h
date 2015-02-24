@@ -32,10 +32,10 @@ mExpClass(uiBase) uiStatusBar : public uiBaseObject
 public:
 			~uiStatusBar();
 
-    int		addMsgFld(const uiString& lbltxt=0,
-				  const uiString& tooltip =0,
-				  Alignment::HPos al=Alignment::Left,
-				  int stretch=1);
+    int		addMsgFld(const uiString& lbltxt=uiStrings::sEmptyString(),
+			  const uiString& tooltip =uiStrings::sEmptyString(),
+			  Alignment::HPos al=Alignment::Left,
+			  int stretch=1);
 
     int		addMsgFld(const uiString& tooltip,
 				  Alignment::HPos al=Alignment::Left,

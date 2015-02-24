@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uigroup.h"
+#include "uistrings.h"
 
 class uiTabBar;
 
@@ -39,7 +40,8 @@ public:
 			// use this as parent for groups to add
     uiGroup*		tabGroup()			{ return tabgrp_; }
 
-    void		addTab(uiGroup*,const uiString& =0);
+    void		addTab(uiGroup*,
+			       const uiString& =uiStrings::sEmptyString());
     void		removeTab(uiGroup*);
 
     void		setTabEnabled(uiGroup*,bool);

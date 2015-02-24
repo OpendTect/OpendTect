@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "fontdata.h"
 #include "uistring.h"
+#include "uistrings.h"
 
 mFDQtclass(QFont)
 mFDQtclass(QFontMetrics)
@@ -23,13 +24,13 @@ class BufferStringSet;
 class uiFont;
 
 mGlobal(uiBase) bool select( uiFont&, uiParent* parnt=0,
-			     const uiString& title=0 );
+			     const uiString& title=uiStrings::sEmptyString() );
 	/*!< \brief pops a selector box to select a new font
 	     \return true if new font selected
 	*/
 
 mGlobal(uiBase) bool select( FontData&,uiParent* parnt=0,
-			     const uiString& title = 0);
+			     const uiString& title = uiStrings::sEmptyString());
 
 
 mExpClass(uiBase) uiFont : public CallBacker

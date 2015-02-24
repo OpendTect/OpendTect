@@ -63,10 +63,10 @@ protected:
    is transfered. */
 
 mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
-{
+{ mODTextTranslationClass(uiMenu);
 
 public:
-				uiMenu(const uiString& nm="uiMenu",
+				uiMenu(const uiString& nm=tr("uiMenu"),
 				       const char* pixmapfilenm=0);
 
 				~uiMenu();
@@ -127,7 +127,8 @@ public:
     static void			removeInterceptor(const CallBack&);
     void			doIntercept(bool yn,uiAction* activateitm = 0);
 
-				uiMenu(uiParent*, const uiString& txt="uiMenu",
+				uiMenu(uiParent*, 
+				       const uiString& txt=tr("uiMenu"),
 				       const char* pixmapfilenm=0);
 };
 

@@ -89,7 +89,7 @@ QWidget* uiMsg::popParnt()
 }
 
 
-bool uiMsg::toStatusbar( const char* msg, int fldidx, int msec )
+bool uiMsg::toStatusbar( uiString msg, int fldidx, int msec )
 {
     if ( !statusBar() ) return false;
 
@@ -249,7 +249,8 @@ void uiMsg::message( const uiString& part1, const uiString& part2,
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
-    showMessageBox( Information, popParnt(), msg, uiStrings::sOk(), 0, 0,
+    showMessageBox( Information, popParnt(), msg, uiStrings::sOk(), 
+		    uiStrings::sEmptyString(), uiStrings::sEmptyString(),
 		    tr("Information") );
 }
 
@@ -260,7 +261,8 @@ void uiMsg::warning( const uiString& part1, const uiString& part2,
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
-    showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(), 0, 0,
+    showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(), 
+		    uiStrings::sEmptyString(), uiStrings::sEmptyString(),
 		    tr("Warning") );
 }
 
@@ -271,7 +273,8 @@ void uiMsg::error( const uiString& part1, const uiString& part2,
     uiString msg = part1;
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
-    showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(), 0, 0,
+    showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(), 
+		    uiStrings::sEmptyString(), uiStrings::sEmptyString(),
 		    tr("Error") );
 }
 
@@ -317,7 +320,9 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
     const int refnr = beginCmdRecEvent( utfwintitle );
     // Use of QMessageBox::Abort enables close and escape actions by the user
     PtrMan<QMessageBox> mb = createMessageBox( Critical, popParnt(), strings[0],
-					       0, 0, oktxt, wintitle );
+					       uiStrings::sEmptyString(), 
+					       uiStrings::sEmptyString(), 
+					       oktxt, wintitle );
     mb->setDefaultButton( QMessageBox::Abort );
 
     if ( strings.size()>1 )
@@ -327,7 +332,7 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
 	for ( int idx=1; idx<strings.size(); idx++ )
 	{
 	    uiString old = detailed;
-	    detailed = uiString( "%1\n%2" ).arg( old ).arg( strings[idx] );
+	    detailed = tr( "%1\n%2" ).arg( old ).arg( strings[idx] );
 	}
 
 	mb->setDetailedText( detailed.getQtString() );
@@ -342,7 +347,7 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 {
     const uiString dontsavetxt = tr("Don't save");
     return question( text, uiStrings::sSave(true), dontsavetxt,
-		     wcancel ? uiStrings::sCancel() : 0,
+		     wcancel ? uiStrings::sCancel() : uiStrings::sEmptyString(),
 		     tr("Data not saved") );
 }
 
@@ -351,21 +356,23 @@ int uiMsg::askRemove( const uiString& text, bool wcancel )
 {
     const uiString notxt = wcancel ? tr("Don't remove") : uiStrings::sCancel();
     return question( text, uiStrings::sRemove(true), notxt,
-		     wcancel ? uiStrings::sCancel() : uiString(0),
+		     wcancel ? uiStrings::sCancel() : uiStrings::sEmptyString(),
 		     tr("Remove data") );
 }
 
 
 int uiMsg::askContinue( const uiString& text )
 {
-    return question( text, uiStrings::sContinue(), uiStrings::sAbort(), 0 );
+    return question( text, uiStrings::sContinue(), uiStrings::sAbort(), 
+		     uiStrings::sEmptyString() );
 }
 
 
 int uiMsg::askOverwrite( const uiString& text )
 {
     const uiString yestxt = uiStrings::sOverwrite();
-    return question( text, yestxt, uiStrings::sCancel(), 0 );
+    return question( text, yestxt, uiStrings::sCancel(), 
+		     uiStrings::sEmptyString() );
 }
 
 
@@ -387,7 +394,9 @@ void uiMsg::about( const uiString& text )
     mCapt( tr("About") );
     const int refnr = beginCmdRecEvent( utfwintitle );
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
-					       oktxt, 0, 0, wintitle );
+					       oktxt, uiStrings::sEmptyString(),
+					       uiStrings::sEmptyString(), 
+					       wintitle );
 
     mb->setIconPixmap( mb->windowIcon().pixmap(32) );
     mb->exec();
@@ -402,7 +411,9 @@ void uiMsg::aboutOpendTect( const uiString& text )
     const uiString oktxt = uiStrings::sClose();
     const int refnr = beginCmdRecEvent( utfwintitle );
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
-					       oktxt, 0, 0, wintitle );
+					       oktxt, uiStrings::sEmptyString(),
+					       uiStrings::sEmptyString(), 
+					       wintitle );
     uiPixmap pm( sODLogo );
     if ( pm.qpixmap() )
 	mb->setIconPixmap( *pm.qpixmap() );

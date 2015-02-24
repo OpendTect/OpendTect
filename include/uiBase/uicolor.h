@@ -27,7 +27,8 @@ class uiSpinBox;
 /*! \brief pops a selector box to select a new color 
      \return true if new color selected
 */
-mGlobal(uiBase) bool selectColor(Color&,uiParent* parnt=0,uiString=0,
+mGlobal(uiBase) bool selectColor(Color&,uiParent* parnt=0,
+				 uiString=uiStrings::sEmptyString(),
                                  bool withtransp=false);
 
 // To be used by cmddriver to select a color while closing the QColorDialog

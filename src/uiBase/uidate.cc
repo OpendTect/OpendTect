@@ -93,14 +93,14 @@ bool uiDateSel::getDate( DateInfo& di, bool ui ) const
     int year = yearfld_->getIntValue();
     if ( mIsUdf(year) || year<1900 )
     {
-	if ( ui ) uiMSG().error("Year is undefined or less than 1900");
+	if ( ui ) uiMSG().error(tr("Year is undefined or less than 1900"));
 	return false;
     }
 
     DateInfo res( year, monthfld_->getIntValue()+1, dayfld_->getIntValue()+1 );
     if ( res.isUdf() )
     {
-	if ( ui ) uiMSG().error("Invalid date");
+	if ( ui ) uiMSG().error(tr("Invalid date"));
 	return false;
     }
 
@@ -121,7 +121,7 @@ void uiDateSel::setDate( const DateInfo& di )
 
 void uiDateSel::showCalendarCB( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup( "Calendar", "Select date",
+    uiDialog dlg( this, uiDialog::Setup( tr("Calendar"), tr("Select date"),
 					 mNoHelpKey ) );
     uiCalendar* cal = new uiCalendar( &dlg );
     DateInfo di;

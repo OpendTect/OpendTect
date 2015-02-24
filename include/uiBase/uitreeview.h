@@ -17,7 +17,8 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "keyenum.h"
 #include "draw.h"
-
+#include "uistring.h"
+#include "uistrings.h"
 
 mFDQtclass(QTreeWidget)
 mFDQtclass(QTreeWidgetItem)
@@ -30,10 +31,10 @@ class uiTreeViewItem;
 namespace ColTab { class Sequence; }
 
 mExpClass(uiBase) uiTreeView : public uiObject
-{
+{ mODTextTranslationClass(uiTreeView);
 public:
 			uiTreeView(uiParent* parnt,
-				   const char* nm="uiTreeView",
+				   uiString nm=tr("uiTreeView"),
 				   int preferredNrLines=0,
 				   bool rootdecorated=true);
     virtual		~uiTreeView();
@@ -190,15 +191,15 @@ public:
 */
 
 mExpClass(uiBase) uiTreeViewItem : public CallBacker
-{
+{ mODTextTranslationClass(uiTreeViewItem);
 public:
 
     enum			Type { Standard, CheckBox };
 
     mExpClass(uiBase) Setup
-    {
+    { mODTextTranslationClass(Setup);
     public:
-				Setup( const uiString& txt=0,
+			Setup( const uiString& txt=uiStrings::sEmptyString(),
 				       uiTreeViewItem::Type tp=
 						uiTreeViewItem::Standard,
 				       bool setchecked=true )
@@ -252,13 +253,15 @@ public:
     int			siblingIndex() const;
 			/*!<\returns this items index of it's siblings. */
 
-    void		setText( const uiString&, int column=0 );
+    void		setText( const uiString&, 
+				 int column=0 );
     void		setText( int i, int column=0 )
-			{ setText( toString(i), column ); }
+			{ setText( i, column ); }
     void		setText( float f, int column=0 )
-			{ setText( toString(f), column ); }
-    void		setText( double d, int column=0 )
-			{ setText( toString(d), column ); }
+			{ setText( f, column ); }
+    void		setText( double d, 
+				 int column=0 )
+			{ setText( d, column ); }
 
     const char*		text( int column=0 ) const;
 

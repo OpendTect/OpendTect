@@ -34,11 +34,11 @@ class BufferStringSet;
 */
 
 mExpClass(uiBase) uiMainWin : public uiParent
-{
+{ mODTextTranslationClass(uiMainWin);
 friend class uiMainWinBody;
 public:
     mExpClass(uiBase) Setup
-    {
+    { mODTextTranslationClass(Setup);
     public:
 			Setup( const uiString& capt )
 			: caption_(capt)
@@ -58,7 +58,8 @@ public:
     };
 
 			uiMainWin(uiParent*,const uiMainWin::Setup&);
-			uiMainWin(uiParent*,const uiString& caption="uiMainWin",
+			uiMainWin(uiParent*,const uiString& 
+				  caption=tr("uiMainWin"),
 				  int nrstatusflds=1,bool withmenubar=true,
 				  bool modal=false);
     virtual		~uiMainWin();
@@ -193,7 +194,7 @@ protected:
 
     virtual bool	closeOK()	{return true;}//!< confirm window close
 
-			uiMainWin(const char*,uiParent*);
+			uiMainWin(uiString,uiParent*);
     uiObject*		mainobject();
 
     void		saveSettings();

@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipixmap.h"
 #include "uiseparator.h"
 #include "uistatusbar.h"
+#include "uistrings.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
@@ -92,7 +93,7 @@ static bool isInOrderedWinList( const uiMainWin* uimw )
 
 
 class uiMainWinBody : public uiParentBody , public QMainWindow
-{
+{ mODTextTranslationClass(uiMainWinBody);
 friend class		uiMainWin;
 public:
 			uiMainWinBody(uiMainWin& handle,uiParent* parnt,
@@ -342,7 +343,7 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 	else
 	    { pErrMsg("No menubar returned from Qt"); }
 
-	toolbarsmnu_ = new uiMenu( &handle(), "Toolbars" );
+	toolbarsmnu_ = new uiMenu( &handle(), tr("Toolbars") );
     }
 
     initing_ = false;
@@ -765,8 +766,8 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
 }
 
 
-uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
-    : uiParent(nm,0)
+uiMainWin::uiMainWin( uiString nm, uiParent* parnt )
+    : uiParent(nm.getFullString(),0)
     , body_(0)
     , parent_(parnt)
     , popuparea_(Auto)
@@ -1193,7 +1194,7 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 	if ( unique ) break;
     }
 
-    return uiString(wintitle.str());
+    return mkUiString(wintitle.str());
 }
 
 
@@ -1246,7 +1247,7 @@ void uiMainWin::languageChangeCB( CallBacker* )
 }
 
 class ImageSaver : public CallBacker
-{
+{ mODTextTranslationClass(ImageSaver);
 public:
 
 ImageSaver()
@@ -1344,7 +1345,7 @@ void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
 #define mHandle static_cast<uiDialog&>(handle_)
 
 class uiDialogBody : public uiMainWinBody
-{
+{ mODTextTranslationClass(uiDialogBody);
 public:
 			uiDialogBody(uiDialog&,uiParent*,
 				     const uiDialog::Setup&);
@@ -1725,7 +1726,7 @@ uiObject* uiDialogBody::createChildren()
 	    helpbut_->setToolTip( BufferString(dlg.helpKey().providername_,
 					       dlg.helpKey().argument_) );
 	else
-	    helpbut_->setToolTip( uiString("Help on this window") );
+	    helpbut_->setToolTip( tr("Help on this window") );
     }
 
     if ( !setup_.menubar_ && !setup_.dlgtitle_.isEmpty() )
@@ -1924,7 +1925,7 @@ void uiDialog::setButtonText( Button but, const uiString& txt )
 
 void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
 {
-    uiString oktext = "Run";
+    uiString oktext = mkUiString("Run");
     uiString canceltext = uiStrings::sClose();
     if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
     {

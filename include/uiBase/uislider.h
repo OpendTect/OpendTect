@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiobj.h"
 #include "uistring.h"
+#include "uistrings.h"
 
 class LinScaler;
 
@@ -44,7 +45,7 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-			Setup(const uiString& l=0)
+			Setup(const uiString& l=uiStrings::sEmptyString())
 			    : lbl_(l)
 			    , withedit_(false)
 			    , nrdec_(0)

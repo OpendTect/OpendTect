@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "bufstringset.h"
 #include "uistring.h"
+#include "uistrings.h"
 
 class uiParent;
 class FileMultiString;
@@ -41,16 +42,16 @@ public:
                         uiFileDialog(uiParent*,bool forread,
 				     const char* fname=0,
 				     const char* filter=0,
-				     const uiString& caption=0);
+			const uiString& caption=uiStrings::sEmptyString());
 
                         uiFileDialog(uiParent*,Mode mode=AnyFile,
 				     const char* fname=0,
 				     const char* filter=0,
-				     const uiString& caption=0);
+			const uiString& caption=uiStrings::sEmptyString());
     enum Type		{ Gen, Img, Txt, Html };
                         uiFileDialog(uiParent*,Type,
 				     const char* fname=0,
-				     const uiString& caption=0);
+			const uiString& caption=uiStrings::sEmptyString());
 						//!< Always AnyFile
 
     const char*		fileName() const	{ return fn; }

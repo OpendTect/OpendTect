@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiparentbody.h"
 #include "uipixmap.h"
 #include "uispinbox.h"
+#include "uistrings.h"
 
 #include <QApplication>
 #include <QColorDialog>
@@ -137,7 +138,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	dodrawbox_->setChecked( true );
 	dodrawbox_->activated.notify( mCB(this,uiColorInput,dodrawSel) );
     }
-    colbut_ = new uiPushButton( this,"", false );
+    colbut_ = new uiPushButton( this,uiStrings::sEmptyString(), false );
     colbut_->setName( (nm && *nm)
 	? nm
 	: (!s.lbltxt_.isEmpty() ? s.lbltxt_.getFullString().buf() : "Color" ) );
@@ -154,7 +155,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	lsb = new uiLabeledSpinBox( this, tr("Transp"), 0 );
 	lsb->attach( rightOf, colbut_ );
 	transpfld_ = lsb->box();
-	transpfld_->setSuffix( "%" );
+	transpfld_->setSuffix( tr("%") );
 	transpfld_->setInterval( 0, 100, 1 );
 	transpfld_->setHSzPol( uiObject::Small );
 	transpfld_->valueChanged.notify( mCB(this,uiColorInput,transpChg) );

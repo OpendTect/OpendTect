@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
+#include "uistrings.h"
 
 class BufferStringSet;
 class uiMdiAreaBody;
@@ -25,7 +26,7 @@ mFDQtclass(QMdiSubWindow)
 mExpClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
 public:
-				uiMdiAreaWindow(const uiString& title=0);
+	    uiMdiAreaWindow(const uiString& title=uiStrings::sEmptyString());
 				~uiMdiAreaWindow()	{}
 
     void			setTitle(const uiString&);
