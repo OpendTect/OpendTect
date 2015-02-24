@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "fontdata.h"
 
+#include <cfloat>
+
 class uiGraphicsScene;
 class uiGraphicsItemGroup;
 class uiLineItem;
@@ -67,7 +69,7 @@ public:
 			    , width_(w)
 			    , height_(h)
 			    , maxnrchars_(0)
-			    , epsaroundzero_(1e-100)
+			    , epsaroundzero_(FLT_MIN)
 			    , islog_(false)
 			    , zval_(4)
 			    , nmcolor_(Color::NoColor())
