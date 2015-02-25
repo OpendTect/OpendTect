@@ -56,7 +56,7 @@ public:
 			mDefaultFactoryInstantiation(
 				uiBasemapItem,
 				uiBasemapHorizon3DItem,
-				"Horizon3D",
+				"Horizon 3D",
 				sFactoryKeyword())
 
     const char*		iconName() const;
