@@ -89,7 +89,7 @@ const char* IOStream::fullDirName() const
 
 const char* IOStream::fullUserExpr( bool forread ) const
 {
-    return isMulti() ? (const char*)fname_ : getExpandedName(forread);
+    return getExpandedName( forread, !isMulti() );
 }
 
 
