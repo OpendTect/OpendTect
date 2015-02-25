@@ -222,7 +222,7 @@ void WellLogInterpolator::getWellIDs( TypeSet<MultiID>& ids ) const
 
 bool WellLogInterpolator::prepareComp( int )
 {
-    if ( !layermodel_->prepare(0) )
+    if ( !layermodel_ || !layermodel_->prepare(0) )
 	return false;
 
     Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
