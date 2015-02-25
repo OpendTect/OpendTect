@@ -154,11 +154,7 @@ bool uiHorSaveFieldGrp::acceptOK( CallBacker* )
 {
     if ( savefld_->getBoolValue() )
     {
-	if ( !outputfld_->commitInput() )
-	    mErrRet(outputfld_->isEmpty() ? tr("Please select output horizon") :
-		    tr("Cannot continue: write permission problem") )
-
-	if ( !createNewHorizon() )		
+	if ( !outputfld_->ioobj() || !createNewHorizon() )
 	    return false;
     }
 
