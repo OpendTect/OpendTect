@@ -64,6 +64,7 @@ using namespace MPE;
 	displays += getDisplay( scenes[idx], create );
 
 
+static int sSaveIdx = -1;
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : clickcatcher(0)
@@ -177,7 +178,7 @@ void uiMPEMan::addButtons()
     redoidx = mAddButton( "redo", redoPush, "Redo", false );
 
     toolbar->addSeparator();
-    mAddButton( "save", savePush, "Save", false );
+    sSaveIdx = mAddButton( "save", savePush, "Save", false );
 }
 
 
@@ -1032,6 +1033,7 @@ void uiMPEMan::savePush( CallBacker* )
 	return;
 
     visserv->fireFromMPEManStoreEMObject();
+    toolbar->setSensitive( sSaveIdx, false );
 }
 
 
@@ -1779,5 +1781,10 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     if ( seedpicker &&
 	    !(visserv->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
 	toolbar->setSensitive( true );
+
+    //Save button
+    const EM::EMObject* emobj =
+	tracker ? EM::EMM().getObject( tracker->objectID() ) : 0;
+    toolbar->setSensitive( sSaveIdx, emobj && emobj->isChanged() );
 }
 
