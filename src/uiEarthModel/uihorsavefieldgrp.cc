@@ -31,17 +31,17 @@ static const char* rcsID mUsedVar = "$Id$";
 uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     : uiGroup( p )
     , horizon_( hor )
-    , newhorizon_( 0 ) 
+    , newhorizon_( 0 )
     , savefld_( 0 )
-    , addnewfld_( 0 )		     
+    , addnewfld_( 0 )
     , outputfld_( 0 )
     , is2d_( is2d )
-    , usefullsurvey_( false )		   
+    , usefullsurvey_( false )
 {
     if ( horizon_ ) horizon_->ref();
 
     savefld_ = new uiGenInput( this, "Save horizon",
-	    		       BoolInpSpec(true,"As new","Overwrite") );
+			       BoolInpSpec(true,"As new","Overwrite") );
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
     IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
@@ -49,11 +49,11 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     ctxt.forread = false;
     outputfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
     outputfld_->attach( alignedBelow, savefld_ );
-    
+
     addnewfld_ = new uiCheckBox( this, "Display after create"  );
     addnewfld_->attach( alignedBelow, outputfld_ );
 
-    setHAlignObj( savefld_ );    
+    setHAlignObj( savefld_ );
     saveCB(0);
 }
 
@@ -89,7 +89,7 @@ void uiHorSaveFieldGrp::setFullSurveyArray( bool yn )
     if ( usefullsurvey_ != yn )
     {
 	usefullsurvey_ = yn;
-    	if ( yn )
+	if ( yn )
 	    expandToFullSurveyArray();
     }
 }
@@ -110,7 +110,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
     if ( !emobj || !emobj->isFullyLoaded() )
     {
 	reader = EM::EMM().objectLoader( mid );
-	if ( !reader ) 
+	if ( !reader )
 	    mErrRet( "Could not read horizon." );
 
 	uiTaskRunner dlg( this );
@@ -152,11 +152,7 @@ bool uiHorSaveFieldGrp::acceptOK( CallBacker* )
 {
     if ( savefld_->getBoolValue() )
     {
-	if ( !outputfld_->commitInput() )
-    	    mErrRet(outputfld_->isEmpty() ? "Please select output horizon" : 
-		    "Cannot continue: write permission problem" )
-
-	if ( !createNewHorizon() )		
+	if ( !outputfld_->ioobj() || !createNewHorizon() )
 	    return false;
     }
 
@@ -177,14 +173,14 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
     EM::EMManager& em = EM::EMM();
     EM::ObjectID objid = em.createObject( is2d_ ? EM::Horizon2D::typeStr()
-	    					: EM::Horizon3D::typeStr(),
+						: EM::Horizon3D::typeStr(),
 					  outputfld_->getInput() );
-    
+
     mDynamicCastGet(EM::Horizon*,horizon,em.getObject(objid));
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
-    
-    newhorizon_ = horizon;      
+
+    newhorizon_ = horizon;
     newhorizon_->ref();
     newhorizon_->setMultiID( horizon_->multiID() );
 
@@ -216,16 +212,16 @@ void uiHorSaveFieldGrp::expandToFullSurveyArray()
     EM::Horizon* hor = overwriteHorizon() ? horizon_ : newhorizon_;
     if ( !hor || !hor->geometry().nrSections() )
 	return;
-    
+
     const EM::SectionID sid = hor->geometry().sectionID( 0 );
     mDynamicCastGet( Geometry::ParametricSurface*, surf,
 	    hor->sectionGeometry( sid ) );
     if ( !surf || !needsFullSurveyArray() )
 	return;
-    
+
     StepInterval<int> rowrg = hor->geometry().rowRange( sid );
     StepInterval<int> colrg = hor->geometry().colRange( sid, -1 );
-    
+
     const StepInterval<int> survcrlrg = SI().crlRange(true);
     while ( colrg.start-colrg.step>=survcrlrg.start )
     {
@@ -233,14 +229,14 @@ void uiHorSaveFieldGrp::expandToFullSurveyArray()
 	surf->insertCol( newcol );
 	colrg.start = newcol;
     }
-    
+
     while ( colrg.stop+colrg.step<=survcrlrg.stop )
     {
 	const int newcol = colrg.stop+colrg.step;
 	surf->insertCol( newcol );
 	colrg.stop = newcol;
     }
-    
+
     const StepInterval<int> survinlrg = SI().inlRange(true);
     while ( rowrg.start-rowrg.step>=survinlrg.start )
     {
@@ -248,7 +244,7 @@ void uiHorSaveFieldGrp::expandToFullSurveyArray()
 	surf->insertRow( newrow );
 	rowrg.start = newrow;
     }
-    
+
     while ( rowrg.stop+rowrg.step<=survinlrg.stop )
     {
 	const int newrow = rowrg.stop+rowrg.step;
