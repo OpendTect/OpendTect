@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "zdomain.h"
 
 #include "uiioobjselgrp.h"
 #include "uitaskrunner.h"
@@ -83,19 +84,54 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
         return false;
-    const int inpsz = inpfld_->nrChosen();
-    if ( inpsz < 2 )
+
+    TypeSet<MultiID> chosenids;
+    inpfld_->getChosen( chosenids );
+    if ( chosenids.size()  < 2 )
 	{ uiMSG().error( tr("Please select at least 2 inputs") ); return false;}
 
     outpar.set( sKey::ID(), outioobj->key() );
 
-    for ( int idx=0; idx<inpsz; idx++ )
+    BufferString typestr, zdomstr;
+    for ( int idx=0; idx<chosenids.size(); idx++ )
     {
+	PtrMan<IOObj> ioobj = IOM().get( chosenids[idx] );
+	if ( !ioobj )
+	    continue;
+
+	if ( !idx )
+	{
+	    typestr = ioobj->pars().find( sKey::Type() );
+	    zdomstr = ioobj->pars().find( ZDomain::sKey() );
+	}
+	else
+	{
+	    if ( typestr != ioobj->pars().find(sKey::Type()) )
+	    {
+		uiMSG().error( tr("Input cubes should be of the same type") );
+		return false;
+	    }
+
+	    if ( zdomstr != ioobj->pars().find(ZDomain::sKey()) )
+	    {
+		uiMSG().error( tr("Input cubes should belong to the same"
+			          " Z domain") );
+		return false;
+	    }
+	}
+
 	IOPar* iop = new IOPar;
-	iop->set( sKey::ID(), inpfld_->chosenID(idx) );
+	iop->set( sKey::ID(), chosenids[idx] );
 	transffld_->fillPar( *iop );
 	inpars += iop;
     }
+
+    if ( typestr.isEmpty() && zdomstr.isEmpty() )
+	return true;
+
+    if ( !typestr.isEmpty() ) outioobj->pars().set( sKey::Type(), typestr );
+    if ( !zdomstr.isEmpty() ) outioobj->pars().set( ZDomain::sKey(), zdomstr );
+    IOM().commitChanges( *outioobj );
 
     return true;
 }
