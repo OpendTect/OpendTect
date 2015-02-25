@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	K. Tingdahl
  Date:		Jan 2015
- RCS:		$Id: curvature.h 32939 2014-01-07 12:20:06Z bert.bril@dgbes.com $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
