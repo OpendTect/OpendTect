@@ -122,9 +122,9 @@ uiPluginSel::uiPluginSel( uiParent* p )
     titl += GetFullODVersion(); titl +=
 			  tr(": Candidate auto-loaded plugins").getFullString();
     setCaption( tr(titl) );
-    
+
     readVendorList();
-    
+
     setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
     readPackageList();
@@ -288,7 +288,11 @@ bool uiPluginSel::acceptOK( CallBacker* )
 	if ( !pprod.isselected_ )
 	{
 	    for( int idp=0; idp<pprod.libs_.size(); idp++ )
-		dontloadlist += pprod.libs_.get(idp);
+	    {
+		const BufferString& nm = pprod.libs_.get( idp );
+		if ( dontloadlist.indexOf(nm.buf()) < 0 )
+		    dontloadlist.add( nm );
+	    }
 	}
     }
 
