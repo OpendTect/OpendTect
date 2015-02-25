@@ -5,6 +5,18 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+macro( OD_ADD_OSGGEO )
+    set(OSG_DIR "" CACHE PATH "OSG Location" )
+    list(APPEND CMAKE_MODULE_PATH
+	${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
+    find_package( OpenGL )
+    find_package( OSG )
+    add_subdirectory( ${CMAKE_SOURCE_DIR}/external/osgGeo/src/osgGeo 
+		  ${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo )
+    set ( OSGGEO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/osgGeo/src )
+    set ( OSGGEO_LIBRARY_PATH
+	${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo/${CMAKE_BUILD_TYPE} )
+endmacro()
 
 macro(OD_SETUP_OSG)
 
@@ -28,7 +40,7 @@ macro(OD_SETUP_OSG)
     set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
 
     if ( (NOT DEFINED OSG_FOUND) )
-	MESSAGE( FATAL_ERROR "OSG_DIR not set")
+	MESSAGE( FATAL_ERROR "OSG_DIR not set" )
     endif()
 
 
@@ -64,6 +76,7 @@ macro(OD_SETUP_OSG)
 	endforeach()
 
 	list ( APPEND OD_OSG_LIBS osgGeo )
+	list ( APPEND OD_${OD_MODULE_NAME}_RUNTIMEPATH ${OSGGEO_LIBRARY_PATH} )
 
 	if ( OD_SUBSYSTEM MATCHES ${OD_CORE_SUBSYSTEM} )
 	    foreach ( BUILD_TYPE Debug Release )
@@ -116,7 +129,7 @@ macro(OD_SETUP_OSG)
 	endif()
     endif()
 
-    list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
+    list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
 
 endmacro(OD_SETUP_OSG)
 
