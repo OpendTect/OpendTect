@@ -97,10 +97,9 @@ protected:
 };
 
 
-uiProductTreeItem::uiProductTreeItem( uiTreeViewItem* parnt,
+uiProductTreeItem::uiProductTreeItem( uiTreeViewItem* p,
 					PluginProduct& prod )
-    : uiTreeViewItem(parnt,
-		    Setup(uiString(prod.productname_))
+    : uiTreeViewItem(p, Setup(uiString(prod.productname_))
 		    .type(uiTreeViewItem::CheckBox))
     , product_(prod)
 {
@@ -127,9 +126,9 @@ uiProductSel::uiProductSel( uiParent* p )
     titl += GetFullODVersion(); titl +=
 			  tr(": Candidate auto-loaded plugins").getFullString();
     setCaption( tr(titl) );
-    
+
     readVendorList();
-    
+
     setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
     readPackageList();
@@ -262,9 +261,9 @@ void uiProductSel::createUI()
 {
     uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
     grp->setFrame( true );
-    
+
     uiGraphicsViewBase* banner = new uiGraphicsViewBase( grp, "OpendTect" );
-    uiPixmap pm("banner.png");
+    uiPixmap pm( "banner.png" );
     uiPixmapItem* pmitem = new uiPixmapItem( uiPixmap(pm) );
     banner->scene().addItem( pmitem );
     banner->setPrefHeight( pm.height() );
@@ -311,7 +310,11 @@ bool uiProductSel::acceptOK( CallBacker* )
 	if ( !pprod.isselected_ )
 	{
 	    for( int idp=0; idp<pprod.libs_.size(); idp++ )
-		dontloadlist += pprod.libs_.get(idp);
+	    {
+		const BufferString& nm = pprod.libs_.get( idp );
+		if ( dontloadlist.indexOf(nm.buf()) < 0 )
+		    dontloadlist.add( nm );
+	    }
 	}
     }
 
