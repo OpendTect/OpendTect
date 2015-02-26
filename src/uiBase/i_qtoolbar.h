@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class i_ToolBarMessenger : public QObject 
+class i_ToolBarMessenger : public QObject
 {
     Q_OBJECT
     friend class	uiToolBar;
@@ -32,9 +32,11 @@ protected:
 i_ToolBarMessenger( QToolBar* sndr, uiToolBar* receiver )
     : sender_(sndr)
     , receiver_(receiver)
-{ 
+{
     connect( sndr, SIGNAL(actionTriggered(QAction*)),
 	     this, SLOT(actionTriggered(QAction*)) );
+    connect( sndr, SIGNAL(orientationChanged(Qt::Orientation)),
+	     this, SLOT(orientationChanged(Qt::Orientation)) );
 }
 
 private:
@@ -48,6 +50,9 @@ void actionTriggered( QAction* qaction )
     const int butid = receiver_->getID( qaction );
     receiver_->buttonClicked.trigger( butid, *receiver_ );
 }
+
+void orientationChanged( Qt::Orientation )
+{ receiver_->orientationChanged.trigger( *receiver_ ); }
 
 };
 

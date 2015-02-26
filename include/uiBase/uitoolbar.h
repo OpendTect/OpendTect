@@ -75,6 +75,7 @@ public:
     void		setSensitive(bool yn);
 			/*!< Works on complete toolbar */
     bool		isSensitive() const;
+    OD::Orientation	getOrientation() const;
 
     void		setButtonMenu(int,uiMenu*,
 			 uiToolButton::PopupMode=uiToolButton::MenuButtonPopup);
@@ -101,9 +102,10 @@ public:
     ToolBarArea		prefArea() const	{ return tbarea_; }
     mQtclass(QToolBar*)	qwidget()		{ return qtoolbar_; }
 
-    static ObjectSet<uiToolBar>&	toolBars();
+    static ObjectSet<uiToolBar>& toolBars();
 
-    CNotifier<uiToolBar,int>		buttonClicked;
+    CNotifier<uiToolBar,int>	buttonClicked;
+    Notifier<uiToolBar>		orientationChanged;
 
 protected:
 

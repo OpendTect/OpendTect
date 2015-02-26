@@ -41,6 +41,7 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     , parent_(parnt)
     , tbarea_(tba)
     , buttonClicked(this)
+    , orientationChanged(this)
     , toolbarmenuaction_(0)
     , qtoolbar_(new QToolBar(nm.getQtString(), parnt ? parnt->getWidget() : 0))
 {
@@ -236,6 +237,13 @@ bool uiToolBar::isHidden() const
 
 bool uiToolBar::isVisible() const
 { return qtoolbar_->isVisible(); }
+
+
+OD::Orientation uiToolBar::getOrientation() const
+{
+    return qtoolbar_->orientation()==Qt::Horizontal ?
+		OD::Horizontal : OD::Vertical;
+}
 
 
 void uiToolBar::setToolBarMenuAction( uiAction* action )
