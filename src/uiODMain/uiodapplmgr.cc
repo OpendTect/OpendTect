@@ -503,7 +503,7 @@ void uiODApplMgr::addTimeDepthScene()
     }
 
     snm += " (using '";
-    snm += ztrans->factoryDisplayName().getFullString();
+    snm += ztrans->factoryDisplayName();
     snm += "')";
 
     sceneMgr().tile();
@@ -1536,7 +1536,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     else if ( evid == uiNLAPartServer::evPrepareRead() )
     {
 	bool saved = attrserv_->setSaved(nlaserv_->is2DEvent());
-        const char* msg = "Current attribute set is not saved.\nSave now?";
+        uiString msg = tr("Current attribute set is not saved.\nSave now?");
         if ( !saved && uiMSG().askSave( msg ) )
 	    attrserv_->saveSet(nlaserv_->is2DEvent());
     }
@@ -1603,7 +1603,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 
 	const uiString res = nlaserv_->prepareInputData( dpss );
-	if ( res!=uiNLAPartServer::sKeyUsrCancel() )
+	if (BufferString(res.getFullString()) != 
+	    BufferString(uiNLAPartServer::sKeyUsrCancel()))
 	    uiMSG().warning( res );
 
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
