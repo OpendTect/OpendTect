@@ -67,7 +67,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 	return;
     }
 
-    uicoltab_ = new uiColorTableGroup( this, *colseq, true, false );
+    uicoltab_ = new uiColorTableGroup( this, *colseq, OD::Vertical, false );
     uicoltab_->setMapperSetup( colmapsetup );
     uicoltab_->seqChanged.notify( mCB(this,uiODEditAttribColorDlg,seqChg) );
     uicoltab_->scaleChanged.notify( mCB(this,uiODEditAttribColorDlg,mapperChg));

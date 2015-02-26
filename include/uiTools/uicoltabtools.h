@@ -15,17 +15,18 @@ public:
 				uiColorTableCanvas(uiParent*,
 						   const ColTab::Sequence&,
 						   bool withalpha,
-						   bool vertical);
+						   OD::Orientation);
 				~uiColorTableCanvas();
     void			setRGB();
 
+    void			setOrientation(OD::Orientation);
     void			setFlipped(bool yn);
 
     bool			handleLongTabletPress();
 
 protected:
 
-    bool			vertical_;
+    OD::Orientation		orientation_;
     const ColTab::Sequence&	ctseq_;
     uiRGBArray*			rgbarr_;
     bool			flipseq_;

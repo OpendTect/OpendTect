@@ -36,7 +36,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     }
 
     y3coltabfld_ =
-	new uiColorTableGroup( this, plotter_.y3CtSeq(), false, false );
+	new uiColorTableGroup( this, plotter_.y3CtSeq(), OD::Horizontal, false);
     y3coltabfld_->enableManage( false );
     y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
     uiLabeledComboBox* y3lblcbx =
@@ -59,8 +59,8 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     uiLabeledComboBox* y4lblcbx = 0;
     if ( plotter_.isY2Shown() )
     {
-	y4coltabfld_ =
-	    new uiColorTableGroup( this, plotter_.y4CtSeq(), false, false );
+	y4coltabfld_ = new uiColorTableGroup( this, plotter_.y4CtSeq(),
+					      OD::Horizontal, false );
 	y4coltabfld_->enableManage( false );
 	y4coltabfld_->attach( alignedBelow, y3lblcbx );
 	y4lblcbx =

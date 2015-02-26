@@ -47,7 +47,6 @@ mExpClass(uiTools) uiColorTable : public CallBacker
 { mODTextTranslationClass(uiColorTable);
 public:
     virtual		~uiColorTable();
-    void		createFields(uiParent*,bool vert,bool withminmax);
 
     const ColTab::Sequence&	colTabSeq() const	{ return coltabseq_;}
     const ColTab::MapperSetup&	colTabMapperSetup() const { return mapsetup_; }
@@ -64,11 +63,14 @@ public:
     void		enableTransparencyEdit(bool);
     void		commitInput();
 
-    void                enableManage(bool yn)		{ enabmanage_ = yn; }
+    void		enableManage(bool yn)		{ enabmanage_ = yn; }
     void		enableClippingDlg(bool yn)	{ enabclipdlg_ = yn; }
 
     void		setDispPars(const FlatView::DataDispPars::VD&);
     void		getDispPars(FlatView::DataDispPars::VD&) const;
+
+    virtual OD::Orientation getOrientation() const		= 0;
+    void		orientationChgd(CallBacker*);
 
     Notifier<uiColorTable>	seqChanged;
     Notifier<uiColorTable>	scaleChanged;
@@ -76,6 +78,7 @@ public:
 protected:
 			uiColorTable(const ColTab::Sequence&);
 
+    void		createFields(uiParent*,OD::Orientation,bool withminmax);
     bool		enabmanage_;
     bool		enabclipdlg_;
 
@@ -115,16 +118,20 @@ mExpClass(uiTools) uiColorTableGroup : public uiGroup , public uiColorTable
 { mODTextTranslationClass(uiColorTableGroup);
 public:
 			uiColorTableGroup(uiParent*,const ColTab::Sequence&,
-					  bool vertical=false,
+					  OD::Orientation orient=OD::Horizontal,
 					  bool nominmax=true);
 					  //nominmax=true hides min/max fields
-			uiColorTableGroup(uiParent*,bool vertical=false,
+			uiColorTableGroup(uiParent*,
+					  OD::Orientation=OD::Horizontal,
 					  bool nominmax=true);
 					  //nominmax=true hides min/max fields
 			~uiColorTableGroup();
 
-protected:
-    void		init(bool vert,bool nominmax);
+    virtual OD::Orientation getOrientation() const;
+
+private:
+    void		init(OD::Orientation,bool nominmax);
+    OD::Orientation	orientation_;
 };
 
 
@@ -136,7 +143,9 @@ public:
 			uiColorTableToolBar(uiParent*,bool newline=false);
 			~uiColorTableToolBar();
 
-protected:
+    virtual OD::Orientation getOrientation() const;
+
+private:
     void		init();
 };
 

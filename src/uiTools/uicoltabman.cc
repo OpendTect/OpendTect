@@ -100,7 +100,8 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     markercanvas_->setStretch( 2, 0 );
     markercanvas_->attach( alignedBelow, cttranscanvas_ );
 
-    ctabcanvas_ = new uiColorTableCanvas( rightgrp, ctab_, false, false );
+    ctabcanvas_ =
+	new uiColorTableCanvas( rightgrp, ctab_, false, OD::Horizontal );
     ctabcanvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTableMan,rightClick) );
     ctabcanvas_->reSize.notify( mCB(this,uiColorTableMan,reDrawCB) );
@@ -258,9 +259,9 @@ void uiColorTableMan::removeCB( CallBacker* )
 
     const char* ctnm = ctab_.name();
     uiString msg(tr("%1 '%2' will be removed\n%3.\n Do you wish to continue?")
-	       .arg(selstatus_ == sKeyEdited ? tr("Edited colortable") 
+	       .arg(selstatus_ == sKeyEdited ? tr("Edited colortable")
 					     : tr("Own made colortable"))
-	       .arg(ctnm).arg(selstatus_ == sKeyEdited 
+	       .arg(ctnm).arg(selstatus_ == sKeyEdited
 					 ? tr("and replaced by the default\n")
 					 : uiStrings::sEmptyString()));
     if ( !uiMSG().askRemove( msg ) )

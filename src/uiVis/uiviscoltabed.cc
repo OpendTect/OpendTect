@@ -89,7 +89,7 @@ void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
 
 void uiVisColTabEd::mapperChangeCB( CallBacker* )
 {
-    const ColTab::MapperSetup* ms  = 
+    const ColTab::MapperSetup* ms  =
 			survobj_->getColTabMapperSetup( channel_, version_ );
 
     uicoltab_.setMapperSetup( ms, true );
@@ -130,14 +130,15 @@ void uiVisColTabEd::fillPar( IOPar& par )
 
 // ----- uiColorBarDialog -----
 uiColorBarDialog::uiColorBarDialog( uiParent* p, const char* title )
-    : uiDialog(p, uiDialog::Setup(title,0, 
+    : uiDialog(p, uiDialog::Setup(title,0,
                                   mODHelpKey(mColorBarDialog) ).modal(false)
 	       .oktext(tr("Exit")).dlgtitle(uiStrings::sEmptyString())
                .canceltext(uiStrings::sEmptyString()))
     , winClosing( this )
 {
     ColTab::Sequence ctseq( "" );
-    uiColorTableGroup* grp = new uiColorTableGroup( this, ctseq, true, false );
+    uiColorTableGroup* grp =
+	new uiColorTableGroup( this, ctseq, OD::Vertical, false );
     coltabed_ = new uiVisColTabEd( *grp );
     setDeleteOnClose( false );
 }

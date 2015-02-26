@@ -24,9 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
-       					bool withalpha, bool vert )
+					bool withalpha, OD::Orientation ori )
     : uiRGBArrayCanvas(p,mkRGBArr(withalpha))
-    , vertical_(vert)
+    , orientation_(ori)
     , ctseq_(ct)
     , flipseq_( false )
 {
@@ -49,6 +49,13 @@ void uiColorTableCanvas::setFlipped( bool yn )
 }
 
 
+void uiColorTableCanvas::setOrientation( OD::Orientation hv )
+{
+    orientation_ = hv;
+    setRGB();
+}
+
+
 uiRGBArray& uiColorTableCanvas::mkRGBArr( bool withalpha )
 {
     rgbarr_ = new uiRGBArray( withalpha );
@@ -62,8 +69,9 @@ void uiColorTableCanvas::setRGB()
 	return;
 
     beforeDraw();
-    const int sz0 = rgbarr_->getSize( !vertical_ );
-    const int sz1 = rgbarr_->getSize( vertical_ );
+    const bool isvertical = orientation_==OD::Vertical;
+    const int sz0 = rgbarr_->getSize( !isvertical );
+    const int sz1 = rgbarr_->getSize( isvertical );
     const ColTab::IndexedLookUpTable indextable( ctseq_, sz0 );
     for ( int idx=0; idx<sz0; idx++ )
     {
@@ -71,7 +79,7 @@ void uiColorTableCanvas::setRGB()
 	const Color color = indextable.colorForIndex( colidx );
 	for ( int idy=0; idy<sz1; idy++ )
 	{
-	    if ( vertical_ )
+	    if ( isvertical )
 		rgbarr_->set( idy, sz0-1-idx, color );
 	    else
 		rgbarr_->set( idx, idy, color );

@@ -251,8 +251,8 @@ bool uiODMain::buildUI()
     if ( isvert )
     {
 	ctabwin_ = new uiDockWin( this, "Color Table" );
-	uiColorTableGroup* grp =
-	    new uiColorTableGroup( ctabwin_, ColTab::Sequence(""), true, false);
+	uiColorTableGroup* grp = new uiColorTableGroup( ctabwin_,
+			ColTab::Sequence(""), OD::Vertical, false);
 	ctabed_ = new uiVisColTabEd( *grp );
 	ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
 	ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));

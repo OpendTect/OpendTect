@@ -90,7 +90,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 			mCB(this,uiDPSDispPropDlg,attribChanged));
 
     coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence("Rainbow"),
-					false, false );
+					OD::Horizontal, false );
     coltabfld_->attach( alignedBelow, selfld_ );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {

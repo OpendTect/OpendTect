@@ -236,7 +236,8 @@ uiColorTable::uiColorTable( const ColTab::Sequence& colseq )
 }
 
 
-void uiColorTable::createFields( uiParent* parnt, bool vert, bool withminmax )
+void uiColorTable::createFields( uiParent* parnt, OD::Orientation orient,
+				 bool withminmax )
 {
     parent_ = parnt;
 
@@ -248,7 +249,7 @@ void uiColorTable::createFields( uiParent* parnt, bool vert, bool withminmax )
 	minfld_->setStretch( 0, 0 );
     }
 
-    canvas_ = new uiColorTableCanvas( parnt, coltabseq_, true, vert );
+    canvas_ = new uiColorTableCanvas( parnt, coltabseq_, true, orient );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
     canvas_->getMouseEventHandler().doubleClick.notify(
@@ -521,35 +522,44 @@ void uiColorTable::setAsDefault( CallBacker* )
 }
 
 
-void uiColorTable::tableAdded( CallBacker* cb )
+void uiColorTable::tableAdded( CallBacker* )
 {
     selfld_->update();
 }
 
 
+void uiColorTable::orientationChgd( CallBacker* )
+{
+    OD::Orientation neworient = getOrientation();
+    canvas_->setOrientation( neworient );
+}
+
+
 // uiColorTableGroup
-uiColorTableGroup::uiColorTableGroup( uiParent* p, bool vertical,
+uiColorTableGroup::uiColorTableGroup( uiParent* p, OD::Orientation orient,
 				      bool nominmax )
     : uiGroup(p,"Color table display/edit")
     , uiColorTable(ColTab::Sequence(""))
 {
-    init( vertical, nominmax );
+    init( orient, nominmax );
 }
 
 
 uiColorTableGroup::uiColorTableGroup( uiParent* p, const ColTab::Sequence& seq,
-				      bool vertical, bool nominmax )
+				      OD::Orientation orient, bool nominmax )
     : uiGroup(p,"Color table display/edit")
     , uiColorTable(seq)
 {
-    init( vertical, nominmax );
+    init( orient, nominmax );
 }
 
 
-void uiColorTableGroup::init( bool vertical, bool nominmax )
+void uiColorTableGroup::init( OD::Orientation orient, bool nominmax )
 {
-    createFields( this, vertical, !nominmax );
+    orientation_ = orient;
+    createFields( this, orient, !nominmax );
 
+    const bool vertical = orientation_==OD::Vertical;
     canvas_->setPrefHeight( vertical ? 160 : 25 );
     canvas_->setPrefWidth( vertical ? 30 : 80 );
 
@@ -591,6 +601,10 @@ uiColorTableGroup::~uiColorTableGroup()
 }
 
 
+OD::Orientation uiColorTableGroup::getOrientation() const
+{ return orientation_; }
+
+
 
 // uiColorTableToolBar
 uiColorTableToolBar::uiColorTableToolBar( uiParent* p, bool newline )
@@ -614,7 +628,7 @@ uiColorTableToolBar::uiColorTableToolBar( uiParent* p,
 void uiColorTableToolBar::init()
 {
     mDynamicCastGet(uiToolBar*,tb,this)
-    createFields( tb, false, true );
+    createFields( tb, OD::Horizontal, true );
 
 #define mAddTBObj( fld, sz ) \
     fld->setMaximumWidth( sz*uiObject::iconSize() ); \
@@ -624,9 +638,16 @@ void uiColorTableToolBar::init()
     mAddTBObj( canvas_, 2 );
     mAddTBObj( maxfld_, 2 );
     tb->addObject( selfld_ );
+
+    orientationChanged.notify( mCB(this,uiColorTable,orientationChgd) );
 }
 
 
 uiColorTableToolBar::~uiColorTableToolBar()
 {}
+
+
+OD::Orientation uiColorTableToolBar::getOrientation() const
+{ return uiToolBar::getOrientation(); }
+
 
