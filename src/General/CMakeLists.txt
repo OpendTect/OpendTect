@@ -19,73 +19,76 @@ if ( NOT DEFINED WIN32 )
 endif()
 list ( APPEND OD_TEST_PROGS mathexpression.cc mathformula.cc )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
-list ( APPEND OD_MODULE_SOURCES array2dbitmap.cc
-	    basemap.cc
-	    batchjobdispatch.cc
-	    beachballdata.cc
-	    bidvsetarrayadapter.cc
-	    conn.cc
-	    cbvsinfo.cc cbvsreader.cc cbvsreadmgr.cc
-	    cbvswriter.cc cbvswritemgr.cc
-	    coltabindex.cc coltabmapper.cc coltabsequence.cc
-	    ctxtioobj.cc
-	    databuf.cc
-	    datainpspec.cc
-	    datainterp.cc
-	    datapackbase.cc
-	    datapointset.cc
-	    displaypropertylinks.cc
-	    draw.cc
-	    elasticpropsel.cc
-	    flatauxdataeditor.cc
-	    flatview.cc
-	    fontdata.cc
-	    geom2dascio.cc
-	    geometryio.cc
-	    googlexmlwriter.cc
-	    grid2d.cc
-	    helpview.cc
-	    ibmformat.cc
-	    initgeneral.cc
-	    iodir.cc
-	    iodirentry.cc
-	    ioman.cc
-	    ioobj.cc
-	    ioobjtags.cc
-	    iostrm.cc
-	    keyboardevent.cc
-	    keyenum.cc
-	    linekey.cc
-	    linesetposinfo.cc
-	    mathexpression.cc
-	    mathformula.cc
-	    menuhandler.cc
-	    mousecursor.cc
-	    mouseevent.cc
-	    odiconfile.cc
-	    pickretriever.cc
-	    pickset.cc
-	    posimpexppars.cc
-	    posidxpairvalset.cc
-	    posinfodetector.cc
-	    posvecdataset.cc
-	    property.cc
-	    propertyref.cc
-	    rangeposprovider.cc
-	    raytracerrunner.cc
-	    rockphysics.cc
-	    stratlevel.cc
-	    survgeometrytransl.cc
-	    tableascio.cc
-	    tableconv.cc
-	    transl.cc
-	    unitofmeasure.cc
-	    usrinputobj.cc
-	    variogramcomputers.cc
-	    zaxistransformutils.cc
-	    ziparchiveinfo.cc
-	    ziphandler.cc
-	    ziputils.cc )
+list ( APPEND OD_MODULE_SOURCES
+	array2dbitmap.cc
+	basemap.cc
+	batchjobdispatch.cc
+	beachballdata.cc
+	bidvsetarrayadapter.cc
+	bitmap2rgb.cc
+	conn.cc
+	cbvsinfo.cc cbvsreader.cc cbvsreadmgr.cc
+	cbvswriter.cc cbvswritemgr.cc
+	coltabindex.cc coltabmapper.cc coltabsequence.cc
+	ctxtioobj.cc
+	databuf.cc
+	datainpspec.cc
+	datainterp.cc
+	datapackbase.cc
+	datapointset.cc
+	displaypropertylinks.cc
+	draw.cc
+	elasticpropsel.cc
+	flatauxdataeditor.cc
+	flatview.cc
+	fontdata.cc
+	geom2dascio.cc
+	geometryio.cc
+	googlexmlwriter.cc
+	grid2d.cc
+	helpview.cc
+	ibmformat.cc
+	initgeneral.cc
+	iodir.cc
+	iodirentry.cc
+	ioman.cc
+	ioobj.cc
+	ioobjtags.cc
+	iostrm.cc
+	keyboardevent.cc
+	keyenum.cc
+	linekey.cc
+	linesetposinfo.cc
+	mathexpression.cc
+	mathformula.cc
+	menuhandler.cc
+	mousecursor.cc
+	mouseevent.cc
+	odiconfile.cc
+	pickretriever.cc
+	pickset.cc
+	posimpexppars.cc
+	posidxpairvalset.cc
+	posinfodetector.cc
+	posvecdataset.cc
+	property.cc
+	propertyref.cc
+	rangeposprovider.cc
+	raytracerrunner.cc
+	rockphysics.cc
+	stratlevel.cc
+	survgeometrytransl.cc
+	tableascio.cc
+	tableconv.cc
+	transl.cc
+	unitofmeasure.cc
+	usrinputobj.cc
+	variogramcomputers.cc
+	zaxistransformutils.cc
+	ziparchiveinfo.cc
+	ziphandler.cc
+	ziputils.cc
+)
 
 set (OD_USEQT Core) # for the ziphandler.cc only
 set (OD_USEZLIB Yes)

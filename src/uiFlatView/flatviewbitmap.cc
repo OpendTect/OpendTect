@@ -10,7 +10,6 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "flatviewbitmapmgr.h"
-#include "flatviewbmp2rgb.h"
 #include "flatposdata.h"
 #include "array2dbitmapimpl.h"
 #include "arrayndimpl.h"
@@ -80,7 +79,7 @@ void FlatView::BitMapMgr::setup()
     {
 	const DataDispPars::WVA& wvapars = app.ddpars_.wva_;
 	WVAA2DBitMapGenerator* wvagen
-	    		= new WVAA2DBitMapGenerator( *data_, *pos_ );
+			= new WVAA2DBitMapGenerator( *data_, *pos_ );
 	wvagen->wvapars().drawwiggles_ = wvapars.wigg_.isVisible();
 	wvagen->wvapars().drawrefline_ = wvapars.refline_.isVisible();
 	wvagen->wvapars().filllow_ = wvapars.lowfill_.isVisible();
@@ -195,105 +194,3 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     return true;
 }
 
-
-FlatView::BitMap2RGB::BitMap2RGB( const FlatView::Appearance& a,
-				  uiRGBArray& arr )
-    : app_(a)
-    , arr_(arr)
-    , histequalizer_(0)
-    , clipperdata_(*new TypeSet<float>())
-{
-}
-
-
-void FlatView::BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
-       				 const Geom::Point2D<int>& offs,
-				 bool clear )
-{
-    if ( clear )
-	arr_.clear( Color::White() );
-
-    if ( vd && app_.ddpars_.vd_.show_ )
-	drawVD( *vd, offs );
-    if ( wva && app_.ddpars_.wva_.show_ )
-	drawWVA( *wva, offs );
-}
-
-
-void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
-				   const Geom::Point2D<int>& offs )
-{
-    const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
-    const Geom::Size2D<int> arrsz(arr_.getSize(true),arr_.getSize(false));
-    const FlatView::DataDispPars::VD& pars = app_.ddpars_.vd_;
-    ColTab::Sequence ctab( pars.ctab_.buf() );
-
-    const int minfill = (int)VDA2DBitMapGenPars::cMinFill();
-    const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill();
-    ColTab::IndexedLookUpTable ctindex( ctab, maxfill-minfill+1 );
-
-    if ( (pars.mappersetup_.type_==ColTab::MapperSetup::HistEq) &&
-	 !clipperdata_.isEmpty() )
-    {
-	TypeSet<float> datapts;
-	for ( int idx=0; idx<bmp.info().getSize(0); idx++ )
-	{
-	    for ( int idy=0; idy<bmp.info().getSize(1); idy++ )
-		datapts += (float)bmp.get( idx, idy );
-	}
-	delete histequalizer_;
-	histequalizer_ = new HistEqualizer( maxfill-minfill+1 );
-	histequalizer_->setRawData( datapts );
-    }
-
-    const int maxcolidx = ctindex.nrCols()-1;
-    for ( int ix=0; ix<arrsz.width(); ix++ )
-    {
-	if ( ix >= bmpsz.width() ) break;
-	for ( int iy=0; iy<arrsz.height(); iy++ )
-	{
-	    if ( iy >= bmpsz.height() ) break;
-	    const char bmpval = bmp.get( ix + offs.x, iy + offs.y );
-	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
-		continue;
-
-	    const int idx = (int)bmpval-minfill;
-	    const int colidx = pars.mappersetup_.flipseq_ ? maxcolidx-idx : idx;
-	    const Color col = ctindex.colorForIndex( colidx );
-	    if ( col.isVisible() )
-		arr_.set( ix, iy, col );
-	}
-    }
-}
-
-
-void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp,
-				    const Geom::Point2D<int>& offs )
-{
-    const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
-    const Geom::Size2D<int> arrsz(arr_.getSize(true),arr_.getSize(false));
-    const FlatView::DataDispPars::WVA& pars = app_.ddpars_.wva_;
-
-    for ( int ix=0; ix<arrsz.width(); ix++ )
-    {
-	if ( ix >= bmpsz.width() ) break;
-	for ( int iy=0; iy<arrsz.height(); iy++ )
-	{
-	    if ( iy >= bmpsz.height() ) break;
-	    const char bmpval = bmp.get( ix+offs.x, iy+offs.y );
-	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
-		continue;
-
-	    Color col( pars.wigg_ );
-	    if ( bmpval == WVAA2DBitMapGenPars::cLowFill() )
-		col = pars.lowfill_;
-	    else if ( bmpval == WVAA2DBitMapGenPars::cHighFill() )
-		col = pars.highfill_;
-	    else if ( bmpval == WVAA2DBitMapGenPars::cRefLineFill() )
-		col = pars.refline_;
-
-	    if ( col.isVisible() )
-		arr_.set( ix, iy, col );
-	}
-    }
-}

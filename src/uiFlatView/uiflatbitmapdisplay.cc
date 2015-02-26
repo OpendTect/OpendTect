@@ -11,14 +11,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatbitmapdisplay.h"
 
+#include "uiflatviewer.h"
 #include "uigraphicsitemimpl.h"
 #include "uipixmap.h"
 #include "uirgbarray.h"
 
+#include "bitmap2rgb.h"
 #include "datapackbase.h"
 #include "flatposdata.h"
 #include "flatviewbitmapmgr.h"
-#include "flatviewbmp2rgb.h"
 #include "threadwork.h"
 #include "threadlock.h"
 #include "thread.h"

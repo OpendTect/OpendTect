@@ -12,24 +12,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewmod.h"
-#include "datapack.h"
-
-#include "uiflatviewer.h"
-#include "array2dbitmap.h"
-#include "arrayndimpl.h"
-#include "uigeom.h"
+#include "callback.h"
 
 class uiDynamicImageItem;
+class uiFlatViewer;
 class uiGraphicsItem;
-class A2DBitMapGenerator;
-class uiRGBArray;
+class Task;
 
 namespace FlatView
 {
 
-class BitMapMgr;
-class BitMap2RGB;
-class Appearance;
 class uiBitMapDisplayTask;
 
 /*!

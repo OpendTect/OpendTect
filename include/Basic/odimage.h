@@ -40,7 +40,8 @@ public:
     virtual int		getSize(bool xdir) const	= 0;
     virtual Color	get(int,int) const		= 0;
     virtual bool	set(int,int,const Color&)	= 0;
-	    
+    virtual void	clear(const Color&)		= 0;
+
     virtual int		bufferSize() const;
     virtual void	fill(unsigned char*) const;
 			/*!Fills array with content. Each
@@ -50,8 +51,8 @@ public:
 			   allocated. */
     virtual bool	put(const unsigned char*,bool xdir_slowest=true,
 			    bool with_opacity=false);
-			/*!Fills image with data from array.param xdir_slowest 
-			   False if ydir is the slowest dimension, param 
+			/*!Fills image with data from array.param xdir_slowest
+			   False if ydir is the slowest dimension, param
 			   with_opacity If true, eventual 4th component will be
 			   treated as a opacity instead of a transparency.*/
     virtual bool	blendWith(const RGBImage& sourceimage,
@@ -72,9 +73,9 @@ public:
 			will be treated as a opacity instead of a
 			transparency.
 			*/
-    virtual bool	putFromBitmap(const unsigned char* bitmap, 
+    virtual bool	putFromBitmap(const unsigned char* bitmap,
 				      const unsigned char* mask = 0);
-    
+
     virtual const unsigned char*	getData() const		{ return 0; }
     virtual unsigned char*		getData() 		{ return 0; }
 };
@@ -92,16 +93,16 @@ public:
 			//!<Should be managed by caller.
 
 private:
-    
+
     virtual RGBImage*   loadImage(const char*, uiString&) const = 0;
     static  PtrMan<RGBImageLoader>   imageloader_;
 
 public:
 
     static void		 setImageLoader(RGBImageLoader*);
-			 //!<Sets the current imageloader that will load all 
+			 //!<Sets the current imageloader that will load all
 			 //!<subsequent images.
-    
+
     virtual		 ~RGBImageLoader();
 
 };
