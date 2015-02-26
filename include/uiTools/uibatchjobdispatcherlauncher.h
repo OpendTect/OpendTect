@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "factory.h"
+#include "uistring.h"
 
 class uiBatchJobDispatcherSel;
 namespace Batch {
@@ -42,8 +43,7 @@ public:
     Batch::JobDispatcher&	dispatcher()		{ return gtDsptchr(); }
     const Batch::JobDispatcher& dispatcher() const;
 
-    const char*			name() const 
-				{ return factoryDisplayName().getFullString(); }
+    uiString		name() const { return factoryDisplayName(); }
 
     mDefineFactory1ParamInClass(uiBatchJobDispatcherLauncher,
 			Batch::JobSpec&,factory);
@@ -61,7 +61,7 @@ protected:
 
 mExpClass(uiTools) uiSingleBatchJobDispatcherLauncher
 			: public uiBatchJobDispatcherLauncher
-{
+{ mODTextTranslationClass(uiSingleBatchJobDispatcherLauncher);
 public:
 
 			uiSingleBatchJobDispatcherLauncher(Batch::JobSpec&);
@@ -72,7 +72,8 @@ public:
 
     mDefaultFactoryInstantiation1Param(uiBatchJobDispatcherLauncher,
 			    uiSingleBatchJobDispatcherLauncher,
-			    Batch::JobSpec&,"Single Process","Single Process");
+			    Batch::JobSpec&,"Single Process",
+			    tr("Single Process"));
 
 protected:
 

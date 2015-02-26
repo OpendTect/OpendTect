@@ -39,7 +39,7 @@ public:
     void		setJobName(const char*);
 
     Batch::JobSpec&	jobSpec()		{ return jobspec_; }
-    const char*		selected() const;
+    uiString		selected() const;
     const uiString	selectedInfo() const;
     uiBatchJobDispatcherLauncher* selectedLauncher();
 

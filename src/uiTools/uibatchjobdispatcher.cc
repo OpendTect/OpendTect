@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uicombobox.h"
 #include "uimsg.h"
-
+#include "uistrings.h"
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 						  const Batch::JobSpec& js )
@@ -133,7 +133,7 @@ void uiBatchJobDispatcherSel::jobSpecUpdated()
     if ( !selfld_ )
 	return;
 
-    BufferStringSet nms;
+    uiStringSet nms;
     for ( int idx=0; idx<uidispatchers_.size(); idx++ )
     {
 	uiBatchJobDispatcherLauncher* dl = uidispatchers_[idx];
@@ -167,10 +167,11 @@ uiBatchJobDispatcherLauncher* uiBatchJobDispatcherSel::selectedLauncher()
 }
 
 
-const char* uiBatchJobDispatcherSel::selected() const
+uiString uiBatchJobDispatcherSel::selected() const
 {
     const int selidx = selIdx();
-    return selidx < 0 ? "" : uidispatchers_[selidx]->name();
+    return selidx < 0 ? uiStrings::sEmptyString() 
+		      : uidispatchers_[selidx]->name();
 }
 
 
@@ -179,7 +180,7 @@ int uiBatchJobDispatcherSel::selIdx() const
     if ( !selfld_ )
 	return optsbut_ ? 0 : -1;
 
-    const BufferString cursel = selfld_->text();
+    const uiString cursel = mkUiString(selfld_->text());
     if ( cursel.isEmpty() )
 	{ pErrMsg("No dispatchers available"); return -1; }
 
@@ -197,7 +198,8 @@ int uiBatchJobDispatcherSel::selIdx() const
 const uiString uiBatchJobDispatcherSel::selectedInfo() const
 {
     const int selidx = selIdx();
-    return selidx < 0 ? "" : uidispatchers_[selidx]->getInfo();
+    return selidx < 0 ? uiStrings::sEmptyString() 
+		      : uidispatchers_[selidx]->getInfo();
 }
 
 

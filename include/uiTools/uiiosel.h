@@ -34,7 +34,7 @@ public:
     mExpClass(uiTools) Setup
     {
     public:
-			Setup( const uiString& seltext=0 )
+			Setup(const uiString& seltext=uiStrings::sEmptyString())
 			    : seltxt_(seltext)
 			    , withclear_(false)
 			    , buttontxt_(uiStrings::sSelect(true))

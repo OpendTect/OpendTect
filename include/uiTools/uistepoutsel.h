@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "position.h"
 #include "rowcol.h"
+#include "uistring.h"
 class uiSpinBox;
 
 
@@ -26,15 +27,15 @@ class uiSpinBox;
  */
 
 mExpClass(uiTools) uiStepOutSel : public uiGroup
-{
+{ mODTextTranslationClass(uiStepOutSel);
 public:
 
     struct Setup
     {
 			Setup( bool singl=false )
-			    : seltxt_("Stepout")
-			    , lbl1_(singl?"nr":"inl")
-			    , lbl2_("crl")
+			    : seltxt_(tr("Stepout"))
+			    , lbl1_(singl?tr("nr"):tr("inl"))
+			    , lbl2_(tr("crl"))
 			    , single_(singl)
 			    , allowneg_(false)	{}
 
@@ -47,7 +48,7 @@ public:
 
 			uiStepOutSel(uiParent*,const Setup&);
 			uiStepOutSel(uiParent*,bool single=false,
-				     const uiString& seltxt="Stepout");
+				     const uiString& seltxt=tr("Stepout"));
 			~uiStepOutSel()		{}
 
     int			val(bool dir1) const;
