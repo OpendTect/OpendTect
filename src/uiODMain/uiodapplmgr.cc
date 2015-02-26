@@ -503,7 +503,7 @@ void uiODApplMgr::addTimeDepthScene()
     }
 
     snm += " (using '";
-    snm += ztrans->factoryDisplayName();
+    snm += ztrans->factoryDisplayName().getFullString();
     snm += "')";
 
     sceneMgr().tile();
