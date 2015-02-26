@@ -37,13 +37,18 @@ D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts )
 			? wd.d2TModel()
 			: gc.getModelFromVelLog( wd, wts.vellognm_ );
     if ( !d2t )
+    {
 	errmsg_ = tr("Cannot generate depth/time model. Check your "
 		     "velocity log");
+	return;
+    }
 
     if ( wts.corrtype_ == Setup::Automatic && wd_->haveCheckShotModel() )
 	CheckShotCorr::calibrate( *wd.checkShotModel(), *d2t );
 
-    setAsCurrent( d2t );
+    if ( !wts.useexistingd2tm_ )
+	setAsCurrent( d2t );
+
     orgd2t_ = emptyoninit_ ? 0 : new Well::D2TModel( *wd.d2TModel() );
 }
 
@@ -90,8 +95,7 @@ void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
     if ( d2t->size() < 2 )
     { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
 
-    if ( prvd2t_ )
-	delete prvd2t_;
+    delete prvd2t_; prvd2t_ = 0;
     if ( d2T() )
 	prvd2t_ =  new Well::D2TModel( *d2T() );
     wd_->setD2TModel( d2t );
@@ -133,8 +137,7 @@ bool D2TModelMgr::commitToWD()
 	return false;
 
     if ( wd_ ) wd_->d2tchanged.trigger();
-    if ( orgd2t_ )
-	delete orgd2t_;
+    delete orgd2t_; orgd2t_ = 0;
 
     return true;
 }
