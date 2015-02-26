@@ -431,9 +431,9 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
     PtrMan<IOPar> lmpar = pars.subselect( sKeyLayerModel() );
     if ( lmpar )
     {
-	nm.setEmpty();
-	lmpar->get( sKey::Name(), nm );
-	layermodel_ = InterpolationLayerModel::factory().create( nm );
+	BufferString lmtype;
+	lmpar->get( InterpolationLayerModel::sKeyModelType(), lmtype );
+	layermodel_ = InterpolationLayerModel::factory().create( lmtype );
 	if ( !layermodel_ || !layermodel_->usePar(*lmpar) )
 	{ delete layermodel_; layermodel_ = 0; }
     }
