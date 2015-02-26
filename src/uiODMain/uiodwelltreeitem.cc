@@ -272,6 +272,9 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
+    if ( !wd )
+	return;
+
     const bool islocked = visserv_->isLocked( displayid_ );
     mAddMenuItem( menu, &displaymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &propertiesmnuitem_, true, false );
