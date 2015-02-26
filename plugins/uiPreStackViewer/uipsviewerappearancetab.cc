@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visprestackdisplay.h"
 #include "survinfo.h"
 #include "samplingdata.h"
-
+#include "uistrings.h"
 
 namespace PreStackView
 {
@@ -53,8 +53,9 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     zgridfld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
 
-    zgridautofld_ = new uiGenInput( this, 0,
-	    BoolInpSpec( zudf, tr("Automatic sampling"), 0, 0 ) );
+    zgridautofld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+	    BoolInpSpec( zudf, tr("Automatic sampling"), 
+			 uiStrings::sEmptyString(), 0 ) );
     zgridautofld_->attach( rightOf, zgridfld_ );
     zgridautofld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
@@ -75,8 +76,9 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     offsgridfld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
 
-    offsgridautofld_ = new uiGenInput( this, 0,
-	    BoolInpSpec( offsudf, tr("Automatic sampling"), 0, 0 ) );
+    offsgridautofld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+	    BoolInpSpec( offsudf, tr("Automatic sampling"), 
+			 uiStrings::sEmptyString(), 0 ) );
     offsgridautofld_->attach( rightOf, offsgridfld_ );
     offsgridautofld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
