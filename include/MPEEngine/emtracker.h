@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "trckeyzsampling.h"
 #include "refcount.h"
+#include "uistring.h"
 
 class Executor;
 
@@ -37,6 +38,7 @@ class EMSeedPicker;
 
 mExpClass(MPEEngine) EMTracker
 { mRefCountImpl(EMTracker)
+mODTextTranslationClass(EMTracker);
 public:
     				EMTracker( EM::EMObject* );
 

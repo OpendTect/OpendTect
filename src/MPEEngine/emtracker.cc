@@ -79,7 +79,7 @@ Executor* EMTracker::trackInVolume()
 	if ( !res )
 	{
 	    res = new ExecutorGroup("Autotracker", true );
-	    res->setNrDoneText("seeds processed");
+	    res->setNrDoneText(tr("seeds processed"));
 	}
 
 	res->add( new AutoTracker( *this, sid ) );

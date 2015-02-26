@@ -28,7 +28,7 @@ namespace MPE
 */
 
 mExpClass(MPEEngine) Horizon3DSeedPicker : public EMSeedPicker
-{
+{ mODTextTranslationClass(Horizon3DSeedPicker);
 public:
     			Horizon3DSeedPicker(MPE::EMTracker&);
 
@@ -62,7 +62,7 @@ public:
     static int		defaultSeedConMode()		{return TrackFromSeeds;}
     int			defaultSeedConMode(
 				    bool gotsetup) const;
-    static const char*	seedConModeText(int mode, 
+    static uiString	seedConModeText(int mode, 
 				    bool abbrev=false); 
 
     int			getSeedConnectMode() const	{ return seedconmode_; }
@@ -76,7 +76,7 @@ public:
 
     void		setSeedPickArea(const TrcKeySampling& hs)
     							{ seedpickarea_ = hs; }
-    const TrcKeySampling*	getSeedPickArea() const 	{return &seedpickarea_;}
+    const TrcKeySampling*	getSeedPickArea() const {return &seedpickarea_;}
     void		setFaultData( const FaultTrcDataProvider* data )
 			{ fltdataprov_ = data; }
 

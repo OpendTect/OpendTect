@@ -448,18 +448,18 @@ int Horizon3DSeedPicker::nrSeeds() const
 }
 
 
-const char* Horizon3DSeedPicker::seedConModeText( int mode, bool abbrev )
+uiString Horizon3DSeedPicker::seedConModeText( int mode, bool abbrev )
 {
     if ( mode==TrackFromSeeds && !abbrev )
-	return "Tracking in volume";
+	return tr("Tracking in volume");
     else if ( mode==TrackFromSeeds && abbrev )
-	return "Volume track";
+	return tr("Volume track");
     else if ( mode==TrackBetweenSeeds )
-	return "Line tracking";
+	return tr("Line tracking");
     else if ( mode==DrawBetweenSeeds )
-	return "Line manual";
+	return tr("Line manual");
     else
-	return "Unknown mode";
+	return tr("Unknown mode");
 }
 
 int Horizon3DSeedPicker::minSeedsToLeaveInitStage() const

@@ -508,22 +508,22 @@ int MPE::Horizon2DSeedPicker::nrSeeds() const
 }
 
 
-const char* Horizon2DSeedPicker::seedConModeText( int mode, bool abbrev )
+uiString Horizon2DSeedPicker::seedConModeText( int mode, bool abbrev )
 {
     if ( mode==TrackFromSeeds && !abbrev )
-	return "Track from seed(s)";
+	return tr("Track from seed(s)");
     else if ( mode==TrackFromSeeds && abbrev )
-	return "Track from";
+	return tr("Track from");
     else if ( mode==TrackBetweenSeeds && !abbrev )
-	return "Track between seeds";
+	return tr("Track between seeds");
     else if ( mode==TrackBetweenSeeds && abbrev )
-	return "Track between";
+	return tr("Track between");
     else if ( mode==DrawBetweenSeeds && !abbrev )
-	return "Draw between seeds";
+	return tr("Draw between seeds");
     else if ( mode==DrawBetweenSeeds && abbrev )
-	return "Draw between";
+	return tr("Draw between");
     else
-	return "Unknown mode";
+	return tr("Unknown mode");
 }
 
 

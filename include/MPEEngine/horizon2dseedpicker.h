@@ -27,7 +27,7 @@ namespace MPE
 */
 
 mExpClass(MPEEngine) Horizon2DSeedPicker : public EMSeedPicker
-{
+{ mODTextTranslationClass(Horizon2DSeedPicker);
 public:
     			Horizon2DSeedPicker(MPE::EMTracker&);
     			~Horizon2DSeedPicker()		{}
@@ -63,7 +63,7 @@ public:
 
     static int		nrSeedConnectModes()		{ return 3; }
     static int		defaultSeedConMode()		{return TrackFromSeeds;}
-    static const char*  seedConModeText(int mode,
+    static uiString	seedConModeText(int mode,
 				    bool abbrev=false);
 
     int			getSeedConnectMode() const;
