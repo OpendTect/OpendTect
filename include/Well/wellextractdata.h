@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "stattype.h"
 #include "survinfo.h"
 #include "uistring.h"
+#include "uistrings.h"
 
 class DataPointSet;
 class IODirEntryList;
@@ -151,8 +152,10 @@ public:
 			~InfoCollector();
 
     int			nextStep();
-    uiString		uiMessage() const	{ return curmsg_.buf(); }
-    uiString		uiNrDoneText() const	{ return "Wells inspected"; }
+    uiString		uiMessage() const	{ return curmsg_; }
+    uiString		uiNrDoneText() const	{ 
+						return tr("Wells inspected"); 
+						}
     od_int64		nrDone() const		{ return curidx_; }
     od_int64		totalNr() const		{ return totalnr_; }
 
@@ -208,13 +211,14 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    uiString	uiMessage() const   { return "Scanning well tracks"; }
-    uiString	uiNrDoneText() const { return "Wells inspected"; }
+    uiString	uiMessage() const   { return tr("Scanning well tracks"); }
+    uiString	uiNrDoneText() const { return tr("Wells inspected"); }
     od_int64		nrDone() const	   { return curid_; }
     od_int64		totalNr() const	   { return ids_.size(); }
 
     uiString		errMsg() const
-			{ return errmsg_.isEmpty() ? 0 : errmsg_; }
+			{ return errmsg_.isEmpty() ? uiStrings::sEmptyString() 
+						   : errmsg_; }
 
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
     ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss_; }
@@ -263,7 +267,7 @@ public:
 
     int			nextStep();
     uiString		uiMessage() const   { return msg_; }
-    uiString		uiNrDoneText() const { return "Wells handled"; }
+    uiString		uiNrDoneText() const { return tr("Wells handled"); }
     od_int64		nrDone() const	   { return curid_; }
     od_int64		totalNr() const	   { return ids_.size(); }
 
@@ -308,8 +312,8 @@ public:
     int                 nextStep();
     od_int64            totalNr() const         { return extrintv_.nrSteps(); }
     od_int64            nrDone() const          { return nrdone_; }
-    uiString	 uiMessage() const	   { return "Computing..."; }
-    uiString	 uiNrDoneText() const	   { return "Points done"; }
+    uiString	 uiMessage() const	   { return tr("Computing..."); }
+    uiString	 uiNrDoneText() const	   { return tr("Points done"); }
 
     void		getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }
     void		getCoords(TypeSet<Coord>& cs) const { cs = coords_; }
@@ -365,7 +369,8 @@ public:
 			//!< Vertical thickness of a sample, not along hole
 
     uiString		errMsg() const
-			{ return errmsg_.isEmpty() ? 0 : errmsg_; }
+			{ return errmsg_.isEmpty() ? uiStrings::sEmptyString() 
+						   : errmsg_; }
 
     int		nrZSamples() const;
     Interval<float>	zRange() const	{ return zrg_; } //can be in time

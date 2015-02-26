@@ -31,7 +31,7 @@ mExpClass(Well) WellT2DTransform : public ZAxisTransform
 public:
 
     mDefaultFactoryInstantiation( ZAxisTransform, WellT2DTransform,
-				  "WellT2D", sFactoryKeyword() );
+				  "WellT2D", mkUiString(sFactoryKeyword()));
 
 				WellT2DTransform();
 				WellT2DTransform(const MultiID&);

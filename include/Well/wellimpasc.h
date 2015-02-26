@@ -44,7 +44,7 @@ public:
 			~LASImporter();
 
     mExpClass(Well) FileInfo
-    {
+    { mODTextTranslationClass(FileInfo);
     public:
 			FileInfo()
 			    : zrg(mUdf(float),mUdf(float))
