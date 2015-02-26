@@ -17,9 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarray.h"
 
 #include "bitmap2rgb.h"
+#include "bitmapmgr.h"
 #include "datapackbase.h"
 #include "flatposdata.h"
-#include "flatviewbitmapmgr.h"
 #include "threadwork.h"
 #include "threadlock.h"
 #include "thread.h"
@@ -68,13 +68,21 @@ public:
 	Threads::Locker lckr( lock_ );
 
 	if ( !wvabmpmgr_ )
-	    wvabmpmgr_ = new FlatView::BitMapMgr( viewer_, true );
+	    wvabmpmgr_ = new BitMapMgr();
+
+	if ( wvabmpmgr_ && viewer_.isVisible(true) )
+	    wvabmpmgr_->init( viewer_.obtainPack(true),
+			      viewer_.appearance(), true );
 
 	if ( !vdbmpmgr_ )
-	    vdbmpmgr_ = new FlatView::BitMapMgr( viewer_, false );
+	    vdbmpmgr_ = new BitMapMgr();
 
-	FlatView::BitMapGenTask wvatask( *wvabmpmgr_, wr_, sz_, sz_ );
-	FlatView::BitMapGenTask vdtask( *vdbmpmgr_, wr_, sz_, sz_ );
+	if ( vdbmpmgr_ && viewer_.isVisible(false) )
+	    vdbmpmgr_->init( viewer_.obtainPack(false),
+			      viewer_.appearance(), false );
+
+	BitMapGenTask wvatask( *wvabmpmgr_, wr_, sz_, sz_ );
+	BitMapGenTask vdtask( *vdbmpmgr_, wr_, sz_, sz_ );
 
 	TypeSet<Threads::Work> tasks;
 	tasks += Threads::Work( wvatask, false );
@@ -104,7 +112,7 @@ public:
 	if ( mapper.type_ == ColTab::MapperSetup::Fixed )
 	    return mapperrange;
 
-	FlatView::BitMapMgr* mgr = iswva ? wvabmpmgr_ : vdbmpmgr_;
+	BitMapMgr* mgr = iswva ? wvabmpmgr_ : vdbmpmgr_;
 	if ( mgr && mgr->bitMapGen() )
 	    rg = mgr->bitMapGen()->data().scale(
 		    mapper.cliprate_, mapper.symmidval_ );

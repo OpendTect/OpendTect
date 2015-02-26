@@ -26,6 +26,7 @@ list ( APPEND OD_MODULE_SOURCES
 	beachballdata.cc
 	bidvsetarrayadapter.cc
 	bitmap2rgb.cc
+	bitmapmgr.cc
 	conn.cc
 	cbvsinfo.cc cbvsreader.cc cbvsreadmgr.cc
 	cbvswriter.cc cbvswritemgr.cc

@@ -7,12 +7,20 @@
 
 SET(OD_MODULE_DEPS uiTools )
 SET(OD_MODULE_SOURCES
-	flatviewbitmap.cc flatviewzoommgr.cc flatviewaxesdrawer.cc
-	uiflatauxdataeditor.cc uiflatviewer.cc uiflatviewwin.cc
-	uiflatviewcontrol.cc uiflatviewpropdlg.cc uiflatviewstdcontrol.cc
-	uiflatauxdataeditorlist.cc uiflatviewcoltabed.cc
-	uiflatviewslicepos.cc uimultiflatviewcontrol.cc
-	uiflatbitmapdisplay.cc uiflatauxdatadisplay.cc
+	flatviewzoommgr.cc
+	flatviewaxesdrawer.cc
+	uiflatauxdatadisplay.cc
+	uiflatauxdataeditor.cc
+	uiflatauxdataeditorlist.cc
+	uiflatbitmapdisplay.cc
+	uiflatviewcoltabed.cc
+	uiflatviewcontrol.cc
+	uiflatviewer.cc
+	uiflatviewpropdlg.cc
+	uiflatviewslicepos.cc
+	uiflatviewstdcontrol.cc
+	uiflatviewwin.cc
+	uimultiflatviewcontrol.cc
 )
 
 OD_INIT_MODULE()

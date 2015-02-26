@@ -1,5 +1,5 @@
-#ifndef flatviewbitmapmgr_h
-#define flatviewbitmapmgr_h
+#ifndef bitmapmgr_h
+#define bitmapmgr_h
 /*+
 ________________________________________________________________________
 
@@ -11,33 +11,35 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiflatviewmod.h"
-#include "flatview.h"
+#include "generalmod.h"
+
 #include "array2dbitmap.h"
+#include "datapack.h"
+#include "geometry.h"
 
-
-namespace FlatView
-{
+namespace FlatView { class Appearance; }
+class FlatDataPack;
 
 /*!
-\brief Manages bitmaps of flatviewers.
+\brief Manages bitmaps
 */
 
-mExpClass(uiFlatView) BitMapMgr
+mExpClass(General) BitMapMgr
 {
 public:
+			BitMapMgr();
+			~BitMapMgr();
 
-			BitMapMgr(const Viewer&,bool wva);
-			~BitMapMgr()			{ clearAll(); }
-
+    void		init(const FlatDataPack*,const FlatView::Appearance&,
+			     bool wva);
     void		clearAll();
 
     Geom::Point2D<int>	dataOffs(const Geom::PosRectangle<double>&,
-	    			 const Geom::Size2D<int>&) const;
-    			//!< Returns mUdf(int)'s when outside or incompatible
+				 const Geom::Size2D<int>&) const;
+			//!< Returns mUdf(int)'s when outside or incompatible
 
     bool		generate(const Geom::PosRectangle<double>& wr,
-	    			 const Geom::Size2D<int>& bufwrsz,
+				 const Geom::Size2D<int>& bufwrsz,
 				 const Geom::Size2D<int>& availpixels);
 			//!< fails only when isufficient memory
     const A2DBitMap*	bitMap() const			{ return bmp_; }
@@ -47,28 +49,28 @@ private:
 
     void				setup();
 
-    const Viewer&			vwr_;
     mutable Threads::Lock		lock_;
     ConstDataPackRef<FlatDataPack>	datapack_;
+    FlatView::Appearance&		appearance_;
     A2DBitMap*				bmp_;
     A2DBitMapPosSetup*			pos_;
     A2DBitMapInpData*			data_;
     A2DBitMapGenerator*			gen_;
     bool				wva_;
 
+    Geom::Size2D<int>			sz_;
     Geom::PosRectangle<double>		wr_;
-    Geom::Size2D<int>		sz_;
 };
 
 
 /*!
-\brief Flatview bitmap generation Task.
+\brief Bitmap generation Task.
 */
 
-mExpClass(uiFlatView) BitMapGenTask : public Task
+mExpClass(General) BitMapGenTask : public Task
 {
 public:
-    		BitMapGenTask(BitMapMgr& mgr,
+		BitMapGenTask(BitMapMgr& mgr,
 			const Geom::PosRectangle<double>& wr,
 			const Geom::Size2D<int>& bufwrsz,
 			const Geom::Size2D<int>& pix )
@@ -78,14 +80,11 @@ public:
 
 protected:
 
-    BitMapMgr& 				mgr_;
-    const Geom::PosRectangle<double>& 	wr_;
-    const Geom::Size2D<int>& 		bufwrsz_;
-    const Geom::Size2D<int>& 		availpixels_;
+    BitMapMgr&				mgr_;
+    const Geom::PosRectangle<double>&	wr_;
+    const Geom::Size2D<int>&		bufwrsz_;
+    const Geom::Size2D<int>&		availpixels_;
 };
-
-} // namespace FlatView
-
 
 #endif
 
