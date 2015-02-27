@@ -15,6 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "viscoord.h"
 
+#include "hiddenparam.h"
+
 #include <osg/Switch>
 #include <osg/Array>
 #include <osg/PrimitiveSet>
@@ -36,14 +38,13 @@ const char cTowardRight = 1;
 
 #define mGetOsgGeometry(ptr)( ( osg::Geometry* )ptr->getDrawable( 0 ) )
 
+HiddenParam< TileResolutionData,osg::Array* > osgvertarr_( 0 );
 
 TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile, 
     char resolution )
-    : vertices_( Coordinates::create() )
-    , osgswitch_( new osg::Switch )
-    , normals_( new osg::Vec3Array )
+    : osgswitch_( new osg::Switch )
+    , normals_( 0 )
     , needsretesselation_( cMustRetesselate )
-    , allnormalsinvalid_( true ) 
     , sectile_( sectile )
     , resolution_( resolution )
     , nrdefinedvertices_( 0 )
@@ -54,13 +55,11 @@ TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
     , linesosgps_( 0 )
     , pointsosgps_( 0 )
     , wireframesosgps_( 0 )
-    , cosanglexinl_( cos(SI().angleXInl()) )
-    , sinanglexinl_( sin(SI().angleXInl()) )
     , needsetposition_( true )
     , dispgeometrytype_( Triangle )
 {
+    osgswitch_->ref();
     geodes_->ref();
-    vertices_->ref();
     const HorizonSection& section = sectile_->hrsection_;
     const int spacing = section.spacing_[resolution_];
     if ( spacing>=0 )
@@ -69,9 +68,10 @@ TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
 	    (int)section.nrcoordspertileside_/spacing :
 	(int)section.nrcoordspertileside_/spacing +1 ;
     }
+    HorizonSectionTile* tile = const_cast<HorizonSectionTile*>( sectile_ );
+    normals_ = tile->getNormals();
+    osgvertarr_.setParam( this, tile->getOsgVertexArray() );
     buildOsgGeometres();
-    initVertices();
-    bbox_.init(); 
 };
 
 
@@ -79,8 +79,7 @@ TileResolutionData::~TileResolutionData()
 {
     unRefOsgPrimitiveSets();
     geodes_->unref();
-    vertices_->unRef();
-    setNrTexCoordLayers( 0 );
+    osgswitch_->unref();
 }
 
 
@@ -125,102 +124,7 @@ void TileResolutionData::enableGeometryTypeDisplay( GeometryType type, bool yn )
 	else
 	    dispgeometrytype_ = Triangle;
     }
-    
-}
-
-void TileResolutionData::setVerticesPositions( TypeSet<Coord3>* positions )
-{
-    const HorizonSection& hrsection = sectile_->hrsection_;
-    const int spacing = hrsection.spacing_[resolution_];
-    const int nrcoords = hrsection.nrcoordspertileside_;
-
-    const RefMan<const Transformation> trans = 
-	sectile_->hrsection_.transformation_;
-    vertices_->setDisplayTransformation( trans );
-
-    visBase::Coordinates* highestrescoords = 0;
-
-    if ( !positions )
-    {
-	HorizonSectionTile* tile = const_cast<HorizonSectionTile*>( sectile_ );
-	if ( !tile ) return;
-	highestrescoords = const_cast<visBase::Coordinates*>( 
-	tile->getHighestResolutionCoordinates() );
-	if ( !highestrescoords )
-	    return;
-    }
-    
-    int crdidx = 0;
-    bbox_.init();
-    
-    for ( int row=0; row<nrcoords; row+=spacing )
-    {
-	for ( int col=0; col<nrcoords; col+=spacing )
-	{
-	    int coordIdx = col + row*nrcoords;
-	    Coord3 vertex = positions ? (*positions)[coordIdx] : 
-		highestrescoords->getPos(coordIdx);
-	    const int size = positions ? positions->size() :
-		highestrescoords->size();
-	    
-	    if ( coordIdx >= size || !vertex.isDefined() )
-		vertex[2] = mUdf(float);
-	    else
-		nrdefinedvertices_ ++;
-
-	    vertices_->setPos( crdidx, vertex );
-
-	const osg::Vec3Array* arr = 
-	    dynamic_cast<osg::Vec3Array*>(vertices_->osgArray());
-	const osg::Vec3f coord = arr->at( crdidx );
-	if( vertex[2] != mUdf(float) )
-	    bbox_.expandBy( coord );
-	crdidx++;
-       }
-    }
-}
-
-
-void TileResolutionData::calcNormals( bool allownormalinvalid )
-{
-    if ( !normals_ ) return;
-    
-    const HorizonSection& hrsection = sectile_->hrsection_;
-
-    int valididx = 0;
-
-    if ( allownormalinvalid )
-    {
-	const int normalstop = resolution_ < hrsection.lowestresidx_ ? 
-	    hrsection.normalstartidx_[resolution_+1]-1 :
-	hrsection.totalnormalsize_-1;
-	for ( int idx=hrsection.normalstartidx_[resolution_]; 
-	    idx<=normalstop; idx++ )
-	{
-	    valididx = idx - hrsection.normalstartidx_[resolution_];
-	    computeNormal( idx, (*mGetOsgVec3Arr(normals_))[valididx] );
-	}
-    }
-    else
-    {
-	const int sz = invalidnormals_.size();
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    valididx = 
-		invalidnormals_[idx] - hrsection.normalstartidx_[resolution_];
-	    
-	    if ( valididx <0 || valididx > normals_->getNumElements() )
-		return;
-	    computeNormal( valididx, (*mGetOsgVec3Arr(normals_))[valididx]);
-	}
-    }
-
-}
-
-
-void TileResolutionData::setDisplayTransformation( const mVisTrans* t )
-{ 
-    vertices_->setDisplayTransformation( t ); 
+    osgswitch_->setValue( Line, true );
 }
 
 
@@ -245,84 +149,12 @@ void TileResolutionData::dirtyGeometry( int type )
     }
 }
 
-osg::BoundingBox& TileResolutionData::updateBBox()
-{
-    bbox_.init();
-    for ( int idx =0; idx<vertices_->size(); idx++ )
-    {
-	const osg::Vec3Array* arr = 
-	    dynamic_cast<osg::Vec3Array*>(vertices_->osgArray());
-	const osg::Vec3f coord = arr->at( idx );
-	if( coord[2] != mUdf(float) )
-	    bbox_.expandBy( coord );
-    }
-
-    return bbox_;
-}
-
-#define mIsOsgDef( pos ) (pos[2]<9.9e29)
-
-void TileResolutionData::setSingleVertex( int row, int col, 
-    const Coord3& pos, bool& dohide )
-{
-    if ( row<0 || row>nrverticesperside_-1 ||
-	 col<0 || col>nrverticesperside_-1  )
-	return;
-
-    const HorizonSection& section = sectile_->hrsection_;
-
-    const int coordidx = row*nrverticesperside_ + col;
-
-    if ( pos == vertices_->getPos( coordidx) )
-	return;
-
-    osg::Vec3Array* arr = mGetOsgVec3Arr( vertices_->osgArray() );
-
-    const bool olddefined = mIsOsgDef((*arr)[coordidx]);
-    const bool newdefined = pos.isDefined();
-
-    if ( !olddefined && !newdefined )
-	return;
-
-    if ( !newdefined )
-    {
-	vertices_->getPos( coordidx)[2] = 1e30;
-	(*arr)[coordidx][2] =  1e30;
-    }
-    else
-    {
-	Coord3 crd;
-	mVisTrans::transform( section.transformation_, pos, crd );
-	(*arr)[coordidx] = osg::Vec3d( crd[0], crd[1], crd[2] );
-	bbox_.expandBy((*arr)[coordidx]);
-    }
-
-
-    if ( newdefined && !olddefined )
-    {
-	nrdefinedvertices_ ++;
-    }
-    else if ( !newdefined && olddefined )
-    {
-	nrdefinedvertices_--;
-	dohide = true;
-    }
-
-    needsretesselation_ = cShouldRetesselate;
-
-    if ( dohide )
-	hideFromDisplay();
-    
-    setInvalidNormal( row, col );
-}
-
 
 #define mClearPrimitiveSet\
     trianglesps_->clear();\
     wireframesps_->clear();\
     linesps_->clear();\
     pointsps_->clear();\
-
 
 
 #define mClearOsgPrimitiveSet\
@@ -340,11 +172,8 @@ void TileResolutionData::hideFromDisplay()
 
 bool TileResolutionData::tesselateResolution( bool onlyifabsness )
 {
-   if ( needsetposition_ || vertices_->size() == 0 )
-   {
-     if ( !setVerticesFromHighestResolution() )
-	 return false;
-   }
+    const HorizonSection& hrsection = sectile_->hrsection_;
+    const int spacing = hrsection.spacing_[resolution_];
     
     if ( resolution_<0 || needsretesselation_==cNoTesselationNeeded ||
 	( needsretesselation_==cShouldRetesselate && onlyifabsness ) )
@@ -355,13 +184,21 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
     updateprimitiveset_ = false;
 
     tesselatemutex_.lock();
+    const osg::Vec3Array* osgvertices =
+	mGetOsgVec3Arr( osgvertarr_.getParam(this) );
+    const int nrroworcol = hrsection.nrcoordspertileside_/spacing;
+    const int resnrroworcol = resolution_ == 0 ? nrroworcol : nrroworcol + 1 ;
 
-    for ( int idxthis=0; idxthis<vertices_->size(); idxthis++ )
+    for ( int row=0; row<hrsection.nrcoordspertileside_; row+=spacing )
     {
-	if ( vertices_->isDefined( idxthis ) )
-	    tesselateCell( idxthis );
+	for ( int col=0; col<hrsection.nrcoordspertileside_; col+=spacing )
+	{
+	    const int coordidx = col + row*hrsection.nrcoordspertileside_;
+	    if ( !mIsOsgVec3Def( (*osgvertices)[coordidx] ) )
+	    continue;
+	    tesselateCell( row, col );
+	}
     }
-
     tesselatemutex_.unLock();
 
     updateprimitiveset_ = true;
@@ -369,18 +206,6 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
     return true;
 }
 
-
-bool TileResolutionData::setVerticesFromHighestResolution()
-{
-    setVerticesPositions();
-
-    needsretesselation_ = cMustRetesselate;
-    allnormalsinvalid_ = true;
-    invalidnormals_.erase();
-    needsetposition_ = false;
-    return true;
-
-}
 
 void TileResolutionData::setPrimitiveSet( unsigned int geometrytype, 
     osg::DrawElementsUShort* geomps )
@@ -396,7 +221,10 @@ void TileResolutionData::setPrimitiveSet( unsigned int geometrytype,
 
     geom->removePrimitiveSet( 0, geom->getNumPrimitiveSets() );
     if ( geomps->size() )
+    {
 	geom->addPrimitiveSet( geomps );
+	geom->computeBound();
+    }
 }
 
 
@@ -469,22 +297,34 @@ void TileResolutionData::updatePrimitiveSets()
 }
 
 
-void TileResolutionData::tesselateCell( int idxthis )
+int getCoordinateIndex( int row, int col, int nrcoords )
+{  return row*nrcoords+col; }
+
+
+void TileResolutionData::tesselateCell( int row, int col )
 {
     const HorizonSection& section = sectile_->hrsection_;
     const int spacing = section.spacing_[resolution_];
-    const int nrroworcol = section.nrcoordspertileside_/spacing;
-    const int resnrroworcol = resolution_ == 0 ? nrroworcol : nrroworcol +1 ;
+    const int nrcoords = section.nrcoordspertileside_;
+    const int idxthis = getCoordinateIndex( row, col, nrcoords );
 
-    const int idxright = idxthis + 1;
-    const int idxbottom = idxthis + resnrroworcol;
-    const int idxrightbottom = idxthis + resnrroworcol + 1;
+    const int idxright = getCoordinateIndex( row, col+spacing, nrcoords );
+    const int idxbottom = getCoordinateIndex( row+spacing, col, nrcoords );
+    const int idxrightbottom = getCoordinateIndex(
+	row+spacing, col+spacing, nrcoords );
 
-    bool rightisdef = vertices_->isDefined( idxright );  
-    const bool bottomisdef = vertices_->isDefined( idxbottom ); 
-    bool rightbottomisdef = vertices_->isDefined( idxrightbottom );
+    const osg::Vec3Array* osgvertarr = 
+	mGetOsgVec3Arr( osgvertarr_.getParam(this) );
+    const int size = nrcoords*nrcoords;
+    bool rightisdef =
+	idxright<size ? mIsOsgVec3Def( (*osgvertarr)[idxright] ) : false;
+    const bool bottomisdef =
+	idxbottom<size ? mIsOsgVec3Def( (*osgvertarr)[idxbottom] ) : false;
+    bool rightbottomisdef =
+	idxrightbottom<size ?
+	mIsOsgVec3Def( (*osgvertarr)[idxrightbottom] ) : false;
 
-    const bool atright = ( idxthis+1 ) % resnrroworcol == 0;
+    const bool atright = ( idxthis+1 ) % nrcoords == 0;
     if ( atright )
 	rightisdef = rightbottomisdef = false; 
 
@@ -553,26 +393,18 @@ void TileResolutionData::tesselateCell( int idxthis )
 
 bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 {
-
     HorizonSectionTile* curtile = const_cast<HorizonSectionTile*>( sectile_ );
     const HorizonSection& section = curtile->hrsection_;
-    const int spacing = section.spacing_[resolution_];
-
-    const int curroworcol = resolution_ == 0 ?
-	section.nrcoordspertileside_/spacing :
-	section.nrcoordspertileside_/spacing + 1;	
-
-    if ( curroworcol == 0 ) return false;
-
-    const int currow = (int)floor( (double) curidx/curroworcol );
-    const int curcol = curidx - currow*curroworcol;
+    const int size = section.nrcoordspertileside_;
+    const int currow = (int)floor( (double)curidx/size );
+    const int curcol = curidx - currow*size;
     const bool isfirstrow = currow == 0 ? true : false;
     const bool isfirstcol = curcol == 0 ? true : false;
-    const bool islastrow =  currow == curroworcol - 1 ? true : false;
-    const bool islastcol =  curcol == curroworcol - 1 ? true : false;
+    const bool islastrow = currow == size - 1 ? true : false;
+    const bool islastcol = curcol == size - 1 ? true : false;
     const int nrroworcol = section.nrcoordspertileside_;
 	
-    int highestresidx = ( currow*nrroworcol + curcol )*spacing;
+    int highestresidx = currow*nrroworcol + curcol;
     if ( islastcol ) highestresidx --;
     if ( islastrow ) highestresidx -= section.nrcoordspertileside_;
 
@@ -653,104 +485,6 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 }
 
 
-bool TileResolutionData::hasDefinedCoordinates( int idx ) const
-{
-    if ( vertices_ )
-	return vertices_->isDefined( idx );
-    return false;
-}
-
-
-#define mExtractPosition(flag,location) \
-{ \
-    const Coord3 thispos = section.geometry_->getKnot(arrpos,false); \
-    if ( thispos.isDefined() ) \
-    { \
-	Coord3 crd; \
-	mVisTrans::transform( section.transformation_, thispos, crd ); \
-	location##pos.x = ( flag ? -1 : 1 ) * idx * rcdist; \
-	location##pos.y = crd.z; \
-	location##found = true; \
-    } \
-}
-
-
-double TileResolutionData::calcGradient( int row, int col,
-    const StepInterval<int>& rcrange, bool isrow )
-{
-    const HorizonSection& section = sectile_->hrsection_;
-    const float rcdist = isrow ? section.rowdistance_ : section.coldistance_;
-    const int rc = isrow ? row : col;
-    bool beforefound = false; bool afterfound = false;
-    Coord beforepos, afterpos;
-
-    for ( int idx=section.spacing_[resolution_]; idx>=0; idx-- ) 
-    { 
-	if ( !beforefound ) 
-	{ 
-	    const int currc = rc - idx*rcrange.step;
-	    if ( currc >= rcrange.start )
-	    {
-		const RowCol arrpos = isrow ? 
-		    RowCol( currc, col ) : RowCol( row, currc );
-		mExtractPosition( true, before );
-	    }
-	} 
-
-	if ( idx>0 && !afterfound ) 
-	{ 
-	    const int currc = rc + idx*rcrange.step; 
-	    if ( currc <= rcrange.stop )
-	    {
-		const RowCol arrpos = isrow ? 
-		    RowCol( currc, col ) : RowCol( row, currc );
-		mExtractPosition( false, after );
-	    }
-	} 
-
-	if ( afterfound && beforefound )
-	    break;
-    }
-
-    return !afterfound || !beforefound ? 0
-	: (afterpos.y-beforepos.y)/(afterpos.x-beforepos.x);
-}
-
-
-void TileResolutionData::computeNormal( int nmidx,osg::Vec3& normal ) 
-{
-    const HorizonSection& section = sectile_->hrsection_;
-    const RowCol origin_ = sectile_->origin_;
-
-    if ( !section.geometry_ )
-	return;
-
-    RowCol step;
-    if ( section.userchangedisplayrg_ )
-	step = RowCol( section.displayrrg_.step, section.displaycrg_.step );
-    else
-	step = RowCol( section.geometry_->rowRange().step,
-	section.geometry_->colRange().step );
-
-    const int normalrow = ( nmidx-section.normalstartidx_[resolution_] )/
-	section.normalsidesize_[resolution_];
-    const int normalcol = ( nmidx-section.normalstartidx_[resolution_] )%
-	section.normalsidesize_[resolution_];
-
-    const int row = origin_.row() + step.row() * normalrow*
-	section.spacing_[resolution_];
-    const int col = origin_.col() + step.col() * normalcol*
-	section.spacing_[resolution_];
-
-    const double drow=calcGradient(row,col,section.geometry_->rowRange(),true );
-    const double dcol=calcGradient(row,col,section.geometry_->colRange(),false);
-
-    normal[0] = drow*cosanglexinl_+dcol*sinanglexinl_;
-    normal[1] = dcol*cosanglexinl_-drow*sinanglexinl_;
-    normal[2] = -1; 
-}
-
-
 void TileResolutionData::buildOsgGeometres()
 {
     for ( int idx = Triangle; idx<= WireFrame; idx++) // 4 type geometries
@@ -758,7 +492,7 @@ void TileResolutionData::buildOsgGeometres()
 	osg::ref_ptr<osg::Geode> geode = new osg::Geode;
 	osg::ref_ptr<osg::Geometry> geom = new osg::Geometry;
 	osgswitch_->addChild( geode );
-	geom->setVertexArray( vertices_->osgArray() );
+	geom->setVertexArray( osgvertarr_.getParam(this) );
 	geom->setDataVariance( osg::Object::DYNAMIC );
 	geode->addDrawable( geom );
 	osg::ref_ptr<osg::LightModel> lightmodel = new osg::LightModel;
@@ -782,43 +516,6 @@ void TileResolutionData::buildOsgGeometres()
 }
 
 
-void TileResolutionData::initVertices()
-{
-    const int coordsize = nrverticesperside_*nrverticesperside_;
-    vertices_->setAllPositions( Coord3( 1e30, 1e30, 1e30 ), coordsize, 0 );
-    osg::Vec3Array* normals = mGetOsgVec3Arr( normals_ );
-    normals->resize( coordsize );
-    std::fill( normals->begin(), normals->end(), osg::Vec3f( 0, 0, -1 ) );
-    initTexCoordLayers();
-}
-
-
-void TileResolutionData::setNrTexCoordLayers( int nrlayers )
-{
-    while ( nrlayers > txcoords_.size() )
-    {
-	txcoords_.push_back( new osg::Vec2Array );
-	txcoords_.back()->ref();
-    }
-    while ( nrlayers < txcoords_.size() )
-    {
-	txcoords_.back()->unref();
-	txcoords_.pop_back();
-    }
-
-    initTexCoordLayers();
-}
-
-
-void TileResolutionData::initTexCoordLayers()
-{
-    const int coordsize = nrverticesperside_ * nrverticesperside_;
-
-    for ( int idx=0; idx<txcoords_.size(); idx++ )
-	mGetOsgVec2Arr(txcoords_[idx])->resize( coordsize );
-}
-
-
 void TileResolutionData::setWireframeColor( Color& color)
 {
     mGetOsgVec4Arr( linecolor_ )->clear();
@@ -838,10 +535,14 @@ void TileResolutionData::refOsgPrimitiveSets()
 
 void TileResolutionData::unRefOsgPrimitiveSets()
 {
-    unRefOsgPtr( trianglesps_ ); 
-    unRefOsgPtr( linesps_ ); 
-    unRefOsgPtr( pointsps_ ); 
-    unRefOsgPtr( wireframesps_ );
+    unRefAndZeroOsgPtr( trianglesosgps_ );
+    unRefAndZeroOsgPtr( linesosgps_ );
+    unRefAndZeroOsgPtr( pointsosgps_ );
+    unRefAndZeroOsgPtr( wireframesosgps_ );
+    unRefAndZeroOsgPtr( trianglesps_ ); 
+    unRefAndZeroOsgPtr( linesps_ ); 
+    unRefAndZeroOsgPtr( pointsps_ ); 
+    unRefAndZeroOsgPtr( wireframesps_ );
 }
 
 
@@ -898,105 +599,6 @@ void TileResolutionData::buildPointGeometry( int idx )
 }
 
 
-void TileResolutionData::setInvalidNormal( int row, int col )
-{
-    if ( row<0 || row>nrverticesperside_-1 ||
-	col<0 || col>nrverticesperside_-1  )
-	return;
-
-    if ( allnormalsinvalid_ )
-	return;
-
-    const HorizonSection& hrsection = sectile_->hrsection_;
-    const int spacing = hrsection.spacing_[resolution_];
-
-    int rowstart = row-spacing;
-    if ( rowstart>( nrverticesperside_ - 1 ) ) 
-	return;
-    if ( rowstart<0 )
-	rowstart = 0;
-
-    int rowstop = row+spacing;
-    if ( rowstop<0 ) 
-	return;
-    if ( rowstop>( nrverticesperside_ - 1 ) )
-	rowstop = nrverticesperside_ - 1;
-
-    for ( int rowidx=rowstart; rowidx<=rowstop; rowidx++ )
-    {
-	if ( ( rowidx%spacing ) && ( rowidx!=nrverticesperside_-1 ) ) 
-	    continue;
-
-	const int nmrow = rowidx==nrverticesperside_-1 
-	    ? nrverticesperside_-1 
-	    : rowidx/spacing;
-
-	int colstart = col-spacing;
-	if ( colstart>nrverticesperside_ -1 ) continue;
-	if ( colstart<0 ) colstart = 0;
-
-	int colstop = col+spacing;
-	if ( colstop<0 ) continue;
-	if ( colstop>nrverticesperside_-1 ) 
-	    colstop = nrverticesperside_-1;
-
-	int colstartni = hrsection.normalstartidx_[resolution_] + 
-	    nmrow * hrsection.normalsidesize_[resolution_];
-	for ( int colidx=colstart; colidx<=colstop; colidx++ )
-	{
-	    if ( (colidx%spacing) && 
-		(colidx!=nrverticesperside_-1) )
-		continue;
-	    const int nmcol = colidx==nrverticesperside_-1 
-		? hrsection.normalsidesize_[resolution_]-1
-		: colidx/spacing;
-	    invalidnormals_.addIfNew( colstartni + nmcol );
-	}
-    }
-
-}
-
-
-const osg::Vec3Array* TileResolutionData::getNormals() const
-{
-     return mGetOsgVec3Arr( normals_ );
-}
-
-
-bool TileResolutionData::getTextureCoordinates( unsigned int unit,
-    TypeSet<Coord>& txcoords ) const
-{
-    txcoords.setEmpty();
-
-    osgGeo::LayeredTexture* entiretxture = sectile_->hrsection_.getOsgTexture();
-    const osg::Image*	entireimg = entiretxture->getCompositeTextureImage();
-
-    const Coord entireorigin = Coord( 0.5/entireimg->s(), 0.5/entireimg->t() );
-    const int spacing = sectile_->hrsection_.spacing_[resolution_];
-    const int nrcoords = sectile_->hrsection_.nrcoordspertileside_;
-
-    osg::Vec2f txorigin;
-    osg::Vec2f txoppsite;
-    sectile_->getTextureExtent( txorigin, txoppsite );
-
-    Coord offset;
-    offset.x = txorigin[0]/entireimg->s() + entireorigin.x;
-    offset.y = txorigin[1]/entireimg->t() + entireorigin.y;
-
-    for ( int y=0; y<nrcoords; y+=spacing )
-    {
-	for ( int x=0; x<nrcoords; x+=spacing )
-	{
-	    const Coord txcrd = Coord( (double)x/entireimg->s(),
-	    (double)y/entireimg->t() ) + offset;
-	    txcoords += txcrd;
-	}
-    }
-
-    return true;
-}
-
-
 const osg::PrimitiveSet*
 TileResolutionData::getPrimitiveSet( GeometryType type ) const
 {
@@ -1010,15 +612,4 @@ TileResolutionData::getPrimitiveSet( GeometryType type ) const
     return geom->getPrimitiveSet( 0 );
 }
 
-
-const osg::Vec3Array* TileResolutionData::getOsgCoordinates() const
-{
-    const osg::Geode* geode = mGetOsgGeode( geodes_, Triangle );
-    if ( !geode ) return 0;
-
-    osg::Geometry* geom = mGetOsgGeometry( geode );
-    if ( !geom ) return 0;
-
-    return dynamic_cast<osg::Vec3Array*>( geom->getVertexArray() );
-}
 

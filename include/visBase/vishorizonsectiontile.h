@@ -28,8 +28,6 @@ ________________________________________________________________________
 #include <osg/BoundingBox>
 #endif
 
-//class TileTesselator;
-
 namespace osg
 {
     class CullStack;
@@ -39,6 +37,7 @@ namespace osg
     class Geode;
     class Geometry;
     class DrawElementsUShort;
+    class UserDataContainer;
 }
 
 namespace visBase
@@ -61,7 +60,9 @@ public:
     void			setPositions(const TypeSet<Coord3>&);
 				//Call by the end of each render
 				//Makes object ready for render
-    void			updateNormals( char res);
+
+    void			updateNormals(char res){};
+			        //!<For keeping ABI compatibility. Don't use
     void			tesselateResolution(char,bool onlyifabsness);
     void			applyTesselation(char res);
 				//!<Should be called from rendering thread
@@ -72,8 +73,9 @@ public:
 				//!<Sets origin and opposite in global texture
     void			addTileTesselator( int res );
     void			addTileGlueTesselator();
-    void			setDisplayTransformation(const mVisTrans*);
 
+    void			setDisplayTransformation(const mVisTrans*){};
+			       //!<For keeping ABI compatibility. Don't use
 protected:
 
     void			setNeighbor(int neighbor,HorizonSectionTile*);
@@ -83,8 +85,11 @@ protected:
 				/*!<Resolution -1 means it is automatic. */
 
     bool			allNormalsInvalid(char res) const;
+    			        //!<For keeping ABI compatibility. Don't use
     void			setAllNormalsInvalid(char res,bool yn);
+    			        //!<For keeping ABI compatibility. Don't use
     void			emptyInvalidNormalsList(char res);
+    			        //!<For keeping ABI compatibility. Don't use
 
     bool			hasDefinedCoordinates(int idx) const;
 				/*!<idx is the index of coordinates 
@@ -99,9 +104,15 @@ protected:
 				2 is point, 3 is wire frame */
 
     void			updatePrimitiveSets();
-    const visBase::Coordinates* getHighestResolutionCoordinates();
-    void			dirtyGeometry();
+    const visBase::Coordinates* getHighestResolutionCoordinates(){};
+				//!<For keeping ABI compatibility. Don't use
 
+    void			dirtyGeometry();
+    void			setNrTexCoordLayers(int nrlayers);
+    void			initTexCoordLayers();
+    osg::Array*			getNormals();
+    osg::Array*			getOsgVertexArray();
+    osg::UserDataContainer*	getTextureCoordinates();
 protected:
 
     friend class		HorizonSectionTilePosSetup;
@@ -111,6 +122,7 @@ protected:
     friend class		HorTilesCreatorAndUpdator;
     friend class		HorizonSectionTileGlue;
     friend class		HorizonTextureHandler;
+    friend class		TileCoordinatesUpdator;
 
     void			updateBBox();
     void			buildOsgGeometries();
@@ -153,6 +165,11 @@ public:
 					   TypeSet<int>&,GeometryType) const;
     bool			getResolutionCoordinates(TypeSet<Coord3>&)const;
     bool			getTextureExtent(osg::Vec2f&,osg::Vec2f&)const;
+    double			calcGradient(int row,int col,
+					     const StepInterval<int>& rcrange,
+					     bool isrow);
+    void			computeNormal(int nmidx,osg::Vec3&);
+    void			initvertices();
 };
 
 }

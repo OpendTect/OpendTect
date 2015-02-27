@@ -94,11 +94,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	}
 	else if ( fullupdatetiles.indexOf(tile)==-1 )
 	{
-	    for ( int res=0; res<=horsection_->lowestresidx_; res++ )
-	    {
-		tile->setAllNormalsInvalid( res, false );
-	        tile->setPos( tilerow, tilecol, pos, res );
-	    }
+	    tile->setPos( tilerow, tilecol, pos, 0 );
 	    if ( horsection_->desiredresolution_!=-1 )
 	    {
 		addoldtile = true;
@@ -123,11 +119,8 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 		if ( !nbtile || fullupdatetiles.indexOf(nbtile)!=-1)
 		    continue;
 
-		for ( int res=0; res<=horsection_->lowestresidx_; res++ )
-		{
-		    nbtile->setPos( tilerow-rowidx*tilesidesize,
-			tilecol-colidx*tilesidesize, pos, res );
-		}
+		nbtile->setPos( tilerow-rowidx*tilesidesize, 
+		    tilecol-colidx*tilesidesize, pos, 0 );
 
 		if ( !addoldtile || 
 		    rowidx+colidx>=0 || 

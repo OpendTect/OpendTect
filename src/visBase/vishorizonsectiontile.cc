@@ -12,8 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "threadwork.h"
+#include "visosg.h"
 #include "viscoord.h"
 #include "vishorthreadworks.h"
+#include "survinfo.h"
 #include "binidsurface.h"
 #include "hiddenparam.h"
 
@@ -33,6 +35,10 @@ using namespace visBase;
 
 HiddenParam< HorizonSectionTile,osg::Vec2f > txorigin_( osg::Vec2f(0,0) );
 HiddenParam< HorizonSectionTile,osg::Vec2f > txoppsite_( osg::Vec2f(0,0) );
+
+HiddenParam< HorizonSectionTile,osg::Array* > normals_( 0 );
+HiddenParam< HorizonSectionTile,osg::Array* > osgvertices_( 0 );
+HiddenParam< HorizonSectionTile,osg::UserDataContainer* > txcoords_( 0 );
 
 HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
 					const RowCol& origin )
@@ -54,11 +60,19 @@ HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
     refOsgPtr( stateset_ );
     refOsgPtr( osgswitchnode_ );
     tileresolutiondata_.allowNull();
-    buildOsgGeometries();
     bbox_.init();
     txorigin_.setParam( this, osg::Vec2f(0,0) );
     txoppsite_.setParam( this, osg::Vec2f(0,0) );
-}
+    
+    normals_.setParam( this, new osg::Vec3Array );
+    osgvertices_.setParam( this, new osg::Vec3Array );
+    normals_.getParam(this)->ref();
+    osgvertices_.getParam(this)->ref();
+    osg::DefaultUserDataContainer* arr = new osg::DefaultUserDataContainer;
+    arr->ref();
+    txcoords_.setParam( this, arr );
+    buildOsgGeometries();
+  }
 
 void HorizonSectionTile::buildOsgGeometries()
 {
@@ -74,6 +88,19 @@ void HorizonSectionTile::buildOsgGeometries()
     osgswitchnode_->addChild( righttileglue_->getGeode() );
     osgswitchnode_->addChild( bottomtileglue_->getGeode() );
 
+    initvertices();
+}
+
+
+void HorizonSectionTile::initvertices()
+{
+    const int coordsize =
+	hrsection_.nrcoordspertileside_*hrsection_.nrcoordspertileside_;
+    osg::Vec3Array* normals = mGetOsgVec3Arr( normals_.getParam(this) );
+    normals->resize( coordsize );
+    std::fill( normals->begin(),normals->end(),osg::Vec3f(0,0,-1) );
+    osg::Vec3Array* osgvertices = mGetOsgVec3Arr( osgvertices_.getParam(this) );
+    osgvertices->resize( coordsize );
 }
 
 
@@ -90,51 +117,28 @@ HorizonSectionTile::~HorizonSectionTile()
     deepErase( tileresolutiondata_ );
     txoppsite_.removeParam( this );
     txorigin_.removeParam( this );
-}
 
-
-void HorizonSectionTile::updateNormals( char res )
-{
-    if ( !tileresolutiondata_.validIdx( res ) ) 
-	return;
-
-    datalock_.lock();
-    tileresolutiondata_[res]->calcNormals( 
-	tileresolutiondata_[res]->allnormalsinvalid_  );
-    datalock_.unLock();
-
-    emptyInvalidNormalsList( res );
-    tileresolutiondata_[res]->allnormalsinvalid_ = false; 
-
+    normals_.getParam(this)->unref();
+    osgvertices_.getParam(this)->unref();
+    normals_.removeParam( this );
+    osgvertices_.removeParam( this );
+   
+    setNrTexCoordLayers( 0 );
+    txcoords_.getParam(this)->unref();
+    txcoords_.removeParam( this );
 }
 
 
 void HorizonSectionTile::emptyInvalidNormalsList( char res )
-{
-    datalock_.lock();
-    tileresolutiondata_[res]->invalidnormals_.erase();
-    datalock_.unLock();
-}
+{}
 
 
 void HorizonSectionTile::setAllNormalsInvalid( char res, bool yn )
-{ 
-    if ( !tileresolutiondata_.validIdx( res ) ) 
-	return;
-
-    tileresolutiondata_[res]->allnormalsinvalid_ = yn; 
-
-    if ( yn ) emptyInvalidNormalsList( res );
-}
+{}
 
 
 bool HorizonSectionTile::allNormalsInvalid( char res ) const
-{ 
-    if ( !tileresolutiondata_.validIdx( res ) ) 
-	return false;
-
-    return tileresolutiondata_[res]->allnormalsinvalid_; 
-}
+{return false;}
 
 
 void HorizonSectionTile::setResolution( char res )
@@ -191,9 +195,6 @@ void HorizonSectionTile::updateAutoResolution( const osg::CullStack* cs )
 }
 
 
-#define mIsOsgDef( pos ) (pos[2]<9.9e29)
-
-
 void HorizonSectionTile::addTileTesselator( int res )
 {
     TileTesselator* tt = new TileTesselator( this, res );
@@ -218,10 +219,14 @@ void HorizonSectionTile::updateBBox()
 {
     if ( !needsupdatebbox_ )
 	return;
-    if ( tileresolutiondata_[0] )
+
+    bbox_.init();
+    const osg::Vec3Array* osgvertices = 
+	mGetOsgVec3Arr( osgvertices_.getParam(this) );
+    for ( int idx =0; idx<osgvertices->size(); idx++ )
     {
-	bbox_.init();
-	bbox_.expandBy( tileresolutiondata_[0]->updateBBox() );
+	if ( mIsOsgVec3Def((*osgvertices)[idx]) )
+	   bbox_.expandBy( (*osgvertices)[idx] );
     }
     needsupdatebbox_ = false;
 }
@@ -349,7 +354,8 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
     datalock_.lock();
     if ( updatenewpoint_ )
     {
-	tileresolutiondata_[res]->tesselateResolution( false );
+	for ( int res=0; res<=hrsection_.lowestresidx_; res++ )
+	    tileresolutiondata_[res]->tesselateResolution( false );
 	updatenewpoint_ =  false;
     }
     else 
@@ -368,21 +374,6 @@ void HorizonSectionTile::applyTesselation( char res )
 }
 
 
-void HorizonSectionTile::setDisplayTransformation( const mVisTrans* nt )
-{
-    if ( getHighestResolutionCoordinates()->size() == 0 )
-	return;
-
-    for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
-    {
-	tileresolutiondata_[res]->setDisplayTransformation( nt );
-	tileresolutiondata_[res]->calcNormals( true );
-    }
-    righttileglue_->setDisplayTransformation( nt );
-    bottomtileglue_->setDisplayTransformation( nt );
-}
-
-
 void HorizonSectionTile::dirtyGeometry()
 {
     for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
@@ -393,40 +384,54 @@ void HorizonSectionTile::dirtyGeometry()
 }
 
 
-
 void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 {
-    const RefMan<const Transformation> trans = hrsection_.transformation_;
-    nrdefinedvertices_ = 0;
-    bbox_.init();
+     nrdefinedvertices_ = 0;
+     datalock_.lock();
 
-    datalock_.lock();
+     const int nrcoords = hrsection_.nrcoordspertileside_;
+     const RefMan<const Transformation> trans = hrsection_.transformation_;
 
-    tileresolutiondata_[0]->initVertices();
-    tileresolutiondata_[0]->setVerticesPositions( 
-	const_cast<TypeSet<Coord3>*>(&pos) );
-    bbox_.expandBy( tileresolutiondata_[0]->bbox_ );
-    tileresolutiondata_[0]->needsretesselation_ = cMustRetesselate;
-    tileresolutiondata_[0]->allnormalsinvalid_ = true;
-    tileresolutiondata_[0]->invalidnormals_.erase();
-    tileresolutiondata_[0]->needsetposition_ = false;
+     int crdidx = 0;
+     bbox_.init();
+     osg::Vec3Array* osgvertices = mGetOsgVec3Arr(osgvertices_.getParam(this));
+     if ( osgvertices->size()<nrcoords*nrcoords )
+	    osgvertices->resize( nrcoords*nrcoords );
 
-    for ( char res=1; res< hrsection_.nrhorsectnrres_; res++)
-	tileresolutiondata_[res]->needsetposition_ = true;
+     for ( int row=0; row<nrcoords; row++ )
+     {
+	for ( int col=0; col<nrcoords; col++ )
+	{
+	    int coordidx = col + row*nrcoords;
+	    Coord3 vertex = pos[coordidx];
+	    const int size = pos.size();
+	    if ( coordidx >= size || !vertex.isDefined() )
+	    {
+		vertex[2] = mUdf(float);
+	    }
+	    else
+	    {
+		if ( trans )
+		    trans->transform( vertex );
+		nrdefinedvertices_ ++;
+	    }
 
-    nrdefinedvertices_ = tileresolutiondata_[Triangle]->nrdefinedvertices_;
-    datalock_.unLock();
+	    (*osgvertices)[crdidx] = Conv::to<osg::Vec3f>( vertex );
 
-    needsupdatebbox_ = false;
+	    if ( vertex[2] != mUdf(float) )
+	    {
+		 bbox_.expandBy( (*osgvertices)[crdidx] );
+		 computeNormal( 
+		     crdidx,(*mGetOsgVec3Arr(normals_.getParam(this)))[crdidx]);
+	    }
+	    crdidx++;
+	}
+     }
 
+     datalock_.unLock();
+     needsupdatebbox_ = false;
 }
 
-
-const visBase::Coordinates*
-HorizonSectionTile::getHighestResolutionCoordinates()
-{
-    return tileresolutiondata_[0]->getCoordinates();
-}
 
 void HorizonSectionTile::updatePrimitiveSets()
 {
@@ -448,39 +453,43 @@ void HorizonSectionTile::setNeighbor( int nbidx, HorizonSectionTile* nb )
 
 void HorizonSectionTile::setPos( int row, int col, const Coord3& pos, int res )
 {
-    if ( row >=0 && row <= hrsection_.nrcoordspertileside_ &&
-	 col>=0 && col <= hrsection_.nrcoordspertileside_ )
+    if ( row >=0 && row <hrsection_.nrcoordspertileside_ &&
+	col>=0 && col <hrsection_.nrcoordspertileside_ )
     {
-	const int spacing = hrsection_.spacing_[res];
-
-	if ( ( row%spacing ) && ( col%spacing ) )
-	{
-	    tileresolutiondata_[res]->needsetposition_ = true;
-	    tileresolutiondata_[res]->needsretesselation_ = cMustRetesselate;
-	    return;
-	}
-
-	if( res !=0 )
-	    return;
-
-	const int resrow = (int)( row/spacing );
-	const int rescol = (int)( col/spacing );
-
-	bool dohide( false );
 	datalock_.lock();
+	const int coordidx = row*hrsection_.nrcoordspertileside_+ col;
 
-	if ( res == 0 )
+	osg::Vec3Array* arr = mGetOsgVec3Arr( osgvertices_.getParam(this) );
+	const bool olddefined = mIsOsgVec3Def( (*arr)[coordidx] );
+	const bool newdefined = pos.isDefined();
+	
+	if ( !newdefined && olddefined )
+	    nrdefinedvertices_--;
+	else if ( newdefined && !olddefined )
+	    nrdefinedvertices_++;
+
+	if ( !newdefined )
 	{
-	    tileresolutiondata_[res]->setSingleVertex(
-		resrow, rescol, pos, dohide);
+	    //it is going to assign a undefined point to vertex,first we should
+	    // hide osg render.
+	    char curres = getActualResolution();
+	    tileresolutiondata_[curres]->hideFromDisplay();
+	    (*arr)[coordidx][2] = mUdf(float);
 	}
-	
-	
+	else
+	{
+	    Coord3 crd;
+	    mVisTrans::transform( hrsection_.transformation_, pos, crd );
+	    (*arr)[coordidx] = Conv::to<osg::Vec3f>(crd);
+	    bbox_.expandBy( (*arr)[coordidx] );
+	    computeNormal( coordidx,
+		( *mGetOsgVec3Arr(normals_.getParam(this)) )[coordidx] );
+	}
+
+	for ( int res=0; res<=hrsection_.lowestresidx_; res++ )
+	    tileresolutiondata_[res]->needsretesselation_ = cShouldRetesselate;
+
 	datalock_.unLock();
-
-	if ( dohide )
-	    setActualResolution( -1 );
-
 	needsupdatebbox_ = true;
 	glueneedsretesselation_ = true;
 	updatenewpoint_ = true;
@@ -514,8 +523,7 @@ void HorizonSectionTile::setTexture( const Coord& origincrd,
 	nrtexcoordlayers = 1;
 
     txunits_.erase();
-    for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
-	tileresolutiondata_[res]->setNrTexCoordLayers( nrtexcoordlayers );
+    setNrTexCoordLayers( nrtexcoordlayers );
 
     std::vector<osgGeo::LayeredTexture::TextureCoordData>::iterator tcit =
 								tcdata.begin();
@@ -524,34 +532,33 @@ void HorizonSectionTile::setTexture( const Coord& origincrd,
 	const int tcidx = mMIN( layeridx, nrtexcoordlayers-1 );
 	const osg::Vec2 texturetilestep = tcit->_tc11 - tcit->_tc00;
 
+	osg::UserDataContainer* txcoordsarray = txcoords_.getParam(this);
+	osg::Vec2Array* txcoords = 
+	    mGetOsgVec2Arr( txcoordsarray->getUserObject(tcidx) );
+
+	if ( layeridx == tcidx )
+	{
+	    const osg::Vec2f diff = 
+		txoppsite_.getParam(this)-txorigin_.getParam(this);
+	    const int size = hrsection_.nrcoordspertileside_;
+
+	    for ( int r=0; r<size; r++ )
+	    {
+		for ( int c=0; c<size; c++ )
+		{
+		    (*txcoords)[r*size+c][0] = tcit->_tc00[0] +
+				( float(c)/diff.x() )*texturetilestep.x();
+		    (*txcoords)[r*size+c][1] = tcit->_tc00[1] +
+				( float(r)/diff.y() )*texturetilestep.y();
+		}
+	     }
+
+	}
+
 	for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
 	{
-	    osg::Vec2Array* txcoords =
-		mGetOsgVec2Arr( tileresolutiondata_[res]->txcoords_[tcidx] );
-
-	    if ( layeridx == tcidx )
-	    {
-		const int spacing = hrsection_.spacing_[res];
-		const int size = spacing == 1 ?
-			    (int)hrsection_.nrcoordspertileside_/spacing :
-			    (int)hrsection_.nrcoordspertileside_/spacing + 1;
-
-		const osg::Vec2f diff = (opposite-origin) / spacing;
-
-		for ( int r=0; r<size; r++ )
-		{
-		    for ( int c=0; c<size; c++ )
-		    {
-			(*txcoords)[r*size+c][0] = tcit->_tc00[0] +
-				    ( float(c)/diff.x() )*texturetilestep.x();
-			(*txcoords)[r*size+c][1] = tcit->_tc00[1] +
-				    ( float(r)/diff.y() )*texturetilestep.y();
-		    }
-		}
-	    }
-
 	    tileresolutiondata_[res]->setTexture( tcit->_textureUnit,
-						  txcoords, stateset_ );
+	    txcoords, stateset_ );
 	}
 
 	txunits_ += tcit->_textureUnit;
@@ -559,13 +566,142 @@ void HorizonSectionTile::setTexture( const Coord& origincrd,
 }
 
 
+void HorizonSectionTile::setNrTexCoordLayers(int nrlayers)
+{
+    while ( nrlayers>txcoords_.getParam(this)->getNumUserObjects() )
+    {
+	osg::Vec2Array* arr = new osg::Vec2Array();
+	arr->ref();
+	txcoords_.getParam(this)->addUserObject( arr );
+    }
+    while ( nrlayers < txcoords_.getParam(this)->getNumUserObjects() )
+    {
+	osg::UserDataContainer* arr = txcoords_.getParam( this );
+	int idx = arr->getNumUserObjects();
+	arr->getUserObject(idx-1)->unref();
+	arr->removeUserObject(idx-1);
+    }
+
+    initTexCoordLayers();
+}
+
+
+void HorizonSectionTile::initTexCoordLayers()
+{
+    const int coordsize =
+	hrsection_.nrcoordspertileside_*hrsection_.nrcoordspertileside_;
+
+    osg::UserDataContainer* arr = txcoords_.getParam( this );
+    for (int idx = 0; idx<txcoords_.getParam(this)->getNumUserObjects(); idx++)
+    {
+	osg::Vec2Array* txarr = (osg::Vec2Array*)arr->getUserObject( idx );
+	txarr->resize( coordsize );
+    }
+}
+
+
 bool HorizonSectionTile::hasDefinedCoordinates( int idx ) const
 {
-    if ( tileresolutiondata_[0] )
-	return tileresolutiondata_[0]->hasDefinedCoordinates( idx );
+   const osg::Vec3Array* osgvertices = 
+       mGetOsgVec3Arr( osgvertices_.getParam(this) );
+   if ( osgvertices )
+	return mIsOsgVec3Def( (*osgvertices)[idx] );
     return false;
 }
  
+
+#define mExtractPosition(flag,location) \
+{ \
+ const Coord3 thispos = hrsection_.geometry_->getKnot(arrpos,false); \
+ if ( thispos.isDefined() ) \
+ { \
+	Coord3 crd; \
+	mVisTrans::transform( hrsection_.transformation_, thispos, crd ); \
+	location##pos.x = ( flag ? -1 : 1 ) * idx * rcdist; \
+	location##pos.y = crd.z; \
+	location##found = true; \
+ } \
+}
+
+
+double HorizonSectionTile::calcGradient( int row, int col,
+ const StepInterval<int>& rcrange, bool isrow )
+{
+    const float rcdist =
+	   isrow ? hrsection_.rowdistance_ : hrsection_.coldistance_;
+    const int rc = isrow ? row : col;
+    bool beforefound = false; bool afterfound = false;
+    Coord beforepos, afterpos;
+
+    for ( int idx=hrsection_.spacing_[0]; idx>=0; idx-- )
+    {
+	if ( !beforefound )
+	{
+	   const int currc = rc - idx*rcrange.step;
+	   if ( currc >= rcrange.start )
+	   {
+		const RowCol arrpos = isrow ?
+		RowCol( currc, col ) : RowCol( row, currc );
+		mExtractPosition( true, before );
+	   }
+	 }
+
+	 if ( idx>0 && !afterfound )
+	 {
+	    const int currc = rc + idx*rcrange.step;
+	    if ( currc <= rcrange.stop )
+	    {
+		const RowCol arrpos = isrow ?
+		RowCol( currc, col ) : RowCol( row, currc );
+		mExtractPosition( false, after );
+	    }
+	  }
+
+	  if ( afterfound && beforefound )
+	  break;
+    }
+
+    return !afterfound || !beforefound ? 0
+	    : (afterpos.y-beforepos.y)/(afterpos.x-beforepos.x);
+}
+
+
+void HorizonSectionTile::computeNormal( int nmidx,osg::Vec3& normal )
+{
+    if ( !hrsection_.geometry_ )
+	return;
+
+    RowCol step;
+    if ( hrsection_.userchangedisplayrg_ )
+	step = RowCol(hrsection_.displayrrg_.step,hrsection_.displaycrg_.step);
+    else
+	step = RowCol( hrsection_.geometry_->rowRange().step,
+	hrsection_.geometry_->colRange().step );
+
+    const int normalrow = (nmidx-hrsection_.normalstartidx_[0])/
+	hrsection_.normalsidesize_[0];
+    const int normalcol = (nmidx-hrsection_.normalstartidx_[0])%
+	hrsection_.normalsidesize_[0];
+
+    const int row = origin_.row() + step.row() * normalrow*
+	hrsection_.spacing_[0];
+    const int col = origin_.col() + step.col() * normalcol*
+	hrsection_.spacing_[0];
+
+    const double drow=
+	calcGradient( row, col, hrsection_.geometry_->rowRange(), true );
+     const double dcol=
+	calcGradient( row, col, hrsection_.geometry_->colRange(), false );
+
+    osg::Vec3 osgnormal;
+    osgnormal[0] = drow*cos(SI().angleXInl())+dcol*sin(SI().angleXInl());
+    osgnormal[1] = dcol*cos(SI().angleXInl())-drow*sin(SI().angleXInl());
+     osgnormal[2] = -1;
+
+    if ( mIsOsgVec3Def( osgnormal ) )
+	normal = osgnormal;
+}
+
 
 const HorizonSectionTile* HorizonSectionTile::getNeighborTile(int idx) const
 {
@@ -580,7 +716,7 @@ bool HorizonSectionTile::getResolutionCoordinates(TypeSet<Coord3>& coords) const
     char res = getActualResolution();
     if ( res==-1 ) res = 0;
 
-    const osg::Vec3Array* osgarr=tileresolutiondata_[res]->getOsgCoordinates();
+    const osg::Vec3Array* osgarr = mGetOsgVec3Arr(osgvertices_.getParam(this));
     if ( !osgarr ) return false;
 
     coords.setEmpty();
@@ -593,12 +729,9 @@ bool HorizonSectionTile::getResolutionCoordinates(TypeSet<Coord3>& coords) const
 
 bool HorizonSectionTile::getResolutionNormals( TypeSet<Coord3>& coords ) const
 {
-    char res = getActualResolution();
-    if ( res==-1 ) res = 0;
-
-    const osg::Vec3Array* arr = tileresolutiondata_[res]->getNormals();
+    const osg::Vec3Array* arr = mGetOsgVec3Arr( normals_.getParam(this) );
     if ( !arr ) return false;
-
+    
     coords.setEmpty();
     for ( int idx = 0; idx<arr->size(); idx++ )
 	coords += Coord3( (*arr)[idx].x(), (*arr)[idx].y(), (*arr)[idx].z() );
@@ -613,11 +746,26 @@ bool HorizonSectionTile::getResolutionTextureCoordinates(
     if ( txunits_.size()==0 ) return false;
 
     coords.setEmpty();
-    char res = getActualResolution();
-    if ( res==-1 ) res = 0;
+  
+    osgGeo::LayeredTexture* entiretxture = hrsection_.getOsgTexture();
+    const osg::Image*	entireimg = entiretxture->getCompositeTextureImage();
 
-    tileresolutiondata_[res]->getTextureCoordinates( txunits_[0],coords );
+    const Coord entireorigin = Coord( 0.5/entireimg->s(), 0.5/entireimg->t() );
+    const int nrcoords = hrsection_.nrcoordspertileside_;
 
+    Coord offset;
+    offset.x = txorigin_.getParam(this)[0]/entireimg->s() + entireorigin.x;
+    offset.y = txorigin_.getParam(this)[1]/entireimg->t() + entireorigin.y;
+
+    for ( int y=0; y<nrcoords; y++ )
+    {
+	for ( int x=0; x<nrcoords; x++ )
+	{
+	    const Coord txcrd = Coord( (double)x/entireimg->s(),
+	    (double)y/entireimg->t() ) + offset;
+	    coords += txcrd;
+	}
+    }
     return true;
 }
 
@@ -652,3 +800,20 @@ bool HorizonSectionTile::getTextureExtent( osg::Vec2f& txorigin,
     return true;
 }
 
+
+osg::Array* HorizonSectionTile::getNormals()
+{
+    return normals_.getParam( this );
+}
+
+
+osg::Array* HorizonSectionTile::getOsgVertexArray()
+{
+    return osgvertices_.getParam( this );
+}
+
+
+osg::UserDataContainer* HorizonSectionTile::getTextureCoordinates()
+{
+    return txcoords_.getParam( this );
+}

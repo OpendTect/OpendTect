@@ -153,6 +153,8 @@ protected:
 
     void			setUpdateVar(bool& var,bool yn);
 				//! Will trigger redraw request if necessary
+    HorizonSectionTile*		getTitle(int idx);
+    friend class		TileCoordinatesUpdator;
 
     bool			forceupdate_;	// Only set via setUpdateVar(.)
 
