@@ -28,7 +28,7 @@ public:
 
 protected:
     virtual uiObject*	lastObject();
-    void		selChg( CallBacker* );
+    void		selChg(CallBacker*);
 
     uiIOObjSelGrp*	ioobjfld_;
     TypeSet<MultiID>	mids_;

@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id:  ";
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "executor.h"
 
 #include "coltabindex.h"
 #include "coltabmapper.h"
@@ -55,12 +56,13 @@ uiBasemapHorizon3DGroup::~uiBasemapHorizon3DGroup()
 bool uiBasemapHorizon3DGroup::acceptOK()
 {
     const bool res = uiBasemapGroup::acceptOK();
+    if ( !res ) return false;
+
+    PtrMan<Executor> exec = EM::EMM().objectLoader( mids_ );
+    if ( !exec ) return true;
 
     uiTaskRunner uitr( &BMM().getBasemap() );
-    for ( int idx=0; idx<mids_.size(); idx++ )
-	EM::EMM().loadIfNotFullyLoaded( mids_[idx], &uitr );
-
-    return res;
+    return uitr.execute( *exec );
 }
 
 
@@ -137,9 +139,9 @@ bool uiBasemapHorizon3DTreeItem::usePar( const IOPar& par )
     MultiID mid;
     if ( !par.get(IOPar::compKey(sKey::ID(),0),mid) ) return false;
 
-    uiTaskRunner uitr( &BMM().getBasemap() );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid, &uitr );
-    mDynamicCastGet(EM::Horizon3D*,horizonptr,emobj);
+    RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( mid, 0 );
+    mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr());
+    if ( !hor ) return false;
 
     // will be changed to flatviewbitmapmgr.h after some changes were made
     const uiWorld2Ui& transf( BMM().getBasemap().transform().world2UiData() );
@@ -149,9 +151,9 @@ bool uiBasemapHorizon3DTreeItem::usePar( const IOPar& par )
     float worldymin, worldymax;
     transf.getWorldYRange( worldymin, worldymax );
 
-    const StepInterval<int> inlrg = horizonptr->range().lineRange();
-    const StepInterval<int> crlrg = horizonptr->range().trcRange();
-    const StepInterval<float> zrg = horizonptr->getZRange();
+    const StepInterval<int> inlrg = hor->range().lineRange();
+    const StepInterval<int> crlrg = hor->range().trcRange();
+    const Interval<float> zrg = hor->getZRange();
 
     const int uixmax = transf.toUiX( worldxmax );
     const int uiymax = transf.toUiY( worldymin );
@@ -162,7 +164,7 @@ bool uiBasemapHorizon3DTreeItem::usePar( const IOPar& par )
 
     ColTab::Sequence sequence( 0 );
     ColTab::Mapper mapper;
-    mapper.setRange( horizonptr->getZRange() );
+    mapper.setRange( hor->getZRange() );
     ColTab::IndexedLookUpTable index( sequence, 255, &mapper );
 
     BinID bid;
@@ -176,7 +178,7 @@ bool uiBasemapHorizon3DTreeItem::usePar( const IOPar& par )
 	    pt = Coord( mCast(double,xcoord), mCast(double,ycoord) );
 	    bid = SI().transform( pt );
 
-	    const float zvalue = horizonptr->getZ( bid );
+	    const float zvalue = hor->getZ( bid );
 	    if ( !mIsUdf(zvalue) )
 		rgbarr->set( idw, idh, index.color(zvalue) );
 	}

@@ -358,6 +358,7 @@ inline void assign( Interval<T1>& i1, const Interval<T2>& i2 )
 	si1->step = (T1)si2->step;
 }
 
+
 template <class T1,class T2>
 inline void assign( StepInterval<T1>& i1, const StepInterval<T2>& i2 )
 { i1.start = (T1)i2.start; i1.stop = (T1)i2.stop; i1.step = (T1)i2.step; }
@@ -370,6 +371,7 @@ template <class T>
 inline BasicInterval<T>&
 BasicInterval<T>::operator=( const BasicInterval<T>& intv )
 { start = intv.start; stop = intv.stop; return *this; }
+
 
 template <class T> template <class X> inline
 int BasicInterval<T>::nearestIndex( const X& x, const T& step ) const
@@ -393,6 +395,7 @@ template <class T> inline BasicInterval<T>::BasicInterval()
 template <class T> inline
 BasicInterval<T>::BasicInterval( const T& t1, const T& t2 )
     : start(t1), stop(t2)	{}
+
 
 template <class T> inline
 Interval<T>* Interval<T>::clone() const
@@ -423,6 +426,7 @@ template <class T> inline
 BasicInterval<T> BasicInterval<T>::operator+( const BasicInterval<T>& i ) const
 { return Interval<T>(start+i.start, stop+i.stop); }
 
+
 template <class T> inline
 BasicInterval<T>& BasicInterval<T>::operator+=( const BasicInterval<T>& i )
 { start += i.start; stop += i.stop; return *this; }
@@ -440,6 +444,7 @@ const BasicInterval<T>& BasicInterval<T>::setFrom( const BasicInterval<X>& i )
 template <class T> inline
 T BasicInterval<T>::width( bool allowrev ) const
 { return allowrev && isRev() ? start - stop : stop - start; }
+
 
 #define mCenterImpl(func,typ) \
 template <class T> inline  \
@@ -570,7 +575,6 @@ Interval<T>::Interval( const BasicInterval<T>& b )
 {}
 
 
-
 template <class T> inline
 void Interval<T>::sort( bool asc )
 {
@@ -611,6 +615,7 @@ StepInterval<T>::StepInterval( const Interval<T>& intv )
     : Interval<T>(intv)
 { step = intv.hasStep() ? ((StepInterval<T>&)intv).step : 1; }
 
+
 template <class T>
 inline StepInterval<T>& StepInterval<T>::operator=( const Interval<T>& intv )
 { assign( *this, intv ); return *this; }
@@ -631,6 +636,7 @@ StepInterval<T>* StepInterval<T>::clone() const
 template <class T> inline
 void StepInterval<T>::set( const T& t1, const T& t2, const T& t3 )
 { Interval<T>::set( t1, t2 ); step = t3; }
+
 
 template <class T> inline
 bool StepInterval<T>::isEqual( const StepInterval<T>& i, const T& eps ) const
@@ -698,6 +704,7 @@ void StepInterval<T>::sort( bool asc )
 	step = -step;
 }
 
+
 template <class T> inline
 void StepInterval<T>::scale( const T& factor )
 {
@@ -705,9 +712,11 @@ void StepInterval<T>::scale( const T& factor )
     step *= factor;
 }
 
+
 template <class T> inline
 T StepInterval<T>::snappedCenter() const
 { return snap( Interval<T>::center() ); }
+
 
 template <class T> inline
 T StepInterval<T>::snapStep( const T& inputstep ) const
@@ -734,6 +743,7 @@ inline int StepInterval<T>::nrSteps() const
     int ret = (((int)this->start) - ((int) this->stop)) / ((int) step);
     return ret < 0 ? -ret : ret;
 }
+
 
 #define mDefFNrSteps(typ) \
 template <> \

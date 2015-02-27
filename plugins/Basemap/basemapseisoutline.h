@@ -48,6 +48,7 @@ protected:
     ObjectSet< ODPolygon<float> >    polygons_;
     TrcKeySampling&	seisarea_;
 
+private:
     bool		extractPolygons();
 };
 

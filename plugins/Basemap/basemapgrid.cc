@@ -148,4 +148,4 @@ void GridObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
     }
 }
 
-} // namepace Basemap
+} // namespace Basemap
