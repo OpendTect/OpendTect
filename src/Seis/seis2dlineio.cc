@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "seisbuf.h"
 #include "sorting.h"
-
+#include "uistrings.h"
 
 Seis2DLineGetter::Seis2DLineGetter( SeisTrcBuf& trcbuf, int trcsperstep,
 				    const Seis::SelData& sd )
@@ -94,7 +94,7 @@ bool TwoDSeisTrcTranslator::initRead_()
 	{ errmsg_ = tr( "Cannot reconstruct 2D filename" ); return false; }
     BufferString fnm( ioobj->fullUserExpr(true) );
     if ( !File::exists(fnm) )
-	{ errmsg_ = tr( "%1 does not exist" ).arg( fnm ); return false; }
+	{ errmsg_ = uiStrings::sDoesntExist(mkUiString(fnm)); return false; }
 
     return true;
 }
@@ -194,14 +194,15 @@ bool SeisTrc2DTranslator::initRead_()
     , totnr_(-1) \
     , curattridx_(-1) \
     , currentlyreading_(0) \
-    , msg_("Opening files") \
-    , nrdonemsg_("Files opened") 
+
 
 
 
 Seis2DLineMerger::Seis2DLineMerger( const BufferStringSet& attrnms )
     : Executor("Merging linens")
     , ds_(0)
+    , msg_(tr("Opening files"))
+    , nrdonemsg_(tr("Files opened"))
     mStdInit
 {
     for ( int atridx=0; atridx<attrnms.size(); atridx++ )

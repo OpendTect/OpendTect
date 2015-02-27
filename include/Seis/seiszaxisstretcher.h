@@ -31,7 +31,7 @@ class ZAxisTransform;
    be done on the inveres of the values. */
 
 mExpClass(Seis) SeisZAxisStretcher : public ParallelTask
-{
+{ mODTextTranslationClass(SeisZAxisStretcher);
 public:
 			SeisZAxisStretcher( const IOObj& in,
 					     const IOObj& out,
@@ -44,7 +44,7 @@ public:
     bool		isOK() const;
 
     void		setLineKey(const char*);
-    uiString		uiMessage() const { return "Stretching data"; }
+    uiString		uiMessage() const { return tr("Stretching data"); }
 
     void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
     void		setVelTypeIsVrms( bool yn )	{ isvrms_ = yn; }

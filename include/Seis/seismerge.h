@@ -38,7 +38,9 @@ public:
     uiString		uiMessage() const;
     od_int64		nrDone() const		{ return nrpos_; }
     od_int64		totalNr() const		{ return totnrpos_; }
-    uiString		uiNrDoneText() const	{ return "Positions handled"; }
+    uiString		uiNrDoneText() const	{ 
+					    return tr("Positions handled"); 
+						}
     int			nextStep();
     void		setScaler(Scaler*);
 

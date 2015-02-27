@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "veldesc.h"
 #include "velocitycalc.h"
 
-static const uiString sNrTrcsCopied = "Number of traces copied";
+static uiString sNrTrcsCopied = mkUiString("Number of traces copied");
 
 
 #define mNoVelocity 0
@@ -198,7 +198,7 @@ SeisLineSetCopier::SeisLineSetCopier( const IOObj& inobj, const IOObj& outobj,
     , scaler_(0)
     , totalnr_(0)
     , nrdone_(0)
-    , msg_("Copying traces")
+    , msg_(tr("Copying traces"))
 {
     PtrMan<IOPar> lspar = par.subselect( sKey::Line() );
     if ( !lspar || lspar->isEmpty() )

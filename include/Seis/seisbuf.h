@@ -112,7 +112,7 @@ public:
     			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
 
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "Traces read"; }
+    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
     od_int64		nrDone() const		{ return buf_.size(); }
     od_int64		totalNr() const		{ return totnr_; }
     int			nextStep();

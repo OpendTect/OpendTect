@@ -133,9 +133,8 @@ bool Seis2DTo3D::checkParameters()
 
     if ( inlstep_ < 1 && crlstep_ < 1 )
     {
-	uiString msg( "Internal: " );
-	msg.append( inlstep_<1 ? sKey::Inline() : sKey::Crossline() );
-	msg.append( tr(" step is not set") );
+	uiString msg = tr("Internal: %1 step is not set")
+		     .arg(inlstep_ < 1 ? sKey::Inline() : sKey::Crossline());
 	mErrRet(msg)
     }
 

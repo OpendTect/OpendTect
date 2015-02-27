@@ -44,7 +44,9 @@ public:
 			{ offsrg_.start = r0; offsrg_.stop = r1; }
 
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "Gathers written"; }
+    uiString		uiNrDoneText() const	{ 
+						return tr("Gathers written"); 
+						}
     virtual od_int64	nrDone() const		{ return nrdone_; }
     virtual od_int64	totalNr() const		{ return totnr_; }
     virtual int		nextStep();

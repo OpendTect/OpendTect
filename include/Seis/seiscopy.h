@@ -28,7 +28,7 @@ namespace Seis { class RangeSelData; }
 	to a SeisSingleTraceProc. */
 
 mExpClass(Seis) SeisCubeCopier : public Executor
-{
+{ mODTextTranslationClass(SeisCubeCopier);
 public:
 
 				SeisCubeCopier(const IOObj& inobj,
@@ -72,7 +72,7 @@ private:
 */
 
 mExpClass(Seis) SeisLineSetCopier : public Executor
-{
+{ mODTextTranslationClass(SeisLineSetCopier);
 public:
 
 

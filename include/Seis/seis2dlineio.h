@@ -56,14 +56,14 @@ public:
 /*!\brief interface for object that reads 2D seismic data */
 
 mExpClass(Seis) Seis2DLineGetter : public Executor
-{
+{ mODTextTranslationClass(Seis2DLineGetter);
 public:
 			Seis2DLineGetter(SeisTrcBuf&,int trcsperstep,
 					 const Seis::SelData&);
     virtual		~Seis2DLineGetter()	{}
 
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "Traces read"; }
+    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
 
     virtual od_int64	nrDone() const			= 0;
     virtual od_int64	totalNr() const			= 0;

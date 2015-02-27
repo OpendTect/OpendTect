@@ -65,7 +65,7 @@ public:
     void		setFilter(const Pos::Filter&);
 
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "Traces handled"; }
+    uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totnr_; }
     int			nextStep();

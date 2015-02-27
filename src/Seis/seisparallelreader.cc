@@ -321,10 +321,10 @@ ParallelReader2D::~ParallelReader2D()
 
 
 uiString ParallelReader2D::uiNrDoneText() const
-{ return "Traces read"; }
+{ return tr("Traces read"); }
 
 uiString ParallelReader2D::uiMessage() const
-{ return msg_.isEmpty() ? "Reading" : msg_; }
+{ return msg_.isEmpty() ? tr("Reading") : msg_; }
 
 od_int64 ParallelReader2D::nrIterations() const
 { return totalnr_; }

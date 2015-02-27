@@ -179,8 +179,9 @@ public:
     void			getSampledRMs(
 					ObjectSet<const ReflectivityModel>&);
 
-    uiString			uiMessage() const
-					{ return "Generating synthetics..."; }
+    uiString			uiMessage() const { 
+					return tr("Generating synthetics..."); 
+						  }
 
     od_int64                    totalNr() const	{ return totalnr_; }
 

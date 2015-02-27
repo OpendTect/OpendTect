@@ -109,7 +109,7 @@ static const char* getSurvDefAttrName()
 
 
 class OD_FileListCopier : public Executor
-{
+{ mODTextTranslationClass(OD_FileListCopier);
 public:
 OD_FileListCopier( const BufferStringSet& fromlist,
 		   const BufferStringSet& tolist, BufferString& errmsg )
@@ -121,8 +121,8 @@ OD_FileListCopier( const BufferStringSet& fromlist,
 
 od_int64 totalNr() const	{ return mCast(od_int64,fromlist_.size()); }
 od_int64 nrDone() const		{ return mCast(od_int64,curidx_); }
-uiString uiNrDoneText() const	{ return "Nr files done"; }
-uiString uiMessage() const	{ return "Converting 2D Seismic data"; }
+uiString uiNrDoneText() const	{ return tr("Nr files done"); }
+uiString uiMessage() const	{ return tr("Converting 2D Seismic data"); }
 
 int nextStep()
 {

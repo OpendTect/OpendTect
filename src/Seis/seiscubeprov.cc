@@ -466,7 +466,7 @@ bool SeisMSCProvider::doAdvance()
 
 
 class TrcDataLoader : public Executor
-{
+{ mODTextTranslationClass(TrcDataLoader);
 public:
 TrcDataLoader( SeisTrcReader& rdr, Array2D<SeisTrc*>& arr,
 	       const TrcKeySampling& hs, bool is2d )
@@ -484,10 +484,10 @@ od_int64 nrDone() const
 { return nrdone_; }
 
 uiString uiNrDoneText() const
-{ return "Positions done"; }
+{ return tr("Positions done"); }
 
 uiString uiMessage() const
-{ return "Reading Steering traces"; }
+{ return tr("Reading Steering traces"); }
 
 int nextStep()
 {

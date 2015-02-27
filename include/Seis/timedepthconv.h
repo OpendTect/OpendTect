@@ -53,7 +53,8 @@ mExpClass(Seis) Time2DepthStretcher : public VelocityStretcher
 { mODTextTranslationClass(Time2DepthStretcher);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Time2DepthStretcher,
-	    			  "VelocityT2D", sFactoryKeyword() );
+				  "VelocityT2D", 
+				  mkUiString(sFactoryKeyword()));
 
 			Time2DepthStretcher();
     bool		setVelData(const MultiID&);
@@ -111,7 +112,8 @@ mExpClass(Seis) Depth2TimeStretcher : public VelocityStretcher
 { mODTextTranslationClass(Depth2TimeStretcher);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Depth2TimeStretcher,
-	    			  "VelocityD2T", sFactoryKeyword() );
+				  "VelocityD2T", 
+				  mkUiString(sFactoryKeyword()));
 
 			Depth2TimeStretcher();
     bool		setVelData(const MultiID&);
@@ -211,7 +213,7 @@ mExpClass(Seis) LinearT2DTransform : public LinearVelTransform
 { mODTextTranslationClass(LinearT2DTransform);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
-	    			  "LinearT2D", "Linear velocity" );
+	    			  "LinearT2D", tr("Linear velocity") );
 
     				LinearT2DTransform(float v0=0, float dv=0);
 
@@ -234,7 +236,7 @@ mExpClass(Seis) LinearD2TTransform : public LinearVelTransform
 { mODTextTranslationClass(LinearD2TTransform);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
-	    			  "LinearD2T", "Linear velocity" );
+	    			  "LinearD2T", tr("Linear velocity") );
 
     				LinearD2TTransform(float v0=0, float dv=0);
 

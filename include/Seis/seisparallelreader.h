@@ -124,7 +124,7 @@ protected:
 
 
 mExpClass(Seis) SequentialReader : public Executor
-{
+{ mODTextTranslationClass(SequentialReader);
 public:
 			SequentialReader(const IOObj&,
 					 const TrcKeyZSampling* =0,
@@ -134,7 +134,7 @@ public:
     RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
 
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "Traces read"; }
+    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
     int			nextStep();

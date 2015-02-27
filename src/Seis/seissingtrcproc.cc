@@ -260,13 +260,13 @@ uiString SeisSingleTraceProc::uiMessage() const
 	    if ( geomid < 0 )
 		ret = "data";
 	    else
-		{ ret = uiString("'%1'").arg( toString(geomid) ); }
+		{ ret = tr("'%1'").arg( toString(geomid) ); }
 	}
 
 	return tr("Handling %1").arg(ret);
     }
 
-    return 0;
+    return uiString::emptyString();
 }
 
 
