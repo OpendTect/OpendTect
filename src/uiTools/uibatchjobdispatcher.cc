@@ -180,13 +180,13 @@ int uiBatchJobDispatcherSel::selIdx() const
     if ( !selfld_ )
 	return optsbut_ ? 0 : -1;
 
-    const uiString cursel = mkUiString(selfld_->text());
+    const BufferString cursel( selfld_->text() );
     if ( cursel.isEmpty() )
 	{ pErrMsg("No dispatchers available"); return -1; }
 
     for ( int idx=0; idx<uidispatchers_.size(); idx++ )
     {
-	if ( cursel == uidispatchers_[idx]->name() )
+	if ( cursel == uidispatchers_[idx]->name().getFullString() )
 	    return idx;
     }
 
