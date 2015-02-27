@@ -469,6 +469,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 
     dp_ = new RegularSeisDataPack( Seis::nameOf(info.geomType()) );
     dp_->setSampling( tkzs );
+    dp_->setName( ioobj.name() );
 
     BufferStringSet compnames;
     info.getComponentNames( compnames );
