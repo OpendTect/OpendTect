@@ -186,8 +186,6 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
     tesselatemutex_.lock();
     const osg::Vec3Array* osgvertices =
 	mGetOsgVec3Arr( osgvertarr_.getParam(this) );
-    const int nrroworcol = hrsection.nrcoordspertileside_/spacing;
-    const int resnrroworcol = resolution_ == 0 ? nrroworcol : nrroworcol + 1 ;
 
     for ( int row=0; row<hrsection.nrcoordspertileside_; row+=spacing )
     {
