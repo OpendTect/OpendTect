@@ -5,12 +5,27 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-macro( OD_ADD_OSGGEO )
+macro( OD_ADD_OSG )
     set(OSG_DIR "" CACHE PATH "OSG Location" )
     list(APPEND CMAKE_MODULE_PATH
 	${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
+
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
+    list(APPEND CMAKE_MODULE_PATH ${OSG_DIR}/share/CMakeModules )
+
     find_package( OpenGL )
     find_package( OSG )
+endmacro()
+
+macro( OD_ADD_OSGGEO )
+
+    if ( (NOT DEFINED OSG_FOUND) )
+	OD_ADD_OSG()
+	if ( (NOT DEFINED OSG_FOUND) )
+	    MESSAGE( FATAL_ERROR "OSG_DIR not set" )
+	endif()
+    endif()
+
     add_subdirectory( ${CMAKE_SOURCE_DIR}/external/osgGeo/src/osgGeo 
 		  ${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo )
     set ( OSGGEO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/osgGeo/src )
@@ -20,27 +35,18 @@ endmacro()
 
 macro(OD_SETUP_OSG)
 
-    if ( (NOT DEFINED osgGeo_DIR) OR
-	 (osgGeo_DIR STREQUAL "") OR
-	 (osgGeo_DIR MATCHES "-NOTFOUND"))
-        set(osgGeo_DIR ${OSG_DIR})
-    endif()
-
-    list(APPEND CMAKE_MODULE_PATH ${osgGeo_DIR}/share/CMakeModules )
-    list(APPEND CMAKE_MODULE_PATH ${osgGeo_DIR}/CMakeModules )
-    list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
-    list(APPEND CMAKE_MODULE_PATH ${OSG_DIR}/share/CMakeModules )
-
     #SET DEBUG POSTFIX
     set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
     set (CMAKE_DEBUG_POSTFIX d)
-
 
     #RESTORE DEBUG POSTFIX
     set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
 
     if ( (NOT DEFINED OSG_FOUND) )
-	MESSAGE( FATAL_ERROR "OSG_DIR not set" )
+	OD_ADD_OSG()
+	if ( (NOT DEFINED OSG_FOUND) )
+	    MESSAGE( FATAL_ERROR "OSG_DIR not set" )
+	endif()
     endif()
 
 
