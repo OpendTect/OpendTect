@@ -13,8 +13,16 @@ macro( OD_ADD_OSG )
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeModules )
     list(APPEND CMAKE_MODULE_PATH ${OSG_DIR}/share/CMakeModules )
 
+    #SET DEBUG POSTFIX
+    set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
+    set (CMAKE_DEBUG_POSTFIX d)
+
     find_package( OpenGL )
     find_package( OSG )
+
+    #RESTORE DEBUG POSTFIX
+    set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
+
 endmacro()
 
 macro( OD_ADD_OSGGEO )
@@ -34,13 +42,6 @@ macro( OD_ADD_OSGGEO )
 endmacro()
 
 macro(OD_SETUP_OSG)
-
-    #SET DEBUG POSTFIX
-    set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
-    set (CMAKE_DEBUG_POSTFIX d)
-
-    #RESTORE DEBUG POSTFIX
-    set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
 
     if ( (NOT DEFINED OSG_FOUND) )
 	OD_ADD_OSG()
