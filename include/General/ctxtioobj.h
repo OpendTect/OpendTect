@@ -125,12 +125,12 @@ mExpClass(General) CtxtIOObj : public NamedObject
 public:
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
 			: NamedObject(""), ctxt(ct), ioobj(o), iopar(0)
-			{ setLinked(&ctxt); }
+			{ setLinkedTo(&ctxt); }
 			CtxtIOObj( const CtxtIOObj& ct )
 			: NamedObject(""), ctxt(ct.ctxt)
 			, ioobj(ct.ioobj?ct.ioobj->clone():0)
 			, iopar(ct.iopar?new IOPar(*ct.iopar):0)
-			{ setLinked(&ctxt); }
+			{ setLinkedTo(&ctxt); }
     void		destroyAll();
 
     void		setObj(IOObj*); //!< destroys previous

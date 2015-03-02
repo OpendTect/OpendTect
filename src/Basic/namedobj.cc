@@ -11,6 +11,33 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <ctype.h>
 
 
+NamedObject::NamedObject( const char* nm )
+    : linkedto_(0)
+    , delnotify_(0)
+{
+    name_ = new BufferString( nm );
+}
+
+
+NamedObject::NamedObject( const NamedObject* lnk )
+    : linkedto_(const_cast<NamedObject*>(lnk))
+    , name_(0)
+    , delnotify_(0)
+{
+}
+
+
+NamedObject::NamedObject( const NamedObject& oth )
+    : CallBacker(oth)
+    , linkedto_(oth.linkedto_)
+    , name_(0)
+    , delnotify_(0)
+{
+    if ( oth.name_ )
+	name_ = new BufferString( *oth.name_ );
+}
+
+
 NamedObject::~NamedObject()
 {
     if ( delnotify_ )
@@ -29,6 +56,16 @@ NamedObject::~NamedObject()
 #else
     delete name_; name_ = 0;
 #endif
+}
+
+
+void NamedObject::setLinkedTo( NamedObject* oth )
+{
+    if ( oth )
+	{ delete name_; name_ = 0; }
+    else if ( !name_ )
+	name_ = new BufferString;
+    linkedto_ = oth;
 }
 
 
@@ -66,18 +103,19 @@ void NamedObject::cbRem( NamedObject* o )
 
 void NamedObject::setName( const char* nm )
 {
-    if ( !name_ )
-	{ linkedto_->setName(nm); return; }
-    else if ( !nm )
-	nm = "";
-    *name_ = nm;
-    name_->trimBlanks();
+    if ( linkedto_ )
+	linkedto_->setName( nm );
+    else
+    {
+	*name_ = nm;
+	name_->trimBlanks();
+    }
 }
 
 
 void NamedObject::setCleanName( const char* nm )
 {
-    if ( !name_ )
+    if ( linkedto_ )
 	{ linkedto_->setCleanName(nm); return; }
 
     BufferString clnnm( nm );

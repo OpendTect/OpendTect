@@ -142,7 +142,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 	if ( dirptr )
 	{
 	    retobj = obj;
-	    if ( id == 1 ) dirptr->setLinked( obj );
+	    if ( id == 1 ) dirptr->setLinkedTo( obj );
 	    dirptr->addObj( obj, false );
 	    if ( id < 99999 && id > dirptr->curid_ )
 		dirptr->curid_ = id;
