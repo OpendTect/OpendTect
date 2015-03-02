@@ -17,9 +17,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fixedstring.h"
 #include "separstr.h"
 #include "iopar.h"
-#include "qstreambuf.h"
 
-#include <QProcess>
+#ifndef OD_NO_QT
+# include "qstreambuf.h"
+# include <QProcess>
+#endif
+
 #include <iostream>
 
 #ifdef __win__
@@ -341,22 +344,28 @@ OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
 
 OS::CommandLauncher::~CommandLauncher()
 {
+#ifndef OD_NO_QT
     if ( process_ && process_->state()!=QProcess::NotRunning )
 	process_->waitForFinished();
 
     reset();
+#endif
 }
 
 
 int OS::CommandLauncher::processID() const
 {
+#ifndef OD_NO_QT
     if ( !process_ )
 	return 0;
-#ifdef __win__
+# ifdef __win__
     const PROCESS_INFORMATION* pi = (PROCESS_INFORMATION*) process_->pid();
     return pi->dwProcessId;
+# else
+    return process_->pid();
+# endif
 #else
-    return process_ ? process_->pid() : 0;
+    return 0;
 #endif
 }
 
@@ -371,7 +380,9 @@ void OS::CommandLauncher::reset()
     stdoutputbuf_ = 0;
     stdinputbuf_ = 0;
 
+#ifndef OD_NO_QT
     deleteAndZeroPtr( process_ );
+#endif
     errmsg_.setEmpty();
     monitorfnm_.setEmpty();
     progvwrcmd_.setEmpty();
@@ -491,6 +502,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     od_cout() << "About to execute:\n" << cmd << od_endl;
 #endif
 
+#ifndef OD_NO_QT
     process_ = new QProcess;
 
     stdinputbuf_ = new qstreambuf( *process_, false, false );
@@ -523,6 +535,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 
 	return res;
     }
+#endif
 
     return true;
 }
@@ -536,6 +549,7 @@ int OS::CommandLauncher::catchError()
     if ( errmsg_.isSet() )
 	return 1;
 
+#ifndef OD_NO_QT
     switch ( process_->error() )
     {
 	case QProcess::FailedToStart :
@@ -561,6 +575,7 @@ int OS::CommandLauncher::catchError()
     {
 	return process_->exitCode();
     }
+#endif
 
     return 0;
 }
