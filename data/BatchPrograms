@@ -19,6 +19,10 @@ od_osgfileviewer
 	Arg: M`FileRead`File to display
 	UI: Yes
 !
+od_remoteservice
+	Comment: Start remote processing service daemon on this machine
+	UI: Text 
+!
 [Another OpendTect batch program]
     Arg: M`Words`Program name
     Arg: O`Words`Arguments (if any)
