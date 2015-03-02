@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "batchprog.h"
 
 #include "arrayndimpl.h"
-#include "attribdatacubeswriter.h"
+#include "seisdatapackwriter.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
@@ -122,7 +122,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    ConstRefMan<Attrib::DataCubes> cube = pce->getOutput();
+    const RegularSeisDataPack* cube = pce->getOutput();
     ConstPtrMan<VelocityDesc> veldesc = chain->getVelDesc()
 	? new VelocityDesc( *chain->getVelDesc() )
 	: 0;
@@ -174,7 +174,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     const TypeSet<int> indices( 1, 0 );
-    Attrib::DataCubesWriter writer( outputid, *cube, indices );
+    SeisDataPackWriter writer( outputid, *cube, indices );
     writer.setSelection( cs.hrg, outputzrg );
     if ( !writer.go(strm) )
 	return false;

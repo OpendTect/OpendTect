@@ -13,6 +13,7 @@ SET ( OD_BATCH_TEST_PROGS synthseis.cc )
 SET(OD_MODULE_SOURCES
 	initseis.cc
 	offsetazimuth.cc
+	seisdatapackwriter.cc
 	segydirect.cc
 	segydirect2d.cc
 	segydirecttr.cc

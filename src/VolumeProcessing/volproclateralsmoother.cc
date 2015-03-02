@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndslice.h"
 #include "array2dinterpolimpl.h"
 #include "arrayndimpl.h"
+#include "datapackbase.h"
 #include "fourier.h"
 #include "keystrs.h"
 #include "smoother2d.h"
@@ -394,14 +395,18 @@ bool LateralSmoother::usePar( const IOPar& pars )
 
 Task* LateralSmoother::createTask()
 {
-    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
-    if ( !input || !output )
+    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    if ( !input || !output || input->isEmpty()  || output->isEmpty() )
 	return 0;
 
-    if ( input->inlsampling_.step!=output->inlsampling_.step ||
-	 input->crlsampling_.step!=output->crlsampling_.step ||
-	 !mIsEqual(input->zstep_,output->zstep_,1e-3*SI().zRange(true).step))
+    const TrcKeySampling& inphs = input->sampling().hsamp_;
+    const TrcKeySampling& ouths = output->sampling().hsamp_;
+
+    if ( inphs.step != ouths.step ||
+	 !mIsEqual(input->sampling().zsamp_.step,
+		   output->sampling().zsamp_.step,
+		   1e-3*SI().zRange(true).step))
     {
 	return 0;
     }
@@ -410,8 +415,8 @@ Task* LateralSmoother::createTask()
     {
 	if ( !mIsUdf(pars_.rowdist_) )
 	{
-	    pars_.rowdist_ = (SI().inlDistance()*input->inlsampling_.step)/
-			     (SI().crlDistance()*input->crlsampling_.step);
+	    pars_.rowdist_ = (SI().inlDistance()*inphs.step.inl())/
+			     (SI().crlDistance()*inphs.step.crl());
 	}
     }
     else
@@ -421,20 +426,25 @@ Task* LateralSmoother::createTask()
 
     pars_.filludf_ = true;
 
-    Interval<int> inlsamples(input->inlsampling_.nearestIndex(tks_.start.inl()),
-			     input->inlsampling_.nearestIndex(tks_.stop.inl()));
+    Interval<int> inlsamples(inphs.inlRange().nearestIndex(tks_.start.inl()),
+			     inphs.inlRange().nearestIndex(tks_.stop.inl()));
 
-    Interval<int> crlsamples(input->crlsampling_.nearestIndex(tks_.start.crl()),
-			     input->crlsampling_.nearestIndex(tks_.stop.crl()));
+    Interval<int> crlsamples(inphs.crlRange().nearestIndex(tks_.start.crl()),
+			     inphs.crlRange().nearestIndex(tks_.stop.crl()));
 
-    return new LateralSmootherTask( input->getCube( 0 ),
-	    input->inlsampling_.start,
-	    input->crlsampling_.start,
-	    input->z0_,
-	    output->getCube( 0 ),
-	    output->inlsampling_.start,
-	    output->crlsampling_.start,
-	    output->z0_,
+    const int inpz0 = 
+	mNINT32(input->sampling().zsamp_.start/input->sampling().zsamp_.step);
+    const int outpz0 = 
+	mNINT32(output->sampling().zsamp_.start/output->sampling().zsamp_.step);
+
+    return new LateralSmootherTask( input->data( 0 ),
+	    inphs.start.inl(),
+	    inphs.start.crl(),
+	    inpz0,
+	    output->data( 0 ),
+	    ouths.start.inl(),
+	    ouths.start.crl(),
+	    outpz0,
 	    inlsamples, crlsamples, zrg_,
 	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );
 }

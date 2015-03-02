@@ -9,8 +9,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocitygridder.h"
 
 #include "arraynd.h"
+#include "arrayndimpl.h"
 #include "attribdatacubes.h"
 #include "binidvalset.h"
+#include "datapackbase.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
 #include "iopar.h"
@@ -118,8 +120,8 @@ VelGriddingTask::VelGriddingTask( VelocityGridder& step )
     , definedbids_( 0, false )
     , step_( step )
 {
-    const Attrib::DataCubes* output = step_.getOutput();
-    const TrcKeySampling hrg = output->cubeSampling().hrg;
+    const RegularSeisDataPack* output = step_.getOutput();
+    const TrcKeySampling hrg = output->sampling().hrg;
 
     TrcKeySamplingIterator iterator( hrg );
     BinID bid;
@@ -264,14 +266,15 @@ od_int64 VelGriddingFromFuncTask::nrIterations() const
 bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 				      int thread )
 {
-    Attrib::DataCubes* output = task_.getStep().getOutput();
-    const int zsz = output->getZSz();
-    const SamplingData<float> zsd((float) output->zstep_*output->z0_,
-				  (float) output->zstep_);
+    RegularSeisDataPack* output = task_.getStep().getOutput();
+    if ( !output || output->isEmpty() )
+	return false;
 
     Vel::Function* func = velfuncs_[thread];
-    const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
+    const TrcKeySampling& hs = output->sampling().hsamp_;
+    const StepInterval<float>& zrg( output->sampling().zsamp_ );
     func->setDesiredZRange( zrg );
+    const int zsz = output->sampling().nrZ();
 
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
@@ -280,15 +283,15 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 	if ( !func->moveTo(bid) )
 	    continue;
 
-	const int inlidx = output->inlsampling_.nearestIndex( bid.inl() );
-	const int crlidx = output->crlsampling_.nearestIndex( bid.crl() );
+	const int inlidx = hs.inlRange().nearestIndex( bid.inl() );
+	const int crlidx = hs.crlRange().nearestIndex( bid.crl() );
 
-	for ( int idy=0; idy<zsz; idy++ )
+	for ( int zidx=0; zidx<zsz; zidx++ )
 	{
-	    const float z = (float) ((output->z0_+idy) * output->zstep_);
+	    const float z = zrg.atIndex( zidx );
 	    const float vel = func->getVelocity( z );
 
-	    output->setValue( 0, inlidx, crlidx, idy, vel );
+	    output->data(0).set( inlidx, crlidx, zidx, vel );
 	}
 
 	Threads::MutexLocker lock( lock_ );
@@ -340,13 +343,18 @@ bool VelGriddingFromVolumeTask::doPrepare( int nrthreads )
 bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 					int thread )
 {
-    Attrib::DataCubes& output = *task_.getStep().getOutput();
-    Array3D<float>& array = output.getCube(0);
+    RegularSeisDataPack* output = task_.getStep().getOutput();
+    if ( !output || output->isEmpty() )
+	return false;
+
+    Array3D<float>& array = output->data(0);
     ValueSeries<float>* storage = array.getStorage();
     if ( !storage )
-		return false;
+	return false;
 
-    const int zsz = output.getZSz();
+    const TrcKeySampling& hs = output->sampling().hsamp_;
+    const int zsz = output->sampling().nrZ();
+
     Gridder2D* gridder = gridders_[thread];
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
@@ -372,9 +380,9 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 		task_.definedBids().getBinID(task_.definedPos()[usedvals[idy]]);
 
 	    const int inlidx =
-		output.inlsampling_.nearestIndex( sourcebid.inl() );
+		hs.inlRange().nearestIndex( sourcebid.inl() );
 	    const int crlidx =
-		output.crlsampling_.nearestIndex( sourcebid.crl() );
+		hs.crlRange().nearestIndex( sourcebid.crl() );
 
 	    const od_int64 offset = array.info().getOffset( inlidx, crlidx, 0 );
 
@@ -384,12 +392,12 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 		srcoffsets += offset;
 	}
 
-	const int inlidx = output.inlsampling_.nearestIndex( bid.inl() );
-	const int crlidx = output.crlsampling_.nearestIndex( bid.crl() );
+	const int inlidx = hs.inlRange().nearestIndex( bid.inl() );
+	const int crlidx = hs.crlRange().nearestIndex( bid.crl() );
 	const od_int64 targetoffset = array.info().getOffset(inlidx,crlidx,0);
-	float* dstptr = output.getCube(0).getData();
+	float* dstptr = output->data(0).getData();
 
-	for ( od_int64 idy=0; idy<zsz; idy++ )
+	for ( od_int64 zidx=0; zidx<zsz; zidx++ )
 	{
 	    int nrvals = 0;
 	    float wsum = 0;
@@ -397,8 +405,8 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 	    for ( int idz=weights.size()-1; idz>=0; idz-- )
 	    {
 		const float val = dstptr
-		    ? sourceptrs[idz][idy]
-		    : storage->value( idy+srcoffsets[idz] );
+		    ? sourceptrs[idz][zidx]
+		    : storage->value( zidx+srcoffsets[idz] );
 		if ( mIsUdf(val) )
 		    continue;
 
@@ -412,9 +420,9 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 		: sum/wsum;
 
 	    if ( dstptr )
-		dstptr[idy+targetoffset] = val;
+		dstptr[zidx+targetoffset] = val;
 	    else
-		storage->setValue( idy+targetoffset, val );
+		storage->setValue( zidx+targetoffset, val );
 	}
 
 	Threads::MutexLocker lock( lock_ );

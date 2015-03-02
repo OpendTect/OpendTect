@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocbodyfiller.h"
 
+#include "datapackbase.h"
 #include "emmarchingcubessurface.h"
 #include "emmanager.h"
 #include "empolygonbody.h"
@@ -118,30 +119,33 @@ void BodyFiller::setInsideOutsideValue( const float in, const float out )
 bool BodyFiller::computeBinID( const BinID& bid, int )
 {
     //ToDo: Interpolate values from Implicit version of Surface(array).
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
-    if ( !output || !output->nrCubes() )
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    if ( !output || output->isEmpty() )
 	return false;
 
     const bool flatbody = !implicitbody_;
     if ( flatbody && plgknots_.size()<2 )
 	return false;
 
-    const int outputinlidx = output->inlsampling_.nearestIndex( bid.inl() );
-    const int outputcrlidx = output->crlsampling_.nearestIndex( bid.crl() );
-    const int outputzsz = output->getZSz();
+    const TrcKeySampling& ouths = output->sampling().hsamp_;
+    const StepInterval<float>& zrg( output->sampling().zsamp_ );
+
+    const int outputinlidx = ouths.inlRange().nearestIndex( bid.inl() );
+    const int outputcrlidx = ouths.crlRange().nearestIndex( bid.crl() );
+    const int outputzsz = output->sampling().nrZ();
     if ( outputinlidx<0 || outputcrlidx<0 )
 	return true;
 
-    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
+    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     const int inputinlidx = input
-	? input->inlsampling_.nearestIndex(bid.inl()) : 0;
+	? input->sampling().hsamp_.inlRange().nearestIndex(bid.inl()) : 0;
     const int inputcrlidx = input
-	? input->crlsampling_.nearestIndex(bid.crl()) : 0;
+	? input->sampling().hsamp_.crlRange().nearestIndex(bid.crl()) : 0;
     const bool useinput = input &&
-	inputinlidx>=0 && inputinlidx < input->getCube(0).info().getSize(0) &&
-	inputcrlidx>=0 && inputcrlidx < input->getCube(0).info().getSize(1);
+	inputinlidx>=0 && inputinlidx < input->data(0).info().getSize(0) &&
+	inputcrlidx>=0 && inputcrlidx < input->data(0).info().getSize(1);
     const int inputzsz = useinput && input
-	? input->getCube(0).info().getSize(2) : 0;
+	? input->data(0).info().getSize(2) : 0;
 
     int bodyinlidx = mUdf(int), bodycrlidx = mUdf(int);
     bool alloutside;
@@ -158,28 +162,32 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     }
     else
     {
-	bodyinlidx = implicitbody_->tkzs_.hrg.inlRange().nearestIndex( bid.inl());
-	bodycrlidx = implicitbody_->tkzs_.hrg.crlRange().nearestIndex( bid.crl());
+	bodyinlidx = 
+	    implicitbody_->tkzs_.hrg.inlRange().nearestIndex( bid.inl());
+	bodycrlidx = 
+	    implicitbody_->tkzs_.hrg.crlRange().nearestIndex( bid.crl());
 
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
 	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
 	    bodycrlidx>=implicitbody_->arr_->info().getSize(1);
     }
 
-    for ( int idx=0; idx<outputzsz; idx++ )
+    for ( int zidx=0; zidx<outputzsz; zidx++ )
     {
 	float val;
 	if ( alloutside )
 	    val = outsideval_;
 	else
 	{
-	    const float z = (float) ( (output->z0_+idx) * output->zstep_ );
+	    const float z = zrg.atIndex( zidx );
 	    if ( flatbody )
 		val = plgzrg.includes( z * SI().zScale(), true ) ? insideval_
-							   : outsideval_;
+							         : outsideval_;
 	    else
 	    {
-		const int bodyzidx = implicitbody_->tkzs_.zsamp_.nearestIndex(z);
+		const int bodyzidx = 
+		    implicitbody_->tkzs_.zsamp_.nearestIndex(z);
+
 		if ( bodyzidx<0 ||
 			bodyzidx>=implicitbody_->arr_->info().getSize(2) )
 		    val = outsideval_;
@@ -199,12 +207,12 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 
 	if ( mIsUdf(val) && useinput )
 	{
-	    const int inputidx = idx+output->z0_ - input->z0_;
+	    const int inputidx = zidx;
 	    if ( inputidx>=0 && inputidx<inputzsz )
-		val = input->getCube(0).get(inputinlidx,inputcrlidx,inputidx);
+		val = input->data(0).get(inputinlidx,inputcrlidx,inputidx);
 	}
 
-	output->setValue( 0, outputinlidx, outputcrlidx, idx, val );
+	output->data(0).set( outputinlidx, outputcrlidx, zidx, val );
     }
 
     return true;
@@ -239,7 +247,7 @@ bool BodyFiller::usePar( const IOPar& par )
 
 Task* BodyFiller::createTask()
 {
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !output || !body_ )
 	return 0;
 
@@ -307,9 +315,10 @@ Task* BodyFiller::createTask()
 
 bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 {
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !output) return false;
-
+    
+    const float zstep = output->sampling().zsamp_.step;
     const Coord coord = SI().transform( bid );
     if ( plgdir_ < 2 ) //Inline or Crossline case
     {
@@ -327,13 +336,13 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 		count++;
 	    }
 
-	    z += output->zstep_ * SI().zScale();
+	    z += zstep * SI().zScale();
 	}
 
 	if ( count==1 )
 	{
-	    res.start -= 0.5 * output->zstep_;
-	    res.stop += 0.5 * output->zstep_;
+	    res.start -= 0.5 * zstep;
+	    res.stop += 0.5 * zstep;
 	}
 
 	return count;
@@ -359,8 +368,8 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 
 	    if ( mIsZero( res.width(), 1e-3 ) )
 	    {
-		res.start -= 0.5 * output->zstep_;
-		res.stop += 0.5 * output->zstep_;
+		res.start -= 0.5 * zstep;
+		res.stop += 0.5 * zstep;
 	    }
 	}
 	else //It is a case hard to see on the display.
@@ -373,8 +382,8 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	    const Coord diff = coord - plgknots_[0].coord();
 	    const double z = plgknots_[0].z -
 		( normal.x * diff.x + normal.y * diff.y ) / normal.z;
-	    res.start = z - 0.5 * output->zstep_;
-	    res.stop = z + 0.5 * output->zstep_;
+	    res.start = z - 0.5 * zstep;
+	    res.stop = z + 0.5 * zstep;
 	}
     }
 

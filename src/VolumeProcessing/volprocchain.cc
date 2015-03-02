@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 
 #include "bufstring.h"
+#include "datapackbase.h"
 #include "iopar.h"
 #include "simpnumer.h"
 #include "keystrs.h"
@@ -36,7 +37,7 @@ protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
 		{
 		    const TrcKeySampling hrg(
-				step_.output_->cubeSampling().hrg );
+				step_.output_->sampling().hrg );
 		    BinID curbid = hrg.start;
 
 		    const int nrinls = mCast( int, start/hrg.nrCrl() );
@@ -78,7 +79,7 @@ protected:
 		    if ( totalnr_==-1 )
 		    {
 			const TrcKeySampling hrg(
-				step_.output_->cubeSampling().hrg );
+				step_.output_->sampling().hrg );
 			totalnr_ = hrg.nrInl() * hrg.nrCrl();
 		    }
 
@@ -310,12 +311,12 @@ bool ChainExecutor::Epoch::doPrepare()
 		return false;
 	    }
 
-	    RefMan<const Attrib::DataCubes> input = outputstep->getOutput();
+	    const RegularSeisDataPack* input = outputstep->getOutput();
 	    const Step::OutputSlotID outputslot =
 					inputconnections[idy].outputslotid_;
 	    const int outputidx = outputstep->getOutputIdx( outputslot );
 
-	    if ( !input->validCubeIdx(outputidx) )
+	    if ( !input->validComp(outputidx) )
 	    {
 		pErrMsg("Output is not available");
 		return false;
@@ -332,13 +333,13 @@ bool ChainExecutor::Epoch::doPrepare()
 
 	TrcKeyZSampling csamp;
 	csamp.hrg = stepoutputhrg;
-	Attrib::DataCubes* outcube = new Attrib::DataCubes;
-	outcube->ref();
-	outcube->setSizeAndPos( csamp );
-	if ( !outcube->addCube(mUdf(float),0) )
+	RegularSeisDataPack* outcube = new RegularSeisDataPack( 0 );
+	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
+	outcube->setSampling( csamp );
+	if ( !outcube->addComponent( 0 ) )
 	{
 	    errmsg_ = "Cannot allocate enough memory.";
-	    outcube->unRef();
+	    outcube->release();
 	    return false;
 	}
 
@@ -370,13 +371,13 @@ bool ChainExecutor::Epoch::doPrepare()
 }
 
 
-const Attrib::DataCubes* ChainExecutor::Epoch::getOutput() const
+const RegularSeisDataPack* ChainExecutor::Epoch::getOutput() const
 {
     return steps_[steps_.size()-1] ? steps_[steps_.size()-1]->getOutput() : 0;
 }
 
 
-const Attrib::DataCubes* ChainExecutor::getOutput() const
+const RegularSeisDataPack* ChainExecutor::getOutput() const
 { return outputvolume_; }
 
 
@@ -909,14 +910,18 @@ Step::Step()
 
 Step::~Step()
 {
-    deepUnRef( inputs_ );
-    if ( output_ ) output_->unRef();
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
+
+    DPM( DataPackMgr::SeisID() ).release( output_ );
 }
 
 
 void Step::resetInput()
 {
-    deepUnRef( inputs_ );
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+	DPM( DataPackMgr::SeisID() ).release( inputs_[idx] );
+
     inputslotids_.erase();
     for ( int idx=0; idx<getNrInputs(); idx++ )
     {
@@ -928,7 +933,7 @@ void Step::resetInput()
 
 void Step::releaseData()
 {
-    if ( output_ ) output_->unRef();
+    DPM( DataPackMgr::SeisID() ).release( output_ );
     output_ = 0;
 
     resetInput();
@@ -1031,7 +1036,7 @@ StepInterval<int>
 { return si; }
 
 
-void Step::setInput( InputSlotID slotid, const Attrib::DataCubes* dc )
+void Step::setInput( InputSlotID slotid, const RegularSeisDataPack* dc )
 {
     if ( inputs_.isEmpty() )
 	resetInput();
@@ -1040,40 +1045,42 @@ void Step::setInput( InputSlotID slotid, const Attrib::DataCubes* dc )
     if ( !inputs_.validIdx(idx) )
 	return;
 
-    if ( inputs_[idx] )	inputs_[idx]->unRef();
+    if ( inputs_[idx] )
+	DPM( DataPackMgr::SeisID() ).release( inputs_[idx]->id() );
     inputs_.replace( idx, dc );
-    if ( inputs_[idx] ) inputs_[idx]->ref();
+    if ( inputs_[idx] )
+	DPM( DataPackMgr::SeisID() ).obtain( inputs_[idx]->id() );
 }
 
 
-const Attrib::DataCubes* Step::getInput( InputSlotID slotid ) const
+const RegularSeisDataPack* Step::getInput( InputSlotID slotid ) const
 {
     const int idx = inputslotids_.indexOf( slotid );
     return inputs_.validIdx(idx) ? inputs_[idx] : 0;
 }
 
 
-void Step::setOutput( OutputSlotID slotid, Attrib::DataCubes* dc,
+void Step::setOutput( OutputSlotID slotid, RegularSeisDataPack* dc,
 		      const TrcKeySampling& hrg,
 		      const StepInterval<int>& zrg )
 {
-    if ( output_ ) output_->unRef();
+    DPM( DataPackMgr::SeisID() ).release( output_ );
     output_ = dc;
-    if ( output_ ) output_->ref();
+    DPM( DataPackMgr::SeisID() ).addAndObtain( output_ );
 
     tks_ = hrg;
     zrg_ = zrg;
 }
 
 
-Attrib::DataCubes* Step::getOutput( OutputSlotID slotid )
+RegularSeisDataPack* Step::getOutput( OutputSlotID slotid )
 {
     // TODO: implement using slotid
     return output_;
 }
 
 
-const Attrib::DataCubes* Step::getOutput( OutputSlotID slotid ) const
+const RegularSeisDataPack* Step::getOutput( OutputSlotID slotid ) const
 { return const_cast<Step*>(this)->getOutput( slotid ); }
 
 

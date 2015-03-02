@@ -22,8 +22,8 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "threadlock.h"
 
-namespace Attrib { class DataCubes; }
 
+class RegularSeisDataPack;
 class VelocityDesc;
 class Executor;
 class TrcKeySampling;
@@ -82,21 +82,22 @@ public:
 				/*!<When computing TrcKeySampling, how
 				 big input is needed?*/
 
-    virtual void		setInput(InputSlotID,const Attrib::DataCubes*);
-    const Attrib::DataCubes*	getInput(InputSlotID) const;
-    virtual void		setOutput(OutputSlotID,Attrib::DataCubes*,
+    virtual void		setInput(InputSlotID,
+					 const RegularSeisDataPack*);
+    const RegularSeisDataPack*	getInput(InputSlotID) const;
+    virtual void		setOutput(OutputSlotID,RegularSeisDataPack*,
 				      const TrcKeySampling&,
 				      const StepInterval<int>&);
-    const Attrib::DataCubes*	getOutput(OutputSlotID) const;
-    Attrib::DataCubes*		getOutput(OutputSlotID);
+    const RegularSeisDataPack*	getOutput(OutputSlotID) const;
+    RegularSeisDataPack*		getOutput(OutputSlotID);
 
     int				getOutputIdx(OutputSlotID) const;
     void			enableOutput(OutputSlotID);
 
     virtual bool		canInputAndOutputBeSame() const { return false;}
     virtual bool		needsFullVolume() const { return true; }
-    const Attrib::DataCubes*	getOutput() const	{ return output_; }
-    Attrib::DataCubes*		getOutput()		{ return output_; }
+    const RegularSeisDataPack*	getOutput() const	{ return output_; }
+    RegularSeisDataPack*	getOutput()		{ return output_; }
 
     virtual const VelocityDesc*	getVelDesc() const	{ return 0; } // old
 
@@ -124,7 +125,7 @@ protected:
 
     Chain*				chain_;
 
-    ObjectSet<const Attrib::DataCubes>	inputs_;
+    ObjectSet<const RegularSeisDataPack>	inputs_;
     TypeSet<InputSlotID>		inputslotids_;
 
     BufferString			username_;
@@ -135,7 +136,7 @@ protected:
     TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
 
 private:
-    Attrib::DataCubes*		output_;
+    RegularSeisDataPack*		output_;
 };
 
 
@@ -272,7 +273,7 @@ public:
     bool			setCalculationScope(const TrcKeySampling&,
 						    const StepInterval<int>&);
 
-    const Attrib::DataCubes*	getOutput() const;
+    const RegularSeisDataPack*	getOutput() const;
     int				nextStep();
 
 private:
@@ -292,7 +293,7 @@ private:
 	Task&			getTask()		{ return taskgroup_; }
 
 	bool			needsStepOutput(Step::ID) const;
-	const Attrib::DataCubes* getOutput() const;
+	const RegularSeisDataPack* getOutput() const;
 
     private:
 
@@ -329,7 +330,7 @@ private:
     Chain::Web			web_;
     int				totalnrepochs_;
 
-    const Attrib::DataCubes*	outputvolume_;
+    const RegularSeisDataPack*	outputvolume_;
 };
 
 } // namespace VolProc

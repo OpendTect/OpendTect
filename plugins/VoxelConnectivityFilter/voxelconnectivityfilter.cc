@@ -11,7 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "voxelconnectivityfilter.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
+#include "datapackbase.h"
 #include "iopar.h"
 #include "multidimstorage.h"
 #include "odmemory.h"
@@ -543,22 +544,22 @@ VoxelConnectivityFilter::~VoxelConnectivityFilter()
 
 Task* VoxelConnectivityFilter::createTask()
 {
-    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
-    if ( !input || input->nrCubes()<1 )
+    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    if ( !input || input->isEmpty() )
     {
 	errmsg_ = "No input provided.";
 	return 0;
     }
 
-    if ( !output || output->nrCubes()<1 )
+    if ( !output || output->isEmpty() )
     {
 	errmsg_ = "No output provided.";
 	return 0;
     }
 
-    return new VoxelConnectivityFilterTask( *this, input->getCube(0),
-					    output->getCube(0) );
+    return new VoxelConnectivityFilterTask( *this, input->data(0),
+					    output->data(0) );
 }
 
 

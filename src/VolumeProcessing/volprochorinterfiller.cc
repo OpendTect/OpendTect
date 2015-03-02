@@ -8,7 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprochorinterfiller.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
+#include "datapackbase.h"
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "mousecursor.h"
@@ -134,21 +135,18 @@ EM::Horizon* HorInterFiller::loadHorizon( const MultiID& mid ) const
 
 bool HorInterFiller::computeBinID( const BinID& bid, int )
 {
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
-    if ( !output || !output->nrCubes() || !isOK() )
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    if ( !output || output->isEmpty() || !isOK() )
 	return false;
 
-    const StepInterval<int> outputinlrg( output->inlsampling_.start,
-			 output->inlsampling_.atIndex( output->getInlSz()-1 ),
-			 output->inlsampling_.step );
+    const TrcKeySampling& hs = output->sampling().hsamp_;
+    const StepInterval<int> outputinlrg( hs.inlRange() );
 
     if ( !outputinlrg.includes( bid.inl(), false ) ||
          (bid.inl()-outputinlrg.start)%outputinlrg.step )
 	return false;
 
-    const StepInterval<int> outputcrlrg( output->crlsampling_.start,
-			output->crlsampling_.atIndex( output->getCrlSz()-1 ),
-			output->crlsampling_.step );
+    const StepInterval<int> outputcrlrg( hs.crlRange() );
 
     if ( !outputcrlrg.includes( bid.crl(), false ) ||
          (bid.crl()-outputcrlrg.start)%outputcrlrg.step )
@@ -164,7 +162,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 	: SI().zRange(true).stop;
 
     const SamplingData<double>
-	zsampling( output->z0_*output->zstep_, output->zstep_ );
+	zsampling( output->sampling().zsamp_ );
 
     const int topsample = mIsUdf(topdepth)
 	? mUdf(int)
@@ -176,7 +174,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 
     SamplingData<double> cursampling;
     if ( usegradient_ )
-	cursampling.step = gradient_ * output->zstep_;
+	cursampling.step = gradient_ * output->sampling().zsamp_.step;
     else if ( topsample==bottomsample )
 	cursampling.step = 0;
     else
@@ -184,14 +182,14 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 
     cursampling.start = topvalue_-topsample*cursampling.step;
 
-    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
-    const Array3D<float>* inputarr = input && input->nrCubes()
-	? &input->getCube( 0 ) : 0;
+    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
+    const Array3DImpl<float>* inputarr = input && input->nrComponents()
+	? &input->data( 0 ) : 0;
 
     StepInterval<int> inputinlrg;
     if ( inputarr )
     {
-	inputinlrg = input->inlsampling_.interval( input->getInlSz() );
+	inputinlrg = input->sampling().hsamp_.inlRange();
 	if ( !inputinlrg.includes( bid.inl(), false ) ||
 	      (bid.inl()-inputinlrg.start)%inputinlrg.step )
 	    inputarr = 0;
@@ -200,7 +198,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     StepInterval<int> inputcrlrg;
     if ( inputarr )
     {
-	inputcrlrg = input->crlsampling_.interval( input->getCrlSz() );
+	inputcrlrg = input->sampling().hsamp_.crlRange();
 	if ( !inputcrlrg.includes( bid.crl(), false ) ||
 	      (bid.crl()-inputcrlrg.start)%inputcrlrg.step )
 	    inputarr = 0;
@@ -211,7 +209,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     const int outputinlidx = outputinlrg.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg.nearestIndex( bid.crl() );
 
-    Array3D<float>& outputarray = output->getCube(0);
+    Array3D<float>& outputarray = output->data(0);
     for ( int idx=outputarray.info().getSize(2)-1; idx>=0; idx-- )
     {
 	bool dobg = false;
@@ -237,7 +235,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 	}
 	else
 	{
-	    const int cursample = output->z0_+idx;
+	    const int cursample = idx;
 	    value = (float) cursampling.atIndex( cursample );
 	}
 

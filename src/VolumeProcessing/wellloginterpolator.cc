@@ -8,7 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "wellloginterpolator.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
+#include "datapackbase.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
 #include "survinfo.h"
@@ -225,17 +226,14 @@ bool WellLogInterpolator::prepareComp( int )
     if ( !layermodel_ || !layermodel_->prepare(0) )
 	return false;
 
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
-    if ( !output || !output->nrCubes() || !gridder_ || is2D() )
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    if ( !output || output->isEmpty() || !gridder_ || is2D() )
 	return false;
 
-    outputinlrg_ = StepInterval<int>( output->inlsampling_.start,
-	output->inlsampling_.atIndex( output->getInlSz()-1 ),
-	output->inlsampling_.step );
+    const TrcKeySampling& hs = output->sampling().hsamp_;
+    outputinlrg_ = hs.inlRange();
 
-    outputcrlrg_ = StepInterval<int>( output->crlsampling_.start,
-	output->crlsampling_.atIndex( output->getCrlSz()-1 ),
-	output->crlsampling_.step );
+    outputcrlrg_ = hs.crlRange();
 
     bool res = true;
     for ( int idx=0; idx<wellmids_.size(); idx++ )
@@ -283,8 +281,8 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
          (bid.crl()-outputcrlrg_.start)%outputcrlrg_.step )
 	return true;
 
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
-    Array3D<float>& outputarray = output->getCube(0);
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    Array3D<float>& outputarray = output->data(0);
     const int lastzidx = outputarray.info().getSize(2) - 1;
 
     TypeSet<float> depths, extdepths;
@@ -299,7 +297,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     for ( int idx=lastzidx; idx>=0; idx-- )
     {
 	vals[idx] = mUdf(float);
-	const float z = float( (output->z0_+idx) * output->zstep_ );
+	const float z = output->sampling().zsamp_.atIndex( idx );
 	const float layeridx = layermodel_->getLayerIndex( bid, z );
 	if ( mIsUdf(layeridx) ) continue;
 

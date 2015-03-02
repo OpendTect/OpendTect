@@ -233,49 +233,15 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 	    errmsg_ = tr("Error while calculating.");
     }
 
-    ConstRefMan<Attrib::DataCubes> datacubes = executor.getOutput();
-    if ( !datacubes || datacubes->nrCubes()==0 )
+    const RegularSeisDataPack* output = executor.getOutput();
+    if ( !output || output->isEmpty() )
     {
 	errmsg_ = tr("No output produced");
 	return DataPack::cNoID();
     }
 
-    const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();
-    Attrib::Flat3DDataPack* ndp =
-	new Attrib::Flat3DDataPack( did, *datacubes, 0 );
-
-
-    TrcKeyZSampling::Dir dir;
-    int slice;
-
-    if ( cs.nrInl()<2 )
-    {
-	dir = TrcKeyZSampling::Inl;
-	slice = datacubes->inlsampling_.nearestIndex( cs.hrg.start.inl() );
-    }
-    else if ( cs.nrCrl()<2 )
-    {
-	dir = TrcKeyZSampling::Crl;
-	slice = datacubes->crlsampling_.nearestIndex( cs.hrg.start.crl() );
-    }
-    else
-    {
-	dir = TrcKeyZSampling::Z;
-	slice = mNINT32( cs.zsamp_.start/datacubes->zstep_ )-datacubes->z0_;
-    }
-
-    if ( !ndp->setDataDir( dir ) || !ndp->setDataSlice( slice ) )
-    {
-	delete ndp;
-	return DataPack::cNoID();
-    }
-
-    DPM( DataPackMgr::FlatID() ).add( ndp );
-
-    PtrMan<IOObj> ioobj = IOM().get( chain_->storageID() );
-    if ( ioobj ) ndp->setName( ioobj->name() );
-
-    return ndp->id();
+    DPM( DataPackMgr::SeisID() ).obtain( output->id() );
+    return output->id();
 }
 
 

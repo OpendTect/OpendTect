@@ -8,7 +8,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocvolreader.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
+#include "datapackbase.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "seisread.h"
@@ -27,17 +28,17 @@ VolumeReader::~VolumeReader()
 
 Task* VolumeReader::createTask()
 {
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     if ( !output || !ioobj )
 	return 0;
 
     TypeSet<int> components( 1, 0 );
     ObjectSet<Array3D<float> > arrays;
-    arrays += &output->getCube(0);
+    arrays += &output->data(0);
 
     return new Seis::ParallelReader( *ioobj, components, arrays,
-				     output->cubeSampling() );
+				     output->sampling() );
 }
 
 

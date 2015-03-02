@@ -123,6 +123,7 @@ bool RegularSeisDataPack::addComponent( const char* nm )
 	 }
     }
 
+    arr->setAll( mUdf(float) );
     arrays_ += arr;
     componentnames_.add( nm );
     return true;

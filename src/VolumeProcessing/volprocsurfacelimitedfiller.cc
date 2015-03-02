@@ -8,8 +8,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocsurfacelimitedfiller.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "binidvalset.h"
+#include "datapackbase.h"
 #include "emfault3d.h"
 #include "emhorizon.h"
 #include "emhorizon3d.h"
@@ -235,8 +236,8 @@ bool SurfaceLimitedFiller::prepareComp( int )
 	}
     }
 
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
-    if ( !output || !output->nrCubes() )
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    if ( !output || output->isEmpty() )
 	return false;
 
     return isOK();
@@ -245,22 +246,20 @@ bool SurfaceLimitedFiller::prepareComp( int )
 
 bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 {
-    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
-    const Array3D<float>* inputarr =
-	input && input->nrCubes() ? &input->getCube( 0 ) : 0;
+    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    const Array3DImpl<float>* inputarr =
+	!input || input->isEmpty() ?  0 : &input->data( 0 );
 
-    const StepInterval<int> outputinlrg( output->inlsampling_.start,
-	    output->inlsampling_.atIndex( output->getInlSz()-1 ),
-	    output->inlsampling_.step );
+    const TrcKeySampling& hs = output->sampling().hsamp_;
+
+    const StepInterval<int> outputinlrg( hs.inlRange() );
 
     if ( !outputinlrg.includes( bid.inl(), false ) ||
          (bid.inl()-outputinlrg.start)%outputinlrg.step )
 	return false;
 
-    const StepInterval<int> outputcrlrg( output->crlsampling_.start,
-	    output->crlsampling_.atIndex( output->getCrlSz()-1 ),
-	    output->crlsampling_.step );
+    const StepInterval<int> outputcrlrg( hs.crlRange() );
 
     if ( !outputcrlrg.includes( bid.crl(), false ) ||
          (bid.crl()-outputcrlrg.start)%outputcrlrg.step )
@@ -269,7 +268,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     StepInterval<int> inputinlrg;
     if ( inputarr )
     {
-	inputinlrg = input->inlsampling_.interval( input->getInlSz() );
+	inputinlrg = input->sampling().hsamp_.inlRange();
 	if ( !inputinlrg.includes( bid.inl(), false ) ||
 	     (bid.inl()-inputinlrg.start)%inputinlrg.step )
 	    inputarr = 0;
@@ -278,7 +277,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     StepInterval<int> inputcrlrg;
     if ( inputarr )
     {
-	inputcrlrg = input->crlsampling_.interval( input->getCrlSz() );
+	inputcrlrg = input->sampling().hsamp_.crlRange();
 	if ( !inputcrlrg.includes( bid.crl(), false ) ||
 	     (bid.crl()-inputcrlrg.start)%inputcrlrg.step )
 	    inputarr = 0;
@@ -330,12 +329,12 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     const int inputcrlidx = inputarr ? inputcrlrg.nearestIndex(bid.crl()) : -1;
     const int outputinlidx = outputinlrg.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg.nearestIndex( bid.crl() );
-    const int outputmaxidx = output->getZSz()-1;
+    const int outputmaxidx = output->sampling().nrZ() - 1;
     const bool initok = !mIsUdf(val0) && !mIsUdf(gradient) && !mIsUdf(fixedz);
 
     for ( int idx=outputmaxidx; idx>=0; idx-- )
     {
-	const double curz = ( output->z0_ + idx ) * output->zstep_;
+	const double curz = output->sampling().zsamp_.atIndex( idx );
 	bool cancalculate = allhordefined;
 	if ( allhordefined )
 	{
@@ -356,7 +355,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	else if ( inputarr )
 	    value = (double)inputarr->get( inputinlidx, inputcrlidx, idx );
 
-	output->getCube(0).set( outputinlidx, outputcrlidx, idx, (float)value );
+	output->data(0).set( outputinlidx, outputcrlidx, idx, (float)value );
     }
 
     return true;

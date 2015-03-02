@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocsmoother.h"
 
+#include "datapackbase.h"
 #include "smoother3d.h"
 #include "keystrs.h"
 #include "survinfo.h"
@@ -126,14 +127,14 @@ bool Smoother::usePar( const IOPar& pars )
 
 Task* Smoother::createTask()
 {
-    const Attrib::DataCubes* input = getInput( getInputSlotID(0) );
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
+    const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !input || !output )
 	return 0;
 
     Smoother3D<float>* task = new Smoother3D<float>( *smoother_ );
-    task->setInput( input->getCube(0) );
-    task->setOutput( output->getCube(0) );
+    task->setInput( input->data(0) );
+    task->setOutput( output->data(0) );
 
     return task;
 }
