@@ -354,8 +354,8 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
     datalock_.lock();
     if ( updatenewpoint_ )
     {
-	for ( int res=0; res<=hrsection_.lowestresidx_; res++ )
-	    tileresolutiondata_[res]->tesselateResolution( false );
+	for ( int idxres=0; idxres<=hrsection_.lowestresidx_; idxres++ )
+	    tileresolutiondata_[idxres]->tesselateResolution( false );
 	updatenewpoint_ =  false;
     }
     else 
@@ -486,8 +486,8 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos, int res )
 		( *mGetOsgVec3Arr(normals_.getParam(this)) )[coordidx] );
 	}
 
-	for ( int res=0; res<=hrsection_.lowestresidx_; res++ )
-	    tileresolutiondata_[res]->needsretesselation_ = cShouldRetesselate;
+	for ( int idxres=0; idxres<=hrsection_.lowestresidx_; idxres++ )
+	    tileresolutiondata_[idxres]->needsretesselation_=cShouldRetesselate;
 
 	datalock_.unLock();
 	needsupdatebbox_ = true;

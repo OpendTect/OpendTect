@@ -459,9 +459,9 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    }	
 	    else    
 	    {	
-		const int size = nrroworcol*( nrroworcol - 1 );	
-		nbdef01=uptile->hasDefinedCoordinates( size + highestresidx );
-		nbdef02=uptile->hasDefinedCoordinates( size+highestresidx+1 );
+		const int rcsize = nrroworcol*( nrroworcol - 1 );
+		nbdef01=uptile->hasDefinedCoordinates( rcsize + highestresidx );
+		nbdef02=uptile->hasDefinedCoordinates( rcsize+highestresidx+1 );
 	    }	
 	    nbdef21=curtile->hasDefinedCoordinates(highestresidx+nrroworcol);
 	    nbdef22=curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);

@@ -355,7 +355,7 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
     if ( transformation_ )
 	transformation_->ref();
 
-    if ( transformation_ && tileptrs || tiles_.info().getTotalSz()>0 )
+    if ( (transformation_ && tileptrs) || (tiles_.info().getTotalSz()>0) )
     {
 	for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
 	    if ( tileptrs[idx] ) tileptrs[idx]->bbox_.init();

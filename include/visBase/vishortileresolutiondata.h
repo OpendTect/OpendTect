@@ -77,10 +77,10 @@ public:
 
     void		updatePrimitiveSets();
     void		setWireframeColor(Color& color);
-    visBase::Coordinates*	getCoordinates() {};
+    visBase::Coordinates*	getCoordinates() { return 0; };
 			//!<For keeping ABI compatibility. Don't use
     void		dirtyGeometry();
-    bool		hasDefinedCoordinates(int idx) const{};
+    bool		hasDefinedCoordinates(int idx) const{ return false; };
 			//!<For keeping ABI compatibility. Don't use
     void		setVerticesPositions(TypeSet<Coord3>* positions=0){};
 			//!<For keeping ABI compatibility. Don't use
@@ -159,12 +159,13 @@ private:
 
 public:
     bool			getTextureCoordinates(unsigned int unit,
-						    TypeSet<Coord>&) const{};
+						      TypeSet<Coord>&) const
+						{ return false; };
 				//!<For keeping ABI compatibility. Don't use
     const osg::PrimitiveSet*	getPrimitiveSet(GeometryType) const;
-    const osg::Vec3Array*	getOsgCoordinates()const{};
+    const osg::Vec3Array*	getOsgCoordinates()const{ return 0; };
 				//!<For keeping ABI compatibility. Don't use
-    const osg::Vec3Array*	getNormals() const{};
+    const osg::Vec3Array*	getNormals() const{ return 0; };
 				//!<For keeping ABI compatibility. Don't use
 };
 

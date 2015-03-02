@@ -104,7 +104,7 @@ protected:
 				2 is point, 3 is wire frame */
 
     void			updatePrimitiveSets();
-    const visBase::Coordinates* getHighestResolutionCoordinates(){};
+    const visBase::Coordinates* getHighestResolutionCoordinates(){ return 0; };
 				//!<For keeping ABI compatibility. Don't use
 
     void			dirtyGeometry();
