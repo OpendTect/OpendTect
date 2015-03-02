@@ -20,7 +20,8 @@ class Wavelet;
 class uiComboBox;
 class uiWaveletExtraction;
 
-/*!\brief 'Immediate' Wavelet selector, with 'Manage' button */
+/*!\brief 'Immediate' Wavelet selector, with optionally 'Manage' and/or
+  'Extract' buttons */
 
 mExpClass(uiSeis) uiSeisWaveletSel : public uiGroup
 { mODTextTranslationClass(uiSeisWaveletSel)
@@ -29,7 +30,8 @@ public:
 			uiSeisWaveletSel(uiParent*,
 					 const char* seltxt="Wavelet",
 					 bool withextract=true,
-					 bool withman=true);
+					 bool withman=true,
+					 bool compact=false);
 			~uiSeisWaveletSel();
     void		rebuildList();
 

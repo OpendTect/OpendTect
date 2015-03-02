@@ -28,7 +28,7 @@ IOPar& uiIOFileSelect::tmpstoragehistory()
 uiObject* uiIOSelect::endObj( bool left )
 {
     if ( !left )
-	return selbut_;
+	return selbut_ ? (uiObject*)selbut_ : (uiObject*)inp_;
 
     if ( optbox_ )
 	return optbox_;
@@ -48,6 +48,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	, optionalChecked(this)
 	, keepmytxt_(su.keepmytxt_)
 	, optbox_(0)
+	, selbut_(0)
 	, lbl_(0)
 	, haveempty_(su.withclear_)
 {
@@ -70,14 +71,17 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     }
 
     const CallBack selcb( mCB(this,uiIOSelect,doSel) );
-    if ( su.buttontxt_.isEmpty()
-      || su.buttontxt_.isEqualTo( uiStrings::sSelect(true) ) )
+    if ( su.buttontxt_.isEqualTo( uiStrings::sSelect(true) ) )
 	selbut_ = uiButton::getStd( this, uiButton::Select, selcb, false );
-    else
+    else if ( !su.buttontxt_.isEmpty() )
 	selbut_ = new uiPushButton( this, su.buttontxt_, selcb, false );
-    BufferString butnm( su.buttontxt_.getFullString(), " " );
-    butnm += su.seltxt_.getFullString();
-    selbut_->setName( butnm.buf() );
+
+    if ( selbut_ )
+    {
+	BufferString butnm( su.buttontxt_.getFullString(), " " );
+	butnm += su.seltxt_.getFullString();
+	selbut_->setName( butnm.buf() );
+    }
 
     setHAlignObj( inp_ );
     setHCenterObj( inp_ );
@@ -107,7 +111,9 @@ void uiIOSelect::addExtSelBut( uiButton* but )
 
 void uiIOSelect::doFinalise( CallBacker* cb )
 {
-    selbut_->attach( rightOf, inp_ );
+    if ( selbut_ )
+	selbut_->attach( rightOf, inp_ );
+
     uiObject* leftmost = inp_;
     for ( int idx=0; idx<extselbuts_.size(); idx++ )
     {
@@ -376,7 +382,8 @@ void uiIOSelect::optCheck( CallBacker* )
 
     const bool isch = isChecked();
     inp_->setSensitive( isch );
-    selbut_->setSensitive( isch );
+    if ( selbut_ )
+	selbut_->setSensitive( isch );
     optionalChecked.trigger();
 }
 

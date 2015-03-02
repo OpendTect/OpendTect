@@ -172,9 +172,6 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     wvltfld_ = new uiSeisWaveletSel( this, "Reference wavelet" );
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
-    uiPushButton* crwvltbut = new uiPushButton( this, tr("Extract"),
-				mCB(this,uiTieWinMGRDlg,extrWvlt), false );
-    crwvltbut->attach( rightOf, wvltfld_ );
 
     postFinalise().notify( mCB(this,uiTieWinMGRDlg,onFinalise) );
 }
@@ -301,21 +298,6 @@ void uiTieWinMGRDlg::d2TSelChg( CallBacker* )
     cscorrfld_->display( !useexistingmdl && havecs );
 }
 
-
-void uiTieWinMGRDlg::extrWvlt( CallBacker* )
-{
-    if ( !extractwvltdlg_ )
-	extractwvltdlg_ = new uiWaveletExtraction( 0, selIs2D() );
-    extractwvltdlg_->extractionDone.notify(
-				mCB(this,uiTieWinMGRDlg,extractWvltDone) );
-    extractwvltdlg_->show();
-}
-
-
-void uiTieWinMGRDlg::extractWvltDone( CallBacker* )
-{
-    wvltfld_->setInput( extractwvltdlg_->storeKey() );
-}
 
 #undef mErrRet
 #define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }

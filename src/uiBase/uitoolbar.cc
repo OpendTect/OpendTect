@@ -83,7 +83,7 @@ int uiToolBar::addButton( const char* fnm, const uiString& tt,
 
 int uiToolBar::addButton( const uiToolButtonSetup& su )
 {
-    uiAction* action = new uiAction( su.name_, su.cb_, su.filename_ );
+    uiAction* action = new uiAction( su.name_, su.cb_, su.icid_ );
     action->setToolTip( su.tooltip_ );
     action->setCheckable( su.istoggle_ );
     action->setShortcut( su.shortcut_ );

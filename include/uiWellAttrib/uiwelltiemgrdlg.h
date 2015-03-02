@@ -78,8 +78,6 @@ protected:
 
     void		onFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);
-    void		extrWvlt(CallBacker*);
-    void		extractWvltDone(CallBacker*);
     void		typeSelChg(CallBacker*);
     void		seisSelChg(CallBacker*);
     void		seis2DCheckChg(CallBacker*);

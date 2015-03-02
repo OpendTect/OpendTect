@@ -500,10 +500,25 @@ uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
     if ( forcetb || istoggle_ || name_ == tooltip_.getFullString() )
 	return new uiToolButton( p, *this );
 
-    uiPushButton* pb = new uiPushButton( p, name_, uiPixmap(filename_),
-					 cb_, isimmediate_ );
-    pb->setToolTip( tooltip_ );
-    return pb;
+    return getPushButton( p, true );
+}
+
+
+uiToolButton* uiToolButtonSetup::getToolButton( uiParent* p ) const
+{
+    return new uiToolButton( p, *this );
+}
+
+
+uiPushButton* uiToolButtonSetup::getPushButton( uiParent* p, bool wic ) const
+{
+    uiPushButton* ret = 0;
+    if ( wic )
+	ret = new uiPushButton( p, name_, uiPixmap(icid_), cb_, isimmediate_ );
+    else
+	ret = new uiPushButton( p, name_, cb_, isimmediate_ );
+    ret->setToolTip( tooltip_ );
+    return ret;
 }
 
 
@@ -518,8 +533,7 @@ uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
     id_(-1), uimenu_(0)
 
 uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
-    : uiButton( parnt, su.name_, &su.cb_,
-		mkbody(parnt,su.filename_,su.name_) )
+    : uiButton( parnt, su.name_, &su.cb_, mkbody(parnt,su.icid_,su.name_) )
     , mInitTBList
 {
     setToolTip( su.tooltip_ );

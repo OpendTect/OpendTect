@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
-                                    bool withextract, bool withman )
+				bool withextract, bool withman, bool compact )
     : uiGroup(p,"Wavelet selector")
     , wvltextrdlg_(0)
     , newSelection(this)
@@ -37,19 +37,30 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
     nmfld_ = lcb->box();
     uiObject* lastfld = lcb->attachObj();
 
-    if ( withextract )
-    {
-	uiPushButton* crwvltbut = new uiPushButton( this, tr("Extract"),
-				mCB(this,uiSeisWaveletSel,extractCB), false );
-	crwvltbut->attach( rightOf, lastfld );
-	lastfld = crwvltbut;
-    }
-
     if ( withman )
     {
-	uiToolButton* tb = new uiToolButton( this, "man_wvlt",
-		uiStrings::sManWav(), mCB(this,uiSeisWaveletSel,startMan) );
-	tb->attach( rightOf, lastfld );
+	uiToolButtonSetup tbsu( "man_wvlt", uiStrings::sManWav(),
+				mCB(this,uiSeisWaveletSel,startMan) );
+	uiButton* but;
+	if ( compact )
+	    but = tbsu.getToolButton( this );
+	else
+	    but = tbsu.getPushButton( this );
+	but->attach( rightOf, lastfld );
+	lastfld = but;
+    }
+
+    if ( withextract )
+    {
+	uiToolButtonSetup tbsu( "wavelet_extract", tr("Extract"),
+				mCB(this,uiSeisWaveletSel,extractCB) );
+	uiButton* but;
+	if ( compact )
+	    but = tbsu.getToolButton( this );
+	else
+	    but = tbsu.getPushButton( this );
+	but->attach( rightOf, lastfld );
+	lastfld = but;
     }
 
     rebuildList();

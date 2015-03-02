@@ -783,8 +783,11 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 void uiAttrSel::setObjectName( const char* nm )
 {
     inp_->setName( nm );
-    const char* butnm = selbut_->name();
-    selbut_->setName( BufferString(butnm," ",nm) );
+    if ( selbut_ )
+    {
+	const char* butnm = selbut_->name();
+	selbut_->setName( BufferString(butnm," ",nm) );
+    }
 }
 
 

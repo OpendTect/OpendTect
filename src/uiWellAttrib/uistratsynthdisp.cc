@@ -139,7 +139,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 				    tr("Specify input for synthetic creation"),
 				    mCB(this,uiStratSynthDisp,layerPropsPush));
 
-    wvltfld_ = new uiSeisWaveletSel( datagrp_ );
+    wvltfld_ = new uiSeisWaveletSel( datagrp_, "", true, true, true );
     wvltfld_->newSelection.notify( mCB(this,uiStratSynthDisp,wvltChg) );
     wvltfld_->setFrame( false );
     wvltfld_->attach( rightOf, layertb );
@@ -681,7 +681,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
-	int res = uiMSG().question(tr("Type of seismic data to use"), 
+	int res = uiMSG().question(tr("Type of seismic data to use"),
                                   uiStrings::s2D(true), uiStrings::s3D(true),
 				  uiStrings::sCancel(), tr("Specify geometry"));
 	if ( res < 0 ) return false;
@@ -829,7 +829,7 @@ void uiStratSynthDisp::modelChanged()
 void uiStratSynthDisp::reDisplayPostStackSynthetic( bool wva )
 {
     displayPostStackSynthetic( wva ? currentwvasynthetic_ : currentvdsynthetic_,
-	    		       wva );
+			       wva );
 }
 
 

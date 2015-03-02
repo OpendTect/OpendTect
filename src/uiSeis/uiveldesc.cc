@@ -253,7 +253,7 @@ uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt,
     {
 	editcubebutt_ = new uiPushButton( this, uiStrings::sEmptyString(),
 		mCB(this,uiVelSel,editCB), false );
-	editcubebutt_->attach( rightOf, selbut_ );
+	editcubebutt_->attach( rightOf, endObj(false) );
 	selectionDoneCB( 0 );
 	selectionDone.notify( mCB(this,uiVelSel,selectionDoneCB) );
     }
