@@ -231,54 +231,30 @@ bool StorageProvider::checkInpAndParsAtStart()
 	if ( !dset )
 	    mErrRet( "2D seismic data/No data set found" );
 
-	int lineidx = dset->indexOf( lk.buf() );
-	if ( lineidx == -1 )
+	storedvolume_.hrg.start.inl() = 0;
+	storedvolume_.hrg.stop.inl() = 1;
+	storedvolume_.hrg.include( BinID( 0,0 ) );
+	storedvolume_.hrg.include( BinID( 0,SI().maxNrTraces(true) ) );
+	storedvolume_.hrg.step.crl() = 1; // what else?
+	bool foundone = false;
+	for ( int idx=0; idx<dset->nrLines(); idx++ )
 	{
-	    storedvolume_.hrg.start.inl() = 0;
-	    storedvolume_.hrg.stop.inl() = 1;
-	    storedvolume_.hrg.include( BinID( 0,0 ) );
-	    storedvolume_.hrg.include( BinID( 0,SI().maxNrTraces(true) ) );
-	    storedvolume_.hrg.step.crl() = 1; // what else?
-	    BufferStringSet candidatelines;
-	    dset->getLineNames( candidatelines );
-	    bool foundone = false;
-	    for ( int idx=0; idx<candidatelines.size(); idx++ )
-	    {
-		lineidx = dset->indexOf( candidatelines.get(idx).buf() );
-		if ( lineidx> -1 )
-		{
-		    StepInterval<int> trcrg; StepInterval<float> zrg;
-		    if ( dset->getRanges( lineidx, trcrg, zrg ) )
-		    {
-			if ( foundone )
-			{
-			    storedvolume_.hrg.include( BinID(0,trcrg.start) );
-			    storedvolume_.hrg.include( BinID(0,trcrg.stop) );
-			    storedvolume_.zrg.include( zrg );
-			}
-			else
-			{
-			    storedvolume_.hrg.start.crl() = trcrg.start;
-			    storedvolume_.hrg.stop.crl() = trcrg.stop;
-			    storedvolume_.zrg = zrg;
-			}
-			foundone = true;
-		    }
-		}
-	    }
-	}
-	else
-	{
-	    storedvolume_.hrg.start.inl() = storedvolume_.hrg.stop.inl()
-					  = lineidx;
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
-	    if ( !dset->getRanges( lineidx, trcrg, zrg ) )
-		mErrRet("Cannot get needed trace range from 2D line set")
+	    if ( !dset->getRanges(idx,trcrg,zrg) )
+		continue;
+
+	    if ( foundone )
+	    {
+		storedvolume_.hrg.include( BinID(0,trcrg.start) );
+		storedvolume_.hrg.include( BinID(0,trcrg.stop) );
+		storedvolume_.zrg.include( zrg );
+	    }
 	    else
 	    {
 		storedvolume_.hrg.start.crl() = trcrg.start;
 		storedvolume_.hrg.stop.crl() = trcrg.stop;
 		storedvolume_.zrg = zrg;
+		foundone = true;
 	    }
 	}
     }
@@ -592,12 +568,14 @@ bool StorageProvider::set2DRangeSelData()
 	{
 	    if ( !checkDesiredTrcRgOK(trcrg,lsetzrg) )
 		return false;
-	    Interval<int> rg( 0, 0 );
+	    StepInterval<int> rg( 0, 0, 1 );
 	    seldata->setInlRange( rg );
 	    rg.start = desiredvolume_->hrg.start.crl() < trcrg.start?
 			trcrg.start : desiredvolume_->hrg.start.crl();
 	    rg.stop = desiredvolume_->hrg.stop.crl() > trcrg.stop ?
 			trcrg.stop : desiredvolume_->hrg.stop.crl();
+	    rg.step = desiredvolume_->hrg.step.crl() > trcrg.step ?
+			desiredvolume_->hrg.step.crl() : trcrg.step;
 	    seldata->setCrlRange( rg );
 	    Interval<float> zrg;
 	    zrg.start = desiredvolume_->zrg.start < lsetzrg.start ?
