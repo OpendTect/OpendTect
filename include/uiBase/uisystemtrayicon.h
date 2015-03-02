@@ -17,18 +17,21 @@ ________________________________________________________________________
 
 mFDQtclass(QSystemTrayIcon)
 mFDQtclass(QSystemTrayIconMessenger)
-class uiPixmap;
+
+class uiIcon;
+class uiMenu;
 class uiString;
 
 mExpClass(uiBase) uiSystemTrayIcon : public CallBacker
 {
 public:
 
-			uiSystemTrayIcon(const uiPixmap&);
+			uiSystemTrayIcon(const uiIcon&);
 			~uiSystemTrayIcon();
 
-    void		setPixmap(const uiPixmap&);
+    void		setIcon(const uiIcon&);
     void		setToolTip(const uiString&);
+    void		setMenu(uiMenu*); // becomes mine
     void		show();
     void		hide();
 
@@ -43,7 +46,7 @@ protected:
     mQtclass(QSystemTrayIcon*)		qsystemtrayicon_;
     mQtclass(QSystemTrayIconMessenger*) messenger_;
 
-    int					action_;
+    uiMenu*		menu_;
 };
 
 #endif

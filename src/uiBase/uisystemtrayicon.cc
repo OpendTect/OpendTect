@@ -12,41 +12,45 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisystemtrayicon.h"
 #include "i_qsystemtrayicon.h"
-#include "uistring.h"
 
-#include "uipixmap.h"
+#include "uiicon.h"
+#include "uimenu.h"
+#include "uistring.h"
 
 mUseQtnamespace
 
-uiSystemTrayIcon::uiSystemTrayIcon( const uiPixmap& pm )
-    : action_(-1)
+uiSystemTrayIcon::uiSystemTrayIcon( const uiIcon& icon )
+    : menu_(0)
     , messageClicked(this)
     , clicked(this)
     , rightClicked(this)
     , middleClicked(this)
     , doubleClicked(this)
 {
-    qsystemtrayicon_ = new QSystemTrayIcon();
-    messenger_ = new QSystemTrayIconMessenger( qsystemtrayicon_,
-	    						 this );
-    setPixmap( pm );
+    qsystemtrayicon_ = new QSystemTrayIcon( icon.qicon() );
+    messenger_ = new QSystemTrayIconMessenger( qsystemtrayicon_, this );
 }
 
 
 uiSystemTrayIcon::~uiSystemTrayIcon()
 {
+    delete menu_;
     delete messenger_;
     delete qsystemtrayicon_;
 }
 
 
-void uiSystemTrayIcon::setPixmap( const uiPixmap& pm )
+void uiSystemTrayIcon::setMenu( uiMenu* mnu )
 {
-    QIcon qicon; 
-    if ( pm.qpixmap() ) qicon = QIcon( *pm.qpixmap() );
-    qsystemtrayicon_->setIcon( qicon );
+    delete menu_;
+    menu_ = mnu;
+
+    qsystemtrayicon_->setContextMenu( mnu->getQMenu() );
 }
 
+
+void uiSystemTrayIcon::setIcon( const uiIcon& icon )
+{ qsystemtrayicon_->setIcon( icon.qicon() ); }
 
 void uiSystemTrayIcon::setToolTip( const uiString& tt )
 { qsystemtrayicon_->setToolTip( tt.getQtString() ); }
