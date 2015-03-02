@@ -31,8 +31,8 @@ public:
 
     virtual void		setImage(int idx,OD::RGBImage*);
 				// image becomes mine
-    virtual OD::RGBImage*	getImage(int shapeidx) const
-					    { return rgbimage_; }
+    virtual const OD::RGBImage*	getImage(int shapeidx) const
+				{ return rgbimage_; }
 
     virtual int			nrShapes() const;
     virtual const char*		getShapeName(int shapeidx) const;
