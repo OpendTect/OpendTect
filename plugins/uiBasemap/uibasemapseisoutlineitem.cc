@@ -157,7 +157,7 @@ bool uiBasemapSeisOutlineTreeItem::handleSubMenu( int mnuid )
 
 // uiBasemapSeisOutlineItem
 const char* uiBasemapSeisOutlineItem::iconName() const
-{ return "cube_z"; }
+{ return "basemap-seisoutline"; }
 
 uiBasemapGroup* uiBasemapSeisOutlineItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapSeisOutlineGroup( p, isadd ); }

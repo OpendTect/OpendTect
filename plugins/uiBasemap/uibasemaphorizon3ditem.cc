@@ -228,7 +228,7 @@ bool uiBasemapHorizon3DTreeItem::handleSubMenu( int mnuid )
 
 // uiBasemapHorizon3DItem
 const char* uiBasemapHorizon3DItem::iconName() const
-{ return "horizon3d"; }
+{ return "basemap-horizon3d"; }
 
 uiBasemapGroup* uiBasemapHorizon3DItem::createGroup( uiParent* p, bool isadd )
 {

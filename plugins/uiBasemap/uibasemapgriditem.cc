@@ -325,7 +325,7 @@ bool uiBasemapGridTreeItem::handleSubMenu( int mnuid )
 
 // uiBasemapGridItem
 const char* uiBasemapGridItem::iconName() const
-{ return "gridlines"; }
+{ return "basemap-gridlines"; }
 
 uiBasemapGroup* uiBasemapGridItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapGridGroup( p, isadd ); }

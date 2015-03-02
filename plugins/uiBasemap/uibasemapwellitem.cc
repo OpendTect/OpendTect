@@ -59,7 +59,7 @@ bool uiBasemapWellGroup::usePar( const IOPar& par )
 
 // uiBasemapWellItem
 const char* uiBasemapWellItem::iconName() const
-{ return "well"; }
+{ return "basemap-well"; }
 
 uiBasemapGroup* uiBasemapWellItem::createGroup( uiParent* p,bool isadd )
 { return new uiBasemapWellGroup( p, isadd ); }

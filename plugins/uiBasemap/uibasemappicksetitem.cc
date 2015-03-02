@@ -67,7 +67,7 @@ bool uiBasemapPickSetGroup::usePar( const IOPar& par )
 
 // uiBasemapPickSetItem
 const char* uiBasemapPickSetItem::iconName() const
-{ return "picks"; }
+{ return "basemap-pickset"; }
 
 uiBasemapGroup* uiBasemapPickSetItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapPickSetGroup( p, isadd ); }

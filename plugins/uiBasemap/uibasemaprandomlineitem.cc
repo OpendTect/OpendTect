@@ -80,7 +80,7 @@ uiObject* uiBasemapRandomLineGroup::lastObject()
 
 // uiBasemapRandomLineItem
 const char* uiBasemapRandomLineItem::iconName() const
-{ return "randomline"; }
+{ return "basemap-randomline"; }
 
 
 uiBasemapGroup* uiBasemapRandomLineItem::createGroup( uiParent* p, bool isadd )

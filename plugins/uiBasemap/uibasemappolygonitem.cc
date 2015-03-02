@@ -67,7 +67,7 @@ bool uiBasemapPolygonGroup::usePar( const IOPar& par )
 
 // uiBasemapPolygonItem
 const char* uiBasemapPolygonItem::iconName() const
-{ return "polygon"; }
+{ return "basemap-polygon"; }
 
 uiBasemapGroup* uiBasemapPolygonItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapPolygonGroup( p, isadd ); }

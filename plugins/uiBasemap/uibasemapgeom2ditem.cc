@@ -89,7 +89,7 @@ uiObject* uiBasemapGeom2DGroup::lastObject()
 
 // uiBasemapGeom2DItem
 const char* uiBasemapGeom2DItem::iconName() const
-{ return "geom2d"; }
+{ return "basemap-geom2d"; }
 
 uiBasemapGroup* uiBasemapGeom2DItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapGeom2DGroup( p, isadd ); }
