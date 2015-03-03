@@ -44,6 +44,8 @@ class uiDialog;
   facility. If that is the case, you have to return an IOPar by getImportPars()
   that, when the time comes, will be used to call startImport().
 
+  This class delivers everything in SI units.
+
  */
 
 mExpClass(uiIo) uiSurvInfoProvider
@@ -56,6 +58,8 @@ public:
 					Coord crd[3])	= 0;
     virtual bool		getLatLongAnchor(Coord&,LatLong&)
 							{ return false; }
+    virtual bool		getSRD(float&)		{ return false; }
+
     virtual void		fillPar(IOPar&)		{}
     virtual bool		isAvailable() const	{ return true; }
 

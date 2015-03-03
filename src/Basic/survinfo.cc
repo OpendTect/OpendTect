@@ -281,7 +281,7 @@ SurveyInfo::SurveyInfo()
     , workRangeChg(this)
     , survdatatype_(Both2DAnd3D)
     , survdatatypeknown_(false)
-    , seisrefdatum_( 0 )
+    , seisrefdatum_(0.f)
 {
     rdxtr_.b = rdytr_.c = 1;
     set3binids_[2].crl() = 0;
@@ -446,7 +446,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	else if ( keyw == sKeyXYInFt() )
 	    si->xyinfeet_ = astream.getYN();
 	else if ( keyw == sKeySeismicRefDatum() )
-	    si->seisrefdatum_ = astream.getDValue();
+	    si->seisrefdatum_ = astream.getFValue();
 	else
 	    si->handleLineRead( keyw, astream.value() );
 

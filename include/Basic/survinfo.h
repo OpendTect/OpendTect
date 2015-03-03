@@ -123,10 +123,10 @@ public:
     void		snapZ(float&,int direction=0) const;
 			//!< see snap() for direction
 
-    double		seismicReferenceDatum() const	 {return seisrefdatum_;}
+    float		seismicReferenceDatum() const	 {return seisrefdatum_;}
 			/*!<In depth units (m or ft), positive upward
-			from sea level */
-    void		setSeismicReferenceDatum(double d){ seisrefdatum_=d; }
+			    from sea level */
+    void		setSeismicReferenceDatum( float d ) { seisrefdatum_=d; }
 
     const IOPar&	pars() const			{ return pars_; }
     void		putZDomain(IOPar&) const;
@@ -150,7 +150,7 @@ protected:
     bool		depthsinfeet_;
     TrcKeyZSampling&	tkzs_;
     TrcKeyZSampling&	wcs_;
-    double		seisrefdatum_;
+    float		seisrefdatum_;
     IOPar&		pars_;
 
     mutable Threads::AtomicPointer<Survey::Geometry3D>	s3dgeom_;
