@@ -15,7 +15,7 @@ else
 	fi
     else
 	echo "Syntax: "
-	echo "$0 <lupdate-exec> <srcdir> <destdir>"
+	echo "$0 <lrelease-exec> <srcdir> <destdir>"
     fi
 fi
 
