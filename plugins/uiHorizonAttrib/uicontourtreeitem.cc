@@ -505,8 +505,13 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     if ( iszval_ ) \
 	str.add( " " ).add( scene->zDomainInfo().unitStr(true) )
 
-    BufferString lbltxt( "Total ", attrnm, " range" ); mAddZUnitStr(lbltxt);
-    lbltxt.add( ": " ).add( rg_.start ).add( " - " ).add( rg_.stop );
+    BufferString lbltxt( "Total ", attrnm, " range" );
+    mAddZUnitStr(lbltxt); lbltxt.add( ": " );
+    if ( iszval_ )
+	lbltxt.add( rg_.start, 2 ).add( " - " ).add( rg_.stop, 2 );
+    else
+	lbltxt.add( rg_.start ).add( " - " ).add( rg_.stop );
+
     uiLabel* lbl = new uiLabel( this, lbltxt );
 
     lbltxt = "Contour range "; mAddZUnitStr(lbltxt);
