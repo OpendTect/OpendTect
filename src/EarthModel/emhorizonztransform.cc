@@ -38,10 +38,10 @@ HorizonZTransform::HorizonZTransform()
 
 
 HorizonZTransform::~HorizonZTransform()
-{ 
+{
     if ( horizon_ )
     {
-	const_cast<Horizon*>(horizon_)->change.remove( 
+	const_cast<Horizon*>(horizon_)->change.remove(
 		mCB(this,HorizonZTransform,horChangeCB) );
 	horizon_->unRef();
     }
@@ -133,7 +133,7 @@ void HorizonZTransform::transformTrcBack( const TrcKey& trckey,
 Interval<float> HorizonZTransform::getZInterval( bool from ) const
 {
     if ( from ) return SI().zRange(true);
-    
+
     if ( horchanged_ )
 	const_cast<HorizonZTransform*>(this)->calculateHorizonRange();
 
@@ -198,7 +198,7 @@ float HorizonZTransform::getZIntervalCenter( bool from ) const
 
 
 void HorizonZTransform::horChangeCB(CallBacker*)
-{ 
+{
     horchanged_ = true;
 
     if ( horizon_ && !horizon_->hasBurstAlert() )
@@ -268,6 +268,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	    {
 		RefMan<const Survey::Geometry> horsurv =
 		    Survey::GM().getGeometry( hor2d->geometry().geomID(idx) );
+		if ( !horsurv ) continue;
 
 		const TrcKey tmptrckey =
 		    horsurv->getTrace( crd, horsurv->averageTrcDist() * 3 );
