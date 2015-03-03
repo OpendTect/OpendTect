@@ -30,6 +30,11 @@ final class SVNLinter extends ArcanistLinter {
       return;
     }
 
+    $ists = strpos( $path, ".ts" )!==false;
+
+    if ( $ists )
+	return;
+
     $this->lintSVNProperties($path);
 
     if ($this->didStopAllLinters()) {

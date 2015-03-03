@@ -340,7 +340,8 @@ bool Network::uploadFile( const char* url, const char* localfname,
 {
     if ( !File::isFile(localfname) )
     {
-	errmsg = uiString(" %1\nFile not found").arg( localfname );
+	errmsg = od_static_tr( "uploadFile", "%1\nFile not found" )
+			       .arg( localfname );
 	return false;
     }
 

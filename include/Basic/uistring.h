@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "gendefs.h"
 #include "keystrs.h"
 #include "threadlock.h"
@@ -23,6 +22,7 @@ class uiStringData;
 
 mFDQtclass( QString );
 mFDQtclass( QTranslator );
+
 
 #define mTextTranslationClass(clss,application) \
 private: \
@@ -71,6 +71,8 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
      short use the mODTextTranslationClass macro.
   -# Use the tr() function for all translatable string. The tr() function
      returns a uiString() that can be passed to the ui.
+  -# For functions not belonging to a class, use the od_static_tr function.
+     Any function matching the *_static_tr will be interpreted by lupdate.
   -# Use Qt's lupdate to scan your code for localization strings. This will
      generate a .ts file which can be editded with Qt's Linguist program to
      translate the strings.
@@ -213,6 +215,27 @@ public:
 
 mGlobal(Basic) uiString mkUiString(const char* var);
 
+/*!Adds translation of strings outside of classes for the "od" application. It
+   will return a uistring where the context is "static_func_function", where
+   'function' is whatever is given as the function parameter. This matches what
+   is done in the filtering of the source files before lupdate is run (in
+   ./dtect/update_translations.csh).
+
+   \code
+   bool myFunction( int var )
+   {
+       if ( var<5 )
+       {
+	   uiMSG().error(
+	       od_static_tr( "myFunction", "%1 is less than 5" ).arg( var ) );
+       }
+   }
+
+   \endcode
+*/
+
+mGlobal(Basic) uiString od_static_tr( const char* function, const char* text,
+	const char* disambiguation = 0, int pluralnr=-1 );
 
 template <class T> inline
 uiString& uiString::arg( const T& var )

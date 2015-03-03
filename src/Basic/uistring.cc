@@ -108,8 +108,8 @@ public:
 #endif
 
     BufferString		originalstring_;
-    uiStringSet		legacyversions_;
-    const char*			translationcontext_;
+    uiStringSet			legacyversions_;
+    BufferString		translationcontext_;
     const char*			application_;
     const char*			translationdisambiguation_;
     int				translationpluralnumber_;
@@ -124,7 +124,7 @@ void uiStringData::set( const char* orig )
     originalstring_ = orig;
     arguments_.erase();
     legacyversions_.erase();
-    translationcontext_ = 0;
+    translationcontext_.setEmpty();
     application_ = 0;
     translationdisambiguation_ = 0;
     translationpluralnumber_ = -1;
@@ -643,5 +643,15 @@ bool uiString::setFromHexEncoded( const char* str )
 
 
 uiString mkUiString(const char* var) { return uiString().set( var ); }
+
+
+uiString od_static_tr( const char* func, const char* text,
+		       const char* disambiguation, int pluralnr )
+{
+    const BufferString context( "static_func_", func );
+    return uiString( text, context.buf(),
+		     uiString::sODLocalizationApplication(),
+		     disambiguation, pluralnr );
+}
 
 
