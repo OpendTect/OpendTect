@@ -31,15 +31,18 @@ public:
 
 protected:
 				uiBodyFiller(uiParent*,BodyFiller*);
-    static uiStepDialog*	createInstance(uiParent*, Step*);
+    static uiStepDialog*	createInstance(uiParent*,Step*);
 
     bool			acceptOK(CallBacker*);
     void			bodySel(CallBacker*);
+    void			typeSel(CallBacker*);
 
     BodyFiller*			bodyfiller_;
 
-    uiIOObjSel*			uinputselfld_;
+    uiIOObjSel*			bodyfld_;
+    uiGenInput*			insidetypfld_;
     uiGenInput*			insidevaluefld_;
+    uiGenInput*			outsidetypfld_;
     uiGenInput*			outsidevaluefld_;
 };
 

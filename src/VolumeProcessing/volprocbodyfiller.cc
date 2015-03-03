@@ -27,26 +27,40 @@ namespace VolProc
 #define plgIsZSlice	2
 #define plgIsOther	3
 
+
+const char* BodyFiller::sKeyOldType()	{ return "MarchingCubes"; }
+const char* BodyFiller::sKeyOldMultiID() { return "MarchingCubeSurface ID"; }
+const char* BodyFiller::sKeyOldInsideOutsideValue()
+					{ return "Surface InsideOutsideValue"; }
+
+const char* BodyFiller::sKeyMultiID()		{ return "Body ID"; }
+const char* BodyFiller::sKeyInsideType()	{ return "Inside Type"; }
+const char* BodyFiller::sKeyOutsideType()	{ return "Outside Type"; }
+const char* BodyFiller::sKeyInsideValue()	{ return "Inside Value"; }
+const char* BodyFiller::sKeyOutsideValue()	{ return "Outside Value"; }
+
+
 void BodyFiller::initClass()
 {
-    SeparString keys( BodyFiller::sFactoryKeyword(),
-	    VolProc::Step::factory().cSeparator() );
+    SeparString keys( BodyFiller::sFactoryKeyword(), factory().cSeparator() );
     keys += BodyFiller::sKeyOldType();
 
-    VolProc::Step::factory().addCreator( createInstance, keys,
-	    BodyFiller::sFactoryDisplayName() );
+    factory().addCreator( createInstance, keys,
+			  BodyFiller::sFactoryDisplayName() );
 }
 
 
 BodyFiller::BodyFiller()
-    : body_( 0 )
-    , emobj_( 0 )
-    , implicitbody_( 0 )
-    , insideval_( mUdf(float) )
-    , outsideval_( mUdf(float) )
-    , flatpolygon_( false )
-    , plgdir_( 0 )
-    , epsilon_( 1e-4 )
+    : body_(0)
+    , emobj_(0)
+    , implicitbody_(0)
+    , insidevaltype_(Constant)
+    , outsidevaltype_(Constant)
+    , insideval_(mUdf(float))
+    , outsideval_(mUdf(float))
+    , flatpolygon_(false)
+    , plgdir_(0)
+    , epsilon_(1e-4)
 {}
 
 
@@ -109,11 +123,29 @@ bool BodyFiller::setSurface( const MultiID& mid )
 }
 
 
-void BodyFiller::setInsideOutsideValue( const float in, const float out )
-{
-    insideval_ = in;
-    outsideval_ = out;
-}
+void BodyFiller::setInsideValueType( ValueType vt )
+{ insidevaltype_ = vt ; }
+
+BodyFiller::ValueType BodyFiller::getInsideValueType() const
+{ return insidevaltype_; }
+
+void BodyFiller::setOutsideValueType( ValueType vt )
+{ outsidevaltype_ = vt; }
+
+BodyFiller::ValueType BodyFiller::getOutsideValueType() const
+{ return outsidevaltype_; }
+
+void BodyFiller::setInsideValue( float val )
+{ insideval_ = val; }
+
+float BodyFiller::getInsideValue() const
+{ return insideval_; }
+
+void BodyFiller::setOutsideValue( float val )
+{ outsideval_ = val; }
+
+float BodyFiller::getOutsideValue() const
+{ return outsideval_; }
 
 
 bool BodyFiller::computeBinID( const BinID& bid, int )
@@ -136,14 +168,19 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     if ( outputinlidx<0 || outputcrlidx<0 )
 	return true;
 
+    if ( insidevaltype_ == Undefined ) insideval_ = mUdf(float);
+    if ( insidevaltype_ == PrevStep ) insideval_ = -mUdf(float);
+    if ( outsidevaltype_ == Undefined ) outsideval_ = mUdf(float);
+    if ( outsidevaltype_ == PrevStep ) outsideval_ = -mUdf(float);
+
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     const int inputinlidx = input
 	? input->sampling().hsamp_.inlRange().nearestIndex(bid.inl()) : 0;
     const int inputcrlidx = input
 	? input->sampling().hsamp_.crlRange().nearestIndex(bid.crl()) : 0;
     const bool useinput = input &&
-	inputinlidx>=0 && inputinlidx < input->data(0).info().getSize(0) &&
-	inputcrlidx>=0 && inputcrlidx < input->data(0).info().getSize(1);
+	inputinlidx>=0 && inputinlidx<input->data(0).info().getSize(0) &&
+	inputcrlidx>=0 && inputcrlidx<input->data(0).info().getSize(1);
     const int inputzsz = useinput && input
 	? input->data(0).info().getSize(2) : 0;
 
@@ -162,10 +199,10 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     }
     else
     {
-	bodyinlidx = 
-	    implicitbody_->tkzs_.hrg.inlRange().nearestIndex( bid.inl());
-	bodycrlidx = 
-	    implicitbody_->tkzs_.hrg.crlRange().nearestIndex( bid.crl());
+	bodyinlidx =
+		implicitbody_->tkzs_.hrg.inlRange().nearestIndex( bid.inl() );
+	bodycrlidx =
+		implicitbody_->tkzs_.hrg.crlRange().nearestIndex( bid.crl() );
 
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
 	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
@@ -181,20 +218,19 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	{
 	    const float z = zrg.atIndex( zidx );
 	    if ( flatbody )
-		val = plgzrg.includes( z * SI().zScale(), true ) ? insideval_
-							         : outsideval_;
+		val = plgzrg.includes( z * SI().zScale(), true )
+				? insideval_ : outsideval_;
 	    else
 	    {
-		const int bodyzidx = 
-		    implicitbody_->tkzs_.zsamp_.nearestIndex(z);
-
+		const int bodyzidx =
+			implicitbody_->tkzs_.zsamp_.nearestIndex(z);
 		if ( bodyzidx<0 ||
 			bodyzidx>=implicitbody_->arr_->info().getSize(2) )
 		    val = outsideval_;
 		else
 		{
 		    const float bodyval = implicitbody_->arr_->get(
-			    bodyinlidx, bodycrlidx, bodyzidx);
+			    bodyinlidx, bodycrlidx, bodyzidx );
 
 		    if ( mIsUdf(bodyval) )
 			val = mUdf(float);
@@ -205,7 +241,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	    }
 	}
 
-	if ( mIsUdf(val) && useinput )
+	if ( mIsUdf(-val) && useinput )
 	{
 	    const int inputidx = zidx;
 	    if ( inputidx>=0 && inputidx<inputzsz )
@@ -223,23 +259,37 @@ void BodyFiller::fillPar( IOPar& par ) const
 {
     Step::fillPar( par );
     par.set( sKeyMultiID(), mid_ );
-    par.set( sKeyInsideOutsideValue(), insideval_, outsideval_ );
+    par.set( sKeyInsideType(), insidevaltype_ );
+    par.set( sKeyInsideValue(), insideval_ );
+    par.set( sKeyOutsideType(), outsidevaltype_ );
+    par.set( sKeyOutsideValue(), outsideval_ );
 }
 
 
 bool BodyFiller::usePar( const IOPar& par )
 {
-    if ( !Step::usePar( par ) )
+    if ( !Step::usePar(par) )
 	return false;
 
     MultiID mid;
-    if ( (!par.get(sKeyMultiID(), mid) && !par.get(sKeyOldMultiID(), mid ) ) ||
-          !setSurface( mid ) )
+    if ( (!par.get(sKeyMultiID(),mid) && !par.get(sKeyOldMultiID(),mid) ) ||
+	 !setSurface(mid) )
 	return false;
 
-    float inv, outv;
-    if ( par.get(sKeyInsideOutsideValue(), inv, outv ) )
-	setInsideOutsideValue( inv, outv);
+    insidevaltype_ = outsidevaltype_ = Constant;
+    insideval_ = outsideval_ = mUdf(float);
+    if ( par.get(sKeyOldInsideOutsideValue(),insideval_,outsideval_) )
+    {
+	if ( mIsUdf(insideval_) ) insidevaltype_ = PrevStep;
+	if ( mIsUdf(outsideval_) ) outsidevaltype_ = PrevStep;
+	return true;
+    }
+
+    int val = 0;
+    par.get( sKeyInsideType(), val ); insidevaltype_ = (ValueType)val;
+    par.get( sKeyOutsideType(), val ); outsidevaltype_ = (ValueType)val;
+    par.get( sKeyInsideValue(), insideval_ );
+    par.get( sKeyOutsideValue(), outsideval_ );
 
     return true;
 }
@@ -306,8 +356,8 @@ Task* BodyFiller::createTask()
     else
 	plgdir_ = plgIsOther;
 
-    epsilon_ = plgdir_ < 2 ? plgbids_[0].distTo(plgbids_[1])*0.01
-			  : plgknots_[0].distTo(plgknots_[1])*0.01;
+    epsilon_ = plgdir_<2 ? plgbids_[0].distTo(plgbids_[1])*0.01
+			 : plgknots_[0].distTo(plgknots_[1])*0.01;
 
     return Step::createTask();
 }
@@ -317,7 +367,7 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 {
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !output) return false;
-    
+
     const float zstep = output->sampling().zsamp_.step;
     const Coord coord = SI().transform( bid );
     if ( plgdir_ < 2 ) //Inline or Crossline case

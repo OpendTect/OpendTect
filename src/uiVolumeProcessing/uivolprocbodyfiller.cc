@@ -32,71 +32,103 @@ void uiBodyFiller::initClass()
 }
 
 
-uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
-    : uiStepDialog( p, BodyFiller::sFactoryDisplayName(), mp )
-    , bodyfiller_( mp )
+uiStepDialog* uiBodyFiller::createInstance( uiParent* parent, Step* step )
+{
+    mDynamicCastGet(BodyFiller*,bf,step);
+    return bf ? new uiBodyFiller( parent, bf ) : 0;
+}
+
+
+
+uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* bf )
+    : uiStepDialog( p, BodyFiller::sFactoryDisplayName(), bf )
+    , bodyfiller_( bf )
 {
     setHelpKey( mODHelpKey(mBodyFillerHelpID) );
 
     IOObjContext ctxt = mIOObjContext( EMBody );
     ctxt.forread = true;
-    uinputselfld_ = new uiIOObjSel( this, ctxt, tr("Input body") );
-    uinputselfld_->selectionDone.notify( mCB(this,uiBodyFiller,bodySel) );
-    if ( mp )
-	uinputselfld_->setInput( mp->getSurfaceID() );
+    bodyfld_ = new uiIOObjSel( this, ctxt, tr("Input body") );
+    bodyfld_->selectionDone.notify( mCB(this,uiBodyFiller,bodySel) );
+    if ( bf )
+	bodyfld_->setInput( bf->getSurfaceID() );
+
+    uiStringSet types;
+    types += tr("Constant Value");
+    types += tr("Previous Step");
+    types += tr("Undefined Value");
+
+    insidetypfld_ = new uiGenInput( this, tr("Inside Fill Type"),
+				    StringListInpSpec(types) );
+    insidetypfld_->valuechanged.notify( mCB(this,uiBodyFiller,typeSel) );
+    insidetypfld_->attach( alignedBelow, bodyfld_ );
 
     const float udfval = mUdf(float);
-    insidevaluefld_ = new uiGenInput( this, tr("Inside value"),
-	    FloatInpSpec(mp ? mp->getInsideValue() : udfval) );
-    insidevaluefld_->attach( alignedBelow, uinputselfld_ );
+    insidevaluefld_ = new uiGenInput( this, tr("Inside Value"),
+		FloatInpSpec(bf ? bf->getInsideValue() : udfval) );
+    insidevaluefld_->attach( alignedBelow, insidetypfld_ );
 
-    outsidevaluefld_ = new uiGenInput( this, tr("Outside value"),
-	    FloatInpSpec(mp ? mp->getOutsideValue() : udfval) );
-    outsidevaluefld_->attach( alignedBelow, insidevaluefld_ );
+    outsidetypfld_ = new uiGenInput( this, tr("Outside Fill Type"),
+				     StringListInpSpec(types) );
+    outsidetypfld_->valuechanged.notify( mCB(this,uiBodyFiller,typeSel) );
+    outsidetypfld_->attach( alignedBelow, insidevaluefld_ );
+
+    outsidevaluefld_ = new uiGenInput( this, tr("Outside Value"),
+	    FloatInpSpec(bf ? bf->getOutsideValue() : udfval) );
+    outsidevaluefld_->attach( alignedBelow, outsidetypfld_ );
 
     addNameFld( outsidevaluefld_ );
+
+    insidetypfld_->setValue( bf ? (int)bf->getInsideValueType() : 0 );
+    typeSel( insidetypfld_ );
+    outsidetypfld_->setValue( bf ? (int)bf->getOutsideValueType() : 0 );
+    typeSel( outsidetypfld_ );
 }
 
 
 void uiBodyFiller::bodySel( CallBacker* )
 {
-    const IOObj* ioobj = uinputselfld_->ioobj();
+    const IOObj* ioobj = bodyfld_->ioobj();
     if ( ioobj )
 	namefld_->setText( ioobj->name() );
 }
 
 
-uiStepDialog* uiBodyFiller::createInstance(uiParent* parent,Step* ps)
+void uiBodyFiller::typeSel( CallBacker* cb )
 {
-    mDynamicCastGet( BodyFiller*, mp, ps );
-    if ( !mp ) return 0;
-
-    return new uiBodyFiller( parent, mp );
+    if ( cb==insidetypfld_ )
+	insidevaluefld_->display( insidetypfld_->getIntValue()==0 );
+    if ( cb==outsidetypfld_ )
+	outsidevaluefld_->display( outsidetypfld_->getIntValue()==0 );
 }
 
 
+static BodyFiller::ValueType getValueType( uiGenInput& fld )
+{ return (BodyFiller::ValueType)fld.getIntValue(); }
+
 bool uiBodyFiller::acceptOK( CallBacker* cb )
 {
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK(cb) )
 	return false;
 
-    if ( mIsUdf(insidevaluefld_->getfValue()) &&
-	 mIsUdf(outsidevaluefld_->getfValue()) )
-    {
-	uiMSG().error(tr("Set at lease one defined value"));
-	return false;
-    }
-
-    const IOObj* ioobj = uinputselfld_->ioobj();
+    const IOObj* ioobj = bodyfld_->ioobj();
     if ( !ioobj )
     {
-	uiMSG().error(tr("Invalid empty input body"));
+	uiMSG().error( tr("Invalid empty input body") );
 	return false;
     }
 
+    BodyFiller::ValueType vt = getValueType( *insidetypfld_ );
+    bodyfiller_->setInsideValueType( vt );
+    bodyfiller_->setInsideValue(
+	vt==BodyFiller::Constant ? insidevaluefld_->getfValue() : mUdf(float) );
+
+    vt = getValueType( *outsidetypfld_ );
+    bodyfiller_->setOutsideValueType( vt );
+    bodyfiller_->setOutsideValue(
+	vt==BodyFiller::Constant ? outsidevaluefld_->getfValue() : mUdf(float));
+
     bodyfiller_->setSurface( ioobj->key() );
-    bodyfiller_->setInsideOutsideValue( insidevaluefld_->getfValue(),
-					outsidevaluefld_->getfValue() );
 
     return true;
 }

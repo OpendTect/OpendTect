@@ -33,13 +33,14 @@ mExpClass(VolumeProcessing) BodyFiller : public Step
 {
 public:
 	mDefaultFactoryCreatorImpl( VolProc::Step, BodyFiller );
-	mDefaultFactoryInstanciationBase( "BodyFiller", "Body shape painter");
+	mDefaultFactoryInstanciationBase( "BodyFiller", "Body shape painter" );
 
 				BodyFiller();
 				~BodyFiller();
 
-    bool			needsInput() const	      { return false; }
-    bool			areSamplesIndependent() const { return true; }
+    bool			needsInput() const		{ return false;}
+    bool			isInputPrevStep() const		{ return true; }
+    bool			areSamplesIndependent() const	{ return true; }
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -48,21 +49,23 @@ public:
     bool			canInputAndOutputBeSame() const { return true; }
     bool			needsFullVolume() const		{ return false;}
 
-    float			getInsideValue()  { return insideval_; }
-    float			getOutsideValue() { return outsideval_; }
-    void			setInsideOutsideValue(const float inside,
-						      const float ouside);
+    enum ValueType		{ Constant, PrevStep, Undefined };
+
+    void			setInsideValueType(ValueType);
+    ValueType			getInsideValueType() const;
+    void			setOutsideValueType(ValueType);
+    ValueType			getOutsideValueType() const;
+
+    void			setInsideValue(float);
+    float			getInsideValue() const;
+    void			setOutsideValue(float);
+    float			getOutsideValue() const;
 
     bool			setSurface(const MultiID&);
     MultiID			getSurfaceID() { return mid_; }
     Task*			createTask();
 
-    static const char*		sKeyOldType() { return "MarchingCubes"; }
-    static const char*		sKeyMultiID(){return "Body ID"; }
-    static const char*		sKeyOldMultiID()
-					{ return "MarchingCubeSurface ID"; }
-    static const char*		sKeyInsideOutsideValue()
-					{ return "Surface InsideOutsideValue"; }
+    static const char*		sKeyOldType();
 
 protected:
 
@@ -77,6 +80,8 @@ protected:
     EM::ImplicitBody*		implicitbody_;
     MultiID			mid_;
 
+    ValueType			insidevaltype_;
+    ValueType			outsidevaltype_;
     float			insideval_;
     float			outsideval_;
 
@@ -87,8 +92,17 @@ protected:
     char			plgdir_;
 				/* inline=0; crosline=1; z=2; other=3 */
     double			epsilon_;
-};
 
+    static const char*		sKeyOldMultiID();
+    static const char*		sKeyOldInsideOutsideValue();
+
+    static const char*		sKeyMultiID();
+    static const char*		sKeyInsideType();
+    static const char*		sKeyOutsideType();
+    static const char*		sKeyInsideValue();
+    static const char*		sKeyOutsideValue();
+
+};
 
 } // namespace VolProc
 
