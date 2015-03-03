@@ -601,6 +601,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    ioobjids_ += new MultiID( ky );
 	    ioobjnms_.add( ioobj->name() );
 	    BufferString dispnm;
+	    const bool issel = ctio_.ioobj && ctio_.ioobj->key() == ky;
 	    const bool isdef = IOObj::isSurveyDefault(ky);
 	    const bool ispl = StreamProvider::isPreLoaded(ky.buf(),true);
 	    if ( isdef )
@@ -614,8 +615,11 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 		dispnm += " <";
 	    dispnms_.add( dispnm );
 
-	    if ( ctio_.ctxt.forread && isdef && curidx < 0 )
-		curidx = idx;
+	    if ( curidx < 0 )
+	    {
+		if ( issel || (isdef && !ctio_.ioobj && ctio_.ctxt.forread) )
+		    curidx = idx;
+	    }
 	}
     }
 
