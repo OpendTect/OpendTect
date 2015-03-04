@@ -57,34 +57,25 @@ public:
     ~TileResolutionData();
 
     void		setSingleVertex(int row, int col,const Coord3& pos,
-					bool& dohide){};
-			//!<For keeping ABI compatibility. Don't use
-
-    void		setDisplayTransformation( const mVisTrans* t ){}; 
-			//!<For keeping ABI compatibility. Don't use
-
+					bool& dohide);
+    void		setDisplayTransformation( const mVisTrans* t );
     void		setTexture(const unsigned int unit, osg::Array* arr,
 				    osg::StateSet* stateset);
     void		enableGeometryTypeDisplay(GeometryType type, bool yn);
 
-    void		calcNormals(bool allownormalinvalid = true ){};
-			//!<For keeping ABI compatibility. Don't use
-
+    void		calcNormals(bool allownormalinvalid = true );
     bool		tesselateResolution(bool onlyifabsness);
 
     osg::BoundingBox&	updateBBox();
-			//!<For keeping ABI compatibility. Don't use
-
     void		updatePrimitiveSets();
     void		setWireframeColor(Color& color);
-    visBase::Coordinates*	getCoordinates() { return 0; };
-			//!<For keeping ABI compatibility. Don't use
+    visBase::Coordinates*	getCoordinates() { return vertices_; };
     void		dirtyGeometry();
-    bool		hasDefinedCoordinates(int idx) const{ return false; };
-			//!<For keeping ABI compatibility. Don't use
-    void		setVerticesPositions(TypeSet<Coord3>* positions=0){};
-			//!<For keeping ABI compatibility. Don't use
+    bool		hasDefinedCoordinates(int idx) const;
+			/*!<idx is the index of coordinates in the
+			highest resolution vertices.*/
 
+    void		setVerticesPositions(TypeSet<Coord3>* positions = 0 );
 
 protected:
 
@@ -96,12 +87,8 @@ protected:
     osg::UserDataContainer*	geodes_;
 
     visBase::Coordinates*	vertices_;
-				//!<For keeping ABI compatibility. Don't use
-
     osg::Array*			normals_;
     std::vector<osg::Array*>	txcoords_;
-				//!<For keeping ABI compatibility. Don't use
-
     osg::Array*			linecolor_;
 
     osg::DrawElementsUShort*	trianglesps_;
@@ -115,39 +102,42 @@ protected:
     osg::DrawElementsUShort*	wireframesosgps_;
 
     osg::BoundingBox		bbox_;
-				//!<For keeping ABI compatibility. Don't use
-
     Threads::Mutex 		tesselatemutex_;
 
     bool			updateprimitiveset_;
     bool			allnormalsinvalid_;
-				//!<For keeping ABI compatibility. Don't use
-
     char			needsretesselation_;
     char			resolution_;
     TypeSet<int>		invalidnormals_;
-				//!<For keeping ABI compatibility. Don't use
-
     int				nrdefinedvertices_;
     int				nrverticesperside_;
     double			cosanglexinl_;
-				//!<For keeping ABI compatibility. Don't use
     double			sinanglexinl_;
-				//!<For keeping ABI compatibility. Don't use
     bool			needsetposition_;
     int				dispgeometrytype_;
 
 private:
 
     void			buildOsgGeometres();
+    void			initVertices();
+    void			initTexCoordLayers();
+    void			setNrTexCoordLayers(int);
     void			setPrimitiveSet(unsigned int, 
 						osg::DrawElementsUShort*);
+
+    void			tesselateCell(int cellidx);
+    void			computeNormal(int nmidx, osg::Vec3&);
+    double			calcGradient(int row,int col,
+					     const StepInterval<int>& rcrange,
+					     bool isrow);
     void			refOsgPrimitiveSets();
     void			unRefOsgPrimitiveSets();
     void			createPrimitiveSets();
     void			buildLineGeometry(int idx, int width);
     void			buildTraingleGeometry(int idx);
     void			buildPointGeometry(int idx);
+    void			setInvalidNormal(int row,int col);
+    bool			setVerticesFromHighestResolution();
     void			hideFromDisplay();
     bool			detectIsolatedLine(int crdidx,char direction);
     void			setGeometryTexture(const unsigned int unit, 
@@ -155,18 +145,13 @@ private:
 						   osg::StateSet*stateset,
 						   int geometrytype);
     void			dirtyGeometry(int type);
-    void			tesselateCell(int row,int col);
 
 public:
     bool			getTextureCoordinates(unsigned int unit,
-						      TypeSet<Coord>&) const
-						{ return false; };
-				//!<For keeping ABI compatibility. Don't use
+						      TypeSet<Coord>&) const;
     const osg::PrimitiveSet*	getPrimitiveSet(GeometryType) const;
-    const osg::Vec3Array*	getOsgCoordinates()const{ return 0; };
-				//!<For keeping ABI compatibility. Don't use
-    const osg::Vec3Array*	getNormals() const{ return 0; };
-				//!<For keeping ABI compatibility. Don't use
+    const osg::Vec3Array*	getOsgCoordinates()const;
+    const osg::Vec3Array*	getNormals() const;
 };
 
 }

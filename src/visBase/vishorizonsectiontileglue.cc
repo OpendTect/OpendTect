@@ -9,7 +9,6 @@
 #include <osg/PrimitiveSet>
 #include <osg/Geometry>
 #include <osg/Geode>
-#include <osg/UserDataContainer>
 
 using namespace visBase;
 
@@ -116,13 +115,14 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 			 (int)hrsection.nrcoordspertileside_/spacing :
 			 (int)hrsection.nrcoordspertileside_/spacing + 1;
 
-    HorizonSectionTile* tile = const_cast<HorizonSectionTile*>( gluetile );
+    const Coordinates* vtxarr =
+	gluetile->tileresolutiondata_[highestres]->vertices_;
 
-    const osg::Vec3Array* vtxarr = mGetOsgVec3Arr( tile->getOsgVertexArray() );
+    const osg::Vec3Array* normals = mGetOsgVec3Arr(
+	gluetile->tileresolutiondata_[highestres]->normals_ );
 
-    const osg::Vec3Array* normals = mGetOsgVec3Arr( tile->getNormals() );
-
-    setNrTexCoordLayers( tile->getTextureCoordinates()->getNumUserObjects() );
+    setNrTexCoordLayers(
+		gluetile->tileresolutiondata_[highestres]->txcoords_.size() );
 
     if ( vtxarr->size()<=0 || normals->size()<=0 || gluetxcoords_.size()<=0 )
 	return;
@@ -154,19 +154,16 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 	    coordidx = idx;
 	}
 
-	if( mIsOsgVec3Def((*vtxarr)[coordidx]) )
+	if( vtxarr->isDefined( coordidx ) )
 	{
-	    Coord3 pos = Conv::to<Coord3>( (*vtxarr)[coordidx] );
-	    gluevtexarr_->getDisplayTransformation()->transformBack( pos );
-
-	    if ( vtxarr ) gluevtexarr_->addPos( pos );
+	    if ( vtxarr ) gluevtexarr_->addPos( vtxarr->getPos( coordidx ) );
 
 	    for ( int tcidx=0; tcidx<gluetxcoords_.size(); tcidx++ )
 	    {
-		const osg::Vec2Array* tcoords = (osg::Vec2Array*)
-		    tile->getTextureCoordinates()->getUserObject( tcidx );
-		if ( tcoords )
-		    mGetOsgVec2Arr( gluetxcoords_[tcidx] )->push_back(
+		const osg::Vec2Array* tcoords = mGetOsgVec2Arr(
+		gluetile->tileresolutiondata_[highestres]->txcoords_[tcidx] );
+
+		mGetOsgVec2Arr( gluetxcoords_[tcidx] )->push_back(
 							(*tcoords)[coordidx] );
 	    }
 

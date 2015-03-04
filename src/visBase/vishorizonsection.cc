@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vishorizonsectiontile.h"
 #include "vishorthreadworks.h"
 #include "vishortilescreatorandupdator.h"
-#include "visosg.h"
 
 #include "binidsurface.h"
 #include "mousecursor.h"
@@ -29,82 +28,6 @@ mCreateFactoryEntry( visBase::HorizonSection );
 
 namespace visBase
 {
-
-class TileCoordinatesUpdator: public ParallelTask
-{
-public:
-    TileCoordinatesUpdator(HorizonSection* hrsecion, const od_int64 size,
-	    const Transformation* trans, bool transback= false);
-
-    od_int64	totalNr() const { return totaltiles_; }
-
-protected:
-    bool	doWork(od_int64 start, od_int64 stop, int);
-    od_int64	nrIterations() const { return totaltiles_; }
-
-private:
-    void	updateCoordinates(HorizonSectionTile*);
-    HorizonSection*	hrsection_;
-    Threads::Atomic<od_int64>	totaltiles_;
-    ConstRefMan<Transformation>	transform_;
-    bool	transback_;
-};
-
-
-TileCoordinatesUpdator::TileCoordinatesUpdator( HorizonSection* hrsecion,
- const od_int64 size, const Transformation* trans, bool transback)
-    : hrsection_( hrsecion )
-    , totaltiles_( size )
-    , transform_( trans )
-    , transback_( transback )
-{}
-
-
-bool TileCoordinatesUpdator::doWork( od_int64 start, od_int64 stop, int )
-{
-    if ( !transform_ || !hrsection_ )
-	return false;
-
-    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
-    {
-	HorizonSectionTile* tile = hrsection_->getTitle( idx );
-	updateCoordinates( tile );
-    }
-    return true;
-}
-
-
-void TileCoordinatesUpdator::updateCoordinates( HorizonSectionTile* tile )
-{
-    if ( !tile ) return;
-    const int nrcoords = 
-	hrsection_->nrcoordspertileside_*hrsection_->nrcoordspertileside_;
-
-    osg::Vec3Array* vertices = mGetOsgVec3Arr( tile->getOsgVertexArray() );
-
-    for ( int idx=0; idx<nrcoords; idx++ )
-    {
-	if ( !mIsOsgVec3Def((*vertices)[idx]) )
-	    continue;
-
-	Coord3 pos = Conv::to<Coord3>( (*vertices)[idx] );
-	if ( !transback_ )
-	{
-	    transform_->transform( pos );
-	    tile->computeNormal(
-	    idx,(*mGetOsgVec3Arr(tile->getNormals()))[idx] );
-	}
-	else
-	    transform_->transformBack( pos );
-
-	(*vertices)[idx] = Conv::to<osg::Vec3f>(pos);
-
-	if ( !transback_ && mIsOsgVec3Def((*vertices)[idx]) )
-	    tile->bbox_.expandBy( (*vertices)[idx] );
-    }
-
-}
-
 
 class HorizonSection::TextureCallbackHandler :
 				    public osgGeo::LayeredTexture::Callback
@@ -334,50 +257,26 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
     if ( transformation_ == nt )
 	return;
 
-    HorizonSectionTile** tileptrs = tiles_.getData();
-
     if ( transformation_ )
-    {
-	if ( tileptrs || tiles_.info().getTotalSz()>0 )
-	{
-	    spinlock_.lock();
-	    TileCoordinatesUpdator backupdator( 
-		this, od_int64(tiles_.info().getTotalSz()),
-	    transformation_,true );
-	    backupdator.execute();
-	    spinlock_.unLock();
-	}
 	transformation_->unRef();
-     }
 
     transformation_ = nt;
 
     if ( transformation_ )
 	transformation_->ref();
 
-    if ( (transformation_ && tileptrs) || (tiles_.info().getTotalSz()>0) )
+    HorizonSectionTile** tileptrs = tiles_.getData();
+    const int tilesz = tiles_.info().getTotalSz();
+
+    for ( int idx=0; idx<tilesz; idx++ )
     {
-	for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
-	    if ( tileptrs[idx] ) tileptrs[idx]->bbox_.init();
-	spinlock_.lock();
-	TileCoordinatesUpdator forwardupdator( 
-	    this, od_int64(tiles_.info().getTotalSz()),
-	    transformation_,false );
-	forwardupdator.execute();
-	spinlock_.unLock();
+	if ( tileptrs[idx] )
+	{
+	    tileptrs[idx]->setDisplayTransformation( nt );
+	    tileptrs[idx]->dirtyGeometry();
+	}
     }
 
-    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
-	if ( tileptrs[idx] ) tileptrs[idx]->dirtyGeometry();
-}
-
-
-HorizonSectionTile* HorizonSection::getTitle(int idx)
-{
-    HorizonSectionTile** tileptrs = tiles_.getData();
-    if ( !tileptrs || (idx>=tiles_.info().getTotalSz()) )
-	return 0;
-    return tileptrs[idx];
 }
 
 
