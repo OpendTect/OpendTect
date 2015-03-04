@@ -7,7 +7,7 @@ Fluid Contact Finder`dgbccb
 Well Correlation Panel`dgbwcp
 SynthRock`dgbstrat
 Velocity Model Building`dgbvmb
-PDF3D`dgbpdf3d
+PDF-3D`dgbpdf3d
 Workstation Access`arkclswsa
 Open Data Connector`arkclsodc
 Seismic Coloured Inversion`arkclssciplugin
