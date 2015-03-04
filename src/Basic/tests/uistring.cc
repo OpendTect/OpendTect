@@ -130,7 +130,7 @@ bool testHexEncoding()
 
 
     BufferString msg( "Espana" );
-    msg[4] = 241;
+    ((unsigned char*) msg.buf() )[4] = 241;
 
     uiString original( msg );
     BufferString encoding;
