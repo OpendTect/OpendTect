@@ -292,7 +292,13 @@ void VolumeRenderScalarField::updateFragShaderType()
 	if ( isrgba_ )
 	    raytt_->setFragShaderType( osgGeo::RayTracedTechnique::RGBA );
 	else
+	{
 	    raytt_->setFragShaderType( osgGeo::RayTracedTechnique::ColTab );
+	    raytt_->setColTabValueChannel( 0 );
+	    raytt_->setColTabUndefChannel( 3 );
+	    raytt_->setColTabUndefValue( 1.0 );
+	    raytt_->invertColTabUndefChannel( true );
+	}
     }
 }
 
@@ -467,6 +473,8 @@ void VolumeRenderScalarField::makeColorTables( int attr )
 
     colmap[1.0] = Conv::to<osg::Vec4>( sequence->undefColor() );
     osgtransfunc_->assign( colmap );
+    if ( raytt_ )
+	raytt_->setColTabUndefColor( colmap[1.0] );
 
     if ( !useshading_ )
 	makeIndices( attr, false, 0 );
@@ -544,13 +552,16 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 			       getChannels2RGBA()->isEnabled(attr);
 
     const bool usevolcache = isrgba_ && (useshading_ || attribenabled);
+    const bool hasundefchannel = !isrgba_ && useshading_;
 
     if ( !attribs_[attr]->indexcache_ )
     {
 	const int offset = raytt_ ? raytt_->getSourceChannel(attr) : attr;
+	attribs_[attr]->indexcachestep_ = usevolcache ? 4 :
+					  hasundefchannel ? 2 : 1;
+	const od_int64 nrbytes = totalsz * attribs_[attr]->indexcachestep_;
 	attribs_[attr]->indexcache_ = usevolcache ? osgvoldata_->data()+offset
-						  : new unsigned char[totalsz];
-	attribs_[attr]->indexcachestep_ = usevolcache ? 4 : 1;
+						  : new unsigned char[nrbytes];
 	attribs_[attr]->ownsindexcache_ = !usevolcache;
     }
 
@@ -560,15 +571,14 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
     // Reverse the index order, because osgVolume turns out to perform well
     // for one sense of the coordinate system only, and OD uses the other. A
     // transform in visSurvey::VolumeDisplay does the geometrical mirroring.
+    const int idxstep = -attribs_[attr]->indexcachestep_;
+    unsigned char* idxptr = attribs_[attr]->indexcache_ - (totalsz-1)*idxstep;
+//    const int idxstep = attribs_[attr]->indexcachestep_;
+//    unsigned char* idxptr = attribs_[attr]->indexcache_;
+    unsigned char* udfptr = hasundefchannel ? idxptr+1 : 0;
     ColTab::MapperTask<unsigned char> indexer( attribs_[attr]->mapper_,
-	totalsz, mNrColors-1, *attribs_[attr]->datacache_,
-	attribs_[attr]->indexcache_+(totalsz-1)*attribs_[attr]->indexcachestep_,
-	-attribs_[attr]->indexcachestep_ );
-/*
-    ColTab::MapperTask<unsigned char> indexer( attribs_[attr]->mapper_,
-	totalsz, mNrColors-1, *attribs_[attr]->datacache_,
-	attribs_[attr]->indexcache_, attribs_[attr]->indexcachestep_ );
-*/
+			    totalsz, mNrColors-1, *attribs_[attr]->datacache_,
+			    idxptr, idxstep, udfptr, idxstep );
 
     if ( tr ? !tr->execute(indexer) : !indexer.execute() )
 	return;
@@ -619,8 +629,9 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
     else if ( doset && !isrgba_ )
     {
 	osgvoldata_->setImage( attribs_[attr]->sz2_, attribs_[attr]->sz1_,
-			       attribs_[attr]->sz0_, GL_LUMINANCE, GL_LUMINANCE,
-			       GL_UNSIGNED_BYTE, attribs_[attr]->indexcache_,
+			       attribs_[attr]->sz0_, GL_LUMINANCE_ALPHA,
+			       GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
+			       attribs_[attr]->indexcache_,
 			       osg::Image::NO_DELETE, 1 );
     }
     else
