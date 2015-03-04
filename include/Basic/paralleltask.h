@@ -115,7 +115,7 @@ protected:
     void		resetNrDone();
 
 private:
-    virtual bool	doWork(od_int64 start,od_int64 stop,int threadid) = 0;
+    virtual bool	doWork(od_int64 start,od_int64 stop,int threadidx) = 0;
 			/*!<The functions that does the job. The function
 			    will be called with all intervals from 0 to
 			    ParallelTask::nrIterations()-1. The function must
@@ -124,7 +124,7 @@ private:
 				   nr of threads -1) that is unique to each call
 				   to doWork. */
     virtual bool	doPrepare(int nrthreads)	{ return true; }
-			/*!<Called before any doWork is called. */
+			/*!<Called once, before any doWork is called. */
     virtual bool	doFinish(bool success)		{ return success; }
 			/*!<Called after all doWork have finished.
 			    \param success indicates whether all doWork returned
