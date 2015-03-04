@@ -37,7 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvobj.h"
 #include "zdomain.h"
 #include "visdrawstyle.h"
-
+#include "limits.h"
 
 namespace visSurvey
 {
@@ -362,9 +362,18 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	return;
     visBase::Lines* poly = activeonly ? activestick_ : sticks_;
 
+    int maxpos = 0;
+    for ( int sidx=0; !activeonly && sidx<emfss_->nrSections(); sidx++ )
+    {
+	const EM::SectionID sid = emfss_->sectionID( sidx );
+	mDynamicCastGet( const Geometry::RowColSurface*, rcs,
+			 emfss_->sectionGeometry( sid ) );
+	maxpos += (rcs->rowRange().nrSteps()+1)*(rcs->colRange().nrSteps()+1);
+    }
+
     poly->removeAllPrimitiveSets();
     Geometry::IndexedPrimitiveSet* primitiveset =
-			    Geometry::IndexedPrimitiveSet::create( false );
+		    Geometry::IndexedPrimitiveSet::create( maxpos>USHRT_MAX );
     poly->addPrimitiveSet( primitiveset );
 
     if ( poly->getCoordinates()->size() )
@@ -459,7 +468,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	}
     }
 
-    if( poly->getCoordinates()->size() )
+    if ( poly->getCoordinates()->size() )
     {
 	primitiveset->append( coordidxlist.arr(), coordidxlist.size() );
 	poly->dirtyCoordinates();
