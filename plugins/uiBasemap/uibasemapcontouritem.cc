@@ -181,6 +181,7 @@ bool uiBasemapContourTreeItem::usePar( const IOPar& par )
 
     MultiID mid;
     par.get( sKey::Horizon(), mid );
+
     uiTaskRunner uitr( &BMM().getBasemap() );
     if ( basemapobjs_.isEmpty() )
     {
@@ -195,8 +196,6 @@ bool uiBasemapContourTreeItem::usePar( const IOPar& par )
 	obj->setContours( spacing, ls, &uitr );
 	obj->updateGeometry();
     }
-
-
 
     return true;
 }

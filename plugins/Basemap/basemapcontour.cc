@@ -113,6 +113,7 @@ void extractPolygons( const Array2D<float>& area, float z,
 ContourObject::ContourObject()
     : BaseMapObject(0)
     , horrange_(*new TrcKeySampling)
+    , hor3d_(0)
 {}
 
 
@@ -120,9 +121,7 @@ ContourObject::~ContourObject()
 {
     delete &horrange_;
     deepErase( polygons_ );
-    EM::ObjectID objid = EM::EMM().getObjectID( hormid_ );
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject(objid);
-    emobj->unRef();
+    if ( hor3d_ ) hor3d_->unRef();
 }
 
 
@@ -131,33 +130,36 @@ void ContourObject::updateGeometry()
     changed.trigger();
 }
 
+
 void ContourObject::setMultiID( const MultiID& mid, TaskRunner* tsk )
 {
+    if ( hor3d_ ) hor3d_->unRef();
     hormid_ = mid;
     RefMan<EM::EMObject> emobj = EM::EMM().loadIfNotFullyLoaded( hormid_, tsk );
-    emobj->ref();
+    mDynamicCast(EM::Horizon3D*,hor3d_,emobj.ptr())
+    if ( !hor3d_ ) return;
+
+    hor3d_->ref();
+    setName( hor3d_->name() );
+    horrange_ = hor3d_->range();
 }
+
 
 void ContourObject::setContours( const StepInterval<float>& ix,
 				 const LineStyle& ls,
 				 TaskRunner* tsk )
 {
-    ls_ = ls;
+    if ( !hor3d_ ) return;
 
-    EM::ObjectID objid = EM::EMM().getObjectID( hormid_ );
-    mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(objid))
-    if ( !hor ) return;
-
-    setName( hor->name() );
-    horrange_ = hor->range();
-
-    Array2D<float>* zvalues = hor->createArray2D( hor->sectionID(0) );
+    PtrMan<Array2D<float> > zvalues =
+		hor3d_->createArray2D( hor3d_->sectionID(0) );
     if ( !zvalues ) return;
 
     deepErase( polygons_ );
     ContourExtractor ce( *zvalues, ix, polygons_, contourvals_ );
-    TaskRunner::execute( tsk, ce );
+    if ( !TaskRunner::execute(tsk,ce) ) return;
 
+    ls_ = ls;
     updateGeometry();
 }
 

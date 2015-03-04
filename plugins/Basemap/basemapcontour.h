@@ -22,6 +22,8 @@ template <class T> class ODPolygon;
 class TaskRunner;
 class TrcKeySampling;
 
+namespace EM { class Horizon3D; }
+
 namespace Basemap
 {
 
@@ -45,6 +47,7 @@ public:
 						    { return &ls_; }
 
 protected:
+    EM::Horizon3D*		hor3d_;
     LineStyle			ls_;
     MultiID			hormid_;
     TrcKeySampling&		horrange_;
