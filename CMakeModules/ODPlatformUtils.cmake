@@ -174,6 +174,7 @@ if(WIN32)
     set ( CMAKE_CXX_FLAGS  "/wd4127 ${CMAKE_CXX_FLAGS}" ) # conditional expression is constant, e.g. while ( true )
     set ( CMAKE_CXX_FLAGS  "/wd4189 ${CMAKE_CXX_FLAGS}" ) # local variable is initialized but not referenced
     set ( CMAKE_CXX_FLAGS  "/wd4305 ${CMAKE_CXX_FLAGS}" ) # truncation from dowble to float
+    set ( CMAKE_CXX_FLAGS_DEBUG  "/WX ${CMAKE_CXX_FLAGS_DEBUG}" ) # Treat warnings as errors
 
     string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} )
