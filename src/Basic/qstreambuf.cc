@@ -6,13 +6,11 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "qstreambuf.h"
-
-#include "ptrman.h"
-
 #ifndef OD_NO_QT
+
+#include "qstreambuf.h"
+#include "ptrman.h"
 # include <QProcess>
-#endif
 
 #define mPUSH_BACK	100
 #define mBUFFER_SIZE	1000
@@ -42,7 +40,6 @@ qstreambuf::~qstreambuf()
 
 std::streambuf::int_type qstreambuf::underflow()
 {
-#ifndef OD_NO_QT
     if ( gptr()<egptr() )
 	return traits_type::to_int_type( *gptr() );
 
@@ -70,9 +67,6 @@ std::streambuf::int_type qstreambuf::underflow()
     setg( base, start, start + n );
 
     return traits_type::to_int_type( *gptr() );
-#else
-    return traits_type::eof();
-#endif
 }
 
 
@@ -91,7 +85,6 @@ void qstreambuf::detachDevice( bool readall )
 
 void qstreambuf::readAll()
 {
-#ifndef OD_NO_QT
     if ( iodevice_ ) iodevice_->waitForReadyRead( mTIMEOUT );
     QByteArray newdata;
     if ( process_ )
@@ -105,20 +98,16 @@ void qstreambuf::readAll()
     }
 
     readbuffer_.append( newdata );
-#endif
 }
 
 
 std::streamsize qstreambuf::xsputn( const char_type* s, std::streamsize n )
 {
-#ifndef OD_NO_QT
     if ( !iodevice_ )
 	return 0;
 
     const std::streamsize res = iodevice_->write( s, n );
     return iodevice_->waitForBytesWritten( mTIMEOUT ) ? res : 0;
-
-#else
-    return 0;
-#endif
 }
+
+#endif //No qt
