@@ -398,6 +398,7 @@ void ui3DViewerBody::setupView()
     osgViewer::StatsHandler* statshandler = new osgViewer::StatsHandler;
     statshandler->setKeyEventTogglesOnScreenStats( 'g' );
     statshandler->setKeyEventPrintsOutStats( 'G' );
+    statshandler->getCamera()->setAllowEventFocus( false );
     view_->addEventHandler( statshandler );
 
     // Unlike Coin, default OSG headlight has zero ambiance
