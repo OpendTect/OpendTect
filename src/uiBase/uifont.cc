@@ -313,23 +313,6 @@ void uiFontList::use( const Settings& settings )
 	removeOldEntries( s );
 	update( s );
     }
-
-    if ( fontpar )
-    {
-	for ( int ipar=0; ipar<fontpar->size(); ipar++ )
-	{
-	    const char* parkey = fontpar->getKey(ipar);
-	    bool isstd = false;
-	    ikey = 0;
-	    while( const char* ky = FontData::defaultKeys()[ikey++] )
-		if ( !strcmp(ky,parkey) ) { isstd = true; break; }
-
-	    if ( !isstd )
-		add( parkey, FontData( fontpar->find(parkey) ) );
-	}
-
-	delete fontpar;
-    }
 }
 
 
