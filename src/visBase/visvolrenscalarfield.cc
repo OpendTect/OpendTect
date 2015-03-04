@@ -210,7 +210,7 @@ void VolumeRenderScalarField::allowShading( bool yn )
     {
 	osgGeo::RayTracedTechnique* rtt = new osgGeo::RayTracedTechnique;
 	rtt->setCustomShader( osg::Shader::FRAGMENT,
-			      rtt->volumeTfFragDepthCode() );
+			      rtt->volumeTfUndefFragDepthCode() );
 	osgvoltile_->setVolumeTechnique( rtt );
     }
     else
@@ -489,19 +489,25 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
 
     const od_int64 totalsz = sz0_*sz1_*sz2_;
 
+    const bool hasundefchannel = useshading_;
+    const int indexcachestep = hasundefchannel ? 2 : 1;
+
     if ( !indexcache_ )
     {
-	indexcache_ = new unsigned char[totalsz];
+	indexcache_ = new unsigned char[totalsz*indexcachestep];
 	ownsindexcache_ = true;
     }
 
     // Reverse the index order, because osgVolume turns out to perform well
     // for one sense of the coordinate system only, and OD uses the other. A
     // transform in visSurvey::VolumeDisplay does the geometrical mirroring.
-        ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
-         mNrColors-1, *datacache_, indexcache_+totalsz-1, -1 );
-//    ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
-//				    mNrColors-1, *datacache_, indexcache_ );
+    const int idxstep = -indexcachestep;
+    unsigned char* idxptr = indexcache_ - (totalsz-1)*idxstep;
+//    const int idxstep = indexcachestep;
+//    unsigned char* idxptr = indexcache_;
+    unsigned char* udfptr = hasundefchannel ? idxptr+1 : 0;
+    ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz, mNrColors-1,
+			    *datacache_, idxptr, idxstep, udfptr, idxstep );
 
     if ( tr ? !tr->execute(indexer) : !indexer.execute() )
 	return;
@@ -552,8 +558,9 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
     }
     else if ( doset )
     {
-	osgvoldata_->setImage( sz2_, sz1_, sz0_, GL_LUMINANCE, GL_LUMINANCE,
-		GL_UNSIGNED_BYTE, indexcache_, osg::Image::NO_DELETE, 1 );
+	osgvoldata_->setImage( sz2_, sz1_, sz0_, GL_LUMINANCE_ALPHA,
+			       GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
+			       indexcache_, osg::Image::NO_DELETE, 1 );
     }
     else
 	osgvoldata_->dirty();
@@ -644,7 +651,22 @@ const char* VolumeRenderScalarField::writeVolumeFile( od_ostream& strm ) const
 	return writeerr;
 
     const od_int64 totalsz = sz0_*sz1_*sz2_;
-    if ( !strm.addBin( indexcache_, totalsz ) )
+
+    const bool hasundefchannel = useshading_;
+    const int indexcachestep = hasundefchannel ? 2 : 1;
+    const unsigned char* indexcacheptr = indexcache_;
+
+    if ( indexcachestep!=1 )
+    {
+	for ( int count=totalsz; count>0; count-- )
+	{
+	    if ( !strm.addBin(indexcacheptr,1) )
+		return writeerr;
+
+	    indexcacheptr += indexcachestep;
+	}
+    }
+    else if ( !strm.addBin(indexcacheptr, totalsz) )
 	return writeerr;
 
     return 0;
