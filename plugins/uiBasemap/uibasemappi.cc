@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapmod.h"
 
+#include "uibasemapcontouritem.h"
 #include "uibasemapgeom2ditem.h"
 #include "uibasemapgriditem.h"
 #include "uibasemaphorizon3ditem.h"
@@ -137,6 +138,7 @@ mDefODInitPlugin(uiBasemap)
     if ( mgr ) return 0;
     mgr = new uiBasemapMgr( ODMainWin() );
 
+    uiBasemapContourItem::initClass();
     uiBasemapGeom2DItem::initClass();
     uiBasemapGridItem::initClass();
     uiBasemapHorizon3DItem::initClass();
