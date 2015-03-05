@@ -132,6 +132,8 @@ protected:
 				    const StepInterval<float>&) const;
     bool		initBounds2D(const PosInfo::Line2DData&,
 				     Seis::Bounds2D&) const;
+public:
+    int			getNrOffsets(int maxnrpostobechked=10) const;
 
 };
 
