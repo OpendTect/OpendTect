@@ -248,7 +248,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 {
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
-    const Array3DImpl<float>* inputarr =
+    const Array3D<float>* inputarr =
 	!input || input->isEmpty() ?  0 : &input->data( 0 );
 
     const TrcKeySampling& hs = output->sampling().hsamp_;
