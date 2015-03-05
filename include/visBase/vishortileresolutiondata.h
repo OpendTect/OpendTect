@@ -24,11 +24,6 @@ ________________________________________________________________________
 
 #include "thread.h"
 
-#if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS)
-#include <osg/BoundingBox>
-#endif
-
-
 namespace osg
 {
     class Geometry;
@@ -56,31 +51,15 @@ public:
 			char resolution );
     ~TileResolutionData();
 
-    void		setSingleVertex(int row, int col,const Coord3& pos,
-					bool& dohide);
-    void		setDisplayTransformation( const mVisTrans* t ); 
     void		setTexture(const unsigned int unit, osg::Array* arr,
 				    osg::StateSet* stateset);
     void		enableGeometryTypeDisplay(GeometryType type, bool yn);
 
-    void		calcNormals(bool allownormalinvalid = true );
     bool		tesselateResolution(bool onlyifabsness);
-
-    osg::BoundingBox&	updateBBox();
     void		updatePrimitiveSets();
     void		setWireframeColor(Color& color);
-    visBase::Coordinates*	getCoordinates() { return vertices_; };
     void		dirtyGeometry();
-    bool		hasDefinedCoordinates(int idx) const;
-			/*!<idx is the index of coordinates in the 
-			highest resolution vertices.*/
-
-    void		setVerticesPositions(TypeSet<Coord3>* positions = 0 );
-    bool		getTextureCoordinates(unsigned int unit,
-					      TypeSet<Coord>&) const;
     const osg::PrimitiveSet*	   getPrimitiveSet(GeometryType) const;
-    const osg::Vec3Array*	   getOsgCoordinates()const;
-    const osg::Vec3Array*	   getNormals() const;
 
 protected:
 
@@ -91,9 +70,8 @@ protected:
     osg::Switch*    		osgswitch_;
     osg::UserDataContainer*	geodes_;
 
-    visBase::Coordinates*	vertices_;
-    osg::Array*			normals_;
-    std::vector<osg::Array*>	txcoords_;
+    osg::Array*			osgvertices_;
+    const osg::Array*		normals_;
     osg::Array*			linecolor_;
 
     osg::DrawElementsUShort*	trianglesps_;
@@ -106,43 +84,28 @@ protected:
     osg::DrawElementsUShort*	pointsosgps_;
     osg::DrawElementsUShort*	wireframesosgps_;
 
-    osg::BoundingBox		bbox_;
     Threads::Mutex 		tesselatemutex_;
 
     bool			updateprimitiveset_;
-    bool			allnormalsinvalid_;
     char			needsretesselation_;
     char			resolution_;
-    TypeSet<int>		invalidnormals_;
-    int				nrdefinedvertices_;
     int				nrverticesperside_;
-    double			cosanglexinl_;
-    double			sinanglexinl_;
     bool			needsetposition_;
     int				dispgeometrytype_;
 
 private:
 
     void			buildOsgGeometres();
-    void			initVertices();
-    void			initTexCoordLayers();
-    void			setNrTexCoordLayers(int);
     void			setPrimitiveSet(unsigned int, 
 						osg::DrawElementsUShort*);
 
-    void			tesselateCell(int cellidx);
-    void			computeNormal(int nmidx, osg::Vec3&);
-    double			calcGradient(int row,int col,
-					     const StepInterval<int>& rcrange,
-					     bool isrow);
+    void			tesselateCell(int row, int col);
     void			refOsgPrimitiveSets();
     void			unRefOsgPrimitiveSets();
     void			createPrimitiveSets();
     void			buildLineGeometry(int idx, int width);
     void			buildTraingleGeometry(int idx);
     void			buildPointGeometry(int idx);
-    void			setInvalidNormal(int row,int col);
-    bool			setVerticesFromHighestResolution();
     void			hideFromDisplay();
     bool			detectIsolatedLine(int crdidx,char direction);
     void			setGeometryTexture(const unsigned int unit, 

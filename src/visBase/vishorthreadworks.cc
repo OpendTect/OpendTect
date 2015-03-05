@@ -73,7 +73,6 @@ bool HorizonTileRenderPreparer::doWork( od_int64 start, od_int64 stop, int )
 		res = resolution_;
 	    else
 		tile->tesselateResolution( res, true );
-	    tile->updateNormals( res );
 	}
 
 	addToNrDone( 1 );
@@ -104,10 +103,8 @@ TileTesselator::TileTesselator( HorizonSectionTile* tile, char res )
 int TileTesselator::nextStep()
 {
     if ( tile_ )
-    {
-	tile_->updateNormals( res_ );
 	tile_->tesselateResolution( res_, false );
-    }
+
     return SequentialTask::Finished();
 }
 
@@ -194,7 +191,6 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 	}
 
 	hrtiles_[idx]->setPositions( positions );
-	hrtiles_[idx]->updateNormals( lowestresidx_ );
 	hrtiles_[idx]->tesselateResolution( lowestresidx_, false );
 	addToNrDone( 1 );
     }

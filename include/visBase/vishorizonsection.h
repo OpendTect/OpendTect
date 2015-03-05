@@ -152,6 +152,7 @@ protected:
     friend class		HorTilesCreatorAndUpdator;
     friend class		HorizonSectionTileGlue;
     friend class		HorizonSectionTilePosSetup;
+    friend class		TileCoordinatesUpdator;
 
     void			surfaceChangeCB(CallBacker*);
     void			surfaceChange(const TypeSet<GeomPosID>*,
@@ -161,6 +162,7 @@ protected:
 
     void			configSizeParameters();
     void			updateAutoResolution( const osg::CullStack* );
+    HorizonSectionTile*		getTitle(int idx);
 
     void			setUpdateVar(bool& var,bool yn);
 				//! Will trigger redraw request if necessary

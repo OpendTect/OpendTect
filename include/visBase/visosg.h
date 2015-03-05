@@ -28,7 +28,8 @@ namespace osg { class Vec3f; class Array; class Referenced; }
 #define mGetOsgVec3Arr(ptr) ((osg::Vec3Array*) ptr )
 #define mGetOsgVec4Arr(ptr) ((osg::Vec4Array*) ptr )
 
-#if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS) || defined(uiOSG_EXPORTS) || defined(UIOSG_EXPORTS)
+#if defined(visBase_EXPORTS) || defined(VISBASE_EXPORTS) || \
+defined(uiOSG_EXPORTS) || defined(UIOSG_EXPORTS)
 //Only available in visBase
 #include <osg/Vec3>
 #include <osg/Vec3d>
@@ -43,6 +44,7 @@ namespace visBase
 {
    void unRefOsgPtr(osg::Referenced*);
    void refOsgPtr(const osg::Referenced*);
+   void unRefAndZeroOsgPtr(osg::Referenced*);
 }
 
 
@@ -73,6 +75,8 @@ namespace Conv
     inline void set( osg::Vec3d& _to, const Coord3& v )
     { _to.set(  v.x, v.y, v.z ); }
 
+#define mIsOsgVec3Def( pos ) \
+( pos[0]<mUdf(float) && pos[1]<mUdf(float) && pos[2]<mUdf(float) )
 
 #define mODColVal(val)   ( val<=0.0 ? 0  : val>=1.0 ? 255  : mNINT32(255*val) )
 #define mOsgColValF(val) ( val<=0 ? 0.0f : val>=255 ? 1.0f : float(val)/255   )
