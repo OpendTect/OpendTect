@@ -1,6 +1,28 @@
 OpendTect V5.0.x : Release info
 
 ----
+v5.0.6: March 5, 2015
+ * Fix for crash while generating Depth/Time model in
+   'Tie well to Seismic' window
+ * Fix for defining constants with capital 'C' in Mathematics attribute
+ * Fix for unit conversion and importing well track in 'Manage Wells' window
+ * Fix for picking fault manually on time slice
+ * Number of CPUs allocated to OpendTect is displayed in the status bar only
+   if specified
+ * Merging of two or more Steering Cubes now results in another Steering Cube
+ * Fix for misleading warning messages while overwriting a horizon
+   after gridding
+ * 'Save' button on the horizon tracking toolbar is now deactivated if the
+   horizon is already saved
+ * Fix for markers not being listed in cross-plot window
+ * Fix for error message in Attribute versus Well Data cross-plot window
+   at start-up
+ * Improved 'Display only at sections' for horizons
+ * Fix for Wavelet import
+ * After multi-machine processing the temporary data folder is now removed
+ * Fix for attribute processing on 2D lines with trace number steps of
+   more than 1
+
 v5.0.5: February 12, 2015
  * Made the 'Allow spin animation' option in Scene properties window work
  * Added 'Delete rows' option in well log editor
