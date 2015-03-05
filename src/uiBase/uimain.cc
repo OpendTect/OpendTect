@@ -463,8 +463,7 @@ void uiMain::exit( int retcode )
 const uiFont* uiMain::font()
 {
     if ( !font_ )
-	{ font_ = &FontList().get( "Control" );  }
-
+	font_ = &FontList().get( FontData::Control );
     return font_;
 }
 

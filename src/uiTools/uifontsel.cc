@@ -25,31 +25,64 @@ uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,tr("Fonts"),setts)
 {
     FontList().initialise();
-    const ObjectSet<uiFont>& fonts = FontList().fonts();
-    uiButtonGroup* butgrp = new uiButtonGroup( this, "", OD::Vertical );
-    butgrp->setPrefWidthInChar( 25 );
-    for ( int idx=0; idx<fonts.size(); idx++ )
-    {
-	uiButton* but = new uiPushButton( butgrp, fonts[idx]->key(), false );
-        but->activated.notify( mCB(this,uiFontSettingsGroup,butPushed) );
-	buttons += but;
-    }
+    butgrp_ = new uiButtonGroup( this, "", OD::Vertical );
+    butgrp_->attach( hCentered );
 
-    butgrp->attach( hCentered );
+    addButton( FontData::Control, tr("General User Interface") );
+    addButton( FontData::Graphics2D, tr("Used by 2D Graphics") );
+    addButton( FontData::Graphics3D, tr("Used in 3D Scenes") );
+    addButton( FontData::Fixed, tr("Information, Notes and Progress") );
+}
+
+
+void uiFontSettingsGroup::addButton( FontData::StdSz tp, uiString infotxt )
+{
+    uiButton* but = new uiPushButton( butgrp_, FontData::key(tp), false );
+    but->setPrefWidthInChar( 25 );
+    but->activated.notify( mCB(this,uiFontSettingsGroup,butPushed) );
+    buttons_ += but;
+
+    uiLabel* lbl = new uiLabel( butgrp_, infotxt );
+    lbl->attach( rightTo, but );
+    lbl->setFont( FontList().get(tp) );
+    lbls_ += lbl;
+
+    types_ += tp;
 }
 
 
 void uiFontSettingsGroup::butPushed( CallBacker* obj )
 {
     mDynamicCastGet(uiButton*,sender,obj)
-    int idx = buttons.indexOf( sender );
+    const int idx = buttons_.indexOf( sender );
     if ( idx < 0 ) { pErrMsg("idx < 0. Why?"); return; }
 
-    if ( select(*FontList().fonts()[idx],sender->parent()) )
+    uiFont& selfont = FontList().get( types_[idx] );
+    if ( !selectFont(selfont,sender->parent()) )
+	return;
+
+    FontData fd = selfont.fontData();
+    const int ptsz = fd.pointSize();
+    const int smallsz = ptsz - 2;
+    const int largesz = ptsz + 2;
+    if ( types_[idx] == FontData::Control )
     {
-	FontList().update( Settings::common() );
-	if ( !idx ) uiMain::theMain().setFont( FontList().get(), true );
+	fd.setPointSize( smallsz );
+	FontList().get( FontData::ControlSmall ).setFontData( fd );
+	fd.setPointSize( largesz );
+	FontList().get( FontData::ControlLarge ).setFontData( fd );
     }
+    else if ( types_[idx] == FontData::Graphics2D )
+    {
+	fd.setPointSize( smallsz );
+	FontList().get( FontData::Graphics2DSmall ).setFontData( fd );
+	fd.setPointSize( largesz );
+	FontList().get( FontData::Graphics2DLarge ).setFontData( fd );
+    }
+
+    FontList().update( Settings::common() );
+    if ( !idx ) uiMain::theMain().setFont( FontList().get(), true );
+    lbls_[idx]->setFont( selfont );
 }
 
 
@@ -66,7 +99,7 @@ uiSelFonts::uiSelFonts( uiParent* p, const uiString& title,
 			const HelpKey& helpkey )
 	: uiDialog(p,uiDialog::Setup("Fonts",title,helpkey))
 {
-    FontList().listKeys( ids );
+    FontList().listKeys( ids_ );
 }
 
 
@@ -77,20 +110,20 @@ uiSelFonts::~uiSelFonts()
 
 void uiSelFonts::add( const char* nm, const char* stdfontkey )
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, ids, nm );
-    if ( sels.size() )
-	lcb->attach( alignedBelow, sels[sels.size()-1] );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, ids_, nm );
+    if ( !sels_.isEmpty() )
+	lcb->attach( alignedBelow, sels_.last() );
     lcb->box()->setCurrentItem( stdfontkey );
-    sels += lcb;
+    sels_ += lcb;
 }
 
 
 const char* uiSelFonts::resultFor( const char* str )
 {
-    for ( int idx=0; idx<sels.size(); idx++ )
+    for ( int idx=0; idx<sels_.size(); idx++ )
     {
-	if ( sels[idx]->label()->name() == str )
-	    return sels[idx]->box()->text();
+	if ( sels_[idx]->label()->name() == str )
+	    return sels_[idx]->box()->text();
     }
 
     return FontList().key(0);

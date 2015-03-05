@@ -16,11 +16,14 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uisettings.h"
 #include "bufstringset.h"
+#include "fontdata.h"
 
 class uiButton;
-class uiLabeledComboBox;
+class uiButtonGroup;
 class uiFont;
-class FontData;
+class uiLabel;
+class uiLabeledComboBox;
+
 
 mExpClass(uiTools) uiFontSettingsGroup : public uiSettingsGroup
 { mODTextTranslationClass(uiFontSettingsGroup);
@@ -39,8 +42,12 @@ public:
 
 protected:
 
-    ObjectSet<uiButton>	buttons;
+    uiButtonGroup*	butgrp_;
+    ObjectSet<uiButton> buttons_;
+    ObjectSet<uiLabel>	lbls_;
+    TypeSet<FontData::StdSz> types_;
 
+    void		addButton(FontData::StdSz,uiString infotxt);
     void		butPushed(CallBacker*);
 };
 
@@ -59,8 +66,8 @@ public:
 
 protected:
 
-    ObjectSet<uiLabeledComboBox>	sels;
-    BufferStringSet			ids;
+    ObjectSet<uiLabeledComboBox>	sels_;
+    BufferStringSet			ids_;
 
 };
 

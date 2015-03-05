@@ -54,7 +54,7 @@ const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
 const char* Scene::sKeyTopImageID()	{ return "TopImage.ID"; }
 const char* Scene::sKeyBotImageID()	{ return "BotImage.ID"; }
 
-static const char* sKeydTectScene()	{ return "dTect.Scene."; }
+static const char* sKeydTectScene()	{ return "dTect.Scene"; }
 static const char* sKeyShowColTab()	{ return "Show ColTab"; }
 
 static const char* sKeyChildID()	{ return "ID"; }
@@ -117,34 +117,35 @@ void Scene::updateAnnotationText()
 }
 
 
-#define mGetFontFromPar( par ) \
-BufferString font; \
-if ( par.get( BufferString(sKeydTectScene(),sKeyAnnotFont()), font ) ) \
-{ \
-    FontData fd; \
-    if ( fd.getFrom( font.buf() ) ) \
-	setAnnotFont( fd ); \
-}
-
 void Scene::setup()
 {
     annot_ = visBase::Annotation::create();
-    annot_->setFont( FontData(20) );
 
-    const TrcKeyZSampling& cs = SI().sampling(true);
+    const Settings& setts = Settings::common();
+    BufferString font;
+    const char* key = FontData::key( FontData::Graphics3D );
+    setts.get( IOPar::compKey("Font.def",key), font );
+    if ( font.isEmpty() )
+	setts.get( IOPar::compKey(sKeydTectScene(),sKeyAnnotFont()), font );
+
+    FontData fd;
+    if ( !font.isEmpty() )
+	fd.getFrom( font.buf() );
+    annot_->setFont( fd );
 
     if ( !SI().pars().get( sKeyZStretch(), curzstretch_ ) )
         SI().pars().get( "Z Scale", curzstretch_ );
 
-    updateTransforms( cs );
+    const TrcKeyZSampling& tkzs = SI().sampling(true);
+    updateTransforms( tkzs );
+    setTrcKeyZSampling( tkzs );
 
-    setTrcKeyZSampling( cs );
     addInlCrlZObject( annot_ );
     updateAnnotationText();
 
 #define mGetProp(type,var,defval,get,str,func) \
     type var = defval; \
-    Settings::common().get( BufferString(sKeydTectScene(),str), var ); \
+    setts.get( IOPar::compKey(sKeydTectScene(),str), var ); \
     func( var );
 
     mGetProp( bool, showan, true, getYN, sKeyShowAnnot(), showAnnotText );
@@ -155,8 +156,6 @@ void Scene::setup()
 	      sKeyMarkerColor(), setMarkerColor );
     mGetProp( Color, acol, getAnnotColor(), get,
 	      sKeyAnnotColor(), setAnnotColor );
-
-    mGetFontFromPar( Settings::common() );
 }
 
 
@@ -913,9 +912,6 @@ void Scene::fillPar( IOPar& par ) const
     par.setYN( sKeyShowColTab(), scenecoltab_->isOn() );
     par.set( sKeyMarkerColor(), getMarkerColor() );
 
-    BufferString font;
-    getAnnotFont().putTo( font );
-    par.set( sKeyAnnotFont(), font );
     par.set( sKeyAnnotColor(), getAnnotColor() );
 
     if ( datatransform_ )
@@ -1109,7 +1105,6 @@ bool Scene::usePar( const IOPar& par )
     par.getYN( sKeyShowAnnot(), txtshown );
     showAnnotText( txtshown );
 
-    mGetFontFromPar( par );
     Color annotcolor;
     if ( par.get(sKeyAnnotColor(),annotcolor) )
 	setAnnotColor( annotcolor );
@@ -1217,20 +1212,16 @@ void Scene::savePropertySettings()
     Settings& setts = Settings::common();
 
 #define mSaveProp(set,str,val) \
-    setts.set( BufferString(sKeydTectScene(),str), val );
+    setts.set( IOPar::compKey(sKeydTectScene(),str), val );
 
     mSaveProp( setYN, sKeyShowAnnot(), isAnnotTextShown() );
     mSaveProp( setYN, sKeyShowScale(), isAnnotScaleShown() );
     mSaveProp( setYN, sKeyShowGrid(), isAnnotGridShown() );
     mSaveProp( set, sKeyMarkerColor(), getMarkerColor() );
 
-    BufferString font;
-    getAnnotFont().putTo( font );
-
     setts.removeWithKey( sKeyAnnotFont() );
     setts.removeWithKey( sKeyAnnotColor() );
 
-    mSaveProp( set, sKeyAnnotFont(), font );
     mSaveProp( set, sKeyAnnotColor(), getAnnotColor() );
     setts.write( false );
 }

@@ -40,7 +40,7 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     , defaultwidth_(600)
     , defaultheight_(450)
 {
-    setFont( FontList().get(FontData::key(FontData::Fixed)) );
+    setFont( FontList().get(FontData::Fixed) );
     setPrefWidth( defaultwidth_ );
     setPrefHeight( defaultheight_ );
 }

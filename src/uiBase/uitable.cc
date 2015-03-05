@@ -383,7 +383,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , istablereadonly_(false)
     , seliscols_(false)
 {
-    setFont( FontList().get(FontData::key(FontData::Fixed)) );
+    setFont( FontList().get(FontData::Fixed) );
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 

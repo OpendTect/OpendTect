@@ -278,7 +278,7 @@ uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
     , yaxis_( new uiAxisHandler(&view.scene(),
 				uiAxisHandler::Setup(uiRect::Left)
 				.fixedborder(true).ticsz(5)) )
-    , uifont_( uiFontList::getInst().get(FontData::key(FontData::GraphicsMed)) )
+    , uifont_( uiFontList::getInst().get(FontData::key(FontData::Graphics2D)) )
 {
     xaxis_->setBegin( yaxis_ );
     yaxis_->setBegin( xaxis_ );

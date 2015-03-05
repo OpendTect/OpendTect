@@ -165,7 +165,7 @@ void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
 	return;
 
     FontData fontdata = scene_->getAnnotFont();
-    if ( select( fontdata, this ) )
+    if ( selectFont(fontdata,this) )
 	scene_->setAnnotFont( fontdata );
 
     ui3DViewer* vwr = const_cast<ui3DViewer*> (viewers_[curvwridx_]);

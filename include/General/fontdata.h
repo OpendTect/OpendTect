@@ -18,32 +18,22 @@ ______________________________________________________________________
 /*!\brief Data needed to make an actual font. */
 
 mExpClass(General) FontData
-{			
-public:    
+{
+public:
 
     enum Weight		{ Light, Normal, DemiBold, Bold, Black };
 			DeclareEnumUtils(Weight)
     static int		numWeight(Weight);
     static Weight	enumWeight(int);
 
-			FontData( int ptsz=defaultPointSize(),
-				  const char* fam=defaultFamily(),
-				  Weight wght=defaultWeight(),
-				  bool ital=defaultItalic() )
-                        : family_(fam)
-			, pointsize_(ptsz)
-			, weight_(wght)
-			, italic_(ital)		{}
-
-			FontData( const char* s )
-			: family_(defaultFamily())
-			, pointsize_(defaultPointSize())
-			, weight_(defaultWeight())
-			, italic_(defaultItalic())
-			{ getFrom(s); }
+			FontData(int ptsz=defaultPointSize(),
+				 const char* fam=defaultFamily(),
+				 Weight wght=defaultWeight(),
+				 bool ital=defaultItalic());
+			FontData(const char* fms); //! Calls getFrom
 
 			//! Store/retrieve (in FileMultiString format).
-    bool		getFrom(const char*);
+    bool		getFrom(const char* fms);
     void		putTo(BufferString&) const;
 
     const char*		family() const		{ return family_; }
@@ -72,21 +62,18 @@ public:
     static const char* const* defaultKeys();
 			//!< array of strings with null as last element
 
-    enum StdSz		{ Control=0, 
-			  GraphicsMed, GraphicsSmall, GraphicsLarge,
-			  ControlSmall, ControlLarge, Fixed };
+    enum StdSz		{ Control=0, Graphics2D, Graphics3D, Fixed,
+			  Graphics2DSmall, Graphics2DLarge,
+			  ControlSmall, ControlLarge };
     static const char* key( StdSz ss );
- 
+
 protected:
- 
+
     BufferString	family_;
     int			pointsize_;
     Weight		weight_;
     bool		italic_;
-
- 
 };
-
 
 #endif
 

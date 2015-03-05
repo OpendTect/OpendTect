@@ -10,52 +10,45 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifont.h"
-#include "uiobj.h"
+
 #include "uimain.h"
-#include "settings.h"
-#include "uidialog.h"
-#include "uibutton.h"
-#include "uibuttongroup.h"
-#include "uicombobox.h"
-#include "uiparentbody.h"
-#include "uilabel.h"
+#include "uiparent.h"
 #include "bufstringset.h"
 #include "od_helpids.h"
+#include "settings.h"
 
-#include "uibody.h"
-
-#include <qfont.h>
-#include <qfontdialog.h>
-#include <qfontmetrics.h>
+#include <QFont>
+#include <QFontDialog>
+#include <QFontMetrics>
 
 mUseQtnamespace
 
 static const char* fDefKey = "Font.def";
 
-
 uiFont::uiFont( const char* ky, const char* fam, int ps, FontData::Weight w,
 		bool it )
-	: qfont_(new QFont(QString( fam && *fam ? fam : "helvetica"),
-			   ps > 1 ? ps : 12, FontData::numWeight(w),it))
-	, qfontmetrics_(*new QFontMetrics(*qfont_))
-	, key_( ky )
-        , changed(this)
-{}
+    : qfont_(new QFont(QString(fam && *fam ? fam : "arial"),
+		       ps > 1 ? ps : 12, FontData::numWeight(w),it))
+    , qfontmetrics_(*new QFontMetrics(*qfont_))
+    , key_( ky )
+    , changed(this)
+{
+}
 
 
-uiFont::uiFont( const char* ky, FontData fdat )
-	: qfont_( createQFont(fdat))
-	, qfontmetrics_(*new QFontMetrics(*qfont_))
-	, key_( ky )
-	, changed(this)
+uiFont::uiFont( const char* ky, FontData fd )
+    : qfont_(createQFont(fd))
+    , qfontmetrics_(*new QFontMetrics(*qfont_))
+    , key_( ky )
+    , changed(this)
 {}
 
 
 uiFont::uiFont( const uiFont& afont )
-	: qfont_(new QFont(*afont.qfont_))
-	, qfontmetrics_(*new QFontMetrics(*qfont_))
-	, key_(afont.key_)
-	, changed(this)
+    : qfont_(new QFont(*afont.qfont_))
+    , qfontmetrics_(*new QFontMetrics(*qfont_))
+    , key_(afont.key_)
+    , changed(this)
 {}
 
 
@@ -69,42 +62,41 @@ uiFont::~uiFont()
 uiFont& uiFont::operator=( const uiFont& tf )
 {
     if ( &tf != this )
-        setFontData( tf.fontData() );
+	setFontData( tf.fontData() );
     return *this;
 }
 
 
 FontData uiFont::fontData() const
 {
-    FontData fdata;
-    getFontData( fdata, *qfont_ );
-    return fdata;
+    FontData fd;
+    getFontData( fd, *qfont_ );
+    return fd;
 }
 
 
-void uiFont::setFontData( const FontData& fData )
+void uiFont::setFontData( const FontData& fd )
 {
-    setFontData( *qfont_, fData );
+    setFontData( *qfont_, fd );
     updateMetrics();
 }
 
 
-void uiFont::setFontData( mQtclass(QFont)& qfont, const FontData& fData )
+void uiFont::setFontData( mQtclass(QFont)& qfont, const FontData& fd )
 {
-    qfont.setFamily(
-	    fData.family() && *fData.family() ? fData.family(): "helvetica" );
-    qfont.setPointSize( fData.pointSize() );
-    qfont.setWeight( fData.weight() );
-    qfont.setItalic( fData.isItalic() );
+    const FixedString family = fd.family();
+    qfont = QFont( fd.family() && *fd.family() ? fd.family() : "helvetica",
+		   fd.pointSize(), FontData::numWeight(fd.weight()),
+		   fd.isItalic() );
 }
 
 
-void uiFont::getFontData( FontData& fData, const mQtclass(QFont)& qfont )
+void uiFont::getFontData( FontData& fd, const mQtclass(QFont)& qfont )
 {
     const BufferString fontfamily = qfont.family();
-    fData = FontData( qfont.pointSize(), fontfamily,
-		    FontData::enumWeight(qfont.weight()),
-		    qfont.italic() );
+    fd = FontData( qfont.pointSize(), fontfamily,
+		   FontData::enumWeight(qfont.weight()),
+		   qfont.italic() );
 }
 
 
@@ -154,37 +146,8 @@ int uiFont::ascent() const
 }
 
 
-#define mImplGetFont( qfont, oldfont ) \
-bool ok; \
-qfont  = QFontDialog::getFont( &ok, oldfont, \
-		    parnt ? parnt->pbody()->qwidget() : 0, nm.getQtString() )
 
-bool select( uiFont& fnt, uiParent* parnt, const uiString& nm )
-{
-    QFont fontNew;
-    mImplGetFont( fontNew, fnt.qFont() );
-
-    if( ok )
-    {
-	*fnt.qfont_ = fontNew;
-	 fnt.updateMetrics();
-    }
-    return ok;
-}
-
-bool select( FontData& fnt, uiParent* parnt, const uiString& nm )
-{
-    mQtclass(QFont) qfont;
-    uiFont::setFontData( qfont, fnt );
-    mImplGetFont( qfont, qfont );
-
-    if ( ok )
-	uiFont::getFontData( fnt, qfont );
-
-    return ok;
-}
-
-//----------------------------------------------------------------------------
+// uiFontList
 
 uiFontList::~uiFontList()
 {
@@ -199,21 +162,27 @@ uiFontList& uiFontList::getInst()
 
 
 uiFont& uiFontList::add( const char* ky, const char* family, int pointSize,
-                         FontData::Weight weight, bool isItalic )
+			 FontData::Weight weight, bool isItalic )
 {
     return add( ky, FontData( pointSize, family, weight, isItalic) );
 }
 
 
-uiFont& uiFontList::add( const char* ky, const FontData& fdat )
+uiFont& uiFontList::add( const char* ky, const FontData& fd )
 {
-    return gtFont( ky, &fdat );
+    return gtFont( ky, &fd );
 }
 
 
 uiFont& uiFontList::get( const char* ky )
 {
     return gtFont( ky, 0 );
+}
+
+
+uiFont& uiFontList::get( FontData::StdSz std )
+{
+    return gtFont( FontData::key(std) );
 }
 
 
@@ -244,8 +213,7 @@ void uiFontList::listKeys( BufferStringSet& ids )
 }
 
 
-uiFont& uiFontList::gtFont( const char* ky, const FontData* fdat,
-			    const QFont* qf )
+uiFont& uiFontList::gtFont( const char* ky, const FontData* fd, const QFont* qf)
 {
     initialise();
     if ( (!ky || !*ky) && !qf ) return *fonts_[0];
@@ -255,21 +223,21 @@ uiFont& uiFontList::gtFont( const char* ky, const FontData* fdat,
 	uiFont* fnt = fonts_[ idx ];
 	if ( ky && !strcmp(fnt->key(),ky) )
 	{
-	    if ( fdat ) fnt->setFontData( *fdat );
+	    if ( fd ) fnt->setFontData( *fd );
 	    return *fnt;
 	}
 	if( qf && fnt->qFont() == *qf )
 	{
-	    if ( fdat ) fnt->setFontData( *fdat );
+	    if ( fd ) fnt->setFontData( *fd );
 	    return *fnt;
 	}
     }
 
-    if ( !fdat )
+    if ( !fd )
 	return *fonts_[0];
     else
     {
-	uiFont* nwFont = new uiFont( ky, *fdat );
+	uiFont* nwFont = new uiFont( ky, *fd );
 	fonts_ += nwFont;
 	return *nwFont;
     }
@@ -284,11 +252,39 @@ void uiFontList::initialise()
 }
 
 
+void uiFontList::setDefaults()
+{
+    FontData fd( 10, "Helvetica", FontData::Normal, false );
+    if ( __ismac__ )
+	fd.setPointSize( 12 );
+    else if ( __islinux__ )
+	fd.setFamily( "Nimbus Sans L" );
+    else if ( __iswin__ )
+	fd.setFamily( "Arial" );
+
+    FontData fdsmall = fd; fdsmall.setPointSize( fd.pointSize()-2 );
+    FontData fdlarge = fd; fdlarge.setPointSize( fd.pointSize()+2 );
+
+    add( FontData::key(FontData::Control), fd );
+    add( FontData::key(FontData::Graphics2D), fd );
+    add( FontData::key(FontData::Graphics3D), fd );
+    add( FontData::key(FontData::ControlSmall), fdsmall );
+    add( FontData::key(FontData::ControlLarge), fdlarge );
+    add( FontData::key(FontData::Graphics2DSmall), fdsmall );
+    add( FontData::key(FontData::Graphics2DLarge), fdlarge );
+
+    FontData fdfixed = fd; fdfixed.setFamily( "Courier" );
+    add( FontData::key(FontData::Fixed), fdfixed );
+
+    update( Settings::common() );
+}
+
+
 void uiFontList::use( const Settings& settings )
 {
-    initialise();
-    IOPar* fontpar = settings.subselect( fDefKey );
-    if ( fontpar && fontpar->isEmpty() ) { delete fontpar; fontpar = 0; }
+    PtrMan<IOPar> fontpar = settings.subselect( fDefKey );
+    if ( !fontpar )
+	return setDefaults();
 
     bool haveguessed = false;
     int ikey=0;
@@ -297,8 +293,8 @@ void uiFontList::use( const Settings& settings )
 	const char* res = fontpar ? fontpar->find(ky) : 0;
 	if ( res && *res )
 	    add( ky, FontData(res) );
-	else if ( strcmp(ky,"Fixed width") )
-	    { addOldGuess( settings, ky, ikey ); haveguessed = true; }
+	else if ( fontpar && strcmp(ky,"Fixed width") )
+	    { addOldGuess( *fontpar, ky ); haveguessed = true; }
 	else
 	{
 	    FontData fd = get(FontData::defaultKeys()[0]).fontData();
@@ -313,23 +309,6 @@ void uiFontList::use( const Settings& settings )
 	removeOldEntries( s );
 	update( s );
     }
-
-    if ( fontpar )
-    {
-	for ( int ipar=0; ipar<fontpar->size(); ipar++ )
-	{
-	    const char* parkey = fontpar->getKey(ipar);
-	    bool isstd = false;
-	    ikey = 0;
-	    while( const char* ky = FontData::defaultKeys()[ikey++] )
-		if ( !strcmp(ky,parkey) ) { isstd = true; break; }
-
-	    if ( !isstd )
-		add( parkey, FontData( fontpar->find(parkey) ) );
-	}
-
-	delete fontpar;
-    }
 }
 
 
@@ -343,42 +322,88 @@ void uiFontList::update( Settings& settings )
 	fnt.fontData().putTo( fdbuf );
 	settings.set( IOPar::compKey(fDefKey,fnt.key()), fdbuf );
     }
-    settings.write();
+    settings.write( false );
 }
 
 
-void uiFontList::addOldGuess( const Settings& settings,
-			      const char* ky, int idx )
+void uiFontList::addOldGuess( const IOPar& fontpar, const char* ky )
 {
-    const char* fontface = settings["Font face"];
-    bool boldfont = true; settings.getYN( "Bold font", boldfont );
+    const FixedString fontkey = ky;
 
-    int fontsz = FontData::defaultPointSize() * 10;
-    if ( !strcmp(ky,FontData::defaultKeys()[0]) )
-	settings.get( "Dialog font size", fontsz );
-    else if ( !strcmp(ky,FontData::defaultKeys()[3]) )
-	settings.get( "Graphics large font size", fontsz );
-    else
-	settings.get( "Graphics small font size", fontsz );
-
-    add( ky, FontData( fontsz/10, fontface,
-			boldfont ? FontData::Bold : FontData::Normal ) );
+    if ( fontkey == FontData::key(FontData::Graphics2D) )
+    {
+	const FixedString res = fontpar.find( "Graphics medium" );
+	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
+    }
+    else if ( fontkey == FontData::key(FontData::Graphics3D) )
+    {
+	const FixedString res =
+		Settings::common().find( "dTect.Scene.Annotation font" );
+	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
+    }
+    else if ( fontkey == FontData::key(FontData::Graphics2DSmall) )
+    {
+	const FixedString res = fontpar.find( "Graphics small" );
+	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
+    }
+    else if ( fontkey == FontData::key(FontData::Graphics2DLarge) )
+    {
+	const FixedString res = fontpar.find( "Graphics large" );
+	if ( !res.isEmpty() ) add( ky, FontData(res.buf()) );
+    }
 }
 
 
 void uiFontList::removeOldEntries( Settings& settings )
 {
-    settings.removeWithKey( "Font face" );
-    settings.removeWithKey( "Bold font" );
-    settings.removeWithKey( "Dialog font size" );
-    settings.removeWithKey( "Graphics large font size" );
-    settings.removeWithKey( "Graphics small font size" );
+    settings.removeWithKey( IOPar::compKey(fDefKey,"Graphics medium") );
+    settings.removeWithKey( IOPar::compKey(fDefKey,"Graphics large") );
+    settings.removeWithKey( IOPar::compKey(fDefKey,"Graphics small") );
+    settings.removeWithKey( "dTect.Scene.Annotation font" );
 }
 
 
-mQtclass(QFont)* uiFont::createQFont( const FontData& fdat )
+mQtclass(QFont)* uiFont::createQFont( const FontData& fd )
 {
     mQtclass(QFont)* res = new QFont;
-    setFontData( *res, fdat );
+    setFontData( *res, fd );
     return res;
+}
+
+
+// selectFont functions
+static bool getFont( mQtclass(QFont)& qfontout,
+		     const mQtclass(QFont)& qfontin,
+		     uiParent* par, const uiString& nm )
+{
+    bool ok = false;
+    qfontout = mQtclass(QFontDialog)::getFont( &ok, qfontin,
+			par ? par->getWidget() : 0,
+			nm.getQtString() );
+    return ok;
+}
+
+
+bool selectFont( uiFont& fnt, uiParent* par, const uiString& nm )
+{
+    mQtclass(QFont) qfont;
+    if ( !getFont(qfont,fnt.qFont(),par,nm) )
+	return false;
+
+    FontData fd;
+    uiFont::getFontData( fd, qfont );
+    fnt.setFontData( fd );
+    return true;
+}
+
+
+bool selectFont( FontData& fd, uiParent* par, const uiString& nm )
+{
+    mQtclass(QFont) qfont;
+    uiFont::setFontData( qfont, fd );
+    if ( !getFont(qfont,qfont,par,nm) )
+	return false;
+
+    uiFont::getFontData( fd, qfont );
+    return true;
 }

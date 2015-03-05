@@ -53,8 +53,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
         uiTextItem* textitem = new uiTextItem();
 	textitem->setTextColor( Color::Black() );
 	textitem->setAlignment( postxtalign );
-	textitem->setFont(
-		FontList().get(FontData::key(FontData::GraphicsSmall)) );
+	textitem->setFont( FontList().get(FontData::Graphics2DSmall) );
 	textitem->setZValue( 1 );
 	itemgrp_.add( textitem );
 	labels_ += textitem;
@@ -370,8 +369,7 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle,
 	title_ = view_.scene().addItem(
 		new uiTextItem(uiPoint(10,10),"Survey name",txtalign) );
 	title_->setPenColor( Color::Black() );
-	title_->setFont(
-		FontList().get(FontData::key(FontData::GraphicsLarge)) );
+	title_->setFont( FontList().get(FontData::Graphics2DLarge) );
     }
 }
 

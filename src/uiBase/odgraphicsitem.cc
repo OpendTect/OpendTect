@@ -345,7 +345,9 @@ QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt,
 ODGraphicsTextItem::ODGraphicsTextItem()
     : hal_( Qt::AlignLeft )
     , val_( Qt::AlignTop )
-{}
+{
+    setFont( FontList().get(FontData::Graphics2D).qFont() );
+}
 
 
 void ODGraphicsTextItem::setText( const QString& t )
@@ -567,7 +569,9 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     , updatedynpixmap_( false )
     , updatebasepixmap_( false )
     , issnapshot_( false )
-{}
+{
+    baserev_[0] = baserev_[1] = dynamicrev_[0] = dynamicrev_[1] = false;
+}
 
 
 ODGraphicsDynamicImageItem::~ODGraphicsDynamicImageItem()

@@ -147,13 +147,6 @@ bool Settings::doRead( bool ext )
 
     if ( empty_initially )
     {
-#ifdef __ismac__
-	set( "Font.def.Control", "Helvetica`12`Normal`No" );
-	set( "Font.def.Small control", "Helvetica`10`Normal`No" );
-	set( "Font.def.Graphics small", "Helvetica`10`Normal`No" );
-	set( "Font.def.Graphics medium", "Helvetica`12`Normal`No" );
-	set( "Font.def.Fixed width", "Courier`12`Normal`No" );
-#endif
 	write( false );
     }
     else if ( iscommon && stream.majorVersion() < 3 )

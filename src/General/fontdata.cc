@@ -18,14 +18,38 @@ const char* universalfamilies[] =
 
 const char* defaultkeys[] =
 { "Control",
-  "Graphics medium", "Graphics small", "Graphics large",
-  "Small control", "Large control", "Fixed width", 0 };
+  "Graphics 2D",
+  "Graphics 3D",
+  "Fixed width",
+  "Graphics 2D small", "Graphics 2D large",
+  "Small control", "Large control", 0 };
 
 static const int numwghts[] =
 { 25, 50, 63, 75, 87, 0 };
 
+
+FontData::FontData( int ptsz, const char* fam, Weight wght, bool ital )
+    : family_(fam)
+    , pointsize_(ptsz)
+    , weight_(wght)
+    , italic_(ital)
+{
+}
+
+
+FontData::FontData( const char* fms )
+    : family_(defaultFamily())
+    , pointsize_(defaultPointSize())
+    , weight_(defaultWeight())
+    , italic_(defaultItalic())
+{
+    getFrom( fms );
+}
+
+
 int FontData::numWeight( FontData::Weight w )
 { return numwghts[(int)w]; }
+
 
 FontData::Weight FontData::enumWeight( int w )
 {
@@ -42,8 +66,8 @@ const char* FontData::key( StdSz ss )		 { return defaultkeys[(int)ss];}
 
 // static variables and their access functions
 static BufferString defaultfamily( universalfamilies[0] );
-static int defaultpointsize = 12;
-static FontData::Weight defaultweight = FontData::Bold;
+static int defaultpointsize = 10;
+static FontData::Weight defaultweight = FontData::Normal;
 static bool defaultitalic = false;
 
 const char* FontData::defaultFamily()		{ return defaultfamily; }
