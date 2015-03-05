@@ -13,6 +13,13 @@ const char* rcsID mUsedVar = "$Id$";
 #include <osg/Referenced>
 #include <osg/Version>
 
+void visBase::unRefAndZeroOsgPtr( osg::Referenced* ptr )
+{
+    if ( !ptr ) return;
+    ptr->unref();
+    ptr = 0;
+}
+
 
 void visBase::unRefOsgPtr( osg::Referenced* ptr )
 {
