@@ -79,6 +79,7 @@ protected:
     BinIDValueSet*		bidvals_;
 
     ObjectSet<Array3D<float> >*	arrays_;
+    bool			ownsarrays_;
     TrcKeyZSampling		tkzs_;
 
     IOObj*			ioobj_;

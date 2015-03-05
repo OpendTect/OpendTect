@@ -33,6 +33,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
 	const ObjectSet<Array3D<float> >& arrays,
 	const TrcKeyZSampling& cs )
     : arrays_( new ObjectSet<Array3D<float> >( arrays ) )
+    , ownsarrays_( false )
     , components_( components )
     , bidvals_( 0 )
     , tkzs_( cs )
@@ -43,6 +44,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
 
 ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
     : arrays_(new ObjectSet<Array3D<float> >)
+    , ownsarrays_( true )
     , bidvals_(0)
     , tkzs_(cs)
     , ioobj_( ioobj.clone() )
@@ -59,6 +61,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
                       BinIDValueSet& bidvals,
 		      const TypeSet<int>& components )
     : arrays_( 0 )
+    , ownsarrays_( true )
     , components_( components )
     , bidvals_( &bidvals )
     , ioobj_( ioobj.clone() )
@@ -68,6 +71,8 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
 
 ParallelReader::~ParallelReader()
 {
+    if ( ownsarrays_ && arrays_ ) deepErase( *arrays_ );
+
     delete arrays_;
     delete ioobj_;
 }
