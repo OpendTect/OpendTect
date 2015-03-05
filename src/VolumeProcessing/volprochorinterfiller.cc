@@ -183,7 +183,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     cursampling.start = topvalue_-topsample*cursampling.step;
 
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
-    const Array3DImpl<float>* inputarr = input && input->nrComponents()
+    const Array3D<float>* inputarr = input && input->nrComponents()
 	? &input->data( 0 ) : 0;
 
     StepInterval<int> inputinlrg;
