@@ -192,7 +192,6 @@ bool TileResolutionData::tesselateResolution( bool onlyifabsness )
 
     const osg::Vec3Array* osgvertices = mGetOsgVec3Arr( osgvertices_ );
     const int nrroworcol = hrsection.nrcoordspertileside_/spacing;
-    const int resnrroworcol = resolution_ == 0 ? nrroworcol : nrroworcol + 1 ;
 
     for ( int row=0; row<hrsection.nrcoordspertileside_; row+=spacing )
     {
@@ -465,9 +464,9 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
 	    }	
 	    else    
 	    {	
-		const int size = nrroworcol*( nrroworcol - 1 );	
-		nbdef01=uptile->hasDefinedCoordinates( size + highestresidx );
-		nbdef02=uptile->hasDefinedCoordinates( size+highestresidx+1 );
+		const int rcsize = nrroworcol*( nrroworcol - 1 );	
+		nbdef01=uptile->hasDefinedCoordinates( rcsize + highestresidx );
+		nbdef02=uptile->hasDefinedCoordinates( rcsize+highestresidx+1 );
 	    }	
 	    nbdef21=curtile->hasDefinedCoordinates(highestresidx+nrroworcol);
 	    nbdef22=curtile->hasDefinedCoordinates(highestresidx+nrroworcol+1);

@@ -324,8 +324,8 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
   
     if ( updatenewpoint_ )
     {
-	for ( int res=0; res<=hrsection_.lowestresidx_; res++ )
-	    tileresolutiondata_[res]->tesselateResolution( false );
+	for ( int idx=0; idx<=hrsection_.lowestresidx_; idx++ )
+	    tileresolutiondata_[idx]->tesselateResolution( false );
 	updatenewpoint_ =  false;
     }
     else 
