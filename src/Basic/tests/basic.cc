@@ -80,10 +80,12 @@ bool testOSVersion()
     return true;
 }
 
+#define mFuncInMacro( dummy ) BufferString( __func__ )
+
 
 bool testFuncName()
 {
-    BufferString func = __func__;
+    BufferString func = mFuncInMacro( "Hello" );
     mRunStandardTest( func=="testFuncName", "Function name macro" );
 
     return true;
