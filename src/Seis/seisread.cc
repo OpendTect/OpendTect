@@ -830,6 +830,58 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 }
 
 
+int SeisTrcReader::getNrOffsets( int maxnrpostobechecked ) const
+{
+    if ( !isPS() )
+	return mUdf(int);
+
+    int nroffsets = 0;
+    if ( !is2D() )
+    {
+	PtrMan<SeisPSReader> psrdr = SPSIOPF().get3DReader( *ioobj_ );
+	mDynamicCastGet(SeisPS3DReader*,rdr3d,psrdr.ptr())
+	if ( !rdr3d )
+	    return mUdf(int);
+
+	PtrMan<PosInfo::CubeDataIterator> pscditer =
+	    new PosInfo::CubeDataIterator( rdr3d->posData() );
+	BinID psbid;
+	int nrchecked = 0;
+	while ( pscditer->next(psbid) )
+	{
+	    if ( nrchecked>=maxnrpostobechecked )
+		break;
+	    SeisTrcBuf tmptbuf( true );
+	    psrdr->getGather( psbid, tmptbuf );
+	    if ( nroffsets<tmptbuf.size() )
+		nroffsets=tmptbuf.size();
+
+	    nrchecked++;
+	}
+    }
+    else
+    {
+	PtrMan<SeisPSReader> psrdr = SPSIOPF().get2DReader( *ioobj_, geomID() );
+	mDynamicCastGet(SeisPS2DReader*,rdr2d,psrdr.ptr())
+	if ( !rdr2d )
+	    return mUdf(int);
+
+	const PosInfo::Line2DData& l2d = rdr2d->posData();
+	for ( int posidx=0; posidx<l2d.positions().size() &&
+			    posidx<maxnrpostobechecked; posidx++ )
+	{
+	    const int trcnr = l2d.positions()[posidx].nr_;
+	    SeisTrcBuf tmptbuf( true );
+	    rdr2d->getGath( trcnr, tmptbuf );
+	    if ( nroffsets<tmptbuf.size() )
+		nroffsets=tmptbuf.size();
+	}
+    }
+
+    return nroffsets;
+}
+
+
 bool SeisTrcReader::get3DGeometryInfo( PosInfo::CubeData& cd ) const
 {
     if ( is2D() )

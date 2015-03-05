@@ -87,6 +87,7 @@ public:
     StepInterval<int>	curTrcNrRange() const		{ return curtrcnrrg; }
     Pos::GeomID		geomID() const;
     GeomIDProvider*	geomIDProvider() const;
+    int			getNrOffsets(int maxnrpostobechecked=10) const;
 
 protected:
 
@@ -132,7 +133,6 @@ protected:
 				    const StepInterval<float>&) const;
     bool		initBounds2D(const PosInfo::Line2DData&,
 				     Seis::Bounds2D&) const;
-
 };
 
 

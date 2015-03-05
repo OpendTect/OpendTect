@@ -167,6 +167,12 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	    if ( rdr_->selData() )
 	    {
 		totnr_ = rdr_->selData()->expectedNrTraces( !is3d );
+		if ( rdr_->isPS() )
+		{
+		    const int nroffsets = rdr_->getNrOffsets();
+		    if ( !mIsUdf(nroffsets) )
+			totnr_ *= nroffsets;
+		}
 		szdone = true;
 		if ( nrobjs_ == 1 )
 		    wrr_->setSelData( rdr_->selData()->clone() );
