@@ -129,7 +129,8 @@ bool uiBasemapContourGroup::usePar( const IOPar& par )
 
     StepInterval<float> spacing;
     par.get( sKeySpacing(), spacing );
-    spacing.scale( SI().zDomain().userFactor() );
+    const float userfac = mCast(float,SI().zDomain().userFactor());
+    spacing.scale( userfac );
     spacingfld_->setValue( spacing );
 
     BufferString lsstr;
