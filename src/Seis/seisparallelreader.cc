@@ -28,23 +28,9 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Seis
 {
 
-ParallelReader::ParallelReader( const IOObj& ioobj,
-	const TypeSet<int>& components,
-	const ObjectSet<Array3D<float> >& arrays,
-	const TrcKeyZSampling& cs )
-    : arrays_( new ObjectSet<Array3D<float> >( arrays ) )
-    , ownsarrays_( false )
-    , components_( components )
-    , bidvals_( 0 )
-    , tkzs_( cs )
-    , ioobj_( ioobj.clone() )
-    , totalnr_( cs.hrg.totalNr() )
-{}
-
 
 ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
-    : arrays_(new ObjectSet<Array3D<float> >)
-    , ownsarrays_( true )
+    : dp_(0)
     , bidvals_(0)
     , tkzs_(cs)
     , ioobj_( ioobj.clone() )
@@ -60,8 +46,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
 ParallelReader::ParallelReader( const IOObj& ioobj,
                       BinIDValueSet& bidvals,
 		      const TypeSet<int>& components )
-    : arrays_( 0 )
-    , ownsarrays_( true )
+    : dp_(0)
     , components_( components )
     , bidvals_( &bidvals )
     , ioobj_( ioobj.clone() )
@@ -71,10 +56,22 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
 
 ParallelReader::~ParallelReader()
 {
-    if ( ownsarrays_ && arrays_ ) deepErase( *arrays_ );
-
-    delete arrays_;
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
     delete ioobj_;
+}
+
+
+void ParallelReader::setDataPack( RegularSeisDataPack* dp )
+{
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
+    dp_ = dp;
+    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+}
+
+
+RegularSeisDataPack* ParallelReader::getDataPack()
+{
+    return dp_;
 }
 
 
@@ -104,42 +101,25 @@ bool ParallelReader::doPrepare( int nrthreads )
 	    }
 	}
     }
-    else
+    else if ( !dp_ )
     {
+	dp_ = new RegularSeisDataPack(0);
+	dp_->setSampling( tkzs_ );
+	DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+
+	BufferStringSet cnames;
+	SeisIOObjInfo::getCompNames( ioobj_->key(), cnames );
+
         for ( int idx=0; idx<components_.size(); idx++ )
         {
-	    const Array3DInfoImpl sizes( tkzs_.hrg.nrInl(), tkzs_.hrg.nrCrl(),
-				     tkzs_.zsamp_.nrSteps()+1 );
-	    bool setbg = false;
-            if ( idx>=arrays_->size() )
-            {
-		mDeclareAndTryAlloc( Array3D<float>*, arr,
-				     Array3DImpl<float>( sizes ) );
-		if ( !arr || !arr->isOK() )
-		{
-		    errmsg_ = allocprob;
-		    return false;
-		}
-
-                (*arrays_) +=  arr;
-		setbg = true;
-            }
-	    else
+	    const int cidx = components_[idx];
+	    const char* cnm = cnames.validIdx(cidx) ? cnames.get(cidx).buf() 
+						    : BufferString::empty();
+	    if ( !dp_->addComponent(cnm) )
 	    {
-		if ( (*arrays_)[idx]->info()!=sizes )
-		{
-		    if ( !(*arrays_)[idx]->setInfo( sizes ) )
-		    {
-			errmsg_ = allocprob;
-			return false;
-		    }
-
-		    setbg = true;
-		}
+		errmsg_ = allocprob;
+		return false;
 	    }
-
-	    if ( setbg )
-		(*arrays_)[idx]->setAll( mUdf(float) );
         }
     }
 
@@ -229,18 +209,19 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 		const int inlidx = tkzs_.hrg.inlIdx( curbid.inl() );
 		const int crlidx = tkzs_.hrg.crlIdx( curbid.crl() );
 
-		for ( int idz=(*arrays_)[0]->info().getSize(2)-1; idz>=0; idz--)
+		for ( int idz=dp_->sampling().nrZ()-1; idz>=0; idz--)
 		{
 		    float val;
 		    const double z = tkzs_.zsamp_.atIndex( idz );
 		    if ( trczrg.includes( z, false ) )
 		    {
-			for ( int idc=arrays_->size()-1; idc>=0; idc-- )
+			for ( int idc=dp_->nrComponents()-1; idc>=0; idc-- )
 			{
 			    val = trc.getValue( (float) z, components_[idc] );
 			    if ( !mIsUdf(val) )
 			    {
-				(*arrays_)[idc]->set( inlidx, crlidx, idz, val);
+				Array3D<float>& arr3d = dp_->data( idc );
+				arr3d.set( inlidx, crlidx, idz, val);
 			    }
 			}
 		    }

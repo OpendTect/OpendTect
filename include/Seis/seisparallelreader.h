@@ -39,16 +39,7 @@ class SelData;
 mExpClass(Seis) ParallelReader : public ParallelTask
 { mODTextTranslationClass(ParallelReader)
 public:
-			ParallelReader(const IOObj&,
-			    const TypeSet<int>& components,
-			    const ObjectSet<Array3D<float> >&,
-			    const TrcKeyZSampling&);
-			/*!<Allocates & resizes the cubes to fit the cs and the
-			    nr of comps. If data is missing in the storage, the
-			    cube will not be overwritten in those locations. */
-
-			ParallelReader(const IOObj&,
-				const TrcKeyZSampling&);
+			ParallelReader(const IOObj&,const TrcKeyZSampling&);
 			/*!<Calculates nr of comps and allocates cubes to
 			    fit the cs. */
 
@@ -62,7 +53,8 @@ public:
 
 			~ParallelReader();
 
-    const ObjectSet<Array3D<float> >* getArrays() const	{ return arrays_; }
+    void		 setDataPack(RegularSeisDataPack*);
+    RegularSeisDataPack* getDataPack();
 
     uiString		uiNrDoneText() const;
     uiString		uiMessage() const;
@@ -78,8 +70,7 @@ protected:
 
     BinIDValueSet*		bidvals_;
 
-    ObjectSet<Array3D<float> >*	arrays_;
-    bool			ownsarrays_;
+    RegularSeisDataPack*	dp_;
     TrcKeyZSampling		tkzs_;
 
     IOObj*			ioobj_;

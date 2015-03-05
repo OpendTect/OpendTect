@@ -33,12 +33,10 @@ Task* VolumeReader::createTask()
     if ( !output || !ioobj )
 	return 0;
 
-    TypeSet<int> components( 1, 0 );
-    ObjectSet<Array3D<float> > arrays;
-    arrays += &output->data(0);
-
-    return new Seis::ParallelReader( *ioobj, components, arrays,
-				     output->sampling() );
+    Seis::ParallelReader* rdr = 
+	new Seis::ParallelReader( *ioobj, output->sampling() );
+    rdr->setDataPack( output );
+    return rdr;
 }
 
 
