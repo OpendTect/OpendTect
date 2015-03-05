@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "matlabstep.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
