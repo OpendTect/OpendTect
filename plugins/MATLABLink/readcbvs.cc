@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "oddirs.h"
 #include "ranges.h"
+#include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seisparallelreader.h"
 #include "seistrctr.h"
@@ -137,16 +138,14 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 	mErrRet( errmsg );
     }
 
-    const ObjectSet<Array3D<float> >* arrays = rdr.getArrays();
-    if ( !arrays )
+    RegularSeisDataPack* dp = rdr.getDataPack();
+    if ( dp->isEmpty() )
 	mErrRet( "No data read" );
 
-    for ( int idx=0; idx<arrays->size(); idx++ )
+    for ( int idx=0; idx<dp->nrComponents(); idx++ )
     {
-	const Array3D<float>* arr3d = (*arrays)[idx];
-	if ( !arr3d ) continue;
-
-	ArrayNDCopier copier( *arr3d );
+	const Array3D<float>& arr3d = dp->data( idx );
+	ArrayNDCopier copier( arr3d );
 	copier.init( false );
 	copier.execute();
 
