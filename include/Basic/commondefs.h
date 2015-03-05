@@ -139,6 +139,9 @@ inline bool isFPEqual( T1 v1, T2 v2, eT eps )	{ return isFPZero(v1-v2,eps); }
 #ifdef __win__
 # include <stdio.h>
 # undef small
+# ifndef __func__
+#  define __func__ __FUNCTION__
+# endif
 #endif
 
 #ifdef __msvc__
