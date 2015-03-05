@@ -105,10 +105,10 @@ bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
 }
 
 
-const Array3D<float>& SeisDataPack::data( int component ) const
+const Array3DImpl<float>& SeisDataPack::data( int component ) const
 { return *arrays_[component]; }
 
-Array3D<float>& SeisDataPack::data( int component )
+Array3DImpl<float>& SeisDataPack::data( int component )
 { return *arrays_[component]; }
 
 
