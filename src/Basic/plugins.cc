@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "hiddenparam.h"
 #include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
@@ -56,11 +57,15 @@ extern "C" {
 };
 
 
+HiddenParam<SharedLibAccess,BufferString> errmsgs( "" );
+
 SharedLibAccess::SharedLibAccess( const char* lnm )
 	: handle_(0)
 {
     if ( !lnm || !*lnm  )
 	return;
+
+    errmsgs.setParam( this, "" );
 
 #ifdef __win__
 
@@ -77,7 +82,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
 			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
-	    ErrMsg( ptr );
+	    errmsgs.setParam( this, ptr );
 	}
     }
 
@@ -88,7 +93,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	handle_ = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
 
 	if ( !handle_ )
-	    ErrMsg( dlerror() );
+	    errmsgs.setParam( this, dlerror() );
     }
 
 #endif
@@ -104,6 +109,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
 void SharedLibAccess::close()
 {
+    errmsgs.setParam( this, "" );
     if ( !handle_ ) return;
 #ifdef __win__
     FreeLibrary( handle_ );

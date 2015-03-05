@@ -59,19 +59,22 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
 
     addNameFld( partable_ );
 
+    if ( !step ) return;
+
     const BufferString fnm = step->sharedLibFileName();
-    if ( !fnm.isEmpty() && File::exists(fnm) )
-    {
-	filefld_->setFileName( fnm );
-	fileSelCB( 0 );
-	loadCB( 0 );
-    }
-    else
-    {
-	BufferStringSet parnames, parvalues;
-	step->getParameters( parnames, parvalues );
+    if ( fnm.isEmpty() || !File::exists(fnm) )
+	return;
+
+    filefld_->setFileName( fnm );
+    fileSelCB( 0 );
+    loadCB( 0 );
+
+    BufferStringSet parnames, parvalues;
+    step->getParameters( parnames, parvalues );
+    if ( !parvalues.isEmpty() )
 	fillParTable( parnames, parvalues );
-    }
+
+    setInputsFromWeb();
 }
 
 
@@ -94,6 +97,8 @@ void uiMatlabStep::loadCB( CallBacker* )
 {
     if ( fileloaded_ ) return;
 
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
     MatlabLibAccess* mla =
 	MLM().getMatlabLibAccess( filefld_->fileName(), true );
     if ( !mla )
@@ -102,16 +107,10 @@ void uiMatlabStep::loadCB( CallBacker* )
 	return;
     }
 
+    int nrinputs=1, nroutputs=1;
     BufferStringSet parnames, parvalues;
-    mla->getParameters( parnames, parvalues );
+    mla->getParameters( nrinputs, nroutputs, parnames, parvalues );
     fillParTable( parnames, parvalues );
-
-    const int nrinputs = mla->getNrInputs();
-    if ( nrinputs < 0 )
-    {
-	uiMSG().error( "Cannot read number of inputs from input file" );
-	return;
-    }
 
     mDynamicCastGet(MatlabStep*,step,step_)
     if ( step ) step->setNrInputs( nrinputs );

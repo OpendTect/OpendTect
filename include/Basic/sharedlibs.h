@@ -22,7 +22,8 @@ ________________________________________________________________________
 
 
 /*!
-\brief Gives access to shared libs on runtime. Plugins should be loaded via the Plugin Manager (see plugins.h).
+\brief Gives access to shared libs on runtime.
+Plugins should be loaded via the Plugin Manager (see plugins.h).
 */
 
 mExpClass(Basic) SharedLibAccess
@@ -32,6 +33,7 @@ public:
 		SharedLibAccess(const char* file_name);
 		//!< handle is only closed if you do it explicitly.
     bool	isOK() const		{ return handle_; }
+    const char* errMsg() const;
 
     void	close();
 
