@@ -9,11 +9,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocattrib.h"
 
 #include "attribdesc.h"
-#include "attribdatapack.h"
 #include "attribfactory.h"
 #include "attribsel.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "volprocchain.h"
 #include "volproctrans.h"

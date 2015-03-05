@@ -40,9 +40,9 @@ public:
 			~FaultStickPainter();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,bool);
-    const TrcKeyZSampling&	getTrcKeyZSampling() const			{ return tkzs_; }
+    const TrcKeyZSampling& getTrcKeyZSampling() const	{ return tkzs_; }
 
-    void                setPath(const TypeSet<BinID>*);
+    void		setPath(const TypeSet<TrcKey>&);
     void                setFlatPosData(const FlatPosData*);
     void		enableLine(bool);
     void		enableKnots(bool);
@@ -100,7 +100,7 @@ protected:
     virtual void	fssChangedCB(CallBacker*);
 
     TrcKeyZSampling	tkzs_;
-    const TypeSet<BinID>*	path_;
+    const TypeSet<TrcKey>*	path_;
     const FlatPosData*	flatposdata_;
 
     LineStyle		markerlinestyle_;

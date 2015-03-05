@@ -29,6 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribstorprovider.h"
 
 #include "arraynd.h"
+#include "arrayndslice.h"
+#include "arrayndwrapper.h"
 #include "binidvalset.h"
 #include "coltabmapper.h"
 #include "ctxtioobj.h"
@@ -47,7 +49,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "randcolor.h"
 #include "seisbuf.h"
+#include "seisdatapack.h"
 #include "seisinfo.h"
+#include "seistrc.h"
 #include "seispreload.h"
 #include "survinfo.h"
 #include "settingsaccess.h"
@@ -602,30 +606,31 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 					       DataPack::ID cacheid )
 {
-    DataPackRef<DataPack> datapack =
-	DPM( DataPackMgr::FlatID() ).obtain( cacheid );
-    if ( !datapack )
-	datapack = DPM( DataPackMgr::CubeID() ).obtain( cacheid );
+    if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+    {
+	uiTaskRunner taskrunner( parent() );
+	const Pos::GeomID& geomid = tkzs.hsamp_.trcKeyAt( 0, 0 ).geomID();
+	return create2DOutput( tkzs, geomid, taskrunner );
+    }
 
     const DataCubes* cache = 0;
-    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack.ptr());
-    if ( cdp ) cache = &cdp->cube();
-    mDynamicCastGet(const Flat3DDataPack*,fdp,datapack.ptr());
-    if ( fdp ) cache = &fdp->cube();
     const DataCubes* output = createOutput( tkzs, cache );
     if ( !output || !output->nrCubes() )  return DataPack::cNoID();
 
-    const bool isflat = tkzs.isFlat();
-    DataPack* newpack;
-    if ( isflat )
-	newpack = new Flat3DDataPack( targetID(false), *output, 0 );
-    else
-	newpack = new Attrib::CubeDataPack( targetID(false), *output, 0 );
-    newpack->setName( targetspecs_[0].userRef() );
+    RegularSeisDataPack* newpack = new RegularSeisDataPack( "" );
+    TrcKeyZSampling sampling = output->cubeSampling();
+    sampling.hsamp_.survid_ = Survey::GM().default3DSurvID();
+    newpack->setSampling( sampling );
+    for ( int idx=0; idx<output->nrCubes(); idx++ )
+    {
+	newpack->addComponent( targetspecs_[idx].userRef() );
+	newpack->data( idx ) = output->getCube( idx );
+    }
 
-    DataPackMgr& dpman = DPM( isflat ? DataPackMgr::FlatID()
-				     : DataPackMgr::CubeID() );
-    dpman.add( newpack );
+    newpack->setZDomain(
+	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
+    newpack->setName( targetspecs_[0].userRef() );
+    DPM(DataPackMgr::SeisID()).add( newpack );
     return newpack->id();
 }
 
@@ -790,10 +795,30 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     if ( !createOutput( bidset, output, trueknotspos, path ) )
 	return DataPack::cNoID();
 
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    DataPack* newpack = new FlatRdmTrcsDataPack( targetID(false), output, path);
+    TypeSet<TrcKey> trcs;
+    for ( int idx=0; idx<path->size(); idx++ )
+	trcs += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
+				       (*path)[idx].inl(), (*path)[idx].crl() );
+    RandomSeisDataPack* newpack = new RandomSeisDataPack( "" );
+    newpack->setPath( trcs );
+    newpack->setZRange( output.get(0)->zRange() );
+    for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
+    {
+	newpack->addComponent( targetspecs_[idx].userRef() );
+	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
+	{
+	     const int trcidx = path ? output.find( (*path)[idy] ) : idy;
+	     const SeisTrc* trc = trcidx<0 ? 0 : output.get( trcidx );
+	     for ( int idz=0; idz<newpack->data(idx).info().getSize(2); idz++ )
+		 newpack->data(idx).set( 0, idy, idz,
+			 !trc ? mUdf(float) : trc->get(idz,idx) );
+	}
+    }
+
+    newpack->setZDomain(
+	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
     newpack->setName( targetspecs_[0].userRef() );
-    dpman.add( newpack );
+    DPM(DataPackMgr::SeisID()).add( newpack );
     return newpack->id();
 }
 
@@ -837,7 +862,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     if ( !TaskRunner::execute( &taskrunner, *process ) )
 	return DataPack::cNoID();
 
-    int component = 0;
+/*    int component = 0;
     const bool isstored = targetspecs_[0].isStored();
     DescID adid = targetID(true);
     const DescSet* curds = DSHolder().getDescSet( true, isstored );
@@ -846,16 +871,37 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 	const Desc* targetdesc = curds->getDesc( adid );
 	if ( targetdesc )
 	    component = targetdesc->selectedOutput();
+    }*/
+
+    mDeclareAndTryAlloc( ConstRefMan<Data2DArray>,
+			 data2darr, Data2DArray(*data2d) );
+    TrcKeyZSampling sampling = data2darr->cubesampling_;
+    sampling.hsamp_.start.inl() = sampling.hsamp_.stop.inl() = geomid;
+    sampling.hsamp_.survid_ = Survey::GM().get2DSurvID();
+    RegularSeisDataPack* newpack = new RegularSeisDataPack( "" );
+    newpack->setSampling( sampling );
+
+    Array2DSlice<float> arr2dslice( *data2darr->dataset_ );
+    arr2dslice.setDimMap( 0, 1 );
+    arr2dslice.setDimMap( 1, 2 );
+    for ( int idx=0; idx<data2darr->dataset_->info().getSize(0); idx++ )
+    {
+	arr2dslice.setPos( 0, idx );
+	arr2dslice.init();
+
+	Array3DWrapper<float> arr3d( arr2dslice );
+	arr3d.setDimMap( 0, 1 );
+	arr3d.setDimMap( 1, 2 );
+	arr3d.init();
+
+	newpack->addComponent( targetspecs_[idx].userRef() );
+	newpack->data( idx ) = arr3d;
     }
 
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    mDeclareAndTryAlloc(Flat2DDHDataPack*,newpack,
-			Flat2DDHDataPack(adid,*data2d,geomid,false,component));
-    if ( !newpack || !newpack->isOK() )
-	return DataPack::cNoID();
-
+    newpack->setZDomain(
+	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
     newpack->setName( targetspecs_[0].userRef() );
-    dpman.add( newpack );
+    DPM(DataPackMgr::SeisID()).add( newpack );
     return newpack->id();
 }
 

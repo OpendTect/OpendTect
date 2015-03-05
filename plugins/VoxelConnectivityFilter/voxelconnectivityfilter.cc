@@ -12,10 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "voxelconnectivityfilter.h"
 
 #include "arrayndimpl.h"
-#include "datapackbase.h"
 #include "iopar.h"
 #include "multidimstorage.h"
 #include "odmemory.h"
+#include "seisdatapack.h"
 #include "sortedtable.h"
 #include "thread.h"
 

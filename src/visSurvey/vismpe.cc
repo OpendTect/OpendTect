@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdatapack.h"
 #include "keystrs.h"
 #include "mpeengine.h"
+#include "seisdatapack.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
@@ -845,22 +846,21 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 {
     channels_->setNrVersions( attrib, 1 );
 
-    ConstRefMan<Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ ) ?
-	engine_.getAttribCache( as_ )->get3DData() : 0;
-    if ( !attrdata )
+    const RegularSeisDataPack* regsdp = engine_.getAttribCache(as_) ?
+	engine_.getAttribCache(as_)->getData() : 0;
+    if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
-    const Array3D<float>& data( attrdata->getCube(0) );
+    const Array3DImpl<float>& data( regsdp->data(0) );
     const float* arr = data.getData();
 
     OD::PtrPolicy cp = OD::UsePtr;
 
     // get the dimensions from the engine and then get a subsample of the array
     const TrcKeyZSampling displaycs = engine_.activeVolume();
-    if ( displaycs != attrdata->cubeSampling() )
+    if ( displaycs != regsdp->sampling() )
     {
-	const TrcKeyZSampling attrcs = attrdata->cubeSampling();
-
+	const TrcKeyZSampling& attrcs = regsdp->sampling();
 	if ( !attrcs.includes( displaycs ) )
 	    return false;
 
@@ -882,7 +882,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 	const Array3DSubSelection<float> arrsubsel(
 		dispinlrg.start, dispcrlrg.start, dispzrg.start,
 		sz0, sz1, sz2,
-		const_cast< Array3D<float>& >(data) );
+		const_cast< Array3DImpl<float>& >(data) );
 
 	if ( !arrsubsel.isOK() )
 	    return false;

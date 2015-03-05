@@ -10,7 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "binidvalset.h"
-#include "datapackbase.h"
 #include "emfault3d.h"
 #include "emhorizon.h"
 #include "emhorizon3d.h"
@@ -20,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "mousecursor.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 
 namespace VolProc

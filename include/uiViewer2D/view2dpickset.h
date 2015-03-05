@@ -51,7 +51,7 @@ protected:
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
     void		updateSetIdx(const TrcKeyZSampling&);
-    void		updateSetIdx(const TypeSet<BinID>& bids);
+    void		updateSetIdx(const TypeSet<TrcKey>&);
 
     Pick::Set*			pickset_;
     bool			isselected_;

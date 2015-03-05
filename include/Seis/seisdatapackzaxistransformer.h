@@ -1,5 +1,5 @@
-#ifndef attribdatapackzaxistransformer_h
-#define attribdatapackzaxistransformer_h
+#ifndef seisdatapackzaxistransformer_h
+#define seisdatapackzaxistransformer_h
 
 /*+
 ________________________________________________________________________
@@ -12,28 +12,24 @@ ________________________________________________________________________
 
 -*/
 
-#include "attribdatapack.h"
+#include "seisdatapack.h"
 #include "paralleltask.h"
 
 class ZAxisTransform;
 
-namespace Attrib
-{
-
 /*!
-\brief Transforms datapacks using ZAxisTransform. Output datapack will be of
-same type as inputdp_. At present, this works only for Flat2DDHDataPack and
-FlatRdmTrcsDataPack.
+\brief Uses ZAxisTransform to output a transformed SeisDataPack for the
+specified input SeisDataPack.
 */
 
-mExpClass(AttributeEngine) FlatDataPackZAxisTransformer : public ParallelTask
+mExpClass(Seis) SeisDataPackZAxisTransformer : public ParallelTask
 {
 public:
-				FlatDataPackZAxisTransformer(ZAxisTransform&);
-				~FlatDataPackZAxisTransformer();
+				SeisDataPackZAxisTransformer(ZAxisTransform&);
+				~SeisDataPackZAxisTransformer();
 
-    void			setInput( const FlatDataPack* fdp )
-				{ inputdp_ = fdp ? dpm_.obtain(fdp->id()) : 0; }
+    void			setInput( const SeisDataPack* dp )
+				{ inputdp_ = dp ? dpm_.obtain(dp->id()) : 0; }
     void			setOutput( DataPack::ID& dpid )
 				{ outputid_ = &dpid; dpid = DataPack::cNoID(); }
     void			setInterpolate( bool yn )
@@ -51,12 +47,9 @@ protected:
     ZAxisTransform&		transform_;
     StepInterval<float>		zrange_;
 
-    ConstDataPackRef<FlatDataPack>	inputdp_;
-    DataPack::ID*			outputid_;
-    PtrMan<Array2D<float> >		arr2d_;
+    ConstDataPackRef<DataPack>	inputdp_;
+    SeisDataPack*		outputdp_;
+    DataPack::ID*		outputid_;
 };
-
-
-} // namespace Attrib
 
 #endif

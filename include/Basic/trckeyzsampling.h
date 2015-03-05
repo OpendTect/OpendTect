@@ -39,7 +39,7 @@ public:
 			TrcKeyZSampling(const TrcKeyZSampling&);
 			TrcKeyZSampling(bool settoSI);
 
-    enum Dir		{ Z, Inl, Crl };
+    enum Dir		{ Inl=0, Crl=1, Z=2 };
     Dir			defaultDir() const;
 			//!< 'flattest' direction, i.e. direction with
 			//!< smallest size. If equal, prefer Inl then Crl then Z

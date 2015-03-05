@@ -34,8 +34,9 @@ public:
     			HorizonPainter3D(FlatView::Viewer&,const EM::ObjectID&);
 			~HorizonPainter3D();
 
-    void		setTrcKeyZSampling(const TrcKeyZSampling&,bool upd=false);
-    void		setPath(const TypeSet<BinID>*);
+    void		setTrcKeyZSampling(
+				const TrcKeyZSampling&,bool upd=false);
+    void		setPath(const TypeSet<TrcKey>&);
     void		setFlatPosData(const FlatPosData*);
 
     void		enableLine(bool);
@@ -80,7 +81,7 @@ protected:
 
     EM::ObjectID        id_;
     TrcKeyZSampling        tkzs_;
-    const TypeSet<BinID>* 	path_;
+    const TypeSet<TrcKey>*	path_;
     const FlatPosData*	flatposdata_;
 
     LineStyle           markerlinestyle_;

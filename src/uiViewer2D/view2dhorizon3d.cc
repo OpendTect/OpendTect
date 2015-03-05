@@ -11,12 +11,11 @@ ________________________________________________________________________
 
 #include "view2dhorizon3d.h"
 
-#include "attribdatapack.h"
-#include "zaxistransformutils.h"
 #include "emseedpicker.h"
 #include "flatauxdataeditor.h"
 #include "horflatvieweditor3d.h"
 #include "mpeengine.h"
+#include "seisdatapack.h"
 
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
@@ -47,16 +46,9 @@ void Vw2DHorizon3D::setEditors()
     {
 	ConstDataPackRef<FlatDataPack> fdp =
 		viewerwin_->viewer(ivwr).obtainPack( true, true );
-	if ( !fdp )
-	{
-	    horeds_ += 0;
-	    continue;
-	}
-
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
-	if ( !dp3d && !dprdm && !zatdp3d )
+	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	if ( !regfdp && !randfdp )
 	{
 	    horeds_ += 0;
 	    continue;
@@ -113,28 +105,22 @@ void Vw2DHorizon3D::draw()
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
-	if ( !fdp ) continue;
-
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
-	if ( !dp3d && !dprdm && !zatdp3d ) continue;
+	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	if ( !regfdp && !randfdp ) continue;
 
 	if ( horeds_[ivwr] )
 	{
 	    horeds_[ivwr]->setMouseEventHandler(
 			&vwr.rgbCanvas().scene().getMouseEventHandler() );
-	    if ( dp3d )
-		horeds_[ivwr]->setTrcKeyZSampling( dp3d->cube().cubeSampling() );
+	    if ( regfdp )
+		horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 
-	    if ( dprdm )
+	    if ( randfdp )
 	    {
-		horeds_[ivwr]->setPath( dprdm->pathBIDs() );
-		horeds_[ivwr]->setFlatPosData( &dprdm->posData() );
+		horeds_[ivwr]->setPath( randfdp->getPath() );
+		horeds_[ivwr]->setFlatPosData( &randfdp->posData() );
 	    }
-
-	    if ( zatdp3d )
-		horeds_[ivwr]->setTrcKeyZSampling( zatdp3d->inputCS() );
 
 	    horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	    horeds_[ivwr]->setSelSpec( vdselspec_, false );

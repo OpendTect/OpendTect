@@ -11,12 +11,12 @@ ________________________________________________________________________
 
 #include "view2dhorizon2d.h"
 
-#include "attribdataholder.h"
-#include "attribdatapack.h"
 #include "emseedpicker.h"
 #include "flatauxdataeditor.h"
+#include "flatposdata.h"
 #include "horflatvieweditor2d.h"
 #include "mpeengine.h"
+#include "seisdatapack.h"
 
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
@@ -46,15 +46,15 @@ void Vw2DHorizon2D::setEditors()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<Attrib::Flat2DDHDataPack> dp2ddh =
+	ConstDataPackRef<RegularFlatDataPack> regfdp =
 				vwr.obtainPack( true, true );
-	if ( !dp2ddh )
+	if ( !regfdp || !regfdp->is2D() )
 	{
 	    horeds_ += 0;
 	    continue;
 	}
 	else
-	    geomid_ = dp2ddh->getGeomID();
+	    geomid_ = regfdp->getTrcKey(0).geomID();
 
 	MPE::HorizonFlatViewEditor2D* hored =
 	    new MPE::HorizonFlatViewEditor2D(
@@ -112,18 +112,26 @@ void Vw2DHorizon2D::draw()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<Attrib::Flat2DDHDataPack> dp2ddh =
+	ConstDataPackRef<RegularFlatDataPack> regfdp =
 				    vwr.obtainPack( true, true );
-	if ( !dp2ddh ) continue;
+	if ( !regfdp ) continue;
 	if ( horeds_[ivwr] )
 	    horeds_[ivwr]->setMouseEventHandler(
 		&vwr.rgbCanvas().scene().getMouseEventHandler() );
-	horeds_[ivwr]->setTrcKeyZSampling( dp2ddh->getTrcKeyZSampling() );
+	horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	horeds_[ivwr]->setSelSpec( vdselspec_, false );
-	horeds_[ivwr]->setGeomID( dp2ddh->getGeomID() );
-	dp2ddh->getPosDataTable( horeds_[ivwr]->getPaintingCanvTrcNos(),
-			  horeds_[ivwr]->getPaintingCanDistances() );
+	horeds_[ivwr]->setGeomID( regfdp->getTrcKey(0).geomID() );
+
+	TypeSet<int>& trcnrs = horeds_[ivwr]->getPaintingCanvTrcNos();
+	TypeSet<float>& dists = horeds_[ivwr]->getPaintingCanDistances();
+	trcnrs.erase(); dists.erase();
+	for ( int idx=0; idx<regfdp->nrTrcs(); idx++ )
+	{
+	    trcnrs += regfdp->getTrcKey(idx).trcNr();
+	    dists += mCast(float,regfdp->posData().position(true,idx));
+	}
+
 	horeds_[ivwr]->paint();
 	horeds_[ivwr]->enableSeed( trackerenbed );
     }

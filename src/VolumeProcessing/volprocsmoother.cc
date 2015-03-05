@@ -8,9 +8,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocsmoother.h"
 
-#include "datapackbase.h"
 #include "smoother3d.h"
 #include "keystrs.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 
 

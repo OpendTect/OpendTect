@@ -88,10 +88,6 @@ public:
     const MPE::DataHolder*	getAttribCache(const Attrib::SelSpec&) const;
     void			setAttribData(const Attrib::SelSpec&,
 	    				      DataPack::ID);
-    void			setAttribData(const Attrib::SelSpec&,
-					      const Attrib::DataCubes*);
-    void			setAttribData(const Attrib::SelSpec&,
-					      const Attrib::Data2DArray*);
 
     static int			evCreate2DSelSpec();
     Pos::GeomID 		getGeomID() const;

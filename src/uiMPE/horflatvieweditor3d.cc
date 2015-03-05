@@ -80,7 +80,7 @@ void HorizonFlatViewEditor3D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 }
 
 
-void HorizonFlatViewEditor3D::setPath( const TypeSet<BinID>* path )
+void HorizonFlatViewEditor3D::setPath( const TypeSet<TrcKey>& path )
 {
     horpainter_->setPath( path );
 }

@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "callback.h"
 #include "trckeyzsampling.h"
 #include "draw.h"
@@ -42,8 +41,9 @@ public:
 			~Fault3DPainter();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,bool);
-    const TrcKeyZSampling&	getTrcKeyZSampling() const			{ return tkzs_; }
-    void		setPath(const TypeSet<BinID>*);
+    const TrcKeyZSampling& getTrcKeyZSampling() const	{ return tkzs_; }
+
+    void		setPath(const TypeSet<TrcKey>&);
     void		setFlatPosData(const FlatPosData*);
 
     void		enableLine(bool);
@@ -108,7 +108,7 @@ protected:
     virtual void	fault3DChangedCB(CallBacker*);
      
     TrcKeyZSampling	tkzs_;
-    const TypeSet<BinID>* path_;
+    const TypeSet<TrcKey>* path_;
     const FlatPosData*  flatposdata_;
     TypeSet<int>	bendpts_;
 

@@ -9,10 +9,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprochorinterfiller.h"
 
 #include "arrayndimpl.h"
-#include "datapackbase.h"
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "mousecursor.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 
 namespace VolProc

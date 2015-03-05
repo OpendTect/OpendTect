@@ -31,7 +31,8 @@ public:
 			~Vw2DHorizon3D();
 
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
-    void		setTrcKeyZSampling(const TrcKeyZSampling&, bool upd=false );
+    void		setTrcKeyZSampling(
+				const TrcKeyZSampling&,bool upd=false);
 
     void		draw();
     void		enablePainting(bool yn);

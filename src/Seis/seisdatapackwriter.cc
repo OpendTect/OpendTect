@@ -11,10 +11,10 @@ ________________________________________________________________________
 
 #include "seisdatapackwriter.h"
 
-#include "datapackbase.h"
 #include "arrayndimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "seisdatapack.h"
 #include "seiswrite.h"
 #include "seistrc.h"
 #include "survinfo.h"

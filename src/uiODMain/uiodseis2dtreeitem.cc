@@ -575,17 +575,12 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	TrcKeyZSampling maxcs;
 	assign( maxcs.zsamp_, s2d->getMaxZRange(true)  );
-	maxcs.hrg.start.crl() = s2d->getMaxTraceNrRange().start;
-	maxcs.hrg.stop.crl() = s2d->getMaxTraceNrRange().stop;
-
-	TrcKeyZSampling curcs;
-	curcs.zsamp_.setFrom( s2d->getZRange(true) );
-	curcs.hrg.start.crl() = s2d->getTraceNrRange().start;
-	curcs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
+	maxcs.hsamp_.start.crl() = s2d->getMaxTraceNrRange().start;
+	maxcs.hsamp_.stop.crl() = s2d->getMaxTraceNrRange().stop;
 
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	CallBack dummy;
-	uiSliceSelDlg positiondlg( getUiParent(), curcs,
+	uiSliceSelDlg positiondlg( getUiParent(), s2d->getTrcKeyZSampling(true),
 				   maxcs, dummy, uiSliceSel::TwoD,
 				   scene->zDomainInfo() );
 	if ( !positiondlg.go() ) return;
@@ -599,7 +594,7 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	const Interval<int> ntrcnrrg(
-	    newcs.hrg.start.crl(), newcs.hrg.stop.crl() );
+	    newcs.hsamp_.start.crl(), newcs.hsamp_.stop.crl() );
 	if ( ntrcnrrg != s2d->getTraceNrRange() )
 	{
 	    if ( !s2d->getUpdateStageNr() )
@@ -664,14 +659,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 		    visserv_->getObject(displayid_))
     if ( !s2d ) return;
 
-    TrcKeyZSampling cs;
-    cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
-    cs.hrg.step.inl() = 1;
-    cs.hrg.start.crl() = s2d->getTraceNrRange().start;
-    cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
-    cs.hrg.step.crl() = 1;
-    cs.zsamp_.setFrom( s2d->getZRange(false) );
-
+    const TrcKeyZSampling tkzs = s2d->getTrcKeyZSampling( false );
     Attrib::SelSpec as = *s2d->getSelSpec( attribnr );
     as.set2DFlag();
 
@@ -688,7 +676,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 	    return;
 	}
 
-	dpid = calc->createAttrib( cs, lk, &uitr );
+	dpid = calc->createAttrib( tkzs, lk, &uitr );
     }
     else
     {
@@ -705,8 +693,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 	    lk.setAttrName( as.userRef() );
 
 	applMgr()->attrServer()->setTargetSelSpec( as );
-	dpid = applMgr()->attrServer()->create2DOutput(
-					cs, s2d->getGeomID(), uitr );
+	dpid = applMgr()->attrServer()->createOutput( tkzs, 0 );
     }
 
     if ( dpid == DataPack::cNoID() )
@@ -994,17 +981,11 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     myas.setDefString( defstring );
     attrserv->setTargetSelSpec( myas );
 
-    TrcKeyZSampling cs;
-    cs.hrg.start.crl() = s2d->getTraceNrRange().start;
-    cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
-
     mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
     const FixedString zdomainkey = myas.zDomainKey();
     const bool alreadytransformed = scene && zdomainkey == scene->zDomainKey();
-    cs.zsamp_.setFrom( s2d->getZRange(alreadytransformed) );
-
-    const DataPack::ID dpid =
-	attrserv->create2DOutput( cs, s2d->getGeomID(), taskrunner );
+    const DataPack::ID dpid = attrserv->createOutput(
+			s2d->getTrcKeyZSampling(alreadytransformed), 0 );
     if ( dpid == DataPack::cNoID() )
 	return false;
 
@@ -1026,16 +1007,12 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
 {
     const uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject(displayID()))
-
-    TrcKeyZSampling cs;
-    cs.hrg.start.crl() = s2d->getTraceNrRange().start;
-    cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
-    cs.zsamp_.setFrom( s2d->getZRange(false) );
+		    visserv->getObject(displayID()));
+    if ( !s2d ) return;
 
     applMgr()->attrServer()->setTargetSelSpec( myas );
-    const DataPack::ID dpid =
-	applMgr()->attrServer()->create2DOutput( cs, s2d->getGeomID(), uitr );
+    const DataPack::ID dpid = applMgr()->attrServer()->createOutput(
+					s2d->getTrcKeyZSampling(false), 0 );
     if ( dpid == DataPack::cNoID() )
 	return;
 

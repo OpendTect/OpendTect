@@ -9,9 +9,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellloginterpolator.h"
 
 #include "arrayndimpl.h"
-#include "datapackbase.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "welllog.h"

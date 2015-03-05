@@ -29,6 +29,7 @@ class BufferStringSet;
 class Executor;
 class TrcKeyZSampling;
 class TaskRunner;
+class RegularSeisDataPack;
 
 namespace Attrib { class SelSpec; }
 namespace EM { class EMObject; }
@@ -62,23 +63,18 @@ mExpClass(MPEEngine) DataHolder : public AbstDataHolder
 public:
 				DataHolder();
 
-    bool			is2D() const		{ return is2d_; }
     void			setTrcKeyZSampling(const TrcKeyZSampling tkzs)
 				{ tkzs_ = tkzs; }
     TrcKeyZSampling		getTrcKeyZSampling() const
 				{ return tkzs_; }
-    void			set3DData(const Attrib::DataCubes* dc);
-    const Attrib::DataCubes*	get3DData() const	{ return dcdata_; }
-    void			set2DData(const Attrib::Data2DArray* d2h);
-    const Attrib::Data2DArray*	get2DData() const	{ return d2dhdata_; }
+    void			setData(const RegularSeisDataPack* regfdp);
+    const RegularSeisDataPack*	getData() const		{ return regsdp_; }
     int				nrCubes() const;
 
 protected:
 
     TrcKeyZSampling		tkzs_;
-    const Attrib::DataCubes*	dcdata_;
-    const Attrib::Data2DArray*	d2dhdata_;
-    bool			is2d_;
+    const RegularSeisDataPack*	regsdp_;
 
 private:
 			        ~DataHolder();
@@ -147,8 +143,6 @@ public:
 			getAttribCache(const Attrib::SelSpec&);
     bool		setAttribData( const Attrib::SelSpec&,
 	    			       DataPack::ID);
-    bool		setAttribData( const Attrib::SelSpec&,
-				       const DataHolder*);
     bool		cacheIncludes(const Attrib::SelSpec&,
 				      const TrcKeyZSampling&);
     void		swapCacheAndItsBackup();

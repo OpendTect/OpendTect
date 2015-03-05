@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "linekey.h"
 #include "sectiontracker.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 
 
@@ -50,9 +51,7 @@ namespace MPE
 
 DataHolder::DataHolder()
 	: AbstDataHolder()
-	, is2d_( false )
-	, dcdata_( 0 )
-	, d2dhdata_( 0 )
+	, regsdp_(0)
 {
     tkzs_.setEmpty();
 }
@@ -64,41 +63,25 @@ DataHolder::~DataHolder()
 }
 
 
-void DataHolder::set3DData( const Attrib::DataCubes* dc )
+void DataHolder::setData( const RegularSeisDataPack* regsdp )
 {
     releaseMemory();
-    is2d_ = false;
-    dcdata_ = dc;
-    refPtr( dcdata_ );
-}
-
-
-void DataHolder::set2DData( const Attrib::Data2DArray* d2h )
-{
-    releaseMemory();
-    is2d_ = true;
-    d2dhdata_ = d2h;
-    refPtr( d2dhdata_ );
+    regsdp_ = regsdp;
+    if ( regsdp_ )
+	DPM(DataPackMgr::SeisID()).obtain( regsdp_->id() );
 }
 
 
 int DataHolder::nrCubes() const
 {
-    if ( !dcdata_ && !d2dhdata_ )
-	return 0;
-    if ( !is2d_ && dcdata_ )
-	return dcdata_->nrCubes();
-    if ( is2d_ && d2dhdata_ )
-	return d2dhdata_->nrTraces();
-
-    return 0;
+    return regsdp_->nrComponents();
 }
 
 
 void DataHolder::releaseMemory()
 {
-    unRefAndZeroPtr( dcdata_ );
-    unRefAndZeroPtr( d2dhdata_ );
+    if ( regsdp_ )
+	DPM(DataPackMgr::SeisID()).release( regsdp_->id() );
 }
 
 
@@ -439,30 +422,13 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 
 const DataHolder* Engine::obtainAttribCache( DataPack::ID datapackid )
 {
-    const DataPack* datapack = DPM(DataPackMgr::FlatID()).obtain( datapackid );
-    if ( !datapack )
-	datapack = DPM(DataPackMgr::CubeID()).obtain( datapackid );
-
+    const DataPack* datapack = DPM(DataPackMgr::SeisID()).obtain( datapackid );
     RefMan<DataHolder> dh = new DataHolder();
-
-    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
-    if ( cdp )
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack);
+    if ( regsdp )
     {
-	dh->setTrcKeyZSampling( cdp->cube().cubeSampling() );
-	dh->set3DData( &cdp->cube() );
-    }
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
-    if ( fdp )
-    {
-	dh->setTrcKeyZSampling( fdp->cube().cubeSampling() );
-	dh->set3DData( &fdp->cube() );
-    }
-
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2d,datapack);
-    if ( dp2d )
-    {
-	dh->setTrcKeyZSampling( dp2d->getTrcKeyZSampling() );
-	dh->set2DData( dp2d->dataarray() );
+	dh->setTrcKeyZSampling( regsdp->sampling() );
+	dh->setData( regsdp );
     }
 
     if ( !dh->getTrcKeyZSampling().isEmpty() )
@@ -487,6 +453,10 @@ const DataHolder* Engine::getAttribCache(const Attrib::SelSpec& as)
 bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    DataPack::ID cacheid )
 {
+    ConstDataPackRef<RegularFlatDataPack> regfdp =
+		DPM(DataPackMgr::FlatID()).obtain( cacheid );
+    if ( regfdp ) cacheid = regfdp->getSourceDataPack().id();
+
     const int idx = getCacheIndexOf(as);
     if ( idx>=0 && idx<attribcachedatapackids_.size() )
     {
@@ -523,38 +493,6 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	    attribcache_ += newdata;
 	    attribcache_[attribcache_.size()-1]->ref();
 	}
-    }
-
-    return true;
-}
-
-
-bool Engine::setAttribData( const Attrib::SelSpec& as,
-			    const DataHolder* newdata )
-{
-    const int idx = getCacheIndexOf(as);
-    if ( idx>=0 && idx<attribcache_.size() )
-    {
-	attribcache_[idx]->unRef();
-	if ( !newdata )
-	{
-	    attribcache_.removeSingle( idx );
-	    delete attribcachespecs_.removeSingle( idx );
-	}
-	else
-	{
-	    attribcache_.replace( idx, newdata );
-	    newdata->ref();
-	}
-    }
-    else if (newdata)
-    {
-	attribcachespecs_ += as.is2D() ?
-	    new CacheSpecs( as, activeGeomID() ) :
-	    new CacheSpecs( as ) ;
-
-	attribcache_ += newdata;
-	newdata->ref();
     }
 
     return true;

@@ -11,10 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 
 #include "bufstring.h"
-#include "datapackbase.h"
 #include "iopar.h"
 #include "simpnumer.h"
 #include "keystrs.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "paralleltask.h"
 

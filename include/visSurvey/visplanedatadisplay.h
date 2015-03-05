@@ -23,18 +23,13 @@ ________________________________________________________________________
 template <class T> class Array2D;
 namespace visBase
 {
-    class Coordinates;
     class DepthTabPlaneDragger;
-    class DrawStyle;
-    class FaceSet;
     class GridLines;
     class TextureRectangle;
 };
 
 class BinIDValueSet;
-class BaseMapObject;
-
-namespace Attrib { class Flat3DDataPack; }
+class RegularSeisDataPack;
 
 namespace visSurvey
 {
@@ -102,7 +97,6 @@ public:
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
 				{ return DataPackMgr::FlatID(); }
-    const Attrib::DataCubes*	getCacheVolume(int attrib) const;
 
     visBase::GridLines*		gridlines()		{ return gridlines_; }
 
@@ -143,8 +137,6 @@ public:
     virtual bool		canDuplicate() const	{ return true; }
     virtual SurveyObject*	duplicate(TaskRunner*) const;
 
-    float			getDisplayMinDataStep(bool x0) const;
-
     virtual void		annotateNextUpdateStage(bool yn);
 
     static const char*		sKeyDepthKey()		{ return "DepthKey"; }
@@ -165,7 +157,7 @@ protected:
 
     BaseMapObject*		createBaseMapObject();
     void			setVolumeDataPackNoCache(int attrib,
-					const Attrib::Flat3DDataPack*);
+						const RegularSeisDataPack*);
     void			setRandomPosDataNoCache(int attrib,
 							const BinIDValueSet*,
 							TaskRunner*);
@@ -173,7 +165,8 @@ protected:
 				    const Array2D<float>&,TaskRunner*) const;
     void			setDisplayDataPackIDs(int attrib,
 					const TypeSet<DataPack::ID>& dpids);
-    void			updateFromDisplayIDs(int attrib,TaskRunner*);
+    void			updateChannels(int attrib,TaskRunner*);
+    void			createTransformedDataPack(int attrib);
 
     void			updateMainSwitch();
     void			setScene(Scene*);
@@ -208,19 +201,19 @@ protected:
     visBase::GridLines*			gridlines_;
     SliceType				orientation_;
 
+    TypeSet<DataPack::ID>		datapackids_;
+    TypeSet<DataPack::ID>		transfdatapackids_;
+
     ObjectSet< TypeSet<DataPack::ID> >	displaycache_;
     ObjectSet<BinIDValueSet>		rposcache_;
-    ObjectSet<const Attrib::Flat3DDataPack> volumecache_;
 
     TrcKeyZSampling			csfromsession_;
     BinID				curicstep_;
     Notifier<PlaneDataDisplay>		moving_;
     Notifier<PlaneDataDisplay>		movefinished_;
 
-    float				minx0step_;
-    float				minx1step_;
     ZAxisTransform*			datatransform_;
-    mutable int				voiid_;
+    int					voiidx_;
 
     RefMan<const mVisTrans>		displaytrans_;
     RefMan<visBase::TextureRectangle>	texturerect_;

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "posinfo2dsurv.h"
 
-class SeisTrcInfo;
 class ZAxisTransform;
 class Color;
 
@@ -28,12 +27,8 @@ namespace visBase
     class DrawStyle;
     class PolyLine;
     class Text2;
-    class Transformation;
     class TexturePanelStrip;
 }
-
-namespace Attrib  { class Data2DArray; }
-namespace PosInfo { class Line2DData; }
 
 namespace visSurvey
 {
@@ -68,8 +63,6 @@ public:
 
     bool			setDataPackID(int attrib,DataPack::ID,
 					      TaskRunner*);
-    void			setDisplayDataPackIDs(int attrib,
-					const TypeSet<DataPack::ID>&);
     DataPack::ID		getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
@@ -107,6 +100,10 @@ public:
     int				nrResolutions() const;
     void			setResolution(int,TaskRunner*);
 
+    TrcKeyZSampling		getTrcKeyZSampling( int attrib=-1 ) const
+				{ return getTrcKeyZSampling( false, attrib ); }
+    TrcKeyZSampling		getTrcKeyZSampling(bool displayspace,
+						   int attrib=-1) const;
     Pol2D3D                     getAllowedDataType() const	{return Only2D;}
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
     void			getMousePosInfo(const visBase::EventInfo&,
@@ -157,8 +154,6 @@ public:
 
 protected:
 				~Seis2DDisplay();
-    friend			class Seis2DTextureDataArrayFiller;
-    friend			class Seis2DArray;
 
     virtual void		addCache();
     void			removeCache(int);
@@ -177,8 +172,8 @@ protected:
     void			updatePanelStripZRange();
 
     void			updateLineNamePos();
-    void			updateChannels(int attrib);
-    void			createDisplayDataPacks(int attrib);
+    void			updateChannels(int attrib,TaskRunner*);
+    void			createTransformedDataPack(int attrib);
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
     void			dataTransformCB(CallBacker*);
@@ -191,7 +186,7 @@ protected:
     visBase::TexturePanelStrip* panelstrip_;
 
     TypeSet<DataPack::ID>	datapackids_;
-    ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
+    TypeSet<DataPack::ID>	transfdatapackids_;
     MultiID			datasetid_;
 
     PosInfo::Line2DData&	geometry_;

@@ -66,11 +66,11 @@ FaultStickPainter::~FaultStickPainter()
 const char* FaultStickPainter::getLineName() const
 { return Survey::GM().getName( geomid_ ); }
 
-void FaultStickPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool update )
+void FaultStickPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool upd )
 { tkzs_ = cs; }
 
-void FaultStickPainter::setPath( const TypeSet<BinID>* path )
-{ path_ = path; }
+void FaultStickPainter::setPath( const TypeSet<TrcKey>& path )
+{ path_ = &path; }
 
 void FaultStickPainter::setFlatPosData( const FlatPosData* fps )
 {
@@ -143,15 +143,14 @@ bool FaultStickPainter::addPolyLine()
 	    {
 		if ( path_ )
 		{
-		    BinID bid;
-
 		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
 			  rc.col()+=colrg.step )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
-			bid = SI().transform( pos.coord() );
-			int idx = path_->indexOf( bid );
-
+			const BinID bid = SI().transform( pos.coord() );
+			const TrcKey trckey = Survey::GM().traceKey(
+			   Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
+			const int idx = path_->indexOf( trckey );
 			if ( idx < 0 ) continue;
 
 			Coord3 editnormal( getNormalInRandLine(idx), 0 );
@@ -243,7 +242,7 @@ bool FaultStickPainter::addPolyLine()
 			    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 				stickauxdata->poly_ += FlatView::Point(
 								bid.crl(), z );
-			    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+			    else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
 				stickauxdata->poly_ += FlatView::Point(
 								bid.inl(), z );
 			}
@@ -519,20 +518,16 @@ Coord FaultStickPainter::getNormalInRandLine( int idx ) const
     if ( idx < 0 || path_->size() == 0 )
 	return Coord(mUdf(float), mUdf(float));
 
-    BinID pivotbid = (*path_)[idx];
-    BinID nextbid;
+    const Coord pivotcrd = Survey::GM().toCoord( (*path_)[idx] );
+    Coord nextcrd;
 
     if ( idx+1 < path_->size() )
-	nextbid = (*path_)[idx+1];
+	nextcrd = Survey::GM().toCoord( (*path_)[idx+1] );
     else if ( idx-1 > 0 )
-	nextbid = (*path_)[idx-1];
+	nextcrd = Survey::GM().toCoord( (*path_)[idx-1] );
 
-    if ( pivotbid.inl() == nextbid.inl() )
-	return  SI().binID2Coord().inlDir();
-    else if ( pivotbid.crl() == nextbid.crl() )
-	return SI().binID2Coord().crlDir();
-
-    return Coord(mUdf(float), mUdf(float));
+    Coord direction = nextcrd - pivotcrd;
+    return Coord( -direction.y, direction.x );
 }
 
 } //namespace EM

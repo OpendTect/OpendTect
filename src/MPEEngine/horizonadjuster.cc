@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linear.h"
 #include "mpeengine.h"
 #include "samplingdata.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "valseriestracker.h"
 
@@ -186,7 +187,6 @@ int HorizonAdjuster::nextStep()
 bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 			     float& targetz) const
 {
-    //const Array3D<float>& cube = attrdata_->getCube(0);
     TrcKeyZSampling cs = attrdata_->getTrcKeyZSampling();
     const int toinlidx =
 	cs.hrg.inlRange().nearestIndex( attrDataBinId(to).inl() );
@@ -200,13 +200,13 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
     const ValueSeries<float>* storage = 0;
     od_int64 tooffset = 0;
-    if ( !attrdata_->is2D() && attrdata_->get3DData() )
+    if ( attrdata_->getData() )
     {
-	const Array3D<float>& arr = attrdata_->get3DData()->getCube(0);
+	const Array3D<float>& arr = attrdata_->getData()->data(0);
 	storage = arr.getStorage();
 	tooffset = arr.info().getOffset( toinlidx, tocrlidx, 0 );
     }
-    else if ( attrdata_->is2D() && attrdata_->get2DData() )
+    /*else if ( attrdata_->is2D() && attrdata_->get2DData() )
     {
 	const int dhidx = attrdata_->get2DData()->indexOf( to.crl() );
 	if ( dhidx<0 )
@@ -216,7 +216,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	storage = arr.getStorage();
 	const int component = 0;
 	tooffset = arr.info().getOffset( component, dhidx, 0 );
-    }
+    }*/
 
     if ( !storage ) return false;
 
@@ -247,11 +247,11 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	    return false;
 
 	od_int64 fromoffset = mUdf(od_int64);
-	if ( !attrdata_->is2D() )
-	    fromoffset = attrdata_->get3DData()->getCube(0).info().getOffset(
+	//if ( !attrdata_->is2D() )
+	    fromoffset = attrdata_->getData()->data(0).info().getOffset(
 						frominlidx, fromcrlidx, 0 );
 
-	if ( attrdata_->is2D() && attrdata_->get2DData() )
+	/*if ( attrdata_->is2D() && attrdata_->get2DData() )
 	{
 	    const int dhidx = attrdata_->get2DData()->indexOf( from.crl() );
 	    if ( dhidx<0 )
@@ -260,7 +260,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	    const Array3D<float>& arr = *attrdata_->get2DData()->dataset_;
 	    const int component = 0;
 	    fromoffset = arr.info().getOffset( component, dhidx, 0 );
-	}
+	}*/
 
 	const OffsetValueSeries<float> fromarr(
 		    const_cast<ValueSeries<float>&>(*storage), fromoffset );

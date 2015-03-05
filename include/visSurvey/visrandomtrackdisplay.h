@@ -82,10 +82,8 @@ public:
     Interval<float>		getDataTraceRange() const;
     TypeSet<Coord>		getTrueCoords() const;
 
-    bool                        setDataPackID(int attrib,DataPack::ID,
-	    				      TaskRunner*);
-    void			setDisplayDataPackIDs(int attrib,
-					const TypeSet<DataPack::ID>&);
+    bool			setDataPackID(int attrib,DataPack::ID,
+						TaskRunner*);
     DataPack::ID                getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
@@ -177,8 +175,8 @@ protected:
     void			getDataTraceBids(TypeSet<BinID>&,
 	    					 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int knot) const;
-    void			updateChannels(int attrib);
-    void			createDisplayDataPacks(int attrib);
+    void			updateChannels(int attrib,TaskRunner*);
+    void			createTransformedDataPack(int attrib);
 
     void			setKnotPos(int,const BinID&,bool check);
 
@@ -206,9 +204,9 @@ protected:
     visBase::MarkerSet*		markerset_;
     visBase::EventCatcher*	eventcatcher_;
 
-    ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
     int				selknotidx_;
     TypeSet<DataPack::ID>	datapackids_;
+    TypeSet<DataPack::ID>	transfdatapackids_;
     TypeSet<BinID>		trcspath_;
     TypeSet<BinID>		knots_;
 

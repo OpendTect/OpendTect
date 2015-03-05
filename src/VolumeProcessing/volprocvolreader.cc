@@ -9,9 +9,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "volprocvolreader.h"
 
 #include "arrayndimpl.h"
-#include "datapackbase.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "seisdatapack.h"
 #include "seisread.h"
 #include "seistrctr.h"
 #include "seistrc.h"

@@ -73,10 +73,17 @@ public:
 				other display if both have same Attrib::SelSpec.
 				Else, returns uiODViewer2D::createDataPack.*/
     DataPack::ID		createDataPack(const Attrib::SelSpec&) const;
-				/*!< Creates DataPack for inlines, crosslines
-				and z-slices by getting TrcKeyZSampling from
+				/*!< Creates RegularFlatDataPack by getting
+				TrcKeyZSampling from slicepos_. Uses the
+				existing TrcKeyZSampling, if there is no
 				slicepos_. Also transforms data if the 2D Viewer
 				hasZAxisTransform(). */
+    DataPack::ID		createFlatDataPack(DataPack::ID,int comp) const;
+				/*!< Creates a FlatDataPack from SeisDataPack.
+				Either a transformed or a non-transformed
+				datapack can be passed. The returned datapack
+				will always be in transformed domain if the
+				viewer hasZAxisTransform(). */
 
     ZAxisTransform*		getZAxisTransform() const
 				{ return datatransform_; }
@@ -102,8 +109,8 @@ public:
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
     virtual void                setWinTitle(bool fromcs=false);
-				/*!<\param fromcs if true, TrcKeyZSampling is used
-				  to set window title.*/
+				/*!<\param fromcs if true, TrcKeyZSampling
+				will be used to set window title.*/
 
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
     static const char*		sKeyWVASelSpec() { return "WVA SelSpec"; }

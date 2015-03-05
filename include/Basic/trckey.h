@@ -65,7 +65,7 @@ public:
     void		setSurvID( SurvID id )	{ survid_ = id; }
     const BinID&	pos() const		{ return pos_; }
     void		setPos( BinID bid )	{ pos_ = bid; }
-
+    double		distTo(const TrcKey&) const;
 
 private:
     SurvID		survid_;

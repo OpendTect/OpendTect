@@ -371,6 +371,13 @@ TrcKey::SurvID TrcKey::cUndefSurvID()
 }
 
 
+double TrcKey::distTo( const TrcKey& trckey ) const
+{
+    const Coord coord = Survey::GM().toCoord( trckey );
+    return Survey::GM().toCoord(*this).distTo( coord );
+}
+
+
 TrcKeyValue::TrcKeyValue( const BinIDValue& bidv )
     : tk_( bidv )
     , val_( bidv.val() )

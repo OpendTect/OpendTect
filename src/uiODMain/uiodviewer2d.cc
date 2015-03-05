@@ -28,9 +28,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
 #include "mouseevent.h"
+#include "seisdatapack.h"
+#include "seisdatapackzaxistransformer.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -115,31 +115,27 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     ConstDataPackRef<FlatDataPack> fdp = dpm.obtain( packid );
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-    mDynamicCastGet(const Attrib::Flat2DDataPack*,dp2d,fdp.ptr());
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp.ptr());
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
+    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
 
     const bool isnew = !viewwin();
     if ( isnew )
     {
-	if ( dp2ddh )
+	if ( regfdp && regfdp->is2D() )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();
 	else if ( !mapdp )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
 
-	const bool isvertical = (dp3d && dp3d->isVertical()) ||
-				(dp2d && dp2d->isVertical()) || zatdp3d;
-	const bool needslicepos = fdp && !dp2d && !dp2ddh && !dprdm;
+	const bool isvertical = (regfdp && regfdp->isVertical()) || randfdp;
+	const bool needslicepos = fdp && (!regfdp || !regfdp->is2D()) &&
+					!randfdp && !mapdp;
 	createViewWin( isvertical, needslicepos );
     }
 
-    if ( dp3d || zatdp3d )
+    if ( regfdp )
     {
-	const TrcKeyZSampling& cs = dp3d ? dp3d->cube().cubeSampling()
-				      : zatdp3d->inputCS();
+	const TrcKeyZSampling& cs = regfdp->sampling();
 	if ( tkzs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
     }
 
@@ -153,13 +149,6 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     {
 	treetp_->updSelSpec( &wvaselspec_, true );
 	treetp_->updSelSpec( &vdselspec_, false );
-
-	if ( dp3d )
-	    treetp_->updCubeSamling( dp3d->cube().cubeSampling(), true );
-	else if ( dp2ddh )
-	    treetp_->updCubeSamling( dp2ddh->getTrcKeyZSampling(), true );
-	else if ( zatdp3d )
-	    treetp_->updCubeSamling( zatdp3d->inputCS(), true );
     }
 
     viewwin()->start();
@@ -479,21 +468,63 @@ DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 
 DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
-    const TrcKeyZSampling& tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
-					    : tkzs_;
+    TrcKeyZSampling tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
     if ( !tkzs.isFlat() ) return DataPack::cNoID();
 
     RefMan<ZAxisTransform> zat = getZAxisTransform();
-    const bool alreadytransformed = selspec.isZTransformed();
-    if ( zat && !alreadytransformed && tkzs.nrZ()==1 )
-	return createDataPackForTransformedZSlice( selspec );
+    if ( zat && !selspec.isZTransformed() )
+    {
+	if ( tkzs.nrZ() == 1 )
+	    return createDataPackForTransformedZSlice( selspec );
+	tkzs.zsamp_.setFrom( zat->getZInterval(true) );
+	tkzs.zsamp_.step = SI().zStep();
+    }
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
     const DataPack::ID dpid = attrserv->createOutput( tkzs, DataPack::cNoID() );
-    if ( !zat || alreadytransformed ) return dpid;
+    return createFlatDataPack( dpid, 0 );
+}
 
-    return ZAxisTransformDataPack::transformDataPack( dpid, tkzs, *zat );
+
+DataPack::ID uiODViewer2D::createFlatDataPack(
+				DataPack::ID dpid, int comp ) const
+{
+    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    ConstDataPackRef<SeisDataPack> seisdp = dpm.obtain( dpid );
+    if ( !seisdp ) return dpid;
+
+    const FixedString zdomainkey( seisdp->zDomain().key() );
+    const bool alreadytransformed =
+	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
+    if ( datatransform_ && !alreadytransformed )
+    {
+	DataPack::ID outputid = DataPack::cNoID();
+	SeisDataPackZAxisTransformer transformer( *datatransform_ );
+	transformer.setInput( seisdp.ptr() );
+	transformer.setOutput( outputid );
+	transformer.setInterpolate( true );
+	transformer.execute();
+	if ( outputid != DataPack::cNoID() )
+	    seisdp = dpm.obtain( outputid );
+    }
+
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
+    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
+    if ( regsdp )
+    {
+	RegularFlatDataPack* regfdp = new RegularFlatDataPack( *regsdp, comp );
+	DPM(DataPackMgr::FlatID()).add( regfdp );
+	return regfdp->id();
+    }
+    else if ( randsdp )
+    {
+	RandomFlatDataPack* randfdp = new RandomFlatDataPack( *randsdp, comp );
+	DPM(DataPackMgr::FlatID()).add( randfdp );
+	return randfdp->id();
+    }
+
+    return DataPack::cNoID();
 }
 
 
@@ -614,16 +645,14 @@ void uiODViewer2D::usePar( const IOPar& iop )
     IOPar* wvaselspecpar = iop.subselect( sKeyWVASelSpec() );
     if ( wvaselspecpar ) wvaselspec_.usePar( *wvaselspecpar );
     delete vdselspecpar; delete wvaselspecpar;
-    IOPar* cspar = iop.subselect( sKeyPos() );
-    TrcKeyZSampling cs; if ( cspar ) cs.usePar( *cspar );
+    IOPar* tkzspar = iop.subselect( sKeyPos() );
+    TrcKeyZSampling tkzs; if ( tkzspar ) tkzs.usePar( *tkzspar );
     if ( viewwin()->nrViewers() > 0 )
     {
 	const uiFlatViewer& vwr = viewwin()->viewer(0);
 	const bool iswva = wvaselspec_.id().isValid();
-	ConstDataPackRef<DataPack> dp = vwr.obtainPack(iswva);
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,dp.ptr());
-	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,dp.ptr());
-	if ( dp3d || zatdp3d ) setPos( cs );
+	ConstDataPackRef<RegularSeisDataPack> regsdp = vwr.obtainPack( iswva );
+	if ( regsdp ) setPos( tkzs );
     }
 
     datamgr_->usePar( iop, viewwin(), dataEditor() );

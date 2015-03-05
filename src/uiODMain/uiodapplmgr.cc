@@ -50,11 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visseis2ddisplay.h"
 #include "vistexturechannels.h"
 
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
 #include "attribdescset.h"
-#include "attribsel.h"
-#include "coltabmapper.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
@@ -63,28 +59,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "emtracker.h"
 #include "externalattrib.h"
-#include "filepath.h"
-#include "flatposdata.h"
 #include "genc.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "iopar.h"
-#include "linekey.h"
-#include "mousecursor.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
 #include "oddirs.h"
 #include "odsession.h"
-#include "odver.h"
 #include "pickset.h"
 #include "posinfo2d.h"
 #include "posvecdataset.h"
-#include "ptrman.h"
-#include "seisbuf.h"
-#include "settings.h"
-#include "survinfo.h"
 #include "unitofmeasure.h"
-#include "zaxistransform.h"
 #include "od_helpids.h"
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
@@ -641,48 +625,6 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		return false;
 	    }
 
-	    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pd,
-		    visserv_->getObject(visid) );
-	    if ( false && pd && pd->nrAttribs() > 1 )//disabled for now
-	    {
-		const float step0 = pd->getDisplayMinDataStep(true);
-		const float step1 = pd->getDisplayMinDataStep(false);
-		if ( step0>0 && step1>0 )
-		{
-		    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-		    const DataPack* dp = dpman.obtain( newid );
-		    mDynamicCastGet(const FlatDataPack*, fdp, dp);
-		    if ( fdp )
-		    {
-			const float newstep0 =
-			    (float) fdp->posData().range(true).step;
-			const float newstep1 =
-			    (float) fdp->posData().range(false).step;
-			if ( !(mIsEqual(step0,newstep0,(newstep0+step0)*5E-4)
-			    && mIsEqual(step1,newstep1,(newstep1+step1)*5E-4)) )
-			{
-			    uiString msg = tr("%1 has different stepout as the "
-					      "loaded ones. Do you want to "
-					      "continue? If continue, all the "
-					      "attributes will be resampled to"
-					      " the minimum stepout.")
-					 .arg(fdp->name());
-			    if ( !uiMSG().askGoOn( msg, tr("Yes, load it"),
-						   tr("No, not now")) )
-			    {
-				dpman.release( newid );
-				return false;
-			    }
-			}
-		    }
-
-		    visserv_->setDataPackID( visid, attrib, newid );
-		    res = true;
-		    dpman.release( newid );
-		    break;
-		}
-	    }
-
 	    visserv_->setDataPackID( visid, attrib, newid );
 	    res = true;
 	    break;
@@ -741,7 +683,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	}
     }
 
-    updateColorTable( visid, visserv_->getSelAttribNr() );
+    updateColorTable( visid, attrib );
     return res;
 }
 
@@ -945,14 +887,8 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
 		    visserv_->getObject(visid))
     if ( !s2d ) return false;
 
-    TrcKeyZSampling cs;
-    cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
-    cs.hrg.start.crl() = s2d->getTraceNrRange().start;
-    cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
-    cs.zsamp_.setFrom( s2d->getZRange(false) );
-
-    uiTaskRunner uitr( &appl_ );
-    DataPack::ID dpid = attrserv_->create2DOutput( cs, s2d->getGeomID(), uitr );
+    const DataPack::ID dpid = attrserv_->createOutput(
+					s2d->getTrcKeyZSampling(false), 0 );
     if ( dpid == DataPack::cNoID() )
 	return false;
 

@@ -716,6 +716,14 @@ DataPackMgr::ID	uiVisPartServer::getDataPackMgrID( int id ) const
 }
 
 
+int uiVisPartServer::currentVersion( int id, int attrib ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so || !so->getChannels() ) return -1;
+    return so->getChannels()->currentVersion( attrib );
+}
+
+
 bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));

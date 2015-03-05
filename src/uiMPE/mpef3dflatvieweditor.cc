@@ -123,9 +123,9 @@ void Fault3DFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 }
 
 
-void Fault3DFlatViewEditor::setPath( const TypeSet<BinID>* path )
+void Fault3DFlatViewEditor::setPath( const TypeSet<TrcKey>& path )
 {
-    path_ = path;
+    path_ = &path;
     f3dpainter_->setPath( path );
 }
 

@@ -11,14 +11,12 @@ ________________________________________________________________________
 
 #include "view2dfaultss3d.h"
 
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
-#include "zaxistransformutils.h"
 #include "emeditor.h"
 #include "flatauxdataeditor.h"
 #include "faultstickseteditor.h"
 #include "mpeengine.h"
 #include "mpefssflatvieweditor.h"
+#include "seisdatapack.h"
 
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
@@ -54,16 +52,9 @@ void VW2DFaultSS3D::setEditors()
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true );
-	if ( !fdp )
-	{
-	    fsseds_ += 0;
-	    continue;
-	}
-
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
-	if ( !dp3d && !dprdm && !zatdp3d )
+	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	if ( !regfdp && !randfdp )
 	{
 	    fsseds_ += 0;
 	    continue;
@@ -101,26 +92,20 @@ void VW2DFaultSS3D::draw()
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
-	if ( !fdp ) continue;
-
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
-	if ( !dp3d && !dprdm && !zatdp3d ) continue;
+	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	if ( !regfdp && !randfdp ) continue;
 
 	if ( fsseds_[ivwr] )
 	{
-	    if ( dp3d )
-		fsseds_[ivwr]->setTrcKeyZSampling(dp3d->cube().cubeSampling());
+	    if ( regfdp )
+		fsseds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 
-	    if ( dprdm )
+	    if ( randfdp )
 	    {
-		fsseds_[ivwr]->setPath( dprdm->pathBIDs() );
-		fsseds_[ivwr]->setFlatPosData( &dprdm->posData() );
+		fsseds_[ivwr]->setPath( randfdp->getPath() );
+		fsseds_[ivwr]->setFlatPosData( &randfdp->posData() );
 	    }
-
-	    if ( zatdp3d )
-		fsseds_[ivwr]->setTrcKeyZSampling( zatdp3d->inputCS() );
 
 	    fsseds_[ivwr]->drawFault();
 	}

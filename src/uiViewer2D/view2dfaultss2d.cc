@@ -11,12 +11,12 @@ ________________________________________________________________________
 
 #include "view2dfaultss2d.h"
 
-#include "attribdataholder.h"
-#include "attribdatapack.h"
 #include "flatauxdataeditor.h"
 #include "faultstickseteditor.h"
+#include "flatposdata.h"
 #include "mpeengine.h"
 #include "mpefssflatvieweditor.h"
+#include "seisdatapack.h"
 
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
@@ -51,15 +51,8 @@ void VW2DFaultSS2D::setEditors()
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<FlatDataPack>	fdp = vwr.obtainPack( true );
-	if ( !fdp )
-	{
-	    fsseds_ += 0;
-	    continue;
-	}
-
-	mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp.ptr());
-	if ( !dp2ddh )
+	ConstDataPackRef<RegularFlatDataPack> regfdp = vwr.obtainPack( true );
+	if ( !regfdp )
 	{
 	    fsseds_ += 0;
 	    continue;
@@ -86,21 +79,32 @@ VW2DFaultSS2D::~VW2DFaultSS2D()
 
 void VW2DFaultSS2D::draw()
 {
+    const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid_ );
+    if ( !geometry ) return;
+
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
-	ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
-	if ( !fdp ) continue;
-
-	mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,fdp.ptr());
-	if ( !dp2ddh ) continue;
+	ConstDataPackRef<RegularFlatDataPack> regfdp =
+					vwr.obtainPack( true, true );
+	if ( !regfdp ) continue;
 
 	if ( fsseds_[ivwr] )
 	{
-	    dp2ddh->getPosDataTable( fsseds_[ivwr]->getTrcNos(),
-				     fsseds_[ivwr]->getDistances() );
-	    dp2ddh->getCoordDataTable( fsseds_[ivwr]->getTrcNos(),
-				       fsseds_[ivwr]->getCoords() );
+	    TypeSet<int>& trcnrs = fsseds_[ivwr]->getTrcNos();
+	    TypeSet<float>& dists = fsseds_[ivwr]->getDistances();
+	    trcnrs.erase(); dists.erase();
+	    for ( int idx=0; idx<regfdp->nrTrcs(); idx++ )
+	    {
+		trcnrs += regfdp->getTrcKey(idx).trcNr();
+		dists += mCast(float,regfdp->posData().position(true,idx));
+	    }
+
+	    TypeSet<Coord>& coords = fsseds_[ivwr]->getCoords();
+	    for ( int idx=0; idx<fsseds_[ivwr]->getTrcNos().size(); idx++ )
+		coords += geometry->toCoord(
+			geomid_, fsseds_[ivwr]->getTrcNos()[idx] );
+
 	    fsseds_[ivwr]->setGeomID( geomid_ );
 	    fsseds_[ivwr]->set2D( true );
 	    fsseds_[ivwr]->drawFault();

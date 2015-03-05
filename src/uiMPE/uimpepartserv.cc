@@ -668,35 +668,6 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 }
 
 
-void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
-				     const Attrib::DataCubes* slcset )
-{
-    RefMan<MPE::DataHolder> dh = new MPE::DataHolder;
-    dh->setTrcKeyZSampling( slcset->cubeSampling() );
-    dh->set3DData( slcset );
-    MPE::engine().setAttribData( spec, dh );
-}
-
-
-void uiMPEPartServer::setAttribData( const Attrib::SelSpec& as,
-				     const Attrib::Data2DArray* newdata )
-{
-    ConstRefMan<Attrib::Data2DArray> reffer = newdata;
-
-    if ( !newdata )
-    {
-	MPE::engine().setAttribData( as, 0 );
-	return;
-    }
-
-    RefMan<MPE::DataHolder> dh = new MPE::DataHolder;
-    dh->setTrcKeyZSampling( newdata->cubesampling_ );
-    dh->set2DData( newdata );
-
-    MPE::engine().setAttribData( as, dh );
-}
-
-
 const char* uiMPEPartServer::get2DLineName() const
 { return Survey::GM().getName(geomid_); }
 

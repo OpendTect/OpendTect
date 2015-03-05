@@ -40,7 +40,7 @@ public:
 			~HorizonFlatViewEditor3D();
     
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
-    void		setPath(const TypeSet<BinID>*);
+    void		setPath(const TypeSet<TrcKey>&);
     void		setFlatPosData(const FlatPosData*);
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
 

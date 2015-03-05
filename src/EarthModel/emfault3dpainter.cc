@@ -63,13 +63,13 @@ Fault3DPainter::~Fault3DPainter()
 }
 
 
-void Fault3DPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool update )
+void Fault3DPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool update )
 { tkzs_ = cs; }
 
 
-void Fault3DPainter::setPath( const TypeSet<BinID>* path )
+void Fault3DPainter::setPath( const TypeSet<TrcKey>& path )
 {
-    path_ = path;
+    path_ = &path;
 }
 
 
@@ -86,7 +86,7 @@ void Fault3DPainter::setFlatPosData( const FlatPosData* fps )
     TypeSet<Coord> pts;
     for ( int idx=0; idx<path_->size(); idx++ )
     {
-	pts += SI().transform((*path_)[idx]);
+	pts += Survey::GM().toCoord( (*path_)[idx] );
     }
 
     BendPointFinder2D bpfinder( pts, 0.5 );
@@ -275,8 +275,9 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
     {
 	const Coord3 pos = fss.getKnot( rc );
 	bid = SI().transform( pos.coord() );
-	int idx = path_->indexOf( bid );
-
+	const TrcKey trckey = Survey::GM().traceKey(
+		Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+	const int idx = path_->indexOf( trckey );
 	if ( idx < 0 ) continue;
 
 	Coord3 editnormal( getNormalInRandLine(idx), 0 );
@@ -323,14 +324,14 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 
 	bool status = false;
 
-	for ( int bdptidx=1; bdptidx<bendpts_.size(); bdptidx++ )
+	for ( int idx=1; idx<bendpts_.size(); idx++ )
 	{
 	    pts.erase();
 
-	    Coord3 p0( SI().transform((*path_)[bendpts_[bdptidx-1]]), zstart );
-	    Coord3 p1( SI().transform((*path_)[bendpts_[bdptidx-1]]), zstop );
-	    Coord3 p2( SI().transform((*path_)[bendpts_[bdptidx]]), zstart );
-	    Coord3 p3( SI().transform((*path_)[bendpts_[bdptidx]]), zstop );
+	    Coord3 p0( Survey::GM().toCoord((*path_)[bendpts_[idx-1]]),zstart );
+	    Coord3 p1( Survey::GM().toCoord((*path_)[bendpts_[idx-1]]),zstop );
+	    Coord3 p2( Survey::GM().toCoord((*path_)[bendpts_[idx]]), zstart );
+	    Coord3 p3( Survey::GM().toCoord((*path_)[bendpts_[idx]]), zstop );
 
 	    pts += p0; pts += p1; pts += p2; pts += p3;
 
@@ -450,12 +451,14 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 
 	if ( path_ )
 	{
-	    int bididx = path_->indexOf( posbid );
-	    if ( bididx != -1 )
+	    const TrcKey trckey = Survey::GM().traceKey(
+		    Survey::GM().default3DSurvID(),posbid.inl(),posbid.crl() );
+	    const int trcidx = path_->indexOf( trckey );
+	    if ( trcidx != -1 )
 	    {
 		const double z = zat ? zat->transform(pos) : pos.z;
 		intsecauxdat->poly_ += FlatView::Point(
-			flatposdata_->position(true,bididx), z );
+			flatposdata_->position(true,trcidx), z );
 	    }
 	    continue;
 	}
@@ -675,20 +678,16 @@ Coord Fault3DPainter::getNormalInRandLine( int idx ) const
     if ( idx < 0 || path_->size() == 0 )
 	return Coord(mUdf(float), mUdf(float));
 
-    BinID pivotbid = (*path_)[idx];
-    BinID nextbid;
+    const Coord pivotcrd = Survey::GM().toCoord( (*path_)[idx] );
+    Coord nextcrd;
 
     if ( idx+1 < path_->size() )
-	nextbid = (*path_)[idx+1];
+	nextcrd = Survey::GM().toCoord( (*path_)[idx+1] );
     else if ( idx-1 > 0 )
-	nextbid = (*path_)[idx-1];
+	nextcrd = Survey::GM().toCoord( (*path_)[idx-1] );
 
-    if ( pivotbid.inl() == nextbid.inl() )
-	return  SI().binID2Coord().inlDir();
-    else if ( pivotbid.crl() == nextbid.crl() )
-	return SI().binID2Coord().crlDir();
-
-    return Coord(mUdf(float), mUdf(float));
+    Coord direction = nextcrd - pivotcrd;
+    return Coord( -direction.y, direction.x );
 }
 
 

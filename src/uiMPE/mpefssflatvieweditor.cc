@@ -124,9 +124,9 @@ void FaultStickSetFlatViewEditor::setTrcKeyZSampling(const TrcKeyZSampling& cs)
 }
 
 
-void FaultStickSetFlatViewEditor::setPath( const TypeSet<BinID>* path )
+void FaultStickSetFlatViewEditor::setPath( const TypeSet<TrcKey>& path )
 {
-    path_ = path;
+    path_ = &path;
     fsspainter_->setPath( path );
 }
 

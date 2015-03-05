@@ -8,13 +8,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocbodyfiller.h"
 
-#include "datapackbase.h"
 #include "emmarchingcubessurface.h"
 #include "emmanager.h"
 #include "empolygonbody.h"
 #include "iopar.h"
 #include "embody.h"
 #include "rowcol.h"
+#include "seisdatapack.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "trigonometry.h"

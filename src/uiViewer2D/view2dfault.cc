@@ -11,13 +11,11 @@ ________________________________________________________________________
 
 #include "view2dfault.h"
 
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
-#include "zaxistransformutils.h"
 #include "faulteditor.h"
 #include "flatauxdataeditor.h"
 #include "mpeengine.h"
 #include "mpef3dflatvieweditor.h"
+#include "seisdatapack.h"
 
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
@@ -55,16 +53,9 @@ void VW2DFault::setEditors()
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
-	if ( !fdp )
-	{
-	    faulteds_ += 0;
-	    continue;
-	}
-
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
-	if ( !dp3d && !dprdm && !zatdp3d )
+	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	if ( !regfdp && !randfdp )
 	{
 	    faulteds_ += 0;
 	    continue;
@@ -102,27 +93,20 @@ void VW2DFault::draw()
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
-	if ( !fdp ) continue;
-
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-	mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-	mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
-	if ( !dp3d && !dprdm && !zatdp3d ) continue;
+	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+	if ( !regfdp && !randfdp ) continue;
 
 	if ( faulteds_[ivwr] )
 	{
-	    if ( dp3d )
-		faulteds_[ivwr]->setTrcKeyZSampling(
-				dp3d->cube().cubeSampling() );
+	    if ( regfdp )
+		faulteds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 
-	    if ( dprdm )
+	    if ( randfdp )
 	    {
-		faulteds_[ivwr]->setPath( dprdm->pathBIDs() );
-		faulteds_[ivwr]->setFlatPosData( &dprdm->posData() );
+		faulteds_[ivwr]->setPath( randfdp->getPath() );
+		faulteds_[ivwr]->setFlatPosData( &randfdp->posData() );
 	    }
-
-	    if ( zatdp3d )
-		faulteds_[ivwr]->setTrcKeyZSampling( zatdp3d->inputCS() );
 
 	    faulteds_[ivwr]->drawFault();
 	}

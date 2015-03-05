@@ -72,8 +72,8 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid, bool wva )
 
 void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 {
-    const int dtpackid = visServ().getDisplayedDataPackID( visid, attribid );
-    if ( dtpackid < 0 ) return;
+    const DataPack::ID id = visServ().getDisplayedDataPackID( visid, attribid );
+    if ( id < 0 ) return;
 
     uiODViewer2D* curvwr = find2DViewer( visid, true );
     bool isnewvwr = false;
@@ -94,7 +94,9 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     curvwr->setSelSpec( as, dowva );
     if ( isnewvwr ) curvwr->setSelSpec( as, !dowva );
 
-    curvwr->setUpView( dtpackid, dowva );
+    const int version = visServ().currentVersion( visid, attribid );
+    const DataPack::ID dpid = curvwr->createFlatDataPack( id, version );
+    curvwr->setUpView( dpid, dowva );
     if ( !curvwr->viewwin() )
 	{ pErrMsg( "Viewer2D has no main window !?" ); return; }
 

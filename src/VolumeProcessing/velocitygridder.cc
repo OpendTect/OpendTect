@@ -8,17 +8,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "velocitygridder.h"
 
-#include "arraynd.h"
 #include "arrayndimpl.h"
-#include "attribdatacubes.h"
 #include "binidvalset.h"
-#include "datapackbase.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "paralleltask.h"
 #include "progressmeter.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"

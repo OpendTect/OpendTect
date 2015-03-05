@@ -56,15 +56,15 @@ HorizonPainter3D::~HorizonPainter3D()
 }
 
 
-void HorizonPainter3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool update )
+void HorizonPainter3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
 {
     tkzs_ = cs;
 }
 
 
-void HorizonPainter3D::setPath( const TypeSet<BinID>* path ) 
+void HorizonPainter3D::setPath( const TypeSet<TrcKey>& path )
 {
-    path_ = path;
+    path_ = &path;
 }
 
 
@@ -119,7 +119,7 @@ bool HorizonPainter3D::addPolyLine()
 	{
 	    for ( int idx = 0; idx<path_->size(); idx++ )
 	    {
-		bid = (*path_)[idx];
+		bid = (*path_)[idx].pos();
 		const Coord3 crd = hor3d->getPos( sid, bid.toInt64() );
 		EM::PosID posid( id_, sid, bid.toInt64() );
 
@@ -252,8 +252,10 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		if ( emobject->hasBurstAlert() )
 		    return;
 		
-		BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
-		if ( tkzs_.hrg.includes(bid) || (path_&&path_->isPresent(bid)) )
+		const BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
+		const TrcKey tk = Survey::GM().traceKey(
+			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+		if ( tkzs_.hrg.includes(bid) || (path_&&path_->isPresent(tk)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
 		    viewer_.handleChange( FlatView::Viewer::Auxdata );
@@ -309,7 +311,9 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 
     if ( id_ != pid.objectID() ) return;
 
-    BinID binid = BinID::fromInt64( pid.subID() );
+    const BinID binid = BinID::fromInt64( pid.subID() );
+    const TrcKey trckey = Survey::GM().traceKey(
+		Survey::GM().default3DSurvID(), binid.inl(), binid.crl() );
 
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {
@@ -326,7 +330,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 		if ( path_ )
 		{
 		    if ( mIsEqual(
-			flatposdata_->position(true,path_->indexOf(binid)),
+			flatposdata_->position(true,path_->indexOf(trckey)),
 			auxdata->poly_[posidx].x,.001) )
 		    {
 			auxdata->poly_[posidx].y = crd.z;
@@ -358,7 +362,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 		if ( path_ )
 		{
 		    auxdata->poly_ += FlatView::Point(
-		flatposdata_->position(true,path_->indexOf(binid)), crd.z );
+		flatposdata_->position(true,path_->indexOf(trckey)), crd.z );
 		    continue;
 		}
 		if ( tkzs_.nrInl() == 1 )

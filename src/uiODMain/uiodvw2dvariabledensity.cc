@@ -20,23 +20,20 @@ ________________________________________________________________________
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uistrings.h"
-#include "uitaskrunner.h"
 #include "uitreeview.h"
 
-#include "attribdatapackzaxistransformer.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "filepath.h"
-#include "flatposdata.h"
 #include "ioobj.h"
+#include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "view2dseismic.h"
 #include "view2ddataman.h"
-#include "zaxistransform.h"
 
 
 uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
@@ -260,8 +257,9 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     MenuItem* subitem = 0;
     applMgr()->attrServer()->resetMenuItems();
 
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
-    if ( dp2ddh )
+    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
+    const bool is2d = regfdp && regfdp->is2D();
+    if ( is2d )
     {
 //	BufferString ln;
 //	dp2ddh->getLineName( ln );
@@ -271,9 +269,9 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     else
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
-    subitem = applMgr()->attrServer()->calcAttribMenuItem( as, dp2ddh, true );
+    subitem = applMgr()->attrServer()->calcAttribMenuItem( as, is2d, true );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
-    if ( dp2ddh )
+    if ( is2d )
     {
 //	BufferString ln;
 //	dp2ddh->getLineName( ln );
@@ -297,8 +295,8 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     dousemulticomp = stored = steering = false;
 
     BufferString attrbnm;
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
-    if ( dp2ddh )
+    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
+    if ( regfdp && regfdp->is2D() )
 	attrserv->info2DAttribSubMenu( mnuid, attrbnm, steering, stored );
 
     Attrib::SelSpec selas = viewer2D()->selSpec( false );
@@ -334,12 +332,9 @@ DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->setTargetSelSpec( selas );
 
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,dp.ptr());
-    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
-
-    DataPack::ID newid = DataPack::cNoID();
-    RefMan<ZAxisTransform> zat = viewer2D()->getZAxisTransform();
-    if ( dp2ddh )
+    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
+    mDynamicCastGet(const RandomFlatDataPack*,randfdp,dp.ptr());
+    if ( regfdp && regfdp->is2D() )
     {
 	if ( stored )
 	{
@@ -368,45 +363,19 @@ DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
 	    selas.setDefString( defstring );
 	    attrserv->setTargetSelSpec( selas );
 	}
-
-	uiTaskRunner uitr( &viewer2D()->viewwin()->viewer() );
-	TrcKeyZSampling tkzs = dp2ddh->getTrcKeyZSampling();
-	if ( zat )
-	{
-	    tkzs.zsamp_.setFrom( zat->getZInterval(true) );
-	    tkzs.zsamp_.step = SI().zStep();
-	}
-
-	newid = attrserv->create2DOutput( tkzs, dp2ddh->getGeomID(), uitr );
     }
-    else if ( dprdm )
+    else if ( randfdp )
     {
-	attrserv->setTargetSelSpec( selas );
-	const Interval<float> zrg = zat ? zat->getZInterval(true) :
-		Interval<float>((float)dprdm->posData().range(false).start,
-				(float)dprdm->posData().range(false).stop);
-
 	TypeSet<BinID> bids;
-	if ( dprdm->pathBIDs() )
-	    bids = *dprdm->pathBIDs();
-	newid = attrserv->createRdmTrcsOutput( zrg, &bids, &bids );
-    }
-    else
-    {
-	newid = viewer2D()->createDataPack( selas );
+	for ( int idx=0; idx<randfdp->getPath().size(); idx++ )
+	    bids += randfdp->getPath()[idx].pos();
+
+	const DataPack::ID dpid = attrserv->createRdmTrcsOutput(
+					randfdp->getZRange(), &bids, &bids );
+	return viewer2D()->createFlatDataPack( dpid, 0 );
     }
 
-    if ( zat && !selas.isZTransformed() && (dp2ddh || dprdm) )
-    {
-	ConstDataPackRef<FlatDataPack> newdp =
-		DPM(DataPackMgr::FlatID()).obtain( newid );
-	Attrib::FlatDataPackZAxisTransformer transformer( *zat );
-	transformer.setInput( newdp.ptr() );
-	transformer.setOutput( newid );
-	transformer.execute();
-    }
-
-    return newid;
+    return viewer2D()->createDataPack( selas );
 }
 
 

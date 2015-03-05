@@ -12,10 +12,7 @@ ________________________________________________________________________
 #include "view2dpickset.h"
 
 #include "angles.h"
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
 #include "zaxistransform.h"
-#include "zaxistransformutils.h"
 #include "trckeyzsampling.h"
 #include "binidvalue.h"
 #include "flatposdata.h"
@@ -24,6 +21,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "pickset.h"
 #include "picksettr.h"
+#include "seisdatapack.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "uiflatviewer.h"
@@ -167,13 +165,10 @@ MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
 Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 {
     ConstDataPackRef<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
-    ConstRefMan<ZAxisTransform> zat = viewers_[0]->getZAxisTransform();
-    if ( dp3d || zatdp3d )
+    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+    if ( regfdp )
     {
-	const TrcKeyZSampling cs = dp3d ? dp3d->cube().cubeSampling()
-				     : zatdp3d->inputCS();
+	const TrcKeyZSampling& cs = regfdp->sampling();
 	BinID bid; float z;
 	if ( cs.defaultDir() == TrcKeyZSampling::Inl )
 	{
@@ -191,6 +186,7 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	    z = cs.zsamp_.start;
 	}
 
+	ConstRefMan<ZAxisTransform> zat = viewers_[0]->getZAxisTransform();
 	return ( cs.hrg.includes(bid) && cs.zsamp_.includes(z,false) ) ?
 	    Coord3( SI().transform(bid), zat ?
 		    zat->transformBack(BinIDValue(bid,z)) : z ) : Coord3::udf();
@@ -214,7 +210,7 @@ void VW2DPickSet::updateSetIdx( const TrcKeyZSampling& cs )
 }
 
 
-void VW2DPickSet::updateSetIdx( const TypeSet<BinID>& bids )
+void VW2DPickSet::updateSetIdx( const TypeSet<TrcKey>& trckeys )
 {
     if ( !pickset_ ) return;
     picksetidxs_.erase();
@@ -222,7 +218,9 @@ void VW2DPickSet::updateSetIdx( const TypeSet<BinID>& bids )
     {
 	const Coord3& pos = (*pickset_)[idx].pos_;
 	const BinID bid = SI().transform( pos );
-	if ( bids.isPresent(bid) )
+	const TrcKey trckey = Survey::GM().traceKey(
+		Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+	if ( trckeys.isPresent(trckey) )
 	    picksetidxs_ += idx;
     }
 }
@@ -233,19 +231,14 @@ void VW2DPickSet::drawAll()
     ConstDataPackRef<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
     if ( !fdp || !pickset_ ) return;
 
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,dp3d,fdp.ptr());
-    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
-    mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
-    if ( !dp3d && !dprdm && !zatdp3d ) return;
+    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
+    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
+    if ( !regfdp && !randfdp ) return;
 
-    const TrcKeyZSampling cs = dp3d ? dp3d->cube().cubeSampling() : (zatdp3d ?
-				   zatdp3d->inputCS() : TrcKeyZSampling(true));
-    const bool oninl = cs.defaultDir() == TrcKeyZSampling::Inl;
-
-    if ( dp3d || zatdp3d )
-	updateSetIdx( cs );
-    else if ( dprdm->pathBIDs() )
-	updateSetIdx( *dprdm->pathBIDs() );
+    if ( regfdp )
+	updateSetIdx( regfdp->sampling() );
+    else if ( randfdp )
+	updateSetIdx( randfdp->getPath() );
 
     if ( isownremove_ ) return;
 
@@ -256,10 +249,7 @@ void VW2DPickSet::drawAll()
 	const float zdiff = (float) curvw.height();
 	const float nrzpixels = mCast(float,vwr.getViewRect().vNrPics());
 	const float zfac = nrzpixels / zdiff;
-	const float xdiff = (float) ( curvw.width() *
-		( oninl ? SI().crlDistance() : SI().inlDistance() ) );
 	const float nrxpixels = mCast(float,vwr.getViewRect().hNrPics());
-	const float xfac = nrxpixels / xdiff;
 
 	FlatView::AuxData* picks = picks_[ivwr];
 	picks->poly_.erase();
@@ -273,23 +263,30 @@ void VW2DPickSet::drawAll()
 	    const Coord3& pos = (*pickset_)[pickidx].pos_;
 	    const BinID bid = SI().transform(pos);
 	    const double z = zat ? zat->transform(pos) : pos.z;
-	    if ( dp3d || zatdp3d )
+	    if ( regfdp )
 	    {
 		BufferString dipval;
 		(*pickset_)[pickidx].getText( "Dip" , dipval );
 		SeparString dipstr( dipval );
+		const bool oninl =
+		    regfdp->sampling().defaultDir() == TrcKeyZSampling::Inl;
 		const float dip = oninl ? dipstr.getFValue( 1 )
 					: dipstr.getFValue( 0 );
 		const float depth = (dip/1000000) * zfac;
+		const float xdiff = (float) ( curvw.width() *
+			  ( oninl ? SI().crlDistance() : SI().inlDistance() ) );
+		const float xfac = nrxpixels / xdiff;
 		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
 		FlatView::Point point( oninl ? bid.crl():bid.inl(), z );
 		picks->poly_ += point;
 	    }
-	    else if ( dprdm )
+	    else if ( randfdp )
 	    {
-		const FlatPosData& flatposdata = dprdm->posData();
-		const int bidindex = dprdm->pathBIDs()->indexOf(bid);
+		const FlatPosData& flatposdata = randfdp->posData();
+		const TrcKey trckey = Survey::GM().traceKey(
+			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+		const int bidindex = randfdp->getPath().indexOf( trckey );
 		const double bidpos = flatposdata.position( true, bidindex );
 		FlatView::Point point( bidpos, z );
 		picks->poly_ += point;
