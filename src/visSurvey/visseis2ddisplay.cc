@@ -401,7 +401,7 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
     for ( int idx=0; idx<nrversions; idx++ )
     {
 	PtrMan<Array3DImpl<float> > tmparr = 0;
-	Array3DImpl<float>* usedarr = &seisdp->data( idx );
+	Array3D<float>* usedarr = &seisdp->data( idx );
 	if ( alreadyTransformed(attrib) || !datatransform_ )
 	{
 	    const int nrsamples = seisdp->getZRange().nrSteps()+1;

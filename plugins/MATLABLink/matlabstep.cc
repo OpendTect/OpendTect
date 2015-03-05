@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "seisdatapack.h"
 #include "task.h"
 
 #include "matlablibmgr.h"
@@ -118,11 +119,11 @@ bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
     if ( single )
     {
 // Single input (remove these lines when tested)
-	const Attrib::DataCubes* input =
+	const RegularSeisDataPack* input =
 	    step_.getInput( step_.getInputSlotID(0) );
 	if ( !input ) return false;
 
-	ArrayNDCopier arrndcopier( input->getCube(0) );
+	ArrayNDCopier arrndcopier( input->data(0) );
 	arrndcopier.init( false );
 	arrndcopier.execute();
 	mxarrin = arrndcopier.getMxArray();
@@ -134,7 +135,7 @@ bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
 	mxarrin = mxCreateCellArray( 1, dims );
 	for ( int idx=0; idx<step_.getNrInputs(); idx++ )
 	{
-	    const Attrib::DataCubes* input =
+	    const RegularSeisDataPack* input =
 		step_.getInput( step_.getInputSlotID(idx) );
 	    if ( !input )
 	    {
@@ -142,7 +143,7 @@ bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
 		continue;
 	    }
 
-	    const Array3D<float>& inparr = input->getCube(0);
+	    const Array3D<float>& inparr = input->data(0);
 	    ArrayNDCopier arrndcopier( inparr );
 	    arrndcopier.init( false );
 	    arrndcopier.execute();
@@ -158,7 +159,7 @@ bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
 	mErrRet( tr("No MATLAB output generated") );
 
     Array3D<float>& output =
-	step_.getOutput( step_.getOutputSlotID(0) )->getCube( 0 );
+	step_.getOutput( step_.getOutputSlotID(0) )->data( 0 );
     mxArrayCopier mxarrcopier( *mxarrout, output );
     mxarrcopier.init();
     mxarrcopier.execute();
@@ -192,8 +193,8 @@ Task* MatlabStep::createTask()
 {
     for ( int idx=0; idx<getNrInputs(); idx++ )
     {
-	const Attrib::DataCubes* input = getInput( getInputSlotID(idx) );
-	if ( !input || input->nrCubes()<1 )
+	const RegularSeisDataPack* input = getInput( getInputSlotID(idx) );
+	if ( !input || input->isEmpty() )
 	{
 	    BufferString slotname;
 	    getInputSlotName( getInputSlotID(idx), slotname );
@@ -202,8 +203,8 @@ Task* MatlabStep::createTask()
 	}
     }
 
-    Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
-    if ( !output || output->nrCubes()<1 )
+    RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
+    if ( !output || output->isEmpty() )
     {
 	errmsg_ = tr("No output provided.");
 	return 0;

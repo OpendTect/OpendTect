@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 
+// SeisDataPack
 SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
@@ -104,7 +105,14 @@ bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
 }
 
 
+const Array3D<float>& SeisDataPack::data( int component ) const
+{ return *arrays_[component]; }
 
+Array3D<float>& SeisDataPack::data( int component )
+{ return *arrays_[component]; }
+
+
+// RegularSeisDataPack
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)

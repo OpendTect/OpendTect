@@ -49,10 +49,8 @@ public:
 				{ return arrays_.validIdx( comp ); }
     const char*			getComponentName(int comp=0) const;
 
-    const Array3DImpl<float>&	data( int component=0 ) const
-				{ return *arrays_[component]; }
-    Array3DImpl<float>&		data( int component=0 )
-				{ return *arrays_[component]; }
+    const Array3D<float>&	data(int component=0) const;
+    Array3D<float>&		data(int component=0);
 
     void			setZDomain(const ZDomain::Info&);
     const ZDomain::Info&	zDomain() const
