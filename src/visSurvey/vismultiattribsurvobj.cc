@@ -207,7 +207,7 @@ bool MultiTextureSurveyObject::removeAttrib( int attrib )
 
     delete as_[attrib];
     as_.removeSingle( attrib );
-    userrefs_.removeSingle( attrib );
+    delete userrefs_.removeSingle( attrib );
 
     removeCache( attrib );
 

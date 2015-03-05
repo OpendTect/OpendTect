@@ -33,6 +33,8 @@ HorizonSectionTileGlue::HorizonSectionTileGlue()
 HorizonSectionTileGlue::~HorizonSectionTileGlue()
 {
     removeGlue();
+    if ( glueosgps_ )
+	glueosgps_->unref();
     glueps_->unref();
     gluegeode_->unref();
     gluevtexarr_->unRef();

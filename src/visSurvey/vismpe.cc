@@ -1371,7 +1371,7 @@ bool MPEDisplay::removeAttrib( int attrib )
 {
     channels_->removeChannel( attrib );
     as_.set( "", Attrib::SelSpec::cNoAttrib(), false, 0 );
-    userrefs_.removeSingle( attrib );
+    delete userrefs_.removeSingle( attrib );
     return true;
 }
 

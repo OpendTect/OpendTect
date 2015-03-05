@@ -94,7 +94,7 @@ HorizonDisplay::HorizonDisplay()
     curshiftidx_ += 0;
     BufferStringSet* attrnms = new BufferStringSet();
     attrnms->allowNull();
-    userrefs_ += attrnms;
+    userrefs_.addIfNew( attrnms );
     shifts_ += new TypeSet<float>;
     enabled_ += true;
     dispdatapackids_ += new TypeSet<DataPack::ID>;
@@ -587,7 +587,7 @@ bool HorizonDisplay::removeAttrib( int channel )
 	sections_[idx]->removeChannel( channel );
 
     curshiftidx_.removeSingle( channel );
-    userrefs_.removeSingle( channel );
+    delete userrefs_.removeSingle( channel );
     enabled_.removeSingle( channel );
     delete shifts_.removeSingle( channel );
 
@@ -754,7 +754,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     BufferStringSet* attrnms = new BufferStringSet();
     for ( int idx=0; idx<positions->nrCols(); idx++ )
 	attrnms->add( positions->colDef(idx).name_ );
-    userrefs_.replace( channel, attrnms );
+    delete userrefs_.replace( channel, attrnms );
 
     setRandomPosData( channel, positions, tr );
 }
@@ -941,6 +941,11 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 	{
 	    removeChild( intersectionlines_[idx]->osgNode() );
 	    translation_->addObject( intersectionlines_[idx] );
+	}
+	for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
+	{
+	    removeChild( intersectionpointsets_[idx]->osgNode() );
+	    translation_->addObject( intersectionpointsets_[idx] );
 	}
     }
 
