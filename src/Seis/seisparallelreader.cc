@@ -113,8 +113,9 @@ bool ParallelReader::doPrepare( int nrthreads )
         for ( int idx=0; idx<components_.size(); idx++ )
         {
 	    const int cidx = components_[idx];
-	    const char* cnm = cnames.validIdx(cidx) ? cnames.get(cidx).buf() 
-						    : BufferString::empty();
+	    const char* cnm =
+		cnames.validIdx(cidx) ? cnames.get(cidx).buf() 
+				      : BufferString::empty().buf();
 	    if ( !dp_->addComponent(cnm) )
 	    {
 		errmsg_ = allocprob;
