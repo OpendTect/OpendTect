@@ -8,9 +8,12 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
+
 #include "envvars.h"
 #include "debug.h"
 #include "oddirs.h"
+#include "oscommand.h"
+#include "commondefs.h"
 #include "buildinfo.h"
 #include "bufstring.h"
 #include "ptrman.h"
@@ -77,6 +80,49 @@ int initWinSock()
     return !WSAStartup( wVersion, &wsaData );
 }
 #endif
+
+
+const char* GetOSIdentifier()
+{
+    mDefineStaticLocalObject( PtrMan<BufferString>, ret, (0) );
+
+    if ( ret )
+	return ret->buf();
+
+    BufferString* tmp = new BufferString;
+
+#ifdef __win__
+    DWORD dwVersion = 0;
+    DWORD dwMajorVersion = 0;
+    DWORD dwMinorVersion = 0;
+    DWORD dwBuild = 0;
+
+    dwVersion = GetVersion();
+
+    // Get the Windows version.
+    dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
+    dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
+
+    // Get the build number.
+    if (dwVersion < 0x80000000)
+	dwBuild = (DWORD)(HIWORD(dwVersion));
+
+    const char* dot = ".";
+    tmp->add( "Windows ").add( dwMajorVersion )
+	.add( dot ).add( dwMinorVersion )
+	.add( dot ).add( dwBuild );
+#endif
+
+#ifdef __lux__
+    if ( !OS::ExecCommand( "lsb_release -d", OS::Wait4Finish, tmp ) )
+	tmp->set( "Unknown Linux");
+#endif
+
+    if ( !ret.setIfNull(tmp) )
+	delete tmp;
+
+    return ret->buf();
+}
 
 
 const char* GetLocalHostName()

@@ -12,21 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "multiid.h"
 
 
-#define mTest( testname, test ) \
-if ( (test)==true ) \
-{ \
-    if ( !quiet ) \
-    { \
-        od_cout() << testname << ": OK\n"; \
-    } \
-} \
-else \
-{ \
-    od_cout() << testname << ": Failed\n"; \
-    return false; \
-}
-
-
 bool testPointerCast()
 {
     float val;
@@ -36,7 +21,7 @@ bool testPointerCast()
 
     float* newptr = reinterpret_cast<float*>(voidptr);
 
-    mTest( "Pointer cast", newptr==ptr );
+    mRunStandardTest( newptr==ptr, "Pointer cast" );
 
     return true;
 }
@@ -72,8 +57,9 @@ bool testPointerAlignment()
         int		intval_;
     }  val1ref;
 
-    mTest("Pointer alignment", ptr0_mod==ptr0 && ptr1_mod==ptr1 &&
-                               ival0==0 && ival1 == val1ref.intval_ );
+    mRunStandardTest( ptr0_mod==ptr0 && ptr1_mod==ptr1 &&
+		      ival0==0 && ival1 == val1ref.intval_,
+		       "Pointer alignment" );
 
     return true;
 }
@@ -82,6 +68,23 @@ bool testPointerAlignment()
 bool testCompoundKey()
 {
     mRunStandardTest( MultiID::udf().isUdf(), "Undefined multiid" );
+
+    return true;
+}
+
+
+bool testOSVersion()
+{
+    mRunStandardTest( GetOSIdentifier(), "GetOSIdentifier not returning null" );
+
+    return true;
+}
+
+
+bool testFuncName()
+{
+    BufferString func = __func__;
+    mRunStandardTest( func=="testFuncName", "Function name macro" );
 
     return true;
 }
@@ -96,7 +99,9 @@ int main( int argc, char** argv )
 
     if ( !testPointerCast()
 	|| !testCompoundKey()
-        || !testPointerAlignment() )
+	|| !testOSVersion()
+        || !testPointerAlignment()
+	|| !testFuncName() )
         ExitProgram( 1 );
 
     return ExitProgram( 0 );

@@ -36,6 +36,8 @@ mGlobal(Basic) const char* GetFullExecutablePath(void);
 		/*!< returns full path to executable. setProgramArgs
 		     must be called for it to work. */
 
+mGlobal(Basic) const char* GetOSIdentifier(void);
+
 mGlobal(Basic) char** GetArgV(void);
 
 mGlobal(Basic) int GetArgC(void);
