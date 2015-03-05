@@ -33,6 +33,8 @@ HorizonSectionTileGlue::~HorizonSectionTileGlue()
 {
     removeGlue();
     glueps_->unref();
+    if ( glueosgps_ )
+	glueosgps_->unref();
     gluegeode_->unref();
     gluevtexarr_->unRef();
     gluenormalarr_->unRef();
@@ -115,14 +117,13 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 			 (int)hrsection.nrcoordspertileside_/spacing :
 			 (int)hrsection.nrcoordspertileside_/spacing + 1;
 
-    const Coordinates* vtxarr = 
-	gluetile->tileresolutiondata_[highestres]->vertices_;
+    HorizonSectionTile* tile = const_cast<HorizonSectionTile*>( gluetile );
 
-    const osg::Vec3Array* normals = mGetOsgVec3Arr(
-	gluetile->tileresolutiondata_[highestres]->normals_ );
+    const osg::Vec3Array* vtxarr = mGetOsgVec3Arr( tile->getOsgVertexArray() );
 
-    setNrTexCoordLayers(
-		gluetile->tileresolutiondata_[highestres]->txcoords_.size() );
+    const osg::Vec3Array* normals = mGetOsgVec3Arr( tile->getNormals() );
+
+    setNrTexCoordLayers( gluetile->txcoords_.size() );
 
     if ( vtxarr->size()<=0 || normals->size()<=0 || gluetxcoords_.size()<=0 )
 	return;
@@ -154,14 +155,17 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 	    coordidx = idx;
 	}
 
-	if( vtxarr->isDefined( coordidx ) )
+	if ( mIsOsgVec3Def((*vtxarr)[coordidx]) )
 	{
-	    if ( vtxarr ) gluevtexarr_->addPos( vtxarr->getPos( coordidx ) );
+	    Coord3 pos = Conv::to<Coord3>( (*vtxarr)[coordidx]);
+	    gluevtexarr_->getDisplayTransformation()->transformBack( pos );
+
+	    if ( vtxarr ) gluevtexarr_->addPos( pos );
 
 	    for ( int tcidx=0; tcidx<gluetxcoords_.size(); tcidx++ )
 	    {
 		const osg::Vec2Array* tcoords = mGetOsgVec2Arr(
-		gluetile->tileresolutiondata_[highestres]->txcoords_[tcidx] );
+		gluetile->txcoords_[tcidx] );
 
 		mGetOsgVec2Arr( gluetxcoords_[tcidx] )->push_back(
 							(*tcoords)[coordidx] );

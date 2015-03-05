@@ -43,6 +43,8 @@ public:
 				/*!<Deletes entry and returns 0 */
     inline virtual T*		removeAndTake(int idx, bool kporder=true );
 				/*!<Does not delete the entry. */
+    inline virtual T*		replace(int idx, T*);
+				/*!<Deletes entry and returns 0 */
 
 };
 
@@ -103,6 +105,14 @@ T* ManagedObjectSet<T>::removeSingle( int idx, bool kporder )
 {
     delete (*this)[idx];
     ObjectSet<T>::removeSingle( idx, kporder );
+    return 0; //Don't give anyone a chance to play with the deleted object
+}
+
+
+template <class T> inline
+T* ManagedObjectSet<T>::replace( int idx , T* ptr )
+{
+    delete ObjectSet<T>::replace( idx, ptr );
     return 0; //Don't give anyone a chance to play with the deleted object
 }
 

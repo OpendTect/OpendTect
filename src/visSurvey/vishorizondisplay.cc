@@ -88,7 +88,7 @@ HorizonDisplay::HorizonDisplay()
     curshiftidx_ += 0;
     BufferStringSet* attrnms = new BufferStringSet();
     attrnms->allowNull();
-    userrefs_ += attrnms;
+    userrefs_.addIfNew( attrnms );
     shifts_ += new TypeSet<float>;
     enabled_ += true;
     dispdatapackids_ += new TypeSet<DataPack::ID>;
@@ -853,6 +853,12 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 	    removeChild( intersectionlines_[idx]->osgNode() );
 	    translation_->addObject( intersectionlines_[idx] );
 	}
+	for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
+	{
+	    removeChild( intersectionpointsets_[idx]->osgNode() );
+	    translation_->addObject( intersectionpointsets_[idx] );
+	}
+
     }
 
     Coord3 origin( 0, 0, 0 );
@@ -1969,6 +1975,12 @@ void HorizonDisplay::updateSectionSeeds(
 	    if ( markercoords->size() )
 	    {
 		Coord3 markerpos = markercoords->getPos( idy );
+		if ( !markerpos.isDefined() )
+		{
+		    markerset->turnMarkerOn( idy, false );
+		    continue;
+		}
+
 		if ( transformation_ )
 		     mVisTrans::transform( transformation_,  markerpos );
 
