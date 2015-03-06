@@ -55,6 +55,12 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
 }
 
 
+OD::ModDepMgr::~ModDepMgr()
+{
+    deepErase( shlibaccs_ );
+}
+
+
 static BufferString mkErrMsg( od_istream& strm, const char* msg,
 				const char* detail )
 {

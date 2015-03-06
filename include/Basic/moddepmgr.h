@@ -49,6 +49,7 @@ mExpClass(Basic) ModDepMgr
 {
 public:
 				ModDepMgr(const char* fnm=0);
+				~ModDepMgr();
 
     const ModDep*		find(const char*) const;
     const ObjectSet<ModDep>&	deps() const	{ return deps_; }
@@ -58,10 +59,10 @@ public:
 
 protected:
 
-    ManagedObjectSet<ModDep>			deps_;
+    ManagedObjectSet<ModDep>		deps_;
 
-    mutable BufferStringSet			loadedmods_;
-    mutable ManagedObjectSet<SharedLibAccess>	shlibaccs_;
+    mutable BufferStringSet		loadedmods_;
+    mutable ObjectSet<SharedLibAccess>	shlibaccs_;
 
     void		readDeps(od_istream&);
     int			getLoadIdx(const char*) const;
