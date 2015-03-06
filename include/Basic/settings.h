@@ -64,6 +64,9 @@ protected:
     static Settings*		doFetch(const char*,const char*,const char*,
 					bool);
     bool			doRead(bool);
+public:
+    void			remove() { delete this; }
+    				//!<Only specialist use i.e. on program closing
 };
 
 

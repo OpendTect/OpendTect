@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
+#include "genc.h"
 #include "oddirs.h"
 #include "safefileio.h"
 #include "perthreadrepos.h"
@@ -21,10 +22,29 @@ static const char* sKeyCommon = "Common";
 #define mGetKey(key) (key && *key ? key : sKeyCommon)
 #define mIsCommon(key) (!key || !*key || FixedString(key)==sKeyCommon)
 
+static PtrMan<ObjectSet<Settings> > theinst_ = 0;
+
+static void RemoveAllSettings(void)
+{
+    mObjectSetApplyToAll( (*theinst_), theinst_->removeSingle(idx)->remove() );
+}
+
 static ObjectSet<Settings>& getSetts()
 {
-    mDefineStaticLocalObject( ObjectSet<Settings>, theinst_, );
-    return theinst_;
+    if ( !theinst_ )
+    {
+	ObjectSet<Settings>* ptr = new ObjectSet<Settings>;
+	if ( theinst_.setIfNull( ptr ) )
+	{
+	    NotifyExitProgram( RemoveAllSettings );
+	}
+	else
+	{
+	    delete ptr;
+	}
+    }
+
+    return *theinst_;
 }
 
 
