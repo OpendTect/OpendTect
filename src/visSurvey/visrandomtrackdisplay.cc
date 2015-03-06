@@ -1091,10 +1091,11 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
     { \
 	bid.inl() = reqbid.inl() + step.inl() * (inladd); \
 	bid.crl() = reqbid.crl() + step.crl() * (crladd); \
-	trcidx = randsdp->getGlobalIdx( \
+	trcidx = (int)randsdp->getGlobalIdx( \
 		Survey::GM().traceKey(Survey::GM().default3DSurvID(), \
 		    bid.inl(),bid.crl()) ); \
     }
+	    //TODO the cast above violates the design
 
 
 bool RandomTrackDisplay::getCacheValue( int attrib,int version,
@@ -1111,7 +1112,8 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
     const BinID reqbid( SI().transform(pos) );
     const TrcKey trckey = Survey::GM().traceKey(
 	    Survey::GM().default3DSurvID(), reqbid.inl(), reqbid.crl() );
-    int trcidx = randsdp->getGlobalIdx( trckey );
+    int trcidx = (int)randsdp->getGlobalIdx( trckey );
+	    //TODO the cast above violates the design
     if ( trcidx<0 )
     {
 	const BinID step( SI().inlStep(), SI().crlStep() );

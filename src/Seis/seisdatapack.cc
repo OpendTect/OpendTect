@@ -165,7 +165,8 @@ bool RandomSeisDataPack::addComponent( const char* nm )
     if ( path_.isEmpty() || zsamp_.isUdf() )
 	return false;
 
-    if ( !addArray(1,nrTrcs(),zsamp_.nrSteps()+1) )
+    if ( !addArray(1,(int)nrTrcs(),zsamp_.nrSteps()+1) )
+	    //TODO the cast above violates the design
 	return false;
 
     componentnames_.add( nm );
@@ -298,7 +299,8 @@ float RandomFlatDataPack::nrKBytes() const
 
 void RandomFlatDataPack::setSourceData()
 {
-    const int nrtrcs = path_.size();
+    const int nrtrcs = (int)path_.size();
+	    //TODO the cast above violates the design
     float* pos = new float[nrtrcs];
     pos[0] = 0;
 

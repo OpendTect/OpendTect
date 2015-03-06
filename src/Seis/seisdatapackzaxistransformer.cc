@@ -90,7 +90,8 @@ bool SeisDataPackZAxisTransformer::doWork(
     const StepInterval<float>& inpzrg = seisdp->getZRange();
     const int nrinpsamp = inpzrg.nrSteps() + 1;
     const int nroutsamp = zrange_.nrSteps() + 1;
-    const int nrtrcs = seisdp->nrTrcs() / seisdp->data(0).info().getSize(0);
+    const int nrtrcs = (int)(seisdp->nrTrcs()
+			  / seisdp->data(0).info().getSize(0));
 
     ZAxisTransformSampler outputsampler( transform_, true,
 	    SamplingData<double>(zrange_.start, zrange_.step), false );

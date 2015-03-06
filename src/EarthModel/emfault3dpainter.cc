@@ -277,7 +277,8 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 	bid = SI().transform( pos.coord() );
 	const TrcKey trckey = Survey::GM().traceKey(
 		Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
-	const int idx = path_->indexOf( trckey );
+	const int idx = (int)path_->indexOf( trckey );
+	    //TODO the cast above violates the design
 	if ( idx < 0 ) continue;
 
 	Coord3 editnormal( getNormalInRandLine(idx), 0 );
@@ -452,7 +453,8 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	{
 	    const TrcKey trckey = Survey::GM().traceKey(
 		    Survey::GM().default3DSurvID(),posbid.inl(),posbid.crl() );
-	    const int trcidx = path_->indexOf( trckey );
+	    const int trcidx = (int)path_->indexOf( trckey );
+		//TODO the cast above violates the design
 	    if ( trcidx != -1 )
 	    {
 		const double z = zat ? zat->transform(pos) : pos.z;

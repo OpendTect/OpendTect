@@ -421,7 +421,8 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		    const int trcnr =
 			trcdisplayinfo_.alltrcnrs_[crlidx+startidx];
 		    const TrcKey trckey = Survey::GM().traceKey(geomid_,trcnr);
-		    const int trcidx = seisdp->getGlobalIdx( trckey );
+		    const int trcidx = (int)seisdp->getGlobalIdx( trckey );
+			//TODO the cast above violates the design
 		    const float* trcptr = seisdp->getTrcData( idx, trcidx );
 		    OffsetValueSeries<float> trcstor =
 				seisdp->getTrcStorage( idx, trcidx );
@@ -933,7 +934,8 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 
     const int trcnr = geometry_.positions()[traceidx].nr_;
     const TrcKey trckey = Survey::GM().traceKey( geomid_, trcnr );
-    const int trcidx = regsdp->getGlobalIdx( trckey );
+    const int trcidx = (int)regsdp->getGlobalIdx( trckey );
+	    //TODO the cast above violates the design
     const int sampidx =  regsdp->getZRange().nearestIndex( pos.z );
     const Array3DImpl<float>& array = regsdp->data( version );
     if ( !array.info().validPos(0,trcidx,sampidx) )

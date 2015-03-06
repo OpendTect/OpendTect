@@ -286,7 +286,8 @@ void VW2DPickSet::drawAll()
 		const FlatPosData& flatposdata = randfdp->posData();
 		const TrcKey trckey = Survey::GM().traceKey(
 			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
-		const int bidindex = randfdp->getPath().indexOf( trckey );
+		const int bidindex = (int)randfdp->getPath().indexOf( trckey );
+		    //TODO the cast above violates the design
 		const double bidpos = flatposdata.position( true, bidindex );
 		FlatView::Point point( bidpos, z );
 		picks->poly_ += point;
