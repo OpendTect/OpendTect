@@ -471,17 +471,13 @@ void StreamData::close()
 	    delete ostrm;
     }
 
-    if ( fileptr_
-	&& fileptr_ != stdin && fileptr_ != stdout && fileptr_ != stderr )
-	{ if ( ispipe_ ) pclose((FILE*)fileptr_); else fclose((FILE*)fileptr_);}
-
     initStrms();
 }
 
 
 bool StreamData::usable() const
 {
-    return ( istrm || ostrm ) && ( !ispipe_ || fileptr_ );
+    return istrm || ostrm;
 }
 
 
@@ -489,12 +485,6 @@ void StreamData::transferTo( StreamData& sd )
 {
     sd = *this;
     initStrms();
-}
-
-
-void* StreamData::filePtr() const
-{
-    return const_cast<void*>( fileptr_ );
 }
 
 

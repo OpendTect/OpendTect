@@ -17,24 +17,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <fstream>
+
+#include "qstreambuf.h"
+#include <QProcess>
 
 #ifdef __win__
 # include "winutils.h"
 # include <windows.h>
 # include <istream>
-
-
-# ifdef __msvc__
-#  define popen _popen
-#  define pclose _pclose
-#  define fileno(s) _fileno(s)
-#  include "winstreambuf.h"
-# endif
-#endif
-
-#ifndef __msvc__
-# include <ext/stdio_filebuf.h>
-# define mStdIOFileBuf __gnu_cxx::stdio_filebuf<char>
 #endif
 
 #include "file.h"
@@ -600,19 +591,13 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
     BufferString cmd;
     mkOSCmd( cmd );
 
-    retsd.fileptr_ = popen( cmd, "r" );
-    retsd.ispipe_ = true;
 
-    if ( retsd.fileptr_ )
+    QProcess* process = new QProcess;
+    process->start( cmd.buf(), QIODevice::ReadOnly );
+    if ( process->waitForStarted() )
     {
-#ifdef __msvc__
-	std::filebuf* fb = new std::filebuf( (FILE*)retsd.fileptr_ );
-	retsd.istrm = new std::istream( fb );
-#else
-	mStdIOFileBuf* stdiofb
-		= new mStdIOFileBuf( (FILE*)retsd.fileptr_, std::ios::in );
-	retsd.istrm = new std::istream( stdiofb );
-#endif
+	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
+	retsd.istrm = new iqstream( stdiosb );
     }
 
     return retsd;
@@ -654,19 +639,12 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     BufferString cmd;
     mkOSCmd( cmd );
 
-    retsd.fileptr_ = popen( cmd, "w" );
-    retsd.ispipe_ = true;
-
-    if ( retsd.fileptr_ )
+    QProcess* process = new QProcess;
+    process->start( cmd.buf(), QIODevice::WriteOnly );
+    if ( process->waitForStarted() )
     {
-#ifdef __msvc__
-	std::filebuf* fb = new std::filebuf( (FILE*)retsd.fileptr_ );
-	retsd.ostrm = new std::ostream( fb );
-#else
-	mStdIOFileBuf* stdiofb
-		    = new mStdIOFileBuf( (FILE*)retsd.fileptr_,std::ios::out);
-	retsd.ostrm = new std::ostream( stdiofb );
-#endif
+	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
+	retsd.ostrm = new oqstream( stdiosb );
     }
 
     return retsd;
@@ -676,10 +654,15 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 void StreamProvider::mkOSCmd( BufferString& cmd ) const
 {
     if ( hostname_.isEmpty() )
+    {
 	cmd = fname_;
+	OS::CommandLauncher::addShellIfNeeded( cmd );
+    }
     else
+    {
 	cmd.set( remExecCmd() ).add( " " ).add( hostname_ )
 				.add( " " ).add( fname_ );
+    }
 }
 
 

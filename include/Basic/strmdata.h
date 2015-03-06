@@ -42,18 +42,15 @@ public:
 
     std::istream* istrm;
     std::ostream* ostrm;
-    void*	filePtr() const; // returns FILE*
 
 protected:
 
-    void*	fileptr_;
-    bool	ispipe_;
     BufferString fname_;
 
 private:
 
     inline void	initStrms()
-		{ istrm = 0; ostrm = 0; fileptr_ = 0; ispipe_ = false; }
+		{ istrm = 0; ostrm = 0; }
     friend class StreamProvider;
 
 };
