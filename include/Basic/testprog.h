@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "keystrs.h"
 #include "debug.h"
+#include "ptrman.h"
 #include "od_ostream.h"
 
 # ifdef __win__
@@ -30,11 +31,15 @@ ________________________________________________________________________
 
 
 static bool quiet = true;
+static PtrMan<CommandLineParser> theparser = 0;
 
 #define mInitTestProg() \
     od_init_test_program( argc, argv ); \
-    CommandLineParser clparser; \
+    theparser = new CommandLineParser; \
+    CommandLineParser& clparser = *theparser; \
     quiet = clparser.hasKey( sKey::Quiet() )
+
+#define mExitTestProg( var )
 
 #define mInitBatchTestProg() \
     int argc = GetArgC(); char** argv = GetArgV(); \
