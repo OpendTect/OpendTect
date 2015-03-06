@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "debug.h"
 #include "file.h"
+#include "ptrman.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "envvars.h"
@@ -22,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const OD::ModDepMgr& OD::ModDeps()
 {
-    mDefineStaticLocalObject( ModDepMgr*, mgr, = new ModDepMgr );
+    mDefineStaticLocalObject( PtrMan<ModDepMgr>, mgr, = new ModDepMgr );
     return *mgr;
 }
 
