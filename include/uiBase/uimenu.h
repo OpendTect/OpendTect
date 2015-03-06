@@ -66,8 +66,8 @@ mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 { mODTextTranslationClass(uiMenu);
 
 public:
-				uiMenu(const uiString& nm=tr("uiMenu"),
-				       const char* pixmapfilenm=0);
+				uiMenu(const uiString& nm="Menu",
+				       const char* iconfilenm=0);
 
 				~uiMenu();
 
@@ -127,9 +127,9 @@ public:
     static void			removeInterceptor(const CallBack&);
     void			doIntercept(bool yn,uiAction* activateitm = 0);
 
-				uiMenu(uiParent*, 
-				       const uiString& txt=tr("uiMenu"),
-				       const char* pixmapfilenm=0);
+				uiMenu(uiParent*,
+				       const uiString& txt="Menu",
+				       const char* iconfilenm=0);
 };
 
 #endif
