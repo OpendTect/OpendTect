@@ -131,10 +131,10 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
 	if ( segments ) (*segments) += (idx-1);\
     }
 
-void RandomLine::getPathBids( const TypeSet<BinID>& knots, 
-			    TypeSet<BinID>& bids, 
+void RandomLine::getPathBids( const TypeSet<BinID>& knots,
+			    TypeSet<BinID>& bids,
 			    bool allowduplicate,
-			    TypeSet<int>* segments ) 
+			    TypeSet<int>* segments )
 {
     for ( int idx=1; idx<knots.size(); idx++ )
     {
@@ -190,6 +190,13 @@ RandomLineSet::~RandomLineSet()
 {
     deepErase(lines_);
     delete &pars_;
+}
+
+
+void RandomLineSet::setEmpty()
+{
+    deepErase( lines_ );
+    pars_.setEmpty();
 }
 
 
@@ -277,6 +284,5 @@ void RandomLineSet::limitTo( const TrcKeyZSampling& cs )
     }
 }
 
-} //namespace
-
+} //namespace Geometry
 

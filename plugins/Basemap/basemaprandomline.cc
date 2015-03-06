@@ -47,6 +47,7 @@ void RandomLineObject::setMultiID( const MultiID& mid )
     setName( ioobj->name() );
 
     BufferString msg;
+    rdlset_.setEmpty();
     const bool res = RandomLineSetTranslator::retrieve( rdlset_, ioobj, msg );
     if ( !res ) return;
 }

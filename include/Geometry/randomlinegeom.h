@@ -46,7 +46,7 @@ public:
     static void		getPathBids(const TypeSet<BinID>& knots,
 	    				  TypeSet<BinID>& path,
 					  bool allowduplicate=false,
-					  TypeSet<int>* segments=0); 
+					  TypeSet<int>* segments=0);
 
     void		setZRange( const Interval<float>& rg )
     			{ zrange_ = rg; zrangeChanged.trigger(); }
@@ -81,6 +81,7 @@ public:
 
     virtual		~RandomLineSet();
     bool		isEmpty() const		{ return lines_.isEmpty(); }
+    void		setEmpty();
 
     int			size() const		{ return lines_.size(); }
     const ObjectSet<RandomLine>& lines() const	{ return lines_; }
@@ -100,8 +101,7 @@ protected:
     void		createParallelLines(const Line2& baseline,double dist);
 };
 
-
-} // namespace
+} // namespace Geometry
 
 #endif
 
