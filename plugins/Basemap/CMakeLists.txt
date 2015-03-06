@@ -19,5 +19,6 @@ SET(OD_MODULE_SOURCES
 	basemapseisoutline.cc
 	basemaptr.cc
 	basemapwell.cc
+	basemapzvalues.cc
 )
 OD_INIT_MODULE()
