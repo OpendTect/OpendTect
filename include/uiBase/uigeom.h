@@ -30,8 +30,8 @@ public:
 			uiSize( int wdt=0 , int hgt=0 )
 			    : Geom::Size2D<int>(wdt,hgt)		{}
 
-    inline int          hNrPics() const		{ return width_; }
-    inline int          vNrPics() const		{ return height_; }
+    inline int		hNrPics() const		{ return width_; }
+    inline int		vNrPics() const		{ return height_; }
 			//! nr of pics should be > 0
     inline void		setHNrPics( int np )	{ width_ = mMAX(np,1); }
 			//! nr of pics should be > 0
@@ -56,17 +56,17 @@ public:
     inline uiSize	getPixelSize() const;
 
     inline uiRect	selectArea( const uiRect& other ) const;
-    inline bool	topToAtLeast( int ref );
-    inline void	topTo( int ref );
-    inline bool	bottomToAtLeast( int ref );
-    inline void	bottomTo( int ref );
-    inline bool	leftToAtLeast( int ref );
-    inline void	leftTo( int ref );
-    inline void	rightTo( int ref );
-    inline bool	rightToAtLeast( int ref );
+    inline bool		topToAtLeast( int ref );
+    inline void		topTo( int ref );
+    inline bool		bottomToAtLeast( int ref );
+    inline void		bottomTo( int ref );
+    inline bool		leftToAtLeast( int ref );
+    inline void		leftTo( int ref );
+    inline void		rightTo( int ref );
+    inline bool		rightToAtLeast( int ref );
     inline void		expandTo( const uiRect& oth );
-    inline int          hNrPics() const;
-    inline int          vNrPics() const;
+    inline int		hNrPics() const;
+    inline int		vNrPics() const;
     inline void		setHNrPics( int np );
     inline void		setVNrPics( int np );
 
