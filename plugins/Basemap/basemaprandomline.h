@@ -24,7 +24,7 @@ namespace Basemap
 mExpClass(Basemap) RandomLineObject : public BaseMapObject
 {
 public:
-			RandomLineObject(const MultiID&);
+			RandomLineObject();
 			~RandomLineObject();
 
     void		setMultiID(const MultiID&);
@@ -39,7 +39,6 @@ public:
     const MarkerStyle2D* getMarkerStyle(int shapeidx) const;
     void		setMarkerStyle(int shapeidx,const MarkerStyle2D&);
     const LineStyle*	getLineStyle(int shapeidx) const { return &ls_; }
-    virtual void	setLineStyle(const LineStyle&);
     virtual void	setLineStyle(int shapeidx,const LineStyle&);
 
 private:

@@ -27,15 +27,13 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Basemap
 {
 
-SeisOutlineObject::SeisOutlineObject( const MultiID& mid )
+SeisOutlineObject::SeisOutlineObject()
     : BaseMapObject(0)
-    , seismid_(mid)
+    , seismid_(MultiID::udf())
     , ls_(*new LineStyle)
     , seisarea_(*new TrcKeySampling)
     , fullyrect_(false)
-{
-    setMultiID( mid );
-}
+{}
 
 
 SeisOutlineObject::~SeisOutlineObject()
@@ -57,15 +55,10 @@ void SeisOutlineObject::setMultiID( const MultiID& mid )
 }
 
 
-void SeisOutlineObject::setLineStyle( const LineStyle& ls )
-{
-    ls_ = ls;
-}
-
-
 void SeisOutlineObject::setLineStyle( int shapeidx, const LineStyle& ls )
 {
-    setLineStyle( ls );
+    ls_ = ls;
+    stylechanged.trigger();
 }
 
 

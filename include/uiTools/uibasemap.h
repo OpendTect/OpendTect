@@ -37,11 +37,13 @@ public:
     uiGraphicsItemGroup&	itemGrp()		{ return itemgrp_; }
     const uiGraphicsItemGroup&	itemGrp() const		{ return itemgrp_; }
     virtual void		update();
+    virtual void		updateStyle();
 
 protected:
     friend			class uiBaseMap;
 
     void			changedCB(CallBacker*);
+    void			changedStyleCB(CallBacker*);
 
     uiGraphicsItemGroup&	itemgrp_;
     const uiWorld2Ui*		transform_;

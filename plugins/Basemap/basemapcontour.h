@@ -36,9 +36,10 @@ public:
     virtual const char*		getType() const     { return "contour"; }
     virtual void		updateGeometry();
 
+    void			setLineStyle(int idx,const LineStyle&);
     void			setMultiID(const MultiID&,TaskRunner*);
     void			setContours(const StepInterval<float>& xrg,
-					    const LineStyle&,TaskRunner*);
+					    TaskRunner*);
 
     virtual int			nrShapes() const;
     virtual const char*		getShapeName(int shapeidx) const;

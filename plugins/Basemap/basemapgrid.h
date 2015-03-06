@@ -32,17 +32,16 @@ public:
 
     void			setInlCrlGrid(const StepInterval<double>& inlrg,
 					      const StepInterval<double>& crlrg,
-					      bool showinl,bool showcrl,
-					      const LineStyle&);
+					      bool showinl,bool showcrl);
     void			setXYGrid(const StepInterval<double>& xrg,
 					const StepInterval<double>& yrg,
 					const Geom::PosRectangle<double>& area,
-					bool showx,bool showy,
-					const LineStyle&);
+					bool showx,bool showy);
 
     virtual int			nrShapes() const;
     virtual const char*		getShapeName(int shapeidx) const;
     virtual void		getPoints(int shapeidx,TypeSet<Coord>&) const;
+    virtual void		setLineStyle(int idx,const LineStyle&);
     virtual const LineStyle*	getLineStyle(int shapeidx) const
 						    { return &ls_; }
 
@@ -60,7 +59,7 @@ protected:
 private:
     void			init(const StepInterval<double>&,
 				     const StepInterval<double>&,
-				     bool,bool,const LineStyle&);
+				     bool,bool);
 };
 
 } // namespace Basemap

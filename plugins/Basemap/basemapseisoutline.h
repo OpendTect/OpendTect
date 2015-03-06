@@ -26,7 +26,7 @@ namespace Basemap
 mExpClass(Basemap) SeisOutlineObject : public BaseMapObject
 {
 public:
-			SeisOutlineObject(const MultiID&);
+			SeisOutlineObject();
 			~SeisOutlineObject();
 
     const MultiID&	getMultiID() const	{ return seismid_; }
@@ -38,7 +38,6 @@ public:
     const char*		getShapeName(int shapeidx) const;
     void		getPoints(int shapeidx,TypeSet<Coord>&) const;
     const LineStyle*	getLineStyle(int shapeidx) const { return &ls_;}
-    virtual void	setLineStyle(const LineStyle&);
     virtual void	setLineStyle(int shapeidx,const LineStyle&);
 
 protected:

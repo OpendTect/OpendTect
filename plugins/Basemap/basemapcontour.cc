@@ -131,6 +131,13 @@ void ContourObject::updateGeometry()
 }
 
 
+void ContourObject::setLineStyle( int idx, const LineStyle& ls )
+{
+    ls_ = ls;
+    stylechanged.trigger();
+}
+
+
 void ContourObject::setMultiID( const MultiID& mid, TaskRunner* tsk )
 {
     if ( hor3d_ ) hor3d_->unRef();
@@ -146,7 +153,6 @@ void ContourObject::setMultiID( const MultiID& mid, TaskRunner* tsk )
 
 
 void ContourObject::setContours( const StepInterval<float>& ix,
-				 const LineStyle& ls,
 				 TaskRunner* tsk )
 {
     if ( !hor3d_ ) return;
@@ -158,9 +164,6 @@ void ContourObject::setContours( const StepInterval<float>& ix,
     deepErase( polygons_ );
     ContourExtractor ce( *zvalues, ix, polygons_, contourvals_ );
     if ( !TaskRunner::execute(tsk,ce) ) return;
-
-    ls_ = ls;
-    updateGeometry();
 }
 
 

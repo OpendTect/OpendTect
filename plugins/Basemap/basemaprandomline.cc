@@ -23,13 +23,11 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Basemap
 {
 
-RandomLineObject::RandomLineObject( const MultiID& mid )
+RandomLineObject::RandomLineObject()
     : BaseMapObject(0)
-    , mid_(mid)
+    , mid_(MultiID::udf())
     , rdlset_(*new Geometry::RandomLineSet)
-{
-    setMultiID( mid );
-}
+{}
 
 
 RandomLineObject::~RandomLineObject()
@@ -53,15 +51,10 @@ void RandomLineObject::setMultiID( const MultiID& mid )
 }
 
 
-void RandomLineObject::setLineStyle( const LineStyle& ls )
-{
-    ls_ = ls;
-}
-
-
 void RandomLineObject::setLineStyle( int shapeidx, const LineStyle& ls )
 {
-    setLineStyle( ls );
+    ls_ = ls;
+    stylechanged.trigger();
 }
 
 

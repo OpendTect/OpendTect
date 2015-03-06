@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 BaseMapObject::BaseMapObject( const char* nm )
     : NamedObject(nm)
     , changed(this)
+    , stylechanged(this)
 {}
 
 

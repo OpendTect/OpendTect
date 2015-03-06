@@ -24,7 +24,7 @@ namespace Basemap
 mExpClass(Basemap) Geom2DObject : public BaseMapObject
 {
 public:
-			Geom2DObject(const MultiID&);
+			Geom2DObject();
 			~Geom2DObject();
 
     void		setMultiID(const MultiID&);
@@ -36,7 +36,6 @@ public:
     const char*		getShapeName(int shapeidx) const;
     void		getPoints(int shapeidx,TypeSet<Coord>&) const;
     const LineStyle*	getLineStyle(int shapeidx) const { return &ls_; }
-    virtual void	setLineStyle(const LineStyle&);
     virtual void	setLineStyle(int shapeidx,const LineStyle&);
 
 protected:

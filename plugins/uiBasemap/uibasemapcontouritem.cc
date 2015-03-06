@@ -159,26 +159,18 @@ uiBasemapContourTreeItem::~uiBasemapContourTreeItem()
 }
 
 
-bool hasChanged( const IOPar& prevpar, const IOPar& par, const char* key )
-{
-    return prevpar[key] != par[key];
-}
-
-
 bool uiBasemapContourTreeItem::usePar( const IOPar& par )
 {
     const IOPar prevpar = pars_;
     uiBasemapTreeItem::usePar( par );
 
-    StepInterval<float> spacing;
-    par.get( sKeySpacing(), spacing );
+    StepInterval<float> zspacing;
+    par.get( sKeySpacing(), zspacing );
 
     BufferString lsstr;
     par.get( sKey::LineStyle(), lsstr );
     LineStyle ls;
     ls.fromString( lsstr );
-
-    //const bool lschgd = ls != prevls;
 
     MultiID mid;
     par.get( sKey::Horizon(), mid );
@@ -194,8 +186,13 @@ bool uiBasemapContourTreeItem::usePar( const IOPar& par )
     mDynamicCastGet(Basemap::ContourObject*,obj,basemapobjs_[0])
     if ( obj )
     {
-	obj->setContours( spacing, ls, &uitr );
-	obj->updateGeometry();
+	if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
+	    obj->setLineStyle( 0, ls );
+	if ( hasParChanged(prevpar,par,sKeySpacing()) )
+	{
+	    obj->setContours( zspacing, &uitr );
+	    obj->updateGeometry();
+	}
     }
 
     return true;

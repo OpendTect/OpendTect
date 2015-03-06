@@ -118,6 +118,11 @@ protected:
     BaseMapObject*	removeBasemapObject(BaseMapObject&);
     void		checkCB(CallBacker*);
 
+    bool		hasParChanged(const IOPar& oldp,const IOPar& newp,
+				      const char* key);
+    bool		hasSubParChanged(const IOPar& oldp,const IOPar& newp,
+					 const char* compkey);
+
     virtual bool	showSubMenu();
     virtual bool	handleSubMenu(int);
 

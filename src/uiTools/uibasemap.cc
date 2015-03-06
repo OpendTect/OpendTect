@@ -28,7 +28,11 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     , changed_(false)
 {
     if ( bmobject_ )
+    {
 	bmobject_->changed.notify( mCB(this,uiBaseMapObject,changedCB) );
+	bmobject_->stylechanged.notify(
+		    mCB(this,uiBaseMapObject,changedStyleCB) );
+    }
 }
 
 
@@ -50,6 +54,13 @@ void uiBaseMapObject::changedCB( CallBacker* )
 {
     changed_ = true;
     update();
+}
+
+
+void uiBaseMapObject::changedStyleCB( CallBacker* )
+{
+    changed_ = true;
+    updateStyle();
 }
 
 
@@ -205,6 +216,40 @@ void uiBaseMapObject::update()
 
     while ( itemgrp_.size()>itemnr )
 	itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
+}
+
+
+void uiBaseMapObject::updateStyle()
+{
+    if ( !bmobject_ ) return;
+
+    Threads::Locker( bmobject_->lock_ );
+
+    int itemnr = 0;
+    for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )
+    {
+	if ( bmobject_->getLineStyle(idx) &&
+	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )
+	{
+	    mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
+	    if ( !li ) return;
+	    li->setPenStyle( *bmobject_->getLineStyle(idx) );
+	    itemnr++;
+	}
+
+	if ( bmobject_->fill(idx) )
+	{
+	    mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
+	    if ( !itm ) return;
+
+	    itm->fill();
+	    itemnr++;
+	}
+
+	const char* shapenm = bmobject_->getShapeName( idx );
+	if ( shapenm )
+	    itemnr++;
+    }
 }
 
 

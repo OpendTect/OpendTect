@@ -104,6 +104,7 @@ uiBasemapRandomLineTreeItem::~uiBasemapRandomLineTreeItem()
 
 bool uiBasemapRandomLineTreeItem::usePar( const IOPar& par )
 {
+    const IOPar prevpar = pars_;
     uiBasemapTreeItem::usePar( par );
 
     BufferString lsstr;
@@ -123,22 +124,31 @@ bool uiBasemapRandomLineTreeItem::usePar( const IOPar& par )
 	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
 	    continue;
 
-	if ( basemapobjs_.validIdx(idx) )
+	if ( !basemapobjs_.validIdx(idx) )
 	{
-	    mDynamicCastGet(Basemap::RandomLineObject*,obj,basemapobjs_[idx])
-	    if ( obj )
-	    {
-		obj->setMultiID( mid );
-		obj->setLineStyle( ls );
-		obj->updateGeometry();
-	    }
-	}
-	else
-	{
-	    Basemap::RandomLineObject* obj =
-		new Basemap::RandomLineObject( mid );
-	    obj->setLineStyle( ls );
+	    Basemap::RandomLineObject* obj = new Basemap::RandomLineObject();
 	    addBasemapObject( *obj );
+	}
+
+	mDynamicCastGet(Basemap::RandomLineObject*,obj,basemapobjs_[idx])
+	if ( !obj ) return false;
+
+	if ( hasParChanged(prevpar,par,uiBasemapGroup::sKeyNrObjs()) )
+	{
+	    // if the number of objects is different, everything needs to be
+	    // redraw So...
+	    obj->setLineStyle( 0, ls );
+	    obj->setMultiID( mid );
+	    obj->updateGeometry();
+	    continue;
+	}
+
+	if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
+	    obj->setLineStyle( 0, ls );
+
+	if ( hasSubParChanged(prevpar,par,sKey::ID()) )
+	{
+	    obj->setMultiID( mid );
 	    obj->updateGeometry();
 	}
     }

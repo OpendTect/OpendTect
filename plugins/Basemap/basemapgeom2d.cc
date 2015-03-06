@@ -19,12 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Basemap
 {
 
-Geom2DObject::Geom2DObject( const MultiID& mid )
+Geom2DObject::Geom2DObject()
     : BaseMapObject(0)
-    , mid_(mid)
-{
-    setMultiID( mid );
-}
+    , mid_(MultiID::udf())
+{}
 
 
 Geom2DObject::~Geom2DObject()
@@ -61,15 +59,10 @@ void Geom2DObject::setMultiID( const MultiID& mid )
 }
 
 
-void Geom2DObject::setLineStyle( const LineStyle& ls )
-{
-    ls_ = ls;
-}
-
-
 void Geom2DObject::setLineStyle( int shapeidx, const LineStyle& ls )
 {
-    setLineStyle( ls );
+    ls_ = ls;
+    stylechanged.trigger();
 }
 
 

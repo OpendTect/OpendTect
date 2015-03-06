@@ -334,6 +334,24 @@ void uiBasemapTreeItem::checkCB( CallBacker* )
 }
 
 
+bool uiBasemapTreeItem::hasParChanged( const IOPar& oldp, const IOPar& newp,
+				       const char* key )
+{
+    return oldp[key] != newp[key];
+}
+
+
+bool uiBasemapTreeItem::hasSubParChanged( const IOPar& oldp, const IOPar& newp,
+					  const char* compkey )
+{
+    PtrMan<IOPar> oldsubpar = oldp.subselect( compkey );
+    PtrMan<IOPar> newsubpar = newp.subselect( compkey );
+    if ( !oldsubpar || !newsubpar ) return true;
+
+    return !newsubpar->isEqual( *oldsubpar.ptr(), false );
+}
+
+
 int uiBasemapTreeItem::uiTreeViewItemType() const
 { return uiTreeViewItem::CheckBox; }
 

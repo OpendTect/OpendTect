@@ -24,13 +24,11 @@ GridObject::GridObject()
     , nrinlx_(0)
     , nrcrly_(0)
     , isinlcrl_(true)
-{
-}
+{}
 
 
 GridObject::~GridObject()
-{
-}
+{}
 
 
 void GridObject::updateGeometry()
@@ -41,11 +39,8 @@ void GridObject::updateGeometry()
 
 void GridObject::init( const StepInterval<double>& ix,
 		       const StepInterval<double>& cy,
-		       bool inlchecked, bool crlchecked,
-		       const LineStyle& ls )
+		       bool inlchecked, bool crlchecked )
 {
-    ls_ = ls;
-
     if ( inlchecked )
     {
 	inlxgrid_ = ix;
@@ -72,25 +67,30 @@ void GridObject::init( const StepInterval<double>& ix,
 }
 
 
+void GridObject::setLineStyle( int idx, const LineStyle& ls )
+{
+    ls_ = ls;
+    stylechanged.trigger();
+}
+
+
 void GridObject::setInlCrlGrid( const StepInterval<double>& ix,
 				const StepInterval<double>& cy,
-				bool inlchecked, bool crlchecked,
-				const LineStyle& ls )
+				bool inlchecked, bool crlchecked )
 {
     isinlcrl_ = true;
-    init( ix, cy, inlchecked, crlchecked, ls );
+    init( ix, cy, inlchecked, crlchecked );
 }
 
 
 void GridObject::setXYGrid( const StepInterval<double>& ix,
 			    const StepInterval<double>& cy,
 			    const Geom::PosRectangle<double>& xyarea,
-			    bool xchecked, bool ychecked,
-			    const LineStyle& ls )
+			    bool xchecked, bool ychecked )
 {
     isinlcrl_ = false;
     xyarea_ = xyarea;
-    init( ix, cy, xchecked, ychecked, ls );
+    init( ix, cy, xchecked, ychecked );
 }
 
 

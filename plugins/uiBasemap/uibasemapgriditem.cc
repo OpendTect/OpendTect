@@ -248,6 +248,7 @@ uiBasemapGridTreeItem::~uiBasemapGridTreeItem()
 
 bool uiBasemapGridTreeItem::usePar( const IOPar& par )
 {
+    const IOPar prevpar = pars_;
     uiBasemapTreeItem::usePar( par );
 
     BufferString lsstr;
@@ -272,31 +273,25 @@ bool uiBasemapGridTreeItem::usePar( const IOPar& par )
     const uiRect area = uibm.view().getViewArea();
     const uiWorldRect xyarea = uibm.transform().transform( area );
 
-    if ( !basemapobjs_.isEmpty() )
-    {
-	mDynamicCastGet(Basemap::GridObject*,obj,basemapobjs_[0])
-	if ( !obj ) return false;
-
-	if ( isinlcrl )
-	    obj->setInlCrlGrid( inlxspacing, crlyspacing,
-				       inlxchecked, crlychecked, ls );
-	if ( !isinlcrl )
-	    obj->setXYGrid( inlxspacing, crlyspacing, xyarea,
-				   inlxchecked, crlychecked, ls );
-	obj->updateGeometry();
-    }
-    else
+    if ( basemapobjs_.isEmpty() )
     {
 	Basemap::GridObject* obj = new Basemap::GridObject();
+	addBasemapObject( *obj );
+    }
+    mDynamicCastGet(Basemap::GridObject*,obj,basemapobjs_[0])
+    if ( !obj ) return false;
 
+    if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
+	obj->setLineStyle( 0, ls );
+    if ( hasParChanged(prevpar,par,sKeyInlXSpacing()) ||
+	 hasParChanged(prevpar,par,sKeyCrlYSpacing()) )
+    {
 	if ( isinlcrl )
 	    obj->setInlCrlGrid( inlxspacing, crlyspacing,
-				inlxchecked, crlychecked, ls );
+				       inlxchecked, crlychecked );
 	if ( !isinlcrl )
 	    obj->setXYGrid( inlxspacing, crlyspacing, xyarea,
-			    inlxchecked, crlychecked, ls );
-
-	addBasemapObject( *obj );
+				   inlxchecked, crlychecked );
 	obj->updateGeometry();
     }
 

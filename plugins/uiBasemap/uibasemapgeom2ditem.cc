@@ -111,6 +111,7 @@ uiBasemapGeom2DTreeItem::~uiBasemapGeom2DTreeItem()
 
 bool uiBasemapGeom2DTreeItem::usePar( const IOPar& par )
 {
+    const IOPar prevpar = pars_;
     uiBasemapTreeItem::usePar( par );
 
     BufferString lsstr;
@@ -130,22 +131,31 @@ bool uiBasemapGeom2DTreeItem::usePar( const IOPar& par )
 	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
 	    continue;
 
-	if ( basemapobjs_.validIdx(idx) )
+	if ( !basemapobjs_.validIdx(idx) )
 	{
-	    mDynamicCastGet(Basemap::Geom2DObject*,obj,basemapobjs_[idx])
-	    if ( obj )
-	    {
-		obj->setMultiID( mid );
-		obj->setLineStyle( ls );
-		obj->updateGeometry();
-	    }
-	}
-	else
-	{
-	    Basemap::Geom2DObject* obj =
-		new Basemap::Geom2DObject( mid );
-	    obj->setLineStyle( ls );
+	    Basemap::Geom2DObject* obj = new Basemap::Geom2DObject();
 	    addBasemapObject( *obj );
+	}
+
+	mDynamicCastGet(Basemap::Geom2DObject*,obj,basemapobjs_[idx])
+	if ( !obj ) return false;
+
+	if ( hasParChanged(prevpar,par,uiBasemapGroup::sKeyNrObjs()) )
+	{
+	    // if the number of objects is different, everything needs to be
+	    // redraw So...
+	    obj->setLineStyle( 0, ls );
+	    obj->setMultiID( mid );
+	    obj->updateGeometry();
+	    continue;
+	}
+
+	if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
+	    obj->setLineStyle( 0, ls );
+
+	if ( hasSubParChanged(prevpar,par,sKey::ID()) )
+	{
+	    obj->setMultiID( mid );
 	    obj->updateGeometry();
 	}
     }

@@ -69,6 +69,7 @@ public:
 				    diagonal. */
 
     Notifier<BaseMapObject>	changed;
+    Notifier<BaseMapObject>	stylechanged;
 
 protected:
 
