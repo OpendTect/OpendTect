@@ -81,7 +81,7 @@ BufferString CmdComposer::createFactoryKey( const Classifier* classifier,
     {
 	BufferString errmsg( "Redefining composer \"" );
 	errmsg += keyword; errmsg += "\"";
-	pFreeFnErrMsg( errmsg, "CmdDrive::CmdComposer" );
+	pFreeFnErrMsg( errmsg );
     }
 
     return fackey;

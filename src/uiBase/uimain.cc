@@ -490,7 +490,7 @@ uiMain& uiMain::theMain()
     if ( themain_ ) return *themain_;
     if ( !qApp )
     {
-	pFreeFnErrMsg("FATAL: no uiMain and no qApp.","uiMain::theMain()");
+	pFreeFnErrMsg("FATAL: no uiMain and no qApp." );
 	QApplication::exit( -1 );
     }
 

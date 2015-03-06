@@ -256,7 +256,7 @@ const SurveyInfo& SI()
 void SurveyInfo::pushSI( SurveyInfo* newsi )
 {
     if ( !newsi )
-	pFreeFnErrMsg("Null survinfo pushed","SurveyInfo::pushSI");
+	pFreeFnErrMsg("Null survinfo pushed");
     else
 	survinfostack += newsi;
 }

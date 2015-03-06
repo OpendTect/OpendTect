@@ -87,7 +87,7 @@ static bool isUdfImplImpl( fT val )
     {
 	if ( DBG::crashOnNaN() )
 	{
-	    pFreeFnErrMsg("Bad fp value found","isUdfImplImp");
+	    pFreeFnErrMsg("Bad fp value found" );
 	    DBG::forceCrash(false); return true;
 	}
     }

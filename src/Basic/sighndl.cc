@@ -307,8 +307,7 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
 	{ stopProcess( pid, friendly ); return; }
 
 #ifdef __win__
-    pFreeFnErrMsg( "Not impl: stopRemote() for Windows",
-		   "SignalHandling::stopRemote" );
+    pFreeFnErrMsg( "Not impl: stopRemote() for Windows");
 #else
 
     BufferString cmd( "kill ", friendly ? "-TERM " : "-9 " );

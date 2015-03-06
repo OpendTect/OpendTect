@@ -322,7 +322,7 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 {
     Threads::Locker lock( getEnvVarLock() );
     if ( !env || !*env )
-	{ pFreeFnErrMsg( "Asked for empty env var", "GetEnvVar" ); return 0; }
+	{ pFreeFnErrMsg( "Asked for empty env var" ); return 0; }
     if ( insysadmmode_ )
 	return GetOSEnvVar( env );
 
@@ -332,7 +332,7 @@ mExtern(Basic) const char* GetEnvVar( const char* env )
 	if ( !AreProgramArgsSet() )
 	{
 	    //We should not be here before SetProgramInfo() is called.
-	    pFreeFnErrMsg( "Use SetProgramArgs()", "GetEnvVar" );
+	    pFreeFnErrMsg( "Use SetProgramArgs()" );
 	    return GetOSEnvVar( env );
 	}
 

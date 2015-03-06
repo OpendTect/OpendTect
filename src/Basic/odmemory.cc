@@ -48,9 +48,9 @@ void OD::memCopy( void* dest, const void* org, od_int64 sz )
     if ( sz <= 0 )
 	return;
     else if ( !dest )
-	{ pFreeFnErrMsg("dest null","OD::memCopy"); return; }
+	{ pFreeFnErrMsg("dest null"); return; }
     else if ( !org )
-	{ pFreeFnErrMsg("org null","OD::memCopy"); return; }
+	{ pFreeFnErrMsg("org null"); return; }
 
     if ( mExecNonParallel(sz) )
 	memcpy( dest, org, (size_t)sz );
@@ -81,7 +81,7 @@ void OD::memSet( void* data, char setto, od_int64 sz )
     if ( sz <= 0 )
 	return;
     else if ( !data )
-	{ pFreeFnErrMsg("data null","OD::memSet"); return; }
+	{ pFreeFnErrMsg("data null"); return; }
 
     if ( mExecNonParallel(sz) || !Threads::WorkManager::twm().nrFreeThreads() )
 	memset( data, (int)setto, (size_t)sz );

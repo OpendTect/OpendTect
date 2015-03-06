@@ -128,7 +128,7 @@ bool Phase::unWrap( float wrapparam )
 
     if ( mIsZero(wrapparam,1e-6f) )
     {
-	pFreeFnErrMsg("wrapping parameter is zero", "Phase::unWrap");
+	pFreeFnErrMsg("wrapping parameter is zero");
 	return false;
     }
 

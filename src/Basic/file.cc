@@ -263,7 +263,7 @@ const char* getCanonicalPath( const char* dir )
     const QDir qdir( dir );
     ret = qdir.canonicalPath();
 #else
-    pFreeFnErrMsg(not_implemented_str,"getCanonicalPath");
+    pFreeFnErrMsg(not_implemented_str);
     ret = dir;
 #endif
     return ret.buf();
@@ -280,7 +280,7 @@ const char* getRelativePath( const char* reltodir, const char* fnm )
     ret = qdir.relativeFilePath( path.buf() );
     return ret.isEmpty() ? fnm : ret.buf();
 #else
-    pFreeFnErrMsg(not_implemented_str,"getRelativePath");
+    pFreeFnErrMsg(not_implemented_str);
     return fnm;
 #endif
 }
@@ -292,7 +292,7 @@ bool isLink( const char* fnm )
     QFileInfo qfi( fnm );
     return qfi.isSymLink();
 #else
-    pFreeFnErrMsg(not_implemented_str,"isLink");
+    pFreeFnErrMsg(not_implemented_str);
     return false;
 #endif
 }
@@ -324,7 +324,7 @@ bool isHidden( const char* fnm )
     QFileInfo qfi( fnm );
     return qfi.isHidden();
 #else
-    pFreeFnErrMsg(not_implemented_str,"isHidden");
+    pFreeFnErrMsg(not_implemented_str);
     return false;
 #endif
 }
@@ -387,7 +387,7 @@ bool createDir( const char* fnm )
 #ifndef OD_NO_QT
     QDir qdir; return qdir.mkpath( fnm );
 #else
-    pFreeFnErrMsg(not_implemented_str,"createDir");
+    pFreeFnErrMsg(not_implemented_str);
     return false;
 #endif
 }
@@ -398,7 +398,7 @@ bool rename( const char* oldname, const char* newname )
 #ifndef OD_NO_QT
     return QFile::rename( oldname, newname );
 #else
-    pFreeFnErrMsg(not_implemented_str,"rename");
+    pFreeFnErrMsg(not_implemented_str);
     return false;
 #endif
 
@@ -418,7 +418,7 @@ bool createLink( const char* fnm, const char* linknm )
 #endif // __win__
 
 #else
-    pFreeFnErrMsg(not_implemented_str,"createLink");
+    pFreeFnErrMsg(not_implemented_str);
     return false;
 #endif
 }

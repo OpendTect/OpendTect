@@ -47,7 +47,7 @@ BufferString Command::createFactoryKey( const char* keyword )
     {
 	BufferString errmsg( "Redefining command \"" );
 	errmsg += keyword; errmsg += "\"";
-	pFreeFnErrMsg( errmsg, "CmdDrive::Command" );
+	pFreeFnErrMsg( errmsg );
     }
 
     return fackey; 

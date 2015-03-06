@@ -43,7 +43,7 @@ BufferString Function::createFactoryKey( const char* keyword )
     {
 	BufferString errmsg( "Redefining function \"" );
 	errmsg += keyword; errmsg += "\"";
-	pFreeFnErrMsg( errmsg, "CmdDrive::Function" );
+	pFreeFnErrMsg( errmsg );
     }
 
     return fackey;

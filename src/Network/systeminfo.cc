@@ -252,7 +252,7 @@ const char* getFileSystemName( const char* path )
 			   ARRAYSIZE(filesystemname) );
     return filesystemname;
 #else
-    pFreeFnErrMsg( "Not implemented yet", "System::getFileSystemName" );
+    pFreeFnErrMsg( "Not implemented yet" );
     return 0;
 #endif
 }

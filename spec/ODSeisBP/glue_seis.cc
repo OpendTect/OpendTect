@@ -190,7 +190,7 @@ static bool incrIdxs( int* idxs, int& workcrl )
 	workcrl += xlinestep;
     }
 
-    pFreeFnErrMsg("Can't reach this place","incrIdxs");
+    pFreeFnErrMsg("Can't reach this place");
     return false;
 }
 

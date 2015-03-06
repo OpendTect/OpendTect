@@ -314,8 +314,7 @@ bool DataObject::isVisualizationThread()
 {
     if ( !visualizationthread_ )
     {
-	pFreeFnErrMsg("Visualization thread not set",
-		      "isVisualizationThread");
+	pFreeFnErrMsg("Visualization thread not set");
 	return false;
     }
 
@@ -327,8 +326,7 @@ void DataObject::setVisualizationThread(const void* thread)
 {
     if ( visualizationthread_ )
     {
-	pFreeFnErrMsg("Visualization thread set before.",
-		      "setVisualizationThread");
+	pFreeFnErrMsg("Visualization thread set before.");
 	return;
     }
 

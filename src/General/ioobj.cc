@@ -160,7 +160,7 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
     MultiID ky( keyin );
     if ( ky.isEmpty() )
     {
-	pFreeFnErrMsg( "IOObj : Empty key given", "IOObj::produce" );
+	pFreeFnErrMsg( "IOObj : Empty key given");
 	return 0;
     }
 

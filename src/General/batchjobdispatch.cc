@@ -81,8 +81,7 @@ const char* Batch::JobSpec::progNameFor( ProcType pt )
 	case NonODBase:
 	    return "";
 	default:
-	    pFreeFnErrMsg("switch case not added",
-			  "Batch::JobSpec::progNameFor");
+	    pFreeFnErrMsg("switch case not added");
 	    return 0;
     }
 }

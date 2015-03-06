@@ -51,15 +51,15 @@ inline const char* className( const T& t )
 }
 
 
-# define pFreeFnErrMsg(msg,fn) \
-    OD::programmerErrMsg( msg, fn, __FILE__, __LINE__ )
+# define pFreeFnErrMsg(msg) \
+    OD::programmerErrMsg( msg, __func__, __FILE__, __LINE__ )
     //!< Usual access point for programmer error messages in free functions
 
 #else
 
 # define pErrMsg(msg)
 # define pErrMsgOnce(msg)
-# define pFreeFnErrMsg(msg,fn)
+# define pFreeFnErrMsg(msg)
 
 #endif
 

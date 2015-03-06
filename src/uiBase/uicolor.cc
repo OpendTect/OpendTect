@@ -92,8 +92,7 @@ bool uiColorInput::selectColor( Color& col, uiParent* parnt,
 		{ qlbl->setText( "Transparency:" ); found = true; break; }
 	}
 	if ( !found )
-	    { pFreeFnErrMsg("Implement support for label change in this Qt ver",
-				"selectColor" ); }
+	  pFreeFnErrMsg("Implement support for label change in this Qt ver");
     }
 
     const bool ok = qdlg.exec() == QDialog::Accepted;

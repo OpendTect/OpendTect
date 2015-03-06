@@ -474,8 +474,7 @@ void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
     {
 	if ( cmd.find( "\"" ) )
 	{
-	    pFreeFnErrMsg("Commands with quote-signs not supported",
-		          "addShellIfNeeded" );
+	    pFreeFnErrMsg("Commands with quote-signs not supported");
 	}
 
 	const BufferString comm = cmd;

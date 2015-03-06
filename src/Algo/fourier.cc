@@ -4239,7 +4239,7 @@ int FFTCC1D::getFastSize( int nmin )
     BufferString msg( "\n\tFFT size above largest fast size asked: ", nmin,
 		      "\n\tLargest fast is: " );
     msg.add( nctab[NTAB-1].n ).add( "\n\t--> Consider extending nctab ..." );
-    pFreeFnErrMsg( msg, "CC::CC1D::getFastSize" );
+    pFreeFnErrMsg( msg );
 #endif
     return nmin;
 }

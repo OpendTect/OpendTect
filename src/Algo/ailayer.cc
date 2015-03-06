@@ -843,7 +843,7 @@ bool ElasticModel::doBlocking( float relthreshold, bool pvelonly,
 	    int bendpoint = curblock.center();
 	    if ( bendpoints.isEmpty() )
 	    {
-		pFreeFnErrMsg("Should never happen", "ElasticModel::block");
+		pFreeFnErrMsg("Should never happen");
 	    }
 	    else if ( bendpoints.size()==1 )
 	    {
