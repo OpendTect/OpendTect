@@ -6,7 +6,7 @@ if "%1"=="" (
 )
 
 if "%4"=="" (
-    for /r %%v in (data\localizations\source\*.ts) do (
+    for /r %%v in (data\localizations\source\*-??.ts) do (
 	CALL %0 %%~nv %1 %2 %3 )
 
     exit 0
