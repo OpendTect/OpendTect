@@ -67,7 +67,7 @@ void Fault3DPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool update )
 { tkzs_ = cs; }
 
 
-void Fault3DPainter::setPath( const TypeSet<TrcKey>& path )
+void Fault3DPainter::setPath( const TrcKeyPath& path )
 {
     path_ = &path;
 }
@@ -389,7 +389,6 @@ bool Fault3DPainter::paintPlaneIntxn(EM::Fault3D& f3d, Fault3DMarker* f3dmaker,
 	return false;
 
     Geometry::IndexedGeometry* idxgeom = idxshape->getGeometry()[0];
-//    TypeSet<int> coordindices = idxgeom->coordindices_;
 
     Geometry::PrimitiveSet* geomps = idxgeom->getCoordsPrimitiveSet();
 

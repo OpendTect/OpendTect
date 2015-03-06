@@ -210,7 +210,7 @@ void VW2DPickSet::updateSetIdx( const TrcKeyZSampling& cs )
 }
 
 
-void VW2DPickSet::updateSetIdx( const TypeSet<TrcKey>& trckeys )
+void VW2DPickSet::updateSetIdx( const TrcKeyPath& trckeys )
 {
     if ( !pickset_ ) return;
     picksetidxs_.erase();

@@ -69,7 +69,7 @@ const char* FaultStickPainter::getLineName() const
 void FaultStickPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs,bool upd )
 { tkzs_ = cs; }
 
-void FaultStickPainter::setPath( const TypeSet<TrcKey>& path )
+void FaultStickPainter::setPath( const TrcKeyPath& path )
 { path_ = &path; }
 
 void FaultStickPainter::setFlatPosData( const FlatPosData* fps )

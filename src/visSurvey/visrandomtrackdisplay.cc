@@ -625,7 +625,7 @@ void RandomTrackDisplay::createTransformedDataPack( int attrib )
     DataPack::ID outputid = DataPack::cNoID();
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-	const TypeSet<TrcKey>& path = randsdp->getPath();
+	const TrcKeyPath& path = randsdp->getPath();
 	TrcKeyZSampling tkzs( false );
 	for ( int idx=0; idx<path.size(); idx++ )
 	    tkzs.hsamp_.include( path[idx].pos() );

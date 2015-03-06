@@ -62,7 +62,7 @@ void HorizonPainter3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
 }
 
 
-void HorizonPainter3D::setPath( const TypeSet<TrcKey>& path )
+void HorizonPainter3D::setPath( const TrcKeyPath& path )
 {
     path_ = &path;
 }

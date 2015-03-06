@@ -123,7 +123,7 @@ void Fault3DFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 }
 
 
-void Fault3DFlatViewEditor::setPath( const TypeSet<TrcKey>& path )
+void Fault3DFlatViewEditor::setPath( const TrcKeyPath& path )
 {
     path_ = &path;
     f3dpainter_->setPath( path );

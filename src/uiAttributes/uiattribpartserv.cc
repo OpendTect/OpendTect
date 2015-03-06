@@ -795,12 +795,12 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     if ( !createOutput( bidset, output, trueknotspos, path ) )
 	return DataPack::cNoID();
 
-    TypeSet<TrcKey> trcs;
+    TrcKeyPath trckeys;
     for ( int idx=0; idx<path->size(); idx++ )
-	trcs += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
+	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
 				       (*path)[idx].inl(), (*path)[idx].crl() );
     RandomSeisDataPack* newpack = new RandomSeisDataPack( "" );
-    newpack->setPath( trcs );
+    newpack->setPath( trckeys );
     newpack->setZRange( output.get(0)->zRange() );
     for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
     {

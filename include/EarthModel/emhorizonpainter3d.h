@@ -36,7 +36,7 @@ public:
 
     void		setTrcKeyZSampling(
 				const TrcKeyZSampling&,bool upd=false);
-    void		setPath(const TypeSet<TrcKey>&);
+    void		setPath(const TrcKeyPath&);
     void		setFlatPosData(const FlatPosData*);
 
     void		enableLine(bool);
@@ -80,8 +80,8 @@ protected:
     void		changePolyLinePosition( const EM::PosID& pid );
 
     EM::ObjectID        id_;
-    TrcKeyZSampling        tkzs_;
-    const TypeSet<TrcKey>*	path_;
+    TrcKeyZSampling	tkzs_;
+    const TrcKeyPath*	path_;
     const FlatPosData*	flatposdata_;
 
     LineStyle           markerlinestyle_;

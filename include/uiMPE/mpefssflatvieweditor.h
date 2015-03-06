@@ -40,7 +40,7 @@ public:
     void		updateActStkContainer();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
-    void		setPath(const TypeSet<TrcKey>&);
+    void		setPath(const TrcKeyPath&);
     void                setFlatPosData(const FlatPosData*);
     void		drawFault();
     void		enableLine(bool);
@@ -83,7 +83,7 @@ protected:
     Coord3			getScaleVector() const;
 				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
 
-    const TypeSet<TrcKey>*	path_;
+    const TrcKeyPath*		path_;
 
     EM::FaultStickPainter*  	fsspainter_;
     bool			seedhasmoved_;

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "seismod.h"
 
 #include "bindatadesc.h"
-#include "datapack.h"
 #include "datapackbase.h"
 #include "trckeyzsampling.h"
 #include "valseries.h"
@@ -126,16 +125,17 @@ public:
     void			setZRange( const StepInterval<float>& zrg )
 				{ zsamp_ = zrg; }
 
-    void			setPath( const TypeSet<TrcKey>& path )
+    void			setPath( const TrcKeyPath& path )
 				{ path_ = path; }
-    const TypeSet<TrcKey>&	getPath() const		{ return path_; }
+    const TrcKeyPath&		getPath() const		{ return path_; }
 
     bool			addComponent(const char* nm);
 
 protected:
 
-    TypeSet<TrcKey>		path_;
+    TrcKeyPath			path_;
     StepInterval<float>		zsamp_;
+
 };
 
 
@@ -200,7 +200,7 @@ public:
 				{ return source_; }
 
     const StepInterval<float>&	getZRange() const	{ return zsamp_; }
-    const TypeSet<TrcKey>&	getPath() const		{ return path_; }
+    const TrcKeyPath&		getPath() const		{ return path_; }
     Coord3			getCoord(int i0,int i1) const;
 
     const ZDomain::Info&	zDomain() const
@@ -213,7 +213,7 @@ private:
     void			setSourceData();
 
     const RandomSeisDataPack&	source_;
-    const TypeSet<TrcKey>&	path_;
+    const TrcKeyPath&		path_;
     const StepInterval<float>&	zsamp_;
     int				comp_;
 };
