@@ -274,8 +274,8 @@ void uiBaseMap::setView( const uiWorldRect& wr )
 
 void uiBaseMap::updateTransform()
 {
-    const uiRect viewrect( 0, 0, view_.scene().width(),
-				 view_.scene().height() );
+    const uiRect viewrect( 0, 0, (int)view_.scene().width(),
+				 (int)view_.scene().height() );
 
     if ( mIsZero(wr_.width(),mDefEps) || mIsZero(wr_.height(),mDefEps) )
 	return;
