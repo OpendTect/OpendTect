@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapiomgr.h"
 #include "uigeninput.h"
+#include "uigraphicsitem.h"
 #include "uigraphicsview.h"
 #include "uilistbox.h"
 #include "uimenu.h"
@@ -222,7 +223,7 @@ void uiBaseMapTBMgr::vwmapscaleCB( CallBacker* )
 void uiBaseMapTBMgr::vworientationCB( CallBacker* )
 {
     const bool ison = vwtoolbar_->isOn( vworientationid_ );
-    basemapview_.getNorthArrow()->show( ison );
+    basemapview_.getNorthArrow()->setVisible( ison );
 }
 
 
