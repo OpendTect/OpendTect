@@ -14,6 +14,12 @@ ________________________________________________________________________
 
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
+#include "uibasemap.h"
+
+namespace EM { class Horizon3D; }
+namespace FlatView { class Appearance; }
+class uiBitMapDisplay;
+class MapDataPack;
 
 
 mExpClass(uiBasemap) uiBasemapHorizon3DGroup : public uiBasemapGroup
@@ -35,6 +41,26 @@ protected:
 };
 
 
+mExpClass(uiBasemap) uiBasemapHorizon3DObject : public uiBaseMapObject
+{
+public:
+			uiBasemapHorizon3DObject(BaseMapObject*);
+			~uiBasemapHorizon3DObject();
+
+    inline const char*	getType() const			{ return "Horizon3D"; }
+    void		setHorizon(const EM::Horizon3D*);
+
+    virtual void	update();
+
+protected:
+
+    FlatView::Appearance&	appearance_;
+    uiBitMapDisplay&		bitmapdisp_;
+    const EM::Horizon3D*	hor3d_;
+    MapDataPack*		dp_;
+};
+
+
 mExpClass(uiBasemap) uiBasemapHorizon3DTreeItem : public uiBasemapTreeItem
 {
 public:
@@ -43,10 +69,13 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
+    void		checkCB(CallBacker*);
     bool		showSubMenu();
     bool		handleSubMenu(int);
     const char*		parentType() const
 			{ return typeid(uiBasemapTreeTop).name(); }
+
+    uiBasemapHorizon3DObject*	uibmobj_;
 };
 
 
@@ -59,6 +88,7 @@ public:
 				"Horizon 3D",
 				sFactoryKeyword())
 
+    int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*, bool isadd);
     uiBasemapTreeItem*	createTreeItem(const char*);

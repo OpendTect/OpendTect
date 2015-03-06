@@ -271,7 +271,7 @@ bool uiBasemapGridTreeItem::usePar( const IOPar& par )
 
     uiBaseMap& uibm = BMM().getBasemap();
     const uiRect area = uibm.view().getViewArea();
-    const uiWorldRect xyarea = uibm.transform().transform( area );
+    const uiWorldRect xyarea = uibm.getWorld2Ui().transform( area );
 
     if ( basemapobjs_.isEmpty() )
     {
@@ -283,6 +283,7 @@ bool uiBasemapGridTreeItem::usePar( const IOPar& par )
 
     if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
 	obj->setLineStyle( 0, ls );
+
     if ( hasParChanged(prevpar,par,sKeyInlXSpacing()) ||
 	 hasParChanged(prevpar,par,sKeyCrlYSpacing()) )
     {
@@ -302,7 +303,8 @@ bool uiBasemapGridTreeItem::usePar( const IOPar& par )
 bool uiBasemapGridTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), sEditID() );
+    mnu.insertItem( new uiAction(uiStrings::sRemove(true)), sRemoveID() );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );
 }
@@ -310,15 +312,14 @@ bool uiBasemapGridTreeItem::showSubMenu()
 
 bool uiBasemapGridTreeItem::handleSubMenu( int mnuid )
 {
-    if ( mnuid==0 )
-	BMM().edit( getFamilyID(), ID() );
-    else
-	return false;
-
-    return true;
+    return uiBasemapTreeItem::handleSubMenu(mnuid);
 }
 
+
 // uiBasemapGridItem
+int uiBasemapGridItem::defaultZValue() const
+{ return 100; }
+
 const char* uiBasemapGridItem::iconName() const
 { return "basemap-gridlines"; }
 

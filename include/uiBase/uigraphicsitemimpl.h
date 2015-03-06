@@ -119,6 +119,7 @@ public:
     void 		setPenStyle(const LineStyle&,bool withalpha=false);
     void		setPenColor(const Color&,bool withalpha=false);
     void		setLine(const uiPoint& start,const uiPoint& end);
+    void		setLine(const uiWorldPoint&,const uiWorldPoint&);
     void		setLine(int x1,int y1,int x2,int y2);
     void		setLine(float x1,float y1,float x2,float y2);
     void		setLine(const Geom::Point2D<float>&,

@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewer.h"
 
 #include "uiflatauxdatadisplay.h"
-#include "uiflatbitmapdisplay.h"
+#include "uibitmapdisplay.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uiworld2ui.h"
@@ -32,14 +32,13 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , extfac_(0.5f)
     , extraborders_(0,0,5,0)
     , worldgroup_( new uiGraphicsItemGroup( true ) )
-    , bitmapdisp_( new FlatView::uiBitMapDisplay( *this ) )
     , annotwork_( mCB(this,uiFlatViewer,updateAnnotCB) )
     , auxdatawork_( mCB(this,uiFlatViewer,updateAuxDataCB) )
     , bitmapwork_( mCB(this,uiFlatViewer,updateBitmapCB) )
     , control_(0)
-    , xseldatarange_(mUdf(float),mUdf(float))		 
+    , xseldatarange_(mUdf(float),mUdf(float))
     , yseldatarange_(mUdf(float),mUdf(float))
-    , useseldataranges_(false)	 
+    , useseldataranges_(false)
     , viewChanged(this)
     , dataChanged(this)
     , dispParsChanged(this)
@@ -61,8 +60,10 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->reSize.notify( mCB(this,uiFlatViewer,reSizeCB) );
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
 
+    bitmapdisp_ = new uiBitMapDisplay( appearance() );
     bitmapdisp_->getDisplay()->setZValue( bitMapZVal() );
     worldgroup_->add( bitmapdisp_->getDisplay() );
+
     axesdrawer_.setZValue( annotZVal() );
     axesdrawer_.setWorldCoords( wr_ );
     mAttachCB( axesdrawer_.layoutChanged(), uiFlatViewer::reSizeCB );
@@ -131,7 +132,7 @@ void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 }
 
 
-void uiFlatViewer::updateTransforms() 
+void uiFlatViewer::updateTransforms()
 {
     const uiRect viewrect = getViewRect();
 
@@ -181,11 +182,11 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     if ( !dp ) return uiWorldRect(0,0,1,1);
 
     const FlatPosData& pd = dp->posData();
-    StepInterval<double> rg0( pd.range(true) ); 
+    StepInterval<double> rg0( pd.range(true) );
     StepInterval<double> rg1( pd.range(false) );
     if (useseldataranges_ && !xseldatarange_.isUdf() && !yseldatarange_.isUdf())
-    { 
-	rg0.limitTo( xseldatarange_ ); 
+    {
+	rg0.limitTo( xseldatarange_ );
 	rg1.limitTo( yseldatarange_ );
     }
     rg0.sort( true );
@@ -225,7 +226,7 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 	return;
 
     wr_ = wr;
-    
+
     wr_.sortCorners( !appearance().annot_.x1_.reversed_,
 		     appearance().annot_.x2_.reversed_ );
 
@@ -269,6 +270,13 @@ void uiFlatViewer::updateCB( CallBacker* )
 void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
+
+    ConstDataPackRef<FlatDataPack> wvapack = obtainPack( true );
+    ConstDataPackRef<FlatDataPack> vdpack = obtainPack( false );
+    bitmapdisp_->setDataPack( wvapack.ptr(), true );
+    bitmapdisp_->setDataPack( vdpack.ptr(), false );
+
+    bitmapdisp_->setBoundingBox( boundingBox() );
     bitmapdisp_->update();
     dataChanged.trigger();
     dispParsChanged.trigger();

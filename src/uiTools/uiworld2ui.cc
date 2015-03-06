@@ -202,7 +202,7 @@ uiRect uiWorld2Ui::transform( uiWorldRect area ) const
 		   transform(area.bottomRight()) );
 }
 
-// Since the compiler will be comfused if two functions
+// Since the compiler will be confused if two functions
 // only differ in return type, Geom::Point2D<float> is
 // set rather than be returned.
 
@@ -213,7 +213,7 @@ void uiWorld2Ui::transform( const uiPoint& upt,
 
 
 void uiWorld2Ui::transform( const Geom::Point2D<float>& pt, uiPoint& upt) const
-{  upt.setXY( toUiX( pt.x ), toUiY( pt.y ) ); };
+{  upt.setXY( toUiX( pt.x ), toUiY( pt.y ) ); }
 
 
 int uiWorld2Ui::toUiX ( float wrdx ) const

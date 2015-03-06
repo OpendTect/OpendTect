@@ -31,6 +31,8 @@ WellObject::WellObject( const MultiID& mid )
 {
     setKey( mid );
     data_.ref();
+
+    setDepth( 10 );
 }
 
 

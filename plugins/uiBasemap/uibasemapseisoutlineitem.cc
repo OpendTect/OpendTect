@@ -148,7 +148,8 @@ bool uiBasemapSeisOutlineTreeItem::usePar( const IOPar& par )
 bool uiBasemapSeisOutlineTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), sEditID() );
+    mnu.insertItem( new uiAction(uiStrings::sRemove(true)), sRemoveID() );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );
 }
@@ -156,17 +157,15 @@ bool uiBasemapSeisOutlineTreeItem::showSubMenu()
 
 bool uiBasemapSeisOutlineTreeItem::handleSubMenu( int mnuid )
 {
-    if ( mnuid==0 )
-	BMM().edit( getFamilyID(), ID() );
-    else
-	return false;
-
-    return true;
+    return uiBasemapTreeItem::handleSubMenu( mnuid );
 }
 
 
 
 // uiBasemapSeisOutlineItem
+int uiBasemapSeisOutlineItem::defaultZValue() const
+{ return 100; }
+
 const char* uiBasemapSeisOutlineItem::iconName() const
 { return "basemap-seisoutline"; }
 

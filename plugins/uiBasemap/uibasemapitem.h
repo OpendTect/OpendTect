@@ -32,11 +32,11 @@ class IOPar;
 mExpClass(uiBasemap) uiBasemapTreeTop : public uiTreeTopItem
 {
 public:
-                        uiBasemapTreeTop(uiTreeView*);
-                        ~uiBasemapTreeTop();
+			uiBasemapTreeTop(uiTreeView*);
+			~uiBasemapTreeTop();
 
 protected:
-    const char*         parentType() const      { return 0; }
+    const char*		parentType() const	{ return 0; }
 };
 
 
@@ -107,6 +107,9 @@ public:
     void		setFamilyID( int id )	{ familyid_ = id; }
     int			getFamilyID() const	{ return familyid_; }
 
+    static int		sEditID()		{ return 100; }
+    static int		sRemoveID()		{ return 999; }
+
     const IOPar&	pars() const		{ return pars_; }
     virtual bool	usePar(const IOPar&);
 
@@ -116,12 +119,15 @@ protected:
     bool		init();
     void		addBasemapObject(BaseMapObject&);
     BaseMapObject*	removeBasemapObject(BaseMapObject&);
-    void		checkCB(CallBacker*);
+    virtual void	checkCB(CallBacker*);
+
+    virtual void	edit();
+    virtual void	remove();
 
     bool		hasParChanged(const IOPar& oldp,const IOPar& newp,
 				      const char* key);
     bool		hasSubParChanged(const IOPar& oldp,const IOPar& newp,
-					 const char* compkey);
+					 const char* key);
 
     virtual bool	showSubMenu();
     virtual bool	handleSubMenu(int);
@@ -146,9 +152,10 @@ public:
 
     int			ID() const		{ return id_; }
 
-    virtual const char*		iconName() const		      = 0;
-    virtual uiBasemapGroup*	createGroup(uiParent*,bool)	      = 0;
-    virtual uiBasemapTreeItem*	createTreeItem(const char*)	      = 0;
+    virtual int			defaultZValue() const		= 0;
+    virtual const char*		iconName() const		= 0;
+    virtual uiBasemapGroup*	createGroup(uiParent*,bool)	= 0;
+    virtual uiBasemapTreeItem*	createTreeItem(const char*)	= 0;
 
 protected:
 			uiBasemapItem();

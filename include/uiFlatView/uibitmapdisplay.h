@@ -1,5 +1,5 @@
-#ifndef uiflatbitmapdisplay_h
-#define uiflatbitmapdisplay_h
+#ifndef uibitmapdisplay_h
+#define uibitmapdisplay_h
 /*+
 ________________________________________________________________________
 
@@ -12,17 +12,19 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewmod.h"
+#include "uigeom.h"
 #include "callback.h"
-
-class uiDynamicImageItem;
-class uiFlatViewer;
-class uiGraphicsItem;
-class Task;
-
-namespace FlatView
-{
+#include "datapack.h"
 
 class uiBitMapDisplayTask;
+class uiDynamicImageItem;
+class uiGraphicsItem;
+class DataPackMgr;
+class FlatDataPack;
+class Task;
+
+namespace FlatView { class Appearance; }
+
 
 /*!
 \brief Takes the flat-data from a FlatViewer and puts it into a uiGraphicsItem.
@@ -31,7 +33,7 @@ class uiBitMapDisplayTask;
 mExpClass(uiFlatView) uiBitMapDisplay : public CallBacker
 {
 public:
-    			uiBitMapDisplay(uiFlatViewer&);
+			uiBitMapDisplay(FlatView::Appearance&);
 			~uiBitMapDisplay();
 
     void		update();
@@ -51,6 +53,9 @@ public:
     float		getOverlap() const  { return overlap_; }
 
     Interval<float>	getDataRange(bool iswva) const;
+    const uiWorldRect&	boundingBox() const;
+    void		setBoundingBox(const uiWorldRect&);
+    void		setDataPack(const FlatDataPack*,bool wva);
 
 private:
 
@@ -59,20 +64,22 @@ private:
 
     Task*			createDynamicTask(bool issnapshot);
 
-    uiFlatViewer&		viewer_;
-    int				workqueueid_;
+    bool			isVisible(bool wva) const;
+    StepInterval<double>	getDataPackRange(bool wva,bool x1) const;
+    uiWorldRect			getBoundingBox(bool wva) const;
+
+    FlatView::Appearance&	appearance_;
+    ConstDataPackRef<FlatDataPack> wvapack_;
+    ConstDataPackRef<FlatDataPack> vdpack_;
+    uiWorldRect			boundingbox_;
     float			overlap_;
+    int				workqueueid_;
 
     uiDynamicImageItem*		display_;
-
     uiBitMapDisplayTask*	basetask_;
 
     CallBack			finishedcb_;
 };
-
-
-} // namespace FlatView
-
 
 #endif
 

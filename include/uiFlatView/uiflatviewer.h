@@ -16,25 +16,25 @@ ________________________________________________________________________
 #include "flatview.h"
 #include "threadwork.h"
 
-namespace FlatView 
+namespace FlatView
 {
     class AxesDrawer;
     class uiAuxDataDisplay;
-    class uiBitMapDisplay;
 }
 
-class uiGraphicsView;
 class BufferStringSet;
+class uiBitMapDisplay;
 class uiFlatViewControl;
-class uiWorld2Ui;
 class uiGraphicsItemGroup;
+class uiGraphicsView;
+class uiWorld2Ui;
 
 /*!
 \brief Fulfills the FlatView::Viewer specifications using 'ui' classes.
 */
 
 mExpClass(uiFlatView) uiFlatViewer : public uiGroup
-		    , public FlatView::Viewer
+				   , public FlatView::Viewer
 {
 public:
     			uiFlatViewer(uiParent*);
@@ -90,7 +90,7 @@ public:
     void		setUseSelDataRanges(bool yn) { useseldataranges_ = yn; }
     void		setSelDataRanges(Interval<double>,Interval<double>);
     const Interval<double>& getSelDataRange(bool forx) const
-			{ return forx ? xseldatarange_ : yseldatarange_; } 
+			{ return forx ? xseldatarange_ : yseldatarange_; }
     static int		bitMapZVal()			{ return 0; }
     static int		auxDataZVal()			{ return 100; }
     static int		annotZVal()			{ return 200; }
@@ -104,7 +104,7 @@ protected:
     uiGraphicsItemGroup*	worldgroup_;
     uiRect			extraborders_;
 
-    FlatView::uiBitMapDisplay*	bitmapdisp_;
+    uiBitMapDisplay*		bitmapdisp_;
 
     Threads::Work		annotwork_;
     Threads::Work		bitmapwork_;
@@ -119,7 +119,7 @@ protected:
     void			reSizeCB(CallBacker*);
 
     int				updatequeueid_;
-    float                       extfac_;
+    float			extfac_;
 
     void			updateTransforms();
 

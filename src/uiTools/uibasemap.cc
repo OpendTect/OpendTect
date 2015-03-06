@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
     , itemgrp_(*new uiGraphicsItemGroup(true))
-    , transform_(0)
     , changed_(false)
 {
     if ( bmobject_ )
@@ -32,6 +31,7 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 	bmobject_->changed.notify( mCB(this,uiBaseMapObject,changedCB) );
 	bmobject_->stylechanged.notify(
 		    mCB(this,uiBaseMapObject,changedStyleCB) );
+	itemgrp_.setZValue( bmobject_->getDepth() );
     }
 }
 
@@ -64,12 +64,6 @@ void uiBaseMapObject::changedStyleCB( CallBacker* )
 }
 
 
-void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
-{
-    transform_ = w2ui;
-}
-
-
 void uiBaseMapObject::update()
 {
     if ( !bmobject_ ) return;
@@ -81,6 +75,10 @@ void uiBaseMapObject::update()
     {
 	TypeSet<Coord> crds;
 	bmobject_->getPoints( idx, crds );
+
+	TypeSet<uiWorldPoint> worldpts;
+	for ( int cdx=0; cdx<crds.size(); cdx++ )
+	    worldpts += crds[cdx];
 
 	if ( bmobject_->getLineStyle(idx) &&
 	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )
@@ -100,15 +98,8 @@ void uiBaseMapObject::update()
 	    mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
 	    if ( !li ) return;
 
-	    TypeSet<uiPoint> uipts;
-	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
-		uipts += transform_->transform( crds[ptidx] );
-
-	    if ( bmobject_->close(idx) )
-		uipts += transform_->transform( crds[0] );
-
 	    li->setPenStyle( *bmobject_->getLineStyle(idx) );
-	    li->setPolyLine( uipts );
+	    li->setPolyLine( worldpts );
 	    itemnr++;
 	}
 
@@ -128,10 +119,7 @@ void uiBaseMapObject::update()
 	    mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
 	    if ( !itm ) return;
 
-	    TypeSet<uiPoint> pts;
-	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
-		pts += transform_->transform( uiWorldPoint(crds[ptidx]) );
-	    itm->setPolygon( pts );
+	    itm->setPolygon( worldpts );
 	    itm->fill();
 	    itemnr++;
 	}
@@ -157,12 +145,13 @@ void uiBaseMapObject::update()
 		itm->setMarkerStyle( *ms2d );
 		itm->setPenColor( ms2d->color_ );
 		itm->setFillColor( ms2d->color_ );
-		itm->setPos( transform_->transform(uiWorldPoint(crds[ptidx])) );
+		itm->setPos( crds[ptidx] );
 		itemnr++;
 	    }
 	}
 
-	if ( bmobject_->getImage( idx ) )
+	const OD::RGBImage* rgbimage = bmobject_->getImage( idx );
+	if ( rgbimage )
 	{
 	    while ( itemgrp_.size()<itemnr )
 	    {
@@ -177,13 +166,8 @@ void uiBaseMapObject::update()
 
 	    mDynamicCastGet(uiPixmapItem*,itm,itemgrp_.getUiItem(itemnr));
 
-	    mDynamicCastGet(const uiRGBArray*,rgbptr,bmobject_->getImage(idx));
-	    uiPixmap pixmap( *rgbptr );
-	    const int uixstart = transform_->toUiX(
-					mCast(float,SI().minCoord(false).x) );
-	    const int uiystart = transform_->toUiY(
-					mCast(float,SI().maxCoord(false).y) );
-	    itm->setOffset( uixstart, uiystart );
+	    mDynamicCastGet(const uiRGBArray*,rgbarr,rgbimage)
+	    uiPixmap pixmap( *rgbarr );
 	    itm->setPixmap( pixmap );
 
 	    itemnr++;
@@ -206,8 +190,7 @@ void uiBaseMapObject::update()
 
 	    mDynamicCastGet(uiTextItem*,itm,itemgrp_.getUiItem(itemnr));
 	    itm->setText( shapenm );
-	    itm->setPos( transform_->transform(uiWorldPoint(crds[0])) +
-			 uiPoint(0,-3) );
+	    itm->setPos( crds[0] );
 	    Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );
 	    itemnr++;
@@ -253,24 +236,60 @@ void uiBaseMapObject::updateStyle()
 }
 
 
+
+// uiBaseMap
 uiBaseMap::uiBaseMap( uiParent* p )
     : uiGroup(p,"Basemap")
     , view_(*new uiGraphicsView(this,"Basemap"))
     , w2ui_(*new uiWorld2Ui)
+    , worlditemgrp_(*new uiGraphicsItemGroup(true))
     , changed_(false)
 {
+    view_.scene().addItem( &worlditemgrp_ );
     view_.reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
 }
 
 
 uiBaseMap::~uiBaseMap()
 {
-    for ( int idx=0; idx<objects_.size(); idx++ )
-	view_.scene().removeItem( &objects_[idx]->itemGrp() );
-
     deepErase( objects_ );
+    view_.scene().removeItem( &worlditemgrp_ );
     delete &view_;
     delete &w2ui_;
+}
+
+
+void uiBaseMap::reSizeCB( CallBacker* )
+{
+    updateTransform();
+}
+
+
+void uiBaseMap::setView( const uiWorldRect& wr )
+{
+    wr_ = wr;
+    updateTransform();
+}
+
+
+void uiBaseMap::updateTransform()
+{
+    const uiRect viewrect( 0, 0, view_.scene().width(),
+				 view_.scene().height() );
+
+    if ( mIsZero(wr_.width(),mDefEps) || mIsZero(wr_.height(),mDefEps) )
+	return;
+
+    w2ui_.set( viewrect, wr_ );
+
+    const double xscale = viewrect.width()/(wr_.right()-wr_.left());
+    const double yscale = viewrect.height()/(wr_.bottom()-wr_.top());
+    const double xpos = viewrect.left()-xscale*wr_.left();
+    const double ypos = viewrect.top()-yscale*wr_.top();
+
+    worlditemgrp_.setPos( uiWorldPoint(xpos,ypos) );
+    worlditemgrp_.setScale( (float)xscale, (float)yscale );
+    reDraw();
 }
 
 
@@ -280,17 +299,12 @@ void uiBaseMap::addObject( BaseMapObject* obj )
     if ( index==-1 )
     {
 	uiBaseMapObject* uiobj = new uiBaseMapObject( obj );
-	if ( !uiobj )
-	    return;
-
-	addObject( uiobj ); // it already has the line 'changed = true'
+	addObject( uiobj );
     }
     else
     {
 	objects_[index]->update();
     }
-    // Does update() change the object? If yes, line 'changed = true' should go
-    // inside it
 }
 
 
@@ -316,9 +330,10 @@ void uiBaseMap::resetChangeFlag()
 
 void uiBaseMap::addObject( uiBaseMapObject* uiobj )
 {
-    view_.scene().addItem( &uiobj->itemGrp() );
+    if ( !uiobj ) return;
+
+    worlditemgrp_.add( &uiobj->itemGrp() );
     objects_ += uiobj;
-    uiobj->setTransform( &w2ui_ );
     changed_ = true;
 }
 
@@ -354,7 +369,7 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
 	pErrMsg( "Base map object not found" );
     }
 
-    view_.scene().removeItem( &objects_[index]->itemGrp() );
+    worlditemgrp_.remove( &objects_[index]->itemGrp(), true );
     delete objects_.removeSingle( index );
     changed_ = true;
 }

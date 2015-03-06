@@ -12,7 +12,7 @@ SET(OD_MODULE_SOURCES
 	uiflatauxdatadisplay.cc
 	uiflatauxdataeditor.cc
 	uiflatauxdataeditorlist.cc
-	uiflatbitmapdisplay.cc
+	uibitmapdisplay.cc
 	uiflatviewcoltabed.cc
 	uiflatviewcontrol.cc
 	uiflatviewer.cc

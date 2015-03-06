@@ -90,7 +90,6 @@ uiRect uiGraphicsItem::boundingRect() const
 	    	   mNINT32(qr.right()), mNINT32(qr.bottom()) );
 }
 
-
 void uiGraphicsItem::setPos( float x, float y )
 { stPos( x, y ); }
 

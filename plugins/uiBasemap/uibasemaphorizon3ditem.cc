@@ -8,19 +8,18 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id:  ";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemaphorizon3ditem.h"
 
 #include "basemaphorizon3d.h"
 
-#include "uibasemap.h"
+#include "uibitmapdisplay.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uiioobjselgrp.h"
 #include "uimenu.h"
 #include "uistrings.h"
-#include "uirgbarray.h"
 #include "uitaskrunner.h"
 #include "uiworld2ui.h"
 
@@ -28,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id:  ";
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "flatposdata.h"
+#include "flatview.h"
 
 #include "coltabindex.h"
 #include "coltabmapper.h"
@@ -120,15 +121,86 @@ void uiBasemapHorizon3DGroup::selChg(CallBacker *)
 }
 
 
+
+// uiBasemapHorizonObject
+uiBasemapHorizon3DObject::uiBasemapHorizon3DObject( BaseMapObject* bmobj )
+    : uiBaseMapObject(bmobj)
+    , appearance_(*new FlatView::Appearance)
+    , bitmapdisp_(*new uiBitMapDisplay(appearance_))
+    , hor3d_(0)
+    , dp_(0)
+{
+    appearance_.ddpars_.show( false, true );
+    bitmapdisp_.getDisplay()->setZValue( 0 );
+    itemgrp_.add( bitmapdisp_.getDisplay() );
+}
+
+
+uiBasemapHorizon3DObject::~uiBasemapHorizon3DObject()
+{
+    itemgrp_.remove( bitmapdisp_.getDisplay(), false );
+
+    delete &appearance_;
+    delete &bitmapdisp_;
+
+    if ( hor3d_ ) hor3d_->unRef();
+    DPM(DataPackMgr::FlatID()).release( dp_ );
+}
+
+
+void uiBasemapHorizon3DObject::setHorizon( const EM::Horizon3D* hor3d )
+{
+    if ( hor3d_ ) hor3d_->unRef();
+    hor3d_ = hor3d;
+    if ( hor3d_ ) hor3d_->ref();
+
+    Array2D<float>* arr = hor3d_->createArray2D( hor3d_->sectionID(0) );
+    if ( !arr ) return;
+
+    BufferStringSet dimnames;
+    dimnames.add("X").add("Y").add(sKey::Inline()).add(sKey::Crossline());
+
+    StepInterval<double> inlrg, crlrg;
+    inlrg.setFrom( hor3d_->range().inlRange() );
+    crlrg.setFrom( hor3d_->range().crlRange() );
+    dp_ = new MapDataPack( "Horizon3D", arr );
+    dp_->setProps( inlrg, crlrg, true, &dimnames );
+    DPM(DataPackMgr::FlatID()).addAndObtain( dp_ );
+    bitmapdisp_.setDataPack( dp_, false );
+    bitmapdisp_.getDisplay()->show();
+    update();
+}
+
+
+void uiBasemapHorizon3DObject::update()
+{
+    if ( !dp_ ) return;
+
+    const FlatPosData& pd = dp_->posData();
+    StepInterval<double> rg0( pd.range(true) );
+    StepInterval<double> rg1( pd.range(false) );
+    rg0.sort( true );
+    rg1.sort( true );
+    bitmapdisp_.setBoundingBox(
+	uiWorldRect(rg0.start,rg1.stop,rg0.stop,rg1.start) );
+    bitmapdisp_.update();
+}
+
+
+
 // uiBasemapHorizon3DTreeItem
 uiBasemapHorizon3DTreeItem::uiBasemapHorizon3DTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
+    , uibmobj_(new uiBasemapHorizon3DObject(0))
 {
+    BMM().getBasemap().worldItemGroup().add( &uibmobj_->itemGrp() );
 }
 
 
 uiBasemapHorizon3DTreeItem::~uiBasemapHorizon3DTreeItem()
 {
+    BMM().getBasemap().worldItemGroup().remove( &uibmobj_->itemGrp(), true );
+    delete uibmobj_;
 }
 
 
@@ -143,73 +215,22 @@ bool uiBasemapHorizon3DTreeItem::usePar( const IOPar& par )
     mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr());
     if ( !hor ) return false;
 
-    // will be changed to flatviewbitmapmgr.h after some changes were made
-    const uiWorld2Ui& transf( BMM().getBasemap().transform().world2UiData() );
-    float worldxmin, worldxmax;
-    transf.getWorldXRange( worldxmin, worldxmax );
-
-    float worldymin, worldymax;
-    transf.getWorldYRange( worldymin, worldymax );
-
-    const StepInterval<int> inlrg = hor->range().lineRange();
-    const StepInterval<int> crlrg = hor->range().trcRange();
-    const Interval<float> zrg = hor->getZRange();
-
-    const int uixmax = transf.toUiX( worldxmax );
-    const int uiymax = transf.toUiY( worldymin );
-
-    uiRGBArray* rgbarr = new uiRGBArray( true );
-    rgbarr->setSize( uixmax, uiymax );
-    rgbarr->clear( Color::NoColor() );
-
-    ColTab::Sequence sequence( 0 );
-    ColTab::Mapper mapper;
-    mapper.setRange( hor->getZRange() );
-    ColTab::IndexedLookUpTable index( sequence, 255, &mapper );
-
-    BinID bid;
-    Coord pt;
-    for ( int idw=0; idw<rgbarr->getSize(true); ++idw)
-    {
-	const float xcoord = transf.toWorldX( idw );
-	for ( int idh=0; idh<rgbarr->getSize(false); ++idh )
-	{
-	    const float ycoord = transf.toWorldY( idh );
-	    pt = Coord( mCast(double,xcoord), mCast(double,ycoord) );
-	    bid = SI().transform( pt );
-
-	    const float zvalue = hor->getZ( bid );
-	    if ( !mIsUdf(zvalue) )
-		rgbarr->set( idw, idh, index.color(zvalue) );
-	}
-    }
-
-
-    if ( !basemapobjs_.isEmpty() )
-    {
-	mDynamicCastGet(Basemap::Horizon3DObject*,obj,basemapobjs_[0])
-	if ( !obj ) return false;
-
-	obj->setImage( 0, rgbarr );
-	obj->updateGeometry();
-    }
-    else
-    {
-	Basemap::Horizon3DObject* obj = new Basemap::Horizon3DObject();
-	obj->setImage( 0, rgbarr );
-
-	addBasemapObject( *obj );
-	obj->updateGeometry();
-    }
-
+    uibmobj_->setHorizon( hor );
     return true;
+}
+
+
+void uiBasemapHorizon3DTreeItem::checkCB(CallBacker *)
+{
+    uibmobj_->show( isChecked() );
 }
 
 
 bool uiBasemapHorizon3DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), sEditID() );
+    mnu.insertItem( new uiAction(uiStrings::sRemove(true)), sRemoveID() );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );
 }
@@ -217,16 +238,14 @@ bool uiBasemapHorizon3DTreeItem::showSubMenu()
 
 bool uiBasemapHorizon3DTreeItem::handleSubMenu( int mnuid )
 {
-    if ( mnuid==0 )
-	BMM().edit( getFamilyID(), ID() );
-    else
-	return false;
-
-    return true;
+    return uiBasemapTreeItem::handleSubMenu(mnuid);
 }
 
 
 // uiBasemapHorizon3DItem
+int uiBasemapHorizon3DItem::defaultZValue() const
+{ return 0; }
+
 const char* uiBasemapHorizon3DItem::iconName() const
 { return "basemap-horizon3d"; }
 

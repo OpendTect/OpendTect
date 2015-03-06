@@ -19,6 +19,9 @@ ________________________________________________________________________
 class uiArrowItem;
 class uiLineItem;
 class uiMarkerItem;
+class uiGraphicsItem;
+class uiPixmapItem;
+class uiPolygonItem;
 class uiTextItem;
 
 class BaseMapObject;
@@ -28,24 +31,27 @@ class SurveyInfo;
 mExpClass(uiIo) uiSurveyBoxObject : public uiBaseMapObject
 {
 public:
-    			uiSurveyBoxObject(BaseMapObject*,bool);
+			uiSurveyBoxObject(BaseMapObject*);
 
     const char*		getType() const			{ return "SurveyBox"; }
 
     void		update();
     void		setSurveyInfo(const SurveyInfo*);
+    void		showLabels(bool yn);
+    bool		labelsShown() const;
 
     const LineStyle&	getLineStyle() const	{ return ls_; }
     void		setLineStyle(const LineStyle&);
 
 protected:
 
+    uiPolygonItem*		frame_;
     ObjectSet<uiMarkerItem>	vertices_;
-    ObjectSet<uiLineItem>	edges_;
     ObjectSet<uiTextItem>	labels_;
 
     const SurveyInfo*		survinfo_;
     LineStyle			ls_;
+    bool			showlabels_;
 
     void			setVisibility(bool);
 
@@ -121,13 +127,13 @@ public:
 
     void		setSurveyInfo(const SurveyInfo*);
 
-    uiMapScaleObject*	getMapScale()	const	{ return mapscale_; }
-    uiNorthArrowObject* getNorthArrow() const	{ return northarrow_; }
-    uiSurveyBoxObject*	getSurveyBox() const	{ return survbox_; }
+    uiMapScaleObject*	getMapScale()	const;
+    uiGraphicsItem*	getNorthArrow() const;
+    uiSurveyBoxObject*	getSurveyBox() const;
 
 protected:
     uiMapScaleObject*	mapscale_;
-    uiNorthArrowObject*	northarrow_;
+    uiPixmapItem*	northarrow_;
     uiSurveyBoxObject*	survbox_;
     uiTextItem*		title_;
 

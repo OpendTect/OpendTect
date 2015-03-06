@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 
 #include "basemapimpl.h"
+#include "basemapzvalues.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -313,6 +314,10 @@ bool uiBasemapTreeItem::init()
 
 void uiBasemapTreeItem::addBasemapObject( BaseMapObject& bmo )
 {
+    const uiBasemapItem* itm = BMM().getBasemapItem( familyid_ );
+    if ( !itm ) return;
+
+    bmo.setDepth( Basemap::ZValues().get(itm->factoryKeyword()) );
     basemapobjs_ += &bmo;
     BMM().getBasemap().addObject( &bmo );
 }
@@ -356,12 +361,35 @@ int uiBasemapTreeItem::uiTreeViewItemType() const
 { return uiTreeViewItem::CheckBox; }
 
 
+// TODO: Implement MenuHandler system
 bool uiBasemapTreeItem::showSubMenu()
 { return true; }
 
 
-bool uiBasemapTreeItem::handleSubMenu(int)
-{ return true; }
+bool uiBasemapTreeItem::handleSubMenu( int mnuid )
+{
+    bool handled = true;
+    if ( mnuid == sEditID() )
+	edit();
+    else if ( mnuid == sRemoveID() )
+	remove();
+    else
+	handled = false;
+
+    return handled;
+}
+
+
+void uiBasemapTreeItem::edit()
+{
+    BMM().edit( getFamilyID(), ID() );
+}
+
+
+void uiBasemapTreeItem::remove()
+{
+    parent_->removeChild( this );
+}
 
 
 bool uiBasemapTreeItem::usePar( const IOPar& par )
@@ -408,7 +436,12 @@ void uiBasemapManager::init()
 {
     const BufferStringSet& nms = uiBasemapItem::factory().getNames();
     for ( int idx=0; idx<nms.size(); idx++ )
-	basemapitems_ += uiBasemapItem::factory().create( nms.get(idx) );
+    {
+	uiBasemapItem* bmitm = uiBasemapItem::factory().create( nms.get(idx) );
+	basemapitems_ += bmitm;
+	Basemap::ZValues().set( bmitm->factoryKeyword(),
+				bmitm->defaultZValue() );
+    }
 }
 
 

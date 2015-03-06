@@ -66,6 +66,9 @@ bool uiBasemapPickSetGroup::usePar( const IOPar& par )
 
 
 // uiBasemapPickSetItem
+int uiBasemapPickSetItem::defaultZValue() const
+{ return 100; }
+
 const char* uiBasemapPickSetItem::iconName() const
 { return "basemap-pickset"; }
 
@@ -123,9 +126,9 @@ bool uiBasemapPickSetTreeItem::usePar( const IOPar& par )
 bool uiBasemapPickSetTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), sEditID() );
     mnu.insertItem( new uiAction("Show in 3D"), 1 );
-    mnu.insertItem( new uiAction("Remove"), 2 );
+    mnu.insertItem( new uiAction(uiStrings::sRemove(true)), sRemoveID() );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );
 }
@@ -133,11 +136,11 @@ bool uiBasemapPickSetTreeItem::showSubMenu()
 
 bool uiBasemapPickSetTreeItem::handleSubMenu( int mnuid )
 {
-    if ( mnuid==0 )
-    {
-	BMM().edit( getFamilyID(), ID() );
-    }
-    else if ( mnuid==1 )
+    if ( uiBasemapTreeItem::handleSubMenu(mnuid) )
+	return true;
+
+    bool handled = true;
+    if ( mnuid==1 )
     {
 	const int nrobjs = basemapobjs_.size();
 	for ( int idx=0; idx<nrobjs; idx++ )
@@ -148,12 +151,8 @@ bool uiBasemapPickSetTreeItem::handleSubMenu( int mnuid )
 	    ODMainWin()->sceneMgr().addPickSetItem( obj->getMultiID() );
 	}
     }
-    else if ( mnuid==2 )
-    {
-	parent_->removeChild( this );
-    }
     else
-	return false;
+	handled = false;
 
-    return true;
+    return handled;
 }

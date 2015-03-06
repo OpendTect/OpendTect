@@ -231,6 +231,9 @@ void uiLineItem::setLine( const Geom::Point2D<float>& start,
 			  const Geom::Point2D<float>& end )
 { setLine( start.x, start.y, end.x, end.y ); }
 
+void uiLineItem::setLine( const uiWorldPoint& start, const uiWorldPoint& end )
+{ setLine( (float)start.x, (float)start.y, (float)end.x, (float)end.y ); }
+
 void uiLineItem::setLine( int x1, int y1, int x2, int y2 )
 { setLine( (float)x1, (float)y1, (float)x2, (float)y2 ); }
 

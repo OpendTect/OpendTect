@@ -202,7 +202,8 @@ bool uiBasemapContourTreeItem::usePar( const IOPar& par )
 bool uiBasemapContourTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sEdit(false)), sEditID() );
+    mnu.insertItem( new uiAction(uiStrings::sRemove(true)), sRemoveID() );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );
 }
@@ -210,15 +211,13 @@ bool uiBasemapContourTreeItem::showSubMenu()
 
 bool uiBasemapContourTreeItem::handleSubMenu( int mnuid )
 {
-    if ( mnuid==0 )
-	BMM().edit( getFamilyID(), ID() );
-    else
-	return false;
-
-    return true;
+    return uiBasemapTreeItem::handleSubMenu( mnuid );
 }
 
 // uiBasemapContourItem
+int uiBasemapContourItem::defaultZValue() const
+{ return 100; }
+
 const char* uiBasemapContourItem::iconName() const
 { return "basemap-contours"; }
 

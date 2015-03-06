@@ -72,11 +72,10 @@ void setBaseLine( const Grid2D::Line* baseline )
 }
 
 #define mDrawLine(line) { \
-    const Coord startpos = SI().transform( line->start_ ); \
-    const Coord stoppos = SI().transform( line->stop_ ); \
-    const uiPoint start = transform_->transform( startpos ); \
-    const uiPoint stop = transform_->transform( stoppos ); \
-    uiLineItem* item = new uiLineItem( start, stop ); \
+    const Coord start = SI().transform( line->start_ ); \
+    const Coord stop = SI().transform( line->stop_ ); \
+    uiLineItem* item = new uiLineItem; \
+    item->setLine( start, stop ); \
     item->setPenStyle( ls ); \
     item->setZValue( graphicszval ); \
     itemgrp_.add( item ); \
@@ -87,7 +86,7 @@ void update()
     itemgrp_.removeAll( true );
     lines_.erase();
 
-    if ( !grid_ || !transform_ ) return;
+    if ( !grid_ ) return;
 
     LineStyle ls;
     int graphicszval = 1;
@@ -326,7 +325,8 @@ bool ui2DGridLinesFromInlCrl::fillPar( IOPar& par ) const
 
 
 ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
-			const TrcKeySampling& hs, const Geometry::RandomLine* rdl )
+			const TrcKeySampling& hs,
+			const Geometry::RandomLine* rdl )
     : ui2DGridLines(p,hs)
     , rdlfld_(0)
 {

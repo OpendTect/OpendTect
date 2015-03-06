@@ -56,7 +56,7 @@ void uiBasemapWin::initWin( CallBacker* )
 
 void uiBasemapWin::initView()
 {
-    basemapview_ = new uiSurveyMap( this, true, true, true );
+    basemapview_ = new uiSurveyMap( this, false, true, true );
     basemapview_->setPrefHeight( 250 );
     basemapview_->setPrefWidth( 250 );
     basemapview_->setSurveyInfo( &SI() );
@@ -66,6 +66,7 @@ void uiBasemapWin::initView()
 
     const LineStyle ls( LineStyle::Dot, 1, Color::Red() );
     basemapview_->getSurveyBox()->setLineStyle( ls );
+    basemapview_->getSurveyBox()->showLabels( false );
 
     basemapview_->view().getMouseEventHandler().movement.notify(
 	mCB(this,uiBasemapWin,mouseMoveCB) );
@@ -114,8 +115,8 @@ void uiBasemapWin::mouseCursorExchangeCB( CallBacker* cb )
 void uiBasemapWin::mouseMoveCB( CallBacker* )
 {
     const MouseEvent& ev = basemapview_->view().getMouseEventHandler().event();
-    const Coord crd( basemapview_->transform().toWorldX( ev.x() ),
-		     basemapview_->transform().toWorldY( ev.y() ) );
+    const Coord crd( basemapview_->getWorld2Ui().toWorldX( ev.x() ),
+		     basemapview_->getWorld2Ui().toWorldY( ev.y() ) );
     if ( !crd.isDefined() )
     { toStatusBar( "", 0 ); return; }
 

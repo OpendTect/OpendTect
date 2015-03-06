@@ -71,6 +71,7 @@ public:
 				"Grid",
 				sFactoryKeyword())
 
+    int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*, bool isadd);
     uiBasemapTreeItem*	createTreeItem(const char*);

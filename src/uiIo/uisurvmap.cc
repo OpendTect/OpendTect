@@ -11,41 +11,35 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisurvmap.h"
 
+#include "uifont.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
-#include "uifont.h"
+#include "uipixmap.h"
 #include "uiworld2ui.h"
 
-#include "trckeyzsampling.h"
+#include "angles.h"
 #include "draw.h"
 #include "survinfo.h"
-#include "angles.h"
+#include "trckeyzsampling.h"
 
 
-uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
+uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     : uiBaseMapObject(bmo)
     , ls_(LineStyle::Solid,3,Color::Red())
+    , showlabels_(true)
 {
     for ( int idx=0; idx<4; idx++ )
     {
         uiMarkerItem* markeritem = new uiMarkerItem( MarkerStyle2D::Square );
-	markeritem->setZValue( 1 );
 	itemgrp_.add( markeritem );
 	vertices_ += markeritem;
     }
 
-    for ( int idx=0; idx<4; idx++ )
-    {
-	uiLineItem* lineitem = new uiLineItem();
-	lineitem->setPenColor( ls_.color_ );
-	lineitem->setPenStyle( ls_ );
-	itemgrp_.add( lineitem );
-	edges_ += lineitem;
-    }
-
-    if ( !withlabels )
-	return;
+    frame_ = new uiPolygonItem;
+    frame_->setPenColor( ls_.color_ );
+    frame_->setPenStyle( ls_ );
+    itemgrp_.add( frame_ );
 
     const mDeclAlignment( postxtalign, HCenter, VCenter );
     for ( int idx=0; idx<4; idx++ )
@@ -54,21 +48,31 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
 	textitem->setTextColor( Color::Black() );
 	textitem->setAlignment( postxtalign );
 	textitem->setFont( FontList().get(FontData::Graphics2DSmall) );
-	textitem->setZValue( 1 );
 	itemgrp_.add( textitem );
 	labels_ += textitem;
     }
+
+    itemgrp_.setZValue( 2 );
 }
+
+
+void uiSurveyBoxObject::showLabels( bool yn )
+{
+    showlabels_ = yn;
+    for ( int idx=0; idx<labels_.size(); idx++ )
+	labels_[idx]->setVisible( yn );
+}
+
+
+bool uiSurveyBoxObject::labelsShown() const
+{ return !labels_.isEmpty() && labels_[0]->isVisible(); }
 
 
 void uiSurveyBoxObject::setLineStyle( const LineStyle& ls )
 {
     ls_ = ls;
-    for ( int idx=0; idx<edges_.size(); idx++ )
-    {
-	edges_[idx]->setPenColor( ls.color_ );
-	edges_[idx]->setPenStyle( ls );
-    }
+    frame_->setPenColor( ls.color_ );
+    frame_->setPenStyle( ls );
 }
 
 
@@ -86,42 +90,34 @@ void uiSurveyBoxObject::setVisibility( bool yn )
 
 void uiSurveyBoxObject::update()
 {
-    if ( !survinfo_ || !transform_ )
+    if ( !survinfo_ )
 	{ setVisibility( false ); return; }
 
     const SurveyInfo& si = *survinfo_;
     const TrcKeyZSampling& cs = si.sampling( false );
-    Coord mapcnr[4];
+    TypeSet<uiWorldPoint> mapcnr; mapcnr.setSize( 4 );
     mapcnr[0] = si.transform( cs.hrg.start );
     mapcnr[1] = si.transform( BinID(cs.hrg.start.inl(),cs.hrg.stop.crl()) );
     mapcnr[2] = si.transform( cs.hrg.stop );
     mapcnr[3] = si.transform( BinID(cs.hrg.stop.inl(),cs.hrg.start.crl()) );
 
-    uiPoint cpt[4];
     for ( int idx=0; idx<vertices_.size(); idx++ )
-    {
-        cpt[idx] = transform_->transform( uiWorldPoint(mapcnr[idx].x,
-						      mapcnr[idx].y) );
-	vertices_[idx]->setPos( cpt[idx] );
-    }
+	vertices_[idx]->setPos( mapcnr[idx] );
 
-    for ( int idx=0; idx<edges_.size(); idx++ )
-	edges_[idx]->setLine( cpt[idx], idx!=3 ? cpt[idx+1] : cpt[0] );
+    frame_->setPolygon( mapcnr );
 
     for ( int idx=0; idx<labels_.size(); idx++ )
     {
 	const int oppidx = idx < 2 ? idx + 2 : idx - 2;
-	const bool bot = cpt[idx].y > cpt[oppidx].y;
+	const bool bot = mapcnr[idx].y > mapcnr[oppidx].y;
         BinID bid = si.transform( mapcnr[idx] );
 	Alignment al( Alignment::HCenter,
 		      bot ? Alignment::Top : Alignment::Bottom );
-	uiPoint txtpos( cpt[idx].x, cpt[idx].y );
-	labels_[idx]->setPos( txtpos );
+	labels_[idx]->setPos( mapcnr[idx] );
 	labels_[idx]->setText( bid.toString() );
 	labels_[idx]->setAlignment( al );
+	labels_[idx]->setVisible( showlabels_ );
     }
-
-    setVisibility( true );
 }
 
 
@@ -170,7 +166,7 @@ void uiNorthArrowObject::setVisibility( bool yn )
 
 void uiNorthArrowObject::update()
 {
-    if ( !survinfo_ || !transform_ )
+    if ( !survinfo_ )
 	{ setVisibility( false ); return; }
 
     float mathang = survinfo_->angleXInl();
@@ -263,7 +259,7 @@ void uiMapScaleObject::setSurveyInfo( const SurveyInfo* si )
 }
 
 
-void uiMapScaleObject::setPixelPos(int x, int y)
+void uiMapScaleObject::setPixelPos( int x, int y )
 {
     uistartposition_.setXY( x, y );
 }
@@ -277,7 +273,7 @@ void uiMapScaleObject::setVisibility( bool yn )
 
 void uiMapScaleObject::update()
 {
-    if ( !survinfo_ || !transform_ )
+    if ( !survinfo_ )
 	{ setVisibility( false ); return; }
 
     const float worldscalelen = scalelen_;
@@ -287,8 +283,8 @@ void uiMapScaleObject::update()
     const int xmax = uistartposition_.x;
     const int ymin = uistartposition_.y;
 
-    const float worldref = transform_->toWorldX(xmax) - worldscalelen;
-    const float uiscalelen = (float)xmax - transform_->toUiX( worldref );
+    const float worldref = xmax - worldscalelen;
+    const float uiscalelen = (float)xmax - worldref;
 
     const int lastx = xmax - 1 - sideoffs;
     const int firsty = ymin - 70;
@@ -349,13 +345,14 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle,
     view_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     const mDeclAlignment( txtalign, Left, Top );
 
-    survbox_ = new uiSurveyBoxObject( 0, true );
+    survbox_ = new uiSurveyBoxObject( 0 );
     addObject( survbox_ );
 
     if ( withnortharrow )
     {
-	northarrow_ = new uiNorthArrowObject( 0, false );
-	addObject( northarrow_ );
+	const uiPixmap pm( "northarrow" );
+	northarrow_ = view().scene().addItem( new uiPixmapItem(pm) );
+	northarrow_->setScale( 0.5, 0.5 );
     }
 
     if ( withmapscale )
@@ -371,7 +368,14 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle,
 	title_->setPenColor( Color::Black() );
 	title_->setFont( FontList().get(FontData::Graphics2DLarge) );
     }
+
+    setSurveyInfo( survinfo_ );
 }
+
+
+uiMapScaleObject* uiSurveyMap::getMapScale()	const	{ return mapscale_; }
+uiGraphicsItem* uiSurveyMap::getNorthArrow() const	{ return northarrow_; }
+uiSurveyBoxObject* uiSurveyMap::getSurveyBox() const	{ return survbox_; }
 
 
 void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
@@ -385,10 +389,7 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 	survbox_->setSurveyInfo( survinfo_ );
 
     if ( northarrow_ )
-    {
-	northarrow_->setSurveyInfo( survinfo_ );
-	northarrow_->setPixelPos( width, height );
-    }
+	northarrow_->setPos( 10, 10 );
 
     if ( mapscale_ )
     {
@@ -401,21 +402,25 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 
     if ( survinfo_ )
     {
-	view_.setViewArea( 0, 0, view_.scene().width(),
-				 view_.scene().height() );
-
+    /*
 	uiBorder border( 20, title_ ? 70 : 20, 20, mapscale_ ? 70 : 20 );
 	uiSize sz( (int)view_.scene().width(), (int)view_.scene().height() );
 	uiRect rc = border.getRect( sz );
-	w2ui_.set( rc, *survinfo_ );
-	if ( title_ ) title_->setText( survinfo_->name().buf() );
-    }
+    */
 
-    uiBaseMap::reDraw();
+	const Coord mincoord = survinfo_->minCoord( false );
+	const Coord maxcoord = survinfo_->maxCoord( false );
+	const double diffx = maxcoord.x - mincoord.x;
+	const double diffy = maxcoord.y - mincoord.y;
+	const uiWorldRect wr( mincoord.x-diffx/4, maxcoord.y+diffy/4,
+			      maxcoord.x+diffx/4, mincoord.y-diffy/4 );
+	if ( title_ ) title_->setText( survinfo_->name().buf() );
+	setView( wr );
+    }
 }
 
 
-void uiSurveyMap::reDraw( bool )
+void uiSurveyMap::reDraw( bool deep )
 {
-    setSurveyInfo( survinfo_ );
+    uiBaseMap::reDraw( deep );
 }
