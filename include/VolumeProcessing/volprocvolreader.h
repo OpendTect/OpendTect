@@ -36,7 +36,7 @@ public:
 				"VolumeReader", "Input Volume" )
 			~VolumeReader();
 
-    bool		needsInput() const		{ return false;}
+    bool		needsInput() const		{ return false; }
     bool		setVolumeID(const MultiID&);
     const MultiID&	getVolumeID() const		{ return mid_; }
 
@@ -44,7 +44,7 @@ public:
     bool		usePar(const IOPar&);
 
     bool		canInputAndOutputBeSame() const	{ return true; }
-    bool		needsFullVolume() const		{ return false;}
+    bool		needsFullVolume() const		{ return false; }
 
 protected:
     Task*		createTask();
