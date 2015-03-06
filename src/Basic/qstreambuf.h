@@ -33,7 +33,7 @@ mFDQtclass( QProcess );
   Tested for istream with char* only.
 */
 
-mExpClass(Basic) qstreambuf : public std::streambuf
+mClass(Basic) qstreambuf : public std::streambuf
 {
 public:
 				qstreambuf(QIODevice&,bool isstderr,
@@ -61,6 +61,29 @@ private:
     QProcess*			process_;
     QIODevice*			iodevice_;
     bool			isstderr_;
+};
+
+//!Does everything a std::istream does, but also deletes the streambuf
+mClass(Basic) iqstream : public std::istream
+{
+public:
+			iqstream( std::streambuf* buf )
+			    : std::istream( buf )
+			{}
+			~iqstream()
+			{ delete rdbuf(); }
+};
+
+
+//!Does everything a std::ostream does, but also deletes the streambuf
+mClass(Basic) oqstream : public std::ostream
+{
+public:
+			oqstream( std::streambuf* buf )
+			    : std::ostream( buf )
+			{}
+			~oqstream()
+			{ delete rdbuf(); }
 };
 
 #endif

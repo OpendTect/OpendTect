@@ -467,6 +467,29 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 }
 
 
+void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
+{
+    const bool needsshell = cmd.find('|') || cmd.find('<') || cmd.find( '>' );
+    if ( needsshell )
+    {
+	if ( cmd.find( "\"" ) )
+	{
+	    pFreeFnErrMsg("Commands with quote-signs not supported",
+		          "addShellIfNeeded" );
+	}
+
+	const BufferString comm = cmd;
+#ifdef __msvc__
+	cmd = "cmd -c \"";
+#else
+	cmd = "sh -c \"";
+#endif
+	cmd.add( comm );
+	cmd.add( "\"" );
+    }
+}
+
+
 bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 				     bool inconsole )
 {
@@ -482,21 +505,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     }
 
     BufferString cmd = comm;
-    const bool needsshell = cmd.find('|') || cmd.find('<') || cmd.find( '>' );
-    if ( needsshell )
-    {
-	if ( cmd.find( "\"" ) )
-	{
-	    pErrMsg("Commands with quote-signs not supported");
-	}
-#ifdef __msvc__
-	cmd = "cmd -c \"";
-#else
-	cmd = "sh -c \"";
-#endif
-	cmd.add( comm );
-	cmd.add( "\"" );
-    }
+    addShellIfNeeded( cmd );
 
 #ifdef __debug__
     od_cout() << "About to execute:\n" << cmd << od_endl;
@@ -506,13 +515,13 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     process_ = new QProcess;
 
     stdinputbuf_ = new qstreambuf( *process_, false, false );
-    stdinput_ = new od_ostream( new std::ostream( stdinputbuf_ ) );
+    stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
 
     stdoutputbuf_ = new qstreambuf( *process_, false, false  );
-    stdoutput_ = new od_istream( new std::istream( stdoutputbuf_ ) );
+    stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
 
     stderrorbuf_ = new qstreambuf( *process_, true, false  );
-    stderror_ = new od_istream( new std::istream( stderrorbuf_ ) );
+    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
 
     process_->start( cmd.buf(), QIODevice::ReadWrite );
     if ( !process_->waitForStarted(10000) ) //Timeout of 10 secs

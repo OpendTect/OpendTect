@@ -148,6 +148,11 @@ protected:
     qstreambuf*		stdoutputbuf_;
     qstreambuf*		stderrorbuf_;
     qstreambuf*		stdinputbuf_;
+public: //Extra utilities, not for general use
+    static void		addShellIfNeeded(BufferString& cmd);
+    			/*!<Analyses the cmd and looks for pipes or redirects.
+			    If these are found, the cmd is converted to a
+			    shell command. */
 };
 
 
