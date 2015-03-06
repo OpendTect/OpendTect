@@ -272,6 +272,9 @@ uiString::uiString( const OD::String& str )
 uiString::~uiString()
 {
     data_->unRef();
+#ifdef __debug__
+    delete [] str_;
+#endif
 }
 
 
