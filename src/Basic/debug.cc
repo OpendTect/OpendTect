@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "envvars.h"
 #include "oddirs.h"
+#include "ptrman.h"
 #include "sighndl.h"
 #include "undefval.h"
 #include "math2.h"
@@ -304,7 +305,7 @@ namespace OD {
 
 Export_Basic od_ostream& logMsgStrm()
 {
-    mDefineStaticLocalObject( od_ostream*, strm, = 0 );
+    mDefineStaticLocalObject( PtrMan<od_ostream>, strm, = 0 );
     if ( strm )
 	return *strm;
 
@@ -339,7 +340,7 @@ Export_Basic od_ostream& logMsgStrm()
 		{
 		    errmsg.set( "Cannot create log file '" )
 			  .add( logmsgfnm ).add( "'" );
-		    delete strm; strm = 0;
+		    strm = 0;
 		}
 	    }
 	}
