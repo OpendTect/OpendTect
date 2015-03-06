@@ -163,7 +163,7 @@ uiBitMapDisplay::uiBitMapDisplay( FlatView::Appearance& app )
 
     display_->wantsData().notify( mCB(this,uiBitMapDisplay,reGenerateCB) );
     workqueueid_ = Threads::WorkManager::twm().addQueue(
-	    			Threads::WorkManager::SingleThread,
+				Threads::WorkManager::SingleThread,
 				"BitmapDisplay");
 }
 
@@ -245,7 +245,7 @@ void uiBitMapDisplay::update()
     uiWorldRect wr( boundingBox() );
     wr.swapVer();
 
-    const bool wva = isVisible( wva );
+    const bool wva = isVisible( true );
     const uiSize sz( getDataPackRange(wva,true).nrSteps()+1,
 		     getDataPackRange(wva,false).nrSteps()+1 );
     basetask_->setScope( wr, sz );
