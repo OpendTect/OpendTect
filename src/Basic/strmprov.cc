@@ -17,16 +17,25 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#include <fstream>
 
-#include "qstreambuf.h"
-#include <QProcess>
 
 #ifdef __win__
 # include "winutils.h"
 # include <windows.h>
 # include <istream>
+# include <iostream>
+# ifdef __msvc__
+#  define popen _popen
+#  define pclose _pclose
+#  define fileno(s) _fileno(s)
+#  include "winstreambuf.h"
+# endif
 #endif
+
+#include <fstream>
+
+#include "qstreambuf.h"
+#include <QProcess>
 
 #include "file.h"
 #include "filepath.h"
