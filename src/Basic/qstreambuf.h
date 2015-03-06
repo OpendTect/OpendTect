@@ -51,6 +51,8 @@ public:
     virtual std::streamsize		xsputn(const char_type*,
 					       std::streamsize);
 
+    virtual int				sync();
+
 private:
     void			readAll();
 

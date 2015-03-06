@@ -33,8 +33,24 @@ qstreambuf::qstreambuf( QIODevice& p, bool isstderr, bool own )
 
 qstreambuf::~qstreambuf()
 {
+    if ( process_ ) process_->closeWriteChannel();
     if ( ownsdevice_ )
+    {
+	if ( process_ ) process_->waitForFinished();
 	deleteAndZeroPtr( iodevice_ );
+    }
+}
+
+
+int qstreambuf::sync()
+{
+    if ( iodevice_->bytesToWrite() )
+    {
+	if ( !iodevice_->waitForBytesWritten( 10000 ) )
+	return -1;
+    }
+
+    return 0;
 }
 
 
