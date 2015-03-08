@@ -44,7 +44,7 @@ The protocol is as follows:
 
 READ:
 
-2) initRead() call initialises SeisPacketInfo, Component info and SelData
+2) initRead() call initializes SeisPacketInfo, Component info and SelData
    on input (if any)
 3) Client subselects in components and space (SelData)
 4) commitSelections()

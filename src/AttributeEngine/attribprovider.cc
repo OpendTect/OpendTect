@@ -1122,7 +1122,7 @@ uiString Provider::prepare( Desc& desc )
 	errmsg = prov->errMsg();
     if ( errmsg.isEmpty() )
     {
-	errmsg = tr("Cannot initialise '%1' Attribute properly")
+	errmsg = tr("Cannot initialize '%1' Attribute properly")
 		    .arg( desc.attribName() );
     }
 

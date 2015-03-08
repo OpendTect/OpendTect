@@ -54,7 +54,7 @@ template <class IPT,class FT> class IdxPairValues;
 
   When you construct a IdxPairValueSet, you must provide the number of values
   (which can be changed later) and whether duplicate IdxPairs are allowed.
-  In the set, new uninitialised values will be set to mUdf(float).
+  In the set, new uninitialized values will be set to mUdf(float).
 
   if you also want the values sorted (for the same IdxPair) use
   sortDuplicateIdxPairs().

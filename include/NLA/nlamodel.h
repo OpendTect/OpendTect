@@ -39,7 +39,7 @@ public:
     					//!< Attrib set in/out
 
     virtual void			dump(BufferString&) const	= 0;
-    					//!< 'serialise' - without the pars()
+    					//!< 'serialize' - without the pars()
 
     virtual const char*			nlaType( bool compact=true ) const
     					{ return compact ? "NN"

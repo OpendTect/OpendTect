@@ -224,7 +224,7 @@ private:
     \endcode
 
     It also declares a protected member handle_, of type mHANDLE_OBJ&, which
-    must be initialised in any constructor of objects using "i_uiobjqtbody.h"
+    must be initialized in any constructor of objects using "i_uiobjqtbody.h"
 
 */
 

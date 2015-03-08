@@ -91,7 +91,7 @@ running values (Stats::RunCalc) or in parallel (Stats::ParallelCalc).
   when weights are provided.
 
   The object is ready to use with int, float and double types. If other types
-  are needed, you may need to specialise an isZero function for each new type.
+  are needed, you may need to specialize an isZero function for each new type.
 
 -*/
 

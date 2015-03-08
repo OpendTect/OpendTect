@@ -51,7 +51,7 @@ protected:
 
 /*!\brief DataPack for flat data.
 
-  FlatPosData is initialised to ranges of 0 to sz-1 step 1.
+  FlatPosData is initialized to ranges of 0 to sz-1 step 1.
 
   */
 
