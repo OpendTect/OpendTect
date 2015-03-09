@@ -328,6 +328,15 @@ void TrcKeySampling::limitToWithUdf( const TrcKeySampling& h )
 }
 
 
+void TrcKeySampling::expand( int nrlines, int nrtrcs )
+{
+    start_.lineNr() -= nrlines*step_.lineNr();
+    start_.trcNr() -= nrtrcs*step_.trcNr();
+    stop_.lineNr() += nrlines*step_.lineNr();
+    stop_.trcNr() += nrtrcs*step_.trcNr();
+}
+
+
 static bool getRange( const IOPar& par, const char* key, int& start_,
 		      int& stop_, int& step_ )
 {
@@ -633,7 +642,7 @@ BinID TrcKeySampling::atIndex( int i0, int i1 ) const
 }
 
 
-TrcKey TrcKeySampling::trcKeyAt(int i0, int i1) const
+TrcKey TrcKeySampling::trcKeyAt( int i0, int i1 ) const
 {
     const BinID res = atIndex( i0, i1 );
     if ( res.isUdf() )
@@ -914,6 +923,14 @@ void TrcKeyZSampling::limitToWithUdf( const TrcKeyZSampling& c )
     hsamp_.limitToWithUdf( tkzs.hsamp_ );
     mAdjustIf(zsamp_.start,<,tkzs.zsamp_.start);
     mAdjustIf(zsamp_.stop,>,tkzs.zsamp_.stop);
+}
+
+
+void TrcKeyZSampling::expand( int nrlines, int nrtrcs, int nrz )
+{
+    hsamp_.expand( nrlines, nrtrcs );
+    zsamp_.start -= nrz*zsamp_.step;
+    zsamp_.stop += nrz*zsamp_.step;
 }
 
 

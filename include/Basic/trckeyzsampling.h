@@ -78,6 +78,7 @@ public:
     void		limitToWithUdf(const TrcKeyZSampling&);
 			/*!< handles undef values + returns reference cube
 			     nearest limit if the 2 cubes do not intersect */
+    void		expand(int nrlines,int nrtrcs,int nrz);
 
     void		snapToSurvey();
 			/*!< Checks if it is on valid bids and sample positions.
