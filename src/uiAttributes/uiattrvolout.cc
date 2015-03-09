@@ -79,13 +79,18 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiAttrSelData attrdata( ads_, false );
     attrdata.nlamodel_ = nlamodel_;
 
+    uiSeparator* sep1 = 0;
     if ( !multioutput )
     {
 	todofld_ = new uiAttrSel( this, "Quantity to output", attrdata );
 	todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
     }
     else
+    {
 	attrselfld_ = new uiMultiAttribSel( this, attrdata.attrSet() );
+	sep1 = new uiSeparator( this, "Attribute Selection Separator" );
+	sep1->attach( stretchedBelow, attrselfld_ );
+    }
 
     transffld_ = new uiSeisTransfer( this, uiSeisTransfer::Setup(is2d,false)
 			.fornewentry(true).withstep(!is2d).multiline(true) );
@@ -94,6 +99,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     else
 	transffld_->attach( centeredBelow, attrselfld_ );
 
+    if ( sep1 ) transffld_->attach( ensureBelow, sep1 );
+
     objfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,false),
 				uiSeisSel::Setup(is2d,false) );
     objfld_->selectionDone.notify( mCB(this,uiAttrVolOut,outSelCB) );
@@ -101,16 +108,16 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     objfld_->setConfirmOverwrite( !is2d );
 
     uiGroup* botgrp = objfld_;
-    uiSeparator* sep2 = 0;
+    uiSeparator* sep3 = 0;
     if ( multioutput && !is2d )
     {
-	uiSeparator* sep1 = new uiSeparator( this, "PS Start Separator" );
-	sep1->attach( stretchedBelow, objfld_ );
+	uiSeparator* sep2 = new uiSeparator( this, "PS Start Separator" );
+	sep2->attach( stretchedBelow, objfld_ );
 
 	uiCheckBox* cb = new uiCheckBox( this, "Enable Prestack Analysis" );
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
-	cb->attach( ensureBelow, sep1 );
+	cb->attach( ensureBelow, sep2 );
 
 	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
 	ctxt.forread = false;
@@ -126,8 +133,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );
 
-	sep2 = new uiSeparator( this, "PS End Separator" );
-	sep2->attach( stretchedBelow, offsetfld_ );
+	sep3 = new uiSeparator( this, "PS End Separator" );
+	sep3->attach( stretchedBelow, offsetfld_ );
 
 	psSelCB( cb );
 	botgrp = offsetfld_;
@@ -138,7 +145,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     IOPar& iop = jobSpec().pars_;
     iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     batchfld_->attach( alignedBelow, botgrp );
-    if ( sep2 ) batchfld_->attach( ensureBelow, sep2 );
+    if ( sep3 ) batchfld_->attach( ensureBelow, sep3 );
 }
 
 
