@@ -267,7 +267,7 @@ void Seis::PreLoader::fillPar( IOPar& iop ) const
 
 
 Seis::PreLoadDataManager::PreLoadDataManager()
-    : dpmgr_(DPM(100010))
+    : dpmgr_(DPM(DataPackMgr::SeisID()))
 {
 }
 
@@ -284,7 +284,7 @@ void Seis::PreLoadDataManager::add( const MultiID& mid, DataPack* dp )
 
     mids_ += mid;
     dpids_ += dp->id();
-    dpmgr_.add( dp );
+    dpmgr_.addAndObtain( dp );
 }
 
 

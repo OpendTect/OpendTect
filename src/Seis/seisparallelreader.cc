@@ -115,7 +115,7 @@ bool ParallelReader::doPrepare( int nrthreads )
         {
 	    const int cidx = components_[idx];
 	    const char* cnm =
-		cnames.validIdx(cidx) ? cnames.get(cidx).buf() 
+		cnames.validIdx(cidx) ? cnames.get(cidx).buf()
 				      : BufferString::empty().buf();
 	    if ( !dp_->addComponent(cnm) )
 	    {
@@ -423,7 +423,6 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 				    const TrcKeyZSampling* tkzs,
 				    const TypeSet<int>* comps )
     : Executor("Reader")
-    , dpclaimed_(false)
     , dp_(0)
 {
     SeisIOObjInfo info( ioobj );
@@ -456,7 +455,8 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     }
 
     dp_ = new RegularSeisDataPack( Seis::nameOf(info.geomType()) );
-    dp_->setSampling( tkzs );
+    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+    dp_->setSampling( tkzs_ );
     dp_->setName( ioobj.name() );
 
     BufferStringSet compnames;
@@ -473,25 +473,30 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 SequentialReader::~SequentialReader()
 {
     delete trl_;
-    if ( !dpclaimed_ )
-	delete dp_;
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
 
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
 
 RegularSeisDataPack* SequentialReader::getDataPack()
-{ dpclaimed_ = true; return dp_; }
+{ return dp_; }
 
 
 int SequentialReader::nextStep()
 {
     SeisTrc* trc = new SeisTrc;
     if ( !trl_->readInfo(trc->info()) )
+    {
+	delete trc;
 	return Finished();
+    }
 
     if ( !trl_->read(*trc) )
+    {
+	delete trc;
 	return ErrorOccurred();
+    }
 
     Task* task = new ArrayFiller( *dp_, *trc );
     Threads::WorkManager::twm().addWork(

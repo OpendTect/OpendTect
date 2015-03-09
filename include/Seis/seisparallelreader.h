@@ -123,7 +123,7 @@ public:
 					 const TypeSet<int>* components=0);
 			~SequentialReader();
 
-    RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
+    RegularSeisDataPack* getDataPack();
 
     uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return tr("Traces read"); }
@@ -146,9 +146,6 @@ protected:
     od_int64			totalnr_;
     od_int64			nrdone_;
     uiString			msg_;
-
-    bool			dpclaimed_;
-
 };
 
 } // namespace Seis
