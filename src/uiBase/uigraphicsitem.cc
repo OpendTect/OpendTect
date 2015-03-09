@@ -72,8 +72,17 @@ void uiGraphicsItem::hide()	{ qgraphicsitem_->hide(); }
 bool uiGraphicsItem::isVisible() const
 { return qgraphicsitem_->isVisible(); }
 
+
 void uiGraphicsItem::setVisible( bool yn )
 { qgraphicsitem_->setVisible( yn ); }
+
+
+bool uiGraphicsItem::isMovable() const
+{ return qgraphicsitem_->flags().testFlag( QGraphicsItem::ItemIsMovable ); }
+
+
+void uiGraphicsItem::setMovable( bool yn )
+{ qgraphicsitem_->setFlag( QGraphicsItem::ItemIsMovable, yn ); }
 
 
 uiPoint uiGraphicsItem::getPos() const
@@ -171,6 +180,7 @@ uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
 
 void uiGraphicsItem::setItemIgnoresTransformations( bool yn )
 { qgraphicsitem_->setFlag( QGraphicsItem::ItemIgnoresTransformations, yn ); }
+
 
 void uiGraphicsItem::setPenColor( const Color& col, bool withalpha )
 {

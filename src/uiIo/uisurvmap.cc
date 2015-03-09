@@ -353,6 +353,11 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle,
 	const uiPixmap pm( "northarrow" );
 	northarrow_ = view().scene().addItem( new uiPixmapItem(pm) );
 	northarrow_->setScale( 0.5, 0.5 );
+	northarrow_->setMovable( true );
+	northarrow_->setItemIgnoresTransformations( true );
+	//northarrow_->set
+	view_.scene().addItem(northarrow_);
+	//view.scene().
     }
 
     if ( withmapscale )

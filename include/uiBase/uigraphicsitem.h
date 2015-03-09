@@ -39,6 +39,8 @@ public:
     void		hide();
     virtual bool	isVisible() const;
     virtual void	setVisible(bool);
+    virtual bool	isMovable() const;
+    virtual void	setMovable(bool);
     void		setSelectable(bool);
     void		setSelected(bool);
     bool		isSelectable();
