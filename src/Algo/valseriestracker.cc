@@ -12,22 +12,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "samplfunc.h"
 
-static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 }; 
+static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 };
 
-const char** EventTracker::sEventNames() 
-{ 
-    return event_names; 
-} 
- 
+const char** EventTracker::sEventNames()
+{
+    return event_names;
+}
+
 
 #define mComma ,
-const VSEvent::Type* EventTracker::cEventTypes() 
-{ 
+const VSEvent::Type* EventTracker::cEventTypes()
+{
     mDefineStaticLocalObject( const VSEvent::Type, event_types, [] =
-	{ VSEvent::Min mComma VSEvent::Max mComma 
+	{ VSEvent::Min mComma VSEvent::Max mComma
 	  VSEvent::ZCPosNeg mComma VSEvent::ZCNegPos } );
-    return event_types; 
-} 
+    return event_types;
+}
 
 
 int EventTracker::getEventTypeIdx( VSEvent::Type type )
@@ -42,7 +42,7 @@ int EventTracker::getEventTypeIdx( VSEvent::Type type )
 
     return -1;
 }
- 
+
 
 ValSeriesTracker::ValSeriesTracker()
     : sourcevs_( 0 )
@@ -67,7 +67,7 @@ void ValSeriesTracker::setSource( const ValueSeries<float>* vs, int sz,
 }
 
 
-void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz, 
+void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz,
 				  float depth )
 {
     targetvs_ = vs;
@@ -83,7 +83,7 @@ EventTracker::EventTracker()
     , evtype_( VSEvent::Max )
     , useabsthreshold_( false )
     , similaritywin_( -10, 10 )
-    , usesimilarity_( false )
+    , usesimilarity_( true )
     , similaritythreshold_( 0.8 )
     , normalizesimi_( false )
     , quality_( 1 )
@@ -247,7 +247,7 @@ bool EventTracker::track()
 	    if ( quality_>1 ) quality_ = 1;
 	    else if ( quality_<0 ) quality_ = 0;
 	}
-	   
+
 	return res;
     }
 
@@ -260,8 +260,8 @@ bool EventTracker::track()
 	: false;
 
     float dnsample=mUdf(float), dnsim=mUdf(float); bool dnflatstart=false;
-    const bool finddn = permsamplerange.stop>=0 
-			    ? findMaxSimilarity( permsamplerange.stop, 1, 1, 
+    const bool finddn = permsamplerange.stop>=0
+			    ? findMaxSimilarity( permsamplerange.stop, 1, 1,
 						 dnsample, dnsim, dnflatstart )
 			    : false;
 
@@ -326,7 +326,7 @@ bool EventTracker::track()
 bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	float& res, float& maxsim, bool& flatstart ) const
 {
-    const Interval<int> similaritysamplewin( 
+    const Interval<int> similaritysamplewin(
 		mNINT32(similaritywin_.start/rangestep_),
 		mNINT32(similaritywin_.stop/rangestep_) );
 
@@ -407,7 +407,7 @@ void EventTracker::fillPar( IOPar& iopar ) const
     iopar.set( sKeyTrackEvent(), VSEvent::getTypeString(evtype_) );
     iopar.set( sKeyPermittedRange(), permrange_ );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
-    iopar.set( sKeyValueThresholds(), ampthresholds_ ); 
+    iopar.set( sKeyValueThresholds(), ampthresholds_ );
     iopar.set( sKeyAllowedVariance(), allowedvar_);
     iopar.set( sKeyAllowedVariances(), allowedvars_);
     iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
@@ -528,7 +528,7 @@ bool EventTracker::snap( float threshold )
 		{
 		    if( fabs(upevent.pos-dnevent.pos)<1 )
 			eventpos = (upevent.pos + dnevent.pos) / 2;
-		    else 
+		    else
 		    {
 			const float updiff = fabs( targetdepth_-upevent.pos );
 			const float dndiff = fabs( targetdepth_-dnevent.pos );

@@ -66,8 +66,8 @@ public:
 				{ return &propertychanged_; }
     NotifierAccess*		eventChangeNotifier()
 				{ return &eventchanged_; }
-    NotifierAccess*		similartyChangeNotifier()
-				{ return &similartychanged_; }
+    NotifierAccess*		similarityChangeNotifier()
+				{ return &similaritychanged_; }
 
     virtual bool		commitToTracker() const
 				{ bool b; return commitToTracker(b); }
@@ -93,7 +93,7 @@ protected:
     void			selEventType(CallBacker*);
     void			seedModeChange(CallBacker*);
     void			eventChangeCB(CallBacker*);
-    void			similartyChangeCB(CallBacker*);
+    void			similarityChangeCB(CallBacker*);
     void			colorChangeCB(CallBacker*);
     void			seedTypeSel(CallBacker*);
     void			seedSliderMove(CallBacker*);
@@ -129,7 +129,7 @@ protected:
 
     Notifier<uiHorizonSetupGroup> modechanged_;
     Notifier<uiHorizonSetupGroup> eventchanged_;
-    Notifier<uiHorizonSetupGroup> similartychanged_;
+    Notifier<uiHorizonSetupGroup> similaritychanged_;
     Notifier<uiHorizonSetupGroup> propertychanged_;
 
     static const char**		sKeyEventNames();

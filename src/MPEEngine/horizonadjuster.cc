@@ -153,7 +153,7 @@ float HorizonAdjuster::similarityThreshold() const
 
 int HorizonAdjuster::nextStep()
 {
-    if ( !attrdata_ || !attrdata_->nrCubes() )
+    if ( !attrdata_ || attrdata_->isEmpty() )
 	return ErrorOccurred();
 
     for ( int idx=0; idx<pids_.size(); idx++ )

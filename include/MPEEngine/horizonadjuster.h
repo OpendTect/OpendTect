@@ -96,7 +96,7 @@ private:
     static const char*	sKeyAttribID()		{ return "Attribute"; }
 };
 
-}; // namespace MPE
+} // namespace MPE
 
 #endif
 

@@ -103,7 +103,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     , is2d_(FixedString(typestr)==EM::Horizon2D::typeStr())
     , modechanged_(this)
     , eventchanged_(this)
-    , similartychanged_(this)
+    , similaritychanged_(this)
     , propertychanged_(this)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
@@ -114,7 +114,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     tabgrp_->addTab( eventgrp, tr("Event") );
 
     uiGroup* simigrp = createSimiGroup();
-    tabgrp_->addTab( simigrp, tr("Similarity") );
+    tabgrp_->addTab( simigrp, tr("Correlation") );
 
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, uiStrings::sProperties(true) );
@@ -207,11 +207,10 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     }
 
     extriffailfld_ = new uiGenInput( grp, tr("If tracking fails"),
-				    BoolInpSpec(true,tr("Extrapolate"),
-                                                uiStrings::sStop()) );
+		BoolInpSpec(true,tr("Extrapolate"),uiStrings::sStop()) );
     extriffailfld_->attach( alignedBelow, ampthresholdfld_ );
     extriffailfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
+		mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     return grp;
 }
@@ -219,26 +218,29 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 
 uiGroup* uiHorizonSetupGroup::createSimiGroup()
 {
-    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Similarity" );
+    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Correlation" );
 
-    usesimifld_ = new uiGenInput( grp, tr("Use similarity"), BoolInpSpec(true));
+    usesimifld_ = new uiGenInput( grp, tr("Use Correlation"),
+				  BoolInpSpec(true));
     usesimifld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
     usesimifld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
+	    mCB(this,uiHorizonSetupGroup, similarityChangeCB) );
 
-    BufferString compwindtxt( "Compare window " );
-    compwindtxt += SI().getZUnitString();
-    compwinfld_ = new uiGenInput( grp, compwindtxt, IntInpIntervalSpec() );
+    const StepInterval<int> intv( -10000, 10000, 1 );
+    IntInpSpec iis; iis.setLimits( intv );
+    BufferString compwindtxt( "Compare window ", SI().getZUnitString() );
+    compwinfld_ = new uiGenInput( grp, compwindtxt, iis, iis );
     compwinfld_->attach( alignedBelow, usesimifld_ );
     compwinfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
+	    mCB(this,uiHorizonSetupGroup, similarityChangeCB) );
 
-    simithresholdfld_ = new uiGenInput( grp, tr("Similarity threshold(0-1)"),
-				       FloatInpSpec() );
+    iis.setLimits( StepInterval<int>(0,100,1) );
+    simithresholdfld_ =
+	new uiGenInput( grp, tr("Correlation threshold (0-100)"), iis );
     simithresholdfld_->attach( alignedBelow, compwinfld_ );
     simithresholdfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
+	    mCB(this,uiHorizonSetupGroup, similarityChangeCB) );
 
     grp->setHAlignObj( usesimifld_ );
     return grp;
@@ -353,9 +355,9 @@ void uiHorizonSetupGroup::eventChangeCB( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::similartyChangeCB( CallBacker* )
+void uiHorizonSetupGroup::similarityChangeCB( CallBacker* )
 {
-    similartychanged_.trigger();
+    similaritychanged_.trigger();
 }
 
 
@@ -525,7 +527,7 @@ void uiHorizonSetupGroup::initSimiGroup()
 
     compwinfld_->setValue( simiintv );
 
-    simithresholdfld_->setValue( horadj_->similarityThreshold() );
+    simithresholdfld_->setValue( horadj_->similarityThreshold()*100 );
 }
 
 
@@ -619,10 +621,10 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 
     if ( usesimi )
     {
-	Interval<float> intval = compwinfld_->getFInterval();
-	if ( intval.start>0 || intval.stop<0 || intval.start==intval.stop )
-	    mErrRet(tr("Compare window should be minus"
-                       " to positive, ex. -20, 20"));
+	const Interval<int> intval = compwinfld_->getIInterval();
+	if ( intval.width()==0 || intval.isRev() )
+	    mErrRet(tr("Correlation window start value must be less than"
+                       " the stop value"));
 	Interval<float> relintval(
 		(float)intval.start/SI().zDomain().userFactor(),
 	        (float)intval.stop/SI().zDomain().userFactor() );
@@ -632,13 +634,14 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	    horadj_->setSimilarityWindow( relintval );
 	}
 
-	float mgate = simithresholdfld_->getfValue();
-	if ( mgate > 1 || mgate <= 0)
-	    mErrRet( tr("Similarity threshold must be within 0 to 1") );
-	if ( horadj_->similarityThreshold() != mgate )
+	const int gate = simithresholdfld_->getIntValue();
+	if ( gate > 100 || gate < 0)
+	    mErrRet( tr("Correlation threshold must be from 0 to 100") );
+	const float newthreshold = (float)gate / 100.f;
+	if ( !mIsEqual(horadj_->similarityThreshold(),newthreshold,mDefEps) )
 	{
 	    fieldchange = true;
-	    horadj_->setSimilarityThreshold( mgate );
+	    horadj_->setSimilarityThreshold( newthreshold );
 	}
     }
 

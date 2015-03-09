@@ -53,13 +53,18 @@ DataHolder::DataHolder()
 	: AbstDataHolder()
 	, regsdp_(0)
 {
-    tkzs_.setEmpty();
 }
 
 
 DataHolder::~DataHolder()
 {
     releaseMemory();
+}
+
+
+TrcKeyZSampling DataHolder::getTrcKeyZSampling() const
+{
+    return regsdp_ ? regsdp_->sampling() : TrcKeyZSampling(false);
 }
 
 
@@ -72,12 +77,6 @@ void DataHolder::setData( const RegularSeisDataPack* regsdp )
 }
 
 
-int DataHolder::nrCubes() const
-{
-    return regsdp_->nrComponents();
-}
-
-
 void DataHolder::releaseMemory()
 {
     if ( regsdp_ )
@@ -85,6 +84,11 @@ void DataHolder::releaseMemory()
 }
 
 
+bool DataHolder::isEmpty() const
+{ return regsdp_ ? regsdp_->isEmpty() : true; }
+
+
+// MPE::Engine
 Engine::Engine()
     : activevolumechange( this )
     , trackeraddremove( this )
@@ -426,10 +430,7 @@ const DataHolder* Engine::obtainAttribCache( DataPack::ID datapackid )
     RefMan<DataHolder> dh = new DataHolder();
     mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack);
     if ( regsdp )
-    {
-	dh->setTrcKeyZSampling( regsdp->sampling() );
 	dh->setData( regsdp );
-    }
 
     if ( !dh->getTrcKeyZSampling().isEmpty() )
     {

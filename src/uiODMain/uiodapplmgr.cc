@@ -1015,13 +1015,6 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     }
     else if ( evid==uiMPEPartServer::evGetAttribData() )
     {
-	const Attrib::SelSpec* as = mpeserv_->getAttribSelSpec();
-	if ( !as ) return false;
-	const TrcKeyZSampling cs = mpeserv_->getAttribVolume(*as);
-	DataPack::ID olddatapackid = mpeserv_->getAttribCacheID(*as);
-	attrserv_->setTargetSelSpec( *as );
-	DataPack::ID datapackid = attrserv_->createOutput( cs, olddatapackid );
-	mpeserv_->setAttribData( *as, datapackid );
     }
     else if ( evid==uiMPEPartServer::evShowToolbar() )
 	visserv_->showMPEToolbar( true );
@@ -1539,7 +1532,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 
 	const uiString res = nlaserv_->prepareInputData( dpss );
-	if (BufferString(res.getFullString()) != 
+	if (BufferString(res.getFullString()) !=
 	    BufferString(uiNLAPartServer::sKeyUsrCancel()))
 	    uiMSG().warning( res );
 

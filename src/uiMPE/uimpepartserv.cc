@@ -279,8 +279,21 @@ void uiMPEPartServer::modeChangedCB( CallBacker* )
 }
 
 
-void uiMPEPartServer::eventorsimimlartyChangedCB( CallBacker* )
+void uiMPEPartServer::eventChangedCB( CallBacker* )
 {
+    if ( trackercurrentobject_ == -1 )
+	return;
+
+    if ( setupgrp_ )
+	setupgrp_->commitToTracker();
+}
+
+
+void uiMPEPartServer::similarityChangedCB( CallBacker* )
+{
+    if ( trackercurrentobject_ == -1 )
+	return;
+
     if ( setupgrp_ )
 	setupgrp_->commitToTracker();
 }
@@ -288,18 +301,18 @@ void uiMPEPartServer::eventorsimimlartyChangedCB( CallBacker* )
 
 void uiMPEPartServer::propertyChangedCB( CallBacker* )
 {
-    if ( trackercurrentobject_ != -1 )
-    {
-	EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
-	if ( !emobj ) return;
+    if ( trackercurrentobject_ == -1 )
+	return;
 
-	if ( setupgrp_ )
-	{
-	    emobj->setPreferredColor( setupgrp_->getColor() );
-	    sendEvent( uiMPEPartServer::evUpdateTrees() );
-	    emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(),
-					  setupgrp_->getMarkerStyle() );
-	}
+    EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
+    if ( !emobj ) return;
+
+    if ( setupgrp_ )
+    {
+	emobj->setPreferredColor( setupgrp_->getColor() );
+	sendEvent( uiMPEPartServer::evUpdateTrees() );
+	emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(),
+				      setupgrp_->getMarkerStyle() );
     }
 }
 
@@ -513,7 +526,6 @@ void uiMPEPartServer::retrack( const EM::ObjectID& oid )
     }
 
     MPE::engine().setActiveVolume( oldactivevol );
-    eventorsimimlartyChangedCB( 0 );
 
     if ( !(MPE::engine().activeVolume().nrInl()==1) &&
          !(MPE::engine().activeVolume().nrCrl()==1) )
@@ -544,13 +556,13 @@ void uiMPEPartServer::cleanSetupDependents()
     NotifierAccess* eventchangenotifier = setupgrp_->eventChangeNotifier();
     if ( eventchangenotifier )
 	eventchangenotifier->remove(
-			mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
+			mCB(this,uiMPEPartServer,eventChangedCB) );
 
-    NotifierAccess* similartyChangeNotifier =
-					  setupgrp_->similartyChangeNotifier();
-    if ( similartyChangeNotifier )
-	similartyChangeNotifier->remove(
-			mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
+    NotifierAccess* similarityChangeNotifier =
+					  setupgrp_->similarityChangeNotifier();
+    if ( similarityChangeNotifier )
+	similarityChangeNotifier->remove(
+			mCB(this,uiMPEPartServer,similarityChangedCB) );
 }
 
 
@@ -596,8 +608,16 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     if ( emid<0 || sid<0 )
 	return false;
 
-    if ( trackercurrentobject_!=-1 && !seedswithoutattribsel_ )
-	return false;
+    if ( trackercurrentobject_!=-1 && setupgrp_ )
+    {
+	if ( setupgrp_->mainwin() )
+	{
+	    setupgrp_->mainwin()->raise();
+	    setupgrp_->mainwin()->show();
+	}
+
+	return true;
+    }
 
     const int trackerid = getTrackerID( emid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
@@ -679,16 +699,6 @@ void uiMPEPartServer::set2DSelSpec(const Attrib::SelSpec& as)
 void uiMPEPartServer::activeVolumeChange( CallBacker* )
 {
 }
-
-
-DataPack::ID uiMPEPartServer::getAttribCacheID(
-					const Attrib::SelSpec& spec ) const
-{ return MPE::engine().getAttribCacheID( spec ); }
-
-
-const MPE::DataHolder*
-    uiMPEPartServer::getAttribCache( const Attrib::SelSpec& spec ) const
-{ return MPE::engine().getAttribCache( spec ); }
 
 
 TrcKeyZSampling uiMPEPartServer::getAttribVolume(
@@ -961,19 +971,20 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( modechangenotifier )
 	modechangenotifier->notify( mCB(this,uiMPEPartServer,modeChangedCB) );
 
-    NotifierAccess* propchgenotifier = setupgrp_->propertyChangeNotifier();
-    if ( propchgenotifier )
-	propchgenotifier->notify( mCB(this,uiMPEPartServer,propertyChangedCB));
+    NotifierAccess* propchangenotifier = setupgrp_->propertyChangeNotifier();
+    if ( propchangenotifier )
+	propchangenotifier->notify(
+			mCB(this,uiMPEPartServer,propertyChangedCB) );
 
-    NotifierAccess* evchgenotifier = setupgrp_->eventChangeNotifier();
-    if ( evchgenotifier )
-	evchgenotifier->notify(
-			mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB) );
+    NotifierAccess* evchangenotifier = setupgrp_->eventChangeNotifier();
+    if ( evchangenotifier )
+	evchangenotifier->notify(
+			mCB(this,uiMPEPartServer,eventChangedCB) );
 
-    NotifierAccess* simichgenotifier = setupgrp_->similartyChangeNotifier();
-    if ( simichgenotifier )
-	simichgenotifier->notify(
-			 mCB(this,uiMPEPartServer,eventorsimimlartyChangedCB));
+    NotifierAccess* simichangenotifier = setupgrp_->similarityChangeNotifier();
+    if ( simichangenotifier )
+	simichangenotifier->notify(
+			mCB(this,uiMPEPartServer,similarityChangedCB));
 
     if ( cursceneid_ != -1 )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );

@@ -13,23 +13,24 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "mpeenginemod.h"
-#include "attribdataholder.h"
+
 #include "attribdatacubes.h"
+#include "attribdataholder.h"
 #include "attribsel.h"
 #include "bufstring.h"
 #include "callback.h"
 #include "color.h"
-#include "trckeyzsampling.h"
 #include "datapack.h"
 #include "emposid.h"
 #include "survgeom.h"
+#include "trckeyzsampling.h"
+
 
 class BufferStringSet;
 class Executor;
-class TrcKeyZSampling;
-class TaskRunner;
 class RegularSeisDataPack;
+class TaskRunner;
+class TrcKeyZSampling;
 
 namespace Attrib { class SelSpec; }
 namespace EM { class EMObject; }
@@ -63,22 +64,16 @@ mExpClass(MPEEngine) DataHolder : public AbstDataHolder
 public:
 				DataHolder();
 
-    void			setTrcKeyZSampling(const TrcKeyZSampling tkzs)
-				{ tkzs_ = tkzs; }
-    TrcKeyZSampling		getTrcKeyZSampling() const
-				{ return tkzs_; }
-    void			setData(const RegularSeisDataPack* regfdp);
+    TrcKeyZSampling		getTrcKeyZSampling() const;
+    void			setData(const RegularSeisDataPack*);
     const RegularSeisDataPack*	getData() const		{ return regsdp_; }
-    int				nrCubes() const;
-
-protected:
-
-    TrcKeyZSampling		tkzs_;
-    const RegularSeisDataPack*	regsdp_;
+    bool			isEmpty() const;
 
 private:
-			        ~DataHolder();
+				~DataHolder();
     void			releaseMemory();
+
+    const RegularSeisDataPack*	regsdp_;
 };
 
 

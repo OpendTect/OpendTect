@@ -84,8 +84,6 @@ public:
 				 	     attrib if tracking should
 					     be possible in the activeVolume. */
     const Attrib::SelSpec*	getAttribSelSpec() const;
-    DataPack::ID		getAttribCacheID(const Attrib::SelSpec&) const;
-    const MPE::DataHolder*	getAttribCache(const Attrib::SelSpec&) const;
     void			setAttribData(const Attrib::SelSpec&,
 	    				      DataPack::ID);
 
@@ -160,8 +158,9 @@ protected:
     bool			seedswithoutattribsel_;
 
     void			modeChangedCB(CallBacker*);
-    void			eventorsimimlartyChangedCB(CallBacker*);
+    void			eventChangedCB(CallBacker*);
     void			propertyChangedCB(CallBacker*);
+    void			similarityChangedCB(CallBacker*);
     void			retrackCB(CallBacker*);
 
     void			nrHorChangeCB(CallBacker*);
