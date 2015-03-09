@@ -469,7 +469,13 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 
 void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
 {
-    const bool needsshell = cmd.find('|') || cmd.find('<') || cmd.find( '>' );
+    bool needsshell = cmd.find('|') || cmd.find('<') || cmd.find( '>' );
+#ifdef __win__
+    //Check if command starts with echo
+    if ( !needsshell )
+	needsshell = !strncasecmp( cmd.buf(), "echo", 4 );
+#endif
+
     if ( needsshell )
     {
 	if ( cmd.find( "\"" ) )
@@ -479,7 +485,7 @@ void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
 
 	const BufferString comm = cmd;
 #ifdef __msvc__
-	cmd = "cmd -c \"";
+	cmd = "cmd /c \"";
 #else
 	cmd = "sh -c \"";
 #endif

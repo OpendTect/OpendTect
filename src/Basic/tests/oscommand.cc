@@ -79,59 +79,6 @@ static bool testAllPipes()
 }
 
 
-static bool testPipeInput()
-{
-    FixedString message = "OpendTect rules";
-    const BufferString command( "@echo ", message );
-    StreamData streamdata = StreamProvider( command ).makeIStream();
-    mRunStandardTest( streamdata.istrm,  "Creation of standard input stream");
-    PtrMan<od_istream> istream = new od_istream(streamdata.istrm);
-
-    BufferString streaminput;
-    mRunStandardTest( istream->getAll( streaminput ) , "Read from pipe" );
-    mRunStandardTest( streaminput==message, "Pipe content check" );
-
-    return true;
-}
-
-/*
-bool testPipeOutput()
-{
-    FixedString message = "OpendTect rules";
-
-    BufferString command = "@";
-#ifdef __win__
-    command.add( "more" );
-#else
-    command.add( "cat" );
-#endif
-
-    command.add( " > " ).add( tmpfnm );
-    StreamProvider prov( command );
-    StreamData ostreamdata = prov.makeOStream();
-    mRunStandardTest( ostreamdata.ostrm,  "Creation of standard output stream");
-    PtrMan<od_ostream> ostream = new od_ostream(ostreamdata.ostrm);
-
-    *ostream << message;
-    ostream->close();
-
-    ostream = 0; //Deletes everything
-    Threads::sleep( 1 );
-
-    od_istream istream( tmpfnm );
-    mRunStandardTest( istream.isOK(), "Opening temporary file");
-    BufferString streaminput;
-
-    istream.getAll( streaminput );
-    istream.close();
-    File::remove( tmpfnm );
-
-    mRunStandardTest( streaminput==message, "Pipe content check" );
-
-    return true;
-}
- */
-
 
 static void testServer()
 {
@@ -169,7 +116,7 @@ int main( int argc, char** argv )
 	return 0;
     }
 
-    if ( !testCmds() || !testAllPipes() || !testPipeInput() )
+    if ( !testCmds() || !testAllPipes()  )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );
