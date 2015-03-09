@@ -458,7 +458,7 @@ bool copy( const char* from, const char* to, BufferString* errmsg )
     return ret;
 
 #else
-    pFreeFnErrMsg(not_implemented_str,"copy");
+    pFreeFnErrMsg(not_implemented_str);
     return false;
 #endif
 }
@@ -497,7 +497,7 @@ bool remove( const char* fnm )
 #ifndef OD_NO_QT
     return isFile(fnm) ? QFile::remove( fnm ) : removeDir( fnm );
 #else
-    pFreeFnErrMsg(not_implemented_str,"remove");
+    pFreeFnErrMsg(not_implemented_str);
     return false;
 #endif
 }
@@ -642,7 +642,7 @@ const char* timeCreated( const char* fnm, const char* fmt )
     const QFileInfo qfi( fnm );
     ret = qfi.created().toString( fmt );
 #else
-    pFreeFnErrMsg(not_implemented_str,"timeCreated");
+    pFreeFnErrMsg(not_implemented_str);
     ret = "<unknown>";
 #endif
     return ret.buf();
@@ -656,7 +656,7 @@ const char* timeLastModified( const char* fnm, const char* fmt )
     const QFileInfo qfi( fnm );
     ret = qfi.lastModified().toString( fmt );
 #else
-    pFreeFnErrMsg(not_implemented_str,"timeLastModified");
+    pFreeFnErrMsg(not_implemented_str);
     ret = "<unknown>";
 #endif
     return ret.buf();
@@ -704,7 +704,7 @@ const char* linkTarget( const char* linknm )
     ret = qfi.isSymLink() ? qfi.symLinkTarget()
 			  : linknm;
 #else
-    pFreeFnErrMsg(not_implemented_str,"linkTarget");
+    pFreeFnErrMsg(not_implemented_str);
     ret = linknm;
 #endif
     return ret.buf();
@@ -735,7 +735,7 @@ const char* getHomePath()
 #ifndef OD_NO_QT
     ret = QDir::homePath();
 #else
-    pFreeFnErrMsg(not_implemented_str,"getHomePath");
+    pFreeFnErrMsg(not_implemented_str);
     ret = GetEnvVar( "HOME" );
 #endif
     return ret.buf();
@@ -751,7 +751,7 @@ const char* getTempPath()
     ret.replace( '/', '\\' );
 # endif
 #else
-    pFreeFnErrMsg(not_implemented_str,"getTmpPath");
+    pFreeFnErrMsg(not_implemented_str);
 # ifdef __win__
     ret = "/tmp";
 # else
@@ -769,7 +769,7 @@ const char* getRootPath( const char* path )
     const QDir qdir( path );
     ret = qdir.rootPath();
 #else
-    pFreeFnErrMsg(not_implemented_str,"getRootPath");
+    pFreeFnErrMsg(not_implemented_str);
 # ifdef __win__
     ret = "/";
 # else
