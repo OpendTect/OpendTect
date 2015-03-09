@@ -82,9 +82,13 @@ void uiBasemapContourGroup::setParameters()
     EM::IOObjInfo eminfo( mid_ );
     const float userfac = mCast(float,SI().zDomain().userFactor());
     Interval<float> zrange = eminfo.getZRange();
-    zrange.scale( userfac );
-    AxisLayout<float> al( zrange, false, true );
-    spacingfld_->setValue( al.getSampling() );
+    if ( !zrange.isUdf() )
+	zrange.scale( userfac );
+
+    const AxisLayout<float> al( zrange, false, false );
+    StepInterval<float> spacing = al.getSampling();
+    spacing.step /= 4;
+    spacingfld_->setValue( spacing );
 }
 
 

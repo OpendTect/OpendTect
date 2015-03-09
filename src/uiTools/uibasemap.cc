@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "survinfo.h"
 
+#include <iostream>
 
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
@@ -277,15 +278,28 @@ void uiBaseMap::updateTransform()
     const uiRect viewrect( 0, 0, (int)view_.scene().width(),
 				 (int)view_.scene().height() );
 
-    if ( mIsZero(wr_.width(),mDefEps) || mIsZero(wr_.height(),mDefEps) )
+    const double wrwidth = wr_.width();
+    const double wrheight = wr_.bottom() - wr_.top();
+    if ( mIsZero(wrwidth,mDefEps) || mIsZero(wrheight,mDefEps) )
 	return;
 
     w2ui_.set( viewrect, wr_ );
 
-    const double xscale = viewrect.width()/(wr_.right()-wr_.left());
-    const double yscale = viewrect.height()/(wr_.bottom()-wr_.top());
-    const double xpos = viewrect.left()-xscale*wr_.left();
-    const double ypos = viewrect.top()-yscale*wr_.top();
+    double xscale = viewrect.width() / wrwidth;
+    double yscale = -xscale;
+    if ( yscale*wrheight > viewrect.height() )
+    {
+	yscale = viewrect.height() / wrheight;
+	xscale = -yscale;
+    }
+
+    const int pixwidth = mNINT32( xscale * wrwidth );
+    const int pixheight = mNINT32( yscale * wrheight );
+    const double xshift = (viewrect.width()-pixwidth) / 2.;
+    const double yshift = (viewrect.height()-pixheight) / 2.;
+
+    const double xpos = viewrect.left() - xscale*wr_.left() + xshift;
+    const double ypos = viewrect.top() - yscale*wr_.top() + yshift;
 
     worlditemgrp_.setPos( uiWorldPoint(xpos,ypos) );
     worlditemgrp_.setScale( (float)xscale, (float)yscale );

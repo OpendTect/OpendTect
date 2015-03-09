@@ -41,7 +41,8 @@ ContourExtractor( const Array2D<float>& zvalues,
 		  const StepInterval<float>& ix,
 		  ObjectSet<ODPolygon<float> >& polys,
 		  TypeSet<float>& contourvals )
-    : zvalues_(zvalues)
+    : ParallelTask("Extracting Contours")
+    , zvalues_(zvalues)
     , zintv_(ix)
     , polygons_(polys)
     , contourvals_(contourvals)

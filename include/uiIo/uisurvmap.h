@@ -94,7 +94,7 @@ public:
     void		setSurveyInfo(const SurveyInfo*);
     void		setPixelPos(int x,int y);
 
-    void		setScaleLen(const float);
+    void		setScaleLen(float);
     float		getScaleLen() const		{ return scalelen_; }
 
     const LineStyle&	getLineStyle() const		{ return ls_; }

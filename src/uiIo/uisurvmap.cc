@@ -317,7 +317,7 @@ void uiMapScaleObject::update()
 }
 
 
-void uiMapScaleObject::setScaleLen( const float scalelen )
+void uiMapScaleObject::setScaleLen( float scalelen )
 {
     scalelen_ = scalelen;
     update();
