@@ -36,7 +36,8 @@ macro( OD_ADD_OSGGEO )
 
     add_subdirectory( ${CMAKE_SOURCE_DIR}/external/osgGeo/src/osgGeo 
 		  ${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo )
-    set ( OSGGEO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/osgGeo/src )
+    set ( OSGGEO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/osgGeo/src
+			     ${CMAKE_BINARY_DIR}/external/osgGeo/src )
     set ( OSGGEO_LIBRARY_PATH
 	${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo/${CMAKE_BUILD_TYPE} )
 endmacro()
