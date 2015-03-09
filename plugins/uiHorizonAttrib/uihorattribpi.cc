@@ -202,7 +202,7 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     eminfo.getAttribNames( attrnms );
     uiLabeledListBox* llb =
 	new uiLabeledListBox( this, attrnms,
-		emioobj ? emioobj->name().buf() : uiStrings::sEmptyString(), 
+		emioobj ? emioobj->name().buf() : uiStrings::sEmptyString(),
                 OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     attrlb_ = llb->box();
 }
@@ -325,8 +325,9 @@ void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
 
 mDefODInitPlugin(uiHorizonAttrib)
 {
-    uiHorizonAttrib::initClass();
+    uiHorizonAttrib::initClass()
     uiContourTreeItem::initClass();
+
     mDefineStaticLocalObject( uiHorAttribPIMgr, mgr, (ODMainWin()) );
     return 0;
 }
