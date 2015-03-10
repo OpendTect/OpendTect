@@ -21,13 +21,8 @@ mDefModInitFn(uiBase)
 {
     mIfNotFirstTime( return );
 
-#ifdef __debug__
     uiButton::setHaveCommonPBIcons(
 	    	!Settings::common().isFalse("Ui.Icons.PushButtons") );
-#else
-    uiButton::setHaveCommonPBIcons(
-	    	Settings::common().isTrue("Ui.Icons.PushButtons") );
-#endif
 
     uiCursorManager::initClass();
     FlareHelpProvider::initODHelp();
