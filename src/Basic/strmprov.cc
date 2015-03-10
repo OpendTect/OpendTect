@@ -34,8 +34,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <fstream>
 
-#include "qstreambuf.h"
-#include <QProcess>
+
+#ifndef OD_NO_QT
+# include "qstreambuf.h"
+# include <QProcess>
+#endif
 
 #include "file.h"
 #include "filepath.h"
@@ -597,9 +600,9 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	return retsd;
     }
 
+#ifndef OD_NO_QT
     BufferString cmd;
     mkOSCmd( cmd );
-
 
     QProcess* process = new QProcess;
     process->start( cmd.buf(), QIODevice::ReadOnly );
@@ -608,6 +611,7 @@ StreamData StreamProvider::makeIStream( bool binary, bool allowpl ) const
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
 	retsd.istrm = new iqstream( stdiosb );
     }
+#endif
 
     return retsd;
 }
@@ -648,6 +652,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
     BufferString cmd;
     mkOSCmd( cmd );
 
+#ifndef OD_NO_QT
     QProcess* process = new QProcess;
     process->start( cmd.buf(), QIODevice::WriteOnly );
     if ( process->waitForStarted() )
@@ -655,6 +660,7 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
 	qstreambuf* stdiosb = new qstreambuf( *process, false, true );
 	retsd.ostrm = new oqstream( stdiosb );
     }
+#endif
 
     return retsd;
 }
