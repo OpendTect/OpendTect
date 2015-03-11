@@ -391,6 +391,7 @@ void ui3DViewerBody::setupView()
     osgcamera->setClearColor( osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f) );
     osgcamera->setViewport( viewport_ );
     osgcamera->setRenderOrder(osg::Camera::POST_RENDER, mMainCameraOrder );
+    osgcamera->setNearFarRatio( 0.002 );	// default is 0.0005
 
     view_ = new osgViewer::View;
     view_->setCamera( osgcamera );
