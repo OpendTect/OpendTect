@@ -302,6 +302,13 @@ void initEditing()
 };
 
 
+bool uiStratLayerModel::isProfile( const char* edtyp )
+{
+    FixedString profilestr( "Profile" );
+    return profilestr.isStartOf( edtyp );
+}
+
+
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     : uiMainWin(p,uiStrings::sEmptyString(),1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
@@ -362,6 +369,11 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     {
 	synthdisp_->addViewerToControl( *vwr );
 	vwr->viewChanged.notify( mCB(this,uiStratLayerModel,lmViewChangedCB) );
+	uiToolButton* parsbut = synthdisp_->control()->parsButton( vwr );
+	if ( !moddisp_->canSetDisplayProperties() )
+	    parsbut->setSensitive( false );
+	else
+	    parsbut->setToolTip( "Layermodel display properties" );
     }
 
     modtools_->attach( ensureBelow, moddisp_ );
@@ -559,8 +571,18 @@ void uiStratLayerModel::levelChg( CallBacker* cb )
 {
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor() );
-    if ( modtools_->showFlattened() )
+    modtools_->setFlatTBSensitive( canShowFlattened() );
+    if ( !canShowFlattened() && moddisp_->isFlattened() )
+    {
+	modtools_->setShowFlattened( false );
+	moddisp_->setFlattened( false );
+	synthdisp_->setFlattened( false, true );
+    }
+    else if ( modtools_->showFlattened() )
+    {
+	moddisp_->setFlattened( modtools_->showFlattened() );
 	synthdisp_->setFlattened( modtools_->showFlattened(), true );
+    }
 }
 
 
@@ -779,9 +801,8 @@ bool uiStratLayerModel::openGenDesc()
     synthdisp_->resetRelativeViewRect();
     synthdisp_->setForceUpdate( true );
     BufferString edtyp;
-    BufferString profilestr( "Profile" );
     descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
-    if ( !profilestr.isStartOf(edtyp) )
+    if ( seqdisp_->separateDisplay() )
     {
 	needtoretrievefrpars_ = true;
 	gentools_->genReq.trigger();
