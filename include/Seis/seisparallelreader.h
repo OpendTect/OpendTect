@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "trckeyzsampling.h"
 
+class BinDataDesc;
 class BinIDValueSet;
 class CBVSSeisTrcTranslator;
 class IOObj;
@@ -133,6 +134,9 @@ public:
 
 protected:
 
+    bool			initDataPack(const BinDataDesc& bdd);
+
+    IOObj*			ioobj_;
     CBVSSeisTrcTranslator*	trl_;
     Seis::SelData*		sd_;
     RegularSeisDataPack*	dp_;

@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "binidvalset.h"
 #include "cbvsreadmgr.h"
+#include "convmemvalseries.h"
 #include "datapackbase.h"
 #include "ioobj.h"
 #include "samplingdata.h"
@@ -402,11 +403,26 @@ int nextStep()
     const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().binid.crl() );
     for ( int cidx=0; cidx<trc_.nrComponents(); cidx++ )
     {
-	Array3D<float>& arr = dp_.data(cidx);
-	for ( int zidx=0; zidx<trc_.size(); zidx++ )
+	Array3DImpl<float>& arr = dp_.data( cidx );
+	ValueSeries<float>* stor = arr.getStorage();
+	mDynamicCastGet(ConvMemValueSeries<float>*,storptr,stor);
+	char* storarr = storptr ? storptr->storArr() : (char*)stor->arr();
+
+	if ( storarr )
 	{
-	    arr.set( idx0, idx1, zidx, trc_.get(zidx,cidx) );
+	    const DataBuffer* databuf = trc_.data().getComponent( cidx );
+	    const int bytespersamp = databuf->bytesPerSample();
+	    const od_int64 offset = arr.info().getOffset( idx0, idx1, 0 );
+	    char* storoff = storarr + offset * bytespersamp;
+	    const unsigned char* trc = databuf->data();
+	    OD::sysMemCopy( storoff, trc, trc_.size() * bytespersamp );
 	}
+	else
+	{
+	    for ( int zidx=0; zidx<trc_.size(); zidx++ )
+		arr.set( idx0, idx1, zidx, trc_.get(zidx,cidx) );
+	}
+
     }
 
     return Finished();
@@ -423,7 +439,9 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 				    const TrcKeyZSampling* tkzs,
 				    const TypeSet<int>* comps )
     : Executor("Reader")
+    , ioobj_(ioobj.clone())
     , dp_(0)
+    , trl_(0)
 {
     SeisIOObjInfo info( ioobj );
     if ( !comps )
@@ -446,6 +464,11 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     queueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::MultiThread,
 				"SequentialReader" );
+    
+    DataCharacteristics dc;
+    if ( !info.getDataChar(dc) || !initDataPack(dc) )
+	return;
+
     mDynamicCast(CBVSSeisTrcTranslator*,trl_,ioobj.createTranslator())
     sd_ = new Seis::RangeSelData( tkzs_ );
     if ( trl_ )
@@ -453,28 +476,14 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 	trl_->setSelData( sd_ );
 	trl_->initRead( ioobj.getConn(Conn::Read) );
     }
-
-    dp_ = new RegularSeisDataPack( Seis::nameOf(info.geomType()) );
-    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
-    dp_->setSampling( tkzs_ );
-    dp_->setName( ioobj.name() );
-
-    BufferStringSet compnames;
-    info.getComponentNames( compnames );
-    for ( int idx=0; idx<components_.size(); idx++ )
-    {
-	const int cidx = components_[idx];
-	dp_->addComponent(
-		compnames.validIdx(cidx) ? compnames.get(cidx).buf() : "" );
-    }
 }
 
 
 SequentialReader::~SequentialReader()
 {
-    delete trl_;
-    DPM( DataPackMgr::SeisID() ).release( dp_ );
+    delete trl_; delete ioobj_;
 
+    DPM( DataPackMgr::SeisID() ).release( dp_ );
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
@@ -483,10 +492,34 @@ RegularSeisDataPack* SequentialReader::getDataPack()
 { return dp_; }
 
 
+bool SequentialReader::initDataPack( const BinDataDesc& bdd )
+{
+    const SeisIOObjInfo info( *ioobj_ );
+    dp_ = new RegularSeisDataPack( Seis::nameOf(info.geomType()), &bdd );
+    DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
+    dp_->setSampling( tkzs_ );
+    dp_->setName( ioobj_->name() );
+
+    BufferStringSet cnames;
+    info.getComponentNames( cnames );
+    for ( int idx=0; idx<components_.size(); idx++ )
+    {
+	const int cidx = components_[idx];
+	const char* cnm =
+		cnames.validIdx(cidx) ? cnames.get(cidx).buf()
+				      : BufferString::empty().buf();
+	if ( !dp_->addComponent(cnm) )
+	    return false;
+    }
+
+    return true;
+}
+
+
 int SequentialReader::nextStep()
 {
     SeisTrc* trc = new SeisTrc;
-    if ( !trl_->readInfo(trc->info()) )
+    if ( !trl_ || !trl_->readInfo(trc->info()) )
     {
 	delete trc;
 	return Finished();

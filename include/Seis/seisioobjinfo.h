@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "survgeom.h"
 #include "bufstring.h"
 
+
+class DataCharacteristics;
 class IOObj;
 class TrcKeyZSampling;
 class BinIDValueSet;
@@ -63,6 +65,7 @@ public:
     int			expectedMBs(const SpaceInfo&) const;
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const; // Only CBVS
+    bool		getDataChar(DataCharacteristics&) const;
     bool		getBPS(int&,int icomp) const;
     			//!< max bytes per sample, component -1 => add all
 

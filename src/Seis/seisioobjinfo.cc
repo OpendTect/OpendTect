@@ -246,6 +246,28 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
 }
 
 
+bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
+{
+    mChk(false);
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		 ioobj_->createTranslator() );
+    if ( !sttr )
+	{ pErrMsg("No Translator!"); return false; }
+
+    Conn* conn = ioobj_->getConn( Conn::Read );
+    if ( !sttr->initRead(conn) )
+	return false;
+    
+    ObjectSet<SeisTrcTranslator::TargetComponentData>& comps
+		= sttr->componentInfo();
+    if ( comps.isEmpty() )
+	return false;
+
+    dc = comps.first()->datachar;
+    return true;
+}
+
+
 bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 {
     mChk(false);
