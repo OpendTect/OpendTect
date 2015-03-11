@@ -156,6 +156,9 @@ public:
     static void			initClass();
     friend class		uiStratLayerModelManager;
 
+protected:
+    static bool			isProfile(const char*);
+
 };
 
 
