@@ -35,6 +35,7 @@ public:
     			TimeDepthModel(const TimeDepthModel&);
     virtual		~TimeDepthModel();
 
+    TimeDepthModel&	operator=(const TimeDepthModel&);
     virtual bool	isOK() const;
     const char*		errMsg() const;
     int 		size() const 	{ return sz_; }

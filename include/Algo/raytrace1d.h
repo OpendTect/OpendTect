@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 
 template <class T> class Array2DImpl;
+template <class T> class Array1D;
 class TimeDepthModel;
 
 
@@ -67,6 +68,8 @@ public:
 
     void		setOffsets(const TypeSet<float>& offsets);
     void		getOffsets(TypeSet<float>& offsets) const;
+    bool		isPSWithoutZeroOffset() const;
+			// If PreStack & Offset Range do not have zero offset
 
     uiString		errMsg() const { return errmsg_; }
 
@@ -74,6 +77,7 @@ public:
     float		getSinAngle(int layeridx,int offsetidx) const;
     bool                getReflectivity(int offset,ReflectivityModel&) const;
     bool		getTDModel(int offset,TimeDepthModel&) const;
+    bool		getZeroOffsTDModel(TimeDepthModel&) const;
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -93,6 +97,8 @@ protected:
     od_int64		nrIterations() const;
     virtual bool	doPrepare(int);
     virtual bool	compute(int,int,float);
+    bool		getTDM(const Array1D<float>&,TimeDepthModel&) const;
+    void		setZeroOffsetTWT();
 
 			//Setup variables
     ElasticModel	model_; // model top depth must be TWT = 0ms
@@ -107,6 +113,7 @@ protected:
 				//Results
     Array2DImpl<float>*		sini_;
     Array2DImpl<float>*		twt_;
+    Array1D<float>*		zerooffstwt_;
     Array2DImpl<float_complex>* reflectivity_;
 };
 
@@ -127,7 +134,6 @@ public:
     const RayTracer1D::Setup&	setup() const	{ return setup_; }
 
 protected:
-    bool			doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
 
     bool			compute(int,int,float);

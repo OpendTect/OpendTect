@@ -753,7 +753,7 @@ bool RaySynthGenerator::doPrepare( int )
 	for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
 	{
 	    const RayTracer1D* rt1d = rt1ds[idx];
-	    RayModel* rm = new RayModel( *rt1d, offsets_.size(), applynmo_ );
+	    RayModel* rm = new RayModel( *rt1d, offsets_.size() );
 	    raymodels_->insertAt( rm, 0 );
 
 	    if ( forcerefltimes_ )
@@ -837,8 +837,8 @@ uiString RaySynthGenerator::uiNrDoneText() const
 }
 
 
-RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets,
-				       bool isnmocoorected )
+RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
+    : zerooffset2dmodel_(0)
 {
     for ( int idx=0; idx<nroffsets; idx++ )
     {
@@ -857,6 +857,11 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets,
 
 	refmodels_ += refmodel;
 	t2dmodels_ += t2dm;
+	if ( !idx )
+	{
+	    zerooffset2dmodel_ = new TimeDepthModel();
+	    rt1d.getZeroOffsTDModel( *zerooffset2dmodel_ );
+	}
     }
 }
 
@@ -867,6 +872,7 @@ RaySynthGenerator::RayModel::~RayModel()
     deepErase( t2dmodels_ );
     deepErase( refmodels_ );
     deepErase( sampledrefmodels_ );
+    delete zerooffset2dmodel_;
 }
 
 
@@ -932,6 +938,12 @@ void RaySynthGenerator::RayModel::getRefs(
     ObjectSet<const ReflectivityModel>& rms =
 	sampled ? sampledrefmodels_ : refmodels_;
     mGet( rms, refmodels, steal );
+}
+
+
+void RaySynthGenerator::RayModel::getZeroOffsetD2T( TimeDepthModel& tdms )
+{
+    tdms = *zerooffset2dmodel_;
 }
 
 

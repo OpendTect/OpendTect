@@ -51,6 +51,7 @@ public:
     DataPack&				getPack() 	{return datapack_;}
 
     ObjectSet<const TimeDepthModel> 	d2tmodels_;
+    ObjectSet<const TimeDepthModel>	zerooffsd2tmodels_;
 
     DataPack::FullID			datapackid_;
 

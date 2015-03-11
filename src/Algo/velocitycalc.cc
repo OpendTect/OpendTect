@@ -47,6 +47,13 @@ TimeDepthModel::~TimeDepthModel()
 }
 
 
+TimeDepthModel& TimeDepthModel::operator=( const TimeDepthModel& td )
+{
+    setModel( td.depths_, td.times_, td.sz_ );
+    return *this;
+}
+
+
 bool TimeDepthModel::isOK() const
 { return times_ && depths_ && sz_ > 0; }
 

@@ -208,12 +208,12 @@ public:
 
     mStruct(Seis) RayModel
     {
-			RayModel(const RayTracer1D& rt1d,int nroffsets,
-				 bool isnmocorr = true);
+			RayModel(const RayTracer1D& rt1d,int nroffsets);
 			~RayModel();
 
 	void		getTraces(ObjectSet<SeisTrc>&,bool steal);
 	void		getD2T(ObjectSet<TimeDepthModel>&,bool steal);
+	void		getZeroOffsetD2T(TimeDepthModel&);
 	void		getRefs(ObjectSet<const ReflectivityModel>&,bool steal,
 				bool sampled=false);
 	void		forceReflTimes(const StepInterval<float>&);
@@ -223,6 +223,7 @@ public:
     protected:
 	ObjectSet<SeisTrc>			outtrcs_; //this is a gather
 	ObjectSet<TimeDepthModel>		t2dmodels_;
+	TimeDepthModel*				zerooffset2dmodel_;
 	ObjectSet<const ReflectivityModel>	refmodels_;
 	ObjectSet<const ReflectivityModel>	sampledrefmodels_;
 
