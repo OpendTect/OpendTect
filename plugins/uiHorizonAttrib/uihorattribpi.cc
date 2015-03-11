@@ -325,7 +325,7 @@ void uiHorAttribPIMgr::dataReadyCB( CallBacker* )
 
 mDefODInitPlugin(uiHorizonAttrib)
 {
-    uiHorizonAttrib::initClass();
+    uiHorizonAttrib::initClass()
     uiContourTreeItem::initClass();
 
     mDefineStaticLocalObject( uiHorAttribPIMgr, mgr, (ODMainWin()) );
