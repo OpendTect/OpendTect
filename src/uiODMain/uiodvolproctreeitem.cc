@@ -34,12 +34,13 @@ void uiDataTreeItem::initClass()
 
 uiDataTreeItem::uiDataTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
-    , selmenuitem_( tr("Select setup ..."), true )
+    , selmenuitem_( tr("Select Setup ..."), true )
     , reloadmenuitem_( uiStrings::sReload(), true )
     , editmenuitem_( uiStrings::sEdit(true), true )
 {
     editmenuitem_.iconfnm = VolProc::uiChain::pixmapFileName();
     reloadmenuitem_.iconfnm = "refresh";
+    selmenuitem_.iconfnm = "selectfromlist";
 }
 
 
@@ -183,6 +184,5 @@ void uiDataTreeItem::updateColumnText( int col )
     uiODDataTreeItem::updateColumnText( col );
 }
 
-
-};//namespace
+} // namespace VolProc
 

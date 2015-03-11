@@ -217,14 +217,14 @@ protected:
 #define mDefineKey( key, str ) \
 const char* uiODFaultToolMan::key()	{ return str; }
 
-mDefineKey( sKeyCopySelection,     "Copy selection to" );
-mDefineKey( sKeyMoveSelection,     "Move selection to" );
-mDefineKey( sKeyToFault,           "Fault" );
-mDefineKey( sKeyToFaultStickSet,   "FaultStickSet" );
-mDefineKey( sKeyCreateSingleNew,   "Create single new" );
-mDefineKey( sKeyCreateNewInSeries, "Create new in series" );
-mDefineKey( sKeyMergeWithExisting, "Merge with existing" );
-mDefineKey( sKeyReplaceExisting,   "Replace existing" );
+mDefineKey( sKeyCopySelection,     "Copy Selection to" )
+mDefineKey( sKeyMoveSelection,     "Move Selection to" )
+mDefineKey( sKeyToFault,           "Fault" )
+mDefineKey( sKeyToFaultStickSet,   "FaultStickSet" )
+mDefineKey( sKeyCreateSingleNew,   "Create Single New" )
+mDefineKey( sKeyCreateNewInSeries, "Create New in Series" )
+mDefineKey( sKeyMergeWithExisting, "Merge with Existing" )
+mDefineKey( sKeyReplaceExisting,   "Replace Existing" )
 
 #define mCurItem( combo, key ) ( FixedString(combo->text()) == key() )
 
@@ -236,15 +236,15 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , settingsdlg_( 0 )
     , colorbutcolor_( Color(0,0,0) )
     , usercolor_( Color(0,0,255) )
-    , randomcolor_ ( getRandStdDrawColor() )
+    , randomcolor_( getRandStdDrawColor() )
     , flashcolor_( Color(0,0,0) )
     , curemid_(-1)
 {
-    toolbar_ = new uiToolBar( &appl_, "Fault stick control",uiToolBar::Bottom);
-    editbutidx_ = toolbar_->addButton( "editsticks", tr("Edit sticks"),
+    toolbar_ = new uiToolBar( &appl_, "Fault Stick Control",uiToolBar::Bottom);
+    editbutidx_ = toolbar_->addButton( "editsticks", tr("Edit Sticks"),
 				mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
-    selbutidx_ = toolbar_->addButton( "selectsticks", tr("Select sticks"),
+    selbutidx_ = toolbar_->addButton( "selectsticks", tr("Select Sticks"),
 				mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
     toolbar_->addSeparator();
@@ -304,23 +304,23 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     outputselbut_->setToolTip( tr("Select output") );
     toolbar_->addObject( outputselbut_ );
 
-    colorbut_ = new uiToolButton( toolbar_, "empty", tr("Output color"),
+    colorbut_ = new uiToolButton( toolbar_, "empty", tr("Output Color"),
 				mCB(this,uiODFaultToolMan,colorPressedCB) );
     colorbut_->setToolTip( colorbut_->name() );
     toolbar_->addObject( colorbut_ );
 
-    settingsbutidx_ = toolbar_->addButton("tools", tr("More transfer settings"),
+    settingsbutidx_ = toolbar_->addButton("tools", tr("More Transfer Settings"),
 				mCB(this,uiODFaultToolMan,settingsToggleCB),
 				true );
 
-    gobutidx_ = toolbar_->addButton( "gobutton", tr("Transfer selected sticks"),
+    gobutidx_ = toolbar_->addButton( "gobutton", tr("Transfer Selected Sticks"),
 				mCB(this,uiODFaultToolMan,transferSticksCB),
 				false );
 
     toolbar_->addSeparator();
 
     removalbutidx_ = toolbar_->addButton( "removesticks",
-				tr("Remove selected sticks"),
+				tr("Remove Selected Sticks"),
 				mCB(this,uiODFaultToolMan,stickRemovalCB),
 				false );
     toolbar_->addSeparator();
@@ -850,7 +850,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 		if ( emobj || iopar.get(sKey::Color(),curcolor) )
 		{
 		    colorbutcolor_ = curcolor;
-		    colorbut_->setToolTip( 
+		    colorbut_->setToolTip(
 			currentColor() ? tr("Output color [current]")
 				       : tr("Output color [predecessor]") );
 		}

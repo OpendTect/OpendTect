@@ -93,16 +93,16 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display all") );
 
 	mInsertItm( dispmnu, tr("In full"), mDispInFull, true );
-	mInsertItm( dispmnu, tr("Only at sections"), mDispAtSect,
+	mInsertItm( dispmnu, tr("Only at Sections"), mDispAtSect,
 		    candispatsect );
-	mInsertItm( dispmnu, tr("Only at horizons"), mDispAtHors,
+	mInsertItm( dispmnu, tr("Only at Horizons"), mDispAtHors,
 		    candispathors );
-	mInsertItm( dispmnu, tr("At sections & horizons"), mDispAtBoth,
+	mInsertItm( dispmnu, tr("At Sections & Horizons"), mDispAtBoth,
 					    candispatsect && candispathors );
 	dispmnu->insertSeparator();
-	mInsertItm( dispmnu, tr("Fault planes"), mDispPlanes, true );
-	mInsertItm( dispmnu, tr("Fault sticks"), mDispSticks, true );
-	mInsertItm( dispmnu, tr("Fault planes & sticks"), mDispPSBoth, true );
+	mInsertItm( dispmnu, tr("Fault Planes"), mDispPlanes, true );
+	mInsertItm( dispmnu, tr("Fault Sticks"), mDispSticks, true );
+	mInsertItm( dispmnu, tr("Fault Planes & Sticks"), mDispPSBoth, true );
 	mnu.insertItem( dispmnu );
     }
 
@@ -169,12 +169,12 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
 
 #define mCommonInit \
     , savemnuitem_("Save") \
-    , saveasmnuitem_("Save as ...") \
-    , displayplanemnuitem_ ( "Fault planes" ) \
-    , displaystickmnuitem_ ( "Fault sticks" ) \
-    , displayintersectionmnuitem_( "Only at sections" ) \
-    , displayintersecthorizonmnuitem_( "Only at horizons" ) \
-    , singlecolmnuitem_( "Use single color" ) \
+    , saveasmnuitem_("Save As ...") \
+    , displayplanemnuitem_ ( "Fault Planes" ) \
+    , displaystickmnuitem_ ( "Fault Sticks" ) \
+    , displayintersectionmnuitem_( "Only at Sections" ) \
+    , displayintersecthorizonmnuitem_( "Only at Horizons" ) \
+    , singlecolmnuitem_( "Use Single Color" ) \
 
 #define mCommonInit2 \
     displayplanemnuitem_.checkable = true; \
@@ -426,9 +426,9 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display all") );
+	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display All") );
 	dispmnu->insertItem( new uiAction(tr("In full")), mDispInFull );
-	dispmnu->insertItem( new uiAction(tr("Only at sections")),
+	dispmnu->insertItem( new uiAction(tr("Only at Sections")),
 			     mDispAtSect );
 	mnu.insertItem( dispmnu );
     }
@@ -492,7 +492,7 @@ uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
     , faultsticksetdisplay_(0) \
     , savemnuitem_(uiStrings::sSave(true)) \
     , saveasmnuitem_(uiStrings::sSaveAs(false)) \
-    , onlyatsectmnuitem_("Only at sections")
+    , onlyatsectmnuitem_("Only at Sections")
 
 #define mCommonInit2 \
     onlyatsectmnuitem_.checkable = true; \

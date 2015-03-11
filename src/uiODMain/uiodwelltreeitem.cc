@@ -69,17 +69,17 @@ bool uiODWellParentTreeItem::showSubMenu()
     if ( children_.size() > 1 )
     {
 	mnu.insertSeparator();
-	uiMenu* showmnu = new uiMenu( getUiParent(), tr("Show all") );
-	showmnu->insertItem( new uiAction(tr("Well names (Top)")), 41 );
-	showmnu->insertItem( new uiAction(tr("Well names (Bottom)")), 42 );
+	uiMenu* showmnu = new uiMenu( getUiParent(), tr("Show All") );
+	showmnu->insertItem( new uiAction(tr("Well Names (Top)")), 41 );
+	showmnu->insertItem( new uiAction(tr("Well Names (Bottom)")), 42 );
 	showmnu->insertItem( new uiAction(uiStrings::sMarkers(true)), 43 );
 	showmnu->insertItem( new uiAction(tr("Marker Names")), 44 );
 	showmnu->insertItem( new uiAction(uiStrings::sLogs(true)), 45 );
 	mnu.insertItem( showmnu );
 
-	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide all") );
-	hidemnu->insertItem( new uiAction(tr("Well names (Top)")), 51 );
-	hidemnu->insertItem( new uiAction(tr("Well names (Bottom)")), 52 );
+	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide All") );
+	hidemnu->insertItem( new uiAction(tr("Well Names (Top)")), 51 );
+	hidemnu->insertItem( new uiAction(tr("Well Names (Bottom)")), 52 );
 	hidemnu->insertItem( new uiAction(uiStrings::sMarkers(true)), 53 );
 	hidemnu->insertItem( new uiAction(tr("Marker Names")), 54 );
 	hidemnu->insertItem( new uiAction(uiStrings::sLogs(true)), 55 );
@@ -205,13 +205,13 @@ void uiODWellTreeItem::initMenuItems()
     logviewermnuitem_.text = "2D Log Viewer ...";
     gend2tmmnuitem_.text = "Tie Well to Seismic ...";
     gend2tmmnuitem_.iconfnm = "well_tie";
-    nametopmnuitem_.text = "Well name (Top)";
-    namebotmnuitem_.text = "Well name (Bottom)";
+    nametopmnuitem_.text = "Well Name (Top)";
+    namebotmnuitem_.text = "Well Name (Bottom)";
     markermnuitem_.text = uiStrings::sMarkers(true);
-    markernamemnuitem_.text = "Marker names";
+    markernamemnuitem_.text = "Marker Names";
     showlogmnuitem_.text = uiStrings::sLogs(true) ;
-    attrmnuitem_.text = "Create attribute log ...";
-    logcubemnuitem_.text = "Create log cube ...";
+    attrmnuitem_.text = "Create Attribute Log ...";
+    logcubemnuitem_.text = "Create Log Cube ...";
     showmnuitem_.text = uiStrings::sShow() ;
     editmnuitem_.text = "Edit Welltrack" ;
     storemnuitem_.text = uiStrings::sSave(true);

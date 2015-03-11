@@ -487,15 +487,17 @@ void uiODMenuMgr::fillProcMenu()
     csoitm->insertItem( itm2d3d );
     if ( SI().has3D() )
     {
-	mInsertItem( itm2d3d, tr("Create 2D From 3D ..."),
+	mInsertItem( itm2d3d, tr("Create 2D from 3D ..."),
 		     mCreate2DFrom3DMnuItm );
-	mInsertItem( itm2d3d, tr("Extract 2D From 3D ..."),
+	mInsertItem( itm2d3d, tr("Extract 2D from 3D ..."),
 		     m2DFrom3DMnuItm );
     }
+#ifdef __debug__
     if ( SI().has2D() )
     {
-	mInsertItem( itm2d3d, tr("Create 3D From 2D ..."), m3DFrom2DMnuItm );
+	mInsertItem( itm2d3d, tr("Create 3D from 2D ..."), m3DFrom2DMnuItm );
     }
+#endif
 
     if ( SI().has3D() )
     {

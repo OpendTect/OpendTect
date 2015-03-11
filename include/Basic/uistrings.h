@@ -26,14 +26,14 @@ public:
     static uiString sAbort()		{ return tr("Abort"); }
     static uiString sAction()		{ return tr("Action"); }
     static uiString sAdd(bool immediate);
-    static uiString sAddColBlend()	{ return tr("Add color blended"); }
+    static uiString sAddColBlend()	{ return tr("Add Color Blended"); }
     static uiString sAdvanced()		{ return tr("Advanced"); }
     static uiString sAll()		{ return tr("All"); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sApply()		{ return tr("Apply"); }
     static uiString sApply(bool)	{ return sApply(); }
     static uiString sASCII(bool immediate);
-    static uiString sAttribName()	{ return tr("Attribute name"); }
+    static uiString sAttribName()	{ return tr("Attribute Name"); }
     static uiString sAttribute()	{ return tr("Attribute"); }
     static uiString sAttributes(bool immediate);
     static uiString sBadConnection()	{
@@ -60,15 +60,9 @@ public:
 					  return tr("Cannot open %1").arg(s);
 					  }
     static uiString sCantOpenInpFile()	{ return tr("Cannot open input file"); }
-    static uiString sCantOpenOutpFile() {
-					  return tr("Cannot open "
-						    "output file");
-					}
+    static uiString sCantOpenOutpFile() { return tr("Cannot open output file");}
     static uiString sCantReadInp()	{ return tr("Cannot read input"); }
-    static uiString sCantReadInpData()	{
-					  return tr("Cannot read "
-						    "input data");
-					}
+    static uiString sCantReadInpData()	{ return tr("Cannot read input data"); }
     static uiString sCantWriteSet()	{ return tr("Cannot write settings"); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
@@ -127,7 +121,7 @@ public:
     static uiString sLock()		{ return tr("Lock"); }
     static uiString sLogs(bool immediate);
     static uiString sManual()		{ return tr("Manual"); }
-    static uiString sManWav()		{ return tr("Manage wavelets"); }
+    static uiString sManWav()		{ return tr("Manage Wavelets"); }
     static uiString sMarkers(bool immediate);
     static uiString sName()		{ return tr("Name"); }
     static uiString sNew(bool immediate);
@@ -164,7 +158,7 @@ public:
     static uiString sRemove(bool immediate);
     static uiString sSave(bool immediate);
     static uiString sSaveAs(bool immediate);
-    static uiString sSaveAsDefault()    { return tr("Save as default"); }
+    static uiString sSaveAsDefault()    { return tr("Save as Default"); }
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScenes()		{ return tr("Scenes"); }
@@ -203,7 +197,7 @@ public:
     static uiString sStored(bool immediate);
     static uiString sStratigraphy(bool immediate);
     static uiString sSurvey()		{ return tr("Survey"); }
-    static uiString sTakeSnapshot()	{ return tr("Take snapshot"); }
+    static uiString sTakeSnapshot()	{ return tr("Take Snapshot"); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
     static uiString sTools()		{ return tr("Tools"); }

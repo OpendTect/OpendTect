@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mCreateGridFld( name, lbl ) \
     label = "Show"; label += " "; label += lbl; label += " "; \
-    label += "grid"; \
+    label += "Grid"; \
     name##fld_ = new uiCheckBox( this, label ); \
     name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showGridLineCB) ); \
     name##spacingfld_ = new uiGenInput( this, spacingstr, \
@@ -35,8 +35,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
-    : uiDialog(p,uiDialog::Setup(tr("GridLines"),tr("Set gridlines options"),
-                                    mODHelpKey(mGridLinesDlgHelpID) ))
+    : uiDialog(p,uiDialog::Setup(tr("Set Grid Lines"),mNoDlgTitle,
+				 mODHelpKey(mGridLinesDlgHelpID) ))
     , pdd_( pdd )
     , inlfld_( 0 )
     , crlfld_( 0 )
@@ -50,11 +50,11 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     BufferString label;
     TrcKeyZSampling cs( pdd->getTrcKeyZSampling(true,true) );
     if ( cs.nrInl()>1 )
-	{ mCreateGridFld( inl, "in-line" ) }
+	{ mCreateGridFld( inl, "In-line" ) }
     if ( cs.nrCrl()>1 )
-	{ mCreateGridFld( crl, "cross-line" ) }
+	{ mCreateGridFld( crl, "Cross-line" ) }
     if ( cs.nrZ()>1 )
-	{ mCreateGridFld( z, "z" ) }
+	{ mCreateGridFld( z, "Z" ) }
 
     if ( inlfld_ && crlfld_ )
 	crlfld_->attach( leftAlignedBelow, inlspacingfld_ );
@@ -74,11 +74,11 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 
     uiString allmsg = tr("Apply to all loaded %1");
     if ( OD::InlineSlice == pdd_->getOrientation() )
-	allmsg.arg(tr("inlines"));
+	allmsg.arg(tr("In-lines"));
     else if ( OD::CrosslineSlice == pdd_->getOrientation() )
-	allmsg.arg(tr("crosslines"));
+	allmsg.arg(tr("Cross-lines"));
     else
-	allmsg.arg(tr("z slices"));
+	allmsg.arg(tr("Z slices"));
     applyallfld_ = new uiCheckBox( this, allmsg );
     applyallfld_->setChecked( true );
     applyallfld_->attach( alignedBelow, lsfld_ );

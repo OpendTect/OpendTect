@@ -103,12 +103,15 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAdd );
     if ( SI().has3D() )
     {
-	mnu.insertItem( new uiAction(tr("Create 2D Grid From 3D ...")),
+	mnu.insertItem( new uiAction(tr("Create 2D Grid from 3D ...")),
 			mGridFrom3D );
-	mnu.insertItem( new uiAction(tr("Extract From 3D ...")), mFrom3D );
+	mnu.insertItem( new uiAction(tr("Extract from 3D ...")), mFrom3D );
     }
 
-    mnu.insertItem( new uiAction(tr("Generate 3D cube ...")), mTo3D );
+#ifdef __debug__
+    mnu.insertItem( new uiAction(tr("Generate 3D Cube ...")), mTo3D );
+#endif
+
     BufferStringSet displayedattribs;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
@@ -139,34 +142,34 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     if ( !children_.isEmpty() )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("Add attribute")), mAddAttr );
+	mnu.insertItem( new uiAction(tr("Add Attribute")), mAddAttr );
 	if ( !displayedattribs.isEmpty() )
 	{
-	    mInsertAttrBasedItem( replaceattritm_, "Replace attribute" );
+	    mInsertAttrBasedItem( replaceattritm_, "Replace Attribute" );
 	    if ( displayedattribs.size()>1 )
-	    { mInsertAttrBasedItem( removeattritm_, "Remove attribute" ); }
+	    { mInsertAttrBasedItem( removeattritm_, "Remove Attribute" ); }
 
 	    const int emptyidx = displayedattribs.indexOf( sKeyUnselected() );
 	    if ( emptyidx >= 0 ) displayedattribs.removeSingle( emptyidx );
 	    if ( displayedattribs.size() )
 	    {
-		mInsertAttrBasedItem( dispattritm_, "Display attribute" );
-		mInsertAttrBasedItem( hideattritm_, "Hide attribute" );
+		mInsertAttrBasedItem( dispattritm_, "Display Attribute" );
+		mInsertAttrBasedItem( hideattritm_, "Hide Attribute" );
 		mInsertAttrBasedItem( editcoltabitm_, "Edit Color Settings" );
 	    }
 	}
 
 	mnu.insertSeparator();
-	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("&Display all") );
-	mInsertItm( dispmnu, tr("Line names"), mDispNames, true );
-	mInsertItm( dispmnu, tr("2D planes"), mDispPanels, true );
-	mInsertItm( dispmnu, tr("Line geometry"), mDispPolyLines, true );
+	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display All") );
+	mInsertItm( dispmnu, tr("Line Names"), mDispNames, true );
+	mInsertItm( dispmnu, tr("2D Planes"), mDispPanels, true );
+	mInsertItm( dispmnu, tr("Line Geometry"), mDispPolyLines, true );
 	mnu.insertItem( dispmnu );
 
-	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide all") );
-	mInsertItm( hidemnu, tr("Line names"), mHideNames, true );
-	mInsertItm( hidemnu, tr("2D planes"), mHidePanels, true );
-	mInsertItm( hidemnu, tr("Line geometry"), mHidePolyLines, true );
+	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide All") );
+	mInsertItm( hidemnu, tr("Line Names"), mHideNames, true );
+	mInsertItm( hidemnu, tr("2D Planes"), mHidePanels, true );
+	mInsertItm( hidemnu, tr("Line Geometry"), mHidePolyLines, true );
 	mnu.insertItem( hidemnu );
     }
 
@@ -412,9 +415,9 @@ uiTreeItem*
 
 
 uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid )
-    : linenmitm_(tr("Show linename"))
-    , panelitm_(tr("Show 2D plane"))
-    , polylineitm_(tr("Show line geometry"))
+    : linenmitm_(tr("Show Linename"))
+    , panelitm_(tr("Show 2D Plane"))
+    , polylineitm_(tr("Show Line Geometry"))
     , positionitm_(tr("Position ..."))
     , geomid_(geomid)
 {
@@ -767,9 +770,9 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
 uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
     : uiODAttribTreeItem( pt )
     , attrnoneitm_(uiStrings::sNone())
-    , storeditm_(tr("Stored 2D data"))
-    , steeringitm_(tr("Steering 2D data"))
-    , zattritm_(tr("ZDomain Atrrib 2D data"))
+    , storeditm_(tr("Stored 2D Data"))
+    , steeringitm_(tr("Steering 2D Data"))
+    , zattritm_(tr("ZDomain Attrib 2D Data"))
 {}
 
 

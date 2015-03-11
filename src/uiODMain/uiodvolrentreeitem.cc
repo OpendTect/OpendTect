@@ -229,8 +229,8 @@ BufferString uiODVolrenTreeItem::createDisplayName() const
 }
 
 
-uiODDataTreeItem* uiODVolrenTreeItem::createAttribItem(
-					    const Attrib::SelSpec* as ) const
+uiODDataTreeItem*
+	uiODVolrenTreeItem::createAttribItem( const Attrib::SelSpec* as ) const
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
@@ -292,7 +292,7 @@ uiODVolrenAttribTreeItem::uiODVolrenAttribTreeItem( const char* ptype )
     , addmnuitem_(uiStrings::sAdd(true))
     , statisticsmnuitem_(uiStrings::sHistogram(false))
     , amplspectrummnuitem_( tr("Amplitude Spectrum ..."))
-    , addisosurfacemnuitem_(tr("Iso surface"))
+    , addisosurfacemnuitem_(tr("Iso Surface"))
 {
     statisticsmnuitem_.iconfnm = "histogram";
     amplspectrummnuitem_.iconfnm = "amplspectrum";
@@ -395,7 +395,7 @@ bool uiODVolrenAttribTreeItem::hasTransparencyMenu() const
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
     : resetisosurfacemnuitem_(uiStrings::sSettings(true))
-    , convertisotobodymnuitem_(tr("Convert to body"))
+    , convertisotobodymnuitem_(tr("Convert to Body"))
 { displayid_ = displayid; }
 
 
@@ -545,7 +545,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 			visserv_->getObject(getParentDisplayID()));
 
 	uiSingleGroupDlg dlg( getUiParent(),
-		uiDialog::Setup( tr("Iso value selection"), 0, mNoHelpKey ) );
+		uiDialog::Setup( tr("Iso Value Selection"), 0, mNoHelpKey ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg, isosurface, vd,
 						      getParentAttribNr()) );
 	if ( dlg.go() )

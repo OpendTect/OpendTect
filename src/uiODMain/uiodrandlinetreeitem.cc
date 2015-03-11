@@ -60,7 +60,7 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
 {
     showAlwaysOnTop();
 
-    label_ = new uiLabel( this, "Pick nodes on Z-Slices or Horizons" );
+    label_ = new uiLabel( this, "Pick Nodes on Z-Slices or Horizons" );
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
 				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, label_ );
@@ -336,9 +336,9 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
     , editnodesmnuitem_(tr("Position ..."))
-    , insertnodemnuitem_(tr("Insert node"))
+    , insertnodemnuitem_(tr("Insert Node"))
     , saveasmnuitem_(uiStrings::sSaveAs(false))
-    , saveas2dmnuitem_(tr("Save As 2D ..."))
+    , saveas2dmnuitem_(tr("Save as 2D ..."))
     , create2dgridmnuitem_(tr("Create 2D Grid ..."))
 {
     editnodesmnuitem_.iconfnm = "orientation64";

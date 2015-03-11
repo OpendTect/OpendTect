@@ -80,6 +80,8 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     removemnuitem_.iconfnm = "trashcan";
     histogrammnuitem_.iconfnm = "histogram";
     lockmnuitem_.iconfnm = "lock_small";
+    addattribmnuitem_.iconfnm = "attributes";
+    addvolprocmnuitem_.iconfnm = "volproc";
 }
 
 

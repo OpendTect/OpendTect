@@ -132,15 +132,15 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     {
 	mnu.insertSeparator();
 	uiAction* filteritem =
-	    new uiAction( tr("Display picks only at sections") );
+	    new uiAction( tr("Display Picks Only at Sections") );
 	mnu.insertItem( filteritem, mDisplayIdx );
 	filteritem->setEnabled( !hastransform );
-	uiAction* shwallitem = new uiAction( tr("Show all picks") );
+	uiAction* shwallitem = new uiAction( tr("Show All picks") );
 	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
 	mnu.insertItem( new uiAction(tr("Merge Sets ...")), mMergeIdx );
-	mnu.insertItem( new uiAction(tr("Save changes")), mSaveIdx );
+	mnu.insertItem( new uiAction(tr("Save Changes")), mSaveIdx );
     }
 
     addStandardItems( mnu );
@@ -231,11 +231,11 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
     , storemnuitem_(uiStrings::sSave(true))
     , storeasmnuitem_(uiStrings::sSaveAs(true))
-    , dirmnuitem_(tr("Set directions ..."))
-    , onlyatsectmnuitem_(tr("Only at sections"))
+    , dirmnuitem_(tr("Set Directions ..."))
+    , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(uiStrings::sProperties( false ))
     , closepolyitem_(tr("Close Polygon"))
-    , convertbodymnuitem_( tr("Convert to body") )
+    , convertbodymnuitem_( tr("Convert to Body") )
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
