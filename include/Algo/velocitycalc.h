@@ -68,6 +68,9 @@ protected:
     float*		depths_;
 
     const char*		errmsg_;
+
+public:
+    TimeDepthModel&	operator=(const TimeDepthModel&);
 };
 
 

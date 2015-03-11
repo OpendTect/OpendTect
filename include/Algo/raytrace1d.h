@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 
 template <class T> class Array2DImpl;
+template <class T> class Array1D;
 class TimeDepthModel;
 
 
@@ -73,7 +74,7 @@ public:
 			//Available after execution
     float		getSinAngle(int layeridx,int offsetidx) const;
     bool                getReflectivity(int offset,ReflectivityModel&) const;
-    bool		getTDModel(int offset,TimeDepthModel&) const;
+    bool		getTDModel(int offsidx,TimeDepthModel&) const;
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -108,6 +109,14 @@ protected:
     Array2DImpl<float>*		sini_;
     Array2DImpl<float>*		twt_;
     Array2DImpl<float_complex>* reflectivity_;
+
+    bool		getTDM(const Array1D<float>&,TimeDepthModel&) const;
+
+public:
+    bool		getZeroOffsTDModel(TimeDepthModel&) const;
+    bool		isPSWithoutZeroOffset() const;
+			//If PreStack & Offset Range do not have zero offset
+    void		setZeroOffsetTWT();
 };
 
 

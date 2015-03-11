@@ -90,20 +90,10 @@ void uiRayTracerSel::selRayTraceCB( CallBacker* )
 void uiRayTracerSel::usePar( const IOPar& par )
 {
     BufferString type; par.get( sKey::Type(), type );
-    int igrp = 0;
-    for ( ; igrp<grps_.size(); igrp++ )
-    {
-	if ( grps_[igrp]->name() == type )
-	{
-	    grps_[igrp]->usePar( par );
-	    break;
-	}
-    }
-    if ( raytracerselfld_ )
-    {
-	raytracerselfld_->box()->setCurrentItem( igrp );
-	selRayTraceCB( 0 );
-    }
+    for ( int igrp=0; igrp<grps_.size(); igrp++ )
+	grps_[igrp]->usePar( par );
+    setCurrentType( type );
+    selRayTraceCB( 0 );
 }
 
 

@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "velocitycalc.h"
 #include "wavelet.h"
+#include "hiddenparam.h"
 
 
 namespace Seis
@@ -796,10 +797,14 @@ const char* RaySynthGenerator::nrDoneText() const
     return !raytracingdone_ && rtr_ ? "Layers done" : "Models done";
 }
 
+static HiddenParam<RaySynthGenerator::RayModel,TimeDepthModel*>
+							zerooffset2dmodels( 0 );
+
 
 RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets,
-				       bool isnmocoorected )
+				       bool isnmocorrected )
 {
+    zerooffset2dmodels.setParam( this, 0 );
     for ( int idx=0; idx<nroffsets; idx++ )
     {
 	ReflectivityModel* refmodel = new ReflectivityModel();
@@ -816,10 +821,16 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets,
 	}
 
 	refmodels_ += refmodel;
-	if ( idx==0 || !isnmocoorected )
+	if ( idx==0 || !isnmocorrected )
 	    t2dmodels_ += t2dm;
 	else
 	    delete t2dm;
+	if ( idx==0 )
+	{
+	    TimeDepthModel* zerooffset2dmodel_ = new TimeDepthModel();
+	    rt1d.getZeroOffsTDModel( *zerooffset2dmodel_ );
+	    zerooffset2dmodels.setParam( this, zerooffset2dmodel_ );
+	}
     }
 }
 
@@ -829,6 +840,9 @@ RaySynthGenerator::RayModel::~RayModel()
     deepErase( outtrcs_ );
     deepErase( t2dmodels_ );
     deepErase( refmodels_ );
+    TimeDepthModel* zerooffset2dmodel_ = zerooffset2dmodels.getParam( this );
+    zerooffset2dmodels.removeParam( this );
+    delete zerooffset2dmodel_;
 }
 
 
@@ -933,6 +947,12 @@ const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
 	stckr.stack( *outtrcs_[idx], false, mCast(float,idx) );
 
     return trc;
+}
+
+
+void RaySynthGenerator::RayModel::getZeroOffsetD2T( TimeDepthModel& tdms )
+{
+    tdms = *zerooffset2dmodels.getParam( this );
 }
 
 

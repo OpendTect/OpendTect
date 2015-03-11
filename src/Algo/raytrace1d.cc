@@ -15,10 +15,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "raytrace1d.h"
 
 #include "arrayndimpl.h"
+#include "arrayndslice.h"
 #include "iopar.h"
 #include "sorting.h"
 #include "velocitycalc.h"
 #include "zoeppritzcoeff.h"
+#include "hiddenparam.h"
 
 mImplFactory(RayTracer1D,RayTracer1D::factory)
 
@@ -43,6 +45,7 @@ void RayTracer1D::Setup::fillPar( IOPar& par ) const
     par.setYN( sKeyReflectivity(), doreflectivity_);
 }
 
+HiddenParam< RayTracer1D, Array1D<float>* > zerooffstwts( 0 );
 
 RayTracer1D::RayTracer1D()
     : sini_( 0 )
@@ -52,7 +55,15 @@ RayTracer1D::RayTracer1D()
 
 
 RayTracer1D::~RayTracer1D()
-{ delete sini_; delete twt_; delete reflectivity_; }
+{
+    delete sini_;
+    delete twt_;
+    Array1D<float>* zerooffstwt_ =
+	zerooffstwts.hasParam(this )  ? zerooffstwts.getParam( this ) : 0 ;
+    zerooffstwts.removeParam( this );
+    delete zerooffstwt_;
+    delete reflectivity_;
+}
 
 
 RayTracer1D* RayTracer1D::createInstance( const IOPar& par, BufferString& errm )
@@ -107,9 +118,16 @@ void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
 }
 
 
+bool RayTracer1D::isPSWithoutZeroOffset() const
+{
+    return offsets_.size()>1 && !mIsZero(offsets_[0],mDefEps);
+}
+
+
 void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 {
     offsets_ = offsets;
+    sort( offsets_ );
     if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
     {
 	for ( int idx=0; idx<offsets_.size(); idx++ )
@@ -149,15 +167,8 @@ bool RayTracer1D::setNewModel( const ElasticModel& lys )
     }
 
     //Zero-offset: Vs is not required, density not either if !doreflectivity_
-    bool zerooffsetonly = true;
-    for ( int idx=0; idx<offsets_.size(); idx++ )
-    {
-	if ( !mIsZero(offsets_[idx],1e-3f) )
-	{
-	    zerooffsetonly = false;
-	    break;
-	}
-    }
+    const bool zerooffsetonly =
+	offsets_.size()==1 && mIsZero(offsets_[0],mDefEps);
 
     model_ = lys;
     int firsterror = -1;
@@ -211,6 +222,20 @@ bool RayTracer1D::doPrepare( int nrthreads )
     else
 	twt_->setSize( layersize, offsetsz );
     twt_->setAll( mUdf(float) );
+    if ( isPSWithoutZeroOffset() )
+    {
+	Array1D<float>* zerooffstwt_ = new Array1DImpl<float>( layersize );
+	zerooffstwt_->setAll( mUdf(float) );
+	zerooffstwts.setParam( this, zerooffstwt_ );
+    }
+    else
+    {
+	Array1DSlice<float>* zerooffstwtslice = new Array1DSlice<float>( *twt_);
+	zerooffstwtslice->setDimMap( 0, 0 );
+	zerooffstwtslice->setPos( 1, 0 );
+	zerooffstwtslice->init();
+	zerooffstwts.setParam( this, zerooffstwtslice );
+    }
 
     if ( setup().doreflectivity_ )
     {
@@ -231,7 +256,46 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	}
     }
 
+    setZeroOffsetTWT();
     return true;
+}
+
+
+void RayTracer1D::setZeroOffsetTWT()
+{
+    const int layersize = mCast( int, nrIterations() );
+    float dnmotime, dvrmssum, unmotime, uvrmssum;
+    float prevdnmotime, prevdvrmssum, prevunmotime, prevuvrmssum;
+    prevdnmotime = prevdvrmssum = prevunmotime = prevuvrmssum = 0;
+    for ( int lidx=0; lidx<layersize; lidx++ )
+    {
+	const ElasticLayer& layer = model_[lidx];
+	const float dvel = setup().pdown_ ? layer.vel_ : layer.svel_;
+	const float uvel = setup().pup_ ? layer.vel_ : layer.svel_;
+	dnmotime = dvrmssum = unmotime = uvrmssum = 0;
+	const float dz = layer.thickness_;
+
+	dnmotime = dz / dvel;
+	dvrmssum = dz * dvel;
+	unmotime = dz / uvel;
+	uvrmssum = dz * uvel;
+
+	dvrmssum += prevdvrmssum;
+	uvrmssum += prevuvrmssum;
+	dnmotime += prevdnmotime;
+	unmotime += prevunmotime;
+
+	prevdvrmssum = dvrmssum;
+	prevuvrmssum = uvrmssum;
+	prevdnmotime = dnmotime;
+	prevunmotime = unmotime;
+
+	const float vrmssum = dvrmssum + uvrmssum;
+	const float twt = unmotime + dnmotime;
+	velmax_[lidx] = Math::Sqrt( vrmssum / twt );
+	Array1D<float>* zerooffstwt_ = zerooffstwts.getParam( this );
+	zerooffstwt_->set( lidx, twt );
+    }
 }
 
 
@@ -340,13 +404,21 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
 	spike.reflectivity_ = reflectivity_->get( iidx, offsetidx );
 	spike.depth_ = depths_[iidx];
 	spike.time_ = twt_->get( iidx, offsetidx );
-	spike.correctedtime_ = twt_->get( iidx, 0 );
+	Array1D<float>* zerooffstwt_ = zerooffstwts.getParam( this );
+	spike.correctedtime_ = zerooffstwt_->get( iidx );
 	if ( !spike.isDefined()	)
 	    continue;
 
 	model += spike;
     }
     return true;
+}
+
+
+bool RayTracer1D::getZeroOffsTDModel( TimeDepthModel& d2tm ) const
+{
+    Array1D<float>* zerooffstwt_ = zerooffstwts.getParam( this );
+    return getTDM( *zerooffstwt_, d2tm );
 }
 
 
@@ -359,7 +431,18 @@ bool RayTracer1D::getTDModel( int offset, TimeDepthModel& d2tm ) const
 
     if ( !twt_ || offsetidx<0 || offsetidx>=twt_->info().getSize(1) )
 	return false;
+    Array1DSlice<float> offstwt( *twt_ );
+    offstwt.setDimMap( 0, 0 );
+    offstwt.setPos( 1, offsetidx );
+    if ( !offstwt.init() )
+	return false;
+    return getTDM( offstwt, d2tm );
+}
 
+
+bool RayTracer1D::getTDM( const Array1D<float>& twt,
+			  TimeDepthModel& d2tm ) const
+{
     const int layersize = mCast( int, nrIterations() );
 
     TypeSet<float> times, depths;
@@ -367,7 +450,7 @@ bool RayTracer1D::getTDModel( int offset, TimeDepthModel& d2tm ) const
     times += 0;
     for ( int lidx=0; lidx<layersize; lidx++ )
     {
-	float time = twt_->get( lidx, offsetidx );
+	float time = twt.get( lidx );
 	if ( mIsUdf( time ) ) time = times[times.size()-1];
 	if ( time < times[times.size()-1] )
 	    continue;
@@ -382,44 +465,7 @@ bool RayTracer1D::getTDModel( int offset, TimeDepthModel& d2tm ) const
 
 bool VrmsRayTracer1D::doPrepare( int nrthreads )
 {
-    if ( !RayTracer1D::doPrepare( nrthreads ) )
-	return false;
-
-    const int layersize = mCast( int, nrIterations() );
-
-    float dnmotime, dvrmssum, unmotime, uvrmssum;
-    float prevdnmotime, prevdvrmssum, prevunmotime, prevuvrmssum;
-    prevdnmotime = prevdvrmssum = prevunmotime = prevuvrmssum = 0;
-    for ( int lidx=0; lidx<layersize; lidx++ )
-    {
-	const ElasticLayer& layer = model_[lidx];
-	const float dvel = setup_.pdown_ ? layer.vel_ : layer.svel_;
-	const float uvel = setup_.pup_ ? layer.vel_ : layer.svel_;
-	dnmotime = dvrmssum = unmotime = uvrmssum = 0;
-	const float dz = layer.thickness_;
-
-	dnmotime = dz / dvel;
-	dvrmssum = dz * dvel;
-	unmotime = dz / uvel;
-	uvrmssum = dz * uvel;
-
-	dvrmssum += prevdvrmssum;
-	uvrmssum += prevuvrmssum;
-	dnmotime += prevdnmotime;
-	unmotime += prevunmotime;
-
-	prevdvrmssum = dvrmssum;
-	prevuvrmssum = uvrmssum;
-	prevdnmotime = dnmotime;
-	prevunmotime = unmotime;
-
-	const float vrmssum = dvrmssum + uvrmssum;
-	const float twt = unmotime + dnmotime;
-	velmax_[lidx] = Math::Sqrt( vrmssum / twt );
-	twt_->set( lidx, 0, twt );
-    }
-
-    return true;
+    return RayTracer1D::doPrepare( nrthreads );
 }
 
 
@@ -454,7 +500,8 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
-    const float tnmo = twt_->get( layer, 0 );
+    Array1D<float>* zerooffstwt_ = zerooffstwts.getParam( this );
+    const float tnmo = zerooffstwt_->get( layer );
     const float vrms = velmax_[layer];
     const float off = offsets_[offsetidx];
     float twt = tnmo;

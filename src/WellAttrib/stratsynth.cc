@@ -52,6 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "unitofmeasure.h"
 #include "timeser.h"
 #include "wavelet.h"
+#include "hiddenparam.h"
 
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 static const char* sKeySynthType()		{ return "Synthetic Type"; }
@@ -823,12 +824,15 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 
     sd->id_ = ++lastsyntheticid_;
 
-    ObjectSet<TimeDepthModel> tmpd2ts;
+    ObjectSet<TimeDepthModel> tmpd2ts, zerooffsd2tmodels;
     for ( int imdl=0; imdl<aimodels_.size(); imdl++ )
     {
 	if ( !ispsbased )
 	{
 	    Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
+	    TimeDepthModel* zeroofsetd2tm = new TimeDepthModel();
+	    rm.getZeroOffsetD2T( *zeroofsetd2tm );
+	    zerooffsd2tmodels += zeroofsetd2tm;
 	    rm.getD2T( tmpd2ts, true );
 	    if ( tmpd2ts.isEmpty() )
 		continue;
@@ -847,6 +851,10 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	while ( tmpd2ts.size() )
 	    sd->d2tmodels_ += tmpd2ts.removeSingle(0);
     }
+
+    adjustD2TModels( zerooffsd2tmodels );
+    while ( zerooffsd2tmodels.size() )
+	sd->zerooffsd2tmodels() += zerooffsd2tmodels.removeSingle(0);
 
     return sd;
 }
@@ -949,7 +957,7 @@ bool doPrepare( int nrthreads )
     {
 	addToNrDone( 1 );
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	const TimeDepthModel& t2d = *sd_.d2tmodels_[iseq];
+	const TimeDepthModel& t2d = *sd_.zerooffsd2tmodels()[iseq];
 	const Interval<float> seqdepthrg = seq.zRange();
 	const float seqstarttime = t2d.getTime( seqdepthrg.start );
 	const float seqstoptime = t2d.getTime( seqdepthrg.stop );
@@ -997,7 +1005,7 @@ bool doFinish( bool success )
 	prsd->id_ = ++lastsyntheticid_;
 	prsd->setName( nm );
 
-	deepCopy( prsd->d2tmodels_, sd_.d2tmodels_ );
+	deepCopy( prsd->zerooffsd2tmodels(), sd_.zerooffsd2tmodels() );
 	synthetics_ += prsd;
     }
 
@@ -1015,7 +1023,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     {
 	addToNrDone( 1 );
 	const Strat::LayerSequence& seq = lm_.sequence( iseq );
-	const TimeDepthModel& t2d = *sd_.d2tmodels_[iseq];
+	const TimeDepthModel& t2d = *sd_.zerooffsd2tmodels()[iseq];
 	Interval<float> seqtimerg(  t2d.getTime(seq.zRange().start),
 				    t2d.getTime(seq.zRange().stop) );
 
@@ -1233,7 +1241,7 @@ bool StratSynth::setLevelTimes( const char* sdnm )
     mDynamicCastGet(PostStackSyntheticData*,postsd,sd);
     if ( !postsd ) return false;
     SeisTrcBuf& tb = postsd->postStackPack().trcBuf();
-    getLevelTimes( tb, sd->d2tmodels_ );
+    getLevelTimes( tb, sd->zerooffsd2tmodels() );
     return true;
 }
 
@@ -1365,17 +1373,39 @@ void StratSynth::decimateTraces( SeisTrcBuf& tbuf, int fac ) const
 }
 
 
+static HiddenParam< SyntheticData, ObjectSet<const TimeDepthModel>* >
+					zerooffsd2tmodelsset( 0 );
+
 SyntheticData::SyntheticData( const SynthGenParams& sgp, DataPack& dp )
     : NamedObject(sgp.name_)
     , datapack_(dp)
     , id_(-1)
 {
+    ObjectSet<const TimeDepthModel>* sdzerooffsettdm =
+	new ObjectSet<const TimeDepthModel>();
+    zerooffsd2tmodelsset.setParam( this, sdzerooffsettdm );
+}
+
+
+ObjectSet<const TimeDepthModel>& SyntheticData::zerooffsd2tmodels()
+{
+    return *zerooffsd2tmodelsset.getParam( this );
+}
+
+
+const ObjectSet<const TimeDepthModel>& SyntheticData::zerooffsd2tmodels() const
+{
+    return *zerooffsd2tmodelsset.getParam( this );
 }
 
 
 SyntheticData::~SyntheticData()
 {
     deepErase( d2tmodels_ );
+    ObjectSet<const TimeDepthModel>* zerooffsd2tmodels_ =
+	zerooffsd2tmodelsset.getParam( this );
+    deepErase( *zerooffsd2tmodels_ );
+    delete zerooffsd2tmodels_;
     removePack();
 }
 

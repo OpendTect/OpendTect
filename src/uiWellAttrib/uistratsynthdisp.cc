@@ -198,6 +198,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 	.tba((int)uiToolBar::Right ).withflip(false).withsnapshot(false);
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
+    control_->parsButton(vwr_)->setToolTip( "Synthetic display properties" );
 
     displayPostStackSynthetic( currentwvasynthetic_, true );
     displayPostStackSynthetic( currentvdsynthetic_, false );
@@ -235,7 +236,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 
     if ( mIsUdf(zval) || layerModel().size()<=modelidx || modelidx<0 )
 	return;
-    if ( d2tmodels_->validIdx(modelidx) )
+    if ( d2tmodels_ && d2tmodels_->validIdx(modelidx) )
     {
 	zval /= SI().showZ2UserFactor();
 	const float depth = (*d2tmodels_)[modelidx]->getDepth( zval );
@@ -702,7 +703,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 
     bool rv = false;
     PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
-    curSS().getLevelTimes( *scaletbuf, currentwvasynthetic_->d2tmodels_ );
+    curSS().getLevelTimes(*scaletbuf,currentwvasynthetic_->zerooffsd2tmodels());
     uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->getID(),levelname);
     if ( dlg.go() )
     {
@@ -857,19 +858,22 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
     if ( !sd )
 	return;
 
+    d2tmodels.erase();
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
     if ( !presd || presd->isNMOCorrected() )
     {
-	d2tmodels = sd->d2tmodels_;
+	d2tmodels = sd->zerooffsd2tmodels();
 	return;
     }
 
-    d2tmodels.erase();
     StepInterval<float> offsetrg( presd->offsetRange() );
     offsetrg.step = presd->offsetRangeStep();
     int offsidx = offsetrg.getIndex( offset );
     if ( offsidx<0 )
-	offsidx = 0;
+    {
+	d2tmodels = sd->zerooffsd2tmodels();
+	return;
+    }
     const int nroffsets = offsetrg.nrSteps()+1;
     const SeisTrcBuf* tbuf = presd->getTrcBuf( offset );
     if ( !tbuf ) return;

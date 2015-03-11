@@ -83,6 +83,11 @@ protected:
     void				removePack();
 
     DataPack&				datapack_;
+
+public:
+    ObjectSet<const TimeDepthModel>&		zerooffsd2tmodels();
+    const ObjectSet<const TimeDepthModel>&	zerooffsd2tmodels() const;
+
 };
 
 

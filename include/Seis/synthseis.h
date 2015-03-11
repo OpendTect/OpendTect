@@ -238,6 +238,8 @@ public:
 	TypeSet<float>			sampledrefs_;
 
 	friend class				RaySynthGenerator;
+    public:
+	void		getZeroOffsetD2T(TimeDepthModel&);
 
     };
 
