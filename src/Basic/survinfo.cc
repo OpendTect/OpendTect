@@ -1137,7 +1137,7 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 float SurveyInfo::angleXInl() const
 {
     Coord xy1 = transform( BinID(inlRange(false).start, crlRange(false).start));
-    Coord xy2 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
+    Coord xy2 = transform( BinID(inlRange(false).start, crlRange(false).stop) );
     const double xdiff = xy2.x - xy1.x;
     const double ydiff = xy2.y - xy1.y;
     return mCast(float, Math::Atan2( ydiff, xdiff ) );
