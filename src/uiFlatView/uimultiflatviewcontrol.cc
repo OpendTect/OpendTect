@@ -24,6 +24,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 
+
+
+MFVCViewManager::~MFVCViewManager()
+{
+    deepErase( d2tmodels_ );
+}
+
+
+void MFVCViewManager::setD2TModels(const ObjectSet<const TimeDepthModel>& d2tms)
+{
+    deepErase( d2tmodels_ );
+    deepCopy( d2tmodels_, d2tms );
+}
+
+
 void MFVCViewManager::setViewerType( const uiFlatViewer* vwr, bool isintime )
 {
     const int vwridx = vwrs_.indexOf( vwr );
@@ -379,4 +394,11 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	ad->poly_ += newwr.topLeft(); 
 	vwrs_[idx]->handleChange( FlatView::Viewer::Auxdata ); 
     }
+}
+
+
+uiToolButton* uiMultiFlatViewControl::parsButton( const uiFlatViewer* vwr )
+{
+    const int vwridx = vwrs_.indexOf( vwr );
+    return vwridx >=0 && parsbuts_.validIdx(vwridx) ? parsbuts_[ vwridx ] : 0;
 }
