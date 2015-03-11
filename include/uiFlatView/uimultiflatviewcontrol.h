@@ -23,8 +23,7 @@ ________________________________________________________________________
 mExpClass(uiFlatView) MFVCViewManager
 {
 public:
-    void		setD2TModels(const ObjectSet<const TimeDepthModel>& d2t)
-			{ d2tmodels_ = d2t; }
+    void		setD2TModels(const ObjectSet<const TimeDepthModel>&);
     void		setViewerType(const uiFlatViewer* vwr,bool isintime);
     bool		getViewRect(const uiFlatViewer* activevwr,
 				    const uiFlatViewer* curvwr,
@@ -33,6 +32,9 @@ protected:
     BoolTypeSet					zintimeflags_;
     ObjectSet<const TimeDepthModel>		d2tmodels_;
     ObjectSet<const uiFlatViewer>		vwrs_;
+
+public:
+			~MFVCViewManager();
 };
 
 
@@ -77,6 +79,9 @@ protected:
     void		zoomCB(CallBacker*);
     void		wheelMoveCB(CallBacker*);
     void		pinchZoomCB(CallBacker*);
+public:
+    uiToolButton*	parsButton(const uiFlatViewer*);
+
 };
 
 #endif
