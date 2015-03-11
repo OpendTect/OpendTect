@@ -47,7 +47,7 @@ class StreamData;
 */
 
 mClass(Prog) BatchProgram : public NamedObject
-{
+{ mODTextTranslationClass(BatchProgram);
     mGlobal(Batch) friend	BatchProgram& BP();
 
 public:

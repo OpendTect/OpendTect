@@ -292,7 +292,7 @@ bool BatchProgram::initOutput()
     stillok_ = false;
     if ( comm_ && !comm_->sendPID(GetPID()) )
     {
-	errorMsg( "Could not contact master. Exiting.", true );
+	errorMsg( tr("Could not contact master. Exiting."), true );
 	exit( 0 );
     }
 
