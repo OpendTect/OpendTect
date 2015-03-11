@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
-	: uiDialog( p, Setup( tr("Create 3D cube from to 2DDataSet"),
+	: uiDialog( p, Setup( tr("Create 3D Cube from 2D DataSet"),
 			      mNoDlgTitle,
 			      mODHelpKey(mSeis2DTo3DHelpID) ) )
 	, seis2dto3d_(*new Seis2DTo3D)

@@ -107,7 +107,10 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	mnu.insertItem( new uiAction(tr("Extract From 3D ...")), mFrom3D );
     }
 
+#ifdef __debug__
     mnu.insertItem( new uiAction(tr("Generate 3D cube ...")), mTo3D );
+#endif
+
     BufferStringSet displayedattribs;
     for ( int idx=0; idx<children_.size(); idx++ )
     {

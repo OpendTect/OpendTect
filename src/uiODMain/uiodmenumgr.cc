@@ -489,10 +489,13 @@ void uiODMenuMgr::fillProcMenu()
 	mInsertItem( itm2d3d, tr("Extract 2D From 3D ..."),
 		     m2DFrom3DMnuItm );
     }
+
+#ifdef __debug__
     if ( SI().has2D() )
     {
 	mInsertItem( itm2d3d, tr("Create 3D From 2D ..."), m3DFrom2DMnuItm );
     }
+#endif
 
     if ( SI().has3D() )
     {
@@ -803,7 +806,7 @@ void uiODMenuMgr::fillUtilMenu()
 			 mInstAutoUpdPolMnuItm );
 	installmnu_->insertSeparator();
     }
-    
+
     mInsertItem( installmnu_, "Connection Settings ...", mInstConnSettsMnuItm );
     mInsertItem( installmnu_, "Plugins ...", mPluginsMnuItm );
     mInsertItem( installmnu_, "Setup Batch Processing ...", mSetupBatchItm );
