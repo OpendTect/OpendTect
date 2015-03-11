@@ -452,18 +452,24 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
     }
 
     BufferString depthstr( toString(depth) );
-    depthstr += SI().getZUnitString();
+    depthstr += SI().depthsInFeet() ? "(ft)" : "(m)";
     statusbarmsg.set( "Depth", depthstr );
 
     if ( selseq >0 && selseq<=layerModel().size() )
     {
 	const Strat::LayerSequence& seq = layerModel().sequence( selseq-1 );
-	const float lvldpth = lvldpths_[selseq-1];
 	for ( int ilay=0; ilay<seq.size(); ilay++ )
 	{
 	    const Strat::Layer& lay = *seq.layers()[ilay];
-	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth;
-	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth;
+	    float z0 = lay.zTop();
+	    float z1 = lay.zBot();
+	    if ( flattened_ && !lvldpths_.validIdx(selseq-1) )
+	    {
+		const float lvldpth = lvldpths_[selseq-1];
+		z0 -= lvldpth;
+		z1 -= lvldpth;
+	    }
+
 	    if ( depth >= z0 && depth<= z1 )
 	    {
 		const int disppropidx = tools_.selPropIdx();

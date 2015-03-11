@@ -302,13 +302,6 @@ void initEditing()
 };
 
 
-bool uiStratLayerModel::isProfile( const char* edtyp )
-{
-    FixedString profilestr( "Profile" );
-    return profilestr.isStartOf( edtyp );
-}
-
-
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     : uiMainWin(p,uiStrings::sEmptyString(),1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
