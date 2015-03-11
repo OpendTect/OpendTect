@@ -196,8 +196,8 @@ bool BatchProgram::go( od_ostream& strm )
 	synthgen.setWavelet( wav, OD::UsePtr );
 	synthgen.enableFourierDomain( true );
 
-	TaskRunner* tr = new TaskRunner;
-	if ( !testSynthGeneration(strm,TaskRunner::execute(tr,synthgen),
+	TaskRunner* taskr = new TaskRunner;
+	if ( !testSynthGeneration(strm,TaskRunner::execute(taskr,synthgen),
 				  synthgen) )
 	    return false;
 
