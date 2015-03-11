@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_istream.h"
 #include "separstr.h"
 #include "settings.h"
-
+#include "uistrings.h"
 
 #ifndef OD_NO_QT
 # include "qnetworkaccessconn.h"
@@ -32,16 +32,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 bool Network::downloadFile( const char* url, const char* path,
-			    uiString& errmsg, TaskRunner* tr )
+			    uiString& errmsg, TaskRunner* taskr )
 {
     BufferStringSet urls; urls.add( url );
     BufferStringSet outputpath; outputpath.add( path );
-    return Network::downloadFiles( urls, outputpath, errmsg, tr );
+    return Network::downloadFiles( urls, outputpath, errmsg, taskr );
 }
 
 
 bool Network::downloadFiles( BufferStringSet& urls, const char* path,
-			     uiString& errmsg, TaskRunner* tr )
+			     uiString& errmsg, TaskRunner* taskr )
 {
     BufferStringSet outputpaths;
     for ( int idx=0; idx<urls.size(); idx++ )
@@ -56,31 +56,31 @@ bool Network::downloadFiles( BufferStringSet& urls, const char* path,
 	outputpaths.add( destpath.fullPath() );
     }
 
-    return Network::downloadFiles( urls, outputpaths, errmsg, tr );
+    return Network::downloadFiles( urls, outputpaths, errmsg, taskr );
 }
 
 
 bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
-			     uiString& errmsg, TaskRunner* tr )
+			     uiString& errmsg, TaskRunner* taskr )
 {
     if ( urls.size() != outputpaths.size() )
 	return false;
 
     Network::setHttpProxyFromSettings();
     FileDownloader dl( urls, outputpaths );
-    const bool res = tr ? tr->execute( dl ) : dl.execute();
+    const bool res = taskr ? taskr->execute( dl ) : dl.execute();
     if ( !res ) errmsg = dl.uiMessage();
     return res;
 }
 
 
 bool Network::downloadToBuffer( const char* url, DataBuffer* databuffer,
-				uiString& errmsg, TaskRunner* tr )
+				uiString& errmsg, TaskRunner* taskr )
 {
     databuffer->reSize( 0, false );
     databuffer->reByte( 1, false );
     FileDownloader dl( url, databuffer );
-    const bool res = tr ? tr->execute( dl ) : dl.execute();
+    const bool res = taskr ? taskr->execute( dl ) : dl.execute();
     if ( !res ) errmsg = dl.uiMessage();
     return res;
 }
@@ -113,7 +113,7 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
     : qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
-    , msg_(0)
+    , msg_(uiStrings::sEmptyString())
     , nrdone_(0)
     , nrfilesdownloaded_(0)
     , osd_(new od_ostream())
@@ -127,7 +127,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer* db )
     : qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
-    , msg_(0)
+    , msg_(uiStrings::sEmptyString())
     , nrdone_(0)
     , nrfilesdownloaded_(0)
     , osd_(0)
@@ -142,7 +142,7 @@ FileDownloader::FileDownloader( const char* url )
     : qeventloop_(0)
     , odnr_(0)
     , initneeded_(true)
-    , msg_(0)
+    , msg_(uiStrings::sEmptyString())
     , nrdone_(0)
     , nrfilesdownloaded_(0)
     , totalnr_(0)
@@ -336,7 +336,7 @@ void addPars( BufferString& data, const IOPar& postvars )
 bool Network::uploadFile( const char* url, const char* localfname,
 			  const char* remotefname, const char* ftype,
 			  const IOPar& postvars, uiString& errmsg,
-			  TaskRunner* taskrunner )
+			  TaskRunner* taskr )
 {
     if ( !File::isFile(localfname) )
     {
@@ -370,14 +370,14 @@ bool Network::uploadFile( const char* url, const char* localfname,
     BufferString header( "multipart/form-data; boundary=", mBoundary );
     Network::setHttpProxyFromSettings();
     DataUploader up( url, *databuffer, header );
-    const bool res = taskrunner ? taskrunner->execute( up ) : up.execute();
+    const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res ) errmsg = up.uiMessage();
     return res;
 }
 
 
 bool Network::uploadQuery( const char* url, const IOPar& querypars,
-			   uiString& errmsg, TaskRunner* tr)
+			   uiString& errmsg, TaskRunner* taskr)
 {
     BufferString data;
     addPars( data, querypars);
@@ -386,7 +386,7 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
     BufferString header( "multipart/form-data; boundary=", mBoundary );
     Network::setHttpProxyFromSettings();
     DataUploader up( url, db, header );
-    const bool res = tr ? tr->execute( up ) : up.execute();
+    const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res ) errmsg = up.uiMessage();
     return res;
 }
@@ -404,7 +404,7 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
     , nrdone_(0)
     , totalnr_(0)
     , odnr_(0)
-    , msg_(0)
+    , msg_(uiStrings::sEmptyString())
     , url_(url)
     , header_(header)
     , init_(true)

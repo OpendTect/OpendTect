@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "networkmod.h"
 #include "bufstringset.h"
 #include "executor.h"
+#include "uistring.h"
 
 class QByteArray;
 class QEventLoop;
@@ -31,29 +32,29 @@ namespace Network
 /*!< Functions to download/upload one or more files/data using HTTP protocol*/
 
     mGlobal(Network) bool   downloadFile(const char* url,const char* outpath,
-					 uiString& errmsg,TaskRunner* tr=0);
+					 uiString& errmsg,TaskRunner* taskr=0);
 
     mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
 					  const char* outpath,
 					  uiString& errmsg,
-					  TaskRunner* tr=0);
+					  TaskRunner* taskr=0);
 
     mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
 					  BufferStringSet& outpaths,
 					  uiString& errmsg,
-					  TaskRunner* tr=0);
+					  TaskRunner* taskr=0);
 
     mGlobal(Network) bool   downloadToBuffer(const char* url,DataBuffer* db,
 					     uiString& errmsg,
-					     TaskRunner* tr=0);
+					     TaskRunner* taskr=0);
 
     mGlobal(Network) bool   uploadFile(const char* url,const char* localfname,
 				       const char* remotefname,
 				       const char* ftype,const IOPar& postvars, 
-				       uiString& errmsg,TaskRunner* tr=0);
+				       uiString& errmsg,TaskRunner* taskr=0);
 
     mGlobal(Network) bool   uploadQuery(const char* url,const IOPar& querypars,
-					uiString& errmsg,TaskRunner* tr=0);
+					uiString& errmsg,TaskRunner* taskr=0);
 
     mGlobal(Network) bool   getRemoteFileSize(const char* url,od_int64& size, 
 					      uiString& errmsg);

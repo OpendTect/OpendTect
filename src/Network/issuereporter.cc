@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odsysmem.h"
 #include "separstr.h"
 #include "thread.h"
+#include "uistrings.h"
 #include "winutils.h"
 #include "systeminfo.h"
 
@@ -42,7 +43,7 @@ bool System::IssueReporter::readReport( const char* filename )
 {
     if ( !File::exists( filename ) )
     {
-	errmsg_ = tr( "%1 does not exist" ).arg( filename );
+	errmsg_ = uiStrings::sDoesntExist(mkUiString(filename));
 	return false;
     }
 
@@ -88,7 +89,7 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
 {
     if ( !File::exists( filename ) )
     {
-	errmsg_ = tr( "%1 does not exist" ).arg( filename );
+	errmsg_ = uiStrings::sDoesntExist(mkUiString(filename));
 	return false;
     }
 
@@ -173,9 +174,8 @@ bool System::IssueReporter::parseCommandLine()
 
     if ( syntaxerror || parser.nrArgs()<1 )
     {
-	errmsg_ =
-	    uiString( "Usage: %1 <filename> [--host <hostname>] [--binary]"
-		     "[--path <path>]" ).arg( parser.getExecutable() );
+	errmsg_ = tr("Usage: %1 <filename> [--host <hostname>] [--binary]"
+		     "[--path <path>]").arg( parser.getExecutable() );
 	return false;
     }
 
