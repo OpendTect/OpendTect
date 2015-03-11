@@ -117,18 +117,21 @@ void uiSeisPreStackMan::mkFileInfo()
 	else
 	{
 	    PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *curioobj_ );
-	    const PosInfo::CubeData& cd = rdr->posData();
-	    txt.add( "Total number of gathers: " ).add( cd.totalSize() );
-	    StepInterval<int> rg; cd.getInlRange( rg );
-	    txt.add( "\nInline range: " )
-			.add( rg.start ).add( " - " ).add( rg.stop );
-	    if ( cd.haveInlStepInfo() )
-		{ txt.add( " [" ).add( rg.step ).add( "]" ); }
-	    cd.getCrlRange( rg );
-	    txt.add( "\nCrossline range: " )
-			.add( rg.start ).add( " - " ).add( rg.stop );
-	    if ( cd.haveCrlStepInfo() )
-		{ txt.add( " [" ).add( rg.step ).add( "]" ); }
+	    if ( rdr )
+	    {
+		const PosInfo::CubeData& cd = rdr->posData();
+		txt.add( "Total number of gathers: " ).add( cd.totalSize() );
+		StepInterval<int> rg; cd.getInlRange( rg );
+		txt.add( "\nInline range: " )
+			    .add( rg.start ).add( " - " ).add( rg.stop );
+		if ( cd.haveInlStepInfo() )
+		    { txt.add( " [" ).add( rg.step ).add( "]" ); }
+		cd.getCrlRange( rg );
+		txt.add( "\nCrossline range: " )
+			    .add( rg.start ).add( " - " ).add( rg.stop );
+		if ( cd.haveCrlStepInfo() )
+		    { txt.add( " [" ).add( rg.step ).add( "]" ); }
+	    }
 	}
 	txt.add( "\n" );
 
