@@ -94,6 +94,7 @@ public:
 				    bool create=true,bool blindcomp=false,
 				    const char* blindcompnm=0);
     Desc*		getFirstStored(bool usesteering=true) const;
+    MultiID		getStoredKey(const DescID&) const;
 
     void		removeDesc(const DescID&);
     void		moveDescUpDown(const DescID&,bool);

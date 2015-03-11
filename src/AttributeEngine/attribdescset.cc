@@ -1144,6 +1144,16 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 }
 
 
+MultiID DescSet::getStoredKey( const DescID& did ) const
+{
+    const Desc* dsc = getDesc( did );
+    if ( !dsc || !dsc->isStored() )
+	return MultiID::udf();
+
+    return MultiID(dsc->getStoredID().buf());
+}
+
+
 void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 {
     Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), true );

@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 #include "gendefs.h"
 
-namespace Attrib 
+namespace Attrib
 {
+
 class DescSet;
 class DescSetMan;
 class DescSetsHolder;
@@ -32,18 +33,18 @@ stored data, both in 2D and 3D.
 mExpClass(AttributeEngine) DescSetsHolder
 {
 public:
-    				DescSetsHolder();
-    				~DescSetsHolder();
+				DescSetsHolder();
+				~DescSetsHolder();
 
     const Attrib::DescSetMan*	getDescSetMan(bool is2d) const;
     Attrib::DescSetMan*		getDescSetMan(bool is2d);
     const Attrib::DescSet*	getDescSet(bool is2d,bool isstored) const;
     Attrib::DescSet*		getDescSet(bool is2d,bool isstored);
-    void                        replaceAttribSet(DescSet*);
-    				//this renews the manager
+    void			replaceAttribSet(DescSet*);
+				//this renews the manager
 
-    				//be sure you know what you're doing!
-    void                        replaceADSMan(DescSetMan*,bool dodelete=false);
+				//be sure you know what you're doing!
+    void			replaceADSMan(DescSetMan*,bool dodelete=false);
 
 protected:
     Attrib::DescSetMan*		adsman2d_;
@@ -56,17 +57,19 @@ protected:
     static DescSetsHolder*	dsholder_;
 
 private:
-    friend mExp(AttributeEngine) DescSetsHolder&	eDSHolder();	//editable DescSetsHolder
-    friend mExp(AttributeEngine) const DescSetsHolder&	DSHolder();
+    friend mExp(AttributeEngine)
+	DescSetsHolder&		eDSHolder();
+				//editable DescSetsHolder
+    friend mExp(AttributeEngine)
+	const DescSetsHolder&	DSHolder();
 
 public:
-    
-    void                        replaceStoredAttribSet(DescSet*);
-    				//needed for backward compatibility v < 4.1.1
+
+    void			replaceStoredAttribSet(DescSet*);
+				//needed for backward compatibility v < 4.1.1
 };
 
 } // namespace Attrib
 
 #endif
-
 
