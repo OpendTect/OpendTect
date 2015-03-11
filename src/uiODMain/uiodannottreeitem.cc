@@ -92,7 +92,7 @@ const char* uiODAnnotParentTreeItem::parentType() const
 // TreeItemFactory +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
-						    uiTreeItem* treeitem ) const
+					      uiTreeItem* treeitem ) const
 {
     visBase::DataObject* dataobj =
 	ODMainWin()->applMgr().visServer()->getObject(visid);
@@ -243,8 +243,8 @@ bool uiODAnnotTreeItem::showSubMenu()
 
 	    if ( uiODAnnotSubItem::doesNameExist( txt ) &&
 	         !uiMSG().askOverwrite(
-		 tr("An object with that name already"
-		    " exists.\nDo you wish to overwrite it?")))
+		 tr("An object with that name already "
+		    "exists.\nDo you wish to overwrite it?")))
 		continue;
 
 	    MultiID mid;
@@ -328,8 +328,8 @@ void uiODAnnotSubItem::prepareForShutdown()
     const int setidx = mgr.indexOf( *set_ );
     if ( mgr.isChanged(setidx) )
     {
-	uiString msg = tr("The annotation group %1"
-			  " is not saved.\n\nDo you want to save it?")
+	uiString msg = tr("The annotation group %1 "
+			  "is not saved.\n\nDo you want to save it?")
 		     .arg(name());
 	if ( uiMSG().askSave(msg,false) )
 	    store();
@@ -386,7 +386,7 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==scalemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	uiDialog dlg( getUiParent(), uiDialog::Setup(tr("Set size"),tr("Size"),
+	uiDialog dlg( getUiParent(), uiDialog::Setup(tr("Set Size"),tr("Size"),
 						     mNoHelpKey) );
 	uiSlider* sliderfld = new uiSlider( &dlg,
 			uiSlider::Setup(tr("Size")).nrdec(1).logscale(true),

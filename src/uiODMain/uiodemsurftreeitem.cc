@@ -58,14 +58,14 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     : uiODDisplayTreeItem()
     , emid_(nemid)
     , uivisemobj_(0)
-    , createflatscenemnuitem_(tr("Create flattened scene"))
+    , createflatscenemnuitem_(tr("Create Flattened Scene"))
     , savemnuitem_(uiStrings::sSave(true),-800)
     , saveasmnuitem_(uiStrings::sSaveAs(true),-850)
-    , enabletrackingmnuitem_(tr("Enable tracking"))
-    , changesetupmnuitem_(tr("Change setup ..."))
+    , enabletrackingmnuitem_(tr("Enable Tracking"))
+    , changesetupmnuitem_(tr("Change Setup ..."))
     , reloadmnuitem_(uiStrings::sReload(),-750)
     , trackmenuitem_(uiVisEMObject::trackingmenutxt())
-    , starttrackmnuitem_(tr("Start tracking ..."))
+    , starttrackmnuitem_(tr("Start Tracking ..."))
     , istrackingallowed_(true)
 {
     savemnuitem_.iconfnm = "save";

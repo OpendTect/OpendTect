@@ -83,7 +83,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
-    mnu.insertItem( new uiAction(tr("New polygon body...")), 1 );
+    mnu.insertItem( new uiAction(tr("New Polygon Body ...")), 1 );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -184,13 +184,13 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
 
 
 #define mCommonInit \
-    , savemnuitem_("save") \
-    , saveasmnuitem_("save as") \
-    , volcalmnuitem_("Calculate volume ...") \
+    , savemnuitem_("Save") \
+    , saveasmnuitem_("Save As") \
+    , volcalmnuitem_("Calculate Volume ...") \
     , displaybodymnuitem_("Body") \
-    , displaypolygonmnuitem_("Picked polygons") \
-    , displayintersectionmnuitem_("Only at sections") \
-    , singlecolormnuitem_("Use single color") \
+    , displaypolygonmnuitem_("Picked Polygons") \
+    , displayintersectionmnuitem_("Only at Sections") \
+    , singlecolormnuitem_("Use Single Color") \
     , mcd_(0) \
     , plg_(0) \
     , rpb_(0)
@@ -321,12 +321,12 @@ bool uiODBodyDisplayTreeItem::init()
     }
     else
     {
-	mDynamicCastGet( visSurvey::PolygonBodyDisplay*, plg,
-			 visserv_->getObject(displayid_) );
-	mDynamicCastGet( visSurvey::MarchingCubesDisplay*, mcd,
-			 visserv_->getObject(displayid_) );
-	mDynamicCastGet( visSurvey::RandomPosBodyDisplay*, rpb,
-			 visserv_->getObject(displayid_) );
+	mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,
+			visserv_->getObject(displayid_));
+	mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
+			visserv_->getObject(displayid_));
+	mDynamicCastGet(visSurvey::RandomPosBodyDisplay*,rpb,
+			visserv_->getObject(displayid_));
 	if ( plg )
 	{
 	    plg_ = plg;

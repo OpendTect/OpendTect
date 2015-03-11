@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uishortcutsmgr.h"
 #include "uislicesel.h"
 #include "uistrings.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uivisslicepos3d.h"
 #include "uiwellpartserv.h"
@@ -60,7 +61,7 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
 
 
 uiString uiODPlaneDataTreeItem::sAddDefaultData()
-{ return tr("Add default data"); }
+{ return tr("Add Default Data"); }
 
 
 uiString uiODPlaneDataTreeItem::sAddColorBlended()
@@ -68,7 +69,7 @@ uiString uiODPlaneDataTreeItem::sAddColorBlended()
 
 
 uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
-{ return tr("Add at Well location ..."); }
+{ return tr("Add at Well Location ..."); }
 
 
 #define mParentShowSubMenu( treeitm, fromwell ) \
@@ -128,7 +129,7 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 	pdd->unRef();
     }
 
-//  getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
+    getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.remove(
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
@@ -175,7 +176,7 @@ bool uiODPlaneDataTreeItem::init()
     pdd->selection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
     pdd->deSelection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
 
-//  getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
+    getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
     visserv_->getUiSlicePos()->positionChg.notify(
 			mCB(this,uiODPlaneDataTreeItem,posChange) );
 
@@ -432,13 +433,14 @@ void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
 {
     mCBCapsuleGet(uiKeyDesc,caps,cb)
     if ( !caps ) return;
+
     const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
-    BufferString act( scl.nameOf(caps->data) );
+    const BufferString act( scl.nameOf(caps->data) );
     const bool fwd = act == "Move slice forward";
     const bool bwd = fwd ? false : act == "Move slice backward";
     if ( !fwd && !bwd ) return;
 
-    int step = scl.valueOf(caps->data);
+    const int step = scl.valueOf( caps->data );
     caps->data.setKey( 0 );
     movePlane( fwd, step );
 }
