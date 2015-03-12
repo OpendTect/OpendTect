@@ -99,7 +99,7 @@ HorizonDisplay::HorizonDisplay()
     enabled_ += true;
     dispdatapackids_ += new TypeSet<DataPack::ID>;
 
-    material_->setAmbience( 0.3 );
+    material_->setAmbience( 0.7 );
 
     RefMan<visBase::Material> linemat = new visBase::Material;
     linemat->setFrom( *material_ );
