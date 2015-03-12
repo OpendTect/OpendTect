@@ -648,7 +648,8 @@ BufferString Desc::getStoredID( bool recursive ) const
     if ( isStored() )
     {
 	const ValParam* keypar = getValParam( StorageProvider::keyStr() );
-	str = keypar->getStringValue();
+	if ( keypar )
+	    str = keypar->getStringValue();
     }
     else if ( recursive )
     {
