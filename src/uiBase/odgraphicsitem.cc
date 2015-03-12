@@ -460,7 +460,8 @@ void ODGraphicsPixmapItem::paint( QPainter* painter,
 
 ODGraphicsPolyLineItem::ODGraphicsPolyLineItem()
     : QAbstractGraphicsShapeItem()
-    , closed_( false )
+    , closed_(false)
+    , fillrule_(Qt::OddEvenFill)
 {}
 
 
@@ -602,7 +603,7 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 		nrretries--;
 	    }
 	}
-								    
+
 	imagelock_.unlock();
     }
 
