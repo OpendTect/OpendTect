@@ -101,14 +101,13 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     }
     else if ( psioprov_ )
     {
-	const char* fnm = ioobj_->fullUserExpr(Conn::Read);
 	if ( is2d_ )
 	{
 	    errmsg_ = tr("SeisTrcReader cannot read from "
 			 "2D Prestack Data store");
 	    return false;
 	}
-	psrdr_ = psioprov_->make3DReader( fnm );
+	psrdr_ = psioprov_->make3DReader( *ioobj_ );
     }
     if ( (is2d_ && !dataset_) || (!is2d_ && !trl_) || (psioprov_ && !psrdr_) )
     {

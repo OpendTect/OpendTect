@@ -47,8 +47,8 @@ class IOObj;
   * positive number for single inline usage
   * mUdf(int) (=default) for scanning the entire datastore
 
-  For 2D prestack data stores, you have to pass a line name to get the
-  relevant reader. This can return null if the line name is not found.
+  For 2D prestack data stores, you have to pass a line name or GeomID to get
+  the relevant reader. This can return null if the line name is not found.
 
  */
 
@@ -61,25 +61,20 @@ public:
     virtual bool		canHandle( bool forread, bool for2d ) const
 				{ return false; }
 
-    virtual SeisPS3DReader*	make3DReader(const char*,int i=mUdf(int)) const
-				{ return 0; }
-    virtual SeisPS2DReader*	make2DReader(const char*,Pos::GeomID) const
-				{ return 0; }
-    virtual SeisPS2DReader*	make2DReader(const char*,const char* lnm) const
-				{ return 0; }
-    virtual SeisPSWriter*	make3DWriter(const char*) const
-				{ return 0; }
-    virtual SeisPSWriter*	make2DWriter(const char*,Pos::GeomID) const
-				{ return 0; }
-    virtual SeisPSWriter*	make2DWriter(const char*,const char* lnm) const
-				{ return 0; }
+    virtual SeisPS3DReader*	make3DReader(const IOObj&,
+					     int i=mUdf(int)) const;
+    virtual SeisPS2DReader*	make2DReader(const IOObj&,Pos::GeomID) const;
+    virtual SeisPS2DReader*	make2DReader(const IOObj&,const char*) const;
+
+    virtual SeisPSWriter*	make3DWriter(const IOObj&) const;
+    virtual SeisPSWriter*	make2DWriter(const IOObj&,Pos::GeomID) const;
+    virtual SeisPSWriter*	make2DWriter(const IOObj&,const char*) const;
 
     FixedString			type() const		{ return type_.buf(); }
-    virtual bool		getGeomIDs(const char*,
-					   TypeSet<Pos::GeomID>&) const
-				{ return false; }
-    virtual bool		getLineNames(const char*,BufferStringSet&) const
-				{ return false; }
+    virtual bool		getGeomIDs(const IOObj&,
+					   TypeSet<Pos::GeomID>&) const;
+    virtual bool		getLineNames(const IOObj&,
+					     BufferStringSet&) const;
 
     static const char*		sKeyCubeID;
 
@@ -88,6 +83,27 @@ protected:
 
 				SeisPSIOProvider( const char* t )
 				    : type_(t)			{}
+
+    virtual SeisPS3DReader*	make3DReader(const char*,int i=mUdf(int)) const
+				{ return 0; }
+    virtual SeisPS2DReader*	make2DReader(const char*,Pos::GeomID) const
+				{ return 0; }
+    virtual SeisPS2DReader*	make2DReader(const char*,const char* lnm) const
+				{ return 0; }
+
+    virtual SeisPSWriter*	make3DWriter(const char*) const
+				{ return 0; }
+    virtual SeisPSWriter*	make2DWriter(const char*,Pos::GeomID) const
+				{ return 0; }
+    virtual SeisPSWriter*	make2DWriter(const char*,const char* lnm) const
+				{ return 0; }
+
+    virtual bool		getGeomIDs(const char*,
+					   TypeSet<Pos::GeomID>&) const
+				{ return false; }
+    virtual bool		getLineNames(const char*,
+					     BufferStringSet&) const
+				{ return false; }
 
     BufferString		type_;
 

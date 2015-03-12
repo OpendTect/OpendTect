@@ -28,6 +28,33 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";
 
 
+SeisPS3DReader*	SeisPSIOProvider::make3DReader( const IOObj& ioobj,
+						int inl ) const
+{ return make3DReader( ioobj.fullUserExpr(true), inl ); }
+SeisPS2DReader*	SeisPSIOProvider::make2DReader( const IOObj& ioobj,
+						Pos::GeomID geomid ) const
+{ return make2DReader( ioobj.fullUserExpr(true), geomid ); }
+SeisPS2DReader*	SeisPSIOProvider::make2DReader( const IOObj& ioobj,
+						const char* lnm ) const
+{ return make2DReader( ioobj.fullUserExpr(true), lnm ); }
+
+SeisPSWriter*	SeisPSIOProvider::make3DWriter( const IOObj& ioobj ) const
+{ return make3DWriter( ioobj.fullUserExpr(false) ); }
+SeisPSWriter*	SeisPSIOProvider::make2DWriter( const IOObj& ioobj,
+						Pos::GeomID geomid ) const
+{ return make2DWriter( ioobj.fullUserExpr(false), geomid ); }
+SeisPSWriter*	SeisPSIOProvider::make2DWriter( const IOObj& ioobj,
+						const char* lnm ) const
+{ return make2DWriter( ioobj.fullUserExpr(false), lnm ); }
+
+bool SeisPSIOProvider::getGeomIDs( const IOObj& ioobj,
+				   TypeSet<Pos::GeomID>& geomids ) const
+{ return getGeomIDs( ioobj.fullUserExpr(true), geomids ); }
+bool SeisPSIOProvider::getLineNames( const IOObj& ioobj,
+				     BufferStringSet& lnms ) const
+{ return getLineNames( ioobj.fullUserExpr(true), lnms ); }
+
+
 SeisPSIOProviderFactory& SPSIOPF()
 {
     mDefineStaticLocalObject( SeisPSIOProviderFactory, theinst, );
@@ -72,7 +99,7 @@ bool SeisPSIOProviderFactory::getGeomIDs( const IOObj& ioobj,
     if ( provs_.isEmpty() ) return false;
 
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
-    return prov ? prov->getGeomIDs( ioobj.fullUserExpr(true), geomids )
+    return prov ? prov->getGeomIDs( ioobj, geomids )
 		: false;
 }
 
@@ -83,7 +110,7 @@ bool SeisPSIOProviderFactory::getLineNames( const IOObj& ioobj,
     if ( provs_.isEmpty() ) return false;
 
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
-    return prov ? prov->getLineNames( ioobj.fullUserExpr(true), linenms )
+    return prov ? prov->getLineNames( ioobj, linenms )
 		: false;
 }
 
@@ -94,7 +121,7 @@ SeisPS3DReader* SeisPSIOProviderFactory::get3DReader( const IOObj& ioobj,
     if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPS3DReader* reader =
-	prov ? prov->make3DReader( ioobj.fullUserExpr(true), inl ) : 0;
+	prov ? prov->make3DReader( ioobj, inl ) : 0;
 
     if ( reader )
 	reader->usePar( ioobj.pars() );
@@ -110,7 +137,7 @@ SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
 
     SeisPS2DReader* reader = prov ?
-	prov->make2DReader( ioobj.fullUserExpr(true), geomid ) : 0;
+	prov->make2DReader( ioobj, geomid ) : 0;
     if ( reader )
 	reader->usePar( ioobj.pars() );
 
@@ -125,7 +152,7 @@ SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
 
     SeisPS2DReader* reader = prov ?
-	prov->make2DReader( ioobj.fullUserExpr(true), lnm ) : 0;
+	prov->make2DReader( ioobj, lnm ) : 0;
     if ( reader )
 	reader->usePar( ioobj.pars() );
 
@@ -138,7 +165,7 @@ SeisPSWriter* SeisPSIOProviderFactory::get3DWriter( const IOObj& ioobj ) const
     if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPSWriter* writer =
-	prov ? prov->make3DWriter( ioobj.fullUserExpr(false) ) : 0;
+	prov ? prov->make3DWriter( ioobj ) : 0;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
@@ -152,7 +179,7 @@ SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
     if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPSWriter* writer =
-	prov ? prov->make2DWriter( ioobj.fullUserExpr(false), geomid ) : 0;
+	prov ? prov->make2DWriter( ioobj, geomid ) : 0;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
@@ -166,7 +193,7 @@ SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
     if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPSWriter* writer =
-	prov ? prov->make2DWriter( ioobj.fullUserExpr(false), lnm ) : 0;
+	prov ? prov->make2DWriter( ioobj, lnm ) : 0;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
