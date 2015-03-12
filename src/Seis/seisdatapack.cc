@@ -197,14 +197,10 @@ RegularFlatDataPack::~RegularFlatDataPack()
 
 Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
 {
-    int lineidx = 0, trcidx = i0, zidx = i1;
-    if ( dir_ == TrcKeyZSampling::Crl )
-	{ lineidx = i0; trcidx = 0; }
-    else if ( dir_ == TrcKeyZSampling::Z )
-	{ trcidx = i1; zidx = 0; }
-
-    const Coord c = SI().transform( sampling_.hsamp_.atIndex(lineidx,trcidx) );
-    return Coord3( c.x, c.y, sampling_.zsamp_.atIndex(zidx));
+    const bool isvertical = dir_ != TrcKeyZSampling::Z;
+    const int trcidx = isvertical ? i0 : i0*sampling_.nrTrcs()+i1;
+    const Coord c = Survey::GM().toCoord( getTrcKey(trcidx) );
+    return Coord3( c.x, c.y, sampling_.zsamp_.atIndex(isvertical ? i1 : 0) );
 }
 
 
@@ -285,7 +281,7 @@ RandomFlatDataPack::~RandomFlatDataPack()
 
 Coord3 RandomFlatDataPack::getCoord( int i0, int i1 ) const
 {
-    const Coord coord = path_.validIdx(i0) ? SI().transform(path_[i0].pos())
+    const Coord coord = path_.validIdx(i0) ? Survey::GM().toCoord(path_[i0])
 					   : Coord::udf();
     return Coord3( coord, zsamp_.atIndex(i1) );
 }
