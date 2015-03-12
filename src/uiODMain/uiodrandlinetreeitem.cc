@@ -122,7 +122,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     mnu.insertItem( new uiAction(tr("Add Stored ...")), 7 );
 
     uiMenu* rgbmnu =
-	new uiMenu( getUiParent(), tr("Add Color blended") );
+	new uiMenu( getUiParent(), tr("Add Color Blended") );
     rgbmnu->insertItem( new uiAction(tr("Empty")), 8 );
     rgbmnu->insertItem( new uiAction(tr("Stored ...")), 9 );
     mnu.insertItem( rgbmnu );
@@ -465,13 +465,21 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	    Geometry::RandomLineSet lset; lset.addLine( rln );
 	    rln.set( 0, false ); //rln belongs to lset now.
+
+	    const IOObj* ioobj = dlg.ioObj();
+	    if ( !ioobj )
+	    {
+		uiMSG().error( "Could not create database entry" );
+		return;
+	    }
+
 	    BufferString bs;
-	    if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
+	    if ( !RandomLineSetTranslator::store(lset,ioobj,bs) )
 		uiMSG().error( bs );
 	    else
 	    {
 		applMgr()->visServer()->setObjectName( displayID(),
-						       dlg.ioObj()->name() );
+						       ioobj->name() );
 		updateColumnText( uiODSceneMgr::cNameColumn() );
 	    }
 	}
