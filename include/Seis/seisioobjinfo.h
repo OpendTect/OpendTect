@@ -56,6 +56,8 @@ public:
     mStruct(Seis) SpaceInfo
     {
 			SpaceInfo(int ns=-1,int ntr=-1,int bps=4);
+	int		expectedMBs() const;
+
 	int		expectednrsamps;
 	int		expectednrtrcs;
 	int		maxbytespsamp;
@@ -67,7 +69,7 @@ public:
     bool		isFullyRectAndRegular() const; // Only CBVS
     bool		getDataChar(DataCharacteristics&) const;
     bool		getBPS(int&,int icomp) const;
-    			//!< max bytes per sample, component -1 => add all
+			//!< max bytes per sample, component -1 => add all
 
     int			nrComponents(Pos::GeomID geomid=
 					    Survey::GM().cUndefGeomID()) const;
@@ -88,14 +90,14 @@ public:
 
     // 2D only
     void		getLineNames( BufferStringSet& b,
-	    			      Opts2D o2d=Opts2D() ) const
+				      Opts2D o2d=Opts2D() ) const
 				{ getNms(b,o2d); }
     bool		getRanges(const Pos::GeomID geomid,
 				  StepInterval<int>& trcrg,
-	    			  StepInterval<float>& zrg) const;
+				  StepInterval<float>& zrg) const;
 
     static void		initDefault(const char* type=0);
-    			//!< Only does something if there is not yet a default
+			//!< Only does something if there is not yet a default
     static const MultiID& getDefault(const char* type=0);
     static void		setDefault(const MultiID&,const char* type=0);
 
@@ -107,8 +109,8 @@ public:
 						BufferStringSet& b,
 						Opts2D o2d=Opts2D() );
     static void		getCompNames(const MultiID&,BufferStringSet&);
-    			//!< Function useful in attribute environments
-    			//!< The 'MultiID' must be IOObj_ID
+			//!< Function useful in attribute environments
+			//!< The 'MultiID' must be IOObj_ID
 
 protected:
 
