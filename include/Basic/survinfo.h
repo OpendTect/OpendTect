@@ -206,8 +206,8 @@ public:
 			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
     float		angleXInl() const;
-			/*!< It's the angle (0 to pi/2) between
-			     the X-axis and the Inl-axis (not an inline) */
+			/*!< It's the angle between the X-axis (East) and
+			     an Inline (increasing Crossline direction) */
     void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }
     void		setDepthInFeet( bool yn=true ) { depthsinfeet_ = yn; }
     void		setZUnit(bool istime,bool infeet=false);
