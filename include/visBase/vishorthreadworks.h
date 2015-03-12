@@ -32,7 +32,7 @@ namespace visBase
 
 
 class HorizonTileRenderPreparer: public ParallelTask
-{
+{ mODTextTranslationClass(HorizonTileRenderPreparer);
 public:
     HorizonTileRenderPreparer( HorizonSection& hrsection,
 			       const osg::CullStack* cs, char res );
@@ -42,8 +42,8 @@ public:
 
     od_int64 nrIterations() const { return nrtiles_; }
     od_int64 totalNr() const { return nrtiles_ * 2; }
-    uiString uiMessage() const { return "Updating Horizon Display"; }
-    uiString uiNrDoneText() const { return "Parts completed"; }
+    uiString uiMessage() const { return tr("Updating Horizon Display"); }
+    uiString uiNrDoneText() const { return tr("Parts completed"); }
 
     bool doPrepare( int );
     bool doWork( od_int64, od_int64, int );
@@ -74,7 +74,7 @@ public:
 
 
 class HorizonSectionTilePosSetup: public ParallelTask
-{
+{ mODTextTranslationClass(HorizonSectionTilePosSetup);
 public:
     HorizonSectionTilePosSetup(ObjectSet<HorizonSectionTile> tiles, 
 	HorizonSection* horsection,StepInterval<int>rrg,StepInterval<int>crg );
@@ -82,8 +82,8 @@ public:
     ~HorizonSectionTilePosSetup();
 
     od_int64	nrIterations() const { return hrtiles_.size(); }
-    uiString	uiMessage() const { return "Creating Horizon Display"; }
-    uiString	uiNrDoneText() const { return "Parts completed"; }
+    uiString	uiMessage() const { return tr("Creating Horizon Display"); }
+    uiString	uiNrDoneText() const { return tr("Parts completed"); }
 
 protected:
 
