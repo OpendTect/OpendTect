@@ -29,14 +29,15 @@ class IOObj;
   It is not mandatory to provide both reader and writer.
   Null returns must be expected.
 
-  The key provided to makeReader and makeWriter is the key to the data store.
-  It can be a file or directory, but also some kind of data store access code.
-  This name is stored in IOObjs refering to PS data stores. The IOObj's
-  tranlator() is used for the type. OpendTect's simple CBVS PS data store
+  The idea is to override the getXXX public virtual functions. Alternatively,
+  if the key to the data store is ioobj.fullUserExpr(), then you can override
+  makeReader and makeWriter. That key can be a file or directory, but also
+  some kind of data store access code.  The IOObj's tranlator() is used for
+  the type. OpendTect's simple CBVS PS data store
   has type 'CBVS' (who'd have thought that!), and the data store key is a
   directory name.
 
-  If you pass an inline number to the makeReader, you will get a Reader that
+  If you pass an inline number to the getReader, you will get a Reader that
   should be able to read that inline, but be aware that this reader may not
   be able to provide the full geometry of the entire data store. If the
   inline is present in the data store, at least the segments for that inline
@@ -61,20 +62,20 @@ public:
     virtual bool		canHandle( bool forread, bool for2d ) const
 				{ return false; }
 
-    virtual SeisPS3DReader*	make3DReader(const IOObj&,
+    virtual SeisPS3DReader*	get3DReader(const IOObj&,
 					     int i=mUdf(int)) const;
-    virtual SeisPS2DReader*	make2DReader(const IOObj&,Pos::GeomID) const;
-    virtual SeisPS2DReader*	make2DReader(const IOObj&,const char*) const;
+    virtual SeisPS2DReader*	get2DReader(const IOObj&,Pos::GeomID) const;
+    virtual SeisPS2DReader*	get2DReader(const IOObj&,const char*) const;
 
-    virtual SeisPSWriter*	make3DWriter(const IOObj&) const;
-    virtual SeisPSWriter*	make2DWriter(const IOObj&,Pos::GeomID) const;
-    virtual SeisPSWriter*	make2DWriter(const IOObj&,const char*) const;
+    virtual SeisPSWriter*	get3DWriter(const IOObj&) const;
+    virtual SeisPSWriter*	get2DWriter(const IOObj&,Pos::GeomID) const;
+    virtual SeisPSWriter*	get2DWriter(const IOObj&,const char*) const;
 
     FixedString			type() const		{ return type_.buf(); }
-    virtual bool		getGeomIDs(const IOObj&,
-					   TypeSet<Pos::GeomID>&) const;
-    virtual bool		getLineNames(const IOObj&,
-					     BufferStringSet&) const;
+    virtual bool		fetchGeomIDs(const IOObj&,
+					     TypeSet<Pos::GeomID>&) const;
+    virtual bool		fetchLineNames(const IOObj&,
+						BufferStringSet&) const;
 
     static const char*		sKeyCubeID;
 

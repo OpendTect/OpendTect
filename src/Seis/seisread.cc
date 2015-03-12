@@ -107,7 +107,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 			 "2D Prestack Data store");
 	    return false;
 	}
-	psrdr_ = psioprov_->make3DReader( *ioobj_ );
+	psrdr_ = psioprov_->get3DReader( *ioobj_ );
     }
     if ( (is2d_ && !dataset_) || (!is2d_ && !trl_) || (psioprov_ && !psrdr_) )
     {
