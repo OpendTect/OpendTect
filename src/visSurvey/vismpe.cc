@@ -91,9 +91,9 @@ MPEDisplay::~MPEDisplay()
     setSceneEventCatcher( 0 );
     detachAllNotifiers();
 
-    DPM( DataPackMgr::CubeID() ).release( cacheid_ );
+    DPM( DataPackMgr::SeisID() ).release( cacheid_ );
     if ( volumecache_ )
-	DPM( DataPackMgr::CubeID() ).release( volumecache_ );
+	DPM( DataPackMgr::SeisID() ).release( volumecache_ );
 
     TypeSet<int> children;
     getChildren( children );
@@ -250,7 +250,7 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     // empty the cache first
     if ( volumecache_ )
     {
-	DPM(DataPackMgr::CubeID()).release( volumecache_ );
+	DPM(DataPackMgr::SeisID()).release( volumecache_ );
 	volumecache_ = 0;
     }
 
@@ -830,7 +830,7 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
     if ( !retval )
 	channels_->turnOn( false );
 
-    DPM( DataPackMgr::CubeID() ).release( attrib_dpid );
+    DPM( DataPackMgr::SeisID() ).release( attrib_dpid );
 
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 

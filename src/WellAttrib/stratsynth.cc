@@ -536,7 +536,7 @@ SyntheticData* StratSynth::generateSD()
 if ( !sd.isPS() ) return 0; \
 mDynamicCastGet(const PreStackSyntheticData&,presd,sd); \
 BufferString dpidstring( "#" ); \
-SeparString fullidstr( toString(DataPackMgr::CubeID()), '.' ); \
+SeparString fullidstr( toString(DataPackMgr::SeisID()), '.' ); \
 const PreStack::GatherSetDataPack& gdp = presd.preStackPack(); \
 fullidstr.add( toString(gdp.id()) ); \
 dpidstring.add( fullidstr.buf() ); \
@@ -1514,7 +1514,7 @@ PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
     , angledp_(0)
 {
     useGenParams( sgp );
-    DataPackMgr::ID pmid = DataPackMgr::CubeID();
+    DataPackMgr::ID pmid = DataPackMgr::SeisID();
     DPM( pmid ).addAndObtain( &dp );
     datapackid_ = DataPack::FullID( pmid, dp.id());
     ObjectSet<PreStack::Gather>& gathers = dp.getGathers();
@@ -1533,7 +1533,7 @@ PreStackSyntheticData::~PreStackSyntheticData()
     for ( int idx=0; idx<gathers.size(); idx++ )
 	DPM(DataPackMgr::FlatID()).release( gathers[idx] );
     if ( angledp_ )
-	DPM( DataPackMgr::CubeID() ).release( angledp_->id() );
+	DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
 }
 
 
@@ -1572,17 +1572,17 @@ void PreStackSyntheticData::setAngleData(
 	const PreStack::GatherSetDataPack& angledp )
 {
     if ( angledp_ )
-	DPM( DataPackMgr::CubeID() ).release( angledp_->id() );
+	DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
 
     angledp_ = new PreStack::GatherSetDataPack( name(), angledp.getGathers() );
-    DPM( DataPackMgr::CubeID() ).addAndObtain( angledp_ );
+    DPM( DataPackMgr::SeisID() ).addAndObtain( angledp_ );
 }
 
 
 void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
 					     const TypeSet<ElasticModel>& ems )
 {
-    if ( angledp_ ) DPM( DataPackMgr::CubeID() ).release( angledp_->id() );
+    if ( angledp_ ) DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
     ObjectSet<PreStack::Gather> anglegathers;
     const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
     PreStack::ModelBasedAngleComputer anglecomp;
@@ -1608,7 +1608,7 @@ void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
     }
 
     angledp_ = new PreStack::GatherSetDataPack( name(), anglegathers );
-    DPM( DataPackMgr::CubeID() ).addAndObtain( angledp_ );
+    DPM( DataPackMgr::SeisID() ).addAndObtain( angledp_ );
 }
 
 

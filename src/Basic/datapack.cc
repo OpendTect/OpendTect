@@ -18,10 +18,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
 DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
-DataPackMgr::ID DataPackMgr::CubeID()		{ return 3; }
+DataPackMgr::ID DataPackMgr::SeisID()		{ return 3; }
 DataPackMgr::ID DataPackMgr::FlatID()		{ return 4; }
 DataPackMgr::ID DataPackMgr::SurfID()		{ return 5; }
-DataPackMgr::ID DataPackMgr::SeisID()		{ return 6; }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
 float DataPack::sKb2MbFac()			{ return 0.0009765625; }
 

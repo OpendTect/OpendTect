@@ -110,7 +110,7 @@ Engine::Engine()
 static void releaseDataPack( DataPack::ID dpid )
 {
     DPM(DataPackMgr::FlatID()).release( dpid );
-    DPM(DataPackMgr::CubeID()).release( dpid );
+    DPM(DataPackMgr::SeisID()).release( dpid );
 }
 
 

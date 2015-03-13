@@ -377,7 +377,7 @@ uiSelectPositionDlg( uiParent* p,const DataPack::FullID& dpfid )
     , dpfid_(dpfid)
 {
     const int dpmid = dpfid.ID( 0 );
-    if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::CubeID() )
+    if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::SeisID() )
     {
 	pErrMsg( "Only Flat & Cube DataPacks supported" );
 	return;
@@ -563,7 +563,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	uiSelectPositionDlg subseldlg( this, dpfid );
 	if ( !subseldlg.go() )
 	    return;
-	if ( dpfid.ID(0)==DataPackMgr::CubeID() )
+	if ( dpfid.ID(0)==DataPackMgr::SeisID() )
 	    cs = subseldlg.subVol();
 	else
 	{

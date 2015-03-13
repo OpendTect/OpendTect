@@ -104,7 +104,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     , pickretriever_( 0 )
 {
     const int dpmid = dpfid.ID( 0 );
-    if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::CubeID() )
+    if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::SeisID() )
     {
 	pErrMsg( "Only Flat & Cube DataPacks supported" );
 	return;
