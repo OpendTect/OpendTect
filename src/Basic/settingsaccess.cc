@@ -28,9 +28,6 @@ const char* SettingsAccess::sKeyUseSurfShaders()
 const char* SettingsAccess::sKeyUseVolShaders()
 { return "dTect.Use volume shaders"; }
 
-const char* SettingsAccess::sKeyColorBarVertical()
-{ return "dTect.ColorBar.show vertical"; }
-
 const char* SettingsAccess::sKeyTexResFactor()
 { return "dTect.Default texture resolution factor"; }
 

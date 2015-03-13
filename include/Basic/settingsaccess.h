@@ -36,7 +36,6 @@ public:
     void		setDefaultTexResAsIndex(int idx,int nrres);
 			//!<system default represented by idx==nrres
 
-    static const char*	sKeyColorBarVertical();
     static const char*	sKeyIcons();
     static const char*	sKeyShowInlProgress();
     static const char*	sKeyShowCrlProgress();

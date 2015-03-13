@@ -239,33 +239,11 @@ bool uiODMain::buildUI()
     menumgr_ = new uiODMenuMgr( this );
     menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 
-    const char* envvar = GetEnvVar( "DTECT_CBAR_POS" );
-    bool isvert = envvar && (*envvar == 'v' || *envvar == 'V');
-    const char* vertcolbarkey = SettingsAccess::sKeyColorBarVertical();
-    if ( !envvar && !Settings::common().getYN(vertcolbarkey,isvert) )
-    {
-	Settings::common().setYN( vertcolbarkey, isvert );
-	Settings::common().write();
-    }
-
-    if ( isvert )
-    {
-	ctabwin_ = new uiDockWin( this, "Color Table" );
-	uiColorTableGroup* grp = new uiColorTableGroup( ctabwin_,
-			ColTab::Sequence(""), OD::Vertical, false);
-	ctabed_ = new uiVisColTabEd( *grp );
-	ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
-	ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
-	addDockWindow( *ctabwin_, uiMainWin::Left );
-    }
-    else
-    {
-	uiColorTableToolBar* tb = new uiColorTableToolBar( this );
-	ctabtb_ = tb;
-	ctabed_ = new uiVisColTabEd( *tb );
-	ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
-	ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
-    }
+    uiColorTableToolBar* tb = new uiColorTableToolBar( this );
+    ctabtb_ = tb;
+    ctabed_ = new uiVisColTabEd( *tb );
+    ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
+    ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
 
     return true;
 }

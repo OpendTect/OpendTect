@@ -299,7 +299,6 @@ mUpdateSettings( const OD::String&, set )
 uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,tr("General"),setts)
     , iconsz_(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
-    , vertcoltab_(true)
     , showinlprogress_(true)
     , showcrlprogress_(true)
     , enabvirtualkeyboard_(false)
@@ -307,17 +306,11 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
 				 IntInpSpec(iconsz_,10,64) );
 
-    setts_.getYN( SettingsAccess::sKeyColorBarVertical(), vertcoltab_ );
-    colbarhvfld_ = new uiGenInput( this, tr("Color bar orientation"),
-		BoolInpSpec(vertcoltab_,uiStrings::sVertical(),
-			    uiStrings::sHorizontal()) );
-    colbarhvfld_->attach( alignedBelow, iconszfld_ );
-
     setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
     showinlprogressfld_ = new uiGenInput( this,
 		tr("Show progress when loading stored data on in-lines"),
 		BoolInpSpec(showinlprogress_) );
-    showinlprogressfld_->attach( alignedBelow, colbarhvfld_ );
+    showinlprogressfld_->attach( alignedBelow, iconszfld_ );
 
     setts_.getYN( SettingsAccess::sKeyShowCrlProgress(), showcrlprogress_ );
     showcrlprogressfld_ = new uiGenInput( this,
@@ -354,10 +347,6 @@ bool uiGeneralSettingsGroup::acceptOK()
 	delete iopar;
 	theiconsz = newiconsz;
     }
-
-    updateSettings( vertcoltab_, colbarhvfld_->getBoolValue(),
-		    SettingsAccess::sKeyColorBarVertical() );
-    if ( changed_ ) needsrestart_ = true;
 
     updateSettings( showinlprogress_, showinlprogressfld_->getBoolValue(),
 		    SettingsAccess::sKeyShowInlProgress() );
