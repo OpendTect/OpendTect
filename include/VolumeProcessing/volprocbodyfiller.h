@@ -48,7 +48,16 @@ public:
     bool			canInputAndOutputBeSame() const { return true; }
     bool			needsFullVolume() const		{ return false;}
 
+    enum ValueType		{ Constant, PrevStep, Undefined };
+
+    void			setInsideValueType(ValueType);
+    ValueType			getInsideValueType() const;
+    void			setOutsideValueType(ValueType);
+    ValueType			getOutsideValueType() const;
+
+    void			setInsideValue(float);
     float			getInsideValue()  { return insideval_; }
+    void			setOutsideValue(float);
     float			getOutsideValue() { return outsideval_; }
     void			setInsideOutsideValue(const float inside,
 						      const float ouside);

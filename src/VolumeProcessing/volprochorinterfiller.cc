@@ -24,7 +24,9 @@ HorInterFiller::HorInterFiller()
     , bottomhorizon_( 0 )
     , gradient_( mUdf(float) )
     , usegradient_( true )
-{}
+{
+    setInputPrevStep( true );
+}
 
 
 HorInterFiller::~HorInterFiller()

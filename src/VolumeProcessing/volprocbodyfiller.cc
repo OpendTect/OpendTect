@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmarchingcubessurface.h"
 #include "emmanager.h"
 #include "empolygonbody.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "embody.h"
 #include "rowcol.h"
@@ -26,16 +27,29 @@ namespace VolProc
 #define plgIsZSlice	2
 #define plgIsOther	3
 
+
+
+static const char* sKeyOldInsideOutsideValue()
+					{ return "Surface InsideOutsideValue"; }
+
+static const char* sKeyInsideType()	{ return "Inside Type"; }
+static const char* sKeyOutsideType()	{ return "Outside Type"; }
+static const char* sKeyInsideValue()	{ return "Inside Value"; }
+static const char* sKeyOutsideValue()	{ return "Outside Value"; }
+
+
 void BodyFiller::initClass()
 {
-    SeparString keys( BodyFiller::sFactoryKeyword(),
-	    VolProc::Step::factory().cSeparator() );
+    SeparString keys( BodyFiller::sFactoryKeyword(), factory().cSeparator() );
     keys += BodyFiller::sKeyOldType();
 
-    VolProc::Step::factory().addCreator( createInstance, keys,
-	    BodyFiller::sFactoryDisplayName() );
+    factory().addCreator( createInstance, keys,
+			  BodyFiller::sFactoryDisplayName() );
 }
 
+
+HiddenParam<BodyFiller,int> insidevaltypes( 0 );
+HiddenParam<BodyFiller,int> outsidevaltypes( 0 );
 
 BodyFiller::BodyFiller()
     : body_( 0 )
@@ -46,12 +60,20 @@ BodyFiller::BodyFiller()
     , flatpolygon_( false )
     , plgdir_( 0 )
     , epsilon_( 1e-4 )
-{}
+{
+    setInputPrevStep( true );
+
+    insidevaltypes.setParam( this, 0 );
+    outsidevaltypes.setParam( this, 0 );
+}
 
 
 BodyFiller::~BodyFiller()
 {
     releaseData();
+
+    insidevaltypes.removeParam( this );
+    outsidevaltypes.removeParam( this );
 }
 
 
@@ -106,6 +128,25 @@ bool BodyFiller::setSurface( const MultiID& mid )
 
     return true;
 }
+
+
+void BodyFiller::setInsideValueType( ValueType vt )
+{ insidevaltypes.setParam( this, (int)vt ); }
+
+BodyFiller::ValueType BodyFiller::getInsideValueType() const
+{ return (BodyFiller::ValueType)insidevaltypes.getParam(this); }
+
+void BodyFiller::setOutsideValueType( ValueType vt )
+{ outsidevaltypes.setParam( this, (int)vt ); }
+
+BodyFiller::ValueType BodyFiller::getOutsideValueType() const
+{ return (BodyFiller::ValueType)outsidevaltypes.getParam(this); }
+
+void BodyFiller::setInsideValue( float val )
+{ insideval_ = val; }
+
+void BodyFiller::setOutsideValue( float val )
+{ outsideval_ = val; }
 
 
 void BodyFiller::setInsideOutsideValue( const float in, const float out )
@@ -197,7 +238,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 	    }
 	}
 
-	if ( mIsUdf(val) && useinput )
+	if ( mIsUdf(-val) && useinput )
 	{
 	    const int inputidx = idx+output->z0_ - input->z0_;
 	    if ( inputidx>=0 && inputidx<inputzsz )
@@ -215,23 +256,37 @@ void BodyFiller::fillPar( IOPar& par ) const
 {
     Step::fillPar( par );
     par.set( sKeyMultiID(), mid_ );
-    par.set( sKeyInsideOutsideValue(), insideval_, outsideval_ );
+    par.set( sKeyInsideType(), getInsideValueType() );
+    par.set( sKeyInsideValue(), insideval_ );
+    par.set( sKeyOutsideType(), getOutsideValueType() );
+    par.set( sKeyOutsideValue(), outsideval_ );
 }
 
 
 bool BodyFiller::usePar( const IOPar& par )
 {
-    if ( !Step::usePar( par ) )
+    if ( !Step::usePar(par) )
 	return false;
 
     MultiID mid;
-    if ( (!par.get(sKeyMultiID(), mid) && !par.get(sKeyOldMultiID(), mid ) ) ||
-          !setSurface( mid ) )
+    if ( (!par.get(sKeyMultiID(),mid) && !par.get(sKeyOldMultiID(),mid) ) ||
+	 !setSurface(mid) )
 	return false;
 
-    float inv, outv;
-    if ( par.get(sKeyInsideOutsideValue(), inv, outv ) )
-	setInsideOutsideValue( inv, outv);
+    setInsideValueType( Constant ); setOutsideValueType( Constant );
+    insideval_ = outsideval_ = mUdf(float);
+    if ( par.get(sKeyOldInsideOutsideValue(),insideval_,outsideval_) )
+    {
+	if ( mIsUdf(insideval_) ) setInsideValueType( PrevStep );
+	if ( mIsUdf(outsideval_) ) setOutsideValueType( PrevStep );
+	return true;
+    }
+
+    int val = 0;
+    par.get( sKeyInsideType(), val ); setInsideValueType( (ValueType)val );
+    par.get( sKeyOutsideType(), val ); setOutsideValueType( (ValueType)val );
+    par.get( sKeyInsideValue(), insideval_ );
+    par.get( sKeyOutsideValue(), outsideval_ );
 
     return true;
 }
@@ -242,6 +297,13 @@ Task* BodyFiller::createTask()
     Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
     if ( !output || !body_ )
 	return 0;
+
+    const ValueType insidevaltype = (ValueType)insidevaltypes.getParam(this);
+    const ValueType outsidevaltype = (ValueType)outsidevaltypes.getParam(this);
+    if ( insidevaltype == Undefined ) insideval_ = mUdf(float);
+    if ( insidevaltype == PrevStep ) insideval_ = -mUdf(float);
+    if ( outsidevaltype == Undefined ) outsideval_ = mUdf(float);
+    if ( outsidevaltype == PrevStep ) outsideval_ = -mUdf(float);
 
     plgknots_.erase();
     plgbids_.erase();
@@ -298,8 +360,8 @@ Task* BodyFiller::createTask()
     else
 	plgdir_ = plgIsOther;
 
-    epsilon_ = plgdir_ < 2 ? plgbids_[0].distTo(plgbids_[1])*0.01
-			  : plgknots_[0].distTo(plgknots_[1])*0.01;
+    epsilon_ = plgdir_<2 ? plgbids_[0].distTo(plgbids_[1])*0.01
+			 : plgknots_[0].distTo(plgknots_[1])*0.01;
 
     return Step::createTask();
 }

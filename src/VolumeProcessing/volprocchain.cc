@@ -8,14 +8,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "volprocchain.h"
 
+#include "bufstring.h"
+#include "hiddenparam.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "paralleltask.h"
+#include "simpnumer.h"
+#include "survinfo.h"
 #include "threadwork.h"
 
-#include "bufstring.h"
-#include "iopar.h"
-#include "simpnumer.h"
-#include "keystrs.h"
-#include "survinfo.h"
-#include "paralleltask.h"
 
 namespace VolProc
 {
@@ -522,7 +523,7 @@ bool Chain::Connection::isUdf() const
 }
 
 
-bool Chain::Connection::operator==( const VolProc::Chain::Connection& b ) const
+bool Chain::Connection::operator==( const Chain::Connection& b ) const
 {
     return outputstepid_==b.outputstepid_ &&
 	    outputslotid_==b.outputslotid_ &&
@@ -545,7 +546,7 @@ bool Chain::Connection::usePar( const IOPar& iopar, const char* key )
 }
 
 
-bool Chain::Connection::operator!=( const VolProc::Chain::Connection& b ) const
+bool Chain::Connection::operator!=( const Chain::Connection& b ) const
 {
     return !((*this)==b);
 }
@@ -564,25 +565,49 @@ Chain::~Chain()
 { deepErase( steps_ ); }
 
 
-bool Chain::addConnection(const VolProc::Chain::Connection& c )
+bool Chain::addConnection( const Chain::Connection& c )
 {
     if ( !validConnection(c) )
 	return false;
 
     web_.getConnections().addIfNew( c );
-
     return true;
 }
 
 
-
-void Chain::removeConnection(const VolProc::Chain::Connection& c )
+void Chain::removeConnection( const Chain::Connection& c )
 {
     web_.getConnections() -= c;
 }
 
 
-bool Chain::validConnection( const VolProc::Chain::Connection& c ) const
+void Chain::updateConnections()
+{
+    const Chain::Web oldweb = web_;
+    web_.getConnections().erase();
+
+    for ( int idx=1; idx<steps_.size(); idx++ )
+    {
+	Step* step = steps_[idx];
+	if ( step->isInputPrevStep() )
+	{
+	    Step* prevstep = steps_[idx-1];
+	    Chain::Connection connection( prevstep->getID(), 0,
+		    step->getID(), step->getInputSlotID(0) );
+	    addConnection( connection );
+	}
+	else
+	{
+	    TypeSet<Chain::Connection> conns;
+	    oldweb.getConnections( step->getID(), true, conns );
+	    for ( int cidx=0; cidx<conns.size(); cidx++ )
+		addConnection( conns[cidx] );
+	}
+    }
+}
+
+
+bool Chain::validConnection( const Chain::Connection& c ) const
 {
     if ( c.isUdf() )
 	return false;
@@ -656,12 +681,16 @@ void Chain::insertStep( int idx, Step* r )
 void Chain::swapSteps( int o1, int o2 )
 {
     steps_.swap( o1, o2 );
+    updateConnections();
 }
 
 
-void Chain::removeStep( int idx )
+void Chain::removeStep( int sidx )
 {
-    delete steps_.removeSingle( idx );
+    if ( !steps_.validIdx(sidx) ) return;
+
+    delete steps_.removeSingle( sidx );
+    updateConnections();
 }
 
 
@@ -869,6 +898,10 @@ void Chain::Web::getConnections( Step::ID stepid, bool isinput,
 }
 
 
+
+HiddenParam<Step,char> prevstepinputgrp( false );
+HiddenParam<Step,char> prevstepsetgrp( false );
+
 // Step
 Step::Step()
     : chain_( 0 )
@@ -876,6 +909,8 @@ Step::Step()
     , id_( cUndefID() )
 {
     inputs_.allowNull();
+    prevstepinputgrp.setParam( this, false );
+    prevstepsetgrp.setParam( this, false );
 }
 
 
@@ -883,6 +918,8 @@ Step::~Step()
 {
     deepUnRef( inputs_ );
     if ( output_ ) output_->unRef();
+    prevstepinputgrp.removeParam( this );
+    prevstepsetgrp.removeParam( this );
 }
 
 
@@ -928,13 +965,28 @@ const char* Step::userName() const
 void Step::setUserName( const char* nm )
 { username_ = nm; }
 
+
+bool Step::isInputPrevStep() const
+{
+    const bool isset = prevstepsetgrp.getParam( this );
+    return isset ? prevstepinputgrp.getParam(this) : needsInput();
+}
+
+
+void Step::setInputPrevStep( bool yn )
+{
+    prevstepinputgrp.setParam( this, yn );
+    prevstepsetgrp.setParam( this, true );
+}
+
+
 int Step::getNrInputs() const
-{ return needsInput() ? 1 : 0; }
+{ return isInputPrevStep() ? 1 : 0; }
 
 
 int Step::getInputSlotID( int idx ) const
 {
-    if ( !needsInput() )
+    if ( !isInputPrevStep() )
 	return Step::cUndefSlotID();
 
     if ( idx<0 || idx>=getNrInputs() )

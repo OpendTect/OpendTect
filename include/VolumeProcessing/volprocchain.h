@@ -67,6 +67,8 @@ public:
     virtual InputSlotID		getInputSlotID(int idx) const;
     virtual void		getInputSlotName(InputSlotID,
 						 BufferString&) const;
+    bool			isInputPrevStep() const;
+    void			setInputPrevStep(bool yn);
 
     virtual int			getNrOutputs() const		{ return 1; }
     virtual OutputSlotID	getOutputSlotID(int idx) const;
@@ -190,6 +192,7 @@ public:
 
     bool			addConnection(const Connection&);
     void			removeConnection(const Connection&);
+    void			updateConnections();
     const Web&			getWeb() const	{ return web_; }
 
     void			setZStep( float z, bool zist )

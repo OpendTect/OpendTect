@@ -57,6 +57,7 @@ SurfaceLimitedFiller::SurfaceLimitedFiller()
 {
     hors_.allowNull( true );
     faults_.allowNull( true );
+    setInputPrevStep( true );
 }
 
 
@@ -325,8 +326,10 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	gradient = valrange_ / depth;
     }
 
-    const int inputinlidx = inputarr ? inputinlrg.nearestIndex( bid.inl() ) : -1;
-    const int inputcrlidx = inputarr ? inputcrlrg.nearestIndex( bid.crl() ) : -1;
+    const int inputinlidx =
+		inputarr ? inputinlrg.nearestIndex( bid.inl() ) : -1;
+    const int inputcrlidx =
+		inputarr ? inputcrlrg.nearestIndex( bid.crl() ) : -1;
     const int outputinlidx = outputinlrg.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg.nearestIndex( bid.crl() );
     const int outputmaxidx = output->getZSz()-1;
@@ -567,4 +570,4 @@ bool SurfaceLimitedFiller::isOK() const
     return true;
 }
 
-}; //namespace
+} // namespace VolProc
