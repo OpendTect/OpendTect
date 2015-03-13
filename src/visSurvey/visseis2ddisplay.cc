@@ -21,8 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturepanelstrip.h"
 
 #include "array2dresample.h"
+#include "arrayndimpl.h"
 #include "arrayndslice.h"
-#include "attribdataholder.h"
 #include "bendpointfinder.h"
 #include "mousecursor.h"
 #include "seisdatapack.h"
@@ -34,8 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 
 #define mMaxImageSize 300000000	// 32767
-
-using namespace Attrib;
 
 namespace visSurvey
 {
