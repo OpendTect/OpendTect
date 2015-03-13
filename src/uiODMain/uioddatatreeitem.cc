@@ -358,18 +358,15 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const int attribid = attribNr();
 	DataPack::ID dpid = visserv->getDataPackID( visid, attribid );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( visid );
-
 	const Attrib::SelSpec* as = visserv->getSelSpec( visid, attribid );
-	const FixedString dpname = DPM(DataPackMgr::FlatID()).nameOf( dpid );
+	const FixedString dpname = DPM(dmid).nameOf( dpid );
 	if ( as && dpname != as->userRef() )
 	{
-	    const int nrpacks = DPM(DataPackMgr::FlatID()).packs().size();
+	    const int nrpacks = DPM(dmid).packs().size();
 	    for ( int idx=0; idx<nrpacks; idx++ )
 	    {
-		const int tmpdtpackid =
-				DPM(DataPackMgr::FlatID()).packs()[idx]->id();
-		const FixedString tmpnm =
-				DPM(DataPackMgr::FlatID()).nameOf(tmpdtpackid);
+		const int tmpdtpackid = DPM(dmid).packs()[idx]->id();
+		const FixedString tmpnm = DPM(dmid).nameOf(tmpdtpackid);
 		if ( tmpnm == as->userRef() )
 		{
 		    dpid = tmpdtpackid;

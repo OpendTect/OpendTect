@@ -144,7 +144,7 @@ public:
     bool		setDataPackID(int attrib,DataPack::ID,TaskRunner*);
     DataPack::ID	getDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
-                                    { return DataPackMgr::CubeID(); }
+                                { return DataPackMgr::SeisID(); }
     
     virtual bool        allowsPicks() const;
     void		allowShading(bool yn );

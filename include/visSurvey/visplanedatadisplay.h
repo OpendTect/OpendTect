@@ -96,7 +96,7 @@ public:
     DataPack::ID		getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
-				{ return DataPackMgr::FlatID(); }
+				{ return DataPackMgr::SeisID(); }
 
     visBase::GridLines*		gridlines()		{ return gridlines_; }
 

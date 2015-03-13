@@ -159,7 +159,7 @@ public:
 	    				      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
-	                                { return DataPackMgr::CubeID(); }
+    				{ return DataPackMgr::SeisID(); }
 
     void			getMousePosInfo(const visBase::EventInfo& ei,
 	    					IOPar& iop ) const

@@ -87,7 +87,7 @@ public:
     DataPack::ID                getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
-				{ return DataPackMgr::FlatID(); }
+				{ return DataPackMgr::SeisID(); }
 
     bool			canAddKnot(int knotnr) const;
     				/*!< If knotnr<nrKnots the function Checks if
