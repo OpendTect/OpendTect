@@ -29,13 +29,20 @@ class IOObj;
   It is not mandatory to provide both reader and writer.
   Null returns must be expected.
 
-  The idea is to override the getXXX public virtual functions. Alternatively,
-  if the key to the data store is ioobj.fullUserExpr(), then you can override
-  makeReader and makeWriter. That key can be a file or directory, but also
-  some kind of data store access code.  The IOObj's tranlator() is used for
-  the type. OpendTect's simple CBVS PS data store
-  has type 'CBVS' (who'd have thought that!), and the data store key is a
-  directory name.
+  The class has 2 sets of interface functions, both can be implemented. The
+  OpendTect application will always use the first interface, which is the
+  IOObj-based interface with the getXXX and fetchXXX functions. The second
+  is if you do not want to make an IOObj but do know the IOObj.fullUserExpr.
+  That can be used as the key for the makeXXX and (2nd bunch of )
+  getXXX functions.
+
+  The idea is to override the public virtual functions. Alternatively,
+  if you know ioobj.fullUserExpr(), then you can override the makeReader and
+  makeWriter functions. This was the only thing available in od5.0 and earlier.
+  That key can be a file or directory, but also some kind of data store access
+  code.  The IOObj's tranlator() is used for the type. OpendTect's simple
+  CBVS PS data store has type 'CBVS' (who'd have thought that!), and the data
+  store key is a directory name.
 
   If you pass an inline number to the getReader, you will get a Reader that
   should be able to read that inline, but be aware that this reader may not
@@ -49,7 +56,7 @@ class IOObj;
   * mUdf(int) (=default) for scanning the entire datastore
 
   For 2D prestack data stores, you have to pass a line name or GeomID to get
-  the relevant reader. This can return null if the line name is not found.
+  the relevant reader. This can return null if the line id or name is not found.
 
  */
 
@@ -62,6 +69,9 @@ public:
     virtual bool		canHandle( bool forread, bool for2d ) const
 				{ return false; }
 
+				// IOObj-based interface. Implementation
+				// defaults to the string-based using
+				// IOObj's fullUsrExpr.
     virtual SeisPS3DReader*	get3DReader(const IOObj&,
 					     int i=mUdf(int)) const;
     virtual SeisPS2DReader*	get2DReader(const IOObj&,Pos::GeomID) const;
@@ -77,14 +87,8 @@ public:
     virtual bool		fetchLineNames(const IOObj&,
 						BufferStringSet&) const;
 
-    static const char*		sKeyCubeID;
-
-
-protected:
-
-				SeisPSIOProvider( const char* t )
-				    : type_(t)			{}
-
+				// string-based interface, The key passed must
+				// be what IOObj::fullUsrExpr would return.
     virtual SeisPS3DReader*	make3DReader(const char*,int i=mUdf(int)) const
 				{ return 0; }
     virtual SeisPS2DReader*	make2DReader(const char*,Pos::GeomID) const
@@ -105,6 +109,14 @@ protected:
     virtual bool		getLineNames(const char*,
 					     BufferStringSet&) const
 				{ return false; }
+
+    static const char*		sKeyCubeID;
+
+
+protected:
+
+				SeisPSIOProvider( const char* t )
+				    : type_(t)			{}
 
     BufferString		type_;
 
