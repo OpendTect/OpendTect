@@ -503,7 +503,8 @@ void ODGraphicsPixmapItem::paint( QPainter* painter,
 // ODGraphicsPolyLineItem
 ODGraphicsPolyLineItem::ODGraphicsPolyLineItem()
     : QAbstractGraphicsShapeItem()
-    , closed_( false )
+    , closed_(false)
+    , fillrule_(Qt::OddEvenFill)
 {}
 
 
