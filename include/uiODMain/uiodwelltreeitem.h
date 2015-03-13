@@ -64,7 +64,7 @@ protected:
     const char*		parentType() const
 			{ return typeid(uiODWellParentTreeItem).name(); }
 
-    MultiID		mid;
+    MultiID		mid_;
     MenuItem		attrmnuitem_;
     MenuItem		logcubemnuitem_;
     MenuItem		sellogmnuitem_;

@@ -24,6 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellpartserv.h"
 
 #include "draw.h"
+#include "ioobj.h"
+#include "ioman.h"
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "welldata.h"
@@ -185,9 +187,9 @@ uiODWellTreeItem::uiODWellTreeItem( int did )
 }
 
 
-uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid_ )
+uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid )
 {
-    mid = mid_;
+    mid_ = mid;
     initMenuItems();
 }
 
@@ -234,10 +236,12 @@ bool uiODWellTreeItem::init()
 	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
 	displayid_ = wd->id();
 	visserv_->addObject( wd, sceneID(), true );
-	if ( !wd->setMultiID(mid) )
+	if ( !wd->setMultiID(mid_) )
 	{
 	    visserv_->removeObject( wd, sceneID() );
-	    uiMSG().error(tr("Could not load well"));
+	    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+	    const char* nm = ioobj ? ioobj->name().buf() : 0;
+	    uiMSG().error(tr("Could not load well %1").arg( nm ) );
 	    return false;
 	}
     }
@@ -383,11 +387,11 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const bool res = applMgr()->wellServer()->storeWell(
-					wd->getWellCoords(), wd->name(), mid );
+				    wd->getWellCoords(), wd->name(), mid_ );
 	if ( res )
 	{
 	    wd->setChanged( false );
-	    wd->setMultiID( mid );
+	    wd->setMultiID( mid_ );
 	}
     }
     else if ( mnuid == editmnuitem_.id )
@@ -421,7 +425,7 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 	else if ( retval == -1 ) return false;
 	else
 	    applMgr()->wellServer()->storeWell( wd->getWellCoords(),
-		                                wd->name(), mid );
+		                                wd->name(), mid_ );
     }
 
     return true;
