@@ -535,7 +535,7 @@ void uiODSceneMgr::setKeyBindings()
 
     StringListInpSpec* inpspec = new StringListInpSpec( keyset );
     inpspec->setText( scenes_[0]->vwr3d_->getCurrentKeyBindings(), 0 );
-    uiGenInputDlg dlg( &appl_, tr("Select Mouse Controls"), 
+    uiGenInputDlg dlg( &appl_, tr("Select Mouse Controls"),
 		       uiStrings::sSelect(true), inpspec );
     dlg.setHelpKey(mODHelpKey(mODSceneMgrsetKeyBindingsHelpID) );
     if ( dlg.go() )
@@ -1105,6 +1105,31 @@ int uiODSceneMgr::add2DLineItem( const MultiID& mid , int sceneid )
     const Pos::GeomID geomid = geom->getID();
     uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( geomid );
     scene->itemmanager_->addChild( itm, false );
+    return itm->displayID();
+}
+
+
+int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
+{
+    mGetOrAskForScene
+    uiODPlaneDataTreeItem* itm = 0;
+    TrcKeyZSampling tkzs = SI().sampling(true);
+    if ( st == OD::InlineSlice )
+    {
+	itm = new uiODInlineTreeItem( -1, uiODPlaneDataTreeItem::Empty );
+	tkzs.hsamp_.setInlRange( Interval<int>(nr,nr) );
+    }
+    else if ( st == OD::CrosslineSlice )
+    {
+	itm = new uiODCrosslineTreeItem( -1, uiODPlaneDataTreeItem::Empty );
+	tkzs.hsamp_.setCrlRange( Interval<int>(nr,nr) );
+    }
+    else
+	return -1;
+
+    scene->itemmanager_->addChild( itm, false );
+    itm->setTrcKeyZSampling( tkzs );
+    itm->displayDefaultData();
     return itm->displayID();
 }
 

@@ -34,6 +34,7 @@ public:
 
     bool		init();
     void		setAtWellLocation(const Well::Data&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&);
     bool		displayDefaultData();
 
     static uiString	sAddDefaultData();

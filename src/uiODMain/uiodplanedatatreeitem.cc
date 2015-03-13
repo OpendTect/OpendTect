@@ -203,6 +203,16 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
 }
 
 
+void uiODPlaneDataTreeItem::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv_->getObject(displayid_));
+    if ( !pdd ) return;
+
+    pdd->setTrcKeyZSampling( tkzs );
+}
+
+
 bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
 {
     BufferString key( IOPar::compKey(sKey::Default(),
