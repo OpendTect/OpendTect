@@ -18,6 +18,7 @@ SET(OD_MODULE_SOURCES
 	uibasemappicksetitem.cc
 	uibasemappolygonitem.cc
 	uibasemaprandomlineitem.cc
+	uibasemapscalebar.cc
 	uibasemapseisoutlineitem.cc
 	uibasemaptbmgr.cc
 	uibasemapwellitem.cc

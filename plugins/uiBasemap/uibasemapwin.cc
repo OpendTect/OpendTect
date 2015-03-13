@@ -12,12 +12,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemapwin.h"
 
 #include "uibasemapitem.h"
+#include "uibasemapscalebar.h"
 #include "uibasemaptbmgr.h"
 #include "uidockwin.h"
 #include "uiflatviewstdcontrol.h"
+#include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uimenu.h"
+#include "uipixmap.h"
 #include "uistrings.h"
 #include "uisurvmap.h"
 #include "uitoolbutton.h"
@@ -28,6 +31,91 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 
+uiBasemapView::uiBasemapView( uiParent* p )
+    : uiBaseMap(p)
+{
+    addStdItems();
+    init();
+
+    view().setMouseTracking( true );
+    view().enableScrollZoom();
+    view().setSceneBorder( 0 );
+    view().scene().setMouseEventActive( true );
+    view().getMouseEventHandler().movement.notify(
+	mCB(this,uiBasemapView,mouseMoveCB) );
+}
+
+
+uiBasemapView::~uiBasemapView()
+{
+    view().getMouseEventHandler().movement.remove(
+	mCB(this,uiBasemapView,mouseMoveCB) );
+}
+
+
+void uiBasemapView::addStdItems()
+{
+    const SurveyInfo& si = SI();
+
+    survbox_ = new uiSurveyBoxObject( 0 );
+    survbox_->setSurveyInfo( &si );
+    survbox_->setLineStyle( LineStyle(LineStyle::Dot,1,Color::Red()) );
+    survbox_->showLabels( false );
+    addObject( survbox_ );
+
+    const uiPixmap pm( "northarrow" );
+    northarrow_ = view().scene().addItem( new uiPixmapItem(pm) );
+    northarrow_->setScale( 0.5, 0.5 );
+    northarrow_->setMovable( true );
+    northarrow_->setItemIgnoresTransformations( true );
+    northarrow_->setPos( 10, 10 );
+
+    scalebar_ = new uiMapScaleObject( 0 );
+    scalebar_->setSurveyInfo( &si );
+    addObject( scalebar_ );
+
+    horline_ = view().scene().addItem( new uiLineItem );
+    vertline_ = view().scene().addItem( new uiLineItem );
+}
+
+
+void uiBasemapView::init()
+{
+    setPrefHeight( 250 );
+    setPrefWidth( 250 );
+
+    const Coord mincoord = SI().minCoord( false );
+    const Coord maxcoord = SI().maxCoord( false );
+    const double diffx = maxcoord.x - mincoord.x;
+    const double diffy = maxcoord.y - mincoord.y;
+    const uiWorldRect wr( mincoord.x-diffx/4, maxcoord.y+diffy/4,
+			  maxcoord.x+diffx/4, mincoord.y-diffy/4 );
+    setView( wr );
+}
+
+
+uiPixmapItem* uiBasemapView::getNorthArrow()	{ return northarrow_; }
+uiMapScaleObject* uiBasemapView::getScaleBar()	{ return scalebar_;}
+uiSurveyBoxObject* uiBasemapView::getSurveyBox()	{ return survbox_; }
+
+
+void uiBasemapView::mouseMoveCB( CallBacker* )
+{
+    const uiRect rect = view().getViewArea();
+    const MouseEvent& ev = view().getMouseEventHandler().event();
+    horline_->setLine( rect.left(), ev.y(), rect.right(), ev.y() );
+    vertline_->setLine( ev.x(), rect.top(), ev.x(), rect.bottom() );
+}
+
+
+void uiBasemapView::reDraw( bool deep )
+{
+    scalebar_->setPixelPos( view().width(), view().height() );
+    uiBaseMap::reDraw( deep );
+}
+
+
+// uiBasemapWin
 uiBasemapWin::uiBasemapWin( uiParent* p )
     : uiMainWin(p,Setup("Basemap").withmenubar(false).nrstatusflds(3)
 				  .deleteonclose(false))
@@ -45,7 +133,10 @@ uiBasemapWin::uiBasemapWin( uiParent* p )
 
 
 uiBasemapWin::~uiBasemapWin()
-{}
+{
+    basemapview_->view().getMouseEventHandler().movement.remove(
+	mCB(this,uiBasemapWin,mouseMoveCB) );
+}
 
 
 void uiBasemapWin::initWin( CallBacker* )
@@ -56,18 +147,7 @@ void uiBasemapWin::initWin( CallBacker* )
 
 void uiBasemapWin::initView()
 {
-    basemapview_ = new uiSurveyMap( this, false, true, true );
-    basemapview_->setPrefHeight( 250 );
-    basemapview_->setPrefWidth( 250 );
-    basemapview_->setSurveyInfo( &SI() );
-    basemapview_->view().setMouseTracking( true );
-    basemapview_->view().enableScrollZoom();
-    basemapview_->view().setSceneBorder( 20 );
-
-    const LineStyle ls( LineStyle::Dot, 1, Color::Red() );
-    basemapview_->getSurveyBox()->setLineStyle( ls );
-    basemapview_->getSurveyBox()->showLabels( false );
-
+    basemapview_ = new uiBasemapView( this );
     basemapview_->view().getMouseEventHandler().movement.notify(
 	mCB(this,uiBasemapWin,mouseMoveCB) );
     basemapview_->view().scene().setMouseEventActive( true );

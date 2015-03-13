@@ -14,17 +14,47 @@ ________________________________________________________________________
 
 #include "uibasemapmod.h"
 
+#include "uibasemap.h"
 #include "uimainwin.h"
 
 class uiBaseMapTBMgr;
 class uiBasemapTreeTop;
 class uiDockWin;
-class uiSurveyMap;
+class uiLineItem;
+class uiMapScaleObject;
+class uiPixmapItem;
+class uiSurveyBoxObject;
 class uiToolBar;
 class uiToolButton;
 class uiTreeView;
 class BaseMap;
 class MouseCursorExchange;
+
+
+mExpClass(uiBasemap) uiBasemapView : public uiBaseMap
+{
+public:
+			uiBasemapView(uiParent*);
+			~uiBasemapView();
+
+    uiMapScaleObject*	getScaleBar();
+    uiPixmapItem*	getNorthArrow();
+    uiSurveyBoxObject*	getSurveyBox();
+
+protected:
+    void		addStdItems();
+    void		init();
+    void		mouseMoveCB(CallBacker*);
+    virtual void	reDraw(bool deep=true);
+
+    uiMapScaleObject*	scalebar_;
+    uiPixmapItem*	northarrow_;
+    uiSurveyBoxObject*	survbox_;
+
+    uiLineItem*		horline_;
+    uiLineItem*		vertline_;
+};
+
 
 mClass(uiBasemap) uiBasemapWin : public uiMainWin
 { mODTextTranslationClass(uiBasemapWin)
@@ -45,7 +75,7 @@ private:
     void		mouseMoveCB(CallBacker*);
     bool		closeOK();
 
-    uiSurveyMap*	basemapview_;
+    uiBasemapView*	basemapview_;
     uiBaseMapTBMgr*	tbmgr_;
     uiDockWin*		treedw_;
     uiTreeView*		tree_;

@@ -15,8 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
-#include "uipixmap.h"
-#include "uiworld2ui.h"
 
 #include "angles.h"
 #include "draw.h"
@@ -223,149 +221,20 @@ void uiNorthArrowObject::update()
 }
 
 
-// uiMapScaleObject
-uiMapScaleObject::uiMapScaleObject( BaseMapObject* bmo )
-    : uiBaseMapObject(bmo)
-    , ls_(LineStyle::Solid,1,Color::Black())
-{
-    scalelen_ = (float)( 0.05 * ( SI().maxCoord(false).x -
-				  SI().minCoord(false).x ) );
-    scalelen_ = (float)( 100 * mCast(int,scalelen_ / 100) );
-
-    scaleline_ = new uiLineItem;
-    itemgrp_.add( scaleline_ );
-
-    leftcornerline_ = new uiLineItem;
-    itemgrp_.add( leftcornerline_ );
-
-    rightcornerline_ = new uiLineItem;
-    itemgrp_.add( rightcornerline_ );
-
-    mDeclAlignment( txtalign, HCenter, Top );
-
-    scalelabelorigin_ = new uiTextItem;
-    scalelabelorigin_->setAlignment( txtalign );
-    itemgrp_.add( scalelabelorigin_ );
-
-    scalelabelend_ = new uiTextItem;
-    scalelabelend_->setAlignment( txtalign );
-    itemgrp_.add( scalelabelend_ );
-}
-
-
-void uiMapScaleObject::setSurveyInfo( const SurveyInfo* si )
-{
-    survinfo_ = si;
-}
-
-
-void uiMapScaleObject::setPixelPos( int x, int y )
-{
-    uistartposition_.setXY( x, y );
-}
-
-
-void uiMapScaleObject::setVisibility( bool yn )
-{
-    itemGrp().setVisible( yn );
-}
-
-
-void uiMapScaleObject::update()
-{
-    if ( !survinfo_ )
-	{ setVisibility( false ); return; }
-
-    const float worldscalelen = scalelen_;
-    const int sideoffs = 80;
-    const int scalecornerlen = 2;
-
-    const int xmax = uistartposition_.x;
-    const int ymin = uistartposition_.y;
-
-    const float worldref = xmax - worldscalelen;
-    const float uiscalelen = (float)xmax - worldref;
-
-    const int lastx = xmax - 1 - sideoffs;
-    const int firsty = ymin - 70;
-
-    const Geom::Point2D<float> origin( (float)lastx - uiscalelen,
-				       (float)firsty );
-    const Geom::Point2D<float> end( (float)lastx, (float)firsty );
-    scaleline_->setLine( origin, end );
-    scaleline_->setPenStyle( ls_ );
-
-    leftcornerline_->setLine( origin, 0.0f, (float)scalecornerlen,
-				      0.0f, (float)scalecornerlen );
-    leftcornerline_->setPenStyle( ls_ );
-
-    rightcornerline_->setLine( end, 0.0f, (float)scalecornerlen,
-				    0.0f, (float)scalecornerlen );
-    rightcornerline_->setPenStyle( ls_ );
-
-    BufferString label_origin = "0";
-    BufferString label_end; label_end.set( worldscalelen, 0 );
-    label_end += survinfo_->getXYUnitString( false );
-
-    scalelabelorigin_->setPos( origin );
-    scalelabelorigin_->setText( label_origin );
-
-    scalelabelend_->setPos( end );
-    scalelabelend_->setText( label_end );
-
-    setVisibility( true );
-}
-
-
-void uiMapScaleObject::setScaleLen( float scalelen )
-{
-    scalelen_ = scalelen;
-    update();
-}
-
-
-void uiMapScaleObject::setLineStyle( const LineStyle& ls )
-{
-    ls_ = ls;
-    update();
-}
-
-
 // uiSurveyMap
-uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle,
-			  bool withnortharrow, bool withmapscale )
+uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
     : uiBaseMap(p)
     , survbox_(0)
-    , northarrow_(0)
-    , mapscale_(0)
     , survinfo_(0)
     , title_(0)
 {
     view_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     view_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
-    const mDeclAlignment( txtalign, Left, Top );
 
     survbox_ = new uiSurveyBoxObject( 0 );
     addObject( survbox_ );
 
-    if ( withnortharrow )
-    {
-	const uiPixmap pm( "northarrow" );
-	northarrow_ = view().scene().addItem( new uiPixmapItem(pm) );
-	northarrow_->setScale( 0.5, 0.5 );
-	northarrow_->setMovable( true );
-	northarrow_->setItemIgnoresTransformations( true );
-	//northarrow_->set
-	view_.scene().addItem(northarrow_);
-	//view.scene().
-    }
-
-    if ( withmapscale )
-    {
-	mapscale_ = new uiMapScaleObject( 0 );
-	addObject( mapscale_ );
-    }
-
+    const mDeclAlignment( txtalign, Left, Top );
     if ( withtitle )
     {
 	title_ = view_.scene().addItem(
@@ -378,8 +247,6 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle,
 }
 
 
-uiMapScaleObject* uiSurveyMap::getMapScale()	const	{ return mapscale_; }
-uiGraphicsItem* uiSurveyMap::getNorthArrow() const	{ return northarrow_; }
 uiSurveyBoxObject* uiSurveyMap::getSurveyBox() const	{ return survbox_; }
 
 
@@ -387,32 +254,14 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 {
     survinfo_ = si;
 
-    const int width = view().width();
-    const int height = view().height();
-
     if ( survbox_ )
 	survbox_->setSurveyInfo( survinfo_ );
-
-    if ( northarrow_ )
-	northarrow_->setPos( 10, 10 );
-
-    if ( mapscale_ )
-    {
-	mapscale_->setSurveyInfo( survinfo_ );
-	mapscale_->setPixelPos( width, height );
-    }
 
     if ( title_ )
 	title_->setVisible( survinfo_ );
 
     if ( survinfo_ )
     {
-    /*
-	uiBorder border( 20, title_ ? 70 : 20, 20, mapscale_ ? 70 : 20 );
-	uiSize sz( (int)view_.scene().width(), (int)view_.scene().height() );
-	uiRect rc = border.getRect( sz );
-    */
-
 	const Coord mincoord = survinfo_->minCoord( false );
 	const Coord maxcoord = survinfo_->maxCoord( false );
 	const double diffx = maxcoord.x - mincoord.x;

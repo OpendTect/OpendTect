@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "uibasemapitem.h"
 
 class uiBasemapIOMgr;
+class uiBasemapView;
 class uiMainWin;
 class uiSelLineStyle;
-class uiSurveyMap;
 class uiToolBar;
 class uiToolButton;
 
@@ -26,7 +26,7 @@ class uiToolButton;
 mExpClass(uiBasemap) uiBaseMapTBMgr : public CallBacker
 { mODTextTranslationClass(uiBaseMapTBMgr)
 public:
-			uiBaseMapTBMgr(uiMainWin&,uiSurveyMap&);
+			uiBaseMapTBMgr(uiMainWin&,uiBasemapView&);
 			~uiBaseMapTBMgr();
 
 private:
@@ -61,10 +61,9 @@ private:
 
     uiBasemapIOMgr*	iomgr_;
     uiMainWin&		mainwin_;
-    uiSurveyMap&	basemapview_;
+    uiBasemapView&	basemapview_;
     uiToolBar*		itemtoolbar_;
     uiToolBar*		vwtoolbar_;
-
 };
 
 #endif

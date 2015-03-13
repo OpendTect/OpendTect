@@ -21,12 +21,11 @@ mExpClass(uiBasemap) uiBasemapIOMgr
 {mODTextTranslationClass(uiBasemapIOMgr)
 public:
 
-	    uiBasemapIOMgr(uiParent*);
+		uiBasemapIOMgr(uiParent*);
+		~uiBasemapIOMgr();
 
-	    ~uiBasemapIOMgr();
-
-    bool    save(bool saveas);
-    bool    read(bool haschanged);
+    bool	save(bool saveas);
+    bool	read(bool haschanged);
 
 private:
     uiParent*		parent_;

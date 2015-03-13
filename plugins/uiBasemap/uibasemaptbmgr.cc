@@ -14,15 +14,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemaptbmgr.h"
 
 #include "uibasemapiomgr.h"
+#include "uibasemapscalebar.h"
+#include "uibasemapwin.h"
 #include "uigeninput.h"
-#include "uigraphicsitem.h"
+#include "uigraphicsitemimpl.h"
 #include "uigraphicsview.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiioobjseldlg.h"
 #include "uisellinest.h"
-#include "uisurvmap.h"
 #include "uitoolbar.h"
 
 #include "basemaptr.h"
@@ -30,9 +31,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 
-uiBaseMapTBMgr::uiBaseMapTBMgr( uiMainWin& mw, uiSurveyMap& sm )
+uiBaseMapTBMgr::uiBaseMapTBMgr( uiMainWin& mw, uiBasemapView& bmv )
     : mainwin_(mw)
-    , basemapview_(sm)
+    , basemapview_(bmv)
     , pickmode_(false)
     , iomgr_(new uiBasemapIOMgr(&mw))
     , isstored_(false)
@@ -185,7 +186,7 @@ void scalebarChg( CallBacker* )
 
 void uiBaseMapTBMgr::barSettingsCB( CallBacker* )
 {
-    uiBarSettingsDialog dlg( &mainwin_, *basemapview_.getMapScale() );
+    uiBarSettingsDialog dlg( &mainwin_, *basemapview_.getScaleBar() );
     if( !dlg.go() ) return;
 }
 
@@ -216,7 +217,7 @@ void uiBaseMapTBMgr::viewCB( CallBacker* )
 void uiBaseMapTBMgr::vwmapscaleCB( CallBacker* )
 {
     const bool ison = vwtoolbar_->isOn( vwmapscaleid_ );
-    basemapview_.getMapScale()->show( ison );
+    basemapview_.getScaleBar()->show( ison );
 }
 
 
