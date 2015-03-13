@@ -69,22 +69,21 @@ static int getNrIntervals( int nrpts )
 
 bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 {
-    DataPackMgr& dpman = DPM( dmid );
-    const DataPack* datapack = dpman.obtain( dpid );
-    if ( !datapack ) return false;
+    ConstDataPackRef<DataPack> dp = DPM(dmid).obtain( dpid );
+    if ( !dp ) return false;
 
     if ( dmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(const RegularSeisDataPack*,sdp,datapack);
-	const Array3D<float>* arr3d = sdp ? &sdp->data() : 0;
-	if ( !arr3d ) return false;
+	mDynamicCastGet(const SeisDataPack*,seisdp,dp.ptr());
+	if ( !seisdp || seisdp->isEmpty() ) return false;
 
+	const Array3D<float>* arr3d = &seisdp->data( 0 );
 	setData( arr3d->getData(), mCast(int,arr3d->info().getTotalSz()) );
     }
     else if ( dmid == DataPackMgr::FlatID() )
     {
-	mDynamicCastGet(const FlatDataPack*,fdp,datapack)
-	mDynamicCastGet(const MapDataPack*,mdp,datapack)
+	mDynamicCastGet(const FlatDataPack*,fdp,dp.ptr())
+	mDynamicCastGet(const MapDataPack*,mdp,dp.ptr())
 	if ( mdp )
 	    setData( &mdp->rawData() );
 	else if( fdp )
@@ -94,7 +93,7 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
     }
     else if ( dmid == DataPackMgr::SurfID() )
     {
-	mDynamicCastGet(const DataPointSet*,dpset,datapack)
+	mDynamicCastGet(const DataPointSet*,dpset,dp.ptr())
 	if ( !dpset )
 	    return false;
 
@@ -108,14 +107,13 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 	if ( !header_ )
 	{
 	    const uiPoint pt( width()/2, 0 );
-	    header_ = scene().addItem( new uiTextItem(pt,dpman.nameOf(dpid)) );
+	    header_ = scene().addItem( new uiTextItem(pt,dp->name()) );
 	    header_->setZValue( 2 );
 	}
 	else
-	    header_->setText( dpman.nameOf(dpid) );
+	    header_->setText( dp->name() );
     }
 
-    dpman.release( dpid );
     return true;
 }
 

@@ -106,8 +106,7 @@ uiAmplSpectrum::~uiAmplSpectrum()
 
 void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
-    DataPackMgr& dpman = DPM( dmid );
-    const DataPack* datapack = dpman.obtain( dpid );
+    ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
     if ( datapack )
 	setCaption( !datapack ? tr("No data")
 	                      : tr( "Amplitude Spectrum for %1" )
@@ -115,24 +114,22 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 
     if ( dmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(const RegularSeisDataPack*,dp,datapack);
+	mDynamicCastGet(const SeisDataPack*,dp,datapack.ptr());
 	if ( dp )
 	{
-	    setup_.nyqvistspspace_ = dp->sampling().zsamp_.step;
+	    setup_.nyqvistspspace_ = dp->getZRange().step;
 	    setData( dp->data() );
 	}
     }
     else if ( dmid == DataPackMgr::FlatID() )
     {
-	mDynamicCastGet(const FlatDataPack*,dp,datapack);
+	mDynamicCastGet(const FlatDataPack*,dp,datapack.ptr());
 	if ( dp )
 	{
 	    setup_.nyqvistspspace_ = (float) (dp->posData().range(false).step);
 	    setData( dp->data() );
 	}
     }
-
-    dpman.release( dpid );
 }
 
 
