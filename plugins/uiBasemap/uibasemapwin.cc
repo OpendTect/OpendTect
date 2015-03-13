@@ -111,7 +111,8 @@ bool uiBasemapView::surveyBoxShown() const	{ return survbox_->isShown(); }
 
 void uiBasemapView::reDraw( bool deep )
 {
-    scalebar_->setPixelPos( view().scene().width(), view().scene().height() );
+    scalebar_->setPixelPos( mCast(int,view().scene().width()),
+			    mCast(int,view().scene().height()) );
     uiBaseMap::reDraw( deep );
 }
 
