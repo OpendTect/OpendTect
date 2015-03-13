@@ -24,6 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
+
+#include "ioobj.h"
+#include "ioman.h"
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "wellman.h"
@@ -238,7 +241,9 @@ bool uiODWellTreeItem::init()
 	if ( !wd->setMultiID(mid) )
 	{
 	    visserv_->removeObject( wd, sceneID() );
-	    uiMSG().error("Could not load well");
+	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    const char* nm = ioobj ? ioobj->name().buf() : 0;
+	    uiMSG().error("Could not load well ", nm );
 	    return false;
 	}
     }
