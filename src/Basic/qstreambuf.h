@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "commondefs.h"
 #include <streambuf>
 #include <vector>
+#include <istream>
 
 #include <QSharedPointer>
 
