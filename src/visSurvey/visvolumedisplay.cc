@@ -624,14 +624,14 @@ float VolumeDisplay::getValue( int attrib, const Coord3& pos ) const
 {
     if ( !attribs_.validIdx(attrib) || !attribs_[attrib]->cache_ )
 	return mUdf(float);
-    
+
     const BinID bid( SI().transform(pos) );
     const TrcKeyZSampling& samp = attribs_[attrib]->cache_->sampling();
     const int inlidx = samp.inlIdx( bid.inl() );
     const int crlidx = samp.crlIdx( bid.crl() );
     const int zidx = samp.zsamp_.getIndex( pos.z );
 
-    const float val = 
+    const float val =
 	attribs_[attrib]->cache_->data().get( inlidx, crlidx, zidx );
     return val;
 }
@@ -835,22 +835,22 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
     {
 	const TrcKeyZSampling& samp = cache->sampling();
 	isosurfaces_[idx]->getSurface()->removeAll();
-	isosurfaces_[idx]->setBoxBoundary( 
-		mCast(float,samp.hrg.inlRange().stop), 
-		mCast(float,samp.hrg.crlRange().stop), 
+	isosurfaces_[idx]->setBoxBoundary(
+		mCast(float,samp.hrg.inlRange().stop),
+		mCast(float,samp.hrg.crlRange().stop),
 		samp.zsamp_.stop );
 
-	const SamplingData<float> inlsampling( 
+	const SamplingData<float> inlsampling(
 		mCast(float,samp.hsamp_.inlRange().start),
 		mCast(float,samp.hsamp_.inlRange().step) );
 
-	const SamplingData<float> crlsampling( 
+	const SamplingData<float> crlsampling(
 		mCast(float,samp.hsamp_.crlRange().start),
 		mCast(float,samp.hsamp_.crlRange().step) );
 
 	SamplingData<float> zsampling ( samp.zsamp_.start, samp.zsamp_.step );
 	isosurfaces_[idx]->setScales( inlsampling, crlsampling, zsampling );
-		
+
 	if ( isosurfsettings_[idx].mode_ )
 	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
 		    cache->data(), isosurfsettings_[idx].isovalue_, tr );
@@ -1115,11 +1115,11 @@ const RegularSeisDataPack* VolumeDisplay::getCacheVolume( int attrib ) const
 
 DataPack::ID VolumeDisplay::getDataPackID( int attrib ) const
 {
-    DataPack::ID id = DataPack::cNoID();
+    DataPack::ID dpid = DataPack::cNoID();
     if ( attribs_.validIdx(attrib) && attribs_[attrib]->cache_ )
-	id = attribs_[attrib]->cache_->id();
+	dpid = attribs_[attrib]->cache_->id();
 
-    return id;
+    return dpid;
 }
 
 
