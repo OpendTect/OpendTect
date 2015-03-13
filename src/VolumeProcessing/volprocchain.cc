@@ -566,7 +566,7 @@ Chain::~Chain()
 { deepErase( steps_ ); }
 
 
-bool Chain::addConnection(const Chain::Connection& c )
+bool Chain::addConnection( const Chain::Connection& c )
 {
     if ( !validConnection(c) )
 	return false;
@@ -576,7 +576,7 @@ bool Chain::addConnection(const Chain::Connection& c )
 }
 
 
-void Chain::removeConnection(const Chain::Connection& c )
+void Chain::removeConnection( const Chain::Connection& c )
 {
     web_.getConnections() -= c;
 }
@@ -969,12 +969,12 @@ void Step::setUserName( const char* nm )
 { username_ = nm; }
 
 int Step::getNrInputs() const
-{ return needsInput() ? 1 : 0; }
+{ return isInputPrevStep() ? 1 : 0; }
 
 
 int Step::getInputSlotID( int idx ) const
 {
-    if ( !needsInput() )
+    if ( !isInputPrevStep() )
 	return Step::cUndefSlotID();
 
     if ( idx<0 || idx>=getNrInputs() )

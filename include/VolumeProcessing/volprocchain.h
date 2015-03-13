@@ -68,7 +68,7 @@ public:
     virtual InputSlotID		getInputSlotID(int idx) const;
     virtual void		getInputSlotName(InputSlotID,
 						 BufferString&) const;
-    virtual bool		isInputPrevStep() const		{ return true; }
+    virtual bool		isInputPrevStep() const { return needsInput(); }
 
     virtual int			getNrOutputs() const		{ return 1; }
     virtual OutputSlotID	getOutputSlotID(int idx) const;

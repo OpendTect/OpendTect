@@ -37,14 +37,15 @@ public:
 				    HorInterFiller, "HorInterFiller",
 				    "Horizon-based painter - Simple" )
 
-    				~HorInterFiller();
+				~HorInterFiller();
 				HorInterFiller();
 
     bool			isOK() const;
 
-    bool			needsInput() const { return false; }
+    bool			needsInput() const	{ return false; }
+    bool			isInputPrevStep() const { return true; }
 
-    bool 			setTopHorizon(const MultiID*);
+    bool			setTopHorizon(const MultiID*);
     const MultiID*		getTopHorizonID() const;
 
     bool			setBottomHorizon(const MultiID*);
@@ -55,7 +56,7 @@ public:
 
     bool			usesGradient() const;
     void			useGradient(bool);
-    				//!<If false, bottom value will be used
+				//!<If false, bottom value will be used
 
     float			getBottomValue() const;
     void			setBottomValue(float);
@@ -86,7 +87,7 @@ protected:
 
     EM::Horizon*		loadHorizon(const MultiID&) const;
 
-    float    			topvalue_;
+    float			topvalue_;
     float			bottomvalue_;
     EM::Horizon*		tophorizon_;
     EM::Horizon*		bottomhorizon_;
@@ -94,8 +95,7 @@ protected:
     float			gradient_;
 };
 
-}; //namespace
-
+} // namespace VolProc
 
 #endif
 

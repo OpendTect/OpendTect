@@ -74,7 +74,7 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* bf )
     outsidetypfld_->attach( alignedBelow, insidevaluefld_ );
 
     outsidevaluefld_ = new uiGenInput( this, tr("Outside Value"),
-	    FloatInpSpec(bf ? bf->getOutsideValue() : udfval) );
+		FloatInpSpec(bf ? bf->getOutsideValue() : udfval) );
     outsidevaluefld_->attach( alignedBelow, outsidetypfld_ );
 
     addNameFld( outsidevaluefld_ );

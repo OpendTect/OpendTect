@@ -40,6 +40,7 @@ public:
     bool		isOK() const;
 
     bool		needsInput() const		{ return false; }
+    bool		isInputPrevStep() const		{ return true; }
 
     bool		setSurfaces(const TypeSet<MultiID>&,
 				    const TypeSet<char>& fillside);
