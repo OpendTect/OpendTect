@@ -29,6 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "survinfo.h"
 #include "undo.h"
+#include "hiddenparam.h"
+
 #include "viscoord.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
@@ -48,6 +50,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace visSurvey
 {
+
+HiddenParam<FaultDisplay,char> hasobjects_( false );
 
 const char* FaultDisplay::sKeyEarthModelID()	{ return "EM ID"; }
 const char* FaultDisplay::sKeyTriProjection()	{ return "TriangulateProj"; }
@@ -117,6 +121,8 @@ FaultDisplay::FaultDisplay()
 	mAttachCB( getMaterial()->change, FaultDisplay::matChangeCB );
 
     init();
+
+    hasobjects_.setParam( this, false );
 }
 
 
@@ -176,6 +182,7 @@ FaultDisplay::~FaultDisplay()
 	dpman.release( datapackids_[idx] );
 
     deepErase( texuredatas_ );
+    hasobjects_.removeParam( this );
 }
 
 
@@ -562,7 +569,8 @@ void FaultDisplay::updateIntersectionDisplay()
 	setLineRadius( intersectiondisplay_ );
 
 	const bool dodisplay = areIntersectionsDisplayed() &&
-			       arePanelsDisplayed();
+			       arePanelsDisplayed() && 
+			       hasobjects_.getParam(this);
 	if ( dodisplay )
 	    intersectiondisplay_->touch( false );
 
@@ -1482,6 +1490,8 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 
     intersectionobjs_ = usedobjects;
     planeids_ = planeids;
+
+    hasobjects_.setParam( this, objs.size()>0 );
     updateIntersectionDisplay();
     updateStickDisplay();
 }
