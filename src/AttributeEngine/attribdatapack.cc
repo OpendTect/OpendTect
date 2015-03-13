@@ -683,7 +683,7 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
     refnrs1_.setParam( this, new TypeSet<float> );
     if ( path )
 	path_ = new TypeSet<BinID>(*path);
-    
+
     SamplingData<float>& sd = const_cast<SamplingData<float>& >(samplingdata_);
     const SeisTrc* firsttrc = sb.get( 0 );
     if ( firsttrc )
@@ -993,7 +993,7 @@ bool FlatDataPackZAxisTransformer::doFinish( bool success )
 	{
 	    TypeSet<float> refnrs;
 	    for ( int idx=0; idx<dataarr->trcinfoset_.size(); idx++ )
-		refnrs += dataarr->trcinfoset_[idx]->getValue(
+		refnrs += (float)dataarr->trcinfoset_[idx]->getValue(
 						SeisTrcInfo::RefNr );
 	    outputf2ddp->setRefNrs( refnrs );
 	}
@@ -1006,7 +1006,7 @@ bool FlatDataPackZAxisTransformer::doFinish( bool success )
 			const_cast<TypeSet<BinID>* >(dprdm->pathBIDs()) );
 	TypeSet<float> refnrs;
 	for ( int idx=0; idx<dprdm->seisBuf().size(); idx++ )
-	    refnrs += dprdm->seisBuf().get(idx)->info().getValue(
+	    refnrs += (float)dprdm->seisBuf().get(idx)->info().getValue(
 						SeisTrcInfo::RefNr );
 	outputdprdm->setRefNrs( refnrs );
 	outputdp = outputdprdm;
