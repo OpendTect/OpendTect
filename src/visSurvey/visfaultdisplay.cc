@@ -92,6 +92,7 @@ FaultDisplay::FaultDisplay()
     , displayintersections_( false )
     , displayhorintersections_( false )
     , drawstyle_( new visBase::DrawStyle )
+    , otherobjects_( false )
 {
     activestickmarker_->ref();
     activestickmarker_->setPickable( false, false );
@@ -565,7 +566,8 @@ void FaultDisplay::updateIntersectionDisplay()
 	setLineRadius( intersectiondisplay_ );
 
 	const bool dodisplay = areIntersectionsDisplayed() &&
-			       arePanelsDisplayed();
+			       arePanelsDisplayed() &&
+			       otherobjects_;
 	if ( dodisplay )
 	    intersectiondisplay_->touch( false );
 
@@ -1525,6 +1527,7 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 
     intersectionobjs_ = usedobjects;
     planeids_ = planeids;
+    otherobjects_ = objs.size()>0;
     updateIntersectionDisplay();
     updateStickDisplay();
 }

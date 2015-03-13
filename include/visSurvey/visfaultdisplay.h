@@ -278,6 +278,7 @@ protected:
     ObjectSet<StickIntersectPoint> stickintersectpoints_;
 
     visBase::DrawStyle*			drawstyle_;
+    bool				otherobjects_;
 
     static const char*			sKeyTriProjection();
     static const char*			sKeyEarthModelID();
