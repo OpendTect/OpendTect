@@ -19,8 +19,8 @@ ________________________________________________________________________
 
 class uiBaseMapTBMgr;
 class uiBasemapTreeTop;
+class uiCrossHairItem;
 class uiDockWin;
-class uiLineItem;
 class uiMapScaleObject;
 class uiPixmapItem;
 class uiSurveyBoxObject;
@@ -37,22 +37,31 @@ public:
 			uiBasemapView(uiParent*);
 			~uiBasemapView();
 
-    uiMapScaleObject*	getScaleBar();
+    uiCrossHairItem*	getCrossHair();
+    void		showCrossHair(bool);
+    bool		crossHairShown() const;
+
     uiPixmapItem*	getNorthArrow();
+    void		showNorthArrow(bool);
+    bool		northArrowShown() const;
+
+    uiMapScaleObject*	getScaleBar();
+    void		showScaleBar(bool);
+    bool		scaleBarShown() const;
+
     uiSurveyBoxObject*	getSurveyBox();
+    void		showSurveyBox(bool);
+    bool		surveyBoxShown() const;
 
 protected:
     void		addStdItems();
     void		init();
-    void		mouseMoveCB(CallBacker*);
     virtual void	reDraw(bool deep=true);
 
     uiMapScaleObject*	scalebar_;
     uiPixmapItem*	northarrow_;
     uiSurveyBoxObject*	survbox_;
-
-    uiLineItem*		horline_;
-    uiLineItem*		vertline_;
+    uiCrossHairItem*	crosshair_;
 };
 
 
@@ -72,6 +81,7 @@ private:
     void		initTree();
 
     void		mouseCursorExchangeCB(CallBacker*);
+    void		mouseClickCB(CallBacker*);
     void		mouseMoveCB(CallBacker*);
     bool		closeOK();
 

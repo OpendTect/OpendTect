@@ -15,8 +15,35 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigraphicsviewbase.h"
 
+class uiGraphicsItemGroup;
+class uiLineItem;
 class uiToolButton;
 class uiParent;
+class LineStyle;
+
+mExpClass(uiTools) uiCrossHairItem : public CallBacker
+{
+public:
+			uiCrossHairItem(uiGraphicsViewBase&);
+			~uiCrossHairItem();
+
+    void		setLineStyle(const LineStyle&);
+    const LineStyle&	getLineStyle() const;
+
+    void		show(bool yn);
+    bool		isShown() const;
+
+protected:
+    void		mouseMoveCB(CallBacker*);
+
+    uiGraphicsItemGroup* itemgrp_;
+    uiLineItem*		horline_;
+    uiLineItem*		vertline_;
+
+    LineStyle&		ls_;
+    uiGraphicsViewBase& view_;
+};
+
 
 mExpClass(uiTools) uiGraphicsView : public uiGraphicsViewBase
 { mODTextTranslationClass(uiGraphicsView);

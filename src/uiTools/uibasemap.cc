@@ -47,9 +47,11 @@ uiBaseMapObject::~uiBaseMapObject()
 const char* uiBaseMapObject::name() const
 { return bmobject_ ? bmobject_->name().buf() : 0; }
 
-
 void uiBaseMapObject::show( bool yn )
-{ yn ? itemgrp_.show() : itemgrp_.hide(); }
+{ itemgrp_.setVisible( yn ); }
+
+bool uiBaseMapObject::isShown() const
+{ return itemgrp_.isVisible(); }
 
 
 void uiBaseMapObject::changedCB( CallBacker* )

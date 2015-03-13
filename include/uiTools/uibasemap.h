@@ -33,6 +33,7 @@ public:
     void			setTransform(const uiWorld2Ui*);
     const char*			name() const;
     virtual void		show(bool yn);
+    virtual bool		isShown() const;
 
     uiGraphicsItemGroup&	itemGrp()		{ return itemgrp_; }
     const uiGraphicsItemGroup&	itemGrp() const		{ return itemgrp_; }

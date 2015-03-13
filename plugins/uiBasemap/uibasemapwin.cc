@@ -15,11 +15,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemapscalebar.h"
 #include "uibasemaptbmgr.h"
 #include "uidockwin.h"
-#include "uiflatviewstdcontrol.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
 #include "uimenu.h"
+#include "uiodmain.h"
+#include "uiodscenemgr.h"
 #include "uipixmap.h"
 #include "uistrings.h"
 #include "uisurvmap.h"
@@ -39,17 +40,15 @@ uiBasemapView::uiBasemapView( uiParent* p )
 
     view().setMouseTracking( true );
     view().enableScrollZoom();
-    view().setSceneBorder( 0 );
+    view().setSceneBorder( 10 );
     view().scene().setMouseEventActive( true );
-    view().getMouseEventHandler().movement.notify(
-	mCB(this,uiBasemapView,mouseMoveCB) );
 }
 
 
 uiBasemapView::~uiBasemapView()
 {
-    view().getMouseEventHandler().movement.remove(
-	mCB(this,uiBasemapView,mouseMoveCB) );
+    view().scene().removeItem( northarrow_ );
+    delete crosshair_;
 }
 
 
@@ -74,8 +73,7 @@ void uiBasemapView::addStdItems()
     scalebar_->setSurveyInfo( &si );
     addStaticObject( scalebar_ );
 
-    horline_ = view().scene().addItem( new uiLineItem );
-    vertline_ = view().scene().addItem( new uiLineItem );
+    crosshair_ = new uiCrossHairItem( view() );
 }
 
 
@@ -94,18 +92,21 @@ void uiBasemapView::init()
 }
 
 
+uiCrossHairItem* uiBasemapView::getCrossHair()	{ return crosshair_; }
+void uiBasemapView::showCrossHair( bool yn )	{ crosshair_->show( yn ); }
+bool uiBasemapView::crossHairShown() const	{ return crosshair_->isShown();}
+
 uiPixmapItem* uiBasemapView::getNorthArrow()	{ return northarrow_; }
-uiMapScaleObject* uiBasemapView::getScaleBar()	{ return scalebar_;}
-uiSurveyBoxObject* uiBasemapView::getSurveyBox()	{ return survbox_; }
+void uiBasemapView::showNorthArrow( bool yn )	{ northarrow_->setVisible(yn); }
+bool uiBasemapView::northArrowShown() const { return northarrow_->isVisible(); }
 
+uiMapScaleObject* uiBasemapView::getScaleBar()	{ return scalebar_; }
+void uiBasemapView::showScaleBar( bool yn )	{ scalebar_->show( yn ); }
+bool uiBasemapView::scaleBarShown() const	{ return scalebar_->isShown(); }
 
-void uiBasemapView::mouseMoveCB( CallBacker* )
-{
-    const uiRect rect = view().getViewArea();
-    const MouseEvent& ev = view().getMouseEventHandler().event();
-    horline_->setLine( rect.left(), ev.y(), rect.right(), ev.y() );
-    vertline_->setLine( ev.x(), rect.top(), ev.x(), rect.bottom() );
-}
+uiSurveyBoxObject* uiBasemapView::getSurveyBox() { return survbox_; }
+void uiBasemapView::showSurveyBox( bool yn )	{ survbox_->show( yn ); }
+bool uiBasemapView::surveyBoxShown() const	{ return survbox_->isShown(); }
 
 
 void uiBasemapView::reDraw( bool deep )
@@ -136,6 +137,8 @@ uiBasemapWin::~uiBasemapWin()
 {
     basemapview_->view().getMouseEventHandler().movement.remove(
 	mCB(this,uiBasemapWin,mouseMoveCB) );
+    basemapview_->view().getMouseEventHandler().buttonPressed.remove(
+	mCB(this,uiBasemapWin,mouseClickCB) );
 }
 
 
@@ -150,7 +153,8 @@ void uiBasemapWin::initView()
     basemapview_ = new uiBasemapView( this );
     basemapview_->view().getMouseEventHandler().movement.notify(
 	mCB(this,uiBasemapWin,mouseMoveCB) );
-    basemapview_->view().scene().setMouseEventActive( true );
+    basemapview_->view().getMouseEventHandler().buttonPressed.notify(
+	mCB(this,uiBasemapWin,mouseClickCB) );
 }
 
 
@@ -192,11 +196,37 @@ void uiBasemapWin::mouseCursorExchangeCB( CallBacker* cb )
 }
 
 
+void uiBasemapWin::mouseClickCB(CallBacker *)
+{
+    if ( !SI().has3D() ) return;
+
+    const MouseEvent& ev = basemapview_->view().getMouseEventHandler().event();
+    if ( !ev.rightButton() ) return;
+
+    const Coord crd( basemapview_->getWorld2Ui().toWorldX(ev.x()),
+		     basemapview_->getWorld2Ui().toWorldY(ev.y()) );
+    if ( !crd.isDefined() ) return;
+
+    const BinID bid = SI().transform( crd );
+    if ( !SI().sampling(false).hsamp_.includes(bid) )
+	return;
+
+    uiMenu* mnu = new uiMenu( "Menu" );
+    mnu->insertAction( new uiAction("Add In-line"), 0 );
+    mnu->insertAction( new uiAction("Add Cross-line"), 1 );
+    const int mnuid = mnu->exec();
+    if ( mnuid==0 )
+	ODMainWin()->sceneMgr().addInlCrlItem( OD::InlineSlice, bid.inl() );
+    else if ( mnuid==1 )
+	ODMainWin()->sceneMgr().addInlCrlItem( OD::CrosslineSlice, bid.crl() );
+}
+
+
 void uiBasemapWin::mouseMoveCB( CallBacker* )
 {
     const MouseEvent& ev = basemapview_->view().getMouseEventHandler().event();
-    const Coord crd( basemapview_->getWorld2Ui().toWorldX( ev.x() ),
-		     basemapview_->getWorld2Ui().toWorldY( ev.y() ) );
+    const Coord crd( basemapview_->getWorld2Ui().toWorldX(ev.x()),
+		     basemapview_->getWorld2Ui().toWorldY(ev.y()) );
     if ( !crd.isDefined() )
     { toStatusBar( "", 0 ); return; }
 
