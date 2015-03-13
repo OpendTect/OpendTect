@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemapscalebar.h"
 
 #include "uigraphicsitemimpl.h"
+#include "uiworld2ui.h"
 #include "survinfo.h"
 
 
@@ -65,7 +66,7 @@ void uiMapScaleObject::setVisibility( bool yn )
 
 void uiMapScaleObject::update()
 {
-    if ( !survinfo_ )
+    if ( !survinfo_ || !transform_ )
 	{ setVisibility( false ); return; }
 
     const float worldscalelen = scalelen_;
@@ -75,8 +76,8 @@ void uiMapScaleObject::update()
     const int xmax = uistartposition_.x;
     const int ymin = uistartposition_.y;
 
-    const float worldref = xmax - worldscalelen;
-    const float uiscalelen = (float)xmax - worldref;
+    const float worldref = transform_->toWorldX( xmax ) - worldscalelen;
+    const float uiscalelen = (float)xmax - transform_->toUiX( worldref );
 
     const int lastx = xmax - 1 - sideoffs;
     const int firsty = ymin - 70;

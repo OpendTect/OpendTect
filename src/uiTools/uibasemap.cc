@@ -26,6 +26,7 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
     , itemgrp_(*new uiGraphicsItemGroup(true))
     , changed_(false)
+    , transform_(0)
 {
     if ( bmobject_ )
     {
@@ -63,6 +64,10 @@ void uiBaseMapObject::changedStyleCB( CallBacker* )
     changed_ = true;
     updateStyle();
 }
+
+
+void uiBaseMapObject::setTransform( const uiWorld2Ui* w2ui )
+{ transform_ = w2ui; }
 
 
 void uiBaseMapObject::update()
@@ -244,9 +249,11 @@ uiBaseMap::uiBaseMap( uiParent* p )
     , view_(*new uiGraphicsView(this,"Basemap"))
     , w2ui_(*new uiWorld2Ui)
     , worlditemgrp_(*new uiGraphicsItemGroup(true))
+    , staticitemgrp_(*new uiGraphicsItemGroup(true))
     , changed_(false)
 {
     view_.scene().addItem( &worlditemgrp_ );
+    view_.scene().addItem( &staticitemgrp_ );
     view_.reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
 }
 
@@ -255,6 +262,7 @@ uiBaseMap::~uiBaseMap()
 {
     deepErase( objects_ );
     view_.scene().removeItem( &worlditemgrp_ );
+    view_.scene().removeItem( &staticitemgrp_ );
     delete &view_;
     delete &w2ui_;
 }
@@ -316,9 +324,20 @@ void uiBaseMap::addObject( BaseMapObject* obj )
 	addObject( uiobj );
     }
     else
-    {
 	objects_[index]->update();
+}
+
+
+void uiBaseMap::addStaticObject( BaseMapObject* obj )
+{
+    const int index = indexOf( obj );
+    if ( index==-1 )
+    {
+	uiBaseMapObject* uiobj = new uiBaseMapObject( obj );
+	addStaticObject( uiobj );
     }
+    else
+	objects_[index]->update();
 }
 
 
@@ -349,6 +368,16 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
     worlditemgrp_.add( &uiobj->itemGrp() );
     objects_ += uiobj;
     changed_ = true;
+}
+
+
+void uiBaseMap::addStaticObject( uiBaseMapObject* uiobj )
+{
+    if ( !uiobj ) return;
+
+    staticitemgrp_.add( &uiobj->itemGrp() );
+    objects_ += uiobj;
+    uiobj->setTransform( &w2ui_ );
 }
 
 

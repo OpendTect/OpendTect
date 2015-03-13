@@ -72,7 +72,7 @@ void uiBasemapView::addStdItems()
 
     scalebar_ = new uiMapScaleObject( 0 );
     scalebar_->setSurveyInfo( &si );
-    addObject( scalebar_ );
+    addStaticObject( scalebar_ );
 
     horline_ = view().scene().addItem( new uiLineItem );
     vertline_ = view().scene().addItem( new uiLineItem );
@@ -110,7 +110,7 @@ void uiBasemapView::mouseMoveCB( CallBacker* )
 
 void uiBasemapView::reDraw( bool deep )
 {
-    scalebar_->setPixelPos( view().width(), view().height() );
+    scalebar_->setPixelPos( view().scene().width(), view().scene().height() );
     uiBaseMap::reDraw( deep );
 }
 

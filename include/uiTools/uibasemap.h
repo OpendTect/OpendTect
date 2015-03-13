@@ -30,6 +30,7 @@ public:
 
     bool			hasChanged() const	{ return changed_; }
     void			resetChangeFlag() { changed_ = false; }
+    void			setTransform(const uiWorld2Ui*);
     const char*			name() const;
     virtual void		show(bool yn);
 
@@ -45,6 +46,7 @@ protected:
     void			changedStyleCB(CallBacker*);
 
     uiGraphicsItemGroup&	itemgrp_;
+    const uiWorld2Ui*		transform_;
 
     bool			changed_;
     BaseMapObject*		bmobject_;
@@ -60,6 +62,7 @@ public:
     void			setView(const uiWorldRect&);
 
     void			addObject(BaseMapObject*);
+    void			addStaticObject(BaseMapObject*);
     bool			hasChanged();
     inline void			setChangeFlag() { changed_ = true; }
     void			resetChangeFlag();
@@ -69,6 +72,7 @@ public:
 
     void			addObject(uiBaseMapObject*);
 				//! object becomes mine, obviously.
+    void			addStaticObject(uiBaseMapObject*);
 
     const char*			nameOfItemAt(const Geom::Point2D<int>&) const;
 
@@ -82,6 +86,7 @@ protected:
 
     uiGraphicsView&		view_;
     uiGraphicsItemGroup&	worlditemgrp_;
+    uiGraphicsItemGroup&	staticitemgrp_;
     ObjectSet<uiBaseMapObject>	objects_;
     bool			changed_;
 
