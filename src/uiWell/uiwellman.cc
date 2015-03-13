@@ -344,6 +344,12 @@ void uiWellMan::edMarkers( CallBacker* )
 	curmid = curmultiids_[0];
     }
 
+    if ( !iswritable_ )
+    {
+	uiMarkerViewDlg dlg( this, *wd );
+	dlg.go(); return;
+    }
+
     const Well::MarkerSet origmarkers = wd->markers();
 
     wd->track().setName( curioobj_->name() );
