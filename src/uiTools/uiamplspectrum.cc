@@ -24,11 +24,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndwrapper.h"
 #include "bufstring.h"
 #include "trckeyzsampling.h"
-#include "datapackbase.h"
 #include "flatposdata.h"
 #include "fourier.h"
 #include "mouseevent.h"
 #include "od_ostream.h"
+#include "seisdatapack.h"
 
 
 #define mDispVal(v)	20*Math::Log10(v+1)
@@ -113,9 +113,9 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	                      : tr( "Amplitude Spectrum for %1" )
                                 .arg( datapack->name() ) );
 
-    if ( dmid == DataPackMgr::CubeID() )
+    if ( dmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(const ::CubeDataPack*,dp,datapack);
+	mDynamicCastGet(const RegularSeisDataPack*,dp,datapack);
 	if ( dp )
 	{
 	    setup_.nyqvistspspace_ = dp->sampling().zsamp_.step;

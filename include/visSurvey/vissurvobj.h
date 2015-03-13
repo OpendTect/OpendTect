@@ -32,6 +32,7 @@ class BaseMapObject;
 class DataPointSet;
 class LineStyle;
 class NotifierAccess;
+class RegularSeisDataPack;
 class SeisTrcBuf;
 class ZAxisTransform;
 class TaskRunner;
@@ -46,7 +47,7 @@ namespace visBase
     class TextureChannel2RGBA;
 };
 
-namespace Attrib  { class SelSpec; class DataCubes; }
+namespace Attrib  { class SelSpec; }
 namespace Survey  { class Geometry3D; }
 
 namespace visSurvey
@@ -270,10 +271,11 @@ public:
     				/*!<\returns the volume in world survey
 				     coordinates. */
     virtual bool		setDataVolume(int attrib,
-	    				      const Attrib::DataCubes*,
+	    				      const RegularSeisDataPack*,
 					      TaskRunner*)
 				{ return false; }
-    virtual const Attrib::DataCubes* getCacheVolume(int attr) const {return 0;}
+    virtual const RegularSeisDataPack* getCacheVolume(int attr) const 
+				{ return 0; }
 
     				//Trace-data
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}

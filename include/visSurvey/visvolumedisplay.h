@@ -20,14 +20,16 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "ranges.h"
 
-class TrcKeyZSampling;
+
 class MarchingCubesSurface;
-class ZAxisTransform;
+class RegularSeisDataPack;
 class TaskRunner;
+class TrcKeyZSampling;
+class ZAxisTransform;
 class ZAxisTransformer;
 template <class T> class Array3D;
 
-namespace Attrib { class SelSpec; class DataCubes; }
+namespace Attrib { class SelSpec; }
 
 namespace visBase
 {
@@ -152,9 +154,9 @@ public:
     void			setTrcKeyZSampling(const TrcKeyZSampling&,
 	    					bool dragmode=false);
     bool			setDataVolume(int attrib,
-	    				      const Attrib::DataCubes*,
+	    				      const RegularSeisDataPack*,
 					      TaskRunner*);
-    const Attrib::DataCubes*	getCacheVolume(int attrib) const;
+    const RegularSeisDataPack*	getCacheVolume(int attrib) const;
     bool			setDataPackID(int attrib,DataPack::ID,
 	    				      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
@@ -261,7 +263,7 @@ protected:
     TrcKeyZSampling		texturecs_;
 
     void			sliceMoving(CallBacker*);
-    void			setData(const Attrib::DataCubes*,
+    void			setData(const RegularSeisDataPack*,
 	    				int datatype=0);
 
     void			dataTransformCB(CallBacker*);
@@ -278,8 +280,7 @@ protected:
 					~AttribData();
 
 	Attrib::SelSpec&		as_;
-	DataPack::ID			cacheid_;
-	const Attrib::DataCubes*	cache_;
+	const RegularSeisDataPack*	cache_;
     };
 
     ObjectSet<AttribData>	attribs_;

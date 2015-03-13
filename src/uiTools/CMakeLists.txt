@@ -5,7 +5,7 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET( OD_MODULE_DEPS uiBase Network )
+SET( OD_MODULE_DEPS uiBase Network Seis )
 SET( OD_MODULE_SOURCES
 	inituitools.cc
 	annotbuffill.cc

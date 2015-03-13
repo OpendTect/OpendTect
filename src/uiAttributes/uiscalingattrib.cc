@@ -23,12 +23,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribfactory.h"
 #include "binidvalset.h"
 #include "trckeyzsampling.h"
-#include "datapackbase.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
 #include "flatposdata.h"
 #include "seisbuf.h"
+#include "seisdatapack.h"
 #include "seistrc.h"
 #include "seisioobjinfo.h"
 #include "seisbufadapters.h"
@@ -448,7 +448,7 @@ void createSelFields( DataType type )
 	if ( type==uiSelectPositionDlg::DataPack3D )
 	{
 	    DataPack* dp = DPM( dpfid_.ID(0)).obtain( dpfid_.ID(1) );
-	    mDynamicCastGet(CubeDataPack*,cdp,dp);
+	    mDynamicCastGet(RegularSeisDataPack*,cdp,dp);
 	    cs = cdp->sampling();
 	    DPM( dpfid_.ID(0)).release( dpfid_.ID(1) );
 	}

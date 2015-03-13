@@ -189,34 +189,6 @@ protected:
 
 
 /*!
-\brief Volume data pack.
-*/
-
-mExpClass(AttributeEngine) CubeDataPack : public ::CubeDataPack
-		   , public DataPackCommon
-{
-public:
-
-    			CubeDataPack(DescID,const DataCubes&,int cubeidx);
-			~CubeDataPack();
-
-    virtual const char*	sourceType() const	{ return "3D"; }
-
-    const DataCubes&	cube() const		{ return cube_; }
-    Array3D<float>&	data();
-
-    void		getAuxInfo(int,int,int,IOPar&) const;
-    void		dumpInfo(IOPar&) const;
-
-protected:
-
-    const DataCubes&	cube_;
-    int			cubeidx_;
-
-};
-
-
-/*!
 \brief Data pack from random traces extraction.
 */
 

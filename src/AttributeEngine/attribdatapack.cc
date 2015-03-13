@@ -612,43 +612,6 @@ Coord3 Flat2DDHDataPack::getCoord( int i0, int i1 ) const
 }
 
 
-// CubeDataPack
-CubeDataPack::CubeDataPack( DescID did, const DataCubes& dc, int ci )
-    : ::CubeDataPack(categoryStr(false))
-    , DataPackCommon(did)
-    , cube_(dc)
-    , cubeidx_(ci)
-{
-    cube_.ref();
-    tkzs_ = cube_.cubeSampling();
-}
-
-
-CubeDataPack::~CubeDataPack()
-{
-    cube_.unRef();
-}
-
-
-Array3D<float>& CubeDataPack::data()
-{
-    return const_cast<DataCubes&>(cube_).getCube( cubeidx_ );
-}
-
-
-void CubeDataPack::dumpInfo( IOPar& iop ) const
-{
-    ::CubeDataPack::dumpInfo( iop );
-    DataPackCommon::dumpInfo( iop );
-}
-
-
-void CubeDataPack::getAuxInfo( int, int, int, IOPar& ) const
-{
-    //TODO implement from trace headers
-}
-
-
 // FlatRdmTrcsDataPack
 FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
 					  const TypeSet<BinID>* path )

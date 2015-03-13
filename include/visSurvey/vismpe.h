@@ -18,8 +18,9 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "visobject.h"
 
-namespace Attrib { class SelSpec; class CubeDataPack; }
+namespace Attrib { class SelSpec; }
 template <class T> class Selector;
+class RegularSeisDataPack;
 class ZAxisTransform;
 
 namespace visBase
@@ -133,14 +134,11 @@ public:
 
     void		setRightHandSystem(bool yn);
    
-    bool		setDataVolume(int attrib,const Attrib::CubeDataPack*,
-	    				TaskRunner*);
-    virtual bool	setDataVolume( int attr, const Attrib::DataCubes* dc,
-				      TaskRunner* tr )
-			{ return SurveyObject::setDataVolume(attr,dc,tr); }
+    bool		setDataVolume(int attrib,const RegularSeisDataPack*,
+				      TaskRunner*);
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     
-    const Attrib::DataCubes*	getCacheVolume(int attrib) const;
+    const RegularSeisDataPack*	getCacheVolume(int attrib) const;
     bool		setDataPackID(int attrib,DataPack::ID,TaskRunner*);
     DataPack::ID	getDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
@@ -235,7 +233,7 @@ protected:
     visBase::Transformation*	voltrans_;
     ObjectSet<visBase::OrthogonalSlice>	slices_;
     DataPack::ID		cacheid_;
-    const Attrib::CubeDataPack* volumecache_;
+    const RegularSeisDataPack*  volumecache_;
     BufferString		sliceposition_;
     BufferString		slicename_;
     TrcKeyZSampling		csfromsession_;

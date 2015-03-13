@@ -740,7 +740,7 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
 }
 
 
-const Attrib::DataCubes* uiVisPartServer::getCachedData(
+const RegularSeisDataPack* uiVisPartServer::getCachedData(
 						    int id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
@@ -749,7 +749,7 @@ const Attrib::DataCubes* uiVisPartServer::getCachedData(
 
 
 bool uiVisPartServer::setCubeData( int id, int attrib,
-				   const Attrib::DataCubes* attribdata )
+				   const RegularSeisDataPack* attribdata )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so )

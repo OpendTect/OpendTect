@@ -20,12 +20,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "draw.h"
 #include "bufstring.h"
-#include "datapackbase.h"
 #include "datapointset.h"
 #include "mouseevent.h"
+#include "seisdatapack.h"
 #include "statparallelcalc.h"
 
 #define mPutCountInPlot() (histgramdisp_ && setup_.countinplot_)
@@ -120,10 +120,10 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	const DataPack* datapack = dpman.obtain( dpid );
 	if ( !datapack ) return false;
 
-	if ( dmid == DataPackMgr::CubeID() )
+	if ( dmid == DataPackMgr::SeisID() )
 	{
-	    mDynamicCastGet(const ::CubeDataPack*,cdp,datapack);
-	    const Array3D<float>* arr3d = cdp ? &cdp->data() : 0;
+	    mDynamicCastGet(const RegularSeisDataPack*,sdp,datapack);
+	    const Array3D<float>* arr3d = sdp ? &sdp->data() : 0;
 	    if ( !arr3d ) return false;
 
 	    const float* array = arr3d->getData();

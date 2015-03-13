@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickretriever.h"
 #include "posinfo2d.h"
 #include "position.h"
+#include "seisdatapack.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -127,17 +128,17 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 				  mCast(float,x2rg.step) );
 	zrg_ = fzrg;
     }
-    else if ( dpmid == DataPackMgr::CubeID() )
+    else if ( dpmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(CubeDataPack*,cdp,dp);
-	if ( !cdp )
+	mDynamicCastGet(RegularSeisDataPack*,sdp,dp);
+	if ( !sdp )
 	{
 	    pErrMsg( "Could not find Cube DataPack" );
 	    DPM( dpmid ).release( dpfid.ID(1) );
 	    return;
 	}
 
-	TrcKeyZSampling cs = cdp->sampling();
+	TrcKeyZSampling cs = sdp->sampling();
 	uiString str = tr("Compute attribute at position:");
 	inlfld_ = new uiLabeledSpinBox( this, str );
 	crlfld_ = new uiSpinBox( this );
@@ -146,7 +147,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	inlfld_->box()->setValue( cs.hrg.inlRange().snappedCenter() );
 	crlfld_->setInterval( cs.hrg.crlRange() );
 	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
-	DPM( DataPackMgr::CubeID() ).release( dpfid.ID(1) );
+	DPM( DataPackMgr::SeisID() ).release( dpfid.ID(1) );
 	zrg_ = cs.zsamp_;
     }
 

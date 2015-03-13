@@ -26,8 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "array3dfloodfill.h"
 #include "arrayndimpl.h"
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
 #include "attribsel.h"
 #include "binidvalue.h"
 #include "coltabsequence.h"
@@ -39,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "picksettr.h"
 #include "pickset.h"
 #include "od_ostream.h"
+#include "seisdatapack.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -96,15 +95,13 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 VolumeDisplay::AttribData::AttribData()
     : as_( *new Attrib::SelSpec )
     , cache_( 0 )
-    , cacheid_( DataPack::cNoID() )
 {}
 
 
 VolumeDisplay::AttribData::~AttribData()
 {
     delete &as_;
-    DPM( DataPackMgr::CubeID() ).release( cacheid_ );
-    if ( cache_ ) cache_->unRef();
+    DPM( DataPackMgr::SeisID() ).release( cache_ );
 }
 
 
@@ -423,7 +420,7 @@ int VolumeDisplay::addSlice( int dim )
     // TODO: adapt to multi-attrib
     if ( attribs_[0]->cache_ )
     {
-	const Array3D<float>& arr = attribs_[0]->cache_->getCube(0);
+	const Array3D<float>& arr = attribs_[0]->cache_->data();
 	slice->setVolumeDataSize( arr.info().getSize(2),
 				  arr.info().getSize(1),
 				  arr.info().getSize(0) );
@@ -627,11 +624,15 @@ float VolumeDisplay::getValue( int attrib, const Coord3& pos ) const
 {
     if ( !attribs_.validIdx(attrib) || !attribs_[attrib]->cache_ )
 	return mUdf(float);
-    const BinIDValue bidv( SI().transform(pos), (float) pos.z );
-    float val;
-    if ( !attribs_[attrib]->cache_->getValue(0,bidv,&val,false) )
-	return mUdf(float);
+    
+    const BinID bid( SI().transform(pos) );
+    const TrcKeyZSampling& samp = attribs_[attrib]->cache_->sampling();
+    const int inlidx = samp.inlIdx( bid.inl() );
+    const int crlidx = samp.crlIdx( bid.crl() );
+    const int zidx = samp.zsamp_.getIndex( pos.z );
 
+    const float val = 
+	attribs_[attrib]->cache_->data().get( inlidx, crlidx, zidx );
     return val;
 }
 
@@ -743,7 +744,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     }
 
     // TODO: adapt to multi-attrib
-    const Array3D<float>& data = attribs_[0]->cache_->getCube(0);
+    const Array3D<float>& data = attribs_[0]->cache_->data();
     if ( !data.isOK() )
 	return false;
 
@@ -826,24 +827,33 @@ int VolumeDisplay::getIsoSurfaceIdx( const mVisMCSurf* mcd ) const
 void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 {
     // TODO:: adapt to multi-attrib
-    const Attrib::DataCubes* cache = attribs_[0]->cache_;
-    if ( !cache || !cache->getCube(0).isOK() ||
+    const RegularSeisDataPack* cache = attribs_[0]->cache_;
+    if ( !cache || cache->isEmpty() ||
 	 mIsUdf(isosurfsettings_[idx].isovalue_) )
 	isosurfaces_[idx]->getSurface()->removeAll();
     else
     {
+	const TrcKeyZSampling& samp = cache->sampling();
 	isosurfaces_[idx]->getSurface()->removeAll();
-	isosurfaces_[idx]->setBoxBoundary(
-	mCast(float,cache->cubeSampling().hrg.inlRange().stop),
-		mCast(float,cache->cubeSampling().hrg.crlRange().stop),
-		cache->cubeSampling().zsamp_.stop );
-	isosurfaces_[idx]->setScales(
-		cache->inlsampling_, cache->crlsampling_,
-		SamplingData<float>((float) (cache->z0_*cache->zstep_),
-					    (float) (cache->zstep_) ) );
+	isosurfaces_[idx]->setBoxBoundary( 
+		mCast(float,samp.hrg.inlRange().stop), 
+		mCast(float,samp.hrg.crlRange().stop), 
+		samp.zsamp_.stop );
+
+	const SamplingData<float> inlsampling( 
+		mCast(float,samp.hsamp_.inlRange().start),
+		mCast(float,samp.hsamp_.inlRange().step) );
+
+	const SamplingData<float> crlsampling( 
+		mCast(float,samp.hsamp_.crlRange().start),
+		mCast(float,samp.hsamp_.crlRange().step) );
+
+	SamplingData<float> zsampling ( samp.zsamp_.start, samp.zsamp_.step );
+	isosurfaces_[idx]->setScales( inlsampling, crlsampling, zsampling );
+		
 	if ( isosurfsettings_[idx].mode_ )
 	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
-		    cache->getCube(0), isosurfsettings_[idx].isovalue_, tr );
+		    cache->data(), isosurfsettings_[idx].isovalue_, tr );
 	else
 	{
 	    if ( !updateSeedBasedSurface( idx, tr ) )
@@ -1005,12 +1015,8 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 	return;
 
     attribs_[attrib]->as_ = as;
-    if ( attribs_[attrib]->cache_ )
-	attribs_[attrib]->cache_->unRef();
+    DPM( DataPackMgr::SeisID() ).release( attribs_[attrib]->cache_ );
     attribs_[attrib]->cache_ = 0;
-
-    DPM( DataPackMgr::CubeID() ).release( attribs_[attrib]->cacheid_ );
-    attribs_[attrib]->cacheid_ = DataPack::cNoID();
 
     scalarfield_->setScalarField( attrib, 0, true, 0 );
     updateAttribEnabling();
@@ -1030,26 +1036,16 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( !attribs_.validIdx(attrib) )
 	return false;
 
-    DataPackMgr& dpman = DPM( DataPackMgr::CubeID() );
+    DataPackMgr& dpman = DPM( DataPackMgr::SeisID() );
     const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
-    const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0, tr );
-    if ( !res )
-    {
-	dpman.release( dpid );
-	return false;
-    }
-
-    const DataPack::ID oldid = attribs_[attrib]->cacheid_;
-    attribs_[attrib]->cacheid_ = dpid;
-
-    dpman.release( oldid );
-    return true;
+    mDynamicCastGet(const RegularSeisDataPack*,cdp,datapack);
+    const bool res = setDataVolume( attrib, cdp ? cdp : 0, tr );
+    return res;
 }
 
 
 bool VolumeDisplay::setDataVolume( int attrib,
-				   const Attrib::DataCubes* attribdata,
+				   const RegularSeisDataPack* attribdata,
 				   TaskRunner* tr )
 {
     if ( !attribs_.validIdx(attrib) || !attribdata )
@@ -1058,7 +1054,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
     const Array3D<float>* usedarray = 0;
     bool arrayismine = true;
     if ( alreadyTransformed(attrib) || !datatransform_ )
-	usedarray = &attribdata->getCube(0);
+	usedarray = &attribdata->data();
     else
     {
 	if ( !datatransformer_ )
@@ -1066,8 +1062,8 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
 //	datatransformer_->setInterpolate( !isClassification(attrib) );
 	datatransformer_->setInterpolate( true );
-	datatransformer_->setInput( attribdata->getCube(0),
-				    attribdata->cubeSampling() );
+	datatransformer_->setInput( attribdata->data(),
+				    attribdata->sampling() );
 	datatransformer_->setOutputRange( getTrcKeyZSampling(true,true,0) );
 
 	if ( !TaskRunner::execute( tr, *datatransformer_ ) )
@@ -1097,10 +1093,9 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
     if ( attribs_[attrib]->cache_ != attribdata )
     {
-	if ( attribs_[attrib]->cache_ )
-	    attribs_[attrib]->cache_->unRef();
+	DPM( DataPackMgr::SeisID() ).release( attribs_[attrib]->cache_ );
 	attribs_[attrib]->cache_ = attribdata;
-	attribs_[attrib]->cache_->ref();
+	DPM( DataPackMgr::SeisID() ).obtain( attribs_[attrib]->cache_->id() );
     }
 
     updateAttribEnabling();
@@ -1112,7 +1107,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 }
 
 
-const Attrib::DataCubes* VolumeDisplay::getCacheVolume( int attrib ) const
+const RegularSeisDataPack* VolumeDisplay::getCacheVolume( int attrib ) const
 {
     return attribs_.validIdx(attrib) ? attribs_[attrib]->cache_ : 0;
 }
@@ -1120,8 +1115,11 @@ const Attrib::DataCubes* VolumeDisplay::getCacheVolume( int attrib ) const
 
 DataPack::ID VolumeDisplay::getDataPackID( int attrib ) const
 {
-    return attribs_.validIdx(attrib) ? attribs_[attrib]->cacheid_
-				     : DataPack::cNoID();
+    DataPack::ID id = DataPack::cNoID();
+    if ( attribs_.validIdx(attrib) && attribs_[attrib]->cache_ )
+	id = attribs_[attrib]->cache_->id();
+
+    return id;
 }
 
 

@@ -185,38 +185,4 @@ protected:
 };
 
 
-/*!\brief DataPack for volume data, where the dims correspond to
-          inl/crl/z .
-*/
-
-mExpClass(General) CubeDataPack : public VolumeDataPack
-{
-public:
-				CubeDataPack(const char* categry,
-					     Array3D<float>*);
-				//!< Array2D become mine (of course)
-				~CubeDataPack();
-
-    TrcKeyZSampling&		sampling()		{ return tkzs_; }
-    const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
-    virtual void		getAuxInfo(int,int,int,IOPar&) const {}
-				//!< int,int,int = Array3D position
-    Coord3			getCoord(int,int,int) const;
-				//!< int,int,int = Array3D position
-    void			dumpInfo(IOPar&) const;
-
-protected:
-
-				CubeDataPack(const char* category);
-				//!< For this you have to overload data()
-				//!< and the destructor
-
-    TrcKeyZSampling&		tkzs_;
-
-private:
-
-    void			init();
-
-};
-
 #endif

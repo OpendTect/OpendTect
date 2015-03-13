@@ -766,9 +766,9 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 {
     if ( attrib != 0 || dpid == DataPack::cNoID() ) return false;
 
-    DataPackMgr& dpman = DPM( DataPackMgr::CubeID() );
+    DataPackMgr& dpman = DPM( DataPackMgr::SeisID() );
     const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
+    mDynamicCastGet(const RegularSeisDataPack*,cdp,datapack);
 
     const bool res = setDataVolume( attrib, cdp, tr );
     if ( !res )
@@ -788,14 +788,14 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 }
 
 
-bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
+bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 				   TaskRunner* tr )
 {
     if ( !cdp )
 	return false;
 
     DataPack::ID attrib_dpid = cdp->id();
-    DPM( DataPackMgr::CubeID() ).obtain( attrib_dpid );
+    DPM( DataPackMgr::SeisID() ).obtain( attrib_dpid );
 
     //transform data if necessary.
     const char* zdomain = getSelSpec( attrib )->zDomainKey();
@@ -809,8 +809,7 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 	datatransformer->setInterpolate( textureInterpolationEnabled() );
 	//datatransformer->setInterpolate( true );
 	//datatransformer->setInput( cdp->cube().getCube(0), cdp->sampling() );
-	datatransformer->setInput( cdp->cube().getCube(0),
-		cdp->cube().cubeSampling() );
+	datatransformer->setInput( cdp->data(), cdp->sampling() );
 	datatransformer->setOutputRange( getTrcKeyZSampling(true,true,0) );
 
 	if ( TaskRunner::execute( tr, *datatransformer ) )
@@ -819,15 +818,12 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 	    return false;
 	}
 
-	CubeDataPack cdpnew( cdp->categoryStr( false ),
-			// check false for categoryStr
-		datatransformer->getOutput( true ) );
-	DPM( DataPackMgr::CubeID() ).addAndObtain( &cdpnew );
-	DPM( DataPackMgr::CubeID() ).release( attrib_dpid );
-	attrib_dpid = cdpnew.id();
+	DPM( DataPackMgr::SeisID() ).obtain( cdp->id() );
+	DPM( DataPackMgr::SeisID() ).release( attrib_dpid );
+	attrib_dpid = cdp->id();
     }
 
-    DPM(DataPackMgr::CubeID()).release( cacheid_ );
+    DPM(DataPackMgr::SeisID()).release( cacheid_ );
     cacheid_ = attrib_dpid;
 
     bool retval = updateFromCacheID( attrib, tr );
@@ -945,9 +941,9 @@ void MPEDisplay::updateSlice()
 }
 
 
-const Attrib::DataCubes* MPEDisplay::getCacheVolume( int attrib ) const
+const RegularSeisDataPack* MPEDisplay::getCacheVolume( int attrib ) const
 {
-    return ( volumecache_ && !attrib ) ? &volumecache_->cube() : 0;
+    return ( volumecache_ && !attrib ) ? volumecache_ : 0;
 }
 
 
@@ -1033,7 +1029,7 @@ int MPEDisplay::addSlice( int dim, bool show )
 
     if ( volumecache_ )
     {
-	const Array3D<float>& arr = volumecache_->cube().getCube(0);
+	const Array3D<float>& arr = volumecache_->data();
 	slice->setVolumeDataSize( arr.info().getSize(2),
 		arr.info().getSize(1), arr.info().getSize(0) );
     }
@@ -1063,11 +1059,14 @@ float MPEDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 float MPEDisplay::getValue( const Coord3& pos_ ) const
 {
     if ( !volumecache_ ) return mUdf(float);
-    const BinIDValue bidv( SI().transform(pos_), (float)pos_.z );
-    float val;
-    if ( !volumecache_->cube().getValue(0,bidv,&val,false) )
-        return mUdf(float);
 
+    const BinID bid( SI().transform(pos_) );
+    const TrcKeyZSampling& samp = volumecache_->sampling();
+    const int inlidx = samp.inlIdx( bid.inl() );
+    const int crlidx = samp.crlIdx( bid.crl() );
+    const int zidx = samp.zsamp_.getIndex( pos_.z );
+
+    const float val = volumecache_->data().get( inlidx, crlidx, zidx );
     return val;
 }
 

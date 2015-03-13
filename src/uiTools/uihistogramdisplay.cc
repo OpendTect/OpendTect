@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistrings.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "bufstring.h"
-#include "datapackbase.h"
 #include "datapointset.h"
+#include "seisdatapack.h"
 #include "statparallelcalc.h"
 
 uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
@@ -73,10 +73,10 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
     const DataPack* datapack = dpman.obtain( dpid );
     if ( !datapack ) return false;
 
-    if ( dmid == DataPackMgr::CubeID() )
+    if ( dmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(const ::CubeDataPack*,cdp,datapack);
-	const Array3D<float>* arr3d = cdp ? &cdp->data() : 0;
+	mDynamicCastGet(const RegularSeisDataPack*,sdp,datapack);
+	const Array3D<float>* arr3d = sdp ? &sdp->data() : 0;
 	if ( !arr3d ) return false;
 
 	setData( arr3d->getData(), mCast(int,arr3d->info().getTotalSz()) );

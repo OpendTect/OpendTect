@@ -26,6 +26,7 @@ class BufferStringSet;
 class DataPointSet;
 class MouseCursorExchange;
 class PickSet;
+class RegularSeisDataPack;
 class SeisTrcBuf;
 class SurfaceInfo;
 class TaskRunner;
@@ -41,7 +42,7 @@ class uiVisPickRetriever;
 class uiDirLightDlg;
 template <class T> class Selector;
 
-namespace Attrib    { class SelSpec; class DataCubes; }
+namespace Attrib    { class SelSpec; }
 namespace FlatView  { class DataDispPars; }
 namespace Threads   { class Mutex; }
 namespace visBase   { class DataObject; class EventCatcher; }
@@ -157,8 +158,9 @@ public:
 
 			//Volume data stuff
     TrcKeyZSampling	getTrcKeyZSampling(int id,int attrib=-1) const;
-    const Attrib::DataCubes* getCachedData(int id,int attrib) const;
-    bool		setCubeData(int id,int attrib,const Attrib::DataCubes*);
+    const RegularSeisDataPack* getCachedData(int id,int attrib) const;
+    bool		setCubeData(int id,int attrib,
+				    const RegularSeisDataPack*);
 			/*!< data becomes mine */
     bool		setDataPackID(int id,int attrib,DataPack::ID);
     DataPack::ID	getDataPackID(int id,int attrib) const;

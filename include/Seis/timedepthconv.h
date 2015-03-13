@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "multidimstorage.h"
 #include "veldesc.h"
 
-class CubeDataPack;
+
 class IOObj;
 class SeisTrc;
 class SeisTrcReader;
