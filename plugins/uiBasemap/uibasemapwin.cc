@@ -215,10 +215,13 @@ void uiBasemapWin::mouseClickCB(CallBacker *)
     uiMenu* mnu = new uiMenu( "Menu" );
     mnu->insertAction( new uiAction("Add In-line"), 0 );
     mnu->insertAction( new uiAction("Add Cross-line"), 1 );
+    mnu->insertAction( new uiAction("Add In-line and Cross-line"), 2 );
     const int mnuid = mnu->exec();
-    if ( mnuid==0 )
+    const bool addinl = mnuid==0 || mnuid==2;
+    const bool addcrl = mnuid==1 || mnuid==2;
+    if ( addinl )
 	ODMainWin()->sceneMgr().addInlCrlItem( OD::InlineSlice, bid.inl() );
-    else if ( mnuid==1 )
+    if ( addcrl )
 	ODMainWin()->sceneMgr().addInlCrlItem( OD::CrosslineSlice, bid.crl() );
 }
 
