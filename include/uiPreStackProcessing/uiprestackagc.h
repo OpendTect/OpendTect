@@ -38,8 +38,7 @@ protected:
     uiGenInput*		lowenergymute_;
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif
 

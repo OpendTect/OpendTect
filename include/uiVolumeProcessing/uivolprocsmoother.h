@@ -24,19 +24,19 @@ namespace VolProc
 
 
 mExpClass(uiVolumeProcessing) uiSmoother : public uiStepDialog
-{ mODTextTranslationClass(uiSmoother);
+{ mODTextTranslationClass(uiSmoother)
 public:
 
     mDefaultFactoryInstanciationBase(
-	    VolProc::Smoother::sFactoryKeyword(),
-	    VolProc::Smoother::sFactoryDisplayName())
-    mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
+	    Smoother::sFactoryKeyword(),
+	    Smoother::sFactoryDisplayName())
+	    mDefaultFactoryInitClassImpl(uiStepDialog,createInstance)
 
 				uiSmoother(uiParent*,Smoother*);
 
 protected:
 
-    static uiStepDialog*	createInstance(uiParent*, Step*);
+    static uiStepDialog*	createInstance(uiParent*,Step*);
     bool			acceptOK(CallBacker*);
     void			updateFlds(CallBacker*);
 
