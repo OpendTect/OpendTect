@@ -518,12 +518,7 @@ BufferStringSet::BufferStringSet( int nelem, const char* s )
 
 BufferStringSet::BufferStringSet( const char* arr[], int len )
 {
-    if ( len < 0 )
-	for ( int idx=0; arr[idx]; idx++ )
-	    add( arr[idx] );
-    else
-	for ( int idx=0; idx<len; idx++ )
-	    add( arr[idx] );
+    add( arr, len );
 }
 
 
@@ -679,7 +674,6 @@ bool BufferStringSet::isSubsetOf( const BufferStringSet& bss ) const
 }
 
 
-
 BufferStringSet& BufferStringSet::add( const char* s )
 {
     *this += new BufferString(s);
@@ -708,6 +702,19 @@ BufferStringSet& BufferStringSet::add( const BufferStringSet& bss,
 	if ( allowdup || !isPresent(s) )
 	    add( s );
     }
+    return *this;
+}
+
+
+BufferStringSet& BufferStringSet::add( const char* arr[], int len )
+{
+    if ( len < 0 )
+	for ( int idx=0; arr[idx]; idx++ )
+	    add( arr[idx] );
+    else
+	for ( int idx=0; idx<len; idx++ )
+	    add( arr[idx] );
+
     return *this;
 }
 
