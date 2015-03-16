@@ -333,7 +333,7 @@ template <class T>
 inline void PacketInterpreter::getSet( TypeSet<T>& ts, int maxsz,
 					bool rawmode ) const
 {
-    int arrsz;
+    int arrsz = maxsz;
     if ( !rawmode )
 	get( arrsz );
     int sz = arrsz;

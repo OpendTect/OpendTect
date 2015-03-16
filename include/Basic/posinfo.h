@@ -189,7 +189,7 @@ public:
     			~CubeDataFiller();
 
     void		add(const BinID&);
-    void		finish();
+    void		finish(); // automatically called on delete
 
 protected:
 

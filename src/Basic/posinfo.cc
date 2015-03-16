@@ -776,7 +776,7 @@ PosInfo::CubeDataFiller::CubeDataFiller( CubeData& cd )
 
 PosInfo::CubeDataFiller::~CubeDataFiller()
 {
-    delete ld_;
+    finish();
 }
 
 
