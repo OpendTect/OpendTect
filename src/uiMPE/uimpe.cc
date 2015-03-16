@@ -36,13 +36,12 @@ void uiSetupGroupFactory::addFactory( uiSetupGrpCreationFunc f,
 
 
 uiSetupGroup* uiSetupGroupFactory::create( const char* name, uiParent* p,
-					   const char* typestr,
-					   const Attrib::DescSet* ads )
+					   const char* typestr )
 {
     int idx = names_.indexOf( name );
     if ( idx == -1 ) return 0;
 
-    uiSetupGroup* res = funcs[idx](p,typestr,ads);
+    uiSetupGroup* res = funcs[idx](p,typestr);
     if ( res ) return res;
 
     return 0;

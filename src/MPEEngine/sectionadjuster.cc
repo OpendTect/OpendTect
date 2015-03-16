@@ -23,7 +23,7 @@ const char* SectionAdjuster::sKeyAdjuster() { return "Adjuster"; }
 const char* SectionAdjuster::sKeyThreshold() { return "Threshold value"; }
 const char* SectionAdjuster::sKeyRemoveOnFailure(){ return "Remove on Failure";}
 
-SectionAdjuster::SectionAdjuster( const EM::SectionID& sid )
+SectionAdjuster::SectionAdjuster( EM::SectionID sid )
     : sectionid_(sid)
     , removeonfailure_(true)
     , thresholdval_(0.5)
@@ -45,13 +45,16 @@ void SectionAdjuster::setPositions(const TypeSet<EM::SubID>& p,
 }
 
 
-int SectionAdjuster::nextStep() { return 0; }
+int SectionAdjuster::nextStep()
+{ return 0; }
 
 
-const char* SectionAdjuster::errMsg() const { return errmsg_.str(); }
+const char* SectionAdjuster::errMsg() const
+{ return errmsg_.str(); }
 
 
-TrcKeyZSampling SectionAdjuster::getAttribCube( const Attrib::SelSpec& spec ) const
+TrcKeyZSampling
+	SectionAdjuster::getAttribCube( const Attrib::SelSpec& ) const
 { return engine().activeVolume(); }
 
 
@@ -60,10 +63,12 @@ void SectionAdjuster::getNeededAttribs(
 { }
 
 
-void SectionAdjuster::setThresholdValue(float val) { thresholdval_ = val; }
+void SectionAdjuster::setThresholdValue( float val )
+{ thresholdval_ = val; }
 
 
-float SectionAdjuster::getThresholdValue() const { return thresholdval_; }
+float SectionAdjuster::getThresholdValue() const
+{ return thresholdval_; }
 
 
 bool SectionAdjuster::removeOnFailure(bool yn)
@@ -74,7 +79,8 @@ bool SectionAdjuster::removeOnFailure(bool yn)
 }
 
 
-bool SectionAdjuster::removesOnFailure() const { return removeonfailure_; }
+bool SectionAdjuster::removesOnFailure() const
+{ return removeonfailure_; }
 
 
 void SectionAdjuster::fillPar( IOPar& par ) const
@@ -94,8 +100,8 @@ bool SectionAdjuster::usePar( const IOPar& par )
 	adjpar->get( sKeyThreshold(), thresholdval_ );
 	adjpar->getYN( sKeyRemoveOnFailure(), removeonfailure_ );
     }
-    
+
     return true;
 }
 
-}; // namespace MPE
+} // namespace MPE

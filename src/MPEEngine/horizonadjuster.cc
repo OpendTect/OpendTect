@@ -31,8 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace MPE {
 
 
-HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
-	const EM::SectionID& sid )
+HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
     : SectionAdjuster(sid)
     , horizon_(hor)
     , attribsel_(0)
@@ -376,7 +375,7 @@ void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
 
 bool HorizonAdjuster::hasInitializedSetup() const
 {
-   return ( attribsel_ && attribsel_->id().isValid() );
+   return attribsel_ && attribsel_->id().isValid();
 }
 
 
@@ -392,58 +391,15 @@ void HorizonAdjuster::fillPar( IOPar& iopar ) const
 
 bool HorizonAdjuster::usePar( const IOPar& iopar )
 {
-    PtrMan<IOPar> oldpar = iopar.subselect("attrval.Attrib 0");
+    if ( !SectionAdjuster::usePar(iopar) )
+	return false;
+
     if ( !attribsel_ ) attribsel_ = new Attrib::SelSpec;
-    if ( !oldpar || !attribsel_->usePar(*oldpar) )
-    {
-	if ( !attribsel_->usePar(iopar) )
-	    return false;
-    }
+    if ( !attribsel_->usePar(iopar) )
+	return false;
 
     PtrMan<IOPar> trackerpar = iopar.subselect( sKeyTracker() );
-    if ( trackerpar )
-    {
-	if ( !tracker_->usePar( *trackerpar ) )
-	    return false;
-    }
-    else
-    {
-	//OD3 format (old)
-
-	VSEvent::Type eventtype;
-	if ( VSEvent::parseEnumType( iopar.find( "Track event" ), eventtype ) )
-	   tracker_->setTrackEvent( eventtype );
-
-	float valthreshold;
-	if ( iopar.get( "Value threshhold", valthreshold ) )
-	    tracker_->setAmplitudeThreshold( valthreshold );
-	float variance;
-	if ( iopar.get( "Allowed variance", variance) )
-	    tracker_->setAllowedVariance( variance );
-	bool absthreshold;
-	if ( iopar.getYN( "Use abs threshhold", absthreshold ) )
-	    tracker_->setUseAbsThreshold( absthreshold );
-	float simthreshold;
-	if ( iopar.get( "Similarity threshhold", simthreshold ) )
-	    tracker_->setSimilarityThreshold( simthreshold );
-	bool byvalue;
-	if ( iopar.getYN( "Track by value", byvalue ) )
-	    tracker_->useSimilarity( !byvalue );
-    }
-
-    //The ranges was written in OD3.2, so this can be
-    //removed when OD5 is released.
-    //Range is now stored with tracker
-    Interval<float> permzrange;
-    if ( iopar.get( "Permitted Z range", permzrange ) )
-	tracker_->setPermittedRange( permzrange );
-
-    Interval<float> similaritywin;
-    if ( iopar.get( "Similarity window", similaritywin ) )
-	tracker_->setSimilarityWindow(similaritywin);
-
-    return SectionAdjuster::usePar( iopar );
+    return trackerpar && tracker_->usePar( *trackerpar );
 }
 
-
-}; // namespace MPE
+} // namespace MPE

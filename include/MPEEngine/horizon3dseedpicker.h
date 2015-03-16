@@ -1,6 +1,6 @@
 #ifndef horizon3dseedpicker_h
 #define horizon3dseedpicker_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "emseedpicker.h"
+
+#include "attribsel.h"
 #include "coord.h"
 
 class FaultTrcDataProvider;
@@ -48,22 +50,21 @@ public:
     bool		canAddSeed() const		{ return true; }
     bool		canRemoveSeed() const		{ return true; }
 
-    void		setSelSpec(const Attrib::SelSpec* selspec)
-			{ selspec_ = selspec; }
-    const Attrib::SelSpec* getSelSpec()			{ return selspec_; }
+    void		setSelSpec(const Attrib::SelSpec*);
+    const Attrib::SelSpec* getSelSpec()			{ return &selspec_; }
     bool		reTrack();
     int			nrSeeds() const;
     int			minSeedsToLeaveInitStage() const;
 
     NotifierAccess*	aboutToAddRmSeedNotifier()	{ return &addrmseed_; }
     NotifierAccess*	madeSurfChangeNotifier()	{ return &surfchange_; }
-    
+
     static int		nrSeedConnectModes()		{ return 3; }
     static int		defaultSeedConMode()		{return TrackFromSeeds;}
     int			defaultSeedConMode(
 				    bool gotsetup) const;
-    static uiString	seedConModeText(int mode, 
-				    bool abbrev=false); 
+    static uiString	seedConModeText(int mode,
+				    bool abbrev=false);
 
     int			getSeedConnectMode() const	{ return seedconmode_; }
     void		setSeedConnectMode(int scm)	{ seedconmode_ = scm; }
@@ -81,7 +82,7 @@ public:
 			{ fltdataprov_ = data; }
 
 protected:
-    bool		retrackOnActiveLine( const BinID& startbid, 
+    bool		retrackOnActiveLine( const BinID& startbid,
 					     bool startwasdefined,
 					     bool eraseonly=false);
     bool		retrackFromSeedList();
@@ -112,16 +113,16 @@ protected:
     EM::SectionID	sectionid_;
     MPE::EMTracker&	tracker_;
 
-    const Attrib::SelSpec* selspec_;
+    Attrib::SelSpec	selspec_;
     const FaultTrcDataProvider* fltdataprov_;
-    
+
     int			seedconmode_;
     bool		blockpicking_;
 
     Notifier<Horizon3DSeedPicker>	addrmseed_;
     Notifier<Horizon3DSeedPicker>	surfchange_;
-private: 
-    void		extendSeedListEraseInBetween( 
+private:
+    void		extendSeedListEraseInBetween(
 			    bool wholeline,const BinID& startbid,
 			    bool startwasdefined,const BinID& dir );
 };

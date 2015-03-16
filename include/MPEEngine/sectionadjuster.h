@@ -1,6 +1,6 @@
 #ifndef sectionadjuster_h
 #define sectionadjuster_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -33,10 +33,9 @@ EM::SectionID.
 mExpClass(MPEEngine) SectionAdjuster : public SequentialTask
 {
 public:
-				SectionAdjuster( const EM::SectionID& sid=-1);
     EM::SectionID		sectionID() const;
 
-    virtual void		reset() {};
+    virtual void		reset() {}
 
     void			setPositions(const TypeSet<EM::SubID>& targets,
 	   				     const TypeSet<EM::SubID>* src=0 );
@@ -75,6 +74,8 @@ public:
     void			setUndo(bool yn) { setundo_ = yn; }
 
 protected:
+				SectionAdjuster(EM::SectionID sid=-1);
+
     TypeSet<EM::SubID>		pids_;
     TypeSet<EM::SubID>		pidsrc_;
     BufferString		errmsg_;
@@ -84,13 +85,13 @@ protected:
 
     const EM::SubID*		refpos_;
     bool			setundo_;
-    
+
     static const char*		sKeyAdjuster();
     static const char*		sKeyThreshold();
     static const char*		sKeyRemoveOnFailure();
 };
 
-}; // namespace MPE
+} // namespace MPE
 
 #endif
 

@@ -29,29 +29,25 @@ namespace MPE
 mExpClass(MPEEngine) BaseHorizon3DExtender : public SectionExtender
 {
 public:
-    //static SectionExtender*	create(EM::EMObject*,const EM::SectionID&);
-    //static void			initClass();
-
     void			setDirection(const BinIDValue&);
-    const BinIDValue*		getDirection() const { return &direction; }
+    const BinIDValue*		getDirection() const { return &direction_; }
 
     int				nextStep();
 
     int				maxNrPosInExtArea() const;
     void			preallocExtArea();
 
-    const TrcKeyZSampling&		getExtBoundary() const;
+    const TrcKeyZSampling&	getExtBoundary() const;
 
 protected:
-    				BaseHorizon3DExtender(EM::Horizon3D& surface_,
-						const EM::SectionID& sid);
+				BaseHorizon3DExtender(EM::Horizon3D&,
+						      EM::SectionID);
 
     virtual float		getDepth(const BinID& src,
 					 const BinID& dest) const;
-    //virtual void		prepareDataIfRequired() { return; }
 
-    BinIDValue			direction;
-    EM::Horizon3D&		surface;
+    BinIDValue			direction_;
+    EM::Horizon3D&		horizon_;
 };
 
 
@@ -63,9 +59,9 @@ mExpClass(MPEEngine) Horizon3DExtender : public BaseHorizon3DExtender
 {
 public:
     static void			initClass();
-    static SectionExtender*	create(EM::EMObject*,const EM::SectionID&);
-    				Horizon3DExtender(EM::Horizon3D& surface_,
-						  const EM::SectionID& sid);
+    static SectionExtender*	create(EM::EMObject*,EM::SectionID);
+				Horizon3DExtender(EM::Horizon3D&,
+						  EM::SectionID);
 };
 
 } // namespace MPE

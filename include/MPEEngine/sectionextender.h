@@ -1,6 +1,6 @@
 #ifndef sectionextender_h
 #define sectionextender_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -41,7 +41,7 @@ EM::SectionID.
 mExpClass(MPEEngine) SectionExtender : public SequentialTask
 {
 public:
-    				SectionExtender(const EM::SectionID& si = -1);
+				SectionExtender(EM::SectionID si=-1);
     EM::SectionID		sectionID() const;
 
     virtual void		reset();
@@ -49,10 +49,10 @@ public:
     virtual const BinIDValue*	getDirection() const;
 
     void			setStartPositions(const TypeSet<EM::SubID> ns);
-    void			excludePositions(const TypeSet<EM::SubID>*); 
-    bool			isExcludedPos(const EM::SubID&) const; 
+    void			excludePositions(const TypeSet<EM::SubID>*);
+    bool			isExcludedPos(const EM::SubID&) const;
     int				nextStep();
-    
+
     void			extendInVolume(const BinID& bidstep,
     					       float zstep);
 
@@ -82,7 +82,7 @@ protected:
     TypeSet<EM::SubID>		addedpos_;
     TypeSet<EM::SubID>		addedpossrc_;
     TypeSet<EM::SubID>		startpos_;
-    
+
     const TypeSet<EM::SubID>*	excludedpos_;
 
     TrcKeyZSampling		extboundary_;
@@ -94,9 +94,9 @@ protected:
 
 
 mDefineFactory2Param( MPEEngine, SectionExtender, EM::EMObject*,
-		      const EM::SectionID&, ExtenderFactory );
+		      EM::SectionID, ExtenderFactory );
 
-}; //namespace MPE
+} // namespace MPE
 
 #endif
 

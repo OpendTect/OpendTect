@@ -11,7 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimpeman.h"
 
-#include "attribstorprovider.h"
+#include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "coltabsequence.h"
 #include "emobject.h"
 #include "emmanager.h"
@@ -23,6 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mpeengine.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
+#include "seisdatapack.h"
+#include "seispreload.h"
 #include "selector.h"
 #include "survinfo.h"
 
@@ -822,6 +825,35 @@ void uiMPEMan::trackInVolume( CallBacker* )
 {
     updateButtonSensitivity();
 
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
+    if ( !as ) return;
+
+    if ( !as->isStored() )
+    {
+	uiMSG().error( "Volume tracking can only be done on stored volumes.");
+	return;
+    }
+
+    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
+    const MultiID mid = ads ? ads->getStoredKey(as->id()) : MultiID::udf();
+    if ( mid.isUdf() )
+    {
+	uiMSG().error( "Cannot find picked data in database" );
+	return;
+    }
+
+    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
+    if ( !sdp )
+    {
+	uiMSG().error( "Seismic data is not preloaded yet" );
+	return;
+    }
+
+    engine().setAttribData( *as, sdp->id() );
+    engine().setActiveVolume( sdp->sampling() );
+
     NotifyStopper selstopper( EM::EMM().undo().changenotifier );
     MouseCursorManager::setOverride( MouseCursor::Wait );
     Executor* exec = engine().trackInVolume();
@@ -863,8 +895,8 @@ void uiMPEMan::selectionMode( CallBacker* cb )
     toolbar_->setIcon( polyselectidx_, sIsPolySelect ?
 			"polygonselect" : "rectangleselect" );
     toolbar_->setToolTip( polyselectidx_,
-                         sIsPolySelect ? tr("Polygon Selection mode")
-                                       : tr("Rectangle Selection mode") );
+			  sIsPolySelect ? tr("Polygon Selection mode")
+					: tr("Rectangle Selection mode") );
 
     if ( toolbar_->isOn(polyselectidx_) )
     {

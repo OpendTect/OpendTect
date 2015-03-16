@@ -12,10 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "mpeengine.h"
 
-#include "attribsel.h"
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribdataholder.h"
+#include "attribdesc.h"
+#include "attribdescset.h"
+#include "attribdescsetsholder.h"
+#include "attribsel.h"
 #include "attribstorprovider.h"
 #include "bufstringset.h"
 #include "ctxtioobj.h"
@@ -32,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "linekey.h"
 #include "sectiontracker.h"
 #include "seisdatapack.h"
+#include "seispreload.h"
 #include "survinfo.h"
 
 
@@ -444,10 +448,23 @@ const DataHolder* Engine::obtainAttribCache( DataPack::ID datapackid )
 }
 
 
-const DataHolder* Engine::getAttribCache(const Attrib::SelSpec& as)
+const DataHolder* Engine::getAttribCache( const Attrib::SelSpec& as )
 {
-    const int idx = getCacheIndexOf(as);
-    return idx>=0 && idx<attribcache_.size() ? attribcache_[idx] : 0;
+    const int idx = getCacheIndexOf( as );
+    if ( attribcache_.validIdx(idx) ) return attribcache_[idx];
+
+    if ( as.isStored() )
+    {
+	const Attrib::DescSet* ads =
+		Attrib::DSHolder().getDescSet( false, true );
+	const Attrib::Desc* desc = !ads || ads->isEmpty()
+		? 0 : ads->getDesc( as.id() );
+	const MultiID mid = desc ? desc->getStoredID() : MultiID::udf();
+	mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
+	return sdp ? obtainAttribCache( sdp->id() ) : 0;
+    }
+
+    return 0;
 }
 
 

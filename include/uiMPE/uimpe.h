@@ -42,16 +42,12 @@ mExpClass(uiMPE) uiSetupGroup : public uiGroup
 public:
 			uiSetupGroup(uiParent*,const char* helpref);
     virtual void	setSectionTracker(SectionTracker*)	{}
-    virtual void	setAttribSet(const Attrib::DescSet*)	{}
     virtual void	setMode(const EMSeedPicker::SeedModeOrder) {}
     virtual int		getMode()				=0;
     virtual void	setColor(const Color&)			{}
     virtual const Color& getColor()				=0;
     virtual void	setMarkerStyle(const MarkerStyle3D&)	{}
     virtual const MarkerStyle3D& getMarkerStyle()		=0;
-    virtual void	setAttribSelSpec(const Attrib::SelSpec*) {}
-    virtual bool	isSameSelSpec(const Attrib::SelSpec*) const
-			{ return true; }
 
     virtual NotifierAccess*	modeChangeNotifier()		{ return 0; }
     virtual NotifierAccess*	propertyChangeNotifier()	{ return 0; }
@@ -70,8 +66,7 @@ public:
 /*! Factory function that can produce a MPE::uiSetupGroup* given a
     uiParent* and an Attrib::DescSet*. */
 
-typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr,
-					       const Attrib::DescSet*);
+typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr);
 
 /*! Factory that is able to create MPE::uiSetupGroup* given a uiParent*,
     and an Attrib::DescSet*. Each class that wants to
@@ -82,8 +77,7 @@ mExpClass(uiMPE) uiSetupGroupFactory
 {
 public:
     void		addFactory(uiSetupGrpCreationFunc f, const char* name);
-    uiSetupGroup*	create(const char* nm,uiParent*,const char* typestr,
-	    		       const Attrib::DescSet*);
+    uiSetupGroup*	create(const char* nm,uiParent*,const char* typestr);
 			/*!<Iterates through all added factory functions
 			    until one of the returns a non-zero pointer. */
 

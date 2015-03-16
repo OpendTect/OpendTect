@@ -398,14 +398,16 @@ void AutoTracker::unsetTrackBoundary()
 
 bool AutoTracker::addSeed( const EM::PosID& pid )
 {
-    if ( pid.sectionID()!=sectionid_ )	return false;
-    if ( !emobject_.isAtEdge(pid) )	return false;
+    if ( pid.sectionID()!=sectionid_ || !emobject_.isAtEdge(pid) )
+	return false;
 
     const Coord3& pos = emobject_.getPos(pid);
     if ( !engine().activeVolume().zsamp_.includes(pos.z,false) )
 	return false;
+
     const BinID bid = SI().transform(pos);
-    if ( !engine().activeVolume().hrg.includes(bid) )	return false;
+    if ( !engine().activeVolume().hrg.includes(bid) )
+	return false;
 
     currentseeds_ += pid.subID();
     return true;

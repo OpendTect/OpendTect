@@ -34,14 +34,14 @@ class SectionExtender;
 mExpClass(MPEEngine) HorizonAdjuster : public SectionAdjuster
 {
 public:
-			HorizonAdjuster(EM::Horizon&,const EM::SectionID&);
+			HorizonAdjuster(EM::Horizon&,EM::SectionID);
 			~HorizonAdjuster();
 
     void		reset();
     int			nextStep();
 
     void		getNeededAttribs(
-	    			ObjectSet<const Attrib::SelSpec>&) const;
+				ObjectSet<const Attrib::SelSpec>&) const;
     TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
     bool		is2D() const;
 
@@ -88,9 +88,9 @@ private:
 
     bool		track(const BinID&,const BinID&,float&) const;
 
-    const BinID		attrDataBinId( const BinID& bid ) const;
+    const BinID		attrDataBinId(const BinID&) const;
 
-    void		setHorizonPick(const BinID& bid, float val);
+    void		setHorizonPick(const BinID&,float val);
 
     static const char*	sKeyTracker()		{ return "Tracker"; }
     static const char*	sKeyAttribID()		{ return "Attribute"; }

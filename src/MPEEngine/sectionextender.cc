@@ -19,12 +19,12 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace MPE
 {
 
-mImplFactory2Param( SectionExtender, EM::EMObject*, const EM::SectionID&,
-		    ExtenderFactory );
+mImplFactory2Param( SectionExtender, EM::EMObject*, EM::SectionID,
+		    ExtenderFactory )
 
 
-SectionExtender::SectionExtender( const EM::SectionID& si)
-    : sid_( si )
+SectionExtender::SectionExtender( EM::SectionID sid )
+    : sid_( sid )
     , extboundary_( false )
     , excludedpos_( 0 )
     , sortedaddedpos_( false )
@@ -80,16 +80,16 @@ if ( res==-1 ) return
 void SectionExtender::extendInVolume(const BinID& bidstep, float zstep)
 {
     int res;
-    mExtendDirection(bidstep.inl(), 0, 0);
-    mExtendDirection(-bidstep.inl(), 0, 0);
-    mExtendDirection(0, bidstep.crl(), 0);
-    mExtendDirection(0, -bidstep.crl(), 0);
-    mExtendDirection(bidstep.inl(), bidstep.crl(),0);
-    mExtendDirection(bidstep.inl(), -bidstep.crl(),0);
-    mExtendDirection(-bidstep.inl(), bidstep.crl(),0);
-    mExtendDirection(-bidstep.inl(), -bidstep.crl(),0);
-    mExtendDirection(0,0,zstep);
-    mExtendDirection(0,0,-zstep);
+    mExtendDirection(  bidstep.inl(),  0,	      0 );
+    mExtendDirection( -bidstep.inl(),  0,	      0 );
+    mExtendDirection(  0,	       bidstep.crl(), 0 );
+    mExtendDirection(  0,	      -bidstep.crl(), 0 );
+    mExtendDirection(  bidstep.inl(),  bidstep.crl(), 0 );
+    mExtendDirection(  bidstep.inl(), -bidstep.crl(), 0 );
+    mExtendDirection( -bidstep.inl(),  bidstep.crl(), 0 );
+    mExtendDirection( -bidstep.inl(), -bidstep.crl(), 0 );
+    mExtendDirection(  0,	       0,	      zstep );
+    mExtendDirection(  0,	       0,	     -zstep );
 }
 
 
@@ -127,8 +127,5 @@ void SectionExtender::addTarget( const EM::SubID& target,
     sortedaddedpos_ += target;
 }
 
-
-};
-
-
+} // namespace MPE
 

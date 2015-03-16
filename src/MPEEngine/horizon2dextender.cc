@@ -21,7 +21,7 @@ namespace MPE
 {
 
 Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor,
-				      const EM::SectionID& sid )
+				      EM::SectionID sid )
     : SectionExtender( sid )
     , surface_( hor )
     , anglethreshold_( 0.5 )
@@ -30,7 +30,7 @@ Horizon2DExtender::Horizon2DExtender( EM::Horizon2D& hor,
 
 
 SectionExtender* Horizon2DExtender::create( EM::EMObject* emobj,
-						const EM::SectionID& sid )
+					    EM::SectionID sid )
 {
     mDynamicCastGet(EM::Horizon2D*,hor,emobj)
     return emobj && !hor ? 0 : new Horizon2DExtender( *hor, sid );

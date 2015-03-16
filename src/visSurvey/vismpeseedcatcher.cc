@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransmgr.h"
 #include "visplanedatadisplay.h"
 
-mCreateFactoryEntry( visSurvey::MPEClickCatcher );
+mCreateFactoryEntry( visSurvey::MPEClickCatcher )
 
 
 namespace visSurvey
@@ -160,7 +160,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     if ( eventcatcher_->isHandled() || !isOn() || !editor_ )
 	return;
 
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
     if ( editor_->sower().accept(eventinfo) )
 	return;
@@ -301,8 +301,8 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 
 
 void MPEClickCatcher::sendUnderlying2DSeis(
-				    const visSurvey::EMObjectDisplay* emod,
-				    const visBase::EventInfo& eventinfo )
+				const visSurvey::EMObjectDisplay* emod,
+				const visBase::EventInfo& eventinfo )
 {
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
     if ( !emobj )
@@ -394,8 +394,8 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 
 
 void MPEClickCatcher::sendUnderlyingPlanes(
-				    const visSurvey::EMObjectDisplay* emod,
-				    const visBase::EventInfo& eventinfo )
+				const visSurvey::EMObjectDisplay* emod,
+				const visBase::EventInfo& eventinfo )
 {
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
     if ( !emobj )
@@ -681,6 +681,4 @@ void MPEClickInfo::setObjLineName( const char* str )
 void MPEClickInfo::setObjLineData( const Attrib::Data2DHolder* ad2dh )
 { linedata_ = ad2dh; }
 
-
-
-}; //namespce
+} // namespce visSurvey

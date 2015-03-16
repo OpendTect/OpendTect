@@ -36,7 +36,6 @@ Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     , seedconmode_( defaultSeedConMode() )
     , blockpicking_( false )
     , sectionid_( -1 )
-    , selspec_(0)
     , sowermode_( false )
     , lastseedpid_( EM::PosID::udf() )
     , lastsowseedpid_( EM::PosID::udf() )
@@ -397,7 +396,8 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 
     SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
     SectionExtender* extender = sectracker->extender();
-    mDynamicCastGet( HorizonAdjuster*, adjuster, sectracker->adjuster() );
+    mDynamicCastGet(HorizonAdjuster*,adjuster,sectracker->adjuster());
+    adjuster->setAttributeSel( 0, selspec_ );
 
     extender->setExtBoundary( getTrackBox() );
     if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Inl )
@@ -624,5 +624,10 @@ TrcKeyZSampling Horizon3DSeedPicker::getTrackBox() const
 }
 
 
-}; // namespace MPE
+void Horizon3DSeedPicker::setSelSpec( const Attrib::SelSpec* as )
+{
+    selspec_ = as ? *as : Attrib::SelSpec();
+}
+
+} // namespace MPE
 

@@ -11,8 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uihorizontracksetup.h"
 
-#include "attribdescset.h"
-#include "attribsel.h"
 #include "draw.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -26,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "survinfo.h"
 
-#include "uiattrsel.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicolor.h"
@@ -55,21 +52,19 @@ void uiBaseHorizonSetupGroup::initClass()
 }
 
 
-uiSetupGroup* uiBaseHorizonSetupGroup::create( uiParent* p, const char* typestr,
-					   const Attrib::DescSet* ads )
+uiSetupGroup* uiBaseHorizonSetupGroup::create( uiParent* p, const char* typestr)
 {
     const FixedString type( typestr );
     if ( type != EM::Horizon3D::typeStr() && type != EM::Horizon2D::typeStr() )
 	return 0;
 
-    return new uiBaseHorizonSetupGroup( p, ads, typestr );
+    return new uiBaseHorizonSetupGroup( p, typestr );
 }
 
 
 uiBaseHorizonSetupGroup::uiBaseHorizonSetupGroup( uiParent* p,
-						  const Attrib::DescSet* ads,
 						  const char* typestr )
-    : uiHorizonSetupGroup( p, ads, typestr )
+    : uiHorizonSetupGroup( p, typestr )
 {}
 
 
@@ -92,13 +87,10 @@ const VSEvent::Type* uiHorizonSetupGroup::cEventTypes()
 
 
 uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
-					  const Attrib::DescSet* ads,
 					  const char* typestr )
     : uiSetupGroup(p,"")
     , sectiontracker_(0)
-    , attrset_(ads)
     , horadj_(0)
-    , inpfld_(0)
     , addstepbut_(0)
     , is2d_(FixedString(typestr)==EM::Horizon2D::typeStr())
     , modechanged_(this)
@@ -164,20 +156,11 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Event" );
 
-    if ( attrset_ )
-	inpfld_ = new uiAttrSel( grp, *attrset_, "Input data",
-				Attrib::DescID::undef(), false );
-    else
-	inpfld_ = new uiAttrSel( grp, "Input data",
-				 uiAttrSelData(false), false );
-    grp->setHAlignObj( inpfld_ );
-    inpfld_->selectionDone.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB));
-
     evfld_ = new uiGenInput( grp, tr("Event type"),
 			    StringListInpSpec(sKeyEventNames()) );
-    evfld_->attach( alignedBelow, inpfld_ );
     evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,selEventType) );
     evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
+    grp->setHAlignObj( evfld_ );
 
     BufferString srchwindtxt( "Search window " );
     srchwindtxt += SI().getZUnitString();
@@ -465,14 +448,6 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 }
 
 
-void uiHorizonSetupGroup::setAttribSet( const Attrib::DescSet* ads )
-{
-    attrset_ = ads;
-    if ( inpfld_ )
-	inpfld_->setDescSet( ads );
-}
-
-
 void uiHorizonSetupGroup::initModeGroup()
 {
     if ( (!is2d_ && Horizon3DSeedPicker::nrSeedConnectModes()>0) ||
@@ -495,11 +470,6 @@ void uiHorizonSetupGroup::initStuff()
 
 void uiHorizonSetupGroup::initEventGroup()
 {
-    Attrib::DescID curid = horadj_->getAttributeSel(0) ?
-	horadj_->getAttributeSel(0)->id() : Attrib::DescID::undef();
-    if ( attrset_ && attrset_->getDesc(curid) )
-	inpfld_->setDesc( attrset_->getDesc(curid) );
-
     VSEvent::Type ev = horadj_->trackEvent();
     const int fldidx = ev == VSEvent::Min ? 0
 			    : (ev == VSEvent::Max ? 1
@@ -576,14 +546,6 @@ const MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
 }
 
 
-void uiHorizonSetupGroup::setAttribSelSpec( const Attrib::SelSpec* selspec )
-{ inpfld_->setSelSpec( selspec ); }
-
-
-bool uiHorizonSetupGroup::isSameSelSpec( const Attrib::SelSpec* selspec ) const
-{ return ( inpfld_->attribID() == selspec->id() ); }
-
-
 bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 {
     fieldchange = false;
@@ -592,7 +554,6 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     {   uiMSG().warning( tr("Unable to apply tracking setup") );
 	return true;
     }
-    if ( !inpfld_ ) return true;
 
     VSEvent::Type evtyp = cEventTypes()[ evfld_->getIntValue() ];
     if ( horadj_->trackEvent() != evtyp )
@@ -769,18 +730,6 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     {
 	fieldchange = true;
 	horadj_->removeOnFailure( rmonfail );
-    }
-
-    inpfld_->processInput();
-    Attrib::SelSpec as;
-    inpfld_->fillSelSpec( as );
-    if ( !as.id().isValid() )
-	mErrRet( tr("Please select the seismic data to track on") );
-
-    if ( !horadj_->getAttributeSel(0) || *horadj_->getAttributeSel(0)!=as )
-    {
-	fieldchange = true;
-	horadj_->setAttributeSel( 0, as );
     }
 
     return true;

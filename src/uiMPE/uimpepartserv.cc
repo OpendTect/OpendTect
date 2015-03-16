@@ -235,20 +235,7 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
     bool isvalidsetup = false;
 
     if ( setupgrp_ )
-    {
-	if ( seedpicker->nrSeeds() < 1 )
-	    setupgrp_->setAttribSelSpec( seedpicker->getSelSpec() );
-	else if ( !setupgrp_->isSameSelSpec(seedpicker->getSelSpec()) &&
-		seedpicker->getSeedConnectMode()!=seedpicker->DrawBetweenSeeds )
-	{
-	    seedpicker->blockSeedPick( true );
-	    uiMSG().error( tr("Tracking Setup has different attribute"
-			      " than your seeds") );
-	    return;
-	}
-
 	isvalidsetup = setupgrp_->commitToTracker( fieldchange );
-    }
 
     seedpicker->blockSeedPick( !isvalidsetup );
     if ( !isvalidsetup )
@@ -932,15 +919,13 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 				.modal(false) );
     setupdlg->setCtrlStyle( uiDialog::CloseOnly );
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
-						  setupdlg,emobj->getTypeStr(),
-						  0 );
+						  setupdlg,
+						  emobj->getTypeStr() );
 
     if ( !setupgrp_ ) return false;
 
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
     if ( !sectracker ) return false;
-
-    setupgrp_->setAttribSet( getCurAttrDescSet(tracker->is2D()) );
 
     if ( freshdlg )
     {
@@ -956,8 +941,6 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	if ( !setupavailable )
 	    seedpicker->setSeedConnectMode(
 					seedpicker->defaultSeedConMode(false));
-
-       setupgrp_->setAttribSelSpec(sectracker->adjuster()->getAttributeSel(0));
     }
 
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
@@ -1040,8 +1023,8 @@ void uiMPEPartServer::saveUnsaveEMObject()
 			 .arg(EM::EMM().getObject(objid)->getTypeStr())
 			 .arg(EM::EMM().getObject( objid )->name());
 
-	    if ( uiMSG().askGoOn(msg, uiStrings::sSave(true),
-                                 uiStrings::sRemove(true)) )
+	    if ( uiMSG().askGoOn(msg,uiStrings::sSave(true),
+				     uiStrings::sRemove(true)) )
 		sendEvent( uiMPEPartServer::evSaveUnsavedEMObject() );
 	    else
 		sendEvent( uiMPEPartServer::evRemoveUnsavedEMObject() );

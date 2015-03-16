@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uimpe.h"
 
 
-class uiAttrSel;
 class uiButtonGroup;
 class uiColorInput;
 class uiGenInput;
@@ -40,25 +39,19 @@ class SectionTracker;
 /*!\brief Horizon tracking setup dialog. */
 
 mExpClass(uiMPE) uiHorizonSetupGroup : public uiSetupGroup
-{ mODTextTranslationClass(uiHorizonSetupGroup);
+{ mODTextTranslationClass(uiHorizonSetupGroup)
 public:
-				uiHorizonSetupGroup(uiParent*,
-						    const Attrib::DescSet*,
-						    const char*);
+				uiHorizonSetupGroup(uiParent*,const char*);
 				~uiHorizonSetupGroup();
 
     void			setSectionTracker(SectionTracker*);
-    void			setAttribSet(const Attrib::DescSet*);
 
-    void                        setMode(const EMSeedPicker::SeedModeOrder);
-    int		                getMode();
-    void                        setColor(const Color&);
-    const Color&                getColor();
-    void                        setMarkerStyle(const MarkerStyle3D&);
-    const MarkerStyle3D&        getMarkerStyle();
-
-    void			setAttribSelSpec(const Attrib::SelSpec*);
-    bool			isSameSelSpec(const Attrib::SelSpec*) const;
+    void			setMode(const EMSeedPicker::SeedModeOrder);
+    int				getMode();
+    void			setColor(const Color&);
+    const Color&		getColor();
+    void			setMarkerStyle(const MarkerStyle3D&);
+    const MarkerStyle3D&	getMarkerStyle();
 
     NotifierAccess*		modeChangeNotifier()
 				{ return &modechanged_; }
@@ -102,7 +95,6 @@ protected:
 
     uiTabStack*			tabgrp_;
     uiButtonGroup*		modeselgrp_;
-    uiAttrSel*			inpfld_;
     uiGenInput*			usesimifld_;
     uiGenInput*			thresholdtypefld_;
     uiGenInput*			evfld_;
@@ -123,7 +115,6 @@ protected:
     EMSeedPicker::SeedModeOrder	mode_;
     MarkerStyle3D		markerstyle_;
 
-    const Attrib::DescSet*	attrset_;
     SectionTracker*		sectiontracker_;
     HorizonAdjuster*		horadj_;
 
@@ -143,11 +134,8 @@ public:
     static void			initClass();
 
 protected:
-				uiBaseHorizonSetupGroup(uiParent*,
-							const Attrib::DescSet*,
-							const char*);
-    static uiSetupGroup*        create(uiParent*,const char* typestr,
-				       const Attrib::DescSet*);
+				uiBaseHorizonSetupGroup(uiParent*,const char*);
+    static uiSetupGroup*	create(uiParent*,const char* typestr);
 };
 
 

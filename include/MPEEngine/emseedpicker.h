@@ -1,6 +1,6 @@
 #ifndef emseedpicker_h
 #define emseedpicker_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "sets.h"
 
-namespace Attrib { class SelSpec; }    
+namespace Attrib { class SelSpec; }
 
 namespace MPE
 {
@@ -36,7 +36,7 @@ public:
 
     virtual bool	canSetSectionID() const			{ return false;}
     virtual bool	setSectionID(const EM::SectionID&)	{ return false;}
-				
+
     virtual EM::SectionID getSectionID() const			{ return -1; }
 
     virtual bool	startSeedPick()				{ return false;}
@@ -53,7 +53,7 @@ public:
 	    			   bool enviromment=true,
 	    			   bool retrack=true)		{ return false;}
     virtual void	setSelSpec(const Attrib::SelSpec*) {}
-    virtual const Attrib::SelSpec* 
+    virtual const Attrib::SelSpec*
 			getSelSpec()				{ return 0; }
     virtual bool	reTrack()				{ return false;}
     virtual int		nrSeeds() const				{ return 0; }
@@ -61,12 +61,12 @@ public:
 
     virtual NotifierAccess* aboutToAddRmSeedNotifier()		{ return 0; }
     virtual NotifierAccess* madeSurfChangeNotifier()		{ return 0; }
-    
+
     virtual void	setSeedConnectMode(int)			{ return; }
     virtual int		getSeedConnectMode() const		{ return -1; }
     virtual void	blockSeedPick(bool)			{ return; }
     virtual bool	isSeedPickBlocked() const		{ return false;}
-    virtual bool        doesModeUseVolume() const		{ return true; }
+    virtual bool	doesModeUseVolume() const		{ return true; }
     virtual bool	doesModeUseSetup() const		{ return true; }
     virtual int		defaultSeedConMode(bool gotsetup) const { return -1; }
 
@@ -76,14 +76,13 @@ public:
 			TrackBetweenSeeds,
 			DrawBetweenSeeds   };
 
-    virtual void	setSowerMode(bool)			{};
-    virtual void	setSeedPickArea(const TrcKeySampling& hs)	{};
+    virtual void	setSowerMode(bool)			{}
+    virtual void	setSeedPickArea(const TrcKeySampling&)	{}
 
-    virtual const TrcKeySampling* getSeedPickArea() const		{ return 0; }
+    virtual const TrcKeySampling* getSeedPickArea() const	{ return 0; }
 };
 
-
-};
+} // namespace MPE
 
 #endif
 
