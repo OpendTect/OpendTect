@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     , picksetmgr_(Pick::Mgr())
 {
     Pick::Mgr().setToBeRemoved.notify(
-	    			mCB(this,uiODPickSetParentTreeItem,setRm) );
+				mCB(this,uiODPickSetParentTreeItem,setRm) );
 }
 
 
@@ -114,7 +114,7 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 bool uiODPickSetParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    applMgr()->visServer()->getObject(sceneID()));
+		    applMgr()->visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
@@ -262,7 +262,7 @@ void uiODPickSetTreeItem::setChg( CallBacker* cb )
     if ( !ps || &set_!=ps ) return;
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( psd ) psd->setName( ps->name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
@@ -316,8 +316,7 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     else
 	mResetMenuItem( &closepolyitem_ );
 
-    const bool hasbody = psd && psd->isBodyDisplayed();
-    mAddMenuItem( menu, &convertbodymnuitem_, hasbody, false )
+    mAddMenuItem( menu, &convertbodymnuitem_, true, false )
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_, true,!psd->allShown());
@@ -378,7 +377,6 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	uiPickPropDlg dlg( getUiParent(), set_ , psd );
 	dlg.go();
-	convertbodymnuitem_.enabled = psd ? psd->isBodyDisplayed() : false;
     }
     else if ( mnuid==convertbodymnuitem_.id )
     {
@@ -392,7 +390,8 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 	emps->copyFrom( set_ );
 	emps->setPreferredColor( set_.disp_.color_ );
-	emps->setName( set_.name() );
+	emps->setName( BufferString("Body from ",set_.name()) );
+	emps->setChangedFlag();
 
 	RefMan<visSurvey::RandomPosBodyDisplay> npsd =
 	    new visSurvey::RandomPosBodyDisplay;
@@ -405,11 +404,6 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
         visserv_->addObject( npsd, sceneID(), true );
 	visserv_->showMPEToolbar();
 	visserv_->turnSeedPickingOn( false );
-
-	prepareForShutdown();
-	visserv_->removeObject( displayid_, sceneID() );
-	parent_->removeChild( this );
-
 	return;
     }
 

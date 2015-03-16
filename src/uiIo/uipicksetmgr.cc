@@ -123,16 +123,17 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
 	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
     ctio->setName( oldname );
     uiIOObjSelDlg dlg( parent_, *ctio );
-    if ( !dlg.go() || !dlg.ioObj() )
+    if ( !dlg.go() )
 	return false;
 
-    if ( !doStore( ps, *dlg.ioObj() ) )
+    const IOObj* ioobj = dlg.ioObj();
+    if ( !ioobj || !doStore(ps,*ioobj) )
 	return false;
 
-    const_cast<Pick::Set&>(ps).setName( dlg.ioObj()->name() );
+    const_cast<Pick::Set&>(ps).setName( ioobj->name() );
     const int psidx = setmgr_.indexOf( ps );
     if ( psidx >= 0 )
-	setmgr_.setID( psidx, dlg.ioObj()->key() );
+	setmgr_.setID( psidx, ioobj->key() );
     setmgr_.reportChange( this, ps );
     return true;
 }
