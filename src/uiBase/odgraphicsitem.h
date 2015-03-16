@@ -44,6 +44,7 @@ public:
     virtual int			type() const	{ return ODGraphicsType+1; }
 
 protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
     bool			highlight_;
     int				penwidth_;
     Color			pencolor_;
@@ -72,6 +73,7 @@ public:
     virtual int			type() const	{ return ODGraphicsType+2; }
 
 protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
     QRectF			boundingrect_;
     MarkerStyle2D*		mstyle_;
     Color			fillcolor_;
@@ -90,6 +92,9 @@ public:
 				      QWidget*);
 
     virtual int			type() const	{ return ODGraphicsType+3; }
+
+protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
 
 };
 
@@ -117,6 +122,8 @@ public:
     virtual int			type() const	{ return ODGraphicsType+4; }
 
 protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+
     ArrowStyle			arrowstyle_;
     int				arrowsz_;
 };
@@ -141,6 +148,7 @@ public:
     virtual int			type() const	{ return ODGraphicsType+5; }
 
 protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
     void			updateRect();
     QPointF			getAlignment() const;
 
@@ -168,6 +176,7 @@ public:
     virtual int			type() const	{ return ODGraphicsType+6; }
 
 protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
 
     bool			closed_;
     QPolygonF			qpolygon_;
@@ -201,6 +210,7 @@ public:
 						   requested image. */
 
 protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
 
     QRectF			wantedwr_;
     QSize			wantedscreensz_;

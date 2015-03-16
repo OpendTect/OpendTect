@@ -30,6 +30,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+static void snapToSceneRect( QGraphicsItem* itm )
+{
+    if ( itm->x()<0 )
+	itm->setPos( 0, itm->y() );
+    else if ( itm->x()+itm->boundingRect().right() > itm->scene()->width() )
+	itm->setPos( itm->scene()->width()-itm->boundingRect().width(),
+		     itm->y() );
+
+    if ( itm->y()<0 )
+	itm->setPos( itm->x(), 0 );
+    else if ( itm->y()+itm->boundingRect().bottom() > itm->scene()->height() )
+	itm->setPos( itm->x(),
+		     itm->scene()->height()-itm->boundingRect().height() );
+}
+
 // ODGraphicsPointItem
 ODGraphicsPointItem::ODGraphicsPointItem()
     : QAbstractGraphicsShapeItem()
@@ -47,8 +62,8 @@ QRectF ODGraphicsPointItem::boundingRect() const
 
 
 void ODGraphicsPointItem::paint( QPainter* painter,
-			       const QStyleOptionGraphicsItem* option,
-			       QWidget *widget )
+				 const QStyleOptionGraphicsItem* option,
+				 QWidget *widget )
 {
     painter->setPen( pen() );
     drawPoint( painter );
@@ -81,6 +96,14 @@ void ODGraphicsPointItem::drawPoint( QPainter* painter )
 
     for ( int idx=0; idx<13; idx++ )
 	painter->drawPoint( pts[idx] );
+}
+
+
+void ODGraphicsPointItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect ( this );
 }
 
 
@@ -201,6 +224,14 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
 	case MarkerStyle2D::None:
 	    break;
     }
+}
+
+
+void ODGraphicsMarkerItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect ( this );
 }
 
 
@@ -341,6 +372,14 @@ QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt,
 }
 
 
+void ODGraphicsArrowItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect( this );
+}
+
+
 // ODGraphicsTextItem
 ODGraphicsTextItem::ODGraphicsTextItem()
     : hal_( Qt::AlignLeft )
@@ -478,6 +517,13 @@ void ODGraphicsTextItem::paint( QPainter* painter,
 }
 
 
+void ODGraphicsTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect ( this );
+}
+
 
 // ODGraphicsPixmapItem
 ODGraphicsPixmapItem::ODGraphicsPixmapItem()
@@ -498,6 +544,13 @@ void ODGraphicsPixmapItem::paint( QPainter* painter,
     QGraphicsPixmapItem::paint( painter, option, widget );
 }
 
+
+void ODGraphicsPixmapItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect ( this );
+}
 
 
 // ODGraphicsPolyLineItem
@@ -555,12 +608,21 @@ void ODGraphicsPolyLineItem::setPolyLine( const QPolygonF& polygon, bool closed)
 void ODGraphicsPolyLineItem::setFillRule( Qt::FillRule fr )
 { fillrule_ = fr; }
 
+
 bool ODGraphicsPolyLineItem::isEmpty() const
 { return qpolygon_.isEmpty(); }
+
 
 void ODGraphicsPolyLineItem::setEmpty()
 { qpolygon_.clear(); }
 
+
+void ODGraphicsPolyLineItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect ( this );
+}
 
 
 // ODGraphicsDynamicImageItem
@@ -786,5 +848,14 @@ bool ODGraphicsDynamicImageItem::updateResolution( const QPainter* painter )
 const QRectF& ODGraphicsDynamicImageItem::wantedWorldRect() const
 { return wantedwr_; }
 
+
 const QSize& ODGraphicsDynamicImageItem::wantedScreenSize() const
 { return wantedscreensz_; }
+
+
+void ODGraphicsDynamicImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect ( this );
+}
