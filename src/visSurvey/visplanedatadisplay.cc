@@ -790,9 +790,9 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     if ( nrAttribs()>1 )
     {
 	const int oldchannelsz0 =
-		  (channels_->getSize(attrib,1)+resolution_) / (resolution_+1);
+		  (channels_->getSize(0,1)+resolution_) / (resolution_+1);
 	const int oldchannelsz1 =
-		  (channels_->getSize(attrib,2)+resolution_) / (resolution_+1);
+		  (channels_->getSize(0,2)+resolution_) / (resolution_+1);
 
 	//check current attribe sizes
 	int newsz0 = 0, newsz1 = 0;
