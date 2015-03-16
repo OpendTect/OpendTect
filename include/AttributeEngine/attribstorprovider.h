@@ -85,6 +85,8 @@ protected:
 					      const DataHolder&) const;
     bool		getZStepStoredData(float& step) const
 			{ step = storedvolume_.zsamp_.step; return true; }
+    bool		getZ0StoredData(float& z0) const
+			{ z0 = storedvolume_.zsamp_.start; return true; }
 
     BinDataDesc		getOutputFormat(int output) const;
     

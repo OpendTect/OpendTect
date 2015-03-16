@@ -53,7 +53,7 @@ public:
     void			addOutputInterest(int sel);
     bool			setZIntervals(TypeSet< Interval<int> >&,
 					      const BinID&,const Coord&);
-    void			computeAndSetRefZStep();
+    void			computeAndSetRefZStepAndZ0();
     
     Notifier<Attrib::Processor>	moveonly;
 				/*!< triggered after a position is reached that

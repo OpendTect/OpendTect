@@ -139,6 +139,13 @@ public:
     void			setRefStep(float step);
     float                       getRefStep() const;
 
+    void			computeRefZ0();
+    				/*!<If an attribute uses as inputs stored cubes
+				with a different z0 the smallest one will
+				be taken as reference z0*/
+    void			setRefZ0(float z0);
+    float                       getRefZ0() const	{ return refz0_; }
+
     virtual BinID		getStepoutStep() const;
     ObjectSet<Provider>&	getInputs() 		{ return inputs_; }
     BinID			getTrcInfoBid() const	{ return trcinfobid_; }
@@ -319,8 +326,10 @@ protected:
 				    \a input if \a output is going to be
 				    computed, or NULL if no extra gate
 				    is required. */
-    virtual bool		getZStepStoredData(float& step) const
-				{return false;}
+    virtual bool		getZStepStoredData( float& step ) const
+				{ return false; }
+    virtual bool		getZ0StoredData( float& z0 ) const
+				{ return false; }
 
     float			getInterpolInputValue(const DataHolder&,
 						      int inputidx,

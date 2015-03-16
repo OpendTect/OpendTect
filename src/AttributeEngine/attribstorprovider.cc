@@ -786,7 +786,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     trcrange.widen( 0.001f * trc->info().sampling.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
-	const float curt = (float)(z0+idx)*refstep_ + extrazfromsamppos;
+	const float curt = refz0_ +(float)(z0+idx)*refstep_ + extrazfromsamppos;
 	int compidx = -1;
 	for ( int idy=0; idy<outputinterest_.size(); idy++ )
 	{
@@ -880,7 +880,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     const int crlidx = dc->crlsampling_.nearestIndex( bid.crl() );
     for ( int idz=0; idz<dc->getZSz(); idz++ )
     {
-	const float curt = (float) ((dc->z0_+idz) * dc->zstep_);
+	const float curt = dc->z0_+ (float)(idz * dc->zstep_);
 	int cubeidx = -1;
 	for ( int idx=0; idx<outputinterest_.size(); idx++ )
 	{

@@ -80,7 +80,7 @@ void EngineMan::getPossibleVolume( DescSet& attribset, TrcKeyZSampling& cs,
 			createProcessor( attribset, linename, evalid, errmsg );
     if ( !proc ) return;
 
-    proc->computeAndSetRefZStep();
+    proc->computeAndSetRefZStepAndZ0();
     proc->getProvider()->setDesiredVolume( cs );
     proc->getProvider()->getPossibleVolume( -1, cs );
 }

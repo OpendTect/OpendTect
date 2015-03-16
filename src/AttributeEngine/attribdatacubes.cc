@@ -20,7 +20,7 @@ namespace Attrib
 DataCubes::DataCubes()
     : inlsampling_( SI().inlRange(true).start, SI().inlRange(true).step )
     , crlsampling_( SI().crlRange(true).start, SI().crlRange(true).step )
-    , z0_( mNINT32(SI().zRange(true).start/SI().zRange(true).step) )
+    , z0_( SI().zRange(true).start/SI().zRange(true).step )
     , zstep_( SI().zRange(true).step )
     , inlsz_( 0 )
     , crlsz_( 0 )
@@ -103,7 +103,7 @@ bool DataCubes::setSizeAndPos( const TrcKeyZSampling& cs )
     crlsampling_.start = cs.hrg.start.crl();
     inlsampling_.step = cs.hrg.step.inl();
     crlsampling_.step = cs.hrg.step.crl();
-    z0_ = mNINT32(cs.zsamp_.start/cs.zsamp_.step);
+    z0_ = cs.zsamp_.start/cs.zsamp_.step;
     zstep_ = cs.zsamp_.step;
 
     return setSize( cs.nrInl(), cs.nrCrl(), cs.nrZ() );

@@ -1401,6 +1401,26 @@ void Provider::setRefStep( float step )
 }
 
 
+void Provider::computeRefZ0()
+{
+    for( int idx=0; idx<allexistingprov_.size(); idx++ )
+    {
+	float z0 = 0;
+	bool isstored = allexistingprov_[idx]->getZ0StoredData(z0);
+	if ( isstored )
+	    refz0_ = ( refz0_ < z0 )? refz0_ : z0;	    
+    }
+}
+
+
+void Provider::setRefZ0( float z0 )
+{
+    refz0_ = z0;
+    for ( int idx=0; idx<allexistingprov_.size(); idx++ )
+	const_cast<Provider*>(allexistingprov_[idx])->refz0_ = refz0_;
+}
+
+
 void Provider::setCurLineName( const char* linename )
 {
     geomid_ = Survey::GM().getGeomID( linename );
