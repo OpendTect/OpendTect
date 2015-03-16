@@ -99,7 +99,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     if ( !outioobj )
 	return false;
 
-    outioobj->pars().merge( inioobj->pars() );
+    outioobj->pars().addFrom( inioobj->pars() );
     IOM().commitChanges( *outioobj );
 
     int compnr = ismc_ ? compfld_->box()->currentItem()-1 : -1;

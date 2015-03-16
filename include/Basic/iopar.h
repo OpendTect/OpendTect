@@ -82,6 +82,8 @@ public:
 			//!< remove all entries (doesn't clear name)
     void		merge(const IOPar&);
 			//!< merge entries using the set() command
+    void		addFrom(const IOPar&);
+			//!< merge entries but do not overwrite
     static const char*	compKey(const char*,const char*);
 			//!< The composite key: (a,b) -> a.b
     static const char*	compKey(const char*,int);
