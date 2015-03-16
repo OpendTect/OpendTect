@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabmapper.h"
 #include "ctxtioobj.h"
 #include "trckeyzsampling.h"
+#include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
 #include "iodir.h"
@@ -48,6 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "ptrman.h"
 #include "randcolor.h"
+#include "rangeposprovider.h"
 #include "seisbuf.h"
 #include "seisdatapack.h"
 #include "seisinfo.h"
@@ -635,6 +637,12 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 }
 
 
+#define mCleanReturn()\
+{\
+    dtcoldefset.erase();\
+    return 0;\
+}
+
 const Attrib::DataCubes* uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const DataCubes* cache )
@@ -642,77 +650,132 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     PtrMan<EngineMan> aem = createEngMan( &tkzs, 0 );
     if ( !aem ) return 0;
 
+    bool atsamplepos = true;
     BufferString defstr;
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet( false, isstortarget );
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
-			   : attrds->getDesc( targetspecs_[0].id() );
+		   		: attrds->getDesc( targetspecs_[0].id() );
     if ( targetdesc )
     {
 	attrds->getDesc(targetspecs_[0].id())->getDefStr(defstr);
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = 0;
-    }
 
-    if ( targetdesc && targetdesc->isStored() )
-    {
-	const MultiID mid( targetdesc->getStoredID() );
-	mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
-	if ( sdp )
+	const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == TrcKeyZSampling::Z;
+	if ( isz )
 	{
-	    DataCubes* dc = new DataCubes();
-	    dc->ref();
-	    dc->setSizeAndPos( sdp->sampling() );
-	    mDynamicCastGet(Array3DImpl<float>*,arr3dimpl,&sdp->data())
-	    if ( arr3dimpl )
-		dc->addCube( *arr3dimpl );
-	    cache = dc;
+	    uiString errmsg;
+	    Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
+	    RefMan<Provider> tmpprov =
+			Provider::create( *nonconsttargetdesc, errmsg );
+	    if ( !tmpprov ) return 0;
+
+	    tmpprov->computeRefStep();
+	    tmpprov->computeRefZ0();
+	    const float floatres = (tkzs.zsamp_.start - tmpprov->getRefZ0()) /
+				    tmpprov->getRefStep();
+	    const int intres = floor( floatres );
+	    if ( floatres - intres > 1e-6 )
+		atsamplepos = false;
 	}
     }
-
-    uiString errmsg;
-    Processor* process = aem->createDataCubesOutput( errmsg, cache );
-    if ( !process )
-	{ uiMSG().error(errmsg); return 0; }
-    bool showinlprogress = true;
-    bool showcrlprogress = true;
-    Settings::common().getYN( SettingsAccess::sKeyShowInlProgress(),
-			      showinlprogress );
-    Settings::common().getYN( SettingsAccess::sKeyShowCrlProgress(),
-			      showcrlprogress );
-
-    const bool isstored =
-	targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
-    const bool isinl =
-		tkzs.isFlat() && tkzs.defaultDir() == TrcKeyZSampling::Inl;
-    const bool iscrl =
-		tkzs.isFlat() && tkzs.defaultDir() == TrcKeyZSampling::Crl;
-    const bool hideprogress = isstored &&
-	( (isinl&&!showinlprogress) || (iscrl&&!showcrlprogress) );
 
     bool success = true;
-    if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
+    Processor* process = 0;
+    DataCubes* output = 0;
+    if ( !atsamplepos )//note: 1 attrib computed at a time
     {
-	if ( !hideprogress )
+	if ( !targetdesc ) return 0;
+	Pos::RangeProvider3D rgprov3d;
+	rgprov3d.setSampling( tkzs );
+	DataColDef* dtcd = new DataColDef( targetdesc->userRef() );
+	ManagedObjectSet<DataColDef> dtcoldefset;
+	dtcoldefset += dtcd;
+	DataPointSet posvals( rgprov3d, dtcoldefset );
+
+	uiString errmsg;
+	process = aem->getTableOutExecutor( posvals, errmsg, 0 );
+	if ( !process )
+	    { uiMSG().error(errmsg); mCleanReturn(); }
+
+	uiTaskRunner taskrunner( parent() );
+	if ( !TaskRunner::execute( &taskrunner, *process ) )
 	{
-	    uiTaskRunner taskrunner( parent() );
-	    success = TaskRunner::execute( &taskrunner, *process );
+	    delete process;
+	    mCleanReturn();
 	}
-	else
+
+	output = new DataCubes;
+	output->setSizeAndPos( tkzs );
+	TypeSet<float> values;
+	posvals.bivSet().getColumn( 1, values, true );
+	BinDataDesc bdd( values.arr() );
+	output->addCube( &bdd );
+	dtcoldefset.erase();
+    }
+    else
+    {
+	if ( targetdesc && targetdesc->isStored() )
 	{
-	    MouseCursorChanger cursorchgr( MouseCursor::Wait );
-	    if ( !process->execute() )
+	    const MultiID mid( targetdesc->getStoredID() );
+	    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
+	    if ( sdp )
 	    {
-		const uiString msg( process->uiMessage() );
-		if ( !msg.isEmpty() )
-		    uiMSG().error( msg );
-		delete process;
-		return 0;
+		DataCubes* dc = new DataCubes();
+		dc->ref();
+		dc->setSizeAndPos( sdp->sampling() );
+		mDynamicCastGet(Array3DImpl<float>*,arr3dimpl,&sdp->data())
+		if ( arr3dimpl )
+		    dc->addCube( *arr3dimpl );
+		cache = dc;
 	    }
 	}
+
+	uiString errmsg;
+	process = aem->createDataCubesOutput( errmsg, cache );
+	if ( !process )
+	    { uiMSG().error(errmsg); return 0; }
+	bool showinlprogress = true;
+	bool showcrlprogress = true;
+	Settings::common().getYN( SettingsAccess::sKeyShowInlProgress(),
+				  showinlprogress );
+	Settings::common().getYN( SettingsAccess::sKeyShowCrlProgress(),
+				  showcrlprogress );
+
+	const bool isstored =
+	    targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
+	const bool isinl =
+		    tkzs.isFlat() && tkzs.defaultDir() == TrcKeyZSampling::Inl;
+	const bool iscrl =
+		    tkzs.isFlat() && tkzs.defaultDir() == TrcKeyZSampling::Crl;
+	const bool hideprogress = isstored &&
+	    ( (isinl&&!showinlprogress) || (iscrl&&!showcrlprogress) );
+
+	if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
+	{
+	    if ( !hideprogress )
+	    {
+		uiTaskRunner taskrunner( parent() );
+		success = TaskRunner::execute( &taskrunner, *process );
+	    }
+	    else
+	    {
+		MouseCursorChanger cursorchgr( MouseCursor::Wait );
+		if ( !process->execute() )
+		{
+		    const uiString msg( process->uiMessage() );
+		    if ( !msg.isEmpty() )
+			uiMSG().error( msg );
+		    delete process;
+		    return 0;
+		}
+	    }
+	}
+
+	output = const_cast<DataCubes*>(aem->getDataCubesOutput( *process ));
     }
 
-    const DataCubes* output = aem->getDataCubesOutput( *process );
     if ( !output )
     {
 	delete process;
