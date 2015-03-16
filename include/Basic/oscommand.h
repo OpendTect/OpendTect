@@ -70,6 +70,10 @@ mExpClass(Basic) MachineCommand
 public:
 
 			MachineCommand(const char* comm=0);
+			/*!<Sets from single string. Assumes that arguments are
+			   space separated, and command with spaces in them are
+			   properly escaped.
+			   */
 			MachineCommand(const char* comm,const char* hnm);
 
     inline const char*	command() const			{ return comm_; }
@@ -83,7 +87,11 @@ public:
 
     bool		setFromSingleStringRep(const char*,
 						bool ignorehostname=false);
-						//!< returns !isBad()
+			/*!<\returns !isBad().
+			   Assumes that arguments are space separated,
+			   and command with spaces in them are properly
+			   escaped. */
+			     
     const char*		getSingleStringRep() const;
 
     bool		hasHostName() const	{ return !hname_.isEmpty(); }
@@ -153,6 +161,9 @@ public: //Extra utilities, not for general use
     			/*!<Analyses the cmd and looks for pipes or redirects.
 			    If these are found, the cmd is converted to a
 			    shell command. */
+    static void		addQuotesIfNeeded(BufferString& cmd);
+    			/*!<Checks for spaces in command, and surrounds command
+			    with quotes them if not already done. */
 };
 
 
@@ -163,7 +174,6 @@ mGlobal(Basic) bool ExecCommand(const char* cmd,LaunchType lt=Wait4Finish,
 
 
 } // namespace OS
-
 
 /*! convenience function executing a program from the OD bindir */
 mGlobal(Basic) bool ExecODProgram(const char* prognm,const char* args=0,

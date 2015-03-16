@@ -136,6 +136,26 @@ bool OS::MachineCommand::setFromSingleStringRep( const char* inp,
 }
 
 
+ 
+const char* OS::MachineCommand::getSingleStringRep() const
+{
+    mDeclStaticString( ret );
+    ret.setEmpty();
+
+    if ( !hname_.isEmpty() )
+    {
+#ifdef __win__
+	ret.add( "\\\\" ).add( hname_ );
+#else
+	ret.add( hname_ ).add( ":" );
+#endif
+    }
+    ret.add( comm_ );
+
+    return ret.buf();
+}
+
+
 const char* OS::MachineCommand::extractHostName( const char* str,
 						 BufferString& hnm )
 {
@@ -182,25 +202,6 @@ const char* OS::MachineCommand::extractHostName( const char* str,
 #endif
 
     return rest;
-}
-
-
-const char* OS::MachineCommand::getSingleStringRep() const
-{
-    mDeclStaticString( ret );
-    ret.setEmpty();
-
-    if ( !hname_.isEmpty() )
-    {
-#ifdef __win__
-	ret.add( "\\\\" ).add( hname_ );
-#else
-	ret.add( hname_ ).add( ":" );
-#endif
-    }
-    ret.add( comm_ );
-
-    return ret.buf();
 }
 
 
@@ -467,6 +468,21 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 }
 
 
+void OS::CommandLauncher::addQuotesIfNeeded( BufferString& cmd )
+{
+    if ( !cmd.find(' ' ) )
+	return;
+
+    if ( cmd[0]=='"' )
+	return;
+
+    const char* quote = "\"";
+
+    cmd.insertAt( 0, quote );
+    cmd.add( quote );
+}
+
+
 void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
 {
     bool needsshell = cmd.find('|') || cmd.find('<') || cmd.find( '>' );
@@ -587,11 +603,11 @@ int OS::CommandLauncher::catchError()
 
     if ( errmsg_.isSet() )
     {
-	return process_->exitCode();
+	return 1;
     }
+    return process_->exitCode();
 #endif
 
-    return 0;
 }
 
 
@@ -625,6 +641,11 @@ bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp, BufferString* out,
 
 bool ExecODProgram( const char* prognm, const char* args, OS::LaunchType ltyp )
 {
-    const BufferString cmd( prognm, " ", args );
+    BufferString cmd = prognm;
+    OS::CommandLauncher::addQuotesIfNeeded( cmd );
+
+    if ( args )
+	cmd.add( " ").add( args );
+
     return doExecOSCmd( cmd, ltyp, true, 0, 0 );
 }

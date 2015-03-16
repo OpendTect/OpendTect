@@ -7,12 +7,14 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "oscommand.h"
-#include "testprog.h"
+#include "filepath.h"
+#include "ptrman.h"
+#include "oddirs.h"
 #include "od_iostream.h"
+#include "oscommand.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include "ptrman.h"
+#include "testprog.h"
 #include "thread.h"
 
 #include <iostream>
@@ -79,6 +81,21 @@ static bool testAllPipes()
 }
 
 
+static bool runCommandWithSpace()
+{
+    FilePath scriptname(GetSoftwareDir(0),"dtect", "script with space");
+#ifdef __win__
+    scriptname.setExtension( "cmd" );
+#else
+    scriptname.setExtension( "sh" );
+#endif
+
+    mRunStandardTest( ExecODProgram(scriptname.fullPath(), 0, OS::Wait4Finish),
+		      "Command with space" );
+
+    return true;
+}
+
 
 static void testServer()
 {
@@ -116,7 +133,7 @@ int main( int argc, char** argv )
 	return 0;
     }
 
-    if ( !testCmds() || !testAllPipes()  )
+    if ( !testCmds() || !testAllPipes() || !runCommandWithSpace() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );
