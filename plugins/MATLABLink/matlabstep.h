@@ -32,6 +32,8 @@ public:
     bool		needsInput() const		{ return true; }
     int			getNrInputs() const;
     bool		canInputAndOutputBeSame() const	{ return true; }
+    bool		isInputPrevStep() const		{ return false; }
+
     bool		needsFullVolume() const		{ return true; }
     bool		areSamplesIndependent() const	{ return false; }
     const char*		errMsg() const		{ return errmsg_.str(); }
