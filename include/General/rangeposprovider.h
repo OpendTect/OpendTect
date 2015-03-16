@@ -54,6 +54,8 @@ public:
 
     TrcKeyZSampling&	sampling()		{ return tkzs_; }
     const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
+    void		setSampling( const TrcKeyZSampling& tkzs ) const
+						{ tkzs_ = tkzs; }
 
     virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
 			{ return Pos::Provider3D::includes(c,z); }
