@@ -43,7 +43,11 @@ MarkerSet::MarkerSet()
     markerset_->setVertexArray( mGetOsgVec3Arr(coords_->osgArray()) );
 
     setMinimumScale( 1.0f );
-    setMaximumScale( 25.5f );
+
+    const Coord worksize = SI().maxCoord(true) - SI().minCoord(true);
+    const float maxscale = mMAX( worksize.x, worksize.y ) / 1e3f;
+    setMaximumScale( maxscale );
+
     setAutoRotateMode( NO_ROTATION );
     setType( MarkerStyle3D::Cube );
     setScreenSize( cDefaultScreenSize() );
