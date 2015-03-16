@@ -953,25 +953,6 @@ Geom::Size2D<int> ui3DViewerBody::getViewportSizePixels() const
 }
 
 
-void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
-				  const osg::Vec3f& viewdir,
-				  bool usetruedir )
-{
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	static_cast<osgGeo::TrackballManipulator*>(
-	view_->getCameraManipulator() );
-
-    manip->viewAll( view_, viewdir, updir,true );
-    requestRedraw();
-}
-
-
-void ui3DViewerBody::viewPlaneX()
-{
-    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(1,0,0), false );
-}
-
-
 void ui3DViewerBody::viewAll( bool animate )
 {
     if ( !view_ )
@@ -1005,13 +986,6 @@ void ui3DViewerBody::requestRedraw()
 }
 
 
-
-void ui3DViewerBody::viewPlaneY()
-{
-    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,1,0), false );
-}
-
-
 void ui3DViewerBody::setBackgroundColor( const Color& col )
 {
     osg::Vec4 osgcol(col2f(r),col2f(g),col2f(b), 1.0);
@@ -1027,32 +1001,37 @@ Color ui3DViewerBody::getBackgroundColor() const
 }
 
 
-void ui3DViewerBody::viewPlaneN()
+void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
+				  const osg::Vec3f& viewdir,
+				  bool usetruedir )
 {
-    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,-1,0), true );
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
+
+    osg::Vec3f trueviewdir = viewdir;
+    if ( !usetruedir )
+    {
+	osg::Vec3d eye, center, up;
+	manip->getTransformation( eye, center, up );
+	if ( viewdir*(eye-center) < 0.0 )
+	    trueviewdir = -trueviewdir;
+    }
+
+    manip->viewAll( view_, viewdir, updir,true );
+    requestRedraw();
 }
 
 
-void ui3DViewerBody::viewPlaneYZ()
+void ui3DViewerBody::viewPlaneX()
 {
-    setCameraPos( osg::Vec3f(0,1,1), osg::Vec3f(0,0,1), true );
+    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(1,0,0), false );
 }
 
 
-
-static void getInlCrlVec( osg::Vec3f& vec, bool inl )
+void ui3DViewerBody::viewPlaneY()
 {
-    const Pos::IdxPair2Coord& b2c = SI().binID2Coord();
-    const Pos::IdxPair2Coord::DirTransform& xtr = b2c.getTransform(true);
-    const Pos::IdxPair2Coord::DirTransform& ytr = b2c.getTransform(false);
-    const float det = xtr.det( ytr );
-
-    if ( inl )
-	vec = osg::Vec3f( -ytr.c/det, xtr.c/det, 0 );
-    else
-	vec = osg::Vec3f( ytr.b/det, -xtr.b/det, 0 );
-    vec.normalize();
-
+    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,1,0), false );
 }
 
 
@@ -1075,7 +1054,34 @@ void ui3DViewerBody::viewPlaneZ()
     newup.normalize();
 
     setCameraPos( newup, osg::Vec3d(0,0,1) , true );
+}
 
+
+void ui3DViewerBody::viewPlaneN()
+{
+    setCameraPos( osg::Vec3f(0,0,1), osg::Vec3f(0,-1,0), true );
+}
+
+
+void ui3DViewerBody::viewPlaneYZ()
+{
+    setCameraPos( osg::Vec3f(0,1,1), osg::Vec3f(0,0,1), true );
+}
+
+
+static void getInlCrlVec( osg::Vec3f& vec, bool inl )
+{
+    const Pos::IdxPair2Coord& b2c = SI().binID2Coord();
+    const Pos::IdxPair2Coord::DirTransform& xtr = b2c.getTransform(true);
+    const Pos::IdxPair2Coord::DirTransform& ytr = b2c.getTransform(false);
+    const float det = xtr.det( ytr );
+
+    if ( inl )
+	vec = osg::Vec3f( -ytr.c/det, xtr.c/det, 0 );
+    else
+	vec = osg::Vec3f( ytr.b/det, -xtr.b/det, 0 );
+
+    vec.normalize();
 }
 
 
