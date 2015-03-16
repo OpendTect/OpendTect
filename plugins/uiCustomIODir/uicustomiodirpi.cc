@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefODPluginInfo(uiCustomIODir)
 {
     mDefineStaticLocalObject( PluginInfo, retpi,(
-      "Custom Data directory usage", "dGB", "0.0.3",
+      "Custom Data directory usage", "OpendTect", "dGB", "0.0.4",
       "Test of Custom Data directory usage." ) );
     return &retpi;
 }
