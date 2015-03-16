@@ -33,7 +33,7 @@ class PolygonBody;
 */
 
 mExpClass(EarthModel) PolygonBodyGeometry : public SurfaceGeometry
-{ mODTextTranslationClass(uiStrings);
+{ mODTextTranslationClass(PolygonBodyGeometry)
 public:
 			PolygonBodyGeometry(PolygonBody&);
 			~PolygonBodyGeometry();
@@ -111,9 +111,7 @@ protected:
     PolygonBodyGeometry		geometry_;
 };
 
-
 } // namespace EM
-
 
 #endif
 
