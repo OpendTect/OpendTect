@@ -206,6 +206,19 @@ void IOPar::merge( const IOPar& iopar )
 }
 
 
+void IOPar::addFrom( const IOPar& iopar )
+{
+    if ( &iopar == this ) return;
+
+    for ( int idx=0; idx<iopar.size(); idx++ )
+    {
+	const char* ky = iopar.keys_.get( idx ).str();
+	if ( !isPresent(ky) )
+	    add( ky, iopar.vals_.get(idx) );
+    }
+}
+
+
 const char* IOPar::compKey( const char* key1, int k2 )
 {
     BufferString intstr = ""; intstr += k2;
@@ -1024,7 +1037,7 @@ bool IOPar::get( const char* keyw, Color& c ) const
     mGetStartNotEmpty(pval);
     const FileMultiString fms( pval );
     const int sz = fms.size();
-    if ( sz==1 && isNumberString(pval,true) ) 
+    if ( sz==1 && isNumberString(pval,true) )
     {
 	c.setRgb( fms.getIValue(0) );
 	return true;
