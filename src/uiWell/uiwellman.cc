@@ -358,12 +358,6 @@ void uiWellMan::edMarkers( CallBacker* )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() )
 	return;
 
-    if ( !iswritable_ )
-    {
-	uiMarkerViewDlg dlg( this, *currdrs_[0] );
-	dlg.go(); return;
-    }
-
     Well::Data* wd;
     MultiID curmid( curioobj_->key() );
     if ( Well::MGR().isLoaded(curmid) )
@@ -374,6 +368,12 @@ void uiWellMan::edMarkers( CallBacker* )
 	    currdrs_[0]->getMarkers();
 	wd = curwds_[0];
 	curmid = curmultiids_[0];
+    }
+
+    if ( !iswritable_ )
+    {
+	uiMarkerViewDlg dlg( this, *wd );
+	dlg.go(); return;
     }
 
     const Well::MarkerSet origmarkers = wd->markers();

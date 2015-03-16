@@ -127,9 +127,24 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
     mChk(false);
 
     if ( Seis::isPS(geomtype_) )
-	{ pErrMsg( "No space info for PS" ); return false; }
+    {
+	if ( is2D() )
+	    return false;
+	else
+	{
+	    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *ioobj_ );
+	    if ( !rdr )
+		return false;
 
-    if ( Seis::is2D(geomtype_) )
+	    const PosInfo::CubeData& cd = rdr->posData();
+	    spinf.expectednrtrcs = cd.totalSize();
+	    delete rdr;
+	}
+	spinf.expectednrsamps = SI().zRange(false).nrSteps() + 1;
+	return true;
+    }
+
+    if ( is2D() )
     {
 	mGetLineSet(lset,false);
 	StepInterval<int> trcrg; StepInterval<float> zrg;
@@ -184,15 +199,24 @@ const ZDomain::Def& SeisIOObjInfo::zDomainDef() const
 }
 
 
+int SeisIOObjInfo::SpaceInfo::expectedMBs() const
+{
+    if ( expectednrsamps<0 || expectednrtrcs<0 )
+	return -1;
+    od_int64 totnrbytes = expectednrsamps;
+    totnrbytes *= expectednrtrcs;
+    totnrbytes *= maxbytespsamp;
+    return (int)( totnrbytes / 1048576 );
+}
+
+
 int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 {
     mChk(-1);
 
-    if ( isPS() )
-    {
-	pErrMsg("TODO: no space estimate for PS");
-	return -1;
-    }
+    int nrbytes = si.expectedMBs();
+    if ( nrbytes < 0 || isPS() )
+	return nrbytes;
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		    ioobj_->createTranslator() );

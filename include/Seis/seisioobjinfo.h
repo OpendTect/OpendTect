@@ -54,6 +54,8 @@ public:
     mStruct(Seis) SpaceInfo
     {
 			SpaceInfo(int ns=-1,int ntr=-1,int bps=4);
+	int		expectedMBs() const;
+
 	int		expectednrsamps;
 	int		expectednrtrcs;
 	int		maxbytespsamp;

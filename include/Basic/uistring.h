@@ -90,6 +90,7 @@ public:
 			  structure (reference counted). */
     uiString&	operator=(const char*);
     uiString&	operator=(const OD::String&);
+    uiString&	set( const char* s )	{ *this = s; return *this; }
 
     template <class T>
     uiString&	arg(const T&);
