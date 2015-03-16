@@ -290,8 +290,12 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
     MouseEvent me( OD::NoButton, (int)ev->pos().x(), (int)ev->pos().y(),
 			       ev->delta() );
     mousehandler_.triggerWheel( me );
-    if ( handle_.scrollZoomEnabled() )
-	QGraphicsView::wheelEvent( ev );
+/*
+  uncomment this conditional to have the default wheel event behaviour, that is,
+  when scrolling up, scene moves down. When scrolling down, scene moves up.
+*/
+//    if ( !handle_.scrollZoomEnabled() )
+//	QGraphicsView::wheelEvent( ev );
 }
 
 
@@ -503,7 +507,7 @@ void uiGraphicsViewBase::setViewArea( double x, double y, double w, double h )
 uiRect uiGraphicsViewBase::getViewArea() const
 {
     QRectF qselrect( body_->mapToScene(0,0),
-		     body_->mapToScene(width(),height()) );
+		     body_->mapToScene(width()-1,height()-1) );
     return uiRect( (int)qselrect.left(), (int)qselrect.top(),
 		   (int)qselrect.right(), (int)qselrect.bottom() );
 }
