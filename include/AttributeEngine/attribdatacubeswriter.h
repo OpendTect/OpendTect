@@ -38,7 +38,7 @@ public:
 			~DataCubesWriter();
 
     void		setSelection(const TrcKeySampling&,
-				     const Interval<int>&);
+				     const Interval<float>&);
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;		
@@ -62,7 +62,7 @@ private:
    TypeSet<int>			cubeindices_;
 
    TrcKeySampling		tks_;
-   Interval<int>		zrg_;
+   Interval<float>		zrg_;
 };
 
 }; //namespace

@@ -52,7 +52,7 @@ od_int64 DataCubesWriter::nrDone() const
 
 
 void DataCubesWriter::setSelection( const TrcKeySampling& hrg,
-				    const Interval<int>& zrg )
+				    const Interval<float>& zrg )
 {
     zrg_ = zrg;
     tks_ = hrg;
@@ -75,7 +75,7 @@ int DataCubesWriter::nextStep()
 
 	writer_ = new SeisTrcWriter( ioobj );
 
-	const Interval<int> cubezrg( cube_.z0_, cube_.z0_+cube_.getZSz()-1 );
+	const Interval<float> cubezrg( cube_.z0_, cube_.z0_+cube_.getZSz()-1 );
 	if ( !cubezrg.includes( zrg_.start,false ) ||
 	     !cubezrg.includes( zrg_.stop,false ) )
 	    zrg_ = cubezrg;
@@ -105,9 +105,14 @@ int DataCubesWriter::nextStep()
     {
 	for ( int zidx=0; zidx<=zrg_.width(); zidx++ )
 	{
-	    const int zpos = zrg_.start+zidx;
+	    const float zpos = zrg_.start+zidx;
+	    //rounding to prevent warnings about float/int conversion
+	    //in fact zrg_.start and cube_.z0_ should always be aligned,
+	    //only separated by n*step
+	    const int zsampidx = mNINT32( zpos-cube_.z0_ );
+
 	    const float value = cube_.getCube(cubeindices_[idx]).get(
-					      inlidx, crlidx, zpos-cube_.z0_ );
+					      inlidx, crlidx, zsampidx );
 	    trc_->set( zidx, value, idx );
 	}
     }

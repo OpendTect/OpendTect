@@ -85,7 +85,7 @@ public:
 
     SamplingData<int>		inlsampling_;
     SamplingData<int>		crlsampling_;
-    float			z0_;
+    float			z0_;	//this IS a sample index!!
     double			zstep_;
     TrcKeyZSampling		cubeSampling() const;
 				/*!<For convenience. The samling is changed

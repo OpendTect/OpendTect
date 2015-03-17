@@ -214,7 +214,10 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
     mGetZSz();
 
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
-    const Interval<int> outrg( datacubes_->z0_, datacubes_->z0_+zsz-1 );
+    const int outz0samp = floor(datacubes_->z0_);
+    const float extrazsamp = datacubes_->z0_ - mCast(float,outz0samp);
+    const bool needinterp = extrazsamp >= 1e3;
+    const Interval<float> outrg( outz0samp, outz0samp+zsz-1 );
 
     if ( !inputrg.overlaps(outrg,false) )
 	return;
@@ -239,8 +242,10 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 	{
 	    for ( int idx=transrg.start; idx<=transrg.stop; idx++)
 	    {
-		const float val =
-		    data.series(desoutputs_[desout])->value(idx-data.z0_);
+		const float val = needinterp
+		    ? data.getValue( desoutputs_[desout],
+			    	     idx-data.z0_+extrazsamp, refstep )
+		    : data.series(desoutputs_[desout])->value(idx-data.z0_);
 
 		datacubes_->setValue( desout, inlidx, crlidx,
 				      idx-datacubes_->z0_, val);

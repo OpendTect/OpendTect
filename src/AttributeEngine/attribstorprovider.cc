@@ -880,7 +880,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     const int crlidx = dc->crlsampling_.nearestIndex( bid.crl() );
     for ( int idz=0; idz<dc->getZSz(); idz++ )
     {
-	const float curt = dc->z0_+ (float)(idz * dc->zstep_);
+	const float curt = (dc->z0_+ (float)(idz)) * dc->zstep_;
 	int cubeidx = -1;
 	for ( int idx=0; idx<outputinterest_.size(); idx++ )
 	{
