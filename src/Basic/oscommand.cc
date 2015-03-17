@@ -413,8 +413,11 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( pars.isconsoleuiprog_ )
     {
 #ifndef __win__
-	FilePath fp( GetSoftwareDir(true), "bin", "od_exec_consoleui.scr " );
-	localcmd.insertAt( 0, fp.fullPath() );
+	BufferString str =
+	    FilePath( GetSoftwareDir(true), "bin",
+		    "od_exec_consoleui.scr " ).fullPath();
+	addQuotesIfNeeded( str );
+	localcmd.insertAt( 0, str );
 #endif
 	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true );
     }
