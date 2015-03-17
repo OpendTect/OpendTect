@@ -505,6 +505,21 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 }
 
 
+void OS::CommandLauncher::addQuotesIfNeeded( BufferString& cmd )
+{
+    if ( !cmd.find(' ' ) )
+	return;
+
+    if ( cmd[0]=='"' )
+	return;
+
+    const char* quote = "\"";
+
+    cmd.insertAt( 0, quote );
+    cmd.add( quote );
+}
+
+
 static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isodprog )
 {
     const OS::MachineCommand mc( cmd );

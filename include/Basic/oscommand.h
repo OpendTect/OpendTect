@@ -115,6 +115,10 @@ public:
     const char*		monitorFileName() const	{ return monitorfnm_; }
     const char*		errorMsg() const	{ return errmsg_; }
 
+    static void		addQuotesIfNeeded(BufferString& cmd);
+			/*!<Checks for spaces in command, and surrounds command
+			    with quotes them if not already done. */
+
 protected:
 
     void		reset();
