@@ -84,13 +84,24 @@ Always defined:
 //This is a fix to fix the bug 6644037 at bugreport.apple.com
 //This bug makes the compiler not link the objectset's virtual functions under
 //some conditions.
-# if defined( __clang__) && ( __clang_major__==5 ) && ( __clang_minor__==1 )
-#  ifndef __MAC_LLVM_COMPILER_ERROR__
-#   pragma message "This version of clang is prone to errors" \
-		    "Set __MAC_LLVM_COMPILER_ERROR__ to fix it"
+# if defined( __clang__) 
+#  if ( __clang_major__==5 ) && ( __clang_minor__==1 )
+#    ifndef __MAC_LLVM_COMPILER_ERROR__
+#     define LLVM_ERROR
+#    endif
+#   endif
+#  endif
+#  if ( __clang_major__==6 ) && ( __clang_minor__==0 )
+#   ifndef __MAC_LLVM_COMPILER_ERROR__
+#    define LLVM_ERROR
+#   endif
 #  endif
 # endif
-#endif
+
+# ifdef LLVM_ERROR
+#  pragma message "This version of clang is prone to errors " \
+		    "Set __MAC_LLVM_COMPILER_ERROR__ to fix it"
+# endif
 
 #ifndef __unix__
 #ifndef __win__

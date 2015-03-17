@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "ziparchiveinfo.h"
 
+#include <stdlib.h>
+
 
 #define mBytesToMBFactor 1048576
 
