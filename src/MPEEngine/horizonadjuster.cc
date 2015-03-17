@@ -220,7 +220,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	    return false;
 
 	const bool res = tracker_->track();
-	const float resz = zsamp.atIndex( tracker_->targetDepth() );
+	const float resz = zsamp.atIndex( (int)tracker_->targetDepth() );
 	if ( !permittedZRange().includes(resz-startz,false) )
 	    return false;
 
@@ -233,7 +233,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	return false;
 
     const bool res = tracker_->track();
-    const float resz = zsamp.atIndex( tracker_->targetDepth() );
+    const float resz = zsamp.atIndex( (int)tracker_->targetDepth() );
     if ( !permittedZRange().includes(resz-startz,false) )
 	return false;
 
