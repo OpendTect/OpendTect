@@ -604,7 +604,8 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	    else
 	    {
 		float val = mUdf(float);
-		if ( inpd.specidx_ == mMDIdx )	val = curdah;
+		if ( inpd.specidx_ == mMDIdx )
+		    val = curdah;
 		else if ( inpd.specidx_ == mDZIdx )
 		    val = samprg.step;
 		else if ( inpd.specidx_ == mTVDSSIdx ||
@@ -633,7 +634,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 		    if ( uom ) val = uom->userValue( val );
 		}
 
-		inpvals[iinp] = noudfinpvals[iinp] = inpd.constval_;
+		inpvals[iinp] = noudfinpvals[iinp] = val;
 	    }
 	}
 
