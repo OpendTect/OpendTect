@@ -103,6 +103,7 @@ Well::Well()
 	displaylog_[idx] = false;
 	lognames_ += BufferString();
     }
+    markerset_->addPolygonOffsetNodeState();
 }
 
 

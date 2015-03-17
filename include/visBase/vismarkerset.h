@@ -24,7 +24,7 @@ namespace osgGeo { class MarkerSet; }
 
 namespace visBase
 {
-
+    class PolygonOffset;
 
 /*!\brief
 
@@ -123,6 +123,8 @@ public:
      int		addPos(const Coord3&, bool draw = true);
     void		setPos(int, const Coord3&,bool draw = true);
     void		forceRedraw(bool);
+    void		addPolygonOffsetNodeState();
+    void		removePolygonOffsetNodeState();
     
 protected:
     void		materialChangeCB(CallBacker*);
@@ -138,6 +140,7 @@ protected:
 
     float			rotationangle_;
     Coord3			rotationvec_;
+    PolygonOffset*		offset_;
 };
 
 };

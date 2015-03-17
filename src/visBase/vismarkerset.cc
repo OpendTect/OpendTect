@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "visosg.h"
 #include "vismaterial.h"
+#include "vispolygonoffset.h"
 
 #include <osgGeo/MarkerSet>
 #include <osgGeo/MarkerShape>
@@ -37,6 +38,7 @@ MarkerSet::MarkerSet()
     , pixeldensity_( getDefaultPixelDensity() )
     , rotationvec_( 1.0, 0.0, 0.0 )
     , rotationangle_( mUdf(float) )
+    , offset_( 0 )
 {
     markerset_->ref();
     addChild( markerset_ );
@@ -60,6 +62,7 @@ MarkerSet::~MarkerSet()
     removeChild( markerset_ );
     clearMarkers();
     markerset_->unref();
+    removePolygonOffsetNodeState();
 }
 
 
@@ -421,4 +424,28 @@ int MarkerSet::size() const
 
     return 0;
 }
+
+
+void MarkerSet::addPolygonOffsetNodeState()
+{
+    if ( !offset_ )
+    {
+        offset_ = new visBase::PolygonOffset;
+	offset_->setFactor( -1.0f );
+	offset_->setUnits( 1.0f );
+	offset_->setMode( visBase::PolygonOffset::Protected | 
+		visBase::PolygonOffset::On );
+	addNodeState( offset_ );
+    }
+}
+
+
+void MarkerSet::removePolygonOffsetNodeState()
+{
+    if ( offset_ )
+	removeNodeState( offset_ );
+    offset_ = 0;
+
+}
+
 
