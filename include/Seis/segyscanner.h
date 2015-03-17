@@ -96,6 +96,7 @@ protected:
     void		addFailed(const uiString&);
     void		initFileData();
     void		addErrReport(IOPar&) const;
+    uiString Openff()	{ return tr("Opening first file"); }
 };
 
 } // namespace

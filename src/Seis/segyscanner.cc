@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
     , geom_(gt) \
     , forcerev0_(false) \
     , curfidx_(-1) \
-    , msg_("Opening first file") \
+    , msg_(Openff()) \
     , richinfo_(false) \
     , nrdone_(0) \
     , notrcinfo_(false) \
