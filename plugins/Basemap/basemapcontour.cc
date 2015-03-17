@@ -35,7 +35,7 @@ public:
 
 
 class ContourExtractor : public ParallelTask
-{
+{ mODTextTranslationClass(ContourExtractor);
 public:
 ContourExtractor( const Array2D<float>& zvalues,
 		  const StepInterval<float>& ix,
@@ -49,7 +49,7 @@ ContourExtractor( const Array2D<float>& zvalues,
 
 {}
 
-uiString uiNrDoneText() const	{ return "Contours Done"; }
+uiString uiNrDoneText() const	{ return tr("Contours Done"); }
 
 int maxNrThreads() const	{ return 1; }
 
