@@ -91,6 +91,7 @@ protected:
 
     void		copy();
     void		paste();
+    void		cut();
 
     ObjectSet<CellObject> cellobjects_;
 
@@ -196,6 +197,8 @@ void uiTableBody::keyPressEvent( QKeyEvent* ev )
 	copy();
     else if ( ev->matches(QKeySequence::Paste) )
 	paste();
+    else if ( ev->matches(QKeySequence::Cut) )
+	cut();
     else
 	QTableWidget::keyPressEvent( ev );
 }
@@ -229,6 +232,8 @@ void uiTableBody::copy()
 
 void uiTableBody::paste()
 {
+    clearSelection();
+
     const QString str = QApplication::clipboard()->text();
     const QStringList rows = str.split( '\n' );
     const int nrrows = rows.count()-1;
@@ -239,9 +244,30 @@ void uiTableBody::paste()
 	QStringList columns = rows[i].split( '\t' );
 	for ( int j=0; j<nrcols; j++ )
 	{
-	    QTableWidgetItem* itm = item( currentRow()+i, currentColumn()+j );
+	    const RowCol rc( currentRow()+i, currentColumn()+j );
+	    QTableWidgetItem* itm = getItem( rc, true );
 	    if ( itm )
 		itm->setText( columns[j] );
+	}
+    }
+}
+
+
+void uiTableBody::cut()
+{
+    copy();
+
+    QList<QTableWidgetSelectionRange> ranges = selectedRanges();
+    if ( ranges.isEmpty() ) return;
+
+    const QTableWidgetSelectionRange& range = ranges.first();
+    for ( int i=0; i<range.rowCount(); i++ )
+    {
+	for ( int j=0; j<range.columnCount(); j++ )
+	{
+	    QTableWidgetItem* itm =
+		item( range.topRow()+i, range.leftColumn()+j );
+	    if ( itm ) itm->setText( "" );
 	}
     }
 }
@@ -265,8 +291,7 @@ int uiTableBody::nrTxtLines() const
 { return rowCount()>=0 ? rowCount()+1 : 7; }
 
 
-QTableWidgetItem* uiTableBody::getItem( const RowCol& rc,
-						  bool createnew )
+QTableWidgetItem* uiTableBody::getItem( const RowCol& rc, bool createnew )
 {
     QTableWidgetItem* itm = item( rc.row(), rc.col() );
     if ( !itm && createnew )
