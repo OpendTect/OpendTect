@@ -75,6 +75,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     butnm += su.seltxt_.getFullString();
     selbut_->setName( butnm.buf() );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
+    selbut_->attach( rightTo, inp_ );
 
     setHAlignObj( inp_ );
     setHCenterObj( inp_ );
