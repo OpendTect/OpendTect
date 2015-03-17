@@ -14,25 +14,15 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 
-#include "attribdatacubes.h"
-#include "attribdataholder.h"
 #include "attribsel.h"
-#include "bufstring.h"
 #include "callback.h"
-#include "color.h"
 #include "datapack.h"
 #include "emposid.h"
 #include "survgeom.h"
-#include "trckeyzsampling.h"
-
 
 class BufferStringSet;
 class Executor;
-class RegularSeisDataPack;
-class TaskRunner;
-class TrcKeyZSampling;
 
-namespace Attrib { class SelSpec; }
 namespace EM { class EMObject; }
 namespace Geometry { class Element; }
 template <class T> class Selector;
@@ -42,40 +32,6 @@ namespace MPE
 
 class EMTracker;
 class ObjectEditor;
-
-/*!
-\brief Use DataHolder instead.
-*/
-
-mExpClass(MPEEngine) AbstDataHolder : public CallBacker
-{
-mRefCountImplNoDestructor(AbstDataHolder);
-public:
-			AbstDataHolder(){}
-};
-
-
-/*!
-\brief Holds attribute data for tracking.
-*/
-
-mExpClass(MPEEngine) DataHolder : public AbstDataHolder
-{
-public:
-				DataHolder();
-
-    TrcKeyZSampling		getTrcKeyZSampling() const;
-    void			setData(const RegularSeisDataPack*);
-    const RegularSeisDataPack*	getData() const		{ return regsdp_; }
-    bool			isEmpty() const;
-
-private:
-				~DataHolder();
-    void			releaseMemory();
-
-    const RegularSeisDataPack*	regsdp_;
-};
-
 
 /*!
 \brief Main engine for tracking EM objects like horizons, faults etc.,
@@ -97,7 +53,6 @@ public:
 
     void		setActive2DLine(Pos::GeomID);
     Pos::GeomID 	activeGeomID() const;
-    BufferString	active2DLineName() const;
 
     Notifier<Engine>	loadEMObject;
     MultiID		midtoload;
@@ -106,7 +61,6 @@ public:
     Executor*		trackInVolume();
     void		removeSelectionInPolygon(const Selector<Coord3>&,
 	    					 TaskRunner*);
-
     void		getAvailableTrackerTypes(BufferStringSet&)const;
 
     int			nrTrackersAlive() const;
@@ -122,7 +76,6 @@ public:
     void		setActiveTracker(EMTracker*);
     EMTracker*		getActiveTracker();
 
-
     			/*Attribute stuff */
     void 		setOneActiveTracker(const EMTracker*);
     void 		unsetOneActiveTracker();
@@ -134,8 +87,7 @@ public:
 			     should be tracked. */
     int			getCacheIndexOf(const Attrib::SelSpec&) const;
     DataPack::ID	getAttribCacheID(const Attrib::SelSpec&) const;
-    const DataHolder*
-			getAttribCache(const Attrib::SelSpec&);
+    bool		hasAttribCache(const Attrib::SelSpec&) const;
     bool		setAttribData( const Attrib::SelSpec&,
 	    			       DataPack::ID);
     bool		cacheIncludes(const Attrib::SelSpec&,
@@ -179,19 +131,18 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
-    int				getFreeID();
 
     BufferString		errmsg_;
     TrcKeyZSampling		activevolume_;
 
     Pos::GeomID 		activegeomid_;
-    BufferString		active2dlinename_;
 
     ObjectSet<EMTracker>	trackers_;
     ObjectSet<ObjectEditor>	editors_;
 
     const EMTracker*		oneactivetracker_;
     EMTracker*			activetracker_;
+    DataPackMgr&		dpm_;
 
     struct CacheSpecs
     {
@@ -206,10 +157,8 @@ protected:
     };
 
     TypeSet<DataPack::ID>		attribcachedatapackids_;
-    ObjectSet<const DataHolder>	attribcache_;
     ObjectSet<CacheSpecs>		attribcachespecs_;
     TypeSet<DataPack::ID>               attribbkpcachedatapackids_;
-    ObjectSet<const DataHolder>	attribbackupcache_;
     ObjectSet<CacheSpecs>		attribbackupcachespecs_;
 
     mStruct(MPEEngine) FlatCubeInfo
@@ -235,11 +184,6 @@ protected:
     static const char*		sKeyEnabled()	{ return "Is enabled"; }
     static const char*		sKeyTrackPlane(){ return "Track Plane"; }
     static const char*		sKeySeedConMode(){ return "Seed Connect Mode"; }
-
-private:
-    const DataHolder*		obtainAttribCache(DataPack::ID);
-				/*!Caller is responsible for releasing datapack
-				   in case non-zero dataholder is returned. */
 };
 
 

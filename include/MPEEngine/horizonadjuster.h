@@ -13,18 +13,17 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+#include "datapack.h"
 #include "sectionadjuster.h"
 #include "ranges.h"
 #include "valseriesevent.h"
 
-namespace EM { class Horizon; }
 class EventTracker;
-
+namespace EM { class Horizon; }
 
 namespace MPE
 {
 
-class DataHolder;
 class SectionExtender;
 
 /*!
@@ -43,7 +42,6 @@ public:
     void		getNeededAttribs(
 				ObjectSet<const Attrib::SelSpec>&) const;
     TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
-    bool		is2D() const;
 
     void		setPermittedZRange(const Interval<float>& rg);
     Interval<float>	permittedZRange() const;
@@ -80,16 +78,16 @@ public:
 protected:
 
     Attrib::SelSpec*		attribsel_;
-    const DataHolder*		attrdata_;
     EM::Horizon&		horizon_;
     EventTracker*		tracker_;
 
 private:
 
+    DataPackMgr&	dpm_;
+    DataPack::ID	datapackid_;
+
     bool		track(const BinID&,const BinID&,float&) const;
-
-    const BinID		attrDataBinId(const BinID&) const;
-
+    const TrcKey	getTrcKey(const BinID&) const;
     void		setHorizonPick(const BinID&,float val);
 
     static const char*	sKeyTracker()		{ return "Tracker"; }

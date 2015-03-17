@@ -840,16 +840,14 @@ bool MPEDisplay::setDataVolume( int attrib, const RegularSeisDataPack* cdp,
 
 bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 {
-    channels_->setNrVersions( attrib, 1 );
-
-    const RegularSeisDataPack* regsdp = engine_.getAttribCache(as_) ?
-	engine_.getAttribCache(as_)->getData() : 0;
+    ConstDataPackRef<RegularSeisDataPack> regsdp =
+	DPM(DataPackMgr::SeisID()).obtain( engine_.getAttribCacheID(as_) );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
+    channels_->setNrVersions( attrib, 1 );
     const Array3DImpl<float>& data( regsdp->data(0) );
     const float* arr = data.getData();
-
     OD::PtrPolicy cp = OD::UsePtr;
 
     // get the dimensions from the engine and then get a subsample of the array

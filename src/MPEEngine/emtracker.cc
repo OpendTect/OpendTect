@@ -73,7 +73,7 @@ Executor* EMTracker::trackInVolume()
 	// check whether data loading was cancelled by user
 	ObjectSet<const Attrib::SelSpec> attrselset;
 	sectiontracker->getNeededAttribs( attrselset );
-	if ( attrselset.isEmpty() || !engine().getAttribCache(*attrselset[0]) )
+	if ( attrselset.isEmpty() || !engine().hasAttribCache(*attrselset[0]) )
 	    continue;
 
 	if ( !res )

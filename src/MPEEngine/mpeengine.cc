@@ -12,16 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "mpeengine.h"
 
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
-#include "attribdataholder.h"
-#include "attribdesc.h"
-#include "attribdescset.h"
-#include "attribdescsetsholder.h"
 #include "attribsel.h"
-#include "attribstorprovider.h"
-#include "bufstringset.h"
-#include "ctxtioobj.h"
 #include "emeditor.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
@@ -32,15 +23,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "linekey.h"
 #include "sectiontracker.h"
 #include "seisdatapack.h"
 #include "seispreload.h"
 #include "survinfo.h"
 
-
 #define mRetErr( msg, retval ) { errmsg_ = msg; return retval; }
-
 
 MPE::Engine& MPE::engine()
 {
@@ -49,48 +37,8 @@ MPE::Engine& MPE::engine()
     return *theinst_;
 }
 
-
 namespace MPE
 {
-
-DataHolder::DataHolder()
-	: AbstDataHolder()
-	, regsdp_(0)
-{
-}
-
-
-DataHolder::~DataHolder()
-{
-    releaseMemory();
-}
-
-
-TrcKeyZSampling DataHolder::getTrcKeyZSampling() const
-{
-    return regsdp_ ? regsdp_->sampling() : TrcKeyZSampling(false);
-}
-
-
-void DataHolder::setData( const RegularSeisDataPack* regsdp )
-{
-    releaseMemory();
-    regsdp_ = regsdp;
-    if ( regsdp_ )
-	DPM(DataPackMgr::SeisID()).obtain( regsdp_->id() );
-}
-
-
-void DataHolder::releaseMemory()
-{
-    if ( regsdp_ )
-	DPM(DataPackMgr::SeisID()).release( regsdp_->id() );
-}
-
-
-bool DataHolder::isEmpty() const
-{ return regsdp_ ? regsdp_->isEmpty() : true; }
-
 
 // MPE::Engine
 Engine::Engine()
@@ -104,6 +52,7 @@ Engine::Engine()
     , activefssid_( -1 )
     , activefaultchanged_( this )
     , activefsschanged_( this )
+    , dpm_(DPM(DataPackMgr::SeisID()))
 {
     trackers_.allowNull( true );
     flatcubescontainer_.allowNull( true );
@@ -111,27 +60,18 @@ Engine::Engine()
 }
 
 
-static void releaseDataPack( DataPack::ID dpid )
-{
-    DPM(DataPackMgr::FlatID()).release( dpid );
-    DPM(DataPackMgr::SeisID()).release( dpid );
-}
-
-
 Engine::~Engine()
 {
     deepUnRef( trackers_ );
     deepUnRef( editors_ );
-    deepUnRef( attribcache_ );
     deepErase( attribcachespecs_ );
-    deepUnRef( attribbackupcache_ );
     deepErase( attribbackupcachespecs_ );
     deepErase( flatcubescontainer_ );
 
     for ( int idx=attribcachedatapackids_.size()-1; idx>=0; idx-- )
-	releaseDataPack( attribcachedatapackids_[idx] );
+	dpm_.release( attribcachedatapackids_[idx] );
     for ( int idx=attribbkpcachedatapackids_.size()-1; idx>=0; idx-- )
-	releaseDataPack( attribbkpcachedatapackids_[idx] );
+	dpm_.release( attribbkpcachedatapackids_[idx] );
 }
 
 
@@ -151,9 +91,6 @@ void Engine::setActive2DLine( Pos::GeomID geomid )
 
 Pos::GeomID Engine::activeGeomID() const
 { return activegeomid_; }
-
-BufferString Engine::active2DLineName() const
-{ return Survey::GM().getName( activegeomid_ ); }
 
 
 void Engine::updateSeedOnlyPropagation( bool yn )
@@ -428,43 +365,11 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 }
 
 
-const DataHolder* Engine::obtainAttribCache( DataPack::ID datapackid )
+bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 {
-    const DataPack* datapack = DPM(DataPackMgr::SeisID()).obtain( datapackid );
-    RefMan<DataHolder> dh = new DataHolder();
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack);
-    if ( regsdp )
-	dh->setData( regsdp );
-
-    if ( !dh->getTrcKeyZSampling().isEmpty() )
-    {
-	DataHolder* res = dh.set( 0, false );
-	res->unRefNoDelete();
-	return res;
-    }
-
-    releaseDataPack( datapackid );
-    return 0;
-}
-
-
-const DataHolder* Engine::getAttribCache( const Attrib::SelSpec& as )
-{
-    const int idx = getCacheIndexOf( as );
-    if ( attribcache_.validIdx(idx) ) return attribcache_[idx];
-
-    if ( as.isStored() )
-    {
-	const Attrib::DescSet* ads =
-		Attrib::DSHolder().getDescSet( false, true );
-	const Attrib::Desc* desc = !ads || ads->isEmpty()
-		? 0 : ads->getDesc( as.id() );
-	const MultiID mid = desc ? desc->getStoredID() : MultiID::udf();
-	mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
-	return sdp ? obtainAttribCache( sdp->id() ) : 0;
-    }
-
-    return 0;
+    const DataPack::ID dpid = getAttribCacheID( as );
+    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( dpid );
+    return regsdp;
 }
 
 
@@ -476,31 +381,28 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     if ( regfdp ) cacheid = regfdp->getSourceDataPack().id();
 
     const int idx = getCacheIndexOf(as);
-    if ( idx>=0 && idx<attribcachedatapackids_.size() )
+    if ( attribcachedatapackids_.validIdx(idx) )
     {
-	if ( cacheid <= DataPack::cNoID() )
+	if ( cacheid == DataPack::cNoID() )
 	{
-	    releaseDataPack( attribcachedatapackids_[idx] );
+	    dpm_.release( attribcachedatapackids_[idx] );
 	    attribcachedatapackids_.removeSingle( idx );
-	    attribcache_.removeSingle( idx )->unRef();
 	    delete attribcachespecs_.removeSingle( idx );
 	}
 	else
 	{
-	    ConstRefMan<DataHolder> newdata = obtainAttribCache( cacheid );
+	    ConstDataPackRef<RegularSeisDataPack> newdata= dpm_.obtain(cacheid);
 	    if ( newdata )
 	    {
-		releaseDataPack( attribcachedatapackids_[idx] );
-		attribcache_[idx]->unRef();
+		dpm_.release( attribcachedatapackids_[idx] );
 		attribcachedatapackids_[idx] = cacheid;
-		attribcache_.replace( idx, newdata );
-		attribcache_[idx]->ref();
+		dpm_.obtain( cacheid );
 	    }
 	}
     }
-    else if ( cacheid > DataPack::cNoID() )
+    else if ( cacheid != DataPack::cNoID() )
     {
-	ConstRefMan<DataHolder> newdata = obtainAttribCache( cacheid );
+	ConstDataPackRef<RegularSeisDataPack> newdata = dpm_.obtain( cacheid );
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
@@ -508,8 +410,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 		new CacheSpecs( as ) ;
 
 	    attribcachedatapackids_ += cacheid;
-	    attribcache_ += newdata;
-	    attribcache_[attribcache_.size()-1]->ref();
+	    dpm_.obtain( cacheid );
 	}
     }
 
@@ -520,14 +421,13 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const TrcKeyZSampling& cs )
 {
-    ConstRefMan<DataHolder> cache = getAttribCache( as );
-    if ( !cache )
-	return false;
+    ConstDataPackRef<RegularSeisDataPack> cache =
+				dpm_.obtain( getAttribCacheID(as) );
+    if ( !cache ) return false;
 
-    TrcKeyZSampling cachedcs = cache->getTrcKeyZSampling();
+    TrcKeyZSampling cachedcs = cache->sampling();
     const float zrgeps = 0.01f * SI().zStep();
     cachedcs.zsamp_.widen( zrgeps );
-
     return cachedcs.includes( cs );
 }
 
@@ -535,13 +435,10 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 void Engine::swapCacheAndItsBackup()
 {
     const TypeSet<DataPack::ID> tempcachedatapackids = attribcachedatapackids_;
-    const ObjectSet<const DataHolder> tempcache = attribcache_;
     const ObjectSet<CacheSpecs> tempcachespecs = attribcachespecs_;
     attribcachedatapackids_ = attribbkpcachedatapackids_;
-    attribcache_ = attribbackupcache_;
     attribcachespecs_ = attribbackupcachespecs_;
     attribbkpcachedatapackids_ = tempcachedatapackids;
-    attribbackupcache_ = tempcache;
     attribbackupcachespecs_ = tempcachespecs;
 }
 
@@ -777,11 +674,17 @@ void Engine::init()
 {
     deepUnRef( trackers_ );
     deepUnRef( editors_ );
-    deepUnRef( attribcache_ );
     deepErase( attribcachespecs_ );
-    deepUnRef( attribbackupcache_ );
     deepErase( attribbackupcachespecs_ );
     deepErase( flatcubescontainer_ );
+
+    for ( int idx=0; idx<attribcachedatapackids_.size(); idx++ )
+	dpm_.release( attribcachedatapackids_[idx] );
+    for ( int idx=0; idx<attribbkpcachedatapackids_.size(); idx++ )
+	dpm_.release( attribbkpcachedatapackids_[idx] );
+
+    attribcachedatapackids_.erase();
+    attribbkpcachedatapackids_.erase();
 }
 
 } // namespace MPE

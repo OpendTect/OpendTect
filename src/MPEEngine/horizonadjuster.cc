@@ -13,29 +13,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizonadjuster.h"
 
 #include "arrayndimpl.h"
-#include "attribdatacubes.h"
 #include "attribsel.h"
 #include "emhorizon.h"
 #include "emhorizon2d.h"
 #include "genericnumer.h"
 #include "iopar.h"
-#include "linear.h"
 #include "mpeengine.h"
 #include "samplingdata.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "valseriestracker.h"
 
-#include <math.h>
-
-namespace MPE {
-
+namespace MPE
+{
 
 HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
     : SectionAdjuster(sid)
     , horizon_(hor)
     , attribsel_(0)
-    , attrdata_(0)
+    , datapackid_(DataPack::cNoID())
+    , dpm_(DPM(DataPackMgr::SeisID()))
     , tracker_( new EventTracker )
 {
     tracker_->setSimilarityWindow(
@@ -49,8 +46,8 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
 HorizonAdjuster::~HorizonAdjuster()
 {
     delete attribsel_;
-    if ( attrdata_ ) attrdata_->unRef();
     delete tracker_;
+    dpm_.release( datapackid_ );
 }
 
 
@@ -64,9 +61,10 @@ const Attrib::SelSpec* HorizonAdjuster::getAttributeSel( int idx ) const
 
 void HorizonAdjuster::reset()
 {
-    if ( attrdata_ ) attrdata_->unRef();
-    attrdata_ = attribsel_ ? engine().getAttribCache( *attribsel_ ) : 0;
-    if ( attrdata_ ) attrdata_->ref();
+    dpm_.release( datapackid_ );
+    datapackid_ = attribsel_ ? engine().getAttribCacheID(*attribsel_)
+			     : DataPack::cNoID();
+    dpm_.obtain( datapackid_ );
 }
 
 
@@ -152,7 +150,8 @@ float HorizonAdjuster::similarityThreshold() const
 
 int HorizonAdjuster::nextStep()
 {
-    if ( !attrdata_ || attrdata_->isEmpty() )
+    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( datapackid_ );
+    if ( !regsdp || regsdp->isEmpty() )
 	return ErrorOccurred();
 
     for ( int idx=0; idx<pids_.size(); idx++ )
@@ -186,95 +185,42 @@ int HorizonAdjuster::nextStep()
 bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 			     float& targetz) const
 {
-    TrcKeyZSampling cs = attrdata_->getTrcKeyZSampling();
-    const int toinlidx =
-	cs.hrg.inlRange().nearestIndex( attrDataBinId(to).inl() );
-    if ( toinlidx<0 || toinlidx>=cs.nrInl() )
+    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( datapackid_ );
+    if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
-    const int tocrlidx =
-	cs.hrg.crlRange().nearestIndex( attrDataBinId(to).crl() );
-    if ( tocrlidx<0 || tocrlidx>=cs.nrCrl() )
-	return false;
-
-    const ValueSeries<float>* storage = 0;
-    od_int64 tooffset = 0;
-    if ( attrdata_->getData() )
-    {
-	const Array3D<float>& arr = attrdata_->getData()->data(0);
-	storage = arr.getStorage();
-	tooffset = arr.info().getOffset( toinlidx, tocrlidx, 0 );
-    }
-    /*else if ( attrdata_->is2D() && attrdata_->get2DData() )
-    {
-	const int dhidx = attrdata_->get2DData()->indexOf( to.crl() );
-	if ( dhidx<0 )
-	    return false;
-
-	const Array3D<float>& arr = *attrdata_->get2DData()->dataset_;
-	storage = arr.getStorage();
-	const int component = 0;
-	tooffset = arr.info().getOffset( component, dhidx, 0 );
-    }*/
-
-    if ( !storage ) return false;
-
-    const int zsz = cs.nrZ();
-
-    const SamplingData<double> sd( cs.zsamp_.start,cs.zsamp_.step );
-
-    const OffsetValueSeries<float> toarr(
-		    const_cast<ValueSeries<float>&>(*storage), tooffset );
+    const Array3D<float>& array = regsdp->data( 0 );
+    if ( !array.getStorage() ) return false;
 
     if ( !horizon_.isDefined(sectionid_, to.toInt64()) )
 	return false;
+
+    const od_int64 totrcidx = regsdp->getGlobalIdx( getTrcKey(to) );
+    if ( totrcidx < 0 ) return false;
+
+    const OffsetValueSeries<float> tovs = regsdp->getTrcStorage( 0, totrcidx );
     const float startz = (float) horizon_.getPos( sectionid_, to.toInt64() ).z;
-    tracker_->setRangeStep( (float) sd.step );
-
-    tracker_->setTarget( &toarr, zsz, sd.getfIndex(startz) );
-
+    const TrcKeyZSampling& tkzs = regsdp->sampling();
+    const StepInterval<float>& zsamp = tkzs.zsamp_;
+    tracker_->setRangeStep( zsamp.step );
+    tracker_->setTarget( &tovs, tkzs.nrZ(), zsamp.getfIndex(startz) );
     if ( from.inl()!=-1 && from.crl()!=-1 )
     {
-	const int frominlidx =
-	    cs.hrg.inlRange().nearestIndex(attrDataBinId(from).inl());
-	if ( frominlidx<0 || frominlidx>=cs.nrInl() )
-	    return false;
-
-	const int fromcrlidx =
-	    cs.hrg.crlRange().nearestIndex(attrDataBinId(from).crl());
-	if ( fromcrlidx<0 || fromcrlidx>=cs.nrCrl() )
-	    return false;
-
-	od_int64 fromoffset = mUdf(od_int64);
-	//if ( !attrdata_->is2D() )
-	    fromoffset = attrdata_->getData()->data(0).info().getOffset(
-						frominlidx, fromcrlidx, 0 );
-
-	/*if ( attrdata_->is2D() && attrdata_->get2DData() )
-	{
-	    const int dhidx = attrdata_->get2DData()->indexOf( from.crl() );
-	    if ( dhidx<0 )
-		return false;
-
-	    const Array3D<float>& arr = *attrdata_->get2DData()->dataset_;
-	    const int component = 0;
-	    fromoffset = arr.info().getOffset( component, dhidx, 0 );
-	}*/
-
-	const OffsetValueSeries<float> fromarr(
-		    const_cast<ValueSeries<float>&>(*storage), fromoffset );
 	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
 	    return false;
 
-	const float fromz = (float)horizon_.getPos(sectionid_,from.toInt64()).z;
-	tracker_->setSource( &fromarr, zsz, sd.getfIndex(fromz) );
+	const od_int64 fromtrcidx = regsdp->getGlobalIdx( getTrcKey(from) );
+	if ( fromtrcidx < 0 ) return false;
 
+	const OffsetValueSeries<float> fromvs =
+			regsdp->getTrcStorage( 0, fromtrcidx );
+	const float fromz = (float)horizon_.getPos(sectionid_,from.toInt64()).z;
+	tracker_->setSource( &fromvs, tkzs.nrZ(), zsamp.getfIndex(fromz) );
 	if ( !tracker_->isOK() )
 	    return false;
 
 	const bool res = tracker_->track();
-	const float resz = (float) sd.atIndex( tracker_->targetDepth() );
-
+	const float resz = zsamp.atIndex( tracker_->targetDepth() );
 	if ( !permittedZRange().includes(resz-startz,false) )
 	    return false;
 
@@ -282,14 +228,12 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	return res;
     }
 
-    tracker_->setSource( 0, zsz, 0 );
-
+    tracker_->setSource( 0, tkzs.nrZ(), 0 );
     if ( !tracker_->isOK() )
 	return false;
 
     const bool res = tracker_->track();
-    const float resz = (float) sd.atIndex( tracker_->targetDepth() );
-
+    const float resz = zsamp.atIndex( tracker_->targetDepth() );
     if ( !permittedZRange().includes(resz-startz,false) )
 	return false;
 
@@ -335,19 +279,14 @@ TrcKeyZSampling
 }
 
 
-bool HorizonAdjuster::is2D() const
+const TrcKey HorizonAdjuster::getTrcKey( const BinID& bid ) const
 {
-    mDynamicCastGet(const EM::Horizon2D*,hor2d,&horizon_)
-    return hor2d;
-}
+    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( datapackid_ );
+    if ( !regsdp ) return TrcKey::udf();
 
-
-const BinID HorizonAdjuster::attrDataBinId( const BinID& bid ) const
-{
-    return is2D() && attrdata_->getTrcKeyZSampling().nrInl()==1
-	? BinID( attrdata_->getTrcKeyZSampling().hrg.inlRange().start,
-		 bid.crl() )
-	: bid;
+    return regsdp->is2D() ?
+      Survey::GM().traceKey(regsdp->getTrcKey(0).geomID(),bid.crl()) :
+      Survey::GM().traceKey(Survey::GM().default3DSurvID(),bid.inl(),bid.crl());
 }
 
 
@@ -367,9 +306,9 @@ void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
     if ( !attribsel_ ) attribsel_ = new Attrib::SelSpec;
     *attribsel_ = as;
 
-    if ( attrdata_ ) attrdata_->unRef();
-    attrdata_ = engine().getAttribCache( *attribsel_ );
-    if ( attrdata_ ) attrdata_->ref();
+    dpm_.release( datapackid_ );
+    datapackid_ = engine().getAttribCacheID( *attribsel_ );
+    dpm_.obtain( datapackid_ );
 }
 
 
