@@ -120,6 +120,8 @@ public:
      int		addPos(const Coord3&, bool draw = true);
     void		setPos(int, const Coord3&,bool draw = true);
     void		forceRedraw(bool);
+    void		addPolygonOffsetNodeState();
+    void		removePolygonOffsetNodeState();
     
 protected:
     void		materialChangeCB(CallBacker*);

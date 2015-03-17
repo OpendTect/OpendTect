@@ -110,6 +110,7 @@ Well::Well()
 	*lognames_.getParam(this) += BufferString();
     }
 
+    markerset_->addPolygonOffsetNodeState();
 }
 
 

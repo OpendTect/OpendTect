@@ -16,6 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "visosg.h"
 #include "vismaterial.h"
+#include "vispolygonoffset.h"
+
+#include "hiddenparam.h"
 
 #include <osgGeo/MarkerSet>
 #include <osgGeo/MarkerShape>
@@ -28,6 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 mCreateFactoryEntry( visBase::MarkerSet );
 
 using namespace visBase;
+
+HiddenParam<MarkerSet, PolygonOffset*> offset_( 0 );
 
 MarkerSet::MarkerSet()
     : VisualObjectImpl(true)
@@ -52,6 +57,8 @@ MarkerSet::MarkerSet()
     setType( MarkerStyle3D::Cube );
     setScreenSize( cDefaultScreenSize() );
     setMaterial( 0 ); //Triggers update of markerset's color array
+
+    offset_.setParam( this, 0 );
 }
 
 
@@ -60,6 +67,9 @@ MarkerSet::~MarkerSet()
     removeChild( markerset_ );
     clearMarkers();
     markerset_->unref();
+
+    removePolygonOffsetNodeState();
+    offset_.removeParam( this );
 }
 
 
@@ -426,5 +436,29 @@ void MarkerSet::getColorArray( TypeSet<Color>& colors ) const
 	return;
     for ( int idx=0; idx<clrarr->size(); idx++ )
 	colors += Conv::to<Color>( (*clrarr)[idx] );
+}
+
+
+void MarkerSet::addPolygonOffsetNodeState()
+{
+    if ( !offset_.getParam(this) )
+    {
+        visBase::PolygonOffset* offset = new visBase::PolygonOffset;
+	offset->setFactor( -1.0f );
+	offset->setUnits( 1.0f );
+	offset->setMode( visBase::PolygonOffset::Protected | 
+		visBase::PolygonOffset::On );
+	addNodeState( offset );
+	offset_.setParam( this, offset );
+    }
+}
+
+
+void MarkerSet::removePolygonOffsetNodeState()
+{
+    if( offset_.getParam(this) )
+	removeNodeState( offset_.getParam(this) );
+    offset_.setParam( this,0 );
+
 }
 
