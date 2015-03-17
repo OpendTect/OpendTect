@@ -675,7 +675,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	    tmpprov->computeRefZ0();
 	    const float floatres = (tkzs.zsamp_.start - tmpprov->getRefZ0()) /
 				    tmpprov->getRefStep();
-	    const int intres = Math::Floor( floatres );
+	    const int intres = (int)Math::Floor( floatres );
 	    if ( floatres - intres > 1e-6 )
 		atsamplepos = false;
 	}

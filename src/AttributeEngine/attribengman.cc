@@ -369,7 +369,7 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 			if ( Values::isUdf( val ) )
 			    continue;
 
-			const int outzsampidx = Math::Floor( outfidx );
+			const int outzsampidx = (int)Math::Floor( outfidx );
 			output->setValue( cubeidx, inlidx, crlidx, outzsampidx, val );
 		    }
 		}

@@ -214,10 +214,10 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
     mGetZSz();
 
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
-    const int outz0samp = Math::Floor( datacubes_->z0_ );
+    const int outz0samp = (int)Math::Floor( datacubes_->z0_ );
     const float extrazsamp = datacubes_->z0_ - mCast(float,outz0samp);
     const bool needinterp = extrazsamp >= 1e3;
-    const Interval<float> outrg( outz0samp, outz0samp+zsz-1 );
+    const Interval<int> outrg( outz0samp, outz0samp+zsz-1 );
 
     if ( !inputrg.overlaps(outrg,false) )
 	return;
@@ -247,8 +247,8 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 			    	     idx-data.z0_+extrazsamp, refstep )
 		    : data.series(desoutputs_[desout])->value(idx-data.z0_);
 
-		datacubes_->setValue( desout, inlidx, crlidx,
-				      idx-datacubes_->z0_, val);
+		const int zoutidx = (int)Math::Floor( idx-datacubes_->z0_ );
+		datacubes_->setValue( desout, inlidx, crlidx, zoutidx, val);
 	    }
 	}
 	else
@@ -257,7 +257,8 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 			     datacubes_->getCube(desout).getStorage() );
 	    const char elemsz = mCast(char,cmvs->dataDesc().nrBytes());
 
-	    const od_int64 destoffset = transrg.start-datacubes_->z0_ +
+	    const int idxz0 = (int)Math::Floor( datacubes_->z0_ );
+	    const od_int64 destoffset = transrg.start - idxz0 +
 		datacubes_->getCube(desout).info().getOffset(inlidx,crlidx,0);
 
 	    char* dest = deststor->storArr() + destoffset * elemsz;
@@ -292,7 +293,7 @@ void DataCubesOutput::init( float refstep )
     datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hrg.start.crl(),
 						dcsampling_.hrg.stop.crl(),
 						dcsampling_.hrg.step.crl());
-    datacubes_->z0_ = mNINT32(dcsampling_.zsamp_.start/refstep);
+    datacubes_->z0_ = dcsampling_.zsamp_.start / refstep;
     datacubes_->zstep_ = refstep;
     int inlsz, crlsz, zsz;
     mGetSz(inl); mGetSz(crl); mGetZSz();
