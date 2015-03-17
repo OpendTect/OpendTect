@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpollayermodel.h"
 
 #include "iopar.h"
-#include <cmath>
+#include "math2.h"
 
 // InterpolationLayerModel
 mImplFactory( InterpolationLayerModel, InterpolationLayerModel::factory )
@@ -32,8 +32,10 @@ void InterpolationLayerModel::fillPar( IOPar& par ) const
 float InterpolationLayerModel::getInterpolatedZ( const BinID& bid,
 						 float layeridx ) const
 {
-    const int idx0 = mNINT32( floor(layeridx) );
-    const int idx1 = mNINT32( ceil(layeridx) );
+    const float fidx0 = Math::Floor( layeridx );
+    const float fidx1 = Math::Ceil( layeridx );
+    const int idx0 = mNINT32( fidx0 );
+    const int idx1 = mNINT32( fidx1 );
     const float z0 = getZ( bid, idx0 );
     if ( idx1==idx0 ) return z0;
 

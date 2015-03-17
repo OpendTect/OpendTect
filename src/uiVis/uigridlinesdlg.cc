@@ -122,8 +122,8 @@ static void getDefaultTrcKeySampling( int& start, int& stop, int& step )
     const float width = mCast( float, stop - start );
     step = mNINT32( getDefaultStep(width) );
 
-    start = step * (int)( ceil( (float)start/(float)step ) );
-    stop = step * (int)( floor( (float)stop/(float)step ) );
+    start = step * (int)( Math::Ceil( (float)start/(float)step ) );
+    stop = step * (int)( Math::Floor( (float)stop/(float)step ) );
 }
 
 
@@ -132,9 +132,11 @@ static void getDefaultZSampling( StepInterval<float>& zrg )
     const float width = (zrg.stop-zrg.start) * SI().zDomain().userFactor();
     zrg.step = getDefaultStep( width );
     zrg.start = zrg.step *
-	ceil( (float)zrg.start * SI().zDomain().userFactor() /(float)zrg.step );
+	Math::Ceil( (float)zrg.start * SI().zDomain().userFactor()
+		    / (float)zrg.step );
     zrg.stop = zrg.step *
-	floor( (float)zrg.stop * SI().zDomain().userFactor() /(float)zrg.step );
+	Math::Floor( (float)zrg.stop * SI().zDomain().userFactor()
+		    / (float)zrg.step );
 }
 
 

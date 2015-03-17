@@ -75,7 +75,7 @@ void Texture::updateDefaults( Desc& desc )
     mDynamicCastGet(ZGateParam*,zgate,paramgate)
     float roundedzstep = SI().zStep()*SI().showZ2UserFactor();
     if ( roundedzstep > 0 )
-	roundedzstep = floor ( roundedzstep );
+	roundedzstep = Math::Floor( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 

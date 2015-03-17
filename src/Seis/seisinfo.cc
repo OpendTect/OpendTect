@@ -392,13 +392,13 @@ SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg ) const
 
     if ( vals.start < vals.stop )
     {
-	sg.start = (int)floor(vals.start+1e-3);
-	sg.stop =  (int)ceil(vals.stop-1e-3);
+	sg.start = (int)Math::Floor(vals.start+1e-3);
+	sg.stop =  (int)Math::Ceil(vals.stop-1e-3);
     }
     else
     {
-	sg.start =  (int)ceil(vals.start-1e-3);
-	sg.stop = (int)floor(vals.stop+1e-3);
+	sg.start =  (int)Math::Ceil(vals.start-1e-3);
+	sg.stop = (int)Math::Floor(vals.stop+1e-3);
     }
 
     if ( sg.start < 0 ) sg.start = 0;

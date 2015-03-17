@@ -184,10 +184,10 @@ bool SynthGenBase::getOutSamplingFromModel(
     sampling.scale( 1.f / outputsr );
     sampling.start = mIsEqual( (float)mNINT32(sampling.start), sampling.start,
 				1e-2f )
-			  ? mNINT32(sampling.start) : floor( sampling.start);
+		      ? mNINT32(sampling.start) : Math::Floor( sampling.start);
     sampling.stop = mIsEqual( (float)mNINT32(sampling.stop), sampling.stop,
 			       1e-2f )
-			 ? mNINT32(sampling.stop) : ceil( sampling.stop );
+		     ? mNINT32(sampling.stop) : Math::Ceil( sampling.stop );
     sampling.scale( outputsr );
     sampling.start += wavelet_->samplePositions().start;
     sampling.stop += wavelet_->samplePositions().stop;
@@ -538,7 +538,7 @@ void SynthGenerator::sortOutput( float_complex* cres, ValueSeries<float>& res,
 	start += step;
 
     const float width = step * convolvesize_;
-    const int nperiods = mCast( int, floor( start/width ) ) + 1;
+    const int nperiods = mCast( int, Math::Floor( start/width ) ) + 1;
     const SamplingData<float> fftsampling( start, step );
     SeisTrc fftout( convolvesize_ );
     fftout.info().sampling = fftsampling;

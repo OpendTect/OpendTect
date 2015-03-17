@@ -445,7 +445,7 @@ float Sampled1DProbDenFunc::gtVal( float pos ) const
 	return bins_.get( nidx );
     }
 
-    const int idx = (int)floor(fidx);
+    const int idx = (int)Math::Floor(fidx);
     if ( idx < -1 || idx > sz-1 )
 	return 0;
 
@@ -561,7 +561,8 @@ float Sampled2DProbDenFunc::gtVal( float px, float py ) const
 	return bins_.get( nidxx, nidxy );
     }
 
-    const int idxx = (int)floor(fidxx); const int idxy = (int)floor(fidxy);
+    const int idxx = (int)Math::Floor(fidxx);
+    const int idxy = (int)Math::Floor(fidxy);
     if ( idxx < -1 || idxx > szx-1 || idxy < -1 || idxy > szy-1 )
 	return 0;
 
@@ -731,7 +732,7 @@ float SampledNDProbDenFunc::value( const TypeSet<float>& vals ) const
     for ( int idim=0; idim<nrdims; idim++ )
     {
 	const float fidx = sds_[idim].getfIndex( vals[idim] );
-	const int idx = (int)floor(fidx);
+	const int idx = (int)Math::Floor(fidx);
 	if ( idx < -1 || idx > szs[idim]-1 )
 	    return 0;
 	relpos[idim] = fidx - idx; idxs[idim] = idx;

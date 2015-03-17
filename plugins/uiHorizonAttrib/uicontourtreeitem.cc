@@ -1077,7 +1077,7 @@ bool uiContourTreeItem::computeUICContourSteps( const Array2D<float>& field )
 	const float offset = ( sd.start - contoursteprange_.start ) / sd.step;
 	if ( offset < 0 || offset > 1 )
 	{
-	    const int nrsteps = mNINT32( floor(offset) );
+	    const int nrsteps = mNINT32( Math::Floor(offset) );
 	    sd.start -= nrsteps * sd.step;
 	}
 

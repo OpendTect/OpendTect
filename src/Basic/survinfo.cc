@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posidxpair2coord.h"
 #include "od_istream.h"
 #include "oscommand.h"
-#include <math.h>
 #include <stdio.h>
 
 
@@ -929,7 +928,7 @@ void SurveyInfo::snapZ( float& z, int dir ) const
     int targetidx = mNINT32(relidx);
     const float zdiff = z - zrg.atIndex( targetidx );
     if ( !mIsZero(zdiff,eps) && dir )
-	targetidx = (int)( dir < 0 ? floor(relidx) : ceil(relidx) );
+	targetidx = (int)( dir < 0 ? Math::Floor(relidx) : Math::Ceil(relidx) );
     z = zrg.atIndex( targetidx );;
     if ( z > zrg.stop - eps )
 	 z = zrg.stop;

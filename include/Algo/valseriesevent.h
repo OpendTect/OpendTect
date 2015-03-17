@@ -324,13 +324,13 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
     SampleGate sg;
     if ( inc > 0 )
     {
-	sg.start = (int)floor((pg.start-sd_.start)/sd_.step);
-	sg.stop = (int)ceil((pg.stop-sd_.start)/sd_.step);
+	sg.start = (int)Math::Floor((pg.start-sd_.start)/sd_.step);
+	sg.stop = (int)Math::Ceil((pg.stop-sd_.start)/sd_.step);
     }
     else
     {
-	sg.start = (int)ceil((pg.start-sd_.start)/sd_.step);
-	sg.stop = (int)floor((pg.stop-sd_.start)/sd_.step);
+	sg.start = (int)Math::Ceil((pg.start-sd_.start)/sd_.step);
+	sg.stop = (int)Math::Floor((pg.stop-sd_.start)/sd_.step);
 	if ( evtype == VSEvent::ZCNegPos )
 	    evtype = VSEvent::ZCPosNeg;
 	else if ( evtype == VSEvent::ZCPosNeg )

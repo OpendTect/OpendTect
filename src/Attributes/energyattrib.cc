@@ -65,7 +65,7 @@ void Energy::updateDefaults( Desc& desc )
     mDynamicCastGet( ZGateParam*, zgate, paramgate )
     float roundedzstep = SI().zStep()*SI().zDomain().userFactor();
     if ( roundedzstep > 0 )
-	roundedzstep = floor ( roundedzstep );
+	roundedzstep = Math::Floor( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
 }
 

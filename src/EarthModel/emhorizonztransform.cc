@@ -143,7 +143,7 @@ Interval<float> HorizonZTransform::getZInterval( bool from ) const
 			  SI().zRange(true).stop-depthrange_.start );
     const float step = SI().zRange(true).step;
     float idx = intv.start / step;
-    intv.start = floor(idx) * step;
+    intv.start = Math::Floor(idx) * step;
     idx = intv.stop / step;
     intv.stop = ceil(idx) * step;
     return intv;

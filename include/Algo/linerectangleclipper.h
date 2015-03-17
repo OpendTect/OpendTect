@@ -101,7 +101,7 @@ template <class T> inline
 const T LineRectangleClipper<T>::castDouble2T( double d ) const
 {
     const T t1 = (T) d;
-    const T t2 = (T) floor( d + 0.5 );
+    const T t2 = (T) Math::Floor( d + 0.5 );
     return fabs(d-t1) < fabs(d-t2) ? t1 : t2;
 }
 

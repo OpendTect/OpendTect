@@ -191,18 +191,20 @@ mDefMathFunc( Abs,   false, "", res=(num<0 ? -num : num) );
 mDefMathFunc( Asin,  fabs(num)>1, "argument in range [-1,1]", res=asin(num) );
 mDefMathFunc( Acos,  fabs(num)>1, "argument in range [-1,1]", res=acos(num) );
 mDefMathFunc( Atan,  false, "", res=atan(num) );
-mDefMathFunc( Ceil,  false, "", res=ceil(num) );
+mDefMathFunc( Ceil,  false, "", res=Math::Ceil(num) );
 mDefMathFunc( Cos,   false, "", res=cos(num) );
 mDefMathFunc( Exp,   false, "", res=exp(num) );
-mDefMathFunc( Floor, false, "", res=floor(num) );
+mDefMathFunc( Floor, false, "", res=Math::Floor(num) );
 mDefMathFunc( Ln,    num<=0, "positive argument", res=log(num) );
 mDefMathFunc( Log,   num<=0, "positive argument", res=log10(num) );
-mDefMathFunc( Round, false, "", res=(num<0 ? ceil(num-0.5) : floor(num+0.5)) );
+mDefMathFunc( Round, false, "", res=(num<0 ? Math::Ceil(num-0.5)
+	    				   : Math::Floor(num+0.5)) );
 mDefMathFunc( Sgn,   false, "", res=(!num ? 0 : (num<0 ? -1 : 1)) );
 mDefMathFunc( Sin,   false, "", res=sin(num) );
 mDefMathFunc( Sqrt,  num<0, "non-negative argument", res=Math::Sqrt(num) );
 mDefMathFunc( Tan,   false, "", res=tan(num) );
-mDefMathFunc( Trunc, false, "", res=(num<0 ? ceil(num) : floor(num)) );
+mDefMathFunc( Trunc, false, "", res=(num<0 ? Math::Ceil(num)
+	    				   : Math::Floor(num)) );
 
 
 bool RandFunc::eval( const BufferStringSet& args, BufferString& res ) const

@@ -11,6 +11,7 @@
 #include "fourier.h"
 #include "scaler.h"
 #include "varlenarray.h"
+#include "math2.h"
 
 
 ReflectivitySampler::ReflectivitySampler(const ReflectivityModel& model,
@@ -43,7 +44,7 @@ void ReflectivitySampler::getReflectivities( ReflectivityModel& sampledrefmodel)
     if ( start < outsampling_.start - 1e-4f )
 	start += step;
     const float width = step * sz;
-    const int nperiods = mCast( int, floor( start/width ) ) + 1;
+    const int nperiods = mCast( int, Math::Floor( start/width ) ) + 1;
     const SamplingData<float> fftsampling( start, step );
     const float stoptwt = start + width;
     float twt = width * nperiods - step;

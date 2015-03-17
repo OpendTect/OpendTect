@@ -251,8 +251,8 @@ bool WellLogInterpolator::prepareComp( int )
 static TypeSet<float> getMDs( const WellLogInfo& info, float layeridx )
 {
     TypeSet<float> mds;
-    const float fidx0 = floor( layeridx );
-    const float fidx1 = ceil( layeridx );
+    const float fidx0 = Math::Floor( layeridx );
+    const float fidx1 = Math::Ceil( layeridx );
     const int idx0 = mNINT32(fidx0);
     const int idx1 = mNINT32(fidx1);
     if ( !info.intersections_.validIdx(idx0) ||

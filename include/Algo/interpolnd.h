@@ -56,12 +56,13 @@ Input:
     }
 
   You therefore provide all the points in the (hyper)cube around the point of
-  evaluation. The [0][0]...[0] point can be determined using 'floor', as in:
+  evaluation. The [0][0]...[0] point can be determined using 'Math::Floor',
+  as in:
 
     for ( int idim=0; idim<nrdims; idim++ )
     {
 	const float fidx = samplings[idim].getIndex( vals[idim] );
-	const int idx0 = (int)floor(fidx);
+	const int idx0 = (int)Math::Floor(fidx);
 	pos[idim] = fidx - idx0; idx0s += idx0;
     }
 

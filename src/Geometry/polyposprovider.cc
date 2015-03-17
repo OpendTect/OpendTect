@@ -70,10 +70,10 @@ static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
 
     const Interval<float> xrg( poly.getRange(true) );
     const Interval<float> yrg( poly.getRange(false) );
-    hs.start.inl() = (int)floor( xrg.start + 0.5 );
-    hs.start.crl() = (int)floor( yrg.start + 0.5 );
-    hs.stop.inl() = (int)floor( xrg.stop + 0.5 );
-    hs.stop.crl() = (int)floor( yrg.stop + 0.5 );
+    hs.start.inl() = (int)Math::Floor( xrg.start + 0.5 );
+    hs.start.crl() = (int)Math::Floor( yrg.start + 0.5 );
+    hs.stop.inl() = (int)Math::Ceil( xrg.stop - 0.5 );
+    hs.stop.crl() = (int)Math::Ceil( yrg.stop - 0.5 );
     SI().snap( hs.start, BinID(1,1) );
     SI().snap( hs.stop, BinID(-1,-1) );
 }

@@ -148,7 +148,8 @@ else \
 \
     const double width = mMIN(rg.stop,limit.stop) - limit.atIndex(startidx); \
     const double realnrsteps = width / (stepfac*limit.step); \
-    const int stopidx = startidx + stepfac * mNINT32( floor(realnrsteps+eps) );\
+    const int stopidx = startidx \
+    			+ stepfac * mNINT32( Math::Floor(realnrsteps+eps) );\
 \
     if ( startidx <= stopidx ) \
     { \

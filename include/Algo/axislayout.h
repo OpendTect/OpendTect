@@ -116,13 +116,13 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
 	double idx0 = 0;
 	if ( annotinsiderg_ )
 	{
-	    idx0 = rev ? floor(intv.stop / sd_.step + 1e-6)
-		       : ceil(intv.start / sd_.step + 1e-6);
+	    idx0 = rev ? Math::Floor(intv.stop / sd_.step + 1e-6)
+		       : Math::Ceil(intv.start / sd_.step + 1e-6);
 	}
 	else
 	{
-	    idx0 = rev ? ceil(intv.stop / sd_.step + 1e-6)
-		       : floor(intv.start / sd_.step + 1e-6);
+	    idx0 = rev ? Math::Ceil(intv.stop / sd_.step + 1e-6)
+		       : Math::Floor(intv.start / sd_.step + 1e-6);
 	}
 
 	sd_.start = mNINT32( idx0 ) * sd_.step;
@@ -150,7 +150,8 @@ T AxisLayout<T>::findEnd( T datastop ) const
 
     const double dnrsteps = double(datastop-worksd.start)/worksd.step - 1e-6;
     int nrsteps =
-	mNINT32( (annotinsiderg_ ? floor(dnrsteps) : ceil(dnrsteps)) );
+	mNINT32( (annotinsiderg_ ? Math::Floor(dnrsteps)
+		    		 : Math::Ceil(dnrsteps)) );
     if ( nrsteps < 1 ) nrsteps = 1;
     T wdth = nrsteps * worksd.step;
     return sd_.start + (rev ? -wdth : wdth);

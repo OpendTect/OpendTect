@@ -1765,8 +1765,10 @@ void HorizonDisplay::updateIntersectionLines(
 		if ( mIsUdf(crd.x) || mIsUdf(crd.y) )
 		    continue;
 
-		cs.hrg.include( BinID((int) floor(crd.x),(int) floor(crd.y)) );
-		cs.hrg.include( BinID((int)  ceil(crd.x),(int)  ceil(crd.y)) );
+		cs.hrg.include( BinID( (int)Math::Floor(crd.x),
+			    		(int)Math::Floor(crd.y)) );
+		cs.hrg.include( BinID( (int)Math::Ceil(crd.x),
+			    		(int)Math::Ceil(crd.y)) );
 		trclist += crd; trclist += crd;
 	    }
 	}

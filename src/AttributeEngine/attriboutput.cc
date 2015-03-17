@@ -214,7 +214,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
     mGetZSz();
 
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
-    const int outz0samp = floor(datacubes_->z0_);
+    const int outz0samp = Math::Floor( datacubes_->z0_ );
     const float extrazsamp = datacubes_->z0_ - mCast(float,outz0samp);
     const bool needinterp = extrazsamp >= 1e3;
     const Interval<float> outrg( outz0samp, outz0samp+zsz-1 );

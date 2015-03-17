@@ -400,7 +400,7 @@ bool TileResolutionData::detectIsolatedLine( int curidx, char direction )
     HorizonSectionTile* curtile = const_cast<HorizonSectionTile*>( sectile_ );
     const HorizonSection& section = curtile->hrsection_;
     const int size = section.nrcoordspertileside_;
-    const int currow = (int)floor( (double)curidx/size );
+    const int currow = (int)Math::Floor( (double)curidx/size );
     const int curcol = curidx - currow*size;
     const bool isfirstrow = currow == 0 ? true : false;
     const bool isfirstcol = curcol == 0 ? true : false;

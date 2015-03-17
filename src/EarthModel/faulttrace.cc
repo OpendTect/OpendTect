@@ -132,7 +132,8 @@ bool FaultTrace::getImage( const BinID& bid, float z,
 	return false;
 
     const float fidx = trcrg.getfIndex( intsectn.x );
-    const int index = posdir ? mNINT32( ceil(fidx) ) : mNINT32( floor(fidx) );
+    const int index = posdir ? mNINT32( Math::Ceil(fidx) )
+			     : mNINT32( Math::Floor(fidx) );
     bidimg.inl() = isinl_ ? nr_ : trcrg.atIndex( index );
     bidimg.crl() = isinl_ ? trcrg.atIndex( index ) : nr_;
     return true;
@@ -810,7 +811,8 @@ bool FaultTrace::getIntersection( const BinID& bid1, float z1,
     if ( intv )
     {
         const float fidx = intv->getfIndex( intersection.x );
-	const int trcidx = mNINT32( snappositive ? ceil(fidx) : floor(fidx) );
+	const int trcidx = mNINT32( snappositive ? Math::Ceil(fidx)
+						 : Math::Floor(fidx) );
 	trcnr = intv->atIndex( trcidx );
     }
 

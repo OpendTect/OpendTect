@@ -325,7 +325,7 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
 	    continue;
 
 	const float fdim1 = (dim1pos - dim1pos_.start) * dim1fac;
-	const int idim1 = (int)floor( fdim1 + 1e-6 );
+	const int idim1 = (int)Math::Floor( fdim1 + 1e-6 );
 	const float dim1offs = fdim1 - idim1;
 
 	if ( idim1<0 || idim1>=szdim1_ )
@@ -484,8 +484,8 @@ void VDA2DBitMapGenerator::drawStrip( int idim0 )
     const float curpos = dim0pos_[idim0];
     float stripmidpix = setup_.getPixOffs( 0, curpos );
     float halfstrippixs = strippixs_ / 2;
-    Interval<int> pixs2do( (int)floor(stripmidpix-halfstrippixs+1e-6),
-			   (int)ceil( stripmidpix+halfstrippixs-1e-6) );
+    Interval<int> pixs2do( (int)Math::Floor(stripmidpix-halfstrippixs+1e-6),
+			   (int)Math::Ceil( stripmidpix+halfstrippixs-1e-6) );
     if ( pixs2do.start < 0 ) pixs2do.start = 0;
     if ( pixs2do.stop >= setup_.nrXPix() ) pixs2do.stop = setup_.nrXPix() - 1;
 
@@ -500,7 +500,7 @@ void VDA2DBitMapGenerator::drawStrip( int idim0 )
 	float prevstripmidpix = setup_.getPixOffs( 0, prevpos );
 	float halfwaypix = (prevstripmidpix + stripmidpix) * .5f;
 	if ( halfwaypix > pixs2do.start )
-	    pixs2do.start = (int)ceil(halfwaypix-1e-6);
+	    pixs2do.start = (int)Math::Ceil(halfwaypix-1e-6);
     }
     if ( idim0 < szdim0_-1 )
     {
@@ -508,7 +508,7 @@ void VDA2DBitMapGenerator::drawStrip( int idim0 )
 	float nextstripmidpix = setup_.getPixOffs( 0, nextpos );
 	float halfwaypix = (nextstripmidpix + stripmidpix) * .5f;
 	if ( halfwaypix < pixs2do.stop )
-	    pixs2do.stop = (int)floor(halfwaypix-1e-6);
+	    pixs2do.stop = (int)Math::Floor(halfwaypix-1e-6);
     }
 
     drawPixLines( idim0, pixs2do );
@@ -574,7 +574,7 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 		continue;
 
 	    const float fdim1 = (dim1pos - dim1pos_.start) * dim1fac;
-	    int idim1 = (int)floor( fdim1 + 1e-6 );
+	    int idim1 = (int)Math::Floor( fdim1 + 1e-6 );
 	    const float dim1offs = fdim1 - idim1;
 
 	    if ( interp && idim1 != previdim1 )

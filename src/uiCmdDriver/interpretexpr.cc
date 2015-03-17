@@ -468,14 +468,14 @@ const char* ExprInterpreter::interpretCompositeExpr( const char* parstr,
 
 		if ( ops[opidx] != Divide )
 		{
-		    double intres = floor( res );
+		    double intres = Math::Floor( res );
 		    res = ops[opidx]==IntDiv ? intres : num0-intres*num1;
 		}
 	    }
 
 	    if ( ops[opidx] == Power )
 	    {
-		if ( num0<0 && num1!=floor(num1) )
+		if ( num0<0 && num1!=Math::Floor(num1) )
 		    mErrCont( "Negative base requires integer exponent" )
 		if ( !num0 && num1<0 )
 		    mErrCont( "Negative exponent requires non-zero base" );
