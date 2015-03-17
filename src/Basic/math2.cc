@@ -112,14 +112,11 @@ int Math::HCFOf( int num1, int num2 )
 unsigned int Math::Abs( int val )	{ return abs(val); }
 od_uint64 Math::Abs( od_int64 val )	{ return llabs(val); }
 double Math::Abs( double val )		{ return fabs(val); }
-float Math::Abs( float val )
-{
-#ifdef __win__
-    return mCast(float,fabs(val));
-#else
-    return fabs(val);
-#endif
-}
+float Math::Abs( float val )		{ return fabsf(val); }
+double Math::Floor( double val )	{ return floor(val); }
+float Math::Floor( float val )		{ return floorf(val); }
+double Math::Ceil( double val )		{ return ceil(val); }
+float Math::Ceil( float val )		{ return ceilf(val); }
 
 
 float Math::Atan2( float y, float x )
