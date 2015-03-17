@@ -80,7 +80,8 @@ int DataCubesWriter::nextStep()
 	     !cubezrg.includes( zrg_.stop,false ) )
 	    zrg_ = cubezrg;
 
-	const int trcsz = zrg_.nrSteps() + 1;
+	const float ftrcsz = zrg_.width() + 1;
+	const int trcsz = (int)Math::Floor( trcsz );
 	trc_ = new SeisTrc( trcsz );
 
 	trc_->info().sampling.start = (float) (zrg_.start * cube_.zstep_);
