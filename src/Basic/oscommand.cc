@@ -415,8 +415,9 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 #ifndef __win__
 	BufferString str =
 	    FilePath( GetSoftwareDir(true), "bin",
-		    "od_exec_consoleui.scr " ).fullPath();
+		    "od_exec_consoleui.scr" ).fullPath();
 	addQuotesIfNeeded( str );
+	str.add( " " );
 	localcmd.insertAt( 0, str );
 #endif
 	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true );
