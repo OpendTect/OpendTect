@@ -339,37 +339,38 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
     for ( int iset=0; iset<cubeset.size(); iset++ )
     {
 	const DataCubes& cubedata = *cubeset[iset];
-	for ( int sidx=cubedata.getInlSz()-1; sidx>=0; sidx-- )
+	for ( int iinl=cubedata.getInlSz()-1; iinl>=0; iinl-- )
 	{
-	    const int inl = cubedata.inlsampling_.atIndex(sidx);
-	    const int tidx = output->inlsampling_.nearestIndex(inl);
-	    if ( tidx<0 || tidx>=output->getInlSz() )
+	    const int inl = cubedata.inlsampling_.atIndex(iinl);
+	    const int inlidx = output->inlsampling_.nearestIndex(inl);
+	    if ( inlidx<0 || inlidx>=output->getInlSz() )
 		continue;
 
-	    for ( int scdx=cubedata.getCrlSz()-1; scdx>=0; scdx-- )
+	    for ( int icrl=cubedata.getCrlSz()-1; icrl>=0; icrl-- )
 	    {
-		const int crl = cubedata.crlsampling_.atIndex(scdx);
-		const int tcdx = output->crlsampling_.nearestIndex(crl);
-		if ( tcdx<0 || tcdx>=output->getCrlSz() )
+		const int crl = cubedata.crlsampling_.atIndex(icrl);
+		const int crlidx = output->crlsampling_.nearestIndex(crl);
+		if ( crlidx<0 || crlidx>=output->getCrlSz() )
 		    continue;
 
-		for ( int szdx=cubedata.getZSz()-1; szdx>=0; szdx-- )
+		for ( int iz=cubedata.getZSz()-1; iz>=0; iz-- )
 		{
-		    const int z = cubedata.z0_+szdx;
-		    const int tzdx = z-output->z0_;
+		    const float inpfidx = cubedata.z0_ + iz;
+		    const float outfidx = inpfidx - output->z0_;
 
-		    if ( tzdx<0 || tzdx>=output->getZSz() )
+		    if ( outfidx<0 || outfidx>output->getZSz()-1 )
 			continue;
 
 		    for ( int cubeidx=output->nrCubes()-1;cubeidx>=0;cubeidx--)
 		    {
 			const float val =
-			    cubedata.getCube(cubeidx).get( sidx, scdx, szdx );
+			    cubedata.getCube(cubeidx).get( iinl, icrl, iz );
 
 			if ( Values::isUdf( val ) )
 			    continue;
 
-			output->setValue( cubeidx, tidx, tcdx, tzdx, val );
+			const int outzsampidx = Math::Floor( outfidx );
+			output->setValue( cubeidx, inlidx, crlidx, outzsampidx, val );
 		    }
 		}
 	    }
