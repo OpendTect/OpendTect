@@ -459,7 +459,7 @@ const DataHolder* Engine::getAttribCache( const Attrib::SelSpec& as )
 		Attrib::DSHolder().getDescSet( false, true );
 	const Attrib::Desc* desc = !ads || ads->isEmpty()
 		? 0 : ads->getDesc( as.id() );
-	const MultiID mid = desc ? desc->getStoredID() : MultiID::udf();
+	const MultiID mid = desc ? desc->getStoredID().buf() : MultiID::udf();
 	mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
 	return sdp ? obtainAttribCache( sdp->id() ) : 0;
     }
