@@ -39,6 +39,12 @@ IODir::IODir( const MultiID& ky )
     IOObj* ioobj = getObj( ky );
     if ( !ioobj ) return;
     dirname_ = ioobj->dirName();
+    FilePath fp( dirname_ );
+    if ( !fp.isAbsolute() )
+    {
+	fp.set( IOM().rootDir() ).add( dirname_ );
+	dirname_ = fp.fullPath();
+    }
     delete ioobj;
 
     if ( build() )

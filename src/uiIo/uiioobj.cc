@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "iodir.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "survinfo.h"
 #include "transl.h"
 #include "filepath.h"
@@ -24,7 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 {
     bool dorm = true;
-    if ( !ioobj_.implManagesObjects() )
+    mDynamicCastGet(IOStream*,iostrm,&ioobj_)
+    const bool isuknownioobj = !iostrm && !ioobj_.isSubdir();
+    if ( !isuknownioobj && !ioobj_.implManagesObjects() )
     {
 	const bool isoutside = !ioobj_.isInCurrentSurvey();
 	if ( !silent_ )
@@ -49,7 +51,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	    if ( isoutside )
 	    {
 		const int resp = uiMSG().question( mess, tr("Remove file"),
-						   tr("Remove link"), 
+						   tr("Remove link"),
 						   uiStrings::sCancel(),
 					           tr("Remove data") );
 		if ( resp < 0 )
@@ -65,16 +67,16 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 		dorm = false;
 	    }
 	}
+    }
 
-	if ( dorm && !fullImplRemove(ioobj_) )
+    if ( dorm && !fullImplRemove(ioobj_) )
+    {
+	if ( !silent_ )
 	{
-	    if ( !silent_ )
-	    {
-		uiString mess = tr("Could not remove data file(s).\n"
-				   "Remove entry from list anyway?");
-		if ( !uiMSG().askRemove(mess) )
-		    return false;
-	    }
+	    uiString mess = tr("Could not remove data file(s).\n"
+			       "Remove entry from list anyway?");
+	    if ( !uiMSG().askRemove(mess) )
+		return false;
 	}
     }
 
