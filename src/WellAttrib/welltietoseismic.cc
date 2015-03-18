@@ -219,10 +219,10 @@ bool DataPlayer::computeCrossCorrelation()
 	mErrRet( tr( "Cross-correlation window is not valid" ) )
 
     if ( !extractWvf(false) )
-	mErrRet( tr( "Cannot extraction seismic for cross-correlation" ) )
+	mErrRet( tr( "Cannot extract seismic for cross-correlation" ) )
 
     if ( !extractWvf(true) )
-	mErrRet( tr( "Cannot extraction synthetic for cross-correlation" ) )
+	mErrRet( tr( "Cannot extract synthetic for cross-correlation" ) )
 
     Data::CorrelData& cd = data_.correl_;
     cd.vals_.erase();
@@ -247,10 +247,10 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
 	mErrRet( tr( "Wavelet estimation window is not valid" ) )
 
     if ( !extractReflectivity() )
-	mErrRet( tr( "Cannot extraction reflectivity for wavelet estimation" ) )
+	mErrRet( tr( "Cannot extract reflectivity for wavelet estimation" ) )
 
     if ( !extractWvf(false) )
-	mErrRet( tr( "Cannot extraction seismic for wavelet estimation" ) )
+	mErrRet( tr( "Cannot extract seismic for wavelet estimation" ) )
 
     const float step = data_.seistrc_.info().sampling.step;
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
