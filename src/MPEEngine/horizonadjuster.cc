@@ -201,9 +201,9 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     const OffsetValueSeries<float> tovs = regsdp->getTrcStorage( 0, totrcidx );
     const float startz = (float) horizon_.getPos( sectionid_, to.toInt64() ).z;
     const TrcKeyZSampling& tkzs = regsdp->sampling();
-    const StepInterval<float>& zsamp = tkzs.zsamp_;
-    tracker_->setRangeStep( zsamp.step );
-    tracker_->setTarget( &tovs, tkzs.nrZ(), zsamp.getfIndex(startz) );
+    const SamplingData<float> sd( tkzs.zsamp_.start, tkzs.zsamp_.step );
+    tracker_->setRangeStep( sd.step );
+    tracker_->setTarget( &tovs, tkzs.nrZ(), sd.getfIndex(startz) );
     if ( from.inl()!=-1 && from.crl()!=-1 )
     {
 	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
@@ -215,12 +215,12 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	const OffsetValueSeries<float> fromvs =
 			regsdp->getTrcStorage( 0, fromtrcidx );
 	const float fromz = (float)horizon_.getPos(sectionid_,from.toInt64()).z;
-	tracker_->setSource( &fromvs, tkzs.nrZ(), zsamp.getfIndex(fromz) );
+	tracker_->setSource( &fromvs, tkzs.nrZ(), sd.getfIndex(fromz) );
 	if ( !tracker_->isOK() )
 	    return false;
 
 	const bool res = tracker_->track();
-	const float resz = zsamp.atIndex( (int)tracker_->targetDepth() );
+	const float resz = sd.atIndex( tracker_->targetDepth() );
 	if ( !permittedZRange().includes(resz-startz,false) )
 	    return false;
 
@@ -233,7 +233,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	return false;
 
     const bool res = tracker_->track();
-    const float resz = zsamp.atIndex( (int)tracker_->targetDepth() );
+    const float resz = sd.atIndex( tracker_->targetDepth() );
     if ( !permittedZRange().includes(resz-startz,false) )
 	return false;
 
