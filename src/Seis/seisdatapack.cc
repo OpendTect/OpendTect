@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "survinfo.h"
 
+#include <limits.h>
+
 
 // SeisDataPack
 SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
@@ -35,7 +37,7 @@ SeisDataPack::~SeisDataPack()
 
 
 const OffsetValueSeries<float>
-SeisDataPack::getTrcStorage(int comp, od_int64 globaltrcidx) const
+SeisDataPack::getTrcStorage(int comp, int globaltrcidx) const
 {
     const Array3DImpl<float>* array = arrays_[comp];
     return OffsetValueSeries<float>( *array->getStorage(),
@@ -43,7 +45,7 @@ SeisDataPack::getTrcStorage(int comp, od_int64 globaltrcidx) const
 }
 
 
-const float* SeisDataPack::getTrcData( int comp, od_int64 globaltrcidx ) const
+const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
 {
     const Array3DImpl<float>* array = arrays_[comp];
     return array->getData() + globaltrcidx * array->info().getSize(2);
@@ -121,7 +123,7 @@ RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 }
 
 
-TrcKey RegularSeisDataPack::getTrcKey( od_int64 globaltrcidx ) const
+TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
 {
     return sampling_.hsamp_.trcKeyAt( globaltrcidx );
 }
@@ -135,7 +137,7 @@ bool RegularSeisDataPack::is2D() const
 
 bool RegularSeisDataPack::addComponent( const char* nm )
 {
-    if ( !sampling_.isDefined() )
+    if ( !sampling_.isDefined() || sampling_.hsamp_.totalNr()>INT_MAX )
 	return false;
 
     if ( !addArray(sampling_.nrLines(),sampling_.nrTrcs(),sampling_.nrZ()) )
@@ -154,7 +156,7 @@ RandomSeisDataPack::RandomSeisDataPack( const char* cat,
 }
 
 
-TrcKey RandomSeisDataPack::getTrcKey( od_int64 trcidx ) const
+TrcKey RandomSeisDataPack::getTrcKey( int trcidx ) const
 {
     return path_.validIdx(trcidx) ? path_[trcidx] : TrcKey::udf();
 }
@@ -165,8 +167,7 @@ bool RandomSeisDataPack::addComponent( const char* nm )
     if ( path_.isEmpty() || zsamp_.isUdf() )
 	return false;
 
-    if ( !addArray(1,(int)nrTrcs(),zsamp_.nrSteps()+1) )
-	    //TODO the cast above violates the design
+    if ( !addArray(1,nrTrcs(),zsamp_.nrSteps()+1) )
 	return false;
 
     componentnames_.add( nm );
@@ -231,7 +232,7 @@ void RegularFlatDataPack::setSourceData()
 	pos[0] = 0;
 
 	TrcKey prevtk = source_.getTrcKey( 0 );
-	for ( od_int64 idx=1; idx<nrtrcs; idx++ )
+	for ( int idx=1; idx<nrtrcs; idx++ )
 	{
 	    const TrcKey trckey = source_.getTrcKey( idx );
 	    if ( trckey.isUdf() )
@@ -295,13 +296,12 @@ float RandomFlatDataPack::nrKBytes() const
 
 void RandomFlatDataPack::setSourceData()
 {
-    const int nrtrcs = (int)path_.size();
-	    //TODO the cast above violates the design
+    const int nrtrcs = path_.size();
     float* pos = new float[nrtrcs];
     pos[0] = 0;
 
     TrcKey prevtk = path_[0];
-    for ( od_int64 idx=1; idx<nrtrcs; idx++ )
+    for ( int idx=1; idx<nrtrcs; idx++ )
     {
 	const TrcKey& trckey = path_[idx];
 	if ( trckey.isUdf() )

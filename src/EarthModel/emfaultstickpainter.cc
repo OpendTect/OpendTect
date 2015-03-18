@@ -150,8 +150,7 @@ bool FaultStickPainter::addPolyLine()
 			const BinID bid = SI().transform( pos.coord() );
 			const TrcKey trckey = Survey::GM().traceKey(
 			   Survey::GM().default3DSurvID(),bid.inl(),bid.crl() );
-			const int idx = (int)path_->indexOf( trckey );
-			    //TODO the cast above violates the design
+			const int idx = path_->indexOf( trckey );
 			if ( idx < 0 ) continue;
 
 			Coord3 editnormal( getNormalInRandLine(idx), 0 );

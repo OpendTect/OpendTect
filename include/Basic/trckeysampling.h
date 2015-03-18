@@ -17,9 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "typeset.h"
 
-
-typedef LargeValVec<TrcKey> TrcKeyPath;
-
+typedef TypeSet<TrcKey> TrcKeyPath;
 
 /*!
 \brief Horizontal sampling (inline and crossline range and steps).

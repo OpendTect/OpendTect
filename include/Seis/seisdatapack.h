@@ -28,17 +28,17 @@ mExpClass(Seis) SeisDataPack : public DataPack
 {
 public:
 				~SeisDataPack();
-    virtual od_int64		nrTrcs() const				= 0;
-    virtual TrcKey		getTrcKey(od_int64 globaltrcidx) const	= 0;
-    virtual od_int64		getGlobalIdx(const TrcKey&) const	= 0;
+    virtual int			nrTrcs() const				= 0;
+    virtual TrcKey		getTrcKey(int globaltrcidx) const	= 0;
+    virtual int			getGlobalIdx(const TrcKey&) const	= 0;
 
     virtual bool		addComponent(const char* nm)		= 0;
 
     virtual const StepInterval<float>&	getZRange() const		= 0;
 
     const OffsetValueSeries<float> getTrcStorage(
-					int comp,od_int64 globaltrcidx) const;
-    const float*		getTrcData(int comp,od_int64 globaltrcidx)const;
+					int comp,int globaltrcidx) const;
+    const float*		getTrcData(int comp,int globaltrcidx)const;
 
     int				nrComponents() const
 				{ return arrays_.size(); }
@@ -83,11 +83,11 @@ public:
 				RegularSeisDataPack(const char* cat,
 						    const BinDataDesc* bdd=0);
 
-    od_int64			nrTrcs() const
+    int				nrTrcs() const
 				{ return sampling_.hsamp_.totalNr(); }
-    TrcKey			getTrcKey( od_int64 globaltrcidx ) const;
-    od_int64			getGlobalIdx( const TrcKey& tk ) const
-				{ return sampling_.hsamp_.globalIdx(tk); }
+    TrcKey			getTrcKey(int globaltrcidx) const;
+    int				getGlobalIdx( const TrcKey& tk ) const
+				{ return (int)sampling_.hsamp_.globalIdx(tk); }
 
     const StepInterval<float>&	getZRange() const
 				{ return sampling_.zsamp_; }
@@ -116,9 +116,9 @@ public:
 				RandomSeisDataPack(const char* cat,
 						   const BinDataDesc* bdd=0);
 
-    od_int64			nrTrcs() const		{ return path_.size(); }
-    TrcKey			getTrcKey(od_int64 trcidx) const;
-    od_int64			getGlobalIdx( const TrcKey& tk ) const
+    int				nrTrcs() const		{ return path_.size(); }
+    TrcKey			getTrcKey(int trcidx) const;
+    int				getGlobalIdx( const TrcKey& tk ) const
 				{ return path_.indexOf( tk ); }
 
     const StepInterval<float>&	getZRange() const	{ return zsamp_; }
@@ -150,9 +150,9 @@ public:
 					const RegularSeisDataPack&,int comp);
 				~RegularFlatDataPack();
 
-    od_int64			nrTrcs() const
+    int				nrTrcs() const
 				{ return source_.nrTrcs(); }
-    TrcKey			getTrcKey( od_int64 trcidx ) const
+    TrcKey			getTrcKey( int trcidx ) const
 				{ return source_.getTrcKey(trcidx); }
 
     bool			isVertical() const
@@ -192,8 +192,8 @@ public:
 					const RandomSeisDataPack&,int comp);
 				~RandomFlatDataPack();
 
-    od_int64			nrTrcs() const		{ return path_.size(); }
-    const TrcKey&		getTrcKey( od_int64 trcidx ) const
+    int				nrTrcs() const		{ return path_.size(); }
+    const TrcKey&		getTrcKey( int trcidx ) const
 				{ return path_[trcidx]; }
 
     const RandomSeisDataPack&	getSourceDataPack() const

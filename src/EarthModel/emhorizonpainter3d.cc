@@ -330,8 +330,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 		if ( path_ )
 		{
 		    if ( mIsEqual(
-			flatposdata_->position(true,(int)path_->indexOf(trckey)),
-			    //TODO the cast above violates the design
+			flatposdata_->position(true,path_->indexOf(trckey)),
 			auxdata->poly_[posidx].x,.001) )
 		    {
 			auxdata->poly_[posidx].y = crd.z;
@@ -363,8 +362,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 		if ( path_ )
 		{
 		    auxdata->poly_ += FlatView::Point( flatposdata_->position(
-				true,(int)path_->indexOf(trckey)), crd.z );
-			//TODO the cast above violates the design
+				true,path_->indexOf(trckey)), crd.z );
 		    continue;
 		}
 		if ( tkzs_.nrInl() == 1 )

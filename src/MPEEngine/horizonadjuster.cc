@@ -195,7 +195,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     if ( !horizon_.isDefined(sectionid_, to.toInt64()) )
 	return false;
 
-    const od_int64 totrcidx = regsdp->getGlobalIdx( getTrcKey(to) );
+    const int totrcidx = regsdp->getGlobalIdx( getTrcKey(to) );
     if ( totrcidx < 0 ) return false;
 
     const OffsetValueSeries<float> tovs = regsdp->getTrcStorage( 0, totrcidx );
@@ -209,7 +209,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
 	    return false;
 
-	const od_int64 fromtrcidx = regsdp->getGlobalIdx( getTrcKey(from) );
+	const int fromtrcidx = regsdp->getGlobalIdx( getTrcKey(from) );
 	if ( fromtrcidx < 0 ) return false;
 
 	const OffsetValueSeries<float> fromvs =
