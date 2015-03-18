@@ -84,7 +84,7 @@ public:
 						    const BinDataDesc* bdd=0);
 
     int				nrTrcs() const
-				{ return sampling_.hsamp_.totalNr(); }
+				{ return (int)sampling_.hsamp_.totalNr(); }
     TrcKey			getTrcKey(int globaltrcidx) const;
     int				getGlobalIdx( const TrcKey& tk ) const
 				{ return (int)sampling_.hsamp_.globalIdx(tk); }
