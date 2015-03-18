@@ -57,17 +57,18 @@ bool SeisDataPackZAxisTransformer::doPrepare( int nrthreads )
 	return false;
 
     const char* category = seisdp->category();
+    const BinDataDesc* desc = &seisdp->getDataDesc();
     if ( regsdp )
     {
 	TrcKeyZSampling tkzs( regsdp->sampling() );
 	tkzs.zsamp_.setFrom( zrange_ );
-	RegularSeisDataPack* output = new RegularSeisDataPack( category );
+	RegularSeisDataPack* output = new RegularSeisDataPack( category, desc );
 	output->setSampling( tkzs );
 	outputdp_ = output;
     }
     else if ( randsdp )
     {
-	RandomSeisDataPack* output = new RandomSeisDataPack( category );
+	RandomSeisDataPack* output = new RandomSeisDataPack( category, desc );
 	output->setPath( randsdp->getPath() );
 	output->setZRange( zrange_ );
 	outputdp_ = output;

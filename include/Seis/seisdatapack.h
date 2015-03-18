@@ -57,6 +57,8 @@ public:
 
     void			setScale(int comp,const SamplingData<float>&);
     const SamplingData<float>&	getScale(int comp) const;
+    
+    const BinDataDesc&		getDataDesc() const	{ return desc_; }
 
     float			nrKBytes() const;
 
