@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "mpeengine.h"
 
-#include "attribsel.h"
 #include "emeditor.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
@@ -25,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "sectiontracker.h"
 #include "seisdatapack.h"
-#include "seispreload.h"
 #include "survinfo.h"
 
 #define mRetErr( msg, retval ) { errmsg_ = msg; return retval; }
