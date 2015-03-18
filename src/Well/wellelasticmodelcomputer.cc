@@ -258,11 +258,11 @@ bool Well::ElasticModelComputer::extractLogs()
     const Interval<float> zrange = zrange_;
 
     ls_ = new Well::LogSampler( wd_.d2TModel(), &wd_.track(), zrange,
-				zrgistime_, zstep_, true, Stats::UseAvg,
-				inplogs_ );
+				zrgistime_, zstep_, extractintime_,
+				Stats::UseAvg, inplogs_ );
 
     lsnearest_ = new Well::LogSampler( wd_.d2TModel(), &wd_.track(), zrange,
-				       zrgistime_, zstep_, true,
+				       zrgistime_, zstep_, extractintime_,
 				       Stats::TakeNearest, inplogs_ );
 
     if ( !ls_ || !lsnearest_ )
