@@ -754,10 +754,10 @@ void uiMPEMan::showCubeCB( CallBacker* )
 	    if ( tracker )
 	    {
 		EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID());
-		if ( emobj )
+		const TypeSet<EM::PosID>* seeds = emobj ?
+		    emobj->getPosAttribList( EM::EMObject::sSeedNode() ) : 0;
+		if ( seeds )
 		{
-		    const TypeSet<EM::PosID>* seeds =
-			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
 		    if ( seeds->size() > 0 )
 			seedincluded = true;
 		    for ( int idx=0; idx<seeds->size(); idx++ )
