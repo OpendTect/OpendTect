@@ -45,7 +45,9 @@ public:
     virtual bool	getGather(const BinID&,SeisTrcBuf&) const	= 0;
 
     virtual bool	getSampleNames(BufferStringSet&) const
-    			{ return false; }
+			{ return false; }
+
+    virtual StepInterval<float>	getZRange() const;
 
 };
 
@@ -73,7 +75,7 @@ public:
     const char*		lineName() const	{ return lnm_.buf(); }
     Pos::GeomID		geomID() const		{ return geomid_; }
 
-    			// Cannot use name overloading: seems gcc prob
+			// Cannot use name overloading: seems gcc prob
     SeisTrc*		getTrc( int trcnr, int nr=0 ) const
 			{ return getTrace( BinID(0,trcnr), nr ); }
     bool		getGath( int trcnr, SeisTrcBuf& b ) const

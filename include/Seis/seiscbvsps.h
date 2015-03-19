@@ -92,6 +92,7 @@ public:
     bool		getGather(const BinID&,SeisTrcBuf&) const;
 
     const PosInfo::CubeData& posData() const	{ return posdata_; }
+    StepInterval<float>	getZRange() const;
     bool		getSampleNames( BufferStringSet& bss ) const
 			{ return SeisCBVSPSIO::getSampleNames(bss); }
 

@@ -513,6 +513,23 @@ bool SeisCBVSPS3DReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 }
 
 
+StepInterval<float> SeisCBVSPS3DReader::getZRange() const
+{
+    StepInterval<float> ret = SI().zRange( true );
+    if ( posdata_.isEmpty() )
+	return ret;
+
+    const PosInfo::LineData& ld = *posdata_[0];
+    SeisTrc* trc = getTrace( BinID(ld.linenr_,ld.segments_[0].start), 0 );
+    if ( trc )
+    {
+	ret = trc->zRange();
+	delete trc;
+    }
+    return ret;
+}
+
+
 #define mRemCacheIfExists() \
     const BufferString cachefnm( posdataFileName(dirnm_) ); \
     if ( File::exists(cachefnm) ) \

@@ -98,8 +98,8 @@ bool RequestConnection::readFromSocket()
 	Network::Socket::ReadStatus readres = socket_->read( *nextreceived );
 	if ( readres==Network::Socket::ReadError )
 	{
-	    socket_->disconnectFromHost();
 	    errmsg_ = socket_->errMsg();
+	    socket_->disconnectFromHost();
 	    if ( errmsg_.isEmpty() )
 		errmsg_ = tr("Error reading from socket");
 	    return false;
@@ -125,7 +125,7 @@ bool RequestConnection::readFromSocket()
 	    }
 	}
 
-	if ( !socket_->bytesAvailable() ) //Not sure this works
+	if ( !socket_ || !socket_->bytesAvailable() ) //Not sure this works
 	    break;
     }
 

@@ -251,17 +251,11 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
     if ( !rdr )
 	return false;
 
+    cs.zsamp_ = rdr->getZRange();
     const PosInfo::CubeData& cd = rdr->posData();
     StepInterval<int> rg;
     cd.getInlRange( rg ); cs.hrg.setInlRange( rg );
     cd.getCrlRange( rg ); cs.hrg.setCrlRange( rg );
-    for ( int icrl=rg.start; icrl<rg.stop; icrl += rg.step )
-    {
-	SeisTrc* trc = rdr->getTrace( BinID(cs.hrg.start.inl(),icrl) );
-	if ( trc )
-	    { cs.zsamp_ = trc->zRange(); delete trc; break; }
-    }
-    delete rdr;
     return true;
 }
 

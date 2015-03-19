@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seispacketinfo.h"
 #include "posinfo.h"
+#include "survinfo.h"
 #include "file.h"
 #include "iox.h"
 #include "ioman.h"
@@ -208,6 +209,12 @@ SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcidx ) const
 	return 0;
 
     return buf.remove( trcidx );
+}
+
+
+StepInterval<float> SeisPSReader::getZRange() const
+{
+    return SI().zRange( true );
 }
 
 
