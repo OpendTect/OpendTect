@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacegeometry.h"
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
+#include "envvars.h"
 #include "executor.h"
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
@@ -28,6 +29,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
+
+static bool allowTrackingAcrossCrossFaults()
+{
+    mDefineStaticLocalObject( bool, val,
+			= GetEnvVarYN("TRACK_ACROSS_CROSSTRACKED_FAULTS") );
+    return val;
+}
+
 
 int FaultTrace::nextID( int previd ) const
 { return previd >= -1 && previd < coords_.size()-1 ? previd + 1 : -1; }
@@ -114,7 +123,8 @@ bool FaultTrace::getImage( const BinID& bid, float z,
 			   const StepInterval<int>& trcrg,
 			   BinID& bidimg, float& zimg, bool posdir ) const
 {
-    if ( isinl_ == editedoncrl_ ) return false;
+    if ( isinl_ == editedoncrl_ && !allowTrackingAcrossCrossFaults() )
+	return false;
 
     float z1 = posdir ? ztop.start : ztop.stop;
     float z2 = posdir ? zbot.start : zbot.stop;
