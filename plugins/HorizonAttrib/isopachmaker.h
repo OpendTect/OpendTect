@@ -31,7 +31,9 @@ public:
     int			nextStep();
     int			finishWork();
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "Positions handled"; }
+    uiString		uiNrDoneText() const	{ 
+						return tr("Positions handled"); 
+						}
     od_int64 		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totnr_; }
 

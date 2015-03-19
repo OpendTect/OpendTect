@@ -39,7 +39,7 @@ IsopachMaker::IsopachMaker( const EM::Horizon3D& hor1,
     : Executor("Create isopach")
     , hor1_(hor1)
     , hor2_(hor2)
-    , msg_("Creating isopach")
+    , msg_(tr("Creating isopach"))
     , dataidx_(dataidx)
     , dps_(dps)
     , sectid1_(hor1.sectionID(0))
