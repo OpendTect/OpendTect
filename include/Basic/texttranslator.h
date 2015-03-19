@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 mFDQtclass(QTranslator);
+mFDQtclass(QLocale);
 mFDQtclass(QString);
 
 class TranslatorLanguageInfo;
@@ -53,6 +54,7 @@ public:
 				//Increased every time language is changed
 
     const mQtclass(QTranslator)* getQTranslator(const char* appl) const;
+    const mQtclass(QLocale)*	getQLocale() const;
 
     static BufferString		getLocalizationName(const char* appl,
 						    const char* lang);

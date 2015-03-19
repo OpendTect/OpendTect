@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #ifndef OD_NO_QT
 # include <QTranslator>
+# include <QLocale>
 #endif
 
 class TranslatorLanguageInfo
@@ -38,6 +39,7 @@ public:
     BufferString		name_;
 #ifndef OD_NO_QT
     QString			username_;
+    QLocale			locale_;
 #endif
     bool			loaded_;
 
@@ -91,6 +93,7 @@ bool TranslatorLanguageInfo::load()
 	translators_.replace( idx, trans );
     }
 
+    locale_ = QLocale( name_.buf() );
     loaded_ = true;
 
     return true;
@@ -133,7 +136,7 @@ uiString TextTranslateMgr::getLanguageUserName(int idx) const
 	return ret;
     }
 
-    return mkUiString("English");
+    return toUiString("English");
 }
 
 
@@ -189,6 +192,14 @@ const QTranslator*
     return languages_.validIdx(currentlanguageidx_)
 	? languages_[currentlanguageidx_]->getTranslator( application )
 	: 0;
+}
+
+
+const QLocale* TextTranslateMgr::getQLocale() const
+{
+    return languages_.validIdx(currentlanguageidx_)
+        ? &languages_[currentlanguageidx_]->locale_
+        : 0;
 }
 
 

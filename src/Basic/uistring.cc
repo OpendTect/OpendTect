@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifndef OD_NO_QT
 # include <QString>
 # include <QTranslator>
+# include <QLocale>
 #endif
 
 #define mDirty (-1)
@@ -464,7 +465,7 @@ uiString& uiString::append( const uiString& txt, bool withnewline )
     if ( isEmpty() )
 	withnewline = false;
 
-    *this = mkUiString( withnewline ? "%1\n%2" : "%1%2" )
+    *this = toUiString( withnewline ? "%1\n%2" : "%1%2" )
 		.arg( self ).arg( txt );
 
     mSetDBGStr;
@@ -478,7 +479,7 @@ uiString& uiString::append( const OD::String& a, bool withnewline )
 
 uiString& uiString::append( const char* newarg, bool withnewline )
 {
-    return append( mkUiString(newarg), withnewline );
+    return append( toUiString(newarg), withnewline );
 }
 
 
@@ -523,7 +524,7 @@ uiString uiString::getOrderString( int val )
 			tr("th", "eighteenth"), //18
 			tr("th", "ninetheenth"), //19
 			tr("th", "twentieth") }; //20
-    return mkUiString( "%1%2" ).arg( val ).arg( rets[nr] );
+    return toUiString( "%1%2" ).arg( val ).arg( rets[nr] );
 }
 
 
@@ -645,7 +646,40 @@ bool uiString::setFromHexEncoded( const char* str )
 }
 
 
-uiString mkUiString(const char* var) { return uiString().set( var ); }
+uiString toUiString( const char* var ) { return uiString().set( var ); }
+
+uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }
+
+#ifndef OD_NO_QT
+#define mToUiStringImpl( tp ) \
+uiString toUiString(tp v) \
+{ \
+    const QLocale* locale = TrMgr().getQLocale(); \
+    if ( locale ) \
+    { \
+        uiString res; \
+        res.setFrom( locale->toString(v) ); \
+        return res; \
+    } \
+ \
+    return uiString().set( toString(v) ); \
+}
+#else
+
+#define mToUiStringImpl( tp ) \
+uiString toUiString(tp v) \
+{ \
+    return uiString().set( toString(v); \
+}
+#endif
+
+mToUiStringImpl(od_int32)
+mToUiStringImpl(od_uint32)
+mToUiStringImpl(od_int64)
+mToUiStringImpl(od_uint64)
+mToUiStringImpl(float)
+mToUiStringImpl(double)
+
 
 
 uiString od_static_tr( const char* func, const char* text,

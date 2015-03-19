@@ -49,7 +49,7 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
    If the string holds %N arguments, these can be replaced by arguments:
 
  \code
-   uiString string = mkUiString( "%1 plus %2 is %3")
+   uiString string = toUiString( "%1 plus %2 is %3")
 			.arg( 4 )
 			.arg( 5 )
 			.arg( 4+5 );
@@ -155,7 +155,7 @@ public:
 #ifndef mNoAutoUiString
 		//Only for expert users
 		uiString(const char* inp);
-		/*!<Don't use. May be depreciated. Use mkUiString("My text")
+		/*!<Don't use. May be depreciated. Use toUiString("My text")
 		    function instead. */
 #endif
 
@@ -213,7 +213,18 @@ public:
 };
 
 
-mGlobal(Basic) uiString mkUiString(const char* var);
+mGlobal(Basic) uiString toUiString(const char*);
+mGlobal(Basic) uiString toUiString(const OD::String&);
+mGlobal(Basic) uiString toUiString(od_int32);
+mGlobal(Basic) uiString toUiString(od_int64);
+mGlobal(Basic) uiString toUiString(od_uint32);
+mGlobal(Basic) uiString toUiString(od_uint64);
+mGlobal(Basic) uiString toUiString(float);
+mGlobal(Basic) uiString toUiString(double);
+
+//Legacy Will be removed
+mGlobal(Basic) inline uiString mkUiString(const char* var)
+{ return toUiString(var); }
 
 /*!Adds translation of strings outside of classes for the "od" application. It
    will return a uistring where the context is "static_func_function", where
@@ -240,8 +251,10 @@ mGlobal(Basic) uiString od_static_tr( const char* function, const char* text,
 template <class T> inline
 uiString& uiString::arg( const T& var )
 {
-    return arg( mkUiString(toString(var)) );
+    return arg( toUiString(var) );
 }
+
+
 
 
 #endif
