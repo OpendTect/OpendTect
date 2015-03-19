@@ -70,7 +70,7 @@ MadStream::MadStream( IOPar& par )
     , stortrcbufismine_(true)
     , iter_(0),cubedata_(0),l2ddata_(0)
     , headerpars_(0)
-    , errmsg_(*new uiString(""))
+    , errmsg_(*new uiString(uiStrings::sEmptyString()))
     , iswrite_(false)
 {
     par.getYN( sKeyWrite, iswrite_ );
