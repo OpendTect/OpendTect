@@ -303,9 +303,8 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     else if ( fsextdesc.startsWith("Sample",CaseInsensitive) )
     {
 	BufferString offs = extdesc + 7;
+	offs.trimBlanks();
 	char* ptr = offs.getCStr();
-	mSkipBlanks(ptr);
-	offs = ptr;
 	ptr = offs.find( ' ' );
 	if ( ptr ) *ptr = '\0';
 	defstr = "Shift pos=0,0 steering=No time=";
