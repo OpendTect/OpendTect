@@ -15,9 +15,11 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
+class MenuItem;
 class uiBasemapIOMgr;
 class uiBasemapView;
 class uiMainWin;
+class uiMenu;
 class uiSelLineStyle;
 class uiToolBar;
 class uiToolButton;
@@ -30,8 +32,11 @@ public:
 			~uiBaseMapTBMgr();
 
 private:
+    void		createMenuBar();
     void		createitemTB();
     void		createviewTB();
+    void		createCommonActions();
+    void		createFileMenu();
     void		updateViewMode();
 
     void		barSettingsCB(CallBacker*);
@@ -62,6 +67,14 @@ private:
     uiBasemapIOMgr*	iomgr_;
     uiMainWin&		mainwin_;
     uiBasemapView&	basemapview_;
+
+    uiMenu*		filemnu_;
+    uiMenu*		processingmnu_;
+    uiMenu*		syncmnu_;
+    uiMenu*		helpmnu_;
+    MenuItem*		open_;
+    MenuItem*		save_;
+    MenuItem*		saveas_;
     uiToolBar*		itemtoolbar_;
     uiToolBar*		vwtoolbar_;
 };

@@ -77,7 +77,12 @@ mExpClass(General) MenuItem : public MenuItemHolder
 {
 public:
 				MenuItem(const uiString& 
-					 text=uiString::emptyString(),
+					    text=uiString::emptyString(),
+					 int placement=-1);
+				MenuItem(const uiString& text,
+					 BufferString icnm,
+					 BufferString tp,
+					 CallBack cb=CallBack(),
 					 int placement=-1);
     void			createItems(const BufferStringSet&);
 
@@ -102,6 +107,8 @@ public:
 				//*!< Filename of icon
     BufferString		tooltip;
 				//*!< Tooltip if item is used in toolbar
+    CallBack			cb;
+				//*!< Callback function to be called
 };
 
 

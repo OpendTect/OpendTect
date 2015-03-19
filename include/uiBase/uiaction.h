@@ -164,6 +164,7 @@ public:
 				    \param id The ID that is returned if the
 					      item is selected.
 				 */
+    int				insertAction(const MenuItem&);
 
     uiMenu*			addMenu(uiMenu*,const uiMenu* before = 0);
 				/*!<Becomes mine. Returns pointer to menu. */

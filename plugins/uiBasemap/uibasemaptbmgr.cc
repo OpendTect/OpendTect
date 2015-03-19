@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "basemaptr.h"
 #include "ioman.h"
+#include "menuhandler.h"
 #include "survinfo.h"
 
 
@@ -38,8 +39,14 @@ uiBaseMapTBMgr::uiBaseMapTBMgr( uiMainWin& mw, uiBasemapView& bmv )
     , iomgr_(new uiBasemapIOMgr(&mw))
     , isstored_(false)
 {
+    createMenuBar();
+    createCommonActions();
+
     createviewTB();
     createitemTB();
+
+    createFileMenu();
+
     updateViewMode();
 }
 
@@ -47,6 +54,43 @@ uiBaseMapTBMgr::uiBaseMapTBMgr( uiMainWin& mw, uiBasemapView& bmv )
 uiBaseMapTBMgr::~uiBaseMapTBMgr()
 {
     delete iomgr_;
+
+    delete open_;
+    delete save_;
+    delete saveas_;
+}
+
+
+void uiBaseMapTBMgr::createMenuBar()
+{
+    filemnu_ = mainwin_.menuBar()->addMenu( new uiMenu(uiStrings::sFile()) );
+    processingmnu_ = mainwin_.menuBar()->addMenu( new uiMenu("Processing") );
+    syncmnu_ = mainwin_.menuBar()->addMenu( new uiMenu("Synchronization") );
+    helpmnu_ = mainwin_.menuBar()->addMenu( new uiMenu("Help") );
+}
+
+
+void uiBaseMapTBMgr::createCommonActions()
+{
+    open_ = new MenuItem( uiStrings::sOpen(false), "open",
+			  "Open Stored Basemap",
+			  mCB(this,uiBaseMapTBMgr,readCB) );
+    save_ = new MenuItem( uiStrings::sSave(true), "save",
+			  "Store Basemap",
+			  mCB(this,uiBaseMapTBMgr,saveCB) );
+    saveas_ = new MenuItem( uiStrings::sSaveAs(false), "saveas",
+			    "Save as...",
+			    mCB(this,uiBaseMapTBMgr,saveAsCB) );
+}
+
+
+void uiBaseMapTBMgr::createFileMenu()
+{
+    if ( !open_ || !save_ || !saveas_ ) return;
+
+    filemnu_->insertAction( *open_ );
+    filemnu_->insertAction( *save_ );
+    filemnu_->insertAction( *saveas_ );
 }
 
 
@@ -83,12 +127,10 @@ void uiBaseMapTBMgr::createviewTB()
     viewid_ = vwtoolbar_->addButton( "altview", tr("Switch to pick mode"),
 				mCB(this,uiBaseMapTBMgr,viewCB), false );
 
-    openid_ = vwtoolbar_->addButton( "open", uiStrings::sOpen(false),
-				mCB(this,uiBaseMapTBMgr,readCB), false );
-    saveid_ = vwtoolbar_->addButton( "save", uiStrings::sSave(true),
-				mCB(this,uiBaseMapTBMgr,saveCB), false );
-    saveasid_ = vwtoolbar_->addButton( "saveas", uiStrings::sSaveAs(false),
-				mCB(this,uiBaseMapTBMgr,saveAsCB), false );
+    openid_ = vwtoolbar_->addButton( *open_ );
+    saveid_ = vwtoolbar_->addButton( *save_ );
+    saveasid_ = vwtoolbar_->addButton( *saveas_ );
+
     vwtoolbar_->addObject(
 		basemapview_.view().getSaveImageButton(vwtoolbar_) );
     vwtoolbar_->addObject(

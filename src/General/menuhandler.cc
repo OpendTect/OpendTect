@@ -169,8 +169,24 @@ MenuItem::MenuItem( const uiString& txt, int pl )
     , checkable(false)
     , checked(false)
     , enabled(true)
+    , cb(0,0)
 {
     id = itemid++;
+}
+
+
+MenuItem::MenuItem( const uiString& txt, BufferString icnm,
+		    BufferString tp, CallBack callb, int pl )
+    : text(txt)
+    , placement(pl)
+    , checkable(false)
+    , checked(false)
+    , enabled(true)
+    , cb(callb)
+{
+    id = itemid++;
+    iconfnm = icnm;
+    tooltip = tp;
 }
 
 

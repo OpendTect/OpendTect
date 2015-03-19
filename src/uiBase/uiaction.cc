@@ -97,6 +97,8 @@ uiAction::uiAction( const MenuItem& itm )
     setEnabled( itm.enabled );
     if ( !itm.iconfnm.isEmpty() )
 	setIcon( itm.iconfnm );
+    if ( itm.cb.willCall() )
+	attachCB( triggered, itm.cb );
 }
 
 
@@ -500,6 +502,12 @@ int uiActionContainer::getFreeID() const
 	curid++;
 
     return curid;
+}
+
+
+int uiActionContainer::insertAction( const MenuItem& itm )
+{
+    return insertAction( new uiAction(itm), itm.id, 0 );
 }
 
 
