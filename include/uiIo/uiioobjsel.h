@@ -119,8 +119,6 @@ protected:
 private:
 
     void		init();
-    void		addInserters();
-
 
 public: // old style
 

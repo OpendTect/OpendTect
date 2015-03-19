@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "factory.h"
 #include "transl.h"
 
+class uiButton;
+class uiParent;
 class uiToolButtonSetup;
 
 
@@ -47,6 +49,9 @@ public:
     static bool		isPresent( const Translator& t )
 			{ return factory().hasName(t.getDisplayName()); }
 
+    static void         addInsertersToDlg(uiParent*,CtxtIOObj&,
+					  ObjectSet<uiIOObjInserter>&,
+					  ObjectSet<uiButton>& );
     static uiIOObjInserter* create( const Translator& t )
 			{ return factory().create(t.getDisplayName()); }
 

@@ -72,6 +72,36 @@ bool uiIOObjInserter::isDisabled() const
 }
 
 
+void uiIOObjInserter::addInsertersToDlg( uiParent* p,
+					 CtxtIOObj& ctio,
+					 ObjectSet<uiIOObjInserter>& insertset,
+					 ObjectSet<uiButton>& buttonset )
+{
+    if ( uiIOObjInserter::allDisabled() )
+	return;
+
+    const ObjectSet<const Translator>& tpls
+			= ctio.ctxt.trgroup->templates();
+    for ( int idx=0; idx<tpls.size(); idx++ )
+    {
+	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
+	if ( !inserter || inserter->isDisabled() )
+	    continue;
+
+	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
+	if ( !tbsu )
+	    { delete inserter; continue; }
+
+	uiButton* but = tbsu->getButton( p, true );
+	if ( but )
+	    buttonset += but;
+
+	delete tbsu;
+	insertset += inserter;
+    }
+}
+
+
 #define mConstructorInitListStart \
 	uiIOObjRetDlg(p, uiDialog::Setup(ctio.ctxt.forread \
 		? tr("Input selection") : tr("Output selection"), \
@@ -220,39 +250,19 @@ void uiIOObjSel::init()
     workctio_.ctxt.fillTrGroup();
     wrtrselfld_ = 0;
     if ( workctio_.ctxt.forread )
-	addInserters();
+    {
+	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
+					    extselbuts_ );
+	for ( int idx=0; idx<inserters_.size(); idx++ )
+	    inserters_[idx]->objectInserted.notify(
+					mCB(this,uiIOObjSel,objInserted) );
+    }
     else if ( setup_.withwriteopts_ )
     {
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_, false );
 	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
     }
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
-}
-
-
-void uiIOObjSel::addInserters()
-{
-    if ( uiIOObjInserter::allDisabled() )
-	return;
-
-    const ObjectSet<const Translator>& tpls
-			= workctio_.ctxt.trgroup->templates();
-    for ( int idx=0; idx<tpls.size(); idx++ )
-    {
-	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
-	if ( !inserter || inserter->isDisabled() )
-	    continue;
-
-	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
-	if ( !tbsu )
-	    { delete inserter; continue; }
-
-	uiButton* but = tbsu->getButton( this, true );
-	addExtSelBut( but );
-	delete tbsu;
-	inserter->objectInserted.notify( mCB(this,uiIOObjSel,objInserted) );
-	inserters_ += inserter;
-    }
 }
 
 
