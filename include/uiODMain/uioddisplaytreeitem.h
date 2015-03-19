@@ -26,10 +26,10 @@ mExpClass(uiODMain) uiODDisplayTreeItem : public uiODTreeItem
 public:
 
     static bool		create(uiTreeItem*,uiODApplMgr*,int displayid);
-    			//!< Creates an instance (if possible)
-    			//!< and adds it to the tree
-    
-    			uiODDisplayTreeItem();
+			//!< Creates an instance (if possible)
+			//!< and adds it to the tree
+
+			uiODDisplayTreeItem();
 			~uiODDisplayTreeItem();
     void		updateColumnText(int);
     bool		showSubMenu();
@@ -40,6 +40,7 @@ public:
 
     uiODDataTreeItem*	addAttribItem();
     void		prepareForShutdown();
+    void		handleAddAttrib();
 
 protected:
 
@@ -58,14 +59,14 @@ protected:
     virtual BufferString createDisplayName() const;
     void		updateLockPixmap(bool islocked);
 
-    virtual bool	askContinueAndSaveIfNeeded(bool withcancel)	
+    virtual bool	askContinueAndSaveIfNeeded(bool withcancel)
 			{ return true; }
 
     void		addToToolBarCB(CallBacker*);
     void		createMenuCB(CallBacker*);
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);
-    
+
     uiVisPartServer*	visserv_;
     int			displayid_;
 

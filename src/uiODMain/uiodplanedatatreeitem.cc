@@ -85,7 +85,12 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
     if ( mnuid==0 || mnuid==1 || mnuid==2 ) \
-        addChild( new treeitm(-1,getType(mnuid)), false ); \
+    { \
+	treeitm* newitm = new treeitm(-1,getType(mnuid));\
+        addChild( newitm, false ); \
+	if ( mnuid==0 ) \
+	    newitm->handleAddAttrib();\
+    } \
     else if ( mnuid==3 ) \
     { \
 	TypeSet<MultiID> wellids; \

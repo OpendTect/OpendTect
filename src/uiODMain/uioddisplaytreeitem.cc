@@ -369,18 +369,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==addattribmnuitem_.id )
     {
-	uiODDataTreeItem* newitem = addAttribItem();
-	newitem->select();
-	const int id = newitem->displayID();
-	const int attrib = newitem->attribNr();
-	const bool selok = applMgr()->selectAttrib( id, attrib );
-	if ( selok && !visserv_->calcManipulatedAttribs(id) )
-	    applMgr()->getNewData( id, attrib );
-
-	newitem->select();
-	applMgr()->useDefColTab( id, attrib );
-	updateColumnText( uiODSceneMgr::cNameColumn() );
-	updateColumnText( uiODSceneMgr::cColorColumn() );
+	handleAddAttrib();
 	menu->setIsHandled(true);
     }
     else if ( mnuid==addvolprocmnuitem_.id )
@@ -414,6 +403,23 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	visserv_->turnOn( displayid_, false );
 	updateCheckStatus();
     }
+}
+
+
+void uiODDisplayTreeItem::handleAddAttrib()
+{
+    uiODDataTreeItem* newitem = addAttribItem();
+    newitem->select();
+    const int id = newitem->displayID();
+    const int attrib = newitem->attribNr();
+    const bool selok = applMgr()->selectAttrib( id, attrib );
+    if ( selok && !visserv_->calcManipulatedAttribs(id) )
+	applMgr()->getNewData( id, attrib );
+
+    newitem->select();
+    applMgr()->useDefColTab( id, attrib );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
