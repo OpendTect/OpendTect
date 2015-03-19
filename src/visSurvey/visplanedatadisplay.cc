@@ -358,7 +358,7 @@ float PlaneDataDisplay::maxDist() const
 }
 
 
-bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat, 
+bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat,
 					  TaskRunner* taskr )
 {
     const bool haddatatransform = datatransform_;
@@ -451,6 +451,12 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
 
     if ( cs!=snappedcs )
 	setDraggerPos( snappedcs );
+
+    if ( nrAttribs()==1 && getSelSpec(0) && getSelSpec(0)->isStored() )
+    {
+	deSelect();
+	select();
+    }
 }
 
 
@@ -1020,7 +1026,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib )
 
 
 void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
-				      const Array2D<float>& inp, 
+				      const Array2D<float>& inp,
 				      TaskRunner* taskr ) const
 {
     Array2DReSampler<float,float> resampler( inp, res, sz0, sz1, true );
@@ -1166,7 +1172,7 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
 	pdd->setSelSpec( idx, *getSelSpec(idx) );
 	pdd->setDataPackID( idx, getDataPackID(idx), taskr );
 	if ( getColTabMapperSetup( idx ) )
-	    pdd->setColTabMapperSetup( idx, *getColTabMapperSetup( idx ), 
+	    pdd->setColTabMapperSetup( idx, *getColTabMapperSetup( idx ),
 				       taskr );
 	if ( getColTabSequence( idx ) )
 	    pdd->setColTabSequence( idx, *getColTabSequence( idx ), taskr );
