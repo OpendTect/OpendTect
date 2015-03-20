@@ -66,70 +66,70 @@ mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 { mODTextTranslationClass(uiMenu);
 
 public:
-				uiMenu(const uiString& txt,
-				       const char* iconfilenm=0);
+			uiMenu(const uiString& txt=uiString::emptyString(),
+			       const char* iconfilenm=0);
 
-				~uiMenu();
+			~uiMenu();
 
-    bool			isStandAlone() const { return !submenuaction_; }
-				/*!\returns true if this menu is not
-				    inserted into a menu with an item that
-				    owns it. */
+    bool		isStandAlone() const { return !submenuaction_; }
+			/*!\returns true if this menu is not
+			    inserted into a menu with an item that
+			    owns it. */
 
-    bool			isCheckable() const;
-    void			setCheckable(bool);
+    bool		isCheckable() const;
+    void		setCheckable(bool);
 
-    bool			isEnabled() const;
-    void			setEnabled(bool);
+    bool		isEnabled() const;
+    void		setEnabled(bool);
 
-    bool			isChecked() const;
-    void			setChecked(bool);
+    bool		isChecked() const;
+    void		setChecked(bool);
 
-				/*! \brief pops-up at mouse position
+			/*! \brief pops-up at mouse position
 
-				    The return code is the id of the selected
-				    item in either the popup menu or one of
-				    its submenus, or -1 if no item is selected
-				    (normally because the user presses Escape).
-				*/
-    int				exec();
+			    The return code is the id of the selected
+			    item in either the popup menu or one of
+			    its submenus, or -1 if no item is selected
+			    (normally because the user presses Escape).
+			*/
+    int			exec();
 
-    void			setText(const uiString&);
-    const uiString&		text() const;
-    void			clear() { removeAllActions(); }
+    void		setText(const uiString&);
+    const uiString&	text() const;
+    void		clear() { removeAllActions(); }
 
-    mQtclass(QMenu)*		getQMenu() { return qmenu_; }
-    mQtclass(QWidget*)		getWidget();
+    mQtclass(QMenu)*	getQMenu() { return qmenu_; }
+    mQtclass(QWidget*)	getWidget();
 
 private:
-    friend class		uiAction;
+    friend class	uiAction;
 
-    void			setAction(uiAction*);
+    void		setAction(uiAction*);
 
-    uiString			text_;
+    uiString		text_;
 
-    mQtclass(QMenu)*		qmenu_;
-    uiAction*			submenuaction_;
-    uiAction*			interceptaction_;
-    bool			dointercept_;
+    mQtclass(QMenu)*	qmenu_;
+    uiAction*		submenuaction_;
+    uiAction*		interceptaction_;
+    bool		dointercept_;
 
-    void			doInsertMenu(mQtclass(QMenu)*,
-					   mQtclass(QAction)* before);
-    void			doInsertAction(mQtclass(QAction)*,
-					     mQtclass(QAction)* before);
-    void			doInsertSeparator(mQtclass(QAction)* before);
-    void			doRemoveAction(mQtclass(QAction)*);
-    void			doClear();
+    void		doInsertMenu(mQtclass(QMenu)*,
+				   mQtclass(QAction)* before);
+    void		doInsertAction(mQtclass(QAction)*,
+				     mQtclass(QAction)* before);
+    void		doInsertSeparator(mQtclass(QAction)* before);
+    void		doRemoveAction(mQtclass(QAction)*);
+    void		doClear();
 
 public:
-				//! Not for casual use
-    static void			addInterceptor(const CallBack&);
-    static void			removeInterceptor(const CallBack&);
-    void			doIntercept(bool yn,uiAction* activateitm = 0);
+			//! Not for casual use
+    static void		addInterceptor(const CallBack&);
+    static void		removeInterceptor(const CallBack&);
+    void		doIntercept(bool yn,uiAction* activateitm = 0);
 
-				uiMenu(uiParent*,
-                                   const uiString& txt=uiString::emptyString(),
-                                   const char* iconfilenm=0);
+			uiMenu(uiParent*,
+                               const uiString& txt=uiString::emptyString(),
+                               const char* iconfilenm=0);
 };
 
 #endif
