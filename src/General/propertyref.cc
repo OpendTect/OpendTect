@@ -72,7 +72,7 @@ private:
 ~ThicknessPropertyRef()
 {
     if ( !thickness_proprefman_is_deleting_thickness )
-	pErrMsg( "Fatal error, should not delete 'Thickness'." );
+    { pErrMsg( "Fatal error, should not delete 'Thickness'." ); }
 }
 
 friend class PropRef_ThickRef_Man;
