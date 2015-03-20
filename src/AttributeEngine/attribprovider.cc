@@ -66,7 +66,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     if ( !res_ ) return true;
     return provider_.computeData( *res_, relpos_, mCast(int,start+z0_), 
-					 mCast(int,stop-start+1), threadid );
+				  mCast(int,stop-start+1), threadid );
 }
 
 
@@ -140,13 +140,13 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    {
 		errstr = desc.errMsg();
 		errstr = tr( "%1 for '%2' attribute.")
-		    .arg( errmsg ).arg( desc.userRef() );
+		    	 .arg( errmsg ).arg( desc.userRef() );
 	    }
 	}
 	else
 	{
 	    errstr = tr( "Error in definition of %1 attribute." )
-			.arg( desc.attribName() );
+		     .arg( desc.attribName() );
 	}
 	return 0;
     }
@@ -167,17 +167,17 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    		internalCreate( *inputdesc, existing, issame, errstr );
 	if ( !inputprovider )
 	{
-	    existing.removeRange(existing.indexOf(newprov),existing.size()-1 );
+	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
 	    newprov->unRef();
 	    return 0;
 	}
 
 	if ( newprov == inputprovider )
 	{
-	    existing.removeRange(existing.indexOf(newprov),existing.size()-1 );
+	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
 	    newprov->unRef();
 	    errstr =
-		tr("Input is not correct. One of the inputs depend on itself");
+		tr("Input is not correct. One of the inputs depends on itself");
 	    return 0;
 	}
 
@@ -193,12 +193,12 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	if ( attribnm == StorageProvider::attribName() )
 	{
 	    errstr = tr("Cannot load Stored Cube '%1'.")
-			.arg( newprov->desc_.userRef() );
+		     .arg( newprov->desc_.userRef() );
 	}
 	else
 	{
 	    errstr = tr("Attribute \"%1\" of type \"%2\" cannot be initialized")
-			.arg( newprov->desc_.userRef() ).arg( attribnm );
+		     .arg( newprov->desc_.userRef() ).arg( attribnm );
 	}
 	newprov->unRef();
 	return 0;
@@ -221,11 +221,11 @@ Provider::Provider( Desc& nd )
     , geomid_(Survey::GM().cUndefGeomID())
     , linebuffer_( 0 )
     , refstep_( 0 )
-    , alreadymoved_(0)
-    , isusedmulttimes_(0)
-    , seldata_(0)
-    , curtrcinfo_(0)
-    , extraz_(0,0)
+    , alreadymoved_( 0 )
+    , isusedmulttimes_( 0 )
+    , seldata_( 0 )
+    , curtrcinfo_( 0 )
+    , extraz_( 0, 0 )
     , trcinfobid_( -1, -1 )
     , prevtrcnr_( 0 )
     , needinterp_( 0 )
@@ -233,7 +233,7 @@ Provider::Provider( Desc& nd )
     , refz0_( 0 )
 {
     desc_.ref();
-    inputs_.allowNull(true);
+    inputs_.allowNull( true );
     for ( int idx=0; idx<desc_.nrInputs(); idx++ )
 	inputs_ += 0;
 
@@ -247,8 +247,8 @@ Provider::~Provider()
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
 	if ( inputs_[idx] ) inputs_[idx]->unRef();
-    inputs_.erase();
 
+    inputs_.erase();
     allexistingprov_.erase();
 
     desc_.unRef();
