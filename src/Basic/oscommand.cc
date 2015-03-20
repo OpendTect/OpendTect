@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oscommand.h"
 
 #include "file.h"
+#include "genc.h"
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "filepath.h"
@@ -37,6 +38,54 @@ static const char* sKeyExecPars = "ExecPars";
 static const char* sKeyMonitor = "Monitor";
 static const char* sKeyProgType = "ProgramType";
 static const char* sKeyPriorityLevel = "PriorityLevel";
+
+
+//
+class QProcessManager
+{
+public:
+    			~QProcessManager()
+			{
+			    deleteProcesses();
+			}
+    void		takeOver( QProcess* p )
+			{
+			    processes_ += p;
+			}
+    void		deleteProcesses()
+			{
+			    mObjectSetApplyToAll( processes_, processes_[idx]->close());
+			    deepErase( processes_ );
+			}
+
+    static Threads::Lock	lock_;
+
+private:
+    ObjectSet<QProcess>		processes_;
+};
+
+static PtrMan<QProcessManager> processmanager = 0;
+Threads::Lock QProcessManager::lock_( true );
+
+void DeleteProcesses()
+{
+    Threads::Locker locker( QProcessManager::lock_ );
+    if ( processmanager )
+	processmanager->deleteProcesses();
+}
+
+void OS::CommandLauncher::manageQProcess( QProcess* p )
+{
+    Threads::Locker locker( QProcessManager::lock_ );
+
+    if ( !processmanager )
+    {
+	processmanager = new QProcessManager;
+	NotifyExitProgram( DeleteProcesses );
+    }
+
+    processmanager->takeOver( p );
+}
 
 
 void OS::CommandExecPars::usePar( const IOPar& iop )
@@ -346,9 +395,6 @@ OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
 OS::CommandLauncher::~CommandLauncher()
 {
 #ifndef OD_NO_QT
-    if ( process_ && process_->state()!=QProcess::NotRunning )
-	process_->waitForFinished();
-
     reset();
 #endif
 }
@@ -382,6 +428,11 @@ void OS::CommandLauncher::reset()
     stdinputbuf_ = 0;
 
 #ifndef OD_NO_QT
+    if ( process_ && process_->state()!=QProcess::NotRunning )
+    {
+	manageQProcess( process_ );
+	process_ = 0;
+    }
     deleteAndZeroPtr( process_ );
 #endif
     errmsg_.setEmpty();

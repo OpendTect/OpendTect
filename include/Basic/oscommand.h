@@ -164,6 +164,8 @@ public: //Extra utilities, not for general use
     static void		addQuotesIfNeeded(BufferString& cmd);
     			/*!<Checks for spaces in command, and surrounds command
 			    with quotes them if not already done. */
+    static void		manageQProcess(QProcess*);
+    			/*!<Add a QProcess and it will be deleted one day. */
 };
 
 
