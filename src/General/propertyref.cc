@@ -53,23 +53,55 @@ DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 	0
 };
 
+static bool thickness_proprefman_is_deleting_thickness = false;
+
+class ThicknessPropertyRef : public PropertyRef
+{
+public:
+
+ThicknessPropertyRef()
+    : PropertyRef( sKey::Thickness(), PropertyRef::Dist )
+{
+    aliases().add( "thick" );
+    disp_.color_ = Color::Black();
+    disp_.range_ = Interval<float>( 0, 100 );
+}
+
+private:
+
+~ThicknessPropertyRef()
+{
+    if ( !thickness_proprefman_is_deleting_thickness )
+	pErrMsg( "Fatal error, should not delete 'Thickness'." );
+}
+
+friend class PropRef_ThickRef_Man;
+
+};
+
+
 struct PropRef_ThickRef_Man : public CallBacker
 {
 
 PropRef_ThickRef_Man()
 {
-    ref_ = new PropertyRef( sKey::Thickness(), PropertyRef::Dist );
-    ref_->aliases().add( "thick" );
-    const PropertyRef* thref = PROPS().find( "thickness" );
-    if ( thref )
-	ref_->disp_ = thref->disp_;
-    else
-    {
-	ref_->disp_.color_ = Color::Black();
-	ref_->disp_.range_ = Interval<float>( 0, 100 );
-    }
+    ref_ = new ThicknessPropertyRef();
     setZUnit();
     IOM().afterSurveyChange.notify( mCB(this,PropRef_ThickRef_Man,setZUnit) );
+}
+
+
+~PropRef_ThickRef_Man()
+{
+    thickness_proprefman_is_deleting_thickness = true;
+    delete ref_;
+}
+
+
+void setDefaultVals( const PropertyRef* otherthref )
+{
+    ref_->aliases() = otherthref->aliases();
+    ref_->disp_ = otherthref->disp_;
 }
 
 
@@ -78,16 +110,27 @@ void setZUnit( CallBacker* cb=0 )
     ref_->disp_.unit_ = UnitOfMeasure::zUnitAnnot(false, true, false );
 }
 
-    PropertyRef*	ref_;
-
+    ThicknessPropertyRef*	ref_;
 };
+
+
+PropRef_ThickRef_Man* getPropRef_ThickRef_Man()
+{
+    mDefineStaticLocalObject( PtrMan<PropRef_ThickRef_Man>, ptm,
+			      = new PropRef_ThickRef_Man );
+    return ptm;
+}
 
 
 const PropertyRef& PropertyRef::thickness()
 {
-    mDefineStaticLocalObject( PtrMan<PropRef_ThickRef_Man>, ptm,
-			      = new PropRef_ThickRef_Man );
-    return *ptm->ref_;
+    return *getPropRef_ThickRef_Man()->ref_;
+}
+
+
+void PropertyRef::setThickness( const PropertyRef* thref )
+{
+    getPropRef_ThickRef_Man()->setDefaultVals( thref );;
 }
 
 
@@ -319,7 +362,11 @@ void createSet()
 	if ( prs_->isEmpty() )
 	    { delete prs_; prs_ = oldprs; }
 	else
-	    { delete oldprs; sfio.closeSuccess(); break; }
+	{
+	    delete oldprs;
+	    sfio.closeSuccess();
+	    break;
+	}
     }
 
     if ( !prs_ )
@@ -338,6 +385,19 @@ const PropertyRefSet& PROPS()
     return *rsm.prs_;
 }
 
+
+
+PropertyRefSet::PropertyRefSet()
+{
+    *this += getPropRef_ThickRef_Man()->ref_;
+}
+
+
+PropertyRefSet::~PropertyRefSet()
+{
+    *this -= getPropRef_ThickRef_Man()->ref_;
+    deepErase( *this );
+}
 
 
 PropertyRefSet& PropertyRefSet::operator =( const PropertyRefSet& prs )
@@ -393,6 +453,17 @@ PropertyRef* PropertyRefSet::fnd( const char* nm ) const
 {
     const int idx = indexOf( nm );
     return idx < 0 ? 0 : const_cast<PropertyRef*>( (*this)[idx] );
+}
+
+
+bool PropertyRefSet::subselect( PropertyRef::StdType proptype,
+				ObjectSet<const PropertyRef>& prs ) const
+{
+    prs.erase();
+    for ( int idx=0; idx<size(); idx++ )
+	if ( (*this)[idx] && (*this)[idx]->hasType( proptype ) )
+	    prs += (*this) [idx];
+    return !prs.isEmpty();
 }
 
 
@@ -456,8 +527,8 @@ bool PropertyRefSet::save( Repos::Source src ) const
 
 void PropertyRefSet::readFrom( ascistream& astrm )
 {
+    *this -= getPropRef_ThickRef_Man()->ref_;
     deepErase( *this );
-
     while ( !atEndOfSection(astrm.next()) )
     {
 	IOPar iop; iop.getFrom(astrm);
@@ -472,7 +543,11 @@ void PropertyRefSet::readFrom( ascistream& astrm )
 	pr->usePar( iop );
 
 	if ( add(pr) < 0 )
+	{
+	    if ( pr->name()==sKey::Thickness() )
+		PropertyRef::setThickness( pr );
 	    delete pr;
+	}
     }
 }
 
@@ -494,7 +569,7 @@ bool PropertyRefSet::writeTo( ascostream& astrm ) const
 
 PropertyRefSelection::PropertyRefSelection()
 {
-    *this += &PropertyRef::thickness();
+    *this += getPropRef_ThickRef_Man()->ref_;
 }
 
 
@@ -558,7 +633,7 @@ PropertyRefSelection PropertyRefSelection::getAll( bool withth,
 {
     PropertyRefSelection ret;
     if ( !withth )
-	ret -= &PropertyRef::thickness();
+	ret -= getPropRef_ThickRef_Man()->ref_;
 
     const PropertyRefSet& props = PROPS();
     for ( int idx=0; idx<props.size(); idx++ )
@@ -575,7 +650,7 @@ PropertyRefSelection PropertyRefSelection::getAll( PropertyRef::StdType typ )
 {
     PropertyRefSelection ret;
     if ( typ != PropertyRef::Dist )
-	ret -= &PropertyRef::thickness();
+	ret -= getPropRef_ThickRef_Man()->ref_;
 
     const PropertyRefSet& props = PROPS();
     for ( int idx=0; idx<props.size(); idx++ )

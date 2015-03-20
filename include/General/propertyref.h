@@ -26,6 +26,7 @@ class ascistream;
 class ascostream;
 class Property;
 class MathProperty;
+class PropRef_ThickRef_Man;
 
 
 /*!\brief Ref Data for a (usually petrophysical) property.
@@ -115,18 +116,27 @@ protected:
     friend class	PropertyRefSet;
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
+public:
+    static void		setThickness(const PropertyRef*);
 
 };
 
+/*!
+  \brief
+
+'PropertyRef::thickness()' is always added on creation & it should be ensured
+that it remains the first item always. While deleting it has to be taken out
+before deepErase(). Trying to delete will emit pErrMsg
+*/
 
 mExpClass(General) PropertyRefSet : public ObjectSet<PropertyRef>
 {
 public:
 
-			PropertyRefSet()		{}
+			PropertyRefSet();
 			PropertyRefSet( const PropertyRefSet& prs )
 							{ *this = prs; }
-			~PropertyRefSet()		{ deepErase(*this); }
+			~PropertyRefSet();
     PropertyRefSet&	operator =(const PropertyRefSet&);
 
     inline bool		isPresent( const char* nm ) const
@@ -159,6 +169,8 @@ public:
 
     void		readFrom(ascistream&);
     bool		writeTo(ascostream&) const;
+    bool		subselect(PropertyRef::StdType,
+				  ObjectSet<const PropertyRef>&)const;
 
 };
 
