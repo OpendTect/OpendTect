@@ -187,7 +187,7 @@ uiString od_stream::errMsg() const
     if ( errmsg_.isEmpty() )
     {
 	const char* sysmsg = StrmOper::getErrorMessage( streamData() );
-	return mkUiString( sysmsg && *sysmsg ? sysmsg : 0 );
+	return toUiString( sysmsg && *sysmsg ? sysmsg : 0 );
     }
 
     return errmsg_;
@@ -208,7 +208,7 @@ void od_stream::addErrMsgTo( uiString& msg ) const
     if ( !foundmsg.isEmpty() )
     {
 	uiString oldmsg = msg;
-	msg = mkUiString("%1:\n%2").arg(oldmsg).arg(foundmsg);
+	msg = toUiString("%1:\n%2").arg(oldmsg).arg(foundmsg);
     }
 }
 
@@ -418,7 +418,7 @@ static void fillNumberFmtErrMsg( od_istream& strm, uiString& errmsg )
 	stdstrm.clear(); BufferString word;
 	StrmOper::readWord( stdstrm, true, &word );
 	stdstrm.clear(std::ios::badbit);
-	errmsg = mkUiString("Invalid number found: '%1'").arg(word);
+	errmsg = toUiString("Invalid number found: '%1'").arg(word);
     }
 }
 

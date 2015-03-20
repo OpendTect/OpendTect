@@ -256,11 +256,11 @@ public:
     void		setText( const uiString&, 
 				 int column=0 );
     void		setText( int i, int column=0 )
-			{ setText( mkUiString(toString(i)), column ); }
+			{ setText( toUiString(i), column ); }
     void		setText( float f, int column=0 )
-			{ setText( mkUiString(toString(f)), column ); }
+			{ setText( toUiString(f), column ); }
     void		setText( double d, int column=0 )
-			{ setText( mkUiString(toString(d)), column ); }
+			{ setText( toUiString(d), column ); }
 
     const char*		text( int column=0 ) const;
 

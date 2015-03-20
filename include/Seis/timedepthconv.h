@@ -54,7 +54,7 @@ mExpClass(Seis) Time2DepthStretcher : public VelocityStretcher
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Time2DepthStretcher,
 				  "VelocityT2D", 
-				  mkUiString(sFactoryKeyword()));
+				  toUiString(sFactoryKeyword()));
 
 			Time2DepthStretcher();
     bool		setVelData(const MultiID&);
@@ -113,7 +113,7 @@ mExpClass(Seis) Depth2TimeStretcher : public VelocityStretcher
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Depth2TimeStretcher,
 				  "VelocityD2T", 
-				  mkUiString(sFactoryKeyword()));
+				  toUiString(sFactoryKeyword()));
 
 			Depth2TimeStretcher();
     bool		setVelData(const MultiID&);

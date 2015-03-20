@@ -27,9 +27,6 @@ const unsigned char MarchingCubesModel::cUdfAxisPos = 255;
 const unsigned char MarchingCubesModel::cMaxAxisPos = 254;
 const unsigned char MarchingCubesModel::cAxisSpacing = 255;
 
-const double  mInitValue = 1e+10;
-
-
 class MarchingCubesSurfaceWriter: public Executor
 { mODTextTranslationClass(MarchingCubesSurfaceWriter);
 public:

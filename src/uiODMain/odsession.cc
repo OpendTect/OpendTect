@@ -235,7 +235,7 @@ bool ODSessionTranslator::retrieve( ODSession& session,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
 	{ 
-	err = uiStrings::sCantOpen(mkUiString(ioobj->fullUserExpr(true))); 
+	err = uiStrings::sCantOpen(toUiString(ioobj->fullUserExpr(true))); 
 	return false;
 	}
     err = trans->read( session, *conn );
@@ -259,7 +259,7 @@ bool ODSessionTranslator::store( const ODSession& session,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     { 
-       err = uiStrings::sCantOpen(mkUiString(ioobj->fullUserExpr(false)));
+       err = uiStrings::sCantOpen(toUiString(ioobj->fullUserExpr(false)));
        return false;
     }
     err = trans->write( session, *conn );

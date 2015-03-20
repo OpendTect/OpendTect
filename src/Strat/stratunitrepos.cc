@@ -114,7 +114,7 @@ Strat::RefTree* Strat::RepositoryAccess::readTree( Repos::Source src )
     const BufferString fnm( rfp.fileName(src) );
     SafeFileIO sfio( fnm );
     if ( !sfio.open(true) )
-	{ msg_ = uiStrings::sCantOpen(mkUiString(fnm)); return 0; }
+	{ msg_ = uiStrings::sCantOpen(toUiString(fnm)); return 0; }
 
     RefTree* rt = new RefTree;
     if ( !rt->read(sfio.istrm()) )

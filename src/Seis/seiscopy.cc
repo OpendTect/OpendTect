@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "veldesc.h"
 #include "velocitycalc.h"
 
-static uiString sNrTrcsCopied = mkUiString("Number of traces copied");
+static uiString sNrTrcsCopied = toUiString("Number of traces copied");
 
 
 #define mNoVelocity 0

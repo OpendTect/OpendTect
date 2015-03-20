@@ -52,7 +52,7 @@ public:
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,RandomTrackDisplay,
 				    "RandomTrackDisplay", 
-				    mkUiString(sFactoryKeyword()));
+				    toUiString(sFactoryKeyword()));
 
     int				nameNr() const { return namenr_; }
     				/*!<\returns a number that is unique for 

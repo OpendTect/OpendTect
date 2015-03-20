@@ -60,7 +60,7 @@ public:
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,WellDisplay,
 				    "WellDisplay", 
-				    mkUiString(sFactoryKeyword()) );
+				    toUiString(sFactoryKeyword()) );
 
     bool			setMultiID(const MultiID&);
     MultiID			getMultiID() const	{ return wellid_; }

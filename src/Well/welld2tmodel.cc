@@ -645,7 +645,8 @@ static void shiftTimesIfNecessary( TypeSet<double>& tvals, double wllheadz,
 	  "It does not honour TWT(Z=SRD) = 0.";
     const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefTimeUnit();
     msg.append(
-	uiString( "\nOpendTect WILL correct for this error by applying a "
+	od_static_tr( "shiftTimesIfNecessary", 
+                  "\nOpendTect WILL correct for this error by applying a "
 		  "time shift of: %1%2\n"
 		  "The resulting travel-times will differ from the file")
 		   .arg( toString(mScaledValue(timeshift,uomz),2) )

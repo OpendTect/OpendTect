@@ -215,19 +215,19 @@ template <class T, class P0, class P1>
 mClass(Basic) Factory2Param : public FactoryBase
 {
 public:
-    typedef			T* (*Creator)(P0,P1);
-    inline void			addCreator(Creator,const char* nm=0,
-					   const uiString& usernm = 0);
-				/*!<Name may be be null
-				   If nm is found, old creator is replaced.
-				   nm can be a SeparString, separated by
-				   cSeparator(), allowing multiple names,
-				   where the first name will be the main
-				   name that is returned in getNames. */
-    inline T*			create(const char* nm, P0, P1,
-				       bool chknm=true)const;
-				//!<Name may be be null, if null name is given
-				//!<chknm will be forced to false
+    typedef		T* (*Creator)(P0,P1);
+    inline void		addCreator(Creator,const char* nm=0,
+                        	const uiString& usernm=uiString::emptyString());
+                        /*!<Name may be be null
+                           If nm is found, old creator is replaced.
+                           nm can be a SeparString, separated by
+                           cSeparator(), allowing multiple names,
+                           where the first name will be the main
+                           name that is returned in getNames. */
+    inline T*		create(const char* nm, P0, P1,
+                               bool chknm=true)const;
+                        //!<Name may be be null, if null name is given
+                        //!<chknm will be forced to false
 protected:
 
     TypeSet<Creator>		creators_;
@@ -242,19 +242,19 @@ template <class T, class P0, class P1, class P2>
 mClass(Basic) Factory3Param : public FactoryBase
 {
 public:
-    typedef			T* (*Creator)(P0,P1,P2);
-    inline void			addCreator(Creator,const char* nm=0,
-					   const uiString& usernm = 0);
-				/*!<Name may be be null
-				   If nm is found, old creator is replaced.
-				   nm can be a SeparString, separated by
-				   cSeparator(), allowing multiple names,
-				   where the first name will be the main
-				   name that is returned in getNames. */
-    inline T*			create(const char* nm, P0, P1, P2,
-				       bool chknm=true)const;
-				//!<Name may be be null, if null name is given
-				//!<chknm will be forced to false
+    typedef		T* (*Creator)(P0,P1,P2);
+    inline void		addCreator(Creator,const char* nm=0,
+                            const uiString& usernm =uiString::emptyString());
+                        /*!<Name may be be null
+                           If nm is found, old creator is replaced.
+                           nm can be a SeparString, separated by
+                           cSeparator(), allowing multiple names,
+                           where the first name will be the main
+                           name that is returned in getNames. */
+    inline T*		create(const char* nm, P0, P1, P2,
+                               bool chknm=true)const;
+                        //!<Name may be be null, if null name is given
+                        //!<chknm will be forced to false
 protected:
 
     TypeSet<Creator>		creators_;
@@ -420,7 +420,7 @@ mGlobal(mod) ::Factory<T>& funcname()
 #define mDefineFactoryInClasswKW( T, funcname, kw ) \
 static ::Factory<T>& funcname(); \
 virtual uiString factoryDisplayName() const \
-{ return mkUiString( factoryKeyword() ); } \
+{ return toUiString( factoryKeyword() ); } \
 virtual const char* factoryKeyword() const { return kw; }
 #define mDefineFactoryInClass( T, funcname ) \
     mDefineFactoryInClasswKW( T, funcname, 0 )
@@ -441,7 +441,7 @@ mGlobal(mod) ::Factory1Param<T,P>& funcname()
 #define mDefineFactory1ParamInClasswKW( T, P, funcname, kw ) \
 static ::Factory1Param<T,P>& funcname(); \
 virtual uiString factoryDisplayName() const \
-{ return mkUiString(factoryKeyword()); } \
+{ return toUiString(factoryKeyword()); } \
 virtual const char* factoryKeyword() const { return kw; }
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
     mDefineFactory1ParamInClasswKW( T, P, funcname, 0 )
@@ -465,7 +465,7 @@ mGlobal(mod) ::Factory2Param<T,P0,P1>& funcname()
 #define mDefineFactory2ParamInClasswKW( T, P0, P1, funcname, kw ) \
 static ::Factory2Param<T,P0,P1>& funcname(); \
 virtual uiString factoryDisplayName() const \
-{ return mkUiString( factoryKeyword() ); } \
+{ return toUiString( factoryKeyword() ); } \
 virtual const char* factoryKeyword() const { return kw; }
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
     mDefineFactory2ParamInClasswKW( T, P0, P1, funcname, 0 )
@@ -490,7 +490,7 @@ mGlobal(mod) ::Factory3Param<T,P0,P1,P2>& funcname()
 #define mDefineFactory3ParamInClasswKW( T, P0, P1, P2, funcname, kw ) \
 static ::Factory3Param<T,P0,P1,P2>& funcname(); \
 virtual uiString factoryDisplayName() const \
-{ return mkUiString( factoryKeyword() ); } \
+{ return toUiString( factoryKeyword() ); } \
 virtual const char* factoryKeyword() const { return kw; }
 #define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
     mDefineFactory3ParamInClasswKW( T, P0, P1, P2, funcname, 0 )

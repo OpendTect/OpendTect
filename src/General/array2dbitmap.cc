@@ -239,17 +239,6 @@ void A2DBitMapGenerator::fill()
 }
 
 
-static inline int gtPrettyBMVal( char c )
-{
-    const float rgmax = 1000;
-    float v = (c - VDA2DBitMapGenPars::cMinFill()) * (rgmax + 1)
-	    / (VDA2DBitMapGenPars::cMaxFill()-VDA2DBitMapGenPars::cMinFill())
-		- .5f;
-    const int ret = mNINT32(v);
-    return ret < 0 ? 0 : (ret > rgmax+.5 ? (int)rgmax : ret);
-}
-
-
 //---
 
 

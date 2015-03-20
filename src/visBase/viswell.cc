@@ -310,11 +310,11 @@ void Well::setWellName( const TrackParams& tp )
     transformZIfNeeded( crdbot );
 
     updateText( welltoptxt_->text(0),tp.isdispabove_ ? 
-		mkUiString( tp.name_ ) : uiString::emptyString(), &crdtop,
+		toUiString( tp.name_ ) : uiString::emptyString(), &crdtop,
 		tp.font_ );
 
     updateText( wellbottxt_->text(0),tp.isdispbelow_ ? 
-	        mkUiString( tp.name_ ) : uiString::emptyString(), &crdbot,
+	        toUiString( tp.name_ ) : uiString::emptyString(), &crdbot,
 		tp.font_ );
 
 }
@@ -394,7 +394,7 @@ void Well::addMarker( const MarkerParams& mp )
     Text* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
  
-    updateText( txt,mkUiString( mp.name_ ),&markerpos,mp.font_ );
+    updateText( txt,toUiString( mp.name_ ),&markerpos,mp.font_ );
 
     return;
 }

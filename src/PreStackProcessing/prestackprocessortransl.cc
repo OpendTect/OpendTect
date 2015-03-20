@@ -46,7 +46,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
-	msg = uiStrings::sCantOpen(mkUiString(ioobj->fullUserExpr(true)));
+	msg = uiStrings::sCantOpen(toUiString(ioobj->fullUserExpr(true)));
 	return false;
     }
 
@@ -76,7 +76,7 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     {
-	msg = uiStrings::sCantOpen(mkUiString(ioobj->fullUserExpr(false)));
+	msg = uiStrings::sCantOpen(toUiString(ioobj->fullUserExpr(false)));
     }
     else
     {

@@ -24,8 +24,8 @@ uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     , setup_(su)
 {
     ctseqitm_ = new uiPixmapItem();
-    minvalitm_ = new uiTextItem( "0", mAlignment(HCenter,Top) );
-    maxvalitm_ = new uiTextItem( "1", mAlignment(HCenter,Bottom) );
+    minvalitm_ = new uiTextItem( toUiString("0"), mAlignment(HCenter,Top) );
+    maxvalitm_ = new uiTextItem( toUiString("1"), mAlignment(HCenter,Bottom) );
     add( ctseqitm_ ); add( minvalitm_ ); add( maxvalitm_ );
 
     setColTabSequence( ColTab::Sequence("") );
@@ -56,8 +56,8 @@ void uiColTabItem::setPixmap()
 void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
     Interval<float> rg = ms.range_;
-    minvalitm_->setText( toString(rg.start) );
-    maxvalitm_->setText( toString(rg.stop) );
+    minvalitm_->setText( toUiString(rg.start) );
+    maxvalitm_->setText( toUiString(rg.stop) );
 }
 
 

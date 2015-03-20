@@ -455,7 +455,7 @@ void Annotation::updateTextPos()
 
 	    mVisTrans::transform( displaytrans_, pos );
 	    text->setPosition( pos );
-	    text->setText( mkUiString(toString(displayval,0)) );
+	    text->setText( toUiString(displayval,0) );
 	}
     }
 
@@ -529,7 +529,7 @@ bool Annotation::usePar( const IOPar& par )
 	const char* text = par.find( key );
 	if ( !text ) return -1;
 
-	setText( idx, mkUiString(text) );
+	setText( idx, toUiString(text) );
     }
 
     bool yn = true;

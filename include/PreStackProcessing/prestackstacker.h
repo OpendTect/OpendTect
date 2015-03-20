@@ -29,7 +29,7 @@ mExpClass(PreStackProcessing) Stack : public Processor
 { mODTextTranslationClass(Stack);
 public:
 				mDefaultFactoryInstantiation( Processor, Stack,
-				    "Stack", mkUiString(sFactoryKeyword()))
+				    "Stack", toUiString(sFactoryKeyword()))
 
  				Stack();
     				~Stack();

@@ -29,7 +29,7 @@ mExpClass(PreStackProcessing) AGC : public Processor
 public:
     				mDefaultFactoryInstantiation(
 					Processor, AGC, "AGC", 
-					mkUiString(sFactoryKeyword()))
+					toUiString(sFactoryKeyword()))
 
 				AGC();
     bool			prepareWork();

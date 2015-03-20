@@ -44,7 +44,7 @@ public:
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,Seis2DDisplay,
 				    "Seis2DDisplay", 
-				    mkUiString(sFactoryKeyword()))
+				    toUiString(sFactoryKeyword()))
 
     void			setGeomID(Pos::GeomID geomid);
     const char*			getLineName() const;

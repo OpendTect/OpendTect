@@ -107,7 +107,7 @@ uiString Task::uiMessage() const
     {
 	pErrMsgOnce("Use uiMessage() in your implementation "
 		    "instead of message()");
-	return mkUiString(oldmsg);
+	return toUiString(oldmsg);
     }
 
     return tr("Working");
@@ -121,7 +121,7 @@ uiString Task::uiNrDoneText() const
     {
 	pErrMsgOnce("Use uiNrDoneText() in your implementation instead of "
 		"nrDoneText()");
-	return mkUiString(oldmsg);
+	return toUiString(oldmsg);
     }
 
     return tr("Nr Done");

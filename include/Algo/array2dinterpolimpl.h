@@ -53,7 +53,7 @@ mExpClass(Algo) InverseDistanceArray2DInterpol : public Array2DInterpol
 public:
 		mDefaultFactoryInstantiation(Array2DInterpol, 
 			InverseDistanceArray2DInterpol,
-			"Inverse distance", mkUiString(sFactoryKeyword()))
+			"Inverse distance", toUiString(sFactoryKeyword()))
 
 		InverseDistanceArray2DInterpol();
 		~InverseDistanceArray2DInterpol();
@@ -138,7 +138,7 @@ mExpClass(Algo) TriangulationArray2DInterpol : public Array2DInterpol
 public:
 		mDefaultFactoryInstantiation(Array2DInterpol,
 			TriangulationArray2DInterpol,
-			"Triangulation", mkUiString(sFactoryKeyword()))
+			"Triangulation", toUiString(sFactoryKeyword()))
 
     		TriangulationArray2DInterpol();
     		~TriangulationArray2DInterpol();
@@ -196,7 +196,7 @@ mExpClass(Algo) ExtensionArray2DInterpol : public Array2DInterpol
 public:
 		mDefaultFactoryInstantiation(Array2DInterpol,
 		    ExtensionArray2DInterpol, "Extension", 
-		    mkUiString(sFactoryKeyword()))
+		    toUiString(sFactoryKeyword()))
 
     		ExtensionArray2DInterpol();
     		~ExtensionArray2DInterpol();

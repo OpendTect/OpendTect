@@ -51,7 +51,7 @@ mExpClass(Velocity) StoredFunctionSource : public FunctionSource
 public:
 				mDefaultFactoryInstanciationBase(
 				    "StoredVelFunc", 
-				    mkUiString(sFactoryKeyword()));
+				    toUiString(sFactoryKeyword()));
 
     				StoredFunctionSource();
     static IOObjContext&	ioContext();

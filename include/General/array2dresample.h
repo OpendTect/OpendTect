@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 template <class T, class TT>
 mClass(General) Array2DReSampler : public ParallelTask
-{
+{ mODTextTranslationClass(Array2DReSampler)
 public:
 
     inline		Array2DReSampler(const Array2D<T>& from,
@@ -77,7 +77,7 @@ private:
     inline void		updateScale(const Geom::PosRectangle<float>*);
     inline bool		doWork(od_int64,od_int64, int );
     uiString		uiNrDoneText() const
-    			{ return "Data columns resampled"; }
+    			{ return tr("Data columns resampled"); }
 
     const Array2D<T>*		from_;
     Array2D<TT>*		to_;

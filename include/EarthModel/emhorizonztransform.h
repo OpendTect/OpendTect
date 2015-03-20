@@ -32,7 +32,7 @@ mExpClass(EarthModel) HorizonZTransform : public ZAxisTransform
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, HorizonZTransform,
 				  "HorizonZTransform", 
-				  mkUiString(sFactoryKeyword()));
+				  toUiString(sFactoryKeyword()));
 
     static const char*	sKeyHorizonID()		{ return "Horizon"; }
 

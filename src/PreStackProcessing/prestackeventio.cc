@@ -444,7 +444,7 @@ bool EventReader::readAuxData(const char* fnm)
     SafeFileIO fileio( auxfilenm );
     if ( !fileio.open( true ) )
     {
-	errmsg_ = uiStrings::sCantOpen(mkUiString(auxfilenm));
+	errmsg_ = uiStrings::sCantOpen(toUiString(auxfilenm));
 	return false;
     }
 

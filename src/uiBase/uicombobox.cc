@@ -314,7 +314,7 @@ void uiComboBox::addItem( const uiString& txt, int id )
 void uiComboBox::addItems( const BufferStringSet& bss )
 {
     for ( int idx=0; idx<bss.size(); idx++ )
-	addItem( bss.get(idx).str() );
+	addItem( toUiString( bss.get(idx).str() ) );
 }
 
 
@@ -409,7 +409,7 @@ void uiComboBox::popupVirtualKeyboard( int globalx, int globaly )
     {
 	const char* txt = text();
 	if ( !isPresent(txt) )
-	    addItem( txt );
+	    addItem( toUiString(txt) );
 
 	setCurrentItem( txt );
 	selectionChanged.trigger();

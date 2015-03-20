@@ -41,7 +41,7 @@ public:
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,HorizonDisplay,
 				    "HorizonDisplay", 
-				    mkUiString(sFactoryKeyword()));
+				    toUiString(sFactoryKeyword()));
 
     void			setDisplayTransformation(const mVisTrans*);
     void			setSceneEventCatcher(visBase::EventCatcher*);

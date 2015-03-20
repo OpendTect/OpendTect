@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 bool testArg()
 {
-    uiString composite = uiString( "%1 plus %2 is %3")
+    uiString composite = toUiString( "%1 plus %2 is %3")
 		.arg( 4 )
 		.arg( 5 )
 		.arg( 9 );
@@ -24,15 +24,15 @@ bool testArg()
 
     const char* desoutput = "Hello Dear 1";
 
-    uiString string = uiString( "Hello %1 %2").arg( "Dear" ).arg( toString(1) );
+    uiString string = toUiString( "Hello %1 %2").arg( "Dear" ).arg( toString(1) );
     mRunStandardTest( string.getQtString()==QString( desoutput ),
 		     "Standard argument order");
 
-    string = uiString( "Hello %2 %1").arg( toString( 1 ) ).arg( "Dear" );
+    string = toUiString( "Hello %2 %1").arg( toString( 1 ) ).arg( "Dear" );
     mRunStandardTest( string.getQtString()==QString(desoutput),
 		     "Reversed argument order");
 
-    string = uiString( "Hello %1 %2");
+    string = toUiString( "Hello %1 %2");
     string.arg( "Dear" ).arg( toString(1) );
     mRunStandardTest( string.getQtString()==QString(desoutput),
 		     "In-place");
@@ -48,7 +48,7 @@ bool testArg()
 
     mRunStandardTest( string.getQtString()==cloned.getQtString(), "copyFrom" );
 
-    uiString part1( "Part 1" );
+    uiString part1 = toUiString( "Part 1" );
     part1.append( ", Part 2", false );
     mRunStandardTest(
 	    FixedString(part1.getFullString())=="Part 1, Part 2", "append" );
@@ -63,7 +63,7 @@ bool testArg()
 
 bool testSharedData()
 {
-    uiString a = uiString("Hello %1%2").arg( "World" );
+    uiString a = toUiString("Hello %1%2").arg( "World" );
     uiString b = a;
 
     b.arg( "s" );
@@ -101,10 +101,10 @@ bool testQStringAssignment()
 bool testOptionStrings()
 {
     uiStringSet options;
-    options += "One";
-    options += "Two";
-    options += "Three";
-    options += "Four";
+    options += toUiString( "One" );
+    options += toUiString( "Two" );
+    options += toUiString( "Three" );
+    options += toUiString( "Four" );
 
     mRunStandardTest(
 	    options.createOptionString( true, -1, ' ').getFullString()==

@@ -33,7 +33,7 @@ mExpClass(PreStackProcessing) TrimStatics : public Processor
 public:
 			mDefaultFactoryInstantiation(
 				Processor, TrimStatics, "Trim Statics", 
-				mkUiString(sFactoryKeyword()))
+				toUiString(sFactoryKeyword()))
 
  				TrimStatics();
     				~TrimStatics();

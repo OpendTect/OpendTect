@@ -54,10 +54,9 @@ public:
     enum StdType	{ Select, Apply, Save, SaveAs, Edit, Examine,
 			  Options, Settings, Properties,
 			  Help, Ok, Cancel };
+
     static uiButton*	getStd(uiParent*,StdType,const CallBack&,bool immediate,
-				const char* nonstd_text=0);
-    static uiButton*	getStd(uiParent*,StdType,const CallBack&,bool immediate,
-				const uiString& nonstd_text);
+                           const uiString& nonstd_text=uiString::emptyString());
     static bool		haveCommonPBIcons()	{ return havecommonpbics_; }
     static void		setHaveCommonPBIcons( bool yn=true )
     						{ havecommonpbics_ = yn; }

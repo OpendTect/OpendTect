@@ -125,7 +125,7 @@ protected:
 
 template <class T>
 mClass(General) MapperTask : public ParallelTask
-{
+{ mODTextTranslationClass(MapperTask)
 public:
 			MapperTask(const ColTab::Mapper& map,
 				   od_int64 sz,T nrsteps,
@@ -152,7 +152,7 @@ public:
 private:
     bool			doWork(od_int64 start,od_int64 stop,int);
     uiString			uiNrDoneText() const
-				{ return "Data values mapped"; }
+				{ return tr("Data values mapped"); }
 
     const ColTab::Mapper&	mapper_;
     od_int64			totalsz_;

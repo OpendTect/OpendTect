@@ -95,7 +95,7 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
-	bs = uiStrings::sCantOpen(mkUiString(ioobj->fullUserExpr(true)));
+	bs = uiStrings::sCantOpen(toUiString(ioobj->fullUserExpr(true)));
 	return false;
     }
 
@@ -122,7 +122,7 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     {
-	bs = uiStrings::sCantOpen(mkUiString(ioobj->fullUserExpr(false)));
+	bs = uiStrings::sCantOpen(toUiString(ioobj->fullUserExpr(false)));
 	return false;
     }
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );

@@ -51,7 +51,7 @@ public:
 				visSurvey::SurveyObject,
 				FaultStickSetDisplay, 
 				"FaultStickSetDisplay",
-				mkUiString(sFactoryKeyword()) );
+				toUiString(sFactoryKeyword()) );
 
 
     MultiID			getMultiID() const;

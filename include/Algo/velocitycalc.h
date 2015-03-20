@@ -233,7 +233,7 @@ mExpClass(Algo) DixConversion : public Vrms2Vint
 public:
 		mDefaultFactoryInstantiation( Vrms2Vint, DixConversion, 
 					      "Dix",
-					      mkUiString(sFactoryKeyword()));
+					      toUiString(sFactoryKeyword()));
 
     bool	compute(const float* Vrms, float t0, float v0,
 	    		const float* t, int nrlayers, float* Vint)

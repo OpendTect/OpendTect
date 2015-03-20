@@ -35,7 +35,7 @@ public:
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,PolyLineDisplay,
 				    "PolyLineDisplay",
-				    mkUiString(sFactoryKeyword()));
+				    toUiString(sFactoryKeyword()));
 
     void			fillPolyLine(const TypeSet<Coord>&);
     void                        fillPolyLine(const Coord3&);

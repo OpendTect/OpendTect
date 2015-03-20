@@ -389,7 +389,7 @@ void uiChain::updateList()
     {
 	const char* key = chain_.getStep(idx)->factoryKeyword();
 	const char* username = chain_.getStep(idx)->userName();
-	uiString displayname = mkUiString(username);
+	uiString displayname = toUiString(username);
 	if ( !displayname )
 	{
 	    displayname = chain_.getStep(idx)->factoryDisplayName();

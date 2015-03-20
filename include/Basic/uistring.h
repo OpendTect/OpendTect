@@ -221,6 +221,8 @@ mGlobal(Basic) uiString toUiString(od_uint32);
 mGlobal(Basic) uiString toUiString(od_uint64);
 mGlobal(Basic) uiString toUiString(float);
 mGlobal(Basic) uiString toUiString(double);
+mGlobal(Basic) uiString toUiString(float,int nrdec);
+mGlobal(Basic) uiString toUiString(double,int nrdec);
 
 //Legacy Will be removed
 mGlobal(Basic) inline uiString mkUiString(const char* var)

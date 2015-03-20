@@ -33,17 +33,15 @@ extern OSErr    NativePathNameToFSSpec(char *, FSSpec *, unsigned long);
 
 void uiInitMac()
 {
-    ProcessSerialNumber psn;
     CPSProcessSerNum PSN;
 
-    GetCurrentProcess(&psn);
     if (!CPSGetCurrentProcess(&PSN))
     {
 	if (!CPSEnableForegroundOperation(&PSN, 0x03, 0x3C, 0x2C, 0x1103))
 	{
 	    if (!CPSSetFrontProcess(&PSN))
 	    {
-		GetCurrentProcess(&psn);
+                pFreeFnErrMsg("Could not set front process");
 	    }
 	}
     }

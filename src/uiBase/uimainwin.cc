@@ -1194,7 +1194,7 @@ uiString uiMainWin::uniqueWinTitle( const uiString& txt,
 	if ( unique ) break;
     }
 
-    return mkUiString(wintitle.str());
+    return toUiString(wintitle.str());
 }
 
 
@@ -1925,7 +1925,7 @@ void uiDialog::setButtonText( Button but, const uiString& txt )
 
 void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
 {
-    uiString oktext = mkUiString("Run");
+    uiString oktext = toUiString("Run");
     uiString canceltext = uiStrings::sClose();
     if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
     {

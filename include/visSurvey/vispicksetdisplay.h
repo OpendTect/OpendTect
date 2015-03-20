@@ -38,7 +38,7 @@ public:
 				mDefaultFactoryInstantiation( 
 				    visSurvey::SurveyObject,PickSetDisplay,
 				    "PickSetDisplay", 
-				    mkUiString(sFactoryKeyword()));
+				    toUiString(sFactoryKeyword()));
     
     void			setSet(Pick::Set*);
 

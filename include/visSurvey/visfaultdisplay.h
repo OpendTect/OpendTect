@@ -59,7 +59,7 @@ public:
 				mDefaultFactoryInstantiation(
 				visSurvey::SurveyObject,FaultDisplay,
 				"FaultDisplay", 
-				mkUiString(sFactoryKeyword()));
+				toUiString(sFactoryKeyword()));
 
 
     MultiID			getMultiID() const;

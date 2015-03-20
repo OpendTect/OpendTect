@@ -294,19 +294,6 @@ uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
     return crStd( p, typ, cb, immediate, &buttxt, havecommonpbics_ );
 }
 
-uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
-	const CallBack& cb, bool immediate, const char* txt )
-{
-    if ( txt )
-    {
-	const uiString buttxt( txt );
-	return crStd( p, typ, cb, immediate, &buttxt, havecommonpbics_ );
-    }
-
-    return crStd( p, typ, cb, immediate, 0, havecommonpbics_ );
-}
-
-
 
 QAbstractButton* uiButton::qButton()
 {

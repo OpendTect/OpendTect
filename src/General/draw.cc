@@ -18,7 +18,7 @@ The main chunk is color table related.
 
 // Beware if you add or change: there is a 'mirror' in
 // uiGraphicsItem::setFillPattern. Not an enum to keep full flexibility.
-static const int cNoFillPatternType = 0;
+
 static const int cDotsFillPatternType = 1;
 static const int cLinesFillPatternType = 2;
 
