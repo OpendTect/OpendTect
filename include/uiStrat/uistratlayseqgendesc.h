@@ -14,6 +14,9 @@ ________________________________________________________________________
 
 #include "uistratmod.h"
 #include "factory.h"
+
+class PropertyRefSelection;
+
 class uiParent;
 class uiObject;
 class uiStratLayerModelDisp;
@@ -58,6 +61,7 @@ protected:
 
     Strat::LayerSequenceGenDesc& desc_;
     bool		needsave_;
+    bool		isValidSelection(const PropertyRefSelection&) const;
 
 };
 

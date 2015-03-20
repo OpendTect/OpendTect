@@ -116,6 +116,31 @@ uiLayerSequenceGenDesc::uiLayerSequenceGenDesc( Strat::LayerSequenceGenDesc& d )
 	if ( pidx >= 0 ) prs += PROPS()[pidx];
 	desc_.setPropSelection( prs );
     }
+
+}
+
+#define mErrRet( msg ) \
+{ uiMSG().error( msg ); return false; }
+
+
+bool uiLayerSequenceGenDesc::isValidSelection(
+	const PropertyRefSelection& props ) const
+{
+    if ( props.isEmpty() )
+	mErrRet( "No property is selected." )
+    if ( !props[0]->isThickness() )
+    {
+	pErrMsg( "Thickness should always be the first property" );
+	return false;
+    }
+
+    PropertyRefSelection densityprops = props.subselect( PropertyRef::Den );
+    if ( densityprops.isEmpty() )
+	mErrRet( "No property of type 'Density' selected" ) 
+    PropertyRefSelection velocityprops = props.subselect( PropertyRef::Vel );
+    if ( velocityprops.isEmpty() )
+	mErrRet( "No property of type 'Velocity' selected" ) 
+    return true;
 }
 
 
@@ -126,6 +151,8 @@ bool uiLayerSequenceGenDesc::selProps()
     const bool ret = dlg.go();
     if ( ret || dlg.structureChanged() )
     {
+	if ( !isValidSelection(prs) )
+	    return false;
 	desc_.setPropSelection( prs );
 	descHasChanged();
     }
@@ -187,6 +214,8 @@ bool uiExtLayerSequenceGenDesc::selProps()
     const bool ret = dlg.go();
     if ( ret || dlg.structureChanged() )
     {
+	if ( !isValidSelection(prs) )
+	    return false;
 	editdesc_.setPropSelection( prs );
 	descHasChanged();
     }
@@ -387,9 +416,17 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
     uiPoint rightpt( workrect_.right(), 0 );
 
     DispUnit& disp = *disps_[idx];
-    const Property& prop = disp.gen_->properties().get(0);
-    const float th0 = prop.value( mPropertyEvalNew(0) );
-    const float th1 = prop.value( mPropertyEvalNew(1) );
+    if ( disp.gen_->properties().isEmpty() )
+	return;
+    const Property& thprop = disp.gen_->properties().get( 0 );
+    if ( !thprop.ref().isThickness() )
+    {
+	pErrMsg( "Thickness should always be the first property" );
+	return;
+    }
+
+    const float th0 = thprop.value( mPropertyEvalNew(0) );
+    const float th1 = thprop.value( mPropertyEvalNew(1) );
     const bool growing = th1 > th0;
     const float& maxth = growing ? th1 : th0;
     const float& minth = growing ? th0 : th1;
@@ -417,7 +454,7 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 
     uiRect polyrect( leftpt.x+1, disp.topy_+1, rightpt.x-1, disp.boty_-1 );
     TypeSet<uiPoint> pts;
-    mDynamicCastGet(const RangeProperty*,rgprop,&prop)
+    mDynamicCastGet(const RangeProperty*,rgprop,&thprop)
     if ( !rgprop || mIsEqual(th0,th1,1e-5) )
     {
 	pts += polyrect.bottomLeft();

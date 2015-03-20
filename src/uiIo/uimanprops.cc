@@ -45,6 +45,7 @@ public:
     virtual void	removeReq();
     virtual void	itemSwitch(const char*,const char*);
     void		initGrp(CallBacker*);
+    bool		isPropRemovable(int propidx);
 
 };
 
@@ -241,17 +242,18 @@ void uiEditPropRef::definitionChecked( CallBacker* )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s,retype) { uiMSG().error(s); return retype; }
 
 bool uiEditPropRef::acceptOK( CallBacker* )
 {
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() || !iswalpha(newnm[0]) || newnm.size() < 2 )
-	mErrRet(uiStrings::sEntValidName());
+	mErrRet(uiStrings::sEntValidName(),false);
     const BufferString definitionstr( definitionfld_->text() );
     const bool isfund = definitionfld_->isChecked();
     if ( isfund && definitionstr.isEmpty() )
-	mErrRet(tr("Please un-check the 'Fixed Definition' - or provide one"));
+	mErrRet( tr("Please un-check the 'Fixed Definition' - or provide one"),
+		 false );
 
     pr_.setName( newnm );
     SeparString ss( aliasfld_->text() ); const int nral = ss.size();
@@ -323,9 +325,34 @@ void uiBuildPROPS::editReq( bool isadd )
     else
     {
 	if ( isadd )
+	{
+	    if ( props_.isPresent(pr->name()) )
+		mErrRet( tr("Property with same name '%1' already "
+			    " present.").arg(pr->name()),  )
 	    props_ += pr;
+	}
 	handleSuccessfullEdit( isadd, pr->name() );
     }
+}
+
+
+bool uiBuildPROPS::isPropRemovable( int propidx )
+{
+    const PropertyRef* propref = props_[propidx];
+    if ( propref->isThickness() )
+	mErrRet( tr("Cannot remove inbuilt property 'Thickness'."), false )
+    if ( propref->stdType()==PropertyRef::Den ||
+	 propref->stdType()==PropertyRef::Vel )
+    {
+	ObjectSet<const PropertyRef> subselprs;
+	props_.subselect( propref->stdType(), subselprs );
+	if ( subselprs.size()<=1 )
+	    mErrRet( tr( "Cannot remove this property.Need to have atleast one "
+			 "usable property of type '%1'")
+		    	.arg(PropertyRef::toString(propref->stdType())), false )
+    }
+
+    return true;
 }
 
 
@@ -336,8 +363,11 @@ void uiBuildPROPS::removeReq()
     {
 	const int idx = props_.indexOf( prnm );
 	if ( idx < 0 ) return;
-	delete props_.removeSingle( idx );
-	removeItem();
+	if ( isPropRemovable(idx) )
+	{
+	    delete props_.removeSingle( idx );
+	    removeItem();
+	}
     }
 }
 

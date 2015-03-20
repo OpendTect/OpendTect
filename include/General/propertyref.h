@@ -27,6 +27,7 @@ class ascistream;
 class ascostream;
 class Property;
 class MathProperty;
+class PropRef_ThickRef_Man;
 
 
 /*!\brief Ref Data for a (usually petrophysical) property.
@@ -55,7 +56,7 @@ public:
 			, stdtype_(t), mathdef_(0)	{}
 			PropertyRef( const PropertyRef& pr )
 			    : mathdef_(0)		{ *this = pr; }
-			~PropertyRef();
+    virtual		~PropertyRef();
     PropertyRef&	operator =(const PropertyRef&);
     inline bool		operator ==( const PropertyRef& pr ) const
 			{ return name() == pr.name(); }
@@ -116,6 +117,8 @@ protected:
     friend class	PropertyRefSet;
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
+public:
+    static void		setThickness(const PropertyRef*);
 
 };
 
@@ -124,10 +127,10 @@ mExpClass(General) PropertyRefSet : public ObjectSet<PropertyRef>
 {
 public:
 
-			PropertyRefSet()		{}
+			PropertyRefSet();
 			PropertyRefSet( const PropertyRefSet& prs )
 							{ *this = prs; }
-			~PropertyRefSet()		{ deepErase(*this); }
+			~PropertyRefSet();
     PropertyRefSet&	operator =(const PropertyRefSet&);
 
     inline bool		isPresent( const char* nm ) const
@@ -151,6 +154,8 @@ public:
 			{ return ObjectSet<PropertyRef>::isPresent(pr); }
     int			indexOf( const PropertyRef* pr ) const
 			{ return ObjectSet<PropertyRef>::indexOf(pr); }
+    bool		subselect(PropertyRef::StdType,
+	    			  ObjectSet<const PropertyRef>&)const;
 
 protected:
 

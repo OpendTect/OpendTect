@@ -298,7 +298,7 @@ float Strat::LaySeqAttribCalc::getGlobalValue( const LayerSequence& seq ) const
 	mRetUdfVal;
 
     TypeSet<float> vals; TypeSet<float> wts;
-    const bool isthick = &attr_.prop_ == &Strat::Layer::thicknessRef();
+    const bool isthick = attr_.prop_.isThickness();
     const bool propisvel = isVel();
     for ( int ilay=0; ilay<layers.size(); ilay++ )
     {

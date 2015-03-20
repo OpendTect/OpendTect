@@ -120,6 +120,12 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     , startdepth_(0)
 {
     elasticpropselmid_.setEmpty();
+    int pidx = PROPS().indexOf( PropertyRef::Den );
+    if ( pidx >= 0 ) propsel_ += PROPS()[pidx];
+    pidx = PROPS().indexOf( PropertyRef::Vel );
+    if ( pidx >= 0 ) propsel_ += PROPS()[pidx];
+    pidx = PROPS().indexOf( PropertyRef::Imp );
+    if ( pidx >= 0 ) propsel_ += PROPS()[pidx];
 }
 
 
@@ -379,12 +385,18 @@ float Strat::SingleLayerGenerator::dispThickness( bool max ) const
 {
     if ( props_.isEmpty() )
 	return 1;
+    const Property& thprop = props_.get( 0 );
+    if ( !thprop.ref().isThickness() )
+    {
+	pErrMsg( "Thickness should always be the first property" );
+	return 1;
+    }
 
     if ( !max )
-	return props_.get(0).value( mPropertyEvalAvg );
+	return thprop.value( mPropertyEvalAvg );
 
-    const float th0 = props_.get(0).value( mPropertyEvalNew(0) );
-    const float th1 = props_.get(0).value( mPropertyEvalNew(1) );
+    const float th0 = thprop.value( mPropertyEvalNew(0) );
+    const float th1 = thprop.value( mPropertyEvalNew(1) );
     if ( mIsUdf(th0) ) return th1; if ( mIsUdf(th1) ) return th0;
 
     return th0 < th1 ? th1 : th0;

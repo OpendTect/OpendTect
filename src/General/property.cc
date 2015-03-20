@@ -149,10 +149,10 @@ float RangeProperty::gtVal( Property::EvalOpts eo ) const
 	    sanerg.start = sanerg.stop;
 	else if ( mIsUdf(sanerg.stop) )
 	    sanerg.stop = sanerg.start;
-	if ( &ref() == &PropertyRef::thickness() )
+	if ( ref().isThickness() )
 	{
 	    if ( sanerg.start < 0 ) sanerg.start = 0;
-	    if ( sanerg.stop < 0 ) sanerg.stop = 0;
+	    if ( sanerg.stop < sanerg.start ) sanerg.stop = sanerg.start;
 	}
 	return 0.5f * (sanerg.start + sanerg.stop);
     }
