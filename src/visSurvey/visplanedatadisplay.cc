@@ -755,7 +755,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 
 
 bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
-				      TaskRunner* )
+				      TaskRunner* taskr )
 {
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPack* datapack = dpm.obtain( dpid );
@@ -772,7 +772,7 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     datapackids_[attrib] = dpid;
 
     createTransformedDataPack( attrib );
-    updateChannels( attrib, 0 );
+    updateChannels( attrib, taskr );
 //    setVolumeDataPackNoCache( attrib, regsdp );
     return true;
 }
