@@ -6,7 +6,7 @@
     <message>
         <location filename="../../../src/PreStackProcessing/prestackanglemutecomputer.cc" line="+42"/>
         <source>Computing mute</source>
-        <translation type="unfinished"></translation>
+        <translation>Computando mudo</translation>
     </message>
     <message>
         <location line="+29"/>
@@ -19,7 +19,7 @@
     <message>
         <location filename="../../../include/Algo/array1dinterpol.h" line="+46"/>
         <source>Points interpolated</source>
-        <translation type="unfinished"></translation>
+        <translation>Puntos interpolados</translation>
     </message>
 </context>
 <context>
@@ -27,7 +27,7 @@
     <message>
         <location filename="../../../include/Algo/array2dinterpol.h" line="+89"/>
         <source>Gridding</source>
-        <translation type="unfinished">Haciendo cuadrículas</translation>
+        <translation>Haciendo cuadrículas</translation>
     </message>
 </context>
 <context>
@@ -35,7 +35,7 @@
     <message>
         <location filename="../../../include/General/array2dresample.h" line="+80"/>
         <source>Data columns resampled</source>
-        <translation type="unfinished"></translation>
+        <translation>Columnas de datos reemplazadas</translation>
     </message>
 </context>
 <context>
@@ -43,7 +43,7 @@
     <message>
         <location filename="../../../src/AttributeEngine/attribengman.cc" line="+729"/>
         <source>Cannot create output</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede crear salida</translation>
     </message>
 </context>
 <context>
@@ -51,7 +51,7 @@
     <message>
         <location line="+169"/>
         <source>Cannot create output</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede crear salida</translation>
     </message>
 </context>
 <context>
@@ -59,12 +59,12 @@
     <message>
         <location filename="../../../include/AttributeEngine/attribdatacubeswriter.h" line="+46"/>
         <source>Writing out data!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Escribiendo datos!</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Traces written:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastros que estan escritos:</translation>
     </message>
 </context>
 <context>
@@ -85,7 +85,7 @@
     <message>
         <location filename="../../../include/AttributeEngine/attribprocessor.h" line="+51"/>
         <source>Positions processed</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan procesados</translation>
     </message>
 </context>
 <context>
@@ -167,7 +167,7 @@
     <message>
         <location filename="../../../plugins/Basemap/basemapcontour.cc" line="+52"/>
         <source>Contours Done</source>
-        <translation type="unfinished"></translation>
+        <translation>Contornos que estan hechos</translation>
     </message>
 </context>
 <context>
@@ -201,7 +201,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location filename="../../../include/MMProc/mmbatchjobdispatch.h" line="+54"/>
         <source>Multi-Machine</source>
-        <translation type="unfinished"></translation>
+        <translation>Multi-Máquina</translation>
     </message>
 </context>
 <context>
@@ -214,7 +214,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location filename="../../../include/General/batchjobdispatch.h" line="+128"/>
         <source>Single Process</source>
-        <translation type="unfinished"></translation>
+        <translation>Proceso síngulo</translation>
     </message>
 </context>
 <context>
@@ -222,7 +222,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location filename="../../../src/Batch/batchprog.cc" line="+295"/>
         <source>Could not contact master. Exiting.</source>
-        <translation type="unfinished"></translation>
+        <translation>No podía poner en contacto maestro. Saliendo.</translation>
     </message>
 </context>
 <context>
@@ -230,7 +230,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location filename="../../../include/Algo/bendpointfinder.h" line="+34"/>
         <source>Positions done</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan hechos</translation>
     </message>
 </context>
 <context>
@@ -300,7 +300,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location filename="../../../src/Algo/conncomponents.cc" line="+39"/>
         <source>Computing 2D connected  components</source>
-        <translation type="unfinished"></translation>
+        <translation>Computando componentes 2D connectados</translation>
     </message>
 </context>
 <context>
@@ -323,7 +323,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location line="+6"/>
         <source>Cannot add connection %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede añadir connección %1</translation>
     </message>
     <message>
         <source>Cannot add connection </source>
@@ -351,7 +351,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location filename="../../../include/General/coltabmapper.h" line="+155"/>
         <source>Data values mapped</source>
-        <translation type="unfinished"></translation>
+        <translation>La mappa de valores de datos esta hecho</translation>
     </message>
 </context>
 <context>
@@ -526,22 +526,22 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location line="-25"/>
         <source>Cannot extract seismic for cross-correlation</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede extraer sísmica para correlación-cruzada</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Cannot extract synthetic for cross-correlation</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede extraer sintéticos para correlación-cruzada</translation>
     </message>
     <message>
         <location line="+25"/>
         <source>Cannot extract reflectivity for wavelet estimation</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede extraer reflectividad para estimación de onda</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Cannot extract seismic for wavelet estimation</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede extraer sísmica para estimación de onda</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -648,12 +648,12 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location filename="../../../include/Algo/delaunay.h" line="+170"/>
         <source>Points triangulated</source>
-        <translation type="unfinished"></translation>
+        <translation>Puntos estan triangulados</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Triangulating</source>
-        <translation type="unfinished"></translation>
+        <translation>Triangulando</translation>
     </message>
 </context>
 <context>
@@ -686,12 +686,14 @@ Prueba ejecutar una máquina síngula.</translation>
         <source>Impossible to find stored data &apos;%1&apos;used as input for another attribute %2 &apos;%3&apos;. 
 Data might have been deleted or corrupted.
 Please check your attribute set and select valid stored data as input.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es imposible encontrar los datos almacenados &apos;%1&apos; usados como entrada para un otro atributo %2 &apos;%3&apos;. 
+Quizas los datos estan borrados o corruptos.
+Por favor checa su conjunto de atributos y selecciona unos datos almacenados válidos como entrada.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>called</source>
-        <translation type="unfinished"></translation>
+        <translation>Llamado</translation>
     </message>
     <message>
         <source>Impossible to find stored data &apos;%1&apos;used as input for other attribute(s). 
@@ -720,7 +722,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/Algo/dippca.cc" line="+157"/>
         <source>Dip calculating..</source>
-        <translation type="unfinished"></translation>
+        <translation>Calculando dip..</translation>
     </message>
 </context>
 <context>
@@ -728,7 +730,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location line="-129"/>
         <source>Dip/Azimuth calculating..</source>
-        <translation type="unfinished"></translation>
+        <translation>Calculando dip/azimut..</translation>
     </message>
 </context>
 <context>
@@ -751,7 +753,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location line="+55"/>
         <source>Positions handled</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan manejados</translation>
     </message>
 </context>
 <context>
@@ -759,7 +761,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/EarthModel/embodyoperator.cc" line="+55"/>
         <source>Calculating implicit body operation</source>
-        <translation type="unfinished"></translation>
+        <translation>Calculando operación del parte principal implícito</translation>
     </message>
 </context>
 <context>
@@ -783,7 +785,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/EarthModel/emhorizon3d.cc" line="+77"/>
         <source>Positions handled</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan manejados</translation>
     </message>
 </context>
 <context>
@@ -791,7 +793,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../include/EarthModel/emhorizonztransformer.h" line="+37"/>
         <source>Positions done</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan hechos</translation>
     </message>
 </context>
 <context>
@@ -807,7 +809,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/EarthModel/emmarchingcubessurface.cc" line="+123"/>
         <source>Loading body</source>
-        <translation type="unfinished"></translation>
+        <translation>Cargando parte principal</translation>
     </message>
 </context>
 <context>
@@ -815,7 +817,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location line="+82"/>
         <source>Loading body</source>
-        <translation type="unfinished"></translation>
+        <translation>Cargando parte principal</translation>
     </message>
 </context>
 <context>
@@ -855,7 +857,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/MPEEngine/emtracker.cc" line="+82"/>
         <source>seeds processed</source>
-        <translation type="unfinished"></translation>
+        <translation>Picos estan procesados</translation>
     </message>
 </context>
 <context>
@@ -1073,17 +1075,17 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/Geometry/explicitmarchingcubes.cc" line="+69"/>
         <source>Triangulation: updating coordinates</source>
-        <translation type="unfinished"></translation>
+        <translation>Triangulación: actualizando coordenadas</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Triangulation: updating indices</source>
-        <translation type="unfinished"></translation>
+        <translation>Triangulación: actualizando índices</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Positions updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan actualizadas</translation>
     </message>
 </context>
 <context>
@@ -1091,12 +1093,12 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/Algo/array2dinterpol.cc" line="+66"/>
         <source>Interpolation level</source>
-        <translation type="unfinished"></translation>
+        <translation>Nivel de interpolación</translation>
     </message>
     <message>
         <location line="+1458"/>
         <source>Setting up interpolation</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustando interpolación</translation>
     </message>
 </context>
 <context>
@@ -1187,7 +1189,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/Basic/file.cc" line="+67"/>
         <source>MBytes copied</source>
-        <translation type="unfinished"></translation>
+        <translation>MBytes estan copiados</translation>
     </message>
 </context>
 <context>
@@ -1219,7 +1221,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../include/Algo/fourier.h" line="+33"/>
         <source>FFT</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1405,37 +1407,37 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/MPEEngine/horizon2dseedpicker.cc" line="+514"/>
         <source>Track from seed(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastreo de pico(s)</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Track from</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastreo de</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Track between seeds</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastreo entre picos</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Track between</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastreo entre</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Draw between seeds</source>
-        <translation type="unfinished"></translation>
+        <translation>Dibujar entre picos</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Draw between</source>
-        <translation type="unfinished"></translation>
+        <translation>Dibujar entre</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Unknown mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo desconocido</translation>
     </message>
 </context>
 <context>
@@ -1443,27 +1445,27 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     <message>
         <location filename="../../../src/MPEEngine/horizon3dseedpicker.cc" line="+454"/>
         <source>Tracking in volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastreando en volumen</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Volume track</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastreo volumen</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Line tracking</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastreo de línea</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Line manual</source>
-        <translation type="unfinished"></translation>
+        <translation>Manual de línea</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Unknown mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo desconocido</translation>
     </message>
 </context>
 <context>
@@ -1622,12 +1624,12 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location filename="../../../src/EarthModel/horizonsorter.cc" line="+30"/>
         <source>Sorting</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortando</translation>
     </message>
     <message>
         <location line="+138"/>
         <source>Positions done</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan hechos</translation>
     </message>
     <message>
         <location line="+21"/>
@@ -1684,7 +1686,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location filename="../../../include/Geometry/marchingcubes.h" line="+129"/>
         <source>Implicit body to MarchingCubes: Contouring</source>
-        <translation type="unfinished"></translation>
+        <translation>Parte principal implícito a los CubosMarchandos: haciendo Contornos</translation>
     </message>
 </context>
 <context>
@@ -1692,7 +1694,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location filename="../../../include/Algo/array2dinterpolimpl.h" line="+89"/>
         <source>Nodes gridded</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuadrículas de nodos esta hechas</translation>
     </message>
 </context>
 <context>
@@ -1700,7 +1702,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location filename="../../../include/Algo/gridder2d.h" line="+116"/>
         <source>Inverse distance</source>
-        <translation type="unfinished">Distancia inversa</translation>
+        <translation>Distancia inversa</translation>
     </message>
 </context>
 <context>
@@ -1708,7 +1710,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location filename="../../../plugins/HorizonAttrib/isopachmaker.cc" line="+42"/>
         <source>Creating isopach</source>
-        <translation type="unfinished"></translation>
+        <translation>Creando isopach</translation>
     </message>
     <message>
         <location line="+97"/>
@@ -1718,7 +1720,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location filename="../../../plugins/HorizonAttrib/isopachmaker.h" line="+35"/>
         <source>Positions handled</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan manejados</translation>
     </message>
 </context>
 <context>
@@ -1762,7 +1764,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location filename="../../../include/Seis/timedepthconv.h" line="+239"/>
         <source>Linear velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidad lineal</translation>
     </message>
 </context>
 <context>
@@ -1770,7 +1772,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location line="-23"/>
         <source>Linear velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidad lineal</translation>
     </message>
 </context>
 <context>
@@ -1896,7 +1898,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location filename="../../../include/Geometry/marchingcubes.h" line="+37"/>
         <source>Processing MarchingCubes2Implicit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Procesando CubosMarchandos2Implícitos.</translation>
     </message>
 </context>
 <context>
@@ -1904,7 +1906,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location filename="../../../src/Geometry/marchingcubes.cc" line="+114"/>
         <source>Positions read</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan leídos</translation>
     </message>
 </context>
 <context>
@@ -1912,7 +1914,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location line="-65"/>
         <source>Positions written</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan escritos</translation>
     </message>
 </context>
 <context>
@@ -2287,7 +2289,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     <message>
         <location line="+44"/>
         <source>Reading Traces...</source>
-        <translation type="unfinished"></translation>
+        <translation>Leyendo Rastros...</translation>
     </message>
     <message>
         <location line="+122"/>
@@ -2408,12 +2410,12 @@ no tiene expedientes de definición</translation>
     <message>
         <location line="-314"/>
         <source>Nr files done</source>
-        <translation type="unfinished"></translation>
+        <translation>Expedientes de números estan hechos</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Converting 2D Seismic data</source>
-        <translation type="unfinished"></translation>
+        <translation>Convertiendo datos Sísimicos 2D</translation>
     </message>
 </context>
 <context>
@@ -2421,33 +2423,33 @@ no tiene expedientes de definición</translation>
     <message>
         <location filename="../../../src/Basic/oscommand.cc" line="+524"/>
         <source>Command is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Comando esta vacío</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Command is already running</source>
-        <translation type="unfinished"></translation>
+        <translation>comando ya esta ejecutando</translation>
     </message>
     <message>
         <location line="+62"/>
         <source>Cannot start process %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede iniciar proceso %1.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>%1 crashed.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 se estrelló.</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>%1 timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 tiempo de espera</translation>
     </message>
     <message>
         <location line="+3"/>
         <location line="+3"/>
         <source>Read error from process %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Leer error del proceso %1</translation>
     </message>
 </context>
 <context>
@@ -2478,12 +2480,12 @@ no tiene expedientes de definición</translation>
     <message>
         <location line="+158"/>
         <source>Traces read</source>
-        <translation type="unfinished">Rastros estan leídos</translation>
+        <translation>Rastros estan leídos</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Reading</source>
-        <translation type="unfinished">Leyendo</translation>
+        <translation>Leyendo</translation>
     </message>
 </context>
 <context>
@@ -2504,12 +2506,12 @@ no tiene expedientes de definición</translation>
     <message>
         <location filename="../../../src/General/posinfodetector.cc" line="+22"/>
         <source>No positions found</source>
-        <translation type="unfinished"></translation>
+        <translation>No ha encontrado posiciones</translation>
     </message>
     <message>
         <location line="+243"/>
         <source>%1 %2%3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2554,7 +2556,7 @@ La posición anterior era %3</translation>
     <message>
         <location filename="../../../include/PreStackProcessing/prestackanglemute.h" line="+84"/>
         <source>Angle Mute</source>
-        <translation type="unfinished"></translation>
+        <translation>Mudo ángulo</translation>
     </message>
 </context>
 <context>
@@ -2562,7 +2564,7 @@ La posición anterior era %3</translation>
     <message>
         <location filename="../../../include/PreStackProcessing/prestackeventio.h" line="+144"/>
         <source>Files copied</source>
-        <translation type="unfinished"></translation>
+        <translation>Expedientes estan copiados</translation>
     </message>
 </context>
 <context>
@@ -2679,7 +2681,7 @@ Número de evento = %1</translation>
     <message>
         <location filename="../../../include/PreStackProcessing/prestacklateralstack.h" line="+32"/>
         <source>Super Gather</source>
-        <translation type="unfinished"></translation>
+        <translation>Super Conjunto</translation>
     </message>
 </context>
 <context>
@@ -3085,7 +3087,7 @@ Por favor selecciona datos almacenados válidos.</translation>
     <message>
         <location line="+82"/>
         <source>Cannot initialize &apos;%1&apos; Attribute properly</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede inicializar &apos;%1&apos; Atributo apropiadamente</translation>
     </message>
     <message>
         <source>Cannot initialise &apos;%1&apos; Attribute properly</source>
@@ -3411,7 +3413,7 @@ Rastro: %2</translation>
     <message>
         <location filename="../../../include/Seis/segyresorter.h" line="+68"/>
         <source>Traces handled</source>
-        <translation type="unfinished">Rastros estan manejados</translation>
+        <translation>Rastros estan manejados</translation>
     </message>
 </context>
 <context>
@@ -3434,12 +3436,12 @@ Rastro: %2</translation>
     <message>
         <location filename="../../../include/Seis/segyscanner.h" line="+52"/>
         <source>Traces scanned</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastros estan escaneados</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>Opening first file</source>
-        <translation type="unfinished"></translation>
+        <translation>Abriendo primer expediente</translation>
     </message>
 </context>
 <context>
@@ -3676,7 +3678,7 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     <message>
         <location line="+2"/>
         <source> %1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -3709,7 +3711,7 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     <message>
         <location filename="../../../include/Seis/seiscube2linedata.h" line="+36"/>
         <source>Traces written</source>
-        <translation type="unfinished">Rastros estan escritos</translation>
+        <translation>Rastros estan escritos</translation>
     </message>
 </context>
 <context>
@@ -3740,7 +3742,7 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     <message>
         <location filename="../../../include/Seis/seis2dlineio.h" line="+66"/>
         <source>Traces read</source>
-        <translation type="unfinished">Rastros estan leídos</translation>
+        <translation>Rastros estan leídos</translation>
     </message>
 </context>
 <context>
@@ -3748,12 +3750,12 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     <message>
         <location filename="../../../src/Seis/seis2dlineio.cc" line="+204"/>
         <source>Opening files</source>
-        <translation type="unfinished"></translation>
+        <translation>Abriendo expedientes</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Files opened</source>
-        <translation type="unfinished"></translation>
+        <translation>Expedientes estan abiertos</translation>
     </message>
     <message>
         <location line="+66"/>
@@ -3768,7 +3770,7 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     <message>
         <location line="+3"/>
         <source>Cannot create a reader for %1.</source>
-        <translation>No se puede crear un lector para %1</translation>
+        <translation>No se puede crear un lector para %1.</translation>
     </message>
 </context>
 <context>
@@ -3806,7 +3808,7 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     <message>
         <location line="+14"/>
         <source>Internal: %1 step is not set</source>
-        <translation type="unfinished"></translation>
+        <translation>Interno: paso %1 no esta ajustado</translation>
     </message>
     <message>
         <source> step is not set</source>
@@ -3833,7 +3835,7 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     <message>
         <location filename="../../../include/Seis/synthseis.h" line="+183"/>
         <source>Generating synthetics...</source>
-        <translation type="unfinished"></translation>
+        <translation>Generando sintéticos...</translation>
     </message>
 </context>
 <context>
@@ -3862,7 +3864,7 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     <message>
         <location filename="../../../include/Seis/seisparallelreader.h" line="+130"/>
         <source>Traces read</source>
-        <translation type="unfinished">Rastros estan leídos</translation>
+        <translation>Rastros estan leídos</translation>
     </message>
 </context>
 <context>
@@ -3958,7 +3960,7 @@ El ID que ha encontrado es %2</translation>
     <message>
         <location filename="../../../include/Seis/seisbuf.h" line="+115"/>
         <source>Traces read</source>
-        <translation type="unfinished">Rastros estan leídos</translation>
+        <translation>Rastros estan leídos</translation>
     </message>
 </context>
 <context>
@@ -4037,12 +4039,12 @@ El ID que ha encontrado es %2</translation>
     <message>
         <location filename="../../../include/Seis/seisdatapackwriter.h" line="+39"/>
         <source>Writing out data!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Escribiendo datos!</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Traces written:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastros que estan escritos:</translation>
     </message>
 </context>
 <context>
@@ -4227,7 +4229,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
     <message>
         <location filename="../../../src/Seis/seiscopy.cc" line="+201"/>
         <source>Copying traces</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiando rastros</translation>
     </message>
 </context>
 <context>
@@ -4259,7 +4261,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
     <message>
         <location filename="../../../include/Seis/seismerge.h" line="+42"/>
         <source>Positions handled</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan manejados</translation>
     </message>
 </context>
 <context>
@@ -4313,7 +4315,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
     <message>
         <location filename="../../../include/Seis/seispsmerge.h" line="+48"/>
         <source>Gathers written</source>
-        <translation type="unfinished"></translation>
+        <translation>Conjuntos estan escritos</translation>
     </message>
 </context>
 <context>
@@ -4386,12 +4388,12 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
     <message>
         <location line="+7"/>
         <source>Input and output are the same.</source>
-        <translation>Entrada y salida son iguál</translation>
+        <translation>Entrada y salida son iguál.</translation>
     </message>
     <message>
         <location line="+111"/>
         <source>&apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+3"/>
@@ -4560,7 +4562,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
     <message>
         <location filename="../../../include/Seis/seiszaxisstretcher.h" line="+47"/>
         <source>Stretching data</source>
-        <translation type="unfinished"></translation>
+        <translation>Estrechando datos</translation>
     </message>
 </context>
 <context>
@@ -4607,7 +4609,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
     <message>
         <location filename="../../../include/General/menuhandler.h" line="+119"/>
         <source>Separator</source>
-        <translation type="unfinished"></translation>
+        <translation>Separador</translation>
     </message>
 </context>
 <context>
@@ -4718,7 +4720,7 @@ No se puede encontrar &apos;%3&apos;</translation>
     <message>
         <location filename="../../../include/Strat/stratlayseqattribcalc.h" line="+82"/>
         <source>Models handled</source>
-        <translation type="unfinished"></translation>
+        <translation>Modelos estan manejados</translation>
     </message>
 </context>
 <context>
@@ -4731,7 +4733,7 @@ No se puede encontrar &apos;%3&apos;</translation>
     <message>
         <location filename="../../../include/Strat/stratlaymodgen.h" line="+40"/>
         <source>Sequences generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Secuencias estan generados</translation>
     </message>
 </context>
 <context>
@@ -4839,27 +4841,27 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
     <message>
         <location filename="../../../src/Basic/strmprov.cc" line="+148"/>
         <source>Reading &apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Leyendo &apos;</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Cannot open &apos;%1&apos;</source>
-        <translation type="unfinished">No se puede abrir &apos;%1&apos;</translation>
+        <translation>No se puede abrir &apos;%1&apos;</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Failed to allocate %1 MB of memory</source>
-        <translation type="unfinished"></translation>
+        <translation>Falló de asignar %1 MB de memoria</translation>
     </message>
     <message>
         <location line="+27"/>
         <source>MBs read</source>
-        <translation type="unfinished"></translation>
+        <translation>MBs estan leídos</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Read error for &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Leer error para &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -4867,12 +4869,12 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
     <message>
         <location filename="../../../src/EarthModel/emsurfaceauxdata.cc" line="+214"/>
         <source>Cannot find Translator</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede encontrar Traductor</translation>
     </message>
     <message>
         <location line="+67"/>
         <source>Nr done</source>
-        <translation type="unfinished">Número esta hecho</translation>
+        <translation>Número esta hecho</translation>
     </message>
 </context>
 <context>
@@ -4880,7 +4882,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
     <message>
         <location filename="../../../src/EarthModel/emsurfacegeometry.cc" line="+968"/>
         <source>Cannot find Translator</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede encontrar Traductor</translation>
     </message>
 </context>
 <context>
@@ -4979,7 +4981,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
     <message>
         <location line="+21"/>
         <source>Usage: %1 &lt;filename&gt; [--host &lt;hostname&gt;] [--binary][--path &lt;path&gt;]</source>
-        <translation type="unfinished"></translation>
+        <translation>Usado: %1 &lt;filename&gt; [--host &lt;hostname&gt;] [--binary][--path &lt;path&gt;]</translation>
     </message>
 </context>
 <context>
@@ -4987,12 +4989,12 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
     <message>
         <location filename="../../../include/General/tableconv.h" line="+91"/>
         <source>Importing</source>
-        <translation type="unfinished">Importando</translation>
+        <translation>Importando</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Records read</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivos estan leídos</translation>
     </message>
 </context>
 <context>
@@ -5100,33 +5102,34 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
     <message>
         <location filename="../../../src/Well/wellascio.cc" line="+57"/>
         <source>At least one point had neither Z nor MD</source>
-        <translation type="unfinished"></translation>
+        <translation>Al menos un punto no tenía Z ni MD</translation>
     </message>
     <message>
         <location line="+87"/>
         <source>Impossible MD to TVD transformation for MD=%1%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposible transformación de MD a TVD por que MD = %1%2</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Impossible TVD to MD transformation for Z=%1%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposible transformación de TVD a MD por que Z = %1%2</translation>
     </message>
     <message>
         <location line="+79"/>
         <source>Relative easting/northing found
 Please enter a valid surface coordinate in the advanced dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>No ha encontrado relativo de norte/este
+Por favor entra una coordenada de superficie válida en el diálogo avanzado</translation>
     </message>
     <message>
         <location line="+29"/>
         <source>%1 was not provided and cannot be computed</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 no esta previsto y no se puede computarlo</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Insufficent data for importing the track</source>
-        <translation type="unfinished"></translation>
+        <translation>Datos son insuficientes para importar el rastro</translation>
     </message>
 </context>
 <context>
@@ -5154,12 +5157,12 @@ No se puede crear salida 2D</translation>
     <message>
         <location filename="../../../src/Seis/seiscubeprov.cc" line="+224"/>
         <source>Positions done</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan hechos</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Reading Steering traces</source>
-        <translation type="unfinished"></translation>
+        <translation>Leyendo rastros Manejados</translation>
     </message>
 </context>
 <context>
@@ -5167,7 +5170,7 @@ No se puede crear salida 2D</translation>
     <message>
         <location filename="../../../include/Algo/gridder2d.h" line="+37"/>
         <source>Triangulation</source>
-        <translation type="unfinished"></translation>
+        <translation>Triangulación</translation>
     </message>
 </context>
 <context>
@@ -5175,7 +5178,7 @@ No se puede crear salida 2D</translation>
     <message>
         <location filename="../../../include/Algo/array2dinterpolimpl.h" line="+77"/>
         <source>Nodes gridded</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuadrículas de nodos estan hechas</translation>
     </message>
 </context>
 <context>
@@ -5183,7 +5186,7 @@ No se puede crear salida 2D</translation>
     <message>
         <location filename="../../../plugins/Tut/tuthortools.h" line="+84"/>
         <source>Smoothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Suavizando</translation>
     </message>
 </context>
 <context>
@@ -5191,7 +5194,7 @@ No se puede crear salida 2D</translation>
     <message>
         <location line="-50"/>
         <source>Positions done</source>
-        <translation type="unfinished"></translation>
+        <translation>Posiciones estan hechos</translation>
     </message>
 </context>
 <context>
@@ -5199,7 +5202,7 @@ No se puede crear salida 2D</translation>
     <message>
         <location filename="../../../plugins/Tut/tutseistools.h" line="+58"/>
         <source>Traces handled</source>
-        <translation type="unfinished">Rastros estan manejados</translation>
+        <translation>Rastros estan manejados</translation>
     </message>
 </context>
 <context>
@@ -5207,7 +5210,7 @@ No se puede crear salida 2D</translation>
     <message>
         <location filename="../../../plugins/Tut/tuthortools.h" line="+29"/>
         <source>Calculating thickness</source>
-        <translation type="unfinished"></translation>
+        <translation>Calculando espesor</translation>
     </message>
 </context>
 <context>
@@ -5227,12 +5230,12 @@ No se puede crear salida 2D</translation>
     <message>
         <location filename="../../../src/General/ziputils.cc" line="+310"/>
         <source>MBytes Processed: </source>
-        <translation type="unfinished"></translation>
+        <translation>MBytes que estan procesados: </translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Extracting data</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraendo datos</translation>
     </message>
 </context>
 <context>
@@ -5259,7 +5262,7 @@ No se puede crear salida 2D</translation>
     <message>
         <location filename="../../../include/Velocity/velocityfunctionascio.h" line="+44"/>
         <source>KBytes read</source>
-        <translation type="unfinished"></translation>
+        <translation>KBytes estan leídos</translation>
     </message>
 </context>
 <context>
@@ -5267,7 +5270,7 @@ No se puede crear salida 2D</translation>
     <message>
         <location filename="../../../include/Velocity/velocityvolumeconversion.h" line="+55"/>
         <source>Traces written</source>
-        <translation type="unfinished">Rastros estan escritos</translation>
+        <translation>Rastros estan escritos</translation>
     </message>
 </context>
 <context>
@@ -5534,7 +5537,7 @@ probablemente la velocidad no es correcto</translation>
     <message>
         <location filename="../../../include/Algo/raytrace1d.h" line="+131"/>
         <source>Simple RayTracer</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastreador de Rayos simple</translation>
     </message>
 </context>
 <context>
@@ -5658,7 +5661,7 @@ Valores inválidos estarán interpolados.</translation>
     <message>
         <location filename="../../../include/Well/wellextractdata.h" line="+157"/>
         <source>Wells inspected</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozos estan inspeccionados</translation>
     </message>
 </context>
 <context>
@@ -5671,7 +5674,7 @@ Valores inválidos estarán interpolados.</translation>
     <message>
         <location filename="../../../include/Well/wellextractdata.h" line="+113"/>
         <source>Wells handled</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozos estan manejados</translation>
     </message>
 </context>
 <context>
@@ -5712,12 +5715,12 @@ Valores inválidos estarán interpolados.</translation>
     <message>
         <location filename="../../../include/Well/wellextractdata.h" line="+45"/>
         <source>Computing...</source>
-        <translation type="unfinished"></translation>
+        <translation>Computando...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Points done</source>
-        <translation type="unfinished">Puntos estan hechos</translation>
+        <translation>Puntos estan hechos</translation>
     </message>
 </context>
 <context>
@@ -5730,12 +5733,12 @@ Valores inválidos estarán interpolados.</translation>
     <message>
         <location filename="../../../include/Well/wellextractdata.h" line="-102"/>
         <source>Scanning well tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Escaneando rastros del pozo</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Wells inspected</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozos estan inspeccionados</translation>
     </message>
 </context>
 <context>
@@ -5788,7 +5791,7 @@ Valores inválidos estarán interpolados.</translation>
     <message>
         <location filename="../../../include/Algo/interpollayermodel.h" line="+52"/>
         <source>Z Slices</source>
-        <translation type="unfinished"></translation>
+        <translation>Rebanadas Z</translation>
     </message>
 </context>
 <context>
@@ -5804,12 +5807,12 @@ Valores inválidos estarán interpolados.</translation>
     <message>
         <location line="+93"/>
         <source>MBytes processed: </source>
-        <translation type="unfinished"></translation>
+        <translation>MBytes que estan procesados: </translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Archiving data</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivando datos</translation>
     </message>
 </context>
 <context>
@@ -5877,7 +5880,7 @@ Valores inválidos estarán interpolados.</translation>
     <message>
         <location filename="../../../src/EarthModel/emsurfaceio.cc" line="+133"/>
         <source>Nr done</source>
-        <translation type="unfinished">Número esta hecho</translation>
+        <translation>Número esta hecho</translation>
     </message>
     <message>
         <location line="+136"/>
@@ -5912,7 +5915,7 @@ Valores inválidos estarán interpolados.</translation>
     <message>
         <location line="+107"/>
         <source>Cannot find 2D line associated with the 2D horizon.</source>
-        <translation>No podía encontrar línea 2D asociado con el horizonte 2D</translation>
+        <translation>No podía encontrar línea 2D asociado con el horizonte 2D.</translation>
     </message>
 </context>
 <context>
@@ -5920,7 +5923,7 @@ Valores inválidos estarán interpolados.</translation>
     <message>
         <location line="+602"/>
         <source>Nr done</source>
-        <translation type="unfinished">Número esta hecho</translation>
+        <translation>Número esta hecho</translation>
     </message>
     <message>
         <location line="+188"/>
@@ -5993,7 +5996,9 @@ Valores inválidos estarán interpolados.</translation>
         <source>
 OpendTect WILL correct for this error by applying a time shift of: %1%2
 The resulting travel-times will differ from the file</source>
-        <translation type="unfinished"></translation>
+        <translation>
+OpendTect va a corrigir este error, va a aplicar un cambio de tiempos de: %1%2
+El resultado de tiempos del viaje se difiere del expediente</translation>
     </message>
 </context>
 <context>
@@ -6002,7 +6007,8 @@ The resulting travel-times will differ from the file</source>
         <location filename="../../../src/Network/odnetworkaccess.cc" line="+32"/>
         <source>%1
 File not found</source>
-        <translation type="unfinished"></translation>
+        <translation>%1
+No ha encontrado el expediente</translation>
     </message>
 </context>
 <context>
@@ -6989,7 +6995,8 @@ Conjunto de Atributos es %1. Definiciones actuales son %2</translation>
         <location line="+26"/>
         <source>Cannot remove this attribute. It is used
 as input for another attribute called &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede borrar este atributo. Esta usado
+como entrada para un otro atributo llamado &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Cannot remove this attribute. It is used
@@ -7264,12 +7271,12 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location line="-24"/>
         <source>Add Basemap Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir artículos de mapa base</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Item Menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Menu de artículos</translation>
     </message>
     <message>
         <location line="+36"/>
@@ -7300,12 +7307,12 @@ Do you want to use the partially loaded/computed data?</source>
     <message>
         <location filename="../../../plugins/uiBasemap/uibasemapiomgr.cc" line="+43"/>
         <source>Are you trying to reload the same Basemap?</source>
-        <translation type="unfinished">¿Esta tratando de recargar la mísma Mapa Base?</translation>
+        <translation>¿Esta tratando de recargar la mísma Mapa Base?</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Any unsaved changes will be lost. Are you sure you want to continue?</source>
-        <translation type="unfinished">Cambios que no estan guardados estarán perdidos. ¿Esta seguro de continuar?</translation>
+        <translation>Cambios que no estan guardados estarán perdidos. ¿Esta seguro de continuar?</translation>
     </message>
 </context>
 <context>
@@ -7610,47 +7617,47 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiVolumeProcessing/uivolprocbodyfiller.cc" line="+51"/>
         <source>Input body</source>
-        <translation type="unfinished"></translation>
+        <translation>Parte principal de entrada</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Constant Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor constante</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Previous Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Paso anterior</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Undefined Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Valor indefinido</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Inside Fill Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Dentro Tipo Llenado</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Inside Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Dentro Valor</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Outside Fill Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Fuera Tipo Llenado</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Outside Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Fuera Valor</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>Invalid empty input body</source>
-        <translation type="unfinished"></translation>
+        <translation>Parte principal de entrada esta vacío y inválido</translation>
     </message>
 </context>
 <context>
@@ -7855,17 +7862,17 @@ Do you wish to discard it?</source>
     <message>
         <location filename="../../../src/uiIo/uimanprops.cc" line="+330"/>
         <source>Property with same name &apos;%1&apos; already  present.</source>
-        <translation type="unfinished"></translation>
+        <translation>Propiedad con el mismo nombre &apos;%1&apos; ya esta presente.</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Cannot remove inbuilt property &apos;Thickness&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede borrar propiedad de &apos;Espesor&apos; incorporado.</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Cannot remove this property.Need to have atleast one usable property of type &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>No se peude borrar este propiedad. Nesecita al menos una propiedad usable de tipo &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -8036,7 +8043,7 @@ Do you wish to discard it?</source>
     <message>
         <location line="+6"/>
         <source>Optimize for Z-slice viewing</source>
-        <translation type="unfinished"></translation>
+        <translation>Optimalizar para la vista rabanado-Z</translation>
     </message>
     <message>
         <source>Optimize for horizontal slice access</source>
@@ -8091,7 +8098,7 @@ Do you wish to discard it?</source>
     <message>
         <location line="+7"/>
         <source>Load/Save toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Cargar/Guardar mostrador de instrumentos</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -8507,7 +8514,7 @@ Overwrite?</source>
     <message>
         <location line="+3"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -9213,7 +9220,8 @@ Do you wish to overwrite this log?</source>
         <location line="+3"/>
         <source>%1 value %2 is outside of track range
 [%3, %4]%5 %6</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 valor %2 esta fuera el rango del rastreo
+[%3, %4]%5 %6</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -9223,7 +9231,7 @@ Do you wish to overwrite this log?</source>
     <message>
         <location line="+68"/>
         <source>Negative travel-times are not allowedThe minimim allowed travel-time is zero</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiempos negativos de viaje no estan permitidos, el mínimo tiempo de viaje que esta permitido es cero</translation>
     </message>
     <message>
         <location line="+22"/>
@@ -9248,19 +9256,21 @@ Do you wish to overwrite this log?</source>
     <message>
         <location line="+57"/>
         <source>Please define at least two control points.</source>
-        <translation>Por favor define al menos dos puntos de control</translation>
+        <translation>Por favor define al menos dos puntos de control.</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Please enter a valid %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor entra un %1 válido</translation>
     </message>
     <message>
         <location line="+104"/>
         <source>Invalid model detected
 %1
 But could not autocorrect the current model</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha detectado un modelo inválido
+%1
+Pero no podia autocorrigir el modelo actual</translation>
     </message>
     <message>
         <location line="+14"/>
@@ -9268,7 +9278,10 @@ But could not autocorrect the current model</source>
 %1
 Auto-correct?
 (New model will only by saved on disk on successful exit of the editor)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha detectado un modelo inválido
+%1
+¿Auto-corrigir?
+(El nuevo modelo solo estara guardado en disco sí el editor salió con éxito)</translation>
     </message>
     <message>
         <source>Please enter a valid replacement velocity</source>
@@ -9299,7 +9312,7 @@ Auto-correct?
     <message>
         <location filename="../../../src/uiWell/uid2tmodelgrp.cc" line="+51"/>
         <source>%1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+17"/>
@@ -9379,7 +9392,7 @@ Cambia su definición de formato o edita sus datos o pulsa cancelar.</translatio
     <message>
         <location filename="../../../src/uiIo/uidpscrossplotpropdlg.cc" line="+763"/>
         <source>Cannot put negative size for size.</source>
-        <translation>No se puede poner tamaño por tamaño negativo</translation>
+        <translation>No se puede poner tamaño por tamaño negativo.</translation>
     </message>
 </context>
 <context>
@@ -9473,7 +9486,7 @@ Cambia su definición de formato o edita sus datos o pulsa cancelar.</translatio
     <message>
         <location line="+3"/>
         <source>Select on OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccional al OK</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -9510,7 +9523,7 @@ Cambia su definición de formato o edita sus datos o pulsa cancelar.</translatio
     <message>
         <location line="+3"/>
         <source>Select on OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar al OK</translation>
     </message>
     <message>
         <location line="+25"/>
@@ -9545,7 +9558,7 @@ Cambia su definición de formato o edita sus datos o pulsa cancelar.</translatio
     <message>
         <location line="+13"/>
         <source>Select a selection group to map its likeliness.</source>
-        <translation>Selecciona un grupo de selección hacer una mapa de su igualidad</translation>
+        <translation>Selecciona un grupo de selección para compararlo.</translation>
     </message>
 </context>
 <context>
@@ -10011,7 +10024,7 @@ Nota: no se puede tener eje Y2 con la parcela de densidad</translation>
     <message>
         <location filename="../../../src/uiODMain/uiodvolproctreeitem.cc" line="+37"/>
         <source>Select Setup ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona disposición ...</translation>
     </message>
     <message>
         <location line="+99"/>
@@ -10024,22 +10037,22 @@ Nota: no se puede tener eje Y2 con la parcela de densidad</translation>
     <message>
         <location filename="../../../src/uiBase/uidate.cc" line="+96"/>
         <source>Year is undefined or less than 1900</source>
-        <translation type="unfinished"></translation>
+        <translation>Año esta indefinido o es menos que 1900</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Invalid date</source>
-        <translation type="unfinished"></translation>
+        <translation>Fecha inválida</translation>
     </message>
     <message>
         <location line="+21"/>
         <source>Calendar</source>
-        <translation type="unfinished"></translation>
+        <translation>Calendario</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Select date</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar fecha</translation>
     </message>
 </context>
 <context>
@@ -10063,7 +10076,7 @@ Nota: no se puede tener eje Y2 con la parcela de densidad</translation>
     <message>
         <location filename="../../../src/uiBase/uimainwin.cc" line="+1729"/>
         <source>Help on this window</source>
-        <translation type="unfinished">Ayuda en este pantalla</translation>
+        <translation>Ayuda en este pantalla</translation>
     </message>
 </context>
 <context>
@@ -10198,7 +10211,7 @@ Nota: no se puede tener eje Y2 con la parcela de densidad</translation>
     <message>
         <location line="+10"/>
         <source>OK/Save</source>
-        <translation type="unfinished"></translation>
+        <translation>OK/Guardar</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -11454,22 +11467,22 @@ o ve al &apos;Avanzado...&apos; para hacerlo a mano</translation>
     <message>
         <location line="+6"/>
         <source>General User Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfaz de usario general</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Used by 2D Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>Usado de Gráficos 2D</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Used in 3D Scenes</source>
-        <translation type="unfinished"></translation>
+        <translation>Usado en Escenas 3D</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Information, Notes and Progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Información, noticias y progreso</translation>
     </message>
 </context>
 <context>
@@ -12691,7 +12704,7 @@ y los campos de la pantalla de Correlación</translation>
     <message>
         <location line="+7"/>
         <source>Print image</source>
-        <translation type="unfinished"></translation>
+        <translation>Imprimir imagen</translation>
     </message>
 </context>
 <context>
@@ -12770,7 +12783,7 @@ y los campos de la pantalla de Correlación</translation>
     <message>
         <location filename="../../../src/uiVis/uigridlinesdlg.cc" line="+38"/>
         <source>Set Grid Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar Cuadrículas</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -12790,17 +12803,17 @@ y los campos de la pantalla de Correlación</translation>
     <message>
         <location line="+2"/>
         <source>In-lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Líneas</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cross-lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Líneas-cruzadas</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Z slices</source>
-        <translation type="unfinished"></translation>
+        <translation>Rebanadas-Z</translation>
     </message>
     <message>
         <source>inlines</source>
@@ -13286,7 +13299,7 @@ y los campos de la pantalla de Correlación</translation>
     <message>
         <location line="+3"/>
         <source>Correlation</source>
-        <translation type="unfinished"></translation>
+        <translation>Correlación</translation>
     </message>
     <message>
         <location line="+50"/>
@@ -13332,22 +13345,22 @@ y los campos de la pantalla de Correlación</translation>
     <message>
         <location line="+13"/>
         <source>Use Correlation</source>
-        <translation type="unfinished"></translation>
+        <translation>Usar Correlación</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Correlation threshold (0-100)</source>
-        <translation type="unfinished"></translation>
+        <translation>Correlación umbral (0-100)</translation>
     </message>
     <message>
         <location line="+364"/>
         <source>Correlation window start value must be less than the stop value</source>
-        <translation type="unfinished"></translation>
+        <translation>El valor inicio de la pantalla de correlación debe ser menos que el valor de terminación</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Correlation threshold must be from 0 to 100</source>
-        <translation type="unfinished"></translation>
+        <translation>Correlación umbral tiene que estar entre 0 y 100</translation>
     </message>
     <message>
         <source>Use similarity</source>
@@ -14470,7 +14483,7 @@ Por favor borra %4 de los logs que existen antes de importar.</translation>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiisopachmaker.cc" line="+142"/>
         <source>Create isopach</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear isopach</translation>
     </message>
     <message>
         <location line="+32"/>
@@ -14483,7 +14496,7 @@ Por favor borra %4 de los logs que existen antes de importar.</translation>
     <message>
         <location line="+25"/>
         <source>Create isopach</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear isopach</translation>
     </message>
     <message>
         <location line="+39"/>
@@ -15284,12 +15297,12 @@ haz clic en &apos;Borrar&apos; para borrarlo permanentamente. </translation>
     <message>
         <location filename="../../../plugins/uiMadagascar/uimadpi.cc" line="+95"/>
         <source>Madagascar link</source>
-        <translation type="unfinished"></translation>
+        <translation>Enlace a Madagascar</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Madagascar ...</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -15302,7 +15315,7 @@ haz clic en &apos;Borrar&apos; para borrarlo permanentamente. </translation>
     <message>
         <location line="+54"/>
         <source>Flow tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrumentos de flujo</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -15360,7 +15373,7 @@ haz clic en &apos;Borrar&apos; para borrarlo permanentamente. </translation>
     <message>
         <location filename="../../../include/uiBase/uimainwin.h" line="+62"/>
         <source>uiMainWin</source>
-        <translation type="unfinished"></translation>
+        <translation>Pantalla principal de interfaz usario</translation>
     </message>
 </context>
 <context>
@@ -15368,7 +15381,7 @@ haz clic en &apos;Borrar&apos; para borrarlo permanentamente. </translation>
     <message>
         <location filename="../../../src/uiBase/uimainwin.cc" line="-1383"/>
         <source>Toolbars</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostradores de instrumentos</translation>
     </message>
 </context>
 <context>
@@ -15759,12 +15772,12 @@ El número máximo es %2</translation>
     <message>
         <location line="+20"/>
         <source>Input cubes should be of the same type</source>
-        <translation type="unfinished"></translation>
+        <translation>Cubos de entrada deben ser del mismo tipo</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Input cubes should belong to the same Z domain</source>
-        <translation type="unfinished"></translation>
+        <translation>Cubos de entrada tienen que ser del mismo dominio Z</translation>
     </message>
 </context>
 <context>
@@ -15790,7 +15803,7 @@ El número máximo es %2</translation>
         <location line="+16"/>
         <source>%1
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+13"/>
@@ -16020,17 +16033,17 @@ Puede borrar pozos en &apos;Gestionar pozos&apos;</translation>
     <message>
         <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="+773"/>
         <source>Stored 2D Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Datos almacenados 2D</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Steering 2D Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Datos manejados 2D</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>ZDomain Attrib 2D Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Datos  de Atributo 2D el dominio Z</translation>
     </message>
 </context>
 <context>
@@ -16050,17 +16063,17 @@ Puede borrar pozos en &apos;Gestionar pozos&apos;</translation>
     <message>
         <location line="-357"/>
         <source>Show Linename</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar nombre de línea</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Show 2D Plane</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar plano 2D</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Show Line Geometry</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar línea geometría</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -16092,7 +16105,7 @@ Do you want to save it?</source>
     <message>
         <location line="+58"/>
         <source>Set Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar tamaño</translation>
     </message>
     <message>
         <source>Set size</source>
@@ -16228,7 +16241,8 @@ no esta presente en el conjunto y se puede crearlo</translation>
         <location line="+592"/>
         <source>Current attribute set is not saved.
 Save now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Conjunto de atributos actuales no esta guardado.
+¿Guardar ahora?</translation>
     </message>
     <message>
         <location line="+21"/>
@@ -16290,7 +16304,7 @@ por favor reanuda OpendTect para que los cambios surtirán efecto.</translation>
     <message>
         <location line="+6"/>
         <source>New Polygon Body ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo parte principal de Polígono...</translation>
     </message>
     <message>
         <source>New polygon body...</source>
@@ -16332,17 +16346,17 @@ por favor reanuda OpendTect para que los cambios surtirán efecto.</translation>
     <message>
         <location line="+1"/>
         <source>To Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Al superior</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>To Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>Al inferior</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Change Transparency ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambiar transparancia...</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -16444,22 +16458,22 @@ Por favor guarda el atributo primero</translation>
     <message>
         <location line="-496"/>
         <source>Create Flattened Scene</source>
-        <translation type="unfinished"></translation>
+        <translation>crear escena aplanada</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Enable Tracking</source>
-        <translation type="unfinished"></translation>
+        <translation>Permitir el rastreo</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Change Setup ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Cabiar disposición...</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Start Tracking ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Iniciar el rastreo...</translation>
     </message>
     <message>
         <location line="+332"/>
@@ -16494,32 +16508,32 @@ ya no son válidos y estarán borrados ahora.
     <message>
         <location line="+1"/>
         <source>Only at Sections</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo a las secciones</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Only at Horizons</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo a los horizontes</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>At Sections &amp; Horizons</source>
-        <translation type="unfinished"></translation>
+        <translation>A las secciones y los horizontes</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Fault Planes</source>
-        <translation type="unfinished"></translation>
+        <translation>Planos de fallas</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Fault Sticks</source>
-        <translation type="unfinished"></translation>
+        <translation>Palos de fallas</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Fault Planes &amp; Sticks</source>
-        <translation type="unfinished"></translation>
+        <translation>Planos y palos de fallas</translation>
     </message>
     <message>
         <source>Only at sections</source>
@@ -16556,12 +16570,12 @@ ya no son válidos y estarán borrados ahora.
     <message>
         <location line="+11"/>
         <source>Display All</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar todo</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Only at Sections</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo a las secciones</translation>
     </message>
     <message>
         <source>Display all</source>
@@ -16634,32 +16648,32 @@ ya no son válidos y estarán borrados ahora.
     <message>
         <location line="-60"/>
         <source>Edit Sticks</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar palos</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Select Sticks</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar palos</translation>
     </message>
     <message>
         <location line="+60"/>
         <source>Output Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Color de salida</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>More Transfer Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Más ajustes de transferir</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Transfer Selected Sticks</source>
-        <translation type="unfinished"></translation>
+        <translation>Transferir palos seleccionados</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Remove Selected Sticks</source>
-        <translation type="unfinished"></translation>
+        <translation>Borrar palos seleccionados</translation>
     </message>
     <message>
         <location line="+492"/>
@@ -16764,7 +16778,7 @@ ya no son válidos y estarán borrados ahora.
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="+576"/>
         <source>Track New ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastrar nuevo...</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -16774,12 +16788,12 @@ ya no son válidos y estarán borrados ahora.
     <message>
         <location line="+5"/>
         <source>Display All Only at Sections</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostar todo solo a las secciones</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Show All in Full</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar todo completo</translation>
     </message>
     <message>
         <source>Display all only at sections</source>
@@ -16850,42 +16864,42 @@ ya no son válidos y estarán borrados ahora.
     <message>
         <location line="-622"/>
         <source>Add at Sections Only ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir solo a las secciones...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Add Color Blended ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir color mezclado...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Track New ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastrar nuevo...</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Create with Constant Z ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear con constante Z...</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Display All</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar todo</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Only at Sections</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo a las secciones</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>In Full</source>
-        <translation type="unfinished"></translation>
+        <translation>Completamente</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>At Sections and in Full</source>
-        <translation type="unfinished"></translation>
+        <translation>A las secciones y completamente</translation>
     </message>
 </context>
 <context>
@@ -16975,50 +16989,50 @@ ya no son válidos y estarán borrados ahora.
     <message>
         <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="-572"/>
         <source>Create 2D Grid from 3D ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear cuadrícula 2D de 3D...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Extract from 3D ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraer de 3D...</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Generate 3D Cube ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Generar cubo 3D...</translation>
     </message>
     <message>
         <location line="+33"/>
         <source>Add Attribute</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir atributo</translation>
     </message>
     <message>
         <location line="+18"/>
         <source>Display All</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar todo</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+6"/>
         <source>Line Names</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombres de líneas</translation>
     </message>
     <message>
         <location line="-5"/>
         <location line="+6"/>
         <source>2D Planes</source>
-        <translation type="unfinished"></translation>
+        <translation>Planos 2D</translation>
     </message>
     <message>
         <location line="-5"/>
         <location line="+6"/>
         <source>Line Geometry</source>
-        <translation type="unfinished"></translation>
+        <translation>Línea geometría</translation>
     </message>
     <message>
         <location line="-3"/>
         <source>Hide All</source>
-        <translation type="unfinished"></translation>
+        <translation>Esconder todo</translation>
     </message>
     <message>
         <location line="+140"/>
@@ -17045,12 +17059,12 @@ ya no son válidos y estarán borrados ahora.
     <message>
         <location line="+38"/>
         <source>System memory: Free/Available</source>
-        <translation type="unfinished"></translation>
+        <translation>Memoria del sistema: gratis/disponible</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>| CPU: Used/Available</source>
-        <translation type="unfinished"></translation>
+        <translation>| CPU: usado/disponible</translation>
     </message>
     <message>
         <location line="+39"/>
@@ -17210,23 +17224,23 @@ Store the changes now?</source>
         <location line="-37"/>
         <location line="+338"/>
         <source>Cross-plot Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Datos de traza-cruzada</translation>
     </message>
     <message>
         <location line="-307"/>
         <location line="+96"/>
         <source>Simple File</source>
-        <translation type="unfinished"></translation>
+        <translation>Expediente simple</translation>
     </message>
     <message>
         <location line="-89"/>
         <source>From File ...</source>
-        <translation type="unfinished">Del Expediente ...</translation>
+        <translation>Del Expediente ...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>From Other Survey ...</source>
-        <translation type="unfinished"></translation>
+        <translation>De otro estudio...</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -17315,209 +17329,209 @@ Store the changes now?</source>
     <message>
         <location line="+2"/>
         <source>Cross-plot Data ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Datos de traza-cruzada...</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Layer Properties ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Propiedades de capas...</translation>
     </message>
     <message>
         <location line="+54"/>
         <source>Create 2D from 3D ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear 2D de 3D...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Extract 2D from 3D ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraer 2D de 3D...</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Create 3D from 2D ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear 3D de 2D...</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Angle Mute Function ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Función de Mudo Ángulo...</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>From Well Logs ...</source>
-        <translation type="unfinished"></translation>
+        <translation>De logs del pozo...</translation>
     </message>
     <message>
         <location line="+80"/>
         <source>Edit Logs ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar logs...</translation>
     </message>
     <message>
         <location line="+28"/>
         <source>New [Horizon Flattened]</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuevo [horizonte aplanado]</translation>
     </message>
     <message>
         <location line="+65"/>
         <source>Work Area ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Area de trabajo...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Z-Scale ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Escala-Z...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Stereo Viewing</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista de estereo</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Quad Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Búfer cuádruple</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Stereo Offset ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Offset estereo...</translation>
     </message>
     <message>
         <location line="+77"/>
         <source>Look and Feel ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ver y sentir...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Mouse Controls ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Controles de la mausa...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Keyboard Shortcuts ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Atajos del teclado...</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Personal Settings ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustes personales...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Survey Defaults ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustes pedeterminados del estudio...</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Batch Programs ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Programas de lotes...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Position Conversion ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Conversión de posición...</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Auto-update Policy ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto-actualizar poliza...</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Show Log File ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar expediente log...</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>DataPack Dump ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrojar paquete de datos...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Display Memory Info ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar información de memoria...</translation>
     </message>
     <message>
         <location line="+65"/>
         <source>Survey Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Disposición del estudio</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Edit Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar atributos</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Cross-plot Attribute vs Well Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Atributo de traza-cruzada vs datos de pozo</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Cross-plot Attribute vs Attribute Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Atributo de traza-cruzada vs datos de atributo</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Create New Well Logs Using Rock Physics</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear nuevos logs de pozo usando rocas físicas</translation>
     </message>
     <message>
         <location line="+73"/>
         <location line="+477"/>
         <source>Switch to View Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambiar al modo de vista</translation>
     </message>
     <message>
         <location line="-474"/>
         <source>Save Home Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar posición del inicio</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>View All</source>
-        <translation type="unfinished"></translation>
+        <translation>Ver todo</translation>
     </message>
     <message>
         <location line="+2"/>
         <location line="+158"/>
         <source>Switch to Orthographic Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambiar a cámara de ortografía</translation>
     </message>
     <message>
         <location line="-121"/>
         <source>Display Orientation Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar eje de orientación</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Display Color Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar mostrador de colores</translation>
     </message>
     <message>
         <location line="+89"/>
         <source>Polygon Selection Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo de selección del polígono</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Rectangle Selection Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo de selección rectángulo</translation>
     </message>
     <message>
         <location line="+30"/>
         <source>Switch to Perspective Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambiar a cámara perspectiva</translation>
     </message>
     <message>
         <location line="+177"/>
         <source>Memory Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Información de memoria</translation>
     </message>
     <message>
         <location line="+134"/>
         <source>Switch to Interact Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambiar al modo de interactuar</translation>
     </message>
     <message>
         <source>Cross-plot data ...</source>
@@ -18123,17 +18137,17 @@ solo para los objetos nuevos que estan lanzados</translation>
     <message>
         <location line="+6"/>
         <source>Display Picks Only at Sections</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar picos solo a las secciones</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Show All picks</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar todos picos</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Save Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar cambios</translation>
     </message>
     <message>
         <source>Display picks only at sections</source>
@@ -18171,12 +18185,12 @@ solo para los objetos nuevos que estan lanzados</translation>
     <message>
         <location line="+37"/>
         <source>Set Directions ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar direcciones...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Only at Sections</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo a las secciones</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -18186,7 +18200,7 @@ solo para los objetos nuevos que estan lanzados</translation>
     <message>
         <location line="+1"/>
         <source>Convert to Body</source>
-        <translation type="unfinished"></translation>
+        <translation>Convertir al parte principal</translation>
     </message>
     <message>
         <source>Convert to body</source>
@@ -18213,12 +18227,12 @@ Do you want to save it?</source>
     <message>
         <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="-457"/>
         <source>Add Default Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir datos predeterminados</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Add at Well Location ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir a la área del pozo...</translation>
     </message>
     <message>
         <location line="+45"/>
@@ -18310,12 +18324,12 @@ Do you want to save it?</source>
     <message>
         <location line="+1"/>
         <source>Insert Node</source>
-        <translation type="unfinished"></translation>
+        <translation>Insertar nodo</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Save as 2D ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar como 2D...</translation>
     </message>
     <message>
         <source>Insert node</source>
@@ -18481,7 +18495,7 @@ Do you want to continue?</source>
     <message>
         <location line="+1"/>
         <source>Iso Surface</source>
-        <translation type="unfinished"></translation>
+        <translation>Superficie iso</translation>
     </message>
     <message>
         <source>Iso surface</source>
@@ -18518,12 +18532,12 @@ en los ajustes de &apos;Ver y Sentir&apos; puede ayudar.</translation>
     <message>
         <location line="+315"/>
         <source>Convert to Body</source>
-        <translation type="unfinished"></translation>
+        <translation>Convertir al parte principal</translation>
     </message>
     <message>
         <location line="+150"/>
         <source>Iso Value Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Selección de valor iso</translation>
     </message>
 </context>
 <context>
@@ -18597,24 +18611,24 @@ Do you want to continue?</source>
     <message>
         <location line="+9"/>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar todo</translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+8"/>
         <source>Well Names (Top)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombres del pozo (superior)</translation>
     </message>
     <message>
         <location line="-7"/>
         <location line="+8"/>
         <source>Well Names (Bottom)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombres del pozo (inferior)</translation>
     </message>
     <message>
         <location line="-2"/>
         <source>Hide All</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocultar todo</translation>
     </message>
     <message>
         <source>Show all</source>
@@ -18648,7 +18662,7 @@ Do you want to continue?</source>
     <message>
         <location line="+158"/>
         <source>Could not load well %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No podía cargar pozo %1</translation>
     </message>
     <message>
         <location line="+177"/>
@@ -21139,7 +21153,7 @@ no esta compatible con el primero</translation>
     <message>
         <location line="+7"/>
         <source>Optimize for Z-slice viewing</source>
-        <translation type="unfinished"></translation>
+        <translation>Optimalizar para la vista de rebanada-Z</translation>
     </message>
     <message>
         <source>Optimize horizontal slice access</source>
@@ -22195,7 +22209,7 @@ Por favor debe ponerse en contacto con soporte para los alternativos posibles.</
     <message>
         <location filename="../../../src/uiIo/uimanprops.cc" line="+46"/>
         <source>Layer Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propiedades de capas</translation>
     </message>
 </context>
 <context>
@@ -22510,7 +22524,7 @@ Probablemente no tiene permiso de escribir a:
     <message>
         <location line="+7"/>
         <source>%1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+166"/>
@@ -22573,7 +22587,7 @@ Pozo no esta creado</translation>
     <message>
         <location filename="../../../include/uiTools/uibatchjobdispatcherlauncher.h" line="+76"/>
         <source>Single Process</source>
-        <translation type="unfinished"></translation>
+        <translation>Proceso síngulo</translation>
     </message>
 </context>
 <context>
@@ -22962,7 +22976,7 @@ Por favor borralo primero o usa otro nombre de estudio</translation>
     <message>
         <location filename="../../../include/uiTools/uistepoutsel.h" line="+51"/>
         <source>Stepout</source>
-        <translation type="unfinished">Paso apretado</translation>
+        <translation>Paso apretado</translation>
     </message>
 </context>
 <context>
@@ -22970,22 +22984,22 @@ Por favor borralo primero o usa otro nombre de estudio</translation>
     <message>
         <location line="-15"/>
         <source>Stepout</source>
-        <translation type="unfinished">Paso apretado</translation>
+        <translation>Paso apretado</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>nr</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+0"/>
         <source>inl</source>
-        <translation type="unfinished"></translation>
+        <translation>línea</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>crl</source>
-        <translation type="unfinished"></translation>
+        <translation>línea-cruzada</translation>
     </message>
 </context>
 <context>
@@ -23074,7 +23088,7 @@ Do you wish to overwrite this data?</source>
     <message>
         <location line="+27"/>
         <source>Amplitude Option</source>
-        <translation type="unfinished"></translation>
+        <translation>Opción de amplitud</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -23366,17 +23380,17 @@ Do you want to save it now?</source>
     <message>
         <location filename="../../../src/uiWellAttrib/uistratlayermodel.cc" line="+351"/>
         <source>Analysis toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar de instrumentos de análisis</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Attributes vs model properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Atributos vs propiadades de modelos</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Help toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrador de instrumentos de ayuda</translation>
     </message>
 </context>
 <context>
@@ -24661,42 +24675,42 @@ Por favor corrigelo.</translation>
     <message>
         <location line="-128"/>
         <source>Add Color Blended</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir color mezclado</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Attribute Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de atributo</translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Cannot open %1</source>
-        <translation type="unfinished">No se puede abrir %1</translation>
+        <translation>No se puede abrir %1</translation>
     </message>
     <message>
         <location line="+17"/>
         <source>Cross-line</source>
-        <translation type="unfinished"></translation>
+        <translation>Línea-cruzada</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>%1 does not exist</source>
-        <translation type="unfinished">%1 no existe</translation>
+        <translation>%1 no existe</translation>
     </message>
     <message>
         <location line="+31"/>
         <source>In-line</source>
-        <translation type="unfinished"></translation>
+        <translation>Línea</translation>
     </message>
     <message>
         <location line="+12"/>
         <source>Manage Wavelets</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestionar ondas</translation>
     </message>
     <message>
         <location line="+37"/>
         <source>Save as Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar como predeterminado</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -24786,7 +24800,7 @@ Por favor corrigelo.</translation>
     <message>
         <location line="+1"/>
         <source>Take Snapshot</source>
-        <translation type="unfinished"></translation>
+        <translation>Tomar foto</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -24871,7 +24885,7 @@ Por favor corrigelo.</translation>
     <message>
         <location line="+1"/>
         <source>Set</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -25672,7 +25686,7 @@ No ha cometido cambios.</translation>
     <message>
         <location filename="../../../src/uiIo/uisurvinfoed.cc" line="+49"/>
         <source>%1%2%3</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+11"/>
@@ -26391,7 +26405,7 @@ Pulsa &apos;OK/Guardar&apos; para almacenar su nuevo modelo de profundidad/tiemp
     <message>
         <location line="+63"/>
         <source>Well Tie Control</source>
-        <translation type="unfinished"></translation>
+        <translation>Control de empate de pozo</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -26414,7 +26428,7 @@ Pulsa &apos;OK/Guardar&apos; para almacenar su nuevo modelo de profundidad/tiemp
     <message>
         <location line="+39"/>
         <source>OK/Save</source>
-        <translation type="unfinished"></translation>
+        <translation>OK/Guardar</translation>
     </message>
     <message>
         <location line="+39"/>
@@ -27078,17 +27092,17 @@ Checa permisos para escribir.</translation>
     <message>
         <location line="-923"/>
         <source>Pre processing</source>
-        <translation type="unfinished"></translation>
+        <translation>Preprocesamiento</translation>
     </message>
     <message>
         <location line="+8"/>
         <source>Load Mute</source>
-        <translation type="unfinished"></translation>
+        <translation>Cargar mudo</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Display Angle Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar datos de ángulo</translation>
     </message>
 </context>
 <context>
@@ -27883,7 +27897,7 @@ Do you want to save those changes? </source>
         <location line="+16"/>
         <location line="+7"/>
         <source>%1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+26"/>
@@ -27915,7 +27929,8 @@ Como esta ahora, la pista no estará cargada.</translation>
         <location line="+7"/>
         <source>The track file loading issued a warning:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>La carga del exprediente rastro hicó una alarma:
+%1</translation>
     </message>
     <message>
         <location line="+33"/>
@@ -27926,7 +27941,8 @@ Como esta ahora, la pista no estará cargada.</translation>
         <location line="+8"/>
         <source>The Time-Depth Model file loading issued a warning:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>La carga del modelo de tiempo-profundidad hicó una alarma:
+%1</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -27949,7 +27965,7 @@ Is this correct?</source>
         <location line="+6"/>
         <location line="+3"/>
         <source>Please specify a %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor especifique un %1</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -27978,7 +27994,7 @@ Is this correct?</source>
         <location line="+10"/>
         <location line="+8"/>
         <source>%1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Replacement velocity %/s</source>
@@ -28074,7 +28090,8 @@ Is this correct?</source>
         <location line="+30"/>
         <source>Cannot load the selected well
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede cargar el pozo seleccionado
+%1</translation>
     </message>
     <message>
         <source>Cannot load the selected well</source>
@@ -28143,12 +28160,12 @@ Por favor debe importar al menos uno.</translation>
     <message>
         <location line="+7"/>
         <source>Inter/extrapolate input logs?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Quiere interpolar/extrapolar los logs de entrada?</translation>
     </message>
     <message>
         <location line="+272"/>
         <source>%1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Interpolate undefined values?</source>
@@ -28450,13 +28467,15 @@ Por favor selecciona una extensión diferente para los nuevos logs</translation>
         <location line="+29"/>
         <source>%1
 Please select at least one valid log for the selected well(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1
+Por favor selecciona al menos un log válido para seleccionar pozo(s)</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>%1
 Will process the other wells only</source>
-        <translation type="unfinished"></translation>
+        <translation>%1
+Estará procesando solo para los otros pozos</translation>
     </message>
     <message>
         <source>Please select at least one valid log for the selected well(s)</source>
@@ -28526,7 +28545,7 @@ Will process the other wells only</source>
     <message>
         <location line="+14"/>
         <source>Cannot write new %1 to disk</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede escribir nuevo %1 al disco</translation>
     </message>
     <message>
         <source>
@@ -28904,12 +28923,12 @@ Do you wish to continue?</source>
     <message>
         <location line="-296"/>
         <source>%1 %2 </source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+339"/>
         <source>Please enter a valid %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor entra un %1 válido</translation>
     </message>
     <message>
         <location line="+71"/>
@@ -28961,14 +28980,14 @@ Así pueden volverse inválidos.
         <location line="+16"/>
         <location line="+7"/>
         <source>%1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+37"/>
         <source>The format you defined has neither Z nor MD.
 You should define at least one.
 As it is now, the track will not load.</source>
-        <translation type="unfinished">El formato que ha definido no tiene Z ni MD.
+        <translation>El formato que ha definido no tiene Z ni MD.
 Debe definir al menos uno.
 Como esta ahora, la pista no estará cargada.</translation>
     </message>
@@ -29104,7 +29123,7 @@ Como esta ahora, la pista no estará cargada.</translation>
     <message>
         <location line="+6"/>
         <source>Sampling is reversed.</source>
-        <translation>Ha revertido el muestreo</translation>
+        <translation>Ha revertido el muestreo.</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -29150,12 +29169,12 @@ Como esta ahora, la pista no estará cargada.</translation>
     <message>
         <location filename="../../../include/visBase/vishorthreadworks.h" line="+85"/>
         <source>Creating Horizon Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Creando pantalla del horizonte</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Parts completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Partes estan completados</translation>
     </message>
 </context>
 <context>
@@ -29163,12 +29182,12 @@ Como esta ahora, la pista no estará cargada.</translation>
     <message>
         <location line="-41"/>
         <source>Updating Horizon Display</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualizando pantalla del horizonte</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Parts completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Partes estan completados</translation>
     </message>
 </context>
 </TS>
