@@ -75,7 +75,7 @@ private:
     { pErrMsg( "Fatal error, should not delete 'Thickness'." ); }
 }
 
-friend class PropRef_ThickRef_Man;
+friend struct PropRef_ThickRef_Man;
 
 };
 
