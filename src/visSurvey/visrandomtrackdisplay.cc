@@ -15,10 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
-#include "seisbuf.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
-#include "seistrc.h"
 #include "randomlinegeom.h"
 #include "mousecursor.h"
 
