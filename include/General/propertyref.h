@@ -27,7 +27,7 @@ class ascistream;
 class ascostream;
 class Property;
 class MathProperty;
-class PropRef_ThickRef_Man;
+struct PropRef_ThickRef_Man;
 
 
 /*!\brief Ref Data for a (usually petrophysical) property.
