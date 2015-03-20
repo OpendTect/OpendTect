@@ -651,6 +651,20 @@ uiString toUiString( const char* var ) { return uiString().set( var ); }
 uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }
 
 #ifndef OD_NO_QT
+#define mToUiStringWithPrecisionImpl( tp, qtp ) \
+uiString toUiString(tp v,int prec) \
+{ \
+    const QLocale* locale = TrMgr().getQLocale(); \
+    if ( locale ) \
+    { \
+        uiString res; \
+        res.setFrom( locale->toString((qtp) v, prec) ); \
+        return res; \
+    } \
+ \
+    return uiString().set( toString(v, prec ) ); \
+}
+
 #define mToUiStringImpl( tp, qtp ) \
 uiString toUiString(tp v) \
 { \
@@ -664,12 +678,18 @@ uiString toUiString(tp v) \
  \
     return uiString().set( toString(v) ); \
 }
+
 #else
 
+#define mToUiStringWithPrecisionImpl( tp, qt ) \
+uiString toUiString(tp v, int prec ) \
+{ \
+    return uiString().set( toString(v,prec) ); \
+}
 #define mToUiStringImpl( tp, qt ) \
 uiString toUiString(tp v) \
 { \
-    return uiString().set( toString(v); \
+    return uiString().set( toString(v) ); \
 }
 #endif
 
@@ -679,6 +699,8 @@ mToUiStringImpl(od_int64,qlonglong)
 mToUiStringImpl(od_uint64,qulonglong)
 mToUiStringImpl(float,float)
 mToUiStringImpl(double,double)
+mToUiStringWithPrecisionImpl(float,float)
+mToUiStringWithPrecisionImpl(double,double)
 
 
 
