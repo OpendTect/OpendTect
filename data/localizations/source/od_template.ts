@@ -31,9 +31,17 @@
     </message>
 </context>
 <context>
+    <name>Array2DReSampler</name>
+    <message>
+        <location filename="../../../include/General/array2dresample.h" line="+80"/>
+        <source>Data columns resampled</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Attrib::AEMFeatureExtracter</name>
     <message>
-        <location filename="../../../src/AttributeEngine/attribengman.cc" line="+728"/>
+        <location filename="../../../src/AttributeEngine/attribengman.cc" line="+729"/>
         <source>Cannot create output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -125,7 +133,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+123"/>
+        <location line="+122"/>
         <source>Cannot find factory-entry for %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -151,9 +159,17 @@
     </message>
 </context>
 <context>
+    <name>Basemap::ContourExtractor</name>
+    <message>
+        <location filename="../../../plugins/Basemap/basemapcontour.cc" line="+52"/>
+        <source>Contours Done</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Batch::JobDispatcher</name>
     <message>
-        <location filename="../../../src/General/batchjobdispatch.cc" line="+124"/>
+        <location filename="../../../src/General/batchjobdispatch.cc" line="+123"/>
         <source>Batch job is not suited for %1 executions</source>
         <translation type="unfinished"></translation>
     </message>
@@ -193,6 +209,14 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/General/batchjobdispatch.cc" line="+29"/>
         <source>The job will be executed on one computer, in a single process.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BatchProgram</name>
+    <message>
+        <location filename="../../../src/Batch/batchprog.cc" line="+295"/>
+        <source>Could not contact master. Exiting.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -277,7 +301,7 @@ Try single-machine execution.</source>
 <context>
     <name>Chain</name>
     <message>
-        <location filename="../../../src/VolumeProcessing/volprocchain.cc" line="+790"/>
+        <location filename="../../../src/VolumeProcessing/volprocchain.cc" line="+791"/>
         <source>Cannot create Volume processing step %1. Perhaps all plugins are not loaded?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -310,6 +334,14 @@ Try single-machine execution.</source>
     <message>
         <location filename="../../../src/uiCmdDriver/cmdcomposer.cc" line="+342"/>
         <source>CmdComposer test-callback handler</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ColTab::MapperTask</name>
+    <message>
+        <location filename="../../../include/General/coltabmapper.h" line="+155"/>
+        <source>Data values mapped</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -457,17 +489,7 @@ Try single-machine execution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Cannot extraction seismic for cross-correlation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Cannot extraction synthetic for cross-correlation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+19"/>
+        <location line="+25"/>
         <source>Wavelet estimation window not set</source>
         <translation type="unfinished"></translation>
     </message>
@@ -477,13 +499,23 @@ Try single-machine execution.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Cannot extraction reflectivity for wavelet estimation</source>
+        <location line="-25"/>
+        <source>Cannot extract seismic for cross-correlation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Cannot extraction seismic for wavelet estimation</source>
+        <source>Cannot extract synthetic for cross-correlation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Cannot extract reflectivity for wavelet estimation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Cannot extract seismic for wavelet estimation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -570,7 +602,7 @@ Try single-machine execution.</source>
 <context>
     <name>DataUploader</name>
     <message>
-        <location filename="../../../src/Network/odnetworkaccess.cc" line="+458"/>
+        <location filename="../../../src/Network/odnetworkaccess.cc" line="+459"/>
         <source>Oops! Something went wrong.
 </source>
         <translation type="unfinished"></translation>
@@ -1108,7 +1140,7 @@ Please check your attribute set and select valid stored data as input.</source>
 <context>
     <name>FaultTraceExtractor</name>
     <message>
-        <location filename="../../../src/EarthModel/faulttrace.cc" line="+963"/>
+        <location filename="../../../src/EarthModel/faulttrace.cc" line="+965"/>
         <source>Extracting Fault Traces</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1124,7 +1156,7 @@ Please check your attribute set and select valid stored data as input.</source>
 <context>
     <name>FileDownloader</name>
     <message>
-        <location filename="../../../src/Network/odnetworkaccess.cc" line="-209"/>
+        <location filename="../../../src/Network/odnetworkaccess.cc" line="-210"/>
         <source>%1 Didn&apos;t have permission to write to: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1619,8 +1651,18 @@ change input data in Tracking Setup.</source>
 <context>
     <name>IsopachMaker</name>
     <message>
-        <location filename="../../../plugins/HorizonAttrib/isopachmaker.cc" line="+139"/>
+        <location filename="../../../plugins/HorizonAttrib/isopachmaker.cc" line="+42"/>
+        <source>Creating isopach</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+97"/>
         <source>No thickness values collected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../plugins/HorizonAttrib/isopachmaker.h" line="+35"/>
+        <source>Positions handled</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1805,7 +1847,7 @@ change input data in Tracking Setup.</source>
 <context>
     <name>MarchingCubesSurfaceReader</name>
     <message>
-        <location filename="../../../src/Geometry/marchingcubes.cc" line="+117"/>
+        <location filename="../../../src/Geometry/marchingcubes.cc" line="+114"/>
         <source>Positions read</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2174,7 +2216,12 @@ change input data in Tracking Setup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+166"/>
+        <location line="+44"/>
+        <source>Reading Traces...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+122"/>
         <source>Working</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2292,7 +2339,7 @@ contains no definition files</source>
 <context>
     <name>OS::CommandLauncher</name>
     <message>
-        <location filename="../../../src/Basic/oscommand.cc" line="+476"/>
+        <location filename="../../../src/Basic/oscommand.cc" line="+524"/>
         <source>Command is empty</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2302,7 +2349,7 @@ contains no definition files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+76"/>
+        <location line="+62"/>
         <source>Cannot start process %1.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2326,7 +2373,7 @@ contains no definition files</source>
 <context>
     <name>ParallelReader</name>
     <message>
-        <location filename="../../../src/Seis/seisparallelreader.cc" line="+77"/>
+        <location filename="../../../src/Seis/seisparallelreader.cc" line="+81"/>
         <source>Traces read</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2336,7 +2383,7 @@ contains no definition files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+54"/>
         <source>Cannot open storage</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2349,7 +2396,7 @@ contains no definition files</source>
 <context>
     <name>ParallelReader2D</name>
     <message>
-        <location line="+157"/>
+        <location line="+158"/>
         <source>Traces read</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2877,7 +2924,7 @@ selected region or the required stepout traces are not available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+188"/>
+        <location line="+192"/>
         <source>Not possible to output required attribute in this area.
 Please confront stepouts/timegates with available data</source>
         <translation type="unfinished"></translation>
@@ -2937,7 +2984,7 @@ Please select valid stored data.</source>
     </message>
     <message>
         <location line="+82"/>
-        <source>Cannot initialise &apos;%1&apos; Attribute properly</source>
+        <source>Cannot initialize &apos;%1&apos; Attribute properly</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2972,18 +3019,18 @@ Please select valid stored data.</source>
 <context>
     <name>RayTracer1D</name>
     <message>
-        <location filename="../../../src/Algo/raytrace1d.cc" line="+66"/>
+        <location filename="../../../src/Algo/raytrace1d.cc" line="+68"/>
         <source>Raytracer not found. Perhaps all plugins are not loaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+99"/>
         <source>Internal: Offsets must be set before the model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+42"/>
+        <location line="+35"/>
         <source>Cannot do raytracing.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3265,6 +3312,11 @@ Trace: %2</source>
     <message>
         <location filename="../../../include/Seis/segyscanner.h" line="+52"/>
         <source>Traces scanned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Opening first file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3669,7 +3721,7 @@ Please &apos;Overrule&apos; to set something usable</source>
 <context>
     <name>Seis::PreLoader</name>
     <message>
-        <location filename="../../../src/Seis/seispreload.cc" line="+37"/>
+        <location filename="../../../src/Seis/seispreload.cc" line="+38"/>
         <source>Cannot find ID in object manager</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3677,7 +3729,7 @@ Please &apos;Overrule&apos; to set something usable</source>
 <context>
     <name>Seis::SequentialReader</name>
     <message>
-        <location filename="../../../include/Seis/seisparallelreader.h" line="+137"/>
+        <location filename="../../../include/Seis/seisparallelreader.h" line="+130"/>
         <source>Traces read</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3794,7 +3846,7 @@ ID found is %2)</source>
 <context>
     <name>SeisCBVSPS2DReader</name>
     <message>
-        <location filename="../../../src/Seis/seiscbvsps.cc" line="+611"/>
+        <location filename="../../../src/Seis/seiscbvsps.cc" line="+628"/>
         <source>Line %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3802,7 +3854,7 @@ ID found is %2)</source>
 <context>
     <name>SeisCBVSPS3DReader</name>
     <message>
-        <location line="-224"/>
+        <location line="-241"/>
         <source>Directory &apos;%1&apos; contains no usable prestack data files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3843,6 +3895,19 @@ ID found is %2)</source>
         <location line="+9"/>
         <source>Trying to start writing to &apos;%1&apos;:
 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SeisDataPackWriter</name>
+    <message>
+        <location filename="../../../include/Seis/seisdatapackwriter.h" line="+39"/>
+        <source>Writing out data!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Traces written:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4061,7 +4126,7 @@ For Simple File consider re-sorting with a text tool.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/Seis/seispsioprov.cc" line="+277"/>
+        <location filename="../../../src/Seis/seispsioprov.cc" line="+311"/>
         <source>Wrong connection from Object Manager</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4180,7 +4245,7 @@ For Simple File consider re-sorting with a text tool.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+105"/>
+        <location line="+111"/>
         <source>&apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4221,7 +4286,7 @@ For Simple File consider re-sorting with a text tool.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+7"/>
         <source>SeisTrcReader cannot read from 2D Prestack Data store</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4254,7 +4319,7 @@ For Simple File consider re-sorting with a text tool.
 <context>
     <name>SeisTrcStorOutput</name>
     <message>
-        <location filename="../../../src/AttributeEngine/attriboutput.cc" line="+335"/>
+        <location filename="../../../src/AttributeEngine/attriboutput.cc" line="+341"/>
         <location line="+81"/>
         <source>Cannot find seismic data with ID: %1</source>
         <translation type="unfinished"></translation>
@@ -4396,7 +4461,7 @@ For Simple File consider re-sorting with a text tool.
 <context>
     <name>SeparatorItem</name>
     <message>
-        <location filename="../../../include/General/menuhandler.h" line="+112"/>
+        <location filename="../../../include/General/menuhandler.h" line="+119"/>
         <source>Separator</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4526,7 +4591,7 @@ Cannot find &apos;%3&apos;</source>
 <context>
     <name>Strat::LayerSequenceGenDesc</name>
     <message>
-        <location line="+99"/>
+        <location line="+105"/>
         <source>Bad header found</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4597,7 +4662,7 @@ Cannot find &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+374"/>
+        <location line="+379"/>
         <source>Cannot generate elastic model as the thicknesses/Pwave velocity values are invalid. Probably units are not set correctly.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4620,7 +4685,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
 <context>
     <name>StreamProviderPreLoadedData</name>
     <message>
-        <location filename="../../../src/Basic/strmprov.cc" line="+145"/>
+        <location filename="../../../src/Basic/strmprov.cc" line="+148"/>
         <source>Reading &apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4669,7 +4734,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
 <context>
     <name>SurfaceLimitedFiller</name>
     <message>
-        <location filename="../../../src/VolumeProcessing/volprocsurfacelimitedfiller.cc" line="+147"/>
+        <location filename="../../../src/VolumeProcessing/volprocsurfacelimitedfiller.cc" line="+148"/>
         <source>Object does not exist, could not find entry for ID: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4734,13 +4799,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
 <context>
     <name>System::IssueReporter</name>
     <message>
-        <location filename="../../../src/Network/issuereporter.cc" line="+45"/>
-        <location line="+46"/>
-        <source>%1 does not exist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-36"/>
+        <location filename="../../../src/Network/issuereporter.cc" line="+56"/>
         <source>Cannot %1 %2. Reason: %3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4758,6 +4817,11 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
         <location line="+87"/>
         <source>Cannot connect to %1
 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Usage: %1 &lt;filename&gt; [--host &lt;hostname&gt;] [--binary][--path &lt;path&gt;]</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4790,7 +4854,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
 <context>
     <name>TextTranslateMgr</name>
     <message>
-        <location filename="../../../src/Basic/texttranslator.cc" line="+163"/>
+        <location filename="../../../src/Basic/texttranslator.cc" line="+166"/>
         <source>Cannot load %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4800,7 +4864,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+77"/>
+        <location line="+85"/>
         <source>Language Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4830,7 +4894,7 @@ Invalid values will be interpolated.The resulting synthetics may be incorrect</s
 <context>
     <name>TimeDepthConverter</name>
     <message>
-        <location filename="../../../src/Algo/velocitycalc.cc" line="+207"/>
+        <location filename="../../../src/Algo/velocitycalc.cc" line="+214"/>
         <source>Only RMS, Avg and Interval allowed for time based models</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4999,7 +5063,7 @@ Cannot create 2D output.</source>
 <context>
     <name>UnZipper</name>
     <message>
-        <location filename="../../../src/General/ziputils.cc" line="+308"/>
+        <location filename="../../../src/General/ziputils.cc" line="+310"/>
         <source>MBytes Processed: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -5057,7 +5121,7 @@ Cannot create 2D output.</source>
 <context>
     <name>VelocityGridder</name>
     <message>
-        <location filename="../../../src/VolumeProcessing/velocitygridder.cc" line="+594"/>
+        <location filename="../../../src/VolumeProcessing/velocitygridder.cc" line="+600"/>
         <source>Cannot create a velocity source of type %1. %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5093,7 +5157,7 @@ Cannot create 2D output.</source>
 <context>
     <name>VolProc::LateralSmootherTask</name>
     <message>
-        <location filename="../../../src/VolumeProcessing/volproclateralsmoother.cc" line="+61"/>
+        <location filename="../../../src/VolumeProcessing/volproclateralsmoother.cc" line="+62"/>
         <source>Smothing laterally</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5106,7 +5170,7 @@ Cannot create 2D output.</source>
 <context>
     <name>VolProc::MatlabStep</name>
     <message>
-        <location filename="../../../plugins/MATLABLink/matlabstep.cc" line="+200"/>
+        <location filename="../../../plugins/MATLABLink/matlabstep.cc" line="+201"/>
         <source>%1 not provided.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5274,12 +5338,12 @@ inlines, crosslines and random lines.</source>
 <context>
     <name>VrmsRayTracer1D</name>
     <message>
-        <location filename="../../../include/Algo/raytrace1d.h" line="+124"/>
+        <location filename="../../../include/Algo/raytrace1d.h" line="+131"/>
         <source>Simple RayTracer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/Algo/raytrace1d.cc" line="+274"/>
+        <location filename="../../../src/Algo/raytrace1d.cc" line="+300"/>
         <source>Can not compute layer %1
  most probably the velocity is not correct</source>
         <translation type="unfinished"></translation>
@@ -5733,6 +5797,25 @@ Invalid values will be interpolated.</source>
     </message>
 </context>
 <context>
+    <name>static_func_shiftTimesIfNecessary</name>
+    <message>
+        <location filename="../../../src/Well/welld2tmodel.cc" line="+648"/>
+        <source>
+OpendTect WILL correct for this error by applying a time shift of: %1%2
+The resulting travel-times will differ from the file</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>static_func_uploadFile</name>
+    <message>
+        <location filename="../../../src/Network/odnetworkaccess.cc" line="+32"/>
+        <source>%1
+File not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ui2DDefSurvInfoDlg</name>
     <message>
         <location filename="../../../src/uiIo/ui2dsip.cc" line="+65"/>
@@ -5802,7 +5885,7 @@ This will invalidate all other data associated with this geometry</source>
 <context>
     <name>ui2DGridLines</name>
     <message>
-        <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="+130"/>
+        <location filename="../../../src/uiEMAttrib/uicreate2dgrid.cc" line="+129"/>
         <source>Prefix for parallel lines</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5828,7 +5911,7 @@ This will invalidate all other data associated with this geometry</source>
 <context>
     <name>ui2DGridLinesFromRandLine</name>
     <message>
-        <location line="+157"/>
+        <location line="+158"/>
         <source>Parallel line spacing %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5948,7 +6031,7 @@ This will invalidate all other data associated with this geometry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+23"/>
         <source>No data</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5958,7 +6041,7 @@ This will invalidate all other data associated with this geometry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+67"/>
+        <location line="+65"/>
         <source>Cannot initialize FFT</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6458,7 +6541,7 @@ want to continue and overwrite existing attribute?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+56"/>
         <source>Offset (start/step) %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6801,7 +6884,7 @@ Save now?</source>
 <context>
     <name>uiAttribPartServer</name>
     <message>
-        <location filename="../../../src/uiAttributes/uiattribpartserv.cc" line="+503"/>
+        <location filename="../../../src/uiAttributes/uiattribpartserv.cc" line="+509"/>
         <source>Which attributes do you want to use?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6811,13 +6894,13 @@ Save now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+199"/>
+        <location line="+261"/>
         <source>Attribute loading/calculation aborted.
 Do you want to use the partially loaded/computed data?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+196"/>
+        <location line="+237"/>
         <source>Some data extraction failed. Do you want to continue and use the (partially) extracted data?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6939,7 +7022,7 @@ Do you want to use the partially loaded/computed data?</source>
 <context>
     <name>uiBarSettingsDialog</name>
     <message>
-        <location filename="../../../plugins/uiBasemap/uibasemaptbmgr.cc" line="+130"/>
+        <location filename="../../../plugins/uiBasemap/uibasemaptbmgr.cc" line="+174"/>
         <source>Scale Properties</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6947,7 +7030,7 @@ Do you want to use the partially loaded/computed data?</source>
 <context>
     <name>uiBaseMapTBMgr</name>
     <message>
-        <location line="-73"/>
+        <location line="-71"/>
         <source>Add Basemap Items</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6967,7 +7050,7 @@ Do you want to use the partially loaded/computed data?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+13"/>
         <source>Display Orientation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6998,7 +7081,7 @@ Do you want to use the partially loaded/computed data?</source>
 <context>
     <name>uiBasemapMgr</name>
     <message>
-        <location filename="../../../plugins/uiBasemap/uibasemappi.cc" line="+91"/>
+        <location filename="../../../plugins/uiBasemap/uibasemappi.cc" line="+92"/>
         <source>Basemap ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7253,27 +7336,47 @@ Do you wish to discard it?</source>
 <context>
     <name>uiBodyFiller</name>
     <message>
-        <location filename="../../../src/uiVolumeProcessing/uivolprocbodyfiller.cc" line="+43"/>
+        <location filename="../../../src/uiVolumeProcessing/uivolprocbodyfiller.cc" line="+51"/>
         <source>Input body</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Inside value</source>
+        <source>Constant Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Previous Step</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Undefined Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Inside Fill Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Inside Value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>Outside value</source>
+        <source>Outside Fill Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+33"/>
-        <source>Set at lease one defined value</source>
+        <location line="+5"/>
+        <source>Outside Value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+41"/>
         <source>Invalid empty input body</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7472,6 +7575,24 @@ Do you wish to discard it?</source>
     <message>
         <location line="+106"/>
         <source>Current work not saved. Continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiBuildPROPS</name>
+    <message>
+        <location filename="../../../src/uiIo/uimanprops.cc" line="+330"/>
+        <source>Property with same name &apos;%1&apos; already  present.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Cannot remove inbuilt property &apos;Thickness&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Cannot remove this property.Need to have atleast one usable property of type &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8101,7 +8222,7 @@ Overwrite?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/uiBase/uicolor.cc" line="+81"/>
+        <location filename="../../../src/uiBase/uicolor.cc" line="+82"/>
         <source>Transp</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8217,7 +8338,7 @@ Do you wish to continue?</source>
 <context>
     <name>uiContourParsDlg</name>
     <message>
-        <location filename="../../../plugins/uiHorizonAttrib/uicontourtreeitem.cc" line="+580"/>
+        <location filename="../../../plugins/uiHorizonAttrib/uicontourtreeitem.cc" line="+585"/>
         <source>Invalid step value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8248,7 +8369,7 @@ Do you wish to continue?</source>
 <context>
     <name>uiContourTreeItemContourGenerator</name>
     <message>
-        <location line="-718"/>
+        <location line="-723"/>
         <source>Contour elements added</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9535,11 +9656,11 @@ Note: Density plot cannot have Y2 axis</source>
     <name>uiDataTreeItem</name>
     <message>
         <location filename="../../../src/uiODMain/uiodvolproctreeitem.cc" line="+37"/>
-        <source>Select setup ...</source>
+        <source>Select Setup ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+98"/>
+        <location line="+99"/>
         <source>The output of this setup is not sample-independent, and the output may not be the same as when computing the entire volume</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9896,7 +10017,7 @@ Do you wish to leave uncorrelated variables?</source>
 <context>
     <name>uiEditPropRef</name>
     <message>
-        <location filename="../../../src/uiIo/uimanprops.cc" line="+254"/>
+        <location filename="../../../src/uiIo/uimanprops.cc" line="-95"/>
         <source>Please un-check the &apos;Fixed Definition&apos; - or provide one</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10957,6 +11078,26 @@ them or go to &apos;Advanced...&apos; to do it manually</source>
         <source>Fonts</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location line="+6"/>
+        <source>General User Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Used by 2D Graphics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Used in 3D Scenes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Information, Notes and Progress</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>uiFreqFilterAttrib</name>
@@ -11974,17 +12115,12 @@ and the Correlation window fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+6"/>
         <source>Icon Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Color bar orientation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
+        <location line="+5"/>
         <source>Show progress when loading stored data on in-lines</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12153,7 +12289,7 @@ and the Correlation window fields</source>
 <context>
     <name>uiGraphicsView</name>
     <message>
-        <location filename="../../../src/uiTools/uigraphicsview.cc" line="+32"/>
+        <location filename="../../../src/uiTools/uigraphicsview.cc" line="+83"/>
         <source>Save image</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12230,12 +12366,7 @@ and the Correlation window fields</source>
     <name>uiGridLinesDlg</name>
     <message>
         <location filename="../../../src/uiVis/uigridlinesdlg.cc" line="+38"/>
-        <source>GridLines</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Set gridlines options</source>
+        <source>Set Grid Lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12255,21 +12386,21 @@ and the Correlation window fields</source>
     </message>
     <message>
         <location line="+2"/>
-        <source>inlines</source>
+        <source>In-lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>crosslines</source>
+        <source>Cross-lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>z slices</source>
+        <source>Z slices</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+125"/>
+        <location line="+127"/>
         <source>Please make sure all steps are non-zero</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12710,7 +12841,7 @@ and the Correlation window fields</source>
 <context>
     <name>uiHorizonSetupGroup</name>
     <message>
-        <location filename="../../../src/uiMPE/uihorizontracksetup.cc" line="+111"/>
+        <location filename="../../../src/uiMPE/uihorizontracksetup.cc" line="+103"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12721,11 +12852,11 @@ and the Correlation window fields</source>
     </message>
     <message>
         <location line="+3"/>
-        <source>Similarity</source>
+        <source>Correlation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+50"/>
         <source>Event type</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12746,12 +12877,12 @@ and the Correlation window fields</source>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+108"/>
+        <location line="+110"/>
         <source>Allowed difference (%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-100"/>
+        <location line="-102"/>
         <source>Steps</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12766,17 +12897,27 @@ and the Correlation window fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
-        <source>Use similarity</source>
+        <location line="+13"/>
+        <source>Use Correlation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Correlation threshold (0-100)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+364"/>
+        <source>Correlation window start value must be less than the stop value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
-        <source>Similarity threshold(0-1)</source>
+        <source>Correlation threshold must be from 0 to 100</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="-362"/>
         <source>Horizon color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12801,27 +12942,17 @@ and the Correlation window fields</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+287"/>
+        <location line="+266"/>
         <source>Unable to apply tracking setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+13"/>
         <source>Search window should be minus to positive, ex. -20, 20</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+20"/>
-        <source>Compare window should be minus to positive, ex. -20, 20</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Similarity threshold must be within 0 to 1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+23"/>
+        <location line="+57"/>
         <source>Value threshold not set</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12834,11 +12965,6 @@ and the Correlation window fields</source>
         <location line="+42"/>
         <location line="+14"/>
         <source>Allowed variance must be between 0-100</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+45"/>
-        <source>Please select the seismic data to track on</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12881,7 +13007,7 @@ and the Correlation window fields</source>
 <context>
     <name>uiIOObj</name>
     <message>
-        <location filename="../../../src/uiIo/uiioobj.cc" line="+35"/>
+        <location filename="../../../src/uiIo/uiioobj.cc" line="+37"/>
         <source>Remove &apos;%1&apos;%2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12920,13 +13046,13 @@ Specify what you would like to remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+20"/>
         <source>Could not remove data file(s).
 Remove entry from list anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+48"/>
         <source>Overwrite existing &apos;%1&apos;?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12975,7 +13101,7 @@ Continue?</source>
 <context>
     <name>uiIOObjSel</name>
     <message>
-        <location filename="../../../src/uiIo/uiioobjsel.cc" line="+459"/>
+        <location filename="../../../src/uiIo/uiioobjsel.cc" line="+469"/>
         <source>Please select the %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12988,7 +13114,7 @@ Continue?</source>
 <context>
     <name>uiIOObjSelDlg</name>
     <message>
-        <location line="-343"/>
+        <location line="-323"/>
         <source>Select input %1%2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13042,7 +13168,7 @@ If you are sure, please remove the existing object first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+215"/>
+        <location line="+219"/>
         <source>Cannot create %1 with this name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14362,7 +14488,7 @@ The definition will work this OpendTect session only</source>
 <context>
     <name>uiMPEMan</name>
     <message>
-        <location filename="../../../src/uiVis/uimpeman.cc" line="+94"/>
+        <location filename="../../../src/uiVis/uimpeman.cc" line="+97"/>
         <source>Seed connect mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14388,18 +14514,18 @@ The definition will work this OpendTect session only</source>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+832"/>
+        <location line="+861"/>
         <source>Display at section only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-827"/>
-        <location line="+746"/>
+        <location line="-856"/>
+        <location line="+775"/>
         <source>Polygon Selection mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-737"/>
+        <location line="-766"/>
         <source>Remove PolySelection</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14469,7 +14595,7 @@ change input data in Tracking Setup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+97"/>
+        <location line="+126"/>
         <source>Rectangle Selection mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14487,17 +14613,12 @@ change input data in Tracking Setup.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+85"/>
-        <source>Tracking Setup has different attribute than your seeds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+131"/>
+        <location line="+216"/>
         <source>No seeds have been picked. Do you want to continue with horizon tracking?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+433"/>
+        <location line="+401"/>
         <source>Unable to save tracking setup file 
  %1 .
 Please check whether the file is writable</source>
@@ -14509,7 +14630,7 @@ Please check whether the file is writable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+106"/>
+        <location line="+103"/>
         <source>%1 is not saved.
  Click &apos;Save&apos; to save %2 to disk or
  click &apos;Remove&apos; to remove permanently. </source>
@@ -14631,7 +14752,12 @@ Please check whether the file is writable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+54"/>
+        <source>Flow tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Empty this flow</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14700,7 +14826,7 @@ Please check whether the file is writable</source>
 <context>
     <name>uiManPROPS</name>
     <message>
-        <location filename="../../../src/uiIo/uimanprops.cc" line="+101"/>
+        <location filename="../../../src/uiIo/uimanprops.cc" line="+130"/>
         <source>Layer Properties - Definition</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15023,18 +15149,9 @@ The maximum number is %2</source>
     </message>
 </context>
 <context>
-    <name>uiMenu</name>
-    <message>
-        <location filename="../../../include/uiBase/uimenu.h" line="+69"/>
-        <location line="+62"/>
-        <source>uiMenu</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>uiMergePickSets</name>
     <message>
-        <location filename="../../../src/uiIo/uipicksetmgr.cc" line="+182"/>
+        <location filename="../../../src/uiIo/uipicksetmgr.cc" line="+183"/>
         <source>Please select at least two sets</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15214,7 +15331,7 @@ The maximum number is %2</source>
 <context>
     <name>uiMultiFlatViewControl</name>
     <message>
-        <location filename="../../../src/uiFlatView/uimultiflatviewcontrol.cc" line="+179"/>
+        <location filename="../../../src/uiFlatView/uimultiflatviewcontrol.cc" line="+194"/>
         <source>Set display parameters</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15325,36 +15442,36 @@ Wells can be removed in &apos;Manage wells&apos;</source>
 <context>
     <name>uiOD2DLineSetAttribItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="+783"/>
-        <source>Stored 2D data</source>
+        <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="+773"/>
+        <source>Stored 2D Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Steering 2D data</source>
+        <source>Steering 2D Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>ZDomain Atrrib 2D data</source>
+        <source>ZDomain Attrib 2D Data</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>uiOD2DLineTreeItem</name>
     <message>
-        <location line="-370"/>
-        <source>Show linename</source>
+        <location line="-357"/>
+        <source>Show Linename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Show 2D plane</source>
+        <source>Show 2D Plane</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Show line geometry</source>
+        <source>Show Line Geometry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15368,7 +15485,7 @@ Wells can be removed in &apos;Manage wells&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+212"/>
+        <location line="+200"/>
         <source>Attribute cannot be created</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15384,7 +15501,7 @@ Do you want to save it?</source>
     </message>
     <message>
         <location line="+58"/>
-        <source>Set size</source>
+        <source>Set Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15411,7 +15528,7 @@ Do you wish to overwrite it?</source>
 <context>
     <name>uiODApplMgr</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodapplmgr.cc" line="+214"/>
+        <location filename="../../../src/uiODMain/uiodapplmgr.cc" line="+198"/>
         <source>The survey %1 appears to be too old. Please open this survey first in OpendTect 4.6 to update its database before using it in OpendTect 5.0.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15474,12 +15591,12 @@ Do you wish to overwrite it?</source>
     </message>
     <message>
         <location line="+93"/>
-        <location line="+257"/>
+        <location line="+215"/>
         <source>Cannot calculate attribute on this object</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-248"/>
+        <location line="-206"/>
         <source>Cannot find selected attribute</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15490,22 +15607,7 @@ is not present in the set and cannot be created</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+51"/>
-        <source>%1 has different stepout as the loaded ones. Do you want to continue? If continue, all the attributes will be resampled to the minimum stepout.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Yes, load it</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>No, not now</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+177"/>
+        <location line="+193"/>
         <source>Cannot find stored data</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15515,7 +15617,7 @@ is not present in the set and cannot be created</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+605"/>
+        <location line="+592"/>
         <source>Current attribute set is not saved.
 Save now?</source>
         <translation type="unfinished"></translation>
@@ -15578,7 +15680,7 @@ please restart OpendTect for the changes to take effect.</source>
     </message>
     <message>
         <location line="+6"/>
-        <source>New polygon body...</source>
+        <source>New Polygon Body ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15590,7 +15692,7 @@ please restart OpendTect for the changes to take effect.</source>
 <context>
     <name>uiODCrosslineParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="+543"/>
+        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="+560"/>
         <source>Flat survey, disabled cross-line display</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15604,17 +15706,17 @@ please restart OpendTect for the changes to take effect.</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>To top</source>
+        <source>To Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>To bottom</source>
+        <source>To Bottom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
-        <source>Change transparency ...</source>
+        <source>Change Transparency ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15699,22 +15801,22 @@ Please save attribute first</source>
     <name>uiODEarthModelSurfaceTreeItem</name>
     <message>
         <location line="-496"/>
-        <source>Create flattened scene</source>
+        <source>Create Flattened Scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Enable tracking</source>
+        <source>Enable Tracking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Change setup ...</source>
+        <source>Change Setup ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Start tracking ...</source>
+        <source>Start Tracking ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15747,32 +15849,32 @@ Continue saving?</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>Only at sections</source>
+        <source>Only at Sections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Only at horizons</source>
+        <source>Only at Horizons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>At sections &amp; horizons</source>
+        <source>At Sections &amp; Horizons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Fault planes</source>
+        <source>Fault Planes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Fault sticks</source>
+        <source>Fault Sticks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Fault planes &amp; sticks</source>
+        <source>Fault Planes &amp; Sticks</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -15785,24 +15887,24 @@ Continue saving?</source>
     </message>
     <message>
         <location line="+11"/>
-        <source>Display all</source>
+        <source>Display All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
+        <source>Only at Sections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1"/>
         <source>In full</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Only at sections</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>uiODFaultSurfaceDataTreeItem</name>
     <message>
-        <location line="+241"/>
+        <location line="+242"/>
         <source>Z values</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15825,38 +15927,38 @@ Continue saving?</source>
 <context>
     <name>uiODFaultToolMan</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodfaulttoolman.cc" line="+147"/>
-        <source>Edit sticks</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Select sticks</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+57"/>
+        <location filename="../../../src/uiODMain/uiodfaulttoolman.cc" line="+207"/>
         <source>Select output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="-60"/>
+        <source>Edit Sticks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+3"/>
-        <source>Output color</source>
+        <source>Select Sticks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+60"/>
+        <source>Output Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
-        <source>More transfer settings</source>
+        <source>More Transfer Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>Transfer selected sticks</source>
+        <source>Transfer Selected Sticks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Remove selected sticks</source>
+        <source>Remove Selected Sticks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15957,7 +16059,7 @@ Continue saving?</source>
     <name>uiODHorizon2DParentTreeItem</name>
     <message>
         <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="+576"/>
-        <source>Track new ...</source>
+        <source>Track New ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15967,12 +16069,12 @@ Continue saving?</source>
     </message>
     <message>
         <location line="+5"/>
-        <source>Display all only at sections</source>
+        <source>Display All Only at Sections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Show all in full</source>
+        <source>Show All in Full</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -16003,42 +16105,42 @@ Continue saving?</source>
     <name>uiODHorizonParentTreeItem</name>
     <message>
         <location line="-622"/>
-        <source>Add at sections only ...</source>
+        <source>Add at Sections Only ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Add color blended ...</source>
+        <source>Add Color Blended ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Track new ...</source>
+        <source>Track New ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>Create with constant Z ...</source>
+        <source>Create with Constant Z ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Display all</source>
+        <source>Display All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Only at sections</source>
+        <source>Only at Sections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>In full</source>
+        <source>In Full</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>At sections and in full</source>
+        <source>At Sections and in Full</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -16091,51 +16193,51 @@ Continue saving?</source>
 <context>
     <name>uiODLine2DParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="-581"/>
-        <source>Create 2D Grid From 3D ...</source>
+        <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="-572"/>
+        <source>Create 2D Grid from 3D ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Extract From 3D ...</source>
+        <source>Extract from 3D ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Generate 3D cube ...</source>
+        <location line="+4"/>
+        <source>Generate 3D Cube ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+31"/>
-        <source>Add attribute</source>
+        <location line="+33"/>
+        <source>Add Attribute</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+18"/>
-        <source>&amp;Display all</source>
+        <source>Display All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+6"/>
-        <source>Line names</source>
+        <source>Line Names</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-5"/>
         <location line="+6"/>
-        <source>2D planes</source>
+        <source>2D Planes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-5"/>
         <location line="+6"/>
-        <source>Line geometry</source>
+        <source>Line Geometry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-3"/>
-        <source>Hide all</source>
+        <source>Hide All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16179,7 +16281,7 @@ Do you wish to exit?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+296"/>
+        <location line="+274"/>
         <source>An error occurred while reading session file.
 A new scene will be launched</source>
         <translation type="unfinished"></translation>
@@ -16246,12 +16348,12 @@ Store the changes now?</source>
     <message>
         <location line="+13"/>
         <location line="+107"/>
-        <location line="+624"/>
+        <location line="+626"/>
         <source>FaultStickSets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-729"/>
+        <location line="-731"/>
         <location line="+107"/>
         <source>PickSets/Polygons</source>
         <translation type="unfinished"></translation>
@@ -16269,13 +16371,7 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-106"/>
-        <location line="+336"/>
-        <source>Cross-plot data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-335"/>
+        <location line="-105"/>
         <source>Velocity Functions</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16301,24 +16397,30 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <location line="+96"/>
-        <source>Simple file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-90"/>
+        <location line="+7"/>
         <source>CBVS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>From file ...</source>
+        <location line="-37"/>
+        <location line="+338"/>
+        <source>Cross-plot Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-307"/>
+        <location line="+96"/>
+        <source>Simple File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-89"/>
+        <source>From File ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>From other survey ...</source>
+        <source>From Other Survey ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16407,21 +16509,218 @@ Store the changes now?</source>
     </message>
     <message>
         <location line="+2"/>
-        <source>Cross-plot data ...</source>
+        <source>Cross-plot Data ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>FaultStickSets ...</source>
+        <location line="+19"/>
+        <source>Layer Properties ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+15"/>
-        <source>Layer properties ...</source>
+        <location line="+54"/>
+        <source>Create 2D from 3D ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
+        <source>Extract 2D from 3D ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Create 3D from 2D ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Angle Mute Function ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>From Well Logs ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+80"/>
+        <source>Edit Logs ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>New [Horizon Flattened]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+65"/>
+        <source>Work Area ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Z-Scale ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stereo Viewing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Quad Buffer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Stereo Offset ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+77"/>
+        <source>Look and Feel ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Mouse Controls ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Keyboard Shortcuts ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Personal Settings ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Survey Defaults ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Batch Programs ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Position Conversion ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Auto-update Policy ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Show Log File ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>DataPack Dump ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Display Memory Info ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+65"/>
+        <source>Survey Setup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Edit Attributes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Cross-plot Attribute vs Well Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Cross-plot Attribute vs Attribute Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Create New Well Logs Using Rock Physics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <location line="+477"/>
+        <source>Switch to View Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-474"/>
+        <source>Save Home Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>View All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <location line="+158"/>
+        <source>Switch to Orthographic Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-121"/>
+        <source>Display Orientation Axis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Display Color Bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+89"/>
+        <source>Polygon Selection Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Rectangle Selection Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Switch to Perspective Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+177"/>
+        <source>Memory Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+134"/>
+        <source>Switch to Interact Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1044"/>
+        <source>FaultStickSets ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
         <source>PickSets/Polygons ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16447,11 +16746,12 @@ Store the changes now?</source>
     </message>
     <message>
         <location line="+12"/>
+        <location line="+439"/>
         <source>Create Seismic Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-433"/>
         <source>Single Attribute</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16476,37 +16776,12 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+9"/>
-        <source>Create 2D From 3D ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Extract 2D From 3D ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Create 3D From 2D ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Angle mute Function ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+28"/>
         <source>Bayesian Classification ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>From Well logs ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+7"/>
         <source>Prestack Processing</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16562,12 +16837,7 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Edit logs ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+7"/>
         <source>Tie Well to Seismic ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16592,12 +16862,7 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>New [Horizon flattened]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+10"/>
         <source>Cascade</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16607,22 +16872,7 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+57"/>
-        <source>Work area ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Z-scale ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Stereo viewing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+9"/>
+        <location line="+68"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16632,17 +16882,7 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Quad buffer</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Stereo offset ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+38"/>
+        <location line="+43"/>
         <source>Icons</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16657,42 +16897,7 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
-        <source>Look and feel ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Mouse controls ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Keyboard shortcuts ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Personal settings ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Survey defaults ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Batch programs ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Position conversion ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+29"/>
         <source>Create Plugin Devel. Env. ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16707,12 +16912,7 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Auto-update policy ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+8"/>
         <source>Connection Settings ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16727,57 +16927,12 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Show log file ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Data pack dump ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Display memory info ...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+65"/>
-        <source>Survey setup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Edit attributes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create seismic output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+7"/>
+        <location line="+89"/>
         <source>Volume Builder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Cross-plot Attribute vs Well data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Cross-plot Attribute vs Attribute data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Create new well logs using Rock Physics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+25"/>
+        <location line="+34"/>
         <source>Manage Seismic data</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16857,34 +17012,12 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+17"/>
-        <location line="+479"/>
-        <source>Switch to view mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-477"/>
+        <location line="+19"/>
         <source>To home position</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Save home position</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>View all</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <location line="+159"/>
-        <source>Switch to orthographic camera</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-150"/>
+        <location line="+12"/>
         <location line="+4"/>
         <location line="+14"/>
         <source>View In-line</source>
@@ -16925,28 +17058,17 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Display orientation axis</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Display color bar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+7"/>
         <source>ColorBar Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
-        <location line="+80"/>
         <source>Polygon Selection mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-78"/>
+        <location line="+2"/>
         <source>Menu</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16961,17 +17083,7 @@ Store the changes now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+69"/>
-        <source>Rectangle Selection mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+30"/>
-        <source>Switch to perspective camera</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+153"/>
+        <location line="+252"/>
         <source>Your new settings will become active
 the next time OpendTect is started.</source>
         <translation type="unfinished"></translation>
@@ -16985,16 +17097,6 @@ only for newly launched objects.</source>
     <message>
         <location line="+6"/>
         <source>Data pack dump</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Memory information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+136"/>
-        <source>Switch to interact mode</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -17045,26 +17147,26 @@ only for newly launched objects.</source>
     </message>
     <message>
         <location line="+6"/>
-        <source>Display picks only at sections</source>
+        <source>Display Picks Only at Sections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Show all picks</source>
+        <source>Show All picks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
+        <source>Save Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1"/>
         <source>Merge Sets ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Save changes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+54"/>
+        <location line="+55"/>
         <source>Problem saving changes. Check write protection.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17073,12 +17175,12 @@ only for newly launched objects.</source>
     <name>uiODPickSetTreeItem</name>
     <message>
         <location line="+37"/>
-        <source>Set directions ...</source>
+        <source>Set Directions ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Only at sections</source>
+        <source>Only at Sections</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17088,11 +17190,11 @@ only for newly launched objects.</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>Convert to body</source>
+        <source>Convert to Body</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+203"/>
+        <location line="+197"/>
         <source>This pickset has changed since the last save.
 Do you want to save it?</source>
         <translation type="unfinished"></translation>
@@ -17101,17 +17203,17 @@ Do you want to save it?</source>
 <context>
     <name>uiODPlaneDataTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="-441"/>
-        <source>Add default data</source>
+        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="-457"/>
+        <source>Add Default Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+8"/>
-        <source>Add at Well location ...</source>
+        <source>Add at Well Location ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+45"/>
         <source>Position ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17121,7 +17223,7 @@ Do you want to save it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+126"/>
+        <location line="+136"/>
         <source>No or no valid default volume found.You can set a default volume in the &apos;Manage Seismics&apos; window. Do you want to go there now? On &apos;No&apos; an empty plane will be added</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17199,12 +17301,12 @@ Do you want to save it?</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>Insert node</source>
+        <source>Insert Node</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Save As 2D ...</source>
+        <source>Save as 2D ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17329,13 +17431,13 @@ Do you want to continue?</source>
 <context>
     <name>uiODViewer2D</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodviewer2d.cc" line="+368"/>
-        <location line="+172"/>
+        <location filename="../../../src/uiODMain/uiodviewer2d.cc" line="+357"/>
+        <location line="+214"/>
         <source>Polygon Selection mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-170"/>
+        <location line="-212"/>
         <source>PoluMenu</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17345,7 +17447,7 @@ Do you want to continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+157"/>
+        <location line="+199"/>
         <source>Rectangle Selection mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17359,7 +17461,7 @@ Do you want to continue?</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>Iso surface</source>
+        <source>Iso Surface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17382,12 +17484,12 @@ in the &apos;Look and Feel&apos; settings may help.</source>
     <name>uiODVolrenSubTreeItem</name>
     <message>
         <location line="+315"/>
-        <source>Convert to body</source>
+        <source>Convert to Body</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+150"/>
-        <source>Iso value selection</source>
+        <source>Iso Value Selection</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -17439,7 +17541,7 @@ Do you want to continue?</source>
 <context>
     <name>uiODWellParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodwelltreeitem.cc" line="+54"/>
+        <location filename="../../../src/uiODMain/uiodwelltreeitem.cc" line="+56"/>
         <source>Tie Well to Seismic ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17460,38 +17562,38 @@ Do you want to continue?</source>
     </message>
     <message>
         <location line="+9"/>
-        <source>Show all</source>
+        <source>Show All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+8"/>
-        <source>Well names (Top)</source>
+        <source>Well Names (Top)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-7"/>
         <location line="+8"/>
-        <source>Well names (Bottom)</source>
+        <source>Well Names (Bottom)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-6"/>
-        <location line="+8"/>
-        <source>Marker Names</source>
+        <location line="-2"/>
+        <source>Hide All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-4"/>
-        <source>Hide all</source>
+        <location line="+8"/>
+        <source>Marker Names</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>uiODWellTreeItem</name>
     <message>
-        <location line="+160"/>
-        <source>Could not load well</source>
+        <location line="+158"/>
+        <source>Could not load well %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17512,7 +17614,7 @@ Do you want to save it?</source>
 <context>
     <name>uiODZsliceParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="+344"/>
+        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="+345"/>
         <source>Flat survey, disabled z display</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17611,13 +17713,13 @@ Do you want to save it?</source>
 <context>
     <name>uiPickSetMgr</name>
     <message>
-        <location filename="../../../src/uiIo/uipicksetmgr.cc" line="-114"/>
+        <location filename="../../../src/uiIo/uipicksetmgr.cc" line="-115"/>
         <source>The PickSet &apos;%1&apos; no longer has an entry in the data store.
 Please use &apos;Save As&apos; to store this set.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+163"/>
+        <location line="+164"/>
         <source>Not enough valid sets selected for merge</source>
         <translation type="unfinished"></translation>
     </message>
@@ -18161,7 +18263,7 @@ Do you want to discard them?</source>
 <context>
     <name>uiRayTracer1D</name>
     <message>
-        <location filename="../../../src/uiTools/uiraytrace1d.cc" line="+162"/>
+        <location filename="../../../src/uiTools/uiraytrace1d.cc" line="+152"/>
         <source>offset range %1(start/stop)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -18194,7 +18296,7 @@ Do you want to discard them?</source>
 <context>
     <name>uiRayTracerSel</name>
     <message>
-        <location line="-161"/>
+        <location line="-151"/>
         <source>Ray-Tracer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -20894,7 +20996,7 @@ Please import 3D seismic data.</source>
 <context>
     <name>uiSelExternalAttrInps</name>
     <message>
-        <location filename="../../../src/uiAttributes/attribsetcreator.cc" line="-323"/>
+        <location filename="../../../src/uiAttributes/attribsetcreator.cc" line="-322"/>
         <source>Specify inputs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -21151,7 +21253,7 @@ Most probably you have no write permissions for:
 <context>
     <name>uiSettings</name>
     <message>
-        <location filename="../../../src/uiTools/uisettings.cc" line="-266"/>
+        <location filename="../../../src/uiTools/uisettings.cc" line="-259"/>
         <source>Set User Settings value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -21174,7 +21276,7 @@ Most probably you have no write permissions for:
 <context>
     <name>uiSettingsDlg</name>
     <message>
-        <location line="+246"/>
+        <location line="+235"/>
         <source>OpendTect Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -21356,7 +21458,7 @@ Well not created</source>
 <context>
     <name>uiSingleLayerGeneratorEd</name>
     <message>
-        <location filename="../../../src/uiStrat/uistratlayseqgendesc.cc" line="+624"/>
+        <location filename="../../../src/uiStrat/uistratlayseqgendesc.cc" line="+661"/>
         <source>Edit layer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22118,7 +22220,7 @@ Do you want to save it now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+24"/>
         <source>Help toolbar</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22207,7 +22309,7 @@ for write</source>
 <context>
     <name>uiStratLayerModelManager</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uistratlayermodel.cc" line="-236"/>
+        <location filename="../../../src/uiWellAttrib/uistratlayermodel.cc" line="-241"/>
         <source>Select modeling type</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22549,7 +22651,7 @@ to real amplitudes along a horizon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+703"/>
+        <location line="+708"/>
         <source>No valid layer model present</source>
         <translation type="unfinished"></translation>
     </message>
@@ -22879,7 +22981,7 @@ Please correct it.</source>
 <context>
     <name>uiString</name>
     <message>
-        <location filename="../../../src/Basic/uistring.cc" line="+502"/>
+        <location filename="../../../src/Basic/uistring.cc" line="+506"/>
         <source>th</source>
         <comment>zeroth</comment>
         <translation type="unfinished"></translation>
@@ -23018,12 +23120,7 @@ Please correct it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Add color blended</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Advanced</source>
         <translation type="unfinished"></translation>
     </message>
@@ -23043,12 +23140,7 @@ Please correct it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Attribute name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+4"/>
         <source>Attribute</source>
         <translation type="unfinished"></translation>
     </message>
@@ -23113,22 +23205,22 @@ Please correct it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+1"/>
         <source>Cannot open output file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+1"/>
         <source>Cannot read input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+1"/>
         <source>Cannot read input data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+1"/>
         <source>Cannot write settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -23288,12 +23380,7 @@ Please correct it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Manage wavelets</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -23398,12 +23485,7 @@ Please correct it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Save as default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+5"/>
         <source>Save body failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -23488,8 +23570,28 @@ Please correct it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Take snapshot</source>
+        <location line="-170"/>
+        <source>Add Color Blended</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Attribute Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+88"/>
+        <source>Manage Wavelets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Save as Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Take Snapshot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -24483,7 +24585,7 @@ No changes committed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+95"/>
+        <location line="+101"/>
         <source>Cannot copy %1 to %2
 because target directory exists</source>
         <translation type="unfinished"></translation>
@@ -24571,7 +24673,7 @@ No changes committed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+93"/>
         <source>Directory is not writable</source>
         <translation type="unfinished"></translation>
     </message>
@@ -25232,7 +25334,7 @@ Or select a new dataset.</source>
 <context>
     <name>uiTrcPositionDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uitrcpositiondlg.cc" line="+96"/>
+        <location filename="../../../src/uiSeis/uitrcpositiondlg.cc" line="+97"/>
         <location line="+63"/>
         <source>Attribute trace position</source>
         <translation type="unfinished"></translation>
@@ -25924,7 +26026,7 @@ for a &apos;%1&apos; can be picked.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1339"/>
+        <location line="+1347"/>
         <source>Are you sure you want to 
 remove selected part of %1?</source>
         <translation type="unfinished"></translation>
@@ -27090,7 +27192,7 @@ Will process the other wells only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+235"/>
+        <location line="+241"/>
         <source>Cannot write new markers to disk</source>
         <translation type="unfinished"></translation>
     </message>
@@ -27688,6 +27790,32 @@ As it is now, the track will not load.</source>
     <message>
         <location line="+6"/>
         <source>To Home</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>visBase::HorizonSectionTilePosSetup</name>
+    <message>
+        <location filename="../../../include/visBase/vishorthreadworks.h" line="+85"/>
+        <source>Creating Horizon Display</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Parts completed</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>visBase::HorizonTileRenderPreparer</name>
+    <message>
+        <location line="-41"/>
+        <source>Updating Horizon Display</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Parts completed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
