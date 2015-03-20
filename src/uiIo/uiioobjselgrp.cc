@@ -51,6 +51,7 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
     , manipgrp_(0)
 {
     selgrp_->selectionChanged.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
+    selgrp_->itemChosen.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
 }
 
 
