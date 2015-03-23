@@ -559,7 +559,9 @@ const BinID bid0( SI().inlRange(false).stop + SI().inlStep(), \
 for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
 { \
     const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
-    dptrcbufs->get( trcidx )->info().nr =(bid.crl()-bid0.crl())/crlstep; \
+    SeisTrcInfo& trcinfo = dptrcbufs->get( trcidx )->info(); \
+    trcinfo.coord = SI().transform( bid ); \
+    trcinfo.nr = (bid.crl()-bid0.crl())/crlstep; \
 } \
 SeisTrcBufDataPack* angledp = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
@@ -790,9 +792,9 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    if ( !sd )
 		mErrRet( " input prestack synthetic data not found.", return 0 )
 	    CubeSampling cs( false );
-	    for ( int idx=0; idx<sd->d2tmodels_.size(); idx++ )
+	    for ( int idx=0; idx<sd->zerooffsd2tmodels().size(); idx++ )
 	    {
-		const TimeDepthModel* d2t = sd->d2tmodels_[idx];
+		const TimeDepthModel* d2t = sd->zerooffsd2tmodels()[idx];
 		cs.zrg.include( d2t->getFirstTime(), false );
 		cs.zrg.include( d2t->getLastTime(), false );
 	    }
@@ -827,12 +829,12 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     ObjectSet<TimeDepthModel> tmpd2ts, zerooffsd2tmodels;
     for ( int imdl=0; imdl<aimodels_.size(); imdl++ )
     {
+	TimeDepthModel* zeroofsetd2tm = 0;
 	if ( !ispsbased )
 	{
 	    Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
-	    TimeDepthModel* zeroofsetd2tm = new TimeDepthModel();
+	    zeroofsetd2tm = new TimeDepthModel();
 	    rm.getZeroOffsetD2T( *zeroofsetd2tm );
-	    zerooffsd2tmodels += zeroofsetd2tm;
 	    rm.getD2T( tmpd2ts, true );
 	    if ( tmpd2ts.isEmpty() )
 		continue;
@@ -843,10 +845,11 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    if ( useed_ )
 		inputsdnm += sKeyFRNameSuffix();
 	    const SyntheticData* inputsd = getSynthetic( inputsdnm );
-	    for ( int idx=0; idx<inputsd->d2tmodels_.size(); idx++ )
-		tmpd2ts += new TimeDepthModel( *inputsd->d2tmodels_[idx] );
+	    zeroofsetd2tm =
+		new TimeDepthModel( *inputsd->zerooffsd2tmodels()[imdl] );
 	}
 
+	zerooffsd2tmodels += zeroofsetd2tm;
 	adjustD2TModels( tmpd2ts );
 	while ( tmpd2ts.size() )
 	    sd->d2tmodels_ += tmpd2ts.removeSingle(0);
@@ -1427,15 +1430,21 @@ void SyntheticData::removePack()
 
 float SyntheticData::getTime( float dpt, int seqnr ) const
 {
-    return d2tmodels_.validIdx( seqnr ) ? d2tmodels_[seqnr]->getTime( dpt )
-					: mUdf( float );
+    ObjectSet<const TimeDepthModel>* zerooffsd2tmodels_ =
+	zerooffsd2tmodelsset.getParam( this );
+    if ( !zerooffsd2tmodels_ ) return mUdf(float);
+    return zerooffsd2tmodels_->validIdx( seqnr )
+	? (*zerooffsd2tmodels_)[seqnr]->getTime( dpt ) : mUdf( float );
 }
 
 
 float SyntheticData::getDepth( float time, int seqnr ) const
 {
-    return d2tmodels_.validIdx( seqnr ) ? d2tmodels_[seqnr]->getDepth( time )
-					: mUdf( float );
+    ObjectSet<const TimeDepthModel>* zerooffsd2tmodels_ =
+	zerooffsd2tmodelsset.getParam( this );
+    if ( !zerooffsd2tmodels_ ) return mUdf(float);
+    return zerooffsd2tmodels_->validIdx( seqnr )
+	? (*zerooffsd2tmodels_)[seqnr]->getDepth( time ) : mUdf( float );
 }
 
 

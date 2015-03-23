@@ -142,7 +142,8 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     for ( int isynth=0; isynth<synthdatas_.size(); isynth++ )
     {
 	const SyntheticData& sd = *synthdatas_[isynth];
-	const ObjectSet<const TimeDepthModel>& d2tmodels = sd.d2tmodels_;
+	const ObjectSet<const TimeDepthModel>& d2tmodels =
+	    sd.zerooffsd2tmodels();
 	const int nrmdls = d2tmodels.size();
 
 	mDynamicCastGet(const SeisTrcBufDataPack*,tbpack,&sd.getPack());

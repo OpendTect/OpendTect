@@ -663,9 +663,9 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 {
     uiMsgMainWinSetter mws( mainwin() );
 
-    if ( !currentwvasynthetic_ )
+    if ( !currentwvasynthetic_ || currentwvasynthetic_->isPS() )
     {
-	uiMSG().error( "Please select a synthetic data in wiggle display. "
+	uiMSG().error( "Please select a post-stack synthetic in wiggle view. "
 		       "The scaling tool compares the amplitudes of the "
 		       "synthetic data at the selected Stratigraphic Level "
 		       "to real amplitudes along a horizon" );

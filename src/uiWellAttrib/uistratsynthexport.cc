@@ -247,7 +247,7 @@ void uiStratSynthExport::getExpObjs()
 	return;
 
     const SyntheticData* sd = postsds_[0];
-    const ObjectSet<const TimeDepthModel>& d2t = sd->d2tmodels_;
+    const ObjectSet<const TimeDepthModel>& d2t = sd->zerooffsd2tmodels();
     const Strat::LevelSet& lvls = Strat::LVLS();
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
