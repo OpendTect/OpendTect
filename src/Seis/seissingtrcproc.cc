@@ -248,6 +248,22 @@ void SeisSingleTraceProc::setResampler( SeisResampler* r )
 }
 
 
+void SeisSingleTraceProc::setProcPars( const IOPar& iop, bool is2d )
+{
+    Scaler* sclr = Scaler::get( iop.find(sKey::Scale()) );
+    const int nulltrcpol = toInt( iop.find("Null trace policy") );
+    const bool exttrcs = iop.isTrue( "Extend Traces To Survey Z Range" );
+    TrcKeyZSampling cs; cs.usePar( iop );
+    SeisResampler* resmplr = new SeisResampler( cs, is2d );
+
+    setScaler( sclr );
+    skipNullTraces( nulltrcpol < 1 );
+    fillNullTraces( nulltrcpol == 2 );
+    setExtTrcToSI( exttrcs );
+    setResampler( resmplr );
+}
+
+
 uiString SeisSingleTraceProc::uiMessage() const
 {
     if ( !curmsg_.isEmpty() )

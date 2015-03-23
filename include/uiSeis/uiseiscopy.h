@@ -20,6 +20,7 @@ class uiScaler;
 class uiSeis2DMultiLineSel;
 class uiLabeledComboBox;
 class uiSeisTransfer;
+class uiBatchJobDispatcherSel;
 
 
 /*!\brief UI for copying cubes */
@@ -36,6 +37,7 @@ protected:
     uiLabeledComboBox*	compfld_;
     uiSeisTransfer*	transffld_;
     uiSeisSel*		outfld_;
+    uiBatchJobDispatcherSel* batchfld_;
 
     bool		ismc_;
 
@@ -59,6 +61,7 @@ protected:
     uiSeis2DMultiLineSel* subselfld_;
     uiScaler*		scalefld_;
     uiSeisSel*		outpfld_;
+    uiBatchJobDispatcherSel* batchfld_;
 
     void		inpSel(CallBacker*);
     bool		acceptOK(CallBacker*);

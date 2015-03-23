@@ -27,22 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
-static void initProcessor( SeisSingleTraceProc& proc, const IOPar& iop,
-			   bool is2d )
-{
-    Scaler* sclr = Scaler::get( iop.find(sKey::Scale()) );
-    const int nulltrcpol = toInt( iop.find("Null trace policy") );
-    const bool exttrcs = iop.isTrue( "Extend Traces To Survey Z Range" );
-    TrcKeyZSampling cs; cs.usePar( iop );
-    SeisResampler* resmplr = new SeisResampler( cs, is2d );
-
-    proc.setScaler( sclr );
-    proc.skipNullTraces( nulltrcpol < 1 );
-    proc.fillNullTraces( nulltrcpol == 2 );
-    proc.setExtTrcToSI( exttrcs );
-    proc.setResampler( resmplr );
-}
-
 
 static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 {
@@ -63,7 +47,7 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( inioobj, outioobj,
 				"SEG-Y importer", outpar, "Importing traces" );
-    initProcessor( *stp, *outpar, is2d );
+    stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
 }
 
@@ -91,7 +75,7 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
     fp.fillPar( outioobj->pars() );
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( inioobj, outioobj,
 				"SEG-Y exporter", outpar, "Exporting traces" );
-    initProcessor( *stp, *outpar, is2d );
+    stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
 }
 
