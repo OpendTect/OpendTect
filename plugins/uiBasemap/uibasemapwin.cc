@@ -119,7 +119,7 @@ void uiBasemapView::reDraw( bool deep )
 
 // uiBasemapWin
 uiBasemapWin::uiBasemapWin( uiParent* p )
-    : uiMainWin(p,Setup("Basemap").withmenubar(false).nrstatusflds(3)
+    : uiMainWin(p,Setup("Basemap").withmenubar(true).nrstatusflds(3)
 				  .deleteonclose(false))
     , topitem_(0)
     , mousecursorexchange_(0)

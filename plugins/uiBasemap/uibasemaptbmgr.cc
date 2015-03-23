@@ -63,6 +63,9 @@ uiBaseMapTBMgr::~uiBaseMapTBMgr()
 
 void uiBaseMapTBMgr::createMenuBar()
 {
+    if ( !mainwin_.menuBar() )
+	return;
+
     filemnu_ = mainwin_.menuBar()->addMenu( new uiMenu(uiStrings::sFile()) );
     processingmnu_ = mainwin_.menuBar()->addMenu( new uiMenu("Processing") );
     syncmnu_ = mainwin_.menuBar()->addMenu( new uiMenu("Synchronization") );
