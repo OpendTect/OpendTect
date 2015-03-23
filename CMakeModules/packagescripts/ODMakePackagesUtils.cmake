@@ -33,6 +33,12 @@ macro ( create_package PACKAGE_NAME )
     if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
 	copy_unix_systemlibs()
     endif()
+    if( NOT MATLAB_DIR STREQUAL "" )
+	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
+			 RESULT_VARIABLE STATUS )
+    endif()
 
         copy_thirdpartylibs()
         set( LIBLIST ${LIBLIST};${PLUGINS} )

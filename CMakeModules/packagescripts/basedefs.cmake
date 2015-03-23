@@ -28,6 +28,9 @@ set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackVie
 	     uiGoogleIO CmdDriver uiVoxelConnectivityFilter
 	     GMT uiGMT uiImpGPR Madagascar uiMadagascar
 	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM )
+if( NOT MATLAB_DIR STREQUAL "" )
+    set( PLUGINS ${PLUGINS} MATLABLink uiMATLABLink )
+endif()
 #Only for windows base package
 set( WINEXECLIST od_start_dtect od_main_console od_runinst )
 

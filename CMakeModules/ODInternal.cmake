@@ -220,4 +220,8 @@ if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
 			    PATTERN ".svn" EXCLUDE PATTERN CMakeFiles EXCLUDE )
 endif()
 
+if( NOT MATLAB_DIR STREQUAL "" )
+    install( DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/MATLAB
+	     DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
+endif()
 install( FILES ${CMAKE_BINARY_DIR}/doc/Programmer/index.html DESTINATION doc/Programmer/ )
