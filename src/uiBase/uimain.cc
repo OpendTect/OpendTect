@@ -525,23 +525,30 @@ void uiMain::processEvents( int msec )
 
 
 static bool usenametooltip_ = false;
-static Color normaltooltipcolor_;
+static Color normaltooltipbackgroundcolor_;
+static Color normaltooltipforegroundcolor_;
 
 void uiMain::useNameToolTip( bool yn )
 {
     if ( usenametooltip_ == yn )
 	return;
 
-    Color col( normaltooltipcolor_ );
+    Color bg( normaltooltipbackgroundcolor_ );
+    Color fg( normaltooltipforegroundcolor_ );
     if ( yn )
     {
-	col = Color( 220, 255, 255 ); // Pale cyan (to differ from pale yellow)
-	normaltooltipcolor_ =
+	bg = Color( 220, 255, 255 ); // Pale cyan (to differ from pale yellow)
+	fg = Color::Black();
+
+	normaltooltipbackgroundcolor_ =
 	    Color( QToolTip::palette().color(QPalette::ToolTipBase).rgb() );
+	normaltooltipforegroundcolor_ =
+	    Color( QToolTip::palette().color(QPalette::ToolTipText).rgb() );
     }
 
     QPalette palette;
-    palette.setColor( QPalette::ToolTipBase, QColor(col.r(),col.g(),col.b()) );
+    palette.setColor( QPalette::ToolTipBase, QColor(bg.r(),bg.g(),bg.b()) );
+    palette.setColor( QPalette::ToolTipText, QColor(fg.r(),fg.g(),fg.b()) );
     QToolTip::setPalette( palette );
 
     usenametooltip_ = yn;
