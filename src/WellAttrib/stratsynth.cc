@@ -594,7 +594,9 @@ const BinID bid0( SI().inlRange(false).stop + SI().inlStep(), \
 for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
 { \
     const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
-    dptrcbufs->get( trcidx )->info().nr =(bid.crl()-bid0.crl())/crlstep; \
+    SeisTrcInfo& trcinfo = dptrcbufs->get( trcidx )->info(); \
+    trcinfo.coord = SI().transform( bid ); \
+    trcinfo.nr = (bid.crl()-bid0.crl())/crlstep; \
 } \
 SeisTrcBufDataPack* angledp = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
@@ -840,9 +842,9 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		mErrRet( tr(" input prestack synthetic data not found."), 
 			 return 0 )
 	    CubeSampling cs( false );
-	    for ( int idx=0; idx<sd->d2tmodels_.size(); idx++ )
+	    for ( int idx=0; idx<sd->zerooffsd2tmodels_.size(); idx++ )
 	    {
-		const TimeDepthModel* d2t = sd->d2tmodels_[idx];
+		const TimeDepthModel* d2t = sd->zerooffsd2tmodels_[idx];
 		cs.zsamp_.include( d2t->getFirstTime(), false );
 		cs.zsamp_.include( d2t->getLastTime(), false );
 	    }
@@ -1464,15 +1466,15 @@ void SyntheticData::removePack()
 
 float SyntheticData::getTime( float dpt, int seqnr ) const
 {
-    return d2tmodels_.validIdx( seqnr ) ? d2tmodels_[seqnr]->getTime( dpt )
-					: mUdf( float );
+    return zerooffsd2tmodels_.validIdx( seqnr )
+	? zerooffsd2tmodels_[seqnr]->getTime( dpt ) : mUdf( float );
 }
 
 
 float SyntheticData::getDepth( float time, int seqnr ) const
 {
-    return d2tmodels_.validIdx( seqnr ) ? d2tmodels_[seqnr]->getDepth( time )
-					: mUdf( float );
+    return zerooffsd2tmodels_.validIdx( seqnr )
+	? zerooffsd2tmodels_[seqnr]->getDepth( time ) : mUdf( float );
 }
 
 

@@ -636,7 +636,7 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     if ( !synthdisp_->getSynthetics().size() ) return;
 
     uiStratSynthCrossplot dlg( this, layerModel(),synthdisp_->getSynthetics());
-    if ( dlg.errMsg().isEmpty() )
+    if ( !dlg.errMsg().isEmpty() )
 	{ uiMSG().error( dlg.errMsg() ); return; }
     const char* lvlnm = modtools_->selLevel();
     if ( lvlnm && *lvlnm ) dlg.setRefLevel( lvlnm );
