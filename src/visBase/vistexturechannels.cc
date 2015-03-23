@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannel2rgba.h"
 #include "coltabmapper.h"
 #include "mousecursor.h"
+#include "settings.h"
 
 #include <osgGeo/LayeredTexture>
 #include <osg/Image>
@@ -540,6 +541,10 @@ TextureChannels::TextureChannels()
 					 mGetFilterType );
     osgtexture_->setAnisotropicPower( 1 );
     osgtexture_->setSeamPower( 1 );
+
+    bool mipmapping = true;
+    mSettUse( getYN, "dTect", "Enable mipmapping", mipmapping );
+    osgtexture_->enableMipmapping( mipmapping );
 
     osgtexture_->ref();
     texturecallbackhandler_->ref();
