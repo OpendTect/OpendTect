@@ -112,11 +112,11 @@ protected:
 
     od_istream&			strm_;
     bool			readTrackData(TypeSet<Coord3>&,
-					      TypeSet<float>&,
-					      float& kbelevinfile) const;
+					      TypeSet<double>&,
+					      double& kbelevinfile) const;
     bool			computeMissingValues(TypeSet<Coord3>&,
-						     TypeSet<float>&,
-						     float& kbelevinfile) const;
+						     TypeSet<double>&,
+						    double& kbelevinfile) const;
     bool			adjustSurfaceLocation(TypeSet<Coord3>&,
 						     Coord& surfacecoord) const;
 

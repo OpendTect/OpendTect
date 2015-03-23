@@ -47,8 +47,8 @@ Table::FormatDesc* TrackAscIO::getDesc()
 }
 
 
-bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<float>& mdvals,
-				float& kbelevinfile ) const
+bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
+				double& kbelevinfile ) const
 {
     if ( !getHdrVals(strm_) )
 	return false;
@@ -76,7 +76,7 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<float>& mdvals,
 	    continue;
 
 	curpos.z = getdValue(2);
-	const float dah = getfValue(3);
+	const double dah = getdValue(3);
 	if ( mIsUdf(curpos.z) && mIsUdf(dah) )
 	{
 	    if ( !nozptsfound )
@@ -90,7 +90,7 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<float>& mdvals,
 	pos += curpos;
 	mdvals += dah;
 	if ( mIsUdf(kbelevinfile) && !mIsUdf(curpos.z) && !mIsUdf(dah) )
-	    kbelevinfile = dah - mCast(float,curpos.z);
+	    kbelevinfile = dah - curpos.z;
     }
 
     return !pos.isEmpty();
@@ -100,29 +100,29 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<float>& mdvals,
 #define mErrRet(s) { errmsg_ = s; return false; }
 #define mScaledValue(s,uom) ( uom ? uom->userValue(s) : s )
 bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
-				       TypeSet<float>& mdvals,
-				       float& kbelevinfile ) const
+				       TypeSet<double>& mdvals,
+				       double& kbelevinfile ) const
 {
     if ( pos.isEmpty() || mdvals.isEmpty() || pos.size() != mdvals.size() )
 	return false;
 
     Coord3 prevpos = pos[0];
-    float prevdah = mdvals[0];
+    double prevdah = mdvals[0];
     if ( mIsUdf(prevpos.z) && mIsUdf(prevdah) )
 	return false;
 
     if ( mIsUdf(kbelevinfile) )
-	kbelevinfile = 0.f;
+	kbelevinfile = 0.;
 
     if ( mIsUdf(prevpos.z) )
     {
-	prevpos.z = mCast( double, prevdah - kbelevinfile );
+	prevpos.z = prevdah - kbelevinfile;
 	pos[0].z = prevpos.z;
     }
 
     if ( mIsUdf(prevdah) )
     {
-	prevdah = mCast( float, prevpos.z ) + kbelevinfile;
+	prevdah = prevpos.z + kbelevinfile;
 	mdvals[0] = prevdah;
     }
 
@@ -131,12 +131,12 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
     for ( int idz=1; idz<pos.size(); idz++ )
     {
 	Coord3& curpos = pos[idz];
-	float& dah = mdvals[idz];
+	double& dah = mdvals[idz];
 	if ( mIsUdf(curpos) && mIsUdf(dah) )
 	    return false;
 	else if ( mIsUdf(curpos) )
 	{
-	    const double dist = mCast( double, dah - prevdah );
+	    const double dist = dah - prevdah;
 	    const double hdist = Coord(curpos).distTo( Coord(prevpos) );
 	    if ( dist < hdist )
 	    {
@@ -159,7 +159,7 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 			  .arg(uomlbl) )
 	    }
 
-	    dah = prevdah + mCast(float, dist );
+	    dah = prevdah + dist;
 	}
 	prevpos = curpos;
 	prevdah = dah;
@@ -169,13 +169,13 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 }
 
 
-static void adjustKBIfNecessary( TypeSet<Coord3>& pos, float kbelevinfile,
-				 float kbelev )
+static void adjustKBIfNecessary( TypeSet<Coord3>& pos, double kbelevinfile,
+				 double kbelev )
 {
     if ( mIsUdf(kbelev) || mIsUdf(kbelevinfile) )
 	return;
 
-    const float kbshift = kbelev - kbelevinfile;
+    const double kbshift = kbelev - kbelevinfile;
     for ( int idz=0; idz<pos.size(); idz++ )
     {
 	if ( !mIsUdf(pos[idz].z) )
@@ -184,21 +184,23 @@ static void adjustKBIfNecessary( TypeSet<Coord3>& pos, float kbelevinfile,
 }
 
 
-static void addOriginIfNecessary( TypeSet<Coord3>& pos, TypeSet<float>& mdvals )
+#define mDefEpsZ 1e-3
+
+static void addOriginIfNecessary( TypeSet<Coord3>& pos, TypeSet<double>& mdvals)
 {
-    if ( mdvals.isEmpty() || mdvals[0] < mDefEpsF )
+    if ( mdvals.isEmpty() || mdvals[0] < mDefEpsZ )
 	return;
 
     Coord3 surfloc = pos[0];
-    surfloc.z = mCast(float, surfloc.z ) - mdvals[0];
+    surfloc.z -= mdvals[0];
 
     pos.insert( 0, surfloc );
-    mdvals.insert( 0, 0.f );
+    mdvals.insert( 0, 0. );
 }
 
 
 static void adjustToTDIfNecessary( TypeSet<Coord3>& pos,
-				   TypeSet<float>& mdvals, float td )
+				   TypeSet<double>& mdvals, double td )
 {
     if ( mIsUdf(td) || pos.size() != mdvals.size() )
 	return;
@@ -213,11 +215,11 @@ static void adjustToTDIfNecessary( TypeSet<Coord3>& pos,
     }
 
     const int sz = pos.size();
-    if ( mIsEqual(mdvals[sz-1],td,mDefEpsF) )
+    if ( mIsEqual(mdvals[sz-1],td,mDefEpsZ) )
 	return;
 
     Coord3 tdpos = pos[sz-1];
-    tdpos.z += mCast(double,td) - mCast(double,mdvals[sz-1]);
+    tdpos.z += td - mdvals[sz-1];
 
     pos += tdpos;
     mdvals += td;
@@ -233,9 +235,11 @@ bool TrackAscIO::adjustSurfaceLocation( TypeSet<Coord3>& pos,
     if ( mIsZero(surfacecoord.x,mDefEps) && mIsZero(surfacecoord.y,mDefEps) )
     {
 	if ( mIsZero(pos[0].x,mDefEps) && mIsZero(pos[0].y,mDefEps) )
+	{
 	    mErrRet( tr("Relative easting/northing found\n"
 			"Please enter a valid surface coordinate in"
 			" the advanced dialog") )
+	}
 
 	surfacecoord = Coord( pos[0].x, pos[0].y );
 	return true;
@@ -256,8 +260,8 @@ bool TrackAscIO::adjustSurfaceLocation( TypeSet<Coord3>& pos,
 bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
 {
     TypeSet<Coord3> pos;
-    TypeSet<float> mdvals;
-    float kbelevinfile = mUdf(float);
+    TypeSet<double> mdvals;
+    double kbelevinfile = mUdf(double);
     if ( !readTrackData(pos,mdvals,kbelevinfile) )
 	return false;
 
@@ -268,9 +272,9 @@ bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
     if ( !computeMissingValues(pos,mdvals,kbelevinfile) )
 	return false;
 
-    adjustKBIfNecessary( pos, kbelevinfile, kbelev );
+    adjustKBIfNecessary( pos, kbelevinfile, mCast(double,kbelev) );
     addOriginIfNecessary( pos, mdvals );
-    adjustToTDIfNecessary( pos, mdvals, td );
+    adjustToTDIfNecessary( pos, mdvals, mCast(double,td) );
     if ( !adjustSurfaceLocation(pos,wd.info().surfacecoord) )
 	return false;
 
@@ -279,7 +283,7 @@ bool TrackAscIO::getData( Data& wd, float kbelev, float td ) const
 
     wd.track().setEmpty();
     for ( int idz=0; idz<pos.size(); idz++ )
-	wd.track().addPoint( pos[idz], mdvals[idz] );
+	wd.track().addPoint( pos[idz], mCast(float,mdvals[idz]) );
 
     return !wd.track().isEmpty();
 }

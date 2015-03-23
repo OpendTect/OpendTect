@@ -37,6 +37,10 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 }
 
 
+#define mDefEpsZ 1e-3
+#define mDefEpsT 1e-6
+#define mDefEpsV 1e-3
+
 bool Well::D2TModel::operator ==( const Well::D2TModel& d2t ) const
 {
     if ( &d2t == this )
@@ -47,8 +51,8 @@ bool Well::D2TModel::operator ==( const Well::D2TModel& d2t ) const
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( !mIsEqual(d2t.dah(idx),dah_[idx],mDefEpsF) ||
-	     !mIsEqual(d2t.t(idx),t_[idx],mDefEpsF) )
+	if ( !mIsEqual(d2t.dah(idx),dah_[idx],mDefEpsZ) ||
+	     !mIsEqual(d2t.t(idx),t_[idx],mDefEpsT) )
 	    return false;
     }
 
@@ -434,8 +438,8 @@ static int sortAndEnsureUniqueTZPairs( TypeSet<double>& zvals,
     for ( int idx=1; idx<inputsz; idx++ )
     {
 	const int lastidx = zvals.size()-1;
-	const bool samez = mIsEqual( rawzvals[idx], zvals[lastidx], mDefEps );
-	const bool reversedtwt = rawtvals[idxs[idx]] < tvals[lastidx] - mDefEps;
+	const bool samez = mIsEqual( rawzvals[idx], zvals[lastidx], mDefEpsZ );
+	const bool reversedtwt = rawtvals[idxs[idx]] < tvals[lastidx]-mDefEpsT;
 	if ( samez || reversedtwt )
 	    continue;
 
@@ -464,10 +468,10 @@ static double getVreplFromFile( const TypeSet<double>& zvals,
 
 	velrg.limitTo( vrepldepthrg );
 	const double thickness = velrg.width();
-	if ( thickness < mDefEps )
+	if ( thickness < mDefEpsZ )
 	    continue;
 
-	vels += ( tvals[idz] - tvals[idz-1] ) / ( tvals[idz] - zvals[idz-1] );
+	vels += ( tvals[idz] - tvals[idz-1] ) / ( zvals[idz] - zvals[idz-1] );
 	thicknesses += thickness;
     }
 
@@ -509,7 +513,7 @@ static bool removePairsAtOrAboveDatum( TypeSet<double>& zvals,
 
     const double srddepth = -1. * SI().seismicReferenceDatum();
     double originz = wllheadz < srddepth ? srddepth : wllheadz;
-    originz += mDefEps;
+    originz += mDefEpsZ;
     bool needremove = false;
     int idz=0;
     const int sz = zvals.size();
@@ -529,7 +533,7 @@ static bool removePairsAtOrAboveDatum( TypeSet<double>& zvals,
 	tvals.removeRange( 0, idz );
     }
 
-    return zvals.size() > 1;
+    return zvals.size() > 0;
 }
 
 
@@ -545,7 +549,7 @@ static void removeDuplicatedVelocities( TypeSet<double>& zvals,
     {
 	const double curvel = ( zvals[idz] - zvals[idz-1] ) /
 			      ( tvals[idz] - tvals[idz-1] );
-	if ( !mIsEqual(curvel,prevvel,mDefEps) )
+	if ( !mIsEqual(curvel,prevvel,mDefEpsV) )
 	{
 	    prevvel = curvel;
 	    continue;
@@ -558,39 +562,39 @@ static void removeDuplicatedVelocities( TypeSet<double>& zvals,
 
 
 static bool truncateToTD( TypeSet<double>& zvals,
-			  TypeSet<double>& tvals, double zstop )
+			  TypeSet<double>& tvals, double tddepth )
 {
-    zstop += mDefEps;
+    tddepth += mDefEpsZ;
     const int sz = zvals.size();
-    if ( sz < 3 || tvals.size() != sz )
+    if ( sz < 1 )
 	return false;
 
-    if ( zvals[0] > zstop )
+    if ( zvals[0] > tddepth || tvals.size() != sz )
     {
 	zvals.setEmpty();
 	tvals.setEmpty();
+	return false;
     }
-    else
+
+    for ( int idz=1; idz<sz; idz++ )
     {
-	for ( int idz=1; idz<sz; idz++ )
-	{
-	    if ( zvals[idz] < zstop )
-		continue;
+	if ( zvals[idz] < tddepth )
+	    continue;
 
-	    const double vel = ( zvals[idz] - zvals[idz-1] ) /
-			       ( tvals[idz] - tvals[idz-1] );
-	    zvals[idz] = zstop - mDefEps;
-	    tvals[idz] = tvals[idz-1] + ( zstop - zvals[idz-1]) / vel;
-	    if ( idz+1 <= sz-1 )
-	    {
-		zvals.removeRange(idz+1,sz-1);
-		tvals.removeRange(idz+1,sz-1);
-	    }
-	    break;
+	const double vel = ( zvals[idz] - zvals[idz-1] ) /
+			   ( tvals[idz] - tvals[idz-1] );
+	zvals[idz] = tddepth - mDefEpsZ;
+	tvals[idz] = tvals[idz-1] + ( tddepth - zvals[idz-1]) / vel;
+	if ( idz+1 <= sz-1 )
+	{
+	    zvals.removeRange(idz+1,sz-1);
+	    tvals.removeRange(idz+1,sz-1);
 	}
+
+	break;
     }
 
-    return zvals.size() > 1;
+    return zvals.size() > 0;
 }
 
 
@@ -602,9 +606,9 @@ static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
 	return;
 
     FixedString replvelbl( Well::Info::sKeyreplvel() );
-    if ( !mIsEqual((float)vreplinfile,info.replvel,mDefEpsF) )
+    if ( !mIsEqual((float)vreplinfile,info.replvel,mDefEpsV) )
     {
-	if ( mIsEqual(info.replvel,Well::getDefaultVelocity(),mDefEpsF) )
+	if ( mIsEqual(info.replvel,Well::getDefaultVelocity(),mDefEpsV) )
 	{
 	    info.replvel = mCast(float,vreplinfile);
 	}
@@ -636,16 +640,16 @@ static void shiftTimesIfNecessary( TypeSet<double>& tvals, double wllheadz,
 
     const double srddepth = -1. * SI().seismicReferenceDatum();
     const double origintwt = wllheadz < srddepth
-			? 0.f : 2.f * ( srddepth - wllheadz) / vrepl;
-    const double timeshift = origintwtinfile - origintwt;
-    if ( mIsZero(timeshift,mDefEps) )
+			   ? 0.f : 2.f * ( wllheadz - srddepth ) / vrepl;
+    const double timeshift = origintwt - origintwtinfile;
+    if ( mIsZero(timeshift,mDefEpsT) )
 	return;
 
     msg = "Error with the input time-depth model:\n"
 	  "It does not honour TWT(Z=SRD) = 0.";
     const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefTimeUnit();
     msg.append(
-	od_static_tr( "shiftTimesIfNecessary", 
+	od_static_tr( "shiftTimesIfNecessary",
                   "\nOpendTect WILL correct for this error by applying a "
 		  "time shift of: %1%2\n"
 		  "The resulting travel-times will differ from the file")
@@ -658,8 +662,10 @@ static void shiftTimesIfNecessary( TypeSet<double>& tvals, double wllheadz,
 
 
 static void convertDepthsToMD( const Well::Track& track,
-			       TypeSet<double>& zvals )
+			       const TypeSet<double>& zvals,
+			       TypeSet<float>& dahs )
 {
+    dahs.setSize( zvals.size(), mUdf(float) );
     float prevdah = 0.f;
     for ( int idz=0; idz<zvals.size(); idz++ )
     {
@@ -668,7 +674,7 @@ static void convertDepthsToMD( const Well::Track& track,
 	if ( mIsUdf(dah) )
 	    dah = track.getDahForTVD( depth );
 
-	zvals[idz] = mCast( double, dah );
+	dahs[idz] = dah;
 	if ( !mIsUdf(dah) )
 	    prevdah = dah;
     }
@@ -727,11 +733,13 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 	tvals.insert( 0, kbabovesrd ?
 			 0.f : 2. * ( zwllhead-srddepth ) / replveld );
     }
-    convertDepthsToMD( track, zvals );
+
+    TypeSet<float> dahs;
+    convertDepthsToMD( track, zvals, dahs );
 
     d2t.setEmpty();
     for ( int idx=0; idx<zvals.size(); idx++ )
-	d2t.add( mCast(float,zvals[idx]), mCast(float,tvals[idx]) );
+	d2t.add( dahs[idx], mCast(float,tvals[idx]) );
 
     return true;
 }
@@ -742,8 +750,9 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll,
 				  TypeSet<double>* times,
 				  uiString* emsg, uiString* wmsg )
 {
-    const int sz = depths ? depths->size() : size();
-    if ( sz < 2 || depths != times )
+    const bool externalvals = depths && times;
+    const int sz = externalvals ? depths->size() : size();
+    if ( sz < 2 || (depths && !times) || (!depths && times) )
 	return false;
 
     uiString* errmsg = emsg ? emsg : new uiString;
@@ -752,19 +761,25 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll,
 
     TypeSet<double>* zvals = depths ? depths : new TypeSet<double>;
     TypeSet<double>* tvals = times ? times : new TypeSet<double>;
-    for ( int idx=0; idx<sz; idx++ )
+    if ( !externalvals )
     {
-	const float curdah = dah_[idx];
-
-	*zvals += track.getPos( curdah ).z;
-	*tvals += mCast( double, t_[idx] );
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    const float curdah = dah_[idx];
+	    *zvals += track.getPos( curdah ).z;
+	    *tvals += mCast( double, t_[idx] );
+	}
     }
 
     const bool success =
 	      getTVDD2TModel( *this, wll, *zvals, *tvals, *errmsg, *warnmsg );
 
-    if ( !depths ) delete zvals;
-    if ( !times ) delete tvals;
+    if ( !externalvals )
+    {
+	delete zvals;
+	delete tvals;
+    }
+
     if ( !emsg ) delete errmsg;
     if ( !warnmsg) delete warnmsg;
 
