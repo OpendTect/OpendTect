@@ -37,14 +37,16 @@ public:
 
     void		show();
     void		hide();
-    virtual bool	isVisible() const;
-    virtual void	setVisible(bool);
-    virtual bool	isMovable() const;
+
     virtual void	setMovable(bool);
-    void		setSelectable(bool);
-    void		setSelected(bool);
-    bool		isSelectable();
-    bool		isSelected() const		{ return selected_; }
+    virtual void	setSelectable(bool);
+    virtual void	setSelected(bool);
+    virtual void	setVisible(bool);
+
+    virtual bool	isMovable() const;
+    virtual bool	isSelectable() const;
+    virtual bool	isSelected() const		{ return selected_; }
+    virtual bool	isVisible() const;
 
     uiPoint		getPos() const;
     void		setPos( const uiWorldPoint&);

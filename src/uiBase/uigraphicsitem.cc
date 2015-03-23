@@ -69,13 +69,6 @@ int uiGraphicsItem::getNewID()
 void uiGraphicsItem::show()	{ qgraphicsitem_->show(); }
 void uiGraphicsItem::hide()	{ qgraphicsitem_->hide(); }
 
-bool uiGraphicsItem::isVisible() const
-{ return qgraphicsitem_->isVisible(); }
-
-
-void uiGraphicsItem::setVisible( bool yn )
-{ qgraphicsitem_->setVisible( yn ); }
-
 
 bool uiGraphicsItem::isMovable() const
 { return qgraphicsitem_->flags().testFlag( QGraphicsItem::ItemIsMovable ); }
@@ -83,6 +76,14 @@ bool uiGraphicsItem::isMovable() const
 
 void uiGraphicsItem::setMovable( bool yn )
 { qgraphicsitem_->setFlag( QGraphicsItem::ItemIsMovable, yn ); }
+
+
+bool uiGraphicsItem::isVisible() const
+{ return qgraphicsitem_->isVisible(); }
+
+
+void uiGraphicsItem::setVisible( bool yn )
+{ qgraphicsitem_->setVisible( yn ); }
 
 
 uiPoint uiGraphicsItem::getPos() const
@@ -196,7 +197,7 @@ void uiGraphicsItem::setPenColor( const Color& col, bool withalpha )
 }
 
 
-bool uiGraphicsItem::isSelectable()
+bool uiGraphicsItem::isSelectable() const
 {
     return qgraphicsitem_->flags().testFlag( QGraphicsItem::ItemIsSelectable );
 }
