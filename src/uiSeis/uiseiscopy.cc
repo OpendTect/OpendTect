@@ -25,10 +25,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiscaler.h"
 #include "uicombobox.h"
 #include "uitaskrunner.h"
+#include "uibatchjobdispatchersel.h"
 #include "od_helpids.h"
 
+static const char* sProgName = "od_copy_seis";
 
-#include "uilabel.h"
 
 uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     : uiDialog(p,Setup(tr("Copy cube"),mNoDlgTitle,
@@ -63,6 +64,11 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
+
+    Batch::JobSpec js( sProgName ); js.execpars_.needmonitor_ = true;
+    batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
+    batchfld_->setJobName( "Copy cube" );
+    batchfld_->attach( alignedBelow, outfld_ );
 
     postFinalise().notify( mCB(this,uiSeisCopyCube,inpSel) );
 }
@@ -102,7 +108,20 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     outioobj->pars().addFrom( inioobj->pars() );
     IOM().commitChanges( *outioobj );
 
-    int compnr = ismc_ ? compfld_->box()->currentItem()-1 : -1;
+    const int compnr = ismc_ ? compfld_->box()->currentItem()-1 : -1;
+
+    if ( batchfld_->wantBatch() )
+    {
+	Batch::JobSpec& js = batchfld_->jobSpec();
+	IOPar inppar; inpfld_->fillPar( inppar );
+	js.pars_.mergeComp( inppar, sKey::Input() );
+	transffld_->fillPar( js.pars_ );
+	IOPar outpar; outfld_->fillPar( outpar );
+	js.pars_.mergeComp( outpar, sKey::Output() );
+
+	return batchfld_->start();
+    }
+
     Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "", "" );
     mDynamicCastGet(SeisSingleTraceProc*,stp,exec)
     SeisCubeCopier copier( stp, compnr );
@@ -133,6 +152,11 @@ uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
     ioctxt.forread = false;
     outpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
     outpfld_->attach( alignedBelow, scalefld_ );
+
+    Batch::JobSpec js( sProgName ); js.execpars_.needmonitor_ = true;
+    batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
+    batchfld_->setJobName( "Copy 2D seismics" );
+    batchfld_->attach( alignedBelow, outpfld_ );
 }
 
 
@@ -145,12 +169,6 @@ void uiSeisCopyLineSet::inpSel( CallBacker* )
 
 bool uiSeisCopyLineSet::acceptOK( CallBacker* )
 {
-    IOPar par;
-    subselfld_->fillPar( par );
-    Scaler* scaler = scalefld_->getScaler();
-    if ( scaler )
-	par.set( sKey::Scale(), scaler->toString() );
-
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )
 	return false;
@@ -158,7 +176,25 @@ bool uiSeisCopyLineSet::acceptOK( CallBacker* )
     if ( !outioobj )
 	return false;
 
-    SeisLineSetCopier copier( *inioobj, *outioobj, par );
+    IOPar procpars;
+    subselfld_->fillPar( procpars );
+    Scaler* scaler = scalefld_->getScaler();
+    if ( scaler )
+	procpars.set( sKey::Scale(), scaler->toString() );
+
+    if ( batchfld_->wantBatch() )
+    {
+	Batch::JobSpec& js = batchfld_->jobSpec();
+	js.pars_.merge( procpars );
+	IOPar inppar; inpfld_->fillPar( inppar );
+	js.pars_.mergeComp( inppar, sKey::Input() );
+	IOPar outpar; outpfld_->fillPar( outpar );
+	js.pars_.mergeComp( outpar, sKey::Output() );
+
+	return batchfld_->start();
+    }
+
+    SeisLineSetCopier copier( *inioobj, *outioobj, procpars );
     uiTaskRunner taskrunner( this );
-    return taskrunner.execute( copier );;
+    return taskrunner.execute( copier );
 }

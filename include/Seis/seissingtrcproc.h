@@ -77,6 +77,8 @@ public:
     void		setInput(const IOObj*,const IOObj*,const char*,
 				 const IOPar*,const char*);
     void		setExtTrcToSI( bool yn )	{ extendtrctosi_ = yn; }
+    void		setProcPars(const IOPar&,bool is2d);
+			//!< Sets all above proc pars from IOPar
 
     Notifier<SeisSingleTraceProc> traceselected_;
     Notifier<SeisSingleTraceProc> proctobedone_;
