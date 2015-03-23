@@ -24,9 +24,9 @@ mImplFactory( Vrms2Vint, Vrms2Vint::factory );
 
 TimeDepthModel::TimeDepthModel()
     : errmsg_(uiString::emptyString())
-    , times_(0)  
+    , times_(0)
     , depths_(0)
-    , sz_(0)	
+    , sz_(0)
 {}
 
 
@@ -35,7 +35,7 @@ TimeDepthModel::TimeDepthModel( const TimeDepthModel& td )
     , times_(0)
     , depths_(0)
 {
-    setModel( td.depths_, td.times_, td.sz_ ); 
+    setModel( td.depths_, td.times_, td.sz_ );
 }
 
 
@@ -101,19 +101,19 @@ float TimeDepthModel::getVelocity( float dpt ) const
 
 
 float TimeDepthModel::getDepth( const float* dpths, const float* times,
-					int sz, float time) 
+					int sz, float time)
 { return convertTo( dpths, times, sz, time, false ); }
 
 
 float TimeDepthModel::getTime( const float* dpths, const float* times,
-					int sz, float dpt) 
+					int sz, float dpt)
 { return convertTo( dpths, times, sz, dpt, true ); }
 
 
-float TimeDepthModel::getVelocity( const float* dpths, const float* times, 
+float TimeDepthModel::getVelocity( const float* dpths, const float* times,
 					int sz, float depth )
 {
-    if ( sz < 2 ) 
+    if ( sz < 2 )
 	return mUdf(float);
 
     int idx1;
@@ -130,7 +130,7 @@ float TimeDepthModel::getVelocity( const float* dpths, const float* times,
 }
 
 
-float TimeDepthModel::convertTo( const float* dpths, const float* times, 
+float TimeDepthModel::convertTo( const float* dpths, const float* times,
 				 int sz, float z, bool targetistime )
 {
     const float* zinvals = targetistime ? dpths : times;
@@ -146,10 +146,10 @@ float TimeDepthModel::convertTo( const float* dpths, const float* times,
 	int idx0 = idx1 < 0 ? 1 : idx1;
 	const float ddh = dpths[idx0] - dpths[idx0-1];
 	const float ddt = times[idx0] - times[idx0-1];
-	const float v = ddt ? ddh / ddt : mUdf(float); 
+	const float v = ddt ? ddh / ddt : mUdf(float);
 	idx0 = idx1 < 0 ? 0 : idx1;
 	const float zshift = z - zinvals[idx0];
-	const float zout = zoutvals[idx0]; 
+	const float zout = zoutvals[idx0];
 	return targetistime ? ( v ? zout + zshift / v : mUdf(float) )
 			    : zout + zshift * v;
     }
@@ -157,7 +157,7 @@ float TimeDepthModel::convertTo( const float* dpths, const float* times,
     const int idx2 = idx1 + 1;
     const float z1 = z - zinvals[idx1];
     const float z2 = zinvals[idx2] - z;
-    return z1+z2 ? (z1 * zoutvals[idx2] + z2 * zoutvals[idx1]) / (z1 + z2) 
+    return z1+z2 ? (z1 * zoutvals[idx2] + z2 * zoutvals[idx1]) / (z1 + z2)
 		 : mUdf(float);
 }
 
@@ -174,11 +174,15 @@ bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
     if ( !times_ )
 	{ errmsg_ = tr("Out of memory"); return false; }
 
+    PointBasedMathFunction func;
     for ( int idx=0; idx<sz; idx++ )
-	times_[idx] = times[idx];
+	func.add( times[idx], dpths[idx] );
 
     for ( int idx=0; idx<sz; idx++ )
-	depths_[idx] = dpths[idx];
+    {
+	times_[idx] = func.xVals()[idx];
+	depths_[idx] = func.yVals()[idx];
+    }
 
     sz_ = sz;
 
@@ -190,7 +194,7 @@ bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
 
 TimeDepthConverter::TimeDepthConverter()
     : TimeDepthModel()
-    , regularinput_(true)		  
+    , regularinput_(true)
 {}
 
 
@@ -199,7 +203,7 @@ bool TimeDepthConverter::isOK() const
 
 
 bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
- 					       bool velintime,
+					       bool velintime,
 					       uiString* errmsg )
 {
     if ( vd.type_==VelocityDesc::Avg || vd.type_==VelocityDesc::Interval )
@@ -221,12 +225,12 @@ bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
 		     "models");
 
     return false;
-} 
+}
 
 
 #define mIsValidVel( v ) (!mIsUdf(v) && v>1e-3)
 
- 
+
 bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 				  int sz, const SamplingData<double>& sd,
 				  const VelocityDesc& vd, bool istime )
@@ -246,7 +250,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 		errmsg_ = tr("Cannot use RMS velocities in depth");
 		break;
 	    }
-	    
+
 	    mDeclareAndTryAlloc( float*, ptr, float[sz] );
 	    if ( !ptr )
 	    {
@@ -263,7 +267,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 
 	    const float* vrms = vel.arr();
 	    ArrPtrMan<float> ownvrms = 0;
-	    if ( !vrms ) 
+	    if ( !vrms )
 	    {
 		mTryAlloc( ownvrms, float[sz] );
 		vrms = ownvrms.ptr();
@@ -275,7 +279,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 		}
 	    }
 
-	    if ( !vrms ) 
+	    if ( !vrms )
 	    {
 		errmsg_ = tr("Out of memory");
 		break;
@@ -312,7 +316,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 		    break;
 		}
 	    }
-	    
+
 	    lastvel_ = vint->value(sz-1);
 
 	    sz_ = sz;
@@ -367,7 +371,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 		mTryAlloc( times_, float[sz] );
 		if ( !times_ )
 		    break;
-		 
+
 		for ( int idx=0; idx<sz; idx++ )
 		    times_[idx] = (float) ( sd.atIndex(idx) * 2 / vavg[idx] );
 	    }
@@ -404,8 +408,8 @@ bool TimeDepthConverter::calcTimes(ValueSeries<float>& res, int outputsz,
 }
 
 
-void TimeDepthConverter::calcZ( const float* zvals, int inpsz, 
-			      ValueSeries<float>& res, int outputsz, 
+void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
+			      ValueSeries<float>& res, int outputsz,
 			      const SamplingData<double>& zsamp, bool time)const
 {
     float* zrevvals = time ? times_ : depths_;
@@ -430,20 +434,20 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 	    if ( z <= zrg.start )
 	    {
 		const double dz = z-zrg.start;
-		zrev = (float) ( time ? firstvel_ > 0 ?  
-				        (zrevvals[0]+dz*2/firstvel_) 
-		    		      : zrevvals[0] 
+		zrev = (float) ( time ? firstvel_ > 0 ?
+					(zrevvals[0]+dz*2/firstvel_)
+				      : zrevvals[0]
 				      : (zrevvals[0] + dz*firstvel_/2) );
 	    }
 	    else if ( z >= zrg.stop )
 	    {
 		const double dz = z-zrg.stop;
-		zrev = (float) (  time ?  (zrevvals[inpsz-1] + dz*2/lastvel_) 
+		zrev = (float) (  time ?  (zrevvals[inpsz-1] + dz*2/lastvel_)
 				    :  (zrevvals[inpsz-1] + dz*lastvel_/2) );
 	    }
 	    else
 	    {
-		float zsample; 
+		float zsample;
 		if ( regularinput_ )
 		{
 		    zsample = zrg.getfIndex( z );
@@ -471,8 +475,8 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
 	    if ( z<=zvals[0] )
 	    {
 		const double dz = z-zvals[0];
-		zrev = (float) 
-			( time ? firstvel_>0 ? (sd_.start+dz*2/firstvel_) 
+		zrev = (float)
+			( time ? firstvel_>0 ? (sd_.start+dz*2/firstvel_)
 					     : (sd_.start)
 					     : (sd_.start+dz*firstvel_/2) );
 	    }
@@ -507,7 +511,7 @@ void TimeDepthConverter::calcZ( const float* zvals, int inpsz,
    corresponding time:
 \code
 Time(ms) Vel(m/s) Samplespan (ms)	Depth (m)
-20	 1000	  16-20			0.020*1000 = 20			
+20	 1000	  16-20			0.020*1000 = 20
 24	 1500	  20-24			20+0.004*1500 = 26
 28	 2000	  24-28			26+0.004*2000 = 34
 \endcode
@@ -535,7 +539,7 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 	pFreeFnErrMsg("No output pointer given." );
 	return false;
     }
-    
+
     if ( !velsz ) return true;
 
     float prevvel = mUdf(float);
@@ -553,13 +557,13 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
     if ( startidx==-1 )
 	return false;
 
-    
+
     for ( int idx=0; idx<startidx; idx++ )
     {
-    	const double depth = times.value(idx) * prevvel / 2;
-    	depths[idx] = (float) depth;
+	const double depth = times.value(idx) * prevvel / 2;
+	depths[idx] = (float) depth;
     }
-    
+
     double depth = depths[startidx] = times.value(startidx) * prevvel / 2;
 
     for ( int idx=startidx+1; idx<velsz; idx++ )
@@ -615,7 +619,7 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 	pFreeFnErrMsg( "No output pointer" );
 	return false;
     }
-    
+
     if ( !velsz ) return true;
 
     float prevvel = 0;
@@ -632,8 +636,8 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 
     if ( startidx==-1 )
 	return false;
-    
-    
+
+
     for ( int idx=0; idx<startidx; idx++ )
     {
 	float time = depths.value(idx) / prevvel;
@@ -653,7 +657,7 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 		time += depth*2/curvel;
 	}
 	else
-    	    time += depth*2/curvel; //time is TWT
+	    time += depth*2/curvel; //time is TWT
 
 	times[idx] = (float) time;
 	prevvel = curvel;
@@ -964,7 +968,7 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
     Vint_sampled[0] = 0;
     for ( int idx=1; idx<nr_out; idx++ )
 	Vint_sampled[idx] = (float) ( (depthsampled[idx]-depthsampled[idx-1]) /
-	    		    (sd_out.step / 2) );		//time is TWT
+			    (sd_out.step / 2) );		//time is TWT
 
     return computeVrms( (const float*)Vint_sampled, sd_out, nr_out, Vout );
 }
@@ -1021,50 +1025,50 @@ bool computeVavg( const float* Vint, float z0, const float* z, int nrvels,
 bool computeVint( const float* Vavg, float z0, const float* z, int nrvels,
 		 float* Vint )
 {
-    int idx_prev = -1; 
-    double z_above = z0; 
+    int idx_prev = -1;
+    double z_above = z0;
     double v2z_prev = 0;
-    bool hasvals = false; 
- 
-    for ( int idx=0; idx<nrvels; idx++ ) 
+    bool hasvals = false;
+
+    for ( int idx=0; idx<nrvels; idx++ )
     {
 	const double v = Vavg[idx];
-	if ( mIsUdf(v) ) 
+	if ( mIsUdf(v) )
 	    continue;
 
 	hasvals = true;
- 
+
 	double z_below = z[idx];
 	const bool istime = SI().zIsTime();
 
-	const double v2z = istime ? z_below*v : z_below/v; 
-	const double numerator = v2z-v2z_prev; 
-	if ( numerator<0 ) 
-	    continue; 
- 
+	const double v2z = istime ? z_below*v : z_below/v;
+	const double numerator = v2z-v2z_prev;
+	if ( numerator<0 )
+	    continue;
+
 	if ( ( istime && (z_below<z_above || mIsEqual(z_below,z_above,1e-5)) )
-	   || ( !istime && mIsZero(numerator,1e-3) ) ) 
-	    continue; 
- 
+	   || ( !istime && mIsZero(numerator,1e-3) ) )
+	    continue;
+
 	const double vlayer = istime ? numerator/(z_below-z_above)
-	    			     : (z_below-z_above)/numerator; 
- 
-	for ( int idy=idx_prev+1; idy<=idx; idy++ ) 
-	    Vint[idy] = (float) vlayer; 
- 
-	v2z_prev = v2z; 
-	z_above = z_below; 
-	idx_prev = idx; 
-    } 
- 
-    if ( !hasvals ) 
-    { 
-	idx_prev = 0; 
-	Vint[0] = mUdf(float); 
-    } 
- 
-    for ( int idx=idx_prev+1; idx<nrvels; idx++ ) 
-	Vint[idx] = Vint[idx_prev]; 
+				     : (z_below-z_above)/numerator;
+
+	for ( int idy=idx_prev+1; idy<=idx; idy++ )
+	    Vint[idy] = (float) vlayer;
+
+	v2z_prev = v2z;
+	z_above = z_below;
+	idx_prev = idx;
+    }
+
+    if ( !hasvals )
+    {
+	idx_prev = 0;
+	Vint[0] = mUdf(float);
+    }
+
+    for ( int idx=idx_prev+1; idx<nrvels; idx++ )
+	Vint[idx] = Vint[idx_prev];
 
     return true;
 }
@@ -1147,9 +1151,9 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
     //compute Vout from depthsampled
     Vout[0] = Vin[0];
     for ( int idx=1; idx<nr_out; idx++ )
-	Vout[idx] = (float) ( (depthsampled[idx] - depthsampled[idx-1]) / 
+	Vout[idx] = (float) ( (depthsampled[idx] - depthsampled[idx-1]) /
 						   (sd_out.step/2) );
-    								//time is TWT
+								//time is TWT
     return true;
 }
 
@@ -1159,18 +1163,18 @@ bool sampleVavg( const float* Vin, const float* t_in, int nr_in,
 {
     mAllocLargeVarLenArr( float, vintarr, nr_in );
     mAllocLargeVarLenArr( float, vintsampledarr, nr_out );
-    
+
     if ( !vintarr || !vintsampledarr ) return false;
 
     TypeSet<float> outtimesamps;
     const float sampstep = (float) sd_out.step;
     const float start = (float) sd_out.start;
-    for ( int idx=0; idx<nr_out; idx++ )                            
-	outtimesamps += start + idx * sampstep;                   
+    for ( int idx=0; idx<nr_out; idx++ )
+	outtimesamps += start + idx * sampstep;
 
     return computeVint( Vin, 0, t_in, nr_in, vintarr ) &&
-       	sampleVint( vintarr, t_in, nr_in, sd_out, vintsampledarr, nr_out ) &&
-	computeVavg( vintsampledarr, start, outtimesamps.arr(), nr_out, Vout); 
+	sampleVint( vintarr, t_in, nr_in, sd_out, vintsampledarr, nr_out ) &&
+	computeVavg( vintsampledarr, start, outtimesamps.arr(), nr_out, Vout);
 }
 
 
@@ -1204,8 +1208,8 @@ void computeResidualMoveouts( float z0, float rmo, float refoffset,
     }
 }
 
-bool fitLinearVelocity( const float* vint, const float* zin, int nr, 
-	const Interval<float>& zlayer, float refz, bool zisdepth, 
+bool fitLinearVelocity( const float* vint, const float* zin, int nr,
+	const Interval<float>& zlayer, float refz, bool zisdepth,
 	float& v0, float& gradient,  float& error )
 {
     if ( nr < 2 )
@@ -1214,14 +1218,14 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
     mAllocLargeVarLenArr( float, tmp, nr );
     ArrayValueSeries<float,float> inputvels( (float*)vint, false, nr );
     ArrayValueSeries<float,float> inputzs( (float*)zin, false, nr );
-    
+
     if ( zisdepth )
     {
 	TimeDepthConverter::calcTimes( inputvels, nr, inputzs, tmp );
     }
     else
     {
-    	TimeDepthConverter::calcDepths( inputvels, nr, inputzs, tmp );
+	TimeDepthConverter::calcDepths( inputvels, nr, inputzs, tmp );
     }
 
     const float* depths = zisdepth ? zin : tmp;
@@ -1239,7 +1243,7 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 		for ( int idy=0; idy<nr; idy++ )
 		{
 		    if ( mIsUdf(vint[idy]) ) continue;
-	    	    t[idx] = times[idy] - ( depths[idy] - d[idx] ) / vint[idy];
+		    t[idx] = times[idy] - ( depths[idy] - d[idx] ) / vint[idy];
 		    vt[idx] = vint[idy];
 		    break;
 		}
@@ -1247,12 +1251,12 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 	    else if ( d[idx] >= depths[nr-1] )
 	    {
 		for ( int idy=nr-1; idy>=0; idy-- )
-		{                   
+		{
 		    if ( mIsUdf(vint[idy]) ) continue;
 		    t[idx] = times[idy] + ( d[idx] - depths[idy] ) / vint[idy];
 		    vt[idx] = vint[idy];
 		    break;
-    		}
+		}
 	    }
 	    else
 	    {
@@ -1284,12 +1288,12 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 	    else if ( t[idx] >= times[nr-1] )
 	    {
 		for ( int idy=nr-1; idy>=0; idy-- )
-		{                   
+		{
 		    if ( mIsUdf(vint[idy]) ) continue;
 		    d[idx] = depths[idy] + ( t[idx] - times[idy] ) * vint[idy];
 		    vt[idx] = vint[idy];
 		    break;
-    		}
+		}
 	    }
 	    else
 	    {
@@ -1322,10 +1326,10 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
     const int nrsmps = indices.size();
     if ( !nrsmps )
     {
-	gradient = zisdepth ? (vt[1] - vt[0]) / (d[1] - d[0]) 
-	    		    : (vt[1] - vt[0]) / (t[1] - t[0]);
-	v0 = zisdepth ? vt[1] - gradient * (d[1] - refz) 
-	    	      : vt[1] - gradient * (t[1] - refz);
+	gradient = zisdepth ? (vt[1] - vt[0]) / (d[1] - d[0])
+			    : (vt[1] - vt[0]) / (t[1] - t[0]);
+	v0 = zisdepth ? vt[1] - gradient * (d[1] - refz)
+		      : vt[1] - gradient * (t[1] - refz);
 	return true;
     }
 
@@ -1346,7 +1350,7 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 	    float errsum = 0;
 	    for ( int idy=0; idy<nrsmps; idy++ )
 	    {
-    		const float epsilon = v_est - vint[indices[idy]];
+		const float epsilon = v_est - vint[indices[idy]];
 		errsum += epsilon * epsilon;
 	    }
 
@@ -1366,9 +1370,9 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 	    const float grad = (v-(depths[indices[idx]]-d[0]) /
 		    (times[indices[idx]]-t[0]))*2 / (t[1]-times[indices[idx]]);
 	    const float ve = v - grad * diff;
-	    const float epsilon = vint[indices[idx]] - 
+	    const float epsilon = vint[indices[idx]] -
 		(ve + grad * (times[indices[idx]] - t[0]));
-	
+
 	    sum_v0 += ve;
 	    sum_grad += grad;
 	    sum_vg = ve * grad;
@@ -1419,43 +1423,43 @@ bool computeLinearT2D( double v0, double dv, double v0depth,
 {
     if ( sz<=0 )
 	return true;
-    
+
     if ( v0<=0 || mIsUdf(v0) )
 	return false;
-    
+
     const bool zerogradient = mIsZero( dv, 1e-6 ) || mIsUdf(dv);
-    
+
     if ( zerogradient )
 	dv = mSmallNumber;
 
     const double fact = dv / v0;
     const double dv2 = 2. / dv;
-    
+
     const double logval = Math::Log( 1. + v0depth * fact );
     if ( mIsUdf(logval) )
 	return false;
-    
+
     const double sealeveltwt = - dv2 * logval;
-    
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	const double time = (sd.start+idx*sd.step-sealeveltwt) / 2.;
 	const double expterm = Math::Exp( dv * time );
-	
+
 	if ( mIsUdf(expterm) )
 	{
 	    res[idx] = mUdf(float);
 	    continue;
 	}
-	
+
 	const double depth = ( expterm - 1. ) / fact;
-	
+
 	if ( depth>MAXFLOAT )
 	    res[idx] = mUdf(float);
 	else
 	    res[idx] = mCast(float,depth);
     }
-    
+
     return true;
 }
 
@@ -1466,10 +1470,10 @@ bool computeLinearD2T( double v0, double dv, double v0depth,
 {
     if ( sz < 0 )
 	return true;
-    
+
     if ( v0<=0 || mIsUdf(v0) )
 	return false;
-    
+
     const bool zerogradient = mIsZero( dv, 1e-6 ) || mIsUdf(dv);
 
     if ( zerogradient )
@@ -1480,9 +1484,9 @@ bool computeLinearD2T( double v0, double dv, double v0depth,
     double logval = Math::Log( 1. + v0depth * fact );
     if ( mIsUdf(logval) )
 	return false;
-    
+
     const double sealeveltwt = - dv2 * logval;
-    
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	const double depth = sd.start + idx*sd.step;
