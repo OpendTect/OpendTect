@@ -28,7 +28,7 @@ od_int64 nrdoubles;
 ArrPtrMan<double> doublewritearr, doublereadarr;
 
 #define mRunSockTest( test, msg ) \
-    mRunStandardTestWithError( test, BufferString( prefix_, msg ), \
+    mRunStandardTestWithError( (test), BufferString( prefix_, msg ), \
 			       connection.errMsg().getFullString()  )
 
 class TestRunner : public CallBacker
@@ -87,26 +87,28 @@ bool TestRunner::testNetSocket()
 
     char readbuf[1024];
 
-    mRunSockTest( connection.readArray( readbuf, writesize ),
-		  "readArray after write & wait" );
+    mRunSockTest(
+	connection.readArray( readbuf, writesize )==Network::Socket::ReadOK,
+	"readArray after write & wait" );
 
     mRunSockTest( writebuf==readbuf,
-		  "Returned data identical to sent data after write & wait");
+	  "Returned data identical to sent data after write & wait");
 
     mRunSockTest(
 	    connection.writeArray( writebuf.buf(), writesize, false ),
 	    "writeArray & leave to echo server" );
 
-    mRunSockTest( connection.readArray( readbuf, writesize ),
-		 "readArray after write & leave" );
+    mRunSockTest(
+	    connection.readArray(readbuf,writesize)==Network::Socket::ReadOK,
+	    "readArray after write & leave" );
 
     mRunSockTest( writebuf==readbuf,
 		  "Returned data identical to sent data after write & leave");
 
     mRunSockTest(
-	    connection.writeArray( writebuf.buf(), writesize, true ) &&
-	    !connection.readArray( readbuf, writesize+1 ),
-	    "Reading more than available should timeout and fail" );
+	connection.writeArray( writebuf.buf(), writesize, true ) &&
+	connection.readArray( readbuf, writesize+1 )==Network::Socket::Timeout,
+	"Reading more than available should timeout and fail" );
 
     BufferString readstring;
 
@@ -152,11 +154,9 @@ int main(int argc, char** argv)
     mInitTestProg();
     ApplicationData app;
 
-    BufferString serverapp = "echoserver";
-
     TestRunner runner;
-    runner.serverapp_ = "echoserver";
-    runner.serverarg_ = "--timeout 72000 --port 1025";
+    runner.serverapp_ = "test_echoserver";
+    runner.serverarg_ = "--timeout 72000 --port 1025 --quiet";
     runner.port_ = 1025;
     runner.prefix_ = "[ No event loop ]\t";
     runner.exitonfinish_ = false;

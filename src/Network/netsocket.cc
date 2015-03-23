@@ -162,8 +162,9 @@ void Network::Socket::abort()
 #endif
 }
 
-
-static const od_int64 maxbuffersize = INT_MAX/2;
+// 2000 is a margin. Qt has a margin of 32, but we don't wish to
+// come near as it is an assertion.
+static const od_int64 maxbuffersize = ((INT_MAX/2-2000));
 
 
 bool Network::Socket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
@@ -328,7 +329,7 @@ bool Network::Socket::write##Type##Array( const tp* arr,od_int64 sz,bool wait) \
 { return writeArray( (const void*) arr, sz*sizeof(tp), wait ); } \
 \
 bool Network::Socket::read##Type##Array( tp* arr, od_int64 sz ) const \
-{ return readArray( (void*) arr, sz*sizeof(tp) ); } \
+{ return readArray( (void*) arr, sz*sizeof(tp) )==Network::Socket::ReadOK; } \
 \
 bool Network::Socket::write##Type( tp val ) \
 { return write##Type##Array( &val, 1 ); } \
@@ -357,7 +358,7 @@ bool Network::Socket::read( BufferString& res ) const
 	return false;
     }
 
-    if ( !readArray( res.getCStr(), nrchars ) )
+    if ( readArray( res.getCStr(), nrchars )!=Network::Socket::ReadOK )
 	return false;
 
     res.getCStr()[nrchars] = 0;

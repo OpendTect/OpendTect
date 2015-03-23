@@ -46,6 +46,8 @@ public:
 	const time_t curtime = time( 0 );
 	if ( curtime-lasttime_>timeout_ )
 	{
+	    if ( !quiet )
+		od_cout() << "Timeout" << od_endl;
 	    server_.close();
 	    ApplicationData::exit( 0 );
 	}
@@ -61,13 +63,23 @@ public:
 
 	mCBCapsuleUnpack( int, socketid, cb );
 	Network::Socket* socket = server_.getSocket( socketid );
-
-	char data[1024];
+#define mChunkSize 1000000
+	char data[mChunkSize];
 	while ( true )
 	{
-	    const od_int64 readsize = mMIN(1024,socket->bytesAvailable());
-	    if ( !socket->readArray( data, readsize ) )
+	    const od_int64 readsize = mMIN(mChunkSize,socket->bytesAvailable());
+	    if ( !readsize )
 		break;
+
+	    if ( socket->readArray( data, readsize )!=Network::Socket::ReadOK )
+	    {
+		if ( !quiet )
+		    od_cout() << "Read error" << od_endl;
+		break;
+	    }
+
+	    if ( !quiet )
+		od_cout() << "Echoing " << readsize << " bytes" << od_endl;
 
 	    const char* writeptr = data;
 	    const od_int64 nrtowrite = readsize;;
@@ -100,7 +112,8 @@ int main(int argc, char** argv)
 
     clparser.getVal( "timeout", server.timeout_ );
 
-    od_cout() << "Listening to port " << server.server_.port()
+    if ( !quiet )
+	od_cout() << "Listening to port " << server.server_.port()
 	      << " with a " <<server.timeout_ << " second timeout\n";
 
 
