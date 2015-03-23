@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "testprog.h"
 #include "string.h"
+#include "varlenarray.h"
 
 #include "netreqconnection.h"
 #include "netreqpacket.h"
@@ -57,7 +58,7 @@ public:
 
 	Network::RequestPacket largepacket;
 	largepacket.setIsNewRequest();
-	ArrPtrMan<char> payload = new char[mLargePayload+1];
+	mAllocLargeVarLenArr( char, payload, mLargePayload+1 );
 	memset( payload, ' ', mLargePayload );
 	payload[mLargePayload] = 0;
 
