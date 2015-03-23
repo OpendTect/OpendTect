@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Network;
 
+static Threads::Atomic<int> connid;
+
 
 RequestConnection::RequestConnection( const char* servername,
 				      unsigned short servport,
@@ -30,6 +32,7 @@ RequestConnection::RequestConnection( const char* servername,
     , serverport_( servport )
     , connectionClosed( this )
     , packetArrived( this )
+    , id_( connid++ )
 {
     connectToHost( haseventloop, timeout );
 }
@@ -41,6 +44,7 @@ RequestConnection::RequestConnection( Network::Socket* sock )
     , serverport_( mUdf(unsigned short) )
     , connectionClosed( this )
     , packetArrived( this )
+    , id_( connid++ )
 {
     if ( !sock )
 	return;

@@ -60,6 +60,7 @@ public:
     bool		isOK() const;
     const char*		server() const		{ return servername_; }
     unsigned short	port() const		{ return serverport_; }
+    int			ID() const		{ return id_; }
 
     bool		sendPacket(const RequestPacket&,
 				   bool waitforfinish=false);
@@ -92,6 +93,8 @@ private:
     Threads::ConditionVar	lock_;
     Socket*			socket_;
     bool			ownssocket_;
+
+    int				id_;
 
     BufferString		servername_;
     unsigned short		serverport_;

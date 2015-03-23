@@ -38,7 +38,7 @@ mClass(Basic) Atomic
 {
 public:
     		Atomic(T val=0);
-			~Atomic();
+		~Atomic();
 
 		operator T() const { return get(); }
     T		get() const;
