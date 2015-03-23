@@ -1,5 +1,5 @@
-#ifndef uibasemaptbmgr_h
-#define uibasemaptbmgr_h
+#ifndef uibasemapmnutbmgr_h
+#define uibasemapmnutbmgr_h
 
 /*+
 ________________________________________________________________________
@@ -25,11 +25,11 @@ class uiToolBar;
 class uiToolButton;
 
 
-mExpClass(uiBasemap) uiBaseMapTBMgr : public CallBacker
-{ mODTextTranslationClass(uiBaseMapTBMgr)
+mExpClass(uiBasemap) uiBaseMapMnuTBMgr : public CallBacker
+{ mODTextTranslationClass(uiBaseMapMnuTBMgr)
 public:
-			uiBaseMapTBMgr(uiMainWin&,uiBasemapView&);
-			~uiBaseMapTBMgr();
+			uiBaseMapMnuTBMgr(uiMainWin&,uiBasemapView&);
+			~uiBaseMapMnuTBMgr();
 
 private:
     void		createMenuBar();

@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uibasemap.h"
 #include "uimainwin.h"
 
-class uiBaseMapTBMgr;
+class uiBaseMapMnuTBMgr;
 class uiBasemapTreeTop;
 class uiCrossHairItem;
 class uiDockWin;
@@ -74,19 +74,20 @@ public:
     void		setMouseCursorExchange(MouseCursorExchange*);
     BaseMap*		getBasemap();
 
+protected:
+    void		mouseCursorExchangeCB(CallBacker*);
+    void		mouseClickCB(CallBacker*);
+    void		mouseMoveCB(CallBacker*);
+    bool		closeOK();
+
 private:
 
     void		initWin(CallBacker*);
     void		initView();
     void		initTree();
 
-    void		mouseCursorExchangeCB(CallBacker*);
-    void		mouseClickCB(CallBacker*);
-    void		mouseMoveCB(CallBacker*);
-    bool		closeOK();
-
     uiBasemapView*	basemapview_;
-    uiBaseMapTBMgr*	tbmgr_;
+    uiBaseMapMnuTBMgr*	mnutbmgr_;
     uiDockWin*		treedw_;
     uiTreeView*		tree_;
     uiBasemapTreeTop*	topitem_;

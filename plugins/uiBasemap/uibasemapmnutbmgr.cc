@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uibasemaptbmgr.h"
+#include "uibasemapmnutbmgr.h"
 
 #include "uibasemapiomgr.h"
 #include "uibasemapscalebar.h"
@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 
-uiBaseMapTBMgr::uiBaseMapTBMgr( uiMainWin& mw, uiBasemapView& bmv )
+uiBaseMapMnuTBMgr::uiBaseMapMnuTBMgr( uiMainWin& mw, uiBasemapView& bmv )
     : mainwin_(mw)
     , basemapview_(bmv)
     , pickmode_(false)
@@ -51,7 +51,7 @@ uiBaseMapTBMgr::uiBaseMapTBMgr( uiMainWin& mw, uiBasemapView& bmv )
 }
 
 
-uiBaseMapTBMgr::~uiBaseMapTBMgr()
+uiBaseMapMnuTBMgr::~uiBaseMapMnuTBMgr()
 {
     delete iomgr_;
 
@@ -61,7 +61,7 @@ uiBaseMapTBMgr::~uiBaseMapTBMgr()
 }
 
 
-void uiBaseMapTBMgr::createMenuBar()
+void uiBaseMapMnuTBMgr::createMenuBar()
 {
     if ( !mainwin_.menuBar() )
 	return;
@@ -73,21 +73,21 @@ void uiBaseMapTBMgr::createMenuBar()
 }
 
 
-void uiBaseMapTBMgr::createCommonActions()
+void uiBaseMapMnuTBMgr::createCommonActions()
 {
     open_ = new MenuItem( uiStrings::sOpen(false), "open",
 			  "Open Stored Basemap",
-			  mCB(this,uiBaseMapTBMgr,readCB) );
+			  mCB(this,uiBaseMapMnuTBMgr,readCB) );
     save_ = new MenuItem( uiStrings::sSave(true), "save",
 			  "Store Basemap",
-			  mCB(this,uiBaseMapTBMgr,saveCB) );
+			  mCB(this,uiBaseMapMnuTBMgr,saveCB) );
     saveas_ = new MenuItem( uiStrings::sSaveAs(false), "saveas",
 			    "Save as...",
-			    mCB(this,uiBaseMapTBMgr,saveAsCB) );
+			    mCB(this,uiBaseMapMnuTBMgr,saveAsCB) );
 }
 
 
-void uiBaseMapTBMgr::createFileMenu()
+void uiBaseMapMnuTBMgr::createFileMenu()
 {
     if ( !open_ || !save_ || !saveas_ ) return;
 
@@ -97,10 +97,10 @@ void uiBaseMapTBMgr::createFileMenu()
 }
 
 
-void uiBaseMapTBMgr::createitemTB()
+void uiBaseMapMnuTBMgr::createitemTB()
 {
     itemtoolbar_ = new uiToolBar( &mainwin_, "Basemap Items" );
-    CallBack cb = mCB(this,uiBaseMapTBMgr,iconClickCB);
+    CallBack cb = mCB(this,uiBaseMapMnuTBMgr,iconClickCB);
     const ObjectSet<uiBasemapItem>& itms = BMM().items();
 
     addid_ = itemtoolbar_->addButton( "basemap-add", tr("Add Basemap Items") );
@@ -118,17 +118,17 @@ void uiBaseMapTBMgr::createitemTB()
 
     removeid_ = itemtoolbar_->addButton( "trashcan",
 					  tr("Remove selected items"),
-					  mCB(this,uiBaseMapTBMgr,removeCB),
+					  mCB(this,uiBaseMapMnuTBMgr,removeCB),
 					  false );
 }
 
 
-void uiBaseMapTBMgr::createviewTB()
+void uiBaseMapMnuTBMgr::createviewTB()
 {
     vwtoolbar_ = new uiToolBar( &mainwin_, "Viewer Tools", uiToolBar::Left );
 
     viewid_ = vwtoolbar_->addButton( "altview", tr("Switch to pick mode"),
-				mCB(this,uiBaseMapTBMgr,viewCB), false );
+				mCB(this,uiBaseMapMnuTBMgr,viewCB), false );
 
     openid_ = vwtoolbar_->addButton( *open_ );
     saveid_ = vwtoolbar_->addButton( *save_ );
@@ -141,16 +141,16 @@ void uiBaseMapTBMgr::createviewTB()
 
     vworientationid_ = vwtoolbar_->addButton( "northarrow",
 				tr("Display Orientation"),
-				mCB(this,uiBaseMapTBMgr,vworientationCB), true);
+				mCB(this,uiBaseMapMnuTBMgr,vworientationCB), true);
     vwtoolbar_->turnOn( vworientationid_, true );
 
     vwmapscaleid_ = vwtoolbar_->addButton( "scale",
 				tr("Display Map Scale"),
-				mCB(this,uiBaseMapTBMgr,vwmapscaleCB), true );
+				mCB(this,uiBaseMapMnuTBMgr,vwmapscaleCB), true );
 
     uiMenu* scalemnu = new uiMenu( tr("Map Scale Menu") );
     uiAction* item = new uiAction( uiStrings::sSettings(false),
-				mCB(this,uiBaseMapTBMgr,barSettingsCB),
+				mCB(this,uiBaseMapMnuTBMgr,barSettingsCB),
 				"disppars" );
     scalemnu->insertItem( item, vwmapscaleid_ );
     vwtoolbar_->setButtonMenu( vwmapscaleid_, scalemnu );
@@ -158,7 +158,7 @@ void uiBaseMapTBMgr::createviewTB()
 }
 
 
-void uiBaseMapTBMgr::updateViewMode()
+void uiBaseMapMnuTBMgr::updateViewMode()
 {
     vwtoolbar_->setIcon( viewid_, pickmode_ ? "altpick" : "altview" );
     vwtoolbar_->setToolTip( viewid_, pickmode_ ? "Switch to view mode"
@@ -229,14 +229,14 @@ void scalebarChg( CallBacker* )
 
 
 
-void uiBaseMapTBMgr::barSettingsCB( CallBacker* )
+void uiBaseMapMnuTBMgr::barSettingsCB( CallBacker* )
 {
     uiBarSettingsDialog dlg( &mainwin_, *basemapview_.getScaleBar() );
     if( !dlg.go() ) return;
 }
 
 
-void uiBaseMapTBMgr::iconClickCB( CallBacker* cb )
+void uiBaseMapMnuTBMgr::iconClickCB( CallBacker* cb )
 {
     mDynamicCastGet(uiAction*,action,cb)
     if ( !action ) return;
@@ -246,42 +246,42 @@ void uiBaseMapTBMgr::iconClickCB( CallBacker* cb )
 }
 
 
-void uiBaseMapTBMgr::removeCB( CallBacker* )
+void uiBaseMapMnuTBMgr::removeCB( CallBacker* )
 {
     BMM().removeSelectedItems();
 }
 
 
-void uiBaseMapTBMgr::viewCB( CallBacker* )
+void uiBaseMapMnuTBMgr::viewCB( CallBacker* )
 {
     pickmode_ = !pickmode_;
     updateViewMode();
 }
 
 
-void uiBaseMapTBMgr::vwmapscaleCB( CallBacker* )
+void uiBaseMapMnuTBMgr::vwmapscaleCB( CallBacker* )
 {
     const bool ison = vwtoolbar_->isOn( vwmapscaleid_ );
     basemapview_.getScaleBar()->show( ison );
 }
 
 
-void uiBaseMapTBMgr::vworientationCB( CallBacker* )
+void uiBaseMapMnuTBMgr::vworientationCB( CallBacker* )
 {
     const bool ison = vwtoolbar_->isOn( vworientationid_ );
     basemapview_.getNorthArrow()->setVisible( ison );
 }
 
 
-void uiBaseMapTBMgr::saveCB( CallBacker* )
+void uiBaseMapMnuTBMgr::saveCB( CallBacker* )
 { save( !isstored_ ); }
 
 
-void uiBaseMapTBMgr::saveAsCB( CallBacker* )
+void uiBaseMapMnuTBMgr::saveAsCB( CallBacker* )
 { save( true ); }
 
 
-void uiBaseMapTBMgr::save( bool saveas )
+void uiBaseMapMnuTBMgr::save( bool saveas )
 {
     if ( !iomgr_->save(saveas) ) return;
 
@@ -290,7 +290,7 @@ void uiBaseMapTBMgr::save( bool saveas )
 }
 
 
-void uiBaseMapTBMgr::readCB( CallBacker* )
+void uiBaseMapMnuTBMgr::readCB( CallBacker* )
 {
     if ( iomgr_->read(basemapview_.hasChanged()) )
 	isstored_ = true;

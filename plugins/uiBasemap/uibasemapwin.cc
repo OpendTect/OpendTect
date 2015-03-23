@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapitem.h"
 #include "uibasemapscalebar.h"
-#include "uibasemaptbmgr.h"
+#include "uibasemapmnutbmgr.h"
 #include "uidockwin.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
@@ -126,7 +126,7 @@ uiBasemapWin::uiBasemapWin( uiParent* p )
 {
     initView();
     initTree();
-    tbmgr_ = new uiBaseMapTBMgr( *this, *basemapview_ );
+    mnutbmgr_ = new uiBaseMapMnuTBMgr( *this, *basemapview_ );
 
     BMM().setBasemap( *basemapview_ );
     BMM().setTreeTop( *topitem_ );

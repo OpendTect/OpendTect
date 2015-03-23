@@ -20,7 +20,7 @@ SET(OD_MODULE_SOURCES
 	uibasemaprandomlineitem.cc
 	uibasemapscalebar.cc
 	uibasemapseisoutlineitem.cc
-	uibasemaptbmgr.cc
+	uibasemapmnutbmgr.cc
 	uibasemapwellitem.cc
 	uibasemapwin.cc
 )
