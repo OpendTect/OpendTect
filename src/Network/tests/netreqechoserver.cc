@@ -42,6 +42,9 @@ public:
 	if ( !newconn )
 	    return;
 
+	if ( !quiet )
+	    od_cout() << "New connection " << newconn->ID() << od_endl;
+
 	mAttachCB( newconn->packetArrived, RequestEchoServer::packetArrivedCB );
 	mAttachCB( newconn->connectionClosed, RequestEchoServer::connClosedCB );
 
@@ -63,11 +66,20 @@ public:
 		return;
 	}
 
+	if ( !quiet )
+	    od_cout() << "Request " << packet->requestID() << " sent packet " 
+	          << packet->subID() << " size " << packet->payloadSize()
+		  << od_endl;
+
+
 	BufferString packetstring;
 
 	packet->getStringPayload( packetstring );
 	if ( packetstring=="Kill" )
 	{
+	    if ( !quiet )
+		od_cout() << "Kill requested " << od_endl;
+
 	    app_.addToEventLoop(
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
@@ -87,7 +99,10 @@ public:
 
     void connClosedCB( CallBacker* cb )
     {
-	app_.addToEventLoop( mCB(this,RequestEchoServer,closeServerCB));
+	RequestConnection* conn = (RequestConnection*) cb;
+	if ( !quiet )
+	    od_cout() << "Connection " << conn->ID() << " closed." << od_endl;
+	app_.addToEventLoop( mCB(this,RequestEchoServer,cleanupOldConnections));
     }
 
 

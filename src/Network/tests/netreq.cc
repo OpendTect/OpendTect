@@ -10,9 +10,25 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oscommand.h"
 #include "ptrman.h"
 #include "testprog.h"
+#include "string.h"
 
 #include "netreqconnection.h"
 #include "netreqpacket.h"
+
+
+#define mLargePayload 50000000
+
+static BufferString packetString( const char* prefix,
+				  const char* start,
+				  const Network::RequestPacket& packet )
+{
+    BufferString ret = prefix;
+    ret.add( start );
+    ret.add( " Request " ).add( packet.requestID() )
+       .add( " SubID " ).add( packet.subID() );
+
+    return ret;
+}
 
 class Tester : public CallBacker
 {
@@ -36,8 +52,20 @@ public:
 	packet.setStringPayload( sentmessage );
 
 	mRunStandardTestWithError( conn.sendPacket( packet ),
-				  BufferString( prefix_, "Sending packet 1"),
-				  conn.errMsg().getFullString() );
+	      packetString( prefix_, "Sending", packet ),
+	      conn.errMsg().getFullString() );
+
+	Network::RequestPacket largepacket;
+	largepacket.setIsNewRequest();
+	ArrPtrMan<char> payload = new char[mLargePayload+1];
+	memset( payload, ' ', mLargePayload );
+	payload[mLargePayload] = 0;
+
+	largepacket.setStringPayload( payload );
+
+	mRunStandardTestWithError( conn.sendPacket( largepacket ),
+	      packetString( prefix_, "Sending large packet", largepacket ),
+	      conn.errMsg().getFullString() );
 
 	Network::RequestPacket packet2;
 	packet2.setRequestID( packet.requestID() );
@@ -46,15 +74,14 @@ public:
 	packet2.setStringPayload( sentmessage2 );
 
 	mRunStandardTestWithError( conn.sendPacket( packet2 ),
-				  BufferString( prefix_, "Sending packet 2"),
-				  conn.errMsg().getFullString() );
-
+	  packetString( prefix_, "Sending", packet2 ),
+	  conn.errMsg().getFullString() );
 
 	PtrMan<Network::RequestPacket> receivedpacket = 0;
 
 	mRunStandardTestWithError(
 	    receivedpacket=conn.pickupPacket( packet.requestID(), 2000 ),
-	    BufferString( prefix_, "Receiving packet 1"),
+	    packetString( prefix_, "Receiving", packet ),
 	    conn.errMsg().getFullString() );
 
 	BufferString receivedmessage1;
@@ -62,11 +89,11 @@ public:
 	mRunStandardTest( receivedmessage1==sentmessage &&
 			 receivedpacket->requestID()==packet.requestID() &&
 			 receivedpacket->subID()==packet.subID(),
-			 BufferString( prefix_, "Received content 1"));
+			 packetString( prefix_, "Received content", packet ) );
 
 	mRunStandardTestWithError(
 		  receivedpacket=conn.pickupPacket( packet.requestID(), 2000 ),
-		  BufferString( prefix_, "Receiving packet 2"),
+		  packetString( prefix_, "Receiving", packet2 ),
 		  conn.errMsg().getFullString() );
 
 	BufferString receivedmessage2;
@@ -74,27 +101,20 @@ public:
 	mRunStandardTest( receivedmessage2==sentmessage2 &&
 			 receivedpacket->requestID()==packet2.requestID() &&
 			 receivedpacket->subID()==packet2.subID(),
-			 BufferString( prefix_, "Received content 2"));
+			 packetString( prefix_, "Received content", packet2 ) );
 
-/*
-	{
-	    Network::RequestPacket newpacket;
-	    newpacket.setIsNewRequest();
-	    newpacket.setStringPayload( "New" );
+	mRunStandardTestWithError(
+	    receivedpacket=conn.pickupPacket( largepacket.requestID(), 2000 ),
+	    packetString( prefix_, "Receiving large", largepacket ),
+	    conn.errMsg().getFullString() );
 
-	    Threads::MutexLocker locker( condvar_ );
-	    unexpectedarrived_ = false;
-
-	    mRunStandardTestWithError( conn.sendPacket( newpacket ),
-				BufferString( prefix_, "Sending newpacket"),
-				conn.errMsg().getFullString() );
-
-	    mRunStandardTest( condvar_.wait(10000) && unexpectedarrived_,
-			     "External arrived" )
-	}
-
-*/
-
+	BufferString receivedlongmessage;
+	receivedpacket->getStringPayload( receivedlongmessage );
+	mRunStandardTest( 
+	     receivedlongmessage==payload &&
+	     receivedpacket->requestID()==largepacket.requestID() &&
+	     receivedpacket->subID()==largepacket.subID(),
+	     packetString( prefix_, "Large packet content", largepacket ));
 
 	if ( sendkill )
 	{
@@ -150,6 +170,7 @@ int main(int argc, char** argv)
     clparser.getVal( "serverapp", echoapp );
 
     BufferString args( "--port ", runner.port_ );
+    args.add( " --quiet " );
 
     if ( !clparser.hasKey("noechoapp") && !ExecODProgram( echoapp, args.buf() ))
     {
