@@ -628,7 +628,7 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
 		    BufferString& errmsg )
 {
     BufferString remotecmd( rshcomm );
-    remotecmd += " "; remotecmd += hd.getHostName();
+    remotecmd += " "; remotecmd += hd.getIPAddress();
     BufferString checkcmd( remotecmd ); checkcmd += " whoami";
     mAddReDirectToNull;
     if ( system(checkcmd.buf()) )
