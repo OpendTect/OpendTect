@@ -193,7 +193,7 @@ bool uiSeisCopyLineSet::acceptOK( CallBacker* )
 	return batchfld_->start();
     }
 
-    SeisLineSetCopier copier( *inioobj, *outioobj, procpars );
+    Seis2DCopier copier( *inioobj, *outioobj, procpars );
     uiTaskRunner taskrunner( this );
     return taskrunner.execute( copier );
 }

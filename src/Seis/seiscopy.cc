@@ -186,7 +186,7 @@ void SeisCubeCopier::doProc( CallBacker* )
 }
 
 
-SeisLineSetCopier::SeisLineSetCopier( const IOObj& inobj, const IOObj& outobj,
+Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 			    const IOPar& par )
     : Executor("Copying 2D Seismic Data")
     , inioobj_(*inobj.clone())
@@ -240,7 +240,7 @@ SeisLineSetCopier::SeisLineSetCopier( const IOObj& inobj, const IOObj& outobj,
 }
 
 
-SeisLineSetCopier::~SeisLineSetCopier()
+Seis2DCopier::~Seis2DCopier()
 {
     delete rdr_; delete wrr_;
     delete scaler_;
@@ -250,7 +250,7 @@ SeisLineSetCopier::~SeisLineSetCopier()
 }
 
 
-bool SeisLineSetCopier::initNextLine()
+bool Seis2DCopier::initNextLine()
 {
     delete rdr_; rdr_ = new SeisTrcReader( &inioobj_ );
     delete wrr_; wrr_ = new SeisTrcWriter( &outioobj_ );
@@ -277,13 +277,13 @@ bool SeisLineSetCopier::initNextLine()
 }
 
 
-uiString SeisLineSetCopier::uiNrDoneText() const
+uiString Seis2DCopier::uiNrDoneText() const
 {
     return sNrTrcsCopied;
 }
 
 
-int SeisLineSetCopier::nextStep()
+int Seis2DCopier::nextStep()
 {
     if ( lineidx_ < 0 && !initNextLine() )
 	return ErrorOccurred();

@@ -45,7 +45,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( ioobjinfo.is2D() )
     {
-	SeisLineSetCopier copier( *inioobj, *outioobj, pars() );
+	Seis2DCopier copier( *inioobj, *outioobj, pars() );
 	return copier.go( &strm, false, true );
     }
 

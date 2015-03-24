@@ -71,15 +71,15 @@ private:
 
 */
 
-mExpClass(Seis) SeisLineSetCopier : public Executor
-{ mODTextTranslationClass(SeisLineSetCopier);
+mExpClass(Seis) Seis2DCopier : public Executor
+{ mODTextTranslationClass(Seis2DCopier);
 public:
 
 
-			SeisLineSetCopier(const IOObj& inobj,const IOObj& outob,
+			Seis2DCopier(const IOObj& inobj,const IOObj& outob,
 					  const IOPar&);
 
-			~SeisLineSetCopier();
+			~Seis2DCopier();
 
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
