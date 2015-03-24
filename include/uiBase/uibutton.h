@@ -55,8 +55,10 @@ public:
 			  Options, Settings, Properties,
 			  Help, Ok, Cancel };
 
+    static uiButton*	getStd(uiParent*,StdType,const CallBack&,
+	    			bool immediate);
     static uiButton*	getStd(uiParent*,StdType,const CallBack&,bool immediate,
-                           const uiString& nonstd_text=uiString::emptyString());
+			       const uiString& nonstd_text);
     static bool		haveCommonPBIcons()	{ return havecommonpbics_; }
     static void		setHaveCommonPBIcons( bool yn=true )
     						{ havecommonpbics_ = yn; }

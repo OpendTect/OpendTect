@@ -289,6 +289,12 @@ static uiButton* crStd( uiParent* p, uiButton::StdType typ,
 }
 
 uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
+	const CallBack& cb, bool immediate )
+{
+    return crStd( p, typ, cb, immediate, 0, havecommonpbics_ );
+}
+
+uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
 	const CallBack& cb, bool immediate, const uiString& buttxt )
 {
     return crStd( p, typ, cb, immediate, &buttxt, havecommonpbics_ );
