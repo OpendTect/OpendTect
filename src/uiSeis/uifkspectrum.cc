@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiworld2ui.h"
 
 #include "arrayndimpl.h"
+#include "arrayndslice.h"
 #include "bufstring.h"
 #include "datapackbase.h"
 #include "envvars.h"
@@ -29,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fourier.h"
 #include "keystrs.h"
 #include "mouseevent.h"
+#include "seisdatapack.h"
 
 
 uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
@@ -190,19 +192,27 @@ void uiFKSpectrum::mousePressCB( CallBacker* )
 
 void uiFKSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
-    DataPackMgr& dpman = DPM( dmid );
-    const DataPack* datapack = dpman.obtain( dpid );
+    ConstDataPackRef<DataPack> datapack = DPM(dmid).obtain( dpid );
     setCaption( !datapack ? tr("No data")
 	    : BufferString("F-K Spectrum for ",datapack->name()).buf() );
 
-    if ( dmid == DataPackMgr::FlatID() )
+    if ( dmid == DataPackMgr::SeisID() )
     {
-	mDynamicCastGet(const FlatDataPack*,dp,datapack);
-	if ( dp )
-	    setData( dp->data() );
-    }
+	mDynamicCastGet(const SeisDataPack*,seisdp,datapack.ptr());
+	if ( !seisdp || seisdp->isEmpty() ) return;
 
-    dpman.release( dpid );
+	mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack.ptr());
+	const TrcKeyZSampling::Dir dir = regsdp ?
+	    	regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
+	const int dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
+
+	Array2DSlice<float> slice2d( seisdp->data(0) );
+	slice2d.setDimMap( 0, dim0 );
+	slice2d.setDimMap( 1, 2 );
+	slice2d.setPos( dir, 0 );
+	slice2d.init();
+	setData( slice2d );
+    }
 }
 
 
