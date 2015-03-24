@@ -72,13 +72,13 @@ macro ( create_package PACKAGE_NAME )
 			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
 	if( UNIX OR APPLE )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-                             ${CMAKE_INSTALL_PREFIX}/mk_flexlm_links
+			     ${CMAKE_INSTALL_PREFIX}/mk_flexlm_links.csh
                              ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb )
 	    execute_process( COMMAND
-		${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links
+		${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh
 		WORKING_DIRECTORY ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb
 		RESULT_VARIABLE STATUS )
-	    file( REMOVE_RECURSE ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links )
+	    file( REMOVE_RECURSE ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/lm.dgb/mk_flexlm_links.csh )
 	    if( NOT ${STATUS} EQUAL "0" )
 		message( "Failed to create license related links" )
 	    endif()
