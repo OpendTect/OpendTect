@@ -133,6 +133,13 @@ void uiGraphicsItem::moveBy( float x, float y )
     updateTransform();
 }
 
+
+float uiGraphicsItem::getRotation()
+{
+    return qgraphicsitem_->rotation();
+}
+
+
 void uiGraphicsItem::setRotation( float angle )
 {
     angle_ = angle;
