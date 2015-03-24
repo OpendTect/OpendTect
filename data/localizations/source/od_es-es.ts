@@ -19,7 +19,7 @@
     <message>
         <location filename="../../../include/Algo/array1dinterpol.h" line="+46"/>
         <source>Points interpolated</source>
-        <translation>Puntos interpolados</translation>
+        <translation>Puntos estan interpolados</translation>
     </message>
 </context>
 <context>
@@ -72,7 +72,7 @@
     <message>
         <location filename="../../../plugins/HorizonAttrib/horizonattrib.cc" line="+91"/>
         <source>Selected Horizon Data name does not exist</source>
-        <translation>El nombre de Datos de Horizontes no existe</translation>
+        <translation>El nombre de Datos del Horizonte no existe</translation>
     </message>
     <message>
         <location line="+86"/>
@@ -116,12 +116,12 @@
     <message>
         <location line="+14"/>
         <source>No positions extracted </source>
-        <translation>No hay posiciones extraídos</translation>
+        <translation>No ha extraído posiciones</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>No data extracted</source>
-        <translation>No hay datos extraídos</translation>
+        <translation>No ha extraído datos</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -134,12 +134,12 @@
     <message>
         <location filename="../../../src/uiAttributes/attribsetcreator.cc" line="+230"/>
         <source>The attributes cannot be converted</source>
-        <translation>No se pueden convertir los atributos</translation>
+        <translation>No se puede convertir los atributos</translation>
     </message>
     <message>
         <location line="+122"/>
         <source>Cannot find factory-entry for %1</source>
-        <translation>No se puede encontrar entrada de fábrica para %1</translation>
+        <translation>No se puede encontrar entrada de la fábrica para %1</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -167,7 +167,7 @@
     <message>
         <location filename="../../../plugins/Basemap/basemapcontour.cc" line="+52"/>
         <source>Contours Done</source>
-        <translation>Contornos que estan hechos</translation>
+        <translation>Contornos estan hechos</translation>
     </message>
 </context>
 <context>
@@ -175,7 +175,7 @@
     <message>
         <location filename="../../../src/General/batchjobdispatch.cc" line="+123"/>
         <source>Batch job is not suited for %1 executions</source>
-        <translation>Trabajo por lotes no es adecuado por %1 ejecuciónes</translation>
+        <translation>Trabajo por lotes no es adecuado por %1 ejecuciones</translation>
     </message>
     <message>
         <location line="+72"/>
@@ -189,7 +189,7 @@
     <message>
         <location filename="../../../src/MMProc/mmbatchjobdispatch.cc" line="+33"/>
         <source>The job will be split into parts that can each run on a separate computer.</source>
-        <translation>El trabajo dividirá en partes para ejecutar cada uno en computadoras separadas</translation>
+        <translation>El trabajo dividirá en partes para ejecutar cada uno en computadoras separadas.</translation>
     </message>
     <message>
         <location line="+71"/>
@@ -201,7 +201,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location filename="../../../include/MMProc/mmbatchjobdispatch.h" line="+54"/>
         <source>Multi-Machine</source>
-        <translation>Multi-Máquina</translation>
+        <translation>Múlti-Máquina</translation>
     </message>
 </context>
 <context>
@@ -209,7 +209,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location filename="../../../src/General/batchjobdispatch.cc" line="+29"/>
         <source>The job will be executed on one computer, in a single process.</source>
-        <translation>El trabajo será ejecutado solo en una computadora y solo un proceso</translation>
+        <translation>El trabajo será ejecutado solo en una computadora y solo un proceso.</translation>
     </message>
     <message>
         <location filename="../../../include/General/batchjobdispatch.h" line="+128"/>
@@ -379,7 +379,7 @@ Prueba ejecutar una máquina síngula.</translation>
     <message>
         <location line="+12"/>
         <source>Cannot remove positions in the middle of a curve, since that would split the curve.</source>
-        <translation>No se puede borrar posiciónes del medio de la curvatura, por que se dividiría la curvatura</translation>
+        <translation>No se puede borrar posiciones del medio de una curva, por que se dividiría la curva.</translation>
     </message>
     <message>
         <location line="+46"/>
