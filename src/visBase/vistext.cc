@@ -31,6 +31,8 @@ mCreateFactoryEntry( visBase::Text2 );
 namespace visBase
 {
 
+#define cObjectSizeToScreenSizeFactor 10 // experience const
+
 Text::Text()
     : osgtext_( new osgText::Text )
     , displaytrans_( 0 )
@@ -89,7 +91,11 @@ Coord3 Text::getPosition() const
 void Text::setFontData( const FontData& fd, float pixeldensity )
 {
     fontdata_ = fd;
-
+    if ( osgtext_->getCharacterSizeMode() == osgText::TextBase::OBJECT_COORDS )
+    {
+	fontdata_.setPointSize(
+	    fontdata_.pointSize()*cObjectSizeToScreenSizeFactor );
+    }
     osg::ref_ptr<osgText::Font> osgfont = OsgFontCreator::create( fontdata_ );
     if ( osgfont )
 	osgtext_->setFont( osgfont );
@@ -145,9 +151,30 @@ void Text::setJustification( Justification just )
 
 void Text::setCharacterSizeMode( CharacterSizeMode mode )
 {
-    osgText::TextBase::CharacterSizeMode osgmode =  
+    const osgText::TextBase::CharacterSizeMode osgmode =  
 	( osgText::TextBase::CharacterSizeMode ) mode;
+
+    const osgText::TextBase::CharacterSizeMode oldosgmode =  
+	osgtext_->getCharacterSizeMode();
+
     osgtext_->setCharacterSizeMode( osgmode );
+
+    if ( osgmode == oldosgmode )
+	return;
+
+    if ( osgmode == osgText::TextBase::OBJECT_COORDS && 
+	oldosgmode == osgText::TextBase::SCREEN_COORDS )
+    {
+	osgtext_->setCharacterSize( 
+	    osgtext_->getCharacterHeight()*cObjectSizeToScreenSizeFactor );
+    }
+    else if( osgmode == osgText::TextBase::SCREEN_COORDS &&
+	oldosgmode == osgText::TextBase::OBJECT_COORDS )
+    {
+	osgtext_->setCharacterSize(
+	    osgtext_->getCharacterHeight()/cObjectSizeToScreenSizeFactor);
+    }
+
 }
 
 
