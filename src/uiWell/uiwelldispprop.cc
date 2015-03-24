@@ -33,7 +33,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "hiddenparam.h"
 
-static int fontsizefactor = 10;
 static int deflogwidth = 250;
 
 uiWellDispProperties::uiWellDispProperties( uiParent* p,
@@ -97,7 +96,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     lbl->attach( rightOf, dispbelowfld_ );
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Name size") );
-    nmsizefld_->box()->setInterval(5,500,2);
+    nmsizefld_->box()->setInterval( 0, 500, 2 );
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
 
     TypeSet<uiString> fontstyles;
@@ -130,7 +129,7 @@ void uiWellTrackDispProperties::doPutToScreen()
 {
     dispbelowfld_->setChecked( trackprops().dispbelow_ );
     dispabovefld_->setChecked( trackprops().dispabove_ );
-    nmsizefld_->box()->setValue(trackprops().font_.pointSize()/fontsizefactor);
+    nmsizefld_->box()->setValue(trackprops().font_.pointSize() );
 
     int style = trackprops().font_.weight()>FontData::Normal ? 1 : 0;
     if ( trackprops().font_.isItalic() )
@@ -144,8 +143,7 @@ void uiWellTrackDispProperties::doGetFromScreen()
 {
     trackprops().dispbelow_ = dispbelowfld_->isChecked();
     trackprops().dispabove_ = dispabovefld_->isChecked();
-    trackprops().font_.setPointSize( 
-	(nmsizefld_->box()->getValue())*fontsizefactor );
+    trackprops().font_.setPointSize( (nmsizefld_->box()->getValue()) );
 
     const int fontstyle = nmstylefld_->getIntValue();
     const bool bold = fontstyle==1 || fontstyle==3;
@@ -183,7 +181,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     colfld_->setSensitive( singlecolfld_->isChecked() );
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Names size") );
-    nmsizefld_->box()->setInterval( 10, 500, 1 );
+    nmsizefld_->box()->setInterval( 0, 500, 1 );
     nmsizefld_->box()->setValue( 2 * mp.size_ );
     nmsizefld_->attach( alignedBelow, shapefld_ );
 
@@ -291,7 +289,7 @@ void uiWellMarkersDispProperties::doPutToScreen()
     singlecolfld_->setChecked( mrkprops().issinglecol_ );
     const int sz = mrkprops().font_.pointSize();
     if ( sz > 0 )
-	nmsizefld_->box()->setValue( sz/fontsizefactor );
+	nmsizefld_->box()->setValue( sz );
 
     int style = mrkprops().font_.weight()>FontData::Normal ? 1 : 0;
     if ( mrkprops().font_.isItalic() )
@@ -310,8 +308,7 @@ void uiWellMarkersDispProperties::doGetFromScreen()
     mrkprops().shapeint_ = shapefld_->box()->currentItem();
     mrkprops().cylinderheight_ = cylinderheightfld_->box()->getValue();
     mrkprops().issinglecol_ = singlecolfld_->isChecked();
-    mrkprops().font_.setPointSize( 
-	nmsizefld_->box()->getValue()*fontsizefactor );
+    mrkprops().font_.setPointSize( nmsizefld_->box()->getValue() );
     const int fontstyle = nmstylefld_->getIntValue();
     const bool bold = fontstyle==1 || fontstyle==3;
     mrkprops().font_.setWeight( bold ? FontData::Bold : FontData::Normal );
