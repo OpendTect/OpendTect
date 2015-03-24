@@ -498,11 +498,17 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 	{ nr2put = ti.binid.crl(); mPIEPAdj(Inl,nr2put,false); }
     setEntryVal( EntryCdp(), nr2put );
 
-    setEntryVal( EntryScalco(), -10 );
     Coord crd( ti.coord );
     if ( mIsUdf(crd.x) ) crd.x = crd.y = 0;
     mPIEPAdj(Coord,crd,false);
-    const int icx = mNINT32(crd.x*10); const int icy = mNINT32(crd.y*10);
+    static bool noscalco = GetEnvVarYN( "OD_SEGY_NO_SCALCO" );
+    int iscalco, icx, icy;
+    if ( noscalco )
+	{ iscalco = 1; icx = mNINT32(crd.x); icy = mNINT32(crd.y); }
+    else
+	{ iscalco = -10; icx = mNINT32(crd.x*10); icy = mNINT32(crd.y*10); }
+
+    setEntryVal( EntryScalco(), iscalco );
     hdef_.xcoord_.putValue( buf_, icx );
     hdef_.ycoord_.putValue( buf_, icy );
 
