@@ -46,7 +46,7 @@ class uiScaleBarDialog : public uiDialog
 {mODTextTranslationClass(uiScaleBarDialog);
 public:
 uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
-    : uiDialog(p,Setup(tr("%1 properties").arg("ScalarBar")
+    : uiDialog(p,Setup(tr("ScaleBar properties")
 		,mNoDlgTitle, mODHelpKey(mArrowDialogHelpID) ))
     , propertyChange(this)
     , zinf_(zinf)
