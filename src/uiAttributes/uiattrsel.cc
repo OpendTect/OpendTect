@@ -42,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uiioobjinserter.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -142,6 +143,12 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     createSelectionButtons();
     createSelectionFields();
 
+    CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc );
+    uiIOObjInserter::addInsertersToDlg( this, ctio, inserters_,	extselbuts_ );
+    for ( int idx=0; idx<inserters_.size(); idx++ )
+	inserters_[idx]->objectInserted.notify(
+		mCB(this,uiAttrSelDlg,objInserted) );
+
     int seltyp = 0;
     int storcur = -1, attrcur = -1, nlacur = -1;
     if ( attrdata_.nlamodel_ && attrdata_.outputnr_ >= 0 )
@@ -210,6 +217,7 @@ uiAttrSelDlg::~uiAttrSelDlg()
 {
     delete selgrp_;
     delete attrinf_;
+    deepErase( inserters_ );
 }
 
 
@@ -530,6 +538,14 @@ void uiAttrSelDlg::replaceStoredByInMem()
     }
 
     delete [] sortindexes;
+}
+
+
+void uiAttrSel::objInserted( CallBacker* cb )
+{
+    mCBCapsuleUnpack( MultiID, ky, cb );
+    if ( !ky.isEmpty() )
+        uiMSG( "not handled yet" );
 }
 
 

@@ -21,14 +21,15 @@ ________________________________________________________________________
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
 namespace ZDomain { class Info; }
 
-class TrcKeyZSampling;
 class IOObj;
 class NLAModel;
+class TrcKeyZSampling;
 class uiButtonGroup;
 class uiGenInput;
+class uiIOObjInserter;
 class uiListBox;
-class uiRadioButton;
 class uiLabeledComboBox;
+class uiRadioButton;
 
 /*!
 \brief User interface for attribute selection data.
@@ -108,7 +109,7 @@ public:
     bool		is2D() const		{ return attrdata_.is2D(); }
     const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }
     int			selType() const;
-    
+
 protected:
 
     uiAttrSelData	attrdata_;
@@ -136,6 +137,9 @@ protected:
     uiGenInput*		attr2dfld_;
     uiLabeledComboBox*	compfld_;
 
+    ObjectSet<uiIOObjInserter> inserters_;
+    ObjectSet<uiButton>	extselbuts_;
+
     void		initAndBuild(const uiString&,Attrib::DescID,bool);
     void		createSelectionButtons();
     void		createSelectionFields();
@@ -146,6 +150,7 @@ protected:
     void		selDone(CallBacker*);
     void		filtChg(CallBacker*);
     void		cubeSel(CallBacker*);
+    void                objInserted(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
 };
 
@@ -190,7 +195,7 @@ public:
 
     const char*		errMsg()		{ return errmsg_.str(); }
     bool		getRanges(TrcKeyZSampling&) const;
-    			//!< Tries to determine ranges of currently selected.
+			//!< Tries to determine ranges of currently selected.
 
     void		fillSelSpec(Attrib::SelSpec&) const;
     bool		checkOutput(const IOObj&) const;
@@ -198,7 +203,7 @@ public:
 
     void		setObjectName(const char*);
     const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }
-    
+
 protected:
 
     uiAttrSelData	attrdata_;
