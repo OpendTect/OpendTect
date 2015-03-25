@@ -349,6 +349,10 @@ Executor* RandomPosBody::loader()
 }
 
 
+bool RandomPosBody::isEmpty() const
+{ return locations_.isEmpty(); }
+
+
 const IOObjContext& RandomPosBody::getIOObjContext() const
 {
     mDefineStaticLocalObject( PtrMan<IOObjContext>, res, = 0 );

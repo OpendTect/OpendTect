@@ -62,6 +62,7 @@ public:
     virtual Executor*		saver();
     virtual Executor*		saver(IOObj*);
     virtual Executor*		loader();
+    virtual bool		isEmpty() const;
 
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
     bool			getBodyRange(TrcKeyZSampling&);
