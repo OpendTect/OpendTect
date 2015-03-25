@@ -146,11 +146,16 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc );
     if ( ctio )
     {
-	uiIOObjInserter::addInsertersToDlg( parent(), *ctio, inserters_,
+	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
+						   OD::Vertical );
+	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
 					    extselbuts_ );
 	for ( int idx=0; idx<inserters_.size(); idx++ )
+	{
 	    inserters_[idx]->objectInserted.notify(
 		    mCB(this,uiAttrSelDlg,objInserted) );
+	}
+	butgrp->attach( leftOf, selgrp_ );
     }
 
     int seltyp = 0;
