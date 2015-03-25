@@ -144,10 +144,14 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     createSelectionFields();
 
     CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc );
-    uiIOObjInserter::addInsertersToDlg( this, ctio, inserters_,	extselbuts_ );
-    for ( int idx=0; idx<inserters_.size(); idx++ )
-	inserters_[idx]->objectInserted.notify(
-		mCB(this,uiAttrSelDlg,objInserted) );
+    if ( ctio )
+    {
+	uiIOObjInserter::addInsertersToDlg( parent(), *ctio, inserters_,
+					    extselbuts_ );
+	for ( int idx=0; idx<inserters_.size(); idx++ )
+	    inserters_[idx]->objectInserted.notify(
+		    mCB(this,uiAttrSelDlg,objInserted) );
+    }
 
     int seltyp = 0;
     int storcur = -1, attrcur = -1, nlacur = -1;
@@ -541,11 +545,11 @@ void uiAttrSelDlg::replaceStoredByInMem()
 }
 
 
-void uiAttrSel::objInserted( CallBacker* cb )
+void uiAttrSelDlg::objInserted( CallBacker* cb )
 {
     mCBCapsuleUnpack( MultiID, ky, cb );
     if ( !ky.isEmpty() )
-        uiMSG( "not handled yet" );
+        uiMSG().warning( "not handled yet" );
 }
 
 
