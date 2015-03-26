@@ -44,19 +44,22 @@ static const char* sKeyPriorityLevel = "PriorityLevel";
 class QProcessManager
 {
 public:
-    			~QProcessManager()
-			{
-			    deleteProcesses();
-			}
-    void		takeOver( QProcess* p )
-			{
-			    processes_ += p;
-			}
-    void		deleteProcesses()
-			{
-			    mObjectSetApplyToAll( processes_, processes_[idx]->close());
-			    deepErase( processes_ );
-			}
+    		~QProcessManager()
+		{
+		    deleteProcesses();
+		}
+    void	takeOver( QProcess* p )
+		{
+		    processes_ += p;
+		}
+    void	deleteProcesses()
+		{
+#ifndef OD_NO_QT
+		    mObjectSetApplyToAll( processes_, processes_[idx]->close());
+		    deepErase( processes_ );
+#endif
+		}
+
 
     static Threads::Lock	lock_;
 
