@@ -109,6 +109,7 @@ public:
 
     uiGroup*		getTopGroup()			{ return topgrp_; }
     uiGenInput*		getNameField()			{ return nmfld_; }
+    uiGenInput*		getFilterField()		{ return filtfld_; }
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
     const ObjectSet<MultiID>& getIOObjIds() const	{ return ioobjids_; }

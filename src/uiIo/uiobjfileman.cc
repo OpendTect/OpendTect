@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjfileman.h"
 
 #include "uifont.h"
+#include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
@@ -65,6 +66,11 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     selgrp_->itemChosen.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
+    uiToolButton* refreshbut =
+	new uiToolButton( selgrp_->getTopGroup(), "refresh", tr("Refresh"),
+			  mCB(this,uiObjFileMan,updateCB) );
+    refreshbut->attach( rightTo, selgrp_->getFilterField() );
+
     extrabutgrp_ = new uiButtonGroup( listgrp_, "Extra Buttons",
 				      OD::Horizontal );
     extrabutgrp_->attach( alignedBelow, selgrp_ );
@@ -101,8 +107,8 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     sep->addGroup( listgrp_ );
     sep->addGroup( infogrp_ );
     sep->addGroup( notesgrp );
-    mAttachCB( IOM().entryAdded, uiObjFileMan::updateAddRemoveCB );
-    mAttachCB( IOM().entryRemoved, uiObjFileMan::updateAddRemoveCB );
+    mAttachCB( IOM().entryAdded, uiObjFileMan::updateCB );
+    mAttachCB( IOM().entryRemoved, uiObjFileMan::updateCB );
 }
 
 
@@ -348,7 +354,8 @@ void uiObjFileMan::setPrefWidth( int width )
 }
 
 
-void uiObjFileMan::updateAddRemoveCB( CallBacker* )
+void uiObjFileMan::updateCB( CallBacker* )
 {
-    selgrp_->fullUpdate( -1 );
+    const MultiID curmid = selgrp_->currentID();
+    selgrp_->fullUpdate( curmid );
 }
