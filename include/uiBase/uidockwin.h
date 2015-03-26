@@ -31,8 +31,8 @@ public:
     void		setGroup(uiGroup*);
     void		setObject(uiObject*);
 
-    void		setDockName(const char*);
-    const char*		getDockName() const;
+    void		setDockName(const uiString&);
+    uiString		getDockName() const;
 
     uiGroup* 		topGroup();
     const uiGroup* 	topGroup() const 

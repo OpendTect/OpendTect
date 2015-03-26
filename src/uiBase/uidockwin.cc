@@ -115,15 +115,15 @@ void uiDockWin::setGroup( uiGroup* grp )
 }
 
 
-const char* uiDockWin::getDockName() const
+uiString uiDockWin::getDockName() const
 {
-    mDeclStaticString( docknm );
-    docknm = body_->qwidget()->objectName();
-    return docknm.buf();
+    uiString res;
+    res.setFrom(  body_->qwidget()->objectName() );
+    return res;
 }
 
-void uiDockWin::setDockName( const char* nm )
-{ body_->qwidget()->setObjectName( nm ); }
+void uiDockWin::setDockName( const uiString& nm )
+{ body_->qwidget()->setObjectName( nm.getQtString() ); }
 
 uiGroup* uiDockWin::topGroup()
 { return body_->uiCentralWidg(); }
