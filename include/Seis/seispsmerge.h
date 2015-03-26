@@ -35,7 +35,8 @@ namespace Seis { class SelData; }
 mExpClass(Seis) SeisPSMerger : public Executor
 { mODTextTranslationClass(SeisPSMerger);
 public:
-			SeisPSMerger(const ObjectSet<IOObj>& in,
+
+			SeisPSMerger(const ObjectSet<const IOObj>& in,
 				     const IOObj& out, bool dostack,
 				     const Seis::SelData* sd=0);
     virtual		~SeisPSMerger();
@@ -44,8 +45,8 @@ public:
 			{ offsrg_.start = r0; offsrg_.stop = r1; }
 
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ 
-						return tr("Gathers written"); 
+    uiString		uiNrDoneText() const	{
+						return tr("Gathers written");
 						}
     virtual od_int64	nrDone() const		{ return nrdone_; }
     virtual od_int64	totalNr() const		{ return totnr_; }
@@ -71,5 +72,18 @@ protected:
 };
 
 
-#endif
+mExpClass(Seis) SeisPSCopier : public SeisPSMerger
+{
+public:
+			SeisPSCopier(const IOObj& in,const IOObj& out,
+				     const Seis::SelData* sd=0);
+			~SeisPSCopier();
+protected:
 
+    ObjectSet<const IOObj>*	objs_;
+    ObjectSet<const IOObj>&	mkObjs(const IOObj&);
+
+};
+
+
+#endif

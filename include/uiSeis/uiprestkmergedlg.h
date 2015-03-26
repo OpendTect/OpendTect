@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
-#include "uistring.h"
 
 class CtxtIOObj;
 class IOObj;
@@ -34,10 +33,10 @@ mExpClass(uiSeis) uiPreStackMergeDlg : public uiDialog
 { mODTextTranslationClass(uiPreStackMergeDlg);
 public:
 
-    			uiPreStackMergeDlg(uiParent*);
-    			~uiPreStackMergeDlg();
+			uiPreStackMergeDlg(uiParent*);
+			~uiPreStackMergeDlg();
 
-    void		setInputIds( const BufferStringSet& selnms );
+    void		setInputIds(const BufferStringSet& selnms);
 protected:
 
     void		fillListBox();
@@ -75,27 +74,4 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiPreStackCopyDlg : public uiDialog
-{ mODTextTranslationClass(uiPreStackCopyDlg);
-public:
-
-    			uiPreStackCopyDlg(uiParent*,const MultiID&);
-    			~uiPreStackCopyDlg();
-
-protected:
-
-    void		objSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
-
-    uiIOObjSel*		inpfld_;
-    uiIOObjSel*		outpfld_;
-    uiPosSubSel*	subselfld_;
-    uiGenInput*		offsrgfld_;
-
-    CtxtIOObj&          inctio_;
-    CtxtIOObj&          outctio_;
-
-};
-
 #endif
-

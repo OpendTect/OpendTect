@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "uiprestkcopy.h"
 #include "uiprestkmergedlg.h"
 
 #include "uipossubsel.h"
@@ -91,11 +92,11 @@ void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 {
     uiLabel* sellbl = new uiLabel( selbuttons, uiStrings::sSelect(true) );
     CallBack cb = mCB(this,uiPreStackMergeDlg,selButPush);
-    toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow, 
+    toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow,
                                   uiStrings::sEmptyString(), cb);
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow, 
+    fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow,
                                     uiStrings::sEmptyString(),cb);
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
@@ -286,7 +287,8 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
     }
 
     const bool dostack = stackfld_->getBoolValue();
-    PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs_, *outctio_.ioobj,
+    PtrMan<SeisPSMerger> exec = new SeisPSMerger(
+	    ((ObjectSet<const IOObj>&)selobjs_), *outctio_.ioobj,
 						  dostack, sd );
     exec->setName( "Merge Prestack Data Stores" );
     uiTaskRunner dlg( this );
@@ -294,47 +296,45 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 }
 
 
-uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
-    : uiDialog(p,uiDialog::Setup(tr("Copy Prestack Data"),
-				 uiStrings::sEmptyString(),
-                                 mODHelpKey(mPreStackCopyDlgHelpID) ))
-    , inctio_(*mMkCtxtIOObj(SeisPS3D))
-    , outctio_(*mMkCtxtIOObj(SeisPS3D))
+uiPreStackOutputGroup::uiPreStackOutputGroup( uiParent* p )
+    : uiGroup(p,"Prestack Data Output Group")
+    , inpioobj_(0)
 {
-    inctio_.setObj( key );
-    inpfld_ = new uiIOObjSel( this, inctio_, tr("Input Data Store") );
-    inpfld_->selectionDone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
 
     uiPosSubSel::Setup psssu( false, true );
     psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
 	 .withstep( true );
     subselfld_ = new uiPosSubSel( this, psssu );
-    subselfld_->attach( alignedBelow, inpfld_ );
 
     uiString offsetrangestr (tr("Offset range %1").arg(SI().getXYUnitString()));
     offsrgfld_ = new uiGenInput( this, offsetrangestr,
 				 FloatInpSpec(0), FloatInpSpec() );
     offsrgfld_->attach( alignedBelow, subselfld_ );
 
-    outctio_.ctxt.forread = false;
-    outpfld_ = new uiIOObjSel( this, outctio_, uiStrings::sOutpDataStore() );
+    IOObjContext ctxt( mIOObjContext(SeisPS3D) );
+    ctxt.forread = false;
+    outpfld_ = new uiIOObjSel( this, ctxt, uiStrings::sOutpDataStore() );
     outpfld_->attach( alignedBelow, offsrgfld_ );
-    postFinalise().notify( mCB(this,uiPreStackCopyDlg,objSel) );
+
+    setHAlignObj( subselfld_ );
 }
 
 
-uiPreStackCopyDlg::~uiPreStackCopyDlg()
+uiPreStackOutputGroup::~uiPreStackOutputGroup()
 {
-    delete &inctio_; delete &outctio_;
+    delete inpioobj_;
 }
 
 
-void uiPreStackCopyDlg::objSel( CallBacker* )
+void uiPreStackOutputGroup::setInput( const IOObj& ioobj )
 {
-    if ( !inpfld_->commitInput() || !inctio_.ioobj )
+    if ( inpioobj_ && inpioobj_->key() == ioobj.key() )
 	return;
 
-    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inctio_.ioobj );
+    delete inpioobj_;
+    inpioobj_ = ioobj.clone();
+
+    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inpioobj_ );
     if ( !rdr ) return;
 
     TrcKeySampling hs;
@@ -348,20 +348,14 @@ void uiPreStackCopyDlg::objSel( CallBacker* )
 }
 
 
-bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
+bool uiPreStackOutputGroup::go()
 {
-    if ( !inpfld_->commitInput() )
-    {
-	uiMSG().error( tr("Please select the input data store") );
+    if ( !inpioobj_ )
 	return false;
-    }
 
-    if ( !outpfld_->commitInput() )
-    {
-	if ( outpfld_->isEmpty() )
-	    uiMSG().error( tr("Please enter an output data store name") );
+    const IOObj* outioobj = outpfld_->ioobj();
+    if ( !outioobj )
 	return false;
-    }
 
     PtrMan<Seis::SelData> sd = 0;
     if ( !subselfld_->isAll() )
@@ -370,15 +364,56 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
 	sd = Seis::SelData::get( iop );
     }
 
-    ObjectSet<IOObj> selobjs;
-    selobjs += inctio_.ioobj;
-    PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs, *outctio_.ioobj,
-						  true, sd );
-    const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
-    const float ofsrgstart = offsrgfld_->getfValue(0) * convfactor;
-    const float ofsrgstop = offsrgfld_->getfValue(1) * convfactor;
-    exec->setOffsetRange( ofsrgstart, ofsrgstop );
-    exec->setName( "Copy Prestack Data Store" );
-    uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, *exec );
+    SeisPSCopier copier( *inpioobj_, *outioobj, sd );
+    float ofsrgstart = offsrgfld_->getfValue( 0 );
+    float ofsrgstop = offsrgfld_->getfValue( 1 );
+    if ( mIsUdf(ofsrgstart) )
+	ofsrgstart = 0;
+    if ( SI().xyInFeet() )
+    {
+	ofsrgstart *= mFromFeetFactorF;
+	if ( !mIsUdf(ofsrgstop) )
+	    ofsrgstop *= mFromFeetFactorF;
+    }
+    copier.setOffsetRange( ofsrgstart, ofsrgstop );
+
+    uiTaskRunner trunner( this );
+    return trunner.execute( copier );
+}
+
+
+uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
+    : uiDialog(p,uiDialog::Setup(tr("Copy Prestack Data"),
+				 uiStrings::sEmptyString(),
+                                 mODHelpKey(mPreStackCopyDlgHelpID) ))
+{
+    const CallBack selcb( mCB(this,uiPreStackCopyDlg,objSel) );
+    inpfld_ = new uiIOObjSel( this, mIOObjContext(SeisPS3D),
+				tr("Input Pre-Stack Data Store") );
+    inpfld_->setInput( key );
+    inpfld_->selectionDone.notify( selcb );
+
+    outgrp_ = new uiPreStackOutputGroup( this );
+    outgrp_->attach( alignedBelow, inpfld_ );
+
+    postFinalise().notify( selcb );
+}
+
+
+void uiPreStackCopyDlg::objSel( CallBacker* )
+{
+    const IOObj* ioobj = inpfld_->ioobj( true );
+    if ( ioobj )
+	outgrp_->setInput( *ioobj );
+}
+
+
+bool uiPreStackCopyDlg::acceptOK( CallBacker* )
+{
+    const IOObj* inioobj = inpfld_->ioobj();
+    if ( !inioobj )
+	return false;
+
+    outgrp_->setInput( *inioobj );
+    return outgrp_->go();
 }
