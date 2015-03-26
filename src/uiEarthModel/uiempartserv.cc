@@ -163,10 +163,8 @@ void uiEMPartServer::manageSurfaces( const char* typstr )
 
 
 #define mManSurfaceDlg( dlgobj, surfacetype ) \
-    if ( !dlgobj ) \
-	dlgobj = new uiSurfaceMan( parent(), uiSurfaceMan::surfacetype ); \
-    else \
-	dlgobj->selGroup()->fullUpdate( -1 ); \
+    delete dlgobj; \
+    dlgobj = new uiSurfaceMan( parent(), uiSurfaceMan::surfacetype ); \
     dlgobj->go();
 
 void uiEMPartServer::manage3DHorizons()

@@ -279,16 +279,11 @@ void uiWellPartServer::getLogNames( const MultiID& wellid,
 
 void uiWellPartServer::manageWells()
 {
-    if ( !manwelldlg_ )
-    {
-	manwelldlg_ = new uiWellMan( parent() );
-	new uiToolButton( manwelldlg_->extraButtonGroup(), "multisimplewell",
-			  tr("Create multiple simple wells"),
-			  mCB(this,uiWellPartServer,simpImp) );
-    }
-    else
-	manwelldlg_->selGroup()->fullUpdate( -1 );
-
+    delete manwelldlg_;
+    manwelldlg_ = new uiWellMan( parent() );
+    new uiToolButton( manwelldlg_->extraButtonGroup(), "multisimplewell",
+		      tr("Create multiple simple wells"),
+		      mCB(this,uiWellPartServer,simpImp) );
     manwelldlg_->go();
 }
 

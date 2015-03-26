@@ -195,11 +195,8 @@ void uiSeisPartServer::exportWavelets()
 
 void uiSeisPartServer::manageWavelets()
 {
-    if ( !manwvltdlg_ )
-	manwvltdlg_ = new uiSeisWvltMan( parent() );
-    else
-	manwvltdlg_->selGroup()->fullUpdate( -1 );
-
+    delete manwvltdlg_;
+    manwvltdlg_ = new uiSeisWvltMan( parent() );
     manwvltdlg_->go();
 }
 
