@@ -44,7 +44,7 @@ public:
     			uiFlatViewMainWin(uiParent*,const Setup&);
 
     virtual void	start()				{ show(); }
-    virtual void	setWinTitle( const char* t )	{ setCaption(t); }
+    virtual void	setWinTitle( const uiString t )	{ setCaption(t); }
 
     void		addControl(uiFlatViewControl*);
     void		displayInfo(CallBacker*);

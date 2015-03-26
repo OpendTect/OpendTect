@@ -50,7 +50,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 						    : uiToolBar::Top );
     if ( setup.tba_ > 0 )
 	tba = (uiToolBar::ToolBarArea)setup.tba_;
-    tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools", tba );
+    tb_ = new uiToolBar( mainwin(), tr("Flat Viewer Tools"), tba );
     if ( setup.withstates_ )
     {
 	mDefBut(manipdrawbut_,"altpick",stateCB,tr("Switch view mode"));

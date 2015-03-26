@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "flatview.h"
 #include "uidlggroup.h"
+#include "uistring.h"
 
 class uiLabel;
 class uiGenInput;
@@ -29,14 +30,14 @@ class uiColorTableGroup;
 */
 
 mExpClass(uiFlatView) uiFlatViewPropTab : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiFlatViewPropTab);
 public:
 
     virtual void	putToScreen()		= 0;
 
 protected:
     			uiFlatViewPropTab(uiParent*,FlatView::Viewer&,
-					  const char*);
+					  uiString);
 
     FlatView::Viewer&	vwr_;
     FlatView::Appearance& app_;
@@ -50,7 +51,7 @@ protected:
 */
 
 mExpClass(uiFlatView) uiFlatViewDataDispPropTab : public uiFlatViewPropTab
-{
+{ mODTextTranslationClass(uiFlatViewDataDispPropTab);
 public:
 
     void		setDataNames();
@@ -95,7 +96,7 @@ protected:
 */
 		     
 mExpClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
-{
+{ mODTextTranslationClass(uiFVWVAPropTab);
 public:
     			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
 			~uiFVWVAPropTab();
@@ -130,7 +131,7 @@ protected:
 */
 
 mExpClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
-{
+{ mODTextTranslationClass(uiFVVDPropTab);
 public:
     			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
 			~uiFVVDPropTab();
@@ -160,7 +161,7 @@ protected:
 */
 
 mExpClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
-{
+{ mODTextTranslationClass(uiFVAnnotPropTab);
 public:
 
     			uiFVAnnotPropTab(uiParent*,FlatView::Viewer&,
@@ -184,7 +185,7 @@ protected:
     FlatView::Annotation& annot_;
 
     mExpClass(uiFlatView) AxesGroup : public uiGroup
-    {
+    { mODTextTranslationClass(AxesGroup);
     public:
 			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,
 				  const BufferStringSet* annots=0, 

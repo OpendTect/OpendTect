@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
-				      const char* lbl )
+				      uiString lbl )
     : uiDlgGroup(p,lbl)
     , vwr_(vwr)
     , app_(vwr.appearance())
@@ -36,7 +36,7 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
 
 uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 		FlatView::Viewer& vwr, const char* tablbl, bool show )
-    : uiFlatViewPropTab(p,vwr,tablbl)
+    : uiFlatViewPropTab(p,vwr,mkUiString(tablbl))
     , ddpars_(app_.ddpars_)
     , showdisplayfield_( show )
     , blockyfld_( 0 )
@@ -53,27 +53,30 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 
     const char* clipmodes[] = { "None", "Symmetrical", "Asymmetrical", 0 };
 
-    useclipfld_ = new uiGenInput( this, "Use clipping",
-				  StringListInpSpec( clipmodes ) );
+    useclipfld_ = new uiGenInput(this, tr("Use clipping"),
+				 StringListInpSpec( clipmodes ) );
     useclipfld_->valuechanged.notify(
 			mCB(this,uiFlatViewDataDispPropTab,clipSel) );
     if ( showdisplayfield_ )
 	useclipfld_->attach( alignedBelow, lcb );
 
-    symclipratiofld_ = new uiGenInput( this,"Percentage clip",FloatInpSpec() );
+    symclipratiofld_ = new uiGenInput( this, 
+				       tr("Percentage clip"),FloatInpSpec() );
     symclipratiofld_->setElemSzPol(uiObject::Small);
     symclipratiofld_->attach( alignedBelow, useclipfld_ );
     symclipratiofld_->display( useclipfld_->getIntValue()==1 );
     symclipratiofld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
-    usemidvalfld_ = new uiGenInput(this,"Specify mid value",BoolInpSpec(true));
+    usemidvalfld_ = new uiGenInput(this,
+				   tr("Specify mid value"),BoolInpSpec(true));
     usemidvalfld_->attach( alignedBelow, symclipratiofld_ );
     usemidvalfld_->display( useclipfld_->getIntValue()==1 );
     usemidvalfld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,useMidValSel) );
 
-    symmidvalfld_ = new uiGenInput( this, "Mid value", FloatInpSpec() );
+    symmidvalfld_ = new uiGenInput( this, 
+				    tr("Mid value"), FloatInpSpec() );
     symmidvalfld_->setElemSzPol(uiObject::Small);
     symmidvalfld_->attach( alignedBelow, usemidvalfld_ );
     symmidvalfld_->display( useclipfld_->getIntValue()==1 &&
@@ -81,20 +84,21 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     symmidvalfld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
-    assymclipratiofld_ = new uiGenInput( this,"Percentage clip",
-					  FloatInpIntervalSpec() );
+    assymclipratiofld_ = new uiGenInput( this,
+				    tr("Percentage clip"),
+				    FloatInpIntervalSpec() );
     assymclipratiofld_->setElemSzPol(uiObject::Small);
     assymclipratiofld_->attach( alignedBelow, useclipfld_ );
     assymclipratiofld_->display( useclipfld_->getIntValue()==2 );
     assymclipratiofld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,updateNonclipRange) );
 
-    rgfld_ = new uiGenInput( this, "Range", FloatInpIntervalSpec() );
+    rgfld_ = new uiGenInput( this, tr("Range"), FloatInpIntervalSpec() );
     rgfld_->attach( alignedBelow, useclipfld_ );
     rgfld_->display( !useclipfld_->getBoolValue() );
 
-    blockyfld_ = new uiGenInput( this,
-	    "Display blocky (no interpolation)", BoolInpSpec(true) );
+    blockyfld_ = new uiGenInput( this, tr("Display blocky (no interpolation)"), 
+				 BoolInpSpec(true) );
     blockyfld_->attach( alignedBelow, symmidvalfld_ );
 
     lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
@@ -314,38 +318,44 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
       vwr.appearance().ddpars_.wva_.allowuserchangedata_)
     , pars_(ddpars_.wva_)
 {
-    overlapfld_ = new uiGenInput( this, "Overlap ratio", FloatInpSpec() );
+    overlapfld_ = new uiGenInput( this, tr("Overlap ratio"), FloatInpSpec() );
     overlapfld_->setElemSzPol(uiObject::Small);
     overlapfld_->attach( alignedBelow, lastcommonfld_ );
 
     leftcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.lowfill_).
-			lbltxt("Negative fill").withcheck(true).withdesc(false),
+			lbltxt(tr("Negative fill"))
+			.withcheck(true).withdesc(false),
 			"Negative fill color" );
     leftcolsel_->attach( alignedBelow, overlapfld_ );
 
     rightcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.highfill_).
-			lbltxt("Positive fill").withcheck(true).withdesc(false),
+			lbltxt(tr("Positive fill"))
+			.withcheck(true).withdesc(false),
 			 "Positive fill color" );
     rightcolsel_->attach( rightTo, leftcolsel_ );
 
     wigcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.wigg_).
-			lbltxt("Draw Wiggles").withcheck(true).withdesc(false),
+			lbltxt(tr("Draw Wiggles"))
+			.withcheck(true).withdesc(false),
 			"Draw wiggles color" );
     wigcolsel_->attach( alignedBelow, leftcolsel_ );
 
     reflcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.refline_).
-			lbltxt("Ref line     ").withcheck(true).withdesc(false),
+			lbltxt(tr("Ref line     "))
+			.withcheck(true).withdesc(false),
 			"Ref line color" );
     reflcolsel_->attach( rightOf, wigcolsel_ );
     rightcolsel_->attach( alignedWith, reflcolsel_ );
     reflcolsel_->doDrawChanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
 
-    reflinefld_ = new uiGenInput( this, "Display reference line at",
-			BoolInpSpec(true,"Specified value","Median value") );
+    reflinefld_ = new uiGenInput( this, tr("Display reference line at"),
+			BoolInpSpec(true,tr("Specified value"),
+				    tr("Median value")) );
     reflinefld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
     reflinefld_->attach( alignedBelow, wigcolsel_ );
 
-    refvalfld_ = new uiGenInput( this, "Reference line value", FloatInpSpec() );
+    refvalfld_ = new uiGenInput( this, tr("Reference line value"), 
+				 FloatInpSpec() );
     refvalfld_->setElemSzPol(uiObject::Small);
     refvalfld_->attach( alignedBelow, reflinefld_ );
 
@@ -531,7 +541,7 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 				       StringListInpSpec(*annotnms) );
 	lbl = new uiLabel( this, uiStrings::sShow() );
     }
-    showannotfld_ = new uiCheckBox( this, "Annotation" );
+    showannotfld_ = new uiCheckBox( this, tr("Annotation") );
     if ( !haveannotchoices )
 	showannotfld_->attach( rightOf, lbl );
     else
@@ -540,12 +550,12 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 	lbl->attach( leftOf, showannotfld_ );
     }
 
-    showgridlinesfld_ = new uiCheckBox( this, "Grid lines" );
+    showgridlinesfld_ = new uiCheckBox( this, tr("Grid lines") );
     showgridlinesfld_->attach( rightOf, showannotfld_ );
 
     if ( dorevertaxis )
     {
-	reversedfld_ = new uiCheckBox( this, "Reversed" );
+	reversedfld_ = new uiCheckBox( this, tr("Reversed") );
 	reversedfld_->attach( rightOf, showgridlinesfld_ );
     }
 
@@ -592,7 +602,7 @@ void uiFVAnnotPropTab::AxesGroup::setSelAnnot( int selannot )
 
 uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 				    const BufferStringSet* annots )
-    : uiFlatViewPropTab(p,vwr,"Annotation")
+    : uiFlatViewPropTab(p,vwr,tr("Annotation"))
     , annot_(app_.annot_)
     , auxnamefld_( 0 )
     , currentaux_( 0 )
@@ -602,7 +612,7 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 	mAttachCB( uivwr->annotChanged, uiFVAnnotPropTab::annotChgdCB );
 
     colfld_ = new uiColorInput( this, uiColorInput::Setup(annot_.color_).
-				lbltxt("Annotation color"),
+				lbltxt(tr("Annotation color")),
 				"Annotation color" );
     x1_ = new AxesGroup( this, annot_.x1_, annots,
 				annot_.allowuserchangereversedaxis_ );
@@ -637,15 +647,17 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     if ( !auxnames.size() )
 	return;
 
-    auxnamefld_ = new uiGenInput( this, "Aux data",
+    auxnamefld_ = new uiGenInput( this, tr("Aux data"),
 				  StringListInpSpec( auxnames ) );
     auxnamefld_->valuechanged.notify( mCB( this, uiFVAnnotPropTab, auxNmFldCB));
     auxnamefld_->attach( alignedBelow, x2_ );
 
-    linestylefld_ = new uiSelLineStyle( this, linestyles_[0], "Line style" );
+    linestylefld_ = new uiSelLineStyle( this, linestyles_[0], 
+					tr("Line style") );
     linestylefld_->attach( alignedBelow, auxnamefld_ );
 
-    uiSelLineStyle::Setup su( "Line style" ); su.color( false );
+    uiSelLineStyle::Setup su( tr("Line style") ); 
+			  su.color( false );
     linestylenocolorfld_ = new uiSelLineStyle( this, linestyles_[0], su );
     linestylenocolorfld_->attach( alignedBelow, auxnamefld_ );
 
@@ -654,10 +666,12 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 
     fillcolorfld_->attach( alignedBelow, linestylefld_ );
 
-    x1rgfld_ = new uiGenInput( this, "X-Range", FloatInpIntervalSpec() );
+    x1rgfld_ = new uiGenInput( this, tr("X-Range"),
+			       FloatInpIntervalSpec() );
     x1rgfld_->attach( alignedBelow, fillcolorfld_ );
 
-    x2rgfld_ = new uiGenInput( this, "Y-Range", FloatInpIntervalSpec() );
+    x2rgfld_ = new uiGenInput( this, tr("Y-Range"),
+			       FloatInpIntervalSpec() );
     x2rgfld_->attach( alignedBelow, x1rgfld_ );
 }
 
@@ -802,7 +816,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const CallBack& applcb,
 				      const BufferStringSet* annots,
 				      int selannot )
-    : uiTabStackDlg(p,uiDialog::Setup("Specify Display Properties",
+    : uiTabStackDlg(p,uiDialog::Setup(tr("Specify Display Properties"),
 				      mNoDlgTitle,
                                       mODHelpKey(mFlatViewPropDlgHelpID) ))
     , vwr_(vwr)
@@ -833,7 +847,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 	addGroup( annottab_ );
     }
 
-    titlefld_ = new uiGenInput( this, "Title" );
+    titlefld_ = new uiGenInput( this, tr("Title") );
     titlefld_->attach( centeredAbove, tabObject() );
 
     uiButton* applybut = uiButton::getStd( this, uiButton::Apply,

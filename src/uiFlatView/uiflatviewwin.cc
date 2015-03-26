@@ -175,7 +175,7 @@ void uiFlatViewMainWin::displayInfo( CallBacker* cb )
     mCBCapsuleUnpack(IOPar,pars,cb);
     BufferString mesg;
     makeInfoMsg( mesg, pars );
-    statusBar()->message( mesg.buf() );
+    statusBar()->message( mkUiString(mesg.buf()) );
 }
 
 
