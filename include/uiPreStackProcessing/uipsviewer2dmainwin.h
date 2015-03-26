@@ -55,7 +55,8 @@ public:
 			~uiViewer2DMainWin();
 
     virtual void 	start()		{ show(); }
-    virtual void        setWinTitle( const char* t )    { setCaption(t); }
+    virtual void        setWinTitle( const uiString t )    
+				    { setCaption(t); }
 
     virtual uiMainWin*  dockParent()    { return this; }
     virtual uiParent*   viewerParent()  { return this; }
