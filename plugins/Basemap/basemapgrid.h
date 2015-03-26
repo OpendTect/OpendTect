@@ -27,7 +27,7 @@ public:
 				GridObject();
 				~GridObject();
 
-    virtual const char*		getType() const     { return "grid"; }
+    virtual const char*		getType() const     { return "Grid"; }
     virtual void		updateGeometry();
 
     void			setInlCrlGrid(const StepInterval<double>& inlrg,

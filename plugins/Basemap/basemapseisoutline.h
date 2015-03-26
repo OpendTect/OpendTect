@@ -31,7 +31,7 @@ public:
 
     const MultiID&	getMultiID() const	{ return seismid_; }
     void		setMultiID(const MultiID&);
-    const char*		getType() const     { return "Seismic Outline"; }
+    const char*		getType() const     { return "SeismicOutline"; }
     void		updateGeometry();
 
     int			nrShapes() const;

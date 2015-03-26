@@ -1,5 +1,5 @@
-#ifndef uibasemapoutline_h
-#define uibasemapoutline_h
+#ifndef uibasemapseisoutlineitem_h
+#define uibasemapseisoutlineitem_h
 
 /*+
 ________________________________________________________________________

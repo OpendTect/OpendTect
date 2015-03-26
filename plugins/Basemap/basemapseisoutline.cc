@@ -142,4 +142,4 @@ void SeisOutlineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
     }
 }
 
-} // namepace Basemap
+} // namespace Basemap

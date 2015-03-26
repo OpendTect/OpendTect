@@ -1,5 +1,5 @@
-#ifndef uibasemapcontour_h
-#define uibasemapcontour_h
+#ifndef uibasemapcontouritem_h
+#define uibasemapcontouritem_h
 
 /*+
 ________________________________________________________________________

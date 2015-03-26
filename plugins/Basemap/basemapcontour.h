@@ -33,7 +33,7 @@ public:
 				ContourObject();
 				~ContourObject();
 
-    virtual const char*		getType() const     { return "contour"; }
+    virtual const char*		getType() const     { return "Contour"; }
     virtual void		updateGeometry();
 
     void			setLineStyle(int idx,const LineStyle&);

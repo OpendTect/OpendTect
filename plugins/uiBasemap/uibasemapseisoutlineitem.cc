@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 
 
-// uiBasemapOutlineGroup
+// uiBasemapSeisOutlineGroup
 uiBasemapSeisOutlineGroup::uiBasemapSeisOutlineGroup( uiParent* p, bool isadd )
     : uiBasemapIOObjGroup(p,*Seis::getIOObjContext(Seis::Vol,true),isadd)
 {
@@ -123,7 +123,7 @@ bool uiBasemapSeisOutlineTreeItem::usePar( const IOPar& par )
 	if ( hasParChanged(prevpar,par,uiBasemapGroup::sKeyNrObjs()))
 	{
 	    // if the number of objects is different, everything needs to be
-	    // redraw So...
+	    // redraw. So...
 	    obj->setLineStyle( 0, ls );
 	    obj->setMultiID( mid );
 	    obj->updateGeometry();

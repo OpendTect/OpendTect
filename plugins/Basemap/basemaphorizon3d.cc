@@ -50,4 +50,4 @@ const char* Horizon3DObject::getShapeName(int) const
 { return name().buf(); }
 
 
-} // namespcae Basemap
+} // namespace Basemap
