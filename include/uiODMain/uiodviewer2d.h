@@ -108,7 +108,7 @@ public:
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
-    virtual void                setWinTitle(bool fromcs=false);
+    virtual void                setWinTitle(const uiString);
 				/*!<\param fromcs if true, TrcKeyZSampling
 				will be used to set window title.*/
 
