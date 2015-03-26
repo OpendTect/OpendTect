@@ -76,7 +76,7 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<float>& mdvals,
 	    continue;
 
 	curpos.z = getdValue(2);
-	const float dah = getfValue(3);
+	const double dah = getdValue(3);
 	if ( mIsUdf(curpos.z) && mIsUdf(dah) )
 	{
 	    if ( !nozptsfound )
@@ -91,9 +91,9 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<float>& mdvals,
 	}
 
 	pos += curpos;
-	mdvals += dah;
+	mdvals += mCast(float,dah);
 	if ( mIsUdf(kbelevinfile) && !mIsUdf(curpos.z) && !mIsUdf(dah) )
-	    kbelevinfile = dah - mCast(float,curpos.z);
+	    kbelevinfile = mCast(float,dah - curpos.z);
     }
 
     return !pos.isEmpty();
@@ -102,6 +102,7 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<float>& mdvals,
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 #define mScaledValue(s,uom) ( uom ? uom->userValue(s) : s )
+
 bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 				       TypeSet<float>& mdvals,
 				       float& kbelevinfile ) const
@@ -110,7 +111,7 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	return false;
 
     Coord3 prevpos = pos[0];
-    float prevdah = mdvals[0];
+    double prevdah = mCast(double,mdvals[0]);
     if ( mIsUdf(prevpos.z) && mIsUdf(prevdah) )
 	return false;
 
@@ -119,13 +120,13 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 
     if ( mIsUdf(prevpos.z) )
     {
-	prevpos.z = mCast( double, prevdah - kbelevinfile );
+	prevpos.z = prevdah - mCast(double,kbelevinfile);
 	pos[0].z = prevpos.z;
     }
 
     if ( mIsUdf(prevdah) )
     {
-	prevdah = mCast( float, prevpos.z ) + kbelevinfile;
+	prevdah = prevpos.z + kbelevinfile;
 	mdvals[0] = prevdah;
     }
 
@@ -139,7 +140,7 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	    return false;
 	else if ( mIsUdf(curpos) )
 	{
-	    const double dist = mCast( double, dah - prevdah );
+	    const double dist = mCast(double,dah) - prevdah;
 	    const double hdist = Coord(curpos).distTo( Coord(prevpos) );
 	    if ( dist < hdist )
 	    {
@@ -160,10 +161,10 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 		mErrRet( msg )
 	    }
 
-	    dah = prevdah + mCast(float, dist );
+	    dah = mCast(float,prevdah + dist);
 	}
 	prevpos = curpos;
-	prevdah = dah;
+	prevdah = mCast(double,dah);
     }
 
     return true;
@@ -176,7 +177,7 @@ static void adjustKBIfNecessary( TypeSet<Coord3>& pos, float kbelevinfile,
     if ( mIsUdf(kbelev) || mIsUdf(kbelevinfile) )
 	return;
 
-    const float kbshift = kbelev - kbelevinfile;
+    const double kbshift = mCast(double,kbelev) - mCast(double,kbelevinfile);
     for ( int idz=0; idz<pos.size(); idz++ )
     {
 	if ( !mIsUdf(pos[idz].z) )
@@ -185,13 +186,15 @@ static void adjustKBIfNecessary( TypeSet<Coord3>& pos, float kbelevinfile,
 }
 
 
-static void addOriginIfNecessary( TypeSet<Coord3>& pos, TypeSet<float>& mdvals )
+#define mDefEpsZ 1e-3
+
+static void addOriginIfNecessary( TypeSet<Coord3>& pos, TypeSet<float>& mdvals)
 {
-    if ( mdvals.isEmpty() || mdvals[0] < mDefEpsF )
+    if ( mdvals.isEmpty() || mdvals[0] < mDefEpsZ )
 	return;
 
     Coord3 surfloc = pos[0];
-    surfloc.z = mCast(float, surfloc.z ) - mdvals[0];
+    surfloc.z -= mCast(double,mdvals[0]);
 
     pos.insert( 0, surfloc );
     mdvals.insert( 0, 0.f );
@@ -214,7 +217,7 @@ static void adjustToTDIfNecessary( TypeSet<Coord3>& pos,
     }
 
     const int sz = pos.size();
-    if ( mIsEqual(mdvals[sz-1],td,mDefEpsF) )
+    if ( mIsEqual(mdvals[sz-1],td,mDefEpsZ) )
 	return;
 
     Coord3 tdpos = pos[sz-1];
