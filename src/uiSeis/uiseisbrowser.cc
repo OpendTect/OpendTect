@@ -50,7 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiSeisBrowserInfoVwr : public uiAmplSpectrum
-{
+{ mODTextTranslationClass(uiSeisBrowserInfoVwr);
 public :
 
 			uiSeisBrowserInfoVwr(uiParent*,const SeisTrc&,bool,
@@ -217,7 +217,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 
 void uiSeisBrowser::createMenuAndToolBar()
 {
-    uitb_ = new uiToolBar( this, "Tool Bar" );
+    uitb_ = new uiToolBar( this, tr("Tool Bar") );
     mAddButton( "gotopos",goToPush,tr("Goto position"),false );
     mAddButton( "info",infoPush,tr("Information"),false );
     if ( !is2d_ )
@@ -447,8 +447,9 @@ uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
 {
     PositionInpSpec inpspec(
 	    PositionInpSpec::Setup(false,is2d,isps).binid(cur) );
-    posfld_ = new uiGenInput( this, "New Position", inpspec.setName("Inline",0)
-						    .setName("Crossline",1) );
+    posfld_ = new uiGenInput( this, tr("New Position"), 
+			      inpspec.setName("Inline",0)
+				     .setName("Crossline",1) );
 }
 
 bool acceptOK( CallBacker* )
@@ -793,8 +794,9 @@ void uiSeisBrowser::valChgReDraw( CallBacker* )
 void uiSeisBrowser::setTrcBufViewTitle()
 {
     if ( trcbufvwr_ )
-	trcbufvwr_->setWinTitle( BufferString( "Central Trace: ",
-		    curBinID().toString(Seis::is2D(setup_.geom_)) ) );
+	trcbufvwr_->setWinTitle( tr( "Central Trace: %1")
+			       .arg(curBinID()
+			  .toString(Seis::is2D(setup_.geom_)) ) );
 
 }
 
@@ -832,42 +834,45 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     , zdomdef_(zd)
 {
     setDeleteOnClose( true );
-    setCaption( "Trace information" );
+    setCaption( tr("Trace information") );
 
     uiGroup* valgrp = new uiGroup( this, "Values group" );
 
     PositionInpSpec coordinpspec( PositionInpSpec::Setup(true,is2d_,false) );
-    coordfld_ = new uiGenInput( valgrp, "Coordinate",
+    coordfld_ = new uiGenInput( valgrp, tr("Coordinate"),
 				coordinpspec.setName("X",0).setName("Y",0) );
     coordfld_->setReadOnly();
 
     BufferString label( is2d_ ? "Trace/Ref number" : sKey::Position() );
     IntInpSpec iis; FloatInpSpec fis;
     DataInpSpec* pdis = &iis; if ( is2d_ ) pdis = &fis;
-    trcnrbinidfld_ = new uiGenInput( valgrp, label.buf(), iis, *pdis );
+    trcnrbinidfld_ = new uiGenInput( valgrp, mkUiString(label.buf()), iis, 
+				     *pdis );
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );
     trcnrbinidfld_->setReadOnly();
 
-    minamplfld_ = new uiGenInput( valgrp, "Minimum amplitude", FloatInpSpec() );
+    minamplfld_ = new uiGenInput( valgrp, tr("Minimum amplitude"), 
+				  FloatInpSpec() );
     minamplfld_->attach( alignedBelow, trcnrbinidfld_ );
     minamplfld_->setElemSzPol( uiObject::Small );
     minamplfld_->setReadOnly();
-    minamplatfld_ = new uiGenInput( valgrp, "at", FloatInpSpec() );
+    minamplatfld_ = new uiGenInput( valgrp, tr("at"), FloatInpSpec() );
     minamplatfld_->attach( rightOf, minamplfld_ );
     minamplatfld_->setElemSzPol( uiObject::Small );
     minamplatfld_->setReadOnly();
-    uiLabel* lbl = new uiLabel( valgrp, zdomdef_.unitStr(true) );
+    uiLabel* lbl = new uiLabel( valgrp, mkUiString(zdomdef_.unitStr(true)) );
     lbl->attach( rightOf, minamplatfld_ );
 
-    maxamplfld_ = new uiGenInput( valgrp, "Maximum amplitude", FloatInpSpec() );
+    maxamplfld_ = new uiGenInput( valgrp, tr("Maximum amplitude"), 
+				  FloatInpSpec() );
     maxamplfld_->attach( alignedBelow, minamplfld_ );
     maxamplfld_->setElemSzPol( uiObject::Small );
     maxamplfld_->setReadOnly();
-    maxamplatfld_ = new uiGenInput( valgrp, "at", FloatInpSpec() );
+    maxamplatfld_ = new uiGenInput( valgrp, tr("at"), FloatInpSpec() );
     maxamplatfld_->attach( rightOf, maxamplfld_ );
     maxamplatfld_->setElemSzPol( uiObject::Small );
     maxamplatfld_->setReadOnly();
-    lbl = new uiLabel( valgrp, zdomdef_.unitStr(true) );
+    lbl = new uiLabel( valgrp, mkUiString(zdomdef_.unitStr(true)) );
     lbl->attach( rightOf, maxamplatfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
