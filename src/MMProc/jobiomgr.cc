@@ -566,7 +566,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
 	cmd.addFlag( "--nice", niceval_ );
 	cmd.addFlag( "--inbg", progname );
-	cmd.addFlag( "-masterhost", HostData::localHostName() );
+	cmd.addFlag( "-masterhost", System::localAddress() );
 	cmd.addFlag( "-masterport", iohdlr_.port() );
 	cmd.addFlag( "-jobid", ji.descnr_ );
 
