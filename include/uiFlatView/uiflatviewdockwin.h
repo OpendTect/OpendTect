@@ -38,7 +38,7 @@ public:
     			~uiFlatViewDockWin();
 
     virtual void	start()				{ display(true); }
-    virtual void	setWinTitle( const char* t )	{ setDockName(t); }
+    virtual void	setWinTitle(const uiString& t)	{ setDockName(t); }
     virtual uiMainWin*	dockParent()			{ return mainwin(); }
     virtual uiParent*	viewerParent()			{ return this; }
 

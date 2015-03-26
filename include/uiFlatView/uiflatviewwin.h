@@ -41,7 +41,7 @@ public:
 
     void		setDarkBG(bool);
 
-    virtual void	setWinTitle(const uiString)	= 0;
+    virtual void	setWinTitle(const uiString&)	= 0;
     virtual void	start()				= 0;
     virtual void	addControl(uiFlatViewControl*)	{}
     virtual uiMainWin*	dockParent()			= 0;
