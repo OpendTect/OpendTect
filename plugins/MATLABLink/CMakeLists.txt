@@ -38,12 +38,13 @@ if ( NOT MATLAB_DIR STREQUAL "" )
 
 
 # Macro for building mex files
-    macro ( MATLAB_EXEC_MEX PROG ARGS OUTDIR )
+macro ( MATLAB_EXEC_MEX PROG ARGS OUTDIR WORKDIR )
 	add_custom_command(
 		TARGET ${OD_MODULE_NAME} POST_BUILD
 		COMMAND ${MATLAB_DIR}/bin/mex
-		ARGS ${ARGS} -outdir ${OUTDIR} ${PROG} matlabarray.cc
-		WORKING_DIRECTORY ${OpendTect_DIR}/plugins/${OD_MODULE_NAME}
+		ARGS ${ARGS} -outdir ${OUTDIR} ${WORKDIR}/${PROG}
+					       ${WORKDIR}/matlabarray.cc
+		WORKING_DIRECTORY ${WORKDIR}
 		COMMENT "Mex-ing ${PROG}" VERBATIM )
     endmacro()
 
@@ -53,7 +54,8 @@ if ( NOT MATLAB_DIR STREQUAL "" )
 	writesegyindex.cc
     )
 
-    set( MATLAB_PROG_DEPS Basic Algo General Seis AttributeEngine )
+    set( MATLAB_PROG_DEPS Basic Algo General Geometry
+	    MMProc Network Seis NLA AttributeEngine )
     set( ARGS -D__${OD_PLFSUBDIR}__ )
     foreach( MOD ${MATLAB_PROG_DEPS} )
 	foreach( INC ${OD_${MOD}_INCLUDEPATH} )
@@ -71,8 +73,9 @@ if ( NOT MATLAB_DIR STREQUAL "" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E make_directory ${OUTDIR} )
     endif()
 
+    set( WORKDIR ${OpendTect_DIR}/plugins/${OD_MODULE_NAME} )
     foreach ( PROG ${MATLAB_PROGS} )
-	MATLAB_EXEC_MEX( "${PROG}" "${ARGS}" "${OUTDIR}" )
+	    MATLAB_EXEC_MEX( "${PROG}" "${ARGS}" "${OUTDIR}" "${WORKDIR}" )
     endforeach()
 
 endif()
