@@ -430,7 +430,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
     uiFlatViewMainWin* viewwin = new uiFlatViewMainWin(
 	ODMainWin(), uiFlatViewMainWin::Setup(title) );
 
-    viewwin->setWinTitle( title );
+    viewwin->setWinTitle( mkUiString(title) );
     viewwin->setDarkBG( false );
 
     uiFlatViewer& vwr = viewwin->viewer();
