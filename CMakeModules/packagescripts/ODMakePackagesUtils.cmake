@@ -36,7 +36,7 @@ macro ( create_package PACKAGE_NAME )
     if( NOT MATLAB_DIR STREQUAL "" )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			 ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/MATLAB
-			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
+			 ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/MATLAB
 			 RESULT_VARIABLE STATUS )
     endif()
 
