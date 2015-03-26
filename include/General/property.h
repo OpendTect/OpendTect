@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "propertyref.h"
 #include "factory.h"
+#include "uistrings.h"
 
 class PropertySet;
 
@@ -47,7 +48,7 @@ public:
     virtual bool	init(const PropertySet&) const;
 			    //!< clears 'memory' and makes property usable
     virtual uiString	errMsg() const			{ 
-					    return uiString::emptyString(); 
+					    return uiStrings::sEmptyString(); 
 							}
 
     virtual bool	isUdf() const			= 0;

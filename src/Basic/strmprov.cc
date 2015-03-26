@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "oscommand.h"
 #include "perthreadrepos.h"
+#include "uistrings.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -148,7 +149,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
     , msg_(tr("Reading '"))
     , fnm_(nm)
 {
-    FilePath fp(nm); msg_.append(fp.fileName()).arg(uiString::emptyString());
+    FilePath fp(nm); msg_.append(fp.fileName()).arg(uiStrings::sEmptyString());
 
     sd_ = StreamProvider(nm).makeIStream(true,false);
     if ( !sd_.usable() )
@@ -306,9 +307,9 @@ bool mkNewPLD()
 }
 
 uiString uiMessage() const
-{ return curpld_ ? curpld_->uiMessage() : uiString::emptyString(); }
+{ return curpld_ ? curpld_->uiMessage() : uiStrings::sEmptyString(); }
 uiString uiNrDoneText() const
-{ return curpld_ ? curpld_->uiNrDoneText() : uiString::emptyString(); }
+{ return curpld_ ? curpld_->uiNrDoneText() : uiStrings::sEmptyString(); }
 od_int64 totalNr() const	{ return totnr_ / 1024; }
 od_int64 nrDone() const
 { return nrdone_ + (curpld_ ? curpld_->nrDone() : 0); }

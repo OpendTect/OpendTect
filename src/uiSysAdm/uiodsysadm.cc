@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uitextedit.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "plugins.h"
 #include "oddirs.h"
 #include "genc.h"
@@ -69,7 +70,7 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
     if ( !swwritable_ && !aswritable_ )
     {
 	uiString addonstr = haveas_ ? tr("\nnor to:%1").arg(asdir_)
-				    : uiString::emptyString();
+				    : uiStrings::sEmptyString();
 	uiString msg = tr("You have no write access to:\n%1%2")
 		     .arg(swwritable_).arg(addonstr);
 	new uiLabel( this, msg );

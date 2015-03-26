@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "odmemory.h"
 #include "rowcol.h"
+#include "uistrings.h"
 
 template <class T> class Array2D;
 namespace Stats { class CalcSetup; }
@@ -62,7 +63,7 @@ public:
 				    filltype will be used alone. */
 
     virtual uiString		infoMsg() const	{ 
-						return uiString::emptyString();
+					return uiStrings::sEmptyString();
 						}
 
     mExpClass(Algo) ArrayAccess

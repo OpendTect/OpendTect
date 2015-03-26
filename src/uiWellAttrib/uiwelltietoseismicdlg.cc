@@ -607,7 +607,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     const char* markernms[] = { "Top Marker", "Bottom Marker", 0 };
 
     zrginft_ = SI().depthsInFeet();
-    const uiString units[] = { uiString::emptyString(),
+    const uiString units[] = { uiStrings::sEmptyString(),
 		UnitOfMeasure::zUnitAnnot(true,true,false),
 		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false) };
 

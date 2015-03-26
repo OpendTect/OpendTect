@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "strmprov.h"
 #include "survinfo.h"
-
+#include "uistrings.h"
 
 const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
 
@@ -61,7 +61,7 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->set2D( is2d );
     tr->setForceUseCBVSInfo( forceusecbvsinf );
-    if ( msg ) *msg = uiString::emptyString();
+    if ( msg ) *msg = uiStrings::sEmptyString();
     if ( !tr->initRead(new StreamConn(fnm,Conn::Read),
 			infoonly ? Seis::PreScan : Seis::Prod) )
     {

@@ -370,7 +370,8 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 			    continue;
 
 			const int outzsampidx = (int)Math::Floor( outfidx );
-			output->setValue( cubeidx, inlidx, crlidx, outzsampidx, val );
+			output->setValue( cubeidx, inlidx, crlidx, 
+					  outzsampidx, val );
 		    }
 		}
 	    }
@@ -737,7 +738,7 @@ int haveError( const uiString& msg )
 
 int nextStep()
 {
-    if ( !proc_ ) return haveError( uiString::emptyString() );
+    if ( !proc_ ) return haveError( uiStrings::sEmptyString() );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
@@ -906,7 +907,7 @@ int haveError( const uiString& msg )
 
 int nextStep()
 {
-    if ( !proc_ ) return haveError( uiString::emptyString() );
+    if ( !proc_ ) return haveError( uiStrings::sEmptyString() );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;

@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "geomelement.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 namespace Geometry
 {
@@ -60,7 +61,7 @@ IntervalND<float> Element::boundingBox(bool) const
 
 
 uiString Element::errMsg() const
-{ return errmsg_ ? *errmsg_ : uiString::emptyString(); }
+{ return errmsg_ ? *errmsg_ : uiStrings::sEmptyString(); }
 
 
 uiString& Element::errmsg()

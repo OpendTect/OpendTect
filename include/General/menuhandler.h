@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "bufstring.h"
 #include "uistring.h"
+#include "uistrings.h"
 
 class BufferStringSet;
 class MenuItem;
@@ -77,7 +78,7 @@ mExpClass(General) MenuItem : public MenuItemHolder
 {
 public:
 				MenuItem(const uiString& 
-					    text=uiString::emptyString(),
+					 text=uiStrings::sEmptyString(),
 					 int placement=-1);
 				MenuItem(const uiString& text,
 					 BufferString icnm,

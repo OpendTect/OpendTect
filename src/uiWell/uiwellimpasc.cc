@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uiselsurvranges.h"
+#include "uistrings.h"
 #include "uitblimpexpdatasel.h"
 #include "uiwellsel.h"
 #include "od_helpids.h"
@@ -454,7 +455,7 @@ bool uiWellImportAsc::checkInpFlds()
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty()
 		? tr("Please enter a name for the well")
-		: uiString::emptyString() )
+		: uiStrings::sEmptyString() )
 
     return true;
 }

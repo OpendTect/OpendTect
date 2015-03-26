@@ -82,7 +82,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( fnm.isEmpty() )
 	mErrRet( tr("Please enter the input file name") )
     if ( !wvltfld_->commitInput() )
-	mErrRet( !wvltfld_->isEmpty() ? uiString::emptyString()
+	mErrRet( !wvltfld_->isEmpty() ? uiStrings::sEmptyString()
 		: tr("Please enter a name for the new wavelet") )
     if ( !dataselfld_->commit() )
 	return false;

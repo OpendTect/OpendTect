@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "scaler.h"
 #include "ptrman.h"
-
+#include "uistrings.h"
 
 #define mInitVars() \
 	: Executor(nm) \
@@ -288,7 +288,7 @@ uiString SeisSingleTraceProc::uiMessage() const
 	return tr("Handling %1").arg(ret);
     }
 
-    return uiString::emptyString();
+    return uiStrings::sEmptyString();
 }
 
 

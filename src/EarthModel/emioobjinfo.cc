@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
-
+#include "uistrings.h"
 
 namespace EM
 {
@@ -187,7 +187,7 @@ IOPar* IOObjInfo::getPars() const
 uiString IOObjInfo::getMessage() const
 {
     mGetReader;
-    return reader_ ? reader_->uiMessage() : uiString::emptyString();
+    return reader_ ? reader_->uiMessage() : uiStrings::sEmptyString();
 }
 
 

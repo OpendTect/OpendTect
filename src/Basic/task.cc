@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "varlenarray.h"
 #include "progressmeter.h"
 #include "ptrman.h"
+#include "uistrings.h"
 
 #include <limits.h>
 
@@ -165,7 +166,7 @@ uiString TaskGroup::uiMessage() const
     Threads::Locker locker( lock_ );
     return tasks_.validIdx(curtask_)
 	? tasks_[curtask_]->uiMessage()
-	: uiString::emptyString();
+	: uiStrings::sEmptyString();
 }
 
 
@@ -174,7 +175,7 @@ uiString TaskGroup::uiNrDoneText() const
     Threads::Locker locker( lock_ );
     return tasks_.validIdx(curtask_)
 	? tasks_[curtask_]->uiNrDoneText()
-	: uiString::emptyString();
+	: uiStrings::sEmptyString();
 }
 
 

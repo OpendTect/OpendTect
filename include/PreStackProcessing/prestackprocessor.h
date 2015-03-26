@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "sets.h"
 #include "trckeysampling.h"
-
+#include "uistrings.h"
 
 namespace PreStack
 {
@@ -51,7 +51,8 @@ public:
     DataPack::ID		getOutput(const BinID& relbid) const;
 
     virtual bool		prepareWork();
-    virtual uiString		errMsg() const {return uiString::emptyString();}
+    virtual uiString		errMsg() const 
+				{ return uiStrings::sEmptyString(); }
 
     virtual void		fillPar(IOPar&) const			= 0;
     virtual bool		usePar(const IOPar&)			= 0;

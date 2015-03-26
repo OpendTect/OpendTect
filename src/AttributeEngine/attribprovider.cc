@@ -1108,7 +1108,7 @@ bool Provider::checkInpAndParsAtStart()
 uiString Provider::prepare( Desc& desc )
 {
     if ( !desc.needProvInit() )
-	return uiString::emptyString();
+	return uiStrings::sEmptyString();
 
     desc.setNeedProvInit( false );
 

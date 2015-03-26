@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uigroup.h"
+#include "uistrings.h"
 #include "welldisp.h"
 
 class uiCheckBox;
@@ -42,8 +43,8 @@ public:
     mExpClass(uiWell) Setup
     {
     public:
-	    Setup( const uiString& sztxt=uiString::emptyString(),
-		   const uiString& coltxt=uiString::emptyString() )
+	    Setup( const uiString& sztxt=uiStrings::sEmptyString(),
+		   const uiString& coltxt=uiStrings::sEmptyString() )
 		: mysztxt_(!sztxt.isEmpty() ? sztxt : "Line thickness")
 		, mycoltxt_(!coltxt.isEmpty() ? coltxt : "Line color")
 		, onlyfor2ddisplay_(false) {}

@@ -630,7 +630,7 @@ void SeisCBVSPS2DReader::init( Pos::GeomID geomid )
 	return;
     }
 
-    errmsg_ = uiString::emptyString();
+    errmsg_ = uiStrings::sEmptyString();
     tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg_ );
     if ( !tr_ ) return;
 

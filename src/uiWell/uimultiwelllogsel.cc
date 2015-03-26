@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uilistboxchoiceio.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uiwellmarkersel.h"
 
@@ -71,7 +72,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     setHAlignObj( zchoicefld_ );
 
     uiString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
-    const uiString units[] = { uiString::emptyString(),dptlbl,"(ms)",0 };
+    const uiString units[] = { uiStrings::sEmptyString(),dptlbl,"(ms)",0 };
 
     StringListInpSpec slis; const bool istime = SI().zIsTime();
     for ( int idx=0; idx<zchoiceset.size(); idx++ )

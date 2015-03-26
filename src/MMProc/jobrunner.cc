@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timefun.h"
 #include "perthreadrepos.h"
 #include "mmcommunicdefs.h"
+#include "uistrings.h"
 
 #include <iostream>
 
@@ -765,4 +766,4 @@ JobInfo* JobRunner::gtJob( int descnr )
 
 
 uiString JobRunner::errorMsg() const
-{ return errmsg_.isSet() ? errmsg_ : uiString::emptyString(); }
+{ return errmsg_.isSet() ? errmsg_ : uiStrings::sEmptyString(); }

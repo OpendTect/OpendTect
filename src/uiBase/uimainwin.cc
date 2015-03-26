@@ -1943,7 +1943,7 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     break;
     case CloseOnly:
 	    setOkCancelText(
-		mBody->finalised() ? canceltext : uiString::emptyString(),
+		mBody->finalised() ? canceltext : uiStrings::sEmptyString(),
 		canceltext );
     break;
     }

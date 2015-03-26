@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ranges.h"
 #include "scaler.h"
 #include "survinfo.h"
+#include "uistrings.h"
 #include "zaxistransform.h"
 
 #include <osg/Switch>
@@ -310,11 +311,11 @@ void Well::setWellName( const TrackParams& tp )
     transformZIfNeeded( crdbot );
 
     updateText( welltoptxt_->text(0),tp.isdispabove_ ? 
-		toUiString( tp.name_ ) : uiString::emptyString(), &crdtop,
+		mkUiString( tp.name_ ) : uiStrings::sEmptyString(), &crdtop,
 		tp.font_ );
 
     updateText( wellbottxt_->text(0),tp.isdispbelow_ ? 
-	        toUiString( tp.name_ ) : uiString::emptyString(), &crdbot,
+	        mkUiString( tp.name_ ) : uiStrings::sEmptyString(), &crdbot,
 		tp.font_ );
 
 }

@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "od_iostream.h"
 #include "bendpoints2coords.h"
+#include "uistrings.h"
 #include <math.h>
 #include <ctype.h>
 
@@ -906,7 +907,7 @@ void SEGYSeisTrcTranslator::fillErrMsg( const uiString& s, bool withpos )
 	    .arg( fnm.isEmpty() ? usrname_ : tr("In file '%1'").arg( fnm ) )
 	    .arg( withpos
 		? tr(" %1").arg( getTrcPosStr() )
-		: uiString::emptyString() )
+		: uiStrings::sEmptyString() )
 	    .arg( s );
 }
 

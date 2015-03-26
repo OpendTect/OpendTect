@@ -121,7 +121,7 @@ mClass(Basic) Factory : public FactoryBase
 public:
     typedef			T* (*Creator)();
     inline void			addCreator(Creator,const char* nm,
-			const uiString& username = uiString::emptyString());
+			const uiString& username = uiStrings::sEmptyString());
 				/*!<Name may be not be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by

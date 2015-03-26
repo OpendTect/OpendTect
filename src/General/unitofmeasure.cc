@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "debug.h"
 #include "ioman.h"
+#include "uistrings.h"
 
 static const char* filenamebase = "UnitsOfMeasure";
 static const char* sKeyUOM = "UOM";
@@ -162,7 +163,7 @@ uiString UnitOfMeasure::zUnitAnnot( bool time, bool symb, bool withparens )
     const UnitOfMeasure* uom = time  ? surveyDefTimeUnit()
 				     : surveyDefDepthUnit();
     if ( !uom )
-	return uiString::emptyString();
+	return uiStrings::sEmptyString();
 
     uiString lbl;
     mCreateLbl()
@@ -175,7 +176,7 @@ uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
 {
     const UnitOfMeasure* uom = surveyDefVelUnit();
     if ( !uom )
-	return uiString::emptyString();
+	return uiStrings::sEmptyString();
 
     uiString lbl;
     mCreateLbl()

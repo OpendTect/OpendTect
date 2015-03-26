@@ -266,7 +266,7 @@ uiString PosInfo::Detector::createPositionString(
         .arg( setup_.is2d_ ? tr("trace number") : tr("position") )
         .arg( cbo.binid_.toString(setup_.is2d_) )
         .arg( setup_.isps_ ? tr( " (offset %1)" ).arg( cbo.offset_ )
-                           : uiString::emptyString() );
+                           : uiStrings::sEmptyString() );
     return ret;
 }
 

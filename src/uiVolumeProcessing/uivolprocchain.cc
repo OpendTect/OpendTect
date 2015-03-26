@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
+#include "uistrings.h"
 #include "uitable.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -603,7 +604,7 @@ void uiChain::propertiesCB( CallBacker* )
 
 uiString uiChain::getPossibleInitialStepNames()
 {
-    mDefineStaticLocalObject( uiString, names, (uiString::emptyString()) );
+    mDefineStaticLocalObject( uiString, names, (uiStrings::sEmptyString()) );
 
     if ( names.isEmpty() )
     {

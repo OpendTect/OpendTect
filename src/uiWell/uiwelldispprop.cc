@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uiseparator.h"
 #include "uislider.h"
+#include "uistrings.h"
 #include "welllog.h"
 #include "welllogset.h"
 
@@ -378,7 +379,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     coltablistfld_ = new uiColorTableSel( this, "Table selection" );
     coltablistfld_->attach( alignedBelow, filllogsfld_ );
 
-    colorrangefld_ = new uiGenInput( this, uiString::emptyString(),
+    colorrangefld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 			     FloatInpIntervalSpec()
 			     .setName(BufferString(" range start"),0)
 			     .setName(BufferString(" range stop"),1) );

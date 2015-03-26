@@ -648,9 +648,9 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 			"Please check your attribute set "
 			"and select valid stored data as input." )
 			.arg( dsc.userRef() )
-			.arg( depattribnm.isEmpty() ? uiString::emptyString()
+			.arg( depattribnm.isEmpty() ? uiStrings::sEmptyString()
 						    : tr("called"))
-			.arg( depattribnm.isEmpty() ? uiString::emptyString()
+			.arg( depattribnm.isEmpty() ? uiStrings::sEmptyString()
 						    : depattribnm );
 	    }
 	    else

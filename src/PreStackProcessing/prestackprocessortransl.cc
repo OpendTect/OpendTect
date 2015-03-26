@@ -123,6 +123,6 @@ uiString dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
     md.fillPar( par );
 
     par.putTo( astrm );
-    return astrm.isOK() ? uiString::emptyString()
+    return astrm.isOK() ? uiStrings::sEmptyString()
 			: tr("Error during write to process definition file");
 }
