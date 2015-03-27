@@ -261,24 +261,27 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertSeparator();
 
     const uiString ascii = uiStrings::sASCII(false);
+    const char* ascic = "ascii";
 
-    mInsertItem( impattr, ascii, mImpAttrMnuItm );
-    mInsertItem( imppick, ascii, mImpPickAsciiMnuItm );
-    mInsertItem( impwvlt, ascii, mImpWvltAsciiMnuItm );
-    mInsertItem( impmute, ascii, mImpMuteDefAsciiMnuItm );
-    mInsertItem( impcpd, ascii, mImpPVDSAsciiMnuItm );
-    mInsertItem( impvelfn, ascii, mImpVelocityAsciiMnuItm);
-    mInsertItem( imppdf, tr("RokDoc ASCII ..."), mImpPDFAsciiMnuItm );
+    mInsertPixmapItem( impattr, ascii, mImpAttrMnuItm, ascic );
+    mInsertPixmapItem( imppick, ascii, mImpPickAsciiMnuItm, ascic );
+    mInsertPixmapItem( impwvlt, ascii, mImpWvltAsciiMnuItm, ascic );
+    mInsertPixmapItem( impmute, ascii, mImpMuteDefAsciiMnuItm, ascic );
+    mInsertPixmapItem( impcpd, ascii, mImpPVDSAsciiMnuItm, ascic );
+    mInsertPixmapItem( impvelfn, ascii, mImpVelocityAsciiMnuItm, ascic );
+    mInsertPixmapItem( imppdf, tr("RokDoc ASCII ..."),
+	    				mImpPDFAsciiMnuItm, ascic );
 
-    mInsertItem( impseis, tr("SEG-Y ..."), mImpSeisSEGYMnuItm );
-    mInsertItem( impseis, tr("SEG-Y Data Link ..."), mImpSeisSEGYDirectMnuItm );
-    uiMenu* impseissimple = new uiMenu( &appl_, tr("Simple File") );
+    mInsertPixmapItem( impseis, tr("SEG-Y ..."), mImpSeisSEGYMnuItm, "segy" );
+    mInsertPixmapItem( impseis, tr("SEG-Y Data Link ..."),
+	    				mImpSeisSEGYDirectMnuItm, "segy_link" );
+    uiMenu* impseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
     mInsertItem( impseissimple, uiStrings::s2D(false), mImpSeisSimple2DMnuItm );
     mInsertItem( impseissimple, uiStrings::s3D(false), mImpSeisSimple3DMnuItm );
     mInsertItem( impseissimple, "Prestack 2D ...", mImpSeisSimplePS2DMnuItm );
     mInsertItem( impseissimple, "Prestack 3D ...", mImpSeisSimplePS3DMnuItm );
     impseis->insertItem( impseissimple );
-    uiMenu* impcbvsseis = new uiMenu( &appl_, tr("CBVS") );
+    uiMenu* impcbvsseis = new uiMenu( &appl_, tr("CBVS"), "od" );
     mInsertItem( impcbvsseis, tr("From File ..."), mImpSeisCBVSMnuItm );
     mInsertItem( impcbvsseis, tr("From Other Survey ..."),
 		 mImpSeisCBVSOtherSurvMnuItm );
@@ -293,7 +296,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( imphorasc, tr("Bulk 3D ..."), mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
-    mInsertItem( impfault, ascii, mImpFaultMnuItm );
+    mInsertPixmapItem( impfault, ascii, mImpFaultMnuItm, ascic );
     mInsertItem( impfaultstick, tr("ASCII 2D ..."),
                 mImpFaultSSAscii2DMnuItm );
     mInsertItem( impfaultstick, tr("ASCII 3D ..."),

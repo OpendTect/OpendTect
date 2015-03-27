@@ -68,7 +68,7 @@ uiImpGPRMgr::uiImpGPRMgr( uiODMain& a )
 void uiImpGPRMgr::updMnu( CallBacker* )
 {
     appl_.menuMgr().getMnu( true, uiODApplMgr::Seis )->insertItem(
-		new uiAction(menunm,mCB(this,uiImpGPRMgr,doWork)) );
+		new uiAction(menunm,mCB(this,uiImpGPRMgr,doWork),"gpr") );
 }
 
 
