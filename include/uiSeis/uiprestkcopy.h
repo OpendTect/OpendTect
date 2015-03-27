@@ -31,6 +31,9 @@ public:
 			uiPreStackOutputGroup(uiParent*);
 			~uiPreStackOutputGroup();
 
+    uiPosSubSel*	subselFld()		{ return subselfld_; }
+    uiIOObjSel*		outputFld()		{ return outpfld_; }
+
     void		setInput(const IOObj&);
     bool		go();
 
