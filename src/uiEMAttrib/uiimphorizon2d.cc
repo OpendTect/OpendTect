@@ -217,7 +217,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 			"Horizon(s) to import", OD::ChooseAtLeastOne );
     horbox->attach( alignedBelow, inpfld_ );
     horselfld_ = horbox->box();
-    horselfld_->allowDuplicates( false );
+    horselfld_->setAllowDuplicates( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
     uiPushButton* addbut = new uiPushButton( this, "Add new",
