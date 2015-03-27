@@ -13,6 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
+#include "mathfunc.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
 #include "paralleltask.h"
@@ -48,6 +50,9 @@ protected:
 
     void			removeBuffers();
     bool			applyInvFFT(TypeSet<float_complex>&);
+    void			getRefModelInterpolator(PointBasedMathFunction&,
+							bool valueistime,
+							bool isnmo) const;
 
     const ReflectivityModel&	model_;
     const StepInterval<float>	outsampling_;

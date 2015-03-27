@@ -9,9 +9,9 @@
 
 #include "arrayndinfo.h"
 #include "fourier.h"
+#include "math2.h"
 #include "scaler.h"
 #include "varlenarray.h"
-#include "math2.h"
 
 
 ReflectivitySampler::ReflectivitySampler(const ReflectivityModel& model,
@@ -35,6 +35,10 @@ ReflectivitySampler::~ReflectivitySampler()
 
 void ReflectivitySampler::getReflectivities( ReflectivityModel& sampledrefmodel)
 {
+    PointBasedMathFunction timefunc, depthfunc;
+    getRefModelInterpolator( depthfunc, false, usenmotime_ );
+    getRefModelInterpolator( timefunc, true, !usenmotime_ );
+
     const int sz = outsampling_.nrSteps() + 1;
     TypeSet<float_complex> creflectivities;
     applyInvFFT( creflectivities );
@@ -57,10 +61,18 @@ void ReflectivitySampler::getReflectivities( ReflectivityModel& sampledrefmodel)
 	if ( idy < 0 || idy > sz-1 )
 	    continue;
 	ReflectivitySpike& spike = sampledrefmodel[idx];
-	spike.reflectivity_ = creflectivities[idx];;
-	spike.time_ = twt;
-	spike.correctedtime_ = twt;
-	spike.depth_ = twt;
+	spike.reflectivity_ = creflectivities[idx];
+	spike.depth_ = depthfunc.getValue( twt );
+	if ( usenmotime_ )
+	{
+	    spike.correctedtime_ = twt;
+	    spike.time_ = timefunc.getValue( spike.depth_ );
+	}
+	else
+	{
+	    spike.time_ = twt;
+	    spike.correctedtime_ = timefunc.getValue( spike.depth_ );
+	}
     }
 }
 
@@ -180,3 +192,25 @@ bool ReflectivitySampler::applyInvFFT( TypeSet<float_complex>& creflectivities )
     return fft->run( true );
 }
 
+
+void ReflectivitySampler::getRefModelInterpolator( PointBasedMathFunction& func,
+						   bool valueistime,
+						   bool isnmo ) const
+{
+    func.setEmpty();
+    func.setInterpolType( PointBasedMathFunction::Linear );
+    func.setExtrapolateType( PointBasedMathFunction::ExtraPolGradient );
+    for ( int idx=0; idx<model_.size(); idx++ )
+    {
+	const ReflectivitySpike& spike = model_[idx];
+	if ( !spike.isDefined() )
+	    continue;
+
+	const float depth = spike.depth_;
+	const float time = isnmo ? spike.correctedtime_ : spike.time_;
+	if ( valueistime )
+	    func.add( depth, time );
+	else
+	    func.add( time, depth );
+    }
+}
