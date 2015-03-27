@@ -713,6 +713,11 @@ bool Threads::ConditionVar::wait( unsigned long timeout )
 
 void Threads::ConditionVar::signal(bool all)
 {
+#ifdef __debug__
+    if ( !lockingthread_ || !count_ )
+	pErrMsg("Signaling unlocked condition variable" );
+#endif
+
 #ifndef OD_NO_QT
     if ( all ) cond_->wakeAll();
     else cond_->wakeOne();
