@@ -23,44 +23,62 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 #include "mmcommunicdefs.h"
 
-
 JobCommunic::JobCommunic( const char* host, int port, int jid,
 			  StreamData& sout )
     : masterhost_(System::hostAddress(host))
-    , masterport_( port )
-    , timestamp_( Time::getMilliSeconds() )
-    , stillok_( true )
-    , nrattempts_( 0 )
-    , maxtries_ ( GetEnvVarIVal("DTECT_MM_MSTR_RETRY",10) )
-    , socktimeout_ ( GetEnvVarIVal("DTECT_MM_CL_SOCK_TO",20) )
-    , min_time_between_update_(1000 * GetEnvVarIVal("DTECT_MM_INTRVAL",10) )
-    , failtimeout_ ( 1000 * GetEnvVarIVal("DTECT_MM_CL_FAIL_TO",300) )
-    , pausereq_ ( false )
-    , jobid_( jid )
-    , sdout_( sout )
-    , lastsucces_( Time::getMilliSeconds() )
+    , masterport_(port)
+    , timestamp_(Time::getMilliSeconds())
+    , stillok_(true)
+    , nrattempts_(0)
+    , maxtries_ (GetEnvVarIVal("DTECT_MM_MSTR_RETRY",10))
+    , socktimeout_(GetEnvVarIVal("DTECT_MM_CL_SOCK_TO",2000))
+    , min_time_between_update_(1000 * GetEnvVarIVal("DTECT_MM_INTRVAL",10))
+    , failtimeout_(1000 * GetEnvVarIVal("DTECT_MM_CL_FAIL_TO",30))
+    , pausereq_(false)
+    , jobid_(jid)
+    , sdout_(sout)
+    , lastsucces_(Time::getMilliSeconds())
+    , logstream_(createLogStream())
 {
+    dumpSystemInfo();
     socket_ = new Network::Socket( false );
-    socket_->setTimeout( 2000 );
-    socket_->connectToHost( masterhost_, masterport_ );
+    socket_->setTimeout( socktimeout_ );
+    
+    const bool ret = socket_->connectToHost( masterhost_, masterport_ );
+    BufferString logmsg( "Connection to", masterhost_, " port " );
+    logmsg.add( masterport_ ).add( " : " );
+    logMsg( ret, logmsg, !ret ? "" :socket_->errMsg().getFullString() );
+}
+
+
+JobCommunic::~JobCommunic()
+{
+    delete socket_;
+    delete logstream_;
 }
 
 
 bool JobCommunic::sendErrMsg_( const char* msg )
 {
-    return sendMsg( mERROR_MSG, -1, msg );
+    const bool ret = sendMsg( mERROR_MSG, -1, msg );
+    logMsg( ret, "Send error message", msg );
+    return ret;
 }
 
 
 bool JobCommunic::sendPID_( int pid )
 {
-    return sendMsg( mPID_TAG, pid );
+    const bool ret = sendMsg( mPID_TAG, pid );
+    logMsg( ret, "Send PID", BufferString( "", pid ) );
+    return ret;
 }
 
 
 bool JobCommunic::sendProgress_( int progress, bool immediate )
 {
-    if ( immediate ) return sendMsg( mPROC_STATUS, progress );
+    if ( immediate )
+	return sendMsg( mPROC_STATUS, progress );
+
     return updateMsg( mPROC_STATUS, progress );
 }
 
@@ -92,8 +110,8 @@ bool JobCommunic::sendState_( State st, bool isexit, bool immediate )
 
 bool JobCommunic::updateMsg( char tag , int status, const char* msg )
 {
-    int elapsed_succ = Time::passedSince( lastsucces_ );
-    int elapsed_atmpt = Time::passedSince( timestamp_ );
+    const int elapsed_succ = Time::passedSince( lastsucces_ );
+    const int elapsed_atmpt = Time::passedSince( timestamp_ );
 
     if ( elapsed_succ < 0 || elapsed_atmpt < 0 )
         UsrMsg( "System clock skew detected (Ignored)." );
@@ -121,9 +139,9 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 
     if ( DBG::isOn(DBG_MM) )
     {
-	BufferString dbmsg("JobCommunic::sendMsg -- sending : ");
+	BufferString dbmsg( "JobCommunic::sendMsg -- sending : " );
 	dbmsg += statstr;
-	DBG::message(dbmsg);
+	DBG::message( dbmsg );
     }
 
     char tagstr[3];
@@ -132,18 +150,23 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     tagstr[2] = '\0';
     BufferString buf( tagstr );
     buf += statstr;
-    socket_->write( buf );
+    const bool writestat = socket_->write( buf );
+    const BufferString logmsg( "Writing to socket ", buf );
+    logMsg( writestat, logmsg, !writestat ?
+				     socket_->errMsg().getFullString() : "" );
 
     char masterinfo;
-    BufferString errbuf;
     BufferString inp;
-    socket_->read( inp );
+    const bool readstat = socket_->read( inp );
+    logMsg( readstat, "Reading from socket", inp );
+
     masterinfo = inp[0];
     bool ret = !inp.isEmpty();
     if ( !ret )
     {
-	uiString emsg = tr("Error writing status to Master: %1").arg(errbuf);
-	setErrMsg( errbuf );
+	BufferString emsg( "Error reading from Master: ",
+			    socket_->errMsg().getFullString() );
+	setErrMsg( emsg );
     }
 
     else if ( masterinfo == mRSP_WORK )
@@ -159,9 +182,9 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     }
     else
     {
-	uiString emsg = tr("Master sent an unkown response code. %1")
-		      .arg(errbuf);
-	setErrMsg( errbuf );
+	BufferString emsg( "Master sent an unkown response code: ",
+			    socket_->errMsg().getFullString() );
+	setErrMsg( emsg );
 	ret = false;
     }
 
@@ -171,13 +194,12 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
 
 void JobCommunic::checkMasterTimeout()
 {
-    int elapsed = Time::passedSince( lastsucces_ );
+    const int elapsed = Time::passedSince( lastsucces_ );
 
-    if ( elapsed > 0 && elapsed > failtimeout_ )
+    if ( elapsed>0 && elapsed>failtimeout_ )
     {
-	BufferString msg( "Time-out contacting master." );
-	msg += " Last contact "; msg += elapsed/1000;
-	msg += " sec ago. Exiting.";
+	BufferString msg( "Time-out contacting master. Last contact " );
+	msg.add( elapsed/1000 ).add( " sec ago. Exiting." );
 	directMsg( msg );
 	ExitProgram( -1 );
     }
@@ -187,6 +209,7 @@ void JobCommunic::checkMasterTimeout()
 void JobCommunic::directMsg( const char* msg )
 {
     (sdout_.ostrm ? *sdout_.ostrm : std::cerr) << msg << std::endl;
+    logMsg( true, msg, "" );
 }
 
 
@@ -194,10 +217,55 @@ void JobCommunic::alarmHndl(CallBacker*)
 {
     // no need to do anything - see comments at JobIOHandler::alarmHndl
     UsrMsg( "MM Socket Communication: time-out." );
+    logMsg( false, "MM Socket Communication: time-out.", "" );
 }
 
 
 void JobCommunic::disConnect()
 {
     socket_->disconnectFromHost();
+}
+
+
+void JobCommunic::setErrMsg( const char* m )
+{
+    errmsg_ = tr("[%1]: %2").arg(GetPID()).arg(m);
+    logMsg( false, errmsg_.getFullString(), "" );
+}
+
+
+od_ostream* JobCommunic::createLogStream()
+{
+    if ( !DBG::isOn() )
+	return 0;
+
+    BufferString fnm( "od_mmproc_", masterhost_, "_" ); fnm.add( jobid_ );
+    fnm.replace( '.', '_' );
+    FilePath logfp( FilePath::getTempDir(), fnm );
+    logfp.setExtension( ".log" );
+    return new od_ostream( logfp.fullPath() );
+}
+
+
+void JobCommunic::logMsg( bool stat, const char* msg, const char* details )
+{
+    if ( !logstream_ )
+	return;
+
+    BufferString finalmsg = stat ? "Success: " : "Failure: ";
+    finalmsg.add( msg ).add( " : " ).add( details );
+    *logstream_ << finalmsg << od_endl;
+}
+
+
+void JobCommunic::dumpSystemInfo()
+{
+    if ( !logstream_ )
+	return;
+
+    *logstream_ << "----------------------------------------------"  <<od_endl;
+    *logstream_ << "Local Host Name    : " << System::localHostName()<<od_endl;
+    *logstream_ << "Local Host Address : " << System::localAddress() <<od_endl;
+    *logstream_ << "Server Address     : " << masterhost_	     <<od_endl;
+    *logstream_ << "-----------------------------------------------" <<od_endl;
 }

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "callback.h"
 #include "uistring.h"
+#include "od_ostream.h"
 
 class BatchProgram;
 class StreamData;
@@ -55,6 +56,7 @@ public:
 
 			JobCommunic( const char* host, int port,
 					int jobid, StreamData& );
+			~JobCommunic();
 
     bool		ok()		{ return stillok_; }
     uiString		errMsg()	{ return errmsg_; }
@@ -112,10 +114,7 @@ private:
 			//! directly to bp.stdout.ostrem or std::cerr.
     void		directMsg( const char* msg );
 
-    void		setErrMsg( const char* m )
-			{
-			    errmsg_ = tr("[%1]: %2").arg(GetPID()).arg(m);
-			}
+    void		setErrMsg(const char*);
 
     void		checkMasterTimeout();
 
@@ -126,6 +125,12 @@ private:
     int			failtimeout_;
     int			min_time_between_update_;
     int			lastsucces_;
+    
+    void		logMsg(bool stat,const char* msg, const char* details);
+    od_ostream*		logstream_;
+    od_ostream*		createLogStream();
+    void		dumpSystemInfo();
+    
 };
 
 #undef mReturn
