@@ -19,6 +19,28 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 
 
+SeisPSCopier::SeisPSCopier( const IOObj& in, const IOObj& out,
+			    const Seis::SelData* sd )
+    : SeisPSMerger( mkObjs(in), out, false, sd )
+{
+    setName( "Copying Prestack data" );
+}
+
+
+SeisPSCopier::~SeisPSCopier()
+{
+    delete objs_;
+}
+
+
+ObjectSet<IOObj>& SeisPSCopier::mkObjs( const IOObj& in )
+{
+    objs_ = new ObjectSet<IOObj>;
+    *objs_ += (IOObj*)(&in);
+    return *objs_;
+}
+
+
 SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
 			    bool dostack, const Seis::SelData* sd )
 	: Executor("Merging Prestack data")

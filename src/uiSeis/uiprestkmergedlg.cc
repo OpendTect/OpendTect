@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiprestkmergedlg.h"
+#include "uiprestkcopy.h"
 
 #include "uipossubsel.h"
 #include "uilistbox.h"
@@ -375,4 +376,90 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
     exec->setName( "Copy Prestack Data Store" );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, *exec );
+}
+
+
+uiPreStackOutputGroup::uiPreStackOutputGroup( uiParent* p )
+    : uiGroup(p,"Prestack Data Output Group")
+    , inpioobj_(0)
+{
+
+    uiPosSubSel::Setup psssu( false, true );
+    psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
+	 .withstep( true );
+    subselfld_ = new uiPosSubSel( this, psssu );
+
+    uiString offsetrangestr (tr("Offset range %1").arg(SI().getXYUnitString()));
+    offsrgfld_ = new uiGenInput( this, offsetrangestr,
+				 FloatInpSpec(0), FloatInpSpec() );
+    offsrgfld_->attach( alignedBelow, subselfld_ );
+
+    IOObjContext ctxt( mIOObjContext(SeisPS3D) );
+    ctxt.forread = false;
+    outpfld_ = new uiIOObjSel( this, ctxt, "Output Data Store" );
+    outpfld_->attach( alignedBelow, offsrgfld_ );
+
+    setHAlignObj( subselfld_ );
+}
+
+
+uiPreStackOutputGroup::~uiPreStackOutputGroup()
+{
+    delete inpioobj_;
+}
+
+
+void uiPreStackOutputGroup::setInput( const IOObj& ioobj )
+{
+    if ( inpioobj_ && inpioobj_->key() == ioobj.key() )
+	return;
+
+    delete inpioobj_;
+    inpioobj_ = ioobj.clone();
+
+    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inpioobj_ );
+    if ( !rdr ) return;
+
+    HorSampling hs;
+    StepInterval<int> inlrg, crlrg;
+    rdr->posData().getInlRange( inlrg );
+    rdr->posData().getCrlRange( crlrg );
+    hs.set( inlrg, crlrg );
+    IOPar iop;
+    Seis::RangeSelData(hs).fillPar( iop );
+    subselfld_->usePar( iop );
+}
+
+
+bool uiPreStackOutputGroup::go()
+{
+    if ( !inpioobj_ )
+	return false;
+
+    const IOObj* outioobj = outpfld_->ioobj();
+    if ( !outioobj )
+	return false;
+
+    PtrMan<Seis::SelData> sd = 0;
+    if ( !subselfld_->isAll() )
+    {
+	IOPar iop; subselfld_->fillPar( iop );
+	sd = Seis::SelData::get( iop );
+    }
+
+    SeisPSCopier copier( *inpioobj_, *outioobj, sd );
+    float ofsrgstart = offsrgfld_->getfValue( 0 );
+    float ofsrgstop = offsrgfld_->getfValue( 1 );
+    if ( mIsUdf(ofsrgstart) )
+	ofsrgstart = 0;
+    if ( SI().xyInFeet() )
+    {
+	ofsrgstart *= mFromFeetFactorF;
+	if ( !mIsUdf(ofsrgstop) )
+	    ofsrgstop *= mFromFeetFactorF;
+    }
+    copier.setOffsetRange( ofsrgstart, ofsrgstop );
+
+    uiTaskRunner trunner( this );
+    return trunner.execute( copier );
 }

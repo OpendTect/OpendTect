@@ -68,5 +68,18 @@ protected:
 };
 
 
-#endif
+mExpClass(Seis) SeisPSCopier : public SeisPSMerger
+{
+public:
+			SeisPSCopier(const IOObj& in,const IOObj& out,
+				     const Seis::SelData* sd=0);
+			~SeisPSCopier();
+protected:
 
+    ObjectSet<IOObj>*	objs_;
+    ObjectSet<IOObj>&	mkObjs(const IOObj&);
+
+};
+
+
+#endif
