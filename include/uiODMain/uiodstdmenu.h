@@ -186,6 +186,7 @@ ________________________________________________________________________
 
 #define mWorkAreaMnuItm		(mViewMnu + 10)
 #define mZScaleMnuItm		(mViewMnu + 20)
+#define m2DViewMnuItm		(mViewMnu + 30)
 
 #define mViewStereoMnu		(mViewMnu + 100)
 

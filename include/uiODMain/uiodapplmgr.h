@@ -114,6 +114,7 @@ public:
     void			setWorkingArea();
     void			setZStretch();
     void			setStereoOffset();
+    void			show2DViewer();
 
     // Scene menu operations
     void			addTimeDepthScene();

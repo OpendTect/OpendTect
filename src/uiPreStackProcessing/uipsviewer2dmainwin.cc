@@ -202,7 +202,7 @@ void uiViewer2DMainWin::reSizeItems()
 
 void uiViewer2DMainWin::doHelp( CallBacker* )
 {
-    HelpProvider::provideHelp( HelpKey(mODHelpKey(mViewer2DMainWinHelpID) ) );
+    HelpProvider::provideHelp( HelpKey(mODHelpKey(mViewer2DPSMainWinHelpID) ) );
 }
 
 
@@ -840,7 +840,7 @@ public:
 uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
                                  uiStrings::sEmptyString(),
-                               mODHelpKey(mViewer2DMainWindisplayAngleHelpID)))
+			      mODHelpKey(mViewer2DPSMainWindisplayAngleHelpID)))
 {
     FixedString windowtitle = isag ? "Angle Gather Display"
 				   : "Angle Data Display";

@@ -22,6 +22,7 @@ SET( OD_MODULE_SOURCES
 	uiwelltiesavedatadlg.cc
 	uiwelltieview.cc
 	uiwelltiewavelet.cc
+	uiwellto2dlinedlg.cc
 	uistratlayermodel.cc
 	uistratseisevent.cc
 	uistratsynthcrossplot.cc

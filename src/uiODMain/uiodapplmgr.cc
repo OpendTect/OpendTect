@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uinlapartserv.h"
 #include "uiodemsurftreeitem.h"
+#include "uiodviewer2dposdlg.h"
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
@@ -517,6 +518,13 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
     BufferString scenenm( "Flattened on '", hornm,  "'" );
     sceneMgr().tile();
     sceneMgr().addScene( true, transform, scenenm );
+}
+
+
+void uiODApplMgr::show2DViewer()
+{
+    uiODViewer2DPosDlg viewposdlg( appl_ );
+    viewposdlg.go();
 }
 
 

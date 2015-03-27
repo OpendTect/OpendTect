@@ -35,7 +35,7 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 	const TrcKeyZSampling& cs, const BufferStringSet& gathernms,
 	bool issynthetic )
     : uiDialog(p,uiDialog::Setup("Prestack Gather display positions",
-				0, mODHelpKey(mViewer2DPosDlgHelpID) )
+				0, mODHelpKey(mViewer2DPSPosDlgHelpID) )
                                 .modal(false))
     , okpushed_(this)
     , is2d_(is2d)
@@ -449,7 +449,7 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 						  BufferStringSet& selgnms )
     : uiDialog(p,uiDialog::Setup(tr("Select gather data"),
 				 tr("Add PS Gather"),
-                                 mODHelpKey(mViewer2DSelDataDlgHelpID) ))
+				 mODHelpKey(mViewer2DPSSelDataDlgHelpID) ))
     , selgathers_(selgnms)
 {
     allgatherfld_ = new uiListBox( this, "Available gathers",

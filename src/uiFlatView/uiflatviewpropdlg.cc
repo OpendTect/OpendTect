@@ -818,7 +818,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      int selannot )
     : uiTabStackDlg(p,uiDialog::Setup(tr("Specify Display Properties"),
 				      mNoDlgTitle,
-                                      mODHelpKey(mFlatViewPropDlgHelpID) ))
+				      mODHelpKey(mODViewer2DPropDlgHelpID) ))
     , vwr_(vwr)
     , applycb_(applcb)
     , selannot_(selannot)

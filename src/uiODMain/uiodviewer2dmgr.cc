@@ -65,7 +65,9 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid, bool wva )
 {
     uiODViewer2D* vwr = &addViewer2D( -1 );
-    vwr->setUpView( dpid, wva );
+    const DataPack::ID vwdpid = vwr->createFlatDataPack( dpid, 0 );
+    vwr->setUpView( vwdpid, wva );
+    mAttachCB( vwr->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     return vwr->id_;
 }
 

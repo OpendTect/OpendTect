@@ -292,7 +292,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     uiFlatViewer& mainvwr = viewwin()->viewer();
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpkey(
-                                        mODHelpKey(mFlatViewStdControlHelpID) )
+					mODHelpKey(mODViewer2DHelpID) )
 						   .withedit(tifs_)
 						   .managescoltab(!tifs_) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );

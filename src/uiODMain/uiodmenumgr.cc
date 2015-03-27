@@ -684,6 +684,7 @@ void uiODMenuMgr::fillViewMenu()
     viewmnu_->clear();
     mInsertItem( viewmnu_, tr("Work Area ..."), mWorkAreaMnuItm );
     mInsertItem( viewmnu_, tr("Z-Scale ..."), mZScaleMnuItm );
+    mInsertItem( viewmnu_, tr("Viewer 2D ..."), m2DViewMnuItm );
     uiMenu* stereoitm = new uiMenu( &appl_, tr("Stereo Viewing") );
     viewmnu_->insertItem( stereoitm );
 
@@ -1280,6 +1281,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mScenePropMnuItm:	sceneMgr().setSceneProperties(); break;
     case mWorkAreaMnuItm:	applMgr().setWorkingArea(); break;
     case mZScaleMnuItm:		applMgr().setZStretch(); break;
+    case m2DViewMnuItm:		applMgr().show2DViewer(); break;
     case mBatchProgMnuItm:	applMgr().batchProgs(); break;
     case mPluginsMnuItm:	applMgr().pluginMan(); break;
     case mSetupBatchItm:	applMgr().setupBatchHosts(); break;
