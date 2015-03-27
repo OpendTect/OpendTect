@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 bool BatchProgram::go( od_ostream& strm )
 {
-    OD::ModDeps().ensureLoaded( "Well" );
+    OD::ModDeps().ensureLoaded( "AllNonUi" );
     GMT::initStdClasses();
     finishmsg_ = "Map created successfully";
     const char* psfilenm = pars().find( sKey::FileName() );
