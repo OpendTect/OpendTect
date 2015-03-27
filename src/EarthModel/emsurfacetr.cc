@@ -100,7 +100,7 @@ EMSurfaceTranslator::~EMSurfaceTranslator()
 
 void EMSurfaceTranslator::init( const EM::Surface* surf, const IOObj* ioobj )
 {
-    surface = const_cast<EM::Surface*>(surf);
+    surface_ = const_cast<EM::Surface*>(surf);
     setIOObj( ioobj );
 }
 
@@ -340,7 +340,7 @@ void dgbEMSurfaceTranslator::getSels( StepInterval<int>& rrg,
 
 Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 {
-    surface = &surf;
+    surface_ = &surf;
     Executor* res = reader_;
     if ( reader_ )
     {
@@ -372,7 +372,8 @@ Executor* dgbEMSurfaceTranslator::getWriter()
 {
     BufferString unm( group() ? group()->userName().buf() : 0 );
     EM::dgbSurfaceWriter* res =
-	new EM::dgbSurfaceWriter(ioobj_,unm.buf(), *surface,getBinarySetting());
+	new EM::dgbSurfaceWriter(ioobj_,unm.buf(),
+				 *surface_,getBinarySetting());
     res->setWriteOnlyZ( writeOnlyZ() );
 
     if ( hasRangeSelection() && !sels_.rg.isEmpty() )

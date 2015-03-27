@@ -126,7 +126,7 @@ public:
 						    const char* unm)
 				    : Translator(nm,unm)
 				    , ioobj_(0)
-				    , surface(0)
+				    , surface_(0)
 				    , sels_(sd_)	{}
 
     virtual			~EMSurfaceTranslator();
@@ -156,7 +156,7 @@ public:
 protected:
 
     IOObj*			ioobj_;
-    EM::Surface*		surface;
+    EM::Surface*		surface_;
     uiString			errmsg_;
     EM::SurfaceIOData		sd_;
     EM::SurfaceIODataSelection	sels_;

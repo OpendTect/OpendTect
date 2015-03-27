@@ -162,18 +162,25 @@ Interval<float> IOObjInfo::getZRange() const
 
 StepInterval<int> IOObjInfo::getInlRange() const
 {
-    mGetReader
-    if ( !reader_ )
-	return Interval<int>(mUdf(int),mUdf(int));
-    return reader_->rowInterval();
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
+    if ( !str || !str->startRead(*ioobj_) )
+	return StepInterval<int>::udf();
+
+    const SurfaceIOData& newsd = str->selections().sd;
+    return newsd.rg.inlRange();
 }
 
 
 StepInterval<int> IOObjInfo::getCrlRange() const
 {
-    mGetReader
-    return reader_ ? reader_->colInterval()
-		   : StepInterval<int>(mUdf(int),mUdf(int),mUdf(int));
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
+    if ( !str || !str->startRead(*ioobj_) )
+	return StepInterval<int>::udf();
+
+    const SurfaceIOData& newsd = str->selections().sd;
+    return newsd.rg.crlRange();
 }
 
 
