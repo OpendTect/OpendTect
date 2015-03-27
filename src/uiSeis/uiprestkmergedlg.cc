@@ -287,8 +287,9 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
     }
 
     const bool dostack = stackfld_->getBoolValue();
-    PtrMan<SeisPSMerger> exec = new SeisPSMerger(
-	    ((ObjectSet<const IOObj>&)selobjs_), *outctio_.ioobj,
+    ObjectSet<const IOObj>* selobjs
+		= reinterpret_cast<ObjectSet<const IOObj>*>(&selobjs_);
+    PtrMan<SeisPSMerger> exec = new SeisPSMerger( *selobjs, *outctio_.ioobj,
 						  dostack, sd );
     exec->setName( "Merge Prestack Data Stores" );
     uiTaskRunner dlg( this );
