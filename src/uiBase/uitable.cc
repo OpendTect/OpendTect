@@ -232,8 +232,6 @@ void uiTableBody::copy()
 
 void uiTableBody::paste()
 {
-    clearSelection();
-
     const QString str = QApplication::clipboard()->text();
     const QStringList rows = str.split( '\n' );
     const int nrrows = rows.count()-1;
