@@ -78,11 +78,11 @@ mExpClass(General) MenuItem : public MenuItemHolder
 {
 public:
 				MenuItem(const uiString& 
-					 text=uiStrings::sEmptyString(),
+					     text=uiStrings::sEmptyString(),
 					 int placement=-1);
 				MenuItem(const uiString& text,
-					 BufferString icnm,
-					 BufferString tp,
+					 const char* iconnm,
+					 const char* tooltip,
 					 CallBack cb=CallBack(),
 					 int placement=-1);
     void			createItems(const BufferStringSet&);
@@ -105,7 +105,7 @@ public:
 				/*!< If false, the item will be visble, but
 				    not selectable. */
     BufferString		iconfnm;
-				//*!< Filename of icon
+				//*!< Icon identifier
     BufferString		tooltip;
 				//*!< Tooltip if item is used in toolbar
     CallBack			cb;
