@@ -76,11 +76,8 @@ void uiPickPartServer::survChangedCB( CallBacker* )
 
 void uiPickPartServer::managePickSets()
 {
-    if ( !manpicksetsdlg_ )
-	manpicksetsdlg_ = new uiPickSetMan( parent() );
-    else
-	manpicksetsdlg_->selGroup()->fullUpdate( -1 );
-
+    delete manpicksetsdlg_;
+    manpicksetsdlg_ = new uiPickSetMan( parent() );
     manpicksetsdlg_->go();
 }
 
