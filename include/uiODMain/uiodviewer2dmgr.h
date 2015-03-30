@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class uiODViewer2D;
 class uiTreeFactorySet;
+namespace Attrib { class SelSpec; }
 
 
 mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
@@ -26,7 +27,9 @@ mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
 public:
     uiODViewer2D*		find2DViewer(int id,bool byvisid);
 
-    int				displayIn2DViewer(DataPack::ID,bool wva);
+    int				displayIn2DViewer(DataPack::ID,
+						  const Attrib::SelSpec&,
+						  bool wva);
     void			displayIn2DViewer(int visid,int attribid,
 						  bool wva);
     void			remove2DViewer(int visid);

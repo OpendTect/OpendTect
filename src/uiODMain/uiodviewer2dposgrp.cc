@@ -37,11 +37,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 DefineEnumNames(uiODViewer2DPosGrp,PosType,0,"Position Type")
-{ "Random Line", "Inline", "Crossline", "2D Line", "Z-Slice", 0 };
+{ "Random line", "In-line", "Cross-line", "2D line", "Z-slice", 0 };
 
 uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p, Viewer2DPosDataSel& sd,
 					bool wantz )
-    : uiGroup( p )
+    : uiGroup(p)
     , applmgr_(0)
     , scenemgr_(0)
     , posdatasel_(sd)
@@ -86,7 +86,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p, Viewer2DPosDataSel& sd,
 
 	gen2dlinebut_ =
 	    new uiPushButton( this, createlinetxt,
-			      mCB(this,uiODViewer2DPosGrp,gen2DLine), true);
+			      mCB(this,uiODViewer2DPosGrp,gen2DLine), true );
 	gen2dlinebut_->attach( rightOf, inp2dfld_ );
 
 	subsel2dfld_ = new uiSeis2DSubSel( this, Seis::SelSetup(true) );
@@ -108,7 +108,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p, Viewer2DPosDataSel& sd,
 	if ( withz_ )
 	    createSliceSel( uiSliceSel::Tsl );
 	rdmlinefld_ = new uiIOObjSel( this, mIOObjContext(RandomLineSet),
-				      tr("Input Random Line") );
+				      tr("Input Random line") );
 	rdmlinefld_->attach( alignedBelow, inp3dfld_ );
 	rdmlinefld_->selectionDone.notify( inpcb );
 
@@ -168,13 +168,15 @@ void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
     sliceselflds_ += sliceselfld;
 }
 
+
 IOObj* uiODViewer2DPosGrp::get2DObj()
 {
     const Attrib::DescSet& ads = inp2dfld_->getAttrSet();
     const Attrib::Desc* desc = ads.getDesc( inp2dfld_->attribID() );
     if ( !desc ) desc = ads.getFirstStored();
     if ( !desc ) return 0;
-    MultiID stored2did( desc->getStoredID(true) );
+
+    const MultiID stored2did( desc->getStoredID(true) );
     return IOM().get( stored2did );
 }
 
@@ -258,7 +260,7 @@ bool uiODViewer2DPosGrp::acceptOK()
     {
 	const IOObj* rdlinobj = rdmlinefld_->ioobj( true );
 	if ( !rdlinobj )
-	    mErrRet( tr("Please select a random line") )
+	    mErrRet( tr("Please select a Random line") )
 	posdatasel_.rdmlineid_ = rdlinobj->key();
     }
 
@@ -270,6 +272,7 @@ bool uiODViewer2DPosGrp::acceptOK()
 void uiODViewer2DPosGrp::gen2DLine( CallBacker* )
 {
     if ( !applmgr_ ) return;
+
     uiWellTo2DLineDlg dlg( this );
     dlg.wantspreview_.notify( mCB(this,uiODViewer2DPosGrp,preview2DLine) );
     if ( dlg.go() )
@@ -289,6 +292,7 @@ void uiODViewer2DPosGrp::gen2DLine( CallBacker* )
 void uiODViewer2DPosGrp::genRdmLine( CallBacker* )
 {
     if ( !applmgr_ ) return;
+
     applmgr_->wellServer()->setSceneID( scenemgr_->askSelectScene() );
     applmgr_->wellServer()->selectWellCoordsForRdmLine();
     mAttachCBIfNotAttached(applmgr_->wellServer()->randLineDlgClosed,
@@ -299,6 +303,7 @@ void uiODViewer2DPosGrp::genRdmLine( CallBacker* )
 void uiODViewer2DPosGrp::rdmLineDlgClosed( CallBacker* )
 {
     if ( !applmgr_ ) return;
+
     const char* multiid = applmgr_->wellServer()->getRandLineMultiID();
     if ( multiid && rdmlinefld_ )
     {
@@ -313,8 +318,10 @@ void uiODViewer2DPosGrp::rdmLineDlgClosed( CallBacker* )
 void uiODViewer2DPosGrp::preview2DLine( CallBacker* cb )
 {
     if ( !applmgr_ ) return;
+
     mDynamicCastGet(uiWellTo2DLineDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("can't find 2d line dlg"); }
+
     TypeSet<Coord> coords;
     dlg->getCoordinates( coords );
     applmgr_->setupRdmLinePreview( coords );
@@ -334,6 +341,7 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* )
 	gen2dlinebut_->display( is2D() && applmgr_ );
 	attr2DSelected(0);
     }
+
     if ( SI().has3D() )
     {
 	inp3dfld_->display( !is2D() && posdatasel_.selectdata_ );

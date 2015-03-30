@@ -62,11 +62,19 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 }
 
 
-int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid, bool wva )
+int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
+					const Attrib::SelSpec& as, bool dowva )
 {
     uiODViewer2D* vwr = &addViewer2D( -1 );
     const DataPack::ID vwdpid = vwr->createFlatDataPack( dpid, 0 );
-    vwr->setUpView( vwdpid, wva );
+    vwr->setSelSpec( &as, dowva ); vwr->setSelSpec( &as, !dowva );
+    vwr->setUpView( vwdpid, dowva );
+
+    FlatView::DataDispPars& ddp =
+	vwr->viewwin()->viewer().appearance().ddpars_;
+    (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+    vwr->viewwin()->viewer().handleChange( FlatView::Viewer::DisplayPars );
+
     mAttachCB( vwr->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     return vwr->id_;
 }

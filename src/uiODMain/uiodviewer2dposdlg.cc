@@ -24,8 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
-    : uiDialog(&appl,uiDialog::Setup(tr("2D Viewer launcher"),
-				     tr("Select position & data"),
+    : uiDialog(&appl,uiDialog::Setup(tr("2D Viewer Launcher"),
+				     tr("Select Position and Data"),
 				     mODHelpKey(mODViewer2DPosDlgHelpID)))
     , odappl_(appl)
 {
@@ -37,6 +37,7 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
 {
     if ( !posgrp_->acceptOK() )
 	return false;
+
     DataPack::ID vwr2ddpid = DataPack::cNoID();
     uiAttribPartServer* attrserv = odappl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel_.selspec_ );
@@ -62,6 +63,7 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
 	    attrserv->createOutput( posdatasel_.tkzs_, DataPack::cNoID() );
     }
 
-    odappl_.viewer2DMgr().displayIn2DViewer( vwr2ddpid, false );
+    odappl_.viewer2DMgr().displayIn2DViewer( vwr2ddpid, posdatasel_.selspec_,
+					     false );
     return true;
 }
