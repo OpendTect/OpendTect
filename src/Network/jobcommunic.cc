@@ -152,8 +152,8 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     buf += statstr;
     const bool writestat = socket_->write( buf );
     const BufferString logmsg( "Writing to socket ", buf );
-    logMsg( writestat, logmsg, !writestat ?
-				     socket_->errMsg().getFullString() : "" );
+    logMsg( writestat, logmsg,
+	    !writestat ? socket_->errMsg().getFullString().str() : "" );
 
     char masterinfo;
     BufferString inp;
