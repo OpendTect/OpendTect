@@ -129,6 +129,7 @@ namespace sKey
     inline FixedString YCoord()		{ return "Y-Coord"; }
     inline FixedString Yes()		{ return "Yes"; }
     inline FixedString ZRange()		{ return "Z range"; }
+    inline FixedString ZSlice()		{ return "Z-slice"; }
 
     // Stats
     inline FixedString Average()	{ return "Average"; }
