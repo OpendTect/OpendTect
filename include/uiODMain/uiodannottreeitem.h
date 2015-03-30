@@ -223,7 +223,7 @@ protected: \
 
 mDefineParentItem(Arrow,"Arrows",1000);
 mDefineParentItem(Image,"Image",1000);
-mDefineParentItem(ScaleBar,"ScaleBar",1000);
+mDefineParentItem(ScaleBar,"Scale Bar",1000);
 
 
 #endif

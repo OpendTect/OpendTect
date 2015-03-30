@@ -46,7 +46,7 @@ class uiScaleBarDialog : public uiDialog
 {mODTextTranslationClass(uiScaleBarDialog);
 public:
 uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
-    : uiDialog(p,Setup(tr("%1 properties").arg("ScalarBar")
+    : uiDialog(p,Setup(tr("Scale Bar Properties")
 		,mNoDlgTitle, mODHelpKey(mArrowDialogHelpID) ))
     , propertyChange(this)
     , zinf_(zinf)
@@ -195,7 +195,7 @@ void ScaleBarSubItem::fillStoragePar( IOPar& par ) const
 {
     uiODAnnotSubItem::fillStoragePar( par );
     mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,
-						visserv_->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     ad->toPar( par );
 }
 
@@ -250,7 +250,7 @@ void ScaleBarSubItem::propertyChange( CallBacker* cb )
     setColor( pars.ls_.color_ );
 
     mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,
-					       visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     ad->setOnInlCrl( pars.oninlcrl_ );
     ad->setOrientation( pars.orientation_ );
     ad->setLineWidth( pars.ls_.width_ );
