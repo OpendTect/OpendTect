@@ -93,6 +93,11 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
 #endif
 
+#ifdef __debug__
+    if ( !errmsg_.isEmpty() )
+	ErrMsg( errmsg_ );
+#endif
+
     if( DBG::isOn(DBG_PROGSTART) )
     {
 	BufferString msg( "Attempt to get open handle for sh lib " );
