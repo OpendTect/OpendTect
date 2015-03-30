@@ -17,15 +17,12 @@ ________________________________________________________________________
 #include "emobject.h"
 
 class IOObj;
-template <class T, class AT> class TopList;
-
 namespace Pos { class Filter; }
 
 namespace EM
 {
-class EMManager;
 
-class EdgeLineManager;
+class EMManager;
 class SurfaceGeometry;
 
 /*!
@@ -85,8 +82,7 @@ protected:
 };
 
 
-}; // Namespace
-
+} // namespace EM
 
 #endif
 

@@ -368,8 +368,8 @@ bool EMManager::readDisplayPars( const MultiID& mid, IOPar& outpar ) const
 }
 
 
-bool EMManager::readParsFromDisplayInfoFile(
-    const MultiID& mid,IOPar& outpar ) const
+bool EMManager::readParsFromDisplayInfoFile( const MultiID& mid,
+					     IOPar& outpar ) const
 {
     outpar.setEmpty();
 
@@ -386,12 +386,11 @@ bool EMManager::readParsFromDisplayInfoFile(
 	return false;
 
     return outpar.read( strm, displayparameterstr() );
-
 }
 
 
-bool EMManager::readParsFromGeometryInfoFile(
-    const MultiID& mid,IOPar& outpar ) const
+bool EMManager::readParsFromGeometryInfoFile( const MultiID& mid,
+					      IOPar& outpar ) const
 {
     outpar.setEmpty();
     IOPar* par = IOObjInfo(mid).getPars();

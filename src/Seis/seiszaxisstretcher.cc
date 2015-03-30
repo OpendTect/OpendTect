@@ -76,7 +76,7 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 	TrcKeySampling storhrg; storhrg.set( spi.inlrg, spi.crlrg );
 	outcs_.hrg.limitTo( storhrg );
     }
-    
+
     TrcKeyZSampling cs( true );
     cs.hrg = outcs_.hrg;
     seisreader_->setSelData( new Seis::RangeSelData(cs) );

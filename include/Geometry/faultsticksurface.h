@@ -31,10 +31,10 @@ public:
 
 protected:
 
-    bool			sticksvertical_;
+    bool		sticksvertical_;
 };
 
-};
+} // namespace Geometry
 
 #endif
 
