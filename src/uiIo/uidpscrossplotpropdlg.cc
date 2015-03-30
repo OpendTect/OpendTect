@@ -270,7 +270,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     , err1bfrplot_(false)
     , err2bfrplot_(false)
     , selaxisfld_(0)
-    , dragmode_(0)
+    , dragmode_(uiGraphicsView::NoDrag)
 {
     inpfld_ = new uiGenInput( this, "Equation Y1=" );
     inpfld_->setElemSzPol( uiObject::Wide );
@@ -439,7 +439,7 @@ void checkedCB( CallBacker* )
 	plotter_.setDragMode( uiGraphicsView::NoDrag );
     }
     else
-	plotter_.setDragMode( (uiGraphicsView::ODDragMode)dragmode_ );
+	plotter_.setDragMode( dragmode_ );
 
     plotter_.setCursor( cursor );
 }
@@ -489,7 +489,7 @@ void setPolyLines( CallBacker* cb )
 	plotter_.setUserDefPolyLine( pos, false );
     if ( shwy2userdefpolyline_ && !shwy2userdefpolyline_->isChecked() )
 	plotter_.setUserDefPolyLine( pos, true );
-    plotter_.setDragMode( (uiGraphicsView::ODDragMode)dragmode_ );
+    plotter_.setDragMode( dragmode_ );
 }
 
 
@@ -696,7 +696,7 @@ bool acceptOK()
     bool				line2drawn_;
     bool				err1bfrplot_;
     bool				err2bfrplot_;
-    int				dragmode_;
+    uiGraphicsView::ODDragMode		dragmode_;
     uiGenInput*                         inpfld_;
     uiGenInput*                         inpfld1_;
     uiGenInput*				rmsfld_;
