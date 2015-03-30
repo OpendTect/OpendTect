@@ -195,9 +195,6 @@ if ( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
     endif()
 endif()
 
-# Build information
-include ( ODSubversion )
-
 OD_CURRENT_DATE( DATE )
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in
 		${CMAKE_BINARY_DIR}/include/Basic/buildinfo.h @ONLY )

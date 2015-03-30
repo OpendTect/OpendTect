@@ -1,6 +1,7 @@
 SET( OD_CORE_SUBSYSTEM "od" )
 
 SET( INCLUDES
+    ODSubversion
     ODPlatformUtils
     ODUtils
     ODQtUtils
