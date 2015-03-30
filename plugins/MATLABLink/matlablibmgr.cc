@@ -76,7 +76,14 @@ bool MatlabLibAccess::init()
 
     sla_ = new SharedLibAccess( shlibfnm_ );
     if ( !sla_->isOK() )
-	mErrRet( sla_->errMsg() );
+    {
+#ifdef __win__
+	errmsg_ = BufferString("Cannot load dll: ",shlibfnm_);
+#else
+	errmsg_ = sla_->errMsg();
+#endif
+	return false;
+    }
 
     const BufferString initfnm = getFnm( shlibfnm_, true );
     initfn ifn = (initfn)sla_->getFunction( initfnm.buf() );
