@@ -232,54 +232,30 @@ bool StorageProvider::checkInpAndParsAtStart()
 	if ( !dset )
 	    mErrRet( tr("2D seismic data/No data set found") );
 
-	int lineidx = dset->indexOf( lk.buf() );
-	if ( lineidx == -1 )
+	storedvolume_.hrg.start.inl() = 0;
+	storedvolume_.hrg.stop.inl() = 1;
+	storedvolume_.hrg.include( BinID( 0,0 ) );
+	storedvolume_.hrg.include( BinID( 0,SI().maxNrTraces(true) ) );
+	storedvolume_.hrg.step.crl() = 1; // what else?
+	bool foundone = false;
+	for ( int idx=0; idx<dset->nrLines(); idx++ )
 	{
-	    storedvolume_.hrg.start.inl() = 0;
-	    storedvolume_.hrg.stop.inl() = 1;
-	    storedvolume_.hrg.include( BinID( 0,0 ) );
-	    storedvolume_.hrg.include( BinID( 0,SI().maxNrTraces(true) ) );
-	    storedvolume_.hrg.step.crl() = 1; // what else?
-	    BufferStringSet candidatelines;
-	    dset->getLineNames( candidatelines );
-	    bool foundone = false;
-	    for ( int idx=0; idx<candidatelines.size(); idx++ )
-	    {
-		lineidx = dset->indexOf( candidatelines.get(idx).buf() );
-		if ( lineidx> -1 )
-		{
-		    StepInterval<int> trcrg; StepInterval<float> zrg;
-		    if ( dset->getRanges( dset->geomID(lineidx), trcrg, zrg ) )
-		    {
-			if ( foundone )
-			{
-			    storedvolume_.hrg.include( BinID(0,trcrg.start) );
-			    storedvolume_.hrg.include( BinID(0,trcrg.stop) );
-			    storedvolume_.zsamp_.include( zrg );
-			}
-			else
-			{
-			    storedvolume_.hrg.start.crl() = trcrg.start;
-			    storedvolume_.hrg.stop.crl() = trcrg.stop;
-			    storedvolume_.zsamp_ = zrg;
-			}
-			foundone = true;
-		    }
-		}
-	    }
-	}
-	else
-	{
-	    storedvolume_.hrg.start.inl() = storedvolume_.hrg.stop.inl()
-					  = lineidx;
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
-	    if ( !dset->getRanges( dset->geomID(lineidx), trcrg, zrg ) )
-		mErrRet(tr("Cannot get needed trace range from 2D line set"))
+	    if ( !dset->getRanges(dset->geomID(idx),trcrg,zrg) )
+		continue;
+
+	    if ( foundone )
+	    {
+		storedvolume_.hrg.include( BinID(0,trcrg.start) );
+		storedvolume_.hrg.include( BinID(0,trcrg.stop) );
+		storedvolume_.zsamp_.include( zrg );
+	    }
 	    else
 	    {
 		storedvolume_.hrg.start.crl() = trcrg.start;
 		storedvolume_.hrg.stop.crl() = trcrg.stop;
 		storedvolume_.zsamp_ = zrg;
+		foundone = true;
 	    }
 	}
     }
