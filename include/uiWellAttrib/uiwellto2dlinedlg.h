@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiwellmod.h"
+#include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uistring.h"
 #include "bufstringset.h"
@@ -25,7 +25,7 @@ class uiWellSelGrp;
 
 namespace Geometry { class RandomLine; }
 
-mExpClass(uiWell) uiWellTo2DLineDlg : public uiDialog
+mExpClass(uiWellAttrib) uiWellTo2DLineDlg : public uiDialog
 { mODTextTranslationClass(uiWellTo2DLineDlg)
 public:
 			uiWellTo2DLineDlg(uiParent*);
