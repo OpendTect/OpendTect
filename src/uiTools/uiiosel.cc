@@ -81,6 +81,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	BufferString butnm( su.buttontxt_.getFullString(), " " );
 	butnm += su.seltxt_.getFullString();
 	selbut_->setName( butnm.buf() );
+	selbut_->attach( rightTo, inp_ );
     }
 
     setHAlignObj( inp_ );
