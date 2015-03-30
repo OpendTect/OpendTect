@@ -440,7 +440,11 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==showfullmnuitem_.id )
     {
 	setOnlyAtSectionsDisplay( false );
-	if ( hordisp ) hordisp->displayIntersectionLines( false );
+	if ( hordisp )
+	{
+	    hordisp->displayIntersectionLines( false );
+	    hordisp->useTexture( true, true );
+	}
 	menu->setIsHandled( true );
     }
     else if ( mnuid==showbothmnuitem_.id )
