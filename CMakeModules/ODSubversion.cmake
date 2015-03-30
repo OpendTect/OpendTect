@@ -40,7 +40,7 @@ if ( OD_FROM_SVN )
 endif()
 
 if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
-    set ( EXTERNALCMD COMMAND
+    set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
 		-DOpendTect_DIR=${OpendTect_DIR}
 		-P external/Externals.cmake )
 endif()
