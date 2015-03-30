@@ -57,7 +57,6 @@ public:
     void		setD2TModels(const ObjectSet<const TimeDepthModel>& d2t)
 			{ viewmgr_.setD2TModels( d2t ); }
 
-    void		reInitZooms();
     uiToolButton*	parsButton(const uiFlatViewer*);
 
 protected:

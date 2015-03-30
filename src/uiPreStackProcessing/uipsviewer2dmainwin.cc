@@ -1253,7 +1253,6 @@ new uiToolButton( tb_, fnm, tt, mCB(this,uiViewer2DControl,cbnm) ); \
 
 uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     : uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(mw.parent())
-			.withstates(false)
 			.withcoltabed(true)
 			.withsnapshot(false)
 			.withflip(false)

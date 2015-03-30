@@ -29,7 +29,7 @@ uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,
     app.setGeoDefaults( true );
     app.ddpars_.wva_.overlap_ = 1;
     addControl( new uiFlatViewStdControl( viewer(),
-		uiFlatViewStdControl::Setup(this).withstates(true) ) );
+		uiFlatViewStdControl::Setup(this) ) );
 }
 
 

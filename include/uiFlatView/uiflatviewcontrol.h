@@ -48,6 +48,7 @@ public:
     Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
     Notifier<uiFlatViewControl>  viewerAdded;
     Notifier<uiFlatViewControl>  zoomChanged;
+    Notifier<uiFlatViewControl>  rubberBandUsed;
 
     static uiWorldRect		getZoomOrPanRect(Geom::Point2D<double> mousepos,
 						 Geom::Size2D<double> newsz,
@@ -62,6 +63,7 @@ public:
 				panning, pass the view after translation. */
     uiTabStackDlg*		propDialog();
     const FlatView::ZoomMgr&	zoomMgr() const { return zoommgr_; }
+    void			reInitZooms();
 
 protected:
 

@@ -36,11 +36,12 @@ public:
 			    : parent_(p)
 			    , withcoltabed_(true)
 			    , withedit_(false)
-			    , withstates_(true)
 			    , withhanddrag_(true)
 			    , withsnapshot_(true)
 			    , withflip_(true)
 			    , withrubber_(true)
+			    , withzoombut_(true)
+			    , withvertzoombut_(false)
 			    , managescoltab_(true)
                             , tba_(-1)	{}	      	
 
@@ -48,12 +49,13 @@ public:
 	mDefSetupMemb(bool,withcoltabed)
 	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,withhanddrag)
-	mDefSetupMemb(bool,withstates)
 	mDefSetupMemb(int,tba)		//!< uiToolBar::ToolBarArea preference
 	mDefSetupMemb(HelpKey,helpkey)
 	mDefSetupMemb(bool,withflip)
 	mDefSetupMemb(bool,withsnapshot)
 	mDefSetupMemb(bool,withrubber)
+	mDefSetupMemb(bool,withzoombut)
+	mDefSetupMemb(bool,withvertzoombut)
 	mDefSetupMemb(bool,managescoltab)
     };
 
@@ -67,30 +69,33 @@ public:
 
 protected:
 
-    bool		manip_;
     bool		mousepressed_;
     uiPoint		mousedownpt_;
     uiWorldRect		mousedownwr_;
     
     uiToolBar*		tb_;
+    uiToolButton*	rubbandzoombut_;
     uiToolButton*	zoominbut_;
     uiToolButton*	zoomoutbut_;
-    uiToolButton*	manipdrawbut_;
+    uiToolButton*	vertzoominbut_;
+    uiToolButton*	vertzoomoutbut_;
+    uiToolButton*	cancelzoombut_;
     uiToolButton*	parsbut_;
     uiToolButton*	editbut_;
 
-    uiFlatViewer&		vwr_;
-    uiFlatViewColTabEd*		ctabed_;
+    uiFlatViewer&	vwr_;
+    uiFlatViewColTabEd* ctabed_;
 
     virtual void	finalPrepare();
     void		clearToolBar();
     void		updatePosButtonStates();
-    void		doZoom(bool zoomin,uiFlatViewer&);
+    void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
 
     virtual void	coltabChg(CallBacker*);
     virtual void	dispChgCB(CallBacker*);
     virtual void        zoomChgCB(CallBacker*);
-    virtual void	editCB(CallBacker*);
+    virtual void	rubBandUsedCB(CallBacker*);
+    virtual void	dragModeCB(CallBacker*);
     void		flipCB(CallBacker*);
     void		helpCB(CallBacker*);
     void		handDragStarted(CallBacker*);
@@ -98,11 +103,11 @@ protected:
     void		handDragged(CallBacker*);
     void		keyPressCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
-    virtual void	stateCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
     virtual void	pinchZoomCB(CallBacker*);
+    virtual void	cancelZoomCB(CallBacker*);
 
     virtual bool	handleUserClick(int vwridx);
 

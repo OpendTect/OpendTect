@@ -386,7 +386,7 @@ bool uiTieWin::saveDataPushed( CallBacker* cb )
 void uiTieWin::eventTypeChg( CallBacker* )
 {
     server_.pickMgr().setEventType( eventtypefld_->box()->text() );
-    controlview_->setEditOn( true );
+    controlview_->setEditMode( true );
 }
 
 

@@ -147,8 +147,7 @@ void FlatView::ZoomMgr::reInit(const TypeSet<Geom::PosRectangle<double> >& wrs)
 void FlatView::ZoomMgr::add( FlatView::ZoomMgr::Size newzoom, int vieweridx )
 {
     if ( current_.isPresent(-1) )
-    	{ pErrMsg("ZoomMgr is not initialized"); return; }
-
+    	return;
     const Size zoom0 = viewerdata_[vieweridx]->zooms_[0];
     if ( newzoom.width() > zoom0.width() )
 	newzoom.setWidth( zoom0.width() );
@@ -191,31 +190,35 @@ FlatView::ZoomMgr::Size FlatView::ZoomMgr::current( int vieweridx ) const
 }
 
 
-void FlatView::ZoomMgr::back( int vieweridx, bool usefwdfac ) const
+void FlatView::ZoomMgr::back( int vieweridx, bool onlyvertical,
+			      bool usefwdfac ) const
 {
     int& cur = current_[vieweridx];
     if ( cur <= 0 ) return;
 
-    if ( !usefwdfac )
+    if ( !usefwdfac && !onlyvertical )
 	{ cur--; return; }
 
     FlatView::ZoomMgr::Size newsize( viewerdata_[vieweridx]->zooms_[cur] );
-    newsize.setWidth( newsize.width() / fwdfac_ );
+    if ( !onlyvertical )
+	newsize.setWidth( newsize.width() / fwdfac_ );
     newsize.setHeight( newsize.height() / fwdfac_ );
     const_cast<FlatView::ZoomMgr*>(this)->add( newsize, vieweridx );
 }
 
 
-void FlatView::ZoomMgr::forward( int vieweridx, bool usefwdfac ) const
+void FlatView::ZoomMgr::forward( int vieweridx, bool onlyvertical,
+				 bool usefwdfac ) const
 {
     int& cur = current_[vieweridx];
     if ( cur < 0 ) return;
 
-    if ( !usefwdfac && cur<nrZooms(vieweridx)-1 )
+    if ( !usefwdfac && cur<nrZooms(vieweridx)-1 && !onlyvertical )
 	{ cur++; return; }
     
     FlatView::ZoomMgr::Size newsize( viewerdata_[vieweridx]->zooms_[cur] );
-    newsize.setWidth( newsize.width() * fwdfac_ );
+    if ( !onlyvertical )
+	newsize.setWidth( newsize.width() * fwdfac_ );
     newsize.setHeight( newsize.height() * fwdfac_ );
     const_cast<FlatView::ZoomMgr*>(this)->add( newsize, vieweridx );
 }

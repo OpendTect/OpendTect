@@ -280,7 +280,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	controlparent = &appl_;
     }
 
-    viewwin_->setInitialSize( 600, 400 );
+    viewwin_->setInitialSize( 700, 400 );
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
@@ -294,6 +294,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	    uiFlatViewStdControl::Setup(controlparent).helpkey(
 					mODHelpKey(mODViewer2DHelpID) )
 						   .withedit(tifs_)
+						   .withvertzoombut(isvert)
 						   .managescoltab(!tifs_) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( tifs_ )

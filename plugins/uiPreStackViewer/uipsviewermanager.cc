@@ -448,7 +448,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
 
     vwr.setInitialSize( uiSize(pw,600) );
     viewwin->addControl( new uiFlatViewStdControl( vwr,
-	uiFlatViewStdControl::Setup().withstates(true) ) );
+			 uiFlatViewStdControl::Setup() ) );
     viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
     return viewwin;
 }

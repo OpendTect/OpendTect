@@ -196,7 +196,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 				   mCB(this,uiMultiFlatViewControl,parsCB) );
     toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
 
-    vwr.setRubberBandingOn( !manip_ );
+    vwr.setRubberBandingOn( false );
     vwr.appearance().annot_.editable_ = false;
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
@@ -225,15 +225,6 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
 	    		   activevwr_->boundingBox() );
     activevwr_->setView( wr );
     addSizesToZoomMgr();
-}
-
-
-void uiMultiFlatViewControl::reInitZooms()
-{
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	vwrs_[idx]->setViewToBoundingBox();
-    zoommgr_.reInit( getBoundingBoxes() );
-    zoommgr_.toStart();
 }
 
 
@@ -274,13 +265,14 @@ void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 {
     const MouseEventHandler& meh =
 	activevwr_->rgbCanvas().getNavigationMouseEventHandler();
-    const bool zoomin = but == zoominbut_;
+    const bool zoomin = but==zoominbut_ || but==vertzoominbut_;
     const int vwridx = vwrs_.indexOf(activevwr_);
     if ( !zoomin && !meh.hasEvent() && zoommgr_.atStart(vwridx) )
 	for ( int idx=0; idx<vwrs_.size(); idx++ )
 	    if ( !zoommgr_.atStart(idx) ) { activevwr_ = vwrs_[idx]; break; }
 
-    doZoom( zoomin, *activevwr_ );
+    const bool onlyvertzoom = but==vertzoominbut_ || but==vertzoomoutbut_;
+    doZoom( zoomin, onlyvertzoom, *activevwr_ );
 }
 
 

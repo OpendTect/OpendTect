@@ -29,6 +29,7 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
     , infoChanged(this)
     , viewerAdded(this)
     , zoomChanged(this)
+    , rubberBandUsed(this)
 {
     setBorder( 0 );
     addViewer( vwr );
@@ -126,6 +127,16 @@ void uiFlatViewControl::dataChangeCB( CallBacker* cb )
 }
 
 
+void uiFlatViewControl::reInitZooms()
+{
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	vwrs_[idx]->setViewToBoundingBox();
+    zoommgr_.reInit( getBoundingBoxes() );
+    zoommgr_.toStart();
+    zoomChanged.trigger();
+}
+
+
 uiTabStackDlg* uiFlatViewControl::propDialog()
 { return propdlg_; }
 
@@ -201,6 +212,7 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
     vwr->setView( wr );
     zoommgr_.add( newsz );
     zoomChanged.trigger();
+    rubberBandUsed.trigger();
 }
 
 

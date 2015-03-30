@@ -50,7 +50,6 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     : uiFlatViewStdControl(*vwr, uiFlatViewStdControl::Setup()
 			         .withcoltabed(false).withsnapshot(false))
     , toolbar_(tb)
-    , manip_(true)
     , selhordlg_(0)
     , curview_(uiWorldRect(0,0,0,0))
     , server_(server)
@@ -65,20 +64,20 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 	tb_->display(false);
     toolbar_->addSeparator();
     mDefBut(parsbut_,"2ddisppars",parsCB,tr("Set display parameters"));
-    mDefBut(zoominbut_,"zoomforward",zoomCB,tr("Zoom in"));
-    mDefBut(zoomoutbut_,"zoombackward",zoomCB,tr("Zoom out"));
-    mDefBut(manipdrawbut_,"altpick",stateCB,tr("Switch view mode (Esc)"));
-    mDefBut(editbut_,"seedpickmode",editCB,tr("Pick mode (P)"));
+    mDefBut(rubbandzoombut_,"",dragModeCB,tr("Rubberband zoom"));
+    mDefBut(vertzoominbut_,"",zoomCB,tr("Vertical zoom in"));
+    mDefBut(vertzoomoutbut_,"",zoomCB,tr("Vertical zoom out"));
+    mDefBut(cancelzoombut_,"",cancelZoomCB,tr("Cancel zoom"));
+    mDefBut(editbut_,"seedpickmode",dragModeCB,tr("Pick mode (P)"));
 
     toolbar_->addSeparator();
     mDefBut(horbut_,"loadhoronseis",loadHorizons,tr("Load Horizon(s)"));
     mDefBut(hormrkdispbut_,"drawhoronseis",dispHorMrks,
 	    tr("Marker display properties"));
+    rubbandzoombut_->setToggleButton( true );
     editbut_->setToggleButton( true );
-
-    vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
-	                    mCB(this,uiControlView,keyPressCB) );
     toolbar_->addSeparator();
+    mAttachCB( vwr_.viewChanged, uiControlView::viewChangedCB );
 }
 
 
@@ -134,7 +133,7 @@ void uiControlView::wheelMoveCB( CallBacker* )
     if ( mIsZero(ev.angle(),0.01) )
 	return;
 
-    zoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
+    zoomCB( ev.angle() < 0 ? vertzoominbut_ : vertzoomoutbut_ );
 }
 
 
@@ -143,7 +142,14 @@ void uiControlView::keyPressCB( CallBacker* )
     const KeyboardEvent& ev =
 	vwr_.rgbCanvas().getKeyboardEventHandler().event();
     if ( ev.key_ == OD::P )
-	setEditOn( !editbut_->isOn() );
+	setEditMode( !editbut_->isOn() );
+}
+
+
+void uiControlView::viewChangedCB( CallBacker* )
+{
+    // TODO: Check if this is really necessary.
+    curview_ = vwr_.curView();
 }
 
 
@@ -172,26 +178,6 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
     vwr_.setView( wr );
     zoommgr_.add( newsz );
     zoomChanged.trigger();
-}
-
-
-void uiControlView::setNewView( Geom::Point2D<double> centre,
-				Geom::Size2D<double> sz )
-{
-    const uiWorldRect br = vwr_.boundingBox();
-    uiWorldRect wr = getZoomOrPanRect( centre, sz, vwr_.curView(), br );
-
-    const Interval<double> xrg( br.left(), br.right());
-    wr.setLeftRight( xrg ); vwr_.setView( wr );
-    curview_ = wr; zoommgr_.add( sz );
-    zoomChanged.trigger();
-}
-
-
-void uiControlView::setEditOn( bool yn )
-{
-    editbut_->setOn( yn );
-    editCB( 0 );
 }
 
 
