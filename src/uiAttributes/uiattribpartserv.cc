@@ -1221,7 +1221,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 {
     MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_
 				    : &zdomain3dmnuitem_;
-    BufferString itmtxt = zdinf.userName();
+    BufferString itmtxt = zdinf.key();
     itmtxt += useext ? (!is2d ? " Cubes" : " 2D Lines") : " Data";
     zdomainmnuitem->text = itmtxt;
     zdomainmnuitem->removeItems();
