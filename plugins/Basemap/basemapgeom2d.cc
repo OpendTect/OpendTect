@@ -59,6 +59,17 @@ void Geom2DObject::setMultiID( const MultiID& mid )
 }
 
 
+float Geom2DObject::getTextRotation() const
+{
+    const float dy = bptcoords_[1].y - bptcoords_[0].y;
+    const float dx = bptcoords_[1].x - bptcoords_[0].x;
+    float angle = 0;
+    if ( !mIsZero(dx,mDefEps) )
+	return angle = 180.0/M_PI*std::atan( dy/dx );
+    else
+	return angle = 90;
+}
+
 void Geom2DObject::setLineStyle( int shapeidx, const LineStyle& ls )
 {
     ls_ = ls;

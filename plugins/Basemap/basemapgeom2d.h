@@ -24,19 +24,20 @@ namespace Basemap
 mExpClass(Basemap) Geom2DObject : public BaseMapObject
 {
 public:
-			Geom2DObject();
-			~Geom2DObject();
+			    Geom2DObject();
+			    ~Geom2DObject();
 
-    void		setMultiID(const MultiID&);
-    const MultiID&	getMultiID() const	{ return mid_; }
-    const char*		getType() const		{ return "Geom2D"; }
-    void		updateGeometry();
+    void		    setMultiID(const MultiID&);
+    const MultiID&	    getMultiID() const	{ return mid_; }
+    virtual const char*     getType() const		{ return "Geom2D"; }
+    virtual float	    getTextRotation() const;
+    virtual void	    updateGeometry();
 
-    int			nrShapes() const;
-    const char*		getShapeName(int shapeidx) const;
-    void		getPoints(int shapeidx,TypeSet<Coord>&) const;
-    const LineStyle*	getLineStyle(int shapeidx) const { return &ls_; }
-    virtual void	setLineStyle(int shapeidx,const LineStyle&);
+    virtual int		    nrShapes() const;
+    virtual const char*     getShapeName(int shapeidx) const;
+    virtual void	    getPoints(int shapeidx,TypeSet<Coord>&) const;
+    virtual const LineStyle*getLineStyle(int shapeidx) const { return &ls_; }
+    virtual void	    setLineStyle(int shapeidx,const LineStyle&);
 
 protected:
     LineStyle		ls_;

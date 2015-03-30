@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "survinfo.h"
 
-#include <iostream>
 
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
@@ -201,6 +200,10 @@ void uiBaseMapObject::update()
 	    itm->setPos( crds[0] );
 	    Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );
+
+	    float angle = bmobject_->getTextRotation();
+	    itm->setRotation( angle );
+
 	    itemnr++;
 	}
     }

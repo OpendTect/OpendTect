@@ -47,6 +47,7 @@ public:
 				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
     virtual Alignment		getAlignment(int shapeidx) const;
+    virtual float		getTextRotation() const { return 0; }
 
     virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
     virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
