@@ -7,6 +7,7 @@
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Bruno
 Date:          Feb 2009
+RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -32,11 +33,8 @@ mExpClass(uiWellAttrib) uiControlView : public uiFlatViewStdControl
 public:
 			uiControlView(uiParent*,uiToolBar*,
 					uiFlatViewer*,Server&);
-			~uiControlView(){};
+			~uiControlView() { detachAllNotifiers(); }
 
-    void		setNewView(Geom::Point2D<double> centre,
-				   Geom::Size2D<double> size );
-    void		setEditOn(bool);
     void		setSelView(bool isnewsel = true, bool viewall=false );
 
     void		usePar(const IOPar& iop);
@@ -46,8 +44,6 @@ public:
     Notifier<uiControlView> redrawAnnotNeeded;
 
 protected:
-
-    bool                manip_;
 
     uiToolBar*		toolbar_;
     uiToolButton*	horbut_;
@@ -62,6 +58,7 @@ protected:
     bool		handleUserClick(int vwridx);
 
     void                applyProperties(CallBacker*);
+    void		viewChangedCB(CallBacker*);
     void		keyPressCB(CallBacker*);
     void		loadHorizons(CallBacker*);
     void		dispHorMrks(CallBacker*);
