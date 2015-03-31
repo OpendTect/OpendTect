@@ -59,12 +59,26 @@ void Geom2DObject::setMultiID( const MultiID& mid )
 }
 
 
+Alignment Geom2DObject::getAlignment( int shapeix ) const
+{
+    const double dy = bptcoords_[1].y - bptcoords_[0].y;
+    const double dx = bptcoords_[1].x - bptcoords_[0].x;
+
+    const bool isalignedtoleft = (dy<0.f && dx<0.f) || (dy>0.f && dx<0.f);
+    return Alignment( isalignedtoleft ? Alignment::Left : Alignment::Right,
+		      Alignment::VCenter );
+}
+
+
 float Geom2DObject::getTextRotation() const
 {
-    const float dy = (float) (bptcoords_[1].y - bptcoords_[0].y);
-    const float dx = (float) (bptcoords_[1].x - bptcoords_[0].x);
-    return Math::toDegrees( Math::Atan2(dy,dx) );
+    const double dy = bptcoords_[1].y - bptcoords_[0].y;
+    const double dx = bptcoords_[1].x - bptcoords_[0].x;
+
+    const bool needscorrection = (dy<0. && dx<0.) || (dy>0. && dx<0.);
+    return mCast(float,(Math::Atan2(dy,dx) + (needscorrection ? M_PI : 0.)));
 }
+
 
 void Geom2DObject::setLineStyle( int shapeidx, const LineStyle& ls )
 {

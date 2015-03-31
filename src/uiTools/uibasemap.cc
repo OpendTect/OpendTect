@@ -198,10 +198,10 @@ void uiBaseMapObject::update()
 	    mDynamicCastGet(uiTextItem*,itm,itemgrp_.getUiItem(itemnr));
 	    itm->setText( shapenm );
 	    itm->setPos( crds[0] );
-	    Alignment al = bmobject_->getAlignment( idx );
+	    const Alignment al = bmobject_->getAlignment( idx );
 	    itm->setAlignment( al );
 
-	    float angle = bmobject_->getTextRotation();
+	    const float angle = Math::toDegrees( bmobject_->getTextRotation() );
 	    itm->setRotation( angle );
 
 	    itemnr++;
