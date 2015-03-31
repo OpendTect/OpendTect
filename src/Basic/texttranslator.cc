@@ -197,9 +197,13 @@ const QTranslator*
 
 const QLocale* TextTranslateMgr::getQLocale() const
 {
+#ifndef OD_NO_QT
     return languages_.validIdx(currentlanguageidx_)
         ? &languages_[currentlanguageidx_]->locale_
         : 0;
+#else
+    return 0;
+#endif
 }
 
 
