@@ -72,6 +72,8 @@ public:
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling& getTrcKeyZSampling() const;
     void		setScale(const TrcKeyZSampling&);
+			/*<! TrcKeyZSampling(false) as input takes default
+			     axis scale of survey box instead */
     const TrcKeyZSampling& getScale() const;
 
     void		setScaleFactor(int dim,int scale);
@@ -98,6 +100,7 @@ protected:
     int				scalefactor_[3];
 
     TrcKeyZSampling		tkzs_;
+    TrcKeyZSampling		tkzsdefaultscale_;
     TrcKeyZSampling		scale_;
     osg::Geometry*		box_;
     osg::Array*			gridlinecoords_;

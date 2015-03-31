@@ -36,6 +36,26 @@ const char* Annotation::cornerprefixstr()   { return "Corner "; }
 const char* Annotation::showtextstr()	    { return "Show Text"; }
 const char* Annotation::showscalestr()	    { return "Show Scale"; }
 
+
+static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
+{
+    TrcKeyZSampling scale = cs;
+
+    const AxisLayout<int> inlal( (Interval<int>)cs.hrg.inlRange() );
+    scale.hrg.start.inl() = inlal.sd_.start;
+    scale.hrg.step.inl() = inlal.sd_.step;
+
+    const AxisLayout<int> crlal( (Interval<int>)cs.hrg.crlRange() );
+    scale.hrg.start.crl() = crlal.sd_.start;
+    scale.hrg.step.crl() = crlal.sd_.step;
+
+    const AxisLayout<float> zal( (Interval<float>)cs.zsamp_ );
+    scale.zsamp_.start = zal.sd_.start; scale.zsamp_.step = zal.sd_.step;
+
+    return scale;
+}
+
+
 Annotation::Annotation()
     : VisualObjectImpl(false )
     , geode_(new osg::Geode)
@@ -44,7 +64,10 @@ Annotation::Annotation()
     , gridlines_(new osgGeo::OneSideRender)
     , displaytrans_(0)
     , scale_(false)
+    , tkzs_(true)
 {
+    tkzsdefaultscale_ = getDefaultScale( tkzs_ );
+
     getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     geode_->ref();
     addChild( geode_ );
@@ -165,28 +188,11 @@ void Annotation::setFont( const FontData& fd )
 }
 
 
-static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
-{
-    TrcKeyZSampling scale = cs;
-
-    const AxisLayout<int> inlal( (Interval<int>)cs.hrg.inlRange() );
-    scale.hrg.start.inl() = inlal.sd_.start;
-    scale.hrg.step.inl() = inlal.sd_.step;
-
-    const AxisLayout<int> crlal( (Interval<int>)cs.hrg.crlRange() );
-    scale.hrg.start.crl() = crlal.sd_.start;
-    scale.hrg.step.crl() = crlal.sd_.step;
-
-    const AxisLayout<float> zal( (Interval<float>)cs.zsamp_ );
-    scale.zsamp_.start = zal.sd_.start; scale.zsamp_.step = zal.sd_.step;
-
-    return scale;
-}
-
-
 void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     tkzs_ = cs;
+    tkzsdefaultscale_ = getDefaultScale( tkzs_ );
+
     const Interval<int> inlrg = cs.hrg.inlRange();
     const Interval<int> crlrg = cs.hrg.crlRange();
     const Interval<float>& zrg = cs.zsamp_;
@@ -222,7 +228,7 @@ void Annotation::setScale( const TrcKeyZSampling& cs )
 
 
 const TrcKeyZSampling& Annotation::getScale() const
-{ return scale_; }
+{ return scale_.isEmpty() ? tkzsdefaultscale_ : scale_; }
 
 
 void Annotation::setPixelDensity( float dpi )
@@ -249,15 +255,31 @@ void Annotation::setText( int dim, const uiString& string )
 }
 
 
-static SamplingData<float> getAxisSD( const TrcKeyZSampling& cs, int dim )
+static SamplingData<float> getAxisSD( const TrcKeyZSampling& cs, int dim,
+				      int* stopidx=0 )
 {
     SamplingData<float> sd;
+    float stop;
+
     if ( dim==0 )
+    {
 	sd.set( AxisLayout<int>(cs.hrg.inlRange()).sd_ );
+	stop = cs.hrg.inlRange().stop;
+    }
     else if ( dim==1 )
+    {
 	sd.set( AxisLayout<int>(cs.hrg.crlRange()).sd_ );
+	stop = cs.hrg.crlRange().stop;
+    }
     else
+    {
 	sd.set( AxisLayout<float>(cs.zrg).sd_ );
+	stop = cs.zrg.stop;
+    }
+
+    const float eps = 1e-6;
+    if ( stopidx )
+	*stopidx = (int) sd.getfIndex( stop + eps*sd.step );
 
     return sd;
 }
@@ -326,9 +348,8 @@ void Annotation::updateGridLines()
 
 	Interval<float> range( p0[dim], p1[dim] );
 
-	const TrcKeyZSampling usedscale =
-	    scale_.isEmpty() ? getDefaultScale( tkzs_ ) : scale_;
-	const SamplingData<float> sd = getAxisSD( usedscale, dim );
+	int stopidx;
+	const SamplingData<float> sd = getAxisSD( getScale(), dim, &stopidx );
 
 	const int* psindexes = psindexarr[dim];
 	const int* cornerarr = coordindexarr[dim];
@@ -348,7 +369,7 @@ void Annotation::updateGridLines()
 	    displaytrans_->transformBack( corners[3] );
 	}
 
-	for ( int idx=0; ; idx++ )
+	for ( int idx=0; idx<=stopidx; idx++ )
 	{
 	    const float val = sd.atIndex(idx);
 	    if ( val <= range.start )		continue;
@@ -431,11 +452,10 @@ void Annotation::updateTextPos()
 
 	Interval<float> range( p0[dim], p1[dim] );
 
-	const TrcKeyZSampling usedscale =
-	    scale_.isEmpty() ? getDefaultScale( tkzs_ ) : scale_;
-	const SamplingData<float> sd = getAxisSD( usedscale, dim );
+	int stopidx;
+	const SamplingData<float> sd = getAxisSD( getScale(), dim, &stopidx );
 
-	for ( int idx=0; ; idx++ )
+	for ( int idx=0; idx<=stopidx; idx++ )
 	{
 	    float val = sd.atIndex(idx);
 	    if ( val <= range.start )		continue;
