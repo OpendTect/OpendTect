@@ -94,9 +94,9 @@ static const char* getMenuText( bool is2d, bool issteering, bool endmenu )
 {
     mDeclStaticString(menutext);
     if ( is2d )
-	menutext = issteering ? "Stee&ring 2D Data" : "&Stored 2D Data";
+	menutext = issteering ? "Steering 2D Data" : "Stored 2D Data";
     else
-	menutext = issteering ? "Steer&ingCubes" : "Stored &Cubes";
+	menutext = issteering ? "SteeringCubes" : "Stored Cubes";
 
     if ( endmenu ) menutext.add( " ..." );
 
@@ -1089,7 +1089,7 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 {
     MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_
 				    : &zdomain3dmnuitem_;
-    BufferString itmtxt = zdinf.userName();
+    BufferString itmtxt = zdinf.key();
     itmtxt += useext ? (!is2d ? " Cubes" : " 2D Lines") : " Data";
     zdomainmnuitem->text = itmtxt;
     zdomainmnuitem->removeItems();
