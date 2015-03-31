@@ -310,7 +310,8 @@ static bool doFindKeyStr( const uiMainWin& srcwin, CmdRecEvent& event,
 		break;
 	}
 
-	if ( minobjset.size()==1 || minobjset.size()<curobjset.size() )
+	if ( minobjset.size()==1 || minobjset.size()<curobjset.size() ||
+	     curkeystr.isEmpty() )
 	{
 	    curobjset = minobjset;
 	    curkeystr += minkey;
