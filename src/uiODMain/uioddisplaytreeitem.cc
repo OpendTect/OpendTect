@@ -75,7 +75,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , histogrammnuitem_(uiStrings::sHistogram(false),cHistogramIdx)
     , lockmnuitem_(uiStrings::sLock(),cLockIdx)
     , hidemnuitem_(uiStrings::sHide(),cHideIdx )
-    , removemnuitem_(uiStrings::sRemove(true),cRemoveIdx)
+    , removemnuitem_(tr("Remove from Tree"),cRemoveIdx)
 {
     removemnuitem_.iconfnm = "trashcan";
     histogrammnuitem_.iconfnm = "histogram";
