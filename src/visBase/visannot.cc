@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "uistring.h"
 #include "vistransform.h"
+#include "hiddenparam.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -31,10 +32,32 @@ mCreateFactoryEntry( visBase::Annotation )
 namespace visBase
 {
 
+HiddenParam<Annotation,CubeSampling> csdefaultscale_( false );
+
 const char* Annotation::textprefixstr()	    { return "Text "; }
 const char* Annotation::cornerprefixstr()   { return "Corner "; }
 const char* Annotation::showtextstr()	    { return "Show Text"; }
 const char* Annotation::showscalestr()	    { return "Show Scale"; }
+
+
+static CubeSampling getDefaultScale( const CubeSampling& cs )
+{
+    CubeSampling scale = cs;
+
+    const AxisLayout<int> inlal( (Interval<int>)cs.hrg.inlRange() );
+    scale.hrg.start.inl() = inlal.sd_.start;
+    scale.hrg.step.inl() = inlal.sd_.step;
+
+    const AxisLayout<int> crlal( (Interval<int>)cs.hrg.crlRange() );
+    scale.hrg.start.crl() = crlal.sd_.start;
+    scale.hrg.step.crl() = crlal.sd_.step;
+
+    const AxisLayout<float> zal( (Interval<float>)cs.zrg );
+    scale.zrg.start = zal.sd_.start; scale.zrg.step = zal.sd_.step;
+
+    return scale;
+}
+
 
 Annotation::Annotation()
     : VisualObjectImpl(false )
@@ -44,7 +67,10 @@ Annotation::Annotation()
     , gridlines_(new osgGeo::OneSideRender)
     , displaytrans_(0)
     , scale_(false)
+    , cs_(true)
 {
+    csdefaultscale_.setParam( this, getDefaultScale(cs_) );
+
     getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     geode_->ref();
     addChild( geode_ );
@@ -106,6 +132,8 @@ Annotation::Annotation()
 
 Annotation::~Annotation()
 {
+    csdefaultscale_.removeParam( this );
+
     getMaterial()->change.remove( mCB(this,Annotation,updateTextColor) );
     box_->unref();
     gridlinecoords_->unref();
@@ -165,28 +193,11 @@ void Annotation::setFont( const FontData& fd )
 }
 
 
-static CubeSampling getDefaultScale( const CubeSampling& cs )
-{
-    CubeSampling scale = cs;
-
-    const AxisLayout<int> inlal( (Interval<int>)cs.hrg.inlRange() );
-    scale.hrg.start.inl() = inlal.sd_.start;
-    scale.hrg.step.inl() = inlal.sd_.step;
-
-    const AxisLayout<int> crlal( (Interval<int>)cs.hrg.crlRange() );
-    scale.hrg.start.crl() = crlal.sd_.start;
-    scale.hrg.step.crl() = crlal.sd_.step;
-
-    const AxisLayout<float> zal( (Interval<float>)cs.zrg );
-    scale.zrg.start = zal.sd_.start; scale.zrg.step = zal.sd_.step;
-
-    return scale;
-}
-
-
 void Annotation::setCubeSampling( const CubeSampling& cs )
 {
     cs_ = cs;
+    csdefaultscale_.setParam( this, getDefaultScale(cs_) );
+
     const Interval<int> inlrg = cs.hrg.inlRange();
     const Interval<int> crlrg = cs.hrg.crlRange();
     const Interval<float>& zrg = cs.zrg;
@@ -222,7 +233,7 @@ void Annotation::setScale( const CubeSampling& cs )
 
 
 const CubeSampling& Annotation::getScale() const
-{ return scale_; }
+{ return scale_.isEmpty() ? csdefaultscale_.getParam(this) : scale_; }
 
 
 void Annotation::setPixelDensity( float dpi )
@@ -249,15 +260,31 @@ void Annotation::setText( int dim, const uiString& string )
 }
 
 
-static SamplingData<float> getAxisSD( const CubeSampling& cs, int dim )
+static SamplingData<float> getAxisSD( const CubeSampling& cs, int dim,
+				      int* stopidx=0 )
 {
     SamplingData<float> sd;
+    float stop;
+
     if ( dim==0 )
+    {
 	sd.set( AxisLayout<int>(cs.hrg.inlRange()).sd_ );
+	stop = cs.hrg.inlRange().stop;
+    }
     else if ( dim==1 )
+    {
 	sd.set( AxisLayout<int>(cs.hrg.crlRange()).sd_ );
+	stop = cs.hrg.crlRange().stop;
+    }
     else
+    {
 	sd.set( AxisLayout<float>(cs.zrg).sd_ );
+	stop = cs.zrg.stop;
+    }
+
+    const float eps = 1e-6;
+    if ( stopidx )
+	*stopidx = (int) sd.getfIndex( stop + eps*sd.step );
 
     return sd;
 }
@@ -326,9 +353,8 @@ void Annotation::updateGridLines()
 
 	Interval<float> range( p0[dim], p1[dim] );
 
-	const CubeSampling usedscale = 
-	    scale_.isEmpty() ? getDefaultScale( cs_ ) : scale_;
-	const SamplingData<float> sd = getAxisSD( usedscale, dim );
+	int stopidx;
+	const SamplingData<float> sd = getAxisSD( getScale(), dim, &stopidx );
 
 	const int* psindexes = psindexarr[dim];
 	const int* cornerarr = coordindexarr[dim];
@@ -348,7 +374,7 @@ void Annotation::updateGridLines()
 	    displaytrans_->transformBack( corners[3] );
 	}
 
-	for ( int idx=0; ; idx++ )
+	for ( int idx=0; idx<=stopidx; idx++ )
 	{
 	    const float val = sd.atIndex(idx);
 	    if ( val <= range.start )		continue;
@@ -431,11 +457,10 @@ void Annotation::updateTextPos()
 
 	Interval<float> range( p0[dim], p1[dim] );
 
-	const CubeSampling usedscale = 
-	    scale_.isEmpty() ? getDefaultScale( cs_ ) : scale_;
-	const SamplingData<float> sd = getAxisSD( usedscale, dim );
+	int stopidx;
+	const SamplingData<float> sd = getAxisSD( getScale(), dim, &stopidx );
 
-	for ( int idx=0; ; idx++ )
+	for ( int idx=0; idx<=stopidx; idx++ )
 	{
 	    float val = sd.atIndex(idx);
 	    if ( val <= range.start )		continue;
