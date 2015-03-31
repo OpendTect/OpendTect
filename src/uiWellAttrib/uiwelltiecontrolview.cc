@@ -64,10 +64,10 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 	tb_->display(false);
     toolbar_->addSeparator();
     mDefBut(parsbut_,"2ddisppars",parsCB,tr("Set display parameters"));
-    mDefBut(rubbandzoombut_,"",dragModeCB,tr("Rubberband zoom"));
-    mDefBut(vertzoominbut_,"",zoomCB,tr("Vertical zoom in"));
-    mDefBut(vertzoomoutbut_,"",zoomCB,tr("Vertical zoom out"));
-    mDefBut(cancelzoombut_,"",cancelZoomCB,tr("Cancel zoom"));
+    mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"));
+    mDefBut(vertzoominbut_,"vertzoomin",zoomCB,tr("Vertical zoom in"));
+    mDefBut(vertzoomoutbut_,"vertzoomout",zoomCB,tr("Vertical zoom out"));
+    mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"));
     mDefBut(editbut_,"seedpickmode",dragModeCB,tr("Pick mode (P)"));
 
     toolbar_->addSeparator();

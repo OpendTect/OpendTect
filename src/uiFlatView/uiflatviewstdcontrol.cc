@@ -63,7 +63,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withzoombut_ || setup.withvertzoombut_ )
     {
-	mDefBut(rubbandzoombut_,"",dragModeCB,tr("Rubberband zoom"));
+	mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"));
 	rubbandzoombut_->setToggleButton( true );
     }
 
@@ -75,13 +75,13 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withvertzoombut_ )
     {
-	mDefBut(vertzoominbut_,"",zoomCB,tr("Vertical zoom in"));
-	mDefBut(vertzoomoutbut_,"",zoomCB,tr("Vertical zoom out"));
+	mDefBut(vertzoominbut_,"vertzoomin",zoomCB,tr("Vertical zoom in"));
+	mDefBut(vertzoomoutbut_,"vertzoomout",zoomCB,tr("Vertical zoom out"));
     }
 
     if ( setup.withzoombut_ || setup.withvertzoombut_ )
     {
-	mDefBut(cancelzoombut_,"",cancelZoomCB,tr("Cancel zoom"));
+	mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"));
     }
 
     if ( setup.withflip_ )
