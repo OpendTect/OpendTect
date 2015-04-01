@@ -22,13 +22,13 @@ include(FindSubversion)
 # extract working copy information for SOURCE_DIR into MY_XXX variables
 if ( Subversion_FOUND AND OD_FROM_SVN )
     Subversion_WC_INFO( ${CMAKE_SOURCE_DIR} MY )
+    set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
 else()
     set ( MY_WC_REVISION 0 )
     set ( MY_WC_URL "" )
 endif()
 
 if ( OD_FROM_SVN )
-    set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
     if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
 	execute_process(
 	    COMMAND ${CMAKE_COMMAND}
@@ -45,7 +45,7 @@ if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
 		-P external/Externals.cmake )
 endif()
 
-add_custom_target( update ${UPDATECMD}
+add_custom_target( update ${UPDATE_CMD}
 		  ${EXTERNALCMD}
 		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
 		  COMMENT "Updating from repositories" )
