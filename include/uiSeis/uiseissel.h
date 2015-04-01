@@ -94,7 +94,6 @@ protected:
     virtual void	fillDefault();
     virtual void	newSelection(uiIOObjRetDlg*);
     virtual void	commitSucceeded();
-    virtual IOObj*	createEntry(const char*);
     virtual const char*	userNameFromKey(const char*) const;
     virtual const char* compNameFromKey(const char*) const;
     virtual uiIOObjRetDlg* mkDlg();

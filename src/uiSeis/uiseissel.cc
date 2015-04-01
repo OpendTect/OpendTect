@@ -325,24 +325,6 @@ void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 }
 
 
-IOObj* uiSeisSel::createEntry( const char* nm )
-{
-    if ( !Seis::is2D(seissetup_.geom_) || Seis::isPS(seissetup_.geom_) )
-	return uiIOObjSel::createEntry( nm );
-
-    CtxtIOObj newctio( inctio_.ctxt );
-    newctio.setName( nm );
-    newctio.fillObj();
-    if ( !newctio.ioobj ) return 0;
-    mDynamicCastGet(IOStream*,iostrm,newctio.ioobj)
-    if ( !iostrm )
-	return newctio.ioobj;
-
-    iostrm->setTranslator( CBVSSeisTrc2DTranslator::translKey() );
-    return iostrm;
-}
-
-
 const char* uiSeisSel::userNameFromKey( const char* txt ) const
 {
     if ( !txt || !*txt ) return "";
