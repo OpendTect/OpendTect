@@ -25,7 +25,7 @@ mImplFactory1Param(uiArray2DInterpol,uiParent*,uiArray2DInterpolSel::factory);
 uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 					    bool maxholesz,
 					    bool withclassification,
-       					    const Array2DInterpol* oldvals,
+					    const Array2DInterpol* oldvals,
 					    bool withstep )
     : uiDlgGroup( p, tr("Array2D Interpolation") )
     , result_( 0 )
@@ -220,7 +220,7 @@ bool uiArray2DInterpolSel::acceptOK()
 
     const BufferStringSet& methods = Array2DInterpol::factory().getNames();
     const int methodidx = methodsel_ ? methodsel_->getIntValue() : 0;
-    
+
     if ( methodidx>=methods.size() )
     {
 	pErrMsg("Invalid method selected");
@@ -253,11 +253,11 @@ bool uiArray2DInterpolSel::acceptOK()
     if ( isclassificationfld_ )
 	result_->setClassification( isclassificationfld_->getBoolValue() );
 
-    result_->setFillType( filltypefld_ 
+    result_->setFillType( filltypefld_
 	? (Array2DInterpol::FillType) filltypefld_->getIntValue()
 	: Array2DInterpol::Full );
 
-    result_->setMaxHoleSize( maxholeszfld_ && maxholeszfld_->isChecked() 
+    result_->setMaxHoleSize( maxholeszfld_ && maxholeszfld_->isChecked()
 			     ? maxholeszfld_->getIntValue() : mUdf(float) );
 
     return true;
@@ -322,25 +322,14 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     , stepsz_(1)
 {
     radiusfld_ = new  uiGenInput( this, 0, FloatInpSpec() );
-    radiusfld_->setWithCheck( true );
-    radiusfld_->setChecked( true );
-    radiusfld_->checked.notify(
-	    mCB(this,uiInverseDistanceArray2DInterpol,useRadiusCB));
 
-    parbut_ = new uiPushButton( this, tr("Parameters"), 
+    parbut_ = new uiPushButton( this, tr("Parameters"),
 		    mCB(this,uiInverseDistanceArray2DInterpol,doParamDlg),
 		    false );
     parbut_->attach( rightOf, radiusfld_ );
 
     setHAlignObj( radiusfld_ );
     setDistanceUnit( 0 );
-    useRadiusCB( 0 );
-}
-
-
-void uiInverseDistanceArray2DInterpol::useRadiusCB( CallBacker* )
-{
-    parbut_->display( radiusfld_->isChecked() );
 }
 
 
@@ -350,17 +339,11 @@ void uiInverseDistanceArray2DInterpol::setValuesFrom( const Array2DInterpol& a )
     if ( !ptr )
 	return;
 
-    if ( mIsUdf( ptr->getSearchRadius() ) )
-	radiusfld_->setChecked( false );
-    else
-    {
-	radiusfld_->setChecked( true );
-	radiusfld_->setValue( ptr->getSearchRadius() );
+    radiusfld_->setValue( ptr->getSearchRadius() );
 
-	nrsteps_ = ptr->getNrSteps();
-	cornersfirst_ = ptr->getCornersFirst();
-	stepsz_ = ptr->getStepSize();
-    }
+    nrsteps_ = ptr->getNrSteps();
+    cornersfirst_ = ptr->getCornersFirst();
+    stepsz_ = ptr->getStepSize();
 }
 
 
@@ -368,8 +351,6 @@ void uiInverseDistanceArray2DInterpol::setDistanceUnit( const uiString& d )
 {
     uiString res = tr("Search radius %1").arg( d );
     radiusfld_->setTitleText( res );
-
-
 }
 
 
@@ -395,7 +376,7 @@ uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
     useneighborfld_->setChecked( false );
     useneighborfld_->activated.notify(
 	    mCB(this,uiTriangulationArray2DInterpol,intCB) );
-    
+
     maxdistfld_ = new uiGenInput( this, 0, FloatInpSpec() );
     maxdistfld_->setWithCheck( true );
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
@@ -434,16 +415,16 @@ bool uiTriangulationArray2DInterpol::acceptOK()
     }
 
     if ( result_ )
-    { 
-	delete result_; 
-	result_ = 0; 
+    {
+	delete result_;
+	result_ = 0;
     }
-    
+
     mDynamicCastGet( TriangulationArray2DInterpol*, res, createResult() )
     res->doInterpolation( !useneighborfld_->isChecked() );
     if ( usemax )
-    	res->setMaxDistance( maxdist );
-    
+	res->setMaxDistance( maxdist );
+
     result_ = res;
     return true;
 }
@@ -476,17 +457,17 @@ bool uiExtensionArray2DInterpol::acceptOK()
 {
     if ( nrstepsfld_->getIntValue()<1 )
     {
-	uiMSG().error( tr("Nr steps must be > 0.") );	
+	uiMSG().error( tr("Nr steps must be > 0.") );
 	return false;
     }
 
     if ( result_ )
 	{ delete result_; result_ = 0; }
-    
+
     mDynamicCastGet( ExtensionArray2DInterpol*, res, createResult() )
     res->setNrSteps( nrstepsfld_->getIntValue() );
 
-    result_ = res;    
+    result_ = res;
     return true;
 }
 
@@ -556,10 +537,9 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
     if ( result_ )
 	{ delete result_; result_ = 0; }
 
-    const bool hasradius = radiusfld_->isChecked();
-    const float radius = hasradius ? radiusfld_->getfValue(0) : mUdf(float);
+    const float radius = radiusfld_->getfValue(0);
 
-    if ( hasradius && (mIsUdf(radius) || radius<=0) )
+    if ( mIsUdf(radius) || radius<=0 )
     {
 	uiMSG().error(tr("Please enter a positive value for the search radius\n"
 		         "(or uncheck the field)") );
@@ -568,12 +548,9 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
 
     mDynamicCastGet( InverseDistanceArray2DInterpol*, res, createResult() )
     res->setSearchRadius( radius );
-    if ( hasradius )
-    {
-	res->setCornersFirst( cornersfirst_ );
-	res->setStepSize( stepsz_ );
-	res->setNrSteps( nrsteps_ );
-    }
+    res->setCornersFirst( cornersfirst_ );
+    res->setStepSize( stepsz_ );
+    res->setNrSteps( nrsteps_ );
 
     result_ = res;
     return true;

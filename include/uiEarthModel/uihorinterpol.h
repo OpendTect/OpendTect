@@ -31,7 +31,7 @@ class uiHor3DInterpolSel;
 mExpClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
 { mODTextTranslationClass(uiHorizonInterpolDlg);
 public:
-    			uiHorizonInterpolDlg(uiParent*,EM::Horizon*,
+			uiHorizonInterpolDlg(uiParent*,EM::Horizon*,
 					     bool is2d=false);
 			~uiHorizonInterpolDlg();
 
@@ -116,7 +116,6 @@ public:
 
 protected:
 
-    void			useRadiusCB(CallBacker*);
     void			doParamDlg(CallBacker*);
 
     uiGenInput*			radiusfld_;
@@ -146,7 +145,7 @@ public:
 protected:
 
     void			useNeighborCB(CallBacker*);
-    
+
     uiGenInput*			maxdistfld_;
     uiCheckBox*			useneighborfld_;
     uiFaultParSel*		fltselfld_;

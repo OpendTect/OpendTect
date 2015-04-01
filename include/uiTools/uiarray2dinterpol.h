@@ -29,22 +29,22 @@ mExpClass(uiTools) uiArray2DInterpolSel : public uiDlgGroup
 public:
     mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
 
-    				uiArray2DInterpolSel(uiParent*,bool filltype,
+				uiArray2DInterpolSel(uiParent*,bool filltype,
 					bool holesz, bool withclassification,
 					const Array2DInterpol* oldvals,
 					bool withstep=false);
 
     bool			acceptOK();
     Array2DInterpol*		getResult();
-    				//!<\note Becomes caller's
-				
+				//!<\note Becomes caller's
+
     void			setDistanceUnit(const uiString&);
-    				//!<A unitstring in [] that tells what the
+				//!<A unitstring in [] that tells what the
 				//!<unit is for going from one cell to another
-    
+
     HelpKey			helpKey() const;
     void			fillPar(IOPar&) const;
-    
+
     void			setStep(const BinID&);
     BinID			getStep() const;
 
@@ -69,7 +69,7 @@ mExpClass(uiTools) uiArray2DInterpol : public uiDlgGroup
 { mODTextTranslationClass(uiArray2DInterpol);
 public:
     virtual void	setValuesFrom(const Array2DInterpol&)		{}
-    			//*!Dose only work if provided object is of 'your' type.
+			//*!Dose only work if provided object is of 'your' type.
 
     bool		acceptOK()					= 0;
     virtual void	setDistanceUnit(const uiString&)		{}
@@ -78,7 +78,7 @@ public:
 			//!<Becomes caller's
 protected:
 			uiArray2DInterpol(uiParent*,const uiString& caption);
-    			~uiArray2DInterpol();
+			~uiArray2DInterpol();
 
     virtual Array2DInterpol*	createResult() const	{ return 0; }
 
@@ -110,7 +110,7 @@ mExpClass(uiTools) uiInverseDistanceArray2DInterpol : public uiArray2DInterpol
 { mODTextTranslationClass(uiInverseDistanceArray2DInterpol);
 public:
 
-    				uiInverseDistanceArray2DInterpol(uiParent*);
+				uiInverseDistanceArray2DInterpol(uiParent*);
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
@@ -130,7 +130,6 @@ protected:
     int				stepsz_;
     int				nrsteps_;
 
-    void			useRadiusCB(CallBacker*);
     void			doParamDlg(CallBacker*);
     virtual Array2DInterpol*	createResult() const;
 
@@ -143,7 +142,7 @@ mExpClass(uiTools) uiTriangulationArray2DInterpol : public uiArray2DInterpol
 { mODTextTranslationClass(uiTriangulationArray2DInterpol);
 public:
 
-    				uiTriangulationArray2DInterpol(uiParent*);
+				uiTriangulationArray2DInterpol(uiParent*);
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);
@@ -165,7 +164,7 @@ mExpClass(uiTools) uiExtensionArray2DInterpol : public uiArray2DInterpol
 { mODTextTranslationClass(uiExtensionArray2DInterpol);
 public:
 
-    				uiExtensionArray2DInterpol(uiParent*);
+				uiExtensionArray2DInterpol(uiParent*);
 
     static void			initClass();
     static uiArray2DInterpol*	create(uiParent*);

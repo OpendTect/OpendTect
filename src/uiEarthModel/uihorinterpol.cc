@@ -440,10 +440,7 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
     fltselfld_ = new uiFaultParSel( this, false );
 
     BufferString titletext( "Search radius ", SI().getXYUnitString() );
-    radiusfld_ = new  uiGenInput( this, titletext.buf(), FloatInpSpec() );
-    radiusfld_->setWithCheck( true );
-    radiusfld_->setChecked( true );
-    radiusfld_->checked.notify( mCB(this,uiInvDistHor3DInterpol,useRadiusCB) );
+    radiusfld_ = new uiGenInput( this, titletext.buf(), FloatInpSpec() );
     radiusfld_->attach( alignedBelow, fltselfld_ );
 
     parbut_ = new uiPushButton( this, "Parameters",
@@ -451,15 +448,7 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
 			false );
     parbut_->attach( rightOf, radiusfld_ );
 
-
     setHAlignObj( radiusfld_ );
-    useRadiusCB( 0 );
-}
-
-
-void uiInvDistHor3DInterpol::useRadiusCB( CallBacker* )
-{
-    parbut_->display( radiusfld_->isChecked() );
 }
 
 
@@ -476,13 +465,11 @@ void uiInvDistHor3DInterpol::doParamDlg( CallBacker* )
 
 bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
 {
-    const bool hasradius = radiusfld_->isChecked();
-    const float radius = hasradius ? radiusfld_->getfValue(0) : mUdf(float);
-    if ( hasradius && (mIsUdf(radius) || radius<=0) )
+    const float radius = radiusfld_->getfValue(0);
+    if ( mIsUdf(radius) || radius<=0 )
     {
 	uiMSG().error(
-		tr("Please enter a positive value for the search radius\n"
-		   "(or uncheck the field)") );
+		tr("Please enter a positive value for the search radius") );
 	return false;
     }
 
@@ -493,12 +480,8 @@ bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
 		 selfaultids[idx] );
 
     par.set( InverseDistanceArray2DInterpol::sKeySearchRadius(), radius );
-    if ( hasradius )
-    {
-	par.set( InverseDistanceArray2DInterpol::sKeySearchRadius(), radius );
-	par.set( InverseDistanceArray2DInterpol::sKeyStepSize(), stepsz_ );
-	par.set( InverseDistanceArray2DInterpol::sKeyNrSteps(), nrsteps_ );
-    }
+    par.set( InverseDistanceArray2DInterpol::sKeyStepSize(), stepsz_ );
+    par.set( InverseDistanceArray2DInterpol::sKeyNrSteps(), nrsteps_ );
 
     return true;
 }
@@ -521,7 +504,7 @@ uiHor3DInterpol* uiTriangulationHor3DInterpol::create( uiParent* p )
 { return new uiTriangulationHor3DInterpol( p ); }
 
 
-uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol(uiParent* p)
+uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol( uiParent* p )
     : uiHor3DInterpol(p)
 {
     fltselfld_ = new uiFaultParSel( this, false );
