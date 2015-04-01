@@ -106,7 +106,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     uiToolButton* addbut = new uiToolButton( this, "addnew", tr("Add new"),
 				mCB(this,uiImportHorizon,addAttribCB) );
     addbut->attach( rightTo, attrllb );
-    uiToolButton* rmbut = new uiToolButton( this, "stop", 
+    uiToolButton* rmbut = new uiToolButton( this, "stop",
 					    uiStrings::sRemove(true),
 				mCB(this,uiImportHorizon,rmAttribCB) );
     rmbut->attach( alignedBelow, addbut );
@@ -136,7 +136,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     subselfld_->setSensitive( false );
 
     outputfld_ = new uiIOObjSel( this, ctio_ );
-    outputfld_->setLabelText( isgeom_ ? tr("Output Horizon") 
+    outputfld_->setLabelText( isgeom_ ? tr("Output Horizon")
 				      : tr("Add to Horizon") );
 
     if ( !isgeom_ )
@@ -304,7 +304,7 @@ void uiImportHorizon::scanPush( CallBacker* )
     scanner_->launchBrowser();
 }
 
-    
+
     #define mNotCompatibleRet(ic) \
     const int df = n##ic##lnrg.start - ic##rg.start; \
     if ( df%2 && !(ic##rg.step%2) && !(n##ic##lnrg.step%2) ) \
@@ -498,7 +498,7 @@ bool uiImportHorizon::acceptOK( CallBacker* )
     if ( doDisplay() )
 	importReady.trigger();
 
-    return true;
+    return false;
 }
 
 
