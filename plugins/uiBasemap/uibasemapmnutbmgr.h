@@ -18,6 +18,7 @@ ________________________________________________________________________
 class MenuItem;
 class uiBasemapIOMgr;
 class uiBasemapView;
+class uiColorTableToolBar;
 class uiMainWin;
 class uiMenu;
 class uiSelLineStyle;
@@ -33,8 +34,9 @@ public:
 
 private:
     void		createMenuBar();
-    void		createitemTB();
-    void		createviewTB();
+    void		createItemTB();
+    void		createViewTB();
+    void		createColTabTB();
     void		createCommonActions();
     void		createFileMenu();
     void		updateViewMode();
@@ -77,6 +79,7 @@ private:
     MenuItem*		saveas_;
     uiToolBar*		itemtoolbar_;
     uiToolBar*		vwtoolbar_;
+    uiColorTableToolBar* ctabtoolbar_;
 };
 
 #endif

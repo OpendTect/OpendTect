@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemapiomgr.h"
 #include "uibasemapscalebar.h"
 #include "uibasemapwin.h"
+#include "uicolortable.h"
 #include "uigeninput.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsview.h"
@@ -42,8 +43,9 @@ uiBaseMapMnuTBMgr::uiBaseMapMnuTBMgr( uiMainWin& mw, uiBasemapView& bmv )
     createMenuBar();
     createCommonActions();
 
-    createviewTB();
-    createitemTB();
+    createViewTB();
+    createItemTB();
+    createColTabTB();
 
     createFileMenu();
 
@@ -63,13 +65,14 @@ uiBaseMapMnuTBMgr::~uiBaseMapMnuTBMgr()
 
 void uiBaseMapMnuTBMgr::createMenuBar()
 {
-    if ( !mainwin_.menuBar() )
+    uiMenuBar* mb = mainwin_.menuBar();
+    if ( !mb )
 	return;
 
-    filemnu_ = mainwin_.menuBar()->addMenu( new uiMenu(uiStrings::sFile()) );
-    processingmnu_ = mainwin_.menuBar()->addMenu( new uiMenu("Processing") );
-    syncmnu_ = mainwin_.menuBar()->addMenu( new uiMenu("Synchronization") );
-    helpmnu_ = mainwin_.menuBar()->addMenu( new uiMenu("Help") );
+    filemnu_ = mb->addMenu( new uiMenu(tr("Basemap")) );
+    processingmnu_ = mb->addMenu( new uiMenu(uiStrings::sProcessing()) );
+    syncmnu_ = mb->addMenu( new uiMenu("Synchronization") );
+    helpmnu_ = mb->addMenu( new uiMenu(uiStrings::sHelp()) );
 }
 
 
@@ -97,7 +100,7 @@ void uiBaseMapMnuTBMgr::createFileMenu()
 }
 
 
-void uiBaseMapMnuTBMgr::createitemTB()
+void uiBaseMapMnuTBMgr::createItemTB()
 {
     itemtoolbar_ = new uiToolBar( &mainwin_, "Basemap Items" );
     CallBack cb = mCB(this,uiBaseMapMnuTBMgr,iconClickCB);
@@ -123,7 +126,7 @@ void uiBaseMapMnuTBMgr::createitemTB()
 }
 
 
-void uiBaseMapMnuTBMgr::createviewTB()
+void uiBaseMapMnuTBMgr::createViewTB()
 {
     vwtoolbar_ = new uiToolBar( &mainwin_, "Viewer Tools", uiToolBar::Left );
 
@@ -140,13 +143,13 @@ void uiBaseMapMnuTBMgr::createviewTB()
 		basemapview_.view().getPrintImageButton(vwtoolbar_) );
 
     vworientationid_ = vwtoolbar_->addButton( "northarrow",
-				tr("Display Orientation"),
-				mCB(this,uiBaseMapMnuTBMgr,vworientationCB), true);
+			tr("Display Orientation"),
+			mCB(this,uiBaseMapMnuTBMgr,vworientationCB), true);
     vwtoolbar_->turnOn( vworientationid_, true );
 
     vwmapscaleid_ = vwtoolbar_->addButton( "scale",
-				tr("Display Map Scale"),
-				mCB(this,uiBaseMapMnuTBMgr,vwmapscaleCB), true );
+			tr("Display Map Scale"),
+			mCB(this,uiBaseMapMnuTBMgr,vwmapscaleCB), true );
 
     uiMenu* scalemnu = new uiMenu( tr("Map Scale Menu") );
     uiAction* item = new uiAction( uiStrings::sSettings(false),
@@ -155,6 +158,12 @@ void uiBaseMapMnuTBMgr::createviewTB()
     scalemnu->insertItem( item, vwmapscaleid_ );
     vwtoolbar_->setButtonMenu( vwmapscaleid_, scalemnu );
     vwtoolbar_->turnOn( vwmapscaleid_, true );
+}
+
+
+void uiBaseMapMnuTBMgr::createColTabTB()
+{
+    ctabtoolbar_ = new uiColorTableToolBar( &mainwin_ );
 }
 
 
