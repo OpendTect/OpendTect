@@ -119,6 +119,7 @@ bool uiControlView::checkIfInside( double xpos, double zpos )
 void uiControlView::rubBandCB( CallBacker* cb )
 {
     setSelView();
+    rubberBandUsed.trigger();
 }
 
 

@@ -225,6 +225,7 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
 	    		   activevwr_->boundingBox() );
     activevwr_->setView( wr );
     addSizesToZoomMgr();
+    rubberBandUsed.trigger();
 }
 
 
