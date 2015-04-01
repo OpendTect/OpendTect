@@ -494,7 +494,7 @@ bool uiImportHorizon::acceptOK( CallBacker* )
     if ( doDisplay() )
 	importReady.trigger();
 
-    return true;
+    return false;
 }
 
 
