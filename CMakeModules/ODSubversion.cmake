@@ -22,6 +22,7 @@ include(FindSubversion)
 # extract working copy information for SOURCE_DIR into MY_XXX variables
 if ( Subversion_FOUND AND OD_FROM_SVN )
     Subversion_WC_INFO( ${CMAKE_SOURCE_DIR} MY )
+    set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
 else()
     set ( MY_WC_REVISION 0 )
     set ( MY_WC_URL "" )
@@ -52,3 +53,7 @@ if ( OD_FROM_SVN OR OD_CREATE_INC_FILE )
 			    ${TMPFILE} ${INC_DIR}/svnversion.h )
     file ( REMOVE ${TMPFILE} )
 endif()
+
+add_custom_target( update ${UPDATE_CMD}
+                  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} 
+                  COMMENT "Updating from repositories" )
