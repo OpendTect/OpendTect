@@ -47,6 +47,7 @@ class SeisTrcInfo;
 class TaskRunner;
 class uiAttribDescSetEd;
 class uiAttribCrossPlot;
+class uiAttrSetMan;
 namespace ColTab { class MapperSetup; }
 namespace Pick { class Set; }
 namespace ZDomain { class Info; }
@@ -123,8 +124,8 @@ public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TypeSet<BinID>* path,
 					    TypeSet<BinID>* trueknotspos);
-    DataPack::ID	create2DOutput(const TrcKeyZSampling&,const Pos::GeomID&,
-				       TaskRunner&);
+    DataPack::ID	create2DOutput(const TrcKeyZSampling&,
+				       const Pos::GeomID&,TaskRunner&);
 
     bool		isDataClassified(const Array3D<float>&) const;
 
@@ -205,6 +206,7 @@ protected:
     Timer		attrsetclosetim_;
     bool                is2devsent_;
     bool		attrsneedupdt_;
+    uiAttrSetMan*	manattribsetdlg_;
 
     Attrib::EngineMan*	createEngMan(const TrcKeyZSampling* cs=0,
 			const Pos::GeomID& geomid=Survey::GM().cUndefGeomID());
@@ -222,6 +224,7 @@ protected:
 
     void		attrsetDlgClosed(CallBacker*);
     void		attrsetDlgCloseTimTick(CallBacker*);
+    void		survChangedCB(CallBacker*);
 
     Attrib::DescID	targetID(bool is2d,int nr=0) const;
 

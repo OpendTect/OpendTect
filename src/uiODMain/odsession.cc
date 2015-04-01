@@ -306,13 +306,14 @@ const char* dgbODSessionTranslator::write( const ODSession& session, Conn& conn)
 
 
 
+//uiSessionMan
 mDefineInstanceCreatedNotifierAccess(uiSessionMan)
 
 
 uiSessionMan::uiSessionMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Sessions",mNoDlgTitle,
 				     mODHelpKey(mSessionManHelpID))
-		     .nrstatusflds(1),
+			       .nrstatusflds(1).modal(false),
 		   ODSessionTranslatorGroup::ioContext())
 {
     createDefaultUI();

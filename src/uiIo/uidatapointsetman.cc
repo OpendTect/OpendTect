@@ -31,7 +31,8 @@ static const int cPrefWidth = 75;
 
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(tr("Manage Cross-plot Data"),mNoDlgTitle,
-		   mODHelpKey(mDataPointSetManHelpID) ).nrstatusflds(1),
+				     mODHelpKey(mDataPointSetManHelpID) )
+			       .nrstatusflds(1).modal(false),
 	           PosVecDataSetTranslatorGroup::ioContext())
 {
     createDefaultUI();

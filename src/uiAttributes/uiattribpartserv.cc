@@ -122,6 +122,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , dpsdispmgr_( 0 )
     , evalmapperbackup_( 0 )
     , attrsneedupdt_(true)
+    , manattribsetdlg_(0)
 {
     attrsetclosetim_.tick.notify(
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -135,6 +136,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     multcomp3d_.checkable = true;
     multcomp2d_.checkable = true;
 
+    mAttachCB( IOM().surveyChanged, uiAttribPartServer::survChangedCB );
     handleAutoSet();
 }
 
@@ -145,7 +147,8 @@ uiAttribPartServer::~uiAttribPartServer()
 
     deepErase( attrxplotset_ );
     delete &eDSHolder();
-    deepErase( attrxplotset_ );
+    delete manattribsetdlg_;
+    detachAllNotifiers();
 }
 
 
@@ -230,8 +233,9 @@ void uiAttribPartServer::getDirectShowAttrSpec( SelSpec& as ) const
 
 void uiAttribPartServer::manageAttribSets()
 {
-    uiAttrSetMan dlg( parent() );
-    dlg.go();
+    delete manattribsetdlg_;
+    manattribsetdlg_ = new uiAttrSetMan( parent() );
+    manattribsetdlg_->go();
 }
 
 
@@ -1749,3 +1753,8 @@ void uiAttribPartServer::setEvalBackupColTabMapper(
 const ColTab::MapperSetup* uiAttribPartServer::getEvalBackupColTabMapper() const
 { return evalmapperbackup_; }
 
+
+void uiAttribPartServer::survChangedCB( CallBacker* )
+{
+    delete manattribsetdlg_; manattribsetdlg_ = 0;
+}

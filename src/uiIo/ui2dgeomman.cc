@@ -41,7 +41,7 @@ static IOObjContext mkCtxt()
 ui2DGeomManageDlg::ui2DGeomManageDlg( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(tr("Manage 2D Geometry"),mNoDlgTitle,
 				     mODHelpKey(m2DGeomManageDlgHelpID))
-		     .nrstatusflds(1),mkCtxt())
+			       .nrstatusflds(1).modal(false),mkCtxt())
 {
     createDefaultUI( false, false );
     selgrp_->getManipGroup()->addButton( "trashcan", "Remove this Line",

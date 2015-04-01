@@ -20,10 +20,13 @@ class IOObj;
 class FilePath;
 class uiConvertPos;
 class uiDataPointSet;
+class uiDataPointSetMan;
 class uiDialog;
 class uiODApplMgr;
+class uiProbDenFuncMan;
+class uiSessionMan;
 class uiVelSel;
-
+class ui2DGeomManageDlg;
 namespace Attrib { class SelSpec; }
 
 
@@ -49,9 +52,8 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
 { mODTextTranslationClass(uiODApplMgrDispatcher);
     friend class	uiODApplMgr;
 
-			uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
-			    : am_(a), par_(p), convposdlg_(0)
-			    {}
+			uiODApplMgrDispatcher(uiODApplMgr&,uiParent*);
+			~uiODApplMgrDispatcher();
 
     void		survChg(bool);
 
@@ -73,9 +75,14 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		setAutoUpdatePol();
     void		openXPlot();
     void		createCubeFromWells();
+    void		deleteDlgs();
 
     void		posDlgClose(CallBacker*);
     uiConvertPos*	convposdlg_;
+    uiDataPointSetMan*	mandpsdlg_;
+    ui2DGeomManageDlg*	man2dgeomdlg_;
+    uiProbDenFuncMan*	manpdfdlg_;
+    uiSessionMan*	mansessiondlg_;
     uiODApplMgr&	am_;
     uiParent*		par_;
     ObjectSet<uiDataPointSet> uidpsset_;

@@ -102,14 +102,40 @@ uiParent* uiODApplService::parent() const
 }
 
 
+//uiODApplMgrDispatcher
+uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
+    : am_(a), par_(p)
+    , convposdlg_(0)
+    , mandpsdlg_(0)
+    , man2dgeomdlg_(0)
+    , manpdfdlg_(0)
+    , mansessiondlg_(0)
+{}
+
+
+uiODApplMgrDispatcher::~uiODApplMgrDispatcher()
+{
+    deleteDlgs();
+    deepErase( uidpsset_ );
+}
+
+
 void uiODApplMgrDispatcher::survChg( bool before )
 {
     if ( before )
-    {
-	delete convposdlg_; convposdlg_ = 0;
-    }
+	deleteDlgs();
 
     deepErase( uidpsset_ );
+}
+
+
+void uiODApplMgrDispatcher::deleteDlgs()
+{
+	delete convposdlg_; convposdlg_ = 0;
+	delete mandpsdlg_; mandpsdlg_ = 0;
+	delete man2dgeomdlg_; man2dgeomdlg_ = 0;
+	delete manpdfdlg_; manpdfdlg_ = 0;
+	delete mansessiondlg_; mansessiondlg_ = 0;
 }
 
 
@@ -282,15 +308,17 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
 	else if ( at == uiODApplMgr::Man )
 	{
-	    uiProbDenFuncMan dlg( par_ );
-	    dlg.go();
+	    delete manpdfdlg_;
+	    manpdfdlg_ = new uiProbDenFuncMan( par_ );
+	    manpdfdlg_->go();
 	}
     break;
     mCase(Geom):
 	if ( at == uiODApplMgr::Man )
 	{
-	    ui2DGeomManageDlg dlg( par_ );
-	    dlg.go();
+	    delete man2dgeomdlg_;
+	    man2dgeomdlg_ = new ui2DGeomManageDlg( par_ );
+	    man2dgeomdlg_->go();
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
@@ -306,8 +334,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
 	else if ( at == uiODApplMgr::Man )
 	{
-	    uiDataPointSetMan mandlg( par_ );
-	    mandlg.go();
+	    delete mandpsdlg_;
+	    mandpsdlg_ = new uiDataPointSetMan( par_ );
+	    mandpsdlg_->go();
 	}
     break;
     mCase(Body):
@@ -324,8 +353,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Sess):
 	if ( at == uiODApplMgr::Man )
 	{
-	    uiSessionMan mandlg( par_ );
-	    mandlg.go();
+	    delete mansessiondlg_;
+	    mansessiondlg_ = new uiSessionMan( par_ );
+	    mansessiondlg_->go();
 	}
     mCase(NLA):
 	    pErrMsg("NLA event occurred");

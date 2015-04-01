@@ -33,7 +33,7 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(tr("Manage Probability Density Functions"),
 				     mNoDlgTitle,
 				     mODHelpKey(mProbDenFuncManHelpID) )
-                                     .nrstatusflds(1),
+			       .nrstatusflds(1).modal(false),
 	           ProbDenFuncTranslatorGroup::ioContext())
 {
     createDefaultUI();
