@@ -42,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellimpasc.h"
 #include "uiwelllogtools.h"
 #include "uiwellman.h"
+#include "uiwellmarkerdlg.h"
 
 #include "arrayndimpl.h"
 #include "color.h"
@@ -139,7 +140,33 @@ void uiWellPartServer::importLogs()
 
 
 void uiWellPartServer::importMarkers()
-{ manageWells(); }
+{
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
+    ctio->ctxt.forread = true;
+    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( false );
+    uiIOObjSelDlg wellseldlg( parent(), sdsu, *ctio  );
+    wellseldlg.setCaption( tr("Import Markers") );
+    if ( !wellseldlg.go() ) return;
+
+    const MultiID mid = wellseldlg.chosenID();
+    RefMan<Well::Data> wd = Well::MGR().get( mid );
+    if ( !wd ) return;
+
+    const Well::MarkerSet origmarkers = wd->markers();
+    uiMarkerDlg dlg( parent(), wd->track() );
+    dlg.setMarkerSet( wd->markers() );
+    if ( !dlg.go() ) return;
+
+    dlg.getMarkerSet( wd->markers() );
+    Well::Writer wtr( mid, *wd );
+    if ( !wtr.putMarkers() )
+    {
+	uiMSG().error( tr("Cannot write new markers to disk") );
+	wd->markers() = origmarkers;
+    }
+
+    wd->markerschanged.trigger();
+}
 
 
 void uiWellPartServer::importReadyCB( CallBacker* cb )
