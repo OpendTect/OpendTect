@@ -153,7 +153,7 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
 
 float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
 {
-    const float zfactor = SI().zDomain().userFactor();
+    const float zfactor = (float)SI().zDomain().userFactor();
     if ( !(int)(refzstep*zfactor) )
 	return ((exactz/refzstep)-(int)(exactz/refzstep))*refzstep;
 
