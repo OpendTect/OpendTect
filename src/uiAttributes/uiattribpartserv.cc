@@ -693,9 +693,10 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	ManagedObjectSet<DataColDef> dtcoldefset;
 	dtcoldefset += dtcd;
 	DataPointSet posvals( rgprov3d, dtcoldefset );
+	const int firstcolidx = 0;
 
 	uiString errmsg;
-	process = aem->getTableOutExecutor( posvals, errmsg, 0 );
+	process = aem->getTableOutExecutor( posvals, errmsg, firstcolidx );
 	if ( !process )
 	    { uiMSG().error(errmsg); mCleanReturn(); }
 
@@ -709,9 +710,14 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	output = new DataCubes;
 	output->setSizeAndPos( tkzs );
 	TypeSet<float> values;
-	posvals.bivSet().getColumn( 1, values, true );
-	BinDataDesc bdd( values.arr() );
-	output->addCube( &bdd );
+	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, values,
+				    true );
+	ArrayValueSeries<float, float>* avs = 
+	    new ArrayValueSeries<float,float>(values.arr(),true, values.size());
+	Array3DImpl<float>* arr3d =
+	    	new Array3DImpl<float>( tkzs.nrInl(), tkzs.nrCrl(), 1 );
+	arr3d->setStorage( avs );
+	output->addCube( *arr3d, true );
 	dtcoldefset.erase();
     }
     else
