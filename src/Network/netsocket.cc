@@ -22,6 +22,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "qtcpsocketcomm.h"
 #endif
 
+#ifdef __debug__
+# define mCheckThread \
+    if ( thread_!=Threads::currentThread() ) \
+      pErrMsg("Invalid Thread access" )
+#else
+# define mCheckThread
+#endif
+
 
 Network::Socket::Socket( bool haveevloop )
 #ifndef OD_NO_QT
@@ -35,6 +43,11 @@ Network::Socket::Socket( bool haveevloop )
     , disconnected( this )
     , readyRead( this )
     , ownssocket_( true )
+#ifdef __debug__
+    , thread_( Threads::currentThread() )
+#else
+    , thread_( 0 )
+#endif
 {
 #ifndef OD_NO_QT
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
@@ -54,6 +67,11 @@ Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
     , disconnected( this )
     , readyRead( this )
     , ownssocket_( false )
+#ifdef __debug__
+    , thread_( Threads::currentThread() )
+#else
+    , thread_( 0 )
+#endif
 {
 #ifndef OD_NO_QT
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
@@ -64,6 +82,7 @@ Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
 Network::Socket::~Socket()
 {
 #ifndef OD_NO_QT
+    mCheckThread;
     socketcomm_->disconnect();
     socketcomm_->deleteLater();
     if ( ownssocket_ ) qtcpsocket_->deleteLater();
@@ -76,6 +95,8 @@ bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 #ifdef OD_NO_QT
     return false;
 #else
+    mCheckThread;
+
     if ( noeventloop_ )
 	wait = true;
 
@@ -98,6 +119,8 @@ bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 
 bool Network::Socket::disconnectFromHost( bool wait )
 {
+    mCheckThread;
+
     if ( noeventloop_ )
 	wait = true;
 
@@ -157,6 +180,7 @@ od_int64 Network::Socket::bytesAvailable() const
 
 void Network::Socket::abort()
 {
+    mCheckThread;
 #ifndef OD_NO_QT
     qtcpsocket_->abort();
 #endif
@@ -170,6 +194,7 @@ static const od_int64 maxbuffersize = ((INT_MAX/2-2000));
 bool Network::Socket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
 {
 #ifndef OD_NO_QT
+    mCheckThread;
     const char* buf = (const char*) voidbuf;
     if ( noeventloop_ )
 	wait = true;

@@ -122,6 +122,7 @@ private:
 
     mQtclass(QTcpSocketComm)*	socketcomm_;
 
+    const void*			thread_;
 };
 
 

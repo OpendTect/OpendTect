@@ -82,9 +82,6 @@ public:
 
 private:
 
-
-    void			threadFunc(CallBacker*);
-
     uiString			errmsg_;
 
     TypeSet<od_int32>		ourrequestids_;
@@ -92,19 +89,37 @@ private:
 
     Threads::ConditionVar	lock_;
     Socket*			socket_;
+    int				timeout_;
     bool			ownssocket_;
+
+    Threads::ConditionVar	sendlock_;
+    const RequestPacket*	packettosend_;
+    bool			sendwithwait_;
+    bool			sendresult_;
+    bool			sendingfinished_;
 
     int				id_;
 
     BufferString		servername_;
     unsigned short		serverport_;
 
-    void			connectToHost(bool haveeventloop,int);
+    Threads::Thread*		socketthread_;
+    void			socketThreadFunc(CallBacker*);
+    bool			stopflag_;
+    bool			readfirst_;
+
+    void			connectToHost(bool haseventloop);
+    void			flush();
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);
     void			dataArrivedCB(CallBacker*);
 
+    bool			doSendPacket(const RequestPacket&,
+				   bool waitforfinish);
+
     bool			readFromSocket();
+    bool			writeToSocket();
+
     Network::RequestPacket*	readConnection(int);
     Network::RequestPacket*	getNextAlreadyRead(int);
     void			requestEnded(od_int32);

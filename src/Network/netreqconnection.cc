@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "netreqconnection.h"
 
+#include "applicationdata.h"
 #include "netreqpacket.h"
 #include "netsocket.h"
 #include "netserver.h"
@@ -33,8 +34,20 @@ RequestConnection::RequestConnection( const char* servername,
     , connectionClosed( this )
     , packetArrived( this )
     , id_( connid++ )
+    , socketthread_( 0 )
+    , timeout_( timeout )
+    , stopflag_( 0 )
+    , packettosend_( 0 )
 {
-    connectToHost( haseventloop, timeout );
+    if ( haseventloop )
+    {
+	socketthread_ =
+	    new Threads::Thread( mCB(this,RequestConnection,socketThreadFunc) );
+    }
+    else
+    {
+	connectToHost( haseventloop );
+    }
 }
 
 
@@ -45,6 +58,10 @@ RequestConnection::RequestConnection( Network::Socket* sock )
     , connectionClosed( this )
     , packetArrived( this )
     , id_( connid++ )
+    , socketthread_( 0 )
+    , timeout_( 0 )
+    , stopflag_( 0 )
+    , packettosend_( 0 )
 {
     if ( !sock )
 	return;
@@ -56,22 +73,68 @@ RequestConnection::RequestConnection( Network::Socket* sock )
 
 RequestConnection::~RequestConnection()
 {
+    if ( socketthread_ )
+    {
+	lock_.lock();
+	stopflag_ = true;
+	lock_.signal( true );
+	lock_.unLock();
+
+	socketthread_->waitForFinish();
+	deleteAndZeroPtr( socketthread_ );
+    }
+
     detachAllNotifiers();
+
+
     deepErase( receivedpackets_ );
+}
+
+
+void RequestConnection::socketThreadFunc( CallBacker* )
+{
+    if ( socket_ )
+	return;
+
+    connectToHost( true );
+
+    lock_.lock();
+    while ( !stopflag_ )
+    {
+	lock_.unLock();
+	if ( socket_ && socket_->bytesAvailable() )
+	{
+	    readFromSocket();
+	    lock_.lock();
+	    continue;
+	}
+
+	lock_.lock();
+	if ( packettosend_ && !sendingfinished_ )
+	{
+	    sendresult_ = doSendPacket( *packettosend_, sendwithwait_ );
+	    sendingfinished_ = true;
+
+	    lock_.signal( true );
+	    continue;
+	}
+
+	lock_.wait();
+    }
 
     deleteAndZeroPtr( socket_, ownssocket_ );
 }
 
 
-void RequestConnection::connectToHost( bool haseventloop, int timeout )
+void RequestConnection::connectToHost( bool haseventloop )
 {
     Threads::MutexLocker locker( lock_ );
 
     if ( !socket_ )
 	socket_ = new Network::Socket( haseventloop );
 
-    if ( timeout > 0 )
-	socket_->setTimeout( timeout );
+    if ( timeout_ > 0 )
+	socket_->setTimeout( timeout_ );
 
     if ( socket_->connectToHost(servername_,serverport_) )
 	mAttachCB(socket_->disconnected,RequestConnection::connCloseCB);
@@ -91,6 +154,11 @@ void RequestConnection::connCloseCB( CallBacker* )
     // deleteAndZeroPtr( socket_, ownssocket_ );
     // The socket_ will often contain a very bad pointer
     socket_ = 0;
+}
+
+
+void RequestConnection::flush()
+{
 }
 
 
@@ -137,15 +205,14 @@ bool RequestConnection::readFromSocket()
 }
 
 
-
-bool RequestConnection::sendPacket( const RequestPacket& pkt,
-				    bool waitforfinish )
+bool RequestConnection::doSendPacket( const RequestPacket& pkt,
+				      bool waitforfinish )
 {
-    if ( !isOK() || !pkt.isOK() || !socket_ )
-	return false;
+    if ( !isOK() )
+	return	false;
 
     const od_int32 reqid = pkt.requestID();
-    Threads::MutexLocker locker( lock_ );
+
     if ( !ourrequestids_.isPresent( reqid ) )
     {
 	if ( pkt.isNewRequest() )
@@ -162,6 +229,47 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 
     if ( !result )
 	requestEnded( pkt.requestID() );
+
+    return result;
+}
+
+
+
+bool RequestConnection::sendPacket( const RequestPacket& pkt,
+				    bool waitforfinish )
+{
+    if ( !pkt.isOK() )
+	return false;
+
+    Threads::MutexLocker locker( lock_ );
+    //We're non-threaded. Just send
+    if ( !socketthread_ )
+    {
+	return doSendPacket( pkt, waitforfinish );
+    }
+
+    //Someone else is sending now. Wait
+    while ( packettosend_ )
+	lock_.wait();
+
+    //Setup your batch job and poke thread
+    packettosend_ = &pkt;
+    sendwithwait_ = waitforfinish;
+    sendingfinished_ = false;
+    lock_.signal( true );
+
+    //Wait for sending to finish
+    while ( !sendingfinished_ )
+    {
+	lock_.wait();
+    }
+
+    //Pickup sending result
+    const bool result = sendresult_;
+
+    //Tell someone who may be waiting that he can send now.
+    packettosend_ = 0;
+    lock_.signal( true );
 
     return result;
 }

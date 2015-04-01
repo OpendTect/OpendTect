@@ -31,6 +31,7 @@ static BufferString packetString( const char* prefix,
     return ret;
 }
 
+
 class Tester : public CallBacker
 {
 public:
@@ -45,6 +46,7 @@ public:
     bool runTest( bool sendkill )
     {
 	Network::RequestConnection conn( hostname_, (unsigned short)port_ );
+	conn_ = &conn;
 	mAttachCB( conn.packetArrived, Tester::packetArrivedCB );
 
 	Network::RequestPacket packet;
@@ -117,6 +119,9 @@ public:
 	     receivedpacket->subID()==largepacket.subID(),
 	     packetString( prefix_, "Large packet content", largepacket ));
 
+	if ( !sendPacketInOtherThread() )
+	    return false;
+
 	if ( sendkill )
 	{
 	    Network::RequestPacket killpacket;
@@ -146,13 +151,58 @@ public:
 	}
     }
 
+    bool sendPacketInOtherThread()
+    {
+	sendres_ = false;
+	Threads::Thread thread( mCB(this,Tester,threadSend) );
+	thread.waitForFinish();
+	return sendres_;
+    }
+
+    void threadSend(CallBacker*)
+    {
+	sendres_ = sendMessageInThread();
+    }
+
+    bool sendMessageInThread()
+    {
+	Network::RequestPacket packet;
+	BufferString sentmessage = "Hello World";
+	packet.setIsNewRequest();
+	packet.setStringPayload( sentmessage );
+
+	mRunStandardTestWithError( conn_->sendPacket( packet ),
+	      packetString( prefix_, "Sending from other thread", packet ),
+	      conn_->errMsg().getFullString() );
+
+	PtrMan<Network::RequestPacket> receivedpacket = 0;
+	mRunStandardTestWithError(
+	    receivedpacket=conn_->pickupPacket( packet.requestID(), 2000 ),
+	    packetString( prefix_, "Receiving from other thread", packet ),
+	    conn_->errMsg().getFullString() );
+
+	BufferString receivedmessage1;
+	receivedpacket->getStringPayload( receivedmessage1 );
+	mRunStandardTest( receivedmessage1==sentmessage &&
+	     receivedpacket->requestID()==packet.requestID() &&
+	     receivedpacket->subID()==packet.subID(),
+	     packetString( prefix_, "Received content from other thread",
+			   packet ) );
+
+
+	return true;
+    }
+
+
     Threads::ConditionVar	condvar_;
     bool			unexpectedarrived_;
+
+    Network::RequestConnection* conn_;
+    bool			sendres_;
 
     BufferString		prefix_;
     BufferString		hostname_;
     int				port_;
-
 };
 
 
