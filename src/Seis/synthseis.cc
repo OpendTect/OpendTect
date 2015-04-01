@@ -82,15 +82,24 @@ void SynthGenBase::fillPar( IOPar& par ) const
     {
 	PtrMan<IOObj> wvlobj = Wavelet::getIOObj( wavelet_->name() );
 	if ( wvlobj )
-	    par.set( sKey::WaveletID(), wvlobj->key() );
+	{
+	    PtrMan<Wavelet> wav = Wavelet::get( wvlobj );
+	    if ( *wavelet_ == *wav )
+		par.set( sKey::WaveletID(), wvlobj->key() );
+	}
     }
 
+    par.set( sKey::ZRange(), outputsampling_ );
     par.setYN( sKeyFourier(), isfourier_ );
     par.setYN( sKeyNMO(), applynmo_ );
+    if ( applynmo_ )
+    {
+	par.set( sKeyMuteLength(), mutelength_ );
+	par.set( sKeyStretchLimit(), stretchlimit_ );
+    }
     par.setYN( sKeyInternal(), dointernalmultiples_ );
-    par.set( sKeySurfRefl(), surfreflcoeff_ );
-    par.set( sKeyMuteLength(), mutelength_ );
-    par.set( sKeyStretchLimit(), stretchlimit_ );
+    if ( dointernalmultiples_ )
+	par.set( sKeySurfRefl(), surfreflcoeff_ );
 }
 
 
@@ -104,12 +113,29 @@ bool SynthGenBase::usePar( const IOPar& par )
 	wavelet_ = Wavelet::get( ioobj );
     }
 
-    return par.getYN( sKeyNMO(), applynmo_ )
-	&& par.getYN( sKeyFourier(), isfourier_ )
-	&& par.getYN( sKeyInternal(), dointernalmultiples_ )
-        && par.get( sKeySurfRefl(), surfreflcoeff_ )
-	&& par.get( sKeyStretchLimit(), stretchlimit_)
-        && par.get( sKeyMuteLength(), mutelength_ );
+    const bool hassampling = par.get( sKey::ZRange(), outputsampling_ );
+    if ( hassampling )
+	setOutSampling( outputsampling_ );
+
+    const bool hasnmokey = par.getYN( sKeyNMO(), applynmo_ );
+    if ( applynmo_ )
+    {
+	if ( !par.get(sKeyMuteLength(),mutelength_) ||
+	     !par.get(sKeyStretchLimit(),stretchlimit_) )
+	    return false;
+    }
+
+    const bool hasintkey = par.getYN( sKeyInternal(), dointernalmultiples_ );
+    if ( dointernalmultiples_ )
+    {
+	if ( !par.get(sKeySurfRefl(),surfreflcoeff_) )
+	    return false;
+    }
+
+    return par.getYN( sKeyFourier(), isfourier_ )
+	&& hassampling
+	&& hasnmokey
+	&& hasintkey;
 }
 
 
@@ -136,7 +162,7 @@ bool SynthGenBase::getOutSamplingFromModel(
     if ( !mIsEqual(wavelet_->sampleRate(),outputsr,1e-4f) )
     {
 	Wavelet& wavelet = const_cast<Wavelet&>(*wavelet_);
-	wavelet.setSampleRate( outputsr );
+	wavelet.reSample( outputsr );
     }
 
     if ( wavelet_->samplePositions().width(false) < outputsr )
@@ -335,7 +361,12 @@ int SynthGenerator::genFreqWavelet()
     PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
 
     freqwavelet_.setSize( convolvesize_, float_complex(0,0) );
-    //TODO add taper if wavelet length less than output trace size
+    if ( !mIsEqual(wavelet_->sampleRate(),outputsampling_.step,1e-6f) )
+    {
+	Wavelet& wavelet = const_cast<Wavelet&>(*wavelet_);
+	wavelet.reSample( outputsampling_.step );
+    }
+
     for ( int idx=0; idx<wavelet_->size(); idx++ )
     {
 	int arrpos = idx - wavelet_->centerSample();
@@ -625,14 +656,14 @@ od_int64 MultiTraceSynthGenerator::nrIterations() const
 
 bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
 {
+    IOPar par;
+    fillPar( par );
     SynthGenerator& synthgen = *synthgens_[thread];
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	synthgen.setModel( *(*models_)[idx] );
-
 	synthgen.setWavelet( wavelet_, OD::UsePtr );
-	IOPar par; fillPar( par ); synthgen.usePar( par );
-	synthgen.setOutSampling( outputsampling_ );
+	synthgen.usePar( par );
 	if ( !synthgen.doWork() )
 	    mErrRet( synthgen.errMsg(), false );
 
@@ -753,9 +784,7 @@ bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 	MultiTraceSynthGenerator multitracegen;
 	multitracegen.setModels( rm.refmodels_ );
 	multitracegen.setWavelet( wavelet_, OD::UsePtr );
-	multitracegen.setOutSampling( outputsampling_ );
 	multitracegen.usePar( par );
-
 	if ( !multitracegen.execute() )
 	    mErrRet( multitracegen.errMsg(), false )
 

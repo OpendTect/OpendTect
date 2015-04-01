@@ -108,6 +108,25 @@ Wavelet& Wavelet::operator =( const Wavelet& wv )
 }
 
 
+bool Wavelet::operator ==( const Wavelet& wv ) const
+{
+    if ( &wv == this ) return true;
+
+    if ( sz_ != wv.sz_ || cidx_ != wv.cidx_ ) return false;
+    if ( !mIsEqual(dpos_,wv.dpos_,dpos_*1e-6f) ) return false;
+    if ( (samps_ && !wv.samps_) || (!samps_ && wv.samps_) ) return false;
+    if ( !samps_ && !wv.samps_ ) return true;
+
+    for ( int idx=0; idx<sz_; idx++ )
+    {
+	if ( !mIsEqual(samps_[idx],wv.samps_[idx],samps_[idx]*1e-6f) )
+	    return false;
+    }
+
+    return true;
+}
+
+
 Wavelet::~Wavelet()
 {
     delete [] samps_;

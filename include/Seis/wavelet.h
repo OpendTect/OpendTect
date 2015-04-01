@@ -32,6 +32,7 @@ public:
 				float sample_intv=mUdf(float),float scale=1);
 			Wavelet(const Wavelet&);
     Wavelet&		operator=(const Wavelet&);
+    bool		operator==(const Wavelet&) const;
     virtual		~Wavelet();
 
     static Wavelet*	get(const IOObj*);
