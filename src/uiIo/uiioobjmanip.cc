@@ -120,7 +120,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
     robut = addButton( ReadOnly, "Toggle Read only : locked", cb );
     setAlternative( robut, "unlock", "Toggle Read only : editable" );
     if ( withremove )
-	rembut = addButton( Remove, "Remove selected", cb );
+	rembut = addButton( Remove, "Delete selected", cb );
     attach( rightOf, subj_.obj_ );
 }
 
@@ -195,7 +195,7 @@ void uiIOObjManipGroup::selChg()
     if ( rembut )
     {
 	const bool canrm = firstchosenioobj;
-	mSetTBStateAndTT4Chosen( rembut, canrm, "Remove" );
+	mSetTBStateAndTT4Chosen( rembut, canrm, "Delete" );
     }
 
     delete curioobj;
@@ -358,7 +358,7 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
     if ( exists && readonly && shldrm )
     {
 	uiString msg = tr("'%1'is not writable; the actual data "
-			  "will not be removed.\nThe entry will only "
+			  "will not be deleted.\nThe entry will only "
 			  "disappear from the list.\nContinue?")
 		     .arg(ioobj.name());
 	if ( !uiMSG().askContinue(msg) )
@@ -376,7 +376,7 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
     if ( !ioobjs.size() )
 	return false;
 
-    uiString info = tr("Remove the following objects"
+    uiString info = tr("Delete the following objects"
 		       " from the database permanently?\n%1");
 
     uiStringSet selnms;
