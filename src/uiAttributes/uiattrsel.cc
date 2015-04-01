@@ -155,7 +155,7 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 	    inserters_[idx]->objectInserted.notify(
 		    mCB(this,uiAttrSelDlg,objInserted) );
 	}
-	butgrp->attach( leftOf, selgrp_ );
+	butgrp->attach( ensureBelow, selgrp_ );
     }
 
     int seltyp = 0;
