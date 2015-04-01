@@ -78,4 +78,6 @@ if ( NOT MATLAB_DIR STREQUAL "" )
 	MATLAB_EXEC_MEX( "${PROG}" "${ARGS}" "${OUTDIR}" "${WORKDIR}" )
     endforeach()
 
+    install( DIRECTORY ${OUTDIR} DESTINATION
+	     ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR} )
 endif()
