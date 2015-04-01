@@ -368,6 +368,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     NotifyStopper notifystop( table_->valueChanged );
     int startrow = add ? getNrRows() : 0;
     const int nrrows = nrnew + startrow + cNrEmptyRows;
+    if ( !add ) table_->clearTable();
     table_->setNrRows( nrrows );
     const float zfac = zFactor();
     const float kbelev = track_.getKbElev();
