@@ -9,6 +9,7 @@ SET(OD_MODULE_DEPS uiODMain Basemap )
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
 	uibasemappi.cc
+	uibasemapcoltabed.cc
 	uibasemapcontouritem.cc
 	uibasemapgeom2ditem.cc
 	uibasemapgriditem.cc

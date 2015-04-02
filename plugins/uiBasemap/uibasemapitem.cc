@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemapitem.h"
 
 #include "uibasemap.h"
+#include "uibasemapcoltabed.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uiioobjselgrp.h"
@@ -423,6 +424,7 @@ uiBasemapManager::uiBasemapManager()
     : basemap_(0)
     , basemapcursor_(0)
     , treetop_(0)
+    , coltabed_(0)
 {
     init();
 }
@@ -448,13 +450,17 @@ void uiBasemapManager::init()
 void uiBasemapManager::setBasemap( uiBaseMap& bm )
 { basemap_ = &bm; }
 
-
 uiBaseMap& uiBasemapManager::getBasemap()
 { return *basemap_; }
 
-
 void uiBasemapManager::setTreeTop( uiTreeTopItem& tt )
 { treetop_ = &tt; }
+
+void uiBasemapManager::setColTabEd( uiBasemapColTabEd* cte )
+{ coltabed_ = cte; }
+
+uiBasemapColTabEd* uiBasemapManager::getColTabEd()
+{ return coltabed_; }
 
 
 void uiBasemapManager::addfromPar( const IOPar& treepar )

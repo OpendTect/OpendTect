@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapmnutbmgr.h"
 
+#include "uibasemapcoltabed.h"
 #include "uibasemapiomgr.h"
 #include "uibasemapscalebar.h"
 #include "uibasemapwin.h"
@@ -164,6 +165,8 @@ void uiBaseMapMnuTBMgr::createViewTB()
 void uiBaseMapMnuTBMgr::createColTabTB()
 {
     ctabtoolbar_ = new uiColorTableToolBar( &mainwin_ );
+    ctabed_ = new uiBasemapColTabEd( *ctabtoolbar_ );
+    BMM().setColTabEd( ctabed_ );
 }
 
 

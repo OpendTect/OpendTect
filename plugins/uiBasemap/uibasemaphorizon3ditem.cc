@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "basemaphorizon3d.h"
 
+#include "uibasemapcoltabed.h"
 #include "uibitmapdisplay.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
@@ -23,21 +24,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uiworld2ui.h"
 
+#include "coltab.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "flatposdata.h"
 #include "flatview.h"
-
-#include "coltabindex.h"
-#include "coltabmapper.h"
-#include "coltabsequence.h"
 #include "ioman.h"
+#include "settings.h"
 #include "survinfo.h"
 
+
 // uiBasemapHorizon3DGroup
-uiBasemapHorizon3DGroup::uiBasemapHorizon3DGroup( uiParent* p, bool isadd )
+uiBasemapHorizon3DGroup::uiBasemapHorizon3DGroup( uiParent* p, bool )
     : uiBasemapGroup(p)
 {
     ioobjfld_ = new uiIOObjSelGrp( this, mIOObjContext(EMHorizon3D),
@@ -133,6 +133,14 @@ uiBasemapHorizon3DObject::uiBasemapHorizon3DObject( BaseMapObject* bmobj )
     appearance_.ddpars_.show( false, true );
     bitmapdisp_.getDisplay()->setZValue( 0 );
     itemgrp_.add( bitmapdisp_.getDisplay() );
+
+    BufferString seqnm = ColTab::defSeqName();
+    Settings::common().get( "dTect.Horizon.Color table", seqnm );
+    appearance_.ddpars_.vd_.ctab_ = seqnm;
+
+    if ( BMM().getColTabEd() )
+	BMM().getColTabEd()->colTabChgd.notify(
+			mCB(this,uiBasemapHorizon3DObject,colTabChgCB) );
 }
 
 
@@ -145,6 +153,20 @@ uiBasemapHorizon3DObject::~uiBasemapHorizon3DObject()
 
     if ( hor3d_ ) hor3d_->unRef();
     DPM(DataPackMgr::FlatID()).release( dp_ );
+
+    if ( BMM().getColTabEd() )
+	BMM().getColTabEd()->colTabChgd.remove(
+			mCB(this,uiBasemapHorizon3DObject,colTabChgCB) );
+}
+
+
+void uiBasemapHorizon3DObject::colTabChgCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiBasemapColTabEd*,coltabed,cb);
+    if ( !coltabed ) return;
+
+    appearance_.ddpars_.vd_ = coltabed->getDisplayPars();
+    bitmapdisp_.update();
 }
 
 
@@ -169,6 +191,9 @@ void uiBasemapHorizon3DObject::setHorizon( const EM::Horizon3D* hor3d )
     bitmapdisp_.setDataPack( dp_, false );
     bitmapdisp_.getDisplay()->show();
     update();
+
+    if ( BMM().getColTabEd() )
+	BMM().getColTabEd()->setColTab( appearance_.ddpars_.vd_ );
 }
 
 

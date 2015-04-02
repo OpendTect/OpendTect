@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uibasemapitem.h"
 
 class MenuItem;
+class uiBasemapColTabEd;
 class uiBasemapIOMgr;
 class uiBasemapView;
 class uiColorTableToolBar;
@@ -79,7 +80,9 @@ private:
     MenuItem*		saveas_;
     uiToolBar*		itemtoolbar_;
     uiToolBar*		vwtoolbar_;
+
     uiColorTableToolBar* ctabtoolbar_;
+    uiBasemapColTabEd*	ctabed_;
 };
 
 #endif

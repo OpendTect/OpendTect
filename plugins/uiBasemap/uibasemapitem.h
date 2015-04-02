@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uitreeitemmanager.h"
 
 class uiBaseMap;
+class uiBasemapColTabEd;
 class uiGenInput;
 class uiIOObjSelGrp;
 class uiODApplMgr;
@@ -179,6 +180,9 @@ public:
     uiBaseMap&		getBasemap();
     void		setTreeTop(uiTreeTopItem&);
 
+    void		setColTabEd(uiBasemapColTabEd*);
+    uiBasemapColTabEd*	getColTabEd();
+
     const ObjectSet<uiBasemapItem>&	items() const	{ return basemapitems_;}
     const ObjectSet<uiBasemapTreeItem>& treeitems() const { return treeitems_;}
     uiBasemapItem*	getBasemapItem(const char*);
@@ -195,6 +199,7 @@ private:
     void		init();
 
     uiBaseMap*		basemap_;
+    uiBasemapColTabEd*	coltabed_;
     BaseMapMarkers*	basemapcursor_;
     uiTreeTopItem*	treetop_;
 

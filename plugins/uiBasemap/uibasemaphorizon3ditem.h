@@ -54,6 +54,8 @@ public:
 
 protected:
 
+    void			colTabChgCB(CallBacker*);
+
     FlatView::Appearance&	appearance_;
     uiBitMapDisplay&		bitmapdisp_;
     const EM::Horizon3D*	hor3d_;
