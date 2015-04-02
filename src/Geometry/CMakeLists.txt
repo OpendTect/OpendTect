@@ -20,6 +20,7 @@ SET(OD_MODULE_SOURCES
 		faultsticksurface.cc
 		geeditor.cc
 		geeditorimpl.cc
+		geom2dintersections.cc
 		geomelement.cc
 		impbodyplaneintersect.cc
 		indexedshape.cc
