@@ -227,6 +227,7 @@ if ( $issys == yes ) then
     if ( $background == yes ) then
 	$xtermcmd $nicecmd "$argsnospaces" $argswithspaces:q &
 	set exitcode = $status
+	sleep 1 # Needed for Multi-machine processing with DTECT_DEBUG on.
     else
 	$xtermcmd $nicecmd "$argsnospaces" $argswithspaces:q
 	set exitcode = $status
@@ -243,6 +244,7 @@ else
     if ( $background == yes ) then
 	$xtermcmd $nicecmd "$bindir"/$argsnospaces $argswithspaces:q &
 	set exitcode = $status
+	sleep 1 # Needed for Multi-machine processing with DTECT_DEBUG on.
     else
 	$xtermcmd $nicecmd "$bindir"/$argsnospaces $argswithspaces:q
 	set exitcode = $status
