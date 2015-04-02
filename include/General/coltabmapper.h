@@ -38,15 +38,15 @@ public:
     enum Type		{ Fixed, Auto, HistEq };
 			DeclareEnumUtils(Type);
 
-    mDefSetupClssMemb(MapperSetup,Type,type);
-    mDefSetupClssMemb(MapperSetup,Interval<float>,cliprate);	//!< Auto
-    mDefSetupClssMemb(MapperSetup,bool,autosym0);	//!< Auto and HistEq.
-    mDefSetupClssMemb(MapperSetup,float,symmidval);	//!< Auto and HistEq.
+    mDefSetupClssMemb(MapperSetup,Type,type)
+    mDefSetupClssMemb(MapperSetup,Interval<float>,cliprate)	//!< Auto
+    mDefSetupClssMemb(MapperSetup,bool,autosym0)	//!< Auto and HistEq.
+    mDefSetupClssMemb(MapperSetup,float,symmidval)	//!< Auto and HistEq.
 							//!< Usually mUdf(float)
-    mDefSetupClssMemb(MapperSetup,int,maxpts);		//!< Auto and HistEq
-    mDefSetupClssMemb(MapperSetup,int,nrsegs);		//!< All
-    mDefSetupClssMemb(MapperSetup,bool,flipseq);	//!< All
-    mDefSetupClssMemb(MapperSetup,Interval<float>,range);
+    mDefSetupClssMemb(MapperSetup,int,maxpts)		//!< Auto and HistEq
+    mDefSetupClssMemb(MapperSetup,int,nrsegs)		//!< All
+    mDefSetupClssMemb(MapperSetup,bool,flipseq)		//!< All
+    mDefSetupClssMemb(MapperSetup,Interval<float>,range)
 
     bool			operator==(const MapperSetup&) const;
     bool			operator!=(const MapperSetup&) const;
@@ -88,26 +88,22 @@ public:
     float			position(float val) const;
 				//!< returns position in ColorTable
     static int			snappedPosition(const Mapper*,float val,
-						int nrsteps,
-					int udfval);
-    const Interval<float>& range() const;
-    bool		isFlipped() const { return setup_.flipseq_; }
-    const ValueSeries<float>* data() const
-			{ return vs_; }
-    od_int64		dataSize() const
-			{ return vssz_; }
+						int nrsteps,int udfval);
+    const Interval<float>&	range() const;
+    bool			isFlipped() const    { return setup_.flipseq_; }
+    const ValueSeries<float>*	data() const		{ return vs_; }
+    od_int64			dataSize() const	{ return vssz_; }
 
-    void		setFlipped(bool yn) { setup_.flipseq_ = yn; }
+    void			setFlipped(bool yn) { setup_.flipseq_ = yn; }
 
-    void		setRange( const Interval<float>& rg );
-    void		setData(const ValueSeries<float>*,od_int64 sz,
-				TaskRunner* = 0);
-			//!< If data changes, call update()
+    void			setRange( const Interval<float>& rg );
+    void			setData(const ValueSeries<float>*,od_int64 sz,
+					TaskRunner* = 0);
+				//!< If data changes, call update()
 
-    void		update(bool full=true, TaskRunner* = 0);
-			//!< If !full, will assume data is unchanged
-			//
-    MapperSetup		setup_;
+    void			update(bool full=true, TaskRunner* = 0);
+				//!< If !full, will assume data is unchanged
+    MapperSetup			setup_;
 
 protected:
 
@@ -276,7 +272,6 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 
     return true;
 }
-
 
 } // namespace ColTab
 
