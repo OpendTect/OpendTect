@@ -571,6 +571,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 {
     attrdata_.attribid_ = curid;
     updateInput();
+    setReadOnly();
 }
 
 
@@ -584,6 +585,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
     , seltype_(-1)
 {
     updateInput();
+    setReadOnly();
 }
 
 
