@@ -472,8 +472,8 @@ QRectF ODGraphicsTextItem::boundingRect() const
 
 
 void ODGraphicsTextItem::paint( QPainter* painter,
-			      const QStyleOptionGraphicsItem *option,
-			      QWidget *widget )
+				const QStyleOptionGraphicsItem *option,
+				QWidget* )
 {
     if ( option )
 	painter->setClipRect( option->exposedRect );
@@ -505,10 +505,12 @@ void ODGraphicsTextItem::paint( QPainter* painter,
     //Nice for debugging
     //painter->drawPoint( paintpos.x(), paintpos.y() );
 
+    const int shiftx = hal_ == Qt::AlignLeft ? border : -border;
+    const int shifty = val_ == Qt::AlignTop ? border : -border;
     painter->translate( QPointF(paintpos.x()+movex,
 				paintpos.y()+movey+txtheight) );
     painter->rotate( Math::toDegrees(paintangle) );
-    painter->drawText( QPointF(0,0), text_ );
+    painter->drawText( QPointF(shiftx,shifty), text_ );
 
     painter->restore();
 
