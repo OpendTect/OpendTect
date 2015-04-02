@@ -140,8 +140,10 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
     if ( selhornms.isEmpty() )
 	return;
 
-    uiString msg( "Unload selected horizon(s)'?\n"
-                  "(This will not delete the object(s) from disk)" );
+    uiString msg = tr( "Unload selected horizon(s)'?\n"
+                  "(This will not delete the object(s) from disk)", 0,
+                  selhornms.size() );
+    
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 

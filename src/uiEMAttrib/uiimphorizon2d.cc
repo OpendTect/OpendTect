@@ -444,7 +444,8 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
     const bool res = doImport();
     if ( !res ) return false;
 
-    uiMSG().message( tr("Horizon(s) successfully imported") );
+    uiMSG().message( tr("Horizon(s) successfully imported", 0,
+                        emobjids_.size()) );
     if ( saveButtonChecked() )
 	readyForDisplay.trigger();
 
