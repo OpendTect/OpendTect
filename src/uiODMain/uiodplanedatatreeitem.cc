@@ -88,8 +88,6 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
     { \
 	treeitm* newitm = new treeitm(-1,getType(mnuid));\
         addChild( newitm, false ); \
-	if ( mnuid==0 ) \
-	    newitm->handleAddAttrib();\
     } \
     else if ( mnuid==3 ) \
     { \
@@ -171,6 +169,8 @@ bool uiODPlaneDataTreeItem::init()
 
 	if ( type_ == Default )
 	    displayDefaultData();
+	if ( type_ == Empty ) //TODO add check on setting later on
+	    displayGuidance();
     }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -272,6 +272,28 @@ bool uiODPlaneDataTreeItem::displayDefaultData()
     if ( !getDefaultDescID(descid) )
 	return false;
 
+    return displayDataFromDesc( descid );
+}
+
+
+bool uiODPlaneDataTreeItem::displayGuidance()
+{
+    if ( !applMgr() || !applMgr()->attrServer() ) return false; //safety
+    Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
+	    				visserv_->getSelSpec( displayid_, 0 ));
+    if ( !as ) return false;
+
+    const Pos::GeomID geomid = visserv_->getGeomID( displayid_ );
+    const ZDomain::Info* zdinf =
+		    visserv_->zDomainInfo( visserv_->getSceneID(displayid_) );
+    applMgr()->attrServer()->selectAttrib( *as, zdinf, geomid,
+	    				   "Select first layer" );
+    return displayDataFromDesc( as->id() );
+}
+
+
+bool uiODPlaneDataTreeItem::displayDataFromDesc( const Attrib::DescID& descid )
+{
     const Attrib::DescSet* ads =
 	Attrib::DSHolder().getDescSet( false, true );
     Attrib::SelSpec as( 0, descid, false, "" );

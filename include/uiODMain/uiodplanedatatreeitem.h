@@ -36,6 +36,8 @@ public:
     void		setAtWellLocation(const Well::Data&);
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     bool		displayDefaultData();
+    bool		displayGuidance();
+    bool		displayDataFromDesc(const Attrib::DescID&);
 
     static uiString	sAddDefaultData();
     static uiString	sAddColorBlended();
