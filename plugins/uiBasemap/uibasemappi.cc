@@ -34,7 +34,7 @@ mDefODPluginInfo(uiBasemap)
     mDefineStaticLocalObject( PluginInfo, retpi,(
 	"Basemap",
 	"OpendTect",
-	"dGB (Nanne)",
+	"dGB",
 	"",
 	"Basemap") );
     return &retpi;
@@ -124,7 +124,11 @@ void uiBasemapMgr::showCB( CallBacker* )
 	dlg_ = new uiBasemapWin( appl_ );
 	dlg_->setMouseCursorExchange( &appl_->applMgr().mouseCursorExchange() );
 
-	if ( scene ) scene->setBaseMap( dlg_->getBasemap() );
+	if ( scene )
+	{
+	    scene->setBaseMap( dlg_->getBasemap() );
+	    dlg_->setCaption( BufferString("Basemap - ",scene->name()) );
+	}
     }
 
     dlg_->show();
