@@ -67,6 +67,15 @@ static bool testAllPipes()
 	cl.getStdOutput()->getWord( stdoutput );
 	if ( !stdoutput.isEmpty() )
 	    break;
+
+        if ( cl.getStdOutput()->stdStream().bad() )
+            break;
+
+        if ( cl.getStdOutput()->stdStream().eof() )
+        {
+            cl.getStdOutput()->stdStream().clear();
+        }
+
     }
 
     mRunStandardTestWithError( stdoutput==mGoodReply, "Standard output",
