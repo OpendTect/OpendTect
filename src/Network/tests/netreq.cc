@@ -46,6 +46,9 @@ public:
     bool runTest( bool sendkill )
     {
 	Network::RequestConnection conn( hostname_, (unsigned short)port_ );
+	mRunStandardTestWithError( conn.isOK(),
+	      BufferString( prefix_, "Connection is OK"),
+	      conn.errMsg().getFullString() );
 	conn_ = &conn;
 	mAttachCB( conn.packetArrived, Tester::packetArrivedCB );
 

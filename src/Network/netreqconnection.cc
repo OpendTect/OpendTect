@@ -41,8 +41,10 @@ RequestConnection::RequestConnection( const char* servername,
 {
     if ( haseventloop )
     {
+	Threads::MutexLocker locker( lock_ );
 	socketthread_ =
 	    new Threads::Thread( mCB(this,RequestConnection,socketThreadFunc) );
+	lock_.wait(); //Wait for thread to create connection.
     }
     else
     {
@@ -94,7 +96,10 @@ RequestConnection::~RequestConnection()
 void RequestConnection::socketThreadFunc( CallBacker* )
 {
     if ( socket_ )
+    {
+	pErrMsg("Thread started with existing socket!");
 	return;
+    }
 
     connectToHost( true );
 
@@ -138,6 +143,9 @@ void RequestConnection::connectToHost( bool haseventloop )
 
     if ( socket_->connectToHost(servername_,serverport_) )
 	mAttachCB(socket_->disconnected,RequestConnection::connCloseCB);
+
+    //Tell eventual constructor waiting that we have at least tried to connect
+    lock_.signal( true );
 }
 
 
