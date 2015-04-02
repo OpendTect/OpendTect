@@ -44,6 +44,7 @@ public:
     virtual void	setSectionTracker(SectionTracker*)	{}
     virtual void	setMode(const EMSeedPicker::SeedModeOrder) {}
     virtual int		getMode()				=0;
+    virtual void	setSeedPos(const Coord3&)		{}
     virtual void	setColor(const Color&)			{}
     virtual const Color& getColor()				=0;
     virtual void	setMarkerStyle(const MarkerStyle3D&)	{}

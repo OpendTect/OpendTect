@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "callback.h"
 #include "emtracker.h"
+#include "position.h"
 #include "sets.h"
 
 namespace Attrib { class SelSpec; }
@@ -48,6 +49,7 @@ public:
     virtual bool	addSeed(const Coord3&,bool drop=false)	{ return false;}
     virtual bool	addSeed(const Coord3& seedcrd,bool drop,
 				const Coord3& seedkey)		{ return false;}
+    virtual Coord3	getAddedSeed() const		{ return Coord3::udf();}
     virtual bool	canRemoveSeed() const			{ return false;}
     virtual bool	removeSeed(const EM::PosID&,
 	    			   bool enviromment=true,

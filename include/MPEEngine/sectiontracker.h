@@ -75,7 +75,7 @@ public:
     void			setDisplaySpec(const Attrib::SelSpec&);
 
     void			getNeededAttribs(
-	    			    ObjectSet<const Attrib::SelSpec>&) const;
+					TypeSet<Attrib::SelSpec>&) const;
     virtual TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
 
     void			fillPar(IOPar&) const;

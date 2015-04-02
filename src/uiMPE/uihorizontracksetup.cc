@@ -162,16 +162,17 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
     grp->setHAlignObj( evfld_ );
 
-    BufferString srchwindtxt( "Search window " );
-    srchwindtxt += SI().getZUnitString();
-    srchgatefld_ = new uiGenInput( grp, srchwindtxt, FloatInpIntervalSpec() );
+    BufferString srchwindtxt( "Search window ", SI().getZUnitString() );
+    const StepInterval<int> intv( -10000, 10000, 1 );
+    IntInpSpec iis; iis.setLimits( intv );
+    srchgatefld_ = new uiGenInput( grp, srchwindtxt, iis, iis );
     srchgatefld_->attach( alignedBelow, evfld_ );
     srchgatefld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
     thresholdtypefld_ = new uiGenInput( grp, tr("Threshold type"),
 		BoolInpSpec(true,tr("Cut-off amplitude"),
-                            tr("Relative difference")) );
+				 tr("Relative difference")) );
     thresholdtypefld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
     thresholdtypefld_->attach( alignedBelow, srchgatefld_ );
@@ -234,21 +235,24 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Properties" );
     colorfld_ = new uiColorInput( grp,
-				  uiColorInput::Setup(getRandStdDrawColor() ).
-				  lbltxt(tr("Horizon color")) );
+				uiColorInput::Setup(getRandStdDrawColor() )
+				.withdesc(false).lbltxt(tr("Horizon Color")) );
     colorfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
     grp->setHAlignObj( colorfld_ );
 
-    uiSeparator* sep = new uiSeparator( grp );
-    sep->attach( stretchedBelow, colorfld_, -2 );
-
-    seedtypefld_ = new uiGenInput( grp, tr("Seed Shape"),
+    seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
 			StringListInpSpec(MarkerStyle3D::TypeNames()) );
     seedtypefld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
     seedtypefld_->attach( alignedBelow, colorfld_ );
-    seedtypefld_->attach( ensureBelow, sep );
+
+    seedcolselfld_ = new uiColorInput( grp,
+				uiColorInput::Setup(Color::White())
+				.withdesc(false) );
+    seedcolselfld_->attach( rightTo, seedtypefld_ );
+    seedcolselfld_->colorChanged.notify(
+				mCB(this,uiHorizonSetupGroup,seedColSel) );
 
     seedsliderfld_ = new uiSlider( grp,
 				uiSlider::Setup(tr("Seed Size")).
@@ -257,13 +261,6 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     seedsliderfld_->valueChanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedSliderMove));
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );
-
-    seedcolselfld_ = new uiColorInput( grp,
-				       uiColorInput::Setup(Color::White()).
-				       lbltxt(tr("Seed Color")) );
-    seedcolselfld_->attach( alignedBelow, seedsliderfld_ );
-    seedcolselfld_->colorChanged.notify(
-				mCB(this,uiHorizonSetupGroup,seedColSel) );
 
     return grp;
 }
@@ -277,8 +274,8 @@ uiHorizonSetupGroup::~uiHorizonSetupGroup()
 void uiHorizonSetupGroup::selUseSimilarity( CallBacker* )
 {
     const bool usesimi = usesimifld_->getBoolValue();
-    compwinfld_->display( usesimi );
-    simithresholdfld_->display( usesimi );
+    compwinfld_->setSensitive( usesimi );
+    simithresholdfld_->setSensitive( usesimi );
 }
 
 
@@ -509,7 +506,7 @@ void uiHorizonSetupGroup::initPropertyGroup()
 }
 
 
-void uiHorizonSetupGroup::setMode(EMSeedPicker::SeedModeOrder mode)
+void uiHorizonSetupGroup::setMode( EMSeedPicker::SeedModeOrder mode )
 {
     mode_ = mode;
     modeselgrp_->selectButton( mode_ );
@@ -522,10 +519,16 @@ int uiHorizonSetupGroup::getMode()
 }
 
 
+void uiHorizonSetupGroup::setSeedPos( const Coord3& crd )
+{
+}
+
+
 void uiHorizonSetupGroup::setColor( const Color& col)
 {
     colorfld_->setColor( col );
 }
+
 
 const Color& uiHorizonSetupGroup::getColor()
 {

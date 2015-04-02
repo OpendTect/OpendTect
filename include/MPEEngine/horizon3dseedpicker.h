@@ -44,6 +44,7 @@ public:
     bool		addSeed(const Coord3&,bool drop);
     bool		addSeed(const Coord3& seedcrd,bool drop,
 				const Coord3& seedkey);
+    Coord3		getAddedSeed() const		{ return addedseed_; }
     bool		removeSeed(const EM::PosID&,
 	    			   bool environment,
 	    			   bool retrack);
@@ -103,11 +104,12 @@ protected:
     TypeSet<EM::PosID>	junctions_;
     TypeSet<EM::PosID>	eraselist_;
 
+    Coord3		addedseed_;
     EM::PosID		lastseedpid_;
     EM::PosID		lastsowseedpid_;
     Coord3		lastseedkey_;
     bool		sowermode_;
-    TrcKeySampling		seedpickarea_;
+    TrcKeySampling	seedpickarea_;
 
     bool		didchecksupport_;
     EM::SectionID	sectionid_;

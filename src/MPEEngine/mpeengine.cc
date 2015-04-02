@@ -284,7 +284,7 @@ void Engine::unsetOneActiveTracker()
 { oneactivetracker_ = 0; }
 
 
-void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
+void Engine::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 {
     for ( int trackeridx=0; trackeridx<trackers_.size(); trackeridx++ )
     {
@@ -294,13 +294,12 @@ void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 	if ( oneactivetracker_ && oneactivetracker_!=tracker )
 	    continue;
 
-	ObjectSet<const Attrib::SelSpec> specs;
-	tracker->getNeededAttribs(specs);
+	TypeSet<Attrib::SelSpec> specs;
+	tracker->getNeededAttribs( specs );
 	for ( int idx=0; idx<specs.size(); idx++ )
 	{
-	    const Attrib::SelSpec* as = specs[idx];
-	    if ( indexOf(res,*as) < 0 )
-		res += as;
+	    const Attrib::SelSpec& as = specs[idx];
+	    res.addIfNew( as );
 	}
     }
 }

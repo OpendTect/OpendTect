@@ -403,7 +403,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
     }
     else if ( seedpicker->addSeed(seedpos, ctrlshiftclicked) )
-	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	engine.updateFlatCubesContainer( newvolume, trackerid, true );
 
     if ( !clickcatcher_->moreToSow() )
 	endSeedClickEvent( emobj );
@@ -650,8 +650,8 @@ void uiMPEMan::finishMPEDispIntro( CallBacker* )
     if ( !tracker )
 	return;
 
-    ObjectSet<const Attrib::SelSpec> attribspecs;
-    tracker->getNeededAttribs(attribspecs);
+    TypeSet<Attrib::SelSpec> attribspecs;
+    tracker->getNeededAttribs( attribspecs );
     if ( attribspecs.isEmpty() )
 	return;
 }

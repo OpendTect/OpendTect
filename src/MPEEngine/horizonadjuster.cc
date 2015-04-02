@@ -192,7 +192,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     const Array3D<float>& array = regsdp->data( 0 );
     if ( !array.getStorage() ) return false;
 
-    if ( !horizon_.isDefined(sectionid_, to.toInt64()) )
+    if ( !horizon_.isDefined(sectionid_,to.toInt64()) )
 	return false;
 
     const int totrcidx = regsdp->getGlobalIdx( getTrcKey(to) );
@@ -242,19 +242,18 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 }
 
 
-void HorizonAdjuster::getNeededAttribs(
-	ObjectSet<const Attrib::SelSpec>& specs ) const
+void HorizonAdjuster::getNeededAttribs( TypeSet<Attrib::SelSpec>& specs ) const
 {
     if ( !attribsel_ || !attribsel_->id().isValid() )
 	return;
 
     for ( int idx=specs.size()-1; idx>=0; idx-- )
     {
-	if ( *specs[idx] == *attribsel_ )
+	if ( specs[idx] == *attribsel_ )
 	    return;
     }
 
-    specs += attribsel_;
+    specs += *attribsel_;
 }
 
 

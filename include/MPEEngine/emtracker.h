@@ -59,7 +59,7 @@ public:
 
     virtual TrcKeyZSampling	getAttribCube( const Attrib::SelSpec& ) const;
     void			getNeededAttribs(
-				    ObjectSet<const Attrib::SelSpec>&) const;
+					TypeSet<Attrib::SelSpec>&) const;
 
     SectionTracker*		getSectionTracker(EM::SectionID,
 	    					  bool create=false);

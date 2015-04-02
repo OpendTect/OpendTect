@@ -30,17 +30,18 @@ namespace MPE
 {
 
 Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
-    : tracker_( t )
-    , addrmseed_( this )
-    , surfchange_( this )
-    , seedconmode_( defaultSeedConMode() )
-    , blockpicking_( false )
-    , sectionid_( -1 )
-    , sowermode_( false )
-    , lastseedpid_( EM::PosID::udf() )
-    , lastsowseedpid_( EM::PosID::udf() )
-    , lastseedkey_( Coord3::udf() )
+    : tracker_(t)
+    , addrmseed_(this)
+    , surfchange_(this)
+    , seedconmode_(defaultSeedConMode())
+    , blockpicking_(false)
+    , sectionid_(-1)
+    , sowermode_(false)
+    , lastseedpid_(EM::PosID::udf())
+    , lastsowseedpid_(EM::PosID::udf())
+    , lastseedkey_(Coord3::udf())
     , seedpickarea_(false)
+    , addedseed_(Coord3::udf())
     , fltdataprov_(0)
 {
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(tracker_.objectID()))
@@ -77,6 +78,7 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop )
 bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
        				   const Coord3& seedkey )
 {
+    addedseed_ = seedcrd;
     if ( !sowermode_ )
 	addrmseed_.trigger();
 

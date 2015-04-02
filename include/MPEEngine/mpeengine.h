@@ -42,8 +42,8 @@ mExpClass(MPEEngine) Engine : public CallBacker
     mGlobal(MPEEngine) friend Engine&		engine();
 
 public:
-    				Engine();
-    virtual			~Engine();
+			Engine();
+    virtual		~Engine();
 
     void		init();
 
@@ -80,7 +80,7 @@ public:
     void 		setOneActiveTracker(const EMTracker*);
     void 		unsetOneActiveTracker();
     void		getNeededAttribs(
-			    ObjectSet<const Attrib::SelSpec>&) const;
+				TypeSet<Attrib::SelSpec>&) const;
     TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
     			/*!< Returns the cube that is needed for
 			     this attrib, given that the activearea
@@ -106,7 +106,7 @@ public:
     ObjectEditor*	getEditor(const EM::ObjectID&,bool create);
     void		removeEditor(const EM::ObjectID&);
 
-    			/*Fault(StickSet)s workaround, untill
+			/*Fault(StickSet)s workaround, until
 			  2DViewer tree is not in place */
     Notifier<Engine>    activefaultchanged_;
     void		setActiveFaultObjID(EM::ObjectID objid)
@@ -115,7 +115,7 @@ public:
 			    activefaultchanged_.trigger();
 			}
     EM::ObjectID	getActiveFaultObjID()	{ return activefaultid_; }
-    Notifier<Engine>    activefsschanged_;
+    Notifier<Engine>	activefsschanged_;
     void		setActiveFSSObjID(EM::ObjectID objid)
 			{
 			    activefssid_ = objid;
@@ -156,10 +156,10 @@ protected:
 	Pos::GeomID		geomid_;
     };
 
-    TypeSet<DataPack::ID>		attribcachedatapackids_;
-    ObjectSet<CacheSpecs>		attribcachespecs_;
-    TypeSet<DataPack::ID>               attribbkpcachedatapackids_;
-    ObjectSet<CacheSpecs>		attribbackupcachespecs_;
+    TypeSet<DataPack::ID>	attribcachedatapackids_;
+    ObjectSet<CacheSpecs>	attribcachespecs_;
+    TypeSet<DataPack::ID>	attribbkpcachedatapackids_;
+    ObjectSet<CacheSpecs>	attribbackupcachespecs_;
 
     mStruct(MPEEngine) FlatCubeInfo
     {

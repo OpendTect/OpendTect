@@ -40,7 +40,7 @@ public:
     int			nextStep();
 
     void		getNeededAttribs(
-				ObjectSet<const Attrib::SelSpec>&) const;
+				TypeSet<Attrib::SelSpec>&) const;
     TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
 
     void		setPermittedZRange(const Interval<float>& rg);

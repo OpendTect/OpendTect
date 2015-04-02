@@ -92,4 +92,4 @@ const EM::Horizon3D* Horizon3DTracker::getHorizon() const
 { return const_cast<Horizon3DTracker*>(this)->getHorizon(); }
 
 
-}; // namespace MPE
+} // namespace MPE

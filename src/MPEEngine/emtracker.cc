@@ -71,9 +71,9 @@ Executor* EMTracker::trackInVolume()
 	    continue;
 
 	// check whether data loading was cancelled by user
-	ObjectSet<const Attrib::SelSpec> attrselset;
+	TypeSet<Attrib::SelSpec> attrselset;
 	sectiontracker->getNeededAttribs( attrselset );
-	if ( attrselset.isEmpty() || !engine().hasAttribCache(*attrselset[0]) )
+	if ( attrselset.isEmpty() || !engine().hasAttribCache(attrselset[0]) )
 	    continue;
 
 	if ( !res )
@@ -153,18 +153,17 @@ TrcKeyZSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 }
 
 
-void EMTracker::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
+void EMTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 {
     for ( int sectidx=0; sectidx<sectiontrackers_.size(); sectidx++ )
     {
-	ObjectSet<const Attrib::SelSpec> specs;
+	TypeSet<Attrib::SelSpec> specs;
 	sectiontrackers_[sectidx]->getNeededAttribs( specs );
 
 	for ( int idx=0; idx<specs.size(); idx++ )
 	{
-	    const Attrib::SelSpec* as = specs[idx];
-	    if ( indexOf(res,*as) < 0 )
-		res += as;
+	    const Attrib::SelSpec& as = specs[idx];
+	    res.addIfNew( as );
 	}
     }
 }

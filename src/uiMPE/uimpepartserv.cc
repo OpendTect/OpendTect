@@ -167,9 +167,6 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 
 bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 {
-    if ( trackercurrentobject_ != -1 && !seedswithoutattribsel_ )
-	return false;
-
     seedswithoutattribsel_ = false;
     cursceneid_ = addedtosceneid;
     //NotifyStopper notifystopper( MPE::engine().trackeraddremove );
@@ -182,14 +179,9 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     emobj->setFullyLoaded( true );
 
     const int trackerid = MPE::engine().addTracker( emobj );
-
     if ( trackerid == -1 ) return false;
 
-//    EM::ObjectID objid = emobj->id();
-//    if ( !MPE::engine().getEditor(objid,false) )
-//	MPE::engine().getEditor(objid,true);
-
-    MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     if ( !tracker ) return false;
 
     activetrackerid_ = trackerid;
@@ -199,6 +191,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 	pErrMsg("Could not create tracker" );
 	MPE::engine().removeTracker( trackerid );
 	emobj->ref(); emobj->unRef();
+	return false;
     }
 
     const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
@@ -225,17 +218,17 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
 	return;
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    if ( !seedpicker )
-	return;
-
-    if ( !seedpicker->getSelSpec() )
+    if ( !seedpicker || !seedpicker->getSelSpec() )
 	return;
 
     bool fieldchange = false;
     bool isvalidsetup = false;
 
     if ( setupgrp_ )
+    {
+	setupgrp_->setSeedPos( seedpicker->getAddedSeed() );
 	isvalidsetup = setupgrp_->commitToTracker( fieldchange );
+    }
 
     seedpicker->blockSeedPick( !isvalidsetup );
     if ( !isvalidsetup )
@@ -751,15 +744,18 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     IOPar iopar;
     iopar.set( "Seed Connection mode", seedpicker->getSeedConnectMode() );
     tracker->fillPar( iopar );
-    ObjectSet<const Attrib::SelSpec> usedattribs;
-    MPE::engine().getNeededAttribs( usedattribs );
-    TypeSet<Attrib::DescID> usedattribids;
+
     const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
     if ( !attrset )
 	return false;
+
+    TypeSet<Attrib::SelSpec> usedattribs;
+    MPE::engine().getNeededAttribs( usedattribs );
+
+    TypeSet<Attrib::DescID> usedattribids;
     for ( int idx=0; idx<usedattribs.size(); idx++ )
     {
-	const Attrib::DescID descid = usedattribs[idx]->id();
+	const Attrib::DescID descid = usedattribs[idx].id();
 	if ( attrset->getDesc(descid) )
 	    usedattribids += descid;
     }

@@ -49,7 +49,7 @@ public:
     				/*!<\returns the cube in which I need the
 				     given attrib to track in activevolum. */
     virtual void		getNeededAttribs(
-	    			    ObjectSet<const Attrib::SelSpec>&) const;
+					TypeSet<Attrib::SelSpec>&) const;
     virtual bool		is2D() const			{ return false;}
     virtual bool		hasInitializedSetup() const	{ return true; }
 

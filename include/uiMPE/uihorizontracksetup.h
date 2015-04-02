@@ -48,6 +48,7 @@ public:
 
     void			setMode(const EMSeedPicker::SeedModeOrder);
     int				getMode();
+    void			setSeedPos(const Coord3&);
     void			setColor(const Color&);
     const Color&		getColor();
     void			setMarkerStyle(const MarkerStyle3D&);
@@ -70,46 +71,57 @@ public:
 
 protected:
 
+    virtual void		initStuff();
+    uiTabStack*			tabgrp_;
+
+// Mode Group
     uiGroup*			createModeGroup();
     void			initModeGroup();
+    void			seedModeChange(CallBacker*);
+
+    uiButtonGroup*		modeselgrp_;
+
+
+// Event Group
     uiGroup*			createEventGroup();
     void			initEventGroup();
-    uiGroup*			createSimiGroup();
-    void			initSimiGroup();
-    uiGroup*			createPropertyGroup();
-    void			initPropertyGroup();
-
-    virtual void		initStuff();
-
-    void			selUseSimilarity(CallBacker*);
-    void			selAmpThresholdType(CallBacker*);
     void			selEventType(CallBacker*);
-    void			seedModeChange(CallBacker*);
     void			eventChangeCB(CallBacker*);
-    void			similarityChangeCB(CallBacker*);
-    void			colorChangeCB(CallBacker*);
-    void			seedTypeSel(CallBacker*);
-    void			seedSliderMove(CallBacker*);
-    void			seedColSel(CallBacker*);
+    void			selAmpThresholdType(CallBacker*);
     void			addStepPushedCB(CallBacker*);
 
-    uiTabStack*			tabgrp_;
-    uiButtonGroup*		modeselgrp_;
-    uiGenInput*			usesimifld_;
-    uiGenInput*			thresholdtypefld_;
     uiGenInput*			evfld_;
     uiGenInput*			srchgatefld_;
+    uiGenInput*			thresholdtypefld_;
     uiGenInput*			ampthresholdfld_;
     uiPushButton*		addstepbut_;
-    uiGenInput*			simithresholdfld_;
-    uiGenInput*			compwinfld_;
     uiGenInput*			extriffailfld_;
-    uiGroup*			maingrp_;
-    uiPushButton*		applybut_;
+
+
+// Correlation Group
+    uiGroup*			createSimiGroup();
+    void			initSimiGroup();
+    void			selUseSimilarity(CallBacker*);
+    void			similarityChangeCB(CallBacker*);
+
+    uiGenInput*			usesimifld_;
+    uiGenInput*			compwinfld_;
+    uiGenInput*			simithresholdfld_;
+
+
+// Property Group
+    uiGroup*			createPropertyGroup();
+    void			initPropertyGroup();
+    void			colorChangeCB(CallBacker*);
+    void			seedTypeSel(CallBacker*);
+    void			seedColSel(CallBacker*);
+    void			seedSliderMove(CallBacker*);
+
     uiColorInput*		colorfld_;
-    uiSlider*			seedsliderfld_;
     uiGenInput*			seedtypefld_;
     uiColorInput*		seedcolselfld_;
+    uiSlider*			seedsliderfld_;
+
 
     bool			is2d_;
     EMSeedPicker::SeedModeOrder	mode_;

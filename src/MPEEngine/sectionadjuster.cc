@@ -58,9 +58,8 @@ TrcKeyZSampling
 { return engine().activeVolume(); }
 
 
-void SectionAdjuster::getNeededAttribs(
-	ObjectSet<const Attrib::SelSpec>& res ) const
-{ }
+void SectionAdjuster::getNeededAttribs( TypeSet<Attrib::SelSpec>& ) const
+{}
 
 
 void SectionAdjuster::setThresholdValue( float val )

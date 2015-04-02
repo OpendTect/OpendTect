@@ -77,12 +77,12 @@ bool Horizon2DSeedPicker::canAddSeed( const Attrib::SelSpec& as )
 	return true;
 
     addrmseed_.trigger();
-    ObjectSet<const Attrib::SelSpec> neededattribs;
+    TypeSet<Attrib::SelSpec> neededattribs;
     tracker_.getNeededAttribs( neededattribs );
     for ( int idx=0; idx<neededattribs.size(); idx++ )
     {
-	if ( neededattribs[idx]->id().asInt()==as.id().asInt() &&
-	     neededattribs[idx]->isStored()==as.id().isStored() )
+	if ( neededattribs[idx].id().asInt()==as.id().asInt() &&
+	     neededattribs[idx].isStored()==as.id().isStored() )
 	    return true;
     }
     return false;
