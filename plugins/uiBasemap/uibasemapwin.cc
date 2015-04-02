@@ -41,7 +41,6 @@ uiBasemapView::uiBasemapView( uiParent* p )
     view().setMouseTracking( true );
     view().enableScrollZoom();
     view().setSceneBorder( 10 );
-    view().scene().setMouseEventActive( true );
 }
 
 

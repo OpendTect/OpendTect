@@ -332,7 +332,6 @@ void uiDataPointSetCrossPlotWin::setSelectionMode( CallBacker* )
     plotter_.setDragMode( plotter_.isRectSelection() ?
 				uiGraphicsView::RubberBandDrag :
 				uiGraphicsView::NoDrag );
-    plotter_.scene().setMouseEventActive( true );
 }
 
 
@@ -436,7 +435,6 @@ void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
 				    : uiGraphicsView::NoDrag )
 				: uiGraphicsView::ScrollHandDrag );
     disptb_.turnOn( showy2tbid_, plotter_.isY2Shown() );
-    plotter_.scene().setMouseEventActive( true );
 }
 
 

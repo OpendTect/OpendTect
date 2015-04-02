@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "uistratmod.h"
-#include "uistratmod.h"
 #include "uigraphicsview.h"
 #include "uigraphicsitem.h"
 #include "uiaxishandler.h"
@@ -185,9 +184,10 @@ public:
 protected:
 
     uiGraphicsView&		viewer_;
-    uiToolButton*       	manipdrawbut_;
-    uiToolButton*       	zoominbut_;
-    uiToolButton*       	zoomoutbut_;
+    uiToolButton*		rubbandzoombut_;
+    uiToolButton*		vertzoominbut_;
+    uiToolButton*		vertzoomoutbut_;
+    uiToolButton*		cancelzoombut_;
     uiToolBar*			tb_;
 
     Interval<float>		range_;
@@ -195,21 +195,20 @@ protected:
 
     float			startdragpos_;
     bool 			mousepressed_;
-    bool 			manip_;
 
     MouseEventHandler& 		mouseEventHandler();
+    void			updatePosButtonStates();
 
     void			zoomCB(CallBacker*);
+    void			cancelZoomCB(CallBacker*);
     void			handDragged(CallBacker* );
     void 			handDragStarted(CallBacker*);
     void			handDragging(CallBacker*);
     void			keyPressed(CallBacker*);
     void			rubBandCB(CallBacker*);
-    void			stateCB(CallBacker*);
+    void			dragModeCB(CallBacker*);
     void			wheelMoveCB(CallBacker*);
 };
 
-
 #endif
-
 

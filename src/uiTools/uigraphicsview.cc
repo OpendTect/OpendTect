@@ -27,8 +27,6 @@ uiCrossHairItem::uiCrossHairItem( uiGraphicsViewBase& vw )
     vertline_ = new uiLineItem; itemgrp_->add( vertline_ );
     horline_->setPenStyle( ls_ );
     vertline_->setPenStyle( ls_ );
-
-    view_.scene().setMouseEventActive( true );
     view_.getMouseEventHandler().movement.notify(
 	mCB(this,uiCrossHairItem,mouseMoveCB) );
 }

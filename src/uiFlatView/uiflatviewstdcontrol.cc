@@ -372,7 +372,6 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* cb )
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	vwrs_[idx]->rgbCanvas().setDragMode( mode );
-	vwrs_[idx]->rgbCanvas().scene().setMouseEventActive( true );
 	vwrs_[idx]->appearance().annot_.editable_ = iseditmode &&
 	   				!vwrs_[idx]->hasZAxisTransform();
 	// TODO: Change while enabling tracking in Z-transformed 2D Viewers.

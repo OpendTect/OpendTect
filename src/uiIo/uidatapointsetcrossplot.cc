@@ -132,7 +132,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     yrowidxs_ = new Array1DImpl<char>( dps_.size() );
     y2rowidxs_ = new Array1DImpl<char>( dps_.size() );
     selgrpset_ += new SelectionGrp( "No 1", Color::DgbColor() );
-    scene().setMouseEventActive( true );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 }

@@ -50,7 +50,6 @@ uiWellDisplayControl::~uiWellDisplayControl()
 void uiWellDisplayControl::addDahDisplay( uiWellDahDisplay& disp )
 {
     logdisps_ += &disp;
-    disp.scene().setMouseEventActive( true );
     MouseEventHandler& meh = mouseEventHandler( logdisps_.size()-1 );
     meh.movement.notify( mCB( this, uiWellDisplayControl, setSelDahDisplay ) );
     meh.movement.notify( mCB( this, uiWellDisplayControl, setSelMarkerCB ) );

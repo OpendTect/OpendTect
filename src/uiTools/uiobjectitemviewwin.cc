@@ -457,7 +457,6 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
     mainviewer_.setScrollBarPolicy( true, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.setScrollBarPolicy( false, uiGraphicsView::ScrollBarAsNeeded );
     mainviewer_.setDragMode( uiGraphicsViewBase::RubberBandDrag );
-    mainviewer_.scene().setMouseEventActive( true );
 }
 
 
@@ -491,7 +490,6 @@ void uiObjectItemViewControl::changeStatus()
 	manipdrawbut_->setIcon( manip_ ? "altview" : "altpick" );
 
     mainviewer_.setDragMode( mode );
-    mainviewer_.scene().setMouseEventActive( true );
     if ( mode == uiGraphicsViewBase::ScrollHandDrag )
 	cursor_.shape_ = MouseCursor::OpenHand;
     else

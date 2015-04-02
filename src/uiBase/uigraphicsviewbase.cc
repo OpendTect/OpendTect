@@ -427,7 +427,6 @@ void uiGraphicsViewBase::disableScrollZoom()
 void uiGraphicsViewBase::setDragMode( ODDragMode dragmode )
 {
     body_->setDragMode( (QGraphicsView::DragMode)int(dragmode) );
-    scene().setMouseEventActive( dragmode==uiGraphicsViewBase::NoDrag );
 }
 
 

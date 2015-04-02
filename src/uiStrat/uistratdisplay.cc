@@ -47,7 +47,6 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
     disableScrollZoom();
-    scene().setMouseEventActive( true );
     setSceneBorder( 2 );
     createDispParamGrp();
     setRange();
@@ -597,7 +596,6 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 
 uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     : viewer_(v)
-    , manip_(false)
     , rangeChanged(this)
     , tb_(su.tb_)
     , boundingrange_(su.maxrg_)
@@ -611,9 +609,12 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 	if ( mw )
 	    mw->addToolBar( tb_ );
     }
-    mDefBut(zoominbut_,"zoomforward",zoomCB,tr("Zoom in"));
-    mDefBut(zoomoutbut_,"zoombackward",zoomCB,tr("Zoom out"));
-    mDefBut(manipdrawbut_,"altpick",stateCB,tr("Switch view mode"))
+
+    mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"));
+    mDefBut(vertzoominbut_,"vertzoomin",zoomCB,tr("Zoom in"));
+    mDefBut(vertzoomoutbut_,"vertzoomout",zoomCB,tr("Zoom out"));
+    mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"));
+    rubbandzoombut_->setToggleButton( true );
 
     viewer_.getKeyboardEventHandler().keyPressed.notify(
 				mCB(this,uiStratViewControl,keyPressed) );
@@ -624,17 +625,16 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     meh.buttonReleased.notify(mCB(this,uiStratViewControl,handDragged));
     meh.movement.notify( mCB(this,uiStratViewControl,handDragging));
     viewer_.rubberBandUsed.notify( mCB(this,uiStratViewControl,rubBandCB) );
-
     viewer_.setDragMode( uiGraphicsViewBase::RubberBandDrag );
-    viewer_.scene().setMouseEventActive( true );
 }
 
 
 void uiStratViewControl::setSensitive( bool yn )
 {
-    manipdrawbut_->setSensitive( yn );
-    zoominbut_->setSensitive( yn );
-    zoomoutbut_->setSensitive( yn );
+    rubbandzoombut_->setSensitive( yn );
+    vertzoominbut_->setSensitive( yn );
+    vertzoomoutbut_->setSensitive( yn );
+    cancelzoombut_->setSensitive( yn );
 }
 
 
@@ -642,7 +642,7 @@ static float zoomfwdfac = 0.8;
 
 void uiStratViewControl::zoomCB( CallBacker* but )
 {
-    const bool zoomin = but == zoominbut_;
+    const bool zoomin = but == vertzoominbut_;
     const Interval<float>& brge = boundingrange_;
     if ( (!zoomin && range_==brge) || (zoomin && range_.width()<=0.1) ) return;
 
@@ -659,8 +659,25 @@ void uiStratViewControl::zoomCB( CallBacker* but )
     if ( rgpos - twdth < brge.start )	rgpos = brge.start + twdth;
     if ( rgpos + bwdth > brge.stop )	rgpos = brge.stop - bwdth;
     range_.set( rgpos - twdth, rgpos + bwdth );
-
     rangeChanged.trigger();
+
+    updatePosButtonStates();
+}
+
+
+void uiStratViewControl::cancelZoomCB( CallBacker* )
+{
+    range_ = boundingrange_;
+    rangeChanged.trigger();
+    updatePosButtonStates();
+}
+
+
+void uiStratViewControl::updatePosButtonStates()
+{
+    const bool iszoomatstart = range_==boundingrange_;
+    vertzoomoutbut_->setSensitive( !iszoomatstart );
+    cancelzoombut_->setSensitive( !iszoomatstart );
 }
 
 
@@ -676,19 +693,15 @@ void uiStratViewControl::wheelMoveCB( CallBacker* )
     const MouseEvent& ev = mvh.event();
     if ( mIsZero(ev.angle(),0.01) )
 	return;
-    zoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
+    zoomCB( ev.angle() < 0 ? vertzoominbut_ : vertzoomoutbut_ );
 }
 
 
-void uiStratViewControl::stateCB( CallBacker* )
+void uiStratViewControl::dragModeCB( CallBacker* )
 {
-    if ( !manipdrawbut_ ) return;
-    manip_ = !manip_;
-
-    manipdrawbut_->setIcon( manip_ ? "altview" : "altpick" );
-    viewer_.setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
-			         : uiGraphicsViewBase::ScrollHandDrag);
-    viewer_.scene().setMouseEventActive( true );
+    viewer_.setDragMode( rubbandzoombut_->isOn() ?
+			 uiGraphicsViewBase::RubberBandDrag :
+			 uiGraphicsViewBase::ScrollHandDrag );
 }
 
 
@@ -696,7 +709,10 @@ void uiStratViewControl::keyPressed( CallBacker* )
 {
     const KeyboardEvent& ev = viewer_.getKeyboardEventHandler().event();
     if ( ev.key_ == OD::Escape )
-	stateCB( 0 );
+    {
+	rubbandzoombut_->setOn( !rubbandzoombut_->isOn() );
+	dragModeCB( rubbandzoombut_ );
+    }
 }
 
 
@@ -712,7 +728,7 @@ void uiStratViewControl::handDragStarted( CallBacker* )
 void uiStratViewControl::handDragging( CallBacker* )
 {
     if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag
-	|| !mousepressed_ || !manip_ ) return;
+	|| !mousepressed_ ) return;
 
     const float newpos = mCast(float,mouseEventHandler().event().pos().y);
     const uiRect& allarea = viewer_.getSceneRect();
@@ -756,7 +772,10 @@ void uiStratViewControl::rubBandCB( CallBacker* )
     range_ = rg;
     range_.sort();
     range_.limitTo( boundingrange_ );
-
     rangeChanged.trigger();
+
+    rubbandzoombut_->setOn( false );
+    dragModeCB( rubbandzoombut_ );
+    updatePosButtonStates();
 }
 

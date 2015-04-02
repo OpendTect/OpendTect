@@ -52,7 +52,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
 
     view_->preDraw.notify( mCB(this,uiFlatViewer,updateCB ) );
     view_->disableScrollZoom();
-    view_->scene().setMouseEventActive( true );
     view_->scene().addItem( worldgroup_ );
     view_->setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
@@ -153,7 +152,6 @@ void uiFlatViewer::setRubberBandingOn( bool yn )
 {
     view_->setDragMode( yn ? uiGraphicsView::RubberBandDrag
 	   		    : uiGraphicsView::NoDrag );
-    view_->scene().setMouseEventActive( true );
 }
 
 
