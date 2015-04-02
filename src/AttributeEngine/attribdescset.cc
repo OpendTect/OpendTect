@@ -1199,7 +1199,8 @@ Attrib::Desc* DescSet::getDescFromUIListEntryV50( FileMultiString inpstr )
     }
     else
 	for ( int dscidx=0; dscidx<descs_.size(); dscidx++ )
-	    if ( descs_[dscidx] && stornm.matches(descs_[dscidx]->userRef()) )
+	    if ( descs_[dscidx] &&
+		 BufferString(stornm)==BufferString(descs_[dscidx]->userRef()) )
 		return descs_[dscidx];
 
     return 0;
