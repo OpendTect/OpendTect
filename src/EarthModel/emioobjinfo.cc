@@ -162,18 +162,25 @@ Interval<float> IOObjInfo::getZRange() const
 
 StepInterval<int> IOObjInfo::getInlRange() const
 {
-    mGetReader
-    if ( !reader_ )
-	return Interval<int>(mUdf(int),mUdf(int));
-    return reader_->rowInterval();
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
+    if ( !str || !str->startRead(*ioobj_) )
+	return StepInterval<int>::udf();
+
+    const SurfaceIOData& newsd = str->selections().sd;
+    return newsd.rg.inlRange();
 }
 
 
 StepInterval<int> IOObjInfo::getCrlRange() const
 {
-    mGetReader
-    return reader_ ? reader_->colInterval()
-		   : StepInterval<int>(mUdf(int),mUdf(int),mUdf(int));
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
+    if ( !str || !str->startRead(*ioobj_) )
+	return StepInterval<int>::udf();
+
+    const SurfaceIOData& newsd = str->selections().sd;
+    return newsd.rg.crlRange();
 }
 
 
@@ -193,31 +200,39 @@ const char* IOObjInfo::getMessage() const
 
 bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
 {
-    mGetReaderRet
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
+    if ( !str || !str->startRead(*ioobj_) )
+	return false;
 
-    for ( int idx=0; idx<reader_->nrLines(); idx++ )
-	linenames.add( reader_->lineName(idx) );
+    const SurfaceIOData& newsd = str->selections().sd;
+    linenames = newsd.linenames;
     return true;
 }
 
 
 bool IOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
-    mGetReaderRet
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
+    if ( !str || !str->startRead(*ioobj_) )
+	return false;
 
-    for ( int idx=0; idx<reader_->nrLines(); idx++ )
-	geomids.add( reader_->lineGeomID(idx) );
-
+    const SurfaceIOData& newsd = str->selections().sd;
+    geomids = newsd.geomids;
     return true;
 }
 
 
 bool IOObjInfo::getTrcRanges( TypeSet< StepInterval<int> >& trcranges ) const
 {
-    mGetReaderRet
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
+    if ( !str || !str->startRead(*ioobj_) )
+	return false;
 
-    for ( int idx=0; idx<reader_->nrLines(); idx++ )
-	trcranges.add( reader_->lineTrcRanges(idx) );
+    const SurfaceIOData& newsd = str->selections().sd;
+    trcranges = newsd.trcranges;
     return true;
 }
 
