@@ -110,6 +110,7 @@ public:
 
     int			fontHgt() const;
     int			fontWdt(bool max=false) const;
+    int			fontWdtFor(const char*) const;
 
     void		setHSzPol(uiObject::SzPolicy);
     void		setVSzPol(uiObject::SzPolicy);
@@ -136,13 +137,9 @@ protected:
 
     virtual void	finalise_()             {}
 
-
     void		doDisplay(CallBacker*);
 
-    int			fontWdtFor(const char*) const;
-
     void		loitemDeleted()		{ layoutItem_ = 0; }
-
 
 private:
 
