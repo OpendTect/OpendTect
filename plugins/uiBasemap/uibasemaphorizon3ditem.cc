@@ -12,8 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemaphorizon3ditem.h"
 
-#include "basemaphorizon3d.h"
-
 #include "uibasemapcoltabed.h"
 #include "uibitmapdisplay.h"
 #include "uigraphicsscene.h"
