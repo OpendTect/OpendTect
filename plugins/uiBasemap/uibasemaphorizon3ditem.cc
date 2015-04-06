@@ -58,10 +58,20 @@ bool uiBasemapHorizon3DGroup::acceptOK()
     if ( !res ) return false;
 
     PtrMan<Executor> exec = EM::EMM().objectLoader( mids_ );
-    if ( !exec ) return true;
+    if ( !exec ) return false;
 
     uiTaskRunner uitr( &BMM().getBasemap() );
-    return uitr.execute( *exec );
+    if ( !uitr.execute(*exec) )
+	return false;
+
+    ObjectSet<EM::EMObject> objs;
+    for ( int idx=0; idx<mids_.size(); idx++ )
+	objs += EM::EMM().getObject( EM::EMM().getObjectID(mids_[idx]) );
+    deepRef( objs );
+    exec = 0;
+    deepUnRefNoDelete( objs );
+
+    return true;
 }
 
 
@@ -121,8 +131,8 @@ void uiBasemapHorizon3DGroup::selChg(CallBacker *)
 
 
 // uiBasemapHorizonObject
-uiBasemapHorizon3DObject::uiBasemapHorizon3DObject( BaseMapObject* bmobj )
-    : uiBaseMapObject(bmobj)
+uiBasemapHorizon3DObject::uiBasemapHorizon3DObject()
+    : uiBaseMapObject(0)
     , appearance_(*new FlatView::Appearance)
     , bitmapdisp_(*new uiBitMapDisplay(appearance_))
     , hor3d_(0)
@@ -214,7 +224,7 @@ void uiBasemapHorizon3DObject::update()
 // uiBasemapHorizon3DTreeItem
 uiBasemapHorizon3DTreeItem::uiBasemapHorizon3DTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
-    , uibmobj_(new uiBasemapHorizon3DObject(0))
+    , uibmobj_(new uiBasemapHorizon3DObject)
 {
     BMM().getBasemap().worldItemGroup().add( &uibmobj_->itemGrp() );
 }

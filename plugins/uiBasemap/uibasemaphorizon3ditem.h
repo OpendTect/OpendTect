@@ -44,7 +44,7 @@ protected:
 mExpClass(uiBasemap) uiBasemapHorizon3DObject : public uiBaseMapObject
 {
 public:
-			uiBasemapHorizon3DObject(BaseMapObject*);
+			uiBasemapHorizon3DObject();
 			~uiBasemapHorizon3DObject();
 
     inline const char*	getType() const			{ return "Horizon3D"; }
