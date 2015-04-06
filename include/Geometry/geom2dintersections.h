@@ -13,11 +13,13 @@ ________________________________________________________________________
 -*/
 
 #include "geometrymod.h"
-#include "paralleltask.h"
 #include "bufstringset.h"
+#include "executor.h"
+#include "geometrymod.h"
+#include "paralleltask.h"
 #include "threadlock.h"
 
-namespace PosInfo { class LineSet2DData; }
+namespace Survey { class Geometry2D; }
 
 mExpClass(Geometry) BendPoints
 {
@@ -29,69 +31,95 @@ public:
 };
 
 
-mExpClass(Geometry) BendPointFinder : public ParallelTask
-{ mODTextTranslationClass(BendPointFinder)
+mExpClass(Geometry) BendPointFinder2DGeomSet : public Executor
+{ mODTextTranslationClass(BendPointFinder2DGeomSet)
 public:
-			BendPointFinder(const PosInfo::LineSet2DData&,
-					const TypeSet<Pos::GeomID>&);
+			BendPointFinder2DGeomSet(const TypeSet<Pos::GeomID>&);
 
-    od_int64		nrIterations() const;
+    od_int64		nrDone() const;
+    od_int64		totalNr() const;
     uiString		uiMessage() const;
     uiString		uiNrDoneText() const;
-    bool		doWork(od_int64 start,od_int64 stop,int threadid);
 
     const ObjectSet<BendPoints>& bendPoints() const	{ return bendptset_; }
 
 protected:
 
-    const PosInfo::LineSet2DData&	geometry_;
+    int			nextStep();
+
     const TypeSet<Pos::GeomID>&	geomids_;
-    ObjectSet<BendPoints>		bendptset_;
+    ObjectSet<BendPoints>	bendptset_;
+    int				curidx_;
 };
 
 
-mExpClass(Geometry) InterSections
+mExpClass(Geometry) Line2DInterSection
 {
 public:
-			InterSections(Pos::GeomID geomid)
+
+    struct Point
+    {
+			Point(Pos::GeomID id,int mynr,int linenr)
+			    : line(id),mytrcnr(mynr),linetrcnr(linenr) {}
+
+	bool		operator==(const Point& oth) const
+			{ return mytrcnr == oth.mytrcnr; }
+	bool		operator>(const Point& oth) const
+			{ return mytrcnr > oth.mytrcnr; }
+	bool		operator<(const Point& oth) const
+			{ return mytrcnr < oth.mytrcnr; }
+
+	Pos::GeomID	line;	// Intersecting line.
+	int		mytrcnr;
+	int		linetrcnr;
+    };
+
+			Line2DInterSection(Pos::GeomID geomid)
 			    : geomid_(geomid)	{}
 
-    void		sort();
+    Pos::GeomID		geomID() const		{ return geomid_; }
+    bool		isEmpty() const		{ return points_.isEmpty(); }
+    int			size() const		{ return points_.size(); }
+
+    const Line2DInterSection::Point&
+			getPoint(int idx) const	{ return points_[idx]; }
 
     bool		getIntersectionTrcNrs(Pos::GeomID,int& mytrcnr,
 					      int& crosstrcnr) const;
 			//!<Returns false when not found
 
-    Pos::GeomID	geomid_;
-    TypeSet<int>	mytrcnrs_;
+    void		addPoint(Pos::GeomID id,int mynr,int linenr);
+    void		sort();
 
-    TypeSet<Pos::GeomID>	crossgeomids_; // names of intersecting lines
-    TypeSet<int>	crosstrcnrs_; // trnrs of intersecting line
+protected:
+
+    Pos::GeomID				geomid_;
+    TypeSet<Line2DInterSection::Point>	points_;
 };
 
 
-mExpClass(Geometry) LineSetInterSections : public ObjectSet<InterSections>
+mExpClass(Geometry) Line2DInterSectionSet : public ObjectSet<Line2DInterSection>
 {
 public:
-    const InterSections*	get(Pos::GeomID) const;
+    const Line2DInterSection*	get(Pos::GeomID) const;
 };
 
 
-mExpClass(Geometry) InterSectionFinder : public ParallelTask
-{ mODTextTranslationClass(InterSectionFinder)
+mExpClass(Geometry) Line2DInterSectionFinder : public ParallelTask
+{ mODTextTranslationClass(Line2DInterSectionFinder)
 public:
-			InterSectionFinder(const PosInfo::LineSet2DData&,
-					   const ObjectSet<BendPoints>&,
-					   LineSetInterSections&);
+			Line2DInterSectionFinder(const ObjectSet<BendPoints>&,
+						 Line2DInterSectionSet&);
 
     od_int64		nrIterations() const;
     uiString		uiMessage() const;
     uiString		uiNrDoneText() const;
 
 protected:
-    const PosInfo::LineSet2DData&	geometry_;
+
+    ObjectSet<const Survey::Geometry2D>	geoms_;
     const ObjectSet<BendPoints>&	bendptset_;
-    LineSetInterSections&		lsintersections_;
+    Line2DInterSectionSet&		lsintersections_;
 
     bool		doWork(od_int64 start,od_int64 stop,int threadid);
     bool		doFinish(bool success);
