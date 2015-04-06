@@ -80,8 +80,7 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     else
     {
 	interpol1dsel_ = new uiArray1DInterpolSel( this, false, true );
-	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ? tr("[ft]")
-                                                         : tr("[m]") );
+	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
 	if ( inputhorsel_ )
 	    interpol1dsel_->attach( alignedBelow, inputhorsel_ );
     }
@@ -306,7 +305,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
 }
 
 
-mImplFactory1Param(uiHor3DInterpol,uiParent*,uiHor3DInterpol::factory);
+mImplFactory1Param(uiHor3DInterpol,uiParent*,uiHor3DInterpol::factory)
 
 uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     : uiGroup(p,"Horizon3D Interpolation")
