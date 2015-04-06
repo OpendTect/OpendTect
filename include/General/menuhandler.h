@@ -77,9 +77,11 @@ private:
 mExpClass(General) MenuItem : public MenuItemHolder
 {
 public:
-				MenuItem(const uiString& 
+				MenuItem(const uiString&
 					     text=uiStrings::sEmptyString(),
 					 int placement=-1);
+				MenuItem(const uiString& text,
+					 CallBack cb,int placement=-1);
 				MenuItem(const uiString& text,
 					 const char* iconnm,
 					 const char* tooltip,

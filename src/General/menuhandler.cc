@@ -175,6 +175,18 @@ MenuItem::MenuItem( const uiString& txt, int pl )
 }
 
 
+MenuItem::MenuItem( const uiString& txt, CallBack callb, int pl )
+    : text(txt)
+    , placement(pl)
+    , checkable(false)
+    , checked(false)
+    , enabled(true)
+    , cb(callb)
+{
+    id = itemid++;
+}
+
+
 MenuItem::MenuItem( const uiString& txt, const char* icnm,
 		    const char* tp, CallBack callb, int pl )
     : text(txt)
