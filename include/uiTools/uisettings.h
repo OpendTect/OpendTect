@@ -128,11 +128,13 @@ protected:
     uiGenInput*		iconszfld_;
     uiGenInput*		showinlprogressfld_;
     uiGenInput*		showcrlprogressfld_;
+    uiGenInput*		showrdlprogressfld_;
     uiGenInput*		virtualkeyboardfld_;
 
     int			iconsz_;
     bool		showinlprogress_;
     bool		showcrlprogress_;
+    bool		showrdlprogress_;
     bool		enabvirtualkeyboard_;
 };
 

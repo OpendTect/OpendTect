@@ -716,7 +716,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	TypeSet<float> values;
 	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, values,
 				    true );
-	ArrayValueSeries<float, float>* avs = 
+	ArrayValueSeries<float, float>* avs =
 	    new ArrayValueSeries<float,float>(values.arr(),true, values.size());
 	Array3DImpl<float>* arr3d =
 	    	new Array3DImpl<float>( tkzs.nrInl(), tkzs.nrCrl(), 1 );
@@ -912,8 +912,25 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiTaskRunner taskrunner( parent() );
-    if ( !TaskRunner::execute( &taskrunner, *process ) ) return false;
+    bool showprogress = true;
+    Settings::common().getYN( SettingsAccess::sKeyShowRdlProgress(),
+			      showprogress );
+
+    const bool isstored = targetspecs_.size() && targetspecs_[0].isStored();
+    if ( !isstored || showprogress )
+    {
+	uiTaskRunner taskrunner( parent() );
+	return TaskRunner::execute( &taskrunner, *process );
+    }
+
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
+    if ( !process->execute() )
+    {
+	const uiString msg( process->uiMessage() );
+	if ( !msg.isEmpty() )
+	    uiMSG().error( msg );
+	return false;
+    }
 
     return true;
 }

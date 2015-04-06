@@ -301,29 +301,38 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     , iconsz_(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
     , showinlprogress_(true)
     , showcrlprogress_(true)
+    , showrdlprogress_(true)
     , enabvirtualkeyboard_(false)
 {
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
 				 IntInpSpec(iconsz_,10,64) );
-
-    setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
-    showinlprogressfld_ = new uiGenInput( this,
-		tr("Show progress when loading stored data on in-lines"),
-		BoolInpSpec(showinlprogress_) );
-    showinlprogressfld_->attach( alignedBelow, iconszfld_ );
-
-    setts_.getYN( SettingsAccess::sKeyShowCrlProgress(), showcrlprogress_ );
-    showcrlprogressfld_ = new uiGenInput( this,
-		tr("Show progress when loading stored data on cross-lines"),
-		BoolInpSpec(showcrlprogress_) );
-    showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
 
     setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
 		  enabvirtualkeyboard_ );
     virtualkeyboardfld_ = new uiGenInput( this,
 		tr("Enable Virtual Keyboard"),
 		BoolInpSpec(enabvirtualkeyboard_) );
-    virtualkeyboardfld_->attach( alignedBelow, showcrlprogressfld_ );
+    virtualkeyboardfld_->attach( alignedBelow, iconszfld_ );
+
+    uiLabel* lbl = new uiLabel( this,
+	tr("Show progress when loading stored data on:") );
+    lbl->attach( leftAlignedBelow, virtualkeyboardfld_ );
+
+    setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
+    showinlprogressfld_ = new uiGenInput( this, tr("In-lines"),
+					  BoolInpSpec(showinlprogress_) );
+    showinlprogressfld_->attach( alignedBelow, virtualkeyboardfld_ );
+    showinlprogressfld_->attach( ensureBelow, lbl );
+
+    setts_.getYN( SettingsAccess::sKeyShowCrlProgress(), showcrlprogress_ );
+    showcrlprogressfld_ = new uiGenInput( this, tr("Cross-lines"),
+					  BoolInpSpec(showcrlprogress_) );
+    showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
+
+    setts_.getYN( SettingsAccess::sKeyShowRdlProgress(), showrdlprogress_ );
+    showrdlprogressfld_ = new uiGenInput( this, tr("Random lines"),
+					  BoolInpSpec(showrdlprogress_) );
+    showrdlprogressfld_->attach( alignedBelow, showcrlprogressfld_ );
 }
 
 
@@ -352,6 +361,8 @@ bool uiGeneralSettingsGroup::acceptOK()
 		    SettingsAccess::sKeyShowInlProgress() );
     updateSettings( showcrlprogress_, showcrlprogressfld_->getBoolValue(),
 		    SettingsAccess::sKeyShowCrlProgress() );
+    updateSettings( showrdlprogress_, showrdlprogressfld_->getBoolValue(),
+		    SettingsAccess::sKeyShowRdlProgress() );
     updateSettings( enabvirtualkeyboard_, virtualkeyboardfld_->getBoolValue(),
 		    uiVirtualKeyboard::sKeyEnabVirtualKeyboard() );
 
