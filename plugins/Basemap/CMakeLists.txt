@@ -12,7 +12,6 @@ SET(OD_MODULE_SOURCES
 	basemapcontour.cc
 	basemapgeom2d.cc
 	basemapgrid.cc
-	basemaphorizon3d.cc
 	basemappickset.cc
 	basemappolygon.cc
 	basemaprandomline.cc
