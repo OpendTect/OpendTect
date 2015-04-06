@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsview.h"
+#include "uihorinterpol.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -49,6 +50,7 @@ uiBaseMapMnuTBMgr::uiBaseMapMnuTBMgr( uiMainWin& mw, uiBasemapView& bmv )
     createColTabTB();
 
     createFileMenu();
+    createProcessingMenu();
 
     updateViewMode();
 }
@@ -58,9 +60,9 @@ uiBaseMapMnuTBMgr::~uiBaseMapMnuTBMgr()
 {
     delete iomgr_;
 
-    delete open_;
-    delete save_;
-    delete saveas_;
+    delete openitm_;
+    delete saveitm_;
+    delete saveasitm_;
 }
 
 
@@ -79,25 +81,34 @@ void uiBaseMapMnuTBMgr::createMenuBar()
 
 void uiBaseMapMnuTBMgr::createCommonActions()
 {
-    open_ = new MenuItem( uiStrings::sOpen(false), "open",
-			  "Open Stored Basemap",
-			  mCB(this,uiBaseMapMnuTBMgr,readCB) );
-    save_ = new MenuItem( uiStrings::sSave(true), "save",
-			  "Store Basemap",
-			  mCB(this,uiBaseMapMnuTBMgr,saveCB) );
-    saveas_ = new MenuItem( uiStrings::sSaveAs(false), "saveas",
-			    "Save as...",
-			    mCB(this,uiBaseMapMnuTBMgr,saveAsCB) );
+    openitm_ = new MenuItem( uiStrings::sOpen(false), "open",
+			     "Open Stored Basemap",
+			     mCB(this,uiBaseMapMnuTBMgr,readCB) );
+    saveitm_ = new MenuItem( uiStrings::sSave(true), "save",
+			     "Store Basemap",
+			     mCB(this,uiBaseMapMnuTBMgr,saveCB) );
+    saveasitm_ = new MenuItem( uiStrings::sSaveAs(false), "saveas",
+			       "Save as ...",
+			       mCB(this,uiBaseMapMnuTBMgr,saveAsCB) );
 }
 
 
 void uiBaseMapMnuTBMgr::createFileMenu()
 {
-    if ( !open_ || !save_ || !saveas_ ) return;
+    filemnu_->insertAction( *openitm_ );
+    filemnu_->insertAction( *saveitm_ );
+    filemnu_->insertAction( *saveasitm_ );
 
-    filemnu_->insertAction( *open_ );
-    filemnu_->insertAction( *save_ );
-    filemnu_->insertAction( *saveas_ );
+    const MenuItem closeitm( uiStrings::sClose(),
+			     mCB(this,uiBaseMapMnuTBMgr,closeCB) );
+    filemnu_->insertAction( closeitm );
+}
+
+
+void uiBaseMapMnuTBMgr::createProcessingMenu()
+{
+    const MenuItem griditm( tr("Gridding"), mCB(this,uiBaseMapMnuTBMgr,gridCB));
+    processingmnu_->insertAction( griditm );
 }
 
 
@@ -134,9 +145,9 @@ void uiBaseMapMnuTBMgr::createViewTB()
     viewid_ = vwtoolbar_->addButton( "altview", tr("Switch to pick mode"),
 				mCB(this,uiBaseMapMnuTBMgr,viewCB), false );
 
-    openid_ = vwtoolbar_->addButton( *open_ );
-    saveid_ = vwtoolbar_->addButton( *save_ );
-    saveasid_ = vwtoolbar_->addButton( *saveas_ );
+    openid_ = vwtoolbar_->addButton( *openitm_ );
+    saveid_ = vwtoolbar_->addButton( *saveitm_ );
+    saveasid_ = vwtoolbar_->addButton( *saveasitm_ );
 
     vwtoolbar_->addObject(
 		basemapview_.view().getSaveImageButton(vwtoolbar_) );
@@ -299,6 +310,20 @@ void uiBaseMapMnuTBMgr::save( bool saveas )
 
     basemapview_.resetChangeFlag();
     isstored_ = true;
+}
+
+
+void uiBaseMapMnuTBMgr::closeCB( CallBacker* )
+{
+    save( !isstored_ );
+    mainwin_.close();
+}
+
+
+void uiBaseMapMnuTBMgr::gridCB( CallBacker* )
+{
+    uiHorizonInterpolDlg dlg( &mainwin_, 0, false );
+    dlg.go();
 }
 
 

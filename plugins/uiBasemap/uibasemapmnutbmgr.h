@@ -40,6 +40,7 @@ private:
     void		createColTabTB();
     void		createCommonActions();
     void		createFileMenu();
+    void		createProcessingMenu();
     void		updateViewMode();
 
     void		barSettingsCB(CallBacker*);
@@ -48,6 +49,9 @@ private:
     void		removeCB(CallBacker*);
     void		saveCB(CallBacker*);
     void		saveAsCB(CallBacker*);
+    void		closeCB(CallBacker*);
+    void		gridCB(CallBacker*);
+
     void		viewCB(CallBacker*);
     void		vworientationCB(CallBacker*);
     void		vwmapscaleCB(CallBacker*);
@@ -72,12 +76,14 @@ private:
     uiBasemapView&	basemapview_;
 
     uiMenu*		filemnu_;
+    MenuItem*		openitm_;
+    MenuItem*		saveitm_;
+    MenuItem*		saveasitm_;
+
     uiMenu*		processingmnu_;
     uiMenu*		syncmnu_;
     uiMenu*		helpmnu_;
-    MenuItem*		open_;
-    MenuItem*		save_;
-    MenuItem*		saveas_;
+
     uiToolBar*		itemtoolbar_;
     uiToolBar*		vwtoolbar_;
 
