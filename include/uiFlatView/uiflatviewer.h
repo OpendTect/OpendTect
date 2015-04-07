@@ -22,7 +22,6 @@ namespace FlatView
     class uiAuxDataDisplay;
 }
 
-class BufferStringSet;
 class uiBitMapDisplay;
 class uiFlatViewControl;
 class uiGraphicsItemGroup;
@@ -41,7 +40,6 @@ public:
 			~uiFlatViewer();
 
     void		setInitialSize(uiSize);
-    void		setRubberBandingOn(bool);
 
     bool		isAnnotInInt(const char* annotnm) const;
     int			getAnnotChoices(BufferStringSet&) const;

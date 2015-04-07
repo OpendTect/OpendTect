@@ -196,12 +196,8 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
 				   mCB(this,uiMultiFlatViewControl,parsCB) );
     toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
 
-    vwr.setRubberBandingOn( false );
-    vwr.appearance().annot_.editable_ = false;
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
-
-    reInitZooms();
     setViewerType( &vwr, true );
 }
 

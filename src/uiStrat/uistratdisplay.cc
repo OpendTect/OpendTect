@@ -625,7 +625,6 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     meh.buttonReleased.notify(mCB(this,uiStratViewControl,handDragged));
     meh.movement.notify( mCB(this,uiStratViewControl,handDragging));
     viewer_.rubberBandUsed.notify( mCB(this,uiStratViewControl,rubBandCB) );
-    viewer_.setDragMode( uiGraphicsViewBase::RubberBandDrag );
 }
 
 

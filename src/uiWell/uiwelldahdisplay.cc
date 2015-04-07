@@ -95,10 +95,8 @@ uiWellDahDisplay::uiWellDahDisplay( uiParent* p, const Setup& su )
     , zdata_(0)
 {
     disableScrollZoom();
+    setDragMode( uiGraphicsView::NoDrag );
     setStretch( 2, 2 );
-
-    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
     reSize.notify( mCB(this,uiWellDahDisplay,reSized) );
     postFinalise().notify( mCB(this,uiWellDahDisplay,init) );

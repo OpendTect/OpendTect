@@ -148,13 +148,6 @@ void uiFlatViewer::updateTransforms()
 }
 
 
-void uiFlatViewer::setRubberBandingOn( bool yn )
-{
-    view_->setDragMode( yn ? uiGraphicsView::RubberBandDrag
-	   		    : uiGraphicsView::NoDrag );
-}
-
-
 void uiFlatViewer::setExtraBorders( const uiSize& lfttp, const uiSize& rghtbt )
 {
     extraborders_.setLeft( lfttp.width() );
