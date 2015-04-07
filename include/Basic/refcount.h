@@ -99,6 +99,7 @@ ________________________________________________________________________
 
   deepRef( set );
   deepUnRefNoDelete(set);
+
   deepRef( set );
   deepUnRef(set);
 
@@ -184,6 +185,16 @@ void unRefPtr( const T* ptr )
     ptr->unRef();
 }
 
+
+/*! Un-reference class pointer without delete. Works for null pointers. */
+template <class T> inline
+void unRefNoDeletePtr( const T* ptr )
+{
+    if ( !ptr ) return;
+    ptr->unRefNoDelete();
+}
+
+
 //! Reference class pointer. Works for null pointers.
 template <class T> inline
 void refPtr( const T* ptr )
@@ -193,6 +204,8 @@ void refPtr( const T* ptr )
 }
 
 mObjectSetApplyToAllFunc( deepUnRef, unRefPtr( os[idx] ), os.plainErase() )
+mObjectSetApplyToAllFunc( deepUnRefNoDelete, unRefNoDeletePtr( os[idx] ),
+			  os.plainErase() )
 mObjectSetApplyToAllFunc( deepRef, refPtr( os[idx] ), )
 
 
