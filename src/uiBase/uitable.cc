@@ -419,7 +419,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
 	setDefaultColLabels();
 
     QHeaderView* hhdr = body_->horizontalHeader();
-    hhdr->setMinimumSectionSize( (int)(s.mincolwdt_*body_->fontWdt()) );
+    hhdr->setMinimumSectionSize( (int)(s.mincolwdt_*body_->fontWidth()) );
 }
 
 
@@ -521,7 +521,7 @@ void uiTable::setColumnWidth( int col, int w )
 
 void uiTable::setColumnWidthInChar( int col, float w )
 {
-    const float wdt = w * body_->fontWdt();
+    const float wdt = w * body_->fontWidth();
     setColumnWidth( col, mNINT32(wdt) );
 }
 
@@ -549,7 +549,7 @@ void uiTable::setRowHeight( int row, int h )
 
 void uiTable::setRowHeightInChar( int row, float h )
 {
-    float hgt = h * body_->fontHgt();
+    float hgt = h * body_->fontHeight();
     setRowHeight( row, mNINT32(hgt) );
 }
 

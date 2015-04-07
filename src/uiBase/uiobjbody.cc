@@ -173,14 +173,14 @@ void uiObjectBody::fontchanged()
 }
 
 
-int uiObjectBody::fontHgt() const
+int uiObjectBody::fontHeight() const
 {
     gtFntWdtHgt();
     return fnt_hgt;
 }
 
 
-int uiObjectBody::fontWdt( bool max ) const
+int uiObjectBody::fontWidth( bool max ) const
 {
     gtFntWdtHgt();
     return max ? fnt_maxwdt : fnt_wdt;
@@ -268,7 +268,7 @@ int uiObjectBody::prefHNrPics() const
 	    { const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_set; }
 	else if ( pref_char_width >= 0 )
 	{
-	    int fw = fontWdt();
+	    int fw = fontWidth();
 	    if ( !fw )
 		{ pErrMsg("Font has 0 width."); return 0; }
 
@@ -305,7 +305,7 @@ int uiObjectBody::prefHNrPics() const
 		const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_hint;
 	    else
 	    {
-		int fw = fontWdt();
+		int fw = fontWidth();
 		if ( !fw )
 		    { pErrMsg("Font has 0 width."); }
 
@@ -374,7 +374,7 @@ int uiObjectBody::prefVNrPics() const
 	    { const_cast<uiObjectBody*>(this)->pref_height_= pref_height_set;}
 	else if ( pref_char_height >= 0 )
 	{
-	    int fh = fontHgt();
+	    int fh = fontHeight();
 	    if ( !fh )
 		{ pErrMsg("Font has 0 height."); return 0; }
 
@@ -418,7 +418,7 @@ int uiObjectBody::prefVNrPics() const
 		}
 
 
-		int fh = fontHgt();
+		int fh = fontHeight();
 		if ( !fh )
 		    { pErrMsg("Font has 0 height."); return 0; }
 
@@ -538,7 +538,7 @@ void uiObjectBody::uisetFont( const uiFont& f )
 }
 
 
-int uiObjectBody::fontWdtFor( const char* str ) const
+int uiObjectBody::fontWidthFor( const char* str ) const
 {
     gtFntWdtHgt();
     const QWidget* qw = qwidget();

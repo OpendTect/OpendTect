@@ -249,8 +249,8 @@ void uiListBoxBody::setItemAlignment( int idx, Alignment::HPos hpos )
 
 uiSize uiListBoxBody::minimumsize() const
 {
-    const int totHeight = fontHgt() * prefnrlines_;
-    const int totWidth  = fontWdt( true ) * fieldwidth_;
+    const int totHeight = fontHeight() * prefnrlines_;
+    const int totWidth  = fontWidth( true ) * fieldwidth_;
     return uiSize( totWidth, totHeight );
 }
 

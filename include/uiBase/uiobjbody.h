@@ -52,9 +52,9 @@ public:
     bool		isDisplayed() const { return display_; }
 
     Color		uibackgroundColor() const;
-    void	uisetBackgroundColor(const Color&);
+    void		uisetBackgroundColor(const Color&);
     void		uisetBackgroundPixmap(const uiPixmap&);
-    void	uisetTextColor(const Color&);
+    void		uisetTextColor(const Color&);
     void		uisetSensitive(bool yn=true);
     bool		uisensitive() const;
     bool		uivisible() const;
@@ -73,7 +73,7 @@ public:
     void		setMinimumHeight(int);
     void		setMaximumHeight(int);
 
-    void	setStretch(int,int);
+    void		setStretch(int,int);
     virtual int		stretch(bool,bool retUndef=false) const;
 
     virtual int		nrTxtLines() const	{ return -1; }
@@ -82,7 +82,7 @@ public:
 			       int margin=-1,bool reciprocal=true);
     void		attach(constraintType t,uiParent* other=0,
 			       int m=-1,bool r=true)
-			    { attach(t,other->mainObject(),m,r ); }
+			{ attach(t,other->mainObject(),m,r ); }
 
     void		uisetFont(const uiFont&);
     const uiFont*	uifont() const;
@@ -108,9 +108,9 @@ public:
 
     virtual void	fontchanged();
 
-    int			fontHgt() const;
-    int			fontWdt(bool max=false) const;
-    int			fontWdtFor(const char*) const;
+    int			fontHeight() const;
+    int			fontWidth(bool max=false) const;
+    int			fontWidthFor(const char*) const;
 
     void		setHSzPol(uiObject::SzPolicy);
     void		setVSzPol(uiObject::SzPolicy);
@@ -172,7 +172,7 @@ private:
     uiObject::SzPolicy	hszpol;
     uiObject::SzPolicy	vszpol;
 
-    void	gtFntWdtHgt() const;
+    void		gtFntWdtHgt() const;
     void		getSzHint();
 
 #ifdef USE_DISPLAY_TIMER

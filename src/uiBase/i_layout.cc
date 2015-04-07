@@ -287,7 +287,7 @@ int i_LayoutMngr::childStretch( bool hor ) const
 
 int i_LayoutMngr::horSpacing() const
 {
-    return hspacing >= 0 ? hspacing :  managedBody.fontWdt();
+    return hspacing >= 0 ? hspacing :  managedBody.fontWidth();
 }
 
 
