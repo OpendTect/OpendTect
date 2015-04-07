@@ -9,7 +9,7 @@
 configure_file ( ${CMAKE_SOURCE_DIR}/include/Basic/odversion.h.in
 		 ${CMAKE_BINARY_DIR}/include/Basic/odversion.h )
 
-if ( NOT (CMAKE_BUILD_DIR STREQUAL CMAKE_SOURCE_DIR ) )
+if ( NOT (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR ) )
     if ( UNIX )
 	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
                             ${CMAKE_SOURCE_DIR}/relinfo
