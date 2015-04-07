@@ -111,7 +111,7 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	return false;
 
     Coord3 prevpos = pos[0];
-    double prevdah = mCast(double,mdvals[0]);
+    float prevdah = mdvals[0];
     if ( mIsUdf(prevpos.z) && mIsUdf(prevdah) )
 	return false;
 
@@ -120,13 +120,13 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 
     if ( mIsUdf(prevpos.z) )
     {
-	prevpos.z = prevdah - mCast(double,kbelevinfile);
+	prevpos.z = prevdah - kbelevinfile;
 	pos[0].z = prevpos.z;
     }
 
     if ( mIsUdf(prevdah) )
     {
-	prevdah = prevpos.z + kbelevinfile;
+	prevdah = (float)(prevpos.z + kbelevinfile);
 	mdvals[0] = prevdah;
     }
 
@@ -140,7 +140,7 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 	    return false;
 	else if ( mIsUdf(curpos) )
 	{
-	    const double dist = mCast(double,dah) - prevdah;
+	    const double dist = dah - prevdah;
 	    const double hdist = Coord(curpos).distTo( Coord(prevpos) );
 	    if ( dist < hdist )
 	    {
@@ -161,10 +161,10 @@ bool TrackAscIO::computeMissingValues( TypeSet<Coord3>& pos,
 		mErrRet( msg )
 	    }
 
-	    dah = mCast(float,prevdah + dist);
+	    dah = (float)(prevdah + dist);
 	}
 	prevpos = curpos;
-	prevdah = mCast(double,dah);
+	prevdah = dah;
     }
 
     return true;

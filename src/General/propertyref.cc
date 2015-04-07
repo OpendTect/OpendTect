@@ -80,8 +80,9 @@ friend class PropRef_ThickRef_Man;
 };
 
 
-struct PropRef_ThickRef_Man : public CallBacker
+class PropRef_ThickRef_Man : public CallBacker
 {
+public:
 
 PropRef_ThickRef_Man()
 {
