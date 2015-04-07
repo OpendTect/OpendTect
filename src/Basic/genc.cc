@@ -8,6 +8,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
+
+#include "buildinfo.h"
 #include "envvars.h"
 #include "debug.h"
 #include "oddirs.h"

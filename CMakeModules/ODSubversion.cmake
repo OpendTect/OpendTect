@@ -27,6 +27,28 @@ else()
     set ( MY_WC_URL "" )
 endif()
 
+if ( OD_FROM_SVN )
+    set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
+    if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
+	execute_process(
+	    COMMAND ${CMAKE_COMMAND}
+		-DOpendTect_DIR=${OpendTect_DIR}
+		-DNO_UPDATE=Yes
+		-P external/Externals.cmake
+	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+    endif()
+endif()
+
+if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
+    set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
+		-DOpendTect_DIR=${OpendTect_DIR}
+		-P external/Externals.cmake )
+endif()
+
+add_custom_target( update ${UPDATE_CMD}
+		  ${EXTERNALCMD}
+		  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		  COMMENT "Updating from repositories" )
 set ( INC_DIR ${CMAKE_BINARY_DIR}/include/Basic )
 set ( INC_FILE ${INC_DIR}/svnversion.h )
 
