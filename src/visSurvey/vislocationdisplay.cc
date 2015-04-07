@@ -128,8 +128,11 @@ void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
 
 void LocationDisplay::fullRedraw( CallBacker* )
 {
-    if ( !set_ ) return;
-    
+    if ( !set_ || set_->isEmpty() )
+    {
+	removeAll();
+	return;
+    }
 
     if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
     {
@@ -142,30 +145,19 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	    cs.hrg.include( bid );
 	    cs.zsamp_.include( zval, false );
 	}
-
-	if ( set_->size() )
-	{
-	    if ( voiidx_<0 )
-		voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
-	    else
-		datatransform_->setVolumeOfInterest( voiidx_, cs, true );
-
-	    datatransform_->loadDataIfMissing( voiidx_ );
-	}
+	
+	if ( voiidx_<0 )
+	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+	else
+	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+	
+	datatransform_->loadDataIfMissing( voiidx_ );
     }
     
     getMaterial()->setColor( set_->disp_.color_ );
-   
     invalidpicks_.erase();
-    
-    const int nrpicks = set_->size();
-    if ( !nrpicks )
-    {
-	removeAll();
-	return;
-    }
-    int idx=0;
-    for ( ; idx<nrpicks; idx++ )
+
+    for ( int idx=0; idx<set_->size(); idx++ )
     {
 	Pick::Location loc = (*set_)[idx];
 	if ( !transformPos( loc ) )
