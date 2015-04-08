@@ -124,16 +124,16 @@ public:
     static int		sizeFor(const OD::String&);
     static int		sizeFor(const BufferStringSet&);
 
-    template <class T>
-	void		put(const T&) const;
-    template <class T>
-	void		put(const T*,int nrelems,bool rawmode=false) const;
-    void		put(const char*) const;
-    void		put(bool) const;
-    void		put(const OD::String&) const;
-    void		put(const BufferStringSet&) const;
+    template <class T> const PacketFiller&
+			put(const T&) const;
+    template <class T> const PacketFiller&
+			put(const T*,int nrelems,bool rawmode=false) const;
+    const PacketFiller&	put(const char*) const;
+    const PacketFiller&	put(bool) const;
+    const PacketFiller&	put(const OD::String&) const;
+    const PacketFiller&	put(const BufferStringSet&) const;
 
-    void		putBytes(const void*,int nrbytes) const;
+    const PacketFiller&	putBytes(const void*,int nrbytes) const;
 
 protected:
 
@@ -219,54 +219,58 @@ inline int PacketFiller::sizeFor( const BufferStringSet& bss )
 }
 
 
-inline void PacketFiller::put( bool var ) const
+inline const PacketFiller& PacketFiller::put( bool var ) const
 {
     const int toput = var ? 1 : 0;
-    put( toput );
+    return put( toput );
 }
 
 
 template <class T>
-inline void PacketFiller::put( const T& var ) const
+inline const PacketFiller& PacketFiller::put( const T& var ) const
 {
-    putBytes( &var, sizeof(T) );
+    return putBytes( &var, sizeof(T) );
 }
 
 template <class T>
-inline void PacketFiller::put( const T* arr, int nrelems, bool rawmode ) const
+inline const PacketFiller& PacketFiller::put( const T* arr, int nrelems,
+						bool rawmode ) const
 {
     if ( !rawmode )
 	put( nrelems );
-    putBytes( arr, nrelems * sizeof(T) );
+    return putBytes( arr, nrelems * sizeof(T) );
 }
 
-inline void PacketFiller::put( const char* str ) const
+inline const PacketFiller& PacketFiller::put( const char* str ) const
 {
-    put( FixedString(str) );
+    return put( FixedString(str) );
 }
 
-inline void PacketFiller::put( const OD::String& str ) const
+inline const PacketFiller& PacketFiller::put( const OD::String& str ) const
 {
     const int sz = str.size();
     put( sz );
-    putBytes( str.str(), sz );
+    return putBytes( str.str(), sz );
 }
 
-inline void PacketFiller::put( const BufferStringSet& bss ) const
+inline const PacketFiller& PacketFiller::put( const BufferStringSet& bss ) const
 {
     const int sz = bss.size();
     put( sz );
     for ( int idx=0; idx<sz; idx++ )
 	put( bss.get(idx) );
+    return *this;
 }
 
-inline void PacketFiller::putBytes( const void* ptr, int sz ) const
+inline const PacketFiller& PacketFiller::putBytes( const void* ptr,
+						   int sz ) const
 {
     if ( sz > 0 )
     {
 	OD::memCopy( pkt_.payload_+curpos_, ptr, sz );
 	curpos_ += sz;
     }
+    return *this;
 }
 
 
