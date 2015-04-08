@@ -85,6 +85,7 @@ public:
 			//!< Give the previous calculated data in cached data
 			//!< and some parts may not be recalculated.
     const DataCubes*	getDataCubesOutput(const Processor&);
+    const DataCubes*	getDataCubesOutput(const ObjectSet<const DataCubes>&);
 
     Executor*		createFeatureOutput(const BufferStringSet& inputs,
 					    const ObjectSet<BinIDValueSet>&);

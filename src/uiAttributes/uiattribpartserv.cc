@@ -738,7 +738,13 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 		mDynamicCastGet(Array3DImpl<float>*,arr3dimpl,&sdp->data())
 		if ( arr3dimpl )
 		    dc->addCube( *arr3dimpl );
-		cache = dc;
+
+		ObjectSet<const DataCubes> cubeset;
+		cubeset += dc;
+		output =
+		    const_cast<DataCubes*>(aem->getDataCubesOutput(cubeset));
+		dc->unRef();
+		return output;
 	    }
 	}
 

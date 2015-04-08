@@ -319,9 +319,16 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 	cache_->ref();
     }
 
-    if ( cubeset.isEmpty() )
-	return 0;
+    const DataCubes* output =
+	!cubeset.isEmpty() ? getDataCubesOutput( cubeset ) : 0;
+    deepUnRef( cubeset );
+    return output;
+}
 
+
+const DataCubes* EngineMan::getDataCubesOutput(
+				const ObjectSet<const DataCubes>& cubeset )
+{
     DataCubes* output = new DataCubes;
     output->ref();
     if ( cache_ && cache_->cubeSampling().zsamp_.step != tkzs_.zsamp_.step )
@@ -370,7 +377,7 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 			    continue;
 
 			const int outzsampidx = (int)Math::Floor( outfidx );
-			output->setValue( cubeidx, inlidx, crlidx, 
+			output->setValue( cubeidx, inlidx, crlidx,
 					  outzsampidx, val );
 		    }
 		}
@@ -378,7 +385,6 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 	}
     }
 
-    deepUnRef( cubeset );
     output->unRefNoDelete();
     return output;
 }
@@ -718,9 +724,9 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
-uiString uiNrDoneText() const 
-{ 
-    return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString(); 
+uiString uiNrDoneText() const
+{
+    return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString();
 }
 
 uiString uiMessage() const
@@ -887,9 +893,9 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
-uiString uiNrDoneText() const 
-{ 
-    return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString(); 
+uiString uiNrDoneText() const
+{
+    return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString();
 }
 
 uiString uiMessage() const
