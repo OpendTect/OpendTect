@@ -32,15 +32,6 @@ public:
 				RegularSeisDataPack(const char* cat,
 						    const BinDataDesc* bdd=0);
 
-    int				nrTrcs() const
-				{ return (int)sampling_.hsamp_.totalNr(); }
-    TrcKey			getTrcKey(int globaltrcidx) const;
-    int				getGlobalIdx( const TrcKey& tk ) const
-				{ return (int)sampling_.hsamp_.globalIdx(tk); }
-
-    const StepInterval<float>&	getZRange() const
-				{ return sampling_.zsamp_; }
-
     void			setSampling( const TrcKeyZSampling& tkzs )
 				{ sampling_ = tkzs; }
     const TrcKeyZSampling&	sampling() const
@@ -48,6 +39,18 @@ public:
     bool			is2D() const;
 
     bool			addComponent(const char* nm);
+
+    int				nrTrcs() const
+				{ return (int)sampling_.hsamp_.totalNr(); }
+    TrcKey			getTrcKey(int globaltrcidx) const;
+    int				getGlobalIdx( const TrcKey& tk ) const
+				{ return (int)sampling_.hsamp_.globalIdx(tk); }
+
+    virtual void		dumpInfo(IOPar&) const;
+
+    const StepInterval<float>&	getZRange() const
+				{ return sampling_.zsamp_; }
+
 
 protected:
 

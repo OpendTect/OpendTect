@@ -54,7 +54,21 @@ bool RegularSeisDataPack::addComponent( const char* nm )
 }
 
 
+void RegularSeisDataPack::dumpInfo( IOPar& par ) const
+{
+    DataPack::dumpInfo( par );
 
+    const TrcKeySampling& tks = sampling_.hsamp_;
+    par.set( sKey::InlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
+			       tks.step_.lineNr() );
+    par.set( sKey::CrlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
+			       tks.step_.lineNr() );
+    par.set( sKey::ZRange(), sampling_.zsamp_.start, sampling_.zsamp_.stop,
+			     sampling_.zsamp_.step );
+}
+
+
+// RandomSeisDataPack
 RandomSeisDataPack::RandomSeisDataPack( const char* cat,
 					const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)
