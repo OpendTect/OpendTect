@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uiscaler.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiselsurvranges.h"
@@ -99,7 +100,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 
     uiGroup* infogrp = new uiGroup( this, "Info Group" );
     infofld_ = new uiTextEdit( infogrp, "Info" );
-    infofld_->setPrefHeightInChar( 5 );
+    infofld_->setPrefHeightInChar( 8 );
 
     uiSplitter* spl = new uiSplitter( this, "Splitter", false );
     spl->addGroup( topgrp );
@@ -169,13 +170,14 @@ if ( !ioobj->implExists( true ) ) \
 }
 
 class uiSeisPreLoadSel : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisPreLoadSel)
 public:
 
 uiSeisPreLoadSel( uiParent* p, Seis::GeomType geom )
     : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey))
 {
-    setCaption( geom==Seis::Vol ? "Pre-load 3D Data" : "Pre-load 2D Data" );
+    setCaption( geom==Seis::Vol ? tr("Pre-load 3D Data")
+				: tr("Pre-load 2D Data") );
     IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
     uiSeisSel::Setup sssu( geom );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
@@ -185,6 +187,14 @@ uiSeisPreLoadSel( uiParent* p, Seis::GeomType geom )
     Seis::SelSetup selsu( geom ); selsu.multiline(true);
     subselfld_ = uiSeisSubSel::get( this, selsu );
     subselfld_->attach( alignedBelow, seissel_ );
+
+    scalerfld_ = new uiScaler( this, 0, true );
+    scalerfld_->attach( alignedBelow, subselfld_ );
+
+    typefld_ = new uiGenInput( this, tr("Load as"),
+		StringListInpSpec(DataCharacteristics::UserTypeNames()) );
+    typefld_->setValue( (int)DataCharacteristics::Auto );
+    typefld_->attach( alignedBelow, scalerfld_ );
 
     postFinalise().notify( mCB(this,uiSeisPreLoadSel,seisSel) );
 }
@@ -207,6 +217,8 @@ bool acceptOK( CallBacker* )
 
     uiSeisSel*		seissel_;
     uiSeisSubSel*	subselfld_;
+    uiScaler*		scalerfld_;
+    uiGenInput*		typefld_;
 };
 
 
@@ -217,7 +229,11 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 
     const IOObj* ioobj = dlg.seissel_->ioobj();
     mCheckIOObjExistance( ioobj );
-// TODO: Check if already preloaded
+    if ( Seis::PLDM().isPresent(ioobj->key()) )
+    {
+	uiMSG().message( ioobj->name(), " is already preloaded" );
+	return;
+    }
 
     TrcKeyZSampling cs; dlg.subselfld_->getSampling( cs );
     Seis::PreLoader spl( ioobj->key() );

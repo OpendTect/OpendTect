@@ -88,11 +88,15 @@ void Seis::PreLoader::getLineNames( BufferStringSet& lks ) const
     TaskRunner& trunnr mUnusedVar = getTr()
 
 
-bool Seis::PreLoader::loadVol( const TrcKeyZSampling& tkzs ) const
+bool Seis::PreLoader::loadVol( const TrcKeyZSampling& tkzs,
+			       DataCharacteristics::UserType type,
+			       Scaler* scaler ) const
 {
     mPrepIOObj();
 
     Seis::SequentialReader rdr( *ioobj, &tkzs );
+    rdr.setScaler( scaler );
+    rdr.setDataChar( type );
     if ( !rdr.init() || !trunnr.execute(rdr) )
     {
 	errmsg_ = rdr.uiMessage();
@@ -344,6 +348,10 @@ void Seis::PreLoadDataManager::getInfo( const MultiID& mid,
 
 void Seis::PreLoadDataManager::getIDs( TypeSet<MultiID>& ids ) const
 { ids = mids_; }
+
+
+bool Seis::PreLoadDataManager::isPresent( const MultiID& mid ) const
+{ return mids_.isPresent( mid ); }
 
 
 Seis::PreLoadDataManager& Seis::PLDM()
