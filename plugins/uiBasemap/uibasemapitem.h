@@ -33,11 +33,16 @@ class IOPar;
 mExpClass(uiBasemap) uiBasemapTreeTop : public uiTreeTopItem
 {
 public:
-			uiBasemapTreeTop(uiTreeView*);
+			uiBasemapTreeTop(uiTreeView*,uiTreeFactorySet&);
 			~uiBasemapTreeTop();
 
 protected:
     const char*		parentType() const	{ return 0; }
+
+    void		addFactoryCB(CallBacker*);
+    void		removeFactoryCB(CallBacker*);
+
+    uiTreeFactorySet&	tfs_;
 };
 
 
@@ -179,6 +184,7 @@ public:
     void		setBasemap(uiBaseMap&);
     uiBaseMap&		getBasemap();
     void		setTreeTop(uiTreeTopItem&);
+    uiTreeFactorySet&	treeItemFactory()		{ return tfs_; }
 
     void		setColTabEd(uiBasemapColTabEd*);
     uiBasemapColTabEd*	getColTabEd();
@@ -201,6 +207,7 @@ private:
     uiBaseMap*		basemap_;
     uiBasemapColTabEd*	coltabed_;
     BaseMapMarkers*	basemapcursor_;
+    uiTreeFactorySet&	tfs_;
     uiTreeTopItem*	treetop_;
 
     ObjectSet<uiBasemapItem>		basemapitems_;
