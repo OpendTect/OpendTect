@@ -28,15 +28,13 @@ else()
     set ( MY_WC_URL "" )
 endif()
 
-if ( OD_FROM_SVN )
-    if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
-	execute_process(
-	    COMMAND ${CMAKE_COMMAND}
-		-DOpendTect_DIR=${OpendTect_DIR}
-		-DNO_UPDATE=Yes
-		-P external/Externals.cmake
-	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
-    endif()
+if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
+    execute_process(
+	COMMAND ${CMAKE_COMMAND}
+	    -DOpendTect_DIR=${OpendTect_DIR}
+	    -DNO_UPDATE=Yes
+	    -P external/Externals.cmake
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
 endif()
 
 if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )

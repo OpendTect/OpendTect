@@ -124,9 +124,6 @@ OD_ADD_REGEXP_TEST( "ArrPtrMan[^;]+=[^?;]*new\\\\s+" mAllocLargeVarLenArr
 OD_ADD_LOCAL_STATIC_TEST()
 OD_ADD_LINEEND_TEST()
 OD_ADD_EXIT_PROGRAM_TEST()
-if( NOT DEFINED APPLE )
-    OD_ADD_SVNPROP_TEST()
-endif()
 
 if ( UNIX )
     add_test( "PNGCompression" ${CMAKE_SOURCE_DIR}/dtect/FindCompactablePNGs.csh )
@@ -134,8 +131,6 @@ endif()
 
 SETUP_QT_TRANSLATION()
 
-set ( OD_TESTS_IGNORE_CONTINUOUS
-      "${OD_TESTS_IGNORE_CONTINUOUS} SVNPropertyTest" )
 OD_SETUP_TEST_FILTER()
 
 if( BUILD_DOCUMENTATION )
