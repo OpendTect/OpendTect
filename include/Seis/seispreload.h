@@ -15,12 +15,14 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "bufstringset.h"
+#include "datachar.h"
 #include "datapackbase.h"
 #include "multiid.h"
 #include "ranges.h"
 #include "task.h"
 
 class IOObj;
+class Scaler;
 
 namespace Seis
 {
@@ -40,7 +42,10 @@ public:
     void		getLineNames(BufferStringSet&) const;
     			//!< Line 2D only.
 
-    bool		loadVol(const TrcKeyZSampling&) const;
+    bool		loadVol(const TrcKeyZSampling&,
+				DataCharacteristics::UserType=
+					DataCharacteristics::Auto,
+				Scaler* =0) const;
     bool		loadLine(Pos::GeomID,const TrcKeyZSampling&) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
     bool		loadPS2D(const char* lnm=0) const;	//!< null => all
@@ -83,6 +88,7 @@ public:
     void		getInfo(const MultiID&,BufferString&) const;
 
     void		getIDs(TypeSet<MultiID>&) const;
+    bool		isPresent(const MultiID&) const;
 
 protected:
 
