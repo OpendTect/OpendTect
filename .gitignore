@@ -12,9 +12,16 @@ CMakeModules/sourcefiles_od.txt
 data/ModDeps.od
 test/
 plugins/lux64
+data/localizations/*.qm
+moc*.cxx
+Testing/
+bin/lux64/Debug/
+bin/lux64/Release/
+include/General/od_helpids.h
 
 #CMakes stuff
 *.ninja
+.ninja_log
 develdefs.cmake
 cmake_install.cmake
 CTestTestfile.cmake
