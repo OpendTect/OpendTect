@@ -1,9 +1,29 @@
 # Known generated files
 *mod.h
 about.html
-svnversion.h
-odversion.h
+include/Basic/svnversion.h
+include/Basic/odversion.h
+include/Basic/buildinfo.h
+external/*/*
+doc/Programmer/*.html
+CMakeModules/FindOpendTect.cmake
+CMakeModules/license.txt
+CMakeModules/sourcefiles_od.txt
+data/ModDeps.od
+test/
+plugins/lux64
+
+#CMakes stuff
+*.ninja
 develdefs.cmake
+cmake_install.cmake
+CTestTestfile.cmake
+DartConfiguration.tcl
+CMakeFiles
+Makefile
+CMakeCache.txt
+CTestCustom.cmake
+
 
 #Temporary files
 *.sw?
