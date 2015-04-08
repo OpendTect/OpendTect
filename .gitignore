@@ -5,6 +5,9 @@ svnversion.h
 odversion.h
 develdefs.cmake
 
+#Temporary files
+*.sw?
+
 #Platform dependent files
 # Windows
 

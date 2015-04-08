@@ -1,7 +1,8 @@
 {
-  "load" :                      ["dtect/arcanist/dgbarcanist"],
-  "project_id" :                "od",
-  "lint.engine" :               "dGBLintEngine",
-  "conduit_uri" :               "https://phabricator.dgbes.com:8443"
+  "load" :	  ["dtect/arcanist/dgbarcanist"],
+  "project_id" :  "od",
+  "lint.engine" : "dGBLintEngine",
+  "conduit_uri" : "https://phabricator.dgbes.com:8443",
+  "base" :	  "git:merge-base(origin/master), arc:prompt"
 }
 
