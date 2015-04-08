@@ -10,7 +10,6 @@ phutil_register_library_map(array(
   '__library_version__' => 2,
   'class' =>
   array(
-    'SVNLinter' => 'linter/SVNLinter.php',
     'TextLinter' => 'linter/TextLinter.php',
     'dGBLintEngine' => 'engine/dGBLintEngine.php',
   ),
@@ -19,7 +18,6 @@ phutil_register_library_map(array(
   ),
   'xmap' =>
   array(
-    'SVNLinter' => 'ArcanistLinter',
     'TextLinter' => 'ArcanistLinter',
     'dGBLintEngine' => 'ArcanistLintEngine',
   ),

@@ -22,7 +22,6 @@ final class dGBLintEngine extends ArcanistLintEngine {
 
     $text_paths = preg_grep('/\.(h|cc|php|arcconfig|txt|cmake|rc)$/', $paths);
     $linters[] = id(new TextLinter())->setPaths($text_paths);
-    $linters[] = id(new SVNLinter())->setPaths($paths);
 
     return $linters;
   }
