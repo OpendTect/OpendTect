@@ -12,18 +12,21 @@ ________________________________________________________________________
 */
 
 #include "seismod.h"
-#include "uistring.h"
+
+#include "datachar.h"
 #include "executor.h"
 #include "fixedstring.h"
 #include "paralleltask.h"
 #include "sets.h"
 #include "trckeyzsampling.h"
+#include "uistring.h"
 
 class BinDataDesc;
 class BinIDValueSet;
-class CBVSSeisTrcTranslator;
 class IOObj;
 class RegularSeisDataPack;
+class Scaler;
+class SeisTrcReader;
 
 template <class T> class Array2D;
 template <class T> class Array3D;
@@ -116,6 +119,16 @@ protected:
 };
 
 
+/*!Reads a 3D Seismic volume in parallel into a RegularSeisDataPack
+
+    Usage example:
+    SequentialReader rdr( myiioobj ); // I want to read all
+    rdr.setDataChar( DataCharacteristics:: ); // read in another format
+    rdr.setScaler( myscaler ); // scale data to fit in required format
+    if ( rdr.init() ) // something is not right
+    rdr.execute();
+*/
+
 mExpClass(Seis) SequentialReader : public Executor
 { mODTextTranslationClass(SequentialReader);
 public:
@@ -123,6 +136,10 @@ public:
 					 const TrcKeyZSampling* =0,
 					 const TypeSet<int>* components=0);
 			~SequentialReader();
+
+    void		setDataChar(DataCharacteristics::UserType);
+    void		setScaler(Scaler*); //!< Scaler becomes mine
+    bool		init();
 
     RegularSeisDataPack* getDataPack();
 
@@ -134,16 +151,15 @@ public:
 
 protected:
 
-    bool			initDataPack(const BinDataDesc& bdd);
-
     IOObj*			ioobj_;
-    CBVSSeisTrcTranslator*	trl_;
+    SeisTrcReader&		rdr_;
     Seis::SelData*		sd_;
     RegularSeisDataPack*	dp_;
     TrcKeyZSampling		tkzs_;
     TypeSet<int>		components_;
     Interval<int>		samprg_;
-    unsigned char**		blockbufs_;
+    DataCharacteristics		dc_;
+    Scaler*			scaler_;
 
     int				queueid_;
 

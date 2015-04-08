@@ -46,8 +46,8 @@ ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
 
 
 ParallelReader::ParallelReader( const IOObj& ioobj,
-                      BinIDValueSet& bidvals,
-		      const TypeSet<int>& components )
+				BinIDValueSet& bidvals,
+				const TypeSet<int>& components )
     : dp_(0)
     , components_( components )
     , bidvals_( &bidvals )
@@ -403,7 +403,7 @@ int nextStep()
     const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().binid.crl() );
     for ( int cidx=0; cidx<trc_.nrComponents(); cidx++ )
     {
-	Array3DImpl<float>& arr = dp_.data( cidx );
+	Array3D<float>& arr = dp_.data( cidx );
 	ValueSeries<float>* stor = arr.getStorage();
 	mDynamicCastGet(ConvMemValueSeries<float>*,storptr,stor);
 	char* storarr = storptr ? storptr->storArr() : (char*)stor->arr();
@@ -441,7 +441,10 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     : Executor("Reader")
     , ioobj_(ioobj.clone())
     , dp_(0)
-    , trl_(0)
+    , sd_(0)
+    , scaler_(0)
+    , rdr_(*new SeisTrcReader(ioobj_))
+    , dc_(DataCharacteristics::Auto)
 {
     SeisIOObjInfo info( ioobj );
     if ( !comps )
@@ -464,27 +467,28 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     queueid_ = Threads::WorkManager::twm().addQueue(
 				Threads::WorkManager::MultiThread,
 				"SequentialReader" );
-    
-    DataCharacteristics dc;
-    if ( !info.getDataChar(dc) || !initDataPack(dc) )
-	return;
-
-    mDynamicCast(CBVSSeisTrcTranslator*,trl_,ioobj.createTranslator())
-    sd_ = new Seis::RangeSelData( tkzs_ );
-    if ( trl_ )
-    {
-	trl_->setSelData( sd_ );
-	trl_->initRead( ioobj.getConn(Conn::Read) );
-    }
 }
 
 
 SequentialReader::~SequentialReader()
 {
-    delete trl_; delete ioobj_;
+    delete &rdr_; delete ioobj_;
+    delete scaler_;
 
     DPM( DataPackMgr::SeisID() ).release( dp_ );
     Threads::WorkManager::twm().removeQueue( queueid_, false );
+}
+
+
+void SequentialReader::setDataChar( DataCharacteristics::UserType type )
+{ dc_ = DataCharacteristics(type); }
+
+
+void SequentialReader::setScaler( Scaler* newsc )
+{
+    delete scaler_;
+    scaler_ = newsc;
+//    rdr_.forceFloatData( scaler_ ); // Not sure if needed
 }
 
 
@@ -492,9 +496,21 @@ RegularSeisDataPack* SequentialReader::getDataPack()
 { return dp_; }
 
 
-bool SequentialReader::initDataPack( const BinDataDesc& bdd )
+bool SequentialReader::init()
 {
     const SeisIOObjInfo info( *ioobj_ );
+    if ( !info.getDataChar(dc_) )
+	return false;
+
+    sd_ = new Seis::RangeSelData( tkzs_ );
+    rdr_.setSelData( sd_ );
+    if ( !rdr_.prepareWork() )
+    {
+	msg_ = rdr_.errMsg();
+	return false;
+    }
+
+    const BinDataDesc bdd( dc_ );
     dp_ = new RegularSeisDataPack( Seis::nameOf(info.geomType()), &bdd );
     DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
     dp_->setSampling( tkzs_ );
@@ -519,17 +535,14 @@ bool SequentialReader::initDataPack( const BinDataDesc& bdd )
 int SequentialReader::nextStep()
 {
     SeisTrc* trc = new SeisTrc;
-    if ( !trl_ || !trl_->readInfo(trc->info()) )
-    {
-	delete trc;
-	return Finished();
-    }
+    const int res = rdr_.get( trc->info() );
+    if ( res==-1 )
+    { delete trc; msg_ = rdr_.errMsg(); return ErrorOccurred(); }
+    if ( res==0 ) { delete trc; return Finished(); }
+    if ( res==2 ) { delete trc; return MoreToDo(); }
 
-    if ( !trl_->read(*trc) )
-    {
-	delete trc;
-	return ErrorOccurred();
-    }
+    if ( !rdr_.get(*trc) )
+    { delete trc; msg_ = rdr_.errMsg(); return ErrorOccurred(); }
 
     Task* task = new ArrayFiller( *dp_, *trc );
     Threads::WorkManager::twm().addWork(

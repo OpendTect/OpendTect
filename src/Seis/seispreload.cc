@@ -81,22 +81,19 @@ void Seis::PreLoader::getLineNames( BufferStringSet& lks ) const
 }
 
 
-#define mPrepIOObj(is2dln) \
+#define mPrepIOObj() \
     PtrMan<IOObj> ioobj = getIOObj(); \
     if ( !ioobj ) \
 	return false; \
-    if ( !is2dln && ioobj->translator()!= \
-		CBVSSeisTrcTranslator::translKey() ) \
-	{ errmsg_ = "Cannot pre-load other than CBVS data"; return false; } \
     TaskRunner& trunnr mUnusedVar = getTr()
 
 
 bool Seis::PreLoader::loadVol( const TrcKeyZSampling& tkzs ) const
 {
-    mPrepIOObj( false );
+    mPrepIOObj();
 
     Seis::SequentialReader rdr( *ioobj, &tkzs );
-    if ( !trunnr.execute(rdr) )
+    if ( !rdr.init() || !trunnr.execute(rdr) )
     {
 	errmsg_ = rdr.uiMessage();
 	return false;
@@ -111,7 +108,7 @@ bool Seis::PreLoader::loadVol( const TrcKeyZSampling& tkzs ) const
 bool Seis::PreLoader::loadLine( Pos::GeomID geomid,
 				const TrcKeyZSampling& tkzs ) const
 {
-    mPrepIOObj( true );
+    mPrepIOObj();
 
     Seis::ParallelReader2D rdr( *ioobj, geomid, &tkzs );
     if ( !trunnr.execute(rdr) )
@@ -127,7 +124,7 @@ bool Seis::PreLoader::loadLine( Pos::GeomID geomid,
 
 bool Seis::PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 {
-    mPrepIOObj( false );
+    mPrepIOObj();
 
     SeisCBVSPSIO psio( ioobj->fullUserExpr(true) );
     BufferStringSet fnms;
@@ -141,7 +138,7 @@ bool Seis::PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 
 bool Seis::PreLoader::loadPS2D( const char* lnm ) const
 {
-    mPrepIOObj( false );
+    mPrepIOObj();
     BufferStringSet lnms;
     if ( lnm && *lnm )
 	lnms.add( lnm );
@@ -157,7 +154,7 @@ bool Seis::PreLoader::loadPS2D( const BufferStringSet& lnms ) const
     if ( lnms.isEmpty() )
 	return true;
 
-    mPrepIOObj( false );
+    mPrepIOObj();
 
     BufferStringSet fnms;
     SeisCBVSPSIO psio( ioobj->fullUserExpr(true) );
