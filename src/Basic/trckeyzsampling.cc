@@ -948,17 +948,17 @@ bool TrcKeyZSampling::operator==( const TrcKeyZSampling& tkzs ) const
 
    if ( tkzs.hsamp_ == this->hsamp_ )
    {
-       float diff = tkzs.zsamp_.start - this->zsamp_.start;
-       const float eps = (float) ( SI().zIsTime() ? 1e-6 : 1e-3 );
-       if ( fabs(diff) > eps ) return false;
+	float diff = tkzs.zsamp_.start - this->zsamp_.start;
+	const float eps = (float) ( SI().zIsTime() ? 1e-6 : 1e-3 );
+	if ( fabs(diff) > eps ) return false;
 
-       diff = tkzs.zsamp_.stop - this->zsamp_.stop;
-       if ( fabs(diff) > eps ) return false;
+	diff = tkzs.zsamp_.stop - this->zsamp_.stop;
+	if ( fabs(diff) > eps ) return false;
 
-       diff = tkzs.zsamp_.step - this->zsamp_.step;
-       if ( fabs(diff) > eps ) return false;
+	diff = tkzs.zsamp_.step - this->zsamp_.step;
+	if ( fabs(diff) > eps ) return false;
 
-       return true;
+	return true;
    }
 
    return false;
