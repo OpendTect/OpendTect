@@ -246,7 +246,7 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 	if ( cs.isFlat() ) setWinTitle( true );
     }
 
-    if ( treetp_ ) treetp_->updCubeSamling( cs, true );
+    if ( treetp_ ) treetp_->updSampling( cs, true );
 }
 
 

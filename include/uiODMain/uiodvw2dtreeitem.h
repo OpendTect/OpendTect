@@ -34,7 +34,7 @@ public:
 
     bool		setZAxisTransform(ZAxisTransform*);
 
-    void		updCubeSamling(const TrcKeyZSampling&,bool);
+    void		updSampling(const TrcKeyZSampling&,bool);
     void		updSelSpec(const Attrib::SelSpec*,bool wva);
 
     void		fillPar(IOPar&) const;
@@ -47,22 +47,21 @@ protected:
 
     static uiString	sChangeSetup() { return tr("Change setup..."); }
 
-    int				displayid_;
-    ZAxisTransform*		datatransform_;
+    int			displayid_;
+    ZAxisTransform*	datatransform_;
 
-    uiODApplMgr*		applMgr();
-    uiODViewer2D*		viewer2D();
+    uiODApplMgr*	applMgr();
+    uiODViewer2D*	viewer2D();
 
-    virtual void		insertStdSubMenu(uiMenu&);
-    virtual bool		handleStdSubMenu(int menuid);
+    virtual void	insertStdSubMenu(uiMenu&);
+    virtual bool	handleStdSubMenu(int menuid);
 
-    virtual void		updateCS(const TrcKeyZSampling&,bool)	{}
-    virtual void		updateSelSpec(const Attrib::SelSpec*,bool wva)
-				{}
-    virtual void		dataTransformCB(CallBacker*)		{}
-    virtual void		showAllChildren();
-    virtual void		hideAllChildren();
-    virtual void		removeAllChildren();
+    virtual void	updateCS(const TrcKeyZSampling&,bool)	{}
+    virtual void	updateSelSpec(const Attrib::SelSpec*,bool wva)	{}
+    virtual void	dataTransformCB(CallBacker*)		{}
+    virtual void	showAllChildren();
+    virtual void	hideAllChildren();
+    virtual void	removeAllChildren();
 };
 
 
@@ -70,7 +69,7 @@ mExpClass(uiODMain) uiODVw2DTreeItemFactory : public uiTreeItemFactory
 {
     public:
 	virtual uiTreeItem* createForVis(const uiODViewer2D&,int visid) const
-		                                { return 0; }
+				{ return 0; }
 };
 
 
@@ -81,13 +80,13 @@ public:
 				uiODVw2DTreeTop(uiTreeView*,uiODApplMgr*,
 					uiODViewer2D*,uiTreeFactorySet*);
 				~uiODVw2DTreeTop();
-    
-    static const char*  	viewer2dptr();
-    static const char*  	applmgrstr();
+
+    static const char*		viewer2dptr();
+    static const char*		applmgrstr();
 
     bool			setZAxisTransform(ZAxisTransform*);
 
-    void			updCubeSamling(const TrcKeyZSampling&,bool);
+    void			updSampling(const TrcKeyZSampling&,bool);
     void			updSelSpec(const Attrib::SelSpec*,bool wva);
 
 protected:
@@ -95,11 +94,11 @@ protected:
     void			addFactoryCB(CallBacker*);
     void			removeFactoryCB(CallBacker*);
 
-    virtual const char* 	parentType() const { return 0; }
-    uiODApplMgr*        	applMgr();
-    uiODViewer2D*               viewer2D();
+    virtual const char*		parentType() const { return 0; }
+    uiODApplMgr*		applMgr();
+    uiODViewer2D*		viewer2D();
 
-    uiTreeFactorySet*   	tfs_;
+    uiTreeFactorySet*		tfs_;
     bool			selectWithKey(int);
 };
 

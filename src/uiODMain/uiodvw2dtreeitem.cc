@@ -75,13 +75,13 @@ bool uiODVw2DTreeTop::setZAxisTransform( ZAxisTransform* zat )
 }
 
 
-void uiODVw2DTreeTop::updCubeSamling( const TrcKeyZSampling& cs, bool update )
+void uiODVw2DTreeTop::updSampling( const TrcKeyZSampling& cs, bool update )
 {
-        for ( int idx=0; idx<nrChildren(); idx++ )
-	{
-	    mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
-	    itm->updCubeSamling( cs, update );
-	}
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
+	if ( itm ) itm->updSampling( cs, update );
+    }
 }
 
 
@@ -90,7 +90,7 @@ void uiODVw2DTreeTop::updSelSpec( const Attrib::SelSpec* selspec, bool wva )
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
-	itm->updSelSpec( selspec, wva );
+	if ( itm ) itm->updSelSpec( selspec, wva );
     }
 }
 
@@ -203,12 +203,12 @@ bool uiODVw2DTreeItem::handleStdSubMenu( int menuid )
 }
 
 
-void uiODVw2DTreeItem::updCubeSamling( const TrcKeyZSampling& cs, bool update )
+void uiODVw2DTreeItem::updSampling( const TrcKeyZSampling& cs, bool update )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
-	itm->updCubeSamling( cs, update );
+	if ( itm ) itm->updSampling( cs, update );
     }
 
     updateCS( cs, update );
@@ -220,7 +220,7 @@ void uiODVw2DTreeItem::updSelSpec(const Attrib::SelSpec* selspec, bool wva )
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DTreeItem*,itm,getChild(idx));
-	itm->updSelSpec( selspec, wva );
+	if ( itm ) itm->updSelSpec( selspec, wva );
     }
 
     updateSelSpec( selspec, wva );

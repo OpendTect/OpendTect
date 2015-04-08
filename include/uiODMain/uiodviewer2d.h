@@ -108,7 +108,7 @@ public:
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
-    virtual void                setWinTitle(bool fromcs=false);
+    virtual void		setWinTitle(bool fromcs=false);
 				/*!<\param fromcs if true, TrcKeyZSampling
 				will be used to set window title.*/
 
@@ -153,7 +153,7 @@ protected:
     void			setDataPack(DataPack::ID,bool wva,bool isnew);
     virtual void		setPos(const TrcKeyZSampling&);
     void			adjustOthrDisp(bool wva,bool isnew);
-    void                        removeAvailablePacks();
+    void			removeAvailablePacks();
     void			rebuildTree();
 
     void			winCloseCB(CallBacker*);
