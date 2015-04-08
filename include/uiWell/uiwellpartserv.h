@@ -58,7 +58,6 @@ public:
 
     bool			editDisplayProperties(const MultiID&);
     void			displayIn2DViewer(const MultiID&);
-    bool			showAmplSpectrum(const MultiID&,const char*);
 
     bool			dispLineOnCreation(){ return disponcreation_; }
     const char*			getRandLineMultiID()   { return multiid_; }

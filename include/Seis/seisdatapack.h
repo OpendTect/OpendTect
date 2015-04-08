@@ -17,63 +17,10 @@ ________________________________________________________________________
 #include "bindatadesc.h"
 #include "datapackbase.h"
 #include "trckeyzsampling.h"
-#include "valseries.h"
 
 template <class T> class Array3DImpl;
 
 namespace ZDomain { class Info; }
-
-
-mExpClass(Seis) SeisDataPack : public DataPack
-{
-public:
-				~SeisDataPack();
-    virtual int			nrTrcs() const				= 0;
-    virtual TrcKey		getTrcKey(int globaltrcidx) const	= 0;
-    virtual int			getGlobalIdx(const TrcKey&) const	= 0;
-
-    virtual bool		addComponent(const char* nm)		= 0;
-
-    virtual const StepInterval<float>&	getZRange() const		= 0;
-
-    const OffsetValueSeries<float> getTrcStorage(
-					int comp,int globaltrcidx) const;
-    const float*		getTrcData(int comp,int globaltrcidx)const;
-
-    int				nrComponents() const
-				{ return arrays_.size(); }
-    bool			isEmpty() const
-				{ return arrays_.isEmpty(); }
-    bool			validComp( int comp ) const
-				{ return arrays_.validIdx( comp ); }
-    const char*			getComponentName(int comp=0) const;
-
-    const Array3DImpl<float>&	data(int component=0) const;
-    Array3DImpl<float>&		data(int component=0);
-
-    void			setZDomain(const ZDomain::Info&);
-    const ZDomain::Info&	zDomain() const
-				{ return *zdomaininfo_; }
-
-    void			setScale(int comp,const SamplingData<float>&);
-    const SamplingData<float>&	getScale(int comp) const;
-    
-    const BinDataDesc&		getDataDesc() const	{ return desc_; }
-
-    float			nrKBytes() const;
-
-protected:
-				SeisDataPack(const char*,const BinDataDesc*);
-
-    bool			addArray(int sz0,int sz1,int sz2);
-
-    BufferStringSet			componentnames_;
-    ObjectSet<Array3DImpl<float> >	arrays_;
-    TypeSet<SamplingData<float> >	scales_;
-    ZDomain::Info*			zdomaininfo_;
-    BinDataDesc				desc_;
-};
-
 
 /*!
 \brief SeisDataPack for 2D and 3D seismic data.

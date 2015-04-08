@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstring.h"
 #include "datapointset.h"
 #include "mouseevent.h"
-#include "seisdatapack.h"
 #include "statparallelcalc.h"
 
 #define mPutCountInPlot() (histgramdisp_ && setup_.countinplot_)
@@ -122,7 +121,7 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 
 	if ( dmid == DataPackMgr::SeisID() )
 	{
-	    mDynamicCastGet(const RegularSeisDataPack*,sdp,datapack);
+	    mDynamicCastGet(const SeisDataPack*,sdp,datapack);
 	    const Array3D<float>* arr3d = sdp ? &sdp->data() : 0;
 	    if ( !arr3d ) return false;
 

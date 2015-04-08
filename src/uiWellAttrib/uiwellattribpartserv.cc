@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwellattribpartserv.h"
 
+#include "uiamplspectrum.h"
 #include "uichecklist.h"
 #include "uicreateattriblogdlg.h"
 #include "uicreatelogcubedlg.h"
@@ -118,7 +119,7 @@ void uiWellAttribPartServer::doSEGYTool( IOPar* previop, int choice )
 	choicefld->addItem( tr("Import SEG-Y file(s) to OpendTect data") )
 	    .addItem( tr("Scan SEG-Y file(s) to use in-place") )
 	    .addItem( tr("Import VSP data from SEG-Y file") )
-	    .addItem( previop ? tr("Quit SEG-Y import") 
+	    .addItem( previop ? tr("Quit SEG-Y import")
 			      : tr("Cancel the operation") )
 	    .setChecked( 3, true );
 	if ( !dlg.go() )
@@ -270,11 +271,62 @@ bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
     return true;
 }
 
+
 void uiWellAttribPartServer::closeWellTieDlg( CallBacker* cb )
 {
     mDynamicCastGet(WellTie::uiTieWinMGRDlg*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
     dlg->delWins();
     welltiedlgopened_ = false;
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
+					       const char* lognm )
+{
+    const RefMan<Well::Data> wd = Well::MGR().get( mid );
+    if ( !wd || wd->logs().isEmpty()  )
+	return false;
+
+    const Well::Log* log = wd->logs().getLog( lognm );
+    if ( !log )
+	mErrRet( tr("Cannot find log in well data."
+		    "  Probably it has been deleted") )
+
+    if ( !log->size() )
+	mErrRet( tr("Well log is empty") )
+
+    StepInterval<float> resamprg( log->dahRange() );
+    TypeSet<float> resamplvals; int resampsz = 0;
+    if ( SI().zIsTime() && wd->haveD2TModel() )
+    {
+	const Well::D2TModel& d2t = *wd->d2TModel();
+	resamprg.set(d2t.getTime(resamprg.start, wd->track()),
+		     d2t.getTime(resamprg.stop, wd->track()),1);
+	resamprg.step /= SI().zDomain().userFactor();
+	resampsz = resamprg.nrSteps();
+	for ( int idx=0; idx<resampsz; idx++ )
+	{
+	    const float dah = d2t.getDah( resamprg.atIndex( idx ),
+					  wd->track() );
+	    resamplvals += log->getValue( dah );
+	}
+    }
+    else
+    {
+	resampsz = resamprg.nrSteps();
+	resamprg.step = resamprg.width() / (float)log->size();
+	for ( int idx=0; idx<resampsz; idx++ )
+	    resamplvals += log->getValue( resamprg.atIndex( idx ) );
+    }
+
+    uiAmplSpectrum::Setup su( lognm, false,  resamprg.step );
+    uiAmplSpectrum* asd = new uiAmplSpectrum( parent(), su );
+    asd->setData( resamplvals.arr(), resampsz );
+    asd->show();
+
+    return true;
 }
 

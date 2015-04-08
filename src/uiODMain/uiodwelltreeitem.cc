@@ -348,7 +348,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( amplspectrummnuitem_.findItem(mnuid) )
     {
 	menu->setIsHandled( true );
-	ODMainWin()->applMgr().wellServer()->showAmplSpectrum( wellid,
+	ODMainWin()->applMgr().wellAttribServer()->showAmplSpectrum( wellid,
 		amplspectrummnuitem_.findItem(mnuid)->text.getFullString() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }

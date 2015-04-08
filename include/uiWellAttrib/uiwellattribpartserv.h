@@ -53,7 +53,10 @@ public:
 
     void 			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )
 				{ dpsdispmgr_ = dispmgr; }
-    bool                        createD2TModel(const MultiID&);
+    bool			createD2TModel(const MultiID&);
+
+    bool			showAmplSpectrum(const MultiID&,
+						 const char* lognm);
 
 protected:
 
@@ -66,7 +69,7 @@ protected:
     uiWellAttribCrossPlot*	xplotwin2d_;
     uiWellAttribCrossPlot*	xplotwin3d_;
     DataPointSetDisplayMgr*	dpsdispmgr_;
-    
+
     void                        closeWellTieDlg(CallBacker*);
     void                        surveyChangedCB(CallBacker*);
     void                        segyToolEnded(CallBacker*);

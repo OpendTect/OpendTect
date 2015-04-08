@@ -14,104 +14,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "bufstringset.h"
-#include "convmemvalseries.h"
 #include "flatposdata.h"
 #include "survinfo.h"
 
 #include <limits.h>
-
-
-// SeisDataPack
-SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
-    : DataPack(cat)
-    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
-    , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
-{}
-
-
-SeisDataPack::~SeisDataPack()
-{
-    deepErase( arrays_ );
-    deleteAndZeroPtr( zdomaininfo_ );
-}
-
-
-const OffsetValueSeries<float>
-SeisDataPack::getTrcStorage(int comp, int globaltrcidx) const
-{
-    const Array3DImpl<float>* array = arrays_[comp];
-    return OffsetValueSeries<float>( *array->getStorage(),
-				globaltrcidx * array->info().getSize(2) );
-}
-
-
-const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
-{
-    const Array3DImpl<float>* array = arrays_[comp];
-    return array->getData() + globaltrcidx * array->info().getSize(2);
-}
-
-
-const char* SeisDataPack::getComponentName( int component ) const
-{
-    return componentnames_.validIdx(component)
-	? componentnames_[component]->buf() : 0;
-}
-
-
-void SeisDataPack::setZDomain( const ZDomain::Info& zinf )
-{
-    delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zinf );
-}
-
-
-float SeisDataPack::nrKBytes() const
-{
-    const int nrcomps = nrComponents();
-    if ( nrcomps == 0 ) return 0.0f;
-    return nrcomps * arrays_[0]->info().getTotalSz() * desc_.nrBytes() / 1024.f;
-}
-
-
-bool SeisDataPack::addArray( int sz0, int sz1, int sz2 )
-{
-    float dummy; const BinDataDesc floatdesc( dummy );
-    Array3DImpl<float>* arr = 0;
-    if ( desc_ == floatdesc )
-    {
-	arr = new Array3DImpl<float>( sz0, sz1, sz2 );
-	if ( !arr->isOK() )
-	{
-	    delete arr;
-	    return false;
-	}
-    }
-    else
-    {
-	arr = new Array3DImpl<float>( 0, 0, 0 );
-	ConvMemValueSeries<float>* stor =
-		new ConvMemValueSeries<float>( 0, desc_ );
-	arr->setStorage( stor );
-	arr->setSize( sz0, sz1, sz2 );
-	if ( !stor->storArr() )
-	{
-	    delete arr;
-	    return false;
-	}
-    }
-
-    arr->setAll( mUdf(float) );
-    arrays_ += arr;
-    return true;
-}
-
-
-const Array3DImpl<float>& SeisDataPack::data( int component ) const
-{ return *arrays_[component]; }
-
-Array3DImpl<float>& SeisDataPack::data( int component )
-{ return *arrays_[component]; }
 
 
 // RegularSeisDataPack

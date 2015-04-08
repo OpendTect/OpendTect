@@ -3,16 +3,16 @@
 
 /*
 ________________________________________________________________________
-            
+
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
 Author:        Satyaki Maitra
 Date:          September 2007
 RCS:           $Id$
 ______________________________________________________________________
-                       
-*/   
 
-#include "uitoolsmod.h"
+*/
+
+#include "uiseismod.h"
 #include "uidialog.h"
 #include "datapack.h"
 #include "survinfo.h"
@@ -29,21 +29,23 @@ template <class T> class Array3D;
 template <class T> class Array1DImpl;
 
 
-mExpClass(uiTools) uiAmplSpectrum : public uiMainWin
+mExpClass(uiSeis) uiAmplSpectrum : public uiMainWin
 { mODTextTranslationClass(uiAmplSpectrum);
 public:
     struct Setup
     {
-			Setup( const uiString& t=uiStrings::sEmptyString(), 
+			Setup( const uiString& t=uiStrings::sEmptyString(),
 			       bool iscep=false, float nyqst=SI().zStep() )
 			    : caption_(t)
 			    , nyqvistspspace_(nyqst)
 			    , iscepstrum_(iscep)	{}
+
 	mDefSetupMemb(uiString,caption)
 	mDefSetupMemb(float,nyqvistspspace)
 	mDefSetupMemb(bool,iscepstrum)
     };
-    				uiAmplSpectrum(uiParent*,
+
+				uiAmplSpectrum(uiParent*,
 					const uiAmplSpectrum::Setup& =
 					uiAmplSpectrum::Setup());
 				~uiAmplSpectrum();
@@ -69,14 +71,14 @@ protected:
     bool			compute(const Array3D<float>&);
     void			putDispData();
     void			valChgd(CallBacker*);
-    
+
     uiAmplSpectrum::Setup	setup_;
 
     Array3D<float>*		data_;
     Array1DImpl<float_complex>* timedomain_;
     Array1DImpl<float_complex>* freqdomain_;
     Array1DImpl<float>*		freqdomainsum_;
-    Array1DImpl<float>* 	specvals_;
+    Array1DImpl<float>*		specvals_;
 
     Interval<float>		posrange_;
 
@@ -87,7 +89,6 @@ protected:
     void			exportCB(CallBacker*);
     void			ceptrumCB(CallBacker*);
 };
-
 
 #endif
 

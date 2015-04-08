@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "wellwriter.h"
 
-#include "uiamplspectrum.h"
 #include "uibulkwellimp.h"
 #include "uibuttongroup.h"
 #include "uid2tmodelgrp.h"
@@ -528,52 +527,4 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     delete ctio->ioobj;
     return true;
 }
-
-
-bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
-{
-    const RefMan<Well::Data> wd = Well::MGR().get( mid );
-    if ( !wd || wd->logs().isEmpty()  )
-	return false;
-
-    const Well::Log* log = wd->logs().getLog( lognm );
-    if ( !log )
-	mErrRet( tr("Cannot find log in well data."
-                    "  Probably it has been deleted") )
-
-    if ( !log->size() )
-	mErrRet( tr("Well log is empty") )
-
-    StepInterval<float> resamprg( log->dahRange() );
-    TypeSet<float> resamplvals;	int resampsz = 0;
-    if ( SI().zIsTime() && wd->haveD2TModel() )
-    {
-	const Well::D2TModel& d2t = *wd->d2TModel();
-	resamprg.set(d2t.getTime(resamprg.start, wd->track()),
-		     d2t.getTime(resamprg.stop, wd->track()),1);
-	resamprg.step /= SI().zDomain().userFactor();
-	resampsz = resamprg.nrSteps();
-	for ( int idx=0; idx<resampsz; idx++ )
-	{
-	    const float dah = d2t.getDah( resamprg.atIndex( idx ),
-					  wd->track() );
-	    resamplvals += log->getValue( dah );
-	}
-    }
-    else
-    {
-	resampsz = resamprg.nrSteps();
-	resamprg.step = resamprg.width() / (float)log->size();
-	for ( int idx=0; idx<resampsz; idx++ )
-	    resamplvals += log->getValue( resamprg.atIndex( idx ) );
-    }
-
-    uiAmplSpectrum::Setup su( lognm, false,  resamprg.step );
-    uiAmplSpectrum* asd = new uiAmplSpectrum( parent(), su );
-    asd->setData( resamplvals.arr(), resampsz );
-    asd->show();
-
-    return true;
-}
-
 

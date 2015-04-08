@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "bufstring.h"
 #include "datapointset.h"
-#include "seisdatapack.h"
 #include "statparallelcalc.h"
 
 uiHistogramDisplay::uiHistogramDisplay( uiParent* p,
