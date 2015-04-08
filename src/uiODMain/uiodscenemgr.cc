@@ -43,6 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "ptrman.h"
 #include "sorting.h"
+#include "settings.h"
 #include "vissurvscene.h"
 #include "vissurvobj.h"
 #include "welltransl.h"
@@ -71,6 +72,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const int cWSWidth = 600;
 static const int cWSHeight = 500;
 static const char* scenestr = "Scene ";
+static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)
 #define mDoAllScenes(memb,fn,arg) \
@@ -554,8 +556,19 @@ void uiODSceneMgr::setStereoType( int type )
     if ( scenes_.isEmpty() ) return;
 
     if ( type )
-	uiMSG().warning( tr("Stereo viewing is experimental and not"
-			    " officially supported. Use at own risk") );
+    {
+	if ( !Settings::common().isFalse(sKeyWarnStereo) )
+	{
+	    bool wantmsg = uiMSG().showMsgNextTime(
+		tr("Stereo viewing is not officially supported."
+		"\nIt may not work well for your particular graphics setup.") );
+	    if ( !wantmsg )
+	    {
+		Settings::common().setYN( sKeyWarnStereo, false );
+		Settings::common().write();
+	    }
+	}
+    }
 
     ui3DViewer::StereoType stereotype = (ui3DViewer::StereoType)type;
     const float stereooffset = scenes_[0]->vwr3d_->getStereoOffset();
