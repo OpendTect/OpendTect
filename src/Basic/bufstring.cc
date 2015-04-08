@@ -877,7 +877,7 @@ void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
     BufferString str( inpstr );
     char* ptr = str.getCStr();
 
-    while ( *ptr )
+    while ( ptr && *ptr )
     {
 	char* sepptr = ::firstOcc( ptr, sepstr );
 	if ( sepptr )
@@ -889,6 +889,6 @@ void BufferStringSet::unCat( const char* inpstr, const char* sepstr )
 	ptr = sepptr;
     }
 
-    if ( *ptr )
+    if ( ptr && *ptr )
 	add( ptr );
 }
