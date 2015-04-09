@@ -1306,7 +1306,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    {
 		int i, j;
 		if ( getIndices(myrc,i,j) )
-		    arr_->set( i, j, pos.z );
+		    arr_->set( i, j, mCast(float,pos.z) );
 	    }
 	    else
 		surface_->setPos( sectionid, myrc.toInt64(), pos, false );
