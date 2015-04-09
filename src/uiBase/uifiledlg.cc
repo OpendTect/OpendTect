@@ -189,6 +189,8 @@ int uiFileDialog::go()
 	fd->setDirectory( QString(currentdir_.buf()) );
     if ( selectedfilter_.size() )
 	fd->selectNameFilter( QString(selectedfilter_) );
+    if ( !defaultextension_.isEmpty() )
+	fd->setDefaultSuffix( QString(defaultextension_.buf()) );
 
 #ifdef __win__
     fd->setViewMode( QFileDialog::Detail );
@@ -475,11 +477,19 @@ void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
 }
 
 
-
 void uiFileDialog::setDefaultCaption()
 {
     caption_ = (mode_==Directory || mode_==DirectoryOnly)
         ? tr("Directory selection")
         : tr("File selection");
 }
+
+
+void uiFileDialog::setDefaultExtension( const char* ext )
+{ defaultextension_ = ext; }
+
+
+const char* uiFileDialog::getDefaultExtension() const
+{ return defaultextension_.buf(); }
+
 

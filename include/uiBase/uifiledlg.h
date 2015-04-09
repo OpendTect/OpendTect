@@ -71,6 +71,9 @@ public:
     void		setConfirmOverwrite( bool yn )
     			{ confirmoverwrite_ = yn; }
 
+    void		setDefaultExtension(const char*);
+    const char*		getDefaultExtension() const;
+
     int                 go();
 
     static const char*	filesep_;
@@ -102,6 +105,7 @@ protected:
     bool		addallexts_;
     bool		forread_;
     bool		confirmoverwrite_;
+    BufferString	defaultextension_;
     
     static FileMultiString*	externalfilenames_;
     static BufferString		extfilenameserrmsg_;

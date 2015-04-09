@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visdata.h"
 
+#include "filepath.h"
 #include "keystrs.h"
 #include "thread.h"
 #include "visdataman.h"
@@ -306,7 +307,9 @@ bool DataObject::serialize( const char* filename, bool binary )
     if ( !osgNode() )
 	return true;
 
-    return osgDB::writeNodeFile( *osgNode(), std::string( filename ) );
+    FilePath fp( filename );
+    fp.setExtension( ".osg", true );
+    return osgDB::writeNodeFile( *osgNode(), std::string(fp.fullPath()) );
 }
 
 
