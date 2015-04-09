@@ -289,9 +289,9 @@ static const char* sKeyUnixDataRoot()	{ return "Default Unix Data Root"; }
 static const char* sKeyWinDataRoot()	{ return "Default Windows Data Root"; }
 
 HostDataList::HostDataList( bool readhostfile, bool addlocalhost )
-	: logincmd_("rsh")
-	, nicelvl_(19)
-	, firstport_(37500)
+    : logincmd_("ssh")
+    , nicelvl_(19)
+    , firstport_(37500)
 {
     BufferString bhfnm = "BatchHosts";
     if ( GetEnvVar("DTECT_BATCH_HOSTS_FILENAME") )

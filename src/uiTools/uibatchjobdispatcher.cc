@@ -337,7 +337,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
 
     BufferStringSet hnms; HostDataList hdl;
     hdl.fill( hnms, false );
-    if ( hnms.size() > 1 )
+    if ( !hnms.isEmpty() )
     {
 	remhostfld_ = new uiGenInput( this, "Execute remote",
 				      StringListInpSpec(hnms) );
