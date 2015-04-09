@@ -40,10 +40,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include <limits.h>
 
+#include "hiddenparam.h"
 
 namespace EM
 {
 
+HiddenParam<dgbSurfaceReader,Array2D<float>*> arrparam( 0 );
 
 const char* dgbSurfaceReader::sKeyFloatDataChar() { return "Data char"; }
 
@@ -104,6 +106,7 @@ void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
     conn_ = new StreamConn( fullexpr, Conn::Read );
     cube_ = 0;
     surface_ = 0;
+    arrparam.setParam( this, 0 );
     par_ = 0;
     setsurfacepar_ = false;
     readrowrange_ = 0;
@@ -1163,8 +1166,25 @@ void dgbSurfaceReader::goToNextRow()
 	if ( surface_ )
 	{
 	    const SectionID sid = sectionids_[sectionindex_];
-	    if ( surface_->geometry().sectionGeometry( sid ) )
-		surface_->geometry().sectionGeometry( sid )->trimUndefParts();
+	    Geometry::Element* secgeom =
+				surface_->geometry().sectionGeometry( sid );
+	    mDynamicCastGet(Geometry::BinIDSurface*,bidsurf,secgeom)
+	    if ( bidsurf )
+	    {
+		StepInterval<int> inlrg = readrowrange_ ? *readrowrange_
+							: rowrange_;
+		StepInterval<int> crlrg = readcolrange_ ? *readcolrange_
+							: colrange_;
+		inlrg.sort(); crlrg.sort();
+		Array2D<float>* arr = arrparam.getParam( this );
+		if ( arr )
+		    bidsurf->setArray( RowCol(inlrg.start,crlrg.start),
+			    RowCol(inlrg.step,crlrg.step), arr, true );
+		arrparam.setParam( this, 0 );
+	    }
+
+	    if ( secgeom )
+		secgeom->trimUndefParts();
 	}
 
 	sectionindex_++;
@@ -1227,6 +1247,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
     mDynamicCastGet(Horizon2D*,hor2d,surface_);
     const bool hor2dok = hor2d && geomids_.validIdx(rowindex_);
 
+    Array2D<float>* arr = arrparam.getParam( this );
     for ( ; colindex<nrcols+colstoskip; colindex++ )
     {
 	rc.col() = firstcol+colindex*colstep;
@@ -1284,7 +1305,15 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    if ( hor2dok )
 		myrc.row() = hor2d->geometry().sectionGeometry(
 			sectionid )->getRowIndex( geomids_[rowindex_] );
-	    surface_->setPos( sectionid, myrc.toInt64(), pos, false );
+
+	    if ( arr )
+	    {
+		int i, j;
+		if ( getIndices(myrc,i,j) )
+		    arr->set( i, j, pos.z );
+	    }
+	    else
+		surface_->setPos( sectionid, myrc.toInt64(), pos, false );
 	}
 
 	if ( cube_ )
@@ -1320,9 +1349,21 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
     mDeclareAndTryAlloc( Array2D<float>*, arr,
 	    Array2DImpl<float>(inlrg.nrSteps()+1, crlrg.nrSteps()+1) );
     arr->setAll( mUdf(float) );
+    arrparam.setParam( this, arr );
+}
 
-    bidsurf->setArray( RowCol( inlrg.start, crlrg.start),
-		       RowCol( inlrg.step, crlrg.step ), arr, true );
+
+bool dgbSurfaceReader::getIndices( const RowCol& rc, int& i, int& j ) const
+{
+    StepInterval<int> inlrg = readrowrange_ ? *readrowrange_ : rowrange_;
+    StepInterval<int> crlrg = readcolrange_ ? *readcolrange_ : colrange_;
+    inlrg.sort(); crlrg.sort();
+    if ( !inlrg.includes(rc.row(),false) || !crlrg.includes(rc.col(),false) )
+	return false;
+
+    i = inlrg.getIndex( rc.row() );
+    j = crlrg.getIndex( rc.col() );
+    return true;
 }
 
 
@@ -1685,7 +1726,7 @@ int dgbSurfaceWriter::nextStep()
 {
     if ( !nrdone_ )
     {
-	conn_ = !fulluserexpr_.isEmpty() ? 
+	conn_ = !fulluserexpr_.isEmpty() ?
 		    new StreamConn(fulluserexpr_,Conn::Write) : 0;
 	if ( !conn_ )
 	    { msg_ = "Cannot open output surface file"; return ErrorOccurred();}

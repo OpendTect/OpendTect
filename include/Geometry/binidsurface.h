@@ -1,6 +1,6 @@
 #ifndef binidsurface_h
 #define binidsurface_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -27,8 +27,8 @@ namespace Geometry
 mExpClass(Geometry) BinIDSurface : public ParametricSurface
 {
 public:
-    			BinIDSurface(const BinID& step);
-    			BinIDSurface(const BinIDSurface&);
+			BinIDSurface(const BinID& step);
+			BinIDSurface(const BinIDSurface&);
 			~BinIDSurface();
     BinIDSurface*	clone() const;
     bool		isEmpty() const { return !depths_; }
@@ -36,12 +36,13 @@ public:
     Coord3		computePosition(const Coord& param) const;
 
     void		setArray(const BinID& start,const BinID& step,
-	    			 Array2D<float>*,bool takeover);
-    			/*!<Mem is taken over by me if takeover is true. */
+				 Array2D<float>*,bool takeover);
+			/*!<Mem is taken over by me if takeover is true. */
     Array2D<float>*	getArray()  { return depths_; }
-    			/*Modify on your own responsibility.*/
-    const Array2D<float>* getArray() const 
+			/*Modify on your own responsibility.*/
+    const Array2D<float>* getArray() const
 				    { return (const Array2D<float>*) depths_; }
+    void		getPosIDs(TypeSet<GeomPosID>&,bool rmudf=true) const;
 
     bool		insertRow(int row,int nrnew=1);
     bool		insertCol(int col,int nrnew=1);

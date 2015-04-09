@@ -203,6 +203,7 @@ protected:
     BufferString	dbinfo_;
     int			version_;
 
+    bool		getIndices(const RowCol&,int&,int&) const;
     bool		readVersion2Row(od_istream&,int,int);
 
 //Version 3 stuff

@@ -21,14 +21,14 @@ namespace Geometry
 
 
 BinIDSurface::BinIDSurface( const BinID& newstep )
-    : ParametricSurface( RowCol(0,0), RowCol(newstep) ) 
+    : ParametricSurface( RowCol(0,0), RowCol(newstep) )
     , depths_( 0 )
 {
 }
 
 
 BinIDSurface::BinIDSurface( const BinIDSurface& b )
-    : ParametricSurface( b.origin_, b.step_ ) 
+    : ParametricSurface( b.origin_, b.step_ )
     , depths_( b.depths_ ? new Array2DImpl<float>(*b.depths_) : 0 )
 {
 }
@@ -173,7 +173,30 @@ void BinIDSurface::setArray( const BinID& start, const BinID& step,
 }
 
 
-bool BinIDSurface::insertRow(int row, int nrtoinsert ) 
+void BinIDSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
+{
+    const float* zvals = depths_ ? depths_->getData() : 0;
+    if ( !zvals )
+    {
+	RowColSurface::getPosIDs( pids, remudf );
+	return;
+    }
+
+    pids.erase();
+    const int nrcols = depths_->info().getSize( 1 );
+    const int totalsz = depths_->info().getTotalSz();
+    for ( int idx=0; idx<totalsz; idx++ )
+    {
+	if ( !remudf || !mIsUdf(zvals[idx]) )
+	{
+	    const RowCol rc = origin_ + RowCol( idx/nrcols, idx%nrcols )*step_;
+	    pids += rc.toInt64();
+	}
+    }
+}
+
+
+bool BinIDSurface::insertRow(int row, int nrtoinsert )
 {
     mInsertStart( rowidx, row, nrRows() );
     mCloneRowVariable( float, depths_, computePosition(param).z, mUdf(float) )
@@ -181,7 +204,7 @@ bool BinIDSurface::insertRow(int row, int nrtoinsert )
 }
 
 
-bool BinIDSurface::insertCol(int col, int nrtoinsert ) 
+bool BinIDSurface::insertCol(int col, int nrtoinsert )
 {
     mInsertStart( colidx, col, nrCols() );
     mCloneColVariable( float, depths_, computePosition(param).z, mUdf(float) )
@@ -200,9 +223,9 @@ bool BinIDSurface::removeRow( int start, int stop )
     const int startidx = rowIndex( start );
     const int stopidx = rowIndex( stop );
     if ( startidx<0 || startidx>=curnrrows || stopidx<0 || stopidx>=curnrrows )
-    { 
-	errmsg() = "Row to remove does not exist"; 
-	return false; 
+    {
+	errmsg() = "Row to remove does not exist";
+	return false;
     }
 
     const int nrremoved = stopidx-startidx+1;
@@ -218,7 +241,7 @@ bool BinIDSurface::removeRow( int start, int stop )
 	    return false; //out of memory
 	}
     }
-    
+
     for ( int idx=0; newpositions && idx<curnrrows-nrremoved; idx++ )
     {
 	for ( int idy=0; idy<curnrcols; idy++ )
@@ -231,7 +254,7 @@ bool BinIDSurface::removeRow( int start, int stop )
     if ( newpositions ) { delete depths_; depths_ = newpositions; }
     if ( !startidx )
 	origin_.row() += step_.row()*nrremoved;
-    
+
     return true;
 }
 
@@ -244,9 +267,9 @@ bool BinIDSurface::removeCol( int start, int stop )
     const int startidx = colIndex( start );
     const int stopidx = colIndex( stop );
     if ( startidx<0 || startidx>=curnrcols || stopidx<0 || stopidx>=curnrcols )
-    { 
-	errmsg() = "Column to remove does not exist"; 
-	return false; 
+    {
+	errmsg() = "Column to remove does not exist";
+	return false;
     }
 
     const int nrremoved = stopidx-startidx+1;
@@ -367,7 +390,7 @@ StepInterval<int> BinIDSurface::colRange( int row ) const
 
 bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
 {
-    if ( !depths_ ) 
+    if ( !depths_ )
 	origin_ = RowCol(start);
 
     const int oldnrrows = nrRows();
@@ -381,15 +404,15 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
     stoprowidx = stoprowidx<oldnrrows ? oldnrrows-1 : stoprowidx;
     int stopcolidx = colIndex( stop.crl() );
     stopcolidx = stopcolidx<oldnrcols ? oldnrcols-1 : stopcolidx;
-    
+
     const int newnrrows = stoprowidx-startrowidx+1;
     const int newnrcols = stopcolidx-startcolidx+1;
 
     if ( oldnrrows==newnrrows && oldnrcols==newnrcols )
 	return true;
-   
+
     mDeclareAndTryAlloc( Array2D<float>*, newdepths,
-	    		 Array2DImpl<float>( newnrrows, newnrcols ) );
+			 Array2DImpl<float>( newnrrows, newnrcols ) );
     if ( !newdepths || !newdepths->isOK() )
 	return false;
 
@@ -403,17 +426,17 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
     {
 	for ( int idy=0; idy<oldnrcols; idy++ )
 	{
-	    newdepths->set( idx-startrowidx, idy-startcolidx, 
+	    newdepths->set( idx-startrowidx, idy-startcolidx,
 			    depths_->get( idx, idy ) );
 	}
     }
 
-    if ( newdepths ) 
-    { 
-	delete depths_; 
-	depths_ = newdepths; 
+    if ( newdepths )
+    {
+	delete depths_;
+	depths_ = newdepths;
     }
-    
+
     origin_.row() += step_.row()*startrowidx;
     origin_.col() += step_.col()*startcolidx;
 
@@ -445,7 +468,7 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
     res = Coord3( knotcoord, posz );
     if ( !mIsUdf(posz) || !interpolifudf )
 	return res;
-    
+
     //interpolate
     double diagsum = 0, lateralsum = 0;
     int diagnr = 0, lateralnr = 0;
@@ -466,7 +489,7 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 		continue;
 
 	    if ( !idx || !idy )
-	    { 
+	    {
 	       lateralsum += curz;
 	       lateralnr++;
 	    }
@@ -480,7 +503,7 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
 
     if ( !diagnr && !lateralnr ) //no neighbor defined, do nothing.
 	return res;
-    
+
     res.z = (lateralsum+diagsum*0.7071) / (lateralnr + diagnr * 0.7071);
 
     return res;
