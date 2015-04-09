@@ -30,7 +30,7 @@ macro( DEFINE_SVN_EXTERNAL DIR URL )
 	     message( "${DIR} is not up to date:\n${OUTPUT}" )
 	endif()
     else()
-	if ( NOT DEFINED NO_UPDATE )
+	if ( UPDATE STREQUAL "Yes" )
 	    execute_process(
 		COMMAND ${SUBVERSION_EXEC} update ${EXTRA_SVN_ARGS}
 		WORKING_DIRECTORY ${DIR}
