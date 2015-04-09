@@ -26,6 +26,7 @@ class StreamConn;
 class IOObj;
 template <class T> class DataInterpreter;
 template <class T> class Array3D;
+template <class T> class Array2D;
 
 namespace EM
 {
@@ -191,6 +192,8 @@ protected:
     DataInterpreter<double>* floatinterpreter_;
     EM::Surface*	surface_;
     Array3D<float>*	cube_;
+    Array2D<float>*	arr_;
+
 
     StepInterval<int>	rowrange_;
     StepInterval<int>	colrange_;
@@ -203,6 +206,7 @@ protected:
     BufferString	dbinfo_;
     int			version_;
 
+    bool		getIndices(const RowCol&,int&,int&) const;
     bool		readVersion2Row(od_istream&,int,int);
 
 //Version 3 stuff
