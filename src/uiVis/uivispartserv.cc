@@ -1820,6 +1820,8 @@ bool uiVisPartServer::writeSceneToFile( int id, const char* dlgtitle ) const
 {
     uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(),
 			"*.osg", dlgtitle );
+    filedlg.setDefaultExtension( "osg" );
+
     if ( filedlg.go() )
     {
 	visBase::DataObject* obj = visBase::DM().getObject( id );

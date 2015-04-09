@@ -109,6 +109,10 @@ private:
     void		setDefaultCaption();
     int			beginCmdRecEvent( const char* wintitle );
     void		endCmdRecEvent(int refnr, bool ok);
+
+public:
+    void		setDefaultExtension(const char*);
+    const char*		getDefaultExtension() const;
 };
 
 #endif
