@@ -33,7 +33,7 @@ if ( OD_FROM_SVN )
 	execute_process(
 	    COMMAND ${CMAKE_COMMAND}
 		-DOpendTect_DIR=${OpendTect_DIR}
-		-DNO_UPDATE=Yes
+		-DUPDATE=No
 		-P external/Externals.cmake
 	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
     endif()
@@ -42,6 +42,7 @@ endif()
 if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
     set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
 		-DOpendTect_DIR=${OpendTect_DIR}
+		-DUPDATE=Yes
 		-P external/Externals.cmake )
 endif()
 
