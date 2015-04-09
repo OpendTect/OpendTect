@@ -78,6 +78,12 @@ protected:
     SeparString		lastlinkedidentstr_;
 
     ObjectSet< ObjectSet<Identifier> > identifiers_;
+
+    void		tryFilePathPlaceholder(const char* prefixsrc,
+					       const char* filepathsrc,
+					       BufferString& filepathdest);
+public:
+    bool		tryFilePathPlaceholders(BufferString& filepath);
 };
 
 

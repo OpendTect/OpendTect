@@ -151,8 +151,8 @@ public:
     static const char*	sMenuPathEscSymbols()		{ return "$*`#\""; }
     static const char*	sTreePathEscSymbols()		{ return "$*`#<\""; }
     static const char*	sItemNameEscSymbols()		{ return "$*#\""; }
-    static const char*	sInputStrEscSymbols()		{ return "$\""; }
-    static const char*	sFilePathSetEscSymbols()	{ return "$`\""; }
+    static const char*	sInputStrEscSymbols()		{ return "$`\""; }
+    static const char*	sFilePathSetEscSymbols() /*obsolete*/ { return "$`\""; }
     static const char*	sAllEscSymbols()		{ return "$*`#[]<\""; }
 
     static const char*	sMatchVoidBeginBrackets()   { return ":`([{<>\"/"; }

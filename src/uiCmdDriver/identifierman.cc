@@ -189,7 +189,9 @@ void IdentifierManager::unset( const char* name, bool followlinks )
 \
     if ( mMatchCI(name, scopedkey) || mMatchCI(name, scopedkey+1) ) \
     { \
-	idm->setFilePathPlaceholder( scopedkey, functioncall ); \
+	BufferString filepath( functioncall ); \
+	mDressUserInputString( filepath, sInputStr ); \
+	idm->setFilePathPlaceholder( scopedkey, filepath ); \
 	return true; \
     }
 
@@ -280,6 +282,48 @@ int IdentifierManager::substitute( const char* src, BufferString& dest )
 	StringProcessor(dest).makeDirSepIndep( filepathpositions[idx] );
 
     return nrfailed ? -nrfailed : nrsuccessful;
+}
+
+
+bool IdentifierManager::tryFilePathPlaceholders( BufferString& filepath )
+{
+    BufferString dest;
+
+    tryFilePathPlaceholder( "$USERDIR$",      filepath, dest );
+    tryFilePathPlaceholder( "$APPLDIR$",      filepath, dest );
+    tryFilePathPlaceholder( "$BASEDIR$",      filepath, dest );
+    tryFilePathPlaceholder( "$DATADIR$",      filepath, dest );
+    tryFilePathPlaceholder( "$PROCDIR$",      filepath, dest );
+    tryFilePathPlaceholder( "$IMPORTDIR$",    filepath, dest );
+    tryFilePathPlaceholder( "$EXPORTDIR$",    filepath, dest );
+    tryFilePathPlaceholder( "$SNAPSHOTSDIR$", filepath, dest );
+
+    if ( dest.isEmpty() )
+	return false;
+
+    filepath = dest;
+    return true;
+}
+
+
+void IdentifierManager::tryFilePathPlaceholder( const char* prefixsrc,
+						const char* filepathsrc,
+						BufferString& filepathdest )
+{
+    BufferString whitespace;
+    while ( iswspace(*filepathsrc) )
+	whitespace += *filepathsrc++;
+
+    BufferString prefixdest;
+    if ( substitute(prefixsrc,prefixdest)!=1 || prefixdest.isEmpty() )
+	return;
+
+    if ( !stringStartsWith(prefixdest.buf(),filepathsrc) )
+	return;
+
+    filepathdest = whitespace;
+    filepathdest += prefixsrc;
+    filepathdest += filepathsrc + prefixdest.size();
 }
 
 
