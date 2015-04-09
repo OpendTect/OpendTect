@@ -47,6 +47,8 @@ public:
     int			substitute(const char* src,BufferString& dest);
 			// Returns failed (<0) or successful (>=0) nr. subst
 
+    bool		tryFilePathPlaceholders(BufferString& filepath);
+
 protected:
 
     mClass(uiCmdDriver) Identifier
@@ -71,6 +73,10 @@ protected:
     bool		findCurIdent(const char* name,bool followlinks=true,
 	    			     bool singlescope=false);
     void    		setFilePathPlaceholder(const char* nm,const char* val);
+
+    void		tryFilePathPlaceholder(const char* prefixsrc,
+					       const char* filepathsrc,
+					       BufferString& filepathdest);
 
     Identifier*		curident_; // Always points to last identifier set/read
     int			curlevel_; // Always points to last level searched

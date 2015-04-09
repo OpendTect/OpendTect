@@ -300,7 +300,8 @@ bool QFileDlgCmdComposer::accept( const CmdRecEvent& ev )
 	for ( int idx=0; idx<fms.size(); idx++ )
 	{
 	    BufferString filepath = fms[idx];
-	    mDressUserInputString( filepath, sFilePathSet );
+	    mDressUserInputString( filepath, sInputStr );
+	    IdentifierManager().tryFilePathPlaceholders( filepath );
 	    dressedfms += filepath;
 	}
 	mRecOutStrm << "FileOk \"" << dressedfms.unescapedStr() << "\""

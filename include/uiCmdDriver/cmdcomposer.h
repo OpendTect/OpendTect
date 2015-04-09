@@ -201,6 +201,7 @@ public: \
 	else \
 	{ \
 	    mDressUserInputString( inpstr, sInputStr ); \
+	    IdentifierManager().tryFilePathPlaceholders( inpstr ); \
 	    inpstr += "\" "; \
 	    inpptr = inpstr.getCStr(); \
 	    *inpptr = '"'; \
