@@ -31,6 +31,18 @@ protected:
 
 
 
+mExpClass(uiBasemap) uiBasemapWellParentTreeItem :
+					public uiBasemapParentTreeItem
+{
+public:
+			uiBasemapWellParentTreeItem(int id)
+			    : uiBasemapParentTreeItem("Well",id)	{}
+protected:
+
+};
+
+
+
 mExpClass(uiBasemap) uiBasemapWellTreeItem : public uiBasemapTreeItem
 {
 public:
@@ -44,7 +56,7 @@ protected:
     bool		showSubMenu();
     bool		handleSubMenu(int);
     const char*		parentType() const
-			{ return typeid(uiBasemapTreeTop).name(); }
+			{ return typeid(uiBasemapWellParentTreeItem).name(); }
 };
 
 
@@ -61,6 +73,7 @@ public:
     int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*,bool isadd);
+    uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
 };
 

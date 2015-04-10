@@ -67,6 +67,9 @@ const char* uiBasemapWellItem::iconName() const
 uiBasemapGroup* uiBasemapWellItem::createGroup( uiParent* p,bool isadd )
 { return new uiBasemapWellGroup( p, isadd ); }
 
+uiBasemapParentTreeItem* uiBasemapWellItem::createParentTreeItem()
+{ return new uiBasemapWellParentTreeItem(ID()); }
+
 uiBasemapTreeItem* uiBasemapWellItem::createTreeItem( const char* nm )
 { return new uiBasemapWellTreeItem( nm ); }
 
