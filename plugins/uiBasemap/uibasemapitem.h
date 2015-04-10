@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "helpview.h"
 #include "multiid.h"
+#include "uidialog.h"
 #include "uigroup.h"
 #include "uitreeitemmanager.h"
 
@@ -33,16 +34,12 @@ class IOPar;
 mExpClass(uiBasemap) uiBasemapTreeTop : public uiTreeTopItem
 {
 public:
-			uiBasemapTreeTop(uiTreeView*,uiTreeFactorySet&);
+			uiBasemapTreeTop(uiTreeView*);
 			~uiBasemapTreeTop();
 
 protected:
     const char*		parentType() const	{ return 0; }
 
-    void		addFactoryCB(CallBacker*);
-    void		removeFactoryCB(CallBacker*);
-
-    uiTreeFactorySet&	tfs_;
 };
 
 
@@ -102,6 +99,23 @@ protected:
 };
 
 
+mExpClass(uiBasemap) uiBasemapParentTreeItem : public uiTreeItem
+{
+public:
+    int			ID() const		{ return id_; }
+
+protected:
+			uiBasemapParentTreeItem(const char* nm,int id)
+			    : uiTreeItem(nm), id_(id)		{}
+
+    virtual bool	showSubMenu();
+
+    const char*		parentType() const
+			{ return typeid(uiBasemapTreeTop).name(); }
+    int			id_;
+};
+
+
 mExpClass(uiBasemap) uiBasemapTreeItem : public uiTreeItem
 {
 public:
@@ -137,6 +151,8 @@ protected:
 
     virtual bool	showSubMenu();
     virtual bool	handleSubMenu(int);
+    virtual const char* parentType() const
+			{ return typeid(uiBasemapTreeTop).name(); }
 
     virtual bool	isSelectable() const { return true; }
     virtual bool	isExpandable() const { return false; }
@@ -161,6 +177,7 @@ public:
     virtual int			defaultZValue() const		= 0;
     virtual const char*		iconName() const		= 0;
     virtual uiBasemapGroup*	createGroup(uiParent*,bool)	= 0;
+    virtual uiBasemapParentTreeItem* createParentTreeItem()	{ return 0; }
     virtual uiBasemapTreeItem*	createTreeItem(const char*)	= 0;
 
 protected:
@@ -184,7 +201,6 @@ public:
     void		setBasemap(uiBaseMap&);
     uiBaseMap&		getBasemap();
     void		setTreeTop(uiTreeTopItem&);
-    uiTreeFactorySet&	treeItemFactory()		{ return tfs_; }
 
     void		setColTabEd(uiBasemapColTabEd*);
     uiBasemapColTabEd*	getColTabEd();
@@ -207,7 +223,6 @@ private:
     uiBaseMap*		basemap_;
     uiBasemapColTabEd*	coltabed_;
     BaseMapMarkers*	basemapcursor_;
-    uiTreeFactorySet&	tfs_;
     uiTreeTopItem*	treetop_;
 
     ObjectSet<uiBasemapItem>		basemapitems_;

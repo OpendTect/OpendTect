@@ -17,19 +17,14 @@ ________________________________________________________________________
 
 class uiSelLineStyle;
 
-mExpClass(uiBasemap) uiBasemapGeom2DGroup : public uiBasemapIOObjGroup
+mExpClass(uiBasemap) uiBasemapGeom2DParentTreeItem :
+					public uiBasemapParentTreeItem
 {
 public:
-			uiBasemapGeom2DGroup(uiParent*,bool isadd);
-			~uiBasemapGeom2DGroup();
-
-    bool		acceptOK();
-    bool		fillItemPar(int idx,IOPar&) const;
-    bool		usePar(const IOPar&);
-
+			uiBasemapGeom2DParentTreeItem(int id)
+			    : uiBasemapParentTreeItem("2D Line",id)	{}
 protected:
-    virtual uiObject*	lastObject();
-    uiSelLineStyle*	lsfld_;
+
 };
 
 
@@ -47,8 +42,26 @@ protected:
     bool		showSubMenu();
     bool		handleSubMenu(int);
     const char*		parentType() const
-			{ return typeid(uiBasemapTreeTop).name(); }
+			{ return typeid(uiBasemapGeom2DParentTreeItem).name(); }
 };
+
+
+
+mExpClass(uiBasemap) uiBasemapGeom2DGroup : public uiBasemapIOObjGroup
+{
+public:
+			uiBasemapGeom2DGroup(uiParent*,bool isadd);
+			~uiBasemapGeom2DGroup();
+
+    bool		acceptOK();
+    bool		fillItemPar(int idx,IOPar&) const;
+    bool		usePar(const IOPar&);
+
+protected:
+    virtual uiObject*	lastObject();
+    uiSelLineStyle*	lsfld_;
+};
+
 
 
 
@@ -64,6 +77,7 @@ public:
     int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*,bool isadd);
+    uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
 };
 

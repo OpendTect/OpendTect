@@ -166,9 +166,9 @@ void uiBasemapWin::initTree()
     tree_ = new uiTreeView( treedw_ );
     tree_->setColumnText( 0, "Elements" );
     tree_->setSelectionMode( uiTreeView::Extended );
-    tree_->setRootDecorated( false );
+    tree_->setRootDecorated( true );
     tree_->showHeader( false );
-    topitem_ = new uiBasemapTreeTop( tree_, BMM().treeItemFactory() );
+    topitem_ = new uiBasemapTreeTop( tree_ );
 }
 
 

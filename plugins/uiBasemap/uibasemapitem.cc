@@ -36,63 +36,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 // uiBasemapTreeTop
-uiBasemapTreeTop::uiBasemapTreeTop( uiTreeView* tv, uiTreeFactorySet& tfs )
+uiBasemapTreeTop::uiBasemapTreeTop( uiTreeView* tv )
     : uiTreeTopItem(tv)
-    , tfs_(tfs)
 {
-    tfs_.addnotifier.notify( mCB(this,uiBasemapTreeTop,addFactoryCB) );
-    tfs_.removenotifier.notify( mCB(this,uiBasemapTreeTop,removeFactoryCB) );
 }
 
 
 uiBasemapTreeTop::~uiBasemapTreeTop()
 {
-    tfs_.addnotifier.remove( mCB(this,uiBasemapTreeTop,addFactoryCB) );
-    tfs_.removenotifier.remove( mCB(this,uiBasemapTreeTop,removeFactoryCB) );
 }
-
-
-void uiBasemapTreeTop::addFactoryCB( CallBacker* cb )
-{
-    mCBCapsuleUnpack(int,factidx,cb);
-    const int newplaceidx = tfs_.getPlacementIdx( factidx );
-    uiTreeItem* itmbefore = 0;
-    int maxidx = -1;
-    for ( int idx=0; idx<tfs_.nrFactories(); idx++ )
-    {
-	const int curidx = tfs_.getPlacementIdx( idx );
-	if ( curidx>newplaceidx || curidx<maxidx || curidx==newplaceidx )
-	    continue;
-
-	maxidx = curidx;
-    }
-    for ( int idx=0; idx<tfs_.nrFactories(); idx++ )
-    {
-	if ( tfs_.getPlacementIdx(idx) != maxidx )
-	    continue;
-
-	PtrMan<uiTreeItem> itm = tfs_.getFactory(idx)->create();
-	itmbefore = findChild( itm->name() );
-	break;
-    }
-
-    uiTreeItem* newitm = tfs_.getFactory(factidx)->create();
-    addChild( newitm, false );
-    if ( itmbefore )
-	newitm->moveItem( itmbefore );
-}
-
-
-void uiBasemapTreeTop::removeFactoryCB( CallBacker* cb )
-{
-    mCBCapsuleUnpack(int,idx,cb);
-    PtrMan<uiTreeItem> dummy = tfs_.getFactory(idx)->create();
-    const uiTreeItem* child = findChild( dummy->name() );
-    if ( !children_.isPresent(child) ) return;
-
-    removeChild( const_cast<uiTreeItem*>(child) );
-}
-
 
 
 // uiBasemapGroup
@@ -332,6 +284,21 @@ uiBasemapItem::uiBasemapItem()
 }
 
 
+// uiBasemapParentTreeItem
+bool uiBasemapParentTreeItem::showSubMenu()
+{
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 );
+    const int mnuid = mnu.exec();
+    if ( mnuid==0 )
+    {
+	BMM().add( ID() );
+    }
+
+    return true;
+}
+
+
 // uiBasemapTreeItem
 uiBasemapTreeItem::uiBasemapTreeItem( const char* nm )
     : uiTreeItem(nm)
@@ -476,7 +443,6 @@ uiBasemapManager::uiBasemapManager()
     , basemapcursor_(0)
     , treetop_(0)
     , coltabed_(0)
-    , tfs_(*new uiTreeFactorySet)
 {
     init();
 }
@@ -505,14 +471,21 @@ void uiBasemapManager::setBasemap( uiBaseMap& bm )
 uiBaseMap& uiBasemapManager::getBasemap()
 { return *basemap_; }
 
+
 void uiBasemapManager::setTreeTop( uiTreeTopItem& tt )
 {
     treetop_ = &tt;
-    for ( int idx=0; idx<tfs_.nrFactories(); idx++ )
+
+    for ( int idx=0; idx<basemapitems_.size(); idx++ )
     {
-	treetop_->addChild( tfs_.getFactory(idx)->create(), true );
+	uiBasemapParentTreeItem* itm =
+		basemapitems_[idx]->createParentTreeItem();
+	if ( !itm ) continue;
+
+	treetop_->addChild( itm, true );
     }
 }
+
 
 void uiBasemapManager::setColTabEd( uiBasemapColTabEd* cte )
 { coltabed_ = cte; }
@@ -550,6 +523,7 @@ void uiBasemapManager::addfromPar( const IOPar& treepar )
 	treeitems_.push( treeitm );
 	treetop_->addChild( treeitm, true );
     }
+
     basemap_->resetChangeFlag();
 }
 
@@ -585,7 +559,14 @@ void uiBasemapManager::add( int itemid )
 	}
 
 	treeitems_ += treeitm;
-	treetop_->addChild( treeitm, true );
+	for ( int cidx=0; cidx<treetop_->nrChildren(); cidx++ )
+	{
+	    mDynamicCastGet(uiBasemapParentTreeItem*,parent,
+			    treetop_->getChild(cidx))
+	    if ( !parent || parent->ID() != itm->ID() ) continue;
+
+	    parent->addChild( treeitm, true );
+	}
     }
 }
 

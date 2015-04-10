@@ -97,6 +97,9 @@ const char* uiBasemapGeom2DItem::iconName() const
 uiBasemapGroup* uiBasemapGeom2DItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapGeom2DGroup( p, isadd ); }
 
+uiBasemapParentTreeItem* uiBasemapGeom2DItem::createParentTreeItem()
+{ return new uiBasemapGeom2DParentTreeItem(ID()); }
+
 uiBasemapTreeItem* uiBasemapGeom2DItem::createTreeItem( const char* nm )
 { return new uiBasemapGeom2DTreeItem( nm ); }
 

@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ioman.h"
 #include "odplugin.h"
+#include "survinfo.h"
 #include "vissurvscene.h"
 
 

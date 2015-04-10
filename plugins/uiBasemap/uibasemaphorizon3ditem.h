@@ -63,6 +63,19 @@ protected:
 };
 
 
+
+mExpClass(uiBasemap) uiBasemapHorizon3DParentTreeItem :
+					public uiBasemapParentTreeItem
+{
+public:
+			uiBasemapHorizon3DParentTreeItem(int id)
+			    : uiBasemapParentTreeItem("Horizon 3D",id)	{}
+protected:
+
+};
+
+
+
 mExpClass(uiBasemap) uiBasemapHorizon3DTreeItem : public uiBasemapTreeItem
 {
 public:
@@ -74,8 +87,7 @@ protected:
     void		checkCB(CallBacker*);
     bool		showSubMenu();
     bool		handleSubMenu(int);
-    const char*		parentType() const
-			{ return typeid(uiBasemapTreeTop).name(); }
+    const char*		parentType() const;
 
     uiBasemapHorizon3DObject*	uibmobj_;
 };
@@ -93,8 +105,8 @@ public:
     int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*, bool isadd);
+    uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
-
 };
 
 #endif

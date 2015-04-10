@@ -275,6 +275,10 @@ bool uiBasemapHorizon3DTreeItem::handleSubMenu( int mnuid )
 }
 
 
+const char* uiBasemapHorizon3DTreeItem::parentType() const
+{ return typeid(uiBasemapHorizon3DParentTreeItem).name(); }
+
+
 // uiBasemapHorizon3DItem
 int uiBasemapHorizon3DItem::defaultZValue() const
 { return 0; }
@@ -283,9 +287,10 @@ const char* uiBasemapHorizon3DItem::iconName() const
 { return "basemap-horizon3d"; }
 
 uiBasemapGroup* uiBasemapHorizon3DItem::createGroup( uiParent* p, bool isadd )
-{
-    return new uiBasemapHorizon3DGroup( p, isadd );
-}
+{ return new uiBasemapHorizon3DGroup( p, isadd ); }
+
+uiBasemapParentTreeItem* uiBasemapHorizon3DItem::createParentTreeItem()
+{ return new uiBasemapHorizon3DParentTreeItem( ID() ); }
 
 uiBasemapTreeItem* uiBasemapHorizon3DItem::createTreeItem( const char* nm )
 { return new uiBasemapHorizon3DTreeItem( nm ); }
