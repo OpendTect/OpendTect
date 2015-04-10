@@ -161,6 +161,10 @@ bool uiBasemapSeisOutlineTreeItem::handleSubMenu( int mnuid )
 }
 
 
+const char* uiBasemapSeisOutlineTreeItem::parentType() const
+{ return typeid(uiBasemapSeisOutlineParentTreeItem).name(); }
+
+
 
 // uiBasemapSeisOutlineItem
 int uiBasemapSeisOutlineItem::defaultZValue() const
@@ -171,6 +175,9 @@ const char* uiBasemapSeisOutlineItem::iconName() const
 
 uiBasemapGroup* uiBasemapSeisOutlineItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapSeisOutlineGroup( p, isadd ); }
+
+uiBasemapParentTreeItem* uiBasemapSeisOutlineItem::createParentTreeItem()
+{ return new uiBasemapSeisOutlineParentTreeItem( ID() ); }
 
 uiBasemapTreeItem* uiBasemapSeisOutlineItem::createTreeItem( const char* nm )
 { return new uiBasemapSeisOutlineTreeItem( nm ); }

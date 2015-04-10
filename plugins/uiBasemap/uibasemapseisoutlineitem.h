@@ -33,6 +33,19 @@ protected:
 };
 
 
+
+mExpClass(uiBasemap) uiBasemapSeisOutlineParentTreeItem
+					: public uiBasemapParentTreeItem
+{
+public:
+			uiBasemapSeisOutlineParentTreeItem(int id)
+			    : uiBasemapParentTreeItem("Seismic Outline",id)
+			{}
+
+};
+
+
+
 mExpClass(uiBasemap) uiBasemapSeisOutlineTreeItem : public uiBasemapTreeItem
 {
 public:
@@ -43,23 +56,24 @@ public:
 protected:
     bool		showSubMenu();
     bool		handleSubMenu(int);
-    const char*		parentType() const
-			{ return typeid(uiBasemapTreeTop).name(); }
+    const char*		parentType() const;
 };
+
 
 
 mExpClass(uiBasemap) uiBasemapSeisOutlineItem : public uiBasemapItem
 {
 public:
 			mDefaultFactoryInstantiation(
-				uiBasemapItem,
-				uiBasemapSeisOutlineItem,
-				"Seismic Outline",
-				sFactoryKeyword())
+			    uiBasemapItem,
+			    uiBasemapSeisOutlineItem,
+			    "Seismic Outline",
+			    sFactoryKeyword())
 
     int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*, bool isadd);
+    uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
 
 };

@@ -90,6 +90,10 @@ uiBasemapGroup* uiBasemapRandomLineItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapRandomLineGroup( p, isadd ); }
 
 
+uiBasemapParentTreeItem* uiBasemapRandomLineItem::createParentTreeItem()
+{ return new uiBasemapRandomLineParentTreeItem( ID() ); }
+
+
 uiBasemapTreeItem* uiBasemapRandomLineItem::createTreeItem( const char* nm )
 { return new uiBasemapRandomLineTreeItem( nm ); }
 
@@ -175,3 +179,6 @@ bool uiBasemapRandomLineTreeItem::handleSubMenu( int mnuid )
     return uiBasemapTreeItem::handleSubMenu( mnuid );
 }
 
+
+const char* uiBasemapRandomLineTreeItem::parentType() const
+{ return typeid(uiBasemapRandomLineParentTreeItem).name(); }

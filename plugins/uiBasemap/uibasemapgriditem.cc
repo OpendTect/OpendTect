@@ -49,12 +49,13 @@ uiBasemapGridGroup::uiBasemapGridGroup( uiParent* p, bool isadd )
     if ( isadd )
     {
 	icxycheck_ = new uiGenInput( this, "Grid system",
-				     BoolInpSpec(true,"Inl/Crl","X/Y") );
+				     BoolInpSpec(false,"Inl/Crl","X/Y") );
 	icxycheck_->valuechanged.notify( mCB(this,uiBasemapGridGroup,icxyCB) );
     }
 
     inlxfld_ = new uiCheckBox( this, "",
 			       mCB(this,uiBasemapGridGroup,showGridLineCB) );
+    inlxfld_->setHSzPol( uiObject::Wide );
 
     inlxspacingfld_ = new uiGenInput( this, "Spacing (Start/Stop)", \
 				      DoubleInpIntervalSpec(true) );
@@ -62,6 +63,7 @@ uiBasemapGridGroup::uiBasemapGridGroup( uiParent* p, bool isadd )
 
     crlyfld_ = new uiCheckBox( this, "",
 			      mCB(this,uiBasemapGridGroup,showGridLineCB) );
+    crlyfld_->setHSzPol( uiObject::Wide );
     crlyfld_->attach( alignedBelow, inlxspacingfld_ );
 
     crlyspacingfld_ = new uiGenInput( this, "Spacing (Start/Stop)", \

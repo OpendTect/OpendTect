@@ -34,6 +34,16 @@ protected:
 
 
 
+mExpClass(uiBasemap) uiBasemapRandomLineParentTreeItem
+				: public uiBasemapParentTreeItem
+{
+public:
+			uiBasemapRandomLineParentTreeItem(int id)
+			    : uiBasemapParentTreeItem("Random line",id)
+			{}
+};
+
+
 mExpClass(uiBasemap) uiBasemapRandomLineTreeItem : public uiBasemapTreeItem
 {
 public:
@@ -46,8 +56,7 @@ protected:
 
     bool		showSubMenu();
     bool		handleSubMenu(int);
-    const char*		parentType() const
-			{ return typeid(uiBasemapTreeTop).name(); }
+    const char*		parentType() const;
 };
 
 
@@ -64,6 +73,7 @@ public:
     int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*,bool isadd);
+    uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
 };
 
