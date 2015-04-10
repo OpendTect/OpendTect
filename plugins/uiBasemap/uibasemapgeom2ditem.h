@@ -41,8 +41,7 @@ protected:
 
     bool		showSubMenu();
     bool		handleSubMenu(int);
-    const char*		parentType() const
-			{ return typeid(uiBasemapGeom2DParentTreeItem).name(); }
+    const char*		parentType() const;
 };
 
 

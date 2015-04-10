@@ -203,3 +203,9 @@ bool uiBasemapGeom2DTreeItem::handleSubMenu( int mnuid )
 
     return handled;
 }
+
+
+const char* uiBasemapGeom2DTreeItem::parentType() const
+{
+    return typeid(uiBasemapGeom2DParentTreeItem).name();
+}

@@ -15,16 +15,12 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
-mExpClass(uiBasemap) uiBasemapPickSetGroup : public uiBasemapIOObjGroup
+mExpClass(uiBasemap) uiBasemapPickSetParentTreeItem :
+					public uiBasemapParentTreeItem
 {
 public:
-			uiBasemapPickSetGroup(uiParent*,bool isadd);
-			~uiBasemapPickSetGroup();
-
-    bool		acceptOK();
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-
+			uiBasemapPickSetParentTreeItem(int id)
+			    : uiBasemapParentTreeItem("Pick Set",id)	{}
 protected:
 
 };
@@ -43,8 +39,23 @@ protected:
 
     bool		showSubMenu();
     bool		handleSubMenu(int);
-    const char*		parentType() const
-			{ return typeid(uiBasemapTreeTop).name(); }
+    const char*		parentType() const;
+};
+
+
+
+mExpClass(uiBasemap) uiBasemapPickSetGroup : public uiBasemapIOObjGroup
+{
+public:
+			uiBasemapPickSetGroup(uiParent*,bool isadd);
+			~uiBasemapPickSetGroup();
+
+    bool		acceptOK();
+    bool		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
+protected:
+
 };
 
 
@@ -61,6 +72,7 @@ public:
     int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*,bool isadd);
+    uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
 };
 

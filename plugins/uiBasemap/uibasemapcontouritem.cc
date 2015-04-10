@@ -151,6 +151,25 @@ uiObject* uiBasemapContourGroup::lastObject()
 { return lsfld_->attachObj(); }
 
 
+
+// uiBasemapContourItem
+int uiBasemapContourItem::defaultZValue() const
+{ return 100; }
+
+const char* uiBasemapContourItem::iconName() const
+{ return "basemap-contours"; }
+
+uiBasemapGroup* uiBasemapContourItem::createGroup( uiParent* p, bool isadd )
+{ return new uiBasemapContourGroup( p, isadd ); }
+
+uiBasemapParentTreeItem* uiBasemapContourItem::createParentTreeItem()
+{ return new uiBasemapContourParentTreeItem(ID()); }
+
+uiBasemapTreeItem* uiBasemapContourItem::createTreeItem( const char* nm )
+{ return new uiBasemapContourTreeItem( nm ); }
+
+
+
 // uiBasemapContourTreeItem
 uiBasemapContourTreeItem::uiBasemapContourTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
@@ -218,15 +237,8 @@ bool uiBasemapContourTreeItem::handleSubMenu( int mnuid )
     return uiBasemapTreeItem::handleSubMenu( mnuid );
 }
 
-// uiBasemapContourItem
-int uiBasemapContourItem::defaultZValue() const
-{ return 100; }
 
-const char* uiBasemapContourItem::iconName() const
-{ return "basemap-contours"; }
-
-uiBasemapGroup* uiBasemapContourItem::createGroup( uiParent* p, bool isadd )
-{ return new uiBasemapContourGroup( p, isadd ); }
-
-uiBasemapTreeItem* uiBasemapContourItem::createTreeItem( const char* nm )
-{ return new uiBasemapContourTreeItem( nm ); }
+const char* uiBasemapContourTreeItem::parentType() const
+{
+    return typeid(uiBasemapContourParentTreeItem).name();
+}

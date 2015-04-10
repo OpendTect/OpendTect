@@ -17,6 +17,33 @@ ________________________________________________________________________
 
 class uiSelLineStyle;
 
+mExpClass(uiBasemap) uiBasemapContourParentTreeItem :
+					public uiBasemapParentTreeItem
+{
+public:
+			uiBasemapContourParentTreeItem(int id)
+			    : uiBasemapParentTreeItem("Contour",id)	{}
+protected:
+
+};
+
+
+
+mExpClass(uiBasemap) uiBasemapContourTreeItem : public uiBasemapTreeItem
+{
+public:
+			uiBasemapContourTreeItem(const char*);
+			~uiBasemapContourTreeItem();
+    bool		usePar(const IOPar&);
+
+protected:
+    bool		showSubMenu();
+    bool		handleSubMenu(int);
+    const char*		parentType() const;
+};
+
+
+
 mExpClass(uiBasemap) uiBasemapContourGroup : public uiBasemapGroup
 {
 public:
@@ -43,20 +70,6 @@ private:
 };
 
 
-mExpClass(uiBasemap) uiBasemapContourTreeItem : public uiBasemapTreeItem
-{
-public:
-			uiBasemapContourTreeItem(const char*);
-			~uiBasemapContourTreeItem();
-    bool		usePar(const IOPar&);
-
-protected:
-    bool		showSubMenu();
-    bool		handleSubMenu(int);
-    const char*		parentType() const
-			{ return typeid(uiBasemapTreeTop).name(); }
-};
-
 
 mExpClass(uiBasemap) uiBasemapContourItem : public uiBasemapItem
 {
@@ -70,6 +83,7 @@ public:
     int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*, bool isadd);
+    uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
 
 };

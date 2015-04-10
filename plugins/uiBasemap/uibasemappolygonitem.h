@@ -15,16 +15,12 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
-mExpClass(uiBasemap) uiBasemapPolygonGroup : public uiBasemapIOObjGroup
+mExpClass(uiBasemap) uiBasemapPolygonParentTreeItem :
+					public uiBasemapParentTreeItem
 {
 public:
-			uiBasemapPolygonGroup(uiParent*,bool isadd);
-			~uiBasemapPolygonGroup();
-
-    bool		acceptOK();
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-
+			uiBasemapPolygonParentTreeItem(int id)
+			    : uiBasemapParentTreeItem("Polygon",id)	{}
 protected:
 
 };
@@ -43,8 +39,23 @@ protected:
 
     bool		showSubMenu();
     bool		handleSubMenu(int);
-    const char*		parentType() const
-			{ return typeid(uiBasemapTreeTop).name(); }
+    const char*		parentType() const;
+};
+
+
+
+mExpClass(uiBasemap) uiBasemapPolygonGroup : public uiBasemapIOObjGroup
+{
+public:
+			uiBasemapPolygonGroup(uiParent*,bool isadd);
+			~uiBasemapPolygonGroup();
+
+    bool		acceptOK();
+    bool		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
+protected:
+
 };
 
 
@@ -61,6 +72,7 @@ public:
     int			defaultZValue() const;
     const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*,bool isadd);
+    uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
 };
 

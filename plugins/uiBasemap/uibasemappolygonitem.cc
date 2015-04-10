@@ -75,6 +75,9 @@ const char* uiBasemapPolygonItem::iconName() const
 uiBasemapGroup* uiBasemapPolygonItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapPolygonGroup( p, isadd ); }
 
+uiBasemapParentTreeItem* uiBasemapPolygonItem::createParentTreeItem()
+{ return new uiBasemapPolygonParentTreeItem(ID()); }
+
 uiBasemapTreeItem* uiBasemapPolygonItem::createTreeItem( const char* nm )
 { return new uiBasemapPolygonTreeItem( nm ); }
 
@@ -157,3 +160,8 @@ bool uiBasemapPolygonTreeItem::handleSubMenu( int mnuid )
     return handled;
 }
 
+
+const char* uiBasemapPolygonTreeItem::parentType() const
+{
+    return typeid(uiBasemapPolygonParentTreeItem).name();
+}

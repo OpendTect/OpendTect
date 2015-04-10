@@ -75,6 +75,9 @@ const char* uiBasemapPickSetItem::iconName() const
 uiBasemapGroup* uiBasemapPickSetItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapPickSetGroup( p, isadd ); }
 
+uiBasemapParentTreeItem* uiBasemapPickSetItem::createParentTreeItem()
+{ return new uiBasemapPickSetParentTreeItem(ID()); }
+
 uiBasemapTreeItem* uiBasemapPickSetItem::createTreeItem( const char* nm )
 { return new uiBasemapPickSetTreeItem( nm ); }
 
@@ -155,4 +158,10 @@ bool uiBasemapPickSetTreeItem::handleSubMenu( int mnuid )
 	handled = false;
 
     return handled;
+}
+
+
+const char* uiBasemapPickSetTreeItem::parentType() const
+{
+    return typeid(uiBasemapPickSetParentTreeItem).name();
 }
