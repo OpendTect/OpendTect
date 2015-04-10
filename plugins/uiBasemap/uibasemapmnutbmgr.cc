@@ -16,7 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemapcoltabed.h"
 #include "uibasemapiomgr.h"
 #include "uibasemapscalebar.h"
+#include "uibasemapsettings.h"
 #include "uibasemapwin.h"
+#include "uichangesurfacedlg.h"
 #include "uicolortable.h"
 #include "uigeninput.h"
 #include "uigraphicsitemimpl.h"
@@ -99,6 +101,10 @@ void uiBaseMapMnuTBMgr::createFileMenu()
     filemnu_->insertAction( *saveitm_ );
     filemnu_->insertAction( *saveasitm_ );
 
+    const MenuItem settings( uiStrings::sSettings(false),
+			     mCB(this,uiBaseMapMnuTBMgr,settingsCB) );
+    filemnu_->insertAction( settings );
+
     const MenuItem closeitm( uiStrings::sClose(),
 			     mCB(this,uiBaseMapMnuTBMgr,closeCB) );
     filemnu_->insertAction( closeitm );
@@ -107,8 +113,13 @@ void uiBaseMapMnuTBMgr::createFileMenu()
 
 void uiBaseMapMnuTBMgr::createProcessingMenu()
 {
-    const MenuItem griditm( tr("Gridding"), mCB(this,uiBaseMapMnuTBMgr,gridCB));
+    const MenuItem griditm( tr("Gridding"),
+			    mCB(this,uiBaseMapMnuTBMgr,gridCB));
     processingmnu_->insertAction( griditm );
+
+    const MenuItem filtitm( tr("Filtering"),
+			    mCB(this,uiBaseMapMnuTBMgr,filtCB));
+    processingmnu_->insertAction( filtitm );
 }
 
 
@@ -313,6 +324,13 @@ void uiBaseMapMnuTBMgr::save( bool saveas )
 }
 
 
+void uiBaseMapMnuTBMgr::settingsCB( CallBacker* )
+{
+    uiBasemapSettingsDlg dlg( &mainwin_, basemapview_ );
+    if ( !dlg.go() ) return;
+}
+
+
 void uiBaseMapMnuTBMgr::closeCB( CallBacker* )
 {
     save( !isstored_ );
@@ -323,6 +341,13 @@ void uiBaseMapMnuTBMgr::closeCB( CallBacker* )
 void uiBaseMapMnuTBMgr::gridCB( CallBacker* )
 {
     uiHorizonInterpolDlg dlg( &mainwin_, 0, false );
+    dlg.go();
+}
+
+
+void uiBaseMapMnuTBMgr::filtCB( CallBacker* )
+{
+    uiFilterHorizonDlg dlg( &mainwin_, 0 );
     dlg.go();
 }
 

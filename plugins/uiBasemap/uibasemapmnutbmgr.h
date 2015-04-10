@@ -49,8 +49,10 @@ private:
     void		removeCB(CallBacker*);
     void		saveCB(CallBacker*);
     void		saveAsCB(CallBacker*);
+    void		settingsCB(CallBacker*);
     void		closeCB(CallBacker*);
     void		gridCB(CallBacker*);
+    void		filtCB(CallBacker*);
 
     void		viewCB(CallBacker*);
     void		vworientationCB(CallBacker*);
