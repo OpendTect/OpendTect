@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: emregion.cc 38690 2015-03-30 18:00:30Z nanne.hemstra@dgbes.com $";
 
 
 #include "emregion.h"
@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emfault3d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "faulttrace.h"
 #include "ioman.h"
 
 
@@ -222,7 +223,10 @@ void RegionHor3DBoundary::fillPar( IOPar& par ) const
 bool RegionHor3DBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
-    par.get( sKey::ID(), key_ );
+
+    MultiID key = MultiID::udf();
+    par.get( sKey::ID(), key );
+    setKey( key );
     return true;
 }
 
@@ -231,6 +235,7 @@ bool RegionHor3DBoundary::usePar( const IOPar& par )
 RegionFaultBoundary::RegionFaultBoundary( const MultiID& key )
     : RegionBoundary()
     , flt_(0)
+    , prov_(*new FaultTrcDataProvider)
 {
     setKey( key );
 }
@@ -238,6 +243,7 @@ RegionFaultBoundary::RegionFaultBoundary( const MultiID& key )
 
 RegionFaultBoundary::~RegionFaultBoundary()
 {
+    delete &prov_;
     if ( flt_ )
 	flt_->unRef();
 }
@@ -256,21 +262,50 @@ void RegionFaultBoundary::setKey( const MultiID& key )
 
 bool RegionFaultBoundary::init( TaskRunner* taskrunner )
 {
+    if ( flt_ ) flt_->unRef();
     RefMan<EM::EMObject> emobj =
 	EM::EMM().loadIfNotFullyLoaded( key_, taskrunner );
     mDynamicCast(EM::Fault3D*,flt_,emobj.ptr())
     if ( flt_ ) flt_->ref();
+
+    TypeSet<MultiID> keys;  keys.add( key_ );
+    if ( !prov_.init(keys,TrcKeySampling(),taskrunner) )
+	return false;
+
     return flt_;
 }
 
 
 bool RegionFaultBoundary::onRightSide( const TrcKey& tk, float z ) const
-{ return false; }
+{
+    const FaultTrace* inltrc = prov_.getFaultTrace( 0, tk.lineNr(), true );
+    const FaultTrace* crltrc = prov_.getFaultTrace( 0, tk.trcNr(), false );
+    if ( !inltrc && !crltrc )
+	return false;
+
+    const bool onposcrl = inltrc ? inltrc->isOnPosSide( tk.pos(), z ) : false;
+    const bool onposinl = crltrc ? crltrc->isOnPosSide( tk.pos(), z ) : false;
+
+    if ( side_==0 && onposinl ) return true;
+    if ( side_==1 && onposcrl ) return true;
+    if ( side_==2 && !onposinl ) return true;
+    if ( side_==3 && !onposcrl ) return true;
+
+    return false;
+}
+
 
 void RegionFaultBoundary::getSideStrs( uiStringSet& strs ) const
 {
-    strs.add("N"); strs.add("NE"); strs.add("E"); strs.add("SE");
-    strs.add("S"); strs.add("SW"); strs.add("W"); strs.add("NW");
+    strs.add("Pos Inl"); strs.add("Pos Crl");
+    strs.add("Neg Inl"); strs.add("Neg Crl");
+
+/*
+    strs.add("Pos Inl/Crl");
+    strs.add("Neg Inl/Pos Crl");
+    strs.add("Neg Inl/Crl");
+    strs.add("Pos Inl/Neg Crl");
+*/
 }
 
 
@@ -285,7 +320,10 @@ void RegionFaultBoundary::fillPar( IOPar& par ) const
 bool RegionFaultBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
-    par.get( sKey::ID(), key_ );
+
+    MultiID key = MultiID::udf();
+    par.get( sKey::ID(), key );
+    setKey( key );
     return true;
 }
 
@@ -344,7 +382,11 @@ void RegionPolygonBoundary::fillPar( IOPar& par ) const
 bool RegionPolygonBoundary::usePar( const IOPar& par )
 {
     par.get( sSide(), side_ );
-    par.get( sKey::ID(), key_ );
+
+    MultiID key = MultiID::udf();
+    par.get( sKey::ID(), key );
+    setKey( key );
+
     return true;
 }
 
@@ -387,10 +429,10 @@ bool Region3D::hasBoundary( const MultiID& key ) const
     {
 	const RegionBoundary* bd = boundaries_[idx];
 	mDynamicCastGet(const RegionHor3DBoundary*,horbd,bd)
-	if ( horbd && horbd->key_==key ) return true;
+	if ( horbd && horbd->key()==key ) return true;
 
 	mDynamicCastGet(const RegionFaultBoundary*,fltbd,bd)
-	if ( fltbd && fltbd->key_==key ) return true;
+	if ( fltbd && fltbd->key()==key ) return true;
     }
 
     return false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		October 2014
- RCS:		$Id$
+ RCS:		$Id: emregion.h 38690 2015-03-30 18:00:30Z nanne.hemstra@dgbes.com $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "trckeyzsampling.h"
 
+class FaultTrcDataProvider;
 class TaskRunner;
 
 namespace EM
@@ -79,113 +80,119 @@ protected:
 mExpClass(EarthModel) RegionInlBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionInlBoundary)
 public:
-		RegionInlBoundary( int inl=mUdf(int) )
-		    : inl_(inl)
-		{}
+			RegionInlBoundary( int inl=mUdf(int) )
+			    : inl_(inl)
+			{}
 
-    const char*	type() const;
-    void	getSideStrs(uiStringSet&) const;
-    bool	onRightSide(const TrcKey&,float z) const;
+    const char*		type() const;
+    void		getSideStrs(uiStringSet&) const;
+    bool		onRightSide(const TrcKey&,float z) const;
 
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
-    int		inl_;
+    int			inl_;
 };
 
 
 mExpClass(EarthModel) RegionCrlBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionCrlBoundary)
 public:
-		RegionCrlBoundary( int crl=mUdf(int) )
-		    : crl_(crl)
-		{}
+			RegionCrlBoundary( int crl=mUdf(int) )
+			    : crl_(crl)
+			{}
 
-    const char*	type() const;
-    void	getSideStrs(uiStringSet&) const;
-    bool	onRightSide(const TrcKey&,float z) const;
+    const char*		type() const;
+    void		getSideStrs(uiStringSet&) const;
+    bool		onRightSide(const TrcKey&,float z) const;
 
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
-    int		crl_;
+    int			crl_;
 };
 
 
 mExpClass(EarthModel) RegionZBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionZBoundary)
 public:
-		RegionZBoundary( float z=mUdf(float) )
-		    : z_(z)
-		{}
+			RegionZBoundary( float z=mUdf(float) )
+			    : z_(z) {}
 
-    const char*	type() const;
-    void	getSideStrs(uiStringSet&) const;
-    bool	onRightSide(const TrcKey&,float z) const;
+    const char*		type() const;
+    void		getSideStrs(uiStringSet&) const;
+    bool		onRightSide(const TrcKey&,float z) const;
 
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
-    float	z_;
+    float		z_;
 };
 
 
 mExpClass(EarthModel) RegionHor3DBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionHor3DBoundary)
 public:
-		RegionHor3DBoundary(const MultiID&);
-		~RegionHor3DBoundary();
+			RegionHor3DBoundary(const MultiID&);
+			~RegionHor3DBoundary();
 
-    const char*	type() const;
-    void	setKey(const MultiID&);
-    bool	hasName() const			{ return true; }
-    bool	init(TaskRunner*);
-    void	getSideStrs(uiStringSet&) const;
-    bool	onRightSide(const TrcKey&,float z) const;
+    const char*		type() const;
+    void		setKey(const MultiID&);
+    const MultiID&	key() const		{ return key_; }
+    bool		hasName() const			{ return true; }
+    bool		init(TaskRunner*);
+    void		getSideStrs(uiStringSet&) const;
+    bool		onRightSide(const TrcKey&,float z) const;
 
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
-    MultiID			key_;
-    EM::Horizon3D*		hor_;
+protected:
+    MultiID		key_;
+    EM::Horizon3D*	hor_;
 };
 
 
 mExpClass(EarthModel) RegionFaultBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionFaultBoundary)
 public:
-		RegionFaultBoundary(const MultiID&);
-		~RegionFaultBoundary();
+			RegionFaultBoundary(const MultiID&);
+			~RegionFaultBoundary();
 
-    const char*	type() const;
-    void	setKey(const MultiID&);
-    bool	hasName() const			{ return true; }
-    bool	init(TaskRunner*);
-    void	getSideStrs(uiStringSet&) const;
-    bool	onRightSide(const TrcKey&,float z) const;
+    const char*		type() const;
+    void		setKey(const MultiID&);
+    const MultiID&	key() const		{ return key_; }
+    bool		hasName() const			{ return true; }
+    bool		init(TaskRunner*);
+    void		getSideStrs(uiStringSet&) const;
+    bool		onRightSide(const TrcKey&,float z) const;
 
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
+protected:
     MultiID			key_;
     const EM::Fault*		flt_;
+    FaultTrcDataProvider&	prov_;
+
 };
 
 
 mExpClass(EarthModel) RegionPolygonBoundary : public RegionBoundary
 { mODTextTranslationClass(RegionPolygonBoundary)
 public:
-		RegionPolygonBoundary(const MultiID&);
-		~RegionPolygonBoundary();
+			RegionPolygonBoundary(const MultiID&);
+			~RegionPolygonBoundary();
 
-    const char*	type() const;
-    void	setKey(const MultiID&);
-    bool	hasName() const			{ return true; }
-    void	getSideStrs(uiStringSet&) const;
-    bool	onRightSide(const TrcKey&,float z) const;
+    const char*		type() const;
+    void		setKey(const MultiID&);
+    const MultiID&	key() const		{ return key_; }
+    bool		hasName() const			{ return true; }
+    void		getSideStrs(uiStringSet&) const;
+    bool		onRightSide(const TrcKey&,float z) const;
 
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
     MultiID			key_;
     const ODPolygon<float>*	polygon_;
