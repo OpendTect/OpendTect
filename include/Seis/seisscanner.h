@@ -7,30 +7,34 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id$
+ RCS:		$Id: seisscanner.h 37589 2014-12-17 09:12:16Z bart.degroot@dgbes.com $
 ________________________________________________________________________
 
 -*/
 
 #include "seismod.h"
+#include "dataclipper.h"
+#include "executor.h"
 #include "position.h"
 #include "samplingdata.h"
-#include "executor.h"
 #include "seistype.h"
-#include "dataclipper.h"
+#include "statruncalc.h"
 #include "uistring.h"
+
 class IOObj;
-class SeisTrc;
-class TrcKeyZSampling;
-class SeisTrcReader;
 class PosGeomDetector;
+class SeisTrc;
+class SeisTrcReader;
+class TrcKeyZSampling;
+
+namespace Pos { class Provider; }
 namespace PosInfo { class Detector; }
+
 
 #define mSeisScanMaxNrDistribVals 50000
 
-
 mExpClass(Seis) SeisScanner : public Executor
-{ mODTextTranslationClass(SeisScanner);
+{ mODTextTranslationClass(SeisScanner)
 public:
 
     			SeisScanner(const IOObj&,Seis::GeomType,
@@ -81,6 +85,37 @@ protected:
     const char*		getClipRgStr(float) const;
 };
 
+mExpClass(Seis) SeisStatsCalc : public Executor
+{ mODTextTranslationClass(SeisStatsCalc)
+public:
+			SeisStatsCalc(const IOObj&,const Stats::CalcSetup&,
+				      const Pos::Provider* =0,
+				      const TypeSet<int>* components=0);
+			~SeisStatsCalc();
+
+    const Stats::RunCalc<float>&	getStats(int) const;
+
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return tr("Traces read"); }
+    od_int64		nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const		{ return totalnr_; }
+    int			nextStep();
+
+protected:
+
+    ObjectSet<Stats::RunCalc<float> >	stats_;
+
+    IOObj*		ioobj_;
+    SeisTrcReader&	rdr_;
+    TypeSet<int>	components_;
+    Pos::Provider*	prov_;
+
+    int			queueid_;
+
+    od_int64		totalnr_;
+    od_int64		nrdone_;
+    uiString		msg_;
+};
 
 #endif
 
