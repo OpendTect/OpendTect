@@ -664,9 +664,10 @@ int OS::CommandLauncher::catchError()
 	return 1;
     }
     return process_->exitCode();
-#endif
+#else
 
     return 0;
+#endif
 }
 
 
