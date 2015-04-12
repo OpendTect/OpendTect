@@ -92,10 +92,10 @@ public:
 				 float& imgz,bool forward) const;
 
     float		getZValFor(const BinID&) const;
-    bool                isOnPosSide(const BinID&,float) const;
+    bool		isOnPosSide(const BinID&,float) const;
     void		addValue(int id,const Coord3&)	{}
     void		computeRange();
-    bool                includes(const BinID&) const;
+    bool		includes(const BinID&) const;
     bool		isOK() const;
     bool		isOnFault(const BinID&,float z,float threshold) const;
 			// threshold dist in measured in BinID units
@@ -230,12 +230,12 @@ public:
 
     bool		is2D() const		{ return is2d_; }
     int			nrFaults() const;
-    TrcKeySampling		range(int) const;
+    TrcKeySampling	range(int) const;
     int			nrSticks(int fltidx) const;
     bool		isEditedOnCrl(int fltidx) const;
 
     bool		hasFaults(const BinID&) const;
-    const FaultTrace*	getFaultTrace(int,int,bool) const;
+    const FaultTrace*	getFaultTrace(int fltidx,int trcnr,bool isinl) const;
     const FaultTrace*	getFaultTrace2D(int fltidx,int stickidx) const;
     bool		isCrossingFault(const BinID& b1,float z1,
 					const BinID& b2,float z2) const;
