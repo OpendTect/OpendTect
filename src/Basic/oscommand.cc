@@ -666,6 +666,7 @@ int OS::CommandLauncher::catchError()
     return process_->exitCode();
 #endif
 
+    return 0;
 }
 
 
