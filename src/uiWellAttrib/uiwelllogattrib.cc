@@ -46,6 +46,7 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
     uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Select Log") );
     llb->setStretch( 1, 1 );
     logsfld_ = llb->box();
+    logsfld_->setHSzPol( uiObject::Wide );
     llb->attach( alignedBelow, wellfld_ );
 
     sampfld_ = new uiGenInput( this, tr("Log resampling method"),
