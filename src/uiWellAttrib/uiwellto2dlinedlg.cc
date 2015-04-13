@@ -184,9 +184,13 @@ bool uiWellTo2DLineDlg::acceptOK( CallBacker* )
 }
 
 
-void uiWellTo2DLineDlg::get2DLineID( Pos::GeomID& geomid,
-				   BufferString& lnm ) const
+Pos::GeomID uiWellTo2DLineDlg::get2DLineID() const
 {
-    lnm = linenmfld_->text();
-    geomid = Survey::GM().getGeomID( lnm );
+    return Survey::GM().getGeomID( linenmfld_->text() );
+}
+
+
+const IOObj* uiWellTo2DLineDlg::get2DDataSetObj() const
+{
+    return randto2dlinefld_->getOutputIOObj();
 }

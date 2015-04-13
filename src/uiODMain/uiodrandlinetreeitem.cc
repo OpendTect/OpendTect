@@ -250,7 +250,6 @@ void uiODRandomLineParentTreeItem::genRandLine( int opt )
 
 void uiODRandomLineParentTreeItem::genRandLineFromWell()
 {
-    applMgr()->wellServer()->setSceneID( sceneID() );
     applMgr()->wellServer()->selectWellCoordsForRdmLine();
     applMgr()->wellServer()->randLineDlgClosed.notify(
 	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWell) );

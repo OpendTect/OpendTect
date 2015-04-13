@@ -21,9 +21,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwellattribxplot.h"
 #include "uiwellimpsegyvsp.h"
 #include "uiwelltiemgrdlg.h"
+#include "uiwellto2dlinedlg.h"
 
 #include "attribdescset.h"
 #include "datapointset.h"
+#include "ioobj.h"
 #include "ioman.h"
 #include "nlamodel.h"
 #include "ptrman.h"
@@ -35,6 +37,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiesetup.h"
 
 
+int uiWellAttribPartServer::evPreview2DFromWells()	{ return 0; }
+int uiWellAttribPartServer::evShow2DFromWells()		{ return 1; }
+int uiWellAttribPartServer::evCleanPreview()		{ return 2; }
+
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , attrset_(new Attrib::DescSet(false)) //Default, set afterwards
@@ -43,6 +49,7 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , xplotwin3d_(0)
     , dpsdispmgr_(0)
     , welltiedlg_(0)
+    , wellto2ddlg_(0)
     , cursegyread_(0)
     , welltiedlgopened_(false)
 {
@@ -77,6 +84,13 @@ void uiWellAttribPartServer::cleanUp()
 	welltiedlg_->delWins();
 	delete welltiedlg_; welltiedlg_ = 0;
     }
+
+    if ( wellto2ddlg_ )
+    {
+	wellto2ddlg_->wantspreview_.remove(
+		mCB(this,uiWellAttribPartServer,previewWellto2DLine) );
+	delete wellto2ddlg_; wellto2ddlg_ = 0;
+    }
 }
 
 
@@ -90,6 +104,59 @@ void uiWellAttribPartServer::setAttribSet( const Attrib::DescSet& ads )
 void uiWellAttribPartServer::setNLAModel( const NLAModel* mdl )
 {
     nlamodel_ = mdl;
+}
+
+
+void uiWellAttribPartServer::previewWellto2DLine( CallBacker* )
+{
+    sendEvent( evPreview2DFromWells() );
+}
+
+
+bool uiWellAttribPartServer::create2DFromWells( MultiID& seisid,
+						Pos::GeomID& geomid )
+{
+    if ( !wellto2ddlg_ )
+    {
+	wellto2ddlg_  = new uiWellTo2DLineDlg( parent() );
+	wellto2ddlg_->wantspreview_.notify(
+		mCB(this,uiWellAttribPartServer,previewWellto2DLine) );
+	wellto2ddlg_->windowClosed.notify(
+		mCB(this,uiWellAttribPartServer,wellTo2DDlgClosed) );
+    }
+
+    if ( wellto2ddlg_->go() )
+    {
+	seisid = wellto2ddlg_->get2DDataSetObj()->key();
+	geomid = wellto2ddlg_->get2DLineID();
+	if ( wellto2ddlg_->dispOnCreation() )
+	    sendEvent( evShow2DFromWells() );
+	return true;
+    }
+
+    return false;
+}
+
+
+void uiWellAttribPartServer::wellTo2DDlgClosed( CallBacker* )
+{
+    sendEvent( evCleanPreview() );
+}
+
+
+Pos::GeomID uiWellAttribPartServer::new2DFromWellGeomID() const
+{
+    return wellto2ddlg_ ? wellto2ddlg_->get2DLineID()
+			: Survey::GeometryManager::cUndefGeomID();
+}
+
+
+bool uiWellAttribPartServer::getPrev2DFromWellCoords( TypeSet<Coord>& coords )
+{
+    if ( !wellto2ddlg_ )
+	return false;
+    wellto2ddlg_->getCoordinates( coords );
+    return true;
 }
 
 

@@ -81,9 +81,6 @@ public:
     bool			storeWell(const TypeSet<Coord3>&,const char* nm,
 					  MultiID&,bool addwellhead=false);
 
-    void			setSceneID( int id )	{ cursceneid_ = id; }
-    int				getSceneID() const	{ return cursceneid_; }
-
     static int		        evPreviewRdmLine();
     static int			evCleanPreview();
     static int			evDisplayWell();
@@ -100,7 +97,6 @@ protected:
 
     BufferStringSet		crwellids_; // for uiSimpleMultiWellCreate
 
-    int				cursceneid_;
     bool			disponcreation_;
     const char*			multiid_;
     bool			allapplied_;
