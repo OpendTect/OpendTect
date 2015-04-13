@@ -49,7 +49,6 @@ protected:
 					       const BufferString& attribnm="",
 					       const bool steering=false,
 					       const bool stored=false);
-    void			useStoredDispPars(const Attrib::SelSpec&);
 
     void			checkCB(CallBacker*);
     void			dataChangedCB(CallBacker*);

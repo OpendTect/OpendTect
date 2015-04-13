@@ -28,6 +28,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
+#include "filepath.h"
+#include "ioobj.h"
 #include "mouseevent.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
@@ -558,6 +560,30 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
     const TypeSet<DataPack::ID> dpids = createDataPacksFromBIVSet(
 					      &data->bivSet(), tkzs, userrefs );
     return dpids.size() ? dpids[0] : DataPack::cNoID();
+}
+
+
+void uiODViewer2D::useStoredDispPars( bool wva )
+{
+    PtrMan<IOObj> ioobj = appl_.applMgr().attrServer()->getIOObj(selSpec(wva));
+    if ( ioobj )
+    {
+	FilePath fp( ioobj->fullUserExpr(true) );
+	fp.setExtension( "par" );
+	IOPar iop;
+	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
+	{
+	    ColTab::MapperSetup mapper;
+	    mapper.usePar( iop );
+	    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
+	    {
+		uiFlatViewer& vwr = viewwin()->viewer( ivwr );
+		FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
+		wva ? ddp.wva_.mappersetup_ : ddp.vd_.mappersetup_ = mapper;
+		if ( !wva ) ddp.vd_.ctab_ = iop.find( sKey::Name() );
+	    }
+	}
+    }
 }
 
 

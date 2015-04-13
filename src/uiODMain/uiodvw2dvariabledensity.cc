@@ -25,9 +25,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
-#include "coltabmapper.h"
 #include "coltabsequence.h"
-#include "filepath.h"
 #include "ioobj.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
@@ -307,7 +305,11 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	createDataPack( selas, attrbnm.buf(), steering, stored );
     if ( dpid == DataPack::cNoID() ) return false;
 
-    useStoredDispPars( selas );
+    viewer2D()->setSelSpec( &selas, false );
+    viewer2D()->useStoredDispPars( false );
+    const ColTab::Sequence seq( vwr.appearance().ddpars_.vd_.ctab_ );
+    displayMiniCtab( &seq );
+
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	FlatView::DataDispPars& ddpars =
@@ -315,7 +317,6 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	ddpars.vd_.show_ = true;
     }
 
-    viewer2D()->setSelSpec( &selas, false );
     viewer2D()->setUpView( dpid, false );
     return true;
 }
@@ -376,37 +377,6 @@ DataPack::ID uiODVW2DVariableDensityTreeItem::createDataPack(
     }
 
     return viewer2D()->createDataPack( selas );
-}
-
-
-void uiODVW2DVariableDensityTreeItem::useStoredDispPars(
-				const Attrib::SelSpec& selspec )
-{
-    PtrMan<IOObj> ioobj = applMgr()->attrServer()->getIOObj( selspec );
-    if ( ioobj )
-    {
-	FilePath fp( ioobj->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	IOPar iop;
-	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
-	{
-	    ColTab::Sequence seq( 0 );
-	    const char* ctname = iop.find( sKey::Name() );
-	    seq = ColTab::Sequence( ctname );
-	    displayMiniCtab( &seq );
-
-	    ColTab::MapperSetup mapper;
-	    mapper.usePar( iop );
-
-	    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-	    {
-		FlatView::DataDispPars& ddp =
-		    viewer2D()->viewwin()->viewer(ivwr).appearance().ddpars_;
-		ddp.vd_.ctab_ = ctname;
-		ddp.vd_.mappersetup_ = mapper;
-	    }
-	}
-    }
 }
 
 

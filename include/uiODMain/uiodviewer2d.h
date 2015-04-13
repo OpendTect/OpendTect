@@ -84,6 +84,7 @@ public:
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
+    void			useStoredDispPars(bool wva);
 
     ZAxisTransform*		getZAxisTransform() const
 				{ return datatransform_; }

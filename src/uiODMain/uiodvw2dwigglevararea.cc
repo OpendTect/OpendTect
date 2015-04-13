@@ -20,12 +20,11 @@ ________________________________________________________________________
 #include "uiodviewer2dmgr.h"
 #include "uistrings.h"
 #include "uitreeview.h"
-#include "filepath.h"
-#include "ioobj.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "ioobj.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
@@ -246,7 +245,8 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	createDataPack( selas, attrbnm.buf(), steering, stored );
     if ( dpid == DataPack::cNoID() ) return false;
 
-    useStoredDispPars( selas );
+    viewer2D()->setSelSpec( &selas, true );
+    viewer2D()->useStoredDispPars( true );
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	FlatView::DataDispPars& ddpars =
@@ -313,31 +313,6 @@ DataPack::ID uiODVW2DWiggleVarAreaTreeItem::createDataPack(
     }
 
     return viewer2D()->createDataPack( selas );
-}
-
-
-void uiODVW2DWiggleVarAreaTreeItem::useStoredDispPars(
-					const Attrib::SelSpec& selspec )
-{
-    PtrMan<IOObj> ioobj = applMgr()->attrServer()->getIOObj( selspec );
-    if ( ioobj )
-    {
-	FilePath fp( ioobj->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	IOPar iop;
-	if ( iop.read(fp.fullPath(),sKey::Pars()) && !iop.isEmpty() )
-	{
-	    ColTab::MapperSetup mapper;
-	    mapper.usePar( iop );
-
-	    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
-	    {
-		FlatView::DataDispPars& ddp =
-		    viewer2D()->viewwin()->viewer(ivwr).appearance().ddpars_;
-		ddp.wva_.mappersetup_ = mapper;
-	    }
-	}
-    }
 }
 
 
