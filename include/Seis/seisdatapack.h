@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Mahant Mothey
  Date:		February 2015
- RCS:		$Id$
+ RCS:		$Id: seisdatapack.h 38554 2015-03-18 09:20:03Z mahant.mothey@dgbes.com $
 ________________________________________________________________________
 
 -*/
@@ -92,44 +92,74 @@ protected:
 
 
 /*!
-\brief FlatDataPack for 2D and 3D seismic data.
+\brief Base class for RegularFlatDataPack and RandomFlatDataPack.
 */
 
-mExpClass(Seis) RegularFlatDataPack : public FlatDataPack
+mExpClass(Seis) SeisFlatDataPack : public FlatDataPack
 {
 public:
-				RegularFlatDataPack(
-					const RegularSeisDataPack&,int comp);
-				~RegularFlatDataPack();
+				~SeisFlatDataPack();
 
     int				nrTrcs() const
 				{ return source_.nrTrcs(); }
     TrcKey			getTrcKey( int trcidx ) const
 				{ return source_.getTrcKey(trcidx); }
+    const SeisDataPack&		getSourceDataPack() const
+				{ return source_; }
+
+    virtual bool		isVertical() const			= 0;
+    virtual bool		is2D() const				= 0;
+
+    virtual const TrcKeyPath&	getPath() const				= 0;
+				//!< Will be empty if isVertical() is false.
+				//!< Example: Timeslices.
+
+    bool			isAltDim0InInt(const char* keystr) const;
+    void			getAuxInfo(int i0,int i1,IOPar&) const;
+
+    const ZDomain::Info&	zDomain() const
+				{ return source_.zDomain(); }
+    float			nrKBytes() const;
+
+protected:
+
+				SeisFlatDataPack(const SeisDataPack&,int comp);
+
+    virtual void		setSourceData()				= 0;
+
+    const SeisDataPack&		source_;
+    int				comp_;
+};
+
+
+/*!
+\brief FlatDataPack for 2D and 3D seismic data.
+*/
+
+mExpClass(Seis) RegularFlatDataPack : public SeisFlatDataPack
+{
+public:
+				RegularFlatDataPack(
+					const RegularSeisDataPack&,int comp);
 
     bool			isVertical() const
 				{ return dir_ != TrcKeyZSampling::Z; }
-    bool			is2D() const
-				{ return source_.is2D(); }
-    const RegularSeisDataPack&	getSourceDataPack() const
-				{ return source_; }
+    bool			is2D() const;
+
+    const TrcKeyPath&		getPath() const		{ return path_; }
 
     const TrcKeyZSampling&	sampling() const	{ return sampling_; }
     Coord3			getCoord(int i0,int i1) const;
 
-    const ZDomain::Info&	zDomain() const
-				{ return source_.zDomain(); }
+    void			getAltDim0Keys(BufferStringSet&) const;
 
-    float			nrKBytes() const;
-
-private:
+protected:
 
     void			setSourceData();
 
-    const RegularSeisDataPack&	source_;
+    TrcKeyPath			path_;
     const TrcKeyZSampling&	sampling_;
     TrcKeyZSampling::Dir	dir_;
-    int				comp_;
 };
 
 
@@ -137,37 +167,26 @@ private:
 \brief FlatDataPack for random lines.
 */
 
-mExpClass(Seis) RandomFlatDataPack : public FlatDataPack
+mExpClass(Seis) RandomFlatDataPack : public SeisFlatDataPack
 {
 public:
 				RandomFlatDataPack(
 					const RandomSeisDataPack&,int comp);
-				~RandomFlatDataPack();
 
-    int				nrTrcs() const		{ return path_.size(); }
-    const TrcKey&		getTrcKey( int trcidx ) const
-				{ return path_[trcidx]; }
+    bool			isVertical() const	{ return true; }
+    bool			is2D() const		{ return false; }
 
-    const RandomSeisDataPack&	getSourceDataPack() const
-				{ return source_; }
+    const TrcKeyPath&		getPath() const		{ return path_; }
 
     const StepInterval<float>&	getZRange() const	{ return zsamp_; }
-    const TrcKeyPath&		getPath() const		{ return path_; }
     Coord3			getCoord(int i0,int i1) const;
 
-    const ZDomain::Info&	zDomain() const
-				{ return source_.zDomain(); }
-
-    float			nrKBytes() const;
-
-private:
+protected:
 
     void			setSourceData();
 
-    const RandomSeisDataPack&	source_;
     const TrcKeyPath&		path_;
     const StepInterval<float>&	zsamp_;
-    int				comp_;
 };
 
 #endif
