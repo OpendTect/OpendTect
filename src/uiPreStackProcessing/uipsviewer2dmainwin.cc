@@ -94,12 +94,8 @@ void uiViewer2DMainWin::dataDlgPushed( CallBacker* )
 
 void uiViewer2DMainWin::posSlcChgCB( CallBacker* )
 {
-    if ( slicepos_ )
-	cs_ = slicepos_->getCubeSampling();
-    if ( posdlg_ )
-	posdlg_->setCubeSampling( cs_ );
-
-    setUpView();
+    // reimplemented in uiStoredViewer2DMainWin
+    return;
 }
 
 
@@ -630,7 +626,7 @@ uiStoredViewer2DMainWin::uiStoredViewer2DMainWin( uiParent* p,
     {
 	slicepos_ = new uiSlicePos2DView( this );
 	slicepos_->positionChg.notify(
-			    mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
+			    mCB(this,uiStoredViewer2DMainWin,posSliceChgCB));
     }
 }
 
@@ -714,6 +710,19 @@ void uiStoredViewer2DMainWin::setUpNewPositions(bool isinl, const BinID& posbid,
 void uiStoredViewer2DMainWin::setIDs( const TypeSet<MultiID>& mids  )
 {
     mids_ = mids;
+    setUpNewIDs();
+}
+
+
+void uiStoredViewer2DMainWin::posSliceChgCB( CallBacker* )
+{
+    if ( slicepos_ )
+	cs_  = slicepos_->getCubeSampling();
+
+    if ( posdlg_ )
+	posdlg_->setCubeSampling( cs_ );
+
+    setUpNewSlicePositions();
     setUpNewIDs();
 }
 

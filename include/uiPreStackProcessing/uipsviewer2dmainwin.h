@@ -166,6 +166,7 @@ protected:
 	    			PreStack::Gather* angledata) const;
     DataPack::ID	getAngleData(DataPack::ID gatherid);
     void		posDlgChgCB(CallBacker*);
+    void		posSliceChgCB(CallBacker*);
 };
 
 
