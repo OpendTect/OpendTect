@@ -538,7 +538,6 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     const int zidx0 = tkzs.zsamp_.getIndex( z ) + zintv.start;
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
-	TrcKey tkt = pldp->getTrcKey( trcidx0+tidx );
 	const float* trc = pldp->getTrcData( 0, trcidx0+tidx );
 	for ( int zidx=0; zidx<nrz; zidx++ )
 	{
