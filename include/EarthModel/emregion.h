@@ -34,7 +34,7 @@ class Horizon3D;
 mExpClass(EarthModel) Region
 {
 public:
-				~Region();
+    virtual			~Region();
 
     int				id() const;
     const TrcKeyZSampling&	getBoundingBox() const;
