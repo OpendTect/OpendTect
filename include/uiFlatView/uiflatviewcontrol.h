@@ -14,12 +14,13 @@ ________________________________________________________________________
 #include "uiflatviewmod.h"
 #include "uigroup.h"
 #include "iopar.h"
+#include "flatviewzoommgr.h"
 
 class uiFlatViewer;
 class uiFlatViewPropDlg;
 class uiTabStackDlg;
 class MouseEventHandler;
-namespace FlatView { class ZoomMgr; class Viewer; }
+namespace FlatView { class Viewer; }
 
 /*!
 \brief Tools to control uiFlatViewer(s).
@@ -70,7 +71,7 @@ protected:
     			uiFlatViewControl(uiFlatViewer&,uiParent*,bool,bool);
 
     ObjectSet<uiFlatViewer> vwrs_;
-    FlatView::ZoomMgr&	zoommgr_;
+    FlatView::ZoomMgr	zoommgr_;
     bool		haverubber_;
     bool		withhanddrag_;
     IOPar		infopars_;
@@ -89,6 +90,7 @@ protected:
     virtual void	onFinalise(CallBacker*);
     virtual bool	canReUseZoomSettings( Geom::Point2D<double>,
 	    				      Geom::Size2D<double> ) const;
+    virtual void	updateZoomManager();
     
     virtual void	dataChangeCB(CallBacker*);
     virtual void	rubBandCB(CallBacker*);

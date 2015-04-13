@@ -19,7 +19,6 @@ ________________________________________________________________________
 class uiMenuHandler;
 class uiToolButton;
 class uiFlatViewColTabEd;
-class uiFlatViewThumbnail;
 class uiToolBar;
 
 /*!
@@ -42,6 +41,7 @@ public:
 			    , withrubber_(true)
 			    , withzoombut_(true)
 			    , withvertzoombut_(false)
+			    , withfixedaspectratio_(false)
 			    , managescoltab_(true)
                             , tba_(-1)	{}	      	
 
@@ -56,6 +56,7 @@ public:
 	mDefSetupMemb(bool,withrubber)
 	mDefSetupMemb(bool,withzoombut)
 	mDefSetupMemb(bool,withvertzoombut)
+	mDefSetupMemb(bool,withfixedaspectratio)
 	mDefSetupMemb(bool,managescoltab)
     };
 
@@ -86,6 +87,8 @@ protected:
     uiFlatViewer&	vwr_;
     uiFlatViewColTabEd* ctabed_;
 
+    const Setup		setup_;
+
     virtual void	finalPrepare();
     void		clearToolBar();
     void		updatePosButtonStates();
@@ -101,6 +104,7 @@ protected:
     void		handDragStarted(CallBacker*);
     void		handDragging(CallBacker*);
     void		handDragged(CallBacker*);
+    void		reSizeCB(CallBacker*);
     void		keyPressCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}

@@ -43,8 +43,6 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     getMouseEventHandler().buttonReleased.notify(
 					mCB(this,uiStratDisplay,usrClickCB) );
     reSize.notify( mCB(this,uiStratDisplay,reDraw) );
-    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
 
     disableScrollZoom();
     setSceneBorder( 2 );

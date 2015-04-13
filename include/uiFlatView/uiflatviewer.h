@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "flatview.h"
 #include "threadwork.h"
+#include "uiworld2ui.h"
 
 namespace FlatView
 {
@@ -26,7 +27,6 @@ class uiBitMapDisplay;
 class uiFlatViewControl;
 class uiGraphicsItemGroup;
 class uiGraphicsView;
-class uiWorld2Ui;
 
 /*!
 \brief Fulfills the FlatView::Viewer specifications using 'ui' classes.
@@ -53,15 +53,21 @@ public:
     			/*!<May be reversed if display is reversed. */
     uiWorldRect		boundingBox() const;
 
-    void		getWorld2Ui(uiWorld2Ui&) const;
+    const uiWorld2Ui&	getWorld2Ui() const		{ return w2ui_; }
     uiRect		getViewRect() const;
     			/*!<The rectangle onto which wr_ is projected */
     uiBorder		getAnnotBorder() const;
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
-    void		setExtraBorders( uiRect r )	{ extraborders_ = r; }
+    void		setExtraBorders(uiRect);
     void		setExtraFactor( float f )	{ extfac_ = f; }
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
+    void		updateBitmapsOnResize( bool yn )
+			{ updatebitmapsonresize_ = yn; }
+			//!< If true, will resize bitmaps as per the size of
+			//!< the window without maintaining the aspect ratio.
+			//!< Else it is the responsibility of the programmer to
+			//!< change view on resize.
 
     void		handleChange(unsigned int);
 
@@ -101,6 +107,7 @@ protected:
 				/*!<May be reversed if display is reversed. */
     uiGraphicsItemGroup*	worldgroup_;
     uiRect			extraborders_;
+    uiWorld2Ui			w2ui_;
 
     uiBitMapDisplay*		bitmapdisp_;
 
@@ -116,6 +123,7 @@ protected:
     uiWorldRect			getBoundingBox(bool wva) const;
     void			reSizeCB(CallBacker*);
 
+    bool			updatebitmapsonresize_;
     int				updatequeueid_;
     float			extfac_;
 

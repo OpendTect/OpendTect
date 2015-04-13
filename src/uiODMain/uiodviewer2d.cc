@@ -297,6 +297,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					mODHelpKey(mODViewer2DHelpID) )
 						   .withedit(tifs_)
 						   .withvertzoombut(isvert)
+						   .withfixedaspectratio(true)
 						   .managescoltab(!tifs_) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( tifs_ )

@@ -10,19 +10,16 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatviewcontrol.h"
-#include "flatviewzoommgr.h"
 #include "mouseevent.h"
 #include "uiflatviewer.h"
 #include "uiflatviewpropdlg.h"
 #include "uirgbarraycanvas.h"
 #include "uigraphicsscene.h"
-#include "uiworld2ui.h"
 
 
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, 
 				bool rub, bool withhanddrag )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
-    , zoommgr_(*new FlatView::ZoomMgr)
     , haverubber_(rub)
     , withhanddrag_(withhanddrag)
     , propdlg_(0)
@@ -43,7 +40,6 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
 uiFlatViewControl::~uiFlatViewControl()
 {
     detachAllNotifiers();
-    delete &zoommgr_;
     delete propdlg_;
     propdlg_ = 0;
 }
@@ -148,8 +144,7 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
     const uiWorldRect wr = getZoomOrPanRect( mousepos, sz, vwr->curView(),
 	    				     vwr->boundingBox() );
     vwr->setView( wr );
-    zoommgr_.add( sz );
-    zoomChanged.trigger();
+    updateZoomManager();
 }
 
 
@@ -203,16 +198,22 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 	 (selarea->width()<5 && selarea->height()<5) )
 	return;
 
-    uiWorld2Ui w2u;
-    vwr->getWorld2Ui(w2u);
-    uiWorldRect wr = w2u.transform(*selarea);
+    uiWorldRect wr = vwr->getWorld2Ui().transform( *selarea );
     Geom::Size2D<double> newsz = wr.size();
 
     wr = getZoomOrPanRect( wr.centre(), newsz, wr, vwr->boundingBox() );
     vwr->setView( wr );
-    zoommgr_.add( newsz );
-    zoomChanged.trigger();
+    updateZoomManager();
     rubberBandUsed.trigger();
+}
+
+
+void uiFlatViewControl::updateZoomManager()
+{
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	zoommgr_.add( vwrs_[idx]->curView().size(), idx );
+
+    zoomChanged.trigger();
 }
 
 
@@ -299,8 +300,8 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
     if ( idx<0 ) return;
     uiWorld2Ui w2u;
     if ( !vwrs_[idx]->needStatusBarUpdate() ) return;
-    vwrs_[idx]->getWorld2Ui(w2u);
-    const uiWorldPoint wp = w2u.transform( meh->event().pos() );
+    const uiWorldPoint wp =
+	vwrs_[idx]->getWorld2Ui().transform( meh->event().pos() );
     vwrs_[idx]->getAuxInfo( wp, infopars_ );
     CBCapsule<IOPar> caps( infopars_, this );
     infoChanged.trigger( &caps );

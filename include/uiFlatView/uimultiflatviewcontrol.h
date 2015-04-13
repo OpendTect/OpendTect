@@ -71,7 +71,7 @@ protected:
     bool		drawzoomboxes_;
 
     uiFlatViewer*	activevwr_;
-    void		addSizesToZoomMgr();
+    void		updateZoomManager();
     			//!< Should be called after the viewer is zoomed in/out.
 
     void		rubBandCB(CallBacker*);

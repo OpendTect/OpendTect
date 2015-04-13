@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
-#include "uiworld2ui.h"
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
@@ -148,11 +147,8 @@ void uiFKSpectrum::setVelCB( CallBacker* cb )
 void uiFKSpectrum::mouseMoveCB( CallBacker* )
 {
     lineitm_->poly_.erase();
-
     const MouseEvent& ev = viewer().rgbCanvas().getMouseEventHandler().event();
-    uiWorld2Ui w2u;
-    viewer().getWorld2Ui( w2u );
-    uiWorldPoint wp = w2u.transform( ev.pos() );
+    const uiWorldPoint wp = viewer().getWorld2Ui().transform( ev.pos() );
     lineitm_->poly_ += wp;
     lineitm_->poly_ += FlatView::Point( 0, 0 );
     lineitm_->poly_ += FlatView::Point( -wp.x, wp.y );
