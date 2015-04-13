@@ -561,7 +561,7 @@ for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
     const BinID bid = dptrcbufs->get( trcidx )->info().binid; \
     SeisTrcInfo& trcinfo = dptrcbufs->get( trcidx )->info(); \
     trcinfo.coord = SI().transform( bid ); \
-    trcinfo.nr = (bid.crl()-bid0.crl())/crlstep; \
+    trcinfo.nr = trcidx+1; \
 } \
 SeisTrcBufDataPack* angledp = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \

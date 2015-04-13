@@ -420,6 +420,24 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 }
 
 
+bool isUsedAsInput( const Attrib::Desc* storeddesc, const Attrib::DescSet& ds )
+{
+    for ( int atridx=0; atridx<ds.size(); atridx++ )
+    {
+	const Attrib::Desc* nonstoreddesc = ds.desc( atridx );
+	if ( nonstoreddesc == storeddesc || nonstoreddesc->isStored() )
+	    continue;
+	const Attrib::Desc* inputdesc = nonstoreddesc->getInput( 0 );
+	if ( !inputdesc )
+	    continue;
+	if ( inputdesc->id() == storeddesc->id() )
+	    return true;
+    }
+
+    return false;
+}
+
+
 void uiStratSynthCrossplot::removeUnusedDescs()
 {
     const Attrib::DescSet& ds = seisattrfld_->descSet();
@@ -428,21 +446,7 @@ void uiStratSynthCrossplot::removeUnusedDescs()
 	const Attrib::Desc* storeddesc = ds.desc(idx);
 	if ( storeddesc && !storeddesc->isStored() )
 	    continue;
-	bool founduser = false;
-	for ( int atridx=0; atridx<ds.size(); atridx++ )
-	{
-	    const Attrib::Desc* nonstoreddesc = ds.desc( atridx );
-	    if ( nonstoreddesc && nonstoreddesc->isStored() )
-		continue;
-	    const Attrib::Desc* inputdesc = nonstoreddesc->getInput(0);
-	    if ( inputdesc->id() == storeddesc->id() )
-	    {
-		founduser = true;
-		break;
-	    }
-	}
-
-	if ( !founduser )
+	if ( !isUsedAsInput(storeddesc,ds) )
 	    const_cast<Attrib::DescSet*>(&ds)->removeDesc(storeddesc->id());
     }
 }
