@@ -69,6 +69,8 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
     const DataPack::ID vwdpid = vwr->createFlatDataPack( dpid, 0 );
     vwr->setSelSpec( &as, dowva ); vwr->setSelSpec( &as, !dowva );
     vwr->setUpView( vwdpid, dowva );
+    vwr->useStoredDispPars( dowva );
+    vwr->useStoredDispPars( !dowva );
 
     FlatView::DataDispPars& ddp =
 	vwr->viewwin()->viewer().appearance().ddpars_;
