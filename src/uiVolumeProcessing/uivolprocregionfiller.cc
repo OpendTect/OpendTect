@@ -229,7 +229,7 @@ enum Type
 };
 
 
-void uiRegionFiller::statsPushCB(CallBacker *)
+void uiRegionFiller::statsPushCB( CallBacker* )
 {
     if ( !regiongrp_->accept() ) return;
 

@@ -4,28 +4,29 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: emsurfaceposprov.cc 38252 2015-02-24 07:57:39Z bart.degroot@dgbes.com $";
 
 #include "emsurfaceposprov.h"
 
 #include "arrayndimpl.h"
-#include "trckeyzsampling.h"
 #include "datapointset.h"
-#include "emioobjinfo.h"
 #include "embody.h"
+#include "emhorizon2d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
+#include "emregion.h"
 #include "emrowcoliterator.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
-#include "emhorizon2d.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "posinfo2d.h"
-#include "survinfo.h"
 #include "survgeom2d.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "uistrings.h"
 
 namespace Pos
@@ -805,6 +806,106 @@ int EMImplicitBodyProvider::estNrZPerPos() const
 void EMImplicitBodyProvider::initClass()
 { Provider3D::factory().addCreator( create, sKey::Body() ); }
 
-}; //namespace Pos
 
+
+// EMRegion3DProvider
+EMRegion3DProvider::EMRegion3DProvider()
+    : useinside_(true)
+    , bbox_(false)
+    , region_(*new EM::Region3D)
+{}
+
+
+EMRegion3DProvider::EMRegion3DProvider(  const EMRegion3DProvider& ep )
+    : useinside_(ep.useinside_)
+    , bbox_(ep.bbox_)
+    , region_(*new EM::Region3D)
+{}
+
+
+EMRegion3DProvider::~EMRegion3DProvider()
+{
+   delete &region_;
+}
+
+
+bool EMRegion3DProvider::initialize( TaskRunner* )
+{
+    return true;
+}
+
+
+EMRegion3DProvider& EMRegion3DProvider::operator=( const EMRegion3DProvider& ep)
+{
+    if ( &ep !=this )
+    {
+	useinside_ = ep.useinside_;
+	bbox_ = ep.bbox_;
+    }
+
+    return *this;
+}
+
+
+void EMRegion3DProvider::getTrcKeyZSampling( TrcKeyZSampling& tkzs ) const
+{ tkzs = bbox_; }
+
+
+bool EMRegion3DProvider::toNextPos()
+{ return true; }
+
+
+bool EMRegion3DProvider::toNextZ()
+{ return true; }
+
+
+void EMRegion3DProvider::usePar( const IOPar& iop )
+{
+}
+
+
+void EMRegion3DProvider::fillPar( IOPar& iop ) const
+{
+}
+
+
+void EMRegion3DProvider::getSummary( BufferString& txt ) const
+{
+}
+
+
+void EMRegion3DProvider::getExtent( BinID& start, BinID& stop ) const
+{
+    TrcKeyZSampling tkzs; getTrcKeyZSampling( tkzs );
+    start = tkzs.hrg.start;
+    stop = tkzs.hrg.stop;
+}
+
+
+void EMRegion3DProvider::getZRange( Interval<float>& zrg ) const
+{ zrg = bbox_.zsamp_; }
+
+
+bool EMRegion3DProvider::includes( const Coord& c, float z ) const
+{ return includes( SI().transform(c), z ); }
+
+
+bool EMRegion3DProvider::includes( const BinID& bid, float z ) const
+{
+    return region_.isInside( bid, z, false );
+}
+
+
+od_int64 EMRegion3DProvider::estNrPos() const
+{ return bbox_.totalNr(); }
+
+
+int EMRegion3DProvider::estNrZPerPos() const
+{ return bbox_.nrZ(); }
+
+
+void EMRegion3DProvider::initClass()
+{ Provider3D::factory().addCreator( create, "Region3D" ); }
+
+} // namespace Pos
 

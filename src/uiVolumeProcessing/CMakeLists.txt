@@ -16,6 +16,7 @@ SET(OD_MODULE_SOURCES
 	uivolproclateralsmoother.cc
 	uivolprocbodyfiller.cc
 	uivolprocpartserv.cc
+	uivolprocregionfiller.cc
 	uivolprocsmoother.cc
 	uivolprocsurfacelimitedfiller.cc
 	uivolprocvolreader.cc

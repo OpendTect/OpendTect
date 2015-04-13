@@ -4,7 +4,7 @@
  * DATE     : October 2011
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: uibodyregiondlg.cc 37872 2015-01-15 12:13:45Z bart.degroot@dgbes.com $";
 
 #include "uibodyregiondlg.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
+#include "emregion.h"
 #include "emsurfacetr.h"
 #include "explfaultsticksurface.h"
 #include "explplaneintersection.h"
@@ -26,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "survinfo.h"
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -48,11 +50,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mToMinCrossline 2
 #define mToMaxCrossline 3
 
-#define cNameCol 0
-#define cSideCol 1
-#define cRelLayerCol 2
-#define cHorShiftUpCol 2
-#define cHorShiftDownCol 3
+#define cTypeCol 0
+#define cNameCol 1
+#define cSideCol 2
+#define cRelLayerCol 3
+#define cHorShiftUpCol 3
+#define cHorShiftDownCol 4
 
 class BodyExtractorFromHorizons : public ParallelTask
 {
@@ -629,48 +632,303 @@ Array2D<unsigned char>*				bidinplg_;
 };
 
 
-uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
-    : uiDialog( p, Setup(tr("Region constructor"),tr("Boundary settings"),
-                        mODHelpKey(mBodyRegionDlgHelpID) ) )
-    , singlehoradded_(false)
+uiBodyRegionGrp::uiBodyRegionGrp( uiParent* p, const Setup& mysetup )
+    : uiGroup(p,"BodyRegion Group")
+    , subvolfld_(0)
+    , singlehorfld_(0)
+    , region3d_(*new EM::Region3D)
 {
-    setCtrlStyle( RunAndClose );
+    addinlbutton_ = addcrlbutton_ = addzbutton_
+		  = addhorbutton_ = addfltbutton_ = 0;
 
-    subvolfld_ =  new uiPosSubSel( this,  uiPosSubSel::Setup( !SI().has3D(),
-		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).
-		seltxt("Geometry boundary").withstep(false) );
+    uiPosSubSel::Setup setup( mysetup.is2d_, true );
+    setup.choicetype(uiPosSubSel::Setup::RangewithPolygon)
+	 .seltxt("Geometry boundary").withstep(false);
 
-    singlehorfld_ = new uiGenInput(this, uiStrings::sApply(), BoolInpSpec(false,
-		tr("Single horizon wrapping"), tr("Multiple horizon layers")) );
-    singlehorfld_->attach( alignedBelow, subvolfld_ );
-    singlehorfld_->valuechanged.notify(mCB(this,uiBodyRegionDlg,horModChg));
+    uiGroup* lastgrp = 0;
+    if ( mysetup.withareasel_ )
+	lastgrp = subvolfld_ = new uiPosSubSel( this, setup );
 
-    uiTable::Setup tsu( 4, 4 );
+    if ( mysetup.withsinglehor_ )
+    {
+	singlehorfld_ = new uiGenInput( this, uiStrings::sApply(),
+		BoolInpSpec(false,tr("Single horizon wrapping"),
+				  tr("Multiple horizon layers")) );
+	if ( lastgrp )
+	    singlehorfld_->attach( alignedBelow, lastgrp );
+	singlehorfld_->valuechanged.notify(
+		mCB(this,uiBodyRegionGrp,horModChg) );
+	lastgrp = singlehorfld_;
+    }
+
+    uiTable::Setup tsu( 0, 3 );
     table_ = new uiTable( this, tsu.rowdesc("Boundary").defrowlbl(true), "Sf" );
-    BufferStringSet lbls; lbls.add("Name").add("Region location").add(
-	    "Relative horizon shift").add(" ");
-    table_->attach( alignedBelow, singlehorfld_ );
+    BufferStringSet lbls; lbls.add("Type").add("Name").add("Region location");
     table_->setColumnLabels( lbls );
-    table_->setPrefWidth( 600 );
+    table_->setPrefWidth( 300 );
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->resizeColumnsToContents();
     table_->setTableReadOnly( true );
+    if ( lastgrp )
+	table_->attach( alignedBelow, lastgrp );
 
-    addhorbutton_ = new uiPushButton( this, tr("Add horizon"),
-	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
-    addhorbutton_->attach( rightOf, table_ );
+    uiButtonGroup* butgrp =
+		new uiButtonGroup( this, "Add Buttons", OD::Vertical );
+    butgrp->attach( rightOf, table_ );
+    if ( mysetup.withinlcrlz_ )
+    {
+	addinlbutton_ = new uiPushButton( butgrp, tr("Add In-line"),
+		mCB(this,uiBodyRegionGrp,addInlCrlZCB), false );
+	addcrlbutton_ = new uiPushButton( butgrp, tr("Add Cross-line"),
+		mCB(this,uiBodyRegionGrp,addInlCrlZCB), false );
+	addzbutton_ = new uiPushButton( butgrp, tr("Add Z-slice"),
+		mCB(this,uiBodyRegionGrp,addInlCrlZCB), false );
+    }
 
-    addfltbutton_ = new uiPushButton( this, tr("Add fault"),
-	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
-    addfltbutton_->attach( alignedBelow, addhorbutton_ );
+    addhorbutton_ = new uiPushButton( butgrp, tr("Add Horizon"),
+	    mCB(this,uiBodyRegionGrp,addSurfaceCB), false );
 
-    removebutton_ = new uiPushButton( this, uiStrings::sRemove(true),
-	    mCB(this,uiBodyRegionDlg,removeSurfaceCB), false );
-    removebutton_->attach( alignedBelow, addfltbutton_ );
+    if ( mysetup.withfault_ )
+    {
+	addfltbutton_ = new uiPushButton( butgrp, tr("Add Fault"),
+		mCB(this,uiBodyRegionGrp,addSurfaceCB), false );
+    }
+
+    removebutton_ = new uiPushButton( butgrp, uiStrings::sRemove(true),
+	    mCB(this,uiBodyRegionGrp,removeSurfaceCB), false );
     removebutton_->setSensitive( false );
 
+    setHAlignObj( table_ );
+}
+
+
+uiBodyRegionGrp::~uiBodyRegionGrp()
+{}
+
+
+void uiBodyRegionGrp::setRegion( const EM::Region3D& region )
+{
+    IOPar pars;
+    region.fillPar( pars );
+    region3d_.usePar( pars );
+    updateTable();
+}
+
+
+const EM::Region3D& uiBodyRegionGrp::region() const
+{ return region3d_; }
+
+
+void uiBodyRegionGrp::horModChg( CallBacker* )
+{
+    table_->clearTable();
+    table_->selectRow( 0 );
+    region3d_.setEmpty();
+
+    const bool singlehormode =
+	singlehorfld_ ? singlehorfld_->getBoolValue() : false;
+    BufferStringSet lbls;
+    lbls.add("Type").add("Location");
+    if ( singlehormode )
+	lbls.add("Relative shift up").add("Relative shift down");
+
+    table_->setColumnLabels( lbls );
+    table_->resizeColumnsToContents();
+    addhorbutton_->setSensitive( singlehormode );
+    removebutton_->setSensitive( false );
+}
+
+
+void uiBodyRegionGrp::addInlCrlZCB( CallBacker* cb )
+{
+    EM::RegionBoundary* bd = 0;
+    if ( cb==addinlbutton_ ) bd = new EM::RegionInlBoundary();
+    if ( cb==addcrlbutton_ ) bd = new EM::RegionCrlBoundary();
+    if ( cb==addzbutton_ ) bd = new EM::RegionZBoundary();
+
+    region3d_.addBoundary( bd );
+    updateTable();
+}
+
+
+void uiBodyRegionGrp::addSurfaceCB( CallBacker* cb )
+{
+    const bool isflt = addfltbutton_==cb;
+    if ( !isflt && addhorbutton_!=cb )
+	return;
+
+    const bool singlehormode =
+	singlehorfld_ ? singlehorfld_->getBoolValue() : false;
+
+    PtrMan<CtxtIOObj> objio =  isflt ? mMkCtxtIOObj(EMFault3D)
+				     : mMkCtxtIOObj(EMHorizon3D);
+    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( !singlehormode );
+    PtrMan<uiIOObjSelDlg> dlg = new uiIOObjSelDlg( this, sdsu, *objio );
+    if ( !dlg->go() )
+	return;
+
+    const int nrsel = dlg->nrChosen();
+    for ( int idx=0; idx<nrsel; idx++ )
+    {
+	const MultiID& mid = dlg->chosenID( idx );
+	if ( region3d_.hasBoundary(mid) )
+	    continue;
+
+	EM::RegionBoundary* bd = 0;
+	if ( isflt )
+	    bd = new EM::RegionFaultBoundary( mid );
+	else
+	    bd = new EM::RegionHor3DBoundary( mid );
+
+	region3d_.addBoundary( bd );
+    }
+
+    updateTable();
+}
+
+
+void uiBodyRegionGrp::removeSurfaceCB( CallBacker* )
+{
+    const int currow = table_->currentRow();
+    if ( currow==-1 ) return;
+
+    if ( currow<region3d_.size() )
+	region3d_.removeBoundary( currow );
+
+    updateTable();
+}
+
+
+void uiBodyRegionGrp::updateTable()
+{
+    accept();
+
+    const int nrboundaries = region3d_.size();
+    table_->setNrRows( nrboundaries );
+
+    const bool singlehormode =
+	singlehorfld_ ? singlehorfld_->getBoolValue() : false;
+
+    for ( int row=0; row<nrboundaries; row++ )
+    {
+	const EM::RegionBoundary* bd = region3d_.getBoundary( row );
+	if ( !bd ) continue;
+
+	table_->setText( RowCol(row,cTypeCol), bd->type() );
+	if ( bd->hasName() )
+	    table_->setText( RowCol(row,cNameCol), bd->name() );
+	table_->setCellReadOnly( RowCol(row,cTypeCol), true );
+	table_->setCellReadOnly( RowCol(row,cNameCol), true );
+
+	mDynamicCastGet(const EM::RegionHor3DBoundary*,horbd,bd)
+	if ( singlehormode && horbd )
+	{
+	    const BufferString unt( " ", SI().getZUnitString() );
+
+	    uiSpinBox* shiftupfld = new uiSpinBox( 0, 0, "Shift up" );
+	    shiftupfld->setSuffix( unt.buf() );
+	    table_->setCellObject( RowCol(row,cHorShiftUpCol), shiftupfld );
+
+	    uiSpinBox* shiftdownfld = new uiSpinBox( 0, 0, "Shift down" );
+	    shiftdownfld->setSuffix( unt.buf() );
+	    table_->setCellObject( RowCol(row,cHorShiftDownCol), shiftdownfld );
+
+	    continue;
+	}
+
+	mDynamicCastGet(const EM::RegionInlBoundary*,inlbd,bd)
+	mDynamicCastGet(const EM::RegionCrlBoundary*,crlbd,bd)
+	mDynamicCastGet(const EM::RegionZBoundary*,zbd,bd)
+	if ( inlbd || crlbd || zbd )
+	{
+	    uiSpinBox* iczbox = new uiSpinBox( 0, 0, "Inl/Crl/Z" );
+	    if ( zbd )
+		iczbox->setSuffix( SI().zDomain().unitStr() );
+	    if ( inlbd )
+	    {
+		iczbox->setInterval( SI().inlRange(false) );
+		iczbox->setValue( inlbd->inl_ );
+	    }
+	    if ( crlbd )
+	    {
+		iczbox->setInterval( SI().crlRange(false) );
+		iczbox->setValue( crlbd->crl_ );
+	    }
+	    if ( zbd )
+	    {
+		StepInterval<float> zrg = SI().zRange( false );
+		zrg.scale( (float)SI().zDomain().userFactor() ); zrg.step = 1.f;
+		iczbox->setInterval( zrg );
+		iczbox->setValue( zbd->z_ );
+	    }
+
+	    table_->setCellObject( RowCol(row,cNameCol), iczbox );
+	}
+
+	uiStringSet sidenms;
+	bd->getSideStrs( sidenms );
+	uiComboBox* sidesel = new uiComboBox( 0, sidenms, 0 );
+	const int side = (int)bd->getSide();
+	sidesel->setCurrentItem( side );
+	table_->setCellObject( RowCol(row,cSideCol), sidesel );
+    }
+
+    removebutton_->setSensitive( !region3d_.isEmpty() );
+}
+
+
+#define mRetErr(msg)  { uiMSG().error( msg ); return false; }
+bool uiBodyRegionGrp::accept()
+{
+    if ( region3d_.isEmpty() )
+	mRetErr(tr("Please select at least one boundary"));
+
+    for ( int idx=0; idx<region3d_.size(); idx++ )
+    {
+	EM::RegionBoundary* bd = region3d_.getBoundary( idx );
+	mDynamicCastGet(uiComboBox*,selbox,
+		table_->getCellObject(RowCol(idx,cSideCol)));
+	if ( !bd || !selbox ) continue;
+
+	const int selside = selbox->currentItem();
+	bd->setSide( selside );
+
+	mDynamicCastGet(EM::RegionInlBoundary*,inlbd,bd)
+	mDynamicCastGet(EM::RegionCrlBoundary*,crlbd,bd)
+	mDynamicCastGet(EM::RegionZBoundary*,zbd,bd)
+	if ( inlbd || crlbd || zbd )
+	{
+	    mDynamicCastGet(uiSpinBox*,sb,
+		table_->getCellObject(RowCol(idx,cNameCol)))
+	    if ( !sb ) break;
+	    if ( inlbd ) inlbd->inl_ = sb->getValue();
+	    if ( crlbd ) crlbd->crl_ = sb->getValue();
+	    if ( zbd ) zbd->z_ = sb->getFValue() / SI().zDomain().userFactor();
+	}
+    }
+
+    if ( subvolfld_ )
+    {
+	TrcKeyZSampling tkzs = subvolfld_->envelope();
+	tkzs.expand( 1, 1, 1 );
+    }
+
+    return true;
+}
+
+
+
+// uiBodyRegionDlg
+uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p, bool is2d )
+    : uiDialog( p, Setup(tr("Region constructor"),tr("Boundary settings"),
+			 mODHelpKey(mBodyRegionDlgHelpID) ) )
+{
+    uiBodyRegionGrp::Setup setup(is2d);
+    setup.withareasel(true).withinlcrlz(false).withsinglehor(true);
+    grp_ = new uiBodyRegionGrp( this, setup );
+
     outputfld_ = new uiIOObjSel( this, mWriteIOObjContext(EMBody) );
-    outputfld_->attach( alignedBelow, table_ );
+    outputfld_->attach( alignedBelow, grp_ );
 }
 
 
@@ -684,186 +942,9 @@ MultiID uiBodyRegionDlg::getBodyMid() const
 }
 
 
-void uiBodyRegionDlg::horModChg( CallBacker* cb )
+bool uiBodyRegionDlg::acceptOK( CallBacker* )
 {
-    table_->clearTable();
-    table_->selectRow( 0 );
-    surfacelist_.erase();
-
-    const bool singlehormod = singlehorfld_->getBoolValue();
-    BufferStringSet lbls;
-    lbls.add("Name").add("Region location");
-    if ( singlehormod )
-	lbls.add("Relative shift up").add("Relative shift down");
-    else
-	lbls.add("Relative horizon shift").add("  ");
-
-    table_->setColumnLabels( lbls );
-    table_->resizeColumnsToContents();
-    singlehoradded_ = false;
-    removebutton_->setSensitive( false );
-}
-
-
-void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
-{
-    const bool isflt = addfltbutton_==cb;
-    if ( !isflt && addhorbutton_!=cb )
-	return;
-
-    PtrMan<CtxtIOObj> objio =  isflt ? mMkCtxtIOObj(EMFault3D)
-				     : mMkCtxtIOObj(EMHorizon3D);
-    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
-    PtrMan<uiIOObjSelDlg> dlg = new uiIOObjSelDlg( this, sdsu, *objio );
-    if ( !dlg->go() )
-	return;
-
-    const bool singlehormod = singlehorfld_->getBoolValue();
-    const int nrsel = dlg->nrChosen();
-    for ( int idx=0; idx<nrsel; idx++ )
-    {
-	const MultiID& mid = dlg->chosenID( idx );
-	if ( isflt )
-	{
-	    if ( surfacelist_.isPresent(mid) )
-		continue;
-	}
-	else
-	{
-	    int count = 0;
-	    for ( int idy=0; idy<surfacelist_.size(); idy++ )
-	    {
-		if ( surfacelist_[idy]==mid )
-		    count++;
-	    }
-	    if ( count>1 )
-		continue;
-	}
-
-	PtrMan<IOObj> ioobj = IOM().get( mid );
-	if ( isflt || !singlehormod )
-	    addSurfaceTableEntry( *ioobj, isflt, 0 );
-	else
-	{
-	    if ( singlehoradded_ )
-	    {
-		uiMSG().message(tr("You already picked a horizon"));
-		return;
-	    }
-
-	    singlehoradded_ = true;
-	    addSurfaceTableEntry( *ioobj, isflt, 0 );
-	}
-    }
-}
-
-
-void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
-	char side )
-{
-    const int row = surfacelist_.size();
-    if ( row==table_->nrRows() )
-	table_->insertRows( row, 1 );
-
-    const bool singlehormod = singlehorfld_->getBoolValue();
-
-    BufferStringSet sidenms;
-    if ( isfault )
-    {
-	sidenms.add("Between min In-line and fault");
-	sidenms.add("Between max In-line and fault");
-	sidenms.add("Between min Cross-line and fault");
-	sidenms.add("Between max Cross-line and fault");
-    }
-    else if ( !singlehormod )
-    {
-	sidenms.add("Below horizon+shift (Z increase side)");
-	sidenms.add("Above horizon+shift (Z decrease side)");
-    }
-
-    if ( isfault || (!isfault && !singlehormod) )
-    {
-	uiComboBox* sidesel = new uiComboBox( 0, sidenms, 0 );
-	sidesel->setCurrentItem( side==-1 ? 0 : 1 );
-	table_->setCellObject( RowCol(row,cSideCol), sidesel );
-    }
-
-    table_->setText( RowCol(row,cNameCol), ioobj.name() );
-    table_->setCellReadOnly( RowCol(row,cNameCol), true );
-
-    if ( !isfault )
-    {
-	if ( singlehormod )
-	{
-	    BufferString unt( " ", SI().getZUnitString() );
-
-	    uiSpinBox* shiftupfld = new uiSpinBox( 0, 0, "Shift up" );
-	    shiftupfld->setSuffix( unt.buf() );
-	    table_->setCellObject( RowCol(row,cHorShiftUpCol), shiftupfld );
-
-	    uiSpinBox* shiftdownfld = new uiSpinBox( 0, 0, "Shift down" );
-	    shiftdownfld->setSuffix( unt.buf() );
-	    table_->setCellObject( RowCol(row,cHorShiftDownCol), shiftdownfld );
-	}
-	else
-	{
-	    uiSpinBox* shiftfld = new uiSpinBox( 0, 0, "Shift" );
-	    BufferString unt( " ", SI().getZUnitString() );
-	    shiftfld->setSuffix( unt.buf() );
-	    shiftfld->setMinValue( -INT_MAX );
-	    table_->setCellObject( RowCol(row,cRelLayerCol), shiftfld );
-	}
-    }
-
-    surfacelist_ += ioobj.key();
-    removebutton_->setSensitive( surfacelist_.size() );
-}
-
-
-void uiBodyRegionDlg::removeSurfaceCB( CallBacker* )
-{
-    const int currow = table_->currentRow();
-    if ( currow==-1 ) return;
-
-    if ( currow<surfacelist_.size() )
-    {
-	if ( singlehorfld_->getBoolValue() )
-	{
-	    const FixedString objtype
-			= EM::EMM().objectType( surfacelist_[currow] );
-	    if ( objtype == sKey::Horizon() )
-		singlehoradded_ = false;
-	}
-
-	surfacelist_.removeSingle( currow );
-    }
-
-    table_->removeRow( currow );
-    if ( table_->nrRows() < 4 )
-	table_->setNrRows( 4 );
-
-    removebutton_->setSensitive( surfacelist_.size() );
-}
-
-
-#define mRetErr(msg)  { uiMSG().error( msg ); return false; }
-#define mRetErrDelHoridx(msg)  \
-{  \
-    if ( duplicatehoridx>=0 ) \
-	surfacelist_.removeSingle( duplicatehoridx ); \
-    mRetErr(msg) \
-}
-
-
-bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
-{
-    if ( !surfacelist_.size() )
-	mRetErr(tr("Please select at least one boundary"));
-
-    if ( outputfld_->isEmpty() )
-	mRetErr(tr("Please select choose a name for the output"));
-
-    if ( !outputfld_->commitInput() )
+    if ( !outputfld_->ioobj() )
 	return false;
 
     if ( createImplicitBody() )
@@ -882,60 +963,8 @@ bool uiBodyRegionDlg::createImplicitBody()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
 
-    const bool singlehormod = singlehorfld_->getBoolValue();
 
-    TypeSet<char> sides;
-    TypeSet<float> horshift;
-    bool hasfaults = false;
-    int duplicatehoridx = -1;
-
-    for ( int idx=0; idx<surfacelist_.size(); idx++ )
-    {
-	mDynamicCastGet(uiComboBox*, selbox,
-		table_->getCellObject(RowCol(idx,cSideCol)) );
-	if ( singlehormod && !selbox )
-	{
-	    mDynamicCastGet(uiSpinBox*, shiftupfld,
-		    table_->getCellObject(RowCol(idx,cHorShiftUpCol)) );
-
-	    mDynamicCastGet(uiSpinBox*, shiftdownfld,
-		    table_->getCellObject(RowCol(idx,cHorShiftDownCol)) );
-	    if ( !shiftupfld->getValue() && !shiftdownfld->getValue() )
-		mRetErr(tr("You did not choose any horizon shift"));
-
-	    duplicatehoridx = idx;
-	    sides += mBelow;
-	    horshift += -shiftupfld->getValue()/SI().zScale();
-	    sides += mAbove;
-	    horshift += shiftdownfld->getValue()/SI().zScale();
-	}
-	else
-	{
-	    sides += mCast(char,selbox->currentItem());
-	    mDynamicCastGet(uiSpinBox*, shiftfld,
-		    table_->getCellObject(RowCol(idx,cRelLayerCol)) );
-	    horshift += shiftfld ? shiftfld->getValue()/SI().zScale() : 0;
-	}
-
-	if ( !hasfaults )
-	{
-	    RefMan<EM::EMObject> emobj =
-		EM::EMM().loadIfNotFullyLoaded( surfacelist_[idx] );
-	    mDynamicCastGet(EM::Fault3D*,emflt,emobj.ptr());
-	    if ( emflt ) hasfaults = true;
-	}
-    }
-
-    if ( duplicatehoridx>=0 )
-	surfacelist_.insert( duplicatehoridx, surfacelist_[duplicatehoridx] );
-
-    TrcKeyZSampling cs = subvolfld_->envelope();
-    cs.zsamp_.start -= cs.zsamp_.step; cs.zsamp_.stop += cs.zsamp_.step;
-    cs.hrg.start.inl() -= cs.hrg.step.inl();
-    cs.hrg.stop.inl() += cs.hrg.step.inl();
-    cs.hrg.start.crl() -= cs.hrg.step.crl();
-    cs.hrg.stop.crl() += cs.hrg.step.crl();
-
+/*
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );
     if ( !arr )
@@ -990,8 +1019,10 @@ bool uiBodyRegionDlg::createImplicitBody()
 	    mRetErrDelHoridx( tr("Writing body to disk failed, no permision?") )
     }
 
-    if ( !TaskRunner::execute( &taskrunner, *exec ) )
+    if ( !TaskRunner::execute(&taskrunner,*exec) )
 	mRetErrDelHoridx(uiStrings::sSaveBodyFail());
+*/
 
     return true;
 }
+

@@ -387,7 +387,7 @@ void uiSurfaceMan::calcVolCB( CallBacker* )
 
 void uiSurfaceMan::createBodyRegionCB( CallBacker* )
 {
-    uiBodyRegionDlg dlg( this );
+    uiBodyRegionDlg dlg( this, false );
     if ( dlg.go() )
 	selgrp_->fullUpdate( dlg.getBodyMid() );
 }

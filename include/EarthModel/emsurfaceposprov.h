@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 class DataPointSet;
 
-namespace EM { class RowColIterator; class Surface; }
+namespace EM { class RowColIterator; class Region3D; class Surface; }
 
 namespace Pos
 {
@@ -307,7 +307,63 @@ protected:
 };
 
 
-} // namespace
+/*!
+\brief EM Region provider for 3D positioning.
+*/
+
+mExpClass(EarthModel) EMRegion3DProvider : public Provider3D
+{ mODTextTranslationClass(EMRegion3DProvider)
+public:
+
+				EMRegion3DProvider();
+				EMRegion3DProvider(const EMRegion3DProvider&);
+				~EMRegion3DProvider();
+
+    static void			initClass();
+    static Provider3D*		create() { return new EMRegion3DProvider; }
+    EMRegion3DProvider*	clone() const
+				{ return new EMRegion3DProvider(*this); }
+
+    EMRegion3DProvider&	operator =(const EMRegion3DProvider&);
+    const char*			type() const		{ return "Region3D"; }
+    const char*			factoryKeyword() const	{ return type(); }
+
+    virtual bool		initialize(TaskRunner* tr=0);
+    virtual void		reset()			{ initialize(); }
+
+    virtual BinID		curBinID() const	{ return curbid_; }
+    virtual float		curZ() const		{ return curz_; }
+
+    virtual bool		toNextPos();
+    virtual bool		toNextZ();
+    virtual int			estNrZPerPos() const;
+    virtual od_int64		estNrPos() const;
+    virtual void		getExtent(BinID&,BinID&) const;
+    virtual void		getZRange(Interval<float>&) const;
+    virtual bool		includes(const Coord& c,float z) const;
+    virtual bool		includes(const BinID&,float) const;
+
+    virtual void		usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    virtual void		getSummary(BufferString&) const;
+
+    virtual void		getTrcKeyZSampling(TrcKeyZSampling& cs) const;
+
+    EM::Region3D&		region()		{ return region_; }
+    const EM::Region3D&		region() const		{ return region_; }
+
+protected:
+
+
+    TrcKeyZSampling		bbox_;
+
+    EM::Region3D&		region_;
+    BinID			curbid_;
+    float			curz_;
+    bool			useinside_;
+};
+
+} // namespace Pos
 
 #endif
 
