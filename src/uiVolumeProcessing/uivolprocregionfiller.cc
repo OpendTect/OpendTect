@@ -152,7 +152,7 @@ class uiStatsDlg : public uiDialog
 { mODTextTranslationClass(uiStatsDlg)
 
 public:
-uiStatsDlg::uiStatsDlg( uiParent* p, const EM::Region3D& reg )
+uiStatsDlg( uiParent* p, const EM::Region3D& reg )
     : uiDialog(p,Setup(tr("Calculate Data Statistics"),mNoDlgTitle,mNoHelpKey))
     , value_(mUdf(float))
     , region_(reg)
