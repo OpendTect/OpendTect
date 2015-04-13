@@ -85,7 +85,8 @@ public:
 
     int			size() const		{ return lines_.size(); }
     const ObjectSet<RandomLine>& lines() const	{ return lines_; }
-    void		removeLine( int idx )	{ delete lines_.removeSingle(idx); }
+    void		removeLine( int idx )
+			{ delete lines_.removeSingle(idx);}
     void		addLine( RandomLine* rl )
     			{ rl->lset_ = this; lines_ += rl; }
     void		limitTo(const TrcKeyZSampling&);
@@ -99,6 +100,9 @@ protected:
     IOPar&			pars_;
 
     void		createParallelLines(const Line2& baseline,double dist);
+public:
+    static void		getGeometry(const MultiID&,TypeSet<BinID>& knots,
+				    StepInterval<float>* zrg=0);
 };
 
 } // namespace Geometry
