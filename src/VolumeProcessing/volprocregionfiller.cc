@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id: volprocbodyfiller.cc 36479 2014-09-16 
 
 
 static const char* sKeyInsideValue()	{ return "Inside Value"; }
-static const char* sKeyOutsideValue()	{ return "Outside Value"; }
 
 namespace VolProc
 {

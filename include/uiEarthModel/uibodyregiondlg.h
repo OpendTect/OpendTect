@@ -34,14 +34,13 @@ public:
 	mExpClass(uiEarthModel) Setup
 	{
 	public:
-	    Setup(bool is2d=false)
-		: is2d_(is2d)
+	    Setup(bool _is2d=false)
+		: is2d_(_is2d)
 		, withinlcrlz_(true)
 		, withfault_(true)
 		, withareasel_(false)
 		, withsinglehor_(false)
 	    {
-
 	    }
 
 	    mDefSetupMemb(bool,is2d)

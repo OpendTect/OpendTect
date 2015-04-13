@@ -706,10 +706,10 @@ uiBodyRegionGrp::~uiBodyRegionGrp()
 {}
 
 
-void uiBodyRegionGrp::setRegion( const EM::Region3D& region )
+void uiBodyRegionGrp::setRegion( const EM::Region3D& region3d )
 {
     IOPar pars;
-    region.fillPar( pars );
+    region3d.fillPar( pars );
     region3d_.usePar( pars );
     updateTable();
 }
@@ -923,9 +923,9 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p, bool is2d )
     : uiDialog( p, Setup(tr("Region constructor"),tr("Boundary settings"),
 			 mODHelpKey(mBodyRegionDlgHelpID) ) )
 {
-    uiBodyRegionGrp::Setup setup(is2d);
-    setup.withareasel(true).withinlcrlz(false).withsinglehor(true);
-    grp_ = new uiBodyRegionGrp( this, setup );
+    uiBodyRegionGrp::Setup grpsetup(is2d);
+    grpsetup.withareasel(true).withinlcrlz(false).withsinglehor(true);
+    grp_ = new uiBodyRegionGrp( this, grpsetup );
 
     outputfld_ = new uiIOObjSel( this, mWriteIOObjContext(EMBody) );
     outputfld_->attach( alignedBelow, grp_ );
