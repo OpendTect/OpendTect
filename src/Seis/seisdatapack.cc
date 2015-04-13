@@ -60,10 +60,11 @@ void RegularSeisDataPack::dumpInfo( IOPar& par ) const
     DataPack::dumpInfo( par );
 
     const TrcKeySampling& tks = sampling_.hsamp_;
+    // TODO: Change for 2D
     par.set( sKey::InlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
 			       tks.step_.lineNr() );
-    par.set( sKey::CrlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
-			       tks.step_.lineNr() );
+    par.set( sKey::CrlRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
+			       tks.step_.trcNr() );
     par.set( sKey::ZRange(), sampling_.zsamp_.start, sampling_.zsamp_.stop,
 			     sampling_.zsamp_.step );
 }
