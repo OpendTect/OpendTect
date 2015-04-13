@@ -8,10 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18Z nanne.hemstra@dgbes.com $";
 
 #include "mpeengine.h"
 
+#include "arrayndimpl.h"
 #include "emeditor.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
@@ -124,7 +125,7 @@ Executor* Engine::trackInVolume()
 	if ( EM::EMM().getObject(oid)->isLocked() )
 	    continue;
 
-	if ( !res ) res = new ExecutorGroup("Autotrack", false );
+	if ( !res ) res = new ExecutorGroup( "Autotrack", false );
 
 	res->add( trackers_[idx]->trackInVolume() );
     }
@@ -515,6 +516,40 @@ ObjectSet<TrcKeyZSampling>* Engine::getTrackedFlatCubes( const int idx ) const
 	flatcbs->push( cs );
     }
     return flatcbs;
+}
+
+
+DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
+					 const StepInterval<int>& zintv ) const
+{
+    const int nrz = zintv.nrSteps() + 1;
+    Array2DImpl<float>* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
+
+    TypeSet<Attrib::SelSpec> specs; getNeededAttribs( specs );
+    if ( specs.isEmpty() ) return DataPack::cNoID();
+
+    DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
+    const DataPack::ID pldpid = getAttribCacheID( specs[0] );
+    ConstDataPackRef<RegularSeisDataPack> pldp = dpm.obtain( pldpid );
+    if ( !pldp ) return DataPack::cNoID();
+
+    const TrcKeyZSampling tkzs = pldp->sampling();
+    const int trcidx0 = pldp->getGlobalIdx( tk ) - (int)(nrtrcs/2);
+    const int zidx0 = tkzs.zsamp_.getIndex( z ) + zintv.start;
+    for ( int tidx=0; tidx<nrtrcs; tidx++ )
+    {
+	TrcKey tkt = pldp->getTrcKey( trcidx0+tidx );
+	const float* trc = pldp->getTrcData( 0, trcidx0+tidx );
+	for ( int zidx=0; zidx<nrz; zidx++ )
+	{
+	    const float val = trc[zidx0+zidx];
+	    seeddata->set( tidx, nrz-1-zidx, val );
+	}
+    }
+
+    FlatDataPack* fdp = new FlatDataPack( "Seismics", seeddata );
+    DPM(DataPackMgr::FlatID()).add( fdp );
+    return fdp->id();
 }
 
 

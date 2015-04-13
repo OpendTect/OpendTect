@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id$
+ RCS:           $Id: uihorizontracksetup.h 38749 2015-04-02 19:49:51Z nanne.hemstra@dgbes.com $
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,12 @@ ________________________________________________________________________
 
 #include "uimpe.h"
 
-
 class uiButtonGroup;
 class uiColorInput;
+class uiFlatViewer;
 class uiGenInput;
 class uiPushButton;
+class uiSeisSel;
 class uiSlider;
 class uiTabStack;
 
@@ -55,13 +56,15 @@ public:
     const MarkerStyle3D&	getMarkerStyle();
 
     NotifierAccess*		modeChangeNotifier()
-				{ return &modechanged_; }
+				{ return &modeChanged_; }
     NotifierAccess*		propertyChangeNotifier()
-				{ return &propertychanged_; }
+				{ return &propertyChanged_; }
     NotifierAccess*		eventChangeNotifier()
-				{ return &eventchanged_; }
-    NotifierAccess*		similarityChangeNotifier()
-				{ return &similaritychanged_; }
+				{ return &eventChanged_; }
+    NotifierAccess*		correlationChangeNotifier()
+				{ return &correlationChanged_; }
+    NotifierAccess*		varianceChangeNotifier()
+				{ return &varianceChanged_; }
 
     virtual bool		commitToTracker() const
 				{ bool b; return commitToTracker(b); }
@@ -91,6 +94,7 @@ protected:
     void			addStepPushedCB(CallBacker*);
 
     uiGenInput*			evfld_;
+    uiFlatViewer*		srchgatevwr_;
     uiGenInput*			srchgatefld_;
     uiGenInput*			thresholdtypefld_;
     uiGenInput*			ampthresholdfld_;
@@ -99,14 +103,26 @@ protected:
 
 
 // Correlation Group
-    uiGroup*			createSimiGroup();
-    void			initSimiGroup();
-    void			selUseSimilarity(CallBacker*);
-    void			similarityChangeCB(CallBacker*);
+    uiGroup*			createCorrelationGroup();
+    void			initCorrelationGroup();
+    void			selUseCorrelation(CallBacker*);
+    void			correlationChangeCB(CallBacker*);
 
-    uiGenInput*			usesimifld_;
+    uiGenInput*			usecorrfld_;
+    uiGenInput*			modefld_;
+    uiFlatViewer*		correlationvwr_;
     uiGenInput*			compwinfld_;
-    uiGenInput*			simithresholdfld_;
+    uiGenInput*			corrthresholdfld_;
+
+// Variance Group
+    uiGroup*			createVarianceGroup();
+    void			initVarianceGroup();
+    void			selUseVariance(CallBacker*);
+    void			varianceChangeCB(CallBacker*);
+
+    uiGenInput*			usevarfld_;
+    uiSeisSel*			variancefld_;
+    uiGenInput*			varthresholdfld_;
 
 
 // Property Group
@@ -130,10 +146,11 @@ protected:
     SectionTracker*		sectiontracker_;
     HorizonAdjuster*		horadj_;
 
-    Notifier<uiHorizonSetupGroup> modechanged_;
-    Notifier<uiHorizonSetupGroup> eventchanged_;
-    Notifier<uiHorizonSetupGroup> similaritychanged_;
-    Notifier<uiHorizonSetupGroup> propertychanged_;
+    Notifier<uiHorizonSetupGroup> modeChanged_;
+    Notifier<uiHorizonSetupGroup> eventChanged_;
+    Notifier<uiHorizonSetupGroup> correlationChanged_;
+    Notifier<uiHorizonSetupGroup> varianceChanged_;
+    Notifier<uiHorizonSetupGroup> propertyChanged_;
 
     static const char**		sKeyEventNames();
     static const VSEvent::Type*	cEventTypes();

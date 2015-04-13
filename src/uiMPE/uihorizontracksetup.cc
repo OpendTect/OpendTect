@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-02 19:49:51Z nanne.hemstra@dgbes.com $";
 
 #include "uihorizontracksetup.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizon3dseedpicker.h"
 #include "horizon2dtracker.h"
 #include "horizon3dtracker.h"
+#include "mpeengine.h"
 #include "randcolor.h"
 #include "sectiontracker.h"
 #include "separstr.h"
@@ -28,9 +29,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibuttongroup.h"
 #include "uicolor.h"
 #include "uidialog.h"
+#include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uiseissel.h"
 #include "uiseparator.h"
 #include "uislider.h"
 #include "uitable.h"
@@ -93,10 +96,11 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     , horadj_(0)
     , addstepbut_(0)
     , is2d_(FixedString(typestr)==EM::Horizon2D::typeStr())
-    , modechanged_(this)
-    , eventchanged_(this)
-    , similaritychanged_(this)
-    , propertychanged_(this)
+    , modeChanged_(this)
+    , eventChanged_(this)
+    , correlationChanged_(this)
+    , varianceChanged_(this)
+    , propertyChanged_(this)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
     uiGroup* modegrp = createModeGroup();
@@ -105,8 +109,11 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     uiGroup* eventgrp = createEventGroup();
     tabgrp_->addTab( eventgrp, tr("Event") );
 
-    uiGroup* simigrp = createSimiGroup();
-    tabgrp_->addTab( simigrp, tr("Correlation") );
+    uiGroup* corrgrp = createCorrelationGroup();
+    tabgrp_->addTab( corrgrp, tr("Correlation") );
+
+    uiGroup* vargrp = createVarianceGroup();
+    tabgrp_->addTab( vargrp, tr("Variance") );
 
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, uiStrings::sProperties(true) );
@@ -157,7 +164,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Event" );
 
     evfld_ = new uiGenInput( grp, tr("Event type"),
-			    StringListInpSpec(sKeyEventNames()) );
+			     StringListInpSpec(sKeyEventNames()) );
     evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,selEventType) );
     evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
     grp->setHAlignObj( evfld_ );
@@ -200,34 +207,71 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 }
 
 
-uiGroup* uiHorizonSetupGroup::createSimiGroup()
+uiGroup* uiHorizonSetupGroup::createCorrelationGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Correlation" );
 
-    usesimifld_ = new uiGenInput( grp, tr("Use Correlation"),
+    usecorrfld_ = new uiGenInput( grp, tr("Use Correlation"),
 				  BoolInpSpec(true));
-    usesimifld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
-    usesimifld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup, similarityChangeCB) );
+    usecorrfld_->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,selUseCorrelation) );
+    usecorrfld_->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,correlationChangeCB) );
+
+    BufferStringSet strs; strs.add( "Seed Trace" ).add( "Adjacent Parent" );
+    modefld_ = new uiGenInput( grp, tr("Method"), StringListInpSpec(strs) );
+    modefld_->attach( alignedBelow, usecorrfld_ );
 
     const StepInterval<int> intv( -10000, 10000, 1 );
     IntInpSpec iis; iis.setLimits( intv );
     BufferString compwindtxt( "Compare window ", SI().getZUnitString() );
     compwinfld_ = new uiGenInput( grp, compwindtxt, iis, iis );
-    compwinfld_->attach( alignedBelow, usesimifld_ );
+    compwinfld_->attach( alignedBelow, modefld_ );
     compwinfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup, similarityChangeCB) );
+	    mCB(this,uiHorizonSetupGroup,correlationChangeCB) );
 
     iis.setLimits( StepInterval<int>(0,100,1) );
-    simithresholdfld_ =
+    corrthresholdfld_ =
 	new uiGenInput( grp, tr("Correlation threshold (0-100)"), iis );
-    simithresholdfld_->attach( alignedBelow, compwinfld_ );
-    simithresholdfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup, similarityChangeCB) );
+    corrthresholdfld_->attach( alignedBelow, compwinfld_ );
+    corrthresholdfld_->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,correlationChangeCB) );
 
-    grp->setHAlignObj( usesimifld_ );
+    correlationvwr_ = new uiFlatViewer( grp );
+    correlationvwr_->attach( rightOf, usecorrfld_ );
+    correlationvwr_->setPrefWidthInChar( 30 );
+    correlationvwr_->setPrefHeightInChar( 25 );
+
+    grp->setHAlignObj( usecorrfld_ );
     return grp;
+}
+
+
+uiGroup* uiHorizonSetupGroup::createVarianceGroup()
+{
+    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Variance" );
+
+    usevarfld_ = new uiGenInput( grp, tr("Use Variance"), BoolInpSpec(false) );
+    usevarfld_->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,selUseVariance) );
+    usevarfld_->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,varianceChangeCB) );
+
+    const IOObjContext ctxt =
+	uiSeisSel::ioContext( is2d_ ? Seis::Line : Seis::Vol, true );
+    uiSeisSel::Setup ss( is2d_, false );
+    variancefld_ = new uiSeisSel( grp, ctxt, ss );
+    variancefld_->attach( alignedBelow, usevarfld_ );
+
+    varthresholdfld_ =
+	new uiGenInput( grp, tr("Variance threshold"), FloatInpSpec() );
+    varthresholdfld_->attach( alignedBelow, variancefld_ );
+    varthresholdfld_->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,varianceChangeCB) );
+
+    grp->setHAlignObj( usevarfld_ );
+    return grp;
+
 }
 
 
@@ -271,11 +315,21 @@ uiHorizonSetupGroup::~uiHorizonSetupGroup()
 }
 
 
-void uiHorizonSetupGroup::selUseSimilarity( CallBacker* )
+void uiHorizonSetupGroup::selUseCorrelation( CallBacker* )
 {
-    const bool usesimi = usesimifld_->getBoolValue();
-    compwinfld_->setSensitive( usesimi );
-    simithresholdfld_->setSensitive( usesimi );
+    const bool usecorr = usecorrfld_->getBoolValue();
+    modefld_->setSensitive( usecorr );
+    compwinfld_->setSensitive( usecorr );
+    corrthresholdfld_->setSensitive( usecorr );
+    correlationvwr_->setSensitive( usecorr );
+}
+
+
+void uiHorizonSetupGroup::selUseVariance( CallBacker* )
+{
+    const bool usevar = usevarfld_->getBoolValue();
+    variancefld_->setSensitive( usevar );
+    varthresholdfld_->setSensitive( usevar );
 }
 
 
@@ -325,25 +379,23 @@ void uiHorizonSetupGroup::selEventType( CallBacker* )
 void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 {
     mode_ = (EMSeedPicker::SeedModeOrder) modeselgrp_->selectedId();
-    modechanged_.trigger();
+    modeChanged_.trigger();
 }
 
 
 void uiHorizonSetupGroup::eventChangeCB( CallBacker* )
-{
-    eventchanged_.trigger();
-}
+{ eventChanged_.trigger(); }
 
+void uiHorizonSetupGroup::correlationChangeCB( CallBacker* )
+{ correlationChanged_.trigger(); }
 
-void uiHorizonSetupGroup::similarityChangeCB( CallBacker* )
-{
-    similaritychanged_.trigger();
-}
+void uiHorizonSetupGroup::varianceChangeCB(CallBacker *)
+{ varianceChanged_.trigger(); }
 
 
 void uiHorizonSetupGroup::colorChangeCB( CallBacker* )
 {
-    propertychanged_.trigger();
+    propertyChanged_.trigger();
 }
 
 
@@ -354,7 +406,7 @@ void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
     if ( markerstyle_.type_ == newtype )
 	return;
     markerstyle_.type_ = newtype;
-    propertychanged_.trigger();
+    propertyChanged_.trigger();
 }
 
 
@@ -365,7 +417,7 @@ void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
     if ( markerstyle_.size_ == newsize )
 	return;
     markerstyle_.size_ = newsize;
-    propertychanged_.trigger();
+    propertyChanged_.trigger();
 }
 
 
@@ -375,7 +427,7 @@ void uiHorizonSetupGroup::seedColSel( CallBacker* )
     if ( markerstyle_.color_ == newcolor )
 	return;
     markerstyle_.color_ = newcolor;
-    propertychanged_.trigger();
+    propertyChanged_.trigger();
 }
 
 
@@ -429,7 +481,7 @@ void uiHorizonSetupGroup::addStepPushedCB(CallBacker*)
 	BufferString valstr;
 	dlg.getValueString( valstr );
 	ampthresholdfld_->setText( valstr );
-	propertychanged_.trigger();
+	propertyChanged_.trigger();
     }
 }
 
@@ -459,8 +511,10 @@ void uiHorizonSetupGroup::initStuff()
     initEventGroup();
     selEventType(0);
     selAmpThresholdType(0);
-    initSimiGroup();
-    selUseSimilarity(0);
+    initCorrelationGroup();
+    selUseCorrelation(0);
+    initVarianceGroup();
+    selUseVariance(0);
     initPropertyGroup();
 }
 
@@ -482,19 +536,23 @@ void uiHorizonSetupGroup::initEventGroup()
 }
 
 
-void uiHorizonSetupGroup::initSimiGroup()
+void uiHorizonSetupGroup::initCorrelationGroup()
 {
-    usesimifld_->setValue( !horadj_->trackByValue() );
+    usecorrfld_->setValue( !horadj_->trackByValue() );
 
-    const Interval<int> simiintv(
+    const Interval<int> corrintv(
 	    mCast(int,horadj_->similarityWindow().start *
 		      SI().zDomain().userFactor()),
 	    mCast(int,horadj_->similarityWindow().stop *
 		      SI().zDomain().userFactor()) );
 
-    compwinfld_->setValue( simiintv );
+    compwinfld_->setValue( corrintv );
+    corrthresholdfld_->setValue( horadj_->similarityThreshold()*100 );
+}
 
-    simithresholdfld_->setValue( horadj_->similarityThreshold()*100 );
+
+void uiHorizonSetupGroup::initVarianceGroup()
+{
 }
 
 
@@ -521,6 +579,18 @@ int uiHorizonSetupGroup::getMode()
 
 void uiHorizonSetupGroup::setSeedPos( const Coord3& crd )
 {
+    const BinID& bid = SI().transform( crd.coord() );
+    const float z = (float)crd.z;
+    const int nrtrcs = 5;
+
+    Interval<int> intval = compwinfld_->getIInterval();
+    const StepInterval<int> zintv( intval.start/4, intval.stop/4, 1 );
+    const DataPack::ID dpid =
+	MPE::engine().getSeedPosDataPack( bid, z, nrtrcs, zintv );
+
+    correlationvwr_->setPack( true, dpid );
+    correlationvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+    correlationvwr_->setViewToBoundingBox();
 }
 
 
@@ -576,14 +646,14 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	horadj_->setPermittedZRange( relintv );
     }
 
-    const bool usesimi = usesimifld_->getBoolValue();
-    if ( horadj_->trackByValue() == usesimi )
+    const bool usecorr = usecorrfld_->getBoolValue();
+    if ( horadj_->trackByValue() == usecorr )
     {
 	fieldchange = true;
-	horadj_->setTrackByValue( !usesimi );
+	horadj_->setTrackByValue( !usecorr );
     }
 
-    if ( usesimi )
+    if ( usecorr )
     {
 	const Interval<int> intval = compwinfld_->getIInterval();
 	if ( intval.width()==0 || intval.isRev() )
@@ -598,7 +668,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	    horadj_->setSimilarityWindow( relintval );
 	}
 
-	const int gate = simithresholdfld_->getIntValue();
+	const int gate = corrthresholdfld_->getIntValue();
 	if ( gate > 100 || gate < 0)
 	    mErrRet( tr("Correlation threshold must be from 0 to 100") );
 	const float newthreshold = (float)gate / 100.f;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id$
+ RCS:           $Id: mpeengine.h 38753 2015-04-11 21:19:18Z nanne.hemstra@dgbes.com $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,8 @@ public:
 	    					 const int idx,bool);
 			/*!< add = true, remove = false. */
     ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;
+    DataPack::ID	getSeedPosDataPack(const TrcKey&,float z,int nrtrcs,
+					const StepInterval<int>& zrg) const;
 
     			/*Editors */
     ObjectEditor*	getEditor(const EM::ObjectID&,bool create);
