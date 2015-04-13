@@ -42,6 +42,7 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			DeclareEnumUtils(PosType);
 
 			Viewer2DPosDataSel() { clean(); };
+    virtual		~Viewer2DPosDataSel() {};
 			Viewer2DPosDataSel(const Viewer2DPosDataSel& sd)
 			{
 			    postype_	= sd.postype_;
