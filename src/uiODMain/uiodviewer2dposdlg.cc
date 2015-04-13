@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattribpartserv.h"
 #include "uiodviewer2dmgr.h"
+#include "uiodviewer2dposgrp.h"
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
 #include "uitaskrunner.h"
@@ -29,41 +30,46 @@ uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
 				     mODHelpKey(mODViewer2DPosDlgHelpID)))
     , odappl_(appl)
 {
-    posgrp_  = new uiODViewer2DPosGrp( this, posdatasel_, true );
+    posgrp_  = new uiODViewer2DPosGrp( this, new Viewer2DPosDataSel(), true );
 }
 
 
 bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
 {
-    if ( !posgrp_->acceptOK() )
+    if ( !posgrp_->commitSel() )
 	return false;
 
+    IOPar seldatapar;
+    posgrp_->fillPar( seldatapar );
+    Viewer2DPosDataSel posdatasel;
+    posdatasel.usePar( seldatapar );
     DataPack::ID vwr2ddpid = DataPack::cNoID();
     uiAttribPartServer* attrserv = odappl_.applMgr().attrServer();
-    attrserv->setTargetSelSpec( posdatasel_.selspec_ );
-    const bool isrl = !posdatasel_.rdmlineid_.isUdf();
+    attrserv->setTargetSelSpec( posdatasel.selspec_ );
+    const bool isrl = !posdatasel.rdmlineid_.isUdf();
     if ( isrl )
     {
 	TypeSet<BinID> knots, path;
-	posgrp_->getRdmLineGeom( knots, &posdatasel_.tkzs_.zsamp_ );
+	Geometry::RandomLineSet::getGeometry(
+		posdatasel.rdmlineid_, knots, &posdatasel.tkzs_.zsamp_ );
 	Geometry::RandomLine::getPathBids( knots, path );
 	vwr2ddpid = attrserv->createRdmTrcsOutput(
-				posdatasel_.tkzs_.zsamp_, &path, &knots );
+				posdatasel.tkzs_.zsamp_, &path, &knots );
     }
-    else if ( posdatasel_.geomid_ != Survey::GeometryManager::cUndefGeomID() )
+    else if ( posdatasel.geomid_ != Survey::GeometryManager::cUndefGeomID() )
     {
 	uiTaskRunner taskrunner( this );
 	vwr2ddpid =
-	    attrserv->create2DOutput( posdatasel_.tkzs_, posdatasel_.geomid_,
+	    attrserv->create2DOutput( posdatasel.tkzs_, posdatasel.geomid_,
 				      taskrunner );
     }
     else
     {
 	vwr2ddpid =
-	    attrserv->createOutput( posdatasel_.tkzs_, DataPack::cNoID() );
+	    attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
     }
 
-    odappl_.viewer2DMgr().displayIn2DViewer( vwr2ddpid, posdatasel_.selspec_,
+    odappl_.viewer2DMgr().displayIn2DViewer( vwr2ddpid, posdatasel.selspec_,
 					     false );
     return true;
 }

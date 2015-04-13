@@ -26,11 +26,10 @@ ________________________________________________________________________
 
 class IOObj;
 class uiAttrSel;
-class uiComboBox;
+class uiLabeledComboBox;
 class uiIOObjSel;
 class uiODMain;
 class uiODApplMgr;
-class uiODSceneMgr;
 class uiPushButton;
 class uiSeis2DSubSel;
 class uiSliceSel;
@@ -39,9 +38,13 @@ namespace Geometry { class RandomLine; }
 
 mStruct(uiODMain) Viewer2DPosDataSel
 {
+    enum PosType	{InLine=0, CrossLine=1, Line2D=2, ZSlice=3, RdmLine=4 };
+			DeclareEnumUtils(PosType);
+
 			Viewer2DPosDataSel() { clean(); };
 			Viewer2DPosDataSel(const Viewer2DPosDataSel& sd)
 			{
+			    postype_	= sd.postype_;
 			    selspec_	= sd.selspec_;
 			    tkzs_	= sd.tkzs_;
 			    rdmlineid_	= sd.rdmlineid_;
@@ -49,8 +52,9 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			    selectdata_ = sd.selectdata_;
 			}
 
-    void		clean()
+    virtual void	clean()
 			{
+			    postype_ = Viewer2DPosDataSel::InLine;
 			    selspec_ = Attrib::SelSpec();
 			    tkzs_ = TrcKeyZSampling(true);
 			    rdmlineid_ = MultiID::udf();
@@ -58,6 +62,7 @@ mStruct(uiODMain) Viewer2DPosDataSel
 			    selectdata_ = true;
 			}
 
+    PosType		postype_;
     Attrib::SelSpec	selspec_;
     TrcKeyZSampling	tkzs_;
     Pos::GeomID		geomid_;
@@ -67,8 +72,8 @@ mStruct(uiODMain) Viewer2DPosDataSel
     static const char*	sKeyRdmLineID() { return "Random Line ID"; }
     static const char*	sKeySelectData(){ return "Select Data"; }
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
 };
 
 
@@ -76,27 +81,32 @@ mExpClass(uiODMain) uiODViewer2DPosGrp : public uiGroup
 { mODTextTranslationClass(uiODViewer2DPosGrp);
 public:
 
-			uiODViewer2DPosGrp(uiParent*,Viewer2DPosDataSel&,
-					   bool wantz);
-			~uiODViewer2DPosGrp();
+				uiODViewer2DPosGrp(uiParent*,
+						   Viewer2DPosDataSel*,
+						   bool onlyvertical);
+				~uiODViewer2DPosGrp();
 
-    bool		is2D() const;
-    void		showDataSelField(bool yn);
-    void		setApplSceneMgr(uiODMain&);
-    void		getRdmLineGeom(TypeSet<BinID>&,
-				       StepInterval<float>* zrg=0);
+    bool			is2D() const;
+    Viewer2DPosDataSel::PosType selPosType() const
+				{ return posdatasel_->postype_; }
+    void			showDataSelField(bool yn);
+    void			setApplSceneMgr(uiODMain&);
+    virtual void		fillPar(IOPar&) const;
+    virtual void		usePar(const IOPar&);
+    Viewer2DPosDataSel&		posDataSel()		{ return *posdatasel_; }
+    const Viewer2DPosDataSel&	posDataSel() const	{ return *posdatasel_; }
+    virtual bool		commitSel();
 
     Notifier<uiODViewer2DPosGrp> inpSelected;
 
 protected:
 
-    bool		withz_;
-    Viewer2DPosDataSel& posdatasel_;
+    bool		onlyvertical_;
+    Viewer2DPosDataSel* posdatasel_;
 
     uiODApplMgr*	applmgr_;
-    uiODSceneMgr*	scenemgr_;
 
-    uiComboBox*		postypefld_;
+    uiLabeledComboBox*	postypefld_;
     uiAttrSel*		inp2dfld_;
     uiAttrSel*		inp3dfld_;
     uiIOObjSel*		rdmlinefld_;
@@ -104,21 +114,17 @@ protected:
     uiPushButton*	gen2dlinebut_;
     uiPushButton*	genrdmlinebut_;
     ObjectSet<uiSliceSel> sliceselflds_;
-
-    enum PosType	{RdmLine=0, InLine=1, CrossLine=2, Line2D=3, ZSlice=4};
-			DeclareEnumUtils(PosType);
-    PosType		tp_;
+    uiGroup*		topgrp_;
+    uiGroup*		botgrp_;
 
     IOObj*		get2DObj();
-    void		getPosSubSel();
+    void		updateDataSelFld();
     void		createSliceSel(uiSliceSel::Type);
-    bool		acceptOK();
 
     void		gen2DLine(CallBacker*);
     void		genRdmLine(CallBacker*);
     void		rdmLineDlgClosed(CallBacker*);
     void		inpSel(CallBacker*);
-    void		preview2DLine(CallBacker*);
     void		attr2DSelected(CallBacker*);
 };
 
