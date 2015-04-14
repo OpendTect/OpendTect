@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "arraynd.h"
+#include "coord.h"
 #include "enums.h"
 #include "arrayndslice.h"
 #include "mathfunc.h"
@@ -33,7 +34,7 @@ ________________________________________________________________________
 template <class T, class fT>
 inline bool removeLinPart( const ArrayND<T>& in_, ArrayND<T>* out, bool trend )
 {
-    ArrayND<T>& out_ = out ? *out : const_cast<ArrayND<T>&>(in_); 
+    ArrayND<T>& out_ = out ? *out : const_cast<ArrayND<T>&>(in_);
     if ( out && in_.info() != out_.info() )
 	return false;
 
@@ -270,7 +271,7 @@ public:
 			~ArrayNDWindow();
 
     bool		isOK() const	{ return window_; }
-    
+
     float		getParamVal() const { return paramval_; }
     float*		getValues() const { return window_; }
 
@@ -283,7 +284,7 @@ public:
     template <class Type> bool	apply(  ArrayND<Type>* in,
 					ArrayND<Type>* out_=0 ) const
     {
-	ArrayND<Type>* out = out_ ? out_ : in; 
+	ArrayND<Type>* out = out_ ? out_ : in;
 
 	if ( out_ && in->info() != out_->info() ) return false;
 	if ( in->info() != size_ ) return false;
@@ -310,7 +311,7 @@ public:
 		for ( unsigned long idx = 0; idx < totalsz; idx++ )
 		{
 		    Type inval = instorage->value(idx);
-		    outstorage->setValue(idx, 
+		    outstorage->setValue(idx,
 			    mIsUdf( inval ) ? inval : inval * window_[idx] );
 		}
 	    }
@@ -406,7 +407,7 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     int firstpos0 = prevpos0 - 1;
     int nextpos0 = prevpos0 + 1;
     int lastpos0 = prevpos0 + 2;
-				    
+
     if ( posperiodic ) firstpos0 = dePeriodize( firstpos0, size.getSize(0) );
     if ( posperiodic ) nextpos0 = dePeriodize( nextpos0, size.getSize(0) );
     if ( posperiodic ) lastpos0 = dePeriodize( lastpos0, size.getSize(0) );
@@ -414,7 +415,7 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     int firstpos1 = prevpos1 - 1;
     int nextpos1 = prevpos1 + 1;
     int lastpos1 = prevpos1 + 2;
-				    
+
     if ( posperiodic ) firstpos1 = dePeriodize( firstpos1, size.getSize(1) );
     if ( posperiodic ) nextpos1 = dePeriodize( nextpos1, size.getSize(1) );
     if ( posperiodic ) lastpos1 = dePeriodize( lastpos1, size.getSize(1) );
@@ -422,12 +423,12 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     int firstpos2 = prevpos2 - 1;
     int nextpos2 = prevpos2 + 1;
     int lastpos2 = prevpos2 + 2;
-				    
+
     if ( posperiodic ) firstpos2 = dePeriodize( firstpos2, size.getSize(2) );
     if ( posperiodic ) nextpos2 = dePeriodize( nextpos2, size.getSize(2) );
     if ( posperiodic ) lastpos2 = dePeriodize( lastpos2, size.getSize(2) );
 
-    return polyInterpolate3D (  
+    return polyInterpolate3D (
             array.get( firstpos0  , firstpos1  , firstpos2 ),
             array.get( firstpos0  , firstpos1  , prevpos2  ),
             array.get( firstpos0  , firstpos1  , nextpos2  ),
@@ -518,8 +519,8 @@ template <class T>
 inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
 			 const TypeSet<int>& copypos, bool srcperiodic=false )
 {
-    const ArrayNDInfo& destsz = dest.info(); 
-    const ArrayNDInfo& srcsz = src.info(); 
+    const ArrayNDInfo& destsz = dest.info();
+    const ArrayNDInfo& srcsz = src.info();
 
     const int ndim = destsz.getNDim();
     if ( ndim != srcsz.getNDim() || ndim != copypos.size() ) return false;
@@ -546,7 +547,7 @@ inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
 
 	dest.setND( destposition.getPos(), src.get( &srcposition[0] ));
 
-		
+
     } while ( destposition.next() );
 
     return true;
@@ -557,8 +558,8 @@ template <class T>
 inline bool Array3DCopy( Array3D<T>& dest, const Array3D<T>& src,
 			 int p0, int p1, int p2, bool srcperiodic=false )
 {
-    const ArrayNDInfo& destsz = dest.info(); 
-    const ArrayNDInfo& srcsz = src.info(); 
+    const ArrayNDInfo& destsz = dest.info();
+    const ArrayNDInfo& srcsz = src.info();
 
     const int destsz0 = destsz.getSize(0);
     const int destsz1 = destsz.getSize(1);
@@ -586,7 +587,7 @@ inline bool Array3DCopy( Array3D<T>& dest, const Array3D<T>& src,
 	    for ( int id2=0; id2<destsz2; id2++ )
 	    {
 		ptr[idx++] = src.get( dePeriodize(id0 + p0, srcsz0),
-					 dePeriodize(id1 + p1, srcsz1), 
+					 dePeriodize(id1 + p1, srcsz1),
 					 dePeriodize(id2 + p2, srcsz2));
 
 	    }
@@ -594,7 +595,7 @@ inline bool Array3DCopy( Array3D<T>& dest, const Array3D<T>& src,
     }
 
     return true;
-}    
+}
 
 
 template <class T>
@@ -602,8 +603,8 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
 			  const TypeSet<int>& pastepos,
 			  bool destperiodic=false )
 {
-    const ArrayNDInfo& destsz = dest.info(); 
-    const ArrayNDInfo& srcsz = src.info(); 
+    const ArrayNDInfo& destsz = dest.info();
+    const ArrayNDInfo& srcsz = src.info();
 
     const int ndim = destsz.getNDim();
     if ( ndim != srcsz.getNDim() || ndim != pastepos.size() ) return false;
@@ -632,19 +633,19 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
 	}
 
 	dest( destposition ) =  ptr[ptrpos++];
-		
+
     } while ( srcposition.next() );
 
     return true;
-}    
+}
 
 
 template <class T>
 inline bool Array2DPaste( Array2D<T>& dest, const Array2D<T>& src,
 			  int p0, int p1, bool destperiodic=false )
 {
-    const ArrayNDInfo& destsz = dest.info(); 
-    const ArrayNDInfo& srcsz = src.info(); 
+    const ArrayNDInfo& destsz = dest.info();
+    const ArrayNDInfo& srcsz = src.info();
 
     const int srcsz0 = srcsz.getSize(0);
     const int srcsz1 = srcsz.getSize(1);
@@ -682,8 +683,8 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 			  int p0, int p1, int p2,
 			  bool destperiodic=false )
 {
-    const ArrayNDInfo& destsz = dest.info(); 
-    const ArrayNDInfo& srcsz = src.info(); 
+    const ArrayNDInfo& destsz = dest.info();
+    const ArrayNDInfo& srcsz = src.info();
 
     const int srcsz0 = srcsz.getSize(0);
     const int srcsz1 = srcsz.getSize(1);
@@ -719,6 +720,125 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
     }
 
     return true;
+}
+
+
+
+/*!
+  \brief Polynomial trend with order 0 (mean), 1 (linear) or 2 (parabolic)
+  The trend is derived from a set of values with positions
+  and can be applied thereafter on any other position
+*/
+
+mExpClass(Algo) PolyTrend
+{
+public:
+				PolyTrend();
+
+    bool			operator==(const PolyTrend&) const;
+
+				enum Order	{ None, Order0, Order1, Order2};
+				DeclareEnumUtils(Order)
+
+    static const char*		sKeyOrder()	{ return "Polynomial Order"; }
+
+    void			setOrder( PolyTrend::Order t )	{ order_ = t; }
+    template <class IDXABLE> bool	set(const TypeSet<Coord>&,
+					    const IDXABLE& valuelistj);
+				/*!< Use after the order is set!
+				     Sets the trend from a list of values
+				     tied to a list of coordinates */
+
+    Order			getOrder() const	{ return order_; }
+
+    template <class T> void	apply(const Coord& pos,bool dir,T&) const;
+				/*!<Applies the trend to a value tied to
+				    a position */
+				/*!<\param dir: true for detrend,
+						false for restore */
+
+protected:
+
+    Order			order_;
+    double			f0_;
+    double			f1_;
+    double			f2_;
+    double			f11_;
+    double			f12_;
+    double			f22_;
+    Coord			posc_;
+
+    void			initOrder0(const TypeSet<double>&);
+    void			initOrder1(const TypeSet<Coord>&,
+					   const TypeSet<double>&);
+    void			initOrder2(const TypeSet<Coord>&,
+					   const TypeSet<double>&);
+    void			initCenter(const TypeSet<Coord>&);
+
+};
+
+
+
+template <class IDXABLE> inline
+bool PolyTrend::set( const TypeSet<Coord>& poslist, const IDXABLE& vals )
+{
+    int sz = poslist.size();
+    if ( order_ == PolyTrend::None )
+	return false;
+
+    f0_ = f1_ = f2_ = f11_ = f12_ = f22_ = posc_.x = posc_.y = 0.;
+    TypeSet<Coord> posnoudf;
+    TypeSet<double> valsnoudf;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( !poslist[idx].isDefined() || mIsUdf(vals[idx]) )
+	    continue;
+
+	posnoudf += poslist[idx];
+	valsnoudf += (double) vals[idx];
+    }
+
+    sz = valsnoudf.size();
+    if ( order_ == Order2 && sz > 5 )
+	initOrder2( posnoudf, valsnoudf );
+    else if ( order_ == Order1 && sz > 2 )
+	initOrder1( posnoudf, valsnoudf );
+    else
+	initOrder0( valsnoudf );
+
+    return true;
+}
+
+
+template <class T> inline
+void PolyTrend::apply( const Coord& pos, bool dir, T& val ) const
+{
+    if ( order_ == None || !pos.isDefined() || mIsUdf(val) )
+	return;
+
+    const double fact = dir ? -1. : 1;
+    double inp = (double) val;
+    inp += fact * f0_;
+    if ( order_ == Order0 )
+    {
+	val = (T)inp;
+	return;
+    }
+
+    const double dx = pos.x - posc_.x;
+    const double dy = pos.y - posc_.y;
+    inp += fact * ( f1_ * dx + f2_ * dy );
+    if ( order_ == Order1 )
+    {
+	val = (T)inp;
+	return;
+    }
+
+    const double dx2 = dx * dx;
+    const double dxy = dx * dy;
+    const double dyy = dy * dy;
+    inp += fact * ( f11_ * dx2 + f12_ * dxy + f22_ * dyy );
+    val = (T)inp;
 }
 
 #endif
