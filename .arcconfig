@@ -3,6 +3,6 @@
   "project_id" :  "od6.0",
   "lint.engine" : "dGBLintEngine",
   "conduit_uri" : "https://phabricator.dgbes.com:8443",
-  "base" :	  "git:merge-base(origin/master), arc:prompt"
+  "base" :	  "arc:verbose,git:merge-base(origin/od6.0), arc:prompt"
 }
 
