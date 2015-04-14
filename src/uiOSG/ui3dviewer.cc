@@ -1018,7 +1018,7 @@ void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
 	    trueviewdir = -trueviewdir;
     }
 
-    manip->viewAll( view_, viewdir, updir,true );
+    manip->viewAll( view_, trueviewdir, updir, true );
     requestRedraw();
 }
 
