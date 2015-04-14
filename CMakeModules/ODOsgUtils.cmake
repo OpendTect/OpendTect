@@ -34,12 +34,30 @@ macro( OD_ADD_OSGGEO )
 	endif()
     endif()
 
+    #SET DEBUG POSTFIX
+    set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
+    set (CMAKE_DEBUG_POSTFIX d)
+
     add_subdirectory( ${CMAKE_SOURCE_DIR}/external/osgGeo/src/osgGeo 
 		  ${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo )
+
+    #RESTORE DEBUG POSTFIX
+
+    set (CMAKE_DEBUG_POSTFIX ${OLD_CMAKE_DEBUG_POSTFIX} )
+
     set ( OSGGEO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/osgGeo/src
 			     ${CMAKE_BINARY_DIR}/external/osgGeo/src )
     set ( OSGGEO_LIBRARY_PATH
 	${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo/${CMAKE_BUILD_TYPE} )
+
+    get_property( osgGeo_DEBUG_LOCATION TARGET osgGeo PROPERTY LOCATION_DEBUG )
+    get_property( osgGeo_RELEASE_LOCATION TARGET osgGeo PROPERTY LOCATION_RELEASE )
+    install( PROGRAMS ${osgGeo_DEBUG_LOCATION}
+		DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
+		CONFIGURATIONS "Debug" )
+    install( PROGRAMS ${osgGeo_RELEASE_LOCATION}
+		DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+		CONFIGURATIONS Release )
 endmacro()
 
 macro(OD_SETUP_OSG)
@@ -114,7 +132,9 @@ macro(OD_SETUP_OSG)
 			    list( APPEND ARGS ${OSG_DIR}/lib/${OSGLIBNAME} )
 			endif()
 			list( GET ARGS 0 FILENM )
-			OD_INSTALL_LIBRARY( ${FILENM} ${BUILD_TYPE} )
+			if( ${ISOSGGEO} EQUAL -1 )
+			    OD_INSTALL_LIBRARY( ${FILENM} ${BUILD_TYPE} )
+			endif()
 			list( REMOVE_ITEM ARGS ${ARGS} )
 			set( ALLLIBS "" )
 		    elseif( WIN32 )
