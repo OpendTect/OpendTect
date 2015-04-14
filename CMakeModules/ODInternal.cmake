@@ -123,7 +123,10 @@ if( APPLE )
     install( FILES ${CMAKE_BINARY_DIR}/${INFOFILE} DESTINATION "Contents" )
 endif( APPLE )
 
-set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
+if ( QT_QJPEG_PLUGIN_RELEASE )
+    set( QJPEG ${QT_QJPEG_PLUGIN_RELEASE} )
+endif()
+
 set( LMHOSTID lmhostid )
 if( WIN32 )
     if ( ${CMAKE_BUILD_TYPE} STREQUAL "Debug" )
