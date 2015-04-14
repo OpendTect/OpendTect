@@ -367,7 +367,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
     int wrongextidx = -1;
     for ( int idx=0; idx<externalfilenames_->size(); idx++ )
     {
-	BufferString fname( externalfilenames_[idx] );
+	BufferString fname( (*externalfilenames_)[idx] );
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() )
 	    fp = FilePath( dir, fname );
@@ -430,7 +430,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 
     if ( *filters && wrongextidx>=0 )
     {
-	mRetMsg( externalfilenames_[wrongextidx],
+	mRetMsg( (*externalfilenames_)[wrongextidx],
 		 "has an incompatible file extension", 1 );
     }
 
