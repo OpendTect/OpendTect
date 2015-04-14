@@ -24,7 +24,7 @@ bool testArg()
 
     const char* desoutput = "Hello Dear 1";
 
-    uiString string = toUiString( "Hello %1 %2").arg( "Dear" ).arg( toString(1) );
+    uiString string = toUiString( "Hello %1 %2").arg( "Dear" ).arg(toString(1));
     mRunStandardTest( string.getQtString()==QString( desoutput ),
 		     "Standard argument order");
 
@@ -85,6 +85,26 @@ bool testSharedData()
 }
 
 
+bool testIsEqual()
+{
+    const uiString a = toUiString( "A" );
+    const uiString a2 = toUiString( "A" );
+    const uiString b = toUiString( "B" );
+
+    mRunStandardTest( a.isEqualTo(a2),
+	    "Is equal is true for equal strings, test 1" );
+    mRunStandardTest( !a.isEqualTo(b),
+	    "Is equal is false for different strings, test 1" );
+
+    mRunStandardTest( a2.isEqualTo(a),
+	    "Is equal is true for equal strings, test 2" );
+    mRunStandardTest( !b.isEqualTo(a),
+	    "Is equal is false for different strings, test 2" );
+
+    return true;
+}
+
+
 bool testQStringAssignment()
 {
     const char* message = "Hello World";
@@ -137,7 +157,8 @@ bool testHexEncoding()
     original.getHexEncoded( encoding );
     
     mRunStandardTest( str.setFromHexEncoded( encoding ) &&
-	              original.isEqualTo(str), "Reading encoded string" );
+		      original.getQtString()==str.getQtString(),
+		      "Reading encoded string" );
     
 
     return true;
@@ -149,7 +170,7 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
-	 !testOptionStrings() || !testHexEncoding() )
+	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );
