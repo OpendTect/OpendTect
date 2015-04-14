@@ -634,6 +634,13 @@ void uiString::getHexEncoded( BufferString& str ) const
 }
 
 
+bool uiString::isEqualTo( const uiString& oth ) const
+{
+    const BufferString othbuf = oth.getFullString();
+    return othbuf == getFullString();
+}
+
+
 bool uiString::setFromHexEncoded( const char* str )
 {
 #ifndef OD_NO_QT
