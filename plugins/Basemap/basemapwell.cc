@@ -33,6 +33,8 @@ WellObject::WellObject( const MultiID& mid )
     data_.ref();
 
     setDepth( 10 );
+
+    ms_.type_ = MarkerStyle2D::Circle;
 }
 
 
