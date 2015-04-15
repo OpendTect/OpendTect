@@ -35,7 +35,6 @@ public:
     virtual bool	put() const			= 0; //!< Just write all
 
     virtual bool	putInfoAndTrack() const		= 0;
-    virtual bool	putTrack() const		= 0;
     virtual bool	putLogs() const			= 0;
     virtual bool	putMarkers() const		= 0;
     virtual bool	putD2T() const			= 0;

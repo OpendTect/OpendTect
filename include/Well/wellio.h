@@ -39,7 +39,6 @@ public:
     static const char*	sKeyD2T();
     static const char*	sKeyDispProps();
     static const char*	sExtWell();
-    static const char*	sExtTrack();
     static const char*	sExtLog();
     static const char*	sExtMarkers();
     static const char*	sExtD2T();

@@ -91,7 +91,6 @@ bool Well::Writer::fnnm() const { return wa_ ? wa_->fnnm() : false; }
 
 mImplSimpleWWFn(put)
 mImplSimpleWWFn(putInfoAndTrack)
-mImplSimpleWWFn(putTrack)
 mImplSimpleWWFn(putLogs)
 mImplSimpleWWFn(putMarkers)
 mImplSimpleWWFn(putD2T)
@@ -205,13 +204,6 @@ bool Well::odWriter::putTrack( od_ostream& strm ) const
     if ( !strm.isOK() )
 	mErrRetStrmOper("write track data")
     return true;
-}
-
-
-bool Well::odWriter::putTrack() const
-{
-    mGetOutStream( sExtTrack(), 0, return false )
-    return putTrack( strm );
 }
 
 

@@ -38,7 +38,6 @@ public:
     bool		put() const;
 
     virtual bool	putInfoAndTrack() const;
-    virtual bool	putTrack() const;
     virtual bool	putLogs() const;
     virtual bool	putMarkers() const;
     virtual bool	putD2T() const;
