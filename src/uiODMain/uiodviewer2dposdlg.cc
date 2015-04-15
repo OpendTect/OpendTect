@@ -30,7 +30,7 @@ uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
 				     mODHelpKey(mODViewer2DPosDlgHelpID)))
     , odappl_(appl)
 {
-    posgrp_  = new uiODViewer2DPosGrp( this, new Viewer2DPosDataSel(), true );
+    posgrp_  = new uiODViewer2DPosGrp( this, new Viewer2DPosDataSel(), false );
 }
 
 
