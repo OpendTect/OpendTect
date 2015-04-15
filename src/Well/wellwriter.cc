@@ -210,8 +210,7 @@ bool Well::odWriter::putTrack( od_ostream& strm ) const
 
 bool Well::odWriter::putTrack() const
 {
-    mGetOutStream( sExtTrack(), 0, return false )
-    return putTrack( strm );
+    return putInfoAndTrack();
 }
 
 

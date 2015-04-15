@@ -436,21 +436,14 @@ bool Well::odReader::getTrack( od_istream& strm ) const
 
 bool Well::odReader::getTrack() const
 {
-    bool isold = false;
-    mGetInpStream( sExtTrack(), 0, false, isold = true );
-    if ( isold )
-    {
-	strm.open( getFileName(".well",0) );
-	if ( !strm.isOK() )
-	    mErrRetStrmOper( "find valid main well file" )
-    }
+    od_istream strm( getFileName(sExtWell(),0) );
+    if ( !strm.isOK() )
+	mErrRetStrmOper( "find valid main well file" )
 
     ascistream astrm( strm );
     const double version = (double)astrm.majorVersion() +
 			   ((double)astrm.minorVersion()/(double)10);
-    if ( isold )
-	{ IOPar dum; dum.getFrom( astrm ); }
-
+    IOPar dum; dum.getFrom( astrm );
     const bool isok = getTrack( strm );
     if ( SI().zInFeet() && version < 4.195 )
     {
