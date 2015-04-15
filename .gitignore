@@ -18,6 +18,9 @@ Testing/
 bin/lux64/Debug/
 bin/lux64/Release/
 include/General/od_helpids.h
+install_manifest.txt
+inst
+
 
 #CMakes stuff
 *.ninja
