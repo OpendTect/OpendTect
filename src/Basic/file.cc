@@ -492,8 +492,25 @@ bool copyDir( const char* from, const char* to, BufferString* errmsg )
 }
 
 
+bool resize( const char* fnm, od_int64 newsz )
+{
+    if ( !fnm || !*fnm )
+	return true;
+    else if ( newsz < 0 )
+	return remove( fnm );
+#ifndef OD_NO_QT
+    return QFile::resize( fnm, newsz );
+#else
+    pFreeFnErrMsg(not_implemented_str);
+    return false;
+#endif
+}
+
+
 bool remove( const char* fnm )
 {
+    if ( !fnm || !*fnm )
+	return true;
 #ifndef OD_NO_QT
     return isFile(fnm) ? QFile::remove( fnm ) : removeDir( fnm );
 #else

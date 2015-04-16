@@ -60,6 +60,7 @@ mGlobal(Basic) bool		copy(const char* from,const char* to,
 					BufferString* errmsg=0);
 mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
 					       const char* to);
+mGlobal(Basic) bool		resize(const char*,od_int64);
 mGlobal(Basic) bool		remove(const char*);
 mGlobal(Basic) bool		saveCopy(const char* from,const char* to);
 mGlobal(Basic) bool		copyDir(const char* from,const char* to,
