@@ -60,8 +60,8 @@ foreach ( PACKAGE ${PACKAGELIST} )
     if( ${PACK} STREQUAL "devel" )
         create_develpackages()
     else()
-	if ( UNIX AND ("${OD_ENABLE_BREAKPAD}" STREQUAL "ON") )
-	    #Genarate Symbols and then Strip the binaries
+	if ( "${OD_ENABLE_BREAKPAD}" STREQUAL "ON" )
+	    #Genarate Symbols on Win and Linux platofrms. Also strip libs in Linux
 	    set( ALLLIBS ${LIBLIST} ${PLUGINS} )
 	    OD_GENERATE_BREAKPAD_SYMBOLS( "${ALLLIBS}" "${EXECLIST}" )
 	endif()
