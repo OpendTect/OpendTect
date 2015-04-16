@@ -24,7 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 # define mCheckThread \
     if ( thread_!=Threads::currentThread() ) \
-      pErrMsg("Invalid Thread access" )
+    { \
+      pErrMsg("Invalid Thread access" ); \
+    }
 
 
 Network::Socket::Socket( bool haveevloop )
