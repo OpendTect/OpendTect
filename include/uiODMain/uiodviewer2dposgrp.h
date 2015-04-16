@@ -41,8 +41,8 @@ mStruct(uiODMain) Viewer2DPosDataSel
     enum PosType	{InLine=0, CrossLine=1, Line2D=2, ZSlice=3, RdmLine=4 };
 			DeclareEnumUtils(PosType);
 
-			Viewer2DPosDataSel() { clean(); };
-    virtual		~Viewer2DPosDataSel() {};
+			Viewer2DPosDataSel() { clean(); }
+    virtual		~Viewer2DPosDataSel() {}
 			Viewer2DPosDataSel(const Viewer2DPosDataSel& sd)
 			{
 			    postype_	= sd.postype_;
@@ -79,12 +79,15 @@ mStruct(uiODMain) Viewer2DPosDataSel
 
 
 mExpClass(uiODMain) uiODViewer2DPosGrp : public uiGroup
-{ mODTextTranslationClass(uiODViewer2DPosGrp);
+{ mODTextTranslationClass(uiODViewer2DPosGrp)
 public:
 
 				uiODViewer2DPosGrp(uiParent*,
 						   Viewer2DPosDataSel*,
-						   bool onlyvertical);
+						   bool onlyvertical,
+						   bool withpostype=false);
+				// Viewer2DPosDataSel objects becomes mine
+
 				~uiODViewer2DPosGrp();
 
     bool			is2D() const;
@@ -119,7 +122,10 @@ protected:
     uiGroup*		botgrp_;
 
     IOObj*		get2DObj();
+    void		init(bool);
     void		updateDataSelFld();
+    void		updateFlds();
+    void		updateTrcKeySampFld();
     void		createSliceSel(uiSliceSel::Type);
 
     void		gen2DLine(CallBacker*);

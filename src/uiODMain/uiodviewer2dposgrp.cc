@@ -41,7 +41,7 @@ DefineEnumNames(Viewer2DPosDataSel,PosType,0,"Position Type")
     Viewer2DPosDataSel::toString( postype )
 
 uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
-	Viewer2DPosDataSel* posdatasel, bool onlyvertical )
+	Viewer2DPosDataSel* posdatasel, bool onlyvertical, bool withpostype )
     : uiGroup(p)
     , applmgr_(0)
     , rdmlinefld_(0)
@@ -69,10 +69,13 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
     if ( SI().has2D() )
 	geoms += new BufferString( mToPosTypeStr(Viewer2DPosDataSel::Line2D) );
 
-    postypefld_ = new uiLabeledComboBox( this, tr("Position type") );
-    postypefld_->box()->addItems( geoms );
-    postypefld_->box()->selectionChanged.notify( inpcb );
-    topgrp_ = postypefld_;
+    if ( !withpostype )
+    {
+	postypefld_ = new uiLabeledComboBox( this, tr("Position type") );
+	postypefld_->box()->addItems( geoms );
+	postypefld_->box()->selectionChanged.notify( inpcb );
+	topgrp_ = postypefld_;
+    }
 
     static const char* createlinetxt = "Create from Wells";
 
@@ -95,6 +98,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	subsel2dfld_->attachObj()->attach( alignedBelow, inp2dfld_ );
 	botgrp_ = subsel2dfld_;
 	attr2DSelected(0);
+	setHAlignObj( inp2dfld_ );
     }
 
     if ( SI().has3D() )
@@ -120,6 +124,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	    new uiPushButton( this, createlinetxt,
 			      mCB(this,uiODViewer2DPosGrp,genRdmLine),true);
 	genrdmlinebut_->attach( rightOf, rdmlinefld_ );
+	setHAlignObj( inp3dfld_ );
     }
 
     inpSel( 0 );
@@ -142,10 +147,16 @@ void uiODViewer2DPosGrp::fillPar( IOPar& selpar ) const
 void uiODViewer2DPosGrp::usePar( const IOPar& selpar )
 {
     posdatasel_->usePar( selpar );
-    postypefld_->box()->setText( mToPosTypeStr(posdatasel_->postype_) );
-    postypefld_->display( !posdatasel_->tkzs_.isFlat() );
-    inpSel( 0 );
+
+    if ( postypefld_)
+    {
+	postypefld_->box()->setText( mToPosTypeStr(posdatasel_->postype_) );
+	postypefld_->display( !posdatasel_->tkzs_.isFlat() );
+    }
+
+    updateFlds();
     updateDataSelFld();
+    updateTrcKeySampFld();
 }
 
 
@@ -159,6 +170,7 @@ bool uiODViewer2DPosGrp::is2D() const
 {
     return posdatasel_->postype_ == Viewer2DPosDataSel::Line2D;
 }
+
 
 void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
 {
@@ -274,6 +286,35 @@ void uiODViewer2DPosGrp::updateDataSelFld()
 }
 
 
+void uiODViewer2DPosGrp::updateTrcKeySampFld()
+{
+    const TrcKeyZSampling& tkzs = posdatasel_->tkzs_;
+    switch ( posdatasel_->postype_ )
+    {
+	case Viewer2DPosDataSel::Line2D :
+	{
+	    TypeSet<Pos::GeomID> geomids;
+	    geomids += posdatasel_->geomid_;
+	    subsel2dfld_->setInputLines( geomids );
+	    subsel2dfld_->uiSeisSubSel::setInput( tkzs.hsamp_ );
+	    break;
+	}
+	case Viewer2DPosDataSel::InLine:
+	    sliceselflds_[0]->setTrcKeyZSampling( tkzs );
+	    break;
+	case Viewer2DPosDataSel::CrossLine:
+	    sliceselflds_[1]->setTrcKeyZSampling( tkzs );
+	    break;
+	case Viewer2DPosDataSel::ZSlice:
+	    sliceselflds_[2]->setTrcKeyZSampling( tkzs );
+	    break;
+	case Viewer2DPosDataSel::RdmLine:
+	    rdmlinefld_->setInput( posdatasel_->rdmlineid_ );
+	    break;
+    }
+}
+
+
 void uiODViewer2DPosGrp::gen2DLine( CallBacker* )
 {
     if ( !applmgr_ ) return;
@@ -318,9 +359,21 @@ void uiODViewer2DPosGrp::rdmLineDlgClosed( CallBacker* )
 
 void uiODViewer2DPosGrp::inpSel( CallBacker* )
 {
-    const char* txtofinp = postypefld_->box()->text();
-    Viewer2DPosDataSel::parseEnum( txtofinp, posdatasel_->postype_ );
+    if ( postypefld_ )
+    {
+	const char* txtofinp = postypefld_->box()->text();
+	Viewer2DPosDataSel::parseEnum( txtofinp, posdatasel_->postype_ );
+    }
 
+    updateFlds();
+    commitSel();
+
+    inpSelected.trigger();
+}
+
+
+void uiODViewer2DPosGrp::updateFlds()
+{
     if ( SI().has2D() )
     {
 	inp2dfld_->display( is2D() && posdatasel_->selectdata_ );
@@ -341,14 +394,7 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* )
 	if ( !onlyvertical_ )
 	    sliceselflds_[2]->display(
 		    posdatasel_->postype_==Viewer2DPosDataSel::ZSlice );
-	posdatasel_->tkzs_ =
-	    posdatasel_->postype_ == Viewer2DPosDataSel::InLine
-		?  sliceselflds_[0]->getTrcKeyZSampling()
-		: posdatasel_->postype_ == Viewer2DPosDataSel::CrossLine
-			? sliceselflds_[1]->getTrcKeyZSampling()
-			: posdatasel_->postype_ == Viewer2DPosDataSel::ZSlice
-				? sliceselflds_[2]->getTrcKeyZSampling()
-				: 0;
+
 	if ( rdmlinefld_ )
 	{
 	    NotifyStopper rdmlinefldselstopper( rdmlinefld_->selectionDone );
@@ -356,8 +402,6 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* )
 		    posdatasel_->postype_ == Viewer2DPosDataSel::RdmLine );
 	}
     }
-
-    inpSelected.trigger();
 }
 
 
