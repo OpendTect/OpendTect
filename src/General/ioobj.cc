@@ -23,11 +23,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "perthreadrepos.h"
 
+class OwnedProducerList : public ObjectSet<const IOObjProducer>
+{
+    public:
+	~OwnedProducerList() { deepErase( *this ); }
+};
+
 
 static ObjectSet<const IOObjProducer>& getProducers()
 {
     mDefineStaticLocalObject( PtrMan<ObjectSet<const IOObjProducer> >, prods,
-			      = new ObjectSet<const IOObjProducer> );
+			      = new OwnedProducerList );
     return *prods;
 }
 

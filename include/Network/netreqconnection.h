@@ -48,7 +48,7 @@ mExpClass(Network) RequestConnection : public CallBacker
 public:
 			RequestConnection(const char* servername,
 					  unsigned short serverport,
-					  bool haveeventloop=true,
+					  bool multithreaded=true,
 					  int connectiontimeout=-1);
 			//!<Initiates communications
 			RequestConnection(Socket*);
@@ -64,15 +64,23 @@ public:
 
     bool		sendPacket(const RequestPacket&,
 				   bool waitforfinish=false);
+			/*!<Must be called from same thread as construcor unless
+			    'multithreaded' flag was set on constructor.
+			*/
 
     RequestPacket*	pickupPacket(od_int32 reqid,int timeout /* in ms */,
-					int* errorcode=0);
+				     int* errorcode=0);
+			/*!<Must be called from same thread as construcor unless
+			    'multithreaded' flag was set on constructor.
+			*/
+
     RequestPacket*	getNextExternalPacket();
 
     static int		cInvalidRequest()	{ return 1; }
     static int		cTimeout()		{ return 2; }
     static int		cDisconnected()		{ return 3; }
 
+    bool		isMultiThreaded()	{ return socketthread_; }
     Socket*		socket()		{ return socket_; }
 
     CNotifier<RequestConnection,od_int32> packetArrived;
@@ -84,6 +92,9 @@ private:
 
     uiString			errmsg_;
 
+    enum ThreadReadStatus	{ None, TryRead, ReadOK, ReadFail };
+    ThreadReadStatus		threadreadstatus_;
+
     TypeSet<od_int32>		ourrequestids_;
     ObjectSet<RequestPacket>	receivedpackets_;
 
@@ -92,11 +103,11 @@ private:
     int				timeout_;
     bool			ownssocket_;
 
-    Threads::ConditionVar	sendlock_;
     const RequestPacket*	packettosend_;
     bool			sendwithwait_;
     bool			sendresult_;
     bool			sendingfinished_;
+    bool			triggerread_;
 
     int				id_;
 
@@ -108,7 +119,7 @@ private:
     bool			stopflag_;
     bool			readfirst_;
 
-    void			connectToHost(bool haseventloop);
+    void			connectToHost();
     void			flush();
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);
