@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "testprog.h"
 
+#include <time.h>
 
 namespace Network
 {
