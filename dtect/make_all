@@ -70,11 +70,11 @@ set dgbdir=`echo $oddir | sed 's/od/dgb/'`
 if ( $doupd == yes ) then
     cd ..
     echo "svn update $oddir"
-    cd $oddir; svn update
+    cd $oddir; make update
     echo ""
     echo "svn update $dgbdir"
     sleep 2;
-    cd ../$dgbdir; svn update
+    cd ../$dgbdir; make update
     cdw
 endif
 
