@@ -15,12 +15,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "datainterp.h"
 #include "netreqpacket.h"
+#include "hiddenparam.h"
 
 #include <limits.h>
 
 #ifndef OD_NO_QT
 #include "qtcpsocketcomm.h"
 #endif
+
+static HiddenParam<Network::Socket, const void*> threadparam( 0 );
+
+
+# define mCheckThread \
+    if ( threadparam.getParam(this)!=Threads::currentThread() ) \
+    { \
+	pErrMsg("Invalid Thread access" ); \
+    }
 
 
 Network::Socket::Socket( bool haveevloop )
@@ -39,6 +49,7 @@ Network::Socket::Socket( bool haveevloop )
 #ifndef OD_NO_QT
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
 #endif
+    threadparam.setParam( this, Threads::currentThread() );
 }
 
 
@@ -58,21 +69,32 @@ Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
 #ifndef OD_NO_QT
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
 #endif
+    threadparam.setParam( this, Threads::currentThread() );
 }
 
 
 Network::Socket::~Socket()
 {
+    mCheckThread;
 #ifndef OD_NO_QT
     socketcomm_->disconnect();
     socketcomm_->deleteLater();
     if ( ownssocket_ ) qtcpsocket_->deleteLater();
 #endif
+
+    threadparam.removeParam( this );
+}
+
+
+const void* Network::Socket::thread() const
+{
+    return threadparam.getParam( this );
 }
 
 
 bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 {
+    mCheckThread;
 #ifdef OD_NO_QT
     return false;
 #else
@@ -98,6 +120,7 @@ bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 
 bool Network::Socket::disconnectFromHost( bool wait )
 {
+    mCheckThread;
     if ( noeventloop_ )
 	wait = true;
 
@@ -168,6 +191,7 @@ static const od_int64 maxbuffersize = INT_MAX/2;
 
 bool Network::Socket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
 {
+    mCheckThread;
 #ifndef OD_NO_QT
     const char* buf = (const char*) voidbuf;
     if ( noeventloop_ )
@@ -282,6 +306,7 @@ bool Network::Socket::write( const Network::RequestPacket& pkt, bool waitfor )
 Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
 							od_int64 sz ) const
 {
+    mCheckThread;
 #ifndef OD_NO_QT
     char* buf = (char*)voidbuf;
 

@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "netreqconnection.h"
 
+#include "applicationdata.h"
 #include "netreqpacket.h"
 #include "netsocket.h"
 #include "netserver.h"
@@ -19,10 +20,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Network;
 
+static Threads::Atomic<int> connid;
+
 
 RequestConnection::RequestConnection( const char* servername,
 				      unsigned short servport,
-				      bool haseventloop,
+				      bool multithreaded,
 				      int timeout )
     : socket_( 0 )
     , ownssocket_( true )
@@ -30,8 +33,25 @@ RequestConnection::RequestConnection( const char* servername,
     , serverport_( servport )
     , connectionClosed( this )
     , packetArrived( this )
+    , id_( connid++ )
+    , socketthread_( 0 )
+    , timeout_( timeout )
+    , stopflag_( 0 )
+    , packettosend_( 0 )
+    , threadreadstatus_( None )
+    , triggerread_( false )
 {
-    connectToHost( haseventloop, timeout );
+    if ( multithreaded )
+    {
+	Threads::MutexLocker locker( lock_ );
+	socketthread_ =
+	    new Threads::Thread( mCB(this,RequestConnection,socketThreadFunc) );
+	lock_.wait(); //Wait for thread to create connection.
+    }
+    else
+    {
+	 connectToHost();
+    }
 }
 
 
@@ -41,6 +61,13 @@ RequestConnection::RequestConnection( Network::Socket* sock )
     , serverport_( mUdf(unsigned short) )
     , connectionClosed( this )
     , packetArrived( this )
+    , id_( connid++ )
+    , socketthread_( 0 )
+    , timeout_( 0 )
+    , stopflag_( 0 )
+    , packettosend_( 0 )
+    , threadreadstatus_( None )
+    , triggerread_( false )
 {
     if ( !sock )
 	return;
@@ -52,25 +79,93 @@ RequestConnection::RequestConnection( Network::Socket* sock )
 
 RequestConnection::~RequestConnection()
 {
+    if ( socketthread_ )
+    {
+	lock_.lock();
+	stopflag_ = true;
+	lock_.signal( true );
+	lock_.unLock();
+
+	socketthread_->waitForFinish();
+	deleteAndZeroPtr( socketthread_ );
+    }
+    else
+    {
+	deleteAndZeroPtr( socket_, ownssocket_ );
+    }
+
     detachAllNotifiers();
+
     deepErase( receivedpackets_ );
+}
+
+
+void RequestConnection::socketThreadFunc( CallBacker* )
+{
+    if ( socket_ )
+    {
+	pErrMsg("Thread started with existing socket!");
+	return;
+    }
+
+    connectToHost();
+
+    lock_.lock();
+    while ( !stopflag_ )
+    {
+	lock_.unLock();
+	const bool hasdata = socket_->bytesAvailable();
+	lock_.lock();
+
+	if ( triggerread_ || hasdata )
+	{
+	    lock_.unLock();
+	    readFromSocket();
+	    lock_.lock();
+	    triggerread_ = false;
+	    lock_.signal( true );
+	    continue;
+	}
+
+	if ( packettosend_ && !sendingfinished_ )
+	{
+	    sendresult_ = doSendPacket( *packettosend_, sendwithwait_ );
+	    sendingfinished_ = true;
+
+	    lock_.signal( true );
+	    continue;
+	}
+
+	//Wait 100 ms. We should in principle be able to wait infinitly
+	//if everything is 100% correct. This is however safer
+	lock_.wait( 100 );
+    }
 
     deleteAndZeroPtr( socket_, ownssocket_ );
 }
 
 
-void RequestConnection::connectToHost( bool haseventloop, int timeout )
+void RequestConnection::connectToHost()
 {
+    if ( socket_ )
+    {
+	pErrMsg("I did not expect a socket" );
+	return;
+    }
+
+    Network::Socket* newsocket = new Network::Socket( false );
+
+    if ( timeout_ > 0 )
+	newsocket->setTimeout( timeout_ );
+
+    if ( newsocket->connectToHost(servername_,serverport_) )
+	mAttachCB(newsocket->disconnected,RequestConnection::connCloseCB);
+
     Threads::MutexLocker locker( lock_ );
 
-    if ( !socket_ )
-	socket_ = new Network::Socket( haseventloop );
-
-    if ( timeout > 0 )
-	socket_->setTimeout( timeout );
-
-    if ( socket_->connectToHost(servername_,serverport_) )
-	mAttachCB(socket_->disconnected,RequestConnection::connCloseCB);
+    socket_ = newsocket;
+    //Tell eventual constructor waiting that we have at least tried to connect
+    lock_.signal( true );
 }
 
 
@@ -83,23 +178,24 @@ bool RequestConnection::isOK() const
 void RequestConnection::connCloseCB( CallBacker* )
 {
     connectionClosed.trigger();
+}
 
-    // deleteAndZeroPtr( socket_, ownssocket_ );
-    // The socket_ will often contain a very bad pointer
-    socket_ = 0;
+
+void RequestConnection::flush()
+{
 }
 
 
 bool RequestConnection::readFromSocket()
 {
-    while ( socket_ )
+    while ( isOK() )
     {
 	PtrMan<RequestPacket> nextreceived = new RequestPacket;
 	Network::Socket::ReadStatus readres = socket_->read( *nextreceived );
 	if ( readres==Network::Socket::ReadError )
 	{
-	    socket_->disconnectFromHost();
 	    errmsg_ = socket_->errMsg();
+	    socket_->disconnectFromHost();
 	    if ( errmsg_.isEmpty() )
 		errmsg_ = tr("Error reading from socket");
 	    return false;
@@ -119,6 +215,7 @@ bool RequestConnection::readFromSocket()
 		 ourrequestids_.isPresent( receivedid ) )
 	    {
 		receivedpackets_ += nextreceived.release();
+		lock_.signal( true );
 		locker.unLock();
 
 		packetArrived.trigger(receivedid);
@@ -126,22 +223,21 @@ bool RequestConnection::readFromSocket()
 	}
 
 	if ( !socket_->bytesAvailable() ) //Not sure this works
-	    break;
+	    return true;
     }
 
-    return true;
+    return false;
 }
 
 
-
-bool RequestConnection::sendPacket( const RequestPacket& pkt,
-				    bool waitforfinish )
+bool RequestConnection::doSendPacket( const RequestPacket& pkt,
+				      bool waitforfinish )
 {
-    if ( !isOK() || !pkt.isOK() || !socket_ )
-	return false;
+    if ( !isOK() )
+	return	false;
 
     const od_int32 reqid = pkt.requestID();
-    Threads::MutexLocker locker( lock_ );
+
     if ( !ourrequestids_.isPresent( reqid ) )
     {
 	if ( pkt.isNewRequest() )
@@ -154,7 +250,9 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 	}
     }
 
+    lock_.unLock();
     const bool result = socket_->write( pkt, waitforfinish );
+    lock_.lock();
 
     if ( !result )
 	requestEnded( pkt.requestID() );
@@ -163,9 +261,56 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 }
 
 
-RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
-						  int* errorcode )
+
+bool RequestConnection::sendPacket( const RequestPacket& pkt,
+				    bool waitforfinish )
 {
+    if ( !pkt.isOK() )
+	return false;
+
+    if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
+	return false;
+
+    Threads::MutexLocker locker( lock_ );
+    //We're non-threaded. Just send
+    if ( !socketthread_ )
+    {
+	return doSendPacket( pkt, waitforfinish );
+    }
+
+    //Someone else is sending now. Wait
+    while ( packettosend_ )
+	lock_.wait();
+
+    //Setup your batch job and poke thread
+    packettosend_ = &pkt;
+    sendwithwait_ = waitforfinish;
+    sendingfinished_ = false;
+    lock_.signal( true );
+
+    //Wait for sending to finish
+    while ( !sendingfinished_ )
+    {
+	lock_.wait();
+    }
+
+    //Pickup sending result
+    const bool result = sendresult_;
+
+    //Tell someone who may be waiting that he can send now.
+    packettosend_ = 0;
+    lock_.signal( true );
+
+    return result;
+}
+
+
+RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
+						int* errorcode )
+{
+    if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
+	return 0;
+
     Threads::MutexLocker locker( lock_ );
     const int idxof = ourrequestids_.indexOf( reqid );
     if ( idxof < 0 )
@@ -178,30 +323,48 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
     if ( !pkt )
     {
 	const int starttm = Time::getMilliSeconds();
+	bool isok = false;
 	do
 	{
 	    const int remaining = timeout - Time::getMilliSeconds() + starttm;
 	    if ( remaining<=0 )
 		break;
 
-	    locker.unLock();
-	    if ( !readFromSocket() )
+	    if ( !socketthread_ )
 	    {
-		if ( errorcode )
-		    *errorcode = cDisconnected();
-		requestEnded( reqid );
-		return 0;
+		locker.unLock();
+		if( !readFromSocket() )
+		{
+		    if ( errorcode )
+			*errorcode = isOK() ? cTimeout() : cDisconnected();
+		    locker.lock();
+		    requestEnded( reqid );
+		    return 0;
+		}
+
+		isok = isOK();
+
+		locker.lock();
 	    }
-	    locker.lock();
+	    else
+	    {
+		triggerread_ = true;
+		lock_.signal( true );
+		lock_.wait( remaining );
+
+		locker.unLock();
+		isok = isOK();
+		locker.lock();
+	    }
 
 	    pkt = getNextAlreadyRead( reqid );
 
-	} while ( !pkt );
+	} while ( !pkt && isok );
 
 	if ( !pkt )
 	{
 	    if ( errorcode )
-		*errorcode = cTimeout();
+		*errorcode = isok ? cTimeout() : cDisconnected();
 	    return 0;
 	}
     }

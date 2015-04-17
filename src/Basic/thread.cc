@@ -682,6 +682,12 @@ Threads::ConditionVar::~ConditionVar()
 
 void Threads::ConditionVar::wait()
 {
+    wait( ULONG_MAX );
+}
+
+
+bool Threads::ConditionVar::wait( unsigned long timeout )
+{
 #ifndef OD_NO_QT
 # ifdef __debug__
     if ( lockingthread_ !=currentThread() )
@@ -692,12 +698,16 @@ void Threads::ConditionVar::wait()
     count_ --;
     lockingthread_ = 0;
 # endif
-    cond_->wait( qmutex_ );
+    const bool res = cond_->wait( qmutex_, timeout );
 
 #ifdef __debug__
     lockingthread_ = currentThread();
     count_++;
 # endif
+
+    return res;
+#else
+    return true;
 #endif
 }
 

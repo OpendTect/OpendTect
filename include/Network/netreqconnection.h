@@ -48,7 +48,7 @@ mExpClass(Network) RequestConnection : public CallBacker
 public:
 			RequestConnection(const char* servername,
 					  unsigned short serverport,
-					  bool haveeventloop=true,
+					  bool multithreaded=true,
 					  int connectiontimeout=-1);
 			//!<Initiates communications
 			RequestConnection(Socket*);
@@ -60,18 +60,27 @@ public:
     bool		isOK() const;
     const char*		server() const		{ return servername_; }
     unsigned short	port() const		{ return serverport_; }
+    int			ID() const		{ return id_; }
 
     bool		sendPacket(const RequestPacket&,
 				   bool waitforfinish=false);
+			/*!<Must be called from same thread as construcor unless
+			    'multithreaded' flag was set on constructor.
+			*/
 
     RequestPacket*	pickupPacket(od_int32 reqid,int timeout /* in ms */,
-					int* errorcode=0);
+				     int* errorcode=0);
+			/*!<Must be called from same thread as construcor unless
+			    'multithreaded' flag was set on constructor.
+			*/
+
     RequestPacket*	getNextExternalPacket();
 
     static int		cInvalidRequest()	{ return 1; }
     static int		cTimeout()		{ return 2; }
     static int		cDisconnected()		{ return 3; }
 
+    bool		isMultiThreaded()	{ return socketthread_; }
     Socket*		socket()		{ return socket_; }
 
     CNotifier<RequestConnection,od_int32> packetArrived;
@@ -81,27 +90,47 @@ public:
 
 private:
 
-
-    void			threadFunc(CallBacker*);
-
     uiString			errmsg_;
+
+    enum ThreadReadStatus	{ None, TryRead, ReadOK, ReadFail };
+    ThreadReadStatus		threadreadstatus_;
 
     TypeSet<od_int32>		ourrequestids_;
     ObjectSet<RequestPacket>	receivedpackets_;
 
     Threads::ConditionVar	lock_;
     Socket*			socket_;
+    int				timeout_;
     bool			ownssocket_;
+
+    const RequestPacket*	packettosend_;
+    bool			sendwithwait_;
+    bool			sendresult_;
+    bool			sendingfinished_;
+    bool			triggerread_;
+
+    int				id_;
 
     BufferString		servername_;
     unsigned short		serverport_;
 
-    void			connectToHost(bool haveeventloop,int);
+    Threads::Thread*		socketthread_;
+    void			socketThreadFunc(CallBacker*);
+    bool			stopflag_;
+    bool			readfirst_;
+
+    void			connectToHost();
+    void			flush();
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);
     void			dataArrivedCB(CallBacker*);
 
+    bool			doSendPacket(const RequestPacket&,
+				   bool waitforfinish);
+
     bool			readFromSocket();
+    bool			writeToSocket();
+
     Network::RequestPacket*	readConnection(int);
     Network::RequestPacket*	getNextAlreadyRead(int);
     void			requestEnded(od_int32);

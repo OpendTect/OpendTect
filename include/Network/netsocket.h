@@ -102,6 +102,9 @@ public:
 				      locked, so you may not be able to
 				      read immediately */
 
+    const void*			thread() const;
+				//!<The thread that may operate the socket
+
 private:
 
     bool			waitForConnected() const;
