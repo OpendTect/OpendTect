@@ -105,7 +105,7 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 	    if ( veryfirst )
 	    {
 		veryfirst = false;
-		hs.start = hs.stop = bid;
+		hs.start_ = hs.stop = bid;
 		zrg.start = zrg.stop = (float) coord.z;
 	    }
 	    else
@@ -352,7 +352,7 @@ bool EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
 
 
 void EMSurfaceProvider3D::getExtent( BinID& start, BinID& stop ) const
-{ start = hs_.start; stop = hs_.stop; }
+{ start = hs_.start_; stop = hs_.stop_; }
 
 
 void EMSurfaceProvider3D::initClass()
@@ -570,8 +570,8 @@ bool EMSurface2DProvider3D::includes( const BinID& bid, float z ) const
 
 void EMSurface2DProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
-    start = hs_.start; 
-    stop = hs_.stop;
+    start = hs_.start_;
+    stop = hs_.stop_;
 }
 
 

@@ -42,10 +42,10 @@ Hor2DTo3DSectionData( EM::SectionID sid,
     count_.setAll( 0 );
     arr_.setAll( mUdf(float) );
 
-    hs_.start = minbid;
+    hs_.start_ = minbid;
     hs_.step = step;
-    hs_.stop.inl() = hs_.start.inl() + hs_.step.inl() * (inlsz_ - 1);
-    hs_.stop.crl() = hs_.start.crl() + hs_.step.crl() * (crlsz_ - 1);
+    hs_.stop_.inl() = hs_.start_.inl() + hs_.step.inl() * (inlsz_ - 1);
+    hs_.stop_.crl() = hs_.start_.crl() + hs_.step.crl() * (crlsz_ - 1);
 }
 
 
@@ -60,8 +60,8 @@ int getSz( int start, int stop, int step ) const
 
 void add( const BinID& bid, float z )
 {
-    float inldist = (bid.inl() - hs_.start.inl()) / ((float)hs_.step.inl());
-    float crldist = (bid.crl() - hs_.start.crl()) / ((float)hs_.step.crl());
+    float inldist = (bid.inl() - hs_.start_.inl()) / ((float)hs_.step.inl());
+    float crldist = (bid.crl() - hs_.start_.crl()) / ((float)hs_.step.crl());
     const int inlidx = mNINT32(inldist); const int crlidx = mNINT32(crldist);
     if ( inlidx < 0 || inlidx >= inlsz_ || crlidx < 0 || crlidx >= crlsz_ )
 	return;
@@ -167,7 +167,7 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 	    maxbid.crl() += extendedsize;
 	}
 
-	sd_ += new Hor2DTo3DSectionData( sid, minbid, maxbid, hs.step );
+	sd_ += new Hor2DTo3DSectionData( sid, minbid, maxbid, hs.step_ );
     }
 }
 
@@ -233,7 +233,7 @@ int Hor2DTo3D::nextStep()
 
     SectionID sid = hor3d_.geometry().addSection( "", false );
     hor3d_.geometry().sectionGeometry(sid)->
-				expandWithUdf( sd.hs_.start, sd.hs_.stop ); 
+				expandWithUdf( sd.hs_.start_, sd.hs_.stop_ );
 
     for ( int inlidx=0; inlidx<sd.inlsz_; inlidx++ )
     {

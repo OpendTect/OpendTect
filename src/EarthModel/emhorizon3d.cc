@@ -259,7 +259,7 @@ void fillHorizonArray()
     {
 	EM::SectionID sid = horizon_.geometry().addSection( 0, false );
 	Geometry::BinIDSurface* geom = horizon_.geometry().sectionGeometry(sid);
-	geom->setArray( hs_.start, hs_.step, horarrays_[sidx], true );
+	geom->setArray( hs_.start_, hs_.step, horarrays_[sidx], true );
     }
 
     horarrays_.erase();

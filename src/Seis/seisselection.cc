@@ -324,7 +324,7 @@ int Seis::RangeSelData::expectedNrTraces( bool for2d, const BinID* step ) const
     if ( isall_ && !for2d ) return tracesInSI();
 
     TrcKeySampling hs( tkzs_.hrg );
-    if ( step ) hs.step = *step;
+    if ( step ) hs.step_ = *step;
     const int nrinl = for2d ? 1 : hs.nrInl();
     const int nrcrl = hs.nrCrl();
     return nrinl * nrcrl;
@@ -801,7 +801,7 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	
 	TrcKeySampling hs;
 	hs.set( inlrg, crlrg );
-	if ( step ) hs.step = *step;
+	if ( step ) hs.step_ = *step;
 	hs.snapToSurvey();
 	estnrtraces += mNINT32( coverfrac * hs.totalNr() );
     }

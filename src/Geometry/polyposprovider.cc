@@ -70,11 +70,11 @@ static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
 
     const Interval<float> xrg( poly.getRange(true) );
     const Interval<float> yrg( poly.getRange(false) );
-    hs.start.inl() = (int)Math::Floor( xrg.start + 0.5 );
-    hs.start.crl() = (int)Math::Floor( yrg.start + 0.5 );
+    hs.start_.inl() = (int)Math::Floor( xrg.start + 0.5 );
+    hs.start_.crl() = (int)Math::Floor( yrg.start + 0.5 );
     hs.stop.inl() = (int)Math::Ceil( xrg.stop - 0.5 );
     hs.stop.crl() = (int)Math::Ceil( yrg.stop - 0.5 );
-    SI().snap( hs.start, BinID(1,1) );
+    SI().snap( hs.start_, BinID(1,1) );
     SI().snap( hs.stop, BinID(-1,-1) );
 }
 
@@ -84,7 +84,7 @@ bool Pos::PolyProvider3D::initialize( TaskRunner* )
     if ( poly_.size() < 2 ) return false;
 
     setHS( poly_, hs_ );
-    curbid_ = hs_.start;
+    curbid_ = hs_.start_;
     if ( !toNextPos() )
 	return false;
 
@@ -104,7 +104,7 @@ bool Pos::PolyProvider3D::toNextPos()
 	if ( !hs_.includes(curbid_) )
 	{
 	    curbid_.inl() += hs_.step.inl();
-	    curbid_.crl() = hs_.start.crl();
+	    curbid_.crl() = hs_.start_.crl();
 	    if ( !hs_.includes(curbid_) )
 		break;
 	}
@@ -195,8 +195,8 @@ void Pos::PolyProvider3D::getSummary( BufferString& txt ) const
     if ( poly_.isEmpty() )
 	{ txt += "No points. Unsaved?"; return; }
 
-    txt.add( "area " ).add( hs_.start.toString() );
-    txt.add( "-" ).add( hs_.stop.toString() );
+    txt.add( "area " ).add( hs_.start_.toString() );
+    txt.add( "-" ).add( hs_.stop_.toString() );
     const int nrsamps = zrg_.nrSteps() + 1;
     if ( nrsamps > 1 )
 	txt.add( " (" ).add( nrsamps ).add( " samples)" );
@@ -205,7 +205,7 @@ void Pos::PolyProvider3D::getSummary( BufferString& txt ) const
 
 void Pos::PolyProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
-    start = hs_.start; stop = hs_.stop;
+    start = hs_.start_; stop = hs_.stop_;
 }
 
 

@@ -89,10 +89,10 @@ void WellProvider3D::setHS()
     if ( !hs_.isDefined() )
 	return;
 
-    hs_.start.inl() -= inlext_;
-    hs_.stop.inl() += inlext_;
-    hs_.start.crl() -= crlext_;
-    hs_.stop.crl() += crlext_;
+    hs_.start_.inl() -= inlext_;
+    hs_.stop_.inl() += inlext_;
+    hs_.start_.crl() -= crlext_;
+    hs_.stop_.crl() += crlext_;
 
     curbid_ = BinID::udf();
     hsitr_.setSampling( hs_ );
@@ -211,7 +211,7 @@ void WellProvider3D::getSummary( BufferString& txt ) const
 
 void WellProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
-    start = hs_.start; stop = hs_.stop;
+    start = hs_.start_; stop = hs_.stop_;
 }
 
 

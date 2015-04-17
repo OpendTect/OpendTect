@@ -155,12 +155,12 @@ uiSliceScroll( uiSliceSel* ss )
 
     const TrcKeyZSampling& cs = SI().sampling( false );
     const TrcKeySampling& hs = cs.hrg;
-    int step = hs.step.inl();
-    int maxstep = hs.start.inl() - hs.stop.inl();
+    int step = hs.step_.inl();
+    int maxstep = hs.start_.inl() - hs.stop.inl();
     if  ( ss->iscrl_ )
     {
-	step = hs.step.crl();
-	maxstep = hs.start.crl() - hs.stop.crl();
+	step = hs.step_.crl();
+	maxstep = hs.start_.crl() - hs.stop.crl();
     }
     else if ( ss->istsl_ )
     {
@@ -399,13 +399,13 @@ void uiSliceSel::readInput()
 	inlrg.start = inl0fld_->box()->getValue();
 	inlrg.stop = isinl_ ? inlrg.start : inl1fld_->getValue();
 	if ( !isinl_ && inlrg.start == inlrg.stop )
-	    inlrg.stop += hs.step.inl();
+	    inlrg.stop += hs.step_.inl();
     }
 
     crlrg.start = crl0fld_->box()->getValue();
     crlrg.stop = iscrl_ ? crlrg.start : crl1fld_->getValue();
     if ( !iscrl_ && crlrg.start == crlrg.stop )
-	crlrg.stop += hs.step.crl();
+	crlrg.stop += hs.step_.crl();
 
     const float zfac = mCast( float, zdominfo_.userFactor() );
     Interval<float> zrg;

@@ -606,9 +606,9 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 void MPEDisplay::updateBoxSpace()
 {
     const TrcKeySampling& hs = SI().sampling(true).hrg;
-    const Interval<float> survinlrg( mCast(float,hs.start.inl()),
+    const Interval<float> survinlrg( mCast(float,hs.start_.inl()),
 					mCast(float,hs.stop.inl()) );
-    const Interval<float> survcrlrg( mCast(float,hs.start.crl()),
+    const Interval<float> survcrlrg( mCast(float,hs.start_.crl()),
 					mCast(float,hs.stop.crl()) );
     const Interval<float> survzrg( SI().zRange(true).start,
 	    			   SI().zRange(true).stop );
@@ -617,8 +617,8 @@ void MPEDisplay::updateBoxSpace()
 
     const int minwidth = 1;
     boxdragger_->setWidthLimits(
-	Interval<float>( float(minwidth*hs.step.inl()), mUdf(float) ),
-	Interval<float>( float(minwidth*hs.step.crl()), mUdf(float) ),
+	Interval<float>( float(minwidth*hs.step_.inl()), mUdf(float) ),
+	Interval<float>( float(minwidth*hs.step_.crl()), mUdf(float) ),
 	Interval<float>( minwidth*SI().zRange(true).step, mUdf(float) ) );
 }
 

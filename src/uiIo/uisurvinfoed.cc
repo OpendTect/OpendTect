@@ -366,8 +366,8 @@ void uiSurveyInfoEditor::setValues()
 {
     const TrcKeyZSampling& cs = si_.sampling( false );
     const TrcKeySampling& hs = cs.hrg;
-    StepInterval<int> inlrg( hs.start.inl(), hs.stop.inl(), hs.step.inl() );
-    StepInterval<int> crlrg( hs.start.crl(), hs.stop.crl(), hs.step.crl() );
+    StepInterval<int> inlrg( hs.start_.inl(), hs.stop.inl(), hs.step_.inl() );
+    StepInterval<int> crlrg( hs.start_.crl(), hs.stop.crl(), hs.step_.crl() );
     inlfld_->setValue( inlrg );
     crlfld_->setValue( crlrg );
 
@@ -662,12 +662,12 @@ bool uiSurveyInfoEditor::setRanges()
     if ( crg.isUdf() ) mErrRet(tr("Please enter a valid range for crosslines"))
     TrcKeyZSampling cs( si_.sampling(false) );
     TrcKeySampling& hs = cs.hrg;
-    hs.start.inl() = irg.start; hs.start.crl() = crg.start;
+    hs.start_.inl() = irg.start; hs.start_.crl() = crg.start;
     hs.stop.inl() = irg.atIndex( irg.getIndex(irg.stop) );
     hs.stop.crl() = crg.atIndex( crg.getIndex(crg.stop) );
-    hs.step.inl() = irg.step;   hs.step.crl() = crg.step;
-    if ( hs.step.inl() < 1 ) hs.step.inl() = 1;
-    if ( hs.step.crl() < 1 ) hs.step.crl() = 1;
+    hs.step_.inl() = irg.step;	 hs.step_.crl() = crg.step;
+    if ( hs.step_.inl() < 1 ) hs.step_.inl() = 1;
+    if ( hs.step_.crl() < 1 ) hs.step_.crl() = 1;
 
     const int curzunititem = zunitfld_->currentItem();
     si_.setZUnit( curzunititem == 0, curzunititem == 2 );

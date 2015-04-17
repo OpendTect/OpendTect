@@ -60,7 +60,9 @@ bool CBVSInfo::SurvGeom::includesInline( int inl ) const
     if ( fullyrectandreg )
     {
 	inl -= start.inl();
-	return inl >= 0 && inl + start.inl() <= stop.inl() && inl % step.inl() == 0;
+	return inl >= 0 &&
+		inl + start.inl() <= stop.inl() &&
+		inl % step.inl() == 0;
     }
 
     return cubedata.indexOf(inl) >= 0;
@@ -177,7 +179,7 @@ void CBVSInfo::SurvGeom::reCalcBounds()
     if ( fullyrectandreg ) return;
 
     TrcKeySampling hs(false);
-    hs.start = start; hs.stop = stop;
+    hs.start_ = start; hs.stop = stop;
     bool firstpos = true;
     for ( int icd=0; icd<cubedata.size(); icd++ )
     {
@@ -196,7 +198,7 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 
 	    if ( firstpos )
 	    {
-		hs.start = hs.stop = BinID( ii.linenr_, seg.start );
+		hs.start_ = hs.stop = BinID( ii.linenr_, seg.start );
 		firstpos = false;
 	    }
 	    hs.include( BinID(ii.linenr_,seg.start) );
@@ -204,15 +206,17 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 	}
     }
 
-    start = hs.start;
+    start = hs.start_;
     stop = hs.stop;
 }
 
 
 bool CBVSInfo::contributesTo( const TrcKeyZSampling& cs ) const
 {
-    if ( cs.hrg.start.inl() > geom_.stop.inl() || cs.hrg.stop.inl() < geom_.start.inl()
-      || cs.hrg.start.crl() > geom_.stop.crl() || cs.hrg.stop.crl() < geom_.start.crl() )
+    if ( cs.hrg.start.inl() > geom_.stop.inl() ||
+	 cs.hrg.stop.inl() < geom_.start.inl() ||
+	 cs.hrg.start.crl() > geom_.stop.crl() ||
+	 cs.hrg.stop.crl() < geom_.start.crl() )
 	return false;
 
     float zend = sd_.start + (nrsamples_-1) * sd_.step;

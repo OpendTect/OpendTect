@@ -895,9 +895,9 @@ BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
 {
     BinID binid( binid_ );
     const TrcKeySampling& hs = SI().sampling(true).hrg;
-    if ( binid.inl() < hs.start.inl() ) binid.inl() = hs.start.inl();
+    if ( binid.inl() < hs.start_.inl() ) binid.inl() = hs.start_.inl();
     if ( binid.inl() > hs.stop.inl() ) binid.inl() = hs.stop.inl();
-    if ( binid.crl() < hs.start.crl() ) binid.crl() = hs.start.crl();
+    if ( binid.crl() < hs.start_.crl() ) binid.crl() = hs.start_.crl();
     if ( binid.crl() > hs.stop.crl() ) binid.crl() = hs.stop.crl();
 
     SI().snap( binid, BinID(0,0) );

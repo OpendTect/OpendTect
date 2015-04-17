@@ -301,11 +301,11 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
 bool SeisMerger::toNextPos()
 {
     TrcKeySampling hs = SI().sampling(false).hrg;
-    curbid_.crl() += hs.step.crl();
+    curbid_.crl() += hs.step_.crl();
     if ( curbid_.crl() > hs.stop.crl() )
     {
-	curbid_.inl() += hs.step.inl();
-	curbid_.crl() = hs.start.crl();
+	curbid_.inl() += hs.step_.inl();
+	curbid_.crl() = hs.start_.crl();
 	if ( curbid_.inl() > hs.stop.inl() )
 	    return false;
     }

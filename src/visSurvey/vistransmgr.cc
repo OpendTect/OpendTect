@@ -54,7 +54,7 @@ void SceneTransformManager::computeICRotationTransform(
 {
     const TrcKeySampling hs = sg.sampling().hrg;
 
-    const BinID startbid = hs.start;
+    const BinID startbid = hs.start_;
     const BinID stopbid = hs.stop;
     const BinID extrabid( startbid.inl(), stopbid.crl() );
 

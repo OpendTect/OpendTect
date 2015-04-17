@@ -123,7 +123,7 @@ bool Horizon3DMerger::doFinish( bool success )
     if ( !geom )
 	return false;
 
-    geom->setArray( hs_.start, hs_.step, depths_, true );
+    geom->setArray( hs_.start_, hs_.step, depths_, true );
     ownsarray_ = false;
     return success;
 }

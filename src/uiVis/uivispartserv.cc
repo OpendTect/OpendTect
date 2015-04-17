@@ -1355,8 +1355,8 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	FileMultiString fms(res);
 	TrcKeyZSampling cs;
 	TrcKeySampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zsamp_;
-	hs.start.inl() = fms.getIValue(0); hs.stop.inl() = fms.getIValue(1);
-	hs.start.crl() = fms.getIValue(2); hs.stop.crl() = fms.getIValue(3);
+	hs.start_.inl() = fms.getIValue(0); hs.stop.inl() = fms.getIValue(1);
+	hs.start_.crl() = fms.getIValue(2); hs.stop.crl() = fms.getIValue(3);
 	zrg.start = fms.getFValue( 4 ); zrg.stop = fms.getFValue( 5 );
 	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
