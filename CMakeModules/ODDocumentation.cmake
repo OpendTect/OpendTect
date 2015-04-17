@@ -55,7 +55,7 @@ macro( OD_BUILD_DOCUMENTATION )
     add_custom_target ( doc
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			SOURCES ${OD_DOXYGEN_FILE} )
-    install ( DIRECTORY doc/Programmer/Generated/html DESTINATION doc/Programmer/Generated )
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION doc/Programmer/Generated )
 endmacro()
 
 IF ( BUILD_DOCUMENTATION )
@@ -73,9 +73,10 @@ endif()
 if ( BUILD_USERDOC )
     if ( WIN32 )
         set( USERDOC_PROJECT "" CACHE FILEPATH "Path to user documentation project" )
-	set( USERDOC_TARGET "HTML" CACHE STRING "Documentation target" )
+	set( USERDOC_TARGET "HTML5" CACHE STRING "Documentation target" )
 	find_program( MADCAP_FLARE_EXEC madbuild.exe
- 		  HINTS "C:/Program Files (x86)/MadCap Software/MadCap Flare V9/Flare.app"
+		  HINTS "C:/Program Files (x86)/MadCap Software/MadCap Flare V10/Flare.app"
+			"C:/Program Files (x86)/MadCap Software/MadCap Flare V9/Flare.app"
 		  DOC "Madcap Flare Executable"
              	  NO_DEFAULT_PATH )
 
@@ -88,19 +89,16 @@ if ( BUILD_USERDOC )
 	endif()
 
 	set ( USER $ENV{USERNAME} )
-	get_filename_component ( USERDOC_PROJECT_DIR ${USERDOC_PROJECT} DIRECTORY )
+	get_filename_component ( USERDOC_PROJECT_DIR ${USERDOC_PROJECT} PATH )
 	get_filename_component ( USERDOC_NAME ${USERDOC_PROJECT} NAME_WE )
 
 	set ( USERDOC_OUTPUT_DIR "${USERDOC_PROJECT_DIR}/Output/${USER}/${USERDOC_TARGET}" )
 
-	add_custom_target( "userdoc" ALL "${MADCAP_FLARE_EXEC}"
+	add_custom_target( "userdoc" "${MADCAP_FLARE_EXEC}"
 			    -project "${USERDOC_PROJECT}"
 			    -target ${USERDOC_TARGET}
-			    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${USERDOC_OUTPUT_DIR} ${CMAKE_BINARY_DIR}/doc/userdoc/${USERDOC_NAME} 
-			    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 			    COMMENT "Building user documentation" )
-	install( DIRECTORY ${CMAKE_BINARY_DIR}/doc/userdoc/${USERDOC_NAME}
-		 DESTINATION doc/userdoc/${USERDOC_NAME} )
+	install( DIRECTORY ${USERDOC_OUTPUT_DIR}/ DESTINATION doc/${USERDOC_NAME} )
     endif( WIN32 )
 
 endif( BUILD_USERDOC )
