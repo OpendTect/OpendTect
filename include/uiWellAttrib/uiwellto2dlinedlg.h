@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uistring.h"
 #include "bufstringset.h"
+class IOObj;
 class uiCheckBox;
 class uiGenInput;
 class uiPushButton;
@@ -32,7 +33,8 @@ public:
 			~uiWellTo2DLineDlg();
 
     void		getCoordinates(TypeSet<Coord>&);
-    void		get2DLineID(Pos::GeomID&,BufferString&) const;
+    Pos::GeomID		get2DLineID() const;
+    const IOObj*	get2DDataSetObj() const;
     bool		dispOnCreation();
 
     Notifier<uiWellTo2DLineDlg> wantspreview_;

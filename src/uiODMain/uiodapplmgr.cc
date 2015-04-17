@@ -1108,6 +1108,27 @@ bool uiODApplMgr::handleWellServEv( int evid )
 
 bool uiODApplMgr::handleWellAttribServEv( int evid )
 {
+    if ( evid == uiWellAttribPartServer::evPreview2DFromWells() )
+    {
+	TypeSet<Coord> coords;
+	if ( !wellattrserv_->getPrev2DFromWellCoords(coords) )
+	    return false;
+	setupRdmLinePreview( coords );
+    }
+    else if ( evid == uiWellAttribPartServer::evShow2DFromWells() )
+    {
+	Pos::GeomID wellto2dgeomid = wellattrserv_->new2DFromWellGeomID();
+	if ( wellto2dgeomid==Survey::GeometryManager::cUndefGeomID() )
+	    return false;
+	sceneMgr().add2DLineItem( wellto2dgeomid );
+	sceneMgr().updateTrees();
+    }
+    else if ( evid == uiWellAttribPartServer::evCleanPreview() )
+    {
+	cleanPreview();
+	enableTree( true );
+	enableMenusAndToolBars( true );
+    }
     return true;
 }
 
