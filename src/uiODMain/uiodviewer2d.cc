@@ -285,18 +285,28 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	vwr.appearance().annot_.setAxesAnnot(true);
     }
 
+    const float vwrx1pospercm = ODMainWin()->viewer2DMgr().defTrcsPerCM();
+    const float vwrx2pospercm =
+	isvert ? ODMainWin()->viewer2DMgr().defZPerCM()
+	       : ODMainWin()->viewer2DMgr().defTrcsPerCM();
     uiFlatViewer& mainvwr = viewwin()->viewer();
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpkey(
 					mODHelpKey(mODViewer2DHelpID) )
 						   .withedit(tifs_)
-						   .withvertzoombut(isvert)
+						   .isvertical(isvert)
 						   .withfixedaspectratio(true)
+						   .withhomebutton(true)
+						   .x1pospercm(vwrx1pospercm)
+						   .x2pospercm(vwrx2pospercm)
 						   .managescoltab(!tifs_) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( tifs_ )
 	createPolygonSelBut( viewstdcontrol_->toolBar() );
     viewwin_->addControl( viewstdcontrol_ );
+    mDynamicCastGet(uiFlatViewMainWin*,mainwin,viewwin_);
+    if ( mainwin )
+	mAttachCB( mainwin->afterPopup, uiODViewer2D::winPoppedUpCB );
     createViewWinEditors();
 
     viewWinAvailable.trigger( this );
@@ -383,6 +393,12 @@ void uiODViewer2D::createViewWinEditors()
 	adeditor->setSelActive( false );
 	auxdataeditors_ += adeditor;
     }
+}
+
+
+void uiODViewer2D::winPoppedUpCB( CallBacker* )
+{
+    viewstdcontrol_->setHomeZoomViews();
 }
 
 

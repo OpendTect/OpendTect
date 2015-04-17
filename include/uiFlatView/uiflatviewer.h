@@ -51,11 +51,14 @@ public:
     void		setViewToBoundingBox();
     const uiWorldRect&	curView() const			{ return wr_; }
     			/*!<May be reversed if display is reversed. */
+    StepInterval<double> posRange(bool forx1) const;
+    StepInterval<double> posRangeInView(bool forx1) const;
     uiWorldRect		boundingBox() const;
 
     const uiWorld2Ui&	getWorld2Ui() const		{ return w2ui_; }
     uiRect		getViewRect() const;
     			/*!<The rectangle onto which wr_ is projected */
+
     uiBorder		getAnnotBorder() const;
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
     void		setExtraBorders(uiRect);

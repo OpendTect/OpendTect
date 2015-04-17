@@ -162,6 +162,7 @@ protected:
     void			rebuildTree();
 
     void			winCloseCB(CallBacker*);
+    void			winPoppedUpCB(CallBacker*);
     void			posChg(CallBacker*);
     void			selectionMode(CallBacker*);
     void			handleToolClick(CallBacker*);

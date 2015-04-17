@@ -40,6 +40,8 @@ ________________________________________________________________________
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     : appl_(*a)
+    , deftrcspercm_(mUdf(float))
+    , defzpercm_(mUdf(float))
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
 {
@@ -69,19 +71,19 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
 					const Attrib::SelSpec& as, bool dowva )
 {
-    uiODViewer2D* vwr = &addViewer2D( -1 );
-    const DataPack::ID vwdpid = vwr->createFlatDataPack( dpid, 0 );
-    vwr->setSelSpec( &as, dowva ); vwr->setSelSpec( &as, !dowva );
-    vwr->setUpView( vwdpid, dowva );
-    vwr->useStoredDispPars( dowva );
-    vwr->useStoredDispPars( !dowva );
-    attachNotifiers( vwr );
+    uiODViewer2D* vwr2d = &addViewer2D( -1 );
+    const DataPack::ID vwdpid = vwr2d->createFlatDataPack( dpid, 0 );
+    vwr2d->setSelSpec( &as, dowva ); vwr2d->setSelSpec( &as, !dowva );
+    vwr2d->setUpView( vwdpid, dowva );
+    vwr2d->useStoredDispPars( dowva );
+    vwr2d->useStoredDispPars( !dowva );
+    attachNotifiers( vwr2d );
 
-    FlatView::DataDispPars& ddp =
-	vwr->viewwin()->viewer().appearance().ddpars_;
+    uiFlatViewer& fv = vwr2d->viewwin()->viewer();
+    FlatView::DataDispPars& ddp = fv.appearance().ddpars_;
     (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
-    vwr->viewwin()->viewer().handleChange( FlatView::Viewer::DisplayPars );
-    return vwr->id_;
+    fv.handleChange( FlatView::Viewer::DisplayPars );
+    return vwr2d->id_;
 }
 
 
@@ -90,49 +92,52 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     const DataPack::ID id = visServ().getDisplayedDataPackID( visid, attribid );
     if ( id < 0 ) return;
 
-    uiODViewer2D* curvwr = find2DViewer( visid, true );
+    uiODViewer2D* vwr2d = find2DViewer( visid, true );
     bool isnewvwr = false;
-    if ( !curvwr )
+    if ( !vwr2d )
     {
 	isnewvwr = true;
-	curvwr = &addViewer2D( visid );
+	vwr2d = &addViewer2D( visid );
+	mAttachCB( vwr2d->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     }
     else
     {
-	curvwr->setWinTitle();
+	vwr2d->setWinTitle();
 	visServ().fillDispPars( visid, attribid,
-		curvwr->viewwin()->viewer().appearance().ddpars_, dowva );
+		vwr2d->viewwin()->viewer().appearance().ddpars_, dowva );
     }
 
     const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
-    curvwr->setSelSpec( as, dowva );
-    if ( isnewvwr ) curvwr->setSelSpec( as, !dowva );
+    vwr2d->setSelSpec( as, dowva );
+    if ( isnewvwr ) vwr2d->setSelSpec( as, !dowva );
 
     const int version = visServ().currentVersion( visid, attribid );
-    const DataPack::ID dpid = curvwr->createFlatDataPack( id, version );
-    curvwr->setUpView( dpid, dowva );
-    if ( !curvwr->viewwin() )
+    const DataPack::ID dpid = vwr2d->createFlatDataPack( id, version );
+    vwr2d->setUpView( dpid, dowva );
+    if ( !vwr2d->viewwin() )
 	{ pErrMsg( "Viewer2D has no main window !?" ); return; }
 
     ConstRefMan<ZAxisTransform> zat =
 	visServ().getZAxisTransform( visServ().getSceneID(visid) );
-    curvwr->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
+    vwr2d->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pd,visServ().getObject(visid));
     if ( zat && pd && !pd->isVerticalPlane() )
-	curvwr->setTrcKeyZSampling( pd->getTrcKeyZSampling(false,true) );
+	vwr2d->setTrcKeyZSampling( pd->getTrcKeyZSampling(false,true) );
 
-    uiFlatViewer& vwr = curvwr->viewwin()->viewer( 0 );
+    uiFlatViewer& fv = vwr2d->viewwin()->viewer();
     if ( isnewvwr )
     {
-	attachNotifiers( curvwr );
-	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
+	attachNotifiers( vwr2d );
+	FlatView::DataDispPars& ddp = fv.appearance().ddpars_;
 	visServ().fillDispPars( visid, attribid, ddp, dowva );
 	visServ().fillDispPars( visid, attribid, ddp, !dowva );
 	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+	mAttachCB( vwr2d->viewControl()->setHomeZoomPushed,
+		   uiODViewer2DMgr::homeZoomChangedCB );
     }
 
-    vwr.handleChange( FlatView::Viewer::DisplayPars );
+    fv.handleChange( FlatView::Viewer::DisplayPars );
 }
 
 
@@ -220,6 +225,8 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 void uiODViewer2DMgr::attachNotifiers( uiODViewer2D* vwr2d )
 {
     mAttachCB( vwr2d->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
+    mAttachCB( vwr2d->viewControl()->setHomeZoomPushed,
+	       uiODViewer2DMgr::homeZoomChangedCB );
     for ( int idx=0; idx<vwr2d->viewwin()->nrViewers(); idx++ )
     {
 	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );
@@ -232,8 +239,7 @@ void uiODViewer2DMgr::attachNotifiers( uiODViewer2D* vwr2d )
 uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
 {
     uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-			visServ().getObject(visid));
+    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d, visServ().getObject(visid));
     if ( s2d )
 	vwr->setGeomID(  s2d->getGeomID() );
 
@@ -254,6 +260,17 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( int id, bool byvisid )
     }
 
     return 0;
+}
+
+
+void uiODViewer2DMgr::homeZoomChangedCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiFlatViewStdControl*,control,cb);
+    if ( !control )
+	return;
+    deftrcspercm_ = control->getPositionsPerCM(true);
+    if ( control->isVertical() )
+	defzpercm_ = control->getPositionsPerCM( false );
 }
 
 

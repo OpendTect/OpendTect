@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewer.h"
 #include "uigraphicsscene.h"
 #include "uimainwin.h"
+#include "uimain.h"
 #include "uimenuhandler.h"
 #include "uirgbarraycanvas.h"
 #include "uistrings.h"
@@ -47,6 +48,9 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , vertzoominbut_(0)
     , vertzoomoutbut_(0)
     , cancelzoombut_(0)
+    , sethomezoombut_(0)
+    , gotohomezoombut_(0)
+    , setHomeZoomPushed(this)
 {
     uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left
 						    : uiToolBar::Top );
@@ -61,7 +65,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	editbut_->setToggleButton( true );
     }
 
-    if ( setup.withzoombut_ || setup.withvertzoombut_ )
+    if ( setup.withzoombut_ || setup.isvertical_ )
     {
 	mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"));
 	rubbandzoombut_->setToggleButton( true );
@@ -73,15 +77,25 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	mDefBut(zoomoutbut_,"zoombackward",zoomCB,tr("Zoom out"));
     }
 
-    if ( setup.withvertzoombut_ )
+    if ( setup.isvertical_ )
     {
 	mDefBut(vertzoominbut_,"vertzoomin",zoomCB,tr("Vertical zoom in"));
 	mDefBut(vertzoomoutbut_,"vertzoomout",zoomCB,tr("Vertical zoom out"));
     }
 
-    if ( setup.withzoombut_ || setup.withvertzoombut_ )
+    if ( setup.withzoombut_ || setup.isvertical_ )
     {
 	mDefBut(cancelzoombut_,"cancelzoom",cancelZoomCB,tr("Cancel zoom"));
+    }
+
+    if ( setup.withhomebutton_ )
+    {
+	mDefBut(sethomezoombut_,"set_homezoom",setHomeZoomCB,
+		tr("Set home zoom"));
+	mDefBut(gotohomezoombut_,"homezoom",gotoHomeZoomCB,
+		tr("Go to home zoom"));
+	gotohomezoombut_->setSensitive( !mIsUdf(setup_.x1pospercm_) &&
+					!mIsUdf(setup_.x2pospercm_) );
     }
 
     if ( setup.withflip_ )
@@ -284,6 +298,67 @@ void uiFlatViewStdControl::doZoom( bool zoomin, bool onlyvertzoom,
 void uiFlatViewStdControl::cancelZoomCB( CallBacker* )
 {
     reInitZooms();
+}
+
+#define sInchToCMFac 2.54f
+
+void uiFlatViewStdControl::setHomeZoomCB( CallBacker* )
+{
+    const uiFlatViewer* curvwr = vwrs_[0];
+    uiRect pixrect = curvwr->getViewRect();
+    const int pixwidth = pixrect.right() - pixrect.left();
+    const int screendpi = uiMain::getDPI();
+    const float cmwidth = ((float)pixwidth/(float)screendpi) * sInchToCMFac;
+    const int pixheight = pixrect.bottom() - pixrect.left();
+    const float cmheight = ((float)pixheight/(float)screendpi) * sInchToCMFac;
+    Setup& su = const_cast<Setup&>(setup_);
+    su.x1pospercm_ = (curvwr->posRangeInView(true).nrSteps()+1) / cmwidth;
+    su.x2pospercm_ = (curvwr->posRangeInView(false).nrSteps()+1) / cmheight;
+    setHomeZoomPushed.trigger();
+    gotohomezoombut_->setSensitive( true );
+}
+
+
+void uiFlatViewStdControl::gotoHomeZoomCB( CallBacker* )
+{
+    setHomeZoomViews();
+}
+
+
+
+void uiFlatViewStdControl::setHomeZoomViews()
+{
+    if ( mIsUdf(setup_.x1pospercm_) || mIsUdf(setup_.x2pospercm_) )
+	return;
+    TypeSet< uiWorldPoint > viewcenterpos;
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	viewcenterpos += vwrs_[idx]->curView().centre();
+    reInitZooms();
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	setHomeZoomView( *vwrs_[idx], viewcenterpos[idx] );
+}
+
+
+void uiFlatViewStdControl::setHomeZoomView( uiFlatViewer& vwr,
+					    const uiWorldPoint& centerpos )
+{
+    const uiRect pixrect = vwr.getViewRect();
+    const int screendpi = uiMain::getDPI();
+    const float cmwidth =
+	((float)pixrect.width()/(float)screendpi) * sInchToCMFac;
+    const double x1postofit = cmwidth * setup_.x1pospercm_;
+    const float cmheight =
+	((float)pixrect.height()/(float)screendpi) * sInchToCMFac;
+    const double x2postofit = cmheight * setup_.x2pospercm_;
+
+    StepInterval<double> viewx1rg( vwr.posRange(true) );
+    viewx1rg.stop = viewx1rg.atIndex( mNINT32(x1postofit) );
+
+    StepInterval<double> viewx2rg( vwr.posRange(false) );
+    viewx2rg.stop = viewx2rg.atIndex( mNINT32(x2postofit) );
+
+    Geom::Size2D<double> homesz( viewx1rg.width(), viewx2rg.width() );
+    setNewView( centerpos, homesz );
 }
 
 
