@@ -434,7 +434,7 @@ bool SEGY::DirectDef::updateFooter( const char* fnm, const IOPar& pars,
     pars.putTo( astrm2 );
     od_stream_Pos endpos = ostrm.endPosition();
     od_stream_Pos usedsize = ostrm.position();
-    int nrcharstopadup = endpos - usedsize;
+    od_stream_Pos nrcharstopadup = endpos - usedsize;
     for ( int idx=0; idx<nrcharstopadup-1; idx++ )
 	ostrm.add( '#' );
 
