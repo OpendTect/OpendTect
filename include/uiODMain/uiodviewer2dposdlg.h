@@ -16,9 +16,10 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uidialog.h"
-#include "uiodviewer2dposgrp.h"
 #include "uistring.h"
 
+class uiODMain;
+class uiODViewer2DPosGrp;
 
 mExpClass(uiODMain) uiODViewer2DPosDlg : public uiDialog
 { mODTextTranslationClass(uiODViewer2DPosDlg);
@@ -28,7 +29,6 @@ public:
 
 protected:
     uiODViewer2DPosGrp* posgrp_;
-    Viewer2DPosDataSel	posdatasel_;
     uiODMain&		odappl_;
 
     bool		acceptOK(CallBacker*);
