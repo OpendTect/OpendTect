@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uimergeseis.h"
+#include "uisegydefdlg.h"
 #include "uiseispsman.h"
 #include "uiseisbrowser.h"
 #include "uiseiscopy.h"
@@ -49,13 +50,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
-#define mCapt is2d ? tr("Manage 2D Seismics") : tr("Manage 3D Seismics")
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
                        mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
-    :uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
-				   .nrstatusflds(1).modal(false),
-		   SeisTrcTranslatorGroup::ioContext())
+    :uiObjFileMan(p,uiDialog::Setup(is2d?tr("Manage 2D Seismics")
+					:tr("Manage 3D Seismics"),
+				    mNoDlgTitle,mHelpID)
+				    .nrstatusflds(1).modal(false),
+		  SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
     , browsebut_(0)
     , man2dlinesbut_(0)
@@ -139,9 +141,18 @@ void uiSeisFileMan::setToolButtonProperties()
     if ( browsebut_ )
     {
 	const bool enabbrowse = curimplexists_ && mIsOfTranslType(CBVS);
-	browsebut_->setSensitive( enabbrowse );
-	mSetButToolTip(browsebut_,"Browse/edit '",cursel,"'",
-			"Browse/edit selected cube");
+	const bool issegydirect = curimplexists_ && mIsOfTranslType(SEGYDirect);
+	browsebut_->setSensitive( enabbrowse || issegydirect );
+	if ( enabbrowse )
+	{
+	    mSetButToolTip(browsebut_,"Browse/edit '",cursel,"'",
+			   "Browse/edit selected cube");
+	}
+	else if ( issegydirect )
+	{
+	    mSetButToolTip(browsebut_,"Change location/name of SEGY files in '",
+			   cursel,"'", "Change SEGY file for selected cube");
+	}
     }
 
     if ( mergecubesbut_ )
@@ -359,8 +370,16 @@ void uiSeisFileMan::mergePush( CallBacker* )
 
 void uiSeisFileMan::browsePush( CallBacker* )
 {
-    if ( curioobj_ )
+    if ( !curioobj_ ) return;
+    const bool enabbrowse = curimplexists_ && mIsOfTranslType(CBVS);
+    const bool issegydirect = curimplexists_ && mIsOfTranslType(SEGYDirect);
+    if ( enabbrowse )
 	uiSeisBrowser::doBrowse( this, *curioobj_, false );
+    else if ( issegydirect )
+    {
+	uiEditSEGYFileDataDlg dlg( this, *curioobj_ );
+	dlg.go();
+    }
 }
 
 

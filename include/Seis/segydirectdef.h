@@ -36,8 +36,8 @@ mExpClass(Seis) DirectDef
 { mODTextTranslationClass(DirectDef);
 public:
 
-    			DirectDef();			//!< Create empty
-    			DirectDef(const char*);		//!< Read from file
+			DirectDef();			//!< Create empty
+			DirectDef(const char*);		//!< Read from file
 			~DirectDef();
     bool		isEmpty() const;
 
@@ -47,16 +47,16 @@ public:
     FixedString		fileName(int idx) const;
     FileDataSet::TrcIdx	find(const Seis::PosKey&,bool chkoffs) const;
     FileDataSet::TrcIdx	findOcc(const Seis::PosKey&,int occ) const;
-    			//!< will not look at offset
+			//!< will not look at offset
 
-    			//Functions to write
+			//Functions to write
     void		setData(FileDataSet&);
     bool		writeHeadersToFile(const char*);
-    			/*!<Write the headers. After calling, the fds should
+			/*!<Write the headers. After calling, the fds should
 			    be dumped into the stream. */
     od_ostream*		getOutputStream()	{ return outstream_; }
     bool		writeFootersToFile();
-    			/*!<After fds has been dumped, write the 
+			/*!<After fds has been dumped, write the
 			    remainder of the file */
 
     const FileDataSet&	fileDataSet() const	{ return *fds_; }
@@ -72,6 +72,10 @@ public:
     static const char*	get2DFileName(const char*,const char*);
     static const char*	get2DFileName(const char*,Pos::GeomID);
 
+    static bool		readFooter(const char* fnm,IOPar&,od_stream_Pos&);
+			/*!<Reads the Footer into an IOPar */
+    static bool		updateFooter(const char*,const IOPar&,od_stream_Pos);
+			/*!<Updates the Footer IOPar in an existing def file */
 
     const PosInfo::CubeData&	cubeData() const { return cubedata_; }
     const PosInfo::Line2DData&	lineData() const { return linedata_; }
@@ -104,9 +108,9 @@ protected:
 mExpClass(Seis) FileIndexer : public Executor
 { mODTextTranslationClass(FileIndexer);
 public:
-    			FileIndexer(const MultiID& mid,bool isvol,
+			FileIndexer(const MultiID& mid,bool isvol,
 				    const FileSpec&,bool is2d,const IOPar&);
-    			~FileIndexer();
+			~FileIndexer();
 
     int                 nextStep();
 
