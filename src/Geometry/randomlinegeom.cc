@@ -12,9 +12,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinegeom.h"
 
 #include "interpol1d.h"
-#include "trckeyzsampling.h"
+#include "ioman.h"
 #include "iopar.h"
+#include "randomlinetr.h"
 #include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "trigonometry.h"
 
 namespace Geometry
@@ -283,6 +285,31 @@ void RandomLineSet::limitTo( const TrcKeyZSampling& cs )
 	    removeLine( idx-- );
     }
 }
+
+
+void RandomLineSet::getGeometry( const MultiID& rdlsid, TypeSet<BinID>& knots,
+				 StepInterval<float>* zrg )
+{
+    Geometry::RandomLineSet rls; BufferString errmsg;
+    const PtrMan<IOObj> rdmline = IOM().get( rdlsid );
+    RandomLineSetTranslator::retrieve( rls, rdmline, errmsg );
+    if ( !errmsg.isEmpty() || rls.isEmpty() )
+	return;
+
+    if ( zrg )
+	*zrg = Interval<float>(mUdf(float),-mUdf(float));
+
+    TypeSet<BinID> rdmlsknots;
+    for ( int lidx=0; lidx<rls.size(); lidx++ )
+    {
+	TypeSet<BinID> rdmlknots;
+	rls.lines()[lidx]->allNodePositions( rdmlknots );
+	knots.append( rdmlknots );
+	if ( zrg )
+	    zrg->include( rls.lines()[lidx]->zRange(), false );
+    }
+}
+
 
 } //namespace Geometry
 
