@@ -188,9 +188,6 @@ macro( create_basepackages PACKAGE_NAME )
 
     if( ${PACKAGE_NAME} STREQUAL "basedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			${CMAKE_INSTALL_PREFIX}/doc/about.html
-			${DESTINATION_DIR}/doc )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			${CMAKE_INSTALL_PREFIX}/doc/system_requirements.html
 			${DESTINATION_DIR}/doc )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -211,17 +208,6 @@ macro( create_basepackages PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/relinfo/README.txt
 			 ${DESTINATION_DIR}/relinfo )
-#install WindowLinkTable.txt
-       file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/base )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${CMAKE_INSTALL_PREFIX}/doc/User/base/WindowLinkTable.txt
-				${DESTINATION_DIR}/doc/User/base/WindowLinkTable.txt )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${CMAKE_INSTALL_PREFIX}/doc/User/base/.mnuinfo
-				${DESTINATION_DIR}/doc/User/base/.mnuinfo )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-			        ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
-				${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
    endif()
    if( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -238,17 +224,6 @@ macro( create_basepackages PACKAGE_NAME )
 			     ${DESTINATION_DIR}/data/${LIB} )
 	  endif()
        endforeach()
-#install WindowLinkTable.txt
-       file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/dgb )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${CMAKE_INSTALL_PREFIX}/doc/dgb_WindowLinkTable.txt
-				${DESTINATION_DIR}/doc/User/dgb/WindowLinkTable.txt )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${CMAKE_INSTALL_PREFIX}/doc/dgb_.mnuinfo
-				${DESTINATION_DIR}/doc/User/dgb/.mnuinfo )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-				${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
-				${DESTINATION_DIR}/doc/User/dgb/LinkFileTable.txt )
    endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
@@ -296,11 +271,10 @@ macro( init_destinationdir  PACKAGE_NAME )
 	endif()
     endif()
 
-    if( NOT EXISTS ${SOURCE_DIR}/packages )
-	    file( MAKE_DIRECTORY ${SOURCE_DIR}/packages )
+    if( NOT EXISTS ${PACKAGE_DIR} )
+	    file( MAKE_DIRECTORY ${PACKAGE_DIR} )
     endif()
 
-    set( PACKAGE_DIR ${SOURCE_DIR}/packages )
     if( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
 	file( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
     endif()
@@ -416,21 +390,6 @@ macro( create_develpackages )
 endmacro( create_develpackages )
 
 
-macro( od_sign_libs )
-    if ( EXISTS ${CODESIGN_COMMAND} )
-	execute_process( COMMAND ${CODESIGN_COMMAND} ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/ RESULT_VARIABLE STATUS )
-	if( NOT STATUS EQUAL "0" )
-	    message("Failed while signing files in Release")
-	endif()
-    endif()
-    if( WIN32 )
-	execute_process( COMMAND ${CODESIGN_COMMAND} ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Debug/ RESULT_VARIABLE STATUS )
-	if( NOT STATUS EQUAL "0" )
-	    message("Failed while signing files in Debug")
-	endif()
-    endif()
-endmacro( od_sign_libs )
-
 macro( download_packages  )
     message( "downloading doc pkgs" )
 #    set( DOCNAMES appman workflows user dgb )
@@ -470,45 +429,21 @@ endmacro( download_packages )
 
 macro( create_docpackages PACKAGE_NAME )
     if( WIN32 )
-	message( FATAL_ERROR "Documentation packages will create only on Linux ans Mac" )
-    else()
 	if( ${PACKAGE_NAME} STREQUAL "doc" )
-	    if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt )
-		file( RENAME ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt
-			     ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt )
-	    endif()
-
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/SysAdm
-			     ${DESTINATION_DIR}/doc/SysAdm )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/Scripts
-			     ${DESTINATION_DIR}/doc/Scripts )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/workflows
-			     ${DESTINATION_DIR}/doc/User/workflows )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/base
-			     ${DESTINATION_DIR}/doc/User/base )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/Credits/base
-			     ${DESTINATION_DIR}/doc/Credits/base )
+			     ${CMAKE_INSTALL_PREFIX}/doc/od_userdoc
+			     ${DESTINATION_DIR}/doc/od_userdoc )
 	elseif( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/Credits/dgb
-			     ${DESTINATION_DIR}/doc/Credits/dgb )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/dgb
-			     ${DESTINATION_DIR}/doc/User/dgb )
+			     ${CMAKE_INSTALL_PREFIX}/doc/dgb_userdoc
+			     ${DESTINATION_DIR}/doc/dgb_userdoc )
 	    file( GLOB FILES ${CMAKE_INSTALL_PREFIX}/doc/flexnet* )
 	    foreach( FIL ${FILES} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FIL} ${DESTINATION_DIR}/doc )
 	    endforeach()
-	    if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/dgb/LinkFileTable.txt )
-		file( RENAME ${CMAKE_INSTALL_PREFIX}/doc/dgb/LinkFileTable.txt
-			     ${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt )
-	    endif()
-	elseif( ${PACKAGE_NAME} STREQUAL "classdoc" )
+#	endif()
+    else()
+	if( ${PACKAGE_NAME} STREQUAL "classdoc" )
 	    if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/Programmer/Generated )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				 ${CMAKE_INSTALL_PREFIX}/doc/Programmer/Generated
