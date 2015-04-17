@@ -497,7 +497,7 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
 
     BufferString usrref = userrefs_[channel]->validIdx(textureidx) ?
 	userrefs_[channel]->get(textureidx) : "<No name>";
-    as_[channel]->setUserRef( userrefs_[channel]->get(textureidx) );
+    as_[channel]->setUserRef( usrref );
 }
 
 
