@@ -783,7 +783,7 @@ void HorizonDisplay::createDisplayDataPacks(
     const char* catnm = "Horizon Data";
     const char* dpnm = as_[channel]->userRef();
     BufferStringSet dimnames;
-    dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
+    dimnames.add("X").add("Y").add("In-line").add("Cross-line");
 
     for ( int idx=0; idx<nrversions; idx++ )
     {

@@ -101,7 +101,7 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 	tb->handlenotifier.remove( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
     }
 
-    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_ );
+    ODMainWin()->viewer2DMgr().remove2DViewer( displayid_, true );
 }
 
 

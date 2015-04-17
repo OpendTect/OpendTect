@@ -13,6 +13,9 @@ ________________________________________________________________________
 
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
+#include "uiflatviewstdcontrol.h"
+#include "uigraphicsview.h"
+#include "uimenu.h"
 #include "uiodviewer2d.h"
 #include "uiodvw2dfaulttreeitem.h"
 #include "uiodvw2dfaultss2dtreeitem.h"
@@ -28,6 +31,7 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 
 #include "attribsel.h"
+#include "mouseevent.h"
 #include "survinfo.h"
 #include "visseis2ddisplay.h"
 #include "view2ddata.h"
@@ -71,13 +75,12 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
     vwr->setUpView( vwdpid, dowva );
     vwr->useStoredDispPars( dowva );
     vwr->useStoredDispPars( !dowva );
+    attachNotifiers( vwr );
 
     FlatView::DataDispPars& ddp =
 	vwr->viewwin()->viewer().appearance().ddpars_;
     (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
     vwr->viewwin()->viewer().handleChange( FlatView::Viewer::DisplayPars );
-
-    mAttachCB( vwr->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     return vwr->id_;
 }
 
@@ -93,7 +96,6 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     {
 	isnewvwr = true;
 	curvwr = &addViewer2D( visid );
-	mAttachCB( curvwr->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     }
     else
     {
@@ -120,16 +122,110 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( zat && pd && !pd->isVerticalPlane() )
 	curvwr->setTrcKeyZSampling( pd->getTrcKeyZSampling(false,true) );
 
-    FlatView::DataDispPars& ddp =
-	curvwr->viewwin()->viewer().appearance().ddpars_;
+    uiFlatViewer& vwr = curvwr->viewwin()->viewer( 0 );
     if ( isnewvwr )
     {
+	attachNotifiers( curvwr );
+	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 	visServ().fillDispPars( visid, attribid, ddp, dowva );
 	visServ().fillDispPars( visid, attribid, ddp, !dowva );
 	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
     }
 
-    curvwr->viewwin()->viewer().handleChange( FlatView::Viewer::DisplayPars );
+    vwr.handleChange( FlatView::Viewer::DisplayPars );
+}
+
+
+void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
+{
+    if ( !SI().has3D() ) return;
+
+    mDynamicCastGet(const MouseEventHandler*,meh,cb);
+    if ( !meh || !meh->hasEvent() || !meh->event().rightButton() )
+	return;
+
+    uiODViewer2D* curvwr2d = find2DViewer( *meh );
+    if ( !curvwr2d ) return;
+
+    const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
+    if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+	return;
+
+    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 );
+    const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());
+    const Coord3 coord = curvwr.getCoord( wp );
+    if ( coord.isUdf() ) return;
+
+    const BinID bid = SI().transform( coord );
+    const uiString showinltxt = tr("Show In-line %1...").arg( bid.inl() );
+    const uiString showcrltxt = tr("Show Cross-line %1...").arg( bid.crl() );
+    const uiString showztxt = tr("Show Z-slice %1...")
+			     .arg( coord.z * SI().zDomain().userFactor() );
+
+    const bool isflat = tkzs.isFlat();
+    const TrcKeyZSampling::Dir dir = tkzs.defaultDir();
+    uiMenu menu( "Menu" );
+    if ( !isflat || dir!=TrcKeyZSampling::Inl )
+	menu.insertAction( new uiAction(showinltxt), 0 );
+    if ( !isflat || dir!=TrcKeyZSampling::Crl )
+	menu.insertAction( new uiAction(showcrltxt), 1 );
+    if ( !isflat || dir!=TrcKeyZSampling::Z )
+	menu.insertAction( new uiAction(showztxt), 2 );
+
+    menu.insertAction( new uiAction("Properties..."), 3 );
+    const int menuid = menu.exec();
+    if ( menuid>=0 && menuid<3 )
+    {
+	TrcKeyZSampling newtkzs = SI().sampling(true);
+	if ( menuid == 0 )
+	    newtkzs.hsamp_.setLineRange( Interval<int>(bid.inl(),bid.inl()) );
+	else if ( menuid == 1 )
+	    newtkzs.hsamp_.setTrcRange( Interval<int>(bid.crl(),bid.crl()) );
+	else if ( menuid == 2 )
+	    newtkzs.zsamp_ = Interval<float>( coord.z, coord.z );
+
+	create2DViewer( *curvwr2d, newtkzs );
+    }
+    else if ( menuid == 3 )
+	curvwr2d->viewControl()->doPropertiesDialog( 0 );
+}
+
+
+void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
+				      const TrcKeyZSampling& newsampling )
+{
+    uiODViewer2D* vwr2d = &addViewer2D( -1 );
+    vwr2d->setSelSpec( &curvwr2d.selSpec(true), true );
+    vwr2d->setSelSpec( &curvwr2d.selSpec(false), false );
+    vwr2d->setTrcKeyZSampling( newsampling );
+    vwr2d->setZAxisTransform( curvwr2d.getZAxisTransform() );
+
+    const uiFlatViewer& curvwr = curvwr2d.viewwin()->viewer( 0 );
+    if ( curvwr.isVisible(true) )
+	vwr2d->setUpView( vwr2d->createDataPack(true), true );
+    else if ( curvwr.isVisible(false) )
+	vwr2d->setUpView( vwr2d->createDataPack(false), false );
+
+    for ( int idx=0; idx<vwr2d->viewwin()->nrViewers(); idx++ )
+    {
+	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );
+	vwr.appearance().ddpars_ = curvwr.appearance().ddpars_;
+	vwr.handleChange( FlatView::Viewer::DisplayPars );
+    }
+
+    attachNotifiers( vwr2d );
+}
+
+
+void uiODViewer2DMgr::attachNotifiers( uiODViewer2D* vwr2d )
+{
+    mAttachCB( vwr2d->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
+    for ( int idx=0; idx<vwr2d->viewwin()->nrViewers(); idx++ )
+    {
+	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );
+	mAttachCB( vwr.rgbCanvas().getMouseEventHandler().buttonPressed,
+		   uiODViewer2DMgr::mouseClickCB );
+    }
 }
 
 
@@ -161,19 +257,35 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( int id, bool byvisid )
 }
 
 
+uiODViewer2D* uiODViewer2DMgr::find2DViewer( const MouseEventHandler& meh )
+{
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	uiODViewer2D* vwr2d = viewers2d_[idx];
+	const int vwridx = vwr2d->viewControl()->getViewerIdx( &meh, true );
+	if ( vwridx != -1 )
+	    return vwr2d;
+    }
+
+    return 0;
+}
+
+
 void uiODViewer2DMgr::viewWinClosedCB( CallBacker* cb )
 {
     mDynamicCastGet( uiODViewer2D*, vwr2d, cb );
     if ( vwr2d )
-	remove2DViewer( vwr2d->visid_ );
+	remove2DViewer( vwr2d->id_, false );
 }
 
 
-void uiODViewer2DMgr::remove2DViewer( int visid )
+void uiODViewer2DMgr::remove2DViewer( int id, bool byvisid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	if ( viewers2d_[idx]->visid_ != visid )
+	const int vwrid = byvisid ? viewers2d_[idx]->visid_
+				  : viewers2d_[idx]->id_;
+	if ( vwrid != id )
 	    continue;
 
 	delete viewers2d_.removeSingle( idx );

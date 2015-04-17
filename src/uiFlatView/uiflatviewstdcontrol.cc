@@ -289,15 +289,15 @@ void uiFlatViewStdControl::cancelZoomCB( CallBacker* )
 
 void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 {
-    mousepressed_ = true;
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh ) return;
+    if ( !meh || meh->event().rightButton() ) return;
 
     const int vwridx = getViewerIdx( meh, false );
     if ( vwridx<0 ) return;
     const uiFlatViewer* vwr = vwrs_[vwridx];
     mousedownpt_ = meh->event().pos();
     mousedownwr_ = vwr->curView();
+    mousepressed_ = true;
 }
 
 

@@ -133,10 +133,6 @@ void uiFlatViewControl::reInitZooms()
 }
 
 
-uiTabStackDlg* uiFlatViewControl::propDialog()
-{ return propdlg_; }
-
-
 void uiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
 				    Geom::Size2D<double> sz )
 {

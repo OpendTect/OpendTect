@@ -184,7 +184,7 @@ FlatDataPack::~FlatDataPack()
 Coord3 FlatDataPack::getCoord( int i0, int i1 ) const
 {
     return Coord3( posData().range(true).atIndex(i0),
-		   posData().range(false).atIndex(i1), 0 );
+		   posData().range(false).atIndex(i1), mUdf(double) );
 }
 
 
@@ -258,19 +258,14 @@ MapDataPack::~MapDataPack()
 void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 {
     const Coord3 pos = getCoord( idim0, idim1 );
-    if ( isposcoord_ )
-    {
-	const BinID bid = SI().transform( Coord(pos.x,pos.y) );
-	par.set( axeslbls_[2], bid.inl() );
-	par.set( axeslbls_[3], bid.crl() );
-    }
-    else
-    {
-	const Coord pos2d =
-		SI().transform( BinID(mNINT32(pos.x),mNINT32(pos.y)) );
-	par.set( axeslbls_[0], pos2d.x );
-	par.set( axeslbls_[1], pos2d.y );
-    }
+    const Coord coord = isposcoord_ ? pos.coord() :
+			SI().transform(BinID(mNINT32(pos.x),mNINT32(pos.y)));
+    const BinID bid = isposcoord_ ? SI().transform(pos)
+				  : BinID(mNINT32(pos.x),mNINT32(pos.y));
+    par.set( axeslbls_[0], coord.x );
+    par.set( axeslbls_[1], coord.y );
+    par.set( axeslbls_[2], bid.inl() );
+    par.set( axeslbls_[3], bid.crl() );
 }
 
 

@@ -45,6 +45,12 @@ public:
 			changing the input to the actual new values. */
     virtual void	flip(bool hor);
     			//!< reverses uiWorldRect's LR or TB swapping
+    virtual void	doPropertiesDialog(int vieweridx=0);
+
+    int			getViewerIdx(const MouseEventHandler*,bool ofscene);
+			//!< ofscene should be true while passing
+			//!< MouseEventHandler of uiGraphicsScene and false
+			//!< while passing MouseEventHandler of uiGraphicsView.
 
     Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
     Notifier<uiFlatViewControl>  viewerAdded;
@@ -62,7 +68,6 @@ public:
 				inside the bounding box. Pass centre instead of
 				mousepos if there is no MouseEvent. In case of
 				panning, pass the view after translation. */
-    uiTabStackDlg*		propDialog();
     const FlatView::ZoomMgr&	zoomMgr() const { return zoommgr_; }
     void			reInitZooms();
 
@@ -81,10 +86,6 @@ protected:
     MouseEventHandler&	mouseEventHandler(int vwridx,bool ofscene);
 			//!< Returns MouseEventHandler of uiGraphicsScene if
 			//!< ofscene is true else returns that of uiGraphicsView
-    int			getViewerIdx(const MouseEventHandler*,bool ofscene);
-			//!< ofscene should be true while passing
-			//!< MouseEventHandler of uiGraphicsScene and false
-			//!< while passing MouseEventHandler of uiGraphicsView.
 
     virtual void	finalPrepare()			{}
     virtual void	onFinalise(CallBacker*);
@@ -103,7 +104,6 @@ protected:
     virtual void	usrClickCB(CallBacker*);
     virtual bool	handleUserClick(int vwridx)	{ return false; }
     
-    virtual void	doPropertiesDialog(int vieweridx=0);
     virtual void	propDlgClosed(CallBacker*);
     virtual void	applyProperties(CallBacker* cb);
     virtual void	saveProperties(FlatView::Viewer&);
