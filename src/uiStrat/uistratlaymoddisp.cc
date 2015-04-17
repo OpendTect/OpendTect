@@ -424,9 +424,7 @@ int uiStratLayerModelDisp::getClickedModelNr() const
     if ( layerModel().isEmpty() || !mevh.hasEvent() || mevh.isHandled() )
 	return -1;
     const MouseEvent& mev = mevh.event();
-    uiWorld2Ui w2ui;
-    vwr_.getWorld2Ui( w2ui );
-    const float xsel = w2ui.toWorldX( mev.pos().x );
+    const float xsel = vwr_.getWorld2Ui().toWorldX( mev.pos().x );
     int selidx = (int)(ceil( xsel )) - 1;
     if ( selidx < 0 || selidx > layerModel().size() )
 	selidx = -1;
@@ -440,9 +438,7 @@ void uiStratLayerModelDisp::mouseMoved( CallBacker* )
     const int selseq = getClickedModelNr();
     statusbarmsg.set( "Model Number", selseq );
     const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
-    uiWorld2Ui w2ui;
-    vwr_.getWorld2Ui( w2ui );
-    float depth = w2ui.toWorldY( mev.pos().y );
+    float depth = vwr_.getWorld2Ui().toWorldY( mev.pos().y );
     if ( !Math::IsNormalNumber(depth) )
     {
 	mDefineStaticLocalObject( bool, havewarned, = false );
@@ -608,9 +604,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 					layerModel().sequence( selidx ) );
     ObjectSet<Strat::Layer>& lays = ls.layers();
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
-    uiWorld2Ui w2ui;
-    vwr_.getWorld2Ui( w2ui );
-    float zsel = w2ui.toWorldY( mevh.event().pos().y );
+    float zsel = vwr_.getWorld2Ui().toWorldY( mevh.event().pos().y );
     mGetRealZ( zsel );
     mevh.setHandled( true );
     if ( flattened_ )
@@ -1033,9 +1027,7 @@ int uiStratSimpleLayerModelDisp::getXPix( int iseq, float relx ) const
     const float margin = 0.05f;
     relx = (1-margin) * relx + margin * .5f;// get relx between 0.025 and 0.975
     relx *= dispeach_;
-    uiWorld2Ui w2ui;
-    vwr_.getWorld2Ui( w2ui );
-    return w2ui.toUiX( iseq + 1 + relx );
+    return vwr_.getWorld2Ui().toUiX( iseq + 1 + relx );
 }
 
 
@@ -1046,8 +1038,7 @@ bool uiStratSimpleLayerModelDisp::isDisplayedModel( int iseq ) const
 
     if ( showzoomed_ )
     {
-	uiWorld2Ui w2ui;
-	vwr_.getWorld2Ui( w2ui );
+	const uiWorld2Ui& w2ui = vwr_.getWorld2Ui();
 	const int xpix0 = getXPix( iseq, 0 );
 	const int xpix1 = getXPix( iseq, 1 );
 	if ( w2ui.toWorldX(xpix1) > zoomwr_.right()

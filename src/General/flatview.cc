@@ -499,6 +499,21 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 }
 
 
+Coord3 FlatView::Viewer::getCoord( const Point& wp )
+{
+    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
+    if ( !fdp ) return Coord3::udf();
+
+    const FlatPosData& pd = fdp->posData();
+    const IndexInfo ix = pd.indexInfo( true, wp.x );
+    const IndexInfo iy = pd.indexInfo( false, wp.y );
+    if ( fdp->data().info().validPos(ix.nearest_,iy.nearest_) )
+	return fdp->getCoord( ix.nearest_, iy.nearest_ );
+
+    return Coord3::udf();
+}
+
+
 void FlatView::Viewer::removeAllAuxData()
 {
     while ( nrAuxData() )

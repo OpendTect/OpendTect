@@ -19,20 +19,24 @@ ________________________________________________________________________
 
 class uiODViewer2D;
 class uiTreeFactorySet;
+class MouseEventHandler;
+class TrcKeyZSampling;
 namespace Attrib { class SelSpec; }
 
 
 mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
-{
+{ mODTextTranslationClass(uiODViewer2DMgr);
 public:
+
     uiODViewer2D*		find2DViewer(int id,bool byvisid);
+    uiODViewer2D*		find2DViewer(const MouseEventHandler&);
 
     int				displayIn2DViewer(DataPack::ID,
 						  const Attrib::SelSpec&,
 						  bool wva);
     void			displayIn2DViewer(int visid,int attribid,
 						  bool wva);
-    void			remove2DViewer(int visid);
+    void			remove2DViewer(int id,bool byvisid);
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
@@ -61,13 +65,22 @@ protected:
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
     void			viewWinClosedCB(CallBacker*);
+    void			mouseClickCB(CallBacker*);
+
+    void			create2DViewer(const uiODViewer2D& curvwr2d,
+					       const TrcKeyZSampling& newtkzs);
+				/*!< \param newtkzs is the new TrcKeyZSampling
+				for which a new uiODViewer2D will be created.
+				\param curvwr2d is the current 2D Viewer of
+				which the newly created 2D Viewer will inherit
+				Attrib::SelSpec and other display properties.*/
+    void			attachNotifiers(uiODViewer2D*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
 
     friend class                uiODMain;
 };
-
 
 #endif
 

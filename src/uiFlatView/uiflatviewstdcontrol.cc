@@ -21,10 +21,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
-#include "uiworld2ui.h"
 
-#include "flatviewzoommgr.h"
 #include "keyboardevent.h"
+#include "mousecursor.h"
 #include "mouseevent.h"
 #include "texttranslator.h"
 
@@ -36,6 +35,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,setup.withrubber_,setup.withhanddrag_)
     , vwr_(vwr)
+    , setup_(setup)
     , ctabed_(0)
     , mousepressed_(false)
     , menu_(*new uiMenuHandler(0,-1))
@@ -135,17 +135,18 @@ uiFlatViewStdControl::~uiFlatViewStdControl()
 
 void uiFlatViewStdControl::finalPrepare()
 {
-    updatePosButtonStates();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	MouseEventHandler& mevh =
-	    vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
+	uiGraphicsView& view = vwrs_[idx]->rgbCanvas();
+	if ( setup_.withfixedaspectratio_ )
+	{
+	    vwrs_[idx]->updateBitmapsOnResize( false );
+	    mAttachCBIfNotAttached(view.reSize, uiFlatViewStdControl::reSizeCB);
+	}
+
+	MouseEventHandler& mevh = view.getNavigationMouseEventHandler();
 	mAttachCBIfNotAttached(
 		mevh.wheelMove, uiFlatViewStdControl::wheelMoveCB );
-	GestureEventHandler& pinchhandler =
-	    vwrs_[idx]->rgbCanvas().gestureEventHandler();
-	mAttachCBIfNotAttached( pinchhandler.pinchnotifier,
-				uiFlatViewStdControl::pinchZoomCB );
 
 	if ( withhanddrag_ )
 	{
@@ -156,7 +157,12 @@ void uiFlatViewStdControl::finalPrepare()
 	    mAttachCBIfNotAttached(
 		    mevh.movement, uiFlatViewStdControl::handDragging );
 	}
+
+	mAttachCBIfNotAttached( view.gestureEventHandler().pinchnotifier,
+				uiFlatViewStdControl::pinchZoomCB );
     }
+
+    updatePosButtonStates();
 }
 
 
@@ -228,19 +234,14 @@ void uiFlatViewStdControl::pinchZoomCB( CallBacker* cb )
     const float scalefac = gevent->scale();
     Geom::Size2D<double> newsz( cursz.width() * (1/scalefac), 
 				cursz.height() * (1/scalefac) );
-
-    uiWorld2Ui w2ui;
-    vwr.getWorld2Ui( w2ui );
-    Geom::Point2D<double> pos = w2ui.transform( gevent->pos() );
+    Geom::Point2D<double> pos = vwr.getWorld2Ui().transform( gevent->pos() );
 
     const uiWorldRect wr = getZoomOrPanRect( pos, newsz, vwr.curView(),
 	    				     vwr.boundingBox() );
     vwr.setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )
-    	zoommgr_.add( newsz );
- 
-    zoomChanged.trigger();
+	updateZoomManager();
 }
 
 
@@ -272,11 +273,8 @@ void uiFlatViewStdControl::doZoom( bool zoomin, bool onlyvertzoom,
 	zoommgr_.back( vwridx, onlyvertzoom, hasmouseevent );
     }
 
-    uiWorld2Ui w2ui;
-    vwr.getWorld2Ui( w2ui );
-
     Geom::Point2D<double> mousepos = hasmouseevent ?
-	w2ui.transform( meh.event().pos() ) : vwr.curView().centre();
+	vwr.getWorld2Ui().transform(meh.event().pos()) : vwr.curView().centre();
     Geom::Size2D<double> newsz = zoommgr_.current( vwridx );
 
     setNewView( mousepos, newsz );
@@ -291,15 +289,15 @@ void uiFlatViewStdControl::cancelZoomCB( CallBacker* )
 
 void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 {
-    mousepressed_ = true;
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh ) return;
+    if ( !meh || meh->event().rightButton() ) return;
 
     const int vwridx = getViewerIdx( meh, false );
     if ( vwridx<0 ) return;
     const uiFlatViewer* vwr = vwrs_[vwridx];
     mousedownpt_ = meh->event().pos();
     mousedownwr_ = vwr->curView();
+    mousepressed_ = true;
 }
 
 
@@ -314,10 +312,9 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     if ( vwr->rgbCanvas().dragMode() != uiGraphicsViewBase::ScrollHandDrag )
 	return;
 
-    const uiPoint curpt = meh->event().pos();
     const uiWorld2Ui w2ui( mousedownwr_, vwr->getViewRect().size() );
     const uiWorldPoint startwpt = w2ui.transform( mousedownpt_ );
-    const uiWorldPoint curwpt = w2ui.transform( curpt );
+    const uiWorldPoint curwpt = w2ui.transform( meh->event().pos() );
 
     uiWorldRect newwr( mousedownwr_ );
     newwr.translate( startwpt-curwpt );
@@ -332,6 +329,30 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
 {
     handDragging( cb );
     mousepressed_ = false;
+}
+
+
+void uiFlatViewStdControl::reSizeCB( CallBacker* cb )
+{
+    mCBCapsuleGet(uiSize,caps,cb);
+    mDynamicCastGet(const uiGraphicsView*,view,caps->caller);
+    int vwridx = -1;
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	if ( &vwrs_[idx]->rgbCanvas() == view )
+	    { vwridx = idx; break; }
+    if ( vwridx == -1 ) return;
+
+    uiFlatViewer& vwr = *vwrs_[vwridx];
+    const uiRect viewrect = vwr.getViewRect();
+    uiWorldRect wr = vwr.getWorld2Ui().transform( viewrect );
+    if ( !zoommgr_.atStart(vwridx) )
+    {
+	wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, vwr.boundingBox() );
+	vwr.setView( wr );
+	updateZoomManager();
+    }
+    else
+	vwr.setView( vwr.curView() );
 }
 
 
@@ -362,16 +383,19 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* cb )
     const bool iseditmode = editbut_ && editbut_->isOn();
     const bool iszoommode = rubbandzoombut_ && rubbandzoombut_->isOn();
 
-    uiGraphicsViewBase::ODDragMode mode;
-    if ( iseditmode && !iszoommode )
-	mode = uiGraphicsViewBase::NoDrag;
-    else
+    uiGraphicsViewBase::ODDragMode mode( uiGraphicsViewBase::ScrollHandDrag );
+    MouseCursor cursor( MouseCursor::OpenHand );
+    if ( iszoommode || iseditmode )
+    {
 	mode = iszoommode ? uiGraphicsViewBase::RubberBandDrag
-			  : uiGraphicsViewBase::ScrollHandDrag;
+			  : uiGraphicsViewBase::NoDrag;
+	cursor = iszoommode ? MouseCursor::Arrow : MouseCursor::Cross;
+    }
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	vwrs_[idx]->rgbCanvas().setDragMode( mode );
+	vwrs_[idx]->setCursor( cursor );
 	vwrs_[idx]->appearance().annot_.editable_ = iseditmode &&
 	   				!vwrs_[idx]->hasZAxisTransform();
 	// TODO: Change while enabling tracking in Z-transformed 2D Viewers.

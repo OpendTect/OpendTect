@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibitmapdisplay.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
-#include "uiworld2ui.h"
 
 #include "bufstringset.h"
 #include "uigraphicssceneaxismgr.h"
@@ -44,6 +43,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , dispParsChanged(this)
     , annotChanged(this)
     , dispPropChanged(this)
+    , updatebitmapsonresize_(true)
     , wr_(0,0,1,1)
 {
     updatequeueid_ =
@@ -85,10 +85,14 @@ uiFlatViewer::~uiFlatViewer()
 }
 
 
-void uiFlatViewer::reSizeCB( CallBacker* cb )
+void uiFlatViewer::reSizeCB( CallBacker* )
 {
+    if ( !updatebitmapsonresize_ )
+	return;
+
     axesdrawer_.updateScene();
     updateTransforms();
+    w2ui_.set( getViewRect(), wr_ );
 }
 
 
@@ -145,6 +149,15 @@ void uiFlatViewer::updateTransforms()
 
     worldgroup_->setPos( uiWorldPoint( xpos, ypos ) );
     worldgroup_->setScale( (float) xscale, (float) yscale );
+}
+
+
+void uiFlatViewer::setExtraBorders( uiRect rect )
+{
+    extraborders_ = rect;
+    const uiBorder border( rect.left(), rect.top(),
+			   rect.right(), rect.bottom() );
+    axesdrawer_.setExtraBorder( border );
 }
 
 
@@ -223,6 +236,8 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 
     axesdrawer_.setWorldCoords( wr_ );
     updateTransforms();
+
+    w2ui_.set( getViewRect(), wr_ );
 
     viewChanged.trigger();
 }
@@ -313,12 +328,6 @@ void uiFlatViewer::setAnnotChoice( int sel )
     appearance().annot_.x1_.annotinint_ = isannotinint;
     axesdrawer_.setAnnotInInt( true, isannotinint );
     axesdrawer_.altdim0_ = sel;
-}
-
-
-void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
-{
-    w2u.set( getViewRect(), wr_ );
 }
 
 

@@ -17,13 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uirgbarraycanvas.h"
-#include "uiworld2ui.h"
 
-#include "flatviewzoommgr.h"
 #include "scaler.h"
 #include "survinfo.h"
-
-
 
 
 MFVCViewManager::~MFVCViewManager()
@@ -173,7 +169,7 @@ void uiMultiFlatViewControl::setNewView(Geom::Point2D<double> mousepos,
     const uiWorldRect wr = getZoomOrPanRect( mousepos,sz,activevwr_->curView(),
 	    				     activevwr_->boundingBox() );
     activevwr_->setView( wr );
-    addSizesToZoomMgr();
+    updateZoomManager();
 }
 
 
@@ -214,18 +210,16 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
 	(selarea->width()<5 && selarea->height()<5) )
 	return;
 
-    uiWorld2Ui w2u;
-    activevwr_->getWorld2Ui(w2u);
-    uiWorldRect wr = w2u.transform(*selarea);
+    uiWorldRect wr = activevwr_->getWorld2Ui().transform( *selarea );
     wr = getZoomOrPanRect( wr.centre(), wr.size(), wr,
 	    		   activevwr_->boundingBox() );
     activevwr_->setView( wr );
-    addSizesToZoomMgr();
+    updateZoomManager();
     rubberBandUsed.trigger();
 }
 
 
-void uiMultiFlatViewControl::addSizesToZoomMgr()
+void uiMultiFlatViewControl::updateZoomManager()
 {
     if ( !iszoomcoupled_ )
     {
@@ -234,10 +228,7 @@ void uiMultiFlatViewControl::addSizesToZoomMgr()
 	return;
     }
 
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	zoommgr_.add( vwrs_[idx]->curView().size(), idx );
-
-    zoomChanged.trigger();
+    uiFlatViewControl::updateZoomManager();
 }
 
 
@@ -300,16 +291,15 @@ void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
     const float scalefac = gevent->scale();
     Geom::Size2D<double> newsz( cursz.width() * (1/scalefac), 
 				cursz.height() * (1/scalefac) );
-    uiWorld2Ui w2ui;
-    activevwr_->getWorld2Ui( w2ui );
-    Geom::Point2D<double> pos = w2ui.transform( gevent->pos() );
+    Geom::Point2D<double> pos =
+	activevwr_->getWorld2Ui().transform( gevent->pos() );
 
     const uiWorldRect wr = getZoomOrPanRect( pos, newsz, activevwr_->curView(),
 	    				     activevwr_->boundingBox());
     vwrs_[vwridx]->setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )
-	addSizesToZoomMgr();
+	updateZoomManager();
 }
 
 

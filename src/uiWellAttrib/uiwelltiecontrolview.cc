@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelltiecontrolview.h"
 
 #include "ioman.h"
-#include "flatviewzoommgr.h"
 #include "keyboardevent.h"
 #include "emsurfacetr.h"
 #include "mouseevent.h"
@@ -31,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uiwelldispprop.h"
-#include "uiworld2ui.h"
 
 
 static const char* sKeyZoom = "Viewer Zoom";
@@ -84,8 +82,7 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
 bool uiControlView::handleUserClick( int vwridx )
 {
     const MouseEvent& ev = mouseEventHandler(vwridx,true).event();
-    uiWorld2Ui w2u; vwr_.getWorld2Ui(w2u);
-    const uiWorldPoint wp = w2u.transform( ev.pos() );
+    const uiWorldPoint wp = vwr_.getWorld2Ui().transform( ev.pos() );
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus()
 	&& !ev.altStatus() && editbut_->isOn() && checkIfInside(wp.x,wp.y) )
     {
@@ -163,8 +160,7 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
 	if ( viewarea.topLeft() == viewarea.bottomRight() ||
 		viewarea.width() < 10 || viewarea.height() < 10 )
 	    return;
-	uiWorld2Ui w2u; vwr_.getWorld2Ui( w2u );
-	wr = w2u.transform( viewarea );
+	wr = vwr_.getWorld2Ui().transform( viewarea );
     }
     const uiWorldRect bbox = vwr_.boundingBox();
     Interval<double> zrg( wr.top() , wr.bottom() );

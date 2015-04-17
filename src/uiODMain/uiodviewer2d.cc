@@ -202,7 +202,7 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
 	}
 
 	vwr.setPack( wva, packid, isnew );
-	if ( isnew || setforotherdisp )
+	if ( setforotherdisp || (isnew && wvaselspec_==vdselspec_) )
 	    vwr.usePack( !wva, packid, isnew );
     }
 
@@ -218,13 +218,6 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
     datatransform_ = zat;
     if ( datatransform_ )
 	datatransform_->ref();
-
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-    {
-	viewwin()->viewer(ivwr).setZAxisTransform( datatransform_ );
-    }
-
-    if ( treetp_ ) treetp_->setZAxisTransform( zat );
 
     return true;
 }
@@ -286,6 +279,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
+	vwr.setZAxisTransform( datatransform_ );
 	vwr.appearance().setDarkBG( wantdock );
 	vwr.appearance().setGeoDefaults(isvert);
 	vwr.appearance().annot_.setAxesAnnot(true);
@@ -297,6 +291,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					mODHelpKey(mODViewer2DHelpID) )
 						   .withedit(tifs_)
 						   .withvertzoombut(isvert)
+						   .withfixedaspectratio(true)
 						   .managescoltab(!tifs_) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( tifs_ )
@@ -347,6 +342,7 @@ void uiODViewer2D::createTree( uiMainWin* mw )
 	treetp_->addChild( tifs_->getFactory(fidx)->create(), true );
     }
 
+    treetp_->setZAxisTransform( datatransform_ );
     lv->display( true );
     mw->addDockWindow( *treedoc, uiMainWin::Left );
     treedoc->display( true );

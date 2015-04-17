@@ -1190,7 +1190,7 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 
 void uiODSceneMgr::remove2DViewer( int visid )
 {
-    appl_.viewer2DMgr().remove2DViewer( visid );
+    appl_.viewer2DMgr().remove2DViewer( visid, true );
 }
 
 

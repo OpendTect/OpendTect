@@ -72,6 +72,8 @@ public:
 				it has a valid one. Returns DataPack::ID of
 				other display if both have same Attrib::SelSpec.
 				Else, returns uiODViewer2D::createDataPack.*/
+    DataPack::ID		createDataPack(bool wva) const
+				{ return createDataPack(selSpec(wva)); }
     DataPack::ID		createDataPack(const Attrib::SelSpec&) const;
 				/*!< Creates RegularFlatDataPack by getting
 				TrcKeyZSampling from slicepos_. Uses the
@@ -92,6 +94,8 @@ public:
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
+    const TrcKeyZSampling&	getTrcKeyZSampling() const
+				{ return tkzs_; }
 
     void			setGeomID( Pos::GeomID geomid )
 				{ geomid_ = geomid; }
