@@ -22,13 +22,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "qtcpsocketcomm.h"
 #endif
 
-#ifdef __debug__
 # define mCheckThread \
     if ( thread_!=Threads::currentThread() ) \
-      pErrMsg("Invalid Thread access" )
-#else
-# define mCheckThread
-#endif
+    { \
+      pErrMsg("Invalid Thread access" ); \
+    }
 
 
 Network::Socket::Socket( bool haveevloop )
@@ -43,11 +41,7 @@ Network::Socket::Socket( bool haveevloop )
     , disconnected( this )
     , readyRead( this )
     , ownssocket_( true )
-#ifdef __debug__
     , thread_( Threads::currentThread() )
-#else
-    , thread_( 0 )
-#endif
 {
 #ifndef OD_NO_QT
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
@@ -67,11 +61,7 @@ Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
     , disconnected( this )
     , readyRead( this )
     , ownssocket_( false )
-#ifdef __debug__
     , thread_( Threads::currentThread() )
-#else
-    , thread_( 0 )
-#endif
 {
 #ifndef OD_NO_QT
     socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
@@ -173,6 +163,14 @@ od_int64 Network::Socket::bytesAvailable() const
 #ifdef OD_NO_QT
     return false;
 #else
+    od_int64 res = qtcpsocket_->bytesAvailable();
+    if ( res || !noeventloop_ )
+	return res;
+
+    //Force a trigger if noeventloop. Not really needed, but
+    //Makes it safer. Could be any time, but 1ms will do.
+    qtcpsocket_->waitForReadyRead( 1 );
+
     return qtcpsocket_->bytesAvailable();
 #endif
 }
@@ -293,8 +291,8 @@ bool Network::Socket::write( const Network::RequestPacket& pkt, bool waitfor )
 	return false;
 
     Threads::Locker locker( lock_ );
-    if ( !writeArray( pkt.getRawHeader(), pkt.headerSize(), true ) ||
-	   !writeArray( pkt.payload(), pkt.payloadSize(), true ) )
+    if ( !writeArray( pkt.getRawHeader(), pkt.headerSize(), waitfor ) ||
+	   !writeArray( pkt.payload(), pkt.payloadSize(), waitfor ) )
 	return false;
 
     if ( waitfor )
@@ -308,6 +306,7 @@ bool Network::Socket::write( const Network::RequestPacket& pkt, bool waitfor )
 Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
 							od_int64 sz ) const
 {
+    mCheckThread;
 #ifndef OD_NO_QT
     char* buf = (char*)voidbuf;
 

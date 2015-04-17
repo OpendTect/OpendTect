@@ -38,14 +38,15 @@ public:
 
     void runEventLoopTest(CallBacker*)
     {
-	prefix_ = "[event-loop] ";
-	bool res = runTest( true );
+	prefix_ = "[multithreaded] ";
+	bool res = runTest( true, true );
 	ApplicationData::exit( res ? 0 : 1 );
     }
 
-    bool runTest( bool sendkill )
+    bool runTest( bool sendkill, bool multithreaded )
     {
-	Network::RequestConnection conn( hostname_, (unsigned short)port_ );
+	Network::RequestConnection conn( hostname_, (unsigned short)port_,
+					 multithreaded );
 	mRunStandardTestWithError( conn.isOK(),
 	      BufferString( prefix_, "Connection is OK"),
 	      conn.errMsg().getFullString() );
@@ -86,7 +87,7 @@ public:
 	PtrMan<Network::RequestPacket> receivedpacket = 0;
 
 	mRunStandardTestWithError(
-	    receivedpacket=conn.pickupPacket( packet.requestID(), 2000 ),
+	    receivedpacket=conn.pickupPacket( packet.requestID(), 20000 ),
 	    packetString( prefix_, "Receiving", packet ),
 	    conn.errMsg().getFullString() );
 
@@ -98,7 +99,7 @@ public:
 			 packetString( prefix_, "Received content", packet ) );
 
 	mRunStandardTestWithError(
-		  receivedpacket=conn.pickupPacket( packet.requestID(), 2000 ),
+		  receivedpacket=conn.pickupPacket( packet.requestID(), 20000 ),
 		  packetString( prefix_, "Receiving", packet2 ),
 		  conn.errMsg().getFullString() );
 
@@ -110,7 +111,7 @@ public:
 			 packetString( prefix_, "Received content", packet2 ) );
 
 	mRunStandardTestWithError(
-	    receivedpacket=conn.pickupPacket( largepacket.requestID(), 2000 ),
+	    receivedpacket=conn.pickupPacket( largepacket.requestID(), 20000 ),
 	    packetString( prefix_, "Receiving large", largepacket ),
 	    conn.errMsg().getFullString() );
 
@@ -124,6 +125,37 @@ public:
 
 	if ( !sendPacketInOtherThread() )
 	    return false;
+
+	{
+	    //Send a packet that requests a disconnect. Server will
+	    //disconnect, and we should not be able to read the packet.
+	    //
+	    //Further, the errorcode should be set correctly.
+	    Network::RequestConnection conn2( hostname_, (unsigned short)port_,
+					 multithreaded );
+	    mRunStandardTestWithError( conn2.isOK(),
+	      BufferString( prefix_, "Connection 2 is OK"),
+	      conn.errMsg().getFullString() );
+
+	    Network::RequestPacket disconnectpacket;
+	    disconnectpacket.setIsNewRequest();
+	    disconnectpacket.setStringPayload( "Disconnect" );
+
+	    mRunStandardTestWithError( conn2.sendPacket( disconnectpacket ),
+	      packetString( prefix_, "Sending disconnect", disconnectpacket ),
+	      conn2.errMsg().getFullString() );
+
+	    int errorcode = 0;
+	    mRunStandardTest(
+	      !(receivedpacket=conn2.pickupPacket(disconnectpacket.requestID(),
+		  20000, &errorcode )),
+	      packetString( prefix_, "Receiving disconnect should fail",
+		  disconnectpacket ) );
+
+	    mRunStandardTest(errorcode==conn2.cDisconnected(),
+	      packetString( prefix_, "Errorcode == disconnection",
+			    disconnectpacket ) );
+	}
 
 	if ( sendkill )
 	{
@@ -174,23 +206,28 @@ public:
 	packet.setIsNewRequest();
 	packet.setStringPayload( sentmessage );
 
-	mRunStandardTestWithError( conn_->sendPacket( packet ),
+	mRunStandardTestWithError(
+	      conn_->sendPacket( packet )==conn_->isMultiThreaded(),
 	      packetString( prefix_, "Sending from other thread", packet ),
 	      conn_->errMsg().getFullString() );
 
-	PtrMan<Network::RequestPacket> receivedpacket = 0;
+	PtrMan<Network::RequestPacket> receivedpacket =
+	    conn_->pickupPacket( packet.requestID(), 20000 );
 	mRunStandardTestWithError(
-	    receivedpacket=conn_->pickupPacket( packet.requestID(), 2000 ),
+	    ((bool) receivedpacket.ptr())==conn_->isMultiThreaded(),
 	    packetString( prefix_, "Receiving from other thread", packet ),
 	    conn_->errMsg().getFullString() );
 
-	BufferString receivedmessage1;
-	receivedpacket->getStringPayload( receivedmessage1 );
-	mRunStandardTest( receivedmessage1==sentmessage &&
-	     receivedpacket->requestID()==packet.requestID() &&
-	     receivedpacket->subID()==packet.subID(),
-	     packetString( prefix_, "Received content from other thread",
-			   packet ) );
+	if ( receivedpacket )
+	{
+	    BufferString receivedmessage1;
+	    receivedpacket->getStringPayload( receivedmessage1 );
+	    mRunStandardTest( receivedmessage1==sentmessage &&
+		 receivedpacket->requestID()==packet.requestID() &&
+		 receivedpacket->subID()==packet.subID(),
+		 packetString( prefix_, "Received content from other thread",
+			       packet ) );
+	}
 
 
 	return true;
@@ -218,7 +255,7 @@ int main(int argc, char** argv)
     runner.port_ = 1025;
     clparser.getVal( "port", runner.port_, true );
     runner.hostname_ = "localhost";
-    runner.prefix_ = "[no event-loop] ";
+    runner.prefix_ = "[singlethreaded] ";
 
     BufferString echoapp = "test_netreqechoserver";
     clparser.getVal( "serverapp", echoapp );
@@ -234,7 +271,7 @@ int main(int argc, char** argv)
 
     Threads::sleep( 1 );
 
-    if ( !runner.runTest(false) )
+    if ( !runner.runTest(false,false) )
 	ExitProgram( 1 );
 
     app.addToEventLoop( mCB( &runner,Tester, runEventLoopTest) );

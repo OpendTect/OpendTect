@@ -102,6 +102,7 @@ public:
 				      locked, so you may not be able to
 				      read immediately */
 
+    const void*			thread() const { return thread_; }
 private:
 
     bool			waitForConnected() const;

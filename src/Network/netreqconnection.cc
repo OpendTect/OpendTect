@@ -25,7 +25,7 @@ static Threads::Atomic<int> connid;
 
 RequestConnection::RequestConnection( const char* servername,
 				      unsigned short servport,
-				      bool haseventloop,
+				      bool multithreaded,
 				      int timeout )
     : socket_( 0 )
     , ownssocket_( true )
@@ -38,8 +38,10 @@ RequestConnection::RequestConnection( const char* servername,
     , timeout_( timeout )
     , stopflag_( 0 )
     , packettosend_( 0 )
+    , threadreadstatus_( None )
+    , triggerread_( false )
 {
-    if ( haseventloop )
+    if ( multithreaded )
     {
 	Threads::MutexLocker locker( lock_ );
 	socketthread_ =
@@ -48,7 +50,7 @@ RequestConnection::RequestConnection( const char* servername,
     }
     else
     {
-	connectToHost( haseventloop );
+	 connectToHost();
     }
 }
 
@@ -64,6 +66,8 @@ RequestConnection::RequestConnection( Network::Socket* sock )
     , timeout_( 0 )
     , stopflag_( 0 )
     , packettosend_( 0 )
+    , threadreadstatus_( None )
+    , triggerread_( false )
 {
     if ( !sock )
 	return;
@@ -85,9 +89,12 @@ RequestConnection::~RequestConnection()
 	socketthread_->waitForFinish();
 	deleteAndZeroPtr( socketthread_ );
     }
+    else
+    {
+	deleteAndZeroPtr( socket_, ownssocket_ );
+    }
 
     detachAllNotifiers();
-
 
     deepErase( receivedpackets_ );
 }
@@ -101,20 +108,25 @@ void RequestConnection::socketThreadFunc( CallBacker* )
 	return;
     }
 
-    connectToHost( true );
+    connectToHost();
 
     lock_.lock();
     while ( !stopflag_ )
     {
 	lock_.unLock();
-	if ( socket_ && socket_->bytesAvailable() )
+	const bool hasdata = socket_->bytesAvailable();
+	lock_.lock();
+
+	if ( triggerread_ || hasdata )
 	{
+	    lock_.unLock();
 	    readFromSocket();
 	    lock_.lock();
+	    triggerread_ = false;
+	    lock_.signal( true );
 	    continue;
 	}
 
-	lock_.lock();
 	if ( packettosend_ && !sendingfinished_ )
 	{
 	    sendresult_ = doSendPacket( *packettosend_, sendwithwait_ );
@@ -124,26 +136,34 @@ void RequestConnection::socketThreadFunc( CallBacker* )
 	    continue;
 	}
 
-	lock_.wait();
+	//Wait 100 ms. We should in principle be able to wait infinitly
+	//if everything is 100% correct. This is however safer
+	lock_.wait( 100 );
     }
 
     deleteAndZeroPtr( socket_, ownssocket_ );
 }
 
 
-void RequestConnection::connectToHost( bool haseventloop )
+void RequestConnection::connectToHost()
 {
-    Threads::MutexLocker locker( lock_ );
+    if ( socket_ )
+    {
+	pErrMsg("I did not expect a socket" );
+	return;
+    }
 
-    if ( !socket_ )
-	socket_ = new Network::Socket( haseventloop );
+    Network::Socket* newsocket = new Network::Socket( false );
 
     if ( timeout_ > 0 )
-	socket_->setTimeout( timeout_ );
+	newsocket->setTimeout( timeout_ );
 
-    if ( socket_->connectToHost(servername_,serverport_) )
-	mAttachCB(socket_->disconnected,RequestConnection::connCloseCB);
+    if ( newsocket->connectToHost(servername_,serverport_) )
+	mAttachCB(newsocket->disconnected,RequestConnection::connCloseCB);
 
+    Threads::MutexLocker locker( lock_ );
+
+    socket_ = newsocket;
     //Tell eventual constructor waiting that we have at least tried to connect
     lock_.signal( true );
 }
@@ -158,10 +178,6 @@ bool RequestConnection::isOK() const
 void RequestConnection::connCloseCB( CallBacker* )
 {
     connectionClosed.trigger();
-
-    // deleteAndZeroPtr( socket_, ownssocket_ );
-    // The socket_ will often contain a very bad pointer
-    socket_ = 0;
 }
 
 
@@ -172,7 +188,7 @@ void RequestConnection::flush()
 
 bool RequestConnection::readFromSocket()
 {
-    while ( socket_ )
+    while ( isOK() )
     {
 	PtrMan<RequestPacket> nextreceived = new RequestPacket;
 	Network::Socket::ReadStatus readres = socket_->read( *nextreceived );
@@ -199,17 +215,18 @@ bool RequestConnection::readFromSocket()
 		 ourrequestids_.isPresent( receivedid ) )
 	    {
 		receivedpackets_ += nextreceived.release();
+		lock_.signal( true );
 		locker.unLock();
 
 		packetArrived.trigger(receivedid);
 	    }
 	}
 
-	if ( !socket_ || !socket_->bytesAvailable() ) //Not sure this works
-	    break;
+	if ( !socket_->bytesAvailable() ) //Not sure this works
+	    return true;
     }
 
-    return true;
+    return false;
 }
 
 
@@ -233,7 +250,9 @@ bool RequestConnection::doSendPacket( const RequestPacket& pkt,
 	}
     }
 
+    lock_.unLock();
     const bool result = socket_->write( pkt, waitforfinish );
+    lock_.lock();
 
     if ( !result )
 	requestEnded( pkt.requestID() );
@@ -247,6 +266,9 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 				    bool waitforfinish )
 {
     if ( !pkt.isOK() )
+	return false;
+
+    if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
 	return false;
 
     Threads::MutexLocker locker( lock_ );
@@ -284,8 +306,11 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 
 
 RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
-						  int* errorcode )
+						int* errorcode )
 {
+    if ( !socketthread_ && Threads::currentThread()!=socket_->thread() )
+	return 0;
+
     Threads::MutexLocker locker( lock_ );
     const int idxof = ourrequestids_.indexOf( reqid );
     if ( idxof < 0 )
@@ -298,30 +323,48 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
     if ( !pkt )
     {
 	const int starttm = Time::getMilliSeconds();
+	bool isok = false;
 	do
 	{
 	    const int remaining = timeout - Time::getMilliSeconds() + starttm;
 	    if ( remaining<=0 )
 		break;
 
-	    locker.unLock();
-	    if ( !readFromSocket() )
+	    if ( !socketthread_ )
 	    {
-		if ( errorcode )
-		    *errorcode = cDisconnected();
-		requestEnded( reqid );
-		return 0;
+		locker.unLock();
+		if( !readFromSocket() )
+		{
+		    if ( errorcode )
+			*errorcode = isOK() ? cTimeout() : cDisconnected();
+		    locker.lock();
+		    requestEnded( reqid );
+		    return 0;
+		}
+
+		isok = isOK();
+
+		locker.lock();
 	    }
-	    locker.lock();
+	    else
+	    {
+		triggerread_ = true;
+		lock_.signal( true );
+		lock_.wait( remaining );
+
+		locker.unLock();
+		isok = isOK();
+		locker.lock();
+	    }
 
 	    pkt = getNextAlreadyRead( reqid );
 
-	} while ( !pkt );
+	} while ( !pkt && isok );
 
 	if ( !pkt )
 	{
 	    if ( errorcode )
-		*errorcode = cTimeout();
+		*errorcode = isok ? cTimeout() : cDisconnected();
 	    return 0;
 	}
     }
