@@ -15,8 +15,10 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "callback.h"
 #include "datapack.h"
+#include "uigeom.h"
 #include "uiodapplmgr.h"
 
+class uiFlatViewer;
 class uiODViewer2D;
 class uiTreeFactorySet;
 class MouseEventHandler;
@@ -41,6 +43,8 @@ public:
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
 
+    float			defTrcsPerCM() const	{ return deftrcspercm_;}
+    float			defZPerCM() const	{ return defzpercm_;}
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
 
@@ -55,6 +59,8 @@ protected:
 
     uiODViewer2D&		addViewer2D(int visid);
     ObjectSet<uiODViewer2D>     viewers2d_;
+    float			deftrcspercm_;
+    float			defzpercm_;
 
     uiTreeFactorySet*		tifs2d_;
     uiTreeFactorySet*		tifs3d_;
@@ -65,6 +71,7 @@ protected:
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
     void			viewWinClosedCB(CallBacker*);
+    void			homeZoomChangedCB(CallBacker*);
     void			mouseClickCB(CallBacker*);
 
     void			create2DViewer(const uiODViewer2D& curvwr2d,

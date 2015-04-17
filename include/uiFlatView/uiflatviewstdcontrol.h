@@ -40,9 +40,12 @@ public:
 			    , withflip_(true)
 			    , withrubber_(true)
 			    , withzoombut_(true)
-			    , withvertzoombut_(false)
+			    , isvertical_(false)
 			    , withfixedaspectratio_(false)
+			    , withhomebutton_(false)
 			    , managescoltab_(true)
+			    , x1pospercm_(mUdf(float))
+			    , x2pospercm_(mUdf(float))
                             , tba_(-1)	{}	      	
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
@@ -55,9 +58,12 @@ public:
 	mDefSetupMemb(bool,withsnapshot)
 	mDefSetupMemb(bool,withrubber)
 	mDefSetupMemb(bool,withzoombut)
-	mDefSetupMemb(bool,withvertzoombut)
+	mDefSetupMemb(bool,isvertical)
 	mDefSetupMemb(bool,withfixedaspectratio)
 	mDefSetupMemb(bool,managescoltab)
+	mDefSetupMemb(bool,withhomebutton)
+	mDefSetupMemb(float,x1pospercm)
+	mDefSetupMemb(float,x2pospercm)
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
@@ -65,8 +71,14 @@ public:
     virtual uiToolBar*	toolBar()		{ return tb_; }
     virtual uiFlatViewColTabEd* colTabEd()	{ return ctabed_; }
     void		setEditMode(bool yn);
+    void		setHomeZoomViews();
+    float		getPositionsPerCM( bool forx1 ) const
+			{ return forx1 ? setup_.x1pospercm_
+				       : setup_.x2pospercm_; }
+    bool		isVertical() const	{ return setup_.isvertical_; }
 
-    NotifierAccess* 	editPushed();
+    NotifierAccess*			editPushed();
+    Notifier<uiFlatViewStdControl>	setHomeZoomPushed;
 
 protected:
 
@@ -81,6 +93,8 @@ protected:
     uiToolButton*	vertzoominbut_;
     uiToolButton*	vertzoomoutbut_;
     uiToolButton*	cancelzoombut_;
+    uiToolButton*	sethomezoombut_;
+    uiToolButton*	gotohomezoombut_;
     uiToolButton*	parsbut_;
     uiToolButton*	editbut_;
 
@@ -93,6 +107,7 @@ protected:
     void		clearToolBar();
     void		updatePosButtonStates();
     void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
+    void		setHomeZoomView(uiFlatViewer&,const uiWorldPoint& cntr);
 
     virtual void	coltabChg(CallBacker*);
     virtual void	dispChgCB(CallBacker*);
@@ -112,6 +127,8 @@ protected:
     virtual void	zoomCB(CallBacker*);
     virtual void	pinchZoomCB(CallBacker*);
     virtual void	cancelZoomCB(CallBacker*);
+    virtual void	setHomeZoomCB(CallBacker*);
+    virtual void	gotoHomeZoomCB(CallBacker*);
 
     virtual bool	handleUserClick(int vwridx);
 

@@ -224,6 +224,32 @@ uiWorldRect uiFlatViewer::boundingBox() const
 }
 
 
+StepInterval<double> uiFlatViewer::posRange( bool forx1 ) const
+{
+    StepInterval<double> fullviewrg;
+    ConstDataPackRef<FlatDataPack> wvapack = obtainPack( true );
+    ConstDataPackRef<FlatDataPack> vdpack = obtainPack( false );
+    if ( !wvapack && !vdpack )
+	return fullviewrg;
+    const FlatDataPack* reffdp = vdpack ? vdpack.ptr() : wvapack.ptr();
+    const FlatPosData& posdata = reffdp->posData();
+    fullviewrg = posdata.range( forx1 );
+    return fullviewrg;
+}
+
+
+StepInterval<double> uiFlatViewer::posRangeInView( bool forx1 ) const
+{
+    StepInterval<double> fullviewrg = posRange( forx1 );
+    if ( mIsZero(fullviewrg.width(),mDefEps) )
+	return fullviewrg;
+    Interval<double> curviewrg( forx1 ? wr_.left() : wr_.top(),
+				forx1 ? wr_.right() : wr_.bottom() );
+    fullviewrg.limitTo( curviewrg );
+    return fullviewrg;
+}
+
+
 void uiFlatViewer::setView( const uiWorldRect& wr )
 {
     if ( wr.topLeft() == wr.bottomRight() )

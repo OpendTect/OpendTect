@@ -86,7 +86,7 @@ public:
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
-    void			useStoredDispPars(bool wva);
+    bool			useStoredDispPars(bool wva);
 
     ZAxisTransform*		getZAxisTransform() const
 				{ return datatransform_; }
@@ -162,6 +162,7 @@ protected:
     void			rebuildTree();
 
     void			winCloseCB(CallBacker*);
+    void			winPoppedUpCB(CallBacker*);
     void			posChg(CallBacker*);
     void			selectionMode(CallBacker*);
     void			handleToolClick(CallBacker*);
