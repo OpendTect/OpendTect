@@ -252,7 +252,7 @@ bool uiODViewer2DPosGrp::commitSel()
 	    if ( !rdlobj )
 		return false;
 	    posdatasel_->rdmlineid_ = rdlobj->key();
-	    return true;
+	    break;
     }
 
     uiAttrSel* attrsel = is2D() ? inp2dfld_ : inp3dfld_;

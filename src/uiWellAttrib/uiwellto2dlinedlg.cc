@@ -24,6 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinetr.h"
 #include "seisrandlineto2d.h"
 #include "survgeometry.h"
+#include "survgeom2d.h"
+#include "posinfo2d.h"
 #include "survinfo.h"
 
 #include <math.h>
@@ -169,6 +171,33 @@ bool uiWellTo2DLineDlg::acceptOK( CallBacker* )
 	return false;
 
     Pos::GeomID geomid = Survey::GM().getGeomID( rl_->name() );
+    if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+    {
+	uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
+			  "its geometry, all the associated data will be "
+			  "affected. Do you still want to overwrite?")
+				.arg(linenm);
+	if ( !uiMSG().askOverwrite(msg) )
+	    return false;
+	mDynamicCastGet( Survey::Geometry2D*, geom2d,
+			 Survey::GMAdmin().getGeometry(geomid) );
+	if ( !geom2d )
+	    return false;
+
+	geom2d->dataAdmin().setEmpty();
+	geom2d->touch();
+    }
+    else
+    {
+	Survey::Geometry2D* newgeom =
+	    new Survey::Geometry2D( new PosInfo::Line2DData );
+	newgeom->dataAdmin().setLineName( linenm );
+	uiString msg;
+	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    mErrRet( msg );
+    }
+
     SeisRandLineTo2D exec( *randto2dlinefld_->getInputIOObj(),
 			   *randto2dlinefld_->getOutputIOObj(),
 			    geomid, 1, *rl_ );
