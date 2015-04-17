@@ -42,12 +42,12 @@ static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
     TrcKeyZSampling scale = cs;
 
     const AxisLayout<int> inlal( (Interval<int>)cs.hrg.inlRange() );
-    scale.hrg.start.inl() = inlal.sd_.start;
-    scale.hrg.step.inl() = inlal.sd_.step;
+    scale.hsamp_.start_.inl() = inlal.sd_.start;
+    scale.hsamp_.step_.inl() = inlal.sd_.step;
 
     const AxisLayout<int> crlal( (Interval<int>)cs.hrg.crlRange() );
-    scale.hrg.start.crl() = crlal.sd_.start;
-    scale.hrg.step.crl() = crlal.sd_.step;
+    scale.hsamp_.start_.crl() = crlal.sd_.start;
+    scale.hsamp_.step_.crl() = crlal.sd_.step;
 
     const AxisLayout<float> zal( (Interval<float>)cs.zsamp_ );
     scale.zsamp_.start = zal.sd_.start; scale.zsamp_.step = zal.sd_.step;

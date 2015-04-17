@@ -276,7 +276,7 @@ void uiPosProvSel::mkNewProv( bool updsumm )
 	{
 	    TrcKeyZSampling tmpcs;
 	    tmpcs.usePar( iop_ );
-	    tkzs_.hrg.step = tmpcs.hrg.step;
+	    tkzs_.hsamp_.step_ = tmpcs.hsamp_.step_;
 	}
     }
     else
@@ -413,4 +413,5 @@ mDefFn(bool,isAll,,,const,return)
 mDefFn(void,setToAll,,,,)
 mDefFn(void,setInputLimit,const TrcKeyZSampling&,cs,,)
 mDefFn2(void,setInput,const TrcKeyZSampling&,cs,bool,ct,)
-mDefFn2(void,setInput,const TrcKeyZSampling&,initcs,const TrcKeyZSampling&,ioparcs,)
+mDefFn2(void,setInput,const TrcKeyZSampling&,initcs,const TrcKeyZSampling&,
+	ioparcs,)

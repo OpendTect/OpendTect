@@ -455,8 +455,8 @@ void Engine::updateFlatCubesContainer( const TrcKeyZSampling& cs, const int idx,
 	{
 	    if ( flatcubes[flatcsidx]->flatcs_.nrInl() == 1 )
 	    {
-		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.inl() ==
-			cs.hrg.start.inl() )
+		if ( flatcubes[flatcsidx]->flatcs_.hsamp_.start_.inl() ==
+			cs.hsamp_.start_.inl() )
 		{
 		    idxinquestion = flatcsidx;
 		    break;
@@ -464,8 +464,8 @@ void Engine::updateFlatCubesContainer( const TrcKeyZSampling& cs, const int idx,
 	    }
 	    else if ( flatcubes[flatcsidx]->flatcs_.nrCrl() == 1 )
 	    {
-		if ( flatcubes[flatcsidx]->flatcs_.hrg.start.crl() ==
-		     cs.hrg.start.crl() )
+		if ( flatcubes[flatcsidx]->flatcs_.hsamp_.start_.crl() ==
+		     cs.hsamp_.start_.crl() )
 		{
 		    idxinquestion = flatcsidx;
 		    break;

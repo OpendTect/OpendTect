@@ -550,12 +550,12 @@ void Seis2DDisplay::createTransformedDataPack( int attrib )
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
 	TrcKeyZSampling tkzs;
-	tkzs.hsamp_.start.inl() = tkzs.hsamp_.stop.inl() = geomid_;
-	tkzs.hsamp_.start.crl() =
+	tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = geomid_;
+	tkzs.hsamp_.start_.crl() =
 	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start];
-	tkzs.hsamp_.stop.crl() =
+	tkzs.hsamp_.stop_.crl() =
 	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop];
-	tkzs.hsamp_.step.inl() = tkzs.hsamp_.step.crl() = 1;
+	tkzs.hsamp_.step_.inl() = tkzs.hsamp_.step_.crl() = 1;
 	tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
 	tkzs.zsamp_.setFrom( trcdisplayinfo_.zrg_ );
 	// use survey step here?
@@ -820,10 +820,10 @@ TrcKeyZSampling Seis2DDisplay::getTrcKeyZSampling( bool displayspace,
 						   int attrib ) const
 {
     TrcKeyZSampling tkzs;
-    tkzs.hsamp_.start.inl() = tkzs.hsamp_.stop.inl() = getGeomID();
-    tkzs.hsamp_.start.crl() = getTraceNrRange().start;
-    tkzs.hsamp_.stop.crl() = getTraceNrRange().stop;
-    tkzs.hsamp_.step.inl() = tkzs.hsamp_.step.crl() = 1;
+    tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = getGeomID();
+    tkzs.hsamp_.start_.crl() = getTraceNrRange().start;
+    tkzs.hsamp_.stop_.crl() = getTraceNrRange().stop;
+    tkzs.hsamp_.step_.inl() = tkzs.hsamp_.step_.crl() = 1;
     tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
     tkzs.zsamp_.setFrom( getZRange(displayspace,attrib) );
     return tkzs;

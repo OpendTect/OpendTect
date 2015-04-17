@@ -43,9 +43,9 @@ Hor2DTo3DSectionData( EM::SectionID sid,
     arr_.setAll( mUdf(float) );
 
     hs_.start_ = minbid;
-    hs_.step = step;
-    hs_.stop_.inl() = hs_.start_.inl() + hs_.step.inl() * (inlsz_ - 1);
-    hs_.stop_.crl() = hs_.start_.crl() + hs_.step.crl() * (crlsz_ - 1);
+    hs_.step_ = step;
+    hs_.stop_.inl() = hs_.start_.inl() + hs_.step_.inl() * (inlsz_ - 1);
+    hs_.stop_.crl() = hs_.start_.crl() + hs_.step_.crl() * (crlsz_ - 1);
 }
 
 
@@ -60,8 +60,8 @@ int getSz( int start, int stop, int step ) const
 
 void add( const BinID& bid, float z )
 {
-    float inldist = (bid.inl() - hs_.start_.inl()) / ((float)hs_.step.inl());
-    float crldist = (bid.crl() - hs_.start_.crl()) / ((float)hs_.step.crl());
+    float inldist = (bid.inl() - hs_.start_.inl()) / ((float)hs_.step_.inl());
+    float crldist = (bid.crl() - hs_.start_.crl()) / ((float)hs_.step_.crl());
     const int inlidx = mNINT32(inldist); const int crlidx = mNINT32(crldist);
     if ( inlidx < 0 || inlidx >= inlsz_ || crlidx < 0 || crlidx >= crlsz_ )
 	return;
@@ -103,8 +103,8 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	msg_ = tr("No data in selected area");
     else if ( curinterp_ )
     {
-	const float inldist = hrg.step.inl()*SI().inlDistance();
-	const float crldist = hrg.step.crl()*SI().crlDistance();
+	const float inldist = hrg.step_.inl()*SI().inlDistance();
+	const float crldist = hrg.step_.crl()*SI().crlDistance();
 
 	curinterp_->setRowStep( inldist );
 	curinterp_->setColStep( crldist );

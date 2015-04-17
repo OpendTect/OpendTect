@@ -38,12 +38,12 @@ protected:
 		{
 		    const TrcKeySampling hrg(
 				step_.output_->sampling().hrg );
-		    BinID curbid = hrg.start;
+		    BinID curbid = hrg.start_;
 
 		    const int nrinls = mCast( int, start/hrg.nrCrl() );
 		    const int nrcrls = mCast( int, start - nrinls*hrg.nrCrl() );
-		    curbid.inl() += nrinls*hrg.step.inl();
-		    curbid.crl() += nrcrls*hrg.step.crl();
+		    curbid.inl() += nrinls*hrg.step_.inl();
+		    curbid.crl() += nrcrls*hrg.step_.crl();
 
 		    for ( int idx=mCast(int,start); idx<=stop; idx++ )
 		    {
@@ -58,12 +58,12 @@ protected:
 			if ( !shouldContinue() )
 			    return false;
 
-			curbid.crl() += hrg.step.crl();
-			if ( curbid.crl()>hrg.stop.crl() )
+			curbid.crl() += hrg.step_.crl();
+			if ( curbid.crl()>hrg.stop_.crl() )
 			{
-			    curbid.crl() = hrg.start.crl();
-			    curbid.inl() += hrg.step.inl();
-			    if ( curbid.inl()>hrg.stop.inl() )
+			    curbid.crl() = hrg.start_.crl();
+			    curbid.inl() += hrg.step_.inl();
+			    if ( curbid.inl()>hrg.stop_.inl() )
 			    {
 				pErrMsg("Going outside range");
 				return false;

@@ -74,7 +74,7 @@ void uiViewer2DPosDlg::getTrcKeyZSampling( TrcKeyZSampling& cs )
     sliceselfld_->acceptOK();
     cs = sliceselfld_->getTrcKeyZSampling();
     const int step = sliceselfld_->step();
-    cs.hrg.step = BinID( step, step );
+    cs.hsamp_.step_ = BinID( step, step );
     if ( is2d_ )
 	cs.hrg.setInlRange( Interval<int>( 1, 1 ) );
 }
@@ -179,7 +179,7 @@ void uiGatherPosSliceSel::reDoTable()
 						  : ginfo.bid_.inl();
 	    TrcKeyZSampling cs( true );
 	    const int modelnr =
-		(ginfo.bid_.crl() - cs.hrg.stop.crl())/cs.hrg.step.crl();
+		(ginfo.bid_.crl()-cs.hsamp_.stop_.crl())/cs.hsamp_.step_.crl();
 	    const RowCol rc( rowidx, colidx );
 	    const int limitstep =
 		issynthetic_ ? 1 : isinl_ || is2d_ ? cs.hrg.crlRange().step
@@ -422,8 +422,8 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 
 	    if ( !issynthetic_ )
 	    {
-		BinID bid( isinl_ ? tkzs_.hrg.start.inl() : trcnr,
-			   isinl_ ? trcnr : tkzs_.hrg.start.crl() );
+		BinID bid( isinl_ ? tkzs_.hsamp_.start_.inl() : trcnr,
+			   isinl_ ? trcnr : tkzs_.hsamp_.start_.crl() );
 		GatherInfo ginfo;
 		ginfo.bid_ = bid;
 		ginfo.gathernm_ = gathernm;

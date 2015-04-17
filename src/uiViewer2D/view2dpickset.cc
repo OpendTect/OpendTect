@@ -172,12 +172,12 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	BinID bid; float z;
 	if ( cs.defaultDir() == TrcKeyZSampling::Inl )
 	{
-	    bid = BinID( cs.hrg.start.inl(), (int)pt.x );
+	    bid = BinID( cs.hsamp_.start_.inl(), (int)pt.x );
 	    z = (float) pt.y;
 	}
 	else if ( cs.defaultDir() == TrcKeyZSampling::Crl )
 	{
-	    bid = BinID( (int)pt.x, cs.hrg.start.crl() );
+	    bid = BinID( (int)pt.x, cs.hsamp_.start_.crl() );
 	    z = (float) pt.y;
 	}
 	else

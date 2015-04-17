@@ -311,7 +311,7 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 	for ( int iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
 	{
 	    StepInterval<int>& seg = ld->segments_[iseg];
-	    if ( seg.start > hs.stop.crl() || seg.stop < hs.start_.crl() )
+	    if ( seg.start > hs.stop_.crl() || seg.stop < hs.start_.crl() )
 	    { ld->segments_.removeSingle( iseg ); continue; }
 
 	    seg.step = Math::LCMOf( seg.step, hs.step_.crl() );
@@ -330,9 +330,9 @@ void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 
 		seg.start = newstart;
 	    }
-	    if ( seg.stop > hs.stop.crl() )
+	    if ( seg.stop > hs.stop_.crl() )
 	    {
-		int newstop = hs.stop.crl();
+		int newstop = hs.stop_.crl();
 		int diff = seg.stop - newstop;
 		if ( diff % seg.step )
 		{

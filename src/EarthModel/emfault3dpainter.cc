@@ -343,8 +343,8 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
     }
     else
     {
-	BinID start( tkzs_.hrg.start.inl(), tkzs_.hrg.start.crl() );
-	BinID stop(tkzs_.hrg.stop.inl(), tkzs_.hrg.stop.crl() );
+	BinID start( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.start_.crl() );
+	BinID stop(tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.stop_.crl() );
 
 	Coord3 p0( SI().transform(start), tkzs_.zsamp_.start );
 	Coord3 p1( SI().transform(start), tkzs_.zsamp_.stop );

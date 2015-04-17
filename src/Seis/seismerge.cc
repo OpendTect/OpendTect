@@ -34,7 +34,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     	, currdridx_(-1)
     	, nrpos_(0)
     	, totnrpos_(-1)
-    	, curbid_(SI().sampling(false).hrg.start)
+	, curbid_(SI().sampling(false).hsamp_.start_)
     	, trcbuf_(*new SeisTrcBuf(false))
     	, stacktrcs_(true)
         , scaler_(0)
@@ -90,7 +90,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     	, currdridx_(-1)
     	, nrpos_(0)
     	, totnrpos_(-1)
-	, curbid_(SI().sampling(false).hrg.start)
+	, curbid_(SI().sampling(false).hsamp_.start_)
     	, trcbuf_(*new SeisTrcBuf(false))
     	, stacktrcs_(true)
     	, nrsamps_(-1)
@@ -302,11 +302,11 @@ bool SeisMerger::toNextPos()
 {
     TrcKeySampling hs = SI().sampling(false).hrg;
     curbid_.crl() += hs.step_.crl();
-    if ( curbid_.crl() > hs.stop.crl() )
+    if ( curbid_.crl() > hs.stop_.crl() )
     {
 	curbid_.inl() += hs.step_.inl();
 	curbid_.crl() = hs.start_.crl();
-	if ( curbid_.inl() > hs.stop.inl() )
+	if ( curbid_.inl() > hs.stop_.inl() )
 	    return false;
     }
     return true;

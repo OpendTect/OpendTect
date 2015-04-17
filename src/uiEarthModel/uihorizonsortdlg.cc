@@ -117,8 +117,8 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 		bbox_.hrg = sd.rg;
 	    else
 	    {
-		bbox_.hrg.include( sd.rg.start);
-		bbox_.hrg.include( sd.rg.stop);
+		bbox_.hrg.include( sd.rg.start_);
+		bbox_.hrg.include( sd.rg.stop_);
 	    }
 	}
     }

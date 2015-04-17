@@ -57,11 +57,11 @@ void SurfaceIOData::use( const Surface& surf )
     if ( rcsg )
     {
 	StepInterval<int> hrg = rcsg->rowRange();
-	rg.start.inl() = hrg.start; rg.stop.inl() = hrg.stop;
-	rg.step.inl() = hrg.step;
+	rg.start_.inl() = hrg.start; rg.stop_.inl() = hrg.stop;
+	rg.step_.inl() = hrg.step;
 	hrg = rcsg->colRange();
-	rg.start.crl() = hrg.start; rg.stop.crl() = hrg.stop;
-	rg.step.crl() = hrg.step;
+	rg.start_.crl() = hrg.start; rg.stop_.crl() = hrg.stop;
+	rg.step_.crl() = hrg.step;
     }
 
     for ( int idx=0; idx<surf.nrSections(); idx++ )

@@ -362,17 +362,17 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 	else
 	{
 	    desiredvolume_->hsamp_.start_.inl() =
-		desiredvolume_->hsamp_.start_.inl() < ndv.hrg.start.inl() ?
-		desiredvolume_->hsamp_.start_.inl() : ndv.hrg.start.inl();
-	    desiredvolume_->hsamp_.stop.inl() =
-		desiredvolume_->hsamp_.stop.inl() > ndv.hrg.stop.inl() ?
-		desiredvolume_->hsamp_.stop.inl() : ndv.hrg.stop.inl();
-	    desiredvolume_->hsamp_.stop.crl() =
-		desiredvolume_->hsamp_.stop.crl() > ndv.hrg.stop.crl() ?
-		desiredvolume_->hsamp_.stop.crl() : ndv.hrg.stop.crl();
+		desiredvolume_->hsamp_.start_.inl() < ndv.hsamp_.start_.inl() ?
+		desiredvolume_->hsamp_.start_.inl() : ndv.hsamp_.start_.inl();
+	    desiredvolume_->hsamp_.stop_.inl() =
+		desiredvolume_->hsamp_.stop_.inl() > ndv.hsamp_.stop_.inl() ?
+		desiredvolume_->hsamp_.stop_.inl() : ndv.hsamp_.stop_.inl();
+	    desiredvolume_->hsamp_.stop_.crl() =
+		desiredvolume_->hsamp_.stop_.crl() > ndv.hsamp_.stop_.crl() ?
+		desiredvolume_->hsamp_.stop_.crl() : ndv.hsamp_.stop_.crl();
 	    desiredvolume_->hsamp_.start_.crl() =
-		desiredvolume_->hsamp_.start_.crl() < ndv.hrg.start.crl() ?
-		desiredvolume_->hsamp_.start_.crl() : ndv.hrg.start.crl();
+		desiredvolume_->hsamp_.start_.crl() < ndv.hsamp_.start_.crl() ?
+		desiredvolume_->hsamp_.start_.crl() : ndv.hsamp_.start_.crl();
 	    desiredvolume_->zrg.start = 
 		desiredvolume_->zrg.start < ndv.zsamp_.start?
 		desiredvolume_->zrg.start : ndv.zsamp_.start;
@@ -466,10 +466,14 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 		{
 		    int inlstepoutfact = desiredvolume_->hsamp_.step_.inl();
 		    int crlstepoutfact = desiredvolume_->hsamp_.step_.crl();
-		    inputcs.hrg.start.inl() += stepout->inl() * inlstepoutfact;
-		    inputcs.hrg.start.crl() += stepout->crl() * crlstepoutfact;
-		    inputcs.hrg.stop.inl() -= stepout->inl() * inlstepoutfact;
-		    inputcs.hrg.stop.crl() -= stepout->crl() * crlstepoutfact;
+		    inputcs.hsamp_.start_.inl() +=
+			stepout->inl() * inlstepoutfact;
+		    inputcs.hsamp_.start_.crl() +=
+			stepout->crl() * crlstepoutfact;
+		    inputcs.hsamp_.stop_.inl() -=
+			stepout->inl() * inlstepoutfact;
+		    inputcs.hsamp_.stop_.crl() -=
+			stepout->crl() * crlstepoutfact;
 		}
 
 		const Interval<float>* zrg = reqZMargin(inp,out);
@@ -611,10 +615,10 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 		BinID prevbid = currentbid_;
 		BinID step = getStepoutStep();
 		if ( prevbid.crl() +step.crl() <= 
-		     desiredvolume_->hsamp_.stop.crl() )
+		     desiredvolume_->hsamp_.stop_.crl() )
 		    currentbid_.crl() = prevbid.crl() +step.crl();
 		else if ( prevbid.inl() +step.inl() <= 
-			  desiredvolume_->hsamp_.stop.inl())
+			  desiredvolume_->hsamp_.stop_.inl())
 		{
 		    currentbid_.inl() = prevbid.inl() +step.inl();
 		    currentbid_.crl() = desiredvolume_->hsamp_.start_.crl();
@@ -1282,10 +1286,10 @@ void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 		stepout.crl() = desstepout->crl();
 	}
 
-	res.hrg.start.inl() -= stepout.inl() * inlstepoutfact;
-	res.hrg.start.crl() -= stepout.crl() * crlstepoutfact;
-	res.hrg.stop.inl() += stepout.inl() * inlstepoutfact;
-	res.hrg.stop.crl() += stepout.crl() * crlstepoutfact;
+	res.hsamp_.start_.inl() -= stepout.inl() * inlstepoutfact;
+	res.hsamp_.start_.crl() -= stepout.crl() * crlstepoutfact;
+	res.hsamp_.stop_.inl() += stepout.inl() * inlstepoutfact;
+	res.hsamp_.stop_.crl() += stepout.crl() * crlstepoutfact;
     }
    
     Interval<float> zrg(0,0);
@@ -1353,18 +1357,18 @@ int Provider::getTotalNrPos( bool is2d )
     TrcKeyZSampling cs = *desiredvolume_;
     if ( getDesc().isStored() )
     {
-	cs.hrg.start.inl() =
-	    desiredvolume_->hsamp_.start_.inl() < cs.hrg.start.inl() ?
-	    cs.hrg.start.inl() : desiredvolume_->hsamp_.start_.inl();
-	cs.hrg.stop.inl() =
-	    desiredvolume_->hsamp_.stop.inl() > cs.hrg.stop.inl() ?
-	    cs.hrg.stop.inl() : desiredvolume_->hsamp_.stop.inl();
-	cs.hrg.stop.crl() =
-	    desiredvolume_->hsamp_.stop.crl() > cs.hrg.stop.crl() ?
-	    cs.hrg.stop.crl() : desiredvolume_->hsamp_.stop.crl();
-	cs.hrg.start.crl() =
-	    desiredvolume_->hsamp_.start_.crl() < cs.hrg.start.crl() ?
-	    cs.hrg.start.crl() : desiredvolume_->hsamp_.start_.crl();
+	cs.hsamp_.start_.inl() =
+	    desiredvolume_->hsamp_.start_.inl() < cs.hsamp_.start_.inl() ?
+	    cs.hsamp_.start_.inl() : desiredvolume_->hsamp_.start_.inl();
+	cs.hsamp_.stop_.inl() =
+	    desiredvolume_->hsamp_.stop_.inl() > cs.hsamp_.stop_.inl() ?
+	    cs.hsamp_.stop_.inl() : desiredvolume_->hsamp_.stop_.inl();
+	cs.hsamp_.stop_.crl() =
+	    desiredvolume_->hsamp_.stop_.crl() > cs.hsamp_.stop_.crl() ?
+	    cs.hsamp_.stop_.crl() : desiredvolume_->hsamp_.stop_.crl();
+	cs.hsamp_.start_.crl() =
+	    desiredvolume_->hsamp_.start_.crl() < cs.hsamp_.start_.crl() ?
+	    cs.hsamp_.start_.crl() : desiredvolume_->hsamp_.start_.crl();
     }
 
     if ( is2d )
@@ -1372,7 +1376,7 @@ int Provider::getTotalNrPos( bool is2d )
 	const Pos::GeomID geomid = getGeomID();
 	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry );
-	cs.hrg.step.crl() = geom2d ? geom2d->data().trcNrRange().step : 1;
+	cs.hsamp_.step_.crl() = geom2d ? geom2d->data().trcNrRange().step : 1;
 	return cs.nrCrl();
     }
 

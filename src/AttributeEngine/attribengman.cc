@@ -137,7 +137,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    // doesn't make much sense, but is better than nothing
 	    tkzs_.set2DDef();
 
-	    tkzs_.hrg.start.inl() = tkzs_.hrg.stop.inl() = 0;
+	    tkzs_.hsamp_.start_.inl() = tkzs_.hsamp_.stop_.inl() = 0;
 	    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
 	    if ( outpar && outpar->hasKey(sKey::TrcRange()) )
 	    {
@@ -557,7 +557,7 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
     if ( !proc )
 	return 0;
 
-    Interval<int> trcrg( tkzs_.hrg.start.crl(), tkzs_.hrg.stop.crl() );
+    Interval<int> trcrg( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
     Interval<float> zrg( tkzs_.zsamp_.start, tkzs_.zsamp_.stop );
 
     TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, geomid_ );
@@ -586,13 +586,15 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 	cache_ = prev;
 	cache_->ref();
 	const TrcKeyZSampling cachecs = cache_->cubeSampling();
-	if ( mRg(h).step != tkzs_.hrg.step
-	  || (mRg(h).start.inl() - tkzs_.hrg.start.inl()) % tkzs_.hrg.step.inl()
-	  || (mRg(h).start.crl() - tkzs_.hrg.start.crl()) % tkzs_.hrg.step.crl()
-	  || mRg(h).start.inl() > tkzs_.hrg.stop.inl()
-	  || mRg(h).stop.inl() < tkzs_.hrg.start.inl()
-	  || mRg(h).start.crl() > tkzs_.hrg.stop.crl()
-	  || mRg(h).stop.crl() < tkzs_.hrg.start.crl()
+	if ( mRg(h).step_ != tkzs_.hsamp_.step_
+	  || (mRg(h).start_.inl() - tkzs_.hsamp_.start_.inl()) %
+		tkzs_.hsamp_.step_.inl()
+	  || (mRg(h).start_.crl() - tkzs_.hsamp_.start_.crl()) %
+		tkzs_.hsamp_.step_.crl()
+	  || mRg(h).start_.inl() > tkzs_.hsamp_.stop_.inl()
+	  || mRg(h).stop_.inl() < tkzs_.hsamp_.start_.inl()
+	  || mRg(h).start_.crl() > tkzs_.hsamp_.stop_.crl()
+	  || mRg(h).stop_.crl() < tkzs_.hsamp_.start_.crl()
 	  || mRg(z).start > tkzs_.zsamp_.stop + mStepEps*tkzs_.zsamp_.step
 	  || mRg(z).stop < tkzs_.zsamp_.start - mStepEps*tkzs_.zsamp_.step )
 	    // No overlap, gotta crunch all the numbers ...
@@ -620,43 +622,52 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
     {
 	const TrcKeyZSampling cachecs = cache_->cubeSampling();
 	TrcKeyZSampling todocs( tkzs_ );
-	if ( mRg(h).start.inl() > tkzs_.hrg.start.inl() )
+	if ( mRg(h).start_.inl() > tkzs_.hsamp_.start_.inl() )
 	{
-	    todocs.hrg.stop.inl() = mRg(h).start.inl() - tkzs_.hrg.step.inl();
+	    todocs.hsamp_.stop_.inl() =
+		mRg(h).start_.inl() - tkzs_.hsamp_.step_.inl();
 	    mAddAttrOut( todocs )
 	}
 
-	if ( mRg(h).stop.inl() < tkzs_.hrg.stop.inl() )
+	if ( mRg(h).stop_.inl() < tkzs_.hsamp_.stop_.inl() )
 	{
 	    todocs = tkzs_;
-	    todocs.hrg.start.inl() = mRg(h).stop.inl() + tkzs_.hrg.step.inl();
+	    todocs.hsamp_.start_.inl() =
+		mRg(h).stop_.inl() + tkzs_.hsamp_.step_.inl();
 	    mAddAttrOut( todocs )
 	}
 
-	const int startinl = mMAX(tkzs_.hrg.start.inl(), mRg(h).start.inl() );
-	const int stopinl = mMIN( tkzs_.hrg.stop.inl(), mRg(h).stop.inl() );
+	const int startinl =
+		mMAX(tkzs_.hsamp_.start_.inl(), mRg(h).start_.inl() );
+	const int stopinl = mMIN( tkzs_.hsamp_.stop_.inl(), mRg(h).stop_.inl());
 
-	if ( mRg(h).start.crl() > tkzs_.hrg.start.crl() )
+	if ( mRg(h).start_.crl() > tkzs_.hsamp_.start_.crl() )
 	{
 	    todocs = tkzs_;
-	    todocs.hrg.start.inl() = startinl; todocs.hrg.stop.inl() = stopinl;
-	    todocs.hrg.stop.crl() = mRg(h).start.crl() - tkzs_.hrg.step.crl();
+	    todocs.hsamp_.start_.inl() = startinl;
+	    todocs.hsamp_.stop_.inl() = stopinl;
+	    todocs.hsamp_.stop_.crl() =
+		mRg(h).start_.crl() - tkzs_.hsamp_.step_.crl();
 	    mAddAttrOut( todocs )
 	}
 
-	if ( mRg(h).stop.crl() < tkzs_.hrg.stop.crl() )
+	if ( mRg(h).stop_.crl() < tkzs_.hsamp_.stop_.crl() )
 	{
 	    todocs = tkzs_;
-	    todocs.hrg.start.inl() = startinl; todocs.hrg.stop.inl() = stopinl;
-	    todocs.hrg.start.crl() = mRg(h).stop.crl() + tkzs_.hrg.step.crl();
+	    todocs.hsamp_.start_.inl() = startinl;
+	    todocs.hsamp_.stop_.inl() = stopinl;
+	    todocs.hsamp_.start_.crl() =
+		mRg(h).stop_.crl() + tkzs_.hsamp_.step_.crl();
 	    mAddAttrOut( todocs )
 	}
 
 	todocs = tkzs_;
-	todocs.hrg.start.inl() = startinl; todocs.hrg.stop.inl() = stopinl;
-	todocs.hrg.start.crl() = mMAX( tkzs_.hrg.start.crl(),
-				       mRg(h).start.crl() );
-	todocs.hrg.stop.crl() = mMIN( tkzs_.hrg.stop.crl(), mRg(h).stop.crl() );
+	todocs.hsamp_.start_.inl() = startinl;
+	todocs.hsamp_.stop_.inl() = stopinl;
+	todocs.hsamp_.start_.crl() =
+		mMAX( tkzs_.hsamp_.start_.crl(), mRg(h).start_.crl() );
+	todocs.hsamp_.stop_.crl() =
+		mMIN( tkzs_.hsamp_.stop_.crl(), mRg(h).stop_.crl() );
 
 	if ( mRg(z).start > tkzs_.zsamp_.start + mStepEps*tkzs_.zsamp_.step )
 	{
@@ -679,14 +690,14 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 	TypeSet<BinID> positions;
 	if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 	    for ( int idx=0; idx<tkzs_.nrCrl(); idx++ )
-		positions += BinID( tkzs_.hrg.start.inl(),
-				    tkzs_.hrg.start.crl() +
-					tkzs_.hrg.step.crl()*idx );
+		positions += BinID( tkzs_.hsamp_.start_.inl(),
+				    tkzs_.hsamp_.start_.crl() +
+					tkzs_.hsamp_.step_.crl()*idx );
 	if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
 	    for ( int idx=0; idx<tkzs_.nrInl(); idx++ )
-		positions += BinID( tkzs_.hrg.start.inl() +
-				    tkzs_.hrg.step.inl()*idx,
-				    tkzs_.hrg.start.crl() );
+		positions += BinID( tkzs_.hsamp_.start_.inl() +
+				    tkzs_.hsamp_.step_.inl()*idx,
+				    tkzs_.hsamp_.start_.crl() );
 
 	proc->setRdmPaths( &positions, &positions );
     }

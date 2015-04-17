@@ -94,7 +94,7 @@ bool Seis2DTo3D::usePar( const IOPar& pars )
 	crlstep_ = step.stop;
 	parampars->getYN( sKeyReUse(), reusetrcs_ );
 	parampars->get( sKeyMaxVel(), maxvel_ );
-	tkzs_.hrg.step = BinID( inlstep_, crlstep_ );
+	tkzs_.hsamp_.step_ = BinID( inlstep_, crlstep_ );
     }
 
     return true;
@@ -282,7 +282,7 @@ bool Seis2DTo3D::doWorkFFT()
     inlrg.limitTo( SI().inlRange(true) );
     crlrg.limitTo( SI().crlRange(true) );
     TrcKeySampling hrg; hrg.set( inlrg, crlrg );
-    hrg.step = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
+    hrg.step_ = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
     TrcKeySamplingIterator localhsit( hrg );
     BinID binid;
     ObjectSet<const SeisTrc> trcs;
@@ -328,7 +328,7 @@ bool Seis2DTo3D::doWorkFFT()
     wincrlrg.limitTo( SI().crlRange(true) );
     TrcKeySampling winhrg;
     winhrg.set( wininlrg, wincrlrg );
-    winhrg.step = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
+    winhrg.step_ = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
     ObjectSet<SeisTrc> outtrcs;
     interpol_.getOutTrcs( outtrcs, winhrg );
 

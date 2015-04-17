@@ -669,9 +669,9 @@ void uiODViewer2D::setWinTitle( bool fromcs )
 	    info += tkzs_.zsamp_.start * zdef.userFactor();
 	}
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
-	{ info = "Cross-line: "; info += tkzs_.hrg.start.crl(); }
+	{ info = "Cross-line: "; info += tkzs_.hsamp_.start_.crl(); }
 	else
-	{ info = "In-line: "; info += tkzs_.hrg.start.inl(); }
+	{ info = "In-line: "; info += tkzs_.hsamp_.start_.inl(); }
     }
 
     basetxt_ += info; if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );

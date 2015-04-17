@@ -164,12 +164,12 @@ bool SeisTrc2DTranslator::initRead_()
     insd_.start = cs.zsamp_.start; insd_.step = cs.zsamp_.step;
     innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) /
 			  cs.zsamp_.step + 1.5);
-    pinfo_.inlrg.start = cs.hrg.start.inl();
-    pinfo_.inlrg.stop = cs.hrg.stop.inl();
-    pinfo_.inlrg.step = cs.hrg.step.inl();
-    pinfo_.crlrg.step = cs.hrg.step.crl();
-    pinfo_.crlrg.start = cs.hrg.start.crl();
-    pinfo_.crlrg.stop = cs.hrg.stop.crl();
+    pinfo_.inlrg.start = cs.hsamp_.start_.inl();
+    pinfo_.inlrg.stop = cs.hsamp_.stop_.inl();
+    pinfo_.inlrg.step = cs.hsamp_.step_.inl();
+    pinfo_.crlrg.step = cs.hsamp_.step_.crl();
+    pinfo_.crlrg.start = cs.hsamp_.start_.crl();
+    pinfo_.crlrg.stop = cs.hsamp_.stop_.crl();
     return true;
 }
 

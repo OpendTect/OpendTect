@@ -393,8 +393,8 @@ bool EventManager::getHorRanges( TrcKeySampling& hrg ) const
 	if ( first )
 	{
 	    first = false;
-	    hrg.start.inl() = hrg.stop.inl() = bid.inl();
-	    hrg.start.crl() = hrg.stop.crl() = bid.crl();
+	    hrg.start_.inl() = hrg.stop_.inl() = bid.inl();
+	    hrg.start_.crl() = hrg.stop_.crl() = bid.crl();
 	}
 	else
 	{
@@ -418,8 +418,8 @@ bool EventManager::getHorRanges( TrcKeySampling& hrg ) const
 	if ( first )
 	{
 	    first = false;
-	    hrg.start.inl() = hrg.stop.inl() = inlrg.start;
-	    hrg.start.crl() = hrg.stop.crl() = crlrg.start;
+	    hrg.start_.inl() = hrg.stop_.inl() = inlrg.start;
+	    hrg.start_.crl() = hrg.stop_.crl() = crlrg.start;
 	}
 
 	hrg.include( BinID(inlrg.stop,crlrg.stop) );

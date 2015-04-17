@@ -360,15 +360,15 @@ void Pos::Provider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 	cs.set2DDef();
 	mDynamicCastGet(const Pos::Provider2D*,prov2d,this)
 	StepInterval<int> ext; prov2d->getExtent( ext, 0 );
-	cs.hrg.start.crl() = ext.start; cs.hrg.stop.crl() = ext.stop;
-	cs.hrg.step.crl() = ext.step;
+	cs.hsamp_.start_.crl() = ext.start; cs.hsamp_.stop_.crl() = ext.stop;
+	cs.hsamp_.step_.crl() = ext.step;
 	prov2d->getZRange( cs.zsamp_, 0 );
     }
     else
     {
 	cs = TrcKeyZSampling(true);
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,this)
-	prov3d->getExtent( cs.hrg.start, cs.hrg.stop );
+	prov3d->getExtent( cs.hsamp_.start_, cs.hsamp_.stop_ );
 	prov3d->getZRange( cs.zsamp_ );
     }
 

@@ -42,7 +42,7 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
 	SurfaceIOData sd;
 	uiString errmsg;
 	if ( oi.getSurfaceData(sd,errmsg) )
-	    { hs_.include( sd.rg ); hs_.step = sd.rg.step; }
+	    { hs_.include( sd.rg ); hs_.step_ = sd.rg.step_; }
     }
 
     deepRef( inputhors_ );
@@ -123,7 +123,7 @@ bool Horizon3DMerger::doFinish( bool success )
     if ( !geom )
 	return false;
 
-    geom->setArray( hs_.start_, hs_.step, depths_, true );
+    geom->setArray( hs_.start_, hs_.step_, depths_, true );
     ownsarray_ = false;
     return success;
 }

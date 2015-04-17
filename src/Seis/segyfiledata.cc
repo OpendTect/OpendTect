@@ -547,7 +547,7 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
 
 	if ( firstok >= totalsz_ ) return;
 
-	hs.start_ = hs.stop = pk.binID();
+	hs.start_ = hs.stop_ = pk.binID();
 	nrrg.start = nrrg.stop = pk.trcNr();
 	offsrg.start = offsrg.stop = pk.offset();
 
@@ -567,8 +567,8 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
 	iop.add( "Trace number range", nrrg.start, nrrg.stop );
     else
     {
-	iop.add( "Inline range", hs.start_.inl(), hs.stop.inl() );
-	iop.add( "Crossline range", hs.start_.crl(), hs.stop.crl() );
+	iop.add( "Inline range", hs.start_.inl(), hs.stop_.inl() );
+	iop.add( "Crossline range", hs.start_.crl(), hs.stop_.crl() );
     }
 
     if ( Seis::isPS(geom_) )

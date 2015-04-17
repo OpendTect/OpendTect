@@ -724,9 +724,9 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 
     res->arr_ = arr;
     res->threshold_ = 0;
-    res->tkzs_.hrg.start = BinID(newinlrg.start, newcrlrg.start);
-    res->tkzs_.hrg.stop = BinID(newinlrg.stop, newcrlrg.stop);
-    res->tkzs_.hrg.step = BinID(newinlrg.step, newcrlrg.step);
+    res->tkzs_.hsamp_.start_ = BinID(newinlrg.start, newcrlrg.start);
+    res->tkzs_.hsamp_.stop_ = BinID(newinlrg.stop, newcrlrg.stop);
+    res->tkzs_.hsamp_.step_ = BinID(newinlrg.step, newcrlrg.step);
     res->tkzs_.zsamp_ = newzrg;
 
     return true;
@@ -808,9 +808,9 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;
-	    res->tkzs_.hrg.start = BinID(inlrg.start, crlrg.start);
-	    res->tkzs_.hrg.stop = BinID(inlrg.stop, crlrg.stop);
-	    res->tkzs_.hrg.step = BinID(inlrg.step, crlrg.step);
+	    res->tkzs_.hsamp_.start_ = BinID(inlrg.start, crlrg.start);
+	    res->tkzs_.hsamp_.stop_ = BinID(inlrg.stop, crlrg.stop);
+	    res->tkzs_.hsamp_.step_ = BinID(inlrg.step, crlrg.step);
 	    res->tkzs_.zsamp_ = zrg;
 
 	    cursorchanger.restore();

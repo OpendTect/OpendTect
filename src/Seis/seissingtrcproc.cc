@@ -349,13 +349,13 @@ void SeisSingleTraceProc::prepareNullFilling()
     if ( sd && !sd->isAll() )
     {
 	Interval<int> rg( sd->inlRange() );
-	fillhs_.start.inl() = rg.start;
-	fillhs_.stop.inl() = rg.stop;
+	fillhs_.start_.inl() = rg.start;
+	fillhs_.stop_.inl() = rg.stop;
 	rg = sd->crlRange();
-	fillhs_.start.crl() = rg.start;
-	fillhs_.stop.crl() = rg.stop;
+	fillhs_.start_.crl() = rg.start;
+	fillhs_.stop_.crl() = rg.stop;
     }
-    fillbid_ = BinID( fillhs_.start.inl(), fillhs_.start.crl() );
+    fillbid_ = BinID( fillhs_.start_.inl(), fillhs_.start_.crl() );
 }
 
 
@@ -388,7 +388,7 @@ int SeisSingleTraceProc::getFillTrc()
 	filltrc_->info().refnr = filltrc_->info().pick = mUdf(float);
     }
 
-    if ( fillbid_.inl() > fillhs_.stop.inl() )
+    if ( fillbid_.inl() > fillhs_.stop_.inl() )
 	{ wrapUp(); return Executor::Finished(); }
 
     SeisTrcReader& currdr = *rdrset_[currentobj_];
@@ -408,11 +408,11 @@ int SeisSingleTraceProc::getFillTrc()
 	worktrc_->info().coord = SI().transform( fillbid_ );
     }
 
-    fillbid_.crl() += fillhs_.step.crl();
-    if ( fillbid_.crl() > fillhs_.stop.crl() )
+    fillbid_.crl() += fillhs_.step_.crl();
+    if ( fillbid_.crl() > fillhs_.stop_.crl() )
     {
-	fillbid_.inl() += fillhs_.step.inl();
-	fillbid_.crl() = fillhs_.start.crl();
+	fillbid_.inl() += fillhs_.step_.inl();
+	fillbid_.crl() = fillhs_.start_.crl();
     }
 
     return Executor::MoreToDo();

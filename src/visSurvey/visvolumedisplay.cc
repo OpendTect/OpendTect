@@ -78,14 +78,18 @@ const char* VolumeDisplay::sKeySeedsAboveIsov()	{ return "Above IsoVal"; }
 static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 {
     TrcKeyZSampling cs(false);
-    cs.hrg.start.inl() = (5*csin.hrg.start.inl()+3*csin.hrg.stop.inl())/8;
-    cs.hrg.start.crl() = (5*csin.hrg.start.crl()+3*csin.hrg.stop.crl())/8;
-    cs.hrg.stop.inl() = (3*csin.hrg.start.inl()+5*csin.hrg.stop.inl())/8;
-    cs.hrg.stop.crl() = (3*csin.hrg.start.crl()+5*csin.hrg.stop.crl())/8;
+    cs.hsamp_.start_.inl() =
+	(5*csin.hsamp_.start_.inl()+3*csin.hsamp_.stop_.inl())/8;
+    cs.hsamp_.start_.crl() =
+	(5*csin.hsamp_.start_.crl()+3*csin.hsamp_.stop_.crl())/8;
+    cs.hsamp_.stop_.inl() =
+	(3*csin.hsamp_.start_.inl()+5*csin.hsamp_.stop_.inl())/8;
+    cs.hsamp_.stop_.crl() =
+	(3*csin.hsamp_.start_.crl()+5*csin.hsamp_.stop_.crl())/8;
     cs.zsamp_.start = ( 5*csin.zsamp_.start + 3*csin.zsamp_.stop ) / 8.f;
     cs.zsamp_.stop = ( 3*csin.zsamp_.start + 5*csin.zsamp_.stop ) / 8.f;
-    SI().snap( cs.hrg.start, BinID(0,0) );
-    SI().snap( cs.hrg.stop, BinID(0,0) );
+    SI().snap( cs.hsamp_.start_, BinID(0,0) );
+    SI().snap( cs.hsamp_.stop_, BinID(0,0) );
     float z0 = csin.zsamp_.snap( cs.zsamp_.start ); cs.zsamp_.start = z0;
     float z1 = csin.zsamp_.snap( cs.zsamp_.stop ); cs.zsamp_.stop = z1;
     return cs;
@@ -373,12 +377,12 @@ void VolumeDisplay::draggerMoveCB( CallBacker* )
     if ( scene_ )
 	cs.limitTo( scene_->getTrcKeyZSampling() );
 
-    const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
-			 (cs.hrg.start.crl() + cs.hrg.stop.crl())/2.0,
+    const Coord3 center( (cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl())/2.0,
+			 (cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl())/2.0,
 			 (cs.zsamp_.start + cs.zsamp_.stop)/2.0 );
 
-    const Coord3 width( cs.hrg.stop.inl() - cs.hrg.start.inl(),
-			cs.hrg.stop.crl() - cs.hrg.start.crl(),
+    const Coord3 width( cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(),
+			cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(),
 			cs.zsamp_.stop - cs.zsamp_.start );
 
     boxdragger_->setCenter( center );
@@ -552,15 +556,16 @@ void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
     else if ( scene_ )
 	cs.limitTo( scene_->getTrcKeyZSampling() );
 
-    const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
-			 (cs.hrg.start.crl() + cs.hrg.stop.crl())/2.0,
+    const Coord3 center( (cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl())/2.0,
+			 (cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl())/2.0,
 			 (cs.zsamp_.start + cs.zsamp_.stop)/2.0 );
 
-    const Coord3 width( cs.hrg.stop.inl() - cs.hrg.start.inl(),
-			cs.hrg.stop.crl() - cs.hrg.start.crl(),
+    const Coord3 width( cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(),
+			cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(),
 			cs.zsamp_.stop - cs.zsamp_.start );
 
-    const Coord3 step( cs.hrg.step.inl(), cs.hrg.step.crl(), cs.zsamp_.step );
+    const Coord3 step( cs.hsamp_.step_.inl(), cs.hsamp_.step_.crl(),
+		       cs.zsamp_.step );
 
     updateDraggerLimits( dragmode );
     mSetVolumeTransform( ROIVolume, center, width, trans, scale );
@@ -603,18 +608,18 @@ void VolumeDisplay::updateDraggerLimits( bool dragmode )
     if ( !keepdraggerinsidetexture_ && scene_ )
 	limcs = scene_->getTrcKeyZSampling();
 
-    const Interval<float> inlrg( mCast(float,limcs.hrg.start.inl()),
-				 mCast(float,limcs.hrg.stop.inl()) );
-    const Interval<float> crlrg( mCast(float,limcs.hrg.start.crl()),
-				 mCast(float,limcs.hrg.stop.crl()) );
+    const Interval<float> inlrg( mCast(float,limcs.hsamp_.start_.inl()),
+				 mCast(float,limcs.hsamp_.stop_.inl()) );
+    const Interval<float> crlrg( mCast(float,limcs.hsamp_.start_.crl()),
+				 mCast(float,limcs.hsamp_.stop_.crl()) );
 
     boxdragger_->setSpaceLimits( inlrg, crlrg, limcs.zsamp_ );
 
     const int minvoxwidth = 1;
     boxdragger_->setWidthLimits(
-	Interval<float>( mCast(float,minvoxwidth*limcs.hrg.step.inl()),
+	Interval<float>( mCast(float,minvoxwidth*limcs.hsamp_.step_.inl()),
 			 mUdf(float) ),
-	Interval<float>( mCast(float,minvoxwidth*limcs.hrg.step.crl()),
+	Interval<float>( mCast(float,minvoxwidth*limcs.hsamp_.step_.crl()),
 			 mUdf(float) ),
 	Interval<float>( minvoxwidth*limcs.zsamp_.step, mUdf(float) ) );
 }
@@ -879,9 +884,9 @@ void VolumeDisplay::getObjectInfo( BufferString& info ) const
 {
     TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
     info = "Inl: ";
-    info += cs.hrg.start.inl(); info += "-"; info += cs.hrg.stop.inl();
+    info += cs.hsamp_.start_.inl(); info += "-"; info += cs.hsamp_.stop_.inl();
     info += ", Crl: ";
-    info += cs.hrg.start.crl(); info += "-"; info += cs.hrg.stop.crl();
+    info += cs.hsamp_.start_.crl(); info += "-"; info += cs.hsamp_.stop_.crl();
     info += ", ";
 
     float zstart = cs.zsamp_.start;
@@ -907,9 +912,11 @@ void VolumeDisplay::getTreeObjectInfo( BufferString& info ) const
 
     if ( !cs.isEmpty() && scalarfield_->isOn() )
     {
-	info += cs.hrg.start.inl(); info += "-"; info += cs.hrg.stop.inl();
+	info += cs.hsamp_.start_.inl(); info += "-";
+	info += cs.hsamp_.stop_.inl();
 	info += ", ";
-	info += cs.hrg.start.crl(); info += "-"; info += cs.hrg.stop.crl();
+	info += cs.hsamp_.start_.crl(); info += "-";
+	info += cs.hsamp_.stop_.crl();
 	info += ", ";
 
 	float zstart = cs.zsamp_.start;
@@ -1153,20 +1160,20 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 	Coord3 center = boxdragger_->center();
 	Coord3 width = boxdragger_->width();
 
-	res.hrg.start = BinID( mNINT32( center.x - width.x/2 ),
+	res.hsamp_.start_ = BinID( mNINT32( center.x - width.x/2 ),
 			      mNINT32( center.y - width.y/2 ) );
 
-	res.hrg.stop = BinID( mNINT32( center.x + width.x/2 ),
+	res.hsamp_.stop_ = BinID( mNINT32( center.x + width.x/2 ),
 			     mNINT32( center.y + width.y/2 ) );
 
-	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+	res.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
 
 	res.zsamp_.start = (float) ( center.z - width.z/2 );
 	res.zsamp_.stop = (float) ( center.z + width.z/2 );
 	res.zsamp_.step = SI().zStep();
 
-	SI().snap( res.hrg.start );
-	SI().snap( res.hrg.stop );
+	SI().snap( res.hsamp_.start_ );
+	SI().snap( res.hsamp_.stop_ );
 
 	if ( !datatransform_ )
 	{

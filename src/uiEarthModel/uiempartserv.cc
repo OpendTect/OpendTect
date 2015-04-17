@@ -1470,10 +1470,10 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
     }
 
     BinID bid;
-    for ( bid.inl()=hs.start_.inl(); bid.inl()<=hs.stop.inl();
+    for ( bid.inl()=hs.start_.inl(); bid.inl()<=hs.stop_.inl();
 	  bid.inl()+=hs.step_.inl() )
     {
-	for ( bid.crl()=hs.start_.crl(); bid.crl()<=hs.stop.crl();
+	for ( bid.crl()=hs.start_.crl(); bid.crl()<=hs.stop_.crl();
 	      bid.crl()+=hs.step_.crl() )
 	{
 	    const EM::SubID subid = bid.toInt64();

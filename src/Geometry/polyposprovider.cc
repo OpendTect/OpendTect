@@ -72,10 +72,10 @@ static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
     const Interval<float> yrg( poly.getRange(false) );
     hs.start_.inl() = (int)Math::Floor( xrg.start + 0.5 );
     hs.start_.crl() = (int)Math::Floor( yrg.start + 0.5 );
-    hs.stop.inl() = (int)Math::Ceil( xrg.stop - 0.5 );
-    hs.stop.crl() = (int)Math::Ceil( yrg.stop - 0.5 );
+    hs.stop_.inl() = (int)Math::Ceil( xrg.stop - 0.5 );
+    hs.stop_.crl() = (int)Math::Ceil( yrg.stop - 0.5 );
     SI().snap( hs.start_, BinID(1,1) );
-    SI().snap( hs.stop, BinID(-1,-1) );
+    SI().snap( hs.stop_, BinID(-1,-1) );
 }
 
 
@@ -88,7 +88,7 @@ bool Pos::PolyProvider3D::initialize( TaskRunner* )
     if ( !toNextPos() )
 	return false;
 
-    curbid_.crl() -= hs_.step.crl();
+    curbid_.crl() -= hs_.step_.crl();
     curz_ = zrg_.stop;
     return true;
 }
@@ -96,21 +96,21 @@ bool Pos::PolyProvider3D::initialize( TaskRunner* )
 
 bool Pos::PolyProvider3D::toNextPos()
 {
-    curbid_.crl() += hs_.step.crl();
+    curbid_.crl() += hs_.step_.crl();
     curz_ = zrg_.start;
 
     while ( true )
     {
 	if ( !hs_.includes(curbid_) )
 	{
-	    curbid_.inl() += hs_.step.inl();
+	    curbid_.inl() += hs_.step_.inl();
 	    curbid_.crl() = hs_.start_.crl();
 	    if ( !hs_.includes(curbid_) )
 		break;
 	}
 	if ( includes(curbid_,mUdf(float)) )
 	    return true;
-	curbid_.crl() += hs_.step.crl();
+	curbid_.crl() += hs_.step_.crl();
     }
 
     return false;
@@ -168,8 +168,8 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 void Pos::PolyProvider3D::usePar( const IOPar& iop )
 {
     iop.get( mGetPolyKey(sKey::ZRange()), zrg_ );
-    iop.get( mGetPolyKey(sKey::StepInl()), hs_.step.inl() );
-    iop.get( mGetPolyKey(sKey::StepCrl()), hs_.step.crl() );
+    iop.get( mGetPolyKey(sKey::StepInl()), hs_.step_.inl() );
+    iop.get( mGetPolyKey(sKey::StepCrl()), hs_.step_.crl() );
     iop.get( mGetPolyKey(sKey::ID()), mid_ );
     ODPolygon<float>* poly = polyFromPar( iop );
     if ( poly )
@@ -183,8 +183,8 @@ void Pos::PolyProvider3D::usePar( const IOPar& iop )
 void Pos::PolyProvider3D::fillPar( IOPar& iop ) const
 {
     iop.set( mGetPolyKey(sKey::ZRange()), zrg_ );
-    iop.set( mGetPolyKey(sKey::StepInl()), hs_.step.inl() );
-    iop.set( mGetPolyKey(sKey::StepCrl()), hs_.step.crl() );
+    iop.set( mGetPolyKey(sKey::StepInl()), hs_.step_.inl() );
+    iop.set( mGetPolyKey(sKey::StepCrl()), hs_.step_.crl() );
     iop.set( mGetPolyKey(sKey::ID()), mid_ );
     ::fillPar( iop, poly_, mGetPolyKey(((int)0)) );
 }
@@ -220,8 +220,8 @@ void Pos::PolyProvider3D::getZRange( Interval<float>& zrg ) const
 
 od_int64 Pos::PolyProvider3D::estNrPos() const
 {
-    float fnr = (float) poly_.area() / hs_.step.inl();
-    fnr /= hs_.step.crl();
+    float fnr = (float) poly_.area() / hs_.step_.inl();
+    fnr /= hs_.step_.crl();
     return mRounded(od_int64,fnr);
 }
 

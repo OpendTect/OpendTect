@@ -179,7 +179,7 @@ void CBVSInfo::SurvGeom::reCalcBounds()
     if ( fullyrectandreg ) return;
 
     TrcKeySampling hs(false);
-    hs.start_ = start; hs.stop = stop;
+    hs.start_ = start; hs.stop_ = stop;
     bool firstpos = true;
     for ( int icd=0; icd<cubedata.size(); icd++ )
     {
@@ -198,7 +198,7 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 
 	    if ( firstpos )
 	    {
-		hs.start_ = hs.stop = BinID( ii.linenr_, seg.start );
+		hs.start_ = hs.stop_ = BinID( ii.linenr_, seg.start );
 		firstpos = false;
 	    }
 	    hs.include( BinID(ii.linenr_,seg.start) );
@@ -207,16 +207,16 @@ void CBVSInfo::SurvGeom::reCalcBounds()
     }
 
     start = hs.start_;
-    stop = hs.stop;
+    stop = hs.stop_;
 }
 
 
 bool CBVSInfo::contributesTo( const TrcKeyZSampling& cs ) const
 {
-    if ( cs.hrg.start.inl() > geom_.stop.inl() ||
-	 cs.hrg.stop.inl() < geom_.start.inl() ||
-	 cs.hrg.start.crl() > geom_.stop.crl() ||
-	 cs.hrg.stop.crl() < geom_.start.crl() )
+    if ( cs.hsamp_.start_.inl() > geom_.stop.inl() ||
+	 cs.hsamp_.stop_.inl() < geom_.start.inl() ||
+	 cs.hsamp_.start_.crl() > geom_.stop.crl() ||
+	 cs.hsamp_.stop_.crl() < geom_.start.crl() )
 	return false;
 
     float zend = sd_.start + (nrsamples_-1) * sd_.step;

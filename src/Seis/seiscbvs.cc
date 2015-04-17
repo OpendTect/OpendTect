@@ -228,8 +228,10 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	TrcKeyZSampling cs;
 	Interval<int> inlrg = seldata_->inlRange();
 	Interval<int> crlrg = seldata_->crlRange();
-	cs.hrg.start.inl() = inlrg.start; cs.hrg.start.crl() = crlrg.start;
-	cs.hrg.stop.inl() = inlrg.stop; cs.hrg.stop.crl() = crlrg.stop;
+	cs.hsamp_.start_.inl() = inlrg.start;
+	cs.hsamp_.start_.crl() = crlrg.start;
+	cs.hsamp_.stop_.inl() = inlrg.stop;
+	cs.hsamp_.stop_.crl() = crlrg.stop;
 	cs.zsamp_.start = outsd_.start; cs.zsamp_.step = outsd_.step;
 	cs.zsamp_.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
 

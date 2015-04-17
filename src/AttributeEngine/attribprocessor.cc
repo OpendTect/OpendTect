@@ -129,10 +129,10 @@ void Processor::useFullProcess( int& res )
 	    const BinID step = provider_->getStepoutStep();
 	    firstpos.inl() = step.inl()/abs(step.inl())>0 ? 
 			   provider_->getDesiredVolume()->hsamp_.start_.inl() :	
-			   provider_->getDesiredVolume()->hsamp_.stop.inl();
-	    firstpos.crl() = step.crl()/abs(step.crl())>0 ?
-			   provider_->getDesiredVolume()->hsamp_.start_.crl() :
-			   provider_->getDesiredVolume()->hsamp_.stop.crl();
+			   provider_->getDesiredVolume()->hsamp_.stop_.inl();
+	    firstpos.crl() = step.crl()/abs(step.crl())>0
+		? provider_->getDesiredVolume()->hsamp_.start_.crl()
+		: provider_->getDesiredVolume()->hsamp_.stop_.crl();
 	}
 	provider_->resetMoved();
 	res = provider_->moveToNextTrace( firstpos, true );
@@ -315,8 +315,8 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 	    globalcs = cs;
 	else
 	{
-	    globalcs.hrg.include(cs.hrg.start);
-	    globalcs.hrg.include(cs.hrg.stop);
+	    globalcs.hrg.include(cs.hsamp_.start_);
+	    globalcs.hrg.include(cs.hsamp_.stop_);
 	    globalcs.zsamp_.include(cs.zrg);
 	}
 
@@ -412,9 +412,10 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	    possvol = globalcs;
 	else if ( is2d_ && possvol == globalcs )
 	{
-	    possvol.hrg.stop.inl() = possvol.hrg.start.inl() = 0;
-	    possvol.hrg.start.crl() = 0;
-	    possvol.hrg.stop.crl() = INT_MAX/3*2;//unlikely;still, a limitation.
+	    possvol.hsamp_.stop_.inl() = possvol.hsamp_.start_.inl() = 0;
+	    possvol.hsamp_.start_.crl() = 0;
+	    possvol.hsamp_.stop_.crl() = INT_MAX/3*2;
+			//unlikely;still, a limitation.
 	    globalcs = possvol;
 	}
 

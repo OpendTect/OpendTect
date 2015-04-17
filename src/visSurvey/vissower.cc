@@ -199,13 +199,13 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
 	return;
 
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling( false, false );
-    Coord3 p0( SI().transform(cs.hrg.start), cs.zsamp_.start );
+    Coord3 p0( SI().transform(cs.hsamp_.start_), cs.zsamp_.start );
     transformation_->transform( p0 );
     scene->getTempZStretchTransform()->transform( p0 );
-    Coord3 p1( SI().transform( cs.hrg.stop), cs.zsamp_.start );
+    Coord3 p1( SI().transform( cs.hsamp_.stop_), cs.zsamp_.start );
     transformation_->transform( p1 );
     scene->getTempZStretchTransform()->transform( p1 );
-    Coord3 p2( SI().transform(cs.hrg.start), cs.zsamp_.stop );
+    Coord3 p2( SI().transform(cs.hsamp_.start_), cs.zsamp_.stop );
     transformation_->transform( p2 );
     scene->getTempZStretchTransform()->transform( p2 );
 
@@ -259,13 +259,13 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
 
     Coord3& lastworldpos = eventlist_[eventlist_.size()-1]->worldpickedpos;
     const BinID lastbid = SI().transform( lastworldpos );
-    const BinID start = workrange_->start;
-    const BinID stop = workrange_->stop;
+    const BinID start = workrange_->start_;
+    const BinID stop = workrange_->stop_;
 
     const int min2 = (int)mMIN( lastbid.sqDistTo(start), 
 				lastbid.sqDistTo(stop) );
-    const int step = workrange_->nrCrl()==1 ? workrange_->step.inl()
-					    : workrange_->step.crl();
+    const int step = workrange_->nrCrl()==1 ? workrange_->step_.inl()
+					    : workrange_->step_.crl();
     if ( min2 > 100*step*step )
 	return;
 

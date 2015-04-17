@@ -333,7 +333,7 @@ Task* BodyFiller::createTask()
 
 	if ( flatpolygon_.isEmpty() )
 	{
-	    flatpolygon_.hrg.start = flatpolygon_.hrg.stop = bid;
+	    flatpolygon_.hsamp_.start_ = flatpolygon_.hsamp_.stop_ = bid;
 	    flatpolygon_.zsamp_.start = flatpolygon_.zsamp_.stop
 				   = (float)plgknots_[idx].z;
 	}

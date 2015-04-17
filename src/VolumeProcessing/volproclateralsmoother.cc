@@ -338,10 +338,10 @@ LateralSmoother::~LateralSmoother()
 TrcKeySampling LateralSmoother::getInputHRg( const TrcKeySampling& hrg ) const
 {
     TrcKeySampling res = hrg;
-    res.start.inl() = hrg.start.inl() - res.step.inl() * pars_.stepout_.row();
-    res.start.crl() = hrg.start.crl() - res.step.crl() * pars_.stepout_.col();
-    res.stop.inl() = hrg.stop.inl() + res.step.inl() * pars_.stepout_.row();
-    res.stop.crl() = hrg.stop.crl() + res.step.crl() * pars_.stepout_.col();
+    res.start_.inl() = hrg.start_.inl() - res.step_.inl() *pars_.stepout_.row();
+    res.start_.crl() = hrg.start_.crl() - res.step_.crl() *pars_.stepout_.col();
+    res.stop_.inl() = hrg.stop_.inl() + res.step_.inl() * pars_.stepout_.row();
+    res.stop_.crl() = hrg.stop_.crl() + res.step_.crl() * pars_.stepout_.col();
     return res;
 }
 
@@ -403,7 +403,7 @@ Task* LateralSmoother::createTask()
     const TrcKeySampling& inphs = input->sampling().hsamp_;
     const TrcKeySampling& ouths = output->sampling().hsamp_;
 
-    if ( inphs.step != ouths.step ||
+    if ( inphs.step_ != ouths.step_ ||
 	 !mIsEqual(input->sampling().zsamp_.step,
 		   output->sampling().zsamp_.step,
 		   1e-3*SI().zRange(true).step))
@@ -415,8 +415,8 @@ Task* LateralSmoother::createTask()
     {
 	if ( !mIsUdf(pars_.rowdist_) )
 	{
-	    pars_.rowdist_ = (SI().inlDistance()*inphs.step.inl())/
-			     (SI().crlDistance()*inphs.step.crl());
+	    pars_.rowdist_ = (SI().inlDistance()*inphs.step_.inl())/
+			     (SI().crlDistance()*inphs.step_.crl());
 	}
     }
     else
@@ -426,11 +426,11 @@ Task* LateralSmoother::createTask()
 
     pars_.filludf_ = true;
 
-    Interval<int> inlsamples(inphs.inlRange().nearestIndex(tks_.start.inl()),
-			     inphs.inlRange().nearestIndex(tks_.stop.inl()));
+    Interval<int> inlsamples(inphs.inlRange().nearestIndex(tks_.start_.inl()),
+			     inphs.inlRange().nearestIndex(tks_.stop_.inl()));
 
-    Interval<int> crlsamples(inphs.crlRange().nearestIndex(tks_.start.crl()),
-			     inphs.crlRange().nearestIndex(tks_.stop.crl()));
+    Interval<int> crlsamples(inphs.crlRange().nearestIndex(tks_.start_.crl()),
+			     inphs.crlRange().nearestIndex(tks_.stop_.crl()));
 
     const int inpz0 = 
 	mNINT32(input->sampling().zsamp_.start/input->sampling().zsamp_.step);
@@ -438,12 +438,12 @@ Task* LateralSmoother::createTask()
 	mNINT32(output->sampling().zsamp_.start/output->sampling().zsamp_.step);
 
     return new LateralSmootherTask( input->data( 0 ),
-	    inphs.start.inl(),
-	    inphs.start.crl(),
+	    inphs.start_.inl(),
+	    inphs.start_.crl(),
 	    inpz0,
 	    output->data( 0 ),
-	    ouths.start.inl(),
-	    ouths.start.crl(),
+	    ouths.start_.inl(),
+	    ouths.start_.crl(),
 	    outpz0,
 	    inlsamples, crlsamples, zrg_,
 	    pars_, mirroredges_, interpolateundefs_, fixedvalue_ );

@@ -74,7 +74,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	if ( idx )
 	    hs.include( bid );
 	else
-	    hs.start_ = hs.stop = bid;
+	    hs.start_ = hs.stop_ = bid;
     }
 
     TriangulatedGridder2D grdr;
@@ -99,11 +99,11 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	{
 	    const EM::SectionID sid = hor_->sectionID( isect );
 	    float horz = (float) hor_->getPos( sid, subid ).z;
-	    if ( mIsUdf(horz) && bid.inl()!=hs.stop.inl() &&
-		 bid.crl()!=hs.stop.crl() )
+	    if ( mIsUdf(horz) && bid.inl()!=hs.stop_.inl() &&
+		 bid.crl()!=hs.stop_.crl() )
  	    { //The very last edges should exclude.
-		horz =
-		  (float)hor_->geometry().sectionGeometry(sid)->computePosition(
+		horz = (float)
+		    hor_->geometry().sectionGeometry(sid)->computePosition(
        			Coord(bid.inl(),bid.crl()) ).z;
  	    }
 		    

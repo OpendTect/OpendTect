@@ -61,21 +61,21 @@ const char* Pos::RangeProvider3D::type() const
 
 void Pos::RangeProvider3D::reset()
 {
-    curbid_ = BinID( tkzs_.hrg.start.inl(),
-		     tkzs_.hrg.start.crl()-tkzs_.hrg.step.crl() );
+    curbid_ = BinID( tkzs_.hsamp_.start_.inl(),
+		     tkzs_.hsamp_.start_.crl()-tkzs_.hsamp_.step_.crl() );
     curzidx_ = tkzs_.zsamp_.nrSteps();
 }
 
 
 bool Pos::RangeProvider3D::toNextPos()
 {
-    curbid_.crl() += tkzs_.hrg.step.crl();
-    if ( curbid_.crl() > tkzs_.hrg.stop.crl() )
+    curbid_.crl() += tkzs_.hsamp_.step_.crl();
+    if ( curbid_.crl() > tkzs_.hsamp_.stop_.crl() )
     {
-	curbid_.inl() += tkzs_.hrg.step.inl();
-	if ( curbid_.inl() > tkzs_.hrg.stop.inl() )
+	curbid_.inl() += tkzs_.hsamp_.step_.inl();
+	if ( curbid_.inl() > tkzs_.hsamp_.stop_.inl() )
 	    return false;
-	curbid_.crl() = tkzs_.hrg.start.crl();
+	curbid_.crl() = tkzs_.hsamp_.start_.crl();
     }
 
     curzidx_ = 0;
@@ -128,8 +128,8 @@ void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::RangeProvider3D::getSummary( BufferString& txt ) const
 {
-    txt.set( tkzs_.hrg.start.toString() ).add( "-" );
-    txt.add( tkzs_.hrg.stop.toString() ); // needs to be a separate line
+    txt.set( tkzs_.hsamp_.start_.toString() ).add( "-" );
+    txt.add( tkzs_.hsamp_.stop_.toString() ); // needs to be a separate line
     const int nrsamps = tkzs_.zsamp_.nrSteps() + 1;
     if ( nrsamps > 1 )
 	txt.add( " (" ).add( nrsamps ).add( " samples)" );
@@ -138,7 +138,7 @@ void Pos::RangeProvider3D::getSummary( BufferString& txt ) const
 
 void Pos::RangeProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
-    start = tkzs_.hrg.start; stop = tkzs_.hrg.stop;
+    start = tkzs_.hsamp_.start_; stop = tkzs_.hsamp_.stop_;
 }
 
 

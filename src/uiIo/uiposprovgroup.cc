@@ -127,8 +127,8 @@ static void getExtrDefTrcKeyZSampling( TrcKeyZSampling& cs )
     int blocks = nrextr / 50000;
     float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
     int stepfac = mNINT32(fstepfac);
-    cs.hrg.step.inl() *= stepfac;
-    cs.hrg.step.crl() *= stepfac;
+    cs.hsamp_.step_.inl() *= stepfac;
+    cs.hsamp_.step_.crl() *= stepfac;
 }
 
 
@@ -208,7 +208,7 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
     polyfld_->usePar( iop, sKey::Polygon() );
     if ( stepfld_ )
     {
-	BinID stps( SI().sampling(true).hrg.step );
+	BinID stps( SI().sampling(true).hsamp_.step_ );
 	iop.get( mGetPolyKey(sKey::StepInl()), stps.inl() );
 	iop.get( mGetPolyKey(sKey::StepCrl()), stps.crl() );
 	stepfld_->setSteps( stps );
@@ -229,7 +229,7 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 	mErrRet("Please select the polygon")
 
     const BinID stps(
-	stepfld_ ? stepfld_->getSteps() : SI().sampling(true).hrg.step );
+	stepfld_ ? stepfld_->getSteps() : SI().sampling(true).hsamp_.step_ );
     iop.set( mGetPolyKey(sKey::StepInl()), stps.inl() );
     iop.set( mGetPolyKey(sKey::StepCrl()), stps.crl() );
     iop.set( mGetPolyKey(sKey::ZRange()),
@@ -247,7 +247,7 @@ void uiPolyPosProvGroup::getSummary( BufferString& txt ) const
 void uiPolyPosProvGroup::setExtractionDefaults()
 {
     TrcKeyZSampling cs( true ); getExtrDefTrcKeyZSampling( cs );
-    if ( stepfld_ ) stepfld_->setSteps( cs.hrg.step );
+    if ( stepfld_ ) stepfld_->setSteps( cs.hsamp_.step_ );
     if ( zrgfld_ ) zrgfld_->setRange( cs.zsamp_ );
 }
 

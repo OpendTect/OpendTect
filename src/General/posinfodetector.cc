@@ -105,7 +105,7 @@ bool PosInfo::Detector::inlSorted() const
 
 
 void PosInfo::Detector::getTrcKeySampling( TrcKeySampling& hs ) const
-{ hs.start_ = start_; hs.stop = stop_; hs.step_ = step_; }
+{ hs.start_ = start_; hs.stop_ = stop_; hs.step_ = step_; }
 
 void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 {
@@ -159,11 +159,11 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
     if ( nruniquepos_ < 3 )
 	mErrRet( "Not enough unique positions found" )
 
-    hs.start_ = start_; hs.stop = stop_; hs.step_ = step_;
+    hs.start_ = start_; hs.stop_ = stop_; hs.step_ = step_;
 
-    if ( hs.start_.inl() == hs.stop.inl() )
+    if ( hs.start_.inl() == hs.stop_.inl() )
 	mErrRet2("The input data contains only one in-line: ",hs.start_.inl())
-    else if ( hs.start_.crl() == hs.stop.crl() )
+    else if ( hs.start_.crl() == hs.stop_.crl() )
 	mErrRet2("The input data contains only one cross-line: ",
 		hs.start_.crl())
 
@@ -189,8 +189,8 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 
     // what coords would have been on the corners
     crd[0] = b2c.transform( hs.start_ );
-    crd[1] = b2c.transform( hs.stop );
-    crd[2] = b2c.transform( BinID(hs.start_.inl(),hs.stop.crl()) );
+    crd[1] = b2c.transform( hs.stop_ );
+    crd[2] = b2c.transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
 
     return 0;
 }

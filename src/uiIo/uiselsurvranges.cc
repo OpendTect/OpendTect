@@ -385,7 +385,7 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
     uiSpinBox* firstbox = 0;
     if ( !is2d )
     {
-	stp = SI().sampling(true).hrg.step;
+	stp = SI().sampling(true).hsamp_.step_;
 	firstbox = inlfld_ = new uiSpinBox( this, 0, "inline step" );
 	inlfld_->setInterval( StepInterval<int>(stp.inl(),cUnLim,stp.inl()) );
 	inlfld_->doSnap( true );

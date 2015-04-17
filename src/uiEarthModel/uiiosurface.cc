@@ -430,7 +430,7 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
     {
 	const TrcKeySampling& hrg = rgfld_->envelope().hrg;
 	issubsel = surfrange_.isEmpty() ? true :
-	    !hrg.includes(surfrange_.start) || !hrg.includes(surfrange_.stop);
+	    !hrg.includes(surfrange_.start_) || !hrg.includes(surfrange_.stop_);
     }
 
     if ( displayfld_ && issubsel )

@@ -239,19 +239,19 @@ int PreStack::EventsAPIMgr::getRanges( int handle,
 	if ( !picks.next( arrpos ) || !picks.getPos( arrpos, bid ) )
 	    return -1;
 
-	hrg.start = hrg.stop = bid;
+	hrg.start_ = hrg.stop_ = bid;
 	while ( picks.next( arrpos ) && !picks.getPos( arrpos, bid ) )
 	{
 	    hrg.include( bid );
 	}
     }
 
-    firstinl = hrg.start.inl();
-    lastinl = hrg.stop.inl();
-    inlstep = hrg.step.inl();
-    firstcrl = hrg.start.crl();
-    lastcrl = hrg.stop.crl();
-    crlstep = hrg.step.crl();
+    firstinl = hrg.start_.inl();
+    lastinl = hrg.stop_.inl();
+    inlstep = hrg.step_.inl();
+    firstcrl = hrg.start_.crl();
+    lastcrl = hrg.stop_.crl();
+    crlstep = hrg.step_.crl();
 
     return 0;
 }

@@ -84,15 +84,15 @@ void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
     const Survey::Geometry3D& survgeom = *pdd_->get3DSurvGeom();
     if ( pdd_->getOrientation()==OD::ZSlice )
     {
-	res += survgeom.transform(hrg.start);
-	res += survgeom.transform(BinID(hrg.start.inl(), hrg.stop.crl()) );
-	res += survgeom.transform(hrg.stop);
-	res += survgeom.transform(BinID(hrg.stop.inl(), hrg.start.crl()) );
+	res += survgeom.transform(hrg.start_);
+	res += survgeom.transform(BinID(hrg.start_.inl(), hrg.stop_.crl()) );
+	res += survgeom.transform(hrg.stop_);
+	res += survgeom.transform(BinID(hrg.stop_.inl(), hrg.start_.crl()) );
     }
     else
     {
-	res += survgeom.transform(hrg.start);
-	res += survgeom.transform(hrg.stop);
+	res += survgeom.transform(hrg.start_);
+	res += survgeom.transform(hrg.stop_);
     }
 }
 
@@ -206,16 +206,16 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	return;
 
     TrcKeyZSampling survey = scene_->getTrcKeyZSampling();
-    const Interval<float> inlrg( mCast(float,survey.hrg.start.inl()),
-				    mCast(float,survey.hrg.stop.inl()) );
-    const Interval<float> crlrg( mCast(float,survey.hrg.start.crl()),
-				    mCast(float,survey.hrg.stop.crl()) );
+    const Interval<float> inlrg( mCast(float,survey.hsamp_.start_.inl()),
+				    mCast(float,survey.hsamp_.stop_.inl()) );
+    const Interval<float> crlrg( mCast(float,survey.hsamp_.start_.crl()),
+				    mCast(float,survey.hsamp_.stop_.crl()) );
 
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zsamp_ );
     dragger_->setWidthLimits(
-	  Interval<float>( mCast(float,4*survey.hrg.step.inl()), mUdf(float) ),
-	  Interval<float>( mCast(float,4*survey.hrg.step.crl()), mUdf(float) ),
-	  Interval<float>( 4*survey.zsamp_.step, mUdf(float) ) );
+      Interval<float>( mCast(float,4*survey.hsamp_.step_.inl()), mUdf(float) ),
+      Interval<float>( mCast(float,4*survey.hsamp_.step_.crl()), mUdf(float) ),
+      Interval<float>( 4*survey.zsamp_.step, mUdf(float) ) );
 
     TrcKeyZSampling newpos = getTrcKeyZSampling(false,true);
     if ( !newpos.isEmpty() )
@@ -248,10 +248,10 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 TrcKeyZSampling PlaneDataDisplay::snapPosition(const TrcKeyZSampling& cs) const
 {
     TrcKeyZSampling res( cs );
-    const Interval<float> inlrg( mCast(float,res.hrg.start.inl()),
-				    mCast(float,res.hrg.stop.inl()) );
-    const Interval<float> crlrg( mCast(float,res.hrg.start.crl()),
-				    mCast(float,res.hrg.stop.crl()) );
+    const Interval<float> inlrg( mCast(float,res.hsamp_.start_.inl()),
+				    mCast(float,res.hsamp_.stop_.inl()) );
+    const Interval<float> crlrg( mCast(float,res.hsamp_.start_.crl()),
+				    mCast(float,res.hsamp_.stop_.crl()) );
     const Interval<float> zrg( res.zsamp_ );
 
     res.hrg.snapToSurvey();
@@ -268,10 +268,10 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition(const TrcKeyZSampling& cs) const
     }
 
     if ( orientation_==OD::InlineSlice )
-	res.hrg.start.inl() = res.hrg.stop.inl() =
+	res.hsamp_.start_.inl() = res.hsamp_.stop_.inl() =
 	    s3dgeom_->inlRange().snap( inlrg.center() );
     else if ( orientation_==OD::CrosslineSlice )
-	res.hrg.start.crl() = res.hrg.stop.crl() =
+	res.hsamp_.start_.crl() = res.hsamp_.stop_.crl() =
 	    s3dgeom_->crlRange().snap( crlrg.center() );
 
     return res;
@@ -302,15 +302,17 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     float zdiff = 0;
 
     inlcrldist.inl() =
-	binid.inl()>=cs.hrg.start.inl() && binid.inl()<=cs.hrg.stop.inl()
+	binid.inl()>=cs.hsamp_.start_.inl() &&
+	binid.inl()<=cs.hsamp_.stop_.inl()
 	     ? 0
-	     : mMIN( abs(binid.inl()-cs.hrg.start.inl()),
-		     abs( binid.inl()-cs.hrg.stop.inl()) );
+	     : mMIN( abs(binid.inl()-cs.hsamp_.start_.inl()),
+		     abs( binid.inl()-cs.hsamp_.stop_.inl()) );
     inlcrldist.crl() =
-	binid.crl()>=cs.hrg.start.crl() && binid.crl()<=cs.hrg.stop.crl()
+	binid.crl()>=cs.hsamp_.start_.crl() &&
+	binid.crl()<=cs.hsamp_.stop_.crl()
 	     ? 0
-	     : mMIN( abs(binid.crl()-cs.hrg.start.crl()),
-		     abs( binid.crl()-cs.hrg.stop.crl()) );
+	     : mMIN( abs(binid.crl()-cs.hsamp_.start_.crl()),
+		     abs( binid.crl()-cs.hsamp_.stop_.crl()) );
     const float zfactor = scene_
 	? scene_->getZScale()
         : s3dgeom_->zScale();
@@ -417,10 +419,10 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 
     bool showplane = false;
     if ( orientation_==OD::InlineSlice
-	    && dragcs.hrg.start.inl()!=oldcs.hrg.start.inl() )
+	    && dragcs.hsamp_.start_.inl()!=oldcs.hsamp_.start_.inl() )
 	showplane = true;
     else if ( orientation_==OD::CrosslineSlice &&
-	      dragcs.hrg.start.crl()!=oldcs.hrg.start.crl() )
+	      dragcs.hsamp_.start_.crl()!=oldcs.hsamp_.start_.crl() )
 	showplane = true;
     else if ( orientation_==OD::ZSlice &&
 	      dragcs.zsamp_.start!=oldcs.zsamp_.start )
@@ -453,11 +455,12 @@ void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
 }
 
 #define mDefineCenterAndWidth( thecs ) \
-    const Coord3 center( (thecs.hrg.start.inl()+thecs.hrg.stop.inl())/2.0, \
-		         (thecs.hrg.start.crl()+thecs.hrg.stop.crl())/2.0, \
+    const Coord3 center( \
+		(thecs.hsamp_.start_.inl()+thecs.hsamp_.stop_.inl())/2.0, \
+		(thecs.hsamp_.start_.crl()+thecs.hsamp_.stop_.crl())/2.0, \
 		         thecs.zsamp_.center() ); \
-    Coord3 width( thecs.hrg.stop.inl()-thecs.hrg.start.inl(), \
-		  thecs.hrg.stop.crl()-thecs.hrg.start.crl(), \
+    Coord3 width( thecs.hsamp_.stop_.inl()-thecs.hsamp_.start_.inl(), \
+		  thecs.hsamp_.stop_.crl()-thecs.hsamp_.start_.crl(), \
 	          thecs.zsamp_.width() ); \
     if ( width.x < 1 ) width.x = 1; \
     if ( width.y < 1 ) width.y = 1; \
@@ -666,7 +669,7 @@ void PlaneDataDisplay::setTrcKeyZSampling( const TrcKeyZSampling& wantedcs )
     setDraggerPos( cs );
     if ( gridlines_ ) gridlines_->setPlaneTrcKeyZSampling( cs );
 
-    curicstep_ = cs.hrg.step;
+    curicstep_ = cs.hsamp_.step_;
 
     setUpdateStageTextureTransform();
 
@@ -703,11 +706,11 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 	c1 = center - halfsize;
     }
 
-    res.hsamp_.start = res.hsamp_.stop = BinID(mNINT32(c0.x),mNINT32(c0.y) );
+    res.hsamp_.start_ = res.hsamp_.stop_ = BinID(mNINT32(c0.x),mNINT32(c0.y) );
     res.zsamp_.start = res.zsamp_.stop = (float) c0.z;
     res.hsamp_.include( BinID(mNINT32(c1.x),mNINT32(c1.y)) );
     res.zsamp_.include( (float) c1.z );
-    res.hsamp_.step = BinID( s3dgeom_->inlStep(), s3dgeom_->crlStep() );
+    res.hsamp_.step_ = BinID( s3dgeom_->inlStep(), s3dgeom_->crlStep() );
     res.zsamp_.step = s3dgeom_->zRange().step;
     res.hsamp_.survid_ = Survey::GM().default3DSurvID();
 
@@ -1039,12 +1042,12 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
     if ( orientation_==OD::InlineSlice )
     {
 	info = "In-line: ";
-	info += getTrcKeyZSampling(true,true).hrg.start.inl();
+	info += getTrcKeyZSampling(true,true).hsamp_.start_.inl();
     }
     else if ( orientation_==OD::CrosslineSlice )
     {
 	info = "Cross-line: ";
-	info += getTrcKeyZSampling(true,true).hrg.start.crl();
+	info += getTrcKeyZSampling(true,true).hsamp_.start_.crl();
     }
     else
     {
@@ -1247,23 +1250,24 @@ void PlaneDataDisplay::setUpdateStageTextureTransform()
     Coord samplingratio( updatestageinfo_.oldimagesize_.x/oldcs.nrZ(),
 			 updatestageinfo_.oldimagesize_.y/oldcs.nrInl() );
     Coord startdif( (newcs.zsamp_.start-oldcs.zsamp_.start) / newcs.zsamp_.step,
-		    newcs.hrg.start.inl()-oldcs.hrg.start.inl() );
+		    newcs.hsamp_.start_.inl()-oldcs.hsamp_.start_.inl() );
     Coord growth( newcs.nrZ()-oldcs.nrZ(), newcs.nrInl()-oldcs.nrInl() );
-    updatestageinfo_.refreeze_ = newcs.hrg.start.crl()==oldcs.hrg.start.crl();
+    updatestageinfo_.refreeze_ =
+	newcs.hsamp_.start_.crl()==oldcs.hsamp_.start_.crl();
 
     if ( orientation_ == OD::InlineSlice )
     {
 	samplingratio.y = updatestageinfo_.oldimagesize_.y / oldcs.nrCrl();
-	startdif.y = newcs.hrg.start.crl() - oldcs.hrg.start.crl();
+	startdif.y = newcs.hsamp_.start_.crl() - oldcs.hsamp_.start_.crl();
 	growth.y = newcs.nrCrl() - oldcs.nrCrl();
 	updatestageinfo_.refreeze_ =
-	    newcs.hrg.start.inl()==oldcs.hrg.start.inl();
+	    newcs.hsamp_.start_.inl()==oldcs.hsamp_.start_.inl();
     }
 
     if ( orientation_ == OD::ZSlice )
     {
 	samplingratio.x = updatestageinfo_.oldimagesize_.x / oldcs.nrCrl();
-	startdif.x = newcs.hrg.start.crl() - oldcs.hrg.start.crl();
+	startdif.x = newcs.hsamp_.start_.crl() - oldcs.hsamp_.start_.crl();
 	growth.x = newcs.nrCrl() - oldcs.nrCrl();
 	updatestageinfo_.refreeze_ = newcs.zsamp_.start==oldcs.zsamp_.start;
     }

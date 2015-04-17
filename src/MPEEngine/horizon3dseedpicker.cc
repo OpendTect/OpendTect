@@ -240,7 +240,7 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid,
     else
     {
 	// traverse whole active line
-	const BinID dummystartbid = engine().activeVolume().hrg.start;
+	const BinID dummystartbid = engine().activeVolume().hsamp_.start_;
 	extendSeedListEraseInBetween( true, dummystartbid, false, -dir );
 	extendSeedListEraseInBetween( true, dummystartbid-dir, false, dir );
 
@@ -499,7 +499,7 @@ bool Horizon3DSeedPicker::lineTrackDirection( BinID& dir,
 					    bool perptotrackdir ) const
 {
     const TrcKeyZSampling& activevol = engine().activeVolume();
-    dir = activevol.hrg.step;
+    dir = activevol.hsamp_.step_;
 
     const bool inltracking = activevol.nrInl()==1 && activevol.nrCrl()>1;
     const bool crltracking = activevol.nrCrl()==1 && activevol.nrInl()>1;

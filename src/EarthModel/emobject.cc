@@ -523,8 +523,8 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    const Coord3 pos = getPos( sectionID(idx), removallist[sididx] );
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
-		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
-					      = bid;
+		removebypolyposbox_.hsamp_.start_ =
+			removebypolyposbox_.hsamp_.stop_ = bid;
 		removebypolyposbox_.zsamp_.start =
 		    removebypolyposbox_.zsamp_.stop = (float) pos.z;
 	    }
@@ -568,8 +568,8 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    const BinID bid = SI().transform(pos);
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
-		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
-					      = bid;
+		removebypolyposbox_.hsamp_.start_ =
+			removebypolyposbox_.hsamp_.stop_ = bid;
 		removebypolyposbox_.zsamp_.start =
 		removebypolyposbox_.zsamp_.stop = pos.z;
 	    }

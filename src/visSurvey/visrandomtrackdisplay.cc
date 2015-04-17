@@ -108,13 +108,13 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     const StepInterval<float>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange(
-			    mCast(float,SI().sampling(true).hrg.start.inl()),
-			    mCast(float,SI().sampling(true).hrg.stop.inl()),
-			    mCast(float,SI().inlStep()) );
+		    mCast(float,SI().sampling(true).hsamp_.start_.inl()),
+		    mCast(float,SI().sampling(true).hsamp_.stop_.inl()),
+		    mCast(float,SI().inlStep()) );
     const StepInterval<float> crlrange(
-			    mCast(float,SI().sampling(true).hrg.start.crl()),
-			    mCast(float,SI().sampling(true).hrg.stop.crl()),
-			    mCast(float,SI().crlStep()) );
+		    mCast(float,SI().sampling(true).hsamp_.start_.crl()),
+		    mCast(float,SI().sampling(true).hsamp_.stop_.crl()),
+		    mCast(float,SI().crlStep()) );
 
     const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
     const BinID stop(start.inl(), mNINT32(crlrange.stop) );
@@ -896,9 +896,9 @@ BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
     BinID binid( binid_ );
     const TrcKeySampling& hs = SI().sampling(true).hrg;
     if ( binid.inl() < hs.start_.inl() ) binid.inl() = hs.start_.inl();
-    if ( binid.inl() > hs.stop.inl() ) binid.inl() = hs.stop.inl();
+    if ( binid.inl() > hs.stop_.inl() ) binid.inl() = hs.stop_.inl();
     if ( binid.crl() < hs.start_.crl() ) binid.crl() = hs.start_.crl();
-    if ( binid.crl() > hs.stop.crl() ) binid.crl() = hs.stop.crl();
+    if ( binid.crl() > hs.stop_.crl() ) binid.crl() = hs.stop_.crl();
 
     SI().snap( binid, BinID(0,0) );
     return binid;

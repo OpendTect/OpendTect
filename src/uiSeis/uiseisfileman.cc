@@ -209,9 +209,9 @@ void uiSeisFileMan::mkFileInfo()
     }
 
 #define mAddRangeTxt(line) \
-    .add(" range: ").add(cs.hrg.start.line).add(" - ") \
-    .add(cs.hrg.stop.line) \
-    .add(" [").add(cs.hrg.step.line).add("]")
+    .add(" range: ").add(cs.hsamp_.start_.line).add(" - ") \
+    .add(cs.hsamp_.stop_.line) \
+    .add(" [").add(cs.hsamp_.step_.line).add("]")
 #define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
 
     const bool zistm = oinf.isTime();
@@ -222,9 +222,9 @@ void uiSeisFileMan::mkFileInfo()
 	if ( oinf.getRanges(cs) )
 	{
 	    txt.setEmpty();
-	    if ( !mIsUdf(cs.hrg.stop.inl()) )
+	    if ( !mIsUdf(cs.hsamp_.stop_.inl()) )
 		{ txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
-	    if ( !mIsUdf(cs.hrg.stop.crl()) )
+	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
 		{ txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
 	    float area = SI().getArea( cs.hrg.inlRange(), cs.hrg.crlRange() );
 	    txt.add("\nArea: ").add( getAreaString( area, true, 0 ) );

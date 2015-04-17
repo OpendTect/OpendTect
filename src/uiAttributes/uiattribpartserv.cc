@@ -972,7 +972,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     mDeclareAndTryAlloc( ConstRefMan<Data2DArray>,
 			 data2darr, Data2DArray(*data2d) );
     TrcKeyZSampling sampling = data2darr->cubesampling_;
-    sampling.hsamp_.start.inl() = sampling.hsamp_.stop.inl() = geomid;
+    sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid;
     sampling.hsamp_.survid_ = Survey::GM().get2DSurvID();
     RegularSeisDataPack* newpack = new RegularSeisDataPack( "" );
     newpack->setSampling( sampling );

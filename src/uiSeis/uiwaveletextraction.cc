@@ -156,7 +156,7 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
     {
 	const SeisIOObjInfo si( seisselfld_->ioobj() );
 	si.getRanges( cs );
-	cs.hrg.step.inl() = cs.hrg.step.crl() = 10;
+	cs.hsamp_.step_.inl() = cs.hsamp_.step_.crl() = 10;
 	subselfld3d_->uiSeisSubSel::setInput( cs );
 	datastep_ = cs.zsamp_.step;
     }

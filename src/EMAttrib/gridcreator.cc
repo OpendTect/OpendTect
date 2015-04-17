@@ -226,7 +226,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
 	TrcKeyZSampling cs = bbox;
-	cs.hrg.start.inl() = cs.hrg.stop.inl() = inlines[idx];
+	cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl() = inlines[idx];
 	BufferString linenm( inlstr.str() );
 	linenm.add( inlines[idx] );
 
@@ -254,7 +254,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     for ( int idx=0; idx<crosslines.size(); idx++ )
     {
 	TrcKeyZSampling cs = bbox;
-	cs.hrg.start.crl() = cs.hrg.stop.crl() = crosslines[idx];
+	cs.hsamp_.start_.crl() = cs.hsamp_.stop_.crl() = crosslines[idx];
 	BufferString linenm( crlstr.str() );
 	linenm.add( crosslines[idx] );
 	mHandleLineGeom

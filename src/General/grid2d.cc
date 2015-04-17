@@ -56,9 +56,9 @@ void Grid2D::Line::limitTo( const TrcKeySampling& hs )
 
     Coord svert[4];
     svert[0] = SI().transform( hs.start_ );
-    svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop.crl()) );
-    svert[2] = SI().transform( hs.stop );
-    svert[3] = SI().transform( BinID(hs.stop.inl(),hs.start_.crl()) );
+    svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    svert[2] = SI().transform( hs.stop_ );
+    svert[3] = SI().transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
 
     Line2 line( SI().transform(start_), SI().transform(stop_) );
     TypeSet<Coord> points;
@@ -90,14 +90,14 @@ void Grid2D::set( const TypeSet<int>& inls, const TypeSet<int>& crls,
     for ( int idx=0; idx<inls.size(); idx++ )
     {
 	const BinID start( inls[idx], hs.start_.crl() );
-	const BinID stop( inls[idx], hs.stop.crl() );
+	const BinID stop( inls[idx], hs.stop_.crl() );
 	dim0lines_ += new Grid2D::Line( start, stop );
     }
 
     for ( int idx=0; idx<crls.size(); idx++ )
     {
 	const BinID start( hs.start_.inl(), crls[idx] );
-	const BinID stop( hs.stop.inl(), crls[idx] );
+	const BinID stop( hs.stop_.inl(), crls[idx] );
 	dim1lines_ += new Grid2D::Line( start, stop );
     }
 }
@@ -161,9 +161,9 @@ void Grid2D::createParallelLines( const Line2& baseline, double dist,
 
     Coord svert[4];
     svert[0] = SI().transform( hs.start_ );
-    svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop.crl()) );
-    svert[2] = SI().transform( hs.stop );
-    svert[3] = SI().transform( BinID(hs.stop.inl(),hs.start_.crl()) );
+    svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    svert[2] = SI().transform( hs.stop_ );
+    svert[3] = SI().transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
 
     Line2 sbound[4];			// Survey boundaries
     for ( int idx=0; idx<4; idx++ )

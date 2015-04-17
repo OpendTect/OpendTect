@@ -1355,8 +1355,8 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	FileMultiString fms(res);
 	TrcKeyZSampling cs;
 	TrcKeySampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zsamp_;
-	hs.start_.inl() = fms.getIValue(0); hs.stop.inl() = fms.getIValue(1);
-	hs.start_.crl() = fms.getIValue(2); hs.stop.crl() = fms.getIValue(3);
+	hs.start_.inl() = fms.getIValue(0); hs.stop_.inl() = fms.getIValue(1);
+	hs.start_.crl() = fms.getIValue(2); hs.stop_.crl() = fms.getIValue(3);
 	zrg.start = fms.getFValue( 4 ); zrg.stop = fms.getFValue( 5 );
 	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
@@ -1430,10 +1430,10 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     par.set( sKeyNumberScenes(), scenes_.size() );
     const TrcKeyZSampling& cs = SI().sampling( true );
     FileMultiString fms;
-    fms += cs.hrg.start.inl();
-    fms += cs.hrg.stop.inl();
-    fms += cs.hrg.start.crl();
-    fms += cs.hrg.stop.crl();
+    fms += cs.hsamp_.start_.inl();
+    fms += cs.hsamp_.stop_.inl();
+    fms += cs.hsamp_.start_.crl();
+    fms += cs.hsamp_.stop_.crl();
     fms += cs.zsamp_.start;
     fms += cs.zsamp_.stop;
     par.set( sKeyWorkArea(), fms );

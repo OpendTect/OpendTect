@@ -704,10 +704,10 @@ void uiGDPositionDlg::popUpPosDlg()
 	if ( !is2d )
 	{
 	    if ( isinl )
-		inputcs.hrg.stop.inl() = inputcs.hrg.start.inl()
+		inputcs.hsamp_.stop_.inl() = inputcs.hsamp_.start_.inl()
 				       = inputcs.hrg.inlRange().snappedCenter();
 	    else
-		inputcs.hrg.stop.crl() = inputcs.hrg.start.crl()
+		inputcs.hsamp_.stop_.crl() = inputcs.hsamp_.start_.crl()
 				       = inputcs.hrg.crlRange().snappedCenter();
 	}
 

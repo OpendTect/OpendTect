@@ -195,17 +195,17 @@ bool EventReader::getBoundingBox( Interval<int>& inlrg,
 	const TrcKeySampling& hrg = reader->getRange();
 	if ( !idx )
 	{
-	    inlrg.start = hrg.start.inl();
-	    inlrg.stop = hrg.stop.inl();
-	    crlrg.start = hrg.start.crl();
-	    crlrg.stop = hrg.stop.crl();
+	    inlrg.start = hrg.start_.inl();
+	    inlrg.stop = hrg.stop_.inl();
+	    crlrg.start = hrg.start_.crl();
+	    crlrg.stop = hrg.stop_.crl();
 	}
 	else
 	{
-	    inlrg.include( hrg.start.inl() );
-	    inlrg.include( hrg.stop.inl() );
-	    crlrg.include( hrg.start.crl() );
-	    crlrg.include( hrg.stop.crl() );
+	    inlrg.include( hrg.start_.inl() );
+	    inlrg.include( hrg.stop_.inl() );
+	    crlrg.include( hrg.start_.crl() );
+	    crlrg.include( hrg.stop_.crl() );
 	}
     }
 
@@ -348,14 +348,14 @@ bool EventReader::prepareWork()
 
        const SeparString sepstr( dirlist[idx]->buf(), '_' );
        TrcKeySampling filehrg;
-       if ( !getFromString( filehrg.start.inl(), sepstr[0], -1 ) ||
-	    !getFromString( filehrg.stop.inl(), sepstr[1], -1 ) ||
-	    !getFromString( filehrg.start.crl(), sepstr[2], -1 ) ||
-	    !getFromString( filehrg.stop.crl(), sepstr[3], -1 ) )
+       if ( !getFromString( filehrg.start_.inl(), sepstr[0], -1 ) ||
+	    !getFromString( filehrg.stop_.inl(), sepstr[1], -1 ) ||
+	    !getFromString( filehrg.start_.crl(), sepstr[2], -1 ) ||
+	    !getFromString( filehrg.stop_.crl(), sepstr[3], -1 ) )
 	    continue;
 
-      if ( inlsampling.snap( filehrg.start.inl() )!=filehrg.start.inl() ||
-	   crlsampling.snap( filehrg.start.crl() )!=filehrg.start.crl() )
+      if ( inlsampling.snap( filehrg.start_.inl() )!=filehrg.start_.inl() ||
+	   crlsampling.snap( filehrg.start_.crl() )!=filehrg.start_.crl() )
 	    continue;
 
 	bool usefile = true;
@@ -606,16 +606,16 @@ int EventWriter::nextStep()
 	for ( int idx=0; idx<rcols.size(); idx++ )
 	{
 	    const RowCol& rc( rcols[idx] );
-	    hrg.start.inl() = inlsampling.atIndex( rc.row() );
-	    hrg.stop.inl() = inlsampling.atIndex( rc.row()+1 ) - hrg.step.inl();
-	    hrg.start.crl() = crlsampling.atIndex( rc.col() );
-	    hrg.stop.crl() = crlsampling.atIndex( rc.col()+1 ) - hrg.step.crl();
+	    hrg.start_.inl() = inlsampling.atIndex( rc.row() );
+	    hrg.stop_.inl() = inlsampling.atIndex(rc.row()+1) - hrg.step_.inl();
+	    hrg.start_.crl() = crlsampling.atIndex( rc.col() );
+	    hrg.stop_.crl() = crlsampling.atIndex(rc.col()+1) - hrg.step_.crl();
 
 	    SeparString filenamebase( 0, '_' );
-	    filenamebase += hrg.start.inl();
-	    filenamebase += hrg.stop.inl();
-	    filenamebase += hrg.start.crl();
-	    filenamebase += hrg.stop.crl();
+	    filenamebase += hrg.start_.inl();
+	    filenamebase += hrg.stop_.inl();
+	    filenamebase += hrg.start_.crl();
+	    filenamebase += hrg.stop_.crl();
 
 
 	    FilePath filename;
@@ -1398,7 +1398,7 @@ int EventPatchWriter::nextStep()
 		continue;
 
 	    if ( bids.size() ) hrg.include( bid );
-	    else { hrg.start = hrg.stop = bid; }
+	    else { hrg.start_ = hrg.stop_ = bid; }
 	    bids += bid;
 	}
 

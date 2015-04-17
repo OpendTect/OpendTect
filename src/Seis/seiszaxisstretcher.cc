@@ -566,11 +566,11 @@ bool SeisZAxisStretcher::loadTransformChunk( int inl )
     if ( chunksize<1 ) chunksize = 1;
 
     curhrg_ = outcs_.hrg;
-    curhrg_.start.inl() = inl;
-    curhrg_.stop.inl() = curhrg_.start.inl() + curhrg_.step.inl() * 
+    curhrg_.start_.inl() = inl;
+    curhrg_.stop_.inl() = curhrg_.start_.inl() + curhrg_.step_.inl() *
 			 (chunksize-1);
-    if ( curhrg_.stop.inl()>outcs_.hrg.stop.inl() )
-	curhrg_.stop.inl() = outcs_.hrg.stop.inl();
+    if ( curhrg_.stop_.inl()>outcs_.hsamp_.stop_.inl() )
+	curhrg_.stop_.inl() = outcs_.hsamp_.stop_.inl();
 
     TrcKeyZSampling cs( outcs_ );
     cs.hrg = curhrg_;

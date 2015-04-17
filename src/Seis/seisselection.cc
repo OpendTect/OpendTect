@@ -190,9 +190,11 @@ void Seis::RangeSelData::copyFrom( const Seis::SelData& sd )
     else
     {
 	Interval<int> rg( sd.inlRange() );
-	tkzs_.hrg.start.inl() = rg.start; tkzs_.hrg.stop.inl() = rg.stop;
+	tkzs_.hsamp_.start_.inl() = rg.start;
+	tkzs_.hsamp_.stop_.inl() = rg.stop;
 	rg = sd.crlRange();
-	tkzs_.hrg.start.crl() = rg.start; tkzs_.hrg.stop.crl() = rg.stop;
+	tkzs_.hsamp_.start_.crl() = rg.start;
+	tkzs_.hsamp_.stop_.crl() = rg.stop;
 	assign( tkzs_.zsamp_, sd.zRange() );
     }
 }
@@ -218,14 +220,16 @@ Interval<float> Seis::RangeSelData::zRange() const
 
 bool Seis::RangeSelData::setInlRange( Interval<int> rg )
 {
-    tkzs_.hrg.start.inl() = rg.start; tkzs_.hrg.stop.inl() = rg.stop;
+    tkzs_.hsamp_.start_.inl() = rg.start;
+    tkzs_.hsamp_.stop_.inl() = rg.stop;
     return true;
 }
 
 
 bool Seis::RangeSelData::setCrlRange( Interval<int> rg )
 {
-    tkzs_.hrg.start.crl() = rg.start; tkzs_.hrg.stop.crl() = rg.stop;
+    tkzs_.hsamp_.start_.crl() = rg.start;
+    tkzs_.hsamp_.stop_.crl() = rg.stop;
     return true;
 }
 
@@ -263,10 +267,10 @@ void Seis::RangeSelData::extendZ( const Interval<float>& zrg )
 
 void Seis::RangeSelData::doExtendH( BinID so, BinID sos )
 {
-    tkzs_.hrg.start.inl() -= so.inl() * sos.inl();
-    tkzs_.hrg.start.crl() -= so.crl() * sos.crl();
-    tkzs_.hrg.stop.inl() += so.inl() * sos.inl();
-    tkzs_.hrg.stop.crl() += so.crl() * sos.crl();
+    tkzs_.hsamp_.start_.inl() -= so.inl() * sos.inl();
+    tkzs_.hsamp_.start_.crl() -= so.crl() * sos.crl();
+    tkzs_.hsamp_.stop_.inl() += so.inl() * sos.inl();
+    tkzs_.hsamp_.stop_.crl() += so.crl() * sos.crl();
 }
 
 
@@ -285,15 +289,20 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
     }
 
     Interval<int> rg( sd.inlRange() );
-    if ( tkzs_.hrg.start.inl() > rg.start ) tkzs_.hrg.start.inl() = rg.start;
-    if ( tkzs_.hrg.stop.inl() < rg.stop ) tkzs_.hrg.stop.inl() = rg.stop;
+    if ( tkzs_.hsamp_.start_.inl() > rg.start )
+	tkzs_.hsamp_.start_.inl() = rg.start;
+    if ( tkzs_.hsamp_.stop_.inl() < rg.stop )
+	tkzs_.hsamp_.stop_.inl() = rg.stop;
     rg = sd.crlRange();
-    if ( tkzs_.hrg.start.crl() > rg.start ) tkzs_.hrg.start.crl() = rg.start;
-    if ( tkzs_.hrg.stop.crl() < rg.stop ) tkzs_.hrg.stop.crl() = rg.stop;
+    if ( tkzs_.hsamp_.start_.crl() > rg.start )
+	tkzs_.hsamp_.start_.crl() = rg.start;
+    if ( tkzs_.hsamp_.stop_.crl() < rg.stop )
+	tkzs_.hsamp_.stop_.crl() = rg.stop;
     const Interval<float> zrg( sd.zRange() );
     if ( tkzs_.zsamp_.start > rg.start )
 	tkzs_.zsamp_.start = mCast(float,rg.start);
-    if ( tkzs_.zsamp_.stop < rg.stop ) tkzs_.zsamp_.stop = mCast(float,rg.stop);
+    if ( tkzs_.zsamp_.stop < rg.stop )
+	tkzs_.zsamp_.stop = mCast(float,rg.stop);
 }
 
 
@@ -301,20 +310,20 @@ int Seis::RangeSelData::selRes( const BinID& bid ) const
 {
     if ( isall_ ) return 0;
 
-    int inlres = tkzs_.hrg.start.inl() > bid.inl() ||
-		 tkzs_.hrg.stop.inl() < bid.inl()
+    int inlres = tkzs_.hsamp_.start_.inl() > bid.inl() ||
+		 tkzs_.hsamp_.stop_.inl() < bid.inl()
 		? 2 : 0;
-    int crlres = tkzs_.hrg.start.crl() > bid.crl() ||
-		 tkzs_.hrg.stop.crl() < bid.crl()
+    int crlres = tkzs_.hsamp_.start_.crl() > bid.crl() ||
+		 tkzs_.hsamp_.stop_.crl() < bid.crl()
 		? 2 : 0;
     int rv = inlres + 256 * crlres;
     if ( rv != 0 ) return rv;
 
-    BinID step( tkzs_.hrg.step.inl(), tkzs_.hrg.step.crl() );
+    BinID step( tkzs_.hsamp_.step_.inl(), tkzs_.hsamp_.step_.crl() );
     if ( step.inl() < 1 ) step.inl() = 1;
     if ( step.crl() < 1 ) step.crl() = 1;
-    inlres = (bid.inl() - tkzs_.hrg.start.inl()) % step.inl() ? 1 : 0;
-    crlres = (bid.crl() - tkzs_.hrg.start.crl()) % step.crl() ? 1 : 0;
+    inlres = (bid.inl() - tkzs_.hsamp_.start_.inl()) % step.inl() ? 1 : 0;
+    crlres = (bid.crl() - tkzs_.hsamp_.start_.crl()) % step.crl() ? 1 : 0;
     return inlres + 256 * crlres;
 }
 
@@ -579,14 +588,14 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 	    { pErrMsg( "Huh" ); }
 	ODPolygon<float>* poly = new ODPolygon<float>;
 	const TrcKeyZSampling& cs = rsd->cubeSampling();
-	poly->add( Geom::Point2D<float>(
-		      (float) cs.hrg.start.inl(), (float) cs.hrg.start.crl()) );
-	poly->add( Geom::Point2D<float>(
-		      (float) cs.hrg.stop.inl(), (float) cs.hrg.start.crl()) );
-	poly->add( Geom::Point2D<float>(
-	              (float) cs.hrg.stop.inl(), (float) cs.hrg.stop.crl()) );
-	poly->add( Geom::Point2D<float>(
-		      (float) cs.hrg.start.inl(), (float) cs.hrg.stop.crl()) );
+	poly->add( Geom::Point2D<float>( (float) cs.hsamp_.start_.inl(),
+					 (float) cs.hsamp_.start_.crl()) );
+	poly->add( Geom::Point2D<float>( (float) cs.hsamp_.stop_.inl(),
+					 (float) cs.hsamp_.start_.crl()) );
+	poly->add( Geom::Point2D<float>( (float) cs.hsamp_.stop_.inl(),
+					 (float) cs.hsamp_.stop_.crl()) );
+	poly->add( Geom::Point2D<float>( (float) cs.hsamp_.start_.inl(),
+					 (float) cs.hsamp_.stop_.crl()) );
 	deepErase( polys_ );
 	polys_ += poly;
     }

@@ -156,11 +156,11 @@ uiSliceScroll( uiSliceSel* ss )
     const TrcKeyZSampling& cs = SI().sampling( false );
     const TrcKeySampling& hs = cs.hrg;
     int step = hs.step_.inl();
-    int maxstep = hs.start_.inl() - hs.stop.inl();
+    int maxstep = hs.start_.inl() - hs.stop_.inl();
     if  ( ss->iscrl_ )
     {
 	step = hs.step_.crl();
-	maxstep = hs.start_.crl() - hs.stop.crl();
+	maxstep = hs.start_.crl() - hs.stop_.crl();
     }
     else if ( ss->istsl_ )
     {
@@ -260,7 +260,7 @@ void doAdvance( bool reversed )
     slcsel_->readInput();
     if ( slcsel_->isinl_ )
     {
-	int newval = slcsel_->tkzs_.hrg.start.inl() + step;
+	int newval = slcsel_->tkzs_.hsamp_.start_.inl() + step;
 	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.inlOK(newval) )
 	    stopAuto( true );
 	else
@@ -268,7 +268,7 @@ void doAdvance( bool reversed )
     }
     else if ( slcsel_->iscrl_ )
     {
-	int newval = slcsel_->tkzs_.hrg.start.crl() + step;
+	int newval = slcsel_->tkzs_.hsamp_.start_.crl() + step;
 	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.crlOK(newval) )
 	    stopAuto( true );
 	else
@@ -427,8 +427,8 @@ void uiSliceSel::readInput()
 
     if ( dogeomcheck_ )
     {
-	SI().snap( tkzs_.hrg.start, BinID(0,0) );
-	SI().snap( tkzs_.hrg.stop, BinID(0,0) );
+	SI().snap( tkzs_.hsamp_.start_, BinID(0,0) );
+	SI().snap( tkzs_.hsamp_.stop_, BinID(0,0) );
     }
 }
 
@@ -437,17 +437,19 @@ void uiSliceSel::updateUI()
 {
     if ( inl0fld_ )
     {
-	Interval<int> inlrg( tkzs_.hrg.start.inl(), tkzs_.hrg.stop.inl() );
-	StepInterval<int> maxinlrg( maxcs_.hrg.start.inl(),
-				    maxcs_.hrg.stop.inl(),
-				    maxcs_.hrg.step.inl() );
+	Interval<int> inlrg( tkzs_.hsamp_.start_.inl(),
+			     tkzs_.hsamp_.stop_.inl() );
+	StepInterval<int> maxinlrg( maxcs_.hsamp_.start_.inl(),
+				    maxcs_.hsamp_.stop_.inl(),
+				    maxcs_.hsamp_.step_.inl() );
 	setBoxValues( inl0fld_->box(), maxinlrg, inlrg.start );
 	setBoxValues( inl1fld_, maxinlrg, inlrg.stop );
     }
 
-    Interval<int> crlrg( tkzs_.hrg.start.crl(), tkzs_.hrg.stop.crl() );
-    StepInterval<int> maxcrlrg( maxcs_.hrg.start.crl(), maxcs_.hrg.stop.crl(),
-				maxcs_.hrg.step.crl() );
+    Interval<int> crlrg( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
+    StepInterval<int> maxcrlrg( maxcs_.hsamp_.start_.crl(),
+				maxcs_.hsamp_.stop_.crl(),
+				maxcs_.hsamp_.step_.crl() );
     setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start );
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
 
@@ -533,15 +535,15 @@ void uiSliceSel::enableScrollButton( bool yn )
 void uiSliceSel::fillPar( IOPar& iop )
 {
     TrcKeyZSampling cs;
-    cs.hrg.start.inl() = is2d_ ? 0 : inl0fld_->box()->getValue();
+    cs.hsamp_.start_.inl() = is2d_ ? 0 : inl0fld_->box()->getValue();
 
     if ( isinl_ )
-	cs.hrg.stop.inl() =  is2d_ ? 0 : inl0fld_->box()->getValue();
+	cs.hsamp_.stop_.inl() =  is2d_ ? 0 : inl0fld_->box()->getValue();
     else
-	cs.hrg.stop.inl() = is2d_ ? 0 : inl1fld_->getValue();
+	cs.hsamp_.stop_.inl() = is2d_ ? 0 : inl1fld_->getValue();
 
-    cs.hrg.start.crl() = crl0fld_->box()->getValue();
-    cs.hrg.stop.crl() = iscrl_ ? crl0fld_->box()->getValue()
+    cs.hsamp_.start_.crl() = crl0fld_->box()->getValue();
+    cs.hsamp_.stop_.crl() = iscrl_ ? crl0fld_->box()->getValue()
 			     : crl1fld_->getValue();
 
     cs.zsamp_.start = mCast( float, z0fld_->box()->getValue() );
@@ -684,10 +686,10 @@ bool uiLinePosSelDlg::selectPos3D()
     else
     {
 	if ( isinl )
-	    inputcs.hrg.stop.inl() = inputcs.hrg.start.inl()
+	    inputcs.hsamp_.stop_.inl() = inputcs.hsamp_.start_.inl()
 				   = inputcs.hrg.inlRange().snappedCenter();
 	else
-	    inputcs.hrg.stop.crl() = inputcs.hrg.start.crl()
+	    inputcs.hsamp_.stop_.crl() = inputcs.hsamp_.start_.crl()
 				   = inputcs.hrg.crlRange().snappedCenter();
 
 	inputcs.zsamp_.start = 0;

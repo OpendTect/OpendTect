@@ -1422,14 +1422,14 @@ void HorizonDisplay::traverseLine( bool oninline, const TrcKeyZSampling& cs,
     int faststop, faststep, slowdim, fastdim;
     if ( oninline )
     {
-	rg = inlrg; targetline = cs.hrg.start.inl();
+	rg = inlrg; targetline = cs.hsamp_.start_.inl();
 	startbid = BinID( targetline, crlrg.start );
 	faststop = crlrg.stop; faststep = crlrg.step;
 	slowdim = 0; fastdim = 1;
     }
     else
     {
-	rg = crlrg; targetline = cs.hrg.start.crl();
+	rg = crlrg; targetline = cs.hsamp_.start_.crl();
 	startbid = BinID( inlrg.start, targetline );
 	faststop = inlrg.stop; faststep = inlrg.step;
 	slowdim = 1; fastdim = 0;
@@ -1850,11 +1850,11 @@ void HorizonDisplay::updateIntersectionLines(
 		drawHorizonOnRandomTrack( trclist, cs.zsamp_, sid,
 		    line, cii, pointgroup );
 	    }
-	    else if ( cs.hrg.start.inl()==cs.hrg.stop.inl() )
+	    else if ( cs.hsamp_.start_.inl()==cs.hsamp_.stop_.inl() )
 	    {
 		traverseLine( true, cs, sid, line, cii, pointgroup );
 	    }
-	    else if ( cs.hrg.start.crl()==cs.hrg.stop.crl() )
+	    else if ( cs.hsamp_.start_.crl()==cs.hsamp_.stop_.crl() )
 	    {
 		traverseLine( false, cs, sid, line, cii, pointgroup );
 	    }

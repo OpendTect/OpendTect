@@ -61,7 +61,7 @@ CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
 	, lastposfo_(0)
 	, hs_(false)
 {
-    hs_.step.inl() = hs_.step.crl() = 1;
+    hs_.step_.inl() = hs_.step_.crl() = 1;
     if ( readInfo(!glob_info_only,forceusecbvsinfo) )
 	toStart();
 }

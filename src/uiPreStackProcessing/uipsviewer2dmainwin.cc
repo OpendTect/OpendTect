@@ -673,7 +673,9 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 void uiStoredViewer2DMainWin::setUpNewSlicePositions()
 {
     const bool isinl = is2d_ || tkzs_.defaultDir()==TrcKeyZSampling::Inl;
-    const int newpos = isinl ? tkzs_.hrg.start.inl() : tkzs_.hrg.start.crl();
+    const int newpos = isinl
+	? tkzs_.hsamp_.start_.inl()
+	: tkzs_.hsamp_.start_.crl();
 
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
     {
@@ -1239,8 +1241,8 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 					       const GatherInfo& ginfo )
 {
     TrcKeyZSampling cs;
-    const int modelnr = (ginfo.bid_.crl() - cs.hrg.stop.crl())
-			/ cs.hrg.step.crl();
+    const int modelnr = (ginfo.bid_.crl() - cs.hsamp_.stop_.crl())
+			/ cs.hsamp_.step_.crl();
     info->setData( modelnr, ginfo.gathernm_ );
 }
 

@@ -181,7 +181,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 	res = new DataPointSet( pts, nms, true );
 	data += res;
 	SectionID sid = 0; 		//multiple sections not used here
-	for ( int idx=hsamp.start.crl(); idx<=hsamp.stop.crl(); idx++ )
+	for ( int idx=hsamp.start_.crl(); idx<=hsamp.stop_.crl(); idx++ )
 	{
 	    Coord3 coords = hor2d->getPos( sid, geomid, idx);
 	    DataPointSet::Pos newpos( coords );
@@ -252,9 +252,9 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
     int nrpos;
     float topz, botz, lastzinter;
     float vals[2];
-    for ( int idi=hs.start_.inl(); idi<=hs.stop.inl(); idi+=SI().inlStep() )
+    for ( int idi=hs.start_.inl(); idi<=hs.stop_.inl(); idi+=SI().inlStep() )
     {
-	for ( int idc=hs.start_.crl(); idc<=hs.stop.crl(); idc+=SI().crlStep() )
+	for ( int idc=hs.start_.crl();idc<=hs.stop_.crl();idc+=SI().crlStep() )
 	{
 	    lastzinter = meanzinter;
 	    if ( !getZInterval( idi, idc, surface1, surface2, topz, botz,

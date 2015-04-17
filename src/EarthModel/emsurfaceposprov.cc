@@ -105,7 +105,7 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 	    if ( veryfirst )
 	    {
 		veryfirst = false;
-		hs.start_ = hs.stop = bid;
+		hs.start_ = hs.stop_ = bid;
 		zrg.start = zrg.stop = (float) coord.z;
 	    }
 	    else
@@ -657,7 +657,7 @@ bool EMImplicitBodyProvider::initialize( TaskRunner* taskr )
     tkzs_ = body->tkzs_;
     threshold_ = body->threshold_;
     
-    curbid_ = tkzs_.hrg.start;
+    curbid_ = tkzs_.hsamp_.start_;
     curz_ = tkzs_.zsamp_.start;
 
     initializedbody_ = true;
@@ -745,10 +745,10 @@ void EMImplicitBodyProvider::getSummary( BufferString& txt ) const
     if ( !useinside_ )
     {
 	txt += "  Within cube range: Inline( ";
-	txt += bbox_.hrg.start.inl(); txt += ", ";
-	txt += bbox_.hrg.stop.inl(); txt += " ), Crossline( ";
-	txt += bbox_.hrg.start.crl(); txt += ", ";
-	txt += bbox_.hrg.stop.crl(); txt += " ), Z( ";
+	txt += bbox_.hsamp_.start_.inl(); txt += ", ";
+	txt += bbox_.hsamp_.stop_.inl(); txt += " ), Crossline( ";
+	txt += bbox_.hsamp_.start_.crl(); txt += ", ";
+	txt += bbox_.hsamp_.stop_.crl(); txt += " ), Z( ";
 	txt += bbox_.zsamp_.start; txt += ", ";
 	txt += bbox_.zsamp_.stop; txt += " ).";
     }
@@ -764,8 +764,8 @@ void EMImplicitBodyProvider::getExtent( BinID& start, BinID& stop ) const
     }
 
     const TrcKeyZSampling& cs = useinside_ ? tkzs_ : bbox_;
-    start = cs.hrg.start;
-    stop = cs.hrg.stop;
+    start = cs.hsamp_.start_;
+    stop = cs.hsamp_.stop_;
 }
 
 
@@ -877,8 +877,8 @@ void EMRegion3DProvider::getSummary( BufferString& txt ) const
 void EMRegion3DProvider::getExtent( BinID& start, BinID& stop ) const
 {
     TrcKeyZSampling tkzs; getTrcKeyZSampling( tkzs );
-    start = tkzs.hrg.start;
-    stop = tkzs.hrg.stop;
+    start = tkzs.hsamp_.start_;
+    stop = tkzs.hsamp_.stop_;
 }
 
 
