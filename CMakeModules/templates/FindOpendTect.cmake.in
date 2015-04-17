@@ -9,6 +9,7 @@
 set( OpendTect_VERSION_MAJOR @OpendTect_VERSION_MAJOR@ )
 set( OpendTect_VERSION_MINOR @OpendTect_VERSION_MINOR@ )
 set( OpendTect_VERSION_PATCH @OpendTect_VERSION_PATCH@ )
+set( OpendTect_FULL_VERSION "@OpendTect_FULL_VERSION@" )
 
 #Setup OpendTect's binary location (if not done)
 if ( NOT DEFINED OD_BINARY_BASEDIR )
