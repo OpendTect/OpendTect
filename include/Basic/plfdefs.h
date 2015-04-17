@@ -207,8 +207,10 @@ Always defined:
 #undef mUnusedVar
 #if defined( __gnuc__ )
 # define mUnusedVar __attribute__ ((unused))
+# define mDepreciated __attribute__ ((deprecated))
 #else
 # define mUnusedVar
+# define mDepreciated
 #endif
 
 /* And, probably unnecessary, for external header files: */
