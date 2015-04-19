@@ -202,6 +202,8 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 			selwellstbl_->getCellObject(RowCol(idx,1)))
 	if ( box ) box->setName( BufferString("Type",idx) );
     }
+
+    ptsSel(0);
 }
 
 
@@ -320,6 +322,8 @@ void uiWellSelGrp::moveButPush( CallBacker* cb )
 			selwellstbl_->getCellObject(RowCol(idx,1)))
 	if ( wellbox ) wellbox->setName( BufferString("Type",idx) );
     }
+
+    ptsSel(0);
 }
 
 
@@ -335,7 +339,7 @@ int uiWellSelGrp::getFirstEmptyRow()
 }
 
 
-void uiWellSelGrp::ptsSel( CallBacker* cb )
+void uiWellSelGrp::ptsSel( CallBacker* )
 {
     for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
     {
@@ -391,7 +395,7 @@ void uiWell2RandomLineDlg::createFields()
 	CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
 	previewbutton_ = new uiPushButton( this, tr("Preview"), cb, true );
 	previewbutton_->attach( ensureBelow, sep );
-	dispfld_ = new uiCheckBox( this, 
+	dispfld_ = new uiCheckBox( this,
 				   tr("Display Random Line on creation") );
 	dispfld_->setChecked( true );
     }
