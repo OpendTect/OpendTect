@@ -87,6 +87,7 @@ protected:
 					    bool isadd);
 
     virtual uiObject*	lastObject();
+    void		finaliseCB(CallBacker*);
     void		selChg(CallBacker*);
     void		typeChg(CallBacker*);
     int			nrItems() const;
@@ -102,14 +103,18 @@ protected:
 mExpClass(uiBasemap) uiBasemapParentTreeItem : public uiTreeItem
 {
 public:
+    virtual		~uiBasemapParentTreeItem();
     int			ID() const		{ return id_; }
 
 protected:
 			uiBasemapParentTreeItem(const char* nm,int id)
 			    : uiTreeItem(nm), id_(id)		{}
 
+    bool		init();
     virtual bool	showSubMenu();
+    virtual void	checkCB(CallBacker*);
 
+    int			uiTreeViewItemType() const;
     const char*		parentType() const
 			{ return typeid(uiBasemapTreeTop).name(); }
     int			id_;
@@ -122,13 +127,13 @@ public:
     virtual		~uiBasemapTreeItem();
 
     int			ID() const		{ return id_; }
-    int			uiTreeViewItemType() const;
-
     void		setFamilyID( int id )	{ familyid_ = id; }
     int			getFamilyID() const	{ return familyid_; }
 
     static int		sEditID()		{ return 100; }
     static int		sRemoveID()		{ return 999; }
+
+    void		show(bool yn);
 
     const IOPar&	pars() const		{ return pars_; }
     virtual bool	usePar(const IOPar&);
@@ -151,6 +156,7 @@ protected:
 
     virtual bool	showSubMenu();
     virtual bool	handleSubMenu(int);
+    int			uiTreeViewItemType() const;
     virtual const char* parentType() const
 			{ return typeid(uiBasemapTreeTop).name(); }
 
