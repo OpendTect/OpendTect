@@ -166,7 +166,7 @@ void TileResolutionData::dirtyGeometry( int type )
 
 void TileResolutionData::hideFromDisplay()
 {
-    mClearPrimitiveSet;
+    mClearOsgPrimitiveSet;
 }
 
 
