@@ -272,6 +272,7 @@ HorizonSection::HorizonSection()
 
 HorizonSection::~HorizonSection()
 {
+    detachAllNotifiers();
     hortexturehandler_->getOsgTexture()->removeCallback(
 						    texturecallbackhandler_ );
     texturecallbackhandler_->unref();
@@ -295,13 +296,6 @@ HorizonSection::~HorizonSection()
 	writeUnLock();
     }
     
-    if ( geometry_ )
-    {
-	CallBack cb =  mCB(this,HorizonSection,surfaceChangeCB);
-	geometry_->movementnotifier.remove( cb );
-	geometry_->nrpositionnotifier.remove( cb );
-    }
-
     if ( transformation_ ) transformation_->unRef();
    
     hordatahandler_->unRef();
@@ -425,9 +419,10 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
     if ( connect )
     {
 	geometry_ = surf;
-	CallBack cb =  mCB( this, HorizonSection, surfaceChangeCB );
-	geometry_->movementnotifier.notify( cb );
-	geometry_->nrpositionnotifier.notify( cb );
+	mAttachCB( geometry_->movementnotifier,
+				    HorizonSection::surfaceChangeCB ); 
+	mAttachCB( geometry_->nrpositionnotifier,
+				    HorizonSection::surfaceChangeCB );
     }
 
     configSizeParameters();
