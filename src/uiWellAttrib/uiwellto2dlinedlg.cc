@@ -30,10 +30,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
+#include "od_helpids.h"
+
 uiWellTo2DLineDlg::uiWellTo2DLineDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Create 2D line"),
 				 tr("Select wells to set up the 2D line path"),
-				 mTODOHelpKey) )
+				 mODHelpKey(mWellto2DLineDlgHelpID)) )
     , wellselgrp_(new uiWellSelGrp(this))
     , wantspreview_(this)
     , rl_(0)
