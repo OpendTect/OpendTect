@@ -370,51 +370,6 @@ bool FaultAscIO::isXY() const
 }
 
 
-struct FaultStick
-{
-    			FaultStick(int idx)	: stickidx_(idx)	{}
-
-    int			stickidx_;
-    TypeSet<Coord3>	crds_;
-    BufferString	lnm_;
-
-
-Coord3 getNormal( bool is2d ) const
-{
-    // TODO: Determine edit normal for sticks picked on 2D lines
-
-    const int maxdist = 5;
-    int oninl = 0; int oncrl = 0; int ontms = 0;
-
-    for ( int idx=0; idx<crds_.size()-1; idx++ )
-    {
-	const BinID bid0 = SI().transform( crds_[idx] );
-	for ( int idy=idx+1; idy<crds_.size(); idy++ )
-	{
-	    const BinID bid1 = SI().transform( crds_[idy] );
-	    const int inldist = abs( bid0.inl()-bid1.inl() );
-	    if ( inldist < maxdist )
-		oninl += maxdist - inldist;
-	    const int crldist = abs( bid0.crl()-bid1.crl() );
-	    if ( crldist < maxdist )
-		oncrl += maxdist - crldist;
-	    const int zdist = mNINT32( fabs(crds_[idx].z-crds_[idy].z) /
-			             fabs(SI().zStep()) );
-	    if ( zdist < maxdist )
-		ontms += maxdist - zdist;
-	}
-    }
-
-    if ( ontms>oncrl && ontms>oninl && !is2d )
-	return Coord3( 0, 0, 1 );
-
-    return oncrl>oninl ? Coord3( SI().binID2Coord().crlDir(), 0 )
-		       : Coord3( SI().binID2Coord().inlDir(), 0 );
-}
-
-};
-
-
 bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 		      bool is2d ) const
 {
@@ -539,6 +494,40 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 
     deepErase( sticks );
     return true;
+}
+
+
+Coord3	FaultStick::getNormal( bool is2d ) const
+{
+    // TODO: Determine edit normal for sticks picked on 2D lines
+
+    const int maxdist = 5;
+    int oninl = 0; int oncrl = 0; int ontms = 0;
+
+    for ( int idx=0; idx<crds_.size()-1; idx++ )
+    {
+	const BinID bid0 = SI().transform( crds_[idx] );
+	for ( int idy=idx+1; idy<crds_.size(); idy++ )
+	{
+	    const BinID bid1 = SI().transform( crds_[idy] );
+	    const int inldist = abs( bid0.inl()-bid1.inl() );
+	    if ( inldist < maxdist )
+		oninl += maxdist - inldist;
+	    const int crldist = abs( bid0.crl()-bid1.crl() );
+	    if ( crldist < maxdist )
+		oncrl += maxdist - crldist;
+	    const int zdist = mNINT32( fabs(crds_[idx].z-crds_[idy].z) /
+			             fabs(SI().zStep()) );
+	    if ( zdist < maxdist )
+		ontms += maxdist - zdist;
+	}
+    }
+
+    if ( ontms>oncrl && ontms>oninl && !is2d )
+	return Coord3( 0, 0, 1 );
+
+    return oncrl>oninl ? Coord3( SI().binID2Coord().crlDir(), 0 )
+		       : Coord3( SI().binID2Coord().inlDir(), 0 );
 }
 
 
