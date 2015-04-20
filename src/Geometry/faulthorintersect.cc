@@ -34,7 +34,7 @@ FBIntersectionCalculator( const BinIDSurface& surf, float surfshift,
 
 ~FBIntersectionCalculator()		{ stickintersections_.erase(); }
 od_int64 nrIterations() const   	{ return shape_.getGeometry().size(); }
-const TypeSet<Coord3>& result() const	{ return finalres_; }
+TypeSet<Coord3>& result() 		{ return finalres_; }
 
 bool doPrepare( int )
 {
@@ -316,16 +316,15 @@ void addAndSortToResult( TypeSet<Coord3>& res, TypeSet<Coord3> ni )
 	else if ( d01 <= d11 && d01 <= d00 && d01 <= d10 )
 	{
 	    for ( int k=nilastidx; k>=0; k-- )
-    		res.insert(0,ni[k]);
+    		res.insert( 0,ni[k] );
 	}
 	else
 	{
-	    for ( int k=0; k<=nilastidx; k++ )
-    		res.insert(0,ni[k]);
+	    for( int k = 0; k<=nilastidx; k++ )
+		res.insert( 0,ni[k] );
 	}
     }
 }
-
 const ExplFaultStickSurface&	shape_;
 const BinIDSurface&		surf_;
 Interval<float>			surfzrg_;
@@ -365,11 +364,17 @@ void FaultBinIDSurfaceIntersector::compute()
     if ( !calculator.execute() )
 	return;
 
-    const TypeSet<Coord3>& res = calculator.result();
-    const int possize = res.size();
+    TypeSet<Coord3>& calcres = calculator.result();
+    const int possize = calcres.size();
     if ( !possize ) 
 	return;
-    
+
+    TypeSet<Coord3> res;
+    sortPointsToLine( calcres, res );
+
+    if ( res.size()==0 )
+	return;
+
     IndexedGeometry* geo = !output_ || !output_->getGeometry().size() ? 0 :
 	const_cast<IndexedGeometry*>(output_->getGeometry()[0]);
 
@@ -387,6 +392,47 @@ void FaultBinIDSurfaceIntersector::compute()
 	idxps->append( crdlist_.add( res[idx] ) );
 
     geo->ischanged_ = true;
+}
+
+
+void FaultBinIDSurfaceIntersector::sortPointsToLine( 
+    TypeSet<Coord3>& in, TypeSet<Coord3>& out )
+{
+    out.erase();
+    const Coord3 startpoint = in[0];
+    Coord3 pnt = findNearestPoint( startpoint, in );
+
+    while ( pnt.isDefined() )
+    {
+	out += pnt;
+	pnt = findNearestPoint( pnt, in );
+    }
+
+}
+
+
+const Coord3 FaultBinIDSurfaceIntersector::findNearestPoint( 
+    const Coord3& pnt,	TypeSet<Coord3>& res )
+{
+    double dist = MAXFLOAT;
+    int distidx = -1;
+    for ( int idx=0; idx<res.size(); idx++ )
+    {
+	const double disval = pnt.sqDistTo( res[idx] );
+	if ( disval< dist )
+	{
+	    dist = disval;
+	    distidx = idx;
+	}
+    }
+
+    if ( distidx==-1 )
+	return  Coord3().udf();
+
+    const Coord3 retpnt = res[distidx];
+    res.removeSingle( distidx );
+
+    return retpnt;
 }
 
 
