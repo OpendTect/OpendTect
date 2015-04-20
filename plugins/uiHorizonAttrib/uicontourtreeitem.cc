@@ -940,7 +940,7 @@ void uiContourTreeItem::startCreateUICContours()
 	return;
 
     bool showcontours = lines_->turnOn( false );
-    bool showlabels = labels_  && labels_->turnOn( false );
+    bool showlabels = labels_ && labels_->turnOn( false );
 
     uiContourTreeItemContourGenerator ctrgtr ( this, field );
     uiTaskRunner taskrunner( ODMainWin() );
@@ -948,7 +948,8 @@ void uiContourTreeItem::startCreateUICContours()
     {
 	setLabels( ctrgtr.getLabels() );
 	lines_->turnOn( showcontours );
-	labels_->turnOn( showlabels );
+	if ( labels_ )
+	    labels_->turnOn( showlabels );
         areas_ = ctrgtr.getAreas();
 
         bool validfound = false;
@@ -1152,7 +1153,7 @@ void uiContourTreeItem::updateZShift()
 
     lines_->dirtyCoordinates();
 
-    for ( int idx=0; idx<labels_->nrTexts(); idx++ )
+    for ( int idx=0; labels_ && idx<labels_->nrTexts(); idx++ )
     {
 	Coord3 pos = labels_->text(idx)->getPosition();
 	pos.z += deltaz;
