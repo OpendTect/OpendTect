@@ -186,7 +186,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	else if ( menuid == 1 )
 	    newtkzs.hsamp_.setTrcRange( Interval<int>(bid.crl(),bid.crl()) );
 	else if ( menuid == 2 )
-	    newtkzs.zsamp_ = Interval<float>( coord.z, coord.z );
+	    newtkzs.zsamp_ = Interval<float>( (float)coord.z, (float)coord.z );
 
 	create2DViewer( *curvwr2d, newtkzs );
     }
