@@ -66,6 +66,9 @@ mGlobal(Basic) float Log10(float);
    value is given, zero is returned. */
 mGlobal(Basic) float Sqrt(float);
 
+/*! Zeroth order modified Bessel function of the first kind */
+mGlobal(Basic) float BesselI0(float);
+
 mGlobal(Basic) float_complex Sqrt(const float_complex&);
 
 /*!Checks the input range before calling exp, if too large
@@ -111,6 +114,7 @@ mGlobal(Basic) double Log10(double);
 mGlobal(Basic) double Exp(double);
 mGlobal(Basic) double Sqrt(double);
 mGlobal(Basic) double toDB(double);
+mGlobal(Basic) double BesselI0(double);
 
 template <class iT,class iPOW> inline
 iT IntPowerOf( iT i, iPOW p )

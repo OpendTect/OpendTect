@@ -24,7 +24,8 @@ mTYPE Math::ACos( mTYPE c )
 
 mTYPE Math::ASin( mTYPE s )
 {
-    return (mTYPE) s >= 1 ? mTYPE(M_PI_2) : (s <= -1 ? -mTYPE(M_PI_2) : asin( s ));
+    return (mTYPE) s >= 1 ? mTYPE(M_PI_2)
+			  : (s <= -1 ? -mTYPE(M_PI_2) : asin( s ));
 }
 
 
@@ -102,4 +103,25 @@ mTYPE Math::IntPowerOf( mTYPE x, int y )
 	    { ret /= x; y++; }
     }
     return ret;
+}
+
+
+mTYPE Math::BesselI0( mTYPE x )
+{
+    if ( mIsUdf(x) )
+	return mUdf(mTYPE);
+
+    double xx = (mTYPE)x;
+    xx *= xx;
+    double s = 1.;
+    double ds = 1.;
+    double d = 0.;
+    while ( ds > s * DBL_EPSILON )
+    {
+	d += 2.;
+	ds *= xx / ( d*d );
+	s += ds;
+    }
+
+    return (mTYPE)s;
 }

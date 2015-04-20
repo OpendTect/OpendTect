@@ -11,8 +11,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
- 
+
+
 #include "algomod.h"
 #include "factory.h"
 #include "mathfunc.h"
@@ -30,10 +30,10 @@ public:
     virtual const char*	name() const			= 0;
     virtual bool	hasVariable() const		{ return false; }
     virtual float	getVariable() const		{ return mUdf(float); }
-    virtual bool  	setVariable(float)		{ return true; }
+    virtual bool	setVariable(float)		{ return true; }
     virtual const char*	variableName() const		{ return 0; }
 
-    static const char*	sKeyVariable() 			{ return "Variable"; }
+    static const char*	sKeyVariable()			{ return "Variable"; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -80,13 +80,43 @@ public:
 
     bool			hasVariable() const	{ return true; }
     float			getVariable() const	{ return threshold_; }
-    bool  			setVariable(float);
+    bool			setVariable(float);
     const char*			variableName() const{return "Taper length";}
 
 protected:
 
     float			threshold_;
     float			factor_;
+};
+
+
+/*!
+\brief Kaiser Window Function
+*/
+
+mExpClass(Algo) KaiserWindow : public WindowFunction
+{
+public:
+
+    mDeclWFStdFns(Kaiser)
+
+				KaiserWindow();
+
+    bool			hasVariable() const	{ return true; }
+    float			getVariable() const	{ return width_; }
+    bool			setVariable(float);
+    void			setNumberSamples(int);
+    float			getError() const;
+    const char*			variableName() const
+				{ return "transition width"; }
+
+protected:
+
+    float			width_;
+    double			alpha_;
+    double			scale_;
+    int				nrsamp_;
+    double			xxmax_;
 };
 
 

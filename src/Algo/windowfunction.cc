@@ -23,6 +23,7 @@ void WindowFunction::addAllStdClasses()
     mInitStdWFClass(Hanning);
     mInitStdWFClass(Blackman);
     mInitStdWFClass(FlatTop);
+    mInitStdWFClass(Kaiser);
 }
 
 
@@ -71,7 +72,7 @@ mImplClass(Hamming)
     return (float) ( 0.54 + 0.46 * cos( M_PI * x ) );
 }
 mImplClass(Blackman)
-    return (float) ( 0.42 + 0.5 * cos( M_PI * x ) + 
+    return (float) ( 0.42 + 0.5 * cos( M_PI * x ) +
 				  0.08 * cos( 2 * M_PI * x ) );
 }
 mImplClass(FlatTop)
@@ -82,18 +83,85 @@ mImplClass(FlatTop)
 		+ 0.032f * cos( 4 * pi_x )) / 4.64f;
 }
 mImplClass(CosTaper)
-    if ( x < threshold_ ) return 1;
+    if ( x < threshold_ )
+       return 1;
     x -= threshold_; x *= factor_;
     return (float) ( (1 + cos( M_PI * x )) * .5 );
+}
+mImplClass(Kaiser)
+    if ( x > 0.5 )
+       return 0.f;
+
+    double xx = mCast(double,nrsamp_-1) * mCast(double,x);
+    xx *= xx;
+    const double val = scale_*Math::BesselI0( alpha_*Math::Sqrt(1-xx/xxmax_) );
+
+    return mCast(float,val);
 }
 
 
 bool CosTaperWindow::setVariable( float threshold )
 {
-    if ( threshold<0 || threshold>1 ) return false;
+    if ( threshold<0 || threshold>1 )
+	return false;
 
     threshold_ = threshold;
     factor_ = 1.0f / (1-threshold);
 
     return true;
 }
+
+
+KaiserWindow::KaiserWindow()
+    : width_(mUdf(float))
+{
+    setNumberSamples( 11 );
+    setVariable( 0.4 );
+}
+
+
+bool KaiserWindow::setVariable( float width )
+{
+    if ( width<0. || width>1.f )
+	return false;
+
+    width_ = width;
+    double a = 14.36 * mCast(double,width_) * mCast(double,nrsamp_) + 7.95;
+    if ( a <= 21. )
+	alpha_ = 0.;
+    else if ( a <= 50. )
+    {
+	a -= 21.;
+	alpha_ = 0.5842 * Math::PowerOf(a,0.4) + 0.07886 * a;
+    }
+    else
+    {
+	a -= 8.7;
+	alpha_ = 0.1102 * a;
+    }
+
+    scale_ = 1./ Math::BesselI0(alpha_);
+
+    return true;
+}
+
+
+void KaiserWindow::setNumberSamples( int ns )
+{
+    nrsamp_ = ns;
+    const double nrsampd = mCast(double,ns);
+    xxmax_ = 0.25 * nrsampd * nrsampd;
+    if ( !mIsUdf(width_) )
+	setVariable( width_ );
+}
+
+
+float KaiserWindow::getError() const
+{
+    if ( mIsUdf(width_) )
+	return mUdf(float);
+
+    const double a = 14.36 * mCast(double,width_) * mCast(double,nrsamp_) +7.95;
+    return (float)Math::PowerOf( 10, -a/20 );
+}
+
