@@ -117,6 +117,22 @@ protected:
 };
 
 
+/*!
+\brief Class to hold Fault-stick coordinates and compute the normal.
+*/
+
+mExpClass(EarthModel)	FaultStick
+{
+public:
+    			FaultStick(int idx)	: stickidx_(idx)	{}
+
+    Coord3		getNormal(bool is2d) const;
+
+    int			stickidx_;
+    TypeSet<Coord3>	crds_;
+    BufferString	lnm_;
+};
+
 } // namespace EM
 
 
