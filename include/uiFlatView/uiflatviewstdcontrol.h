@@ -71,9 +71,6 @@ public:
     virtual uiToolBar*	toolBar()		{ return tb_; }
     virtual uiFlatViewColTabEd* colTabEd()	{ return ctabed_; }
     void		setEditMode(bool yn);
-    /*void		setPositionsPerCM( float pospercm, bool forx1 )
-			{ forx1 ? setup_.x1pospercm_ = pospercm
-				: setup_.x2pospercm_ = pospercm; }*/
     void		setHomeZoomViews();
     float		getPositionsPerCM( bool forx1 ) const
 			{ return forx1 ? setup_.x1pospercm_
