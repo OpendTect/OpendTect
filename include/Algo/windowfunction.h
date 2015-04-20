@@ -90,6 +90,36 @@ protected:
 };
 
 
+/*!
+\brief Kaiser Window Function
+*/
+
+mExpClass(Algo) KaiserWindow : public WindowFunction
+{
+public:
+
+    mDeclWFStdFns(Kaiser)
+
+				KaiserWindow();
+
+    bool			hasVariable() const	{ return true; }
+    float			getVariable() const	{ return width_; }
+    bool			setVariable(float);
+    void			setNumberSamples(int);
+    float			getError() const;
+    const char*			variableName() const
+				{ return "transition width"; }
+
+protected:
+
+    float			width_;
+    double			alpha_;
+    double			scale_;
+    int				nrsamp_;
+    double			xxmax_;
+};
+
+
 mDefineFactory(Algo,WindowFunction,WINFUNCS);
 
 
