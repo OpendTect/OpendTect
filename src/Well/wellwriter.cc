@@ -91,7 +91,6 @@ bool Well::Writer::fnnm() const { return wa_ ? wa_->fnnm() : false; }
 
 mImplSimpleWWFn(put)
 mImplSimpleWWFn(putInfoAndTrack)
-mImplSimpleWWFn(putTrack)
 mImplSimpleWWFn(putLogs)
 mImplSimpleWWFn(putMarkers)
 mImplSimpleWWFn(putD2T)

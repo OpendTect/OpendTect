@@ -41,7 +41,6 @@ public:
     bool		put() const;		//!< Just write all
 
     bool		putInfoAndTrack() const;//!< Write Info and track
-    bool		putTrack() const;	//!< Write track only
     bool		putLogs() const;	//!< Write logs only
     bool		putMarkers() const;	//!< Write Markers only
     bool		putD2T() const;		//!< Write D2T model only
@@ -60,6 +59,8 @@ protected:
 
     WriteAccess*	wa_;
     mutable BufferString errmsg_;
+
+    bool		putTrack() const;
 
 private:
 
