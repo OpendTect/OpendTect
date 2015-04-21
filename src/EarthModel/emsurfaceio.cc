@@ -999,6 +999,7 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
     bool isrowused = false;
     const int filerow = currentRow();
     const SectionID sectionid = sectionids_[sectionindex_];
+    Array2D<float>* arr = arrparam.getParam( this );
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
 	const int filecol = firstcol+colindex*colrange_.step;
@@ -1040,7 +1041,14 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	if ( !surface_->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-	surface_->setPos( sectionid, surfrc.toInt64(), pos, false );
+	if ( !arr )
+	    surface_->setPos( sectionid, surfrc.toInt64(), pos, false );
+	else
+	{
+	    int i, j;
+	    if ( getIndices(surfrc,i,j) )
+		arr->set( i, j, mCast(float,pos.z) );
+	}
 
 	isrowused = true;
     }
@@ -1058,6 +1066,7 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
     const int filerow = currentRow();
     bool isrowused = false;
     const SectionID sectionid = sectionids_[sectionindex_];
+    Array2D<float>* arr = arrparam.getParam( this );
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
 	const int filecol = firstcol+colindex*colrange_.step;
@@ -1094,7 +1103,14 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	if ( !surface_->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-	surface_->setPos( sectionid, rowcol.toInt64(), pos, false );
+	if ( !arr )
+	    surface_->setPos( sectionid, rowcol.toInt64(), pos, false );
+	else
+	{
+	    int i, j;
+	    if ( getIndices(rowcol,i,j) )
+		arr->set( i, j, mCast(float,pos.z) );
+	}
 
 	isrowused = true;
     }
@@ -1310,7 +1326,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    {
 		int i, j;
 		if ( getIndices(myrc,i,j) )
-		    arr->set( i, j, pos.z );
+		    arr->set( i, j, mCast(float,pos.z) );
 	    }
 	    else
 		surface_->setPos( sectionid, myrc.toInt64(), pos, false );
