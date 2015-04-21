@@ -28,7 +28,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include "survinfo.h"
 
-
 namespace SEGY
 {
 
@@ -389,6 +388,66 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
 }
 
 
+bool SEGY::DirectDef::readFooter( const char* fnm, IOPar& pars,
+				  od_stream_Pos& offset )
+{
+    od_istream istrm( fnm );
+    if ( !istrm.isOK() )
+	return false;
+
+    ascistream astrm( istrm, true );
+    if ( !astrm.isOfFileType(sKeyFileType()) )
+	return false;
+
+    IOPar iop1; iop1.getFrom( astrm );
+    int version = 1;
+    iop1.get( sKey::Version(), version );
+    if ( version<=1 || version>2 )
+	return false;
+
+    IOPar segypars;
+    segypars.getFrom( astrm );
+
+    PtrMan<DataInterpreter<od_int64> > int64interp =
+	DataInterpreter<od_int64>::create(iop1,sKeyInt64DataChar(),false );
+
+    const od_stream::Pos datastart mUnusedVar =
+	DataInterpreter<od_int64>::get(int64interp,istrm);
+    offset = DataInterpreter<od_int64>::get(int64interp,istrm);
+
+    istrm.setPosition( offset );
+    ascistream astrm2( istrm, false );
+    pars.getFrom( astrm2 );
+    return istrm.isOK();
+}
+
+
+bool SEGY::DirectDef::updateFooter( const char* fnm, const IOPar& pars,
+				    od_stream_Pos offset )
+{
+    od_ostream ostrm( fnm, true );
+    if ( !ostrm.isOK() )
+	return false;
+
+    ostrm.setPosition( offset );
+    ascostream astrm2( ostrm );
+    pars.putTo( astrm2 );
+    od_stream_Pos endpos = ostrm.endPosition();
+    od_stream_Pos usedsize = ostrm.position();
+    od_stream_Pos nrcharstopadup = endpos - usedsize;
+    for ( int idx=0; idx<nrcharstopadup-1; idx++ )
+	ostrm.add( '#' );
+
+    ostrm.add( '\n' );
+    if ( !ostrm.isOK() )
+	return false;
+
+    ostrm.close();
+    File::resize( fnm, usedsize );
+    return true;
+}
+
+
 bool SEGY::DirectDef::writeFootersToFile()
 {
     if ( !outstream_ )
@@ -501,7 +560,7 @@ const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
 const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( unm );
-    return geomid == Survey::GM().cUndefGeomID() ? 0 
+    return geomid == Survey::GM().cUndefGeomID() ? 0
 				: get2DFileName( dirnm, geomid );
 }
 
@@ -527,9 +586,9 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
     }
 
     if ( is2d && geomid_ == mUdfGeomID )
-    { 
+    {
 	delete ioobj_; ioobj_ = 0; msg_ = tr("2D Line ID not specified");
-	return; 
+	return;
     }
 
     scanner_ = new SEGY::Scanner( sgyfile,
