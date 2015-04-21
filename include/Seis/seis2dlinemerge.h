@@ -39,6 +39,8 @@ public:
     uiString		uiNrDoneText() const	{ return nrdonemsg_; }
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
+    void		setOutGeomID( const Pos::GeomID& outgid )
+			{ outgeomid_ = outgid; }
     int			nextStep();
 
     MultiID		lsID() const; //deprecated

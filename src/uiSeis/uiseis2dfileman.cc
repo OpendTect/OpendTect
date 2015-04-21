@@ -235,20 +235,21 @@ void uiSeis2DFileMan::browsePush( CallBacker* )
 
 
 class uiSeis2DFileManMergeDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSeis2DFileManMergeDlg);
 public:
 
 uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 			 const BufferStringSet& sellns )
-    : uiDialog(p,Setup("Merge lines","Merge two lines into a new one",
+    : uiDialog(p,Setup(tr("Merge lines"),tr("Merge two lines into a new one"),
 		       mODHelpKey(mSeis2DFileManMergeDlgHelpID) ) )
     , objinf_(objinf)
 {
     uiGroup* geomgrp = new uiGroup( this );
     BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
     uiLabeledComboBox* lcb1 =
-	new uiLabeledComboBox( geomgrp, lnms, "First line" );
-    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp, lnms, "Add" );
+	new uiLabeledComboBox( geomgrp, lnms, tr("First line") );
+    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp, lnms,
+						     uiStrings::sAdd(true) );
     lcb2->attach( alignedBelow, lcb1 );
     ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
     ln1fld_->setCurrentItem( sellns.get(0) );
@@ -266,8 +267,8 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     mrgoptfld_->attach( alignedBelow, lcb2 );
     mrgoptfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
 
-
-    renumbfld_ = new uiGenInput( geomgrp, "Renumber; Start/step numbers",
+	
+    renumbfld_ = new uiGenInput( geomgrp, tr("Renumber; Start/step numbers"),
 				 IntInpSpec(1), IntInpSpec(1) );
     renumbfld_->setWithCheck( true );
     renumbfld_->setChecked( true );
@@ -276,23 +277,24 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     double defsd = SI().crlDistance() / 2;
     if ( SI().xyInFeet() ) defsd *= mToFeetFactorD;
     snapdistfld_ =
-	new uiGenInput( geomgrp, "Snap distance", DoubleInpSpec(defsd) );
+	new uiGenInput( geomgrp, tr("Snap distance"), DoubleInpSpec(defsd));
     snapdistfld_->attach( alignedBelow, renumbfld_ );
 
-    outfld_ = new uiGenInput( geomgrp, "New line name", StringInpSpec() );
+    outfld_ = new uiGenInput( geomgrp, tr("New line name"), StringInpSpec() );
     outfld_->attach( alignedBelow, snapdistfld_ );
 
     uiSeparator* horsep = new uiSeparator( this, "", OD::Vertical );
     horsep->attach( stretchedRightTo, geomgrp );
     uiGroup* datagrp = new uiGroup( this );
-    stckfld_ = new uiGenInput( datagrp, "Duplicate positions",
-			       BoolInpSpec(true,"Stack","Use first") );
+    stckfld_ = new uiGenInput( datagrp, tr("Duplicate positions"),
+			       BoolInpSpec(true,tr("Stack"),tr("Use first")) );
     datagrp->setHAlignObj( stckfld_->attachObj() );
     datagrp->attach( rightTo, geomgrp );
     datagrp->attach( ensureRightOf, horsep );
 
     uiLabeledListBox* datalcb =
-	new uiLabeledListBox( datagrp, "Datas to merge", OD::ChooseAtLeastOne,
+	new uiLabeledListBox( datagrp, tr("Datas to merge"),
+			      OD::ChooseAtLeastOne,
 			      uiLabeledListBox::LeftMid );
     data2mergefld_ = datalcb->box();
     datalcb->attach( alignedBelow, stckfld_ );
@@ -341,24 +343,47 @@ bool acceptOK( CallBacker* )
 {
     const char* outnm = outfld_->text();
     if ( !outnm || !*outnm )
-	mErrRet( "Please enter a name for the merged line" );
+	mErrRet( tr("Please enter a name for the merged line") );
 
     Pos::GeomID outgeomid = Survey::GM().getGeomID( outnm );
     if ( outgeomid != Survey::GeometryManager::cUndefGeomID() )
-	mErrRet( "Geometry of same line name already present. "
-		 "If you want to overwrite, first remove the geometry "
-		 "via 'Manage>>Geometry 2D'" );
+    {
+	 uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
+			   "its geometry, all the associated data will be "
+			   "affected. Do you still want to overwrite?")
+				.arg( outnm );
+	 if ( !uiMSG().askOverwrite(msg) )
+	     return false;
+	 mDynamicCastGet( Survey::Geometry2D*, geom2d,
+			  Survey::GMAdmin().getGeometry(outgeomid) );
+	 if ( !geom2d )
+	     return false;
+
+	 geom2d->dataAdmin().setEmpty();
+	 geom2d->touch();
+    }
+    else
+    {
+	Survey::Geometry2D* newgeom =
+	    new Survey::Geometry2D( new PosInfo::Line2DData );
+	newgeom->dataAdmin().setLineName( outnm );
+	uiString msg;
+	outgeomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+	if ( outgeomid == Survey::GeometryManager::cUndefGeomID() )
+	    mErrRet( msg );
+    }
 
     BufferStringSet seldatanms;
     data2mergefld_->getChosen( seldatanms );
     if ( seldatanms.isEmpty() )
-	mErrRet( "No datas chosen to merge, please select a data." );
+	mErrRet( tr("No datas chosen to merge, please select a data.") );
 
     Seis2DLineMerger lmrgr( seldatanms );
+    lmrgr.setOutGeomID( outgeomid );
     lmrgr.lnm1_ = ln1fld_->text();
     lmrgr.lnm2_ = ln2fld_->text();
     if ( lmrgr.lnm1_ == lmrgr.lnm2_ )
-	mErrRet( "Respectfully refusing to merge a line with itself" );
+	mErrRet( tr("Respectfully refusing to merge a line with itself") );
 
     lmrgr.outlnm_ = outnm;
     lmrgr.opt_ = (Seis2DLineMerger::Opt)mrgoptfld_->getIntValue();
@@ -376,15 +401,15 @@ bool acceptOK( CallBacker* )
     {
 	lmrgr.snapdist_ = snapdistfld_->getdValue();
 	if ( mIsUdf(lmrgr.snapdist_) || lmrgr.snapdist_ < 0 )
-	    mErrRet( "Please specify a valid snap distance" );
+	    mErrRet( tr("Please specify a valid snap distance") );
     }
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrun( this );
     bool rettype = false;
-    if ( TaskRunner::execute(&tr,lmrgr) )
-	rettype = uiMSG().askGoOn( "Merge successfully completed."
-				   "Done with merging",
-				   "Want to merge more lines" );
+    if ( TaskRunner::execute(&taskrun,lmrgr) )
+	rettype = uiMSG().askGoOn( tr("Merge successfully completed."),
+				   tr( "Done with merging"),
+				   tr( "Want to merge more lines") );
     return rettype;
 }
 
