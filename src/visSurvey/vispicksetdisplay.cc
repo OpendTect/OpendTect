@@ -418,8 +418,12 @@ void PickSetDisplay::otherObjectsMoved(
 	    newstatus = false;
 	    for ( int idy=0; idy<objs.size(); idy++ )
 	    {
-		const float dist = objs[idy]->calcDist(pos);
-		if ( dist<objs[idy]->maxDist() )
+		mDynamicCastGet(const EMObjectDisplay*,emobj,objs[idy])
+		if ( emobj && emobj->getOnlyAtSectionsDisplay() )
+		    continue;
+
+		const float dist = objs[idy]->calcDist( pos );
+		if ( dist < objs[idy]->maxDist() )
 		{
 		    newstatus = true;
 		    break;
