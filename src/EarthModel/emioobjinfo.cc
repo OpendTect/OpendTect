@@ -162,6 +162,9 @@ Interval<float> IOObjInfo::getZRange() const
 
 StepInterval<int> IOObjInfo::getInlRange() const
 {
+    if ( !ioobj_ )
+	return StepInterval<int>::udf();
+
     PtrMan<Translator> trans = ioobj_->createTranslator();
     mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
     if ( !str || !str->startRead(*ioobj_) )
@@ -174,6 +177,9 @@ StepInterval<int> IOObjInfo::getInlRange() const
 
 StepInterval<int> IOObjInfo::getCrlRange() const
 {
+    if ( !ioobj_ )
+	return StepInterval<int>::udf();
+
     PtrMan<Translator> trans = ioobj_->createTranslator();
     mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
     if ( !str || !str->startRead(*ioobj_) )
@@ -200,6 +206,9 @@ uiString IOObjInfo::getMessage() const
 
 bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
 {
+    if ( !ioobj_ )
+	return false;
+
     PtrMan<Translator> trans = ioobj_->createTranslator();
     mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
     if ( !str || !str->startRead(*ioobj_) )
@@ -213,6 +222,9 @@ bool IOObjInfo::getLineNames( BufferStringSet& linenames ) const
 
 bool IOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
+    if ( !ioobj_ )
+	return false;
+
     PtrMan<Translator> trans = ioobj_->createTranslator();
     mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
     if ( !str || !str->startRead(*ioobj_) )
@@ -226,6 +238,9 @@ bool IOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 
 bool IOObjInfo::getTrcRanges( TypeSet< StepInterval<int> >& trcranges ) const
 {
+    if ( !ioobj_ )
+	return false;
+
     PtrMan<Translator> trans = ioobj_->createTranslator();
     mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
     if ( !str || !str->startRead(*ioobj_) )
