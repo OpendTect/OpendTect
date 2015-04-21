@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "mousecursor.h"
 #include "pickset.h"
+#include "visemobjdisplay.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
