@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uimergeseis.h"
+#include "uisegydefdlg.h"
 #include "uiseispsman.h"
 #include "uiseisbrowser.h"
 #include "uiseiscopy.h"
@@ -138,9 +139,18 @@ void uiSeisFileMan::setToolButtonProperties()
     if ( browsebut_ )
     {
 	const bool enabbrowse = curimplexists_ && mIsOfTranslType(CBVS);
-	browsebut_->setSensitive( enabbrowse );
+	const bool issegydirect = curimplexists_ && mIsOfTranslType(SEGYDirect);
+	browsebut_->setSensitive( enabbrowse || issegydirect );
+	if ( enabbrowse )
+	{
 	mSetButToolTip(browsebut_,"Browse/edit '",cursel,"'",
 			"Browse/edit selected cube");
+	}
+	else if ( issegydirect )
+	{
+	    mSetButToolTip(browsebut_,"Change location/name of SEGY files in '",
+			   cursel,"'", "Change SEGY file for selected cube");
+	}
     }
 
     if ( mergecubesbut_ )
@@ -365,8 +375,16 @@ void uiSeisFileMan::dump2DPush( CallBacker* )
 
 void uiSeisFileMan::browsePush( CallBacker* )
 {
-    if ( curioobj_ )
+    if ( !curioobj_ ) return;
+    const bool enabbrowse = curimplexists_ && mIsOfTranslType(CBVS);
+    const bool issegydirect = curimplexists_ && mIsOfTranslType(SEGYDirect);
+    if ( enabbrowse )
 	uiSeisBrowser::doBrowse( this, *curioobj_, false );
+    else if ( issegydirect )
+    {
+	uiEditSEGYFileDataDlg dlg( this, *curioobj_ );
+	dlg.go();
+    }
 }
 
 

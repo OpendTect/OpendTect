@@ -71,6 +71,10 @@ public:
     static const char*	get2DFileName(const char*,const char*);
     static const char*	get2DFileName(const char*,Pos::GeomID);
 
+    static bool		readFooter(const char* fnm,IOPar&,od_stream_Pos&);
+			/*!<Reads the Footer into an IOPar */
+    static bool		updateFooter(const char*,const IOPar&,od_stream_Pos);
+			/*!<Updates the Footer IOPar in an existing def file */
 
     const PosInfo::CubeData&	cubeData() const { return cubedata_; }
     const PosInfo::Line2DData&	lineData() const { return linedata_; }
