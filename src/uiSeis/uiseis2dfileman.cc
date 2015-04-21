@@ -337,16 +337,38 @@ bool acceptOK( CallBacker* )
 
     Pos::GeomID outgeomid = Survey::GM().getGeomID( outnm );
     if ( outgeomid != Survey::GeometryManager::cUndefGeomID() )
-	mErrRet( tr("Geometry of same line name already present. "
-		    "If you want to overwrite, first remove the geometry via "
-		    "'Manage>>Geometry 2D'") );
+    {
+	 uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
+		 	   "its geometry, all the associated data will be "
+			   "affected. Do you still want to overwrite?")
+	     			.arg( outnm );
+	 if ( !uiMSG().askOverwrite(msg) )
+	     return false;
+	 mDynamicCastGet( Survey::Geometry2D*, geom2d,
+		 	  Survey::GMAdmin().getGeometry(outgeomid) );
+	 if ( !geom2d )
+	     return false;
+
+	 geom2d->dataAdmin().setEmpty();
+	 geom2d->touch();
+    }
+    else
+    {
+	Survey::Geometry2D* newgeom =
+	    new Survey::Geometry2D( new PosInfo::Line2DData );
+	newgeom->dataAdmin().setLineName( outnm );
+	uiString msg;
+	outgeomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+	if ( outgeomid == Survey::GeometryManager::cUndefGeomID() )
+	    mErrRet( msg );
+    }
 
     BufferStringSet seldatanms;
     data2mergefld_->getChosen( seldatanms );
     if ( seldatanms.isEmpty() )
 	mErrRet( tr("No datas chosen to merge, please select a data.") );
 
-    Seis2DLineMerger lmrgr( seldatanms );
+    Seis2DLineMerger lmrgr( seldatanms, outgeomid );
     lmrgr.lnm1_ = ln1fld_->text();
     lmrgr.lnm2_ = ln2fld_->text();
     if ( lmrgr.lnm1_ == lmrgr.lnm2_ )
@@ -374,9 +396,9 @@ bool acceptOK( CallBacker* )
     uiTaskRunner taskrun( this );
     bool rettype = false;
     if ( TaskRunner::execute(&taskrun,lmrgr) )
-	rettype = uiMSG().askGoOn( tr("Merge successfully completed."
-				      "Done with merging",
-				      "Want to merge more lines") );
+	rettype = uiMSG().askGoOn( tr("Merge successfully completed."),
+				   tr( "Done with merging"),
+				   tr( "Want to merge more lines") );
     return rettype;
 }
 

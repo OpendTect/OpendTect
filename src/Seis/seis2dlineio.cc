@@ -185,7 +185,6 @@ bool SeisTrc2DTranslator::initRead_()
     , outl2dd_(*new PosInfo::Line2DData) \
     , attrnms_(*new BufferStringSet) \
     , opt_(MatchTrcNr) \
-    , outgeomid_(Survey::GeometryManager::cUndefGeomID()) \
     , numbering_(1,1) \
     , renumber_(false) \
     , stckdupl_(false) \
@@ -198,9 +197,11 @@ bool SeisTrc2DTranslator::initRead_()
 
 
 
-Seis2DLineMerger::Seis2DLineMerger( const BufferStringSet& attrnms )
+Seis2DLineMerger::Seis2DLineMerger( const BufferStringSet& attrnms,
+				    const Pos::GeomID& outgid )
     : Executor("Merging linens")
     , ds_(0)
+    , outgeomid_(outgid)
     , msg_(tr("Opening files"))
     , nrdonemsg_(tr("Files opened"))
     mStdInit
@@ -357,14 +358,6 @@ int Seis2DLineMerger::doWork()
 
     nrdone_ = 0;
     totnr_ = outbuf_.size();
-    if ( outgeomid_ == Survey::GeometryManager::cUndefGeomID() )
-    {
-	PosInfo::Line2DData* newlinedata = new PosInfo::Line2DData( outlnm_ );
-	Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( newlinedata );
-	outgeomid_ = Survey::GMAdmin().addNewEntry( newgoem2d, msg_ );
-	if ( outgeomid_ == Survey::GeometryManager::cUndefGeomID() )
-	    return Executor::ErrorOccurred();
-    }
     
     IOPar* lineiopar = new IOPar;
     lineiopar->set( sKey::GeomID(), outgeomid_ );

@@ -31,7 +31,8 @@ public:
 
     enum Opt		{ MatchTrcNr, MatchCoords, SimpleAppend };
 
-    			Seis2DLineMerger(const BufferStringSet& datanms);
+    			Seis2DLineMerger(const BufferStringSet& datanms,
+					 const Pos::GeomID&);
     			~Seis2DLineMerger();
 
     uiString		uiMessage() const	{ return msg_; }
@@ -66,7 +67,7 @@ protected:
     int			currentlyreading_;
     Pos::GeomID		lid1_, lid2_;
     bool		have1_, have2_;
-    Pos::GeomID		outgeomid_;
+    const Pos::GeomID&	outgeomid_;
 
     uiString		msg_;
     uiString		nrdonemsg_;
