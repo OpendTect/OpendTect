@@ -530,7 +530,7 @@ bool StorageProvider::setTableSelData()
     seldata->extendZ( extraz_ );
     SeisTrcReader& reader = mscprov_->reader();
     if ( reader.is2D() )
-	seldata->setGeomID( Survey::GM().cUndefGeomID() );
+	seldata->setGeomID( geomid_ );
 
     reader.setSelData( seldata );
     SeisTrcTranslator* transl = reader.seisTranslator();
