@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_iostream.h"
 #include "oscommand.h"
 #include "strmdata.h"
+#include "separstr.h"
 #include "strmprov.h"
 #include "testprog.h"
 #include "thread.h"
@@ -92,7 +93,7 @@ static bool testAllPipes()
 
 static bool runCommandWithSpace()
 {
-    FilePath scriptname(GetSoftwareDir(0),"dtect", "script with space");
+    FilePath scriptname(GetSoftwareDir(0), "testing", "script with space");
 #ifdef __win__
     scriptname.setExtension( "cmd" );
 #else
@@ -103,6 +104,37 @@ static bool runCommandWithSpace()
 		      "Command with space" );
 
     return true;
+}
+
+
+static bool runCommandWithLongOutput()
+{
+#ifdef __win__
+    return true;
+#else
+    //Run a command that will cause overflow in the input buffer. Output
+    //Should be 100% correct, meaning that no bytes have been skipped or
+    //inserted.
+    //
+    const FilePath scriptname(GetSoftwareDir(0),"testing", "count_to_1000.csh");
+    BufferString output;
+    OS::ExecCommand(scriptname.fullPath(), OS::Wait4Finish, &output );
+
+    SeparString parsedoutput( output.buf(), '\n' );
+    bool res = true;
+    for ( int idx=0; idx<1000; idx++ )
+    {
+	if ( parsedoutput[idx]!=toString( idx+1 ) )
+	{
+	    res = false;
+	    break;
+	}
+    }
+
+    mRunStandardTest( res, "Correctly reading long input stream" );
+
+    return true;
+#endif
 }
 
 
@@ -142,7 +174,8 @@ int main( int argc, char** argv )
 	return 0;
     }
 
-    if ( !testCmds() || !testAllPipes() || !runCommandWithSpace() )
+    if ( !testCmds() || !testAllPipes() || !runCommandWithSpace() ||
+	 !runCommandWithLongOutput() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );

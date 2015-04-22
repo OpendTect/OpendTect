@@ -473,31 +473,9 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PR
 		ENVIRONMENT
 		WORK=${OD_BINARY_BASEDIR})
     endif( OD_CREATE_LAUNCHERS )
-    if ( WIN32 )
-        set ( TEST_COMMAND "${OpendTect_DIR}/dtect/run_test.cmd" )
-        set ( TEST_ARGS --command ${TEST_NAME}.exe )
-    else()
-        set ( TEST_COMMAND "${OpendTect_DIR}/dtect/run_test.csh" )
-        set ( TEST_ARGS --command ${TEST_NAME} )
-    endif()
 
-    list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
-		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
-		    --qtdir ${QTDIR}
-		    --quiet )
+    ADD_TEST_PROGRAM( ${TEST_NAME} )
 
-    if ( EXISTS ${PARAMETER_FILE} )
-	list( APPEND TEST_ARGS --parfile ${PARAMETER_FILE} )
-    endif()
-
-    if ( NOT (OD_TESTDATA_DIR STREQUAL "") )
-	if ( EXISTS ${OD_TESTDATA_DIR} )
-	    list ( APPEND TEST_ARGS --datadir ${OD_TESTDATA_DIR} )
-	endif()
-    endif()
-
-    add_test( NAME ${TEST_NAME} WORKING_DIRECTORY ${OD_EXEC_OUTPUT_PATH}
-	      COMMAND ${TEST_COMMAND} ${TEST_ARGS} )
     set_property( TEST ${TEST_NAME} PROPERTY ${OD_MODULE_NAME} )
 endforeach()
 

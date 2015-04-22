@@ -8,6 +8,10 @@
 
 set ( OD_TESTDATA_DIR "" CACHE FILEPATH "Test data location" )
 
+if ( UNIX )
+    set ( VALGRIND_PROGRAM "" CACHE PATH "Location of valgrind" )
+endif()
+
 macro ( OD_SETUP_TEST_FILTER )
     if( CTEST_MODEL )
 	if ( ${CTEST_MODEL} STREQUAL "Experimental" )
@@ -25,10 +29,45 @@ macro ( OD_SETUP_TEST_FILTER )
 	${CMAKE_SOURCE_DIR}/CTestCustom.cmake @ONLY )
 endmacro()
 
+macro ( ADD_TEST_PROGRAM TEST_NAME )
+    if ( WIN32 )
+	set ( TEST_COMMAND "${OpendTect_DIR}/testing/run_test.cmd" )
+	set ( TEST_ARGS --command ${TEST_NAME}.exe )
+    else()
+	set ( TEST_COMMAND "${OpendTect_DIR}/testing/run_test.csh" )
+	set ( TEST_ARGS --command ${TEST_NAME} )
+    endif()
+
+    list ( APPEND TEST_ARGS --wdir ${CMAKE_BINARY_DIR}
+		    --config ${CMAKE_BUILD_TYPE} --plf ${OD_PLFSUBDIR}
+		    --qtdir ${QTDIR}
+		    --quiet )
+
+    if ( EXISTS ${PARAMETER_FILE} )
+	list( APPEND TEST_ARGS --parfile ${PARAMETER_FILE} )
+    endif()
+
+    if ( NOT (OD_TESTDATA_DIR STREQUAL "") )
+	if ( EXISTS ${OD_TESTDATA_DIR} )
+	    list ( APPEND TEST_ARGS --datadir ${OD_TESTDATA_DIR} )
+	endif()
+    endif()
+
+    add_test( NAME ${TEST_NAME} WORKING_DIRECTORY ${OD_EXEC_OUTPUT_PATH}
+	      COMMAND ${TEST_COMMAND} ${TEST_ARGS} )
+
+    if ( UNIX AND VALGRIND_PROGRAM )
+	add_test( NAME ${TEST_NAME}_memcheck WORKING_DIRECTORY ${OD_EXEC_OUTPUT_PATH}
+	      COMMAND ${TEST_COMMAND} ${TEST_ARGS} --valgrind ${VALGRIND_PROGRAM} )
+    endif()
+
+endmacro()
+
+
 
 macro ( OD_ADD_KEYWORD_TEST KW NM MSG)
     if ( (NOT DEFINED WIN32) AND (NOT DEFINED APPLE) )
-	set( CMD "${OpendTect_DIR}/dtect/FindKeyword.csh" )
+	set( CMD "${OpendTect_DIR}/testing/FindKeyword.csh" )
 	list( APPEND CMD "--keyword" "${KW}" "--listfile" "${OD_SOURCELIST_FILE}" )
 	set ( EXCEPTIONFILE ${CMAKE_SOURCE_DIR}/CMakeModules/exceptions/${NM}_exceptions )
 	list( APPEND CMD "--grepcommand" "grep" )
@@ -44,7 +83,7 @@ endmacro()
 
 macro ( OD_ADD_REGEXP_TEST KW NM MSG)
     if ( (NOT DEFINED WIN32) AND (NOT DEFINED APPLE) )
-	set( CMD "${OpendTect_DIR}/dtect/FindKeyword.csh" )
+	set( CMD "${OpendTect_DIR}/testing/FindKeyword.csh" )
 	list( APPEND CMD "--keyword" "${KW}" "--listfile" "${OD_SOURCELIST_FILE}" )
 	list( APPEND CMD "--grepcommand" "egrep" )
 	set ( EXCEPTIONFILE ${CMAKE_SOURCE_DIR}/CMakeModules/exceptions/${NM}_exceptions )
@@ -62,7 +101,7 @@ endmacro()
 macro ( OD_ADD_LOCAL_STATIC_TEST )
     if ( (NOT DEFINED WIN32) AND (NOT DEFINED APPLE) )
 	set( NM "local_static" )
-	set( CMD "${OpendTect_DIR}/dtect/FindLocalStatic.csh" )
+	set( CMD "${OpendTect_DIR}/testing/FindLocalStatic.csh" )
 	list( APPEND CMD "--listfile" "${OD_SOURCELIST_FILE}" )
 	set ( EXCEPTIONFILE ${CMAKE_SOURCE_DIR}/CMakeModules/exceptions/${NM}_exceptions )
 	if ( EXISTS ${EXCEPTIONFILE} )
@@ -75,11 +114,11 @@ endmacro()
 
 macro ( OD_ADD_LINEEND_TEST )
     if ( NOT DEFINED WIN32 )
-	set( CMD "${OpendTect_DIR}/dtect/FindDosEOL.sh" )
+	set( CMD "${OpendTect_DIR}/testing/FindDosEOL.sh" )
 	list( APPEND CMD "${OD_SOURCELIST_FILE}" )
 	add_test( LineEndTest ${CMD} )
 
-	set( CMD "${OpendTect_DIR}/dtect/FindNoNewlineAtEndOfFile.csh" )
+	set( CMD "${OpendTect_DIR}/testing/FindNoNewlineAtEndOfFile.csh" )
 	list( APPEND CMD "--listfile" "${OD_SOURCELIST_FILE}" )
 	add_test( FileEndTest ${CMD} )
  
@@ -87,21 +126,12 @@ macro ( OD_ADD_LINEEND_TEST )
 endmacro()
 
 
-macro ( OD_ADD_SVNPROP_TEST )
-    if ( NOT DEFINED WIN32 )
-	set( CMD "${OpendTect_DIR}/dtect/CheckSVNProps.csh" )
-	list( APPEND CMD "--listfile" "${OD_SOURCELIST_FILE}" )
-	add_test( SVNPropertyTest ${CMD} )
-    endif()
-endmacro()
-
-
 macro ( OD_ADD_EXIT_PROGRAM_TEST )
     if ( WIN32 )
-	set( CMD "${OpendTect_DIR}/dtect/run_test.cmd" )
+	set( CMD "${OpendTect_DIR}/testing/run_test.cmd" )
 	list ( APPEND CMD --command test_exit_program.exe )
     else()
-	set( CMD "${OpendTect_DIR}/dtect/run_test.csh" )
+	set( CMD "${OpendTect_DIR}/testing/run_test.csh" )
 	list ( APPEND CMD --command test_exit_program )
     endif()
 

@@ -26,8 +26,8 @@ qstreambuf::qstreambuf( QIODevice& p, bool isstderr, bool own )
 {
     mDynamicCast( QProcess*, process_, iodevice_ );
 
-    char* end = &buffer_.front()+buffer_.size();
-    setg( end, end, end );
+    char* front = &buffer_.front();
+    setg( front, front, front );
 }
 
 
@@ -51,21 +51,28 @@ int qstreambuf::sync()
 
 std::streambuf::int_type qstreambuf::underflow()
 {
+#ifdef __debug__
+    char* _egptr mUnusedVar = egptr();
+    char* _eback mUnusedVar = eback();
+    char* _gptr mUnusedVar = gptr();
+#endif
+
     if ( gptr()<egptr() )
 	return traits_type::to_int_type( *gptr() );
 
-    char *base = &buffer_.front();
-    char *start = base;
+    char* front = &buffer_.front();
+    char* back = &buffer_.back();
+    char* start = egptr();
 
-    if ( eback()==base )
+    if ( start>back )
     {
-	memmove( base, egptr() - mPUSH_BACK, mPUSH_BACK );
-	start += mPUSH_BACK;
+	memmove( front, egptr() - mPUSH_BACK, mPUSH_BACK );
+	start -= mPUSH_BACK;
     }
 
     readAll();
 
-    size_t n = buffer_.size() - (start - base);
+    size_t n = buffer_.size() - (start - front);
     if ( readbuffer_.size()<n )
 	n = readbuffer_.size();
 
@@ -75,7 +82,7 @@ std::streambuf::int_type qstreambuf::underflow()
     memmove( start, readbuffer_.data(), n );
     readbuffer_.remove( 0, n );
 
-    setg( base, start, start + n );
+    setg( front, start, start + n );
 
     return traits_type::to_int_type( *gptr() );
 }
