@@ -24,11 +24,12 @@ if ( NOT DEFINED OpendTect_FULL_VERSION )
 endif()
 
 if ( CMAKE_VERSION VERSION_LESS 3.0.0 )	
-    project( "OpendTect" )
+    project( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 else()
     cmake_policy( SET CMP0042 OLD )
 	cmake_policy( SET CMP0048 NEW )
-	project( "OpendTect" VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
+	project( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}"
+	    VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 endif()
 
 
