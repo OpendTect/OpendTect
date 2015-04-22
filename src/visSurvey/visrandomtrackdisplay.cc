@@ -1353,7 +1353,7 @@ void RandomTrackDisplay::setPolyLineMode( bool mode )
     polyline_->turnOn( polylinemode_ );
     markerset_->turnOn( polylinemode_ );
     panelstrip_->turnOn( !polylinemode_ );
-    dragger_->turnOn( false );
+    dragger_->turnOn( !polylinemode_ );
 }
 
 
