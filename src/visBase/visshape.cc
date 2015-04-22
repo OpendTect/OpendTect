@@ -400,10 +400,11 @@ void VertexShape::setPrimitiveType( Geometry::PrimitiveSet::PrimitiveType tp )
     if ( osggeom_ )
     {
 	if ( primitivetype_==Geometry::PrimitiveSet::Lines ||
-	    primitivetype_==Geometry::PrimitiveSet::LineStrips )
+	     primitivetype_==Geometry::PrimitiveSet::LineStrips ||
+	     primitivetype_ == Geometry::PrimitiveSet::Points )
 	{
 	    osggeom_->getOrCreateStateSet()->setMode( GL_LIGHTING,
-						     osg::StateAttribute::OFF );
+						    osg::StateAttribute::OFF );
 	}
     }
 }
