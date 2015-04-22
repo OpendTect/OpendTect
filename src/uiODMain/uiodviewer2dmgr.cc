@@ -98,7 +98,6 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     {
 	isnewvwr = true;
 	vwr2d = &addViewer2D( visid );
-	mAttachCB( vwr2d->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     }
     else
     {
