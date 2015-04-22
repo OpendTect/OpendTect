@@ -70,20 +70,23 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	    if ( valstr && *valstr )
 		mesg.add( "/" ).add( valstr );
 	}
+    }
 
-	Coord3 crd;
-	valstr = pars.find( "X" );
-	if ( !valstr ) valstr = pars.find( "X-coordinate" );
-	if ( valstr && *valstr ) crd.x = toDouble( valstr );
+    Coord3 crd( Coord3::udf() );
+    valstr = pars.find( "X" );
+    if ( !valstr ) valstr = pars.find( "X-coordinate" );
+    if ( valstr && *valstr ) crd.x = toDouble( valstr );
 
-	valstr = pars.find( "Y" );
-	if ( !valstr ) valstr = pars.find( "Y-coordinate" );
-	if ( valstr && *valstr ) crd.y = toDouble( valstr );
+    valstr = pars.find( "Y" );
+    if ( !valstr ) valstr = pars.find( "Y-coordinate" );
+    if ( valstr && *valstr ) crd.y = toDouble( valstr );
 
-	valstr = pars.find( "Z" );
-	if ( !valstr ) valstr = pars.find( "Z-Coord" );
-	if ( valstr && *valstr ) crd.z = toDouble( valstr );
+    valstr = pars.find( "Z" );
+    if ( !valstr ) valstr = pars.find( "Z-Coord" );
+    if ( valstr && *valstr ) crd.z = toDouble( valstr );
 
+    if ( !crd.isUdf() )
+    {
 	mesg.addTab().add( "(" ).add( toString(crd.x,0) );
 	mesg.add( ", " ).add( toString(crd.y,0) );
 	mesg.add( ", " ).add( toString(crd.z,0) ).add( ")" ).addTab();
