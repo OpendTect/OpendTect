@@ -89,18 +89,21 @@ LocationDisplay::~LocationDisplay()
 }
 
 
-void LocationDisplay::setSet( Pick::Set* s )
+void LocationDisplay::setSet( Pick::Set* ps )
 {
+    if ( !ps )
+	return;
+
     if ( set_ )
     {
-	if ( set_!=s )
+	if ( set_!=ps )
 	{
 	    pErrMsg("Cannot set set_ twice");
 	}
 	return;
     }
 
-    set_ = s; 
+    set_ = ps; 
     setName( set_->name() );
 
     fullRedraw();

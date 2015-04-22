@@ -58,10 +58,10 @@ PickSetDisplay::~PickSetDisplay()
 
 void PickSetDisplay::setSet( Pick::Set* newset )
 {
-    LocationDisplay::setSet( newset );
-    
     if ( !newset )
 	return;
+
+    LocationDisplay::setSet( newset );
 
     MarkerStyle3D markerstyle;
     markerstyle.size_ = set_->disp_.pixsize_;
