@@ -838,6 +838,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	uiMSG().error( tr("Cannot calculate attribute on this object") );
 	return false;
     }
+    else if ( as->id() == as->cNoAttrib() || as->id() == as->cAttribNotSel() )
+	return false;
 
     Attrib::SelSpec myas( *as );
     if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
