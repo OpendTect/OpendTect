@@ -307,10 +307,7 @@ bool GLCM_attrib::getInputData( const BinID& relpos, int zintv )
     const DataHolder* inpdata = inputs_[0]->getData( relpos, zintv );
     if ( !inpdata ) return false;
 
-    inpdata_.replace( 0, inpdata);
-    inpdata_.replace( 0,0);
-    const int maxlength = mMAX( stepout_.inl(), stepout_.crl()) * 2 +1;
-    while ( inpdata_.size() < maxlength*maxlength )
+    while ( inpdata_.size() < posandsteeridx_.posidx_.size() )
 	inpdata_ += 0;
 
     const BinID bidstep = inputs_[0]->getStepoutStep();
