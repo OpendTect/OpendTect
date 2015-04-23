@@ -419,7 +419,7 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, uiString& errmsg,
     DescSet* descset = addtoset ? new DescSet( *addtoset )
 				: new DescSet( attrspecs_[0].is2D() );
 
-    if ( !addtoset && !descset->usePar(nlamodel_->pars()) )
+    if ( !addtoset && nlamodel_ && !descset->usePar(nlamodel_->pars()) )
     {
 	errmsg = descset->errMsg();
 	delete descset;
