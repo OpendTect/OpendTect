@@ -153,6 +153,11 @@ public:
 				const DescID& ignoreid=DescID::undef(),
 				bool usesteering=false,bool onlysteering=false,
 				bool onlymulticomp=false);
+			//extra constructor to keep binary comatibility
+			SelInfo(const DescSet*,const NLAModel*,
+				bool is2d, const DescID&, bool usesteering,
+				bool onlysteering,bool onlymulticomp,
+				bool usehidden);
 			SelInfo(const SelInfo&);
     SelInfo&		operator=(const SelInfo&);
 

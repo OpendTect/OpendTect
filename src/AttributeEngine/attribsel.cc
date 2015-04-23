@@ -272,6 +272,51 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 }
 
 
+//Duplicate, temporary to preserve binary compatibility
+SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
+		  bool is2d, const DescID& ignoreid, bool usesteering,
+		  bool onlysteering, bool onlymulticomp, bool usehidden )
+    : is2d_( is2d )
+    , usesteering_( usesteering )
+    , onlysteering_( onlysteering )
+    , onlymulticomp_( onlymulticomp )
+{
+	fillStored( false );
+    fillStored( true );
+
+    if ( attrset )
+    {
+	for ( int idx=0; idx<attrset->size(); idx++ )
+	{
+	    const DescID descid = attrset->getID( idx );
+	    const Desc* desc = attrset->getDesc( descid );
+	    const BufferString usrref( desc ? desc->userRef()
+					    : sKey::EmptyString().buf() );
+	    if ( !desc || usrref.isEmpty()
+	      || desc->attribName()==StorageProvider::attribName()
+	      || attrset->getID(*desc) == ignoreid
+	      || ( !usehidden && desc->isHidden() ) )
+		continue;
+
+	    attrids_ += descid;
+	    attrnms_.add( usrref );
+	}
+    }
+
+    if ( nlamod )
+    {
+	const int nroutputs = nlamod->design().outputs.size();
+	for ( int idx=0; idx<nroutputs; idx++ )
+	{
+	    BufferString nm( *nlamod->design().outputs[idx] );
+	    if ( IOObj::isKey(nm) )
+		nm = IOM().nameOf( nm );
+	    nlaoutnms_.add( nm );
+	}
+    }
+}
+
+
 void SelInfo::fillStored( bool steerdata, const char* filter )
 {
     BufferStringSet& nms = steerdata ? steernms_ : ioobjnms_;
