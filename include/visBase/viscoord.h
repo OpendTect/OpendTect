@@ -32,13 +32,13 @@ namespace visBase
 {
 class Transformation;
 class Normals;
-    
+
 class CoordinatesOsgImpl;
 
 /*!\brief
 A set of coordinates. The coordinates will be transformed by the
 transformation before given to Coin, and transformed back when doing a
-getPos. 
+getPos.
 \note The object will not react to changes in the transformation when it is
 set
 */
@@ -54,7 +54,7 @@ public:
     friend		class CoordListAdapter;
 
     void		setDisplayTransformation(const mVisTrans*);
-    			/*!<\note All existing
+			/*!<\note All existing
 			     coords will be recalculated back from the old
 			     transformation and transformed by the new one.
 			*/
@@ -93,46 +93,46 @@ protected:
     void		setPositions(const TypeSet<Coord3>&);
 
     void		setPosWithoutLock(int, const Coord3&,bool scenespace);
-    			/*!< Object should be locked when calling */
+			/*!< Object should be locked when calling */
 
     int			getFreeIdx();
-    			/*!< Object should be locked when calling */
+			/*!< Object should be locked when calling */
 
-    			~Coordinates();
+			~Coordinates();
 
     TypeSet<int>		unusedcoords_;
     mutable Threads::Mutex	mutex_;
     const mVisTrans*		transformation_;
-    
+
     osg::Array*			osgcoords_;
     friend class	 SetOrGetCoordinates;
 };
 
-    
+
 mExpClass(visBase) CoinFloatVertexAttribList : public FloatVertexAttribList
 {
 public:
-    			CoinFloatVertexAttribList(Coordinates&,Normals*);
-    
+			CoinFloatVertexAttribList(Coordinates&,Normals*);
+
     virtual int		size() const;
     virtual bool	setSize(int,bool cpdata);
-    
+
     virtual void	setCoord(int,const float*);
     virtual void	getCoord(int,float*) const;
-    
+
     virtual void	setNormal(int,const float*);
     virtual void	getNormal(int,float*) const;
-    
+
     virtual void	setTCoord(int,const float*);
     virtual void	getTCoord(int,float*) const;
 
 protected:
 			~CoinFloatVertexAttribList();
-    
+
     Normals*		normals_;
     Coordinates&	coords_;
 };
-    
+
 
 /*!Adapter between a CoordList and Coordinates. */
 
@@ -140,7 +140,7 @@ protected:
 mExpClass(visBase) CoordListAdapter : public Coord3List
 {
 public:
-    		CoordListAdapter(Coordinates&);
+		CoordListAdapter(Coordinates&);
 
     int		nextID(int) const;
     int		add(const Coord3&);
@@ -149,7 +149,7 @@ public:
     void	remove(int);
     bool	isDefined(int) const;
     void	addValue(int,const Coord3&);
-    int		getSize() const	{ return coords_.size(); }
+    int		size() const			{ return coords_.size(); }
     void	remove(const TypeSet<int>&);
 
     Coordinates*    getCoordinates() { return &coords_; }

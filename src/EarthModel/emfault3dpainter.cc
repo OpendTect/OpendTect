@@ -77,7 +77,7 @@ void Fault3DPainter::setFlatPosData( const FlatPosData* fps )
 {
     if ( !path_ )
 	return;
-    
+
     flatposdata_ = fps;
 
     if ( flatposdata_->nrPts(true) < 2 )
@@ -308,7 +308,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
     faultsurf->setCoordList( new Coord3ListImpl, new Coord3ListImpl );
     if ( !faultsurf->update(true,0) )
 	return false;
-    
+
     PtrMan<Geometry::ExplPlaneIntersection> intxn =
 					new Geometry::ExplPlaneIntersection;
     intxn->setShape( *faultsurf );
@@ -319,7 +319,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 	double zstart = flatposdata_->position( false, 0 );
 	double zstop = flatposdata_->position( false,
 					       flatposdata_->nrPts(false)-1 );
-	
+
 	TypeSet<Coord3> pts;
 
 	bool status = false;
@@ -352,7 +352,7 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 	Coord3 p3( SI().transform(stop), tkzs_.zsamp_.stop );
 
 	TypeSet<Coord3> pts;
-	
+
 	pts += p0; pts += p1; pts += p2; pts += p3;
 
 	if ( !paintPlaneIntxn(f3d,f3dmaker,intxn,pts) )
@@ -398,7 +398,7 @@ bool Fault3DPainter::paintPlaneIntxn(EM::Fault3D& f3d, Fault3DMarker* f3dmaker,
     Coord3List* clist = idxshape->coordList();
     mDynamicCastGet(Coord3ListImpl*,intxnposlist,clist);
     TypeSet<Coord3> intxnposs;
-    if ( intxnposlist->getSize() )
+    if ( intxnposlist->size() > 0 )
     {
 	int nextposid = intxnposlist->nextID( -1 );
 	while ( nextposid!=-1 )
@@ -485,7 +485,7 @@ void Fault3DPainter::enableLine( bool yn )
     for ( int markidx=f3dmarkers_.size()-1; markidx>=0; markidx-- )
     {
 	Fault3DMarker* marklns = f3dmarkers_[markidx];
-	
+
 	for ( int idxstk=marklns->stickmarker_.size()-1; idxstk>=0; idxstk-- )
 	{
 	    marklns->stickmarker_[idxstk]->marker_->enabled_ = yn;
@@ -516,8 +516,8 @@ void Fault3DPainter::enableKnots( bool yn )
 	    if ( !yn )
 		marklns->stickmarker_[idxstk]->marker_->markerstyles_.erase();
 	    else
-		marklns->stickmarker_[idxstk]->marker_->markerstyles_ += 
-		    						markerstyle_;
+		marklns->stickmarker_[idxstk]->marker_->markerstyles_ +=
+								markerstyle_;
 	}
     }
 
@@ -534,7 +534,7 @@ void Fault3DPainter::setActiveStick( EM::PosID& pid )
 
     for ( int auxdid=0; auxdid<f3dmarkers_[0]->stickmarker_.size(); auxdid++ )
     {
-	LineStyle& linestyle = 
+	LineStyle& linestyle =
 	    f3dmarkers_[0]->stickmarker_[auxdid]->marker_->linestyle_;
 	if ( f3dmarkers_[0]->stickmarker_[auxdid]->stickid_== activestickid_ )
 	    linestyle.width_ = markerlinestyle_.width_;
@@ -605,7 +605,7 @@ void Fault3DPainter::repaintFault3D()
 void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
@@ -629,18 +629,18 @@ void Fault3DPainter::fault3DChangedCB( CallBacker* cb )
 		    {
 			if ( !mrks.stickmarker_[stid] ) continue;
 
-			mrks.stickmarker_[stid]->marker_->linestyle_.color_ = 
-			    				emf3d->preferredColor();
+			mrks.stickmarker_[stid]->marker_->linestyle_.color_ =
+							emf3d->preferredColor();
 			viewer_.updateProperties(
 					*mrks.stickmarker_[stid]->marker_ );
 		    }
-		    
+
 		    for ( int itid=0; itid<mrks.intsecmarker_.size(); itid++ )
 		    {
 			if ( !mrks.intsecmarker_[itid] ) continue;
 
 			mrks.intsecmarker_[itid]->linestyle_.color_ =
-			    				emf3d->preferredColor();
+							emf3d->preferredColor();
 			viewer_.updateProperties( *mrks.intsecmarker_[itid] );
 		    }
 		}
