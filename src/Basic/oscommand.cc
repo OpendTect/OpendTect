@@ -474,7 +474,8 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	str.add( " " );
 	localcmd.insertAt( 0, str );
 #endif
-	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true );
+	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true,
+			  pars.createstreams_ );
     }
 
     if ( pars.needmonitor_ )
@@ -501,12 +502,14 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	BufferString launchercmd( "\"",
 		FilePath(GetBinPlfDir(),"od_batch_launcher").fullPath() );
 	launchercmd.add( "\" " ).add( localcmd );
-	return doExecute( launchercmd, pars.launchtype_==Wait4Finish );
+	return doExecute( launchercmd, pars.launchtype_==Wait4Finish, false,
+			  pars.createstreams_ );
 #endif
     
     }
 
-    ret = doExecute( localcmd, pars.launchtype_==Wait4Finish );
+    ret = doExecute( localcmd, pars.launchtype_==Wait4Finish, false,
+		     pars.createstreams_ );
     if ( !ret )
 	return false;
 
@@ -570,7 +573,7 @@ void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
 
 
 bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
-				     bool inconsole )
+				     bool inconsole, bool createstreams )
 {
     if ( *comm == '@' )
 	comm++;
@@ -591,18 +594,30 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 #endif
 
 #ifndef OD_NO_QT
-    process_ = new QProcess;
+    process_ = wt4finish || createstreams ? new QProcess : 0;
 
-    stdinputbuf_ = new qstreambuf( *process_, false, false );
-    stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
+    if ( createstreams )
+    {
+	stdinputbuf_ = new qstreambuf( *process_, false, false );
+	stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
 
-    stdoutputbuf_ = new qstreambuf( *process_, false, false  );
-    stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
+	stdoutputbuf_ = new qstreambuf( *process_, false, false  );
+	stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
 
-    stderrorbuf_ = new qstreambuf( *process_, true, false  );
-    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
+	stderrorbuf_ = new qstreambuf( *process_, true, false  );
+	stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
+    }
 
-    process_->start( cmd.buf(), QIODevice::ReadWrite );
+    if ( process_ )
+    {
+	process_->start( cmd.buf(), QIODevice::ReadWrite );
+    }
+    else
+    {
+	const bool res = QProcess::startDetached( cmd.buf() );
+	return res;
+    }
+
     if ( !process_->waitForStarted(10000) ) //Timeout of 10 secs
     {
 	return !catchError();
@@ -615,9 +630,12 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 
 	const bool res = process_->exitStatus()==QProcess::NormalExit;
 
-	stderrorbuf_->detachDevice( true );
-	stdoutputbuf_->detachDevice( true );
-	stdinputbuf_->detachDevice( false );
+	if ( createstreams )
+	{
+	    stderrorbuf_->detachDevice( true );
+	    stdoutputbuf_->detachDevice( true );
+	    stdinputbuf_->detachDevice( false );
+	}
 
 	deleteAndZeroPtr( process_ );
 
@@ -677,7 +695,7 @@ static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isodprog,
     const OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars cp( isodprog );
-    cp.launchtype( ltyp );
+    cp.launchtype( ltyp ).createstreams( true );
     const bool ret = cl.execute( cp );
     if ( stdoutput )
 	cl.getStdOutput()->getAll( *stdoutput );
@@ -693,7 +711,10 @@ bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp, BufferString* out,
 		      BufferString* err )
 {
     if ( ltyp!=Wait4Finish )
+    {
 	out = 0;
+	err = 0;
+    }
 
     return doExecOSCmd( cmd, ltyp, false, out, err );
 }
