@@ -13,6 +13,50 @@ FloatVertexAttribList::~FloatVertexAttribList()
 {}
 
 
+Coord Coord2List::center() const
+{
+    int id = -1;
+    Coord sum( 0, 0 ); int nrpts = 0;
+    while ( true )
+    {
+	id = nextID( id );
+	if ( id < 0 )
+	    break;
+
+	const Coord coord = get( id );
+	sum.x += coord.x; sum.y += coord.y;
+	nrpts++;
+    }
+
+    if ( nrpts > 1 )
+	{ sum.x /= nrpts; sum.y /= nrpts; }
+
+    return sum;
+}
+
+
+Coord3 Coord3List::center() const
+{
+    int id = -1;
+    Coord3 sum( 0, 0, 0 ); int nrpts = 0;
+    while ( true )
+    {
+	id = nextID( id );
+	if ( id < 0 )
+	    break;
+
+	const Coord3 coord = get( id );
+	sum.x += coord.x; sum.y += coord.y; sum.z += coord.z;
+	nrpts++;
+    }
+
+    if ( nrpts > 1 )
+	{ sum.x /= nrpts; sum.y /= nrpts; sum.z /= nrpts; }
+
+    return sum;
+}
+
+
 Coord2ListImpl::Coord2ListImpl()
 {}
 
@@ -86,6 +130,13 @@ void Coord2ListImpl::remove( int id )
 }
 
 
+void Coord2ListImpl::remove( const TypeSet<int>& idxs )
+{
+    for ( int idx =idxs.size()-1; idx>=0; idx-- )
+	remove( idxs[idx] );
+}
+
+
 Coord3ListImpl::Coord3ListImpl()
 {}
 
@@ -155,7 +206,7 @@ void Coord3ListImpl::addValue( int idx, const Coord3& co )
 
 bool Coord3ListImpl::isDefined( int idx ) const
 {
-    return idx >= 0 && idx < coords_.size() && coords_[idx] != Coord3::udf(); 
+    return idx >= 0 && idx < coords_.size() && coords_[idx] != Coord3::udf();
 }
 
 
@@ -164,9 +215,9 @@ void Coord3ListImpl::remove( int id )
      removedids_ += id;
 }
 
+
 void Coord3ListImpl::remove( const TypeSet<int>& idxs )
 {
     for ( int idx =idxs.size()-1; idx>=0; idx-- )
 	remove( idxs[idx] );
 }
-
