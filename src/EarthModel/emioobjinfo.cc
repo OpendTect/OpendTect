@@ -132,20 +132,24 @@ bool IOObjInfo::getSectionNames( BufferStringSet& secnames ) const
 
 bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
 {
+    if ( !ioobj_ )
+	return false;
+    
     if ( type_==Fault )
     {
-	if ( !ioobj_ )
-	    return false;
-
 	FaultAuxData fad( ioobj_->key() );
 	fad.getAuxDataList( attrnames );
 	return true;
     }
     else
     {
-	mGetReaderRet;
-	for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
-	    attrnames.add( reader_->auxDataName(idx) );
+	PtrMan<Translator> trans = ioobj_->createTranslator();
+	mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
+	if ( !str || !str->startRead(*ioobj_) )
+	    return false;
+
+	const SurfaceIOData& newsd = str->selections().sd;
+	attrnames = newsd.valnames;
     }
 
     return true;
