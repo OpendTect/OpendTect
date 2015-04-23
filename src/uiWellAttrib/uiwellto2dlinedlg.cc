@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiWellTo2DLineDlg::uiWellTo2DLineDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Create 2D line"),
 				 tr("Select wells to set up the 2D line path"),
-				 mODHelpKey(mWellto2DLineDlgHelpID)) )
+				 mTODOHelpKey ) )
     , wellselgrp_(new uiWellSelGrp(this))
     , wantspreview_(this)
     , rl_(0)
