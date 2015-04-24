@@ -173,7 +173,9 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 	emod->setZAxisTransform( zt, 0 );
 
 	uiTaskRunner dlg( uiparent_ );
-	if ( !emod->setEMObject(emid, &dlg) ) mRefUnrefRet
+	if ( !emod->setEMObject(emid, &dlg) ||
+	     (!emobj->isEmpty() && !dlg.execResult()) )
+	    mRefUnrefRet
 
 	    visserv_->addObject( emod, sceneid, true );
 	displayid_ = emod->id();
