@@ -515,13 +515,42 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 }
 
 
-void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
+void uiSurfaceMan::fillAttribList()
 {
     if ( !attribfld_ ) return;
 
     attribfld_->setEmpty();
-    for ( int idx=0; idx<strs.size(); idx++)
-	attribfld_->addItem( strs[idx]->buf() );
+    TypeSet<MultiID> mids;
+    selgrp_->getChosen( mids );
+    if ( mids.isEmpty() )
+	return;
+
+    const MultiID& firstmid = mids[0];
+    EM::IOObjInfo info( firstmid );
+    if ( !info.isOK() )
+	return;
+
+    BufferStringSet availableattrnms;
+    if ( !info.getAttribNames( availableattrnms ) )
+	return;
+
+    for ( int midx=1; midx<mids.size(); midx++ )
+    {
+	const MultiID& mid = mids[midx];
+	EM::IOObjInfo eminfo( mid );
+	if ( !info.isOK() )
+	    return;
+
+	BufferStringSet attrnms;
+	eminfo.getAttribNames( attrnms );
+	for ( int idx=availableattrnms.size()-1; idx>=0; idx-- )
+	{
+	    if ( !attrnms.isPresent(availableattrnms.get(idx)) )
+		availableattrnms.removeSingle( idx );
+	}
+    }
+
+    attribfld_->addItems( availableattrnms );
     attribfld_->chooseAll( false );
 }
 
@@ -538,6 +567,7 @@ void uiSurfaceMan::mkFileInfo()
 	txt += " - "; txt += range.step; txt += "\n"; \
     }
 
+    fillAttribList();
     BufferString txt;
     EM::IOObjInfo eminfo( curioobj_ );
     if ( !eminfo.isOK() )
@@ -547,9 +577,6 @@ void uiSurfaceMan::mkFileInfo()
 	return;
     }
 
-    BufferStringSet attrnms;
-    if ( eminfo.getAttribNames(attrnms) )
-	fillAttribList( attrnms );
 
     if ( man2dbut_ )
 	man2dbut_->setSensitive( isCur2D() );
