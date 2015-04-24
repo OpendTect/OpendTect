@@ -1,0 +1,63 @@
+/*!
+
+\page OpendTect packages
+
+\section The OpendTect Installation Manager
+
+The new Installation Manager has been introduced to add flexibility and modularity to the installation/update process. The new packages have been split up into a number of small packages primarily based on the package type. The older installation package contained everything starting from user documentation to bitmap images to binaries all compressed under one single package, which forced the user to install everything even if he doesn’t want a particular feature. The Installation Manager has been designed to address this issue as well as better maintain release process and save upload/download bandwidth by avoiding unnecessary files and most importantly provide a uniform work-flow and platform to the third party plugin builders on which they can easily deploy their work. The new installation process makes use of small relevant packages corresponding to a particular feature, e.g. all the user documentation files are grouped under the “doc” package, like wise all the program data like images and other dependency files are grouped under “basedata” package and similarly there is a separate package for the main program and individual packages for individual plugins. All these packages are compressed zip files and conform to a particular folder structure, such that once they are unzipped they fit in to the exact folder location where they are meant to be. The details of these package structure and how to create them will be discussed later in this page.
+Program operation
+
+The Installation Manager when started connects to the download site and looks for the package definition files in the ‘defs’ folder. These files belong to individual ‘creators’ (for instance, http://opendtect.org/relman/defs/opendtect.txt, http://opendtect.org/relman/defs/dgb.txt etc) and contain the list of available packages along with their type and their dependency on other packages. Based on this information the Installation Manager shows the list of available packages and relevant information in the package selection window. The user can now select/deselect any particular package and proceed to install.
+The individual packages have certain properties based on which the Installation Manager decides the order of the package installation and in which group should the package belong and also if it should be visible to the user for selection/deselection. Its time to mention these properties in brief here.
+Package description
+
+Package Name: The keyword ‘Name’ specifies the name of the package as displayed in the user interface. There is another keyword ‘PKG’ which is used for the internal name of the package. Please note that this is the name which is used for deriving the names of the corresponding zip file and the version file.
+Package dependency: The individual packages have the option to be dependent on some other packages, which means if this package is to be installed all the dependent packages are downloaded and installed before the installation of this package which ensures installation integrity. If any one of the dependent packages fails to install the installation aborts with appropriate error message. This is useful for distributing program data and the program itself, e.g. the main program (base) has dependency on the program data (basedata), this ensures the program data has to be installed before installing the main program, otherwise it may so happen that the program has installed properly but the data has failed which will result in the corruption of the installation and the program will not run properly. So to prevent these situations the dependency of packages are implemented. This is also applicable to the plugins which must have dependency on the main package and they can also be dependent on some other plugins which is necessary for its execution. (Keyword: ‘Depends on’).
+Package type: The packages can either be hidden (I) or visible (V) which lets the Installation Manager decide if this should be enlisted in the package selection window. The packages can also be free (F) or commercial ( C ) type, so the user knows which type of package he is installing. (Keyword: ‘Type’).
+Platform: Packages are mostly cross platform (*), but some packages can be platform specific (e.g. Linux’Windows). There are other packages which are platform independent (-). So the Installation Manager will include/exclude this package for the particular platform. (Keyword: ‘Platforms’).
+Description: A brief description of the package functionality and utility, which is shown in the package description box. (Keyword: ‘Desc’).
+Group: Several packages can be grouped together based on their functionality. (Keyword: ‘Group’)
+Labels: A package can have one or more labels for easy look-up. (Keyword: ‘Labels’)
+Creator: The company/people who developed the package. (Keyword: ‘Creator’).
+Installation folder structure
+
+The individual packages are zip files containing a folder structure which represent certain part of the original installation, so when they are unzipped they just fit into the location where they are meant to be. The zip files only overwrite files and not the folders, so if there is already an existing folder, only the contents of the zip file are copied in the folder without damaging the content of the folder. The schematic diagram below shows the installation structure on Windows.
+               OpendTect
+                   |
+   -----------------------------------
+   |                                 |
+   5.0.0                            4.6.0
+   |
+  -------------------------------------------------
+  |             |             |           |       |
+  bin          plugins        data       relinfo  doc
+  |             |
+  win64        win64
+  |              |
+  Release      .alo files
+  |
+  (.exe/.dlls)
+At the top the folder name implies the OpendTect version, followed by the folder containing specific items, like Release for binaries, data for icons and plugins for installed plugins, doc for user documentation. The relinfo folder contains a text file containing version information for each of the packages installed. The version file determines if the installed version is older than the available version and if there is any need to upgrade.
+Package creation
+
+With the given folder structure a zip file has to be made, which when unzipped, unfolds into exactly the same structure. In order to do this first make a folder structure similar to this and put the contents in the relevant folder. e.g. if you want to ship a plugin for OpendTect 5.0.0 for Windows 64-bit, then your folders should have 5.0.0 at the top followed by bin/win64/Release, plugins and relinfo folder. The bin/win64 folder in turn should contain Release folder, inside which there should be all the binaries (exe/dll) for your plugin. The plugin folder has a sub-folder win64 which contains all the alo files corresponding to your plugin. The relinfo file contains the version file ver.yourplugin_win64.txt. Now create the zip file from your 5.0.0 folder. and rename the zipfile as yourplugin_win64.zip. The zip file containing the plugin will look like the schematic diagram below
+                  5.0.0  
+                    |
+  ----------------------------------------
+  |                      |               |
+ bin                   Plugins         relinfo
+  |                      |               | 
+ win64                 win64      ver.yourplugin_win64.txt
+  |                      |
+ Release/Debug         *.yourplugin.alo
+  |
+ yourplugin.dll
+Please note that this time we do not need to include the rest of the folders as we do not want to put anything there. Now if “yourplugin.zip” file is unzipped under the 5.0.0 of the installation, then only the files corresponding to your plugin will be copied in the required location and the rest of the installation will remain untouched. Similarly you can make packages for data or doc folder based on your requirements, You just have to make sure they conform to this folder structure so that things move to right place.
+For an example of a plugin package for Windows (64-bit), look at our DipSteering plugin package at http://opendtect.org/relman/5.0.0/dgbds/5.0.5/dgbds_win64.zip
+Package naming convention.
+
+A script is used to generate the zip package name, however for convenience let us explain the process here. The first part of the package name is actually the short package name inside the package definition file under the keyword ‘PKG’. e.g. the short name for “OpendTect programs and libraries” is “base” and is obtained by the Keyword: ‘PKG’, so the package name for Windows 64 becomes base_win64 or base_lux64 for Linux 64-bit. So the final name of the zip file should be “base_win64.zip”. Only the platform independent packages like the documentation package and data packages do not have the platform suffix.
+The version filenames start with the “ver” prefix followed by a dot and the package name and ending with .txt extension e.g. ver.base_win64.txt.
+Similarly the icon files (to be used by the Installation Manager) for individual packages are stored at the download site and their name should be same as the package name and should have a .png format. e.g. base package icon name will be base.png. All these files are zipped together under images.zip. If you want the icon for your plugin to be included here, you can simply send the icon as a PNG file of 100 X 100 pixels with a transparent background to support@opendtect.org.
+
+*/
