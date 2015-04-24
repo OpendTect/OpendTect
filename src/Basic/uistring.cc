@@ -665,7 +665,7 @@ uiString toUiString(tp v,int prec) \
     if ( locale ) \
     { \
         uiString res; \
-        res.setFrom( locale->toString((qtp) v, prec) ); \
+        res.setFrom( locale->toString((qtp) v, 'g', prec) ); \
         return res; \
     } \
  \
