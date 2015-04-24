@@ -23,13 +23,12 @@ Coord Coord2List::center() const
 	if ( id < 0 )
 	    break;
 
-	const Coord coord = get( id );
-	sum.x += coord.x; sum.y += coord.y;
+	sum += get( id );
 	nrpts++;
     }
 
     if ( nrpts > 1 )
-	{ sum.x /= nrpts; sum.y /= nrpts; }
+	sum /= (double)nrpts;
 
     return sum;
 }
@@ -45,13 +44,12 @@ Coord3 Coord3List::center() const
 	if ( id < 0 )
 	    break;
 
-	const Coord3 coord = get( id );
-	sum.x += coord.x; sum.y += coord.y; sum.z += coord.z;
+	sum += get( id );
 	nrpts++;
     }
 
     if ( nrpts > 1 )
-	{ sum.x /= nrpts; sum.y /= nrpts; sum.z /= nrpts; }
+	sum /= (double)nrpts;
 
     return sum;
 }
