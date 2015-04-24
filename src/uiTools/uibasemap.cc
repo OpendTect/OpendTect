@@ -157,29 +157,6 @@ void uiBaseMapObject::update()
 	    }
 	}
 
-	const OD::RGBImage* rgbimage = bmobject_->getImage( idx );
-	if ( rgbimage )
-	{
-	    while ( itemgrp_.size()<itemnr )
-	    {
-		mDynamicCastGet(uiPixmapItem*,itm,itemgrp_.getUiItem(itemnr));
-		if ( !itm )
-		    itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
-		else break;
-	    }
-
-	    if ( itemgrp_.size()<=itemnr )
-		itemgrp_.add( new uiPixmapItem() );
-
-	    mDynamicCastGet(uiPixmapItem*,itm,itemgrp_.getUiItem(itemnr));
-
-	    mDynamicCastGet(const uiRGBArray*,rgbarr,rgbimage)
-	    uiPixmap pixmap( *rgbarr );
-	    itm->setPixmap( pixmap );
-
-	    itemnr++;
-	}
-
 	const char* shapenm = bmobject_->getShapeName( idx );
 	if ( shapenm && !crds.isEmpty() )
 	{

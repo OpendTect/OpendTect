@@ -17,6 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemaprandomlineitem.h"
 #include "uibasemapseisoutlineitem.h"
 #include "uibasemapwellitem.h"
+#include "uibasemapzsliceitem.h"
+
 #include "uibasemapwin.h"
 
 #include "uimenu.h"
@@ -152,6 +154,7 @@ mDefODInitPlugin(uiBasemap)
     uiBasemapRandomLineItem::initClass();
     uiBasemapWellItem::initClass();
     uiBasemapSeisOutlineItem::initClass();
+    uiBasemapZSliceItem::initClass();
 
     return 0;
 }
