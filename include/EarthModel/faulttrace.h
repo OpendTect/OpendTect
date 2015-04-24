@@ -48,7 +48,7 @@ public:
     void		remove(int);
     void		remove(const TypeSet<int>&)	{}
     bool		isDefined(int) const;
-    int			getSize() const	{ return coords_.size(); }
+    int			size() const	{ return coords_.size(); }
     FaultTrace*		clone() const;
 
     bool		isInl() const			{ return isinl_; }

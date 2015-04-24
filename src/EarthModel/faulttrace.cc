@@ -765,11 +765,11 @@ void FaultTrace::computeTraceSegments()
 Coord FaultTrace::getIntersection( const BinID& bid1, float z1,
 				   const BinID& bid2, float z2  ) const
 {
-    if ( !getSize() )
+    if ( size() == 0 )
 	return Coord::udf();
 
     const bool is2d = trcnrs_.size();
-    if ( is2d && trcnrs_.size() != getSize() )
+    if ( is2d && trcnrs_.size() != size() )
 	return Coord::udf();
 
     Interval<float> zrg( z1, z2 );

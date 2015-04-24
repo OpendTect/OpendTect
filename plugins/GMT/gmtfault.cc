@@ -177,7 +177,8 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 	    if ( !calcOnHorizon( *fltsurf, clist ) )
 		continue;
 
-	    if ( clist.getSize() == 0 )
+	    const int csz = clist.size();
+	    if ( csz < 1 )
 	    {
 		uiString msg = tr("Selected Horizon and %1 are"
                                   " not intersected").arg(fault3d->name());
@@ -185,7 +186,7 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 		continue;
 	    }
 
-	    for ( int idx=0; idx<clist.getSize(); idx++ )
+	    for ( int idx=0; idx<csz; idx++ )
 	    {
 		double x = clist.get( idx ).x;
 		double y = clist.get( idx ).y;

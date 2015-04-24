@@ -47,7 +47,7 @@ public:
     const osg::Array*		osgArray() const	{ return osgcoords_; }
 
 protected:
-    				~TextureCoords();
+				~TextureCoords();
 
     int				searchFreeIdx();
     void			setPosWithoutLock(int,const Coord&);
@@ -64,7 +64,7 @@ protected:
 mExpClass(visBase) TextureCoordListAdapter : public Coord3List
 {
 public:
-    			TextureCoordListAdapter(TextureCoords&);
+			TextureCoordListAdapter(TextureCoords&);
 
     int			nextID(int previd) const;
     Coord3		get(int id) const;
@@ -72,13 +72,13 @@ public:
     void		set(int id,const Coord3&);
     int			add(const Coord3&);
     void		remove(int id);
-    int			getSize() const	{ return texturecoords_.size(); }
+    int			size() const	{ return texturecoords_.size(); }
     void		addValue(int,const Coord3&);
     void		remove(const TypeSet<int>&);
     TextureCoords*	getTextureCoords() { return &texturecoords_; }
 
 protected:
-    			~TextureCoordListAdapter();
+			~TextureCoordListAdapter();
 
     TextureCoords&	texturecoords_;
 };
