@@ -14,8 +14,9 @@ ________________________________________________________________________
 
 #include "factory.h"
 #include "coord.h"
-#include "trckey.h"
 #include "refcount.h"
+#include "threadlock.h"
+#include "trckey.h"
 #include "trckeyzsampling.h"
 
 class TaskRunner;
@@ -108,11 +109,11 @@ public:
 
     const Geometry3D*		getGeometry3D(Pos::SurvID) const;
 
-    int 			nrGeometries() const;
+    int			nrGeometries() const;
 
     Geometry::ID		getGeomID(const char* linenm) const;
     const char*			getName(Geometry::ID) const;
-    
+
     Coord			toCoord(const TrcKey&) const;
 
     TrcKey			traceKey(Geometry::ID,Pos::LineID,
@@ -142,6 +143,7 @@ protected:
     int				indexOf(Geometry::ID) const;
     bool			hasDuplicateLineNames();
 
+    Threads::Lock		lock_;
     ObjectSet<Geometry>		geometries_;
     static const TrcKey::SurvID	surv2did_;
 
@@ -160,7 +162,7 @@ public:
 
     Geometry::ID		getGeomID(const char* lsm,
 					  const char* linenm) const;
-				/*!< Use only if you are converting 
+				/*!< Use only if you are converting
 				    od4 geometries to od5 geometries */
     bool			fetchFrom2DGeom(uiString& errmsg);
 				//converts od4 geometries to od5 geometries.
