@@ -686,6 +686,8 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !storinterp_ ) commitSelections();
     if ( headerdone_ ) return true;
 
+    const int oldcurinl = curbid_.inl();
+    const int oldcurtrcnr = curtrcnr_;
     if ( read_mode != Seis::Scan )
 	{ mSetUdf(curbid_.inl()); mSetUdf(curtrcnr_); }
 
@@ -740,8 +742,10 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( fileopts_.psdef_ == SEGY::FileReadOpts::UsrDef )
     {
+	offsdef_ = fileopts_.offsdef_;
 	const bool is2d = Seis::is2D(fileopts_.geomType());
-	if ( (is2d && ti.nr != prevtrcnr_) || (!is2d && ti.binid != prevbid_) )
+	if ( (is2d && !mIsUdf(prevtrcnr_) && ti.nr != prevtrcnr_) ||
+	     (!is2d && !mIsUdf(prevbid_.inl()) && ti.binid != prevbid_) )
 	    curoffs_ = -1;
 
 	if ( curoffs_ < 0 )
@@ -751,6 +755,9 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
 	ti.offset = curoffs_;
     }
+
+    curbid_.inl() = oldcurinl;
+    curtrcnr_ = oldcurtrcnr;
 
     if ( goodpos )
     {
