@@ -167,25 +167,26 @@ bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
 {
     delete [] depths_; depths_ = 0;
     delete [] times_; times_ = 0;
-    mTryAlloc( depths_, float[sz] );
-    if ( !depths_ )
-	{ errmsg_ = tr("Out of memory"); return false; }
-
-    mTryAlloc( times_, float[sz] );
-    if ( !times_ )
-	{ errmsg_ = tr("Out of memory"); return false; }
 
     PointBasedMathFunction func;
     for ( int idx=0; idx<sz; idx++ )
 	func.add( times[idx], dpths[idx] );
 
-    for ( int idx=0; idx<sz; idx++ )
+    mTryAlloc( depths_, float[func.size()] );
+    if ( !depths_ )
+	{ errmsg_ = tr("Out of memory"); return false; }
+
+    mTryAlloc( times_, float[func.size()] );
+    if ( !times_ )
+	{ errmsg_ = tr("Out of memory"); return false; }
+
+    for ( int idx=0; idx<func.size(); idx++ )
     {
 	times_[idx] = func.xVals()[idx];
 	depths_[idx] = func.yVals()[idx];
     }
 
-    sz_ = sz;
+    sz_ = func.size();
 
     return true;
 }
