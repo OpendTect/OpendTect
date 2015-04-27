@@ -39,6 +39,7 @@ public:
 					      uiString&) const		   = 0;
 
     static Pos::GeomID	getGeomID(const IOObj&);
+    static IOObj*	getIOObj(Pos::GeomID);
     static IOObj*	createEntry(const char* objname,const char* trnm);
 
 };
@@ -51,6 +52,7 @@ public:
 			dgbSurvGeom2DTranslator(const char* s1,const char* s2)
 			    : SurvGeom2DTranslator(s1,s2)	{}
 
+    const char*		defExtension() const	{ return "geom"; }
     Survey::Geometry*	readGeometry(const IOObj&,uiString&) const;
     bool		writeGeometry(IOObj&,Survey::Geometry&,uiString&) const;
 

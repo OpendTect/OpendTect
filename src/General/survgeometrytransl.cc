@@ -25,6 +25,15 @@ mDefSimpleTranslatorioContext(SurvGeom2D,Geom);
 Pos::GeomID SurvGeom2DTranslator::getGeomID( const IOObj& ioobj )
 { return ioobj.key().ID( 1 ); }
 
+IOObj* SurvGeom2DTranslator::getIOObj( Pos::GeomID geomid )
+{
+    IOObjContext ioctxt( mIOObjContext(SurvGeom2D) );
+    MultiID mid = ioctxt.getSelKey();
+    mid.add( geomid );
+    return IOM().get( mid );
+}
+
+
 IOObj* SurvGeom2DTranslator::createEntry( const char* name, const char* trkey )
 {
     IOObjContext iocontext( mIOObjContext(SurvGeom2D) );

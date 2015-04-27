@@ -383,6 +383,7 @@ Geometry::ID GeometryManager::addNewEntry( Geometry* geom, uiString& errmsg )
     PtrMan<GeometryWriter> geomwriter =
 	GeometryWriter::factory().create( sKey::TwoD() );
 
+    Threads::Locker locker( lock_ );
     geomid = geomwriter->createNewGeomID( geom->getName() );
     if ( !write(*geom,errmsg) )
 	return cUndefGeomID();
@@ -420,6 +421,7 @@ int GeometryManager::indexOf( Geometry::ID geomid ) const
 
 bool GeometryManager::fillGeometries( TaskRunner* taskrunner )
 {
+    Threads::Locker locker( lock_ );
     deepUnRef( geometries_ );
     ensureSIPresent();
     hasduplnms_ = hasDuplicateLineNames();
@@ -431,6 +433,7 @@ bool GeometryManager::fillGeometries( TaskRunner* taskrunner )
 
 bool GeometryManager::updateGeometries( TaskRunner* taskrunner )
 {
+    Threads::Locker locker( lock_ );
     PtrMan<GeometryReader> geomreader = GeometryReader::factory()
 					.create(sKey::TwoD());
     return geomreader ? geomreader->updateGeometries( geometries_, taskrunner )

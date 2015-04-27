@@ -14,8 +14,9 @@ ________________________________________________________________________
 
 #include "factory.h"
 #include "coord.h"
-#include "trckey.h"
 #include "refcount.h"
+#include "threadlock.h"
+#include "trckey.h"
 #include "trckeyzsampling.h"
 
 class TaskRunner;
@@ -142,6 +143,7 @@ protected:
     int				indexOf(Geometry::ID) const;
     bool			hasDuplicateLineNames();
 
+    Threads::Lock		lock_;
     ObjectSet<Geometry>		geometries_;
     static const TrcKey::SurvID	surv2did_;
 
