@@ -219,7 +219,12 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     int nrauxdata = sel.sd.valnames.size();
     if ( !nrauxdata || selidx >= nrauxdata ) return 0;
 
-    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes reader" );
+    ExecutorGroup* grp = transl->getAuxdataReaders( horizon_ );
+    if ( grp )
+	return grp;
+
+    //TODO: overrule getAuxdataReaders for dgbEMHorizon3DTranslator
+    grp = new ExecutorGroup( "Surface attributes reader" );
     for ( int validx=0; validx<sel.sd.valnames.size(); validx++ )
     {
 	if ( selidx>=0 && selidx != validx ) continue;

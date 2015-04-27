@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class Executor;
+class ExecutorGroup;
+
 class IOObj;
 
 namespace EM
@@ -140,6 +142,7 @@ public:
 				/*!< Executor is managed by client. */
     Executor*			writer(const IOObj&,bool fullimplremove=true);
 				/*!< Executor is managed by client. */
+    virtual ExecutorGroup*	getAuxdataReaders(EM::Surface&) { return 0; }
 
     uiString			errMsg() const		{ return errmsg_; }
 
