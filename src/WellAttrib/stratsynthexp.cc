@@ -103,6 +103,7 @@ bool StratSynthExporter::prepareWriter()
     }
 
     ctxt->setName( synthnm.buf() );
+    NotifyStopper stopaddentrynot( IOM().entryAdded );
     IOM().getEntry( *ctxt, false );
     delete writer_;
     writer_ = new SeisTrcWriter( ctxt->ioobj );
