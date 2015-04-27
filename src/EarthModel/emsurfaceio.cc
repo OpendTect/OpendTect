@@ -1038,7 +1038,14 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	if ( !surface_->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-	surface_->setPos( sectionid, surfrc.toInt64(), pos, false );
+	if ( !arr_ )
+	    surface_->setPos( sectionid, surfrc.toInt64(), pos, false );
+	else
+	{
+	    int i, j;
+	    if ( getIndices(surfrc,i,j) )
+		arr_->set( i, j, mCast(float,pos.z) );
+	}
 
 	isrowused = true;
     }
@@ -1092,7 +1099,14 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	if ( !surface_->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-	surface_->setPos( sectionid, rowcol.toInt64(), pos, false );
+	if ( !arr_ )
+	    surface_->setPos( sectionid, rowcol.toInt64(), pos, false );
+	else
+	{
+	    int i, j;
+	    if ( getIndices(rowcol,i,j) )
+		arr_->set( i, j, mCast(float,pos.z) );
+	}
 
 	isrowused = true;
     }
