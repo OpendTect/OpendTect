@@ -688,7 +688,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     int centersmp = getIntValue( 1 );
     if ( !mIsUdf(centersmp) )
     {
-	if ( centersmp < 0 )
+	if ( centersmp <= 0 )
 	    centersmp = -centersmp;
 	else
 	    centersmp--;
