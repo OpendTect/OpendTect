@@ -142,7 +142,8 @@ public:
 				/*!< Executor is managed by client. */
     Executor*			writer(const IOObj&,bool fullimplremove=true);
 				/*!< Executor is managed by client. */
-    virtual ExecutorGroup*	getAuxdataReaders(EM::Surface&) { return 0; }
+    virtual Executor*		getAuxdataReader(EM::Surface&,int)
+				{ return 0; }
 
     uiString			errMsg() const		{ return errmsg_; }
 
@@ -215,6 +216,7 @@ public:
 						       const char* nm)
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
     virtual			~dgbEMHorizon3DTranslator()		{}
+    virtual Executor*		getAuxdataReader(EM::Surface&,int);
 
 protected:
     virtual bool		readOnlyZ() const		{ return true; }

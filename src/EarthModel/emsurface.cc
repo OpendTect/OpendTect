@@ -46,6 +46,7 @@ void SurfaceIOData::clear()
     deepErase(linesets);
     geomids.erase();
     trcranges.erase();
+    nrsticks_ = 0;
 }
 
 
