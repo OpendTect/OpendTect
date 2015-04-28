@@ -50,8 +50,7 @@ void SpecDecomp::initClass()
     EnumParam* window = new EnumParam( windowStr() );
     window->addEnums( ArrayNDWindow::WindowTypeNames() );
     window->setRequired( false );
-    window->setDefaultValue( ArrayNDWindow::CosTaper5 );
-    window->setValue( 0 );
+    window->setValue( ArrayNDWindow::CosTaper5 );
     desc->addParam( window );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
