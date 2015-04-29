@@ -113,11 +113,11 @@ void uiBaseMapMnuTBMgr::createFileMenu()
 
 void uiBaseMapMnuTBMgr::createProcessingMenu()
 {
-    const MenuItem griditm( tr("Gridding"),
+    const MenuItem griditm( tr("Gridding ..."),
 			    mCB(this,uiBaseMapMnuTBMgr,gridCB));
     processingmnu_->insertAction( griditm );
 
-    const MenuItem filtitm( tr("Filtering"),
+    const MenuItem filtitm( tr("Filtering ..."),
 			    mCB(this,uiBaseMapMnuTBMgr,filtCB));
     processingmnu_->insertAction( filtitm );
 }
