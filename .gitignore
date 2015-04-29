@@ -20,6 +20,21 @@ bin/lux64/Release/
 include/General/od_helpids.h
 install_manifest.txt
 inst
+plugins/*/*.alo
+*.cxx_parameters
+src/*/instantiate*export.cc
+bin/*/Debug/*
+bin/*/Release/*
+*.tlog
+*.log
+*.obj
+*.lib
+*.exp
+*.rc
+*.manifest*
+*.lastbuildstate
+*.unsuccessfulbuild
+*.cache
 
 
 #CMakes stuff
@@ -33,10 +48,18 @@ CMakeFiles
 Makefile
 CMakeCache.txt
 CTestCustom.cmake
+*.vcxproj.filters
+*.vcxproj
+*.vcxproj.user
+*deps.h
+*.sln
+*.sdf
+*.opensdf
 
 
 #Temporary files
 *.sw?
+*~
 
 #Platform dependent files
 # Windows
