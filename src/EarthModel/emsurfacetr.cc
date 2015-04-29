@@ -16,7 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurface.h"
 #include "emsurfaceio.h"
 #include "emsurfauxdataio.h"
+#include "emhorizon3d.h"
 #include "executor.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
@@ -389,4 +391,58 @@ Executor* dgbEMSurfaceTranslator::getWriter()
     res->selAuxData( sels_.selvalues );
 
     return res;
+}
+
+
+static BufferString getFileName( const char* fulluserexp, const char* attrnmptr)
+{
+    FixedString attrnm( attrnmptr );
+    const BufferString basefnm( fulluserexp );
+    BufferString fnm; int gap = 0;
+    for ( int idx=0; ; idx++ )
+    {
+	if ( gap > 100 ) return "";
+
+	fnm = EM::dgbSurfDataWriter::createHovName(basefnm,idx);
+	if ( File::isEmpty(fnm.buf()) )
+	    { gap++; continue; }
+
+	EM::dgbSurfDataReader rdr( fnm.buf() );
+	if ( attrnm == rdr.dataName() )
+	    break;
+    }
+
+    return fnm;
+}
+
+static BufferString getFileName( const IOObj& ioobj, const char* attrnm )
+{ return getFileName( ioobj.fullUserExpr(true), attrnm ); }
+
+
+Executor* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,
+							    int selidx )
+{
+    if ( selidx >= sels_.sd.valnames.size() )
+	return 0;
+        
+    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes reader" );
+    for ( int idx=0; idx<sels_.sd.valnames.size(); idx++ )
+    {
+	if ( selidx>=0 && selidx != idx ) 
+	    continue;
+	
+	const BufferString filenm = getFileName( *ioobj_,
+					    sels_.sd.valnames[selidx]->buf() );
+	if ( filenm.isEmpty() )
+	    continue;
+
+	EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader( filenm.buf() );
+	mDynamicCastGet(EM::Horizon3D*,hor3d,&surface)
+	if ( !hor3d )
+	    return 0;
+	rdr->setSurface( *hor3d );
+	grp->add( rdr );
+    }
+
+    return grp;
 }

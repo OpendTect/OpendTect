@@ -219,21 +219,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     int nrauxdata = sel.sd.valnames.size();
     if ( !nrauxdata || selidx >= nrauxdata ) return 0;
 
-    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes reader" );
-    for ( int validx=0; validx<sel.sd.valnames.size(); validx++ )
-    {
-	if ( selidx>=0 && selidx != validx ) continue;
-
-	BufferString filenm = getFileName( *ioobj,
-					   sel.sd.valnames[validx]->buf() );
-	if ( filenm.isEmpty() ) continue;
-
-	dgbSurfDataReader* rdr = new dgbSurfDataReader(filenm.buf());
-	rdr->setSurface( horizon_ );
-	grp->add( rdr );
-    }
-
-    return grp;
+    return transl->getAuxdataReader( horizon_, selidx );
 }
 
 
