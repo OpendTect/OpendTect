@@ -1059,9 +1059,9 @@ bool Triangle2DInterpolator::computeWeights( const Coord& pt,
 		triangles_.coordList()[tmpvertices[2]],
 		weight[0], weight[1], weight[2] );
 
-	tmpv += (double)tmpvertices[0]; tmpw += weight[0];
-	tmpv += (double)tmpvertices[1]; tmpw += weight[1];
-	tmpv += (double)tmpvertices[2]; tmpw += weight[2];
+	tmpv += tmpvertices[0]; tmpw += weight[0];
+	tmpv += tmpvertices[1]; tmpw += weight[1];
+	tmpv += tmpvertices[2]; tmpw += weight[2];
     }
 
     if ( mIsUdf(maxdist) )
