@@ -20,7 +20,7 @@ mExpClass(uiBasemap) uiBasemapPickSetParentTreeItem :
 {
 public:
 			uiBasemapPickSetParentTreeItem(int id)
-			    : uiBasemapParentTreeItem("Pick Set",id)	{}
+			    : uiBasemapParentTreeItem("PickSet",id)	{}
 protected:
 
 };

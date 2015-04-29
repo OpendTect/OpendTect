@@ -50,7 +50,7 @@ mExpClass(uiBasemap) uiBasemapZSliceParentTreeItem :
 {
 public:
 			uiBasemapZSliceParentTreeItem(int id)
-			    : uiBasemapParentTreeItem("Z Slice",id)	{}
+			    : uiBasemapParentTreeItem("Z-slice",id)	{}
 protected:
 
 };
