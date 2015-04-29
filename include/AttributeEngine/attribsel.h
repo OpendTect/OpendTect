@@ -152,7 +152,7 @@ public:
 				bool is2d=false,
 				const DescID& ignoreid=DescID::undef(),
 				bool usesteering=false,bool onlysteering=false,
-				bool onlymulticomp=false);
+				bool onlymulticomp=false, bool usehidden=false);
 			SelInfo(const SelInfo&);
     SelInfo&		operator=(const SelInfo&);
 

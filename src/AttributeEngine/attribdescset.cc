@@ -1179,7 +1179,8 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 
 void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 {
-    Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false );
+    Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false, false,
+			     false, true );
     for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
 	inplist.addIfNew( attrinf.attrnms_.get(idx) );
 
@@ -1196,7 +1197,8 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 	stornm.unEmbed( '[', ']' );
 	//generate Info with the same parameters as in fillInUIInputList
 	//which is supposed to be the source of the input string.
-	Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false );
+	Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false, false,
+				 false, true );
 	int iidx = attrinf.ioobjnms_.indexOf( stornm.buf() );
 	if ( iidx < 0 ) return 0;
 

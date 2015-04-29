@@ -231,7 +231,7 @@ bool SelSpec::isStored() const
 // Attrib::SelInfo
 SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 		  bool is2d, const DescID& ignoreid, bool usesteering,
-		  bool onlysteering, bool onlymulticomp )
+		  bool onlysteering, bool onlymulticomp, bool usehidden )
     : is2d_( is2d )
     , usesteering_( usesteering )
     , onlysteering_( onlysteering )
@@ -250,7 +250,8 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 					    : sKey::EmptyString().buf() );
 	    if ( !desc || usrref.isEmpty()
 	      || desc->attribName()==StorageProvider::attribName()
-	      || attrset->getID(*desc) == ignoreid || desc->isHidden() )
+	      || attrset->getID(*desc) == ignoreid
+	      || ( !usehidden && desc->isHidden() ) )
 		continue;
 
 	    attrids_ += descid;
