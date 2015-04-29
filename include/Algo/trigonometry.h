@@ -24,32 +24,32 @@ class Plane3;
 Given a point pt in a triangle ABC, we calculate the interpolation weights for
 each vertex.
  */
-inline void interpolateOnTriangle2D( const Coord pt, 
-			const Coord a, const Coord b, const Coord c, 
-			float& weight_a, float& weight_b, float& weight_c )
+inline void interpolateOnTriangle2D( const Coord pt,
+			const Coord a, const Coord b, const Coord c,
+			double& weight_a, double& weight_b, double& weight_c )
 {
     const Coord d0 = b-a;
     const Coord d1 = pt-a;
     const Coord d2 = b-c;
-    const float para_pt = (float)((d0.x*d2.y-d0.y*d2.x)/(d1.x*d2.y-d1.y*d2.x));
-    const float para_bc = (float)((d1.x*d0.y-d1.y*d0.x)/(d1.x*d2.y-d1.y*d2.x));
+    const double para_pt = (d0.x*d2.y-d0.y*d2.x) / (d1.x*d2.y-d1.y*d2.x);
+    const double para_bc = (d1.x*d0.y-d1.y*d0.x) / (d1.x*d2.y-d1.y*d2.x);
 
     if ( mIsZero(para_pt, 1e-5) )
     {
-	weight_a = 1;
-	weight_b = 0;
-	weight_c = 0;
+	weight_a = 1.;
+	weight_b = 0.;
+	weight_c = 0.;
 	return;
     }
 
-    weight_a = 1-1/para_pt;
-    weight_b = (1-para_bc)/para_pt;
+    weight_a = 1.-1./para_pt;
+    weight_b = (1.-para_bc)/para_pt;
     weight_c = para_bc/para_pt;
 }
 
 
 /*!\brief
-Here are some commonly used functions to judge the position relation between 
+Here are some commonly used functions to judge the position relation between
 point and line, point and triangle, point and circle or sphere.
 */
 
@@ -61,9 +61,9 @@ inline double determinent33( const double* v )
 }
 
 
-/*Calculate a 4x4 matrix's determinent given by rows r0, r1, r2, r3 with the 
+/*Calculate a 4x4 matrix's determinent given by rows r0, r1, r2, r3 with the
   last column 1, 1, 1, 1. */
-inline double determinent44( const Coord3& r0, const Coord3& r1, 
+inline double determinent44( const Coord3& r0, const Coord3& r1,
 		             const Coord3& r2, const Coord3& r3 )
 {
     const double d0[9] = { r1.y, r1.z, 1, r2.y, r2.z, 1, r3.y, r3.z, 1 };
@@ -75,23 +75,23 @@ inline double determinent44( const Coord3& r0, const Coord3& r1,
 }
 
 /*!<Each ri represents a row of 4 elements. */
-inline double determinent44( const double* r0, const double* r1, 
+inline double determinent44( const double* r0, const double* r1,
 			     const double* r2, const double* r3 )
 {
-    const double d0[9] = { r1[1], r1[2], r1[3], r2[1], r2[2], r2[3], 
+    const double d0[9] = { r1[1], r1[2], r1[3], r2[1], r2[2], r2[3],
 			   r3[1], r3[2], r3[3] };
-    const double d1[9] = { r1[0], r1[2], r1[3], r2[0], r2[2], r2[3], 
+    const double d1[9] = { r1[0], r1[2], r1[3], r2[0], r2[2], r2[3],
 			   r3[0], r3[2], r3[3] };
-    const double d2[9] = { r1[0], r1[1], r1[3], r2[0], r2[1], r2[3], 
+    const double d2[9] = { r1[0], r1[1], r1[3], r2[0], r2[1], r2[3],
 			   r3[0], r3[1], r3[3] };
-    const double d3[9] = { r1[0], r1[1], r1[2], r2[0], r2[1], r2[2], 
+    const double d3[9] = { r1[0], r1[1], r1[2], r2[0], r2[1], r2[2],
 			   r3[0], r3[1], r3[2] };
     return r0[0]*determinent33( d0 )-r0[1]*determinent33( d1 )+
 	   r0[2]*determinent33( d2 )-r0[3]*determinent33( d3 );
 }
 
 /*!<Check the point pt is inside the circumcircle of p1, p2, p3 or not. */
-inline bool isInsideCircle( const Coord& pt, 
+inline bool isInsideCircle( const Coord& pt,
 			    const Coord& p1, const Coord& p2, const Coord& p3 )
 {
     Coord center;
@@ -116,7 +116,7 @@ inline bool isInsideCircumSphere( const Coord3& p, const Coord3& a,
     const Coord3 ad = a-d;
     const double t[9] = { ab.x, ab.y, ab.z, ac.x, ac.y, ac.z, ad.x, ad.y, ad.z};
     const double deter = determinent33( t );
-    
+
     const double sqra = a.x*a.x+a.y*a.y+a.z*a.z;
     const double d0 = (sqra-(b.x*b.x+b.y*b.y+b.z*b.z))/2;
     const double d1 = (sqra-(c.x*c.x+c.y*c.y+c.z*c.z))/2;
@@ -127,14 +127,14 @@ inline bool isInsideCircumSphere( const Coord3& p, const Coord3& a,
     const double centerx = determinent33(t0)/deter;
     const double centery = determinent33(t1)/deter;
     const double centerz = determinent33(t2)/deter;
-    
+
     return (p.x*p.x+p.y*p.y+p.z*p.z-sqra+
 	2*(centerx*(a.x-p.x)+centery*(a.y-p.y)+centerz*(a.z-p.z)))<0;
 }
 
 
 /*! Check p1, p2 are on the same side of the edge AB or not.*/
-inline bool sameSide2D( const Coord& p1, const Coord& p2, 
+inline bool sameSide2D( const Coord& p1, const Coord& p2,
 			const Coord& a, const Coord& b, double epsilon )
 {
     double xdiff = b.x-a.x;
@@ -145,7 +145,7 @@ inline bool sameSide2D( const Coord& p1, const Coord& p2,
 
 
 /*!<Only when four points are coplanar. */
-inline bool sameSide3D( const Coord3& p1, const Coord3& p2, 
+inline bool sameSide3D( const Coord3& p1, const Coord3& p2,
 			const Coord3& a, const Coord3& b, double epsilon )
 {
     const Coord3 cpp1 = (b-a).cross(p1-a);
@@ -155,29 +155,29 @@ inline bool sameSide3D( const Coord3& p1, const Coord3& p2,
 
 
 /*!<Use this function only when the 4 points are all in a plane. */
-inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b, 
+inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b,
 			       const Coord& c, double epsilon )
 {
     if ( (p.x>a.x && p.x>b.x && p.x>c.x) || (p.x<a.x && p.x<b.x && p.x<c.x) ||
-     	 (p.y>a.y && p.y>b.y && p.y>c.y) || (p.y<a.y && p.y<b.y && p.y<c.y) )
+	 (p.y>a.y && p.y>b.y && p.y>c.y) || (p.y<a.y && p.y<b.y && p.y<c.y) )
 	return false;
 
-    return sameSide2D(p,a,b,c,epsilon) && sameSide2D(p,b,a,c,epsilon) && 
+    return sameSide2D(p,a,b,c,epsilon) && sameSide2D(p,b,a,c,epsilon) &&
 	   sameSide2D(p,c,a,b,epsilon);
 }
 
 
 /*!<Only when four points are coplanar. */
-inline bool pointInTriangle3D( const Coord3& p, const Coord3& a, 
+inline bool pointInTriangle3D( const Coord3& p, const Coord3& a,
 			const Coord3& b, const Coord3& c, double epsilon )
 {
-    return sameSide3D(p,a,b,c,epsilon) && sameSide3D(p,b,a,c,epsilon) && 
+    return sameSide3D(p,a,b,c,epsilon) && sameSide3D(p,b,a,c,epsilon) &&
 	   sameSide3D(p,c,a,b,epsilon);
 }
 
 
 /*!< Check to see if the point P is on the edge AB or not.*/
-inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b, 
+inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b,
 			   double epsilon )
 {
     const Coord pa = p-a;
@@ -192,7 +192,7 @@ inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b,
 }
 
 
-inline bool pointOnEdge3D( const Coord3& p, const Coord3& a, const Coord3& b, 
+inline bool pointOnEdge3D( const Coord3& p, const Coord3& a, const Coord3& b,
 			   double epsilon )
 {
     const Coord3 pa = p-a;
@@ -229,17 +229,17 @@ inline bool pointInPolygon( const Coord3& pt, const TypeSet<Coord3>& plgknots,
 	{
 	    p1 = plgknots[idx] - pt;
 	    p2 = plgknots[(idx+1)%nrvertices] - pt;
-	    
+
 	    const double d1 = p1.abs();
 	    const double d2 = p2.abs();
 	    if ( d1*d2 <= epsilon*epsilon || d1 <= epsilon || d2 <= epsilon )
 		return true;
 	    else
 		cosangle = p1.dot(p2) / (d1*d2);
-	    
+
 	    anglesum += acos( cosangle );
 	}
-	
+
 	return mIsEqual( anglesum, 6.2831853071795862, 1e-4 );
     }
 }
@@ -266,7 +266,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
 
 /*!
 \brief Quaternion is an extension to complex numbers.
-  
+
   A Quaternion is represented by the equation:<br>
   q = s + xi + yj + zk <br>
   where: i*i = j*j = k*k = -1.
@@ -275,20 +275,20 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
 mExpClass(Algo) Quaternion
 {
 public:
-    			Quaternion(double s,double x,double y,double z);
+			Quaternion(double s,double x,double y,double z);
 			Quaternion(const Vector3& axis,float angle);
 
     void		setRotation(const Vector3& axis,float angle);
     void		getRotation(Vector3& axis,float& angle) const;
-    			/*!<\note axis is not normalized. */
+			/*!<\note axis is not normalized. */
     Coord3		rotate(const Coord3&) const;
 
     Quaternion		operator+(const Quaternion&) const;
-    Quaternion& 	operator+=(const Quaternion&);
+    Quaternion& operator+=(const Quaternion&);
     Quaternion		operator-(const Quaternion&) const;
-    Quaternion& 	operator-=(const Quaternion&);
+    Quaternion& operator-=(const Quaternion&);
     Quaternion		operator*(const Quaternion&) const;
-    Quaternion& 	operator*=(const Quaternion&);
+    Quaternion& operator*=(const Quaternion&);
 
     Quaternion		inverse() const;
 
@@ -304,9 +304,9 @@ form y = slope*x + y-intercept; for making operations easier.
 
 mExpClass(Algo) Line2
 {
-public:			
-    			Line2(double slope=0,double intcpt=0);
-    			Line2(const Coord&,double slope);
+public:
+			Line2(double slope=0,double intcpt=0);
+			Line2(const Coord&,double slope);
 			Line2(const Coord&,const Coord&);
 
     bool		operator==(const Line2&) const;
@@ -314,17 +314,17 @@ public:
     Coord		direction() const;	/*!<Normalized */
 
     Coord		closestPoint(const Coord& point) const;
-    			/*!<\return the point on the line that is closest to
-			 	     the given point */
+			/*!<\return the point on the line that is closest to
+				     the given point */
 
     Coord		intersection(const Line2&,bool checkinlimit=true) const;
 
     double		distanceTo(const Line2&) const;
-    			/*!<Gives distance to another parallel line */
+			/*!<Gives distance to another parallel line */
     bool		getParallelLine(Line2& line,double dist) const;
 			/*!<Gives a parallel line at a distance dist */
     bool		getPerpendicularLine(Line2& line,const Coord& pt) const;
-    			/*!<Gives a perpendicular line through point pt*/
+			/*!<Gives a perpendicular line through point pt*/
     bool		isOnLine(const Coord& pt) const;
 
     double		slope_;
@@ -340,7 +340,7 @@ public:
 
 /*!
 \brief A Line3 is a line in space, with the following equations:
-  
+
   x = x0 + alpha*t
   y = y0 + beta*t
   z = z0 + gamma*t
@@ -348,34 +348,34 @@ public:
 
 mExpClass(Algo) Line3
 {
-public:			
-    			Line3();
-    			Line3(	double x0, double y0, double z0,
+public:
+			Line3();
+			Line3(	double x0, double y0, double z0,
 				double alpha, double beta, double gamma );
-    			Line3( const Coord3&, const Vector3& );
+			Line3( const Coord3&, const Vector3& );
 
     Vector3		direction( bool normalize = true ) const
-    			{
+			{
 			    const Vector3 res( alpha_, beta_, gamma_ );
 			    return normalize ? res.normalize() : res;
 			}
 
     Coord3		getPoint(double t) const;
     bool		intersectWith( const Plane3&, double& t ) const;
-    			/*!<Calculates the intersection between the line
+			/*!<Calculates the intersection between the line
 			    and the plane. If success, it sets t. */
-    			
- 
+
+
     double		distanceToPoint( const Coord3& point ) const;
     double		sqDistanceToPoint( const Coord3& point ) const;
     double		closestPoint( const Coord3& point ) const;
-    			/*!<\returns the point on the line that is closest to
-			 	     the given point */
+			/*!<\returns the point on the line that is closest to
+				     the given point */
     void		closestPoint( const Line3& line, double& t_this,
-	   			      double& t_line ) const;
-    			/*!<\returns the t for the point point on the line
-			   	     that is closest to the given line*/
- 
+				      double& t_line ) const;
+			/*!<\returns the t for the point point on the line
+				     that is closest to the given line*/
+
     double		x0_;
     double		y0_;
     double		z0_;
@@ -397,20 +397,20 @@ public:
 			Plane3( const Coord3& vectors, const Coord3&,
 				bool twovectors );
 			/*!<\param twovectors	Specifies if the second argument
-			  			is a vector or a position
+						is a vector or a position
 			*/
 			Plane3( const Coord3&, const Coord3&, const Coord3& );
 			Plane3( const TypeSet<Coord3>& );
 
     void		set( const Coord3& vector, const Coord3&,
-	    		     bool twovectors );
+			     bool twovectors );
 			/*!<\param twovectors	Specifies if the second argument
-			  			is a vector or a position
+						is a vector or a position
 			*/
     void		set( const Coord3&, const Coord3&, const Coord3& );
     float		set( const TypeSet<Coord3>& );
-    			/*!< \returns	a value between 0-1 that indicates how
-		     			well the points fit to a plane.
+			/*!< \returns	a value between 0-1 that indicates how
+					well the points fit to a plane.
 					1 = perfect fit 0 = no fit
 			*/
 
@@ -418,22 +418,22 @@ public:
     bool		operator!=(const Plane3&) const;
 
     Coord3		normal() const { return Coord3( A_, B_, C_ ); }
- 
+
     double		distanceToPoint( const Coord3&,
-	    				bool wichside=false ) const;
-    			/*!<\param wichside if true, the distance along the
-			  	   normal will be returned, wich can be
+					bool wichside=false ) const;
+			/*!<\param wichside if true, the distance along the
+				   normal will be returned, wich can be
 				   negative.
 		        */
     bool		intersectWith( const Line3&, Coord3& ) const;
-    			/*!< Returns true if the plane intersects with the
+			/*!< Returns true if the plane intersects with the
 			     line. If it returns true, the Coord3 is set */
     bool		intersectWith( const Plane3&, Line3& ) const;
-    			/*!< Returns true if the planes intersects.
+			/*!< Returns true if the planes intersects.
 			     If it returns true, the Line3 is set */
     Coord3		getProjection(const Coord3& pos);
     bool		onSameSide(const Coord3& p1,const Coord3& p2);
-    			/*!<Check p1, p2 are on the same side of the plane or 
+			/*!<Check p1, p2 are on the same side of the plane or
 			    not, will return true if one is on the plane.*/
 
     double		A_;
@@ -451,25 +451,25 @@ public:
 mExpClass(Algo) Plane3CoordSystem
 {
 public:
-    			Plane3CoordSystem(const Coord3& normal,
+			Plane3CoordSystem(const Coord3& normal,
 					  const Coord3& origin,
 				          const Coord3& pt10);
 			/*!<\param normal The normal of the plane
 			    \param origin A point on the plane
 			    \param pt10   A point on the plane, not identical
-			    		  to origin. */
-    virtual 		~Plane3CoordSystem() {}
+					  to origin. */
+    virtual		~Plane3CoordSystem() {}
     bool		isOK() const;
-    			/*!<\returns false if two identical points were given
+			/*!<\returns false if two identical points were given
 			             in the constructor. */
 
     const Plane3&	plane() const { return plane_; }
 
     Coord		transform(const Coord3&,bool project) const;
-    			/*!<\param project should be true if the coord is
+			/*!<\param project should be true if the coord is
 			           not located on the plane. If true, the
 				   point will be projected onto the plane. */
-			
+
     Coord3		transform(const Coord&) const;
 
 protected:
@@ -491,11 +491,13 @@ mExpClass(Algo) Sphere
 {
 public:
 			Sphere(float r=0,float t=0,float p=0)
-			    : radius(r),theta(t),phi(p) {}
+			    : radius(r),theta(t),phi(p)
+			{}
 
 			Sphere(const Coord3& crd)
-			    : radius((float) crd.x),theta((float) crd.y),
-											phi((float) crd.z) {}
+			    : radius((float) crd.x),theta((float) crd.y)
+			    , phi((float) crd.z)
+			{}
     bool		operator ==( const Sphere& s ) const;
 
     float		radius;

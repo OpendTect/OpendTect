@@ -78,11 +78,14 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
     }
 
     TriangulatedGridder2D grdr;
-    grdr.setPoints( pts ); grdr.setValues( zvals, false );
-    float avgz = 0;
+    grdr.setPoints( pts );
+    grdr.setValues( zvals );
+    float avgz = 0.f;
     for ( int idx=0; idx<zvals.size(); idx++ )
 	avgz += zvals[idx];
-    avgz /= zvals.size();
+
+    if ( !zvals.isEmpty() )
+	avgz /= mCast(float,zvals.size());
 
     const int nrsect = hor_->nrSections();
     TrcKeySamplingIterator iter( hs );
@@ -101,26 +104,17 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	    float horz = (float) hor_->getPos( sid, subid ).z;
 	    if ( mIsUdf(horz) && bid.inl()!=hs.stop_.inl() &&
 		 bid.crl()!=hs.stop_.crl() )
- 	    { //The very last edges should exclude.
-		horz = (float)
-		    hor_->geometry().sectionGeometry(sid)->computePosition(
-       			Coord(bid.inl(),bid.crl()) ).z;
- 	    }
-		    
+	    { //The very last edges should exclude.
+		horz = (float) hor_->geometry().sectionGeometry(sid)
+		    ->computePosition( Coord(bid.inl(),bid.crl()) ).z;
+	    }
+
 	    if ( mIsUdf(horz) )
 		continue;
 
-	    float polyz = avgz;
-	    bool useavgz = true;
-	    useavgz = !grdr.setGridPoint(coord) || !grdr.init();
-	    if ( useavgz )
+	    float polyz = grdr.getValue( coord );
+	    if ( mIsUdf(polyz) )
 		polyz = avgz;
-	    else
-	    {
-		polyz = grdr.getValue();
-		if ( mIsUdf(polyz) )
-		    polyz = avgz;
-	    }
 
 	    const float th = upw ? polyz - horz : horz - polyz;
 	    if ( useneg || th > 0 )

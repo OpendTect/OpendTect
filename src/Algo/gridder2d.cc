@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gridder2d.h"
 
 #include "delaunay.h"
+#include "linsolv.h"
 #include "iopar.h"
 #include "positionlist.h"
 #include "math2.h"
@@ -21,22 +22,41 @@ mImplFactory( Gridder2D, Gridder2D::factory );
 
 
 Gridder2D::Gridder2D()
-    : values_( 0 )
-    , points_( 0 )
-    , inited_( false )
+    : values_(0)
+    , points_(0)
+    , trend_(0)
 {}
 
 
 Gridder2D::Gridder2D( const Gridder2D& g )
-    : values_( g.values_ )
-    , points_( g.points_ )
-    , inited_( false )
-{}
-
-
-bool Gridder2D::operator==( const Gridder2D& b ) const
+    : values_(g.values_)
+    , points_(g.points_)
+    , trend_(0)
+    , usedpoints_(g.usedpoints_)
 {
-    return factoryKeyword()==b.factoryKeyword();
+    if ( g.trend_ )
+	trend_ = new PolyTrend( *g.trend_ );
+}
+
+
+Gridder2D::~Gridder2D()
+{
+    delete trend_;
+}
+
+
+bool Gridder2D::operator==( const Gridder2D& g ) const
+{
+    if ( factoryKeyword() != g.factoryKeyword() )
+	return false;
+
+    if ( ( trend_ && !g.trend_ ) )
+	return false;
+
+    if ( trend_ && !( *trend_ == *g.trend_ ) )
+	return false;
+
+    return usedpoints_ == g.usedpoints_;
 }
 
 
@@ -47,73 +67,167 @@ bool Gridder2D::isPointUsable(const Coord& cpt,const Coord& dpt) const
 bool Gridder2D::setPoints( const TypeSet<Coord>& cl )
 {
     points_ = &cl;
-    inited_ = false;
+
+    if ( trend_ && values_ && points_->size() == values_->size() )
+	trend_->set( *points_, values_->arr() );
+
+    usedpoints_.setEmpty();
+    for ( int idx=0; idx<points_->size(); idx++ )
+    {
+	if ( (*points_)[idx].isDefined() )
+	    usedpoints_ += idx;
+    }
+
+    if ( !pointsChangedCB(0) )
+    {
+	points_ = 0;
+	return false;
+    }
+
     return true;
 }
 
 
-bool Gridder2D::setValues( const TypeSet<float>& vl, bool hasudfs )
+bool Gridder2D::setValues( const TypeSet<float>& vl )
 {
     values_ = &vl;
-    if ( hasudfs ) inited_ = false;
+
+    if ( trend_ && points_ && points_->size() == values_->size() )
+	trend_->set( *points_, values_->arr() );
+
+    valuesChangedCB(0);
+
     return true;
 }
 
 
-bool Gridder2D::setGridPoint( const Coord& pt )
+void Gridder2D::setTrend( PolyTrend::Order order )
 {
-    inited_ = false;
-    gridpoint_ = pt;
-    return gridpoint_.isDefined();
+    if ( order == PolyTrend::None )
+	return;
+
+    if ( !points_ || !values_ || points_->size() != values_->size() )
+	return;
+
+    if ( trend_ )
+    {
+	if ( order == trend_->getOrder() )
+	    return;
+
+	delete trend_;
+	trend_ = 0;
+    }
+
+    if ( order == PolyTrend::None )
+	return;
+
+    trend_ = new PolyTrend();
+    trend_->setOrder( order );
+    if ( points_ && values_ && points_->size() == values_->size() )
+    {
+	trend_->set( *points_, *values_ );
+	valuesChangedCB(0);
+    }
 }
 
 
-float Gridder2D::getValue() const
+float Gridder2D::getDetrendedValue( int idx ) const
 {
-    if ( !inited_ )
+    if ( !values_ || !values_->validIdx(idx) )
 	return mUdf(float);
 
-    if ( !usedvalues_.size() )
-	return mUdf(float);
+    float val = (*values_)[idx];
+    if ( trend_ && points_ && points_->validIdx(idx) )
+	trend_->apply( (*points_)[idx], true, val );
 
-    if ( !values_ )
-	return mUdf(float);;
+    return val;
+}
 
-    double valweightsum = 0;
-    double weightsum = 0;
-    int nrvals = 0;
-    const int nrvalues = values_->size();
-    for ( int idx=usedvalues_.size()-1; idx>=0; idx-- )
+
+bool Gridder2D::isAtInputPos( const Coord& gridpoint, int& exactpos ) const
+{
+    if ( !gridpoint.isDefined() || !points_ )
+	return false;
+
+    for ( int idx=0; idx<usedpoints_.size(); idx++ )
     {
-	const int validx = usedvalues_[idx];
-	if ( validx>=nrvalues )
+	const Coord& pos = (*points_)[usedpoints_[idx]];
+	if ( mIsZero(gridpoint.sqDistTo(pos),mEpsilon) )
 	{
-	    pErrMsg("Should not happen");
-	    return mUdf(float);
+	    exactpos = idx;
+	    return true;
 	}
+    }
 
-	if ( mIsUdf((*values_)[validx]) )
+    return false;
+}
+
+
+float Gridder2D::getValue( const Coord& gridpoint,
+			   const TypeSet<double>* inpweights,
+			   const TypeSet<int>* inprelevantpoints ) const
+{
+    if ( !values_ )
+	return mUdf(float);
+
+    int exactpos;
+    if ( isAtInputPos(gridpoint,exactpos) )
+	return (*values_)[exactpos];
+
+    TypeSet<double> weights;
+    TypeSet<int> relevantpoints;
+    const bool needweight = !inpweights || !inprelevantpoints ||
+			    inpweights->size() != inprelevantpoints->size();
+    if ( needweight && !getWeights(gridpoint,weights,relevantpoints) )
+	return mUdf(float);
+
+    const TypeSet<double>* curweights = needweight ? &weights : inpweights;
+    const TypeSet<int>* currelevantpoints = needweight ? &relevantpoints
+						       : inprelevantpoints;
+
+    double valweightsum = 0.;
+    double weightsum = 0.;
+    int nrvals = 0;
+    const int sz = currelevantpoints->size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float val = getDetrendedValue( (*currelevantpoints)[idx] );
+	if ( mIsUdf(val) )
 	    continue;
 
-	valweightsum += (*values_)[validx] * weights_[idx];
-	weightsum += weights_[idx];
+	valweightsum += val * (*curweights)[idx];
+	weightsum += (*curweights)[idx];
 	nrvals++;
     }
 
     if ( !nrvals )
 	return mUdf(float);
 
-    if ( nrvals==usedvalues_.size() )
-	return (float) valweightsum;
+    double val = nrvals==sz ? valweightsum : valweightsum / weightsum;
+    //TODO: QC above
+    if ( trend_ )
+	trend_->apply( gridpoint, false, val );
 
-    return (float) ( valweightsum/weightsum );
+    return mCast( float, val );
 }
 
 
-bool Gridder2D::isPointUsed( int idx ) const
+void Gridder2D::fillPar( IOPar& par ) const
 {
-    return usedvalues_.isPresent(idx);
+    if ( trend_ )
+	par.set( PolyTrend::sKeyOrder(), trend_->getOrder() );
 }
+
+
+bool Gridder2D::usePar( const IOPar& par )
+{
+    int order;
+    if ( par.get(PolyTrend::sKeyOrder(),order) )
+	setTrend( (PolyTrend::Order)order );
+
+    return true;
+}
+
 
 
 InverseDistanceGridder2D::InverseDistanceGridder2D()
@@ -123,7 +237,8 @@ InverseDistanceGridder2D::InverseDistanceGridder2D()
 
 InverseDistanceGridder2D::InverseDistanceGridder2D(
 	const InverseDistanceGridder2D& g )
-    : radius_( g.radius_ )
+    : Gridder2D( g )
+    , radius_( g.radius_ )
 {}
 
 
@@ -149,7 +264,7 @@ bool InverseDistanceGridder2D::operator==( const Gridder2D& b ) const
 
 void InverseDistanceGridder2D::setSearchRadius( float r )
 {
-    if ( r<= 0 )
+    if ( r <= 0 )
 	return;
 
     radius_ = r;
@@ -166,100 +281,92 @@ bool InverseDistanceGridder2D::isPointUsable( const Coord& calcpt,
 }
 
 
-bool InverseDistanceGridder2D::init()
+bool InverseDistanceGridder2D::getWeights( const Coord& gridpoint,
+					   TypeSet<double>& weights,
+					   TypeSet<int>& relevantpoints ) const
 {
-    usedvalues_.erase();
-    weights_.erase();
-
-    if ( !gridpoint_.isDefined() || !points_ || !points_->size() )
+    weights.setEmpty();
+    relevantpoints.setEmpty();
+    const int sz = usedpoints_.size();
+    if ( !gridpoint.isDefined() || !points_ || !sz )
 	return false;
 
     const bool useradius = !mIsUdf(radius_);
-    const double radius2 = radius_*radius_;
-
-
-    double weightsum = 0;
-    for ( int idx=points_->size()-1; idx>=0; idx-- )
+    double weightsum = 0.;
+    for ( int idx=0; idx<sz; idx++ )
     {
-	if ( !(*points_)[idx].isDefined() )
+	const int index = usedpoints_[idx];
+	if ( !points_->validIdx(index) )
 	    continue;
 
-	const double sqdist = gridpoint_.sqDistTo( (*points_)[idx] );
-	if ( useradius && sqdist>radius2 )
+	const Coord& pos = (*points_)[index];
+	const double dist = gridpoint.distTo( pos );
+	if ( useradius && dist > radius_ )
 	    continue;
 
-	if ( mIsZero(sqdist, mEpsilon) )
-	{
-	    usedvalues_.erase();
-	    weights_.erase();
-
-	    usedvalues_ += idx;
-	    weights_ += 1;
-	    inited_ = true;
-	    return true;
-	}
-
-	const double dist = Math::Sqrt( sqdist );
-	const double weight = useradius ? 1-dist/radius_ : 1./dist;
-
+	relevantpoints += index;
+	const double weight = useradius ? 1.-dist/radius_ : 1./dist;
 	weightsum += weight;
-	weights_ += (float) weight;
-	usedvalues_ += idx;
+	weights += weight;
     }
 
-    for ( int idx=weights_.size()-1; idx>=0; idx-- )
-	weights_[idx] /= (float) weightsum;
+    for ( int idx=0; idx<weights.size(); idx++ )
+	weights[idx] /= weightsum;
 
-    inited_ = true;
-    return true;
+    return !relevantpoints.isEmpty();
 }
 
 
 bool InverseDistanceGridder2D::usePar( const IOPar& par )
 {
-    float r;
-    if ( !par.get( sKeySearchRadius(), r ) )
+    Gridder2D::usePar( par );
+    float radius;
+    if ( !par.get( sKeySearchRadius(), radius ) )
 	return false;
 
-    setSearchRadius( r ); 
+    setSearchRadius( radius );
     return true;
 }
 
 
 void InverseDistanceGridder2D::fillPar( IOPar& par ) const
 {
+    Gridder2D::fillPar( par );
     par.set( sKeySearchRadius(), getSearchRadius() );
 }
 
+
+
 TriangulatedGridder2D::TriangulatedGridder2D()
     : triangles_( 0 )
-    , interpolator_( 0 )  
+    , interpolator_( 0 )
     , xrg_( mUdf(float), mUdf(float) )
     , yrg_( mUdf(float), mUdf(float) )
     , center_( 0, 0 )
 {}
 
 
-TriangulatedGridder2D::TriangulatedGridder2D( 
-				const TriangulatedGridder2D& b )
-    : Gridder2D( b )
+TriangulatedGridder2D::TriangulatedGridder2D(
+				const TriangulatedGridder2D& g )
+    : Gridder2D( g )
     , triangles_( 0 )
-    , interpolator_( 0 )  
-    , xrg_( b.xrg_ )
-    , yrg_( b.yrg_ )
-    , center_( b.center_ )
+    , interpolator_( 0 )
+    , xrg_( g.xrg_ )
+    , yrg_( g.yrg_ )
+    , center_( g.center_ )
 {
-    if ( b.triangles_ )
+    if ( g.triangles_ )
     {
-	triangles_ = new DAGTriangleTree( *b.triangles_ );
+	triangles_ = new DAGTriangleTree( *g.triangles_ );
 	interpolator_ = new Triangle2DInterpolator( *triangles_ );
     }
 }
 
 
 TriangulatedGridder2D::~TriangulatedGridder2D()
-{ 
-    delete triangles_; 
+{
+    delete trend_;
+    delete triangles_;
     delete interpolator_;
 }
 
@@ -276,73 +383,58 @@ Gridder2D* TriangulatedGridder2D::clone() const
 { return new TriangulatedGridder2D( *this ); }
 
 
-bool TriangulatedGridder2D::init()
+bool TriangulatedGridder2D::getWeights( const Coord& gridpoint,
+					TypeSet<double>& weights,
+					TypeSet<int>& relevantpoints ) const
 {
-    usedvalues_.erase();
-    weights_.erase();
-
-    inited_ = false;
-
-    if ( !points_ || !points_->size() || !gridpoint_.isDefined() )
+    weights.setEmpty();
+    relevantpoints.setEmpty();
+    const int sz = usedpoints_.size();
+    if ( !gridpoint.isDefined() || !points_ || !sz )
 	return false;
 
     Interval<double> xrg, yrg;
-    if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) ) 
+    if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
 	return false;
 
-    if ( !triangles_ || !xrg.includes(gridpoint_.x,false) || 
-	    		!yrg.includes(gridpoint_.y,false) )
+    if ( !triangles_ || !xrg.includes(gridpoint.x,false) ||
+			!yrg.includes(gridpoint.y,false) )
     {
-	double weightsum = 0;
-    	for ( int idx=points_->size()-1; idx>=0; idx-- )
-    	{
-    	    if ( !(*points_)[idx].isDefined() )
-    		continue;
-    
-	    const double dist = gridpoint_.distTo( (*points_)[idx] );
-    	    if ( mIsZero(dist,mEpsilon) )
-    	    {
-    		usedvalues_.erase();
-    		weights_.erase();
-    		usedvalues_ += idx;
-    		weights_ += 1;
-    		inited_ = true;
-    		return true;
-    	    }
-    
-    	    const double weight = 1./dist;
-    	    weightsum += weight;
-    	    weights_ += (float) weight;
-    	    usedvalues_ += idx;
-    	}
+	//fallback to inverse distance without radius
+	relevantpoints = usedpoints_;
+	double weightsum = 0.;
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    const int index = usedpoints_[idx];
+	    if ( !points_->validIdx(index) )
+		continue;
 
-	if ( !weights_.size() )
-	    return false;
-   	
-	for ( int idx=weights_.size()-1; idx>=0; idx-- )
-    	    weights_[idx] /= (float) weightsum;
-    }
-    else
-    {
-    	if ( !interpolator_->computeWeights(
-		    gridpoint_-center_, usedvalues_, weights_ ) )
-    	    return false;
+	    const Coord& pos = (*points_)[index];
+	    const double weight = 1. / gridpoint.distTo( pos );
+	    weightsum += weight;
+	    weights += weight;
+	}
+
+	for ( int idx=0; idx<weights.size(); idx++ )
+	    weights[idx] /= weightsum;
+
+	return true;
     }
 
-    inited_ = true;
+    const Coord relgridpoint( gridpoint-center_ );
+    if ( !interpolator_->computeWeights(relgridpoint,relevantpoints,weights) )
+	return false;
+
     return true;
 }
 
 
-bool TriangulatedGridder2D::setPoints( const TypeSet<Coord>& pts )
+bool TriangulatedGridder2D::pointsChangedCB( CallBacker* )
 {
-    if ( !Gridder2D::setPoints(pts) )
-	return false;
-
     delete triangles_;
     triangles_ = new DAGTriangleTree;
     Interval<double> xrg, yrg;
-    if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) ) 
+    if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
     {
 	delete triangles_;
 	triangles_ = 0;
@@ -370,18 +462,16 @@ bool TriangulatedGridder2D::setPoints( const TypeSet<Coord>& pts )
 	return false;
     }
 
-    xrg.start -= center_.x;
-    xrg.stop -= center_.x;
-    yrg.start -= center_.y;
-    yrg.stop -= center_.y;
+    xrg.shift( -center_.x );
+    yrg.shift( -center_.y );
 
     if ( !triangles_->setBBox( xrg, yrg ) )
     {
 	delete triangles_;
- 	triangles_ = 0;
+	triangles_ = 0;
 	return false;
     }
-    
+
     DelaunayTriangulator triangulator( *triangles_ );
     triangulator.dataIsRandom( false );
     if ( !triangulator.executeParallel( false ) )
@@ -392,8 +482,242 @@ bool TriangulatedGridder2D::setPoints( const TypeSet<Coord>& pts )
     }
 
     delete interpolator_;
-    
+
     interpolator_ = new Triangle2DInterpolator( *triangles_ );
 
     return true;
 }
+
+
+
+RadialBasisFunctionGridder2D::RadialBasisFunctionGridder2D()
+    : globalweights_(0)
+    , solv_(0)
+    , ismetric_(false)
+{}
+
+
+RadialBasisFunctionGridder2D::RadialBasisFunctionGridder2D(
+	const RadialBasisFunctionGridder2D& g )
+    : Gridder2D( g )
+    , globalweights_(0)
+    , solv_(0)
+    , ismetric_(g.ismetric_)
+{
+    if ( g.globalweights_ )
+	globalweights_ = new TypeSet<double>( *g.globalweights_ );
+
+    if ( g.solv_ )
+	solv_ = new LinSolver<double> ( *g.solv_ );
+}
+
+
+RadialBasisFunctionGridder2D::~RadialBasisFunctionGridder2D()
+{
+    delete globalweights_;
+    delete solv_;
+}
+
+
+Gridder2D* RadialBasisFunctionGridder2D::clone() const
+{ return new RadialBasisFunctionGridder2D( *this ); }
+
+
+bool RadialBasisFunctionGridder2D::operator==( const Gridder2D& b ) const
+{
+    if ( !Gridder2D::operator==( b ) )
+	return false;
+
+    mDynamicCastGet( const RadialBasisFunctionGridder2D*, bidg, &b );
+    if ( !bidg )
+	return false;
+
+    if ( ismetric_ != bidg->ismetric_ ||
+	 !mIsEqual(m11_,bidg->m11_,m11_*mDefEps) ||
+	 !mIsEqual(m12_,bidg->m12_,m12_*mDefEps) ||
+	 !mIsEqual(m22_,bidg->m22_,m22_*mDefEps) )
+	return false;
+
+    return true;
+}
+
+
+bool RadialBasisFunctionGridder2D::pointsChangedCB( CallBacker* )
+{
+    updateSolver();
+
+    return true;
+}
+
+
+void RadialBasisFunctionGridder2D::valuesChangedCB( CallBacker* )
+{
+    updateSolution();
+}
+
+
+void RadialBasisFunctionGridder2D::setMetricTensor( double m11, double m12,
+						    double m22 )
+{
+    if ( (mIsUdf(m11) || mIsUdf(m12) || mIsUdf(m22)) ||
+	 ( ( m11*m22 >= m12*m12 ) ||
+	 ( mIsEqual(m11,1.0,mDefEps) || mIsZero(m12,mDefEps) ||
+	   mIsEqual(m22,1.0,mDefEps) ) ) )
+    {
+	ismetric_ = false;
+	return;
+    }
+
+    m11_ = m11;
+    m12_ = m12;
+    m22_ = m22;
+    ismetric_ = true;
+}
+
+
+bool RadialBasisFunctionGridder2D::getWeights( const Coord& gridpoint,
+					       TypeSet<double>& weights,
+					   TypeSet<int>& relevantpoints ) const
+{
+    const int sz = usedpoints_.size();
+    if ( !gridpoint.isDefined() || !points_ || !sz )
+	return false;
+
+    if ( !globalweights_ || globalweights_->size() != sz )
+	return false;
+
+    weights.setSize( sz, 0. );
+    relevantpoints = usedpoints_;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const int index = relevantpoints[idx];
+	if ( !points_->validIdx(index) )
+	    continue;
+
+	const Coord& pos = (*points_)[index];
+	weights[idx] = (*globalweights_)[idx] *
+		       evaluateRBF( getRadius(gridpoint,pos) );
+    }
+
+    return true;
+}
+
+
+float RadialBasisFunctionGridder2D::getValue( const Coord& gridpoint,
+				   const TypeSet<double>* inpweights,
+				   const TypeSet<int>* inprelevantpoints ) const
+{
+    int exactpos;
+    if ( isAtInputPos(gridpoint,exactpos) )
+	return (*values_)[exactpos];
+
+    TypeSet<double> weights;
+    TypeSet<int> relevantpoints;
+    const bool needweight = !inpweights || !inprelevantpoints ||
+			    inpweights->size() != inprelevantpoints->size();
+    if ( needweight && !getWeights(gridpoint,weights,relevantpoints) )
+	return mUdf(float);
+
+    const TypeSet<double>* curweights = needweight ? &weights : inpweights;
+    double val = 0.;
+    for ( int idx=0; idx<curweights->size(); idx++ )
+	val += (*curweights)[idx];
+
+    if ( trend_ )
+	trend_->apply( gridpoint, false, val );
+
+    return mCast(float,val);
+}
+
+
+bool RadialBasisFunctionGridder2D::updateSolver()
+{
+    delete solv_;
+    delete globalweights_; //previous solution is invalid too
+    int sz = usedpoints_.size();
+    if ( !points_ || !sz )
+	return false;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( !points_->validIdx(usedpoints_[idx]) )
+	    return false;
+    }
+
+    Array2DImpl<double> a( sz, sz );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const int indexX = usedpoints_[idx];
+	const Coord& posX = (*points_)[indexX];
+	for ( int idy=0; idy<sz; idy++ )
+	{
+	    const int indexY = usedpoints_[idy];
+	    const Coord& posY = (*points_)[indexY];
+	    const double val = evaluateRBF( getRadius( posX, posY ) );
+	    a.set( idx, idy, val );
+	}
+    }
+
+    solv_ = new LinSolver<double>( a );
+
+    return true;
+}
+
+
+bool RadialBasisFunctionGridder2D::updateSolution()
+{
+    delete globalweights_;
+    if ( !values_ || values_->isEmpty() )
+	return false;
+
+    int sz = usedpoints_.size();
+    if ( !solv_ || solv_->size() != sz )
+	return false;
+
+    Array1DImpl<double> b( sz );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float val = getDetrendedValue( usedpoints_[idx] );
+	if ( mIsUdf(val) )
+	    return false;
+
+	b.set( idx, val );
+    }
+
+    mDeclareAndTryAlloc(double*,x,double[sz])
+    solv_->apply( b.getData(), x );
+
+    globalweights_ = new TypeSet<double>( sz, mUdf(float) );
+    for ( int idx=0; idx<sz; idx++ )
+	(*globalweights_)[idx] = x[idx];
+
+    delete x;
+    return true;
+}
+
+
+double RadialBasisFunctionGridder2D::getRadius( const Coord& pos1,
+						const Coord& pos2 ) const
+{
+    const double xdiff = pos1.x - pos2.x;
+    const double ydiff = pos1.y - pos2.y;
+    if ( ismetric_ )
+    {
+	return Math::Sqrt( m11_ * xdiff * xdiff +
+			   2.0 * m12_ * xdiff * ydiff +
+			   m22_ * ydiff * ydiff );
+    }
+
+    return Math::Sqrt( xdiff*xdiff + ydiff*ydiff );
+}
+
+
+double RadialBasisFunctionGridder2D::evaluateRBF( double radius, double scale )
+{
+    if ( radius < mDefEps )
+	return 0.;
+
+    radius *= scale;
+    return radius * radius * ( log(radius) - 1. );
+}
+

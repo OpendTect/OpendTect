@@ -153,17 +153,28 @@ const InterpolationLayerModel* WellLogInterpolator::getLayerModel() const
 
 void WellLogInterpolator::setGridder( const char* nm, float radius )
 {
-    if ( gridder_ )
-	delete gridder_;
+    delete gridder_;
 
-    if ( FixedString(nm) != InverseDistanceGridder2D::sFactoryKeyword() )
+    if ( FixedString(nm) == RadialBasisFunctionGridder2D::sFactoryKeyword() )
+    {
+	gridder_ = new RadialBasisFunctionGridder2D();
+	return;
+    }
+
+    if ( FixedString(nm) ==  TriangulatedGridder2D::sFactoryKeyword() )
+    {
 	gridder_ = new TriangulatedGridder2D();
-    else
+	return;
+    }
+
+    if ( FixedString(nm) == InverseDistanceGridder2D::sFactoryKeyword() )
     {
 	InverseDistanceGridder2D* invgrid = new InverseDistanceGridder2D();
-	if ( !mIsUdf(radius) )
-	    invgrid->setSearchRadius(radius);
 	gridder_ = invgrid;
+	if ( !mIsUdf(radius) )
+	    invgrid->setSearchRadius( radius );
+
+	return;
     }
 }
 
@@ -173,12 +184,14 @@ const char* WellLogInterpolator::getGridderName() const
     mDynamicCastGet( InverseDistanceGridder2D*, invgrid, gridder_ );
     if ( invgrid )
 	return invgrid->factoryKeyword();
-    else
-    {
-	mDynamicCastGet( TriangulatedGridder2D*, trigrid, gridder_ );
-	if ( trigrid )
-	    return trigrid->factoryKeyword();
-    }
+
+    mDynamicCastGet( TriangulatedGridder2D*, trigrid, gridder_ );
+    if ( trigrid )
+	return trigrid->factoryKeyword();
+
+    mDynamicCastGet( RadialBasisFunctionGridder2D*, rbfgrid, gridder_ );
+    if ( rbfgrid )
+	return rbfgrid->factoryKeyword();
 
     return 0;
 }
@@ -290,7 +303,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     BinID nearbid = bid;
 
     PtrMan<Gridder2D> gridder = gridder_->clone();
-    gridder->setGridPoint( SI().transform(nearbid) );
+    const Coord gridpoint( SI().transform(nearbid) );
 
     mAllocVarLenArr(float,vals,lastzidx+1);
     int lasthcidx=-1, firsthcidx=-1;
@@ -330,11 +343,8 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	}
 
 	gridder->setPoints( wellposes );
-	gridder->setValues( logvals, false );
-	if ( !gridder->init() )
-	    continue;
-
-	vals[idx] = gridder->getValue();
+	gridder->setValues( logvals );
+	vals[idx] = gridder->getValue( gridpoint );
 	if ( extension_==None )
 	    continue;
 

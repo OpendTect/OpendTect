@@ -358,16 +358,9 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
     {
 	const BinID bid = task_.getNextBid();
 	const Coord coord = SI().transform( bid );
-	if ( !gridder->setGridPoint(coord) )
-	    continue;
-
-	if ( !gridder->init() )
-	    continue;
-
-	const TypeSet<int>& usedvals = gridder->usedValues();
-	const TypeSet<float>& weights = gridder->weights();
-
-	if ( !usedvals.size() )
+	TypeSet<double> weights;
+	TypeSet<int> usedvals;
+	if ( !gridder->getWeights(coord,weights,usedvals) )
 	    continue;
 
 	ObjectSet<const float> sourceptrs;
@@ -398,8 +391,8 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 	for ( od_int64 zidx=0; zidx<zsz; zidx++ )
 	{
 	    int nrvals = 0;
-	    float wsum = 0;
-	    float sum = 0;
+	    double wsum = 0;
+	    double sum = 0;
 	    for ( int idz=weights.size()-1; idz>=0; idz-- )
 	    {
 		const float val = dstptr
@@ -408,14 +401,14 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 		if ( mIsUdf(val) )
 		    continue;
 
-		sum += val*weights[idz];
+		sum += mCast(double,val) * weights[idz];
 		nrvals ++;
 		wsum += weights[idz];
 	    }
 
 	    const float val = !nrvals || mIsZero(wsum,1e-5)
 		? mUdf(float)
-		: sum/wsum;
+		: mCast(float,sum/wsum);
 
 	    if ( dstptr )
 		dstptr[zidx+targetoffset] = val;
