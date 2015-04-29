@@ -35,7 +35,7 @@ public:
 uiBitMapDisplayTask( FlatView::Appearance& app,
 		     uiDynamicImageItem& display, bool isdynamic )
     : appearance_(app)
-    , image_(new uiRGBArray(false))
+    , image_(new uiRGBArray(true))
     , bitmap2image_(new BitMap2RGB(app,*image_))
     , display_(display)
     , isdynamic_(isdynamic)
