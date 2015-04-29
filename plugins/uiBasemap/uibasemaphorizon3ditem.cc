@@ -289,7 +289,7 @@ bool uiBasemapHorizon3DTreeItem::handleSubMenu( int mnuid )
     }
     else if ( mnuid==sGridID() )
     {
-	uiHorizonInterpolDlg dlg( getUiParent(), uibmobj_->getHorizon(), false );
+	uiHorizonInterpolDlg dlg( getUiParent(), uibmobj_->getHorizon(), false);
 	return dlg.go();
     }
     else
