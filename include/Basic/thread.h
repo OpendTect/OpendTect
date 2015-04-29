@@ -294,6 +294,10 @@ public:
     				/*!< Stop the thread with this function.
 				    Will wait for the thread to return.  */
 
+    void			setName(const char*);
+    const char*			getName() const;
+  
+
 protected:
 
     mQtclass(QThread*)			thread_;

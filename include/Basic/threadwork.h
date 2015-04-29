@@ -123,7 +123,6 @@ protected:
     ObjectSet<const void>	threadids_;
     ObjectSet<WorkThread>	freethreads_;
 
-
     //Linked (one entry per queue)
     TypeSet<int>		queueids_;
     TypeSet<int>		queueworkload_; //Nr threads working on it
@@ -134,6 +133,7 @@ protected:
     ConditionVar&		workloadcond_;
 
     int				freeid_;
+    const int			twmid_; //!<Only for debugging
 };
 
 

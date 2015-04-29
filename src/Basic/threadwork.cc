@@ -17,6 +17,7 @@ namespace Threads
 {
 
 const Threads::WorkManager* thetwm = 0;
+static Threads::Atomic<int> freetwmid( 0 );
 
 static void shutdownTWM()
 {
@@ -128,6 +129,8 @@ Threads::WorkThread::WorkThread( WorkManager& man )
     spacefiller_[0] = 0; //to avoid warning of unused
     controlcond_.lock();
     thread_ = new Thread( mCB( this, WorkThread, doWork));
+    const BufferString name( "TWM ", toString( man.twmid_ ) );
+    thread_->setName( name.buf() );
     controlcond_.unLock();
 
     SignalHandling::startNotify( SignalHandling::Kill,
@@ -271,6 +274,7 @@ Threads::WorkManager::WorkManager( int nrthreads )
     , isidle( this )
     , isShuttingDown( this )
     , freeid_( cDefaultQueueID() )
+    , twmid_( freetwmid++ )
 {
     addQueue( MultiThread, "Default queue" );
 

@@ -7,7 +7,9 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "thread.h"
+
 #include "threadlock.h"
+#include "perthreadrepos.h"
 #include "atomic.h"
 #include "math.h"
 #include "limits.h"
@@ -793,6 +795,29 @@ const void* Threads::Thread::threadID() const
 {
     return thread_;
 }
+
+
+const char* Threads::Thread::getName() const
+{
+    mDeclStaticString( res );
+    res.empty();
+   
+#ifndef OD_NO_QT
+    QString qstr = thread_->objectName();
+    res.add( qstr );
+#endif
+
+    return res.buf();
+}
+
+
+void Threads::Thread::setName( const char* nm )
+{
+#ifndef OD_NO_QT
+    thread_->setObjectName( QString(nm) );
+#endif
+}
+
 
 
 const void* Threads::currentThread()
