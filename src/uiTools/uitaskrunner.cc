@@ -114,7 +114,8 @@ void uiTaskRunner::onFinalise( CallBacker* )
 
     tim_.start( 100, true );
     Threads::Locker lckr( uitaskrunnerthreadlock_ );
-    thread_ = new Threads::Thread( mCB(this,uiTaskRunner,doWork) );
+    thread_ = new Threads::Thread( mCB(this,uiTaskRunner,doWork),
+	BufferString("uiTaskRunner ", name() ).buf() );
 }
 
 

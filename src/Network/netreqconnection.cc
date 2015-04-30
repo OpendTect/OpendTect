@@ -45,7 +45,8 @@ RequestConnection::RequestConnection( const char* servername,
     {
 	Threads::MutexLocker locker( lock_ );
 	socketthread_ =
-	    new Threads::Thread( mCB(this,RequestConnection,socketThreadFunc) );
+	    new Threads::Thread( mCB(this,RequestConnection,socketThreadFunc),
+				 "RequestConnection socket thread" );
 	lock_.wait(); //Wait for thread to create connection.
     }
     else

@@ -7,7 +7,9 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "thread.h"
+
 #include "threadlock.h"
+#include "perthreadrepos.h"
 #include "atomic.h"
 #include "math.h"
 #include "limits.h"
@@ -759,12 +761,14 @@ protected:
 
 
 
-Threads::Thread::Thread( void (func)(void*) )
+Threads::Thread::Thread( void (func)(void*), const char* nm )
 #ifndef OD_NO_QT
     : thread_( new ThreadBody( func ) )
 #endif
 {
 #ifndef OD_NO_QT
+    if ( nm )
+	thread_->setObjectName( QString(nm) );
     thread_->start();
 #endif
 }
@@ -779,11 +783,13 @@ Threads::Thread::~Thread()
 }
 
 
-Threads::Thread::Thread( const CallBack& cb )
+Threads::Thread::Thread( const CallBack& cb, const char* nm )
 {
     if ( !cb.willCall() ) return;
 #ifndef OD_NO_QT
     thread_ = new ThreadBody( cb );
+    if ( nm )
+	thread_->setObjectName( QString(nm) );
     thread_->start();
 #endif
 }
@@ -792,6 +798,20 @@ Threads::Thread::Thread( const CallBack& cb )
 const void* Threads::Thread::threadID() const
 {
     return thread_;
+}
+
+
+const char* Threads::Thread::getName() const
+{
+    mDeclStaticString( res );
+    res.setEmpty();
+
+#ifndef OD_NO_QT
+    QString qstr = thread_->objectName();
+    res.add( qstr );
+#endif
+
+    return res.buf();
 }
 
 
