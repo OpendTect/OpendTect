@@ -482,8 +482,8 @@ bool CmdDriver::execute()
 
     if ( execthr_ ) { execthr_->waitForFinish(); delete execthr_; }
 
-    execthr_ = new Threads::Thread( mCB(this,CmdDriver,mkThread) );
-    execthr_->setName( BufferString( "CmdDriver file ", cmdfnm_ ).buf() );
+    execthr_ = new Threads::Thread( mCB(this,CmdDriver,mkThread),
+	BufferString( "CmdDriver file ", cmdfnm_ ).buf() );
 
     return true;
 }

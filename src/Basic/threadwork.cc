@@ -128,9 +128,9 @@ Threads::WorkThread::WorkThread( WorkManager& man )
 {
     spacefiller_[0] = 0; //to avoid warning of unused
     controlcond_.lock();
-    thread_ = new Thread( mCB( this, WorkThread, doWork));
     const BufferString name( "TWM ", toString( man.twmid_ ) );
-    thread_->setName( name.buf() );
+    thread_ = new Thread( mCB( this, WorkThread, doWork), name.buf() );
+    
     controlcond_.unLock();
 
     SignalHandling::startNotify( SignalHandling::Kill,

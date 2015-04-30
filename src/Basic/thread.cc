@@ -761,12 +761,14 @@ protected:
 
 
 
-Threads::Thread::Thread( void (func)(void*) )
+Threads::Thread::Thread( void (func)(void*), const char* nm )
 #ifndef OD_NO_QT
     : thread_( new ThreadBody( func ) )
 #endif
 {
 #ifndef OD_NO_QT
+    if ( nm )
+	thread_->setObjectName( QString(nm) );
     thread_->start();
 #endif
 }
@@ -781,11 +783,13 @@ Threads::Thread::~Thread()
 }
 
 
-Threads::Thread::Thread( const CallBack& cb )
+Threads::Thread::Thread( const CallBack& cb, const char* nm )
 {
     if ( !cb.willCall() ) return;
 #ifndef OD_NO_QT
     thread_ = new ThreadBody( cb );
+    if ( nm )
+	thread_->setObjectName( QString(nm) );
     thread_->start();
 #endif
 }
@@ -809,15 +813,6 @@ const char* Threads::Thread::getName() const
 
     return res.buf();
 }
-
-
-void Threads::Thread::setName( const char* nm )
-{
-#ifndef OD_NO_QT
-    thread_->setObjectName( QString(nm) );
-#endif
-}
-
 
 
 const void* Threads::currentThread()
