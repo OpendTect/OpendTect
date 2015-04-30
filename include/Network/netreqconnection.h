@@ -57,7 +57,8 @@ public:
 
 			~RequestConnection();
 
-    bool		isOK() const;
+    bool		isOK() const;		//!< is the conn usable?
+    bool		stillTrying() const;	//!< if not OK, may it become?
     const char*		server() const		{ return servername_; }
     unsigned short	port() const		{ return serverport_; }
     int			ID() const		{ return id_; }
@@ -120,7 +121,6 @@ private:
     bool			readfirst_;
 
     void			connectToHost();
-    void			flush();
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);
     void			dataArrivedCB(CallBacker*);

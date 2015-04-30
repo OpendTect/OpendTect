@@ -176,14 +176,16 @@ bool RequestConnection::isOK() const
 }
 
 
-void RequestConnection::connCloseCB( CallBacker* )
+bool RequestConnection::stillTrying() const
 {
-    connectionClosed.trigger();
+    //TODO
+    return false;
 }
 
 
-void RequestConnection::flush()
+void RequestConnection::connCloseCB( CallBacker* )
 {
+    connectionClosed.trigger();
 }
 
 
