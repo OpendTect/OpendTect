@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class Settings;
 class uiComboBox;
+class uiLabeledComboBox;
 class uiGenInput;
 class uiTable;
 
@@ -154,14 +155,20 @@ public:
 
 protected:
 
+    void		mipmappingToggled(CallBacker*);
+
     uiComboBox*		textureresfactorfld_;
     uiGenInput*		usesurfshadersfld_;
     uiGenInput*		usevolshadersfld_;
+    uiGenInput*		enablemipmappingfld_;
+    uiLabeledComboBox*	anisotropicpowerfld_;
 
 			//0=standard, 1=higher, 2=highest, 3=system default
     int			textureresindex_;
     bool		usesurfshaders_;
     bool		usevolshaders_;
+    bool		enablemipmapping_;
+    int			anisotropicpower_;
 };
 
 #endif
