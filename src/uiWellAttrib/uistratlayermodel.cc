@@ -369,10 +369,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 	synthdisp_->addViewerToControl( *vwr );
 	vwr->viewChanged.notify( mCB(this,uiStratLayerModel,lmViewChangedCB) );
 	uiToolButton* parsbut = synthdisp_->control()->parsButton( vwr );
-	if ( !isProfile(edtyp) )
-	    parsbut->setSensitive( false );
-	else
-	    parsbut->setToolTip( "Layermodel display properties" );
+	parsbut->setToolTip( "Layermodel display properties" );
     }
 
     modtools_->attach( ensureBelow, moddisp_ );

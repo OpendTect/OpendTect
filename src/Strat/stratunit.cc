@@ -408,6 +408,8 @@ void Strat::LeafUnitRef::getPropsFrom( const IOPar& iop )
 
 Color Strat::LeafUnitRef::dispColor( bool lith ) const
 {
+    if ( isUndef() )
+	return color();
     return lith ? getLithology().color() : upNode()->color();
 }
 

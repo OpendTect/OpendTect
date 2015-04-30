@@ -27,6 +27,7 @@ Strat::RefTree::RefTree()
     , notifun_(0)
     , udfleaf_(*new LeafUnitRef(this,-1,"Undef unit"))
 {
+    udfleaf_.setColor( Color::LightGrey() );
     initTree();
 }
 
