@@ -79,6 +79,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     app.annot_.x1_.name_ = "Model Nr";
     app.annot_.x2_.name_ = SI().depthsInFeet() ? "Depth (ft)" : "Depth (m)";
     app.ddpars_.wva_.allowuserchange_ = false;
+    app.ddpars_.vd_.allowuserchange_ = false;
     app.ddpars_.wva_.allowuserchangedata_ = false;
     app.ddpars_.vd_.allowuserchangedata_ = false;
     app.annot_.x1_.showannot_ = true;
