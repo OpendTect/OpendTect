@@ -303,7 +303,8 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
     BinID nearbid = bid;
 
     PtrMan<Gridder2D> gridder = gridder_->clone();
-    const Coord gridpoint( SI().transform(nearbid) );
+    const TrcKeySampling& hs = output->sampling().hsamp_;
+    const Coord gridpoint( hs.getPos(nearbid) );
 
     mAllocVarLenArr(float,vals,lastzidx+1);
     int lasthcidx=-1, firsthcidx=-1;

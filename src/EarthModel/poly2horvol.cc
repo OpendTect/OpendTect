@@ -96,7 +96,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	    continue;
 
 	const EM::SubID subid = bid.toInt64();
-	const Coord coord( SI().transform(bid) );
+	const Coord pos( hs.getPos(bid) );
 
 	for ( int isect=0; isect<nrsect; isect++ )
 	{
@@ -106,13 +106,13 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 		 bid.crl()!=hs.stop_.crl() )
 	    { //The very last edges should exclude.
 		horz = (float) hor_->geometry().sectionGeometry(sid)
-		    ->computePosition( Coord(bid.inl(),bid.crl()) ).z;
+		    ->computePosition( pos ).z;
 	    }
 
 	    if ( mIsUdf(horz) )
 		continue;
 
-	    float polyz = grdr.getValue( coord );
+	    float polyz = grdr.getValue( pos );
 	    if ( mIsUdf(polyz) )
 		polyz = avgz;
 
