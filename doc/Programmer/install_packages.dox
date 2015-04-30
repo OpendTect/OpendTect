@@ -1,8 +1,7 @@
-/*!
+/*
+\section OpendTect packages
 
-\page OpendTect packages
-
-\section The OpendTect Installation Manager
+\subsection The OpendTect Installation Manager
 
 The new Installation Manager has been introduced to add flexibility and modularity to the installation/update process. The new packages have been split up into a number of small packages primarily based on the package type. The older installation package contained everything starting from user documentation to bitmap images to binaries all compressed under one single package, which forced the user to install everything even if he doesn’t want a particular feature. The Installation Manager has been designed to address this issue as well as better maintain release process and save upload/download bandwidth by avoiding unnecessary files and most importantly provide a uniform work-flow and platform to the third party plugin builders on which they can easily deploy their work. The new installation process makes use of small relevant packages corresponding to a particular feature, e.g. all the user documentation files are grouped under the “doc” package, like wise all the program data like images and other dependency files are grouped under “basedata” package and similarly there is a separate package for the main program and individual packages for individual plugins. All these packages are compressed zip files and conform to a particular folder structure, such that once they are unzipped they fit in to the exact folder location where they are meant to be. The details of these package structure and how to create them will be discussed later in this page.
 Program operation
@@ -59,5 +58,3 @@ Package naming convention.
 A script is used to generate the zip package name, however for convenience let us explain the process here. The first part of the package name is actually the short package name inside the package definition file under the keyword ‘PKG’. e.g. the short name for “OpendTect programs and libraries” is “base” and is obtained by the Keyword: ‘PKG’, so the package name for Windows 64 becomes base_win64 or base_lux64 for Linux 64-bit. So the final name of the zip file should be “base_win64.zip”. Only the platform independent packages like the documentation package and data packages do not have the platform suffix.
 The version filenames start with the “ver” prefix followed by a dot and the package name and ending with .txt extension e.g. ver.base_win64.txt.
 Similarly the icon files (to be used by the Installation Manager) for individual packages are stored at the download site and their name should be same as the package name and should have a .png format. e.g. base package icon name will be base.png. All these files are zipped together under images.zip. If you want the icon for your plugin to be included here, you can simply send the icon as a PNG file of 100 X 100 pixels with a transparent background to support@opendtect.org.
-
-*/

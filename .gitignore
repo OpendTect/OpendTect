@@ -9,10 +9,15 @@ doc/Programmer/*.html
 CMakeModules/FindOpendTect.cmake
 CMakeModules/license.txt
 CMakeModules/sourcefiles_od.txt
+CMakeModules/sourcefiles_dgb.txt
+CMakeModules/Doxyfile
 data/ModDeps.od
+data/ModDeps.dgb
+data/SequenceModels
+data/dgbAttribs/
+data/localizations/*.qm
 test/
 plugins/lux64
-data/localizations/*.qm
 moc*.cxx
 Testing/
 bin/lux64/Debug/

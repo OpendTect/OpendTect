@@ -22,6 +22,11 @@ macro( OD_BUILD_DOCUMENTATION )
     set( OD_DOXYGEN_INPUT "${CMAKE_SOURCE_DIR}/include/Basic/main.dox" )
     OD_ADD_SOURCE_FILES( ${CMAKE_SOURCE_DIR}/include/Basic/main.dox )
 
+    file ( GLOB DOXYGEN_PROGDOC_FILES "${CMAKE_SOURCE_DIR}/doc/Programmer/*.dox" )
+    foreach ( OD_DOXYGEN_PROGDOC_FILE ${DOXYGEN_PROGDOC_FILES} )
+	set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${OD_DOXYGEN_PROGDOC_FILE}" )
+    endforeach()
+
     foreach ( OD_DOXYGEN_MODULE ${OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM}} )
 	set( INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include/${OD_DOXYGEN_MODULE} )
 	string(TOLOWER ${OD_DOXYGEN_MODULE} OD_DOXYGEN_MODULE_lower )
@@ -37,13 +42,13 @@ macro( OD_BUILD_DOCUMENTATION )
 	if( EXISTS ${SOURCE_DIR} )
 		set ( OD_DOXYGEN_INPUT "${OD_DOXYGEN_INPUT} ${SOURCE_DIR}" )
 	    endif()
-	endforeach()
+    endforeach()
 
-	set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
-	set( FOOTER ${CMAKE_SOURCE_DIR}/CMakeModules/templates/doxygenfooter.html.in )
+    set( TEMPLATE ${CMAKE_SOURCE_DIR}/CMakeModules/templates/Doxyfile.in )
+    set( FOOTER ${CMAKE_SOURCE_DIR}/CMakeModules/templates/doxygenfooter.html.in )
 
 	
-	configure_file( ${TEMPLATE}
+    configure_file( ${TEMPLATE}
 		 ${OD_DOXYGEN_FILE} @ONLY IMMEDIATE)
     OD_CURRENT_YEAR( YEAR )
     configure_file( ${FOOTER}
