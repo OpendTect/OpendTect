@@ -49,15 +49,15 @@ public:
 		   It will be unlock when unLock has been called the same
 		   number of times as lock(). */
 		Mutex(const Mutex&);
-    virtual	~Mutex();	
+    virtual	~Mutex();
 
     void	lock();
     void	unLock();
 
     bool	tryLock();
-    		/*!< Returns true if mutex is locked.
+		/*!< Returns true if mutex is locked.
 		     If it is locked, it you must unLock it when
-		     you are finished. If it returns false, 
+		     you are finished. If it returns false,
 		     carry on with your life.
 		*/
 
@@ -80,28 +80,28 @@ public:
 happen.
 
   Usage:
-  
+
   From the working thread
   1. lock()
      You will now be the only one allowed to check weather condition is true
      (e.g. if new work has arrived).
-     
+
   2. Check condition. If false, call wait(). You will now sleep until someone
      calls signal(); If you are awakened, check the condition again and go back
      to sleep if it is false.
-     
+
   3. If condition is true, unLock() and start working. When finished working
      go back to 1.
 
   It is wise to put an exit flag in the loop, so it's possible to say that we
   are about to quit.
-  
+
   From the manager:
   When you want to change the condition:
   1. lock
   2. set condition (e.g. add more work)
   3. signal
-  4. unLock  
+  4. unLock
 */
 
 
@@ -117,8 +117,8 @@ public:
 				/*!<\param timeout is in milliseconds.
 				    \retval false if timeout was hit
 				*/
-    void 			signal(bool all);
-    				/*!< If all is true, all threads that have
+    void			signal(bool all);
+				/*!< If all is true, all threads that have
 				     called wait() will be Notified about the
 				     signal. If all is false, only one thread
 				     will respond.
@@ -141,20 +141,20 @@ when readlocked.
 mExpClass(Basic) ReadWriteLock
 {
 public:
-    			ReadWriteLock();
-    			ReadWriteLock(const ReadWriteLock&);
+			ReadWriteLock();
+			ReadWriteLock(const ReadWriteLock&);
     virtual		~ReadWriteLock();
 
     void		readLock();
-    			//!<No writers will be active.
+			//!<No writers will be active.
     bool		tryReadLock();
 			//!<No writers will be active.
     void		writeLock();
-    			//!<No readers will be active.
+			//!<No readers will be active.
     bool		tryWriteLock();
 			//!<No readers will be active.
     void		permissiveWriteLock();
-    			/*!<Same as readlock, but I'm guaranteed to convert to
+			/*!<Same as readlock, but I'm guaranteed to convert to
 			    writelock without giving up my lock. Only one
 			    thread may have the permissive write lock
 			    at any given time. */
@@ -163,12 +163,12 @@ public:
     void		permissiveWriteUnLock();
 
     bool		convReadToWriteLock();
-    			/*!<Lock MUST be readLocked when calling. Object Will
+			/*!<Lock MUST be readLocked when calling. Object Will
 			    always be in write-lock status on return.
 			    \returns false if it had to release the readlock
 			             when switching to writelock.*/
     void		convWriteToReadLock();
-    			//!<Lock MUST be writeLocked when calling.
+			//!<Lock MUST be writeLocked when calling.
 
     void		convPermissiveToWriteLock();
     void		convWriteToPermissive();
@@ -176,7 +176,7 @@ public:
 protected:
     int			nrreaders_;
     char		status_;
-    			//0 not writelocked, -2 write lock, -1 permissive lock
+			//0 not writelocked, -2 write lock, -1 permissive lock
 			//>0, number of readers
     ConditionVar	statuscond_;
 };
@@ -188,7 +188,7 @@ protected:
 locked and unlocked automatically when returning.
 
   Example:
-  
+
   int function()
   {
      MutexLocker lock( myMutex );
@@ -240,24 +240,24 @@ Barrier::waitForAll). Once everyone has arrived, everyone is released.
 mExpClass(Basic) Barrier
 {
 public:
-    			Barrier(int nrthreads=-1,bool immediatrelease=true);
+			Barrier(int nrthreads=-1,bool immediatrelease=true);
     void		setNrThreads(int);
-    int			nrThreads() const 		{ return nrthreads_; }
+    int			nrThreads() const		{ return nrthreads_; }
 
     bool		waitForAll(bool unlock=true);
-    			/*!<\returns true if current thread is the first
+			/*!<\returns true if current thread is the first
 				     one to return. If immediaterelease_ is
 				     false, this thread has to release all
-				     other threads with releaseAll() or 
+				     other threads with releaseAll() or
 				     releaseAllNoLock().
 			    \param   unlock If false, the mutex will still be
-			    	     locked when returning, and mutex().unLock()
+				     locked when returning, and mutex().unLock()
 				     must be called to allow other threads to
 				     be released(). */
     void		releaseAll();
-    			/*!<Locks, and releases all. */
+			/*!<Locks, and releases all. */
     void		releaseAllNoLock();
-    			/*!<Releases all. */
+			/*!<Releases all. */
 
     Mutex&		mutex()				{ return condvar_; }
 
@@ -275,7 +275,7 @@ protected:
 
 /*!
 \brief Is the base class for all threads. Start it by creating it and give it
-the function or CallBack to execute. 
+the function or CallBack to execute.
 
   The process that has created the thread must call destroy() or detach().
 */
@@ -284,19 +284,19 @@ mExpClass(Basic) Thread
 {
 public:
 
-				Thread(void (*)(void*));
-				Thread(const CallBack&);
+				Thread(void (*)(void*),const char* nm=0);
+				Thread(const CallBack&,const char* nm=0);
     virtual			~Thread();
 
     const void*			threadID() const;
 
     void			waitForFinish();
-    				/*!< Stop the thread with this function.
+				/*!< Stop the thread with this function.
 				    Will wait for the thread to return.  */
 
     void			setName(const char*);
     const char*			getName() const;
-  
+
 
 protected:
 
