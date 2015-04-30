@@ -539,12 +539,15 @@ TextureChannels::TextureChannels()
     osgtexture_->invertUndefLayers();
     osgtexture_->setDataLayerFilterType( osgtexture_->compositeLayerId(),
 					 mGetFilterType );
-    osgtexture_->setAnisotropicPower( 1 );
     osgtexture_->setSeamPower( 1 );
 
     bool mipmapping = true;
     mSettUse( getYN, "dTect", "Enable mipmapping", mipmapping );
     osgtexture_->enableMipmapping( mipmapping );
+
+    int anisotropicpower = 4;
+    mSettUse( get, "dTect", "Anisotropic power", anisotropicpower );
+    osgtexture_->setAnisotropicPower( anisotropicpower );
 
     osgtexture_->ref();
     texturecallbackhandler_->ref();

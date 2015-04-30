@@ -153,7 +153,7 @@ public:
 
 protected:
 
-    void		shadersChange(CallBacker*);	// obsolete
+    void		mipmappingToggled(CallBacker*);
 
     uiComboBox*		textureresfactorfld_;
     uiGenInput*		usesurfshadersfld_;

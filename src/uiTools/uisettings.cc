@@ -405,6 +405,11 @@ bool uiGeneralSettingsGroup::acceptOK()
     return true;
 }
 
+HiddenParam<uiSettingsGroup,uiGenInput*>	enablemipmappingfld_(0);
+HiddenParam<uiSettingsGroup,uiLabeledComboBox*> anisotropicpowerfld_(0);
+HiddenParam<uiSettingsGroup,char>		enablemipmapping_(0);
+HiddenParam<uiSettingsGroup,int>		anisotropicpower_(0);
+
 
 // uiVisSettingsGroup
 uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
@@ -418,8 +423,6 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     setts_.getYN( mUseSurfShaders, usesurfshaders_ );
     usesurfshadersfld_ = new uiGenInput( this, "for surface rendering",
 					 BoolInpSpec(usesurfshaders_) );
-    usesurfshadersfld_->valuechanged.notify(
-				mCB(this,uiVisSettingsGroup,shadersChange) );
     usesurfshadersfld_->attach( leftAlignedBelow, shadinglbl );
     setts_.getYN( mUseVolShaders, usevolshaders_ );
     usevolshadersfld_ = new uiGenInput( this, "for volume rendering",
@@ -450,6 +453,42 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     }
 
     textureresfactorfld_->setCurrentItem( selection );
+
+    bool enablemipmapping = true;
+    setts_.getYN( "dTect.Enable mipmapping", enablemipmapping );
+    enablemipmapping_.setParam( this, enablemipmapping );
+    enablemipmappingfld_.setParam( this,
+	new uiGenInput( this, "Mipmap anti-aliasing",
+			BoolInpSpec(enablemipmapping) ) );
+
+    enablemipmappingfld_.getParam(this)->attach( alignedBelow, lcb );
+    enablemipmappingfld_.getParam(this)->valuechanged.notify(
+			    mCB(this,uiVisSettingsGroup,mipmappingToggled) );
+
+    anisotropicpowerfld_.setParam( this,
+		    new uiLabeledComboBox(this, "Sharpen oblique textures") );
+    anisotropicpowerfld_.getParam(this)->attach( alignedBelow,
+					enablemipmappingfld_.getParam(this) );
+
+    anisotropicpowerfld_.getParam(this)->box()->addItem( " 0 x" );
+    anisotropicpowerfld_.getParam(this)->box()->addItem( " 1 x" );
+    anisotropicpowerfld_.getParam(this)->box()->addItem( " 2 x" );
+    anisotropicpowerfld_.getParam(this)->box()->addItem( " 4 x" );
+    anisotropicpowerfld_.getParam(this)->box()->addItem( " 8 x" );
+    anisotropicpowerfld_.getParam(this)->box()->addItem( "16 x" );
+    anisotropicpowerfld_.getParam(this)->box()->addItem( "32 x" );
+
+    int anisotropicpower = 4;
+    setts_.get( "dTect.Anisotropic power", anisotropicpower );
+    if ( anisotropicpower < -1 )
+	anisotropicpower = -1;
+    if ( anisotropicpower > 5 )
+	anisotropicpower = 5;
+    anisotropicpower_.setParam( this, anisotropicpower );
+    anisotropicpowerfld_.getParam(this)->box()->setCurrentItem(
+							anisotropicpower+1 );
+
+    mipmappingToggled( 0 );
 }
 
 
@@ -474,6 +513,18 @@ bool uiVisSettingsGroup::acceptOK()
 
     if ( textureresfacchanged ) changed_ = true;
 
+    bool enablemipmapping = enablemipmapping_.getParam(this);
+    updateSettings( enablemipmapping,
+		    enablemipmappingfld_.getParam(this)->getBoolValue(),
+		    "dTect.Enable mipmapping" );
+    enablemipmapping_.setParam( this, enablemipmapping );
+
+    int anisotropicpower = anisotropicpower_.getParam(this);
+    updateSettings( anisotropicpower,
+		    anisotropicpowerfld_.getParam(this)->box()->currentItem()-1,
+		    "dTect.Anisotropic power" );
+    anisotropicpower_.setParam( this, anisotropicpower );
+
     if ( changed_ )
 	setNeedsRenewal( true );
 
@@ -481,8 +532,12 @@ bool uiVisSettingsGroup::acceptOK()
 }
 
 
-void uiVisSettingsGroup::shadersChange( CallBacker* )
-{}	// obsolete
+void uiVisSettingsGroup::mipmappingToggled( CallBacker* )
+{
+    anisotropicpowerfld_.getParam(this)->setSensitive(
+			enablemipmappingfld_.getParam(this)->getBoolValue() );
+}
+
 
 // uiSettingsDlg
 HiddenParam<uiSettingsDlg,char> needsrestartdlg( false );
