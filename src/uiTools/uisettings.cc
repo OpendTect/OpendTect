@@ -376,6 +376,8 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     , textureresindex_(0)
     , usesurfshaders_(true)
     , usevolshaders_(true)
+    , enablemipmapping_(true)
+    , anisotropicpower_(4)
 {
     uiLabel* shadinglbl = new uiLabel( this,
 				tr("Use OpenGL shading when available:") );
@@ -402,6 +404,40 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
 
     textureresindex_ = SettingsAccess(setts_).getDefaultTexResAsIndex( 3 );
     textureresfactorfld_->setCurrentItem( textureresindex_ );
+
+    setts_.getYN( SettingsAccess::sKeyEnableMipmapping(), enablemipmapping_ );
+    enablemipmappingfld_ = new uiGenInput( this, tr("Mipmap anti-aliasing"),
+					   BoolInpSpec(enablemipmapping_) );
+    enablemipmappingfld_->attach( alignedBelow, lcb );
+    enablemipmappingfld_->valuechanged.notify(
+			    mCB(this,uiVisSettingsGroup,mipmappingToggled) );
+
+    anisotropicpowerfld_= new uiLabeledComboBox( this,
+					    tr("Sharpen oblique textures") );
+    anisotropicpowerfld_->attach( alignedBelow, enablemipmappingfld_ );
+    anisotropicpowerfld_->box()->addItem( toUiString(" 0 x") );
+    anisotropicpowerfld_->box()->addItem( toUiString(" 1 x") );
+    anisotropicpowerfld_->box()->addItem( toUiString(" 2 x") );
+    anisotropicpowerfld_->box()->addItem( toUiString(" 4 x") );
+    anisotropicpowerfld_->box()->addItem( toUiString(" 8 x") );
+    anisotropicpowerfld_->box()->addItem( toUiString("16 x") );
+    anisotropicpowerfld_->box()->addItem( toUiString("32 x") );
+
+    setts_.get( SettingsAccess::sKeyAnisotropicPower(), anisotropicpower_ );
+    if ( anisotropicpower_ < -1 )
+	anisotropicpower_ = -1;
+    if ( anisotropicpower_ > 5 )
+	anisotropicpower_ = 5;
+
+    anisotropicpowerfld_->box()->setCurrentItem( anisotropicpower_+1 );
+
+    mipmappingToggled( 0 );
+}
+
+
+void uiVisSettingsGroup::mipmappingToggled( CallBacker* )
+{
+    anisotropicpowerfld_->setSensitive( enablemipmappingfld_->getBoolValue() );
 }
 
 
@@ -420,6 +456,13 @@ bool uiVisSettingsGroup::acceptOK()
 	changed_ = true;
 	SettingsAccess(setts_).setDefaultTexResAsIndex( idx, 3 );
     }
+
+    updateSettings( enablemipmapping_, enablemipmappingfld_->getBoolValue(),
+		    SettingsAccess::sKeyEnableMipmapping() );
+
+    const int anisotropicpower = anisotropicpowerfld_->box()->currentItem()-1;
+    updateSettings( anisotropicpower_, anisotropicpower,
+		    SettingsAccess::sKeyAnisotropicPower() );
 
     if ( changed_ )
 	needsrenewal_ = true;

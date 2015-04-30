@@ -34,6 +34,12 @@ const char* SettingsAccess::sKeyUseVolShaders()
 const char* SettingsAccess::sKeyTexResFactor()
 { return "dTect.Default texture resolution factor"; }
 
+const char* SettingsAccess::sKeyEnableMipmapping()
+{ return "dTect.Enable mipmapping"; }
+
+const char* SettingsAccess::sKeyAnisotropicPower()
+{ return "dTect.Anisotropic power"; }
+
 
 SettingsAccess::SettingsAccess()
     : settings_( Settings::common() )

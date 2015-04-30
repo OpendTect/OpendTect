@@ -43,6 +43,8 @@ public:
     static const char*	sKeyTexResFactor();
     static const char*	sKeyUseSurfShaders();
     static const char*	sKeyUseVolShaders();
+    static const char*	sKeyEnableMipmapping();
+    static const char*	sKeyAnisotropicPower();
 
 protected:
     Settings&			settings_;
