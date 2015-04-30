@@ -69,8 +69,6 @@ public:
 
     void                        setBackgroundColor(const Color&);
     Color		        backgroundColor() const;
-    void                        uisetBackgroundColor(const Color&);
-    Color		        uibackgroundColor() const;
     void			setNoBackGround();
     void			rePaint();
     void			enableScrollZoom(bool yn=true);
