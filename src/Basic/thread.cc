@@ -804,7 +804,7 @@ const void* Threads::Thread::threadID() const
 const char* Threads::Thread::getName() const
 {
     mDeclStaticString( res );
-    res.empty();
+    res.setEmpty();
    
 #ifndef OD_NO_QT
     QString qstr = thread_->objectName();
