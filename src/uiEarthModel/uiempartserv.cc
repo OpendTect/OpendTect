@@ -860,8 +860,10 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 				  float shift ) const
 {
     EM::EMObject* object = em_.getObject( id );
-    mDynamicCastGet( EM::Surface*, surface, object );
     if ( !object ) return false;
+
+    mDynamicCastGet(EM::Surface*,surface,object);
+    mDynamicCastGet(EM::Body*,body,object);
 
     PtrMan<Executor> exec = 0;
     MultiID key = object->multiID();
@@ -887,7 +889,8 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	}
 	else
 	{
-	    CtxtIOObj ctio( object->getIOObjContext(),
+	    CtxtIOObj ctio( body ? EMBodyTranslatorGroup::ioContext()
+				 : object->getIOObjContext(),
 			       IOM().get(object->multiID()) );
 
 	    ctio.ctxt.forread = false;
