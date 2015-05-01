@@ -318,7 +318,10 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
     sliderg_.start = -1;
     if ( didslide )
     {
+	const int refnr = handle_.beginCmdRecEvent( "selectionChanged" );
 	handle_.selectionChanged.trigger();
+	handle_.endCmdRecEvent( refnr, "selectionChanged" );
+
 	handle_.buttonstate_ = OD::NoButton;
 	if ( ev ) ev->accept();
 	return;
@@ -1209,7 +1212,9 @@ void uiListBox::setChosen( const BufferStringSet& nms )
 
 void uiListBox::usrChooseAll( bool yn )
 {
+    const int refnr = beginCmdRecEvent( "selectionChanged" );
     chooseAll( yn );
+    endCmdRecEvent( refnr, "selectionChanged" );
 }
 
 
