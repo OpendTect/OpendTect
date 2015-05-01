@@ -432,7 +432,10 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
     getAllKnotPos( knots );
     Geometry::RandomLine::getPathBids( knots, bids, true, segments );
     for ( int idx=0; idx<bids.size(); idx++ )
-	const_cast<RandomTrackDisplay*>(this)->trcspath_.addIfNew( bids[idx] );
+    {
+	if ( !idx || bids[idx]!=trcspath_.last() )
+	    const_cast<RandomTrackDisplay*>(this)->trcspath_.add( bids[idx] );
+    }
 }
 
 
@@ -656,7 +659,7 @@ void RandomTrackDisplay::updatePanelStripPath()
 	return;
 
     TypeSet<BinID> trcbids;
-    getDataTraceBids( trcbids );
+    getDataTraceBids( trcbids );	// Will update trcspath_
 
     TypeSet<Coord> pathcrds;
     TypeSet<float> mapping;
@@ -664,9 +667,9 @@ void RandomTrackDisplay::updatePanelStripPath()
     mapping.setCapacity( knots_.size(), false );
 
     int knotidx = 0;
-    for ( int trcidx=0; trcidx<trcbids.size(); trcidx++ )
+    for ( int trcidx=0; trcidx<trcspath_.size(); trcidx++ )
     {
-	if ( trcbids[trcidx] == knots_[knotidx] )
+	if ( trcspath_[trcidx] == knots_[knotidx] )
 	{
 	    pathcrds += Coord( knots_[knotidx].inl(), knots_[knotidx].crl() );
 	    mapping += mCast( float, trcidx*(resolution_+1) );
@@ -675,7 +678,7 @@ void RandomTrackDisplay::updatePanelStripPath()
     }
 
     if ( mapping.size()!=knots_.size() ||
-	 mNINT64(mapping.last())!=(trcbids.size()-1)*(resolution_+1) )
+	 mNINT64(mapping.last())!=(trcspath_.size()-1)*(resolution_+1) )
     {
 	pErrMsg( "Unexpected state while texture mapping" );
     }

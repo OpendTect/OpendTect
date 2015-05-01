@@ -78,7 +78,11 @@ public:
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
 
+    TypeSet<BinID>*		getPath()		{ return &trcspath_; }
+				//!<BinID-based coding: inner knots single
     void			getDataTraceBids(TypeSet<BinID>&) const;
+				//!<Segment-based coding: inner knots doubled
+
     Interval<float>		getDataTraceRange() const;
     TypeSet<Coord>		getTrueCoords() const;
 
@@ -138,7 +142,6 @@ public:
     virtual bool		usePar(const IOPar&);
 
     bool			canBDispOn2DViewer() const	{ return true; }
-    TypeSet<BinID>*             getPath()		{ return &trcspath_; }
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
     
