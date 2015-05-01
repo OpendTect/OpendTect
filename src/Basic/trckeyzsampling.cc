@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
-mStartAllowDepreciatedSection
+mStartAllowDeprecatedSection
 
 TrcKeySampling::TrcKeySampling()
     : start( start_ )
@@ -49,7 +49,7 @@ TrcKeySampling::TrcKeySampling( bool settosi )
     , survid_( mUdf(int) )
 { init( settosi ); }
 
-mStopAllowDepreciatedSection
+mStopAllowDeprecatedSection
 
 bool TrcKeySampling::init( Pos::GeomID gid )
 {
@@ -803,7 +803,7 @@ void TrcKeyZSampling::getDefaultNormal( Coord3& ret ) const
 od_int64 TrcKeyZSampling::totalNr() const
 { return ((od_int64) nrZ()) * ((od_int64) hsamp_.totalNr()); }
 
-
+mStartAllowDeprecatedSection
 
 TrcKeyZSampling::TrcKeyZSampling()
     : hrg(hsamp_),zrg(zsamp_)
@@ -820,6 +820,8 @@ TrcKeyZSampling::TrcKeyZSampling( const TrcKeyZSampling& tkzs )
 TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
     : hrg(hsamp_),zrg(zsamp_)
 { init( settoSI ); }
+
+mStopAllowDeprecatedSection
 
 
 int TrcKeyZSampling::lineIdx(int lineid)const

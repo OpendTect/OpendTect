@@ -207,17 +207,21 @@ Always defined:
 #undef mUnusedVar
 #if defined( __gnuc__ )
 # define mUnusedVar __attribute__ ((unused))
-# define mDepreciated __attribute__ ((deprecated))
-# define mStartAllowDepreciatedSection \
+# define mDeprecated __attribute__ ((deprecated))
+# define mStartAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic push" ) \
     _Pragma ( "GCC diagnostic ignored \"-Wdeprecated-declarations\"" )
 # define mStopAllowDepreciatedSection \
     _Pragma ( "GCC diagnostic pop" )
 #else
 # define mUnusedVar
-# define mDepreciated
-# define mStartAllowDepreciatedSection
-# define mStopAllowDepreciatedSection
+# if defined( __win__ )
+#  define mDeprecated __declspec(deprecated)
+# else
+#  define mDeprecated
+# endif
+# define mStartAllowDeprecatedSection
+# define mStopAllowDeprecatedSection
 #endif
 
 /* And, probably unnecessary, for external header files: */
