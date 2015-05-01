@@ -211,7 +211,7 @@ Always defined:
 # define mStartAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic push" ) \
     _Pragma ( "GCC diagnostic ignored \"-Wdeprecated-declarations\"" )
-# define mStopAllowDepreciatedSection \
+# define mStopAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic pop" )
 #else
 # define mUnusedVar
