@@ -114,8 +114,8 @@ public:
 
     od_int64	totalNr() const { return exec_ ? exec_->totalNr() : -1; }
     od_int64	nrDone() const { return exec_ ? exec_->nrDone() : -1; }
-    uiString	uiNrDoneText() const { 
-	return exec_ ? exec_->uiNrDoneText() : uiStrings::sEmptyString(); 
+    uiString	uiNrDoneText() const {
+	return exec_ ? exec_->uiNrDoneText() : uiStrings::sEmptyString();
 				     }
     uiString	uiMessage() const
     {
@@ -197,7 +197,7 @@ int nextStep()
 
 od_int64 totalNr() const { return exec_ ? exec_->totalNr() : -1; }
 od_int64 nrDone() const { return exec_ ? exec_->nrDone() : -1; }
-uiString uiNrDoneText() const { return exec_ ? exec_->uiNrDoneText() 
+uiString uiNrDoneText() const { return exec_ ? exec_->uiNrDoneText()
 					     : uiStrings::sEmptyString(); }
 uiString uiMessage() const
 {
@@ -247,7 +247,7 @@ const char* MarchingCubesSurface::getTypeStr() const
 void MarchingCubesSurface::setNewName()
 {
     mDefineStaticLocalObject( int, objnr, = 1 );
-    BufferString nm( "<New ", typeStr(), " " );
+    BufferString nm( "<New Body " );
     nm.add( objnr++ ).add( ">" );
     setName( nm );
 }
