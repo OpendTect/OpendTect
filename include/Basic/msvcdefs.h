@@ -36,6 +36,7 @@ ________________________________________________________________________
 
 #define strtoll		_strtoi64
 #define strtoull	_strtoui64
+#define strdup		_strdup
 #define strtof		strtod
 
 #define finite		_finite
