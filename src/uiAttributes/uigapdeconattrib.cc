@@ -692,7 +692,7 @@ void uiGDPositionDlg::popUpPosDlg()
     {
 	SeisTrcTranslator::getRanges(
 		mid_, inputcs, Survey::GM().getName(getGeomID()) );
-	tkzs_.hrg.set( inputcs.hrg.inlRange(), inputcs.hrg.crlRange() );
+	tkzs_.hsamp_.set( inputcs.hsamp_.inlRange(), inputcs.hsamp_.crlRange() );
     }
 
     tkzs_.zsamp_.stop = tkzs_.zsamp_.width();
@@ -705,10 +705,10 @@ void uiGDPositionDlg::popUpPosDlg()
 	{
 	    if ( isinl )
 		inputcs.hsamp_.stop_.inl() = inputcs.hsamp_.start_.inl()
-				       = inputcs.hrg.inlRange().snappedCenter();
+				       = inputcs.hsamp_.inlRange().snappedCenter();
 	    else
 		inputcs.hsamp_.stop_.crl() = inputcs.hsamp_.start_.crl()
-				       = inputcs.hrg.crlRange().snappedCenter();
+				       = inputcs.hsamp_.crlRange().snappedCenter();
 	}
 
 	inputcs.zsamp_.start = 0;

@@ -37,7 +37,7 @@ protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
 		{
 		    const TrcKeySampling hrg(
-				step_.output_->sampling().hrg );
+				step_.output_->sampling().hsamp_ );
 		    BinID curbid = hrg.start_;
 
 		    const int nrinls = mCast( int, start/hrg.nrCrl() );
@@ -79,7 +79,7 @@ protected:
 		    if ( totalnr_==-1 )
 		    {
 			const TrcKeySampling hrg(
-				step_.output_->sampling().hrg );
+				step_.output_->sampling().hsamp_ );
 			totalnr_ = hrg.nrInl() * hrg.nrCrl();
 		    }
 
@@ -332,7 +332,7 @@ bool ChainExecutor::Epoch::doPrepare()
 					    stepoutputzrg );
 
 	TrcKeyZSampling csamp;
-	csamp.hrg = stepoutputhrg;
+	csamp.hsamp_ = stepoutputhrg;
 	RegularSeisDataPack* outcube = new RegularSeisDataPack( 0 );
 	DPM( DataPackMgr::SeisID() ).addAndObtain( outcube );
 	outcube->setSampling( csamp );

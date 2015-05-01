@@ -36,7 +36,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
     , bidvals_(0)
     , tkzs_(cs)
     , ioobj_( ioobj.clone() )
-    , totalnr_( cs.hrg.totalNr() )
+    , totalnr_( cs.hsamp_.totalNr() )
 {
     SeisIOObjInfo seisinfo( ioobj );
     const int nrcomponents = seisinfo.nrComponents();
@@ -169,8 +169,8 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     }
     else
     {
-	iter.setSampling( tkzs_.hrg );
-	iter.setNextPos( tkzs_.hrg.trcKeyAt(start) );
+	iter.setSampling( tkzs_.hsamp_ );
+	iter.setNextPos( tkzs_.hsamp_.trcKeyAt(start) );
 	iter.next( curbid );
     }
 
@@ -209,8 +209,8 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
             }
             else
             {
-		const int inlidx = tkzs_.hrg.inlIdx( curbid.inl() );
-		const int crlidx = tkzs_.hrg.crlIdx( curbid.crl() );
+		const int inlidx = tkzs_.hsamp_.inlIdx( curbid.inl() );
+		const int crlidx = tkzs_.hsamp_.crlIdx( curbid.crl() );
 
 		for ( int idz=dp_->sampling().nrZ()-1; idz>=0; idz--)
 		{
@@ -337,7 +337,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 
     SeisTrc trc;
     BinID curbid;
-    StepInterval<int> trcrg = tkzs_.hrg.crlRange();
+    StepInterval<int> trcrg = tkzs_.hsamp_.crlRange();
     trl->toStart();
     curbid = trl->readMgr()->binID();
 

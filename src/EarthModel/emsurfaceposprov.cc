@@ -41,7 +41,7 @@ const char* EMSurfaceProvider::extraZKey()	{ return "Extra Z"; }
 EMSurfaceProvider::EMSurfaceProvider()
     : surf1_(0)
     , surf2_(0)
-    , hs_(SI().sampling(false).hrg)
+    , hs_(SI().sampling(false).hsamp_)
     , zstep_(SI().zRange(true).step)
     , extraz_(0,0)
     , zrg1_(0,0)
@@ -700,7 +700,7 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
     iop.get( sKeyBBInlrg(), inlrg ); 
     iop.get( sKeyBBCrlrg(), crlrg ); 
     iop.get( sKeyBBZrg(), zrg ); 
-    bbox_.hrg.set( inlrg, crlrg ); 
+    bbox_.hsamp_.set( inlrg, crlrg ); 
     bbox_.zsamp_.setFrom( zrg );
 
     initializedbody_ = false;
@@ -713,8 +713,8 @@ void EMImplicitBodyProvider::fillPar( IOPar& iop ) const
     iop.setYN( sKeyUseInside(), useinside_ );
     if ( !useinside_ )
     {
-	iop.set( sKeyBBInlrg(), bbox_.hrg.inlRange() ); 
-	iop.set( sKeyBBCrlrg(), bbox_.hrg.crlRange() ); 
+	iop.set( sKeyBBInlrg(), bbox_.hsamp_.inlRange() ); 
+	iop.set( sKeyBBCrlrg(), bbox_.hsamp_.crlRange() ); 
 	iop.set( sKeyBBZrg(), bbox_.zsamp_ );
     }
 }
@@ -780,9 +780,9 @@ bool EMImplicitBodyProvider::includes( const Coord& c, float z ) const
 bool EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
 {
     const TrcKeyZSampling& bb = useinside_ ? tkzs_ : bbox_;
-    if ( mIsUdf(z) ) return bb.hrg.includes(bid);
+    if ( mIsUdf(z) ) return bb.hsamp_.includes(bid);
 
-    if ( !isOK() || !bb.hrg.includes(bid) || !bb.zsamp_.includes(z,false) )
+    if ( !isOK() || !bb.hsamp_.includes(bid) || !bb.zsamp_.includes(z,false) )
 	return false;
 
     const int inlidx = tkzs_.inlIdx(bid.inl());

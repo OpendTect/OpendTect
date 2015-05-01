@@ -138,7 +138,7 @@ bool DataCubesOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 
 
 bool DataCubesOutput::wantsOutput( const BinID& bid ) const
-{ return desiredvolume_.hrg.includes(bid); }
+{ return desiredvolume_.hsamp_.includes(bid); }
 
 
 TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
@@ -328,7 +328,7 @@ bool SeisTrcStorOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 
 bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
 {
-    return desiredvolume_.hrg.includes(bid);
+    return desiredvolume_.hsamp_.includes(bid);
 }
 
 

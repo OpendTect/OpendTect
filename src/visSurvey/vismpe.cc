@@ -179,7 +179,7 @@ TrcKeyZSampling MPEDisplay::getBoxPosition() const
     cube.zsamp_.start = (float) ( center.z - width.z / 2 );
     cube.zsamp_.stop = (float) ( center.z + width.z / 2 );
     cube.zsamp_.step = SI().zStep();
-    cube.hrg.snapToSurvey();
+    cube.hsamp_.snapToSurvey();
     SI().snapZ( cube.zsamp_.start, 0 );
     SI().snapZ( cube.zsamp_.stop, 0 );
     return cube;
@@ -580,9 +580,9 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
     // Workaround for deadlock in COIN's polar_decomp() or Math::Sqrt(), which
     // occasionally occurs in case the box has one side of zero length.
-    if ( cube.hrg.nrInl()==1 )
+    if ( cube.hsamp_.nrInl()==1 )
 	newwidth.x = 0.1 * cube.hsamp_.step_.inl();
-    if ( cube.hrg.nrCrl()==1 )
+    if ( cube.hsamp_.nrCrl()==1 )
 	newwidth.y = 0.1 * cube.hsamp_.step_.crl();
 	if ( cube.zsamp_.nrSteps()==0 )
 	newwidth.z = 0.1 * cube.zsamp_.step;
@@ -606,7 +606,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
 void MPEDisplay::updateBoxSpace()
 {
-    const TrcKeySampling& hs = SI().sampling(true).hrg;
+    const TrcKeySampling& hs = SI().sampling(true).hsamp_;
     const Interval<float> survinlrg( mCast(float,hs.start_.inl()),
 					mCast(float,hs.stop_.inl()) );
     const Interval<float> survcrlrg( mCast(float,hs.start_.crl()),
@@ -861,8 +861,8 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 	if ( !attrcs.includes( displaycs ) )
 	    return false;
 
-	const StepInterval<int> inlrg( attrcs.hrg.inlRange() );
-	const StepInterval<int> crlrg( attrcs.hrg.crlRange() );
+	const StepInterval<int> inlrg( attrcs.hsamp_.inlRange() );
+	const StepInterval<int> crlrg( attrcs.hsamp_.crlRange() );
 	const Interval<int> dispinlrg(
 		inlrg.getIndex(displaycs.hsamp_.start_.inl()),
 		inlrg.getIndex(displaycs.hsamp_.stop_.inl()));

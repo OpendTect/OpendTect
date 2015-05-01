@@ -95,7 +95,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
     , cursectnr_(0)
     , curinterp_( interp )
 {
-    const TrcKeySampling hrg = SI().sampling(true).hrg;
+    const TrcKeySampling hrg = SI().sampling(true).hsamp_;
     addSections( hrg );
     fillSections();
 

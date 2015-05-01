@@ -373,11 +373,12 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 	    desiredvolume_->hsamp_.start_.crl() =
 		desiredvolume_->hsamp_.start_.crl() < ndv.hsamp_.start_.crl() ?
 		desiredvolume_->hsamp_.start_.crl() : ndv.hsamp_.start_.crl();
-	    desiredvolume_->zrg.start = 
-		desiredvolume_->zrg.start < ndv.zsamp_.start?
-		desiredvolume_->zrg.start : ndv.zsamp_.start;
-	    desiredvolume_->zrg.stop = desiredvolume_->zrg.stop >ndv.zsamp_.stop
-				    ? desiredvolume_->zrg.stop
+	    desiredvolume_->zsamp_.start =
+		desiredvolume_->zsamp_.start < ndv.zsamp_.start?
+		desiredvolume_->zsamp_.start : ndv.zsamp_.start;
+	    desiredvolume_->zsamp_.stop =
+            	desiredvolume_->zsamp_.stop >ndv.zsamp_.stop
+				    ? desiredvolume_->zsamp_.stop
 				    : ndv.zsamp_.stop;
 	}
     }
@@ -499,8 +500,8 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
     if ( !possiblevolume_ )
 	possiblevolume_ = new TrcKeyZSampling;
     
-    possiblevolume_->hsamp_ = res.hrg;
-    possiblevolume_->zrg = res.zsamp_;
+    possiblevolume_->hsamp_ = res.hsamp_;
+    possiblevolume_->zsamp_ = res.zsamp_;
     return isset;
 }
 
@@ -860,8 +861,8 @@ bool Provider::setCurrentPosition( const BinID& bid )
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
-    const Interval<int> possintv( mNINT32(possiblevolume_->zrg.start/dz),
-	    			  mNINT32(possiblevolume_->zrg.stop/dz) );
+    const Interval<int> possintv( mNINT32(possiblevolume_->zsamp_.start/dz),
+	    			  mNINT32(possiblevolume_->zsamp_.stop/dz) );
 
     const int nrintvs = intvs.size();
     if ( nrintvs < 1 )

@@ -84,10 +84,10 @@ void GridLines::setGridTrcKeyZSampling( const TrcKeyZSampling& cs )
     if ( cs==gridcs_ )
 	return;
 
-    if ( cs.hrg.inlRange() != gridcs_.hrg.inlRange() || 
+    if ( cs.hsamp_.inlRange() != gridcs_.hsamp_.inlRange() || 
 	 cs.hsamp_.step_.inl() != gridcs_.hsamp_.step_.inl() )
 	csinlchanged_ = true;
-    if ( cs.hrg.crlRange() != gridcs_.hrg.crlRange() ||
+    if ( cs.hsamp_.crlRange() != gridcs_.hsamp_.crlRange() ||
 	 cs.hsamp_.step_.crl() != gridcs_.hsamp_.step_.crl() )
 	cscrlchanged_ = true;
     if ( cs.zsamp_ != gridcs_.zsamp_ || cs.zsamp_.step != gridcs_.zsamp_.step )
@@ -109,8 +109,8 @@ void GridLines::adjustGridCS()
     if ( !planecs_.isDefined() || !gridcs_.isDefined() )
 	return;
 
-    const TrcKeySampling& phs = planecs_.hrg;
-    TrcKeySampling& ghs = gridcs_.hrg;
+    const TrcKeySampling& phs = planecs_.hsamp_;
+    TrcKeySampling& ghs = gridcs_.hsamp_;
 
     if ( csinlchanged_ )
     {
@@ -164,9 +164,9 @@ void GridLines::adjustGridCS()
 
 void GridLines::setPlaneTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    if ( cs.hrg.inlRange() != planecs_.hrg.inlRange() )
+    if ( cs.hsamp_.inlRange() != planecs_.hsamp_.inlRange() )
 	csinlchanged_ = true;
-    if ( cs.hrg.crlRange() != planecs_.hrg.crlRange() )
+    if ( cs.hsamp_.crlRange() != planecs_.hsamp_.crlRange() )
 	cscrlchanged_ = true;
     if ( cs.zsamp_ != planecs_.zsamp_ )
 	cszchanged_ = true;
@@ -223,7 +223,7 @@ void GridLines::drawInlines()
 	emptyLineSet( inlines_ );
 
     
-    const TrcKeySampling& ghs = gridcs_.hrg;
+    const TrcKeySampling& ghs = gridcs_.hsamp_;
     for ( int inl=ghs.start_.inl(); inl<=ghs.stop_.inl(); inl+=ghs.step_.inl() )
     {
 	addLine( *inlines_, 
@@ -241,7 +241,7 @@ void GridLines::drawCrosslines()
     else
 	emptyLineSet( crosslines_ );
     
-    const TrcKeySampling& ghs = gridcs_.hrg;
+    const TrcKeySampling& ghs = gridcs_.hsamp_;
     for ( int crl=ghs.start_.crl(); crl<=ghs.stop_.crl(); crl+=ghs.step_.crl() )
     {
 	addLine( *crosslines_, 
@@ -262,7 +262,7 @@ void GridLines::drawZlines()
     else
 	emptyLineSet( zlines_ );
     
-    const TrcKeySampling& phs = planecs_.hrg;
+    const TrcKeySampling& phs = planecs_.hsamp_;
     for ( int zidx=0; zidx<gridcs_.zsamp_.nrSteps()+1; zidx++ )
     {
 	const float zval = gridcs_.zsamp_.atIndex( zidx );

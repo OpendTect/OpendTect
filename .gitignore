@@ -43,6 +43,11 @@ bin/*/Release/*
 *.lastbuildstate
 *.unsuccessfulbuild
 *.cache
+*.makeDebug
+*.makeRelease
+*.makeRelWithDebInfo
+*.build
+*.xcodeproj
 
 
 #CMakes stuff
@@ -53,6 +58,7 @@ cmake_install.cmake
 CTestTestfile.cmake
 DartConfiguration.tcl
 CMakeFiles
+CMakeScripts
 Makefile
 CMakeCache.txt
 CTestCustom.cmake

@@ -112,7 +112,7 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
     if ( Seis::is2D(scanner->geomType()) )
 	return false;
 
-    const char* errmsg = scanner->posInfoDetector().getSurvInfo(cs.hrg,crd);
+    const char* errmsg = scanner->posInfoDetector().getSurvInfo(cs.hsamp_,crd);
     if ( errmsg && *errmsg )
     {	mShowErr( errmsg ); return false; }
 

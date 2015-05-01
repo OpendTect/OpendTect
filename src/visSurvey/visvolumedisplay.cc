@@ -841,8 +841,8 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	const TrcKeyZSampling& samp = cache->sampling();
 	isosurfaces_[idx]->getSurface()->removeAll();
 	isosurfaces_[idx]->setBoxBoundary(
-		mCast(float,samp.hrg.inlRange().stop),
-		mCast(float,samp.hrg.crlRange().stop),
+		mCast(float,samp.hsamp_.inlRange().stop),
+		mCast(float,samp.hsamp_.crlRange().stop),
 		samp.zsamp_.stop );
 
 	const SamplingData<float> inlsampling(
@@ -984,9 +984,9 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
     int nrslices = 0;
     slice->getSliceInfo( nrslices, rg );
     if ( dim == 2 )
-	pos = (float)cs.hrg.inlRange().start;
+	pos = (float)cs.hsamp_.inlRange().start;
     else if ( dim == 1 )
-	pos = (float)cs.hrg.crlRange().start;
+	pos = (float)cs.hsamp_.crlRange().start;
     else
 	pos = (float)cs.zsamp_.start;
 
@@ -1561,9 +1561,9 @@ TrcKeyZSampling
     if ( slice->getDim() == cTimeSlice() )
 	cs.zsamp_.limitTo( Interval<float>( pos, pos ) );
     else if ( slice->getDim() == cCrossLine() )
-	cs.hrg.setCrlRange( Interval<int>( mNINT32(pos), mNINT32(pos) ) );
+	cs.hsamp_.setCrlRange( Interval<int>( mNINT32(pos), mNINT32(pos) ) );
     else if ( slice->getDim() == cInLine() )
-	cs.hrg.setInlRange( Interval<int>( mNINT32(pos), mNINT32(pos) ) );
+	cs.hsamp_.setInlRange( Interval<int>( mNINT32(pos), mNINT32(pos) ) );
     return cs;
 }
 

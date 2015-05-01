@@ -158,8 +158,8 @@ void uiBasemapZSliceObject::setZSlice( const Viewer2DPosDataSel& pdsel )
     dimnames.add("X").add("Y").add(sKey::Inline()).add(sKey::Crossline());
 
     StepInterval<double> inlrg, crlrg;
-    inlrg.setFrom( pdsel.tkzs_.hrg.inlRange() );
-    crlrg.setFrom( pdsel.tkzs_.hrg.crlRange() );
+    inlrg.setFrom( pdsel.tkzs_.hsamp_.inlRange() );
+    crlrg.setFrom( pdsel.tkzs_.hsamp_.crlRange() );
 
     uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
     if ( !attrserv ) return;

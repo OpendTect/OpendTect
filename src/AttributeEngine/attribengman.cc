@@ -143,7 +143,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    {
 		StepInterval<int> trcrg( 0, 0, 1 );
 		outpar->get( sKey::TrcRange(), trcrg );
-		tkzs_.hrg.setCrlRange( trcrg );
+		tkzs_.hsamp_.setCrlRange( trcrg );
 		outpar->get( sKey::ZRange(), tkzs_.zsamp_ );
 	    }
 	    else
@@ -152,7 +152,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 				 Survey::GM().getGeometry(geomid) );
 		if ( geom2d )
 		{
-		    tkzs_.hrg.setCrlRange( geom2d->data().trcNrRange() );
+		    tkzs_.hsamp_.setCrlRange( geom2d->data().trcNrRange() );
 		    tkzs_.zsamp_ = geom2d->data().zRange();
 		}
 	    }
@@ -567,7 +567,7 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
     return proc;
 }
 
-#define mRg(dir) (cachecs.dir##rg)
+#define mRg(dir) (cachecs.dir##samp_)
 
 Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 					    const DataCubes* prev )

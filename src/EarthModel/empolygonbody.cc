@@ -204,7 +204,7 @@ bool PolygonBody::getBodyRange( TrcKeyZSampling& cs )
      surf->getAllKnots( pts );
      for ( int idx=0; idx<pts.size(); idx++ )
      {
-	 cs.hrg.include( SI().transform(pts[idx]) );
+	 cs.hsamp_.include( SI().transform(pts[idx]) );
 	 if ( idx )
 	     cs.zsamp_.include( (float) pts[idx].z );
 	 else

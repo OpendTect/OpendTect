@@ -81,18 +81,18 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
 	rdr->posData().getInlRange( rg ); assign( inlrg, rg );
 	rdr->posData().getCrlRange( rg ); assign( crlrg, rg );
 	if ( idx == 0 )
-	    cs.hrg.set( inlrg, crlrg );
+	    cs.hsamp_.set( inlrg, crlrg );
 	else
 	{
-	    cs.hrg.include( BinID(inlrg.start,crlrg.start) );
-	    cs.hrg.include( BinID(inlrg.stop,crlrg.stop) );
+	    cs.hsamp_.include( BinID(inlrg.start,crlrg.start) );
+	    cs.hsamp_.include( BinID(inlrg.stop,crlrg.stop) );
 	}
     }
     if ( readers_.isEmpty() )
     { msg_ = tr("No valid inputs specified"); return; }
 
-    totnr_ = mCast( int, sd_ ? sd_->expectedNrTraces() : cs.hrg.totalNr() );
-    iter_ = new TrcKeySamplingIterator( cs.hrg );
+    totnr_ = mCast( int, sd_ ? sd_->expectedNrTraces() : cs.hsamp_.totalNr() );
+    iter_ = new TrcKeySamplingIterator( cs.hsamp_ );
     resampler_ = new SeisResampler( cs );
 
     writer_ = new SeisTrcWriter( &out );

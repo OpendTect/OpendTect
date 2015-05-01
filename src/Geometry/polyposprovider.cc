@@ -66,7 +66,7 @@ const char* Pos::PolyProvider3D::type() const
 static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
 {
     if ( poly.size() < 2 )
-	{ hs = SI().sampling(true).hrg; return; }
+	{ hs = SI().sampling(true).hsamp_; return; }
 
     const Interval<float> xrg( poly.getRange(true) );
     const Interval<float> yrg( poly.getRange(false) );

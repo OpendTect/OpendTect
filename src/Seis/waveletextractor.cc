@@ -82,7 +82,7 @@ void WaveletExtractor::init3D()
 	isbetweenhor_ = tsd->binidValueSet().hasDuplicateBinIDs();
 
     if ( rsd )
-	totalnr_ = rsd->cubeSampling().hrg.totalNr();
+	totalnr_ = rsd->cubeSampling().hsamp_.totalNr();
     else if ( tsd && isbetweenhor_ )
 	totalnr_ = tsd->binidValueSet().nrDuplicateBinIDs();
     else if ( tsd )

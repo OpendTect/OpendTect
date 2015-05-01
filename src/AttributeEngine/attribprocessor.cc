@@ -315,9 +315,9 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 	    globalcs = cs;
 	else
 	{
-	    globalcs.hrg.include(cs.hsamp_.start_);
-	    globalcs.hrg.include(cs.hsamp_.stop_);
-	    globalcs.zsamp_.include(cs.zrg);
+	    globalcs.hsamp_.include(cs.hsamp_.start_);
+	    globalcs.hsamp_.include(cs.hsamp_.stop_);
+	    globalcs.zsamp_.include(cs.zsamp_);
 	}
 
 	for ( int idy=0; idy<outpinterest_.size(); idy++ )

@@ -530,7 +530,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    }
 	    else
 	    {
-		removebypolyposbox_.hrg.include(bid);
+		removebypolyposbox_.hsamp_.include(bid);
 		removebypolyposbox_.zsamp_.include((float) pos.z);
 	    }
 
@@ -575,7 +575,7 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    }
 	    else
 	    {
-		removebypolyposbox_.hrg.include(bid);
+		removebypolyposbox_.hsamp_.include(bid);
 		removebypolyposbox_.zsamp_.include(pos.z);
 	    }
 	}

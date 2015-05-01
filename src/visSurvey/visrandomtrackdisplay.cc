@@ -189,7 +189,7 @@ TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
     TypeSet<BinID> knots;
     getAllKnotPos( knots );
     for ( int idx=0; idx<knots.size(); idx++ )
-	cs.hrg.include( knots[idx] );
+	cs.hsamp_.include( knots[idx] );
 
     cs.zsamp_.setFrom( getDepthInterval() );
     cs.zsamp_.step = appliedZRangeStep();
@@ -875,7 +875,7 @@ void RandomTrackDisplay::knotMoved( CallBacker* cb )
 
 bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
 {
-    const TrcKeySampling& hs = SI().sampling(true).hrg;
+    const TrcKeySampling& hs = SI().sampling(true).hsamp_;
     if ( !hs.includes(binid) )
 	return false;
 
@@ -897,7 +897,7 @@ bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
 BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
 {
     BinID binid( binid_ );
-    const TrcKeySampling& hs = SI().sampling(true).hrg;
+    const TrcKeySampling& hs = SI().sampling(true).hsamp_;
     if ( binid.inl() < hs.start_.inl() ) binid.inl() = hs.start_.inl();
     if ( binid.inl() > hs.stop_.inl() ) binid.inl() = hs.stop_.inl();
     if ( binid.crl() < hs.start_.crl() ) binid.crl() = hs.start_.crl();

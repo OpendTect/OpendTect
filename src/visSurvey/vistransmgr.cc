@@ -52,7 +52,7 @@ void SceneTransformManager::computeICRotationTransform(
 		visBase::Transformation* rotation,
 		visBase::Transformation* disptrans )
 {
-    const TrcKeySampling hs = sg.sampling().hrg;
+    const TrcKeySampling hs = sg.sampling().hsamp_;
 
     const BinID startbid = hs.start_;
     const BinID stopbid = hs.stop_;

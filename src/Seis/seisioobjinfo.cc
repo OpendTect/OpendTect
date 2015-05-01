@@ -119,7 +119,7 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
     if ( expectednrsamps < 0 )
 	expectednrsamps = SI().zRange(false).nrSteps() + 1;
     if ( expectednrtrcs < 0 )
-	expectednrtrcs = mCast( int, SI().sampling(false).hrg.totalNr() );
+	expectednrtrcs = mCast( int, SI().sampling(false).hsamp_.totalNr() );
 }
 
 
@@ -173,7 +173,7 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 	return false;
 
     spinf.expectednrsamps = cs.zsamp_.nrSteps() + 1;
-    spinf.expectednrtrcs = mCast( int, cs.hrg.totalNr() );
+    spinf.expectednrtrcs = mCast( int, cs.hsamp_.totalNr() );
     getBPS( spinf.maxbytespsamp, -1 );
     return true;
 }
@@ -254,8 +254,8 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
     cs.zsamp_ = rdr->getZRange();
     const PosInfo::CubeData& cd = rdr->posData();
     StepInterval<int> rg;
-    cd.getInlRange( rg ); cs.hrg.setInlRange( rg );
-    cd.getCrlRange( rg ); cs.hrg.setCrlRange( rg );
+    cd.getInlRange( rg ); cs.hsamp_.setInlRange( rg );
+    cd.getCrlRange( rg ); cs.hsamp_.setCrlRange( rg );
     return true;
 }
 

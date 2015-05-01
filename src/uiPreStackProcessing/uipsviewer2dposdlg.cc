@@ -51,12 +51,12 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
 	sliceselfld_->setMaxTrcKeyZSampling( cs );
     const bool isinl = tp == uiSliceSel::Inl;
     TrcKeyZSampling slicecs = cs;
-    StepInterval<int> trcrg = is2d || isinl ? cs.hrg.crlRange()
-					    : cs.hrg.inlRange();
+    StepInterval<int> trcrg = is2d || isinl ? cs.hsamp_.crlRange()
+					    : cs.hsamp_.inlRange();
     if ( is2d_ || isinl )
-	slicecs.hrg.setCrlRange( trcrg );
+	slicecs.hsamp_.setCrlRange( trcrg );
     else
-	slicecs.hrg.setInlRange( trcrg );
+	slicecs.hsamp_.setInlRange( trcrg );
     setTrcKeyZSampling( slicecs );
     setOkText( uiStrings::sApply() );
 }
@@ -76,15 +76,15 @@ void uiViewer2DPosDlg::getTrcKeyZSampling( TrcKeyZSampling& cs )
     const int step = sliceselfld_->step();
     cs.hsamp_.step_ = BinID( step, step );
     if ( is2d_ )
-	cs.hrg.setInlRange( Interval<int>( 1, 1 ) );
+	cs.hsamp_.setInlRange( Interval<int>( 1, 1 ) );
 }
 
 
 void uiViewer2DPosDlg::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     const bool isinl = cs.defaultDir()==TrcKeyZSampling::Inl;
-    const int step = is2d_ || isinl ? cs.hrg.crlRange().step
-				    : cs.hrg.inlRange().step;
+    const int step = is2d_ || isinl ? cs.hsamp_.crlRange().step
+				    : cs.hsamp_.inlRange().step;
     sliceselfld_->setStep( step );
     sliceselfld_->setTrcKeyZSampling(cs);
 }
@@ -153,8 +153,8 @@ void uiGatherPosSliceSel::reDoTable()
     }
 
     posseltbl_->setColumnLabels( gathernms_ );
-    StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hrg.crlRange()
-					      : tkzs_.hrg.inlRange();
+    StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hsamp_.crlRange()
+					      : tkzs_.hsamp_.inlRange();
     trcrg.step = stepfld_->box()->getValue();
     const int nrrows = trcrg.nrSteps()+1;
     posseltbl_->setNrRows( nrrows );
@@ -182,8 +182,8 @@ void uiGatherPosSliceSel::reDoTable()
 		(ginfo.bid_.crl()-cs.hsamp_.stop_.crl())/cs.hsamp_.step_.crl();
 	    const RowCol rc( rowidx, colidx );
 	    const int limitstep =
-		issynthetic_ ? 1 : isinl_ || is2d_ ? cs.hrg.crlRange().step
-						   : cs.hrg.inlRange().step;
+		issynthetic_ ? 1 : isinl_ || is2d_ ? cs.hsamp_.crlRange().step
+						   : cs.hsamp_.inlRange().step;
 	    StepInterval<int> limitrg( issynthetic_ ? 1 : trcrg.start ,
 				       trcrg.stop, limitstep );
 	    uiGenInput* inpfld =
@@ -212,7 +212,7 @@ void uiGatherPosSliceSel::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     tkzs_ = cs;
     if ( issynthetic_ )
-	tkzs_.hrg.setCrlRange( StepInterval<int>(0,gatherinfos_.size(),
+	tkzs_.hsamp_.setCrlRange( StepInterval<int>(0,gatherinfos_.size(),
 					       stepfld_->box()->getValue()) );
     uiSliceSel::setTrcKeyZSampling( cs );
 }
@@ -274,7 +274,7 @@ void uiGatherPosSliceSel::gatherPosChanged( CallBacker* cb )
 	{
 	    TrcKeyZSampling cs( true );
 	    StepInterval<int> trcrg( mUdf(int), -mUdf(int),
-				     cs.hrg.crlRange().step );
+				     cs.hsamp_.crlRange().step );
 	    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
 		trcrg.include( gatherinfos_[idx].bid_.crl(), false );
 	    selpos = trcrg.atIndex( selpos );
@@ -301,8 +301,8 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     TrcKeyZSampling cs( true );
 
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), issynthetic_
-	    ? 1 : isinl_ || is2d_ ? cs.hrg.crlRange().step
-				  : cs.hrg.inlRange().step );
+	    ? 1 : isinl_ || is2d_ ? cs.hsamp_.crlRange().step
+				  : cs.hsamp_.inlRange().step );
     BufferString firstgnm = gatherinfos[0].gathernm_;
     int rgstep = mUdf(int);
     int prevginfoidx = mUdf(int);
@@ -341,9 +341,9 @@ void uiGatherPosSliceSel::setSelGatherInfos(
 
     trcrg.step = stepfld_->box()->getValue();
     if ( is2d_ || isinl_ )
-	tkzs_.hrg.setCrlRange( trcrg );
+	tkzs_.hsamp_.setCrlRange( trcrg );
     else
-	 tkzs_.hrg.setInlRange( trcrg );
+	 tkzs_.hsamp_.setInlRange( trcrg );
 
     if ( issynthetic_ )
 	setMaxTrcKeyZSampling( tkzs_ );
@@ -408,8 +408,8 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
     if ( !issynthetic_ )
 	gatherinfos_.erase();
 
-    StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hrg.crlRange()
-					      : tkzs_.hrg.inlRange();
+    StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hsamp_.crlRange()
+					      : tkzs_.hsamp_.inlRange();
     TrcKeyZSampling cs( true );
     trcrg.step = stepfld_->box()->getValue();
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )

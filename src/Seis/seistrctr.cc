@@ -182,7 +182,7 @@ bool SeisTrcTranslator::commitSelections()
     if ( seldata_ && !mIsUdf(seldata_->zRange().start) )
     {
 	Interval<float> selzrg( seldata_->zRange() );
-	const Interval<float> sizrg( SI().sampling(false).zrg );
+	const Interval<float> sizrg( SI().sampling(false).zsamp_ );
 	if ( !mIsEqual(selzrg.start,sizrg.start,1e-8)
 	  || !mIsEqual(selzrg.stop,sizrg.stop,1e-8) )
 	{
@@ -345,7 +345,7 @@ bool SeisTrcTranslator::writeBlock()
 	return dumpBlock();
 
     StepInterval<int> inlrg, crlrg;
-    SI().sampling(true).hrg.get( inlrg, crlrg );
+    SI().sampling(true).hsamp_.get( inlrg, crlrg );
     const int firstafter = crlrg.stop + crlrg.step;
     int stp = crlrg.step;
     int bufidx = 0;
@@ -556,8 +556,8 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
 	    return false;
 
 	const SeisPacketInfo& pinf = tr->packetInfo();
-	cs.hrg.set( pinf.inlrg, pinf.crlrg );
-	cs.zrg = pinf.zrg;
+	cs.hsamp_.set( pinf.inlrg, pinf.crlrg );
+	cs.zsamp_ = pinf.zrg;
     }
     else
     {
@@ -574,8 +574,8 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
 
 	    const SeisPacketInfo& pinf = seistr->packetInfo();
 	    TrcKeyZSampling newcs( false );
-	    newcs.hrg.set( pinf.inlrg, pinf.crlrg );
-	    newcs.zrg = pinf.zrg;
+	    newcs.hsamp_.set( pinf.inlrg, pinf.crlrg );
+	    newcs.zsamp_ = pinf.zrg;
 	    cs.include( newcs );
 	} while ( iostrm.toNextConnNr() );
     }

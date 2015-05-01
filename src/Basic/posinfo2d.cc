@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 PosInfo::Line2DData::Line2DData( const char* lnm )
     : lnm_(lnm)
-    , zrg_(SI().sampling(false).zrg)
+    , zrg_(SI().sampling(false).zsamp_)
 {
 }
 

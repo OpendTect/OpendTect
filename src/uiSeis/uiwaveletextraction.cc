@@ -330,7 +330,7 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	Seis::RangeSelData range;
 	range.setZRange( zrg );
 	Interval<int> inlrg( 0, 0 );
-	range.cubeSampling().hrg.setInlRange( inlrg );
+	range.cubeSampling().hsamp_.setInlRange( inlrg );
 
 	ObjectSet<Seis::SelData> sdset;
 	StepInterval<int> trcrg;
@@ -339,7 +339,7 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	linesel2dfld_->getSelGeomIDs( geomids );
 	for ( int lidx=0; lidx<geomids.size(); lidx++ )
 	{
-	    range.cubeSampling().hrg.setCrlRange(
+	    range.cubeSampling().hsamp_.setCrlRange(
 					linesel2dfld_->getTrcRange(lidx) );
 	    range.setGeomID( geomids[lidx] );
 	    seldata_ = range.clone();

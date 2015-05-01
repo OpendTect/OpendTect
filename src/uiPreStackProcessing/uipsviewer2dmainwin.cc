@@ -646,20 +646,20 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 
     if ( is2d_ )
     {
-	tkzs_.hrg.setInlRange( Interval<int>( 1, 1 ) );
-	tkzs_.hrg.setCrlRange( trcrg );
+	tkzs_.hsamp_.setInlRange( Interval<int>( 1, 1 ) );
+	tkzs_.hsamp_.setCrlRange( trcrg );
     }
     else
     {
 	if ( isinl )
 	{
-	    tkzs_.hrg.setInlRange( Interval<int>( bid.inl(), bid.inl() ) );
-	    tkzs_.hrg.setCrlRange( trcrg );
+	    tkzs_.hsamp_.setInlRange( Interval<int>( bid.inl(), bid.inl() ) );
+	    tkzs_.hsamp_.setCrlRange( trcrg );
 	}
 	else
 	{
-	    tkzs_.hrg.setCrlRange( Interval<int>( bid.crl(), bid.crl() ) );
-	    tkzs_.hrg.setInlRange( trcrg );
+	    tkzs_.hsamp_.setCrlRange( Interval<int>( bid.crl(), bid.crl() ) );
+	    tkzs_.hsamp_.setInlRange( trcrg );
 	}
 
 	slicepos_->setTrcKeyZSampling( tkzs_ );
@@ -1157,7 +1157,7 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 	oldgathernms.addIfNew( gatherinfos_[idx].gathernm_ );
     gatherinfos_ = dps;
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
-    tkzs_.hrg.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl(),
+    tkzs_.hsamp_.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl(),
 					   gatherinfos_[0].bid_.inl(),1) );
     BufferStringSet newgathernms;
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
@@ -1185,7 +1185,7 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 	}
     }
 
-    tkzs_.hrg.setCrlRange( trcrg );
+    tkzs_.hsamp_.setCrlRange( trcrg );
     tkzs_.zsamp_.set( mUdf(float), -mUdf(float), SI().zStep() );
     setUpView();
     reSizeSld(0);

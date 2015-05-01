@@ -648,11 +648,11 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     }
 
     //Set new body ranges.
-    const StepInterval<int>& inlrg0 = b0->tkzs_.hrg.inlRange();
-    const StepInterval<int>& crlrg0 = b0->tkzs_.hrg.crlRange();
+    const StepInterval<int>& inlrg0 = b0->tkzs_.hsamp_.inlRange();
+    const StepInterval<int>& crlrg0 = b0->tkzs_.hsamp_.crlRange();
     const StepInterval<float>& zrg0 = b0->tkzs_.zsamp_;
-    const StepInterval<int>& inlrg1 = b1->tkzs_.hrg.inlRange();
-    const StepInterval<int>& crlrg1 = b1->tkzs_.hrg.crlRange();
+    const StepInterval<int>& inlrg1 = b1->tkzs_.hsamp_.inlRange();
+    const StepInterval<int>& crlrg1 = b1->tkzs_.hsamp_.crlRange();
     const StepInterval<float>& zrg1 = b1->tkzs_.zsamp_;
 
     //If action is Minus, make the new cube the same size as body0.

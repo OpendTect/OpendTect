@@ -153,10 +153,10 @@ bool Seis2DTo3D::read()
     if ( ds.isEmpty() )
 	mErrRet( tr("Input dataset has no lines") )
 
-    Interval<int> inlrg( tkzs_.hrg.inlRange().start - inlstep_,
-			 tkzs_.hrg.inlRange().stop + inlstep_ );
-    Interval<int> crlrg( tkzs_.hrg.crlRange().start - crlstep_,
-			 tkzs_.hrg.crlRange().stop + crlstep_ );
+    Interval<int> inlrg( tkzs_.hsamp_.inlRange().start - inlstep_,
+			 tkzs_.hsamp_.inlRange().stop + inlstep_ );
+    Interval<int> crlrg( tkzs_.hsamp_.crlRange().start - crlstep_,
+			 tkzs_.hsamp_.crlRange().stop + crlstep_ );
     SeisTrcBuf tmpbuf(false);
     seisbuf_.erase();
     seisbuftks_.init( false );
@@ -195,7 +195,7 @@ bool Seis2DTo3D::read()
     if ( seisbuf_.isEmpty() )
 	return false;
 
-    hsit_.setSampling( tkzs_.hrg );
+    hsit_.setSampling( tkzs_.hsamp_ );
 
     if ( !nearesttrace_ )
 	sc_ = new SeisScaler( seisbuf_ );
@@ -399,7 +399,7 @@ bool Seis2DTo3D::writeTmpTrcs()
 
 od_int64 Seis2DTo3D::totalNr() const
 {
-    return tkzs_.hrg.totalNr();
+    return tkzs_.hsamp_.totalNr();
 }
 
 

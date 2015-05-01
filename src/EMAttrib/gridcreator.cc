@@ -80,7 +80,7 @@ Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
     const TrcKeyZSampling& cs, const IOObj& output, Pos::GeomID geomid )
     : Executor("Creating 2D line")
     , nrdone_(0)
-    , totalnr_(cs.hrg.totalNr())
+    , totalnr_(cs.hsamp_.totalNr())
 {
     rdr_ = new SeisTrcReader( &input );
     rdr_->prepareWork();
@@ -285,7 +285,7 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	return false;
 
     Grid2D grid;
-    grid.set( baseline, pardist, perdist, bbox.hrg );
+    grid.set( baseline, pardist, perdist, bbox.hsamp_ );
     if ( !grid.totalSize() )
 	return false;
 

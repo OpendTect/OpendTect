@@ -288,7 +288,7 @@ bool uiExportHorizon::writeAscii()
 		}
 		else
 		{
-		    bbox.hrg.include( bid );
+		    bbox.hsamp_.include( bid );
 		    bbox.zsamp_.include( (float) crd.z );
 		}
 	    }

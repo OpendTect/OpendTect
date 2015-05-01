@@ -299,9 +299,9 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	float* vals = bivs.getVals(pos);
 
 	const int inlidx = 
-	    impbody_->tkzs_.hrg.inlRange().nearestIndex(bid.inl());
+	    impbody_->tkzs_.hsamp_.inlRange().nearestIndex(bid.inl());
 	const int crlidx = 
-	    impbody_->tkzs_.hrg.crlRange().nearestIndex(bid.crl());
+	    impbody_->tkzs_.hsamp_.crlRange().nearestIndex(bid.crl());
 
 	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
 	{

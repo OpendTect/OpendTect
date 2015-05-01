@@ -161,13 +161,13 @@ void uiGridLinesDlg::setParameters()
     if ( inlfld_ )
     {
 	inlfld_->setChecked( pdd_->gridlines()->areInlinesShown() );
-	inlspacingfld_->setValue( cs.hrg.inlRange() );
+	inlspacingfld_->setValue( cs.hsamp_.inlRange() );
     }
 
     if ( crlfld_ )
     {
 	crlfld_->setChecked( pdd_->gridlines()->areCrosslinesShown() );
-	crlspacingfld_->setValue( cs.hrg.crlRange() );
+	crlspacingfld_->setValue( cs.hsamp_.crlRange() );
     }
 
     if ( zfld_ )

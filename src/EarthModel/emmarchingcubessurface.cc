@@ -371,9 +371,9 @@ bool MarchingCubesSurface::regenerateMCBody( TaskRunner* taskrunner )
     if ( !operator_->createImplicitBody(body,taskrunner) || !body )
 	return false;
 
-    setInlSampling( SamplingData<int>(body->tkzs_.hrg.inlRange()) );
-    setCrlSampling( SamplingData<int>(body->tkzs_.hrg.crlRange()) );
-    setZSampling( SamplingData<float>(body->tkzs_.zrg) );
+    setInlSampling( SamplingData<int>(body->tkzs_.hsamp_.inlRange()) );
+    setCrlSampling( SamplingData<int>(body->tkzs_.hsamp_.crlRange()) );
+    setZSampling( SamplingData<float>(body->tkzs_.zsamp_) );
 
     return mcsurface_->setVolumeData( 0, 0, 0, *body->arr_, body->threshold_ );
 }

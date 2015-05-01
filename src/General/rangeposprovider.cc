@@ -106,7 +106,7 @@ float Pos::RangeProvider3D::curZ() const
 
 bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
 {
-    bool issel = tkzs_.hrg.includes(bid);
+    bool issel = tkzs_.hsamp_.includes(bid);
     if ( !issel ) return false;
     if ( mIsUdf(z) ) return true;
 
@@ -153,7 +153,7 @@ void Pos::RangeProvider3D::getZRange( Interval<float>& zrg ) const
 
 od_int64 Pos::RangeProvider3D::estNrPos() const
 {
-    return tkzs_.hrg.totalNr();
+    return tkzs_.hsamp_.totalNr();
 }
 
 
@@ -462,7 +462,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 	TrcKeyZSampling cs(false); cs.set2DDef();
 	if ( cs.usePar(iop) )
 	{
-	    trcrgs_[0] = cs.hrg.crlRange();
+	    trcrgs_[0] = cs.hsamp_.crlRange();
 	    zrgs_[0] = cs.zsamp_;
 	}
 

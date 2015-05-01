@@ -154,7 +154,7 @@ uiSliceScroll( uiSliceSel* ss )
     timer->tick.notify( mCB(this,uiSliceScroll,timerTick) );
 
     const TrcKeyZSampling& cs = SI().sampling( false );
-    const TrcKeySampling& hs = cs.hrg;
+    const TrcKeySampling& hs = cs.hsamp_;
     int step = hs.step_.inl();
     int maxstep = hs.start_.inl() - hs.stop_.inl();
     if  ( ss->iscrl_ )
@@ -261,7 +261,7 @@ void doAdvance( bool reversed )
     if ( slcsel_->isinl_ )
     {
 	int newval = slcsel_->tkzs_.hsamp_.start_.inl() + step;
-	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.inlOK(newval) )
+	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.inlOK(newval) )
 	    stopAuto( true );
 	else
 	    slcsel_->inl0fld_->box()->setValue( newval );
@@ -269,7 +269,7 @@ void doAdvance( bool reversed )
     else if ( slcsel_->iscrl_ )
     {
 	int newval = slcsel_->tkzs_.hsamp_.start_.crl() + step;
-	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.crlOK(newval) )
+	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.crlOK(newval) )
 	    stopAuto( true );
 	else
 	    slcsel_->crl0fld_->box()->setValue( newval );
@@ -391,7 +391,7 @@ void uiSliceSel::fullPush( CallBacker* )
 
 void uiSliceSel::readInput()
 {
-    const TrcKeySampling& hs = maxcs_.hrg;
+    const TrcKeySampling& hs = maxcs_.hsamp_;
     Interval<int> inlrg, crlrg;
     hs.get( inlrg, crlrg );
     if ( inl0fld_ )
@@ -422,7 +422,7 @@ void uiSliceSel::readInput()
 	    zrg.stop += maxcs_.zsamp_.step;
     }
 
-    tkzs_.hrg.set( inlrg, crlrg );
+    tkzs_.hsamp_.set( inlrg, crlrg );
     tkzs_.zsamp_.setFrom( zrg );
 
     if ( dogeomcheck_ )
@@ -658,7 +658,7 @@ bool uiLinePosSelDlg::selectPos2D()
 	inputcs = *prefcs_;
     else
     {
-	inputcs.hrg.setCrlRange( geom2d->data().trcNrRange() );
+	inputcs.hsamp_.setCrlRange( geom2d->data().trcNrRange() );
 	inputcs.zsamp_ = geom2d->data().zRange();
     }
 
@@ -687,10 +687,10 @@ bool uiLinePosSelDlg::selectPos3D()
     {
 	if ( isinl )
 	    inputcs.hsamp_.stop_.inl() = inputcs.hsamp_.start_.inl()
-				   = inputcs.hrg.inlRange().snappedCenter();
+				   = inputcs.hsamp_.inlRange().snappedCenter();
 	else
 	    inputcs.hsamp_.stop_.crl() = inputcs.hsamp_.start_.crl()
-				   = inputcs.hrg.crlRange().snappedCenter();
+				   = inputcs.hsamp_.crlRange().snappedCenter();
 
 	inputcs.zsamp_.start = 0;
     }

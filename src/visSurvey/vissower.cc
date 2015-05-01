@@ -146,7 +146,7 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
     visBase::DataObject* dataobj = visBase::DM().getObject( underlyingobjid_ );
     mDynamicCastGet( PlaneDataDisplay*, pdd, dataobj );
     if ( pdd )
-	workrange_ = new TrcKeySampling( pdd->getTrcKeyZSampling().hrg );
+	workrange_ = new TrcKeySampling( pdd->getTrcKeyZSampling().hsamp_ );
 
     if ( workrg && workrg->isDefined() && !workrg->isEmpty() )
     {

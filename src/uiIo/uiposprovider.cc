@@ -239,7 +239,7 @@ void uiPosProvSel::setProvFromCS()
     if ( setup_.is2d_ )
     {
 	Pos::RangeProvider2D* rp2d = new Pos::RangeProvider2D;
-	rp2d->trcRange(0) = tkzs_.hrg.crlRange();
+	rp2d->trcRange(0) = tkzs_.hsamp_.crlRange();
 	rp2d->zRange() = tkzs_.zsamp_;
 	prov_ = rp2d;
     }

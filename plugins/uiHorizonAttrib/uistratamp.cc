@@ -122,7 +122,7 @@ void uiStratAmpCalc::inpSel( CallBacker* )
     TrcKeySampling hs;
     getAvailableRange( hs );
     TrcKeyZSampling incs( rangefld_->envelope() );
-    incs.hrg = hs;
+    incs.hsamp_ = hs;
     rangefld_->setInput( incs );
     setParFileName();
 }
@@ -149,7 +149,7 @@ void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
 {
     TrcKeyZSampling cs;
     if ( inpfld_->getRanges(cs) )
-	hs.limitTo( cs.hrg );
+	hs.limitTo( cs.hsamp_ );
 
     if ( horfld1_->commitInput() )
     {
@@ -237,7 +237,7 @@ bool uiStratAmpCalc::fillPar()
 
     TrcKeySampling hs;
     getAvailableRange( hs );
-    TrcKeySampling inhs = rangefld_->envelope().hrg;
+    TrcKeySampling inhs = rangefld_->envelope().hsamp_;
     hs.limitTo( inhs );
     IOPar subselpar;
     hs.fillPar( subselpar );

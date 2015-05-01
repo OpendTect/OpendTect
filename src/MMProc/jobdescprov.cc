@@ -107,7 +107,7 @@ void IDKeyReplaceJobDescProv::dump( od_ostream& strm ) const
 
 
 #define mSetInlRgDef() \
-    Interval<int> dum; SI().sampling(false).hrg.get( inlrg_, dum )
+    Interval<int> dum; SI().sampling(false).hsamp_.get( inlrg_, dum )
 
 
 InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop )

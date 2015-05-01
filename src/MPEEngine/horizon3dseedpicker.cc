@@ -86,7 +86,7 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	return true;
 
     const BinID seedbid = SI().transform( seedcrd );
-    const TrcKeySampling hrg = engine().activeVolume().hrg;
+    const TrcKeySampling hrg = engine().activeVolume().hsamp_;
     const StepInterval<float> zrg = engine().activeVolume().zsamp_;
     if ( !zrg.includes(seedcrd.z,false) || !hrg.includes(seedbid) )
 	return false;
@@ -232,7 +232,7 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid,
     trackbounds_.erase();
     junctions_.erase();
 
-    if ( engine().activeVolume().hrg.includes(startbid) )
+    if ( engine().activeVolume().hsamp_.includes(startbid) )
     {
 	extendSeedListEraseInBetween( false, startbid, startwasdefined, -dir );
 	extendSeedListEraseInBetween( false, startbid, startwasdefined, dir );
@@ -335,7 +335,7 @@ void Horizon3DSeedPicker::extendSeedListEraseInBetween(
     	curbid += dir;
 
 	// reaching end of survey
-	if ( !engine().activeVolume().hrg.includes(curbid) )
+	if ( !engine().activeVolume().hsamp_.includes(curbid) )
 	{
 	    if ( seedconmode_==TrackFromSeeds )
 		trackbounds_ += prevbid;
@@ -611,16 +611,16 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 TrcKeyZSampling Horizon3DSeedPicker::getTrackBox() const
 {
     TrcKeyZSampling trackbox( true );
-    trackbox.hrg.init( false );
+    trackbox.hsamp_.init( false );
     for ( int idx=0; idx<seedpos_.size(); idx++ )
     {
 	const BinID seedbid = SI().transform( seedpos_[idx] );
-	if ( engine().activeVolume().hrg.includes(seedbid) )
-	    trackbox.hrg.include( seedbid );
+	if ( engine().activeVolume().hsamp_.includes(seedbid) )
+	    trackbox.hsamp_.include( seedbid );
     }
 
     for ( int idx=0; idx<trackbounds_.size(); idx++ )
-	trackbox.hrg.include( trackbounds_[idx] );
+	trackbox.hsamp_.include( trackbounds_[idx] );
 
     return trackbox;
 }

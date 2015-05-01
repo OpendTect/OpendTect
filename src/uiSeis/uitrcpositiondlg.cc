@@ -143,10 +143,10 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	inlfld_ = new uiLabeledSpinBox( this, str );
 	crlfld_ = new uiSpinBox( this );
 	crlfld_->attach( rightTo, inlfld_ );
-	inlfld_->box()->setInterval( cs.hrg.inlRange() );
-	inlfld_->box()->setValue( cs.hrg.inlRange().snappedCenter() );
-	crlfld_->setInterval( cs.hrg.crlRange() );
-	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
+	inlfld_->box()->setInterval( cs.hsamp_.inlRange() );
+	inlfld_->box()->setValue( cs.hsamp_.inlRange().snappedCenter() );
+	crlfld_->setInterval( cs.hsamp_.crlRange() );
+	crlfld_->setValue( cs.hsamp_.crlRange().snappedCenter() );
 	DPM( DataPackMgr::SeisID() ).release( dpfid.ID(1) );
 	zrg_ = cs.zsamp_;
     }
@@ -189,10 +189,10 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 	inlfld_ = new uiLabeledSpinBox( this, str );
 	crlfld_ = new uiSpinBox( this );
 	crlfld_->attach( rightTo, inlfld_ );
-	inlfld_->box()->setInterval( cs.hrg.inlRange() );
-	inlfld_->box()->setValue( cs.hrg.inlRange().snappedCenter() );
-	crlfld_->setInterval( cs.hrg.crlRange() );
-	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
+	inlfld_->box()->setInterval( cs.hsamp_.inlRange() );
+	inlfld_->box()->setValue( cs.hsamp_.inlRange().snappedCenter() );
+	crlfld_->setInterval( cs.hsamp_.crlRange() );
+	crlfld_->setValue( cs.hsamp_.crlRange().snappedCenter() );
     }
 
     getposbut_ = new uiToolButton( this, "pick", tr("Point in 3D scene"),
@@ -290,13 +290,13 @@ TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
     {
 	int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )
 			       : trcnrfld_->box()->getValue();
-	cs.hrg.set( cs.hrg.inlRange(), StepInterval<int>( trcnr, trcnr, 1 ) );
+	cs.hsamp_.set( cs.hsamp_.inlRange(), StepInterval<int>( trcnr, trcnr, 1 ) );
     }
     else
     {
 	int inlnr = inlfld_->box()->getValue();
 	int crlnr = crlfld_->getValue();
-	cs.hrg.set( StepInterval<int>( inlnr, inlnr, 1 ),
+	cs.hsamp_.set( StepInterval<int>( inlnr, inlnr, 1 ),
 		    StepInterval<int>( crlnr, crlnr, 1 ) );
     }
 

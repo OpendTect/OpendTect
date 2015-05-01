@@ -365,7 +365,7 @@ static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
 void uiSurveyInfoEditor::setValues()
 {
     const TrcKeyZSampling& cs = si_.sampling( false );
-    const TrcKeySampling& hs = cs.hrg;
+    const TrcKeySampling& hs = cs.hsamp_;
     StepInterval<int> inlrg( hs.start_.inl(), hs.stop_.inl(), hs.step_.inl() );
     StepInterval<int> crlrg( hs.start_.crl(), hs.stop_.crl(), hs.step_.crl() );
     inlfld_->setValue( inlrg );
@@ -537,7 +537,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
     pol2dfld_->setCurrentItem( (int)si_.survDataType() );
 
-    if ( si_.sampling(false).hrg.totalNr() )
+    if ( si_.sampling(false).hsamp_.totalNr() )
 	setValues();
 
     chgSetMode(0);
@@ -661,7 +661,7 @@ bool uiSurveyInfoEditor::setRanges()
     if ( irg.isUdf() ) mErrRet(tr("Please enter a valid range for inlines"))
     if ( crg.isUdf() ) mErrRet(tr("Please enter a valid range for crosslines"))
     TrcKeyZSampling cs( si_.sampling(false) );
-    TrcKeySampling& hs = cs.hrg;
+    TrcKeySampling& hs = cs.hsamp_;
     hs.start_.inl() = irg.start; hs.start_.crl() = crg.start;
     hs.stop_.inl() = irg.atIndex( irg.getIndex(irg.stop) );
     hs.stop_.crl() = crg.atIndex( crg.getIndex(crg.stop) );

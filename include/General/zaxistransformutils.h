@@ -94,7 +94,7 @@ protected:
     bool			doWork(od_int64,od_int64,int threadid);
     bool			doFinish(bool success);
     od_int64			nrIterations() const
-				{ return tkzs_.hrg.totalNr(); }
+				{ return tkzs_.hsamp_.totalNr(); }
 
     int 			voiid_;
     ObjectSet<BinIDValueSet>	bidvalsets_;

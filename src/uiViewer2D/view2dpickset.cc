@@ -187,7 +187,7 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	}
 
 	ConstRefMan<ZAxisTransform> zat = viewers_[0]->getZAxisTransform();
-	return ( cs.hrg.includes(bid) && cs.zsamp_.includes(z,false) ) ?
+	return ( cs.hsamp_.includes(bid) && cs.zsamp_.includes(z,false) ) ?
 	    Coord3( SI().transform(bid), zat ?
 		    zat->transformBack(BinIDValue(bid,z)) : z ) : Coord3::udf();
     }
@@ -204,7 +204,7 @@ void VW2DPickSet::updateSetIdx( const TrcKeyZSampling& cs )
     {
 	const Coord3& pos = (*pickset_)[idx].pos_;
 	const BinID bid = SI().transform( pos );
-	if ( cs.hrg.includes(bid) )
+	if ( cs.hsamp_.includes(bid) )
 	    picksetidxs_ += idx;
     }
 }

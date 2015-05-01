@@ -265,7 +265,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     mDynamicCastGet(Pos::RangeProvider3D*,rp3d,pf);
     if ( rp3d )
-	outsdsel.rg = rp3d->sampling().hrg;
+	outsdsel.rg = rp3d->sampling().hsamp_;
 
     IOObj* newioobj = outfld->ctxtIOObj().ioobj;
     const MultiID& mid = newioobj->key();

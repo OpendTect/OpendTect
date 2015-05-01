@@ -564,7 +564,7 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
     TrcKeySampling trcsampling;
     getComputableSurf( trcsampling );
 
-    cs.hrg.limitTo( trcsampling );
+    cs.hsamp_.limitTo( trcsampling );
     seissubselfld_->setInput( cs );
 }
 

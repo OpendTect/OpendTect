@@ -201,7 +201,7 @@ void uiIOSurface::fillRangeFld( const TrcKeySampling& hrg )
 {
     if ( !rgfld_ ) return;
     TrcKeyZSampling cs( rgfld_->envelope() );
-    cs.hrg = hrg;
+    cs.hsamp_ = hrg;
     rgfld_->setInputLimit( cs );	// Set spinbox limits
 
     rgfld_->setInput( cs, SI().sampling(false) );
@@ -221,13 +221,13 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
     if ( !rgfld_ || rgfld_->isAll() )
 	sels.rg = sels.sd.rg;
     else
-	sels.rg = rgfld_->envelope().hrg;
+	sels.rg = rgfld_->envelope().hsamp_;
 
     if ( SI().sampling(true) != SI().sampling(false) )
     {
 	if ( sels.rg.isEmpty() )
 	    sels.rg.init( true );
-	sels.rg.limitTo( SI().sampling(true).hrg );
+	sels.rg.limitTo( SI().sampling(true).hsamp_ );
     }
 
     sels.selsections.erase();
@@ -428,7 +428,7 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 
     if ( !issubsel && rgfld_ && !rgfld_->isAll() )
     {
-	const TrcKeySampling& hrg = rgfld_->envelope().hrg;
+	const TrcKeySampling& hrg = rgfld_->envelope().hsamp_;
 	issubsel = surfrange_.isEmpty() ? true :
 	    !hrg.includes(surfrange_.start_) || !hrg.includes(surfrange_.stop_);
     }

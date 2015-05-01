@@ -169,14 +169,14 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     olddata_.tkzs_.hsamp_.start_ = BinID( geom.start.inl(), geom.start.crl() );
     olddata_.tkzs_.hsamp_.stop_  = BinID( geom.stop.inl(), geom.stop.crl() );
     olddata_.tkzs_.hsamp_.step_  = BinID( geom.step.inl(), geom.step.crl() );
-    data_.hsit_ = new TrcKeySamplingIterator( olddata_.tkzs_.hrg );
+    data_.hsit_ = new TrcKeySamplingIterator( olddata_.tkzs_.hsamp_ );
     olddata_.tkzs_.zsamp_ = info.sd_.interval( info.nrsamples_ );
     data_.tkzs_.zsamp_ = olddata_.tkzs_.zsamp_; 
     data_.tkzs_.zsamp_.step = SI().zStep();
 
     BinID bid;
     while ( data_.hsit_->next( bid ) )
-	data_.tkzs_.hrg.include( SI().transform( b2c.transform( bid ) ) );
+	data_.tkzs_.hsamp_.include( SI().transform( b2c.transform( bid ) ) );
 
     if ( !SI().isInside(data_.tkzs_.hsamp_.start_,true)
 	&& !SI().isInside(data_.tkzs_.hsamp_.stop_,true) )
@@ -199,9 +199,9 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
     interpol_ = interp;
     data_.tkzs_ = cs;
     data_.tkzs_.limitTo( SI().sampling(false) );
-    data_.tkzs_.hrg.snapToSurvey();
-    data_.hsit_->setSampling( data_.tkzs_.hrg );
-    totnr_ = mCast( int, data_.tkzs_.hrg.totalNr() );
+    data_.tkzs_.hsamp_.snapToSurvey();
+    data_.hsit_->setSampling( data_.tkzs_.hsamp_ );
+    totnr_ = mCast( int, data_.tkzs_.hsamp_.totalNr() );
     if ( !cellsz ) return;
     fft_ = Fourier::CC::createDefault();
     sz_ = fft_->getFastSize( cellsz );

@@ -41,11 +41,11 @@ static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
 {
     TrcKeyZSampling scale = cs;
 
-    const AxisLayout<int> inlal( (Interval<int>)cs.hrg.inlRange() );
+    const AxisLayout<int> inlal( (Interval<int>)cs.hsamp_.inlRange() );
     scale.hsamp_.start_.inl() = inlal.sd_.start;
     scale.hsamp_.step_.inl() = inlal.sd_.step;
 
-    const AxisLayout<int> crlal( (Interval<int>)cs.hrg.crlRange() );
+    const AxisLayout<int> crlal( (Interval<int>)cs.hsamp_.crlRange() );
     scale.hsamp_.start_.crl() = crlal.sd_.start;
     scale.hsamp_.step_.crl() = crlal.sd_.step;
 
@@ -193,8 +193,8 @@ void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
     tkzs_ = cs;
     tkzsdefaultscale_ = getDefaultScale( tkzs_ );
 
-    const Interval<int> inlrg = cs.hrg.inlRange();
-    const Interval<int> crlrg = cs.hrg.crlRange();
+    const Interval<int> inlrg = cs.hsamp_.inlRange();
+    const Interval<int> crlrg = cs.hsamp_.crlRange();
     const Interval<float>& zrg = cs.zsamp_;
 
     setCorner( 0, inlrg.start, crlrg.start, zrg.start );
@@ -263,18 +263,18 @@ static SamplingData<float> getAxisSD( const TrcKeyZSampling& cs, int dim,
 
     if ( dim==0 )
     {
-	sd.set( AxisLayout<int>(cs.hrg.inlRange()).sd_ );
-	stop = cs.hrg.inlRange().stop;
+	sd.set( AxisLayout<int>(cs.hsamp_.inlRange()).sd_ );
+	stop = cs.hsamp_.inlRange().stop;
     }
     else if ( dim==1 )
     {
-	sd.set( AxisLayout<int>(cs.hrg.crlRange()).sd_ );
-	stop = cs.hrg.crlRange().stop;
+	sd.set( AxisLayout<int>(cs.hsamp_.crlRange()).sd_ );
+	stop = cs.hsamp_.crlRange().stop;
     }
     else
     {
-	sd.set( AxisLayout<float>(cs.zrg).sd_ );
-	stop = cs.zrg.stop;
+	sd.set( AxisLayout<float>(cs.zsamp_).sd_ );
+	stop = cs.zsamp_.stop;
     }
 
     const float eps = 1e-6;

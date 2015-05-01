@@ -485,7 +485,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 	TrcKeyZSampling curcs;
 	curcs.zsamp_.setFrom( SI().zRange(true) );
-	curcs.hrg.set( section->displayedRowRange(),
+	curcs.hsamp_.set( section->displayedRowRange(),
 		       section->displayedColRange() );
 
 	uiPosProvider::Setup setup( false, true, false );
@@ -515,8 +515,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	else
 	    newcs.usePar( displaypar );
 
-	section->setDisplayRange( newcs.hrg.inlRange(), newcs.hrg.crlRange() );
-	emserv->setHorizon3DDisplayRange( newcs.hrg );
+	section->setDisplayRange( newcs.hsamp_.inlRange(), newcs.hsamp_.crlRange() );
+	emserv->setHorizon3DDisplayRange( newcs.hsamp_ );
 
 	for ( int idx=0; idx<hd->nrAttribs(); idx++ )
 	{

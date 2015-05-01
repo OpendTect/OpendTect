@@ -83,7 +83,7 @@ bool SeismicExtractor::collectTracesAroundPath()
 	}
     }
     tkzs_->hsamp_.snapToSurvey();
-    tkzs_->zrg = extrintv_;
+    tkzs_->zsamp_ = extrintv_;
     Seis::RangeSelData* sd = new Seis::RangeSelData( *tkzs_ );
     if ( seisid2D && !linenm_.isEmpty() )
 	sd->setGeomID( Survey::GM().getGeomID(linenm_) );

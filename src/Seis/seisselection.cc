@@ -153,7 +153,7 @@ Seis::RangeSelData::RangeSelData( bool initsi )
 Seis::RangeSelData::RangeSelData( const TrcKeySampling& hs )
     : tkzs_(*new TrcKeyZSampling(false))
 {
-    tkzs_.hrg = hs;
+    tkzs_.hsamp_ = hs;
     tkzs_.zsamp_ = SI().zRange(false);
 }
 
@@ -202,13 +202,13 @@ void Seis::RangeSelData::copyFrom( const Seis::SelData& sd )
 
 Interval<int> Seis::RangeSelData::inlRange() const
 {
-    return isall_ ? Seis::SelData::inlRange() : tkzs_.hrg.inlRange();
+    return isall_ ? Seis::SelData::inlRange() : tkzs_.hsamp_.inlRange();
 }
 
 
 Interval<int> Seis::RangeSelData::crlRange() const
 {
-    return isall_ ? Seis::SelData::crlRange() : tkzs_.hrg.crlRange();
+    return isall_ ? Seis::SelData::crlRange() : tkzs_.hsamp_.crlRange();
 }
 
 
@@ -332,7 +332,7 @@ int Seis::RangeSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
     if ( isall_ && !for2d ) return tracesInSI();
 
-    TrcKeySampling hs( tkzs_.hrg );
+    TrcKeySampling hs( tkzs_.hsamp_ );
     if ( step ) hs.step_ = *step;
     const int nrinl = for2d ? 1 : hs.nrInl();
     const int nrcrl = hs.nrCrl();

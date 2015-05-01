@@ -145,7 +145,7 @@ bool HorizonPainter3D::addPolyLine()
 	    continue;
 	}
 
-	TrcKeySamplingIterator iter( tkzs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
 	while ( iter.next(bid) )
 	{
 	    int inlfromcs = bid.inl();
@@ -255,7 +255,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		const BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
 		const TrcKey tk = Survey::GM().traceKey(
 			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
-		if ( tkzs_.hrg.includes(bid) || (path_&&path_->isPresent(tk)) )
+		if ( tkzs_.hsamp_.includes(bid) || (path_&&path_->isPresent(tk)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
 		    viewer_.handleChange( FlatView::Viewer::Auxdata );

@@ -346,7 +346,7 @@ float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,&prov);
 	if ( !prov3d ) return mUdf(float);
 	TrcKeyZSampling provcs( true ); prov3d->getTrcKeyZSampling( provcs );
-	float provnr = (float) provcs.hrg.totalNr();
+	float provnr = (float) provcs.hsamp_.totalNr();
 	provnr *= provcs.zsamp_.nrSteps() + 1;
 	return ( provnr / estNrPos() ) / estNrZPerPos();
     }

@@ -120,7 +120,7 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
     tst_.setOutput( *outioobj );
 
     TrcKeyZSampling  cs;
-    subselfld_->getSampling( cs.hrg );
+    subselfld_->getSampling( cs.hsamp_ );
     subselfld_->getZRange( cs.zsamp_ );
     tst_.setRange( cs );
 

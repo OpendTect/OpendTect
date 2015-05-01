@@ -914,16 +914,16 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
 #define mSetSampling \
 const StepInterval<Pos::TraceID> trcrg = data_.trcNrRange(); \
 sampling_.zsamp_ = data_.zRange(); \
-sampling_.hrg.start_.lineNr() = sampling_.hrg.stop_.lineNr() = getID(); \
-sampling_.hrg.start_.trcNr() = trcrg.start; \
-sampling_.hrg.stop_.trcNr() = trcrg.stop; \
-sampling_.hrg.step_.trcNr() = trcrg.step
+sampling_.hsamp_.start_.lineNr() = sampling_.hsamp_.stop_.lineNr() = getID(); \
+sampling_.hsamp_.start_.trcNr() = trcrg.start; \
+sampling_.hsamp_.stop_.trcNr() = trcrg.stop; \
+sampling_.hsamp_.step_.trcNr() = trcrg.step
 
 Survey::Geometry2D::Geometry2D( PosInfo::Line2DData* l2d )
     : data_( *l2d )
     , trcdist_( mUdf(float) )
 {
-    sampling_.hrg.survid_ = TrcKey::std2DSurvID();
+    sampling_.hsamp_.survid_ = TrcKey::std2DSurvID();
     mSetSampling;
 }
 

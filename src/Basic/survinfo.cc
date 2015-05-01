@@ -60,14 +60,14 @@ TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
     TrcKey tk = TrcKey( getID(), transform(crd) );
     if ( dist )
     {
-	if ( sampling_.hrg.includes(tk.pos()) )
+	if ( sampling_.hsamp_.includes(tk.pos()) )
 	{
 	    const Coord projcoord( transform(tk.pos()) );
 	    *dist = (float)projcoord.distTo( crd );
 	}
 	else
 	{
-	    TrcKey nearbid( sampling_.hrg.getNearest(tk.pos()) );
+	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.pos()) );
 	    const Coord nearcoord( transform(nearbid.pos()) );
 	    *dist = (float)nearcoord.distTo( crd );
 	}
@@ -78,7 +78,7 @@ TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
 
 bool Survey::Geometry3D::includes( int line, int tracenr ) const
 {
-    return sampling_.hrg.includes( BinID(line,tracenr) );
+    return sampling_.hsamp_.includes( BinID(line,tracenr) );
 }
 
 
@@ -125,15 +125,15 @@ const Survey::Geometry3D* Survey::Geometry::as3D() const
 Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
     : name_( nm )
     , zdomain_( zd )
-{ sampling_.hrg.survid_ = getID(); }
+{ sampling_.hsamp_.survid_ = getID(); }
 
 
 StepInterval<int> Survey::Geometry3D::inlRange() const
-{ return sampling_.hrg.inlRange(); }
+{ return sampling_.hsamp_.inlRange(); }
 
 
 StepInterval<int> Survey::Geometry3D::crlRange() const
-{ return sampling_.hrg.crlRange(); }
+{ return sampling_.hsamp_.crlRange(); }
 
 
 StepInterval<float> Survey::Geometry3D::zRange() const
@@ -525,7 +525,7 @@ void SurveyInfo::updateDirName()
 StepInterval<int> SurveyInfo::inlRange( bool work ) const
 {
     StepInterval<int> ret; Interval<int> dum;
-    sampling(work).hrg.get( ret, dum );
+    sampling(work).hsamp_.get( ret, dum );
     return ret;
 }
 
@@ -533,7 +533,7 @@ StepInterval<int> SurveyInfo::inlRange( bool work ) const
 StepInterval<int> SurveyInfo::crlRange( bool work ) const
 {
     StepInterval<int> ret; Interval<int> dum;
-    sampling(work).hrg.get( dum, ret );
+    sampling(work).hsamp_.get( dum, ret );
     return ret;
 }
 
@@ -545,7 +545,7 @@ const StepInterval<float>& SurveyInfo::zRange( bool work ) const
 
 int SurveyInfo::maxNrTraces( bool work ) const
 {
-    return sampling(work).hrg.nrInl() * sampling(work).hrg.nrCrl();
+    return sampling(work).hsamp_.nrInl() * sampling(work).hsamp_.nrCrl();
 }
 
 
@@ -743,7 +743,7 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
     const float eps = 1e-8;
-    return cs.hrg.includes( bid )
+    return cs.hsamp_.includes( bid )
 	&& cs.zsamp_.start < z + eps && cs.zsamp_.stop > z - eps;
 }
 

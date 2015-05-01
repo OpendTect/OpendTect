@@ -198,7 +198,7 @@ ZAxisTransformPointGenerator::~ZAxisTransformPointGenerator()
 void ZAxisTransformPointGenerator::setInput( const TrcKeyZSampling& cs )
 {
     tkzs_ = cs;
-    iter_.setSampling( cs.hrg );
+    iter_.setSampling( cs.hsamp_ );
 
     if ( transform_.needsVolumeOfInterest() )
     {
@@ -268,7 +268,7 @@ TypeSet<DataPack::ID> createDataPacksFromBIVSet( const BinIDValueSet* bivset,
     for ( int idx=1; idx<bivset->nrVals(); idx++ )
     {
 	mDeclareAndTryAlloc( Array2DImpl<float>*, arr,
-		Array2DImpl<float>(cs.hrg.nrInl(),cs.hrg.nrCrl()) );
+		Array2DImpl<float>(cs.hsamp_.nrInl(),cs.hsamp_.nrCrl()) );
 	mDeclareAndTryAlloc( FlatDataPack*, fdp,
 		FlatDataPack(sKey::EmptyString(),arr) );
 
@@ -283,7 +283,7 @@ TypeSet<DataPack::ID> createDataPacksFromBIVSet( const BinIDValueSet* bivset,
 	while ( bivset->next(pos,true) )
 	{
 	    bivset->get( pos, bid );
-	    arr->set( cs.hrg.inlIdx(bid.inl()), cs.hrg.crlIdx(bid.crl()),
+	    arr->set( cs.hsamp_.inlIdx(bid.inl()), cs.hsamp_.crlIdx(bid.crl()),
 		      bivset->getVals(pos)[idx]);
 	}
     }

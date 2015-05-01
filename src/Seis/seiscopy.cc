@@ -263,7 +263,7 @@ bool Seis2DCopier::initNextLine()
 	seldata_.setIsAll( true );
     else
     {
-	seldata_.cubeSampling().hrg.setCrlRange( trcrgs_[lineidx_] );
+	seldata_.cubeSampling().hsamp_.setCrlRange( trcrgs_[lineidx_] );
 	seldata_.cubeSampling().zsamp_ = zrgs_[lineidx_];
     }
 

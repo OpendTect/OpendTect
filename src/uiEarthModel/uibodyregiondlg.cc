@@ -101,7 +101,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     {
 	const int inlidx = idx/crlsz;
 	const int crlidx = idx%crlsz;
-	const BinID bid = tkzs_.hrg.atIndex(inlidx,crlidx);
+	const BinID bid = tkzs_.hsamp_.atIndex(inlidx,crlidx);
 	if ( bid.inl()==tkzs_.hsamp_.start_.inl() ||
 	     bid.inl()==tkzs_.hsamp_.stop_.inl()  ||
 	     bid.crl()==tkzs_.hsamp_.start_.crl() ||
@@ -214,12 +214,12 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     {
 	bidinplg_ = new Array2DImpl<unsigned char>(tkzs_.nrInl(),tkzs_.nrCrl());
 
-	TrcKeySamplingIterator iter( tkzs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
 	BinID bid;
 	while( iter.next(bid) )
 	{
-	    const int inlidx = tkzs_.hrg.inlIdx(bid.inl());
-	    const int crlidx = tkzs_.hrg.crlIdx(bid.crl());
+	    const int inlidx = tkzs_.hsamp_.inlIdx(bid.inl());
+	    const int crlidx = tkzs_.hsamp_.crlIdx(bid.crl());
 	    bidinplg_->set( inlidx, crlidx, plg_.isInside(
 		    Geom::Point2D<float>( mCast(float,bid.inl()),
 					 mCast(float,bid.crl()) ),true,0.01 ) );
@@ -304,7 +304,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	}
 
-	TrcKeySamplingIterator iter( tkzs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
 	BinID bid;
 	ObjectSet<ODPolygon<float> > polygons;
 	for ( int idx=0; idx<fltsz; idx++ )
@@ -315,8 +315,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	while( iter.next(bid) )
 	{
-	    const int inlidx = tkzs_.hrg.inlIdx(bid.inl());
-	    const int crlidx = tkzs_.hrg.crlIdx(bid.crl());
+	    const int inlidx = tkzs_.hsamp_.inlIdx(bid.inl());
+	    const int crlidx = tkzs_.hsamp_.crlIdx(bid.crl());
 	    if (!inlidx || !crlidx || inlidx==lastinlidx || crlidx==lastcrlidx)
 		continue;
 

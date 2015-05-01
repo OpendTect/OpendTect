@@ -48,12 +48,12 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     {
 	nrrgfld_ =
 	    new uiSelNrRange( this, uiSelNrRange::Gen, su.withstep_ );
-	nrrgfld_->setRange( su.tkzs_.hrg.crlRange() );
+	nrrgfld_->setRange( su.tkzs_.hsamp_.crlRange() );
 	attobj = nrrgfld_->attachObj();
     }
     else
     {
-	hrgfld_ = new uiSelHRange( this, su.tkzs_.hrg, su.withstep_ );
+	hrgfld_ = new uiSelHRange( this, su.tkzs_.hsamp_, su.withstep_ );
 	attobj = hrgfld_->attachObj();
     }
 
@@ -76,13 +76,13 @@ void uiRangePosProvGroup::usePar( const IOPar& iop )
     cs.usePar( iop );
 
     if ( hrgfld_ )
-	hrgfld_->setSampling( cs.hrg );
+	hrgfld_->setSampling( cs.hsamp_ );
     if ( zrgfld_ )
 	zrgfld_->setRange( cs.zsamp_ );
     if ( nrrgfld_ )
     {
 	const StepInterval<int>& curnrrg = nrrgfld_->getRange();
-	StepInterval<int> trcrg = cs.hrg.crlRange();
+	StepInterval<int> trcrg = cs.hsamp_.crlRange();
 	iop.get( IOPar::compKey(sKey::TrcRange(),0), trcrg );
 	nrrgfld_->setLimitRange( trcrg );
 	nrrgfld_->setRange( curnrrg );
@@ -98,7 +98,7 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
     if ( setup_.is2d_ )
     {
 	iop.set( IOPar::compKey(sKey::TrcRange(),0),
-		 cs.hrg.crlRange() );
+		 cs.hsamp_.crlRange() );
 	return true;
     }
 
@@ -123,7 +123,7 @@ static void getExtrDefTrcKeyZSampling( TrcKeyZSampling& cs )
     else if ( nrsamps > 10 ) cs.zsamp_.step *= 5;
     nrsamps = cs.zsamp_.nrSteps() + 1;
 
-    const int nrextr = mCast( int, cs.hrg.totalNr() * nrsamps );
+    const int nrextr = mCast( int, cs.hsamp_.totalNr() * nrsamps );
     int blocks = nrextr / 50000;
     float fstepfac = (float) ( Math::Sqrt( (double)blocks ) );
     int stepfac = mNINT32(fstepfac);
@@ -136,7 +136,7 @@ void uiRangePosProvGroup::setExtractionDefaults()
 {
     TrcKeyZSampling cs( true ); getExtrDefTrcKeyZSampling( cs );
     if ( hrgfld_ )
-	hrgfld_->setSampling( cs.hrg );
+	hrgfld_->setSampling( cs.hsamp_ );
     if ( nrrgfld_ )
     {
 	StepInterval<int> rg( nrrgfld_->getRange() );
@@ -151,9 +151,9 @@ void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 {
     cs = SI().sampling( false );
     if ( hrgfld_ )
-	cs.hrg = hrgfld_->getSampling();
+	cs.hsamp_ = hrgfld_->getSampling();
     if ( nrrgfld_ )
-	cs.hrg.set( StepInterval<int>(0,mUdf(int),1), nrrgfld_->getRange() );
+	cs.hsamp_.set( StepInterval<int>(0,mUdf(int),1), nrrgfld_->getRange() );
     if ( zrgfld_ )
 	cs.zsamp_ = zrgfld_->getRange();
 }

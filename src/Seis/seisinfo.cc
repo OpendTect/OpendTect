@@ -211,7 +211,7 @@ void SeisPacketInfo::clear()
     nr = 0;
     fullyrectandreg = false;
     cubedata = 0;
-    SI().sampling(false).hrg.get( inlrg, crlrg );
+    SI().sampling(false).hsamp_.get( inlrg, crlrg );
     zrg = SI().zRange(false);
     inlrev = crlrev = false;
 }

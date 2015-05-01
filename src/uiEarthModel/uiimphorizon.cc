@@ -329,8 +329,8 @@ bool uiImportHorizon::doScan()
     const StepInterval<int> nilnrg = scanner_->inlRg();
     const StepInterval<int> nclnrg = scanner_->crlRg();
     TrcKeyZSampling cs( true );
-    const StepInterval<int> irg = cs.hrg.inlRange();
-    const StepInterval<int> crg = cs.hrg.crlRange();
+    const StepInterval<int> irg = cs.hsamp_.inlRange();
+    const StepInterval<int> crg = cs.hsamp_.crlRange();
     if ( irg.start>nilnrg.stop || crg.start>nclnrg.stop ||
 	 irg.stop<nilnrg.start || crg.stop<nclnrg.start )
 	uiMSG().warning( tr("Your horizon is out of the survey range.") );
@@ -343,7 +343,7 @@ bool uiImportHorizon::doScan()
 	mNotCompatibleRet(c);
     }
 
-    cs.hrg.set( nilnrg, nclnrg );
+    cs.hsamp_.set( nilnrg, nclnrg );
     subselfld_->setInput( cs );
     return true;
 }
@@ -436,7 +436,7 @@ bool uiImportHorizon::doImport()
 	fillUdfs( sections );
     }
 
-    TrcKeySampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hsamp_;
     ExecutorGroup importer( "Importing horizon" );
     importer.setNrDoneText( tr("Nr positions done") );
     int startidx = 0;
@@ -545,7 +545,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
     if ( !interpol_ )
 	return false;
-    TrcKeySampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hsamp_;
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();

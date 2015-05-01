@@ -470,8 +470,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
 	const BinID bid = gather->is3DSeis() ? gather->getPosition()
 					     : BinID(-1,-1);
-	cs.hrg.setInlRange( Interval<int>(bid.inl(), bid.inl()) );
-	cs.hrg.setCrlRange( Interval<int>(bid.crl(), bid.crl()) );
+	cs.hsamp_.setInlRange( Interval<int>(bid.inl(), bid.inl()) );
+	cs.hsamp_.setCrlRange( Interval<int>(bid.crl(), bid.crl()) );
 
 	const bool isinl = gather->isOrientationInline();
 	dir.x = (isinl ? offsetscale_ : 0) / SI().inlDistance();
@@ -494,14 +494,14 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	dir.y = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
     }
 
-    TrcKeySamplingIterator iter( cs.hrg );
+    TrcKeySamplingIterator iter( cs.hsamp_ );
 
 
     int cii = 0;
     int lastmarker = 0;
 
     pao->eventsets_.erase();
-    pao->tks_ = cs.hrg;
+    pao->tks_ = cs.hsamp_;
     pao->objectgroup_->addObject( pao->markerset_ );
     pao->markerset_->setMarkerStyle( markerstyle_ );
 

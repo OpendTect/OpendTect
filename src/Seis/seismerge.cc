@@ -79,7 +79,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 
     currdridx_ = 0;
     if ( !is2d_ )
-	totnrpos_ = mCast( int, SI().sampling(false).hrg.totalNr() );
+	totnrpos_ = mCast( int, SI().sampling(false).hsamp_.totalNr() );
 }
 
 
@@ -138,7 +138,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     }
 
     currdridx_ = 0;
-    totnrpos_ = mCast( int, SI().sampling(false).hrg.totalNr() );
+    totnrpos_ = mCast( int, SI().sampling(false).hsamp_.totalNr() );
 }
 
 
@@ -300,7 +300,7 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
 
 bool SeisMerger::toNextPos()
 {
-    TrcKeySampling hs = SI().sampling(false).hrg;
+    TrcKeySampling hs = SI().sampling(false).hsamp_;
     curbid_.crl() += hs.step_.crl();
     if ( curbid_.crl() > hs.stop_.crl() )
     {

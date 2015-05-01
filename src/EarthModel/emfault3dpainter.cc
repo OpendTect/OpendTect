@@ -211,15 +211,15 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	BinID extrbid1, extrbid2;
 	if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 	{
-	    extrbid1.inl() = extrbid2.inl() = tkzs_.hrg.inlRange().start;
-	    extrbid1.crl() = tkzs_.hrg.crlRange().start;
-	    extrbid2.crl() = tkzs_.hrg.crlRange().stop;
+	    extrbid1.inl() = extrbid2.inl() = tkzs_.hsamp_.inlRange().start;
+	    extrbid1.crl() = tkzs_.hsamp_.crlRange().start;
+	    extrbid2.crl() = tkzs_.hsamp_.crlRange().stop;
 	}
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
 	{
-	    extrbid1.inl() = tkzs_.hrg.inlRange().start;
-	    extrbid2.inl() = tkzs_.hrg.inlRange().stop;
-	    extrbid1.crl() = extrbid2.crl() = tkzs_.hrg.crlRange().start;
+	    extrbid1.inl() = tkzs_.hsamp_.inlRange().start;
+	    extrbid2.inl() = tkzs_.hsamp_.inlRange().stop;
+	    extrbid1.crl() = extrbid2.crl() = tkzs_.hsamp_.crlRange().start;
 	}
 
 	Coord extrcoord1, extrcoord2;

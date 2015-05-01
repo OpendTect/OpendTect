@@ -232,9 +232,9 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     const char* nm = "Number";
     if ( typ != Gen )
     {
-	const TrcKeySampling& hs( SI().sampling(false).hrg );
+	const TrcKeySampling& hs( SI().sampling(false).hsamp_ );
 	rg = typ == Inl ? hs.inlRange() : hs.crlRange();
-	const TrcKeySampling& whs( SI().sampling(true).hrg );
+	const TrcKeySampling& whs( SI().sampling(true).hsamp_ );
 	wrg = typ == Inl ? whs.inlRange() : whs.crlRange();
 	nm = typ == Inl ? sKey::Inline() : sKey::Crossline();
 	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
@@ -474,7 +474,7 @@ uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey )
 TrcKeyZSampling uiSelSubvol::getSampling() const
 {
     TrcKeyZSampling cs( false );
-    cs.hrg = hfld_->getSampling();
+    cs.hsamp_ = hfld_->getSampling();
     cs.zsamp_ = zfld_->getRange();
     return cs;
 }
@@ -482,7 +482,7 @@ TrcKeyZSampling uiSelSubvol::getSampling() const
 
 void uiSelSubvol::setSampling( const TrcKeyZSampling& cs )
 {
-    hfld_->setSampling( cs.hrg );
+    hfld_->setSampling( cs.hsamp_ );
     zfld_->setRange( cs.zsamp_ );
 }
 

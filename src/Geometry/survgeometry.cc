@@ -21,7 +21,7 @@ Coord SurveyGeometry::getEdgePoint( const Coord& from, const Coord& to )
     Line2 line( from, to );
     line.start_ = Coord::udf();
     line.stop_ = Coord::udf();		// making the line infinite
-    const TrcKeySampling hs( SI().sampling(false).hrg );
+    const TrcKeySampling hs( SI().sampling(false).hsamp_ );
     Coord svert[4];
     svert[0] = SI().transform( hs.start_ );
     svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop_.crl()) );

@@ -326,7 +326,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	BinID bid;
 	if (  menu->getMenuType() != uiMenuHandler::fromScene() )
 	{
-	    TrcKeySampling hrg = pdd->getTrcKeyZSampling().hrg;
+	    TrcKeySampling hrg = pdd->getTrcKeyZSampling().hsamp_;
 	    bid = SI().transform((SI().transform(hrg.start_)
 				 +SI().transform(hrg.stop_))/2);
 	}

@@ -86,7 +86,7 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
     uiPosSubSel* subsel = outfld_->getPosSubSel();
     TrcKeySampling hrg( true );
     if ( subsel && !subsel->isAll() )
-	hrg = subsel->envelope().hrg;
+	hrg = subsel->envelope().hsamp_;
 
     RefMan<EM::Horizon3D> hor3d = EM::Horizon3D::createWithConstZ( zval, hrg );
     if ( !hor3d ) return false;

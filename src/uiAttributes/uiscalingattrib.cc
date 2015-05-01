@@ -547,8 +547,8 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	    const Pos::GeomID geomid = Survey::GM().getGeomID(
 				    subseldlg.lineKey().lineName().buf() );
 	    seisinfo.getRanges( geomid, trcrg, zrg );
-	    cs.hrg.setCrlRange( trcrg );
-	    cs.hrg.setInlRange( Interval<int>(0,0) );
+	    cs.hsamp_.setCrlRange( trcrg );
+	    cs.hsamp_.setInlRange( Interval<int>(0,0) );
 	    cs.zsamp_ = zrg;
 	    aem->setGeomID( geomid );
 	}
@@ -578,8 +578,8 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	    StepInterval<double> dtrcrg = fdp->posData().range( true );
 	    Interval<int> trcrg( mCast(int,dtrcrg.start),
 				 mCast(int,dtrcrg.stop) );
-	    cs.hrg.setCrlRange( trcrg );
-	    cs.hrg.setInlRange( Interval<int>(0,0) );
+	    cs.hsamp_.setCrlRange( trcrg );
+	    cs.hsamp_.setInlRange( Interval<int>(0,0) );
 
 	    StepInterval<double> dzrg = fdp->posData().range( false );
 	    StepInterval<float> zrg( mCast(float,dzrg.start),
@@ -594,7 +594,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     if ( nrtrcs <= 0 )
 	return uiMSG().error(tr("Number of traces cannot be zero or negative"));
 
-    cs.hrg.getRandomSet( nrtrcs, trckeys );
+    cs.hsamp_.getRandomSet( nrtrcs, trckeys );
     aem->setTrcKeyZSampling( cs );
 
     BinIDValueSet bidvals( 0, false );

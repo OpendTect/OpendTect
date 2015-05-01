@@ -382,7 +382,7 @@ bool RandomPosBody::getBodyRange( TrcKeyZSampling& cs )
 {
     for ( int idx=0; idx<locations_.size(); idx++ )
     {
-	cs.hrg.include( SI().transform(locations_[idx]) );
+	cs.hsamp_.include( SI().transform(locations_[idx]) );
 
 	if ( idx )
 	    cs.zsamp_.include( (float) locations_[idx].z );

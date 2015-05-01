@@ -198,7 +198,7 @@ public:
 		    : arr_( arr )
 		    , reader_( reader )
 		    , readcs_( readcs )
-		    , hiter_( readcs.hrg )
+		    , hiter_( readcs.hsamp_ )
 		    , voisd_( voisd )
 		    , veldesc_( vd )
 		    , velintime_( velintime )
@@ -208,7 +208,7 @@ public:
 protected:
 
     od_int64            totalNr() const
-			{ return readcs_.hrg.nrCrl()*readcs_.hrg.nrInl(); }
+			{ return readcs_.hsamp_.nrCrl()*readcs_.hsamp_.nrInl(); }
     od_int64            nrDone() const { return nrdone_; }
     uiString	uiMessage() const { return tr("Reading velocity model"); };
     uiString	uiNrDoneText() const { return tr("Position read"); }
@@ -222,8 +222,8 @@ protected:
 	    return Finished();
 
 	const od_int64 offset =
-	    arr_.info().getOffset(readcs_.hrg.inlIdx(curbid.inl()),
-				  readcs_.hrg.crlIdx(curbid.crl()), 0 );
+	    arr_.info().getOffset(readcs_.hsamp_.inlIdx(curbid.inl()),
+				  readcs_.hsamp_.crlIdx(curbid.crl()), 0 );
 
 	OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset );
 
@@ -303,19 +303,19 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* trans )
     const int nrsamplesinfile = filezrg.nrSteps()+1;
     if ( velintime_!=voiintime_[idx] )
     {
-	int zstartidx = (int) filezrg.getIndex( readcs.zrg.start );
+	int zstartidx = (int) filezrg.getIndex( readcs.zsamp_.start );
 	if ( zstartidx<0 ) zstartidx = 0;
-	int zstopidx = (int) filezrg.getIndex( readcs.zrg.stop )+1;
+	int zstopidx = (int) filezrg.getIndex( readcs.zsamp_.stop )+1;
 	if ( zstopidx>=nrsamplesinfile )
 	    zstopidx = nrsamplesinfile-1;
 
-	readcs.zrg.start = filezrg.atIndex( zstartidx );
-	readcs.zrg.stop = filezrg.atIndex( zstopidx );
-	readcs.zrg.step = filezrg.step;
+	readcs.zsamp_.start = filezrg.atIndex( zstartidx );
+	readcs.zsamp_.stop = filezrg.atIndex( zstopidx );
+	readcs.zsamp_.step = filezrg.step;
     }
     else
     {
-	readcs.zrg.setFrom( filezrg );
+	readcs.zsamp_.setFrom( filezrg );
     }
 
     Array3D<float>* arr = voidata_[idx];
@@ -329,7 +329,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* trans )
     }
 
     TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
-	    SamplingData<double>(voi.zrg), velintime_, voiintime_[idx] );
+	    SamplingData<double>(voi.zsamp_), velintime_, voiintime_[idx] );
     if ( !TaskRunner::execute( trans, loader ) )
 	return false;
 
@@ -399,7 +399,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
 	if ( !voidata_[idx] )
 	    continue;
 
-	if ( !voivols_[idx].hrg.includes( bid ) ) 
+	if ( !voivols_[idx].hsamp_.includes( bid ) ) 
 	    continue;
 
 	const Interval<float> voirg = getTimeInterval( bid, idx );
@@ -428,13 +428,13 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     }
 
     const Array3D<float>& arr = *voidata_[bestidx];
-    const TrcKeySampling& hrg = voivols_[bestidx].hrg;
+    const TrcKeySampling& hrg = voivols_[bestidx].hsamp_;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
     const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
     const int zsz = arr.info().getSize(2);
 
-    const StepInterval<float> zrg = voivols_[bestidx].zrg;
+    const StepInterval<float> zrg = voivols_[bestidx].zsamp_;
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( vs, zsz,
 	    zrg.start, zrg.step );
 
@@ -474,7 +474,7 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
 	if ( !voidata_[idx] )
 	    continue;
 
-	if ( !voivols_[idx].hrg.includes( bid ) )
+	if ( !voivols_[idx].hsamp_.includes( bid ) )
 	    continue;
 
 	const Interval<float> voirg = getDepthInterval( bid, idx );
@@ -503,13 +503,13 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     }
 
     const Array3D<float>& arr = *voidata_[bestidx];
-    const TrcKeySampling& hrg = voivols_[bestidx].hrg;
+    const TrcKeySampling& hrg = voivols_[bestidx].hsamp_;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
     const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
     const int zsz = arr.info().getSize(2);
 
-    const StepInterval<float> zrg = voivols_[bestidx].zrg;
+    const StepInterval<float> zrg = voivols_[bestidx].zsamp_;
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( vs, zsz,
 	    zrg.start, zrg.step );
 
@@ -536,14 +536,14 @@ Interval<float> Time2DepthStretcher::getTimeInterval( const BinID& bid,
 						      int idx) const
 {
     if ( voiintime_[idx] )
-	return voivols_[idx].zrg;
+	return voivols_[idx].zsamp_;
 
     return
 	Interval<float>( voidata_[idx]->get(
-		     voivols_[idx].hrg.inlIdx(bid.inl()),
-		     voivols_[idx].hrg.crlIdx(bid.crl()), 0 ),
-		     voidata_[idx]->get( voivols_[idx].hrg.inlIdx(bid.inl()),
-			voivols_[idx].hrg.crlIdx(bid.crl()),
+		     voivols_[idx].hsamp_.inlIdx(bid.inl()),
+		     voivols_[idx].hsamp_.crlIdx(bid.crl()), 0 ),
+		     voidata_[idx]->get( voivols_[idx].hsamp_.inlIdx(bid.inl()),
+			voivols_[idx].hsamp_.crlIdx(bid.crl()),
 			voidata_[idx]->info().getSize(2)-1 ) );
 }
 
@@ -552,10 +552,10 @@ Interval<float> Time2DepthStretcher::getDepthInterval( const BinID& bid,
 						 int idx) const
 {
     if ( !voiintime_[idx] )
-	return voivols_[idx].zrg;
+	return voivols_[idx].zsamp_;
 
-    const int inlidx = voivols_[idx].hrg.inlIdx(bid.inl());
-    const int crlidx = voivols_[idx].hrg.crlIdx(bid.crl());
+    const int inlidx = voivols_[idx].hsamp_.inlIdx(bid.inl());
+    const int crlidx = voivols_[idx].hsamp_.crlIdx(bid.crl());
     const int zsz = voidata_[idx]->info().getSize(2);
 
     return Interval<float>( voidata_[idx]->get( inlidx, crlidx, 0 ),
@@ -740,7 +740,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
 {
     reader_->prepareWork();
     mDynamicCastGet( Seis::Bounds3D*, bd3, reader_->getBounds() );
-    if ( bd3 ) subsel_ = bd3->tkzs_.hrg;
+    if ( bd3 ) subsel_ = bd3->tkzs_.hsamp_;
 
     hsiter_.setSampling(  subsel_ );
     zistime_ = ZDomain::isTime( input.pars() );

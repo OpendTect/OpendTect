@@ -598,9 +598,9 @@ bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
     cs.hsamp_.step_.crl() = SI().crlStep();
 
     for ( int idx=1; idx<buf.size(); idx++ )
-	cs.hrg.include( buf.get( idx )->info().binid );
+	cs.hsamp_.include( buf.get( idx )->info().binid );
 
-    cs.zrg.setFrom( posData().range(false) );
+    cs.zsamp_.setFrom( posData().range(false) );
 
     return true;
 }

@@ -521,9 +521,9 @@ void PSAttrib::updateCSIfNeeded( TrcKeyZSampling& cs ) const
 	const PosInfo::CubeData& cd = reader3d->posData();
 	StepInterval<int> rg;
 	cd.getInlRange( rg );
-	cs.hrg.setInlRange( rg );
+	cs.hsamp_.setInlRange( rg );
 	cd.getCrlRange( rg );
-	cs.hrg.setCrlRange( rg );
+	cs.hsamp_.setCrlRange( rg );
     }
 
     //TODO: anything we would need to do in 2D?

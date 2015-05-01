@@ -80,7 +80,7 @@ const char* PlaneDataDisplayBaseMapObject::getShapeName(int) const
 
 void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 {
-    const TrcKeySampling hrg = pdd_->getTrcKeyZSampling(true,false).hrg;
+    const TrcKeySampling hrg = pdd_->getTrcKeyZSampling(true,false).hsamp_;
     const Survey::Geometry3D& survgeom = *pdd_->get3DSurvGeom();
     if ( pdd_->getOrientation()==OD::ZSlice )
     {
@@ -224,8 +224,8 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	    newpos.limitTo( survey );
     }
 
-    if ( !newpos.hrg.isEmpty() && !resetic && resetz )
-	survey.hrg = newpos.hrg;
+    if ( !newpos.hsamp_.isEmpty() && !resetic && resetz )
+	survey.hsamp_ = newpos.hsamp_;
 
     if ( resetic || resetz || newpos.isEmpty() )
     {
@@ -254,7 +254,7 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition(const TrcKeyZSampling& cs) const
 				    mCast(float,res.hsamp_.stop_.crl()) );
     const Interval<float> zrg( res.zsamp_ );
 
-    res.hrg.snapToSurvey();
+    res.hsamp_.snapToSurvey();
     if ( scene_ )
     {
 	const StepInterval<float>& scenezrg =

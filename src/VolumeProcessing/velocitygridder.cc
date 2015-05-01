@@ -119,7 +119,7 @@ VelGriddingTask::VelGriddingTask( VelocityGridder& step )
     , step_( step )
 {
     const RegularSeisDataPack* output = step_.getOutput();
-    const TrcKeySampling hrg = output->sampling().hrg;
+    const TrcKeySampling hrg = output->sampling().hsamp_;
 
     TrcKeySamplingIterator iterator( hrg );
     BinID bid;
