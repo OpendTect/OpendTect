@@ -548,9 +548,9 @@ bool removeDir( const char* dirnm )
 bool changeDir( const char* dir )
 {
 #ifdef __win__
-    return _chdir( dir );
+    return _chdir( dir )==0;
 #else
-    return chdir( dir );
+    return chdir( dir )==0;
 #endif
 }
 
