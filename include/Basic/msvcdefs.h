@@ -42,6 +42,8 @@ ________________________________________________________________________
 #define finite		_finite
 #define atoll		_atoi64
 
+#define chdir		_chdir
+
 # define mMaxFilePathLength		_MAX_PATH
 
 #endif
