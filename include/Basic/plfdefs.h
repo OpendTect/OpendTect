@@ -208,9 +208,16 @@ Always defined:
 #if defined( __gnuc__ )
 # define mUnusedVar __attribute__ ((unused))
 # define mDepreciated __attribute__ ((deprecated))
+# define mStartAllowDepreciatedSection \
+    _Pragma ( "GCC diagnostic push" ) \
+    _Pragma ( "GCC diagnostic ignored \"-Wdeprecated-declarations\"" )
+# define mStopAllowDepreciatedSection \
+    _Pragma ( "GCC diagnostic pop" )
 #else
 # define mUnusedVar
 # define mDepreciated
+# define mStartAllowDepreciatedSection
+# define mStopAllowDepreciatedSection
 #endif
 
 /* And, probably unnecessary, for external header files: */

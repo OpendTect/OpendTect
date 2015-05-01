@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <math.h>
 
+mStartAllowDepreciatedSection
 
 TrcKeySampling::TrcKeySampling()
     : start( start_ )
@@ -48,6 +49,7 @@ TrcKeySampling::TrcKeySampling( bool settosi )
     , survid_( mUdf(int) )
 { init( settosi ); }
 
+mStopAllowDepreciatedSection
 
 bool TrcKeySampling::init( Pos::GeomID gid )
 {

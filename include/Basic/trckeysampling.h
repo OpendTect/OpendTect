@@ -130,9 +130,9 @@ public:
     inline bool		inlOK( int inl ) const { return lineOK(inl); }
     inline bool		crlOK( int crl ) const { return trcOK(crl); }
 
-    BinID&		start;
-    BinID&		stop;
-    BinID&		step;
+    mDepreciated BinID& 	start;
+    mDepreciated BinID& 	stop;
+    mDepreciated BinID& 	step;
 };
 
 
