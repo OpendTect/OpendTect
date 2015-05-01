@@ -165,6 +165,7 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 #define mHandleSelectionChangedBegin( oldselitems ) \
 \
     const bool notifierwasenabled = actlist_.selectionChanged.disable(); \
+    const int oldcuritem = actlist_.currentItem(); \
     TypeSet<int> oldselitems; \
     for ( int idx=0; idx<actlist_.size(); idx++ ) \
     { \
@@ -179,7 +180,8 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 \
     for ( int idx=0; idx<actlist_.size(); idx++ ) \
     { \
-	if ( actlist_.isChosen(idx) != oldselitems.isPresent(idx) ) \
+	if ( actlist_.currentItem()!=oldcuritem || \
+	     actlist_.isChosen(idx)!=oldselitems.isPresent(idx) ) \
 	{ \
 	    actlist_.selectionChanged.trigger(); \
 	    break; \
@@ -188,10 +190,17 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 
 #define mHandleLeftRightClick() \
 { \
-    if ( actclicktags_.isPresent("Check") && actlist_.isMultiChoice() ) \
+    if ( actlist_.maxNrOfChoices()>0 ) \
     { \
-	actlist_.setChosen( actitmidx_, !actlist_.isItemChecked(actitmidx_) ); \
-	actlist_.itemChosen.trigger( actitmidx_ ); \
+	mHandleSelectionChangedBegin( oldselitems ); \
+	actlist_.setCurrentItem( actitmidx_ ); \
+	if ( actclicktags_.isPresent("Check") && actlist_.isMultiChoice() ) \
+	{ \
+	    actlist_.setChosen( actitmidx_, \
+				!actlist_.isItemChecked(actitmidx_) ); \
+	    actlist_.itemChosen.trigger( actitmidx_ ); \
+	} \
+	mHandleSelectionChangedEnd( oldselitems ); \
     } \
     if ( actclicktags_.isPresent("Left") ) \
 	actlist_.leftButtonClicked.trigger(); \
@@ -199,17 +208,11 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 	actlist_.rightButtonClicked.trigger(); \
 }
 
+
 void ListActivator::actCB( CallBacker* cb )
 {
     if ( actitmidx_>=0 && actitmidx_<actlist_.size() )
     {
-	if ( actlist_.maxNrOfChoices()>0 )
-	{
-	    mHandleSelectionChangedBegin( oldselitems );
-	    actlist_.setCurrentItem( actitmidx_ );
-	    mHandleSelectionChangedEnd( oldselitems );
-	}
-
 	mHandleLeftRightClick();
 	if ( actclicktags_.isPresent("Double") )
 	{
