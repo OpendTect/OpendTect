@@ -207,12 +207,21 @@ Always defined:
 #undef mUnusedVar
 #if defined( __gnuc__ )
 # define mUnusedVar __attribute__ ((unused))
-# define mDeprecated __attribute__ ((deprecated))
-# define mStartAllowDeprecatedSection \
+
+//Support for deprecation under gcc is fully available in gcc 4.8
+# if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 7 )
+#  define mDeprecated __attribute__ ((deprecated))
+#  define mStartAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic push" ) \
     _Pragma ( "GCC diagnostic ignored \"-Wdeprecated-declarations\"" )
-# define mStopAllowDeprecatedSection \
+#  define mStopAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic pop" )
+# else
+#  define mUnusedVar
+#  define mDeprecated
+#  define mStartAllowDeprecatedSection
+#  define mStopAllowDeprecatedSection
+# endif
 #else
 # define mUnusedVar
 # if defined( __win__ )
