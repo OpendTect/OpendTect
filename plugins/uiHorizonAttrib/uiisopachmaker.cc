@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 uiIsopachMakerGrp::uiIsopachMakerGrp( uiParent* p, EM::ObjectID horid )
-        : uiGroup(p,"Create isopach")
+        : uiGroup(p,"Create Isochron")
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, basectio_(*mMkCtxtIOObj(EMHorizon3D))
 	, baseemobj_(0)
@@ -139,13 +139,13 @@ const char* uiIsopachMakerGrp::attrName() const
 
 //uiIsopachMakerBatch
 uiIsopachMakerBatch::uiIsopachMakerBatch( uiParent* p )
-    : uiDialog( p,Setup(tr("Create isopach"),mNoDlgTitle,mTODOHelpKey) )
+    : uiDialog( p,Setup(tr("Create Isochron"),mNoDlgTitle,mTODOHelpKey) )
 {
     grp_ = new uiIsopachMakerGrp( this, -1 );
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( alignedBelow, grp_ );
-    batchfld_->jobSpec().prognm_ = "od_isopach";
+    batchfld_->jobSpec().prognm_ = "od_isochron";
 }
 
 
@@ -201,8 +201,7 @@ uiIsopachMakerDlg::uiIsopachMakerDlg( uiParent* p, EM::ObjectID emid )
     , dps_( new DataPointSet(false,true) )
 {
     grp_ = new uiIsopachMakerGrp( this, emid );
-    BufferString title( "Create isopach" );
-    title += " for '";
+    BufferString title( "Create Isochron for '" );
     title += grp_->getHorNm( emid );
     title += "'";
     setTitleText( title );
