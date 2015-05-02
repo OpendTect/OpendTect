@@ -36,10 +36,10 @@ const char* IsopachMaker::sKeyIsOverWriteYN()
 IsopachMaker::IsopachMaker( const EM::Horizon3D& hor1,
 			    const EM::Horizon3D& hor2,
 			    const char* attrnm, int dataidx, DataPointSet* dps )
-    : Executor("Create isopach")
+    : Executor("Creating Isochron")
     , hor1_(hor1)
     , hor2_(hor2)
-    , msg_(tr("Creating isopach"))
+    , msg_(tr("Creating Isochron"))
     , dataidx_(dataidx)
     , dps_(dps)
     , sectid1_(hor1.sectionID(0))

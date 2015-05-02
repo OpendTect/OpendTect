@@ -80,7 +80,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( dataidx < 0 )
 	dataidx = horizon1->auxdata.addAuxData( attrnm );
 
-    strm << "Calculating isopach ..." << od_newline;
+    strm << "Calculating Isochron ..." << od_newline;
     IsopachMaker maker( *horizon1, *horizon2, attrnm, dataidx );
     if ( SI().zIsTime() )
     {
@@ -91,23 +91,23 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( !maker.go( strm, false, false, 0 ) )
     {
-	strm << "Failed to calculate isopach" << od_newline;
+	strm << "Failed to calculate Isochron" << od_newline;
 	horizon1->unRef(); horizon2->unRef();
 	return false;
     }
 
-    strm << "Isopach '" << attrnm.buf() << "' calculated successfully\n";
-    strm << "Saving isopach ..." << od_newline;
+    strm << "Isochron '" << attrnm.buf() << "' calculated successfully\n";
+    strm << "Saving Isochron Attribute ..." << od_newline;
     bool isoverwrite = false;
     pars().getYN( IsopachMaker::sKeyIsOverWriteYN(), isoverwrite );
     if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite, &strm ) )
     {
-	strm << "Failed save isopach" << od_newline;
+	strm << "Failed to save Isochron Attribute" << od_newline;
 	horizon1->unRef(); horizon2->unRef();
 	return false;
     }
 
-    strm << "Isopach '" << attrnm.buf() << "' saved successfully" << od_newline;
+    strm << "Isochron '" << attrnm.buf() << "' saved successfully" << od_newline;
     horizon1->unRef(); horizon2->unRef();
     return true;
 }
