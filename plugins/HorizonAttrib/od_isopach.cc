@@ -42,7 +42,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     strm << "Loading Horizons ..." << od_newline;
     MultiID mid1;
-    pars().get( IsopachMaker::sKeyHorizonID(), mid1 );
+    pars().get( IsochronMaker::sKeyHorizonID(), mid1 );
     if ( !loadHorizon( mid1, strm ) )
 	return false;
 
@@ -54,7 +54,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
 
     MultiID mid2;
-    pars().get( IsopachMaker::sKeyCalculateToHorID(), mid2 );
+    pars().get( IsochronMaker::sKeyCalculateToHorID(), mid2 );
     if ( !loadHorizon( mid2, strm ) )
 	return false;
 
@@ -69,7 +69,7 @@ bool BatchProgram::go( od_ostream& strm )
     horizon2->ref();
 
     BufferString attrnm;
-    pars().get( IsopachMaker::sKeyAttribName(), attrnm );
+    pars().get( IsochronMaker::sKeyAttribName(), attrnm );
     if ( attrnm.isEmpty() )
     {
 	horizon1->unRef();horizon2->unRef();
@@ -81,11 +81,11 @@ bool BatchProgram::go( od_ostream& strm )
 	dataidx = horizon1->auxdata.addAuxData( attrnm );
 
     strm << "Calculating Isochron ..." << od_newline;
-    IsopachMaker maker( *horizon1, *horizon2, attrnm, dataidx );
+    IsochronMaker maker( *horizon1, *horizon2, attrnm, dataidx );
     if ( SI().zIsTime() )
     {
 	bool isinmsec = false;
-	pars().getYN( IsopachMaker::sKeyOutputInMilliSecYN(), isinmsec );
+	pars().getYN( IsochronMaker::sKeyOutputInMilliSecYN(), isinmsec );
 	maker.setUnits( isinmsec );
     }
 
@@ -99,7 +99,7 @@ bool BatchProgram::go( od_ostream& strm )
     strm << "Isochron '" << attrnm.buf() << "' calculated successfully\n";
     strm << "Saving Isochron Attribute ..." << od_newline;
     bool isoverwrite = false;
-    pars().getYN( IsopachMaker::sKeyIsOverWriteYN(), isoverwrite );
+    pars().getYN( IsochronMaker::sKeyIsOverWriteYN(), isoverwrite );
     if ( !maker.saveAttribute( horizon1, dataidx, isoverwrite, &strm ) )
     {
 	strm << "Failed to save Isochron Attribute" << od_newline;

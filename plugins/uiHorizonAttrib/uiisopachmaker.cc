@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
-uiIsopachMakerGrp::uiIsopachMakerGrp( uiParent* p, EM::ObjectID horid )
+uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
         : uiGroup(p,"Create Isochron")
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, basectio_(*mMkCtxtIOObj(EMHorizon3D))
@@ -51,7 +51,7 @@ uiIsopachMakerGrp::uiIsopachMakerGrp( uiParent* p, EM::ObjectID horid )
 
     ctio_.ctxt.forread = true;
     horsel_ = new uiIOObjSel( this, ctio_, "Calculate to" );
-    horsel_->selectionDone.notify( mCB(this,uiIsopachMakerGrp,toHorSel) );
+    horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {
 	horsel_->setInput( MultiID("") );
@@ -75,28 +75,28 @@ uiIsopachMakerGrp::uiIsopachMakerGrp( uiParent* p, EM::ObjectID horid )
 }
 
 
-BufferString uiIsopachMakerGrp::getHorNm( EM::ObjectID horid )
+BufferString uiIsochronMakerGrp::getHorNm( EM::ObjectID horid )
 {
     MultiID mid( EM::EMM().getMultiID( horid ) );
     return EM::EMM().objectName( mid );
 }
 
 
-uiIsopachMakerGrp::~uiIsopachMakerGrp()
+uiIsochronMakerGrp::~uiIsochronMakerGrp()
 {
     delete ctio_.ioobj; delete &ctio_;
     delete basectio_.ioobj; delete &basectio_;
 }
 
 
-void uiIsopachMakerGrp::toHorSel( CallBacker* )
+void uiIsochronMakerGrp::toHorSel( CallBacker* )
 {
     if ( horsel_->ioobj(true) )
 	attrnmfld_->setText( BufferString("I: ",horsel_->ioobj()->name()) );
 }
 
 
-bool uiIsopachMakerGrp::chkInputFlds()
+bool uiIsochronMakerGrp::chkInputFlds()
 {
     if ( basesel_ && !basesel_->commitInput() )
 	return false;
@@ -117,31 +117,31 @@ bool uiIsopachMakerGrp::chkInputFlds()
 }
 
 
-bool uiIsopachMakerGrp::fillPar( IOPar& par )
+bool uiIsochronMakerGrp::fillPar( IOPar& par )
 {
-    par.set( IsopachMaker::sKeyHorizonID(), basesel_ ? basesel_->ioobj()->key()
+    par.set( IsochronMaker::sKeyHorizonID(), basesel_ ? basesel_->ioobj()->key()
 	   					     : baseemobj_->multiID() );
-    par.set( IsopachMaker::sKeyCalculateToHorID(), horsel_->ioobj()->key() );
-    par.set( IsopachMaker::sKeyAttribName(), attrnmfld_->text() );
+    par.set( IsochronMaker::sKeyCalculateToHorID(), horsel_->ioobj()->key() );
+    par.set( IsochronMaker::sKeyAttribName(), attrnmfld_->text() );
     if ( msecsfld_ )
-	par.setYN( IsopachMaker::sKeyOutputInMilliSecYN(),
+	par.setYN( IsochronMaker::sKeyOutputInMilliSecYN(),
 		   msecsfld_->getBoolValue() );
 
     return true;
 }
 
 
-const char* uiIsopachMakerGrp::attrName() const
+const char* uiIsochronMakerGrp::attrName() const
 { return attrnmfld_->text(); }
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-//uiIsopachMakerBatch
-uiIsopachMakerBatch::uiIsopachMakerBatch( uiParent* p )
+//uiIsochronMakerBatch
+uiIsochronMakerBatch::uiIsochronMakerBatch( uiParent* p )
     : uiDialog( p,Setup(tr("Create Isochron"),mNoDlgTitle,mTODOHelpKey) )
 {
-    grp_ = new uiIsopachMakerGrp( this, -1 );
+    grp_ = new uiIsochronMakerGrp( this, -1 );
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( alignedBelow, grp_ );
@@ -149,25 +149,25 @@ uiIsopachMakerBatch::uiIsopachMakerBatch( uiParent* p )
 }
 
 
-bool uiIsopachMakerBatch::prepareProcessing()
+bool uiIsochronMakerBatch::prepareProcessing()
 {
     return grp_->chkInputFlds();
 }
 
 
-bool uiIsopachMakerBatch::fillPar()
+bool uiIsochronMakerBatch::fillPar()
 {
     IOPar& par = batchfld_->jobSpec().pars_;
     if ( !grp_->fillPar( par ) )
 	return false;
 
     MultiID mid;
-    par.get( IsopachMaker::sKeyHorizonID(), mid );
+    par.get( IsochronMaker::sKeyHorizonID(), mid );
     EM::IOObjInfo eminfo( mid );
     BufferStringSet attrnms;
     eminfo.getAttribNames( attrnms );
     BufferString attrnm;
-    par.get( IsopachMaker::sKeyAttribName(), attrnm );
+    par.get( IsochronMaker::sKeyAttribName(), attrnm );
     isoverwrite_ = false;
     if ( attrnms.isPresent( attrnm ) )
     {
@@ -179,12 +179,12 @@ bool uiIsopachMakerBatch::fillPar()
 	isoverwrite_ = true;
     }
 
-    par.setYN( IsopachMaker::sKeyIsOverWriteYN(), isoverwrite_ );
+    par.setYN( IsochronMaker::sKeyIsOverWriteYN(), isoverwrite_ );
     return true;
 }
 
 
-bool uiIsopachMakerBatch::acceptOK( CallBacker* )
+bool uiIsochronMakerBatch::acceptOK( CallBacker* )
 {
     if ( !prepareProcessing() || !fillPar() )
 	return false;
@@ -194,13 +194,13 @@ bool uiIsopachMakerBatch::acceptOK( CallBacker* )
 }
 
 
-//uiIsopachMakerDlg
-uiIsopachMakerDlg::uiIsopachMakerDlg( uiParent* p, EM::ObjectID emid )
-    : uiDialog(p,Setup(tr("Create isopach"),mNoDlgTitle,
+//uiIsochronMakerDlg
+uiIsochronMakerDlg::uiIsochronMakerDlg( uiParent* p, EM::ObjectID emid )
+    : uiDialog(p,Setup(tr("Create Isochron"),mNoDlgTitle,
                         mODHelpKey(mIsopachMakerHelpID) ))
     , dps_( new DataPointSet(false,true) )
 {
-    grp_ = new uiIsopachMakerGrp( this, emid );
+    grp_ = new uiIsochronMakerGrp( this, emid );
     BufferString title( "Create Isochron for '" );
     title += grp_->getHorNm( emid );
     title += "'";
@@ -208,13 +208,13 @@ uiIsopachMakerDlg::uiIsopachMakerDlg( uiParent* p, EM::ObjectID emid )
 }
 
 
-uiIsopachMakerDlg::~uiIsopachMakerDlg()
+uiIsochronMakerDlg::~uiIsochronMakerDlg()
 {
     delete dps_;
 }
 
 
-bool uiIsopachMakerDlg::acceptOK( CallBacker* )
+bool uiIsochronMakerDlg::acceptOK( CallBacker* )
 {
     if ( !grp_->chkInputFlds() )
 	return false;
@@ -223,13 +223,13 @@ bool uiIsopachMakerDlg::acceptOK( CallBacker* )
 }
 
 
-bool uiIsopachMakerDlg::doWork()
+bool uiIsochronMakerDlg::doWork()
 {
     IOPar par;
     grp_->fillPar(par);
     MultiID mid1, mid2;
-    par.get( IsopachMaker::sKeyHorizonID(), mid1 );
-    par.get( IsopachMaker::sKeyCalculateToHorID(), mid2 );
+    par.get( IsochronMaker::sKeyHorizonID(), mid1 );
+    par.get( IsochronMaker::sKeyCalculateToHorID(), mid2 );
     uiTaskRunner taskrunner( this );
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid2, &taskrunner );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
@@ -247,15 +247,15 @@ bool uiIsopachMakerDlg::doWork()
 
     int dataidx = -1;
     BufferString attrnm;
-    if ( !par.get( IsopachMaker::sKeyAttribName(), attrnm ) )
+    if ( !par.get( IsochronMaker::sKeyAttribName(), attrnm ) )
 	return false;
 
     dataidx = h1->auxdata.addAuxData( attrnm );
-    IsopachMaker ipmaker( *h1, *h2, attrnm, dataidx, dps_);
+    IsochronMaker ipmaker( *h1, *h2, attrnm, dataidx, dps_);
     if ( SI().zIsTime() )
     {
 	bool isinmsec = false;
-	par.getYN( IsopachMaker::sKeyOutputInMilliSecYN(), isinmsec );
+	par.getYN( IsochronMaker::sKeyOutputInMilliSecYN(), isinmsec );
 	ipmaker.setUnits( isinmsec );
     }
 
