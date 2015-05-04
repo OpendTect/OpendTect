@@ -225,6 +225,7 @@ protected:
 
     bool				allowshading_;
     mVisTrans*				translation_;
+    Coord3				translationpos_;
 
     ObjectSet<visBase::HorizonSection>  sections_;
     TypeSet<BufferString>		secnames_;

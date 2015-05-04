@@ -176,16 +176,17 @@ protected:
     DataObjectGroup*		parent_;
 
     template <class T>
-    T*				setOsgNode(T* t)
+    T*				setOsgNode( T* t )
 				{
 				    setOsgNodeInternal( (osg::Node*) t );
 				    return t;
 				}
+				//!<Must be called during construction.
 
     void			updateNodemask();
 
 private:
-    void			setOsgNodeInternal( osg::Node* t );
+    void			setOsgNodeInternal(osg::Node*);
     void			updateOsgNodeData();
 
     ObjectSet<NodeState>		nodestates_;

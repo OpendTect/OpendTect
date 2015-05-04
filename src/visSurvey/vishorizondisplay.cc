@@ -73,7 +73,13 @@ HorizonDisplay::HorizonDisplay()
     , displayintersectionlines_( true )
     , enabletextureinterp_( true )
     , displaysurfacegrid_( false )
+    , translationpos_( Coord3().udf() )
 {
+    translation_ = visBase::Transformation::create();
+    translation_->ref();
+
+    setGroupNode( (osg::Group*) translation_->osgNode() );
+
     setLockable();
     maxintersectionlinethickness_ = 0.02f *
 	mMAX( SI().inlDistance() * SI().inlRange(true).width(),
@@ -178,6 +184,9 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 
     for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
 	intersectionpointsets_[idx]->setDisplayTransformation(transformation_);
+
+    if ( translationpos_.isDefined() )
+	setTranslation( translationpos_ );
 
 }
 
@@ -837,29 +846,8 @@ Coord3 HorizonDisplay::getTranslation() const
 
 void HorizonDisplay::setTranslation( const Coord3& nt )
 {
-    if ( !translation_ )
-    {
-	translation_ = visBase::Transformation::create();
-	translation_->ref();
-	addChild( translation_->osgNode() );
-
-	for ( int idx=0; idx< sections_.size(); idx++ )
-	{
-	    removeChild( sections_[idx]->osgNode() );
-	    translation_->addObject( sections_[idx] );
-	}
-	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
-	{
-	    removeChild( intersectionlines_[idx]->osgNode() );
-	    translation_->addObject( intersectionlines_[idx] );
-	}
-	for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
-	{
-	    removeChild( intersectionpointsets_[idx]->osgNode() );
-	    translation_->addObject( intersectionpointsets_[idx] );
-	}
-
-    }
+     if ( !nt.isDefined() )
+	return;
 
     Coord3 origin( 0, 0, 0 );
     Coord3 aftershift( nt );
@@ -871,7 +859,7 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
     const Coord3 shift = origin - aftershift;
 
     translation_->setTranslation( shift );
-
+    translationpos_ = nt;
     setOnlyAtSectionsDisplay( displayonlyatsections_ );		/* retrigger */
 }
 
@@ -958,10 +946,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 	surf->getChannels()->enableTextureInterpolation( enabletextureinterp_ );
     }
 
-    if ( translation_ )
-	translation_->addObject( surf );
-    else
-	addChild( surf->osgNode() );
+    addChild( surf->osgNode() );
 
     surf->turnOn( !displayonlyatsections_ );
 
@@ -1022,6 +1007,7 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 	    pointgroup->removeObject( 0 );
 	//pointgroup->insertObject( 0, intersectionlinematerial_ );
     }
+    displayonlyatsections_ = yn;
 }
 
 
@@ -1381,7 +1367,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 #define mEndLine \
 { \
-    if ( curline.size()==1 ) \
+    if ( curline.size()==1 && curline[0].isDefined() ) \
     { \
 	visBase::MarkerSet* markerset = visBase::MarkerSet::create(); \
 	MarkerStyle3D markerstyle;\
@@ -1399,6 +1385,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	TypeSet<int> idxps;\
 	for ( int idx=0; idx<curline.size(); idx++ ) \
 	{ \
+	    if ( !curline[idx].isDefined() ) \
+		continue;\
 	    idxps.add( cii++ );\
 	    line->getCoordinates()->addPos(curline[idx]);\
 	} \

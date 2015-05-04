@@ -112,6 +112,9 @@ protected:
 
     virtual void	materialChangeCB(CallBacker*);
 
+    virtual void	setGroupNode(osg::Group*);
+			//!<Must be called during construction.
+
     Material*		material_;
     bool		righthandsystem_;
 
