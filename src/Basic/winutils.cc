@@ -234,7 +234,10 @@ unsigned int getWinVersion()
     DWORD dwVersion = 0;
     DWORD dwMajorVersion = 0;
     DWORD dwMinorVersion = 0;
+#pragma warning( push )
+#pragma warning( disable:4996 )
     dwVersion = GetVersion();
+#pragma warning( pop )
     dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
     dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
     return dwMajorVersion;
@@ -246,7 +249,10 @@ const char* getFullWinVersion()
     DWORD dwVersion = 0;
     DWORD dwMajorVersion = 0;
     DWORD dwMinorVersion = 0;
+#pragma warning( push )
+#pragma warning( disable:4996 )
     dwVersion = GetVersion();
+#pragma warning( pop )
     dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
     dwMinorVersion = (DWORD)(HIBYTE(LOWORD(dwVersion)));
 
