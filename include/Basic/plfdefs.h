@@ -217,7 +217,6 @@ Always defined:
 #  define mStopAllowDeprecatedSection \
     _Pragma ( "GCC diagnostic pop" )
 # else
-#  define mUnusedVar
 #  define mDeprecated
 #  define mStartAllowDeprecatedSection
 #  define mStopAllowDeprecatedSection
