@@ -181,6 +181,7 @@ protected:
 				    setOsgNodeInternal( (osg::Node*) t );
 				    return t;
 				}
+    				//!<Must be called during construction.
 
     void			updateNodemask();
 

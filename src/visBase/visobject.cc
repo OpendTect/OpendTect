@@ -144,6 +144,25 @@ Material* VisualObjectImpl::getMaterial()
     return material_;
 }
 
+
+
+void VisualObjectImpl::setGroupNode( osg::Group* grpnode )
+{
+    if ( !grpnode || osgroot_ == grpnode ) 
+	return;
+
+    osg::ref_ptr<osg::Group> newgroup = grpnode;
+
+    for ( int idx=0; idx<osgroot_->getNumChildren(); idx++ )
+	grpnode->addChild( osgroot_->getChild(idx) );
+
+    if ( osgroot_->getStateSet() )
+    grpnode->setStateSet( osgroot_->getStateSet() );
+   
+    setOsgNode( grpnode );
+    osgroot_ = grpnode;
+}
+
     
 int VisualObjectImpl::addChild( osg::Node* nn )
 {
