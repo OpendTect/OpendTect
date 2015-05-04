@@ -128,7 +128,6 @@ HorizonDisplay::~HorizonDisplay()
 
    if ( translation_ )
     {
-	removeChild( translation_->osgNode() );
 	translation_->unRef();
 	translation_ = 0;
     }
