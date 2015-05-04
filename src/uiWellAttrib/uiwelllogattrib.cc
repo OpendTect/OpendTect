@@ -61,7 +61,10 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
 void uiWellLogAttrib::selDone( CallBacker* )
 {
     logsfld_->setEmpty();
-    const MultiID wellid = wellfld_->key();
+    const MultiID wellid = wellfld_->key( true );
+    if ( wellid.isUdf() )
+	return;
+
     RefMan<Well::Data> wd = new Well::Data;
     BufferStringSet lognms;
     if ( Well::MGR().isLoaded(wellid) )
