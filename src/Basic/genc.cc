@@ -92,12 +92,16 @@ const char* GetOSIdentifier()
     BufferString* tmp = new BufferString;
 
 #ifdef __win__
+
     DWORD dwVersion = 0;
     DWORD dwMajorVersion = 0;
     DWORD dwMinorVersion = 0;
     DWORD dwBuild = 0;
 
+#pragma warning( push )
+#pragma warning( disable:4996 )
     dwVersion = GetVersion();
+#pragma warning( pop )
 
     // Get the Windows version.
     dwMajorVersion = (DWORD)(LOBYTE(LOWORD(dwVersion)));
