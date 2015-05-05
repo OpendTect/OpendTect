@@ -343,6 +343,12 @@ bool uiImportHorizon::doScan()
 	mNotCompatibleRet(c);
     }
 
+    if ( nilnrg.step==0 || nclnrg.step==0 )
+    {
+	uiMSG().error( "Cannot have '0' as a step value" );
+	return false;
+    }
+
     cs.hsamp_.set( nilnrg, nclnrg );
     subselfld_->setInput( cs );
     return true;
@@ -412,31 +418,35 @@ bool uiImportHorizon::doImport()
     if ( !horizon ) return false;
 
     if ( !scanner_ && !doScan() )
+    {
+	horizon->unRef();
 	return false;
+    }
 
     if ( scanner_->nrPositions() == 0 )
     {
 	uiString msg( "No valid positions found\n"
 		      "Please re-examine input file and format definition" );
-	uiMSG().message( msg );
-	return false;
+	mErrRetUnRef( msg );
     }
 
     ManagedObjectSet<BinIDValueSet> sections;
     deepCopy( sections, scanner_->getSections() );
 
     if ( sections.isEmpty() )
-	{ horizon->unRef(); mErrRet( tr("Nothing to import") ); }
+	mErrRetUnRef( tr("Nothing to import") );
 
     const bool dofill = filludffld_ && filludffld_->getBoolValue();
     if ( dofill )
     {
 	if ( !interpol_ )
-	    { uiMSG().error(tr("No interpolation selected") ); return false; }
+	    mErrRetUnRef( tr("No interpolation selected") );
 	fillUdfs( sections );
     }
 
     TrcKeySampling hs = subselfld_->envelope().hsamp_;
+    if ( hs.lineRange().step==0 || hs.trcRange().step==0 )
+	mErrRetUnRef( tr("Cannot have '0' as a step value") )
     ExecutorGroup importer( "Importing horizon" );
     importer.setNrDoneText( tr("Nr positions done") );
     int startidx = 0;
