@@ -331,15 +331,17 @@ int TrcKey::lineNr() const
 
 
 
-#define mGetGeomID return is2D() ? pos_.lineNr() : survid_;
+#define mGetGeomID( sid, pos ) return is2D(sid) ? pos.lineNr() : sid;
 
 Pos::GeomID& TrcKey::geomID()
-{ mGetGeomID; }
+{ mGetGeomID( survid_, pos_ ); }
 
 
 Pos::GeomID TrcKey::geomID() const
-{ mGetGeomID; }
+{ mGetGeomID( survid_, pos_ ); }
 
+Pos::GeomID TrcKey::geomID( SurvID survid, const BinID& bid )
+{ mGetGeomID( survid, bid ); }
 
 const TrcKey& TrcKey::udf()
 {

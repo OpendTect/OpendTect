@@ -52,6 +52,7 @@ public:
 
     Pos::GeomID&	geomID();
     Pos::GeomID		geomID() const;
+    static Pos::GeomID	geomID(SurvID,const BinID&);
 
     bool		operator==(const TrcKey&) const;
 
