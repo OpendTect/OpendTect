@@ -12,16 +12,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewmod.h"
-#include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicssceneaxismgr.h"
 
-class uiGraphicsView;
-class uiGraphicsScene;
-
-namespace FlatView
-{
-class Viewer;
+class uiFlatViewer;
 
 /*!
 \brief Axis drawer for flat viewers.
@@ -30,7 +24,7 @@ class Viewer;
 mExpClass(uiFlatView) AxesDrawer : public ::uiGraphicsSceneAxisMgr
 {
 public:
-    			AxesDrawer(Viewer&,uiGraphicsView&);
+			AxesDrawer(uiFlatViewer&);
 			~AxesDrawer();
 
     int			altdim0_;
@@ -44,7 +38,7 @@ public:
 
 protected:
 
-    Viewer&		vwr_;
+    uiFlatViewer&	vwr_;
     uiRectItem*         rectitem_;
     uiTextItem*         axis1nm_;
     uiTextItem*         axis2nm_;
@@ -52,10 +46,7 @@ protected:
     uiArrowItem*        arrowitem1_;
     uiArrowItem*        arrowitem2_;
     uiBorder		extraborder_;
-
 };
-
-} // namespace
 
 #endif
 

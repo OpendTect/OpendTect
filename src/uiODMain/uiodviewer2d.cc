@@ -302,12 +302,15 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 						   .managescoltab(!tifs_) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( tifs_ )
+    {
 	createPolygonSelBut( viewstdcontrol_->toolBar() );
+	createViewWinEditors();
+    }
+
     viewwin_->addControl( viewstdcontrol_ );
     mDynamicCastGet(uiFlatViewMainWin*,mainwin,viewwin_);
     if ( mainwin )
 	mAttachCB( mainwin->afterPopup, uiODViewer2D::winPoppedUpCB );
-    createViewWinEditors();
 
     viewWinAvailable.trigger( this );
 }
@@ -612,15 +615,14 @@ void uiODViewer2D::selectionMode( CallBacker* cb )
     viewstdcontrol_->toolBar()->setToolTip( polyseltbid_,
                                 ispolyselect_ ? tr("Polygon Selection mode")
                                               : tr("Rectangle Selection mode"));
-
-    if ( auxdataeditors_.isEmpty() )
-	return;
+    const bool ispolyseltbon = viewstdcontrol_->toolBar()->isOn( polyseltbid_ );
+    if ( ispolyseltbon )
+	viewstdcontrol_->setEditMode( true );
 
     for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )
     {
 	auxdataeditors_[edidx]->setSelectionPolygonRectangle( !ispolyselect_ );
-	auxdataeditors_[edidx]->setSelActive(
-		viewstdcontrol_->toolBar()->isOn(polyseltbid_) );
+	auxdataeditors_[edidx]->setSelActive( ispolyseltbon );
     }
 }
 
@@ -638,9 +640,6 @@ void uiODViewer2D::handleToolClick( CallBacker* cb )
 void uiODViewer2D::removeSelected( CallBacker* cb )
 {
     if ( !viewstdcontrol_->toolBar()->isOn(polyseltbid_) )
-	return;
-
-    if ( auxdataeditors_.isEmpty() )
 	return;
 
     for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )

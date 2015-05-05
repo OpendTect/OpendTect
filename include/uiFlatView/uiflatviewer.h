@@ -17,12 +17,9 @@ ________________________________________________________________________
 #include "threadwork.h"
 #include "uiworld2ui.h"
 
-namespace FlatView
-{
-    class AxesDrawer;
-    class uiAuxDataDisplay;
-}
+namespace FlatView { class uiAuxDataDisplay; }
 
+class AxesDrawer;
 class uiBitMapDisplay;
 class uiFlatViewControl;
 class uiGraphicsItemGroup;
@@ -39,7 +36,7 @@ public:
     			uiFlatViewer(uiParent*);
 			~uiFlatViewer();
 
-    void		setInitialSize(uiSize);
+    void		setInitialSize(const uiSize&);
 
     bool		isAnnotInInt(const char* annotnm) const;
     int			getAnnotChoices(BufferStringSet&) const;
@@ -61,7 +58,7 @@ public:
 
     uiBorder		getAnnotBorder() const;
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
-    void		setExtraBorders(uiRect);
+    void		setExtraBorders(const uiRect&);
     void		setExtraFactor( float f )	{ extfac_ = f; }
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
@@ -105,11 +102,10 @@ public:
 protected:
 
     uiGraphicsView*		view_;
-    FlatView::AxesDrawer& 	axesdrawer_; //!< Must be declared after canvas_
+    AxesDrawer&			axesdrawer_; //!< Must be declared after canvas_
     uiWorldRect			wr_;
 				/*!<May be reversed if display is reversed. */
     uiGraphicsItemGroup*	worldgroup_;
-    uiRect			extraborders_;
     uiWorld2Ui			w2ui_;
 
     uiBitMapDisplay*		bitmapdisp_;

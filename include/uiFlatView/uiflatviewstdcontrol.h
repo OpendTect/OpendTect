@@ -119,7 +119,7 @@ protected:
     void		handDragStarted(CallBacker*);
     void		handDragging(CallBacker*);
     void		handDragged(CallBacker*);
-    void		reSizeCB(CallBacker*);
+    void		aspectRatioCB(CallBacker*);
     void		keyPressCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}

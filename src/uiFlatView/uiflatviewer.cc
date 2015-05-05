@@ -27,9 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
     , view_( new uiGraphicsView( this, "Flatview" ) )
-    , axesdrawer_(*new FlatView::AxesDrawer(*this,*view_))
+    , axesdrawer_(*new AxesDrawer(*this))
     , extfac_(0.5f)
-    , extraborders_(0,0,5,0)
     , worldgroup_( new uiGraphicsItemGroup( true ) )
     , annotwork_( mCB(this,uiFlatViewer,updateAnnotCB) )
     , auxdatawork_( mCB(this,uiFlatViewer,updateAuxDataCB) )
@@ -152,9 +151,8 @@ void uiFlatViewer::updateTransforms()
 }
 
 
-void uiFlatViewer::setExtraBorders( uiRect rect )
+void uiFlatViewer::setExtraBorders( const uiRect& rect )
 {
-    extraborders_ = rect;
     const uiBorder border( rect.left(), rect.top(),
 			   rect.right(), rect.bottom() );
     axesdrawer_.setExtraBorder( border );
@@ -163,17 +161,13 @@ void uiFlatViewer::setExtraBorders( uiRect rect )
 
 void uiFlatViewer::setExtraBorders( const uiSize& lfttp, const uiSize& rghtbt )
 {
-    extraborders_.setLeft( lfttp.width() );
-    extraborders_.setRight( rghtbt.width() );
-    extraborders_.setTop( lfttp.height() );
-    extraborders_.setBottom( rghtbt.height() );
     uiBorder border( lfttp.width(), lfttp.height(), rghtbt.width(),
 		     rghtbt.height() );
     axesdrawer_.setExtraBorder( border );
 }
 
 
-void uiFlatViewer::setInitialSize( uiSize sz )
+void uiFlatViewer::setInitialSize( const uiSize& sz )
 {
     setPrefWidth( sz.width() ); setPrefHeight( sz.height() );
     view_->setPrefWidth( sz.width() ); view_->setPrefHeight( sz.height() );
@@ -226,15 +220,8 @@ uiWorldRect uiFlatViewer::boundingBox() const
 
 StepInterval<double> uiFlatViewer::posRange( bool forx1 ) const
 {
-    StepInterval<double> fullviewrg;
-    ConstDataPackRef<FlatDataPack> wvapack = obtainPack( true );
-    ConstDataPackRef<FlatDataPack> vdpack = obtainPack( false );
-    if ( !wvapack && !vdpack )
-	return fullviewrg;
-    const FlatDataPack* reffdp = vdpack ? vdpack.ptr() : wvapack.ptr();
-    const FlatPosData& posdata = reffdp->posData();
-    fullviewrg = posdata.range( forx1 );
-    return fullviewrg;
+    ConstDataPackRef<FlatDataPack> dp = obtainPack( false, true );
+    return dp ? dp->posData().range(forx1) : StepInterval<double>();
 }
 
 
