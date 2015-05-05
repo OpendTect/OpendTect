@@ -470,8 +470,11 @@ Table::FormatDesc* BulkTrackAscIO::getDesc()
     fd->bodyinfos_ += new Table::TargetInfo( "Well name", Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
-    fd->bodyinfos_ +=
-	new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional );
+    Table::TargetInfo* mdti =
+	new Table::TargetInfo( "MD", FloatInpSpec(), Table::Optional,
+				PropertyRef::Dist );
+    mdti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
+    fd->bodyinfos_ += mdti;
     fd->bodyinfos_ += new Table::TargetInfo( Well::Info::sKeyuwid(),
 					     Table::Optional );
     return fd;
