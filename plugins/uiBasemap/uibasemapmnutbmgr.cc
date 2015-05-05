@@ -113,19 +113,21 @@ void uiBaseMapMnuTBMgr::createFileMenu()
 
 void uiBaseMapMnuTBMgr::createProcessingMenu()
 {
-    const MenuItem griditm( tr("Gridding"),
-			    mCB(this,uiBaseMapMnuTBMgr,gridCB));
-    processingmnu_->insertAction( griditm );
-
-    const MenuItem filtitm( tr("Filtering"),
+    const MenuItem filtitm( tr("Filtering ..."),
 			    mCB(this,uiBaseMapMnuTBMgr,filtCB));
     processingmnu_->insertAction( filtitm );
+
+    const MenuItem griditm( tr("Gridding ..."),
+			    mCB(this,uiBaseMapMnuTBMgr,gridCB));
+    processingmnu_->insertAction( griditm );
 }
 
 
 void uiBaseMapMnuTBMgr::createItemTB()
 {
     itemtoolbar_ = new uiToolBar( &mainwin_, "Basemap Items" );
+
+/* For now disabled
     CallBack cb = mCB(this,uiBaseMapMnuTBMgr,iconClickCB);
     const ObjectSet<uiBasemapItem>& itms = BMM().items();
 
@@ -141,6 +143,7 @@ void uiBaseMapMnuTBMgr::createItemTB()
 	itemmnu->insertAction( action, itm->ID() );
     }
     itemtoolbar_->setButtonMenu( addid_, itemmnu, uiToolButton::InstantPopup );
+*/
 
     removeid_ = itemtoolbar_->addButton( "trashcan",
 					  tr("Remove selected items"),

@@ -25,7 +25,7 @@ uiBasemapSettingsDlg::uiBasemapSettingsDlg( uiParent* p, uiBasemapView& mgr )
 				      mNoHelpKey))
     , setts_(Settings::fetch("basemap"))
     , basemapvw_(mgr)
-    , originalbgcol_(mgr.view().uibackgroundColor())
+    , originalbgcol_(mgr.view().backgroundColor())
     , originallst_(basemapvw_.getSurveyBox()->getLineStyle())
 {
     lsfld_ = new uiSelLineStyle( this, originallst_, "Survey Outline Style" );

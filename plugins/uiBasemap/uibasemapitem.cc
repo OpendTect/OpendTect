@@ -133,15 +133,23 @@ uiBasemapIOObjGroup::uiBasemapIOObjGroup( uiParent* p, const IOObjContext& ctxt,
     if ( isadd )
     {
 	typefld_ = new uiGenInput( this, "Add items",
-	    BoolInpSpec(true,"as group","individually") );
+	    BoolInpSpec(false,"as group","individually") );
 	typefld_->valuechanged.notify( mCB(this,uiBasemapIOObjGroup,typeChg) );
 	typefld_->attach( alignedBelow, ioobjfld_ );
     }
+
+    postFinalise().notify( mCB(this,uiBasemapIOObjGroup,finaliseCB) );
 }
 
 
 uiBasemapIOObjGroup::~uiBasemapIOObjGroup()
 {
+}
+
+
+void uiBasemapIOObjGroup::finaliseCB( CallBacker* )
+{
+    typeChg( 0 );
 }
 
 
@@ -285,6 +293,34 @@ uiBasemapItem::uiBasemapItem()
 
 
 // uiBasemapParentTreeItem
+uiBasemapParentTreeItem::~uiBasemapParentTreeItem()
+{
+    checkStatusChange()->remove( mCB(this,uiBasemapParentTreeItem,checkCB) );
+}
+
+
+bool uiBasemapParentTreeItem::init()
+{
+    checkStatusChange()->notify( mCB(this,uiBasemapParentTreeItem,checkCB) );
+    return true;
+}
+
+
+int uiBasemapParentTreeItem::uiTreeViewItemType() const
+{ return uiTreeViewItem::CheckBox; }
+
+
+void uiBasemapParentTreeItem::checkCB( CallBacker* )
+{
+    const bool doshow = isChecked();
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiBasemapTreeItem*,itm,getChild(idx))
+	if ( itm ) itm->show( doshow );
+    }
+}
+
+
 bool uiBasemapParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
@@ -352,9 +388,18 @@ BaseMapObject* uiBasemapTreeItem::removeBasemapObject( BaseMapObject& bmo )
 
 void uiBasemapTreeItem::checkCB( CallBacker* )
 {
-    const bool show = isChecked();
+    const bool doshow = isChecked();
     for ( int idx=0; idx<basemapobjs_.size(); idx++ )
-	BMM().getBasemap().show( *basemapobjs_[idx], show );
+	BMM().getBasemap().show( *basemapobjs_[idx], doshow );
+}
+
+
+void uiBasemapTreeItem::show( bool yn )
+{
+    const bool doshow = yn && isChecked();
+    for ( int idx=0; idx<basemapobjs_.size(); idx++ )
+	BMM().getBasemap().show( *basemapobjs_[idx], doshow );
+
 }
 
 

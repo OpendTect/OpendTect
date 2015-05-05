@@ -73,6 +73,7 @@ void uiBasemapView::addStdItems()
     addStaticObject( scalebar_ );
 
     crosshair_ = new uiCrossHairItem( view() );
+    crosshair_->show( false );
 }
 
 

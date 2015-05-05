@@ -375,6 +375,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     setDragMode( uiGraphicsViewBase::ScrollHandDrag );
     getMouseEventHandler().buttonReleased.notify(
 	    mCB(this,uiGraphicsViewBase,rubberBandCB) );
+    setBackgroundColor( Color::White() );
 }
 
 
@@ -580,22 +581,10 @@ Color uiGraphicsViewBase::backgroundColor() const
 }
 
 
-void uiGraphicsViewBase::uisetBackgroundColor( const Color& color )
-{
-    body_->uisetBackgroundColor( color );
-}
-
-
-Color uiGraphicsViewBase::uibackgroundColor() const
-{
-    return body_->uibackgroundColor();
-}
-
-
 void uiGraphicsViewBase::setNoBackGround()
 {
     body_->setAttribute( Qt::WA_NoSystemBackground );
-    uisetBackgroundColor( Color( 255, 255, 255, 255 )  );
+    body_->uisetBackgroundColor( Color( 255, 255, 255, 255 )  );
     scene_->setBackGroundColor( Color( 255, 255, 255, 255 )  );
 }
 

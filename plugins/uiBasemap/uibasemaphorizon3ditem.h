@@ -48,7 +48,8 @@ public:
 			~uiBasemapHorizon3DObject();
 
     inline const char*	getType() const			{ return "Horizon3D"; }
-    void		setHorizon(const EM::Horizon3D*);
+    void		setHorizon(EM::Horizon3D*);
+    EM::Horizon3D*	getHorizon() const;
 
     virtual void	update();
 
@@ -58,7 +59,7 @@ protected:
 
     FlatView::Appearance&	appearance_;
     uiBitMapDisplay&		bitmapdisp_;
-    const EM::Horizon3D*	hor3d_;
+    EM::Horizon3D*		hor3d_;
     MapDataPack*		dp_;
 };
 
@@ -77,7 +78,7 @@ protected:
 
 
 mExpClass(uiBasemap) uiBasemapHorizon3DTreeItem : public uiBasemapTreeItem
-{
+{ mODTextTranslationClass(uiBasemapHorizon3DTreeItem)
 public:
 			uiBasemapHorizon3DTreeItem(const char*);
 			~uiBasemapHorizon3DTreeItem();

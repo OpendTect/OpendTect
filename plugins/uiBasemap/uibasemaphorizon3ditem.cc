@@ -14,8 +14,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapcoltabed.h"
 #include "uibitmapdisplay.h"
+#include "uichangesurfacedlg.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsview.h"
+#include "uihorinterpol.h"
 #include "uiioobjselgrp.h"
 #include "uimenu.h"
 #include "uistrings.h"
@@ -178,7 +180,7 @@ void uiBasemapHorizon3DObject::colTabChgCB( CallBacker* cb )
 }
 
 
-void uiBasemapHorizon3DObject::setHorizon( const EM::Horizon3D* hor3d )
+void uiBasemapHorizon3DObject::setHorizon( EM::Horizon3D* hor3d )
 {
     if ( hor3d_ ) hor3d_->unRef();
     hor3d_ = hor3d;
@@ -203,6 +205,10 @@ void uiBasemapHorizon3DObject::setHorizon( const EM::Horizon3D* hor3d )
     if ( BMM().getColTabEd() )
 	BMM().getColTabEd()->setColTab( appearance_.ddpars_.vd_ );
 }
+
+
+EM::Horizon3D* uiBasemapHorizon3DObject::getHorizon() const
+{ return hor3d_; }
 
 
 void uiBasemapHorizon3DObject::update()
@@ -259,10 +265,15 @@ void uiBasemapHorizon3DTreeItem::checkCB(CallBacker *)
 }
 
 
+static int sFilterID()		{ return 10; }
+static int sGridID()		{ return 11; }
+
 bool uiBasemapHorizon3DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sEdit(false)), sEditID() );
+    mnu.insertItem( new uiAction(tr("Filtering ...")), sFilterID() );
+    mnu.insertItem( new uiAction(tr("Gridding ...")), sGridID() );
     mnu.insertItem( new uiAction(uiStrings::sRemove(true)), sRemoveID() );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );
@@ -271,7 +282,18 @@ bool uiBasemapHorizon3DTreeItem::showSubMenu()
 
 bool uiBasemapHorizon3DTreeItem::handleSubMenu( int mnuid )
 {
-    return uiBasemapTreeItem::handleSubMenu(mnuid);
+    if ( mnuid==sFilterID() )
+    {
+	uiFilterHorizonDlg dlg( getUiParent(), uibmobj_->getHorizon() );
+	return dlg.go();
+    }
+    else if ( mnuid==sGridID() )
+    {
+	uiHorizonInterpolDlg dlg( getUiParent(), uibmobj_->getHorizon(), false);
+	return dlg.go();
+    }
+    else
+	return uiBasemapTreeItem::handleSubMenu(mnuid);
 }
 
 
