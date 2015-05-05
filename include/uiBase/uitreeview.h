@@ -235,10 +235,11 @@ public:
 
     void		setCheckable(bool);
     bool		isCheckable() const;
-    void		setChecked(bool,bool trigger=false);
-			//!< does nothing if not checkable
     bool		isChecked(bool qtstatus=true) const;
 			//!< returns false if not checkable
+    void		setChecked(bool,bool trigger=false);
+			//!< does nothing if not checkable
+    void		checkAll(bool yn,bool trigger=false);
 
     void		setToolTip(int column,const uiString&);
 
@@ -253,7 +254,7 @@ public:
     int			siblingIndex() const;
 			/*!<\returns this items index of it's siblings. */
 
-    void		setText( const uiString&, 
+    void		setText( const uiString&,
 				 int column=0 );
     void		setText( int i, int column=0 )
 			{ setText( toUiString(i), column ); }
