@@ -287,8 +287,8 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 	ev->accept();
     }
 
-    MouseEvent me( OD::NoButton, (int)ev->pos().x(), (int)ev->pos().y(),
-			       ev->delta() );
+    MouseEvent me( OD::ButtonState(ev->modifiers() | ev->buttons()),
+		   ev->pos().x(), ev->pos().y(), ev->delta() );
     mousehandler_.triggerWheel( me );
 /*
   uncomment this conditional to have the default wheel event behaviour, that is,

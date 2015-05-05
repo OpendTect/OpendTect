@@ -10,17 +10,16 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "flatviewaxesdrawer.h"
-#include "flatview.h"
 #include "flatposdata.h"
-#include "datapackbase.h"
-#include "uigraphicsview.h"
 #include "uiflatviewer.h"
+#include "uigraphicsview.h"
+#include "uigraphicsscene.h"
 
 #define mRemoveAnnotItem( item )\
 { view_.scene().removeItem( item ); delete item; item = 0; }
 
-FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, uiGraphicsView& view )
-    : uiGraphicsSceneAxisMgr(view)
+AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
+    : uiGraphicsSceneAxisMgr(vwr.rgbCanvas())
     , vwr_(vwr)
     , altdim0_(mUdf(int))
     , rectitem_(0)
@@ -29,11 +28,10 @@ FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, uiGraphicsView& view )
     , arrowitem1_(0)
     , arrowitem2_(0)
     , titletxt_(0)
-    , extraborder_(0)
 {}
 
 
-FlatView::AxesDrawer::~AxesDrawer()
+AxesDrawer::~AxesDrawer()
 {
     mRemoveAnnotItem( rectitem_ );
     mRemoveAnnotItem( arrowitem1_ );
@@ -44,7 +42,7 @@ FlatView::AxesDrawer::~AxesDrawer()
 }
 
 
-void FlatView::AxesDrawer::updateScene()
+void AxesDrawer::updateScene()
 {
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
     setAnnotInInt( true, annot.x1_.annotinint_ );
@@ -58,7 +56,7 @@ void FlatView::AxesDrawer::updateScene()
 }
 
 
-void FlatView::AxesDrawer::setZValue( int z )
+void AxesDrawer::setZValue( int z )
 {
     uiGraphicsSceneAxisMgr::setZValue( z );
     if ( rectitem_ ) rectitem_->setZValue( z+1 );
@@ -70,7 +68,7 @@ void FlatView::AxesDrawer::setZValue( int z )
 }
 
 
-uiBorder FlatView::AxesDrawer::getAnnotBorder() const
+uiBorder AxesDrawer::getAnnotBorder() const
 {
     int l = extraborder_.left();
     int r = extraborder_.right();
@@ -89,7 +87,7 @@ uiBorder FlatView::AxesDrawer::getAnnotBorder() const
 }
 
 
-uiRect FlatView::AxesDrawer::getViewRect() const
+uiRect AxesDrawer::getViewRect() const
 {
     const uiBorder annotborder( getAnnotBorder() );
     uiRect viewrect = view_.getSceneRect();
@@ -99,13 +97,13 @@ uiRect FlatView::AxesDrawer::getViewRect() const
 }
 
 
-void FlatView::AxesDrawer::setExtraBorder( const uiBorder& border )
+void AxesDrawer::setExtraBorder( const uiBorder& border )
 {
     extraborder_ = border;
 }
 
 
-void FlatView::AxesDrawer::updateViewRect()
+void AxesDrawer::updateViewRect()
 {
     const uiRect rect = getViewRect();
     setViewRect( rect );
@@ -222,7 +220,7 @@ void FlatView::AxesDrawer::updateViewRect()
 }
 
 
-void FlatView::AxesDrawer::setWorldCoords( const uiWorldRect& wr )
+void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 {
     const bool usewva = !vwr_.isVisible( false );
     ConstDataPackRef<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
@@ -232,8 +230,7 @@ void FlatView::AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 	return;
     }
 
-    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);
-    StepInterval<double> dim0rg1 = fdp->posData().range( true );
+    const StepInterval<double> dim0rg1 = fdp->posData().range( true );
     const double altdim0start = fdp->getAltDim0Value( altdim0_, 0 );
     const double altdim0stop =
 	fdp->getAltDim0Value( altdim0_,dim0rg1.nrSteps() );
@@ -242,13 +239,10 @@ void FlatView::AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 	mIsZero(altdimdiff,mDefEps) || mIsZero(dim0rg1.nrSteps(),mDefEps)
 	? 1.0 : altdimdiff/dim0rg1.nrSteps();
     StepInterval<double> dim0rg2( altdim0start, altdim0stop, altdim0step );
-    if ( uivwr )
-    {
-	const float startindex = dim0rg1.getfIndex( wr.left() );
-	const float stopindex = dim0rg1.getfIndex( wr.right() );
-	dim0rg2.start = altdim0start + dim0rg2.step*startindex;
-	dim0rg2.stop = altdim0start + dim0rg2.step*stopindex;
-    }
+    const float startindex = dim0rg1.getfIndex( wr.left() );
+    const float stopindex = dim0rg1.getfIndex( wr.right() );
+    dim0rg2.start = altdim0start + dim0rg2.step*startindex;
+    dim0rg2.stop = altdim0start + dim0rg2.step*stopindex;
 
     xaxis_->setBounds( Interval<float>(mCast(float,dim0rg2.start),
 				       mCast(float,dim0rg2.stop)) );

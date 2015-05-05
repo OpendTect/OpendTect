@@ -92,19 +92,21 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     const DataPack::ID id = visServ().getDisplayedDataPackID( visid, attribid );
     if ( id < 0 ) return;
 
+    ConstRefMan<ZAxisTransform> zat =
+	visServ().getZAxisTransform( visServ().getSceneID(visid) );
+
     uiODViewer2D* vwr2d = find2DViewer( visid, true );
-    bool isnewvwr = false;
+    const bool isnewvwr = !vwr2d;
     if ( !vwr2d )
     {
-	isnewvwr = true;
 	vwr2d = &addViewer2D( visid );
+	vwr2d->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
     }
     else
-    {
-	vwr2d->setWinTitle();
 	visServ().fillDispPars( visid, attribid,
 		vwr2d->viewwin()->viewer().appearance().ddpars_, dowva );
-    }
+    //<-- So that new display parameters are read before the new data is set.
+    //<-- This will avoid time lag between updating data and display parameters.
 
     const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
     vwr2d->setSelSpec( as, dowva );
@@ -113,37 +115,28 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     const int version = visServ().currentVersion( visid, attribid );
     const DataPack::ID dpid = vwr2d->createFlatDataPack( id, version );
     vwr2d->setUpView( dpid, dowva );
-    if ( !vwr2d->viewwin() )
-	{ pErrMsg( "Viewer2D has no main window !?" ); return; }
-
-    ConstRefMan<ZAxisTransform> zat =
-	visServ().getZAxisTransform( visServ().getSceneID(visid) );
-    vwr2d->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
+    vwr2d->setWinTitle();
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pd,visServ().getObject(visid));
     if ( zat && pd && !pd->isVerticalPlane() )
 	vwr2d->setTrcKeyZSampling( pd->getTrcKeyZSampling(false,true) );
 
-    uiFlatViewer& fv = vwr2d->viewwin()->viewer();
+    uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
     if ( isnewvwr )
     {
 	attachNotifiers( vwr2d );
-	FlatView::DataDispPars& ddp = fv.appearance().ddpars_;
+	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 	visServ().fillDispPars( visid, attribid, ddp, dowva );
 	visServ().fillDispPars( visid, attribid, ddp, !dowva );
 	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
-	mAttachCB( vwr2d->viewControl()->setHomeZoomPushed,
-		   uiODViewer2DMgr::homeZoomChangedCB );
     }
 
-    fv.handleChange( FlatView::Viewer::DisplayPars );
+    vwr.handleChange( FlatView::Viewer::DisplayPars );
 }
 
 
 void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 {
-    if ( !SI().has3D() ) return;
-
     mDynamicCastGet(const MouseEventHandler*,meh,cb);
     if ( !meh || !meh->hasEvent() || !meh->event().rightButton() )
 	return;
@@ -186,8 +179,8 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	else if ( menuid == 1 )
 	    newtkzs.hsamp_.setTrcRange( Interval<int>(bid.crl(),bid.crl()) );
 	else if ( menuid == 2 )
-	    newtkzs.zsamp_ = Interval<float>( (float)coord.z, (float)coord.z );
-
+	    newtkzs.zsamp_ = Interval<float>( mCast(float,coord.z),
+					      mCast(float,coord.z) );
 	create2DViewer( *curvwr2d, newtkzs );
     }
     else if ( menuid == 3 )

@@ -85,12 +85,19 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
     if ( valstr && *valstr ) crd.z = toDouble( valstr );
 
-    if ( !crd.isUdf() )
+    if ( !crd.coord().isUdf() )
     {
 	mesg.addTab().add( "(" ).add( toString(crd.x,0) );
 	mesg.add( ", " ).add( toString(crd.y,0) );
-	mesg.add( ", " ).add( toString(crd.z,0) ).add( ")" ).addTab();
     }
+
+    if ( !mIsUdf(crd.z) )
+	mesg.add( ", " ).add( toString(crd.z,0) ).add( ")" );
+    else if ( !crd.coord().isUdf() )
+	mesg.add( ")" );
+    //<-- MapDataPack has valid crd.coord() but invalid crd.z.
+
+    mesg.addTab();
 
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";

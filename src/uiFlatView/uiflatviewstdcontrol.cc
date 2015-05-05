@@ -155,7 +155,8 @@ void uiFlatViewStdControl::finalPrepare()
 	if ( setup_.withfixedaspectratio_ )
 	{
 	    vwrs_[idx]->updateBitmapsOnResize( false );
-	    mAttachCBIfNotAttached(view.reSize, uiFlatViewStdControl::reSizeCB);
+	    mAttachCBIfNotAttached(
+		    view.reSize, uiFlatViewStdControl::aspectRatioCB );
 	}
 
 	MouseEventHandler& mevh = view.getNavigationMouseEventHandler();
@@ -229,7 +230,11 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* cb )
     if ( mIsZero(ev.angle(),0.01) )
 	return;
 
-    zoomCB( ev.angle()<0 ? zoominbut_ : zoomoutbut_ );
+    uiToolButton* but = ev.angle()<0 ?
+	(ev.shiftStatus() ? vertzoominbut_ : zoominbut_) :
+	(ev.shiftStatus() ? vertzoomoutbut_ : zoomoutbut_);
+
+    zoomCB( but );
 }
 
 
@@ -407,7 +412,7 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
 }
 
 
-void uiFlatViewStdControl::reSizeCB( CallBacker* cb )
+void uiFlatViewStdControl::aspectRatioCB( CallBacker* cb )
 {
     mCBCapsuleGet(uiSize,caps,cb);
     mDynamicCastGet(const uiGraphicsView*,view,caps->caller);
