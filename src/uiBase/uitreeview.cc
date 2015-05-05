@@ -135,6 +135,13 @@ void uiTreeViewBody::resizeEvent( QResizeEvent* ev )
 }
 
 
+static bool isCtrlPressed( QInputEvent& ev )
+{
+    const Qt::KeyboardModifiers modif = ev.modifiers();
+    return modif == Qt::ControlModifier;
+}
+
+
 void uiTreeViewBody::keyPressEvent( QKeyEvent* ev )
 {
     if ( moveItem(ev) ) return;
@@ -143,6 +150,13 @@ void uiTreeViewBody::keyPressEvent( QKeyEvent* ev )
     {
 	lvhandle_.returnPressed.trigger();
 	return;
+    }
+    else if ( isCtrlPressed(*ev) )
+    {
+	if ( ev->key() == Qt::Key_A )
+	    { lvhandle_.selectAll(); return; }
+	else if ( ev->key() == Qt::Key_Z )
+	    { lvhandle_.clearSelection(); return; }
     }
 
     uiTreeViewItem* currentitem = lvhandle_.currentItem();
@@ -512,13 +526,6 @@ uiTreeView::SelectionBehavior uiTreeView::selectionBehavior() const
 { return (uiTreeView::SelectionBehavior)int(body_->selectionBehavior()); }
 
 
-void uiTreeView::clearSelection()
-{
-    mBlockCmdRec;
-    body_->clearSelection();
-}
-
-
 void uiTreeView::setSelected( uiTreeViewItem* itm, bool yn )
 {
     mBlockCmdRec;
@@ -636,11 +643,25 @@ void uiTreeView::clear()
     ((QTreeWidget*)body_)->clear();
 }
 
+
+
 void uiTreeView::selectAll()
 {
     mBlockCmdRec;
     body_->selectAll();
+    for ( int idx=0; idx<nrItems(); idx++ )
+	getItem( idx )->checkAll( true );
 }
+
+
+void uiTreeView::clearSelection()
+{
+    mBlockCmdRec;
+    body_->clearSelection();
+    for ( int idx=0; idx<nrItems(); idx++ )
+	getItem( idx )->checkAll( false );
+}
+
 
 void uiTreeView::expandAll()
 {
@@ -762,9 +783,8 @@ uiTreeViewItem::~uiTreeViewItem()
 	delete getChild( idx );
 
     odqtobjects_.remove( *this );
-//  Not sure whether the qtreeitem_ should be delete here.
-//  When enabled od crashes, so commented for now
-//    delete qtreeitem_;
+    //Deleting qtreeitem_ results in crashes.
+    //delete qtreeitem_;
 }
 
 
@@ -995,7 +1015,16 @@ void uiTreeViewItem::setCheckable( bool yn )
 
 
 bool uiTreeViewItem::isCheckable() const
-{ return qItem()->flags().testFlag( Qt::ItemIsUserCheckable ); }
+{
+    return qItem()->flags().testFlag( Qt::ItemIsUserCheckable );
+}
+
+
+bool uiTreeViewItem::isChecked( bool qtstatus ) const
+{
+    return qtstatus ? qtreeitem_->checkState(0) == Qt::Checked
+		    : checked_;
+}
 
 
 void uiTreeViewItem::setChecked( bool yn, bool trigger )
@@ -1012,10 +1041,12 @@ void uiTreeViewItem::setChecked( bool yn, bool trigger )
 }
 
 
-bool uiTreeViewItem::isChecked( bool qtstatus ) const
+void uiTreeViewItem::checkAll( bool yn, bool trigger )
 {
-    return qtstatus ? qtreeitem_->checkState(0) == Qt::Checked
-		    : checked_;
+    setChecked( yn, trigger );
+    for ( int idx=0; idx<nrChildren(); idx++ )
+	getChild(idx)->checkAll( yn, trigger );
+
 }
 
 
@@ -1084,5 +1115,3 @@ uiTreeViewItem* uiTreeViewItem::itemFor( QTreeWidgetItem* itm )
 
 const uiTreeViewItem* uiTreeViewItem::itemFor( const QTreeWidgetItem* itm )
 { return odqtobjects_.getODObject( *itm ); }
-
-

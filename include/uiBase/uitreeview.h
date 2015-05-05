@@ -237,6 +237,7 @@ public:
 			//!< does nothing if not checkable
     bool		isChecked(bool qtstatus=true) const;
 			//!< returns false if not checkable
+    void		checkAll(bool yn,bool trigger=false);
 
     void		setToolTip(int column,const uiString&);
 
