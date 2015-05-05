@@ -68,6 +68,7 @@ public:
     BinID		atIndex(od_int64 globalidx) const;
     TrcKey		trcKeyAt(int i0,int i1) const;
     TrcKey		trcKeyAt(od_int64 globalidx) const;
+    Coord		getPos(const BinID&) const;
     int			nrLines() const;
     int			nrTrcs() const;
     od_int64		totalNr() const;

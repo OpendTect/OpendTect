@@ -90,6 +90,15 @@ BinID TrcKeySampling::atIndex(  od_int64 globalidx ) const
 }
 
 
+Coord TrcKeySampling::getPos( const BinID& bid ) const
+{
+    ConstRefMan<Survey::Geometry> geom =
+	Survey::GM().getGeometry( TrcKey::geomID(survid_,bid) );
+
+    return geom ? geom->toCoord( bid ) : Coord::udf();
+}
+
+
 void TrcKeySampling::set2DDef()
 {
     start_.lineNr() = start_.trcNr() = 0;
