@@ -418,7 +418,10 @@ bool uiImportHorizon::doImport()
     if ( !horizon ) return false;
 
     if ( !scanner_ && !doScan() )
+    {
+	horizon->unRef();
 	return false;
+    }
 
     if ( scanner_->nrPositions() == 0 )
     {
