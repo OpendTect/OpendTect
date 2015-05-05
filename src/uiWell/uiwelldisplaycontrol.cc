@@ -52,22 +52,22 @@ void uiWellDisplayControl::addDahDisplay( uiWellDahDisplay& disp )
     logdisps_ += &disp;
     disp.scene().setMouseEventActive( true );
     MouseEventHandler& meh = mouseEventHandler( logdisps_.size()-1 );
-    meh.movement.notify( mCB( this, uiWellDisplayControl, setSelDahDisplay ) );
-    meh.movement.notify( mCB( this, uiWellDisplayControl, setSelMarkerCB ) );
-    meh.movement.notify( mCB( this, uiWellDisplayControl, mouseMovedCB ) );
-    meh.buttonReleased.notify( mCB(this,uiWellDisplayControl,mouseReleasedCB) );
-    meh.buttonPressed.notify( mCB(this,uiWellDisplayControl,mousePressedCB) );
+    mAttachCB( meh.movement, uiWellDisplayControl::setSelDahDisplay );
+    mAttachCB( meh.movement, uiWellDisplayControl::setSelMarkerCB );
+    mAttachCB( meh.movement, uiWellDisplayControl::mouseMovedCB );
+    mAttachCB( meh.buttonReleased, uiWellDisplayControl::mouseReleasedCB );
+    mAttachCB( meh.buttonPressed,uiWellDisplayControl::mousePressedCB );
 }
 
 
 void uiWellDisplayControl::removeDahDisplay( uiWellDahDisplay& disp )
 {
     MouseEventHandler& meh = mouseEventHandler( logdisps_.size()-1 );
-    meh.movement.remove( mCB( this, uiWellDisplayControl, mouseMovedCB ) );
-    meh.movement.remove( mCB( this, uiWellDisplayControl, setSelMarkerCB ) );
-    meh.movement.remove( mCB( this, uiWellDisplayControl, setSelDahDisplay ) );
-    meh.buttonPressed.remove( mCB(this,uiWellDisplayControl,mousePressedCB) );
-    meh.buttonReleased.remove( mCB(this,uiWellDisplayControl,mouseReleasedCB) );
+    mDetachCB( meh.movement, uiWellDisplayControl::mouseMovedCB );
+    mDetachCB( meh.movement, uiWellDisplayControl::setSelMarkerCB );
+    mDetachCB( meh.movement, uiWellDisplayControl::setSelDahDisplay );
+    mDetachCB( meh.buttonPressed,uiWellDisplayControl::mousePressedCB );
+    mDetachCB( meh.buttonReleased,uiWellDisplayControl::mouseReleasedCB );
     logdisps_ -= &disp;
 }
 

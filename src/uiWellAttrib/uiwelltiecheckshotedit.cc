@@ -166,6 +166,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
 
 uiCheckShotEdit::~uiCheckShotEdit()
 {
+    delete control_;
     delete orgd2t_;
     delete orgcs_;
 }
