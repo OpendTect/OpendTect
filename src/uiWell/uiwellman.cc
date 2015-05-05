@@ -329,20 +329,12 @@ void uiWellMan::logSel( CallBacker* )
 
 void uiWellMan::edMarkers( CallBacker* )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() )
-	return;
-
+    MultiID curmid( curioobj_->key() );	
     RefMan<Well::Data> wd = new Well::Data;
-    MultiID curmid( curioobj_->key() );
-    if ( Well::MGR().isLoaded(curmid) )
-	wd = Well::MGR().get( curmid );
-    else
-    {
-	if ( curwds_[0]->markers().isEmpty() )
-	    currdrs_[0]->getMarkers();
-	wd = curwds_[0];
-	curmid = curmultiids_[0];
-    }
+    PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
+
+    if ( !wrdr->getMarkers() )
+	return;
 
     if ( !iswritable_ )
     {
@@ -372,17 +364,11 @@ void uiWellMan::edMarkers( CallBacker* )
 
 void uiWellMan::edWellTrack( CallBacker* )
 {
-    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
-
     RefMan<Well::Data> wd = new Well::Data;
-    MultiID curmid( curioobj_->key() );
-    if ( Well::MGR().isLoaded(curmid) )
-	wd = Well::MGR().get( curmid );
-    else
-    {
-	wd = curwds_[0];
-	curmid = curmultiids_[0];
-    }
+    PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
+
+    if ( !wrdr->getTrack() )
+	return;
 
     const Well::Track origtrck = wd->track();
     const Coord origpos = wd->info().surfacecoord;
@@ -392,6 +378,7 @@ void uiWellMan::edWellTrack( CallBacker* )
     if ( !dlg.go() || !iswritable_ )
 	return;
 
+    MultiID curmid( curioobj_->key() );	
     Well::Writer wtr( curmid, *wd );
     if ( !wtr.putInfoAndTrack( ) )
     {
@@ -423,18 +410,12 @@ void uiWellMan::defD2T( bool chkshot )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
     RefMan<Well::Data> wd = new Well::Data;
-    MultiID curmid( curioobj_->key() );
-    if ( Well::MGR().isLoaded(curmid) )
-	wd = Well::MGR().get( curmid );
+    PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
+
+    if ( chkshot )
+	wrdr->getCSMdl();
     else
-    {
-	if ( !chkshot && !curwds_[0]->d2TModel() )
-	    currdrs_[0]->getD2T();
-	else if ( chkshot && !curwds_[0]->checkShotModel() )
-	    currdrs_[0]->getCSMdl();
-	wd = curwds_[0];
-	curmid = curmultiids_[0];
-    }
+	wrdr->getD2T();
 
     if ( !chkshot && !wd->d2TModel() )
 	wd->setD2TModel( new Well::D2TModel );
@@ -452,6 +433,7 @@ void uiWellMan::defD2T( bool chkshot )
 	return;
 
     uiString errmsg;
+    MultiID curmid( curioobj_->key() );	
     Well::Writer wtr( curmid, *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
     {
