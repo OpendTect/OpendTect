@@ -326,10 +326,14 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
     lasttool_ = tb;
 }
 
+#define mDelD2TM \
+    delete d2tmodels_; \
+    d2tmodels_ = 0;
 
 void uiStratSynthDisp::cleanSynthetics()
 {
     curSS().clearSynthetics();
+    mDelD2TM
     wvadatalist_->setEmpty();
     vddatalist_->setEmpty();
 }
@@ -891,8 +895,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     if ( hadpack )
 	vwr_->removePack( vwr_->packID(wva) );
     vwr_->removeAllAuxData();
-    delete d2tmodels_;
-    d2tmodels_ = 0;
+    mDelD2TM
     if ( !sd )
     {
 	SeisTrcBuf* disptbuf = new SeisTrcBuf( true );
@@ -1290,6 +1293,8 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	return;
     if ( !curSS().removeSynthetic(syntheticnm) )
 	return;
+    
+    mDelD2TM
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return );
@@ -1356,6 +1361,8 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
     mCBCapsuleUnpack(BufferString,synthname,cb);
     if ( !curSS().removeSynthetic(synthname) )
 	return;
+
+    mDelD2TM
     altSS().removeSynthetic( synthname );
     synthsChanged.trigger();
     updateSyntheticList( true );
@@ -1544,6 +1551,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     if ( !curSS().hasElasticModels() )
 	return false;
     curSS().clearSynthetics();
+    mDelD2TM
     if ( !stratsynthpar )
 	curSS().addDefaultSynthetic();
     else
