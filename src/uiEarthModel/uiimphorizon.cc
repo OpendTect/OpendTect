@@ -339,6 +339,12 @@ bool uiImportHorizon::doScan()
 	mNotCompatibleRet(c);
     }
 
+    if ( nilnrg.step==0 || nclnrg.step==0 )
+    {
+	uiMSG().error( "Cannot have '0' as a step value" );
+	return false;
+    }
+
     cs.hrg.set( nilnrg, nclnrg );
     subselfld_->setInput( cs );
     return true;
@@ -384,7 +390,7 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
 }
 
 #define mErrRet(s) { uiMSG().error(s); return 0; }
-#define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
+#define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s); }
 #define mSave(taskrunner) \
     if ( !exec ) \
     { \
@@ -408,31 +414,36 @@ bool uiImportHorizon::doImport()
     if ( !horizon ) return false;
 
     if ( !scanner_ && !doScan() )
+    {
+	horizon->unRef();
 	return false;
+    }
 
     if ( scanner_->nrPositions() == 0 )
     {
 	BufferString msg( "No valid positions found\n" );
 	msg.add( "Please re-examine input file and format definition" );
-	uiMSG().message( msg );
-	return false;
+	mErrRetUnRef( msg );
     }
 
     ManagedObjectSet<BinIDValueSet> sections;
     deepCopy( sections, scanner_->getSections() );
 
     if ( sections.isEmpty() )
-	{ horizon->unRef(); mErrRet( "Nothing to import" ); }
+	mErrRetUnRef( "Nothing to import" );
 
     const bool dofill = filludffld_ && filludffld_->getBoolValue();
     if ( dofill )
     {
 	if ( !interpol_ )
-	    { uiMSG().error("No interpolation selected" ); return false; }
+	    mErrRetUnRef( "No interpolation selected" );
 	fillUdfs( sections );
     }
 
     HorSampling hs = subselfld_->envelope().hrg;
+    if ( hs.inlRange().step==0 || hs.crlRange().step==0 )
+	mErrRetUnRef( "Cannot have '0' as a step value" )
+
     ExecutorGroup importer( "Importing horizon" );
     importer.setNrDoneText( "Nr positions done" );
     int startidx = 0;
@@ -636,8 +647,8 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     if ( !horizon ) mErrRet( "Error loading horizon");
 
-    horizon->ref();
     delete loader;
+    horizon->ref();
     return horizon;
 }
 
