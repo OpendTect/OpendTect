@@ -174,7 +174,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 
 	uiTaskRunner dlg( uiparent_ );
 	if ( !emod->setEMObject(emid, &dlg) ||
-	     (!emobj->isEmpty() && !dlg.execResult()) )
+	     ( !hor2d && !emobj->isEmpty() && !dlg.execResult()) )
 	    mRefUnrefRet
 
 	    visserv_->addObject( emod, sceneid, true );
