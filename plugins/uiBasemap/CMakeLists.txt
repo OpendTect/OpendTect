@@ -14,6 +14,7 @@ SET(OD_MODULE_SOURCES
 	uibasemapgeom2ditem.cc
 	uibasemapgriditem.cc
 	uibasemaphorizon3ditem.cc
+	uibasemapinlcrlitem.cc
 	uibasemapiomgr.cc
 	uibasemapitem.cc
 	uibasemappicksetitem.cc

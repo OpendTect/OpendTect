@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemapgeom2ditem.h"
 #include "uibasemapgriditem.h"
 #include "uibasemaphorizon3ditem.h"
+#include "uibasemapinlcrlitem.h"
 #include "uibasemappicksetitem.h"
 #include "uibasemappolygonitem.h"
 #include "uibasemaprandomlineitem.h"
@@ -145,6 +146,8 @@ mDefODInitPlugin(uiBasemap)
     if ( mgr ) return 0;
     mgr = new uiBasemapMgr( ODMainWin() );
 
+    uiBasemapInlItem::initClass();
+    uiBasemapCrlItem::initClass();
     uiBasemapZSliceItem::initClass();
     uiBasemapSeisOutlineItem::initClass();
     uiBasemapRandomLineItem::initClass();
