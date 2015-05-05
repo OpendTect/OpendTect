@@ -63,9 +63,9 @@ public:
     void		setItemIgnoresTransformations(bool);
     virtual uiRect	boundingRect() const;
 
-    virtual void	setPenStyle(const LineStyle&,bool colwithalpha=false);
-    virtual void	setPenColor(const Color&,bool withalpha=false);
-    virtual void	setFillColor(const Color&,bool withalpha=false);
+    virtual void	setPenStyle(const LineStyle&,bool usetransp=false);
+    virtual void	setPenColor(const Color&,bool usetransp=false);
+    virtual void	setFillColor(const Color&,bool usetransp=false);
     virtual void	setFillPattern(const FillPattern&);
     virtual void	setTransparency(float);
 			/*!< To set the overall transparency of graphics item.

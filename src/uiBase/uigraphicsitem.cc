@@ -190,13 +190,13 @@ void uiGraphicsItem::setItemIgnoresTransformations( bool yn )
 { qgraphicsitem_->setFlag( QGraphicsItem::ItemIgnoresTransformations, yn ); }
 
 
-void uiGraphicsItem::setPenColor( const Color& col, bool withalpha )
+void uiGraphicsItem::setPenColor( const Color& col, bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
     QColor color = QColor(QRgb(col.rgb()));
-    if ( withalpha ) color.setAlpha( 255-col.t() );
+    if ( usetransparency ) color.setAlpha( 255-col.t() );
 
     QPen qpen( color );
     qpen.setCosmetic( true );
@@ -228,13 +228,14 @@ void uiGraphicsItem::setParent( uiGraphicsItem* item )
 }
 
 
-void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool colorwithalpha )
+void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
     QColor color = QColor( QRgb(ls.color_.rgb()) );
-    if ( colorwithalpha ) color.setAlpha( 255-ls.color_.t() );
+    if ( usetransparency ) color.setAlpha( 255-ls.color_.t() );
+
     QBrush qbrush( color );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
     qpen.setCosmetic( true );
@@ -242,13 +243,17 @@ void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool colorwithalpha )
 }
 
 
-void uiGraphicsItem::setFillColor( const Color& col, bool withalpha )
+void uiGraphicsItem::setFillColor( const Color& col, bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    QColor color = QColor( QRgb(col.rgb()) );
-    if ( withalpha ) color.setAlpha( 255 - col.t() );
+    QColor color = Qt::transparent;
+    if ( col != Color::NoColor() )
+    {
+	color = QColor( QRgb(col.rgb()) );
+	if ( usetransparency ) color.setAlpha( 255-col.t() );
+    }
 
     QBrush qbrush = agsitm->brush();
     if ( qbrush.style() == Qt::NoBrush )
