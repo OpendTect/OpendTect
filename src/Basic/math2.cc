@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "undefval.h"
 
+#include <complex.h>
 #include <float.h>
 #include <limits.h>
 #include <math.h>
@@ -113,6 +114,7 @@ unsigned int Math::Abs( int val )	{ return abs(val); }
 od_uint64 Math::Abs( od_int64 val )	{ return llabs(val); }
 double Math::Abs( double val )		{ return fabs(val); }
 float Math::Abs( float val )		{ return fabsf(val); }
+float Math::Abs( float_complex val )	{ return abs(val); }
 double Math::Floor( double val )	{ return floor(val); }
 float Math::Floor( float val )		{ return floorf(val); }
 double Math::Ceil( double val )		{ return ceil(val); }
