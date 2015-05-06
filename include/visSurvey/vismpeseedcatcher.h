@@ -48,9 +48,9 @@ public:
 
     bool			isLegalClick() const;
 
-    bool                        isCtrlClicked() const; 
-    bool                        isShiftClicked() const;
-    bool                        isAltClicked() const;
+    bool			isCtrlClicked() const;
+    bool			isShiftClicked() const;
+    bool			isAltClicked() const;
     const EM::PosID&		getNode() const;
     const Coord3&		getPos() const;
     int				getObjID() const;
@@ -152,9 +152,7 @@ protected:
     const char*			trackertype_;
 };
 
-
-
-};
+} // namespace visSurvey
 
 #endif
 
