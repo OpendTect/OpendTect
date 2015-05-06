@@ -3,7 +3,7 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Henrique Mageste
- Date:		March 2015
+ Date:		May 2015
 ________________________________________________________________________
 
 -*/
