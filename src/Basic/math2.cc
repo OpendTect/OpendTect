@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "undefval.h"
 
-#include <complex.h>
 #include <float.h>
 #include <limits.h>
 #include <math.h>
