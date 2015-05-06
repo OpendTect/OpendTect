@@ -54,6 +54,11 @@ public:
 
     virtual void		setLineStyle(int idx,const LineStyle&)	    {}
     virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
+
+    virtual void		setFillColor(int idx,const Color&)	    {}
+    virtual const Color		getFillColor(int idx) const
+						    { return Color::NoColor();}
+
     virtual bool		fill(int shapeidx) const	{ return false;}
     virtual bool		close(int shapeidx) const	{ return false;}
 
