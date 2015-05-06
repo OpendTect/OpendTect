@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id: array2dinterpol.cc 38250 2015-02-24 07
 #include "arrayndimpl.h"
 #include "math2.h"
 #include <math.h>
+#include <algorithm>
 #include "limits.h"
 
 #define mIrint(x) ((int)lrint(x))
@@ -788,7 +789,6 @@ bool ContinuousCurvatureArray2DInterpol::setCoefficients()
 void ContinuousCurvatureArray2DInterpol::findNearestPoint( int gridsize )
 {
     const int padnrcols = nrcols_ + 2*mPadSize;
-    const int blocknx = ( nrrows_-1 )/gridsize + 1;
     const int blockny = ( nrcols_-1 )/gridsize + 1;
     const int rcswcorner = 2*padnrcols + 2;\
 
