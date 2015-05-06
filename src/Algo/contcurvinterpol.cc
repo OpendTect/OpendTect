@@ -8,6 +8,9 @@ static const char* rcsID mUsedVar = "$Id: array2dinterpol.cc 38250 2015-02-24 07
 
 #include "contcurvinterpol.h"
 #include "arrayndimpl.h"
+#include "math2.h"
+#include <math.h>
+#include <limits>
 
 #define mIrint(x) ((int)lrint(x))
 #define mMaxIterations 250
@@ -50,7 +53,6 @@ public:
 	if ( idx1<idx2 ) return true;
 	if ( idx1>idx2 ) return false;
 
-	const int blocknx = ( interpol_->nrrows_-1 )/gridsize_ + 1;
 	const int blockny = ( interpol_->nrcols_-1 )/gridsize_ + 1;
 
 	const double x0 = (double)(idx1/blockny) * gridsize_;
