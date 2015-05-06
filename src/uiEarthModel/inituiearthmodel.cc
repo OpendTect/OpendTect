@@ -23,6 +23,7 @@ mDefModInitFn(uiEarthModel)
     uiInvDistHor3DInterpol::initClass();
     uiTriangulationHor3DInterpol::initClass();
     uiExtensionHor3DInterpol::initClass();
+    uiContinuousCurvatureHor3DInterpol::initClass();
 
     uiBodyPosProvGroup::initClass();
     uiSurfacePosProvGroup::initClass();

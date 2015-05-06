@@ -174,9 +174,12 @@ bool HorizonGridder::usePar( const IOPar& par )
 
 void InvDistHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
+    ConstRefMan<Survey::Geometry3D> geom = 
+	Survey::GM().getGeometry3D( hs.survid_ );
+    
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( SI().inlDistance() * hs.step_.inl() );
-    setColStep( SI().crlDistance() * hs.step_.crl() );
+    setRowStep( geom->inlDistance() * hs.step_.inl() );
+    setColStep( geom->crlDistance() * hs.step_.crl() );
     setOrigin( hs.start_ );
 }
 
@@ -225,9 +228,12 @@ bool InvDistHor3DGridder::usePar( const IOPar& par )
 
 void TriangulationHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
+    ConstRefMan<Survey::Geometry3D> geom = 
+       Survey::GM().getGeometry3D( hs.survid_ );
+    
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( SI().inlDistance() * hs.step_.inl() );
-    setColStep( SI().crlDistance() * hs.step_.crl() );
+    setRowStep( geom->inlDistance() * hs.step_.inl() );
+    setColStep( geom->crlDistance() * hs.step_.crl() );
     setOrigin( hs.start_ );
 }
 
@@ -276,9 +282,12 @@ bool TriangulationHor3DGridder::usePar( const IOPar& par )
 
 void ExtensionHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
+    ConstRefMan<Survey::Geometry3D> geom = 
+	Survey::GM().getGeometry3D( hs.survid_ );
+    
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( SI().inlDistance() * hs.step_.inl() );
-    setColStep( SI().crlDistance() * hs.step_.crl() );
+    setRowStep( geom->inlDistance() * hs.step_.inl() );
+    setColStep( geom->crlDistance() * hs.step_.crl() );
     setOrigin( hs.start_ );
 }
 
@@ -302,3 +311,38 @@ bool ExtensionHor3DGridder::usePar( const IOPar& par )
     return ExtensionArray2DInterpol::usePar(par)
 	&& HorizonGridder::usePar(par);
 }
+
+
+void ContinuousCurvatureHor3DGridder::setTrcKeySampling(
+     const TrcKeySampling& hs )
+{
+    ConstRefMan<Survey::Geometry3D> geom = 
+	Survey::GM().getGeometry3D( hs.survid_ );
+    
+    HorizonGridder::setTrcKeySampling( hs );
+    setRowStep( geom->inlDistance() * hs.step_.inl() );
+    setColStep( geom->crlDistance() * hs.step_.crl() );
+    setOrigin( hs.start_ );
+}
+
+
+bool ContinuousCurvatureHor3DGridder::fillPar( IOPar& par ) const
+{
+    return ContinuousCurvatureArray2DInterpol::fillPar( par )
+	&& HorizonGridder::fillPar( par );
+}
+
+
+bool ContinuousCurvatureHor3DGridder::usePar( const IOPar& par )
+{
+    return ContinuousCurvatureArray2DInterpol::usePar( par )
+	&& HorizonGridder::usePar( par );
+}
+
+
+bool ContinuousCurvatureHor3DGridder::setArray2D( Array2D<float>& arr,
+     TaskRunner* taskrunner )
+{
+     return setArray( arr,taskrunner );
+}
+

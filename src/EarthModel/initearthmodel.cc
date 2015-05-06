@@ -65,6 +65,7 @@ mDefModInitFn(EarthModel)
     InvDistHor3DGridder::initClass();
     TriangulationHor3DGridder::initClass();
     ExtensionHor3DGridder::initClass();
+    ContinuousCurvatureHor3DGridder::initClass();
 
     ZDomain::Def::add( new ZDomain::Def("Time-Flattened","Time","ms",1000) );
     ZDomain::Def::add( new ZDomain::Def("Depth-Flattened","Depth","",1) );

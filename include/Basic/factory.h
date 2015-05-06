@@ -285,9 +285,9 @@ protected:
 #define mDefaultFactoryCreatorImpl( baseclss, clss ) \
 static baseclss*	createInstance() { return new clss; } \
 
-#define mDefaultFactoryInstantiation( baseclss, clss, usernm, keywrd ) \
+#define mDefaultFactoryInstantiation( baseclss, clss, keywrd, usernm ) \
     mDefaultFactoryCreatorImpl( baseclss, clss ); \
-    mDefaultFactoryInstanciationBase( usernm, keywrd ) \
+    mDefaultFactoryInstanciationBase( keywrd, usernm ) \
     mDefaultFactoryInitClassImpl( baseclss, createInstance )
 
 

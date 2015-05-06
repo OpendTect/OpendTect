@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 
 #include "array2dinterpolimpl.h"
+#include "contcurvinterpol.h"
 #include "trckeysampling.h"
 #include "multiid.h"
 #include "earthmodelmod.h"
@@ -70,8 +71,8 @@ public:
 
 			mDefaultFactoryInstantiation( HorizonGridder,
 				InvDistHor3DGridder,
-				"Inverse Distance", 
-				toUiString(sFactoryKeyword()))
+				"InverseDistance",
+				tr("Inverse distance") )
 
     virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
@@ -130,5 +131,22 @@ protected:
 };
 
 
+mExpClass(EarthModel) ContinuousCurvatureHor3DGridder
+    : public ContinuousCurvatureArray2DInterpol,public HorizonGridder
+{mODTextTranslationClass(ContinuousCurvatureHor3DGridder);
+public:
+
+			 mDefaultFactoryInstantiation(HorizonGridder,
+			     ContinuousCurvatureHor3DGridder,
+			     "ContinuousCurvature",
+			     tr("Continuous curvature") )
+
+    virtual void	setTrcKeySampling(const TrcKeySampling&);
+    virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
+
+    bool		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
+};
 
 #endif

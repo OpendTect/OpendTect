@@ -116,7 +116,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     FixedString method = par.find( HorizonGridder::sKeyMethod() );
     if ( method.isNull() )
 	mErrRet("Huh? No methods found in the paramaters")
-
+    
     HorizonGridder* interpolator = HorizonGridder::factory().create( method );
     if ( !interpolator )
 	mErrRet("Selected method not found")
@@ -152,6 +152,8 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
 	TrcKeySampling hs( false );
 	hs.set( rowrg, colrg );
+	hs.survid_ = hor3d->getSurveyID();
+
 	interpolator->setTrcKeySampling( hs );
 
 	Array2DImpl<float>* arr =
@@ -400,7 +402,7 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 
     const int methodidx = methodsel_->getIntValue( 0 );
     const uiHor3DInterpol* methodgrp = methodgrps_[methodidx];
-    par.set( HorizonGridder::sKeyMethod(), methodsel_->text() );
+    par.set( HorizonGridder::sKeyMethod(), methodgrp->factoryKeyword() );
     return methodgrp->fillPar( par );
 }
 
@@ -417,10 +419,17 @@ uiHor3DInterpol::uiHor3DInterpol( uiParent* p )
 }
 
 
+const char* uiInvDistHor3DInterpol::factoryKeyword() const
+{
+    return InverseDistanceArray2DInterpol::sFactoryKeyword();
+}
+
+
 void uiInvDistHor3DInterpol::initClass()
 {
     uiHor3DInterpol::factory().addCreator( create,
-		uiInvDistHor3DInterpol::sFactoryKeyword() );
+		InverseDistanceArray2DInterpol::sFactoryKeyword(),
+		InverseDistanceArray2DInterpol::sFactoryDisplayName() );
 }
 
 
@@ -492,10 +501,17 @@ bool uiInvDistHor3DInterpol::usePar( const IOPar& iopar )
 }
 
 
+const char* uiTriangulationHor3DInterpol::factoryKeyword() const
+{
+    return TriangulationArray2DInterpol::sFactoryKeyword();
+}
+
+
 void uiTriangulationHor3DInterpol::initClass()
 {
     uiHor3DInterpol::factory().addCreator( create,
-	    uiTriangulationHor3DInterpol::sFactoryKeyword() );
+	    TriangulationArray2DInterpol::sFactoryKeyword(),
+	    TriangulationArray2DInterpol::sFactoryDisplayName() );
 }
 
 
@@ -562,10 +578,17 @@ bool uiTriangulationHor3DInterpol::usePar( const IOPar& iopar )
 }
 
 
+const char* uiExtensionHor3DInterpol::factoryKeyword() const
+{
+    return ExtensionArray2DInterpol::sFactoryKeyword();
+}
+
+
 void uiExtensionHor3DInterpol::initClass()
 {
     uiHor3DInterpol::factory().addCreator( create,
-	    uiExtensionHor3DInterpol::sFactoryKeyword() );
+	    ExtensionArray2DInterpol::sFactoryKeyword(),
+	     ExtensionArray2DInterpol::sFactoryDisplayName() );
 }
 
 
@@ -600,4 +623,57 @@ bool uiExtensionHor3DInterpol::usePar( const IOPar& iopar )
     return true;
 }
 
+
+uiContinuousCurvatureHor3DInterpol::uiContinuousCurvatureHor3DInterpol(
+    uiParent* p )
+    : uiHor3DInterpol( p )
+    , tensionfld_( 0 )
+{
+    tensionfld_ = new uiGenInput(this,"Tension",FloatInpSpec(0.25) );
+
+    BufferString titletext( "Search radius ",SI().getXYUnitString() );
+    radiusfld_ = new uiGenInput( this,titletext.buf(),FloatInpSpec(0.0) );
+    radiusfld_->attach( alignedBelow,tensionfld_ );
+
+    setHAlignObj( radiusfld_ );
+
+}
+
+
+const char* uiContinuousCurvatureHor3DInterpol::factoryKeyword() const
+{
+    return ContinuousCurvatureArray2DInterpol::sFactoryKeyword();
+}
+
+
+void uiContinuousCurvatureHor3DInterpol::initClass()
+{
+    uiHor3DInterpol::factory().addCreator( create,
+	ContinuousCurvatureArray2DInterpol::sFactoryKeyword(),
+	ContinuousCurvatureArray2DInterpol::sFactoryDisplayName() );
+
+}
+
+
+uiHor3DInterpol* uiContinuousCurvatureHor3DInterpol::create( uiParent* p )
+{
+    return new uiContinuousCurvatureHor3DInterpol(p);
+}
+
+
+bool uiContinuousCurvatureHor3DInterpol::fillPar( IOPar& par) const
+{
+    if ( tensionfld_ )
+	par.set( "Tension", tensionfld_->getfValue() );
+    if ( radiusfld_ )
+	par.set("Search Radius",radiusfld_->getfValue() );
+    
+    return true;
+}
+
+
+bool uiContinuousCurvatureHor3DInterpol::usePar( const IOPar& par )
+{
+    return true;
+}
 

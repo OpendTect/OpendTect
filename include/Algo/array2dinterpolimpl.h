@@ -53,7 +53,7 @@ mExpClass(Algo) InverseDistanceArray2DInterpol : public Array2DInterpol
 public:
 		mDefaultFactoryInstantiation(Array2DInterpol, 
 			InverseDistanceArray2DInterpol,
-			"Inverse distance", toUiString(sFactoryKeyword()))
+			"InverseDistance", tr("Inverse distance") )
 
 		InverseDistanceArray2DInterpol();
 		~InverseDistanceArray2DInterpol();
