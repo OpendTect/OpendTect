@@ -28,8 +28,8 @@ static const double cTwopluseP2 = 2.0 + 2.0*cEpsP2;
 static const double cTwoplusM2 = 2.0 + 2.0*cEpsM2;
 
 const char* ContinuousCurvatureArray2DInterpol::sKeyTension()
-{ 
-    return "Tension"; 
+{
+    return "Tension";
 }
 
 const char* ContinuousCurvatureArray2DInterpol::sKeySearchRadius()
@@ -40,14 +40,14 @@ const char* ContinuousCurvatureArray2DInterpol::sKeySearchRadius()
 class HorizonDataComparer
 {
 public:
-    HorizonDataComparer( const ContinuousCurvatureArray2DInterpol* interpol, 
-	const int gridsize )
+    HorizonDataComparer( const ContinuousCurvatureArray2DInterpol* interpol,
+	int gridsize )
 	: interpol_(interpol)
 	, gridsize_( gridsize )
     {}
 
-    const bool operator() ( ContinuousCurvatureArray2DInterpol::HorizonData& 
-	dataa, ContinuousCurvatureArray2DInterpol::HorizonData& datab )
+    bool operator() ( const ContinuousCurvatureArray2DInterpol::HorizonData&
+	dataa, const ContinuousCurvatureArray2DInterpol::HorizonData& datab )
     {
 	const int idx1 = dataa.index_;
 	const int idx2 = datab.index_;
@@ -65,9 +65,9 @@ public:
 	const double dist2=
 	    (datab.x_-x0)*(datab.x_-x0)+(datab.y_-y0)*(datab.y_-y0);
 
-	if ( dist1<dist2 ) 
+	if ( dist1<dist2 )
 	    return true;
-	if ( dist1>dist2 ) 
+	if ( dist1>dist2 )
 	    return false;
 
 	return false;
@@ -83,7 +83,7 @@ protected:
 class GridInitializer: public ParallelTask
 {
 public:
-    GridInitializer(ContinuousCurvatureArray2DInterpol* p, int gridsize, 
+    GridInitializer(ContinuousCurvatureArray2DInterpol* p, int gridsize,
 	 od_int64 size)
 	: interpol_( p )
 	, nriterations_( size )
@@ -129,27 +129,27 @@ protected:
 		if ( jmax>=blockny_ ) jmax = blockny_ - 1;
 		const int index1 = imin*blockny_ + jmin;
 		const int index2 = imax*blockny_ + jmax + 1;
-		
+
 		double sumw = 0;
 		double sumzw = 0.0;
 		int k = 0;
 
-		while ( k<interpol_->nrdata_ && 
+		while ( k<interpol_->nrdata_ &&
 		    interpol_->hordata_[k].index_<index1 )
 		    k++;
 
-		for ( int ki = imin; k<interpol_->nrdata_ && 
+		for ( int ki = imin; k<interpol_->nrdata_ &&
 		    ki<=imax && interpol_->hordata_[k].index_<index2; ki++ )
 		{
-		    for( int kj = jmin; k<interpol_->nrdata_ && 
+		    for( int kj = jmin; k<interpol_->nrdata_ &&
 			kj<=jmax && interpol_->hordata_[k].index_<index2; kj++ )
 		    {
 			const int kindex = ki*blockny_ + kj;
-			while ( k<interpol_->nrdata_ && 
+			while ( k<interpol_->nrdata_ &&
 			    interpol_->hordata_[k].index_<kindex )
 			    k++;
 
-			while ( k<interpol_->nrdata_ && 
+			while ( k<interpol_->nrdata_ &&
 			    interpol_->hordata_[k].index_==kindex )
 			{
 			    const double r = ( interpol_->hordata_[k].x_-x0 )*
@@ -168,10 +168,10 @@ protected:
 		const int rcswcorner = 2*padnrcols+2;
 		const int blkidx = ( row*padnrcols+col )*gridsize_;
 		if ( sumw==0.0 )
-		    interpol_->griddata_[rcswcorner+blkidx] = 
+		    interpol_->griddata_[rcswcorner+blkidx] =
 		    (float)interpol_->zmean_;
 		else
-		    interpol_->griddata_[rcswcorner+blkidx] = 
+		    interpol_->griddata_[rcswcorner+blkidx] =
 		    (float)( sumzw/sumw );
 	    }
 	}
@@ -186,7 +186,7 @@ private:
     int blocknx_;
     int blockny_;
     int gridsize_;
-    int irad_; 
+    int irad_;
     int jrad_;
     double rfact_;
     float radius_;
@@ -223,7 +223,7 @@ ContinuousCurvatureArray2DInterpol::~ContinuousCurvatureArray2DInterpol()
 }
 
 
-bool ContinuousCurvatureArray2DInterpol::setArray( Array2D<float>& arr, 
+bool ContinuousCurvatureArray2DInterpol::setArray( Array2D<float>& arr,
     TaskRunner* taskrunner )
 {
     if ( !Array2DInterpol::setArray(arr,taskrunner) )
@@ -233,7 +233,7 @@ bool ContinuousCurvatureArray2DInterpol::setArray( Array2D<float>& arr,
 }
 
 
-bool ContinuousCurvatureArray2DInterpol::setArray( ArrayAccess& arr, 
+bool ContinuousCurvatureArray2DInterpol::setArray( ArrayAccess& arr,
     TaskRunner* taskrunner )
 {
     if ( !canUseArrayAccess() )
@@ -250,7 +250,7 @@ bool ContinuousCurvatureArray2DInterpol::setArray( ArrayAccess& arr,
 }
 
 
-bool ContinuousCurvatureArray2DInterpol::initFromArray( 
+bool ContinuousCurvatureArray2DInterpol::initFromArray(
     TaskRunner* taskrunner )
 {
     if ( !arr_ && !arrsetter_ )
@@ -274,11 +274,11 @@ bool ContinuousCurvatureArray2DInterpol::initFromArray(
 	    nrdata_++;
     }
 
-    if ( !fillInputData() ) 
+    if ( !fillInputData() )
 	return false;
 
     getNodesToFill( curdefined_, nodestofill_, taskrunner );
-  
+
     return true;
 }
 
@@ -362,7 +362,7 @@ int ContinuousCurvatureArray2DInterpol::verifyGridSize( int gridsize )
 {
     int blocknx = (nrrows_-1)/gridsize + 1;
     int blockny = (nrcols_-1)/gridsize + 1;
-    
+
     while ( blocknx<4 || blockny<4 )
     {
 	gridsize = getNextGridSize( gridsize );
@@ -383,7 +383,7 @@ bool ContinuousCurvatureArray2DInterpol::doWork( od_int64, od_int64, int )
 
     int curgridsize = verifyGridSize( gridsize );
     if ( curgridsize<0 ) return false;
-    
+
     updateEdgeConditions( curgridsize );
     updateGridIndex( curgridsize );
 
@@ -436,9 +436,9 @@ void ContinuousCurvatureArray2DInterpol::recoverPlanarTrend()
 {
     const int padnrcols = nrcols_ + 2*mPadSize;
     const int rcswcorner = 2*padnrcols + 2;
-    for ( int row=0; row<nrrows_; row++ ) 
+    for ( int row=0; row<nrrows_; row++ )
     {
-	for ( int col=0; col<nrcols_; col++ ) 
+	for ( int col=0; col<nrcols_; col++ )
 	{
 	    const int rc = (int)( rcswcorner + row*padnrcols + col );
 	    griddata_[rc] = (float)( (griddata_[rc]*zscale_) +
@@ -462,7 +462,7 @@ bool ContinuousCurvatureArray2DInterpol::updateArray2D()
 		  arr_->set( r-mPadSize, c-mPadSize, griddata_[idx] );
 	  }
       }
- 
+
     return true;
 }
 
@@ -478,71 +478,71 @@ void ContinuousCurvatureArray2DInterpol::finalizeGrid()
     const int my = nrcols_ + 2*mPadSize;
     const int move[12] = { 2, 1-my, 1, 1+my, -2*my, -my, my,
 			   2*my, -1-my, -1, -1+my, -2 };
-    
+
     const int padnrcols = nrcols_+2*mPadSize;
     mConstCorners();
 
-    for ( int r=0; r<nrrows_; r++ ) 
+    for ( int r=0; r<nrrows_; r++ )
     {
 	int rc = rcswcorner + r*my;
-	griddata_[rc-1] = 
+	griddata_[rc-1] =
 	    (float)( y0const*griddata_[rc]+y1const*griddata_[rc+1] );
 	rc = rcnwcorner + r*my;
-	griddata_[rc+1] = 
+	griddata_[rc+1] =
 	    (float)( y0const*griddata_[rc]+y1const*griddata_[rc-1] );
     }
 
-    for ( int c=0; c<nrcols_; c++ ) 
+    for ( int c=0; c<nrcols_; c++ )
     {
 	int rc = rcswcorner + c;
-	griddata_[rc-my] = (float)( x1const * 
+	griddata_[rc-my] = (float)( x1const *
 	    griddata_[rc+my] + x0const * griddata_[rc] );
 	rc = rcsecorner + c;
-	griddata_[rc+my] = (float)( 
+	griddata_[rc+my] = (float)(
 	    x1const*griddata_[rc-my] + x0const*griddata_[rc] );
     }
 
     int rc = rcswcorner;
-    griddata_[rc-my-1] = 
+    griddata_[rc-my-1] =
 	griddata_[rc+my-1] + griddata_[rc-my+1] - griddata_[rc+my+1];
     rc = rcnwcorner;
-    griddata_[rc-my+1] = 
+    griddata_[rc-my+1] =
 	griddata_[rc+my+1] + griddata_[rc-my-1] - griddata_[rc+my-1];
     rc = rcsecorner;
-    griddata_[rc+my-1] = 
+    griddata_[rc+my-1] =
         griddata_[rc-my-1] + griddata_[rc+my+1] - griddata_[rc-my+ 1];
     rc = rcnecorner;
-    griddata_[rc+my+1] = 
+    griddata_[rc+my+1] =
         griddata_[rc-my+1] + griddata_[rc+my-1] - griddata_[rc-my-1];
 
-    for ( int r=0; r<nrrows_; r++ ) 
+    for ( int r=0; r<nrrows_; r++ )
     {
-    	rc = rcswcorner + r*my;
-    	griddata_[rc + move[11]] = (float)( griddata_[rc+move[0]] + 
-    	cEpsM2*( griddata_[rc+move[1]] + griddata_[rc+move[3]] -
-    	- griddata_[rc+move[8]] - griddata_[rc + move[10]] ) + 
-    	cTwoplusM2*( griddata_[rc+move[9]]-griddata_[rc+move[2]]) );
+	rc = rcswcorner + r*my;
+	griddata_[rc + move[11]] = (float)( griddata_[rc+move[0]] +
+	cEpsM2*( griddata_[rc+move[1]] + griddata_[rc+move[3]] -
+	- griddata_[rc+move[8]] - griddata_[rc + move[10]] ) +
+	cTwoplusM2*( griddata_[rc+move[9]]-griddata_[rc+move[2]]) );
 
-    	rc = rcnwcorner + r*my;
-    	griddata_[rc+move[0]] = -(float)(-griddata_[rc+move[11]] + 
-    	    cEpsM2*(griddata_[rc+move[1]] + griddata_[rc+move[3]] -
-    	    griddata_[rc+move[8]] - griddata_[rc+move[10]]) +
-    	    cTwoplusM2*(griddata_[rc+move[9]]-griddata_[rc+move[2]]) );
+	rc = rcnwcorner + r*my;
+	griddata_[rc+move[0]] = -(float)(-griddata_[rc+move[11]] +
+	    cEpsM2*(griddata_[rc+move[1]] + griddata_[rc+move[3]] -
+	    griddata_[rc+move[8]] - griddata_[rc+move[10]]) +
+	    cTwoplusM2*(griddata_[rc+move[9]]-griddata_[rc+move[2]]) );
     }
 
-    for ( int c=0; c<nrcols_; c++ ) 
+    for ( int c=0; c<nrcols_; c++ )
     {
-    	rc = rcswcorner + c;
-    	griddata_[rc+move[4]] = griddata_[rc+move[7]] + 
-    	    (float)( cEpsP2*(griddata_[rc+move[3]]+griddata_[rc+move[10]]
-    		-griddata_[rc+move[1]] - griddata_[rc + move[8]]) + 
-    	    cTwopluseP2*(griddata_[rc+move[5]]-griddata_[rc+move[6]]) );
+	rc = rcswcorner + c;
+	griddata_[rc+move[4]] = griddata_[rc+move[7]] +
+	    (float)( cEpsP2*(griddata_[rc+move[3]]+griddata_[rc+move[10]]
+		-griddata_[rc+move[1]] - griddata_[rc + move[8]]) +
+	    cTwopluseP2*(griddata_[rc+move[5]]-griddata_[rc+move[6]]) );
 
-    	rc = rcsecorner + c;
-    	griddata_[rc+move[7]] = -(float)(-griddata_[rc+move[4]] + 
-    	    cEpsP2*( griddata_[rc+move[3]]+griddata_[rc+move[10]] -
-    		griddata_[rc + move[1]] - griddata_[rc+move[8]]) +
-    	cTwopluseP2*(griddata_[rc+move[5]]-griddata_[rc+move[6]]) );
+	rc = rcsecorner + c;
+	griddata_[rc+move[7]] = -(float)(-griddata_[rc+move[4]] +
+	    cEpsP2*( griddata_[rc+move[3]]+griddata_[rc+move[10]] -
+		griddata_[rc + move[1]] - griddata_[rc+move[8]]) +
+	cTwopluseP2*(griddata_[rc+move[5]]-griddata_[rc+move[6]]) );
     }
 
 }
@@ -567,19 +567,19 @@ bool ContinuousCurvatureArray2DInterpol::usePar( const IOPar& par )
 
 
 bool ContinuousCurvatureArray2DInterpol::removePlanarTrend()
-{	
+{
     if ( nrdata_ <=0 ) return false;
 
     double sx(0), sy(0), sz(0), sxx(0), sxy(0), sxz(0), syy(0), syz(0);
-    for ( int idx=0; idx<nrdata_; idx++ ) 
+    for ( int idx=0; idx<nrdata_; idx++ )
     {
-	sx  += hordata_[idx].x_; 
-	sy  += hordata_[idx].y_; 
+	sx  += hordata_[idx].x_;
+	sy  += hordata_[idx].y_;
 	sz  += hordata_[idx].z_;
-	sxx += hordata_[idx].x_*hordata_[idx].x_; 
-	sxy += hordata_[idx].x_*hordata_[idx].y_; 
+	sxx += hordata_[idx].x_*hordata_[idx].x_;
+	sxy += hordata_[idx].x_*hordata_[idx].y_;
 	sxz += hordata_[idx].x_*hordata_[idx].z_;
-	syy += hordata_[idx].y_*hordata_[idx].y_;  
+	syy += hordata_[idx].y_*hordata_[idx].y_;
 	syz += hordata_[idx].y_*hordata_[idx].z_;
     }
 
@@ -593,11 +593,11 @@ bool ContinuousCurvatureArray2DInterpol::removePlanarTrend()
 	return true;
     }
 
-    const double a = sz*sxx*syy + sx*sxy*syz + sy*sxy*sxz - sz*sxy*sxy - 
+    const double a = sz*sxx*syy + sx*sxy*syz + sy*sxy*sxz - sz*sxy*sxy -
 		     sx*sxz*syy - sy*syz*sxx;
-    const double b = count*sxz*syy + sz*sy*sxy + sy*sx*syz - count*sxy*syz - 
+    const double b = count*sxz*syy + sz*sy*sxy + sy*sx*syz - count*sxy*syz -
 		     sz*sx*syy - sy*sy*sxz;
-    const double c = count*sxx*syz + sx*sy*sxz + sz*sx*sxy - count*sxy*sxz - 
+    const double c = count*sxx*syz + sx*sy*sxz + sz*sx*sxy - count*sxy*sxz -
 		     sx*sx*syz - sz*sy*sxx;
 
     planec0_ = a/d;
@@ -618,7 +618,7 @@ bool ContinuousCurvatureArray2DInterpol::rescaleZValues()
 {
     double ssz = 0.0;
     int count = 0;
-   
+
     for ( int idx = 0; idx<nrdata_; idx++ )
     {
 	ssz += (double)( hordata_[idx].z_*hordata_[idx].z_ );
@@ -627,12 +627,12 @@ bool ContinuousCurvatureArray2DInterpol::rescaleZValues()
 
     zscale_ = Math::Sqrt( ssz/count );
 
-    if ( zscale_<GMT_CONV_LIMIT ) return false;  
+    if ( zscale_<GMT_CONV_LIMIT ) return false;
 
     for ( int idx=0; idx<nrdata_; idx++ )
 	hordata_[idx].z_ /= (float)zscale_;
 
-    if ( convergelimit_ == 0.0 ) 
+    if ( convergelimit_ == 0.0 )
 	convergelimit_ = 0.001*zscale_;
 
     return true;
@@ -642,14 +642,14 @@ bool ContinuousCurvatureArray2DInterpol::rescaleZValues()
 
 int ContinuousCurvatureArray2DInterpol::calcGcdEuclid()
 {
-    unsigned int gcd = mMAX( nrrows_-1, nrcols_-1 );   
+    unsigned int gcd = mMAX( nrrows_-1, nrcols_-1 );
     unsigned int v = mMIN( nrrows_-1, nrcols_-1 );
 
-    while ( v>0 ) 
+    while ( v>0 )
     {
-	unsigned int r  = gcd%v; 
-	gcd = v; 
-	v = r;		
+	unsigned int r  = gcd%v;
+	gcd = v;
+	v = r;
     }
 
     return  gcd;
@@ -672,7 +672,7 @@ int ContinuousCurvatureArray2DInterpol::calcPrimeFactors( int grid )
 	    grid /= curfactor;
 	    factors_[nfact_++] = curfactor;
 	}
-	if ( grid==1 ) 
+	if ( grid==1 )
 	    return grid;
     }
 
@@ -685,25 +685,25 @@ int ContinuousCurvatureArray2DInterpol::calcPrimeFactors( int grid )
     unsigned int skipfive = 25;
     while ( grid>1 && curfactor<=maxfactor )
     {
-	if ( twofourtoggle ) 
+	if ( twofourtoggle )
 	{
 	    curfactor += 4;
 	    twofourtoggle = false;
 	}
-	else 
+	else
 	{
 	    curfactor += 2;
 	    twofourtoggle = true;
 	}
 
-	if ( curfactor == skipfive ) 
+	if ( curfactor == skipfive )
 	{
-	    if ( tentwentytoggle ) 
+	    if ( tentwentytoggle )
 	    {
 		skipfive += 20;
 		tentwentytoggle = false;
 	    }
-	    else 
+	    else
 	    {
 		skipfive += 10;
 		tentwentytoggle = true;
@@ -711,65 +711,65 @@ int ContinuousCurvatureArray2DInterpol::calcPrimeFactors( int grid )
 	    continue;
 	}
 
-	while ( !(grid%curfactor) ) 
+	while ( !(grid%curfactor) )
 	{
 	    grid /= curfactor;
 	    factors_[nfact_++] = curfactor;
 	}
     }
 
-    if ( grid>1 ) 
+    if ( grid>1 )
 	factors_[nfact_++] = grid;
-    
+
     return grid;
 }
 
 
 
 void ContinuousCurvatureArray2DInterpol::updateEdgeConditions( int gridsize )
-{	
+{
     const int padnrcols = nrcols_ + 2*mPadSize;
     const int grideast = gridsize*padnrcols;
 
     const int addw[5] = { -padnrcols,-grideast,-grideast,-grideast,-grideast };
-    const int addw2[5] = { -2*padnrcols,-padnrcols-grideast,-2*grideast, 
+    const int addw2[5] = { -2*padnrcols,-padnrcols-grideast,-2*grideast,
 			   -2*grideast, -2*grideast };
     const int adde[5] = { grideast, grideast, grideast, grideast, padnrcols };
-    const int adde2[5] = { 2*grideast,2*grideast,2*grideast, 
+    const int adde2[5] = { 2*grideast,2*grideast,2*grideast,
 			   padnrcols + grideast,2*padnrcols };
     const int adds[5] = { -1, -gridsize, -gridsize, -gridsize, -gridsize };
     const int adds2[5] = {-2,-gridsize-1,-2*gridsize,-2*gridsize,-2*gridsize};
     const int addn[5] = { gridsize, gridsize, gridsize, gridsize, 1 };
     const int addn2[5] = { 2*gridsize, 2*gridsize, 2*gridsize, gridsize+1, 2 };
 
-    for ( int idx=0, globalidx=0; idx<5; idx++ ) 
+    for ( int idx=0, globalidx=0; idx<5; idx++ )
     {
-	for ( int idy=0; idy<5; idy++, globalidx++ ) 
+	for ( int idy=0; idy<5; idy++, globalidx++ )
 	{
-	    offset_[globalidx][0] = addn2[idy];		   
-	    offset_[globalidx][1] = addn[idy] + addw[idx]; 
-	    offset_[globalidx][2] = addn[idy];		   
-	    offset_[globalidx][3] = addn[idy] + adde[idx];  
-	    offset_[globalidx][4] = addw2[idx];		
-	    offset_[globalidx][5] = addw[idx];		   
-	    offset_[globalidx][6] = adde[idx];		   
-	    offset_[globalidx][7] = adde2[idx];		   
-	    offset_[globalidx][8] = adds[idy] + addw[idx];  
-	    offset_[globalidx][9] = adds[idy];		   
-	    offset_[globalidx][10] = adds[idy] + adde[idx]; 
-	    offset_[globalidx][11] = adds2[idy];		  
+	    offset_[globalidx][0] = addn2[idy];
+	    offset_[globalidx][1] = addn[idy] + addw[idx];
+	    offset_[globalidx][2] = addn[idy];
+	    offset_[globalidx][3] = addn[idy] + adde[idx];
+	    offset_[globalidx][4] = addw2[idx];
+	    offset_[globalidx][5] = addw[idx];
+	    offset_[globalidx][6] = adde[idx];
+	    offset_[globalidx][7] = adde2[idx];
+	    offset_[globalidx][8] = adds[idy] + addw[idx];
+	    offset_[globalidx][9] = adds[idy];
+	    offset_[globalidx][10] = adds[idy] + adde[idx];
+	    offset_[globalidx][11] = adds2[idy];
 	}
     }
 }
 
 
 bool ContinuousCurvatureArray2DInterpol::setCoefficients()
-{	
+{
     double loose = 1.0 - tension_;
     if ( loose==0 ) return false;
 
     const double e4 = cE2*cE2;
-    const double a0 = 1.0/( (6*e4*loose + 10*cE2*loose + 8*loose - 
+    const double a0 = 1.0/( (6*e4*loose + 10*cE2*loose + 8*loose -
 	2*cOneplusE2) + 4*tension_*cOneplusE2 );
 
     coeff_[1][4] = coeff_[1][7] = -loose;
@@ -782,7 +782,7 @@ bool ContinuousCurvatureArray2DInterpol::setCoefficients()
     coeff_[0][2] = coeff_[0][9] = coeff_[0][5]*cE2;
     coeff_[1][1] = coeff_[1][3] = coeff_[1][8] = coeff_[1][10] = -2*loose*cE2;
     coeff_[0][1] = coeff_[0][3] = coeff_[0][8] = coeff_[0][10]=coeff_[1][1]*a0;
-    
+
     return true;
 }
 
@@ -799,9 +799,9 @@ void ContinuousCurvatureArray2DInterpol::findNearestPoint( int gridsize )
 
     int briggsindex = 0;
     const double threshold = 0.05*gridsize;
-    for ( int np=0, lastindex = UINT_MAX; np<nrdata_; np++ ) 
-    {	
-	if ( hordata_[np].index_ != lastindex ) 
+    for ( int np=0, lastindex = UINT_MAX; np<nrdata_; np++ )
+    {
+	if ( hordata_[np].index_ != lastindex )
 	{
 	    const int blockr = (int)hordata_[np].index_/blockny;
 	    const int blockc = (int)hordata_[np].index_%blockny;
@@ -811,14 +811,14 @@ void ContinuousCurvatureArray2DInterpol::findNearestPoint( int gridsize )
 	    double y0 = blockc*gridsize;
 	    double dx = (hordata_[np].x_-x0)/gridsize;
 	    double dy = (hordata_[np].y_-y0)/gridsize;
-	    if ( fabs(dx)<threshold && fabs(dy)<threshold ) 
-	    {	
-	 	gridstatus_[iuindex] = 5;
+	    if ( fabs(dx)<threshold && fabs(dy)<threshold )
+	    {
+		gridstatus_[iuindex] = 5;
 		float zatnode = hordata_[np].z_ +
 			(float)(gridsize*(planec1_*dx+planec2_*dy)/zscale_);
 		    griddata_[iuindex] = zatnode;
 	    }
-	    else 
+	    else
 	    {
 		if ( dx>=0.0 )
 		{
@@ -849,7 +849,7 @@ void ContinuousCurvatureArray2DInterpol::findNearestPoint( int gridsize )
 }
 
 
-ContinuousCurvatureArray2DInterpol::BriggsData::BriggsData( 
+ContinuousCurvatureArray2DInterpol::BriggsData::BriggsData(
     double dx, double dy, double z )
 {
     // pre-const parameters calculation
@@ -868,7 +868,7 @@ ContinuousCurvatureArray2DInterpol::BriggsData::BriggsData(
 }
 
 
-ContinuousCurvatureArray2DInterpol::BriggsData& 
+ContinuousCurvatureArray2DInterpol::BriggsData&
 ContinuousCurvatureArray2DInterpol::BriggsData::operator =
 ( const ContinuousCurvatureArray2DInterpol::BriggsData& brgdata )
 {
@@ -888,8 +888,8 @@ ContinuousCurvatureArray2DInterpol::BriggsData::operator =
 bool ContinuousCurvatureArray2DInterpol::BriggsData::operator ==
 ( const ContinuousCurvatureArray2DInterpol::BriggsData& brgdata ) const
 {
-    return b0_== brgdata.b0_ && b1_ == brgdata.b1_ && 
-	   b2_== brgdata.b2_ && b3_ == brgdata.b3_ && 
+    return b0_== brgdata.b0_ && b1_ == brgdata.b1_ &&
+	   b2_== brgdata.b2_ && b3_ == brgdata.b3_ &&
 	   b4_== brgdata.b4_ && b5_ == brgdata.b5_;
 }
 
@@ -912,8 +912,8 @@ ContinuousCurvatureArray2DInterpol::HorizonData::operator =
 bool ContinuousCurvatureArray2DInterpol::HorizonData::operator ==
 ( const ContinuousCurvatureArray2DInterpol::HorizonData& hrdata ) const
 {
-    return x_ == hrdata.x_ && 
-	   y_ == hrdata.y_ && 
+    return x_ == hrdata.x_ &&
+	   y_ == hrdata.y_ &&
 	   z_ == hrdata.z_ &&
 	   index_ == hrdata.index_;
 }
@@ -922,7 +922,7 @@ bool ContinuousCurvatureArray2DInterpol::HorizonData::operator ==
 void ContinuousCurvatureArray2DInterpol::updateGridIndex( int gridsize )
 {
     const int blockny = (nrcols_-1)/gridsize + 1;
-    for ( int idx=0; idx<nrdata_; idx++ ) 
+    for ( int idx=0; idx<nrdata_; idx++ )
     {
 	const int i = mIrint( floor((hordata_[idx].x_/gridsize) + 0.5) );
 	const int j = mIrint( floor((hordata_[idx].y_/gridsize) + 0.5) );
@@ -936,9 +936,9 @@ void ContinuousCurvatureArray2DInterpol::updateGridIndex( int gridsize )
 
 
 int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
-{	
+{
     if ( tension_== 1 ) return -1;
-    
+
     //Pre-calculate frequently used constants.
     const double a0const1 = 2.0 * (1.0-tension_) * (1.0+cE2*cE2);
     const double a0const2 = 2.0 - tension_ + 2*(1.0-tension_)*cE2;
@@ -959,55 +959,55 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 
     do
     {
-	int briggsidx = 0;	
+	int briggsidx = 0;
 	maxchange = -1.0;
 
-	for ( int r=0; r<nrrows_; r+=gridsize ) 
+	for ( int r=0; r<nrrows_; r+=gridsize )
 	{
 	    int rc = rcswcorner+ r*padnrcols;
-	    griddata_[rc-1] = 
+	    griddata_[rc-1] =
 		(float)( y0*griddata_[rc]+y1*griddata_[rc+(int)gridsize] );
 
 	    rc = rcnwcorner + r*padnrcols;
-	    griddata_[rc+1] = 
+	    griddata_[rc+1] =
 		(float)( y0*griddata_[rc]+y1*griddata_[rc-(int)gridsize] );
 	}
 
-        for ( int col=0; col<nrcols_; col+=(int)gridsize ) 
+        for ( int col=0; col<nrcols_; col+=(int)gridsize )
 	{
 	    int rc = rcswcorner+ col;
-	    griddata_[rc-padnrcols] = 
+	    griddata_[rc-padnrcols] =
 		(float)( x1*griddata_[rc+grideast] + x0*griddata_[rc] );
 	    rc = rcsecorner + col;
 
-	    griddata_[rc+padnrcols] = 
+	    griddata_[rc+padnrcols] =
 		(float)( x1*griddata_[rc-grideast] + x0*griddata_[rc] );
 	}
 
 	int ij = rcswcorner;
-	griddata_[ij-padnrcols-1] = griddata_[ij+grideast-1] + 
+	griddata_[ij-padnrcols-1] = griddata_[ij+grideast-1] +
 	   griddata_[ij-padnrcols+gridsize] - griddata_[ij+grideast+gridsize];
 
 	ij = rcnwcorner;
-	griddata_[ij-padnrcols+1] = griddata_[ij+grideast+1] + 
+	griddata_[ij-padnrcols+1] = griddata_[ij+grideast+1] +
 	   griddata_[ij-padnrcols-gridsize] - griddata_[ij+grideast-gridsize];
 
 	ij = rcsecorner;
-	griddata_[ij+padnrcols-1] = griddata_[ij-grideast-1] + 
+	griddata_[ij+padnrcols-1] = griddata_[ij-grideast-1] +
 	   griddata_[ij+padnrcols+gridsize] - griddata_[ij-grideast+gridsize];
 
 	ij = rcnecorner;
-	griddata_[ij+padnrcols+1] = griddata_[ij-grideast+1] + 
+	griddata_[ij+padnrcols+1] = griddata_[ij-grideast+1] +
 	   griddata_[ij+padnrcols-gridsize] - griddata_[ij-grideast-gridsize];
 
-	
+
 	for ( int row=0, xwcase=0, xecase=blocknx-1;
-	      row<nrrows_; row+=gridsize, xwcase++, xecase-- ) 
+	      row<nrrows_; row+=gridsize, xwcase++, xecase-- )
 	{
 	    int xcase = 2;
-	    if ( xwcase <2 ) 
+	    if ( xwcase <2 )
 		xcase = xwcase;
-	    else if ( xecase<2 ) 
+	    else if ( xecase<2 )
 		xcase = 4 - xecase;
 
 	    /* South side */
@@ -1021,22 +1021,22 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 	    float val2 = griddata_[rc+offset_[kase][9]] -
 			 griddata_[rc+offset_[kase][2]];
 
-	    griddata_[rc+offset_[kase][11]] = 
+	    griddata_[rc+offset_[kase][11]] =
 		(float)( val0 + cEpsM2*val1 + cTwoplusM2*val2 );
 	    /* North side */
 	    kase = xcase * 5 + 4;
 	    rc = rcnwcorner + row*padnrcols;
 	    val0 = -griddata_[rc+offset_[kase][11]];
-	    val1=griddata_[rc+offset_[kase][1]]+griddata_[rc+offset_[kase][3]]- 
+	    val1=griddata_[rc+offset_[kase][1]]+griddata_[rc+offset_[kase][3]]-
 		 griddata_[rc+offset_[kase][8]]-griddata_[rc+offset_[kase][10]];
 	    val2=griddata_[rc+offset_[kase][9]]-griddata_[rc+offset_[kase][2]];
 
-	    griddata_[rc + offset_[kase][0]] = 
+	    griddata_[rc + offset_[kase][0]] =
 		-(float)( val0 + cEpsM2*val1 + cTwoplusM2*val2 );
 	}
 
-	for ( int col=0, yscase = 0, yncase = blockny-1; col<nrcols_; 
-	    col+=gridsize, yscase++, yncase-- ) 
+	for ( int col=0, yscase = 0, yncase = blockny-1; col<nrcols_;
+	    col+=gridsize, yscase++, yncase-- )
 	{
 	    int ycase = 2;
 	    if ( yscase<2 )
@@ -1048,14 +1048,14 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 	    int kase = ycase;
 	    int rc = rcswcorner + col;
 	    float val0 = griddata_[rc+offset_[kase][7]] ;
-	    float val1 = griddata_[rc+offset_[kase][3]] + 
+	    float val1 = griddata_[rc+offset_[kase][3]] +
 		         griddata_[rc+offset_[kase][10]]-
 			 griddata_[rc+offset_[kase][1]] -
 			 griddata_[rc+offset_[kase][8]];
-	    float val2 = griddata_[rc+offset_[kase][5]] - 
+	    float val2 = griddata_[rc+offset_[kase][5]] -
 		         griddata_[rc+offset_[kase][6]];
 
-	    griddata_[rc+offset_[kase][4]] = 
+	    griddata_[rc+offset_[kase][4]] =
 		val0 + (float)cEpsP2*val1 + (float)cTwopluseP2*val2;
 
 	    /* East side */
@@ -1066,12 +1066,12 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 		 griddata_[rc+offset_[kase][1]]-griddata_[rc+offset_[kase][8]];
 	    val2=griddata_[rc+offset_[kase][5]]-griddata_[rc+offset_[kase][6]];
 
-	    griddata_[rc+offset_[kase][7]] = 
+	    griddata_[rc+offset_[kase][7]] =
 		-(float)( val0+cEpsP2*val1+cTwopluseP2*val2 );
 	}
-	
+
 	for ( int row=0, xwcase=0, xecase=blocknx - 1;
-	      row<nrrows_; row+=gridsize, xwcase++, xecase--) 
+	      row<nrrows_; row+=gridsize, xwcase++, xecase--)
 	{
 	    int xcase = 2;
 	    if ( xwcase<2 )
@@ -1079,16 +1079,16 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 	    else if ( xecase<2 )
 		xcase = 4-xecase;
 
-	    for ( int col=0, yscase=0, yncase=blockny-1, 
-		rc=rcswcorner+row*padnrcols; col<nrcols_; col+=gridsize, 
-		rc+=gridsize, yscase++, 
-		yncase--) 
+	    for ( int col=0, yscase=0, yncase=blockny-1,
+		rc=rcswcorner+row*padnrcols; col<nrcols_; col+=gridsize,
+		rc+=gridsize, yscase++,
+		yncase--)
 	    {
-		if ( gridstatus_[rc]==5 ) 
+		if ( gridstatus_[rc]==5 )
 		    continue;
 
 		int ycase = 2;
-		if ( yscase<2 ) 
+		if ( yscase<2 )
 		    ycase = yscase;
 		else if ( yncase<2 )
 		    ycase = 4-yncase;
@@ -1096,13 +1096,13 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 		const int kase = xcase*5 + ycase;
 		double sumrc = 0.0;
 		double busum = 0;
-		if ( gridstatus_[rc]==0 ) 
-		{		
+		if ( gridstatus_[rc]==0 )
+		{
 		    for ( int k=0; k<12; k++ )
 			sumrc += (griddata_[rc+offset_[kase][k]]*coeff_[0][k]);
 		}
-		else 
-		{				
+		else
+		{
 		    BriggsData bd;
 		    bd.b0_= briggs_[briggsidx].b0_;
 		    bd.b1_ = briggs_[briggsidx].b1_;
@@ -1113,17 +1113,17 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 
 		    briggsidx++;
 
-		    if ( gridstatus_[rc]<3 ) 
+		    if ( gridstatus_[rc]<3 )
 		    {
-			if ( gridstatus_[rc]==1 ) 
-			{	
+			if ( gridstatus_[rc]==1 )
+			{
 			    /* Point is in quadrant 1  */
 			    busum = bd.b0_*griddata_[rc+offset_[kase][10]] +
 				    bd.b1_*griddata_[rc+offset_[kase][9]]  +
 				    bd.b2_*griddata_[rc+offset_[kase][5]]  +
 				    bd.b3_*griddata_[rc+offset_[kase][1]];
 			}
-			else 
+			else
 			{			/* Point is in quadrant 2  */
 			    busum = bd.b0_*griddata_[rc+offset_[kase][8]] +
 				    bd.b1_*griddata_[rc+offset_[kase][9]] +
@@ -1131,9 +1131,9 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 				    bd.b3_*griddata_[rc+offset_[kase][3]];
 			}
 		    }
-		    else 
+		    else
 		    {
-			if ( gridstatus_[rc]==3 ) 
+			if ( gridstatus_[rc]==3 )
 			{
 			    /* Point is in quadrant 3  */
 			    busum = bd.b0_*griddata_[rc+offset_[kase][1]] +
@@ -1141,7 +1141,7 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 				    bd.b2_*griddata_[rc+offset_[kase][6]] +
 				    bd.b3_*griddata_[rc+offset_[kase][10]];
 			}
-			else 
+			else
 			{		/* Point is in quadrant 4  */
 			    busum = bd.b0_*griddata_[rc+offset_[kase][3]] +
 				    bd.b1_*griddata_[rc+offset_[kase][2]] +
@@ -1150,7 +1150,7 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 			}
 		    }
 
-		    for ( int k=0; k<12; k++ ) 
+		    for ( int k=0; k<12; k++ )
 			sumrc += griddata_[rc + offset_[kase][k]]*coeff_[1][k];
 
 		    sumrc = (sumrc+a0const2*(busum+bd.b5_)) /
@@ -1161,13 +1161,13 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 		const double change = fabs( sumrc-griddata_[rc] );
 		griddata_[rc] = (float)sumrc;
 
-		if ( change>maxchange ) 
+		if ( change>maxchange )
 		    maxchange = change;
 	    }
 	}
 
 	iterationcount++;
-	maxchange *= zscale_;	
+	maxchange *= zscale_;
 
 	addToNrDone( 1 );
 
@@ -1179,8 +1179,8 @@ int ContinuousCurvatureArray2DInterpol::doFiniteDifference( int gridsize )
 }
 
 
-void ContinuousCurvatureArray2DInterpol::fillInForecast( 
-    int oldgridsize, int curgridsize ) 
+void ContinuousCurvatureArray2DInterpol::fillInForecast(
+    int oldgridsize, int curgridsize )
 {
     const double oldsize = 1.0/(double)oldgridsize;
     const int padnrcols = nrcols_ + 2*mPadSize;
@@ -1188,7 +1188,7 @@ void ContinuousCurvatureArray2DInterpol::fillInForecast(
 
     for ( int r=0; r<nrrows_-1; r+=oldgridsize )
     {
-	for ( int c=0; c<nrcols_-1; c+=oldgridsize ) 
+	for ( int c=0; c<nrcols_-1; c+=oldgridsize )
 	{
 	    const int idx0 = rcswcorner + r*padnrcols + c;
 	    const int idx1 = idx0 + oldgridsize*padnrcols;
@@ -1200,18 +1200,18 @@ void ContinuousCurvatureArray2DInterpol::fillInForecast(
 	    const double a2 = griddata_[idx3] - a0;
 	    const double a3 = griddata_[idx2] - a0 - a1 - a2;
 
-    	    for ( int rr=r;  rr<r+oldgridsize; rr+=curgridsize ) 
+	    for ( int rr=r;  rr<r+oldgridsize; rr+=curgridsize )
 	    {
 		const double deltax = (rr-r)*oldsize;
-		for ( int cc=c;  cc<c+oldgridsize; cc += curgridsize ) 
+		for ( int cc=c;  cc<c+oldgridsize; cc += curgridsize )
 		{
 		    const int idxnew = rcswcorner + rr*padnrcols + cc;
-		    
-		    if ( idxnew==idx0 ) 
+
+		    if ( idxnew==idx0 )
 			continue;
-		    
+
 		    const double deltay = (cc-c)*oldsize;
-		    griddata_[idxnew] = 
+		    griddata_[idxnew] =
 			(float)( a0+a1*deltax+deltay*(a2+a3*deltax) );
 		    gridstatus_[idxnew] = 0;
 		}
@@ -1220,30 +1220,30 @@ void ContinuousCurvatureArray2DInterpol::fillInForecast(
 	}
     }
 
-    for ( int c=0; c<nrcols_-1; c+=oldgridsize ) 
+    for ( int c=0; c<nrcols_-1; c+=oldgridsize )
     {
 	const int idx0 = rcsecorner + c;
 	const int idx3 = idx0 + oldgridsize;
-	for ( int cc=c;  cc<c+oldgridsize; cc += curgridsize ) 
+	for ( int cc=c;  cc<c+oldgridsize; cc += curgridsize )
 	{
 	    const int idxnew = rcsecorner + cc;
 	    const double deltay = (cc-c)*oldsize;
-	    griddata_[idxnew] = griddata_[idx0] + (float)(deltay * 
+	    griddata_[idxnew] = griddata_[idx0] + (float)(deltay *
 		(griddata_[idx3]-griddata_[idx0]));
 	    gridstatus_[idxnew] = 0;
 	}
 	gridstatus_[idx0] = 5;
     }
 
-    for ( int r=0; r<nrrows_-1; r+=oldgridsize ) 
+    for ( int r=0; r<nrrows_-1; r+=oldgridsize )
     {
 	const int idx0 = rcnwcorner + r*padnrcols;
 	const int idx1 = idx0 + oldgridsize*padnrcols;
-	for ( int rr=r;  rr<r+oldgridsize; rr += curgridsize ) 
+	for ( int rr=r;  rr<r+oldgridsize; rr += curgridsize )
 	{
 	    const int idxnew = rcnwcorner + rr*padnrcols;
 	    const double deltax = (rr-r)*oldsize;
-	    griddata_[idxnew] = griddata_[idx0] + (float)( deltax * 
+	    griddata_[idxnew] = griddata_[idx0] + (float)( deltax *
 		(griddata_[idx1] - griddata_[idx0]) );
 	    gridstatus_[idxnew] = 0;
 	}
@@ -1255,7 +1255,7 @@ void ContinuousCurvatureArray2DInterpol::fillInForecast(
 
 
 // below is temporal code for testing fault issue
-void ContinuousCurvatureArray2DInterpol::InterpolatingFault( 
+void ContinuousCurvatureArray2DInterpol::InterpolatingFault(
     const TypeSet<HorizonData>& fdata, int gridsize )
 {
     // this function is not complete ready
@@ -1271,7 +1271,7 @@ void ContinuousCurvatureArray2DInterpol::InterpolatingFault(
 	dx /= ( floor((double)deltasize) - 1 );
 	dy /= ( floor((double)deltasize) - 1 );
 	dz /= ( floor((double)deltasize) - 1 );
-	for ( od_int64 k = startidx, n = 0; k < endidx - 1; k++,n++) 
+	for ( od_int64 k = startidx, n = 0; k < endidx - 1; k++,n++)
 	{
 	    HorizonData hd;
 	    hd.x_ = fdata[idx].x_ + n*(float)dx;
@@ -1289,18 +1289,18 @@ void ContinuousCurvatureArray2DInterpol::InterpolatingFault(
     }
 
     int curcount = nrdata_;
-    zmean_ *= curcount;		
-   
+    zmean_ *= curcount;
+
     const int blocknx = ( nrrows_-1 )/gridsize + 1;
     const int blockny = ( nrcols_-1 )/gridsize + 1;
 
-    for ( int idx=0; idx<endidx; idx++) 
+    for ( int idx=0; idx<endidx; idx++)
     {
 	const int scol = lrint( floor(bdata[idx].x_+0.5) );
-	if ( scol<0 || scol >= blocknx ) 
+	if ( scol<0 || scol >= blocknx )
 	    continue;
 	const int srow = lrint(floor( (bdata[idx].y_)+0.5) );
-	if ( srow<0 || srow >=blockny ) 
+	if ( srow<0 || srow >=blockny )
 	    continue;
 
 	HorizonData hd;
@@ -1314,5 +1314,5 @@ void ContinuousCurvatureArray2DInterpol::InterpolatingFault(
     }
 
     zmean_ /= curcount;
-      
+
 }
