@@ -23,8 +23,9 @@ mExpClass(uiBasemap) uiBasemapGeom2DParentTreeItem :
 public:
 			uiBasemapGeom2DParentTreeItem(int id)
 			    : uiBasemapParentTreeItem("2D Line",id)	{}
-protected:
 
+protected:
+    const char*		iconName() const;
 };
 
 
@@ -74,7 +75,6 @@ public:
 				sFactoryKeyword())
 
     int			defaultZValue() const;
-    const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*,bool isadd);
     uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);

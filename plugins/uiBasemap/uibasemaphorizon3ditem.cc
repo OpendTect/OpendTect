@@ -44,8 +44,6 @@ uiBasemapHorizon3DGroup::uiBasemapHorizon3DGroup( uiParent* p, bool )
 				   uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
     ioobjfld_->selectionChanged.notify(
 				   mCB(this,uiBasemapHorizon3DGroup,selChg));
-
-    addNameField();
 }
 
 
@@ -227,6 +225,12 @@ void uiBasemapHorizon3DObject::update()
 
 
 
+// uiBasemapHorizon3DParentTreeItem
+const char* uiBasemapHorizon3DParentTreeItem::iconName() const
+{ return "basemap-horizon3d"; }
+
+
+
 // uiBasemapHorizon3DTreeItem
 uiBasemapHorizon3DTreeItem::uiBasemapHorizon3DTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
@@ -304,10 +308,6 @@ const char* uiBasemapHorizon3DTreeItem::parentType() const
 // uiBasemapHorizon3DItem
 int uiBasemapHorizon3DItem::defaultZValue() const
 { return 0; }
-
-
-const char* uiBasemapHorizon3DItem::iconName() const
-{ return "basemap-horizon3d"; }
 
 
 uiBasemapGroup* uiBasemapHorizon3DItem::createGroup( uiParent* p, bool isadd )

@@ -37,8 +37,9 @@ mExpClass(uiBasemap) uiBasemapWellParentTreeItem :
 public:
 			uiBasemapWellParentTreeItem(int id)
 			    : uiBasemapParentTreeItem("Well",id)	{}
-protected:
 
+protected:
+    const char*		iconName() const;
 };
 
 
@@ -71,7 +72,6 @@ public:
 				sFactoryKeyword())
 
     int			defaultZValue() const;
-    const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*,bool isadd);
     uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);

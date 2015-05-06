@@ -12,85 +12,48 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "uibasemapinlcrlitem.h"
 
-#include "uibasemap.h"
-#include "uiioobjselgrp.h"
-#include "uigeninput.h"
 #include "uimenu.h"
-#include "uisellinest.h"
-#include "uistrings.h"
-#include "uitaskrunner.h"
-
-#include "emhorizon3d.h"
-#include "emioobjinfo.h"
-#include "emmanager.h"
-#include "emsurfacetr.h"
-
-#include "axislayout.h"
-#include "ctxtioobj.h"
-#include "ioman.h"
-#include "survinfo.h"
-
 #include "uimsg.h"
+#include "uistrings.h"
 
-// uiBasemapInlCrlGroup
-uiBasemapInlCrlGroup::uiBasemapInlCrlGroup( uiParent* p, bool isadd )
-    : uiBasemapGroup(p)
-    , mid_(MultiID::udf())
+
+// uiBasemapInlParentTreeItem
+bool uiBasemapInlParentTreeItem::showSubMenu()
 {
-    uiSelLineStyle::Setup stu; stu.drawstyle( false );
-    LineStyle lst( LineStyle::Solid, 1, Color(0,170,0,0) );
-    lsfld_ = new uiSelLineStyle( this, lst, stu );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 );
+    const int mnuid = mnu.exec();
+    if ( mnuid==0 )
+    {
+	uiMSG().message( "Not implemented yet" );
+    }
 
-    addNameField();
+    return true;
 }
 
 
-uiBasemapInlCrlGroup::~uiBasemapInlCrlGroup()
+const char* uiBasemapInlParentTreeItem::iconName() const
+{ return "basemap-inl"; }
+
+
+
+// uiBasemapCrlParentTreeItem
+bool uiBasemapCrlParentTreeItem::showSubMenu()
 {
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 );
+    const int mnuid = mnu.exec();
+    if ( mnuid==0 )
+    {
+	uiMSG().message( "Not implemented yet" );
+    }
+
+    return true;
 }
 
 
-bool uiBasemapInlCrlGroup::acceptOK()
-{
-    uiMSG().warning( "Not fully implemented yet" );
-    return uiBasemapGroup::acceptOK();
-}
-
-
-bool uiBasemapInlCrlGroup::fillPar( IOPar& par ) const
-{
-    par.set( sKey::NrItems(), 1 );
-
-    IOPar ipar;
-    const bool res = uiBasemapGroup::fillPar( ipar );
-
-    BufferString lsstr;
-    lsfld_->getStyle().toString( lsstr );
-    ipar.set( sKey::LineStyle(), lsstr );
-
-    const BufferString key = IOPar::compKey( sKeyItem(), 0 );
-    par.mergeComp( ipar, key );
-
-    return res;
-}
-
-
-bool uiBasemapInlCrlGroup::usePar( const IOPar& par )
-{
-    const bool res = uiBasemapGroup::usePar( par );
-
-    BufferString lsstr;
-    par.get( sKey::LineStyle(), lsstr );
-    LineStyle ls;
-    ls.fromString( lsstr );
-    lsfld_->setStyle( ls );
-
-    return res;
-}
-
-
-uiObject* uiBasemapInlCrlGroup::lastObject()
-{ return lsfld_->attachObj(); }
+const char* uiBasemapCrlParentTreeItem::iconName() const
+{ return "basemap-crl"; }
 
 
 
@@ -98,11 +61,8 @@ uiObject* uiBasemapInlCrlGroup::lastObject()
 int uiBasemapInlItem::defaultZValue() const
 { return 100; }
 
-const char* uiBasemapInlItem::iconName() const
-{ return "basemap-inl"; }
-
-uiBasemapGroup* uiBasemapInlItem::createGroup( uiParent* p, bool isadd )
-{ return new uiBasemapInlCrlGroup( p, isadd ); }
+uiBasemapGroup* uiBasemapInlItem::createGroup( uiParent*, bool )
+{ return 0; }
 
 uiBasemapParentTreeItem* uiBasemapInlItem::createParentTreeItem()
 { return new uiBasemapInlParentTreeItem(ID()); }
@@ -126,21 +86,6 @@ uiBasemapInlTreeItem::~uiBasemapInlTreeItem()
 
 bool uiBasemapInlTreeItem::usePar( const IOPar& par )
 {
-    const IOPar prevpar = pars_;
-    uiBasemapTreeItem::usePar( par );
-
-    BufferString lsstr;
-    par.get( sKey::LineStyle(), lsstr );
-    LineStyle ls;
-    ls.fromString( lsstr );
-
-//    mDynamicCastGet(Basemap::InlObject*,obj,basemapobjs_[0])
-//    if ( obj )
-//    {
-//	if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
-//	    obj->setLineStyle( 0, ls );
-//    }
-
     return true;
 }
 
@@ -172,11 +117,8 @@ const char* uiBasemapInlTreeItem::parentType() const
 int uiBasemapCrlItem::defaultZValue() const
 { return 100; }
 
-const char* uiBasemapCrlItem::iconName() const
-{ return "basemap-crl"; }
-
-uiBasemapGroup* uiBasemapCrlItem::createGroup( uiParent* p, bool isadd )
-{ return new uiBasemapInlCrlGroup( p, isadd ); }
+uiBasemapGroup* uiBasemapCrlItem::createGroup( uiParent*, bool )
+{ return 0; }
 
 uiBasemapParentTreeItem* uiBasemapCrlItem::createParentTreeItem()
 { return new uiBasemapCrlParentTreeItem(ID()); }
@@ -200,21 +142,6 @@ uiBasemapCrlTreeItem::~uiBasemapCrlTreeItem()
 
 bool uiBasemapCrlTreeItem::usePar( const IOPar& par )
 {
-    const IOPar prevpar = pars_;
-    uiBasemapTreeItem::usePar( par );
-
-    BufferString lsstr;
-    par.get( sKey::LineStyle(), lsstr );
-    LineStyle ls;
-    ls.fromString( lsstr );
-
-//    mDynamicCastGet(Basemap::CrlObject*,obj,basemapobjs_[0])
-//    if ( obj )
-//    {
-//	if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
-//	    obj->setLineStyle( 0, ls );
-//    }
-
     return true;
 }
 
@@ -239,5 +166,4 @@ const char* uiBasemapCrlTreeItem::parentType() const
 {
     return typeid(uiBasemapCrlParentTreeItem).name();
 }
-
 

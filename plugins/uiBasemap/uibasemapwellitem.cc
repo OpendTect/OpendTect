@@ -57,12 +57,16 @@ bool uiBasemapWellGroup::usePar( const IOPar& par )
 }
 
 
+
+// uiBasemapWellParentTreeItem
+const char* uiBasemapWellParentTreeItem::iconName() const
+{ return "basemap-well"; }
+
+
+
 // uiBasemapWellItem
 int uiBasemapWellItem::defaultZValue() const
 { return 100; }
-
-const char* uiBasemapWellItem::iconName() const
-{ return "basemap-well"; }
 
 uiBasemapGroup* uiBasemapWellItem::createGroup( uiParent* p,bool isadd )
 { return new uiBasemapWellGroup( p, isadd ); }

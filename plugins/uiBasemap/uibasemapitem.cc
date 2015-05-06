@@ -301,6 +301,7 @@ uiBasemapParentTreeItem::~uiBasemapParentTreeItem()
 
 bool uiBasemapParentTreeItem::init()
 {
+    uitreeviewitem_->setIcon( 0, iconName() );
     checkStatusChange()->notify( mCB(this,uiBasemapParentTreeItem,checkCB) );
     return true;
 }
@@ -359,10 +360,6 @@ uiBasemapTreeItem::~uiBasemapTreeItem()
 bool uiBasemapTreeItem::init()
 {
     checkStatusChange()->notify( mCB(this,uiBasemapTreeItem,checkCB) );
-
-    const uiBasemapItem* itm = BMM().getBasemapItem( familyid_ );
-    const char* iconnm = itm ? itm->iconName() : 0;
-    uitreeviewitem_->setIcon( 0, iconnm );
     return true;
 }
 

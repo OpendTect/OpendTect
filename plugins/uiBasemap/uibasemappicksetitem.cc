@@ -65,12 +65,16 @@ bool uiBasemapPickSetGroup::usePar( const IOPar& par )
 }
 
 
+
+// uiBasemapPickSetParentTreeItem
+const char* uiBasemapPickSetParentTreeItem::iconName() const
+{ return "basemap-pickset"; }
+
+
+
 // uiBasemapPickSetItem
 int uiBasemapPickSetItem::defaultZValue() const
 { return 100; }
-
-const char* uiBasemapPickSetItem::iconName() const
-{ return "basemap-pickset"; }
 
 uiBasemapGroup* uiBasemapPickSetItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapPickSetGroup( p, isadd ); }

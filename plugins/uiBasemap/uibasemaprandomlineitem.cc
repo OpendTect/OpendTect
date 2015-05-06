@@ -78,21 +78,22 @@ uiObject* uiBasemapRandomLineGroup::lastObject()
 { return lsfld_->attachObj(); }
 
 
+
+// uiBasemapRandomLineParentTreeItem
+const char* uiBasemapRandomLineParentTreeItem::iconName() const
+{ return "basemap-randomline"; }
+
+
+
 // uiBasemapRandomLineItem
 int uiBasemapRandomLineItem::defaultZValue() const
 { return 100; }
 
-const char* uiBasemapRandomLineItem::iconName() const
-{ return "basemap-randomline"; }
-
-
 uiBasemapGroup* uiBasemapRandomLineItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapRandomLineGroup( p, isadd ); }
 
-
 uiBasemapParentTreeItem* uiBasemapRandomLineItem::createParentTreeItem()
 { return new uiBasemapRandomLineParentTreeItem( ID() ); }
-
 
 uiBasemapTreeItem* uiBasemapRandomLineItem::createTreeItem( const char* nm )
 { return new uiBasemapRandomLineTreeItem( nm ); }

@@ -87,12 +87,15 @@ uiObject* uiBasemapGeom2DGroup::lastObject()
 
 
 
+// uiBasemapGeom2DParentTreeItem
+const char* uiBasemapGeom2DParentTreeItem::iconName() const
+{ return "basemap-geom2d"; }
+
+
+
 // uiBasemapGeom2DItem
 int uiBasemapGeom2DItem::defaultZValue() const
 { return 100; }
-
-const char* uiBasemapGeom2DItem::iconName() const
-{ return "basemap-geom2d"; }
 
 uiBasemapGroup* uiBasemapGeom2DItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapGeom2DGroup( p, isadd ); }

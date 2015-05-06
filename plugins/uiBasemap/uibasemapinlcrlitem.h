@@ -15,44 +15,16 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
-class uiSelLineStyle;
-
-
-mExpClass(uiBasemap) uiBasemapInlCrlGroup : public uiBasemapGroup
-{
-public:
-			uiBasemapInlCrlGroup(uiParent*, bool isadd);
-			~uiBasemapInlCrlGroup();
-
-    bool		acceptOK();
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-
-protected:
-    void		valChgCB(CallBacker*);
-    uiObject*		lastObject();
-
-    MultiID		mid_;
-
-    uiIOObjSelGrp*	ioobjfld_;
-    uiGenInput*		spacingfld_;
-    uiSelLineStyle*	lsfld_;
-
-private:
-    void		selChg(CallBacker*);
-    void		setParameters();
-};
-
-
-// In-line
 mExpClass(uiBasemap) uiBasemapInlParentTreeItem :
 					public uiBasemapParentTreeItem
 {
 public:
 			uiBasemapInlParentTreeItem(int id)
 			    : uiBasemapParentTreeItem("In-line",id)	{}
-protected:
 
+protected:
+    virtual bool	showSubMenu();
+    const char*		iconName() const;
 };
 
 
@@ -82,7 +54,6 @@ public:
 				sFactoryKeyword())
 
     int			defaultZValue() const;
-    const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*, bool isadd);
     uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
@@ -97,8 +68,10 @@ mExpClass(uiBasemap) uiBasemapCrlParentTreeItem :
 public:
 			uiBasemapCrlParentTreeItem(int id)
 			    : uiBasemapParentTreeItem("Cross-line",id)	{}
-protected:
 
+protected:
+    virtual bool	showSubMenu();
+    const char*		iconName() const;
 };
 
 
@@ -128,12 +101,9 @@ public:
 				sFactoryKeyword())
 
     int			defaultZValue() const;
-    const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*, bool isadd);
     uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
-
 };
 
 #endif
-

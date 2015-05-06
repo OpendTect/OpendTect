@@ -204,6 +204,13 @@ void uiBasemapZSliceObject::update()
 }
 
 
+
+// uiBasemapZSliceParentTreeItem
+const char* uiBasemapZSliceParentTreeItem::iconName() const
+{ return "basemap-zslice"; }
+
+
+
 // uiBasemapZSliceTreeItem
 uiBasemapZSliceTreeItem::uiBasemapZSliceTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
@@ -264,18 +271,11 @@ const char* uiBasemapZSliceTreeItem::parentType() const
 int uiBasemapZSliceItem::defaultZValue() const
 { return 0; }
 
-
-const char* uiBasemapZSliceItem::iconName() const
-{ return "basemap-zslice"; }
-
-
 uiBasemapGroup* uiBasemapZSliceItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapZSliceGroup( p, isadd ); }
 
-
 uiBasemapParentTreeItem* uiBasemapZSliceItem::createParentTreeItem()
 { return new uiBasemapZSliceParentTreeItem( ID() ); }
-
 
 uiBasemapTreeItem* uiBasemapZSliceItem::createTreeItem( const char* nm )
 { return new uiBasemapZSliceTreeItem( nm ); }

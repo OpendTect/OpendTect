@@ -21,8 +21,9 @@ mExpClass(uiBasemap) uiBasemapPolygonParentTreeItem :
 public:
 			uiBasemapPolygonParentTreeItem(int id)
 			    : uiBasemapParentTreeItem("Polygon",id)	{}
-protected:
 
+protected:
+    const char*		iconName() const;
 };
 
 
@@ -70,7 +71,6 @@ public:
 				sFactoryKeyword())
 
     int			defaultZValue() const;
-    const char*		iconName() const;
     uiBasemapGroup*	createGroup(uiParent*,bool isadd);
     uiBasemapParentTreeItem* createParentTreeItem();
     uiBasemapTreeItem*	createTreeItem(const char*);
