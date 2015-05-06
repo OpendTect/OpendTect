@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id: array2dinterpol.cc 38250 2015-02-24 07
 #include "math2.h"
 #include <math.h>
 #include <algorithm>
+#include <vector>
 #include "limits.h"
 
 #define mIrint(x) ((int)lrint(x))
@@ -45,8 +46,8 @@ public:
 	, gridsize_( gridsize )
     {}
 
-    bool operator() ( ContinuousCurvatureArray2DInterpol::HorizonData& dataa, 
-	ContinuousCurvatureArray2DInterpol::HorizonData& datab )
+    const bool operator() ( ContinuousCurvatureArray2DInterpol::HorizonData& 
+	dataa, ContinuousCurvatureArray2DInterpol::HorizonData& datab )
     {
 	const int idx1 = dataa.index_;
 	const int idx2 = datab.index_;
@@ -929,7 +930,7 @@ void ContinuousCurvatureArray2DInterpol::updateGridIndex( int gridsize )
     }
 
     HorizonData* ptr = hordata_.ptr();
-    std::sort( ptr,ptr+nrdata_,HorizonDataComparer(this,gridsize) );
+    std::sort( ptr, ptr+nrdata_, HorizonDataComparer(this,gridsize) );
 
 }
 
