@@ -11,10 +11,10 @@ static const char* rcsID mUsedVar = "$Id: array2dinterpol.cc 38250 2015-02-24 07
 #include "math2.h"
 #include <math.h>
 #include <algorithm>
+#include <cmath>
 #include <vector>
 #include "limits.h"
 
-#define mIrint(x) ((int)lrint(x))
 #define mMaxIterations 250
 #define mPadSize 2
 
@@ -83,18 +83,18 @@ protected:
 class GridInitializer: public ParallelTask
 {
 public:
-    GridInitializer(ContinuousCurvatureArray2DInterpol* p, int gridsize,
-	 od_int64 size)
-	: interpol_( p )
-	, nriterations_( size )
-	, gridsize_(gridsize)
-	, blocknx_( 0 )
-	, blockny_( 0 )
-	, irad_( 0 )
-	, jrad_( 0 )
-	, rfact_( 0 )
-	, radius_( 0 )
-    {};
+GridInitializer( ContinuousCurvatureArray2DInterpol* p, int gridsize,
+		 od_int64 size)
+    : interpol_( p )
+    , nriterations_( size )
+    , gridsize_(gridsize)
+    , blocknx_( 0 )
+    , blockny_( 0 )
+    , irad_( 0 )
+    , jrad_( 0 )
+    , rfact_( 0 )
+    , radius_( 0 )
+{}
 
 protected:
     bool doPrepare( int )
@@ -103,7 +103,7 @@ protected:
 	    return false;
 
 	blockny_ = ( interpol_->nrcols_-1 )/gridsize_ + 1;
-	irad_ = (int)lrint(Math::Ceil(interpol_->radius_/gridsize_) );
+	irad_ = (int)( Math::Ceil(interpol_->radius_/gridsize_) );
 	jrad_ = (int)( Math::Ceil(interpol_->radius_/gridsize_) );
 	rfact_ = -4.5/( interpol_->radius_*interpol_->radius_ );
 
@@ -296,8 +296,8 @@ bool	ContinuousCurvatureArray2DInterpol::fillInputData()
 	curdefined_[idx] = isDefined( idx );
 	if ( curdefined_[idx] )
 	{
-	    const int i = mIrint( floor(( idx/nrcols_+0.5 )) );
-	    const int j = mIrint( floor(( idx%nrcols_+0.5 )) );
+	    const int i = mNINT32( floor(( idx/nrcols_+0.5 )) );
+	    const int j = mNINT32( floor(( idx%nrcols_+0.5 )) );
 	    HorizonData hd;
 	    hd.index_ = i*nrcols_ + j;
 	    hd.x_ = (float)i;
@@ -680,7 +680,7 @@ int ContinuousCurvatureArray2DInterpol::calcPrimeFactors( int grid )
     bool tentwentytoggle = false;
 
     const unsigned int maxfactor =
-	(unsigned int)mIrint( floor(Math::Sqrt((double)grid)) );
+	(unsigned int)mNINT32( floor(Math::Sqrt((double)grid)) );
 
     unsigned int skipfive = 25;
     while ( grid>1 && curfactor<=maxfactor )
@@ -924,8 +924,8 @@ void ContinuousCurvatureArray2DInterpol::updateGridIndex( int gridsize )
     const int blockny = (nrcols_-1)/gridsize + 1;
     for ( int idx=0; idx<nrdata_; idx++ )
     {
-	const int i = mIrint( floor((hordata_[idx].x_/gridsize) + 0.5) );
-	const int j = mIrint( floor((hordata_[idx].y_/gridsize) + 0.5) );
+	const int i = mNINT32( floor((hordata_[idx].x_/gridsize) + 0.5) );
+	const int j = mNINT32( floor((hordata_[idx].y_/gridsize) + 0.5) );
 	hordata_[idx].index_ = i*blockny+j;
     }
 
@@ -1239,7 +1239,7 @@ void ContinuousCurvatureArray2DInterpol::fillInForecast(
     {
 	const int idx0 = rcnwcorner + r*padnrcols;
 	const int idx1 = idx0 + oldgridsize*padnrcols;
-	for ( int rr=r;  rr<r+oldgridsize; rr += curgridsize )
+	for ( int rr=r; rr<r+oldgridsize; rr += curgridsize )
 	{
 	    const int idxnew = rcnwcorner + rr*padnrcols;
 	    const double deltax = (rr-r)*oldsize;
@@ -1266,7 +1266,7 @@ void ContinuousCurvatureArray2DInterpol::InterpolatingFault(
 	double dx = fdata[idx+1].x_ - fdata[idx].x_;
 	double dy = fdata[idx+1].y_ - fdata[idx].y_;
 	double dz = fdata[idx+1].z_ - fdata[idx].z_;
-	const int deltasize = lrint( mMAX(fabs(dx), fabs(dy)) ) + 1;
+	const int deltasize = mNINT32( mMAX(fabs(dx), fabs(dy)) ) + 1;
 	endidx += deltasize;
 	dx /= ( floor((double)deltasize) - 1 );
 	dy /= ( floor((double)deltasize) - 1 );
@@ -1296,10 +1296,10 @@ void ContinuousCurvatureArray2DInterpol::InterpolatingFault(
 
     for ( int idx=0; idx<endidx; idx++)
     {
-	const int scol = lrint( floor(bdata[idx].x_+0.5) );
+	const int scol = mNINT32( floor(bdata[idx].x_+0.5) );
 	if ( scol<0 || scol >= blocknx )
 	    continue;
-	const int srow = lrint(floor( (bdata[idx].y_)+0.5) );
+	const int srow = mNINT32( floor(bdata[idx].y_+0.5) );
 	if ( srow<0 || srow >=blockny )
 	    continue;
 
