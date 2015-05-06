@@ -445,6 +445,7 @@ const OffsetValueSeries<float>
 const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
 {
     const Array3D<float>* array = arrays_[comp];
+    if ( !array->getData() ) return 0;
     return array->getData() + globaltrcidx * array->info().getSize(2);
 }
 
