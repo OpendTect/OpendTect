@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id: array2dinterpol.cc 38250 2015-02-24 07
 #include "arrayndimpl.h"
 #include "math2.h"
 #include <math.h>
-#include <limits>
+#include "limits.h"
 
 #define mIrint(x) ((int)lrint(x))
 #define mMaxIterations 250
@@ -100,10 +100,9 @@ protected:
 	if ( gridsize_<1 || interpol_->radius_<=0 )
 	    return false;
 
-	blocknx_ = ( interpol_->nrrows_-1 )/gridsize_ + 1;
 	blockny_ = ( interpol_->nrcols_-1 )/gridsize_ + 1;
-	irad_ = (int)lrint(ceil(interpol_->radius_/gridsize_) );
-	jrad_ = (int)( ceil(interpol_->radius_/gridsize_) );
+	irad_ = (int)lrint(Math::Ceil(interpol_->radius_/gridsize_) );
+	jrad_ = (int)( Math::Ceil(interpol_->radius_/gridsize_) );
 	rfact_ = -4.5/( interpol_->radius_*interpol_->radius_ );
 
 	return true;
@@ -789,8 +788,9 @@ bool ContinuousCurvatureArray2DInterpol::setCoefficients()
 void ContinuousCurvatureArray2DInterpol::findNearestPoint( int gridsize )
 {
     const int padnrcols = nrcols_ + 2*mPadSize;
-    mConstBlockSize();
-    mConstCorners();
+    const int blocknx = ( nrrows_-1 )/gridsize + 1;
+    const int blockny = ( nrcols_-1 )/gridsize + 1;
+    const int rcswcorner = 2*padnrcols + 2;\
 
     for ( int idx=0; idx<nrrows_; idx+=gridsize )	/* Reset grid info */
 	for ( int idy=0; idy<nrcols_; idy+= gridsize )
