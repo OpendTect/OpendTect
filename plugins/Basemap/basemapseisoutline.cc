@@ -29,10 +29,13 @@ namespace Basemap
 
 SeisOutlineObject::SeisOutlineObject()
     : BaseMapObject(0)
+    , color_(Color::NoColor())
     , seismid_(MultiID::udf())
+    , linespacing_(StepInterval<int>::udf())
     , ls_(*new LineStyle)
     , seisarea_(*new TrcKeySampling)
     , fullyrect_(false)
+    , nrsegments_(0)
 {}
 
 
@@ -54,6 +57,18 @@ void SeisOutlineObject::setMultiID( const MultiID& mid )
     extractPolygons();
 }
 
+void SeisOutlineObject::setFillColor(int,const Color& color)
+{
+    color_ = color;
+    stylechanged.trigger();
+}
+
+
+void SeisOutlineObject::setInsideLines( const StepInterval<int>& linespacing )
+{
+    linespacing_ = linespacing;
+}
+
 
 void SeisOutlineObject::setLineStyle( int shapeidx, const LineStyle& ls )
 {
@@ -69,11 +84,39 @@ void SeisOutlineObject::updateGeometry()
 
 
 int SeisOutlineObject::nrShapes() const
-{ return fullyrect_ ? 1 : polygons_.size(); }
+{ return fullyrect_ ? (1 + nrsegments_) :
+			(polygons_.size() + nrsegments_); }
 
 
-const char* SeisOutlineObject::getShapeName(int) const
-{ return name().buf(); }
+bool SeisOutlineObject::close( int idx ) const
+{
+    return fullyrect_ ? idx == 0 : idx < polygons_.size();
+}
+
+
+Alignment SeisOutlineObject::getAlignment( int shapeidx ) const
+{
+    return Alignment( Alignment::HCenter, Alignment::VCenter );
+}
+
+
+const Color SeisOutlineObject::getFillColor(int idx) const
+{
+    return color_;
+}
+
+
+const char* SeisOutlineObject::getShapeName( int idx ) const
+{
+    if ( ( fullyrect_ && idx == 1 ) || polygons_.validIdx(idx) )
+	return name().buf();
+
+    const int lineidx = fullyrect_ ? (idx - 1) :
+				     (idx - polygons_.size());
+    mDeclStaticString( str );
+    str.set( linespacing_.atIndex(lineidx) );
+    return str.buf();
+}
 
 
 bool SeisOutlineObject::extractPolygons()
@@ -96,7 +139,6 @@ bool SeisOutlineObject::extractPolygons()
     // +2 allow data on the edge to be drawn
 
     SeisTrcReader rdr( ioobjinfo.ioObj() );
-
     PosInfo::CubeData cubedata;
     if ( !rdr.get3DGeometryInfo(cubedata) ) return false;
 
@@ -109,15 +151,40 @@ bool SeisOutlineObject::extractPolygons()
 	area.set( lineidx+1, trcidx+1, 1.0f );
     }
 
+    extractSegments( cubedata );
+
     IsoContourTracer outline( area );
     outline.setBendPointsOnly( 0.1 );
     return outline.getContours( polygons_, 0.9f );
 }
 
 
+bool SeisOutlineObject::extractSegments( PosInfo::CubeData& cubedata )
+{
+    if ( linespacing_.isUdf() ) return false;
+
+    SegmentLine segline;
+    for ( int inlidx=linespacing_.start; inlidx<=linespacing_.stop;
+						    inlidx+=linespacing_.step )
+    {
+	PosInfo::LineData* ld = cubedata[cubedata.indexOf(inlidx)];
+	for ( int sidx=0; sidx<ld->segments_.size(); sidx++ )
+	{
+	    const StepInterval<int>& crlrg = ld->segments_[sidx];
+	    segline.end1 = SI().transform( BinID(ld->linenr_,crlrg.start) );
+	    segline.end2 = SI().transform( BinID(ld->linenr_,crlrg.stop) );
+	    seglineset_ += segline;
+	}
+
+    }
+    nrsegments_ = seglineset_.size();
+    return true;
+}
+
+
 void SeisOutlineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
 {
-    if ( fullyrect_ )
+    if ( fullyrect_ && shapeidx == 1 )
     {
 	const Coord startpt = SI().transform(seisarea_.start_);
 	const Coord stoppt = SI().transform(seisarea_.stop_);
@@ -129,6 +196,15 @@ void SeisOutlineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
 	pts.add( startpt );
 
 	return;
+    }
+
+    const int segmentidx = fullyrect_ ? (shapeidx - 1) :
+					(shapeidx - polygons_.size());
+
+    if ( segmentidx >= 0 )
+    {
+	pts.add( seglineset_[segmentidx].end1 );
+	pts.add( seglineset_[segmentidx].end2 );
     }
 
     if ( !polygons_.validIdx(shapeidx) ) return;

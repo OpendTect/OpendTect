@@ -14,41 +14,67 @@ ________________________________________________________________________
 
 #include "basemapmod.h"
 #include "basemap.h"
+#include "coord.h"
 #include "multiid.h"
 
 template <class T> class ODPolygon;
 class LineStyle;
+namespace PosInfo {class CubeData;}
 class TrcKeySampling;
 
 namespace Basemap
 {
+
+mExpClass(Basemap) SegmentLine
+{
+public:
+    Coord end1;
+    Coord end2;
+
+    bool	operator==(const SegmentLine& seg) const
+    {
+	return (end1==seg.end1 && end2==seg.end2);
+    }
+};
+
 
 mExpClass(Basemap) SeisOutlineObject : public BaseMapObject
 {
 public:
 			SeisOutlineObject();
 			~SeisOutlineObject();
-
+    bool		close(int) const;
+    Alignment		getAlignment(int shapeidx) const;
+    const LineStyle*	getLineStyle(int shapeidx) const    { return &ls_;}
     const MultiID&	getMultiID() const	{ return seismid_; }
-    void		setMultiID(const MultiID&);
-    const char*		getType() const     { return "SeismicOutline"; }
-    void		updateGeometry();
-
-    int			nrShapes() const;
-    const char*		getShapeName(int shapeidx) const;
     void		getPoints(int shapeidx,TypeSet<Coord>&) const;
-    const LineStyle*	getLineStyle(int shapeidx) const { return &ls_;}
+    const char*		getShapeName(int shapeidx) const;
+    const char*		getType() const		{ return "SeismicOutline"; }
+    int			nrShapes() const;
+
+    void		setFillColor(int idx,const Color&);
+    const Color		getFillColor(int idx) const;
+
+    void		setInsideLines(const StepInterval<int>&);
     virtual void	setLineStyle(int shapeidx,const LineStyle&);
+    void		setMultiID(const MultiID&);
+
+    void		updateGeometry();
 
 protected:
     bool		fullyrect_;
+    Color		color_;
+    int			nrsegments_;
     LineStyle&		ls_;
     MultiID		seismid_;
     ObjectSet< ODPolygon<float> >    polygons_;
+    StepInterval<int>	linespacing_;
     TrcKeySampling&	seisarea_;
+    TypeSet<SegmentLine> seglineset_;
 
 private:
     bool		extractPolygons();
+    bool		extractSegments(PosInfo::CubeData&);
 };
 
 } // namespace Basemap
