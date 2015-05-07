@@ -35,7 +35,6 @@ static IOObjContext getIOObjContext()
 uiBasemapPolygonGroup::uiBasemapPolygonGroup( uiParent* p, bool isadd )
     : uiBasemapIOObjGroup(p,getIOObjContext(),isadd)
 {
-    addNameField();
 }
 
 
@@ -101,7 +100,7 @@ bool uiBasemapPolygonTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
-    int nrpolygons = 0;
+    int nrpolygons = 1;
     par.get( uiBasemapGroup::sKeyNrObjs(), nrpolygons );
 
     while ( nrpolygons < basemapobjs_.size() )

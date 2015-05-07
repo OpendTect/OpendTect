@@ -44,8 +44,6 @@ uiBasemapZSliceGroup::uiBasemapZSliceGroup( uiParent* p, bool isadd )
     posgrp_ = new uiODViewer2DPosGrp( this, posdatasel, false, true );
     posgrp_->inpSelected.notify( mCB(this,uiBasemapZSliceGroup,selChg) );
 
-    addNameField();
-
     selChg( 0 );
 }
 

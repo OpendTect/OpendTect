@@ -59,8 +59,6 @@ uiBasemapContourGroup::uiBasemapContourGroup( uiParent* p, bool isadd )
     LineStyle lst( LineStyle::Solid, 1, Color(0,170,0,0) );
     lsfld_ = new uiSelLineStyle( this, lst, stu );
     lsfld_->attach( alignedBelow, spacingfld_ );
-
-    addNameField();
 }
 
 

@@ -64,10 +64,8 @@ public:
 protected:
 			uiBasemapGroup(uiParent*);
 
-    void		addNameField();
     virtual uiObject*	lastObject()		{ return 0; }
 
-    uiGenInput*		namefld_;
     BufferString	defaultname_;
 };
 
@@ -89,12 +87,10 @@ protected:
     virtual uiObject*	lastObject();
     void		finaliseCB(CallBacker*);
     void		selChg(CallBacker*);
-    void		typeChg(CallBacker*);
     int			nrItems() const;
     int			nrObjsPerItem() const;
 
     uiIOObjSelGrp*	ioobjfld_;
-    uiGenInput*		typefld_;
 
     TypeSet<MultiID>	mids_;
 };
