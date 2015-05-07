@@ -22,6 +22,7 @@ moc*.cxx
 Testing/
 bin/lux64/Debug/
 bin/lux64/Release/
+doc/Programmer/Generated
 include/General/od_helpids.h
 install_manifest.txt
 inst
