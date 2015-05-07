@@ -33,7 +33,7 @@ bool uiBasemapFaultParentTreeItem::showSubMenu()
 
 
 const char* uiBasemapFaultParentTreeItem::iconName() const
-{ return "basemap-fault"; }
+{ return "basemap-flt"; }
 
 
 
