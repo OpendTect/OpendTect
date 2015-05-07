@@ -9,9 +9,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemapmod.h"
 
 #include "uibasemapcontouritem.h"
+#include "uibasemapfaultitem.h"
+#include "uibasemapfaultsticksetitem.h"
 #include "uibasemapgeom2ditem.h"
 #include "uibasemapgriditem.h"
 #include "uibasemaphorizon3ditem.h"
+#include "uibasemapinlcrlitem.h"
 #include "uibasemappicksetitem.h"
 #include "uibasemappolygonitem.h"
 #include "uibasemaprandomlineitem.h"
@@ -145,6 +148,8 @@ mDefODInitPlugin(uiBasemap)
     if ( mgr ) return 0;
     mgr = new uiBasemapMgr( ODMainWin() );
 
+    uiBasemapInlItem::initClass();
+    uiBasemapCrlItem::initClass();
     uiBasemapZSliceItem::initClass();
     uiBasemapSeisOutlineItem::initClass();
     uiBasemapRandomLineItem::initClass();
@@ -153,6 +158,8 @@ mDefODInitPlugin(uiBasemap)
     uiBasemapPolygonItem::initClass();
     uiBasemapHorizon3DItem::initClass();
     uiBasemapContourItem::initClass();
+    uiBasemapFaultItem::initClass();
+    uiBasemapFaultStickSetItem::initClass();
     uiBasemapWellItem::initClass();
     uiBasemapGridItem::initClass();
 

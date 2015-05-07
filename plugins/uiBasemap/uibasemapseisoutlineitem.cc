@@ -77,6 +77,12 @@ uiObject* uiBasemapSeisOutlineGroup::lastObject()
 
 
 
+// uiBasemapSeisOutlineParentTreeItem
+const char* uiBasemapSeisOutlineParentTreeItem::iconName() const
+{ return "basemap-seisoutline"; }
+
+
+
 // uiBasemapSeisOutlineTreeItem
 uiBasemapSeisOutlineTreeItem::uiBasemapSeisOutlineTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
@@ -169,9 +175,6 @@ const char* uiBasemapSeisOutlineTreeItem::parentType() const
 // uiBasemapSeisOutlineItem
 int uiBasemapSeisOutlineItem::defaultZValue() const
 { return 100; }
-
-const char* uiBasemapSeisOutlineItem::iconName() const
-{ return "basemap-seisoutline"; }
 
 uiBasemapGroup* uiBasemapSeisOutlineItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapSeisOutlineGroup( p, isadd ); }

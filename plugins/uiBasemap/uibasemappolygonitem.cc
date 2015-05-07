@@ -65,12 +65,16 @@ bool uiBasemapPolygonGroup::usePar( const IOPar& par )
 }
 
 
+
+// uiBasemapPolygonParentTreeItem
+const char* uiBasemapPolygonParentTreeItem::iconName() const
+{ return "basemap-polygon"; }
+
+
+
 // uiBasemapPolygonItem
 int uiBasemapPolygonItem::defaultZValue() const
 { return 100; }
-
-const char* uiBasemapPolygonItem::iconName() const
-{ return "basemap-polygon"; }
 
 uiBasemapGroup* uiBasemapPolygonItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapPolygonGroup( p, isadd ); }

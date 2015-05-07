@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const char* sKeySpacing()   { return "Spacing"; }
 
+
 // uiBasemapContourGroup
 uiBasemapContourGroup::uiBasemapContourGroup( uiParent* p, bool isadd )
     : uiBasemapGroup(p)
@@ -152,12 +153,15 @@ uiObject* uiBasemapContourGroup::lastObject()
 
 
 
+// uiBasemapContourParentTreeItem
+const char* uiBasemapContourParentTreeItem::iconName() const
+{ return "basemap-contours"; }
+
+
+
 // uiBasemapContourItem
 int uiBasemapContourItem::defaultZValue() const
 { return 100; }
-
-const char* uiBasemapContourItem::iconName() const
-{ return "basemap-contours"; }
 
 uiBasemapGroup* uiBasemapContourItem::createGroup( uiParent* p, bool isadd )
 { return new uiBasemapContourGroup( p, isadd ); }

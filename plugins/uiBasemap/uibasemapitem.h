@@ -117,6 +117,7 @@ protected:
     int			uiTreeViewItemType() const;
     const char*		parentType() const
 			{ return typeid(uiBasemapTreeTop).name(); }
+    virtual const char* iconName() const		{ return 0; }
     int			id_;
 };
 
@@ -181,7 +182,6 @@ public:
     int			ID() const		{ return id_; }
 
     virtual int			defaultZValue() const		= 0;
-    virtual const char*		iconName() const		= 0;
     virtual uiBasemapGroup*	createGroup(uiParent*,bool)	= 0;
     virtual uiBasemapParentTreeItem* createParentTreeItem()	{ return 0; }
     virtual uiBasemapTreeItem*	createTreeItem(const char*)	= 0;
