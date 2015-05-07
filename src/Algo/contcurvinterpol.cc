@@ -296,8 +296,8 @@ bool	ContinuousCurvatureArray2DInterpol::fillInputData()
 	curdefined_[idx] = isDefined( idx );
 	if ( curdefined_[idx] )
 	{
-	    const int i = mNINT32( floor(( idx/nrcols_+0.5 )) );
-	    const int j = mNINT32( floor(( idx%nrcols_+0.5 )) );
+	    const int i = mNINT32( Math::Floor(( idx/nrcols_+0.5 )) );
+	    const int j = mNINT32( Math::Floor(( idx%nrcols_+0.5 )) );
 	    HorizonData hd;
 	    hd.index_ = i*nrcols_ + j;
 	    hd.x_ = (float)i;
@@ -680,7 +680,7 @@ int ContinuousCurvatureArray2DInterpol::calcPrimeFactors( int grid )
     bool tentwentytoggle = false;
 
     const unsigned int maxfactor =
-	(unsigned int)mNINT32( floor(Math::Sqrt((double)grid)) );
+	(unsigned int)mNINT32( Math::Floor(Math::Sqrt((double)grid)) );
 
     unsigned int skipfive = 25;
     while ( grid>1 && curfactor<=maxfactor )
@@ -924,8 +924,8 @@ void ContinuousCurvatureArray2DInterpol::updateGridIndex( int gridsize )
     const int blockny = (nrcols_-1)/gridsize + 1;
     for ( int idx=0; idx<nrdata_; idx++ )
     {
-	const int i = mNINT32( floor((hordata_[idx].x_/gridsize) + 0.5) );
-	const int j = mNINT32( floor((hordata_[idx].y_/gridsize) + 0.5) );
+	const int i = mNINT32( Math::Floor((hordata_[idx].x_/gridsize) + 0.5) );
+	const int j = mNINT32( Math::Floor((hordata_[idx].y_/gridsize) + 0.5) );
 	hordata_[idx].index_ = i*blockny+j;
     }
 
@@ -1268,9 +1268,9 @@ void ContinuousCurvatureArray2DInterpol::InterpolatingFault(
 	double dz = fdata[idx+1].z_ - fdata[idx].z_;
 	const int deltasize = mNINT32( mMAX(fabs(dx), fabs(dy)) ) + 1;
 	endidx += deltasize;
-	dx /= ( floor((double)deltasize) - 1 );
-	dy /= ( floor((double)deltasize) - 1 );
-	dz /= ( floor((double)deltasize) - 1 );
+	dx /= ( Math::Floor((double)deltasize) - 1 );
+	dy /= ( Math::Floor((double)deltasize) - 1 );
+	dz /= ( Math::Floor((double)deltasize) - 1 );
 	for ( od_int64 k = startidx, n = 0; k < endidx - 1; k++,n++)
 	{
 	    HorizonData hd;
@@ -1296,10 +1296,10 @@ void ContinuousCurvatureArray2DInterpol::InterpolatingFault(
 
     for ( int idx=0; idx<endidx; idx++)
     {
-	const int scol = mNINT32( floor(bdata[idx].x_+0.5) );
+	const int scol = mNINT32( Math::Floor(bdata[idx].x_+0.5) );
 	if ( scol<0 || scol >= blocknx )
 	    continue;
-	const int srow = mNINT32( floor(bdata[idx].y_+0.5) );
+	const int srow = mNINT32( Math::Floor(bdata[idx].y_+0.5) );
 	if ( srow<0 || srow >=blockny )
 	    continue;
 
