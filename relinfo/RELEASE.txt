@@ -1,6 +1,53 @@
 OpendTect V5.0.x : Release info
 
 ----
+v5.0.7: May 7, 2015
+ * Horizon reading speed much improved
+ * Fix for crash while creating a flattened scene from a 2D horizon if
+   geometry of a 2D line is not available
+ * In the session 'Save as' window, the current session is now pre-selected
+ * Fix for some erroneous connections while displaying huge FaultStickSets
+ * Removed support for non-standard fonts
+ * Removed option to generate 3D seismics from 2D as the results were not
+   satisfactory
+ * Fix for disappearing of far Inline/Crossline/Z slice when zooming in
+ * Fix for unusually bright texture on seismic sections at specific
+   light/camera angles
+ * Fix for wrong angle displayed in 'Survey setup and Selection' window
+ * Increased the default value of ambient reflectivity for horizon displays
+ * Fix for wrong message display while saving new random line
+ * Fix for Picksets and Fault intersections stiil visible when displayed in
+   'on sections only' mode and Inline/Crossline/Z sections are turned off
+ * Fix for user-specified storage type being overridden by the storage type of
+   the source cube while making a copy
+ * Enabled filling of a body with user-defined value in Volume Builder
+ * Fix for marker size being too small in large surveys
+ * Fix for 'View Inline' (Crossline/Z) button always showing the default
+   orientation. Now it considers the current orientation
+ * It is again possible to select a Fault stick by clicking on
+   one of its nodes
+ * Fix for partial display of attributes while restoring sessions with
+   attributes of different data sizes
+ * Fix for creating log with 'Vint' option
+ * Fix for copy/paste between OpendTect table and external spreadsheets
+   like OpenOffice
+ * Fix for crash while reopening previously saved UVQ model
+ * Copying a seismic cube can now be done in batch mode
+ * Fix for various issues with wrong time-depth models while importing wells
+ * Removed 'SEGYDirect' option from Prestack output fields
+ * Fix for displaying default values in 'Set Annotation Scale' window
+ * Renamed 'RGT Data' to 'Wheeler Data' in the attribute selection menu
+   inside Wheeler scenes
+ * Fix for importing well markers if new list is shorter than existing list
+ * Fix for missing host selection field in remote processing window if remote
+   hosts are not configured
+ * Fix for displaying fault intersection on horizon
+ * Fix for disappearing scene while zooming in/out after removing a seed of a
+   newly tracked horizon
+ * Fix for random-line draggers not appearing in the scene after creating
+   using interactive mode
+ * Fix for non-functional 'Analyze' button in several 2D attributes
+
 v5.0.6: March 5, 2015
  * Fix for crash while generating Depth/Time model in
    'Tie well to Seismic' window
