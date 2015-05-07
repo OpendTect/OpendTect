@@ -77,6 +77,12 @@ void uiBaseMapMnuTBMgr::createMenuBar()
     filemnu_ = mb->addMenu( new uiMenu(tr("Basemap")) );
     processingmnu_ = mb->addMenu( new uiMenu(uiStrings::sProcessing()) );
     syncmnu_ = mb->addMenu( new uiMenu("Synchronization") );
+
+// Just to fill the menu
+    syncmnu_->insertAction( new uiAction("Basemap only") );
+    syncmnu_->insertAction( new uiAction("2D Viewers") );
+    syncmnu_->insertAction( new uiAction("3D Scene") );
+
     helpmnu_ = mb->addMenu( new uiMenu(uiStrings::sHelp()) );
 }
 

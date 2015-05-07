@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
+class uiColorInput;
 class uiSelLineStyle;
 
 mExpClass(uiBasemap) uiBasemapSeisOutlineGroup : public uiBasemapIOObjGroup
@@ -30,6 +31,11 @@ public:
 protected:
     virtual uiObject*	lastObject();
     uiSelLineStyle*	lsfld_;
+    uiGenInput*		linespacingfld_;
+    uiColorInput*	fillcolfld_;
+
+private:
+    void		setLineSpacing();
 };
 
 

@@ -27,7 +27,6 @@ ________________________________________________________________________
 uiBasemapWellGroup::uiBasemapWellGroup( uiParent* p, bool isadd )
     : uiBasemapIOObjGroup(p,mIOObjContext(Well), isadd)
 {
-    addNameField();
 }
 
 
@@ -93,7 +92,7 @@ bool uiBasemapWellTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
-    int nrwells = 0;
+    int nrwells = 1;
     par.get( uiBasemapGroup::sKeyNrObjs(), nrwells );
 
     while ( nrwells < basemapobjs_.size() )

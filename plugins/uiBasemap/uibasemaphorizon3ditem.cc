@@ -57,8 +57,13 @@ bool uiBasemapHorizon3DGroup::acceptOK()
     const bool res = uiBasemapGroup::acceptOK();
     if ( !res ) return false;
 
-    PtrMan<Executor> exec = EM::EMM().objectLoader( mids_ );
-    if ( !exec ) return false;
+    TypeSet<MultiID> mids2bloaded;
+    PtrMan<Executor> exec = EM::EMM().objectLoader( mids_, 0, &mids2bloaded );
+    if ( mids2bloaded.isEmpty() )
+	return true;
+
+    if ( !exec )
+	return false;
 
     uiTaskRunner uitr( &BMM().getBasemap() );
     if ( !uitr.execute(*exec) )

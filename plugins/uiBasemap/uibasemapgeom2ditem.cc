@@ -39,9 +39,8 @@ uiBasemapGeom2DGroup::uiBasemapGeom2DGroup( uiParent* p, bool isadd )
     uiSelLineStyle::Setup stu; stu.drawstyle( false );
     LineStyle lst;
     lsfld_ = new uiSelLineStyle( this, lst, stu );
-    lsfld_->attach( alignedBelow, uiBasemapIOObjGroup::lastObject() );
-
-    addNameField();
+    if ( uiBasemapIOObjGroup::lastObject() )
+	lsfld_->attach( alignedBelow, uiBasemapIOObjGroup::lastObject() );
 }
 
 
@@ -128,7 +127,7 @@ bool uiBasemapGeom2DTreeItem::usePar( const IOPar& par )
     LineStyle ls;
     ls.fromString( lsstr );
 
-    int nrobjs = 0;
+    int nrobjs = 1;
     par.get( uiBasemapGroup::sKeyNrObjs(), nrobjs );
 
     while ( nrobjs < basemapobjs_.size() )

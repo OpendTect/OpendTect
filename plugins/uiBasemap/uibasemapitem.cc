@@ -53,7 +53,6 @@ const char* uiBasemapGroup::sKeyItem()		{ return "Item"; }
 
 uiBasemapGroup::uiBasemapGroup( uiParent* p )
     : uiGroup(p)
-    , namefld_(0)
     , defaultname_("<Name of Basemap Item>")
 {
 }
@@ -63,26 +62,14 @@ uiBasemapGroup::~uiBasemapGroup()
 {}
 
 
-void uiBasemapGroup::addNameField()
-{
-    namefld_ = new uiGenInput( this, "Name" );
-    namefld_->setElemSzPol( uiObject::Wide );
-    if ( lastObject() )
-	namefld_->attach( alignedBelow, lastObject() );
-}
-
-
 void uiBasemapGroup::setItemName( const char* nm )
 {
-    if ( namefld_ )
-	namefld_->setText( nm );
-    else
-	defaultname_ = nm;
+    defaultname_ = nm;
 }
 
 
 const char* uiBasemapGroup::itemName() const
-{ return namefld_ ? namefld_->text() : defaultname_.buf(); }
+{ return defaultname_.buf(); }
 
 
 HelpKey uiBasemapGroup::getHelpKey() const
@@ -105,15 +92,6 @@ bool uiBasemapGroup::usePar( const IOPar& par )
 
 bool uiBasemapGroup::acceptOK()
 {
-    if ( !namefld_ ) return true;
-
-    const FixedString nm = namefld_->text();
-    if ( nm.isEmpty() )
-    {
-	uiMSG().error( "Please enter a name." );
-	return false;
-    }
-
     return true;
 }
 
@@ -123,19 +101,15 @@ bool uiBasemapGroup::acceptOK()
 uiBasemapIOObjGroup::uiBasemapIOObjGroup( uiParent* p, const IOObjContext& ctxt,
 					  bool isadd)
     : uiBasemapGroup(p)
-    , typefld_(0)
+    , ioobjfld_(0)
 {
-    ioobjfld_ = new uiIOObjSelGrp( this, ctxt,
-				   uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
-    ioobjfld_->itemChosen.notify( mCB(this,uiBasemapIOObjGroup,selChg) );
-    ioobjfld_->selectionChanged.notify( mCB(this,uiBasemapIOObjGroup,selChg) );
-
     if ( isadd )
     {
-	typefld_ = new uiGenInput( this, "Add items",
-	    BoolInpSpec(false,"as group","individually") );
-	typefld_->valuechanged.notify( mCB(this,uiBasemapIOObjGroup,typeChg) );
-	typefld_->attach( alignedBelow, ioobjfld_ );
+	ioobjfld_ = new uiIOObjSelGrp( this, ctxt,
+				uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+	ioobjfld_->itemChosen.notify( mCB(this,uiBasemapIOObjGroup,selChg) );
+	ioobjfld_->selectionChanged.notify(
+				mCB(this,uiBasemapIOObjGroup,selChg) );
     }
 
     postFinalise().notify( mCB(this,uiBasemapIOObjGroup,finaliseCB) );
@@ -149,33 +123,17 @@ uiBasemapIOObjGroup::~uiBasemapIOObjGroup()
 
 void uiBasemapIOObjGroup::finaliseCB( CallBacker* )
 {
-    typeChg( 0 );
 }
 
 
 uiObject* uiBasemapIOObjGroup::lastObject()
-{ return typefld_ ? typefld_->attachObj() : ioobjfld_->attachObj(); }
+{ return ioobjfld_ ? ioobjfld_->attachObj() : 0; }
 
 
 void uiBasemapIOObjGroup::selChg( CallBacker* )
 {
-    ioobjfld_->getChosen( mids_ );
-    const int nrsel = ioobjfld_->nrChosen();
-    if ( nrsel==1 )
-	setItemName( IOM().nameOf(ioobjfld_->chosenID()) );
-    else
-    {
-	BufferStringSet strs; ioobjfld_->getChosen( strs );
-	const BufferString catstr = strs.cat( "," );
-	setItemName( catstr.buf() );
-    }
-}
-
-
-void uiBasemapIOObjGroup::typeChg( CallBacker* )
-{
-    if ( !namefld_ ) return;
-    namefld_->setSensitive( typefld_ ? typefld_->getBoolValue() : true );
+    if ( ioobjfld_ )
+	ioobjfld_->getChosen( mids_ );
 }
 
 
@@ -188,17 +146,13 @@ bool uiBasemapIOObjGroup::acceptOK()
 
 int uiBasemapIOObjGroup::nrItems() const
 {
-    const int nrsel = mids_.size();
-    const bool addasgroup = !typefld_ || typefld_->getBoolValue() || nrsel==1;
-    return addasgroup ? 1 : nrsel;
+    return mids_.size();
 }
 
 
 int uiBasemapIOObjGroup::nrObjsPerItem() const
 {
-    const int nrsel = mids_.size();
-    const bool addasgroup = !typefld_ || typefld_->getBoolValue() || nrsel==1;
-    return addasgroup ? nrsel : 1;
+    return 1;
 }
 
 
@@ -206,11 +160,7 @@ bool uiBasemapIOObjGroup::fillItemPar( int idx, IOPar& par ) const
 {
     const int nrobjsperitem = nrObjsPerItem();
     par.set( sKeyNrObjs(), nrobjsperitem );
-
-    if ( nrItems()==1 )
-	par.set( sKey::Name(), itemName() );
-    else
-	par.set( sKey::Name(), IOM().nameOf(mids_[idx]) );
+    par.set( sKey::Name(), IOM().nameOf(mids_[idx]) );
 
     for ( int objidx=0; objidx<nrobjsperitem; objidx++ )
 	par.set( IOPar::compKey(sKey::ID(),objidx), mids_[idx+objidx] );
@@ -233,8 +183,6 @@ bool uiBasemapIOObjGroup::fillPar( IOPar& par ) const
 	par.mergeComp( ipar, key );
     }
 
-    BufferString tmpfnm = FilePath::getTempName( "par" );
-    par.write( tmpfnm, 0 );
     return res;
 }
 
@@ -247,8 +195,9 @@ bool uiBasemapIOObjGroup::usePar( const IOPar& par )
     TypeSet<MultiID> mids( nrobjs, MultiID::udf() );
     for ( int idx=0; idx<nrobjs; idx++ )
 	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
+    mids_ = mids;
 
-    ioobjfld_->setChosen( mids );
+    if ( ioobjfld_ ) ioobjfld_->setChosen( mids );
 
     bool res = uiBasemapGroup::usePar( par );
     return res;

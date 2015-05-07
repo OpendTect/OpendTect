@@ -90,45 +90,49 @@ void uiBaseMapObject::update()
 	if ( bmobject_->getLineStyle(idx) &&
 	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )
 	{
-	    while ( itemgrp_.size()>itemnr )
+	    if ( !bmobject_->close(idx) )
 	    {
-		mDynamicCastGet(uiPolyLineItem*,itm,
-				itemgrp_.getUiItem(itemnr));
-		if ( !itm )
-		    itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
-		else break;
+		while ( itemgrp_.size()>itemnr )
+		{
+		    mDynamicCastGet(uiPolyLineItem*,itm,
+				    itemgrp_.getUiItem(itemnr));
+		    if ( !itm )
+			itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
+		    else break;
+		}
+
+		if ( itemgrp_.size()<=itemnr )
+		    itemgrp_.add( new uiPolyLineItem() );
+
+		mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
+		if ( !li ) return;
+
+		li->setPenStyle( *bmobject_->getLineStyle(idx) );
+		li->setPolyLine( worldpts );
+		itemnr++;
 	    }
-
-	    if ( itemgrp_.size()<=itemnr )
-		itemgrp_.add( new uiPolyLineItem() );
-
-	    mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
-	    if ( !li ) return;
-
-	    li->setPenStyle( *bmobject_->getLineStyle(idx) );
-	    li->setPolyLine( worldpts );
-	    itemnr++;
-	}
-
-	if ( bmobject_->fill(idx) )
-	{
-	    while ( itemgrp_.size()>itemnr )
+	    else
 	    {
-		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr));
-		if ( !itm )
-		    itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
-		else break;
+		while ( itemgrp_.size()>itemnr )
+		{
+		    mDynamicCastGet(uiPolygonItem*,itm,
+				    itemgrp_.getUiItem(itemnr));
+		    if ( !itm )
+			itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
+		    else break;
+		}
+
+		if ( itemgrp_.size()<=itemnr )
+		    itemgrp_.add( new uiPolygonItem() );
+
+		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
+		if ( !itm ) return;
+
+		itm->setPolygon( worldpts );
+		itm->setFillColor( bmobject_->getFillColor(idx), true );
+		itm->fill();
+		itemnr++;
 	    }
-
-	    if ( itemgrp_.size()<=itemnr )
-		itemgrp_.add( new uiPolygonItem() );
-
-	    mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
-	    if ( !itm ) return;
-
-	    itm->setPolygon( worldpts );
-	    itm->fill();
-	    itemnr++;
 	}
 
 	const MarkerStyle2D* ms2d = bmobject_->getMarkerStyle( idx );
@@ -155,29 +159,6 @@ void uiBaseMapObject::update()
 		itm->setPos( crds[ptidx] );
 		itemnr++;
 	    }
-	}
-
-	const OD::RGBImage* rgbimage = bmobject_->getImage( idx );
-	if ( rgbimage )
-	{
-	    while ( itemgrp_.size()<itemnr )
-	    {
-		mDynamicCastGet(uiPixmapItem*,itm,itemgrp_.getUiItem(itemnr));
-		if ( !itm )
-		    itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
-		else break;
-	    }
-
-	    if ( itemgrp_.size()<=itemnr )
-		itemgrp_.add( new uiPixmapItem() );
-
-	    mDynamicCastGet(uiPixmapItem*,itm,itemgrp_.getUiItem(itemnr));
-
-	    mDynamicCastGet(const uiRGBArray*,rgbarr,rgbimage)
-	    uiPixmap pixmap( *rgbarr );
-	    itm->setPixmap( pixmap );
-
-	    itemnr++;
 	}
 
 	const char* shapenm = bmobject_->getShapeName( idx );
@@ -225,6 +206,23 @@ void uiBaseMapObject::updateStyle()
 	if ( bmobject_->getLineStyle(idx) &&
 	     bmobject_->getLineStyle(idx)->type_!=LineStyle::None )
 	{
+	    if ( !bmobject_->close(idx) )
+	    {
+		mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
+		if ( !li ) return;
+
+		li->setPenStyle( *bmobject_->getLineStyle(idx) );
+		itemnr++;
+	    }
+	    else
+	    {
+		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
+		if ( !itm ) return;
+
+		itm->setFillColor( bmobject_->getFillColor(idx), true );
+		itm->fill();
+		itemnr++;
+	    }
 	    mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
 	    if ( !li ) return;
 	    li->setPenStyle( *bmobject_->getLineStyle(idx) );

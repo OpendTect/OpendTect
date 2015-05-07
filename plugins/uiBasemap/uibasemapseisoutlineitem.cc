@@ -15,12 +15,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "basemapseisoutline.h"
 
+#include "uicolor.h"
+#include "uigeninput.h"
 #include "uimenu.h"
 #include "uisellinest.h"
 #include "uistrings.h"
+
+#include "axislayout.h"
 #include "draw.h"
 #include "seistrctr.h"
+#include "survinfo.h"
 
+static const char* sKeyHasLines()	{ return "Has Lines"; }
+static const char* sKeyFilled()		{ return "Filled"; }
 
 // uiBasemapSeisOutlineGroup
 uiBasemapSeisOutlineGroup::uiBasemapSeisOutlineGroup( uiParent* p, bool isadd )
@@ -29,9 +36,22 @@ uiBasemapSeisOutlineGroup::uiBasemapSeisOutlineGroup( uiParent* p, bool isadd )
     uiSelLineStyle::Setup stu; stu.drawstyle( false );
     LineStyle lst;
     lsfld_ = new uiSelLineStyle( this, lst, stu );
-    lsfld_->attach( alignedBelow, uiBasemapIOObjGroup::lastObject() );
+    if ( uiBasemapIOObjGroup::lastObject() )
+	lsfld_->attach( alignedBelow, uiBasemapIOObjGroup::lastObject() );
 
-    addNameField();
+    uiColorInput::Setup colstu( Color::White() );
+    colstu.lbltxt( "Fill with" ).withcheck( true )
+	  .transp(uiColorInput::Setup::Separate);
+    fillcolfld_ = new uiColorInput( this, colstu );
+    fillcolfld_->attach( alignedBelow, lsfld_->attachObj() );
+    fillcolfld_->setDoDraw( false );
+
+    linespacingfld_ = new uiGenInput( this, "Display In-lines",
+				      IntInpIntervalSpec(true) );
+    linespacingfld_->attach( alignedBelow, fillcolfld_ );
+    linespacingfld_->setWithCheck( true );
+
+    setLineSpacing();
 }
 
 
@@ -47,6 +67,13 @@ bool uiBasemapSeisOutlineGroup::acceptOK()
 }
 
 
+void uiBasemapSeisOutlineGroup::setLineSpacing()
+{
+    AxisLayout<int> al( SI().inlRange(false), true, true );
+    linespacingfld_->setValue( al.getSampling() );
+}
+
+
 bool uiBasemapSeisOutlineGroup::fillItemPar( int idx, IOPar& par ) const
 {
     const bool res = uiBasemapIOObjGroup::fillItemPar( idx, par );
@@ -54,6 +81,12 @@ bool uiBasemapSeisOutlineGroup::fillItemPar( int idx, IOPar& par ) const
     BufferString lsstr;
     lsfld_->getStyle().toString( lsstr );
     par.set( sKey::LineStyle(), lsstr );
+
+    par.setYN( sKeyHasLines(), linespacingfld_->isChecked() );
+    par.set( sKey::InlRange(), linespacingfld_->getIStepInterval() );
+
+    par.setYN( sKeyFilled(), fillcolfld_->doDraw() );
+    par.set( sKey::Color(), fillcolfld_->color() );
 
     return res;
 }
@@ -68,12 +101,27 @@ bool uiBasemapSeisOutlineGroup::usePar( const IOPar& par )
     LineStyle ls; ls.fromString( lsstr );
     lsfld_->setStyle( ls );
 
+    bool haslines = false;
+    StepInterval<int> linespacing;
+    par.getYN( sKeyHasLines(), haslines );
+    par.get( sKey::InlRange(), linespacing );
+    linespacingfld_->setValue( linespacing );
+    linespacingfld_->setChecked( haslines );
+
+    bool isfilled = false;
+    par.getYN( sKeyFilled(), isfilled );
+
+    Color color;
+    par.get( sKey::Color(), color );
+    fillcolfld_->setColor( color );
+    fillcolfld_->setDoDraw( isfilled );
+
     return res;
 }
 
 
 uiObject* uiBasemapSeisOutlineGroup::lastObject()
-{ return lsfld_->attachObj(); }
+{ return linespacingfld_->attachObj(); }
 
 
 
@@ -105,7 +153,19 @@ bool uiBasemapSeisOutlineTreeItem::usePar( const IOPar& par )
     LineStyle ls;
     ls.fromString( lsstr );
 
-    int nrobjs = 0;
+    bool haslines = false;
+    StepInterval<int> linespacing;
+    par.getYN( sKeyHasLines(), haslines );
+    par.get( sKey::InlRange(), linespacing );
+
+    bool isfilled = false;
+    BufferString colorstr;
+    par.getYN( sKeyFilled(), isfilled );
+
+    Color color;
+    par.get( sKey::Color(), color );
+
+    int nrobjs = 1;
     par.get( uiBasemapGroup::sKeyNrObjs(), nrobjs );
 
     while ( nrobjs < basemapobjs_.size() )
@@ -131,6 +191,15 @@ bool uiBasemapSeisOutlineTreeItem::usePar( const IOPar& par )
 	    // if the number of objects is different, everything needs to be
 	    // redraw. So...
 	    obj->setLineStyle( 0, ls );
+	    if ( haslines )
+		obj->setInsideLines( linespacing );
+	    else
+		obj->setInsideLines( StepInterval<int>::udf() );
+
+	    if ( isfilled )
+		obj->setFillColor( 0, color );
+	    else
+		obj->setFillColor( 0, Color::NoColor() );
 	    obj->setMultiID( mid );
 	    obj->updateGeometry();
 	    continue;
@@ -139,12 +208,37 @@ bool uiBasemapSeisOutlineTreeItem::usePar( const IOPar& par )
 	if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
 	    obj->setLineStyle( 0, ls );
 
+	if ( hasParChanged(prevpar,par,sKey::Color()) ||
+	     hasParChanged(prevpar,par,sKeyFilled()) )
+	{
+	    if ( isfilled )
+		obj->setFillColor( 0, color );
+	    else
+		obj->setFillColor( 0, Color::NoColor() );
+	}
+
+	if ( hasParChanged(prevpar,par,sKey::InlRange()) ||
+	     hasParChanged(prevpar,par,sKeyHasLines()) )
+	{
+	    if ( haslines )
+	    {
+		obj->setInsideLines( linespacing );
+		obj->setMultiID( mid );
+		obj->updateGeometry();
+	    }
+	    else
+	    {
+		obj->setInsideLines( StepInterval<int>::udf() );
+		obj->setMultiID( mid );
+		obj->updateGeometry();
+	    }
+	}
+
 	if ( hasSubParChanged(prevpar,par,sKey::ID()) )
 	{
 	    obj->setMultiID( mid );
 	    obj->updateGeometry();
 	}
-
     }
 
     return true;

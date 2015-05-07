@@ -35,7 +35,6 @@ static IOObjContext getIOObjContext()
 uiBasemapPickSetGroup::uiBasemapPickSetGroup( uiParent* p, bool isadd )
     : uiBasemapIOObjGroup(p,getIOObjContext(),isadd)
 {
-    addNameField();
 }
 
 
