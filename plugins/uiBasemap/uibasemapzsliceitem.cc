@@ -61,7 +61,7 @@ void uiBasemapZSliceGroup::selChg( CallBacker* )
 
 bool uiBasemapZSliceGroup::acceptOK()
 {
-    if ( !posgrp_->commitSel() )
+    if ( !posgrp_->commitSel(true) )
 	return false;
 
     const bool res = uiBasemapGroup::acceptOK();

@@ -36,7 +36,7 @@ uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
 
 bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
 {
-    if ( !posgrp_->commitSel() )
+    if ( !posgrp_->commitSel( true ) )
 	return false;
 
     IOPar seldatapar;
