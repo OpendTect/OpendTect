@@ -913,6 +913,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 				uiDialog::Setup(tr("Tracking Setup"),0,
                                  mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
+    setupdlg->showAlwaysOnTop();
     setupdlg->setCtrlStyle( uiDialog::CloseOnly );
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
 						  setupdlg,
