@@ -17,11 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsscene.h"
 
 
-uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, 
-				bool rub, bool withhanddrag )
+uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
     , haverubber_(rub)
-    , withhanddrag_(withhanddrag)
     , propdlg_(0)
     , infoChanged(this)
     , viewerAdded(this)
@@ -136,10 +134,19 @@ void uiFlatViewControl::reInitZooms()
 void uiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
 				    Geom::Size2D<double> sz )
 {
-    uiFlatViewer* vwr = vwrs_[0];
-    const uiWorldRect wr = getZoomOrPanRect( mousepos, sz, vwr->curView(),
-	    				     vwr->boundingBox() );
-    vwr->setView( wr );
+    uiFlatViewer& vwr = *vwrs_[0];
+    const uiWorldRect bb = vwr.boundingBox();
+    uiWorldRect wr = getZoomOrPanRect( mousepos, sz, vwr.curView(), bb );
+    const bool needextraborders = !vwr.updatesBitmapsOnResize();
+    if ( needextraborders && vwr.getViewRect()!=vwr.getViewRect(false) )
+    {
+	const uiWorld2Ui w2ui( vwr.getViewRect().size(), wr );
+	wr = w2ui.transform( vwr.getViewRect(false) );
+	wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, bb );
+	vwr.setExtraBorders( w2ui.transform(bb) );
+    }
+
+    vwr.setView( wr );
     updateZoomManager();
 }
 

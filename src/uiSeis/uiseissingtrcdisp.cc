@@ -35,7 +35,7 @@ uiSeisSingleTraceDisplay::uiSeisSingleTraceDisplay( uiParent* p )
     app.ddpars_.wva_.mappersetup_.symmidval_ = mUdf(float);
     app.setDarkBG( false );
 
-    setExtraBorders( uiRect(-10,5,2,5) );
+    setExtraBorders( uiSize(-10,5), uiSize(2,5) );
 }
 
 

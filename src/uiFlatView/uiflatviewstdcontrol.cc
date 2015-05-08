@@ -77,7 +77,7 @@ void uiFlatViewZoomLevelGrp::commitInput()
 
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
-    : uiFlatViewControl(vwr,setup.parent_,setup.withrubber_,setup.withhanddrag_)
+    : uiFlatViewControl(vwr,setup.parent_,setup.withrubber_)
     , vwr_(vwr)
     , setup_(setup)
     , ctabed_(0)
@@ -215,7 +215,7 @@ void uiFlatViewStdControl::finalPrepare()
 	mAttachCBIfNotAttached(
 		mevh.wheelMove, uiFlatViewStdControl::wheelMoveCB );
 
-	if ( withhanddrag_ )
+	if ( setup_.withhanddrag_ )
 	{
 	    mAttachCBIfNotAttached(
 		    mevh.buttonPressed, uiFlatViewStdControl::handDragStarted );
@@ -270,6 +270,31 @@ void uiFlatViewStdControl::rubBandUsedCB( CallBacker* )
 	rubbandzoombut_->setOn( false );
 	dragModeCB( rubbandzoombut_ );
     }
+}
+
+
+void uiFlatViewStdControl::aspectRatioCB( CallBacker* cb )
+{
+    mCBCapsuleGet(uiSize,caps,cb);
+    mDynamicCastGet(uiGraphicsView*,view,caps->caller);
+    int vwridx = -1;
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	if ( &vwrs_[idx]->rgbCanvas() == view )
+	    { vwridx = idx; break; }
+    if ( vwridx == -1 ) return;
+
+    uiFlatViewer& vwr = *vwrs_[vwridx];
+    if ( !view->mainwin()->poppedUp() )
+	{ vwr.setView( vwr.curView() ); return; }
+
+    const uiWorldRect bb = vwr.boundingBox();
+    const uiWorld2Ui& w2ui = vwr.getWorld2Ui();
+    uiWorldRect wr = w2ui.transform( vwr.getViewRect(false) );
+    wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, bb );
+    vwr.setExtraBorders( w2ui.transform(bb) );
+    vwr.setView( wr );
+    if ( !zoommgr_.atStart() )
+	updateZoomManager();
 }
 
 
@@ -452,7 +477,6 @@ void uiFlatViewStdControl::gotoHomeZoomCB( CallBacker* )
 }
 
 
-
 void uiFlatViewStdControl::setHomeZoomViews()
 {
     if ( mIsUdf(setup_.x1pospercm_) || mIsUdf(setup_.x2pospercm_) )
@@ -506,7 +530,7 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
 void uiFlatViewStdControl::handDragging( CallBacker* cb )
 {
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
-    if ( !meh || !mousepressed_ || !withhanddrag_ ) return;
+    if ( !meh || !mousepressed_ ) return;
 
     const int vwridx = getViewerIdx( meh, false );
     if ( vwridx<0 ) return;
@@ -531,30 +555,6 @@ void uiFlatViewStdControl::handDragged( CallBacker* cb )
 {
     handDragging( cb );
     mousepressed_ = false;
-}
-
-
-void uiFlatViewStdControl::aspectRatioCB( CallBacker* cb )
-{
-    mCBCapsuleGet(uiSize,caps,cb);
-    mDynamicCastGet(const uiGraphicsView*,view,caps->caller);
-    int vwridx = -1;
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	if ( &vwrs_[idx]->rgbCanvas() == view )
-	    { vwridx = idx; break; }
-    if ( vwridx == -1 ) return;
-
-    uiFlatViewer& vwr = *vwrs_[vwridx];
-    const uiRect viewrect = vwr.getViewRect();
-    uiWorldRect wr = vwr.getWorld2Ui().transform( viewrect );
-    if ( !zoommgr_.atStart(vwridx) )
-    {
-	wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, vwr.boundingBox() );
-	vwr.setView( wr );
-	updateZoomManager();
-    }
-    else
-	vwr.setView( vwr.curView() );
 }
 
 

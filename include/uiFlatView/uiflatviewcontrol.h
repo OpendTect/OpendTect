@@ -73,12 +73,11 @@ public:
 
 protected:
 
-    			uiFlatViewControl(uiFlatViewer&,uiParent*,bool,bool);
+			uiFlatViewControl(uiFlatViewer&,uiParent*,bool);
 
     ObjectSet<uiFlatViewer> vwrs_;
     FlatView::ZoomMgr	zoommgr_;
     bool		haverubber_;
-    bool		withhanddrag_;
     IOPar		infopars_;
 
     uiFlatViewPropDlg*  propdlg_;

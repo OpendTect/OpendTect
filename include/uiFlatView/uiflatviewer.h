@@ -53,12 +53,16 @@ public:
     uiWorldRect		boundingBox() const;
 
     const uiWorld2Ui&	getWorld2Ui() const		{ return w2ui_; }
-    uiRect		getViewRect() const;
+    uiRect		getViewRect(bool withextraborders=true) const;
     			/*!<The rectangle onto which wr_ is projected */
 
     uiBorder		getAnnotBorder() const;
+    void		setExtraBorders(const uiRect& boundingrect);
+    			/*!< Sets extra borders on the right and at the bottom
+			 if boundingrect is smaller than getViewRect(false).
+			 Extraborders set will be same as their differences in
+			 width and height. */
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
-    void		setExtraBorders(const uiRect&);
     void		setExtraFactor( float f )	{ extfac_ = f; }
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
@@ -68,6 +72,8 @@ public:
 			//!< the window without maintaining the aspect ratio.
 			//!< Else it is the responsibility of the programmer to
 			//!< change view on resize.
+    bool		updatesBitmapsOnResize() const
+			{ return updatebitmapsonresize_; }
 
     void		handleChange(unsigned int);
 

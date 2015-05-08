@@ -31,10 +31,10 @@ public:
     void		updateScene();
     void		setZValue(int z);
     void		updateViewRect();
-    uiRect		getViewRect() const;
+    uiRect		getViewRect(bool withextraborders=true) const;
     void		setWorldCoords(const uiWorldRect&);
     void		setExtraBorder(const uiBorder&);
-    uiBorder		getAnnotBorder() const;
+    uiBorder		getAnnotBorder(bool withextraborders=true) const;
 
 protected:
 

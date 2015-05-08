@@ -39,6 +39,7 @@ public:
 
     bool                reSize(int,int);	//!< inter/extrapolates
     void		clear(const Color&);
+    void		enableAlpha( bool yn )	{ withalpha_ = yn; }
 
     bool		save(const char* fnm,const char* fmt=0,
 			     int quality=-1) const;
