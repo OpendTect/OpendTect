@@ -101,9 +101,9 @@ uiBorder uiFlatViewer::getAnnotBorder() const
 }
 
 
-uiRect uiFlatViewer::getViewRect() const
+uiRect uiFlatViewer::getViewRect( bool withextraborders ) const
 {
-    return axesdrawer_.getViewRect();
+    return axesdrawer_.getViewRect( withextraborders );
 }
 
 
@@ -151,10 +151,14 @@ void uiFlatViewer::updateTransforms()
 }
 
 
-void uiFlatViewer::setExtraBorders( const uiRect& rect )
+void uiFlatViewer::setExtraBorders( const uiRect& boundingrect )
 {
-    const uiBorder border( rect.left(), rect.top(),
-			   rect.right(), rect.bottom() );
+    const uiRect viewrect = getViewRect( false );
+    int extrawidth = viewrect.width() - boundingrect.width();
+    int extraheight = viewrect.height() - boundingrect.height();
+    if ( extrawidth < 0 ) extrawidth = 0;
+    if ( extraheight < 0 ) extraheight = 0;
+    const uiBorder border( 0, 0, extrawidth, extraheight );
     axesdrawer_.setExtraBorder( border );
 }
 

@@ -68,13 +68,13 @@ void AxesDrawer::setZValue( int z )
 }
 
 
-uiBorder AxesDrawer::getAnnotBorder() const
+uiBorder AxesDrawer::getAnnotBorder( bool withextraborders ) const
 {
-    int l = extraborder_.left();
-    int r = extraborder_.right();
-    int t = extraborder_.top();
-    int b = extraborder_.bottom();
-    const FlatView::Annotation& annot  = vwr_.appearance().annot_;
+    int l = withextraborders ? extraborder_.left() : 0;
+    int r = withextraborders ? extraborder_.right() : 0;
+    int t = withextraborders ? extraborder_.top() : 0;
+    int b = withextraborders ? extraborder_.bottom() : 0;
+    const FlatView::Annotation& annot = vwr_.appearance().annot_;
     const int axisheight = getNeededHeight();
     const int axiswidth = getNeededWidth();
     if ( annot.haveTitle() ) t += axisheight;
@@ -87,9 +87,9 @@ uiBorder AxesDrawer::getAnnotBorder() const
 }
 
 
-uiRect AxesDrawer::getViewRect() const
+uiRect AxesDrawer::getViewRect( bool withextraborders ) const
 {
-    const uiBorder annotborder( getAnnotBorder() );
+    const uiBorder annotborder( getAnnotBorder(withextraborders) );
     uiRect viewrect = view_.getSceneRect();
     const int sceneborder = view_.getSceneBorder();
     viewrect.translate( -uiPoint(sceneborder,sceneborder) );

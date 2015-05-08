@@ -171,7 +171,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 
     vwr_ = new uiFlatViewer( this );
     vwr_->rgbCanvas().disableImageSave();
-    vwr_->setExtraBorders( uiRect( 0, 0 , 0, 0 ) );
     vwr_->setInitialSize( uiSize(800,300) ); //TODO get hor sz from laymod disp
     vwr_->setStretch( 2, 2 );
     vwr_->attach( ensureBelow, datagrp_ );

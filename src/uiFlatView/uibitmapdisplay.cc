@@ -74,6 +74,9 @@ void reset()
 
 bool execute()
 {
+    if ( isVisible(appearance_,true) )
+	image_->enableAlpha( false );
+
     image_->setSize( sz_.width(), sz_.height() );
 
     Threads::Locker lckr( lock_ );
