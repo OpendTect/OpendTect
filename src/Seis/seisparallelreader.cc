@@ -456,10 +456,9 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     else
 	components_ = *comps;
 
-    if ( !tkzs )
-	info.getRanges( tkzs_ );
-    else
-	tkzs_ = *tkzs;
+    info.getRanges( tkzs_ );
+    if ( tkzs )
+	tkzs_.limitTo( *tkzs );
 
     totalnr_ = tkzs_.hsamp_.totalNr();
     nrdone_ = 0;
