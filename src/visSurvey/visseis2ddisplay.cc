@@ -420,6 +420,9 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 			trcdisplayinfo_.alltrcnrs_[crlidx+startidx];
 		    const TrcKey trckey = Survey::GM().traceKey(geomid_,trcnr);
 		    const int trcidx = seisdp->getGlobalIdx( trckey );
+		    if ( trcidx < 0 )
+			continue;
+
 		    const float* trcptr = seisdp->getTrcData( idx, trcidx );
 		    OffsetValueSeries<float> trcstor =
 				seisdp->getTrcStorage( idx, trcidx );

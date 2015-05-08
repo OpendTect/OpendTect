@@ -25,20 +25,18 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)
-{
-    sampling_.init( false );
-}
-
+{ sampling_.init( false ); }
 
 TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
-{
-    return sampling_.hsamp_.trcKeyAt( globaltrcidx );
-}
-
+{ return sampling_.hsamp_.trcKeyAt( globaltrcidx ); }
 
 bool RegularSeisDataPack::is2D() const
+{ return sampling_.hsamp_.survid_ == Survey::GM().get2DSurvID(); }
+
+int RegularSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
 {
-    return sampling_.hsamp_.survid_ == Survey::GM().get2DSurvID();
+    const int ret = mCast(int,sampling_.hsamp_.globalIdx(tk));
+    return ret < nrTrcs() ? ret : -1;
 }
 
 
