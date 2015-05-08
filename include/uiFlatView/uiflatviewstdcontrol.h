@@ -13,17 +13,36 @@ ________________________________________________________________________
 
 #include "uiflatviewmod.h"
 #include "uiflatviewcontrol.h"
+#include "uigroup.h"
 #include "menuhandler.h"
 #include "helpview.h"
 
+class uiCheckBox;
 class uiMenuHandler;
 class uiToolButton;
 class uiFlatViewColTabEd;
+class uiGenInput;
 class uiToolBar;
 
 /*!
 \brief The standard tools to control uiFlatViewer(s).
 */
+
+mExpClass(uiFlatView) uiFlatViewZoomLevelGrp : public uiGroup
+{ mODTextTranslationClass(uiFlatViewZoomLevelGrp)
+public:
+    			uiFlatViewZoomLevelGrp(uiParent*,float&,float&,bool);
+    void		commitInput();
+    bool		saveGlobal() const;
+protected:
+    float&		x1pospercm_;
+    float&		x2pospercm_;
+
+    uiGenInput*		x1fld_;
+    uiGenInput*		x2fld_;
+    uiCheckBox*		saveglobalfld_;
+};
+
 
 mExpClass(uiFlatView) uiFlatViewStdControl : public uiFlatViewControl
 { mODTextTranslationClass(uiFlatViewStdControl);
@@ -108,6 +127,7 @@ protected:
     void		updatePosButtonStates();
     void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
     void		setHomeZoomView(uiFlatViewer&,const uiWorldPoint& cntr);
+    void		getHomeZoomPars(float& x1,float& x2);
 
     virtual void	coltabChg(CallBacker*);
     virtual void	dispChgCB(CallBacker*);
@@ -121,6 +141,7 @@ protected:
     void		handDragged(CallBacker*);
     void		aspectRatioCB(CallBacker*);
     void		keyPressCB(CallBacker*);
+    void		homeZoomOptSelCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}
     virtual void	wheelMoveCB(CallBacker*);

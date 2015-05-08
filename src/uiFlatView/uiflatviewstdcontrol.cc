@@ -12,11 +12,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewstdcontrol.h"
 
 #include "uicolortable.h"
+#include "uidialog.h"
 #include "uiflatviewcoltabed.h"
 #include "uiflatviewer.h"
 #include "uigraphicsscene.h"
+#include "uigeninput.h"
 #include "uimainwin.h"
 #include "uimain.h"
+#include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uirgbarraycanvas.h"
 #include "uistrings.h"
@@ -31,6 +34,46 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDefBut(but,fnm,cbnm,tt) \
     but = new uiToolButton(tb_,fnm,tt,mCB(this,uiFlatViewStdControl,cbnm) ); \
     tb_->addButton( but );
+
+#define sLocalHZIdx	0
+#define sGlobalHZIdx	1
+#define sManHZIdx	2
+
+
+uiFlatViewZoomLevelGrp::uiFlatViewZoomLevelGrp( uiParent* p, float& x1pospercm,
+						float& x2pospercm, bool isvert )
+    : uiGroup(p,"Set Flat View Zoom level")
+    , x1pospercm_(x1pospercm)
+    , x2pospercm_(x2pospercm)
+    , x2fld_(0)
+{
+    x1fld_ = new uiGenInput( this, tr("Traces per cm"), FloatInpSpec() );
+    x1fld_->setValue( x1pospercm_ );
+    if ( isvert )
+    {
+	x2fld_ = new uiGenInput( this, tr("Z Samples per cm"), FloatInpSpec() );
+	x2fld_->setValue( x2pospercm_ );
+	x2fld_->attach( alignedBelow, x1fld_ );
+    }
+
+    saveglobalfld_ = new uiCheckBox( this, tr( "Save globally" ) );
+    saveglobalfld_->attach( alignedBelow, isvert ? x2fld_ : x1fld_ );
+}
+
+
+bool uiFlatViewZoomLevelGrp::saveGlobal() const
+{
+    return saveglobalfld_->isChecked();
+}
+
+
+void uiFlatViewZoomLevelGrp::commitInput()
+{
+    x1pospercm_ = x1fld_->getfValue();
+    if ( x2fld_ )
+	x2pospercm_ = x2fld_->getfValue();
+}
+
 
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
@@ -92,6 +135,15 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     {
 	mDefBut(sethomezoombut_,"set_homezoom",setHomeZoomCB,
 		tr("Set home zoom"));
+	const CallBack optcb = mCB(this,uiFlatViewStdControl,homeZoomOptSelCB);
+	uiMenu* mnu = new uiMenu( tb_, tr("Zoom level options") );
+	mnu->insertAction( new uiAction(tr("Set local home zoom"),
+		    			   optcb,"set_homezoom"), sLocalHZIdx );
+	mnu->insertAction( new uiAction(tr("Set global home zoom"),
+		    			optcb,"set_ghomezoom"), sGlobalHZIdx );
+	mnu->insertAction( new uiAction(tr("Manually set home zoom"),
+		    			optcb,"man_homezoom"), sManHZIdx );
+	sethomezoombut_->setMenu( mnu );
 	mDefBut(gotohomezoombut_,"homezoom",gotoHomeZoomCB,
 		tr("Go to home zoom"));
 	gotohomezoombut_->setSensitive( !mIsUdf(setup_.x1pospercm_) &&
@@ -332,7 +384,65 @@ void uiFlatViewStdControl::cancelZoomCB( CallBacker* )
 
 #define sInchToCMFac 2.54f
 
-void uiFlatViewStdControl::setHomeZoomCB( CallBacker* )
+
+class uiFlatViewSetZoomLevelDlg : public uiDialog
+{ mODTextTranslationClass(uiFlatViewSetZoomLevelDlg)
+public:
+
+uiFlatViewSetZoomLevelDlg( uiParent* p, float& x1pospercm, float& x2pospercm,
+			   bool isvert )
+    : uiDialog(p,uiDialog::Setup(tr("Set zoom level"),uiStrings::sEmptyString(),
+				 mNoHelpKey))
+{
+    zommlvlgrp_ = new uiFlatViewZoomLevelGrp( this, x1pospercm,
+	    				      x2pospercm, isvert );
+}
+
+
+bool saveGlobal()
+{ return zommlvlgrp_->saveGlobal(); }
+
+
+protected:
+bool acceptOK( CallBacker* )
+{
+    zommlvlgrp_->commitInput();
+    return true;
+}
+
+    uiFlatViewZoomLevelGrp*	zommlvlgrp_;
+};
+
+
+void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiAction*,itm,cb)
+    if ( !itm ) return;
+
+    const int itmid = itm->getID();
+    if ( itmid==sLocalHZIdx || itmid==sGlobalHZIdx )
+	setHomeZoomCB( itm );
+    else
+    {
+	float x1pospercm, x2pospercm;
+	getHomeZoomPars( x1pospercm, x2pospercm );
+	uiFlatViewSetZoomLevelDlg zoomlvldlg( this, x1pospercm, x2pospercm,
+					      setup_.isvertical_ ); 
+	if ( zoomlvldlg.go() )
+	{
+	    Setup& su = const_cast<Setup&>(setup_);
+	    su.x1pospercm_ = x1pospercm;
+	    su.x2pospercm_ = x2pospercm;
+	    if ( zoomlvldlg.saveGlobal() )
+		setHomeZoomPushed.trigger();
+	    gotohomezoombut_->setSensitive( true );
+	    setHomeZoomViews();
+	}
+    }
+}
+
+
+void uiFlatViewStdControl::getHomeZoomPars( float& x1pospercm,float& x2pospercm )
 {
     const uiFlatViewer* curvwr = vwrs_[0];
     uiRect pixrect = curvwr->getViewRect();
@@ -341,10 +451,22 @@ void uiFlatViewStdControl::setHomeZoomCB( CallBacker* )
     const float cmwidth = ((float)pixwidth/(float)screendpi) * sInchToCMFac;
     const int pixheight = pixrect.bottom() - pixrect.left();
     const float cmheight = ((float)pixheight/(float)screendpi) * sInchToCMFac;
+    const int x1nrpos = (curvwr->posRangeInView(true).nrSteps()+1);
+    const int x2nrpos = (curvwr->posRangeInView(false).nrSteps()+1);
+    x1pospercm = mCast(float,x1nrpos)/cmwidth;
+    x2pospercm = mCast(float,x2nrpos)/cmheight;
+}
+
+
+void uiFlatViewStdControl::setHomeZoomCB( CallBacker* cb )
+{
     Setup& su = const_cast<Setup&>(setup_);
-    su.x1pospercm_ = (curvwr->posRangeInView(true).nrSteps()+1) / cmwidth;
-    su.x2pospercm_ = (curvwr->posRangeInView(false).nrSteps()+1) / cmheight;
-    setHomeZoomPushed.trigger();
+    getHomeZoomPars( su.x1pospercm_, su.x2pospercm_ );
+    
+    mDynamicCastGet(uiAction*,itm,cb)
+    const bool saveglobally = itm && itm->getID()==sGlobalHZIdx;
+    if ( saveglobally )
+	setHomeZoomPushed.trigger();
     gotohomezoombut_->setSensitive( true );
 }
 

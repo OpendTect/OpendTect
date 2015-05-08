@@ -32,11 +32,14 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "mouseevent.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "visseis2ddisplay.h"
 #include "view2ddata.h"
 #include "view2ddataman.h"
 
+static const char* sKeyVW2DTrcsPerCM()	{ return "Viewer2D.TrcsPerCM"; }
+static const char* sKeyVW2DZPerCM()	{ return "Viewer2D.ZSamplesPerCM"; }
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     : appl_(*a)
@@ -45,6 +48,8 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
 {
+    Settings::common().get( sKeyVW2DTrcsPerCM(), deftrcspercm_ );
+    Settings::common().get( sKeyVW2DZPerCM(), defzpercm_ );
     // for relevant 2D datapack
     tifs2d_->addFactory( new uiODVW2DWiggleVarAreaTreeItemFactory, 1000 );
     tifs2d_->addFactory( new uiODVW2DVariableDensityTreeItemFactory, 2000 );
@@ -261,8 +266,14 @@ void uiODViewer2DMgr::homeZoomChangedCB( CallBacker* cb )
     if ( !control )
 	return;
     deftrcspercm_ = control->getPositionsPerCM(true);
+    Settings::common().set( sKeyVW2DTrcsPerCM(), deftrcspercm_ );
     if ( control->isVertical() )
+    {
 	defzpercm_ = control->getPositionsPerCM( false );
+	Settings::common().set( sKeyVW2DZPerCM(), defzpercm_ );
+    }
+
+    mSettWrite()
 }
 
 
