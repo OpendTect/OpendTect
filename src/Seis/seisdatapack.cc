@@ -25,20 +25,18 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)
-{
-    sampling_.init( false );
-}
-
+{ sampling_.init( false ); }
 
 TrcKey RegularSeisDataPack::getTrcKey( int globaltrcidx ) const
-{
-    return sampling_.hsamp_.trcKeyAt( globaltrcidx );
-}
-
+{ return sampling_.hsamp_.trcKeyAt( globaltrcidx ); }
 
 bool RegularSeisDataPack::is2D() const
+{ return sampling_.hsamp_.survid_ == Survey::GM().get2DSurvID(); }
+
+int RegularSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
 {
-    return sampling_.hsamp_.survid_ == Survey::GM().get2DSurvID();
+    const int ret = mCast(int,sampling_.hsamp_.globalIdx(tk));
+    return ret < nrTrcs() ? ret : -1;
 }
 
 
@@ -60,10 +58,11 @@ void RegularSeisDataPack::dumpInfo( IOPar& par ) const
     DataPack::dumpInfo( par );
 
     const TrcKeySampling& tks = sampling_.hsamp_;
+    // TODO: Change for 2D
     par.set( sKey::InlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
 			       tks.step_.lineNr() );
-    par.set( sKey::CrlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
-			       tks.step_.lineNr() );
+    par.set( sKey::CrlRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
+			       tks.step_.trcNr() );
     par.set( sKey::ZRange(), sampling_.zsamp_.start, sampling_.zsamp_.stop,
 			     sampling_.zsamp_.step );
 }

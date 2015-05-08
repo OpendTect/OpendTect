@@ -43,8 +43,7 @@ public:
     int				nrTrcs() const
 				{ return (int)sampling_.hsamp_.totalNr(); }
     TrcKey			getTrcKey(int globaltrcidx) const;
-    int				getGlobalIdx( const TrcKey& tk ) const
-				{ return (int)sampling_.hsamp_.globalIdx(tk); }
+    int				getGlobalIdx(const TrcKey& tk) const;
 
     virtual void		dumpInfo(IOPar&) const;
 
