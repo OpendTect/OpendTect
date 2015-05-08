@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id: uiodviewer2dposgrp.cc 38687 2015-03-30
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "randomlinetr.h"
-#include "survinfo.h"
 #include "zdomain.h"
 
 
@@ -118,7 +117,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 				      tr("Input Random line") );
 	rdmlinefld_->attach( alignedBelow, inp3dfld_ );
 	rdmlinefld_->selectionDone.notify( inpcb );
-	botgrp_ = sliceselflds_.last();
+	botgrp_ = sliceselflds_.first();
 
 	genrdmlinebut_ =
 	    new uiPushButton( this, createlinetxt,
@@ -127,7 +126,8 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	setHAlignObj( inp3dfld_ );
     }
 
-    inpSel( 0 );
+    updatePosFlds();
+    updateDataSelFld();
 }
 
 
@@ -155,6 +155,12 @@ void uiODViewer2DPosGrp::usePar( const IOPar& selpar )
     }
 
     updateFlds();
+}
+
+
+void uiODViewer2DPosGrp::updateFlds()
+{
+    updatePosFlds();
     updateDataSelFld();
     updateTrcKeySampFld();
 }
@@ -223,8 +229,8 @@ void uiODViewer2DPosGrp::attr2DSelected( CallBacker* )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
-bool uiODViewer2DPosGrp::commitSel()
+#define mErrRet(s) { if ( emiterror ) uiMSG().error(s); return false; }
+bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 {
     posdatasel_->geomid_ = Survey::GeometryManager::cUndefGeomID();
 
@@ -248,7 +254,7 @@ bool uiODViewer2DPosGrp::commitSel()
 	    posdatasel_->tkzs_ = sliceselflds_[2]->getTrcKeyZSampling();
 	    break;
 	case Viewer2DPosDataSel::RdmLine:
-	    const IOObj* rdlobj = rdmlinefld_->ioobj();
+	    const IOObj* rdlobj = rdmlinefld_->ioobj(!emiterror);
 	    if ( !rdlobj )
 		return false;
 	    posdatasel_->rdmlineid_ = rdlobj->key();
@@ -293,9 +299,8 @@ void uiODViewer2DPosGrp::updateTrcKeySampFld()
     {
 	case Viewer2DPosDataSel::Line2D :
 	{
-	    TypeSet<Pos::GeomID> geomids;
-	    geomids += posdatasel_->geomid_;
-	    subsel2dfld_->setInputLines( geomids );
+	    subsel2dfld_->setSelectedLine(
+		    Survey::GM().getName(posdatasel_->geomid_) );
 	    subsel2dfld_->uiSeisSubSel::setInput( tkzs.hsamp_ );
 	    break;
 	}
@@ -365,14 +370,12 @@ void uiODViewer2DPosGrp::inpSel( CallBacker* )
 	Viewer2DPosDataSel::parseEnum( txtofinp, posdatasel_->postype_ );
     }
 
-    updateFlds();
-    commitSel();
-
+    updatePosFlds();
     inpSelected.trigger();
 }
 
 
-void uiODViewer2DPosGrp::updateFlds()
+void uiODViewer2DPosGrp::updatePosFlds()
 {
     if ( SI().has2D() )
     {

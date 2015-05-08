@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "multiid.h"
 #include "survgeom.h"
+#include "survinfo.h"
 #include "trckeyzsampling.h"
 
 class IOObj;
@@ -55,7 +56,8 @@ mStruct(uiODMain) Viewer2DPosDataSel
 
     virtual void	clean()
 			{
-			    postype_ = Viewer2DPosDataSel::InLine;
+			    postype_ = SI().has3D() ? Viewer2DPosDataSel::InLine
+						    : Viewer2DPosDataSel::Line2D;
 			    selspec_ = Attrib::SelSpec();
 			    tkzs_ = TrcKeyZSampling(true);
 			    rdmlineid_ = MultiID::udf();
@@ -99,7 +101,7 @@ public:
     virtual void		usePar(const IOPar&);
     Viewer2DPosDataSel&		posDataSel()		{ return *posdatasel_; }
     const Viewer2DPosDataSel&	posDataSel() const	{ return *posdatasel_; }
-    virtual bool		commitSel();
+    virtual bool		commitSel( bool emiterror );
 
     Notifier<uiODViewer2DPosGrp> inpSelected;
 
@@ -123,8 +125,9 @@ protected:
 
     IOObj*		get2DObj();
     void		init(bool);
-    void		updateDataSelFld();
     void		updateFlds();
+    void		updateDataSelFld();
+    void		updatePosFlds();
     void		updateTrcKeySampFld();
     void		createSliceSel(uiSliceSel::Type);
 
