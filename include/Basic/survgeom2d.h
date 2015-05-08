@@ -49,6 +49,8 @@ public:
     float			averageTrcDist() const;
     RelationType		compare(const Geometry&,bool usezrg) const;
 
+    Geometry2D*			as2D() 			{ return this; }
+
 protected:
 
                     		~Geometry2D();
