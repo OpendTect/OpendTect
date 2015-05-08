@@ -161,6 +161,8 @@ bool SeisOutlineObject::extractPolygons()
 
 bool SeisOutlineObject::extractSegments( PosInfo::CubeData& cubedata )
 {
+    seglineset_.erase();
+
     if ( linespacing_.isUdf() )
     {
 	seglineset_.erase();
