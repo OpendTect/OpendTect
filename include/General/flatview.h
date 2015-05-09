@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "datapackbase.h"
 #include "draw.h"
+#include "mousecursor.h"
 
 class FlatView_CB_Rcvr;
 class ZAxisTransform;
@@ -39,7 +40,9 @@ public:
 
     mExpClass(General) EditPermissions
     {
-    public:			EditPermissions();
+    public:
+			EditPermissions();
+
 	bool		onoff_;
 	bool		namepos_;
 	bool		linestyle_;
@@ -80,6 +83,7 @@ public:
     Color			fillcolor_;
     FillPattern			fillpattern_;
     int				zvalue_; //!<overlay zvalue ( max=on top )
+    MouseCursor			cursor_;
 
     bool			close_;
 
@@ -428,5 +432,4 @@ private:
 } // namespace FlatView
 
 #endif
-
 
