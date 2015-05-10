@@ -13,10 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
-#include "color.h"
-#include "draw.h"
-#include "valseriesevent.h"
-#include "emseedpicker.h"
+#include "flatview.h"
 
 #include "uimpe.h"
 
@@ -56,11 +53,19 @@ protected:
     void			updateViewer();
     void			selUseCorrelation(CallBacker*);
     void			correlationChangeCB(CallBacker*);
+    void			windowChangeCB(CallBacker*);
+    void			visibleDataChangeCB(CallBacker*);
 
     uiGenInput*			usecorrfld_;
     uiFlatViewer*		correlationvwr_;
     uiGenInput*			compwinfld_;
     uiGenInput*			corrthresholdfld_;
+    uiGenInput*			nrzfld_;
+    uiGenInput*			nrtrcsfld_;
+
+    FlatView::AuxData*		seeditm_;
+    FlatView::AuxData*		minitm_;
+    FlatView::AuxData*		maxitm_;
 
     Coord3			seedpos_;
     SectionTracker*		sectiontracker_;

@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 
 #include "uiflatviewer.h"
 #include "uigeninput.h"
+#include "uigraphicsview.h"
 #include "uimsg.h"
 #include "od_helpids.h"
 
@@ -48,20 +49,33 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p )
     usecorrfld_->valuechanged.notify(
 	    mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
-    const StepInterval<int> intv( -10000, 10000, 1 );
+    const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
+    const StepInterval<int> intv( -10000, 10000, step );
     IntInpSpec iis; iis.setLimits( intv );
+
+    BufferString disptxt( "Data Display window ", SI().getZUnitString() );
+    nrzfld_ = new uiGenInput( this, disptxt, iis, iis );
+    nrzfld_->attach( alignedBelow, usecorrfld_ );
+    nrzfld_->valuechanging.notify(
+		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
+
+    nrtrcsfld_ = new uiGenInput( this, "Nr Traces", IntInpSpec(5) );
+    nrtrcsfld_->attach( alignedBelow, nrzfld_ );
+    nrtrcsfld_->valuechanging.notify(
+		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
+
     BufferString compwindtxt( "Compare window ", SI().getZUnitString() );
     compwinfld_ = new uiGenInput( this, compwindtxt, iis, iis );
-    compwinfld_->attach( alignedBelow, usecorrfld_ );
+    compwinfld_->attach( alignedBelow, nrtrcsfld_ );
     compwinfld_->valuechanging.notify(
-	    mCB(this,uiCorrelationGroup,correlationChangeCB) );
+		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
-    iis.setLimits( StepInterval<int>(0,100,1) );
+    IntInpSpec tiis; tiis.setLimits( StepInterval<int>(0,100,1) );
     corrthresholdfld_ =
-	new uiGenInput( this, tr("Correlation threshold (0-100)"), iis );
+	new uiGenInput( this, tr("Correlation threshold (0-100)"), tiis );
     corrthresholdfld_->attach( alignedBelow, compwinfld_ );
     corrthresholdfld_->valuechanged.notify(
-	    mCB(this,uiCorrelationGroup,correlationChangeCB) );
+		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
     correlationvwr_ = new uiFlatViewer( this );
     correlationvwr_->attach( rightOf, usecorrfld_ );
@@ -69,10 +83,28 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p )
     correlationvwr_->setPrefHeightInChar( 25 );
     correlationvwr_->appearance().ddpars_.wva_.mappersetup_.cliprate_ =
 				Interval<float>(0.01f,0.01f);
+    correlationvwr_->appearance().setGeoDefaults( true );
+    correlationvwr_->rgbCanvas();
 
-    FlatView::AuxData* ad = correlationvwr_->createAuxData( "Mid line" );
-    ad->linestyle_.color_ = Color( 255, 0, 255 );
-    correlationvwr_->addAuxData( ad );
+    minitm_ = correlationvwr_->createAuxData( "Min line" );
+    minitm_->cursor_.shape_ = MouseCursor::SizeVer;
+    minitm_->linestyle_.color_ = Color(0,255,0);
+    minitm_->poly_ += FlatView::Point(0,0);
+    minitm_->poly_ += FlatView::Point(0,0);
+    correlationvwr_->addAuxData( minitm_ );
+
+    maxitm_ = correlationvwr_->createAuxData( "Max line" );
+    maxitm_->cursor_.shape_ = MouseCursor::SizeVer;
+    maxitm_->linestyle_.color_ = Color(0,255,0);
+    maxitm_->poly_ += FlatView::Point(0,0);
+    maxitm_->poly_ += FlatView::Point(0,0);
+    correlationvwr_->addAuxData( maxitm_ );
+
+    seeditm_ = correlationvwr_->createAuxData( "Seed" );
+    seeditm_->poly_ += FlatView::Point(0,0);
+    seeditm_->markerstyles_ += MarkerStyle2D();
+    seeditm_->markerstyles_[0].color_ = Color(0,255,0);
+    correlationvwr_->addAuxData( seeditm_ );
 
     setHAlignObj( usecorrfld_ );
 }
@@ -92,9 +124,14 @@ void uiCorrelationGroup::selUseCorrelation( CallBacker* )
 }
 
 
-void uiCorrelationGroup::correlationChangeCB( CallBacker* )
+void uiCorrelationGroup::visibleDataChangeCB( CallBacker* )
 {
     updateViewer();
+}
+
+
+void uiCorrelationGroup::correlationChangeCB( CallBacker* )
+{
     changed_.trigger();
 }
 
@@ -122,6 +159,12 @@ void uiCorrelationGroup::init()
 
     compwinfld_->setValue( corrintv );
     corrthresholdfld_->setValue( adjuster_->similarityThreshold()*100 );
+
+    const int sample = mCast(int,SI().zStep()*SI().zDomain().userFactor());
+    const Interval<int> dataintv = corrintv + Interval<int>(-sample,sample);
+    nrzfld_->setValue( dataintv );
+
+    nrtrcsfld_->setValue( 5 );
 }
 
 
@@ -139,16 +182,25 @@ void uiCorrelationGroup::updateViewer()
 
     const BinID& bid = SI().transform( seedpos_.coord() );
     const float z = (float)seedpos_.z;
-    const int nrtrcs = 5;
+    const int nrtrcs = nrtrcsfld_->getIntValue();
 
-    Interval<int> intval = compwinfld_->getIInterval();
-    const StepInterval<int> zintv( intval.start/4, intval.stop/4, 1 );
+    StepInterval<float> zintv; zintv.setFrom( nrzfld_->getIInterval() );
+    zintv.scale( 1.f/SI().zDomain().userFactor() );
+    zintv.step = SI().zStep();
     const DataPack::ID dpid =
 	MPE::engine().getSeedPosDataPack( bid, z, nrtrcs, zintv );
 
     correlationvwr_->setPack( true, dpid );
-    correlationvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
     correlationvwr_->setViewToBoundingBox();
+
+    FlatView::Point& pt = seeditm_->poly_[0];
+    pt = FlatView::Point( bid.inl(), z );
+
+    minitm_->poly_[0] = FlatView::Point( bid.inl()-nrtrcs/2, z+zintv.start );
+    minitm_->poly_[1] = FlatView::Point( bid.inl()+nrtrcs/2, z+zintv.start );
+    maxitm_->poly_[0] = FlatView::Point( bid.inl()-nrtrcs/2, z+zintv.stop );
+    maxitm_->poly_[1] = FlatView::Point( bid.inl()+nrtrcs/2, z+zintv.stop );
+    correlationvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
 
 
@@ -182,10 +234,11 @@ bool uiCorrelationGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setSimilarityWindow( relintval );
     }
 
-    const int gate = corrthresholdfld_->getIntValue();
-    if ( gate > 100 || gate < 0)
+    const int thr = corrthresholdfld_->getIntValue();
+    if ( thr > 100 || thr < 0)
 	mErrRet( tr("Correlation threshold must be between 0 to 100") );
-    const float newthreshold = (float)gate/100.f;
+
+    const float newthreshold = (float)thr/100.f;
     if ( !mIsEqual(adjuster_->similarityThreshold(),newthreshold,mDefEps) )
     {
 	fieldchange = true;
