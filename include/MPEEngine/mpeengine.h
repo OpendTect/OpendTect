@@ -102,7 +102,7 @@ public:
 			/*!< add = true, remove = false. */
     ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;
     DataPack::ID	getSeedPosDataPack(const TrcKey&,float z,int nrtrcs,
-					const StepInterval<int>& zrg) const;
+					const StepInterval<float>& zrg) const;
 
     			/*Editors */
     ObjectEditor*	getEditor(const EM::ObjectID&,bool create);

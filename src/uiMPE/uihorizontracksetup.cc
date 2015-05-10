@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimpecorrelationgrp.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
@@ -98,7 +99,6 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     , is2d_(FixedString(typestr)==EM::Horizon2D::typeStr())
     , modeChanged_(this)
     , eventChanged_(this)
-    , correlationChanged_(this)
     , varianceChanged_(this)
     , propertyChanged_(this)
 {
@@ -109,11 +109,11 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     uiGroup* eventgrp = createEventGroup();
     tabgrp_->addTab( eventgrp, tr("Event") );
 
-    uiGroup* corrgrp = createCorrelationGroup();
-    tabgrp_->addTab( corrgrp, tr("Correlation") );
+    correlationgrp_ = new uiCorrelationGroup( tabgrp_->tabGroup() );
+    tabgrp_->addTab( correlationgrp_, tr("Correlation") );
 
-    uiGroup* vargrp = createVarianceGroup();
-    tabgrp_->addTab( vargrp, tr("Variance") );
+//    uiGroup* vargrp = createVarianceGroup();
+//    tabgrp_->addTab( vargrp, tr("Variance") );
 
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, uiStrings::sProperties(true) );
@@ -154,6 +154,13 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 				Horizon2DSeedPicker::defaultSeedConMode();
 	}
     }
+
+    uiSeparator* sep = new uiSeparator( grp );
+    sep->attach( stretchedBelow, modeselgrp_ );
+    BufferStringSet strs; strs.add( "Seed Trace" ).add( "Adjacent Parent" );
+    methodfld_ = new uiGenInput( grp, tr("Method"), StringListInpSpec(strs) );
+    methodfld_->attach( alignedBelow, modeselgrp_ );
+    methodfld_->attach( ensureBelow, sep );
 
     return grp;
 }
@@ -203,46 +210,6 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     extriffailfld_->valuechanged.notify(
 		mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
-    return grp;
-}
-
-
-uiGroup* uiHorizonSetupGroup::createCorrelationGroup()
-{
-    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Correlation" );
-
-    usecorrfld_ = new uiGenInput( grp, tr("Use Correlation"),
-				  BoolInpSpec(true));
-    usecorrfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,selUseCorrelation) );
-    usecorrfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,correlationChangeCB) );
-
-    BufferStringSet strs; strs.add( "Seed Trace" ).add( "Adjacent Parent" );
-    modefld_ = new uiGenInput( grp, tr("Method"), StringListInpSpec(strs) );
-    modefld_->attach( alignedBelow, usecorrfld_ );
-
-    const StepInterval<int> intv( -10000, 10000, 1 );
-    IntInpSpec iis; iis.setLimits( intv );
-    BufferString compwindtxt( "Compare window ", SI().getZUnitString() );
-    compwinfld_ = new uiGenInput( grp, compwindtxt, iis, iis );
-    compwinfld_->attach( alignedBelow, modefld_ );
-    compwinfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,correlationChangeCB) );
-
-    iis.setLimits( StepInterval<int>(0,100,1) );
-    corrthresholdfld_ =
-	new uiGenInput( grp, tr("Correlation threshold (0-100)"), iis );
-    corrthresholdfld_->attach( alignedBelow, compwinfld_ );
-    corrthresholdfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,correlationChangeCB) );
-
-    correlationvwr_ = new uiFlatViewer( grp );
-    correlationvwr_->attach( rightOf, usecorrfld_ );
-    correlationvwr_->setPrefWidthInChar( 30 );
-    correlationvwr_->setPrefHeightInChar( 25 );
-
-    grp->setHAlignObj( usecorrfld_ );
     return grp;
 }
 
@@ -315,14 +282,8 @@ uiHorizonSetupGroup::~uiHorizonSetupGroup()
 }
 
 
-void uiHorizonSetupGroup::selUseCorrelation( CallBacker* )
-{
-    const bool usecorr = usecorrfld_->getBoolValue();
-    modefld_->setSensitive( usecorr );
-    compwinfld_->setSensitive( usecorr );
-    corrthresholdfld_->setSensitive( usecorr );
-    correlationvwr_->setSensitive( usecorr );
-}
+NotifierAccess*	uiHorizonSetupGroup::correlationChangeNotifier()
+{ return correlationgrp_->correlationChangeNotifier(); }
 
 
 void uiHorizonSetupGroup::selUseVariance( CallBacker* )
@@ -386,8 +347,6 @@ void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 void uiHorizonSetupGroup::eventChangeCB( CallBacker* )
 { eventChanged_.trigger(); }
 
-void uiHorizonSetupGroup::correlationChangeCB( CallBacker* )
-{ correlationChanged_.trigger(); }
 
 void uiHorizonSetupGroup::varianceChangeCB(CallBacker *)
 { varianceChanged_.trigger(); }
@@ -494,6 +453,7 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
     if ( !horadj_ ) return;
 
     initStuff();
+    correlationgrp_->setSectionTracker( st );
 }
 
 
@@ -511,10 +471,8 @@ void uiHorizonSetupGroup::initStuff()
     initEventGroup();
     selEventType(0);
     selAmpThresholdType(0);
-    initCorrelationGroup();
-    selUseCorrelation(0);
-    initVarianceGroup();
-    selUseVariance(0);
+//    initVarianceGroup();
+//    selUseVariance(0);
     initPropertyGroup();
 }
 
@@ -533,21 +491,6 @@ void uiHorizonSetupGroup::initEventGroup()
 
     thresholdtypefld_->setValue( horadj_->useAbsThreshold() );
     extriffailfld_->setValue( !horadj_->removesOnFailure() );
-}
-
-
-void uiHorizonSetupGroup::initCorrelationGroup()
-{
-    usecorrfld_->setValue( !horadj_->trackByValue() );
-
-    const Interval<int> corrintv(
-	    mCast(int,horadj_->similarityWindow().start *
-		      SI().zDomain().userFactor()),
-	    mCast(int,horadj_->similarityWindow().stop *
-		      SI().zDomain().userFactor()) );
-
-    compwinfld_->setValue( corrintv );
-    corrthresholdfld_->setValue( horadj_->similarityThreshold()*100 );
 }
 
 
@@ -579,18 +522,7 @@ int uiHorizonSetupGroup::getMode()
 
 void uiHorizonSetupGroup::setSeedPos( const Coord3& crd )
 {
-    const BinID& bid = SI().transform( crd.coord() );
-    const float z = (float)crd.z;
-    const int nrtrcs = 5;
-
-    Interval<int> intval = compwinfld_->getIInterval();
-    const StepInterval<int> zintv( intval.start/4, intval.stop/4, 1 );
-    const DataPack::ID dpid =
-	MPE::engine().getSeedPosDataPack( bid, z, nrtrcs, zintv );
-
-    correlationvwr_->setPack( true, dpid );
-    correlationvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
-    correlationvwr_->setViewToBoundingBox();
+    correlationgrp_->setSeedPos( crd );
 }
 
 
@@ -622,6 +554,7 @@ const MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
 bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 {
     fieldchange = false;
+    correlationgrp_->commitToTracker( fieldchange );
 
     if ( !horadj_ || horadj_->getNrAttributes()<1 )
     {   uiMSG().warning( tr("Unable to apply tracking setup") );
@@ -644,39 +577,6 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     {
 	fieldchange = true;
 	horadj_->setPermittedZRange( relintv );
-    }
-
-    const bool usecorr = usecorrfld_->getBoolValue();
-    if ( horadj_->trackByValue() == usecorr )
-    {
-	fieldchange = true;
-	horadj_->setTrackByValue( !usecorr );
-    }
-
-    if ( usecorr )
-    {
-	const Interval<int> intval = compwinfld_->getIInterval();
-	if ( intval.width()==0 || intval.isRev() )
-	    mErrRet(tr("Correlation window start value must be less than"
-                       " the stop value"));
-	Interval<float> relintval(
-		(float)intval.start/SI().zDomain().userFactor(),
-	        (float)intval.stop/SI().zDomain().userFactor() );
-	if ( horadj_->similarityWindow() != relintval )
-	{
-	    fieldchange = true;
-	    horadj_->setSimilarityWindow( relintval );
-	}
-
-	const int gate = corrthresholdfld_->getIntValue();
-	if ( gate > 100 || gate < 0)
-	    mErrRet( tr("Correlation threshold must be from 0 to 100") );
-	const float newthreshold = (float)gate / 100.f;
-	if ( !mIsEqual(horadj_->similarityThreshold(),newthreshold,mDefEps) )
-	{
-	    fieldchange = true;
-	    horadj_->setSimilarityThreshold( newthreshold );
-	}
     }
 
     const bool useabs = thresholdtypefld_->getBoolValue();
@@ -812,7 +712,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 void uiHorizonSetupGroup::showGroupOnTop( const char* grpnm )
 {
     tabgrp_->setCurrentPage( grpnm );
-    mDynamicCastGet( uiDialog*, dlg, parent() );
+    mDynamicCastGet(uiDialog*,dlg,parent())
     if ( dlg && !dlg->isHidden() )
     {
 	 dlg->showNormal();

@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "emsurface.h"
 #include "emtracker.h"
 #include "executor.h"
+#include "flatposdata.h"
 #include "geomelement.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -520,10 +521,11 @@ ObjectSet<TrcKeyZSampling>* Engine::getTrackedFlatCubes( const int idx ) const
 
 
 DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
-					 const StepInterval<int>& zintv ) const
+					const StepInterval<float>& zintv ) const
 {
     const int nrz = zintv.nrSteps() + 1;
     Array2DImpl<float>* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
+    seeddata->setAll( mUdf(float) );
 
     TypeSet<Attrib::SelSpec> specs; getNeededAttribs( specs );
     if ( specs.isEmpty() ) return DataPack::cNoID();
@@ -535,18 +537,24 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 
     const TrcKeyZSampling tkzs = pldp->sampling();
     const int trcidx0 = pldp->getGlobalIdx( tk ) - (int)(nrtrcs/2);
-    const int zidx0 = tkzs.zsamp_.getIndex( z ) + zintv.start;
+    const int zidx0 = tkzs.zsamp_.getIndex( z + zintv.start );
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
 	const float* trc = pldp->getTrcData( 0, trcidx0+tidx );
 	for ( int zidx=0; zidx<nrz; zidx++ )
 	{
 	    const float val = trc[zidx0+zidx];
-	    seeddata->set( tidx, nrz-1-zidx, val );
+	    seeddata->set( tidx, zidx, val );
 	}
     }
 
+    StepInterval<double> trcrg;
+    trcrg.start = tk.lineNr() - (nrtrcs)/2;
+    trcrg.stop = tk.lineNr() + (nrtrcs)/2;
+    StepInterval<double> zrg; zrg.setFrom( zintv ); zrg.shift( z );
     FlatDataPack* fdp = new FlatDataPack( "Seismics", seeddata );
+    fdp->posData().setRange( true, trcrg );
+    fdp->posData().setRange( false, zrg );
     DPM(DataPackMgr::FlatID()).add( fdp );
     return fdp->id();
 }

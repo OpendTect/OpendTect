@@ -35,6 +35,7 @@ namespace MPE
 
 class HorizonAdjuster;
 class SectionTracker;
+class uiCorrelationGroup;
 
 
 /*!\brief Horizon tracking setup dialog. */
@@ -61,8 +62,7 @@ public:
 				{ return &propertyChanged_; }
     NotifierAccess*		eventChangeNotifier()
 				{ return &eventChanged_; }
-    NotifierAccess*		correlationChangeNotifier()
-				{ return &correlationChanged_; }
+    NotifierAccess*		correlationChangeNotifier();
     NotifierAccess*		varianceChangeNotifier()
 				{ return &varianceChanged_; }
 
@@ -83,6 +83,7 @@ protected:
     void			seedModeChange(CallBacker*);
 
     uiButtonGroup*		modeselgrp_;
+    uiGenInput*			methodfld_;
 
 
 // Event Group
@@ -103,16 +104,7 @@ protected:
 
 
 // Correlation Group
-    uiGroup*			createCorrelationGroup();
-    void			initCorrelationGroup();
-    void			selUseCorrelation(CallBacker*);
-    void			correlationChangeCB(CallBacker*);
-
-    uiGenInput*			usecorrfld_;
-    uiGenInput*			modefld_;
-    uiFlatViewer*		correlationvwr_;
-    uiGenInput*			compwinfld_;
-    uiGenInput*			corrthresholdfld_;
+    uiCorrelationGroup*		correlationgrp_;
 
 // Variance Group
     uiGroup*			createVarianceGroup();
@@ -148,7 +140,6 @@ protected:
 
     Notifier<uiHorizonSetupGroup> modeChanged_;
     Notifier<uiHorizonSetupGroup> eventChanged_;
-    Notifier<uiHorizonSetupGroup> correlationChanged_;
     Notifier<uiHorizonSetupGroup> varianceChanged_;
     Notifier<uiHorizonSetupGroup> propertyChanged_;
 
