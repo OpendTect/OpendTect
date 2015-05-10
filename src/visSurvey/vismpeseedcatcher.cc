@@ -120,6 +120,13 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
     mCheckTracker( typ, Horizon2D, legalclick, true ); \
     mCheckTracker( typ, FaultStickSet, legalclick, true );
 
+#define mCheckRdlDisplay( typ, dataobj, rdldisp, legalclick ) \
+    mDynamicCastGet(RandomTrackDisplay*,rdldisp,dataobj); \
+    if ( !rdldisp || !rdldisp->isOn() ) \
+	rdldisp = 0; \
+    bool legalclick = !rdldisp; \
+    mCheckTracker( typ, Horizon3D, legalclick, true );
+
 
 bool MPEClickCatcher::isClickable( const char* trackertype, int visid )
 {
@@ -137,6 +144,10 @@ bool MPEClickCatcher::isClickable( const char* trackertype, int visid )
 
     mCheckSeis2DDisplay( trackertype, dataobj, seis2ddisp, legalclick3 );
     if ( seis2ddisp && legalclick3 )
+	return true;
+
+    mCheckRdlDisplay( trackertype, dataobj, rdldisp, legalclick4 );
+    if ( rdldisp && legalclick4 )
 	return true;
 
     return false;
@@ -209,10 +220,29 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	     OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	    continue;
 
-	mDynamicCastGet( visSurvey::RandomTrackDisplay*, rtdisp, dataobj );
+	mCheckRdlDisplay( trackertype_, dataobj, rtdisp, legalclick0 )
 	if ( rtdisp )
 	{
-	    info().setLegalClick( false );
+	    DataPack::ID datapackid = DataPack::cNoID();
+	    int attrib = rtdisp->nrAttribs();
+	    while ( attrib )
+	    {
+		attrib--;
+		unsigned char transpar =
+		    rtdisp->getAttribTransparency( attrib );
+		datapackid = rtdisp->getDataPackID( attrib );
+		if ( (datapackid > DataPack::cNoID()) &&
+		     rtdisp->isAttribEnabled(attrib) && (transpar<198) )
+		    break;
+	    }
+
+	    info().setLegalClick( legalclick0 );
+	    info().setObjDataPackID( datapackid );
+
+	    const Attrib::SelSpec* as = rtdisp->getSelSpec( attrib );
+	    if ( as )
+		info().setObjDataSelSpec( *as );
+
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
