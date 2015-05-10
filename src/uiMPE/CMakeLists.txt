@@ -12,6 +12,7 @@ SET(OD_MODULE_SOURCES
 	mpefssflatvieweditor.cc
 	uihorizontracksetup.cc
 	uimpe.cc
+	uimpecorrelationgrp.cc
 	uimpepartserv.cc
 	horflatvieweditor.cc
 	horflatvieweditor2d.cc
