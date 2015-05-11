@@ -33,7 +33,8 @@ namespace FlatView { class Appearance; }
 mExpClass(uiFlatView) uiBitMapDisplay : public CallBacker
 {
 public:
-			uiBitMapDisplay(FlatView::Appearance&);
+			uiBitMapDisplay(FlatView::Appearance&,
+					bool withalpha=true);
 			~uiBitMapDisplay();
 
     void		update();
@@ -74,6 +75,7 @@ private:
     uiWorldRect			boundingbox_;
     float			overlap_;
     int				workqueueid_;
+    bool			withalpha_;
 
     uiDynamicImageItem*		display_;
     uiBitMapDisplayTask*	basetask_;
