@@ -113,22 +113,22 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 	mErrRet( errmsg );
     }
 
-    CubeSampling cs;
-    cs.usePar( par );
+    TrcKeyZSampling tkzs;
+    tkzs.usePar( par );
 
     mexPrintf( "Reading: %s\n", ioobj->name().buf() );
-    BufferString csinfo;
-    cs.hrg.toString( csinfo );
-    csinfo.add( "\nZ range: " );
-    csinfo.add( cs.zrg.start ).add( " - " ).add( cs.zrg.stop )
-	  .add( " [" ).add( cs.zrg.step ).add( "]" );
-    mexPrintf( csinfo.buf() ); mexPrintf( "\n" );
+    BufferString tkzsinfo;
+    tkzs.hsamp_.toString( tkzsinfo );
+    tkzsinfo.add( "\nZ range: " );
+    tkzsinfo.add( tkzs.zsamp_.start ).add( " - " ).add( tkzs.zsamp_.stop )
+	  .add( " [" ).add( tkzs.zsamp_.step ).add( "]" );
+    mexPrintf( tkzsinfo.buf() ); mexPrintf( "\n" );
 
     mexPrintf( "Nr of components: %d\n", nrcomponents );
-    mexPrintf( "Nr of traces: %d\n", cs.hrg.totalNr() );
-    mexPrintf( "Nr of samples: %d\n", cs.nrZ() );
+    mexPrintf( "Nr of traces: %d\n", tkzs.hsamp_.totalNr() );
+    mexPrintf( "Nr of samples: %d\n", tkzs.nrZ() );
 
-    Seis::ParallelReader rdr( *ioobj, cs );
+    Seis::ParallelReader rdr( *ioobj, tkzs );
     if ( !rdr.execute() )
     {
 	errmsg = "Error reading input.";
