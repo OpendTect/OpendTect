@@ -204,8 +204,6 @@ void uiCorrelationGroup::updateViewer()
 }
 
 
-#define mErrRet(msg) { uiMSG().error( msg ); return false; }
-
 bool uiCorrelationGroup::commitToTracker( bool& fieldchange ) const
 {
     fieldchange = false;
