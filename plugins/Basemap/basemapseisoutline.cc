@@ -41,7 +41,7 @@ SeisOutlineObject::SeisOutlineObject()
 
 SeisOutlineObject::~SeisOutlineObject()
 {
-    delete &ls_; //test
+    delete &ls_;
     delete &seisarea_;
     deepErase( polygons_ );
 }
