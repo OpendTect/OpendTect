@@ -216,7 +216,8 @@ void SeisOutlineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
     for ( int idy=0; idy<poly.size(); idy++ )
     {
 	const Geom::Point2D<float>& pt = poly.getVertex( idy );
-	const BinID bid = seisarea_.atIndex( mNINT32(pt.x-1), mNINT32(pt.y-1) );
+	const BinID bid = seisarea_.atIndex( mNINT32(pt.x-1.0f),
+					     mNINT32(pt.y-1.0f) );
 	pts.add( SI().transform(bid) );
     }
 }
