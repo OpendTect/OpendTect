@@ -53,7 +53,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     setStretch( 2, 2 );
     gatherInfo();
     uiAxisHandler::Setup asu( uiRect::Bottom, setup_.canvaswidth_,
-	    		      setup_.canvasheight_ );
+			      setup_.canvasheight_ );
     asu.noaxisline( setup_.noxaxis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annotx_ );
     asu.nogridline( asu.noaxisline_ ? true : setup_.noxgridline_ );
@@ -349,8 +349,8 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 {
     const int nrpts = y2 ? y2xvals_.size() : xvals_.size();
     const uiPoint closept( xax_->getPix(xax_->range().start),
-	    		   y2 ? y2ax_->getPix(y2ax_->range().start)
-	   		      : yax_->getPix(yax_->range().start) );
+			   y2 ? y2ax_->getPix(y2ax_->range().start)
+			      : yax_->getPix(yax_->range().start) );
     const bool fillbelow = y2 ? setup_.fillbelowy2_ : setup_.fillbelow_;
     if ( fillbelow )
 	ptlist += closept;
@@ -578,7 +578,7 @@ void uiFunctionDisplay::drawMarkLines()
 
 
 void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val, Color col,
-       				  uiLineItem*& itm )
+				      uiLineItem*& itm )
 {
     delete itm;
     itm = ah->getFullLine( ah->getPix(val) );
