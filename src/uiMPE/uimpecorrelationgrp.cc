@@ -12,13 +12,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uimpecorrelationgrp.h"
 
 #include "draw.h"
-#include "emhorizon2d.h"
-#include "emhorizon3d.h"
 #include "horizonadjuster.h"
-#include "horizon2dseedpicker.h"
-#include "horizon3dseedpicker.h"
-#include "horizon2dtracker.h"
-#include "horizon3dtracker.h"
 #include "mpeengine.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
@@ -35,14 +29,15 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 namespace MPE
 {
 
-uiCorrelationGroup::uiCorrelationGroup( uiParent* p )
-    : uiGroup(p,"")
+uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
+    : uiDlgGroup(p,tr("Correlation"))
     , sectiontracker_(0)
     , adjuster_(0)
     , changed_(this)
     , seedpos_(Coord3::udf())
 {
-    usecorrfld_ = new uiGenInput( this, tr("Use Correlation"),
+    uiGroup* leftgrp = new uiGroup( this, "Left Group" );
+    usecorrfld_ = new uiGenInput( leftgrp, tr("Use Correlation"),
 				  BoolInpSpec(true));
     usecorrfld_->valuechanged.notify(
 	    mCB(this,uiCorrelationGroup,selUseCorrelation) );
@@ -54,57 +49,57 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p )
     IntInpSpec iis; iis.setLimits( intv );
 
     BufferString disptxt( "Data Display window ", SI().getZUnitString() );
-    nrzfld_ = new uiGenInput( this, disptxt, iis, iis );
+    nrzfld_ = new uiGenInput( leftgrp, disptxt, iis, iis );
     nrzfld_->attach( alignedBelow, usecorrfld_ );
     nrzfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
-    nrtrcsfld_ = new uiGenInput( this, "Nr Traces", IntInpSpec(5) );
+    nrtrcsfld_ = new uiGenInput( leftgrp, "Nr Traces", IntInpSpec(5) );
     nrtrcsfld_->attach( alignedBelow, nrzfld_ );
     nrtrcsfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
     BufferString compwindtxt( "Compare window ", SI().getZUnitString() );
-    compwinfld_ = new uiGenInput( this, compwindtxt, iis, iis );
+    compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis, iis );
     compwinfld_->attach( alignedBelow, nrtrcsfld_ );
     compwinfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
     IntInpSpec tiis; tiis.setLimits( StepInterval<int>(0,100,1) );
     corrthresholdfld_ =
-	new uiGenInput( this, tr("Correlation threshold (0-100)"), tiis );
+	new uiGenInput( leftgrp, tr("Correlation threshold (0-100)"), tiis );
     corrthresholdfld_->attach( alignedBelow, compwinfld_ );
     corrthresholdfld_->valuechanged.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
-    correlationvwr_ = new uiFlatViewer( this );
-    correlationvwr_->attach( rightOf, usecorrfld_ );
-    correlationvwr_->setPrefWidthInChar( 30 );
-    correlationvwr_->setPrefHeightInChar( 25 );
-    correlationvwr_->appearance().ddpars_.wva_.mappersetup_.cliprate_ =
+    previewvwr_ = new uiFlatViewer( this );
+    previewvwr_->attach( rightOf, leftgrp );
+    previewvwr_->setPrefWidth( 150 );
+    previewvwr_->setPrefHeight( 200 );
+    previewvwr_->setStretch( 0, 0 );
+    previewvwr_->appearance().ddpars_.wva_.mappersetup_.cliprate_ =
 				Interval<float>(0.01f,0.01f);
-    correlationvwr_->appearance().setGeoDefaults( true );
-    correlationvwr_->rgbCanvas();
+    previewvwr_->appearance().setGeoDefaults( true );
 
-    minitm_ = correlationvwr_->createAuxData( "Min line" );
+    minitm_ = previewvwr_->createAuxData( "Min line" );
     minitm_->cursor_.shape_ = MouseCursor::SizeVer;
     minitm_->linestyle_.color_ = Color(0,255,0);
     minitm_->poly_ += FlatView::Point(0,0);
     minitm_->poly_ += FlatView::Point(0,0);
-    correlationvwr_->addAuxData( minitm_ );
+    previewvwr_->addAuxData( minitm_ );
 
-    maxitm_ = correlationvwr_->createAuxData( "Max line" );
+    maxitm_ = previewvwr_->createAuxData( "Max line" );
     maxitm_->cursor_.shape_ = MouseCursor::SizeVer;
     maxitm_->linestyle_.color_ = Color(0,255,0);
     maxitm_->poly_ += FlatView::Point(0,0);
     maxitm_->poly_ += FlatView::Point(0,0);
-    correlationvwr_->addAuxData( maxitm_ );
+    previewvwr_->addAuxData( maxitm_ );
 
-    seeditm_ = correlationvwr_->createAuxData( "Seed" );
+    seeditm_ = previewvwr_->createAuxData( "Seed" );
     seeditm_->poly_ += FlatView::Point(0,0);
     seeditm_->markerstyles_ += MarkerStyle2D();
     seeditm_->markerstyles_[0].color_ = Color(0,255,0);
-    correlationvwr_->addAuxData( seeditm_ );
+    previewvwr_->addAuxData( seeditm_ );
 
     setHAlignObj( usecorrfld_ );
 }
@@ -120,7 +115,10 @@ void uiCorrelationGroup::selUseCorrelation( CallBacker* )
     const bool usecorr = usecorrfld_->getBoolValue();
     compwinfld_->setSensitive( usecorr );
     corrthresholdfld_->setSensitive( usecorr );
-    correlationvwr_->setSensitive( usecorr );
+    previewvwr_->setSensitive( usecorr );
+
+    nrzfld_->setSensitive( usecorr );
+    nrtrcsfld_->setSensitive( usecorr );
 }
 
 
@@ -190,17 +188,17 @@ void uiCorrelationGroup::updateViewer()
     const DataPack::ID dpid =
 	MPE::engine().getSeedPosDataPack( bid, z, nrtrcs, zintv );
 
-    correlationvwr_->setPack( true, dpid );
-    correlationvwr_->setViewToBoundingBox();
+    previewvwr_->setPack( true, dpid );
+    previewvwr_->setViewToBoundingBox();
 
     FlatView::Point& pt = seeditm_->poly_[0];
-    pt = FlatView::Point( bid.inl(), z );
+    pt = FlatView::Point( bid.crl(), z );
 
-    minitm_->poly_[0] = FlatView::Point( bid.inl()-nrtrcs/2, z+zintv.start );
-    minitm_->poly_[1] = FlatView::Point( bid.inl()+nrtrcs/2, z+zintv.start );
-    maxitm_->poly_[0] = FlatView::Point( bid.inl()-nrtrcs/2, z+zintv.stop );
-    maxitm_->poly_[1] = FlatView::Point( bid.inl()+nrtrcs/2, z+zintv.stop );
-    correlationvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+    minitm_->poly_[0] = FlatView::Point( bid.crl()-nrtrcs/2, z+zintv.start );
+    minitm_->poly_[1] = FlatView::Point( bid.crl()+nrtrcs/2, z+zintv.start );
+    maxitm_->poly_[0] = FlatView::Point( bid.crl()-nrtrcs/2, z+zintv.stop );
+    maxitm_->poly_[1] = FlatView::Point( bid.crl()+nrtrcs/2, z+zintv.stop );
+    previewvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
 
 

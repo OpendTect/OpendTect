@@ -1,4 +1,4 @@
-#ifndef uimpecorrelationgrp_H
+#ifndef uimpecorrelationgrp_h
 #define uimpecorrelationgrp_h
 
 /*+
@@ -15,13 +15,12 @@ ________________________________________________________________________
 #include "uimpemod.h"
 #include "flatview.h"
 
+#include "uidlggroup.h"
 #include "uimpe.h"
 
-class uiButtonGroup;
-class uiColorInput;
+
 class uiFlatViewer;
 class uiGenInput;
-class uiPushButton;
 
 namespace MPE
 {
@@ -32,10 +31,10 @@ class SectionTracker;
 
 /*!\brief Horizon tracking setup dialog. */
 
-mExpClass(uiMPE) uiCorrelationGroup : public uiGroup
+mExpClass(uiMPE) uiCorrelationGroup : public uiDlgGroup
 { mODTextTranslationClass(uiCorrelationGroup)
 public:
-				uiCorrelationGroup(uiParent*);
+				uiCorrelationGroup(uiParent*,bool is2d);
 				~uiCorrelationGroup();
 
     void			setSectionTracker(SectionTracker*);
@@ -57,7 +56,7 @@ protected:
     void			visibleDataChangeCB(CallBacker*);
 
     uiGenInput*			usecorrfld_;
-    uiFlatViewer*		correlationvwr_;
+    uiFlatViewer*		previewvwr_;
     uiGenInput*			compwinfld_;
     uiGenInput*			corrthresholdfld_;
     uiGenInput*			nrzfld_;
