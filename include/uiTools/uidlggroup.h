@@ -48,12 +48,11 @@ public:
 			*/
     virtual const char* errMsg() const			{ return 0; }
 
-    virtual HelpKey	helpKey() const 
-                        { return mNoHelpKey; }
+    virtual HelpKey	helpKey() const			{ return mNoHelpKey; }
 
 protected:
     uiString		caption_;
-    			
+
 };
 
 /*! Dialog with one uiDlgGroup. */
@@ -78,7 +77,7 @@ public:
 protected:
     bool	acceptOK(CallBacker*)		{ return grp_->acceptOK(); }
     bool	rejectOK(CallBacker*)		{ return grp_->rejectOK(); }
-	
+
     uiDlgGroup*	grp_;
 };
 
@@ -98,7 +97,7 @@ public:
     uiDlgGroup&		getGroup(int idx)	{ return *groups_[idx]; }
     const uiDlgGroup&	getGroup(int idx) const { return *groups_[idx]; }
     void		showGroup(int idx);
-    int			currentGroupID()	
+    int			currentGroupID()
     			{ return tabstack_->currentPageId(); }
 
     HelpKey		helpKey() const;
@@ -106,7 +105,7 @@ public:
 			    no help available for any group, "" if there is
 			    help for one or more groups, but not the currently
 			    seleceted one. */
-			
+
 
 protected:
 
