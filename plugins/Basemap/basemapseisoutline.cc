@@ -161,12 +161,10 @@ bool SeisOutlineObject::extractPolygons()
 
 bool SeisOutlineObject::extractSegments( PosInfo::CubeData& cubedata )
 {
-    if ( linespacing_.isUdf() )
-    {
-	seglineset_.erase();
-	nrsegments_ = 0;
-	return true;
-    }
+    seglineset_.erase();
+    nrsegments_ = 0;
+
+    if ( linespacing_.isUdf() ) return true;
 
     SegmentLine segline;
     for ( int inlidx=linespacing_.start; inlidx<=linespacing_.stop;
@@ -218,7 +216,8 @@ void SeisOutlineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
     for ( int idy=0; idy<poly.size(); idy++ )
     {
 	const Geom::Point2D<float>& pt = poly.getVertex( idy );
-	const BinID bid = seisarea_.atIndex( mNINT32(pt.x), mNINT32(pt.y) );
+	const BinID bid = seisarea_.atIndex( mNINT32(pt.x-1.0f),
+					     mNINT32(pt.y-1.0f) );
 	pts.add( SI().transform(bid) );
     }
 }
