@@ -353,7 +353,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
     }
 
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
-	mkObjFld( tr("Output Stickset") );
+	mkObjFld( tr("Output FaultStickSet") );
     else
 	mkObjFld( tr("Output %1").arg( setup.typname_ ) );
 
