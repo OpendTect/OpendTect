@@ -26,7 +26,7 @@ namespace visBase
     class DepthTabPlaneDragger;
     class GridLines;
     class TextureRectangle;
-};
+}
 
 class BinIDValueSet;
 class RegularSeisDataPack;
@@ -132,7 +132,7 @@ public:
 						 the plane setting should be
 						 returned.
 				    \returns	combination of OD::ButtonState*/
-    bool	isVerticalPlane() const;
+    bool			isVerticalPlane() const;
 
     virtual bool		canDuplicate() const	{ return true; }
     virtual SurveyObject*	duplicate(TaskRunner*) const;
@@ -233,7 +233,6 @@ protected:
 };
 
 } // namespace visSurvey
-
 
 #endif
 

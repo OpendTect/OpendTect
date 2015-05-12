@@ -42,7 +42,8 @@ const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
-    : panelstrip_( visBase::TexturePanelStrip::create() )
+    : MultiTextureSurveyObject()
+    , panelstrip_( visBase::TexturePanelStrip::create() )
     , dragger_( visBase::RandomTrackDragger::create())
     , polyline_( visBase::PolyLine::create())
     , polylinemode_(false)
@@ -1018,8 +1019,8 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 	if ( selspec ) rtd->setSelSpec( idx, *selspec );
 	rtd->setDataPackID( idx, getDataPackID(idx), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
-	if ( mappersetup ) rtd->setColTabMapperSetup( idx, *mappersetup, 
-						      taskr );
+	if ( mappersetup )
+	    rtd->setColTabMapperSetup( idx, *mappersetup, taskr );
 	const ColTab::Sequence* colseq = getColTabSequence( idx );
 	if ( colseq ) rtd->setColTabSequence( idx, *colseq, taskr );
     }
@@ -1251,7 +1252,7 @@ void RandomTrackDisplay::setPolyLineMode( bool mode )
 
 
 bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
-					 const Coord3& pos) const
+					 const Coord3& pos ) const
 {
     const int sz = evi.pickedobjids.size();
     bool validpicksurface = false;

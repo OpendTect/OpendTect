@@ -20,14 +20,14 @@ ________________________________________________________________________
 
 class TrcKeyZSampling;
 
-namespace visBase 
-{ 
+namespace visBase
+{
     class EventCatcher;
     class PolyLine;
-    class RandomTrackDragger; 
+    class RandomTrackDragger;
     class MarkerSet;
     class TexturePanelStrip;
-};
+}
 
 
 namespace visSurvey
@@ -49,13 +49,13 @@ mExpClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
 { mODTextTranslationClass(RandomTrackDisplay);
 public:
 				RandomTrackDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,RandomTrackDisplay,
-				    "RandomTrackDisplay", 
+				    "RandomTrackDisplay",
 				    toUiString(sFactoryKeyword()));
 
     int				nameNr() const { return namenr_; }
-    				/*!<\returns a number that is unique for 
+    				/*!<\returns a number that is unique for
 				     this rtd, and is present in its name. */
 
     bool			isInlCrl() const { return true; }
@@ -88,9 +88,9 @@ public:
 
     bool			setDataPackID(int attrib,DataPack::ID,
 						TaskRunner*);
-    DataPack::ID                getDataPackID(int attrib) const;
+    DataPack::ID		getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
-    virtual DataPackMgr::ID     getDataPackMgrID() const
+    virtual DataPackMgr::ID	getDataPackMgrID() const
 				{ return DataPackMgr::SeisID(); }
 
     bool			canAddKnot(int knotnr) const;
@@ -102,7 +102,7 @@ public:
 				/*!< If knotnr<nrKnots, a knot is added before
 				     the knotnr. If knotnr==nrKnots, a knot is
 				     added at the end. */
-    				
+
     int				nrKnots() const;
     void			addKnot(const BinID&);
     void			insertKnot(int,const BinID&);
@@ -110,7 +110,7 @@ public:
     BinID			getKnotPos(int) const;
     BinID			getManipKnotPos(int) const;
     void			getAllKnotPos(TypeSet<BinID>&) const;
-    TypeSet<BinID>*             getKnots()		{ return &knots_; }
+    TypeSet<BinID>*		getKnots()		{ return &knots_; }
     void			removeKnot(int);
     void			removeAllKnots();
     bool			setKnotPositions(const TypeSet<BinID>&);
@@ -135,7 +135,7 @@ public:
     NotifierAccess*		getManipulationNotifier() {return &knotmoving_;}
 
     Coord3			getNormal(const Coord3&) const;
-    virtual float               calcDist(const Coord3&) const;
+    virtual float		calcDist(const Coord3&) const;
     virtual bool		allowsPicks() const		{ return true; }
 
     virtual void		fillPar(IOPar&) const;
@@ -144,12 +144,12 @@ public:
     bool			canBDispOn2DViewer() const	{ return true; }
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
-    
+
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> knotmoving_;
 
     const char*			errMsg() const { return errmsg_.str(); }
-    void			setPolyLineMode(bool mode ); 
+    void			setPolyLineMode(bool mode );
     bool			createFromPolyLine();
     void			setColor(Color);
 
@@ -162,7 +162,7 @@ public:
     virtual void		annotateNextUpdateStage(bool yn);
     virtual void		setPixelDensity(float);
 
-				
+
 protected:
 				~RandomTrackDisplay();
 
@@ -230,8 +230,7 @@ protected:
     static const char*		sKeyLockGeometry();
 };
 
-};
-
+} // namespace visSurvey
 
 #endif
 
