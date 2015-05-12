@@ -13,6 +13,7 @@ SET(OD_MODULE_SOURCES
 	uihorizontracksetup.cc
 	uimpe.cc
 	uimpecorrelationgrp.cc
+	uimpeeventgrp.cc
 	uimpepartserv.cc
 	horflatvieweditor.cc
 	horflatvieweditor2d.cc
