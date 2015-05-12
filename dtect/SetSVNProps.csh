@@ -61,30 +61,15 @@ endif
 
 shift 
 
-(svn proplist ${filename} > ${tmpfile} ) >& ${tmperrfile}
-set errsize=`ls -la ${tmperrfile} | awk '{ print $5}'`
-if ( ${errsize} == 0 ) then
-    svn propset svn:keywords "Author Date Id Revision URL" ${filename}
-    if ( ${status} != 0 ) then
-	echo "Cannot set keyword property on ${filename}"
-	rm -rf ${tmpfile} ${tmperrfile}
-	exit 1
-    endif
-	
-    svn propset svn:eol-style "LF" ${filename}
-    if ( ${status} != 0 ) then
-	echo "Cannot set eol-style property on ${filename}"
-	rm -rf ${tmpfile} ${tmperrfile}
-	exit 1
-    endif
-    svn propdel svn:needs-lock ${filename}
-endif
+svn propdel svn:needs-lock ${filename}
+svn propdel svn:keywords ${filename}
+svn propdel svn:eol-style ${filename}
 
 goto nextfile
 
 syntax:
 echo
-echo ${progname} - Sets the standard svn properties for source files
+echo ${progname} - Removes the standard svn properties for source files
 echo
 echo Returns 0 if success, otherwise 1
 echo
