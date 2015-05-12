@@ -341,12 +341,7 @@ int uiWellSelGrp::getFirstEmptyRow()
 
 void uiWellSelGrp::ptsSel( CallBacker* )
 {
-    for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
-    {
-	mDynamicCastGet(uiComboBox*,box,
-			selwellstbl_->getCellObject(RowCol(idx,1)))
-	if ( box ) box->setSensitive( !onlytopfld_->getBoolValue() );
-    }
+    selwellstbl_->hideColumn( 1, onlytopfld_->getBoolValue() );
 }
 
 
