@@ -46,6 +46,7 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
     uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Select Log") );
     llb->setStretch( 1, 1 );
     logsfld_ = llb->box();
+    logsfld_->setHSzPol( uiObject::Wide );
     llb->attach( alignedBelow, wellfld_ );
 
     sampfld_ = new uiGenInput( this, tr("Log resampling method"),
@@ -60,7 +61,10 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
 void uiWellLogAttrib::selDone( CallBacker* )
 {
     logsfld_->setEmpty();
-    const MultiID wellid = wellfld_->key();
+    const MultiID wellid = wellfld_->key( true );
+    if ( wellid.isUdf() )
+	return;
+
     RefMan<Well::Data> wd = new Well::Data;
     BufferStringSet lognms;
     if ( Well::MGR().isLoaded(wellid) )

@@ -140,12 +140,13 @@ bool uiHorizonAttrib::getInput( Desc& desc )
 
 void uiHorizonAttrib::horSel( CallBacker* )
 {
-    if ( !horfld_->ioobj() ) return;
+    const IOObj* ioobj = horfld_->ioobj( true );
+    if ( !ioobj ) return;
 
-    EM::IOObjInfo eminfo( horfld_->ioobj()->key() );
+    const EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
     {
-	uiString msg = tr("Cannot read '%1'").arg(horfld_->ioobj()->name());
+	uiString msg = tr("Cannot read '%1'").arg( ioobj->name() );
 	uiMSG().error( msg );
 	return;
     }
