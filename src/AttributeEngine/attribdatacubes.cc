@@ -13,9 +13,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "convmemvalseries.h"
 #include "binidvalue.h"
+#include "hiddenparam.h"
 
 namespace Attrib
 {
+
+HiddenParam<DataCubes,float>	  z0manager( mUdf(float) );
 
 DataCubes::DataCubes()
     : inlsampling_( SI().inlRange(true).start, SI().inlRange(true).step )
@@ -25,11 +28,27 @@ DataCubes::DataCubes()
     , inlsz_( 0 )
     , crlsz_( 0 )
     , zsz_( 0 )
-{}
+{
+    z0manager.setParam( this, SI().zRange(true).start/SI().zRange(true).step );
+}
 
 
 DataCubes::~DataCubes()
 { deepErase( cubes_ ); }
+
+
+void DataCubes::setZ0( float z0 )
+{
+    z0manager.setParam( this, z0 );
+    z0_ = mNINT32(z0_);
+}
+
+
+float DataCubes::getZ0() const
+{
+    const float z050 = z0manager.getParam( this );
+    return mIsUdf( z050 ) ? (float)z0_ : z050;
+}
 
 
 bool DataCubes::addCube( const  BinDataDesc* desc )
@@ -73,7 +92,14 @@ bool DataCubes::addCube( float val, const BinDataDesc* t )
     setValue( cubes_.size()-1, val );
     return true;
 }
-    
+
+
+bool DataCubes::addCube( Array3DImpl<float>& arr3d )
+{
+    cubes_ += &arr3d;
+    return true;
+}
+
 
 void DataCubes::removeCube( int idx )
 {
@@ -88,7 +114,7 @@ bool DataCubes::setSizeAndPos( const CubeSampling& cs )
     crlsampling_.start = cs.hrg.start.crl();
     inlsampling_.step = cs.hrg.step.inl();
     crlsampling_.step = cs.hrg.step.crl();
-    z0_ = mNINT32(cs.zrg.start/cs.zrg.step);
+	setZ0( cs.zrg.start/cs.zrg.step);
     zstep_ = cs.zrg.step;
 
     return setSize( cs.nrInl(), cs.nrCrl(), cs.nrZ() );
@@ -223,8 +249,8 @@ CubeSampling DataCubes::cubeSampling() const
 			      crlsampling_.atIndex(crlsz_-1) );
 	res.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
 
-	res.zrg.start = (float) (z0_ * zstep_);
-	res.zrg.stop = (float) ((z0_ + zsz_ - 1) * zstep_);
+	res.zrg.start = (float) (getZ0() * zstep_);
+	res.zrg.stop = (float) ((getZ0() + zsz_ - 1) * zstep_);
 	res.zrg.step = (float) zstep_;
     }
 

@@ -104,6 +104,12 @@ float Pos::RangeProvider3D::curZ() const
 }
 
 
+void Pos::RangeProvider3D::setSampling( const CubeSampling& cs ) const
+{
+    cs_ = cs;
+}
+
+
 bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
 {
     bool issel = cs_.hrg.includes(bid);

@@ -54,6 +54,7 @@ public:
 
     CubeSampling&	sampling()		{ return cs_; }
     const CubeSampling&	sampling() const	{ return cs_; }
+	void		setSampling( const CubeSampling& cs ) const;
 
     virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
 			{ return Pos::Provider3D::includes(c,z); }

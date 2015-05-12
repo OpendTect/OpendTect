@@ -32,6 +32,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "task.h"
 #include "valseriesinterpol.h"
 
+#include "hiddenparam.h"
+
 
 namespace Attrib
 {
@@ -85,6 +87,8 @@ protected:
     int				nrsamples_;
 };
 
+
+HiddenParam<Provider,float>	 refz0manager( mUdf(float) );
 
 Provider* Provider::create( Desc& desc, uiString& errstr )
 {
@@ -176,7 +180,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    existing.removeRange(existing.indexOf(newprov),existing.size()-1 );
 	    newprov->unRef();
 	    errstr =
-		tr("Input is not correct. One of the inputs depend on itself");
+		tr("Input is not correct. One of the inputs depends on itself");
 	    return 0;
 	}
 
@@ -238,6 +242,8 @@ Provider::Provider( Desc& nd )
 
     if ( !desc_.descSet() )
 	errmsg_ = tr("No attribute set specified");
+
+    refz0manager.setParam( this, 0 );
 }
 
 
@@ -256,6 +262,12 @@ Provider::~Provider()
     delete linebuffer_;
     delete possiblevolume_;
     delete desiredvolume_;
+}
+
+
+float Provider::getRefZ0() const
+{
+    return refz0manager.getParam( this );
 }
 
 
@@ -1118,7 +1130,7 @@ uiString Provider::prepare( Desc& desc )
 	errmsg = prov->errMsg();
     if ( errmsg.isEmpty() )
     {
-	errmsg = tr("Cannot initialise '%1' Attribute properly")
+	errmsg = tr("Cannot initialize '%1' Attribute properly")
 		    .arg( desc.attribName() );
     }
 
@@ -1396,6 +1408,31 @@ void Provider::setRefStep( float step )
     refstep_ = step;
     for ( int idx=0; idx<allexistingprov_.size(); idx++ )
 	const_cast<Provider*>(allexistingprov_[idx])->refstep_ = refstep_;
+}
+
+
+void Provider::computeRefZ0()
+{
+    for( int idx=0; idx<allexistingprov_.size(); idx++ )
+    {
+		float z0 = 0;
+		bool isstored = allexistingprov_[idx]->getZ0StoredData(z0);
+		if ( isstored )
+		{
+		    float refz0 = getRefZ0();
+		    refz0manager.setParam( this, ( refz0 < z0 )? refz0 : z0 );
+	    }
+	}
+}
+
+
+void Provider::setRefZ0( float z0, bool dospread )
+{
+    refz0manager.setParam( this, z0 );
+    if ( !dospread ) return;
+
+    for ( int idx=0; idx<allexistingprov_.size(); idx++ )
+	const_cast<Provider*>(allexistingprov_[idx])->setRefZ0( z0, false );
 }
 
 

@@ -262,7 +262,7 @@ void Processor::init()
 	}
 
     }
-    computeAndSetRefZStep();
+    computeAndSetRefZStepAndZ0();
     provider_->prepPriorToBoundsCalc();    
 
     prepareForTableOutput();
@@ -341,11 +341,15 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 }
 
 
-void Processor::computeAndSetRefZStep()
+void Processor::computeAndSetRefZStepAndZ0()
 {
     provider_->computeRefStep();
     const float zstep = provider_->getRefStep();
     provider_->setRefStep( zstep );
+
+    provider_->computeRefZ0();
+    const float z0 = provider_->getRefZ0();
+    provider_->setRefZ0( z0, true );
 }
 
 

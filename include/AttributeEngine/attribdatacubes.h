@@ -40,7 +40,8 @@ public:
     
     bool			addCube(const BinDataDesc* bdd=0);
     bool			addCube(float,const BinDataDesc* bdd=0);
-    				//!<Adds the cube and inits it to the given val.
+				//!<Adds the cube and inits it to the given val.
+    bool			addCube(Array3DImpl<float>&);
     void			removeCube(int);
 
     bool			setSizeAndPos(const CubeSampling&);
@@ -88,6 +89,10 @@ public:
     				/*!<For convenience. The samling is changed
 				    by setting inlsampling, crlsampling, z0 and
 				    zstep. */
+
+				//5.0 only, to keep binary compatibility
+    void			setZ0(float);
+    float			getZ0() const;
 
     static int			cInlDim()	{ return 0; }
     static int			cCrlDim()	{ return 1; }

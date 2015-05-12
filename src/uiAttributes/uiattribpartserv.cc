@@ -29,10 +29,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribstorprovider.h"
 
 #include "arraynd.h"
+#include "arrayndslice.h"
 #include "binidvalset.h"
 #include "coltabmapper.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
+#include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
 #include "iodir.h"
@@ -46,6 +48,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "ptrman.h"
 #include "randcolor.h"
+#include "rangeposprovider.h"
 #include "seisbuf.h"
 #include "seisinfo.h"
 #include "survinfo.h"
@@ -625,12 +628,19 @@ DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
 }
 
 
+#define mCleanReturn()\
+{\
+    dtcoldefset.erase();\
+    return 0;\
+}
+
 const Attrib::DataCubes* uiAttribPartServer::createOutput(
 				const CubeSampling& cs, const DataCubes* cache )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, 0 );
     if ( !aem ) return 0;
 
+    bool atsamplepos = true;
     BufferString defstr;
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet( false, isstortarget );
@@ -641,48 +651,108 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	attrds->getDesc(targetspecs_[0].id())->getDefStr(defstr);
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = 0;
+
+	const bool isz = cs.isFlat()&&cs.defaultDir() == CubeSampling::Z;
+	if ( isz )
+	{
+	    uiString errmsg;
+	    Desc* nonconsttargetdesc = const_cast<Desc*>( targetdesc );
+	    RefMan<Provider> tmpprov =
+			Provider::create( *nonconsttargetdesc, errmsg );
+	    if ( !tmpprov ) return 0;
+
+	    tmpprov->computeRefStep();
+	    tmpprov->computeRefZ0();
+	    const float floatres = (cs.zrg.start - tmpprov->getRefZ0()) /
+				    tmpprov->getRefStep();
+	    const int intres = mNINT32( floatres );
+	    if ( Math::Abs(floatres-intres) > 1e-4 )
+		atsamplepos = false;
+	}
     }
 
-    uiString errmsg;
-    Processor* process = aem->createDataCubesOutput( errmsg, cache );
-    if ( !process )
-	{ uiMSG().error(errmsg); return 0; }
-
-    bool showinlprogress = true;
-    bool showcrlprogress = true;
-    Settings::common().getYN( "dTect.Show inl progress", showinlprogress );
-    Settings::common().getYN( "dTect.Show crl progress", showcrlprogress );
-
-    const bool isstored =
-	targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
-    const bool isinl = cs.isFlat() && cs.defaultDir() == CubeSampling::Inl;
-    const bool iscrl = cs.isFlat() && cs.defaultDir() == CubeSampling::Crl;
-    const bool hideprogress = isstored &&
-	( (isinl&&!showinlprogress) || (iscrl&&!showcrlprogress) );
-
-    bool success = true;
-    if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
+	bool success = true;
+    Processor* process = 0;
+    DataCubes* output = 0;
+    if ( !atsamplepos )//note: 1 attrib computed at a time
     {
-	if ( !hideprogress )
+	if ( !targetdesc ) return 0;
+	Pos::RangeProvider3D rgprov3d;
+	rgprov3d.setSampling( cs );
+	DataColDef* dtcd = new DataColDef( targetdesc->userRef() );
+	ManagedObjectSet<DataColDef> dtcoldefset;
+	dtcoldefset += dtcd;
+	DataPointSet posvals( rgprov3d, dtcoldefset );
+	const int firstcolidx = 0;
+
+	uiString errmsg;
+	process = aem->getTableOutExecutor( posvals, errmsg, firstcolidx );
+	if ( !process )
+	    { uiMSG().error(errmsg); mCleanReturn(); }
+
+	uiTaskRunner taskrunner( parent() );
+	if ( !TaskRunner::execute( &taskrunner, *process ) )
 	{
-	    uiTaskRunner taskrunner( parent() );
-	    success = TaskRunner::execute( &taskrunner, *process );
+	    delete process;
+	    mCleanReturn();
 	}
-	else
+
+	output = new DataCubes;
+	output->setSizeAndPos( cs );
+	TypeSet<float> values;
+	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, values,
+				    true );
+	ArrayValueSeries<float, float>* avs =
+	    new ArrayValueSeries<float,float>(values.arr(),true, values.size());
+	Array3DImpl<float>* arr3d =
+			new Array3DImpl<float>( cs.nrInl(), cs.nrCrl(), 1 );
+	arr3d->setStorage( avs );
+	output->addCube( *arr3d );
+	dtcoldefset.erase();
+    }
+    else
+    {
+	uiString errmsg;
+	process = aem->createDataCubesOutput( errmsg, cache );
+	if ( !process )
+	    { uiMSG().error(errmsg); return 0; }
+
+	bool showinlprogress = true;
+	bool showcrlprogress = true;
+	Settings::common().getYN( "dTect.Show inl progress", showinlprogress );
+	Settings::common().getYN( "dTect.Show crl progress", showcrlprogress );
+
+	const bool isstored =
+	    targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
+	const bool isinl = cs.isFlat() && cs.defaultDir() == CubeSampling::Inl;
+	const bool iscrl = cs.isFlat() && cs.defaultDir() == CubeSampling::Crl;
+	const bool hideprogress = isstored &&
+	    ( (isinl&&!showinlprogress) || (iscrl&&!showcrlprogress) );
+
+	if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
 	{
-	    MouseCursorChanger cursorchgr( MouseCursor::Wait );
-	    if ( !process->execute() )
+	    if ( !hideprogress )
 	    {
-		const uiString msg( process->uiMessage() );
-		if ( !msg.isEmpty() )
-		    uiMSG().error( msg );
-		delete process;
-		return 0;
+		uiTaskRunner taskrunner( parent() );
+		success = TaskRunner::execute( &taskrunner, *process );
+	    }
+	    else
+	    {
+		MouseCursorChanger cursorchgr( MouseCursor::Wait );
+		if ( !process->execute() )
+		{
+		    const uiString msg( process->uiMessage() );
+		    if ( !msg.isEmpty() )
+			uiMSG().error( msg );
+		    delete process;
+		    return 0;
+		}
 	    }
 	}
+
+	output = const_cast<DataCubes*>(aem->getDataCubesOutput( *process ));
     }
 
-    const DataCubes* output = aem->getDataCubesOutput( *process );
     if ( !output )
     {
 	delete process;
