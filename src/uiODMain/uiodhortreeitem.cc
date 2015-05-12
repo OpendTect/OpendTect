@@ -55,7 +55,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mSectFullIdx	7
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
-    : uiODTreeItem( "Horizon" )
+    : uiODTreeItem( "3D Horizon" )
 {}
 
 
