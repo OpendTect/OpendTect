@@ -189,8 +189,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     Interval<double> plgzrg( mUdf(double), mUdf(double) );
     if ( flatbody )
     {
-	alloutside = !flatpolygon_.hrg.inlRange().includes(bid.inl(),false) ||
-		     !flatpolygon_.hrg.crlRange().includes(bid.crl(),false);
+	alloutside = !flatpolygon_.hsamp_.inlRange().includes(bid.inl(),false) ||
+		     !flatpolygon_.hsamp_.crlRange().includes(bid.crl(),false);
 	if ( !alloutside )
 	{
 	    if ( !getFlatPlgZRange( bid, plgzrg ) )
@@ -339,16 +339,16 @@ Task* BodyFiller::createTask()
 	}
 	else
 	{
-	    flatpolygon_.hrg.include( bid );
+	    flatpolygon_.hsamp_.include( bid );
 	    flatpolygon_.zsamp_.include( (float) plgknots_[idx].z );
 	}
     }
 
     if ( surf->nrPolygons()==1 )
     {
-	if ( !flatpolygon_.hrg.inlRange().width() )
+	if ( !flatpolygon_.hsamp_.inlRange().width() )
 	    plgdir_ = plgIsInline;
-	else if ( !flatpolygon_.hrg.crlRange().width() )
+	else if ( !flatpolygon_.hsamp_.crlRange().width() )
 	    plgdir_ = plgIsCrline;
 	else
 	    plgdir_ = plgIsZSlice;

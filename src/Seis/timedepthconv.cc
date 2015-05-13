@@ -552,7 +552,7 @@ Interval<float> Time2DepthStretcher::getDepthInterval( const BinID& bid,
 						 int idx) const
 {
     if ( !voiintime_[idx] )
-	return voivols_[idx].zrg;
+	return voivols_[idx].zsamp_;
 
     const int inlidx = voivols_[idx].hsamp_.inlIdx(bid.inl());
     const int crlidx = voivols_[idx].hsamp_.crlIdx(bid.crl());

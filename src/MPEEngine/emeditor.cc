@@ -156,7 +156,7 @@ bool ObjectEditor::canSnapAfterEdit(const EM::PosID& pid) const
 	const Coord3 pos = emobject.getPos(nodes[idx]);
 	const BinID bid = SI().transform(pos);
 
-	if ( !trackvolume.hrg.includes( bid ) )
+	if ( !trackvolume.hsamp_.includes( bid ) )
 	    return false;
 	if ( !trackvolume.zsamp_.includes( pos.z,false ) )
 	    return false;

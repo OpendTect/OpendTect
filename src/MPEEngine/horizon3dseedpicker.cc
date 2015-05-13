@@ -499,7 +499,7 @@ bool Horizon3DSeedPicker::lineTrackDirection( BinID& dir,
 					    bool perptotrackdir ) const
 {
     const TrcKeyZSampling& activevol = engine().activeVolume();
-    dir = activevol.hrg.step;
+    dir = activevol.hsamp_.step_;
 
     const bool inltracking = activevol.nrInl()==1 && activevol.nrCrl()>1;
     const bool crltracking = activevol.nrCrl()==1 && activevol.nrInl()>1;
@@ -611,16 +611,16 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 TrcKeyZSampling Horizon3DSeedPicker::getTrackBox() const
 {
     TrcKeyZSampling trackbox( true );
-    trackbox.hrg.init( false );
+    trackbox.hsamp_.init( false );
     for ( int idx=0; idx<seedpos_.size(); idx++ )
     {
 	const BinID seedbid = SI().transform( seedpos_[idx] );
 	if ( engine().activeVolume().hsamp_.includes(seedbid) )
-	    trackbox.hrg.include( seedbid );
+	    trackbox.hsamp_.include( seedbid );
     }
 
     for ( int idx=0; idx<trackbounds_.size(); idx++ )
-	trackbox.hrg.include( trackbounds_[idx] );
+	trackbox.hsamp_.include( trackbounds_[idx] );
 
     return trackbox;
 }

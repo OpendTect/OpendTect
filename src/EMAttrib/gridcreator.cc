@@ -285,7 +285,7 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	return false;
 
     Grid2D grid;
-    grid.set( baseline, pardist, perdist, bbox.hrg );
+    grid.set( baseline, pardist, perdist, bbox.hsamp_ );
     if ( !grid.totalSize() )
 	return false;
 

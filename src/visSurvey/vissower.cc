@@ -259,13 +259,13 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
 
     Coord3& lastworldpos = eventlist_[eventlist_.size()-1]->worldpickedpos;
     const BinID lastbid = SI().transform( lastworldpos );
-    const BinID start = workrange_->start;
-    const BinID stop = workrange_->stop;
+    const BinID start = workrange_->start_;
+    const BinID stop = workrange_->stop_;
 
     const int min2 = (int)mMIN( lastbid.sqDistTo(start), 
 				lastbid.sqDistTo(stop) );
-    const int step = workrange_->nrCrl()==1 ? workrange_->step.inl()
-					    : workrange_->step.crl();
+    const int step = workrange_->nrCrl()==1 ? workrange_->step_.inl()
+					    : workrange_->step_.crl();
     if ( min2 > 100*step*step )
 	return;
 

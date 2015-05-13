@@ -606,13 +606,13 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     for ( int idx=0; idx<pidlist.size(); idx++ ) \
     { \
 	RowCol rc = RowCol::fromInt64( pidlist[idx].subID() ); \
-	trackbox.hrg.include( BinID(rc) ); \
+	trackbox.hsamp_.include( BinID(rc) ); \
     }
 
 TrcKeyZSampling Horizon2DSeedPicker::getTrackBox() const
 {
     TrcKeyZSampling trackbox( true );
-    trackbox.hrg.init( false );
+    trackbox.hsamp_.init( false );
     mAddToBox(seedlist_);
     mAddToBox(trackbounds_);
 
