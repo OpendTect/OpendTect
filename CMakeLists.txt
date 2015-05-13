@@ -23,7 +23,7 @@ if ( NOT DEFINED OpendTect_FULL_VERSION )
 	 ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_PATCH} )
 endif()
 
-if ( CMAKE_VERSION VERSION_LESS 3.0.0 )	
+if ( CMAKE_VERSION VERSION_LESS 3.0.0 )
     project( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 else()
     cmake_policy( SET CMP0042 OLD )
@@ -99,8 +99,6 @@ set( OD_PLUGINS
 	uiVoxelConnectivityFilter
 	uiPreStackViewer
 	CmdDriver
-	Basemap
-	uiBasemap
 )
 
 
