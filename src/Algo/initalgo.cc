@@ -29,6 +29,7 @@ mDefModInitFn(Algo)
 
     InverseDistanceGridder2D::initClass();
     TriangulatedGridder2D::initClass();
+    RadialBasisFunctionGridder2D::initClass();
 
     Pos::RandomFilter3D::initClass();
     Pos::RandomFilter2D::initClass();

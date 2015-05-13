@@ -31,8 +31,10 @@ mClass(Algo) LinSolver
 {
 public:
 				LinSolver(const Array2D<T>& A);
-    				~LinSolver();
-    
+				LinSolver(const LinSolver&);
+
+				~LinSolver();
+
     bool			ready() const	{ return ready_; }
     int				size() const	{ return n_; }
 
@@ -45,7 +47,7 @@ protected:
     bool			parity_;
     bool			ready_;
 
-}; 
+};
 
 
 template <class T> inline
@@ -146,11 +148,26 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 
 #undef TINY
 
+template <class T> inline
+LinSolver<T>::LinSolver( const LinSolver& s )
+    : croutsmatrix_(s.croutsmatrix_)
+    , croutsidx_(0)
+    , n_(s.n_)
+    , parity_(s.parity_)
+    , ready_(s.ready_)
+{
+    if ( s.croutsidx_ )
+    {
+	croutsidx_ = new int[s.n_];
+	for ( int idx=0; idx<s.n_; idx++ )
+	    croutsidx_[idx] = s.croutsidx_[idx];
+    }
+}
 
 
 template <class T> inline
 LinSolver<T>::~LinSolver( )
-{   
+{
     delete [] croutsidx_;
 }
 
@@ -162,7 +179,7 @@ void LinSolver<T>::apply( const T* b, T* x ) const
 	x[idx] = b[idx];
 
     int ii=-1;
-    
+
     for ( int i=0; i<n_; i++ )
     {
 	int ip=croutsidx_[i];

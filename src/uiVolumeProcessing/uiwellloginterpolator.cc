@@ -53,6 +53,7 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     uiStringSet algos;
     algos += InverseDistanceGridder2D::sFactoryDisplayName();
     algos += TriangulatedGridder2D::sFactoryDisplayName();
+    algos += RadialBasisFunctionGridder2D::sFactoryDisplayName();
     algosel_ = new uiGenInput( this, tr("Algorithm"), StringListInpSpec(algos));
     algosel_->attach( alignedBelow, welllogsel_ );
 
@@ -64,7 +65,9 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     radiusfld_->setWithCheck( true );
 
     const BufferString nm = hwinterpolator_.getGridderName();
-    if ( nm == TriangulatedGridder2D::sFactoryKeyword() )
+    if ( nm == RadialBasisFunctionGridder2D::sFactoryKeyword() )
+	algosel_->setText( algos[2].getFullString() );
+    else if ( nm == TriangulatedGridder2D::sFactoryKeyword() )
 	algosel_->setText( algos[1].getFullString() );
     else
     {

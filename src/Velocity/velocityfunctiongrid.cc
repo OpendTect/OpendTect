@@ -69,16 +69,16 @@ bool GriddedFunction::fetchSources()
 
     if ( !velfuncs.size() ) //no perfect fit
     {
+	TypeSet<double> weights;
+	TypeSet<int> usedpoints;
 	const Coord workpos = SI().transform( bid_ );
-	if ( gridder_ && (!gridder_->setGridPoint( workpos ) ||
-	     !gridder_->init()) )
+	if ( gridder_ && !gridder_->getWeights(workpos,weights,usedpoints) )
 	    return false;
 
 	const TypeSet<BinID>& binids = gvs.gridsourcebids_;
-	const TypeSet<int>& gridinput = gridder_->usedValues();
-	for ( int idx=0; idx<gridinput.size(); idx++ )
+	for ( int idx=0; idx<usedpoints.size(); idx++ )
 	{
-	    const BinID curbid = binids[gridinput[idx]];
+	    const BinID curbid = binids[usedpoints[idx]];
 
 	    int funcsource;
 	    ConstRefMan<Function> velfunc = getInputFunction(curbid,funcsource);
@@ -195,6 +195,11 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
     const bool nogridding = velocityfunctions_.size()==1;
 
     const bool doinverse = getDesc().isVelocity();
+    const Coord workpos = SI().transform( bid_ );
+    TypeSet<double> weights;
+    TypeSet<int> usedpoints;
+    if ( !gridder_ || !gridder_->getWeights(workpos,weights,usedpoints) )
+	return false;
 
     for ( int idx=0; idx<nr; idx++ )
     {
@@ -219,7 +224,6 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	double gridvaluesum = 0;
 	int nrgridvalues = 0;
 
-	const TypeSet<int>& usedpoints = gridder_->usedValues();
 	for ( int idy=usedpoints.size()-1; idy>=0; idy-- )
 	{
 	    const Function* func = velocityfunctions_[idy];
@@ -265,8 +269,8 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 		gridvalues_[undefpos[idy]] = averageval;
 	}
 
-	gridder_->setValues( gridvalues_, false );
-	const float val = gridder_->getValue();
+	gridder_->setValues( gridvalues_ );
+	const float val = gridder_->getValue( workpos, &weights, &usedpoints );
 	if ( doinverse )
 	    res[idx] = mIsZero(val, 1e-7 ) ? mUdf(float) : 1.0f/val;
 	else

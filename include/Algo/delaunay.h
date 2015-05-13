@@ -72,7 +72,7 @@ public:
     bool		getConnections(int pointidx,TypeSet<int>&) const;
     bool		getWeights(int pointidx,const TypeSet<int>& conns,
 				   TypeSet<double>& weights,
-				   bool normailze=true) const;
+				   bool normalize=true) const;
 			/*!Calculate inverse distance weight for each conns.*/
     bool		getConnectionAndWeights(int ptidx,TypeSet<int>& conns,
 					     TypeSet<double>& weights,
@@ -192,7 +192,7 @@ public:
 			/*The vertices are indices from the DAGTriangleTree
 			  coordlist, corresponding to the weights.*/
     bool		computeWeights(const Coord&,TypeSet<int>& vertices,
-				       TypeSet<float>& weights,
+				       TypeSet<double>& weights,
 				       double maxdist=mUdf(double),
 				       bool dointerpolate=true);
 			/*If don't do interpolate, nearest node will be taken.*/
@@ -202,7 +202,7 @@ protected:
     bool			setFromAzimuth(const TypeSet<int>& tmpvertices,
 					       const Coord&,
 					       TypeSet<int>& vertices,
-					       TypeSet<float>& weights);
+					       TypeSet<double>& weights);
     const DAGTriangleTree&	triangles_;
     TypeSet<int>		corner0_;
     TypeSet<double>		cornerweights0_;

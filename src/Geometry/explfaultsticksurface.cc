@@ -1244,7 +1244,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 		if ( vs[0]<0 || vs[1]<0 || vs[2]<0 )
 		    continue;
 
-		float w[3];
+		double w[3];
 		interpolateOnTriangle2D( pt, knots[vs[0]], knots[vs[1]],
 			knots[vs[2]], w[0], w[1], w[2] );
 		pos = w[0] * coordlist_->get(knotids[vs[0]]) +
