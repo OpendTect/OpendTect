@@ -92,30 +92,18 @@ bool uiBasemapWellTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
-    int nrwells = 1;
-    par.get( uiBasemapGroup::sKeyNrObjs(), nrwells );
+    MultiID wllkey;
+    if ( !par.get(sKey::ID(),wllkey) )
+	return false;
 
-    while ( nrwells < basemapobjs_.size() )
-	delete removeBasemapObject( *basemapobjs_[0] );
+    if ( basemapobjs_.isEmpty() )
+	addBasemapObject( *new Basemap::WellObject(wllkey) );
 
-    for ( int idx=0; idx<nrwells; idx++ )
-    {
-	MultiID wllkey;
-	if ( !par.get(IOPar::compKey(sKey::ID(),idx),wllkey) )
-	    continue;
+    mDynamicCastGet(Basemap::WellObject*,obj,basemapobjs_[0])
+    if ( !obj ) return false;
 
-	if ( basemapobjs_.validIdx(idx) )
-	{
-	    mDynamicCastGet(Basemap::WellObject*,obj,basemapobjs_[idx])
-	    if ( obj ) obj->setKey( wllkey );
-	}
-	else
-	{
-	    Basemap::WellObject* obj = new Basemap::WellObject( wllkey );
-	    addBasemapObject( *obj );
-	    obj->updateGeometry();
-	}
-    }
+    obj->setKey( wllkey );
+    obj->updateGeometry();
 
     return true;
 }

@@ -55,10 +55,8 @@ public:
 
     virtual bool	acceptOK();
     virtual bool	fillPar(IOPar&) const;
-    virtual bool	fillItemPar(int idx,IOPar&) const	{ return true; }
     virtual bool	usePar(const IOPar&);
 
-    static const char*	sKeyNrObjs();
     static const char*	sKeyItem();
 
 protected:
@@ -77,8 +75,7 @@ public:
 
     virtual bool	acceptOK();
     virtual bool	fillPar(IOPar&) const;
-    virtual bool	fillItemPar(int idx,IOPar&) const;
-    virtual bool	usePar(const IOPar&);
+    virtual bool	usePar(const IOPar &);
 
 protected:
 			uiBasemapIOObjGroup(uiParent*,const IOObjContext&,
@@ -88,7 +85,6 @@ protected:
     void		finaliseCB(CallBacker*);
     void		selChg(CallBacker*);
     int			nrItems() const;
-    int			nrObjsPerItem() const;
 
     uiIOObjSelGrp*	ioobjfld_;
 
@@ -130,7 +126,7 @@ public:
     static int		sEditID()		{ return 100; }
     static int		sRemoveID()		{ return 999; }
 
-    void		show(bool yn);
+    virtual void	show(bool yn);
 
     const IOPar&	pars() const		{ return pars_; }
     virtual bool	usePar(const IOPar&);

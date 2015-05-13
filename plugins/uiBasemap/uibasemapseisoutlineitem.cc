@@ -74,19 +74,25 @@ void uiBasemapSeisOutlineGroup::setLineSpacing()
 }
 
 
-bool uiBasemapSeisOutlineGroup::fillItemPar( int idx, IOPar& par ) const
+bool uiBasemapSeisOutlineGroup::fillPar( IOPar& par ) const
 {
-    const bool res = uiBasemapIOObjGroup::fillItemPar( idx, par );
+    const bool res = uiBasemapIOObjGroup::fillPar( par );
 
-    BufferString lsstr;
-    lsfld_->getStyle().toString( lsstr );
-    par.set( sKey::LineStyle(), lsstr );
+    for ( int idx=0; idx<nrItems(); idx++ )
+    {
+	IOPar ipar;
+	BufferString lsstr;
+	lsfld_->getStyle().toString( lsstr );
+	ipar.set( sKey::LineStyle(), lsstr );
 
-    par.setYN( sKeyHasLines(), linespacingfld_->isChecked() );
-    par.set( sKey::InlRange(), linespacingfld_->getIStepInterval() );
+	ipar.setYN( sKeyHasLines(), linespacingfld_->isChecked() );
+	ipar.set( sKey::InlRange(), linespacingfld_->getIStepInterval() );
 
-    par.setYN( sKeyFilled(), fillcolfld_->doDraw() );
-    par.set( sKey::Color(), fillcolfld_->color() );
+	ipar.setYN( sKeyFilled(), fillcolfld_->doDraw() );
+	ipar.set( sKey::Color(), fillcolfld_->color() );
+
+	par.mergeComp( ipar, IOPar::compKey(sKeyItem(),idx) );
+    }
 
     return res;
 }
@@ -165,80 +171,37 @@ bool uiBasemapSeisOutlineTreeItem::usePar( const IOPar& par )
     Color color;
     par.get( sKey::Color(), color );
 
-    int nrobjs = 1;
-    par.get( uiBasemapGroup::sKeyNrObjs(), nrobjs );
+    MultiID mid;
+    if ( !par.get(sKey::ID(),mid) )
+	return false;
 
-    while ( nrobjs < basemapobjs_.size() )
-	delete removeBasemapObject( *basemapobjs_[0] );
+    if ( basemapobjs_.isEmpty() )
+	addBasemapObject( *new Basemap::SeisOutlineObject() );
 
-    for ( int idx=0; idx<nrobjs; idx++ )
+    mDynamicCastGet(Basemap::SeisOutlineObject*,obj,basemapobjs_[0])
+    if ( !obj ) return false;
+
+    if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
+	obj->setLineStyle( 0, ls );
+
+    if ( hasParChanged(prevpar,par,sKey::Color()) ||
+	 hasParChanged(prevpar,par,sKeyFilled()) )
+	    obj->setFillColor( 0, isfilled ? color : Color::NoColor() );
+
+    if ( hasSubParChanged(prevpar,par,sKey::ID()) )
     {
-	MultiID mid;
-	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
-	    continue;
+	obj->setMultiID( mid );
+	obj->extractPolygons();
+	obj->updateGeometry();
+    }
 
-	if ( !basemapobjs_.validIdx(idx) )
-	{
-	    Basemap::SeisOutlineObject* obj = new Basemap::SeisOutlineObject();
-	    addBasemapObject( *obj );
-	}
-
-	mDynamicCastGet(Basemap::SeisOutlineObject*,obj,basemapobjs_[idx])
-	if ( !obj ) return false;
-
-	if ( hasParChanged(prevpar,par,uiBasemapGroup::sKeyNrObjs()))
-	{
-	    // if the number of objects is different, everything needs to be
-	    // redraw. So...
-	    obj->setLineStyle( 0, ls );
-	    if ( haslines )
-		obj->setInsideLines( linespacing );
-	    else
-		obj->setInsideLines( StepInterval<int>::udf() );
-
-	    if ( isfilled )
-		obj->setFillColor( 0, color );
-	    else
-		obj->setFillColor( 0, Color::NoColor() );
-	    obj->setMultiID( mid );
-	    obj->updateGeometry();
-	    continue;
-	}
-
-	if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
-	    obj->setLineStyle( 0, ls );
-
-	if ( hasParChanged(prevpar,par,sKey::Color()) ||
-	     hasParChanged(prevpar,par,sKeyFilled()) )
-	{
-	    if ( isfilled )
-		obj->setFillColor( 0, color );
-	    else
-		obj->setFillColor( 0, Color::NoColor() );
-	}
-
-	if ( hasParChanged(prevpar,par,sKey::InlRange()) ||
-	     hasParChanged(prevpar,par,sKeyHasLines()) )
-	{
-	    if ( haslines )
-	    {
-		obj->setInsideLines( linespacing );
-		obj->setMultiID( mid );
-		obj->updateGeometry();
-	    }
-	    else
-	    {
-		obj->setInsideLines( StepInterval<int>::udf() );
-		obj->setMultiID( mid );
-		obj->updateGeometry();
-	    }
-	}
-
-	if ( hasSubParChanged(prevpar,par,sKey::ID()) )
-	{
-	    obj->setMultiID( mid );
-	    obj->updateGeometry();
-	}
+    if ( hasParChanged(prevpar,par,sKey::InlRange()) ||
+	 hasParChanged(prevpar,par,sKeyHasLines()) ||
+	 hasSubParChanged(prevpar,par,sKey::ID()) )
+    {
+	obj->setInsideLines( haslines ? linespacing : StepInterval<int>::udf());
+	obj->extractSegments();
+	obj->updateGeometry();
     }
 
     return true;

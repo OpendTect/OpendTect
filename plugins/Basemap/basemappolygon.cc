@@ -50,8 +50,6 @@ void PolygonObject::setMultiID( const MultiID& mid )
     ms_.color_ = ps_.disp_.color_;
     ms_.type_ = MarkerStyle2D::Circle;
     ls_.color_ = ms_.color_;
-
-    updateGeometry();
 }
 
 

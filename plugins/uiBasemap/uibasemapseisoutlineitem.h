@@ -25,7 +25,7 @@ public:
 			~uiBasemapSeisOutlineGroup();
 
     bool		acceptOK();
-    bool		fillItemPar(int idx,IOPar&) const;
+    bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:

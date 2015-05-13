@@ -56,13 +56,19 @@ bool uiBasemapGeom2DGroup::acceptOK()
 }
 
 
-bool uiBasemapGeom2DGroup::fillItemPar( int idx, IOPar& par ) const
+bool uiBasemapGeom2DGroup::fillPar( IOPar& par ) const
 {
-    const bool res = uiBasemapIOObjGroup::fillItemPar( idx, par );
+    const bool res = uiBasemapIOObjGroup::fillPar( par );
 
-    BufferString lsstr;
-    lsfld_->getStyle().toString( lsstr );
-    par.set( sKey::LineStyle(), lsstr );
+    for ( int idx=0; idx<nrItems(); idx++ )
+    {
+	IOPar ipar;
+	BufferString lsstr;
+	lsfld_->getStyle().toString( lsstr );
+	ipar.set( sKey::LineStyle(), lsstr );
+
+	par.mergeComp( ipar, IOPar::compKey(sKeyItem(),idx) );
+    }
 
     return res;
 }
@@ -127,45 +133,23 @@ bool uiBasemapGeom2DTreeItem::usePar( const IOPar& par )
     LineStyle ls;
     ls.fromString( lsstr );
 
-    int nrobjs = 1;
-    par.get( uiBasemapGroup::sKeyNrObjs(), nrobjs );
+    MultiID mid;
+    if ( !par.get(sKey::ID(),mid) )
+	return false;
 
-    while ( nrobjs < basemapobjs_.size() )
-	delete removeBasemapObject( *basemapobjs_[0] );
+    if ( basemapobjs_.isEmpty() )
+	addBasemapObject( *new Basemap::Geom2DObject() );
 
-    for ( int idx=0; idx<nrobjs; idx++ )
+    mDynamicCastGet(Basemap::Geom2DObject*,obj,basemapobjs_[0])
+    if ( !obj ) return false;
+
+    if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
+	obj->setLineStyle( 0, ls );
+
+    if ( hasSubParChanged(prevpar,par,sKey::ID()) )
     {
-	MultiID mid;
-	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
-	    continue;
-
-	if ( !basemapobjs_.validIdx(idx) )
-	{
-	    Basemap::Geom2DObject* obj = new Basemap::Geom2DObject();
-	    addBasemapObject( *obj );
-	}
-
-	mDynamicCastGet(Basemap::Geom2DObject*,obj,basemapobjs_[idx])
-	if ( !obj ) return false;
-
-	if ( hasParChanged(prevpar,par,uiBasemapGroup::sKeyNrObjs()) )
-	{
-	    // if the number of objects is different, everything needs to be
-	    // redraw So...
-	    obj->setLineStyle( 0, ls );
-	    obj->setMultiID( mid );
-	    obj->updateGeometry();
-	    continue;
-	}
-
-	if ( hasParChanged(prevpar,par,sKey::LineStyle()) )
-	    obj->setLineStyle( 0, ls );
-
-	if ( hasSubParChanged(prevpar,par,sKey::ID()) )
-	{
-	    obj->setMultiID( mid );
-	    obj->updateGeometry();
-	}
+	obj->setMultiID( mid );
+	obj->updateGeometry();
     }
 
     return true;

@@ -101,14 +101,14 @@ bool uiBasemapContourGroup::acceptOK()
 
 bool uiBasemapContourGroup::fillPar( IOPar& par ) const
 {
+    bool res = uiBasemapGroup::fillPar( par );
     par.set( sKey::NrItems(), 1 );
 
     IOPar ipar;
-    const bool res = uiBasemapGroup::fillPar( ipar );
+    ipar.set( sKey::Name(), IOM().nameOf(mid_) );
 
     ipar.set( sKey::Horizon(), mid_ );
 
-    ipar.set( sKeyNrObjs(), 1 );
     StepInterval<float> intv = spacingfld_->getFStepInterval();
     intv.scale( 1.f/SI().zDomain().userFactor() );
     ipar.set( sKeySpacing(), intv );

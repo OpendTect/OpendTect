@@ -164,7 +164,6 @@ bool uiBasemapGridGroup::fillPar( IOPar& par ) const
     IOPar ipar;
     ipar.set( sKey::Name(), itemName() );
     ipar.set( sKeyGridType(), defaultname_ );
-    ipar.set( sKeyNrObjs(), 1 );
     ipar.setYN( sKeyShowInlX(), inlxfld_->isChecked() );
     ipar.setYN( sKeyShowCrlY(), crlyfld_->isChecked() );
 
@@ -276,10 +275,8 @@ bool uiBasemapGridTreeItem::usePar( const IOPar& par )
     const uiWorldRect xyarea = uibm.getWorld2Ui().transform( area );
 
     if ( basemapobjs_.isEmpty() )
-    {
-	Basemap::GridObject* obj = new Basemap::GridObject();
-	addBasemapObject( *obj );
-    }
+	addBasemapObject( *new Basemap::GridObject() );
+
     mDynamicCastGet(Basemap::GridObject*,obj,basemapobjs_[0])
     if ( !obj ) return false;
 

@@ -100,30 +100,18 @@ bool uiBasemapPickSetTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
-    int nrpicksets = 0;
-    par.get( uiBasemapGroup::sKeyNrObjs(), nrpicksets );
+    MultiID mid;
+    if ( !par.get(sKey::ID(),mid) )
+	return false;
 
-    while ( nrpicksets < basemapobjs_.size() )
-	delete removeBasemapObject( *basemapobjs_[0] );
+    if ( basemapobjs_.isEmpty() )
+	addBasemapObject( *new Basemap::PickSetObject(mid) );
 
-    for ( int idx=0; idx<nrpicksets; idx++ )
-    {
-	MultiID mid;
-	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
-	    continue;
+    mDynamicCastGet(Basemap::PickSetObject*,obj,basemapobjs_[0])
+    if ( !obj ) return false;
 
-	if ( basemapobjs_.validIdx(idx) )
-	{
-	    mDynamicCastGet(Basemap::PickSetObject*,obj,basemapobjs_[idx])
-	    if ( obj ) obj->setMultiID( mid );
-	}
-	else
-	{
-	    Basemap::PickSetObject* obj = new Basemap::PickSetObject( mid );
-	    addBasemapObject( *obj );
-	    obj->updateGeometry();
-	}
-    }
+    obj->setMultiID( mid );
+    obj->updateGeometry();
 
     return true;
 }

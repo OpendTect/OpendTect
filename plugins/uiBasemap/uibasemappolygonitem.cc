@@ -100,30 +100,17 @@ bool uiBasemapPolygonTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
-    int nrpolygons = 1;
-    par.get( uiBasemapGroup::sKeyNrObjs(), nrpolygons );
+    MultiID mid;
+    if ( !par.get(sKey::ID(),mid) )
+	return false;
 
-    while ( nrpolygons < basemapobjs_.size() )
-	delete removeBasemapObject( *basemapobjs_[0] );
+    if ( basemapobjs_.isEmpty() )
+	addBasemapObject( *new Basemap::PolygonObject(mid) );
 
-    for ( int idx=0; idx<nrpolygons; idx++ )
-    {
-	MultiID mid;
-	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
-	    continue;
-
-	if ( basemapobjs_.validIdx(idx) )
-	{
-	    mDynamicCastGet(Basemap::PolygonObject*,obj,basemapobjs_[idx])
-	    if ( obj ) obj->setMultiID( mid );
-	}
-	else
-	{
-	    Basemap::PolygonObject* obj = new Basemap::PolygonObject( mid );
-	    addBasemapObject( *obj );
-	    obj->updateGeometry();
-	}
-    }
+    mDynamicCastGet(Basemap::PolygonObject*,obj,basemapobjs_[0])
+    if ( !obj ) return false;
+    obj->setMultiID( mid );
+    obj->updateGeometry();
 
     return true;
 }

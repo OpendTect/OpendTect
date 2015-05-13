@@ -50,7 +50,6 @@ void PickSetObject::setMultiID( const MultiID& mid )
     PickSetTranslator::retrieve( ps_, ioobj, true, errmsg );
     ms_.color_ = ps_.disp_.color_;
     ms_.type_ = MarkerStyle2D::Circle;
-    updateGeometry();
 }
 
 

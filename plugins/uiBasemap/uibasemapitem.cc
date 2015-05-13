@@ -48,7 +48,6 @@ uiBasemapTreeTop::~uiBasemapTreeTop()
 
 
 // uiBasemapGroup
-const char* uiBasemapGroup::sKeyNrObjs()	{ return "Nr Objects"; }
 const char* uiBasemapGroup::sKeyItem()		{ return "Item"; }
 
 uiBasemapGroup::uiBasemapGroup( uiParent* p )
@@ -150,25 +149,6 @@ int uiBasemapIOObjGroup::nrItems() const
 }
 
 
-int uiBasemapIOObjGroup::nrObjsPerItem() const
-{
-    return 1;
-}
-
-
-bool uiBasemapIOObjGroup::fillItemPar( int idx, IOPar& par ) const
-{
-    const int nrobjsperitem = nrObjsPerItem();
-    par.set( sKeyNrObjs(), nrobjsperitem );
-    par.set( sKey::Name(), IOM().nameOf(mids_[idx]) );
-
-    for ( int objidx=0; objidx<nrobjsperitem; objidx++ )
-	par.set( IOPar::compKey(sKey::ID(),objidx), mids_[idx+objidx] );
-
-    return true;
-}
-
-
 bool uiBasemapIOObjGroup::fillPar( IOPar& par ) const
 {
     bool res = uiBasemapGroup::fillPar( par );
@@ -178,7 +158,8 @@ bool uiBasemapIOObjGroup::fillPar( IOPar& par ) const
     for ( int idx=0; idx<nritems; idx++ )
     {
 	IOPar ipar;
-	fillItemPar( idx, ipar );
+	ipar.set( sKey::Name(), IOM().nameOf(mids_[idx]) );
+	ipar.set( sKey::ID(), mids_[idx]);
 	const BufferString key = IOPar::compKey( sKeyItem(), idx );
 	par.mergeComp( ipar, key );
     }
@@ -187,20 +168,13 @@ bool uiBasemapIOObjGroup::fillPar( IOPar& par ) const
 }
 
 
-bool uiBasemapIOObjGroup::usePar( const IOPar& par )
+bool uiBasemapIOObjGroup::usePar( const IOPar & par )
 {
-    int nrobjs = 0;
-    par.get( sKeyNrObjs(), nrobjs );
+    MultiID mid;
+    par.get( sKey::ID(), mid );
+    mids_.erase(); mids_ += mid;
 
-    TypeSet<MultiID> mids( nrobjs, MultiID::udf() );
-    for ( int idx=0; idx<nrobjs; idx++ )
-	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
-    mids_ = mids;
-
-    if ( ioobjfld_ ) ioobjfld_->setChosen( mids );
-
-    bool res = uiBasemapGroup::usePar( par );
-    return res;
+    return uiBasemapGroup::usePar( par );
 }
 
 
