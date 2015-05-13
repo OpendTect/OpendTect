@@ -476,7 +476,7 @@ void uiIOObjSel::doCommit( bool noerr ) const
 MultiID uiIOObjSel::key( bool noerr ) const
 {
     doCommit(noerr);
-    return inctio_.ioobj ? inctio_.ioobj->key() : MultiID("");
+    return inctio_.ioobj ? inctio_.ioobj->key() : MultiID::udf();
 }
 
 
