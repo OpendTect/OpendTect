@@ -368,7 +368,8 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 	    StepInterval<int> inlrg( 0, 0, 1 );
 	    cs.hsamp_.set( inlrg, trcrg );
 	    cs.zsamp_ = zrg;
-	    selfld_->provSel()->setInputLimit( cs );
+	    selfld_->setInput( cs );
+	    selfld_->setInputLimit( cs );
 	}
     }
 
