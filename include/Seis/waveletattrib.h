@@ -34,6 +34,10 @@ public:
 			//frequency array will be resized to padfac*array size )
     void		getPhaseRotated(float*,float phase) const;
 			/*!<\param phase angle in radians */
+    void		getCosTapered(float*,float) const;
+    bool		getFreqFiltered(float*,float f1,float f2,
+					float f3,float f4) const;
+			/*!<\param f1-f4: See FFTFiter class */
     void		applyFreqWindow(const ArrayNDWindow&,int padfac,
 					Array1DImpl<float>&);
     void		transform(Array1D<float_complex>&,int sz=-1);
@@ -48,6 +52,7 @@ protected:
     Array1DImpl<float>* wvltarr_;
     int			wvltsz_;
     int			centersample_;
+    float		sr_;
     void		getWaveletArrForPhase(Array1DImpl<float>&) const;
 };
 

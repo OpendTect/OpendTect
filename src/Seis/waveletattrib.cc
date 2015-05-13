@@ -13,16 +13,16 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "arrayndalgo.h"
+#include "fftfilter.h"
 #include "fourier.h"
 #include "hilberttransform.h"
 #include "phase.h"
 #include "wavelet.h"
+#include "windowfunction.h"
 
 
 WaveletAttrib::WaveletAttrib( const Wavelet& wvlt )
 	: wvltarr_(0)
-	, wvltsz_(0)
-	, centersample_(wvlt.centerSample())
 {
     setNewWavelet( wvlt );
 }
@@ -38,6 +38,7 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
     delete wvltarr_; wvltarr_ = new Array1DImpl<float>( wvltsz_ );
     OD::memCopy( wvltarr_->getData(), wvlt.samples(), wvltsz_*sizeof(float) );
     centersample_ = wvlt.centerSample();
+    sr_ = wvlt.sampleRate();
 }
 
 
@@ -116,6 +117,63 @@ void WaveletAttrib::getPhaseRotated( float* out, float phase ) const
 	out[idx] = wvltarr_->get(idx) * cos( phase ) -
 		   hilbert.get(idx) * sin( phase );
     }
+}
+
+
+void WaveletAttrib::getCosTapered( float* out, float taperval ) const
+{
+    if ( mIsUdf(taperval) )
+	return;
+
+    ArrayNDWindow taper( Array1DInfoImpl(wvltsz_), false,
+			 CosTaperWindow::sName(), taperval );
+    if ( !taper.isOK() )
+	return;
+
+    Array1DImpl<float> arrout( wvltsz_ );
+    if ( !taper.apply(wvltarr_,&arrout) )
+	return;
+
+    OD::memCopy( out, arrout.arr(), wvltsz_*sizeof(float) );
+}
+
+
+bool WaveletAttrib::getFreqFiltered( float* out, float f1, float f2,
+				     float f3, float f4 ) const
+{
+    if ( mIsUdf(f2) && mIsUdf(f3) )
+	return false;
+
+    FFTFilter filter( wvltsz_, sr_ );
+    if ( mIsUdf(f2) )
+    {
+	if ( mIsUdf(f4) )
+	    filter.setLowPass( f3 );
+	else
+	    filter.setLowPass( f3, f4 );
+    }
+    else if ( mIsUdf(f3) )
+    {
+	if ( mIsUdf(f1) )
+	    filter.setHighPass( f2 );
+	else
+	    filter.setHighPass( f1, f2 );
+    }
+    else
+    {
+	if ( mIsUdf(f1) || mIsUdf(f4) )
+	    filter.setBandPass( f2, f3 );
+	else
+	    filter.setBandPass( f1, f2, f3, f4 );
+    }
+
+    Array1DImpl<float> arrout( *wvltarr_ );
+    if ( !filter.apply(arrout) )
+	return false;
+
+    OD::memCopy( out, arrout.arr(), wvltsz_*sizeof(float) );
+
+    return true;
 }
 
 
