@@ -58,8 +58,13 @@ public:
     bool			allowMaterialEdit() const	{ return true; }
     virtual void		setPixelDensity(float);
 
-
-protected:
+    virtual void		getMousePosInfo(const visBase::EventInfo&,
+					    Coord3& xyzpos,
+					    BufferString& val,
+					    BufferString& info) const;
+    void			getMousePosInfo(const visBase::EventInfo& ei,
+						IOPar& iop ) const
+				{ return SurveyObject::getMousePosInfo(ei,iop);}
 
 protected:
 				~PointSetDisplay();
