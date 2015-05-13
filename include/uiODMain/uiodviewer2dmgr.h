@@ -21,19 +21,22 @@ ________________________________________________________________________
 class uiFlatViewer;
 class uiODViewer2D;
 class uiTreeFactorySet;
+class Line2DInterSectionSet;
 class MouseEventHandler;
 class TrcKeyZSampling;
 namespace Attrib { class SelSpec; }
 
+
 mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
 { mODTextTranslationClass(uiODViewer2DMgr);
 public:
+
     uiODViewer2D*		find2DViewer(int id,bool byvisid);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
 
     int				displayIn2DViewer(DataPack::ID,
 						  const Attrib::SelSpec&,
-						  bool wva);
+						  bool wva, Pos::GeomID);
     void			displayIn2DViewer(int visid,int attribid,
 						  bool wva);
     void			remove2DViewer(int id,bool byvisid);
@@ -57,6 +60,7 @@ protected:
 
     uiODViewer2D&		addViewer2D(int visid);
     ObjectSet<uiODViewer2D>     viewers2d_;
+    Line2DInterSectionSet*	l2dintersections_;
     float			deftrcspercm_;
     float			defzpercm_;
 
@@ -65,10 +69,12 @@ protected:
 
     uiODMain&			appl_;
 
+    bool			isVWR2DDisplayed(const Pos::GeomID&) const;
     inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
     void			viewWinClosedCB(CallBacker*);
+    void			vw2DPosChangedCB(CallBacker*);
     void			homeZoomChangedCB(CallBacker*);
     void			mouseClickCB(CallBacker*);
 
@@ -80,6 +86,11 @@ protected:
 				which the newly created 2D Viewer will inherit
 				Attrib::SelSpec and other display properties.*/
     void			attachNotifiers(uiODViewer2D*);
+    int				intersection2DIdx(Pos::GeomID) const;
+    bool			intersection2DReCalNeeded(Pos::GeomID) const;
+    void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
+    void			setAllIntersectionPositions();
+    void			setVWR2DIntersectionPositions(uiODViewer2D*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);

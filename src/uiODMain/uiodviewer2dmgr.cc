@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
+#include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigraphicsview.h"
 #include "uimenu.h"
@@ -32,7 +33,9 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "mouseevent.h"
+#include "geom2dintersections.h"
 #include "settings.h"
+#include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "visseis2ddisplay.h"
 #include "view2ddata.h"
@@ -47,6 +50,7 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     , defzpercm_(mUdf(float))
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
+    , l2dintersections_(0)
 {
     Settings::common().get( sKeyVW2DTrcsPerCM(), deftrcspercm_ );
     Settings::common().get( sKeyVW2DZPerCM(), defzpercm_ );
@@ -68,18 +72,22 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
 
 uiODViewer2DMgr::~uiODViewer2DMgr()
 {
+    delete l2dintersections_;
     delete tifs2d_; delete tifs3d_;
     deepErase( viewers2d_ );
 }
 
 
 int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
-					const Attrib::SelSpec& as, bool dowva )
+					const Attrib::SelSpec& as, bool dowva,
+       					Pos::GeomID geomid )
 {
     uiODViewer2D* vwr2d = &addViewer2D( -1 );
     const DataPack::ID vwdpid = vwr2d->createFlatDataPack( dpid, 0 );
     vwr2d->setSelSpec( &as, dowva ); vwr2d->setSelSpec( &as, !dowva );
     vwr2d->setUpView( vwdpid, dowva );
+    if ( geomid != Survey::GM().cUndefGeomID() )
+	vwr2d->setGeomID( geomid );
     vwr2d->useStoredDispPars( dowva );
     vwr2d->useStoredDispPars( !dowva );
     attachNotifiers( vwr2d );
@@ -88,6 +96,7 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
     FlatView::DataDispPars& ddp = fv.appearance().ddpars_;
     (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
     fv.handleChange( FlatView::Viewer::DisplayPars );
+    setAllIntersectionPositions();
     return vwr2d->id_;
 }
 
@@ -137,6 +146,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     }
 
     vwr.handleChange( FlatView::Viewer::DisplayPars );
+    setAllIntersectionPositions();
 }
 
 
@@ -216,6 +226,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     }
 
     attachNotifiers( vwr2d );
+    setAllIntersectionPositions();
 }
 
 
@@ -224,6 +235,9 @@ void uiODViewer2DMgr::attachNotifiers( uiODViewer2D* vwr2d )
     mAttachCB( vwr2d->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     mAttachCB( vwr2d->viewControl()->setHomeZoomPushed,
 	       uiODViewer2DMgr::homeZoomChangedCB );
+    if ( vwr2d->slicePos() )
+	mAttachCB( vwr2d->slicePos()->positionChg,
+		   uiODViewer2DMgr::vw2DPosChangedCB );
     for ( int idx=0; idx<vwr2d->viewwin()->nrViewers(); idx++ )
     {
 	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );
@@ -233,12 +247,33 @@ void uiODViewer2DMgr::attachNotifiers( uiODViewer2D* vwr2d )
 }
 
 
+void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
+{
+    if ( intersection2DReCalNeeded(geomid) )
+    {
+	delete l2dintersections_;
+	l2dintersections_ = new Line2DInterSectionSet;
+	BufferStringSet lnms;
+	TypeSet<Pos::GeomID> geomids;
+	SeisIOObjInfo::getLinesWithData( lnms, geomids );
+	BendPointFinder2DGeomSet bpfinder( geomids );
+	bpfinder.execute();
+	Line2DInterSectionFinder intfinder( bpfinder.bendPoints(),
+					    *l2dintersections_ );
+	intfinder.execute();
+    }
+}
+
+
 uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
 {
     uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d, visServ().getObject(visid));
     if ( s2d )
+    {
 	vwr->setGeomID(  s2d->getGeomID() );
+	reCalc2DIntersetionIfNeeded( s2d->getGeomID() );
+    }
 
     vwr->setMouseCursorExchange( &appl_.applMgr().mouseCursorExchange() );
     viewers2d_ += vwr;
@@ -277,6 +312,158 @@ void uiODViewer2DMgr::homeZoomChangedCB( CallBacker* cb )
 }
 
 
+void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
+{
+    TrcKeyZSampling::Dir vwr2ddir = vwr2d->getTrcKeyZSampling().defaultDir();
+    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x1intposs =
+	vwr2d->viewwin()->viewer().appearance().annot_.x1_.auxposs_;
+    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x2intposs =
+	vwr2d->viewwin()->viewer().appearance().annot_.x2_.auxposs_;
+    x1intposs.erase(); x2intposs.erase();
+    reCalc2DIntersetionIfNeeded( vwr2d->geomID() );
+
+    if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() ) 
+    {
+	const int intscidx = intersection2DIdx( vwr2d->geomID() );
+	if ( intscidx<0 )
+	    return;
+	const Line2DInterSection* intsect = (*l2dintersections_)[intscidx];
+	for ( int intposidx=0; intposidx<intsect->size(); intposidx++ )
+	{
+	    const Line2DInterSection::Point& intpos =
+		intsect->getPoint( intposidx );
+	    FlatView::Annotation::AxisData::AuxPosition newpos;
+	    if ( isVWR2DDisplayed(intpos.line) )
+		newpos.isbold_ = true;
+
+	    StepInterval<double> x1rg =
+		vwr2d->viewwin()->viewer().posRange( true );
+	    StepInterval<int> trcrg =
+		vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
+	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
+	    newpos.pos_ = mCast(float,x1rg.atIndex(posidx));
+	    newpos.name_ = Survey::GM().getName( intpos.line );
+	    x1intposs += newpos;
+	}
+    }
+    else
+    {
+	for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	{
+	    const uiODViewer2D* idxvwr = viewers2d_[vwridx];
+	    const TrcKeyZSampling& idxvwrtkzs = idxvwr->getTrcKeyZSampling();
+	    TrcKeyZSampling::Dir idxvwrdir = idxvwrtkzs.defaultDir();
+	    if ( vwr2d == idxvwr || vwr2ddir==idxvwrdir )
+		continue;
+
+	    FlatView::Annotation::AxisData::AuxPosition newpos;
+	    newpos.isbold_ = true;
+
+	    if ( vwr2ddir==TrcKeyZSampling::Inl )
+	    {
+		if ( idxvwrdir==TrcKeyZSampling::Crl )
+		{
+		    newpos.pos_ = idxvwrtkzs.hsamp_.crlRange().start;
+		    newpos.name_ = tr( "CRL %1" ).arg( toString(newpos.pos_) );
+		    x1intposs += newpos;
+		}
+		else
+		{
+		    newpos.pos_ = idxvwrtkzs.zsamp_.start;
+		    newpos.name_ = tr( "ZSlice %1" ).arg(toString(newpos.pos_));
+		    x2intposs += newpos;
+		}
+	    }
+	    else if ( vwr2ddir==TrcKeyZSampling::Crl )
+	    {
+		if ( idxvwrdir==TrcKeyZSampling::Inl )
+		{
+		    newpos.pos_ = idxvwrtkzs.hsamp_.inlRange().start;
+		    newpos.name_ = tr( "INL %1" ).arg( toString(newpos.pos_) );
+		    x1intposs += newpos;
+		}
+		else
+		{
+		    newpos.pos_ = idxvwrtkzs.zsamp_.start;
+		    newpos.name_ = tr( "ZSlice %1" ).arg(toString(newpos.pos_));
+		    x2intposs += newpos;
+		}
+	    }
+	    else
+	    {
+		if ( idxvwrdir==TrcKeyZSampling::Inl )
+		{
+		    newpos.pos_ = idxvwrtkzs.hsamp_.inlRange().start;
+		    newpos.name_ = tr( "INL %1" ).arg( toString(newpos.pos_) );
+		    x1intposs += newpos;
+		}
+		else
+		{
+		    newpos.pos_ = idxvwrtkzs.hsamp_.crlRange().start;
+		    newpos.name_ = tr( "CRL %1" ).arg( toString(newpos.pos_) );
+		    x2intposs += newpos;
+		}
+	    }
+	}
+    }
+
+    vwr2d->viewwin()->viewer().handleChange( FlatView::Viewer::Annot );
+}
+
+
+void uiODViewer2DMgr::setAllIntersectionPositions()
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+    {
+	uiODViewer2D* vwr2d = viewers2d_[vwridx];
+	setVWR2DIntersectionPositions( vwr2d );
+    }
+}
+
+
+bool uiODViewer2DMgr::intersection2DReCalNeeded( Pos::GeomID newgeomid ) const
+{
+    const int intidx = intersection2DIdx( newgeomid );
+    return intidx<0;
+}
+
+
+int uiODViewer2DMgr::intersection2DIdx( Pos::GeomID newgeomid ) const
+{
+    if ( !l2dintersections_ )
+	return -1;
+    for ( int lidx=0; lidx<l2dintersections_->size(); lidx++ )
+    {
+	if ( (*l2dintersections_)[lidx]->geomID()==newgeomid )
+	    return lidx;
+    }
+
+    return -1;
+
+}
+
+
+bool uiODViewer2DMgr::isVWR2DDisplayed( const Pos::GeomID& geomid ) const
+{
+    if ( geomid == Survey::GM().cUndefGeomID() )
+	return false;
+
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	if ( viewers2d_[idx]->geomID()==geomid )
+	    return true;
+    }
+
+    return false;
+}
+
+
+void uiODViewer2DMgr::vw2DPosChangedCB( CallBacker* )
+{
+    setAllIntersectionPositions();
+}
+
+
 uiODViewer2D* uiODViewer2DMgr::find2DViewer( const MouseEventHandler& meh )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
@@ -311,6 +498,8 @@ void uiODViewer2DMgr::remove2DViewer( int id, bool byvisid )
 	delete viewers2d_.removeSingle( idx );
 	return;
     }
+
+    setAllIntersectionPositions();
 }
 
 

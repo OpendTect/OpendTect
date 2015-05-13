@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "uigeom.h"
 #include "uistring.h"
+#include "uistrings.h"
 #include "fontdata.h"
 
 #include <cfloat>
@@ -62,6 +63,7 @@ public:
 			    , noaxisannot_(false)
 			    , nogridline_(false)
 			    , noannotpos_(false)
+			    , showauxpos_(false)
 			    , annotinside_(false)
 			    , annotinint_(false)
 			    , fixedborder_(false)
@@ -87,6 +89,7 @@ public:
 	mDefSetupMemb(bool,annotinside)
 	mDefSetupMemb(bool,annotinint)
 	mDefSetupMemb(bool,fixedborder)
+	mDefSetupMemb(bool,showauxpos)
 	mDefSetupMemb(int,ticsz)
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
@@ -101,6 +104,28 @@ public:
 	Setup&		noannot( bool yn )
 			{ noaxisline_ = noaxisannot_ = nogridline_ = yn;
 			  return *this; }
+    };
+
+    mStruct(General) AuxPosData
+    {
+			    AuxPosData()
+				: pos_(mUdf(float))
+				, name_(uiStrings::sEmptyString())
+				, isbold_(false)	{}
+	float		pos_;
+	bool		isbold_;
+	uiString	name_;
+
+	AuxPosData& operator=( const AuxPosData& from )
+	{
+	    pos_ = from.pos_;
+	    isbold_ = from.isbold_;
+	    name_ = from.name_;
+	    return *this;
+	}
+
+	bool 	operator==( const AuxPosData& from ) const
+	{ return pos_ == from.pos_ && isbold_ == from.isbold_; }
     };
 
 			uiAxisHandler(uiGraphicsScene*,const Setup&);
@@ -125,6 +150,8 @@ public:
     int			getPix(double abvsval) const;
     int			getPix(int) const;
     int			getRelPosPix(float relpos) const;
+    void		setAuxPosData( const TypeSet<AuxPosData>& pos )
+			{ auxpos_ = pos; }
 
     void		updateScene(); //!< update gridlines if appropriate
     void		annotAtEnd(const uiString&);
@@ -156,6 +183,8 @@ protected:
     uiGraphicsItemGroup* gridlineitmgrp_;
     uiGraphicsItemGroup* annottxtitmgrp_;
     uiGraphicsItemGroup* annotlineitmgrp_;
+    uiGraphicsItemGroup* auxposlineitmgrp_;
+    uiGraphicsItemGroup* auxpostxtitmgrp_;
 
     Setup		setup_;
     bool		islog_;
@@ -175,6 +204,7 @@ protected:
     int			calcwdth_;
     uiStringSet		strs_;
     TypeSet<float>	pos_;
+    TypeSet<AuxPosData> auxpos_;
     float		endpos_;
     int			devsz_;
     int			axsz_;
@@ -185,7 +215,8 @@ protected:
     int			ticSz() const;
     void		updateAxisLine();
     void		drawGridLine(int);
-    void		annotPos(int,const uiString&,const LineStyle&);
+    void		drawAnnotAtPos(int,const uiString&,const LineStyle&,
+	    			       bool aux=false, bool bold=false);
     void		updateName();
 
     bool		doPlotExtreme(float plottextrmval,bool isstart) const;

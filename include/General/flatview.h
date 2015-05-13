@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "datapackbase.h"
 #include "draw.h"
 #include "mousecursor.h"
+#include "uistrings.h"
 
 class FlatView_CB_Rcvr;
 class ZAxisTransform;
@@ -112,6 +113,28 @@ public:
 
     mStruct(General) AxisData
     {
+	mStruct(General) AuxPosition
+	{
+	    			AuxPosition()
+				    : pos_(mUdf(float))
+				    , name_(uiStrings::sEmptyString())	
+				    , isbold_(false)	{}
+	    float		pos_;
+	    bool		isbold_;
+	    uiString		name_;
+
+	    AuxPosition& operator=( const AuxPosition& from )
+	    {
+		pos_ = from.pos_;
+		isbold_ = from.isbold_;
+		name_ = from.name_;
+		return *this;
+	    }
+
+	    bool 	operator==( const AuxPosition& from ) const
+	    { return pos_ == from.pos_ && isbold_ == from.isbold_; }
+	};
+
 				AxisData();
 
 	BufferString		name_;
@@ -121,6 +144,7 @@ public:
 	bool			reversed_;
 	bool			annotinint_;
 	int			factor_;
+	TypeSet<AuxPosition>	auxposs_;
 
 	void			showAll(bool yn);
     };
