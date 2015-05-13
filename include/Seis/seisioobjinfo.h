@@ -111,6 +111,8 @@ public:
     static void		getCompNames(const MultiID&,BufferStringSet&);
 			//!< Function useful in attribute environments
 			//!< The 'MultiID' must be IOObj_ID
+    static void		getLinesWithData(BufferStringSet& lnms,
+	    				 TypeSet<Pos::GeomID>& gids);
 
 protected:
 

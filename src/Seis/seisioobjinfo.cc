@@ -620,3 +620,19 @@ bool SeisIOObjInfo::isFullyRectAndRegular() const
     const CBVSInfo& info = cbvstrl->readMgr()->info();
     return info.geom_.fullyrectandreg;
 }
+
+
+void SeisIOObjInfo::getLinesWithData( BufferStringSet& lnms,
+				      TypeSet<Pos::GeomID>& gids )
+{
+    Survey::GMAdmin().updateGeometries( 0 );
+    Survey::GM().getList( lnms, gids, true );
+    for ( int idx=gids.size()-1; idx>=0; idx-- )
+    {
+	if ( !SeisIOObjInfo::hasData(gids[idx]) )
+	{
+	    lnms.removeSingle( idx );
+	    gids.removeSingle( idx );
+	}
+    }
+}
