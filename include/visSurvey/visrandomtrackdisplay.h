@@ -55,7 +55,7 @@ public:
 				    toUiString(sFactoryKeyword()));
 
     int				nameNr() const { return namenr_; }
-    				/*!<\returns a number that is unique for
+				/*!<\returns a number that is unique for
 				     this rtd, and is present in its name. */
 
     bool			isInlCrl() const { return true; }
@@ -94,7 +94,7 @@ public:
 				{ return DataPackMgr::SeisID(); }
 
     bool			canAddKnot(int knotnr) const;
-    				/*!< If knotnr<nrKnots the function Checks if
+				/*!< If knotnr<nrKnots the function Checks if
 				     a knot can be added before the knotnr.
 				     If knotnr==nrKnots, it checks if a knot
 				     can be added. */
@@ -121,17 +121,15 @@ public:
     void			setDepthInterval(const Interval<float>&);
     Interval<float>		getDepthInterval() const;
 
-    void			getMousePosInfo(const visBase::EventInfo& ei,
-	    					IOPar& iop ) const
-				{ return MultiTextureSurveyObject
-				    		::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
-				    Coord3&, BufferString&,
-				    BufferString&) const;
+						IOPar&) const;
+    void			getMousePosInfo(const visBase::EventInfo&,
+						Coord3&, BufferString&,
+						BufferString&) const;
 
     int				getSelKnotIdx() const	{ return selknotidx_; }
 
-    virtual NotifierAccess*	getMovementNotifier() 	{ return &moving_; }
+    virtual NotifierAccess*	getMovementNotifier()	{ return &moving_; }
     NotifierAccess*		getManipulationNotifier() {return &knotmoving_;}
 
     Coord3			getNormal(const Coord3&) const;
@@ -176,7 +174,7 @@ protected:
     bool			hasCache(int) const;
 
     void			getDataTraceBids(TypeSet<BinID>&,
-	    					 TypeSet<int>* segments) const;
+						 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int knot) const;
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib);

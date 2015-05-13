@@ -1079,6 +1079,13 @@ bool RandomTrackDisplay::usePar( const IOPar& par )
 }
 
 
+void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
+					  IOPar& par ) const
+{
+    MultiTextureSurveyObject::getMousePosInfo( ei, par );
+}
+
+
 void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
 					  Coord3& pos, BufferString& val,
 					  BufferString& info ) const
