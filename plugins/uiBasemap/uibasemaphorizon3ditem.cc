@@ -274,6 +274,12 @@ void uiBasemapHorizon3DTreeItem::checkCB(CallBacker *)
 }
 
 
+void uiBasemapHorizon3DTreeItem::show( bool yn )
+{
+    uibmobj_->show( yn && isChecked() );
+}
+
+
 static int sFilterID()		{ return 10; }
 static int sGridID()		{ return 11; }
 

@@ -90,6 +90,7 @@ protected:
     bool		showSubMenu();
     bool		handleSubMenu(int);
     const char*		parentType() const;
+    void		show(bool);
 
     uiBasemapHorizon3DObject*	uibmobj_;
 };
