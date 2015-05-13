@@ -216,7 +216,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 }
 
 
-void uiColorTableMan::selChg( CallBacker* cb )
+void uiColorTableMan::selChg( CallBacker* )
 {
     const uiTreeViewItem* itm = coltablistfld_->selectedItem();
     if ( !itm || !ColTab::SM().get(itm->text(0),ctab_) )
