@@ -378,7 +378,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
-		    newpos.pos_ = idxvwrtkzs.hsamp_.inlRange().start;
+		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
 		    newpos.name_ = tr( "INL %1" ).arg( toString(newpos.pos_) );
 		    x1intposs += newpos;
 		}
@@ -393,13 +393,13 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
-		    newpos.pos_ = idxvwrtkzs.hsamp_.inlRange().start;
+		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
 		    newpos.name_ = tr( "INL %1" ).arg( toString(newpos.pos_) );
 		    x1intposs += newpos;
 		}
 		else
 		{
-		    newpos.pos_ = idxvwrtkzs.hsamp_.crlRange().start;
+		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
 		    newpos.name_ = tr( "CRL %1" ).arg( toString(newpos.pos_) );
 		    x2intposs += newpos;
 		}
