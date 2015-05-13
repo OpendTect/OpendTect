@@ -70,6 +70,7 @@ protected:
     bool		showSubMenu();
     bool		handleSubMenu(int);
     const char*		parentType() const;
+    void		show(bool);
 
     uiBasemapZSliceObject*	uibmobj_;
 

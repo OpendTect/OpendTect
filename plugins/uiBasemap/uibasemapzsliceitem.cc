@@ -245,6 +245,12 @@ void uiBasemapZSliceTreeItem::checkCB(CallBacker *)
 }
 
 
+void uiBasemapZSliceTreeItem::show( bool yn )
+{
+    uibmobj_->show( yn && isChecked() );
+}
+
+
 bool uiBasemapZSliceTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
