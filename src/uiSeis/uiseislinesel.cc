@@ -39,26 +39,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static void getGMList( BufferStringSet& lnms, TypeSet<Pos::GeomID>& gids )
-{
-    Survey::GMAdmin().updateGeometries( 0 );
-    Survey::GM().getList( lnms, gids, true );
-    for ( int idx=gids.size()-1; idx>=0; idx-- )
-    {
-	if ( !SeisIOObjInfo::hasData(gids[idx]) )
-	{
-	    lnms.removeSingle( idx );
-	    gids.removeSingle( idx );
-	}
-    }
-}
-
-
 uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
     : uiGroup(p,"Line chooser")
     , lbchoiceio_(0)
 {
-    getGMList( lnms_, geomids_ );
+    SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
     init( cm );
 }
 
@@ -177,7 +162,7 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 {
     txtfld_->setElemSzPol( uiObject::Wide );
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
-    getGMList( lnms_, geomids_ );
+    SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
 }
 
 
@@ -428,7 +413,7 @@ void uiSeis2DLineNameSel::fillWithAll()
 {
     BufferStringSet lnms;
     TypeSet<Pos::GeomID> geomids;
-    getGMList( lnms, geomids );
+    SeisIOObjInfo::getLinesWithData( lnms, geomids );
     fld_->addItems( lnms );
     if ( fld_->size() )
 	fld_->setCurrentItem( 0 );
@@ -481,6 +466,7 @@ void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
     fld_->setEmpty();
     if ( !forread_ ) fld_->addItem( uiStrings::sEmptyString() );
     addLineNames( ky );
+    nameChanged.trigger();
 }
 
 

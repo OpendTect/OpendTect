@@ -366,9 +366,10 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 	{
 	    TrcKeyZSampling cs;
 	    StepInterval<int> inlrg( 0, 0, 1 );
-	    cs.hrg.set( inlrg, trcrg );
+	    cs.hsamp_.set( inlrg, trcrg );
 	    cs.zsamp_ = zrg;
-	    selfld_->provSel()->setInputLimit( cs );
+	    selfld_->setInput( cs );
+	    selfld_->setInputLimit( cs );
 	}
     }
 
