@@ -67,6 +67,7 @@ public:
 				RandomSeisDataPack(const char* cat,
 						   const BinDataDesc* bdd=0);
 
+    bool			is2D() const		{ return false; }
     int				nrTrcs() const		{ return path_.size(); }
     TrcKey			getTrcKey(int trcidx) const;
     int				getGlobalIdx( const TrcKey& tk ) const

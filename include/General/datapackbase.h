@@ -197,6 +197,8 @@ mExpClass(General) SeisDataPack : public DataPack
 {
 public:
 				~SeisDataPack();
+
+    virtual bool		is2D() const				= 0;
     virtual int			nrTrcs() const				= 0;
     virtual TrcKey		getTrcKey(int globaltrcidx) const	= 0;
     virtual int			getGlobalIdx(const TrcKey&) const	= 0;
