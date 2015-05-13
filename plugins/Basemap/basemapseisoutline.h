@@ -59,6 +59,9 @@ public:
     virtual void	setLineStyle(int shapeidx,const LineStyle&);
     void		setMultiID(const MultiID&);
 
+    bool		extractPolygons();
+    bool		extractSegments();
+
     void		updateGeometry();
 
 protected:
@@ -68,13 +71,13 @@ protected:
     LineStyle&		ls_;
     MultiID		seismid_;
     ObjectSet< ODPolygon<float> >    polygons_;
+    PosInfo::CubeData*	cubedata_;
     StepInterval<int>	linespacing_;
     TrcKeySampling&	seisarea_;
     TypeSet<SegmentLine> seglineset_;
 
 private:
-    bool		extractPolygons();
-    bool		extractSegments(PosInfo::CubeData&);
+    bool		getCubeData();
 };
 
 } // namespace Basemap

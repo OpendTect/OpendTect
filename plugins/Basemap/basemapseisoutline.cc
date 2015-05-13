@@ -36,11 +36,13 @@ SeisOutlineObject::SeisOutlineObject()
     , seisarea_(*new TrcKeySampling)
     , fullyrect_(false)
     , nrsegments_(0)
+    , cubedata_(0)
 {}
 
 
 SeisOutlineObject::~SeisOutlineObject()
 {
+    delete cubedata_;
     delete &ls_;
     delete &seisarea_;
     deepErase( polygons_ );
@@ -49,12 +51,12 @@ SeisOutlineObject::~SeisOutlineObject()
 
 void SeisOutlineObject::setMultiID( const MultiID& mid )
 {
+    delete cubedata_; cubedata_ = 0;
     seismid_ = mid;
     PtrMan<IOObj> ioobj = IOM().get( seismid_ );
     if ( !ioobj ) return;
 
     setName( ioobj->name() );
-    extractPolygons();
 }
 
 void SeisOutlineObject::setFillColor(int,const Color& color)
@@ -119,6 +121,19 @@ const char* SeisOutlineObject::getShapeName( int idx ) const
 }
 
 
+bool SeisOutlineObject::getCubeData()
+{
+    if ( cubedata_ ) return true;
+
+    PtrMan<IOObj> ioobj = IOM().get( seismid_ );
+    if ( !ioobj ) return false;
+
+    SeisTrcReader rdr( ioobj );
+    cubedata_ = new PosInfo::CubeData;
+    return rdr.get3DGeometryInfo( *cubedata_ );
+}
+
+
 bool SeisOutlineObject::extractPolygons()
 {
     const SeisIOObjInfo ioobjinfo( seismid_ );
@@ -128,6 +143,10 @@ bool SeisOutlineObject::extractPolygons()
     seisarea_ = tkzs.hsamp_;
 
     if ( ioobjinfo.isFullyRectAndRegular() ) return fullyrect_ = true;
+
+    if ( !cubedata_ && !getCubeData() )
+	return false;
+
 
     const int lines = seisarea_.nrLines();
     const int traces = seisarea_.nrTrcs();
@@ -143,15 +162,13 @@ bool SeisOutlineObject::extractPolygons()
     if ( !rdr.get3DGeometryInfo(cubedata) ) return false;
 
     PosInfo::CubeDataPos cubedatapos;
-    while ( cubedata.toNext(cubedatapos) )
+    while ( cubedata_->toNext(cubedatapos) )
     {
-	const BinID bid = cubedata.binID( cubedatapos );
+	const BinID bid = cubedata_->binID( cubedatapos );
 	const int lineidx = seisarea_.lineIdx( bid.inl() );
 	const int trcidx = seisarea_.trcIdx( bid.crl() );
 	area.set( lineidx+1, trcidx+1, 1.0f );
     }
-
-    extractSegments( cubedata );
 
     IsoContourTracer outline( area );
     outline.setBendPointsOnly( 0.1 );
@@ -159,18 +176,21 @@ bool SeisOutlineObject::extractPolygons()
 }
 
 
-bool SeisOutlineObject::extractSegments( PosInfo::CubeData& cubedata )
+bool SeisOutlineObject::extractSegments()
 {
     seglineset_.erase();
     nrsegments_ = 0;
 
     if ( linespacing_.isUdf() ) return true;
 
+    if ( !cubedata_ && !getCubeData() )
+	return false;
+
     SegmentLine segline;
-    for ( int inlidx=linespacing_.start; inlidx<=linespacing_.stop;
-						    inlidx+=linespacing_.step )
+    for ( int inl=linespacing_.start; inl<=linespacing_.stop;
+						    inl+=linespacing_.step )
     {
-	PosInfo::LineData* ld = cubedata[cubedata.indexOf(inlidx)];
+	PosInfo::LineData* ld = (*cubedata_)[cubedata_->indexOf(inl)];
 	for ( int sidx=0; sidx<ld->segments_.size(); sidx++ )
 	{
 	    const StepInterval<int>& crlrg = ld->segments_[sidx];
