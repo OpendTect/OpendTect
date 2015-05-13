@@ -412,3 +412,22 @@ void uiGraphicsSceneAxisMgr::enableAxisLine( bool yn )
     xaxis_->setup().noaxisline( !yn );
     yaxis_->setup().noaxisline( !yn );
 }
+
+
+void uiGraphicsSceneAxisMgr::setAuxAnnotPositions(
+	const TypeSet<uiAxisHandler::AuxPosData>& auxpos, bool forx )
+{
+    if ( forx )
+	xaxis_->setAuxPosData( auxpos );
+    else
+	yaxis_->setAuxPosData( auxpos );
+}
+
+
+void uiGraphicsSceneAxisMgr::showAuxPositions( bool forx, bool yn )
+{
+    if ( forx )
+	xaxis_->setup().showauxpos( yn );
+    else
+	yaxis_->setup().showauxpos( yn );
+}

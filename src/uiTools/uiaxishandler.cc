@@ -25,7 +25,9 @@ static const float logof2 = logf(2);
     , endannottextitm_(0) \
     , annottxtitmgrp_(0) \
     , nameitm_(0) \
-    , annotlineitmgrp_(0)
+    , annotlineitmgrp_(0) \
+    , auxposlineitmgrp_(0) \
+    , auxpostxtitmgrp_(0)
 
 uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
 			      const uiAxisHandler::Setup& su )
@@ -54,6 +56,8 @@ uiAxisHandler::~uiAxisHandler()
     if ( annottxtitmgrp_ ) delete scene_->removeItem( annottxtitmgrp_ );
     if ( annotlineitmgrp_ ) delete scene_->removeItem( annotlineitmgrp_ );
     if ( gridlineitmgrp_ ) delete scene_->removeItem( gridlineitmgrp_ );
+    if ( auxpostxtitmgrp_ ) delete scene_->removeItem( auxpostxtitmgrp_ );
+    if ( auxposlineitmgrp_ ) delete scene_->removeItem( auxposlineitmgrp_ );
 }
 
 
@@ -373,11 +377,41 @@ void uiAxisHandler::updateAnnotations()
     else if ( annotlineitmgrp_ )
 	annotlineitmgrp_->removeAll( true );
 
+    if ( !auxposlineitmgrp_ && setup_.showauxpos_ )
+    {
+	auxposlineitmgrp_ = new uiGraphicsItemGroup();
+	scene_->addItemGrp( auxposlineitmgrp_ );
+	auxposlineitmgrp_->setZValue( setup_.zval_ );
+    }
+    else if ( auxposlineitmgrp_ )
+	auxposlineitmgrp_->removeAll( true );
+
+    if ( !auxpostxtitmgrp_ && setup_.showauxpos_ )
+    {
+	auxpostxtitmgrp_ = new uiGraphicsItemGroup();
+	scene_->addItemGrp( auxpostxtitmgrp_ );
+	auxpostxtitmgrp_->setZValue( setup_.zval_ );
+    }
+    else if ( auxpostxtitmgrp_ )
+	auxpostxtitmgrp_->removeAll( true );
+
     if ( setup_.noaxisannot_ ) return;
+
     for ( int idx=0; idx<pos_.size(); idx++ )
     {
 	const float relpos = pos_[idx] / endpos_;
-	annotPos( getRelPosPix(relpos), strs_[idx], setup_.style_ );
+	drawAnnotAtPos( getRelPosPix(relpos), strs_[idx], setup_.style_ );
+    }
+
+    if ( !setup_.showauxpos_ ) return;
+
+    for ( int idx=0; idx<auxpos_.size(); idx++ )
+    {
+	const float auxpos = auxpos_[idx].pos_;
+	if ( !rg_.includes(auxpos,rgisrev_) )
+	    continue;
+	drawAnnotAtPos( getPix(auxpos), auxpos_[idx].name_, setup_.style_, true,
+			auxpos_[idx].isbold_ );
     }
 }
 
@@ -596,8 +630,10 @@ void uiAxisHandler::annotAtEnd( const uiString& txt )
 }
 
 
-void uiAxisHandler::annotPos( int pix, const uiString& txt, const LineStyle& ls)
+void uiAxisHandler::drawAnnotAtPos( int pix, const uiString& txt,
+				    const LineStyle& ls, bool aux, bool bold )
 {
+    if ( aux && !setup_.showauxpos_ ) return;
     if ( setup_.noaxisannot_ || setup_.noannotpos_ ) return;
     const int edgepix = pixToEdge();
     const bool inside = setup_.annotinside_;
@@ -611,15 +647,33 @@ void uiAxisHandler::annotPos( int pix, const uiString& txt, const LineStyle& ls)
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( pix, y0, pix, y1 );
 	annotposlineitm->setPenColor( ls.color_ );
-	annotlineitmgrp_->add( annotposlineitm );
+	if ( aux )
+	    auxposlineitmgrp_->add( annotposlineitm );
+	else
+	    annotlineitmgrp_->add( annotposlineitm );
 	Alignment al( Alignment::HCenter,
 		      istop ? inside ? Alignment::Top : Alignment::Bottom
 			    : inside ? Alignment::Bottom : Alignment::Top );
 	uiTextItem* annotpostxtitem =
 	    new uiTextItem( uiPoint(pix,y1), txt, al );
 	annotpostxtitem->setTextColor( ls.color_ );
-	annotpostxtitem->setFontData( setup_.fontdata_ );
-	annottxtitmgrp_->add( annotpostxtitem );
+
+	if ( bold )
+	{
+	    BufferString fms;
+	    setup_.fontdata_.putTo( fms );
+	    FontData fd;
+	    fd.getFrom( fms );
+	    fd.setWeight( FontData::Bold );
+	    annotpostxtitem->setFontData( fd );
+	}
+	else
+	    annotpostxtitem->setFontData( setup_.fontdata_ );
+
+	if ( aux )
+	    auxpostxtitmgrp_->add( annotpostxtitem );
+	else
+	    annottxtitmgrp_->add( annotpostxtitem );
     }
     else
     {
@@ -630,14 +684,20 @@ void uiAxisHandler::annotPos( int pix, const uiString& txt, const LineStyle& ls)
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( x0, pix, x1, pix );
 	annotposlineitm->setPenColor( ls.color_ );
-	annotlineitmgrp_->add( annotposlineitm );
+	if ( aux )
+	    auxposlineitmgrp_->add( annotposlineitm );
+	else
+	    annotlineitmgrp_->add( annotposlineitm );
 	Alignment al( isleft ? Alignment::Right : Alignment::Left,
 		      Alignment::VCenter );
 	uiTextItem* annotpostxtitem =
 	    new uiTextItem( uiPoint(x1,pix), txt, al );
 	annotpostxtitem->setTextColor( ls.color_ );
 	annotpostxtitem->setFontData( setup_.fontdata_ );
-	annottxtitmgrp_->add( annotpostxtitem );
+	if ( aux )
+	    auxpostxtitmgrp_->add( annotpostxtitem );
+	else
+	    annottxtitmgrp_->add( annotpostxtitem );
     }
 }
 

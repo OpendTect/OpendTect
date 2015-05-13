@@ -118,8 +118,37 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 
 void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 {
-    axesdrawer_.setWorldCoords( wr_ );
     const FlatView::Annotation& annot = appearance().annot_;
+    axesdrawer_.showAuxPositions( true, !annot.x1_.auxposs_.isEmpty() );
+    if ( !annot.x1_.auxposs_.isEmpty() )
+    {
+	TypeSet<uiAxisHandler::AuxPosData> x1poss;
+	x1poss.setSize( annot.x1_.auxposs_.size(), uiAxisHandler::AuxPosData());
+	for ( int idx=0; idx<annot.x1_.auxposs_.size(); idx++ )
+	{
+	    x1poss[idx].pos_ = annot.x1_.auxposs_[idx].pos_;
+	    x1poss[idx].isbold_ = annot.x1_.auxposs_[idx].isbold_;
+	    x1poss[idx].name_ = annot.x1_.auxposs_[idx].name_;
+	}
+	axesdrawer_.setAuxAnnotPositions( x1poss, true );
+    }
+
+    axesdrawer_.showAuxPositions( false, !annot.x2_.auxposs_.isEmpty() );
+    if ( !annot.x2_.auxposs_.isEmpty() )
+    {
+	TypeSet<uiAxisHandler::AuxPosData> x2poss;
+	x2poss.setSize( annot.x2_.auxposs_.size(), uiAxisHandler::AuxPosData());
+	for ( int idx=0; idx<annot.x2_.auxposs_.size(); idx++ )
+	{
+	    x2poss[idx].pos_ = annot.x2_.auxposs_[idx].pos_;
+	    x2poss[idx].isbold_ = annot.x2_.auxposs_[idx].isbold_;
+	    x2poss[idx].name_ = annot.x2_.auxposs_[idx].name_;
+	}
+
+	axesdrawer_.setAuxAnnotPositions( x2poss, false );
+    }
+
+    axesdrawer_.setWorldCoords( wr_ );
     if ( !wr_.checkCorners(!annot.x1_.reversed_,annot.x2_.reversed_) )
     {
 	if ( isVisible(true) && wr_.revX()!=annot.x1_.reversed_ )

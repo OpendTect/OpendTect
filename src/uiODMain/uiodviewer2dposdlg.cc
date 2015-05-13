@@ -70,6 +70,6 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
     }
 
     odappl_.viewer2DMgr().displayIn2DViewer( vwr2ddpid, posdatasel.selspec_,
-					     false );
+					     false, posdatasel.geomid_ );
     return true;
 }
