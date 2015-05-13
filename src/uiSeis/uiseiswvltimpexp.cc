@@ -98,8 +98,9 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 
     Interval<float> vals;
     wvlt->getExtrValues( vals );
-    const float extreme = -1.f*vals.start < vals.stop ? vals.start : vals.stop;
-    const int maxsamp = wvlt->getPos( quadraturewvlt ? extreme : 0.f,
+    const float extreme = Math::Abs(vals.start) > Math::Abs(vals.stop)
+				? vals.start : vals.stop;
+    const int maxsamp = wvlt->getPos( quadraturewvlt ? 0.f : extreme,
 				      quadraturewvlt );
     const int nrhdrlines = fd_.nrHdrLines();
 
