@@ -106,7 +106,7 @@ public:
 			  return *this; }
     };
 
-    mStruct(General) AuxPosData
+    mStruct(uiTools) AuxPosData
     {
 			    AuxPosData()
 				: pos_(mUdf(float))
