@@ -278,7 +278,10 @@ bool Seis2DLineMerger::nextFetcher()
     totnr_ = l2dd.positions().size();
     if ( totnr_ < 0 )
 	mErrRet( tr("No data in %1").arg(geom2d->getName()) )
-    fetcher_ = ds_->lineFetcher( lid, tbuf, 1 );
+    const int dslineidx = ds_->indexOf( lid );
+    if ( dslineidx<0 )
+	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d->getName()) )
+    fetcher_ = ds_->lineFetcher( dslineidx, tbuf, 1 );
     if ( !fetcher_ )
 	mErrRet( tr("Cannot create a reader for %1.").arg(geom2d->getName()) )
 
