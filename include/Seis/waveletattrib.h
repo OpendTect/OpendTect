@@ -32,6 +32,8 @@ public:
     float		getAvgPhase(bool degree=false) const;
     void		getFrequency(Array1DImpl<float>&,int padfac=1);
 			//frequency array will be resized to padfac*array size )
+    void		getPhaseRotated(float*,float phase) const;
+			/*!<\param phase angle in radians */
     void		applyFreqWindow(const ArrayNDWindow&,int padfac,
 					Array1DImpl<float>&);
     void		transform(Array1D<float_complex>&,int sz=-1);
