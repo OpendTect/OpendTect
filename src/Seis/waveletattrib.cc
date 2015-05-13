@@ -103,6 +103,22 @@ float WaveletAttrib::getAvgPhase( bool indegrees ) const
 }
 
 
+void WaveletAttrib::getPhaseRotated( float* out, float phase ) const
+{
+    if ( mIsUdf(phase) )
+	return;
+
+    Array1DImpl<float> hilbert( wvltsz_ );
+    getHilbert( hilbert );
+
+    for ( int idx=0; idx<wvltsz_; idx++ )
+    {
+	out[idx] = wvltarr_->get(idx) * cos( phase ) -
+		   hilbert.get(idx) * sin( phase );
+    }
+}
+
+
 void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
 {
     const int arraysz = vals.info().getSize(0);
