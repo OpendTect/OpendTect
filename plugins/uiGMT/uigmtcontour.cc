@@ -160,7 +160,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
 	return;
 
     TrcKeyZSampling cs;
-    cs.hrg = sd_.rg;
+    cs.hsamp_ = sd_.rg;
     subselfld_->setInput( cs );
     attribfld_->setEmpty();
     attribfld_->addItem( ODGMT::sKeyZVals() );
@@ -195,7 +195,7 @@ void uiGMTContourGrp::resetCB( CallBacker* )
 
 void uiGMTContourGrp::selChg( CallBacker* cb )
 {
-    TrcKeySampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hsamp_;
     if ( hs == sd_.rg )
 	return;
 
@@ -259,7 +259,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     const IOObj* ioobj = inpfld_->ioobj();
     if ( !ioobj ) return;
 
-    TrcKeySampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hsamp_;
     if ( ( !hor_ || hor_->multiID()!=ioobj->key() ) && !loadHor() )
 	return;
 

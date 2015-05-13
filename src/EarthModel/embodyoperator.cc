@@ -648,11 +648,11 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     }
 
     //Set new body ranges.
-    const StepInterval<int>& inlrg0 = b0->tkzs_.hrg.inlRange();
-    const StepInterval<int>& crlrg0 = b0->tkzs_.hrg.crlRange();
+    const StepInterval<int>& inlrg0 = b0->tkzs_.hsamp_.inlRange();
+    const StepInterval<int>& crlrg0 = b0->tkzs_.hsamp_.crlRange();
     const StepInterval<float>& zrg0 = b0->tkzs_.zsamp_;
-    const StepInterval<int>& inlrg1 = b1->tkzs_.hrg.inlRange();
-    const StepInterval<int>& crlrg1 = b1->tkzs_.hrg.crlRange();
+    const StepInterval<int>& inlrg1 = b1->tkzs_.hsamp_.inlRange();
+    const StepInterval<int>& crlrg1 = b1->tkzs_.hsamp_.crlRange();
     const StepInterval<float>& zrg1 = b1->tkzs_.zsamp_;
 
     //If action is Minus, make the new cube the same size as body0.
@@ -724,9 +724,9 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 
     res->arr_ = arr;
     res->threshold_ = 0;
-    res->tkzs_.hrg.start = BinID(newinlrg.start, newcrlrg.start);
-    res->tkzs_.hrg.stop = BinID(newinlrg.stop, newcrlrg.stop);
-    res->tkzs_.hrg.step = BinID(newinlrg.step, newcrlrg.step);
+    res->tkzs_.hsamp_.start_ = BinID(newinlrg.start, newcrlrg.start);
+    res->tkzs_.hsamp_.stop_ = BinID(newinlrg.stop, newcrlrg.stop);
+    res->tkzs_.hsamp_.step_ = BinID(newinlrg.step, newcrlrg.step);
     res->tkzs_.zsamp_ = newzrg;
 
     return true;
@@ -808,9 +808,9 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;
-	    res->tkzs_.hrg.start = BinID(inlrg.start, crlrg.start);
-	    res->tkzs_.hrg.stop = BinID(inlrg.stop, crlrg.stop);
-	    res->tkzs_.hrg.step = BinID(inlrg.step, crlrg.step);
+	    res->tkzs_.hsamp_.start_ = BinID(inlrg.start, crlrg.start);
+	    res->tkzs_.hsamp_.stop_ = BinID(inlrg.stop, crlrg.stop);
+	    res->tkzs_.hsamp_.step_ = BinID(inlrg.step, crlrg.step);
 	    res->tkzs_.zsamp_ = zrg;
 
 	    cursorchanger.restore();

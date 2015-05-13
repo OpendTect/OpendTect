@@ -41,7 +41,7 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
 
     subsel_ = uiSeisSubSel::get( this, Seis::SelSetup( false ) );
     TrcKeySampling hs; subsel_->getSampling( hs );
-    hs.step = BinID( SI().inlStep()*20, SI().crlStep()*20 );
+    hs.step_ = BinID( SI().inlStep()*20, SI().crlStep()*20 );
     subsel_->setInput( hs );
     subsel_->attach( alignedBelow, anglecompgrp_ );
     subsel_->attach( ensureBelow, sep );

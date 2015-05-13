@@ -561,7 +561,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	if ( !subselfld_->isAll() )
 	{
 	    TrcKeyZSampling cs;
-	    subselfld_->getSampling( cs.hrg ); 
+	    subselfld_->getSampling( cs.hsamp_ );
 	    subselfld_->getZRange( cs.zsamp_ );
 	    data().setResampler( new SeisResampler(cs,is2D()) );
 	}

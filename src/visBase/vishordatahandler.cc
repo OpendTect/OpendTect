@@ -50,11 +50,11 @@ void HorizonSectionDataHandler::updateZAxisVOI()
 
     TrcKeyZSampling cs;
     if ( horsection_->userchangedisplayrg_ )
-	cs.hrg.set( horsection_->displayrrg_, horsection_->displaycrg_ );
+	cs.hsamp_.set( horsection_->displayrrg_, horsection_->displaycrg_ );
     else
-	cs.hrg.set( geometry->rowRange(), geometry->colRange() );
+	cs.hsamp_.set( geometry->rowRange(), geometry->colRange() );
 
-    TrcKeySamplingIterator iter( cs.hrg );
+    TrcKeySamplingIterator iter( cs.hsamp_ );
 
     bool first = true;
     BinID curpos;

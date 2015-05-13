@@ -60,14 +60,14 @@ TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
     TrcKey tk = TrcKey( getID(), transform(crd) );
     if ( dist )
     {
-	if ( sampling_.hrg.includes(tk.pos()) )
+	if ( sampling_.hsamp_.includes(tk.pos()) )
 	{
 	    const Coord projcoord( transform(tk.pos()) );
 	    *dist = (float)projcoord.distTo( crd );
 	}
 	else
 	{
-	    TrcKey nearbid( sampling_.hrg.getNearest(tk.pos()) );
+	    TrcKey nearbid( sampling_.hsamp_.getNearest(tk.pos()) );
 	    const Coord nearcoord( transform(nearbid.pos()) );
 	    *dist = (float)nearcoord.distTo( crd );
 	}
@@ -78,7 +78,7 @@ TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
 
 bool Survey::Geometry3D::includes( int line, int tracenr ) const
 {
-    return sampling_.hrg.includes( BinID(line,tracenr) );
+    return sampling_.hsamp_.includes( BinID(line,tracenr) );
 }
 
 
@@ -97,15 +97,15 @@ bool Survey::Geometry3D::isRightHandSystem() const
 float Survey::Geometry3D::averageTrcDist() const
 {
     const Coord c00 = transform( BinID(0,0) );
-    const Coord c10 = transform( BinID(sampling_.hrg.step.inl(),0) );
-    const Coord c01 = transform( BinID(0,sampling_.hrg.step.crl()) );
+    const Coord c10 = transform( BinID(sampling_.hsamp_.step_.inl(),0) );
+    const Coord c01 = transform( BinID(0,sampling_.hsamp_.step_.crl()) );
     return (float) ( c00.distTo(c10) + c00.distTo(c01) )/2;
 }
 
 
 BinID Survey::Geometry3D::transform( const Coord& c ) const
 {
-    return b2c_.transformBack( c, sampling_.hrg.start, sampling_.hrg.step );
+    return b2c_.transformBack( c, sampling_.hsamp_.start_, sampling_.hsamp_.step_ );
 }
 
 
@@ -124,15 +124,15 @@ const Survey::Geometry3D* Survey::Geometry::as3D() const
 Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
     : name_( nm )
     , zdomain_( zd )
-{ sampling_.hrg.survid_ = getID(); }
+{ sampling_.hsamp_.survid_ = getID(); }
 
 
 StepInterval<int> Survey::Geometry3D::inlRange() const
-{ return sampling_.hrg.inlRange(); }
+{ return sampling_.hsamp_.inlRange(); }
 
 
 StepInterval<int> Survey::Geometry3D::crlRange() const
-{ return sampling_.hrg.crlRange(); }
+{ return sampling_.hsamp_.crlRange(); }
 
 
 StepInterval<float> Survey::Geometry3D::zRange() const
@@ -140,11 +140,11 @@ StepInterval<float> Survey::Geometry3D::zRange() const
 
 
 int Survey::Geometry3D::inlStep() const
-{ return sampling_.hrg.step.inl(); }
+{ return sampling_.hsamp_.step_.inl(); }
 
 
 int Survey::Geometry3D::crlStep() const
-{ return sampling_.hrg.step.crl(); }
+{ return sampling_.hsamp_.step_.crl(); }
 
 
 float Survey::Geometry3D::zStep() const
@@ -399,16 +399,16 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	else if ( keyw == sKeyInlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->tkzs_.hrg.start.inl() = fms.getIValue( 0 );
-	    si->tkzs_.hrg.stop.inl() = fms.getIValue( 1 );
-	    si->tkzs_.hrg.step.inl() = fms.getIValue( 2 );
+	    si->tkzs_.hsamp_.start_.inl() = fms.getIValue( 0 );
+	    si->tkzs_.hsamp_.stop_.inl() = fms.getIValue( 1 );
+	    si->tkzs_.hsamp_.step_.inl() = fms.getIValue( 2 );
 	}
 	else if ( keyw == sKeyCrlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->tkzs_.hrg.start.crl() = fms.getIValue( 0 );
-	    si->tkzs_.hrg.stop.crl() = fms.getIValue( 1 );
-	    si->tkzs_.hrg.step.crl() = fms.getIValue( 2 );
+	    si->tkzs_.hsamp_.start_.crl() = fms.getIValue( 0 );
+	    si->tkzs_.hsamp_.stop_.crl() = fms.getIValue( 1 );
+	    si->tkzs_.hsamp_.step_.crl() = fms.getIValue( 2 );
 	}
 	else if ( keyw == sKeyZRange() )
 	{
@@ -524,7 +524,7 @@ void SurveyInfo::updateDirName()
 StepInterval<int> SurveyInfo::inlRange( bool work ) const
 {
     StepInterval<int> ret; Interval<int> dum;
-    sampling(work).hrg.get( ret, dum );
+    sampling(work).hsamp_.get( ret, dum );
     return ret;
 }
 
@@ -532,7 +532,7 @@ StepInterval<int> SurveyInfo::inlRange( bool work ) const
 StepInterval<int> SurveyInfo::crlRange( bool work ) const
 {
     StepInterval<int> ret; Interval<int> dum;
-    sampling(work).hrg.get( dum, ret );
+    sampling(work).hsamp_.get( dum, ret );
     return ret;
 }
 
@@ -544,17 +544,17 @@ const StepInterval<float>& SurveyInfo::zRange( bool work ) const
 
 int SurveyInfo::maxNrTraces( bool work ) const
 {
-    return sampling(work).hrg.nrInl() * sampling(work).hrg.nrCrl();
+    return sampling(work).hsamp_.nrInl() * sampling(work).hsamp_.nrCrl();
 }
 
 
 int SurveyInfo::inlStep() const
 {
-    return tkzs_.hrg.step.inl();
+    return tkzs_.hsamp_.step_.inl();
 }
 int SurveyInfo::crlStep() const
 {
-    return tkzs_.hrg.step.crl();
+    return tkzs_.hsamp_.step_.crl();
 }
 
 
@@ -573,7 +573,7 @@ float SurveyInfo::crlDistance() const
 float SurveyInfo::getArea( const Interval<int>& inlrg,
 			       const Interval<int>& crlrg ) const
 {
-    const BinID step = sampling(false).hrg.step;
+    const BinID step = sampling(false).hsamp_.step_;
     const Coord c00 = transform( BinID(inlrg.start,crlrg.start) );
     const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl()) );
     const Coord c10 = transform( BinID(inlrg.stop+step.inl(),crlrg.start) );
@@ -610,7 +610,7 @@ void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
 	tkzs_ = cs;
 
     wcs_.limitTo( tkzs_ );
-    wcs_.hrg.step = tkzs_.hrg.step;
+    wcs_.hsamp_.step_ = tkzs_.hsamp_.step_;
     wcs_.zsamp_.step = tkzs_.zsamp_.step;
 }
 
@@ -625,8 +625,8 @@ void SurveyInfo::setWorkRange( const TrcKeyZSampling& cs )
 Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 {
     const Interval<int> rg = inl
-      ? Interval<int>( tkzs_.hrg.start.inl(), tkzs_.hrg.stop.inl() )
-      : Interval<int>( tkzs_.hrg.start.crl(), tkzs_.hrg.stop.crl() );
+      ? Interval<int>( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.inl() )
+      : Interval<int>( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
 
     const int w = rg.stop - rg.start;
 
@@ -656,13 +656,13 @@ bool SurveyInfo::isReasonable( const Coord& crd ) const
 Coord SurveyInfo::minCoord( bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
-    Coord minc = transform( cs.hrg.start );
-    Coord c = transform( cs.hrg.stop );
+    Coord minc = transform( cs.hsamp_.start_ );
+    Coord c = transform( cs.hsamp_.stop_ );
     mChkCoord(c);
-    BinID bid( cs.hrg.start.inl(), cs.hrg.stop.crl() );
+    BinID bid( cs.hsamp_.start_.inl(), cs.hsamp_.stop_.crl() );
     c = transform( bid );
     mChkCoord(c);
-    bid = BinID( cs.hrg.stop.inl(), cs.hrg.start.crl() );
+    bid = BinID( cs.hsamp_.stop_.inl(), cs.hsamp_.start_.crl() );
     c = transform( bid );
     mChkCoord(c);
     return minc;
@@ -676,13 +676,13 @@ Coord SurveyInfo::minCoord( bool work ) const
 Coord SurveyInfo::maxCoord( bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
-    Coord maxc = transform( cs.hrg.start );
-    Coord c = transform( cs.hrg.stop );
+    Coord maxc = transform( cs.hsamp_.start_ );
+    Coord c = transform( cs.hsamp_.stop_ );
     mChkCoord(c);
-    BinID bid( cs.hrg.start.inl(), cs.hrg.stop.crl() );
+    BinID bid( cs.hsamp_.start_.inl(), cs.hsamp_.stop_.crl() );
     c = transform( bid );
     mChkCoord(c);
-    bid = BinID( cs.hrg.stop.inl(), cs.hrg.start.crl() );
+    bid = BinID( cs.hsamp_.stop_.inl(), cs.hsamp_.start_.crl() );
     c = transform( bid );
     mChkCoord(c);
     return maxc;
@@ -693,10 +693,10 @@ void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
     intv.sort();
-    if ( intv.start < cs.hrg.start.inl() ) intv.start = cs.hrg.start.inl();
-    if ( intv.start > cs.hrg.stop.inl() )  intv.start = cs.hrg.stop.inl();
-    if ( intv.stop > cs.hrg.stop.inl() )   intv.stop = cs.hrg.stop.inl();
-    if ( intv.stop < cs.hrg.start.inl() )  intv.stop = cs.hrg.start.inl();
+    if ( intv.start < cs.hsamp_.start_.inl() ) intv.start = cs.hsamp_.start_.inl();
+    if ( intv.start > cs.hsamp_.stop_.inl() )  intv.start = cs.hsamp_.stop_.inl();
+    if ( intv.stop > cs.hsamp_.stop_.inl() )   intv.stop = cs.hsamp_.stop_.inl();
+    if ( intv.stop < cs.hsamp_.start_.inl() )  intv.stop = cs.hsamp_.start_.inl();
     BinID bid( intv.start, 0 );
     snap( bid, BinID(1,1) ); intv.start = bid.inl();
     bid.inl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.inl();
@@ -706,10 +706,10 @@ void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
     intv.sort();
-    if ( intv.start < cs.hrg.start.crl() ) intv.start = cs.hrg.start.crl();
-    if ( intv.start > cs.hrg.stop.crl() )  intv.start = cs.hrg.stop.crl();
-    if ( intv.stop > cs.hrg.stop.crl() )   intv.stop = cs.hrg.stop.crl();
-    if ( intv.stop < cs.hrg.start.crl() )  intv.stop = cs.hrg.start.crl();
+    if ( intv.start < cs.hsamp_.start_.crl() ) intv.start = cs.hsamp_.start_.crl();
+    if ( intv.start > cs.hsamp_.stop_.crl() )  intv.start = cs.hsamp_.stop_.crl();
+    if ( intv.stop > cs.hsamp_.stop_.crl() )   intv.stop = cs.hsamp_.stop_.crl();
+    if ( intv.stop < cs.hsamp_.start_.crl() )  intv.stop = cs.hsamp_.start_.crl();
     BinID bid( 0, intv.start );
     snap( bid, BinID(1,1) ); intv.start = bid.crl();
     bid.crl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.crl();
@@ -734,7 +734,7 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
     const float eps = 1e-8;
-    return cs.hrg.includes( bid )
+    return cs.hsamp_.includes( bid )
 	&& cs.zsamp_.start < z + eps && cs.zsamp_.stop > z - eps;
 }
 
@@ -822,9 +822,9 @@ void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
     }
     else
     {
-	b[0] = tkzs_.hrg.start; c[0] = transform( b[0] );
-	b[1] = tkzs_.hrg.stop; c[1] = transform( b[1] );
-	BinID b2 = tkzs_.hrg.stop; b2.inl() = b[0].inl();
+	b[0] = tkzs_.hsamp_.start_; c[0] = transform( b[0] );
+	b[1] = tkzs_.hsamp_.stop_; c[1] = transform( b[1] );
+	BinID b2 = tkzs_.hsamp_.stop_; b2.inl() = b[0].inl();
 	c[2] = transform( b2 ); xline = b2.crl();
     }
 }
@@ -854,9 +854,9 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
 
 void SurveyInfo::gen3Pts()
 {
-    set3binids_[0] = tkzs_.hrg.start;
-    set3binids_[1] = tkzs_.hrg.stop;
-    set3binids_[2] = BinID( tkzs_.hrg.start.inl(), tkzs_.hrg.stop.crl() );
+    set3binids_[0] = tkzs_.hsamp_.start_;
+    set3binids_[1] = tkzs_.hsamp_.stop_;
+    set3binids_[2] = BinID( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.crl() );
     set3coords_[0] = transform( set3binids_[0] );
     set3coords_[1] = transform( set3binids_[1] );
     set3coords_[2] = transform( set3binids_[2] );
@@ -881,16 +881,16 @@ static void doSnap( int& idx, int start, int step, int dir )
 void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
 {
     const TrcKeyZSampling& cs = sampling( false );
-    const BinID& stp = cs.hrg.step;
+    const BinID& stp = cs.hsamp_.step_;
     if ( stp.inl() == 1 && stp.crl() == 1 ) return;
-    doSnap( binid.inl(), cs.hrg.start.inl(), stp.inl(), rounding.inl() );
-    doSnap( binid.crl(), cs.hrg.start.crl(), stp.crl(), rounding.crl() );
+    doSnap( binid.inl(), cs.hsamp_.start_.inl(), stp.inl(), rounding.inl() );
+    doSnap( binid.crl(), cs.hsamp_.start_.crl(), stp.crl(), rounding.crl() );
 }
 
 
 void SurveyInfo::snapStep( BinID& s, const BinID& rounding ) const
 {
-    const BinID& stp = tkzs_.hrg.step;
+    const BinID& stp = tkzs_.hsamp_.step_;
     if ( s.inl() < 0 ) s.inl() = -s.inl();
     if ( s.crl() < 0 ) s.crl() = -s.crl();
     if ( s.inl() < stp.inl() ) s.inl() = stp.inl();
@@ -981,12 +981,12 @@ bool SurveyInfo::write( const char* basedir ) const
     astream.put( sKey::Name(), name() );
     astream.put( sKeySurvDataType(), getPol2DString( survDataType()) );
     FileMultiString fms;
-    fms += tkzs_.hrg.start.inl(); fms += tkzs_.hrg.stop.inl();
-				fms += tkzs_.hrg.step.inl();
+    fms += tkzs_.hsamp_.start_.inl(); fms += tkzs_.hsamp_.stop_.inl();
+				fms += tkzs_.hsamp_.step_.inl();
     astream.put( sKeyInlRange(), fms );
     fms = "";
-    fms += tkzs_.hrg.start.crl(); fms += tkzs_.hrg.stop.crl();
-				fms += tkzs_.hrg.step.crl();
+    fms += tkzs_.hsamp_.start_.crl(); fms += tkzs_.hsamp_.stop_.crl();
+				fms += tkzs_.hsamp_.step_.crl();
     astream.put( sKeyCrlRange(), fms );
     fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
     fms += tkzs_.zsamp_.step;

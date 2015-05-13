@@ -105,7 +105,7 @@ bool HorizonPainter2D::addPolyLine()
 	bool coorddefined = true;
 
 	Marker2D* marker = 0;
-	TrcKeySamplingIterator iter( tkzs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
 	BinID bid;
 
 	while ( iter.next(bid) )

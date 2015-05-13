@@ -94,7 +94,7 @@ protected:
     bool			doWork(od_int64,od_int64,int threadid);
     bool			doFinish(bool success);
     od_int64			nrIterations() const
-				{ return tkzs_.hrg.totalNr(); }
+				{ return tkzs_.hsamp_.totalNr(); }
 
     int 			voiid_;
     ObjectSet<BinIDValueSet>	bidvalsets_;
@@ -112,7 +112,7 @@ is one less than BinIDValueSet::nrVals(), as the z-component is not used.
 */
 
 mGlobal(General) TypeSet<DataPack::ID> createDataPacksFromBIVSet(
-	const BinIDValueSet*,const TrcKeyZSampling&,const BufferStringSet& nms=0);
+   const BinIDValueSet*,const TrcKeyZSampling&,const BufferStringSet& nms=0);
 
 
 #endif

@@ -1073,13 +1073,13 @@ void uiSurvey::putToScreen()
 	bininfo.add( " (" ).add( si.getXYUnitString(false) ).add( "/line): " );
 	areainfo.add( " (sq " ).add( si.xyInFeet() ? "mi" : "km" ).add( "): ");
 
-	if ( si.sampling(false).hrg.totalNr() > 0 )
+	if ( si.sampling(false).hsamp_.totalNr() > 0 )
 	{
-	    inlinfo.add( si.sampling(false).hrg.start.inl() );
-	    inlinfo.add( " - ").add( si.sampling(false).hrg.stop.inl() );
+	    inlinfo.add( si.sampling(false).hsamp_.start_.inl() );
+	    inlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.inl() );
 	    inlinfo.add( " - " ).add( si.inlStep() );
-	    crlinfo.add( si.sampling(false).hrg.start.crl() );
-	    crlinfo.add( " - ").add( si.sampling(false).hrg.stop.crl() );
+	    crlinfo.add( si.sampling(false).hsamp_.start_.crl() );
+	    crlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.crl() );
 	    crlinfo.add( " - " ).add( si.crlStep() );
 
 	    const float inldist = si.inlDistance(), crldist = si.crlDistance();

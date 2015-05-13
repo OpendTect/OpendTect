@@ -17,7 +17,7 @@ BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr,
 {
     tks_.setInlRange( bidvs.inlRange() );
     tks_.setCrlRange( bidvs.crlRange() );
-    tks_.step = step;
+    tks_.step_ = step;
     arrinfo_ = Array2DInfoImpl( tks_.nrInl(), tks_.nrCrl() );
 }
 

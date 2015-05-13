@@ -172,7 +172,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 {
     if ( bvss_.isEmpty() ) return;
     nrvals_ = bvss_[0]->nrVals();
-    const RowCol step( hs_.step.inl(), hs_.step.crl() );
+    const RowCol step( hs_.step_.inl(), hs_.step_.crl() );
     horizon_.geometry().setStep( step, step );
 
     for ( int idx=0; idx<bvss_.size(); idx++ )
@@ -185,7 +185,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 
 	TrcKeySampling sectrg;
 	sectrg.set( bvs.inlRange(), bvs.crlRange(-1) );
-	sectrg.step = step;
+	sectrg.step_ = step;
 	sectrg.limitTo( hs_ );
 	mDeclareAndTryAlloc( Array2D<float>*, arr,
 		Array2DImpl<float>( sectrg.nrInl(), sectrg.nrCrl() ) );
@@ -259,7 +259,7 @@ void fillHorizonArray()
     {
 	EM::SectionID sid = horizon_.geometry().addSection( 0, false );
 	Geometry::BinIDSurface* geom = horizon_.geometry().sectionGeometry(sid);
-	geom->setArray( hs_.start, hs_.step, horarrays_[sidx], true );
+	geom->setArray( hs_.start_, hs_.step_, horarrays_[sidx], true );
     }
 
     horarrays_.erase();
@@ -341,7 +341,7 @@ Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
 
     Array2D<float>* array = new Array2DImpl<float>( hrg.nrInl(), hrg.nrCrl() );
     array->setAll( z );
-    if ( !hor3d->setArray2D(array,hrg.start,hrg.step) )
+    if ( !hor3d->setArray2D(array,hrg.start_,hrg.step_) )
     {
 	delete array;
 	hor3d->ref(); hor3d->unRef();

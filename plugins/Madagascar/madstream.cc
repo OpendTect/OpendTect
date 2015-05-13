@@ -389,7 +389,7 @@ void MadStream::fillHeaderParsFromSeis()
 
 	    PosInfo::CubeData newcd( *pinfo.cubedata );
 	    if ( rangesel && !rangesel->isAll() )
-		newcd.limitTo( rangesel->cubeSampling().hrg );
+		newcd.limitTo( rangesel->cubeSampling().hsamp_ );
 
 	    needposfile = !newcd.isFullyRectAndReg();
 	    if ( needposfile )
@@ -401,8 +401,9 @@ void MadStream::fillHeaderParsFromSeis()
 
 	if ( !needposfile )
 	{
-	    StepInterval<int> inlrg = rangesel ?
-			rangesel->cubeSampling().hrg.inlRange() : pinfo.inlrg;
+	    StepInterval<int> inlrg = rangesel
+		? rangesel->cubeSampling().hsamp_.inlRange()
+		: pinfo.inlrg;
 	    headerpars_->set( "o3", inlrg.start );
 	    headerpars_->set( "n3", inlrg.nrSteps()+1 );
 	    headerpars_->set( "d3", inlrg.step );

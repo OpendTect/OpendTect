@@ -82,7 +82,7 @@ od_int64 SeisScanner::totalNr() const
 	{
 	    TrcKeyZSampling cs;
 	    if ( SeisTrcTranslator::getRanges(*rdr_.ioObj(),cs) )
-		self.totalnr_ = cs.hrg.nrInl() * cs.hrg.nrCrl();
+		self.totalnr_ = cs.hsamp_.nrInl() * cs.hsamp_.nrCrl();
 	}
     }
     return totalnr_;
@@ -91,7 +91,7 @@ od_int64 SeisScanner::totalNr() const
 
 bool SeisScanner::getSurvInfo( TrcKeyZSampling& cs, Coord crd[3] ) const
 {
-    const char* msg = dtctor_.getSurvInfo( cs.hrg, crd );
+    const char* msg = dtctor_.getSurvInfo( cs.hsamp_, crd );
     if ( msg )
 	{ curmsg_ = msg; return false; }
 

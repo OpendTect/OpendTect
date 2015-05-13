@@ -257,14 +257,14 @@ static TrcKeySampling getHorSamp( IOPar& geompar )
 {
     TrcKeySampling hsamp;
     if ( !geompar.get( SurveyInfo::sKeyInlRange(),
-			hsamp.start.inl(), hsamp.stop.inl() )
+			hsamp.start_.inl(), hsamp.stop_.inl() )
 	 || !geompar.get( SurveyInfo::sKeyCrlRange(),
-			   hsamp.start.crl(), hsamp.stop.crl() ) )
+			   hsamp.start_.crl(), hsamp.stop_.crl() ) )
     {
-	hsamp.start.inl() = 0;
-	hsamp.stop.inl() = mUdf(int);
-	hsamp.start.crl() = 0;
-	hsamp.stop.crl() = mUdf(int);
+	hsamp.start_.inl() = 0;
+	hsamp.stop_.inl() = mUdf(int);
+	hsamp.start_.crl() = 0;
+	hsamp.stop_.crl() = mUdf(int);
     }
 
     return hsamp;
@@ -519,7 +519,7 @@ bool BatchProgram::go( od_ostream& strm )
 		DataPointSet* dtps = new DataPointSet( startset, valnms, true );
 
 		linepar->get( sKey::GeomID(), geomid );
-		hsamp.start.inl() = hsamp.stop.inl() = 0;
+		hsamp.start_.inl() = hsamp.stop_.inl() = 0;
 		StepInterval<int> trcrg;
 		linepar->get( sKey::TrcRange(), trcrg );
 		hsamp.setCrlRange( trcrg );

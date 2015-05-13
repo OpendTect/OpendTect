@@ -473,9 +473,9 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 	new EM::MarchingCubesSurface( EM::EMM() );
 
     emcs->surface().setVolumeData( 0, 0, 0, *impbd->arr_, 0, &taskrunner );
-    emcs->setInlSampling( SamplingData<int>(impbd->tkzs_.hrg.inlRange()) );
-    emcs->setCrlSampling( SamplingData<int>(impbd->tkzs_.hrg.crlRange()) );
-    emcs->setZSampling( SamplingData<float>(impbd->tkzs_.zrg) );
+    emcs->setInlSampling( SamplingData<int>(impbd->tkzs_.hsamp_.inlRange()) );
+    emcs->setCrlSampling( SamplingData<int>(impbd->tkzs_.hsamp_.crlRange()) );
+    emcs->setZSampling( SamplingData<float>(impbd->tkzs_.zsamp_) );
 
     emcs->setMultiID( outputfld_->key() );
     emcs->setName( outputfld_->getInput() );

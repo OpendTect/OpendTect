@@ -130,12 +130,12 @@ void SeisIOSimple::Data::clear( bool survchg )
     sd_.start = (float)SI().zRange(false).start;
     sd_.step = (float)SI().zRange(false).step;
     nrsamples_ = SI().zRange(false).nrSteps() + 1;
-    inldef_.start = SI().sampling(false).hrg.start.inl();
-    crldef_.start = SI().sampling(false).hrg.start.crl();
+    inldef_.start = SI().sampling(false).hsamp_.start_.inl();
+    crldef_.start = SI().sampling(false).hsamp_.start_.crl();
     inldef_.step = SI().inlStep();
     crldef_.step = SI().crlStep();
-    nrcrlperinl_ = (SI().sampling(false).hrg.stop.crl()
-		 - SI().sampling(false).hrg.start.crl())
+    nrcrlperinl_ = (SI().sampling(false).hsamp_.stop_.crl()
+		 - SI().sampling(false).hsamp_.start_.crl())
 		    / crldef_.step + 1;
     nroffsperpos_ = 10; // cannot think of a good default ...
     startpos_ = SI().transform( BinID(inldef_.start,crldef_.start) );

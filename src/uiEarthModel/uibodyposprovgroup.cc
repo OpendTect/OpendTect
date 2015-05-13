@@ -80,7 +80,7 @@ void uiBodyPosProvGroup::usePar( const IOPar& iop )
 	iop.get( Pos::EMImplicitBodyProvider::sKeyBBZrg(), zrg );
 
 	TrcKeyZSampling cs(true);
-	cs.hrg.set( inlrg, crlrg );
+	cs.hsamp_.set( inlrg, crlrg );
 	cs.zsamp_.setFrom( zrg );
 	outsidergfld_->setInput( cs );
     }
@@ -100,8 +100,8 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
     if ( !inoutbut_->getBoolValue() )
     {
 	const TrcKeyZSampling& cs = outsidergfld_->envelope();
-	iop.set( Pos::EMImplicitBodyProvider::sKeyBBInlrg(), cs.hrg.inlRange());
-	iop.set( Pos::EMImplicitBodyProvider::sKeyBBCrlrg(), cs.hrg.crlRange());
+	iop.set( Pos::EMImplicitBodyProvider::sKeyBBInlrg(), cs.hsamp_.inlRange());
+	iop.set( Pos::EMImplicitBodyProvider::sKeyBBCrlrg(), cs.hsamp_.crlRange());
 	iop.set( Pos::EMImplicitBodyProvider::sKeyBBZrg(), cs.zsamp_ );
     }
     return true;

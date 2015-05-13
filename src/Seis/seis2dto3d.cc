@@ -94,7 +94,7 @@ bool Seis2DTo3D::usePar( const IOPar& pars )
 	crlstep_ = step.stop;
 	parampars->getYN( sKeyReUse(), reusetrcs_ );
 	parampars->get( sKeyMaxVel(), maxvel_ );
-	tkzs_.hrg.step = BinID( inlstep_, crlstep_ );
+	tkzs_.hsamp_.step_ = BinID( inlstep_, crlstep_ );
     }
 
     return true;
@@ -153,10 +153,10 @@ bool Seis2DTo3D::read()
     if ( ds.isEmpty() )
 	mErrRet( tr("Input dataset has no lines") )
 
-    Interval<int> inlrg( tkzs_.hrg.inlRange().start - inlstep_,
-			 tkzs_.hrg.inlRange().stop + inlstep_ );
-    Interval<int> crlrg( tkzs_.hrg.crlRange().start - crlstep_,
-			 tkzs_.hrg.crlRange().stop + crlstep_ );
+    Interval<int> inlrg( tkzs_.hsamp_.inlRange().start - inlstep_,
+			 tkzs_.hsamp_.inlRange().stop + inlstep_ );
+    Interval<int> crlrg( tkzs_.hsamp_.crlRange().start - crlstep_,
+			 tkzs_.hsamp_.crlRange().stop + crlstep_ );
     SeisTrcBuf tmpbuf(false);
     seisbuf_.erase();
     seisbuftks_.init( false );
@@ -195,7 +195,7 @@ bool Seis2DTo3D::read()
     if ( seisbuf_.isEmpty() )
 	return false;
 
-    hsit_.setSampling( tkzs_.hrg );
+    hsit_.setSampling( tkzs_.hsamp_ );
 
     if ( !nearesttrace_ )
 	sc_ = new SeisScaler( seisbuf_ );
@@ -282,7 +282,7 @@ bool Seis2DTo3D::doWorkFFT()
     inlrg.limitTo( SI().inlRange(true) );
     crlrg.limitTo( SI().crlRange(true) );
     TrcKeySampling hrg; hrg.set( inlrg, crlrg );
-    hrg.step = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
+    hrg.step_ = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
     TrcKeySamplingIterator localhsit( hrg );
     BinID binid;
     ObjectSet<const SeisTrc> trcs;
@@ -328,7 +328,7 @@ bool Seis2DTo3D::doWorkFFT()
     wincrlrg.limitTo( SI().crlRange(true) );
     TrcKeySampling winhrg;
     winhrg.set( wininlrg, wincrlrg );
-    winhrg.step = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
+    winhrg.step_ = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
     ObjectSet<SeisTrc> outtrcs;
     interpol_.getOutTrcs( outtrcs, winhrg );
 
@@ -399,7 +399,7 @@ bool Seis2DTo3D::writeTmpTrcs()
 
 od_int64 Seis2DTo3D::totalNr() const
 {
-    return tkzs_.hrg.totalNr();
+    return tkzs_.hsamp_.totalNr();
 }
 
 

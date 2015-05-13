@@ -29,8 +29,8 @@ BodyVolumeCalculator::BodyVolumeCalculator( const TrcKeyZSampling& cs,
     const float zfactor = SI().zIsTime() ? velocityinmeter : 
 	(SI().zInFeet() ? mFromFeetFactorF : 1);
     const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
-    unitvol_ = cs.hrg.step.inl() * SI().inlDistance() * xyfactor * 
-	       cs.hrg.step.crl() * SI().crlDistance() * xyfactor *
+    unitvol_ = cs.hsamp_.step_.inl() * SI().inlDistance() * xyfactor *
+	       cs.hsamp_.step_.crl() * SI().crlDistance() * xyfactor *
 	       cs.zsamp_.step * zfactor;
 }
 

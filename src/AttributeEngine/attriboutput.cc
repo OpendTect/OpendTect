@@ -138,7 +138,7 @@ bool DataCubesOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 
 
 bool DataCubesOutput::wantsOutput( const BinID& bid ) const
-{ return desiredvolume_.hrg.includes(bid); }
+{ return desiredvolume_.hsamp_.includes(bid); }
 
 
 TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
@@ -157,24 +157,24 @@ TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
 
 void DataCubesOutput::adjustInlCrlStep( const TrcKeyZSampling& cs )
 {
-    if ( cs.hrg.step.inl() > desiredvolume_.hrg.step.inl() )
+    if ( cs.hsamp_.step_.inl() > desiredvolume_.hsamp_.step_.inl() )
     {
-	desiredvolume_.hrg.step.inl() = cs.hrg.step.inl();
-	dcsampling_.hrg.step.inl() = cs.hrg.step.inl();
-	desiredvolume_.hrg.start.inl() = cs.hrg.start.inl();
+	desiredvolume_.hsamp_.step_.inl() = cs.hsamp_.step_.inl();
+	dcsampling_.hsamp_.step_.inl() = cs.hsamp_.step_.inl();
+	desiredvolume_.hsamp_.start_.inl() = cs.hsamp_.start_.inl();
     }
-    if ( cs.hrg.step.crl() > desiredvolume_.hrg.step.crl() )
+    if ( cs.hsamp_.step_.crl() > desiredvolume_.hsamp_.step_.crl() )
     {
-	desiredvolume_.hrg.step.crl() = cs.hrg.step.crl();
-	dcsampling_.hrg.step.crl() = cs.hrg.step.crl();
-	desiredvolume_.hrg.start.crl() = cs.hrg.start.crl();
+	desiredvolume_.hsamp_.step_.crl() = cs.hsamp_.step_.crl();
+	dcsampling_.hsamp_.step_.crl() = cs.hsamp_.step_.crl();
+	desiredvolume_.hsamp_.start_.crl() = cs.hsamp_.start_.crl();
     }
 }
 
 
 #define mGetSz(dir)\
-	dir##sz = (dcsampling_.hrg.stop.dir() - dcsampling_.hrg.start.dir())\
-		  /dcsampling_.hrg.step.dir() + 1;\
+	dir##sz = (dcsampling_.hsamp_.stop_.dir() - dcsampling_.hsamp_.start_.dir())\
+		  /dcsampling_.hsamp_.step_.dir() + 1;\
 
 #define mGetZSz()\
 	zsz = mNINT32( ( dcsampling_.zsamp_.stop - dcsampling_.zsamp_.start )\
@@ -287,12 +287,12 @@ void DataCubesOutput::init( float refstep )
 {
     datacubes_ = new Attrib::DataCubes;
     datacubes_->ref();
-    datacubes_->inlsampling_= StepInterval<int>(dcsampling_.hrg.start.inl(),
-						dcsampling_.hrg.stop.inl(),
-						dcsampling_.hrg.step.inl());
-    datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hrg.start.crl(),
-						dcsampling_.hrg.stop.crl(),
-						dcsampling_.hrg.step.crl());
+    datacubes_->inlsampling_= StepInterval<int>(dcsampling_.hsamp_.start_.inl(),
+						dcsampling_.hsamp_.stop_.inl(),
+						dcsampling_.hsamp_.step_.inl());
+    datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hsamp_.start_.crl(),
+						dcsampling_.hsamp_.stop_.crl(),
+						dcsampling_.hsamp_.step_.crl());
     datacubes_->z0_ = dcsampling_.zsamp_.start / refstep;
     datacubes_->zstep_ = refstep;
     int inlsz, crlsz, zsz;
@@ -327,7 +327,7 @@ bool SeisTrcStorOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 
 bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
 {
-    return desiredvolume_.hrg.includes(bid);
+    return desiredvolume_.hsamp_.includes(bid);
 }
 
 
@@ -648,10 +648,10 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 {
     const Interval<int> rg( seldata_->crlRange() );
-    cs.hrg.start.crl() = rg.start; cs.hrg.stop.crl() = rg.stop;
+    cs.hsamp_.start_.crl() = rg.start; cs.hsamp_.stop_.crl() = rg.stop;
     const Interval<float> zrg( seldata_->zRange() );
     cs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
-    cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
+    cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl() = 0;
     return true;
 }
 
@@ -981,8 +981,8 @@ bool TrcSelectionOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 const TrcKeyZSampling Trc2DVarZStorOutput::getCS()
 {
     TrcKeyZSampling cs;
-    cs.hrg.start.inl() = 0; cs.hrg.stop.inl() = mUdf(int);
-    cs.hrg.start.crl() = 1; cs.hrg.stop.crl() = mUdf(int);
+    cs.hsamp_.start_.inl() = 0; cs.hsamp_.stop_.inl() = mUdf(int);
+    cs.hsamp_.start_.crl() = 1; cs.hsamp_.stop_.crl() = mUdf(int);
     return cs;
 }
 

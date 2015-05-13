@@ -53,7 +53,7 @@ int ZSliceInterpolationModel::nrLayers() const
 { return tkzs_.nrZ(); }
 
 bool ZSliceInterpolationModel::hasPosition( const BinID& bid ) const
-{ return tkzs_.hrg.includes( bid ); }
+{ return tkzs_.hsamp_.includes( bid ); }
 
 float ZSliceInterpolationModel::getZ( const BinID& bid, int layer ) const
 { return hasPosition( bid ) ? tkzs_.zsamp_.atIndex( layer ) : mUdf(float); }

@@ -121,9 +121,9 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
     uiSpinBox* posbox = sliceposbox_;
     curcs_ = oldcs;
     if ( orientation == OD::InlineSlice )
-	curcs_.hrg.start.inl() = curcs_.hrg.stop.inl() = posbox->getValue();
+	curcs_.hsamp_.start_.inl() = curcs_.hsamp_.stop_.inl() = posbox->getValue();
     else if ( orientation == OD::CrosslineSlice )
-	curcs_.hrg.start.crl() = curcs_.hrg.stop.crl() = posbox->getValue();
+	curcs_.hsamp_.start_.crl() = curcs_.hsamp_.stop_.crl() = posbox->getValue();
     else
 	curcs_.zsamp_.start = curcs_.zsamp_.stop 
 			    = (float)posbox->getValue()/zfactor_;
@@ -154,17 +154,17 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
 
     if ( orientation == OD::InlineSlice )
     {
-	posbox->setInterval( survcs.hrg.start.inl(), survcs.hrg.stop.inl() );
-	stepbox->setInterval( survcs.hrg.step.inl(),
-			      survcs.hrg.stop.inl()-survcs.hrg.start.inl(),
-			      survcs.hrg.step.inl() );
+	posbox->setInterval( survcs.hsamp_.start_.inl(), survcs.hsamp_.stop_.inl() );
+	stepbox->setInterval( survcs.hsamp_.step_.inl(),
+			      survcs.hsamp_.stop_.inl()-survcs.hsamp_.start_.inl(),
+			      survcs.hsamp_.step_.inl() );
     }
     else if ( orientation == OD::CrosslineSlice )
     {
-	posbox->setInterval( survcs.hrg.start.crl(), survcs.hrg.stop.crl() );
-	stepbox->setInterval( survcs.hrg.step.crl(),
-			      survcs.hrg.stop.crl()-survcs.hrg.start.crl(),
-			      survcs.hrg.step.crl() );
+	posbox->setInterval( survcs.hsamp_.start_.crl(), survcs.hsamp_.stop_.crl() );
+	stepbox->setInterval( survcs.hsamp_.step_.crl(),
+			      survcs.hsamp_.stop_.crl()-survcs.hsamp_.start_.crl(),
+			      survcs.hsamp_.step_.crl() );
     }
     else
     {
@@ -184,9 +184,9 @@ void uiSlicePos::setPosBoxVal( uiSlicePos::SliceDir orientation,
     NotifyStopper posstop( posbox->valueChanging );
 
     if ( orientation == OD::InlineSlice )
-	posbox->setValue( cs.hrg.start.inl() );
+	posbox->setValue( cs.hsamp_.start_.inl() );
     else if ( orientation == OD::CrosslineSlice )
-	posbox->setValue( cs.hrg.start.crl() );
+	posbox->setValue( cs.hsamp_.start_.crl() );
     else
 	posbox->setValue( cs.zsamp_.start*zfactor_ );
 }

@@ -211,7 +211,7 @@ void SeisPacketInfo::clear()
     nr = 0;
     fullyrectandreg = false;
     cubedata = 0;
-    SI().sampling(false).hrg.get( inlrg, crlrg );
+    SI().sampling(false).hsamp_.get( inlrg, crlrg );
     zrg = SI().zRange(false);
     inlrev = crlrev = false;
 }
@@ -495,19 +495,19 @@ Seis::Bounds3D::~Bounds3D()
 
 int Seis::Bounds3D::start( bool first ) const
 {
-    return first ? tkzs_.hrg.start.inl() : tkzs_.hrg.start.crl();
+    return first ? tkzs_.hsamp_.start_.inl() : tkzs_.hsamp_.start_.crl();
 }
 
 
 int Seis::Bounds3D::stop( bool first ) const
 {
-    return first ? tkzs_.hrg.stop.inl() : tkzs_.hrg.stop.crl();
+    return first ? tkzs_.hsamp_.stop_.inl() : tkzs_.hsamp_.stop_.crl();
 }
 
 
 int Seis::Bounds3D::step( bool first ) const
 {
-    return first ? tkzs_.hrg.step.inl() : tkzs_.hrg.step.crl();
+    return first ? tkzs_.hsamp_.step_.inl() : tkzs_.hsamp_.step_.crl();
 }
 
 
@@ -519,13 +519,13 @@ StepInterval<float> Seis::Bounds3D::getZRange() const
 
 void Seis::Bounds3D::getCoordRange( Coord& mn, Coord& mx ) const
 {
-    mn = SI().transform( BinID(tkzs_.hrg.start.inl(),tkzs_.hrg.start.crl()) );
-    Coord c = SI().transform( BinID(tkzs_.hrg.stop.inl(),
-				    tkzs_.hrg.start.crl()) );
+    mn = SI().transform( BinID(tkzs_.hsamp_.start_.inl(),tkzs_.hsamp_.start_.crl()) );
+    Coord c = SI().transform( BinID(tkzs_.hsamp_.stop_.inl(),
+				    tkzs_.hsamp_.start_.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
-    c = SI().transform( BinID(tkzs_.hrg.stop.inl(),tkzs_.hrg.stop.crl()) );
+    c = SI().transform( BinID(tkzs_.hsamp_.stop_.inl(),tkzs_.hsamp_.stop_.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
-    c = SI().transform( BinID(tkzs_.hrg.start.inl(),tkzs_.hrg.stop.crl()) );
+    c = SI().transform( BinID(tkzs_.hsamp_.start_.inl(),tkzs_.hsamp_.stop_.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
 }
 

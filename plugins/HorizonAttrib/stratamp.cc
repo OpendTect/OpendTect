@@ -62,7 +62,7 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     , bothorshift_(mUdf(float))
 {
     TrcKeyZSampling cs;
-    cs.hrg = hs;
+    cs.hsamp_ = hs;
     totnr_ = hs.nrInl() * hs.nrCrl();
 
     if ( tophor ) tophor->ref();
@@ -123,7 +123,7 @@ int StratAmpCalc::init( const IOPar& pars )
 	PtrMan<IOObj> seisobj = IOM().get( key );
 	rdr_ = new SeisTrcReader( seisobj );
 	TrcKeyZSampling cs;
-	cs.hrg = hs_;
+	cs.hsamp_ = hs_;
 	rdr_->setSelData( new Seis::RangeSelData(cs) );
 	rdr_->prepareWork();
     }

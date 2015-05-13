@@ -578,8 +578,8 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	TrcKeyZSampling maxcs;
 	assign( maxcs.zsamp_, s2d->getMaxZRange(true)  );
-	maxcs.hsamp_.start.crl() = s2d->getMaxTraceNrRange().start;
-	maxcs.hsamp_.stop.crl() = s2d->getMaxTraceNrRange().stop;
+	maxcs.hsamp_.start_.crl() = s2d->getMaxTraceNrRange().start;
+	maxcs.hsamp_.stop_.crl() = s2d->getMaxTraceNrRange().stop;
 
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	CallBack dummy;
@@ -597,7 +597,7 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	const Interval<int> ntrcnrrg(
-	    newcs.hsamp_.start.crl(), newcs.hsamp_.stop.crl() );
+	    newcs.hsamp_.start_.crl(), newcs.hsamp_.stop_.crl() );
 	if ( ntrcnrrg != s2d->getTraceNrRange() )
 	{
 	    if ( !s2d->getUpdateStageNr() )

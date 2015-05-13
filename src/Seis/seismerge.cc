@@ -34,7 +34,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     	, currdridx_(-1)
     	, nrpos_(0)
     	, totnrpos_(-1)
-    	, curbid_(SI().sampling(false).hrg.start)
+	, curbid_(SI().sampling(false).hsamp_.start_)
     	, trcbuf_(*new SeisTrcBuf(false))
     	, stacktrcs_(true)
         , scaler_(0)
@@ -79,7 +79,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 
     currdridx_ = 0;
     if ( !is2d_ )
-	totnrpos_ = mCast( int, SI().sampling(false).hrg.totalNr() );
+	totnrpos_ = mCast( int, SI().sampling(false).hsamp_.totalNr() );
 }
 
 
@@ -90,7 +90,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     	, currdridx_(-1)
     	, nrpos_(0)
     	, totnrpos_(-1)
-	, curbid_(SI().sampling(false).hrg.start)
+	, curbid_(SI().sampling(false).hsamp_.start_)
     	, trcbuf_(*new SeisTrcBuf(false))
     	, stacktrcs_(true)
     	, nrsamps_(-1)
@@ -138,7 +138,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     }
 
     currdridx_ = 0;
-    totnrpos_ = mCast( int, SI().sampling(false).hrg.totalNr() );
+    totnrpos_ = mCast( int, SI().sampling(false).hsamp_.totalNr() );
 }
 
 
@@ -300,13 +300,13 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
 
 bool SeisMerger::toNextPos()
 {
-    TrcKeySampling hs = SI().sampling(false).hrg;
-    curbid_.crl() += hs.step.crl();
-    if ( curbid_.crl() > hs.stop.crl() )
+    TrcKeySampling hs = SI().sampling(false).hsamp_;
+    curbid_.crl() += hs.step_.crl();
+    if ( curbid_.crl() > hs.stop_.crl() )
     {
-	curbid_.inl() += hs.step.inl();
-	curbid_.crl() = hs.start.crl();
-	if ( curbid_.inl() > hs.stop.inl() )
+	curbid_.inl() += hs.step_.inl();
+	curbid_.crl() = hs.start_.crl();
+	if ( curbid_.inl() > hs.stop_.inl() )
 	    return false;
     }
     return true;

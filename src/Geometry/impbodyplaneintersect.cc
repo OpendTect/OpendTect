@@ -45,8 +45,8 @@ bool ImplicitBodyPlaneIntersector::compute()
 	    Array2DImpl<float>(sz0,sz1) );
     if ( !data ) return false;
 
-    const int pidx = !dim_ ? tkzs_.hrg.inlRange().nearestIndex((int)inlcrlz_) :
-	(dim_==1 ? tkzs_.hrg.crlRange().nearestIndex((int)inlcrlz_) :
+    const int pidx = !dim_ ? tkzs_.hsamp_.inlRange().nearestIndex((int)inlcrlz_) :
+	(dim_==1 ? tkzs_.hsamp_.crlRange().nearestIndex((int)inlcrlz_) :
 	 	   tkzs_.zsamp_.nearestIndex(inlcrlz_) );
     const int psz = !dim_ ? tkzs_.nrInl() : (dim_==1 ? tkzs_.nrCrl() : tkzs_.nrZ());
     if ( pidx<0 || pidx>=psz ) return false;
@@ -66,14 +66,14 @@ bool ImplicitBodyPlaneIntersector::compute()
     for ( int idx=0; idx<sz0; idx++ )
     {
 	if ( !dim_ )
-	    bid.crl() = tkzs_.hrg.crlRange().atIndex(idx);
+	    bid.crl() = tkzs_.hsamp_.crlRange().atIndex(idx);
 	else
-	    bid.inl() = tkzs_.hrg.inlRange().atIndex(idx);
+	    bid.inl() = tkzs_.hsamp_.inlRange().atIndex(idx);
 
 	for ( int idy=0; idy<sz1; idy++ )
 	{
 	    if ( dim_==2 )
-		bid.crl() = tkzs_.hrg.crlRange().atIndex(idy);
+		bid.crl() = tkzs_.hsamp_.crlRange().atIndex(idy);
 	    else
 		z = tkzs_.zsamp_.atIndex(idy);
 

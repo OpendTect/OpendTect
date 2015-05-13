@@ -248,9 +248,9 @@ void prepareForTransform( int rowidx, const char* linenm,
     Threads::MutexLocker lock( lock_ );
     TrcKeyZSampling cs;
     const Pos::GeomID geomid = Survey::GM().getGeomID(linenm);
-    cs.hrg.start = BinID( geomid, colrg.start );
-    cs.hrg.step = BinID( colrg.step, colrg.step );
-    cs.hrg.stop = BinID( geomid , colrg.stop );
+    cs.hsamp_.start_ = BinID( geomid, colrg.start );
+    cs.hsamp_.step_ = BinID( colrg.step, colrg.step );
+    cs.hsamp_.stop_ = BinID( geomid , colrg.stop );
 
     int& voiid = volumeofinterestids_[rowidx];
     if ( voiid==-1 && zaxt_->needsVolumeOfInterest() )

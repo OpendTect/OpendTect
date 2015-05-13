@@ -21,12 +21,12 @@ Coord SurveyGeometry::getEdgePoint( const Coord& from, const Coord& to )
     Line2 line( from, to );
     line.start_ = Coord::udf();
     line.stop_ = Coord::udf();		// making the line infinite
-    const TrcKeySampling hs( SI().sampling(false).hrg );
+    const TrcKeySampling hs( SI().sampling(false).hsamp_ );
     Coord svert[4];
-    svert[0] = SI().transform( hs.start );
-    svert[1] = SI().transform( BinID(hs.start.inl(),hs.stop.crl()) );
-    svert[2] = SI().transform( hs.stop );
-    svert[3] = SI().transform( BinID(hs.stop.inl(),hs.start.crl()) );
+    svert[0] = SI().transform( hs.start_ );
+    svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    svert[2] = SI().transform( hs.stop_ );
+    svert[3] = SI().transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
 
     TypeSet<Coord> points;
     for ( int idx=0; idx<4; idx++ )

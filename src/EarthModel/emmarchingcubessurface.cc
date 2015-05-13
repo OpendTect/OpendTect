@@ -371,9 +371,9 @@ bool MarchingCubesSurface::regenerateMCBody( TaskRunner* taskrunner )
     if ( !operator_->createImplicitBody(body,taskrunner) || !body )
 	return false;
 
-    setInlSampling( SamplingData<int>(body->tkzs_.hrg.inlRange()) );
-    setCrlSampling( SamplingData<int>(body->tkzs_.hrg.crlRange()) );
-    setZSampling( SamplingData<float>(body->tkzs_.zrg) );
+    setInlSampling( SamplingData<int>(body->tkzs_.hsamp_.inlRange()) );
+    setCrlSampling( SamplingData<int>(body->tkzs_.hsamp_.crlRange()) );
+    setZSampling( SamplingData<float>(body->tkzs_.zsamp_) );
 
     return mcsurface_->setVolumeData( 0, 0, 0, *body->arr_, body->threshold_ );
 }
@@ -387,11 +387,11 @@ bool MarchingCubesSurface::getBodyRange( TrcKeyZSampling& cs )
 	 !mcsurface_->models_.getRange( 2, zrg ) )
 	return false;
 
-    cs.hrg.start = BinID( inlsampling_.atIndex(inlrg.start),
+    cs.hsamp_.start_ = BinID( inlsampling_.atIndex(inlrg.start),
 		           crlsampling_.atIndex(crlrg.start) );
-    cs.hrg.stop = BinID( inlsampling_.atIndex(inlrg.stop),
+    cs.hsamp_.stop_ = BinID( inlsampling_.atIndex(inlrg.stop),
 			 crlsampling_.atIndex(crlrg.stop) );
-    cs.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
+    cs.hsamp_.step_ = BinID( inlsampling_.step, crlsampling_.step );
     cs.zsamp_.start = zsampling_.atIndex( zrg.start );
     cs.zsamp_.step = zsampling_.step;
     cs.zsamp_.stop = zsampling_.atIndex( zrg.stop );
@@ -452,10 +452,10 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* taskrunner,
     res->arr_ = arr;
     res->threshold_ = m2i.threshold();
 
-    res->tkzs_.hrg.start = BinID( inlsampling_.atIndex(inlrg.start),
+    res->tkzs_.hsamp_.start_ = BinID( inlsampling_.atIndex(inlrg.start),
 				crlsampling_.atIndex(crlrg.start) );
-    res->tkzs_.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
-    res->tkzs_.hrg.stop = BinID( inlsampling_.atIndex(inlrg.stop),
+    res->tkzs_.hsamp_.step_ = BinID( inlsampling_.step, crlsampling_.step );
+    res->tkzs_.hsamp_.stop_ = BinID( inlsampling_.atIndex(inlrg.stop),
 				crlsampling_.atIndex(crlrg.stop) );
     res->tkzs_.zsamp_.start = zsampling_.atIndex( zrg.start );
     res->tkzs_.zsamp_.stop = zsampling_.atIndex( zrg.stop );

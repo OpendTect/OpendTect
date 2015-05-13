@@ -114,11 +114,11 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	    { uiMSG().error(errmsg); return false; }
 
 	    if ( !idx )
-		bbox_.hrg = sd.rg;
+		bbox_.hsamp_ = sd.rg;
 	    else
 	    {
-		bbox_.hrg.include( sd.rg.start);
-		bbox_.hrg.include( sd.rg.stop);
+		bbox_.hsamp_.include( sd.rg.start_);
+		bbox_.hsamp_.include( sd.rg.stop_);
 	    }
 	}
     }
@@ -129,7 +129,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 
 	horsorter->getSortedList( horids_ );
 	updateRelationTree( horids_ );
-	bbox_.hrg = horsorter->getBoundingBox();
+	bbox_.hsamp_ = horsorter->getBoundingBox();
     }
 
     if ( !loadneeded_ )

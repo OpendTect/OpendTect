@@ -1477,13 +1477,13 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	    continue;
 
 	const TrcKeyZSampling cs = plane->getTrcKeyZSampling(true,true,-1);
-	const BinID b00 = cs.hrg.start, b11 = cs.hrg.stop;
+	const BinID b00 = cs.hsamp_.start_, b11 = cs.hsamp_.stop_;
 	BinID b01, b10;
 
 	if ( plane->getOrientation()==OD::ZSlice )
 	{
-	    b01 = BinID( cs.hrg.start.inl(), cs.hrg.stop.crl() );
-	    b10 = BinID( cs.hrg.stop.inl(), cs.hrg.start.crl() );
+	    b01 = BinID( cs.hsamp_.start_.inl(), cs.hsamp_.stop_.crl() );
+	    b10 = BinID( cs.hsamp_.stop_.inl(), cs.hsamp_.start_.crl() );
 	}
 	else
 	{

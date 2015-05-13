@@ -94,10 +94,10 @@ void uiSurveyBoxObject::update()
     const SurveyInfo& si = *survinfo_;
     const TrcKeyZSampling& cs = si.sampling( false );
     TypeSet<uiWorldPoint> mapcnr; mapcnr.setSize( 4 );
-    mapcnr[0] = si.transform( cs.hrg.start );
-    mapcnr[1] = si.transform( BinID(cs.hrg.start.inl(),cs.hrg.stop.crl()) );
-    mapcnr[2] = si.transform( cs.hrg.stop );
-    mapcnr[3] = si.transform( BinID(cs.hrg.stop.inl(),cs.hrg.start.crl()) );
+    mapcnr[0] = si.transform( cs.hsamp_.start_ );
+    mapcnr[1] = si.transform( BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()) );
+    mapcnr[2] = si.transform( cs.hsamp_.stop_ );
+    mapcnr[3] = si.transform( BinID(cs.hsamp_.stop_.inl(),cs.hsamp_.start_.crl()) );
 
     for ( int idx=0; idx<vertices_.size(); idx++ )
 	vertices_[idx]->setPos( mapcnr[idx] );

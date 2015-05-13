@@ -430,7 +430,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    continue;
 
 	mCheckMPEDisplay( trackertype_, dataobj, mpedisplay, cs, legalclick );
-	if ( mpedisplay && cs.hrg.includes(nodebid) &&
+	if ( mpedisplay && cs.hsamp_.includes(nodebid) &&
 	     cs.zsamp_.includes(nodepos.z,false) )
 	{
 	    info().setLegalClick( legalclick );
@@ -461,7 +461,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	if ( !trkplanecs.isEmpty() && trkplanecs.defaultDir()==cs.defaultDir() )
 	    continue;
 
-	if ( cs.hrg.includes(nodebid) && cs.zsamp_.includes(nodepos.z,false) )
+	if ( cs.hsamp_.includes(nodebid) && cs.zsamp_.includes(nodepos.z,false) )
 	{
 	    info().setLegalClick( legalclick );
 	    info().setObjID( plane->id() );

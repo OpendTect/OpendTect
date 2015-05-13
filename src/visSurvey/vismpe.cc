@@ -171,15 +171,15 @@ TrcKeyZSampling MPEDisplay::getBoxPosition() const
     Coord3 width = boxdragger_->width();
 
     TrcKeyZSampling cube;
-    cube.hrg.start = BinID( mNINT32(center.x-width.x/2),
+    cube.hsamp_.start_ = BinID( mNINT32(center.x-width.x/2),
 			    mNINT32(center.y-width.y/2) );
-    cube.hrg.stop = BinID( mNINT32(center.x+width.x/2),
+    cube.hsamp_.stop_ = BinID( mNINT32(center.x+width.x/2),
 			   mNINT32(center.y+width.y/2) );
-    cube.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+    cube.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
     cube.zsamp_.start = (float) ( center.z - width.z / 2 );
-    cube.zsamp_.stop = (float) ( center.z + width.z / 2 );
+    cube.zsamp_.stop= (float) ( center.z + width.z / 2 );
     cube.zsamp_.step = SI().zStep();
-    cube.hrg.snapToSurvey();
+    cube.hsamp_.snapToSurvey();
     SI().snapZ( cube.zsamp_.start, 0 );
     SI().snapZ( cube.zsamp_.stop, 0 );
     return cube;
@@ -201,39 +201,39 @@ bool MPEDisplay::getPlanePosition( TrcKeyZSampling& planebox ) const
 
     if ( !dim )
     {
-	planebox.hrg.start.inl() = SI().inlRange(true).snap( center.x );
-	planebox.hrg.stop.inl() = planebox.hrg.start.inl();
+	planebox.hsamp_.start_.inl() = SI().inlRange(true).snap( center.x );
+	planebox.hsamp_.stop_.inl() = planebox.hsamp_.start_.inl();
 
-	planebox.hrg.start.crl() = SI().crlRange(true).snap( sy.start );
-	planebox.hrg.stop.crl() =  SI().crlRange(true).snap( sy.stop );
+	planebox.hsamp_.start_.crl() = SI().crlRange(true).snap( sy.start );
+	planebox.hsamp_.stop_.crl() =  SI().crlRange(true).snap( sy.stop );
 
 	planebox.zsamp_.start = SI().zRange(true).snap( sz.start );
 	planebox.zsamp_.stop = SI().zRange(true).snap( sz.stop );
     }
     else if ( dim==1 )
     {
-	planebox.hrg.start.inl() = SI().inlRange(true).snap( sx.start );
-	planebox.hrg.stop.inl() =  SI().inlRange(true).snap( sx.stop );
+	planebox.hsamp_.start_.inl() = SI().inlRange(true).snap( sx.start );
+	planebox.hsamp_.stop_.inl() =  SI().inlRange(true).snap( sx.stop );
 
-	planebox.hrg.stop.crl() = SI().crlRange(true).snap( center.y );
-	planebox.hrg.start.crl() = planebox.hrg.stop.crl();
+	planebox.hsamp_.stop_.crl() = SI().crlRange(true).snap( center.y );
+	planebox.hsamp_.start_.crl() = planebox.hsamp_.stop_.crl();
 
 	planebox.zsamp_.start = SI().zRange(true).snap( sz.start );
 	planebox.zsamp_.stop = SI().zRange(true).snap( sz.stop );
     }
     else
     {
-	planebox.hrg.start.inl() = SI().inlRange(true).snap( sx.start );
-	planebox.hrg.stop.inl() =  SI().inlRange(true).snap( sx.stop );
+	planebox.hsamp_.start_.inl() = SI().inlRange(true).snap( sx.start );
+	planebox.hsamp_.stop_.inl() =  SI().inlRange(true).snap( sx.stop );
 
-	planebox.hrg.start.crl() = SI().crlRange(true).snap( sy.start );
-	planebox.hrg.stop.crl() =  SI().crlRange(true).snap( sy.stop );
+	planebox.hsamp_.start_.crl() = SI().crlRange(true).snap( sy.start );
+	planebox.hsamp_.stop_.crl() =  SI().crlRange(true).snap( sy.stop );
 
 	planebox.zsamp_.stop = SI().zRange(true).snap( center.z );
 	planebox.zsamp_.start = planebox.zsamp_.stop;
     }
 
-    planebox.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+    planebox.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
     planebox.zsamp_.step = SI().zRange(true).step;
 
     return true;
@@ -574,23 +574,23 @@ void MPEDisplay::freezeBoxPosition( bool yn )
 void MPEDisplay::updateBoxPosition( CallBacker* )
 {
     TrcKeyZSampling cube = engine_.activeVolume();
-    Coord3 newwidth( cube.hrg.stop.inl()-cube.hrg.start.inl(),
-		     cube.hrg.stop.crl()-cube.hrg.start.crl(),
+    Coord3 newwidth( cube.hsamp_.stop_.inl()-cube.hsamp_.start_.inl(),
+		     cube.hsamp_.stop_.crl()-cube.hsamp_.start_.crl(),
 		     cube.zsamp_.stop-cube.zsamp_.start );
 
     // Workaround for deadlock in COIN's polar_decomp() or Math::Sqrt(), which
     // occasionally occurs in case the box has one side of zero length.
-    if ( cube.hrg.nrInl()==1 )
-	newwidth.x = 0.1 * cube.hrg.step.inl();
-    if ( cube.hrg.nrCrl()==1 )
-	newwidth.y = 0.1 * cube.hrg.step.crl();
+    if ( cube.hsamp_.nrInl()==1 )
+	newwidth.x = 0.1 * cube.hsamp_.step_.inl();
+    if ( cube.hsamp_.nrCrl()==1 )
+	newwidth.y = 0.1 * cube.hsamp_.step_.crl();
 	if ( cube.zsamp_.nrSteps()==0 )
 	newwidth.z = 0.1 * cube.zsamp_.step;
 
     boxdragger_->setWidth( newwidth );
 
-    const Coord3 newcenter( 0.5*(cube.hrg.stop.inl()+cube.hrg.start.inl()),
-			    0.5*(cube.hrg.stop.crl()+cube.hrg.start.crl()),
+    const Coord3 newcenter( 0.5*(cube.hsamp_.stop_.inl()+cube.hsamp_.start_.inl()),
+			    0.5*(cube.hsamp_.stop_.crl()+cube.hsamp_.start_.crl()),
 			    cube.zsamp_.center());
 
     boxdragger_->setCenter( newcenter );
@@ -605,11 +605,11 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
 void MPEDisplay::updateBoxSpace()
 {
-    const TrcKeySampling& hs = SI().sampling(true).hrg;
-    const Interval<float> survinlrg( mCast(float,hs.start.inl()),
-					mCast(float,hs.stop.inl()) );
-    const Interval<float> survcrlrg( mCast(float,hs.start.crl()),
-					mCast(float,hs.stop.crl()) );
+    const TrcKeySampling& hs = SI().sampling(true).hsamp_;
+    const Interval<float> survinlrg( mCast(float,hs.start_.inl()),
+					mCast(float,hs.stop_.inl()) );
+    const Interval<float> survcrlrg( mCast(float,hs.start_.crl()),
+					mCast(float,hs.stop_.crl()) );
     const Interval<float> survzrg( SI().zRange(true).start,
 	    			   SI().zRange(true).stop );
 
@@ -617,8 +617,8 @@ void MPEDisplay::updateBoxSpace()
 
     const int minwidth = 1;
     boxdragger_->setWidthLimits(
-	Interval<float>( float(minwidth*hs.step.inl()), mUdf(float) ),
-	Interval<float>( float(minwidth*hs.step.crl()), mUdf(float) ),
+	Interval<float>( float(minwidth*hs.step_.inl()), mUdf(float) ),
+	Interval<float>( float(minwidth*hs.step_.crl()), mUdf(float) ),
 	Interval<float>( minwidth*SI().zRange(true).step, mUdf(float) ) );
 }
 
@@ -638,15 +638,15 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     float zdiff = 0;
 
     inlcrldist.inl() =
-	binid.inl()>=cs.hrg.start.inl() && binid.inl()<=cs.hrg.stop.inl()
+	binid.inl()>=cs.hsamp_.start_.inl() && binid.inl()<=cs.hsamp_.stop_.inl()
 	     ? 0
-	     : mMIN( abs(binid.inl()-cs.hrg.start.inl()),
-		     abs( binid.inl()-cs.hrg.stop.inl()) );
+	     : mMIN( abs(binid.inl()-cs.hsamp_.start_.inl()),
+		     abs( binid.inl()-cs.hsamp_.stop_.inl()) );
     inlcrldist.crl() =
-        binid.crl()>=cs.hrg.start.crl() && binid.crl()<=cs.hrg.stop.crl()
+        binid.crl()>=cs.hsamp_.start_.crl() && binid.crl()<=cs.hsamp_.stop_.crl()
              ? 0
-	     : mMIN( abs(binid.crl()-cs.hrg.start.crl()),
-		     abs( binid.crl()-cs.hrg.stop.crl()) );
+	     : mMIN( abs(binid.crl()-cs.hsamp_.start_.crl()),
+		     abs( binid.crl()-cs.hsamp_.stop_.crl()) );
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     zdiff = (float) ( cs.zsamp_.includes(xytpos.z,false)
 	     ? 0
@@ -736,10 +736,10 @@ void MPEDisplay::alignSliceToSurvey( visBase::OrthogonalSlice& slice )
 
 void MPEDisplay::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    const Interval<float> xintv( mCast(float,cs.hrg.start.inl()),
-				    mCast(float,cs.hrg.stop.inl()) );
-    const Interval<float> yintv( mCast(float,cs.hrg.start.crl()),
-				    mCast(float,cs.hrg.stop.crl()) );
+    const Interval<float> xintv( mCast(float,cs.hsamp_.start_.inl()),
+				    mCast(float,cs.hsamp_.stop_.inl()) );
+    const Interval<float> yintv( mCast(float,cs.hsamp_.start_.crl()),
+				    mCast(float,cs.hsamp_.stop_.crl()) );
     const Interval<float> zintv( cs.zsamp_.start, cs.zsamp_.stop );
 
     for ( int idx=0; idx<slices_.size(); idx++ )
@@ -858,12 +858,12 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 	if ( !attrcs.includes( displaycs ) )
 	    return false;
 
-	const StepInterval<int> inlrg( attrcs.hrg.inlRange() );
-	const StepInterval<int> crlrg( attrcs.hrg.crlRange() );
-	const Interval<int> dispinlrg(inlrg.getIndex(displaycs.hrg.start.inl()),
-				      inlrg.getIndex(displaycs.hrg.stop.inl()));
-	const Interval<int> dispcrlrg(crlrg.getIndex(displaycs.hrg.start.crl()),
-				      crlrg.getIndex(displaycs.hrg.stop.crl()));
+	const StepInterval<int> inlrg( attrcs.hsamp_.inlRange() );
+	const StepInterval<int> crlrg( attrcs.hsamp_.crlRange() );
+	const Interval<int> dispinlrg(inlrg.getIndex(displaycs.hsamp_.start_.inl()),
+				      inlrg.getIndex(displaycs.hsamp_.stop_.inl()));
+	const Interval<int> dispcrlrg(crlrg.getIndex(displaycs.hsamp_.start_.crl()),
+				      crlrg.getIndex(displaycs.hsamp_.stop_.crl()));
 
 	const StepInterval<float>& zrg( displaycs.zsamp_ );
 	const Interval<int> dispzrg( attrcs.zsamp_.nearestIndex( zrg.start ),
@@ -960,13 +960,13 @@ TrcKeyZSampling MPEDisplay::getTrcKeyZSampling( bool manippos,
 	Coord3 center = boxdragger_->center();
 	Coord3 width = boxdragger_->width();
 
-	res.hrg.start = BinID( mNINT32( center.x - width.x / 2 ),
+	res.hsamp_.start_ = BinID( mNINT32( center.x - width.x / 2 ),
 		mNINT32( center.y - width.y / 2 ) );
 
-	res.hrg.stop = BinID( mNINT32( center.x + width.x / 2 ),
+	res.hsamp_.stop_ = BinID( mNINT32( center.x + width.x / 2 ),
 		mNINT32( center.y + width.y / 2 ) );
 
-	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+	res.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
 
 	res.zsamp_.start = (float) ( center.z - width.z / 2 );
 	res.zsamp_.stop = (float) ( center.z + width.z / 2 );
@@ -976,11 +976,11 @@ TrcKeyZSampling MPEDisplay::getTrcKeyZSampling( bool manippos,
 	const Coord3 transl = curboxcenter_;
 	const Coord3 scale = curboxwidth_;
 
-	res.hrg.start = BinID( mNINT32(transl.x+scale.x/2),
+	res.hsamp_.start_ = BinID( mNINT32(transl.x+scale.x/2),
 		mNINT32(transl.y+scale.y/2) );
-	res.hrg.stop = BinID( mNINT32(transl.x-scale.x/2),
+	res.hsamp_.stop_ = BinID( mNINT32(transl.x-scale.x/2),
 		mNINT32(transl.y-scale.y/2) );
-	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+	res.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
 
 	res.zsamp_.start = (float) ( transl.z+scale.z/2 );
 	res.zsamp_.stop = (float) ( transl.z-scale.z/2 );

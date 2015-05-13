@@ -67,7 +67,7 @@ void uiSeisSubSel::getSampling( TrcKeyZSampling& cs ) const
 
 void uiSeisSubSel::getSampling( TrcKeySampling& hs ) const
 {
-    hs = selfld_->envelope().hrg;
+    hs = selfld_->envelope().hsamp_;
 }
 
 
@@ -106,7 +106,7 @@ void uiSeisSubSel::setInput( const MultiID& id )
 
 void uiSeisSubSel::setInput( const TrcKeySampling& hs )
 {
-    TrcKeyZSampling cs = selfld_->envelope(); cs.hrg = hs;
+    TrcKeyZSampling cs = selfld_->envelope(); cs.hsamp_ = hs;
     selfld_->setInput( cs );
 }
 
@@ -137,7 +137,7 @@ int uiSeisSubSel::expectedNrTraces() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
     mDynamicCastGet( const uiSeis2DSubSel*, ss2d, this )
-    if ( !pp ) return ss2d ? 0 : mCast(int, SI().sampling(false).hrg.totalNr());
+    if ( !pp ) return ss2d ? 0 : mCast(int, SI().sampling(false).hsamp_.totalNr());
 
     return mCast( int, pp->estNrPos() );
 }
@@ -327,7 +327,7 @@ StepInterval<int> uiSeis2DSubSel::getTrcRange( int lidx ) const
     if ( multilnmsel_ )
 	trcrg = multilnmsel_->getTrcRange( lidx );
     else
-	trcrg = selfld_->envelope().hrg.crlRange();
+	trcrg = selfld_->envelope().hsamp_.crlRange();
 
     return trcrg;
 }
@@ -349,7 +349,7 @@ StepInterval<float> uiSeis2DSubSel::getZRange(int lidx) const
 void uiSeis2DSubSel::getSampling( TrcKeyZSampling& cs, int lidx ) const
 {
     cs.set2DDef();
-    cs.hrg.setCrlRange( getTrcRange(lidx) );
+    cs.hsamp_.setCrlRange( getTrcRange(lidx) );
     cs.zsamp_.setFrom( getZRange(lidx) );
 }
 

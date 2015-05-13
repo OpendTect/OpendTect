@@ -590,15 +590,15 @@ bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
     if ( buf.isEmpty() )
 	return false;
 
-    cs.hrg.start.inl() = cs.hrg.stop.inl() = buf.first()->info().binid.inl();
-    cs.hrg.start.crl() = cs.hrg.stop.crl() = buf.first()->info().binid.crl();
-    cs.hrg.step.inl() = SI().inlStep();
-    cs.hrg.step.crl() = SI().crlStep();
+    cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl() = buf.first()->info().binid.inl();
+    cs.hsamp_.start_.crl() = cs.hsamp_.stop_.crl() = buf.first()->info().binid.crl();
+    cs.hsamp_.step_.inl() = SI().inlStep();
+    cs.hsamp_.step_.crl() = SI().crlStep();
 
     for ( int idx=1; idx<buf.size(); idx++ )
-	cs.hrg.include( buf.get( idx )->info().binid );
+	cs.hsamp_.include( buf.get( idx )->info().binid );
 
-    cs.zrg.setFrom( posData().range(false) );
+    cs.zsamp_.setFrom( posData().range(false) );
 
     return true;
 }

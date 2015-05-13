@@ -200,7 +200,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
 	success = true;
 	hor3d->geometry().sectionGeometry(sid)->setArray(
-					    hs.start, hs.step, arr, true );
+					    hs.start_, hs.step_, arr, true );
     }
 
     return success;

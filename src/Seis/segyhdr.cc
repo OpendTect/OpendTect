@@ -98,7 +98,7 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
     str += "     ("; str += Time::getDateTimeString(); str += ")";
     putAt( 1, 6, 75, str );
     putAt( 2, 6, 75, BufferString("Survey: '", SI().name(),"'") );
-    BinID bid = SI().sampling(false).hrg.start;
+    BinID bid = SI().sampling(false).hsamp_.start_;
     Coord coord = SI().transform( bid );
     coord.x = fabs(coord.x); coord.y = fabs(coord.y);
     if ( !mIsEqual(bid.inl(),coord.x,mDefEps)
@@ -110,12 +110,12 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
 	coord = SI().transform( bid );
 	str.set( bid.toString() ).add( " = " ).add( coord.toString() );
 	putAt( 14, 6, 75, str );
-	bid.crl() = SI().sampling(false).hrg.stop.crl();
+	bid.crl() = SI().sampling(false).hsamp_.stop_.crl();
 	coord = SI().transform( bid );
 	str.set( bid.toString() ).add( " = " ).add( coord.toString() );
 	putAt( 15, 6, 75, str );
-	bid.inl() = SI().sampling(false).hrg.stop.inl();
-	bid.crl() = SI().sampling(false).hrg.start.crl();
+	bid.inl() = SI().sampling(false).hsamp_.stop_.inl();
+	bid.crl() = SI().sampling(false).hsamp_.start_.crl();
 	coord = SI().transform( bid );
 	str.set( bid.toString() ).add( " = " ).add( coord.toString() );
 	putAt( 16, 6, 75, str );

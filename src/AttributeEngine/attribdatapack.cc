@@ -231,17 +231,19 @@ void Flat3DDataPack::setPosData()
 	bool isvert = cs.nrZ() > 1;
 	posdata_.setRange( true,
 	    isvert ? mStepIntvD(cubeintv)
-		   : dir_==TrcKeyZSampling::Inl ? mStepIntvD(cs.hrg.crlRange())
-					     : mStepIntvD(cs.hrg.inlRange()) );
-	posdata_.setRange(false, isvert ? mStepIntvD(cs.zrg)
+		   : dir_==TrcKeyZSampling::Inl
+			? mStepIntvD(cs.hsamp_.crlRange())
+		        : mStepIntvD(cs.hsamp_.inlRange()) );
+	posdata_.setRange(false, isvert ? mStepIntvD(cs.zsamp_)
 					: mStepIntvD(cubeintv) );
     }
     else
     {
 	posdata_.setRange( true, dir_==TrcKeyZSampling::Inl
-	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.hrg.inlRange()) );
+	    ? mStepIntvD(cs.hsamp_.crlRange())
+	    : mStepIntvD(cs.hsamp_.inlRange()) );
 	posdata_.setRange( false, dir_==TrcKeyZSampling::Z
-	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.zrg) );
+	    ? mStepIntvD(cs.hsamp_.crlRange()) : mStepIntvD(cs.zsamp_) );
     }
 }
 
@@ -274,7 +276,7 @@ Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 	    { crlidx = i1; zidx = 0; }
     }
 
-    const Coord c = SI().transform( cs.hrg.atIndex(inlidx,crlidx) );
+    const Coord c = SI().transform( cs.hsamp_.atIndex(inlidx,crlidx) );
     return Coord3(c.x,c.y,cs.zsamp_.atIndex(zidx));
 }
 
@@ -475,8 +477,8 @@ TrcKeyZSampling Flat2DDHDataPack::getTrcKeyZSampling() const
 {
     // TODO: Get rid of this function.
     TrcKeyZSampling cs;
-    cs.hrg.setInlRange( StepInterval<int>(0,0,1) );
-    cs.hrg.setCrlRange( tracerange_ );
+    cs.hsamp_.setInlRange( StepInterval<int>(0,0,1) );
+    cs.hsamp_.setCrlRange( tracerange_ );
     cs.zsamp_ = samplingdata_.interval( arr2d_->info().getSize(1) );
     return cs;
 }

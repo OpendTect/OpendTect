@@ -406,7 +406,7 @@ bool AutoTracker::addSeed( const EM::PosID& pid )
 	return false;
 
     const BinID bid = SI().transform(pos);
-    if ( !engine().activeVolume().hrg.includes(bid) )
+    if ( !engine().activeVolume().hsamp_.includes(bid) )
 	return false;
 
     currentseeds_ += pid.subID();

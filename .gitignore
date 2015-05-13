@@ -7,9 +7,14 @@ include/Basic/buildinfo.h
 external/*/*
 doc/Programmer/*.html
 CMakeModules/FindOpendTect.cmake
+CMakeModules/Info.plist
 CMakeModules/license.txt
 CMakeModules/sourcefiles_od.txt
+CMakeModules/sourcefiles_dgb.txt
+data/SequenceModels
 data/ModDeps.od
+data/ModDeps.dgb
+data/dgbAttribs
 test/
 plugins/lux64
 data/localizations/*.qm
@@ -18,6 +23,7 @@ Testing/
 bin/lux64/Debug/
 bin/lux64/Release/
 include/General/od_helpids.h
+plugins/dGBCommon/dgb_helpids.h
 install_manifest.txt
 inst
 Null
@@ -43,11 +49,14 @@ bin/*/Release/*
 #CMakes stuff
 *.ninja
 .ninja_log
+*.xcodeproj
+*.build
 develdefs.cmake
 cmake_install.cmake
 CTestTestfile.cmake
 DartConfiguration.tcl
 CMakeFiles
+CMakeScripts
 Makefile
 CMakeCache.txt
 CTestCustom.cmake

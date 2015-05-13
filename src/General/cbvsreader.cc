@@ -61,7 +61,7 @@ CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
 	, lastposfo_(0)
 	, hs_(false)
 {
-    hs_.step.inl() = hs_.step.crl() = 1;
+    hs_.step_.inl() = hs_.step_.crl() = 1;
     if ( readInfo(!glob_info_only,forceusecbvsinfo) )
 	toStart();
 }
@@ -322,7 +322,7 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     else
 	info_.geom_.b2c = SI().binID2Coord();
 
-    hs_.start = hs_.stop = BinID( info_.geom_.start.inl(),
+    hs_.start_ = hs_.stop_ = BinID( info_.geom_.start.inl(),
                                   info_.geom_.start.crl() );
     hs_.include( BinID( info_.geom_.stop.inl(), info_.geom_.stop.crl() ) );
 
@@ -391,8 +391,8 @@ bool CBVSReader::readTrailer()
 
 	hs_.setInlRange( inlrg );
 	hs_.setCrlRange( crlrg );
-	info_.geom_.start = hs_.start;
-	info_.geom_.stop = hs_.stop;
+	info_.geom_.start = hs_.start_;
+	info_.geom_.stop = hs_.stop_;
     }
 
     if ( !info_.geom_.fullyrectandreg )

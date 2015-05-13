@@ -28,8 +28,8 @@ bool BatchProgram::go( od_ostream& strm )
     OD::ModDeps().ensureLoaded("Well");
 
     TrcKeyZSampling outputcs;
-    if ( !outputcs.hrg.usePar( pars() ) )
-    { outputcs.hrg.init( true ); }
+    if ( !outputcs.hsamp_.usePar( pars() ) )
+    { outputcs.hsamp_.init( true ); }
 
     if ( !pars().get( SurveyInfo::sKeyZRange(), outputcs.zsamp_ ) )
     {

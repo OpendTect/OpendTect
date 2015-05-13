@@ -199,9 +199,9 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
     const BinID bid = SI().transform( surfacecoord );
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
     if ( orient_ == OD::InlineSlice )
-	cs.hrg.setInlRange( Interval<int>(bid.inl(),bid.inl()) );
+	cs.hsamp_.setInlRange( Interval<int>(bid.inl(),bid.inl()) );
     else
-	cs.hrg.setCrlRange( Interval<int>(bid.crl(),bid.crl()) );
+	cs.hsamp_.setCrlRange( Interval<int>(bid.crl(),bid.crl()) );
 
     pdd->setTrcKeyZSampling( cs );
     select();
@@ -335,9 +335,9 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     const OD::SliceType orientation = pdd->getOrientation();
 
     if ( orientation==OD::InlineSlice )
-	res = cs.hrg.start.inl();
+	res = cs.hsamp_.start_.inl();
     else if ( orientation==OD::CrosslineSlice )
-	res = cs.hrg.start.crl();
+	res = cs.hsamp_.start_.crl();
     else
     {
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
@@ -493,13 +493,13 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
 
     if ( pdd->getOrientation() == OD::InlineSlice )
     {
-	cs.hrg.start.inl() += cs.hrg.step.inl() * dir;
-	cs.hrg.stop.inl() = cs.hrg.start.inl();
+	cs.hsamp_.start_.inl() += cs.hsamp_.step_.inl() * dir;
+	cs.hsamp_.stop_.inl() = cs.hsamp_.start_.inl();
     }
     else if ( pdd->getOrientation() == OD::CrosslineSlice )
     {
-	cs.hrg.start.crl() += cs.hrg.step.crl() * dir;
-	cs.hrg.stop.crl() = cs.hrg.start.crl();
+	cs.hsamp_.start_.crl() += cs.hsamp_.step_.crl() * dir;
+	cs.hsamp_.stop_.crl() = cs.hsamp_.start_.crl();
     }
     else if ( pdd->getOrientation() == OD::ZSlice )
     {

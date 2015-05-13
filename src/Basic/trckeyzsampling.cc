@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom.h"
 
 #include <math.h>
-
+mStartAllowDeprecatedSection
 
 TrcKeySampling::TrcKeySampling()
     : start( start_ )
@@ -47,6 +47,8 @@ TrcKeySampling::TrcKeySampling( bool settosi )
     , step( step_ )
     , survid_( mUdf(int) )
 { init( settosi ); }
+
+mStopAllowDeprecatedSection
 
 
 bool TrcKeySampling::init( Pos::GeomID gid )

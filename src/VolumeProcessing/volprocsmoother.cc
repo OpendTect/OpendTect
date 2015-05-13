@@ -44,10 +44,10 @@ TrcKeySampling Smoother::getInputHRg( const TrcKeySampling& hrg ) const
     const int inlstepout = smoother_->getWindowSize( 0 ) / 2;
     const int crlstepout = smoother_->getWindowSize( 1 ) / 2;
 
-    res.start.inl() = hrg.start.inl() - res.step.inl() * inlstepout;
-    res.start.crl() = hrg.start.crl() - res.step.crl() * crlstepout;
-    res.stop.inl() = hrg.stop.inl() + res.step.inl() * inlstepout;
-    res.stop.crl() = hrg.stop.crl() + res.step.crl() * crlstepout;
+    res.start_.inl() = hrg.start_.inl() - res.step_.inl() * inlstepout;
+    res.start_.crl() = hrg.start_.crl() - res.step_.crl() * crlstepout;
+    res.stop_.inl() = hrg.stop_.inl() + res.step_.inl() * inlstepout;
+    res.stop_.crl() = hrg.stop_.crl() + res.step_.crl() * crlstepout;
     return res;
 }
 

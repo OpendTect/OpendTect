@@ -282,9 +282,9 @@ MultiID SeisJobExecProv::tempStorID() const
 	{
 	    // That cannot be right.
 	    StepInterval<int> fnrs;
-	    fnrs.start = SI().sampling(false).hrg.start.inl();
-	    fnrs.stop = SI().sampling(false).hrg.stop.inl();
-	    fnrs.step = SI().sampling(false).hrg.step.inl();
+	    fnrs.start = SI().sampling(false).hsamp_.start_.inl();
+	    fnrs.stop = SI().sampling(false).hsamp_.stop_.inl();
+	    fnrs.step = SI().sampling(false).hsamp_.step_.inl();
 	    iostrm->fileNumbers() = fnrs;
 	}
 	iostrm->setFileName( fp.fullPath() );

@@ -251,9 +251,9 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 	prevtrcnr = curtrcnr;
     }
 
-    res.hrg.start = BinID( 0, trcrange.start );
-    res.hrg.stop = BinID( 0, trcrange.stop );
-    res.hrg.step = BinID( 1, trcrange.step );
+    res.hsamp_.start_ = BinID( 0, trcrange.start );
+    res.hsamp_.stop_ = BinID( 0, trcrange.stop );
+    res.hsamp_.step_ = BinID( 1, trcrange.step );
 
     res.zsamp_.start = zrange.start*zstep;
     res.zsamp_.stop = zrange.stop*zstep;
@@ -270,8 +270,9 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 	return false;
 
     const TrcKeyZSampling cs = getTrcKeyZSampling();
-    const StepInterval<int> trcrange( cs.hrg.start.crl(), cs.hrg.stop.crl(),
-				      cs.hrg.step.crl() );
+    const StepInterval<int> trcrange( cs.hsamp_.start_.crl(),
+				      cs.hsamp_.stop_.crl(),
+				      cs.hsamp_.step_.crl() );
     res.setSizeAndPos( getTrcKeyZSampling() );
     if ( res.nrCubes() == 0 )
 	res.addCube( mUdf(float) );

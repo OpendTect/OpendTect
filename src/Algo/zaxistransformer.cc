@@ -61,8 +61,8 @@ void ZAxisTransformer::setOutputRange( const TrcKeyZSampling& cs )
 bool ZAxisTransformer::doPrepare(int) 
 {
     delete output_;
-    output_ = new Array3DImpl<float>( outputcs_.hrg.nrInl(),
-	    			      outputcs_.hrg.nrCrl(),
+    output_ = new Array3DImpl<float>( outputcs_.hsamp_.nrInl(),
+				      outputcs_.hsamp_.nrCrl(),
 				      outputcs_.zsamp_.nrSteps()+1 );
     if ( !output_ || !output_->isOK() )
 	return false;
@@ -127,7 +127,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	const int inlidx = idx / crlsz;
 	const int crlidx = idx % crlsz;
 
-	const TrcKey trck = inputcs_.hrg.atIndex( inlidx, crlidx );
+	const TrcKey trck = inputcs_.hsamp_.atIndex( inlidx, crlidx );
 	outpsampler.setTrcKey( trck );
 	outpsampler.computeCache( Interval<int>(0,outputzsz-1) );
 

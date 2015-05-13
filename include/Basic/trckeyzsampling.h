@@ -100,8 +100,8 @@ public:
     inline int		nrInl() const		{ return nrLines(); }
     inline int		nrCrl() const		{ return nrTrcs(); }
 
-    TrcKeySampling&		hrg;
-    StepInterval<float>&	zrg;
+    mDeprecated TrcKeySampling&		hrg;
+    mDeprecated StepInterval<float>&	zrg;
 };
 
 

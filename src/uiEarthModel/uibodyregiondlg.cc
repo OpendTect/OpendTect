@@ -98,11 +98,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     {
 	const int inlidx = idx/crlsz;
 	const int crlidx = idx%crlsz;
-	const BinID bid = tkzs_.hrg.atIndex(inlidx,crlidx);
-	if ( bid.inl()==tkzs_.hrg.start.inl() || 
-	     bid.inl()==tkzs_.hrg.stop.inl()  ||
-	     bid.crl()==tkzs_.hrg.start.crl() || 
-	     bid.crl()==tkzs_.hrg.stop.crl() )
+	const BinID bid = tkzs_.hsamp_.atIndex(inlidx,crlidx);
+	if ( bid.inl()==tkzs_.hsamp_.start_.inl() ||
+	     bid.inl()==tkzs_.hsamp_.stop_.inl()  ||
+	     bid.crl()==tkzs_.hsamp_.start_.crl() ||
+	     bid.crl()==tkzs_.hsamp_.stop_.crl() )
 	    continue;/*Extended one layer*/
 
 	if ( usepolygon )
@@ -165,14 +165,14 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 {
     res_.setAll( 1 );
 
-    c_[0] = Geom::Point2D<float>( mCast(float,tkzs_.hrg.start.inl()),
-	                          mCast(float,tkzs_.hrg.start.crl()) );
-    c_[1] = Geom::Point2D<float>( mCast(float,tkzs_.hrg.stop.inl()),
-				  mCast(float,tkzs_.hrg.start.crl()) );
-    c_[2] = Geom::Point2D<float>( mCast(float,tkzs_.hrg.stop.inl()),
-				  mCast(float,tkzs_.hrg.stop.crl()) );
-    c_[3] = Geom::Point2D<float>( mCast(float,tkzs_.hrg.start.inl()),
-				  mCast(float,tkzs_.hrg.stop.crl()) );
+    c_[0] = Geom::Point2D<float>( mCast(float,tkzs_.hsamp_.start_.inl()),
+	                          mCast(float,tkzs_.hsamp_.start_.crl()) );
+    c_[1] = Geom::Point2D<float>( mCast(float,tkzs_.hsamp_.stop_.inl()),
+				  mCast(float,tkzs_.hsamp_.start_.crl()) );
+    c_[2] = Geom::Point2D<float>( mCast(float,tkzs_.hsamp_.stop_.inl()),
+				  mCast(float,tkzs_.hsamp_.stop_.crl()) );
+    c_[3] = Geom::Point2D<float>( mCast(float,tkzs_.hsamp_.start_.inl()),
+				  mCast(float,tkzs_.hsamp_.stop_.crl()) );
 
     for ( int idx=0; idx<surflist.size(); idx++ )
     {
@@ -211,12 +211,12 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     {
 	bidinplg_ = new Array2DImpl<unsigned char>(tkzs_.nrInl(),tkzs_.nrCrl());
 
-	TrcKeySamplingIterator iter( tkzs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
 	BinID bid;
 	while( iter.next(bid) )
 	{
-	    const int inlidx = tkzs_.hrg.inlIdx(bid.inl());
-	    const int crlidx = tkzs_.hrg.crlIdx(bid.crl());
+	    const int inlidx = tkzs_.hsamp_.inlIdx(bid.inl());
+	    const int crlidx = tkzs_.hsamp_.crlIdx(bid.crl());
 	    bidinplg_->set( inlidx, crlidx, plg_.isInside(
 		    Geom::Point2D<float>( mCast(float,bid.inl()),
 					 mCast(float,bid.crl()) ),true,0.01 ) );
@@ -256,11 +256,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     TypeSet<Coord3> corners;
     if ( fltsz )
     {
-	corners += Coord3( SI().transform(tkzs_.hrg.start), 0 );
-	const BinID cbid0( tkzs_.hrg.start.inl(), tkzs_.hrg.stop.crl() );
+	corners += Coord3( SI().transform(tkzs_.hsamp_.start_), 0 );
+	const BinID cbid0( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.crl() );
 	corners += Coord3( SI().transform(cbid0), 0 );
-	corners += Coord3( SI().transform(tkzs_.hrg.stop), 0 );
-	const BinID cbid1( tkzs_.hrg.stop.inl(), tkzs_.hrg.start.crl() );
+	corners += Coord3( SI().transform(tkzs_.hsamp_.stop_), 0 );
+	const BinID cbid1( tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.start_.crl() );
 	corners += Coord3( SI().transform(cbid1), 0 );
     }
     const int cornersz = corners.size();
@@ -301,7 +301,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	}
 
-	TrcKeySamplingIterator iter( tkzs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hsamp_ );
 	BinID bid;
 	ObjectSet<ODPolygon<float> > polygons;
 	for ( int idx=0; idx<fltsz; idx++ )
@@ -312,8 +312,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	while( iter.next(bid) )
 	{
-	    const int inlidx = tkzs_.hrg.inlIdx(bid.inl());
-	    const int crlidx = tkzs_.hrg.crlIdx(bid.crl());
+	    const int inlidx = tkzs_.hsamp_.inlIdx(bid.inl());
+	    const int crlidx = tkzs_.hsamp_.crlIdx(bid.crl());
 	    if (!inlidx || !crlidx || inlidx==lastinlidx || crlidx==lastcrlidx)
 		continue;
 
@@ -586,23 +586,23 @@ void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
 
     if ( side==mToMinInline )
     {
-	insiderg.set( tkzs_.hrg.start.inl(), hrg.start.inl() );
-	outsiderg.set( hrg.stop.inl(), tkzs_.hrg.stop.inl() );
+	insiderg.set( tkzs_.hsamp_.start_.inl(), hrg.start_.inl() );
+	outsiderg.set( hrg.stop_.inl(), tkzs_.hsamp_.stop_.inl() );
     }
     else if ( side==mToMaxInline )
     {
-	insiderg.set( hrg.stop.inl(), tkzs_.hrg.stop.inl() );
-	outsiderg.set( tkzs_.hrg.start.inl(), hrg.start.inl() );
+	insiderg.set( hrg.stop_.inl(), tkzs_.hsamp_.stop_.inl() );
+	outsiderg.set( tkzs_.hsamp_.start_.inl(), hrg.start_.inl() );
     }
     else if ( side==mToMinCrossline )
     {
-	insiderg.set( tkzs_.hrg.start.crl(), hrg.start.crl() );
-	outsiderg.set( hrg.stop.crl(), tkzs_.hrg.stop.crl() );
+	insiderg.set( tkzs_.hsamp_.start_.crl(), hrg.start_.crl() );
+	outsiderg.set( hrg.stop_.crl(), tkzs_.hsamp_.stop_.crl() );
     }
     else
     {
-	insiderg.set( hrg.stop.crl(), tkzs_.hrg.stop.crl() );
-	outsiderg.set( tkzs_.hrg.start.crl(), hrg.start.crl() );
+	insiderg.set( hrg.stop_.crl(), tkzs_.hsamp_.stop_.crl() );
+	outsiderg.set( tkzs_.hsamp_.start_.crl(), hrg.start_.crl() );
     }
 
     insidergs_ += insiderg;
@@ -931,10 +931,10 @@ bool uiBodyRegionDlg::createImplicitBody()
 
     TrcKeyZSampling cs = subvolfld_->envelope();
     cs.zsamp_.start -= cs.zsamp_.step; cs.zsamp_.stop += cs.zsamp_.step;
-    cs.hrg.start.inl() -= cs.hrg.step.inl();
-    cs.hrg.stop.inl() += cs.hrg.step.inl();
-    cs.hrg.start.crl() -= cs.hrg.step.crl();
-    cs.hrg.stop.crl() += cs.hrg.step.crl();
+    cs.hsamp_.start_.inl() -= cs.hsamp_.step_.inl();
+    cs.hsamp_.stop_.inl() += cs.hsamp_.step_.inl();
+    cs.hsamp_.start_.crl() -= cs.hsamp_.step_.crl();
+    cs.hsamp_.stop_.crl() += cs.hsamp_.step_.crl();
 
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );
@@ -966,9 +966,9 @@ bool uiBodyRegionDlg::createImplicitBody()
 
     emcs->surface().setVolumeData( 0, 0, 0, *arr, 0, &taskrunner);
     emcs->setInlSampling(
-	    SamplingData<int>(cs.hrg.start.inl(),cs.hrg.step.inl()));
+	    SamplingData<int>(cs.hsamp_.start_.inl(),cs.hsamp_.step_.inl()));
     emcs->setCrlSampling(
-	    SamplingData<int>(cs.hrg.start.crl(),cs.hrg.step.crl()));
+	    SamplingData<int>(cs.hsamp_.start_.crl(),cs.hsamp_.step_.crl()));
     emcs->setZSampling(SamplingData<float>(cs.zsamp_.start,cs.zsamp_.step));
 
     emcs->setMultiID( outputfld_->key() );

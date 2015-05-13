@@ -72,17 +72,17 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
     if ( nrNodes() != 2 ) return;
 
     zrange_.limitTo( cs.zsamp_ );
-    const TrcKeySampling& hs = cs.hrg;
+    const TrcKeySampling& hs = cs.hsamp_;
     const bool startin = hs.includes( nodes_[0] );
     const bool stopin = hs.includes( nodes_[1] );
     if ( startin && stopin )
 	return;
 
     Coord svert[4];
-    svert[0] = SI().transform( hs.start );
-    svert[1] = SI().transform( BinID(hs.start.inl(),hs.stop.crl()) );
-    svert[2] = SI().transform( hs.stop );
-    svert[3] = SI().transform( BinID(hs.stop.inl(),hs.start.crl()) );
+    svert[0] = SI().transform( hs.start_ );
+    svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    svert[2] = SI().transform( hs.stop_ );
+    svert[3] = SI().transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
 
     Line2 line( SI().transform(nodes_[0]), SI().transform(nodes_[1]) );
     TypeSet<Coord> points;
@@ -204,12 +204,12 @@ void RandomLineSet::setEmpty()
 
 void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
 {
-    const TrcKeySampling hs( SI().sampling(false).hrg );
+    const TrcKeySampling hs( SI().sampling(false).hsamp_ );
     Coord svert[4];
-    svert[0] = SI().transform( hs.start );
-    svert[1] = SI().transform( BinID(hs.start.inl(),hs.stop.crl()) );
-    svert[2] = SI().transform( hs.stop );
-    svert[3] = SI().transform( BinID(hs.stop.inl(),hs.start.crl()) );
+    svert[0] = SI().transform( hs.start_ );
+    svert[1] = SI().transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    svert[2] = SI().transform( hs.stop_ );
+    svert[3] = SI().transform( BinID(hs.stop_.inl(),hs.start_.crl()) );
 
     Line2 sbound[4];			// Survey boundaries
     for ( int idx=0; idx<4; idx++ )

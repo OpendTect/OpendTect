@@ -67,7 +67,7 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<VolProc::ChainExecutor> pce = new VolProc::ChainExecutor( *chain );
 
     const float zstep = chain->getZStep();
-    TrcKeySampling inputhrg = cs.hrg;
+    TrcKeySampling inputhrg = cs.hsamp_;
     const StepInterval<int> outputzrg( mNINT32(cs.zsamp_.start/zstep),
 				 mNINT32(cs.zsamp_.stop/zstep),
 				 mMIN(mNINT32(cs.zsamp_.step/zstep),1) );
@@ -76,7 +76,7 @@ bool BatchProgram::go( od_ostream& strm )
     od_uint64 nrbytes = 0;
     const char itemsize = sizeof(float);
 
-    const TrcKeySampling survhrg = SI().sampling(false).hrg;
+    const TrcKeySampling survhrg = SI().sampling(false).hsamp_;
     const Interval<int> survzrg( mNINT32(SI().zRange(false).start/zstep),
 				 mNINT32(SI().zRange(false).stop/zstep) );
 
@@ -110,7 +110,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     strm << "Allocating " << getBytesString( nrbytes ) << " memory\n";
 
-    if ( !pce->setCalculationScope(cs.hrg,outputzrg) )
+    if ( !pce->setCalculationScope(cs.hsamp_,outputzrg) )
     {
 	strm << "Could not set calculation scope!";
 	return false;
@@ -175,7 +175,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     const TypeSet<int> indices( 1, 0 );
     SeisDataPackWriter writer( outputid, *cube, indices );
-    writer.setSelection( cs.hrg, outputzrg );
+    writer.setSelection( cs.hsamp_, outputzrg );
     if ( !writer.go(strm) )
 	return false;
 

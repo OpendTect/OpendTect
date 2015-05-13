@@ -899,19 +899,19 @@ int SurfaceGeometry::findPos( const Interval<float>& x,
 int SurfaceGeometry::findPos( const TrcKeyZSampling& cs,
 			  TypeSet<PosID>* res ) const
 {
-    Coord xypos = SI().transform(cs.hrg.start);
+    Coord xypos = SI().transform(cs.hsamp_.start_);
     Interval<float> xinterval( (float) xypos.x, (float) xypos.x );
     Interval<float> yinterval( (float) xypos.y, (float) xypos.y );
 
-    xypos = SI().transform(cs.hrg.stop);
+    xypos = SI().transform(cs.hsamp_.stop_);
     xinterval.include( (float) xypos.x );
     yinterval.include( (float) xypos.y );
 
-    xypos = SI().transform( BinID(cs.hrg.start.inl(),cs.hrg.stop.crl()) );
+    xypos = SI().transform( BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()) );
     xinterval.include( (float) xypos.x );
     yinterval.include( (float) xypos.y );
 
-    xypos = SI().transform( BinID(cs.hrg.stop.inl(),cs.hrg.start.crl()) );
+    xypos = SI().transform( BinID(cs.hsamp_.stop_.inl(),cs.hsamp_.start_.crl()) );
     xinterval.include( (float) xypos.x );
     yinterval.include( (float) xypos.y );
 
@@ -923,10 +923,10 @@ int SurfaceGeometry::findPos( const TrcKeyZSampling& cs,
 	const PosID& posid = posids[idx];
 	const BinID nodebid = SI().transform(surface_.getPos(posid));
 
-	if ( nodebid.inl()<cs.hrg.start.inl() ||
-	     nodebid.inl()>cs.hrg.stop.inl() ||
-	     nodebid.crl()<cs.hrg.start.crl() ||
-	     nodebid.crl()>cs.hrg.stop.crl() )
+	if ( nodebid.inl()<cs.hsamp_.start_.inl() ||
+	     nodebid.inl()>cs.hsamp_.stop_.inl() ||
+	     nodebid.crl()<cs.hsamp_.start_.crl() ||
+	     nodebid.crl()>cs.hsamp_.stop_.crl() )
 	{
 	    posids.removeSingle( idx--, false );
 	    continue;
@@ -973,22 +973,22 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 	sel.sellinenames = newsel->sellinenames;
 	sel.seltrcranges = newsel->seltrcranges;
 
-	sel.rg.start.inl() = sel.rg.inlRange().limitValue(
+	sel.rg.start_.inl() = sel.rg.inlRange().limitValue(
 		sel.rg.inlRange().snap( newsel->rg.inlRange().start ) );
-	sel.rg.start.crl() = sel.rg.crlRange().limitValue(
+	sel.rg.start_.crl() = sel.rg.crlRange().limitValue(
 		sel.rg.crlRange().snap( newsel->rg.crlRange().start ) );
-	sel.rg.stop.inl() = sel.rg.inlRange().limitValue(
+	sel.rg.stop_.inl() = sel.rg.inlRange().limitValue(
 		sel.rg.inlRange().snap( newsel->rg.inlRange().stop ) );
-	sel.rg.stop.crl() = sel.rg.crlRange().limitValue(
+	sel.rg.stop_.crl() = sel.rg.crlRange().limitValue(
 		sel.rg.crlRange().snap( newsel->rg.crlRange().stop ) );
-	int stepfactorinl = mNINT32(((float)newsel->rg.step.inl()
-			  / sel.rg.step.inl()));
+	int stepfactorinl = mNINT32(((float)newsel->rg.step_.inl()
+			  / sel.rg.step_.inl()));
 	if ( stepfactorinl<1 ) stepfactorinl = 1;
-	sel.rg.step.inl() *= stepfactorinl;
-	int stepfactorcrl = mNINT32(((float)newsel->rg.step.crl()
-			  / sel.rg.step.crl()));
+	sel.rg.step_.inl() *= stepfactorinl;
+	int stepfactorcrl = mNINT32(((float)newsel->rg.step_.crl()
+			  / sel.rg.step_.crl()));
 	if ( stepfactorcrl<1 ) stepfactorcrl = 1;
-	sel.rg.step.crl() *= stepfactorcrl;
+	sel.rg.step_.crl() *= stepfactorcrl;
 
 	sel.selvalues = newsel->selvalues;
 	if ( !newsel->selsections.isEmpty() )

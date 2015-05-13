@@ -56,14 +56,14 @@ void BaseHorizon3DExtender::setDirection( const BinIDValue& bdval )
 
 
 int BaseHorizon3DExtender::maxNrPosInExtArea() const
-{ return mCast( int, getExtBoundary().hrg.totalNr() ); }
+{ return mCast( int, getExtBoundary().hsamp_.totalNr() ); }
 
 
 void BaseHorizon3DExtender::preallocExtArea()
 {
-    const TrcKeySampling hrg = getExtBoundary().hrg;
+    const TrcKeySampling hrg = getExtBoundary().hsamp_;
     Geometry::BinIDSurface* bidsurf = horizon_.geometry().sectionGeometry(sid_);
-    if ( bidsurf ) bidsurf->expandWithUdf(hrg.start,hrg.stop);
+    if ( bidsurf ) bidsurf->expandWithUdf(hrg.start_,hrg.stop_);
 }
 
 
@@ -110,7 +110,7 @@ int BaseHorizon3DExtender::nextStep()
 		    continue;
 
 		const BinID neighbbid = BinID::fromInt64( neighbor.subID() );
-		if ( !getExtBoundary().hrg.includes(neighbbid) )
+		if ( !getExtBoundary().hsamp_.includes(neighbbid) )
 		    continue;
 
 		//If this is a better route to a node that is already

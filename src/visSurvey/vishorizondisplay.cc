@@ -1410,14 +1410,14 @@ void HorizonDisplay::traverseLine( bool oninline, const TrcKeyZSampling& cs,
     int faststop, faststep, slowdim, fastdim;
     if ( oninline )
     {
-	rg = inlrg; targetline = cs.hrg.start.inl();
+	rg = inlrg; targetline = cs.hsamp_.start_.inl();
 	startbid = BinID( targetline, crlrg.start );
 	faststop = crlrg.stop; faststep = crlrg.step;
 	slowdim = 0; fastdim = 1;
     }
     else
     {
-	rg = crlrg; targetline = cs.hrg.start.crl();
+	rg = crlrg; targetline = cs.hsamp_.start_.crl();
 	startbid = BinID( inlrg.start, targetline );
 	faststop = inlrg.stop; faststep = inlrg.step;
 	slowdim = 1; fastdim = 0;
@@ -1435,7 +1435,7 @@ void HorizonDisplay::traverseLine( bool oninline, const TrcKeyZSampling& cs,
     TypeSet<Coord3> curline;
     for ( BinID bid=startbid; bid[fastdim]<=faststop; bid[fastdim]+=faststep )
     {
-	if ( !cs.hrg.includes(bid) )
+	if ( !cs.hsamp_.includes(bid) )
 	{
 	    mEndLine;
 	    continue;
@@ -1604,7 +1604,7 @@ static void drawHorizonOnZSlice( const TrcKeyZSampling& cs, float zshift,
 
     IsoContourTracer ictracer( *field );
     ictracer.setSampling( geom->rowRange(), geom->colRange() );
-    ictracer.selectRectROI( cs.hrg.inlRange(), cs.hrg.crlRange() );
+    ictracer.selectRectROI( cs.hsamp_.inlRange(), cs.hsamp_.crlRange() );
     ObjectSet<ODPolygon<float> > isocontours;
     ictracer.getContours( isocontours, cs.zsamp_.start-zshift, false );
 
@@ -1734,7 +1734,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    rtdisplay->getDataTraceBids( tracebids );
 	    for ( int bidx=0; bidx<tracebids.size(); bidx++ )
 	    {
-		cs.hrg.include( tracebids[bidx] );
+		cs.hsamp_.include( tracebids[bidx] );
 		trclist += Coord( tracebids[bidx].inl(), tracebids[bidx].crl());
 	    }
 	}
@@ -1753,9 +1753,9 @@ void HorizonDisplay::updateIntersectionLines(
 		if ( mIsUdf(crd.x) || mIsUdf(crd.y) )
 		    continue;
 
-		cs.hrg.include( BinID( (int)Math::Floor(crd.x),
+		cs.hsamp_.include( BinID( (int)Math::Floor(crd.x),
 			    		(int)Math::Floor(crd.y)) );
-		cs.hrg.include( BinID( (int)Math::Ceil(crd.x),
+		cs.hsamp_.include( BinID( (int)Math::Ceil(crd.x),
 			    		(int)Math::Ceil(crd.y)) );
 		trclist += crd; trclist += crd;
 	    }
@@ -1838,11 +1838,11 @@ void HorizonDisplay::updateIntersectionLines(
 		drawHorizonOnRandomTrack( trclist, cs.zsamp_, sid,
 		    line, cii, pointgroup );
 	    }
-	    else if ( cs.hrg.start.inl()==cs.hrg.stop.inl() )
+	    else if ( cs.hsamp_.start_.inl()==cs.hsamp_.stop_.inl() )
 	    {
 		traverseLine( true, cs, sid, line, cii, pointgroup );
 	    }
-	    else if ( cs.hrg.start.crl()==cs.hrg.stop.crl() )
+	    else if ( cs.hsamp_.start_.crl()==cs.hsamp_.stop_.crl() )
 	    {
 		traverseLine( false, cs, sid, line, cii, pointgroup );
 	    }

@@ -510,7 +510,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
     bboxfld_->selChange.notify( mCB(this,uiCreate2DGrid,subSelCB) );
     bboxfld_->attach( alignedBelow, infld_ );
 
-    randlinegrdgrp_ = new ui2DGridLinesFromRandLine( grp, tkzs_.hrg, rdl );
+    randlinegrdgrp_ = new ui2DGridLinesFromRandLine( grp, tkzs_.hsamp_, rdl );
     randlinegrdgrp_->gridChanged.notify( mCB(this,uiCreate2DGrid,
 					      updatePreview) );
     if ( rdl )
@@ -521,7 +521,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 				  BoolInpSpec(true,"Inl/Crl","Random line") );
 	sourceselfld_->valuechanged.notify( mCB(this,uiCreate2DGrid,srcSelCB) );
 	sourceselfld_->attach( alignedBelow, bboxfld_ );
-	inlcrlgridgrp_ = new ui2DGridLinesFromInlCrl( grp, tkzs_.hrg );
+	inlcrlgridgrp_ = new ui2DGridLinesFromInlCrl( grp, tkzs_.hsamp_ );
 	inlcrlgridgrp_->gridChanged.notify( mCB(this,uiCreate2DGrid,
 						 updatePreview) );
 	inlcrlgridgrp_->attach( alignedBelow, sourceselfld_ );

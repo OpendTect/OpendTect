@@ -673,22 +673,22 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
 					  const StepInterval<float>& zrg ) const
 {
     Seis::Bounds3D* b3d = new Seis::Bounds3D;
-    b3d->tkzs_.hrg.start.inl() = inlrg.start;
-    b3d->tkzs_.hrg.start.crl() = crlrg.start;
-    b3d->tkzs_.hrg.stop.inl() = inlrg.stop;
-    b3d->tkzs_.hrg.stop.crl() = crlrg.stop;
-    b3d->tkzs_.hrg.step.inl() = inlrg.step;
-    b3d->tkzs_.hrg.step.crl() = crlrg.step;
+    b3d->tkzs_.hsamp_.start_.inl() = inlrg.start;
+    b3d->tkzs_.hsamp_.start_.crl() = crlrg.start;
+    b3d->tkzs_.hsamp_.stop_.inl() = inlrg.stop;
+    b3d->tkzs_.hsamp_.stop_.crl() = crlrg.stop;
+    b3d->tkzs_.hsamp_.step_.inl() = inlrg.step;
+    b3d->tkzs_.hsamp_.step_.crl() = crlrg.step;
 
-    if ( b3d->tkzs_.hrg.step.inl() < 0 )
+    if ( b3d->tkzs_.hsamp_.step_.inl() < 0 )
     {
 	pErrMsg("Poss prob: negative inl step from transl");
-	b3d->tkzs_.hrg.step.inl() = -b3d->tkzs_.hrg.step.inl();
+	b3d->tkzs_.hsamp_.step_.inl() = -b3d->tkzs_.hsamp_.step_.inl();
     }
-    if ( b3d->tkzs_.hrg.step.crl() < 0 )
+    if ( b3d->tkzs_.hsamp_.step_.crl() < 0 )
     {
 	pErrMsg("Poss prob: negative crl step from transl");
-	b3d->tkzs_.hrg.step.crl() = -b3d->tkzs_.hrg.step.crl();
+	b3d->tkzs_.hsamp_.step_.crl() = -b3d->tkzs_.hsamp_.step_.crl();
     }
     b3d->tkzs_.zsamp_ = zrg;
 
@@ -697,10 +697,10 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
 
 #define mChkRg(dir) \
     const Interval<int> dir##rng( seldata_->dir##Range() ); \
-    if ( b3d->tkzs_.hrg.start.dir() < dir##rng.start ) \
-	b3d->tkzs_.hrg.start.dir() = dir##rng.start; \
-    if ( b3d->tkzs_.hrg.stop.dir() > dir##rng.stop ) \
-	b3d->tkzs_.hrg.stop.dir() = dir##rng.stop;
+    if ( b3d->tkzs_.hsamp_.start_.dir() < dir##rng.start ) \
+	b3d->tkzs_.hsamp_.start_.dir() = dir##rng.start; \
+    if ( b3d->tkzs_.hsamp_.stop_.dir() > dir##rng.stop ) \
+	b3d->tkzs_.hsamp_.stop_.dir() = dir##rng.stop;
 
     mChkRg(inl)
     mChkRg(crl)

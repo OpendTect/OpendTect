@@ -48,7 +48,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
     SeisIOObjInfo inpsi( inobj );
     TrcKeyZSampling inpcs;
     inpsi.getRanges( inpcs );
-    const BinID inpstep = inpcs.hrg.step;
+    const BinID inpstep = inpcs.hsamp_.step_;
 
     int trcnr = trcinit;
     const Interval<float> zrg = rln.zRange();

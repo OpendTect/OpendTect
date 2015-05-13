@@ -43,7 +43,7 @@ bool BatchProgram::go( od_ostream& strm )
 	SeisIOObjInfo seisinfo( inputioobj );
 	TrcKeyZSampling cs;
 	seisinfo.getRanges( cs );
-	hrg = cs.hrg;
+	hrg = cs.hsamp_;
     }
 
     MultiID outputmid;

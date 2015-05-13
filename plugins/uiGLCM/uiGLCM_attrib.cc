@@ -364,8 +364,8 @@ void uiGLCM_attrib::analyseData( CallBacker* )
 	seisinfo.getRanges(
 		Survey::GM().getGeomID(subseldlg.lineKey().lineName()),
 		trcrg, zrg );
-	cs.hrg.setCrlRange( trcrg );
-	cs.hrg.setInlRange( Interval<int>(0,0) );
+	cs.hsamp_.setCrlRange( trcrg );
+	cs.hsamp_.setInlRange( Interval<int>(0,0) );
 	cs.zsamp_ = zrg;
 	lk = subseldlg.lineKey();
     }
@@ -404,7 +404,7 @@ bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
 
     aem->setTrcKeyZSampling( cs );
     TypeSet<TrcKey> trckeys;
-    cs.hrg.getRandomSet( nrtrcs, trckeys );
+    cs.hsamp_.getRandomSet( nrtrcs, trckeys );
     BinIDValueSet bidvals( 0, false );
     for ( int idx=0; idx<trckeys.size(); idx++ )
 	bidvals.add( trckeys[idx].pos() );

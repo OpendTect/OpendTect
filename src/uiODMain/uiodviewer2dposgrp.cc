@@ -188,13 +188,13 @@ void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
     TrcKeyZSampling sliceseltkzs = posdatasel_->tkzs_;
     if( dir == uiSliceSel::Inl )
     {
-	sliceseltkzs.hsamp_.start.inl() = seltkzs.hsamp_.lineRange().center();
-	sliceseltkzs.hsamp_.stop.inl() = sliceseltkzs.hsamp_.start.inl();
+	sliceseltkzs.hsamp_.start_.inl() = seltkzs.hsamp_.lineRange().center();
+	sliceseltkzs.hsamp_.stop_.inl() = sliceseltkzs.hsamp_.start_.inl();
     }
     else if ( dir == uiSliceSel::Crl )
     {
-	sliceseltkzs.hsamp_.start.crl() = seltkzs.hsamp_.trcRange().center();
-	sliceseltkzs.hsamp_.stop.crl() = sliceseltkzs.hsamp_.start.crl();
+	sliceseltkzs.hsamp_.start_.crl() = seltkzs.hsamp_.trcRange().center();
+	sliceseltkzs.hsamp_.stop_.crl() = sliceseltkzs.hsamp_.start_.crl();
     }
     else
     {

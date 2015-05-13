@@ -40,7 +40,7 @@ const char* EMSurfaceProvider::extraZKey()	{ return "Extra Z"; }
 EMSurfaceProvider::EMSurfaceProvider()
     : surf1_(0)
     , surf2_(0)
-    , hs_(SI().sampling(false).hrg)
+    , hs_(SI().sampling(false).hsamp_)
     , zstep_(SI().zRange(true).step)
     , extraz_(0,0)
     , zrg1_(0,0)
@@ -104,7 +104,7 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 	    if ( veryfirst )
 	    {
 		veryfirst = false;
-		hs.start = hs.stop = bid;
+		hs.start_ = hs.stop_ = bid;
 		zrg.start = zrg.stop = (float) coord.z;
 	    }
 	    else
@@ -351,7 +351,7 @@ bool EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
 
 
 void EMSurfaceProvider3D::getExtent( BinID& start, BinID& stop ) const
-{ start = hs_.start; stop = hs_.stop; }
+{ start = hs_.start_; stop = hs_.stop_; }
 
 
 void EMSurfaceProvider3D::initClass()
@@ -569,8 +569,8 @@ bool EMSurface2DProvider3D::includes( const BinID& bid, float z ) const
 
 void EMSurface2DProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
-    start = hs_.start; 
-    stop = hs_.stop;
+    start = hs_.start_;	
+    stop = hs_.stop_;
 }
 
 
@@ -656,7 +656,7 @@ bool EMImplicitBodyProvider::initialize( TaskRunner* taskr )
     tkzs_ = body->tkzs_;
     threshold_ = body->threshold_;
     
-    curbid_ = tkzs_.hrg.start;
+    curbid_ = tkzs_.hsamp_.start_;
     curz_ = tkzs_.zsamp_.start;
 
     initializedbody_ = true;
@@ -699,7 +699,7 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
     iop.get( sKeyBBInlrg(), inlrg ); 
     iop.get( sKeyBBCrlrg(), crlrg ); 
     iop.get( sKeyBBZrg(), zrg ); 
-    bbox_.hrg.set( inlrg, crlrg ); 
+    bbox_.hsamp_.set( inlrg, crlrg );
     bbox_.zsamp_.setFrom( zrg );
 
     initializedbody_ = false;
@@ -712,8 +712,8 @@ void EMImplicitBodyProvider::fillPar( IOPar& iop ) const
     iop.setYN( sKeyUseInside(), useinside_ );
     if ( !useinside_ )
     {
-	iop.set( sKeyBBInlrg(), bbox_.hrg.inlRange() ); 
-	iop.set( sKeyBBCrlrg(), bbox_.hrg.crlRange() ); 
+	iop.set( sKeyBBInlrg(), bbox_.hsamp_.inlRange() );
+	iop.set( sKeyBBCrlrg(), bbox_.hsamp_.crlRange() );
 	iop.set( sKeyBBZrg(), bbox_.zsamp_ );
     }
 }
@@ -744,10 +744,10 @@ void EMImplicitBodyProvider::getSummary( BufferString& txt ) const
     if ( !useinside_ )
     {
 	txt += "  Within cube range: Inline( ";
-	txt += bbox_.hrg.start.inl(); txt += ", ";
-	txt += bbox_.hrg.stop.inl(); txt += " ), Crossline( ";
-	txt += bbox_.hrg.start.crl(); txt += ", ";
-	txt += bbox_.hrg.stop.crl(); txt += " ), Z( ";
+	txt += bbox_.hsamp_.start_.inl(); txt += ", ";
+	txt += bbox_.hsamp_.stop_.inl(); txt += " ), Crossline( ";
+	txt += bbox_.hsamp_.start_.crl(); txt += ", ";
+	txt += bbox_.hsamp_.stop_.crl(); txt += " ), Z( ";
 	txt += bbox_.zsamp_.start; txt += ", ";
 	txt += bbox_.zsamp_.stop; txt += " ).";
     }
@@ -763,8 +763,8 @@ void EMImplicitBodyProvider::getExtent( BinID& start, BinID& stop ) const
     }
 
     const TrcKeyZSampling& cs = useinside_ ? tkzs_ : bbox_;
-    start = cs.hrg.start;
-    stop = cs.hrg.stop;
+    start = cs.hsamp_.start_;
+    stop = cs.hsamp_.stop_;
 }
 
 
@@ -779,9 +779,9 @@ bool EMImplicitBodyProvider::includes( const Coord& c, float z ) const
 bool EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
 {
     const TrcKeyZSampling& bb = useinside_ ? tkzs_ : bbox_;
-    if ( mIsUdf(z) ) return bb.hrg.includes(bid);
+    if ( mIsUdf(z) ) return bb.hsamp_.includes(bid);
 
-    if ( !isOK() || !bb.hrg.includes(bid) || !bb.zsamp_.includes(z,false) )
+    if ( !isOK() || !bb.hsamp_.includes(bid) || !bb.zsamp_.includes(z,false) )
 	return false;
 
     const int inlidx = tkzs_.inlIdx(bid.inl());

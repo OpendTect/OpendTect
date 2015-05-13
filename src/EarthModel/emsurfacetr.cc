@@ -303,18 +303,18 @@ bool dgbEMSurfaceTranslator::prepRead()
     const int version = reader_->version();
     if ( version==1 )
     {
-	sd_.rg.start = SI().sampling(false).hrg.start;
-	sd_.rg.stop = SI().sampling(false).hrg.stop;
-	sd_.rg.step = SI().sampling(false).hrg.step;
+	sd_.rg.start_ = SI().sampling(false).hsamp_.start_;
+	sd_.rg.stop_ = SI().sampling(false).hsamp_.stop_;
+	sd_.rg.step_ = SI().sampling(false).hsamp_.step_;
     }
     else
     {
-	sd_.rg.start.inl() = reader_->rowInterval().start;
-	sd_.rg.stop.inl() = reader_->rowInterval().stop;
-	sd_.rg.step.inl() = reader_->rowInterval().step;
-	sd_.rg.start.crl() = reader_->colInterval().start;
-	sd_.rg.stop.crl() = reader_->colInterval().stop;
-	sd_.rg.step.crl() = reader_->colInterval().step;
+	sd_.rg.start_.inl() = reader_->rowInterval().start;
+	sd_.rg.stop_.inl() = reader_->rowInterval().stop;
+	sd_.rg.step_.inl() = reader_->rowInterval().step;
+	sd_.rg.start_.crl() = reader_->colInterval().start;
+	sd_.rg.stop_.crl() = reader_->colInterval().stop;
+	sd_.rg.step_.crl() = reader_->colInterval().step;
 	sd_.zrg.start = reader_->zInterval().start;
 	sd_.zrg.stop = reader_->zInterval().stop;
 
@@ -333,10 +333,10 @@ void dgbEMSurfaceTranslator::getSels( StepInterval<int>& rrg,
     if ( sels_.rg.isEmpty() )
 	sels_.rg = sd_.rg;
 
-    rrg.start = sels_.rg.start.inl(); rrg.stop = sels_.rg.stop.inl();
-    rrg.step = sels_.rg.step.inl();
-    crg.start = sels_.rg.start.crl(); crg.stop = sels_.rg.stop.crl();
-    crg.step = sels_.rg.step.crl();
+    rrg.start = sels_.rg.start_.inl(); rrg.stop = sels_.rg.stop_.inl();
+    rrg.step = sels_.rg.step_.inl();
+    crg.start = sels_.rg.start_.crl(); crg.stop = sels_.rg.stop_.crl();
+    crg.step = sels_.rg.step_.crl();
 }
 
 

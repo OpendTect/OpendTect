@@ -74,11 +74,11 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
     {
 	const SeisPacketInfo& spi = seisreader_->seisTranslator()->packetInfo();
 	TrcKeySampling storhrg; storhrg.set( spi.inlrg, spi.crlrg );
-	outcs_.hrg.limitTo( storhrg );
+	outcs_.hsamp_.limitTo( storhrg );
     }
 
     TrcKeyZSampling cs( true );
-    cs.hrg = outcs_.hrg;
+    cs.hsamp_ = outcs_.hsamp_;
     seisreader_->setSelData( new Seis::RangeSelData(cs) );
     if ( seisreadertdmodel_ )
 	seisreadertdmodel_->setSelData( new Seis::RangeSelData(cs) );
@@ -89,13 +89,13 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 	const SeisPacketInfo& packetinfo =
 			        seisreader_->seisTranslator()->packetInfo();
 	if ( packetinfo.cubedata )
-	    totalnr_ = packetinfo.cubedata->totalSizeInside( cs.hrg );
+	    totalnr_ = packetinfo.cubedata->totalSizeInside( cs.hsamp_ );
 	else
-	    totalnr_ = mCast( int, cs.hrg.totalNr() );
+	    totalnr_ = mCast( int, cs.hsamp_.totalNr() );
     }
     else
     {
-	totalnr_ = mCast( int, cs.hrg.totalNr() );
+	totalnr_ = mCast( int, cs.hsamp_.totalNr() );
     }
 
     seiswriter_ = new SeisTrcWriter( &out );
@@ -462,7 +462,7 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
 	    trckey = TrcKey( seisreader_->selData()->geomID(),trc.info().binid);
 	}
 
-	if ( !outcs_.hrg.includes( trckey ) )
+	if ( !outcs_.hsamp_.includes( trckey ) )
 	    continue;
 
 	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey) )
@@ -562,18 +562,18 @@ bool SeisZAxisStretcher::doPrepare( int nrthreads )
 
 bool SeisZAxisStretcher::loadTransformChunk( int inl )
 {
-    int chunksize = is2d_ ? 1 : mMaxNrTrc/outcs_.hrg.nrCrl();
+    int chunksize = is2d_ ? 1 : mMaxNrTrc/outcs_.hsamp_.nrCrl();
     if ( chunksize<1 ) chunksize = 1;
 
-    curhrg_ = outcs_.hrg;
-    curhrg_.start.inl() = inl;
-    curhrg_.stop.inl() = curhrg_.start.inl() + curhrg_.step.inl() * 
+    curhrg_ = outcs_.hsamp_;
+    curhrg_.start_.inl() = inl;
+    curhrg_.stop_.inl() = curhrg_.start_.inl() + curhrg_.step_.inl() *
 			 (chunksize-1);
-    if ( curhrg_.stop.inl()>outcs_.hrg.stop.inl() )
-	curhrg_.stop.inl() = outcs_.hrg.stop.inl();
+    if ( curhrg_.stop_.inl()>outcs_.hsamp_.stop_.inl() )
+	curhrg_.stop_.inl() = outcs_.hsamp_.stop_.inl();
 
     TrcKeyZSampling cs( outcs_ );
-    cs.hrg = curhrg_;
+    cs.hsamp_ = curhrg_;
 
     bool res = true;
     if ( ztransform_ )

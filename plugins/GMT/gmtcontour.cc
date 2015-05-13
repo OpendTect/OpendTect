@@ -149,10 +149,10 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     strm << "Done" << od_endl;
     strm << "Creating grid 100 X 100 ...  ";
     strm.flush();
-    Coord spt1 = SI().transform( BinID(sd.rg.start.inl(),sd.rg.start.crl()) );
-    Coord spt2 = SI().transform( BinID(sd.rg.start.inl(),sd.rg.stop.crl()) );
-    Coord spt3 = SI().transform( BinID(sd.rg.stop.inl(),sd.rg.start.crl()) );
-    Coord spt4 = SI().transform( BinID(sd.rg.stop.inl(),sd.rg.stop.crl()) );
+    Coord spt1 = SI().transform( BinID(sd.rg.start_.inl(),sd.rg.start_.crl()) );
+    Coord spt2 = SI().transform( BinID(sd.rg.start_.inl(),sd.rg.stop_.crl()) );
+    Coord spt3 = SI().transform( BinID(sd.rg.stop_.inl(),sd.rg.start_.crl()) );
+    Coord spt4 = SI().transform( BinID(sd.rg.stop_.inl(),sd.rg.stop_.crl()) );
     Coord botleft( mMIN( mMIN( spt1.x, spt2.x ), mMIN( spt3.x, spt4.x ) ),
 		   mMIN( mMIN( spt1.y, spt2.y ), mMIN( spt3.y, spt4.y ) ) );
     Coord topright( mMAX( mMAX( spt1.x, spt2.x ), mMAX( spt3.x, spt4.x ) ),

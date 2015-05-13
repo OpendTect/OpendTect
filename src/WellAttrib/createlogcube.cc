@@ -431,8 +431,8 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 	}
 
 	TrcKeySampling hrg(false);
-	hrg.start = trackpos - bidvar;
-	hrg.stop = trackpos + bidvar;
+	hrg.start_ = trackpos - bidvar;
+	hrg.stop_ = trackpos + bidvar;
 	hrg.snapToSurvey();
 
 	TrcKeySamplingIterator hsit( hrg );

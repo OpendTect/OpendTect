@@ -175,9 +175,9 @@ bool HorizonGridder::usePar( const IOPar& par )
 void InvDistHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( SI().inlDistance() * hs.step.inl() );
-    setColStep( SI().crlDistance() * hs.step.crl() );
-    setOrigin( hs.start );
+    setRowStep( SI().inlDistance() * hs.step_.inl() );
+    setColStep( SI().crlDistance() * hs.step_.crl() );
+    setOrigin( hs.start_ );
 }
 
 
@@ -226,9 +226,9 @@ bool InvDistHor3DGridder::usePar( const IOPar& par )
 void TriangulationHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( SI().inlDistance() * hs.step.inl() );
-    setColStep( SI().crlDistance() * hs.step.crl() );
-    setOrigin( hs.start );
+    setRowStep( SI().inlDistance() * hs.step_.inl() );
+    setColStep( SI().crlDistance() * hs.step_.crl() );
+    setOrigin( hs.start_ );
 }
 
 
@@ -277,9 +277,9 @@ bool TriangulationHor3DGridder::usePar( const IOPar& par )
 void ExtensionHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 {
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( SI().inlDistance() * hs.step.inl() );
-    setColStep( SI().crlDistance() * hs.step.crl() );
-    setOrigin( hs.start );
+    setRowStep( SI().inlDistance() * hs.step_.inl() );
+    setColStep( SI().crlDistance() * hs.step_.crl() );
+    setOrigin( hs.start_ );
 }
 
 

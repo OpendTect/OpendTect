@@ -1044,15 +1044,15 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
     const TrcKeySampling& hs = holder_.hs_;
     const bool isinl = hs.nrCrl() > 1 && idx < hs.nrInl();
     const int linenr = isinl
-	? hs.start.inl() + idx * hs.step.inl()
-	: hs.start.crl() +
-		(hs.nrCrl()==1 ? 0 : (idx-hs.nrInl()) * hs.step.crl() );
+	? hs.start_.inl() + idx * hs.step_.inl()
+	: hs.start_.crl() +
+		(hs.nrCrl()==1 ? 0 : (idx-hs.nrInl()) * hs.step_.crl() );
 
     const StepInterval<float>& zrg = SI().zRange( false );
-    BinID start( isinl ? linenr : holder_.hs_.start.inl(),
-		 isinl ? holder_.hs_.start.crl() : linenr );
-    BinID stop( isinl ? linenr : holder_.hs_.stop.inl(),
-		isinl ? holder_.hs_.stop.crl() : linenr );
+    BinID start( isinl ? linenr : holder_.hs_.start_.inl(),
+		 isinl ? holder_.hs_.start_.crl() : linenr );
+    BinID stop( isinl ? linenr : holder_.hs_.stop_.inl(),
+		isinl ? holder_.hs_.stop_.crl() : linenr );
     Coord3 p0( SI().transform(start), zrg.start );
     Coord3 p1( SI().transform(start), zrg.stop );
     Coord3 p2( SI().transform(stop), zrg.stop );

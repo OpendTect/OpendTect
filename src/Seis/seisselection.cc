@@ -153,7 +153,7 @@ Seis::RangeSelData::RangeSelData( bool initsi )
 Seis::RangeSelData::RangeSelData( const TrcKeySampling& hs )
     : tkzs_(*new TrcKeyZSampling(false))
 {
-    tkzs_.hrg = hs;
+    tkzs_.hsamp_ = hs;
     tkzs_.zsamp_ = SI().zRange(false);
 }
 
@@ -190,9 +190,9 @@ void Seis::RangeSelData::copyFrom( const Seis::SelData& sd )
     else
     {
 	Interval<int> rg( sd.inlRange() );
-	tkzs_.hrg.start.inl() = rg.start; tkzs_.hrg.stop.inl() = rg.stop;
+	tkzs_.hsamp_.start_.inl() = rg.start; tkzs_.hsamp_.stop_.inl() = rg.stop;
 	rg = sd.crlRange();
-	tkzs_.hrg.start.crl() = rg.start; tkzs_.hrg.stop.crl() = rg.stop;
+	tkzs_.hsamp_.start_.crl() = rg.start; tkzs_.hsamp_.stop_.crl() = rg.stop;
 	assign( tkzs_.zsamp_, sd.zRange() );
     }
 }
@@ -200,13 +200,13 @@ void Seis::RangeSelData::copyFrom( const Seis::SelData& sd )
 
 Interval<int> Seis::RangeSelData::inlRange() const
 {
-    return isall_ ? Seis::SelData::inlRange() : tkzs_.hrg.inlRange();
+    return isall_ ? Seis::SelData::inlRange() : tkzs_.hsamp_.inlRange();
 }
 
 
 Interval<int> Seis::RangeSelData::crlRange() const
 {
-    return isall_ ? Seis::SelData::crlRange() : tkzs_.hrg.crlRange();
+    return isall_ ? Seis::SelData::crlRange() : tkzs_.hsamp_.crlRange();
 }
 
 
@@ -218,14 +218,14 @@ Interval<float> Seis::RangeSelData::zRange() const
 
 bool Seis::RangeSelData::setInlRange( Interval<int> rg )
 {
-    tkzs_.hrg.start.inl() = rg.start; tkzs_.hrg.stop.inl() = rg.stop;
+    tkzs_.hsamp_.start_.inl() = rg.start; tkzs_.hsamp_.stop_.inl() = rg.stop;
     return true;
 }
 
 
 bool Seis::RangeSelData::setCrlRange( Interval<int> rg )
 {
-    tkzs_.hrg.start.crl() = rg.start; tkzs_.hrg.stop.crl() = rg.stop;
+    tkzs_.hsamp_.start_.crl() = rg.start; tkzs_.hsamp_.stop_.crl() = rg.stop;
     return true;
 }
 
@@ -263,10 +263,10 @@ void Seis::RangeSelData::extendZ( const Interval<float>& zrg )
 
 void Seis::RangeSelData::doExtendH( BinID so, BinID sos )
 {
-    tkzs_.hrg.start.inl() -= so.inl() * sos.inl();
-    tkzs_.hrg.start.crl() -= so.crl() * sos.crl();
-    tkzs_.hrg.stop.inl() += so.inl() * sos.inl();
-    tkzs_.hrg.stop.crl() += so.crl() * sos.crl();
+    tkzs_.hsamp_.start_.inl() -= so.inl() * sos.inl();
+    tkzs_.hsamp_.start_.crl() -= so.crl() * sos.crl();
+    tkzs_.hsamp_.stop_.inl() += so.inl() * sos.inl();
+    tkzs_.hsamp_.stop_.crl() += so.crl() * sos.crl();
 }
 
 
@@ -285,11 +285,11 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
     }
 
     Interval<int> rg( sd.inlRange() );
-    if ( tkzs_.hrg.start.inl() > rg.start ) tkzs_.hrg.start.inl() = rg.start;
-    if ( tkzs_.hrg.stop.inl() < rg.stop ) tkzs_.hrg.stop.inl() = rg.stop;
+    if ( tkzs_.hsamp_.start_.inl() > rg.start ) tkzs_.hsamp_.start_.inl() = rg.start;
+    if ( tkzs_.hsamp_.stop_.inl() < rg.stop ) tkzs_.hsamp_.stop_.inl() = rg.stop;
     rg = sd.crlRange();
-    if ( tkzs_.hrg.start.crl() > rg.start ) tkzs_.hrg.start.crl() = rg.start;
-    if ( tkzs_.hrg.stop.crl() < rg.stop ) tkzs_.hrg.stop.crl() = rg.stop;
+    if ( tkzs_.hsamp_.start_.crl() > rg.start ) tkzs_.hsamp_.start_.crl() = rg.start;
+    if ( tkzs_.hsamp_.stop_.crl() < rg.stop ) tkzs_.hsamp_.stop_.crl() = rg.stop;
     const Interval<float> zrg( sd.zRange() );
     if ( tkzs_.zsamp_.start > rg.start )
 	tkzs_.zsamp_.start = mCast(float,rg.start);
@@ -301,20 +301,20 @@ int Seis::RangeSelData::selRes( const BinID& bid ) const
 {
     if ( isall_ ) return 0;
 
-    int inlres = tkzs_.hrg.start.inl() > bid.inl() ||
-		 tkzs_.hrg.stop.inl() < bid.inl()
+    int inlres = tkzs_.hsamp_.start_.inl() > bid.inl() ||
+		 tkzs_.hsamp_.stop_.inl() < bid.inl()
 		? 2 : 0;
-    int crlres = tkzs_.hrg.start.crl() > bid.crl() ||
-		 tkzs_.hrg.stop.crl() < bid.crl()
+    int crlres = tkzs_.hsamp_.start_.crl() > bid.crl() ||
+		 tkzs_.hsamp_.stop_.crl() < bid.crl()
 		? 2 : 0;
     int rv = inlres + 256 * crlres;
     if ( rv != 0 ) return rv;
 
-    BinID step( tkzs_.hrg.step.inl(), tkzs_.hrg.step.crl() );
+    BinID step( tkzs_.hsamp_.step_.inl(), tkzs_.hsamp_.step_.crl() );
     if ( step.inl() < 1 ) step.inl() = 1;
     if ( step.crl() < 1 ) step.crl() = 1;
-    inlres = (bid.inl() - tkzs_.hrg.start.inl()) % step.inl() ? 1 : 0;
-    crlres = (bid.crl() - tkzs_.hrg.start.crl()) % step.crl() ? 1 : 0;
+    inlres = (bid.inl() - tkzs_.hsamp_.start_.inl()) % step.inl() ? 1 : 0;
+    crlres = (bid.crl() - tkzs_.hsamp_.start_.crl()) % step.crl() ? 1 : 0;
     return inlres + 256 * crlres;
 }
 
@@ -323,8 +323,8 @@ int Seis::RangeSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
     if ( isall_ && !for2d ) return tracesInSI();
 
-    TrcKeySampling hs( tkzs_.hrg );
-    if ( step ) hs.step = *step;
+    TrcKeySampling hs( tkzs_.hsamp_ );
+    if ( step ) hs.step_ = *step;
     const int nrinl = for2d ? 1 : hs.nrInl();
     const int nrcrl = hs.nrCrl();
     return nrinl * nrcrl;
@@ -580,13 +580,13 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 	ODPolygon<float>* poly = new ODPolygon<float>;
 	const TrcKeyZSampling& cs = rsd->cubeSampling();
 	poly->add( Geom::Point2D<float>(
-		      (float) cs.hrg.start.inl(), (float) cs.hrg.start.crl()) );
+		      (float) cs.hsamp_.start_.inl(), (float) cs.hsamp_.start_.crl()) );
 	poly->add( Geom::Point2D<float>(
-		      (float) cs.hrg.stop.inl(), (float) cs.hrg.start.crl()) );
+		      (float) cs.hsamp_.stop_.inl(), (float) cs.hsamp_.start_.crl()) );
 	poly->add( Geom::Point2D<float>(
-	              (float) cs.hrg.stop.inl(), (float) cs.hrg.stop.crl()) );
+	              (float) cs.hsamp_.stop_.inl(), (float) cs.hsamp_.stop_.crl()) );
 	poly->add( Geom::Point2D<float>(
-		      (float) cs.hrg.start.inl(), (float) cs.hrg.stop.crl()) );
+		      (float) cs.hsamp_.start_.inl(), (float) cs.hsamp_.stop_.crl()) );
 	deepErase( polys_ );
 	polys_ += poly;
     }
@@ -801,7 +801,7 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	
 	TrcKeySampling hs;
 	hs.set( inlrg, crlrg );
-	if ( step ) hs.step = *step;
+	if ( step ) hs.step_ = *step;
 	hs.snapToSurvey();
 	estnrtraces += mNINT32( coverfrac * hs.totalNr() );
     }

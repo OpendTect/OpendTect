@@ -204,7 +204,7 @@ int SeisMSCProvider::estimatedNrTraces() const
     if ( estnrtrcs_ != -2 ) return estnrtrcs_;
     estnrtrcs_ = -1;
     if ( !rdr_.selData() )
-	return is2D() ? estnrtrcs_ : (int) SI().sampling(false).hrg.totalNr();
+	return is2D() ? estnrtrcs_ : (int) SI().sampling(false).hsamp_.totalNr();
 
     estnrtrcs_ = rdr_.selData()->expectedNrTraces( is2D() );
     return estnrtrcs_;
@@ -616,13 +616,13 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     seisrdr->setSelData( sd );
 
     clear();
-    data_ = new Array2DImpl<SeisTrc*>( tkzs_.hrg.nrInl(), tkzs_.hrg.nrCrl() );
+    data_ = new Array2DImpl<SeisTrc*>( tkzs_.hsamp_.nrInl(), tkzs_.hsamp_.nrCrl() );
     for ( int idx=0; idx<data_->info().getSize(0); idx++ )
 	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
 	    data_->set( idx, idy, 0 );
 
     PtrMan<TrcDataLoader> loader =
-	new TrcDataLoader( *seisrdr, *data_, tkzs_.hrg, is2d );
+	new TrcDataLoader( *seisrdr, *data_, tkzs_.hsamp_, is2d );
     const bool res = TaskRunner::execute( taskr, *loader );
     if ( !res )
 	mErrRet( "Failed to read input dataset" )
@@ -637,7 +637,7 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( int trcnr ) const
 
 const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 {
-    if ( !data_ || !tkzs_.hrg.includes(bid) )
+    if ( !data_ || !tkzs_.hsamp_.includes(bid) )
 	return 0;
 
     return data_->get( tkzs_.inlIdx(bid.inl()), tkzs_.crlIdx(bid.crl()) );

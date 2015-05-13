@@ -85,7 +85,7 @@ void VolProcAttrib::prepareForComputeData()
     StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zsamp_.start ),
 			   geometryzrg.nearestIndex( cs.zsamp_.stop ),
 			   mNINT32(cs.zsamp_.step/geometryzrg.step) );
-    if ( !executor_->setCalculationScope(cs.hrg,zrg) )
+    if ( !executor_->setCalculationScope(cs.hsamp_,zrg) )
     {
 	errmsg_ = tr("Cannot calculate at this location");
 	return;
@@ -219,7 +219,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
     StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zsamp_.start ),
 			   geometryzrg.nearestIndex( cs.zsamp_.stop ),
 			   mNINT32(cs.zsamp_.step/geometryzrg.step) );
-    if ( !executor.setCalculationScope(cs.hrg,zrg) )
+    if ( !executor.setCalculationScope(cs.hsamp_,zrg) )
     {
 	errmsg_ = tr("Cannot calculate at this location");
 	return DataPack::cNoID();

@@ -646,20 +646,20 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 
     if ( is2d_ )
     {
-	tkzs_.hrg.setInlRange( Interval<int>( 1, 1 ) );
-	tkzs_.hrg.setCrlRange( trcrg );
+	tkzs_.hsamp_.setInlRange( Interval<int>( 1, 1 ) );
+	tkzs_.hsamp_.setCrlRange( trcrg );
     }
     else
     {
 	if ( isinl )
 	{
-	    tkzs_.hrg.setInlRange( Interval<int>( bid.inl(), bid.inl() ) );
-	    tkzs_.hrg.setCrlRange( trcrg );
+	    tkzs_.hsamp_.setInlRange( Interval<int>( bid.inl(), bid.inl() ) );
+	    tkzs_.hsamp_.setCrlRange( trcrg );
 	}
 	else
 	{
-	    tkzs_.hrg.setCrlRange( Interval<int>( bid.crl(), bid.crl() ) );
-	    tkzs_.hrg.setInlRange( trcrg );
+	    tkzs_.hsamp_.setCrlRange( Interval<int>( bid.crl(), bid.crl() ) );
+	    tkzs_.hsamp_.setInlRange( trcrg );
 	}
 
 	slicepos_->setTrcKeyZSampling( tkzs_ );
@@ -673,7 +673,7 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 void uiStoredViewer2DMainWin::setUpNewSlicePositions()
 {
     const bool isinl = is2d_ || tkzs_.defaultDir()==TrcKeyZSampling::Inl;
-    const int newpos = isinl ? tkzs_.hrg.start.inl() : tkzs_.hrg.start.crl();
+    const int newpos = isinl ? tkzs_.hsamp_.start_.inl() : tkzs_.hsamp_.start_.crl();
 
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
     {
@@ -1155,7 +1155,7 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 	oldgathernms.addIfNew( gatherinfos_[idx].gathernm_ );
     gatherinfos_ = dps;
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
-    tkzs_.hrg.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl(),
+    tkzs_.hsamp_.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl(),
 					   gatherinfos_[0].bid_.inl(),1) );
     BufferStringSet newgathernms;
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
@@ -1183,7 +1183,7 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 	}
     }
 
-    tkzs_.hrg.setCrlRange( trcrg );
+    tkzs_.hsamp_.setCrlRange( trcrg );
     tkzs_.zsamp_.set( mUdf(float), -mUdf(float), SI().zStep() );
     setUpView();
     reSizeSld(0);
@@ -1239,8 +1239,8 @@ void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 					       const GatherInfo& ginfo )
 {
     TrcKeyZSampling cs;
-    const int modelnr = (ginfo.bid_.crl() - cs.hrg.stop.crl())
-			/ cs.hrg.step.crl();
+    const int modelnr = (ginfo.bid_.crl() - cs.hsamp_.stop_.crl())
+			/ cs.hsamp_.step_.crl();
     info->setData( modelnr, ginfo.gathernm_ );
 }
 

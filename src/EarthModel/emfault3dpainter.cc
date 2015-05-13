@@ -211,15 +211,15 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	BinID extrbid1, extrbid2;
 	if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 	{
-	    extrbid1.inl() = extrbid2.inl() = tkzs_.hrg.inlRange().start;
-	    extrbid1.crl() = tkzs_.hrg.crlRange().start;
-	    extrbid2.crl() = tkzs_.hrg.crlRange().stop;
+	    extrbid1.inl() = extrbid2.inl() = tkzs_.hsamp_.inlRange().start;
+	    extrbid1.crl() = tkzs_.hsamp_.crlRange().start;
+	    extrbid2.crl() = tkzs_.hsamp_.crlRange().stop;
 	}
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
 	{
-	    extrbid1.inl() = tkzs_.hrg.inlRange().start;
-	    extrbid2.inl() = tkzs_.hrg.inlRange().stop;
-	    extrbid1.crl() = extrbid2.crl() = tkzs_.hrg.crlRange().start;
+	    extrbid1.inl() = tkzs_.hsamp_.inlRange().start;
+	    extrbid2.inl() = tkzs_.hsamp_.inlRange().stop;
+	    extrbid1.crl() = extrbid2.crl() = tkzs_.hsamp_.crlRange().start;
 	}
 
 	Coord extrcoord1, extrcoord2;
@@ -343,8 +343,8 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
     }
     else
     {
-	BinID start( tkzs_.hrg.start.inl(), tkzs_.hrg.start.crl() );
-	BinID stop(tkzs_.hrg.stop.inl(), tkzs_.hrg.stop.crl() );
+	BinID start( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.start_.crl() );
+	BinID stop(tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.stop_.crl() );
 
 	Coord3 p0( SI().transform(start), tkzs_.zsamp_.start );
 	Coord3 p1( SI().transform(start), tkzs_.zsamp_.stop );

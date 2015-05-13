@@ -200,9 +200,9 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     else
     {
 	bodyinlidx =
-		implicitbody_->tkzs_.hrg.inlRange().nearestIndex( bid.inl() );
+		implicitbody_->tkzs_.hsamp_.inlRange().nearestIndex( bid.inl() );
 	bodycrlidx =
-		implicitbody_->tkzs_.hrg.crlRange().nearestIndex( bid.crl() );
+		implicitbody_->tkzs_.hsamp_.crlRange().nearestIndex( bid.crl() );
 
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
 	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
@@ -333,7 +333,7 @@ Task* BodyFiller::createTask()
 
 	if ( flatpolygon_.isEmpty() )
 	{
-	    flatpolygon_.hrg.start = flatpolygon_.hrg.stop = bid;
+	    flatpolygon_.hsamp_.start_ = flatpolygon_.hsamp_.stop_ = bid;
 	    flatpolygon_.zsamp_.start = flatpolygon_.zsamp_.stop
 				   = (float)plgknots_[idx].z;
 	}

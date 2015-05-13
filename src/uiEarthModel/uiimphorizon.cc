@@ -329,8 +329,8 @@ bool uiImportHorizon::doScan()
     const StepInterval<int> nilnrg = scanner_->inlRg();
     const StepInterval<int> nclnrg = scanner_->crlRg();
     TrcKeyZSampling cs( true );
-    const StepInterval<int> irg = cs.hrg.inlRange();
-    const StepInterval<int> crg = cs.hrg.crlRange();
+    const StepInterval<int> irg = cs.hsamp_.inlRange();
+    const StepInterval<int> crg = cs.hsamp_.crlRange();
     if ( irg.start>nilnrg.stop || crg.start>nclnrg.stop ||
 	 irg.stop<nilnrg.start || crg.stop<nclnrg.start )
 	uiMSG().warning( tr("Your horizon is out of the survey range.") );
@@ -349,7 +349,7 @@ bool uiImportHorizon::doScan()
 	return false;
     }
 
-    cs.hrg.set( nilnrg, nclnrg );
+    cs.hsamp_.set( nilnrg, nclnrg );
     subselfld_->setInput( cs );
     return true;
 }
@@ -444,7 +444,7 @@ bool uiImportHorizon::doImport()
 	fillUdfs( sections );
     }
 
-    TrcKeySampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hsamp_;
     if ( hs.lineRange().step==0 || hs.trcRange().step==0 )
 	mErrRetUnRef( tr("Cannot have '0' as a step value") )
     ExecutorGroup importer( "Importing horizon" );
@@ -555,12 +555,12 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
     if ( !interpol_ )
 	return false;
-    TrcKeySampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hsamp_;
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
-    interpol_->setRowStep( inldist*hs.step.inl() );
-    interpol_->setColStep( crldist*hs.step.crl());
+    interpol_->setRowStep( inldist*hs.step_.inl() );
+    interpol_->setColStep( crldist*hs.step_.crl());
     uiTaskRunner taskrunner( this );
     Array2DImpl<float> arr( hs.nrInl(), hs.nrCrl() );
     if ( !arr.isOK() )
@@ -573,10 +573,10 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	BinID bid;
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
 	{
-	    bid.inl() = hs.start.inl() + inl*hs.step.inl();
+	    bid.inl() = hs.start_.inl() + inl*hs.step_.inl();
 	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
 	    {
-		bid.crl() = hs.start.crl() + crl*hs.step.crl();
+		bid.crl() = hs.start_.crl() + crl*hs.step_.crl();
 		BinIDValueSet::SPos pos = data.find( bid );
 		if ( pos.j >= 0 )
 		{
@@ -595,10 +595,10 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
 	{
-	    bid.inl() = hs.start.inl() + inl*hs.step.inl();
+	    bid.inl() = hs.start_.inl() + inl*hs.step_.inl();
 	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
 	    {
-		bid.crl() = hs.start.crl() + crl*hs.step.crl();
+		bid.crl() = hs.start_.crl() + crl*hs.step_.crl();
 		BinIDValueSet::SPos pos = data.find( bid );
 		if ( pos.j >= 0 ) continue;
 
