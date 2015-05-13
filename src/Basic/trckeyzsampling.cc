@@ -804,6 +804,7 @@ od_int64 TrcKeyZSampling::totalNr() const
 
 
 
+mStartAllowDeprecatedSection
 TrcKeyZSampling::TrcKeyZSampling()
     : hrg(hsamp_),zrg(zsamp_)
 { init( true ); }
@@ -819,6 +820,9 @@ TrcKeyZSampling::TrcKeyZSampling( const TrcKeyZSampling& tkzs )
 TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
     : hrg(hsamp_),zrg(zsamp_)
 { init( settoSI ); }
+
+
+mStopAllowDeprecatedSection
 
 
 int TrcKeyZSampling::lineIdx(int lineid)const
