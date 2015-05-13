@@ -122,8 +122,7 @@ void WaveletAttrib::getPhaseRotated( float* out, float phase ) const
 
 void WaveletAttrib::getCosTapered( float* out, float taperval ) const
 {
-    CosTaperWindow ctaper;
-    if ( !ctaper.isAcceptableVariable(taperval) )
+    if ( mIsUdf(taperval) )
 	return;
 
     ArrayNDWindow taper( Array1DInfoImpl(wvltsz_), false,
