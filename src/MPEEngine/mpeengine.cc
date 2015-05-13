@@ -367,7 +367,7 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 {
     const DataPack::ID dpid = getAttribCacheID( as );
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( dpid );
+    ConstDataPackRef<SeisDataPack> regsdp = dpm_.obtain( dpid );
     return regsdp;
 }
 
@@ -375,7 +375,7 @@ bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    DataPack::ID cacheid )
 {
-    ConstDataPackRef<RegularFlatDataPack> regfdp =
+    ConstDataPackRef<SeisFlatDataPack> regfdp =
 		DPM(DataPackMgr::FlatID()).obtain( cacheid );
     if ( regfdp ) cacheid = regfdp->getSourceDataPack().id();
 
@@ -390,7 +390,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	}
 	else
 	{
-	    ConstDataPackRef<RegularSeisDataPack> newdata= dpm_.obtain(cacheid);
+	    ConstDataPackRef<SeisDataPack> newdata= dpm_.obtain(cacheid);
 	    if ( newdata )
 	    {
 		dpm_.release( attribcachedatapackids_[idx] );
@@ -401,7 +401,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
     else if ( cacheid != DataPack::cNoID() )
     {
-	ConstDataPackRef<RegularSeisDataPack> newdata = dpm_.obtain( cacheid );
+	ConstDataPackRef<SeisDataPack> newdata = dpm_.obtain( cacheid );
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
@@ -420,14 +420,17 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const TrcKeyZSampling& cs )
 {
-    ConstDataPackRef<RegularSeisDataPack> cache =
+    ConstDataPackRef<SeisDataPack> cache =
 				dpm_.obtain( getAttribCacheID(as) );
     if ( !cache ) return false;
 
+    return true;
+/*
     TrcKeyZSampling cachedcs = cache->sampling();
     const float zrgeps = 0.01f * SI().zStep();
     cachedcs.zsamp_.widen( zrgeps );
     return cachedcs.includes( cs );
+*/
 }
 
 
@@ -532,15 +535,15 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPack::ID pldpid = getAttribCacheID( specs[0] );
-    ConstDataPackRef<RegularSeisDataPack> pldp = dpm.obtain( pldpid );
-    if ( !pldp ) return DataPack::cNoID();
+    ConstDataPackRef<SeisDataPack> sdp = dpm.obtain( pldpid );
+    if ( !sdp ) return DataPack::cNoID();
 
-    const TrcKeyZSampling tkzs = pldp->sampling();
-    const int trcidx0 = pldp->getGlobalIdx( tk ) - (int)(nrtrcs/2);
-    const int zidx0 = tkzs.zsamp_.getIndex( z + zintv.start );
+    const int trcidx0 = sdp->getGlobalIdx( tk ) - (int)(nrtrcs/2);
+    const StepInterval<float>& zsamp = sdp->getZRange();
+    const int zidx0 = zsamp.getIndex( z + zintv.start );
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
-	const float* trc = pldp->getTrcData( 0, trcidx0+tidx );
+	const float* trc = sdp->getTrcData( 0, trcidx0+tidx );
 	for ( int zidx=0; zidx<nrz; zidx++ )
 	{
 	    const float val = trc[zidx0+zidx];

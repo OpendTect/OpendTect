@@ -150,8 +150,8 @@ float HorizonAdjuster::similarityThreshold() const
 
 int HorizonAdjuster::nextStep()
 {
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( datapackid_ );
-    if ( !regsdp || regsdp->isEmpty() )
+    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    if ( !sdp || sdp->isEmpty() )
 	return ErrorOccurred();
 
     for ( int idx=0; idx<pids_.size(); idx++ )
@@ -185,37 +185,38 @@ int HorizonAdjuster::nextStep()
 bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 			     float& targetz) const
 {
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( datapackid_ );
-    if ( !regsdp || regsdp->isEmpty() )
+    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    if ( !sdp || sdp->isEmpty() )
 	return false;
 
-    const Array3D<float>& array = regsdp->data( 0 );
+    const Array3D<float>& array = sdp->data( 0 );
     if ( !array.getStorage() ) return false;
 
     if ( !horizon_.isDefined(sectionid_,to.toInt64()) )
 	return false;
 
-    const int totrcidx = regsdp->getGlobalIdx( getTrcKey(to) );
+    const int totrcidx = sdp->getGlobalIdx( getTrcKey(to) );
     if ( totrcidx < 0 ) return false;
 
-    const OffsetValueSeries<float> tovs = regsdp->getTrcStorage( 0, totrcidx );
+    const OffsetValueSeries<float> tovs = sdp->getTrcStorage( 0, totrcidx );
     const float startz = (float) horizon_.getPos( sectionid_, to.toInt64() ).z;
-    const TrcKeyZSampling& tkzs = regsdp->sampling();
-    const SamplingData<float> sd( tkzs.zsamp_.start, tkzs.zsamp_.step );
+    const StepInterval<float>& zsamp = sdp->getZRange();
+    const int nrz = zsamp.nrSteps() + 1;
+    const SamplingData<float> sd( zsamp.start, zsamp.step );
     tracker_->setRangeStep( sd.step );
-    tracker_->setTarget( &tovs, tkzs.nrZ(), sd.getfIndex(startz) );
+    tracker_->setTarget( &tovs, nrz, sd.getfIndex(startz) );
     if ( from.inl()!=-1 && from.crl()!=-1 )
     {
 	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
 	    return false;
 
-	const int fromtrcidx = regsdp->getGlobalIdx( getTrcKey(from) );
+	const int fromtrcidx = sdp->getGlobalIdx( getTrcKey(from) );
 	if ( fromtrcidx < 0 ) return false;
 
 	const OffsetValueSeries<float> fromvs =
-			regsdp->getTrcStorage( 0, fromtrcidx );
+			sdp->getTrcStorage( 0, fromtrcidx );
 	const float fromz = (float)horizon_.getPos(sectionid_,from.toInt64()).z;
-	tracker_->setSource( &fromvs, tkzs.nrZ(), sd.getfIndex(fromz) );
+	tracker_->setSource( &fromvs, nrz, sd.getfIndex(fromz) );
 	if ( !tracker_->isOK() )
 	    return false;
 
@@ -228,7 +229,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	return res;
     }
 
-    tracker_->setSource( 0, tkzs.nrZ(), 0 );
+    tracker_->setSource( 0, nrz, 0 );
     if ( !tracker_->isOK() )
 	return false;
 
@@ -280,11 +281,11 @@ TrcKeyZSampling
 
 const TrcKey HorizonAdjuster::getTrcKey( const BinID& bid ) const
 {
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( datapackid_ );
-    if ( !regsdp ) return TrcKey::udf();
+    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    if ( !sdp ) return TrcKey::udf();
 
-    return regsdp->is2D() ?
-      Survey::GM().traceKey(regsdp->getTrcKey(0).geomID(),bid.crl()) :
+    return sdp->is2D() ?
+      Survey::GM().traceKey(sdp->getTrcKey(0).geomID(),bid.crl()) :
       Survey::GM().traceKey(Survey::GM().default3DSurvID(),bid.inl(),bid.crl());
 }
 
