@@ -49,7 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiRandomLinePolyLineDlg : public uiDialog
-{ mODTextTranslationClass(uiRandomLinePolyLineDlg);
+{ mODTextTranslationClass(uiRandomLinePolyLineDlg)
 public:
 uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
     : uiDialog(p,Setup("Create Random Line from Polyline",
@@ -112,7 +112,7 @@ uiTreeItem*
 
 
 uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
-    : uiODTreeItem( "Random line" )
+    : uiODTreeItem( "Random Line" )
     , rdlpolylinedlg_(0)
 {}
 
