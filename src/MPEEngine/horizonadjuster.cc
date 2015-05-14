@@ -290,7 +290,7 @@ const TrcKey HorizonAdjuster::getTrcKey( const BinID& bid ) const
 }
 
 
-void HorizonAdjuster::setHorizonPick(const BinID&  bid, float val )
+void HorizonAdjuster::setHorizonPick( const BinID& bid, float val )
 {
     Coord3 pos = horizon_.getPos( sectionid_, bid.toInt64() );
     pos.z = val;
