@@ -75,7 +75,7 @@ public:
 
     virtual bool	acceptOK();
     virtual bool	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar &);
+    virtual bool	usePar(const IOPar&);
 
 protected:
 			uiBasemapIOObjGroup(uiParent*,const IOObjContext&,
