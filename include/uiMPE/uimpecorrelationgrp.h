@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "uimpe.h"
 
-
+class uiCheckList;
 class uiFlatViewer;
 class uiGenInput;
 
@@ -50,17 +50,22 @@ protected:
 
     void			init();
     void			updateViewer();
+    void			updateWindowLines();
+
     void			selUseCorrelation(CallBacker*);
     void			correlationChangeCB(CallBacker*);
     void			windowChangeCB(CallBacker*);
     void			visibleDataChangeCB(CallBacker*);
+    void			wvavdChgCB(CallBacker*);
 
     uiGenInput*			usecorrfld_;
-    uiFlatViewer*		previewvwr_;
     uiGenInput*			compwinfld_;
     uiGenInput*			corrthresholdfld_;
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
+
+    uiCheckList*		wvafld_;
+    uiFlatViewer*		previewvwr_;
 
     FlatView::AuxData*		seeditm_;
     FlatView::AuxData*		minitm_;
