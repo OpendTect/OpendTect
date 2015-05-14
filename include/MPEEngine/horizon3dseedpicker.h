@@ -58,6 +58,7 @@ public:
     int			minSeedsToLeaveInitStage() const;
 
     NotifierAccess*	aboutToAddRmSeedNotifier()	{ return &addrmseed_; }
+    NotifierAccess*	seedAddedNotifier()		{ return &seedadded_; }
     NotifierAccess*	madeSurfChangeNotifier()	{ return &surfchange_; }
 
     static int		nrSeedConnectModes()		{ return 3; }
@@ -122,6 +123,7 @@ protected:
     bool		blockpicking_;
 
     Notifier<Horizon3DSeedPicker>	addrmseed_;
+    Notifier<Horizon3DSeedPicker>	seedadded_;
     Notifier<Horizon3DSeedPicker>	surfchange_;
 private:
     void		extendSeedListEraseInBetween(

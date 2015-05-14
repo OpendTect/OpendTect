@@ -62,6 +62,7 @@ public:
     virtual int		minSeedsToLeaveInitStage() const	{ return 1; }
 
     virtual NotifierAccess* aboutToAddRmSeedNotifier()		{ return 0; }
+    virtual NotifierAccess* seedAddedNotifier()			{ return 0; }
     virtual NotifierAccess* madeSurfChangeNotifier()		{ return 0; }
 
     virtual void	setSeedConnectMode(int)			{ return; }

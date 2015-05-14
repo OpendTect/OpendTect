@@ -32,6 +32,7 @@ namespace MPE
 Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     : tracker_(t)
     , addrmseed_(this)
+    , seedadded_(this)
     , surfchange_(this)
     , seedconmode_(defaultSeedConMode())
     , blockpicking_(false)
@@ -145,6 +146,9 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	    emobj->setPos( pid, seedcrd, true );
 	    if ( seedconmode_ != DrawBetweenSeeds )
 		tracker_.snapPositions( propagatelist_ );
+
+	    addedseed_ = emobj->getPos( pid );
+	    seedadded_.trigger();
 	}
 
 	emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
