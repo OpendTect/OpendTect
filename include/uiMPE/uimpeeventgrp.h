@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "uimpe.h"
 
+class uiCheckList;
 class uiFlatViewer;
 class uiGenInput;
 class uiPushButton;
@@ -50,15 +51,16 @@ protected:
 
     void			init();
     void			updateViewer();
+    void			updateWindowLines();
     void			changeCB(CallBacker*);
     void			selEventType(CallBacker*);
     void			windowChangeCB(CallBacker*);
     void			selAmpThresholdType(CallBacker*);
     void			addStepPushedCB(CallBacker*);
     void			visibleDataChangeCB(CallBacker*);
+    void			wvavdChgCB(CallBacker*);
 
     uiGenInput*			evfld_;
-    uiFlatViewer*		previewvwr_;
     uiGenInput*			srchgatefld_;
     uiGenInput*			thresholdtypefld_;
     uiGenInput*			ampthresholdfld_;
@@ -66,6 +68,9 @@ protected:
     uiGenInput*			extriffailfld_;
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
+
+    uiCheckList*		wvafld_;
+    uiFlatViewer*		previewvwr_;
 
     FlatView::AuxData*		seeditm_;
     FlatView::AuxData*		minitm_;

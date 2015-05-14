@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "survinfo.h"
 
 #include "uibutton.h"
+#include "uichecklist.h"
 #include "uidialog.h"
 #include "uiflatviewer.h"
 #include "uigeninput.h"
@@ -114,8 +115,15 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     srchgatefld_->attach( alignedBelow, nrtrcsfld_ );
     srchgatefld_->valuechanged.notify( mCB(this,uiEventGroup,changeCB) );
 
-    previewvwr_ = new uiFlatViewer( this );
-    previewvwr_->attach( rightOf, leftgrp );
+    uiGroup* rightgrp = new uiGroup( this, "Right Group" );
+    rightgrp->attach( rightTo, leftgrp );
+    wvafld_ = new uiCheckList( rightgrp, uiCheckList::OneMinimum,
+			       OD::Horizontal );
+    wvafld_->addItem( "WVA" ).addItem( "VD" );
+    wvafld_->changed.notify( mCB(this,uiEventGroup,wvavdChgCB) );
+
+    previewvwr_ = new uiFlatViewer( rightgrp );
+    previewvwr_->attach( alignedBelow, wvafld_ );
     previewvwr_->setPrefWidth( 150 );
     previewvwr_->setPrefHeight( 200 );
     previewvwr_->setStretch( 0, 0 );
@@ -123,23 +131,24 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 				Interval<float>(0.01f,0.01f);
     previewvwr_->appearance().setGeoDefaults( true );
 
+    LineStyle ls( LineStyle::Solid, 3, Color(0,255,0) );
     minitm_ = previewvwr_->createAuxData( "Min line" );
     minitm_->cursor_.shape_ = MouseCursor::SizeVer;
-    minitm_->linestyle_.color_ = Color(0,255,0);
+    minitm_->linestyle_ = ls;
     minitm_->poly_ += FlatView::Point(0,0);
     minitm_->poly_ += FlatView::Point(0,0);
     previewvwr_->addAuxData( minitm_ );
 
     maxitm_ = previewvwr_->createAuxData( "Max line" );
     maxitm_->cursor_.shape_ = MouseCursor::SizeVer;
-    maxitm_->linestyle_.color_ = Color(0,255,0);
+    maxitm_->linestyle_ = ls;
     maxitm_->poly_ += FlatView::Point(0,0);
     maxitm_->poly_ += FlatView::Point(0,0);
     previewvwr_->addAuxData( maxitm_ );
 
     seeditm_ = previewvwr_->createAuxData( "Seed" );
     seeditm_->poly_ += FlatView::Point(0,0);
-    seeditm_->markerstyles_ += MarkerStyle2D();
+    seeditm_->markerstyles_ += MarkerStyle2D(MarkerStyle2D::Square,3);
     seeditm_->markerstyles_[0].color_ = Color(0,255,0);
     previewvwr_->addAuxData( seeditm_ );
 
@@ -154,13 +163,23 @@ uiEventGroup::~uiEventGroup()
 
 void uiEventGroup::changeCB( CallBacker* )
 {
+    updateWindowLines();
     changed_.trigger();
+}
+
+
+void uiEventGroup::wvavdChgCB( CallBacker* )
+{
+    previewvwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
+					    wvafld_->isChecked(1) );
+    previewvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
 
 
 void uiEventGroup::visibleDataChangeCB( CallBacker* )
 {
     updateViewer();
+    updateWindowLines();
 }
 
 
@@ -291,6 +310,10 @@ void uiEventGroup::init()
     nrzfld_->setValue( dataintv );
 
     nrtrcsfld_->setValue( 5 );
+    wvafld_->setChecked( 0, true );
+    wvafld_->setChecked( 1, false );
+
+    selAmpThresholdType( 0 );
 }
 
 
@@ -298,6 +321,7 @@ void uiEventGroup::setSeedPos( const Coord3& crd )
 {
     seedpos_ = crd;
     updateViewer();
+    updateWindowLines();
 }
 
 
@@ -317,16 +341,37 @@ void uiEventGroup::updateViewer()
 	MPE::engine().getSeedPosDataPack( bid, z, nrtrcs, zintv );
 
     previewvwr_->setPack( true, dpid );
+    previewvwr_->setPack( false, dpid );
+    previewvwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
+					    wvafld_->isChecked(1) );
     previewvwr_->setViewToBoundingBox();
 
     FlatView::Point& pt = seeditm_->poly_[0];
     pt = FlatView::Point( bid.crl(), z );
 
+    previewvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+}
+
+
+void uiEventGroup::updateWindowLines()
+{
+    if ( seedpos_.isUdf() )
+	return;
+
+    const BinID& bid = SI().transform( seedpos_.coord() );
+    const float z = (float)seedpos_.z;
+    const int nrtrcs = nrtrcsfld_->getIntValue();
+
+    StepInterval<float> zintv; zintv.setFrom( srchgatefld_->getIInterval() );
+    zintv.scale( 1.f/SI().zDomain().userFactor() );
+    zintv.step = SI().zStep();
+
     minitm_->poly_[0] = FlatView::Point( bid.crl()-nrtrcs/2, z+zintv.start );
     minitm_->poly_[1] = FlatView::Point( bid.crl()+nrtrcs/2, z+zintv.start );
     maxitm_->poly_[0] = FlatView::Point( bid.crl()-nrtrcs/2, z+zintv.stop );
     maxitm_->poly_[1] = FlatView::Point( bid.crl()+nrtrcs/2, z+zintv.stop );
-    previewvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
+
+    previewvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
 
 
@@ -424,7 +469,7 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	{
 	    float var = ss.getFValue(0) / 100;
 	    if ( var<=0.0 || var>=1.0 )
-		mErrRet( tr("Allowed variance must be between 0-100") );
+		mErrRet( tr("Allowed difference must be between 0-100") );
 	    if ( adjuster_->allowedVariance() != var )
 	    {
 		fieldchange = true;
@@ -437,7 +482,7 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	    {
 		float varvalue = ss.getFValue(idx) / 100;
 		if ( varvalue <=0.0 || varvalue>=1.0 )
-		    mErrRet( tr("Allowed variance must be between 0-100") );
+		    mErrRet( tr("Allowed difference must be between 0-100") );
 
 		if ( vars.size() < idx+1 )
 		{
