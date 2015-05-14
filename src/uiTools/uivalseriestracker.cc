@@ -138,7 +138,7 @@ void uiEventTracker::selEventType( CallBacker* cb )
     thresholdtypefld_->setSensitive( thresholdneeded );
     ampthresholdfld_->setSensitive( thresholdneeded );
 }
-    
+
 
 bool uiEventTracker::rejectOK()
 {
@@ -177,12 +177,12 @@ bool uiEventTracker::updateTracker( bool domsg )
     const Interval<float> relintval( intval.start/SI().zDomain().userFactor(),
 				     intval.stop/SI().zDomain().userFactor() );
     tracker_.setSimilarityWindow( relintval );
-	
+
     const float mgate = simithresholdfld_->getfValue();
     if ( mgate > 1 || mgate <= 0)
 	mErrRet( tr("Similarity threshold must be within 0 to 1") );
     tracker_.setSimilarityThreshold( mgate );
-	    
+
     const bool useabs = thresholdtypefld_->getBoolValue();
     tracker_.setUseAbsThreshold( useabs );
 
@@ -190,7 +190,7 @@ bool uiEventTracker::updateTracker( bool domsg )
     tracker_.setAmplitudeThreshold( vgate );
     float var = alloweddifffld_->getfValue() / 100;
     if ( var<=0.0 || var>=1.0 )
-	    mErrRet( tr("Allowed variance must be between 0-100") );
+	    mErrRet( tr("Allowed difference must be between 0-100") );
     tracker_.setAllowedVariance( var );
     return true;
 }
