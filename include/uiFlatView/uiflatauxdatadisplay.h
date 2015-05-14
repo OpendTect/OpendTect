@@ -31,13 +31,11 @@ namespace FlatView
 mExpClass(uiFlatView) uiAuxDataDisplay : public AuxData, public CallBacker
 {
 public:
-    AuxData*			clone() const;
-
-    void			setViewer(uiFlatViewer* d) {viewer_=d;}
-
-    void			touch() 	{ updateCB(0); }
-
 				~uiAuxDataDisplay();
+
+    AuxData*			clone() const;
+    void			setViewer( uiFlatViewer* fv ) { viewer_ = fv; }
+    void			touch() 	{ updateCB(0); }
 
     uiGraphicsItemGroup*	getDisplay();
     void			removeDisplay();
@@ -59,7 +57,7 @@ protected:
     uiFlatViewer*		viewer_;
 };
 
-}; //namespace
+} // namespace FlatView
 
 #endif
 
