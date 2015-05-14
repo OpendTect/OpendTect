@@ -167,6 +167,9 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 
 bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 {
+    if ( trackercurrentobject_ != -1 && !seedswithoutattribsel_ )
+	return false;
+
     seedswithoutattribsel_ = false;
     cursceneid_ = addedtosceneid;
     //NotifyStopper notifystopper( MPE::engine().trackeraddremove );
@@ -996,7 +999,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 
     NotifierAccess* seedaddednotif = seedpicker->seedAddedNotifier();
     if ( seedaddednotif )
-	seedaddednotif->remove( mCB(this,uiMPEPartServer,seedAddedCB) );
+	seedaddednotif->notify( mCB(this,uiMPEPartServer,seedAddedCB) );
 
     setupdlg->windowClosed.notify(
 			   mCB(this,uiMPEPartServer,trackerWinClosedCB) );
