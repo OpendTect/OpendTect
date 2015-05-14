@@ -554,7 +554,11 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     StepInterval<double> trcrg;
     trcrg.start = tk.trcNr() - (nrtrcs)/2;
     trcrg.stop = tk.trcNr() + (nrtrcs)/2;
-    StepInterval<double> zrg; zrg.setFrom( zintv ); zrg.shift( z );
+    StepInterval<double> zrg;
+    zrg.start = mCast(double,zsamp.atIndex(zidx0));
+    zrg.stop = mCast(double,zsamp.atIndex(zidx0+nrz));
+    zrg.step = mCast(double,zsamp.step);
+
     FlatDataPack* fdp = new FlatDataPack( "Seismics", seeddata );
     fdp->posData().setRange( true, trcrg );
     fdp->posData().setRange( false, zrg );
