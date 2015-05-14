@@ -46,7 +46,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 	    mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
     const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
-    const StepInterval<int> intv( -10000, 10000, step );
+    StepInterval<int> intv( -10000, 10000, step );
     IntInpSpec iis; iis.setLimits( intv );
 
     BufferString disptxt( "Data Display window ", SI().getZUnitString() );
@@ -55,20 +55,22 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     nrzfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
-    nrtrcsfld_ = new uiGenInput( leftgrp, "Nr Traces", IntInpSpec(5) );
+    IntInpSpec tiis; tiis.setLimits( StepInterval<int>(3,99,2) );
+    nrtrcsfld_ = new uiGenInput( leftgrp, "Nr Traces", tiis );
     nrtrcsfld_->attach( alignedBelow, nrzfld_ );
     nrtrcsfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
+    intv.step = 1; iis.setLimits( intv );
     BufferString compwindtxt( "Compare window ", SI().getZUnitString() );
     compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis, iis );
     compwinfld_->attach( alignedBelow, nrtrcsfld_ );
     compwinfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
-    IntInpSpec tiis; tiis.setLimits( StepInterval<int>(0,100,1) );
+    tiis.setLimits( StepInterval<int>(0,100,1) );
     corrthresholdfld_ =
-	new uiGenInput( leftgrp, tr("Correlation threshold (0-100)"), tiis );
+	new uiGenInput( leftgrp, tr("Correlation threshold (%)"), tiis );
     corrthresholdfld_->attach( alignedBelow, compwinfld_ );
     corrthresholdfld_->valuechanged.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
@@ -182,6 +184,8 @@ void uiCorrelationGroup::init()
     nrzfld_->setValue( dataintv );
 
     nrtrcsfld_->setValue( 5 );
+    wvafld_->setChecked( 0, true );
+    wvafld_->setChecked( 1, false );
 }
 
 
@@ -189,6 +193,7 @@ void uiCorrelationGroup::setSeedPos( const Coord3& crd )
 {
     seedpos_ = crd;
     updateViewer();
+    updateWindowLines();
 }
 
 
@@ -209,10 +214,8 @@ void uiCorrelationGroup::updateViewer()
 
     previewvwr_->setPack( true, dpid );
     previewvwr_->setPack( false, dpid );
-
     previewvwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
 					    wvafld_->isChecked(1) );
-
     previewvwr_->setViewToBoundingBox();
 
     FlatView::Point& pt = seeditm_->poly_[0];
