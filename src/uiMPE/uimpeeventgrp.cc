@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 #include "uitable.h"
 #include "od_helpids.h"
 
@@ -72,9 +73,11 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     evfld_->valuechanged.notify( mCB(this,uiEventGroup,selEventType) );
     evfld_->valuechanged.notify( mCB(this,uiEventGroup,changeCB) );
 
+    uiStringSet strs;
+    strs.add( tr("Cut-off amplitude") ); strs.add( tr("Relative difference") );
     thresholdtypefld_ = new uiGenInput( leftgrp, tr("Threshold type"),
-		BoolInpSpec(true,tr("Cut-off amplitude"),
-				 tr("Relative difference")) );
+					StringListInpSpec(strs) );
+    thresholdtypefld_->setValue( 1 );
     thresholdtypefld_->valuechanged.notify(
 	    mCB(this,uiEventGroup,selAmpThresholdType) );
     thresholdtypefld_->attach( alignedBelow, evfld_ );
@@ -92,13 +95,26 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 	addstepbut_->attach( rightTo, ampthresholdfld_ );
     }
 
+    BufferString srchwindtxt( "Search window ", SI().getZUnitString() );
+    StepInterval<int> swin( -10000, 10000, 1 );
+    IntInpIntervalSpec iis; iis.setSymmetric( true );
+    iis.setLimits( swin, 0 ); iis.setLimits( swin, 1 );
+    srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis );
+    srchgatefld_->attach( alignedBelow, ampthresholdfld_ );
+    srchgatefld_->valuechanging.notify( mCB(this,uiEventGroup,changeCB) );
+
+    uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
+    sep->attach( stretchedBelow, srchgatefld_ );
+
     const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
     StepInterval<int> intv( -10000, 10000, step );
-    IntInpSpec iis; iis.setLimits( intv );
+    IntInpIntervalSpec diis; diis.setSymmetric( true );
+    diis.setLimits( intv, 0 ); diis.setLimits( intv, 1 );
 
     BufferString disptxt( "Data Display window ", SI().getZUnitString() );
-    nrzfld_ = new uiGenInput( leftgrp, disptxt, iis, iis );
-    nrzfld_->attach( alignedBelow, ampthresholdfld_ );
+    nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
+    nrzfld_->attach( alignedBelow, srchgatefld_ );
+    nrzfld_->attach( ensureBelow, sep );
     nrzfld_->valuechanging.notify(
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
 
@@ -108,12 +124,6 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     nrtrcsfld_->valuechanging.notify(
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
 
-    BufferString srchwindtxt( "Search window ", SI().getZUnitString() );
-    intv.step = 1;
-    iis.setLimits( intv );
-    srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis, iis );
-    srchgatefld_->attach( alignedBelow, nrtrcsfld_ );
-    srchgatefld_->valuechanged.notify( mCB(this,uiEventGroup,changeCB) );
 
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
     rightgrp->attach( rightTo, leftgrp );
@@ -194,7 +204,7 @@ void uiEventGroup::selEventType( CallBacker* )
 
 void uiEventGroup::selAmpThresholdType( CallBacker* )
 {
-    const bool absthreshold = thresholdtypefld_->getBoolValue();
+    const bool absthreshold = thresholdtypefld_->getIntValue() == 0;
     ampthresholdfld_->setTitleText(absthreshold ?tr("Amplitude value")
 						:tr("Allowed difference (%)"));
     if ( absthreshold )
@@ -218,7 +228,7 @@ void uiEventGroup::selAmpThresholdType( CallBacker* )
 	{
 	    BufferString bs;
 	    bs += adjuster_->getAllowedVariances()[0]*100;
-	    for ( int idx=1; idx<adjuster_->getAllowedVariances().size(); idx++ )
+	    for ( int idx=1; idx<adjuster_->getAllowedVariances().size(); idx++)
 	    { bs += ","; bs += adjuster_->getAllowedVariances()[idx]*100; }
 	    ampthresholdfld_->setText( bs.buf() );
 	}
@@ -303,7 +313,7 @@ void uiEventGroup::init()
     Interval<int> srchintv; srchintv.setFrom( intvf );
     srchgatefld_->setValue( srchintv );
 
-    thresholdtypefld_->setValue( adjuster_->useAbsThreshold() );
+    thresholdtypefld_->setValue( adjuster_->useAbsThreshold() ? 0 : 1 );
 
     const int sample = mCast(int,SI().zStep()*SI().zDomain().userFactor());
     const Interval<int> dataintv = srchintv + Interval<int>(-sample,sample);
@@ -397,7 +407,7 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setPermittedZRange( relintv );
     }
 
-    const bool useabs = thresholdtypefld_->getBoolValue();
+    const bool useabs = thresholdtypefld_->getBoolValue() == 0;
     if ( adjuster_->useAbsThreshold() != useabs )
     {
 	fieldchange = true;

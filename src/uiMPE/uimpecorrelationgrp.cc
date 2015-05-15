@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uigeninput.h"
 #include "uigraphicsview.h"
 #include "uimsg.h"
-#include "od_helpids.h"
+#include "uiseparator.h"
 
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
@@ -45,35 +45,44 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     usecorrfld_->valuechanged.notify(
 	    mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
-    const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
-    StepInterval<int> intv( -10000, 10000, step );
-    IntInpSpec iis; iis.setLimits( intv );
-
-    BufferString disptxt( "Data Display window ", SI().getZUnitString() );
-    nrzfld_ = new uiGenInput( leftgrp, disptxt, iis, iis );
-    nrzfld_->attach( alignedBelow, usecorrfld_ );
-    nrzfld_->valuechanging.notify(
-		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
-
-    IntInpSpec tiis; tiis.setLimits( StepInterval<int>(3,99,2) );
-    nrtrcsfld_ = new uiGenInput( leftgrp, "Nr Traces", tiis );
-    nrtrcsfld_->attach( alignedBelow, nrzfld_ );
-    nrtrcsfld_->valuechanging.notify(
-		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
-
-    intv.step = 1; iis.setLimits( intv );
+    IntInpIntervalSpec iis; iis.setSymmetric( true );
+    StepInterval<int> swin( -10000, 10000, 1 );
+    iis.setLimits( swin, 0 ); iis.setLimits( swin, 1 );
     BufferString compwindtxt( "Compare window ", SI().getZUnitString() );
-    compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis, iis );
-    compwinfld_->attach( alignedBelow, nrtrcsfld_ );
+    compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis );
+    compwinfld_->attach( alignedBelow, usecorrfld_ );
     compwinfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
+    IntInpSpec tiis;
     tiis.setLimits( StepInterval<int>(0,100,1) );
     corrthresholdfld_ =
 	new uiGenInput( leftgrp, tr("Correlation threshold (%)"), tiis );
     corrthresholdfld_->attach( alignedBelow, compwinfld_ );
     corrthresholdfld_->valuechanged.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
+
+    uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
+    sep->attach( stretchedBelow, corrthresholdfld_ );
+
+    const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
+    StepInterval<int> intv( -10000, 10000, step );
+    IntInpIntervalSpec diis; diis.setSymmetric( true );
+    diis.setLimits( intv, 0 ); diis.setLimits( intv, 1 );
+
+    BufferString disptxt( "Data Display window ", SI().getZUnitString() );
+    nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
+    nrzfld_->attach( alignedBelow, corrthresholdfld_ );
+    nrzfld_->attach( ensureBelow, sep );
+    nrzfld_->valuechanging.notify(
+		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
+
+    tiis.setLimits( StepInterval<int>(3,99,2) );
+    nrtrcsfld_ = new uiGenInput( leftgrp, "Nr Traces", tiis );
+    nrtrcsfld_->attach( alignedBelow, nrzfld_ );
+    nrtrcsfld_->valuechanging.notify(
+		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
+
 
     uiGroup* rightgrp = new uiGroup( this, "Right Group" );
     rightgrp->attach( rightTo, leftgrp );
