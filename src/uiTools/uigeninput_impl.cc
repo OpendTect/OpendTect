@@ -32,6 +32,10 @@ uiGenInputInputFld::~uiGenInputInputFld()
 }
 
 
+const UserInputObj* uiGenInputInputFld::element( int idx ) const
+{ return const_cast<uiGenInputInputFld*>(this)->element(idx); }
+
+
 uiObject* uiGenInputInputFld::elemObj( int idx )
 {
     UserInputObj* elem = element(idx);
@@ -43,6 +47,10 @@ uiObject* uiGenInputInputFld::elemObj( int idx )
 }
 
 
+const uiObject* uiGenInputInputFld::elemObj( int idx ) const
+{ return const_cast<uiGenInputInputFld*>(this)->elemObj( idx ); }
+
+
 bool uiGenInputInputFld::isUndef( int idx ) const
 {
     return mIsUdf(text(idx));
@@ -52,8 +60,26 @@ bool uiGenInputInputFld::isUndef( int idx ) const
 const char* uiGenInputInputFld::text( int idx ) const
 {
     const UserInputObj* obj = element( idx );
+    if ( !obj )
+    {
+	mDynamicCastGet(const uiSpinBox*,sb,elemObj(idx))
+	if ( sb ) return sb->text();
+    }
+
     const char* ret = obj ? obj->text() : 0;
     return ret ? ret : mUdf(const char*);
+}
+
+
+int uiGenInputInputFld::getIntValue( int idx ) const
+{
+    const UserInputObj* obj = element( idx );
+    if ( !obj )
+    {
+	mDynamicCastGet(const uiSpinBox*,sb,elemObj(idx))
+	if ( sb ) return sb->getIntValue();
+    }
+    return obj ? obj->getIntValue() : mUdf(int);
 }
 
 
@@ -61,9 +87,14 @@ const char* uiGenInputInputFld::text( int idx ) const
 typ uiGenInputInputFld::fn( int idx ) const \
 {  \
     const UserInputObj* obj = element( idx ); \
+    if ( !obj ) \
+    { \
+	mDynamicCastGet(const uiSpinBox*,sb,elemObj(idx)) \
+	if ( sb ) return sb->fn(); \
+    } \
     return obj ? obj->fn() : mUdf(typ); \
 }
-mImplGetFn(int,getIntValue)
+//mImplGetFn(int,getIntValue)
 mImplGetFn(float,getfValue)
 mImplGetFn(double,getdValue)
 mImplGetFn(bool,getBoolValue)

@@ -217,6 +217,7 @@ Returns true, if changes are accepted.
 			{ selText_ = yn ? "&Select" : "" ; }
 
     void		setNrDecimals(int nrdec,int fldnr=0);
+    void		setRequired(bool yn=true);
 
     Notifier<uiGenInput> checked;
     Notifier<uiGenInput> valuechanging;
@@ -232,15 +233,16 @@ protected:
 
     uiString		selText_;
     bool		withchk_;
+    bool		isrequired_;
 
     uiLabel*		labl_;
     uiString		titletext_;
     uiCheckBox*		cbox_;
     uiButton*		selbut_;
 
-                        //! Select is pressed. Calls virtual doSelect
+			//! Select is pressed. Calls virtual doSelect
     void		doSelect_(CallBacker*);
-                        //! Select is pressed. Called by doSelect_
+			//! Select is pressed. Called by doSelect_
     virtual void	doSelect(CallBacker*)   {}
     void		doClear(CallBacker*);
 

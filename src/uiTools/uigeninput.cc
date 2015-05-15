@@ -11,11 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigeninput.h"
 #include "uigeninput_impl.h"
-#include "uilineedit.h"
-#include "uilabel.h"
+
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uilabel.h"
+#include "uilineedit.h"
 #include "uistrings.h"
+
 #include "datainpspec.h"
 #include "survinfo.h"
 #include "binidvalue.h"
@@ -27,14 +29,14 @@ static const char* rcsID mUsedVar = "$Id$";
 class uiGenInputFieldIdx
 {
 public:
-                uiGenInputFieldIdx( int fidx, int sidx )
-                    : fldidx( fidx ), subidx( sidx ) {}
+		uiGenInputFieldIdx( int fidx, int sidx )
+		    : fldidx_( fidx ), subidx_( sidx ) {}
 
     bool	operator ==( const uiGenInputFieldIdx& idx ) const
-		{ return fldidx == idx.fldidx && subidx == idx.subidx; }
+		{ return fldidx_ == idx.fldidx_ && subidx_ == idx.subidx_; }
 
-    int         fldidx;
-    int         subidx;
+    int		fldidx_;
+    int		subidx_;
 };
 
 
@@ -382,6 +384,182 @@ bool uiIntervalInpFld<T>::update_( const DataInpSpec& dis )
 }
 
 
+
+class uiIntIntervalInpFld : public uiGenInputInputFld
+{ mODTextTranslationClass(uiIntIntervalInpFld)
+public:
+
+			uiIntIntervalInpFld(uiGenInput*,const DataInpSpec&,
+				const char* nm="Int Interval Input Field");
+
+    virtual int		nElems() const		{ return step_ ? 3 : 2; }
+    virtual UserInputObj* element(int idx=0);
+    virtual uiObject*	elemObj(int idx=0);
+
+    virtual uiObject*	mainObj()	{ return grp_->mainObject(); }
+
+protected:
+    uiGroup*		grp_;
+
+    uiLabel*		lbl_;
+    uiSpinBox*		start_;
+    uiSpinBox*		stop_;
+    uiSpinBox*		step_;
+    uiCheckBox*		symm_;
+
+    int			getIntValue(int idx) const;
+    void		setValue(int val,int idx);
+
+    virtual bool	update_(const DataInpSpec&);
+    void		updateStartStop();
+    void		valChgCB(CallBacker*);
+    void		symmCB(CallBacker*);
+};
+
+
+uiIntIntervalInpFld::uiIntIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
+					  const char* nm )
+    : uiGenInputInputFld(p,dis)
+    , step_(0)
+    , symm_(0)
+{
+    grp_ = new uiGroup( p, nm );
+    start_ = new uiSpinBox( grp_, 0,  mName(dis,0,nm) );
+    stop_ = new uiSpinBox( grp_, 0,  mName(dis,1,nm) );
+
+    if ( (!dis.name(0) || !dis.name(1)) && nm && *nm )
+    {
+	start_->setName( BufferString(nm," start").buf() );
+	stop_->setName( BufferString(nm," stop").buf() );
+    }
+
+    start_->valueChanging.notify(
+		mCB(this,uiIntIntervalInpFld,valChgCB) );
+    stop_->valueChanging.notify(
+		mCB(this,uiIntIntervalInpFld,valChgCB) );
+
+    start_->valueChanged.notify(
+		mCB(this,uiGenInputInputFld,valChangedNotify) );
+    stop_->valueChanged.notify(
+		mCB(this,uiGenInputInputFld,valChangedNotify) );
+
+    mDynamicCastGet(const IntInpIntervalSpec*,iiis,&dis);
+    if ( !iiis ) return;
+
+    if ( iiis->hasStep() )
+    {
+	step_ = new uiSpinBox( grp_, 0,  mName(dis,2,nm) );
+	if ( !dis.name(2) && nm && *nm )
+	    step_->setName( BufferString(nm," step").buf() );
+
+	step_->valueChanging.notify(
+		mCB(this,uiGenInputInputFld,valChangingNotify) );
+	step_->valueChanged.notify(
+		mCB(this,uiGenInputInputFld,valChangedNotify) );
+	lbl_ = new uiLabel( grp_, uiStrings::sStep() );
+    }
+
+    grp_->setHAlignObj( start_ );
+
+    stop_->attach( rightTo, start_ );
+    if ( step_ )
+    {
+	lbl_->attach( rightTo, stop_ );
+	step_->attach( rightTo, lbl_ );
+    }
+
+    if ( iiis->withSymmetric() )
+    {
+	symm_ = new uiCheckBox( grp_, tr("Symmetric") );
+	symm_->activated.notify( mCB(this,uiIntIntervalInpFld,symmCB) );
+	symm_->attach( rightTo, step_ ? step_ : stop_ );
+    }
+
+    if ( iiis->limits(0) )
+	start_->setInterval( *iiis->limits(0) );
+    if ( iiis->limits(1) )
+	stop_->setInterval( *iiis->limits(1) );
+    if ( step_ && iiis->limits(2) )
+	step_->setInterval( *iiis->limits(2) );
+
+    init();
+}
+
+
+UserInputObj* uiIntIntervalInpFld::element( int idx )
+{ return 0; }
+
+
+uiObject* uiIntIntervalInpFld::elemObj( int idx )
+{
+    return idx==0 ? start_ : (idx==1 ? stop_ : step_);
+}
+
+
+bool uiIntIntervalInpFld::update_( const DataInpSpec& dis )
+{
+    mDynamicCastGet(const IntInpIntervalSpec*,iiis,&dis);
+    if ( !iiis ) return false;
+
+    start_->setValue( iiis->getIntValue(0) );
+    stop_->setValue( iiis->getIntValue(1) );
+    if ( step_ )
+	step_->setValue( iiis->getIntValue(2) );
+
+    return true;
+}
+
+
+int uiIntIntervalInpFld::getIntValue( int idx ) const
+{
+    switch( idx )
+    {
+	default:
+	case 0 : return start_->getValue();
+	case 1 : return stop_->getValue();
+	case 2 : return step_ ? step_->getValue() : mUdf(int);
+    }
+}
+
+
+void uiIntIntervalInpFld::setValue( int val, int idx )
+{
+    switch( idx )
+    {
+	default:
+	case 0 : start_->setValue( val );
+	case 1 : stop_->setValue( val );
+	case 2 : if ( step_ ) step_->setValue( val );
+    }
+}
+
+
+void uiIntIntervalInpFld::valChgCB( CallBacker* cb )
+{
+    if ( symm_ && symm_->isChecked() )
+    {
+	if ( cb == start_ )
+	    stop_->setValue( -start_->getValue() );
+	if ( cb == stop_ )
+	    start_->setValue( -stop_->getValue() );
+    }
+
+    p_->valuechanging.trigger( cb );
+}
+
+
+void uiIntIntervalInpFld::symmCB( CallBacker* )
+{
+    const int start = start_->getValue();
+    const int stop = stop_->getValue();
+    if ( Math::Abs(start) > Math::Abs(stop) )
+	stop_->setValue( -start );
+    else
+	start_->setValue( -stop );
+}
+
+
+
 class uiStrLstInpFld : public uiGenInputInputFld
 {
 public:
@@ -467,7 +645,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	    switch( desc.type().rep() )
 	    {
 	    case DataType::intTp:
-		fld = new uiIntervalInpFld<int>( this, desc, name() );
+		fld = new uiIntIntervalInpFld( this, desc, name() );
 	    break;
 	    case DataType::floatTp:
 		fld = new uiIntervalInpFld<float>( this, desc, name() );
@@ -517,7 +695,8 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     , valuechanging(this), valuechanged(this) \
     , checked(this), updateRequested(this) \
     , checked_(false), rdonly_(false), rdonlyset_(false) \
-    , elemszpol_( uiObject::Undef )
+    , elemszpol_( uiObject::Undef ) \
+    , isrequired_(false)
 
 
 uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
@@ -631,6 +810,7 @@ void uiGenInput::doFinalise( CallBacker* )
 	labl_ = new uiLabel( this, titletext_ );
 	labl_->attach( leftTo, lastElem );
 	labl_->setAlignment( Alignment::Right );
+	labl_->makeRequired( isrequired_ );
     }
 
     for( int i=1; i<inputs_.size(); i++ )
@@ -780,8 +960,8 @@ void uiGenInput::setValue( const BinIDValue& b )
 UserInputObj* uiGenInput::element( int nr )
 {
     if ( !finalised_ ) return 0;
-    return nr<idxes_.size() && flds_[idxes_[nr].fldidx]
-	    ? flds_[idxes_[nr].fldidx]->element(idxes_[nr].subidx) : 0;
+    return nr<idxes_.size() && flds_[idxes_[nr].fldidx_]
+	    ? flds_[idxes_[nr].fldidx_]->element(idxes_[nr].subidx_) : 0;
 }
 
 
@@ -815,8 +995,8 @@ uiGenInputInputFld* uiGenInput::getInputFldAndIndex( const int nr,
 {
     if ( nr < 0 || nr >= idxes_.size() ) return 0;
 
-    idx = idxes_[nr].subidx;
-    return const_cast<uiGenInputInputFld*>( flds_[idxes_[nr].fldidx] );
+    idx = idxes_[nr].subidx_;
+    return const_cast<uiGenInputInputFld*>( flds_[idxes_[nr].fldidx_] );
 }
 
 
@@ -933,7 +1113,12 @@ void uiGenInput::setTitleText( const uiString& txt )
 {
     titletext_ = txt;
     setName( txt.getFullString() );
-    if ( labl_ ) labl_->setText( txt );
+    if ( labl_ )
+    {
+	labl_->setText( txt );
+	labl_->makeRequired( isrequired_ );
+    }
+
     if ( cbox_ ) cbox_->setText( txt );
 }
 
@@ -988,3 +1173,11 @@ void uiGenInput::setNrDecimals( int nrdec, int fldnr )
     uiFloatValidator fv; fv.nrdecimals_ = nrdec;
     lineedit->setValidator( fv );
 }
+
+
+void uiGenInput::setRequired( bool yn )
+{
+    isrequired_ = yn;
+    if ( labl_ ) labl_->makeRequired( yn );
+}
+
