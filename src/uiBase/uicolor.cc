@@ -183,7 +183,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
     }
 
     setColor( color_ );
-    if ( lbl_ )
+    if ( lbl_ || dodrawbox_ )
 	setHAlignObj( colbut_ );
     else if ( transpfld_ )
 	setHAlignObj( transpfld_ );
