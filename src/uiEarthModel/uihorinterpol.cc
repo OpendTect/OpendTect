@@ -110,7 +110,7 @@ uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 }
 
 
-#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { uiMSG().error( msg ); return false;}
 
 bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 {
@@ -118,7 +118,8 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( method.isNull() )
 	mErrRet("Huh? No methods found in the paramaters")
 
-    HorizonGridder* interpolator = HorizonGridder::factory().create( method );
+    PtrMan<HorizonGridder> interpolator =
+				HorizonGridder::factory().create( method );
     if ( !interpolator )
 	mErrRet("Selected method not found")
 
@@ -191,7 +192,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	    ErrMsg( msg ); continue;
 	}
 
-	mDynamicCastGet(Task*,task,interpolator);
+	mDynamicCastGet(Task*,task,interpolator.ptr());
 	if ( !TaskRunner::execute(&tr,*task) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
@@ -280,7 +281,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
     }
 
     if ( !horizon_ )
-	mErrRet( "Missing horizon!" );
+	mErrRet( "Missing horizon!" )
 
     MouseCursorChanger mcc( MouseCursor::Wait );
 
