@@ -90,7 +90,8 @@ EventTracker::EventTracker()
     , rangestep_( 1 )
 {
 #define mAddAV(v) allowedvars_ += v
-    mAddAV(0.01); mAddAV(0.02); mAddAV(0.05); mAddAV(0.1); mAddAV(0.2);
+//    mAddAV(0.01); mAddAV(0.02); mAddAV(0.05); mAddAV(0.1); mAddAV(0.2);
+    mAddAV( 0.05 );
 #undef mAddAV
 
 }
