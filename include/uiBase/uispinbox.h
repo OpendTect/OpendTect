@@ -39,9 +39,12 @@ public:
     void		setValue(int);
     void		setValue(float);
     void		setValue(double d)	{ setValue( ((float)d) ); }
-    void		setValue(const char*); 
-    int			getValue() const;
-    float		getFValue() const;
+    void		setValue(const char*);
+
+    int			getIntValue() const;
+    double		getdValue() const;
+    float		getfValue() const;
+    bool		getBoolValue() const;
     const char*		text() const;
 
     void		setInterval( int start, int stop, int s=1 )
@@ -75,7 +78,7 @@ public:
     void		setStep(int,bool snap_cur_value=false);
     void		setStep(float,bool snap_cur_value=false);
     void		setStep( double d, bool scv=false )
-    			{ setStep( ((float)d),scv ); }
+			{ setStep( ((float)d),scv ); }
     float		fstep() const;
     int			step() const;
 
@@ -110,22 +113,27 @@ private:
     uiSpinBoxBody*	body_;
     uiSpinBoxBody&	mkbody(uiParent*, const char*);
 
-    bool		dosnap_; /*!< If true, value in spinbox will be snapped 
+    bool		dosnap_; /*!< If true, value in spinbox will be snapped
 				  to a value equal to N*step. */
     bool		focuschgtrigger_;
     void		snapToStep(CallBacker*);
+
+public:
+// deprecated, do not use
+    int			getValue() const	{ return getIntValue(); }
+    float		getFValue() const	{ return getfValue(); }
 };
 
 
 mExpClass(uiBase) uiLabeledSpinBox : public uiGroup
-{ mODTextTranslationClass(uiLabeledSpinBox);
+{ mODTextTranslationClass(uiLabeledSpinBox)
 public:
 			uiLabeledSpinBox(uiParent*,const uiString&,
 					 int nrdecimals=0,const char* nm=0);
 
     uiSpinBox*		box()			{ return sb_; }
     const uiSpinBox*	box() const		{ return sb_; }
-    uiLabel*		label() 		{ return lbl_; }
+    uiLabel*		label()			{ return lbl_; }
 
 protected:
 

@@ -267,11 +267,17 @@ StepInterval<float> uiSpinBox::getFInterval() const
 }
 
 
-int uiSpinBox::getValue() const
+int uiSpinBox::getIntValue() const
 { return mNINT32(body_->value()); }
 
-float uiSpinBox::getFValue() const
+double uiSpinBox::getdValue() const
+{ return body_->value(); }
+
+float uiSpinBox::getfValue() const
 { return (float)body_->value(); }
+
+bool uiSpinBox::getBoolValue() const
+{ return getIntValue(); }
 
 
 const char* uiSpinBox::text() const
