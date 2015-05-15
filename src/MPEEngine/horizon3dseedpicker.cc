@@ -231,7 +231,8 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid,
 					     bool eraseonly )
 {
     BinID dir;
-    if ( !lineTrackDirection(dir) ) return false;
+    if ( !lineTrackDirection(dir) )
+	return retrackFromSeedList(); // track on Rdl
 
     trackbounds_.erase();
     junctions_.erase();
