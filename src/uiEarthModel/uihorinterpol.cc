@@ -109,15 +109,16 @@ uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 }
 
 
-#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { uiMSG().error( msg ); return false;}
 
 bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 {
     FixedString method = par.find( HorizonGridder::sKeyMethod() );
     if ( method.isNull() )
 	mErrRet("Huh? No methods found in the paramaters")
-    
-    HorizonGridder* interpolator = HorizonGridder::factory().create( method );
+
+    PtrMan<HorizonGridder> interpolator =
+				HorizonGridder::factory().create( method );
     if ( !interpolator )
 	mErrRet("Selected method not found")
 
@@ -192,7 +193,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	    ErrMsg( msg.getFullString() ); continue;
 	}
 
-	mDynamicCastGet(Task*,task,interpolator);
+	mDynamicCastGet(Task*,task,interpolator.ptr());
 	if ( !TaskRunner::execute(&taskrunner,*task) )
 	{
 	    uiString msg = tr("Cannot interpolate section %1")
@@ -281,7 +282,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
     }
 
     if ( !horizon_ )
-	mErrRet( "Missing horizon!" );
+	mErrRet( "Missing horizon!" )
 
     MouseCursorChanger mcc( MouseCursor::Wait );
 
@@ -667,7 +668,7 @@ bool uiContinuousCurvatureHor3DInterpol::fillPar( IOPar& par) const
 	par.set( "Tension", tensionfld_->getfValue() );
     if ( radiusfld_ )
 	par.set("Search Radius",radiusfld_->getfValue() );
-    
+
     return true;
 }
 

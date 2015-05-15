@@ -31,6 +31,7 @@ mExpClass(EarthModel) HorizonGridder
 public:
     mDefineFactoryInClass(HorizonGridder,factory);
 
+    virtual		~HorizonGridder();
     uiString		infoMsg() const	{ return infomsg_; }
 
     void		setFaultIds(const TypeSet<MultiID>&);
@@ -41,14 +42,13 @@ public:
     static const char*	sKeyMethod();
     static const char*	sKeyNrFaults();
     static const char*	sKeyFaultID();
-    
+
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
 protected:
 
-    			HorizonGridder();
-			~HorizonGridder();
+			HorizonGridder();
 
     FaultTrcDataProvider* fltdataprov_;
 
@@ -58,9 +58,9 @@ protected:
 
     bool		init(TaskRunner*);
     bool		blockSrcPoints(const float*,const od_int64*,int,
-	    			       ObjectSet< TypeSet<int> >&) const;
+				       ObjectSet< TypeSet<int> >&) const;
     bool		setFrom(float*,od_int64,const od_int64*,
-	    			const float*,int nrsrc);
+				const float*,int nrsrc);
 };
 
 
