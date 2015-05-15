@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datainpspec.h"
 #include "fontdata.h"
 #include "od_helpids.h"
+#include "settingsaccess.h"
 
 
 bool uiScenePropertyDlg::savestatus_ = true;
@@ -324,7 +325,13 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 bool uiScenePropertyDlg::acceptOK( CallBacker* )
 {
     if ( scene_ )
+    {
 	scene_->savePropertySettings();
+	FontList().get( FontData::Graphics3D ).setFontData(
+						       scene_->getAnnotFont() );
+	Settings& setts = Settings::common();
+	FontList().update( setts );
+    }
 
     if ( viewers_[curvwridx_] )
 	viewers_[curvwridx_]->savePropertySettings();
