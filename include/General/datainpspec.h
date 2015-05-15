@@ -28,7 +28,7 @@ ________________________________________________________________________
 */
 
 mExpClass(General) DataType
-{ mODTextTranslationClass(DataType);
+{ mODTextTranslationClass(DataType)
 public:
 
     enum		Rep  { intTp, floatTp, doubleTp, boolTp, stringTp };
@@ -60,7 +60,7 @@ protected:
 
 template<class T>
 mClass(General) DataTypeImpl : public DataType
-{ mODTextTranslationClass(DataTypeImpl);
+{ mODTextTranslationClass(DataTypeImpl)
 public:
 
 
@@ -86,7 +86,7 @@ With it, user interface parts can be constructed (uiGenInput).
 
 */
 mExpClass(General) DataInpSpec
-{ mODTextTranslationClass(DataInpSpec);
+{ mODTextTranslationClass(DataInpSpec)
 public:
 
 
@@ -169,7 +169,7 @@ private:
 */
 template <class T>
 mClass(General) NumInpSpec : public DataInpSpec
-{ mODTextTranslationClass(NumInpSpec);
+{ mODTextTranslationClass(NumInpSpec)
 public:
 			NumInpSpec()
 			    : DataInpSpec( DataTypeImpl<T>() )
@@ -301,11 +301,13 @@ typedef NumInpSpec<double>	DoubleInpSpec;
 */
 template <class T>
 mClass(General) NumInpIntervalSpec : public DataInpSpec
-{ mODTextTranslationClass(NumInpIntervalSpec);
+{ mODTextTranslationClass(NumInpIntervalSpec)
 public:
 			NumInpIntervalSpec( bool withstep=false )
 			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
+			    , symm_(false)
+			    , wsymm_(false)
 			    , interval_( withstep ?  new StepInterval<T>(
 							mUdf(T),
 							mUdf(T),
@@ -320,11 +322,13 @@ public:
 							 : new Interval<T>(
 								mUdf(T),
 								mUdf(T) ) )
-			    {}
+			{}
 
 			NumInpIntervalSpec( const Interval<T>& interval )
 			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
+			    , symm_(false)
+			    , wsymm_(false)
 			    , interval_( interval.clone() )
 			    , defaultinterval_( hasStep() ? new StepInterval<T>(
 								mUdf(T),
@@ -333,15 +337,21 @@ public:
 							 : new Interval<T>(
 								mUdf(T),
 								mUdf(T) ) )
-			    {}
+			{}
 
 			NumInpIntervalSpec( const NumInpIntervalSpec<T>& o )
 			    : DataInpSpec( o )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
+			    , symm_(o.isSymmetric())
+			    , wsymm_(o.withSymmetric())
 			    , interval_( o.interval_ ? o.interval_->clone() : 0)
 			    , defaultinterval_( o.defaultinterval_ ?
 						o.defaultinterval_->clone() : 0)
-			    {}
+			{
+			    if ( o.limits(0) ) setLimits( *o.limits(0), 0 );
+			    if ( o.limits(1) ) setLimits( *o.limits(1), 1 );
+			    if ( o.limits(2) ) setLimits( *o.limits(2), 2 );
+			}
 
 			~NumInpIntervalSpec()
 			{
@@ -353,10 +363,10 @@ public:
 			}
 
     virtual NumInpIntervalSpec<T>* clone() const
-			    { return new NumInpIntervalSpec<T>( *this ); }
+			{ return new NumInpIntervalSpec<T>( *this ); }
 
-    virtual int	nElems()  const	{ return hasStep() ? 3 : 2; }
-    inline bool		hasStep() const	{ return stpi()    ? true : false; }
+    virtual int		nElems()  const	{ return hasStep() ? 3 : 2; }
+    inline bool		hasStep() const	{ return stpi(); }
 
     virtual bool	isUndef( int idx=0 ) const
 			{
@@ -428,7 +438,7 @@ public:
 			{ return startlimits_||stoplimits_||steplimits_; }
     virtual bool	isInsideLimits( int idx=0 ) const
 			{
-			    const Interval<T>* lims = limits(idx);
+			    const StepInterval<T>* lims = limits(idx);
 			    if ( !lims ) return true;
 			    if ( !isUndef(idx) )
 				return lims->includes( value(idx), true );
@@ -450,7 +460,7 @@ public:
 			    idx =  1: returns stop limits
 			    idx =  2: returns step limits
 			*/
-    const Interval<T>*	limits( int idx=0 ) const
+    const StepInterval<T>* limits( int idx=0 ) const
 			{
 			    switch( idx )
 			    {
@@ -471,49 +481,49 @@ public:
 			    idx = -1: sets start and stop limits
 			    idx = -2: sets start, stop and step limits
 			*/
-    NumInpIntervalSpec&	setLimits( const Interval<T>& r, int idx=-1 )
+    NumInpIntervalSpec&	setLimits( const StepInterval<T>& r, int idx=-1 )
 			{
-			    if ( idx < 0 )
+			    if ( idx<0 || idx==0 )
 			    {
-				delete startlimits_; startlimits_ =
-						    new Interval<T>( r );
-				delete stoplimits_; stoplimits_ =
-						    new Interval<T>( r );
-				if ( idx == -2 )
-				{
-				    delete steplimits_; steplimits_ =
-						    new Interval<T>( r );
-				}
-				return *this;
-			    }
-
-			    switch ( idx )
-			    {
-			    case 0 :
 				delete startlimits_;
-				startlimits_ = new Interval<T>(r);
-			    break;
-			    case 1 :
+				startlimits_ = new StepInterval<T>( r );
+			    }
+			    if ( idx<0 || idx==1 )
+			    {
 				delete stoplimits_;
-				stoplimits_ = new Interval<T>(r);
-			    break;
-			    case 2 :
+				stoplimits_ = new StepInterval<T>( r );
+			    }
+			    if ( idx==-2 || idx==2 )
+			    {
 				delete steplimits_;
-				steplimits_ = new Interval<T>(r);
-			    break;
+				steplimits_ = new StepInterval<T>( r );
 			    }
 
 			    return *this;
 			}
+    NumInpIntervalSpec&	setLimits( const Interval<T>& r, int idx=-1 )
+			{
+			    return setLimits(
+				StepInterval<T>(r.start,r.stop,1), idx );
+			}
+
+    void		setSymmetric( bool yn )
+			{ symm_ = yn; wsymm_ = true; }
+    bool		isSymmetric() const		{ return symm_; }
+    void		setWithSymmetric( bool yn )	{ wsymm_ = yn; }
+    bool		withSymmetric() const		{ return wsymm_; }
 
 protected:
 
     Interval<T>*	interval_;
     Interval<T>*	defaultinterval_;
 
-    Interval<T>*	startlimits_;
-    Interval<T>*	stoplimits_;
-    Interval<T>*	steplimits_;
+    StepInterval<T>*	startlimits_;
+    StepInterval<T>*	stoplimits_;
+    StepInterval<T>*	steplimits_;
+
+    bool		symm_;
+    bool		wsymm_;
 
     T			value_( int idx=0 ) const
 			{
