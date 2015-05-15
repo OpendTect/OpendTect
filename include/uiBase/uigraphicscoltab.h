@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "uigraphicsitem.h"
 #include "coltabsequence.h"
 
+#include "draw.h"
+
 class uiPixmapItem;
 class uiTextItem;
 namespace ColTab { class MapperSetup; }

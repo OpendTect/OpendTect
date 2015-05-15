@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "coltabmapper.h"
 #include "coltabsequence.h"
-#include "draw.h"
 
 uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     : uiGraphicsItemGroup()
