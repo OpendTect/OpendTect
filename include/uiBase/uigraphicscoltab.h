@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uigraphicsitem.h"
-#include "draw.h"
 #include "coltabsequence.h"
 
 class uiPixmapItem;
