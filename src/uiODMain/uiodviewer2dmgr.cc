@@ -34,26 +34,18 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "mouseevent.h"
 #include "geom2dintersections.h"
-#include "settings.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
-#include "visseis2ddisplay.h"
 #include "view2ddata.h"
 #include "view2ddataman.h"
 
-static const char* sKeyVW2DTrcsPerCM()	{ return "Viewer2D.TrcsPerCM"; }
-static const char* sKeyVW2DZPerCM()	{ return "Viewer2D.ZSamplesPerCM"; }
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     : appl_(*a)
-    , deftrcspercm_(mUdf(float))
-    , defzpercm_(mUdf(float))
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
     , l2dintersections_(0)
 {
-    Settings::common().get( sKeyVW2DTrcsPerCM(), deftrcspercm_ );
-    Settings::common().get( sKeyVW2DZPerCM(), defzpercm_ );
     // for relevant 2D datapack
     tifs2d_->addFactory( new uiODVW2DWiggleVarAreaTreeItemFactory, 1000 );
     tifs2d_->addFactory( new uiODVW2DVariableDensityTreeItemFactory, 2000 );
@@ -79,15 +71,12 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 
 
 int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
-					const Attrib::SelSpec& as, bool dowva,
-					Pos::GeomID geomid )
+					const Attrib::SelSpec& as, bool dowva )
 {
     uiODViewer2D* vwr2d = &addViewer2D( -1 );
     const DataPack::ID vwdpid = vwr2d->createFlatDataPack( dpid, 0 );
     vwr2d->setSelSpec( &as, dowva ); vwr2d->setSelSpec( &as, !dowva );
     vwr2d->setUpView( vwdpid, dowva );
-    if ( geomid != Survey::GM().cUndefGeomID() )
-	vwr2d->setGeomID( geomid );
     vwr2d->useStoredDispPars( dowva );
     vwr2d->useStoredDispPars( !dowva );
     attachNotifiers( vwr2d );
@@ -188,15 +177,27 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     const int menuid = menu.exec();
     if ( menuid>=0 && menuid<3 )
     {
+	uiWorldPoint initialcentre( uiWorldPoint::udf() );
 	TrcKeyZSampling newtkzs = SI().sampling(true);
 	if ( menuid == 0 )
+	{
 	    newtkzs.hsamp_.setLineRange( Interval<int>(bid.inl(),bid.inl()) );
+	    initialcentre = uiWorldPoint( mCast(double,bid.crl()), coord.z );
+	}
 	else if ( menuid == 1 )
+	{
 	    newtkzs.hsamp_.setTrcRange( Interval<int>(bid.crl(),bid.crl()) );
+	    initialcentre = uiWorldPoint( mCast(double,bid.inl()), coord.z );
+	}
 	else if ( menuid == 2 )
+	{
 	    newtkzs.zsamp_ = Interval<float>( mCast(float,coord.z),
 					      mCast(float,coord.z) );
-	create2DViewer( *curvwr2d, newtkzs );
+	    initialcentre = uiWorldPoint( mCast(double,bid.inl()),
+					  mCast(double,bid.crl()) );
+	}
+
+	create2DViewer( *curvwr2d, newtkzs, initialcentre );
     }
     else if ( menuid == 3 )
 	curvwr2d->viewControl()->doPropertiesDialog( 0 );
@@ -204,13 +205,20 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 
 
 void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
-				      const TrcKeyZSampling& newsampling )
+				      const TrcKeyZSampling& newsampling,
+				      const uiWorldPoint& initialcentre )
 {
     uiODViewer2D* vwr2d = &addViewer2D( -1 );
     vwr2d->setSelSpec( &curvwr2d.selSpec(true), true );
     vwr2d->setSelSpec( &curvwr2d.selSpec(false), false );
     vwr2d->setTrcKeyZSampling( newsampling );
     vwr2d->setZAxisTransform( curvwr2d.getZAxisTransform() );
+
+    const uiFlatViewStdControl* control = curvwr2d.viewControl();
+    vwr2d->setInitialCentre( initialcentre );
+    vwr2d->setInitialX1PosPerCM( control->getCurrentPosPerCM(true) );
+    if ( newsampling.defaultDir() != TrcKeyZSampling::Z )
+	vwr2d->setInitialX2PosPerCM( control->getCurrentPosPerCM(false) );
 
     const uiFlatViewer& curvwr = curvwr2d.viewwin()->viewer( 0 );
     if ( curvwr.isVisible(true) )
@@ -233,8 +241,6 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 void uiODViewer2DMgr::attachNotifiers( uiODViewer2D* vwr2d )
 {
     mAttachCB( vwr2d->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
-    mAttachCB( vwr2d->viewControl()->setHomeZoomPushed,
-	       uiODViewer2DMgr::homeZoomChangedCB );
     if ( vwr2d->slicePos() )
 	mAttachCB( vwr2d->slicePos()->positionChg,
 		   uiODViewer2DMgr::vw2DPosChangedCB );
@@ -268,13 +274,6 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
 {
     uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d, visServ().getObject(visid));
-    if ( s2d )
-    {
-	vwr->setGeomID(  s2d->getGeomID() );
-	reCalc2DIntersetionIfNeeded( s2d->getGeomID() );
-    }
-
     vwr->setMouseCursorExchange( &appl_.applMgr().mouseCursorExchange() );
     viewers2d_ += vwr;
     return *vwr;
@@ -295,23 +294,6 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( int id, bool byvisid )
 }
 
 
-void uiODViewer2DMgr::homeZoomChangedCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiFlatViewStdControl*,control,cb);
-    if ( !control )
-	return;
-    deftrcspercm_ = control->getPositionsPerCM(true);
-    Settings::common().set( sKeyVW2DTrcsPerCM(), deftrcspercm_ );
-    if ( control->isVertical() )
-    {
-	defzpercm_ = control->getPositionsPerCM( false );
-	Settings::common().set( sKeyVW2DZPerCM(), defzpercm_ );
-    }
-
-    mSettWrite()
-}
-
-
 void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 {
     TrcKeyZSampling::Dir vwr2ddir = vwr2d->getTrcKeyZSampling().defaultDir();
@@ -322,7 +304,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
     x1intposs.erase(); x2intposs.erase();
     reCalc2DIntersetionIfNeeded( vwr2d->geomID() );
 
-    if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() )	
+    if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() )
     {
 	const int intscidx = intersection2DIdx( vwr2d->geomID() );
 	if ( intscidx<0 )
@@ -363,7 +345,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Crl )
 		{
-		    newpos.pos_ = idxvwrtkzs.hsamp_.crlRange().start;
+		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
 		    newpos.name_ = tr( "CRL %1" ).arg( toString(newpos.pos_) );
 		    x1intposs += newpos;
 		}
@@ -378,7 +360,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
-		    newpos.pos_ = idxvwrtkzs.hsamp_.inlRange().start;
+		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
 		    newpos.name_ = tr( "INL %1" ).arg( toString(newpos.pos_) );
 		    x1intposs += newpos;
 		}
@@ -393,13 +375,13 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
-		    newpos.pos_ = idxvwrtkzs.hsamp_.inlRange().start;
+		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
 		    newpos.name_ = tr( "INL %1" ).arg( toString(newpos.pos_) );
 		    x1intposs += newpos;
 		}
 		else
 		{
-		    newpos.pos_ = idxvwrtkzs.hsamp_.crlRange().start;
+		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
 		    newpos.name_ = tr( "CRL %1" ).arg( toString(newpos.pos_) );
 		    x2intposs += newpos;
 		}
@@ -498,6 +480,8 @@ void uiODViewer2DMgr::remove2DViewer( int id, bool byvisid )
 	delete viewers2d_.removeSingle( idx );
 	return;
     }
+
+    setAllIntersectionPositions();
 }
 
 

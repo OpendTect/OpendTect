@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom.h"
 
 #include <math.h>
+
 mStartAllowDeprecatedSection
 
 TrcKeySampling::TrcKeySampling()
@@ -49,7 +50,6 @@ TrcKeySampling::TrcKeySampling( bool settosi )
 { init( settosi ); }
 
 mStopAllowDeprecatedSection
-
 
 bool TrcKeySampling::init( Pos::GeomID gid )
 {
@@ -106,6 +106,7 @@ void TrcKeySampling::set2DDef()
     start_.lineNr() = start_.trcNr() = 0;
     stop_.lineNr() = stop_.trcNr() = mUdf(int);
     step_.lineNr() = step_.trcNr() = 1;
+    survid_ = Survey::GM().get2DSurvID();
 }
 
 
@@ -802,9 +803,8 @@ void TrcKeyZSampling::getDefaultNormal( Coord3& ret ) const
 od_int64 TrcKeyZSampling::totalNr() const
 { return ((od_int64) nrZ()) * ((od_int64) hsamp_.totalNr()); }
 
-
-
 mStartAllowDeprecatedSection
+
 TrcKeyZSampling::TrcKeyZSampling()
     : hrg(hsamp_),zrg(zsamp_)
 { init( true ); }
@@ -820,7 +820,6 @@ TrcKeyZSampling::TrcKeyZSampling( const TrcKeyZSampling& tkzs )
 TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
     : hrg(hsamp_),zrg(zsamp_)
 { init( settoSI ); }
-
 
 mStopAllowDeprecatedSection
 

@@ -45,6 +45,7 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     reSize.notify( mCB(this,uiStratDisplay,reDraw) );
 
     disableScrollZoom();
+    setDragMode( uiGraphicsViewBase::ScrollHandDrag );
     setSceneBorder( 2 );
     createDispParamGrp();
     setRange();

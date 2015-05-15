@@ -372,7 +372,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
 {
     enableScrollZoom( enabscrollzoom_ );
     setScene( *new uiGraphicsScene(nm) );
-    setDragMode( uiGraphicsViewBase::ScrollHandDrag );
+    setDragMode( uiGraphicsViewBase::NoDrag );
     getMouseEventHandler().buttonReleased.notify(
 	    mCB(this,uiGraphicsViewBase,rubberBandCB) );
     setBackgroundColor( Color::White() );

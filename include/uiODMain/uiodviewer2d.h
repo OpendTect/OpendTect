@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "datapack.h"
 #include "emposid.h"
+#include "uigeom.h"
 #include "uistring.h"
 
 class uiFlatViewAuxDataEditor;
@@ -96,11 +97,17 @@ public:
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	getTrcKeyZSampling() const
 				{ return tkzs_; }
+    Pos::GeomID			geomID() const;
 
-    void			setGeomID( Pos::GeomID geomid )
-				{ geomid_ = geomid; }
-    Pos::GeomID 		geomID() const
-				{ return geomid_; }
+    void			setInitialCentre( const uiWorldPoint& wp )
+				{ initialcentre_ = wp; }
+    void			setInitialX1PosPerCM( float val )
+				{ initialx1pospercm_ = val; }
+    void			setInitialX2PosPerCM( float val )
+				{ initialx2pospercm_ = val; }
+
+    const uiFlatViewStdControl* viewControl() const
+				{ return viewstdcontrol_; }
     uiFlatViewStdControl*	viewControl()
 				{ return viewstdcontrol_; }
     uiSlicePos2DView*		slicePos()
@@ -141,9 +148,11 @@ protected:
     MouseCursorExchange*	mousecursorexchange_;
     FlatView::AuxData*		marker_;
     ZAxisTransform*		datatransform_;
-
-    Pos::GeomID 		geomid_;
     TrcKeyZSampling		tkzs_;
+
+    uiWorldPoint		initialcentre_;
+    float			initialx1pospercm_;
+    float			initialx2pospercm_;
 
     int				polyseltbid_;
     bool			ispolyselect_;

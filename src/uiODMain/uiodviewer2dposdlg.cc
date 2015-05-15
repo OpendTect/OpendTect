@@ -56,13 +56,6 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
 	vwr2ddpid = attrserv->createRdmTrcsOutput(
 				posdatasel.tkzs_.zsamp_, &path, &knots );
     }
-    else if ( posdatasel.geomid_ != Survey::GeometryManager::cUndefGeomID() )
-    {
-	uiTaskRunner taskrunner( this );
-	vwr2ddpid =
-	    attrserv->create2DOutput( posdatasel.tkzs_, posdatasel.geomid_,
-				      taskrunner );
-    }
     else
     {
 	vwr2ddpid =
@@ -70,6 +63,6 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
     }
 
     odappl_.viewer2DMgr().displayIn2DViewer( vwr2ddpid, posdatasel.selspec_,
-					     false, posdatasel.geomid_ );
+					     false );
     return true;
 }
