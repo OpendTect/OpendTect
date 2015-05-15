@@ -98,16 +98,13 @@ void uiFlatViewControl::onFinalise( CallBacker* )
 			 && canReUseZoomSettings( vwrs_[0]->curView().centre(),
 						  zoommgr_.current() );
     if ( !canreuse )
-    {
 	zoommgr_.init( getBoundingBoxes() );
-    }
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	if ( !canreuse )
-	    vwrs_[idx]->setViewToBoundingBox();
-	else
-    	    vwrs_[idx]->setView( vwrs_[idx]->curView() );
+	uiFlatViewer& vwr = *vwrs_[idx];
+	if ( !vwr.rgbCanvas().mainwin()->poppedUp() || !canreuse )
+	    setViewToCustomZoomLevel( vwr );
     }
 
     finalPrepare();
@@ -143,7 +140,7 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
 	const uiWorld2Ui w2ui( vwr.getViewRect().size(), wr );
 	wr = w2ui.transform( vwr.getViewRect(false) );
 	wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, bb );
-	vwr.setExtraBorders( w2ui.transform(bb) );
+	vwr.setBoundingRect( w2ui.transform(bb) );
     }
 
     vwr.setView( wr );
@@ -301,7 +298,6 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
 
     const int idx = getViewerIdx( meh, true );
     if ( idx<0 ) return;
-    uiWorld2Ui w2u;
     if ( !vwrs_[idx]->needStatusBarUpdate() ) return;
     const uiWorldPoint wp =
 	vwrs_[idx]->getWorld2Ui().transform( meh->event().pos() );

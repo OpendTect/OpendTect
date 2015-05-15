@@ -57,7 +57,7 @@ public:
     			/*!<The rectangle onto which wr_ is projected */
 
     uiBorder		getAnnotBorder() const;
-    void		setExtraBorders(const uiRect& boundingrect);
+    void		setBoundingRect(const uiRect&);
     			/*!< Sets extra borders on the right and at the bottom
 			 if boundingrect is smaller than getViewRect(false).
 			 Extraborders set will be same as their differences in

@@ -52,6 +52,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->preDraw.notify( mCB(this,uiFlatViewer,updateCB ) );
     view_->disableScrollZoom();
     view_->scene().addItem( worldgroup_ );
+    view_->setDragMode( uiGraphicsView::ScrollHandDrag );
     view_->setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setSceneBorder( 2 );
@@ -180,7 +181,7 @@ void uiFlatViewer::updateTransforms()
 }
 
 
-void uiFlatViewer::setExtraBorders( const uiRect& boundingrect )
+void uiFlatViewer::setBoundingRect( const uiRect& boundingrect )
 {
     const uiRect viewrect = getViewRect( false );
     int extrawidth = viewrect.width() - boundingrect.width();
@@ -226,6 +227,7 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     rg0.widen( extfac_ * rg0.step, true );
     if ( mIsZero(rg1.width(),mDefEps) )
 	rg1.widen( extfac_ * rg1.step, true );
+    //<-- rg1 is not widened as wiggles are not drawn in the extended area.
     return uiWorldRect(rg0.start,rg1.stop,rg0.stop,rg1.start);
 }
 

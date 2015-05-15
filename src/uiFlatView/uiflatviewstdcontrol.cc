@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keyboardevent.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
+#include "settings.h"
 #include "texttranslator.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
@@ -39,6 +40,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define sGlobalHZIdx	1
 #define sManHZIdx	2
 
+static const char* sKeyVW2DTrcsPerCM()	{ return "Viewer2D.TrcsPerCM"; }
+static const char* sKeyVW2DZPerCM()	{ return "Viewer2D.ZSamplesPerCM"; }
 
 uiFlatViewZoomLevelGrp::uiFlatViewZoomLevelGrp( uiParent* p, float& x1pospercm,
 						float& x2pospercm, bool isvert )
@@ -84,6 +87,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , mousepressed_(false)
     , menu_(*new uiMenuHandler(0,-1))
     , propertiesmnuitem_(tr("Properties..."),100)
+    , defx1pospercm_(mUdf(float))
+    , defx2pospercm_(mUdf(float))
     , editbut_(0)
     , rubbandzoombut_(0)
     , zoominbut_(0)
@@ -93,14 +98,21 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , cancelzoombut_(0)
     , sethomezoombut_(0)
     , gotohomezoombut_(0)
-    , setHomeZoomPushed(this)
 {
+    if ( setup_.withfixedaspectratio_ )
+    {
+	Settings::common().get( sKeyVW2DTrcsPerCM(), defx1pospercm_ );
+	if ( setup_.isvertical_ )
+	    Settings::common().get( sKeyVW2DZPerCM(), defx2pospercm_ );
+	else
+	    defx1pospercm_ = defx2pospercm_;
+    }
+
     uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left
 						    : uiToolBar::Top );
     if ( setup.tba_ > 0 )
 	tba = (uiToolBar::ToolBarArea)setup.tba_;
     tb_ = new uiToolBar( mainwin(), tr("Flat Viewer Tools"), tba );
-    vwr_.rgbCanvas().setDragMode( uiGraphicsView::ScrollHandDrag );
 
     if ( setup.withedit_ )
     {
@@ -133,7 +145,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( setup.withhomebutton_ )
     {
-	mDefBut(sethomezoombut_,"set_homezoom",setHomeZoomCB,
+	mDefBut(sethomezoombut_,"set_homezoom",homeZoomOptSelCB,
 		tr("Set home zoom"));
 	const CallBack optcb = mCB(this,uiFlatViewStdControl,homeZoomOptSelCB);
 	uiMenu* mnu = new uiMenu( tb_, tr("Zoom level options") );
@@ -146,8 +158,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	sethomezoombut_->setMenu( mnu );
 	mDefBut(gotohomezoombut_,"homezoom",gotoHomeZoomCB,
 		tr("Go to home zoom"));
-	gotohomezoombut_->setSensitive( !mIsUdf(setup_.x1pospercm_) &&
-					!mIsUdf(setup_.x2pospercm_) );
+	gotohomezoombut_->setSensitive( !mIsUdf(defx1pospercm_) &&
+					!mIsUdf(defx2pospercm_) );
     }
 
     if ( setup.withflip_ )
@@ -285,14 +297,13 @@ void uiFlatViewStdControl::aspectRatioCB( CallBacker* cb )
 
     uiFlatViewer& vwr = *vwrs_[vwridx];
     if ( !view->mainwin()->poppedUp() )
-	{ vwr.setView( vwr.curView() ); return; }
+	{ setViewToCustomZoomLevel( vwr ); return; }
 
     const uiWorldRect bb = vwr.boundingBox();
     const uiWorld2Ui& w2ui = vwr.getWorld2Ui();
-    uiWorldRect wr = w2ui.transform( vwr.getViewRect(false) );
-    wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, bb );
-    vwr.setExtraBorders( w2ui.transform(bb) );
-    vwr.setView( wr );
+    const uiWorldRect wr = w2ui.transform( vwr.getViewRect(false) );
+    vwr.setBoundingRect( w2ui.transform(bb) );
+    vwr.setView( getZoomOrPanRect(wr.centre(),wr.size(),wr,bb) );
     if ( !zoommgr_.atStart() )
 	updateZoomManager();
 }
@@ -416,100 +427,96 @@ bool acceptOK( CallBacker* )
 
 void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiAction*,itm,cb)
-    if ( !itm ) return;
+    float x1pospercm = getCurrentPosPerCM( true );
+    float x2pospercm = getCurrentPosPerCM( false );
 
-    const int itmid = itm->getID();
-    if ( itmid==sLocalHZIdx || itmid==sGlobalHZIdx )
-	setHomeZoomCB( itm );
+    mDynamicCastGet(uiAction*,itm,cb)
+    const int itmid = itm ? itm->getID() : sLocalHZIdx;
+    if ( itmid == sLocalHZIdx )
+    {
+	defx1pospercm_ = x1pospercm;
+	defx2pospercm_ = x2pospercm;
+	gotohomezoombut_->setSensitive( true );
+    }
+    else if ( itmid == sGlobalHZIdx )
+	setGlobalZoomLevel( x1pospercm, x2pospercm );
     else
     {
-	float x1pospercm, x2pospercm;
-	getHomeZoomPars( x1pospercm, x2pospercm );
 	uiFlatViewSetZoomLevelDlg zoomlvldlg( this, x1pospercm, x2pospercm,
 					      setup_.isvertical_ ); 
 	if ( zoomlvldlg.go() )
 	{
-	    Setup& su = const_cast<Setup&>(setup_);
-	    su.x1pospercm_ = x1pospercm;
-	    su.x2pospercm_ = x2pospercm;
+	    defx1pospercm_ = x1pospercm;
+	    defx2pospercm_ = x2pospercm;
 	    if ( zoomlvldlg.saveGlobal() )
-		setHomeZoomPushed.trigger();
+		setGlobalZoomLevel( x1pospercm, x2pospercm );
+	    setViewToCustomZoomLevel( *vwrs_[0] );
 	    gotohomezoombut_->setSensitive( true );
-	    setHomeZoomViews();
 	}
     }
 }
 
 
-void uiFlatViewStdControl::getHomeZoomPars( float& x1pospercm,float& x2pospercm )
+float uiFlatViewStdControl::getCurrentPosPerCM( bool forx1 ) const
 {
-    const uiFlatViewer* curvwr = vwrs_[0];
-    uiRect pixrect = curvwr->getViewRect();
-    const int pixwidth = pixrect.right() - pixrect.left();
-    const int screendpi = uiMain::getDPI();
-    const float cmwidth = ((float)pixwidth/(float)screendpi) * sInchToCMFac;
-    const int pixheight = pixrect.bottom() - pixrect.left();
-    const float cmheight = ((float)pixheight/(float)screendpi) * sInchToCMFac;
-    const int x1nrpos = (curvwr->posRangeInView(true).nrSteps()+1);
-    const int x2nrpos = (curvwr->posRangeInView(false).nrSteps()+1);
-    x1pospercm = mCast(float,x1nrpos)/cmwidth;
-    x2pospercm = mCast(float,x2nrpos)/cmheight;
+    const uiFlatViewer& vwr = *vwrs_[0];
+    const uiRect bbrect = vwr.getWorld2Ui().transform(vwr.boundingBox());
+    const int nrpixels = forx1 ? bbrect.width() : bbrect.height();
+    const float nrcms = (mCast(float,nrpixels)/uiMain::getDPI()) * sInchToCMFac;
+    const int extrastep = forx1 ? 1 : 0;
+    //<-- For x2 all points are not considered as flatviewer does not expand
+    //<-- boundingbox by extfac_(0.5) along x2 as wiggles are not drawn in
+    //<-- extended area. 
+    return (vwr.posRange(forx1).nrSteps() + extrastep) / nrcms;
 }
 
 
-void uiFlatViewStdControl::setHomeZoomCB( CallBacker* cb )
+void uiFlatViewStdControl::setGlobalZoomLevel( float x1pospercm,
+					       float x2pospercm ) const
 {
-    Setup& su = const_cast<Setup&>(setup_);
-    getHomeZoomPars( su.x1pospercm_, su.x2pospercm_ );
+    Settings::common().set( sKeyVW2DTrcsPerCM(), x1pospercm );
+    if ( setup_.isvertical_ )
+	Settings::common().set( sKeyVW2DZPerCM(), x2pospercm );
     
-    mDynamicCastGet(uiAction*,itm,cb)
-    const bool saveglobally = itm && itm->getID()==sGlobalHZIdx;
-    if ( saveglobally )
-	setHomeZoomPushed.trigger();
-    gotohomezoombut_->setSensitive( true );
+    mSettWrite();
 }
 
 
 void uiFlatViewStdControl::gotoHomeZoomCB( CallBacker* )
 {
-    setHomeZoomViews();
+    setViewToCustomZoomLevel( *vwrs_[0] );
 }
 
 
-void uiFlatViewStdControl::setHomeZoomViews()
+void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
 {
-    if ( mIsUdf(setup_.x1pospercm_) || mIsUdf(setup_.x2pospercm_) )
+    const bool ispoppedup = vwr.rgbCanvas().mainwin()->poppedUp();
+    const float x1pospercm = (ispoppedup || mIsUdf(setup_.initialx1pospercm_))
+			   ? defx1pospercm_ : setup_.initialx1pospercm_;
+    const float x2pospercm = (ispoppedup || mIsUdf(setup_.initialx2pospercm_))
+			   ? defx2pospercm_ : setup_.initialx2pospercm_;
+    if ( mIsUdf(x1pospercm) || mIsUdf(x2pospercm) || mIsZero(x1pospercm,0.01) ||
+	 mIsZero(x2pospercm,0.01) )
+    {
+	if ( !ispoppedup ) vwr.setViewToBoundingBox();
 	return;
-    TypeSet< uiWorldPoint > viewcenterpos;
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	viewcenterpos += vwrs_[idx]->curView().centre();
-    reInitZooms();
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	setHomeZoomView( *vwrs_[idx], viewcenterpos[idx] );
-}
+    }
 
-
-void uiFlatViewStdControl::setHomeZoomView( uiFlatViewer& vwr,
-					    const uiWorldPoint& centerpos )
-{
-    const uiRect pixrect = vwr.getViewRect();
+    const uiRect viewrect = vwr.getViewRect( false );
     const int screendpi = uiMain::getDPI();
-    const float cmwidth =
-	((float)pixrect.width()/(float)screendpi) * sInchToCMFac;
-    const double x1postofit = cmwidth * setup_.x1pospercm_;
-    const float cmheight =
-	((float)pixrect.height()/(float)screendpi) * sInchToCMFac;
-    const double x2postofit = cmheight * setup_.x2pospercm_;
+    const float cmwidth = ((float)viewrect.width()/screendpi) * sInchToCMFac;
+    const float cmheight = ((float)viewrect.height()/screendpi) * sInchToCMFac;
+    const double hwdth = vwr.posRange(true).step * cmwidth * x1pospercm / 2;
+    const double hhght = vwr.posRange(false).step * cmheight * x2pospercm / 2;
 
-    StepInterval<double> viewx1rg( vwr.posRange(true) );
-    viewx1rg.stop = viewx1rg.atIndex( mNINT32(x1postofit) );
+    const uiWorldRect bb = vwr.boundingBox();
+    uiWorldPoint wp(!ispoppedup? setup_.intitialcentre_:vwr.curView().centre());
+    if ( wp == uiWorldPoint::udf() ) wp = bb.centre();
 
-    StepInterval<double> viewx2rg( vwr.posRange(false) );
-    viewx2rg.stop = viewx2rg.atIndex( mNINT32(x2postofit) );
-
-    Geom::Size2D<double> homesz( viewx1rg.width(), viewx2rg.width() );
-    setNewView( centerpos, homesz );
+    const uiWorldRect wr( wp.x-hwdth, wp.y-hhght, wp.x+hwdth, wp.y+hhght );
+    vwr.setBoundingRect( uiWorld2Ui(viewrect.size(),wr).transform(bb) );
+    vwr.setView( getZoomOrPanRect(wp,wr.size(),wr,bb) );
+    updateZoomManager();
 }
 
 

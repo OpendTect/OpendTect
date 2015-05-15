@@ -124,8 +124,6 @@ public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TypeSet<BinID>* path,
 					    TypeSet<BinID>* trueknotspos);
-    DataPack::ID	create2DOutput(const TrcKeyZSampling&,
-				       const Pos::GeomID&,TaskRunner&);
 
     bool		isDataClassified(const Array3D<float>&) const;
 
@@ -247,6 +245,10 @@ protected:
     DataPointSetDisplayMgr*	dpsdispmgr_;
 
     ColTab::MapperSetup*	evalmapperbackup_;
+
+    DataPack::ID		create2DOutput(const TrcKeyZSampling&,
+					       const Pos::GeomID&,TaskRunner&);
+				//!< To be removed. Use createOutput() instead.
 };
 
 #endif

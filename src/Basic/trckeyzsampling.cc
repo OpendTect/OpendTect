@@ -106,6 +106,7 @@ void TrcKeySampling::set2DDef()
     start_.lineNr() = start_.trcNr() = 0;
     stop_.lineNr() = stop_.trcNr() = mUdf(int);
     step_.lineNr() = step_.trcNr() = 1;
+    survid_ = Survey::GM().get2DSurvID();
 }
 
 

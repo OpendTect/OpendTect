@@ -90,6 +90,7 @@ protected:
     virtual void	onFinalise(CallBacker*);
     virtual bool	canReUseZoomSettings( Geom::Point2D<double>,
 	    				      Geom::Size2D<double> ) const;
+    virtual void	setViewToCustomZoomLevel(uiFlatViewer&) {}
     virtual void	updateZoomManager();
     
     virtual void	dataChangeCB(CallBacker*);

@@ -137,7 +137,8 @@ int uiSeisSubSel::expectedNrTraces() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
     mDynamicCastGet( const uiSeis2DSubSel*, ss2d, this )
-    if ( !pp ) return ss2d ? 0 : mCast(int, SI().sampling(false).hsamp_.totalNr());
+    if ( !pp )
+	return ss2d ? 0 : mCast(int, SI().sampling(false).hsamp_.totalNr());
 
     return mCast( int, pp->estNrPos() );
 }
@@ -346,11 +347,13 @@ StepInterval<float> uiSeis2DSubSel::getZRange(int lidx) const
 }
 
 
-void uiSeis2DSubSel::getSampling( TrcKeyZSampling& cs, int lidx ) const
+void uiSeis2DSubSel::getSampling( TrcKeyZSampling& tkzs, int lidx ) const
 {
-    cs.set2DDef();
-    cs.hsamp_.setCrlRange( getTrcRange(lidx) );
-    cs.zsamp_.setFrom( getZRange(lidx) );
+    tkzs.set2DDef();
+    const Pos::GeomID geomid = singlelnmsel_->getInputGeomID();
+    tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
+    tkzs.hsamp_.setTrcRange( getTrcRange(lidx) );
+    tkzs.zsamp_.setFrom( getZRange(lidx) );
 }
 
 

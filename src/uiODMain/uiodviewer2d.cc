@@ -54,7 +54,6 @@ mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     : appl_(appl)
     , visid_(visid)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
     , vdselspec_(*new Attrib::SelSpec)
     , wvaselspec_(*new Attrib::SelSpec)
     , viewwin_(0)
@@ -64,6 +63,9 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , tifs_(0)
     , treetp_(0)
     , polyseltbid_(-1)
+    , initialcentre_(uiWorldPoint::udf())
+    , initialx1pospercm_(mUdf(float))
+    , initialx2pospercm_(mUdf(float))
     , ispolyselect_(true)
     , viewWinAvailable(this)
     , viewWinClosed(this)
@@ -106,6 +108,15 @@ uiODViewer2D::~uiODViewer2D()
     }
     delete marker_;
     delete viewwin();
+}
+
+
+Pos::GeomID uiODViewer2D::geomID() const
+{
+    if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+	return tkzs_.hsamp_.trcKeyAt(0).geomID();
+
+    return Survey::GM().cUndefGeomID();
 }
 
 
@@ -223,13 +234,13 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 }
 
 
-void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
+void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 {
-    tkzs_ = cs;
+    tkzs_ = tkzs;
     if ( slicepos_ )
     {
-	slicepos_->setTrcKeyZSampling( cs );
-	slicepos_->getToolBar()->display( cs.isFlat() );
+	slicepos_->setTrcKeyZSampling( tkzs );
+	slicepos_->getToolBar()->display( tkzs.isFlat() );
 
 	if ( datatransform_ )
 	{
@@ -237,11 +248,11 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 	    limitcs.zsamp_.setFrom( datatransform_->getZInterval(false) );
 	    slicepos_->setLimitSampling( limitcs );
 	}
-
-	if ( cs.isFlat() ) setWinTitle( true );
     }
 
-    if ( treetp_ ) treetp_->updSampling( cs, true );
+    if ( tkzs.isFlat() ) setWinTitle( true );
+
+    if ( treetp_ ) treetp_->updSampling( tkzs, true );
 }
 
 
@@ -285,21 +296,19 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	vwr.appearance().annot_.setAxesAnnot(true);
     }
 
-    const float vwrx1pospercm = ODMainWin()->viewer2DMgr().defTrcsPerCM();
-    const float vwrx2pospercm =
-	isvert ? ODMainWin()->viewer2DMgr().defZPerCM()
-	       : ODMainWin()->viewer2DMgr().defTrcsPerCM();
+    const float initialx2pospercm = isvert ? initialx2pospercm_
+					   : initialx1pospercm_;
     uiFlatViewer& mainvwr = viewwin()->viewer();
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpkey(
 					mODHelpKey(mODViewer2DHelpID) )
-						   .withedit(tifs_)
-						   .isvertical(isvert)
-						   .withfixedaspectratio(true)
-						   .withhomebutton(true)
-						   .x1pospercm(vwrx1pospercm)
-						   .x2pospercm(vwrx2pospercm)
-						   .managescoltab(!tifs_) );
+					.withedit(tifs_).isvertical(isvert)
+					.withfixedaspectratio(true)
+					.withhomebutton(true)
+					.initialx1pospercm(initialx1pospercm_)
+					.initialx2pospercm(initialx2pospercm)
+					.intitialcentre(initialcentre_)
+					.managescoltab(!tifs_) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( tifs_ )
     {
@@ -308,10 +317,6 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     }
 
     viewwin_->addControl( viewstdcontrol_ );
-    mDynamicCastGet(uiFlatViewMainWin*,mainwin,viewwin_);
-    if ( mainwin )
-	mAttachCB( mainwin->afterPopup, uiODViewer2D::winPoppedUpCB );
-
     viewWinAvailable.trigger( this );
 }
 
@@ -396,12 +401,6 @@ void uiODViewer2D::createViewWinEditors()
 	adeditor->setSelActive( false );
 	auxdataeditors_ += adeditor;
     }
-}
-
-
-void uiODViewer2D::winPoppedUpCB( CallBacker* )
-{
-    viewstdcontrol_->setHomeZoomViews();
 }
 
 
@@ -661,16 +660,18 @@ void uiODViewer2D::setWinTitle( bool fromcs )
     }
     else
     {
-	if ( tkzs_.defaultDir() == TrcKeyZSampling::Z )
+	if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
+	    info += Survey::GM().getName( tkzs_.hsamp_.trcKeyAt(0).geomID() );
+	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
+	    { info = "In-line: "; info += tkzs_.hsamp_.start_.inl(); }
+	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+	    { info = "Cross-line: "; info += tkzs_.hsamp_.start_.crl(); }
+	else
 	{
 	    const ZDomain::Def& zdef = SI().zDomain();
 	    info = zdef.userName(); info += ": ";
 	    info += tkzs_.zsamp_.start * zdef.userFactor();
 	}
-	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
-	{ info = "Cross-line: "; info += tkzs_.hsamp_.start_.crl(); }
-	else
-	{ info = "In-line: "; info += tkzs_.hsamp_.start_.inl(); }
     }
 
     basetxt_ += info; if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );
