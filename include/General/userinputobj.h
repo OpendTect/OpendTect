@@ -26,21 +26,21 @@ mExpClass(General) UserInputObj
 {
 public:
 
-                        UserInputObj()			{}
+			UserInputObj()			{}
     virtual		~UserInputObj()			{}
 
     virtual const char* text() const			= 0;
-    virtual int         getIntValue()  const		= 0;
-    virtual double      getdValue()     const		= 0;
-    virtual float       getfValue()    const		= 0;
-    virtual bool        getBoolValue() const		= 0;
+    virtual int		getIntValue()  const		= 0;
+    virtual double	getdValue()     const		= 0;
+    virtual float	getfValue()    const		= 0;
+    virtual bool	getBoolValue() const		= 0;
 
-    virtual void        setText(const char*)		= 0;
-    virtual void        setValue(const char* s);
-    virtual void        setValue(int)			= 0;
-    virtual void        setValue(double)		= 0;
-    virtual void        setValue(float)			= 0;
-    virtual void        setValue(bool)			= 0;
+    virtual void	setText(const char*)		= 0;
+    virtual void	setValue(const char* s);
+    virtual void	setValue(int)			= 0;
+    virtual void	setValue(double)		= 0;
+    virtual void	setValue(float)			= 0;
+    virtual void	setValue(bool)			= 0;
 
     virtual void	setReadOnly( bool = true )	= 0;
     virtual bool	isReadOnly() const		= 0;
@@ -48,17 +48,17 @@ public:
     virtual void	setEmpty()			= 0;
     virtual void	addItem(const uiString&);
 
-		        /*! \brief intermediate value available
+			/*! \brief intermediate value available
 			    \return true if this notification is supported */
     bool		notifyValueChanging( const CallBack& cb );
 
-		        /*! \brief value change complete cq. commited
+			/*! \brief value change complete cq. commited
 			    \return true if this notification is supported */
     bool		notifyValueChanged( const CallBack& cb );
 
     			/*! \return true if this notification is supported */
     bool		notifyUpdateRequested( const CallBack& cb );
-			
+
 			//! return false if not updated for whatever reason.
     bool		update( const DataInpSpec& s );
 
@@ -109,7 +109,6 @@ public:
 			    { setvalue_(mUdf(T)); }
 
 protected:
-
 			// return true if implemented.
     virtual bool	setEmpty_()			{ return false; }
 
@@ -118,6 +117,4 @@ protected:
 
 };
 
-
 #endif
-
