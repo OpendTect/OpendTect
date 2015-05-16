@@ -59,7 +59,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->reSize.notify( mCB(this,uiFlatViewer,reSizeCB) );
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
 
-    bitmapdisp_ = new uiBitMapDisplay( appearance() );
+    bitmapdisp_ = new uiBitMapDisplay( appearance(), false );
     bitmapdisp_->getDisplay()->setZValue( bitMapZVal() );
     worldgroup_->add( bitmapdisp_->getDisplay() );
 
