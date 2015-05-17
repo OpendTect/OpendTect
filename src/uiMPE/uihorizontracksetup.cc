@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uiseparator.h"
 #include "uislider.h"
 #include "uitabstack.h"
+#include "uitoolbutton.h"
 #include "od_helpids.h"
 
 
@@ -78,6 +79,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     , modeChanged_(this)
     , varianceChanged_(this)
     , propertyChanged_(this)
+    , state_(Stopped)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
     uiGroup* modegrp = createModeGroup();
@@ -94,6 +96,40 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
 
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, uiStrings::sProperties(true) );
+
+    startbut_ = new uiToolButton( this, "autotrack", "Start tracking [t]",
+				  mCB(this,uiHorizonSetupGroup,startCB) );
+    startbut_->setShortcut( "t" );
+    stopbut_ = new uiToolButton( this, "stop", "Stop tracking [s]",
+				 mCB(this,uiHorizonSetupGroup,stopCB) );
+    stopbut_->setShortcut( "s" );
+    startbut_->attach( leftOf, tabgrp_ );
+    stopbut_->attach( alignedBelow, startbut_ );
+}
+
+
+void uiHorizonSetupGroup::startCB(CallBacker *)
+{
+    if ( state_ != Started )
+    {
+	state_ = Started;
+	startbut_->setToolTip( "Pause tracking [t]" );
+	startbut_->setIcon( "pause" );
+    }
+    else
+    {
+	state_ = Paused;
+	startbut_->setToolTip( "Start tracking [t]" );
+	startbut_->setIcon( "autotrack" );
+    }
+}
+
+
+void uiHorizonSetupGroup::stopCB(CallBacker *)
+{
+    state_ = Stopped;
+    startbut_->setToolTip( "Start tracking [t]" );
+    startbut_->setIcon( "autotrack" );
 }
 
 

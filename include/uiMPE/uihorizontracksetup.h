@@ -22,12 +22,11 @@ ________________________________________________________________________
 
 class uiButtonGroup;
 class uiColorInput;
-class uiFlatViewer;
 class uiGenInput;
-class uiPushButton;
 class uiSeisSel;
 class uiSlider;
 class uiTabStack;
+class uiToolButton;
 
 
 namespace MPE
@@ -72,10 +71,19 @@ public:
 
     void			showGroupOnTop(const char* grpnm);
 
+    enum State			{ Started, Paused, Stopped };
+    State			getState() const	{ return state_; }
+
 protected:
 
     virtual void		initStuff();
     uiTabStack*			tabgrp_;
+
+    uiToolButton*		startbut_;
+    uiToolButton*		stopbut_;
+    void			startCB(CallBacker*);
+    void			stopCB(CallBacker*);
+    State			state_;
 
 // Mode Group
     uiGroup*			createModeGroup();
