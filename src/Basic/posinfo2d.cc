@@ -318,7 +318,7 @@ float PosInfo::Line2DData::distBetween( int starttrcnr, int stoptrcnr ) const
 
     float dist = 0.f;
     for ( int idx=startidx; idx<stopidx; idx++ )
-	dist += posns_[idx+1].coord_.distTo( posns_[idx].coord_ );
+	dist += (float) posns_[idx+1].coord_.distTo( posns_[idx].coord_ );
     return dist;
 }
 
