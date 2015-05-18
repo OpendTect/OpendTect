@@ -155,7 +155,7 @@ void uiFunctionDisplay::setVals( const float* xvals, const float* yvals,
 	}
     }
 
-    gatherInfo(); draw();
+    gatherInfo( false ); draw();
 }
 
 
@@ -174,7 +174,7 @@ void uiFunctionDisplay::setVals( const Interval<float>& xrg, const float* yvals,
 	}
     }
 
-    gatherInfo(); draw();
+    gatherInfo( false ); draw();
 }
 
 
@@ -193,7 +193,7 @@ void uiFunctionDisplay::setY2Vals( const float* xvals, const float* yvals,
 	}
     }
 
-    gatherInfo(); draw();
+    gatherInfo( true ); draw();
 }
 
 
@@ -214,7 +214,7 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 	}
     }
 
-    gatherInfo(); draw();
+    gatherInfo( true ); draw();
 }
 
 
@@ -279,56 +279,42 @@ Geom::Point2D<float> uiFunctionDisplay::getXYFromPix(
 }
 
 
-void uiFunctionDisplay::gatherInfo()
+void uiFunctionDisplay::gatherInfo( bool fory2 )
 {
-    if ( yvals_.isEmpty() ) return;
-    const bool havey2 = !y2xvals_.isEmpty();
-    if ( havey2 )
-	{ xax_->setEnd( y2ax_ ); y2ax_->setBegin( xax_ ); }
+    const bool usey2 = fory2 && !setup_.useyscalefory2_;
+    if ( !xax_ || ( !usey2 && !yax_ ) || ( usey2 && !y2ax_ ) )
+	return;
 
-    StepInterval<float> xrg, yrg;
-    getRanges( xvals_, yvals_, setup_.xrg_, setup_.yrg_, xrg, yrg );
+    uiAxisHandler* yaxis = usey2 ? y2ax_ : yax_;
+    Interval<float> xrg, yrg;
+    getAxisRanges( xvals_.isEmpty() && usey2 ? y2xvals_ : xvals_, setup_.xrg_,
+		   xrg );
+    getAxisRanges( usey2 ? y2yvals_ : yvals_,
+		   usey2 ? setup_.y2rg_ : setup_.yrg_, yrg );
 
     xax_->setBounds( xrg );
-    yax_->setBounds( yrg );
-
-    if ( havey2 )
+    yaxis->setBounds( yrg );
+    if ( xax_ && y2ax_ )
     {
-	if ( !setup_.useyscalefory2_ )
-	    getRanges( y2xvals_, y2yvals_, setup_.xrg_, setup_.y2rg_, xrg, yrg);
-	y2ax_->setBounds( yrg );
+	xax_->setEnd( y2ax_ );
+	y2ax_->setBegin( xax_ );
     }
 }
 
 
-void uiFunctionDisplay::getRanges(
-	const TypeSet<float>& xvals, const TypeSet<float>& yvals,
-	const Interval<float>& setupxrg, const Interval<float>& setupyrg,
-	StepInterval<float>& xrg, StepInterval<float>& yrg ) const
+void uiFunctionDisplay::getAxisRanges( const TypeSet<float>& vals,
+				       const Interval<float>& setuprg,
+				       Interval<float>& rg ) const
 {
-    for ( int idx=0; idx<xvals.size(); idx++ )
-    {
-	if ( idx == 0 )
-	{
-	    xrg.start = xrg.stop = xvals[0];
-	    yrg.start = yrg.stop = yvals[0];
-	}
-	else
-	{
-	    if ( xvals[idx] < xrg.start ) xrg.start = xvals[idx];
-	    if ( yvals[idx] < yrg.start ) yrg.start = yvals[idx];
-	    if ( xvals[idx] > xrg.stop ) xrg.stop = xvals[idx];
-	    if ( yvals[idx] > yrg.stop ) yrg.stop = yvals[idx];
-	}
-    }
+    rg.set( mUdf(float), -mUdf(float) );
+    for ( int idx=0; idx<vals.size(); idx++ )
+	rg.include( vals[idx], false );
 
     if ( !setup_.fixdrawrg_ )
 	return;
 
-    if ( !mIsUdf(setupxrg.start) ) xrg.start = setupxrg.start;
-    if ( !mIsUdf(setupyrg.start) ) yrg.start = setupyrg.start;
-    if ( !mIsUdf(setupxrg.stop) ) xrg.stop = setupxrg.stop;
-    if ( !mIsUdf(setupyrg.stop) ) yrg.stop = setupyrg.stop;
+    if ( !mIsUdf(setuprg.start) ) rg.start = setuprg.start;
+    if ( !mIsUdf(setuprg.stop) ) rg.stop = setuprg.stop;
 }
 
 
@@ -541,21 +527,29 @@ void uiFunctionDisplay::draw()
     if ( titleitem_ )
 	titleitem_->setPos( uiPoint(width()/2,0) );
 
-    if ( yvals_.isEmpty() ) return;
+    const bool havey = !yvals_.isEmpty();
+    const bool havey2 = !y2yvals_.isEmpty();
+    if ( !havey && !havey2 )
+	return;
 
-    const bool havey2 = !y2xvals_.isEmpty();
     setUpAxis( havey2 );
 
     TypeSet<uiPoint> yptlist, y2ptlist;
-    getPointSet( yptlist, false );
-    if ( havey2 )
-	getPointSet( y2ptlist, true );
+    if ( havey )
+    {
+	getPointSet( yptlist, false );
+	drawYCurve( yptlist );
+	drawMarker(yptlist,false);
+    }
+    else if ( ymarkeritems_ )
+	ymarkeritems_->setVisible( false );
 
-    drawYCurve( yptlist );
-    drawY2Curve( y2ptlist, havey2 );
-    drawMarker(yptlist,false);
     if ( havey2 )
+    {
+	getPointSet( y2ptlist, true );
+	drawY2Curve( y2ptlist, havey2 );
 	drawMarker(y2ptlist,true);
+    }
     else if ( y2markeritems_ )
 	y2markeritems_->setVisible( false );
 

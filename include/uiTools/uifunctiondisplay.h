@@ -143,14 +143,14 @@ public:
 
     void			setTitle(const uiString&);
     void			setVals(const float* xvals,
-	    				const float* yvals,int sz);
+					const float* yvals,int sz);
     void			setVals(const Interval<float>&,
-	    				const float* yvals,int sz);
+					const float* yvals,int sz);
 				//!< Undef values are filtered out
     void			setY2Vals(const float* xvals,
-	    				  const float* yvals,int sz);
+					  const float* yvals,int sz);
     void			setY2Vals(const Interval<float>&,
-	    				const float* yvals,int sz);
+					const float* yvals,int sz);
 				//!< Undef values are filtered out
     void			setMarkValue(float,bool is_x);
     void			setMark2Value(float,bool is_x);
@@ -175,7 +175,7 @@ public:
     Notifier<uiFunctionDisplay>	pointChanged;
     int				selPt() const	{ return selpt_; }
 
-    void			gatherInfo();
+    void			gatherInfo(bool y2=false);
     void			draw();
 
     void			dump(od_ostream&,bool y2) const;
@@ -223,7 +223,7 @@ protected:
     void			drawYCurve(const TypeSet<uiPoint>&);
     void			drawY2Curve(const TypeSet<uiPoint>&,bool havy2);
     void			drawMarker(const TypeSet<uiPoint>&,
-	    				   bool y2=false);
+					   bool y2=false);
     void			drawMarkLine(uiAxisHandler*,float,Color,
 	                                      uiLineItem*&);
     void			drawBorder();
@@ -231,12 +231,9 @@ protected:
     bool			setSelPt();
     void			reSized( CallBacker* );
     void			saveImageAs( CallBacker* );
-    void			getRanges(const TypeSet<float>&,
-	    				  const TypeSet<float>&,
-					  const Interval<float>&,
-					  const Interval<float>&,
-					  StepInterval<float>&,
-					  StepInterval<float>&) const;
+    void			getAxisRanges(const TypeSet<float>& vals,
+					      const Interval<float>& setuprg,
+					      Interval<float>&) const;
 };
 
 
