@@ -231,17 +231,20 @@ void Flat3DDataPack::setPosData()
 	bool isvert = cs.nrZ() > 1;
 	posdata_.setRange( true,
 	    isvert ? mStepIntvD(cubeintv)
-		   : dir_==TrcKeyZSampling::Inl ? mStepIntvD(cs.hsamp_.crlRange())
-					     : mStepIntvD(cs.hsamp_.inlRange()) );
+		   : dir_==TrcKeyZSampling::Inl
+			? mStepIntvD(cs.hsamp_.crlRange())
+			: mStepIntvD(cs.hsamp_.inlRange()) );
 	posdata_.setRange(false, isvert ? mStepIntvD(cs.zsamp_)
 					: mStepIntvD(cubeintv) );
     }
     else
     {
 	posdata_.setRange( true, dir_==TrcKeyZSampling::Inl
-	    ? mStepIntvD(cs.hsamp_.crlRange()) : mStepIntvD(cs.hsamp_.inlRange()) );
+	    ? mStepIntvD(cs.hsamp_.crlRange())
+	    : mStepIntvD(cs.hsamp_.inlRange()) );
 	posdata_.setRange( false, dir_==TrcKeyZSampling::Z
-	    ? mStepIntvD(cs.hsamp_.crlRange()) : mStepIntvD(cs.zsamp_) );
+	    ? mStepIntvD(cs.hsamp_.crlRange())
+	    : mStepIntvD(cs.zsamp_) );
     }
 }
 
@@ -405,6 +408,9 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
 	tracerange_ = StepInterval<int>( dh.trcinfoset_[0]->nr,
 			dh.trcinfoset_[dh.trcinfoset_.size()-1]->nr, 1 );
 	samplingdata_ = dh.trcinfoset_[0]->sampling;
+	//no need for check on dh.dataset_[0] since dataset_.allow0_ is false
+	if ( dh.dataset_.size() )
+	    samplingdata_.start = dh.dataset_[0]->z0_ * samplingdata_.step;
     }
 
     ConstRefMan<Data2DHolder> dataref( &dh );
