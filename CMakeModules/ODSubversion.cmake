@@ -23,9 +23,21 @@ include(FindSubversion)
 if ( Subversion_FOUND AND OD_FROM_SVN )
     Subversion_WC_INFO( ${CMAKE_SOURCE_DIR} MY )
     set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
+    set ( VCS_VERSION ${MY_WC_REVISION} )
 else()
-    set ( MY_WC_REVISION 0 )
-    set ( MY_WC_URL "" )
+    set ( VCS_VERSION 0 )
+
+    find_package(Git)
+
+    if( GIT_FOUND )
+	# Get the latest abbreviated commit hash of the working branch
+	execute_process(
+	  COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	  OUTPUT_VARIABLE VCS_VERSION
+	  OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+    endif()
 endif()
 
 if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )

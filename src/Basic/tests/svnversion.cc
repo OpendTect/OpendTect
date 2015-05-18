@@ -15,14 +15,13 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    const int svnversion = GetSubversionRevision();
-    const char* svnurl = GetSubversionUrl();
+    const char* version = GetVCSVersion();
 
-    if ( svnversion<1 || !svnurl || !*svnurl )
+    if ( !version || !*version )
     {
 	if ( !quiet )
 	{
-	    od_cout() << "Invalid svn revision. "
+	    od_cout() << "Invalid vcs revision. "
 		    "Cmake could probably not find svn command-client. "
 		    "Take a look in CMakeModules/ODSubversion.cmake.\n";
 	}
