@@ -85,6 +85,10 @@ uiFlatViewer::~uiFlatViewer()
 }
 
 
+MouseEventHandler& uiFlatViewer::getMouseEventHandler()
+{ return view_->getMouseEventHandler(); }
+
+
 void uiFlatViewer::reSizeCB( CallBacker* )
 {
     if ( !updatebitmapsonresize_ )

@@ -20,6 +20,7 @@ ________________________________________________________________________
 namespace FlatView { class uiAuxDataDisplay; }
 
 class AxesDrawer;
+class MouseEventHandler;
 class uiBitMapDisplay;
 class uiFlatViewControl;
 class uiGraphicsItemGroup;
@@ -42,6 +43,7 @@ public:
     int			getAnnotChoices(BufferStringSet&) const;
     void		setAnnotChoice(int);
 
+    MouseEventHandler&	getMouseEventHandler();
     uiGraphicsView&	rgbCanvas()			{ return *view_; }
 
     void		setView(const uiWorldRect&);
