@@ -218,10 +218,8 @@ void addInp( int iform, int ifld )
 
 void boxChg( CallBacker* )
 {
-    if ( !formfld_ && !specfld_ ) return;
-
     const int selformidx = formfld_ ? formfld_->currentItem() : 0;
-    const bool isspec = specfld_ && specfld_->currentItem()==0;
+    const bool isspec = specfld_ ? specfld_->currentItem()==0 : ishdr_;
     const bool iskw = specfld_ && specfld_->currentItem() == 1;
 
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
