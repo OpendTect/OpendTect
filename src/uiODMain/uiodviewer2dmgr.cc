@@ -32,10 +32,14 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 
 #include "attribsel.h"
+#include "attribdesc.h"
+#include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "mouseevent.h"
-#include "geom2dintersections.h"
+#include "posinfo2d.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "view2ddata.h"
 #include "view2ddataman.h"
 
@@ -64,7 +68,10 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
 
 uiODViewer2DMgr::~uiODViewer2DMgr()
 {
+    if ( l2dintersections_ )
+	deepErase( *l2dintersections_ );
     delete l2dintersections_;
+    l2dintersections_ = 0;
     delete tifs2d_; delete tifs3d_;
     deepErase( viewers2d_ );
 }
@@ -148,48 +155,81 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     uiODViewer2D* curvwr2d = find2DViewer( *meh );
     if ( !curvwr2d ) return;
 
-    const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
-    if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
-	return;
-
     uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 );
     const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());
     const Coord3 coord = curvwr.getCoord( wp );
     if ( coord.isUdf() ) return;
-
-    const BinID bid = SI().transform( coord );
-    const uiString showinltxt = tr("Show In-line %1...").arg( bid.inl() );
-    const uiString showcrltxt = tr("Show Cross-line %1...").arg( bid.crl() );
-    const uiString showztxt = tr("Show Z-slice %1...")
-			     .arg( coord.z * SI().zDomain().userFactor() );
-
-    const bool isflat = tkzs.isFlat();
-    const TrcKeyZSampling::Dir dir = tkzs.defaultDir();
+    
     uiMenu menu( "Menu" );
-    if ( !isflat || dir!=TrcKeyZSampling::Inl )
-	menu.insertAction( new uiAction(showinltxt), 0 );
-    if ( !isflat || dir!=TrcKeyZSampling::Crl )
-	menu.insertAction( new uiAction(showcrltxt), 1 );
-    if ( !isflat || dir!=TrcKeyZSampling::Z )
-	menu.insertAction( new uiAction(showztxt), 2 );
 
-    menu.insertAction( new uiAction("Properties..."), 3 );
-    const int menuid = menu.exec();
-    if ( menuid>=0 && menuid<3 )
+    Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
+	    				  mUdf(int), mUdf(int) );
+    const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
+    if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
+	const StepInterval<double> x1rg = curvwr.posRange( true );
+	const float eps  = x1rg.step*2.f;
+	if ( curvwr.appearance().annot_.hasAuxPos(true,wp.x,false,eps))
+	{
+	    intpoint2d = intersectingLineID( curvwr2d, wp.x );
+	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
+	       return;	
+	    const uiString show2dtxt =
+		tr("Show '%1'...").arg( Survey::GM().getName(intpoint2d.line) );
+	    menu.insertAction( new uiAction(show2dtxt), 0 );
+	}
+    }
+    else
+    {
+	const BinID bid = SI().transform( coord );
+	const uiString showinltxt = tr("Show In-line %1...").arg( bid.inl() );
+	const uiString showcrltxt = tr("Show Cross-line %1...").arg( bid.crl());
+	const uiString showztxt = tr("Show Z-slice %1...")
+				 .arg( coord.z * SI().zDomain().userFactor() );
+
+	const bool isflat = tkzs.isFlat();
+	const TrcKeyZSampling::Dir dir = tkzs.defaultDir();
+	if ( !isflat || dir!=TrcKeyZSampling::Inl )
+	    menu.insertAction( new uiAction(showinltxt), 1 );
+	if ( !isflat || dir!=TrcKeyZSampling::Crl )
+	    menu.insertAction( new uiAction(showcrltxt), 2 );
+	if ( !isflat || dir!=TrcKeyZSampling::Z )
+	    menu.insertAction( new uiAction(showztxt), 3 );
+    }
+
+    menu.insertAction( new uiAction("Properties..."), 4 );
+    
+    const int menuid = menu.exec();
+    if ( menuid>=0 && menuid<4 )
+    {
+	const BinID bid = SI().transform( coord );
 	uiWorldPoint initialcentre( uiWorldPoint::udf() );
 	TrcKeyZSampling newtkzs = SI().sampling(true);
-	if ( menuid == 0 )
+	if ( menuid==0 )
+	{
+	    const PosInfo::Line2DData& l2ddata =
+		Survey::GM().getGeometry( intpoint2d.line )->as2D()->data();
+	    const StepInterval<int> trcnrrg = l2ddata.trcNrRange();
+	    const float trcdist =
+		l2ddata.distBetween( trcnrrg.start, intpoint2d.linetrcnr );
+	    if ( mIsUdf(trcdist) )
+		return;
+	    initialcentre = uiWorldPoint( mCast(double,trcdist), coord.z );
+	    newtkzs.hsamp_.init( intpoint2d.line );
+	    newtkzs.hsamp_.setLineRange(
+		    Interval<int>(intpoint2d.line,intpoint2d.line) );
+	}
+	else if ( menuid == 1 )
 	{
 	    newtkzs.hsamp_.setLineRange( Interval<int>(bid.inl(),bid.inl()) );
 	    initialcentre = uiWorldPoint( mCast(double,bid.crl()), coord.z );
 	}
-	else if ( menuid == 1 )
+	else if ( menuid == 2 )
 	{
 	    newtkzs.hsamp_.setTrcRange( Interval<int>(bid.crl(),bid.crl()) );
 	    initialcentre = uiWorldPoint( mCast(double,bid.inl()), coord.z );
 	}
-	else if ( menuid == 2 )
+	else if ( menuid == 3 )
 	{
 	    newtkzs.zsamp_ = Interval<float>( mCast(float,coord.z),
 					      mCast(float,coord.z) );
@@ -199,7 +239,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 
 	create2DViewer( *curvwr2d, newtkzs, initialcentre );
     }
-    else if ( menuid == 3 )
+    else if ( menuid == 4 )
 	curvwr2d->viewControl()->doPropertiesDialog( 0 );
 }
 
@@ -257,6 +297,8 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 {
     if ( intersection2DReCalNeeded(geomid) )
     {
+	if ( l2dintersections_ )
+	    deepErase( *l2dintersections_ );
 	delete l2dintersections_;
 	l2dintersections_ = new Line2DInterSectionSet;
 	BufferStringSet lnms;
@@ -310,18 +352,52 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	if ( intscidx<0 )
 	    return;
 	const Line2DInterSection* intsect = (*l2dintersections_)[intscidx];
+	if ( !intsect )
+	    return;
+	Attrib::DescSet* ads2d = Attrib::eDSHolder().getDescSet( true, false );
+	Attrib::DescSet* ads2dns = Attrib::eDSHolder().getDescSet( true, true );
+	const Attrib::Desc* wvadesc =
+	    ads2d->getDesc( vwr2d->selSpec(true).id() );
+       	if ( !wvadesc )
+	    wvadesc = ads2dns->getDesc( vwr2d->selSpec(true).id() );
+	const Attrib::Desc* vddesc =
+	    ads2d->getDesc( vwr2d->selSpec(false).id() );
+       	if ( !vddesc )
+	    vddesc = ads2dns->getDesc( vwr2d->selSpec(false).id() );
+
+	if ( !wvadesc && !vddesc )
+	    return;
+
+	const SeisIOObjInfo wvasi( wvadesc ? wvadesc->getStoredID(true)
+				     	   : vddesc->getStoredID(true) );
+	const SeisIOObjInfo vdsi( vddesc ? vddesc->getStoredID(true)
+				   	 : wvadesc->getStoredID(true));
+	BufferStringSet wvalnms, vdlnms;
+	wvasi.getLineNames( wvalnms );
+	vdsi.getLineNames( vdlnms );
+	TypeSet<Pos::GeomID> commongids;
+
+	for ( int lidx=0; lidx<wvalnms.size(); lidx++ )
+	{
+	    const char* wvalnm = wvalnms.get(lidx).buf();
+	    if ( vdlnms.isPresent(wvalnm) )
+		commongids += Survey::GM().getGeomID( wvalnm );
+	}
+
+	const StepInterval<double> x1rg =
+	    vwr2d->viewwin()->viewer().posRange( true );
+	const StepInterval<int> trcrg =
+	    vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
 	for ( int intposidx=0; intposidx<intsect->size(); intposidx++ )
 	{
 	    const Line2DInterSection::Point& intpos =
 		intsect->getPoint( intposidx );
+	    if ( !commongids.isPresent(intpos.line) )
+		continue;
 	    FlatView::Annotation::AxisData::AuxPosition newpos;
 	    if ( isVWR2DDisplayed(intpos.line) )
 		newpos.isbold_ = true;
 
-	    StepInterval<double> x1rg =
-		vwr2d->viewwin()->viewer().posRange( true );
-	    StepInterval<int> trcrg =
-		vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
 	    newpos.pos_ = mCast(float,x1rg.atIndex(posidx));
 	    newpos.name_ = Survey::GM().getName( intpos.line );
@@ -416,7 +492,8 @@ int uiODViewer2DMgr::intersection2DIdx( Pos::GeomID newgeomid ) const
 	return -1;
     for ( int lidx=0; lidx<l2dintersections_->size(); lidx++ )
     {
-	if ( (*l2dintersections_)[lidx]->geomID()==newgeomid )
+	if ( (*l2dintersections_)[lidx] &&
+	     (*l2dintersections_)[lidx]->geomID()==newgeomid )
 	    return lidx;
     }
 
@@ -425,18 +502,54 @@ int uiODViewer2DMgr::intersection2DIdx( Pos::GeomID newgeomid ) const
 }
 
 
-bool uiODViewer2DMgr::isVWR2DDisplayed( const Pos::GeomID& geomid ) const
+Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
+	const uiODViewer2D* vwr2d, float intpos ) const
+{
+    Line2DInterSection::Point udfintpoint( Survey::GM().cUndefGeomID(),
+	    				   mUdf(int), mUdf(int) );
+    const int intsecidx = intersection2DIdx( vwr2d->geomID() );
+    if ( intsecidx<0 )
+	return udfintpoint;
+    
+    const Line2DInterSection* int2d = (*l2dintersections_)[intsecidx];
+    if ( !int2d ) return udfintpoint;
+
+    const StepInterval<double> vwrxrg =
+	vwr2d->viewwin()->viewer().posRange( true );
+    const int intidx = vwrxrg.getIndex( intpos );
+    if ( intidx<0 )
+	return udfintpoint;
+    StepInterval<int> vwrtrcrg = vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
+    const int inttrcnr = vwrtrcrg.atIndex( intidx );
+    for ( int idx=0; idx<int2d->size(); idx++ )
+    {
+	const Line2DInterSection::Point& intpoint = int2d->getPoint( idx );
+	if ( intpoint.mytrcnr==inttrcnr )
+	    return intpoint;
+    }
+
+    return udfintpoint;
+}
+
+
+int uiODViewer2DMgr::vwr2DIdx( Pos::GeomID geomid ) const
 {
     if ( geomid == Survey::GM().cUndefGeomID() )
-	return false;
+	return -1;
 
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
 	if ( viewers2d_[idx]->geomID()==geomid )
-	    return true;
+	    return idx;
     }
 
-    return false;
+    return -1;
+}
+
+
+bool uiODViewer2DMgr::isVWR2DDisplayed( Pos::GeomID geomid ) const
+{
+    return vwr2DIdx(geomid)>=0;
 }
 
 

@@ -182,6 +182,22 @@ void FlatView::Annotation::AxisData::showAll( bool yn )
 { showannot_ = showgridlines_ = yn; }
 
 
+bool FlatView::Annotation::AxisData::hasAuxPos( float atpos, bool bold,
+						float eps ) const
+{
+    for ( int auxidx=0; auxidx<auxposs_.size(); auxidx++ )
+    {
+	const AuxPosition& auxpos = auxposs_[auxidx];
+	if ( auxpos.isbold_ != bold )
+	    continue;
+	if ( mIsEqual(auxpos.pos_,atpos,eps) )
+	    return true;
+    }
+
+    return false;
+}
+
+
 FlatView::Annotation::Annotation( bool drkbg )
     : color_(drkbg ? Color::White() : Color::Black())
     , showaux_(true)
@@ -229,6 +245,15 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 		 x2_.showgridlines_);
     mIOPDoAxes2( getYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
     iop.getYN( sKeyShwAux(), showaux_ );
+}
+
+
+bool FlatView::Annotation::hasAuxPos( bool forx, float atpos, bool bold,
+				      float eps ) const
+{
+    if ( forx )
+	return x1_.hasAuxPos( atpos, bold, eps );
+    return x2_.hasAuxPos( atpos, bold, eps );
 }
 
 
