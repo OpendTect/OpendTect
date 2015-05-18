@@ -428,13 +428,8 @@ mExtern(Basic) bool WriteEnvVar( const char* env, const char* val )
 }
 
 
-mExternC(Basic) int GetSubversionRevision(void)
-{ return mSVN_VERSION; }
-
-
-mExternC(Basic) const char* GetSubversionUrl(void)
-{ return mSVN_URL; }
-
+mExternC(Basic) const char* GetVCSVersion(void)
+{ return mVCS_VERSION; }
 
 
 static int argc = -1;

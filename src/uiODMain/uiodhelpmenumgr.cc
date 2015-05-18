@@ -101,8 +101,7 @@ BufferString uiODHelpMenuMgr::getAboutString()
     str.set( "<h2>OpendTect v" ).add( GetFullODVersion() ).add("</h2><br>");
 
     str.add( "Built on " ).add( mBUILD_DATE ).add( "<br>" )
-       .add( "From SVN repository: " ).add( mSVN_URL ).add( "<br>" )
-       .add( "revision " ).add( mSVN_VERSION ).add( "<br><br>" );
+       .add( "From revision " ).add( mVCS_VERSION ).add( "<br><br>" );
 
     str.add( "Based on Qt " ).add( GetQtVersion() )
        .add( ", OSG " ).add( GetOSGVersion() ).add( ",<br>" )

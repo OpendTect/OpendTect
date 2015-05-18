@@ -10,9 +10,8 @@ ________________________________________________________________________
 -*/
 
 
-#ifndef mSVN_VERSION
-# define mSVN_VERSION @MY_WC_REVISION@
-# define mSVN_URL "@MY_WC_URL@"
+#ifndef mVCS_VERSION
+# define mVCS_VERSION "@VCS_VERSION@"
 #endif
 
 #ifndef mBUILD_DATE
