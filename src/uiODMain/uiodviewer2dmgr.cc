@@ -168,10 +168,10 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
 	const StepInterval<double> x1rg = curvwr.posRange( true );
-	const float eps  = x1rg.step*2.f;
-	if ( curvwr.appearance().annot_.hasAuxPos(true,wp.x,false,eps))
+	const float eps  = ((float)x1rg.step)*2.f;
+	if ( curvwr.appearance().annot_.hasAuxPos(true,(float) wp.x,false,eps))
 	{
-	    intpoint2d = intersectingLineID( curvwr2d, wp.x );
+	    intpoint2d = intersectingLineID( curvwr2d, (float) wp.x );
 	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
 	       return;
 	    const uiString show2dtxt =
