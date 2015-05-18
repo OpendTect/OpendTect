@@ -58,6 +58,11 @@ protected:
     void			visibleDataChangeCB(CallBacker*);
     void			wvavdChgCB(CallBacker*);
 
+    void			mousePressed(CallBacker*);
+    void			mouseMoved(CallBacker*);
+    void			mouseReleased(CallBacker*);
+    bool			mousedown_;
+
     uiGenInput*			usecorrfld_;
     uiGenInput*			compwinfld_;
     uiGenInput*			corrthresholdfld_;

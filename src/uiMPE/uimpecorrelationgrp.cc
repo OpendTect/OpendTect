@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 
 #include "draw.h"
 #include "horizonadjuster.h"
+#include "mouseevent.h"
 #include "mpeengine.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
@@ -24,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uimsg.h"
 #include "uiseparator.h"
 
+// TODO: Move preview viewer to separate object
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
@@ -36,6 +38,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     , adjuster_(0)
     , changed_(this)
     , seedpos_(Coord3::udf())
+    , mousedown_(false)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     usecorrfld_ = new uiGenInput( leftgrp, tr("Use Correlation"),
@@ -96,6 +99,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     previewvwr_->setPrefWidth( 150 );
     previewvwr_->setPrefHeight( 200 );
     previewvwr_->setStretch( 0, 0 );
+    previewvwr_->rgbCanvas().setDragMode( uiGraphicsView::NoDrag );
     previewvwr_->appearance().ddpars_.wva_.mappersetup_.cliprate_ =
 				Interval<float>(0.01f,0.01f);
     previewvwr_->appearance().setGeoDefaults( true );
@@ -121,12 +125,60 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     seeditm_->markerstyles_[0].color_ = Color(0,255,0);
     previewvwr_->addAuxData( seeditm_ );
 
+    previewvwr_->getMouseEventHandler().buttonPressed.notify(
+			     mCB(this,uiCorrelationGroup,mousePressed) );
+    previewvwr_->getMouseEventHandler().buttonReleased.notify(
+			     mCB(this,uiCorrelationGroup,mouseReleased) );
+    previewvwr_->getMouseEventHandler().movement.notify(
+			     mCB(this,uiCorrelationGroup,mouseMoved) );
+
     setHAlignObj( usecorrfld_ );
 }
 
 
 uiCorrelationGroup::~uiCorrelationGroup()
 {
+}
+
+
+void uiCorrelationGroup::mousePressed( CallBacker* )
+{
+    MouseEventHandler& meh = previewvwr_->getMouseEventHandler();
+    if ( seedpos_.isUdf() || meh.isHandled() )
+	return;
+
+    const MouseEvent& ev = meh.event();
+    const Geom::Point2D<int>& pt = ev.pos();
+    uiWorldPoint wpt = previewvwr_->getWorld2Ui().transform( pt );
+    const double diff = Math::Abs(seedpos_.z-wpt.y)*SI().zDomain().userFactor();
+    if ( wpt.y < seedpos_.z )
+	compwinfld_->setValue( mNINT32(-diff), 0 );
+    else
+	compwinfld_->setValue( mNINT32(diff), 1 );
+
+    mousedown_ = true;
+}
+
+
+void uiCorrelationGroup::mouseMoved( CallBacker* )
+{
+    if ( !mousedown_ ) return;
+
+    MouseEventHandler& meh = previewvwr_->getMouseEventHandler();
+    const MouseEvent& ev = meh.event();
+    const Geom::Point2D<int>& pt = ev.pos();
+    uiWorldPoint wpt = previewvwr_->getWorld2Ui().transform( pt );
+    const double diff = Math::Abs(seedpos_.z-wpt.y)*SI().zDomain().userFactor();
+    if ( wpt.y < seedpos_.z )
+	compwinfld_->setValue( mNINT32(-diff), 0 );
+    else
+	compwinfld_->setValue( mNINT32(diff), 1 );
+}
+
+
+void uiCorrelationGroup::mouseReleased( CallBacker* )
+{
+    mousedown_ = false;
 }
 
 
@@ -189,7 +241,7 @@ void uiCorrelationGroup::init()
     corrthresholdfld_->setValue( adjuster_->similarityThreshold()*100 );
 
     const int sample = mCast(int,SI().zStep()*SI().zDomain().userFactor());
-    const Interval<int> dataintv = corrintv + Interval<int>(-sample,sample);
+    const Interval<int> dataintv = corrintv + Interval<int>(-2*sample,2*sample);
     nrzfld_->setValue( dataintv );
 
     nrtrcsfld_->setValue( 5 );

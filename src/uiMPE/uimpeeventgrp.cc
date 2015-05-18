@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 
 #include "draw.h"
 #include "horizonadjuster.h"
+#include "mouseevent.h"
 #include "mpeengine.h"
 #include "sectiontracker.h"
 #include "separstr.h"
@@ -29,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uitable.h"
 #include "od_helpids.h"
 
+// TODO: Move preview viewer to separate object
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
@@ -66,6 +68,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     , changed_(this)
     , is2d_(is2d)
     , seedpos_(Coord3::udf())
+    , mousedown_(false)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     evfld_ = new uiGenInput( leftgrp, tr("Event type"),
@@ -137,6 +140,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     previewvwr_->setPrefWidth( 150 );
     previewvwr_->setPrefHeight( 200 );
     previewvwr_->setStretch( 0, 0 );
+    previewvwr_->rgbCanvas().setDragMode( uiGraphicsView::NoDrag );
     previewvwr_->appearance().ddpars_.wva_.mappersetup_.cliprate_ =
 				Interval<float>(0.01f,0.01f);
     previewvwr_->appearance().setGeoDefaults( true );
@@ -162,12 +166,60 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     seeditm_->markerstyles_[0].color_ = Color(0,255,0);
     previewvwr_->addAuxData( seeditm_ );
 
+    previewvwr_->getMouseEventHandler().buttonPressed.notify(
+			     mCB(this,uiEventGroup,mousePressed) );
+    previewvwr_->getMouseEventHandler().buttonReleased.notify(
+			     mCB(this,uiEventGroup,mouseReleased) );
+    previewvwr_->getMouseEventHandler().movement.notify(
+			     mCB(this,uiEventGroup,mouseMoved) );
+
     setHAlignObj( evfld_ );
 }
 
 
 uiEventGroup::~uiEventGroup()
 {
+}
+
+
+void uiEventGroup::mousePressed( CallBacker* )
+{
+    MouseEventHandler& meh = previewvwr_->getMouseEventHandler();
+    if ( seedpos_.isUdf() || meh.isHandled() )
+	return;
+
+    const MouseEvent& ev = meh.event();
+    const Geom::Point2D<int>& pt = ev.pos();
+    uiWorldPoint wpt = previewvwr_->getWorld2Ui().transform( pt );
+    const double diff = Math::Abs(seedpos_.z-wpt.y)*SI().zDomain().userFactor();
+    if ( wpt.y < seedpos_.z )
+	srchgatefld_->setValue( mNINT32(-diff), 0 );
+    else
+	srchgatefld_->setValue( mNINT32(diff), 1 );
+
+    mousedown_ = true;
+}
+
+
+void uiEventGroup::mouseMoved( CallBacker* )
+{
+    if ( !mousedown_ ) return;
+
+    MouseEventHandler& meh = previewvwr_->getMouseEventHandler();
+    const MouseEvent& ev = meh.event();
+    const Geom::Point2D<int>& pt = ev.pos();
+    uiWorldPoint wpt = previewvwr_->getWorld2Ui().transform( pt );
+    const double diff = Math::Abs(seedpos_.z-wpt.y)*SI().zDomain().userFactor();
+    if ( wpt.y < seedpos_.z )
+	srchgatefld_->setValue( mNINT32(-diff), 0 );
+    else
+	srchgatefld_->setValue( mNINT32(diff), 1 );
+}
+
+
+void uiEventGroup::mouseReleased( CallBacker* )
+{
+    mousedown_ = false;
 }
 
 
@@ -315,7 +367,7 @@ void uiEventGroup::init()
 
     thresholdtypefld_->setValue( adjuster_->useAbsThreshold() ? 0 : 1 );
 
-    const int sample = mCast(int,SI().zStep()*SI().zDomain().userFactor());
+    const int sample = 2*mCast(int,SI().zStep()*SI().zDomain().userFactor());
     const Interval<int> dataintv = srchintv + Interval<int>(-sample,sample);
     nrzfld_->setValue( dataintv );
 
