@@ -308,6 +308,21 @@ Coord PosInfo::Line2DData::getNormal( int trcnr ) const
 }
 
 
+float PosInfo::Line2DData::distBetween( int starttrcnr, int stoptrcnr ) const
+{
+    if ( stoptrcnr < starttrcnr ) return mUdf(float);
+    bool found; const int startidx = gtIndex( starttrcnr, found );
+    if ( !found ) return mUdf(float);
+    const int stopidx = gtIndex( stoptrcnr, found );
+    if ( !found ) return mUdf(float);
+
+    float dist = 0.f;
+    for ( int idx=startidx; idx<stopidx; idx++ )
+	dist += posns_[idx+1].coord_.distTo( posns_[idx].coord_ );
+    return dist;
+}
+
+
 void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
 						 float& median ) const
 {

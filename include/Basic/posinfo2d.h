@@ -104,6 +104,7 @@ public:
     StepInterval<Pos::TraceID>	trcNrRange() const;
     Coord		getNormal(int trcnr) const;
     void		compDistBetwTrcsStats(float& max, float& median) const;
+    float		distBetween(int startnr,int stopnr) const;
 
     bool		coincidesWith(const Line2DData&) const;
 			/*!< A true return value means they have at least one
