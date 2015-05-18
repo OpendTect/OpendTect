@@ -407,6 +407,8 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
 	tracerange_ = StepInterval<int>( dh.trcinfoset_[0]->nr,
 			dh.trcinfoset_[dh.trcinfoset_.size()-1]->nr, 1 );
 	samplingdata_ = dh.trcinfoset_[0]->sampling;
+	if ( dh.dataset_.size() && dh.dataset_[0] )
+	    samplingdata_.start = dh.dataset_[0]->z0_ * samplingdata_.step;
     }
 
     ConstRefMan<Data2DHolder> dataref( &dh );
