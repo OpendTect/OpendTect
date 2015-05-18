@@ -15,13 +15,13 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "callback.h"
 #include "datapack.h"
+#include "geom2dintersections.h"
 #include "uigeom.h"
 #include "uiodapplmgr.h"
 
 class uiFlatViewer;
 class uiODViewer2D;
 class uiTreeFactorySet;
-class Line2DInterSectionSet;
 class MouseEventHandler;
 class TrcKeyZSampling;
 namespace Attrib { class SelSpec; }
@@ -65,23 +65,27 @@ protected:
 
     uiODMain&			appl_;
 
-    bool			isVWR2DDisplayed(const Pos::GeomID&) const;
+    int				vwr2DIdx(Pos::GeomID) const;
+    bool			isVWR2DDisplayed(Pos::GeomID) const;
     inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
     void			viewWinClosedCB(CallBacker*);
     void			vw2DPosChangedCB(CallBacker*);
+    void			homeZoomChangedCB(CallBacker*);
     void			mouseClickCB(CallBacker*);
 
     void			create2DViewer(const uiODViewer2D& curvwr2d,
-					     const TrcKeyZSampling& newtkzs,
-					     const uiWorldPoint& initialcentre);
+					       const TrcKeyZSampling& newtkzs,
+					       const uiWorldPoint& initcentr);
 				/*!< \param newtkzs is the new TrcKeyZSampling
 				for which a new uiODViewer2D will be created.
 				\param curvwr2d is the current 2D Viewer of
 				which the newly created 2D Viewer will inherit
 				Attrib::SelSpec and other display properties.*/
     void			attachNotifiers(uiODViewer2D*);
+    Line2DInterSection::Point	intersectingLineID(const uiODViewer2D*,
+						   float pos) const;
     int				intersection2DIdx(Pos::GeomID) const;
     bool			intersection2DReCalNeeded(Pos::GeomID) const;
     void			reCalc2DIntersetionIfNeeded(Pos::GeomID);

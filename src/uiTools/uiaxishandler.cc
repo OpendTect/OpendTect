@@ -693,7 +693,18 @@ void uiAxisHandler::drawAnnotAtPos( int pix, const uiString& txt,
 	uiTextItem* annotpostxtitem =
 	    new uiTextItem( uiPoint(x1,pix), txt, al );
 	annotpostxtitem->setTextColor( ls.color_ );
-	annotpostxtitem->setFontData( setup_.fontdata_ );
+	if ( bold )
+	{
+	    BufferString fms;
+	    setup_.fontdata_.putTo( fms );
+	    FontData fd;
+	    fd.getFrom( fms );
+	    fd.setWeight( FontData::Bold );
+	    annotpostxtitem->setFontData( fd );
+	}
+	else
+	    annotpostxtitem->setFontData( setup_.fontdata_ );
+
 	if ( aux )
 	    auxpostxtitmgrp_->add( annotpostxtitem );
 	else

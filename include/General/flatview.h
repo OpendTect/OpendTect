@@ -141,6 +141,7 @@ public:
 	bool			annotinint_;
 	int			factor_;
 	TypeSet<AuxPosition>	auxposs_;
+	bool			hasAuxPos(float pos,bool bld,float eps) const;
 
 	void			showAll(bool yn);
     };
@@ -153,6 +154,8 @@ public:
     Color			color_; //!< For axes
     AxisData			x1_;
     AxisData			x2_;
+    bool			hasAuxPos(bool forx1,float pos,
+					  bool bld, float eps) const;
 
     bool			showaux_;
     bool			editable_;

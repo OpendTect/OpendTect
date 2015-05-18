@@ -80,7 +80,7 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 
     if ( SI().has2D() )
     {
-	Attrib::DescSet* ads = Attrib::eDSHolder().getDescSet(true,true);
+	Attrib::DescSet* ads = Attrib::eDSHolder().getDescSet(true,false);
 	inp2dfld_ = new uiAttrSel( this, *ads, 0, ads->getID(0) );
 	inp2dfld_->selectionDone.notify( inpcb );
 	if ( postypefld_ )
