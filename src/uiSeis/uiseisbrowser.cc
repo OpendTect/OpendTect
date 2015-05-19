@@ -74,7 +74,7 @@ protected:
 
 
 uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
-    : uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle, 
+    : uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
                       mODHelpKey(mSeisBrowserHelpID) )
     , id_(ky)
     , geom_(gt)
@@ -447,7 +447,7 @@ uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
 {
     PositionInpSpec inpspec(
 	    PositionInpSpec::Setup(false,is2d,isps).binid(cur) );
-    posfld_ = new uiGenInput( this, tr("New Position"), 
+    posfld_ = new uiGenInput( this, tr("New Position"),
 			      inpspec.setName("Inline",0)
 				     .setName("Crossline",1) );
 }
@@ -846,12 +846,12 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     BufferString label( is2d_ ? "Trace/Ref number" : sKey::Position() );
     IntInpSpec iis; FloatInpSpec fis;
     DataInpSpec* pdis = &iis; if ( is2d_ ) pdis = &fis;
-    trcnrbinidfld_ = new uiGenInput( valgrp, mkUiString(label.buf()), iis, 
+    trcnrbinidfld_ = new uiGenInput( valgrp, mkUiString(label.buf()), iis,
 				     *pdis );
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );
     trcnrbinidfld_->setReadOnly();
 
-    minamplfld_ = new uiGenInput( valgrp, tr("Minimum amplitude"), 
+    minamplfld_ = new uiGenInput( valgrp, tr("Minimum amplitude"),
 				  FloatInpSpec() );
     minamplfld_->attach( alignedBelow, trcnrbinidfld_ );
     minamplfld_->setElemSzPol( uiObject::Small );
@@ -863,7 +863,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     uiLabel* lbl = new uiLabel( valgrp, mkUiString(zdomdef_.unitStr(true)) );
     lbl->attach( rightOf, minamplatfld_ );
 
-    maxamplfld_ = new uiGenInput( valgrp, tr("Maximum amplitude"), 
+    maxamplfld_ = new uiGenInput( valgrp, tr("Maximum amplitude"),
 				  FloatInpSpec() );
     maxamplfld_->attach( alignedBelow, minamplfld_ );
     maxamplfld_->setElemSzPol( uiObject::Small );
@@ -876,7 +876,7 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
     lbl->attach( rightOf, maxamplatfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, dispparamgrp_ );
+    sep->attach( stretchedBelow, exportfld_ );
     valgrp->attach( centeredBelow, sep );
     valgrp->attach( ensureBelow, sep );
 
@@ -931,8 +931,9 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
     maxamplfld_->setValue( amplrg.stop );
     maxamplatfld_->setText( getZValStr(peakzs.stop,zfac) );
 
-    Array2DImpl<float> a2d( 1, vals.size() );
+    setup_.nyqvistspspace_ = trc.info().sampling.step;
+    Array1DImpl<float> a1d( vals.size() );
     for ( int idx=0; idx<vals.size(); idx++ )
-	a2d.set( 0, idx, vals[idx] );
-    setData( a2d );
+	a1d.set( idx, vals[idx] );
+    setData( a1d );
 }

@@ -9,6 +9,7 @@ SET( OD_MODULE_DEPS uiBase Network )
 SET( OD_MODULE_SOURCES
 	inituitools.cc
 	annotbuffill.cc
+	uiamplspectrum.cc
 	uiapplserv.cc
 	uiarray2dchg.cc
 	uiarray1dinterpol.cc

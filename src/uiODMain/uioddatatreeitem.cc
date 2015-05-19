@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uioddatatreeitem.h"
 
-#include "uiamplspectrum.h"
 #include "uifkspectrum.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -21,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodviewer2dmgr.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
+#include "uiseisamplspectrum.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
@@ -394,8 +394,8 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 		if ( mnuid==amplspectrumitem_.id )
 		{
 		    delete ampspectrumwin_;
-		    ampspectrumwin_ =
-			new uiAmplSpectrum( applMgr()->applService().parent() );
+		    ampspectrumwin_ = new uiSeisAmplSpectrum(
+					  applMgr()->applService().parent() );
 		    ampspectrumwin_->setDataPackID( dpid, dmid );
 		    ampspectrumwin_->show();
 		}

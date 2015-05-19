@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodvolrentreeitem.h"
 
-#include "uiamplspectrum.h"
 #include "uiattribpartserv.h"
 #include "uifiledlg.h"
 #include "uimenu.h"
@@ -19,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiodbodydisplaytreeitem.h"
+#include "uiseisamplspectrum.h"
 #include "uislicesel.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -361,8 +361,8 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 	const DataPack::ID dpid =
 			    visserv->getDataPackID( displayID(), attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
-	uiAmplSpectrum* asd = new uiAmplSpectrum(
-					applMgr()->applService().parent() );
+	uiSeisAmplSpectrum* asd = new uiSeisAmplSpectrum(
+				      applMgr()->applService().parent() );
 	asd->setDataPackID( dpid, dmid );
 	asd->windowClosed.notify( mCB(OBJDISP(),ObjDisposer,go) );
 	asd->show();

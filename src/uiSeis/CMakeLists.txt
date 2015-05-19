@@ -8,7 +8,6 @@
 SET(OD_MODULE_DEPS uiIo Seis Velocity)
 SET(OD_MODULE_SOURCES
 	inituiseis.cc
-	uiamplspectrum.cc
 	uibatchtime2depthsetup.cc
 	uiclusterproc.cc
 	uielasticpropsel.cc
@@ -36,6 +35,7 @@ SET(OD_MODULE_SOURCES
 	uiseis2dfrom3d.cc
 	uiseis2dgeom.cc
 	uiseis2dto3d.cc
+	uiseisamplspectrum.cc
 	uiseisbayesclass.cc
 	uiseisbrowser.cc
 	uiseiscbvsimpfromothersurv.cc

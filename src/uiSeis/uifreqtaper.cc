@@ -48,7 +48,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     setCtrlStyle( CloseOnly );
 
     CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
-    previewfld_ = new uiPushButton( this, tr("Preview spectrum..."), 
+    previewfld_ = new uiPushButton( this, tr("Preview spectrum..."),
                                     cbview,true);
 
     uiFuncTaperDisp::Setup su;
@@ -161,7 +161,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	SeisBufReader sbfr( rdr, trcset );
 	sbfr.execute();
 
-	if ( !trcset.size() )
+	if ( trcset.isEmpty() )
 	    mErrRet( tr("No data extracted") );
 
 	Array2DImpl<float> arr2d( trcset.size(), trcset.get(0)->size() );
@@ -182,7 +182,10 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	    }
 	}
 
-	uiAmplSpectrum spec( this );
+	const float sr = trcset.get(0)->info().sampling.step;
+
+	uiAmplSpectrum::Setup su( "", false, sr );
+	uiAmplSpectrum spec( this, su );
 	spec.setData( arr2d  );
 	delete funcvals_;
 	funcvals_ = new Array1DImpl<float>( 0 );

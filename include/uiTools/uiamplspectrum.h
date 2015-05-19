@@ -12,7 +12,7 @@ ______________________________________________________________________
 
 */
 
-#include "uiseismod.h"
+#include "uitoolsmod.h"
 #include "uidialog.h"
 #include "datapack.h"
 #include "survinfo.h"
@@ -22,6 +22,7 @@ ______________________________________________________________________
 class uiFunctionDisplay;
 class uiGenInput;
 class uiLabeledSpinBox;
+class uiPushButton;
 namespace Fourier { class CC; }
 template <class T> class Array1D;
 template <class T> class Array2D;
@@ -29,7 +30,7 @@ template <class T> class Array3D;
 template <class T> class Array1DImpl;
 
 
-mExpClass(uiSeis) uiAmplSpectrum : public uiMainWin
+mExpClass(uiTools) uiAmplSpectrum : public uiMainWin
 { mODTextTranslationClass(uiAmplSpectrum);
 public:
     struct Setup
@@ -66,6 +67,7 @@ protected:
     uiLabeledSpinBox*		stepfld_;
     uiGenInput*			valfld_;
     uiGroup*			dispparamgrp_;
+    uiPushButton*		exportfld_;
 
     void			initFFT(int nrsamples);
     bool			compute(const Array3D<float>&);

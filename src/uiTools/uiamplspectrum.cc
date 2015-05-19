@@ -23,12 +23,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndalgo.h"
 #include "arrayndwrapper.h"
 #include "bufstring.h"
-#include "trckeyzsampling.h"
+#include "datapackbase.h"
 #include "flatposdata.h"
 #include "fourier.h"
 #include "mouseevent.h"
 #include "od_ostream.h"
-#include "seisdatapack.h"
+#include "trckeyzsampling.h"
 
 
 #define mDispVal(v)	20*Math::Log10(v+1)
@@ -77,18 +77,17 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     valfld_->attach( alignedBelow, rangefld_ );
     valfld_->display( false );
 
-    uiPushButton* exportbut = new uiPushButton( this, uiStrings::sExport(), 
-                                                false );
-    exportbut->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
-    exportbut->attach( rightAlignedBelow, disp_ );
-    exportbut->attach( ensureBelow, dispparamgrp_ );
+    exportfld_ = new uiPushButton( this, uiStrings::sExport(), false );
+    exportfld_->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
+    exportfld_->attach( rightAlignedBelow, disp_ );
+    exportfld_->attach( ensureBelow, dispparamgrp_ );
 
     if ( !setup_.iscepstrum_ )
     {
-	uiPushButton* cepbut = new uiPushButton( this,tr("Display cepstrum"),
-                                                 false);
+	uiPushButton* cepbut = new uiPushButton( this, tr("Display cepstrum"),
+						 false );
 	cepbut->activated.notify( mCB(this,uiAmplSpectrum,ceptrumCB) );
-	cepbut->attach( leftOf, exportbut );
+	cepbut->attach( leftOf, exportfld_ );
     }
 }
 
@@ -112,16 +111,7 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	                      : tr( "Amplitude Spectrum for %1" )
                                 .arg( datapack->name() ) );
 
-    if ( dmid == DataPackMgr::SeisID() )
-    {
-	mDynamicCastGet(const SeisDataPack*,dp,datapack.ptr());
-	if ( dp )
-	{
-	    setup_.nyqvistspspace_ = dp->getZRange().step;
-	    setData( dp->data() );
-	}
-    }
-    else if ( dmid == DataPackMgr::FlatID() )
+    if ( dmid == DataPackMgr::FlatID() )
     {
 	mDynamicCastGet(const FlatDataPack*,dp,datapack.ptr());
 	if ( dp )
@@ -252,8 +242,6 @@ void uiAmplSpectrum::putDispData()
     }
 
     float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
-    if ( SI().zIsTime() )
-	maxfreq = mCast( float, mNINT32( maxfreq ) );
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
     stepfld_->box()->setInterval( posrange_.start, posrange_.stop,
