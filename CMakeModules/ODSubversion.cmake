@@ -22,21 +22,33 @@ include(FindSubversion)
 # extract working copy information for SOURCE_DIR into MY_XXX variables
 if ( Subversion_FOUND AND OD_FROM_SVN )
     Subversion_WC_INFO( ${CMAKE_SOURCE_DIR} MY )
+    set ( VCS_VERSION ${MY_WC_REVISION} )
+    set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
 else()
+    set ( VCS_VERSION 0 )
     set ( MY_WC_REVISION 0 )
     set ( MY_WC_URL "" )
+
+    find_package(Git)
+
+    if( GIT_FOUND )
+        # Get the latest abbreviated commit hash of the working branch
+        execute_process(
+          COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+          OUTPUT_VARIABLE VCS_VERSION
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    endif()
 endif()
 
-if ( OD_FROM_SVN )
-    set ( UPDATE_CMD ${Subversion_SVN_EXECUTABLE} update )
-    if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
-	execute_process(
-	    COMMAND ${CMAKE_COMMAND}
-		-DOpendTect_DIR=${OpendTect_DIR}
-		-DUPDATE=No
-		-P external/Externals.cmake
-	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
-    endif()
+if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )
+    execute_process(
+	COMMAND ${CMAKE_COMMAND}
+	    -DOpendTect_DIR=${OpendTect_DIR}
+	    -DUPDATE=No
+	    -P external/Externals.cmake
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
 endif()
 
 if ( EXISTS ${CMAKE_SOURCE_DIR}/external/Externals.cmake )

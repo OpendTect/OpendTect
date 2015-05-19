@@ -26,7 +26,6 @@ set( OD_TEST_PROGS
 	refcount.cc
 	sets.cc
 	string.cc
-	svnversion.cc
 	threads.cc
 	threadwork.cc
 	uistring.cc
