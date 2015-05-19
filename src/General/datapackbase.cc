@@ -435,6 +435,8 @@ SeisDataPack::~SeisDataPack()
 
 int SeisDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
 {
+    if ( tk.isUdf() ) return -1;
+
     const int gidx = getGlobalIdx( tk );
     if ( gidx >= 0 ) return gidx;
 
@@ -443,6 +445,8 @@ int SeisDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
     for ( int idx=0; nrTrcs(); idx++ )
     {
 	const TrcKey curtk = getTrcKey( idx );
+	if ( curtk.isUdf() ) continue;
+
 	const double curdist = tk.distTo( curtk );
 	if ( curdist < dist )
 	{
