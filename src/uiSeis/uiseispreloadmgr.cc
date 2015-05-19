@@ -174,7 +174,7 @@ class uiSeisPreLoadSel : public uiDialog
 public:
 
 uiSeisPreLoadSel( uiParent* p, Seis::GeomType geom )
-    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
 {
     setCaption( geom==Seis::Vol ? tr("Pre-load 3D Data")
 				: tr("Pre-load 2D Data") );
@@ -186,6 +186,7 @@ uiSeisPreLoadSel( uiParent* p, Seis::GeomType geom )
 
     Seis::SelSetup selsu( geom ); selsu.multiline(true);
     subselfld_ = uiSeisSubSel::get( this, selsu );
+    subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     subselfld_->attach( alignedBelow, seissel_ );
 
     scalerfld_ = new uiScaler( this, 0, true );
@@ -196,6 +197,11 @@ uiSeisPreLoadSel( uiParent* p, Seis::GeomType geom )
     typefld_->setValue( (int)DataCharacteristics::Auto );
     typefld_->attach( alignedBelow, scalerfld_ );
 
+#ifndef __debug__
+    scalerfld_->setSensitive( true );
+    typefld_->setSensitive( true );
+#endif
+
     postFinalise().notify( mCB(this,uiSeisPreLoadSel,seisSel) );
 }
 
@@ -203,7 +209,36 @@ uiSeisPreLoadSel( uiParent* p, Seis::GeomType geom )
 void seisSel( CallBacker* )
 {
     if ( !seissel_->ioobj() ) return;
+
     subselfld_->setInput( *seissel_->ioobj() );
+    updateEstUsage();
+}
+
+
+void selChangeCB( CallBacker* )
+{
+    updateEstUsage();
+}
+
+
+void updateEstUsage()
+{
+    SeisIOObjInfo info(seissel_->ioobj() );
+    const int nrcomp = info.nrComponents();
+
+    BufferString infotxt = "Estimated memory usage: ";
+    int bps = 4;
+    if ( info.getBPS(bps,0) )
+    {
+	const od_int64 nrs = subselfld_->expectedNrSamples();
+	const od_int64 nrt = subselfld_->expectedNrTraces();
+	const od_int64 nrbytes = nrcomp * nrs * nrt * bps;
+	infotxt.add( File::getFileSizeString( nrbytes/1024 ) );
+    }
+    else
+	infotxt.add( "?" );
+
+    toStatusBar( infotxt );
 }
 
 

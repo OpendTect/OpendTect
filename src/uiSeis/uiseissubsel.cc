@@ -40,7 +40,8 @@ uiSeisSubSel* uiSeisSubSel::get( uiParent* p, const Seis::SelSetup& s )
 
 
 uiSeisSubSel::uiSeisSubSel( uiParent* p, const Seis::SelSetup& ss )
-	: uiGroup(p,"Seis subsel")
+    : uiGroup(p,"Seis subsel")
+    , selChange(this)
 {
     uiPosSubSel::Setup pss( ss.is2d_, !ss.withoutz_ );
     pss.withstep(ss.withstep_)
@@ -49,8 +50,13 @@ uiSeisSubSel::uiSeisSubSel( uiParent* p, const Seis::SelSetup& ss )
 	.zdomkey(ss.zdomkey_);
 
     selfld_ = new uiPosSubSel( this, pss );
+    selfld_->selChange.notify( mCB(this,uiSeisSubSel,selChangeCB) );
     setHAlignObj( selfld_ );
 }
+
+
+void uiSeisSubSel::selChangeCB( CallBacker* )
+{ selChange.trigger(); }
 
 
 bool uiSeisSubSel::isAll() const

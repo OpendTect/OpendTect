@@ -62,11 +62,13 @@ public:
     int			expectedNrTraces() const;
 
     virtual uiCompoundParSel*	compoundParSel();
+    Notifier<uiSeisSubSel>	selChange;
 
 protected:
 
     			uiSeisSubSel(uiParent*,const Seis::SelSetup&);
 
+    void		selChangeCB(CallBacker*);
     uiPosSubSel*	selfld_;
 
 };
