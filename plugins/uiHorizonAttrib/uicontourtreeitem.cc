@@ -42,6 +42,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitable.h"
 #include "uifiledlg.h"
+#include "uifont.h"
+#include "uibuttongroup.h"
+#include "uispinbox.h"
 
 #include "viscoord.h"
 #include "visdrawstyle.h"
@@ -470,6 +473,7 @@ void uiContourTreeItemContourGenerator::addContourLabel(
 	label->setJustification( visBase::Text::BottomLeft );
 	label->setPosition( pos, true );
 	label->setFontData( FontData(18), labels_->getPixelDensity() );
+	label->useRotateToScreenElevation( true );
     }
 }
 
@@ -528,8 +532,42 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     lsfld_->changed.notify( mCB(this,uiContourParsDlg,dispChanged) );
 
     showlblsfld_ = new uiCheckBox( this, "Show labels" );
-    showlblsfld_->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
+    showlblsfld_->activated.notify( mCB(this,uiContourParsDlg,uiDisplayCB) );
     showlblsfld_->attach( alignedBelow, lsfld_ );
+
+    fontfld_ = new uiPushButton( this, "Font",
+			    mCB(this,uiContourParsDlg,selectFontCB), false );
+    fontfld_->attach( rightOf, showlblsfld_ );
+
+    alignbutsfld_ = new uiButtonGroup( this, "Alignment buttons",
+				       OD::Horizontal );
+    alignbutsfld_->attach( alignedBelow, showlblsfld_ );
+
+    alignlblfld_ = new uiLabel( this, "Label alignment" );
+    alignlblfld_->attach( leftOf, alignbutsfld_ );
+
+    uiRadioButton* leftbut = new uiRadioButton( alignbutsfld_, "Left" );
+    leftbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
+    uiRadioButton* centerbut = new uiRadioButton( alignbutsfld_, "Center" );
+    centerbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
+    uiRadioButton* rightbut = new uiRadioButton( alignbutsfld_, "Right" );
+    rightbut->activated.notify( mCB(this,uiContourParsDlg,dispChanged) );
+    alignbutsfld_->selectButton( 0 );
+
+    elevationfld_ = new uiLabeledSpinBox( this, "Label elevation" );
+    elevationfld_->attach( alignedBelow, alignbutsfld_ );
+
+    degreeslblfld_ = new uiLabel( this, "degrees" );
+    degreeslblfld_->attach( rightOf, elevationfld_ );
+
+    elevationfld_->box()->setSpecialValueText( "Off" );
+    elevationfld_->box()->setInterval( -5, 75, 5 );
+    elevationfld_->box()->doSnap( true );
+    elevationfld_->box()->valueChanging.notify(
+				    mCB(this,uiContourParsDlg,elevationChg) );
+    elevationfld_->box()->valueChanged.notify(
+				    mCB(this,uiContourParsDlg,uiDisplayCB) );
+    disableLabelElevation();
 
     intvChanged( 0 );
 }
@@ -550,11 +588,64 @@ StepInterval<float> getContourInterval() const
 
 
 void setShowLabels( bool yn )
-{ showlblsfld_->setChecked( yn ); }
+{
+    showlblsfld_->setChecked( yn );
+    uiDisplayCB( 0 );
+}
 
 
 bool showLabels() const
 { return showlblsfld_->isChecked(); }
+
+
+void setFontData( const FontData& fontdata )
+{ fontdata_ = fontdata; }
+
+
+const FontData& getFontData() const
+{ return fontdata_; }
+
+
+void setLabelAlignment( visBase::Text::Justification alignment )
+{
+    if ( alignment == visBase::Text::BottomRight )
+	alignbutsfld_->selectButton( 2 );
+    else if ( alignment == visBase::Text::Bottom )
+	alignbutsfld_->selectButton( 1 );
+    else
+	alignbutsfld_->selectButton( 0 );
+}
+
+
+int getLabelAlignment() const
+{
+    if ( alignbutsfld_->selectedId() == 1 )
+	return visBase::Text::Bottom;
+    if ( alignbutsfld_->selectedId() > 1 )
+	return visBase::Text::BottomRight;
+
+    return visBase::Text::BottomLeft;
+}
+
+
+void disableLabelElevation()
+{ elevationfld_->box()->setValue( elevationfld_->box()->minValue() ); }
+
+
+bool isLabelElevationDisabled() const
+{ return elevationfld_->box()->getValue()==elevationfld_->box()->minValue(); }
+
+
+void setLabelElevation( float angle )
+{
+    elevationfld_->box()->setValue( mNINT32(angle*180.0/M_PI) );
+    elevationChg( 0 );
+}
+
+
+float getLabelElevation() const
+{ return elevationfld_->box()->getValue()*M_PI/180.0; }
+
 
     Notifier<uiContourParsDlg>	propertyChanged;
     Notifier<uiContourParsDlg>	intervalChanged;
@@ -567,6 +658,34 @@ void applyCB( CallBacker* )
 
 void dispChanged( CallBacker* )
 { propertyChanged.trigger(); }
+
+
+void uiDisplayCB( CallBacker* cb )
+{
+    const bool yn = showLabels();
+
+    fontfld_->display( yn );
+    alignbutsfld_->display( yn );
+    alignlblfld_->display( yn );
+    elevationfld_->display( yn );
+    degreeslblfld_->display( yn && !isLabelElevationDisabled() );
+
+    if ( cb )
+	dispChanged( cb );
+}
+
+
+void selectFontCB( CallBacker* cb )
+{
+    selectFont( fontdata_, this );
+    dispChanged( cb );
+}
+
+
+void elevationChg( CallBacker* )
+{
+    elevationfld_->box()->valueChanged.trigger();    // to call snapToStep(.)
+}
 
 
 void intvChanged( CallBacker* cb )
@@ -597,6 +716,12 @@ void intvChanged( CallBacker* cb )
     uiGenInput*		intvfld_;
     uiSelLineStyle*	lsfld_;
     uiCheckBox*		showlblsfld_;
+    uiPushButton*	fontfld_;
+    uiButtonGroup*	alignbutsfld_;
+    uiLabel*		alignlblfld_;
+    uiLabeledSpinBox*	elevationfld_;
+    uiLabel*		degreeslblfld_;
+    FontData		fontdata_;
     float		zfac_;
     bool		iszval_;
 };
@@ -767,7 +892,24 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
                               LineStyle(LineStyle::Solid,linewidth_,color_),
                               sceneID() );
         if ( labels_ )
+	{
             dlg.setShowLabels( labels_->isOn() );
+
+	    if ( labels_->nrTexts() )
+	    {
+		dlg.setFontData( labels_->text(0)->getFontData() );
+		dlg.setLabelAlignment( (visBase::Text::Justification)
+				       labels_->text(0)->getJustification() );
+
+		if ( labels_->text(0)->isRotateToScreenElevationUsed() )
+		{
+		    dlg.setLabelElevation(
+			labels_->text(0)->getRotateToScreenElevationAngle() );
+		}
+		else
+		    dlg.disableLabelElevation();
+	    }
+	}
 
         dlg.propertyChanged.notify( mCB(this,uiContourTreeItem,propChangeCB) );
         dlg.intervalChanged.notify( mCB(this,uiContourTreeItem,intvChangeCB) );
@@ -922,6 +1064,22 @@ void uiContourTreeItem::propChangeCB( CallBacker* cb )
     {
 	showlabels_ = dlg->showLabels();
 	labels_->turnOn( lines_->isOn() && showlabels_ );
+
+	labels_->setFontData( dlg->getFontData() );
+	for ( int idx=0; idx<labels_->nrTexts(); idx++ )
+	{
+	    labels_->text(idx)->setJustification(
+		    (visBase::Text::Justification) dlg->getLabelAlignment() );
+
+	    if ( dlg->isLabelElevationDisabled() )
+		labels_->text(idx)->useRotateToScreenElevation( false );
+	    else
+	    {
+		labels_->text(idx)->useRotateToScreenElevation( true );
+		labels_->text(idx)->setRotateToScreenElevationAngle(
+						dlg->getLabelElevation() );
+	    }
+	}
     }
 }
 
