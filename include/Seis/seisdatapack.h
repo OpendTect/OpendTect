@@ -43,7 +43,7 @@ public:
     int				nrTrcs() const
 				{ return (int)sampling_.hsamp_.totalNr(); }
     TrcKey			getTrcKey(int globaltrcidx) const;
-    int				getGlobalIdx(const TrcKey& tk) const;
+    int				getGlobalIdx(const TrcKey&) const;
 
     virtual void		dumpInfo(IOPar&) const;
 
@@ -70,8 +70,7 @@ public:
     bool			is2D() const		{ return false; }
     int				nrTrcs() const		{ return path_.size(); }
     TrcKey			getTrcKey(int trcidx) const;
-    int				getGlobalIdx( const TrcKey& tk ) const
-				{ return path_.indexOf( tk ); }
+    int				getGlobalIdx(const TrcKey&) const;
 
     const StepInterval<float>&	getZRange() const	{ return zsamp_; }
     void			setZRange( const StepInterval<float>& zrg )

@@ -95,7 +95,12 @@ bool RandomSeisDataPack::addComponent( const char* nm )
 }
 
 
+int RandomSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
+{ return path_.indexOf( tk ); }
 
+
+
+// SeisFlatDataPack
 SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source,int comp)
     : FlatDataPack("")
     , source_(source)
