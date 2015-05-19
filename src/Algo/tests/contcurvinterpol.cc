@@ -107,7 +107,7 @@ Array2D<float>* createArray2DData()
 
 bool testContinuousCurvatureInterpolation()
 {
-    PtrMan<Array2D<float>> arr = createArray2DData();
+    PtrMan<Array2D<float> > arr = createArray2DData();
 
     mDeclareAndTryAlloc( PtrMan<ContinuousCurvatureArray2DInterpol>, interpol, 
 	ContinuousCurvatureArray2DInterpol() );
@@ -115,7 +115,7 @@ bool testContinuousCurvatureInterpolation()
 
     mRunStandardTest( interpol->execute(), "Run intererpolation" );
     
-    ConstPtrMan<Array2D<float>> gmtarr = getFixedGMTInterpolatedResult();
+    ConstPtrMan<Array2D<float> > gmtarr = getFixedGMTInterpolatedResult();
     const int rows = gmtarr->info().getSize(0);
     const int cols = gmtarr->info().getSize(1);
 
