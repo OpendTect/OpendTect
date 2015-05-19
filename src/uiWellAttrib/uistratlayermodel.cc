@@ -1184,7 +1184,8 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
 	    msg += pars.getKey( idx );
 	    msg +=": ";
 	    msg += pars.getValue( idx );
-	    msg += "\t";
+	    if ( idx<pars.size()-1 )
+		msg += "; ";
 	}
 	statusBar()->message( msg.buf() );
     }

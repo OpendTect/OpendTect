@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "oddirs.h"
 #include "od_helpids.h"
+#include <stdio.h>
 
 #define mGetConvZ(var,conv) \
     if ( SI().depthsInFeet() ) var *= conv
@@ -510,6 +511,8 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 {
     IOPar statusbarmsg;
     const int selseq = getClickedModelNr();
+    BufferString modelnrstr;
+    sprintf( modelnrstr.getCStr(), "%5d", selseq );
     statusbarmsg.set( "Model Number", selseq );
     const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
     uiWorld2Ui w2ui;
@@ -523,7 +526,10 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 	depth = 0;
     }
 
-    statusbarmsg.set( "Depth", depth );
+    BufferString depthstr;
+    sprintf( depthstr.getCStr(), "%6.0f", depth );
+    depthstr += SI().depthsInFeet() ? "(ft)" : "(m)";
+    statusbarmsg.set( "Depth", depthstr );
 
     if ( selseq >0 && selseq<=layerModel().size() )
     {
@@ -538,9 +544,9 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 	    {
 		const PropertyRef* pr = seq.propertyRefs()[dispprop_];
 		const float val = getLayerPropValue(lay,pr,dispprop_);
+		statusbarmsg.set( pr->name(), val );
 		statusbarmsg.set( "Layer", lay.name() );
 		statusbarmsg.set( "Lithology", lay.lithology().name() );
-		statusbarmsg.set( pr->name(), val );
 		if ( !lay.content().isUnspecified() )
 		    statusbarmsg.set( "Content", lay.content().name() );
 		break;

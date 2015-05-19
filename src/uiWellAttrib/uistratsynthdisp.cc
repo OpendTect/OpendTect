@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wavelet.h"
 
 #include "hiddenparam.h"
+#include <stdio.h>
 
 static const int cMarkerSize = 6;
 
@@ -223,39 +224,26 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     if ( valstr.isEmpty() )
 	return;
     modelidx = toInt(valstr)-1;
-    mesg.add("Model Number:").add( valstr );
+    BufferString modelnrstr;
+    sprintf( modelnrstr.getCStr(), "Model Number:%5d", modelidx );
+    mesg.add( modelnrstr );
     valstr = pars.find( "Z" );
     if ( !valstr ) valstr = pars.find( "Z-Coord" );
     float zval = mUdf(float);
     if ( valstr )
     {
-	mesg.addTab().add( "Depth : " );
+	BufferString depthstr;
 	zval = toFloat( valstr );
-	mesg.add( toString(zval) ).add( SI().getZUnitString() );
+	sprintf( depthstr.getCStr(), "Depth : %6.0f", zval );
+	depthstr.add( SI().getZUnitString() );
+	mesg.addSpace().add( depthstr );
     }
 
     if ( mIsUdf(zval) || layerModel().size()<=modelidx || modelidx<0 )
 	return;
-    if ( d2tmodels_ && d2tmodels_->validIdx(modelidx) )
-    {
-	zval /= SI().showZ2UserFactor();
-	const float depth = (*d2tmodels_)[modelidx]->getDepth( zval );
-	const Strat::LayerSequence& curseq = layerModel().sequence( modelidx );
-	for ( int lidx=0; lidx<curseq.size(); lidx++ )
-	{
-	    const Strat::Layer* layer = curseq.layers()[lidx];
-	    if ( layer->zTop()<=depth && layer->zBot()>depth )
-	    {
-		mesg.addTab().add( "Layer : " ).add( layer->name() );
-		mesg.add( " Lithology : ").add( layer->lithology().name() );
-		if ( !layer->content().isUnspecified() )
-		    mesg.add( " Content : ").add( layer->content().name() );
-		break;
-	    }
-	}
-    }
 
-    mesg.addTab();
+    mesg.addSpace();
+
     int nrinfos = 0;
 #define mAddSep() if ( nrinfos++ ) mesg += ";\t";
 
@@ -293,6 +281,27 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mAddSep(); mesg += "Offs="; mesg += val;
 	mesg += " "; mesg += SI().getXYUnitString();
     }
+
+    if ( d2tmodels_ && d2tmodels_->validIdx(modelidx) )
+    {
+	zval /= SI().showZ2UserFactor();
+	const float depth = (*d2tmodels_)[modelidx]->getDepth( zval );
+	const Strat::LayerSequence& curseq = layerModel().sequence( modelidx );
+	for ( int lidx=0; lidx<curseq.size(); lidx++ )
+	{
+	    const Strat::Layer* layer = curseq.layers()[lidx];
+	    if ( layer->zTop()<=depth && layer->zBot()>depth )
+	    {
+		mesg.addTab().add( "Layer : " ).add( layer->name() );
+		mesg.add( " Lithology : ").add( layer->lithology().name() );
+		if ( !layer->content().isUnspecified() )
+		    mesg.add( " Content : ").add( layer->content().name() );
+		break;
+	    }
+	}
+    }
+
+
 }
 
 
