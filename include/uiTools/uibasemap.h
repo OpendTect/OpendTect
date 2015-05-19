@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 
 class uiGraphicsItemGroup;
+class uiGraphicsScene;
 class uiGraphicsView;
 class uiWorld2Ui;
 
@@ -79,6 +80,7 @@ public:
 
     uiGraphicsItemGroup&	worldItemGroup()	{ return worlditemgrp_;}
     inline uiGraphicsView&	view()			{ return view_; }
+    uiGraphicsScene&		scene();
     inline const uiWorld2Ui&	getWorld2Ui() const	{ return w2ui_; }
 
 protected:

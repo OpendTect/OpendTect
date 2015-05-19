@@ -446,3 +446,6 @@ const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<int>& pt )  const
 }
 
 
+uiGraphicsScene& uiBaseMap::scene()
+{ return view_.scene(); }
+
