@@ -37,6 +37,9 @@ public:
     const char*			filePath() const    { return crashreportpath_; }
     uiString			errMsg() const	    { return errmsg_; }
 
+    uiString			getMessage() const	{ return message_; }
+				//!<Message coming back from website (if any).
+
     bool			parseCommandLine();
 
 protected:
@@ -46,6 +49,7 @@ protected:
     uiString			errmsg_;
     BufferString		report_;
     BufferString                crashreportpath_;
+    uiString			message_;
 };
 
 

@@ -137,6 +137,7 @@ bool System::IssueReporter::send()
     url.add( path_ );
     IOPar postvars;
     postvars.set( "report", report_.buf() );
+    postvars.set( "return_text", true );
     
     BufferString remotefname ( OD::Platform::local().shortName(), "_" );
     remotefname.add( ODInst::getPkgVersion ("base") );
@@ -146,11 +147,11 @@ bool System::IssueReporter::send()
     uiString errmsg;
     if ( crashreportpath_.isEmpty() )
     {
-	if ( Network::uploadQuery( url.buf(), postvars, errmsg ) )
+	if ( Network::uploadQuery( url.buf(), postvars, errmsg, 0, &message_ ) )
 	    return true;
     }
     else if ( Network::uploadFile( url.buf(), crashreportpath_,
-	      remotefname, filetype, postvars, errmsg ) )
+	      remotefname, filetype, postvars, errmsg, 0, &message_ ) )
 	return true;
 
     errmsg_ = tr("Cannot connect to %1\n%2").arg( host_ ).arg( errmsg );

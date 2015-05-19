@@ -336,7 +336,7 @@ void addPars( BufferString& data, const IOPar& postvars )
 bool Network::uploadFile( const char* url, const char* localfname,
 			  const char* remotefname, const char* ftype,
 			  const IOPar& postvars, uiString& errmsg,
-			  TaskRunner* taskr )
+			  TaskRunner* taskr, uiString* retmsg )
 {
     if ( !File::isFile(localfname) )
     {
@@ -372,12 +372,17 @@ bool Network::uploadFile( const char* url, const char* localfname,
     DataUploader up( url, *databuffer, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res ) errmsg = up.uiMessage();
+    else if ( retmsg )
+    {
+	retmsg->setFrom( up.uiMessage().getQtString() );
+    }
     return res;
 }
 
 
 bool Network::uploadQuery( const char* url, const IOPar& querypars,
-			   uiString& errmsg, TaskRunner* taskr)
+			   uiString& errmsg, TaskRunner* taskr,
+			   uiString* retmsg)
 {
     BufferString data;
     addPars( data, querypars);
@@ -388,6 +393,10 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
     DataUploader up( url, db, header );
     const bool res = taskr ? taskr->execute( up ) : up.execute();
     if ( !res ) errmsg = up.uiMessage();
+    else if ( retmsg )
+    {
+	retmsg->setFrom( up.uiMessage().getQtString() );
+    }
     return res;
 }
 
@@ -439,7 +448,14 @@ int DataUploader::nextStep()
     if ( odnr_->qNetworkReply()->error() )
 	return errorOccured();
     else if ( odnr_->qNetworkReply()->isFinished() )
+    {
+	if ( odnr_->qNetworkReply() )
+	{
+	    odnr_->qNetworkReply()->waitForReadyRead( 500 );
+	    msg_.setFrom( QString( odnr_->qNetworkReply()->readAll() ) );
+	}
 	return Finished();
+    }
     else if ( odnr_->qNetworkReply()->isRunning() )
     {
 	nrdone_ = odnr_->getBytesUploaded();
