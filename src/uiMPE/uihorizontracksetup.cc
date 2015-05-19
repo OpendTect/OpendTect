@@ -254,11 +254,11 @@ uiHorizonSetupGroup::~uiHorizonSetupGroup()
 
 
 NotifierAccess* uiHorizonSetupGroup::eventChangeNotifier()
-{ return eventgrp_->eventChangeNotifier(); }
+{ return eventgrp_->changeNotifier(); }
 
 
 NotifierAccess*	uiHorizonSetupGroup::correlationChangeNotifier()
-{ return correlationgrp_->correlationChangeNotifier(); }
+{ return correlationgrp_->changeNotifier(); }
 
 
 void uiHorizonSetupGroup::selUseVariance( CallBacker* )

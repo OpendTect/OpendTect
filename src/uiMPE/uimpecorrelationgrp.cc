@@ -39,7 +39,6 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     , adjuster_(0)
     , changed_(this)
     , seedpos_(Coord3::udf())
-    , mousedown_(false)
 {
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     usecorrfld_ = new uiGenInput( leftgrp, tr("Use Correlation"),
@@ -48,6 +47,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 	    mCB(this,uiCorrelationGroup,selUseCorrelation) );
     usecorrfld_->valuechanged.notify(
 	    mCB(this,uiCorrelationGroup,correlationChangeCB) );
+    leftgrp->setHAlignObj( usecorrfld_ );
 
     IntInpIntervalSpec iis; iis.setSymmetric( true );
     StepInterval<int> swin( -10000, 10000, 1 );
@@ -88,10 +88,10 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
     previewgrp_ = new uiPreviewGroup( this );
+    previewgrp_->attach( rightTo, leftgrp );
     previewgrp_->windowChanged_.notify(
 		mCB(this,uiCorrelationGroup,previewChgCB) );
 
-    setHAlignObj( usecorrfld_ );
 }
 
 

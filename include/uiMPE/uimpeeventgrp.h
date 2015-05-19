@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "uimpe.h"
 
-class uiCheckList;
-class uiFlatViewer;
 class uiGenInput;
 class uiPushButton;
 
@@ -28,6 +26,7 @@ namespace MPE
 
 class HorizonAdjuster;
 class SectionTracker;
+class uiPreviewGroup;
 
 
 /*!\brief Horizon tracking setup dialog. */
@@ -42,7 +41,7 @@ public:
 
     void			setSeedPos(const Coord3&);
 
-    NotifierAccess*		eventChangeNotifier()
+    NotifierAccess*		changeNotifier()
 				{ return &changed_; }
 
     bool			commitToTracker(bool& fieldchange) const;
@@ -50,20 +49,13 @@ public:
 protected:
 
     void			init();
-    void			updateViewer();
-    void			updateWindowLines();
+
     void			changeCB(CallBacker*);
     void			selEventType(CallBacker*);
     void			windowChangeCB(CallBacker*);
     void			selAmpThresholdType(CallBacker*);
     void			addStepPushedCB(CallBacker*);
     void			visibleDataChangeCB(CallBacker*);
-    void			wvavdChgCB(CallBacker*);
-
-    void			mousePressed(CallBacker*);
-    void			mouseMoved(CallBacker*);
-    void			mouseReleased(CallBacker*);
-    bool			mousedown_;
 
     uiGenInput*			evfld_;
     uiGenInput*			srchgatefld_;
@@ -74,12 +66,8 @@ protected:
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
 
-    uiCheckList*		wvafld_;
-    uiFlatViewer*		previewvwr_;
-
-    FlatView::AuxData*		seeditm_;
-    FlatView::AuxData*		minitm_;
-    FlatView::AuxData*		maxitm_;
+    uiPreviewGroup*		previewgrp_;
+    void			previewChgCB(CallBacker*);
 
     bool			is2d_;
     Coord3			seedpos_;

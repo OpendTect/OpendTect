@@ -18,8 +18,6 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "uimpe.h"
 
-class uiCheckList;
-class uiFlatViewer;
 class uiGenInput;
 
 namespace MPE
@@ -42,7 +40,7 @@ public:
 
     void			setSeedPos(const Coord3&);
 
-    NotifierAccess*		correlationChangeNotifier()
+    NotifierAccess*		changeNotifier()
 				{ return &changed_; }
 
     bool			commitToTracker(bool& fieldchange) const;
@@ -50,19 +48,11 @@ public:
 protected:
 
     void			init();
-    void			updateViewer();
-    void			updateWindowLines();
 
     void			selUseCorrelation(CallBacker*);
     void			correlationChangeCB(CallBacker*);
     void			windowChangeCB(CallBacker*);
     void			visibleDataChangeCB(CallBacker*);
-    void			wvavdChgCB(CallBacker*);
-
-    void			mousePressed(CallBacker*);
-    void			mouseMoved(CallBacker*);
-    void			mouseReleased(CallBacker*);
-    bool			mousedown_;
 
     uiGenInput*			usecorrfld_;
     uiGenInput*			compwinfld_;

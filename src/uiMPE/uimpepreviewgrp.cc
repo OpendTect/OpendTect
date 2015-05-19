@@ -185,7 +185,7 @@ void uiPreviewGroup::updateWindowLines()
 
 void uiPreviewGroup::mousePressed( CallBacker* )
 {
-    if ( !calcNewWindow() )
+    if ( !calcNewWindow() ) return;
 
     mousedown_ = true;
     windowChanged_.trigger();
