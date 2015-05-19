@@ -142,8 +142,7 @@ void MarkerSet::removeMarker( int idx )
     if ( material_ ) material_->removeColor( idx );
     if ( coords_ ) coords_->removePos( idx, false );
     if ( coords_ ) coords_->dirty();
-    markerset_->forceRedraw( true );
-    
+    markerset_->removeMarker( (unsigned int)idx );
 }
 
 
