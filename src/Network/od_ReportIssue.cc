@@ -28,10 +28,18 @@ int main( int argc, char** argv )
     
     if ( !reporter.send() )
     {
-	od_cout() << reporter.errMsg().getFullString() << '\n';
+	od_cout() << reporter.errMsg().getFullString() << od_endl;
 	return ExitProgram( 1 );	
     }
         
-    od_cout() << "Report submitted.\n";
+    if ( !reporter.getMessage().isEmpty() )
+    {
+	const BufferString msg = reporter.getMessage().getFullString();
+	od_cout() << msg << "\n";
+    }
+    else
+    {
+	od_cout() << "Report submitted.\n";
+    }
     return ExitProgram( 0 );
 }

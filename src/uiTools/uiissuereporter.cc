@@ -118,8 +118,17 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
     reporter_.getReport() = report;
 
     if ( reporter_.send() )
-	uiMSG().message( tr("The report was successfully sent."
+    {
+	if ( !reporter_.getMessage().isEmpty() )
+	{
+	    uiMSG().message( reporter_.getMessage() );
+	}
+	else
+	{
+	    uiMSG().message( tr("The report was successfully sent."
 		"\n\nThank you for your contribution to OpendTect!") );
+	}
+    }
     else
     {
 	filename_ = reporter_.filePath();

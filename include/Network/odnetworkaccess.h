@@ -51,10 +51,12 @@ namespace Network
     mGlobal(Network) bool   uploadFile(const char* url,const char* localfname,
 				       const char* remotefname,
 				       const char* ftype,const IOPar& postvars, 
-				       uiString& errmsg,TaskRunner* taskr=0);
+				       uiString& errmsg,TaskRunner* taskr=0,
+				       uiString* returnedmessage = 0);
 
     mGlobal(Network) bool   uploadQuery(const char* url,const IOPar& querypars,
-					uiString& errmsg,TaskRunner* taskr=0);
+					uiString& errmsg,TaskRunner* taskr=0,
+					uiString* returnedmessage = 0);
 
     mGlobal(Network) bool   getRemoteFileSize(const char* url,od_int64& size, 
 					      uiString& errmsg);
