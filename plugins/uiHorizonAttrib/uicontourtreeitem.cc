@@ -644,7 +644,7 @@ void setLabelElevation( float angle )
 
 
 float getLabelElevation() const
-{ return elevationfld_->box()->getValue()*M_PI/180.0; }
+{ return mCast( float, elevationfld_->box()->getValue()*M_PI/180.0 ); }
 
 
     Notifier<uiContourParsDlg>	propertyChanged;
