@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "uiodtreeitem.h"
 #include "factory.h"
 
-class uiMenuHandler;
-class uiStatsDisplayWin;
-class uiAmplSpectrum;
 class uiFKSpectrum;
+class uiMenuHandler;
+class uiSeisAmplSpectrum;
+class uiStatsDisplayWin;
 namespace Attrib { class SelSpec; }
 namespace ColTab { class Sequence; }
 
@@ -44,7 +44,7 @@ public:
 					const Attrib::SelSpec&,const char*,
 					factory )
 
-    				/*!<Adds custom create function for create
+				/*!<Adds custom create function for create
 				    function. */
 
     void			prepareForShutdown();
@@ -93,7 +93,7 @@ protected:
     const char*			parenttype_;
 
     uiStatsDisplayWin*		statswin_;
-    uiAmplSpectrum*		ampspectrumwin_;
+    uiSeisAmplSpectrum*		ampspectrumwin_;
     uiFKSpectrum*		fkspectrumwin_;
 };
 
