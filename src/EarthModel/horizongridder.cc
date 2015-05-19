@@ -178,14 +178,9 @@ void InvDistHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
 	Survey::GM().getGeometry3D( hs.survid_ );
     
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( geom->inlDistance() * hs.step.inl() );
-    setColStep( geom->crlDistance() * hs.step.crl() );
-    setOrigin( hs.start );
-//=======
-//    setRowStep( SI().inlDistance() * hs.step_.inl() );
-//    setColStep( SI().crlDistance() * hs.step_.crl() );
-//    setOrigin( hs.start_ );
-//>>>>>>> .r38895
+    setRowStep( SI().inlDistance() * hs.step_.inl() );
+    setColStep( SI().crlDistance() * hs.step_.crl() );
+    setOrigin( hs.start_ );
 }
 
 
@@ -237,14 +232,9 @@ void TriangulationHor3DGridder::setTrcKeySampling( const TrcKeySampling& hs )
        Survey::GM().getGeometry3D( hs.survid_ );
     
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( geom->inlDistance() * hs.step.inl() );
-    setColStep( geom->crlDistance() * hs.step.crl() );
-    setOrigin( hs.start );
-//=======
-//    setRowStep( SI().inlDistance() * hs.step_.inl() );
-//    setColStep( SI().crlDistance() * hs.step_.crl() );
-//    setOrigin( hs.start_ );
-//>>>>>>> .r38895
+    setRowStep( SI().inlDistance() * hs.step_.inl() );
+    setColStep( SI().crlDistance() * hs.step_.crl() );
+    setOrigin( hs.start_ );
 }
 
 
@@ -330,9 +320,9 @@ void ContinuousCurvatureHor3DGridder::setTrcKeySampling(
 	Survey::GM().getGeometry3D( hs.survid_ );
     
     HorizonGridder::setTrcKeySampling( hs );
-    setRowStep( geom->inlDistance() * hs.step.inl() );
-    setColStep( geom->crlDistance() * hs.step.crl() );
-    setOrigin( hs.start );
+    setRowStep( geom->inlDistance() * hs.step_.inl() );
+    setColStep( geom->crlDistance() * hs.step_.crl() );
+    setOrigin( hs.start_ );
 }
 
 
