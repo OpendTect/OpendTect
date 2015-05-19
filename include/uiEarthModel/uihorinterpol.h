@@ -106,7 +106,7 @@ public:
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
-    static const char*		sFactoryKeyword() { return "Inverse Distance"; }
+    const char*			factoryKeyword() const;
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
@@ -134,7 +134,7 @@ public:
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
-    static const char*		sFactoryKeyword() { return "Triangulation"; }
+    const char*			factoryKeyword() const;
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
@@ -158,7 +158,7 @@ public:
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
-    static const char*		sFactoryKeyword()	{ return "Extension"; }
+    const char*			factoryKeyword() const;
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
@@ -174,6 +174,27 @@ protected:
 };
 
 
+mExpClass(uiEarthModel)uiContinuousCurvatureHor3DInterpol:public uiHor3DInterpol
+{mODTextTranslationClass(uiContinuousCurvatureHor3DInterpol);
+public:
+    uiContinuousCurvatureHor3DInterpol(uiParent*);
+
+    static void			initClass();
+    static uiHor3DInterpol*	create(uiParent*);
+
+    virtual bool		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
+    virtual bool		canHandleFaults() const { return true; }
+    const char*			factoryKeyword() const;
+
+    uiGenInput*			tensionfld_;
+    uiGenInput*			radiusfld_;
+    uiButton*			parbut_;
+
+protected:
+
+};
 
 #endif
 
