@@ -89,7 +89,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     }
 
     inlcrldistfld_ = new uiGenInput( topgrp, tr("Inl/Crl Distance"),
-				     IntInpIntervalSpec(Interval<int>(0,0))
+				     FloatInpIntervalSpec(Interval<float>(0,0))
 				     .setName("InlDist",0)
 				     .setName("CrlDist",1) );
     inlcrldistfld_->setReadOnly( true, -1 );
