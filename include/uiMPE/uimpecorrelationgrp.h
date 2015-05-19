@@ -27,6 +27,7 @@ namespace MPE
 
 class HorizonAdjuster;
 class SectionTracker;
+class uiPreviewGroup;
 
 
 /*!\brief Horizon tracking setup dialog. */
@@ -69,12 +70,8 @@ protected:
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
 
-    uiCheckList*		wvafld_;
-    uiFlatViewer*		previewvwr_;
-
-    FlatView::AuxData*		seeditm_;
-    FlatView::AuxData*		minitm_;
-    FlatView::AuxData*		maxitm_;
+    uiPreviewGroup*		previewgrp_;
+    void			previewChgCB(CallBacker*);
 
     Coord3			seedpos_;
     SectionTracker*		sectiontracker_;

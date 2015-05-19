@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
+#include "uimpepreviewgrp.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 
@@ -86,51 +87,9 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     nrtrcsfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
-
-    uiGroup* rightgrp = new uiGroup( this, "Right Group" );
-    rightgrp->attach( rightTo, leftgrp );
-    wvafld_ = new uiCheckList( rightgrp, uiCheckList::OneMinimum,
-			       OD::Horizontal );
-    wvafld_->addItem( "WVA" ).addItem( "VD" );
-    wvafld_->changed.notify( mCB(this,uiCorrelationGroup,wvavdChgCB) );
-
-    previewvwr_ = new uiFlatViewer( rightgrp );
-    previewvwr_->attach( alignedBelow, wvafld_ );
-    previewvwr_->setPrefWidth( 150 );
-    previewvwr_->setPrefHeight( 200 );
-    previewvwr_->setStretch( 0, 0 );
-    previewvwr_->rgbCanvas().setDragMode( uiGraphicsView::NoDrag );
-    previewvwr_->appearance().ddpars_.wva_.mappersetup_.cliprate_ =
-				Interval<float>(0.01f,0.01f);
-    previewvwr_->appearance().setGeoDefaults( true );
-
-    LineStyle ls( LineStyle::Solid, 3, Color(0,255,0) );
-    minitm_ = previewvwr_->createAuxData( "Min line" );
-    minitm_->cursor_.shape_ = MouseCursor::SizeVer;
-    minitm_->linestyle_ = ls;
-    minitm_->poly_ += FlatView::Point(0,0);
-    minitm_->poly_ += FlatView::Point(0,0);
-    previewvwr_->addAuxData( minitm_ );
-
-    maxitm_ = previewvwr_->createAuxData( "Max line" );
-    maxitm_->cursor_.shape_ = MouseCursor::SizeVer;
-    maxitm_->linestyle_ = ls;
-    maxitm_->poly_ += FlatView::Point(0,0);
-    maxitm_->poly_ += FlatView::Point(0,0);
-    previewvwr_->addAuxData( maxitm_ );
-
-    seeditm_ = previewvwr_->createAuxData( "Seed" );
-    seeditm_->poly_ += FlatView::Point(0,0);
-    seeditm_->markerstyles_ += MarkerStyle2D(MarkerStyle2D::Square,3);
-    seeditm_->markerstyles_[0].color_ = Color(0,255,0);
-    previewvwr_->addAuxData( seeditm_ );
-
-    previewvwr_->getMouseEventHandler().buttonPressed.notify(
-			     mCB(this,uiCorrelationGroup,mousePressed) );
-    previewvwr_->getMouseEventHandler().buttonReleased.notify(
-			     mCB(this,uiCorrelationGroup,mouseReleased) );
-    previewvwr_->getMouseEventHandler().movement.notify(
-			     mCB(this,uiCorrelationGroup,mouseMoved) );
+    previewgrp_ = new uiPreviewGroup( this );
+    previewgrp_->windowChanged_.notify(
+		mCB(this,uiCorrelationGroup,previewChgCB) );
 
     setHAlignObj( usecorrfld_ );
 }
@@ -141,78 +100,40 @@ uiCorrelationGroup::~uiCorrelationGroup()
 }
 
 
-void uiCorrelationGroup::mousePressed( CallBacker* )
-{
-    MouseEventHandler& meh = previewvwr_->getMouseEventHandler();
-    if ( seedpos_.isUdf() || meh.isHandled() )
-	return;
-
-    const MouseEvent& ev = meh.event();
-    const Geom::Point2D<int>& pt = ev.pos();
-    uiWorldPoint wpt = previewvwr_->getWorld2Ui().transform( pt );
-    const double diff = Math::Abs(seedpos_.z-wpt.y)*SI().zDomain().userFactor();
-    if ( wpt.y < seedpos_.z )
-	compwinfld_->setValue( mNINT32(-diff), 0 );
-    else
-	compwinfld_->setValue( mNINT32(diff), 1 );
-
-    mousedown_ = true;
-}
-
-
-void uiCorrelationGroup::mouseMoved( CallBacker* )
-{
-    if ( !mousedown_ ) return;
-
-    MouseEventHandler& meh = previewvwr_->getMouseEventHandler();
-    const MouseEvent& ev = meh.event();
-    const Geom::Point2D<int>& pt = ev.pos();
-    uiWorldPoint wpt = previewvwr_->getWorld2Ui().transform( pt );
-    const double diff = Math::Abs(seedpos_.z-wpt.y)*SI().zDomain().userFactor();
-    if ( wpt.y < seedpos_.z )
-	compwinfld_->setValue( mNINT32(-diff), 0 );
-    else
-	compwinfld_->setValue( mNINT32(diff), 1 );
-}
-
-
-void uiCorrelationGroup::mouseReleased( CallBacker* )
-{
-    mousedown_ = false;
-}
-
-
 void uiCorrelationGroup::selUseCorrelation( CallBacker* )
 {
     const bool usecorr = usecorrfld_->getBoolValue();
     compwinfld_->setSensitive( usecorr );
     corrthresholdfld_->setSensitive( usecorr );
-    previewvwr_->setSensitive( usecorr );
+    previewgrp_->setSensitive( usecorr );
 
     nrzfld_->setSensitive( usecorr );
     nrtrcsfld_->setSensitive( usecorr );
 }
 
 
-void uiCorrelationGroup::wvavdChgCB( CallBacker* )
-{
-    previewvwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
-					    wvafld_->isChecked(1) );
-    previewvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
-}
-
-
 void uiCorrelationGroup::visibleDataChangeCB( CallBacker* )
 {
-    updateViewer();
-    updateWindowLines();
+    previewgrp_->setWindow( compwinfld_->getIInterval() );
+    previewgrp_->setDisplaySize( nrtrcsfld_->getIntValue(),
+				 nrzfld_->getIInterval() );
 }
 
 
 void uiCorrelationGroup::correlationChangeCB( CallBacker* )
 {
-    updateWindowLines();
+    previewgrp_->setWindow( compwinfld_->getIInterval() );
     changed_.trigger();
+}
+
+
+void uiCorrelationGroup::previewChgCB(CallBacker *)
+{
+    const Interval<int> intv = previewgrp_->getManipWindow();
+    if ( mIsUdf(intv.start) )
+	compwinfld_->setValue( intv.stop, 1 );
+    if ( mIsUdf(intv.stop) )
+	compwinfld_->setValue( intv.start, 0 );
 }
 
 
@@ -243,68 +164,14 @@ void uiCorrelationGroup::init()
     const int sample = mCast(int,SI().zStep()*SI().zDomain().userFactor());
     const Interval<int> dataintv = corrintv + Interval<int>(-2*sample,2*sample);
     nrzfld_->setValue( dataintv );
-
     nrtrcsfld_->setValue( 5 );
-    wvafld_->setChecked( 0, true );
-    wvafld_->setChecked( 1, false );
 }
 
 
 void uiCorrelationGroup::setSeedPos( const Coord3& crd )
 {
     seedpos_ = crd;
-    updateViewer();
-    updateWindowLines();
-}
-
-
-void uiCorrelationGroup::updateViewer()
-{
-    if ( seedpos_.isUdf() )
-	return;
-
-    const BinID& bid = SI().transform( seedpos_.coord() );
-    const float z = (float)seedpos_.z;
-    const int nrtrcs = nrtrcsfld_->getIntValue();
-
-    StepInterval<float> zintv; zintv.setFrom( nrzfld_->getIInterval() );
-    zintv.scale( 1.f/SI().zDomain().userFactor() );
-    zintv.step = SI().zStep();
-    const DataPack::ID dpid =
-	MPE::engine().getSeedPosDataPack( bid, z, nrtrcs, zintv );
-
-    previewvwr_->setPack( true, dpid );
-    previewvwr_->setPack( false, dpid );
-    previewvwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
-					    wvafld_->isChecked(1) );
-    previewvwr_->setViewToBoundingBox();
-
-    FlatView::Point& pt = seeditm_->poly_[0];
-    pt = FlatView::Point( bid.crl(), z );
-
-    previewvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
-}
-
-
-void uiCorrelationGroup::updateWindowLines()
-{
-    if ( seedpos_.isUdf() )
-	return;
-
-    const BinID& bid = SI().transform( seedpos_.coord() );
-    const float z = (float)seedpos_.z;
-    const int nrtrcs = nrtrcsfld_->getIntValue();
-
-    StepInterval<float> zintv; zintv.setFrom( compwinfld_->getIInterval() );
-    zintv.scale( 1.f/SI().zDomain().userFactor() );
-    zintv.step = SI().zStep();
-
-    minitm_->poly_[0] = FlatView::Point( bid.crl()-nrtrcs/2, z+zintv.start );
-    minitm_->poly_[1] = FlatView::Point( bid.crl()+nrtrcs/2, z+zintv.start );
-    maxitm_->poly_[0] = FlatView::Point( bid.crl()-nrtrcs/2, z+zintv.stop );
-    maxitm_->poly_[1] = FlatView::Point( bid.crl()+nrtrcs/2, z+zintv.stop );
-
-    previewvwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+    previewgrp_->setSeedPos( crd );
 }
 
 
