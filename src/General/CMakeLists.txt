@@ -92,7 +92,7 @@ list ( APPEND OD_MODULE_SOURCES
 )
 
 set (OD_USEQT Core) # for the ziphandler.cc only
-set (OD_USEZLIB No)
+set (OD_USEZLIB Yes)
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     if ( ${CMAKE_CXX_COMPILER} STREQUAL "/usr/bin/g++4" )
