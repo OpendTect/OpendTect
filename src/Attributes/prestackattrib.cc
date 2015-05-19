@@ -427,11 +427,8 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	for ( int idx=0; idx<gatherset_.size(); idx++ )
 	{
 	    //TODO full support for 2d : idx is not really my nymber of traces
-	    if ( is2D() )
-	    {
-		if ( idx == bid.crl() )
-		   curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
-	    }
+	    if ( is2D() && idx == bid.crl() )
+	       curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
             else if ( gatherset_[idx]->getBinID() == bid )
 	       curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
 	}

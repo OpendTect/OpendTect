@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "survgeom2d.h"
+#include "survinfo.h"
 #include "binidvalset.h"
 
 #include <limits.h>
@@ -193,6 +194,8 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	    PosInfo::Line2DPos pos2d;
 	    if ( geom2d && geom2d->data().getPos(curbid.crl(),pos2d) )
 		mytrcinfo.coord = pos2d.coord_;
+	    else
+		mytrcinfo.coord = SI().transform( mytrcinfo.binid );
 	}
 
 	curtrcinfo = &mytrcinfo;
