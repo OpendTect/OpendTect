@@ -20,7 +20,10 @@ ________________________________________________________________________
 #include "position.h"
 #include "uistring.h"
 
-namespace osgText { class Text; class Font; }
+
+namespace osgText { class Font; }
+
+namespace osgGeo { class Text; }
 
 namespace osg { class Drawable; class Vec3f; class Geode; }
 
@@ -58,6 +61,7 @@ public:
     Color			getColor() const;
 
     void			setJustification(Justification);
+    int				getJustification() const;
 
     osg::Drawable&		getDrawable();
     const osg::Drawable&	getDrawable() const;
@@ -66,9 +70,17 @@ public:
     void			setCharacterSizeMode( CharacterSizeMode );
     void			setAxisAlignment( AxisAlignment );
 
+    void			useRotateToScreenElevation(bool);
+    bool			isRotateToScreenElevationUsed() const;
+    void			setRotateToScreenElevationAngle(float);
+    float			getRotateToScreenElevationAngle() const;
+    void			setRotateToScreenElevationPlane(
+						const Coord3& refPlaneNormal);
+    Coord3			getRotateToScreenElevationPlane() const;
+
 protected:
     const mVisTrans*		displaytrans_;
-    osgText::Text*		osgtext_;
+    osgGeo::Text*		osgtext_;
     uiString			text_;
 
     FontData			fontdata_;

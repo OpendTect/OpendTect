@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "texttranslator.h"
 
 
-#include <osgText/Text>
+#include <osgGeo/Text>
 
 mCreateFactoryEntry( visBase::Text2 );
 
@@ -34,7 +34,7 @@ namespace visBase
 #define cObjectSizeToScreenSizeFactor 10 // experience const
 
 Text::Text()
-    : osgtext_( new osgText::Text )
+    : osgtext_( new osgGeo::Text )
     , displaytrans_( 0 )
 {
     osgtext_->ref();
@@ -149,6 +149,29 @@ void Text::setJustification( Justification just )
 }
 
 
+int Text::getJustification() const
+{
+    if ( osgtext_->getAlignment()==osgText::TextBase::LEFT_CENTER )
+	return Left;
+    if ( osgtext_->getAlignment()==osgText::TextBase::RIGHT_CENTER )
+	return Right;
+    if ( osgtext_->getAlignment()==osgText::TextBase::CENTER_TOP )
+	return Top;
+    if ( osgtext_->getAlignment()==osgText::TextBase::CENTER_BOTTOM )
+	return Bottom;
+    if ( osgtext_->getAlignment()==osgText::TextBase::LEFT_TOP )
+	return TopLeft;
+    if ( osgtext_->getAlignment()==osgText::TextBase::RIGHT_TOP )
+	return TopRight;
+    if ( osgtext_->getAlignment()==osgText::TextBase::LEFT_BOTTOM )
+	return BottomLeft;
+    if ( osgtext_->getAlignment()==osgText::TextBase::RIGHT_BOTTOM )
+	return BottomRight;
+
+    return Center;
+}
+
+
 void Text::setCharacterSizeMode( CharacterSizeMode mode )
 {
     const osgText::TextBase::CharacterSizeMode osgmode =  
@@ -209,6 +232,25 @@ void Text::setDisplayTransformation( const mVisTrans* newtrans )
 
     setPosition( oldpos );
 }
+
+
+void Text::useRotateToScreenElevation( bool yn )
+{ osgtext_->useRotateToScreenElevation( yn ); }
+
+bool Text::isRotateToScreenElevationUsed() const
+{ return osgtext_->isRotateToScreenElevationUsed(); }
+
+void Text::setRotateToScreenElevationAngle( float angle )
+{ osgtext_->setRotateToScreenElevationAngle( angle ); }
+
+float Text::getRotateToScreenElevationAngle() const
+{ return osgtext_->getRotateToScreenElevationAngle(); }
+
+void Text::setRotateToScreenElevationPlane( const Coord3& normal )
+{ osgtext_->setRotateToScreenElevationPlane( Conv::to<osg::Vec3>(normal) ); }
+
+Coord3 Text::getRotateToScreenElevationPlane() const
+{ return Conv::to<Coord3>( osgtext_->getRotateToScreenElevationPlane() ); }
 
 
 Text2::Text2()
