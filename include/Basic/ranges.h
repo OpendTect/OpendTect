@@ -600,7 +600,7 @@ bool Interval<T>::isUdf() const
 
 template <class T> inline
 void Interval<T>::setUdf()
-{ start = stop = mUdf(T); }
+{ BasicInterval<T>::set( mUdf(T), mUdf(T) ); }
 
 
 // ---------------- StepInterval --------------------
@@ -633,7 +633,7 @@ bool StepInterval<T>::isUdf() const
 
 template <class T> inline
 void StepInterval<T>::setUdf()
-{ start = stop = step = mUdf(T); }
+{ Interval<T>::set( mUdf(T), mUdf(T) ); step = mUdf(T); }
 
 
 template <class T> inline
