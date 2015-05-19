@@ -534,7 +534,7 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     ConstDataPackRef<SeisDataPack> sdp = dpm.obtain( pldpid );
     if ( !sdp ) return DataPack::cNoID();
 
-    const int globidx = sdp->getGlobalIdx( tk );
+    const int globidx = sdp->getNearestGlobalIdx( tk );
     if ( globidx < 0 ) return DataPack::cNoID();
 
     const int nrz = zintv.nrSteps() + 1;
