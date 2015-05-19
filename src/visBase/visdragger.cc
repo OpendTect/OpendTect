@@ -114,7 +114,7 @@ DraggerBase::DraggerBase()
     setPickable( true );
 
     for ( int dim=0; dim<3; dim++ )
-	spaceranges_[dim] = Interval<float>::udf();
+	spaceranges_[dim].setUdf();
 }
 
 

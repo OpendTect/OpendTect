@@ -116,6 +116,7 @@ public:
     virtual Interval<T>* clone() const;
 
     virtual bool inline	isUdf() const;
+    virtual void	setUdf();
 
     inline virtual void	scale(const T&);
 
@@ -148,6 +149,7 @@ public:
     inline StepInterval<T>& operator=(const Interval<T>&);
 
     virtual bool inline	isUdf() const;
+    virtual void	setUdf();
     static StepInterval<T> udf()
 			{return StepInterval<T>(mUdf(T),mUdf(T),mUdf(T));}
 
@@ -596,6 +598,9 @@ bool Interval<T>::isUdf() const
 }
 
 
+template <class T> inline
+void Interval<T>::setUdf()
+{ start = stop = mUdf(T); }
 
 
 // ---------------- StepInterval --------------------
@@ -623,9 +628,12 @@ inline StepInterval<T>& StepInterval<T>::operator=( const Interval<T>& intv )
 
 template <class T> inline
 bool StepInterval<T>::isUdf() const
-{
-    return Interval<T>::isUdf() || mIsUdf(step);
-}
+{ return Interval<T>::isUdf() || mIsUdf(step); }
+
+
+template <class T> inline
+void StepInterval<T>::setUdf()
+{ start = stop = step = mUdf(T); }
 
 
 template <class T> inline

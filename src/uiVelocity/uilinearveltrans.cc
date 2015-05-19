@@ -79,7 +79,7 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 	    range.start = trans->transform( BinIDValue(0,0,range.start) );
 	    range.stop = trans->transform( BinIDValue(0,0,range.stop) );
 	    if ( range.isUdf() )
-		range = StepInterval<float>::udf();
+		range.setUdf();
 	    else
 		range.step = range.width()/nrsamples;
 	}

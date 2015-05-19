@@ -504,7 +504,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 
 	    if ( !seis2dlist[idx]->isPanelShown() ||
 		 !seis2dlist[idx]->isAnyAttribEnabled() )
-		trcrg = Interval<int>::udf();
+		trcrg.setUdf();
 
 	    linergs.trcrgs[lnidx] += trcrg;
 	    linergs.zrgs[lnidx] += seis2dlist[idx]->getZRange( true );

@@ -43,7 +43,7 @@ RandomTrackDragger::RandomTrackDragger()
     , showallpanels_( false )
 {
     for ( int dim=0; dim<3; dim++ )
-	limits_[dim] = StepInterval<float>::udf();
+	limits_[dim].setUdf();
 
     setMaterial( 0 );
 

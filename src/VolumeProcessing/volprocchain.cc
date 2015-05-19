@@ -235,7 +235,7 @@ void ChainExecutor::computeComputationScope( Step::ID stepid,
     web_.getConnections( stepid, false, outputconnections );
 
     stepoutputhrg.init(false);
-    stepoutputzrg = StepInterval<int>::udf();
+    stepoutputzrg.setUdf();
 
     for ( int idx=0; idx<outputconnections.size(); idx++ )
     {
