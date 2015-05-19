@@ -36,9 +36,9 @@ public:
 
     void			setSeedPos(const Coord3&);
     void			setDisplaySize(int nrtrcs,
-					       const Interval<float>& zintv);
-    void			setWindow(const Interval<float>&);
-    Interval<float>		getWindow() const;
+					       const Interval<int>& zintv);
+    void			setWindow(const Interval<int>&);
+    Interval<int>		getManipWindow() const;
 
     Notifier<uiPreviewGroup>	windowChanged_;
 
@@ -53,6 +53,7 @@ protected:
     void			mousePressed(CallBacker*);
     void			mouseMoved(CallBacker*);
     void			mouseReleased(CallBacker*);
+    bool			calcNewWindow();
     bool			mousedown_;
 
     uiCheckList*		wvafld_;
@@ -65,8 +66,9 @@ protected:
 
     Coord3			seedpos_;
     int				nrtrcs_;
-    Interval<float>		zintv_;
-    Interval<float>		winintv_;
+    Interval<int>		zintv_;
+    Interval<int>		winintv_;
+    Interval<int>		manipwinintv_;
 
 };
 

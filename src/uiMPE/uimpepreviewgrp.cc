@@ -96,7 +96,7 @@ uiPreviewGroup::~uiPreviewGroup()
 void uiPreviewGroup::wvavdChgCB( CallBacker* )
 {
     vwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
-					    wvafld_->isChecked(1) );
+				     wvafld_->isChecked(1) );
     vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
 
@@ -109,7 +109,7 @@ void uiPreviewGroup::setSeedPos( const Coord3& crd )
 }
 
 
-void uiPreviewGroup::setDisplaySize( int nrtrcs, const Interval<float>& zintv )
+void uiPreviewGroup::setDisplaySize( int nrtrcs, const Interval<int>& zintv )
 {
     nrtrcs_ = nrtrcs;
     zintv_ = zintv;
@@ -118,15 +118,17 @@ void uiPreviewGroup::setDisplaySize( int nrtrcs, const Interval<float>& zintv )
 }
 
 
-void uiPreviewGroup::setWindow( const Interval<float>& winsz )
+void uiPreviewGroup::setWindow( const Interval<int>& winsz )
 {
     winintv_ = winsz;
     updateWindowLines();
 }
 
 
-Interval<float> uiPreviewGroup::getWindow() const
-{ return winintv_; }
+Interval<int> uiPreviewGroup::getManipWindow() const
+{
+    return manipwinintv_;
+}
 
 
 void uiPreviewGroup::updateViewer()
@@ -137,8 +139,12 @@ void uiPreviewGroup::updateViewer()
     const BinID& bid = SI().transform( seedpos_.coord() );
     const float z = (float)seedpos_.z;
 
+    StepInterval<float> zintv; zintv.setFrom( zintv_ );
+    zintv.scale( 1.f/SI().zDomain().userFactor() );
+    zintv.step = SI().zStep();
+
     const DataPack::ID dpid =
-	MPE::engine().getSeedPosDataPack( bid, z, nrtrcs_, zintv_ );
+	MPE::engine().getSeedPosDataPack( bid, z, nrtrcs_, zintv );
 
     vwr_->setPack( true, dpid );
     vwr_->setPack( false, dpid );
@@ -146,11 +152,11 @@ void uiPreviewGroup::updateViewer()
 				     wvafld_->isChecked(1) );
     vwr_->setViewToBoundingBox();
 
-    FlatView::Point& pt = seeditm_->poly_[0];
-    pt = FlatView::Point( bid.crl(), z );
+    seeditm_->poly_[0] = FlatView::Point( bid.crl(), z );
 
-    seedline_->poly_[0] = FlatView::Point( bid.crl()-nrtrcs_/2-1, z );
-    seedline_->poly_[1] = FlatView::Point( bid.crl()+nrtrcs_/2+1, z );
+    const int so = nrtrcs_/2+1;
+    seedline_->poly_[0] = FlatView::Point( bid.crl()-so, z );
+    seedline_->poly_[1] = FlatView::Point( bid.crl()+so, z );
 
     vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
@@ -164,10 +170,14 @@ void uiPreviewGroup::updateWindowLines()
     const BinID& bid = SI().transform( seedpos_.coord() );
     const float z = (float)seedpos_.z;
 
-    minline_->poly_[0] = FlatView::Point( bid.crl()-nrtrcs_/2, z+winintv_.start );
-    minline_->poly_[1] = FlatView::Point( bid.crl()+nrtrcs_/2, z+winintv_.start );
-    maxline_->poly_[0] = FlatView::Point( bid.crl()-nrtrcs_/2, z+winintv_.stop );
-    maxline_->poly_[1] = FlatView::Point( bid.crl()+nrtrcs_/2, z+winintv_.stop );
+    StepInterval<float> zintv; zintv.setFrom( winintv_ );
+    zintv.scale( 1.f/SI().zDomain().userFactor() );
+
+    const int so = nrtrcs_/2+1;
+    minline_->poly_[0] = FlatView::Point( bid.crl()-so, z+zintv.start );
+    minline_->poly_[1] = FlatView::Point( bid.crl()+so, z+zintv.start );
+    maxline_->poly_[0] = FlatView::Point( bid.crl()-so, z+zintv.stop );
+    maxline_->poly_[1] = FlatView::Point( bid.crl()+so, z+zintv.stop );
 
     vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
@@ -175,42 +185,44 @@ void uiPreviewGroup::updateWindowLines()
 
 void uiPreviewGroup::mousePressed( CallBacker* )
 {
-    MouseEventHandler& meh = vwr_->getMouseEventHandler();
-    if ( seedpos_.isUdf() || meh.isHandled() )
-	return;
-
-    const MouseEvent& ev = meh.event();
-    const Geom::Point2D<int>& pt = ev.pos();
-    uiWorldPoint wpt = vwr_->getWorld2Ui().transform( pt );
-    const double diff = Math::Abs(seedpos_.z-wpt.y)*SI().zDomain().userFactor();
-    if ( wpt.y < seedpos_.z )
-	compwinfld_->setValue( mNINT32(-diff), 0 );
-    else
-	compwinfld_->setValue( mNINT32(diff), 1 );
+    if ( !calcNewWindow() )
 
     mousedown_ = true;
+    windowChanged_.trigger();
 }
 
 
 void uiPreviewGroup::mouseMoved( CallBacker* )
 {
-    if ( !mousedown_ ) return;
+    if ( !mousedown_ || !calcNewWindow() ) return;
 
-    MouseEventHandler& meh = vwr_->getMouseEventHandler();
-    const MouseEvent& ev = meh.event();
-    const Geom::Point2D<int>& pt = ev.pos();
-    uiWorldPoint wpt = vwr_->getWorld2Ui().transform( pt );
-    const double diff = Math::Abs(seedpos_.z-wpt.y)*SI().zDomain().userFactor();
-    if ( wpt.y < seedpos_.z )
-	compwinfld_->setValue( mNINT32(-diff), 0 );
-    else
-	compwinfld_->setValue( mNINT32(diff), 1 );
+    windowChanged_.trigger();
 }
 
 
 void uiPreviewGroup::mouseReleased( CallBacker* )
 {
     mousedown_ = false;
+}
+
+
+bool uiPreviewGroup::calcNewWindow()
+{
+    MouseEventHandler& meh = vwr_->getMouseEventHandler();
+    if ( seedpos_.isUdf() )
+	return false;
+
+    manipwinintv_.setUdf();
+    const MouseEvent& ev = meh.event();
+    const Geom::Point2D<int>& pt = ev.pos();
+    uiWorldPoint wpt = vwr_->getWorld2Ui().transform( pt );
+    const double diff = (wpt.y - seedpos_.z) * SI().zDomain().userFactor();
+    if ( wpt.y < seedpos_.z )
+	manipwinintv_.start = mNINT32( diff );
+    else
+	manipwinintv_.stop = mNINT32( diff );
+
+    return true;
 }
 
 } //namespace MPE
