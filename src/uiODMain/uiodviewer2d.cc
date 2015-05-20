@@ -153,7 +153,10 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     }
 
     if ( slicepos_ )
+    {
 	slicepos_->getToolBar()->display( tkzs_.isFlat() );
+	slicepos_->setTrcKeyZSampling( tkzs_ );
+    }
 
     setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
 
@@ -307,7 +310,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 					.withhomebutton(true)
 					.initialx1pospercm(initialx1pospercm_)
 					.initialx2pospercm(initialx2pospercm)
-					.intitialcentre(initialcentre_)
+					.initialcentre(initialcentre_)
 					.managescoltab(!tifs_) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
     if ( tifs_ )
@@ -581,7 +584,7 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
 {
     PtrMan<IOObj> ioobj = appl_.applMgr().attrServer()->getIOObj(selSpec(wva));
     if ( !ioobj ) return false;
-    
+
     FilePath fp( ioobj->fullUserExpr(true) );
     fp.setExtension( "par" );
     IOPar iop;
@@ -591,7 +594,7 @@ bool uiODViewer2D::useStoredDispPars( bool wva )
     ColTab::MapperSetup mapper;
     if ( !mapper.usePar(iop) )
 	return false;
-    
+
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr );
