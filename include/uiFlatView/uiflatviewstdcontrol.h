@@ -28,7 +28,7 @@ class uiToolBar;
 mExpClass(uiFlatView) uiFlatViewZoomLevelGrp : public uiGroup
 { mODTextTranslationClass(uiFlatViewZoomLevelGrp)
 public:
-    			uiFlatViewZoomLevelGrp(uiParent*,float&,float&,bool);
+			uiFlatViewZoomLevelGrp(uiParent*,float&,float&,bool);
     void		commitInput();
     bool		saveGlobal() const;
 protected:
@@ -66,8 +66,8 @@ public:
 			    , managescoltab_(true)
 			    , initialx1pospercm_(mUdf(float))
 			    , initialx2pospercm_(mUdf(float))
-			    , intitialcentre_(uiWorldPoint::udf())
-                            , tba_(-1)	{}	      	
+			    , initialcentre_(uiWorldPoint::udf())
+                            , tba_(-1)	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withcoltabed)
@@ -85,11 +85,11 @@ public:
 	mDefSetupMemb(bool,withhomebutton)
 	mDefSetupMemb(float,initialx1pospercm)
 	mDefSetupMemb(float,initialx2pospercm)
-	mDefSetupMemb(uiWorldPoint,intitialcentre);
+	mDefSetupMemb(uiWorldPoint,initialcentre);
     };
 
-    			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
-    			~uiFlatViewStdControl();
+			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
+			~uiFlatViewStdControl();
     virtual uiToolBar*	toolBar()		{ return tb_; }
     virtual uiFlatViewColTabEd* colTabEd()	{ return ctabed_; }
     void		setEditMode(bool yn);
@@ -105,7 +105,7 @@ protected:
 
     float		defx1pospercm_;
     float		defx2pospercm_;
-    
+
     uiToolBar*		tb_;
     uiToolButton*	rubbandzoombut_;
     uiToolButton*	zoominbut_;
@@ -145,7 +145,7 @@ protected:
     void		keyPressCB(CallBacker*);
     void		homeZoomOptSelCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
-    virtual void	vwrAdded(CallBacker*) 	{}
+    virtual void	vwrAdded(CallBacker*)	{}
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
     virtual void	pinchZoomCB(CallBacker*);
@@ -155,7 +155,7 @@ protected:
     virtual bool	handleUserClick(int vwridx);
 
     uiMenuHandler&      menu_;
-    MenuItem           	propertiesmnuitem_;
+    MenuItem	propertiesmnuitem_;
     void                createMenuCB(CallBacker*);
     void                handleMenuCB(CallBacker*);
 

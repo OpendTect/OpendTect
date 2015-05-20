@@ -150,11 +150,11 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	const CallBack optcb = mCB(this,uiFlatViewStdControl,homeZoomOptSelCB);
 	uiMenu* mnu = new uiMenu( tb_, tr("Zoom level options") );
 	mnu->insertAction( new uiAction(tr("Set local home zoom"),
-		    			   optcb,"set_homezoom"), sLocalHZIdx );
+					   optcb,"set_homezoom"), sLocalHZIdx );
 	mnu->insertAction( new uiAction(tr("Set global home zoom"),
-		    			optcb,"set_ghomezoom"), sGlobalHZIdx );
+					optcb,"set_ghomezoom"), sGlobalHZIdx );
 	mnu->insertAction( new uiAction(tr("Manually set home zoom"),
-		    			optcb,"man_homezoom"), sManHZIdx );
+					optcb,"man_homezoom"), sManHZIdx );
 	sethomezoombut_->setMenu( mnu );
 	mDefBut(gotohomezoombut_,"homezoom",gotoHomeZoomCB,
 		tr("Go to home zoom"));
@@ -335,16 +335,16 @@ void uiFlatViewStdControl::pinchZoomCB( CallBacker* cb )
     const GestureEvent* gevent = evh->getPinchEventInfo();
     if ( !gevent )
 	return;
-   
+
     uiFlatViewer& vwr = *vwrs_[0];
     const Geom::Size2D<double> cursz = vwr.curView().size();
     const float scalefac = gevent->scale();
-    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac), 
+    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac),
 				cursz.height() * (1/scalefac) );
     Geom::Point2D<double> pos = vwr.getWorld2Ui().transform( gevent->pos() );
 
     const uiWorldRect wr = getZoomOrPanRect( pos, newsz, vwr.curView(),
-	    				     vwr.boundingBox() );
+					     vwr.boundingBox() );
     vwr.setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )
@@ -406,7 +406,7 @@ uiFlatViewSetZoomLevelDlg( uiParent* p, float& x1pospercm, float& x2pospercm,
 				 mNoHelpKey))
 {
     zommlvlgrp_ = new uiFlatViewZoomLevelGrp( this, x1pospercm,
-	    				      x2pospercm, isvert );
+					      x2pospercm, isvert );
 }
 
 
@@ -443,7 +443,7 @@ void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
     else
     {
 	uiFlatViewSetZoomLevelDlg zoomlvldlg( this, x1pospercm, x2pospercm,
-					      setup_.isvertical_ ); 
+					      setup_.isvertical_ );
 	if ( zoomlvldlg.go() )
 	{
 	    defx1pospercm_ = x1pospercm;
@@ -466,7 +466,7 @@ float uiFlatViewStdControl::getCurrentPosPerCM( bool forx1 ) const
     const int extrastep = forx1 ? 1 : 0;
     //<-- For x2 all points are not considered as flatviewer does not expand
     //<-- boundingbox by extfac_(0.5) along x2 as wiggles are not drawn in
-    //<-- extended area. 
+    //<-- extended area.
     return (vwr.posRange(forx1).nrSteps() + extrastep) / nrcms;
 }
 
@@ -477,7 +477,7 @@ void uiFlatViewStdControl::setGlobalZoomLevel( float x1pospercm,
     Settings::common().set( sKeyVW2DTrcsPerCM(), x1pospercm );
     if ( setup_.isvertical_ )
 	Settings::common().set( sKeyVW2DZPerCM(), x2pospercm );
-    
+
     mSettWrite();
 }
 
@@ -510,7 +510,7 @@ void uiFlatViewStdControl::setViewToCustomZoomLevel( uiFlatViewer& vwr )
     const double hhght = vwr.posRange(false).step * cmheight * x2pospercm / 2;
 
     const uiWorldRect bb = vwr.boundingBox();
-    uiWorldPoint wp(!ispoppedup? setup_.intitialcentre_:vwr.curView().centre());
+    uiWorldPoint wp(!ispoppedup? setup_.initialcentre_:vwr.curView().centre());
     if ( wp == uiWorldPoint::udf() ) wp = bb.centre();
 
     const uiWorldRect wr( wp.x-hwdth, wp.y-hhght, wp.x+hwdth, wp.y+hhght );
@@ -553,7 +553,7 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     newwr.translate( startwpt-curwpt );
 
     newwr = getZoomOrPanRect( newwr.centre(), newwr.size(), newwr,
-	    		      vwr->boundingBox() );
+			      vwr->boundingBox() );
     vwr->setView( newwr );
 }
 
@@ -606,7 +606,7 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* cb )
 	vwrs_[idx]->rgbCanvas().setDragMode( mode );
 	vwrs_[idx]->setCursor( cursor );
 	vwrs_[idx]->appearance().annot_.editable_ = iseditmode &&
-	   				!vwrs_[idx]->hasZAxisTransform();
+					!vwrs_[idx]->hasZAxisTransform();
 	// TODO: Change while enabling tracking in Z-transformed 2D Viewers.
     }
 
