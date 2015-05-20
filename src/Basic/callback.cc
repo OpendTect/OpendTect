@@ -245,13 +245,13 @@ void CallBack::doCall( CallBacker* cber )
 
 bool CallBack::addToMainThread( CallBack cb, CallBacker* cber )
 {
-#ifndef OD_NO_QT
+#ifdef OD_NO_QT
+    return false;
+#else
     QEventLoopReceiver* rec = getQELR();
     rec->add( cb, cber );
     return true;
 #endif
-
-    return false;
 }
 
 
