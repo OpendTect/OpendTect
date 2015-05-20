@@ -215,8 +215,7 @@ inline SetMgr& Mgr()
     return SetMgr::getMgr(0);
 }
 
-
-}; // namespace Pick
+} // namespace Pick
 
 
 mExpClass(General) PickSetAscIO : public Table::AscIO
