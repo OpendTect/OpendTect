@@ -85,7 +85,8 @@ void uiStratRefTree::setTree( Strat::RefTree& rt, bool force )
 
 
 #define mCreateAndSetUnitPixmap(ur,lvit)\
-    uiPixmap* pm = createUnitPixmap( ur.color() );\
+    mDynamicCastGet(const LeafUnitRef*,lfur,&ur) \
+    uiPixmap* pm = createUnitPixmap(lfur ? lfur->dispColor(true) : ur.color());\
     lvit->setPixmap( 0, *pm );\
     delete pm;
 
