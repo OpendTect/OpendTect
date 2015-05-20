@@ -8,8 +8,82 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "callback.h"
 #include "thread.h"
+#include "threadlock.h"
+#include "ptrman.h"
+
+#include <QCoreApplication>
 
 #define mOneMilliSecond 0.001
+
+class QEventLoopReceiver : public QObject
+{
+public:
+    QEventLoopReceiver()
+	: receiverlock_( true )
+    { cbers_.allowNull( true ); }
+
+    bool event( QEvent* )
+    {
+	Threads::Locker locker( receiverlock_ );
+	for ( int idx=0; idx<cbs_.size(); idx++ )
+	{
+	    cbs_[idx].doCall( cbers_[idx] );
+	}
+
+	cbs_.erase();
+	cbers_.erase();
+
+
+	return true;
+    }
+
+    void add( CallBack& cb, CallBacker* cber )
+    {
+	Threads::Locker locker( receiverlock_ );
+
+	if ( cbs_.isEmpty() )
+	{
+	    QCoreApplication::postEvent( this, new QEvent(QEvent::None) );
+	}
+
+	cbs_ += cb;
+	cbers_ += cber;
+    }
+
+    void remove( CallBack& cb )
+    {
+	Threads::Locker locker( receiverlock_ );
+	const int idx = cbs_.indexOf( cb );
+	if ( idx>=0 )
+	{
+	    cbs_.removeSingle( idx );
+	    cbers_.removeSingle( idx );
+	}
+    }
+
+private:
+
+    TypeSet<CallBack>		cbs_;
+    ObjectSet<CallBacker>	cbers_;
+    Threads::Lock		receiverlock_;
+};
+
+
+
+
+static PtrMan<QEventLoopReceiver> currentreceiver = 0;
+
+static QEventLoopReceiver* getQELR()
+{
+    if ( !currentreceiver )
+    {
+	QEventLoopReceiver* rec  = new QEventLoopReceiver;
+	if ( !currentreceiver.setIfNull( rec ) )
+	    delete rec;
+    }
+
+    return currentreceiver;
+}
 
 
 CallBacker::CallBacker()
@@ -154,12 +228,56 @@ bool CallBacker::notifyShutdown( NotifierAccess* na, bool wait )
 }
 
 
+void CallBack::initClass()
+{
+    getQELR(); //Force creation
+}
+
+
 void CallBack::doCall( CallBacker* cber )
 {
     if ( obj_ && fn_ )
 	(obj_->*fn_)( cber );
     else if ( sfn_ )
 	sfn_( cber );
+}
+
+
+bool CallBack::addToMainThread( CallBack cb, CallBacker* cber )
+{
+#ifndef OD_NO_QT
+    QEventLoopReceiver* rec = getQELR();
+    rec->add( cb, cber );
+    return true;
+#endif
+
+    return false;
+}
+
+
+bool CallBack::queueIfNotInMainThread( CallBack cb, CallBacker* cber )
+{
+#ifndef OD_NO_QT
+    QCoreApplication* instance = QCoreApplication::instance();
+    if ( instance && instance->thread()!=Threads::currentThread() )
+    {
+	QEventLoopReceiver* rec = getQELR();
+	rec->add( cb, cber );
+	return true;
+    }
+#endif
+
+    return false;
+}
+
+
+bool CallBack::callInMainThread( CallBack cb, CallBacker* cber )
+{
+    if ( addToMainThread( cb, cber ) )
+	return false;
+
+    cb.doCall( cber );
+    return true;
 }
 
 

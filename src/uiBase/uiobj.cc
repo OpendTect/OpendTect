@@ -363,8 +363,9 @@ void uiObject::setToolTip( const uiString& txt )
 }
 
 
-void uiObject::updateToolTip()
+void uiObject::updateToolTip(CallBacker*)
 {
+    mEnsureExecutedInMainThread( uiObject::updateToolTip );
     if ( !qwidget() ) return;
 
     if ( uiMain::isNameToolTipUsed() && !name().isEmpty() )
