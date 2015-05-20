@@ -356,6 +356,8 @@ void uiObjFileMan::setPrefWidth( int width )
 
 void uiObjFileMan::updateCB( CallBacker* )
 {
+    mEnsureExecutedInMainThread( uiObjFileMan::updateCB );
+
     const MultiID curmid = selgrp_->currentID();
     selgrp_->fullUpdate( curmid );
 }

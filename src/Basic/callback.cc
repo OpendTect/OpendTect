@@ -11,10 +11,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadlock.h"
 #include "ptrman.h"
 
-#include <QCoreApplication>
 
 #define mOneMilliSecond 0.001
 
+#ifndef OD_NO_QT
+#include <QCoreApplication>
 class QEventLoopReceiver : public QObject
 {
 public:
@@ -69,8 +70,6 @@ private:
 };
 
 
-
-
 static PtrMan<QEventLoopReceiver> currentreceiver = 0;
 
 static QEventLoopReceiver* getQELR()
@@ -84,6 +83,8 @@ static QEventLoopReceiver* getQELR()
 
     return currentreceiver;
 }
+
+#endif
 
 
 CallBacker::CallBacker()
