@@ -36,10 +36,21 @@ StratSynthExporter::StratSynthExporter(
     , linegeom_(newgeom)
     , cursdidx_(0)
     , posdone_(0)
+    , postobedone_(0)
     , prefixstr_(prepostfix[0].str())
     , postfixstr_(prepostfix[1].str())
     , writer_(0)
 {
+    int synthmodelsz = 0;
+    mDynamicCastGet(const PreStackSyntheticData*,presd,sds_[0]);
+    mDynamicCastGet(const PostStackSyntheticData*,postsd,sds_[0]);
+    if ( presd )
+	synthmodelsz = presd->preStackPack().getGathers().size();
+    else
+	synthmodelsz = postsd->postStackPack().trcBuf().size();
+
+    postobedone_ = linegeom_->positions().size() < synthmodelsz
+			    ? linegeom_->positions().size() : synthmodelsz;
 }
 
 
@@ -53,13 +64,13 @@ StratSynthExporter::~StratSynthExporter()
 
 od_int64 StratSynthExporter::nrDone() const
 {
-    return (cursdidx_*linegeom_->positions().size()) + posdone_;
+    return (cursdidx_*postobedone_) + posdone_;
 }
 
 
 od_int64 StratSynthExporter::totalNr() const
 {
-    return sds_.size()*linegeom_->positions().size();
+    return sds_.size()*postobedone_;
 }
 
 #define mSkipInitialBlanks( str ) \
@@ -148,7 +159,7 @@ int StratSynthExporter::writePostStackTrace()
 
     const SeisTrcBuf& seisbuf = postsd->postStackPack().trcBuf();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
-    if ( !positions.validIdx(posdone_) )
+    if ( posdone_ >= postobedone_ )
     {
 	cursdidx_++;
 	posdone_ = 0;
@@ -184,7 +195,7 @@ int StratSynthExporter::writePreStackTraces()
     const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();
     const ObjectSet<PreStack::Gather>& gathers = gsdp.getGathers();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
-    if ( !positions.validIdx(posdone_) )
+    if ( posdone_ >= postobedone_ ) 
     {
 	cursdidx_++;
 	posdone_ = 0;

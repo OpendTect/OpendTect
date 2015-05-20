@@ -54,6 +54,7 @@ protected:
     uiString				errmsg_;
     int					cursdidx_;
     int					posdone_;
+    int					postobedone_;
 };
 
 #endif
