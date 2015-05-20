@@ -28,6 +28,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "transl.h"
 
+#include "hiddenparam.h"
+
+
+static HiddenParam<StratSynthExporter,int> postobedoneset( 0 );
+
+
 StratSynthExporter::StratSynthExporter(
 	const ObjectSet<const SyntheticData>& sds,
 	PosInfo::Line2DData* newgeom, const SeparString& prepostfix )
@@ -40,12 +46,24 @@ StratSynthExporter::StratSynthExporter(
     , postfixstr_(prepostfix[1].str())
     , writer_(0)
 {
+    int synthmodelsz = 0;
+    mDynamicCastGet(const PreStackSyntheticData*,presd,sds_[0]);
+    mDynamicCastGet(const PostStackSyntheticData*,postsd,sds_[0]);
+    if ( presd )
+	synthmodelsz = presd->preStackPack().getGathers().size();
+    else
+	synthmodelsz = postsd->postStackPack().trcBuf().size();
+
+    const int postobedone_ = linegeom_->positions().size() < synthmodelsz
+			     ? linegeom_->positions().size() : synthmodelsz;
+    postobedoneset.setParam( this, postobedone_ );
 }
 
 
 StratSynthExporter::~StratSynthExporter()
 {
     delete writer_;
+    postobedoneset.removeParam( this );
 }
 
 
@@ -53,13 +71,13 @@ StratSynthExporter::~StratSynthExporter()
 
 od_int64 StratSynthExporter::nrDone() const
 {
-    return (cursdidx_*linegeom_->positions().size()) + posdone_;
+    return (cursdidx_*postobedoneset.getParam(this)) + posdone_;
 }
 
 
 od_int64 StratSynthExporter::totalNr() const
 {
-    return sds_.size()*linegeom_->positions().size();
+    return sds_.size()*postobedoneset.getParam(this);
 }
 
 #define mSkipInitialBlanks( str ) \
@@ -148,7 +166,7 @@ int StratSynthExporter::writePostStackTrace()
 
     const SeisTrcBuf& seisbuf = postsd->postStackPack().trcBuf();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
-    if ( !positions.validIdx(posdone_) )
+    if ( posdone_ >= postobedoneset.getParam(this) )
     {
 	cursdidx_++;
 	posdone_ = 0;
@@ -184,7 +202,7 @@ int StratSynthExporter::writePreStackTraces()
     const PreStack::GatherSetDataPack& gsdp = presd->preStackPack();
     const ObjectSet<PreStack::Gather>& gathers = gsdp.getGathers();
     const TypeSet<PosInfo::Line2DPos>& positions = linegeom_->positions();
-    if ( !positions.validIdx(posdone_) )
+    if ( posdone_ >= postobedoneset.getParam(this) )
     {
 	cursdidx_++;
 	posdone_ = 0;
