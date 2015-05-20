@@ -648,7 +648,8 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     if ( !eps.isValidInput(&errmsg) )
     {
 	mutex_.lock();
-	errmsg_ = errmsg;
+	errmsg_ = BufferString( "Cannot create elastic model as" );
+	errmsg_ += errmsg;
 	mutex_.unLock();
 	return false;
     }
@@ -658,6 +659,15 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     int firstidx = 0;
     if ( seq.startDepth() < srddepth )
 	firstidx = seq.nearestLayerIdxAtZ( srddepth );
+
+    if ( seq.size()<=1 )
+    {
+	mutex_.lock();
+	errmsg_ = "Elastic model is not proper to generate synthetics as a "
+		  "layer sequence has 1 or no layers";
+	mutex_.unLock();
+	return false;
+    }
 
     for ( int idx=firstidx; idx<seq.size(); idx++ )
     {
@@ -677,6 +687,15 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
 	    sval = 0;
 
 	aimodel += ElasticLayer( thickness, pval, sval, dval );
+    }
+
+    if ( aimodel.size()<=1 )
+    {
+	mutex_.lock();
+	errmsg_ += "After discarding layers with no thickness ";
+	errmsg_ += "resultant elastic model has 1 or no layers";
+	mutex_.unLock();
+	return false;
     }
 
     return true;
@@ -1164,7 +1183,7 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	if ( tmpmodel.isEmpty() )
 	{
 	    errmsg_ = "Cannot generate elastic model as the "
-		      "thicknesses/Pwave velocity values are invalid."
+		      "Pwave velocity values are invalid."
 		      " Probably units are not set correctly.";
 	    return false;
 	}

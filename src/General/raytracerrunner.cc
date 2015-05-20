@@ -59,50 +59,35 @@ bool RayTracerRunner::prepareRayTracers()
     if ( RayTracer1D::factory().getNames().isEmpty() )
 	return false;
 
-    BufferString initerrmsg;
-    BufferString modelerrmsg;
     totalnr_ = 0;
+    BufferString errmsg;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
-	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, initerrmsg );
+	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, errmsg );
 	if ( !rt1d )
 	{
-	    rt1d = RayTracer1D::factory().create(
-		    *RayTracer1D::factory().getNames()[0] );
-	    rt1d->usePar( raypar_ );
+	    deepErase( raytracers_ );
+	    mErrRet( errmsg.buf() );
 	}
+
+	rt1d = RayTracer1D::factory().create(
+		*RayTracer1D::factory().getNames()[0] );
+	rt1d->usePar( raypar_ );
 
 	if ( !rt1d->setNewModel(aimodels_[idx]) )
 	{
-	    if ( modelerrmsg.isEmpty() )
-	    {
-		modelerrmsg.set( "Wrong input for raytracing on model:" );
-		modelerrmsg.add(idx).addNewLine();
-		modelerrmsg.add( rt1d->errMsg() );
-	    }
+	    errmsg = "Wrong input for raytracing on model:";
+	    errmsg.add(idx).addNewLine();
+	    errmsg.add( rt1d->errMsg() );
 
+	    deepErase( raytracers_ );
 	    delete rt1d;
-	    continue;
+	    mErrRet( errmsg.buf() );
 	}
 
 	totalnr_ += rt1d->totalNr();
 	raytracers_ += rt1d;
     }
-
-    BufferString errmsg;
-    if ( !initerrmsg.isEmpty() )
-	errmsg = initerrmsg;
-
-    if ( !modelerrmsg.isEmpty() )
-    {
-	if ( !initerrmsg.isEmpty() )
-	    errmsg.addNewLine();
-
-	errmsg.add( modelerrmsg );
-    }
-
-    if ( raytracers_.isEmpty() && !errmsg.isEmpty() )
-	mErrRet( errmsg.buf() );
 
     return true;
 }
