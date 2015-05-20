@@ -101,17 +101,17 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 	mErrRet( errmsg );
     }
 
-    CubeSampling cs;
-    cs.usePar( par );
+    CubeSampling tkzs;
+    tkzs.usePar( par );
 
-    BufferString csinfo;
-    cs.hrg.toString( csinfo );
-    mexPrintf( csinfo.buf() ); mexPrintf( "\n" );
-    mexPrintf( "Nr of traces: %d\n", cs.hrg.totalNr() );
+    BufferString tkzsinfo;
+    tkzs.hsamp_.toString( tkzsinfo );
+    mexPrintf( tkzsinfo.buf() ); mexPrintf( "\n" );
+    mexPrintf( "Nr of traces: %d\n", tkzs.hsamp_.totalNr() );
 
     Attrib::DataCubes* output = new Attrib::DataCubes;
     output->ref();
-    output->setSizeAndPos( cs );
+    output->setSizeAndPos( tkzs );
 
     TypeSet<int> cubeidxs;
     for ( int idx=1; idx<nrhs; idx++ )
