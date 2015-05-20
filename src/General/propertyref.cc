@@ -64,7 +64,7 @@ ThicknessPropertyRef()
 {
     aliases().add( "thick" );
     disp_.color_ = Color::Black();
-    disp_.range_ = Interval<float>( 0, 100 );
+    disp_.range_ = Interval<float>( 1, 99 );
 }
 
 private:
