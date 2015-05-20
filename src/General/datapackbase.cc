@@ -442,7 +442,7 @@ int SeisDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
 
     double dist = mUdf(double);
     int bestidx = -1;
-    for ( int idx=0; nrTrcs(); idx++ )
+    for ( int idx=0; idx<nrTrcs(); idx++ )
     {
 	const TrcKey curtk = getTrcKey( idx );
 	if ( curtk.isUdf() ) continue;
