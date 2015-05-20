@@ -58,6 +58,8 @@ typedef void (*StaticCallBackFunction)(CallBacker*);
 mExpClass(Basic) CallBack
 {
 public:
+    static void		initClass();
+
 			CallBack( CallBacker* o=0, CallBackFunction f=0 )
 			    : obj_( o ), fn_( f ), sfn_( 0 )	{}
 			CallBack( StaticCallBackFunction f )
@@ -76,13 +78,46 @@ public:
     inline CallBackFunction		cbFn() const		{ return fn_; }
     inline StaticCallBackFunction	scbFn() const		{ return sfn_; }
 
+    static bool				addToMainThread(CallBack,
+						CallBacker* =0);
+					/*!< Unconditionally add this to main
+					     event loop.*/
+
+    static bool				callInMainThread(CallBack,
+						 CallBacker* =0);
+					/*!<If in main thread or no event-loop
+					    is present, it will be called
+					    directly. Otherwise, it will be
+					    put on event loop.
+					\returns true if the callback was called
+					    directly */
+
+	    // See also mEnsureExecutedInMainThread macro
+
 protected:
 
     CallBacker*				obj_;
     CallBackFunction			fn_;
     StaticCallBackFunction		sfn_;
 
+public:
+    // Usually only called from mEnsureExecutedInMainThread:
+    static bool				queueIfNotInMainThread(CallBack,
+					     CallBacker* =0);
+					 /*!< If not in main thread, queue it.
+					    return whether CB was queued. */
+
 };
+
+#define mMainThreadCall( func ) \
+CallBack::callInMainThread( CallBack( this, ((CallBackFunction)(&func) ) ), 0)
+
+#define mEnsureExecutedInMainThread( func ) \
+	if ( CallBack::queueIfNotInMainThread( \
+		    CallBack( this, ((CallBackFunction)(&func) ) ), 0 ) )  \
+	return
+
+
 
 class RefCountCallBackSet;
 

@@ -29,6 +29,7 @@ mDefModInitFn(Basic)
     mIfNotFirstTime( return );
 
     SignalHandling::initClass();
+    CallBack::initClass();
 
 #ifdef __win__
     _set_output_format(_TWO_DIGIT_EXPONENT);
