@@ -91,7 +91,7 @@ public:
 	    if ( !quiet )
 		od_cout() << "Kill requested " << od_endl;
 
-	    app_.addToEventLoop(
+	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
 	else if ( packetstring=="Disconnect" )
@@ -122,7 +122,8 @@ public:
 	RequestConnection* conn = (RequestConnection*) cb;
 	if ( !quiet )
 	    od_cout() << "Connection " << conn->ID() << " closed." << od_endl;
-	app_.addToEventLoop( mCB(this,RequestEchoServer,cleanupOldConnections));
+	CallBack::addToMainThread(
+		mCB(this,RequestEchoServer,cleanupOldConnections));
     }
 
 
@@ -152,7 +153,7 @@ public:
 	    if ( !quiet )
 		od_cout() << "Timeout" << od_endl;
 
-	    app_.addToEventLoop(
+	    CallBack::addToMainThread(
 			mCB(this,RequestEchoServer,closeServerCB));
 	}
     }

@@ -274,7 +274,7 @@ int main(int argc, char** argv)
     if ( !runner.runTest(false,false) )
 	ExitProgram( 1 );
 
-    app.addToEventLoop( mCB( &runner,Tester, runEventLoopTest) );
+    CallBack::addToMainThread( mCB( &runner,Tester, runEventLoopTest) );
     const int retval = app.exec();
 
     ExitProgram( retval );

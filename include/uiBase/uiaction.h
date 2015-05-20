@@ -100,7 +100,7 @@ protected:
     virtual void	trigger(bool checked);
     void		translateCB(CallBacker*);
 
-    void		updateToolTip();
+    void		updateToolTip(CallBacker* = 0);
     uiString		tooltip_;
     uiString		text_;
     uiString		icontext_;

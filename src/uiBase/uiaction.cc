@@ -183,8 +183,10 @@ const uiString& uiAction::toolTip() const
 }
 
 
-void uiAction::updateToolTip()
+void uiAction::updateToolTip(CallBacker*)
 {
+    mEnsureExecutedInMainThread( uiAction::updateToolTip );
+
     if ( uiMain::isNameToolTipUsed() )
     {
 	BufferString namestr =

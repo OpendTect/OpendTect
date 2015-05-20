@@ -189,7 +189,7 @@ int main(int argc, char** argv)
     runner.prefix_ = "[ With event loop ]\t";
     runner.exitonfinish_ = true;
     runner.noeventloop_ = false;
-    app.addToEventLoop( mCB(&runner,TestRunner,testCallBack) );
+    CallBack::addToMainThread( mCB(&runner,TestRunner,testCallBack) );
     const int res = app.exec();
 
     ExitProgram( res );

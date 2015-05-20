@@ -16,34 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #ifndef OD_NO_QT
 #include <QCoreApplication>
 
-class QEventLoopReceiver : public QObject
-{
-public:
-    QEventLoopReceiver( ApplicationData& ad )
-	: ad_( ad )
-    {}
-
-    bool event( QEvent* )
-    {
-	Threads::MutexLocker locker( ad_.eventloopqueuelock_ );
-	RefMan<CallBackSet> mycopy = new CallBackSet( ad_.eventloopqueue_ );
-	ad_.eventloopqueue_.erase();
-
-	locker.unLock();
-
-	mycopy->doCall( &ad_ );
-	return true;
-    }
-
-    ApplicationData&		ad_;
-};
-
-
 ApplicationData::ApplicationData()
-    : eventloopreceiver_( 0 )
-    , eventloopqueue_(*new CallBackSet)
 {
-    eventloopqueue_.ref();
     if ( !QCoreApplication::instance() )
     {
 	int argc = GetArgC();
@@ -54,9 +28,6 @@ ApplicationData::ApplicationData()
 
 ApplicationData::~ApplicationData()
 {
-    eventloopqueue_.unRef();
-    deleteAndZeroPtr( eventloopreceiver_ );
-    deleteAndZeroPtr( application_ );
 }
 
 
@@ -69,22 +40,6 @@ int ApplicationData::exec()
 void ApplicationData::exit( int retcode )
 {
     QCoreApplication::exit( retcode );
-}
-
-
-void ApplicationData::addToEventLoop( const CallBack& cb )
-{
-    Threads::MutexLocker locker( eventloopqueuelock_ );
-
-    if ( !eventloopqueue_.size() )
-    {
-	if ( !eventloopreceiver_ )
-	    eventloopreceiver_ = new QEventLoopReceiver( *this );
-
-	QCoreApplication::postEvent( eventloopreceiver_,
-				     new QEvent(QEvent::None) );
-    }
-    eventloopqueue_ += cb;
 }
 
 
@@ -102,16 +57,11 @@ void ApplicationData::setApplicationName( const char* nm )
 
 #else //No QT
 ApplicationData::ApplicationData()
-    : eventloopreceiver_( 0 )
-    , eventloopqueue_(*new CallBackSet)
-{
-    eventloopqueue_.ref();
-}
+{ }
 
 
 ApplicationData::~ApplicationData()
 {
-    eventloopqueue_.unRef();
 }
 
 
@@ -122,7 +72,7 @@ int ApplicationData::exec()
 void ApplicationData::exit( int retcode )
 { }
 
-void ApplicationData::addToEventLoop( const CallBack& cb )
+void ApplicationData::addToMainThread( const CallBack& cb )
 { }
 
 
@@ -138,4 +88,3 @@ void ApplicationData::setApplicationName( const char* nm )
 { }
 
 #endif
-

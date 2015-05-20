@@ -175,7 +175,7 @@ protected:
 			//! setGeometry should be triggered by this's layoutItem
     void		triggerSetGeometry(const i_LayoutItem*, uiRect&);
 
-    void		updateToolTip();
+    void		updateToolTip(CallBacker* = 0);
 
     uiString		tooltip_;
 
