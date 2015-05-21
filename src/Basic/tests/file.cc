@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "filepath.h"
 #include "od_istream.h"
+#include "od_ostream.h"
 
 #define mTest( testname, test ) \
 if ( !(test) ) \
@@ -38,10 +39,16 @@ bool testReadContent()
     FilePath nofile( basedir.buf(), "src", "Basic", "tests","NonExistingFile");
     mRunTest(!File::getContent(nofile.fullPath(),buf) && buf.isEmpty());
 
+    //Create empty file
+
     //Read empty file - should work fine.
     buf.setEmpty();
-    FilePath emptyfile( basedir.buf(), "src", "Basic", "tests","emptyfile.txt");
+    FilePath emptyfile( basedir.buf(), "emptyfile.txt");
+    od_ostream stream(emptyfile.fullPath());
+    stream.close();
     mRunTest(File::getContent(emptyfile.fullPath(),buf) && buf.isEmpty());
+
+    File::remove( emptyfile.fullPath() );
 
     //Read non empty file - should work fine.
     buf.setEmpty();
