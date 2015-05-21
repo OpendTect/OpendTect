@@ -231,7 +231,9 @@ bool CallBacker::notifyShutdown( NotifierAccess* na, bool wait )
 
 void CallBack::initClass()
 {
+#ifdef OD_NO_QT
     getQELR(); //Force creation
+#endif
 }
 
 
