@@ -19,8 +19,9 @@ ______________________________________________________________________
 #include "odcomplex.h"
 #include "uistrings.h"
 
-class uiFunctionDisplay;
+class uiCheckBox;
 class uiGenInput;
+class uiFunctionDisplay;
 class uiLabeledSpinBox;
 class uiPushButton;
 namespace Fourier { class CC; }
@@ -68,10 +69,12 @@ protected:
     uiGenInput*			valfld_;
     uiGroup*			dispparamgrp_;
     uiPushButton*		exportfld_;
+    uiCheckBox*			normfld_;
+    uiCheckBox*			powerdbfld_;
 
     void			initFFT(int nrsamples);
     bool			compute(const Array3D<float>&);
-    void			putDispData();
+    void			putDispData(CallBacker*);
     void			valChgd(CallBacker*);
 
     uiAmplSpectrum::Setup	setup_;
@@ -81,6 +84,7 @@ protected:
     Array1DImpl<float_complex>* freqdomain_;
     Array1DImpl<float>*		freqdomainsum_;
     Array1DImpl<float>*		specvals_;
+    float			maxspecval_;
 
     Interval<float>		posrange_;
 

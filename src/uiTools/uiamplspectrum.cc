@@ -31,9 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 
 
-#define mDispVal(v)	20*Math::Log10(v+1)
-
-
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     : uiMainWin( p,tr("Amplitude Spectrum"), 0, false, false )
     , timedomain_(0)
@@ -55,7 +52,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 					    : tr("Wavenumber (/m)") );
     disp_->yAxis(false)->setCaption( tr("Power (dB)") );
     disp_->getMouseEventHandler().movement.notify(
-	    mCB(this,uiAmplSpectrum,valChgd) );
+				  mCB(this,uiAmplSpectrum,valChgd) );
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_ );
@@ -76,6 +73,17 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     valfld_ = new uiGenInput(dispparamgrp_, lbl, FloatInpIntervalSpec());
     valfld_->attach( alignedBelow, rangefld_ );
     valfld_->display( false );
+
+    normfld_ = new uiCheckBox( dispparamgrp_, "Normalize" );
+    normfld_->attach( rightOf, valfld_ );
+    normfld_->setChecked( true );
+
+    powerdbfld_ = new uiCheckBox( dispparamgrp_, "dB scale" );
+    powerdbfld_->attach( rightOf, normfld_ );
+    powerdbfld_->setChecked( true );
+
+    normfld_->activated.notify( mCB(this,uiAmplSpectrum,putDispData) );
+    powerdbfld_->activated.notify( mCB(this,uiAmplSpectrum,putDispData) );
 
     exportfld_ = new uiPushButton( this, uiStrings::sExport(), false );
     exportfld_->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
@@ -169,7 +177,7 @@ void uiAmplSpectrum::setData( const Array3D<float>& array )
     }
 
     compute( array );
-    putDispData();
+    putDispData(0);
 }
 
 
@@ -224,21 +232,38 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 	}
     }
 
+    const int freqsz = freqdomainsum_->info().getSize(0) / 2;
+    delete specvals_;
+    specvals_ = new Array1DImpl<float>( fftsz );
+    maxspecval_ = 0.f;
+    for ( int idx=0; idx<freqsz; idx++ )
+    {
+	const float val = freqdomainsum_->get( idx )/nrtrcs_;
+	specvals_->set( idx, val );
+	if ( val > maxspecval_ )
+	    maxspecval_ = val;
+    }
+
     return true;
 }
 
 
-void uiAmplSpectrum::putDispData()
+void uiAmplSpectrum::putDispData( CallBacker* cb )
 {
+    const bool isnormalized = normfld_->isChecked();
+    const bool dbscale = powerdbfld_->isChecked();
     const int fftsz = freqdomainsum_->info().getSize(0) / 2;
-    delete specvals_;
-    specvals_ = new Array1DImpl<float>( fftsz );
     Array1DImpl<float> dbspecvals( fftsz );
     for ( int idx=0; idx<fftsz; idx++ )
     {
-	const float val = freqdomainsum_->get( idx )/nrtrcs_;
-	specvals_->set( idx, val );
-	dbspecvals.set( idx, mDispVal( val )  );
+	float val = specvals_->get( idx );
+	if ( isnormalized )
+	    val /= maxspecval_;
+
+	if ( dbscale )
+	    val = 20 * Math::Log10( val > 0. ? val : mDefEpsF );
+
+	dbspecvals.set( idx, val );
     }
 
     float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ );
@@ -247,8 +272,9 @@ void uiAmplSpectrum::putDispData()
     stepfld_->box()->setInterval( posrange_.start, posrange_.stop,
 				  (posrange_.stop-posrange_.start)/25 );
     stepfld_->box()->setValue( maxfreq/5 );
+    disp_->yAxis(false)->setCaption( dbscale ? tr("Power (dB)")
+					     : tr("Amplitude") );
     disp_->setVals( posrange_, dbspecvals.arr(), fftsz );
-    disp_->draw();
 }
 
 
@@ -319,10 +345,11 @@ void uiAmplSpectrum::valChgd( CallBacker* )
     const float ratio = (rg.start-posrange_.start)/posrange_.width();
     const float specsize = mCast( float, specvals_->info().getSize(0) );
     const int specidx = mNINT32( ratio * specsize );
-    if ( !specvals_->info().validPos(specidx) )
+    const TypeSet<float>& specvals = disp_->yVals();
+    if ( !specvals.validIdx(specidx) )
 	return;
 
-    rg.stop = mDispVal( specvals_->get(specidx) );
+    rg.stop = specvals[specidx];
     valfld_->setValue( rg );
 }
 
