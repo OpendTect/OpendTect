@@ -357,7 +357,7 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
     for ( int idx=mCast(int,start); idx<=stop && shouldContinue(); idx++ )
     {
 	const BinID bid = task_.getNextBid();
-	const Coord pos( hs.getPos(bid) );
+	const Coord pos( hs.toCoord(bid) );
 	TypeSet<double> weights;
 	TypeSet<int> usedvals;
 	if ( !gridder->getWeights(pos,weights,usedvals) )
