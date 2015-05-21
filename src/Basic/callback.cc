@@ -11,9 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadlock.h"
 #include "ptrman.h"
 
-#include <QCoreApplication>
-
 #define mOneMilliSecond 0.001
+
+#ifndef OD_NO_QT
+#include <QCoreApplication>
 
 class QEventLoopReceiver : public QObject
 {
@@ -69,8 +70,6 @@ private:
 };
 
 
-
-
 static PtrMan<QEventLoopReceiver> currentreceiver = 0;
 
 static QEventLoopReceiver* getQELR()
@@ -84,6 +83,9 @@ static QEventLoopReceiver* getQELR()
 
     return currentreceiver;
 }
+
+#endif // OD_NO_QT
+
 
 
 CallBacker::CallBacker()
@@ -230,7 +232,7 @@ bool CallBacker::notifyShutdown( NotifierAccess* na, bool wait )
 
 void CallBack::initClass()
 {
-#ifdef OD_NO_QT
+#ifndef OD_NO_QT
     getQELR(); //Force creation
 #endif
 }
@@ -285,7 +287,7 @@ bool CallBack::callInMainThread( CallBack cb, CallBacker* cber )
 
 CallBackSet::CallBackSet()
     : lock_(true)
-    , enabled_(true)     
+    , enabled_(true)
 {}
 
 
@@ -309,7 +311,7 @@ CallBackSet& CallBackSet::operator=( const CallBackSet& cbs )
 }
 
 
-void CallBackSet::doCall( CallBacker* obj, 
+void CallBackSet::doCall( CallBacker* obj,
 			  CallBacker* exclude )
 {
     if ( !enabled_ ) return;
@@ -505,7 +507,7 @@ NotifyStopper::NotifyStopper( NotifierAccess& na )
 NotifyStopper::~NotifyStopper()
 { restore(); }
 
-void NotifyStopper::enable() 
+void NotifyStopper::enable()
 { thenotif_.cbs_.doEnable(false); }
 
 

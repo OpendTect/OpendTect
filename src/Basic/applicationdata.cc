@@ -72,10 +72,6 @@ int ApplicationData::exec()
 void ApplicationData::exit( int retcode )
 { }
 
-void ApplicationData::addToMainThread( const CallBack& cb )
-{ }
-
-
 void ApplicationData::setOrganizationName( const char* nm )
 { }
 
