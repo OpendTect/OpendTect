@@ -113,9 +113,24 @@ if ( UNIX )
     set ( OD_MODULE_PROGS ${OD_MODULE_PROGS} od_batch_launcher.cc )
 endif()
 
+if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
+    execute_process( 
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${CMAKE_SOURCE_DIR}/testscripts/script with space.cmd"
+                    "${PROJECT_BINARY_DIR}/testscripts/script with space.cmd" )
+    execute_process( 
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${CMAKE_SOURCE_DIR}/testscripts/script with space.csh"
+                    "${PROJECT_BINARY_DIR}/testscripts/script with space.csh" )
+    
+endif()
+
+
 if ( ITTNOTIFY_FOUND )
     set ( OD_MODULE_STATIC_LIBS ${ITTNOTIFY_LIBRARY} )
     list ( APPEND OD_MODULE_INCLUDESYSPATH ${ITTNOTIFY_INCLUDE_DIR} )
 endif()
+
+
 
 OD_INIT_MODULE()
