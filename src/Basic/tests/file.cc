@@ -40,7 +40,7 @@ bool testReadContent()
 
     //Read empty file - should work fine.
     buf.setEmpty();
-    FilePath emptyfile( basedir.buf(), "src", "Basic", "tests","emptyfile.txt");
+    FilePath emptyfile( basedir.buf(), "emptyfile.txt");
     od_ostream stream(emptyfile.fullPath());
     stream.close();
     mRunTest(File::getContent(emptyfile.fullPath(),buf) && buf.isEmpty());
