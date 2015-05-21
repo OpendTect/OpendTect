@@ -41,11 +41,14 @@ bool testReadContent()
     //Read empty file - should work fine.
     buf.setEmpty();
     FilePath emptyfile( basedir.buf(), "src", "Basic", "tests","emptyfile.txt");
+    od_ostream stream(emptyfile.fullPath());
+    stream.close();
     mRunTest(File::getContent(emptyfile.fullPath(),buf) && buf.isEmpty());
+    File::remove( emptyfile.fullPath() );
 
     //Read non empty file - should work fine.
     buf.setEmpty();
-    FilePath nonempty( basedir.buf(), "src", "Basic", "tests","file.cc");
+    FilePath nonempty( basedir.buf(), "CMakeCache.txt" );
     mRunTest(File::getContent(nonempty.fullPath(),buf) && buf.size());
 
     return true;

@@ -118,4 +118,17 @@ if ( ITTNOTIFY_FOUND )
     list ( APPEND OD_MODULE_INCLUDESYSPATH ${ITTNOTIFY_INCLUDE_DIR} )
 endif()
 
+if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
+    execute_process(
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${CMAKE_SOURCE_DIR}/testscripts/script with space.cmd"
+                    "${PROJECT_BINARY_DIR}/testscripts/script with space.cmd" )
+    execute_process(
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${CMAKE_SOURCE_DIR}/testscripts/script with space.sh"
+                    "${PROJECT_BINARY_DIR}/testscripts/script with space.sh" )
+endif()
+
+
+
 OD_INIT_MODULE()
