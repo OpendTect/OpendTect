@@ -250,9 +250,9 @@ bool CallBack::addToMainThread( CallBack cb, CallBacker* cber )
     QEventLoopReceiver* rec = getQELR();
     rec->add( cb, cber );
     return true;
-#endif
-
+#else
     return false;
+#endif
 }
 
 
