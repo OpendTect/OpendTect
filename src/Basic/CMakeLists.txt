@@ -121,12 +121,12 @@ endif()
 if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
     execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "${CMAKE_SOURCE_DIR}/testscripts/script with space.cmd"
-                    "${CMAKE_BINARY_DIR}/testscripts/script with space.cmd" )
+                    "${CMAKE_SOURCE_DIR}/dtect/script with space.cmd"
+                    "${CMAKE_BINARY_DIR}/dtect/script with space.cmd" )
     execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "${CMAKE_SOURCE_DIR}/testscripts/script with space.sh"
-                    "${CMAKE_BINARY_DIR}/testscripts/script with space.sh" )
+                    "${CMAKE_SOURCE_DIR}/dtect/script with space.sh"
+                    "${CMAKE_BINARY_DIR}/dtect/script with space.sh" )
 endif()
 
 
