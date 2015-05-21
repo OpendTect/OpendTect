@@ -383,7 +383,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     }
 
     if ( ti.coord.x > 1e9 || ti.coord.y > 1e9 )
-	addWarn( cSEGYWarnSuspiciousCoord, ti.coord.toString() );
+	addWarn( cSEGYWarnSuspiciousCoord, ti.coord.toPrettyString() );
 }
 
 

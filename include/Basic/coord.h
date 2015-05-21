@@ -47,12 +47,13 @@ public:
 
     DistType	angle(const Coord& from,const Coord& to) const;
     DistType	cosAngle(const Coord& from,const Coord& to) const;
-    		//!< saves the expensive acos() call
+		//!< saves the expensive acos() call
 		//
     Coord	normalize() const;
     OrdType	dot(const Coord&) const;
 
     const char*	toString() const;
+    const char*	toPrettyString(int nrdec=2) const;
     bool	fromString(const char*);
 
     static const Coord& udf();
@@ -75,7 +76,7 @@ public:
 			Coord3(const Coord3& xyz )
 			    : Coord( xyz.x, xyz.y )
 			    , z( xyz.z )				{}
-    			Coord3( OrdType x_, OrdType y_, OrdType z_ )
+			Coord3( OrdType x_, OrdType y_, OrdType z_ )
 			    : Coord(x_,y_), z(z_)			{}
 
     OrdType&		operator[]( int idx )

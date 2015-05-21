@@ -192,6 +192,21 @@ const char* Coord::toString() const
 }
 
 
+const char* Coord::toPrettyString( int nrdec ) const
+{
+    mDeclStaticString( ret );
+    if ( isUdf() )
+	ret.set( "<undef>" );
+    else
+    {
+	BufferString xstr = ::toString( x, nrdec );
+	BufferString ystr = ::toString( y, nrdec );
+	ret.set( "(" ).add( xstr ).add( "," ).add( ystr ).add( ")" );
+    }
+    return ret.buf();
+}
+
+
 bool Coord::fromString( const char* s )
 {
     if ( !s || !*s ) return false;
