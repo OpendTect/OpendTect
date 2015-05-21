@@ -80,6 +80,6 @@ void uiScaleBarItem::setPolygons( int width, int height )
     lowerright_->setRect( 2*width, height, 2*width, height );
 
     startnr_->setPos( 0, 0 );
-    midnr_->setPos( 2*width, 0 );
-    stopnr_->setPos( 4*width, 0 );
+    midnr_->setPos( 2.0f * width, 0 );
+    stopnr_->setPos( 4.0f * width, 0 );
 }
