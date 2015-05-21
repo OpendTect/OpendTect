@@ -52,7 +52,7 @@ bool testReadContent()
 
     //Read non empty file - should work fine.
     buf.setEmpty();
-    FilePath nonempty( basedir.buf(), "src", "Basic", "tests","file.cc");
+    FilePath nonempty( basedir.buf(), "CMakeCache.txt" );
     mRunTest(File::getContent(nonempty.fullPath(),buf) && buf.size());
 
     return true;
