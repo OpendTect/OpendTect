@@ -51,6 +51,7 @@ SET(OD_MODULE_SOURCES
 	uigraphicscoltab.cc
 	uigraphicsitem.cc
 	uigraphicsitemimpl.cc
+	uigraphicsscalebar.cc
 	uigraphicsscene.cc
 	uigraphicsviewbase.cc
 	uigroup.cc
