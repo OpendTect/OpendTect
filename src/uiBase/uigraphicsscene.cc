@@ -93,6 +93,7 @@ void ODGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent* ev )
     MouseEvent me( OD::ButtonState(ev->modifiers() | ev->buttons()),
 		   (int)ev->pos().x(), (int)ev->pos().y(), ev->delta() );
     uiscene_.getMouseEventHandler().triggerWheel( me );
+    ev->accept();
 }
 
 
