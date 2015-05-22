@@ -71,15 +71,15 @@ void uiScaleBarItem::update()
 
 void uiScaleBarItem::setPolygons( int width, int height )
 {
-    upperleft_->setRect( 0, 0, width, height );
-    uppermid_->setRect( width, 0, width, height );
-    upperright_->setRect( 2*width, 0, 2*width, height );
+    upperleft_->setRect( -4*width, 0, width, height );
+    uppermid_->setRect( -3*width, 0, width, height );
+    upperright_->setRect( -2*width, 0, 2*width, height );
 
-    lowerleft_->setRect( 0, height, width, height );
-    lowermid_->setRect( width, height, width, height );
-    lowerright_->setRect( 2*width, height, 2*width, height );
+    lowerleft_->setRect( -4*width, height, width, height );
+    lowermid_->setRect( -3*width, height, width, height );
+    lowerright_->setRect( -2*width, height, 2*width, height );
 
-    startnr_->setPos( 0, 0 );
-    midnr_->setPos( 2.0f * width, 0 );
-    stopnr_->setPos( 4.0f * width, 0 );
+    startnr_->setPos( -4.0f*width, 0 );
+    midnr_->setPos( -2.0f * width, 0 );
+    stopnr_->setPos( 0, 0 );
 }
