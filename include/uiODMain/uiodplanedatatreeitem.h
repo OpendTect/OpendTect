@@ -24,12 +24,11 @@ namespace Well { class Data; }
 
 
 mExpClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODPlaneDataTreeItem);
+{ mODTextTranslationClass(uiODPlaneDataTreeItem)
 public:
 
-    enum Type		{ Default, Empty, RGBA };
+    enum Type		{ Empty, Select, Default, RGBA };
 
-			uiODPlaneDataTreeItem(int displayid,OD::SliceType,Type);
 			~uiODPlaneDataTreeItem();
 
     bool		init();
@@ -38,17 +37,22 @@ public:
     bool		displayDefaultData();
     bool		displayGuidance();
     bool		displayDataFromDesc(const Attrib::DescID&);
+    bool		displayDataFromOther(int visid);
 
+    static uiString	sAddEmptyPlane();
+    static uiString	sAddAndSelectData();
     static uiString	sAddDefaultData();
     static uiString	sAddColorBlended();
     static uiString	sAddAtWellLocation();
 
 protected:
+			uiODPlaneDataTreeItem(int displayid,OD::SliceType,Type);
+
     BufferString	createDisplayName() const;
     bool		getDefaultDescID(Attrib::DescID&);
 
     virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    virtual void	handleMenuCB(CallBacker*);
 
     void		updatePlanePos(CallBacker*);
     void		updatePositionDlg(CallBacker*);
@@ -64,12 +68,16 @@ protected:
     const Type		type_;
     MenuItem		positionmnuitem_;
     MenuItem		gridlinesmnuitem_;
+    MenuItem		addinlitem_;
+    MenuItem		addcrlitem_;
+    MenuItem		addzitem_;
+
     uiSliceSelDlg*	positiondlg_;
 };
 
 
 
-mDefineItem( InlineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
+mDefineItem( InlineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton )
 
 
 mExpClass(uiODMain) uiODInlineTreeItemFactory : public uiODTreeItemFactory
@@ -93,7 +101,7 @@ protected:
 };
 
 
-mDefineItem( CrosslineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
+mDefineItem( CrosslineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton )
 
 
 mExpClass(uiODMain) uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
@@ -117,7 +125,7 @@ protected:
 };
 
 
-mDefineItem( ZsliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
+mDefineItem( ZsliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton )
 
 
 mExpClass(uiODMain) uiODZsliceTreeItemFactory : public uiODTreeItemFactory
