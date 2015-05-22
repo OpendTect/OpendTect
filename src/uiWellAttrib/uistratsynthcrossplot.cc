@@ -413,7 +413,9 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     uiDataPointSet::Setup su( wintitl, false );
     uiDataPointSet* uidps = new uiDataPointSet( this, dps, su, 0 );
     uidps->showXY( false );
-    removeUnusedDescs();
+    Attrib::DescSet* ds =
+	const_cast<Attrib::DescSet*>( &seisattrfld_->descSet() );
+    ds->removeUnused( false, true );
     seisattrfld_->descSet().fillPar( uidps->storePars() );
     uidps->show();
     return false;
