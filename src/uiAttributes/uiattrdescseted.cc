@@ -260,7 +260,7 @@ void uiAttribDescSetEd::init()
     delete attrset_;
     attrset_ = new Attrib::DescSet( *inoutadsman_->descSet() );
     delete adsman_;
-    adsman_ = new DescSetMan( inoutadsman_->is2D(), attrset_ );
+    adsman_ = new DescSetMan( inoutadsman_->is2D(), attrset_, false );
     adsman_->fillHist();
     adsman_->setSaved( inoutadsman_->isSaved() );
 
