@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "seis2ddata.h"
 #include "seis2dlineio.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
@@ -77,10 +78,27 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm,
 }
 
 
-void uiSeis2DLineChoose::objInserted( CallBacker* )
+void uiSeis2DLineChoose::objInserted( CallBacker* cb )
 {
-    uiMSG().warning("You need to re-open the line selection window ",
-		"to see the newly added lines" );
+    if ( !cb ) return;
+
+    mCBCapsuleUnpack(MultiID,dsid,cb);
+    PtrMan<IOObj> dsobj = IOM().get( dsid );
+    if ( !dsobj )
+	return;
+
+    Seis2DDataSet ds( *dsobj );
+    for ( int idx=0; idx<ds.nrLines(); idx++ )
+    {
+	const Pos::GeomID geomid = ds.geomID( idx );
+	if ( geomids_.isPresent(geomid) )
+	    continue;
+
+	geomids_ += geomid;
+	lnms_.add( ds.lineName(idx) );
+    }
+
+    filtfld_->setItems( lnms_ );
 }
 
 
