@@ -554,7 +554,9 @@ void uiAttrSelDlg::objInserted( CallBacker* cb )
 {
     mCBCapsuleUnpack( MultiID, ky, cb );
     if ( !ky.isEmpty() )
-        uiMSG().warning( "not handled yet" );
+	uiMSG().warning( "Sorry, this part is not entirely finished;\n"
+			 "Please press Cancel,"
+			 "your object will be available in new listings." );
 }
 
 
