@@ -419,44 +419,14 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     uiDataPointSet::Setup su( wintitl, false );
     uiDataPointSet* uidps = new uiDataPointSet( this, dps, su, 0 );
     uidps->showXY( false );
-    removeUnusedDescs();
+    Attrib::DescSet* ds =
+	const_cast<Attrib::DescSet*>( &seisattrfld_->descSet() );
+    ds->removeUnused( false, true );
     seisattrfld_->descSet().fillPar( uidps->storePars() );
     uidps->show();
     return false;
 }
 
-
-bool isUsedAsInput( const Attrib::Desc* storeddesc, const Attrib::DescSet& ds )
-{
-    for ( int atridx=0; atridx<ds.size(); atridx++ )
-    {
-	const Attrib::Desc* nonstoreddesc = ds.desc( atridx );
-	if ( nonstoreddesc == storeddesc || nonstoreddesc->isStored() )
-	    continue;
-	const Attrib::Desc* inputdesc = nonstoreddesc->getInput( 0 );
-	if ( !inputdesc )
-	    continue;
-	if ( inputdesc->id() == storeddesc->id() )
-	    return true;
-    }
-
-    return false;
-}
-
-
-void uiStratSynthCrossplot::removeUnusedDescs()
-{
-    const Attrib::DescSet& ds = seisattrfld_->descSet();
-    for ( int idx=ds.size()-1; idx>=0; idx-- )
-    {
-	const Attrib::Desc* storeddesc = ds.desc(idx);
-	if ( storeddesc && !storeddesc->isStored() )
-	    continue;
-	if ( !isUsedAsInput(storeddesc,ds) )
-	    const_cast<Attrib::DescSet*>(&ds)->removeDesc(storeddesc->id());
-    }
-}
-    
 
 Attrib::EngineMan* uiStratSynthCrossplot::createEngineMan(
 					    const Attrib::DescSet& attrs ) const
