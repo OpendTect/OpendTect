@@ -153,7 +153,10 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     }
 
     if ( slicepos_ )
+    {
 	slicepos_->getToolBar()->display( tkzs_.isFlat() );
+	slicepos_->setTrcKeyZSampling( tkzs_ );
+    }
 
     setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
 
