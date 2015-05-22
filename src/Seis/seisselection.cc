@@ -344,7 +344,7 @@ int Seis::RangeSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 
 
 Seis::TableSelData::TableSelData()
-    : bvs_(*new BinIDValueSet(1,false))
+    : bvs_(*new BinIDValueSet(1,true))
     , extraz_(0,0)
     , fixedzrange_(Interval<float>(mUdf(float),mUdf(float)))
 {
@@ -363,7 +363,7 @@ Seis::TableSelData::TableSelData( const BinIDValueSet& bvs,
 
 
 Seis::TableSelData::TableSelData( const Seis::TableSelData& sd )
-    : bvs_(*new BinIDValueSet(1,false))
+    : bvs_(*new BinIDValueSet(1,true))
     , extraz_(0,0)
     , fixedzrange_(Interval<float>(mUdf(float),mUdf(float)))
 {
