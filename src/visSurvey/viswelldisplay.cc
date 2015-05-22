@@ -563,14 +563,20 @@ bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
 }
 
 
+static bool mustBeFilled( const visBase::Well::LogParams& lp )
+{
+    return (lp.isleftfilled_ || lp.isrightfilled_) && lp.filllogidx_>=0;
+}
+
+
 void WellDisplay::setLogDisplay( visBase::Well::Side side )
 {
     mGetWD(return);
 
-    BufferString& logname = mGetLogPar( side, name_);
+    BufferString& logname = mGetLogPar( side, name_ );
     if ( wd->logs().isEmpty() ) return;
     const int logidx = wd->logs().indexOf( logname );
-    if( logidx<0 )
+    if ( logidx<0 )
     {
 	well_->clearLog( side );
 	well_->showLog( false, side );
@@ -580,13 +586,10 @@ void WellDisplay::setLogDisplay( visBase::Well::Side side )
     visBase::Well::LogParams lp;
     fillLogParams( lp, side );
     lp.logidx_ = logidx;  lp.side_ = side;
-    setLogProperties( lp );
-
     lp.filllogidx_ = wd->logs().indexOf( lp.fillname_ );
-    bool beFilled =( ( lp.isleftfilled_ || lp.isrightfilled_ ) &&
-			    lp.filllogidx_  >= 0 ) ? true : false;
 
-    setLogData( lp, beFilled );
+    setLogProperties( lp );
+    setLogData( lp, mustBeFilled(lp) );
 }
 
 
@@ -610,7 +613,7 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 
     well_->setOverlapp( lp.ovlap_, side );
     well_->setRepeat( lp.repeat_,side );
-    well_->setLogFill( ( lp.isleftfilled_ || lp.isrightfilled_ ), side );
+    well_->setLogFill( mustBeFilled(lp), side );
     well_->setLogFillColorTab( lp, side );
     well_->setLogLineDisplayed( lp.size_ > 0, side );
 
