@@ -138,7 +138,8 @@ void uiMPEMan::addButtons()
     toolbar_->setShortcut( redoidx_, "Ctrl+Y" );
 
     toolbar_->addSeparator();
-    saveidx_ = mAddButton( "save", savePush, uiStrings::sSave(true), false );
+    saveidx_ = mAddButton( "save", savePush, tr("Save (Ctrl+S"), false );
+    toolbar_->setShortcut( saveidx_, "Ctrl+S" );
 }
 
 
@@ -1057,16 +1058,7 @@ void uiMPEMan::setUndoLevel( int preveventnr )
 void uiMPEMan::updateButtonSensitivity( CallBacker* )
 {
     //Undo/Redo
-    BufferString tooltip("Undo ");
-    if ( EM::EMM().undo().canUnDo() )
-	tooltip += EM::EMM().undo().unDoDesc();
-    toolbar_->setToolTip( undoidx_, tooltip.buf() );
     toolbar_->setSensitive( undoidx_, EM::EMM().undo().canUnDo() );
-
-    tooltip = "Redo ";
-    if ( EM::EMM().undo().canReDo() )
-	tooltip += EM::EMM().undo().reDoDesc();
-    toolbar_->setToolTip( redoidx_, tooltip.buf() );
     toolbar_->setSensitive( redoidx_, EM::EMM().undo().canReDo() );
 
     //Seed button
