@@ -40,7 +40,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
 	, lineauxiopar_(*new IOPar)
 	, gidp_(l)
 	, worktrc_(*new SeisTrc)
-	, makewrready_(true)
+	, makewrready_(false)
 	, linedata_(0)
 {
     init();
@@ -52,7 +52,7 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	, lineauxiopar_(*new IOPar)
 	, gidp_(0)
 	, worktrc_(*new SeisTrc)
-	, makewrready_(true)
+	, makewrready_(false)
 	, linedata_(0)
 {
     init();
