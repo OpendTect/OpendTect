@@ -48,7 +48,7 @@ public:
     virtual bool	isSelected() const		{ return selected_; }
     virtual bool	isVisible() const;
 
-    uiPoint		getPos() const;
+    Geom::Point2D<float> getPos() const;
     void		setPos( const uiWorldPoint&);
     void		setPos( const uiPoint& p );
     void		setPos( const Geom::Point2D<float>& );

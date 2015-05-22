@@ -86,10 +86,10 @@ void uiGraphicsItem::setVisible( bool yn )
 { qgraphicsitem_->setVisible( yn ); }
 
 
-uiPoint uiGraphicsItem::getPos() const
+Geom::Point2D<float> uiGraphicsItem::getPos() const
 {
-    return uiPoint( mNINT32(qgraphicsitem_->pos().x()),
-		    mNINT32(qgraphicsitem_->pos().y()) );
+    return Geom::Point2D<float>( mCast(float,qgraphicsitem_->pos().x()),
+				 mCast(float,qgraphicsitem_->pos().y()) );
 }
 
 
