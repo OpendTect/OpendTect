@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 class uiComboBox;
 class uiGenInput;
+class uiIOObjInserter;
 class uiListBox;
 class uiListBoxChoiceIO;
 class uiListBoxFilter;
@@ -59,8 +60,12 @@ protected:
     uiListBoxFilter*	filtfld_;
     uiListBoxChoiceIO*	lbchoiceio_;
 
+    ObjectSet<uiIOObjInserter>	inserters_;
+    ObjectSet<uiButton>		insertbuts_;
+
     void		readChoiceDone(CallBacker*);
     void		writeChoiceReq(CallBacker*);
+    void		objInserted(CallBacker*);
 
     friend class	uiSeis2DLineSel;
 			uiSeis2DLineChoose(uiParent*,OD::ChoiceMode,

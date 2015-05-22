@@ -12,8 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseislinesel.h"
 
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uiioobjinserter.h"
 #include "uilistbox.h"
 #include "uilistboxfilter.h"
 #include "uilistboxchoiceio.h"
@@ -45,6 +47,22 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 {
     SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
     init( cm );
+
+    CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc2D );
+    if ( ctio )
+    {
+	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
+						   OD::Vertical );
+	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
+					    insertbuts_ );
+	for ( int idx=0; idx<inserters_.size(); idx++ )
+	{
+	    inserters_[idx]->objectInserted.notify(
+		    mCB(this,uiSeis2DLineChoose,objInserted) );
+	}
+
+	butgrp->attach( leftOf, listfld_ );
+    }
 }
 
 
@@ -56,6 +74,13 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm,
     , lbchoiceio_(0)
 {
     init( cm );
+}
+
+
+void uiSeis2DLineChoose::objInserted( CallBacker* )
+{
+    uiMSG().warning("You need to re-open the line selection window ",
+		"to see the newly added lines" );
 }
 
 
