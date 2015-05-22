@@ -30,6 +30,7 @@ class Surface;
 mExpClass(EarthModel) SurfaceIOData
 {
 public:
+			 SurfaceIOData() : nrfltsticks_(0){}
     			~SurfaceIOData()	{ clear(); }
 
     void                fillPar(IOPar&) const;
@@ -50,6 +51,7 @@ public:
     BufferStringSet	linesets;
     TypeSet<Pos::GeomID>	geomids;
     TypeSet<StepInterval<int> > trcranges;
+    int				nrfltsticks_;
 };
 
 

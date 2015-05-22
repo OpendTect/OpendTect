@@ -403,6 +403,21 @@ bool IOObjInfo::getBodyRange( TrcKeyZSampling& cs ) const
 
 int IOObjInfo::nrSticks() const
 {
+    if ( !ioobj_ )
+	return false;
+
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,emtr,trans.ptr())
+    mDynamicCastGet(dgbEMFaultStickSetTranslator*,fsstr,emtr);
+    if ( emtr && !fsstr )
+    {
+	if ( !emtr->startRead(*ioobj_) )
+	    return -1;
+	
+	const SurfaceIOData& newsd = emtr->selections().sd;
+	return newsd.nrfltsticks_;
+    }
+
     mGetReaderRet
     if ( !reader_->pars() )
 	return 0;
