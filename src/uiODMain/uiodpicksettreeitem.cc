@@ -33,82 +33,35 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vispolylinedisplay.h"
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
-    : uiODTreeItem("PickSet/Polygon")
-    , display_on_add(false)
-    , picksetmgr_(Pick::Mgr())
+    : uiODTreeItem("PickSet")
 {
-    Pick::Mgr().setToBeRemoved.notify(
-				mCB(this,uiODPickSetParentTreeItem,setRm) );
 }
 
 
 uiODPickSetParentTreeItem::~uiODPickSetParentTreeItem()
 {
-    Pick::Mgr().removeCBs( this );
-}
-
-
-bool uiODPickSetParentTreeItem::init()
-{
-    /*
-    for ( int idx=0; idx<Pick::Mgr().size(); idx++ )
-    {
-	uiODDisplayTreeItem* item =
-			new uiODPickSetTreeItem( -1, Pick::Mgr().get(idx) );
-	addChild( item, true );
-	item->setChecked( false );
-    }
-    */
-    return true;
-}
-
-
-void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
-{
-    if ( !children_.isPresent( child ) ) return;
-    uiTreeItem::removeChild( child );
 }
 
 
 void uiODPickSetParentTreeItem::addPickSet( Pick::Set* ps )
 {
     if ( !ps ) return;
-    display_on_add = true;
 
     uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
     addChild( item, false );
-    item->setChecked( display_on_add );
+    item->setChecked( true );
 }
 
-
-void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
-{
-    mDynamicCastGet(Pick::Set*,ps,cb)
-
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
-	if ( !itm ) continue;
-	if ( &itm->getSet() == ps )
-	{
-	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
-	    uiTreeItem::removeChild( itm );
-	    return;
-	}
-    }
-}
 
 
 #define mLoadIdx	0
 #define mEmptyIdx	1
-#define mPolygonIdx	2
-#define mGen3DIdx	3
-#define mRandom2DIdx	4
-#define mSaveIdx	10
-#define mDisplayIdx	11
-#define mShowAllIdx	12
-#define mMergeIdx	13
-#define mLoadPolyIdx	14
+#define mGen3DIdx	2
+#define mRandom2DIdx	3
+#define mSaveIdx	4
+#define mDisplayIdx	5
+#define mShowAllIdx	6
+#define mMergeIdx	7
 
 
 bool uiODPickSetParentTreeItem::showSubMenu()
@@ -118,24 +71,22 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(tr("Add PickSet ...")), mLoadIdx );
-    mnu.insertItem( new uiAction(tr("Add Polygon...")), mLoadPolyIdx );
-    uiMenu* newmnu = new uiMenu( getUiParent(), tr("New PickSet") );
+    mnu.insertItem( new uiAction(tr("Add ...")), mLoadIdx );
+    uiMenu* newmnu = new uiMenu( getUiParent(), tr("New") );
     newmnu->insertItem( new uiAction(tr("Empty ...")), mEmptyIdx );
-    newmnu->insertItem( new uiAction(tr("Generate 3D...")), mGen3DIdx );
+    newmnu->insertItem( new uiAction(tr("Generate 3D ...")), mGen3DIdx );
     if ( SI().has2D() )
 	newmnu->insertItem( new uiAction(tr("Generate 2D ...")), mRandom2DIdx);
     mnu.insertItem( newmnu );
-    mnu.insertItem( new uiAction(tr("New Polygon ...")), mPolygonIdx );
 
     if ( children_.size() > 0 )
     {
 	mnu.insertSeparator();
 	uiAction* filteritem =
-	    new uiAction( tr("Display Picks Only at Sections") );
+	    new uiAction( tr("Display Only at Sections") );
 	mnu.insertItem( filteritem, mDisplayIdx );
 	filteritem->setEnabled( !hastransform );
-	uiAction* shwallitem = new uiAction( tr("Show All picks") );
+	uiAction* shwallitem = new uiAction( tr("Display Always") );
 	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
@@ -149,53 +100,46 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     if ( mnuid<0 )
 	return false;
 
-    if ( mnuid==mLoadIdx || mnuid==mLoadPolyIdx )
+    Pick::SetMgr& psm = Pick::Mgr();
+
+    if ( mnuid==mLoadIdx )
     {
-	display_on_add = true;
 	TypeSet<MultiID> mids;
-	const bool res =
-	    applMgr()->pickServer()->loadSets( mids,mnuid==mLoadPolyIdx );
-	if ( !res )
+	if ( !applMgr()->pickServer()->loadSets(mids,false) )
 	    return false;
-	display_on_add = false;
+
 	for ( int idx=0; idx<mids.size(); idx++ )
 	{
-	    Pick::Set& ps = picksetmgr_.get( mids[idx] );
+	    Pick::Set& ps = psm.get( mids[idx] );
 	    addPickSet( &ps );
 	}
     }
     else if ( mnuid==mGen3DIdx )
     {
-	display_on_add = true;
 	if ( !applMgr()->pickServer()->create3DGenSet() )
 	    return false;
-	Pick::Set& ps = picksetmgr_.get( picksetmgr_.size()-1 );
+	Pick::Set& ps = psm.get( psm.size()-1 );
 	addPickSet( &ps );
-	display_on_add = false;
     }
     else if ( mnuid==mRandom2DIdx )
     {
-	display_on_add = true;
 	if ( !applMgr()->pickServer()->createRandom2DSet() )
 	    return false;
-	Pick::Set& ps = picksetmgr_.get( picksetmgr_.size()-1 );
+	Pick::Set& ps = psm.get( psm.size()-1 );
 	addPickSet( &ps );
-	display_on_add = false;
     }
-    else if ( mnuid==mEmptyIdx || mnuid==mPolygonIdx )
+    else if ( mnuid==mEmptyIdx )
     {
-	display_on_add = true;
-	if ( !applMgr()->pickServer()->createEmptySet(mnuid==mPolygonIdx) )
+	if ( !applMgr()->pickServer()->createEmptySet(false) )
 	    return false;
-	Pick::Set& ps = picksetmgr_.get( picksetmgr_.size()-1 );
+	Pick::Set& ps = psm.get( psm.size()-1 );
 	addPickSet( &ps );
-	display_on_add = false;
     }
     else if ( mnuid==mSaveIdx )
     {
 	if ( !applMgr()->pickServer()->storePickSets() )
-	    uiMSG().error( tr("Problem saving changes."
-                              " Check write protection.") );
+	    uiMSG().error( tr("Problem saving changes. "
+			      "Check write protection.") );
     }
     else if ( mnuid==mDisplayIdx || mnuid==mShowAllIdx )
     {
@@ -234,7 +178,6 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , dirmnuitem_(tr("Set Directions ..."))
     , onlyatsectmnuitem_(tr("Only at Sections"))
     , propertymnuitem_(uiStrings::sProperties( false ))
-    , closepolyitem_(tr("Close Polygon"))
     , convertbodymnuitem_( tr("Convert to Body") )
 {
     displayid_ = did;
@@ -248,10 +191,6 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
 
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
-    const int setidx = Pick::Mgr().indexOf( set_ );
-    if ( setidx>= 0 )
-	Pick::Mgr().set( Pick::Mgr().id(setidx), 0 );
-
     Pick::Mgr().removeCBs( this );
 }
 
@@ -311,11 +250,6 @@ void uiODPickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
 
-    if ( set_.disp_.connect_ == Pick::Set::Disp::Open )
-	mAddMenuItem( menu, &closepolyitem_, true, false )
-    else
-	mResetMenuItem( &closepolyitem_ );
-
     mAddMenuItem( menu, &convertbodymnuitem_, true, false )
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
@@ -344,14 +278,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    if ( set_.disp_.connect_==Pick::Set::Disp::Open
-	 && mnuid==closepolyitem_.id )
-    {
-	menu->setIsHandled( true );
-	set_.disp_.connect_ = Pick::Set::Disp::Close;
-	Pick::Mgr().reportDispChange( this, set_ );
-    }
-    else if ( mnuid==storemnuitem_.id )
+    if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
 	applMgr()->storePickSet( set_ );
@@ -444,3 +371,296 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
     return true;
 }
+
+
+
+uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
+    : uiODTreeItem("Polygon")
+{
+}
+
+
+uiODPolygonParentTreeItem::~uiODPolygonParentTreeItem()
+{
+}
+
+
+void uiODPolygonParentTreeItem::addPolygon( Pick::Set* ps )
+{
+    if ( !ps ) return;
+
+    uiODDisplayTreeItem* item = new uiODPolygonTreeItem( -1, *ps );
+    addChild( item, false );
+}
+
+
+
+#define mLoadPolyIdx	101
+#define mNewPolyIdx	102
+#define mSavePolyIdx	103
+#define mOnlyAtPolyIdx	104
+#define mAlwaysPolyIdx	105
+
+
+bool uiODPolygonParentTreeItem::showSubMenu()
+{
+    mDynamicCastGet(visSurvey::Scene*,scene,
+		    applMgr()->visServer()->getObject(sceneID()));
+    const bool hastransform = scene && scene->getZAxisTransform();
+
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
+    mnu.insertItem( new uiAction(tr("Add ...")), mLoadPolyIdx );
+    mnu.insertItem( new uiAction(tr("New ...")), mNewPolyIdx );
+
+    if ( children_.size() > 0 )
+    {
+	mnu.insertSeparator();
+	uiAction* filteritem =
+	    new uiAction( tr("Display Only at Sections") );
+	mnu.insertItem( filteritem, mOnlyAtPolyIdx );
+	filteritem->setEnabled( !hastransform );
+	uiAction* shwallitem = new uiAction( tr("Display Always") );
+	mnu.insertItem( shwallitem, mAlwaysPolyIdx );
+	shwallitem->setEnabled( !hastransform );
+	mnu.insertSeparator();
+	mnu.insertItem( new uiAction(tr("Save Changes")), mSaveIdx );
+    }
+
+    addStandardItems( mnu );
+
+    const int mnuid = mnu.exec();
+    if ( mnuid<0 )
+	return false;
+
+    if ( mnuid==mLoadPolyIdx )
+    {
+	TypeSet<MultiID> mids;
+	if ( !applMgr()->pickServer()->loadSets(mids,true) )
+	    return false;
+
+	for ( int idx=0; idx<mids.size(); idx++ )
+	{
+	    Pick::Set& ps = Pick::Mgr().get( mids[idx] );
+	    addPolygon( &ps );
+	}
+    }
+    else if ( mnuid==mNewPolyIdx )
+    {
+	if ( !applMgr()->pickServer()->createEmptySet(true) )
+	    return false;
+
+	Pick::Set& ps = Pick::Mgr().get( Pick::Mgr().size()-1 );
+	addPolygon( &ps );
+    }
+    else if ( mnuid==mSavePolyIdx )
+    {
+	if ( !applMgr()->pickServer()->storePickSets() )
+	    uiMSG().error( tr("Problem saving changes. "
+			      "Check write protection.") );
+    }
+    else if ( mnuid==mAlwaysPolyIdx || mnuid==mOnlyAtPolyIdx )
+    {
+	const bool showall = mnuid==mAlwaysPolyIdx;
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiODPolygonTreeItem*,itm,children_[idx])
+	    if ( !itm ) continue;
+
+	    itm->showAllPicks( showall );
+	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
+	}
+    }
+    else
+	handleStandardItems( mnuid );
+
+    return true;
+}
+
+
+uiTreeItem*
+    uiODPolygonTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
+{
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+		    ODMainWin()->applMgr().visServer()->getObject(visid));
+    return !psd ? 0 : new uiODPolygonTreeItem( visid, *psd->getSet() );
+}
+
+
+uiODPolygonTreeItem::uiODPolygonTreeItem( int did, Pick::Set& ps )
+    : set_(ps)
+    , storemnuitem_(uiStrings::sSave(true))
+    , storeasmnuitem_(uiStrings::sSaveAs(true))
+    , onlyatsectmnuitem_(tr("Only at Sections"))
+    , propertymnuitem_(uiStrings::sProperties( false ))
+    , closepolyitem_(tr("Close Polygon"))
+{
+    displayid_ = did;
+    Pick::Mgr().setChanged.notify( mCB(this,uiODPolygonTreeItem,setChg) );
+    onlyatsectmnuitem_.checkable = true;
+
+    storemnuitem_.iconfnm = "save";
+    storeasmnuitem_.iconfnm = "saveas";
+}
+
+
+uiODPolygonTreeItem::~uiODPolygonTreeItem()
+{
+    Pick::Mgr().removeCBs( this );
+}
+
+
+void uiODPolygonTreeItem::setChg( CallBacker* cb )
+{
+    mDynamicCastGet(Pick::Set*,ps,cb)
+    if ( !ps || &set_!=ps ) return;
+
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+		    visserv_->getObject(displayid_));
+    if ( psd ) psd->setName( ps->name() );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+}
+
+
+bool uiODPolygonTreeItem::init()
+{
+    if ( displayid_ == -1 )
+    {
+	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
+	displayid_ = psd->id();
+	visserv_->addObject( psd, sceneID(), true );
+	if ( set_.disp_.pixsize_>100 )
+	    set_.disp_.pixsize_ = 3;
+	psd->setSet( &set_ );
+    }
+    else
+    {
+	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+			visserv_->getObject(displayid_));
+	if ( !psd ) return false;
+	const MultiID setid = psd->getMultiID();
+	NotifyStopper ntfstop( Pick::Mgr().setAdded );
+	Pick::Mgr().set( setid, psd->getSet() );
+    }
+
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+    return uiODDisplayTreeItem::init();
+}
+
+
+void uiODPolygonTreeItem::createMenu( MenuHandler* menu, bool istb )
+{
+    uiODDisplayTreeItem::createMenu( menu, istb );
+    if ( !menu || menu->menuID()!=displayID() )
+	return;
+
+    if ( istb )
+    {
+	const int setidx = Pick::Mgr().indexOf( set_ );
+	const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
+	mAddMenuItemCond( menu, &storemnuitem_, changed, false, changed );
+	return;
+    }
+
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+		    visserv_->getObject(displayid_));
+
+    if ( set_.disp_.connect_ == Pick::Set::Disp::Open )
+	mAddMenuItem( menu, &closepolyitem_, true, false )
+    else
+	mResetMenuItem( &closepolyitem_ );
+
+    mAddMenuItem( menu, &displaymnuitem_, true, false );
+    mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_, true,!psd->allShown());
+    mAddMenuItem( &displaymnuitem_, &propertymnuitem_, true, false );
+
+    const int setidx = Pick::Mgr().indexOf( set_ );
+    const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
+    mAddMenuItem( menu, &storemnuitem_, changed, false );
+    mAddMenuItem( menu, &storeasmnuitem_, true, false );
+}
+
+
+void uiODPolygonTreeItem::handleMenuCB( CallBacker* cb )
+{
+    uiODDisplayTreeItem::handleMenuCB(cb);
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    mDynamicCastGet( MenuHandler*, menu, caller );
+    if ( menu->isHandled() || mnuid==-1 )
+	return;
+
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	    visserv_->getObject(displayid_));
+
+    if ( menu->menuID()!=displayID() )
+	return;
+
+    if ( set_.disp_.connect_==Pick::Set::Disp::Open
+	 && mnuid==closepolyitem_.id )
+    {
+	menu->setIsHandled( true );
+	set_.disp_.connect_ = Pick::Set::Disp::Close;
+	Pick::Mgr().reportDispChange( this, set_ );
+    }
+    else if ( mnuid==storemnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	applMgr()->storePickSet( set_ );
+    }
+    else if ( mnuid==storeasmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	applMgr()->storePickSetAs( set_ );
+    }
+    else if ( mnuid==onlyatsectmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	if ( psd )
+	    showAllPicks( !psd->allShown() );
+    }
+    else if ( mnuid==propertymnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	uiPickPropDlg dlg( getUiParent(), set_ , psd );
+	dlg.go();
+    }
+
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+void uiODPolygonTreeItem::showAllPicks( bool yn )
+{
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+		    visserv_->getObject(displayid_));
+    psd->showAll( yn );
+}
+
+
+void uiODPolygonTreeItem::prepareForShutdown()
+{
+    uiODDisplayTreeItem::prepareForShutdown();
+}
+
+
+bool uiODPolygonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
+{
+    const int setidx = Pick::Mgr().indexOf( set_ );
+    if ( setidx < 0 || !Pick::Mgr().isChanged(setidx) )
+	return true;
+
+    uiString warnstr = tr("This polygon has changed since the last save.\n"
+			  "Do you want to save it?");
+    const int retval = uiMSG().askSave( warnstr, withcancel );
+    if ( retval == 0 )
+	return true;
+    else if ( retval == -1 )
+	return false;
+    else
+	applMgr()->storePickSet( set_ );
+
+    return true;
+}
+
+
+
