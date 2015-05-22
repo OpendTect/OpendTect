@@ -92,7 +92,6 @@ protected:
 
     uiButtonGroup*		modeselgrp_;
     uiGenInput*			methodfld_;
-    uiGenInput*			extriffailfld_;
 
 // Event and Correlation Group
     uiEventGroup*		eventgrp_;

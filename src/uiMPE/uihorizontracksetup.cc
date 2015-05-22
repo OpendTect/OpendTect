@@ -175,12 +175,6 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     methodfld_->attach( alignedBelow, modeselgrp_ );
     methodfld_->attach( ensureBelow, sep );
 
-    extriffailfld_ = new uiGenInput( grp, tr("If tracking fails"),
-		BoolInpSpec(true,tr("Extrapolate"),uiStrings::sStop()) );
-    extriffailfld_->attach( alignedBelow, methodfld_ );
-    extriffailfld_->valuechanged.notify(
-		mCB(this,uiHorizonSetupGroup,seedModeChange) );
-
     return grp;
 }
 
@@ -416,13 +410,6 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     if ( !horadj_ || horadj_->getNrAttributes()<1 )
     {   uiMSG().warning( tr("Unable to apply tracking setup") );
 	return true;
-    }
-
-    const bool rmonfail = !extriffailfld_->getBoolValue();
-    if ( horadj_->removesOnFailure() != rmonfail )
-    {
-	fieldchange = true;
-	horadj_->removeOnFailure( rmonfail );
     }
 
     return true;
