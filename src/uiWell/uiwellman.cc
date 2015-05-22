@@ -329,7 +329,7 @@ void uiWellMan::logSel( CallBacker* )
 
 void uiWellMan::edMarkers( CallBacker* )
 {
-    MultiID curmid( curioobj_->key() );	
+    MultiID curmid( curioobj_->key() );
     RefMan<Well::Data> wd = new Well::Data;
     PtrMan<Well::Reader> wrdr = new Well::Reader( *curioobj_, *wd );
 
@@ -378,7 +378,7 @@ void uiWellMan::edWellTrack( CallBacker* )
     if ( !dlg.go() || !iswritable_ )
 	return;
 
-    MultiID curmid( curioobj_->key() );	
+    MultiID curmid( curioobj_->key() );
     Well::Writer wtr( curmid, *wd );
     if ( !wtr.putInfoAndTrack( ) )
     {
@@ -433,7 +433,7 @@ void uiWellMan::defD2T( bool chkshot )
 	return;
 
     uiString errmsg;
-    MultiID curmid( curioobj_->key() );	
+    MultiID curmid( curioobj_->key() );
     Well::Writer wtr( curmid, *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
     {
@@ -756,7 +756,7 @@ void uiWellMan::mkFileInfo()
     const Well::Track& track = curwd->track();
 
     FixedString colonstr( ": " );
-    const BufferString posstr( info.surfacecoord.toString(), " ",
+    const BufferString posstr( info.surfacecoord.toPrettyString(2), " ",
 		SI().transform(info.surfacecoord).toString() );
     mAddWellInfo(Well::Info::sKeycoord(),posstr)
 

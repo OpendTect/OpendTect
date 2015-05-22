@@ -114,7 +114,7 @@ int main( int argc, char** argv )
 	    if ( ldidx < 0 )
 	    {
 		od_cout() << "This inline is not present in the cube"
-		    	  << od_endl;
+			  << od_endl;
 		continue;
 	    }
 	    const PosInfo::LineData& inlinf = *info.geom_.cubedata[ldidx];
@@ -163,7 +163,7 @@ int main( int argc, char** argv )
 		      << od_endl;
 	if ( !mIsZero(trc.info().coord.x,0.1) )
 	{
-	    od_cout() << "Coordinate: " << trc.info().coord.toString();
+	    od_cout() << "Coordinate: " << trc.info().coord.toPrettyString();
 	    BinID b = info.geom_.b2c.transformBack( trc.info().coord );
 	    if ( b != trc.info().binid )
 		od_cout() << " --> " << b.toString();
