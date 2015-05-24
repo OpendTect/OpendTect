@@ -366,7 +366,8 @@ int uiVisDataPointSetDisplayMgr::getDisplayID( const DataPointSet& dps ) const
 	for ( int visidx=0; visidx<visids.size(); visidx++ )
 	{
 	    visSurvey::PointSetDisplay* psd = getPSD( visserv_, visids[visidx]);
-	    if ( psd && psd->getDataPack()->id() == dps.id() )
+	    const DataPack* dp = psd ? psd->getDataPack() : 0;
+	    if ( dp && dp->id() == dps.id() )
 		return ids_[idx];
 	}
     }

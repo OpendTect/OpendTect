@@ -57,7 +57,7 @@ public:
 	mDefSetupMemb(uiString,wintitle)	//!< "Extracted data"
 	mDefSetupMemb(bool,isconst)		//!< false
 	mDefSetupMemb(bool,canaddrow)		//!< false
-	mDefSetupMemb(bool,directremove)		//!< false
+	mDefSetupMemb(bool,directremove)	//!< false
 	mDefSetupMemb(bool,allowretrieve)	//!< true
 	mDefSetupMemb(int,initialmaxnrlines)	//!< 4000
 

@@ -27,9 +27,9 @@ class DataPointSet;
 
   Object must be locked before accessing any of the other functions, and should
   be unlocked when done.
-  
+
   The datapointset can be displayed in a number of viewers.
-  
+
   DispID not to be confused with Visid. It is used to keep an account for the
   DataPointSetDisplayMgr only.
 */
@@ -37,13 +37,13 @@ class DataPointSet;
 mClass(General) DataPointSetDisplayProp
 {
 public:
-				DataPointSetDisplayProp( 
+				DataPointSetDisplayProp(
 					const ColTab::Sequence& cs,
 				        const ColTab::MapperSetup& cm,int id)
 				    : coltab_(cs), coltabmappersu_(cm)
 				    , showsel_(false), dpscolid_(id)	{}
-				
-				DataPointSetDisplayProp( 
+
+				DataPointSetDisplayProp(
 					const BufferStringSet& nms,
 				        const TypeSet<Color>& cols)
 				    : selgrpnms_(nms), selgrpcols_(cols)
@@ -63,14 +63,14 @@ public:
    const TypeSet<Color>&	selGrpColors() const	{ return selgrpcols_; }
    const ColTab::Sequence&	colSequence() const	{ return coltab_; }
    const ColTab::MapperSetup&	colMapperSetUp() const
-   				{ return coltabmappersu_; }
+				{ return coltabmappersu_; }
 
 Color getColor( float val ) const
 {
     if ( showsel_ )
     {
 	return selgrpcols_.validIdx(mNINT32(val)) ? selgrpcols_[mNINT32(val)]
-	    					: Color::NoColor();
+						: Color::NoColor();
     }
 
     if ( mIsUdf(val) )
@@ -82,7 +82,7 @@ Color getColor( float val ) const
     Color col = coltab_.color( pos );
     col.setTransparency( (unsigned char) mNINT32(coltab_.transparencyAt(pos)) );
     return col;
-}    
+}
 
 protected:
 
@@ -108,41 +108,39 @@ public:
     virtual void		lock()					= 0;
     virtual void		unLock()				= 0;
 
-    virtual bool		hasDisplays() const 			= 0; 
+    virtual bool		hasDisplays() const			= 0;
     virtual DispID		getDisplayID(const DataPointSet&) const	= 0;
     virtual int			getNrViewers() const			= 0;
     virtual const char*		getViewerName(int) const		= 0;
 
     virtual DispID		addDisplay(const TypeSet<int>& parents,
-	    				   const DataPointSet&)		= 0;
+					   const DataPointSet&)		= 0;
     virtual void		updateDisplay(DispID id,
 				    const TypeSet<int>& parents,
 				    const DataPointSet&)		= 0;
     virtual void		updateDisplay(DispID id,const DataPointSet&) =0;
     virtual void		removeDisplay(DispID)			= 0;
     const TypeSet<int>&		availableViewers() const
-    				{ return availableviewers_; }
+				{ return availableviewers_; }
 
     virtual void		getIconInfo(BufferString& fnm,
-	    				    BufferString& tootltip) const = 0;
+					    BufferString& tootltip) const = 0;
 
     const DataPointSetDisplayProp* dispProp() const
-    				{ return dispprop_; }
+				{ return dispprop_; }
     void			setDispProp( DataPointSetDisplayProp* prop )
 				{ delete dispprop_; dispprop_ = prop; }
 
     void			clearDispProp()
-    				{ delete dispprop_; dispprop_ = 0; }
-    
+				{ delete dispprop_; dispprop_ = 0; }
+
 protected:
 
-    				DataPointSetDisplayMgr()
+				DataPointSetDisplayMgr()
 				    : dispprop_( 0 )	{}
     TypeSet<int>		availableviewers_;
     DataPointSetDisplayProp*	dispprop_;
 };
 
-	    				   
+
 #endif
-
-
