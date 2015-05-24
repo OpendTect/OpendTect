@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uimpepreviewgrp.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uispinbox.h"
 
 // TODO: Move preview viewer to separate object
 
@@ -58,10 +59,9 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     compwinfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
-    IntInpSpec tiis;
-    tiis.setLimits( StepInterval<int>(0,100,1) );
     corrthresholdfld_ =
-	new uiGenInput( leftgrp, tr("Correlation threshold (%)"), tiis );
+	new uiLabeledSpinBox( leftgrp, tr("Correlation threshold (%)"), 1 );
+    corrthresholdfld_->box()->setInterval( 0.f, 100.f, 0.1f );
     corrthresholdfld_->attach( alignedBelow, compwinfld_ );
     corrthresholdfld_->valuechanged.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
@@ -81,6 +81,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     nrzfld_->valuechanging.notify(
 		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
+    IntInpSpec tiis;
     tiis.setLimits( StepInterval<int>(3,99,2) );
     nrtrcsfld_ = new uiGenInput( leftgrp, "Nr Traces", tiis );
     nrtrcsfld_->attach( alignedBelow, nrzfld_ );
@@ -159,7 +160,7 @@ void uiCorrelationGroup::init()
 		      SI().zDomain().userFactor()) );
 
     compwinfld_->setValue( corrintv );
-    corrthresholdfld_->setValue( adjuster_->similarityThreshold()*100 );
+    corrthresholdfld_->setValue( adjuster_->similarityThreshold()*100.f );
 
     const int sample = mCast(int,SI().zStep()*SI().zDomain().userFactor());
     const Interval<int> dataintv = corrintv + Interval<int>(-2*sample,2*sample);
@@ -203,11 +204,11 @@ bool uiCorrelationGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setSimilarityWindow( relintval );
     }
 
-    const int thr = corrthresholdfld_->getIntValue();
+    const float thr = corrthresholdfld_->box()->getfValue();
     if ( thr > 100 || thr < 0)
 	mErrRet( tr("Correlation threshold must be between 0 to 100") );
 
-    const float newthreshold = (float)thr/100.f;
+    const float newthreshold = thr/100.f;
     if ( !mIsEqual(adjuster_->similarityThreshold(),newthreshold,mDefEps) )
     {
 	fieldchange = true;

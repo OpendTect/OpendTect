@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uimpe.h"
 
 class uiGenInput;
+class uiLabeledSpinBox;
 
 namespace MPE
 {
@@ -56,7 +57,7 @@ protected:
 
     uiGenInput*			usecorrfld_;
     uiGenInput*			compwinfld_;
-    uiGenInput*			corrthresholdfld_;
+    uiLabeledSpinBox*		corrthresholdfld_;
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
 
