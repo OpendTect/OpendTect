@@ -32,36 +32,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransformutils.h"
 
 
-namespace visSurvey {
-
-class PlaneDataDisplayBaseMapObject : public BaseMapObject
-{
-public:
-		PlaneDataDisplayBaseMapObject(PlaneDataDisplay* pdd);
-
-    const char*		getType() const;
-    void		updateGeometry();
-    int			nrShapes() const;
-    const char*		getShapeName(int) const;
-    void		getPoints(int,TypeSet<Coord>& res) const;
-    const LineStyle*	getLineStyle(int) const { return &lst_; }
-    bool		close(int) const;
-
-protected:
-    LineStyle			lst_;
-    PlaneDataDisplay*		pdd_;
-};
-
 
 PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
-							PlaneDataDisplay* pdd)
+				visSurvey::PlaneDataDisplay* pdd )
     : BaseMapObject( pdd->name() )
     , pdd_( pdd )
 {}
 
 
+PlaneDataDisplayBaseMapObject::~PlaneDataDisplayBaseMapObject()
+{}
+
+
 const char* PlaneDataDisplayBaseMapObject::getType() const
-{ return PlaneDataDisplay::getSliceTypeString(pdd_->getOrientation()); }
+{
+    return visSurvey::PlaneDataDisplay::getSliceTypeString(
+						pdd_->getOrientation());
+}
 
 
 void PlaneDataDisplayBaseMapObject::updateGeometry()
@@ -102,6 +89,9 @@ bool PlaneDataDisplayBaseMapObject::close(int) const
     return pdd_->getOrientation()==OD::ZSlice;
 }
 
+
+
+namespace visSurvey {
 
 
 DefineEnumNames(PlaneDataDisplay,SliceType,1,"Orientation")
