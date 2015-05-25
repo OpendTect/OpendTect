@@ -307,6 +307,9 @@ bool uiMathAttrib::getParameters( Desc& desc )
 bool uiMathAttrib::getInput( Desc& desc )
 {
     int attrinpidx = -1;
+    if ( !formfld_->checkValidNrInputs() )
+	return false;
+
     for ( int idx=0; idx<form_.nrInputs(); idx++ )
     {
 	if ( !form_.isConst(idx) && !form_.isSpec(idx) )

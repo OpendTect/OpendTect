@@ -318,8 +318,9 @@ uiString uiAttrDescEd::commit( Attrib::Desc* editdesc )
     getParameters( *editdesc );
     errmsg_ = Provider::prepare( *editdesc ).getFullString();
     editdesc->updateParams();	//needed before getInput to set correct input nr
-    getInput( *editdesc );
-    getOutput( *editdesc );
+    if ( !getInput(*editdesc) || !getOutput(*editdesc) )
+	return 0;
+
     editdesc->updateParams();	//needed after getInput to update inputs' params
 
     return errMsgStr( editdesc );

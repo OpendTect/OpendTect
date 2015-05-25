@@ -89,6 +89,7 @@ public:
     uiUnitSel*		unitFld()		{ return unitfld_; }
     int			inpSelNotifNr() const	{ return notifinpnr_; }
     int			vwLogInpNr(CallBacker*) const;
+    bool		checkValidNrInputs() const;
 
 protected:
 
@@ -105,7 +106,6 @@ protected:
     TypeSet<double>	recvals_;
     CtxtIOObj&		ctio_;
 
-    bool		checkValidNrInputs() const;
     BufferString	getIOFileName(bool forread);
     bool		setNotifInpNr(const CallBacker*);
 
