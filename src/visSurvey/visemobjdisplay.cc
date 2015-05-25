@@ -303,7 +303,10 @@ bool EMObjectDisplay::updateFromEM( TaskRunner* tr )
     setName( emobject_->name() );
 
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
-	addSection( emobject_->sectionID(idx), tr );
+    {
+	if ( !addSection( emobject_->sectionID(idx), tr ) )
+	    return false;
+    }
 
     updateFromMPE();
 
