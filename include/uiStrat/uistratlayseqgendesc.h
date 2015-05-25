@@ -56,6 +56,7 @@ public:
     bool		needSave() const		{ return needsave_; }
     void		setNeedSave( bool yn )		{ needsave_ = yn; }
     virtual bool	selProps();
+    virtual void	setDispProp(int propidx)	{}
 
 protected:
 
