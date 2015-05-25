@@ -134,9 +134,9 @@ mExpClass(uiBase) uiGraphicsObjectScene : public uiGraphicsScene
 public:
 				uiGraphicsObjectScene(const char*);
 
-    void                        addObjectItem(uiObjectItem*);
-    void                        insertObjectItem(int,uiObjectItem*);
-    void                        removeObjectItem(uiObjectItem*);
+    void			addObjectItem(uiObjectItem*);
+    void			insertObjectItem(int,uiObjectItem*);
+    void			removeObjectItem(uiObjectItem*);
     void			setItemStretch(uiObjectItem*,int stretch);
     int 			stretchFactor(uiObjectItem*) const;
 
@@ -156,20 +156,17 @@ protected:
 mClass(uiBase) uiGraphicsSceneChanger : public Task
 {
 public:
-    uiGraphicsSceneChanger( uiGraphicsScene& scene, uiGraphicsItem& itm,
-			    bool remove );
-    uiGraphicsSceneChanger( uiGraphicsItemGroup& scene, uiGraphicsItem& itm,
-			    bool remove );
+    uiGraphicsSceneChanger(uiGraphicsScene&,uiGraphicsItem&,bool remove);
+    uiGraphicsSceneChanger(uiGraphicsItemGroup&,uiGraphicsItem&,bool remove);
 
     bool execute();
 
 protected:
-    uiGraphicsScene*    	scene_;
+    uiGraphicsScene*		scene_;
     uiGraphicsItemGroup*	group_;
-    uiGraphicsItem&     	itm_;
-    bool                	remove_;
+    uiGraphicsItem&		itm_;
+    bool			remove_;
 };
-
 
 
 #endif
