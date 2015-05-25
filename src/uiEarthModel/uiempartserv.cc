@@ -534,7 +534,7 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
 				    bool withcancel ) const
 {
     EM::EMObject* emobj = em_.getObject(emid);
-    if ( !emobj || !emobj->isChanged() )
+    if ( !emobj || !emobj->isChanged() || !EM::canOverwrite(emobj->multiID()) )
 	return true;
 
     PtrMan<IOObj> ioobj = IOM().get( getStorageID(emid) );

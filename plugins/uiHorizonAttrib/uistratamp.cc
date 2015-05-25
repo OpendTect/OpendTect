@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attriboutput.h"
 #include "trckeyzsampling.h"
 #include "emioobjinfo.h"
+#include "emmanager.h"
 #include "emsurfacetr.h"
 #include "stratamp.h"
 #include "survinfo.h"
@@ -176,12 +177,24 @@ bool uiStratAmpCalc::checkInpFlds()
     if ( inpfld_->isEmpty() )
 mErrRet( tr("Missing Input\nPlease select the input attribute / seismics"));
     
+    if ( usesingle_ && !EM::canOverwrite(horfld1_->ioobj()->key()) )
+	mErrRet( tr("Cannot save attributes to this horizon") );
+
     if ( usesingle_ && !horfld1_->commitInput() )
 	mErrRet( tr("Missing Input\nPlease select the input Horizon") );
+
     if ( !usesingle_ )
     {
 	if ( !horfld1_->commitInput() || !horfld2_->commitInput() )
 	    mErrRet( tr("Missing Input\nPlease Check Top / Bottom Horizon") );
+    
+	const bool addtotop = selfld_->getBoolValue();
+	if ( addtotop && !EM::canOverwrite(horfld1_->ioobj()->key()) )
+	{
+	    mErrRet( tr("Cannot save attributes to top horizon") );
+	}
+	else if ( !addtotop && !EM::canOverwrite(horfld2_->ioobj()->key()) )
+	    mErrRet( tr("Cannot save attributes to bottom horizon") );
     }
 
     if ( !usesingle_ && horctio1_.ioobj->key() == horctio2_.ioobj->key() )

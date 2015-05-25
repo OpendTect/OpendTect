@@ -198,7 +198,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     uiMPEPartServer* mps = applMgr()->mpeServer();
     const bool hastracker = mps->getTrackerID(emid_)>=0;
-    if ( !hastracker && !visserv_->isLocked(displayid_) && !hastransform )
+    if ( !hastracker && !visserv_->isLocked(displayid_) )
     {
 	mAddMenuItem( &trackmenuitem_, &starttrackmnuitem_, true, false );
 	mResetMenuItem( &changesetupmnuitem_ );
@@ -221,7 +221,9 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const bool isshifted =
 		!mIsZero( visserv_->getTranslation(displayID()).z, 1e-5 );
-    const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked();
+    const MultiID mid = EM::EMM().getMultiID( emid_ );
+    const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked()
+			&& EM::canOverwrite( mid );
     mAddMenuItem( menu, &trackmenuitem_, enab, false );
 
 #ifdef __debug__
@@ -233,6 +235,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) &&
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
+		  EM::canOverwrite( mid ) &&
 		  !isshifted, false );
 
     const bool istransformedandshifted = hastransform && isshifted;

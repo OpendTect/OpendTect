@@ -133,6 +133,7 @@ public:
 mDefineFactory1Param( EarthModel, EMObject, EMManager&, EMOF );
 
 mGlobal(EarthModel) EMManager& EMM();
+mGlobal(EarthModel) bool canOverwrite(const MultiID&);
 
 } // namespace EM
 
