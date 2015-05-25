@@ -48,7 +48,7 @@ public:
     virtual bool	isSelected() const		{ return selected_; }
     virtual bool	isVisible() const;
 
-    uiPoint		getPos() const;
+    Geom::Point2D<float>getPos() const;
     void		setPos( const uiWorldPoint&);
     void		setPos( const uiPoint& p );
     void		setPos( const Geom::Point2D<float>& );
@@ -84,14 +84,14 @@ public:
     int			id() const			{ return id_; }
     int			getZValue() const;
 
-    			//Old, will be remove once all dep code is changed
+			//Old, will be remove once all dep code is changed
     void		rotate(float angle) { setRotation(angle); }
     void		scale(float sx,float sy) { setScale( sx, sy ); }
 
     virtual void	translateText();
 protected:
 
-    			uiGraphicsItem(QGraphicsItem*);
+			uiGraphicsItem(QGraphicsItem*);
 
     mQtclass(QGraphicsItem*) qgraphicsitem_;
 
@@ -101,7 +101,7 @@ protected:
 
 private:
 
-    			uiGraphicsItem() : id_(0)	{}
+			uiGraphicsItem() : id_(0)	{}
     void		updateTransform();
 
     static int		getNewID();
@@ -134,7 +134,7 @@ public:
 mExpClass(uiBase) uiGraphicsItemGroup : public uiGraphicsItem
 {
 public:
-    			uiGraphicsItemGroup(bool owner=false);
+			uiGraphicsItemGroup(bool owner=false);
 			uiGraphicsItemGroup(const ObjectSet<uiGraphicsItem>&);
 			~uiGraphicsItemGroup();
 			//!<If owner, it deletes all items
@@ -149,7 +149,7 @@ public:
     void		removeAll(bool withdelete);
     bool		isEmpty() const		{ return items_.isEmpty(); }
     int			size() const		{ return items_.size(); }
-    uiGraphicsItem* 	getUiItem( int idx )	{ return gtItm(idx); }
+    uiGraphicsItem*	getUiItem( int idx )	{ return gtItm(idx); }
     const uiGraphicsItem* getUiItem( int idx ) const	{ return gtItm(idx); }
     bool		isPresent(const uiGraphicsItem&) const;
     virtual uiGraphicsItem*	findItem(QGraphicsItem*);
@@ -158,7 +158,7 @@ public:
     virtual void	setVisible(bool);
     virtual uiRect	boundingRect() const;
     mQtclass(QGraphicsItemGroup*)	qGraphicsItemGroup()
-    					{ return qgraphicsitemgrp_; }
+					{ return qgraphicsitemgrp_; }
 
 protected:
 
