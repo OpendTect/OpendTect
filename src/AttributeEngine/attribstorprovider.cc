@@ -116,9 +116,14 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	    {
 		BufferStringSet complist;
 		SeisIOObjInfo::getCompNames(key, complist);
-		desc.setNrOutputs( Seis::UnknowData, complist.size() );
-		if ( compnms )
-		    compnms->operator =( complist );
+		if ( complist.isEmpty() )
+		    desc.setNrOutputs( Seis::UnknowData, 1 );
+		else
+		{
+		    desc.setNrOutputs( Seis::UnknowData, complist.size() );
+		    if ( compnms )
+			compnms->operator =( complist );
+		}
 	    }
 	    else
 	    {
