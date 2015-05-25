@@ -63,7 +63,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 	new uiLabeledSpinBox( leftgrp, tr("Correlation threshold (%)"), 1 );
     corrthresholdfld_->box()->setInterval( 0.f, 100.f, 0.1f );
     corrthresholdfld_->attach( alignedBelow, compwinfld_ );
-    corrthresholdfld_->valuechanged.notify(
+    corrthresholdfld_->box()->valueChanged.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
     uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
@@ -160,7 +160,8 @@ void uiCorrelationGroup::init()
 		      SI().zDomain().userFactor()) );
 
     compwinfld_->setValue( corrintv );
-    corrthresholdfld_->setValue( adjuster_->similarityThreshold()*100.f );
+    corrthresholdfld_->box()->setValue(
+				adjuster_->similarityThreshold()*100.f );
 
     const int sample = mCast(int,SI().zStep()*SI().zDomain().userFactor());
     const Interval<int> dataintv = corrintv + Interval<int>(-2*sample,2*sample);
