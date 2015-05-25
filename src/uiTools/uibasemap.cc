@@ -128,6 +128,7 @@ void uiBaseMapObject::update()
 		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
 		if ( !itm ) return;
 
+		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
 		itm->setPolygon( worldpts );
 		itm->setFillColor( bmobject_->getFillColor(idx), true );
 		itm->fill();
@@ -219,14 +220,11 @@ void uiBaseMapObject::updateStyle()
 		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
 		if ( !itm ) return;
 
+		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
 		itm->setFillColor( bmobject_->getFillColor(idx), true );
 		itm->fill();
 		itemnr++;
 	    }
-	    mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
-	    if ( !li ) return;
-	    li->setPenStyle( *bmobject_->getLineStyle(idx) );
-	    itemnr++;
 	}
 
 	if ( bmobject_->fill(idx) )
