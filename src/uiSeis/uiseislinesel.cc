@@ -12,8 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseislinesel.h"
 
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uiioobjinserter.h"
 #include "uilistbox.h"
 #include "uilistboxfilter.h"
 #include "uilistboxchoiceio.h"
@@ -29,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "seis2ddata.h"
 #include "seis2dlineio.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
@@ -45,6 +48,22 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 {
     SeisIOObjInfo::getLinesWithData( lnms_, geomids_ );
     init( cm );
+
+    CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc2D );
+    if ( ctio )
+    {
+	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
+						   OD::Vertical );
+	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
+					    insertbuts_ );
+	for ( int idx=0; idx<inserters_.size(); idx++ )
+	{
+	    inserters_[idx]->objectInserted.notify(
+		    mCB(this,uiSeis2DLineChoose,objInserted) );
+	}
+
+	butgrp->attach( leftOf, listfld_ );
+    }
 }
 
 
@@ -56,6 +75,30 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm,
     , lbchoiceio_(0)
 {
     init( cm );
+}
+
+
+void uiSeis2DLineChoose::objInserted( CallBacker* cb )
+{
+    if ( !cb ) return;
+
+    mCBCapsuleUnpack(MultiID,dsid,cb);
+    PtrMan<IOObj> dsobj = IOM().get( dsid );
+    if ( !dsobj )
+	return;
+
+    Seis2DDataSet ds( *dsobj );
+    for ( int idx=0; idx<ds.nrLines(); idx++ )
+    {
+	const Pos::GeomID geomid = ds.geomID( idx );
+	if ( geomids_.isPresent(geomid) )
+	    continue;
+
+	geomids_ += geomid;
+	lnms_.add( ds.lineName(idx) );
+    }
+
+    filtfld_->setItems( lnms_ );
 }
 
 
