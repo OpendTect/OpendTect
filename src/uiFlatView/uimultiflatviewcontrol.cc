@@ -24,9 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "mouseevent.h"
 #include "pixmap.h"
-#include "survinfo.h"
-
-
 
 
 MFVCViewManager::~MFVCViewManager()
@@ -106,7 +103,6 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 		    depthrg.include( curdepthrg );
 	    }
 
-	    depthrg.shift( SI().seismicReferenceDatum() );
 	    viewwr.setTop( depthrg.start );
 	    viewwr.setBottom( depthrg.stop );
 	}
