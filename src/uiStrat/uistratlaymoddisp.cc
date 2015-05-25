@@ -881,7 +881,12 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	{
 	    const Strat::Layer& prevlay = *seq.layers()[ilay-1];
 	    const Color prevlaycol = prevlay.dispColor( uselithcols_ );
-	    canjoinlayers = prevlaycol==laycol;
+	    bool prevmustannotcont = false;
+	    if ( !prevlay.content().isUnspecified() )
+		prevmustannotcont = allcontents_
+		    || (selectedcontent_ &&
+			prevlay.content() == *selectedcontent_);
+	    canjoinlayers = !prevmustannotcont && prevlaycol==laycol;
 	}
 
 	if ( canjoinlayers )
