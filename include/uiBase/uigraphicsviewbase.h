@@ -60,6 +60,7 @@ public:
     void			setSceneAlignment(const Alignment&);
 
     uiPoint			getCursorPos() const;
+    void			getScaleFactor(float&,float&) const;
     uiPoint			getScenePos(float,float) const;
     const uiPoint&		getStartPos() const;
     const uiRect*		getSelectedArea() const	{return selectedarea_;}
@@ -76,6 +77,9 @@ public:
     bool			scrollZoomEnabled()
 				{ return enabscrollzoom_; }
     uiSize			scrollBarSize(bool horizontal) const;
+
+    const uiPoint		mapFromScene(const Geom::Point2D<float>&) const;
+    const Geom::Point2D<float>	mapToScene(const uiPoint&) const;
 
     bool			isCtrlPressed() const	{return isctrlpressed_;}
     void			setCtrlPressed( bool yn )

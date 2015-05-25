@@ -552,6 +552,13 @@ uiPoint uiGraphicsViewBase::getCursorPos() const
 }
 
 
+void  uiGraphicsViewBase::getScaleFactor( float& scalex, float& scaley ) const
+{
+    scalex = body_->transform().m11();
+    scaley = body_->transform().m22();
+}
+
+
 uiPoint uiGraphicsViewBase::getScenePos( float x, float y ) const
 {
     QPoint viewpos( (int)x, (int)y );
@@ -629,6 +636,24 @@ uiSize uiGraphicsViewBase::scrollBarSize( bool hor ) const
     return sb ? uiSize( (int)sb->sizeHint().width(),
 			(int)sb->sizeHint().height())
 	      : uiSize(0,0);
+}
+
+
+const uiPoint uiGraphicsViewBase::mapFromScene(
+					const Geom::Point2D<float>& pt ) const
+{
+    QPoint qp = body_->mapFromScene( pt.x, pt.y );
+    return uiPoint( qp.x(), qp.y() );
+
+}
+
+
+const Geom::Point2D<float> uiGraphicsViewBase::mapToScene(
+						    const uiPoint& pt ) const
+{
+    QPointF qp = body_->mapToScene( pt.x, pt.y );
+    return Geom::Point2D<float>( qp.x(), qp.y() );
+
 }
 
 
