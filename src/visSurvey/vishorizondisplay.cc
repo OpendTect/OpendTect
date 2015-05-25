@@ -1013,6 +1013,11 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
+    if ( !emobject_->isEmpty() && tr && !tr->execResult() )
+    {
+	surf->unRef();
+	return false;
+    }
 
     surf->setResolution( resolution_-1, tr );
     surf->setMaterial( 0 );
