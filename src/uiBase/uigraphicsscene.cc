@@ -94,6 +94,7 @@ void ODGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent* ev )
 		   mCast(int,ev->pos().x()), mCast(int,ev->pos().y()),
 		   ev->delta() );
     uiscene_.getMouseEventHandler().triggerWheel( me );
+    ev->accept();
 }
 
 
