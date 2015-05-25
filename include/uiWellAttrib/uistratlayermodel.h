@@ -142,6 +142,7 @@ protected:
     void			snapshotCB(CallBacker*);
     void			synthDispParsChangedCB(CallBacker*);
     void			lmDispParsChangedCB(CallBacker*);
+    void			selPropChgCB(CallBacker*);
 
     bool			closeOK();
 

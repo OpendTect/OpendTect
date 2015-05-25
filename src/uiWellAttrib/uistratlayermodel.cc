@@ -342,6 +342,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     }
 
     modtools_ = new uiStratLayModEditTools( botgrp );
+    modtools_->selPropChg.notify( mCB(this,uiStratLayerModel,selPropChgCB) );
     gentools_ = new uiStratGenDescTools( gengrp );
 
     synthdisp_ = new uiStratSynthDisp( topgrp, lmp_ );
@@ -1191,4 +1192,10 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
 	}
 	statusBar()->message( msg.buf() );
     }
+}
+
+
+void uiStratLayerModel::selPropChgCB( CallBacker* )
+{
+    seqdisp_->setDispProp( modtools_->selPropIdx() );
 }
