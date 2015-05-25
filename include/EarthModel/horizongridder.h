@@ -31,6 +31,7 @@ mExpClass(EarthModel) HorizonGridder
 public:
     mDefineFactoryInClass(HorizonGridder,factory);
 
+    virtual		~HorizonGridder();
     uiString		infoMsg() const	{ return infomsg_; }
 
     void		setFaultIds(const TypeSet<MultiID>&);
@@ -48,7 +49,6 @@ public:
 protected:
 
     			HorizonGridder();
-			~HorizonGridder();
 
     FaultTrcDataProvider* fltdataprov_;
 
