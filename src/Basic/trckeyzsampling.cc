@@ -92,7 +92,7 @@ BinID TrcKeySampling::atIndex(  od_int64 globalidx ) const
 }
 
 
-Coord TrcKeySampling::getPos( const BinID& bid ) const
+Coord TrcKeySampling::toCoord( const BinID& bid ) const
 {
     ConstRefMan<Survey::Geometry> geom =
 	Survey::GM().getGeometry( TrcKey::geomID(survid_,bid) );
