@@ -113,7 +113,9 @@ void GapDecon::initClass()
     desc->addParam( stepout );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
-    gate->setLimits( SI().zRange(true) );
+    StepInterval<float> zrange = SI().zRange( true );
+    zrange.scale( mCast(float,SI().zDomain().userFactor()) );
+    gate->setLimits( zrange );
     desc->addParam( gate );
 
     BoolParam* isinputzerophase = new BoolParam( isinp0phaseStr() );
