@@ -225,7 +225,8 @@ void uiAction::setMenu( uiMenu* menu )
     {
 	menu_->setAction( this );
 	qaction_->setMenu( menu_->getQMenu() );
-	setIcon( menu_->getIconName() );
+	if ( iconfile_.isEmpty() )
+	    setIcon( menu_->getIconName() );
     }
 }
 

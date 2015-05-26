@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiaction.h"
 #include "uimainwin.h"
-#include "uimenu.h"
 #include "uiparentbody.h"
 #include "uitoolbutton.h"
 
@@ -124,7 +123,7 @@ void uiToolBar::addObject( uiObject* obj )
     {
 	pErrMsg("Not a valid object");
     }
-};
+}
 
 
 void uiToolBar::setLabel( const uiString& lbl )
@@ -212,11 +211,6 @@ void uiToolBar::setButtonMenu( int id, uiMenu* mnu,
 			       uiToolButton::PopupMode mode )
 {
     mGetAction( , return );
-
-    const FixedString mnuicon = mnu->getIconName();
-    if ( mnuicon.isEmpty() )
-	mnu->setIcon( action->getIconName() );
-
     action->setMenu( mnu );
     QWidget* qw = qtoolbar_->widgetForAction( action->qaction() );
     mDynamicCastGet(QToolButton*,qtb,qw)
