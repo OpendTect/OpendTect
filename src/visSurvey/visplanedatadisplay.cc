@@ -37,11 +37,14 @@ PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
 				visSurvey::PlaneDataDisplay* pdd )
     : BaseMapObject( pdd->name() )
     , pdd_( pdd )
-{}
+{
+}
 
 
 PlaneDataDisplayBaseMapObject::~PlaneDataDisplayBaseMapObject()
-{}
+{
+    if ( pdd_ ) pdd_->setBaseMap( 0 );
+}
 
 
 const char* PlaneDataDisplayBaseMapObject::getType() const
@@ -62,7 +65,18 @@ int PlaneDataDisplayBaseMapObject::nrShapes() const
 
 
 const char* PlaneDataDisplayBaseMapObject::getShapeName(int) const
-{ return pdd_->name(); }
+{
+    mDeclStaticString( ret );
+    const TrcKeyZSampling tkzs = pdd_->getTrcKeyZSampling( true, true );
+    if ( pdd_->getOrientation()== OD::InlineSlice )
+	ret = tkzs.hsamp_.start_.inl();
+    else if ( pdd_->getOrientation()==OD::CrosslineSlice )
+	ret = tkzs.hsamp_.start_.crl();
+    else
+	ret = tkzs.zsamp_.start;
+
+    return ret;
+}
 
 
 void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
@@ -87,6 +101,12 @@ void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 bool PlaneDataDisplayBaseMapObject::close(int) const
 {
     return pdd_->getOrientation()==OD::ZSlice;
+}
+
+
+Alignment PlaneDataDisplayBaseMapObject::getAlignment( int ) const
+{
+    return Alignment( Alignment::Right, Alignment::VCenter );
 }
 
 

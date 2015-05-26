@@ -71,6 +71,7 @@ public:
     virtual Pos::GeomID		getGeomID() const;
 
     virtual void		setBaseMap(BaseMap*);
+    virtual BaseMapObject*	getBasemapObject()	{ return basemapobj_; }
     virtual Coord3		getNormal(const Coord3& pos) const
 				{ return Coord3::udf(); }
     				/*!<Position and Normal are both in
@@ -252,7 +253,7 @@ public:
     				/*!<Returns a mouse cursor that will
 				    be used if this object under the
 				    mouse in Act mode. */
-    virtual void		updateMouseCursorCB(CallBacker*)	{};
+    virtual void		updateMouseCursorCB(CallBacker*)	{}
 
     virtual void		getObjectInfo(BufferString&) const	{}
 
@@ -274,7 +275,7 @@ public:
 	    				      const RegularSeisDataPack*,
 					      TaskRunner*)
 				{ return false; }
-    virtual const RegularSeisDataPack* getCacheVolume(int attr) const 
+    virtual const RegularSeisDataPack* getCacheVolume(int attr) const
 				{ return 0; }
 
     				//Trace-data

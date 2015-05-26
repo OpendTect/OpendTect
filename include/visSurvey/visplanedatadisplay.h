@@ -51,6 +51,7 @@ public:
     void		getPoints(int,TypeSet<Coord>& res) const;
     const LineStyle*	getLineStyle(int) const { return &lst_; }
     bool		close(int) const;
+    Alignment		getAlignment(int) const;
 
 protected:
     LineStyle			lst_;
