@@ -28,7 +28,7 @@ class uiGenInput;
 class uiStratSeisEvent;
 class uiSynthToRealScaleStatsDisp;
 template <class T> class ODPolygon;
-namespace EM { class Horizon3D; class EMObjectIterator; }
+namespace EM { class Horizon; class EMObjectIterator; }
 namespace Strat { class SeisEvent; }
 
 
@@ -60,7 +60,7 @@ protected:
 
     ODPolygon<float>*	polygon_;
     TrcKeySampling		polyhs_;
-    EM::Horizon3D*	horizon_;
+    EM::Horizon*	horizon_;
     EM::EMObjectIterator* horiter_;
     Strat::SeisEvent&	seisev_;
 
