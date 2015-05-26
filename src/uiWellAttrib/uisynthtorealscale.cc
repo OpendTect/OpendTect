@@ -9,12 +9,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisynthtorealscale.h"
 
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "survinfo.h"
 #include "polygon.h"
 #include "position.h"
 #include "seistrc.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seisbuf.h"
 #include "seisread.h"
@@ -164,7 +167,8 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(sssu.geom_,true),
 			      sssu );
 
-    const IOObjContext horctxt( mIOObjContext(EMHorizon3D) );
+    const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon2D)
+	    			      : mIOObjContext(EMHorizon3D) );
     uiIOObjSel::Setup horsu( tr("Horizon for '%1'").arg(lvlnm));
     horfld_ = new uiIOObjSel( this, horctxt, horsu );
     horfld_->attach( alignedBelow, seisfld_ );
@@ -282,7 +286,7 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     if ( !ioobj ) return false;
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(), 
 							  &taskr );
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj);
+    mDynamicCastGet(EM::Horizon*,hor,emobj);
     if ( !hor ) return false;
     horizon_ = hor;
     horizon_->ref();
@@ -414,12 +418,16 @@ int getTrc2D()
 	return Finished();
 
     if ( !setBinID(trc_.info().coord) )
-	return 2;
+	return MoreToDo();
 
-    const EM::SubID subid = bid_.toInt64();
-    const Coord3 crd = dlg_.horizon_->getPos( 0, subid );
+    mDynamicCastGet(const EM::Horizon2D*,hor2d,dlg_.horizon_)
+    if ( !hor2d )
+	return ErrorOccurred();
+    TrcKey tk( rdr_.geomID(), trc_.info().nr );
+    EM::PosID pid = hor2d->geometry().getPosID( tk );
+    const Coord3 crd = dlg_.horizon_->getPos( pid );
     if ( mIsUdf(crd.z) )
-	return 2;
+	return MoreToDo();
 
     z_ = (float)crd.z;
     return MoreToDo();
@@ -462,6 +470,27 @@ void uiSynthToRealScale::updRealStats()
     uiTaskRunner taskrunner( this );
     if ( !getHorData(taskrunner) )
 	return;
+
+    if ( is2d_ )
+    {
+	EM::IOObjInfo eminfo( horfld_->ioobj() );
+	SeisIOObjInfo seisinfo( seisfld_->ioobj() );
+	BufferStringSet seislnms, horlnms;
+	seisinfo.getLineNames( seislnms );
+	eminfo.getLineNames( horlnms );
+	bool selectionvalid = false;
+	for ( int lidx=0; lidx<seislnms.size(); lidx++ )
+	{
+	    if ( horlnms.isPresent(seislnms.get(lidx)) )
+	    {
+		selectionvalid = true;
+		break;
+	    }
+	}
+
+	if ( !selectionvalid )
+	    mErrRet(tr("No common line names found in horizon & seismic data"))
+    }
 
     SeisTrcReader rdr( seisfld_->ioobj() );
     if ( !rdr.prepareWork() )
