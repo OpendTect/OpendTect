@@ -478,7 +478,7 @@ void uiAttribPartServer::getPossibleOutputs( bool is2d,
     nms.erase();
     SelInfo attrinf( curDescSet( is2d ), 0, is2d );
     nms.append( attrinf.attrnms_ );
-    nms.append( attrinf.ioobjnms_ );
+    nms.append( attrinf.ioobjids_ );
 }
 
 
@@ -659,7 +659,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet( false, isstortarget );
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
-		   		: attrds->getDesc( targetspecs_[0].id() );
+				: attrds->getDesc( targetspecs_[0].id() );
     if ( targetdesc )
     {
 	attrds->getDesc(targetspecs_[0].id())->getDefStr(defstr);
@@ -719,7 +719,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	ArrayValueSeries<float, float>* avs =
 	    new ArrayValueSeries<float,float>(values.arr(),true, values.size());
 	Array3DImpl<float>* arr3d =
-	    	new Array3DImpl<float>( tkzs.nrInl(), tkzs.nrCrl(), 1 );
+		new Array3DImpl<float>( tkzs.nrInl(), tkzs.nrCrl(), 1 );
 	arr3d->setStorage( avs );
 	output->addCube( *arr3d, true );
 	dtcoldefset.erase();
