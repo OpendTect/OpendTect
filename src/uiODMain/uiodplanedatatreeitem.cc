@@ -53,20 +53,25 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
     switch ( mnuid )
     {
 	case 0: return uiODPlaneDataTreeItem::Empty; break;
-	case 1: return uiODPlaneDataTreeItem::Default; break;
-	case 2: return uiODPlaneDataTreeItem::RGBA; break;
+	case 1: return uiODPlaneDataTreeItem::Select; break;
+	case 2: return uiODPlaneDataTreeItem::Default; break;
+	case 3: return uiODPlaneDataTreeItem::RGBA; break;
 	default: return uiODPlaneDataTreeItem::Empty;
     }
 }
 
 
-uiString uiODPlaneDataTreeItem::sAddDefaultData()
-{ return tr("Add Default Data"); }
+uiString uiODPlaneDataTreeItem::sAddEmptyPlane()
+{ return tr("Add Empty Plane"); }
 
+uiString uiODPlaneDataTreeItem::sAddAndSelectData()
+{ return tr("Add and Select Data"); }
+
+uiString uiODPlaneDataTreeItem::sAddDefaultData()
+{ return tr("Add with Default Data"); }
 
 uiString uiODPlaneDataTreeItem::sAddColorBlended()
 { return uiStrings::sAddColBlend(); }
-
 
 uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 { return tr("Add at Well Location ..."); }
@@ -74,22 +79,25 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 
 #define mParentShowSubMenu( treeitm, fromwell ) \
     uiMenu mnu( getUiParent(), uiStrings::sAction() ); \
-    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 ); \
     mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddDefaultData()), 1 ); \
+	new uiAction(uiODPlaneDataTreeItem::sAddEmptyPlane()), 0 );\
     mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddColorBlended()), 2 ); \
+	new uiAction(uiODPlaneDataTreeItem::sAddAndSelectData()), 1 );\
+    mnu.insertItem( \
+	new uiAction(uiODPlaneDataTreeItem::sAddDefaultData()), 2 ); \
+    mnu.insertItem( \
+	new uiAction(uiODPlaneDataTreeItem::sAddColorBlended()), 3 ); \
     if ( fromwell ) \
 	mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddAtWellLocation()), 3 ); \
+	new uiAction(uiODPlaneDataTreeItem::sAddAtWellLocation()), 4 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
-    if ( mnuid==0 || mnuid==1 || mnuid==2 ) \
+    if ( mnuid==0 || mnuid==1 || mnuid==2 || mnuid==3 ) \
     { \
 	treeitm* newitm = new treeitm(-1,getType(mnuid));\
         addChild( newitm, false ); \
     } \
-    else if ( mnuid==3 ) \
+    else if ( mnuid==4 ) \
     { \
 	TypeSet<MultiID> wellids; \
 	if ( !applMgr()->wellServer()->selectWells(wellids) ) \
@@ -98,7 +106,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 	{ \
 	    Well::Data* wd = Well::MGR().get( wellids[idx] ); \
 	    if ( !wd ) continue; \
-	    treeitm* itm = new treeitm( -1, getType(0) ); \
+	    treeitm* itm = new treeitm( -1, uiODPlaneDataTreeItem::Empty ); \
 	    addChild( itm, false ); \
 	    itm->setAtWellLocation( *wd ); \
 	    itm->displayDefaultData(); \
@@ -114,6 +122,9 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     , positiondlg_(0)
     , positionmnuitem_(tr("Position ..."),cPositionIdx)
     , gridlinesmnuitem_(tr("Gridlines ..."),cGridLinesIdx)
+    , addinlitem_(tr("Add Inl-line"),10003)
+    , addcrlitem_(tr("Add Crl-line"),10002)
+    , addzitem_(tr("Add Z-slice"),10001)
 {
     displayid_ = did;
     positionmnuitem_.iconfnm = "orientation64";
@@ -169,7 +180,7 @@ bool uiODPlaneDataTreeItem::init()
 
 	if ( type_ == Default )
 	    displayDefaultData();
-	if ( type_ == Empty ) //TODO add check on setting later on
+	if ( type_ == Select )
 	    displayGuidance();
     }
 
@@ -280,14 +291,14 @@ bool uiODPlaneDataTreeItem::displayGuidance()
 {
     if ( !applMgr() || !applMgr()->attrServer() ) return false; //safety
     Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
-	    				visserv_->getSelSpec( displayid_, 0 ));
+					visserv_->getSelSpec( displayid_, 0 ));
     if ( !as ) return false;
 
     const Pos::GeomID geomid = visserv_->getGeomID( displayid_ );
     const ZDomain::Info* zdinf =
 		    visserv_->zDomainInfo( visserv_->getSceneID(displayid_) );
     applMgr()->attrServer()->selectAttrib( *as, zdinf, geomid,
-	    				   "Select first layer" );
+					   "Select first layer" );
     return displayDataFromDesc( as->id() );
 }
 
@@ -303,6 +314,38 @@ bool uiODPlaneDataTreeItem::displayDataFromDesc( const Attrib::DescID& descid )
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
     return res;
+}
+
+
+bool uiODPlaneDataTreeItem::displayDataFromOther( int visid )
+{
+    const int nrattribs = visserv_->getNrAttribs( visid );
+    while ( nrattribs > visserv_->getNrAttribs(displayid_) )
+	addAttribItem();
+
+    for ( int attrib=0; attrib<nrattribs; attrib++ )
+    {
+	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
+	if ( !as )
+	    return displayDefaultData();
+
+	visserv_->setSelSpec( displayid_, attrib, *as );
+	visserv_->calculateAttrib( displayid_, attrib, false );
+
+	const ColTab::Sequence* ctseq =
+		visserv_->getColTabSequence( visid, attrib );
+	if ( ctseq )
+	    visserv_->setColTabSequence( displayid_, attrib, *ctseq );
+
+	const ColTab::MapperSetup* ctms =
+		visserv_->getColTabMapperSetup( visid, attrib );
+	if ( ctms )
+	    visserv_->setColTabMapperSetup( displayid_, attrib, *ctms );
+    }
+
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+    return true;
 }
 
 
@@ -356,17 +399,61 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 }
 
 
-void uiODPlaneDataTreeItem::createMenu( MenuHandler* menu, bool istb )
+static void snapToTkzs( const TrcKeyZSampling& tkzs, TrcKey& tk, float& z )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !menu || menu->menuID() != displayID() )
+    tk = tkzs.hsamp_.getNearest( tk );
+    z = tkzs.zsamp_.snap( z );
+}
+
+
+void uiODPlaneDataTreeItem::createMenu( MenuHandler* mh, bool istb )
+{
+    uiODDisplayTreeItem::createMenu( mh,istb );
+    if ( !mh || mh->menuID() != displayID() )
 	return;
 
     const bool islocked = visserv_->isLocked( displayid_ );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionmnuitem_,
+    mAddMenuOrTBItem( istb, mh, &displaymnuitem_, &positionmnuitem_,
 		      !islocked, false );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &gridlinesmnuitem_,
+    mAddMenuOrTBItem( istb, mh, &displaymnuitem_, &gridlinesmnuitem_,
 		      true, false );
+
+    mDynamicCastGet(uiMenuHandler*,uimh,mh)
+    if ( !uimh || uimh->getMenuType()!=uiMenuHandler::fromScene() )
+    {
+	mResetMenuItem( &addinlitem_ );
+	mResetMenuItem( &addcrlitem_ );
+	mResetMenuItem( &addzitem_ );
+	return;
+    }
+
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv_->getObject(displayid_))
+    const Coord3 pickedpos = uimh->getPickedPos();
+    TrcKey tk( SI().transform(pickedpos) );
+    float zposf = mCast( float, pickedpos.z );
+    snapToTkzs( pdd->getTrcKeyZSampling(), tk, zposf );
+    const int zpos = mNINT32( zposf * SI().zDomain().userFactor() );
+
+    addinlitem_.text = uiString("Add In-line %1").arg( tk.lineNr() );
+    addcrlitem_.text = uiString("Add Cross-line %1").arg( tk.trcNr() );
+    addzitem_.text = uiString("Add Z-slice %1").arg( zpos );
+
+    if ( orient_ == OD::InlineSlice )
+    {
+	mAddMenuItem( mh, &addcrlitem_, true, false );
+	mAddMenuItem( mh, &addzitem_, true, false );
+    }
+    else if ( orient_ == OD::CrosslineSlice )
+    {
+	mAddMenuItem( mh, &addinlitem_, true, false );
+	mAddMenuItem( mh, &addzitem_, true, false );
+    }
+    else
+    {
+	mAddMenuItem( mh, &addinlitem_, true, false );
+	mAddMenuItem( mh, &addcrlitem_, true, false );
+    }
 }
 
 
@@ -410,6 +497,39 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	uiGridLinesDlg gldlg( getUiParent(), pdd );
 	gldlg.go();
+    }
+
+    mDynamicCastGet(uiMenuHandler*,uimh,menu);
+    if ( !uimh ) return;
+
+    const Coord3 pickedpos = uimh->getPickedPos();
+    TrcKey tk( SI().transform(pickedpos) );
+    float zpos = mCast( float, pickedpos.z );
+    snapToTkzs( pdd->getTrcKeyZSampling(), tk, zpos );
+
+    TrcKeyZSampling newtkzs( true );
+    uiODPlaneDataTreeItem* itm = 0;
+    if ( mnuid == addinlitem_.id )
+    {
+	itm = new uiODInlineTreeItem( -1, Empty );
+	newtkzs.hsamp_.setLineRange( Interval<int>(tk.lineNr(),tk.lineNr()) );
+    }
+    else if ( mnuid == addcrlitem_.id )
+    {
+	itm = new uiODCrosslineTreeItem( -1, Empty );
+	newtkzs.hsamp_.setTrcRange( Interval<int>(tk.trcNr(),tk.trcNr()) );
+    }
+    else if ( mnuid == addzitem_.id )
+    {
+	itm = new uiODZsliceTreeItem( -1, Empty );
+	newtkzs.zsamp_.start = newtkzs.zsamp_.stop = zpos;
+    }
+
+    if ( itm )
+    {
+	parent_->addChild( itm, true );
+	itm->setTrcKeyZSampling( newtkzs );
+	itm->displayDataFromOther( pdd->id() );
     }
 }
 
@@ -553,6 +673,7 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id, Type tp )
 {}
 
 
+
 uiTreeItem*
     uiODCrosslineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
@@ -590,6 +711,7 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, tp )
 {}
+
 
 
 uiTreeItem*
@@ -630,3 +752,4 @@ uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
 {
 }
+
