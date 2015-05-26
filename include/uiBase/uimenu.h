@@ -67,7 +67,7 @@ mExpClass(uiBase) uiMenu : public uiActionContainer, public uiBaseObject
 
 public:
 			uiMenu(const uiString& txt=uiString::emptyString(),
-			       const char* iconfilenm=0);
+			       const char* iconnm=0);
 
 			~uiMenu();
 
@@ -98,6 +98,10 @@ public:
     const uiString&	text() const;
     void		clear() { removeAllActions(); }
 
+    void		setIcon(const uiIcon&);
+    void		setIcon(const char* iconnm);
+    const char*		getIconName() const;
+
     mQtclass(QMenu)*	getQMenu() { return qmenu_; }
     mQtclass(QWidget*)	getWidget();
 
@@ -107,6 +111,7 @@ private:
     void		setAction(uiAction*);
 
     uiString		text_;
+    BufferString	iconnm_;
 
     mQtclass(QMenu)*	qmenu_;
     uiAction*		submenuaction_;

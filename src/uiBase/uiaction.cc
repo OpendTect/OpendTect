@@ -225,6 +225,8 @@ void uiAction::setMenu( uiMenu* menu )
     {
 	menu_->setAction( this );
 	qaction_->setMenu( menu_->getQMenu() );
+	if ( iconfile_.isEmpty() )
+	    setIcon( menu_->getIconName() );
     }
 }
 
@@ -280,14 +282,15 @@ void uiAction::setIcon( const char* file )
 {
     iconfile_ = file;
     const uiIcon icon( iconfile_ );
-    qaction_->setIcon( icon.qicon() );
+    setIcon( icon );
 }
 
 
 void uiAction::setIcon( const uiIcon& icon )
 {
     iconfile_ = icon.source();
-    qaction_->setIcon( icon.qicon() );
+    qaction_->setIcon(
+	iconfile_.isEmpty() || icon.isEmpty() ? QIcon() : icon.qicon() );
 }
 
 

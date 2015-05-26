@@ -69,6 +69,7 @@ public:
 
     void		setIcon(const char* identifier);
     void		setIcon(const uiIcon&);
+    const char*		getIconName() const		{ return iconfile_; }
     void		setPixmap(const uiPixmap&);
 
     void		setCheckable(bool);

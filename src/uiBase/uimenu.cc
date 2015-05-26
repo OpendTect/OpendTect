@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiaction.h"
 #include "uibody.h"
+#include "uiicon.h"
 #include "uimain.h"
 #include "uiobjbody.h"
 #include "uiparentbody.h"
@@ -107,20 +108,20 @@ static CallBackSet& interceptors_ = *new CallBackSet;
 uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
-    , qmenu_( new mQtclass(QMenu)( p ? p->getWidget() : 0 ) )
+    , qmenu_( new mQtclass(QMenu)(txt.getQtString(),p ? p->getWidget() : 0))
     , text_(txt)
 {
-    qmenu_->setTitle( txt.getQtString() );
+    setIcon( pmnm );
 }
 
 
 uiMenu::uiMenu( const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
-    , qmenu_( new mQtclass(QMenu)( 0 ) )
+    , qmenu_(new mQtclass(QMenu)(txt.getQtString()))
     , text_(txt)
 {
-    qmenu_->setTitle( txt.getQtString() );
+    setIcon( pmnm );
 }
 
 
@@ -171,6 +172,27 @@ void uiMenu::setText( const uiString& txt )
 
 const uiString& uiMenu::text() const
 { return text_; }
+
+
+void uiMenu::setIcon( const uiIcon& icon )
+{ setIcon( icon.source() ); }
+
+
+void uiMenu::setIcon( const char* iconnm )
+{
+    iconnm_ = iconnm;
+    if ( iconnm_.isEmpty() )
+	qmenu_->setIcon( QIcon() );
+    else
+    {
+	uiIcon icon( iconnm );
+	qmenu_->setIcon( icon.qicon() );
+    }
+}
+
+
+const char* uiMenu::getIconName() const
+{ return iconnm_; }
 
 
 int uiMenu::exec()
