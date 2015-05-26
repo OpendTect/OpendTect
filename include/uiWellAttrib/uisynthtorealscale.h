@@ -59,7 +59,7 @@ protected:
 
     ODPolygon<float>*	polygon_;
     HorSampling		polyhs_;
-    EM::Horizon3D*	horizon_;
+    EM::Horizon3D*	horizon_; //deprecated not used,hiddeparam used instead
     EM::EMObjectIterator* horiter_;
     Strat::SeisEvent&	seisev_;
 
