@@ -148,10 +148,12 @@ macro(OD_SETUP_OSG)
 			else()
 			    file ( GLOB DLLFILE "${OSG_DIR}/bin/*${OSGLIBNAME}.dll" )
 			endif()
-			OD_INSTALL_LIBRARY( ${DLLFILE} ${BUILD_TYPE} )
-			install( PROGRAMS ${LIB}
-			    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
-			    CONFIGURATIONS ${BUILD_TYPE} )
+			if ( EXISTS ${DLLFILE} )
+			    OD_INSTALL_LIBRARY( ${DLLFILE} ${BUILD_TYPE} )
+			    install( PROGRAMS ${LIB}
+				DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/${BUILD_TYPE}
+				CONFIGURATIONS ${BUILD_TYPE} )
+			endif()
 		    endif()
 		endforeach()
 
@@ -162,4 +164,5 @@ macro(OD_SETUP_OSG)
     list( APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
 
 endmacro(OD_SETUP_OSG)
+
 
