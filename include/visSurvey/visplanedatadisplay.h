@@ -53,6 +53,9 @@ public:
     bool		close(int) const;
     Alignment		getAlignment(int) const;
 
+    int			visID() const;
+    OD::SliceType	orientation() const;
+
 protected:
     LineStyle			lst_;
     visSurvey::PlaneDataDisplay* pdd_;

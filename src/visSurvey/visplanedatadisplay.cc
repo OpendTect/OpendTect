@@ -110,6 +110,13 @@ Alignment PlaneDataDisplayBaseMapObject::getAlignment( int ) const
 }
 
 
+int PlaneDataDisplayBaseMapObject::visID() const
+{ return pdd_ ? pdd_->id() : -1; }
+
+
+OD::SliceType PlaneDataDisplayBaseMapObject::orientation() const
+{ return pdd_ ? pdd_->getOrientation() : OD::InlineSlice; }
+
 
 namespace visSurvey {
 
