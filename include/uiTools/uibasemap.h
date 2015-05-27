@@ -29,6 +29,8 @@ public:
 				uiBaseMapObject(BaseMapObject*);
     virtual			~uiBaseMapObject();
 
+    BaseMapObject*		getObject();
+
     bool			hasChanged() const	{ return changed_; }
     void			resetChangeFlag() { changed_ = false; }
     void			setTransform(const uiWorld2Ui*);
@@ -63,8 +65,10 @@ public:
 
     void			setView(const uiWorldRect&);
 
-    void			addObject(BaseMapObject*);
+    virtual void		addObject(BaseMapObject*);
     void			addStaticObject(BaseMapObject*);
+    BaseMapObject*		getObject(int id);
+
     bool			hasChanged();
     inline void			setChangeFlag() { changed_ = true; }
     void			resetChangeFlag();
@@ -82,6 +86,9 @@ public:
     inline uiGraphicsView&	view()			{ return view_; }
     uiGraphicsScene&		scene();
     inline const uiWorld2Ui&	getWorld2Ui() const	{ return w2ui_; }
+
+    CNotifier<uiBaseMap,int>	objectAdded;
+    CNotifier<uiBaseMap,int>	objectRemoved;
 
 protected:
 
