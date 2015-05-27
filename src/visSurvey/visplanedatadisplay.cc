@@ -32,36 +32,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransformutils.h"
 
 
-namespace visSurvey {
-
-class PlaneDataDisplayBaseMapObject : public BaseMapObject
-{
-public:
-		PlaneDataDisplayBaseMapObject(PlaneDataDisplay* pdd);
-
-    const char*		getType() const;
-    void		updateGeometry();
-    int			nrShapes() const;
-    const char*		getShapeName(int) const;
-    void		getPoints(int,TypeSet<Coord>& res) const;
-    const LineStyle*	getLineStyle(int) const { return &lst_; }
-    bool		close(int) const;
-
-protected:
-    LineStyle			lst_;
-    PlaneDataDisplay*		pdd_;
-};
-
 
 PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
-							PlaneDataDisplay* pdd)
+				visSurvey::PlaneDataDisplay* pdd )
     : BaseMapObject( pdd->name() )
     , pdd_( pdd )
-{}
+{
+}
+
+
+PlaneDataDisplayBaseMapObject::~PlaneDataDisplayBaseMapObject()
+{
+    if ( pdd_ ) pdd_->setBaseMap( 0 );
+}
 
 
 const char* PlaneDataDisplayBaseMapObject::getType() const
-{ return PlaneDataDisplay::getSliceTypeString(pdd_->getOrientation()); }
+{
+    return visSurvey::PlaneDataDisplay::getSliceTypeString(
+						pdd_->getOrientation());
+}
 
 
 void PlaneDataDisplayBaseMapObject::updateGeometry()
@@ -75,7 +65,18 @@ int PlaneDataDisplayBaseMapObject::nrShapes() const
 
 
 const char* PlaneDataDisplayBaseMapObject::getShapeName(int) const
-{ return pdd_->name(); }
+{
+    mDeclStaticString( ret );
+    const TrcKeyZSampling tkzs = pdd_->getTrcKeyZSampling( true, true );
+    if ( pdd_->getOrientation()== OD::InlineSlice )
+	ret = tkzs.hsamp_.start_.inl();
+    else if ( pdd_->getOrientation()==OD::CrosslineSlice )
+	ret = tkzs.hsamp_.start_.crl();
+    else
+	ret = tkzs.zsamp_.start;
+
+    return ret;
+}
 
 
 void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
@@ -102,6 +103,22 @@ bool PlaneDataDisplayBaseMapObject::close(int) const
     return pdd_->getOrientation()==OD::ZSlice;
 }
 
+
+Alignment PlaneDataDisplayBaseMapObject::getAlignment( int ) const
+{
+    return Alignment( Alignment::Right, Alignment::VCenter );
+}
+
+
+int PlaneDataDisplayBaseMapObject::visID() const
+{ return pdd_ ? pdd_->id() : -1; }
+
+
+OD::SliceType PlaneDataDisplayBaseMapObject::orientation() const
+{ return pdd_ ? pdd_->getOrientation() : OD::InlineSlice; }
+
+
+namespace visSurvey {
 
 
 DefineEnumNames(PlaneDataDisplay,SliceType,1,"Orientation")
@@ -213,9 +230,9 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zsamp_ );
     dragger_->setWidthLimits(
-	  Interval<float>( mCast(float,4*survey.hsamp_.step_.inl()), mUdf(float) ),
-	  Interval<float>( mCast(float,4*survey.hsamp_.step_.crl()), mUdf(float) ),
-	  Interval<float>( 4*survey.zsamp_.step, mUdf(float) ) );
+      Interval<float>( mCast(float,4*survey.hsamp_.step_.inl()), mUdf(float) ),
+      Interval<float>( mCast(float,4*survey.hsamp_.step_.crl()), mUdf(float) ),
+      Interval<float>( 4*survey.zsamp_.step, mUdf(float) ) );
 
     TrcKeyZSampling newpos = getTrcKeyZSampling(false,true);
     if ( !newpos.isEmpty() )
@@ -302,12 +319,14 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     float zdiff = 0;
 
     inlcrldist.inl() =
-	binid.inl()>=cs.hsamp_.start_.inl() && binid.inl()<=cs.hsamp_.stop_.inl()
+	binid.inl()>=cs.hsamp_.start_.inl() &&
+	binid.inl()<=cs.hsamp_.stop_.inl()
 	     ? 0
 	     : mMIN( abs(binid.inl()-cs.hsamp_.start_.inl()),
 		     abs( binid.inl()-cs.hsamp_.stop_.inl()) );
     inlcrldist.crl() =
-	binid.crl()>=cs.hsamp_.start_.crl() && binid.crl()<=cs.hsamp_.stop_.crl()
+	binid.crl()>=cs.hsamp_.start_.crl() &&
+	binid.crl()<=cs.hsamp_.stop_.crl()
 	     ? 0
 	     : mMIN( abs(binid.crl()-cs.hsamp_.start_.crl()),
 		     abs( binid.crl()-cs.hsamp_.stop_.crl()) );
@@ -453,8 +472,9 @@ void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
 }
 
 #define mDefineCenterAndWidth( thecs ) \
-    const Coord3 center( (thecs.hsamp_.start_.inl()+thecs.hsamp_.stop_.inl())/2.0, \
-		         (thecs.hsamp_.start_.crl()+thecs.hsamp_.stop_.crl())/2.0, \
+    const Coord3 center( \
+		(thecs.hsamp_.start_.inl()+thecs.hsamp_.stop_.inl())/2.0, \
+		(thecs.hsamp_.start_.crl()+thecs.hsamp_.stop_.crl())/2.0, \
 		         thecs.zsamp_.center() ); \
     Coord3 width( thecs.hsamp_.stop_.inl()-thecs.hsamp_.start_.inl(), \
 		  thecs.hsamp_.stop_.crl()-thecs.hsamp_.start_.crl(), \
@@ -1249,7 +1269,8 @@ void PlaneDataDisplay::setUpdateStageTextureTransform()
     Coord startdif( (newcs.zsamp_.start-oldcs.zsamp_.start) / newcs.zsamp_.step,
 		    newcs.hsamp_.start_.inl()-oldcs.hsamp_.start_.inl() );
     Coord growth( newcs.nrZ()-oldcs.nrZ(), newcs.nrInl()-oldcs.nrInl() );
-    updatestageinfo_.refreeze_ = newcs.hsamp_.start_.crl()==oldcs.hsamp_.start_.crl();
+    updatestageinfo_.refreeze_ =
+	newcs.hsamp_.start_.crl()==oldcs.hsamp_.start_.crl();
 
     if ( orientation_ == OD::InlineSlice )
     {

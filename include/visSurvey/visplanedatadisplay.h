@@ -13,12 +13,16 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
+#include "basemap.h"
 #include "vismultiattribsurvobj.h"
-#include "mousecursor.h"
-#include "ranges.h"
+
 #include "enums.h"
 #include "factory.h"
+#include "mousecursor.h"
 #include "oduicommon.h"
+#include "ranges.h"
+
 
 template <class T> class Array2D;
 namespace visBase
@@ -26,10 +30,37 @@ namespace visBase
     class DepthTabPlaneDragger;
     class GridLines;
     class TextureRectangle;
-};
+}
 
 class BinIDValueSet;
 class RegularSeisDataPack;
+namespace visSurvey { class PlaneDataDisplay; }
+
+
+mExpClass(visSurvey) PlaneDataDisplayBaseMapObject : public BaseMapObject
+{
+public:
+			PlaneDataDisplayBaseMapObject(
+				visSurvey::PlaneDataDisplay* pdd);
+			~PlaneDataDisplayBaseMapObject();
+
+    const char*		getType() const;
+    void		updateGeometry();
+    int			nrShapes() const;
+    const char*		getShapeName(int) const;
+    void		getPoints(int,TypeSet<Coord>& res) const;
+    const LineStyle*	getLineStyle(int) const { return &lst_; }
+    bool		close(int) const;
+    Alignment		getAlignment(int) const;
+
+    int			visID() const;
+    OD::SliceType	orientation() const;
+
+protected:
+    LineStyle			lst_;
+    visSurvey::PlaneDataDisplay* pdd_;
+};
+
 
 namespace visSurvey
 {
@@ -132,7 +163,7 @@ public:
 						 the plane setting should be
 						 returned.
 				    \returns	combination of OD::ButtonState*/
-    bool	isVerticalPlane() const;
+    bool			isVerticalPlane() const;
 
     virtual bool		canDuplicate() const	{ return true; }
     virtual SurveyObject*	duplicate(TaskRunner*) const;
@@ -233,7 +264,6 @@ protected:
 };
 
 } // namespace visSurvey
-
 
 #endif
 

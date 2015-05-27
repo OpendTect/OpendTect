@@ -104,10 +104,10 @@ void SurveyObject::setBaseMap( BaseMap* bm )
 {
     if ( basemapobj_ )
     {
-	if ( scene_ && scene_->getBaseMap() )
-	    scene_->getBaseMap()->removeObject( basemapobj_ );
+//	if ( scene_ && scene_->getBaseMap() )
+//	    scene_->getBaseMap()->removeObject( basemapobj_ );
 
-	delete basemapobj_;
+//	delete basemapobj_;
 	basemapobj_ = 0;
     }
 

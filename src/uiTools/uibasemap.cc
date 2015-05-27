@@ -43,6 +43,10 @@ uiBaseMapObject::~uiBaseMapObject()
 }
 
 
+BaseMapObject* uiBaseMapObject::getObject()
+{ return bmobject_; }
+
+
 const char* uiBaseMapObject::name() const
 { return bmobject_ ? bmobject_->name().buf() : 0; }
 
@@ -128,6 +132,7 @@ void uiBaseMapObject::update()
 		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
 		if ( !itm ) return;
 
+		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
 		itm->setPolygon( worldpts );
 		itm->setFillColor( bmobject_->getFillColor(idx), true );
 		itm->fill();
@@ -219,14 +224,11 @@ void uiBaseMapObject::updateStyle()
 		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
 		if ( !itm ) return;
 
+		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
 		itm->setFillColor( bmobject_->getFillColor(idx), true );
 		itm->fill();
 		itemnr++;
 	    }
-	    mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
-	    if ( !li ) return;
-	    li->setPenStyle( *bmobject_->getLineStyle(idx) );
-	    itemnr++;
 	}
 
 	if ( bmobject_->fill(idx) )
@@ -254,6 +256,8 @@ uiBaseMap::uiBaseMap( uiParent* p )
     , worlditemgrp_(*new uiGraphicsItemGroup(true))
     , staticitemgrp_(*new uiGraphicsItemGroup(true))
     , changed_(false)
+    , objectAdded(this)
+    , objectRemoved(this)
 {
     view_.scene().addItem( &worlditemgrp_ );
     view_.scene().addItem( &staticitemgrp_ );
@@ -344,6 +348,21 @@ void uiBaseMap::addStaticObject( BaseMapObject* obj )
 }
 
 
+BaseMapObject* uiBaseMap::getObject( int id )
+{
+    if ( id<0 ) return 0;
+
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	BaseMapObject* bmo = objects_[idx]->getObject();
+	if ( bmo && bmo->ID()==id )
+	    return bmo;
+    }
+
+    return 0;
+}
+
+
 bool uiBaseMap::hasChanged()
 {
     if ( changed_ ) return true;
@@ -371,6 +390,8 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
     worlditemgrp_.add( &uiobj->itemGrp() );
     objects_ += uiobj;
     changed_ = true;
+    if ( uiobj->getObject() )
+	objectAdded.trigger( uiobj->getObject()->ID() );
 }
 
 
@@ -418,6 +439,7 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
     worlditemgrp_.remove( &objects_[index]->itemGrp(), true );
     delete objects_.removeSingle( index );
     changed_ = true;
+    objectRemoved.trigger( obj->ID() );
 }
 
 
@@ -445,4 +467,7 @@ const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<int>& pt )  const
     return 0;
 }
 
+
+uiGraphicsScene& uiBaseMap::scene()
+{ return view_.scene(); }
 

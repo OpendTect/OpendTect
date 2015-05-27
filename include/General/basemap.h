@@ -31,6 +31,7 @@ public:
 
 				BaseMapObject(const char* nm);
 
+    int				ID() const		{ return id_; }
     virtual const char*		getType() const				= 0;
 
     Threads::Lock		lock_;
@@ -80,6 +81,7 @@ public:
 protected:
 
     int				depth_;
+    int				id_;
 
 };
 
