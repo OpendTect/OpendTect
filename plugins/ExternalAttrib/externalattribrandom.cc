@@ -10,9 +10,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arraynd.h"
 #include "attribdesc.h"
-#include "attribdatapack.h"
 #include "attribdatacubes.h"
 #include "attribsel.h"
+#include "seisdatapack.h"
 #include "statrand.h"
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
@@ -92,10 +92,15 @@ DataPack::ID Random::createAttrib( const CubeSampling& cs,
 	}
     }
 
-    const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();
-    Attrib::Flat3DDataPack* ndp = new Attrib::Flat3DDataPack( did, *output, 0 );
-    DPM( DataPackMgr::FlatID() ).add( ndp );
-    return ndp->id();
+    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
+		SeisDataPack::categoryStr(cs.isFlat() && cs.nrZ()!=1,false) );
+    regsdp->setSampling( cs );
+    regsdp->addComponent( uiStrings::sEmptyString() );
+    regsdp->data( 0 ) = array;
+
+    RegularFlatDataPack* regfdp = new RegularFlatDataPack( *regsdp, 0 );
+    DPM(DataPackMgr::FlatID()).add( regfdp );
+    return regfdp->id();
 }
 
 

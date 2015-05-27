@@ -174,11 +174,10 @@ void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 
 void uiFlatViewer::updateTransforms()
 {
-    const uiRect viewrect = getViewRect();
-
     if ( mIsZero(wr_.width(),mDefEps) || mIsZero(wr_.height(),mDefEps) )
         return;
 
+    const uiRect viewrect = getViewRect();
     const double xscale = viewrect.width()/(wr_.right()-wr_.left());
     const double yscale = viewrect.height()/(wr_.bottom()-wr_.top());
     const double xpos = viewrect.left()-xscale*wr_.left();
@@ -268,18 +267,6 @@ StepInterval<double> uiFlatViewer::posRange( bool forx1 ) const
 }
 
 
-StepInterval<double> uiFlatViewer::posRangeInView( bool forx1 ) const
-{
-    StepInterval<double> fullviewrg = posRange( forx1 );
-    if ( mIsZero(fullviewrg.width(),mDefEps) )
-	return fullviewrg;
-    Interval<double> curviewrg( forx1 ? wr_.left() : wr_.top(),
-				forx1 ? wr_.right() : wr_.bottom() );
-    fullviewrg.limitTo( curviewrg );
-    return fullviewrg;
-}
-
-
 void uiFlatViewer::setView( const uiWorldRect& wr )
 {
     if ( wr.topLeft() == wr.bottomRight() )
@@ -345,44 +332,36 @@ void uiFlatViewer::updateBitmapCB( CallBacker* )
 }
 
 
-bool uiFlatViewer::isAnnotInInt( const char* annotnm ) const
-{
-    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
-    return fdp ? fdp->isAltDim0InInt( annotnm ) : false;
-}
-
-
 int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 {
     ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
     if ( fdp )
 	fdp->getAltDim0Keys( bss );
     if ( !bss.isEmpty() )
-	bss.addIfNew( appearance().annot_.x1_.name_ );
-    if ( !mIsUdf(axesdrawer_.altdim0_ ) )
-	return axesdrawer_.altdim0_;
+	bss.addIfNew( fdp->dimName(true) );
 
     const int res = bss.indexOf( appearance().annot_.x1_.name_ );
     return res<0 ? mUdf(int) : res;
-
 }
 
 
 void uiFlatViewer::setAnnotChoice( int sel )
 {
-    BufferStringSet choices; getAnnotChoices( choices );
-    if ( !choices.validIdx(sel) )
-	return;
+    ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
+    if ( !fdp ) return;
 
-    const BufferString& selannotnm = choices.get( sel );
-    FlatView::Annotation::AxisData& x1axdata = appearance().annot_.x1_;
-    if ( selannotnm == x1axdata.name_ )
+    FlatView::Annotation::AxisData& x1axisdata = appearance().annot_.x1_;
+    BufferStringSet altdim0keys; fdp->getAltDim0Keys( altdim0keys );
+    if ( !altdim0keys.validIdx(sel) )
+    {
+	x1axisdata.name_ = fdp->dimName( true );
+	axesdrawer_.altdim0_ = mUdf(int);
 	return;
+    }
 
-    appearance().annot_.x1_.name_ = selannotnm;
-    const bool isannotinint = isAnnotInInt( selannotnm );
-    appearance().annot_.x1_.annotinint_ = isannotinint;
-    axesdrawer_.setAnnotInInt( true, isannotinint );
+    x1axisdata.name_ = altdim0keys.get( sel );
+    x1axisdata.annotinint_ = fdp->isAltDim0InInt( x1axisdata.name_ );
+    axesdrawer_.setAnnotInInt( true, x1axisdata.annotinint_ );
     axesdrawer_.altdim0_ = sel;
 }
 
@@ -458,5 +437,4 @@ void uiFlatViewer::setSelDataRanges( Interval<double> xrg,Interval<double> yrg)
     yseldatarange_ = yrg;
     viewChanged.trigger();
 }
-
 

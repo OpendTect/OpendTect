@@ -227,7 +227,6 @@ void FlatView::Annotation::fillPar( IOPar& iop ) const
     mIOPDoAxes( set, sKey::Color(), color_ );
     mIOPDoAxes( set, sKeyX1Sampl(), x1_.sampling_ );
     mIOPDoAxes( set, sKeyX2Sampl(), x2_.sampling_ );
-    mIOPDoAxes2( set, sKey::Name(), x1_.name_, x2_.name_ );
     mIOPDoAxes2( setYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
     mIOPDoAxes2(setYN,sKeyShwGridLines(),x1_.showgridlines_,x2_.showgridlines_);
     mIOPDoAxes2( setYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
@@ -240,7 +239,6 @@ void FlatView::Annotation::usePar( const IOPar& iop )
     mIOPDoAxes( get, sKey::Color(), color_ );
     mIOPDoAxes( get, sKeyX1Sampl(), x1_.sampling_ );
     mIOPDoAxes( get, sKeyX2Sampl(), x2_.sampling_ );
-    mIOPDoAxes2( get, sKey::Name(), x1_.name_, x2_.name_ );
     mIOPDoAxes2( getYN, sKeyShwAnnot(), x1_.showannot_, x2_.showannot_ );
     mIOPDoAxes2( getYN, sKeyShwGridLines(),x1_.showgridlines_,
 		 x2_.showgridlines_);
@@ -638,13 +636,13 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
     if ( usedefs )
 	useStoredDefaults( fdp->category() );
 
-    BufferStringSet altdimnms;
-    fdp->getAltDim0Keys( altdimnms );
     FlatView::Annotation& annot = appearance().annot_;
     if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == "X1" )
     {
-	const int selannot = altdimnms.indexOf( fdp->dimName( true ) );
-	if ( selannot>=0 )
+	annot.x1_.name_ = fdp->dimName( true );
+	BufferStringSet altdimnms; fdp->getAltDim0Keys( altdimnms );
+	const int selannot = altdimnms.indexOf( annot.x1_.name_ );
+	if ( selannot >= 0 )
 	    setAnnotChoice( selannot );
     }
     if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )

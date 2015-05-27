@@ -105,7 +105,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	if ( setup_.isvertical_ )
 	    Settings::common().get( sKeyVW2DZPerCM(), defx2pospercm_ );
 	else
-	    defx1pospercm_ = defx2pospercm_;
+	    defx2pospercm_ = defx1pospercm_;
     }
 
     uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left

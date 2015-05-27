@@ -237,6 +237,7 @@ TrcKeyZSampling DataCubes::cubeSampling() const
 	res.hsamp_.stop_ = BinID( inlsampling_.atIndex(inlsz_-1),
 			      crlsampling_.atIndex(crlsz_-1) );
 	res.hsamp_.step_ = BinID( inlsampling_.step, crlsampling_.step );
+	res.hsamp_.survid_ = Survey::GM().default3DSurvID();
 
 	res.zsamp_.start = (float) (z0_ * zstep_);
 	res.zsamp_.stop = (float) ((z0_ + zsz_ - 1) * zstep_);

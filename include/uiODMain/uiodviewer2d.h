@@ -113,11 +113,9 @@ public:
 				{ return viewstdcontrol_; }
     uiSlicePos2DView*		slicePos()
 				{ return slicepos_; }
-    uiODMain&			appl_;
 
     int				id_; /*!<Unique identifier */
     int				visid_; /*!<ID from 3D visualization */
-    BufferString		basetxt_;
 
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
@@ -150,6 +148,8 @@ protected:
     FlatView::AuxData*		marker_;
     ZAxisTransform*		datatransform_;
     TrcKeyZSampling		tkzs_;
+    BufferString		basetxt_;
+    uiODMain&			appl_;
 
     uiWorldPoint		initialcentre_;
     float			initialx1pospercm_;
@@ -172,7 +172,6 @@ protected:
     void			rebuildTree();
 
     void			winCloseCB(CallBacker*);
-    void			winPoppedUpCB(CallBacker*);
     void			posChg(CallBacker*);
     void			selectionMode(CallBacker*);
     void			handleToolClick(CallBacker*);

@@ -63,6 +63,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , tifs_(0)
     , treetp_(0)
     , polyseltbid_(-1)
+    , basetxt_("2D Viewer - ")
     , initialcentre_(uiWorldPoint::udf())
     , initialx1pospercm_(mUdf(float))
     , initialx2pospercm_(mUdf(float))
@@ -199,12 +200,6 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	if ( tkzs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
     }
 
-    if ( slicepos_ )
-    {
-	slicepos_->getToolBar()->display( tkzs_.isFlat() );
-	slicepos_->setTrcKeyZSampling( tkzs_ );
-    }
-
     setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
 
     //updating stuff
@@ -320,6 +315,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	if ( needslicepos )
 	{
 	    slicepos_ = new uiSlicePos2DView( fvmw );
+	    slicepos_->setTrcKeyZSampling( tkzs_ );
 	    mAttachCB( slicepos_->positionChg, uiODViewer2D::posChg );
 	}
 
@@ -692,15 +688,12 @@ void uiODViewer2D::removeSelected( CallBacker* cb )
 	return;
 
     for ( int edidx=0; edidx<auxdataeditors_.size(); edidx++ )
-    {
 	auxdataeditors_[edidx]->removePolygonSelected( -1 );
-    }
 }
 
 
 void uiODViewer2D::setWinTitle( bool fromcs )
 {
-    basetxt_ = "2D Viewer - ";
     BufferString info;
     if ( !fromcs )
     {
@@ -724,7 +717,9 @@ void uiODViewer2D::setWinTitle( bool fromcs )
 	}
     }
 
-    basetxt_ += info; if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );
+    info.insertAt( 0, basetxt_ );
+    if ( viewwin() )
+	viewwin()->setWinTitle( info );
 }
 
 

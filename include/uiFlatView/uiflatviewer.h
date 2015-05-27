@@ -39,7 +39,6 @@ public:
 
     void		setInitialSize(const uiSize&);
 
-    bool		isAnnotInInt(const char* annotnm) const;
     int			getAnnotChoices(BufferStringSet&) const;
     void		setAnnotChoice(int);
 
@@ -51,7 +50,6 @@ public:
     const uiWorldRect&	curView() const			{ return wr_; }
     			/*!<May be reversed if display is reversed. */
     StepInterval<double> posRange(bool forx1) const;
-    StepInterval<double> posRangeInView(bool forx1) const;
     uiWorldRect		boundingBox() const;
 
     const uiWorld2Ui&	getWorld2Ui() const		{ return w2ui_; }

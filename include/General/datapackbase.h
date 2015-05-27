@@ -220,6 +220,8 @@ public:
 				{ return arrays_.validIdx( comp ); }
     const char*			getComponentName(int comp=0) const;
 
+    static const char*		categoryStr(bool isvertical,bool is2d);
+
     const Array3DImpl<float>&	data(int component=0) const;
     Array3DImpl<float>&		data(int component=0);
 
@@ -229,6 +231,10 @@ public:
 
     void			setScale(int comp,const SamplingData<float>&);
     const SamplingData<float>&	getScale(int comp) const;
+
+    void			setRefNrs( const TypeSet<float>& refnrs )
+				{ refnrs_ = refnrs; }
+    float			getRefNr(int globaltrcidx) const;
 
     const BinDataDesc&		getDataDesc() const	{ return desc_; }
 
@@ -242,6 +248,7 @@ protected:
     BufferStringSet			componentnames_;
     ObjectSet<Array3DImpl<float> >	arrays_;
     TypeSet<SamplingData<float> >	scales_;
+    TypeSet<float>			refnrs_;
     ZDomain::Info*			zdomaininfo_;
     BinDataDesc				desc_;
 };

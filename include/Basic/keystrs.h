@@ -36,6 +36,7 @@ namespace sKey
     inline FixedString All()		{ return "All"; }
     inline FixedString Ascii()		{ return "Ascii"; }
     inline FixedString Attribute()	{ return "Attribute"; }
+    inline FixedString Attribute2D()	{ return "Attribute2D"; }
     inline FixedString Attributes()	{ return "Attributes"; }
     inline FixedString Azimuth()	{ return "Azimuth"; }
     inline FixedString Binary()		{ return "Binary"; }
@@ -128,6 +129,7 @@ namespace sKey
     inline FixedString XCoord()		{ return "X-Coord"; }
     inline FixedString YCoord()		{ return "Y-Coord"; }
     inline FixedString Yes()		{ return "Yes"; }
+    inline FixedString ZCoord()		{ return "Z-Coord"; }
     inline FixedString ZRange()		{ return "Z range"; }
     inline FixedString ZSlice()		{ return "Z-slice"; }
 

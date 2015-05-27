@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigapdeconattrib.h"
 #include "gapdeconattrib.h"
 
-#include "attribparam.h"
 #include "attribsel.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -22,18 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribfactory.h"
 #include "attribdatacubes.h"
 #include "attribdataholder.h"
-#include "attribdatapack.h"
-#include "arrayndimpl.h"
 #include "flatposdata.h"
-#include "ptrman.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "uitaskrunner.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimsg.h"
-
-using namespace Attrib;
 
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
@@ -110,13 +105,6 @@ EngineMan* GapDeconACorrView::createEngineMan()
 }
 
 
-#define mCreateFD2DDataPack(fddatapack) \
-{ \
-    fddatapack = new Attrib::Flat2DDHDataPack(attribid_,*correctd2dh,geomid_); \
-    fddatapack->setName( "autocorrelation" ); \
-    DPM(DataPackMgr::FlatID()).add( fddatapack ); \
-}
-
 void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 {
     RefMan<Attrib::Data2DHolder> correctd2dh = new Attrib::Data2DHolder();
@@ -136,59 +124,58 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 	//now we have to go back to the user specified sampling
 	float zstep = correctd2dh.ptr()->trcinfoset_[0]->sampling.step;
 	for ( int idx=0; idx<correctd2dh.ptr()->dataset_.size(); idx++ )
-	    correctd2dh.ptr()->dataset_[idx]->z0_=mNINT32(tkzs_.zsamp_.start/zstep);
+	    correctd2dh.ptr()->dataset_[idx]->z0_
+			= mNINT32(tkzs_.zsamp_.start/zstep);
     }
 
-    if ( isqc )
-	mCreateFD2DDataPack(fddatapackqc_)
-    else
-	mCreateFD2DDataPack(fddatapackexam_)
+    FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
+    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
+	    				SeisDataPack::categoryStr(true,true) );
+    regsdp->setSampling( d2dh.getTrcKeyZSampling() );
+    regsdp->addComponent( "autocorrelation" );
+    mDeclareAndTryAlloc(
+	    ConstRefMan<Data2DArray>,d2darr,Data2DArray(*correctd2dh));
+    if ( d2darr )
+	regsdp->data( 0 ) = *d2darr->dataset_;
+    fdp = new RegularFlatDataPack( *regsdp, 0 );
+    DPM(DataPackMgr::FlatID()).add( fdp );
 }
 
-
-#define mCreateFD3DDataPack(fddatapack) \
-{ \
-    fddatapack = new Attrib::Flat3DDataPack( attribid_, *correctoutput, 0 ); \
-    fddatapack->setName( "autocorrelation" ); \
-    DPM(DataPackMgr::FlatID()).add( fddatapack ); \
-}
 
 void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 					    Processor* proc )
 {
-    const Attrib::DataCubes* output = aem->getDataCubesOutput( *proc );
-    if ( !output )
-	return;
+    ConstRefMan<Attrib::DataCubes> output = aem->getDataCubesOutput( *proc );
+    if ( !output ) return;
 
-    output->ref();
     bool csmatchessurv = SI().zRange(0).includes(tkzs_.zsamp_.start, false )
 			&& SI().zRange(0).includes(tkzs_.zsamp_.stop, false );
     //if we previously 'faked' a 'normal' cubesampling for the attribute engine
     //we now have to go back to the user specified sampling
     TrcKeyZSampling cs = csmatchessurv ? output->cubeSampling() : tkzs_;
-    Attrib::DataCubes* correctoutput = new Attrib::DataCubes();
-    correctoutput->ref();
+    RefMan<Attrib::DataCubes> correctoutput = new Attrib::DataCubes();
     correctoutput->setSizeAndPos( cs );
     while ( correctoutput->nrCubes() < output->nrCubes() )
 	correctoutput->addCube();
-
     for ( int idx=0; idx<output->nrCubes(); idx++ )
 	correctoutput->setCube(idx, output->getCube(idx) );
-
-    if ( isqc )
-	mCreateFD3DDataPack(fddatapackqc_)
-    else
-	mCreateFD3DDataPack(fddatapackexam_)
-
-    output->unRef();
-    correctoutput->unRef();
+    
+    FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
+    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
+	    			SeisDataPack::categoryStr(true,false) );
+    regsdp->setSampling( correctoutput->cubeSampling() );
+    regsdp->addComponent( "autocorrelation" );
+    regsdp->data( 0 ) = correctoutput->getCube( 0 );
+    fdp = new RegularFlatDataPack( *regsdp, 0 );
+    DPM(DataPackMgr::FlatID()).add( fdp );
 }
 
 
 void GapDeconACorrView::setUpViewWin( bool isqc )
 {
     FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
-    StepInterval<double> newrg( 0, tkzs_.zsamp_.stop-tkzs_.zsamp_.start, tkzs_.zsamp_.step );
+    const StepInterval<double> newrg(
+	    0, tkzs_.zsamp_.stop-tkzs_.zsamp_.start, tkzs_.zsamp_.step );
     dp->posData().setRange( false, newrg );
 
     uiFlatViewMainWin*& fvwin = isqc ? qcwin_ : examwin_;
@@ -224,8 +211,6 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 
 void GapDeconACorrView::setDescSet( Attrib::DescSet* ds )
 {
-    if ( dset_ )
-	delete dset_;
-
+    delete dset_;
     dset_ = ds;
 }

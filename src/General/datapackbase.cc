@@ -483,6 +483,21 @@ const char* SeisDataPack::getComponentName( int component ) const
 }
 
 
+const char* SeisDataPack::categoryStr( bool isvertical, bool is2d )
+{
+    mDeclStaticString( vret );
+    vret = IOPar::compKey( is2d ? sKey::Attribute2D() : sKey::Attribute(), "V");
+    return isvertical ? vret.str() : (is2d ? sKey::Attribute2D().str()
+					   : sKey::Attribute().str());
+}
+
+
+float SeisDataPack::getRefNr( int globaltrcidx ) const
+{
+    return refnrs_.validIdx(globaltrcidx) ? refnrs_[globaltrcidx] : mUdf(float);
+}
+
+
 void SeisDataPack::setZDomain( const ZDomain::Info& zinf )
 {
     delete zdomaininfo_;
