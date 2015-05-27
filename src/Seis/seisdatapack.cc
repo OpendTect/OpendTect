@@ -13,9 +13,7 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
-#include "bufstringset.h"
 #include "flatposdata.h"
-#include "seisinfo.h"
 #include "survinfo.h"
 
 #include <limits.h>
@@ -95,13 +93,24 @@ bool RandomSeisDataPack::addComponent( const char* nm )
 }
 
 
+int RandomSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
+{ return path_.indexOf( tk ); }
 
+
+#define mKeyInl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl)
+#define mKeyCrl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl)
+#define mKeyCoordX	SeisTrcInfo::getFldString(SeisTrcInfo::CoordX)
+#define mKeyCoordY	SeisTrcInfo::getFldString(SeisTrcInfo::CoordY)
+#define mKeyTrcNr	SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr)
+#define mKeyRefNr	SeisTrcInfo::getFldString(SeisTrcInfo::RefNr)
+
+// SeisFlatDataPack
 SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source,int comp)
-    : FlatDataPack("")
+    : FlatDataPack(source.category())
     , source_(source)
     , comp_(comp)
 {
-    DPM(DataPackMgr::SeisID()).obtain( source_.id() );
+    DPM(DataPackMgr::SeisID()).addAndObtain(const_cast<SeisDataPack*>(&source));
     setName( source_.getComponentName(comp_) );
 }
 
@@ -115,26 +124,51 @@ SeisFlatDataPack::~SeisFlatDataPack()
 bool SeisFlatDataPack::isAltDim0InInt( const char* keystr ) const
 {
     const FixedString key( keystr );
-    return key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl) ||
-	   key == SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl) ||
-	   key == SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr);
+    return key==mKeyInl || key==mKeyCrl || key==mKeyTrcNr;
+}
+
+
+void SeisFlatDataPack::getAltDim0Keys( BufferStringSet& keys ) const
+{
+    for ( int idx=0; idx<tiflds_.size(); idx++ )
+	keys.add( SeisTrcInfo::getFldString(tiflds_[idx]) );
+}
+
+
+double SeisFlatDataPack::getAltDim0Value( int ikey, int i0 ) const
+{
+    switch ( tiflds_[ikey] )
+    {
+	case SeisTrcInfo::BinIDInl:	return SI().transform(
+						getCoord(i0,0)).inl();
+	case SeisTrcInfo::BinIDCrl:	return SI().transform(
+						getCoord(i0,0)).crl();
+	case SeisTrcInfo::CoordX:	return getCoord(i0,0).x;
+	case SeisTrcInfo::CoordY:	return getCoord(i0,0).y;
+	case SeisTrcInfo::TrcNr:	return getPath()[i0].trcNr();
+	case SeisTrcInfo::RefNr:	return source_.getRefNr(i0);
+	default:			return posdata_.position(true,i0);
+    }
 }
 
 
 void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     const Coord3 crd = getCoord( i0, i1 );
-    iop.set( "X-coordinate", crd.x );
-    iop.set( "Y-coordinate", crd.y );
-    iop.set( "Z-Coord", crd.z*SI().zDomain().userFactor() );
+    iop.set( mKeyCoordX, crd.x );
+    iop.set( mKeyCoordY, crd.y );
+    iop.set( sKey::ZCoord(), crd.z*SI().zDomain().userFactor() );
 
     if ( is2D() )
-	iop.set( sKey::TraceNr(), getTrcKey(i0).trcNr() );
+    {
+	iop.set( mKeyTrcNr, getPath()[i0].trcNr() );
+	iop.set( mKeyRefNr, source_.getRefNr(i0) );
+    }
     else
     {
 	const BinID bid = SI().transform( crd );
-	iop.set( "Inline", bid.inl() );
-	iop.set( "Crossline", bid.crl() );
+	iop.set( mKeyInl, bid.inl() );
+	iop.set( mKeyCrl, bid.crl() );
     }
 }
 
@@ -146,6 +180,9 @@ float SeisFlatDataPack::nrKBytes() const
 
 
 
+#define mIsStraight ((getTrcKey(0).distTo(getTrcKey(nrTrcs()-1))/ \
+	posdata_.position(true,nrTrcs()-1))>0.99)
+
 RegularFlatDataPack::RegularFlatDataPack(
 		const RegularSeisDataPack& source, int comp )
     : SeisFlatDataPack(source,comp)
@@ -153,13 +190,7 @@ RegularFlatDataPack::RegularFlatDataPack(
     , dir_(sampling_.defaultDir())
 {
     setSourceData();
-}
-
-
-bool RegularFlatDataPack::is2D() const
-{
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,&source_);
-    return regsdp && regsdp->is2D();
+    setTrcInfoFlds();
 }
 
 
@@ -172,20 +203,34 @@ Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
 }
 
 
-void RegularFlatDataPack::getAltDim0Keys( BufferStringSet& keys ) const
+void RegularFlatDataPack::setTrcInfoFlds()
 {
     if ( is2D() )
-	keys.add( SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr) );
+    {
+	tiflds_ += SeisTrcInfo::TrcNr;
+	tiflds_ += SeisTrcInfo::RefNr;
+    }
     else
     {
 	if ( dir_ == TrcKeyZSampling::Crl )
-	    keys.add( SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl) );
+	    tiflds_ += SeisTrcInfo::BinIDInl;
 	else if ( dir_ == TrcKeyZSampling::Inl )
-	    keys.add( SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl) );
+	    tiflds_ += SeisTrcInfo::BinIDCrl;
     }
 
-    keys.add( SeisTrcInfo::getFldString(SeisTrcInfo::CoordX) );
-    keys.add( SeisTrcInfo::getFldString(SeisTrcInfo::CoordY) );
+    if ( is2D() && !mIsStraight )
+	return;
+
+    tiflds_ += SeisTrcInfo::CoordX;
+    tiflds_ += SeisTrcInfo::CoordY;
+}
+
+
+const char* RegularFlatDataPack::dimName( bool dim0 ) const
+{
+    if ( is2D() ) return dim0 ? "Distance" : "Z";
+    return dim0 ? (dir_==TrcKeyZSampling::Inl ? mKeyCrl : mKeyInl)
+		: (dir_==TrcKeyZSampling::Z ? mKeyCrl : "Z");
 }
 
 
@@ -251,6 +296,7 @@ RandomFlatDataPack::RandomFlatDataPack(
     , zsamp_(source.getZRange())
 {
     setSourceData();
+    setTrcInfoFlds();
 }
 
 
@@ -259,6 +305,18 @@ Coord3 RandomFlatDataPack::getCoord( int i0, int i1 ) const
     const Coord coord = path_.validIdx(i0) ? Survey::GM().toCoord(path_[i0])
 					   : Coord::udf();
     return Coord3( coord, zsamp_.atIndex(i1) );
+}
+
+
+void RandomFlatDataPack::setTrcInfoFlds()
+{
+    if ( !mIsStraight )
+	return;
+
+    tiflds_ +=	SeisTrcInfo::BinIDInl;
+    tiflds_ +=	SeisTrcInfo::BinIDCrl;
+    tiflds_ +=	SeisTrcInfo::CoordX;
+    tiflds_ +=	SeisTrcInfo::CoordY;
 }
 
 

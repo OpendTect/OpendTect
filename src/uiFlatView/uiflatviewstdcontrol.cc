@@ -105,7 +105,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	if ( setup_.isvertical_ )
 	    Settings::common().get( sKeyVW2DZPerCM(), defx2pospercm_ );
 	else
-	    defx1pospercm_ = defx2pospercm_;
+	    defx2pospercm_ = defx1pospercm_;
     }
 
     uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left
@@ -335,16 +335,16 @@ void uiFlatViewStdControl::pinchZoomCB( CallBacker* cb )
     const GestureEvent* gevent = evh->getPinchEventInfo();
     if ( !gevent )
 	return;
-   
+
     uiFlatViewer& vwr = *vwrs_[0];
     const Geom::Size2D<double> cursz = vwr.curView().size();
     const float scalefac = gevent->scale();
-    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac), 
+    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac),
 				cursz.height() * (1/scalefac) );
     Geom::Point2D<double> pos = vwr.getWorld2Ui().transform( gevent->pos() );
 
     const uiWorldRect wr = getZoomOrPanRect( pos, newsz, vwr.curView(),
-	    				     vwr.boundingBox() );
+					     vwr.boundingBox() );
     vwr.setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )
@@ -553,7 +553,7 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     newwr.translate( startwpt-curwpt );
 
     newwr = getZoomOrPanRect( newwr.centre(), newwr.size(), newwr,
-	    		      vwr->boundingBox() );
+			      vwr->boundingBox() );
     vwr->setView( newwr );
 }
 
@@ -606,7 +606,7 @@ void uiFlatViewStdControl::dragModeCB( CallBacker* cb )
 	vwrs_[idx]->rgbCanvas().setDragMode( mode );
 	vwrs_[idx]->setCursor( cursor );
 	vwrs_[idx]->appearance().annot_.editable_ = iseditmode &&
-	   				!vwrs_[idx]->hasZAxisTransform();
+					!vwrs_[idx]->hasZAxisTransform();
 	// TODO: Change while enabling tracking in Z-transformed 2D Viewers.
     }
 

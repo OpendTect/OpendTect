@@ -14,13 +14,8 @@ ________________________________________________________________________
 
 #include "seismod.h"
 
-#include "bindatadesc.h"
 #include "datapackbase.h"
-#include "trckeyzsampling.h"
-
-template <class T> class Array3DImpl;
-
-namespace ZDomain { class Info; }
+#include "seisinfo.h"
 
 /*!
 \brief SeisDataPack for 2D and 3D seismic data.
@@ -43,13 +38,12 @@ public:
     int				nrTrcs() const
 				{ return (int)sampling_.hsamp_.totalNr(); }
     TrcKey			getTrcKey(int globaltrcidx) const;
-    int				getGlobalIdx(const TrcKey& tk) const;
+    int				getGlobalIdx(const TrcKey&) const;
 
     virtual void		dumpInfo(IOPar&) const;
 
     const StepInterval<float>&	getZRange() const
 				{ return sampling_.zsamp_; }
-
 
 protected:
 
@@ -67,10 +61,10 @@ public:
 				RandomSeisDataPack(const char* cat,
 						   const BinDataDesc* bdd=0);
 
+    bool			is2D() const		{ return false; }
     int				nrTrcs() const		{ return path_.size(); }
     TrcKey			getTrcKey(int trcidx) const;
-    int				getGlobalIdx( const TrcKey& tk ) const
-				{ return path_.indexOf( tk ); }
+    int				getGlobalIdx(const TrcKey&) const;
 
     const StepInterval<float>&	getZRange() const	{ return zsamp_; }
     void			setZRange( const StepInterval<float>& zrg )
@@ -105,15 +99,17 @@ public:
 				{ return source_.getTrcKey(trcidx); }
     const SeisDataPack&		getSourceDataPack() const
 				{ return source_; }
+    bool			is2D() const
+				{ return source_.is2D(); }
 
     virtual bool		isVertical() const			= 0;
-    virtual bool		is2D() const				= 0;
-
     virtual const TrcKeyPath&	getPath() const				= 0;
 				//!< Will be empty if isVertical() is false.
 				//!< Example: Timeslices.
 
     bool			isAltDim0InInt(const char* keystr) const;
+    void			getAltDim0Keys(BufferStringSet&) const;
+    double			getAltDim0Value(int ikey,int i0) const;
     void			getAuxInfo(int i0,int i1,IOPar&) const;
 
     const ZDomain::Info&	zDomain() const
@@ -125,9 +121,12 @@ protected:
 				SeisFlatDataPack(const SeisDataPack&,int comp);
 
     virtual void		setSourceData()				= 0;
+    virtual void		setTrcInfoFlds()			= 0;
 
     const SeisDataPack&		source_;
     int				comp_;
+
+    TypeSet<SeisTrcInfo::Fld>	tiflds_;
 };
 
 
@@ -143,18 +142,17 @@ public:
 
     bool			isVertical() const
 				{ return dir_ != TrcKeyZSampling::Z; }
-    bool			is2D() const;
-
     const TrcKeyPath&		getPath() const		{ return path_; }
 
     const TrcKeyZSampling&	sampling() const	{ return sampling_; }
     Coord3			getCoord(int i0,int i1) const;
 
-    void			getAltDim0Keys(BufferStringSet&) const;
+    const char*			dimName(bool dim0) const;
 
 protected:
 
     void			setSourceData();
+    void			setTrcInfoFlds();
 
     TrcKeyPath			path_;
     const TrcKeyZSampling&	sampling_;
@@ -173,16 +171,18 @@ public:
 					const RandomSeisDataPack&,int comp);
 
     bool			isVertical() const	{ return true; }
-    bool			is2D() const		{ return false; }
-
     const TrcKeyPath&		getPath() const		{ return path_; }
 
     const StepInterval<float>&	getZRange() const	{ return zsamp_; }
     Coord3			getCoord(int i0,int i1) const;
 
+    const char*			dimName( bool dim0 ) const
+				{ return dim0 ? "Distance" : "Z"; }
+
 protected:
 
     void			setSourceData();
+    void			setTrcInfoFlds();
 
     const TrcKeyPath&		path_;
     const StepInterval<float>&	zsamp_;

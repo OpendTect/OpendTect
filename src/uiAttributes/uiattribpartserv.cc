@@ -623,10 +623,10 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     const DataCubes* output = createOutput( tkzs, cache );
     if ( !output || !output->nrCubes() )  return DataPack::cNoID();
 
-    RegularSeisDataPack* newpack = new RegularSeisDataPack( "" );
-    TrcKeyZSampling sampling = output->cubeSampling();
-    sampling.hsamp_.survid_ = Survey::GM().default3DSurvID();
-    newpack->setSampling( sampling );
+    const char* category = SeisDataPack::categoryStr(
+					tkzs.isFlat() && tkzs.nrZ()!=1, false );
+    RegularSeisDataPack* newpack = new RegularSeisDataPack( category );
+    newpack->setSampling( output->cubeSampling() );
     for ( int idx=0; idx<output->nrCubes(); idx++ )
     {
 	newpack->addComponent( targetspecs_[idx].userRef() );
@@ -878,7 +878,8 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
     for ( int idx=0; idx<path->size(); idx++ )
 	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
 				       (*path)[idx].inl(), (*path)[idx].crl() );
-    RandomSeisDataPack* newpack = new RandomSeisDataPack( "" );
+    RandomSeisDataPack* newpack = new RandomSeisDataPack(
+					SeisDataPack::categoryStr(true,false) );
     newpack->setPath( trckeys );
     newpack->setZRange( output.get(0)->zRange() );
     for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
@@ -974,7 +975,8 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     TrcKeyZSampling sampling = data2darr->cubesampling_;
     sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid;
     sampling.hsamp_.survid_ = Survey::GM().get2DSurvID();
-    RegularSeisDataPack* newpack = new RegularSeisDataPack( "" );
+    RegularSeisDataPack* newpack = new RegularSeisDataPack(
+					SeisDataPack::categoryStr(true,true) );
     newpack->setSampling( sampling );
 
     Array2DSlice<float> arr2dslice( *data2darr->dataset_ );
@@ -994,6 +996,11 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 	newpack->data( idx ) = arr3d;
     }
 
+    TypeSet<float> refnrs;
+    for ( int idx=0; idx<data2darr->trcinfoset_.size(); idx++ )
+	refnrs += data2darr->trcinfoset_[idx]->refnr;
+
+    newpack->setRefNrs( refnrs );
     newpack->setZDomain(
 	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
     newpack->setName( targetspecs_[0].userRef() );
