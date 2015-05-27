@@ -424,10 +424,26 @@ void uiGraphicsSceneAxisMgr::setAuxAnnotPositions(
 }
 
 
-void uiGraphicsSceneAxisMgr::showAuxPositions( bool forx, bool yn )
+void uiGraphicsSceneAxisMgr::setAuxLineStyle( bool forx, const LineStyle& ls )
 {
     if ( forx )
-	xaxis_->setup().showauxpos( yn );
+	xaxis_->setup().auxlinestyle_ = ls;
     else
-	yaxis_->setup().showauxpos( yn );
+	yaxis_->setup().auxlinestyle_ = ls;
+}
+
+
+void uiGraphicsSceneAxisMgr::showAuxPositions( bool forx, bool showpos,
+					       bool showline )
+{
+    if ( forx )
+    {
+	xaxis_->setup().showauxpos( showpos );
+	xaxis_->setup().showauxline( showline );
+    }
+    else
+    {
+	yaxis_->setup().showauxpos( showpos );
+	yaxis_->setup().showauxline( showline );
+    }
 }

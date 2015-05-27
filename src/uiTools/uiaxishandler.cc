@@ -27,7 +27,8 @@ static const float logof2 = logf(2);
     , nameitm_(0) \
     , annotlineitmgrp_(0) \
     , auxposlineitmgrp_(0) \
-    , auxpostxtitmgrp_(0)
+    , auxpostxtitmgrp_(0) \
+    , auxposgridlineitmgrp_(0)
 
 uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
 			      const uiAxisHandler::Setup& su )
@@ -58,6 +59,8 @@ uiAxisHandler::~uiAxisHandler()
     if ( gridlineitmgrp_ ) delete scene_->removeItem( gridlineitmgrp_ );
     if ( auxpostxtitmgrp_ ) delete scene_->removeItem( auxpostxtitmgrp_ );
     if ( auxposlineitmgrp_ ) delete scene_->removeItem( auxposlineitmgrp_ );
+    if ( auxposgridlineitmgrp_ )
+	delete scene_->removeItem( auxposgridlineitmgrp_ );
 }
 
 
@@ -410,8 +413,8 @@ void uiAxisHandler::updateAnnotations()
 	const float auxpos = auxpos_[idx].pos_;
 	if ( !rg_.includes(auxpos,rgisrev_) )
 	    continue;
-	drawAnnotAtPos( getPix(auxpos), auxpos_[idx].name_, setup_.style_, true,
-			auxpos_[idx].isbold_ );
+	drawAnnotAtPos( getPix(auxpos), auxpos_[idx].name_,
+			setup_.auxlinestyle_, true, auxpos_[idx].isbold_ );
     }
 }
 
@@ -451,9 +454,29 @@ void uiAxisHandler::updateGridLines()
 	}
     }
     else if ( gridlineitmgrp_ )
-    {
 	gridlineitmgrp_->removeAll( true );
+
+    if ( setup_.showauxpos_ && setup_.showauxline_)
+    {
+	if ( !auxposgridlineitmgrp_ )
+	{
+	    auxposgridlineitmgrp_ = new uiGraphicsItemGroup();
+	    scene_->addItemGrp( auxposgridlineitmgrp_ );
+	    auxposgridlineitmgrp_->setZValue( setup_.zval_ );
+	}
+	else
+	    auxposgridlineitmgrp_->removeAll( true );
+
+	for ( int idx=0; idx<auxpos_.size(); idx++ )
+	{
+	    const float auxpos = auxpos_[idx].pos_;
+	    if ( !rg_.includes(auxpos,rgisrev_) )
+		continue;
+	    drawGridLine( getPix(auxpos), true, auxpos_[idx].isbold_ );
+	}
     }
+    else if ( auxposgridlineitmgrp_ )
+	auxposgridlineitmgrp_->removeAll( true );
 }
 
 
@@ -713,13 +736,19 @@ void uiAxisHandler::drawAnnotAtPos( int pix, const uiString& txt,
 }
 
 
-void uiAxisHandler::drawGridLine( int pix )
+void uiAxisHandler::drawGridLine( int pix, bool isaux, bool isbold )
 {
     if ( setup_.nogridline_ ) return;
     uiLineItem* lineitem = getFullLine( pix );
-    lineitem->setPenStyle( setup_.gridlinestyle_ );
-    gridlineitmgrp_->add( lineitem );
-    gridlineitmgrp_->setVisible( setup_.style_.isVisible() );
+    LineStyle ls( !isaux ? setup_.gridlinestyle_ : setup_.auxlinestyle_ );
+    if ( isaux && isbold )
+	ls.width_ = 2;
+    lineitem->setPenStyle( ls );
+    uiGraphicsItemGroup* gridlineitmgrp =
+	!isaux ? gridlineitmgrp_ : auxposgridlineitmgrp_;
+    gridlineitmgrp->add( lineitem );
+    gridlineitmgrp->setVisible( !isaux ? setup_.style_.isVisible()
+				       : setup_.auxlinestyle_.isVisible() );
 }
 
 

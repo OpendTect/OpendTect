@@ -24,6 +24,7 @@ class uiCheckBox;
 class uiColorInput;
 class uiSelLineStyle;
 class uiColorTableGroup;
+class uiSelLineStyle;
     
 /*!
 \brief uiFlatViewer properties tabs.
@@ -202,8 +203,15 @@ protected:
 
 	uiCheckBox*	showannotfld_;
 	uiCheckBox*	showgridlinesfld_;
+	uiCheckBox*	showauxposfld_;
+	uiCheckBox*	showauxlinesfld_;
+	uiSelLineStyle* auxlinestylefld_;
+	uiLabel*	auxlblfld_;
 	uiCheckBox*	reversedfld_;
 	uiGenInput*	annotselfld_;
+
+	void		showAuxCheckedCB(CallBacker*);
+	void		showAuxLineCheckedCB(CallBacker*);
 
     };
 

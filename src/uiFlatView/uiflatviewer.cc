@@ -120,7 +120,9 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
 void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 {
     const FlatView::Annotation& annot = appearance().annot_;
-    axesdrawer_.showAuxPositions( true, !annot.x1_.auxposs_.isEmpty() );
+    axesdrawer_.setAuxLineStyle( true, annot.x1_.auxlinestyle_ );
+    axesdrawer_.showAuxPositions( true, annot.x1_.showauxpos_,
+				  annot.x1_.showauxlines_ );
     if ( !annot.x1_.auxposs_.isEmpty() )
     {
 	TypeSet<uiAxisHandler::AuxPosData> x1poss;
@@ -134,7 +136,9 @@ void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 	axesdrawer_.setAuxAnnotPositions( x1poss, true );
     }
 
-    axesdrawer_.showAuxPositions( false, !annot.x2_.auxposs_.isEmpty() );
+    axesdrawer_.setAuxLineStyle( false, annot.x2_.auxlinestyle_ );
+    axesdrawer_.showAuxPositions( false, annot.x2_.showauxpos_,
+				  annot.x2_.showauxlines_ );
     if ( !annot.x2_.auxposs_.isEmpty() )
     {
 	TypeSet<uiAxisHandler::AuxPosData> x2poss;

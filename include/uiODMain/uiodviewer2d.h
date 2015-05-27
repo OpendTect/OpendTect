@@ -105,6 +105,7 @@ public:
 				{ initialx1pospercm_ = val; }
     void			setInitialX2PosPerCM( float val )
 				{ initialx2pospercm_ = val; }
+    void			setUpAux();
 
     const uiFlatViewStdControl* viewControl() const
 				{ return viewstdcontrol_; }
