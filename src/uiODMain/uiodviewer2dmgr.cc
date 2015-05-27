@@ -92,6 +92,7 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
     FlatView::DataDispPars& ddp = fv.appearance().ddpars_;
     (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
     fv.handleChange( FlatView::Viewer::DisplayPars );
+    vwr2d->setUpAux();
     setAllIntersectionPositions();
     return vwr2d->id_;
 }
@@ -139,6 +140,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 	visServ().fillDispPars( visid, attribid, ddp, dowva );
 	visServ().fillDispPars( visid, attribid, ddp, !dowva );
 	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
+	vwr2d->setUpAux();
     }
 
     vwr.handleChange( FlatView::Viewer::DisplayPars );
@@ -168,7 +170,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
 	const StepInterval<double> x1rg = curvwr.posRange( true );
-	const float eps  = ((float)x1rg.step)*2.f;
+	const float eps  = ((float)x1rg.step)*5.f;
 	if ( curvwr.appearance().annot_.hasAuxPos(true,(float) wp.x,false,eps))
 	{
 	    intpoint2d = intersectingLineID( curvwr2d, (float) wp.x );
@@ -344,10 +346,10 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
     TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x2intposs =
 	vwr2d->viewwin()->viewer().appearance().annot_.x2_.auxposs_;
     x1intposs.erase(); x2intposs.erase();
-    reCalc2DIntersetionIfNeeded( vwr2d->geomID() );
 
     if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() ) 
     {
+	reCalc2DIntersetionIfNeeded( vwr2d->geomID() );
 	const int intscidx = intersection2DIdx( vwr2d->geomID() );
 	if ( intscidx<0 )
 	    return;
@@ -578,6 +580,7 @@ void uiODViewer2DMgr::viewWinClosedCB( CallBacker* cb )
     mDynamicCastGet( uiODViewer2D*, vwr2d, cb );
     if ( vwr2d )
 	remove2DViewer( vwr2d->id_, false );
+    setAllIntersectionPositions();
 }
 
 

@@ -144,6 +144,10 @@ public:
 	bool			reversed_;
 	bool			annotinint_;
 	int			factor_;
+	bool			showauxpos_;
+	bool			showauxlines_;
+	uiString		auxlabel_;
+	LineStyle		auxlinestyle_;
 	TypeSet<AuxPosition>	auxposs_;
 	bool			hasAuxPos(float pos,bool bld,float eps) const;
 

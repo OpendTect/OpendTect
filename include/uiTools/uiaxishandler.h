@@ -64,6 +64,8 @@ public:
 			    , nogridline_(false)
 			    , noannotpos_(false)
 			    , showauxpos_(false)
+			    , showauxline_(false)
+			    , auxlinestyle_(LineStyle(LineStyle::Dot))
 			    , annotinside_(false)
 			    , annotinint_(false)
 			    , fixedborder_(false)
@@ -90,10 +92,12 @@ public:
 	mDefSetupMemb(bool,annotinint)
 	mDefSetupMemb(bool,fixedborder)
 	mDefSetupMemb(bool,showauxpos)
+	mDefSetupMemb(bool,showauxline)
 	mDefSetupMemb(int,ticsz)
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
 	mDefSetupMemb(LineStyle,gridlinestyle)
+	mDefSetupMemb(LineStyle,auxlinestyle)
 	mDefSetupMemb(uiString,caption)
 	mDefSetupMemb(int,maxnrchars)
 	mDefSetupMemb(float,epsaroundzero)
@@ -185,6 +189,7 @@ protected:
     uiGraphicsItemGroup* annotlineitmgrp_;
     uiGraphicsItemGroup* auxposlineitmgrp_;
     uiGraphicsItemGroup* auxpostxtitmgrp_;
+    uiGraphicsItemGroup* auxposgridlineitmgrp_;
 
     Setup		setup_;
     bool		islog_;
@@ -214,7 +219,7 @@ protected:
 
     int			ticSz() const;
     void		updateAxisLine();
-    void		drawGridLine(int);
+    void		drawGridLine(int,bool aux=false,bool isbold=false);
     void		drawAnnotAtPos(int,const uiString&,const LineStyle&,
 	    			       bool aux=false, bool bold=false);
     void		updateName();

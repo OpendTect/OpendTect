@@ -175,6 +175,7 @@ FlatView::Annotation::AxisData::AxisData()
     , showgridlines_( false )
     , annotinint_( false )
     , factor_( 1 )
+    , auxlinestyle_( LineStyle(LineStyle(LineStyle::Dot)) )
 {}
 
 

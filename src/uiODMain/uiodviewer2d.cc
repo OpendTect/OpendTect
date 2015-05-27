@@ -124,6 +124,53 @@ uiParent* uiODViewer2D::viewerParent()
 { return viewwin_->viewerParent(); }
 
 
+void uiODViewer2D::setUpAux()
+{
+    const bool is2d = geomID() != Survey::GM().cUndefGeomID();
+    FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
+    if ( is2d || tkzs_.isFlat() )
+    {
+	vwrannot.x1_.showauxpos_ = true;
+	vwrannot.x1_.showauxlines_ = true;
+	if ( !is2d )
+	{
+	    vwrannot.x2_.showauxpos_ = true;
+	    vwrannot.x2_.showauxlines_ = true;
+	    uiString& x1auxnm = vwrannot.x1_.auxlabel_;
+	    uiString& x2auxnm = vwrannot.x2_.auxlabel_;
+	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Inl )
+	    {
+		x1auxnm = tr( "Crossline intersections" );
+		x2auxnm = tr( "ZSlice intersections" );
+	    }
+	    else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
+	    {
+		x1auxnm = tr( "Inline intersections" );
+		x2auxnm = tr( "ZSlice intersections" );
+	    }
+	    else
+	    {
+		x1auxnm = tr( "Inline intersections" );
+		x2auxnm = tr( "Crossline intersections" );
+	    }
+	}
+	else
+	{
+	    vwrannot.x2_.showauxpos_ = false;
+	    vwrannot.x2_.showauxlines_ = false;
+	    vwrannot.x1_.auxlabel_ = tr( "2D Line intersections" );
+	}
+    }
+    else
+    {
+	vwrannot.x1_.showauxpos_ = false;
+	vwrannot.x1_.showauxlines_ = false;
+	vwrannot.x2_.showauxpos_ = false;
+	vwrannot.x2_.showauxlines_ = false;
+    }
+}
+
+
 void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
