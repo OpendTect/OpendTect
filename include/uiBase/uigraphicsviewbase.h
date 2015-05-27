@@ -68,8 +68,8 @@ public:
 					    double w,double h);
     uiRect			getViewArea() const;
 
-    void                        setBackgroundColor(const Color&);
-    Color		        backgroundColor() const;
+    void			setBackgroundColor(const Color&);
+    Color			backgroundColor() const;
     void			setNoBackGround();
     void			rePaint();
     void			enableScrollZoom(bool yn=true);
