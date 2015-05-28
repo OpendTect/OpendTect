@@ -688,7 +688,7 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
     }
 #else
     return
-	QProcess::startDetached( comm, QStringList(), "", mCast(qint64*&pid_) );
+	QProcess::startDetached( comm, QStringList(), "", mCast(qint64*,&pid_));
 #endif
 }
 
