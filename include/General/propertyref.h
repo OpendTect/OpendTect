@@ -130,7 +130,7 @@ public:
 
 			PropertyRefSet();
 			PropertyRefSet( const PropertyRefSet& prs )
-							{ *this = prs; }
+			    : ObjectSet<PropertyRef>()	{ *this = prs; }
 			~PropertyRefSet();
     PropertyRefSet&	operator =(const PropertyRefSet&);
 
