@@ -38,12 +38,17 @@ PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
     : BaseMapObject( pdd->name() )
     , pdd_( pdd )
 {
+    if ( pdd_ ) pdd_->ref();
 }
 
 
 PlaneDataDisplayBaseMapObject::~PlaneDataDisplayBaseMapObject()
 {
-    if ( pdd_ ) pdd_->setBaseMap( 0 );
+    if ( pdd_ )
+    {
+	pdd_->setBaseMap( 0 );
+	pdd_->unRef();
+    }
 }
 
 
