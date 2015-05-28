@@ -52,10 +52,11 @@ public:
     static StdType	surveyZType();
 
 			PropertyRef( const char* nm, StdType t=Other )
-			: NamedObject(nm)
-			, stdtype_(t), mathdef_(0)	{}
+			    : NamedObject(nm)
+			    , stdtype_(t), mathdef_(0)	{}
 			PropertyRef( const PropertyRef& pr )
-			    : mathdef_(0)		{ *this = pr; }
+			    : NamedObject(pr.name())
+			    , mathdef_(0)		{ *this = pr; }
     virtual		~PropertyRef();
     PropertyRef&	operator =(const PropertyRef&);
     inline bool		operator ==( const PropertyRef& pr ) const
@@ -103,10 +104,10 @@ public:
     static const PropertyRef& thickness();
 		//!< use this always. It has automatic defaults from SI()
     inline bool		isThickness() const	{ return this == &thickness(); }
-    static const char*	standardSVelStr() 	{ return "Swave velocity";}
-    static const char*	standardSVelAliasStr() 	{ return "SVel";}
-    static const char*	standardPVelStr() 	{ return "Pwave velocity";}
-    static const char*	standardPVelAliasStr() 	{ return "PVel";}
+    static const char*	standardSVelStr()	{ return "Swave velocity";}
+    static const char*	standardSVelAliasStr()	{ return "SVel";}
+    static const char*	standardPVelStr()	{ return "Pwave velocity";}
+    static const char*	standardPVelAliasStr()	{ return "PVel";}
 
 protected:
 
@@ -155,7 +156,7 @@ public:
     int			indexOf( const PropertyRef* pr ) const
 			{ return ObjectSet<PropertyRef>::indexOf(pr); }
     bool		subselect(PropertyRef::StdType,
-	    			  ObjectSet<const PropertyRef>&)const;
+				  ObjectSet<const PropertyRef>&)const;
 
 protected:
 

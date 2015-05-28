@@ -45,6 +45,7 @@ public:
 			    , scaler_(0,f), source_(Repos::Temp)
 			    , proptype_(t)	{}
 			UnitOfMeasure( const UnitOfMeasure& uom )
+			    : NamedObject(uom.name())
 						{ *this = uom; }
     UnitOfMeasure&	operator =(const UnitOfMeasure&);
 
