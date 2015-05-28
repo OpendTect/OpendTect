@@ -40,7 +40,7 @@ DataCubes::~DataCubes()
 void DataCubes::setZ0( float z0 )
 {
     z0manager.setParam( this, z0 );
-    z0_ = mNINT32(z0_);
+    z0_ = mNINT32(z0);
 }
 
 
@@ -114,7 +114,7 @@ bool DataCubes::setSizeAndPos( const CubeSampling& cs )
     crlsampling_.start = cs.hrg.start.crl();
     inlsampling_.step = cs.hrg.step.inl();
     crlsampling_.step = cs.hrg.step.crl();
-	setZ0( cs.zrg.start/cs.zrg.step);
+    setZ0( cs.zrg.start/cs.zrg.step );
     zstep_ = cs.zrg.step;
 
     return setSize( cs.nrInl(), cs.nrCrl(), cs.nrZ() );
