@@ -520,7 +520,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    .add( " --pid " ).add( processID() );
 
 	redirectoutput_ = false;
-	if ( !ExecODProgram(progvwrcmd_,false) )
+	if ( !ExecODProgram(progvwrcmd_) )
 	    ErrMsg("Cannot launch progress viewer");
 			// sad ... but the process has been launched
     }
@@ -587,8 +587,9 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     }
 
     BufferString cmd = comm;
-
-    //addShellIfNeeded( cmd );
+#ifndef __win__
+    addShellIfNeeded( cmd );
+#endif
 
 
 #ifdef __debug__
@@ -686,7 +687,8 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 	return res;
     }
 #else
-    return QProcess::startDetached( comm, QStringList(), "", &pid_ );
+    return
+	QProcess::startDetached( comm, QStringList(), "", mCast(qint64*&pid_) );
 #endif
 }
 
