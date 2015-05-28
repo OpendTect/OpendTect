@@ -28,7 +28,6 @@ class LineStyle;
 mExpClass(General) BaseMapObject : public NamedObject
 {
 public:
-
 				BaseMapObject(const char* nm);
 
     int				ID() const		{ return id_; }
