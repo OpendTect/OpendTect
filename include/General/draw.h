@@ -74,7 +74,7 @@ public:
     Type			type_;
     int				size_;
     Color			color_;
-    float			rotation_; //clockwise rotion angle in degrees. 
+    float			rotation_; //clockwise rotion angle in degrees.
 
     bool			isVisible() const;
 
@@ -89,7 +89,7 @@ mExpClass(General) MarkerStyle3D
 public:
 
     enum Type		{ None=-1,
-			  Cube=0, Cone, Cylinder, Sphere, Arrow, Cross, 
+			  Cube=0, Cone, Cylinder, Sphere, Arrow, Cross,
 			  Point, Plane };
 			DeclareEnumUtils(Type)
 
@@ -119,7 +119,7 @@ public:
 			// directly to a UI enum.
 			DeclareEnumUtils(Type)
 
-			LineStyle( Type t=Solid,int w=1,Color c=Color::Black() );
+			LineStyle(Type t=Solid,int w=1,Color c=Color::Black());
 
     bool		operator ==( const LineStyle& ls ) const;
     bool		operator !=( const LineStyle& ls ) const;
