@@ -407,7 +407,7 @@ int OS::CommandLauncher::processID() const
 {
 #ifndef OD_NO_QT
     if ( !process_ )
-	return 0;
+	return pid_;
 # ifdef __win__
     const PROCESS_INFORMATION* pi = (PROCESS_INFORMATION*) process_->pid();
     return pi->dwProcessId;
@@ -474,7 +474,8 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	str.add( " " );
 	localcmd.insertAt( 0, str );
 #endif
-	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true );
+	return doExecute( localcmd, pars.launchtype_==Wait4Finish, true,
+			  pars.createstreams_ );
     }
 
     if ( pars.needmonitor_ )
@@ -501,12 +502,14 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	BufferString launchercmd( "\"",
 		FilePath(GetBinPlfDir(),"od_batch_launcher").fullPath() );
 	launchercmd.add( "\" " ).add( localcmd );
-	return doExecute( launchercmd, pars.launchtype_==Wait4Finish );
+	return doExecute( launchercmd, pars.launchtype_==Wait4Finish, false,
+			  pars.createstreams_ );
 #endif
     
     }
 
-    ret = doExecute( localcmd, pars.launchtype_==Wait4Finish );
+    ret = doExecute( localcmd, pars.launchtype_==Wait4Finish, false,
+		     pars.createstreams_ );
     if ( !ret )
 	return false;
 
@@ -517,7 +520,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    .add( " --pid " ).add( processID() );
 
 	redirectoutput_ = false;
-	if ( !doExecute(progvwrcmd_,false) )
+	if ( !ExecODProgram(progvwrcmd_,false) )
 	    ErrMsg("Cannot launch progress viewer");
 			// sad ... but the process has been launched
     }
@@ -570,7 +573,7 @@ void OS::CommandLauncher::addShellIfNeeded( BufferString& cmd )
 
 
 bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
-				     bool inconsole )
+				     bool inconsole, bool createstreams )
 {
     if ( *comm == '@' )
 	comm++;
@@ -584,25 +587,39 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     }
 
     BufferString cmd = comm;
-    addShellIfNeeded( cmd );
+
+    //addShellIfNeeded( cmd );
+
 
 #ifdef __debug__
     od_cout() << "About to execute:\n" << cmd << od_endl;
 #endif
 
 #ifndef OD_NO_QT
-    process_ = new QProcess;
+    process_ = wt4finish || createstreams ? new QProcess : 0;
 
-    stdinputbuf_ = new qstreambuf( *process_, false, false );
-    stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
+    if ( createstreams )
+    {
+	stdinputbuf_ = new qstreambuf( *process_, false, false );
+	stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
 
-    stdoutputbuf_ = new qstreambuf( *process_, false, false  );
-    stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
+	stdoutputbuf_ = new qstreambuf( *process_, false, false  );
+	stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
 
-    stderrorbuf_ = new qstreambuf( *process_, true, false  );
-    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
+	stderrorbuf_ = new qstreambuf( *process_, true, false  );
+	stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
+    }
 
-    process_->start( cmd.buf(), QIODevice::ReadWrite );
+    if ( process_ )
+    {
+	process_->start( cmd.buf(), QIODevice::ReadWrite );
+    }
+    else
+    {
+	const bool res = startDetached( cmd, inconsole );
+	return res;
+    }
+
     if ( !process_->waitForStarted(10000) ) //Timeout of 10 secs
     {
 	return !catchError();
@@ -615,9 +632,12 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 
 	const bool res = process_->exitStatus()==QProcess::NormalExit;
 
-	stderrorbuf_->detachDevice( true );
-	stdoutputbuf_->detachDevice( true );
-	stdinputbuf_->detachDevice( false );
+	if ( createstreams )
+	{
+	    stderrorbuf_->detachDevice( true );
+	    stdoutputbuf_->detachDevice( true );
+	    stdinputbuf_->detachDevice( false );
+	}
 
 	deleteAndZeroPtr( process_ );
 
@@ -626,6 +646,48 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 #endif
 
     return true;
+}
+
+
+bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
+{
+#ifdef __win__
+    //if ( !inconsole )
+    {
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory( &si, sizeof(STARTUPINFO) );
+	ZeroMemory( &pi, sizeof(pi) );
+	si.cb = sizeof( STARTUPINFO );
+
+	si.dwFlags |= STARTF_USESTDHANDLES;
+	si.hStdInput = NULL;
+	si.hStdError = stderr;
+	si.hStdOutput = stdout;
+	DWORD FLAG = inconsole ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW;
+	const bool res = CreateProcess( NULL,
+				const_cast<char*>(comm),
+				NULL,   // Process handle not inheritable.
+				NULL,   // Thread handle not inheritable.
+				TRUE,   // Set handle inheritance.
+				FLAG,   // Creation flags.
+				NULL,   // Use parent's environment block.
+				NULL,   // Use parent's starting directory.
+				&si, &pi );
+
+	if ( res )
+	{
+	    pid_ = pi.dwProcessId;
+	    CloseHandle( pi.hProcess );
+	    CloseHandle( pi.hThread );
+	}
+
+	return res;
+    }
+#else
+    return QProcess::startDetached( comm, QStringList(), "", &pid_ );
+#endif
 }
 
 
@@ -664,8 +726,10 @@ int OS::CommandLauncher::catchError()
 	return 1;
     }
     return process_->exitCode();
-#endif
+#else
 
+    return 0;
+#endif
 }
 
 
@@ -675,7 +739,7 @@ static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isodprog,
     const OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars cp( isodprog );
-    cp.launchtype( ltyp );
+    cp.launchtype( ltyp ).createstreams( stdoutput || stderror );
     const bool ret = cl.execute( cp );
     if ( stdoutput )
 	cl.getStdOutput()->getAll( *stdoutput );
@@ -691,7 +755,10 @@ bool OS::ExecCommand( const char* cmd, OS::LaunchType ltyp, BufferString* out,
 		      BufferString* err )
 {
     if ( ltyp!=Wait4Finish )
+    {
 	out = 0;
+	err = 0;
+    }
 
     return doExecOSCmd( cmd, ltyp, false, out, err );
 }

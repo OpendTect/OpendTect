@@ -36,10 +36,12 @@ mExpClass(Basic) CommandExecPars
 public:
 			CommandExecPars( bool isodprog=true )
 			    : needmonitor_(false)
+			    , createstreams_(false)
 			    , prioritylevel_(isodprog ? -1.0f : 0.0f)
 			    , launchtype_(isodprog?RunInBG:Wait4Finish)
 			    , isconsoleuiprog_(false)	{}
 
+    mDefSetupClssMemb(CommandExecPars,bool,createstreams);
     mDefSetupClssMemb(CommandExecPars,bool,needmonitor);
     mDefSetupClssMemb(CommandExecPars,BufferString,monitorfnm);
 			    //!< when empty, will be generated (if needed)
@@ -138,8 +140,10 @@ protected:
 
     void		reset();
     bool		doExecute(const char* comm,bool wait4finish,
-							bool incosole = false);
+				  bool incosole = false,
+				  bool createstreams=false );
     int			catchError();
+    bool		startDetached(const char*,bool incosole = false);
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
@@ -148,7 +152,10 @@ protected:
     BufferString	progvwrcmd_;
     uiString		errmsg_;
     const BufferString	odprogressviewer_;
+
     QProcess*		process_;
+    od_int64		pid_;
+
     od_istream*		stdoutput_;
     od_istream*		stderror_;
     od_ostream*		stdinput_;
