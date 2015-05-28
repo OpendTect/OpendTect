@@ -432,9 +432,7 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
 {
     const int index = indexOf( obj );
     if ( index==-1 )
-    {
-	pErrMsg( "Base map object not found" );
-    }
+	return;
 
     worlditemgrp_.remove( &objects_[index]->itemGrp(), true );
     delete objects_.removeSingle( index );

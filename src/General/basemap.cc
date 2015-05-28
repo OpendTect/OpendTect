@@ -13,6 +13,7 @@ BaseMapObject::BaseMapObject( const char* nm )
     : NamedObject(nm)
     , changed(this)
     , stylechanged(this)
+    , depth_(100)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, treeitmid, (1000) );
     id_ = treeitmid++;
