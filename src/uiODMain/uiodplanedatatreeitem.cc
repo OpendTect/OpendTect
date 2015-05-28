@@ -289,7 +289,9 @@ bool uiODPlaneDataTreeItem::displayDefaultData()
 
 bool uiODPlaneDataTreeItem::displayGuidance()
 {
-    if ( !applMgr() || !applMgr()->attrServer() ) return false; //safety
+    if ( !applMgr() || !applMgr()->attrServer() )
+	return false; //safety
+
     Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
 					visserv_->getSelSpec( displayid_, 0 ));
     if ( !as ) return false;
@@ -297,9 +299,10 @@ bool uiODPlaneDataTreeItem::displayGuidance()
     const Pos::GeomID geomid = visserv_->getGeomID( displayid_ );
     const ZDomain::Info* zdinf =
 		    visserv_->zDomainInfo( visserv_->getSceneID(displayid_) );
-    applMgr()->attrServer()->selectAttrib( *as, zdinf, geomid,
-					   "Select first layer" );
-    return displayDataFromDesc( as->id() );
+    const bool issi = !zdinf || zdinf->def_.isSI();
+    const bool selok = applMgr()->attrServer()->selectAttrib(
+			*as, issi ? 0 : zdinf, geomid, "Select first layer" );
+    return selok ? displayDataFromDesc( as->id() ) : false;
 }
 
 
