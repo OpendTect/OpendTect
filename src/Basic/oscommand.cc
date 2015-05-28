@@ -407,7 +407,7 @@ int OS::CommandLauncher::processID() const
 {
 #ifndef OD_NO_QT
     if ( !process_ )
-	return pid_;
+	return 0;
 # ifdef __win__
     const PROCESS_INFORMATION* pi = (PROCESS_INFORMATION*) process_->pid();
     return pi->dwProcessId;
@@ -520,7 +520,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    .add( " --pid " ).add( processID() );
 
 	redirectoutput_ = false;
-	if ( !ExecODProgram(progvwrcmd_) )
+	if ( !doExecute(progvwrcmd_,false) )
 	    ErrMsg("Cannot launch progress viewer");
 			// sad ... but the process has been launched
     }
@@ -587,10 +587,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     }
 
     BufferString cmd = comm;
-#ifndef __win__
     addShellIfNeeded( cmd );
-#endif
-
 
 #ifdef __debug__
     od_cout() << "About to execute:\n" << cmd << od_endl;
@@ -617,7 +614,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     }
     else
     {
-	const bool res = startDetached( cmd, inconsole );
+	const bool res = QProcess::startDetached( cmd.buf() );
 	return res;
     }
 
@@ -647,48 +644,6 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 #endif
 
     return true;
-}
-
-
-bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
-{
-#ifdef __win__
-   
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-
-    ZeroMemory( &si, sizeof(STARTUPINFO) );
-    ZeroMemory( &pi, sizeof(pi) );
-    si.cb = sizeof( STARTUPINFO );
-
-    si.dwFlags |= STARTF_USESTDHANDLES;
-    si.hStdInput = NULL;
-    /*si.hStdError = stderr;
-    si.hStdOutput = stdout;*/
-    DWORD FLAG = inconsole ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW;
-    const bool res = CreateProcess( NULL,
-			    const_cast<char*>(comm),
-			    NULL,   // Process handle not inheritable.
-			    NULL,   // Thread handle not inheritable.
-			    TRUE,   // Set handle inheritance.
-			    FLAG,   // Creation flags.
-			    NULL,   // Use parent's environment block.
-			    NULL,   // Use parent's starting directory.
-			    &si, &pi );
-
-    if ( res )
-    {
-	pid_ = pi.dwProcessId;
-	CloseHandle( pi.hProcess );
-	CloseHandle( pi.hThread );
-    }
-
-   return res;
-   
-#else
-    return
-	QProcess::startDetached( comm, QStringList(),"", mCast(qint64*,&pid_) );
-#endif
 }
 
 
@@ -740,7 +695,7 @@ static bool doExecOSCmd( const char* cmd, OS::LaunchType ltyp, bool isodprog,
     const OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars cp( isodprog );
-    cp.launchtype( ltyp ).createstreams( stdoutput || stderror );
+    cp.launchtype( ltyp ).createstreams( true );
     const bool ret = cl.execute( cp );
     if ( stdoutput )
 	cl.getStdOutput()->getAll( *stdoutput );
