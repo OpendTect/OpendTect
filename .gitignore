@@ -32,6 +32,8 @@ plugins/*/*.alo
 src/*/instantiate*export.cc
 bin/*/Debug/*
 bin/*/Release/*
+*.cbp
+*.user
 *.tlog
 *.log
 *.suo
