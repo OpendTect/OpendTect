@@ -213,7 +213,7 @@ uiString	uiNrDoneText() const	{ return tr("Positions handled"); }
 
 int nextStep()
 {
-    if ( nrvals_ == -1 || horarrays_.isEmpty() ) 
+    if ( nrvals_ == -1 || horarrays_.isEmpty() )
 	return ErrorOccurred();
 
     if ( sectionidx_ >= bvss_.size() )
@@ -351,6 +351,12 @@ Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
     return hor3d;
 }
 
+
+bool Horizon3D::setZ( const TrcKey& tk, float z, bool addtohist )
+{ return setPos( sectionID(0), tk.pos().toInt64(), Coord3(0,0,z), addtohist ); }
+
+float Horizon3D::getZ( const TrcKey& tk ) const
+{ return (float) getPos( sectionID(0), tk.pos().toInt64() ).z; }
 
 bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 { return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z), addtohist ); }

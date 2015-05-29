@@ -400,6 +400,18 @@ Horizon2D::~Horizon2D()
 {}
 
 
+float Horizon2D::getZ( const TrcKey& tk ) const
+{
+    return mUdf(float);
+}
+
+
+bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist )
+{
+    return false;
+}
+
+
 float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {
     const int sectionidx = nr;
@@ -595,7 +607,7 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
     const int lineidx = geom->getRowIndex( geomid );
     if ( lineidx < 0 )
 	return false;
-    
+
     const StepInterval<int> colrg = geom->colRange( lineidx );
     for ( int col=trcrg.start; col<=trcrg.stop; col+=trcrg.step )
     {

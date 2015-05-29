@@ -109,6 +109,8 @@ mExpClass(EarthModel) Horizon2D : public Horizon
 { mDefineEMObjFuncs( Horizon2D );
 public:
 
+    virtual float		getZ(const TrcKey&) const;
+    virtual bool		setZ(const TrcKey&,float z,bool addtohist);
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;
 				//!< Convenience function. If you need speed,

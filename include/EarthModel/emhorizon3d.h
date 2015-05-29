@@ -95,10 +95,11 @@ mExpClass(EarthModel) Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
 
-    float			getZ(const BinID&) const;
+    float			getZ(const TrcKey&) const;
 				//!< Fast: reads from the first section
-    bool			setZ(const BinID&,float z,bool addtohist);
+    bool			setZ(const TrcKey&,float z,bool addtohist);
 				//!< Fast: writes to the first section
+
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;
 				//!< Slow: if you need the choices
@@ -152,6 +153,12 @@ protected:
     friend class		EMManager;
     friend class		EMObject;
     Horizon3DGeometry		geometry_;
+
+public:
+    /*mDeprecated*/ float	getZ(const BinID&) const;
+				//!< Fast: reads from the first section
+    /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
+				//!< Fast: writes to the first section
 };
 
 } // namespace EM
