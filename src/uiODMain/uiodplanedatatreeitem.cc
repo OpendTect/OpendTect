@@ -52,9 +52,9 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
 {
     switch ( mnuid )
     {
-	case 0: return uiODPlaneDataTreeItem::Empty; break;
+	case 0: return uiODPlaneDataTreeItem::Default; break;
 	case 1: return uiODPlaneDataTreeItem::Select; break;
-	case 2: return uiODPlaneDataTreeItem::Default; break;
+	case 2: return uiODPlaneDataTreeItem::Empty; break;
 	case 3: return uiODPlaneDataTreeItem::RGBA; break;
 	default: return uiODPlaneDataTreeItem::Empty;
     }
@@ -68,7 +68,7 @@ uiString uiODPlaneDataTreeItem::sAddAndSelectData()
 { return tr("Add and Select Data"); }
 
 uiString uiODPlaneDataTreeItem::sAddDefaultData()
-{ return tr("Add with Default Data"); }
+{ return tr("Add Default Data"); }
 
 uiString uiODPlaneDataTreeItem::sAddColorBlended()
 { return uiStrings::sAddColBlend(); }
@@ -80,24 +80,22 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 #define mParentShowSubMenu( treeitm, fromwell ) \
     uiMenu mnu( getUiParent(), uiStrings::sAction() ); \
     mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddEmptyPlane()), 0 );\
+	new uiAction(uiODPlaneDataTreeItem::sAddDefaultData()), 0 ); \
     mnu.insertItem( \
 	new uiAction(uiODPlaneDataTreeItem::sAddAndSelectData()), 1 );\
-    mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddDefaultData()), 2 ); \
-    mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddColorBlended()), 3 ); \
     if ( fromwell ) \
 	mnu.insertItem( \
-	new uiAction(uiODPlaneDataTreeItem::sAddAtWellLocation()), 4 ); \
+	    new uiAction(uiODPlaneDataTreeItem::sAddAtWellLocation()), 2 ); \
+    mnu.insertItem( \
+	new uiAction(uiODPlaneDataTreeItem::sAddColorBlended()), 3 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
-    if ( mnuid==0 || mnuid==1 || mnuid==2 || mnuid==3 ) \
+    if ( mnuid==0 || mnuid==1 || mnuid==3 ) \
     { \
 	treeitm* newitm = new treeitm(-1,getType(mnuid));\
         addChild( newitm, false ); \
     } \
-    else if ( mnuid==4 ) \
+    else if ( mnuid==2 ) \
     { \
 	TypeSet<MultiID> wellids; \
 	if ( !applMgr()->wellServer()->selectWells(wellids) ) \
