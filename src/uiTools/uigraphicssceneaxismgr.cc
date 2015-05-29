@@ -281,7 +281,7 @@ uiGraphicsSceneAxisMgr::uiGraphicsSceneAxisMgr( uiGraphicsView& view )
     , uifont_( uiFontList::getInst().get(FontData::key(FontData::Graphics2D)) )
 {
     xaxis_->setBegin( yaxis_ );
-    yaxis_->setBegin( xaxis_ );
+    yaxis_->setEnd( xaxis_ );
 
     updateFontSizeCB( 0 );
     LineStyle lst; lst.type_ = LineStyle::None;
