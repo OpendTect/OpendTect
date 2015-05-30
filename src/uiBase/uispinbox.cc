@@ -270,10 +270,10 @@ StepInterval<float> uiSpinBox::getFInterval() const
 int uiSpinBox::getIntValue() const
 { return mNINT32(body_->value()); }
 
-double uiSpinBox::getdValue() const
+double uiSpinBox::getDValue() const
 { return body_->value(); }
 
-float uiSpinBox::getfValue() const
+float uiSpinBox::getFValue() const
 { return (float)body_->value(); }
 
 bool uiSpinBox::getBoolValue() const
@@ -296,6 +296,7 @@ void uiSpinBox::setValue( int val )
     body_->setValue( val );
 }
 
+
 void uiSpinBox::setValue( float val )
 {
     mBlockCmdRec;
@@ -304,11 +305,19 @@ void uiSpinBox::setValue( float val )
     body_->setValue( val );
 }
 
+
+void uiSpinBox::setValue( double val )
+{
+    setValue( mCast(float,val) );
+}
+
+
 void uiSpinBox::setValue( const char* txt )
 {
     mBlockCmdRec;
     body_->setValue( body_->valueFromText(txt) );
 }
+
 
 void uiSpinBox::setMinValue( int val )
 {
@@ -316,11 +325,13 @@ void uiSpinBox::setMinValue( int val )
     body_->setMinimum( val );
 }
 
+
 void uiSpinBox::setMinValue( float val )
 {
     mBlockCmdRec;
     body_->setMinimum( val );
 }
+
 
 int uiSpinBox::minValue() const
 { return mNINT32(body_->minimum()); }
@@ -342,6 +353,12 @@ void uiSpinBox::setMaxValue( float val )
     mBlockCmdRec;
     const double maxval = mIsUdf(val) ? mUdf(double) : mCast(double,val);
     body_->setMaximum( maxval );
+}
+
+
+void uiSpinBox::setMaxValue( double val )
+{
+    setMaxValue( mCast(float,val) );
 }
 
 
@@ -381,6 +398,12 @@ void uiSpinBox::setStep( float stp, bool snapcur )
     body_->setSingleStep( stp );
     dosnap_ = snapcur;
     snapToStep(0);
+}
+
+
+void uiSpinBox::setStep( double stp, bool snapcur )
+{
+    setStep( mCast(float,stp), snapcur );
 }
 
 

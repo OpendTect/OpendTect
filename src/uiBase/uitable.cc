@@ -1054,7 +1054,7 @@ int uiTable::getIntValue( const RowCol& rc ) const
 }
 
 
-double uiTable::getdValue( const RowCol& rc ) const
+double uiTable::getDValue( const RowCol& rc ) const
 {
     const char* str = text( rc );
     if ( !str || !*str ) return mUdf(double);
@@ -1063,7 +1063,7 @@ double uiTable::getdValue( const RowCol& rc ) const
 }
 
 
-float uiTable::getfValue( const RowCol& rc ) const
+float uiTable::getFValue( const RowCol& rc ) const
 {
     const char* str = text( rc );
     if ( !str || !*str ) return mUdf(float);

@@ -138,7 +138,7 @@ void uiSlider::init( const uiSlider::Setup& setup, const char* nm )
 
 
 void uiSlider::processInput()
-{ if ( editfld_ ) setValue( editfld_->getfValue() ); }
+{ if ( editfld_ ) setValue( editfld_->getFValue() ); }
 
 void uiSlider::setToolTip( const uiString& tt )
 { slider_->setToolTip( tt ); }
@@ -166,7 +166,7 @@ void uiSlider::setLinearFraction( float frac )
 
 void uiSlider::setScale( float fact, float constant )
 {
-    const float userval = getValue();
+    const float userval = getFValue();
     scaler_->factor = fact;
     scaler_->constant = constant;
     setValue( userval );
@@ -217,7 +217,7 @@ int uiSlider::getIntValue() const
 { return slider_->body().value(); }
 
 
-float uiSlider::getValue() const
+float uiSlider::getFValue() const
 { return userValue( slider_->body().value() ); }
 
 void uiSlider::setTickMarks( TickPosition ticks )
@@ -345,20 +345,20 @@ void uiSlider::setTickStep( int s )
 
 void uiSlider::sliderMove( CallBacker* )
 {
-    const float val = getValue();
+    const float val = getFValue();
     if ( editfld_ ) editfld_->setValue( val );
 }
 
 
 float uiSlider::editValue() const
 {
-    return editfld_ ? editfld_->getfValue() : mUdf(float);
+    return editfld_ ? editfld_->getFValue() : mUdf(float);
 }
 
 void uiSlider::editRetPress( CallBacker* )
 {
     if ( editfld_ )
-	setValue( editfld_->getfValue() );
+	setValue( editfld_->getFValue() );
 
     valueChanged.trigger();
 }
