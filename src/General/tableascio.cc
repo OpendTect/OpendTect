@@ -768,7 +768,7 @@ int Table::AscIO::getIntValue( int ifld, int udf ) const
 }
 
 
-float Table::AscIO::getfValue( int ifld, float udf ) const
+float Table::AscIO::getFValue( int ifld, float udf ) const
 {
     if ( !vals_.validIdx(ifld) )
 	return mUdf(float);
@@ -784,7 +784,7 @@ float Table::AscIO::getfValue( int ifld, float udf ) const
 }
 
 
-double Table::AscIO::getdValue( int ifld, double udf ) const
+double Table::AscIO::getDValue( int ifld, double udf ) const
 {
     if ( !vals_.validIdx(ifld) )
 	return mUdf(double);
