@@ -78,7 +78,7 @@ public:
     void		setValue(int);
     void		setValue(float);
     int			getIntValue() const;
-    float		getValue() const;
+    float		getFValue() const;
     float		editValue() const;
 
     void		setMinValue(float);
@@ -141,6 +141,8 @@ private:
     float		userValue(int) const;
     int			sliderValue(float) const;
 
+public:
+    /*mDeprecated*/ float	getValue() const	{ return getFValue(); }
 };
 
 #endif

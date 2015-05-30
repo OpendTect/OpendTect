@@ -113,8 +113,8 @@ public:
 			/*!Sets the _values_ (with setText()) */
 
     virtual int		getIntValue(int idx=0) const;
-    virtual double	getdValue(int idx=0) const;
-    virtual float	getfValue(int idx=0) const;
+    virtual double	getDValue(int idx=0) const;
+    virtual float	getFValue(int idx=0) const;
     virtual bool	getBoolValue(int idx=0) const;
 
     virtual void	setValue(int i,int idx=0);
@@ -150,6 +150,9 @@ private:
 
     static const char*	valuestr;
 
+public:
+    /*mDeprecated*/ double getdValue(int idx=0) const { return getDValue(idx); }
+    /*mDeprecated*/ float  getfValue(int idx=0) const { return getFValue(idx); }
 };
 
 
@@ -203,8 +206,8 @@ public:
 			    { return getFromString( value_, s, mUdf(T) ); }
 
     virtual int		getIntValue(int idx=0) const { return (int)value(); }
-    virtual double	getdValue(int idx=0) const    { return value(); }
-    virtual float	getfValue(int idx=0) const   { return (float)value(); }
+    virtual double	getDValue(int idx=0) const    { return value(); }
+    virtual float	getFValue(int idx=0) const   { return (float)value(); }
 
     virtual int		getDefaultIntValue(int idx=0) const
 			{ return (int)defaultValue(); }
@@ -409,11 +412,8 @@ public:
 			}
 
     virtual int		getIntValue(int idx=0) const { return (int)value(idx); }
-    virtual double	getdValue(int idx=0) const    { return value(idx); }
-    virtual float	getfValue(int idx=0) const
-			{
-			    return (float) value(idx);
-			}
+    virtual double	getDValue(int idx=0) const   { return value(idx); }
+    virtual float	getFValue(int idx=0) const { return (float)value(idx); }
 
     T			defaultValue( int idx=0 ) const
 			{
@@ -694,8 +694,8 @@ public:
     virtual bool	setText(const char* s,int nr);
 
     virtual int		getIntValue(int idx=0) const;
-    virtual double	getdValue(int idx=0) const;
-    virtual float	getfValue(int idx=0) const;
+    virtual double	getDValue(int idx=0) const;
+    virtual float	getFValue(int idx=0) const;
 
     virtual void	setValue(int i,int idx=0);
     virtual void	setValue(double d,int idx=0);

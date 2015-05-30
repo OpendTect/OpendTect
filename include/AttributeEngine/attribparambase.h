@@ -104,8 +104,8 @@ public:
 
     int				nrValues() const;
     virtual int			getIntValue(int idx=0) const;
-    virtual float		getfValue(int idx=0) const;
-    virtual double		getdValue(int idx=0) const;
+    virtual float		getFValue(int idx=0) const;
+    virtual double		getDValue(int idx=0) const;
     bool			getBoolValue(int idx=0) const;
     const char*			getStringValue(int idx=0) const;
 
@@ -139,9 +139,15 @@ protected:
     DataInpSpec*		spec_;
 
     virtual bool		isEqual(const Param&) const;
+
+public:
+    /*mDeprecated*/ float	getfValue(int idx=0) const
+				{ return getFValue( idx ); }
+    /*mDeprecated*/ double	getdValue(int idx=0) const
+				{ return getDValue( idx ); }
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 
 #endif

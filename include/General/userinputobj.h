@@ -30,9 +30,9 @@ public:
     virtual		~UserInputObj()			{}
 
     virtual const char* text() const			= 0;
-    virtual int		getIntValue()  const		= 0;
-    virtual double	getdValue()     const		= 0;
-    virtual float	getfValue()    const		= 0;
+    virtual int		getIntValue() const		= 0;
+    virtual double	getDValue() const		= 0;
+    virtual float	getFValue() const		= 0;
     virtual bool	getBoolValue() const		= 0;
 
     virtual void	setText(const char*)		= 0;
@@ -73,6 +73,9 @@ protected:
     virtual bool	notifyUpdateRequested_(const CallBack&)	=0;
     virtual bool	update_( const DataInpSpec&)		=0;
 
+public:
+    /*mDeprecated*/ double	getdValue() const	{ return getDValue(); }
+    /*mDeprecated*/ float	getfValue() const	{ return getFValue(); }
 };
 
 
@@ -85,9 +88,9 @@ public:
 			{ return Conv::to<const char*>( getvalue_() ); }
     virtual int		getIntValue() const
 			    { return Conv::to<int>( getvalue_() ); }
-    virtual double	getdValue() const
+    virtual double	getDValue() const
 			    { return Conv::to<double>( getvalue_() );}
-    virtual float	getfValue() const
+    virtual float	getFValue() const
 			    { return Conv::to<float>( getvalue_() ); }
     virtual bool	getBoolValue() const
 			    { return Conv::to<bool>( getvalue_() ); }

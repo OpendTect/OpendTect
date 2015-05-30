@@ -285,8 +285,8 @@ public:
     Color		getHeaderBackground(int,bool isrow) const;
 
     int			getIntValue(const RowCol&) const;
-    double		getdValue(const RowCol&) const;
-    float		getfValue(const RowCol&) const;
+    double		getDValue(const RowCol&) const;
+    float		getFValue(const RowCol&) const;
     void		setValue(const RowCol&,int);
     void		setValue(const RowCol&,float);
     void		setValue(const RowCol&,double);
@@ -354,6 +354,11 @@ private:
 
     mutable uiSize	lastsz;
 
+public:
+    /*mDeprecated*/ double	getdValue( const RowCol& rc ) const
+			{ return getDValue( rc ); }
+    /*mDeprecated*/ float	getfValue( const RowCol& rc ) const
+			{ return getFValue( rc ); }
 };
 
 #endif
