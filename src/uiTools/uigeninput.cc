@@ -193,23 +193,23 @@ void uiPositionInpFld::commitToSetup() const
 	= const_cast<PositionInpSpec&>( posInpSpec() ).setup();
     if ( setup.wantcoords_ )
     {
-	setup.coord_.x = flds_[0]->getdValue();
-	setup.coord_.y = flds_[1]->getdValue();
+	setup.coord_.x = flds_[0]->getDValue();
+	setup.coord_.y = flds_[1]->getDValue();
 	if ( setup.isps_ )
-	    setup.offs_ = flds_[2]->getfValue();
+	    setup.offs_ = flds_[2]->getFValue();
     }
     else if ( setup.is2d_ )
     {
 	setup.binid_.crl() = flds_[0]->getIntValue();
 	if ( setup.isps_ )
-	    setup.offs_ = flds_[1]->getfValue();
+	    setup.offs_ = flds_[1]->getFValue();
     }
     else
     {
 	setup.binid_.inl() = flds_[0]->getIntValue();
 	setup.binid_.crl() = flds_[1]->getIntValue();
 	if ( setup.isps_ )
-	    setup.offs_ = flds_[2]->getfValue();
+	    setup.offs_ = flds_[2]->getFValue();
     }
 }
 
@@ -515,9 +515,9 @@ int uiIntIntervalInpFld::getIntValue( int idx ) const
     switch( idx )
     {
 	default:
-	case 0 : return start_->getValue();
-	case 1 : return stop_->getValue();
-	case 2 : return step_ ? step_->getValue() : mUdf(int);
+	case 0 : return start_->getIntValue();
+	case 1 : return stop_->getIntValue();
+	case 2 : return step_ ? step_->getIntValue() : mUdf(int);
     }
 }
 
@@ -539,9 +539,9 @@ void uiIntIntervalInpFld::valChgCB( CallBacker* cb )
     if ( symm_ && symm_->isChecked() )
     {
 	if ( cb == start_ )
-	    stop_->setValue( -start_->getValue() );
+	    stop_->setValue( -start_->getIntValue() );
 	if ( cb == stop_ )
-	    start_->setValue( -stop_->getValue() );
+	    start_->setValue( -stop_->getIntValue() );
     }
 
     p_->valuechanging.trigger( cb );
@@ -550,8 +550,8 @@ void uiIntIntervalInpFld::valChgCB( CallBacker* cb )
 
 void uiIntIntervalInpFld::symmCB( CallBacker* )
 {
-    const int start = start_->getValue();
-    const int stop = stop_->getValue();
+    const int start = start_->getIntValue();
+    const int stop = stop_->getIntValue();
     if ( Math::Abs(start) > Math::Abs(stop) )
 	stop_->setValue( -start );
     else
@@ -1020,7 +1020,7 @@ Coord uiGenInput::getCoord( int nr, double udfval ) const
 {
     const DataInpSpec* dis = dataInpSpec( nr );
     if ( !dis || dis->type().form() != DataType::position )
-	return Coord( getdValue(nr*2,udfval), getdValue(nr*2+1,udfval));
+	return Coord( getDValue(nr*2,udfval), getDValue(nr*2+1,udfval));
 
     mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])
     posinpfld->commitToSetup();
@@ -1044,7 +1044,7 @@ float uiGenInput::getOffset( int nr, float udfval ) const
 {
     const DataInpSpec* dis = dataInpSpec( nr );
     if ( !dis || dis->type().form() != DataType::position )
-	return getfValue(nr,udfval);
+	return getFValue(nr,udfval);
 
     mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds_[nr])
     posinpfld->commitToSetup();
@@ -1098,8 +1098,8 @@ void uiGenInput::setfn( fntyp var, int nr ) \
 
 mDefuiLineEditGetSet(text,setText,const char*)
 mDefuiLineEditGetSet(getIntValue,setValue,int)
-mDefuiLineEditGetSet(getdValue,setValue,double)
-mDefuiLineEditGetSet(getfValue,setValue,float)
+mDefuiLineEditGetSet(getDValue,setValue,double)
+mDefuiLineEditGetSet(getFValue,setValue,float)
 mDefuiLineEditGetSet(getBoolValue,setValue,bool)
 
 

@@ -45,8 +45,8 @@ public:
     virtual bool	isUndef(int) const;
     const char*		text(int) const;
     int			getIntValue(int) const;
-    float		getfValue(int) const;
-    double		getdValue(int) const;
+    float		getFValue(int) const;
+    double		getDValue(int) const;
     bool		getBoolValue(int) const;
 
     template <class T>

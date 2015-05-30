@@ -95,8 +95,8 @@ typ uiGenInputInputFld::fn( int idx ) const \
     return obj ? obj->fn() : mUdf(typ); \
 }
 //mImplGetFn(int,getIntValue)
-mImplGetFn(float,getfValue)
-mImplGetFn(double,getdValue)
+mImplGetFn(float,getFValue)
+mImplGetFn(double,getDValue)
 mImplGetFn(bool,getBoolValue)
 
 
@@ -437,7 +437,7 @@ void uiGenInputIntFld::setToolTip( const uiString& tt )
 { uiSpinBox::setToolTip( tt ); }
 
 int uiGenInputIntFld::getvalue_() const
-{ return uiSpinBox::getValue(); }
+{ return uiSpinBox::getIntValue(); }
 
 
 static bool isNotSet( int val )
