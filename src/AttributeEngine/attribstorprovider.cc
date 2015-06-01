@@ -574,12 +574,14 @@ bool StorageProvider::set2DRangeSelData()
 	{
 	    if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
 		return false;
-	    Interval<int> rg( 0, 0 );
+	    StepInterval<int> rg( 0, 0, 1 );
 	    seldata->setInlRange( rg );
 	    rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
 			trcrg.start : desiredvolume_->hsamp_.start_.crl();
 	    rg.stop = desiredvolume_->hsamp_.stop_.crl() > trcrg.stop ?
 			trcrg.stop : desiredvolume_->hsamp_.stop_.crl();
+	    rg.step = desiredvolume_->hsamp_.step_.crl() > trcrg.step ?
+			desiredvolume_->hsamp_.step_.crl() : trcrg.step;
 	    seldata->setCrlRange( rg );
 	    Interval<float> zrg;
 	    zrg.start = desiredvolume_->zsamp_.start < dszrg.start ?
