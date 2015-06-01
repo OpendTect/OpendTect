@@ -49,7 +49,7 @@ protected:
 od_int64 nrIterations() const
 { return neighbors_.size(); }
 
-bool doWork( int64_t start, int64_t stop, int )
+bool doWork( od_int64 start, od_int64 stop, int )
 {
     for ( int idx=(int)start; idx<=stop; idx++ )
     {
