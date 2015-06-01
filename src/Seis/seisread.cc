@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2dsurv.h"
 #include "streamconn.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "trckeyzsampling.h"
 #include "uistrings.h"
 
@@ -795,10 +796,12 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 
 	    Pos::GeomID geomid = seldata_ ? seldata_->geomID()
 					  : dataset_->geomID( iln );
-	    PosInfo::Line2DData l2dd( Survey::GM().getName(geomid) );
-	    if ( !S2DPOS().getGeometry(l2dd) )
+	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+			    Survey::GM().getGeometry(geomid))
+	    if ( !geom2d )
 		continue;
 
+	    const PosInfo::Line2DData& l2dd = geom2d->data();
 	    const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
 	    if ( posns.size() < 2 )
 		continue;
