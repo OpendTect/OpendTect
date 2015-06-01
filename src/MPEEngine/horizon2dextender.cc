@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : K. Tingdahl
- * DATE     : May 2006
+ * AUTHOR	: K. Tingdahl
+ * DATE		: May 2006
 ___________________________________________________________________
 
 -*/
@@ -60,6 +60,16 @@ void Horizon2DExtender::setDirection( const BinIDValue& dir )
     if ( !alldirs_ )
 	xydirection_ /= abs;
 }
+
+
+const BinIDValue* Horizon2DExtender::getDirection() const
+{ return &direction_; }
+
+void Horizon2DExtender::setGeomID( Pos::GeomID geomid )
+{ geomid_ = geomid; }
+
+Pos::GeomID Horizon2DExtender::geomID() const
+{ return geomid_; }
 
 
 int Horizon2DExtender::nextStep()
