@@ -549,7 +549,7 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
 	const float* trc = sdp->getTrcData( 0, trcidx0+tidx );
 	for ( int zidx=0; zidx<nrz; zidx++ )
 	{
-	    const float val = trc[zidx0+zidx];
+	    const float val = trc ? trc[zidx0+zidx] : 0;
 	    seeddata->set( tidx, zidx, val );
 	}
     }
