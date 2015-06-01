@@ -38,12 +38,13 @@ class SectionAdjuster;
 mExpClass(MPEEngine) SectionTracker
 {
 public:
-    				SectionTracker( EM::EMObject&,
-						const EM::SectionID&,
-						SectionSourceSelector* = 0,
-					        SectionExtender* = 0,
-					        SectionAdjuster* = 0);
+				SectionTracker(EM::EMObject&,
+					       const EM::SectionID&,
+					       SectionSourceSelector* = 0,
+					       SectionExtender* = 0,
+					       SectionAdjuster* = 0);
     virtual			~SectionTracker();
+
     EM::SectionID		sectionID() const;
     virtual bool		init();
 
@@ -110,7 +111,7 @@ protected:
     static const char*		seedonlypropstr;
 };
 
-};
+} // namespace MPE
 
 #endif
 

@@ -40,8 +40,10 @@ void SectionAdjuster::setPositions(const TypeSet<EM::SubID>& p,
 {
     refpos_ = 0;
     pids_ = p;
-    if ( src ) pidsrc_ = *src;
-    else pidsrc_.erase();
+    if ( src )
+	pidsrc_ = *src;
+    else
+	pidsrc_.erase();
 }
 
 

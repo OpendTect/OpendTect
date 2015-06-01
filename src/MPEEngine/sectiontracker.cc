@@ -32,14 +32,14 @@ const char* SectionTracker::seedonlypropstr = "Seed only propagation";
 
 SectionTracker::SectionTracker( EM::EMObject& emobj,
 				const EM::SectionID& sectionid,
-				SectionSourceSelector* selector__,
-				SectionExtender* extender__,
-				SectionAdjuster* adjuster__ )
+				SectionSourceSelector* sel,
+				SectionExtender* ext,
+				SectionAdjuster* adj )
     : emobject( emobj )
     , sid( sectionid )
-    , selector_(selector__)
-    , extender_(extender__)
-    , adjuster_(adjuster__)
+    , selector_(sel)
+    , extender_(ext)
+    , adjuster_(adj)
     , useadjuster(true)
     , seedonlypropagation(false)
     , displayas(*new Attrib::SelSpec)

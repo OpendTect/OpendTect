@@ -119,19 +119,14 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
 	adjuster->reset();
 	adjuster->setPositions( subids );
 
-	const bool didremoveonfailure = adjuster->removeOnFailure(false);
-
 	while ( int res=adjuster->nextStep() )
 	{
 	    if ( res==-1 )
 	    {
 		errmsg_ = adjuster->errMsg();
-		adjuster->removeOnFailure(didremoveonfailure);
 		return false;
 	    }
 	}
-
-	adjuster->removeOnFailure(didremoveonfailure);
     }
 
     return true;
