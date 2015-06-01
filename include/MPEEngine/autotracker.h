@@ -1,6 +1,6 @@
 #ifndef autotracker_h
 #define autotracker_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -19,9 +19,11 @@ ________________________________________________________________________
 #include "sortedtable.h"
 #include "trckeyzsampling.h"
 
-namespace EM { class EMObject; };
+namespace EM { class EMObject; }
 namespace Geometry { class Element; }
+namespace Threads { class WorkManager; }
 template <class T> class Array2D;
+class TrcKeyValue;
 
 /*!\brief %MPE stands for Model, Predict, Edit. Contains tracking and editing
 	  functions.*/
@@ -38,11 +40,34 @@ class EMTracker;
 \brief Executor to auto track.
 */
 
+
+mExpClass(MPEEngine) HorizonTrackerMgr
+{
+friend class HorizonTracker;
+public:
+			HorizonTrackerMgr();
+			~HorizonTrackerMgr();
+
+    void		setSeeds(const TypeSet<TrcKey>&);
+    void		startFromSeeds();
+
+protected:
+    void		addTask(const TrcKeyValue&,const TrcKeyValue&);
+
+    int				queueid_;
+
+    TypeSet<TrcKey>		seeds_;
+    Threads::WorkManager&	twm_;
+};
+
+
+
 mExpClass(MPEEngine) AutoTracker : public Executor
-{ mODTextTranslationClass(AutoTracker);
+{ mODTextTranslationClass(AutoTracker)
 public:
 				AutoTracker(EMTracker&,const EM::SectionID&);
 				~AutoTracker();
+
     void			setNewSeeds(const TypeSet<EM::PosID>&);
     int				nextStep();
     void			setTrackBoundary(const TrcKeyZSampling&);
@@ -63,7 +88,6 @@ protected:
     int 			stepcntallowedvar_;
     int				stepcntapmtthesld_;
 
-    bool			trackingextriffail_;
     bool			burstalertactive_;
 
     const EM::SectionID		sectionid_;
@@ -73,7 +97,7 @@ protected:
     SectionTracker*		sectiontracker_;
     SectionExtender*		extender_;
     SectionAdjuster*		adjuster_;
-    Geometry::Element*          geomelem_;
+    Geometry::Element*		geomelem_;
 
     Array2D<float>*		horizon3dundoinfo_;
     RowCol			horizon3dundoorigin_;
@@ -81,9 +105,7 @@ protected:
     uiString			execmsg_;
 };
 
-
-}; // namespace MPE
+} // namespace MPE
 
 #endif
-
 

@@ -14,43 +14,114 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arraynd.h"
 #include "binidvalue.h"
-#include "emmanager.h"
 #include "emhorizon3d.h"
-#include "emundo.h"
+#include "emmanager.h"
 #include "emtracker.h"
+#include "emundo.h"
 #include "horizonadjuster.h"
 #include "mpeengine.h"
 #include "progressmeter.h"
-#include "sectionextender.h"
 #include "sectionadjuster.h"
+#include "sectionextender.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
-#include "timefun.h"
 #include "thread.h"
+#include "threadwork.h"
+#include "trckeyvalue.h"
+
 
 namespace MPE
 {
 
+
+class HorizonTracker : public ParallelTask
+{
+public:
+HorizonTracker( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
+		const TrcKeyValue& srcpos )
+    : mgr_(mgr)
+    , seed_(seed)
+    , srcpos_(srcpos)
+{
+}
+
+protected:
+od_int64 nrIterations() const
+{ return neighbors_.size(); }
+
+bool doWork( int64_t start, int64_t stop, int )
+{
+    for ( int idx=(int)start; idx<=stop; idx++ )
+    {
+	const TrcKey& target = neighbors_[idx];
+	mgr_.addTask( seed_, TrcKeyValue(target) );
+    }
+
+    return true;
+}
+
+    HorizonTrackerMgr&	mgr_;
+    TrcKeyValue		seed_;
+    TrcKeyValue		srcpos_;
+
+    TypeSet<TrcKey>	neighbors_;
+};
+
+
+
+HorizonTrackerMgr::HorizonTrackerMgr()
+    : twm_(Threads::WorkManager::twm())
+{
+    queueid_ = twm_.addQueue(
+	Threads::WorkManager::MultiThread, "Horizon Tracker" );
+}
+
+
+HorizonTrackerMgr::~HorizonTrackerMgr()
+{
+    twm_.removeQueue( queueid_, false );
+}
+
+
+void HorizonTrackerMgr::setSeeds( const TypeSet<TrcKey>& seeds )
+{ seeds_ = seeds; }
+
+
+void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
+				 const TrcKeyValue& source )
+{
+    Task* task = new HorizonTracker( *this, seed, source );
+    twm_.addWork( Threads::Work(*task,true), 0, queueid_,
+		  false, false, true );
+}
+
+
+void HorizonTrackerMgr::startFromSeeds()
+{
+    for ( int idx=0; idx<seeds_.size(); idx++ )
+	addTask( seeds_[idx], seeds_[idx] );
+}
+
+
+
+
 AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     : Executor("Autotracker")
-    , emobject_( *EM::EMM().getObject(et.objectID()) )
-    , sectionid_( sid )
-    , sectiontracker_( et.getSectionTracker(sid,true) )
-    , nrdone_( 0 )
-    , totalnr_( 0 )
-    , nrflushes_( 0 )
-    , flushcntr_( 0 )
+    , emobject_(*EM::EMM().getObject(et.objectID()))
+    , sectionid_(sid)
+    , sectiontracker_(et.getSectionTracker(sid,true))
+    , nrdone_(0)
+    , totalnr_(0)
+    , nrflushes_(0)
+    , flushcntr_(0)
     , stepcntallowedvar_(-1)
     , stepcntapmtthesld_(-1)
-    , trackingextriffail_(false)
     , burstalertactive_(false)
-    , horizon3dundoinfo_( 0 )
+    , horizon3dundoinfo_(0)
 {
-    geomelem_ = emobject_.sectionGeometry(sectionid_);
+    geomelem_ = emobject_.sectionGeometry( sectionid_ );
     extender_ = sectiontracker_->extender();
     adjuster_ = sectiontracker_->adjuster();
-
-    trackingextriffail_ = adjuster_->removesOnFailure();
 
     reCalculateTotalNr();
 
@@ -63,8 +134,6 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	    {
 		stepcntapmtthesld_ = 0;
 		stepcntallowedvar_ = -1;
-		if ( horadj->getAmplitudeThresholds().size() > 1 )
-		    adjuster_->removeOnFailure( true );
 		const float th =
 		    horadj->getAmplitudeThresholds()[stepcntapmtthesld_];
 		horadj->setAmplitudeThreshold( th );
@@ -75,8 +144,6 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	{
 	    stepcntallowedvar_ = 0;
 	    stepcntapmtthesld_ = -1;
-	    if ( horadj->getAllowedVariances().size()>1 )
-		adjuster_->removeOnFailure( true );
 	    const float var = horadj->getAllowedVariances()[stepcntallowedvar_];
 	    horadj->setAllowedVariance( var );
 	    execmsg_ = tr("Step: %1%").arg(var * 100);
@@ -328,10 +395,6 @@ int AutoTracker::nextStep()
 
 	    stepcntapmtthesld_++;
 
-	    if( horadj->getAmplitudeThresholds().size() ==
-		(stepcntapmtthesld_+1) )
-		adjuster_->removeOnFailure( trackingextriffail_ );
-
 	    TypeSet<EM::SubID> seedsfromlaststep;
 	    if ( sectiontracker_->propagatingFromSeedOnly() )
 		seedsfromlaststep = currentseeds_;
@@ -360,9 +423,6 @@ int AutoTracker::nextStep()
 	    }
 
 	    stepcntallowedvar_++;
-
-	    if ( horadj->getAllowedVariances().size() == (stepcntallowedvar_+1))
-		adjuster_->removeOnFailure( trackingextriffail_ );
 
 	    TypeSet<EM::SubID> seedsfromlaststep;
 	    if ( sectiontracker_->propagatingFromSeedOnly() )
