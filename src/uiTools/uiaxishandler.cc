@@ -182,11 +182,7 @@ void uiAxisHandler::reCalc()
 	const BufferString posstr( toStringLim(pos,pos<0 ? reqnrchars+1
 							 : reqnrchars) );
 	strs_.add( posstr );
-	float relpos = pos - rg_.start;
-	if ( rgisrev_ ) relpos = -relpos;
-	relpos /= rgwidth_;
-	if ( setup_.islog_ )
-	    relpos = log( 1 + relpos );
+	float relpos = getRelPos( pos );
 	pos_ += relpos;
 	const int wdth = font.width( posstr );
 	if ( idx == 0 || rgwdth < wdth )
@@ -265,10 +261,10 @@ float uiAxisHandler::getRelPos( float v ) const
 
 int uiAxisHandler::getRelPosPix( float relpos ) const
 {
-    return isHor() ? (int)( (rgisrev_ ? pixAfter() : pixBefore()) +
-			     axsz_ * relpos + .5)
-		   : (int)( (rgisrev_ ? pixBefore() : pixAfter()) +
-			     axsz_ * (1 - relpos) + .5);
+    if ( isHor() )
+	return mNINT32( pixBefore() + (axsz_ * relpos) + .5 );
+    else
+	return mNINT32( pixAfter() + (axsz_ * (1 - relpos)) +.5 );
 }
 
 
@@ -652,7 +648,15 @@ uiLineItem* uiAxisHandler::getFullLine( int pix )
     const uiAxisHandler* hndlr = beghndlr_ ? beghndlr_ : endhndlr_;
     int endpix = setup_.border_.get( uiRect::across(setup_.side_) );
     if ( hndlr )
-	endpix = beghndlr_ ? hndlr->pixAfter() : hndlr->pixBefore();
+    {
+	if ( isHor() )
+	    endpix = setup_.side_==uiRect::Top ? hndlr->pixBefore()
+					       : hndlr->pixAfter();
+	else
+	    endpix = setup_.side_==uiRect::Left ? hndlr->pixAfter()
+						: hndlr->pixBefore();
+    }
+
     const int startpix = pixToEdge();
 
     uiLineItem* lineitem = new uiLineItem();
