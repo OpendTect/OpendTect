@@ -602,11 +602,15 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     prepostfix.add( postfxfld_->text() );
     ObjectSet<const SyntheticData> sds( postsds_ );
     sds.append( presds_ );
-    StratSynthExporter synthexp( sds, linegeom, prepostfix );
-    uiTaskRunner taskrunner( this );
-    const bool res = TaskRunner::execute( &taskrunner, synthexp );
-    if ( !res )
-	return false;
+    if ( !sds.isEmpty() )
+    {
+	StratSynthExporter synthexp( sds, linegeom, prepostfix );
+	uiTaskRunner taskrunner( this );
+	const bool res = TaskRunner::execute( &taskrunner, synthexp );
+	if ( !res )
+	    return false;
+    }
+
     createHor2Ds();
     if ( !SI().has2D() )
 	uiMSG().warning( "You need to change survey type to 'Both 2D and 3D'"
