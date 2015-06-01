@@ -38,7 +38,7 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
     tracker_->setSimilarityWindow(
 	    Interval<float>(-10*SI().zStep(), 10*SI().zStep() ) );
     tracker_->setPermittedRange(
-	    Interval<float>(-3*SI().zStep(), 3*SI().zStep() ) );
+	    Interval<float>(-2*SI().zStep(), 2*SI().zStep() ) );
     tracker_->setRangeStep( SI().zStep() );
 }
 
@@ -68,11 +68,11 @@ void HorizonAdjuster::reset()
 }
 
 
-void HorizonAdjuster::setPermittedZRange( const Interval<float>& rg )
+void HorizonAdjuster::setSearchWindow( const Interval<float>& rg )
 { tracker_->setPermittedRange( rg ); }
 
 
-Interval<float> HorizonAdjuster::permittedZRange() const
+Interval<float> HorizonAdjuster::searchWindow() const
 { return tracker_->permittedRange(); }
 
 
@@ -183,7 +183,7 @@ int HorizonAdjuster::nextStep()
 
 
 bool HorizonAdjuster::track( const BinID& from, const BinID& to,
-			     float& targetz) const
+			     float& targetz ) const
 {
     ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
     if ( !sdp || sdp->isEmpty() )
@@ -207,7 +207,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
     tracker_->setTarget( &tovs, nrz, sd.getfIndex(startz) );
     if ( from.inl()!=-1 && from.crl()!=-1 )
     {
-	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
+	if ( !horizon_.isDefined(sectionid_,from.toInt64()) )
 	    return false;
 
 	const int fromtrcidx = sdp->getGlobalIdx( getTrcKey(from) );
@@ -222,20 +222,21 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
 	const bool res = tracker_->track();
 	const float resz = sd.atIndex( tracker_->targetDepth() );
-	if ( !permittedZRange().includes(resz-startz,false) )
+	if ( !searchWindow().includes(resz-startz,false) )
 	    return false;
 
 	if ( res ) targetz = resz;
 	return res;
     }
 
+    tracker_->setCompareMethod( EventTracker::None );
     tracker_->setSource( 0, nrz, 0 );
     if ( !tracker_->isOK() )
 	return false;
 
     const bool res = tracker_->track();
     const float resz = sd.atIndex( tracker_->targetDepth() );
-    if ( !permittedZRange().includes(resz-startz,false) )
+    if ( !searchWindow().includes(resz-startz,false) )
 	return false;
 
     if ( res ) targetz = resz;

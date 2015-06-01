@@ -280,7 +280,7 @@ void uiEventGroup::init()
     const int fldidx = getEventIdx( ev );
     evfld_->setValue( fldidx );
 
-    Interval<float> intvf( adjuster_->permittedZRange() );
+    Interval<float> intvf( adjuster_->searchWindow() );
     intvf.scale( mCast(float,SI().zDomain().userFactor()) );
     Interval<int> srchintv; srchintv.setFrom( intvf );
     srchgatefld_->setValue( srchintv );
@@ -320,10 +320,10 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	mErrRet( tr("Search window should be minus to positive, ex. -20, 20"));
     Interval<float> relintv( (float)intv.start/SI().zDomain().userFactor(),
 			     (float)intv.stop/SI().zDomain().userFactor() );
-    if ( adjuster_->permittedZRange() != relintv )
+    if ( adjuster_->searchWindow() != relintv )
     {
 	fieldchange = true;
-	adjuster_->setPermittedZRange( relintv );
+	adjuster_->setSearchWindow( relintv );
     }
 
     const bool useabs = thresholdtypefld_->getBoolValue() == 0;

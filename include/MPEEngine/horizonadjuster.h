@@ -43,8 +43,8 @@ public:
 				TypeSet<Attrib::SelSpec>&) const;
     TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
 
-    void		setPermittedZRange(const Interval<float>& rg);
-    Interval<float>	permittedZRange() const;
+    void		setSearchWindow(const Interval<float>& rg);
+    Interval<float>	searchWindow() const;
     void		setTrackByValue(bool yn);
     bool		trackByValue() const;
     void		setTrackEvent(VSEvent::Type ev);
