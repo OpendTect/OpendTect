@@ -1,6 +1,6 @@
 #ifndef faultstickseteditor_h
 #define faultstickseteditor_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -28,7 +28,7 @@ namespace MPE
 mExpClass(MPEEngine) FaultStickSetEditor : public ObjectEditor
 {
 public:
-    				FaultStickSetEditor(EM::FaultStickSet&);
+				FaultStickSetEditor(EM::FaultStickSet&);
 
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
@@ -36,12 +36,12 @@ public:
     void			setEditIDs(const TypeSet<EM::PosID>* editpids);
     void			getEditIDs(TypeSet<EM::PosID>&) const;
 
-    void			setLastClicked(const EM::PosID&); 
+    void			setLastClicked(const EM::PosID&);
     void			setSowingPivot(const Coord3);
 
     void			setZScale(float);
     void			setScaleVector(const Coord3& v);
-    				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
 
     void			getInteractionInfo( EM::PosID& insertpid,
 				    const MultiID* pickedmid,
@@ -81,8 +81,7 @@ protected:
 
 };
 
-
-}  // namespace MPE
+} // namespace MPE
 
 #endif
 
