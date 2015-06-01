@@ -26,19 +26,19 @@ a certain value)++ from one ValueSeries<float> to another.
 mExpClass(Algo) ValSeriesTracker
 {
 public:
-    			ValSeriesTracker();
+			ValSeriesTracker();
     virtual		~ValSeriesTracker()		{}
     virtual const char* type()				= 0;
 
     virtual bool	isOK() const;
-    			/*!<\returns whether the settings are OK, and it is
+			/*!<\returns whether the settings are OK, and it is
 			     possible to track.*/
     virtual void	setSource(const ValueSeries<float>*,int sz,float depth);
     virtual void	setTarget(const ValueSeries<float>*,int sz,
 	    			  float initialdepth);
 
     virtual bool	track()				= 0;
-    			/*!<Calculates a new value for targetdepth_. */
+			/*!<Calculates a new value for targetdepth_. */
 
     virtual float	targetDepth() const		{ return targetdepth_; }
     virtual float	quality() const			{ return 1; }
@@ -64,9 +64,14 @@ protected:
 mExpClass(Algo) EventTracker : public ValSeriesTracker
 {
 public:
-    				EventTracker();
+				EventTracker();
+
     const char*			type()		{ return sType(); }
     static const char*		sType()		{ return "EventTracker"; }
+
+    enum CompareMethod		{ None, SeedTrace, AdjacentParent };
+    void			setCompareMethod(CompareMethod);
+    CompareMethod		getCompareMethod() const;
 
     static const char**		sEventNames();
     static const VSEvent::Type*	cEventTypes();
@@ -74,19 +79,13 @@ public:
 
     virtual bool		isOK() const;
 
-    void			setSource(const ValueSeries<float>*,int sz,
-	    				  float depth);
-    				//!<Will set sourceampl to udf
-    void			setSourceAmpl(float v)	{ sourceampl_ = v; }
-    				//!<If udf, sourceampl will be extracted from
-				//!<source vs.
-				
-    float			getSourceAmpl() const	{ return sourceampl_; }
+    void			setSeed(const ValueSeries<float>*,int sz,
+					float depth);
 
     void			setRangeStep(float step) { rangestep_ = step; }
     float			getRangeStep() const { return rangestep_; }
     void			setPermittedRange(const Interval<float>& rg);
-    				//<!Is divided by rangestep to get nrof samples
+				//<!Is divided by rangestep to get nrof samples
     const Interval<float>&	permittedRange() const;
     void			setTrackEvent(VSEvent::Type ev);
     				/*!<
@@ -94,15 +93,15 @@ public:
 				       Will find max event within the permitted
 				       range where the amplitude is higher than
 				       the threshold.
-    				    - VSEvent::Min
+				    - VSEvent::Min
 				       Will find minimum event within the
 				       permitted range where the amplitude is
 				       lower than the threshold.
-    				    - VSEvent::ZCNegPos
+				    - VSEvent::ZCNegPos
 				       Will find zerocrossing (Neg to Pos )
 				       event within the permitted range. No
 				       amplitude threshold is used.
-    				    - VSEvent::ZCPosNeg
+				    - VSEvent::ZCPosNeg
 				       Will find zerocrossing (Pos to Neg)
 				       event within the permitted range. No
 				       amplitude threshold is used. */
@@ -119,14 +118,14 @@ public:
     bool			normalizesSimilarityValues() const;
 
     void			setUseAbsThreshold(bool abs);
-    				/*!<If on, the amplitude threshold
+				/*!<If on, the amplitude threshold
 				    is set by setAmplitudeThreshold().
 				    If off, the amplitude threshold
 				    is set by (1-allowedVariance()) *
-				    sourceamplitude. The source amplitude is
-				    either set by setSourceAmpl or extracted
+				    compareamplitude. The compare amplitude is
+				    either extracted from the seed valseries or
 				    from source valseries. */
-    bool			useAbsThreshold() const; 
+    bool			useAbsThreshold() const;
 
     void			setAmplitudeThreshold(float th);
     				//!<Must be set if using absolute threshold.
@@ -136,7 +135,7 @@ public:
     TypeSet<float>&		getAmplitudeThresholds();
 
     void			setAllowedVariance(float v);
-    				//!<Only used if not using absolute threshold
+				//!<Only used if not using absolute threshold
     float			allowedVariance() const;
 
     void			setAllowedVariances(const TypeSet<float>& avs);
@@ -164,6 +163,7 @@ protected:
 
     VSEvent::Type	evtype_;
     Interval<float>	permrange_;
+    CompareMethod	comparemethod_;
     float		ampthreshold_;
     TypeSet<float>	ampthresholds_;
     float		allowedvar_;
@@ -174,9 +174,12 @@ protected:
     float		similaritythreshold_;
     bool		usesimilarity_;
     bool		normalizesimi_;
-    bool		sourceampl_;
-
+    float		compareampl_;
     float		quality_;
+
+    const ValueSeries<float>*	seedvs_;
+    float			seeddepth_;
+    int				seedsize_;
 
     static const char*	sKeyPermittedRange()	{ return "Permitted range"; }
     static const char*	sKeyValueThreshold()	{ return "Value threshhold"; }
@@ -185,8 +188,8 @@ protected:
     static const char*	sKeyAllowedVariances()	{ return "Allowed variances"; }
     static const char*	sKeyUseAbsThreshold()	{ return "Use abs threshhold"; }
     static const char*	sKeySimWindow()		{ return "Similarity window"; }
-    static const char*	sKeySimThreshold() { return "Similarity threshhold"; }
-    static const char*	sKeyNormSimi() { return "Normalize similarity"; }
+    static const char*	sKeySimThreshold()   { return "Similarity threshhold"; }
+    static const char*	sKeyNormSimi()        { return "Normalize similarity"; }
     static const char*	sKeyTrackByValue()	{ return "Track by value"; }
     static const char*	sKeyTrackEvent()	{ return "Track event"; }
     static const char*	sKeyAttribID()		{ return "Attribute"; }

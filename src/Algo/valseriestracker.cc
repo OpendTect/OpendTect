@@ -45,12 +45,12 @@ int EventTracker::getEventTypeIdx( VSEvent::Type type )
 
 
 ValSeriesTracker::ValSeriesTracker()
-    : sourcevs_( 0 )
-    , sourcedepth_( mUdf(float) )
-    , sourcesize_( 0 )
-    , targetvs_( 0 )
-    , targetdepth_( mUdf(float) )
-    , targetsize_( 0 )
+    : sourcevs_(0)
+    , sourcedepth_(mUdf(float))
+    , sourcesize_(0)
+    , targetvs_(0)
+    , targetdepth_(mUdf(float))
+    , targetsize_(0)
 {}
 
 
@@ -77,7 +77,8 @@ void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz,
 
 
 EventTracker::EventTracker()
-    : permrange_( -5, 5 )
+    : ValSeriesTracker()
+    , permrange_( -5, 5 )
     , ampthreshold_( mUdf(float) )
     , allowedvar_( 0.20 )
     , evtype_( VSEvent::Max )
@@ -88,6 +89,10 @@ EventTracker::EventTracker()
     , normalizesimi_( false )
     , quality_( 1 )
     , rangestep_( 1 )
+    , seedvs_(0)
+    , seeddepth_(mUdf(float))
+    , seedsize_(0)
+    , comparemethod_(SeedTrace)
 {
 #define mAddAV(v) allowedvars_ += v
 //    mAddAV(0.01); mAddAV(0.02); mAddAV(0.05); mAddAV(0.1); mAddAV(0.2);
@@ -95,6 +100,13 @@ EventTracker::EventTracker()
 #undef mAddAV
 
 }
+
+
+void EventTracker::setCompareMethod( CompareMethod cm )
+{ comparemethod_ = cm; }
+
+EventTracker::CompareMethod EventTracker::getCompareMethod() const
+{ return comparemethod_; }
 
 
 void EventTracker::setPermittedRange( const Interval<float>& rg )
@@ -106,21 +118,34 @@ void EventTracker::setPermittedRange( const Interval<float>& rg )
 
 bool EventTracker::isOK() const
 {
-    if ( !sourcevs_ || mIsUdf(sourcedepth_) )
-    {
-	if ( usesimilarity_ )
-	    return false;
-    }
+    if ( comparemethod_==SeedTrace )
+	return seedvs_ && !mIsUdf(seeddepth_);
 
-    return targetvs_;
+    if ( comparemethod_==AdjacentParent )
+	return sourcevs_ && !mIsUdf(sourcedepth_);
+
+    if ( comparemethod_==None )
+	return targetvs_;
+
+    return false;
 }
 
 
-void EventTracker::setSource( const ValueSeries<float>* vs, int sz,
-				  float depth )
+void EventTracker::setSeed( const ValueSeries<float>* vs, int sz, float depth )
 {
-    ValSeriesTracker::setSource( vs, sz, depth );
-    setSourceAmpl( mUdf(float) );
+    seedvs_ = vs;
+    seeddepth_ = depth;
+    seedsize_ = sz;
+
+    if ( !seedvs_ )
+    {
+	compareampl_ = mUdf(float);
+	return;
+    }
+
+    const SampledFunctionImpl<float,ValueSeries<float> >
+			sampfunc( *seedvs_, seedsize_ );
+    compareampl_ = sampfunc.getValue( seeddepth_ );
 }
 
 
@@ -224,7 +249,11 @@ bool EventTracker::track()
 	    return snap( amplitudeThreshold() );
 
 	float refampl = mUdf(float);
-	if ( sourcevs_ )
+	if ( comparemethod_==SeedTrace && seedvs_ )
+	{
+	    refampl = compareampl_;
+	}
+	else if ( comparemethod_==AdjacentParent && sourcevs_ )
 	{
 	    const SampledFunctionImpl<float,ValueSeries<float> >
 		sampfunc( *sourcevs_, sourcesize_);
@@ -361,13 +390,15 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 
     const int nrsamples = actualsimilaritywin.width(false)+1;
 
+    const ValueSeries<float>* comparevs =
+		comparemethod_==SeedTrace ? seedvs_ : sourcevs_;
     for ( int idx=0; idx<nrtests; idx++ )
     {
 	const int targetstart = firsttargetsample + idx*step;
 	if ( targetstart<0 )
 	    break;
 
-	const float sim = similarity( *sourcevs_, *targetvs_, nrsamples,
+	const float sim = similarity( *comparevs, *targetvs_, nrsamples,
 		normalizesimi_, firstsourcesample, targetstart );
 
 	if ( idx && sim<maxsim )
