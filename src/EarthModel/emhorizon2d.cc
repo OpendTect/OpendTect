@@ -402,13 +402,25 @@ Horizon2D::~Horizon2D()
 
 float Horizon2D::getZ( const TrcKey& tk ) const
 {
-    return mUdf(float);
+    const Geometry::Horizon2DLine* line =
+		geometry().sectionGeometry( SectionID(0) );
+    const int rowidx = line ? line->getRowIndex( tk.geomID() ) : -1;
+    if ( rowidx < 0 )
+	return mUdf(float);
+
+    const Coord3 pos = line->getKnot( RowCol(rowidx,tk.trcNr()) );
+    return pos.isDefined() ? mCast(float,pos.z) : mUdf(float);
 }
 
 
 bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist )
 {
-    return false;
+    Geometry::Horizon2DLine* line = geometry().sectionGeometry( SectionID(0) );
+    const int rowidx = line ? line->getRowIndex( tk.geomID() ) : -1;
+    if ( rowidx < 0 )
+	return false;
+
+    return line->setKnot( RowCol(rowidx,tk.trcNr()), Coord3(0,0,(double)z) );
 }
 
 
@@ -730,7 +742,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
 	if ( !getHdrVals(strm_) )
 	    return -1;
 
-	udfval_ = getfValue( 0 );
+	udfval_ = getFValue( 0 );
 	finishedreadingheader_ = true;
     }
 
@@ -738,12 +750,12 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
     if ( ret <= 0 ) return ret;
 
     lnm = text( 0 );
-    crd.x = getdValue( 1 );
-    crd.y = getdValue( 2 );
+    crd.x = getDValue( 1 );
+    crd.y = getDValue( 2 );
     trcnr = getIntValue( 3 );
     const int nrhors = vals_.size() - 4;
     for ( int idx=0; idx<nrhors; idx++ )
-	data += getfValue( idx+4, udfval_ );
+	data += getFValue( idx+4, udfval_ );
 
     return ret;
 }
