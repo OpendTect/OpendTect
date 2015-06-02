@@ -53,7 +53,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     FixedString valstr = pars.find( sKey::Position() );
     mesg.setEmpty();
     if ( valstr && *valstr )
-	mesg.add("Pos=").add( valstr ).addTab();
+	mesg.add( valstr ).addTab();
     else
     {
 	valstr = pars.find( sKey::TraceNr() );
