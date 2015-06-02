@@ -76,7 +76,7 @@ PreStackDisplay::PreStackDisplay()
 
     flatviewer_->ref();
     flatviewer_->enableTraversal( visBase::cDraggerIntersecTraversalMask(),
-				  false);
+				  false );
     flatviewer_->setSelectable( false );
     flatviewer_->appearance().setGeoDefaults( true );
     flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
@@ -306,36 +306,42 @@ bool PreStackDisplay::updateData()
     const bool haddata = flatviewer_->hasPack( false );
     PreStack::Gather* gather = new PreStack::Gather;
 
-	DataPack::ID displayid = DataPack::cNoID();
-	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
-	{
-	    displayid = preProcess();
-	    delete gather;
-	}
-	else
-	{
+    DataPack::ID displayid = DataPack::cNoID();
+    if ( preprocmgr_ && preprocmgr_->nrProcessors() )
+    {
+	displayid = preProcess();
+	delete gather;
+    }
+    else
+    {
 	if ( (is3DSeis() && !gather->readFrom(*ioobj_,*reader_,bid_)) ||
 	     (!is3DSeis() && !gather->readFrom(*ioobj_,*reader_,
 					       BinID(0,trcnr_))) )
 		delete gather;
-	    else
-	    {
-		DPM(DataPackMgr::FlatID()).add( gather );
-		displayid = gather->id();
-	    }
-	}
-
-	if ( displayid==DataPack::cNoID() )
+	else
 	{
-	    if ( haddata )
-		flatviewer_->setPack( false, DataPack::cNoID() );
-	    else
-		dataChangedCB( 0 );
+	    DPM(DataPackMgr::FlatID()).add( gather );
+	    displayid = gather->id();
+	}
+    }
 
-	    return false;
+    if ( displayid==DataPack::cNoID() )
+    {
+	if ( haddata )
+	{
+	    flatviewer_->setVisible( false, false );
+	    flatviewer_->setPack( false, DataPack::cNoID() );
 	}
 	else
-	    flatviewer_->setPack( false, displayid, !haddata );
+	    dataChangedCB( 0 );
+
+	return false;
+    }
+    else
+    {
+	flatviewer_->setVisible( false, true );
+	flatviewer_->setPack( false, displayid, !haddata );
+    }
 
     turnOn( true );
     return true;
@@ -573,6 +579,10 @@ bool PreStackDisplay::isOrientationInline() const
 
 
 const visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay() const
+{ return section_;}
+
+
+visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay()
 { return section_;}
 
 

@@ -58,6 +58,9 @@ protected:
     bool		rejectOK(CallBacker*);
 
     visSurvey::PreStackDisplay& viewer_;
+
+    void		sectionChangedCB(CallBacker*);
+    void		updateFieldDisplay();
 };
 
 } // namespace 

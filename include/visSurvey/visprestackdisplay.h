@@ -158,6 +158,7 @@ protected:
 public:
     void			updateMouseCursorCB(CallBacker*);
     const MouseCursor*		getMouseCursorNonVirtual() const;
+    PlaneDataDisplay*		getSectionDisplay();
 
 };
 
