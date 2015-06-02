@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "visprestackdisplay.h"
 #include "visseis2ddisplay.h"
+#include "visplanedatadisplay.h"
 #include "od_helpids.h"
 
 
@@ -61,6 +62,8 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
 
     postFinalise().notify( mCB(this,uiViewer3DPositionDlg,atStart) );
+    viewer_.getSectionDisplay()->getMovementNotifier()->notify(
+	    mCB(this,uiViewer3DPositionDlg,sectionChangedCB) );
     viewer_.draggermoving.notify( mCB(this,uiViewer3DPositionDlg,renewFld) );
 }
 
@@ -77,6 +80,25 @@ bool uiViewer3DPositionDlg::is3D() const
 
 bool uiViewer3DPositionDlg::isInl() const
 { return viewer_.isOrientationInline(); }
+
+
+void uiViewer3DPositionDlg::sectionChangedCB( CallBacker* )
+{
+    updateFieldDisplay();
+}
+
+
+void uiViewer3DPositionDlg::updateFieldDisplay()
+{
+    const StepInterval<int> psdatarg =
+	viewer_.getTraceRange( viewer_.getBinID() );
+    const bool haspsdata = psdatarg!=Interval<int>::udf();
+    posfld_->setSensitive( haspsdata );
+    stepfld_->setSensitive( haspsdata );
+    oobox_->setSensitive( haspsdata );
+    applybox_->setSensitive( haspsdata );
+    applybut_->setSensitive( haspsdata );
+}
 
 
 void uiViewer3DPositionDlg::renewFld( CallBacker* )

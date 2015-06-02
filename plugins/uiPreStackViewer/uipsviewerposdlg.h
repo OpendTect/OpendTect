@@ -46,10 +46,13 @@ protected:
     uiLabel*		steplbl_;
     BufferString	ootxt_;
 
+    void		updateFieldDisplay();
+    
     void		ooBoxSel(CallBacker*);
     void		applBoxSel(CallBacker*);
     void		posChg(CallBacker*);
     void		renewFld(CallBacker*);
+    void		sectionChangedCB(CallBacker*);
 
     void		stepCB(CallBacker*);
     void		atStart(CallBacker*);

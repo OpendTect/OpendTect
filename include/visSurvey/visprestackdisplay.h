@@ -71,6 +71,7 @@ public:
     const BinID&		getPosition() const;
     void			setSectionDisplay(PlaneDataDisplay*);
     const PlaneDataDisplay*	getSectionDisplay() const;
+    PlaneDataDisplay*		getSectionDisplay();
 
     Notifier<PreStackDisplay>	draggermoving;
     NotifierAccess*		getMovementNotifier() { return &draggermoving;}
