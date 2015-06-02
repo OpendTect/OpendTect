@@ -169,7 +169,6 @@ SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b,
     }
 
     totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
-    trcstep_ = tr_->packetInfo().crlrg.step;
 }
 
 
