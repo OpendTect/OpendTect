@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uigroup.h"
 #include "trckeyzsampling.h"
+
+class uiCheckBox;
 class uiSpinBox;
 class uiLineEdit;
 namespace ZDomain { class Def; }
@@ -66,26 +68,44 @@ public:
                         uiSelNrRange(uiParent*,Type,bool wstep);
 			uiSelNrRange(uiParent*,StepInterval<int> limit,
 				     bool wstep,const char*);
+    virtual		~uiSelNrRange();
 
     StepInterval<int>	getRange() const;
     void		setRange(const StepInterval<int>&);
     void		setLimitRange(const StepInterval<int>&);
 
+    bool		isChecked();
+    void		setChecked(bool);
+    bool		isCheckable()		{ return cbox_; }
+    void		setWithCheck( bool yn=true )	{ withchk_ = yn; }
+    void		setLabel(const char*);
+
+    Notifier<uiSelNrRange>	checked;
     Notifier<uiSelNrRange>	rangeChanged;
 
 protected:
 
+    uiCheckBox*		cbox_;
     uiSpinBox*		startfld_;
     uiSpinBox*		icstopfld_;
     uiLineEdit*		nrstopfld_;
     uiSpinBox*		stepfld_;
+    BufferString	lbltxt_;
+    BufferString*	cblabel_;
+    bool		finalised_;
+    bool		withchk_;
     int			defstep_;
 
     void		valChg(CallBacker*);
+    void		checkBoxSel(CallBacker*);
+    void		doFinalise(CallBacker*);
 
     int			getStopVal() const;
     void		setStopVal(int);
-    void		makeInpFields(const char*,StepInterval<int>,bool,bool);
+    void		makeInpFields(StepInterval<int>,bool,bool);
+
+private:
+    bool		checked_;
 
 };
 

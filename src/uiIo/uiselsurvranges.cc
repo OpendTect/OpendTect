@@ -14,9 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math.h"
 #include "survinfo.h"
 #include "zdomain.h"
-#include "uispinbox.h"
-#include "uilineedit.h"
+
+#include "uibutton.h"
 #include "uilabel.h"
+#include "uilineedit.h"
+#include "uispinbox.h"
 #include "uistrings.h"
 
 static const int cUnLim = 1000000;
@@ -226,6 +228,12 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	, nrstopfld_(0)
 	, defstep_(1)
     	, rangeChanged(this)
+	, finalised_(false)
+	, checked_(false)
+	, cbox_(0), withchk_(false)
+	, checked(this)
+	, lbltxt_("")
+	, cblabel_(0)
 {
     StepInterval<int> rg( 1, mUdf(int), 1 );
     StepInterval<int> wrg( rg );
@@ -239,9 +247,10 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	nm = typ == Inl ? sKey::Inline() : sKey::Crossline();
 	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
     }
-
-    makeInpFields( nm, rg, wstep, typ==Gen );
+    lbltxt_ = nm;
+    makeInpFields( rg, wstep, typ==Gen );
     setRange( wrg );
+    preFinalise().notify( mCB(this,uiSelNrRange,doFinalise) );
 }
 
 
@@ -253,32 +262,46 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 	, icstopfld_(0)
 	, nrstopfld_(0)
 	, rangeChanged(this)
+	, finalised_(false)
+	, withchk_(false)
+	, checked_(false)
+	, cbox_(0)
+	, checked(this)
+	, lbltxt_(lbltxt)
+	, cblabel_(0)
 {
-    makeInpFields( lbltxt, limitrg, wstep, false );
+    makeInpFields( limitrg, wstep, false );
     setRange( limitrg );
+    preFinalise().notify( mCB(this,uiSelNrRange,doFinalise) );
 }
 
 
-void uiSelNrRange::makeInpFields( const char* lbltxt, StepInterval<int> limitrg,
-				  bool wstep, bool isgen )
+uiSelNrRange::~uiSelNrRange()
+{
+    delete cblabel_; cblabel_ = 0;
+}
+
+
+
+void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
+				  bool isgen )
 {
     const CallBack cb( mCB(this,uiSelNrRange,valChg) );
-    startfld_ = new uiSpinBox( this, 0, BufferString(lbltxt," start") );
+    startfld_ = new uiSpinBox( this, 0, BufferString(lbltxt_," start") );
     startfld_->setInterval( limitrg );
     startfld_->doSnap( true );
-    uiLabel* lbl = new uiLabel( this, BufferString(lbltxt," range"), startfld_);
     uiObject* stopfld;
     if ( isgen )
     {
 	stopfld = nrstopfld_ = new uiLineEdit( this,
-					       BufferString(lbltxt," stop") );
+					       BufferString(lbltxt_," stop") );
 	nrstopfld_->setHSzPol( uiObject::Small );
 	nrstopfld_->editingFinished.notify( cb );
     }
     else
     {
 	stopfld = icstopfld_ = new uiSpinBox( this, 0,
-					      BufferString(lbltxt," stop") );
+					      BufferString(lbltxt_," stop") );
 	icstopfld_->setInterval( limitrg );
 	icstopfld_->doSnap( true );
 	icstopfld_->valueChanging.notify( cb );
@@ -287,13 +310,13 @@ void uiSelNrRange::makeInpFields( const char* lbltxt, StepInterval<int> limitrg,
 
     if ( wstep )
     {
-	stepfld_ = new uiSpinBox( this, 0, BufferString(lbltxt," step") );
+	stepfld_ = new uiSpinBox( this, 0, BufferString(lbltxt_," step") );
 	stepfld_->setInterval( StepInterval<int>(limitrg.step,
 			    limitrg.width() ? limitrg.width() : limitrg.step,
 		    	    limitrg.step) );
 	stepfld_->doSnap( true );
 	stepfld_->valueChanging.notify( cb );
-	lbl = new uiLabel( this, uiStrings::sStep(), stepfld_ );
+	uiLabel* lbl = new uiLabel( this, uiStrings::sStep(), stepfld_ );
 	if ( stopfld )
 	    lbl->attach( rightOf, stopfld );
     }
@@ -342,6 +365,26 @@ void uiSelNrRange::valChg( CallBacker* cb )
 }
 
 
+void uiSelNrRange::doFinalise( CallBacker* )
+{
+    if ( finalised_ ) return;
+
+    if ( withchk_ )
+    {
+	cbox_ = new uiCheckBox( this, cblabel_ ? *cblabel_ :
+					    BufferString(lbltxt_," range") );
+	cbox_->attach( leftTo, startfld_ );
+	cbox_->activated.notify( mCB(this,uiSelNrRange,checkBoxSel) );
+	setChecked( checked_ );
+	checkBoxSel(0);
+    }
+    else
+	new uiLabel( this, BufferString(lbltxt_," range"), startfld_ );
+
+    finalised_ = true;
+}
+
+
 StepInterval<int> uiSelNrRange::getRange() const
 {
     return StepInterval<int>( startfld_->getValue(), getStopVal(),
@@ -375,6 +418,40 @@ void uiSelNrRange::setLimitRange( const StepInterval<int>& limitrg )
     }
 }
 
+
+bool uiSelNrRange::isChecked()
+{ return checked_; }
+
+
+void uiSelNrRange::setChecked( bool yn )
+{
+    checked_ = yn;
+    if ( cbox_ ) cbox_->setChecked( yn );
+}
+
+
+void uiSelNrRange::setLabel( const char* lbltxt )
+{ cblabel_ = new BufferString(lbltxt); }
+
+
+void uiSelNrRange::checkBoxSel( CallBacker* cb )
+{
+    if ( !cbox_ ) return;
+
+    checked_ = cbox_->isChecked();
+    const bool elemsens = cbox_->sensitive() && cbox_->isChecked();
+
+    if ( startfld_ )
+	startfld_->setSensitive( elemsens );
+    if ( icstopfld_ )
+	icstopfld_->setSensitive( elemsens );
+    if ( stepfld_ )
+	stepfld_->setSensitive( elemsens );
+    if ( nrstopfld_ )
+	nrstopfld_->setSensitive( elemsens );
+
+    checked.trigger(this);
+}
 
 uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 	: uiGroup(p,"Step selection")
