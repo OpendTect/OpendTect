@@ -1109,7 +1109,9 @@ void uiODMenuMgr::selectionMode( CallBacker* cb )
     uiVisPartServer* visserv = appl_.applMgr().visServer();
     if ( cb == visserv )
     {
-	cointb_->turnOn( polyselectid_, visserv->isSelectionModeOn() );
+	const bool ison = visserv->isSelectionModeOn();
+	cointb_->turnOn( polyselectid_, ison );
+	cointb_->setSensitive( removeselectionid_, ison );
 	sIsPolySelect = visserv->getSelectionMode()==uiVisPartServer::Polygon;
     }
     else
