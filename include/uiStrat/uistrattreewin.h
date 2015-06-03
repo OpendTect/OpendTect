@@ -44,6 +44,7 @@ public:
     virtual bool	closeOK();
 
     static void		addTool(uiToolButtonSetup*); //!< becomes mine
+    static void		allowNewRefTree(bool allow); 
     
 protected:
 

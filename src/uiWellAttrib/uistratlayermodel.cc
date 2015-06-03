@@ -94,6 +94,7 @@ void survChg( CallBacker* )
 
 void winClose( CallBacker* )
 {
+    uiStratTreeWin::allowNewRefTree( true );
     dlg_ = 0;
 }
 
@@ -191,6 +192,7 @@ void doLayerModel( uiParent* p, const char* modnm, int opt )
 	return;
 
     dlg_ = new uiStratLayerModel( p, modnm, opt );
+    uiStratTreeWin::allowNewRefTree( false );
     dlg_->windowClosed.notify(mCB(this,uiStratLayerModelManager,winClose));
     dlg_->go();
 }
