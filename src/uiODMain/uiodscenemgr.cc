@@ -1142,7 +1142,9 @@ int uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, int sceneid )
     else
 	return -1;
 
-    scene->itemmanager_->addChild( itm, false );
+    if ( !scene->itemmanager_->addChild(itm,false) )
+	return -1;
+
     itm->setTrcKeyZSampling( tkzs );
     itm->displayDefaultData();
     return itm->displayID();
