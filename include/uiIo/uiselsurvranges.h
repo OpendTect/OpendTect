@@ -68,7 +68,6 @@ public:
                         uiSelNrRange(uiParent*,Type,bool wstep);
 			uiSelNrRange(uiParent*,StepInterval<int> limit,
 				     bool wstep,const char*);
-    virtual		~uiSelNrRange();
 
     StepInterval<int>	getRange() const;
     void		setRange(const StepInterval<int>&);
@@ -78,7 +77,6 @@ public:
     void		setChecked(bool);
     bool		isCheckable()		{ return cbox_; }
     void		setWithCheck( bool yn=true )	{ withchk_ = yn; }
-    void		setLabel(const char*);
 
     Notifier<uiSelNrRange>	checked;
     Notifier<uiSelNrRange>	rangeChanged;
@@ -91,7 +89,6 @@ protected:
     uiLineEdit*		nrstopfld_;
     uiSpinBox*		stepfld_;
     BufferString	lbltxt_;
-    BufferString*	cblabel_;
     bool		finalised_;
     bool		withchk_;
     int			defstep_;

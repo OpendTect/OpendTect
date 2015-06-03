@@ -233,7 +233,6 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	, cbox_(0), withchk_(false)
 	, checked(this)
 	, lbltxt_("")
-	, cblabel_(0)
 {
     StepInterval<int> rg( 1, mUdf(int), 1 );
     StepInterval<int> wrg( rg );
@@ -268,19 +267,11 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 	, cbox_(0)
 	, checked(this)
 	, lbltxt_(lbltxt)
-	, cblabel_(0)
 {
     makeInpFields( limitrg, wstep, false );
     setRange( limitrg );
     preFinalise().notify( mCB(this,uiSelNrRange,doFinalise) );
 }
-
-
-uiSelNrRange::~uiSelNrRange()
-{
-    delete cblabel_; cblabel_ = 0;
-}
-
 
 
 void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
@@ -371,8 +362,7 @@ void uiSelNrRange::doFinalise( CallBacker* )
 
     if ( withchk_ )
     {
-	cbox_ = new uiCheckBox( this, cblabel_ ? *cblabel_ :
-					    BufferString(lbltxt_," range") );
+	cbox_ = new uiCheckBox( this, BufferString(lbltxt_," range") );
 	cbox_->attach( leftTo, startfld_ );
 	cbox_->activated.notify( mCB(this,uiSelNrRange,checkBoxSel) );
 	setChecked( checked_ );
@@ -428,10 +418,6 @@ void uiSelNrRange::setChecked( bool yn )
     checked_ = yn;
     if ( cbox_ ) cbox_->setChecked( yn );
 }
-
-
-void uiSelNrRange::setLabel( const char* lbltxt )
-{ cblabel_ = new BufferString(lbltxt); }
 
 
 void uiSelNrRange::checkBoxSel( CallBacker* cb )
