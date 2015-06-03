@@ -118,9 +118,8 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
 
 static const char* centernms[] = { "maximum amplitude", "maximum Energy", 0 };
 uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
-    : uiSeisWvltCreate(p,uiDialog::Setup(tr("Merge Wavelets"),
-			tr("Select two ore more wavelets to be stacked"),
-				 mODHelpKey(mSeisWvltMergeHelpID) ))
+    : uiSeisWvltCreate(p,uiDialog::Setup(tr("Stack Wavelets"),
+		       mNoDlgTitle,mODHelpKey(mSeisWvltMergeHelpID)))
     , maxwvltsize_(0)
     , stackedwvlt_(0)
     , curwvltnm_(curwvltnm)
