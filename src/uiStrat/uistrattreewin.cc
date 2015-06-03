@@ -478,3 +478,10 @@ void uiStratTreeWin::changeLayerModelNumber( bool add )
 	editmnuitem_->setEnabled( !nrlayermodelwin );
     }
 }
+
+
+void uiStratTreeWin::allowNewRefTree( bool yn )
+{
+    if ( stratwin )
+	stratwin->newbut_->setSensitive( yn );
+}

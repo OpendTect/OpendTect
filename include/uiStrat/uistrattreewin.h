@@ -99,6 +99,7 @@ private:
 
 public:
     void			changeLayerModelNumber(bool add);
+    static void			allowNewRefTree(bool allow);
 
 };
 
