@@ -348,6 +348,8 @@ void uiStratSynthDisp::addTool( const uiToolButtonSetup& bsu )
 
 void uiStratSynthDisp::cleanSynthetics()
 {
+    currentwvasynthetic_ = 0;
+    currentvdsynthetic_ = 0;
     curSS().clearSynthetics();
     mDelD2TM
     wvadatalist_->setEmpty();
@@ -1308,12 +1310,21 @@ void uiStratSynthDisp::doModelChange()
 
 void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 {
+    BufferString curwvasdnm( currentwvasynthetic_ ? currentwvasynthetic_->name()
+						  : "" );
+    BufferString curvdsdnm( currentvdsynthetic_ ? currentvdsynthetic_->name()
+						: "" );
     FixedString syntheticnm( synthnm );
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     if ( !datalist->isPresent(syntheticnm) || syntheticnm == sKeyNone() )
 	return;
     if ( !curSS().removeSynthetic(syntheticnm) )
 	return;
+
+    if ( curwvasdnm==synthnm )
+	currentwvasynthetic_ = 0;
+    if ( curvdsdnm==synthnm )
+	currentvdsynthetic_ = 0;
 
     mDelD2TM
     SyntheticData* sd = curSS().addSynthetic();
@@ -1379,9 +1390,18 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 
 void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
+    BufferString curwvasdnm( currentwvasynthetic_ ? currentwvasynthetic_->name()
+						  : "" );
+    BufferString curvdsdnm( currentvdsynthetic_ ? currentvdsynthetic_->name()
+						: "" );
     mCBCapsuleUnpack(BufferString,synthname,cb);
     if ( !curSS().removeSynthetic(synthname) )
 	return;
+
+    if ( curwvasdnm==synthname )
+	currentwvasynthetic_ = 0;
+    if ( curvdsdnm==synthname )
+	currentvdsynthetic_ = 0;
     mDelD2TM
     altSS().removeSynthetic( synthname );
     synthsChanged.trigger();
@@ -1575,6 +1595,8 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     PtrMan<IOPar> stratsynthpar = par.subselect( sKeySynthetics() );
     if ( !curSS().hasElasticModels() )
 	return false;
+    currentwvasynthetic_ = 0;
+    currentvdsynthetic_ = 0;
     curSS().clearSynthetics();
     mDelD2TM
     if ( !stratsynthpar )
