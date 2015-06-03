@@ -46,6 +46,7 @@ public:
     			~uiODBodyDisplayTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
+    void		displayAtSections(bool);
 
 protected:
     void		prepareForShutdown();
