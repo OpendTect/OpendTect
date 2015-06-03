@@ -76,7 +76,7 @@ void uiODHorizonParentTreeItem::keyPressCB( CallBacker* cb )
     mDynamicCastGet(KeyboardEventHandler*,keh,cb)
     if ( !keh || !keh->hasEvent() || children_.isEmpty() ) return;
 
-    if ( keh->event().key_ == OD::R )
+    if ( keh->event().key_==OD::R && keh->event().modifier_==OD::NoButton )
     {
 	mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm0,children_[0])
 	const bool atsections = itm0 && itm0->visEMObject() &&
