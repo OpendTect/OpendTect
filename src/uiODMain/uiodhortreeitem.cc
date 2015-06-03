@@ -71,9 +71,9 @@ void uiODHorizonParentTreeItem::keyPressCB( CallBacker* cb )
 
     if ( keh->event().key_ == OD::R )
     {
-	mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm,children_[0])
-	const bool atsections = itm && itm->visEMObject() &&
-				itm->visEMObject()->isOnlyAtSections();
+	mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm0,children_[0])
+	const bool atsections = itm0 && itm0->visEMObject() &&
+				itm0->visEMObject()->isOnlyAtSections();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm,children_[idx])

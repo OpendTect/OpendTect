@@ -19,9 +19,9 @@ ________________________________________________________________________
 class uEMHorizonShiftDialog;
 
 mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton
-	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
-	     virtual void removeChild(uiTreeItem*);
-	     void keyPressCB(CallBacker*) )
+		void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
+		virtual void removeChild(uiTreeItem*);
+		void keyPressCB(CallBacker*) )
 
 
 mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
@@ -29,7 +29,7 @@ mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODHorizonParentTreeItem; }
+			{ return new uiODHorizonParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
@@ -45,7 +45,7 @@ public:
 protected:
     bool		init();
     void		initMenuItems();
-    void                initNotify();
+    void		initNotify();
     BufferString	createDisplayName() const;
     void		dispChangeCB(CallBacker*);
     const char*		parentType() const
@@ -72,8 +72,8 @@ protected:
 
 
 mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
-             void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
-             virtual void removeChild(uiTreeItem*) )
+		void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
+		virtual void removeChild(uiTreeItem*) )
 
 
 mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
@@ -94,7 +94,7 @@ public:
 
 protected:
     void		initMenuItems();
-    void                initNotify();
+    void		initNotify();
     void		dispChangeCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODHorizon2DParentTreeItem).name(); }
