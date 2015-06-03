@@ -366,7 +366,8 @@ int uiVisDataPointSetDisplayMgr::getDisplayID( const DataPointSet& dps ) const
 	for ( int visidx=0; visidx<visids.size(); visidx++ )
 	{
 	    visSurvey::PointSetDisplay* psd = getPSD( visserv_, visids[visidx]);
-	    if ( psd && psd->getDataPack()->id() == dps.id() )
+	    const DataPack* dp = psd ? psd->getDataPack() : 0;
+	    if ( dp && dp->id() == dps.id() )
 		return ids_[idx];
 	}
     }
@@ -423,6 +424,28 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
     ids_ += id;
 
     return id;
+}
+
+
+void uiVisDataPointSetDisplayMgr::turnOn( DispID id, bool yn )
+{
+    const int idx = ids_.indexOf( id );
+    if ( idx<0 )
+	return;
+
+    DisplayInfo& displayinfo = *displayinfos_[idx];
+    for ( int idy=0; idy<displayinfo.visids_.size(); idy++ )
+    {
+	const int displayid = displayinfo.visids_[idy];
+	RefMan<visBase::DataObject> displayptr = visserv_.getObject(displayid);
+	if ( !displayptr )
+	    continue;
+
+	mDynamicCastGet( visSurvey::PointSetDisplay*, display,
+			 displayptr.ptr() );
+	if ( display )
+	    display->turnOn( yn );
+    }
 }
 
 

@@ -47,6 +47,7 @@ public:
     int		addDisplay(const TypeSet<int>& parents, const DataPointSet&);
     void	updateDisplay(DispID id, const TypeSet<int>& parents,
 	    		      const DataPointSet&);
+    void	turnOn(DispID id,bool);
     void	updateDisplay(DispID id, const DataPointSet&);
     void	removeDisplay(DispID);
     void	clearDisplays();
