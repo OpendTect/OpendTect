@@ -256,6 +256,15 @@ bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
 	mErrRet( msg, continue )
     }
 
+    for ( int ilog=0; ilog<logdatas_.size(); ilog++ )
+    {
+	LogCubeData& logdata = *logdatas_[ilog];
+	if ( !logdata.makeWriteReady() )
+	{
+	    mErrRet( FixedString(logdata.errMsg()), continue )
+	}
+    }
+
     return errmsg_.isEmpty();
 }
 
@@ -321,12 +330,6 @@ bool LogCubeCreator::doFinish( bool success )
 	    BufferString errmsg( "No data for log ", logdata.lognm_ );
 	    errmsg.add( ": no cube created" );
 	    mErrRet( errmsg, continue )
-	}
-
-	if ( !logdata.makeWriteReady() )
-	{
-	    if ( errmsg_.isEmpty() ) mErrRet( msg, ; )
-	    mErrRet( FixedString(logdata.errMsg()), continue )
 	}
 
 	trcsbufsout.sortForWrite( false );

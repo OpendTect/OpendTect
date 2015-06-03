@@ -56,6 +56,9 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 
     BufferStringSet lognms;
     welllogsel_->getSelLogNames( lognms );
+    if ( lognms.isEmpty() )
+	mErrRet("No log(s) selected",return false);
+
     LogCubeCreator lcr( lognms, wids, extractparams, nrtrcs );
     if ( !lcr.setOutputNm(outputgrp_->getPostFix()) )
     {
