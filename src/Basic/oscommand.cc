@@ -44,7 +44,7 @@ static const char* sKeyPriorityLevel = "PriorityLevel";
 class QProcessManager
 {
 public:
-    		~QProcessManager()
+		~QProcessManager()
 		{
 		    deleteProcesses();
 		}
@@ -188,7 +188,7 @@ bool OS::MachineCommand::setFromSingleStringRep( const char* inp,
 }
 
 
- 
+
 const char* OS::MachineCommand::getSingleStringRep() const
 {
     mDeclStaticString( ret );
@@ -489,7 +489,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    redirectoutput_ = true;
 	}
 #endif
-	
+
 	if ( File::exists(monitorfnm_) )
 	    File::remove(monitorfnm_);
 
@@ -505,7 +505,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	return doExecute( launchercmd, pars.launchtype_==Wait4Finish, false,
 			  pars.createstreams_ );
 #endif
-    
+
     }
 
     ret = doExecute( localcmd, pars.launchtype_==Wait4Finish, false,
@@ -650,6 +650,55 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 }
 
 
+static QStringList parseCompleteCommand( const QString& comm )
+{
+    QStringList args;
+    QString tmp;
+    int nrquotes = 0;
+    bool inquotes = false;
+
+    for ( int idx=0; idx<comm.size(); idx++ )
+    {
+	if ( comm.at(idx) == QLatin1Char('"') )
+	{
+	    nrquotes++;
+	    if ( nrquotes == 3 ) // the quote character itself
+	    {
+		nrquotes = 0;
+		tmp += comm.at( idx );
+	    }
+
+	    continue;
+	}
+
+	if ( nrquotes>0 )
+	{
+	    if ( nrquotes == 1 )
+		inquotes = !inquotes;
+	    nrquotes = 0;
+	}
+
+	if ( !inquotes && comm.at(idx).isSpace() )
+	{
+	    if ( !tmp.isEmpty() )
+	    {
+		args += tmp;
+		tmp.clear();
+	    }
+	}
+	else
+	{
+	    tmp += comm.at(idx);
+	}
+    }
+
+    if ( !tmp.isEmpty() )
+	args += tmp;
+
+    return args;
+}
+
+
 bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 {
 #ifdef __win__
@@ -687,8 +736,14 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 	return res;
     }
 #else
-    return
-	QProcess::startDetached( comm, QStringList(), "", mCast(qint64*,&pid_));
+
+    QStringList args = parseCompleteCommand( QString(comm) );
+    if ( args.isEmpty() )
+	return false;
+
+    QString prog = args.first();
+    args.removeFirst();
+    return QProcess::startDetached( prog, args, "", mCast(qint64*,&pid_) );
 #endif
 }
 
