@@ -126,14 +126,17 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
 {
     normalizefld_ = new uiCheckBox( this, tr("Normalize wavelets") );
     normalizefld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
+
     centerfld_ = new uiCheckBox( this, tr("Center wavelets") );
     centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,centerChged) );
     centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
     centerfld_->attach( rightOf, normalizefld_ );
+
     centerchoicefld_ = new uiLabeledComboBox( this, tr("at") );
     centerchoicefld_->box()->addItems( centernms );
     centerchoicefld_->box()->selectionChanged.notify(
 					mCB(this,uiSeisWvltMerge,reloadAll) );
+    centerchoicefld_->box()->setHSzPol( uiObject::MedVar );
     centerchoicefld_->attach( rightOf, centerfld_ );
     centerchoicefld_->display( false );
 
