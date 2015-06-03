@@ -427,6 +427,28 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 }
 
 
+void uiVisDataPointSetDisplayMgr::turnOn( DispID id, bool yn )
+{
+    const int idx = ids_.indexOf( id );
+    if ( idx<0 )
+	return;
+
+    DisplayInfo& displayinfo = *displayinfos_[idx];
+    for ( int idy=0; idy<displayinfo.visids_.size(); idy++ )
+    {
+	const int displayid = displayinfo.visids_[idy];
+	RefMan<visBase::DataObject> displayptr = visserv_.getObject(displayid);
+	if ( !displayptr )
+	    continue;
+
+	mDynamicCastGet( visSurvey::PointSetDisplay*, display,
+			 displayptr.ptr() );
+	if ( display )
+	    display->turnOn( yn );
+    }
+}
+
+
 void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 						 const DataPointSet& dps )
 { updateDisplay( id, availableViewers(), dps ); }
