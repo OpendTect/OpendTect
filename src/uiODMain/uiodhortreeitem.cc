@@ -64,6 +64,13 @@ uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
 }
 
 
+uiODHorizonParentTreeItem::~uiODHorizonParentTreeItem()
+{
+    uiMain::theMain().keyboardEventHandler().keyPressed.remove(
+		mCB(this,uiODHorizonParentTreeItem,keyPressCB) );
+}
+
+
 void uiODHorizonParentTreeItem::keyPressCB( CallBacker* cb )
 {
     mDynamicCastGet(KeyboardEventHandler*,keh,cb)

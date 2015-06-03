@@ -18,10 +18,26 @@ ________________________________________________________________________
 
 class uEMHorizonShiftDialog;
 
-mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton
-		void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
-		virtual void removeChild(uiTreeItem*);
-		void keyPressCB(CallBacker*) )
+mExpClass(uiODMain) uiODHorizonParentTreeItem : public uiODTreeItem
+{ mODTextTranslationClass(uiODHorizonParentTreeItem)
+    typedef uiODTreeItem inheritedClass;
+public:
+			uiODHorizonParentTreeItem();
+			~uiODHorizonParentTreeItem();
+
+    virtual void	removeChild(uiTreeItem*);
+
+protected:
+			mMenuOnAnyButton
+    bool		showSubMenu();
+    virtual bool	addChld(uiTreeItem*,bool,bool);
+    const char* 	parentType() const
+			{ return typeid(uiODTreeTop).name(); }
+
+    void		sort();
+    void		keyPressCB(CallBacker*);
+};
+
 
 
 mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
