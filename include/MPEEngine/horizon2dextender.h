@@ -14,9 +14,11 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "sectionextender.h"
+
 #include "coord.h"
 #include "posinfo2dsurv.h"
-#include "binidvalue.h"
+#include "trckeyvalue.h"
+
 
 namespace EM { class Horizon2D; }
 
@@ -38,8 +40,8 @@ public:
     void			setAngleThreshold(float radians);
     float			getAngleThreshold() const;
 
-    void			setDirection(const BinIDValue&);
-    const BinIDValue*		getDirection() const;
+    void			setDirection(const TrcKeyValue&);
+    const TrcKeyValue*		getDirection() const;
     void			setGeomID(Pos::GeomID);
     Pos::GeomID			geomID() const;
 
@@ -56,7 +58,7 @@ protected:
     float			anglethreshold_;
     bool			alldirs_;
     Coord			xydirection_;
-    BinIDValue			direction_;
+    TrcKeyValue			direction_;
     EM::Horizon2D&		surface_;
     Pos::GeomID			geomid_;
 };

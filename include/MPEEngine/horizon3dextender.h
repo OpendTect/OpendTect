@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "sectionextender.h"
-#include "binidvalue.h"
+#include "trckeyvalue.h"
 
 namespace EM { class Horizon3D; }
 
@@ -29,8 +29,8 @@ namespace MPE
 mExpClass(MPEEngine) BaseHorizon3DExtender : public SectionExtender
 {
 public:
-    void			setDirection(const BinIDValue&);
-    const BinIDValue*		getDirection() const { return &direction_; }
+    void			setDirection(const TrcKeyValue&);
+    const TrcKeyValue*		getDirection() const { return &direction_; }
 
     int				nextStep();
 
@@ -46,7 +46,7 @@ protected:
     virtual float		getDepth(const BinID& src,
 					 const BinID& dest) const;
 
-    BinIDValue			direction_;
+    TrcKeyValue			direction_;
     EM::Horizon3D&		horizon_;
 };
 

@@ -45,7 +45,7 @@ mExpClass(MPEEngine) HorizonTrackerMgr
 {
 friend class HorizonTracker;
 public:
-			HorizonTrackerMgr();
+			HorizonTrackerMgr(EMTracker&);
 			~HorizonTrackerMgr();
 
     void		setSeeds(const TypeSet<TrcKey>&);
@@ -56,6 +56,7 @@ protected:
 
     int				queueid_;
 
+    EMTracker&			tracker_;
     TypeSet<TrcKey>		seeds_;
     Threads::WorkManager&	twm_;
 };

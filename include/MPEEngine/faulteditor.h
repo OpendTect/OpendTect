@@ -1,6 +1,6 @@
 #ifndef faulteditor_h
 #define faulteditor_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "emeditor.h"
 
-namespace EM { class Fault3D; };
-namespace Geometry { class FaultStickSurface; };
+namespace EM { class Fault3D; }
+namespace Geometry { class FaultStickSurface; }
 
 template <class T> class Selector;
 

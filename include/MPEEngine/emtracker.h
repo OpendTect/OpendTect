@@ -38,7 +38,7 @@ class EMSeedPicker;
 
 mExpClass(MPEEngine) EMTracker
 { mRefCountImpl(EMTracker)
-mODTextTranslationClass(EMTracker);
+mODTextTranslationClass(EMTracker)
 public:
     				EMTracker( EM::EMObject* );
 
@@ -61,6 +61,7 @@ public:
     void			getNeededAttribs(
 					TypeSet<Attrib::SelSpec>&) const;
 
+    virtual SectionTracker*	createSectionTracker(EM::SectionID) = 0;
     SectionTracker*		getSectionTracker(EM::SectionID,
 	    					  bool create=false);
     virtual EMSeedPicker*	getSeedPicker(bool createifnotpresent=true)
@@ -73,16 +74,15 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
-    virtual SectionTracker*	createSectionTracker(EM::SectionID) = 0;
     virtual void		erasePositions(EM::SectionID,
-	    				       const TypeSet<EM::SubID>&);
+					       const TypeSet<EM::SubID>&);
 
     bool			isenabled_;
     ObjectSet<SectionTracker>	sectiontrackers_;
     BufferString		errmsg_;
     const char*			type_;
 
-    EM::EMObject*		emObject()      { return emobject_; }
+    EM::EMObject*		emObject()	{ return emobject_; }
     void			setEMObject(EM::EMObject*);
 
     static const char*		setupidStr()	{ return "SetupID"; }
@@ -99,5 +99,4 @@ mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );
 } // namespace MPE
 
 #endif
-
 

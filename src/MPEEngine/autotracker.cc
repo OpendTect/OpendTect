@@ -34,7 +34,7 @@ namespace MPE
 {
 
 
-class HorizonTracker : public ParallelTask
+class HorizonTracker : public Task
 {
 public:
 HorizonTracker( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
@@ -43,34 +43,49 @@ HorizonTracker( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
     , seed_(seed)
     , srcpos_(srcpos)
 {
+    sectiontracker_ = mgr_.tracker_.createSectionTracker( EM::SectionID(0) );
+    isok_ = sectiontracker_ && sectiontracker_->extender() &&
+	    sectiontracker_->adjuster();
 }
 
-protected:
-od_int64 nrIterations() const
-{ return neighbors_.size(); }
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool execute()
 {
-    for ( int idx=(int)start; idx<=stop; idx++ )
-    {
-	const TrcKey& target = neighbors_[idx];
-	mgr_.addTask( seed_, TrcKeyValue(target) );
-    }
+    if ( !isok_ )
+	return false;
 
+    SectionExtender* ext = sectiontracker_->extender();
+    SectionAdjuster* adj = sectiontracker_->adjuster();
+
+    ext->setDirection( TrcKeyValue(TrcKey(0,0)) );
+    // ext->setStartPositions(currentseeds_);
+    int res;
+    while ( (res=ext->nextStep())>0 )
+	;
+
+    TypeSet<EM::SubID> addedpos = ext->getAddedPositions();
+    TypeSet<EM::SubID> addedpossrc = ext->getAddedPositionsSource();
+    adj->setPositions( addedpos, &addedpossrc );
+    while ( (res=adj->nextStep())>0 )
+	;
+
+    // addTasks for addedpos
     return true;
 }
 
     HorizonTrackerMgr&	mgr_;
+    SectionTracker*	sectiontracker_;
+
     TrcKeyValue		seed_;
     TrcKeyValue		srcpos_;
-
-    TypeSet<TrcKey>	neighbors_;
+    bool		isok_;
 };
 
 
 
-HorizonTrackerMgr::HorizonTrackerMgr()
+HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
     : twm_(Threads::WorkManager::twm())
+    , tracker_(emt)
 {
     queueid_ = twm_.addQueue(
 	Threads::WorkManager::MultiThread, "Horizon Tracker" );
@@ -327,7 +342,7 @@ int AutoTracker::nextStep()
     }
 
     extender_->reset();
-    extender_->setDirection( BinIDValue(BinID(0,0),mUdf(float)) );
+    extender_->setDirection( TrcKeyValue(TrcKey(0,0),mUdf(float)) );
     extender_->setStartPositions(currentseeds_);
     int res;
     while ( (res=extender_->nextStep())>0 )

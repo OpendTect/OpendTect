@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "emposid.h"
 
-namespace EM { class Horizon2D; };
+namespace EM { class Horizon2D; }
 
 namespace MPE
 {

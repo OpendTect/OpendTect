@@ -12,9 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "sectionextender.h"
 
-#include "binidvalue.h"
 #include "mpeengine.h"
 #include "position.h"
+#include "trckeyvalue.h"
 
 namespace MPE
 {
@@ -44,10 +44,10 @@ void SectionExtender::reset()
 }
 
 
-void SectionExtender::setDirection( const BinIDValue& ) {}
+void SectionExtender::setDirection( const TrcKeyValue& ) {}
 
 
-const BinIDValue* SectionExtender::getDirection() const { return 0; }
+const TrcKeyValue* SectionExtender::getDirection() const { return 0; }
 
 
 void SectionExtender::setStartPositions( const TypeSet<EM::SubID> ns )
@@ -71,7 +71,7 @@ int SectionExtender::nextStep() { return 0; }
 
 
 #define mExtendDirection(inl,crl,z) \
-setDirection(BinIDValue(inl,crl,z)); \
+setDirection(TrcKeyValue(TrcKey(inl,crl),z)); \
 while ( (res=nextStep())>0 )\
     ;\
 \

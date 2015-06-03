@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "emeditor.h"
 
-namespace EM { class FaultStickSet; };
+namespace EM { class FaultStickSet; }
 template <class T> class Selector;
 
 namespace MPE

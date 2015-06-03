@@ -411,7 +411,7 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
     if ( !extender2d )
 	return false;
 
-    extender->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
+    extender->setDirection( TrcKeyValue(TrcKey(0,0)) );
     extender->setExtBoundary( getTrackBox() );
     extender2d->setGeomID( geomid_ );
 

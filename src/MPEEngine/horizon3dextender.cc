@@ -51,7 +51,7 @@ BaseHorizon3DExtender::BaseHorizon3DExtender( EM::Horizon3D& hor3d,
 {}
 
 
-void BaseHorizon3DExtender::setDirection( const BinIDValue& bdval )
+void BaseHorizon3DExtender::setDirection( const TrcKeyValue& bdval )
 { direction_ =	bdval; }
 
 
@@ -69,7 +69,7 @@ void BaseHorizon3DExtender::preallocExtArea()
 
 int BaseHorizon3DExtender::nextStep()
 {
-    const bool alldirs = direction_.inl()==0 && direction_.crl()==0;
+    const bool alldirs = direction_.lineNr()==0 && direction_.trcNr()==0;
 
     TypeSet<BinID> sourcenodes;
 
@@ -93,9 +93,9 @@ int BaseHorizon3DExtender::nextStep()
 	    TypeSet<RowCol> directions;
 	    if ( !alldirs )
 	    {
-		directions += RowCol( direction_ );
-		directions += RowCol( direction_.inl()*-1,
-				      direction_.crl()*-1 );
+		directions += RowCol( direction_.tk_.pos() );
+		directions += RowCol( direction_.lineNr()*-1,
+				      direction_.trcNr()*-1 );
 	    }
 	    else
 		directions = RowCol::clockWiseSequence();

@@ -13,17 +13,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizon3dseedpicker.h"
 
 #include "autotracker.h"
-#include "binidvalue.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "executor.h"
 #include "faulttrace.h"
+#include "mpeengine.h"
 #include "horizonadjuster.h"
 #include "sectionextender.h"
 #include "sectiontracker.h"
-#include "executor.h"
-#include "mpeengine.h"
-#include "survinfo.h"
 #include "sorting.h"
+#include "survinfo.h"
+#include "trckeyvalue.h"
 
 
 namespace MPE
@@ -408,9 +408,9 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 
     extender->setExtBoundary( getTrackBox() );
     if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Inl )
-	extender->setDirection( BinIDValue(BinID(0,1), mUdf(float)) );
+	extender->setDirection( TrcKeyValue(TrcKey(0,1), mUdf(float)) );
     else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Crl )
-	extender->setDirection( BinIDValue(BinID(1,0), mUdf(float)) );
+	extender->setDirection( TrcKeyValue(TrcKey(1,0), mUdf(float)) );
 
     TypeSet<EM::SubID> addedpos;
     TypeSet<EM::SubID> addedpossrc;

@@ -14,19 +14,17 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "factory.h"
-#include "task.h"
+
 #include "emposid.h"
+#include "factory.h"
 #include "sets.h"
-#include "trckeyzsampling.h"
 #include "sortedlist.h"
+#include "task.h"
+#include "trckeyzsampling.h"
 
-class BinIDValue;
+class TrcKeyValue;
 
-namespace EM
-{
-    class EMObject;
-};
+namespace EM { class EMObject; }
 
 namespace MPE
 {
@@ -45,8 +43,8 @@ public:
     EM::SectionID		sectionID() const;
 
     virtual void		reset();
-    virtual void		setDirection( const BinIDValue& );
-    virtual const BinIDValue*	getDirection() const;
+    virtual void		setDirection(const TrcKeyValue&);
+    virtual const TrcKeyValue*	getDirection() const;
 
     void			setStartPositions(const TypeSet<EM::SubID> ns);
     void			excludePositions(const TypeSet<EM::SubID>*);

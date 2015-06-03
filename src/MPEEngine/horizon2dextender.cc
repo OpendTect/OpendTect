@@ -51,10 +51,11 @@ float Horizon2DExtender::getAngleThreshold() const
 { return Math::ACos(anglethreshold_); }
 
 
-void Horizon2DExtender::setDirection( const BinIDValue& dir )
+void Horizon2DExtender::setDirection( const TrcKeyValue& dir )
 {
     direction_ = dir;
-    xydirection_ = SI().transform( BinID(0,0) ) - SI().transform( dir );
+    xydirection_ =
+	SI().transform( BinID(0,0) ) - SI().transform( dir.tk_.pos() );
     const double abs = xydirection_.abs();
     alldirs_ = mIsZero( abs, 1e-3 );
     if ( !alldirs_ )
@@ -62,7 +63,7 @@ void Horizon2DExtender::setDirection( const BinIDValue& dir )
 }
 
 
-const BinIDValue* Horizon2DExtender::getDirection() const
+const TrcKeyValue* Horizon2DExtender::getDirection() const
 { return &direction_; }
 
 void Horizon2DExtender::setGeomID( Pos::GeomID geomid )
