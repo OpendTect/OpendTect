@@ -46,6 +46,7 @@ public:
     float		getShift() const;
     void		setDepthAsAttrib(int attrib);
     void		setOnlyAtSectionsDisplay(bool);
+    bool		isOnlyAtSections() const;
 
     int			nrSections() const;
     EM::SectionID	getSectionID(int idx) const;

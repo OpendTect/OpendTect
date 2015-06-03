@@ -520,12 +520,17 @@ void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
 }
 
 
+bool uiVisEMObject::isOnlyAtSections() const
+{
+    const visSurvey::EMObjectDisplay* emod = getDisplay();
+    return emod ? emod->getOnlyAtSectionsDisplay() : false;
+}
+
+
 EM::ObjectID uiVisEMObject::getObjectID() const
 {
     const visSurvey::EMObjectDisplay* emod = getDisplay();
-    if ( !emod ) return -1;
-
-    return emod->getObjectID();
+    return emod ? emod->getObjectID() : -1;
 }
 
 
