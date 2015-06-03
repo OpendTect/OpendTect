@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
+#include "keyboardevent.h"
 #include "mpeengine.h"
 #include "survinfo.h"
 
@@ -24,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uihor2dfrom3ddlg.h"
+#include "uimain.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
@@ -56,7 +58,32 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem( "3D Horizon" )
-{}
+{
+    uiMain::theMain().keyboardEventHandler().keyPressed.notify(
+		mCB(this,uiODHorizonParentTreeItem,keyPressCB) );
+}
+
+
+void uiODHorizonParentTreeItem::keyPressCB( CallBacker* cb )
+{
+    mDynamicCastGet(KeyboardEventHandler*,keh,cb)
+    if ( !keh || !keh->hasEvent() || children_.isEmpty() ) return;
+
+    if ( keh->event().key_ == OD::R )
+    {
+	mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm,children_[0])
+	const bool atsections = itm && itm->visEMObject() &&
+				itm->visEMObject()->isOnlyAtSections();
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm,children_[idx])
+	    if ( !itm || !itm->visEMObject() )
+		continue;
+
+	    itm->visEMObject()->setOnlyAtSectionsDisplay( !atsections );
+	}
+    }
+}
 
 
 void uiODHorizonParentTreeItem::removeChild( uiTreeItem* itm )
