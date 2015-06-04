@@ -109,7 +109,7 @@ float uiWindowFunctionSel::windowParamValue() const
     if ( winidx<0 || winidx != taperidx_ )
 	return mUdf(float);
 
-    return varinpfld_->getfValue( 0 )/100;
+    return varinpfld_->getFValue( 0 )/100;
 }
 
 

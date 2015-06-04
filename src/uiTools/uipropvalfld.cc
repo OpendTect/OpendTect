@@ -51,7 +51,7 @@ void uiPropertyValFld::unChg( CallBacker* )
     if ( newuom == prevuom_ )
 	return;
 
-    float val = valfld_->getfValue();
+    float val = valfld_->getFValue();
     if ( prevuom_ )
 	val = prevuom_->internalValue( val );
 
@@ -82,7 +82,7 @@ void uiPropertyValFld::setValue( float val, bool isinternal )
 
 float uiPropertyValFld::getValue( bool internal ) const
 {
-    float val = valfld_->getfValue();
+    float val = valfld_->getFValue();
     return internal ? unfld_->getInternalValue( val ) : val;
 }
 

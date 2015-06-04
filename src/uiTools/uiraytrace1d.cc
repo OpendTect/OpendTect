@@ -277,7 +277,7 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
     {
 	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
 	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
-	offsetrg.step = mCast( float, (int)offsetstepfld_->getfValue() );
+	offsetrg.step = offsetstepfld_->getFValue();
 	if ( SI().xyInFeet() )
 	    offsetrg.scale( mFromFeetFactorF );
 

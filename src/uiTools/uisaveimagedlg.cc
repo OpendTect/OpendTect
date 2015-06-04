@@ -336,7 +336,7 @@ void uiSaveImageDlg::updateSizes()
 	return;
 
     const int sel = unitfld_->getIntValue();
-    const float dpi = mCast( float, dpifld_->box()->getValue() );
+    const float dpi = dpifld_->box()->getFValue();
     if ( !sel )
     {
 	sizecm_.setWidth( width );
@@ -456,7 +456,7 @@ void uiSaveImageDlg::fillPar( IOPar& par, bool is2d )
     par.set( sKeyHeight(), heightfld_->box()->getFValue() );
     par.set( sKeyWidth(), widthfld_->box()->getFValue() );
     par.set( sKeyUnit(), unitfld_->text() );
-    par.set( sKeyRes(), dpifld_->box()->getValue() );
+    par.set( sKeyRes(), dpifld_->box()->getIntValue() );
     par.set( sKeyFileType(), getExtension() );
 }
 
@@ -523,7 +523,7 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 {
     sizepix_.setWidth( mCast(float,width) );
     sizepix_.setHeight( mCast(float,height) );
-    const float dpi = mCast(float,dpifld_->box()->getValue());
+    const float dpi = dpifld_->box()->getFValue();
     sPixels2Inch( sizepix_, sizeinch_, dpi );
     sInch2Cm( sizeinch_, sizecm_ );
     unitChg( 0 );
@@ -594,6 +594,6 @@ bool uiSaveWinImageDlg::acceptOK( CallBacker* )
 
     if ( !filenameOK() ) return false;
     mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
-		   (int)sizepix_.height(),dpifld_->box()->getValue());
+		   (int)sizepix_.height(), dpifld_->box()->getIntValue());
     return true;
 }

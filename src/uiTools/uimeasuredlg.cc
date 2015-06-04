@@ -121,7 +121,7 @@ void uiMeasureDlg::lsChangeCB( CallBacker* cb )
     if ( uicol )
 	ls_.color_ = uicol->color();
     else if ( uisb )
-	ls_.width_ = uisb->getValue();
+	ls_.width_ = uisb->getIntValue();
     lineStyleChange.trigger( cb );
 }
 
@@ -151,7 +151,7 @@ void uiMeasureDlg::velocityChgd( CallBacker* )
 {
     if ( !appvelfld_ ) return;
 
-    const float newvel = appvelfld_->getfValue();
+    const float newvel = appvelfld_->getFValue();
     if ( mIsEqual(velocity_,newvel,mDefEps) )
 	return;
 
@@ -175,7 +175,7 @@ void uiMeasureDlg::reset()
 
 void uiMeasureDlg::fill( const TypeSet<Coord3>& points )
 {
-    const float velocity = appvelfld_ ? appvelfld_->getfValue() : 0 ;
+    const float velocity = appvelfld_ ? appvelfld_->getFValue() : 0 ;
     const int size = points.size();
     if ( size<2 )
     {

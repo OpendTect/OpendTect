@@ -319,7 +319,7 @@ void uiWindowFuncSelDlg::funcSelChg( CallBacker* )
 	    isvartappresent = true;
 	    float prevvariable = variable_;
 	    variable_ = mIsUdf(variable_) ? 0.05f
-					  : varinpfld_->getfValue(0)/100;
+					  : varinpfld_->getFValue(0)/100;
 	    if ( variable_ > 1 || mIsUdf(variable_) )
 		variable_ = prevvariable;
 	    wf->setVariable( 1.0f - variable_ );

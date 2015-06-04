@@ -449,7 +449,7 @@ void uiColorTableMan::doSegmentize()
 	ctab_.setNrSegments( 0 );
     else if ( segmentfld_->getIntValue()==1 )
     {
-	const int nrseg = nrsegbox_->getValue();
+	const int nrseg = nrsegbox_->getIntValue();
 	if ( mIsUdf(nrseg) || nrseg < 2 )
 	    return;
 

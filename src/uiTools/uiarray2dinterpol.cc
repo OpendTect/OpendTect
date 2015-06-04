@@ -210,8 +210,8 @@ void uiArray2DInterpolSel::fillPar( IOPar& iopar ) const
 bool uiArray2DInterpolSel::acceptOK()
 {
     if ( maxholeszfld_ && maxholeszfld_->isChecked() &&
-	 (mIsUdf( maxholeszfld_->getfValue() ) ||
-	  maxholeszfld_->getfValue()<=0 ) )
+	 (mIsUdf( maxholeszfld_->getFValue() ) ||
+	  maxholeszfld_->getFValue()<=0 ) )
     {
 	uiMSG().error(
 		tr("Maximum hole size not set or is less or equal to zero"));
@@ -407,7 +407,7 @@ Array2DInterpol* uiTriangulationArray2DInterpol::createResult() const
 bool uiTriangulationArray2DInterpol::acceptOK()
 {
     bool usemax = !useneighborfld_->isChecked() && maxdistfld_->isChecked();
-    const float maxdist = maxdistfld_->getfValue();
+    const float maxdist = maxdistfld_->getFValue();
     if ( usemax && !mIsUdf(maxdist) && maxdist<0 )
     {
 	uiMSG().error( tr("Maximum distance must be > 0. ") );
@@ -537,7 +537,7 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
     if ( result_ )
 	{ delete result_; result_ = 0; }
 
-    const float radius = radiusfld_->getfValue(0);
+    const float radius = radiusfld_->getFValue(0);
 
     if ( mIsUdf(radius) || radius<=0 )
     {

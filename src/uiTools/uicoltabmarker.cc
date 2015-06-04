@@ -151,7 +151,7 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 void uiColTabMarkerDlg::markerPosChgd( CallBacker* )
 {
     RowCol rc = table_->currentCell();
-    const float newpos = table_->getfValue( rc );
+    const float newpos = table_->getFValue( rc );
     if (ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos)
     {
 	uiMSG().error( tr("Please enter position between 0 & 1 for Markers ") );
@@ -171,7 +171,7 @@ void uiColTabMarkerDlg::rebuildColTab()
     {
 	RowCol newtable( idx, 0 );
 	RowCol coltable( idx, 1 );
-	const float newpos = table_->getfValue( newtable );
+	const float newpos = table_->getFValue( newtable );
 	Color col( orgctab.color(newpos) );
 	table_->setColor( coltable, col );
 	ctab_.setColor( newpos, col.r(), col.g(), col.b() );

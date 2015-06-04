@@ -94,8 +94,8 @@ void uiArray1DInterpolSel::setArraySet( ObjectSet< Array1D<float> >& arrset )
 bool uiArray1DInterpolSel::acceptOK()
 {
     if ( maxgapszfld_ && maxgapszfld_->isChecked() &&
-	 (mIsUdf( maxgapszfld_->getfValue() ) ||
-	  maxgapszfld_->getfValue()<=0 ) )
+	 (mIsUdf( maxgapszfld_->getFValue() ) ||
+	  maxgapszfld_->getFValue()<=0 ) )
     {
 	uiMSG().error(tr("Maximum hole size not set"
                          " or is less or equal to zero"));

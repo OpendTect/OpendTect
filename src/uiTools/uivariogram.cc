@@ -89,26 +89,26 @@ uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
 
 void uiVariogramDlg::stepChgCB( CallBacker* )
 {
-    const int val = stepfld_->getValue();
+    const int val = stepfld_->getIntValue();
     maxrgfld_->setStep( val, true );
 }
 
 
 int uiVariogramDlg::getMaxRg() const
 {
-    return maxrgfld_->getValue();
+    return maxrgfld_->getIntValue();
 }
 
 
 int uiVariogramDlg::getStep() const
 {
-    return stepfld_->getValue();
+    return stepfld_->getIntValue();
 }
 
 
 int uiVariogramDlg::getFold() const
 {
-    return foldfld_->getValue();
+    return foldfld_->getIntValue();
 }
 
 //------------------------------------------------------------------------
@@ -244,8 +244,8 @@ void uiVariogramDisplay::fieldChangedCB( CallBacker* c )
     Array1DImpl<float> yaxisvals(size);
 
     const int curcomp = labelfld_->getIntValue();
-    const float sill = sillfld_->getValue();
-    const float range = rangefld_->getValue();
+    const float sill = sillfld_->getFValue();
+    const float range = rangefld_->getFValue();
 
     for ( int ilag=0; ilag<size; ilag++ )
 	xaxisvals.set( ilag, axes_->get(curcomp,ilag) );

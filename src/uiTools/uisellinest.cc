@@ -190,7 +190,7 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
 
     if ( widthbox_ )
     {
-	linestyle_.width_ = widthbox_->box()->getValue();
+	linestyle_.width_ = widthbox_->box()->getIntValue();
 	widthbox_->setSensitive( linestyle_.type_ != LineStyle::None );
     }
 

@@ -82,8 +82,8 @@ Scaler* uiScaler::getScaler() const
     switch ( typ )
     {
     case 0: {
-	double c = linearfld->isUndef(0) ? 0 : linearfld->getdValue(0);
-	double f = linearfld->isUndef(1) ? 1 : linearfld->getdValue(1);
+	double c = linearfld->isUndef(0) ? 0 : linearfld->getDValue(0);
+	double f = linearfld->isUndef(1) ? 1 : linearfld->getDValue(1);
 	if ( mIsUdf(c) ) c = 0;
 	if ( mIsUdf(f) ) f = 1;
 	scaler = new LinScaler( c, f );

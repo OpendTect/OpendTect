@@ -107,16 +107,18 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
     }
 
     if ( !filenameOK() ) return false;
+
+    const char* fnm = fileinputfld_->fileName();
+    const int pixw = mCast(int,sizepix_.width());
+    const int pixh = mCast(int,sizepix_.height());
+    const int dpi = dpifld_->box()->getIntValue();
     BufferString ext( getExtension() );
     if ( ext == "pdf" )
-	scene_->saveAsPDF(fileinputfld_->fileName(),(int)sizepix_.width(),
-			  (int)sizepix_.height(),dpifld_->box()->getValue());
+	scene_->saveAsPDF( fnm, pixw, pixh, dpi );
     else if ( ext == "ps" || ext == "eps" )
-	scene_->saveAsPS( fileinputfld_->fileName(),(int)sizepix_.width(),
-			  (int)sizepix_.height(),dpifld_->box()->getValue());
+	scene_->saveAsPS( fnm, pixw, pixh, dpi );
     else
-	scene_->saveAsImage( fileinputfld_->fileName(), (int)sizepix_.width(),
-			     (int)sizepix_.height(),dpifld_->box()->getValue());
+	scene_->saveAsImage( fnm, pixw, pixh, dpi );
 
     if ( saveButtonChecked() )
 	writeToSettings();
@@ -145,8 +147,8 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
 	    if ( !usePar(*ctiopar) )
 		useparsfld_->setValue( false );
 	}
-	aspectratio_ = (float) widthfld_->box()->getFValue() /
-			       heightfld_->box()->getFValue();
+	aspectratio_ = widthfld_->box()->getFValue() /
+					heightfld_->box()->getFValue();
     }
     else
     {
