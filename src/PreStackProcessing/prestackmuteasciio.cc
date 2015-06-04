@@ -58,7 +58,7 @@ float MuteAscIO::getUdfVal() const
     if( !getHdrVals(strm_) )
 	return mUdf(float);
 
-    return getfValue( 0 );
+    return getFValue( 0 );
 }
 
 
@@ -81,7 +81,7 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 
 	BinID binid;
 	if ( isxy )
-	    binid = SI().transform( Coord(getdValue(0),getdValue(1)) );
+	    binid = SI().transform( Coord(getDValue(0),getDValue(1)) );
 	else
 	{
    	    binid.inl() = getIntValue(0);
@@ -96,7 +96,7 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 	if ( mutedef.indexOf(binid) < 0 )
 	    mutedef.add( new PointBasedMathFunction(iptype, et ), binid );
 
-	mutedef.getFn(mutedef.indexOf(binid)).add( getfValue(2), getfValue(3) );
+	mutedef.getFn(mutedef.indexOf(binid)).add( getFValue(2), getFValue(3) );
     }
 
     return true;
@@ -122,7 +122,7 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, const BinID& binid, bool extrapol,
 	if ( ret < 0 ) return false;
 	if ( ret == 0) break;
 
-	mutedef.getFn(mutedef.indexOf(binid)).add( getfValue(0), getfValue(1) );
+	mutedef.getFn(mutedef.indexOf(binid)).add( getFValue(0), getFValue(1) );
     }
 
     return true;

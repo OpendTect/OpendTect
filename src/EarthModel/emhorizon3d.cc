@@ -934,7 +934,7 @@ int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
 	if ( !getHdrVals(strm_) )
 	    return -1;
 
-	udfval_ = getfValue( 0 );
+	udfval_ = getFValue( 0 );
 	finishedreadingheader_ = true;
     }
 
@@ -943,10 +943,10 @@ int Horizon3DAscIO::getNextLine( Coord& pos, TypeSet<float>& data )
     if ( ret <= 0 || nrattribs < 1 )
 	return ret;
 
-    pos.x = getdValue( 0, udfval_ );
-    pos.y = getdValue( 1, udfval_ );
+    pos.x = getDValue( 0, udfval_ );
+    pos.y = getDValue( 1, udfval_ );
     for ( int idx=0; idx<nrattribs; idx++ )
-	data += getfValue( idx+2, udfval_ );
+	data += getFValue( idx+2, udfval_ );
 
     return ret;
 }

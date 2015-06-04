@@ -394,13 +394,13 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	crd.x = getdValue( 0 ); crd.y = getdValue( 1 );
+	crd.x = getDValue( 0 ); crd.y = getDValue( 1 );
 	if ( !isxy && !mIsUdf(crd.x) && !mIsUdf(crd.y) )
 	{
 	    Coord wc( SI().transform(BinID(mNINT32(crd.x),mNINT32(crd.y))) );
 	    crd.x = wc.x; crd.y = wc.y;
 	}
-	crd.z = getdValue( 2 );
+	crd.z = getDValue( 2 );
 	if ( !crd.isDefined() ) continue;
 
 	const int stickidx = getIntValue( 3 );

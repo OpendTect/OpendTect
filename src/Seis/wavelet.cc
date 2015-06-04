@@ -664,7 +664,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     if ( !getHdrVals(strm) )
 	return 0;
 
-    float sr = getfValue( 0 );
+    float sr = getFValue( 0 );
     if ( sr == 0 || mIsUdf(sr) )
 	sr = SI().zStep();
     else if ( sr < 0 )
@@ -686,7 +686,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
 	if ( ret < 0 ) mErrRet(0)
 	if ( ret == 0 ) break;
 
-	float val = getfValue( 0 );
+	float val = getFValue( 0 );
 	if ( !mIsUdf(val) ) samps += val;
     }
 
