@@ -608,8 +608,8 @@ void uiStratSynthDisp::setCurrentWavelet()
     SyntheticData* wvasd = curSS().getSynthetic( wvadatalist_->text() );
     SyntheticData* vdsd = curSS().getSynthetic( vddatalist_->text() );
     if ( !vdsd && !wvasd ) return;
-    const BufferString wvasynthnm( wvasd ? wvasd->name().buf() : "" );
-    const BufferString vdsynthnm( vdsd ? vdsd->name().buf() : "" );
+    const BufferString wvasynthnm( wvasd ? wvasd->name() : sKey::EmptyString());
+    const BufferString vdsynthnm( vdsd ? vdsd->name() : sKey::EmptyString() );
 
     if ( wvasd )
     {
@@ -1294,10 +1294,10 @@ void uiStratSynthDisp::doModelChange()
 
 void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 {
-    BufferString curwvasdnm( currentwvasynthetic_ ? currentwvasynthetic_->name()
-	    					  : "" );
-    BufferString curvdsdnm( currentvdsynthetic_ ? currentvdsynthetic_->name()
-	    					: "" );
+    const BufferString curwvasdnm( currentwvasynthetic_ ?
+			currentwvasynthetic_->name() : sKey::EmptyString() );
+    const BufferString curvdsdnm( currentvdsynthetic_ ?
+			currentvdsynthetic_->name() : sKey::EmptyString() );
     FixedString syntheticnm( synthnm );
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     if ( !datalist->isPresent(syntheticnm) || syntheticnm == sKeyNone() )
@@ -1340,10 +1340,10 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
     else
 	syntheticnm = wvadatalist_->text();
 
-    const BufferString curvdsynthnm(
-	    currentvdsynthetic_ ? currentvdsynthetic_->name().buf() : "" );
-    const BufferString curwvasynthnm(
-	    currentwvasynthetic_ ? currentwvasynthetic_->name().buf() : "" );
+    const BufferString curvdsynthnm( currentvdsynthetic_ ?
+			currentvdsynthetic_->name() : sKey::EmptyString() );
+    const BufferString curwvasynthnm( currentwvasynthetic_ ?
+			currentwvasynthetic_->name() : sKey::EmptyString() );
     SyntheticData* cursd = curSS().getSynthetic( syntheticnm );
     if ( !cursd ) return;
     SynthGenParams curgp;
@@ -1373,10 +1373,11 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 
 void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
-    BufferString curwvasdnm( currentwvasynthetic_ ? currentwvasynthetic_->name()
-	    					  : "" );
-    BufferString curvdsdnm( currentvdsynthetic_ ? currentvdsynthetic_->name()
-	    					: "" );
+    const BufferString curwvasdnm( currentwvasynthetic_ ?
+			currentwvasynthetic_->name() : sKey::EmptyString() );
+    const BufferString curvdsdnm( currentvdsynthetic_ ?
+			currentvdsynthetic_->name() : sKey::EmptyString() );
+
     mCBCapsuleUnpack(BufferString,synthname,cb);
     if ( !curSS().removeSynthetic(synthname) )
 	return;
@@ -1741,7 +1742,7 @@ void uiSynthSlicePos::prevCB( CallBacker* )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getValue()-stepbox->getValue() );
+    posbox->setValue( posbox->getIntValue()-stepbox->getIntValue() );
 }
 
 
@@ -1749,7 +1750,7 @@ void uiSynthSlicePos::nextCB( CallBacker* )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getValue()+stepbox->getValue() );
+    posbox->setValue( posbox->getIntValue()+stepbox->getIntValue() );
 }
 
 
@@ -1772,5 +1773,5 @@ void uiSynthSlicePos::setValue( int val ) const
 
 int uiSynthSlicePos::getValue() const
 {
-    return sliceposbox_->getValue();
+    return sliceposbox_->getIntValue();
 }
