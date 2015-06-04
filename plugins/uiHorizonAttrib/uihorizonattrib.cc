@@ -43,13 +43,13 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     horfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
-	    				 : mIOObjContext(EMHorizon3D),
-			                   uiStrings::sHorizon(true) );
+					 : mIOObjContext(EMHorizon3D),
+			      uiStrings::sHorizon(true) );
     horfld_->selectionDone.notify( mCB(this,uiHorizonAttrib,horSel) );
     horfld_->attach( alignedBelow, inpfld_ );
 
     typefld_ = new uiGenInput( this, uiStrings::sOutput(), 
-                               StringListInpSpec(sDefHorOut) );
+			       StringListInpSpec(sDefHorOut) );
     typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
     typefld_->attach( alignedBelow, horfld_ );
 

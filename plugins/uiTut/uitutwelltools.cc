@@ -91,7 +91,7 @@ bool uiTutWellTools::acceptOK( CallBacker* )
     if ( !lognm || !*lognm )
 	mErrRet( tr("Please enter a valid name for Output log") )
 
-    const int gate = gatefld_->box()->getValue();
+    const int gate = gatefld_->box()->getIntValue();
     Well::Log* outputlog = new Well::Log( lognm );
     Tut::LogTools logtool( logset.getLog(inpidx), *outputlog );
     if ( logtool.runSmooth(gate) )

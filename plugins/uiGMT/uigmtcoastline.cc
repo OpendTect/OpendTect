@@ -102,7 +102,7 @@ void uiGMTCoastlineGrp::utmSel( CallBacker* cb )
     mDynamicCastGet(uiSpinBox*,box,cb)
     if ( box == utmfld_ )
     {
-	const int utmzone = utmfld_->getValue();
+	const int utmzone = utmfld_->getIntValue();
 	const int relzone = utmzone - 30;
 	const int cm = 6 * relzone - 3;
 	cmfld_->setValue( cm > 0 ? cm : -cm );
@@ -110,7 +110,7 @@ void uiGMTCoastlineGrp::utmSel( CallBacker* cb )
     }
     else
     {
-	const int cm = cmfld_->getValue();
+	const int cm = cmfld_->getIntValue();
 	const bool iseast = ewfld_->getBoolValue();
 	const int relcm = iseast ? cm : -cm;
 	const int utmzone = 30 + ( relcm + 3 ) / 6;
@@ -126,7 +126,7 @@ void uiGMTCoastlineGrp::utmSel( CallBacker* cb )
 
 bool uiGMTCoastlineGrp::fillPar( IOPar& par ) const
 {
-    const int utmzone = utmfld_->getValue();
+    const int utmzone = utmfld_->getIntValue();
     par.set( ODGMT::sKeyUTMZone(), utmzone );
     const char* res = resolutionfld_->text();
     par.set( ODGMT::sKeyResolution(), res );

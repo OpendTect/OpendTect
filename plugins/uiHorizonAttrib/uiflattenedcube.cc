@@ -97,7 +97,7 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
     if ( !outioobj )
 	return false;
 
-    float zval = zvalfld_->getfValue();
+    float zval = zvalfld_->getFValue();
     if ( mIsUdf(zval) ) zval = defzval_;
     zval /= SI().zDomain().userFactor();
     if ( !SI().zRange(false).includes(zval,false) )

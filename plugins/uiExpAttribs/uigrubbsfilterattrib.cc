@@ -107,7 +107,7 @@ bool uiGrubbsFilterAttrib::getParameters( Attrib::Desc& desc )
     if( desc.attribName() != GrubbsFilter::attribName() )
 	return false;
 
-    mSetFloat( GrubbsFilter::grubbsvalStr(), grubbsvalfld_->getfValue() );
+    mSetFloat( GrubbsFilter::grubbsvalStr(), grubbsvalfld_->getFValue() );
     mSetBinID( GrubbsFilter::stepoutStr(), stepoutfld_->getBinID() );
     mSetFloatInterval( GrubbsFilter::gateStr(), gatefld_->getFInterval() );
     mSetEnum(GrubbsFilter::replaceValStr(),replacetype_->getIntValue());

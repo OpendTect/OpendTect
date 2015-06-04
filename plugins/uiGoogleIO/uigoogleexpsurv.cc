@@ -64,7 +64,7 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
 
     const float reqwdth = lsfld_->getWidth() * 0.1f;
     wrr.writePolyStyle( "survey", lsfld_->getColor(), mNINT32(reqwdth) );
-    wrr.writePoly( "survey", si_->name(), coords, hghtfld_->getfValue(), si_ );
+    wrr.writePoly( "survey", si_->name(), coords, hghtfld_->getFValue(), si_ );
 
     return true;
 }

@@ -105,10 +105,10 @@ void uiGMTBaseMapGrp::dimChg( CallBacker* cb )
     float xdim, ydim;
     if ( fld == xdimfld_ )
     {
-	xdim = xdimfld_->getfValue();
+	xdim = xdimfld_->getFValue();
 	if ( xdim < 1 || xdim > 200 )
 	{
-	    ydim = ydimfld_->getfValue();
+	    ydim = ydimfld_->getFValue();
 	    xdim = ydim * aspectratio_;
 	    xdimfld_->setValue( xdim );
 	    uiMSG().error( tr("Map width is beyond permissible limits") );
@@ -120,10 +120,10 @@ void uiGMTBaseMapGrp::dimChg( CallBacker* cb )
     }
     else if ( fld == ydimfld_ )
     {
-	ydim = ydimfld_->getfValue();
+	ydim = ydimfld_->getFValue();
 	if ( ydim < 1 || ydim > 200 )
 	{
-	    xdim = xdimfld_->getfValue();
+	    xdim = xdimfld_->getFValue();
 	    ydim = xdim * aspectratio_;
 	    ydimfld_->setValue( ydim );
 	    uiMSG().error( tr("Map height is beyond permissible limits") );
@@ -135,7 +135,7 @@ void uiGMTBaseMapGrp::dimChg( CallBacker* cb )
     }
 
     const Interval<int> xrg = xrgfld_->getIInterval();
-    scalefld_->setValue( mNINT32( xrg.width() * 100 / xdimfld_->getfValue() ) );
+    scalefld_->setValue( mNINT32( xrg.width() * 100 / xdimfld_->getFValue() ) );
 }
 
 
@@ -226,8 +226,8 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
     par.set( ODGMT::sKeyXRange(), xrg );
     par.set( ODGMT::sKeyYRange(), yrg );
 
-    const float mapwidth = xdimfld_->getfValue();
-    const float mapheight = ydimfld_->getfValue();
+    const float mapwidth = xdimfld_->getFValue();
+    const float mapheight = ydimfld_->getFValue();
     par.set( ODGMT::sKeyMapDim(), Interval<float>(mapwidth,mapheight) );
 
     par.set( ODGMT::sKeyMapScale(), scalefld_->getIntValue() );

@@ -233,7 +233,7 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     if ( col < 5 ) return;
 
     const int row = table_->notifiedCell().row();
-    const float val = table_->getfValue(RowCol(row,5) );
+    const float val = table_->getFValue(RowCol(row,5) );
     dps_.setValue( 0, row, val );
     dps_.dataChanged();
 

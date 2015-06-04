@@ -133,17 +133,17 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
     break;
     case Tut::SeisTools::Scale:
     {
-	float usrfactor = factorfld_->getfValue();
+	float usrfactor = factorfld_->getFValue();
 	if ( mIsUdf(usrfactor) ) usrfactor = 1;
-	float usrshift = shiftfld_->getfValue();
+	float usrshift = shiftfld_->getFValue();
 	if ( mIsUdf(usrshift) ) usrshift = 0;
 	tst_.setScale( usrfactor, usrshift );
     }
     break;
     case Tut::SeisTools::ChgSD:
     {
-	SamplingData<float> sd( newsdfld_->getfValue(0),
-				newsdfld_->getfValue(1) );
+	SamplingData<float> sd( newsdfld_->getFValue(0),
+				newsdfld_->getFValue(1) );
 	const float fac = 1.f / SI().zDomain().userFactor();
 	sd.start *= fac; sd.step *= fac;
 	tst_.setSampling( sd );

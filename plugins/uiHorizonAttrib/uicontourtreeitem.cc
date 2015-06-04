@@ -629,11 +629,14 @@ int getLabelAlignment() const
 
 
 void disableLabelElevation()
-{ elevationfld_->box()->setValue( elevationfld_->box()->minValue() ); }	
+{ elevationfld_->box()->setValue( elevationfld_->box()->minValue() ); }
 
 
 bool isLabelElevationDisabled() const
-{ return elevationfld_->box()->getValue()==elevationfld_->box()->minValue(); }
+{
+    return elevationfld_->box()->getIntValue() ==
+					elevationfld_->box()->minValue();
+}
 
 
 void setLabelElevation( float angle )

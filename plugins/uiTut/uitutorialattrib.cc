@@ -134,8 +134,8 @@ bool uiTutorialAttrib::getParameters( Desc& desc )
     mSetEnum( Tutorial::actionStr(), actionfld_->getIntValue() );
     if ( actionfld_->getIntValue() == 0 )
     {
-	mSetFloat( Tutorial::factorStr(), factorfld_->getfValue() );
-	mSetFloat( Tutorial::shiftStr(), shiftfld_->getfValue() );
+	mSetFloat( Tutorial::factorStr(), factorfld_->getFValue() );
+	mSetFloat( Tutorial::shiftStr(), shiftfld_->getFValue() );
     }
     else if (actionfld_->getIntValue() == 2 )
     {

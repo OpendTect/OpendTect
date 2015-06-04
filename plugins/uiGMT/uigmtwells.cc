@@ -129,7 +129,7 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
     symbfld_->fillPar( par );
     par.setYN( ODGMT::sKeyPostLabel(), lebelfld_->isChecked() );
     par.set( ODGMT::sKeyLabelAlignment(), lebelalignfld_->text() );
-    par.set( ODGMT::sKeyFontSize(), labelfontszfld_->getValue() );
+    par.set( ODGMT::sKeyFontSize(), labelfontszfld_->getIntValue() );
     return true;
 }
 

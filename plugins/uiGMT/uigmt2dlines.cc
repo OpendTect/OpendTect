@@ -120,7 +120,7 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
     par.setYN( ODGMT::sKeyPostLabel(), dolabel );
     if ( dolabel )
     {
-	par.set( ODGMT::sKeyFontSize(), labelfontfld_->getValue() );
+	par.set( ODGMT::sKeyFontSize(), labelfontfld_->getIntValue() );
 	const int pos = labelposfld_->getIntValue();
 	par.setYN( ODGMT::sKeyPostStart(), pos == 0 || pos == 2 );
 	par.setYN( ODGMT::sKeyPostStop(), pos == 1 || pos == 2 );

@@ -110,7 +110,7 @@ void uiViewer3DPositionDlg::renewFld( CallBacker* )
 
 
 void uiViewer3DPositionDlg::stepCB( CallBacker* )
-{ posfld_->setStep( stepfld_->box()->getValue() ); }
+{ posfld_->setStep( stepfld_->box()->getIntValue() ); }
 
 
 void uiViewer3DPositionDlg::atStart( CallBacker* )
@@ -164,7 +164,7 @@ void uiViewer3DPositionDlg::posChg( CallBacker* c )
 
 bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 {
-    const int location = posfld_->getValue();
+    const int location = posfld_->getIntValue();
     if ( is3D() )
     {
 	BinID newpos = viewer_.getPosition();

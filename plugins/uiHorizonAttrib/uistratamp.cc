@@ -242,9 +242,9 @@ bool uiStratAmpCalc::fillPar()
     iop.set( StratAmpCalc::sKeyAmplitudeOption(), ampoptionfld_->box()->text());
     iop.setYN( StratAmpCalc::sKeyOutputFoldYN(), foldfld_->getBoolValue() );
     iop.set( StratAmpCalc::sKeyTopShift(),
-	     tophorshiftfld_->getfValue() / SI().zDomain().userFactor() );
+	     tophorshiftfld_->getFValue() / SI().zDomain().userFactor() );
     iop.set( StratAmpCalc::sKeyBottomShift(),
-	     bothorshiftfld_->getfValue() / SI().zDomain().userFactor() );
+	     bothorshiftfld_->getFValue() / SI().zDomain().userFactor() );
     iop.set( StratAmpCalc::sKeyAttribName(), attribnamefld_->text() );
     iop.setYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite_ );
 

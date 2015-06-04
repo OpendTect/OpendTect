@@ -216,8 +216,8 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
     {
 	if ( !zgridautofld_->getBoolValue() )
 	{
-	    zsmp.start = zgridrangefld_->getfValue( 0 );
-	    zsmp.step = zgridrangefld_->getfValue( 1 );
+	    zsmp.start = zgridrangefld_->getFValue( 0 );
+	    zsmp.step = zgridrangefld_->getFValue( 1 );
 	    if ( mIsUdf(zsmp.start) || mIsUdf(zsmp.step) )
 	    {
 		if ( mIsUdf(zsmp.start) )
@@ -244,8 +244,8 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
     {
 	if ( !offsgridautofld_->getBoolValue() )
 	{
-	    offssmp.start = offsgridrangefld_->getfValue( 0 );
-	    offssmp.step = offsgridrangefld_->getfValue( 1 );
+	    offssmp.start = offsgridrangefld_->getFValue( 0 );
+	    offssmp.step = offsgridrangefld_->getFValue( 1 );
 	    if ( mIsUdf(offssmp.start) || mIsUdf(offssmp.step) )
 	    {
 		if ( mIsUdf(offssmp.start) )

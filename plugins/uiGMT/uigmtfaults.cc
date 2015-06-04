@@ -119,7 +119,7 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
     iop.set( sKey::Name(), namefld_->text() );
     const bool onzslice = optionfld_->getBoolValue();
     iop.setYN( ODGMT::sKeyZIntersectionYN(), onzslice );
-    const float zvalue = zvaluefld_->getfValue()/SI().zDomain().userFactor();
+    const float zvalue = zvaluefld_->getFValue()/SI().zDomain().userFactor();
     StepInterval<float> zrg = SI().zRange( true );
     if ( onzslice )
     {

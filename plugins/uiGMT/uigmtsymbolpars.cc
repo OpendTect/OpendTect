@@ -115,7 +115,7 @@ bool uiGMTSymbolPars::fillPar( IOPar& par ) const
 	par.set( ODGMT::sKeyWellSymbolName(), shapefld_->textOfItem(selitem) );
     }
 
-    par.set( sKey::Size(), sizefld_->getfValue() );
+    par.set( sKey::Size(), sizefld_->getFValue() );
     par.set( sKey::Color(), outcolfld_->color() );
     return true;
 }

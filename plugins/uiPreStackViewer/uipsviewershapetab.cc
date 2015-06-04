@@ -115,7 +115,7 @@ void uiViewer3DShapeTab::widthMoveCB( CallBacker* cb )
     mDynamicCastGet( uiSlider*,sldr,cb );
     if ( !sldr ) return;
 
-    viewer_.setWidth( widthslider_->getValue() );
+    viewer_.setWidth( widthslider_->getFValue() );
 }
 
 
@@ -124,7 +124,7 @@ void uiViewer3DShapeTab::factorMoveCB( CallBacker* cb )
     mDynamicCastGet( uiSlider*,sldr,cb );
     if ( !sldr ) return;
 
-    viewer_.setFactor( factorslider_->getValue() );
+    viewer_.setFactor( factorslider_->getFValue() );
 }
 
 
@@ -149,9 +149,9 @@ bool uiViewer3DShapeTab::acceptOK( )
 	    psv->displaysAutoWidth( autowidthfld_->getBoolValue() );
 	    psv->displaysOnPositiveSide( viewer_.displayOnPositiveSide() );
 	    if ( autowidthfld_->getBoolValue() )
-		psv->setFactor( factorslider_->getValue() );
+		psv->setFactor( factorslider_->getFValue() );
 	    else
-		psv->setWidth( widthslider_->getValue() );
+		psv->setWidth( widthslider_->getFValue() );
 	}
     }
 
