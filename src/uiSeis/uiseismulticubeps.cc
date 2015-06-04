@@ -53,6 +53,9 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
 	, cubefld_(0)
 	, curselidx_(-1)
+	, outfld_(0)
+	, offsfld_(0)
+	, compfld_(0)
 {
     ctio_.ctxt.forread = false;
     ctio_.ctxt.fixTranslator( "MultiCube" );
@@ -111,6 +114,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     offsfld_->attach( alignedBelow, bgrp );
     offsfld_->attach( ensureBelow, sep );
 
+    ctio_.ctxt.toselect.allownonuserselectable_ = true;
     outfld_ = new uiIOObjSel( this, ctio_, "Output data store" );
     outfld_->attach( alignedBelow, offsfld_ );
 
@@ -158,7 +162,7 @@ void uiSeisMultiCubePS::recordEntryData()
 	curselidx_ = selentries_.size() - 1;
 
     uiSeisMultiCubePSEntry& se = *selentries_[curselidx_];
-    se.comp_ = compfld_->isEmpty() ? 0 : compfld_->currentItem();
+    se.comp_ = compfld_ && compfld_->isEmpty() ? 0 : compfld_->currentItem();
 }
 
 
@@ -321,6 +325,12 @@ void uiSeisMultiCubePS::fullUpdate()
 
 bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 {
+    if ( entries_.isEmpty() )
+	return true;
+
+    if ( !outfld_ || !offsfld_ || !compfld_ )
+	return true;
+
     recordEntryData();
     if ( !outfld_->commitInput() )
 	mErrRet(outfld_->isEmpty() ? "Please enter a name for the output" : 0)
