@@ -318,13 +318,14 @@ void uiSpecDecompAttrib::getPrevSel()
     {
 	const char* sellnm = positiondlg_->linesfld_->box()->text();
 	prevpar_.set( sKeyLineName(), sellnm );
-	prevpar_.set( sKeyTrcNr(), positiondlg_->trcnrfld_->box()->getValue() );
+	prevpar_.set( sKeyTrcNr(),
+		      positiondlg_->trcnrfld_->box()->getIntValue() );
 	return;
     }
 
     BinID bid;
-    bid.inl() = positiondlg_->inlfld_->box()->getValue();
-    bid.crl() = positiondlg_->crlfld_->getValue();
+    bid.inl() = positiondlg_->inlfld_->box()->getIntValue();
+    bid.crl() = positiondlg_->crlfld_->getIntValue();
     prevpar_.set( sKeyBinID(), bid );
 }
 

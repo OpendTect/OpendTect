@@ -190,10 +190,10 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 
     const Attrib::ValParam* vp = desc.getValParam(Scaling::sqrangeStr());
     if ( vp )
-	sqrgfld->setValue( Interval<float>(vp->getfValue(0),vp->getfValue(1)) );
+	sqrgfld->setValue( Interval<float>(vp->getFValue(0),vp->getFValue(1)) );
     vp = desc.getValParam(Scaling::squntouchedStr());
     if ( vp )
-	squrgfld->setValue( Interval<float>(vp->getfValue(0),vp->getfValue(1)));
+	squrgfld->setValue( Interval<float>(vp->getFValue(0),vp->getFValue(1)));
 
     int nrtgs = 0;
     if ( desc.getParam(Scaling::gateStr()) )
@@ -219,13 +219,13 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	    if ( typefld->getIntValue() == 4 )
 	    {
 		if ( idx==0 )
-		    zvals_.addIfNew( param.getfValue(0) );
-		zvals_.addIfNew( param.getfValue(1) );
+		    zvals_.addIfNew( param.getFValue(0) );
+		zvals_.addIfNew( param.getFValue(1) );
 	    }
 	    else
 	    {
-		table->setValue( RowCol(idx,startcol), param.getfValue(0) );
-		table->setValue( RowCol(idx,stopcol), param.getfValue(1) );
+		table->setValue( RowCol(idx,startcol), param.getFValue(0) );
+		table->setValue( RowCol(idx,stopcol), param.getFValue(1) );
 	    }
 	}
     }
@@ -238,9 +238,9 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 	{
 	    const ValParam& param = (ValParam&)(*factorset)[idx];
 	    if ( typefld->getIntValue() == 4 )
-		scalefactors_ += param.getfValue(0);
+		scalefactors_ += param.getFValue(0);
 	    else
-		table->setValue( RowCol(idx,factcol), param.getfValue(0) );
+		table->setValue( RowCol(idx,factcol), param.getFValue(0) );
 	}
     }
 
@@ -263,10 +263,10 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	return false;
 
     mSetEnum( Scaling::scalingTypeStr(), typefld->getIntValue() );
-    mSetFloat( Scaling::powervalStr(), nfld->getfValue() );
+    mSetFloat( Scaling::powervalStr(), nfld->getFValue() );
     mSetEnum( Scaling::statsTypeStr(), statsfld->getIntValue() );
-    mSetFloat( Scaling::widthStr(), windowfld->getfValue() );
-    mSetFloat( Scaling::mutefractionStr(), lowenergymute->getfValue()/100 );
+    mSetFloat( Scaling::widthStr(), windowfld->getFValue() );
+    mSetFloat( Scaling::mutefractionStr(), lowenergymute->getFValue()/100 );
     mSetFloatInterval( Scaling::sqrangeStr(), sqrgfld->getFInterval() );
     mSetFloatInterval( Scaling::squntouchedStr(), squrgfld->getFInterval() );
 

@@ -144,8 +144,8 @@ public:
     virtual bool                setCompositeValue(const char*);
 
     virtual int			getIntValue(int idx=0) const;
-    virtual float		getfValue(int idx=0) const;
-    virtual double		getdValue(int idx=0) const;
+    virtual float		getFValue(int idx=0) const;
+    virtual double		getDValue(int idx=0) const;
     virtual BufferString	getDefaultValue() const;
 };
 
@@ -178,10 +178,10 @@ bool NumParam<T>::getCompositeValue( BufferString& res ) const
 
 
 template <class T>
-float NumParam<T>::getfValue( int idx ) const
+float NumParam<T>::getFValue( int idx ) const
 {
     if ( !spec_ ) return mUdf(float);
-    float res = spec_->isUndef() ? mUdf(float) : ValParam::getfValue( idx );
+    float res = spec_->isUndef() ? mUdf(float) : ValParam::getFValue( idx );
     return res;
 }
 
@@ -195,10 +195,10 @@ int NumParam<T>::getIntValue( int idx ) const
 
 
 template <class T>
-double NumParam<T>::getdValue( int idx ) const
+double NumParam<T>::getDValue( int idx ) const
 {
     if ( !spec_ ) return mUdf(double);
-    double res = spec_->isUndef() ? mUdf(double) : ValParam::getdValue( idx );
+    double res = spec_->isUndef() ? mUdf(double) : ValParam::getDValue( idx );
     return res;
 }
 

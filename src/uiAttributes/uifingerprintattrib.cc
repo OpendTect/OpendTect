@@ -300,8 +300,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	for ( int idx=0; idx<valueset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*valueset)[idx];
-	    if ( !mIsUdf(param.getfValue(0)) )
-		values += param.getfValue(0);
+	    if ( !mIsUdf(param.getFValue(0)) )
+		values += param.getFValue(0);
 	}
 	calcobj_->setValues( values );
 
@@ -376,7 +376,7 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 
     if ( refgrpval == 1 )
     {
-	mSetFloat( FingerPrint::refposzStr(), refposzfld_->getfValue() );
+	mSetFloat( FingerPrint::refposzStr(), refposzfld_->getFValue() );
 	mSetBinID( FingerPrint::refposStr(), refposfld_->getBinID() );
 	if ( is2d_ )
 	{
@@ -549,7 +549,7 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
     if ( refgrp_->selectedId() == 1 )
     {
 	BinID refpos = is2d_ ? get2DRefPos() : refposfld_->getBinID();
-	float refposz = refposzfld_->getfValue() / SI().zDomain().userFactor();
+	float refposz = refposzfld_->getFValue() / SI().zDomain().userFactor();
 
 	if ( mIsUdf(refpos.inl()) || mIsUdf(refpos.crl()) || mIsUdf(refposz) )
 	{
@@ -798,11 +798,11 @@ bool uiFPAdvancedDlg::acceptOK( CallBacker* cb )
 	if ( !mIsUdf(range.start) && !mIsUdf(range.stop) )
 	    ranges += range;
 
-	float val = valflds_[idx]->getfValue();
+	float val = valflds_[idx]->getFValue();
 	if ( !mIsUdf(val) )
 	    values += val;
 
-	weights += wgtflds_[idx]->getValue();
+	weights += wgtflds_[idx]->getIntValue();
     }
 
     if ( rangesgrp_->selectedId() == 0 && ranges.size()< valflds_.size() )

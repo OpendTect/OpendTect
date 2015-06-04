@@ -170,7 +170,7 @@ bool uiConvolveAttrib::getParameters( Desc& desc )
     if ( typeval < 2 )
     {
 	mSetEnum( Convolve::shapeStr(), shapefld_->getIntValue() );
-	mSetInt( Convolve::sizeStr(), szfld_->box()->getValue() );
+	mSetInt( Convolve::sizeStr(), szfld_->box()->getIntValue() );
     }
     else if ( typeval == 3 )
 	if ( waveletfld_->ioobj(true) )

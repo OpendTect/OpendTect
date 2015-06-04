@@ -265,8 +265,8 @@ bool uiSimilarityAttrib::getParameters( Attrib::Desc& desc )
 	mSetBool( Similarity::browsedipStr(), wantbdip );
 	if ( wantbdip )
 	{
-	    mSetFloat( Similarity::maxdipStr(), maxdipfld_->getfValue() );
-	    mSetFloat( Similarity::ddipStr(), deltadipfld_->getfValue() );
+	    mSetFloat( Similarity::maxdipStr(), maxdipfld_->getFValue() );
+	    mSetFloat( Similarity::ddipStr(), deltadipfld_->getFValue() );
 	}
     }
 

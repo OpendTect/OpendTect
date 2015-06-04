@@ -180,8 +180,8 @@ bool uiGapDeconAttrib::setParameters( const Attrib::Desc& desc )
 bool uiGapDeconAttrib::setInput( const Attrib::Desc& desc )
 {
     bool isinp0ph = isinpzerophasefld_->getBoolValue();
-    int stepout = wantmixfld_->getBoolValue() ? stepoutfld_->box()->getValue()
-					      : 0;
+    int stepout = wantmixfld_->getBoolValue()
+		? stepoutfld_->box()->getIntValue() : 0;
 
     if ( stepout == 0 && !isinp0ph )
     {
@@ -211,7 +211,7 @@ bool uiGapDeconAttrib::getParameters( Attrib::Desc& desc )
     mSetInt( GapDecon::gapsizeStr(), gapfld_->getIntValue() );
     bool domixing = wantmixfld_->getBoolValue();
     mSetInt( GapDecon::stepoutStr(),
-	     domixing? stepoutfld_->box()->getValue() : 0 );
+	     domixing? stepoutfld_->box()->getIntValue() : 0 );
     mSetInt( GapDecon::noiselevelStr(), noiselvlfld_->getIntValue() );
     mSetBool( GapDecon::isinp0phaseStr(), isinpzerophasefld_->getBoolValue() );
     mSetBool( GapDecon::isout0phaseStr(), isoutzerophasefld_->getBoolValue() );
@@ -225,7 +225,7 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 {
     bool isinp0ph = isinpzerophasefld_->getBoolValue();
     int stepout = wantmixfld_->getBoolValue() ?
-		  stepoutfld_->box()->getValue() : 0;
+		  stepoutfld_->box()->getIntValue() : 0;
 
     //create first input
     if ( !isinp0ph )
@@ -547,7 +547,7 @@ void uiGapDeconAttrib::fillInGDDescParams( Desc* newdesc )
     noiselvlparam->setValue( noiselvlfld_->getIntValue() );
 
     int stepout = wantmixfld_->getBoolValue() ?
-		  stepoutfld_->box()->getValue() : 0;
+		  stepoutfld_->box()->getIntValue() : 0;
     mDynamicCastGet( IntParam*,stepoutparam,
 		     newdesc->getValParam(GapDecon::stepoutStr()) )
     stepoutparam->setValue( stepout );

@@ -256,7 +256,7 @@ protected:
 
 #define mGetFloatFromDesc( __desc, var, varstring ) \
 {\
-    var = __desc.getValParam(varstring)->getfValue(0); \
+    var = __desc.getValParam(varstring)->getFValue(0); \
     if ( mIsUdf(var) )\
         var = __desc.getValParam(varstring)->getDefaultfValue(0);\
 }
@@ -264,7 +264,7 @@ protected:
 
 #define mGetDoubleFromDesc( __desc, var, varstring ) \
 {\
-    var = __desc.getValParam(varstring)->getdValue(0); \
+    var = __desc.getValParam(varstring)->getDValue(0); \
     if ( mIsUdf(var) )\
         var = __desc.getValParam(varstring)->getDefaultdValue(0);\
 }
@@ -315,8 +315,8 @@ protected:
 
 #define mGetFloatIntervalFromDesc( __desc, var, varstring ) \
 {\
-    var.start = __desc.getValParam(varstring)->getfValue(0); \
-    var.stop = __desc.getValParam(varstring)->getfValue(1); \
+    var.start = __desc.getValParam(varstring)->getFValue(0); \
+    var.stop = __desc.getValParam(varstring)->getFValue(1); \
     if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
     {\
 	Attrib::ValParam* valparam##var = \

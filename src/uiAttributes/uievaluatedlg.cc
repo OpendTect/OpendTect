@@ -135,7 +135,7 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     }
     else if ( fpar )
     {
-	initspec = new FloatInpSpec( fpar->getfValue() );
+	initspec = new FloatInpSpec( fpar->getFValue() );
 	const float step = fpar->limits() ? fpar->limits()->step : 1;
 	incrspec = new FloatInpSpec( step );
     }
@@ -150,7 +150,7 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     }
     else if ( dpar )
     {
-	initspec = new DoubleInpSpec( dpar->getfValue() );
+	initspec = new DoubleInpSpec( dpar->getFValue() );
 	const double step = dpar->limits() ? dpar->limits()->step : 1;
 	incrspec = new DoubleInpSpec( step );
     }
@@ -232,7 +232,7 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
     }
     else if ( fpar )
     {
-	const float val = initfld->getfValue() + idx * incrfld->getfValue();
+	const float val = initfld->getFValue() + idx * incrfld->getFValue();
 	mCreateLabel1(val)
 	fpar->setValue( val );
     }
@@ -244,7 +244,7 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
     }
     else if ( dpar )
     {
-	const double val = initfld->getdValue() + idx * incrfld->getdValue();
+	const double val = initfld->getDValue() + idx * incrfld->getDValue();
 	mCreateLabel1(val)
 	dpar->setValue( val );
     }
@@ -261,7 +261,7 @@ void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
     if ( mIsZero(step,mDefEps) )
 	step = mCast( double, desced_.getOutputValue(1) );
 
-    const double val = initfld->getdValue() + idx*step;
+    const double val = initfld->getDValue() + idx*step;
     desc.selectOutput( desced_.getOutputIdx(mCast(float,val)) );
     mCreateLabel1( val );
 }
@@ -374,7 +374,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	return;
 
     BufferString userchosenref = desc->userRef();
-    const int nrsteps = nrstepsfld->box()->getValue();
+    const int nrsteps = nrstepsfld->box()->getIntValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	Desc* newad = idx ? new Desc(*desc) : desc;

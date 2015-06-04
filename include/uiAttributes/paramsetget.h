@@ -17,14 +17,14 @@ ________________________________________________________________________
 #define mSetFloatInterval( str, newval ) \
 { \
     mDynamicCastGet(Attrib::FloatGateParam*,param,desc.getParam(str)) \
-    const Interval<float> oldval( param->getfValue(0), param->getfValue(1) ); \
+    const Interval<float> oldval( param->getFValue(0), param->getFValue(1) ); \
     if ( chtr_.set(oldval,newval) ) param->setValue( newval ); \
 }
 
 #define mSetFloat( str, newval ) \
 { \
     Attrib::ValParam* param = desc.getValParam( str ); \
-    const float oldval = param->getfValue(); \
+    const float oldval = param->getFValue(); \
     if ( chtr_.set(oldval,newval) ) \
         param->setValue( newval ); \
 }
@@ -32,7 +32,7 @@ ________________________________________________________________________
 #define mSetDouble( str, newval ) \
 { \
     Attrib::ValParam* param = desc.getValParam( str ); \
-    const double oldval = param->getdValue(); \
+    const double oldval = param->getDValue(); \
     if ( chtr_.set(oldval,newval) ) \
         param->setValue( newval ); \
 }
@@ -102,7 +102,7 @@ if ( boolparam##var ) \
 #define mIfGetFloat( str, var, setfunc ) \
 if ( desc.getValParam(str) ) \
 {\
-    float var = desc.getValParam(str)->getfValue(0);\
+    float var = desc.getValParam(str)->getFValue(0);\
     if ( mIsUdf(var) )\
 	var = desc.getValParam(str)->getDefaultfValue(0);\
     setfunc;\
@@ -111,7 +111,7 @@ if ( desc.getValParam(str) ) \
 #define mIfGetDouble( str, var, setfunc ) \
 if ( desc.getValParam(str) ) \
 {\
-    double var = desc.getValParam(str)->getdValue(0);\
+    double var = desc.getValParam(str)->getDValue(0);\
     if ( mIsUdf(var) )\
 	var = desc.getValParam(str)->getDefaultdValue(0);\
     setfunc;\
@@ -168,8 +168,8 @@ Attrib::ValParam* valparam##var =\
 if ( valparam##var ) \
 { \
     Interval<float> var; \
-    var.start = valparam##var->getfValue(0); \
-    var.stop = valparam##var->getfValue(1); \
+    var.start = valparam##var->getFValue(0); \
+    var.stop = valparam##var->getFValue(1); \
     if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
     {\
 	mDynamicCastGet(Attrib::FloatGateParam*,gateparam##var,valparam##var);\

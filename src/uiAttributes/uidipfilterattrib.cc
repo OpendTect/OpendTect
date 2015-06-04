@@ -208,14 +208,14 @@ bool uiDipFilterAttrib::getParameters( Desc& desc )
     if ( desc.attribName() != DipFilter::attribName() )
 	return false;
 
-    mSetInt( DipFilter::sizeStr(), szfld_->box()->getValue() );
+    mSetInt( DipFilter::sizeStr(), szfld_->box()->getIntValue() );
     mSetEnum( DipFilter::typeStr(), fltrtpfld_->getIntValue() );
-    mSetFloat( DipFilter::minvelStr(), velfld_->getfValue(0) );
-    mSetFloat( DipFilter::maxvelStr(), velfld_->getfValue(1) );
+    mSetFloat( DipFilter::minvelStr(), velfld_->getFValue(0) );
+    mSetFloat( DipFilter::maxvelStr(), velfld_->getFValue(1) );
     mSetBool( DipFilter::filteraziStr(), azifld_->getBoolValue() );
-    mSetFloat( DipFilter::minaziStr(), aziintfld_->getfValue(0) );
-    mSetFloat( DipFilter::maxaziStr(), aziintfld_->getfValue(1) );
-    mSetFloat( DipFilter::taperlenStr(), taperfld_->getfValue() );
+    mSetFloat( DipFilter::minaziStr(), aziintfld_->getFValue(0) );
+    mSetFloat( DipFilter::maxaziStr(), aziintfld_->getFValue(1) );
+    mSetFloat( DipFilter::taperlenStr(), taperfld_->getFValue() );
 
     return true;
 }

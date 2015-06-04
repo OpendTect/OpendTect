@@ -141,7 +141,7 @@ FingerPrint::FingerPrint( Desc& dsc )
     for ( int idx=0; idx<valueset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*valueset)[idx];
-	refvector_ += param.getfValue(0);
+	refvector_ += param.getFValue(0);
     }
 
     mDescGetParamGroup(FloatGateParam,rangeset,desc_,rangeStr())

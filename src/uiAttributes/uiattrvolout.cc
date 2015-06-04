@@ -332,7 +332,7 @@ bool uiAttrVolOut::prepareProcessing()
 	for ( int idx=0; idx<ids.size(); idx++ )
 	{
 	    mids += new MultiID( outioobj->key() );
-	    offs += offsetfld_->getfValue(0) + idx*offsetfld_->getfValue(1);
+	    offs += offsetfld_->getFValue(0) + idx*offsetfld_->getFValue(1);
 	    comps += idx;
 	}
 

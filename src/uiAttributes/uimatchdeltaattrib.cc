@@ -62,7 +62,7 @@ bool uiMatchDeltaAttrib::getParameters( Attrib::Desc& desc )
     if ( desc.attribName() != MatchDelta::attribName() )
 	return false;
 
-    mSetFloat( MatchDelta::maxshiftStr(), maxshiftfld_->getfValue() );
+    mSetFloat( MatchDelta::maxshiftStr(), maxshiftfld_->getFValue() );
     return true;
 }
 

@@ -112,7 +112,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 
 void uiVolumeStatisticsAttrib::stackstepChg( CallBacker* )
 {
-    nrtrcsfld_->box()->setInterval( 1, optstackstepfld_->box()->getValue() );
+    nrtrcsfld_->box()->setInterval( 1, optstackstepfld_->box()->getIntValue() );
 }
 
 
@@ -150,13 +150,14 @@ bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
 
     mSetBool( VolStats::allowEdgeEffStr(), edgeeffectfld_->isChecked() );
     mSetBool( VolStats::steeringStr(), steerfld_->willSteer() );
-    mSetInt( VolStats::optstackstepStr(), optstackstepfld_->box()->getValue() );
+    mSetInt( VolStats::optstackstepStr(),
+	     optstackstepfld_->box()->getIntValue() );
     mSetEnum( VolStats::optstackdirStr(), (int)stackdirfld_->getBoolValue() );
 
     mSetFloatInterval( VolStats::gateStr(), gatefld_->getFInterval() );
     mSetBinID( VolStats::stepoutStr(), stepoutfld_->getBinID() );
     mSetEnum( VolStats::shapeStr(), shapefld_->getIntValue() );
-    mSetInt( VolStats::nrtrcsStr(), nrtrcsfld_->box()->getValue() );
+    mSetInt( VolStats::nrtrcsStr(), nrtrcsfld_->box()->getIntValue() );
 
     return true;
 }
