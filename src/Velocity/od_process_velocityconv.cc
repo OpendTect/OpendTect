@@ -64,7 +64,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( !conv.execute() )
     {
-	if (conv.errMsg().isEmpty())
+	if ( !conv.errMsg().isEmpty() )
 	    strm << conv.errMsg();
 
 	return false;
