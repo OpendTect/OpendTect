@@ -618,7 +618,7 @@ uiStoredViewer2DMainWin::uiStoredViewer2DMainWin( uiParent* p,
     hasangledata_ = false;
     if ( !is2d_ )
     {
-	slicepos_ = new uiSlicePos2DView( this );
+	slicepos_ = new uiSlicePos2DView( this, ZDomain::Info(SI().zDomain()) );
 	slicepos_->positionChg.notify(
 			    mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
     }
@@ -673,7 +673,8 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 void uiStoredViewer2DMainWin::setUpNewSlicePositions()
 {
     const bool isinl = is2d_ || tkzs_.defaultDir()==TrcKeyZSampling::Inl;
-    const int newpos = isinl ? tkzs_.hsamp_.start_.inl() : tkzs_.hsamp_.start_.crl();
+    const int newpos = isinl ? tkzs_.hsamp_.start_.inl()
+			     : tkzs_.hsamp_.start_.crl();
 
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
     {

@@ -13,10 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "multiid.h"
 #include "flatview.h"
 #include "flatauxdataeditor.h"
-
 #include "view2ddata.h"
 
 class uiFlatViewer;
@@ -44,7 +42,6 @@ public:
 
 protected:
 
-    Coord3		getCoord(const FlatView::Point&) const;
     void		pickAddChgCB(CallBacker*);
     void		pickRemoveCB(CallBacker*);
     void		dataChangedCB(CallBacker*);

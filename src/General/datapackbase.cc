@@ -433,6 +433,32 @@ SeisDataPack::~SeisDataPack()
 }
 
 
+int SeisDataPack::getNearestGlobalIdx( const TrcKey& tk ) const
+{
+    if ( tk.isUdf() ) return -1;
+
+    const int gidx = getGlobalIdx( tk );
+    if ( gidx >= 0 ) return gidx;
+
+    double dist = mUdf(double);
+    int bestidx = -1;
+    for ( int idx=0; idx<nrTrcs(); idx++ )
+    {
+	const TrcKey curtk = getTrcKey( idx );
+	if ( curtk.isUdf() ) continue;
+
+	const double curdist = tk.distTo( curtk );
+	if ( curdist < dist )
+	{
+	    dist = curdist;
+	    bestidx = idx;
+	}
+    }
+
+    return bestidx;
+}
+
+
 const OffsetValueSeries<float>
     SeisDataPack::getTrcStorage(int comp, int globaltrcidx) const
 {

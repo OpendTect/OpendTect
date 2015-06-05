@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivispartserv.h"
 
 #include "filepath.h"
+#include "flatposdata.h"
 #include "ioobj.h"
 #include "mouseevent.h"
 #include "seisdatapack.h"
@@ -67,6 +68,7 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , initialcentre_(uiWorldPoint::udf())
     , initialx1pospercm_(mUdf(float))
     , initialx2pospercm_(mUdf(float))
+    , isvertical_(true)
     , ispolyselect_(true)
     , viewWinAvailable(this)
     , viewWinClosed(this)
@@ -118,6 +120,13 @@ Pos::GeomID uiODViewer2D::geomID() const
 	return tkzs_.hsamp_.trcKeyAt(0).geomID();
 
     return Survey::GM().cUndefGeomID();
+}
+
+
+const ZDomain::Def& uiODViewer2D::zDomain() const
+{
+    return datatransform_ ? datatransform_->toZDomainInfo().def_
+			  : SI().zDomain();
 }
 
 
@@ -176,8 +185,8 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     ConstDataPackRef<FlatDataPack> fdp = dpm.obtain( packid );
+    mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
     mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
 
     const bool isnew = !viewwin();
@@ -188,10 +197,8 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	else if ( !mapdp )
 	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
 
-	const bool isvertical = (regfdp && regfdp->isVertical()) || randfdp;
-	const bool needslicepos = fdp && (!regfdp || !regfdp->is2D()) &&
-					!randfdp && !mapdp;
-	createViewWin( isvertical, needslicepos );
+	isvertical_ = seisfdp && seisfdp->isVertical();
+	createViewWin( isvertical_, regfdp && !regfdp->is2D() );
     }
 
     if ( regfdp )
@@ -291,6 +298,7 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 	{
 	    TrcKeyZSampling limitcs;
 	    limitcs.zsamp_.setFrom( datatransform_->getZInterval(false) );
+	    limitcs.zsamp_.step = datatransform_->getGoodZStep();
 	    slicepos_->setLimitSampling( limitcs );
 	}
     }
@@ -314,8 +322,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 
 	if ( needslicepos )
 	{
-	    slicepos_ = new uiSlicePos2DView( fvmw );
-	    slicepos_->setTrcKeyZSampling( tkzs_ );
+	    slicepos_ = new uiSlicePos2DView( fvmw, ZDomain::Info(zDomain()) );
 	    mAttachCB( slicepos_->positionChg, uiODViewer2D::posChg );
 	}
 
@@ -333,6 +340,8 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     }
 
     viewwin_->setInitialSize( 700, 400 );
+    if ( tkzs_.isFlat() ) setTrcKeyZSampling( tkzs_ );
+
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer( ivwr);
@@ -491,27 +500,10 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
 {
     if ( tkzs == tkzs_ ) return;
     const uiFlatViewer& vwr = viewwin()->viewer(0);
-    const bool shwvd = vwr.isVisible(false);
-    const bool shwwva = vwr.isVisible(true);
-    DataPack::ID dpid = DataPack::cNoID();
-
-    if ( shwvd && vdselspec_.id().isValid() )
-    {
-	dpid = createDataPack( vdselspec_ );
-	if ( dpid != DataPack::cNoID() ) removeAvailablePacks();
-	//<--TODO: This line is needed only for z-slices in z-transformed domain
-	//as setUpView cannot getTrcKeyZSampling from a FlatDataPack.
-	//Try to remove.
-	setUpView( dpid, false );
-    }
-    else if ( shwwva && wvaselspec_.id().isValid() )
-    {
-	dpid = createDataPack( wvaselspec_ );
-	if ( dpid != DataPack::cNoID() ) removeAvailablePacks(); //<--Same here.
-	setUpView( dpid, true );
-    }
-
-    if ( dpid != DataPack::cNoID() ) tkzs_ = tkzs;
+    if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
+	setUpView( createDataPack(false), false );
+    else if ( vwr.isVisible(true) && wvaselspec_.id().isValid() )
+	setUpView( createDataPack(true), true );
 }
 
 
@@ -525,7 +517,7 @@ DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 	const DataPack::ID dpid = vwr.packID(!wva);
 	if ( dpid != DataPack::cNoID() ) return dpid;
     }
-    return createDataPack( wva ? wvaselspec_ : vdselspec_ );
+    return createDataPack( wva );
 }
 
 
@@ -594,10 +586,11 @@ DataPack::ID uiODViewer2D::createFlatDataPack(
 DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 					const Attrib::SelSpec& selspec ) const
 {
-    if ( !slicepos_ || !hasZAxisTransform() || selspec.isZTransformed() )
+    if ( !hasZAxisTransform() || selspec.isZTransformed() )
 	return DataPack::cNoID();
 
-    const TrcKeyZSampling& tkzs = slicepos_->getTrcKeyZSampling();
+    const TrcKeyZSampling& tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
+					    : tkzs_;
     if ( tkzs.nrZ() != 1 ) return DataPack::cNoID();
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
@@ -617,9 +610,9 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
     if ( !attrserv->createOutput(*data,firstcol) )
 	return DataPack::cNoID();
 
-    const TypeSet<DataPack::ID> dpids = createDataPacksFromBIVSet(
-					      &data->bivSet(), tkzs, userrefs );
-    return dpids.size() ? dpids[0] : DataPack::cNoID();
+    const DataPack::ID dpid = RegularSeisDataPack::createDataPackForZSlice(
+	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), userrefs );
+    return createFlatDataPack( dpid, 0 );
 }
 
 
@@ -704,16 +697,15 @@ void uiODViewer2D::setWinTitle( bool fromcs )
     else
     {
 	if ( tkzs_.hsamp_.survid_ == Survey::GM().get2DSurvID() )
-	    info += Survey::GM().getName( tkzs_.hsamp_.trcKeyAt(0).geomID() );
+	    { info = "Line: "; info += Survey::GM().getName( geomID() ); }
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 	    { info = "In-line: "; info += tkzs_.hsamp_.start_.inl(); }
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
 	    { info = "Cross-line: "; info += tkzs_.hsamp_.start_.crl(); }
 	else
 	{
-	    const ZDomain::Def& zdef = SI().zDomain();
-	    info = zdef.userName(); info += ": ";
-	    info += tkzs_.zsamp_.start * zdef.userFactor();
+	    info = zDomain().userName(); info += ": ";
+	    info += mNINT32(tkzs_.zsamp_.start * zDomain().userFactor());
 	}
     }
 
@@ -797,17 +789,33 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	marker_->markerstyles_ += MarkerStyle2D();
     }
 
-    const BinID bid = SI().transform( info.surveypos_.coord() );
-    FlatView::Point& pt = marker_->poly_[0];
-    ConstRefMan<ZAxisTransform> zat = getZAxisTransform();
-    const double z = zat ? zat->transform(info.surveypos_) : info.surveypos_.z;
+    ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( false, true );
+    mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
+    mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
+    if ( !seisfdp && !mapdp ) return;
 
-    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
-	pt = FlatView::Point( bid.crl(), z );
-    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
-	pt = FlatView::Point( bid.inl(), z );
-    else
-	pt = FlatView::Point( bid.inl(), bid.crl() );
+    const Coord3& coord = info.surveypos_;
+    FlatView::Point& pt = marker_->poly_[0];
+    if ( seisfdp )
+    {
+	const Survey::Geometry* geometry = Survey::GM().getGeometry(
+			seisfdp->is2D() ? geomID() : tkzs_.hsamp_.survid_ );
+	const TrcKey trckey = geometry ? geometry->nearestTrace(coord)
+				       : TrcKey::udf();
+	const int gidx = seisfdp->getSourceDataPack().getGlobalIdx( trckey );
+	if ( seisfdp->isVertical() )
+	{
+	    pt.x = fdp->posData().range(true).atIndex( gidx );
+	    pt.y = datatransform_ ? datatransform_->transform(coord) : coord.z;
+	}
+	else
+	{
+	    pt.x = fdp->posData().range(true).atIndex( gidx / tkzs_.nrTrcs() );
+	    pt.y = fdp->posData().range(false).atIndex( gidx % tkzs_.nrTrcs() );
+	}
+    }
+    else if ( mapdp )
+	pt = FlatView::Point( coord.x, coord.y );
 
     vwr.handleChange( FlatView::Viewer::Auxdata );
 }
@@ -825,7 +833,13 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     if ( valstr.isEmpty() ) valstr = pars.find( "Y-coordinate" );
     if ( !valstr.isEmpty() ) mousepos.y = valstr.toDouble();
     valstr = pars.find( "Z" );
-    if ( !valstr.isEmpty() ) mousepos.z = valstr.toDouble()/1000.;
+    if ( valstr.isEmpty() ) valstr = pars.find( "Z-Coord" );
+    if ( !valstr.isEmpty() )
+    {
+	mousepos.z = valstr.toDouble() / zDomain().userFactor();
+	if ( datatransform_ )
+	    mousepos.z = datatransform_->transformBack( mousepos );
+    }
 
     if ( mousecursorexchange_ && mousepos.isDefined() )
     {

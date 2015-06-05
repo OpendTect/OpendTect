@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiflatviewmod.h"
 #include "uislicepos.h"
+#include "zdomain.h"
 
 /*!
 \brief Toolbar for setting slice position _ 2D viewer.
@@ -22,7 +23,7 @@ ________________________________________________________________________
 mExpClass(uiFlatView) uiSlicePos2DView : public uiSlicePos
 {
 public:
-			uiSlicePos2DView(uiParent*);
+			uiSlicePos2DView(uiParent*,const ZDomain::Info&);
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setLimitSampling(const TrcKeyZSampling&);
@@ -30,6 +31,7 @@ public:
     const TrcKeyZSampling& getLimitSampling() const { return limitscs_; };
 
 protected:
+
     void		setBoxRanges();
     void		setPosBoxValue();
     void		setStepBoxValue();
@@ -38,7 +40,7 @@ protected:
 
     TrcKeyZSampling	limitscs_;
     SliceDir		curorientation_;
-
+    ZDomain::Info	zdomaininfo_;
 };
 
 

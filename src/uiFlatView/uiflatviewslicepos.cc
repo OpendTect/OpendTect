@@ -15,10 +15,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 
 
-uiSlicePos2DView::uiSlicePos2DView( uiParent* p )
+uiSlicePos2DView::uiSlicePos2DView( uiParent* p, const ZDomain::Info& zinfo )
     : uiSlicePos( p )
+    , zdomaininfo_(zinfo)
 {
-    zfactor_ = SI().zDomain().userFactor();
+    zfactor_ = zinfo.userFactor();
 }
 
 

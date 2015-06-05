@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "uiodvw2dwigglevararea.h"
 #include "uitreeitemmanager.h"
 #include "uivispartserv.h"
-#include "visplanedatadisplay.h"
 #include "zaxistransform.h"
 
 #include "attribsel.h"
@@ -103,14 +102,13 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     const DataPack::ID id = visServ().getDisplayedDataPackID( visid, attribid );
     if ( id < 0 ) return;
 
-    ConstRefMan<ZAxisTransform> zat =
-	visServ().getZAxisTransform( visServ().getSceneID(visid) );
-
     uiODViewer2D* vwr2d = find2DViewer( visid, true );
     const bool isnewvwr = !vwr2d;
     if ( !vwr2d )
     {
 	vwr2d = &addViewer2D( visid );
+	ConstRefMan<ZAxisTransform> zat =
+		visServ().getZAxisTransform( visServ().getSceneID(visid) );
 	vwr2d->setZAxisTransform( const_cast<ZAxisTransform*>(zat.ptr()) );
     }
     else
@@ -127,10 +125,6 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     const DataPack::ID dpid = vwr2d->createFlatDataPack( id, version );
     vwr2d->setUpView( dpid, dowva );
     vwr2d->setWinTitle();
-
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pd,visServ().getObject(visid));
-    if ( zat && pd && !pd->isVerticalPlane() )
-	vwr2d->setTrcKeyZSampling( pd->getTrcKeyZSampling(false,true) );
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
     if ( isnewvwr )
@@ -187,7 +181,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	const uiString showinltxt = tr("Show In-line %1...").arg( bid.inl() );
 	const uiString showcrltxt = tr("Show Cross-line %1...").arg( bid.crl());
 	const uiString showztxt = tr("Show Z-slice %1...")
-				 .arg( coord.z * SI().zDomain().userFactor() );
+		.arg( mNINT32(coord.z*curvwr2d->zDomain().userFactor()) );
 
 	const bool isflat = tkzs.isFlat();
 	const TrcKeyZSampling::Dir dir = tkzs.defaultDir();
@@ -207,6 +201,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	const BinID bid = SI().transform( coord );
 	uiWorldPoint initialcentre( uiWorldPoint::udf() );
 	TrcKeyZSampling newtkzs = SI().sampling(true);
+	newtkzs.hsamp_.survid_ = tkzs.hsamp_.survid_;
 	if ( menuid==0 )
 	{
 	    const PosInfo::Line2DData& l2ddata =
@@ -259,7 +254,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     const uiFlatViewStdControl* control = curvwr2d.viewControl();
     vwr2d->setInitialCentre( initialcentre );
     vwr2d->setInitialX1PosPerCM( control->getCurrentPosPerCM(true) );
-    if ( newsampling.defaultDir() != TrcKeyZSampling::Z )
+    if ( newsampling.defaultDir()!=TrcKeyZSampling::Z && curvwr2d.isVertical() )
 	vwr2d->setInitialX2PosPerCM( control->getCurrentPosPerCM(false) );
 
     const uiFlatViewer& curvwr = curvwr2d.viewwin()->viewer( 0 );
@@ -272,6 +267,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     {
 	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );
 	vwr.appearance().ddpars_ = curvwr.appearance().ddpars_;
+	vwr.appearance().ddpars_.wva_.allowuserchange_ = vwr2d->isVertical();
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
 

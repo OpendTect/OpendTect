@@ -389,7 +389,7 @@ public:
     			//!< Will also handleChange.
     			//!< So, do not use unless you want both.
 
-    Coord3		getCoord(const Point&);
+    Coord3		getCoord(const Point&) const;
 
     enum DataChangeType	{ All=0xFFFFFFFF, BitmapData=0x0001, DisplayPars=0x0002,
 			  Annot=0x0004, Auxdata=0x0008 };

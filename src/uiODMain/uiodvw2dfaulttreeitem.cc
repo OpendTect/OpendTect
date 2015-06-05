@@ -66,7 +66,10 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 	emo->setPreferredColor( getRandomColor(false) );
 	emo->setNewName();
 	emo->setFullyLoaded( true );
-	addChld( new uiODVw2DFaultTreeItem(emo->id()), false, false );
+	uiODVw2DFaultTreeItem* treeitem = new uiODVw2DFaultTreeItem(emo->id());
+	addChld( treeitem, false, false );
+	viewer2D()->viewControl()->setEditMode( true );
+	treeitem->select();
     }
     else if ( mnuid == 1 )
     {

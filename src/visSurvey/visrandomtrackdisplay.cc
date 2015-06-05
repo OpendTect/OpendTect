@@ -108,13 +108,13 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     const StepInterval<float>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange(
-			    mCast(float,SI().sampling(true).hsamp_.start_.inl()),
-			    mCast(float,SI().sampling(true).hsamp_.stop_.inl()),
-			    mCast(float,SI().inlStep()) );
+		    mCast(float,SI().sampling(true).hsamp_.start_.inl()),
+		    mCast(float,SI().sampling(true).hsamp_.stop_.inl()),
+		    mCast(float,SI().inlStep()) );
     const StepInterval<float> crlrange(
-			    mCast(float,SI().sampling(true).hsamp_.start_.crl()),
-			    mCast(float,SI().sampling(true).hsamp_.stop_.crl()),
-			    mCast(float,SI().crlStep()) );
+		    mCast(float,SI().sampling(true).hsamp_.start_.crl()),
+		    mCast(float,SI().sampling(true).hsamp_.stop_.crl()),
+		    mCast(float,SI().crlStep()) );
 
     const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
     const BinID stop(start.inl(), mNINT32(crlrange.stop) );
@@ -1018,8 +1018,8 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 	if ( selspec ) rtd->setSelSpec( idx, *selspec );
 	rtd->setDataPackID( idx, getDataPackID(idx), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
-	if ( mappersetup ) rtd->setColTabMapperSetup( idx, *mappersetup, 
-						      taskr );
+	if ( mappersetup )
+	    rtd->setColTabMapperSetup( idx, *mappersetup, taskr );
 	const ColTab::Sequence* colseq = getColTabSequence( idx );
 	if ( colseq ) rtd->setColTabSequence( idx, *colseq, taskr );
     }
@@ -1087,52 +1087,27 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
 }
 
 
-#define mFindTrc(inladd,crladd) \
-    if ( trcidx < 0 ) \
-    { \
-	bid.inl() = reqbid.inl() + step.inl() * (inladd); \
-	bid.crl() = reqbid.crl() + step.crl() * (crladd); \
-	trcidx = randsdp->getGlobalIdx( \
-		Survey::GM().traceKey(Survey::GM().default3DSurvID(), \
-		    bid.inl(),bid.crl()) ); \
-    }
-
 bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 					const Coord3& pos,float& val ) const
 {
-    if ( !datapackids_.validIdx(attrib) )
-	return false;
-
-    ConstDataPackRef<RandomSeisDataPack> randsdp =
-		DPM(DataPackMgr::SeisID()).obtain( datapackids_[attrib] );
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPack::ID dpid = getDisplayedDataPackID( attrib );
+    ConstDataPackRef<RandomSeisDataPack> randsdp = dpm.obtain( dpid );
     if ( !randsdp || randsdp->isEmpty() )
 	return false;
 
-    const BinID reqbid( SI().transform(pos) );
+    const BinID bid( SI().transform(pos) );
     const TrcKey trckey = Survey::GM().traceKey(
-	    Survey::GM().default3DSurvID(), reqbid.inl(), reqbid.crl() );
-    int trcidx = randsdp->getGlobalIdx( trckey );
-    if ( trcidx<0 )
-    {
-	const BinID step( SI().inlStep(), SI().crlStep() );
-	BinID bid;
-	mFindTrc(1,0) mFindTrc(-1,0) mFindTrc(0,1) mFindTrc(0,-1)
-	if ( trcidx<0 )
-	{
-	    mFindTrc(1,1) mFindTrc(-1,1) mFindTrc(1,-1) mFindTrc(-1,-1)
-	}
-    }
-
+	    Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
+    const int trcidx = randsdp->getNearestGlobalIdx( trckey );
+    const int sampidx = randsdp->getZRange().nearestIndex( pos.z );
     const Array3DImpl<float>& array = randsdp->data( version );
-    const int sampidx =  randsdp->getZRange().nearestIndex( pos.z );
     if ( !array.info().validPos(0,trcidx,sampidx) )
 	return false;
 
     val = array.get( 0, trcidx, sampidx );
     return true;
 }
-
-#undef mFindTrc
 
 
 void RandomTrackDisplay::addCache()
@@ -1251,7 +1226,7 @@ void RandomTrackDisplay::setPolyLineMode( bool mode )
 
 
 bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
-					 const Coord3& pos) const
+					 const Coord3& pos ) const
 {
     const int sz = evi.pickedobjids.size();
     bool validpicksurface = false;

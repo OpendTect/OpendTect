@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "datapackbase.h"
 #include "seisinfo.h"
 
+class BinIDValueSet;
+
 /*!
 \brief SeisDataPack for 2D and 3D seismic data.
 */
@@ -45,6 +47,16 @@ public:
     const StepInterval<float>&	getZRange() const
 				{ return sampling_.zsamp_; }
 
+    static DataPack::ID		createDataPackForZSlice(const BinIDValueSet*,
+	    					const TrcKeyZSampling&,
+						const ZDomain::Info&,
+ 						const BufferStringSet& nms=0);
+				/*!< Creates RegularSeisDataPack from
+				BinIDValueSet for z-slices in z-axis transformed
+				domain. nrComponents() in the created datapack
+				will be one less than BinIDValueSet::nrVals(),
+				as the	z-component is not used. \param nms is
+				for passing component names. */
 protected:
 
     TrcKeyZSampling		sampling_;
@@ -107,7 +119,7 @@ public:
 				//!< Will be empty if isVertical() is false.
 				//!< Example: Timeslices.
 
-    bool			isAltDim0InInt(const char* keystr) const;
+    bool			dimValuesInInt(const char* keystr) const;
     void			getAltDim0Keys(BufferStringSet&) const;
     double			getAltDim0Value(int ikey,int i0) const;
     void			getAuxInfo(int i0,int i1,IOPar&) const;

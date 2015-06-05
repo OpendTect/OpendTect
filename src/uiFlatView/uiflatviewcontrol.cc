@@ -26,7 +26,6 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, bool rub )
     , zoomChanged(this)
     , rubberBandUsed(this)
 {
-    setBorder( 0 );
     addViewer( vwr );
     if ( vwr.attachObj()->parent() )
 	mAttachCB( vwr.attachObj()->parent()->postFinalise(),
@@ -134,17 +133,7 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
     uiFlatViewer& vwr = *vwrs_[0];
     const uiWorldRect bb = vwr.boundingBox();
     uiWorldRect wr = getZoomOrPanRect( mousepos, sz, vwr.curView(), bb );
-    const bool needextraborders = !vwr.updatesBitmapsOnResize();
-    if ( needextraborders && vwr.getViewRect()!=vwr.getViewRect(false) )
-    {
-	const uiWorld2Ui w2ui( vwr.getViewRect().size(), wr );
-	wr = w2ui.transform( vwr.getViewRect(false) );
-	wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, bb );
-	vwr.setBoundingRect( w2ui.transform(bb) );
-    }
-
-    vwr.setView( wr );
-    updateZoomManager();
+    setNewWorldRect( vwr, wr );
 }
 
 
@@ -199,12 +188,26 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 	return;
 
     uiWorldRect wr = vwr->getWorld2Ui().transform( *selarea );
-    Geom::Size2D<double> newsz = wr.size();
-
-    wr = getZoomOrPanRect( wr.centre(), newsz, wr, vwr->boundingBox() );
-    vwr->setView( wr );
-    updateZoomManager();
+    wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, vwr->boundingBox() );
+    setNewWorldRect( *vwr, wr );
     rubberBandUsed.trigger();
+}
+
+
+void uiFlatViewControl::setNewWorldRect( uiFlatViewer& vwr, uiWorldRect& wr )
+{
+    const bool needextraborders = !vwr.updatesBitmapsOnResize();
+    if ( needextraborders && vwr.getViewRect()!=vwr.getViewRect(false) )
+    {
+	const uiWorldRect bb = vwr.boundingBox();
+	const uiWorld2Ui w2ui( vwr.getViewRect(), wr );
+	wr = w2ui.transform( vwr.getViewRect(false) );
+	wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, bb );
+	vwr.setBoundingRect( w2ui.transform(bb) );
+    }
+
+    vwr.setView( wr );
+    updateZoomManager();
 }
 
 

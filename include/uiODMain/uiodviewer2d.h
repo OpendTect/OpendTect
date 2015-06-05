@@ -34,6 +34,7 @@ class ZAxisTransform;
 
 namespace Attrib { class SelSpec; }
 namespace FlatView { class AuxData; }
+namespace ZDomain { class Def; }
 
 /*!
 \brief A 2D Viewer.
@@ -88,6 +89,7 @@ public:
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
     bool			useStoredDispPars(bool wva);
+    bool			isVertical() const	{ return isvertical_; }
 
     ZAxisTransform*		getZAxisTransform() const
 				{ return datatransform_; }
@@ -113,6 +115,7 @@ public:
 				{ return viewstdcontrol_; }
     uiSlicePos2DView*		slicePos()
 				{ return slicepos_; }
+    const ZDomain::Def&		zDomain() const;
 
     int				id_; /*!<Unique identifier */
     int				visid_; /*!<ID from 3D visualization */
@@ -157,6 +160,7 @@ protected:
 
     int				polyseltbid_;
     bool			ispolyselect_;
+    bool			isvertical_;
 
     DataPack::ID		createDataPackForTransformedZSlice(
 						const Attrib::SelSpec&) const;

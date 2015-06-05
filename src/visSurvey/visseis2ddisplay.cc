@@ -919,17 +919,15 @@ void Seis2DDisplay::getObjectInfo( BufferString& info ) const
 bool Seis2DDisplay::getCacheValue( int attrib, int version,
 				    const Coord3& pos, float& res ) const
 {
-    if ( !datapackids_.validIdx(attrib) )
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPack::ID dpid = getDisplayedDataPackID( attrib );
+    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
+    if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
     int traceidx = -1;
     float mindist;
     if ( !getNearestTrace(pos, traceidx, mindist) )
-	return false;
-
-    ConstDataPackRef<RegularSeisDataPack> regsdp =
-		DPM(DataPackMgr::SeisID()).obtain( datapackids_[attrib] );
-    if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
     const int trcnr = geometry_.positions()[traceidx].nr_;
