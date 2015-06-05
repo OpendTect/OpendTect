@@ -49,11 +49,15 @@ uiWorld2Ui::uiWorld2Ui()
 { };
 
 
-uiWorld2Ui::uiWorld2Ui( uiSize sz, const uiWorldRect& wr )
+uiWorld2Ui::uiWorld2Ui( const uiSize& sz, const uiWorldRect& wr )
 { set(sz,wr); }
 
 
-uiWorld2Ui::uiWorld2Ui( const uiWorldRect& wr, uiSize sz )
+uiWorld2Ui::uiWorld2Ui( const uiRect& rc, const uiWorldRect& wr )
+{ set( rc, wr ); }
+
+
+uiWorld2Ui::uiWorld2Ui( const uiWorldRect& wr, const uiSize& sz )
 { set(sz,wr); }
 
 
@@ -72,7 +76,7 @@ void uiWorld2Ui::set( const World2UiData& w )
 { set( w.sz, w.wr ); }
 
 
-void uiWorld2Ui::set( const uiWorldRect& wr, uiSize sz )
+void uiWorld2Ui::set( const uiWorldRect& wr, const uiSize& sz )
 { set( sz, wr ); }
 
 
@@ -104,7 +108,7 @@ void uiWorld2Ui::set( uiRect rc, const SurveyInfo& si )
 }
 
 
-void uiWorld2Ui::set( uiSize sz, const uiWorldRect& wr )
+void uiWorld2Ui::set( const uiSize& sz, const uiWorldRect& wr )
 {
     w2ud = World2UiData( sz, wr );
     p0 = wr.topLeft();
@@ -147,7 +151,7 @@ void uiWorld2Ui::setRemap( const uiSize& sz, const uiWorldRect& wrdrc )
 
 void uiWorld2Ui::setRemap( const uiRect& rc, const uiWorldRect& wrdrc )
 {
-    uiSize sz( rc.hNrPics(), rc.vNrPics() );
+    const uiSize sz( rc.hNrPics(), rc.vNrPics() );
     setRemap( sz, wrdrc );
     uiorigin = rc.topLeft();
 }

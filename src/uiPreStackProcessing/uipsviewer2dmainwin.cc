@@ -618,7 +618,7 @@ uiStoredViewer2DMainWin::uiStoredViewer2DMainWin( uiParent* p,
     hasangledata_ = false;
     if ( !is2d_ )
     {
-	slicepos_ = new uiSlicePos2DView( this );
+	slicepos_ = new uiSlicePos2DView( this, ZDomain::Info(SI().zDomain()) );
 	slicepos_->positionChg.notify(
 			    mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
     }

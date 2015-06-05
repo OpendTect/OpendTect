@@ -13,10 +13,7 @@ ________________________________________________________________________
 
 #include "angles.h"
 #include "zaxistransform.h"
-#include "trckeyzsampling.h"
-#include "binidvalue.h"
 #include "flatposdata.h"
-#include "indexinfo.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "pickset.h"
@@ -28,7 +25,6 @@ ________________________________________________________________________
 #include "uiflatauxdataeditor.h"
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
-#include "uiworld2ui.h"
 
 
 mCreateVw2DFactoryEntry( VW2DPickSet );
@@ -79,17 +75,18 @@ VW2DPickSet::~VW2DPickSet()
 
 void VW2DPickSet::pickAddChgCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiFlatViewAuxDataEditor*,editor,cb); if ( !editor ) return;
-    if ( !isselected_ || editor->getSelPtIdx().size() || editor->isSelActive() )
+    mDynamicCastGet(uiFlatViewAuxDataEditor*,editor,cb);
+    if ( !editor || editor->getSelPtIdx().size() || editor->isSelActive() ||
+	    !isselected_ || !pickset_ )
 	return;
 
-    const FlatView::Point newpt = editor->getSelPtPos();
-    const Coord3 crd = getCoord( newpt );
-    if ( !crd.isDefined() )
-	return;
-    // Add
-    if ( !pickset_ )
-	return;
+    const uiFlatViewer& vwr = editor->getFlatViewer();
+    Coord3 crd = vwr.getCoord( editor->getSelPtPos() );
+    if ( !crd.isDefined() ) return;
+
+    if ( vwr.hasZAxisTransform() )
+	crd.z = vwr.getZAxisTransform()->transformBack( crd );
+
     (*pickset_) += Pick::Location( crd );
     const int locidx = pickset_->size()-1;
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
@@ -159,40 +156,6 @@ MarkerStyle2D VW2DPickSet::get2DMarkers( const Pick::Set& ps ) const
     }
 
     return style;
-}
-
-
-Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
-{
-    ConstDataPackRef<FlatDataPack> fdp = viewers_[0]->obtainPack( true, true );
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-    if ( regfdp )
-    {
-	const TrcKeyZSampling& cs = regfdp->sampling();
-	BinID bid; float z;
-	if ( cs.defaultDir() == TrcKeyZSampling::Inl )
-	{
-	    bid = BinID( cs.hsamp_.start_.inl(), (int)pt.x );
-	    z = (float) pt.y;
-	}
-	else if ( cs.defaultDir() == TrcKeyZSampling::Crl )
-	{
-	    bid = BinID( (int)pt.x, cs.hsamp_.start_.crl() );
-	    z = (float) pt.y;
-	}
-	else
-	{
-	    bid = BinID( (int)pt.x, (int)pt.y );
-	    z = cs.zsamp_.start;
-	}
-
-	ConstRefMan<ZAxisTransform> zat = viewers_[0]->getZAxisTransform();
-	return ( cs.hsamp_.includes(bid) && cs.zsamp_.includes(z,false) ) ?
-	    Coord3( SI().transform(bid), zat ?
-		    zat->transformBack(BinIDValue(bid,z)) : z ) : Coord3::udf();
-    }
-
-    return Coord3::udf();
 }
 
 

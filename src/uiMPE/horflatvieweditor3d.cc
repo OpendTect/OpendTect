@@ -25,10 +25,8 @@ ________________________________________________________________________
 #include "sectiontracker.h"
 #include "survinfo.h"
 #include "undo.h"
-
+#include "uiflatviewer.h"
 #include "uimsg.h"
-#include "uistrings.h"
-#include "uiworld2ui.h"
 
 namespace MPE
 {
@@ -262,41 +260,26 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 	    return;
     }
 
-    //if ( !seedpickingon_ ) return;
+    const Geom::Point2D<int>& mousepos = mouseevent.pos();
+    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+    if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
+	return;
 
     bool pickinvd = true;
-    ConstDataPackRef<FlatDataPack> dp =editor_->viewer().obtainPack(!pickinvd);
-    if ( !dp ) return;
-
-    const uiRect datarect( editor_->getMouseArea() );
-    if ( !datarect.isInside(mouseevent.pos()) ) return;
-
-    const Geom::Point2D<int> mousepos = mouseevent.pos();
-    const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
-
-    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp = markerpos ? *markerpos :
-				w2u.transform( mousepos-datarect.topLeft() );
-
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, wp.x );
-    const IndexInfo iy = pd.indexInfo( false, wp.y );
-    Coord3 clickedcrd = dp->getCoord( ix.nearest_, iy.nearest_ );
-    clickedcrd.z = wp.y;
-
-    if ( !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
+    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd );
+    if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
 	return;
 
     const int prevevent = EM::EMM().undo().currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
-
     if ( !emobj->hasBurstAlert() )
 	emobj->setBurstAlert( true );
 
+    const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
+    const uiWorldPoint wp = markerpos ? *markerpos :
+			vwr->getWorld2Ui().transform(mousepos);
+    const bool action = doTheSeed( *seedpicker, vwr->getCoord(wp), mouseevent );
     const int trackerid = MPE::engine().getTrackerByObject( emid_ );
-    
-    bool action = doTheSeed( *seedpicker, clickedcrd, mouseevent );
-
     engine().updateFlatCubesContainer( curcs_, trackerid, action );
 
     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() )

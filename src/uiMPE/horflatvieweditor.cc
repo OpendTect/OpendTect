@@ -34,10 +34,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "survgeom2d.h"
 #include "undo.h"
-
+#include "uiflatviewer.h"
 #include "uimsg.h"
-#include "uistrings.h"
-#include "uiworld2ui.h"
 
 
 namespace MPE
@@ -171,24 +169,13 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     if ( !checkSanity(*tracker,*emobj,*seedpicker,pickinvd) )
 	return;
 
-    ConstDataPackRef<FlatDataPack> dp =editor_->viewer().obtainPack(!pickinvd);
-    if ( !dp )
-	{ uiMSG().error( tr("No data to choose from") ); return; }
-
     const MouseEvent& mouseevent = mouseeventhandler_->event();
-    const uiRect datarect( editor_->getMouseArea() );
-    if ( !datarect.isInside(mouseevent.pos()) ) return;
+    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+    if ( !vwr || !editor_->getMouseArea().isInside(mouseevent.pos()) )
+	return;
 
-    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp = w2u.transform( mouseevent.pos()-datarect.topLeft());
-
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, wp.x );
-    const IndexInfo iy = pd.indexInfo( false, wp.y );
-    Coord3 clickedcrd = dp->getCoord( ix.nearest_, iy.nearest_ );
-    clickedcrd.z = wp.y;
-
-    if ( !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
+    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd );
+    if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
 	return;
 
     const int prevevent = EM::EMM().undo().currentEventID();
@@ -196,9 +183,9 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
     emobj->setBurstAlert( true );
 
     const int trackerid = MPE::engine().getTrackerByObject( emobj->id() );
-
-    bool action = doTheSeed( *emobj, *seedpicker, clickedcrd, mouseevent );
-
+    const uiWorldPoint wp = vwr->getWorld2Ui().transform( mouseevent.pos() );
+    const bool action = doTheSeed(
+	    *emobj, *seedpicker, vwr->getCoord(wp), mouseevent );
     engine().updateFlatCubesContainer( newactivevol, trackerid, action );
 
     emobj->setBurstAlert( false );

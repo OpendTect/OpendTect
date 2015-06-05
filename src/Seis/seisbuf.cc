@@ -531,7 +531,7 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 }
 
 
-bool SeisTrcBufDataPack::isAltDim0InInt( const char* keystr ) const
+bool SeisTrcBufDataPack::dimValuesInInt( const char* keystr ) const
 {
     FixedString key( keystr );
     return key == SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr) ||

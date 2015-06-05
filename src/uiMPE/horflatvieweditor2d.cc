@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "horflatvieweditor2d.h"
 
 #include "attribstorprovider.h"
-#include "flatposdata.h"
 #include "emhorizon2d.h"
 #include "emhorizonpainter2d.h"
 #include "emobject.h"
@@ -32,10 +31,8 @@ ________________________________________________________________________
 #include "sectiontracker.h"
 #include "survgeom2d.h"
 #include "undo.h"
-
+#include "uiflatviewer.h"
 #include "uimsg.h"
-#include "uistrings.h"
-#include "uiworld2ui.h"
 
 namespace MPE
 {
@@ -265,12 +262,7 @@ void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* )
 	 !seedpicker->setSectionID(emobj->sectionID(0)) )
 	return;
 
-    //if ( !seedpickingon_ ) return;
-
-    bool pickinvd = true;
-
     const MouseEvent& mouseevent = mehandler_->event();
-
     if ( editor_ )
     {
 	const bool sequentsowing = editor_->sower().mode() ==
@@ -280,35 +272,25 @@ void HorizonFlatViewEditor2D::mouseReleaseCB( CallBacker* )
 	    return;
     }
 
-    ConstDataPackRef<FlatDataPack> dp =editor_->viewer().obtainPack(!pickinvd);
-    if ( !dp ) return;
+    const Geom::Point2D<int>& mousepos = mouseevent.pos();
+    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+    if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
+	return;
 
-    const uiRect datarect( editor_->getMouseArea() );
-    if ( !datarect.isInside(mouseevent.pos()) ) return;
-
-    const Geom::Point2D<int> mousepos = mouseevent.pos();
-    const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
-
-    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp = markerpos ? *markerpos :
-				w2u.transform( mousepos-datarect.topLeft());
-
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, wp.x );
-    const IndexInfo iy = pd.indexInfo( false, wp.y );
-    Coord3 clickedcrd = dp->getCoord( ix.nearest_, iy.nearest_ );
-    clickedcrd.z = wp.y;
-
-    if ( !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
+    bool pickinvd = true;
+    ConstDataPackRef<FlatDataPack> dp = vwr->obtainPack( !pickinvd );
+    if ( !dp || !prepareTracking(pickinvd,*tracker,*seedpicker,*dp) )
 	return;
 
     const int prevevent = EM::EMM().undo().currentEventID();
     MouseCursorManager::setOverride( MouseCursor::Wait );
-
     if ( !emobj->hasBurstAlert() )
 	emobj->setBurstAlert( true );
 
-    doTheSeed( *seedpicker, clickedcrd, mouseevent );
+    const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
+    const uiWorldPoint wp = markerpos ? *markerpos :
+			vwr->getWorld2Ui().transform(mousepos);
+    doTheSeed( *seedpicker, vwr->getCoord(wp), mouseevent );
 
     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() )
 	emobj->setBurstAlert( false );

@@ -352,16 +352,9 @@ void uiFlatViewer::setAnnotChoice( int sel )
 
     FlatView::Annotation::AxisData& x1axisdata = appearance().annot_.x1_;
     BufferStringSet altdim0keys; fdp->getAltDim0Keys( altdim0keys );
-    if ( !altdim0keys.validIdx(sel) )
-    {
-	x1axisdata.name_ = fdp->dimName( true );
-	axesdrawer_.altdim0_ = mUdf(int);
-	return;
-    }
-
-    x1axisdata.name_ = altdim0keys.get( sel );
-    x1axisdata.annotinint_ = fdp->isAltDim0InInt( x1axisdata.name_ );
-    axesdrawer_.setAnnotInInt( true, x1axisdata.annotinint_ );
+    x1axisdata.name_ = altdim0keys.validIdx(sel) ? altdim0keys.get(sel).buf()
+						 : fdp->dimName(true);
+    x1axisdata.annotinint_ = fdp->dimValuesInInt( x1axisdata.name_ );
     axesdrawer_.altdim0_ = sel;
 }
 

@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 AxesDrawer::AxesDrawer( uiFlatViewer& vwr )
     : uiGraphicsSceneAxisMgr(vwr.rgbCanvas())
     , vwr_(vwr)
-    , altdim0_(mUdf(int))
+    , altdim0_(-1)
     , rectitem_(0)
     , axis1nm_(0)
     , axis2nm_(0)
@@ -171,8 +171,8 @@ void AxesDrawer::updateViewRect()
     {
 	const int left = rect.left();
 	const int bottom = rect.bottom();
-	uiPoint from( left , bottom+3 );
-	uiPoint to( left, bottom+13 );
+	uiPoint from( left , bottom+13 );
+	uiPoint to( left, bottom+3 );
 
 	if ( ad2.reversed_ ) Swap( from, to );
 	if ( !arrowitem2_ )
@@ -224,7 +224,7 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
 {
     const bool usewva = !vwr_.isVisible( false );
     ConstDataPackRef<FlatDataPack> fdp = vwr_.obtainPack( usewva, true );
-    if ( !fdp || mIsUdf(altdim0_) )
+    if ( !fdp || altdim0_<0 )
     {
 	uiGraphicsSceneAxisMgr::setWorldCoords( wr );
 	return;

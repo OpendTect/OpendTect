@@ -304,8 +304,7 @@ void uiFlatViewStdControl::aspectRatioCB( CallBacker* cb )
     const uiWorldRect wr = w2ui.transform( vwr.getViewRect(false) );
     vwr.setBoundingRect( w2ui.transform(bb) );
     vwr.setView( getZoomOrPanRect(wr.centre(),wr.size(),wr,bb) );
-    if ( !zoommgr_.atStart() )
-	updateZoomManager();
+    updateZoomManager();
 }
 
 
@@ -461,7 +460,7 @@ float uiFlatViewStdControl::getCurrentPosPerCM( bool forx1 ) const
 {
     const uiFlatViewer& vwr = *vwrs_[0];
     const uiRect bbrect = vwr.getWorld2Ui().transform(vwr.boundingBox());
-    const int nrpixels = forx1 ? bbrect.width() : bbrect.height();
+    const int nrpixels = forx1 ? bbrect.hNrPics() : bbrect.vNrPics();
     const float nrcms = (mCast(float,nrpixels)/uiMain::getDPI()) * sInchToCMFac;
     const int extrastep = forx1 ? 1 : 0;
     //<-- For x2 all points are not considered as flatviewer does not expand

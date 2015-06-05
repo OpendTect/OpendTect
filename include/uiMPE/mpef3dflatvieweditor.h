@@ -16,11 +16,9 @@ ________________________________________________________________________
 #include "uimpemod.h"
 #include "geometry.h"
 #include "emfaultsticksetflatvieweditor.h"
-
 #include "emposid.h"
 
 class FlatPosData;
-class IndexInfo;
 class MouseEventHandler;
 
 namespace EM { class Fault3DPainter; }
@@ -71,7 +69,6 @@ protected:
 
     bool			getMousePosInfo(
 	    				const Geom::Point2D<int>& mousepos,
-					IndexInfo& ix, IndexInfo& iy,
 					Coord3& worldpos) const;
     Coord3			getScaleVector() const;
     				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z

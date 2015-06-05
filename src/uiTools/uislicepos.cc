@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSlicePos::uiSlicePos( uiParent* p )
     : positionChg(this)
-    , zfactor_(1)
+    , zfactor_(SI().zDomain().userFactor())
 {
     toolbar_ = new uiToolBar( p, "Slice position" );
 

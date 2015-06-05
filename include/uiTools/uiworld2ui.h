@@ -57,15 +57,16 @@ mExpClass(uiTools) uiWorld2Ui
 public:
 
 			uiWorld2Ui();
-			uiWorld2Ui( uiSize sz, const uiWorldRect& wr );
-			uiWorld2Ui( const uiWorldRect& wr, uiSize sz );
+			uiWorld2Ui( const uiSize& sz, const uiWorldRect& wr );
+			uiWorld2Ui( const uiRect& rc, const uiWorldRect& wr );
+			uiWorld2Ui( const uiWorldRect& wr, const uiSize& sz );
 			uiWorld2Ui( const World2UiData& w );
 
     bool		operator==(const uiWorld2Ui& ) const;
 
     void		set( const World2UiData& w );
-    void		set( const uiWorldRect& wr, uiSize sz );
-    void		set( uiSize sz, const uiWorldRect& wr );
+    void		set( const uiWorldRect& wr, const uiSize& sz );
+    void		set( const uiSize& sz, const uiWorldRect& wr );
     void		set( const uiRect& rc, const uiWorldRect& wr );
     void		set( uiRect rc, const SurveyInfo& si );
     			//! Quite useful for survey level maps.

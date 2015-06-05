@@ -17,15 +17,10 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "faultstickseteditor.h"
 #include "flatauxdataeditor.h"
-#include "flatposdata.h"
-#include "keystrs.h"
 #include "mouseevent.h"
-#include "mousecursor.h"
 #include "mpeengine.h"
 #include "survinfo.h"
-
-#include "uiworld2ui.h"
-
+#include "uiflatviewer.h"
 
 namespace MPE
 {
@@ -262,19 +257,6 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     if ( (edidauxdataid==-1) || (displayedknotid==-1) )
 	return;
 
-    const Geom::Point2D<double> pos = editor_->getSelPtPos();
-
-    ConstDataPackRef<FlatDataPack> dp =
-		editor_->viewer().obtainPack( false, true );
-    if ( !dp ) return;
-
-    const FlatPosData& pd = dp->posData();
-    const IndexInfo ix = pd.indexInfo( true, pos.x );
-    const IndexInfo iy = pd.indexInfo( false, pos.y );
-    Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
-    coord3.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
-						      : pos.y;
-
     EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return; 
 
@@ -297,37 +279,28 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 
     const RowCol knotrc( fsspainter_->getActiveStickId(), knotid );
     const EM::PosID pid( emid,0,knotrc.toInt64() );
+    const Coord3 coord3 = editor_->viewer().getCoord( editor_->getSelPtPos() );
     emfss->setPos( pid, coord3, true );
 }
 
 
 bool FaultStickSetFlatViewEditor::getMousePosInfo(
-	    const Geom::Point2D<int>& mousepos, IndexInfo& ix, IndexInfo& iy,
-	    Coord3& worldpos, int* trcnr ) const
+	const Geom::Point2D<int>& mousepos, Coord3& worldpos, int* trcnr ) const
 {
-    ConstDataPackRef<FlatDataPack> dp =
-		editor_->viewer().obtainPack( false, true );
-    if ( !dp ) return false;
-
-    const uiRect datarect( editor_->getMouseArea() );
-    if ( !mousepos.isDefined() || datarect.isOutside(mousepos) )
+    if ( !mousepos.isDefined() || editor_->getMouseArea().isOutside(mousepos) )
 	return false;
 
-    const uiWorld2Ui w2u( datarect.size(), editor_->getWorldRect(mUdf(int)) );
-    const uiWorldPoint wp = w2u.transform( mousepos-datarect.topLeft() );
+    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+    if ( !vwr ) return false;
 
-    const FlatPosData& pd = dp->posData();
-    ix = pd.indexInfo( true, wp.x );
-    iy = pd.indexInfo( false, wp.y );
-    worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
-							 : wp.y;
+    worldpos = vwr->getCoord( vwr->getWorld2Ui().transform(mousepos) );
 
     if ( trcnr )
     {
-	IOPar infopar;
-	dp->getAuxInfo( ix.nearest_, iy.nearest_, infopar );
-	infopar.get( sKey::TraceNr(), *trcnr );
+	const Survey::Geometry* geometry =
+		Survey::GM().getGeometry( fsspainter_->getGeomID() );
+	*trcnr = geometry ? geometry->nearestTrace(worldpos).trcNr()
+			  : TrcKey::udf().trcNr();
     }
 
     return true;
@@ -339,12 +312,11 @@ Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
     Coord3 scalevec( 0, 1, SI().zScale() );
 
     const uiRect datarect( editor_->getMouseArea() );
-    IndexInfo ix(0), iy(0);
     Coord3 p0, p1, p2;
 
-    if ( !getMousePosInfo(datarect.bottomLeft(),  ix, iy, p0) ||
-	 !getMousePosInfo(datarect.bottomRight(), ix, iy, p1) ||
-	 !getMousePosInfo(datarect.topLeft(),     ix, iy, p2) )
+    if ( !getMousePosInfo(datarect.bottomLeft(),p0) ||
+	 !getMousePosInfo(datarect.bottomRight(),p1) ||
+	 !getMousePosInfo(datarect.topLeft(),p2) )
     {
 	return scalevec;
     }
@@ -409,8 +381,8 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     if ( !fsseditor )
 	return;
 
-    IndexInfo ix(0), iy(0); Coord3 pos;
-    if ( !getMousePosInfo(mouseevent.pos(), ix, iy, pos) )
+    Coord3 pos = Coord3::udf();
+    if ( !getMousePosInfo(mouseevent.pos(),pos) )
 	return;
 
     EM::PosID pid;
@@ -530,16 +502,15 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	return;
 
     const MouseEvent& mouseevent = meh_->event();
-    IndexInfo ix(0), iy(0); Coord3 pos;
-
+    Coord3 pos = Coord3::udf();
     Coord3 worldpivot = Coord3::udf();
-    getMousePosInfo( editor_->sower().pivotPos(), ix, iy, worldpivot );
+    getMousePosInfo( editor_->sower().pivotPos(), worldpivot );
     fsseditor->setSowingPivot( worldpivot );
     if ( editor_->sower().accept(mouseevent,true) )
 	return;
 
     int trcnr = -1;
-    if ( !getMousePosInfo(mouseevent.pos(), ix, iy, pos, &trcnr) )
+    if ( !getMousePosInfo(mouseevent.pos(),pos,&trcnr) )
 	return;
 
     EM::FaultStickSetGeometry& fssg = emfss->geometry();

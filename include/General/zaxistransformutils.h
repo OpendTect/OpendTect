@@ -17,12 +17,8 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "paralleltask.h"
 #include "datapackbase.h"
-#include "bufstringset.h"
 
-template <class T> class Array2D;
 template <class T> class Array2DSlice;
-template <class T> class Array3D;
-class FlatPosData;
 class ZAxisTransform;
 class DataPointSet;
 class BinIDValueSet;
@@ -54,9 +50,6 @@ public:
     virtual void		dumpInfo(IOPar&) const;
 
     virtual const char* 	dimName(bool) const;
-
-    static DataPack::ID 	transformDataPack(DataPack::ID,
-					const TrcKeyZSampling&,ZAxisTransform&);
 
 protected:
 
@@ -103,17 +96,6 @@ protected:
     ZAxisTransform&		transform_;
     DataPointSet*		dps_;
 };
-
-
-/*!
-Creates FlatDataPacks from BinIDValueSet. If names are not passed while calling
-the function, created datapacks will not have any name. No. of datapacks created
-is one less than BinIDValueSet::nrVals(), as the z-component is not used.
-*/
-
-mGlobal(General) TypeSet<DataPack::ID> createDataPacksFromBIVSet(
-	const BinIDValueSet*,const TrcKeyZSampling&,const BufferStringSet& nms=0);
-
 
 #endif
 

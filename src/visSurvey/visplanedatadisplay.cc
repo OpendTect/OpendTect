@@ -414,12 +414,10 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
 	if ( rposcache_[idx] )
-	{
-	    BinIDValueSet set(*rposcache_[idx]);
-	    setRandomPosDataNoCache( idx, &set, 0 );
-	    continue;
-	}
-	createTransformedDataPack( idx );
+	    setRandomPosDataNoCache( idx, rposcache_[idx], 0 );
+	else
+	    createTransformedDataPack( idx );
+
 	updateChannels( idx, 0 );
     }
 }
@@ -779,7 +777,6 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
     createTransformedDataPack( attrib );
     updateChannels( attrib, taskr );
-//    setVolumeDataPackNoCache( attrib, regsdp );
     return true;
 }
 
@@ -916,22 +913,24 @@ DataPack::ID PlaneDataDisplay::getDisplayedDataPackID( int attrib ) const
 
 
 void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
-			const BinIDValueSet* bivset, TaskRunner* )
+			const BinIDValueSet* bivset, TaskRunner* taskr )
 {
-    if ( !bivset ) return;
-    const TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
+    if ( !bivset || !datatransform_ )
+	return;
+
+    const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true, 0 );
     BufferStringSet userrefs;
     for ( int idx=0; idx<userrefs_[attrib]->size(); idx++ )
 	userrefs.add( userrefs_[attrib]->get(idx) );
 
-    const TypeSet<DataPack::ID> dpids =
-		createDataPacksFromBIVSet( bivset, cs, userrefs );
-    if ( dpids.isEmpty() ) return;
-
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    const DataPack::ID dpid = RegularSeisDataPack::createDataPackForZSlice(
+		bivset, tkzs, datatransform_->toZDomainInfo(), userrefs );
+    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     dpm.release( transfdatapackids_[attrib] );
-    transfdatapackids_[attrib] = dpids[0];
-    dpm.obtain( dpids[0] );
+    transfdatapackids_[attrib] = dpid;
+    dpm.obtain( dpid );
+
+    updateChannels( attrib, taskr );
 }
 
 
@@ -1072,7 +1071,7 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 
 	const ZDomain::Info& zdinf = scene_->zDomainInfo();
 	info = zdinf.userName(); info += ": ";
-	info += val*zdinf.userFactor();
+	info += mNINT32(val * zdinf.userFactor());
     }
 }
 
@@ -1080,23 +1079,9 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 				      const Coord3& pos, float& val ) const
 {
-    if ( !datapackids_.validIdx(attrib) )
-	return false;
-
-    const BinIDValue bidv( s3dgeom_->transform(pos), (float) pos.z );
-    if ( attrib<rposcache_.size() && rposcache_[attrib] )
-    {
-	const BinIDValueSet& set = *rposcache_[attrib];
-	const BinIDValueSet::SPos setpos = set.find( bidv );
-	if ( setpos.i==-1 || setpos.j==-1 )
-	    return false;
-
-	val = set.getVals(setpos)[version+1];
-	return true;
-    }
-
-    ConstDataPackRef<RegularSeisDataPack> regsdp =
-	DPM(DataPackMgr::SeisID()).obtain( datapackids_[attrib] );
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPack::ID dpid = getDisplayedDataPackID( attrib );
+    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm.obtain( dpid );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

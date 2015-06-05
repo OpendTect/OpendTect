@@ -484,29 +484,20 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 						BufferString& val ) const
 {
     val = "undef";
-    BufferString valname;
-
     mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, ctab,
 	    channels_ ? channels_->getChannels2RGBA() : 0 );
-
-    Coord3 attribpos = pos;
-    ConstRefMan<ZAxisTransform> datatrans = getZAxisTransform();
-    if ( datatrans ) //TODO check for allready transformed data.
-    {
-	attribpos.z = datatrans->transformBack( pos );
-	if ( !attribpos.isDefined() )
-	    return;
-    }
+    if ( !ctab || !pos.isDefined() )
+	return;
 
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
     {
-	if ( !isAttribEnabled(idx) || !ctab || ctab->getTransparency(idx)==255 )
+	if ( !isAttribEnabled(idx) || ctab->getTransparency(idx)==255 )
 	    continue;
 
 	const int version = channels_->currentVersion( idx );
 
 	float fval;
-	if ( !getCacheValue(idx, version, attribpos, fval ) )
+	if ( !getCacheValue(idx, version, pos, fval ) )
 	    continue;
 
 	if ( !Math::IsNormalNumber(fval) )
@@ -516,7 +507,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	for ( int idy=idx-1; idy>=0; idy-- )
 	{
 	    if ( !hasCache(idy) || !isAttribEnabled(idy) ||
-		 (ctab && ctab->getTransparency(idx)==255 ) )
+		 ctab->getTransparency(idx)==255 )
 		continue;
 
 	    islowest = false;
@@ -525,8 +516,6 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 
 	if ( !islowest )
 	{
-	    if ( !ctab ) continue;
-
 	    const ColTab::Sequence* seq = ctab->getSequence( idx );
 	    const ColTab::Mapper& map = channels_->getColTabMapper(idx,version);
 

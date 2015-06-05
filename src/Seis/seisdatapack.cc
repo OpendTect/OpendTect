@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
+#include "binidvalset.h"
 #include "flatposdata.h"
 #include "survinfo.h"
 
@@ -63,6 +64,40 @@ void RegularSeisDataPack::dumpInfo( IOPar& par ) const
 			       tks.step_.trcNr() );
     par.set( sKey::ZRange(), sampling_.zsamp_.start, sampling_.zsamp_.stop,
 			     sampling_.zsamp_.step );
+}
+
+
+DataPack::ID RegularSeisDataPack::createDataPackForZSlice(
+						const BinIDValueSet* bivset,
+						const TrcKeyZSampling& tkzs,
+						const ZDomain::Info& zinfo,
+						const BufferStringSet& names )
+{
+    if ( !bivset || tkzs.nrZ()!=1 )
+	return DataPack::cNoID();
+
+    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
+					SeisDataPack::categoryStr(false,true) );
+    regsdp->setSampling( tkzs );
+    for ( int idx=1; idx<bivset->nrVals(); idx++ )
+    {
+	const char* name = names.validIdx(idx-1) ? names[idx-1]->buf()
+						 : sKey::EmptyString().buf();
+	regsdp->addComponent( name );
+	BinIDValueSet::SPos pos;
+	BinID bid;
+	while ( bivset->next(pos,true) )
+	{
+	    bivset->get( pos, bid );
+	    regsdp->data(idx-1).set( tkzs.hsamp_.inlIdx(bid.inl()),
+				     tkzs.hsamp_.crlIdx(bid.crl()), 0,
+				     bivset->getVals(pos)[idx] );
+	}
+    }
+
+    regsdp->setZDomain( zinfo );
+    DPM(DataPackMgr::SeisID()).add( regsdp );
+    return regsdp->id();
 }
 
 
@@ -121,7 +156,7 @@ SeisFlatDataPack::~SeisFlatDataPack()
 }
 
 
-bool SeisFlatDataPack::isAltDim0InInt( const char* keystr ) const
+bool SeisFlatDataPack::dimValuesInInt( const char* keystr ) const
 {
     const FixedString key( keystr );
     return key==mKeyInl || key==mKeyCrl || key==mKeyTrcNr;
@@ -157,7 +192,7 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
     const Coord3 crd = getCoord( i0, i1 );
     iop.set( mKeyCoordX, crd.x );
     iop.set( mKeyCoordY, crd.y );
-    iop.set( sKey::ZCoord(), crd.z*SI().zDomain().userFactor() );
+    iop.set( sKey::ZCoord(), crd.z * zDomain().userFactor() );
 
     if ( is2D() )
     {

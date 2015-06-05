@@ -523,7 +523,7 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 }
 
 
-Coord3 FlatView::Viewer::getCoord( const Point& wp )
+Coord3 FlatView::Viewer::getCoord( const Point& wp ) const
 {
     ConstDataPackRef<FlatDataPack> fdp = obtainPack( false, true );
     if ( !fdp ) return Coord3::udf();
@@ -641,12 +641,14 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
     {
 	annot.x1_.name_ = fdp->dimName( true );
 	BufferStringSet altdimnms; fdp->getAltDim0Keys( altdimnms );
-	const int selannot = altdimnms.indexOf( annot.x1_.name_ );
-	if ( selannot >= 0 )
-	    setAnnotChoice( selannot );
+	setAnnotChoice( altdimnms.indexOf(annot.x1_.name_) );
     }
+
     if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
+    {
 	annot.x2_.name_ = fdp->dimName( false );
+	annot.x2_.annotinint_ = fdp->dimValuesInInt( annot.x2_.name_ );
+    }
 
     handleChange( BitmapData );
 }

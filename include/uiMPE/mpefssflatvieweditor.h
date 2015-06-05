@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class FlatPosData;
 class MouseEventHandler;
-class IndexInfo;
 
 namespace EM { class FaultStickPainter; }
 namespace FlatView { class AuxDataEditor; }
@@ -78,7 +77,6 @@ protected:
     
     bool			getMousePosInfo(
 				    const Geom::Point2D<int>& mousepos,
-				    IndexInfo& ix, IndexInfo& iy,
 				    Coord3& worldpos,int* trcnr=0) const;
     Coord3			getScaleVector() const;
 				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z

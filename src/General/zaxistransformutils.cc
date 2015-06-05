@@ -18,8 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "trckeyzsampling.h"
 #include "binidvalue.h"
 #include "datapointset.h"
-#include "iopar.h"
-#include "keystrs.h"
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
 
@@ -160,23 +158,6 @@ const char* ZAxisTransformDataPack::dimName( bool x1 ) const
 { return inputdp_.dimName( x1 ); }
 
 
-DataPack::ID ZAxisTransformDataPack::transformDataPack( DataPack::ID dpid,
-						const TrcKeyZSampling& inputcs,
-						ZAxisTransform& zat )
-{
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    ConstDataPackRef<FlatDataPack> fdp = dpm.obtain( dpid );
-    if ( !fdp ) return DataPack::cNoID();
-
-    mDeclareAndTryAlloc( ZAxisTransformDataPack*, ztransformdp,
-			 ZAxisTransformDataPack( *fdp, inputcs, zat ) );
-    ztransformdp->setInterpolate( true );
-    if ( !ztransformdp->transform() )
-	return DataPack::cNoID();
-    dpm.add( ztransformdp );
-    return ztransformdp->id();
-}
-
 
 ZAxisTransformPointGenerator::ZAxisTransformPointGenerator(
 						ZAxisTransform& zat )
@@ -256,38 +237,5 @@ bool ZAxisTransformPointGenerator::doFinish( bool success )
 
     dps_->dataChanged();
     return success;
-}
-
-
-TypeSet<DataPack::ID> createDataPacksFromBIVSet( const BinIDValueSet* bivset,
-			const TrcKeyZSampling& cs, const BufferStringSet& names )
-{
-    TypeSet<DataPack::ID> dpids;
-    if ( !bivset || cs.nrZ()!=1 ) return dpids;
-
-    for ( int idx=1; idx<bivset->nrVals(); idx++ )
-    {
-	mDeclareAndTryAlloc( Array2DImpl<float>*, arr,
-		Array2DImpl<float>(cs.hsamp_.nrInl(),cs.hsamp_.nrCrl()) );
-	mDeclareAndTryAlloc( FlatDataPack*, fdp,
-		FlatDataPack(sKey::EmptyString(),arr) );
-
-	if ( names.validIdx(idx-1) )
-	    fdp->setName( names[idx-1]->buf() );
-	DPM(DataPackMgr::FlatID()).add( fdp );
-	dpids += fdp->id();
-
-	arr->setAll( mUdf(float) );
-	BinIDValueSet::SPos pos;
-	BinID bid;
-	while ( bivset->next(pos,true) )
-	{
-	    bivset->get( pos, bid );
-	    arr->set( cs.hsamp_.inlIdx(bid.inl()), cs.hsamp_.crlIdx(bid.crl()),
-		      bivset->getVals(pos)[idx]);
-	}
-    }
-
-    return dpids;
 }
 
