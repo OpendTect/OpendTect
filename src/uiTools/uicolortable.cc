@@ -415,7 +415,7 @@ void uiColorTable::canvasClick( CallBacker* )
 	return;
 
     PtrMan<uiMenu> mnu = new uiMenu( parent_, "Action" );
-    if ( hasseq )
+    if ( hasseq || hasmapper )
     {
 	uiAction* itm =
 	    new uiAction("Flipped", mCB(this,uiColorTable,doFlip));
