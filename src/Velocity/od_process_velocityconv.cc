@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded("Velocity");
-    
+
     MultiID inputmid;
     if ( !pars().get( Vel::VolumeConverter::sKeyInput(), inputmid) )
 	mErrRet( "Cannot read input volume id" )
@@ -36,7 +36,7 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<IOObj> inputioobj = IOM().get( inputmid );
     if ( !inputioobj )
 	mErrRet( "Cannot read input volume object" )
-	
+
     TrcKeySampling hrg;
     if ( !hrg.usePar(pars()) )
     {
@@ -64,7 +64,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     if ( !conv.execute() )
     {
-	if (conv.errMsg().isEmpty())
+	if ( !conv.errMsg().isEmpty() )
 	    strm << conv.errMsg();
 
 	return false;
@@ -75,7 +75,7 @@ bool BatchProgram::go( od_ostream& strm )
     else
 	veldesc.removePars( outputioobj->pars() );
 
-    if ( !IOM().commitChanges(*outputioobj) ) 
+    if ( !IOM().commitChanges(*outputioobj) )
 	mErrRet( "Cannot write velocity information" )
 
     return true;
