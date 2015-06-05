@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
     : uiGroup( p, "Statics editor" )
 {
-    IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();    
+    IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = true;
     horfld_ = new uiIOObjSel( this, ctxt, tr("Statics elevation") );
     horfld_->selectionDone.notify( mCB(this,uiStaticsDesc,updateFlds));
@@ -61,7 +61,6 @@ void uiStaticsDesc::updateFlds( CallBacker* )
     const bool horizonhasattribs =
 	eminfo.isOK() && eminfo.getAttribNames( attrnms );
 
-    horfld_->display( true );
     useconstantvelfld_->display( true );
     useconstantvelfld_->setSensitive( horizonhasattribs );
 
@@ -89,8 +88,8 @@ void uiStaticsDesc::set( const StaticsDesc& desc )
     horfld_->setInput( desc.horizon_ );
     useconstantvelfld_->setValue( desc.velattrib_.isEmpty() );
     constantvelfld_->setValue( desc.vel_ );
-   
-    updateFlds( 0 ); 
+
+    updateFlds( 0 );
 
     horattribfld_->box()->setText( desc.velattrib_ );
 }
@@ -111,7 +110,7 @@ bool uiStaticsDesc::get( StaticsDesc& res, bool disperr ) const
 		uiMSG().error(tr("Statics Velocity not specified"));
 	    return false;
 	}
-	    
+
 	res.vel_ = constantvelfld_->getfValue();
     }
     else
