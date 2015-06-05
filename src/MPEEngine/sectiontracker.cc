@@ -35,32 +35,32 @@ SectionTracker::SectionTracker( EM::EMObject& emobj,
 				SectionSourceSelector* sel,
 				SectionExtender* ext,
 				SectionAdjuster* adj )
-    : emobject( emobj )
-    , sid( sectionid )
+    : emobject_( emobj )
+    , sid_( sectionid )
     , selector_(sel)
     , extender_(ext)
     , adjuster_(adj)
-    , useadjuster(true)
-    , seedonlypropagation(false)
-    , displayas(*new Attrib::SelSpec)
+    , useadjuster_(true)
+    , seedonlypropagation_(false)
+    , displayas_(*new Attrib::SelSpec)
 {
-    emobject.ref();
+    emobject_.ref();
     init();
 }
 
 
 SectionTracker::~SectionTracker()
 {
-    emobject.unRef();
+    emobject_.unRef();
     delete selector_;
     delete extender_;
     delete adjuster_;
-    delete &displayas;
+    delete &displayas_;
 }
 
 
 EM::SectionID SectionTracker::sectionID() const
-{ return sid; }
+{ return sid_; }
 
 
 bool SectionTracker::init() { return true; }
@@ -76,11 +76,11 @@ void SectionTracker::reset()
 
 void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
 {
-    if ( !emobject.isGeometryChecksEnabled() )
+    if ( !emobject_.isGeometryChecksEnabled() )
 	return;
 
     mDynamicCastGet(const Geometry::ParametricSurface*, gesurf,
-	const_cast<const EM::EMObject&>(emobject).sectionGeometry(sid) );
+	const_cast<const EM::EMObject&>(emobject_).sectionGeometry(sid_) );
     bool change = true;
     while ( gesurf && change )
     {
@@ -89,8 +89,8 @@ void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
 	{
 	    if ( !gesurf->hasSupport(RowCol::fromInt64(subids[idx])) )
 	    {
-		const EM::PosID pid( emobject.id(), sid, subids[idx] );
-		emobject.unSetPos(pid,false);
+		const EM::PosID pid( emobject_.id(), sid_, subids[idx] );
+		emobject_.unSetPos(pid,false);
 		subids.removeSingle(idx);
 		idx--;
 		change = true;
@@ -105,7 +105,7 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 				     bool addtoundo ) const
 {
     TypeSet<EM::SubID> subids( origsubids );
-    EM::PosID pid(emobject.id(),sid,0 );
+    EM::PosID pid(emobject_.id(),sid_,0 );
 
     bool change = true;
     while ( change )
@@ -115,7 +115,7 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 	{
 	    pid.setSubID(subids[idx]);
 	    if ( excludedpos.isPresent(subids[idx]) ||
-		 emobject.unSetPos(pid,addtoundo) )
+		 emobject_.unSetPos(pid,addtoundo) )
 	    {
 		subids.removeSingle(idx--);
 		change = true;
@@ -130,18 +130,18 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
 {
     lockedseeds.erase();
-    if ( !emobject.isPosAttribLocked( EM::EMObject::sSeedNode() ) )
+    if ( !emobject_.isPosAttribLocked( EM::EMObject::sSeedNode() ) )
 	return;
 
     const TypeSet<EM::PosID>* seedlist =
-	emobject.getPosAttribList( EM::EMObject::sSeedNode() );
+	emobject_.getPosAttribList( EM::EMObject::sSeedNode() );
     const int nrseeds = seedlist ? seedlist->size() : 0;
 
     for ( int idx=0; idx<nrseeds; idx++ )
     {
-	const Coord3 seedpos = emobject.getPos( (*seedlist)[idx] );
+	const Coord3 seedpos = emobject_.getPos( (*seedlist)[idx] );
 	const BinID seedbid = SI().transform( seedpos );
-	if ( (*seedlist)[idx].sectionID()==sid &&
+	if ( (*seedlist)[idx].sectionID()==sid_ &&
 	     engine().activeVolume().hsamp_.includes(seedbid) )
 	{
 	    lockedseeds += (*seedlist)[idx].subID();
@@ -175,7 +175,7 @@ bool SectionTracker::select()
     {
 	if ( res==-1 )
 	{
-	    errmsg = selector_->errMsg();
+	    errmsg_ = selector_->errMsg();
 	    return false;
 	}
     }
@@ -195,7 +195,7 @@ bool SectionTracker::extend()
     {
 	if ( res==-1 )
 	{
-	    errmsg = extender_->errMsg();
+	    errmsg_ = extender_->errMsg();
 	    return false;
 	}
     }
@@ -212,18 +212,18 @@ bool SectionTracker::adjust()
 	adjuster_->setPositions( extender_->getAddedPositions(),
     				 &extender_->getAddedPositionsSource() );
 
-    emobject.setBurstAlert( true );
+    emobject_.setBurstAlert( true );
     while ( int res = adjuster_->nextStep() )
     {
 	if ( res==-1 )
 	{
-	    errmsg = adjuster_->errMsg();
-	    emobject.setBurstAlert( false );
+	    errmsg_ = adjuster_->errMsg();
+	    emobject_.setBurstAlert( false );
 	    return false;
 	}
     }
 
-    emobject.setBurstAlert( false );
+    emobject_.setBurstAlert( false );
     return true;
 }
 
@@ -239,7 +239,7 @@ mGet( SectionExtender, extender, extender_ )
 mGet( SectionAdjuster, adjuster, adjuster_ )
 
 const char* SectionTracker::errMsg() const
-{ return errmsg.str(); }
+{ return errmsg_.str(); }
 
 
 TrcKeyZSampling
@@ -255,16 +255,16 @@ void SectionTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 }
 
 
-void SectionTracker::useAdjuster(bool yn) { useadjuster=yn; }
+void SectionTracker::useAdjuster(bool yn) { useadjuster_=yn; }
 
 
-bool SectionTracker::adjusterUsed()  const { return useadjuster; }
+bool SectionTracker::adjusterUsed()  const { return useadjuster_; }
 
 
-void SectionTracker::setSetupID( const MultiID& id ) { setupid=id; }
+void SectionTracker::setSetupID( const MultiID& id ) { setupid_=id; }
 
 
-const MultiID& SectionTracker::setupID() const { return setupid; }
+const MultiID& SectionTracker::setupID() const { return setupid_; }
 
 
 bool SectionTracker::hasInitializedSetup() const
@@ -274,26 +274,26 @@ bool SectionTracker::hasInitializedSetup() const
 
 
 void SectionTracker::setDisplaySpec( const Attrib::SelSpec& as )
-{ displayas = as; }
+{ displayas_ = as; }
 
 
 const Attrib::SelSpec& SectionTracker::getDisplaySpec() const
-{ return displayas; }
+{ return displayas_; }
 
 
 void SectionTracker::setSeedOnlyPropagation( bool yn )
-{ seedonlypropagation = yn; }
+{ seedonlypropagation_ = yn; }
 
 
 bool SectionTracker::propagatingFromSeedOnly() const
-{ return seedonlypropagation; }
+{ return seedonlypropagation_; }
 
 
 void SectionTracker::fillPar( IOPar& par ) const
 {
     IOPar trackpar;
     trackpar.setYN( useadjusterstr, adjusterUsed() );
-    trackpar.setYN( seedonlypropstr, seedonlypropagation );
+    trackpar.setYN( seedonlypropstr, seedonlypropagation_ );
 
     par.mergeComp( trackpar, trackerstr );
     if ( selector_ ) selector_->fillPar( par );
@@ -308,7 +308,7 @@ bool SectionTracker::usePar( const IOPar& par )
     bool dummy = true;
     if ( trackpar ) trackpar->getYN( useadjusterstr, dummy );
     useAdjuster( dummy );
-    if ( trackpar ) trackpar->getYN( seedonlypropstr, seedonlypropagation );
+    if ( trackpar ) trackpar->getYN( seedonlypropstr, seedonlypropagation_ );
 
     bool res = true;
     if ( selector_ && !selector_->usePar(par) )

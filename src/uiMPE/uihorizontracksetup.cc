@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "draw.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emsurfacetr.h"
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
@@ -81,7 +82,15 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     , propertyChanged_(this)
     , state_(Stopped)
 {
+    IOObjContext ctxt =
+	is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
+    ctxt.forread = false;
+    horizonfld_ = new uiIOObjSel( this, ctxt );
+    horizonfld_->selectionDone.notify(
+		mCB(this,uiHorizonSetupGroup,horizonSelCB) );
+
     tabgrp_ = new uiTabStack( this, "TabStack" );
+    tabgrp_->attach( leftAlignedBelow, horizonfld_ );
     uiGroup* modegrp = createModeGroup();
     tabgrp_->addTab( modegrp, tr("Mode") );
 
@@ -105,6 +114,14 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     stopbut_->setShortcut( "s" );
     startbut_->attach( leftOf, tabgrp_ );
     stopbut_->attach( alignedBelow, startbut_ );
+}
+
+
+void uiHorizonSetupGroup::horizonSelCB( CallBacker* )
+{
+    const IOObj* ioobj = horizonfld_->ioobj( true );
+    if ( !ioobj )
+	return;
 }
 
 
@@ -403,6 +420,13 @@ const MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
 
 bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 {
+    if ( !sectiontracker_ || !horadj_ )
+	return false;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    if ( horizonfld_->ioobj(true) )
+	emobj.setMultiID( horizonfld_->key() );
+
     fieldchange = false;
     correlationgrp_->commitToTracker( fieldchange );
     eventgrp_->commitToTracker( fieldchange );

@@ -23,6 +23,7 @@ ________________________________________________________________________
 class uiButtonGroup;
 class uiColorInput;
 class uiGenInput;
+class uiIOObjSel;
 class uiSeisSel;
 class uiSlider;
 class uiTabStack;
@@ -79,11 +80,14 @@ protected:
     virtual void		initStuff();
     uiTabStack*			tabgrp_;
 
+    uiIOObjSel*			horizonfld_;
     uiToolButton*		startbut_;
     uiToolButton*		stopbut_;
+    State			state_;
+
     void			startCB(CallBacker*);
     void			stopCB(CallBacker*);
-    State			state_;
+    void			horizonSelCB(CallBacker*);
 
 // Mode Group
     uiGroup*			createModeGroup();
