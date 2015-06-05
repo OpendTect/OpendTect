@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidatapointsetpickdlg.h"
 #include "uiempartserv.h"
 #include "uistratamp.h"
-#include "uiflattenedcube.h"
 #include "uiisopachmaker.h"
 #include "uicalcpoly2horvol.h"
 #include "uilistbox.h"
@@ -64,7 +63,6 @@ public:
 
     void		updateMenu(CallBacker*);
     void		makeStratAmp(CallBacker*);
-    void		doFlattened(CallBacker*);
     void		doIsochron(CallBacker*);
     void		doIsochronThruMenu(CallBacker*);
     void		doContours(CallBacker*);
@@ -73,7 +71,6 @@ public:
     void		pickData(CallBacker*);
     void		dataReadyCB(CallBacker*);
 
-    uiVisMenuItemHandler flattenmnuitemhndlr_;
     uiVisMenuItemHandler isochronmnuitemhndlr_;
     uiVisMenuItemHandler contourmnuitemhndlr_;
     uiVisMenuItemHandler horvolmnuitemhndlr_;
@@ -92,8 +89,6 @@ public:
 uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	: appl_(a)
 	, dpspickdlg_(0)
-	, flattenmnuitemhndlr_(
-		mMkPars("Write Flattened cube ...",doFlattened),"Workflows")
 	, isochronmnuitemhndlr_(
 		mMkPars("Calculate Isochron ...",doIsochron),"Workflows")
 	, contourmnuitemhndlr_(
@@ -131,18 +126,6 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
 void uiHorAttribPIMgr::makeStratAmp( CallBacker* )
 {
     uiStratAmpCalc dlg( appl_ );
-    dlg.go();
-}
-
-
-void uiHorAttribPIMgr::doFlattened( CallBacker* )
-{
-    const int displayid = flattenmnuitemhndlr_.getDisplayID();
-    uiVisPartServer* visserv = appl_->applMgr().visServer();
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
-    if ( !hd ) return;
-
-    uiWriteFlattenedCube dlg( appl_, hd->getObjectID() );
     dlg.go();
 }
 
