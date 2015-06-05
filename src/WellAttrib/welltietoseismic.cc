@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "hiddenparam.h"
 
+static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 
 namespace WellTie
 {
@@ -493,6 +494,15 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     gen.setOutSampling( data_.getTraceRange() );
     gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     IOPar par;
+    FixedString defrayparstr = sKeyAdvancedRayTracer();
+    const BufferStringSet& facnms = RayTracer1D::factory().getNames();
+    if ( !facnms.isEmpty() )
+    {
+	const int typeidx = facnms.indexOf( defrayparstr );
+	FixedString facnm( typeidx>=0 ? facnms.get(typeidx) : facnms.get(0) );
+	par.set( sKey::Type(), facnm );
+    }
+
     gen.usePar( par );
     TaskRunner* tr = data_.trunner_;
     if ( !TaskRunner::execute(tr,gen) )
