@@ -37,7 +37,7 @@ namespace visSurvey
 
 const char* EMObjectDisplay::sKeyEarthModelID()  { return "EarthModel ID"; }
 const char* EMObjectDisplay::sKeyEdit()		 { return "Edit"; }
-const char* EMObjectDisplay::sKeyOnlyAtSections()  
+const char* EMObjectDisplay::sKeyOnlyAtSections()
 			    { return "Display only on sections"; }
 const char* EMObjectDisplay::sKeyLineStyle()	{ return "Linestyle"; }
 const char* EMObjectDisplay::sKeySections()	{ return "Displayed Sections"; }
@@ -107,14 +107,14 @@ EMObjectDisplay::~EMObjectDisplay()
 
 
 bool EMObjectDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
-{   
+{
     if ( channel2rgba_ ) channel2rgba_->unRef();
     channel2rgba_ = t;
     if ( channel2rgba_ ) channel2rgba_->ref();
 
     return true;
-}   
-    
+}
+
 
 visBase::TextureChannel2RGBA* EMObjectDisplay::getChannels2RGBA()
 { return channel2rgba_; }
@@ -255,7 +255,7 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
     emobject_->change.notify( mCB(this,EMObjectDisplay,emChangeCB) );
 
     if ( nontexturecolisset_ )
-    	emobject_->setPreferredColor( nontexturecol_ );
+	emobject_->setPreferredColor( nontexturecol_ );
 
     restoresessupdate_ = !editor_ && parmid_!=MultiID(-1);
     bool res = updateFromEM( tr );
@@ -283,8 +283,8 @@ BufferStringSet EMObjectDisplay::displayedSections() const
 {
     if ( !emobject_ )
 	return parsections_;
-   
-    BufferStringSet res; 
+
+    BufferStringSet res;
     for ( int idx=emobject_->nrSections()-1; idx>=0; idx-- )
     {
 	mDeclareAndTryAlloc( BufferString*, buf,
@@ -297,7 +297,7 @@ BufferStringSet EMObjectDisplay::displayedSections() const
 
 
 bool EMObjectDisplay::updateFromEM( TaskRunner* tr )
-{ 
+{
     if ( !emobject_ ) return false;
 
     setName( emobject_->name() );
@@ -344,7 +344,7 @@ void EMObjectDisplay::updateFromMPE()
 
 void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 {
-    int attribindex = posattribs_.indexOf(attr);
+    int attribindex = posattribs_.indexOf( attr );
     if ( yn )
     {
 	if ( attribindex==-1 )
@@ -359,7 +359,7 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 	}
 
 	updatePosAttrib(attr);
-	
+
 	if ( displayonlyatsections_ )
 	{
 	    setOnlyAtSectionsDisplay(false);
@@ -388,7 +388,7 @@ const LineStyle* EMObjectDisplay::lineStyle() const
 
 
 void EMObjectDisplay::setLineStyle( const LineStyle& ls )
-{ 
+{
     if ( emobject_ )
 	emobject_->setPreferredLineStyle( ls );
     drawstyle_->setLineStyle( ls );
@@ -452,8 +452,8 @@ void EMObjectDisplay::enableEditing( bool yn )
 {
     if ( yn && !editor_ )
     {
-	MPE::ObjectEditor* mpeeditor = 
-	    			MPE::engine().getEditor(getObjectID(),true);
+	MPE::ObjectEditor* mpeeditor =
+			MPE::engine().getEditor( getObjectID(), true );
 
 	if ( !mpeeditor ) return;
 
@@ -522,8 +522,8 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 		addsectionids_.removeSingle( 0 );
 	    }
 
-	    for ( int idx=0; idx<posattribs_.size(); idx++ ) 
-		updatePosAttrib(posattribs_[idx]); 
+	    for ( int idx=0; idx<posattribs_.size(); idx++ )
+		updatePosAttrib(posattribs_[idx]);
 
 	    triggermovement = true;
 	}
@@ -533,14 +533,14 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     {
 	if ( !burstalertison_ )
 	{
-	    for ( int idx=0; idx<posattribs_.size(); idx++ ) 
+	    for ( int idx=0; idx<posattribs_.size(); idx++ )
 	    {
-		const TypeSet<EM::PosID>* pids = 
-			emobject_->getPosAttribList(posattribs_[idx]); 
-		if ( !pids || !pids->isPresent(cbdata.pid0) ) 
-		    continue; 
+		const TypeSet<EM::PosID>* pids =
+			emobject_->getPosAttribList(posattribs_[idx]);
+		if ( !pids || !pids->isPresent(cbdata.pid0) )
+		    continue;
 
-		updatePosAttrib(posattribs_[idx]); 
+		updatePosAttrib(posattribs_[idx]);
 	    }
 	    triggermovement = true;
 	}
@@ -569,7 +569,7 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     if ( !emobject_ ) return;
 
     info = emobject_->getTypeStr(); info += ": "; info += name();
-	                    
+
     const EM::SectionID sid = getSectionID(&eventinfo.pickedobjids);
 
     if ( sid==-1 ) return;
@@ -649,7 +649,7 @@ bool EMObjectDisplay::usePar( const IOPar& par )
 }
 
 
-void EMObjectDisplay::lock( bool yn ) 
+void EMObjectDisplay::lock( bool yn )
 {
     locked_ = yn;
     if ( emobject_ ) emobject_->lock(yn);
@@ -659,11 +659,11 @@ void EMObjectDisplay::lock( bool yn )
 
 void EMObjectDisplay::updatePosAttrib( int attrib )
 {
-    const int attribindex = posattribs_.indexOf(attrib);
+    const int attribindex = posattribs_.indexOf( attrib );
     if ( attribindex==-1 ) return;
 
     const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList( attrib );
-    if ( !pids || pids->size()<= 0 ) return;
+    if ( !pids ) return;
 
     visBase::MarkerSet* markerset = posattribmarkers_[attribindex];
     markerset->setMarkersSingleColor(
@@ -673,7 +673,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     markerset->setMaximumScale( (float) 10*lineStyle()->width_ );
     markerset->clearMarkers();
 
-    for ( int idx=0; pids && idx<pids->size(); idx++ )
+    for ( int idx=0; idx<pids->size(); idx++ )
     {
 	const Coord3 pos = emobject_->getPos( (*pids)[idx] );
 	if ( !pos.isDefined() )
@@ -682,7 +682,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
 	    continue;
 	}
 
-        markerset->addPos( pos, false );
+	markerset->addPos( pos, false );
     }
 
     markerset->forceRedraw( true );
@@ -744,5 +744,4 @@ void EMObjectDisplay::setPixelDensity( float dpi )
 
 }
 
-
-}; // namespace visSurvey
+} // namespace visSurvey
