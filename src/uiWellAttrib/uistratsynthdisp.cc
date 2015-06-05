@@ -608,8 +608,8 @@ void uiStratSynthDisp::setCurrentWavelet()
     SyntheticData* wvasd = curSS().getSynthetic( wvadatalist_->text() );
     SyntheticData* vdsd = curSS().getSynthetic( vddatalist_->text() );
     if ( !vdsd && !wvasd ) return;
-    const BufferString wvasynthnm( wvasd ? wvasd->name() : sKey::EmptyString());
-    const BufferString vdsynthnm( vdsd ? vdsd->name() : sKey::EmptyString() );
+    const BufferString wvasynthnm( wvasd ? wvasd->name().buf() : "" );
+    const BufferString vdsynthnm( vdsd ? vdsd->name().buf() : "" );
 
     if ( wvasd )
     {
@@ -1295,9 +1295,9 @@ void uiStratSynthDisp::doModelChange()
 void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 {
     const BufferString curwvasdnm( currentwvasynthetic_ ?
-			currentwvasynthetic_->name() : sKey::EmptyString() );
+			currentwvasynthetic_->name().buf() : "" );
     const BufferString curvdsdnm( currentvdsynthetic_ ?
-			currentvdsynthetic_->name() : sKey::EmptyString() );
+			currentvdsynthetic_->name().buf() : "" );
     FixedString syntheticnm( synthnm );
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     if ( !datalist->isPresent(syntheticnm) || syntheticnm == sKeyNone() )
@@ -1341,9 +1341,9 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 	syntheticnm = wvadatalist_->text();
 
     const BufferString curvdsynthnm( currentvdsynthetic_ ?
-			currentvdsynthetic_->name() : sKey::EmptyString() );
+			currentvdsynthetic_->name().buf() : "" );
     const BufferString curwvasynthnm( currentwvasynthetic_ ?
-			currentwvasynthetic_->name() : sKey::EmptyString() );
+			currentwvasynthetic_->name().buf() : "" );
     SyntheticData* cursd = curSS().getSynthetic( syntheticnm );
     if ( !cursd ) return;
     SynthGenParams curgp;
@@ -1374,9 +1374,9 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
     const BufferString curwvasdnm( currentwvasynthetic_ ?
-			currentwvasynthetic_->name() : sKey::EmptyString() );
+			currentwvasynthetic_->name().buf() : "" );
     const BufferString curvdsdnm( currentvdsynthetic_ ?
-			currentvdsynthetic_->name() : sKey::EmptyString() );
+			currentvdsynthetic_->name().buf() : "" );
 
     mCBCapsuleUnpack(BufferString,synthname,cb);
     if ( !curSS().removeSynthetic(synthname) )
