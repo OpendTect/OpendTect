@@ -212,6 +212,7 @@ void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 
     updateTextPos();
     updateGridLines();
+    updateTextColor(0);
 }
 
 
@@ -224,6 +225,7 @@ void Annotation::setScale( const TrcKeyZSampling& cs )
     scale_ = cs;
     updateTextPos();
     updateGridLines();
+    updateTextColor(0);
 }
 
 
