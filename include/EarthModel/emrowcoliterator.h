@@ -49,7 +49,7 @@ protected:
     StepInterval<int>			colrg_;
     bool				allsids_;
     const Surface&			surf_;
-    
+
     const TrcKeyZSampling*			csbound_;
     const StepInterval<int>		rowbound_;
     const StepInterval<int>		colbound_;
@@ -58,7 +58,7 @@ protected:
     BinID				bid_;
 };
 
-}; // Namespace
+} // namespace EM
 
 
 #endif

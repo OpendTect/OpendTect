@@ -36,7 +36,7 @@ class PosID;
 \brief Surface data
 */
 
-mExpClass(EarthModel) SurfaceAuxData 
+mExpClass(EarthModel) SurfaceAuxData
 { mODTextTranslationClass(SurfaceAuxData);
 public:
 			SurfaceAuxData(Horizon3D&);
@@ -66,7 +66,7 @@ public:
     			/*!<\return The dataid of the new data.
 				    The index is persistent in runtime.  */
 
-    void		setAuxDataName(int,const char*);    
+    void		setAuxDataName(int,const char*);
     void		removeAuxData(int dataid);
     float		getAuxDataVal(int dataid,const PosID& posid) const;
     void		setAuxDataVal(int dataid,const PosID& posid,float val);
@@ -103,9 +103,7 @@ protected:
     bool		changed_;
 };
 
-
-}; // namespace EM
-
+} // namespace EM
 
 #endif
 

@@ -38,7 +38,7 @@ public:
     static Table::FormatDesc*   getDesc();
     static void			updateDesc(Table::FormatDesc&,
 					   const BufferStringSet&);
-    static void                 createDescBody(Table::FormatDesc*,
+    static void			createDescBody(Table::FormatDesc*,
 					   const BufferStringSet&);
 
     bool			isXY() const;
@@ -73,7 +73,7 @@ public:
     static Table::FormatDesc*   getDesc();
     static void			updateDesc(Table::FormatDesc&,
 					   const BufferStringSet&);
-    static void                 createDescBody(Table::FormatDesc*,
+    static void			createDescBody(Table::FormatDesc*,
 					   const BufferStringSet&);
 
     static bool			isFormatOK(const Table::FormatDesc&,
@@ -88,7 +88,6 @@ protected:
     bool			finishedreadingheader_;
 
 };
-
 
 } // namespace EM
 

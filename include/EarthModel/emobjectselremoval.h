@@ -43,7 +43,7 @@ public:
 
 protected:
 
-    od_int64            nrIterations() const	{ return nrcols_*nrrows_; }
+    od_int64		nrIterations() const	{ return nrcols_*nrrows_; }
     bool		doWork( od_int64, od_int64, int );
     bool		doPrepare(int);
 
@@ -66,15 +66,14 @@ protected:
     TypeSet<RowCol>		starts_;
     TypeSet<RowCol>		stops_;
     Threads::ConditionVar	lock_;
-    bool                        finished_;
-    int                         nrwaiting_;
-    int                         nrthreads_;
+    bool			finished_;
+    int				nrwaiting_;
+    int				nrthreads_;
 
     TypeSet<EM::SubID>	removelist_;
 };
 
-} // EM
-
+} // namespace EM
 
 #endif
 

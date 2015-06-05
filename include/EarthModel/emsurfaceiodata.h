@@ -33,14 +33,14 @@ public:
 			 SurfaceIOData() : nrfltsticks_(0){}
     			~SurfaceIOData()	{ clear(); }
 
-    void                fillPar(IOPar&) const;
-    void                usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
     void		clear();
     void		use(const Surface&);
 
     BufferString	dbinfo;
-    TrcKeySampling		rg;			// 3D only
+    TrcKeySampling	rg;			// 3D only
     Interval<float>	zrg;
     BufferStringSet	valnames;
     TypeSet<float>	valshifts_;
@@ -79,9 +79,7 @@ public:
     void			setDefault(); // selects all
 };
 
-
-
-}; // namespace EM
+} // namespace EM
 
 #endif
 

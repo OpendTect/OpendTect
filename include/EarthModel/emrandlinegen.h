@@ -32,7 +32,7 @@ class Horizon3DGeometry;
 */
 
 mExpClass(EarthModel) RandomLineSetByContourGenerator
-{ 
+{
 public:
 
     mStruct(EarthModel) Setup
@@ -69,7 +69,7 @@ protected:
 */
 
 mExpClass(EarthModel) RandomLineByShiftGenerator
-{ 
+{
 public:
 
 			RandomLineByShiftGenerator(
@@ -87,16 +87,13 @@ public:
 protected:
 
     void		crLine(const Geometry::RandomLine&,bool,
-	    			Geometry::RandomLineSet&) const;
+				Geometry::RandomLineSet&) const;
     bool		getShifted(Coord,Coord,Coord&,Coord&,bool) const;
     bool		getIntersection(Coord,Coord,Coord,Coord,Coord&) const;
 
 };
 
-
-} // namespace
-
+} // namespace EM
 
 #endif
-
 

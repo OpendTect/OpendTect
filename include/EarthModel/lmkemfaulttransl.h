@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "rowcol.h"
 #include "executor.h"
 
-namespace EM { class Fault3D; };
+namespace EM { class Fault3D; }
 
 /*!
 \brief Landmark EM::Fault3D EMSurfaceTranslator.
@@ -66,7 +66,7 @@ public:
 			lmkEMFault3DReader(EM::Fault3D&,Conn*,
 					   const char* formatfile);
 			~lmkEMFault3DReader();
-    virtual int         nextStep();
+    virtual int		nextStep();
 
     virtual uiString	uiMessage() const;
     static const char*  streamerrmsg;
@@ -75,10 +75,10 @@ protected:
 
     EM::Fault3D&	fault;
 
-    Conn*               conn;
-    uiString            msg;
+    Conn*		conn;
+    uiString		msg;
     bool		useinlcrl;
-    bool                error;
+    bool		error;
 
     int			lastpt;
     RowCol		lastnode;
@@ -106,7 +106,7 @@ public:
 					   Conn*,const char* formatfile);
 			~lmkEMFault3DWriter();
 
-    virtual int         nextStep();
+    virtual int		nextStep();
     virtual uiString	uiMessage() const;
     static const char*  streamerrmsg;
 
@@ -114,9 +114,9 @@ protected:
 
     const EM::Fault3D&	fault;
 
-    Conn*               conn;
-    BufferString        msg;
-    bool                error;
+    Conn*		conn;
+    BufferString	msg;
+    bool		error;
 
     RowCol		lastnode;
 

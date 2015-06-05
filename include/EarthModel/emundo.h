@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "coord.h"
 #include "color.h"
 
-namespace Geometry { class ParametricSurface; };
+namespace Geometry { class ParametricSurface; }
 template <class T> class Array2D;
 
 namespace EM
@@ -160,9 +160,7 @@ protected:
     const Color		newcolor_;
 };
 
-
-}; // Namespace
-
+} // namespace EM
 
 #endif
 

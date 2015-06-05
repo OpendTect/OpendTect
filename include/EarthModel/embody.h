@@ -67,15 +67,14 @@ public:
 				//!<Should be mapped to EMObject::unRef()
     virtual bool		useBodyPar(const IOPar&)	{ return true; }
 				//!<Should be mapped to EMObject::usePar;
-    virtual void                fillBodyPar(IOPar&) const	= 0;
+    virtual void		fillBodyPar(IOPar&) const	= 0;
 				//!<Should be mapped to EMObject::fillPar;
 
 protected:
 				~Body()		{}
 };
 
-
-}; // Namespace
+} // namespace EM
 
 #endif
 

@@ -42,20 +42,20 @@ public:
 
 	enum			DirSpec { Auto, Horizontal, Vertical };
 
-	mDefSetupMemb(DirSpec,pickplanedir);		// Default Auto
-	mDefSetupMemb(bool,sortsticks);			// Default true
-	mDefSetupMemb(double,zscale);			// Default SI().zScale()
+	mDefSetupMemb(DirSpec,pickplanedir)		// Default Auto
+	mDefSetupMemb(bool,sortsticks)			// Default true
+	mDefSetupMemb(double,zscale)			// Default SI().zScale()
 
-	mDefSetupMemb(bool,useinlcrlslopesep);		// Default false
-	mDefSetupMemb(double,stickslopethres);		// Default mUdf(double)
-	mDefSetupMemb(DirSpec,stickseldir);		// Default Auto
+	mDefSetupMemb(bool,useinlcrlslopesep)		// Default false
+	mDefSetupMemb(double,stickslopethres)		// Default mUdf(double)
+	mDefSetupMemb(DirSpec,stickseldir)		// Default Auto
 
-	mDefSetupMemb(bool,addtohistory);		// Default false
+	mDefSetupMemb(bool,addtohistory)		// Default false
     };
 
 				FSStoFault3DConverter(const Setup&,
 						      const FaultStickSet&,
-						      Fault3D&);  
+						      Fault3D&);
     bool			convert(bool forimport);
 
 protected:
@@ -94,7 +94,6 @@ protected:
     void			resolveUdfNormals();
     bool			writeSection(const SectionID&) const;
 };
-
 
 } // namespace EM
 
