@@ -402,15 +402,12 @@ void uiColorTable::canvasClick( CallBacker* )
 	return;
 
     PtrMan<uiMenu> mnu = new uiMenu( parent_, uiStrings::sAction() );
-    if ( hasseq )
-    {
-	uiAction* itm =
-	    new uiAction("Flipped", mCB(this,uiColorTable,doFlip));
 
-	mnu->insertItem( itm, 0 );
-	itm->setCheckable( true );
-	itm->setChecked( mapsetup_.flipseq_ );
-    }
+    uiAction* itm = new uiAction("Flipped", mCB(this,uiColorTable,doFlip) );
+    mnu->insertItem( itm, 0 );
+    itm->setCheckable( true );
+    itm->setChecked( mapsetup_.flipseq_ );
+
     if ( enabclipdlg_ && hasmapper )
 	mnu->insertItem( new uiAction(tr("Ranges/Clipping ..."),
 	    mCB(this,uiColorTable,editScaling)), 1 );
