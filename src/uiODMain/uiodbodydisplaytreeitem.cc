@@ -84,6 +84,16 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
     mnu.insertItem( new uiAction(tr("New Polygon Body ...")), 1 );
+    if ( children_.size() )
+    {
+	mnu.insertSeparator();
+	uiMenu* displaymnu =
+		new uiMenu( getUiParent(), tr("Display All") );
+	displaymnu->insertItem( new uiAction(tr("Only at Sections")), 2 );
+	displaymnu->insertItem( new uiAction(tr("In Full")), 3 );
+	mnu.insertItem( displaymnu );
+    }
+
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -104,6 +114,17 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	uiVisPartServer* visserv = applMgr()->visServer();
 	visserv->showMPEToolbar();
 	visserv->turnSeedPickingOn( false );
+    }
+    else if ( mnuid==2 || mnuid==3 )
+    {
+	MouseCursorChanger mcc( MouseCursor::Wait );
+	const bool displayatsections = mnuid==2;
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiODBodyDisplayTreeItem*,itm,children_[idx])
+	    if ( itm )
+		itm->displayAtSections( displayatsections );
+	}
     }
     else
 	handleStandardItems( mnuid );
@@ -526,13 +547,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
 	const bool intersectdisplay = !displayintersectionmnuitem_.checked;
-	if ( plg_ )
-	{
-    	    plg_->display( false, !intersectdisplay );
-    	    plg_->displayIntersections( intersectdisplay );
-	}
-	else if ( mcd_ )
-	    mcd_->displayIntersections( intersectdisplay );
+	displayAtSections( intersectdisplay );
     }
     else if ( mnuid==singlecolormnuitem_.id )
     {
@@ -545,10 +560,24 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
+void uiODBodyDisplayTreeItem::displayAtSections( bool yn )
+{
+    if ( plg_ )
+    {
+	plg_->display( false, !yn );
+	plg_->displayIntersections( yn );
+    }
+    else if ( mcd_ )
+	mcd_->displayIntersections( yn );
+}
+
+
+
+// uiODBodyDisplayDataTreeItem
 uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , depthattribmnuitem_("Z values")
-    , isopachmnuitem_("Z isopach")
+    , isochronmnuitem_("Z isochron")
 {}
 
 
@@ -563,7 +592,7 @@ void uiODBodyDisplayDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool yn = as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt();
 
     mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked, yn );
-    mAddMenuItem( &selattrmnuitem_, &isopachmnuitem_, !islocked, yn );
+    mAddMenuItem( &selattrmnuitem_, &isochronmnuitem_, !islocked, yn );
 }
 
 
@@ -586,7 +615,7 @@ void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	mcd->setDepthAsAttrib( attribNr() );
     }
-    else if ( mnuid==isopachmnuitem_.id )
+    else if ( mnuid==isochronmnuitem_.id )
     {
 	menu->setIsHandled( true );
 	mcd->setIsoPatch( attribNr() );

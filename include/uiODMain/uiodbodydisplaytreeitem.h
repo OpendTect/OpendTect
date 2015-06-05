@@ -20,16 +20,16 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay; 
+namespace visSurvey { class MarchingCubesDisplay; class PolygonBodyDisplay;
 		      class RandomPosBodyDisplay; }
 
 
-mDefineItem( BodyDisplayParent, TreeItem, TreeTop, 
-	mShowMenu mMenuOnAnyButton void loadBodies(); );
+mDefineItem( BodyDisplayParent, TreeItem, TreeTop,
+	mShowMenu mMenuOnAnyButton void loadBodies(); )
 
 
 mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODBodyDisplayTreeItemFactory);
+{ mODTextTranslationClass(uiODBodyDisplayTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -46,6 +46,7 @@ public:
     			~uiODBodyDisplayTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
+    void		displayAtSections(bool);
 
 protected:
     void		prepareForShutdown();
@@ -64,7 +65,7 @@ protected:
     visSurvey::MarchingCubesDisplay*	mcd_;
     visSurvey::PolygonBodyDisplay*	plg_;
     visSurvey::RandomPosBodyDisplay*	rpb_;
-    
+
     MenuItem				savemnuitem_;
     MenuItem				saveasmnuitem_;
     MenuItem				displaybodymnuitem_;
@@ -83,9 +84,9 @@ protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     BufferString	createDisplayName() const;
-    
+
     MenuItem		depthattribmnuitem_;
-    MenuItem		isopachmnuitem_;
+    MenuItem		isochronmnuitem_;
 };
 
 
