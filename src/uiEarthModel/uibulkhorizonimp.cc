@@ -65,7 +65,7 @@ bool getData( BufferString& hornm, Coord3& crd )
 	if ( !getHdrVals(strm_) )
 	    return false;
 
-	udfval_ = getfValue( 0 );
+	udfval_ = getFValue( 0 );
 	finishedreadingheader_ = true;
     }
 
@@ -74,9 +74,9 @@ bool getData( BufferString& hornm, Coord3& crd )
     if ( ret <= 0 ) return false;
 
     hornm = text( 0 );
-    crd.x = getdValue( 1, udfval_ );
-    crd.y = getdValue( 2, udfval_ );
-    crd.z = getfValue( 3, udfval_ );
+    crd.x = getDValue( 1, udfval_ );
+    crd.y = getDValue( 2, udfval_ );
+    crd.z = getFValue( 3, udfval_ );
     return true;
 }
 

@@ -901,8 +901,8 @@ bool uiBodyRegionGrp::accept()
 	    mDynamicCastGet(uiSpinBox*,sb,
 		table_->getCellObject(RowCol(idx,cNameCol)))
 	    if ( !sb ) break;
-	    if ( inlbd ) inlbd->inl_ = sb->getValue();
-	    if ( crlbd ) crlbd->crl_ = sb->getValue();
+	    if ( inlbd ) inlbd->inl_ = sb->getIntValue();
+	    if ( crlbd ) crlbd->crl_ = sb->getIntValue();
 	    if ( zbd ) zbd->z_ = sb->getFValue() / SI().zDomain().userFactor();
 	}
     }

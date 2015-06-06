@@ -175,9 +175,9 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     EM::RandomLineSetByContourGenerator::Setup cgsu( isrel );
     cgsu.contzrg( contzrg ).linezrg( linezrg );
     if ( poly ) cgsu.selpoly_ = poly;
-    cgsu.minnrvertices_ = vtxthreshfld_->box()->getValue();
+    cgsu.minnrvertices_ = vtxthreshfld_->box()->getIntValue();
     if ( largestfld_->isChecked() )
-	cgsu.nrlargestonly_ = nrlargestfld_->getValue();
+	cgsu.nrlargestonly_ = nrlargestfld_->getIntValue();
     EM::RandomLineSetByContourGenerator gen( *hor, cgsu );
     Geometry::RandomLineSet rls;
     gen.createLines( rls );
@@ -277,7 +277,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
     }
 
     const int choice = sidefld_->getIntValue();
-    EM::RandomLineByShiftGenerator gen( inprls, distfld_->getfValue(),
+    EM::RandomLineByShiftGenerator gen( inprls, distfld_->getFValue(),
 				    choice == 0 ? -1 : (choice == 1 ? 1 : 0) );
     Geometry::RandomLineSet outrls; gen.generate( outrls, lnr );
     if ( outrls.isEmpty() )

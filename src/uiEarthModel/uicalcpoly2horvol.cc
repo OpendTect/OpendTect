@@ -122,7 +122,7 @@ void uiCalcHorVol::calcReq( CallBacker* )
     float vel = 1;
     if ( velfld_ )
     {
-	vel = velfld_->getfValue();
+	vel = velfld_->getFValue();
 	if ( mIsUdf(vel) || vel < 0.1 )
 	    mErrRet(tr("Please provide the velocity"))
 	if ( zinft_ )

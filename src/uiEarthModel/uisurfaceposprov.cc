@@ -120,7 +120,7 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 
     if ( zstepfld_ )
     {
-	float zstep = zstepfld_->getValue() / zfac_;
+	float zstep = zstepfld_->getFValue() / zfac_;
 	iop.get( mGetSurfKey(zstep), zstep );
 	int v = (int)((zstep * zfac_) + .5);
 	zstepfld_->setValue( v );
@@ -157,7 +157,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
     }
 
-    const float zstep = zstepfld_ ? zstepfld_->getValue() / zfac_ 
+    const float zstep = zstepfld_ ? zstepfld_->getFValue() / zfac_
 				  : SI().zStep();
     iop.set( mGetSurfKey(zstep), zstep );
 

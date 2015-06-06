@@ -474,7 +474,7 @@ void uiInvDistHor3DInterpol::doParamDlg( CallBacker* )
 
 bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
 {
-    const float radius = radiusfld_->getfValue(0);
+    const float radius = radiusfld_->getFValue(0);
     if ( mIsUdf(radius) || radius<=0 )
     {
 	uiMSG().error(
@@ -551,7 +551,7 @@ void uiTriangulationHor3DInterpol::useNeighborCB( CallBacker* )
 bool uiTriangulationHor3DInterpol::fillPar( IOPar& par ) const
 {
     bool usemax = !useneighborfld_->isChecked() && maxdistfld_->isChecked();
-    const float maxdist = maxdistfld_->getfValue();
+    const float maxdist = maxdistfld_->getFValue();
     if ( usemax && !mIsUdf(maxdist) && maxdist<0 )
     {
 	uiMSG().error( tr("Maximum distance must be > 0. ") );
@@ -665,9 +665,9 @@ uiHor3DInterpol* uiContinuousCurvatureHor3DInterpol::create( uiParent* p )
 bool uiContinuousCurvatureHor3DInterpol::fillPar( IOPar& par) const
 {
     if ( tensionfld_ )
-	par.set( "Tension", tensionfld_->getfValue() );
+	par.set( "Tension", tensionfld_->getFValue() );
     if ( radiusfld_ )
-	par.set("Search Radius",radiusfld_->getfValue() );
+	par.set("Search Radius",radiusfld_->getFValue() );
 
     return true;
 }
