@@ -175,7 +175,7 @@ bool uiStratSeisEvent::getFromScreen()
     ev_.setEvType( !evfld_->isChecked() ? VSEvent::None
 		   : (VSEvent::Type)(evfld_->getIntValue()+1) );
     if ( ev_.evType() != VSEvent::None )
-	ev_.setOffset( snapoffsfld_->getfValue() * mToSecFactorF );
+	ev_.setOffset( snapoffsfld_->getFValue() * mToSecFactorF );
 
     if ( extrwinfld_ )
     {
@@ -189,7 +189,7 @@ bool uiStratSeisEvent::getFromScreen()
 	float extrstep = mUdf(float);
 	if ( !doAllLayers() )
 	{
-	    const float stepms = extrstepfld_->getfValue();
+	    const float stepms = extrstepfld_->getFValue();
 	    if ( mIsUdf(stepms) )
 		mErrRet("Please enter a valid step")
 

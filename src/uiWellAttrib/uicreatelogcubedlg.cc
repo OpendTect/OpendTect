@@ -112,7 +112,7 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
 
 int uiCreateLogCubeOutputSel::getNrRepeatTrcs() const
 {
-    return repeatfld_->box()->getValue();
+    return repeatfld_->box()->getIntValue();
 }
 
 

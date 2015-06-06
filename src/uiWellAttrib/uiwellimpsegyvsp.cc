@@ -292,8 +292,8 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
     Interval<float> outzrg( mUdf(float), mUdf(float) );
     if ( inpsampfld_->isChecked() )
     {
-	inpsamp.start = inpsampfld_->getfValue( 0 );
-	inpsamp.step = inpsampfld_->getfValue( 1 );
+	inpsamp.start = inpsampfld_->getFValue( 0 );
+	inpsamp.step = inpsampfld_->getFValue( 1 );
 	if ( !isdpth_ )
 	    { mScaleVal(inpsamp.start,0.001); mScaleVal(inpsamp.step,0.001); }
 	else if ( inpinftfld_->isChecked() )

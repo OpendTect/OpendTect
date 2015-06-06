@@ -96,7 +96,7 @@ void updateSlider( float val )
 
 void sliderChgCB( CallBacker* )
 {
-    usrval_ = valueslider_->getValue();
+    usrval_ = valueslider_->getFValue();
     drawMarkerLine( usrval_ );
     usrValChanged.trigger();
 }
@@ -513,7 +513,7 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
     if ( !evfld_->getFromScreen() )
 	return false;
 
-    const float scalefac = finalscalefld_->getfValue();
+    const float scalefac = finalscalefld_->getFValue();
     if ( mIsUdf(scalefac) )
 	{ uiMSG().error(tr("Please enter the scale factor")); return false; }
 
