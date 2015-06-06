@@ -177,8 +177,8 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
     ui3DViewer* vwr = const_cast<ui3DViewer*>(viewers_[vwridx]);
 
-    const float scenesDPI =  vwr->getScenesPixelDensity();
-    const float renderDPI =  dpifld_->box()->getValue();
+    const float scenesDPI = vwr->getScenesPixelDensity();
+    const float renderDPI = dpifld_->box()->getFValue();
 
     const bool changedpi = scenesDPI != renderDPI;
 

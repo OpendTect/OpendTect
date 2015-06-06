@@ -154,10 +154,10 @@ void uiCorrelationGroup::init()
     usecorrfld_->setValue( !adjuster_->trackByValue() );
 
     const Interval<int> corrintv(
-	    mCast(int,adjuster_->similarityWindow().start *
-		      SI().zDomain().userFactor()),
-	    mCast(int,adjuster_->similarityWindow().stop *
-		      SI().zDomain().userFactor()) );
+		mCast(int,adjuster_->similarityWindow().start *
+			  SI().zDomain().userFactor()),
+		mCast(int,adjuster_->similarityWindow().stop *
+			  SI().zDomain().userFactor()) );
 
     compwinfld_->setValue( corrintv );
     corrthresholdfld_->box()->setValue(
@@ -205,7 +205,7 @@ bool uiCorrelationGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->setSimilarityWindow( relintval );
     }
 
-    const float thr = corrthresholdfld_->box()->getfValue();
+    const float thr = corrthresholdfld_->box()->getFValue();
     if ( thr > 100 || thr < 0)
 	mErrRet( tr("Correlation threshold must be between 0 to 100") );
 

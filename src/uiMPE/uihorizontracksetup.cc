@@ -311,7 +311,7 @@ void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 
 void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
 {
-    const float sldrval = seedsliderfld_->getValue();
+    const float sldrval = seedsliderfld_->getFValue();
     const int newsize = mNINT32(sldrval);
     if ( markerstyle_.size_ == newsize )
 	return;

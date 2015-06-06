@@ -42,7 +42,7 @@ void uiStereoDlg::doFinalise( CallBacker* )
 
 bool uiStereoDlg::acceptOK( CallBacker* )
 {
-    const float slval = sliderfld_->getValue();
+    const float slval = sliderfld_->getFValue();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setStereoOffset( slval );
 
@@ -55,7 +55,7 @@ bool uiStereoDlg::acceptOK( CallBacker* )
 
 void uiStereoDlg::sliderMove( CallBacker* )
 {
-    const float slval = sliderfld_->getValue();
+    const float slval = sliderfld_->getFValue();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
         vwrs_[idx]->setStereoOffset( slval );
 }
