@@ -212,7 +212,6 @@ void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 
     updateTextPos();
     updateGridLines();
-    updateTextColor(0);
 }
 
 
@@ -225,7 +224,6 @@ void Annotation::setScale( const TrcKeyZSampling& cs )
     scale_ = cs;
     updateTextPos();
     updateGridLines();
-    updateTextColor(0);
 }
 
 
@@ -478,6 +476,7 @@ void Annotation::updateTextPos()
 	    mVisTrans::transform( displaytrans_, pos );
 	    text->setPosition( pos );
 	    text->setText( toUiString(displayval,0) );
+	    text->setColor( col );
 	}
     }
 
