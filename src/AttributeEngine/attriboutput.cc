@@ -287,7 +287,7 @@ void DataCubesOutput::init( float refstep )
     datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hrg.start.crl(),
 						dcsampling_.hrg.stop.crl(),
 						dcsampling_.hrg.step.crl());
-    datacubes_->z0_ = mNINT32(dcsampling_.zrg.start/refstep);
+    datacubes_->setZ0( mNINT32(dcsampling_.zrg.start/refstep) );
     datacubes_->zstep_ = refstep;
     int inlsz, crlsz, zsz;
     mGetSz(inl); mGetSz(crl); mGetZSz();

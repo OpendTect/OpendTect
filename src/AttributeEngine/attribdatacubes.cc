@@ -29,7 +29,7 @@ DataCubes::DataCubes()
     , crlsz_( 0 )
     , zsz_( 0 )
 {
-    z0manager.setParam( this, SI().zRange(true).start/SI().zRange(true).step );
+    z0manager.setParam( this, mUdf(float) );
 }
 
 
