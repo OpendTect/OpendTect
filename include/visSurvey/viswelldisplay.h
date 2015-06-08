@@ -164,6 +164,7 @@ protected:
 					    Well::Log* logfill,
 					    visBase::Well::LogParams&) const;
     void			removePick();
+    void			removePick(const visBase::EventInfo&);
     void			addPick(const visBase::EventInfo&,int);
 
     Well::DisplayProperties*	dispprop_;

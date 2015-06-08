@@ -812,7 +812,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 	mEventReturn
 
     if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
-	removePick();
+	removePick( eventinfo );
     else if ( !OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
 	addPick( eventinfo, eventid );
 
@@ -822,11 +822,25 @@ void WellDisplay::pickCB( CallBacker* cb )
 
 void WellDisplay::removePick()
 {
+// use removePick(const visBase::EventInfo&);
+}
+
+
+void WellDisplay::removePick( const visBase::EventInfo& evinfo )
+{
     if ( mousepressid_ == -1 )
 	mEventReturn
 
-    markerset_->removeMarker( mousepressid_ );
-    pseudotrack_->removePoint( mousepressid_ );
+    if ( !evinfo.pickedobjids.isPresent(markerset_->id()) )
+	return;
+
+    const int markeridx =
+	markerset_->findClosestMarker( evinfo.displaypickedpos, true );
+    if ( markeridx<0 || markeridx>=markerset_->size() )
+	return;
+
+    markerset_->removeMarker( markeridx );
+    pseudotrack_->removePoint( markeridx );
 
     TypeSet<Coord3> wcoords = getWellCoords();
     well_->setTrack( wcoords );
@@ -878,8 +892,13 @@ void WellDisplay::addPick( Coord3 pos )
 
     if ( insertidx > -1 )
     {
-	const int markerid = markerset_->getCoordinates()->addPos( pos );
-	markerset_->getMaterial()->setColor( lineStyle()->color_,markerid ) ;
+	markerset_->clearMarkers();
+	for ( int idx=0; idx<wcoords.size(); idx++ )
+	{
+	    const int mid =
+		markerset_->getCoordinates()->addPos( wcoords[idx] );
+	    markerset_->getMaterial()->setColor( lineStyle()->color_, mid ) ;
+	}
     }
 }
 
