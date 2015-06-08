@@ -27,6 +27,7 @@ class uiIOObjSel;
 class uiSeisSel;
 class uiSlider;
 class uiTabStack;
+class uiToolBar;
 class uiToolButton;
 
 
@@ -78,15 +79,20 @@ public:
 protected:
 
     virtual void		initStuff();
-    uiTabStack*			tabgrp_;
 
+// General
+    uiTabStack*			tabgrp_;
     uiIOObjSel*			horizonfld_;
-    uiToolButton*		startbut_;
-    uiToolButton*		stopbut_;
+    uiToolBar*			toolbar_;
+    int				startbutid_;
+    int				stopbutid_;
+    int				savebutid_;
     State			state_;
 
+    void			initToolBar();
     void			startCB(CallBacker*);
     void			stopCB(CallBacker*);
+    void			saveCB(CallBacker*);
     void			horizonSelCB(CallBacker*);
 
 // Mode Group

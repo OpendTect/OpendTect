@@ -15,12 +15,14 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emsurfacetr.h"
+#include "executor.h"
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
 #include "horizon2dtracker.h"
 #include "horizon3dtracker.h"
 #include "mpeengine.h"
+#include "ptrman.h"
 #include "randcolor.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
@@ -38,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uiseparator.h"
 #include "uislider.h"
 #include "uitabstack.h"
+#include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
@@ -106,14 +109,23 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, uiStrings::sProperties(true) );
 
-    startbut_ = new uiToolButton( this, "autotrack", "Start tracking [t]",
-				  mCB(this,uiHorizonSetupGroup,startCB) );
-    startbut_->setShortcut( "t" );
-    stopbut_ = new uiToolButton( this, "stop", "Stop tracking [s]",
-				 mCB(this,uiHorizonSetupGroup,stopCB) );
-    stopbut_->setShortcut( "s" );
-    startbut_->attach( leftOf, tabgrp_ );
-    stopbut_->attach( alignedBelow, startbut_ );
+    mDynamicCastGet(uiDialog*,dlg,p)
+    toolbar_ = new uiToolBar( dlg, "Tracking tools", uiToolBar::Left );
+    initToolBar();
+}
+
+
+void uiHorizonSetupGroup::initToolBar()
+{
+    startbutid_ = toolbar_->addButton( "autotrack", "Start tracking [T]",
+				mCB(this,uiHorizonSetupGroup,startCB) );
+    toolbar_->setShortcut( startbutid_, "t" );
+    stopbutid_ = toolbar_->addButton( "stop", "Stop tracking [S]",
+				mCB(this,uiHorizonSetupGroup,stopCB) );
+    toolbar_->setShortcut( stopbutid_, "s" );
+    savebutid_ = toolbar_->addButton( "save", "Stop tracking [Ctrl+S]",
+				mCB(this,uiHorizonSetupGroup,saveCB) );
+    toolbar_->setShortcut( stopbutid_, "ctrl+s" );
 }
 
 
@@ -125,28 +137,41 @@ void uiHorizonSetupGroup::horizonSelCB( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::startCB(CallBacker *)
+void uiHorizonSetupGroup::startCB( CallBacker* )
 {
     if ( state_ != Started )
     {
 	state_ = Started;
-	startbut_->setToolTip( "Pause tracking [t]" );
-	startbut_->setIcon( "pause" );
+	toolbar_->setToolTip( startbutid_, "Pause tracking [t]" );
+	toolbar_->setIcon( startbutid_, "pause" );
     }
     else
     {
 	state_ = Paused;
-	startbut_->setToolTip( "Start tracking [t]" );
-	startbut_->setIcon( "autotrack" );
+	toolbar_->setToolTip( startbutid_, "Start tracking [t]" );
+	toolbar_->setIcon( startbutid_, "autotrack" );
     }
 }
 
 
-void uiHorizonSetupGroup::stopCB(CallBacker *)
+void uiHorizonSetupGroup::stopCB( CallBacker* )
 {
     state_ = Stopped;
-    startbut_->setToolTip( "Start tracking [t]" );
-    startbut_->setIcon( "autotrack" );
+    toolbar_->setToolTip( startbutid_, "Start tracking [t]" );
+    toolbar_->setIcon( startbutid_, "autotrack" );
+}
+
+
+void uiHorizonSetupGroup::saveCB( CallBacker* )
+{
+    if ( !sectiontracker_ ) return;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    if ( emobj.multiID().isUdf() )
+	horizonfld_->doSel(0);
+
+    PtrMan<Executor> exec = emobj.saver();
+    if ( exec ) exec->execute();
 }
 
 
