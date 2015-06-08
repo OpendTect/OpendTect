@@ -59,8 +59,8 @@ public:
 				WellDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,WellDisplay,
-				    "WellDisplay", 
-				    toUiString(sFactoryKeyword()) );
+				    "WellDisplay",
+				    toUiString(sFactoryKeyword()) )
 
     bool			setMultiID(const MultiID&);
     MultiID			getMultiID() const	{ return wellid_; }
@@ -72,7 +72,7 @@ public:
     void			showWellTopName(bool);
     bool			wellBotNameShown() const;
     void			showWellBotName(bool);
-    TypeSet<Coord3>             getWellCoords()	const;
+    TypeSet<Coord3>		getWellCoords() const;
 
     //markers
     void			fillMarkerParams(visBase::Well::MarkerParams&);
@@ -114,7 +114,7 @@ public:
     void			setDisplayTransformation(const mVisTrans*);
     void			setDisplayTransformForPicks(const mVisTrans*);
 
-    void                        setSceneEventCatcher(visBase::EventCatcher*);
+    void			setSceneEventCatcher(visBase::EventCatcher*);
     void			addPick(Coord3);
 				//only used for user-made wells
     void			addKnownPos();
@@ -124,13 +124,13 @@ public:
     void			getMousePosInfo(const visBase::EventInfo& pos,
 						Coord3&,BufferString& val,
 						BufferString& info) const;
-    NotifierAccess*             getManipulationNotifier() { return &changed_; }
+    NotifierAccess*		getManipulationNotifier() { return &changed_; }
     bool			hasChanged() const	{ return needsave_; }
     bool			isHomeMadeWell() const { return picksallowed_; }
     void			setChanged( bool yn )	{ needsave_ = yn; }
     void			setupPicking(bool);
     void			showKnownPositions();
-    void                        restoreDispProp();
+    void			restoreDispProp();
     Well::Data*			getWD() const;
     bool			needsConversionToTime() const;
 
@@ -139,8 +139,8 @@ public:
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
 
-    virtual void                fillPar(IOPar&) const;
-    virtual bool                usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
     virtual void		setPixelDensity(float);
     const char*			errMsg() const { return errmsg_.str(); }
     const visBase::Well*	getWell() const { return well_; }
@@ -155,8 +155,8 @@ protected:
     void			getTrackPos(const Well::Data*,TypeSet<Coord3>&);
     void			displayLog(Well::LogDisplayPars*,int);
     void			setLogProperties(visBase::Well::LogParams&);
-    void                        pickCB(CallBacker* cb=0);
-    void                        welldataDelNotify(CallBacker* cb=0);
+    void			pickCB(CallBacker* cb=0);
+    void			welldataDelNotify(CallBacker* cb=0);
     void			saveDispProp( const Well::Data* wd );
     void			setLogInfo(BufferString&,BufferString&,
 					   float,bool) const;
@@ -164,12 +164,12 @@ protected:
 					    Well::Log& logdata,
 					    Well::Log* logfill,
 					    visBase::Well::LogParams&) const;
-    void			removePick();
+    void			removePick(const visBase::EventInfo&);
     void			addPick(const visBase::EventInfo&,int);
 
     Well::DisplayProperties*	dispprop_;
 
-    Coord3                      mousepressposition_;
+    Coord3			mousepressposition_;
     const mVisTrans*		transformation_;
     MultiID			wellid_;
     visBase::EventCatcher*	eventcatcher_;
@@ -185,7 +185,7 @@ protected:
     Notifier<WellDisplay>	changed_;
 
     int				logsnumber_;
-    int                         mousepressid_;
+    int				mousepressid_;
     bool			needsave_;
     bool			onelogdisplayed_;
     bool			picksallowed_;
