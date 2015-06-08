@@ -580,13 +580,12 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
 
 
 
-
-
+// uiFreqTaperSel
 uiFreqTaperSel::uiFreqTaperSel( uiParent* p, const Setup& s,
 				const FreqTaperSetup& fsu )
-	    : uiWindowFunctionSel(p,s)
-	    , freqsetup_(FreqTaperSetup(fsu))
-	    , freqtaperdlg_(0)
+    : uiWindowFunctionSel(p,s)
+    , freqsetup_(FreqTaperSetup(fsu))
+    , freqtaperdlg_(0)
 {}
 
 
@@ -606,28 +605,41 @@ void uiFreqTaperSel::windowClosed( CallBacker* )
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
     if ( !windowfuncs_.validIdx(winidx) && !onlytaper_ ) return;
 
-    varinpfld_->setValue( freqtaperdlg_->getFreqRange() );
+    uiGenInput* varinpfld = getVariableFld( winidx );
+    if ( !varinpfld ) return;
+
+    varinpfld->setValue( freqtaperdlg_->getFreqRange() );
     windowChangedCB(0);
 }
 
 
-void uiFreqTaperSel::setIsMinMaxFreq(bool min, bool max)
+void uiFreqTaperSel::setIsMinMaxFreq( bool min, bool max )
 {
+    const int winidx = windowtypefld_->getIntValue( 0 )-1;
+    uiGenInput* varinpfld = getVariableFld( winidx );
+    if ( !varinpfld ) return;
+
     freqsetup_.hasmin_ = min; freqsetup_.hasmax_ = max;
-    varinpfld_->setSensitive( min, 0, 0 );
-    varinpfld_->setSensitive( max, 0 ,1 );
+    varinpfld->setSensitive( min, 0, 0 );
+    varinpfld->setSensitive( max, 0 ,1 );
 }
 
 
 Interval<float> uiFreqTaperSel::freqValues() const
 {
-    return varinpfld_->getFInterval();
+    const int winidx = windowtypefld_->getIntValue( 0 )-1;
+    const uiGenInput* varinpfld = getVariableFld( winidx );
+    return varinpfld ? varinpfld->getFInterval() : Interval<float>::udf();
 }
 
 
 void uiFreqTaperSel::setInputFreqValue( float val, int fldnr )
 {
-    varinpfld_->setValue( val, fldnr );
+    const int winidx = windowtypefld_->getIntValue( 0 )-1;
+    uiGenInput* varinpfld = getVariableFld( winidx );
+    if ( !varinpfld ) return;
+
+    varinpfld->setValue( val, fldnr );
     windowChangedCB(0);
 }
 

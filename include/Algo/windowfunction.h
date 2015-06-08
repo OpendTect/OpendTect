@@ -11,8 +11,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
- 
+
+
 #include "algomod.h"
 #include "factory.h"
 #include "mathfunc.h"
@@ -30,10 +30,10 @@ public:
     virtual const char*	name() const			= 0;
     virtual bool	hasVariable() const		{ return false; }
     virtual float	getVariable() const		{ return mUdf(float); }
-    virtual bool  	setVariable(float)		{ return true; }
+    virtual bool	setVariable(float)		{ return true; }
     virtual const char*	variableName() const		{ return 0; }
 
-    static const char*	sKeyVariable() 			{ return "Variable"; }
+    static const char*	sKeyVariable()			{ return "Variable"; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -80,7 +80,7 @@ public:
 
     bool			hasVariable() const	{ return true; }
     float			getVariable() const	{ return threshold_; }
-    bool  			setVariable(float);
+    bool			setVariable(float);
     const char*			variableName() const{return "Taper length";}
 
 protected:
@@ -108,7 +108,7 @@ public:
     void			setNumberSamples(int);
     float			getError() const;
     const char*			variableName() const
-				{ return "transition width"; }
+				{ return "Transition width"; }
 
 protected:
 

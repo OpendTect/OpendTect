@@ -24,6 +24,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     , winfuncseldlg_(0)
 {
     windowfuncs_.allowNull();
+    varinpflds_.allowNull();
 
     BufferStringSet funcnames;
     if ( onlytaper_ )
@@ -36,7 +37,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     if ( su.winname_ ) windowtypefld_->setText( su.winname_ );
 
     windowtypefld_->valuechanged.notify(
-			mCB( this, uiWindowFunctionSel, windowChangedCB ) );
+			mCB(this,uiWindowFunctionSel,windowChangedCB) );
 
     viewbut_ = new uiPushButton( this, uiStrings::sView(), true );
     viewbut_->activated.notify( mCB(this,uiWindowFunctionSel,winfuncseldlgCB) );
@@ -45,29 +46,30 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     for ( int idx=1; idx<funcnames.size(); idx++ )
     {
 	WindowFunction* winfunc = WINFUNCS().create( funcnames[idx]->buf());
+	uiGenInput* varinpfld = 0;
 	if ( winfunc && winfunc->hasVariable() )
 	{
-	    taperidx_ = idx-1;
 	    BufferString varname ( winfunc->variableName() );
 	    varname += " (%)";
 	    float v = winfunc->getVariable() * 100;
 	    if ( su.with2fldsinput_ )
 	    {
 		BufferString twosidedvarname( su.inpfldtxt_ );
-		varinpfld_ = new uiGenInput( this, twosidedvarname.buf(),
+		varinpfld = new uiGenInput( this, twosidedvarname.buf(),
 					FloatInpSpec(v), FloatInpSpec(v) );
 	    }
 	    else
-		varinpfld_ = new uiGenInput(this,varname.buf(),FloatInpSpec(v));
+		varinpfld = new uiGenInput(this,varname.buf(),FloatInpSpec(v));
 	    if ( FixedString(su.winname_) == winfunc->name() )
-		varinpfld_->setValue( su.winparam_ * 100 );
+		varinpfld->setValue( su.winparam_ * 100 );
 
-	    varinpfld_->attach( alignedBelow, windowtypefld_ );
-	    varinpfld_->valuechanged.notify( mCB(this,uiWindowFunctionSel,
-					     windowChangedCB) );
+	    varinpfld->attach( alignedBelow, windowtypefld_ );
+	    varinpfld->valuechanged.notify(
+			mCB(this,uiWindowFunctionSel,windowChangedCB) );
 	}
 
 	windowfuncs_ += winfunc;
+	varinpflds_ += varinpfld;
     }
 
     setHAlignObj( windowtypefld_ );
@@ -90,15 +92,24 @@ const char* uiWindowFunctionSel::windowName() const
 void uiWindowFunctionSel::setWindowName( const char* nm )
 {
     windowtypefld_->setText( nm );
+    windowChangedCB(0);
 }
+
+
+uiGenInput* uiWindowFunctionSel::getVariableFld( int winidx )
+{ return varinpflds_.validIdx(winidx) ? varinpflds_[winidx] : 0; }
+
+const uiGenInput* uiWindowFunctionSel::getVariableFld( int winidx ) const
+{ return const_cast<uiWindowFunctionSel*>(this)->getVariableFld( winidx ); }
 
 
 void uiWindowFunctionSel::setWindowParamValue( float val, int fldnr )
 {
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    if ( !windowfuncs_.validIdx(winidx) && !onlytaper_ ) return;
+    uiGenInput* varinpfld = getVariableFld( winidx );
+    if ( !varinpfld ) return;
 
-    varinpfld_->setValue( val * 100, fldnr );
+    varinpfld->setValue( val*100, fldnr );
     windowChangedCB(0);
 }
 
@@ -106,10 +117,8 @@ void uiWindowFunctionSel::setWindowParamValue( float val, int fldnr )
 float uiWindowFunctionSel::windowParamValue() const
 {
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    if ( winidx<0 || winidx != taperidx_ )
-	return mUdf(float);
-
-    return varinpfld_->getfValue( 0 )/100;
+    const uiGenInput* varinpfld = getVariableFld( winidx );
+    return varinpfld ? varinpfld->getfValue( 0 )/100 : mUdf(float);
 }
 
 
@@ -148,13 +157,10 @@ void uiWindowFunctionSel::windowClosed( CallBacker* )
 	setWindowName( winname );
 	windowtypefld_->valuechanged.trigger();
     }
+
     const float variable = winfuncseldlg_->getVariable();
     if( !mIsUdf(variable) && variable >= 0 )
 	setWindowParamValue( variable );
-
-    const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    varinpfld_->display( winidx == taperidx_ );
-    viewbut_->display( !onlytaper_ || winidx == taperidx_  );
 }
 
 
@@ -164,7 +170,10 @@ void uiWindowFunctionSel::windowChangedCB( CallBacker* )
 	return;
 
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    varinpfld_->display( winidx == taperidx_ );
-    viewbut_->display( !onlytaper_ || winidx == taperidx_  );
+    for ( int idx=0; idx<varinpflds_.size(); idx++ )
+	if ( varinpflds_[idx] ) varinpflds_[idx]->display( idx==winidx );
+
+    const bool hasparam = varinpflds_.validIdx( winidx ) && varinpflds_[winidx];
+    viewbut_->display( !onlytaper_ || hasparam );
 }
 
