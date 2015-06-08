@@ -428,15 +428,15 @@ bool uiAttrTrcSelOut::fillPar()
     }
     else
     {
-	zinterval.start = extraztopfld_->getfValue();
-	zinterval.stop = extrazbotfld_->getfValue();
+	zinterval.start = extraztopfld_->getFValue();
+	zinterval.stop = extrazbotfld_->getFValue();
     }
 
     key = IOPar::compKey( sKey::Geometry(), "ExtraZInterval" );
     iopar.set( key, zinterval );
 
     key = IOPar::compKey( sKey::Geometry(), "Outside Value" );
-    iopar.set( key, outsidevalfld_->getfValue() );
+    iopar.set( key, outsidevalfld_->getFValue() );
 
     int nrsamp = 0;
     if ( interpfld_ && interpfld_->isChecked() )
@@ -449,7 +449,7 @@ bool uiAttrTrcSelOut::fillPar()
     if ( !usesinglehor_ && addwidthfld_ && addwidthfld_->getBoolValue() )
     {
 	key = IOPar::compKey( sKey::Geometry(), "Artificial Width" );
-	iopar.set( key, widthfld_->getfValue() );
+	iopar.set( key, widthfld_->getFValue() );
 
 	key = IOPar::compKey( sKey::Geometry(), "Leading Horizon" );
 	iopar.set( key, mainhorfld_->getBoolValue()? 1 : 2 );

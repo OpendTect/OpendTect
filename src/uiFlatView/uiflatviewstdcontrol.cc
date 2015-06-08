@@ -72,9 +72,9 @@ bool uiFlatViewZoomLevelGrp::saveGlobal() const
 
 void uiFlatViewZoomLevelGrp::commitInput()
 {
-    x1pospercm_ = x1fld_->getfValue();
+    x1pospercm_ = x1fld_->getFValue();
     if ( x2fld_ )
-	x2pospercm_ = x2fld_->getfValue();
+	x2pospercm_ = x2fld_->getFValue();
 }
 
 

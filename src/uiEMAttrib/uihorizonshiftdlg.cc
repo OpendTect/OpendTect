@@ -208,7 +208,7 @@ float uiHorizonShiftDialog::getShift() const
 {
     float curshift = slider_->editValue();
     if ( mIsUdf(curshift) )
-	curshift = slider_->getValue();
+	curshift = slider_->getFValue();
 
     return curshift / SI().zDomain().userFactor();
 }
