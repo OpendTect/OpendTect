@@ -78,10 +78,14 @@ const char* VolumeDisplay::sKeySeedsAboveIsov()	{ return "Above IsoVal"; }
 static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 {
     TrcKeyZSampling cs(false);
-    cs.hsamp_.start_.inl() = (5*csin.hsamp_.start_.inl()+3*csin.hsamp_.stop_.inl())/8;
-    cs.hsamp_.start_.crl() = (5*csin.hsamp_.start_.crl()+3*csin.hsamp_.stop_.crl())/8;
-    cs.hsamp_.stop_.inl() = (3*csin.hsamp_.start_.inl()+5*csin.hsamp_.stop_.inl())/8;
-    cs.hsamp_.stop_.crl() = (3*csin.hsamp_.start_.crl()+5*csin.hsamp_.stop_.crl())/8;
+    cs.hsamp_.start_.inl() =
+	(5*csin.hsamp_.start_.inl()+3*csin.hsamp_.stop_.inl())/8;
+    cs.hsamp_.start_.crl() =
+	(5*csin.hsamp_.start_.crl()+3*csin.hsamp_.stop_.crl())/8;
+    cs.hsamp_.stop_.inl() =
+	(3*csin.hsamp_.start_.inl()+5*csin.hsamp_.stop_.inl())/8;
+    cs.hsamp_.stop_.crl() =
+	(3*csin.hsamp_.start_.crl()+5*csin.hsamp_.stop_.crl())/8;
     cs.zsamp_.start = ( 5*csin.zsamp_.start + 3*csin.zsamp_.stop ) / 8.f;
     cs.zsamp_.stop = ( 3*csin.zsamp_.start + 5*csin.zsamp_.stop ) / 8.f;
     SI().snap( cs.hsamp_.start_, BinID(0,0) );
@@ -560,7 +564,8 @@ void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
 			cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(),
 			cs.zsamp_.stop - cs.zsamp_.start );
 
-    const Coord3 step( cs.hsamp_.step_.inl(), cs.hsamp_.step_.crl(), cs.zsamp_.step );
+    const Coord3 step( cs.hsamp_.step_.inl(), cs.hsamp_.step_.crl(),
+		       cs.zsamp_.step );
 
     updateDraggerLimits( dragmode );
     mSetVolumeTransform( ROIVolume, center, width, trans, scale );
@@ -905,12 +910,16 @@ void VolumeDisplay::getTreeObjectInfo( BufferString& info ) const
     TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
     cs.limitTo( texturecs_ );
 
-    if ( !cs.isEmpty() && scalarfield_->isOn() )
+    bool canshowattrib = false;
+    for ( int attrib=0; attrib<attribs_.size(); attrib++ )
+	canshowattrib = canshowattrib || attribs_[attrib]->cache_;
+
+    if ( !cs.isEmpty() && canshowattrib )
     {
-	info += cs.hsamp_.start_.inl(); info += "-"; info += cs.hsamp_.stop_.inl();
-	info += ", ";
-	info += cs.hsamp_.start_.crl(); info += "-"; info += cs.hsamp_.stop_.crl();
-	info += ", ";
+	info += cs.hsamp_.start_.inl(); info += "-";
+	info += cs.hsamp_.stop_.inl(); info += ", ";
+	info += cs.hsamp_.start_.crl(); info += "-";
+	info += cs.hsamp_.stop_.crl(); info += ", ";
 
 	float zstart = cs.zsamp_.start;
 	float zstop = cs.zsamp_.stop;
@@ -1379,6 +1388,7 @@ const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int attrib,
 bool VolumeDisplay::turnOn( bool yn )
 {
     onoffstatus_ = yn;
+    updateAttribEnabling();
 
     return VisualObjectImpl::turnOn( isAnyAttribEnabled() && yn );
 }
@@ -1394,8 +1404,6 @@ void VolumeDisplay::fillPar( IOPar& par ) const
     visSurvey::SurveyObject::fillPar( par );
     const TrcKeyZSampling cs = getTrcKeyZSampling(false,true,0);
     cs.fillPar( par );
-
-    pErrMsg( "Not implemented" );
 }
 
 
