@@ -108,7 +108,7 @@ public:
     void			setNumberSamples(int);
     float			getError() const;
     const char*			variableName() const
-				{ return "transition width"; }
+				{ return "Transition width"; }
 
 protected:
 

@@ -31,10 +31,10 @@ public:
 
     mStruct(uiTools) Setup
     {
-			Setup() 
-			    : onlytaper_(false)		      	
-			    , with2fldsinput_(false)		
-			    , winparam_(mUdf(float))  
+			Setup()
+			    : onlytaper_(false)
+			    , with2fldsinput_(false)
+			    , winparam_(mUdf(float))
 			    {}
 
 	mDefSetupMemb(const char*,winname )
@@ -65,13 +65,15 @@ protected:
     virtual void		winfuncseldlgCB(CallBacker*);
     void			windowClosed(CallBacker*);
 
+    uiGenInput*			getVariableFld(int winidx);
+    const uiGenInput*		getVariableFld(int winidx) const;
+
     BufferString		errmsg_;
     Interval<float>		annotrange_;
 
-    int				taperidx_;
     bool			onlytaper_;
     uiGenInput*			windowtypefld_;
-    uiGenInput*			varinpfld_;
+    ObjectSet<uiGenInput>	varinpflds_;
     uiPushButton*		viewbut_;
     uiWindowFuncSelDlg*		winfuncseldlg_;
     ObjectSet<WindowFunction>	windowfuncs_;
