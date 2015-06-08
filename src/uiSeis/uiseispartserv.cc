@@ -338,14 +338,13 @@ void uiSeisPartServer::get2DZdomainAttribs( const char* linenm,
 
 void uiSeisPartServer::fillPar( IOPar& par ) const
 {
-    BufferStringSet ids;
-    StreamProvider::getPreLoadedIDs( ids );
-    for ( int iobj=0; iobj<ids.size(); iobj++ )
+    TypeSet<MultiID> mids;
+    Seis::PLDM().getIDs( mids );
+    for ( int idx=0; idx<mids.size(); idx++ )
     {
-	const MultiID id( ids.get(iobj).buf() );
 	IOPar iop;
-	Seis::PreLoader spl( id ); spl.fillPar( iop );
-	const BufferString parkey = IOPar::compKey( sKeyPreLoad(), iobj );
+	Seis::PreLoader spl( mids[idx] ); spl.fillPar( iop );
+	const BufferString parkey = IOPar::compKey( sKeyPreLoad(), idx );
 	par.mergeComp( iop, parkey );
     }
 }
@@ -353,7 +352,11 @@ void uiSeisPartServer::fillPar( IOPar& par ) const
 
 bool uiSeisPartServer::usePar( const IOPar& par )
 {
-    StreamProvider::unLoadAll();
+    TypeSet<MultiID> mids;
+    Seis::PLDM().getIDs( mids );
+    for ( int idx=0; idx<mids.size(); idx++ )
+	Seis::PLDM().remove( mids[idx] );
+
     PtrMan<IOPar> plpar = par.subselect( sKeyPreLoad() );
     if ( !plpar ) return true;
 
