@@ -364,6 +364,9 @@ bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 float Horizon3D::getZ( const BinID& bid ) const
 { return (float) getPos( sectionID(0), bid.toInt64() ).z; }
 
+bool Horizon3D::hasZ( const TrcKey& tk ) const
+{ return isDefined( sectionID(0), tk.pos().toInt64() ); }
+
 
 float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {

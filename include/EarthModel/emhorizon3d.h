@@ -99,6 +99,8 @@ public:
 				//!< Fast: reads from the first section
     bool			setZ(const TrcKey&,float z,bool addtohist);
 				//!< Fast: writes to the first section
+    bool			hasZ(const TrcKey&) const;
+				//!< Fast: checks only the first section
 
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;
