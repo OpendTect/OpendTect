@@ -112,6 +112,9 @@ protected:
 
 private:
     bool		done_;
+
+protected:
+    void		srcWinClosed(CallBacker*);
 };
 
 
