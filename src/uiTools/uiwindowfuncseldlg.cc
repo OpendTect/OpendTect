@@ -170,6 +170,7 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFunctionDrawer::Setup& su )
 {
     funclistfld_ = new uiListBox( this, "Function", OD::ChooseAtLeastOne );
     funclistfld_->attach( topBorder, 0 );
+    funclistfld_->setHSzPol( uiObject::MedVar );
     funclistfld_->selectionChanged.notify( mCB(this,uiFuncSelDraw,funcSelChg) );
 
     view_ = new uiFunctionDrawer( this, su );
