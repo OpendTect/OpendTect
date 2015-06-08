@@ -910,7 +910,11 @@ void VolumeDisplay::getTreeObjectInfo( BufferString& info ) const
     TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
     cs.limitTo( texturecs_ );
 
-    if ( !cs.isEmpty() && scalarfield_->isOn() )
+    bool canshowattrib = false;
+    for ( int attrib=0; attrib<attribs_.size(); attrib++ )
+	canshowattrib = canshowattrib || attribs_[attrib]->cache_;
+
+    if ( !cs.isEmpty() && canshowattrib )
     {
 	info += cs.hsamp_.start_.inl(); info += "-";
 	info += cs.hsamp_.stop_.inl();
@@ -1386,6 +1390,7 @@ const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int attrib,
 bool VolumeDisplay::turnOn( bool yn )
 {
     onoffstatus_ = yn;
+    updateAttribEnabling();
 
     return VisualObjectImpl::turnOn( isAnyAttribEnabled() && yn );
 }
@@ -1401,8 +1406,6 @@ void VolumeDisplay::fillPar( IOPar& par ) const
     visSurvey::SurveyObject::fillPar( par );
     const TrcKeyZSampling cs = getTrcKeyZSampling(false,true,0);
     cs.fillPar( par );
-
-    pErrMsg( "Not implemented" );
 }
 
 
