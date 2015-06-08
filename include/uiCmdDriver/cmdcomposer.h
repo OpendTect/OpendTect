@@ -91,6 +91,8 @@ protected:
     void		insertWindowCaseExec(const CmdRecEvent&,
 					     bool casedep = false) const;
 
+    void		srcWinClosed(CallBacker*);
+
     void		notDone()			{ done_ = false; }
     void		refuseAndQuitDone()		{ done_ = true; }
 

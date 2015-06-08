@@ -102,14 +102,14 @@ CmdComposer::CmdComposer( CmdRecorder& cmdrec )
 
 CmdComposer::~CmdComposer()
 {
-    if ( !eventlist_.isEmpty() && !objclosed_ )
-    {
-	mDynamicCastGet( uiObject*, uiobj, eventlist_[0]->object_ );
-	if ( uiobj )
-	    uiobj->closed.remove( mCB(this,CmdComposer,objClosed) );
-    }
-
+    detachAllNotifiers();
     deepErase( eventlist_ );
+}
+
+
+void CmdComposer::srcWinClosed( CallBacker* )
+{
+    accept( CmdRecEvent() );	// Dummy event to flush pending command(s)
 }
 
 
@@ -236,7 +236,11 @@ void CmdComposer::addToEventList( const CmdRecEvent& ev )
 {
     mDynamicCastGet( uiObject*, uiobj, ev.object_ );
     if ( eventlist_.isEmpty() && uiobj )
-	uiobj->closed.notify( mCB(this,CmdComposer,objClosed) );
+	mAttachCB( uiobj->closed, CmdComposer::objClosed );
+
+    uiMainWin* uimw = const_cast<uiMainWin*>( ev.srcwin_ );
+    if ( eventlist_.isEmpty() && uimw )
+	mAttachCB( uimw->windowClosed, CmdComposer::srcWinClosed );
 
     eventlist_ += new CmdRecEvent( ev );
 
