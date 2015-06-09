@@ -481,6 +481,7 @@ void Annotation::updateTextPos()
 	    mVisTrans::transform( displaytrans_, pos );
 	    text->setPosition( pos );
 	    text->setText( toString(displayval,0) );
+	    text->setColor( col );
 	}
     }
 
