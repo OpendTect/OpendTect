@@ -1039,7 +1039,10 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	}
 
 	if ( !surface_->sectionGeometry(sectionid) )
+	{
 	    createSection( sectionid );
+	    arr = arrparam.getParam( this );
+	}
 
 	if ( !arr )
 	    surface_->setPos( sectionid, surfrc.toInt64(), pos, false );
@@ -1101,7 +1104,10 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	}
 
 	if ( !surface_->sectionGeometry(sectionid) )
+	{
 	    createSection( sectionid );
+	    arr = arrparam.getParam( this );
+	}
 
 	if ( !arr )
 	    surface_->setPos( sectionid, rowcol.toInt64(), pos, false );
@@ -1315,7 +1321,10 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	if ( surface_ )
 	{
 	    if ( !surface_->sectionGeometry(sectionid) )
+	    {
 		createSection( sectionid );
+		arr = arrparam.getParam( this );
+	    }
 
 	    RowCol myrc( rc );
 	    if ( hor2dok )
