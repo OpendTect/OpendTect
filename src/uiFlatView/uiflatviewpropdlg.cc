@@ -338,11 +338,11 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     wigcolsel_->attach( alignedBelow, leftcolsel_ );
 
     midlcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.mid_).
-			lbltxt("Ref line     ").withcheck(true).withdesc(false),
+			lbltxt("Ref line").withcheck(true).withdesc(false),
 			"Ref line color" );
 
-    midlcolsel_->attach( rightOf, wigcolsel_ );
-    rightcolsel_->attach( alignedWith, midlcolsel_ );
+    midlcolsel_->attach( alignedBelow, rightcolsel_ );
+    midlcolsel_->attach( ensureRightOf, wigcolsel_ );
     midlcolsel_->doDrawChanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
 
     midlinefld_ = new uiGenInput( this, "Display reference line at",
@@ -809,7 +809,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const BufferStringSet* annots,
 				      int selannot )
     : uiTabStackDlg(p,uiDialog::Setup("Specify Display Properties",
-				      mNoDlgTitle, 
+				      mNoDlgTitle,
                                       mODHelpKey(mFlatViewPropDlgHelpID) ))
     , vwr_(vwr)
     , applycb_(applcb)
