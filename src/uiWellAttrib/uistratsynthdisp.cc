@@ -1310,10 +1310,10 @@ void uiStratSynthDisp::doModelChange()
 
 void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 {
-    BufferString curwvasdnm( currentwvasynthetic_ ? currentwvasynthetic_->name()
-						  : "" );
-    BufferString curvdsdnm( currentvdsynthetic_ ? currentvdsynthetic_->name()
-						: "" );
+    BufferString curwvasdnm( currentwvasynthetic_
+	    			? currentwvasynthetic_->name().buf() : "" );
+    BufferString curvdsdnm( currentvdsynthetic_
+	    			? currentvdsynthetic_->name().buf() : "" );
     FixedString syntheticnm( synthnm );
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     if ( !datalist->isPresent(syntheticnm) || syntheticnm == sKeyNone() )
@@ -1390,10 +1390,10 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 
 void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
-    BufferString curwvasdnm( currentwvasynthetic_ ? currentwvasynthetic_->name()
-						  : "" );
-    BufferString curvdsdnm( currentvdsynthetic_ ? currentvdsynthetic_->name()
-						: "" );
+    BufferString curwvasdnm( currentwvasynthetic_
+	    			? currentwvasynthetic_->name().buf() : "" );
+    BufferString curvdsdnm( currentvdsynthetic_
+	    			? currentvdsynthetic_->name().buf() : "" );
     mCBCapsuleUnpack(BufferString,synthname,cb);
     if ( !curSS().removeSynthetic(synthname) )
 	return;
