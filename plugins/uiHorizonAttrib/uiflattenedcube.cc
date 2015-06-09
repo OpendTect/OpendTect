@@ -90,7 +90,7 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
 {
     if ( !seisselin_ ) return true;
 
-    const IOObj* inioobj = seisselout_->ioobj();
+    const IOObj* inioobj = seisselin_->ioobj();
     if ( !inioobj )
 	return false;
     const IOObj* outioobj = seisselout_->ioobj();
