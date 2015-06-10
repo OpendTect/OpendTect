@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "genericnumer.h"
 #include "undefval.h"
 #include "idxable.h"
-    
+
 #define ITMAX 100
 #define EPS 3.0e-8
 
@@ -46,7 +46,7 @@ bool findValue( const FloatMathFunction& func, float x1, float x2, float& res,
 	const float tol1 = (float) ( 2.0 * EPS * fabs(x2)+0.5*tol );
 	const float xm = 0.5f * (x3-x2);
 
-	if ( fabs(xm)<=tol1 || f2==0.0 ) 
+	if ( fabs(xm)<=tol1 || f2==0.0 )
 	{
 	    res = x2;
 	    return true;
@@ -106,7 +106,7 @@ bool findValue( const FloatMathFunction& func, float x1, float x2, float& res,
 #undef ITMAX
 #undef EPS
 
-float findValueInAperture( const FloatMathFunction& func, float startx, 
+float findValueInAperture( const FloatMathFunction& func, float startx,
 			   const Interval<float>& aperture, float dx,
 			   float target, float tol )
 {
@@ -115,8 +115,8 @@ float findValueInAperture( const FloatMathFunction& func, float startx,
     startx += (aperture.start + aperture.stop) / 2;
 
     bool centerispositive = target - func.getValue( startx ) > 0;
-  
-    float dist = dx; 
+
+    float dist = dx;
     bool negativefound = false;
     bool positivefound = false;
     while ( dist <= halfaperture )
@@ -125,7 +125,7 @@ float findValueInAperture( const FloatMathFunction& func, float startx,
 
 	if ( centerispositive != currentispositive )
 	    positivefound = true;
- 
+
 	currentispositive = target - func.getValue( startx-dist) > 0;
 
 	if ( centerispositive != currentispositive )
@@ -136,7 +136,7 @@ float findValueInAperture( const FloatMathFunction& func, float startx,
 
 	dist += dx;
     }
-  
+
     if ( !negativefound && !positivefound )
 	return 0;
 
@@ -148,12 +148,12 @@ float findValueInAperture( const FloatMathFunction& func, float startx,
     if ( negativefound )
 	findValue( func, startx-dist, startx-dist+dx, negativesol, target, tol);
 
-    return (fabs(positivesol-startx) > fabs(negativesol-startx) ? negativesol 
-				      : positivesol) - startx; 
+    return (fabs(positivesol-startx) > fabs(negativesol-startx) ? negativesol
+				      : positivesol) - startx;
 }
 
 
-float similarity( const FloatMathFunction& a, const FloatMathFunction& b, 
+float similarity( const FloatMathFunction& a, const FloatMathFunction& b,
 			 float a1, float b1, float dist, int sz, bool normalize)
 {
     MathFunctionSampler<float,float> sampa(a);
@@ -168,18 +168,18 @@ float similarity( const FloatMathFunction& a, const FloatMathFunction& b,
 }
 
 
-float semblance( const ObjectSet<float>& signals, const Interval<int>& samplegate )
+float semblance( const ObjectSet<float>& trcs, const Interval<int>& samplegate )
 {
-    const int nrsignals = signals.size()-1;
+    const int nrtrcs = trcs.size()-1;
 
     float numerator = 0;
     float denominator = 0;
     for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
     {
 	float sum = 0;
-	for ( int signalidx=nrsignals-1; signalidx>=0; signalidx-- )
+	for ( int trcidx=nrtrcs-1; trcidx>=0; trcidx-- )
 	{
-	    const float val = signals[signalidx][zidx];
+	    const float val = trcs[trcidx][zidx];
 	    if ( mIsUdf(val) )
 		continue;
 
@@ -191,37 +191,37 @@ float semblance( const ObjectSet<float>& signals, const Interval<int>& samplegat
     }
 
     return denominator
-	? numerator / (nrsignals*denominator)
+	? numerator / (nrtrcs*denominator)
 	: mUdf(float);
 }
 
 
-float semblance( const ObjectSet<float>& signals, int signalsize,
-		 const TypeSet<float>& signalstarts,
+float semblance( const ObjectSet<float>& trcs, int trcsize,
+		 const TypeSet<float>& trcstarts,
 		 const Interval<int>& samplegate )
 {
-    const int nrsignals = signals.size();
+    const int nrtrcs = trcs.size();
     const int nrsamples = samplegate.width()+1;
 
-    mAllocVarLenArr( float, cache, nrsignals*nrsamples );
+    mAllocVarLenArr( float, cache, nrtrcs*nrsamples );
     int offset = 0;
     ObjectSet<float> semblanceinput;
 
-    for ( int signalidx=0; signalidx<nrsignals; signalidx++ )
+    for ( int trcidx=0; trcidx<nrtrcs; trcidx++ )
     {
-	const float* signal = signals[signalidx];
+	const float* trc = trcs[trcidx];
 	semblanceinput += cache+offset;
 	for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
 	{
-	    const float zpos = signalstarts[signalidx]+zidx;
+	    const float zpos = trcstarts[trcidx]+zidx;
 
 	    cache[offset] =
-		IdxAble::interpolateRegWithUdf(signal,signalsize,zpos,false);
+		IdxAble::interpolateRegWithUdf(trc,trcsize,zpos,false);
 
 	    offset++;
 	}
     }
-    
+
     return semblance( semblanceinput, Interval<int>( 0,  nrsamples-1 ) );
 }
 
@@ -247,28 +247,28 @@ double LanczosKernel( int size, double x )
 #define SHFT(a,b,c,d) (a)=(b);(b)=(c);(c)=(d);
 
 float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
-		   float x3, float tol)   
+		   float x3, float tol)
 {
     float x2 = (x1+x3)/2;
 
     int iter;
     float a,b,d=0.0,etemp,fu,fv,fw,fx,p,q,r,tol1,tol2,u,v,w,x,xm;
     float e=0.0;
-    
+
     a=((x1 < x2) ? x1 : x2);
     b=((x1 > x2) ? x1 : x2);
     x=w=v=x3;
     fw=fv=fx= minimum ? func.getValue(x) : -func.getValue(x);
-    for (iter=1;iter<=ITMAX;iter++) 
+    for (iter=1;iter<=ITMAX;iter++)
     {
 	xm=0.5f*(a+b);
 	tol2= 2.0f*(tol1=(float) ( tol*fabs(x)+ZEPS ) );
-	if (fabs(x-xm) <= (tol2-0.5*(b-a))) 
+	if (fabs(x-xm) <= (tol2-0.5*(b-a)))
 	{
 	    return x;
 	}
 
-	if (fabs(e) > tol1) 
+	if (fabs(e) > tol1)
 	{
 	    r=(x-w)*(fx-fv);
 	    q=(x-v)*(fx-fw);
@@ -280,22 +280,22 @@ float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
 	    e=d;
 	    if (fabs(p) >= fabs(0.5*q*etemp) || p <= q*(a-x) || p >= q*(b-x))
 		d= (float) ( CGOLD*(e=(x >= xm ? a-x : b-x)) );
-	    else 
+	    else
 	    {
 		d=p/q;
 		u=x+d;
 		if (u-a < tol2 || b-u < tol2)
 			d=SIGN(tol1,xm-x);
 	    }
-	} 
-	else 
+	}
+	else
 	{
 	    d= (float) ( CGOLD*(e=(x >= xm ? a-x : b-x)) );
 	}
 
 	u=(fabs(d) >= tol1 ? x+d : x+SIGN(tol1,d));
 	fu = minimum ? func.getValue(u) : -func.getValue(u);
-	if (fu <= fx) 
+	if (fu <= fx)
 	{
 	    if (u >= x) a=x; else b=x;
 	    SHFT(v,w,x,u)
@@ -322,7 +322,7 @@ float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
 
     return mUdf(float);
 }
-    
+
 #undef ITMAX
 #undef CGOLD
 #undef ZEPS
