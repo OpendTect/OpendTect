@@ -509,9 +509,11 @@ bool SeisTrcReader::mkNextFetcher()
 	{
 	    // Chances are we do not need to go through this line at all
 	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
-	    while ( !dataset_->haveMatch(curlineidx,tsd->binidValueSet()) )
+	    Pos::GeomID curgeomid = dataset_->geomID( curlineidx );
+	    while ( !dataset_->haveMatch(curgeomid,tsd->binidValueSet()) )
 	    {
 		curlineidx++;
+		curgeomid = dataset_->geomID( curlineidx );
 		if ( curlineidx >= nrlines )
 		    return false;
 	    }
