@@ -316,7 +316,7 @@ void uiODVolrenAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-    displaymnuitem_.enabled =
+    displaymnuitem_.enabled = as &&
 		    as->id().asInt()!=Attrib::SelSpec::cAttribNotSel().asInt();
 }
 
@@ -362,7 +362,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
 			    visserv->getDataPackID( displayID(), attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
 	uiSeisAmplSpectrum* asd = new uiSeisAmplSpectrum(
-				      applMgr()->applService().parent() );
+				  applMgr()->applService().parent() );
 	asd->setDataPackID( dpid, dmid );
 	asd->windowClosed.notify( mCB(OBJDISP(),ObjDisposer,go) );
 	asd->show();

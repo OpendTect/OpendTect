@@ -363,9 +363,9 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* )
 void uiODPlaneDataTreeItem::selChg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-    visserv_->getObject(displayid_))
+		    visserv_->getObject(displayid_))
 
-    if ( pdd->isSelected() )
+    if ( pdd && pdd->isSelected() )
 	visserv_->getUiSlicePos()->setDisplay( displayid_ );
 }
 
@@ -375,6 +375,9 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     BufferString res;
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd )
+	return res;
+
     const TrcKeyZSampling cs = pdd->getTrcKeyZSampling(true,true);
     const OD::SliceType orientation = pdd->getOrientation();
 
@@ -430,6 +433,8 @@ void uiODPlaneDataTreeItem::createMenu( MenuHandler* mh, bool istb )
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
+
     const Coord3 pickedpos = uimh->getPickedPos();
     TrcKey tk( SI().transform(pickedpos) );
     float zposf = mCast( float, pickedpos.z );
@@ -468,11 +473,11 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
 
     if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( !pdd ) return;
 	delete positiondlg_;
 	TrcKeyZSampling maxcs = SI().sampling(true);
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
@@ -494,8 +499,6 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == gridlinesmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( !pdd ) return;
-
 	uiGridLinesDlg gldlg( getUiParent(), pdd );
 	gldlg.go();
     }
@@ -539,6 +542,8 @@ void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
+
     const TrcKeyZSampling newcs = pdd->getTrcKeyZSampling( true, true );
     positiondlg_->setTrcKeyZSampling( newcs );
 }
@@ -548,6 +553,8 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
+
     TrcKeyZSampling newcs = positiondlg_->getTrcKeyZSampling();
     bool samepos = newcs == pdd->getTrcKeyZSampling();
     if ( positiondlg_->uiResult() && !samepos )
@@ -573,6 +580,7 @@ void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const TrcKeyZSampling& cs )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
 
     pdd->annotateNextUpdateStage( true );
     pdd->setTrcKeyZSampling( cs );
@@ -608,6 +616,7 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
 
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
     const int dir = forward ? step : -step;
