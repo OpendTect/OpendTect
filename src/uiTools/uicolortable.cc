@@ -586,12 +586,12 @@ void uiColorTableGroup::init( OD::Orientation orient, bool nominmax )
 	    maxfld_->attach( rightOf, canvas_ );
 	    selfld_->attach( rightOf, maxfld_ );
 	}
-    }
 
-    if ( minfld_ )
-	setHAlignObj(canvas_);
-    else
-	setHAlignObj(selfld_);
+	if ( minfld_ )
+	    setHAlignObj( minfld_ );
+	else
+	    setHAlignObj( canvas_ );
+    }
 }
 
 
