@@ -189,7 +189,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 	EMM().undo().addEvent( undo, 0 );
     }
 
-    if ( !burstalertcount_ )
+    if ( burstalertcount_==0 )
     {
 	EMObjectCallbackData cbdata;
 	cbdata.event = EMObjectCallbackData::PositionChange;
