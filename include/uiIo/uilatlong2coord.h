@@ -38,7 +38,10 @@ protected:
     uiGenInput*		coordfld_;
     uiLatLongInp*	latlngfld_;
 
+    bool		getLL2C();
+    void		transfFile(CallBacker*);
     bool		acceptOK(CallBacker*);
+
 };
 
 

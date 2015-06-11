@@ -13,15 +13,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilatlonginp.h"
 #include "latlong.h"
 #include "survinfo.h"
-#include "uigeninput.h"
+#include "uifileinput.h"
 #include "uilabel.h"
-#include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uibuttongroup.h"
 #include "uilineedit.h"
 #include "uispinbox.h"
 #include "uimsg.h"
+#include "od_iostream.h"
 #include "od_helpids.h"
 
+
+#define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
 class uiLatLongDMSInp : public uiGroup
 { mODTextTranslationClass(uiLatLongDMSInp);
@@ -196,6 +199,11 @@ uiLatLong2CoordDlg::uiLatLong2CoordDlg( uiParent* p, const LatLong2Coord& l,
 {
     coordfld_ = new uiGenInput( this, "Coordinate in or near survey",
 				DoubleInpSpec(), DoubleInpSpec() );
+    uiToolButton* tb = new uiToolButton( this, "xy2ll",
+			"Transform file from/to lat long",
+			mCB(this,uiLatLong2CoordDlg,transfFile) );
+    tb->attach( rightTo, coordfld_ );
+    tb->attach( rightBorder );
 
     latlngfld_ = new uiLatLongInp( this );
     latlngfld_->attach( alignedBelow, coordfld_ );
@@ -215,17 +223,103 @@ uiLatLong2CoordDlg::~uiLatLong2CoordDlg()
 }
 
 
-#define mErrRet(msg) { uiMSG().error( msg ); return false; }
+class uiLatLong2CoordFileTransDlg : public uiDialog
+{ mODTextTranslationClass(uiLatLong2CoordFileTransDlg)
+public:
 
-bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
+uiLatLong2CoordFileTransDlg( uiParent* p, const LatLong2Coord& ll2c )
+    : uiDialog( p, Setup(tr("Transform file"),
+	    tr("Transform a file, Lat Long <=> X Y"), mTODOHelpKey) )
+    , ll2c_(ll2c)
+{
+    uiFileInput::Setup fisu( uiFileDialog::Txt );
+    fisu.forread( true ).exameditable( true );
+    inpfld_ = new uiFileInput( this, "Input file", fisu );
+
+    tollfld_ = new uiGenInput( this, tr("Transform"), BoolInpSpec( true,
+			    tr("X Y to Lat Long"), tr("Lat Long to X Y") ) );
+    tollfld_->attach( alignedBelow, inpfld_ );
+
+    fisu.forread( false ).withexamine( false );
+    outfld_ = new uiFileInput( this, "Output file", fisu );
+    outfld_->attach( alignedBelow, tollfld_ );
+}
+
+bool acceptOK( CallBacker* )
+{
+    const BufferString inpfnm = inpfld_->fileName();
+    if ( inpfnm.isEmpty() ) mErrRet(tr("Please enter the input filename"))
+    if ( !File::exists(inpfnm) ) mErrRet(tr("Input file does not exist"))
+    const BufferString outfnm = outfld_->fileName();
+    if ( outfnm.isEmpty() ) mErrRet(tr("Please enter the input filename"))
+
+    od_istream inpstrm( inpfnm );
+    if ( !inpstrm.isOK() ) mErrRet(tr("Empty input file"))
+    od_ostream outstrm( outfnm );
+    if ( !outstrm.isOK() ) mErrRet(tr("Cannot open output file"))
+
+    const bool toll = tollfld_->getBoolValue();
+
+    double d1, d2;
+    Coord coord; LatLong ll;
+    while ( inpstrm.isOK() )
+    {
+	mSetUdf(d1); mSetUdf(d2);
+	inpstrm >> d1 >> d2;
+	if ( mIsUdf(d1) || mIsUdf(d2) )
+	    continue;
+
+	if ( toll )
+	{
+	    coord.x = d1; coord.y = d2;
+	    if ( !SI().isReasonable(coord) )
+		continue;
+	    ll = ll2c_.transform( coord );
+	    outstrm << ll.lat_ << od_tab << ll.lng_;
+	}
+	else
+	{
+	    ll.lat_ = d1; ll.lng_ = d2;
+	    coord = ll2c_.transform( ll );
+	    if ( !SI().isReasonable(coord) )
+		continue;
+	    outstrm << coord.x << od_tab << coord.y;
+	}
+	if ( !outstrm.isOK() )
+	    break;
+	outstrm << od_endl;
+    }
+
+    return true;
+}
+
+    uiFileInput*	inpfld_;
+    uiGenInput*		tollfld_;
+    uiFileInput*	outfld_;
+    const LatLong2Coord&  ll2c_;
+
+};
+
+
+void uiLatLong2CoordDlg::transfFile( CallBacker* )
+{
+    if ( !getLL2C() )
+	return;
+
+    uiLatLong2CoordFileTransDlg dlg( this, ll2c_ );
+    dlg.go();
+}
+
+
+bool uiLatLong2CoordDlg::getLL2C()
 {
     LatLong ll; latlngfld_->get( ll );
     const Coord crd = coordfld_->getCoord();
     if ( mIsUdf(ll.lat_) || mIsUdf(ll.lng_) || mIsUdf(crd.x) || mIsUdf(crd.y) )
 	mErrRet(tr("Please fill all fields"))
-	if (ll.lat_ > 90 || ll.lat_ < -90)
+    if (ll.lat_ > 90 || ll.lat_ < -90)
 	mErrRet(tr("Latitude must be between -90 and 90"))
-	    if (ll.lng_ > 180 || ll.lng_ < -180)
+    if (ll.lng_ > 180 || ll.lng_ < -180)
 	mErrRet(tr("Longitude must be between -180 and 180"))
     if ( !si_->isReasonable(crd) )
     {
@@ -241,6 +335,15 @@ bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
 	uiMSG().error(tr("Sorry, your Lat/Long definition has a problem"));
 	return false;
     }
+
+    return true;
+}
+
+
+bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
+{
+    if ( !getLL2C() )
+	return false;
 
     si_->getLatlong2Coord() = ll2c_;
     if ( !si_->write() )
