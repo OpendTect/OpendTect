@@ -467,8 +467,8 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 void uiEMDataPointSetPickDlg::settCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this,
-		uiDialog::Setup( "Interpolate horizon Data",
-		mNoDlgTitle,mNoHelpKey) );
+		uiDialog::Setup( "Interpolate Horizon Data",
+		mNoDlgTitle,mODHelpKey(muiEMDataPointSetPickDlgHelpID)) );
     uiArray2DInterpolSel* settings =
 	new uiArray2DInterpolSel( &dlg, false, false, true, interpol_, false );
     dlg.setGroup( settings );
