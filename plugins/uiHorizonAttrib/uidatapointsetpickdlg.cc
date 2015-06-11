@@ -42,7 +42,7 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, int sceneid )
     : uiDialog(p,uiDialog::Setup("DataPointSet picking",
 				 mNoDlgTitle,mTODOHelpKey).modal(false))
     , sceneid_(sceneid)
-    , dps_(*new DataPointSet(false,true))
+    , dps_(*new DataPointSet(false,false))
     , picksetmgr_(Pick::SetMgr::getMgr("DPSPicks"))
     , psd_(0)
     , changed_(false)
@@ -175,17 +175,18 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     Pick::Set* pickset = psd_ ? psd_->getSet() : 0;
     if ( !pickset ) return;
 
+    values_.erase();
     pickset->erase();
-    DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
-					     dps_.isMinimal() );
-    for ( int idx=0; idx<newdps->size(); idx++ )
+    DataPointSet newdps( pvds, false );
+    for ( int idx=0; idx<newdps.size(); idx++ )
     {
-	const DataPointSet::Pos pos( newdps->pos(idx) );
+	const DataPointSet::Pos pos( newdps.pos(idx) );
 	Pick::Location loc( pos.coord(), pos.z() );
 	(*pickset) += loc;
+	values_ += newdps.value(0,idx);
     }
 
-    picksetmgr_.reportChange( this, *pickset );
+    if ( psd_ ) psd_->redrawAll();
 
     updateDPS();
     updateTable();
