@@ -184,7 +184,7 @@ public:
     void			setMaterial(visBase::Material*);
     bool			allowMaterialEdit() const	{ return true; }
     virtual bool		allowsPicks() const;
-    bool			canDuplicate() const		{ return true; }
+    bool			canDuplicate() const	{ return usesShading();}
     visSurvey::SurveyObject*	duplicate(TaskRunner*) const;
 
     static bool			canUseVolRenShading();
