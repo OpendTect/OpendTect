@@ -216,6 +216,16 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 }
 
 
+void Horizon3DSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
+{
+    for ( int idx=0; idx<seedlist_.size(); idx++ )
+    {
+	const BinID bid = BinID::fromInt64( seedlist_[idx].subID() );
+	seeds += TrcKey( bid );
+    }
+}
+
+
 bool Horizon3DSeedPicker::reTrack()
 {
     propagatelist_.erase(); seedlist_.erase(); seedpos_.erase();

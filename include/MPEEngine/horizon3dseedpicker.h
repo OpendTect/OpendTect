@@ -83,6 +83,8 @@ public:
     void		setFaultData( const FaultTrcDataProvider* data )
 			{ fltdataprov_ = data; }
 
+    void		getSeeds(TypeSet<TrcKey>&) const;
+
 protected:
     bool		retrackOnActiveLine(const BinID& startbid,
 					    bool startwasdefined,
