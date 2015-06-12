@@ -84,7 +84,7 @@ void Element::blockCallBacks( bool yn, bool flush )
 
     if ( blockcbs_ && !flush )
 	return;
-    
+
     nrposchbuffer_.erase();
     movementbuffer_.erase();
 }
@@ -126,7 +126,10 @@ void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
     if ( gpids.isEmpty() ) return;
 
     if ( blockcbs_ )
+    {
+	Threads::Locker locker( lock_ );
 	nrposchbuffer_.append( gpids );
+    }
     else
 	nrpositionnotifier.trigger( &gpids, this );
 
