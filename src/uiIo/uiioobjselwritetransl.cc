@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uilabel.h"
+#include "uimsg.h"
 #include "uipixmap.h"
 
 #include "ctxtioobj.h"
@@ -253,7 +254,12 @@ void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
     uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
     if ( fld )
     {
-	fld->fill( ioobj.pars() );
+	if ( !fld->fill(ioobj.pars()) )
+	{
+	    uiMSG().error( fld->errMsg() );
+	    return;
+	}
+
 	IOM().commitChanges( ioobj );
     }
 }
