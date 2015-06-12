@@ -167,6 +167,30 @@ const char* EMTracker::errMsg() const
 { return errmsg_.str(); }
 
 
+SectionTracker* EMTracker::cloneSectionTracker()
+{
+    if ( sectiontrackers_.isEmpty() )
+	return 0;
+
+    const EM::SectionID sid = emobject_->sectionID( 0 );
+    SectionTracker* st = getSectionTracker( sid );
+    if ( !st ) return 0;
+
+    SectionTracker* newst = createSectionTracker( sid );
+    if ( !newst || !newst->init() )
+    {
+	delete newst;
+	return 0;
+    }
+
+    IOPar pars;
+    st->fillPar( pars );
+    newst->usePar( pars );
+    newst->reset();
+    return newst;
+}
+
+
 SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )
 {
     for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
