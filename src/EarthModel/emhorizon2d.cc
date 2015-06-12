@@ -424,6 +424,10 @@ bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist )
 }
 
 
+bool Horizon2D::hasZ( const TrcKey& tk ) const
+{ return !mIsUdf(getZ(tk)); }
+
+
 float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {
     const int sectionidx = nr;

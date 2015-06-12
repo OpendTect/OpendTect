@@ -111,6 +111,8 @@ public:
 
     virtual float		getZ(const TrcKey&) const;
     virtual bool		setZ(const TrcKey&,float z,bool addtohist);
+    virtual bool		hasZ(const TrcKey&) const;
+
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;
 				//!< Convenience function. If you need speed,
