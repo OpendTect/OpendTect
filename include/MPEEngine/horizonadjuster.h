@@ -77,9 +77,9 @@ public:
 
 protected:
 
-    Attrib::SelSpec*		attribsel_;
-    EM::Horizon&		horizon_;
-    EventTracker*		tracker_;
+    Attrib::SelSpec*	attribsel_;
+    EM::Horizon&	horizon_;
+    EventTracker&	evtracker_;
 
 private:
 
