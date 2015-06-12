@@ -1443,7 +1443,7 @@ bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 	    if ( !sz ) continue;
 
 	    for ( int widx=0; widx<weightsD.size(); widx++ )
-		weights += mCast(float,weightsD[idx]);
+		weights += mCast(float,weightsD[widx]);
 
 	    for ( int vidx=0; vidx<sz; vidx++ )
 		usedindices += coordlistindices_[vertices[vidx]];

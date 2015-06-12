@@ -62,6 +62,7 @@ void PickSetDisplay::setSet( Pick::Set* newset )
 	return;
 
     LocationDisplay::setSet( newset );
+
     MarkerStyle3D markerstyle;
     markerstyle.size_ = set_->disp_.pixsize_;
     markerstyle.type_ = (MarkerStyle3D::Type) set_->disp_.markertype_;
@@ -92,7 +93,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 {
     if ( !markerset_ )
 	return;
-    
+
     const int oldpixsz = (int)(markerset_->getScreenSize() + .5);
     if ( oldpixsz != set_->disp_.pixsize_ )
     {
@@ -108,7 +109,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     if( markerset_->getType() != set_->disp_.markertype_ )
     {
 	markerset_->setType( (MarkerStyle3D::Type)set_->disp_.markertype_ );
-	if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow 
+	if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow
 		|| set_->disp_.markertype_ == MarkerStyle3D::Plane )
 	    fullRedraw(0);
     }
@@ -127,18 +128,18 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 	redrawAll();
 	return;
     }
-        
+
     markerset_->setPos( idx, loc.pos_, false );
     if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow ||
 	 set_->disp_.markertype_ == MarkerStyle3D::Plane )
-    	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
+	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
 
     if ( needLine() )
 	setPolylinePos( idx, loc.pos_ );
 }
 
 
-Coord3 PickSetDisplay::getPosition( int loc ) const 
+Coord3 PickSetDisplay::getPosition( int loc ) const
 {
     const visBase::Coordinates* markercoords = markerset_->getCoordinates();
     if( markercoords->size() )
@@ -188,7 +189,7 @@ void PickSetDisplay::redrawAll()
     if ( !markerset_ )
 	return;
 
-    if ( !polyline_ )
+    if ( !polyline_ && needLine() )
 	createLine();
 
     markerset_->clearMarkers();
@@ -246,7 +247,7 @@ void PickSetDisplay::redrawLine()
     LineStyle ls;
     ls.width_ = pixsize;
     polyline_->setLineStyle( ls );
-  
+
     polyline_->removeAllPoints();
     int idx=0;
     for ( ; idx<set_->size(); idx++ )
@@ -258,11 +259,11 @@ void PickSetDisplay::redrawLine()
 	    polyline_->addPoint( pos );
     }
 
-    if ( idx && set_->disp_.connect_==Pick::Set::Disp::Close ) 
+    if ( idx && set_->disp_.connect_==Pick::Set::Disp::Close )
 	polyline_->setPoint( idx, polyline_->getPoint(0) );
 
     polyline_->dirtyCoordinates();
-} 
+}
 
 
 bool PickSetDisplay::needLine()
@@ -276,7 +277,7 @@ void PickSetDisplay::showLine( bool yn )
 {
     if ( !polyline_ )
 	createLine();
-    
+
     redrawLine();
     polyline_->turnOn( yn );
 }
@@ -316,7 +317,7 @@ static float getSurveyRotation()
 
     const float inldepth = (loc.inlDip()*cDipFactor()) * zscale;
     const float crldepth = (loc.crlDip()*cDipFactor()) * zscale;
-        
+
     const float inlangle = atan( (SI().isRightHandSystem()
 			? -inldepth
 			: inldepth) );
@@ -325,7 +326,7 @@ static float getSurveyRotation()
     const Quaternion inlrot( Coord3(1,0,0), inlangle );
     const Quaternion crlrot( Coord3(0,1,0), crlangle );
     const Quaternion survrot( Coord3(0,0,1),survngle );
-    
+
     const Quaternion finalrot = survrot * crlrot * inlrot;
     return finalrot;
 }
@@ -351,7 +352,7 @@ bool PickSetDisplay::setBodyDisplay()
 
     if ( !shoulddisplaybody_ || !set_ || !set_->size() )
 	return false;
-    
+
     if ( !bodydisplay_ )
     {
 	bodydisplay_ = visBase::RandomPos2Body::create();
@@ -359,20 +360,20 @@ bool PickSetDisplay::setBodyDisplay()
 	addChild( bodydisplay_->osgNode() );
 	bodydisplay_->setPixelDensity( getPixelDensity() );
     }
-    
+
     if ( !bodydisplay_->getMaterial() )
 	bodydisplay_->setMaterial( new visBase::Material );
     bodydisplay_->getMaterial()->setColor( set_->disp_.color_ );
     bodydisplay_->setDisplayTransformation( transformation_ );
-    
+
     TypeSet<Coord3> picks;
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	picks += (*set_)[idx].pos_;
-    	if ( datatransform_ )
+	if ( datatransform_ )
 	    picks[idx].z = datatransform_->transformBack( picks[idx] );
     }
-    
+
     return  bodydisplay_->setPoints( picks );
 }
 
@@ -387,7 +388,7 @@ int PickSetDisplay::clickedMarkerIndex( const visBase::EventInfo& evi ) const
 
 
 bool PickSetDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
-{ 
+{
     return evi.pickedobjids.isPresent( markerset_->id() );
 }
 
@@ -398,7 +399,7 @@ void PickSetDisplay::otherObjectsMoved(
 
     if ( showall_ && invalidpicks_.isEmpty() )
 	return;
-    
+
     TypeSet<Coord3> polycoords;
     for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
     {
@@ -498,9 +499,9 @@ void PickSetDisplay::setColor( Color nc )
 {
     if ( set_ )
 	set_->disp_.color_ = nc;
-    
+
     if ( !bodydisplay_ ) return;
-    
+
     if ( !bodydisplay_->getMaterial() )
 	bodydisplay_->setMaterial( new visBase::Material );
 
@@ -519,7 +520,7 @@ void PickSetDisplay::setPixelDensity( float dpi )
 	bodydisplay_->setPixelDensity( dpi );
     if ( polyline_ )
 	polyline_->setPixelDensity( dpi );
-    
+
 }
 
 
