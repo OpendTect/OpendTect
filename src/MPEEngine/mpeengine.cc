@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "mpeengine.h"
 
 #include "arrayndimpl.h"
+#include "autotracker.h"
 #include "emeditor.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
@@ -54,8 +55,10 @@ Engine::Engine()
     , activefsschanged_( this )
     , dpm_(DPM(DataPackMgr::SeisID()))
 {
-    trackers_.allowNull( true );
-    flatcubescontainer_.allowNull( true );
+    trackers_.allowNull();
+    trackermgrs_.allowNull();
+    flatcubescontainer_.allowNull();
+
     init();
 }
 
@@ -67,6 +70,7 @@ Engine::~Engine()
     deepErase( attribcachespecs_ );
     deepErase( attribbackupcachespecs_ );
     deepErase( flatcubescontainer_ );
+    deepErase( trackermgrs_ );
 
     for ( int idx=attribcachedatapackids_.size()-1; idx>=0; idx-- )
 	dpm_.release( attribcachedatapackids_[idx] );
@@ -117,18 +121,34 @@ void Engine::updateSeedOnlyPropagation( bool yn )
 Executor* Engine::trackInVolume()
 {
     ExecutorGroup* res = 0;
+
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
+	EMTracker* tracker = trackers_[idx];
+	if ( !tracker || !tracker->isEnabled() )
 	    continue;
 
-	EM::ObjectID oid = trackers_[idx]->objectID();
-	if ( EM::EMM().getObject(oid)->isLocked() )
+	EM::ObjectID oid = tracker->objectID();
+	EM::EMObject* emobj = EM::EMM().getObject( oid );
+	if ( !emobj || emobj->isLocked() )
 	    continue;
 
-	if ( !res ) res = new ExecutorGroup( "Autotrack", false );
+	emobj->setBurstAlert( true );
+	emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
+	EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
+	if ( !seedpicker ) continue;
 
-	res->add( trackers_[idx]->trackInVolume() );
+	TypeSet<TrcKey> seeds;
+	seedpicker->getSeeds( seeds );
+	HorizonTrackerMgr* htm = trackermgrs_[idx];
+	if ( !htm )
+	{
+	    htm = new HorizonTrackerMgr( *tracker );
+	    trackermgrs_.replace( idx, htm );
+	}
+
+	htm->setSeeds( seeds );
+	htm->startFromSeeds();
     }
 
     return res;
@@ -179,6 +199,7 @@ int Engine::addTracker( EM::EMObject* obj )
 
     tracker->ref();
     trackers_ += tracker;
+    trackermgrs_ += 0;
     ObjectSet<FlatCubeInfo>* flatcubes = new ObjectSet<FlatCubeInfo>;
     flatcubescontainer_ += flatcubes;
     trackeraddremove.trigger();
@@ -199,6 +220,7 @@ void Engine::removeTracker( int idx )
 	return;
 
     trackers_.replace( idx, 0 );
+    trackermgrs_.replace( idx, 0 );
 
     deepErase( *flatcubescontainer_[idx] );
     flatcubescontainer_.replace( idx, 0 );
@@ -726,6 +748,7 @@ void Engine::init()
     deepErase( attribcachespecs_ );
     deepErase( attribbackupcachespecs_ );
     deepErase( flatcubescontainer_ );
+    deepErase( trackermgrs_ );
 
     for ( int idx=0; idx<attribcachedatapackids_.size(); idx++ )
 	dpm_.release( attribcachedatapackids_[idx] );

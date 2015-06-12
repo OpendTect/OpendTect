@@ -68,7 +68,7 @@ SectionTracker* Horizon3DTracker::createSectionTracker( EM::SectionID sid )
 }
 
 
-EMSeedPicker* Horizon3DTracker::getSeedPicker(bool createifnotpresent)
+EMSeedPicker* Horizon3DTracker::getSeedPicker( bool createifnotpresent )
 {
     if ( seedpicker )
 	return seedpicker;

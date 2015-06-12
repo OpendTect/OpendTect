@@ -43,9 +43,15 @@ HorizonTracker( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
     , seed_(seed)
     , srcpos_(srcpos)
 {
-    sectiontracker_ = mgr_.tracker_.createSectionTracker( EM::SectionID(0) );
+    sectiontracker_ = mgr_.tracker_.cloneSectionTracker();
     isok_ = sectiontracker_ && sectiontracker_->extender() &&
 	    sectiontracker_->adjuster();
+}
+
+
+~HorizonTracker()
+{
+    delete sectiontracker_;
 }
 
 
@@ -58,18 +64,24 @@ bool execute()
     SectionAdjuster* adj = sectiontracker_->adjuster();
 
     ext->setDirection( TrcKeyValue(TrcKey(0,0)) );
-    // ext->setStartPositions(currentseeds_);
+    ext->setStartPosition( srcpos_.tk_ );
     int res;
     while ( (res=ext->nextStep())>0 )
 	;
 
     TypeSet<EM::SubID> addedpos = ext->getAddedPositions();
     TypeSet<EM::SubID> addedpossrc = ext->getAddedPositionsSource();
+    adj->setSeedPosition( seed_.tk_ );
     adj->setPositions( addedpos, &addedpossrc );
     while ( (res=adj->nextStep())>0 )
 	;
 
-    // addTasks for addedpos
+    for ( int idx=0; idx<addedpos.size(); idx++ )
+    {
+	TrcKey src( BinID::fromInt64(addedpos[idx]) );
+	mgr_.addTask( seed_, src );
+    }
+
     return true;
 }
 
@@ -86,6 +98,7 @@ bool execute()
 HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
     : twm_(Threads::WorkManager::twm())
     , tracker_(emt)
+    , nrdone_(0)
 {
     queueid_ = twm_.addQueue(
 	Threads::WorkManager::MultiThread, "Horizon Tracker" );
@@ -105,14 +118,34 @@ void HorizonTrackerMgr::setSeeds( const TypeSet<TrcKey>& seeds )
 void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
 				 const TrcKeyValue& source )
 {
+    Threads::Locker locker( addlock_ );
+
+    mDynamicCastGet(EM::Horizon*,hor,tracker_.emObject())
+    if ( !hor || !hor->hasZ(source.tk_) )
+	return;
+
     Task* task = new HorizonTracker( *this, seed, source );
     twm_.addWork( Threads::Work(*task,true), 0, queueid_,
 		  false, false, true );
+    nrdone_++;
+    if ( nrdone_%100 == 0 )
+    {
+	hor->sectionGeometry( hor->sectionID(0) )->blockCallBacks(true);
+    }
 }
 
 
 void HorizonTrackerMgr::startFromSeeds()
 {
+    EM::EMObject* emobj = tracker_.emObject();
+    if ( !emobj ) return;
+
+    SectionTracker* st = tracker_.getSectionTracker( emobj->sectionID(0) );
+    if ( !st || !st->extender() )
+	return;
+
+    st->extender()->preallocExtArea();
+
     for ( int idx=0; idx<seeds_.size(); idx++ )
 	addTask( seeds_[idx], seeds_[idx] );
 }

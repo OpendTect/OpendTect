@@ -51,8 +51,8 @@ protected:
 
     void			addNeighbor(bool upwards,
 					    const EM::SubID& sourcesid);
-    virtual float		getDepth(const EM::SubID& src,
-					 const EM::SubID& dest) const;
+    virtual float		getDepth(const TrcKey& src,
+					 const TrcKey& target) const;
     virtual void		prepareDataIfRequired()		{}
 
     float			anglethreshold_;

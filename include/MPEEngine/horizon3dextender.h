@@ -43,8 +43,8 @@ protected:
 				BaseHorizon3DExtender(EM::Horizon3D&,
 						      EM::SectionID);
 
-    virtual float		getDepth(const BinID& src,
-					 const BinID& dest) const;
+    virtual float		getDepth(const TrcKey& src,
+					 const TrcKey& target) const;
 
     TrcKeyValue			direction_;
     EM::Horizon3D&		horizon_;

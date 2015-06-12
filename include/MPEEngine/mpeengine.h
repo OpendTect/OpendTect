@@ -31,6 +31,7 @@ namespace MPE
 {
 
 class EMTracker;
+class HorizonTrackerMgr;
 class ObjectEditor;
 
 /*!
@@ -139,6 +140,7 @@ protected:
 
     Pos::GeomID 		activegeomid_;
 
+    ObjectSet<HorizonTrackerMgr> trackermgrs_;
     ObjectSet<EMTracker>	trackers_;
     ObjectSet<ObjectEditor>	editors_;
 

@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mpeengine.h"
 #include "survinfo.h"
 
-
 namespace MPE
 {
 
@@ -98,7 +97,12 @@ int BaseHorizon3DExtender::nextStep()
 				      direction_.trcNr()*-1 );
 	    }
 	    else
-		directions = RowCol::clockWiseSequence();
+	    {
+		directions += RowCol( 0, 1 );
+		directions += RowCol( 0, -1 );
+		directions += RowCol( 1, 0 );
+		directions += RowCol( -1, 0 );
+	    }
 
 	    const EM::PosID pid( horizon_.id(), sid_, srcbid.toInt64() );
 	    for ( int idy=0; idy<directions.size(); idy++ )
@@ -129,9 +133,8 @@ int BaseHorizon3DExtender::nextStep()
 		    if ( cursrc.sqDistTo(dst) < olddist )
 		    {
 			addedpossrc_[previndex] = srcbid.toInt64();
-			horizon_.setPos( neighbor,
-					 Coord3(0,0,getDepth(srcbid,neighbbid)),
-					 setundo_ );
+			const float depth = getDepth( srcbid, neighbbid );
+			horizon_.setZ( neighbbid, depth, setundo_ );
 		    }
 		    continue;
 		}
@@ -139,13 +142,14 @@ int BaseHorizon3DExtender::nextStep()
 		if ( horizon_.isDefined(neighbor) )
 		    continue;
 
-		if ( !isExcludedPos(neighbor.subID()) &&
-		     horizon_.setPos(neighbor,
-				     Coord3(0,0,getDepth(srcbid,neighbbid)),
-				     setundo_) )
+		if ( !isExcludedPos(neighbor.subID()) )
 		{
-		    addTarget( neighbor.subID(), srcbid.toInt64() );
-		    change = true;
+		    const float depth = getDepth( srcbid, neighbbid );
+		    if ( horizon_.setZ(neighbbid,depth,setundo_) )
+		    {
+			addTarget( neighbor.subID(), srcbid.toInt64() );
+			change = true;
+		    }
 		}
 	    }
 	}
@@ -155,10 +159,10 @@ int BaseHorizon3DExtender::nextStep()
 }
 
 
-float BaseHorizon3DExtender::getDepth( const BinID& srcbid,
-				       const BinID& destbid ) const
+float BaseHorizon3DExtender::getDepth( const TrcKey& src,
+				       const TrcKey& ) const
 {
-    return (float)horizon_.getPos( sid_, srcbid.toInt64() ).z;
+    return horizon_.getZ( src );
 }
 
 

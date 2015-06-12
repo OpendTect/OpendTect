@@ -46,6 +46,7 @@ public:
     virtual void		setDirection(const TrcKeyValue&);
     virtual const TrcKeyValue*	getDirection() const;
 
+    void			setStartPosition(const TrcKey&);
     void			setStartPositions(const TypeSet<EM::SubID> ns);
     void			excludePositions(const TypeSet<EM::SubID>*);
     bool			isExcludedPos(const EM::SubID&) const;
@@ -73,7 +74,8 @@ public:
 protected:
     void			addTarget(const EM::SubID& target,
 	    				  const EM::SubID& src );
-
+    virtual float		getDepth(const TrcKey& src,
+					 const TrcKey& target) const;
     virtual void		prepareDataIfRequired()	{ return; }
 
     SortedList<EM::SubID>	sortedaddedpos_;

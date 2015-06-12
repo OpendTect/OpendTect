@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "sets.h"
 #include "sortedtable.h"
+#include "thread.h"
 #include "trckeyzsampling.h"
 
 namespace EM { class EMObject; }
@@ -59,6 +60,9 @@ protected:
     EMTracker&			tracker_;
     TypeSet<TrcKey>		seeds_;
     Threads::WorkManager&	twm_;
+
+    int				nrdone_;
+    Threads::Lock		addlock_;
 };
 
 
