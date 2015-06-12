@@ -1258,7 +1258,7 @@ protected:
 
 bool doWork( od_int64 start , od_int64 stop , int )
 {
-    for ( int midx=start; midx<=stop; midx++ )
+    for ( int midx=mCast(int,start); midx<=mCast(int,stop); midx++ )
     {
 	addToNrDone( 1 );
 	const Strat::LayerSequence& seq = lm_.sequence( midx );

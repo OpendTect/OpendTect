@@ -914,7 +914,8 @@ void uiStratLayerModel::calcAndSetDisplayEach( bool overridedispeach )
 
     const int nrmods = gentools_->nrModels();
     const int nrseq = desc_.size();
-    decimation = floor(mCast(float,nrmods*nrseq)/sMaxNrLayToBeDisplayed) + 1;
+    decimation = 
+	mCast(int,floor(mCast(float,nrmods*nrseq)/sMaxNrLayToBeDisplayed)) + 1;
     desc_.getWorkBenchParams().set( sKeyDecimation(), decimation );
 }
 
