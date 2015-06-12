@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uiworld2ui.h"
 #include "uiflatviewer.h"
 #include "uimultiflatviewcontrol.h"
 #include "envvars.h"
@@ -547,6 +546,7 @@ uiStratSimpleLayerModelDisp::~uiStratSimpleLayerModelDisp()
 
 void uiStratSimpleLayerModelDisp::eraseAll()
 {
+    MouseCursorChanger mc( MouseCursor::Wait );
     logblcklineitms_.erase();
     logblckrectitms_.erase();
     lvlitms_.erase();
@@ -1075,6 +1075,7 @@ int uiStratSimpleLayerModelDisp::totalNrLayersToDisplay() const
 
 void uiStratSimpleLayerModelDisp::doDraw()
 {
+    MouseCursorChanger mc( MouseCursor::Wait );
     getBounds();
     updateLayerAuxData();
     updateLevelAuxData();
