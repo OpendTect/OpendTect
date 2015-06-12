@@ -65,6 +65,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 
 
+static float sMaxNrLayToBeDisplayed = 500.0f;
+static const char* sKeyDecimation() { return "Decimation"; }
+
 mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
 
 const char* uiStratLayerModel::sKeyModeler2Use()
@@ -669,7 +672,7 @@ void uiStratLayerModel::selElasticPropsCB( CallBacker* )
     if ( !elpropsel_ )
 	elpropsel_ = new ElasticPropSelection;
     if ( selElasticProps( *elpropsel_ ) )
-	genModels(0);
+	doGenModels( false, false );
 }
 
 
@@ -798,7 +801,7 @@ bool uiStratLayerModel::openGenDesc()
     if ( seqdisp_->separateDisplay() )
     {
 	needtoretrievefrpars_ = true;
-	gentools_->genReq.trigger();
+	doGenModels( true, false );
 	//Set when everything is in place.
     }
     else
@@ -902,7 +905,29 @@ void uiStratLayerModel::modEd( CallBacker* )
 }
 
 
+void uiStratLayerModel::calcAndSetDisplayEach( bool overridedispeach ) 
+{
+    int decimation = mUdf(int);
+    if ( desc_.getWorkBenchParams().get(sKeyDecimation(),decimation) &&
+	 !overridedispeach )
+	return;
+
+    const int nrmods = gentools_->nrModels();
+    const int nrseq = desc_.size();
+    decimation = floor(mCast(float,nrmods*nrseq)/sMaxNrLayToBeDisplayed) + 1;
+    desc_.getWorkBenchParams().set( sKeyDecimation(), decimation );
+}
+
+
 void uiStratLayerModel::genModels( CallBacker* cb )
+{
+    const bool isgo = cb==gentools_;
+    BufferString edtyp;
+    descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
+    doGenModels( isgo, isgo && seqdisp_->separateDisplay() );
+}
+
+void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
 {
     const int nrmods = gentools_->nrModels();
     if ( nrmods < 1 )
@@ -924,9 +949,8 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 
     // transaction succeeded, we move to the new model - period.
 
-    const bool wasforced = synthdisp_->doForceUpdate();
-    const bool wasgo = cb == gentools_;
-    if ( wasgo  ) // i.e. 'Go' is used
+    calcAndSetDisplayEach( overridedispeach );
+    if ( forceupdsynth  ) // i.e. 'Go' is used
 	synthdisp_->setForceUpdate( true );
 
     lmp_.setBaseModel( newmodl );
@@ -943,9 +967,6 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();
     synthdisp_->setZoomView( prevrelzoomwr );
-
-    if ( wasgo && !wasforced )
-	modtools_->setMkSynthetics( false );
 }
 
 

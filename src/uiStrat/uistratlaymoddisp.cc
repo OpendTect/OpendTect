@@ -546,6 +546,7 @@ uiStratSimpleLayerModelDisp::~uiStratSimpleLayerModelDisp()
 
 void uiStratSimpleLayerModelDisp::eraseAll()
 {
+    MouseCursorChanger mc( MouseCursor::Wait );
     logblcklineitms_.erase();
     logblckrectitms_.erase();
     lvlitms_.erase();
@@ -1074,6 +1075,7 @@ int uiStratSimpleLayerModelDisp::totalNrLayersToDisplay() const
 
 void uiStratSimpleLayerModelDisp::doDraw()
 {
+    MouseCursorChanger mc( MouseCursor::Wait );
     getBounds();
     updateLayerAuxData();
     updateLevelAuxData();

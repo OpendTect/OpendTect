@@ -37,6 +37,7 @@ namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
 mExpClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
 { mODTextTranslationClass(uiStratLayerModel);
 public:
+    friend class		uiStratLayerModelManager;
 
 				uiStratLayerModel(uiParent*,
 					const char* disptype=0,int opt=0);
@@ -45,6 +46,7 @@ public:
     void			go()		{ show(); }
 
     static const char*		sKeyModeler2Use();
+    static void			initClass();
 
     mDeclInstanceCreatedNotifierAccess(uiStratLayerModel);
     uiToolBar*			analysisToolBar()	   { return analtb_; }
@@ -106,6 +108,40 @@ protected:
     bool			automksynth_;
     int				nrmodels_;
 
+
+    bool			canShowFlattened() const;
+    void			setWinTitle();
+    void			handleNewModel();
+    void			setModelProps();
+    void			setElasticProps();
+    bool			selElasticProps(ElasticPropSelection&);
+    bool			openGenDesc();
+    bool			saveGenDesc() const;
+    bool			saveGenDescIfNecessary(
+					bool allowcancel=true) const;
+    void			updateGenDesc();
+    void			doGenModels(bool forceupdsynth,
+	    				    bool overridedispeach=false);
+    void			calcAndSetDisplayEach(bool overridepar);
+    bool			closeOK();
+    
+    void			fillDisplayPars(IOPar&) const;
+    void			fillWorkBenchPars(IOPar&) const;
+    void			fillSyntheticsPars(IOPar&) const;
+    bool			useDisplayPars(const IOPar&);
+    bool			useSyntheticsPars(const IOPar&);
+
+    
+    void			openGenDescCB(CallBacker*) { openGenDesc(); }
+    void			saveGenDescCB(CallBacker*) { saveGenDesc(); }
+    void			manPropsCB(CallBacker*);
+    void			snapshotCB(CallBacker*);
+    void			synthDispParsChangedCB(CallBacker*);
+    void			lmDispParsChangedCB(CallBacker*);
+    void			selPropChgCB(CallBacker*);
+    void			infoChanged(CallBacker*);
+    void			selElasticPropsCB(CallBacker*);
+ 
     void			initWin(CallBacker*);
     void			dispEachChg(CallBacker*);
     void			mkSynthChg(CallBacker*);
@@ -122,40 +158,6 @@ protected:
     void			genModels(CallBacker*);
     void			xPlotReq(CallBacker*);
     void			helpCB(CallBacker*);
-
-    bool			canShowFlattened() const;
-    void			setWinTitle();
-    void			handleNewModel();
-    void			setModelProps();
-    void			setElasticProps();
-    void			infoChanged(CallBacker*);
-    void			selElasticPropsCB(CallBacker*);
-    bool			selElasticProps(ElasticPropSelection&);
-    void			openGenDescCB(CallBacker*) { openGenDesc(); }
-    bool			openGenDesc();
-    void			saveGenDescCB(CallBacker*) { saveGenDesc(); }
-    bool			saveGenDesc() const;
-    bool			saveGenDescIfNecessary(
-					bool allowcancel=true) const;
-    void			updateGenDesc();
-    void			manPropsCB(CallBacker*);
-    void			snapshotCB(CallBacker*);
-    void			synthDispParsChangedCB(CallBacker*);
-    void			lmDispParsChangedCB(CallBacker*);
-    void			selPropChgCB(CallBacker*);
-
-    bool			closeOK();
-
-    void			fillDisplayPars(IOPar&) const;
-    void			fillWorkBenchPars(IOPar&) const;
-    void			fillSyntheticsPars(IOPar&) const;
-    bool			useDisplayPars(const IOPar&);
-    bool			useSyntheticsPars(const IOPar&);
-
-public:
-
-    static void			initClass();
-    friend class		uiStratLayerModelManager;
 
 };
 
