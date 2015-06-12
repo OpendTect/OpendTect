@@ -59,6 +59,7 @@ static const char* sKeyViewArea()	{ return "Start View Area"; }
 static const char* sKeyNone()		{ return "None"; }
 static const char* sKeyRainbow()	{ return "Rainbow"; }
 static const char* sKeySeismics()	{ return "Seismics"; }
+static const char* sKeyDecimation()	{ return "Decimation"; }
 
 static HiddenParam<uiStratSynthDisp,uiWorldRect> savedzoomwrs(
 	uiWorldRect(mUdf(double),0,0,0) );
@@ -1599,6 +1600,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     currentvdsynthetic_ = 0;
     curSS().clearSynthetics();
     mDelD2TM
+    par.get( sKeyDecimation(), dispeach_);
     if ( !stratsynthpar )
 	curSS().addDefaultSynthetic();
     else

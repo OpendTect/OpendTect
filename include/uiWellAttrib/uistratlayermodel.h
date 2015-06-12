@@ -158,6 +158,9 @@ public:
 
 protected:
     static bool			isProfile(const char*);
+    void			doGenModels(bool forceupdsynth,
+					    bool overridedispeach=false);
+    void			calcAndSetDisplayEach(bool overridepar);
 
 };
 

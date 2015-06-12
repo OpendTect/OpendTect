@@ -71,7 +71,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     const CallBack gocb( mCB(this,uiStratGenDescTools,genCB) );
     nrmodlsfld_ = new uiSpinBox( rightgrp );
-    nrmodlsfld_->setInterval( Interval<int>(1,10000) );
+    nrmodlsfld_->setInterval( Interval<int>(1,mUdf(int)) );
     nrmodlsfld_->setValue( 25 );
     nrmodlsfld_->setFocusChangeTrigger( false );
     nrmodlsfld_->setStretch( 0, 0 );

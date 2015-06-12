@@ -743,6 +743,9 @@ bool RaySynthGenerator::doPrepare( int )
 	mErrRet( rtr_->errMsg(), false );
 
     raytracingdone_ = true;
+    resetNrDone();
+
+    message_ = "Preparing Reflectivity Model";
     const ObjectSet<RayTracer1D>& rt1ds = rtr_->rayTracers();
     for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
     {
@@ -752,8 +755,10 @@ bool RaySynthGenerator::doPrepare( int )
 
 	if ( forcerefltimes_ )
 	    rm->forceReflTimes( forcedrefltimes_ );
+	addToNrDone( 1 );
     }
 
+    resetNrDone();
     ObjectSet<const ReflectivityModel> models;
     getAllRefls( models );
     const bool zerooffset = offsets_.size() == 1 && mIsZero(offsets_[0],1e-1f);
@@ -842,14 +847,7 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets,
 	TimeDepthModel* t2dm = new TimeDepthModel();
 	rt1d.getTDModel( idx, *t2dm );
 
-	for ( int idy=refmodel->size()-1; idy>=0; idy-- )
-	{
-	    const ReflectivitySpike& spike = (*refmodel)[idy];
-	    if ( !spike.isDefined() )
-		refmodel->removeSingle( idy );
-	}
-
-	refmodels_ += refmodel;
+		refmodels_ += refmodel;
 	if ( idx==0 || !isnmocorrected )
 	    t2dmodels_ += t2dm;
 	else

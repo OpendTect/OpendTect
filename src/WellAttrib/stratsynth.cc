@@ -1157,24 +1157,57 @@ const char* StratSynth::infoMsg() const
 }
 
 
+
+class ElasticModelAdjuster : public ParallelTask
+{ mODTextTranslationClass(ElasticModelAdjuster)
+public:
+
 #define mAddValToMsg( doprint, propnm, var, isdens ) \
 { \
     if ( doprint && infomsg_.isEmpty() ) \
     { \
-	msg.add( "'" ).add( propnm ).add( "'" ); \
-	msg.add( " ( sample value: " ).add( var ).addSpace(); \
-	msg.add( isdens ? "kg/m3" : "m/s" ).add( ") \n" ); \
+	BufferString varstr( toString(var) ); \
+	BufferString unitstr( isdens ? "kg/m3" : "m/s" ); \
+	msg.append( tr("'%1' ( sample value: %2 %3 )").arg(propnm) \
+			.arg(varstr).arg(unitstr) ); \
     } \
 }
 
-bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
-				     TypeSet<ElasticModel>& aimodels )
+
+ElasticModelAdjuster( const Strat::LayerModel& lm,
+		      TypeSet<ElasticModel>& aimodels )
+    : ParallelTask("Checking & adjusting elastic models")
+    , lm_(lm)
+    , aimodels_(aimodels)
 {
-    infomsg_.setEmpty();
-    for ( int midx=0; midx<aimodels.size(); midx++ )
+}
+
+od_int64 nrIterations() const
+{
+    return aimodels_.size();
+}
+
+const char* message() const
+{
+    return !errmsg_.isEmpty() ? errmsg_.getFullString() : "Checking Models";
+}
+
+const char* nrDoneText() const
+{
+    return "Models done";
+}
+uiString infoMsg() const			{ return infomsg_; }
+uiString errMsg() const				{ return errmsg_; }
+
+protected:
+
+bool doWork( od_int64 start , od_int64 stop , int )
+{
+    for ( int midx=start; midx<=stop; midx++ )
     {
-	const Strat::LayerSequence& seq = lm.sequence( midx );
-	ElasticModel& aimodel = aimodels[midx];
+	addToNrDone( 1 );
+	const Strat::LayerSequence& seq = lm_.sequence( midx );
+	ElasticModel& aimodel = aimodels_[midx];
 	if ( aimodel.isEmpty() ) continue;
 
 	ElasticModel tmpmodel( aimodel );
@@ -1182,9 +1215,9 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	tmpmodel.checkAndClean( erroridx, true, true, false );
 	if ( tmpmodel.isEmpty() )
 	{
-	    errmsg_ = "Cannot generate elastic model as the "
-		      "Pwave velocity values are invalid."
-		      " Probably units are not set correctly.";
+	    errmsg_ = tr( "Cannot generate elastic model as the "
+			  "Pwave velocity values are invalid."
+			  " Probably units are not set correctly." );
 	    return false;
 	}
 	else if ( erroridx != -1 )
@@ -1192,7 +1225,7 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	    bool needinterpolatedvel = false;
 	    bool needinterpoltedden = false;
 	    bool needinterpolatedsvel = false;
-	    BufferString msg;
+	    uiString msg;
 	    for ( int idx=erroridx; idx<aimodel.size(); idx++ )
 	    {
 		const ElasticLayer& layer = aimodel[idx];
@@ -1216,13 +1249,12 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 
 	    if ( infomsg_.isEmpty() )
 	    {
-		infomsg_ = "Layer model contains invalid values of the "
-			   "following properties:\n";
-		infomsg_.add( msg ).add( "First occurence found in layer '" );
-		infomsg_.add( seq.layers()[erroridx]->name() );
-		infomsg_.add( "' of pseudo well number ").add(midx+1).add("\n");
-		infomsg_.add( "Invalid values will be interpolated." );
-		infomsg_.add( "The resulting synthetics may be incorrect" );
+		infomsg_ = tr( "Layer model contains invalid values of the "
+			       "following properties: %1. First occurence "
+			       "found in layer '%2' of pseudo well number '%3'."
+			       "Invalid values will be interpolated. "
+			       "The resulting synthetics may be incorrect" )
+		    .arg( msg ).arg(seq.layers()[erroridx]->name()).arg(midx+1);
 	    }
 
 	    aimodel.interpolate( needinterpolatedvel, needinterpoltedden,
@@ -1234,6 +1266,24 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
     }
 
     return true;
+}
+
+
+    const Strat::LayerModel&	lm_;
+    TypeSet<ElasticModel>&	aimodels_;
+    uiString			infomsg_;
+    uiString			errmsg_;
+};
+
+
+bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
+				     TypeSet<ElasticModel>& aimodels )
+{
+    ElasticModelAdjuster emadjuster( lm, aimodels );
+    const bool res = TaskRunner::execute( tr_, emadjuster );
+    infomsg_ = emadjuster.infoMsg().getFullString();
+    errmsg_ = emadjuster.errMsg();
+    return res;
 }
 
 
@@ -1289,7 +1339,9 @@ void StratSynth::getLevelTimes( SeisTrcBuf& trcs,
     {
 	const SeisTrc& trc = *trcs.get( idx );
 	SeisTrcPropCalc stp( trc );
-	float z = times.validIdx( idx ) ? times[idx] : mUdf( float );
+	const int d2tmodelidx = trc.info().nr-1;
+	float z = times.validIdx( d2tmodelidx ) ? times[d2tmodelidx]
+						: mUdf( float );
 	trcs.get( idx )->info().zref = z;
 	if ( !mIsUdf( z ) && level_->snapev_ != VSEvent::None )
 	{
