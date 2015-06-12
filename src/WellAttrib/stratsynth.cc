@@ -1242,15 +1242,17 @@ od_int64 nrIterations() const
     return aimodels_.size();
 }
 
-const char* message() const
+uiString uiMessage() const
 {
-    return !errmsg_.isEmpty() ? errmsg_.getFullString() : "Checking Models";
+    return !errmsg_.isEmpty() ? errmsg_ : tr( "Checking Models" );
 }
 
-const char* nrDoneText() const
+uiString uiNrDoneText() const
 {
-    return "Models done";
+    return tr( "Models done" );
 }
+
+
 uiString infoMsg() const			{ return infomsg_; }
 uiString errMsg() const				{ return errmsg_; }
 
@@ -1258,7 +1260,7 @@ protected:
 
 bool doWork( od_int64 start , od_int64 stop , int )
 {
-    for ( int midx=start; midx<=stop; midx++ )
+    for ( int midx=mCast(int,start); midx<=mCast(int,stop); midx++ )
     {
 	addToNrDone( 1 );
 	const Strat::LayerSequence& seq = lm_.sequence( midx );
