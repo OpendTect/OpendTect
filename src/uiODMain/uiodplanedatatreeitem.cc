@@ -282,7 +282,7 @@ void uiODPlaneDataTreeItem::selChg( CallBacker* )
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
     visserv_->getObject(displayid_))
 
-    if ( pdd->isSelected() )
+    if ( pdd && pdd->isSelected() )
 	visserv_->getUiSlicePos()->setDisplay( displayid_ );
 }
 
@@ -292,6 +292,9 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     BufferString res;
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd )
+	return res;
+
     const CubeSampling cs = pdd->getCubeSampling(true,true);
     const OD::SliceType orientation = pdd->getOrientation();
 
@@ -341,11 +344,11 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
 
     if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( !pdd ) return;
 	delete positiondlg_;
 	CubeSampling maxcs = SI().sampling(true);
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
@@ -367,8 +370,6 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == gridlinesmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( !pdd ) return;
-
 	uiGridLinesDlg gldlg( getUiParent(), pdd );
 	gldlg.go();
     }
@@ -379,6 +380,8 @@ void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
+
     const CubeSampling newcs = pdd->getCubeSampling( true, true );
     positiondlg_->setCubeSampling( newcs );
 }
@@ -388,6 +391,8 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
+
     CubeSampling newcs = positiondlg_->getCubeSampling();
     bool samepos = newcs == pdd->getCubeSampling();
     if ( positiondlg_->uiResult() && !samepos )
@@ -413,6 +418,7 @@ void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const CubeSampling& cs )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
 
     pdd->annotateNextUpdateStage( true );
     pdd->setCubeSampling( cs );
@@ -431,6 +437,7 @@ void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
 {
     mCBCapsuleGet(uiKeyDesc,caps,cb)
     if ( !caps ) return;
+
     const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
     BufferString act( scl.nameOf(caps->data) );
     const bool fwd = act == "Move slice forward";
@@ -447,6 +454,7 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
+    if ( !pdd ) return;
 
     CubeSampling cs = pdd->getCubeSampling();
     const int dir = forward ? step : -step;
@@ -513,6 +521,7 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id, Type tp )
 {}
 
 
+
 uiTreeItem*
     uiODCrosslineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
@@ -550,6 +559,7 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, tp )
 {}
+
 
 
 uiTreeItem*
@@ -590,3 +600,4 @@ uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
 {
 }
+
