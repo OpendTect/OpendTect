@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "sets.h"
 #include "uistring.h"
-#include <iostream>
 
 class uiParent;
 class uiMainWin;
@@ -49,7 +48,7 @@ public:
 
     virtual void	setInitialSize(int w,int h);
     virtual void	fillPar(IOPar&) const		{}
-    virtual void	usePar(const IOPar&) 		{}
+    virtual void	usePar(const IOPar&)		{}
     static void		makeInfoMsg(BufferString&,IOPar&);
 
 protected:
