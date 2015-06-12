@@ -230,6 +230,9 @@ void uiODVolrenTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv_->getSelSpec( displayID(), 0 );
+    if ( !attrserv || !as )
+	return;
+
     if ( attrserv->getIOObj(*as) )
 	mAddMenuOrTBItem( istb, 0, menu, &colsettingsmnuitem_, true, false );
 
@@ -264,6 +267,9 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	const uiAttribPartServer* attrserv = applMgr()->attrServer();
 	const Attrib::SelSpec* as = visserv_->getSelSpec( displayID(), 0 );
+	if ( !attrserv || !as )
+	    return;
+
 	PtrMan<IOObj> ioobj = attrserv->getIOObj( *as );
 	if ( !ioobj ) return;
 
