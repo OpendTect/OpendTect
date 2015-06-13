@@ -479,8 +479,8 @@ void uiMultiWellLogSel::update()
 
     deepErase( wellobjs_ );
 
-    Well::InfoCollector wic;
-    if ( !TaskRunner::execute(0,wic) ) return;
+    Well::InfoCollector wic( false, false, false );
+    if ( !wic.execute() ) return;
 
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
