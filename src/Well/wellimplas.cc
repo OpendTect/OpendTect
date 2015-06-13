@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "idxable.h"
 #include "od_istream.h"
 
-#include <iostream>
 #include <math.h>
 
 
@@ -101,7 +100,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		}
 		if ( lfi.depthcolnr < 0
 			&& FixedString(wordbuf).startsWith("dept",
-			    				   CaseInsensitive) )
+							   CaseInsensitive) )
 		    lfi.depthcolnr = colnr;
 		else
 		{
@@ -188,7 +187,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
     if ( convs_.isEmpty() )
 	mErrRet( "Could not find any valid log in file" )
     if ( lfi.depthcolnr < 0 )
-	mErrRet( "Could not find a depth column ('DEPT' or 'DEPTH')") 
+	mErrRet( "Could not find a depth column ('DEPT' or 'DEPTH')")
 
     lfi.revz = lfi.zrg.start > lfi.zrg.stop;
     lfi.zrg.sort();
