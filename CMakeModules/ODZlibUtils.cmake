@@ -24,7 +24,7 @@ MACRO( OD_SETUP_ZLIB )
 	find_package( Zlib REQUIRED )
     endif()
 
-    if ( DEFINED ZLIB_INCLUDE_DIR )
+    if ( EXISTS ${ZLIB_INCLUDE_DIR} )
 	add_definitions( -DHAS_ZLIB )
     endif()
 ENDMACRO()
