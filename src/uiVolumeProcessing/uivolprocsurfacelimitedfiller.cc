@@ -323,10 +323,10 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
 
     if ( usestartval )
     {
-	if ( mIsUdf(startvalfld_->getfValue()) )
+	if ( mIsUdf(startvalfld_->getFValue()) )
 	    mErrRet(tr("Please provide the start value"))
 
-	surfacefiller_->setStartValue( startvalfld_->getfValue() );
+	surfacefiller_->setStartValue( startvalfld_->getFValue() );
     }
     else
     {
@@ -341,11 +341,11 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
 
     if ( usegradient )
     {
-	if ( mIsUdf(gradientfld_->getfValue()) )
+	if ( mIsUdf(gradientfld_->getFValue()) )
 	    mErrRet(tr("Please provide the gradient"))
 
 	surfacefiller_->setGradient(
-		gradientfld_->getfValue()*SI().zDomain().userFactor() );
+		gradientfld_->getFValue()*SI().zDomain().userFactor() );
     }
     else
     {
@@ -360,11 +360,11 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
 
     if ( userefval )
     {
-	if ( mIsUdf(refdepthfld_->getfValue()) )
+	if ( mIsUdf(refdepthfld_->getFValue()) )
 	    mErrRet(tr("Please provide the reference z value"))
 
 	surfacefiller_->setRefZValue(
-		refdepthfld_->getfValue()/SI().zDomain().userFactor());
+		refdepthfld_->getFValue()/SI().zDomain().userFactor());
     }
     else
     {

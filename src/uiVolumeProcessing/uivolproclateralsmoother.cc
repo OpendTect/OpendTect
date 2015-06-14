@@ -129,7 +129,7 @@ bool uiLateralSmoother::acceptOK( CallBacker* cb )
     smoother_->setInterpolateUdfs( udfhandling_->getIntValue()==2 );
     if ( udfhandling_->getIntValue()==1 )
     {
-	const float val = udffixedvalue_->getfValue();
+	const float val = udffixedvalue_->getFValue();
 	if ( mIsUdf(val) )
 	{
 	    uiMSG().error( tr("Fixed value must be defined") );

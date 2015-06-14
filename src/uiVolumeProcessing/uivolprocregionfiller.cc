@@ -248,7 +248,7 @@ bool uiRegionFiller::acceptOK( CallBacker* cb )
     IOPar regionpars;
     regiongrp_->region().fillPar( regionpars );
     regionfiller_->region().usePar( regionpars );
-    regionfiller_->setInsideValue( constvalfld_->getfValue() );
+    regionfiller_->setInsideValue( constvalfld_->getFValue() );
 
     return true;
 }

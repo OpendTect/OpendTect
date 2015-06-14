@@ -126,8 +126,8 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
 	    (WellLogInterpolator::ExtensionModel)extensfld_->getIntValue() );
 
     const bool validrad =  !algosel_->getIntValue() &&
-	radiusfld_->isChecked() && !mIsUdf(radiusfld_->getfValue());
-    const float radius = validrad ? radiusfld_->getfValue() : mUdf(float);
+	radiusfld_->isChecked() && !mIsUdf(radiusfld_->getFValue());
+    const float radius = validrad ? radiusfld_->getFValue() : mUdf(float);
     const char* nm = !algosel_->getIntValue()
 	? InverseDistanceGridder2D::sFactoryKeyword()
 	: TriangulatedGridder2D::sFactoryKeyword();
