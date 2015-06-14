@@ -17,6 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "od_iostream.h"
 
+#include <iostream>
+
 static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 			     const char* msg )
 {
@@ -181,7 +183,7 @@ void CBVSReadMgr::createInfo()
 	    if ( readers_[rdrnr]->info().geom_.step.inl() )
 	    {
 		info_.geom_.step.inl() =
-                	readers_[rdrnr]->info().geom_.step.inl();
+	readers_[rdrnr]->info().geom_.step.inl();
 	        break;
 	    }
 	}
@@ -399,7 +401,7 @@ void CBVSReadMgr::getPositions( TypeSet<BinID>& posns ) const
 		else
 		{
 		    StepInterval<int> lseg( seg );
-		    if ( lseg.start < lseg.stop ) 
+		    if ( lseg.start < lseg.stop )
 			Swap( lseg.start, lseg.stop );
 		    for ( bid.crl()=lseg.stop; bid.crl()<=seg.start;
 			  bid.crl()-=seg.step )
@@ -483,7 +485,7 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
 	{
 	    const int sampoffs = selsamps.start - cursamps.start;
 	    Interval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
-		    		   cursamps.stop - cursamps.start );
+				   cursamps.stop - cursamps.start );
 	    if ( !readers_[idx]->fetch( d, c, &rdrsamps,
 					sampoffs > 0 ? 0 : -sampoffs ) )
 		return false;
@@ -558,7 +560,7 @@ static void handleInlGap( od_ostream& strm, Interval<int>& inlgap )
 	strm << "\nInline " << inlgap.start << " not present.";
     else
 	strm << "\nInlines " << inlgap.start
-	    	      << '-' << inlgap.stop << " not present.";
+		      << '-' << inlgap.stop << " not present.";
 
     strm.flush();
 }
@@ -633,7 +635,7 @@ void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
 	    else
 	    {
 		const PosInfo::LineData& inlinf =
-		    	*info().geom_.cubedata[inlinfidx];
+			*info().geom_.cubedata[inlinfidx];
 		if ( inlinf.segments_.size() > 1 )
 		    crlgaps = true;
 		if ( !mIsUdf(inlgap.start) )
