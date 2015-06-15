@@ -285,13 +285,13 @@ bool EventTracker::track()
 				       mNINT32(permrange_.stop/rangestep_) );
     float upsample=mUdf(float), upsim=mUdf(float); bool upflatstart=false;
     const bool findup = permsamplerange.start<=0
-	? findMaxSimilarity( -permsamplerange.start, -1, 1,
+	? findMaxSimilarity( -permsamplerange.start, -1, 3,
 			     upsample, upsim, upflatstart )
 	: false;
 
     float dnsample=mUdf(float), dnsim=mUdf(float); bool dnflatstart=false;
     const bool finddn = permsamplerange.stop>=0
-			    ? findMaxSimilarity( permsamplerange.stop, 1, 1,
+			    ? findMaxSimilarity( permsamplerange.stop, 1, 3,
 						 dnsample, dnsim, dnflatstart )
 			    : false;
 
@@ -360,22 +360,29 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 		mNINT32(similaritywin_.start/rangestep_),
 		mNINT32(similaritywin_.stop/rangestep_) );
 
-    int firstsourcesample = mNINT32(sourcedepth_) + similaritysamplewin.start;
+    const ValueSeries<float>* refvs =
+		comparemethod_==SeedTrace ? seedvs_ : sourcevs_;
+    const int refsize =
+		comparemethod_==SeedTrace ? seedsize_ : sourcesize_;
+    const float refdepth =
+		comparemethod_==SeedTrace ? seeddepth_ : sourcedepth_;
+
+    int firstrefsample = mNINT32(refdepth) + similaritysamplewin.start;
     Interval<int> actualsimilaritywin = similaritysamplewin;
-    if ( firstsourcesample<0 )
+    if ( firstrefsample<0 )
     {
-	actualsimilaritywin.start -= firstsourcesample;
-	firstsourcesample = 0;
+	actualsimilaritywin.start -= firstrefsample;
+	firstrefsample = 0;
     }
 
-    if ( firstsourcesample+actualsimilaritywin.width(false)>=sourcesize_ )
-	actualsimilaritywin.stop = sourcesize_-firstsourcesample;
+    if ( firstrefsample+actualsimilaritywin.width(false)>=refsize )
+	actualsimilaritywin.stop = refsize-firstrefsample;
 
     int firsttargetsample = mNINT32(targetdepth_)+actualsimilaritywin.start;
     if ( firsttargetsample<0 )
     {
 	actualsimilaritywin.start -= firsttargetsample;
-	firstsourcesample -= firsttargetsample;
+	firstrefsample -= firsttargetsample;
 	firsttargetsample = 0;
     }
 
@@ -390,16 +397,20 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 
     const int nrsamples = actualsimilaritywin.width(false)+1;
 
-    const ValueSeries<float>* comparevs =
-		comparemethod_==SeedTrace ? seedvs_ : sourcevs_;
-    for ( int idx=0; idx<nrtests; idx++ )
+    ValSeriesMathFunc reffunc( *refvs, refsize );
+    ValSeriesMathFunc targetfunc( *targetvs_, targetsize_ );
+
+    float subsize = 8.f;
+    const float fstep = (float)step / subsize;
+    const int nrsteps = nrtests * subsize;
+    for ( int idx=0; idx<nrsteps; idx++ )
     {
-	const int targetstart = firsttargetsample + idx*step;
+	const float targetstart = firsttargetsample + idx*fstep;
 	if ( targetstart<0 )
 	    break;
 
-	const float sim = similarity( *comparevs, *targetvs_, nrsamples,
-		normalizesimi_, firstsourcesample, targetstart );
+	const float sim = similarity( reffunc, targetfunc,
+		firstrefsample, targetstart, 1, nrsamples, normalizesimi_ );
 
 	if ( idx && sim<maxsim )
 	{
@@ -424,8 +435,7 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 
     flatstart = nreqsamples && !res;
     res += ((float)nreqsamples)/2;
-
-    res *= step;
+    res *= fstep;
     res += firsttargetsample - actualsimilaritywin.start;
 
     return maxsim>=similaritythreshold_;
@@ -452,7 +462,7 @@ void EventTracker::fillPar( IOPar& iopar ) const
 
 bool EventTracker::usePar( const IOPar& iopar )
 {
-    if ( !ValSeriesTracker::usePar( iopar ) )
+    if ( !ValSeriesTracker::usePar(iopar) )
 	return false;
 
     VSEvent::parseEnumType( iopar.find( sKeyTrackEvent() ), evtype_ );
