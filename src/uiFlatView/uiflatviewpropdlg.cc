@@ -61,7 +61,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     if ( showdisplayfield_ )
 	useclipfld_->attach( alignedBelow, lcb );
 
-    symclipratiofld_ = new uiGenInput( this, 
+    symclipratiofld_ = new uiGenInput( this,
 				       tr("Percentage clip"),FloatInpSpec() );
     symclipratiofld_->setElemSzPol(uiObject::Small);
     symclipratiofld_->attach( alignedBelow, useclipfld_ );
@@ -76,7 +76,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     usemidvalfld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,useMidValSel) );
 
-    symmidvalfld_ = new uiGenInput( this, 
+    symmidvalfld_ = new uiGenInput( this,
 				    tr("Mid value"), FloatInpSpec() );
     symmidvalfld_->setElemSzPol(uiObject::Small);
     symmidvalfld_->attach( alignedBelow, usemidvalfld_ );
@@ -98,7 +98,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     rgfld_->attach( alignedBelow, useclipfld_ );
     rgfld_->display( !useclipfld_->getBoolValue() );
 
-    blockyfld_ = new uiGenInput( this, tr("Display blocky (no interpolation)"), 
+    blockyfld_ = new uiGenInput( this, tr("Display blocky (no interpolation)"),
 				 BoolInpSpec(true) );
     blockyfld_->attach( alignedBelow, symmidvalfld_ );
 
@@ -342,11 +342,10 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     wigcolsel_->attach( alignedBelow, leftcolsel_ );
 
     reflcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.refline_).
-			lbltxt(tr("Ref line     "))
-			.withcheck(true).withdesc(false),
+			lbltxt(tr("Ref line")).withcheck(true).withdesc(false),
 			"Ref line color" );
-    reflcolsel_->attach( rightOf, wigcolsel_ );
-    rightcolsel_->attach( alignedWith, reflcolsel_ );
+    reflcolsel_->attach( alignedBelow, rightcolsel_ );
+    reflcolsel_->attach( ensureRightOf, wigcolsel_ );
     reflcolsel_->doDrawChanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
 
     reflinefld_ = new uiGenInput( this, tr("Display reference line at"),
@@ -355,7 +354,7 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     reflinefld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
     reflinefld_->attach( alignedBelow, wigcolsel_ );
 
-    refvalfld_ = new uiGenInput( this, tr("Reference line value"), 
+    refvalfld_ = new uiGenInput( this, tr("Reference line value"),
 				 FloatInpSpec() );
     refvalfld_->setElemSzPol(uiObject::Small);
     refvalfld_->attach( alignedBelow, reflinefld_ );
@@ -575,7 +574,7 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
     su.width( false );
     auxlinestylefld_ = new uiSelLineStyle( this, ad_.auxlinestyle_, su );
     auxlinestylefld_->attach( alignedBelow, showauxposfld_ );
-    
+
     setHAlignObj( showannotfld_ );
 }
 
@@ -696,11 +695,11 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     auxnamefld_->valuechanged.notify( mCB( this, uiFVAnnotPropTab, auxNmFldCB));
     auxnamefld_->attach( alignedBelow, x2_ );
 
-    linestylefld_ = new uiSelLineStyle( this, linestyles_[0], 
+    linestylefld_ = new uiSelLineStyle( this, linestyles_[0],
 					tr("Line style") );
     linestylefld_->attach( alignedBelow, auxnamefld_ );
 
-    uiSelLineStyle::Setup su( tr("Line style") ); 
+    uiSelLineStyle::Setup su( tr("Line style") );
 			  su.color( false );
     linestylenocolorfld_ = new uiSelLineStyle( this, linestyles_[0], su );
     linestylenocolorfld_->attach( alignedBelow, auxnamefld_ );
