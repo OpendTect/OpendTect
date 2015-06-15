@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "seismod.h"
 
 #include "datapackbase.h"
+#include "seisbuf.h"
+#include "trckeyzsampling.h"
 #include "seisinfo.h"
 
 class BinIDValueSet;
@@ -86,6 +88,13 @@ public:
 				{ path_ = path; }
     const TrcKeyPath&		getPath() const		{ return path_; }
 
+    bool			setDataFrom(const RegularSeisDataPack* rgldp,
+					    const TrcKeyPath& path);
+
+    bool			setDataFrom(const SeisTrcBuf&,const TrcKeyPath&,
+					    const TypeSet<BinID>& pathbid,
+					    const BufferStringSet& cmpnms, 
+					    const char* zdmkey,const char* nm);
     bool			addComponent(const char* nm);
 
 protected:

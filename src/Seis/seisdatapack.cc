@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38
 #include "arrayndslice.h"
 #include "binidvalset.h"
 #include "flatposdata.h"
+#include "seistrc.h"
 #include "survinfo.h"
 
 #include <limits.h>
@@ -127,9 +128,81 @@ bool RandomSeisDataPack::addComponent( const char* nm )
     return true;
 }
 
+int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
+{
+    return path_.indexOf(tk);
+}
 
-int RandomSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
-{ return path_.indexOf( tk ); }
+
+bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
+				      const TrcKeyPath& path )
+{
+    if ( !rgldp || path.isEmpty()  || 
+	 rgldp->nrComponents() ==0 ||
+	 rgldp->sampling().totalNr()==0 ) 
+	return false;
+    setPath( path );
+    setZRange( rgldp->getZRange() );
+
+    for ( int idx=0; idx<rgldp->nrComponents(); idx++ )
+    {
+	addComponent( rgldp->getComponentName(idx) );
+	for ( int idy=0; idy<path.size(); idy++ )
+	{
+	    const int inlidx = 
+		rgldp->sampling().hsamp_.inlIdx( path[idy].lineNr() );
+	    const int crlidx = 
+		rgldp->sampling().hsamp_.crlIdx( path[idy].trcNr() );
+
+	    for ( int idz=0; idz<getZRange().nrfSteps()+1; idz++ )
+	    {
+		const float val = 
+		    rgldp->data(idx).info().validPos( inlidx, crlidx, idz ) ?
+		    rgldp->data(idx).get(inlidx,crlidx,idz) : mUdf(float);
+		data(idx).set( 0, idy, idz, val );
+	    }
+	}
+    }
+
+    setZDomain( rgldp->zDomain() );
+    setName( rgldp->name() );
+
+    return true;
+}
+
+
+bool RandomSeisDataPack::setDataFrom( const SeisTrcBuf& sbuf, 
+			const TrcKeyPath& path, const TypeSet<BinID>& pathbid, 
+			const BufferStringSet& cmpnms,
+			const char* zdmkey, const char* nm )
+{
+    if ( path.isEmpty() || sbuf.isEmpty() || 
+	sbuf.get(0)->nrComponents() == 0  || 
+	cmpnms.isEmpty() )
+	return false;
+
+    setPath( path );
+    setZRange( sbuf.get(0)->zRange() );
+
+    for ( int idx = 0; idx<sbuf.get(0)->nrComponents(); idx++ )
+    {
+	addComponent( cmpnms.get(idx) );
+	for ( int idy = 0; idy<data(idx).info().getSize(1); idy++ )
+	{
+	    const int trcidx = pathbid.isEmpty() ? idy : 
+		sbuf.find( (pathbid)[idy] );
+	    const SeisTrc* trc = trcidx<0 ? 0 : sbuf.get( trcidx );
+	    for ( int idz = 0; idz<data(idx).info().getSize(2);	idz++ )
+		data(idx).set( 0,idy,idz, 
+		!trc ? mUdf(float) : trc->get(idz,idx) );
+	}
+    }
+
+    setZDomain( ZDomain::Info(ZDomain::Def::get(zdmkey)) );
+    setName( nm );
+
+    return true;
+}
 
 
 #define mKeyInl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl)
