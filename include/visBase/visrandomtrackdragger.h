@@ -60,6 +60,7 @@ public:
 					  const Coord3& step); 
 
     CNotifier<RandomTrackDragger,int> motion;
+    Notifier<RandomTrackDragger> movefinished;
 
     NotifierAccess*		rightClicked() { return &rightclicknotifier_; }
     const TypeSet<int>*		rightClickedPath() const;

@@ -91,7 +91,9 @@ RandomTrackDisplay::RandomTrackDisplay()
     dragger_->ref();
     addChild( dragger_->osgNode() );
 
-    dragger_->motion.notify( mCB(this,visSurvey::RandomTrackDisplay,knotMoved));
+    mAttachCB( dragger_->motion, visSurvey::RandomTrackDisplay::knotMoved );
+    mAttachCB( dragger_->movefinished,
+	visSurvey::RandomTrackDisplay::draggerMoveFinished );
 
     panelstrip_->ref();
     addChild( panelstrip_->osgNode() );
@@ -135,6 +137,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 
 RandomTrackDisplay::~RandomTrackDisplay()
 {
+    detachAllNotifiers();
     setSceneEventCatcher( 0 );
     panelstrip_->unRef();
     dragger_->unRef();
@@ -1186,10 +1189,9 @@ void RandomTrackDisplay::pickCB( CallBacker* cb )
 {
     if ( !polylinemode_ ) return;
 
-
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-
-    if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick &&
+     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+     
+     if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick &&
 			    OD::leftMouseButton( eventinfo.buttonstate_ ) )
     {
 	const Coord3 pos = eventinfo.worldpickedpos;
@@ -1313,6 +1315,16 @@ void RandomTrackDisplay::setPixelDensity( float dpi )
 
     if ( markerset_ )
 	markerset_->setPixelDensity( dpi );
+}
+
+
+void RandomTrackDisplay::draggerMoveFinished( CallBacker* )
+{
+    if ( nrAttribs()==1 && getSelSpec(0) )
+    {
+	deSelect();
+	select();
+    }
 }
 
 
