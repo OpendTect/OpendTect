@@ -117,13 +117,13 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
 
 void uiHorizonSetupGroup::initToolBar()
 {
-    startbutid_ = toolbar_->addButton( "autotrack", "Start tracking [T]",
+    startbutid_ = toolbar_->addButton( "autotrack", "Start Tracking [T]",
 				mCB(this,uiHorizonSetupGroup,startCB) );
     toolbar_->setShortcut( startbutid_, "t" );
-    stopbutid_ = toolbar_->addButton( "stop", "Stop tracking [S]",
+    stopbutid_ = toolbar_->addButton( "stop", "Stop Tracking [S]",
 				mCB(this,uiHorizonSetupGroup,stopCB) );
     toolbar_->setShortcut( stopbutid_, "s" );
-    savebutid_ = toolbar_->addButton( "save", "Stop tracking [Ctrl+S]",
+    savebutid_ = toolbar_->addButton( "save", "Save Horizon [Ctrl+S]",
 				mCB(this,uiHorizonSetupGroup,saveCB) );
     toolbar_->setShortcut( stopbutid_, "ctrl+s" );
 }
@@ -132,8 +132,11 @@ void uiHorizonSetupGroup::initToolBar()
 void uiHorizonSetupGroup::horizonSelCB( CallBacker* )
 {
     const IOObj* ioobj = horizonfld_->ioobj( true );
-    if ( !ioobj )
+    if ( !sectiontracker_ || !ioobj )
 	return;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    emobj.setMultiID( ioobj->key() );
 }
 
 
@@ -313,7 +316,7 @@ void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::varianceChangeCB(CallBacker *)
+void uiHorizonSetupGroup::varianceChangeCB( CallBacker* )
 { varianceChanged_.trigger(); }
 
 
@@ -373,6 +376,9 @@ void uiHorizonSetupGroup::initModeGroup()
     if ( (!is2d_ && Horizon3DSeedPicker::nrSeedConnectModes()>0) ||
 	 (is2d_ && Horizon2DSeedPicker::nrSeedConnectModes()>0) )
 	modeselgrp_->selectButton( mode_ );
+
+    methodfld_->setValue(
+	horadj_->getCompareMethod()==EventTracker::SeedTrace ? 0 : 1 );
 }
 
 
@@ -457,9 +463,13 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     eventgrp_->commitToTracker( fieldchange );
 
     if ( !horadj_ || horadj_->getNrAttributes()<1 )
-    {   uiMSG().warning( tr("Unable to apply tracking setup") );
+    {
+	uiMSG().warning( tr("Unable to apply tracking setup") );
 	return true;
     }
+
+    horadj_->setCompareMethod( methodfld_->getIntValue()==0 ?
+		EventTracker::SeedTrace : EventTracker::AdjacentParent );
 
     return true;
 }
