@@ -342,11 +342,10 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     wigcolsel_->attach( alignedBelow, leftcolsel_ );
 
     reflcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.refline_).
-			lbltxt(tr("Ref line     "))
-			.withcheck(true).withdesc(false),
+			lbltxt(tr("Ref line")).withcheck(true).withdesc(false),
 			"Ref line color" );
-    reflcolsel_->attach( rightOf, wigcolsel_ );
-    rightcolsel_->attach( alignedWith, reflcolsel_ );
+    reflcolsel_->attach( alignedBelow, rightcolsel_ );
+    reflcolsel_->attach( ensureRightOf, wigcolsel_ );
     reflcolsel_->doDrawChanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
 
     reflinefld_ = new uiGenInput( this, tr("Display reference line at"),
