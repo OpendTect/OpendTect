@@ -763,8 +763,14 @@ bool RaySynthGenerator::doPrepare( int )
     getAllRefls( models );
     const bool zerooffset = offsets_.size() == 1 && mIsZero(offsets_[0],1e-1f);
     StepInterval<float> cursampling( outputsampling_ );
-    SynthGenBase::getOutSamplingFromModel( models, cursampling,
-					   applynmo_ || zerooffset );
+    if ( !SynthGenBase::getOutSamplingFromModel(models,cursampling,
+						applynmo_ || zerooffset) )
+    {
+	Interval<float> modelsampling;
+	ElasticModel::getTimeSampling( aimodels_, modelsampling );
+	cursampling.include( modelsampling, false );
+    }
+
     outputsampling_.include( cursampling, false );
     outputsampling_.step = cursampling.step;
 

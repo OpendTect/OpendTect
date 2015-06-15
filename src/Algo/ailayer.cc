@@ -549,6 +549,9 @@ void ElasticModel::mergeSameLayers()
 	    prevlayer = curlayer;
 	}
     }
+    if ( havemerges )
+	prevlayer.thickness_ = totthickness;
+
     *this += prevlayer;
 }
 
@@ -866,3 +869,43 @@ float ElasticModel::getLayerDepth( int ilayer ) const
 
     return depth;
 }
+
+
+bool ElasticModel::getTimeSampling( const TypeSet<ElasticModel>& models,
+				    Interval<float>& timerg, bool usevs )
+{
+    if ( models.isEmpty() )
+	return false;
+
+    timerg.set( mUdf(float), -mUdf(float) );
+    for ( int imod=0; imod<models.size(); imod++ )
+    {
+	if ( !models.validIdx(imod) )
+	    continue;
+
+	const ElasticModel& model = models[imod];
+	Interval<float> tsampling;
+	model.getTimeSampling( tsampling, usevs );
+	timerg.include( tsampling, false );
+    }
+
+    return !timerg.isUdf();
+}
+
+
+void ElasticModel::getTimeSampling( Interval<float>& timerg, bool usevs ) const
+{
+    timerg.set( 0.f, 0.f );
+    for ( int ilay=0; ilay<size(); ilay++ )
+    {
+	const ElasticLayer& layer = (*this)[ilay];
+	if ( !layer.isOK(false,usevs) )
+	    continue;
+
+	const float vel = usevs ? layer.svel_ : layer.vel_;
+	timerg.stop += layer.thickness_ / vel;
+    }
+
+    timerg.stop *= 2.f;
+}
+

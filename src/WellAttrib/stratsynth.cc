@@ -660,11 +660,11 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     if ( seq.startDepth() < srddepth )
 	firstidx = seq.nearestLayerIdxAtZ( srddepth );
 
-    if ( seq.size()<=1 )
+    if ( seq.isEmpty() )
     {
 	mutex_.lock();
 	errmsg_ = "Elastic model is not proper to generate synthetics as a "
-		  "layer sequence has 1 or no layers";
+		  "layer sequence has no layers";
 	mutex_.unLock();
 	return false;
     }
@@ -689,11 +689,11 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
 	aimodel += ElasticLayer( thickness, pval, sval, dval );
     }
 
-    if ( aimodel.size()<=1 )
+    if ( aimodel.size()<1 )
     {
 	mutex_.lock();
 	errmsg_ += "After discarding layers with no thickness ";
-	errmsg_ += "resultant elastic model has 1 or no layers";
+	errmsg_ += "no layers remained";
 	mutex_.unLock();
 	return false;
     }

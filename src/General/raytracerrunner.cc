@@ -76,8 +76,8 @@ bool RayTracerRunner::prepareRayTracers()
 
 	if ( !rt1d->setNewModel(aimodels_[idx]) )
 	{
-	    errmsg = "Wrong input for raytracing on model:";
-	    errmsg.add(idx).addNewLine();
+	    errmsg = "Wrong input for raytracing on model: ";
+	    errmsg.add( idx+1 ).addNewLine();
 	    errmsg.add( rt1d->errMsg() );
 
 	    deepErase( raytracers_ );
