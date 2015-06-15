@@ -67,7 +67,7 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 						 : crlspacingfld_ );
 	lsfld_->attach( alignedBelow, zspacingfld_ );
     }
-    else
+    else if ( crlspacingfld_ )
 	lsfld_->attach( alignedBelow, crlspacingfld_ );
 
     BufferString allmsg("Apply to all loaded ");
