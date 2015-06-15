@@ -55,6 +55,7 @@ public:
     Notifier<RandomLine> nodeAdded;
     Notifier<RandomLine> nodeInserted;
     Notifier<RandomLine> nodeRemoved;
+    CNotifier<RandomLine,int> nodeMoved;
     Notifier<RandomLine> zrangeChanged;
 
     RandomLineSet*	lineSet()		{ return lset_; }
@@ -82,6 +83,7 @@ public:
     virtual		~RandomLineSet();
     bool		isEmpty() const		{ return lines_.isEmpty(); }
     void		setEmpty();
+    RandomLine*		getRandomLine(int);
 
     int			size() const		{ return lines_.size(); }
     const ObjectSet<RandomLine>& lines() const	{ return lines_; }
