@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "samplingdata.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
-#include "valseriestracker.h"
 
 namespace MPE
 {
@@ -68,9 +67,15 @@ void HorizonAdjuster::reset()
 }
 
 
+void HorizonAdjuster::setCompareMethod( EventTracker::CompareMethod cm )
+{ evtracker_.setCompareMethod( cm ); }
+
+EventTracker::CompareMethod HorizonAdjuster::getCompareMethod() const
+{ return evtracker_.getCompareMethod(); }
+
+
 void HorizonAdjuster::setSearchWindow( const Interval<float>& rg )
 { evtracker_.setPermittedRange( rg ); }
-
 
 Interval<float> HorizonAdjuster::searchWindow() const
 { return evtracker_.permittedRange(); }
@@ -79,14 +84,12 @@ Interval<float> HorizonAdjuster::searchWindow() const
 void HorizonAdjuster::setTrackByValue( bool yn )
 { evtracker_.useSimilarity( !yn ); }
 
-
 bool HorizonAdjuster::trackByValue() const
 { return !evtracker_.usesSimilarity(); }
 
 
 void HorizonAdjuster::setTrackEvent( VSEvent::Type ev )
 { evtracker_.setTrackEvent( ev ); }
-
 
 VSEvent::Type HorizonAdjuster::trackEvent() const
 { return evtracker_.trackEvent(); }
@@ -95,14 +98,12 @@ VSEvent::Type HorizonAdjuster::trackEvent() const
 void HorizonAdjuster::setAmplitudeThreshold( float th )
 { evtracker_.setAmplitudeThreshold( th ); }
 
-
 float HorizonAdjuster::amplitudeThreshold() const
 { return evtracker_.amplitudeThreshold(); }
 
 
 void HorizonAdjuster::setAmplitudeThresholds( const TypeSet<float>& ats )
 { evtracker_.setAmplitudeThresholds( ats ); }
-
 
 TypeSet<float>& HorizonAdjuster::getAmplitudeThresholds()
 { return evtracker_.getAmplitudeThresholds(); }
@@ -111,14 +112,12 @@ TypeSet<float>& HorizonAdjuster::getAmplitudeThresholds()
 void HorizonAdjuster::setAllowedVariances( const TypeSet<float>& avs )
 { evtracker_.setAllowedVariances( avs ); }
 
-
 TypeSet<float>& HorizonAdjuster::getAllowedVariances()
 { return evtracker_.getAllowedVariances(); }
 
 
 void HorizonAdjuster::setAllowedVariance( float v )
 { evtracker_.setAllowedVariance( v ); }
-
 
 float HorizonAdjuster::allowedVariance() const
 { return evtracker_.allowedVariance(); }
@@ -127,7 +126,6 @@ float HorizonAdjuster::allowedVariance() const
 void HorizonAdjuster::setUseAbsThreshold( bool abs )
 { evtracker_.setUseAbsThreshold( abs ); }
 
-
 bool HorizonAdjuster::useAbsThreshold() const
 { return evtracker_.useAbsThreshold(); }
 
@@ -135,14 +133,12 @@ bool HorizonAdjuster::useAbsThreshold() const
 void HorizonAdjuster::setSimilarityWindow( const Interval<float>& rg )
 { evtracker_.setSimilarityWindow( rg ); }
 
-
 Interval<float> HorizonAdjuster::similarityWindow() const
 { return evtracker_.similarityWindow(); }
 
 
 void HorizonAdjuster::setSimilarityThreshold( float th )
 { evtracker_.setSimilarityThreshold( th ); }
-
 
 float HorizonAdjuster::similarityThreshold() const
 { return evtracker_.similarityThreshold(); }

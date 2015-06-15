@@ -13,10 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "datapack.h"
 #include "sectionadjuster.h"
+
+#include "datapack.h"
 #include "ranges.h"
-#include "valseriesevent.h"
+#include "valseriestracker.h"
 
 class EventTracker;
 namespace EM { class Horizon; }
@@ -42,6 +43,9 @@ public:
     void		getNeededAttribs(
 				TypeSet<Attrib::SelSpec>&) const;
     TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
+
+    void		setCompareMethod(EventTracker::CompareMethod);
+    EventTracker::CompareMethod	getCompareMethod() const;
 
     void		setSearchWindow(const Interval<float>& rg);
     Interval<float>	searchWindow() const;
