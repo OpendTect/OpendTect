@@ -225,7 +225,7 @@ bool acceptOK( CallBacker* )
 	bsetup_.nrptsperclss = nrptspclssfld->getIntValue();
 	if ( bsetup_.nrptsperclss < 1 || mIsUdf(bsetup_.nrptsperclss) )
 	    mErrRet(tr("Please enter a valid number of points per class"))
-	bsetup_.noiselvl = percnoisefld->getfValue();
+	bsetup_.noiselvl = percnoisefld->getFValue();
 	if ( mIsUdf(bsetup_.noiselvl) )
 	    bsetup_.noiselvl = 0;
 	if ( bsetup_.noiselvl > 100 || bsetup_.noiselvl < -1e-6 )
