@@ -188,6 +188,9 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !emobj )
 	mSeedClickReturn();
 
+    while ( emobj->hasBurstAlert() )
+	emobj->setBurstAlert( false );
+
     const int trackerid =
 		MPE::engine().getTrackerByObject( tracker->objectID() );
 

@@ -87,12 +87,15 @@ protected:
     int				startbutid_;
     int				stopbutid_;
     int				savebutid_;
+    int				retrackbutid_;
     State			state_;
 
     void			initToolBar();
+    bool			trackInVolume();
     void			startCB(CallBacker*);
     void			stopCB(CallBacker*);
     void			saveCB(CallBacker*);
+    void			retrackCB(CallBacker*);
     void			horizonSelCB(CallBacker*);
 
 // Mode Group

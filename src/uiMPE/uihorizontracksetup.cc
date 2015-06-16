@@ -11,9 +11,12 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 
 #include "uihorizontracksetup.h"
 
+#include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "draw.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "horizonadjuster.h"
@@ -25,6 +28,8 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "ptrman.h"
 #include "randcolor.h"
 #include "sectiontracker.h"
+#include "seisdatapack.h"
+#include "seispreload.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
@@ -120,12 +125,17 @@ void uiHorizonSetupGroup::initToolBar()
     startbutid_ = toolbar_->addButton( "autotrack", "Start Tracking [T]",
 				mCB(this,uiHorizonSetupGroup,startCB) );
     toolbar_->setShortcut( startbutid_, "t" );
+
     stopbutid_ = toolbar_->addButton( "stop", "Stop Tracking [S]",
 				mCB(this,uiHorizonSetupGroup,stopCB) );
     toolbar_->setShortcut( stopbutid_, "s" );
+
     savebutid_ = toolbar_->addButton( "save", "Save Horizon [Ctrl+S]",
 				mCB(this,uiHorizonSetupGroup,saveCB) );
-    toolbar_->setShortcut( stopbutid_, "ctrl+s" );
+    toolbar_->setShortcut( savebutid_, "ctrl+s" );
+
+    retrackbutid_ = toolbar_->addButton( "retrackhorizon", "Retrack All",
+				mCB(this,uiHorizonSetupGroup,retrackCB) );
 }
 
 
@@ -144,6 +154,9 @@ void uiHorizonSetupGroup::startCB( CallBacker* )
 {
     if ( state_ != Started )
     {
+	if ( !trackInVolume() )
+	    return;
+
 	state_ = Started;
 	toolbar_->setToolTip( startbutid_, "Pause tracking [t]" );
 	toolbar_->setIcon( startbutid_, "pause" );
@@ -171,10 +184,79 @@ void uiHorizonSetupGroup::saveCB( CallBacker* )
 
     EM::EMObject& emobj = sectiontracker_->emObject();
     if ( emobj.multiID().isUdf() )
+    {
 	horizonfld_->doSel(0);
+	emobj.setMultiID( horizonfld_->key() );
+    }
 
     PtrMan<Executor> exec = emobj.saver();
     if ( exec ) exec->execute();
+    mDynamicCastGet(EM::Horizon3D*,hor3d,&emobj)
+    if ( hor3d )
+    {
+	ExecutorGroup execgrp( "Saving AuxData" );
+	execgrp.add( hor3d->auxdata.auxDataSaver(0,true) );
+	execgrp.add( hor3d->auxdata.auxDataSaver(1,true) );
+	execgrp.execute();
+    }
+}
+
+
+void uiHorizonSetupGroup::retrackCB( CallBacker* )
+{
+    if ( !sectiontracker_ || !commitToTracker() )
+	return;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    emobj.setBurstAlert( true );
+    emobj.removeAllUnSeedPos();
+    const int trackeridx = MPE::engine().getTrackerByObject( emobj.id() );
+    EMTracker* emtracker = engine().getTracker( trackeridx );
+    EMSeedPicker* seedpicker = emtracker ? emtracker->getSeedPicker(false) : 0;
+    if ( !seedpicker ) return;
+
+    seedpicker->reTrack();
+    emobj.setBurstAlert( false );
+}
+
+
+bool uiHorizonSetupGroup::trackInVolume()
+{
+    if ( !sectiontracker_ )
+	return false;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    const int trackeridx = MPE::engine().getTrackerByObject( emobj.id() );
+    EMTracker* emtracker = engine().getTracker( trackeridx );
+    EMSeedPicker* seedpicker = emtracker ? emtracker->getSeedPicker(false) : 0;
+    const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
+    if ( !as ) return false;
+
+    if ( !as->isStored() )
+    {
+	uiMSG().error( "Volume tracking can only be done on stored volumes.");
+	return false;
+    }
+
+    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
+    const MultiID mid = ads ? ads->getStoredKey(as->id()) : MultiID::udf();
+    if ( mid.isUdf() )
+    {
+	uiMSG().error( "Cannot find picked data in database" );
+	return false;
+    }
+
+    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
+    if ( !sdp )
+    {
+	uiMSG().error( "Seismic data is not preloaded yet" );
+	return false;
+    }
+
+    engine().setAttribData( *as, sdp->id() );
+    engine().setActiveVolume( sdp->sampling() );
+    engine().trackInVolume();
+    return true;
 }
 
 
