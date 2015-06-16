@@ -182,7 +182,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	uiColorTableToolBar* coltabtb = new uiColorTableToolBar( mainwin() );
 	ctabed_ = new uiFlatViewColTabEd( *coltabtb );
 	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>=400 );
-	if ( setup.managescoltab_ )
+	if ( setup.managecoltab_ )
 	{
 	    mAttachCB( ctabed_->colTabChgd, uiFlatViewStdControl::coltabChg );
 	    mAttachCB( vwr.dispParsChanged, uiFlatViewStdControl::dispChgCB );
