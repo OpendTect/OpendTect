@@ -348,8 +348,6 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 void HorTilesCreatorAndUpdator::updateTilesAutoResolution(
 						  const osg::CullStack* cs )
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
-
     HorizonTileRenderPreparer task( *horsection_, cs,
 				    horsection_->desiredresolution_ );
     task.execute();
