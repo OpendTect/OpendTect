@@ -624,6 +624,7 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
     if ( lineidx < 0 )
 	return false;
 
+    setBurstAlert( true );
     const StepInterval<int> colrg = geom->colRange( lineidx );
     for ( int col=trcrg.start; col<=trcrg.stop; col+=trcrg.step )
     {
@@ -643,6 +644,7 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 	}
     }
 
+    setBurstAlert( false );
     return true;
 }
 
