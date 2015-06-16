@@ -70,6 +70,8 @@ public:
     static const char*		sType()		{ return "EventTracker"; }
 
     enum CompareMethod		{ None, SeedTrace, AdjacentParent };
+				DeclareEnumUtils(CompareMethod)
+
     void			setCompareMethod(CompareMethod);
     CompareMethod		getCompareMethod() const;
 
@@ -181,18 +183,19 @@ protected:
     float			seeddepth_;
     int				seedsize_;
 
-    static const char*	sKeyPermittedRange()	{ return "Permitted range"; }
-    static const char*	sKeyValueThreshold()	{ return "Value threshhold"; }
-    static const char*	sKeyValueThresholds()	{ return "Value threshholds"; }
-    static const char*	sKeyAllowedVariance()	{ return "Allowed variance"; }
-    static const char*	sKeyAllowedVariances()	{ return "Allowed variances"; }
-    static const char*	sKeyUseAbsThreshold()	{ return "Use abs threshhold"; }
-    static const char*	sKeySimWindow()		{ return "Similarity window"; }
-    static const char*	sKeySimThreshold()   { return "Similarity threshhold"; }
-    static const char*	sKeyNormSimi()        { return "Normalize similarity"; }
-    static const char*	sKeyTrackByValue()	{ return "Track by value"; }
-    static const char*	sKeyTrackEvent()	{ return "Track event"; }
-    static const char*	sKeyAttribID()		{ return "Attribute"; }
+    static const char*	sKeyPermittedRange();
+    static const char*	sKeyValueThreshold();
+    static const char*	sKeyValueThresholds();
+    static const char*	sKeyAllowedVariance();
+    static const char*	sKeyAllowedVariances();
+    static const char*	sKeyUseAbsThreshold();
+    static const char*	sKeySimWindow();
+    static const char*	sKeySimThreshold();
+    static const char*	sKeyNormSimi();
+    static const char*	sKeyTrackByValue();
+    static const char*	sKeyTrackEvent();
+    static const char*	sKeyCompareMethod();
+    static const char*	sKeyAttribID();
 
 };
 

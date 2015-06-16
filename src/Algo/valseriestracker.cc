@@ -12,6 +12,65 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "samplfunc.h"
 
+ValSeriesTracker::ValSeriesTracker()
+    : sourcevs_(0)
+    , sourcedepth_(mUdf(float))
+    , sourcesize_(0)
+    , targetvs_(0)
+    , targetdepth_(mUdf(float))
+    , targetsize_(0)
+{}
+
+
+bool ValSeriesTracker::isOK() const
+{ return sourcevs_ && targetvs_ && !mIsUdf(sourcedepth_); }
+
+
+void ValSeriesTracker::setSource( const ValueSeries<float>* vs, int sz,
+				  float depth )
+{
+    sourcevs_ = vs;
+    sourcedepth_ = depth;
+    sourcesize_ = sz;
+}
+
+
+void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz,
+				  float depth )
+{
+    targetvs_ = vs;
+    targetdepth_ = depth;
+    targetsize_ = sz;
+}
+
+
+
+// EventTracker
+
+DefineEnumNames(EventTracker,CompareMethod,0,"Compare Method")
+{
+	"None",
+	"Seed Trace",
+	"Adjacent Parent",
+	0
+};
+
+
+const char* EventTracker::sKeyPermittedRange()	{ return "Permitted range"; }
+const char* EventTracker::sKeyValueThreshold()	{ return "Value threshhold"; }
+const char* EventTracker::sKeyValueThresholds()	{ return "Value threshholds"; }
+const char* EventTracker::sKeyAllowedVariance()	{ return "Allowed variance"; }
+const char* EventTracker::sKeyAllowedVariances(){ return "Allowed variances"; }
+const char* EventTracker::sKeyUseAbsThreshold()	{ return "Use abs threshhold"; }
+const char* EventTracker::sKeySimWindow()	{ return "Similarity window"; }
+const char* EventTracker::sKeySimThreshold() { return "Similarity threshhold"; }
+const char* EventTracker::sKeyNormSimi()     { return "Normalize similarity"; }
+const char* EventTracker::sKeyTrackByValue()	{ return "Track by value"; }
+const char* EventTracker::sKeyTrackEvent()	{ return "Track event"; }
+const char* EventTracker::sKeyCompareMethod()	{ return "Compare method"; }
+const char* EventTracker::sKeyAttribID()	{ return "Attribute"; }
+
+
 static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 };
 
 const char** EventTracker::sEventNames()
@@ -43,37 +102,6 @@ int EventTracker::getEventTypeIdx( VSEvent::Type type )
     return -1;
 }
 
-
-ValSeriesTracker::ValSeriesTracker()
-    : sourcevs_(0)
-    , sourcedepth_(mUdf(float))
-    , sourcesize_(0)
-    , targetvs_(0)
-    , targetdepth_(mUdf(float))
-    , targetsize_(0)
-{}
-
-
-bool ValSeriesTracker::isOK() const
-{ return sourcevs_ && targetvs_ && !mIsUdf(sourcedepth_); }
-
-
-void ValSeriesTracker::setSource( const ValueSeries<float>* vs, int sz,
-				  float depth )
-{
-    sourcevs_ = vs;
-    sourcedepth_ = depth;
-    sourcesize_ = sz;
-}
-
-
-void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz,
-				  float depth )
-{
-    targetvs_ = vs;
-    targetdepth_ = depth;
-    targetsize_ = sz;
-}
 
 
 EventTracker::EventTracker()
@@ -400,8 +428,8 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
     ValSeriesMathFunc reffunc( *refvs, refsize );
     ValSeriesMathFunc targetfunc( *targetvs_, targetsize_ );
 
-    float subsize = 8.f;
-    const float fstep = (float)step / subsize;
+    const int subsize = 8;
+    const float fstep = (float)step / (float)subsize;
     const int nrsteps = nrtests * subsize;
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -410,7 +438,8 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	    break;
 
 	const float sim = similarity( reffunc, targetfunc,
-		firstrefsample, targetstart, 1, nrsamples, normalizesimi_ );
+		(float)firstrefsample, targetstart, 1,
+		nrsamples, normalizesimi_ );
 
 	if ( idx && sim<maxsim )
 	{
@@ -439,53 +468,6 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
     res += firsttargetsample - actualsimilaritywin.start;
 
     return maxsim>=similaritythreshold_;
-}
-
-
-
-void EventTracker::fillPar( IOPar& iopar ) const
-{
-    ValSeriesTracker::fillPar( iopar );
-    iopar.set( sKeyTrackEvent(), VSEvent::getTypeString(evtype_) );
-    iopar.set( sKeyPermittedRange(), permrange_ );
-    iopar.set( sKeyValueThreshold(), ampthreshold_ );
-    iopar.set( sKeyValueThresholds(), ampthresholds_ );
-    iopar.set( sKeyAllowedVariance(), allowedvar_);
-    iopar.set( sKeyAllowedVariances(), allowedvars_);
-    iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
-    iopar.set( sKeySimWindow(), similaritywin_ );
-    iopar.set( sKeySimThreshold(), similaritythreshold_ );
-    iopar.setYN( sKeyTrackByValue(), !usesimilarity_ );
-    iopar.setYN( sKeyNormSimi(), normalizesimi_ );
-}
-
-
-bool EventTracker::usePar( const IOPar& iopar )
-{
-    if ( !ValSeriesTracker::usePar(iopar) )
-	return false;
-
-    VSEvent::parseEnumType( iopar.find( sKeyTrackEvent() ), evtype_ );
-    iopar.get( sKeyPermittedRange(), permrange_ );
-    iopar.get( sKeyValueThreshold(), ampthreshold_ );
-    TypeSet<float> storedampthresholds;
-    iopar.get( sKeyValueThresholds(), storedampthresholds);
-    if ( storedampthresholds.size() != 0 )
-	ampthresholds_ = storedampthresholds;
-    iopar.get( sKeyAllowedVariance(), allowedvar_);
-    TypeSet<float> storedallowedvars;
-    iopar.get( sKeyAllowedVariances(), storedallowedvars );
-    if ( storedallowedvars.size() != 0 )
-	allowedvars_ = storedallowedvars;
-    iopar.getYN( sKeyUseAbsThreshold(), useabsthreshold_ );
-    iopar.get( sKeySimWindow(),similaritywin_ );
-    iopar.getYN( sKeyNormSimi(), normalizesimi_ );
-    iopar.get( sKeySimThreshold(), similaritythreshold_ );
-    bool trackbyvalue;
-    if ( iopar.getYN( sKeyTrackByValue(), trackbyvalue ) )
-	usesimilarity_ = !trackbyvalue;
-
-    return true;
 }
 
 
@@ -657,5 +639,53 @@ ValueSeriesEvent<float,float> EventTracker::findExtreme(
 
     avgampl /= amplsumrg.width()+1;
     return ev;
+}
+
+
+void EventTracker::fillPar( IOPar& iopar ) const
+{
+    ValSeriesTracker::fillPar( iopar );
+    iopar.set( sKeyTrackEvent(), VSEvent::getTypeString(evtype_) );
+    iopar.set( sKeyCompareMethod(), getCompareMethodString(comparemethod_) );
+    iopar.set( sKeyPermittedRange(), permrange_ );
+    iopar.set( sKeyValueThreshold(), ampthreshold_ );
+    iopar.set( sKeyValueThresholds(), ampthresholds_ );
+    iopar.set( sKeyAllowedVariance(), allowedvar_);
+    iopar.set( sKeyAllowedVariances(), allowedvars_);
+    iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
+    iopar.set( sKeySimWindow(), similaritywin_ );
+    iopar.set( sKeySimThreshold(), similaritythreshold_ );
+    iopar.setYN( sKeyTrackByValue(), !usesimilarity_ );
+    iopar.setYN( sKeyNormSimi(), normalizesimi_ );
+}
+
+
+bool EventTracker::usePar( const IOPar& iopar )
+{
+    if ( !ValSeriesTracker::usePar(iopar) )
+	return false;
+
+    VSEvent::parseEnumType( iopar.find(sKeyTrackEvent()), evtype_ );
+    parseEnumCompareMethod( iopar.find(sKeyCompareMethod()), comparemethod_ );
+    iopar.get( sKeyPermittedRange(), permrange_ );
+    iopar.get( sKeyValueThreshold(), ampthreshold_ );
+    TypeSet<float> storedampthresholds;
+    iopar.get( sKeyValueThresholds(), storedampthresholds);
+    if ( storedampthresholds.size() != 0 )
+	ampthresholds_ = storedampthresholds;
+    iopar.get( sKeyAllowedVariance(), allowedvar_);
+    TypeSet<float> storedallowedvars;
+    iopar.get( sKeyAllowedVariances(), storedallowedvars );
+    if ( storedallowedvars.size() != 0 )
+	allowedvars_ = storedallowedvars;
+    iopar.getYN( sKeyUseAbsThreshold(), useabsthreshold_ );
+    iopar.get( sKeySimWindow(),similaritywin_ );
+    iopar.getYN( sKeyNormSimi(), normalizesimi_ );
+    iopar.get( sKeySimThreshold(), similaritythreshold_ );
+    bool trackbyvalue;
+    if ( iopar.getYN( sKeyTrackByValue(), trackbyvalue ) )
+	usesimilarity_ = !trackbyvalue;
+
+    return true;
 }
 
