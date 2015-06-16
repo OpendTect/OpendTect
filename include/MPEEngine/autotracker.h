@@ -42,7 +42,7 @@ class EMTracker;
 */
 
 
-mExpClass(MPEEngine) HorizonTrackerMgr
+mExpClass(MPEEngine) HorizonTrackerMgr : public CallBacker
 {
 friend class HorizonTracker;
 public:
@@ -54,8 +54,8 @@ public:
 
 protected:
     void		addTask(const TrcKeyValue&,const TrcKeyValue&);
-
-    int				queueid_;
+    void		taskFinished(CallBacker*);
+    int			queueid_;
 
     EMTracker&			tracker_;
     TypeSet<TrcKey>		seeds_;
@@ -63,6 +63,7 @@ protected:
 
     int				nrdone_;
     Threads::Lock		addlock_;
+    Threads::Lock		updatelock_;
 };
 
 

@@ -124,13 +124,21 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
     if ( !hor || !hor->hasZ(source.tk_) )
 	return;
 
+    CallBack cb( mCB(this,HorizonTrackerMgr,taskFinished) );
     Task* task = new HorizonTracker( *this, seed, source );
-    twm_.addWork( Threads::Work(*task,true), 0, queueid_,
+    twm_.addWork( Threads::Work(*task,true), &cb, queueid_,
 		  false, false, true );
+}
+
+
+void HorizonTrackerMgr::taskFinished( CallBacker* )
+{
     nrdone_++;
-    if ( nrdone_%100 == 0 )
+    if ( nrdone_%500 == 0 )
     {
-	hor->sectionGeometry( hor->sectionID(0) )->blockCallBacks(true);
+	mDynamicCastGet(EM::Horizon*,hor,tracker_.emObject())
+	if ( hor )
+	    hor->sectionGeometry( hor->sectionID(0) )->blockCallBacks(true);
     }
 }
 
