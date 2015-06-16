@@ -35,7 +35,6 @@ uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Well(s)",
 					OD::ChooseAtLeastOne );
     selfld_ = llb->box();
-    selfld_->chooseAll( true );
 
     mImplFileNameFld("wells");
     fnmfld_->attach( alignedBelow, llb );
@@ -62,6 +61,7 @@ void uiGoogleExportWells::initWin( CallBacker* )
 	    wellids_ += new MultiID( de->ioobj_->key() );
 	}
     }
+    selfld_->chooseAll( true );
 }
 
 
