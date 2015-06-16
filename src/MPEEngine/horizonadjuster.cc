@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 #include "emhorizon.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
+#include "emsurfaceauxdata.h"
 #include "genericnumer.h"
 #include "iopar.h"
 #include "mpeengine.h"
@@ -39,6 +41,7 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
     evtracker_.setPermittedRange(
 	    Interval<float>(-2*SI().zStep(), 2*SI().zStep() ) );
     evtracker_.setRangeStep( SI().zStep() );
+    evtracker_.normalizeSimilarityValues( true );
 }
 
 
@@ -316,6 +319,13 @@ void HorizonAdjuster::setHorizonPick( const BinID& bid, float val )
     Coord3 pos = horizon_.getPos( sectionid_, bid.toInt64() );
     pos.z = val;
     horizon_.setPos( sectionid_, bid.toInt64(), pos, setundo_ );
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_);
+    if ( !hor3d ) return;
+
+    EM::PosID posid( horizon_.id(), sectionid_, bid.toInt64() );
+    hor3d->auxdata.setAuxDataVal( 0, posid, (float)seedtk_.pos().toInt64() );
+    hor3d->auxdata.setAuxDataVal( 1, posid, evtracker_.quality() );
 }
 
 

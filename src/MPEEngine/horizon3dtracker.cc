@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubicbeziercurve.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "horizonadjuster.h"
 #include "horizon3dextender.h"
 #include "horizon3dseedpicker.h"
@@ -47,7 +48,12 @@ Horizon3DTracker::~Horizon3DTracker()
 EMTracker* Horizon3DTracker::create( EM::EMObject* emobj )
 {
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    return emobj && !hor ? 0 : new Horizon3DTracker( hor );
+    if ( !hor ) return 0;
+
+    hor->auxdata.addAuxData( "Seed Index" );
+    hor->auxdata.addAuxData( "Correlation" );
+
+    return new Horizon3DTracker( hor );
 }
 
 
