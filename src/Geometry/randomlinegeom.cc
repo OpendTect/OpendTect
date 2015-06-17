@@ -212,6 +212,12 @@ RandomLine* RandomLineSet::getRandomLine( int idx )
 }
 
 
+const RandomLine* RandomLineSet::getRandomLine( int idx ) const
+{
+    return lines_.validIdx(idx) ? lines_[idx] : 0;
+}
+
+
 void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
 {
     const TrcKeySampling hs( SI().sampling(false).hsamp_ );

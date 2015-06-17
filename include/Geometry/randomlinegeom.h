@@ -84,6 +84,7 @@ public:
     bool		isEmpty() const		{ return lines_.isEmpty(); }
     void		setEmpty();
     RandomLine*		getRandomLine(int);
+    const RandomLine*	getRandomLine(int) const;
 
     int			size() const		{ return lines_.size(); }
     const ObjectSet<RandomLine>& lines() const	{ return lines_; }
