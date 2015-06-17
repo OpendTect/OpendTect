@@ -144,6 +144,9 @@ public:
 				/*!< Executor is managed by client. */
     virtual Executor*		getAuxdataReader(EM::Surface&,int)
 				{ return 0; }
+    virtual Executor*		getAuxdataWriter(const EM::Surface&,int,
+							      bool overwt=false)
+				{ return 0; }
 
     uiString			errMsg() const		{ return errmsg_; }
 
@@ -217,6 +220,9 @@ public:
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
     virtual			~dgbEMHorizon3DTranslator()		{}
     virtual Executor*		getAuxdataReader(EM::Surface&,int);
+    virtual Executor*		getAuxdataWriter(const EM::Surface&,int,
+						    bool ovwrt=false);
+
 
 protected:
     virtual bool		readOnlyZ() const		{ return true; }

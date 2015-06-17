@@ -446,3 +446,58 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,
 
     return grp;
 }
+
+
+static BufferString getFreeFileName( const IOObj& ioobj )
+{
+    PtrMan<StreamConn> conn =
+	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
+    if ( !conn ) return 0;
+
+    const int maxnrfiles = 100000; // just a big number to make this loop end
+    bool binary = true;
+    for ( int idx=0; idx<maxnrfiles; idx++ )
+    {
+	BufferString fnm =
+	    EM::dgbSurfDataWriter::createHovName( conn->fileName(), idx );
+	if ( !File::exists(fnm.buf()) )
+	    return fnm;
+    }
+
+    return 0;
+}
+
+
+Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
+			  const EM::Surface& surf, int dataidx, bool overwrite )
+{
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,&surf)
+    if ( !hor3d )
+	return 0;
+   
+    bool binary = true;
+    mSettUse(getYN,"dTect.Surface","Binary format",binary);
+    BufferString fnm;
+    if ( overwrite )
+    {
+	if ( dataidx<0 ) dataidx = 0;
+	fnm = getFileName( *ioobj_, sels_.sd.valnames.get(dataidx) );
+	if ( !fnm.isEmpty() )
+	    return new EM::dgbSurfDataWriter(*hor3d,dataidx,0,binary,fnm.buf());
+    }
+
+    ExecutorGroup* grp = new ExecutorGroup( "Surface Data saver" );
+    grp->setNrDoneText( "Nr done" );
+    for ( int selidx=0; selidx<sels_.sd.valnames.size(); selidx++ )
+    {
+	if ( dataidx >= 0 && dataidx != selidx )
+	    continue;
+	fnm = getFreeFileName( *ioobj_ );
+	Executor* exec =
+	    new EM::dgbSurfDataWriter(*hor3d,selidx,0,binary,fnm.buf());
+	grp->add( exec );
+    }
+
+    return grp;
+}
+  
