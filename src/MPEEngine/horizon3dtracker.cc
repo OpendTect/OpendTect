@@ -52,6 +52,8 @@ EMTracker* Horizon3DTracker::create( EM::EMObject* emobj )
 
     hor->auxdata.addAuxData( "Seed Index" );
     hor->auxdata.addAuxData( "Correlation" );
+    hor->auxdata.init( 0 );
+    hor->auxdata.init( 1 );
 
     return new Horizon3DTracker( hor );
 }
