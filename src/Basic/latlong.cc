@@ -105,7 +105,7 @@ void LatLong2Coord::set( const LatLong& ll, const Coord& c )
 #define mPrepScaleFac() \
     if ( scalefac_ < 0 ) \
 	const_cast<LatLong2Coord*>(this)->scalefac_ \
-		= SI().xyInFeet() ? mFromFeetFactorF : 1;
+		= SI().xyInFeet() ? mFromFeetFactorD : 1;
 
 
 LatLong LatLong2Coord::transform( const Coord& c ) const
