@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "settings.h"
 #include "zaxistransform.h"
+#include "randcolor.h"
 
 namespace FlatView
 {
@@ -176,6 +177,8 @@ FlatView::Annotation::AxisData::AxisData()
     , annotinint_( false )
     , factor_( 1 )
     , auxlinestyle_( LineStyle(LineStyle(LineStyle::Dot)) )
+    , auxhllinestyle_( LineStyle(LineStyle(LineStyle::Dot,2,
+					   getRandStdDrawColor())) )
 {}
 
 
@@ -183,19 +186,17 @@ void FlatView::Annotation::AxisData::showAll( bool yn )
 { showannot_ = showgridlines_ = yn; }
 
 
-bool FlatView::Annotation::AxisData::hasAuxPos( float atpos, bool bold,
-						float eps ) const
+
+int FlatView::Annotation::AxisData::auxPosIdx( float atpos, float eps ) const
 {
     for ( int auxidx=0; auxidx<auxposs_.size(); auxidx++ )
     {
 	const AuxPosition& auxpos = auxposs_[auxidx];
-	if ( auxpos.isbold_ != bold )
-	    continue;
 	if ( mIsEqual(auxpos.pos_,atpos,eps) )
-	    return true;
+	    return auxidx;
     }
 
-    return false;
+    return -1;
 }
 
 
@@ -247,12 +248,11 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 }
 
 
-bool FlatView::Annotation::hasAuxPos( bool forx, float atpos, bool bold,
-				      float eps ) const
+int FlatView::Annotation::auxPosIdx( bool forx, float atpos, float eps ) const
 {
     if ( forx )
-	return x1_.hasAuxPos( atpos, bold, eps );
-    return x2_.hasAuxPos( atpos, bold, eps );
+	return x1_.auxPosIdx( atpos, eps );
+    return x2_.auxPosIdx( atpos, eps );
 }
 
 

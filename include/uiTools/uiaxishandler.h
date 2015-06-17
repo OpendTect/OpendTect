@@ -98,6 +98,7 @@ public:
 	mDefSetupMemb(LineStyle,style)
 	mDefSetupMemb(LineStyle,gridlinestyle)
 	mDefSetupMemb(LineStyle,auxlinestyle)
+	mDefSetupMemb(LineStyle,auxhllinestyle)
 	mDefSetupMemb(uiString,caption)
 	mDefSetupMemb(int,maxnrchars)
 	mDefSetupMemb(float,epsaroundzero)
@@ -112,24 +113,28 @@ public:
 
     mStruct(uiTools) AuxPosData
     {
+	enum LineType	    { Normal=0, Bold=1, HighLighted=2 };
 			    AuxPosData()
 				: pos_(mUdf(float))
 				, name_(uiStrings::sEmptyString())
-				, isbold_(false)	{}
+				, linetype_(Normal)	{}
 	float		pos_;
-	bool		isbold_;
+	LineType	linetype_;
+	bool		isBold() const		{ return linetype_==Bold; }
+	bool		isHighLighted() const
+			{ return linetype_==HighLighted; }
 	uiString	name_;
 
 	AuxPosData& operator=( const AuxPosData& from )
 	{
 	    pos_ = from.pos_;
-	    isbold_ = from.isbold_;
+	    linetype_ = from.linetype_;
 	    name_ = from.name_;
 	    return *this;
 	}
 
 	bool	operator==( const AuxPosData& from ) const
-	{ return pos_ == from.pos_ && isbold_ == from.isbold_; }
+	{ return pos_ == from.pos_ && linetype_ == from.linetype_; }
     };
 
 			uiAxisHandler(uiGraphicsScene*,const Setup&);
@@ -219,9 +224,9 @@ protected:
 
     int			ticSz() const;
     void		updateAxisLine();
-    void		drawGridLine(int,bool aux=false,bool isbold=false);
-    void		drawAnnotAtPos(int,const uiString&,const LineStyle&,
-				       bool aux=false, bool bold=false);
+    void		drawGridLine(int,bool aux=false,int linetype=0);
+    void		drawAnnotAtPos(int,const uiString&,
+				       bool aux=false,int linetype=0);
     void		updateName();
 
     bool		doPlotExtreme(float plottextrmval,bool isstart) const;

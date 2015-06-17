@@ -33,6 +33,8 @@ public:
 
     uiODViewer2D*		find2DViewer(int id,bool byvisid);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
+    uiODViewer2D*		find2DViewer(const Pos::GeomID&);
+    uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
 
     int				displayIn2DViewer(DataPack::ID,
 						  const Attrib::SelSpec&,
@@ -74,6 +76,7 @@ protected:
     void			vw2DPosChangedCB(CallBacker*);
     void			homeZoomChangedCB(CallBacker*);
     void			mouseClickCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
 
     void			create2DViewer(const uiODViewer2D& curvwr2d,
 					       const TrcKeyZSampling& newtkzs,
@@ -91,6 +94,8 @@ protected:
     void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
     void			setAllIntersectionPositions();
     void			setVWR2DIntersectionPositions(uiODViewer2D*);
+    void			handleLeftClick(uiODViewer2D*,int x1auxposidx,
+						int x2auxposidx);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);

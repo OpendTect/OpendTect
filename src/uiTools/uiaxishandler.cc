@@ -399,7 +399,7 @@ void uiAxisHandler::updateAnnotations()
     for ( int idx=0; idx<pos_.size(); idx++ )
     {
 	const float relpos = pos_[idx] / endpos_;
-	drawAnnotAtPos( getRelPosPix(relpos), strs_[idx], setup_.style_ );
+	drawAnnotAtPos( getRelPosPix(relpos), strs_[idx] );
     }
 
     if ( !setup_.showauxpos_ ) return;
@@ -410,7 +410,7 @@ void uiAxisHandler::updateAnnotations()
 	if ( !rg_.includes(auxpos,rgisrev_) )
 	    continue;
 	drawAnnotAtPos( getPix(auxpos), auxpos_[idx].name_,
-			setup_.auxlinestyle_, true, auxpos_[idx].isbold_ );
+			true, auxpos_[idx].linetype_ );
     }
 }
 
@@ -468,7 +468,7 @@ void uiAxisHandler::updateGridLines()
 	    const float auxpos = auxpos_[idx].pos_;
 	    if ( !rg_.includes(auxpos,rgisrev_) )
 		continue;
-	    drawGridLine( getPix(auxpos), true, auxpos_[idx].isbold_ );
+	    drawGridLine( getPix(auxpos), true, auxpos_[idx].linetype_ );
 	}
     }
     else if ( auxposgridlineitmgrp_ )
@@ -650,8 +650,12 @@ void uiAxisHandler::annotAtEnd( const uiString& txt )
 
 
 void uiAxisHandler::drawAnnotAtPos( int pix, const uiString& txt,
-				    const LineStyle& ls, bool aux, bool bold )
+				    bool aux, int linetype)
 {
+    const LineStyle& ls = aux ? (linetype==(int)AuxPosData::HighLighted
+					? setup_.auxhllinestyle_
+					: setup_.auxlinestyle_)
+			      : setup_.style_;
     if ( aux && !setup_.showauxpos_ ) return;
     if ( setup_.noaxisannot_ || setup_.noannotpos_ ) return;
     const int edgepix = pixToEdge();
@@ -677,7 +681,7 @@ void uiAxisHandler::drawAnnotAtPos( int pix, const uiString& txt,
 	    new uiTextItem( uiPoint(pix,y1), txt, al );
 	annotpostxtitem->setTextColor( ls.color_ );
 
-	if ( bold )
+	if ( linetype>0 )
 	{
 	    BufferString fms;
 	    setup_.fontdata_.putTo( fms );
@@ -712,7 +716,7 @@ void uiAxisHandler::drawAnnotAtPos( int pix, const uiString& txt,
 	uiTextItem* annotpostxtitem =
 	    new uiTextItem( uiPoint(x1,pix), txt, al );
 	annotpostxtitem->setTextColor( ls.color_ );
-	if ( bold )
+	if ( linetype>0 )
 	{
 	    BufferString fms;
 	    setup_.fontdata_.putTo( fms );
@@ -732,12 +736,15 @@ void uiAxisHandler::drawAnnotAtPos( int pix, const uiString& txt,
 }
 
 
-void uiAxisHandler::drawGridLine( int pix, bool isaux, bool isbold )
+void uiAxisHandler::drawGridLine( int pix, bool isaux, int linetype )
 {
     if ( setup_.nogridline_ ) return;
     uiLineItem* lineitem = getFullLine( pix );
-    LineStyle ls( !isaux ? setup_.gridlinestyle_ : setup_.auxlinestyle_ );
-    if ( isaux && isbold )
+    LineStyle ls( isaux ? (linetype==(int)AuxPosData::HighLighted
+					? setup_.auxhllinestyle_
+					: setup_.auxlinestyle_)
+			      : setup_.style_ );
+    if ( isaux && linetype>0 )
 	ls.width_ = 2;
     lineitem->setPenStyle( ls );
     uiGraphicsItemGroup* gridlineitmgrp =
