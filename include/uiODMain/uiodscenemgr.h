@@ -32,6 +32,7 @@ class uiTreeItem;
 class uiWindowGrabber;
 class ZAxisTransform;
 namespace Pick { class Set; }
+namespace Geometry { class RandomLineSet; }
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -130,7 +131,9 @@ public:
     int				addEMItem(const EM::ObjectID&,int sceneid=-1);
     int				addPickSetItem(const MultiID&,int sceneid=-1);
     int				addPickSetItem(Pick::Set&,int sceneid=-1);
-    int				addRandomLineItem(int,int sceneid=-1);
+    int				addRandomLineItem(
+						const Geometry::RandomLineSet&,
+						int sceneid=-1);
     int				addWellItem(const MultiID&,int sceneid=-1);
     int				add2DLineItem(Pos::GeomID,int sceneid=-1);
     int				add2DLineItem(const MultiID&,int sceneid=-1);
