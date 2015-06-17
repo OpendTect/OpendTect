@@ -1242,16 +1242,17 @@ od_int64 nrIterations() const
     return aimodels_.size();
 }
 
-const char* message() const
+uiString uiMessage() const
 {
-    return !errmsg_.isEmpty() ? errmsg_.getFullString().buf()
-			      : "Checking Models";
+    return !errmsg_.isEmpty() ? errmsg_ : tr( "Checking Models" );
 }
 
-const char* nrDoneText() const
+uiString uiNrDoneText() const
 {
-    return "Models done";
+    return tr( "Models done" );
 }
+
+
 uiString infoMsg() const			{ return infomsg_; }
 uiString errMsg() const				{ return errmsg_; }
 
