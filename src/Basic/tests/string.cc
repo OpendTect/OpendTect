@@ -110,8 +110,8 @@ static bool testStringPrecisionInAscII()
     mTestStringPrecisionD( -123456., "-123456" );
     mTestStringPrecisionD( -1.2345e11, "-1.2345e11" );
     mTestStringPrecisionD( 1.2345e11, "1.2345e11" );
-    mTestStringPrecisionD( 1.599917e-5, "1.6e-5" );
-    mTestStringPrecisionD( 1.500017e-5, "1.5e-5" );
+    mTestStringPrecisionD( 1.59999917e-5, "1.6e-5" );
+    mTestStringPrecisionD( 1.50000017e-5, "1.5e-5" );
     return true;
 }
 
