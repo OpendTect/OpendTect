@@ -141,31 +141,186 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     setAllIntersectionPositions();
 }
 
+#define mGetAuxPosIdx \
+    uiODViewer2D* curvwr2d = find2DViewer( *meh ); \
+    if ( !curvwr2d ) return; \
+    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 ); \
+    const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());\
+    const Coord3 coord = curvwr.getCoord( wp );\
+    if ( coord.isUdf() ) return;\
+    const float x1eps  = ((float)curvwr.posRange(true).step)*2.f; \
+    const int x1auxposidx = \
+	curvwr.appearance().annot_.auxPosIdx(true,(float)wp.x,x1eps); \
+    const float x2eps  = ((float)curvwr.posRange(false).step)*2.f; \
+    const int x2auxposidx = \
+	curvwr.appearance().annot_.auxPosIdx(false,(float)wp.y,x2eps);
+
+
+void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
+{
+    mDynamicCastGet(const MouseEventHandler*,meh,cb);
+    if ( !meh || !meh->hasEvent() )
+	return;
+
+    mGetAuxPosIdx
+    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x1auxpos =
+	curvwr.appearance().annot_.x1_.auxposs_;
+    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x2auxpos =
+	curvwr.appearance().annot_.x2_.auxposs_;
+    bool needredraw = false;
+    const FlatView::Annotation::AxisData::AuxPosition::LineType boldltype =
+	FlatView::Annotation::AxisData::AuxPosition::Bold;
+    const FlatView::Annotation::AxisData::AuxPosition::LineType hlltype =
+	FlatView::Annotation::AxisData::AuxPosition::HighLighted;
+    for ( int x1idx=0; x1idx<x1auxpos.size(); x1idx++ )
+    {
+	FlatView::Annotation::AxisData::AuxPosition& idxauxpos =x1auxpos[x1idx];
+	if ( idxauxpos.isNormal() )
+	    continue;
+	const bool tobehighlighted = x1idx==x1auxposidx;
+	if ( idxauxpos.isHighLighted() && !tobehighlighted )
+	{
+	    needredraw = true;
+	    idxauxpos.linetype_ = boldltype;
+	}
+	else if ( tobehighlighted && !idxauxpos.isHighLighted() )
+	{
+	    needredraw = true;
+	    idxauxpos.linetype_ = hlltype;
+	}
+    }
+
+    for ( int x2idx=0; x2idx<x2auxpos.size(); x2idx++ )
+    {
+	FlatView::Annotation::AxisData::AuxPosition& idxauxpos =x2auxpos[x2idx];
+	if ( idxauxpos.isNormal() )
+	    continue;
+	const bool tobehighlighted = x2idx==x2auxposidx;
+	if ( idxauxpos.isHighLighted() && !tobehighlighted )
+	{
+	    needredraw = true;
+	    idxauxpos.linetype_ = boldltype;
+	}
+	else if ( tobehighlighted && !idxauxpos.isHighLighted() )
+	{
+	    needredraw = true;
+	    idxauxpos.linetype_ = hlltype;
+	}
+    }
+
+    if ( needredraw )
+	curvwr.handleChange( FlatView::Viewer::Annot );
+}
+
+
+void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* curvwr2d, int x1auxposidx,
+				       int x2auxposidx )
+{
+    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 );
+    uiODViewer2D* clickedvwr2d = 0;
+    const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
+    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x1auxposs =
+	curvwr.appearance().annot_.x1_.auxposs_;
+    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x2auxposs =
+	curvwr.appearance().annot_.x2_.auxposs_;
+    if ( TrcKey::is2D(tkzs.hsamp_.survid_) )
+    {
+	if (x1auxposidx<0 ||
+	    x1auxposs[x1auxposidx].isNormal())
+	    return;
+
+	Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
+					      mUdf(int), mUdf(int) );
+	const float auxpos =
+	    x1auxposs[x1auxposidx].pos_;
+	intpoint2d = intersectingLineID( curvwr2d, auxpos );
+	if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
+	   return;
+	clickedvwr2d = find2DViewer( intpoint2d.line );
+    }
+    else
+    {
+	if ( !tkzs.isFlat() )
+	    return;
+
+	TrcKeyZSampling clickedtkzs;
+	if ( tkzs.defaultDir()==TrcKeyZSampling::Inl )
+	{
+	    if ( x1auxposidx>=0 )
+	    {
+		const int auxpos = mNINT32(x1auxposs[x1auxposidx].pos_);
+		clickedtkzs.hsamp_.setTrcRange(
+			Interval<int>(auxpos,auxpos) );
+	    }
+	    else if ( x2auxposidx>=0 )
+	    {
+		const float auxpos = x2auxposs[x2auxposidx].pos_;
+		clickedtkzs.zsamp_ =
+		    StepInterval<float>( auxpos, auxpos, 
+					 clickedtkzs.zsamp_.step );
+	    }
+	}
+	else if ( tkzs.defaultDir()==TrcKeyZSampling::Crl )
+	{
+	    if ( x1auxposidx>=0 )
+	    {
+		const int auxpos = mNINT32(x1auxposs[x1auxposidx].pos_);
+		clickedtkzs.hsamp_.setLineRange(
+			Interval<int>(auxpos,auxpos) );
+	    }
+	    else if ( x2auxposidx>=0 )
+	    {
+		const float auxpos = x2auxposs[x2auxposidx].pos_;
+		clickedtkzs.zsamp_ =
+		    StepInterval<float>( auxpos, auxpos,
+					 clickedtkzs.zsamp_.step );
+	    }
+
+	}
+	else if ( tkzs.defaultDir()==TrcKeyZSampling::Z )
+	{
+	    if ( x1auxposidx>=0 )
+	    {
+		const int auxpos = mNINT32(x1auxposs[x1auxposidx].pos_);
+		clickedtkzs.hsamp_.setLineRange(
+			Interval<int>(auxpos,auxpos) );
+	    }
+	    else if ( x2auxposidx>=0 )
+	    {
+		const int auxpos = mNINT32(x2auxposs[x2auxposidx].pos_);
+		clickedtkzs.hsamp_.setTrcRange(
+			Interval<int>(auxpos,auxpos) );
+	    }
+	}
+	
+	clickedvwr2d = find2DViewer( clickedtkzs );
+    }
+    
+    if ( clickedvwr2d )
+	clickedvwr2d->viewwin()->dockParent()->raise();
+}
+
 
 void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 {
     mDynamicCastGet(const MouseEventHandler*,meh,cb);
-    if ( !meh || !meh->hasEvent() || !meh->event().rightButton() )
+    if ( !meh || !meh->hasEvent() ||
+	 (!meh->event().rightButton() && !meh->event().leftButton()) )
 	return;
 
-    uiODViewer2D* curvwr2d = find2DViewer( *meh );
-    if ( !curvwr2d ) return;
+    mGetAuxPosIdx
+ 
+    if ( meh->event().leftButton() )
+	return handleLeftClick( curvwr2d, x1auxposidx, x2auxposidx );
 
-    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 );
-    const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());
-    const Coord3 coord = curvwr.getCoord( wp );
-    if ( coord.isUdf() ) return;
-    
     uiMenu menu( "Menu" );
-
     Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
 	    				  mUdf(int), mUdf(int) );
     const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
     if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
-	const StepInterval<double> x1rg = curvwr.posRange( true );
-	const float eps  = ((float)x1rg.step)*5.f;
-	if ( curvwr.appearance().annot_.hasAuxPos(true,(float) wp.x,false,eps))
+	if ( x1auxposidx>=0 &&
+	     curvwr.appearance().annot_.x1_.auxposs_[x1auxposidx].isNormal() )
 	{
 	    intpoint2d = intersectingLineID( curvwr2d, (float) wp.x );
 	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
@@ -272,6 +427,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     }
 
     attachNotifiers( vwr2d );
+    vwr2d->setUpAux();
     setAllIntersectionPositions();
 }
 
@@ -287,6 +443,8 @@ void uiODViewer2DMgr::attachNotifiers( uiODViewer2D* vwr2d )
 	uiFlatViewer& vwr = vwr2d->viewwin()->viewer( idx );
 	mAttachCB( vwr.rgbCanvas().getMouseEventHandler().buttonPressed,
 		   uiODViewer2DMgr::mouseClickCB );
+	mAttachCB( vwr.rgbCanvas().getMouseEventHandler().movement,
+		   uiODViewer2DMgr::mouseMoveCB );
     }
 }
 
@@ -334,6 +492,60 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( int id, bool byvisid )
 }
 
 
+uiODViewer2D* uiODViewer2DMgr::find2DViewer( const MouseEventHandler& meh )
+{
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	uiODViewer2D* vwr2d = viewers2d_[idx];
+	const int vwridx = vwr2d->viewControl()->getViewerIdx( &meh, true );
+	if ( vwridx != -1 )
+	    return vwr2d;
+    }
+
+    return 0;
+}
+
+uiODViewer2D* uiODViewer2DMgr::find2DViewer( const Pos::GeomID& geomid )
+{
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	Pos::GeomID vwrgid = viewers2d_[idx]->geomID();
+	if ( vwrgid!=Survey::GM().cUndefGeomID() && vwrgid==geomid )
+	    return viewers2d_[idx];
+    }
+
+    return 0;
+}
+
+
+uiODViewer2D* uiODViewer2DMgr::find2DViewer( const TrcKeyZSampling& tkzs )
+{
+    if ( !tkzs.isFlat() )
+	return 0;
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	uiODViewer2D* vwr = viewers2d_[idx];
+	if ( vwr->geomID()!=Survey::GM().cUndefGeomID() )
+	    continue;
+	const TrcKeyZSampling& vwrtkzs = vwr->getTrcKeyZSampling();
+	if ( tkzs.defaultDir()==vwrtkzs.defaultDir() )
+	{
+	    if ( (tkzs.defaultDir()==TrcKeyZSampling::Inl &&
+		 (vwrtkzs.hsamp_.lineRange().start==
+		  tkzs.hsamp_.lineRange().start)) ||
+	    	 (tkzs.defaultDir()==TrcKeyZSampling::Crl && 
+		 (vwrtkzs.hsamp_.trcRange().start==
+		  tkzs.hsamp_.trcRange().start)) ||
+	    	 (tkzs.defaultDir()==TrcKeyZSampling::Z &&
+		 (vwrtkzs.zsamp_.start==tkzs.zsamp_.start)) )
+	    return vwr;
+	}
+    }
+
+    return 0;
+}
+
+
 void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 {
     TrcKeyZSampling::Dir vwr2ddir = vwr2d->getTrcKeyZSampling().defaultDir();
@@ -342,6 +554,8 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
     TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x2intposs =
 	vwr2d->viewwin()->viewer().appearance().annot_.x2_.auxposs_;
     x1intposs.erase(); x2intposs.erase();
+    const FlatView::Annotation::AxisData::AuxPosition::LineType boldltype =
+	FlatView::Annotation::AxisData::AuxPosition::Bold;
 
     if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() ) 
     {
@@ -394,7 +608,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		continue;
 	    FlatView::Annotation::AxisData::AuxPosition newpos;
 	    if ( isVWR2DDisplayed(intpos.line) )
-		newpos.isbold_ = true;
+		newpos.linetype_ = boldltype;
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
 	    newpos.pos_ = mCast(float,x1rg.atIndex(posidx));
@@ -413,7 +627,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		continue;
 
 	    FlatView::Annotation::AxisData::AuxPosition newpos;
-	    newpos.isbold_ = true;
+	    newpos.linetype_ = boldltype;
 
 	    if ( vwr2ddir==TrcKeyZSampling::Inl )
 	    {
@@ -522,7 +736,7 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
     for ( int idx=0; idx<int2d->size(); idx++ )
     {
 	const Line2DInterSection::Point& intpoint = int2d->getPoint( idx );
-	if ( intpoint.mytrcnr==inttrcnr )
+	if ( mIsEqual(intpoint.mytrcnr,inttrcnr,2.0) )
 	    return intpoint;
     }
 
@@ -554,20 +768,6 @@ bool uiODViewer2DMgr::isVWR2DDisplayed( Pos::GeomID geomid ) const
 void uiODViewer2DMgr::vw2DPosChangedCB( CallBacker* )
 {
     setAllIntersectionPositions();
-}
-
-
-uiODViewer2D* uiODViewer2DMgr::find2DViewer( const MouseEventHandler& meh )
-{
-    for ( int idx=0; idx<viewers2d_.size(); idx++ )
-    {
-	uiODViewer2D* vwr2d = viewers2d_[idx];
-	const int vwridx = vwr2d->viewControl()->getViewerIdx( &meh, true );
-	if ( vwridx != -1 )
-	    return vwr2d;
-    }
-
-    return 0;
 }
 
 

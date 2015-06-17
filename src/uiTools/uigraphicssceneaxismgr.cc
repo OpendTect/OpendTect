@@ -424,12 +424,23 @@ void uiGraphicsSceneAxisMgr::setAuxAnnotPositions(
 }
 
 
-void uiGraphicsSceneAxisMgr::setAuxLineStyle( bool forx, const LineStyle& ls )
+void uiGraphicsSceneAxisMgr::setAuxLineStyle( const LineStyle& ls, bool forx,
+					      bool forhl )
 {
     if ( forx )
-	xaxis_->setup().auxlinestyle_ = ls;
+    {
+	if ( forhl )
+	    xaxis_->setup().auxhllinestyle_ = ls;
+	else
+	    xaxis_->setup().auxlinestyle_ = ls;
+    }
     else
-	yaxis_->setup().auxlinestyle_ = ls;
+    {
+	if ( forhl )
+	    yaxis_->setup().auxhllinestyle_ = ls;
+	else
+	    yaxis_->setup().auxlinestyle_ = ls;
+    }
 }
 
 

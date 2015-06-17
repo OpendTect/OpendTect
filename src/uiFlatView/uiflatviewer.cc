@@ -120,42 +120,48 @@ void uiFlatViewer::updateAuxDataCB( CallBacker* )
     }
 }
 
+#define mAHLineType (uiAxisHandler::AuxPosData::LineType)
 
 void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 {
     const FlatView::Annotation& annot = appearance().annot_;
-    axesdrawer_.setAuxLineStyle( true, annot.x1_.auxlinestyle_ );
+    axesdrawer_.setAuxLineStyle( annot.x1_.auxlinestyle_, true );
+    axesdrawer_.setAuxLineStyle( annot.x1_.auxhllinestyle_, true, true );
     axesdrawer_.showAuxPositions( true, annot.x1_.showauxpos_,
 	    			  annot.x1_.showauxlines_ );
+    TypeSet<uiAxisHandler::AuxPosData> x1poss;
     if ( !annot.x1_.auxposs_.isEmpty() )
     {
-	TypeSet<uiAxisHandler::AuxPosData> x1poss;
 	x1poss.setSize( annot.x1_.auxposs_.size(), uiAxisHandler::AuxPosData());
 	for ( int idx=0; idx<annot.x1_.auxposs_.size(); idx++ )
 	{
 	    x1poss[idx].pos_ = annot.x1_.auxposs_[idx].pos_;
-	    x1poss[idx].isbold_ = annot.x1_.auxposs_[idx].isbold_;
+	    x1poss[idx].linetype_ =
+		mAHLineType int (annot.x1_.auxposs_[idx].linetype_);
 	    x1poss[idx].name_ = annot.x1_.auxposs_[idx].name_;
 	}
-	axesdrawer_.setAuxAnnotPositions( x1poss, true ); 
     }
 
-    axesdrawer_.setAuxLineStyle( false, annot.x2_.auxlinestyle_ );
+    axesdrawer_.setAuxAnnotPositions( x1poss, true ); 
+
+    axesdrawer_.setAuxLineStyle( annot.x2_.auxlinestyle_, false );
+    axesdrawer_.setAuxLineStyle( annot.x2_.auxhllinestyle_, false, true );
     axesdrawer_.showAuxPositions( false, annot.x2_.showauxpos_,
 	    			  annot.x2_.showauxlines_ );
+    TypeSet<uiAxisHandler::AuxPosData> x2poss;
     if ( !annot.x2_.auxposs_.isEmpty() )
     {
-	TypeSet<uiAxisHandler::AuxPosData> x2poss;
 	x2poss.setSize( annot.x2_.auxposs_.size(), uiAxisHandler::AuxPosData());
 	for ( int idx=0; idx<annot.x2_.auxposs_.size(); idx++ )
 	{
 	    x2poss[idx].pos_ = annot.x2_.auxposs_[idx].pos_;
-	    x2poss[idx].isbold_ = annot.x2_.auxposs_[idx].isbold_;
+	    x2poss[idx].linetype_ =
+		mAHLineType int (annot.x2_.auxposs_[idx].linetype_);
 	    x2poss[idx].name_ = annot.x2_.auxposs_[idx].name_;
 	}
-
-	axesdrawer_.setAuxAnnotPositions( x2poss, false );
     }
+
+    axesdrawer_.setAuxAnnotPositions( x2poss, false );
 
     axesdrawer_.setWorldCoords( wr_ );
     if ( !wr_.checkCorners(!annot.x1_.reversed_,annot.x2_.reversed_) )

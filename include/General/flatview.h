@@ -115,24 +115,29 @@ public:
     {
 	mStruct(General) AuxPosition
 	{
+	    enum LineType	{ Normal=0, Bold=1, HighLighted=2 };
 	    			AuxPosition()
 				    : pos_(mUdf(float))
 				    , name_(uiStrings::sEmptyString())	
-				    , isbold_(false)	{}
+				    , linetype_(Normal)	{}
 	    float		pos_;
-	    bool		isbold_;
+	    LineType		linetype_;
+	    bool		isNormal() const{ return linetype_==Normal; }
+	    bool		isBold() const	{ return linetype_==Bold; }
+	    bool		isHighLighted() const
+				{ return linetype_==HighLighted; }
 	    uiString		name_;
 
 	    AuxPosition& operator=( const AuxPosition& from )
 	    {
 		pos_ = from.pos_;
-		isbold_ = from.isbold_;
+		linetype_ = from.linetype_;
 		name_ = from.name_;
 		return *this;
 	    }
 
 	    bool 	operator==( const AuxPosition& from ) const
-	    { return pos_ == from.pos_ && isbold_ == from.isbold_; }
+	    { return pos_ == from.pos_ && linetype_ == from.linetype_; }
 	};
 
 				AxisData();
@@ -148,8 +153,9 @@ public:
 	bool			showauxlines_;
 	uiString		auxlabel_;
 	LineStyle		auxlinestyle_;
+	LineStyle		auxhllinestyle_;
 	TypeSet<AuxPosition>	auxposs_;
-	bool			hasAuxPos(float pos,bool bld,float eps) const;
+	int			auxPosIdx(float pos,float eps) const;
 
 	void			showAll(bool yn);
     };
@@ -162,8 +168,7 @@ public:
     Color			color_; //!< For axes
     AxisData			x1_;
     AxisData			x2_;
-    bool			hasAuxPos(bool forx1,float pos,
-					  bool bld, float eps) const;
+    int				auxPosIdx(bool forx1,float pos,float eps) const;
 
     bool			showaux_;
     bool			editable_;

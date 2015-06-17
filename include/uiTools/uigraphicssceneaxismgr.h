@@ -140,7 +140,8 @@ public:
     void		setXLineStyle(const LineStyle&);
     void		setYLineStyle(const LineStyle&);
     void		setGridLineStyle(const LineStyle&);
-    void		setAuxLineStyle(bool forx,const LineStyle&);
+    void		setAuxLineStyle(const LineStyle&,bool forx,
+	    				bool forhl=false);
     void		setAnnotInInt( bool xaxis, bool dowant )
 			{ xaxis ? xaxis_->setup().annotinint(dowant)
 				: yaxis_->setup().annotinint(dowant); }
