@@ -87,6 +87,8 @@ protected:
 
 private:
 
+    Threads::Lock	setposlock_;
+
     DataPackMgr&	dpm_;
     DataPack::ID	datapackid_;
 
