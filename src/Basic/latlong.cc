@@ -134,8 +134,8 @@ Coord LatLong2Coord::transform( const LatLong& ll ) const
 
     const LatLong latlongdist( ll.lat_ - reflatlng_.lat_,
 			       ll.lng_ - reflatlng_.lng_ );
-    return Coord( refcoord_.x + scalefac_ * latlongdist.lng_ * lngdist_,
-		  refcoord_.y + scalefac_ * latlongdist.lat_ * latdist_ );
+    return Coord( refcoord_.x + latlongdist.lng_ * lngdist_ / scalefac_,
+		  refcoord_.y + latlongdist.lat_ * latdist_ / scalefac_ );
 }
 
 
