@@ -352,6 +352,7 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
+    , rdlgeom_(0)
     , editnodesmnuitem_(tr("Position ..."))
     , insertnodemnuitem_(tr("Insert Node"))
     , saveasmnuitem_(uiStrings::sSaveAs(false))
@@ -361,6 +362,22 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     editnodesmnuitem_.iconfnm = "orientation64";
     saveasmnuitem_.iconfnm = "saveas";
     displayid_ = id;
+}
+
+
+uiODRandomLineTreeItem::uiODRandomLineTreeItem(
+			const Geometry::RandomLineSet& rlset, Type tp )
+    : type_(tp)
+    , rdlgeom_(&rlset)
+    , editnodesmnuitem_(tr("Position ..."))
+    , insertnodemnuitem_(tr("Insert Node"))
+    , saveasmnuitem_(uiStrings::sSaveAs(false))
+    , saveas2dmnuitem_(tr("Save as 2D ..."))
+    , create2dgridmnuitem_(tr("Create 2D Grid ..."))
+{
+    editnodesmnuitem_.iconfnm = "orientation64";
+    saveasmnuitem_.iconfnm = "saveas";
+    displayid_ = -1;
 }
 
 
@@ -376,6 +393,17 @@ bool uiODRandomLineTreeItem::init()
 	    rtd->addAttrib();
 	    rtd->addAttrib();
 	    rtd->addAttrib();
+	}
+
+	if ( rdlgeom_ )
+	{
+	    ObjectSet<visSurvey::RandomTrackDisplay> rltdset;
+	    for ( int idx=0; idx<rdlgeom_->size(); idx++ )
+	    {
+		TypeSet<BinID> bids;
+		rdlgeom_->getRandomLine(idx)->allNodePositions( bids );
+		rtd->setKnotPositions( bids );
+	    }
 	}
 
 	displayid_ = rtd->id();

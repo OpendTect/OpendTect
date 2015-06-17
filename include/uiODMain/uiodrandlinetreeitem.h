@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class IOObj;
 class uiRandomLinePolyLineDlg;
+namespace Geometry { class RandomLineSet; }
 
 mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
     bool load(const IOObj&,int); \
@@ -54,6 +55,8 @@ public:
     enum Type		{ Empty, Select, Default, RGBA };
 
 			uiODRandomLineTreeItem(int displayid,Type tp=Empty);
+			uiODRandomLineTreeItem(const Geometry::RandomLineSet&,
+					       Type=Empty);
     bool		init();
 
 protected:
@@ -74,6 +77,8 @@ protected:
     MenuItem		saveas2dmnuitem_;
     MenuItem		create2dgridmnuitem_;
     Type		type_;
+
+    const Geometry::RandomLineSet* rdlgeom_;
 };
 
 
