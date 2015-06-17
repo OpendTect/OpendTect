@@ -251,30 +251,17 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 	return 0;
     }
 
-    bool binary = true;
-    mSettUse(getYN,"dTect.Surface","Binary format",binary);
-
-    BufferString fnm;
-    if ( overwrite )
+    PtrMan<EMSurfaceTranslator> transl =
+			(EMSurfaceTranslator*)ioobj->createTranslator();
+    if ( !transl || !transl->startWrite(horizon_)
+		 || !transl->writer(*ioobj,false) )
     {
-	if ( dataidx<0 ) dataidx = 0;
-	fnm = getFileName( *ioobj, auxDataName(dataidx) );
-	if ( !fnm.isEmpty() )
-	    return new dgbSurfDataWriter(horizon_,dataidx,0,binary,fnm.buf());
+	horizon_.setErrMsg( transl ? transl->errMsg()
+				   : tr("Cannot find Translator") );
+	return 0;
     }
 
-    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes saver" );
-    grp->setNrDoneText( tr("Nr done") );
-    for ( int selidx=0; selidx<nrAuxData(); selidx++ )
-    {
-	if ( dataidx >= 0 && dataidx != selidx ) continue;
-	fnm = getFreeFileName( *ioobj );
-	Executor* exec =
-	    new dgbSurfDataWriter(horizon_,selidx,0,binary,fnm.buf());
-	grp->add( exec );
-    }
-
-    return grp;
+    return transl->getAuxdataWriter( horizon_, dataidx, overwrite );
 }
 
 
