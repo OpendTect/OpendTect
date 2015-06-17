@@ -144,7 +144,7 @@ static bool isZeroInt( const char* start, const char* end )
 }
 
 
-static int findUglyRoundOff( char* str )
+static int findUglyRoundOff( char* str, bool isdouble )
 {
     char* ptrdot = firstOcc( str, '.' );
     if ( !ptrdot )
@@ -167,10 +167,10 @@ static int findUglyRoundOff( char* str )
 	    return -1;
     }
 
-    char* hit = firstOcc( decstartptr, "000" );
+    char* hit = firstOcc( decstartptr, isdouble ? "00000" : "000" );
     if ( !hit )
     {
-	hit = firstOcc( decstartptr, "999" );
+	hit = firstOcc( decstartptr, isdouble ? "99999" : "999" );
 	if ( !hit )
 	    return -1;
     }
@@ -268,7 +268,7 @@ static void finalCleanupNumberString( char* str )
 
 
 template <class T>
-static const char* getStringFromFPNumber( T inpval )
+static const char* getStringFromFPNumber( T inpval, bool isdouble )
 {
     mDeclStaticString( retstr );
     char* str = retstr.getCStr();
@@ -288,7 +288,7 @@ static const char* getStringFromFPNumber( T inpval )
     if ( isneg ) *str = '-';
     sprintf( isneg ? str+1 : str, fmt.buf(), val );
 
-    const int nrdec = findUglyRoundOff( str );
+    const int nrdec = findUglyRoundOff( str, isdouble );
     if ( nrdec >= 0 )
     {
 	const BufferString newfmt( "%.", scientific ? nrdec+1 : nrdec, fmtend );
@@ -305,10 +305,10 @@ static const char* getStringFromFPNumber( T inpval )
 
 
 template <class T>
-static const char* getStringFromFPNumber( T inpval, int nrdec )
+static const char* getStringFromFPNumber( T inpval, int nrdec, bool isdouble )
 {
 #ifdef OD_NO_QT
-    return getStringFromFPNumber( inpval );
+    return getStringFromFPNumber( inpval, isdouble );
 #else
     mDeclStaticString( retstr );
     char* str = retstr.getCStr();
@@ -770,16 +770,16 @@ const char* toString( od_uint64 i )
 { return getStringFromUInt64(i, 0); }
 
 const char* toString( float f )
-{ return getStringFromFPNumber( f ); }
+{ return getStringFromFPNumber( f, false ); }
 
 const char* toString( float f, int nrdec )
-{ return getStringFromFPNumber( f, nrdec ); }
+{ return getStringFromFPNumber( f, nrdec, false ); }
 
 const char* toString( double d )
-{ return getStringFromFPNumber( d ); }
+{ return getStringFromFPNumber( d, true ); }
 
 const char* toString( double d, int nrdec )
-{ return getStringFromFPNumber( d, nrdec ); }
+{ return getStringFromFPNumber( d, nrdec, true ); }
 
 const char* toString( short i )
 { return getStringFromInt((int)i, 0); }
