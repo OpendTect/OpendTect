@@ -176,6 +176,12 @@ public:
     float	getLayerDepth(int layerix) const;
 
 
+    static bool getTimeSampling(const TypeSet<ElasticModel>&,
+				Interval<float>& timerg,bool usevs=false);
+
+    void	getTimeSampling(Interval<float>&,bool usevs=false) const;
+
+
 protected:
 
 		/*! Computes first derivative of the elastic properties

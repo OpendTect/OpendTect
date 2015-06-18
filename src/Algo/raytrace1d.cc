@@ -177,15 +177,13 @@ bool RayTracer1D::setModel( const ElasticModel& lys )
     int firsterror = -1;
     model_.checkAndClean( firsterror, setup().doreflectivity_, !zerooffsetonly);
 
-    if ( model_.size() == 1 )
-	errmsg_ = tr( "Model has only one layer" );
-    else if ( model_.isEmpty() )
+    if ( model_.isEmpty() )
 	errmsg_ = tr( "Model is empty" );
     else if ( firsterror != -1 )
 	errmsg_ = tr( "Model has invalid values on layer: %1" )
 		      .arg( firsterror+1 );
 
-    return model_.size() > 1;
+    return !model_.isEmpty();
 }
 
 
@@ -195,16 +193,6 @@ od_int64 RayTracer1D::nrIterations() const
 
 bool RayTracer1D::doPrepare( int nrthreads )
 {
-    if ( model_.size() < 2  )
-    {
-	if ( errmsg_.isEmpty() )
-	    errmsg_ = "Invalid model";
-
-	errmsg_.append( tr("Cannot do raytracing." ) );
-	return false;
-    }
-
-
     const int layersize = mCast( int, nrIterations() );
     depths_.erase();
     velmax_.erase();
