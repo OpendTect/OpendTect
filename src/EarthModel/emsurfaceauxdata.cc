@@ -241,7 +241,8 @@ BufferString SurfaceAuxData::getFreeFileName( const IOObj& ioobj )
     return 0;
 }
 
-Executor* SurfaceAuxData::auxDataLoader( int selidx )
+
+Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
@@ -252,20 +253,16 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 
     PtrMan<EMSurfaceTranslator> transl =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
-    if ( !transl || !transl->startRead(*ioobj) )
+    if ( !transl || !transl->startWrite(horizon_)
+		 || !transl->writer(*ioobj,false) )
     {
 	horizon_.setErrMsg( transl ? transl->errMsg()
 				   : tr("Cannot find Translator") );
 	return 0;
     }
 
-    SurfaceIODataSelection& sel = transl->selections();
-    int nrauxdata = sel.sd.valnames.size();
-    if ( !nrauxdata || selidx >= nrauxdata ) return 0;
-
-    return transl->getAuxdataReader( horizon_, selidx );
+    return transl->getAuxdataWriter( horizon_, dataidx, overwrite );
 }
-
 
 void SurfaceAuxData::removeSection( const SectionID& sectionid )
 {
