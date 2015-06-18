@@ -251,17 +251,30 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 	return 0;
     }
 
-    PtrMan<EMSurfaceTranslator> transl =
-			(EMSurfaceTranslator*)ioobj->createTranslator();
-    if ( !transl || !transl->startWrite(horizon_)
-		 || !transl->writer(*ioobj,false) )
+    bool binary = true;
+    mSettUse(getYN,"dTect.Surface","Binary format",binary);
+
+    BufferString fnm;
+    if ( overwrite )
     {
-	horizon_.setErrMsg( transl ? transl->errMsg()
-				   : tr("Cannot find Translator") );
-	return 0;
+	if ( dataidx<0 ) dataidx = 0;
+	fnm = getFileName( *ioobj, auxDataName(dataidx) );
+	if ( !fnm.isEmpty() )
+	    return new dgbSurfDataWriter(horizon_,dataidx,0,binary,fnm.buf());
     }
 
-    return transl->getAuxdataWriter( horizon_, dataidx, overwrite );
+    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes saver" );
+    grp->setNrDoneText( tr("Nr done") );
+    for ( int selidx=0; selidx<nrAuxData(); selidx++ )
+    {
+	if ( dataidx >= 0 && dataidx != selidx ) continue;
+	fnm = getFreeFileName( *ioobj );
+	Executor* exec =
+	    new dgbSurfDataWriter(horizon_,selidx,0,binary,fnm.buf());
+	grp->add( exec );
+    }
+
+    return grp;
 }
 
 
@@ -349,6 +362,28 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
     }
 
     return arr;
+}
+
+
+void SurfaceAuxData::init( int dataidx, float val )
+{
+    const SectionID sid = horizon_.sectionID( 0 );
+    const Geometry::RowColSurface* rcgeom =
+	horizon_.geometry().sectionGeometry( sid );
+    if ( !rcgeom || rcgeom->isEmpty() )
+	return;
+
+    const StepInterval<int> rowrg = rcgeom->rowRange();
+    const StepInterval<int> colrg = rcgeom->colRange();
+    PosID posid( horizon_.id(), sid );
+    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    {
+	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	{
+	    posid.setSubID( RowCol(row,col).toInt64() );
+	    setAuxDataVal( dataidx, posid, val );
+	}
+    }
 }
 
 

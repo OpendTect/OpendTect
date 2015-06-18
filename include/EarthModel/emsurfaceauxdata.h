@@ -42,7 +42,7 @@ public:
 			SurfaceAuxData(Horizon3D&);
     virtual		~SurfaceAuxData();
     Executor*		auxDataLoader(int selidx=-1);
-    Executor*		auxDataSaver(int dataid=0,bool overwrite=false);
+    Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
 
     void		removeAll();
     void		removeSection(const SectionID&);
@@ -57,19 +57,19 @@ public:
 					    if ( !auxDataName(idx) )
 					\endcode
 			*/
-    const char*		auxDataName(int dataid) const;
+    const char*		auxDataName(int dataidx) const;
     			/*!<\return The name of aux-data or 0 if the data
 				    is removed; */
     int			auxDataIndex(const char*) const;
-    			/*!<\return The dataid of this aux data name, or -1 */
+    			/*!<\return The dataidx of this aux data name, or -1 */
     int			addAuxData(const char* name);
-    			/*!<\return The dataid of the new data.
+    			/*!<\return The dataidx of the new data.
 				    The index is persistent in runtime.  */
 
-    void		setAuxDataName(int,const char*);
-    void		removeAuxData(int dataid);
-    float		getAuxDataVal(int dataid,const PosID& posid) const;
-    void		setAuxDataVal(int dataid,const PosID& posid,float val);
+    void		setAuxDataName(int dataidx,const char*);
+    void		removeAuxData(int dataidx);
+    float		getAuxDataVal(int dataidx,const PosID& posid) const;
+    void		setAuxDataVal(int dataidx,const PosID& posid,float val);
 
     void		setAuxDataShift(int,float);
     float		auxDataShift(int) const;
@@ -85,8 +85,9 @@ public:
     BufferString	getFileName(const char* attrnm) const;
     bool		removeFile(const char* attrnm) const;
 
-    Array2D<float>*	createArray2D(int dataid,SectionID) const;
-    void		setArray2D(int dataid,SectionID,const Array2D<float>&);
+    void		init(int dataidx,float val=mUdf(float));
+    Array2D<float>*	createArray2D(int dataidx,SectionID) const;
+    void		setArray2D(int dataidx,SectionID,const Array2D<float>&);
 
     bool		usePar( const IOPar& );
     void		fillPar( IOPar& ) const;
