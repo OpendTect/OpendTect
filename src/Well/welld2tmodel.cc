@@ -476,7 +476,13 @@ static double getVreplFromFile( const TypeSet<double>& zvals,
     }
 
     if ( vels.isEmpty() )
-	return mUdf(double);
+    {
+	if ( srddepth < wllheadz && !zvals.isEmpty() &&
+	     !tvals.isEmpty() && tvals[0] > mDefEpsT )
+	    return 2. * ( zvals[0] - srddepth ) / tvals[0];
+	else
+	    return mUdf(double);
+    }
 
     Stats::ParallelCalc<double> velocitycalc( Stats::CalcSetup(true),
 					      vels.arr(), vels.size(),
