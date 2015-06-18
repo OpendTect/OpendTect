@@ -1209,6 +1209,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 	vd->isosurfsettings_[idx] = isosurfsettings_[idx];
     }
 
+    vd->allowVolumeShading( usesShading() );
     vd->showVolRen( isVolRenShown() );
 
     vd->setCubeSampling( getCubeSampling(false,true,0) );
