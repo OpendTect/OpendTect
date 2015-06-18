@@ -73,6 +73,8 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
     l2dintersections_ = 0;
     delete tifs2d_; delete tifs3d_;
     deepErase( viewers2d_ );
+
+    detachAllNotifiers();
 }
 
 
