@@ -483,7 +483,7 @@ void StratSynth::getSyntheticNames( BufferStringSet& nms,
 }
 
 
-SyntheticData* StratSynth::getSynthetic( const  PropertyRef& pr )
+SyntheticData* StratSynth::getSynthetic( const	PropertyRef& pr )
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
@@ -694,11 +694,11 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
     if ( seq.startDepth() < srddepth )
 	firstidx = seq.nearestLayerIdxAtZ( srddepth );
 
-    if ( seq.size()<=1 )
+    if ( seq.isEmpty() )
     {
 	mutex_.lock();
 	errmsg_ = "Elastic model is not proper to generate synthetics as a "
-	    	  "layer sequence has 1 or no layers";
+		  "layer sequence has no layers";
 	mutex_.unLock();
 	return false;
     }
@@ -723,11 +723,11 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
 	aimodel += ElasticLayer( thickness, pval, sval, dval );
     }
 
-    if ( aimodel.size()<=1 )
+    if ( aimodel.isEmpty() )
     {
 	mutex_.lock();
 	errmsg_ += "After discarding layers with no thickness ";
-	errmsg_ += "resultant elastic model has 1 or no layers";
+	errmsg_ += "no layers remained";
 	mutex_.unLock();
 	return false;
     }
@@ -1217,18 +1217,6 @@ class ElasticModelAdjuster : public ParallelTask
 { mODTextTranslationClass(ElasticModelAdjuster)
 public:
 
-#define mAddValToMsg( doprint, propnm, var, isdens ) \
-{ \
-    if ( doprint && infomsg_.isEmpty() ) \
-    { \
-	BufferString varstr( toString(var) ); \
-	BufferString unitstr( isdens ? "kg/m3" : "m/s" ); \
-	msg.append( tr("'%1' ( sample value: %2 %3 )").arg(propnm) \
-			.arg(varstr).arg(unitstr) ); \
-    } \
-}
-
-
 ElasticModelAdjuster( const Strat::LayerModel& lm,
 		      TypeSet<ElasticModel>& aimodels )
     : ParallelTask("Checking & adjusting elastic models")
@@ -1273,8 +1261,8 @@ bool doWork( od_int64 start , od_int64 stop , int )
 	if ( tmpmodel.isEmpty() )
 	{
 	    errmsg_ = tr( "Cannot generate elastic model as the "
-		          "Pwave velocity values are invalid."
-		          " Probably units are not set correctly." );
+			  "Pwave velocity values are invalid."
+			  " Probably units are not set correctly." );
 	    return false;
 	}
 	else if ( erroridx != -1 )
@@ -1287,21 +1275,37 @@ bool doWork( od_int64 start , od_int64 stop , int )
 	    {
 		const ElasticLayer& layer = aimodel[idx];
 		const bool needinfo = msg.isEmpty();
-		if ( !layer.isValidVel() )
-		{
+		const bool incorrectpvel = !layer.isValidVel();
+		const bool incorrectden = !layer.isValidDen();
+		const bool incorrectsvel = !layer.isValidVs();
+		if ( !incorrectpvel && !incorrectden && !incorrectsvel )
+		    continue;
+
+		if ( incorrectpvel )
 		    needinterpolatedvel = true;
-		    mAddValToMsg( needinfo, "P-wave", layer.vel_, false );
-		}
-		if ( !layer.isValidDen() )
-		{
+
+		if ( incorrectden )
 		    needinterpoltedden = true;
-		    mAddValToMsg( needinfo, "Density", layer.den_, true );
-		}
-		if ( !layer.isValidVs() )
-		{
+
+		if ( incorrectsvel )
 		    needinterpolatedsvel = true;
-		    mAddValToMsg( needinfo, "S-wave", layer.svel_, false );
-		}
+
+		if ( !needinfo || infomsg_.isSet() )
+		    continue;
+
+		const UnitOfMeasure* uom = incorrectden
+					 ? UoMR().get( "Kg/m3" )
+					 : UoMR().get( "Meter/second" );
+		FixedString varstr( incorrectpvel ? "P-wave"
+						  : incorrectden ? "Density"
+						   : "S-wave" );
+		const float propval = incorrectpvel ? layer.vel_
+						    : incorrectden
+						     ? layer.den_
+						     : layer.svel_;
+		msg.append( tr("'%1' ( sample value: %2 %3 )").arg(varstr)
+			    .arg(toString(propval))
+			    .arg(uom ? uom->symbol() : "") );
 	    }
 
 	    if ( infomsg_.isEmpty() )
@@ -1632,7 +1636,7 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 	{
 	    const float radval = agdata.get( idx, idy );
 	    if ( mIsUdf(radval) ) continue;
-	    const float dval =  Math::toDegrees( radval );
+	    const float dval =	Math::toDegrees( radval );
 	    agdata.set( idx, idy, dval );
 	}
     }

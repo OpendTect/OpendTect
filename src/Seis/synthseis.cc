@@ -748,7 +748,7 @@ bool RaySynthGenerator::doPrepare( int )
 	    mErrRet( rtr_->errMsg(), false );
 
 	raytracingdone_ = true;
-	
+
 	message_ = tr("Preparing Reflectivity Model");
 	raymodels_ = new ObjectSet<RayModel>();
 	const ObjectSet<RayTracer1D>& rt1ds = rtr_->rayTracers();
@@ -770,8 +770,14 @@ bool RaySynthGenerator::doPrepare( int )
     getAllRefls( models );
     const bool zerooffset = offsets_.size() == 1 && mIsZero(offsets_[0],1e-1f);
     StepInterval<float> cursampling( outputsampling_ );
-    SynthGenBase::getOutSamplingFromModel( models, cursampling,
-					   applynmo_ || zerooffset );
+    if ( !SynthGenBase::getOutSamplingFromModel(models,cursampling,
+						applynmo_ || zerooffset) )
+    {
+	Interval<float> modelsampling;
+	ElasticModel::getTimeSampling( *aimodels_, modelsampling );
+	cursampling.include( modelsampling, false );
+    }
+
     outputsampling_.include( cursampling, false );
     outputsampling_.step = cursampling.step;
 
@@ -1005,7 +1011,7 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 }
 
 
-void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )	
+void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )
 {
     if ( !raymodels_ || raymodels_->isEmpty() ) return;
 
