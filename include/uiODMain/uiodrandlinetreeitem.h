@@ -28,6 +28,7 @@ mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
     void loadRandLineFromWell(CallBacker*);\
     void genRandomLineFromPickPolygon();\
     void rdlPolyLineDlgCloseCB(CallBacker*);\
+    void removeChild(uiTreeItem*);\
     uiRandomLinePolyLineDlg* rdlpolylinedlg_;
     mMenuOnAnyButton
 );
