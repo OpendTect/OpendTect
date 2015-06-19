@@ -99,7 +99,10 @@ private:
 
 public:
     void			changeLayerModelNumber(bool add);
-    static void			allowNewRefTree(bool allow);
+    static void allowNewRefTree(bool allow);
+    static void makeEditable(bool allow);
+protected:
+    void			setEditable(bool yn);
 
 };
 

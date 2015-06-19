@@ -35,13 +35,15 @@ Strat::RefTree::RefTree()
 void Strat::RefTree::initTree()
 {
     src_ = Repos::Temp;
-    Strat::LevelSet& lvlset = Strat::eLVLS();
-    lvlset.levelToBeRemoved.notify( mCB(this,Strat::RefTree,levelToBeRemoved) );
+    Strat::eLVLS().levelToBeRemoved.notifyIfNotNotified(
+	    mCB(this,Strat::RefTree,levelToBeRemoved) );
 }
 
 
 Strat::RefTree::~RefTree()
 {
+    Strat::eLVLS().levelToBeRemoved.remove(
+	    mCB(this,Strat::RefTree,levelToBeRemoved) );
     deleteNotif.trigger();
     delete &udfleaf_;
 }

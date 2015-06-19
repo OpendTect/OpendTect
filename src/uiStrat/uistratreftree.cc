@@ -49,8 +49,8 @@ uiStratRefTree::uiStratRefTree( uiParent* p )
     mAddCol( 300, 0 );
     mAddCol( 200, 1 );
     mAddCol( 150, 2 );
-    lv_->setPrefWidth( 650 );
-    lv_->setPrefHeight( 400 );
+    lv_->setMinimumWidth( 650 );
+    lv_->setMinimumHeight( 400 );
     lv_->setStretch( 2, 2 );
     lv_->rightButtonClicked.notify( mCB( this,uiStratRefTree,rClickCB ) );
     lv_->mouseButtonPressed.notify( mCB( this,uiStratRefTree,mousePressedCB ) );

@@ -52,6 +52,8 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     disableScrollZoom();
     scene().setMouseEventActive( true );
     setSceneBorder( 2 );
+    setPrefWidth( 650 );
+    setPrefHeight( 400 );
     createDispParamGrp();
     setRange();
     reDraw( 0 );

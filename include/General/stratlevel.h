@@ -186,6 +186,7 @@ public:
 
     Repos::Source	readOldRepos();
     friend class	LevelSetMgr;
+    bool		read(Repos::Source);
 
 };
 
@@ -200,7 +201,8 @@ mGlobal(General) const LevelSet& unpushedLVLS();
 
 mGlobal(General) void setLVLS(LevelSet*);
 
-mGlobal(General) BufferString getStdFileName(const char* inpnm,const char* basenm);
+mGlobal(General) BufferString getStdFileName(const char* inpnm,
+					     const char* basenm);
 //!< example: getStdFileName("North Sea","Levels")
 
 
