@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "compoundkey.h"
 #include "ioman.h"
+#include "oddirs.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
 #include "stratreftree.h"
@@ -272,8 +273,15 @@ void uiStratTreeWin::newCB( CallBacker* )
 
 void uiStratTreeWin::editCB( CallBacker* )
 {
-    const bool doedit =
-	FixedString(editmnuitem_->text().getFullString()) == mEditTxt(true);
+    FixedString edmenutxt( editmnuitem_->text().getFullString() );
+    FixedString edtxt( mEditTxt(true) );
+    const bool doedit = edmenutxt==edtxt;
+    setEditable( doedit );
+}
+
+
+void uiStratTreeWin::setEditable( bool doedit )
+{
     uitree_->makeTreeEditable( doedit );
     editmnuitem_->setText( doedit ? mLockTxt(true) : mEditTxt(true) );
     editmnuitem_->setIcon( doedit ? "unlock" : "readonly" );
@@ -298,13 +306,17 @@ void uiStratTreeWin::setIsLocked( bool yn )
 
 void uiStratTreeWin::resetCB( CallBacker* )
 {
+    Strat::setRT( repos_.readTree() );
+    Strat::eLVLS().read( repos_.lastSource() );
     Strat::RefTree& bcktree = Strat::eRT();
     //for the time beeing, get back the global tree, but we may want to have
     //a snapshot copy of the actual tree we are working on...
     uitree_->setTree( bcktree, true );
     uitree_->expand( true );
     uistratdisp_->setTree();
-    lvllist_->setLevels();
+    uitree_->setNoChg();
+    lvllist_->setNoChg();
+    needsave_ = false;
 }
 
 
@@ -348,9 +360,24 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 	else if ( savetxt == infolvltrs[2] )
 	    src = Repos::User;
 	else if ( savetxt == infolvltrs[3] )
+	{
+	    if ( !GetApplSetupDir() )
+	    {
+		BufferString envvarstr;
+#ifdef __win__
+		envvarstr = "'DTECT_WINAPPL_SETUP'";
+#endif
+		if ( envvarstr.isEmpty() )
+		    envvarstr = "'DTECT_APPL_SETUP'";
+		return uiMSG().error(
+			tr("You need to set %1 to save in global level")
+				.arg(envvarstr) );
+	    }
 	    src = Repos::ApplSetup;
+	}
 
 	repos_.writeTree( Strat::RT(), src );
+	Strat::eLVLS().store( src );
     }
 }
 
@@ -391,7 +418,6 @@ bool uiStratTreeWin::closeOK()
 	    saveCB( 0 );
 	else if ( res == 0 )
 	{
-	    Strat::setRT( repos_.readTree() );
 	    resetCB( 0 );
 	    return true;
 	}
@@ -478,8 +504,8 @@ void uiStratTreeWin::changeLayerModelNumber( bool add )
 }
 
 
-void uiStratTreeWin::allowNewRefTree( bool yn )
+void uiStratTreeWin::makeEditable( bool yn )
 {
     if ( stratwin )
-	stratwin->newbut_->setSensitive( yn );
+	stratwin->setEditable( yn );
 }

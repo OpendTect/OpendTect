@@ -143,6 +143,9 @@ public:
     			//!< if < 0 then more than one level have changed
 
     bool		store(Repos::Source) const;
+    bool		read(Repos::Source);
+    bool		readFrom(const char*);
+    bool		writeTo(const char*) const;
     bool		needStore() const		{ return ischanged_; }
 
     static void		getStdNames(BufferStringSet&);
@@ -180,9 +183,6 @@ protected:
     static bool		haveCurSet();
 
 public:
-
-    bool		readFrom(const char*);
-    bool		writeTo(const char*) const;
 
     Repos::Source	readOldRepos();
     friend class	LevelSetMgr;
