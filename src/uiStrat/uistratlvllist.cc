@@ -54,9 +54,10 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 void uiStratLvlList::setLevels()
 {
     Strat::LevelSet& levelset = Strat::eLVLS();
-    levelset.levelChanged.notify( mCB(this,uiStratLvlList,fill) );
-    levelset.levelAdded.notify( mCB(this,uiStratLvlList,fill) );
-    levelset.levelToBeRemoved.notify( mCB(this,uiStratLvlList,removeLvl) );
+    levelset.levelChanged.notifyIfNotNotified( mCB(this,uiStratLvlList,fill) );
+    levelset.levelAdded.notifyIfNotNotified( mCB(this,uiStratLvlList,fill) );
+    levelset.levelToBeRemoved.notifyIfNotNotified(
+	    mCB(this,uiStratLvlList,removeLvl) );
 
     fill(0);
 }
@@ -193,7 +194,7 @@ void uiStratLvlList::editLevel( bool create )
 	    lvl->setName( nm.buf() );
 	    lvl->setColor( col );
 	}
-	lvls.store( Repos::Survey );
+
 	anychange_ = true;
     }
 }

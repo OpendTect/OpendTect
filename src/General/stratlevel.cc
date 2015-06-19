@@ -514,6 +514,13 @@ bool Strat::LevelSet::store( Repos::Source rsrc ) const
 }
 
 
+bool Strat::LevelSet::read( Repos::Source rsrc ) 
+{
+    Repos::FileProvider rfp( "StratLevels" );
+    return readFrom( rfp.fileName(rsrc) );
+}
+
+
 bool Strat::LevelSet::writeTo( const char* fnm ) const
 {
     SafeFileIO sfio( fnm, true );

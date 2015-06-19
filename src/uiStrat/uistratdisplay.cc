@@ -47,6 +47,8 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
     disableScrollZoom();
     setDragMode( uiGraphicsViewBase::ScrollHandDrag );
     setSceneBorder( 2 );
+    setPrefWidth( 650 );
+    setPrefHeight( 400 );
     createDispParamGrp();
     setRange();
     reDraw( 0 );

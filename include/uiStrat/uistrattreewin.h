@@ -44,7 +44,7 @@ public:
     virtual bool	closeOK();
 
     static void		addTool(uiToolButtonSetup*); //!< becomes mine
-    static void		allowNewRefTree(bool allow); 
+    static void		makeEditable(bool allow); 
     
 protected:
 
@@ -75,6 +75,7 @@ protected:
     void			createGroups();
     void			setNewRT();
     void			setIsLocked(bool yn);
+    void			setEditable(bool yn);
 
     void			newCB(CallBacker*);
     void			editCB(CallBacker*);
