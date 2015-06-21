@@ -286,6 +286,20 @@ void uiODRandomLineParentTreeItem::genRandLineFromTable()
 }
 
 
+void uiODRandomLineParentTreeItem::removeChild( uiTreeItem* item )
+{
+    if ( rdlpolylinedlg_ )
+    {
+	mDynamicCastGet(uiODDisplayTreeItem*,dispitem,item)
+	if ( dispitem &&
+	     (dispitem->displayID() == rdlpolylinedlg_->getDisplayID()) )
+	{ delete rdlpolylinedlg_; rdlpolylinedlg_ = 0; }
+    }
+
+    uiTreeItem::removeChild( item );
+}
+
+
 void uiODRandomLineParentTreeItem::genRandomLineFromPickPolygon()
 {
     if ( rdlpolylinedlg_ )
