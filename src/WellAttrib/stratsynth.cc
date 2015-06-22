@@ -1189,7 +1189,8 @@ od_int64 nrIterations() const
 
 const char* message() const
 {
-    return !errmsg_.isEmpty() ? errmsg_.getFullString() : "Checking Models";
+    return !errmsg_.isEmpty() ? errmsg_.getFullString().buf()
+			      : "Checking Models";
 }
 
 const char* nrDoneText() const
