@@ -455,7 +455,6 @@ static BufferString getFreeFileName( const IOObj& ioobj )
     if ( !conn ) return 0;
 
     const int maxnrfiles = 100000; // just a big number to make this loop end
-    bool binary = true;
     for ( int idx=0; idx<maxnrfiles; idx++ )
     {
 	BufferString fnm =
@@ -475,15 +474,15 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
     if ( !hor3d )
 	return 0;
    
-    bool binary = true;
-    mSettUse(getYN,"dTect.Surface","Binary format",binary);
+    bool isbinary = true;
+    mSettUse(getYN,"dTect.Surface","Binary format",isbinary);
     BufferString fnm;
     if ( overwrite )
     {
 	if ( dataidx<0 ) dataidx = 0;
 	fnm = getFileName( *ioobj_, sels_.sd.valnames.get(dataidx) );
 	if ( !fnm.isEmpty() )
-	    return new EM::dgbSurfDataWriter(*hor3d,dataidx,0,binary,fnm.buf());
+	    return new EM::dgbSurfDataWriter(*hor3d,dataidx,0,isbinary,fnm.buf());
     }
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface Data saver" );
