@@ -95,6 +95,7 @@ public:
 
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    virtual void		hoverEnterEvent(QGraphicsSceneHoverEvent*);
 
 };
 

@@ -555,6 +555,14 @@ void ODGraphicsPixmapItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 }
 
 
+void ODGraphicsPixmapItem::hoverEnterEvent( QGraphicsSceneHoverEvent* event )
+{
+    QGraphicsItem::hoverEnterEvent( event );
+
+    //snapToSceneRect ( this );
+}
+
+
 // ODGraphicsPolyLineItem
 ODGraphicsPolyLineItem::ODGraphicsPolyLineItem()
     : QAbstractGraphicsShapeItem()
