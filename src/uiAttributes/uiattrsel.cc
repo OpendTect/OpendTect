@@ -104,7 +104,8 @@ bool uiAttrSelData::is2D() const
 	, zdomoutfld_(0) \
 	, in_action_(false) \
 	, showsteerdata_(stp.showsteeringdata_) \
-	, usedasinput_(stp.isinp4otherattrib_)
+	, usedasinput_(stp.isinp4otherattrib_)\
+	, insertedobjmid_(MultiID::udf())
 
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
@@ -448,6 +449,22 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     DescSet* descset = 0;
     attrdata_.attribid_ = DescID::undef();
     attrdata_.outputnr_ = -1;
+
+    if ( !insertedobjmid_.isUdf() )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( insertedobjmid_ );
+	if ( !ioobj ) return false;
+
+	descset = usedasinput_
+		? const_cast<DescSet*>( &attrdata_.attrSet() )
+		: eDSHolder().getDescSet( is2D(), true );
+	attrdata_.attribid_ = descset->getStoredID( ioobj->key(), 0, true );
+	if ( !usedasinput_ && descset )
+	    attrdata_.setAttrSet( descset );
+
+	return true;
+    }
+
     if ( !selgrp_ || !in_action_ ) return true;
 
     int selidx = -1;
@@ -554,9 +571,10 @@ void uiAttrSelDlg::objInserted( CallBacker* cb )
 {
     mCBCapsuleUnpack( MultiID, ky, cb );
     if ( !ky.isEmpty() )
-	uiMSG().warning( "Sorry, this part is not entirely finished;\n"
-			 "Please press Cancel,"
-			 "your object will be available in new listings." );
+    {
+	insertedobjmid_ = ky;
+	accept( 0 );
+    }
 }
 
 

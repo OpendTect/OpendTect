@@ -120,6 +120,7 @@ protected:
     BufferString	zdomainkey_;
 
     TypeSet<DataPack::FullID> dpfids_;
+    MultiID		insertedobjmid_;
 
     uiButtonGroup*	selgrp_;
     uiRadioButton*	storfld_;
