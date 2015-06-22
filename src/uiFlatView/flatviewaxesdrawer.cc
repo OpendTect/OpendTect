@@ -143,7 +143,8 @@ void AxesDrawer::updateViewRect()
 	const int bottom = rect.bottom();
     	uiPoint from( right-10, bottom+9 );
     	uiPoint to( right, bottom+9 );
-    	
+
+	if ( ad1.reversed_ ) Swap( from, to );    	
     	if ( !arrowitem1_ )
 	    arrowitem1_ = view_.scene().addItem(
 		    new uiArrowItem(from,to,arrowstyle) );

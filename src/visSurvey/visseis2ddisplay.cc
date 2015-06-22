@@ -932,7 +932,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 
     const int trcnr = geometry_.positions()[traceidx].nr_;
     const TrcKey trckey = Survey::GM().traceKey( geomid_, trcnr );
-    const int trcidx = regsdp->getGlobalIdx( trckey );
+    const int trcidx = regsdp->getNearestGlobalIdx( trckey );
     const int sampidx =  regsdp->getZRange().nearestIndex( pos.z );
     const Array3DImpl<float>& array = regsdp->data( version );
     if ( !array.info().validPos(0,trcidx,sampidx) )

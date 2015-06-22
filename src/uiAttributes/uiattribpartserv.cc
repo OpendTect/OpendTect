@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdatacubes.h"
 #include "attribdataholder.h"
-#include "attribdatapack.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
@@ -77,8 +76,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisetpickdirs.h"
 #include "uitaskrunner.h"
 #include "uicrossattrevaluatedlg.h"
-
-using namespace Attrib;
 
 int uiAttribPartServer::evDirectShowAttr()	{ return 0; }
 int uiAttribPartServer::evNewAttrSet()		{ return 1; }
@@ -619,7 +616,20 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 	return create2DOutput( tkzs, geomid, taskrunner );
     }
 
-    const DataCubes* cache = 0;
+    RefMan<Attrib::DataCubes> cache = 0;
+    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    ConstDataPackRef<RegularSeisDataPack> cachedp = dpm.obtain( cacheid );
+    if ( cachedp )
+    {
+    	cache = new Attrib::DataCubes();
+    	cache->setSizeAndPos( cachedp->sampling() );
+	for ( int idx=0; idx<cachedp->nrComponents(); idx++ )
+	{
+    	    cache->addCube();
+    	    cache->setCube( idx, cachedp->data(idx) );
+	}
+    }
+
     const DataCubes* output = createOutput( tkzs, cache );
     if ( !output || !output->nrCubes() )  return DataPack::cNoID();
 
@@ -636,7 +646,7 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     newpack->setZDomain(
 	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
     newpack->setName( targetspecs_[0].userRef() );
-    DPM(DataPackMgr::SeisID()).add( newpack );
+    dpm.add( newpack );
     return newpack->id();
 }
 

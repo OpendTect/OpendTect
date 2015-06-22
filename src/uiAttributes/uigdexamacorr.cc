@@ -152,20 +152,14 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 			&& SI().zRange(0).includes(tkzs_.zsamp_.stop, false );
     //if we previously 'faked' a 'normal' cubesampling for the attribute engine
     //we now have to go back to the user specified sampling
-    TrcKeyZSampling cs = csmatchessurv ? output->cubeSampling() : tkzs_;
-    RefMan<Attrib::DataCubes> correctoutput = new Attrib::DataCubes();
-    correctoutput->setSizeAndPos( cs );
-    while ( correctoutput->nrCubes() < output->nrCubes() )
-	correctoutput->addCube();
-    for ( int idx=0; idx<output->nrCubes(); idx++ )
-	correctoutput->setCube(idx, output->getCube(idx) );
-    
-    FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
+    TrcKeyZSampling tkzs = csmatchessurv ? output->cubeSampling() : tkzs_;
     RegularSeisDataPack* regsdp = new RegularSeisDataPack(
 	    			SeisDataPack::categoryStr(true,false) );
-    regsdp->setSampling( correctoutput->cubeSampling() );
+    regsdp->setSampling( tkzs );
     regsdp->addComponent( "autocorrelation" );
-    regsdp->data( 0 ) = correctoutput->getCube( 0 );
+    regsdp->data( 0 ) = output->getCube( 0 );
+
+    FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
     fdp = new RegularFlatDataPack( *regsdp, 0 );
     DPM(DataPackMgr::FlatID()).add( fdp );
 }

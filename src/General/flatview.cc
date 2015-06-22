@@ -178,7 +178,7 @@ FlatView::Annotation::AxisData::AxisData()
     , factor_( 1 )
     , auxlinestyle_( LineStyle(LineStyle(LineStyle::Dot)) )
     , auxhllinestyle_( LineStyle(LineStyle(LineStyle::Dot,2,
-					   getRandStdDrawColor())) )
+		    			   getRandStdDrawColor())) )
 {}
 
 
@@ -656,7 +656,6 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
 
 bool FlatView::Viewer::isVisible( bool wva ) const
 {
-    if ( !hasPack(wva) ) return false;
     const FlatView::DataDispPars& ddp = appearance().ddpars_;
     return wva ? ddp.wva_.show_ : ddp.vd_.show_;
 }

@@ -37,8 +37,9 @@ public:
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
 
     int				displayIn2DViewer(DataPack::ID,
-						  const Attrib::SelSpec&,
-						  bool wva);
+					const Attrib::SelSpec&,bool wva,
+					float initialx1pospercm=mUdf(float),
+					float initialx2pospercm=mUdf(float));
     void			displayIn2DViewer(int visid,int attribid,
 						  bool wva);
     void			remove2DViewer(int id,bool byvisid);
@@ -67,8 +68,6 @@ protected:
 
     uiODMain&			appl_;
 
-    int				vwr2DIdx(Pos::GeomID) const;
-    bool			isVWR2DDisplayed(Pos::GeomID) const;
     inline uiODApplMgr&         applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&     visServ()     { return *applMgr().visServer(); }
 
@@ -88,14 +87,13 @@ protected:
 				Attrib::SelSpec and other display properties.*/
     void			attachNotifiers(uiODViewer2D*);
     Line2DInterSection::Point	intersectingLineID(const uiODViewer2D*,
-						   float pos) const;
+	    					   float pos) const;
     int				intersection2DIdx(Pos::GeomID) const;
-    bool			intersection2DReCalNeeded(Pos::GeomID) const;
     void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
     void			setAllIntersectionPositions();
     void			setVWR2DIntersectionPositions(uiODViewer2D*);
     void			handleLeftClick(uiODViewer2D*,int x1auxposidx,
-						int x2auxposidx);
+	    					int x2auxposidx);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);

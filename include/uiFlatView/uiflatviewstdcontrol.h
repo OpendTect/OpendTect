@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiflatviewmod.h"
 #include "uiflatviewcontrol.h"
-#include "uigroup.h"
+#include "uidialog.h"
 #include "menuhandler.h"
 #include "helpview.h"
 
@@ -25,19 +25,22 @@ class uiGenInput;
 class uiToolBar;
 
 
-mExpClass(uiFlatView) uiFlatViewZoomLevelGrp : public uiGroup
-{ mODTextTranslationClass(uiFlatViewZoomLevelGrp)
+mExpClass(uiFlatView) uiFlatViewZoomLevelDlg : public uiDialog
+{ mODTextTranslationClass(uiFlatViewZoomLevelDlg)
 public:
-			uiFlatViewZoomLevelGrp(uiParent*,float&,float&,bool);
-    void		commitInput();
-    bool		saveGlobal() const;
+    			uiFlatViewZoomLevelDlg(uiParent*,float& x1pospercm,
+					float& x2pospercm,bool isvertical);
+
 protected:
+
     float&		x1pospercm_;
     float&		x2pospercm_;
 
     uiGenInput*		x1fld_;
     uiGenInput*		x2fld_;
     uiCheckBox*		saveglobalfld_;
+
+    bool		acceptOK(CallBacker*);
 };
 
 
@@ -67,7 +70,7 @@ public:
 			    , initialx1pospercm_(mUdf(float))
 			    , initialx2pospercm_(mUdf(float))
 			    , initialcentre_(uiWorldPoint::udf())
-                            , tba_(-1)	{}	      	
+                            , tba_(-1)	{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
 	mDefSetupMemb(bool,withcoltabed)
@@ -88,24 +91,27 @@ public:
 	mDefSetupMemb(uiWorldPoint,initialcentre);
     };
 
-    			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
-    			~uiFlatViewStdControl();
+			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
+			~uiFlatViewStdControl();
     virtual uiToolBar*	toolBar()		{ return tb_; }
     virtual uiFlatViewColTabEd* colTabEd()	{ return ctabed_; }
     void		setEditMode(bool yn);
     float		getCurrentPosPerCM(bool forx1) const;
 
+    static void		setGlobalZoomLevel(float x1pospercm, float x2pospercm,
+	    				   bool isvertical);
+    static void		getGlobalZoomLevel(float& x1pospercm, float& x2pospercm,
+	    				   bool isvertical);
     NotifierAccess*	editPushed();
 
 protected:
 
     bool		mousepressed_;
     uiPoint		mousedownpt_;
-    uiWorldRect		mousedownwr_;
 
     float		defx1pospercm_;
     float		defx2pospercm_;
-    
+
     uiToolBar*		tb_;
     uiToolButton*	rubbandzoombut_;
     uiToolButton*	zoominbut_;
@@ -128,8 +134,6 @@ protected:
     void		updatePosButtonStates();
     void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
     void		setViewToCustomZoomLevel(uiFlatViewer&);
-    void		setGlobalZoomLevel(float x1pospercm,
-					   float x2pospercm) const;
 
     virtual void	coltabChg(CallBacker*);
     virtual void	dispChgCB(CallBacker*);
@@ -145,7 +149,7 @@ protected:
     void		keyPressCB(CallBacker*);
     void		homeZoomOptSelCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
-    virtual void	vwrAdded(CallBacker*) 	{}
+    virtual void	vwrAdded(CallBacker*)	{}
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
     virtual void	pinchZoomCB(CallBacker*);
@@ -155,7 +159,7 @@ protected:
     virtual bool	handleUserClick(int vwridx);
 
     uiMenuHandler&      menu_;
-    MenuItem           	propertiesmnuitem_;
+    MenuItem	propertiesmnuitem_;
     void                createMenuCB(CallBacker*);
     void                handleMenuCB(CallBacker*);
 
