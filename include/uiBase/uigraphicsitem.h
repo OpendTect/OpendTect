@@ -38,11 +38,13 @@ public:
     void		show();
     void		hide();
 
+    virtual void	setAcceptHoverEvents(bool);
     virtual void	setMovable(bool);
     virtual void	setSelectable(bool);
     virtual void	setSelected(bool);
     virtual void	setVisible(bool);
 
+    virtual bool	isHoverEventsAccepted() const;
     virtual bool	isMovable() const;
     virtual bool	isSelectable() const;
     virtual bool	isSelected() const		{ return selected_; }

@@ -70,6 +70,18 @@ void uiGraphicsItem::show()	{ qgraphicsitem_->show(); }
 void uiGraphicsItem::hide()	{ qgraphicsitem_->hide(); }
 
 
+void uiGraphicsItem::setAcceptHoverEvents( bool yn )
+{
+    qgraphicsitem_->setAcceptHoverEvents( yn );
+}
+
+
+bool uiGraphicsItem::isHoverEventsAccepted() const
+{
+    return qgraphicsitem_->acceptHoverEvents();
+}
+
+
 bool uiGraphicsItem::isMovable() const
 { return qgraphicsitem_->flags().testFlag( QGraphicsItem::ItemIsMovable ); }
 
