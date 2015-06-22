@@ -74,6 +74,12 @@ public:
 				    , fillbelowy2_(false)
 				    , drawscattery1_(false)
 				    , drawscattery2_(false)
+				    , markerstyley1_(MarkerStyle2D::Square,3,
+						     ycol_)
+				    , markerstyley2_(MarkerStyle2D::Square,3,
+						     y2col_)
+				    , markerfilly1_(false)
+				    , markerfilly2_(false)
 				    , drawborder_(false)
 				    , fixdrawrg_(true)
 				    , borderstyle_(LineStyle())
@@ -114,6 +120,10 @@ public:
 	mDefSetupMemb(bool,drawliney2)		//!< Y2 will be polylines
 	mDefSetupMemb(bool,drawscattery1)		//!< draw Markers
 	mDefSetupMemb(bool,drawscattery2)		//!< draw Markers
+	mDefSetupMemb(MarkerStyle2D,markerstyley1)
+	mDefSetupMemb(MarkerStyle2D,markerstyley2)
+	mDefSetupMemb(bool,markerfilly1)
+	mDefSetupMemb(bool,markerfilly2)
 	mDefSetupMemb(bool,closepolygon)
 	mDefSetupMemb(bool,drawborder)
 	mDefSetupMemb(bool,useyscalefory2)
