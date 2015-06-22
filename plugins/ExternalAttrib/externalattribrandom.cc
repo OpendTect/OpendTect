@@ -60,43 +60,29 @@ bool Random::setTargetSelSpec( const Attrib::SelSpec& ss )
 }
 
 
-DataPack::ID Random::createAttrib( const CubeSampling& cs,
+DataPack::ID Random::createAttrib( const CubeSampling& tkzs,
 				   DataPack::ID cacheid,
 				   TaskRunner* tr)
 {
     const Attrib::DataCubes* dc = 0;
-    const Attrib::DataCubes* output = createAttrib( cs, dc );
+    const Attrib::DataCubes* output = createAttrib( tkzs, dc );
     if ( !output || !output->nrCubes() ) return DataPack::cNoID();
 
-    RefMan<Attrib::DataCubes> datacubes = new Attrib::DataCubes::DataCubes();
-    if ( !datacubes->setSizeAndPos(cs) )
-	return DataPack::cNoID();
+    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
+	    SeisDataPack::categoryStr(tkzs.isFlat() && tkzs.nrZ()!=1,false) );
+    regsdp->setSampling( tkzs );
+    regsdp->addComponent( uiStrings::sEmptyString() );
 
-    if ( datacubes->nrCubes()<=0 && !datacubes->addCube() )
-	return DataPack::cNoID();
-
-    const int nrinlines = datacubes->getInlSz();
-    const int nrcrlines = datacubes->getCrlSz();
-    const int nrz = datacubes->getZSz();
-
-    Array3D<float>& array = datacubes->getCube( 0 );
-
-    for ( int inlidx=0; inlidx<nrinlines; inlidx++ )
+    for ( int lineidx=0; lineidx<tkzs.nrLines(); lineidx++ )
     {
-	for ( int crlidx=0; crlidx<nrcrlines; crlidx++ )
+	for ( int trcidx=0; trcidx<tkzs.nrTrcs(); trcidx++ )
 	{
-	    for ( int zidx=0; zidx<nrz; zidx++ )
+	    for ( int zidx=0; zidx<tkzs.nrZ(); zidx++ )
 	    {
-		array.set( inlidx, crlidx, zidx, Stats::RandGen::get() );
+		regsdp->data(0).set( lineidx, trcidx, zidx, Stats::RandGen::get() );
 	    }
 	}
     }
-
-    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
-		SeisDataPack::categoryStr(cs.isFlat() && cs.nrZ()!=1,false) );
-    regsdp->setSampling( cs );
-    regsdp->addComponent( uiStrings::sEmptyString() );
-    regsdp->data( 0 ) = array;
 
     RegularFlatDataPack* regfdp = new RegularFlatDataPack( *regsdp, 0 );
     DPM(DataPackMgr::FlatID()).add( regfdp );

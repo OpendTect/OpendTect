@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiflatviewmod.h"
 #include "uiflatviewcontrol.h"
-#include "uigroup.h"
+#include "uidialog.h"
 #include "menuhandler.h"
 #include "helpview.h"
 
@@ -25,19 +25,22 @@ class uiGenInput;
 class uiToolBar;
 
 
-mExpClass(uiFlatView) uiFlatViewZoomLevelGrp : public uiGroup
-{ mODTextTranslationClass(uiFlatViewZoomLevelGrp)
+mExpClass(uiFlatView) uiFlatViewZoomLevelDlg : public uiDialog
+{ mODTextTranslationClass(uiFlatViewZoomLevelDlg)
 public:
-			uiFlatViewZoomLevelGrp(uiParent*,float&,float&,bool);
-    void		commitInput();
-    bool		saveGlobal() const;
+    			uiFlatViewZoomLevelDlg(uiParent*,float& x1pospercm,
+					float& x2pospercm,bool isvertical);
+
 protected:
+
     float&		x1pospercm_;
     float&		x2pospercm_;
 
     uiGenInput*		x1fld_;
     uiGenInput*		x2fld_;
     uiCheckBox*		saveglobalfld_;
+
+    bool		acceptOK(CallBacker*);
 };
 
 
@@ -95,13 +98,16 @@ public:
     void		setEditMode(bool yn);
     float		getCurrentPosPerCM(bool forx1) const;
 
+    static void		setGlobalZoomLevel(float x1pospercm, float x2pospercm,
+	    				   bool isvertical);
+    static void		getGlobalZoomLevel(float& x1pospercm, float& x2pospercm,
+	    				   bool isvertical);
     NotifierAccess*	editPushed();
 
 protected:
 
     bool		mousepressed_;
     uiPoint		mousedownpt_;
-    uiWorldRect		mousedownwr_;
 
     float		defx1pospercm_;
     float		defx2pospercm_;
@@ -128,8 +134,6 @@ protected:
     void		updatePosButtonStates();
     void		doZoom(bool zoomin,bool onlyvertzoom,uiFlatViewer&);
     void		setViewToCustomZoomLevel(uiFlatViewer&);
-    void		setGlobalZoomLevel(float x1pospercm,
-					   float x2pospercm) const;
 
     virtual void	coltabChg(CallBacker*);
     virtual void	dispChgCB(CallBacker*);

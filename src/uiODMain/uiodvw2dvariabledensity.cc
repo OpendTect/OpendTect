@@ -115,15 +115,6 @@ void uiODVW2DVariableDensityTreeItem::deSelectCB( CallBacker* )
 
 void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
 {
-    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    if ( !vwr.hasPack(false) )
-    {
-	if ( !isChecked() ) return;
-	const DataPack::ID dpid = viewer2D()->getDataPackID( false );
-	if ( dpid != DataPack::cNoID() ) viewer2D()->setUpView( dpid, false );
-	return;
-    }
-
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
 	viewer2D()->viewwin()->viewer(ivwr).setVisible( false, isChecked() );
 }
@@ -149,19 +140,12 @@ void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
 
 void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 {
-    if ( !viewer2D()->viewwin()->nrViewers() )
+    if ( !viewer2D()->viewwin()->nrViewers() || !viewer2D()->viewControl() )
 	return;
 
-    uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    if ( !vwr.hasPack(false) || !vwr.control() )
-    {
-	displayMiniCtab( 0 );
-	return;
-    }
-
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-    uitreeviewitem_->setCheckable( vwr.isVisible(true) &&
-				   viewer2D()->selSpec(false).id().isValid() );
+    uitreeviewitem_->setCheckable( ddp.wva_.show_ && vwr.hasPack(false) );
     uitreeviewitem_->setChecked( ddp.vd_.show_ );
 
     if ( !coltabinitialized_ ) initColTab();

@@ -393,7 +393,6 @@ public:
 
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
-    			//!< Depends on show_ and availability of data
     void		setVisible(bool wva, bool visibility);
     			//!< Will also handleChange.
     			//!< So, do not use unless you want both.

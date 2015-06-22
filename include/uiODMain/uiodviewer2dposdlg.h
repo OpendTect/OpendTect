@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "uiodmainmod.h"
 #include "uidialog.h"
 #include "uistring.h"
@@ -24,13 +23,16 @@ class uiODViewer2DPosGrp;
 mExpClass(uiODMain) uiODViewer2DPosDlg : public uiDialog
 { mODTextTranslationClass(uiODViewer2DPosDlg);
 public:
-
 			uiODViewer2DPosDlg(uiODMain&);
 
 protected:
     uiODViewer2DPosGrp* posgrp_;
     uiODMain&		odappl_;
 
+    float		initialx1pospercm_;
+    float		initialx2pospercm_;
+
+    void		zoomLevelCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };

@@ -222,15 +222,10 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 
 void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
 {
-    const uiFlatViewer& vwr = viewwin()->viewer(0);
-    const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-    const bool setpack = ( !wva ? ddp.wva_.show_ : ddp.vd_.show_ );
-    if ( !slicepos_ || !setpack ) return;
-
+    if ( !slicepos_ ) return;
     const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
     const bool newcs = ( cs != tkzs_ );
-    const Attrib::SelSpec& selspec( wva ? wvaselspec_ : vdselspec_ );
-    const DataPack::ID othrdpid = newcs ? createDataPack(selspec)
+    const DataPack::ID othrdpid = newcs ? createDataPack(!wva)
 					: getDataPackID(!wva);
     if ( newcs && (othrdpid != DataPack::cNoID()) )
     { removeAvailablePacks(); setTrcKeyZSampling( cs ); }

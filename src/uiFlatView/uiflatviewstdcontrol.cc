@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewstdcontrol.h"
 
 #include "uicolortable.h"
-#include "uidialog.h"
 #include "uiflatviewcoltabed.h"
 #include "uiflatviewer.h"
 #include "uigraphicsscene.h"
@@ -43,16 +42,17 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeyVW2DTrcsPerCM()	{ return "Viewer2D.TrcsPerCM"; }
 static const char* sKeyVW2DZPerCM()	{ return "Viewer2D.ZSamplesPerCM"; }
 
-uiFlatViewZoomLevelGrp::uiFlatViewZoomLevelGrp( uiParent* p, float& x1pospercm,
-						float& x2pospercm, bool isvert )
-    : uiGroup(p,"Set Flat View Zoom level")
+uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
+			float& x1pospercm, float& x2pospercm, bool isvertical )
+    : uiDialog(p,uiDialog::Setup(tr("Set zoom level"),uiStrings::sEmptyString(),
+				 mNoHelpKey))
     , x1pospercm_(x1pospercm)
     , x2pospercm_(x2pospercm)
     , x2fld_(0)
 {
     x1fld_ = new uiGenInput( this, tr("Traces per cm"), FloatInpSpec() );
     x1fld_->setValue( x1pospercm_ );
-    if ( isvert )
+    if ( isvertical )
     {
 	x2fld_ = new uiGenInput( this, tr("Z Samples per cm"), FloatInpSpec() );
 	x2fld_->setValue( x2pospercm_ );
@@ -60,21 +60,18 @@ uiFlatViewZoomLevelGrp::uiFlatViewZoomLevelGrp( uiParent* p, float& x1pospercm,
     }
 
     saveglobalfld_ = new uiCheckBox( this, tr( "Save globally" ) );
-    saveglobalfld_->attach( alignedBelow, isvert ? x2fld_ : x1fld_ );
+    saveglobalfld_->attach( alignedBelow, isvertical ? x2fld_ : x1fld_ );
 }
 
 
-bool uiFlatViewZoomLevelGrp::saveGlobal() const
-{
-    return saveglobalfld_->isChecked();
-}
-
-
-void uiFlatViewZoomLevelGrp::commitInput()
+bool uiFlatViewZoomLevelDlg::acceptOK( CallBacker* )
 {
     x1pospercm_ = x1fld_->getFValue();
-    if ( x2fld_ )
-	x2pospercm_ = x2fld_->getFValue();
+    x2pospercm_ = x2fld_ ? x2fld_->getFValue() : x1pospercm_;
+    if ( saveglobalfld_->isChecked() )
+	uiFlatViewStdControl::setGlobalZoomLevel(
+		x1pospercm_, x2pospercm_, x2fld_ );
+    return true;
 }
 
 
@@ -100,13 +97,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , gotohomezoombut_(0)
 {
     if ( setup_.withfixedaspectratio_ )
-    {
-	Settings::common().get( sKeyVW2DTrcsPerCM(), defx1pospercm_ );
-	if ( setup_.isvertical_ )
-	    Settings::common().get( sKeyVW2DZPerCM(), defx2pospercm_ );
-	else
-	    defx2pospercm_ = defx1pospercm_;
-    }
+	getGlobalZoomLevel( defx1pospercm_, defx2pospercm_, setup.isvertical_ );
 
     uiToolBar::ToolBarArea tba( setup.withcoltabed_ ? uiToolBar::Left
 						    : uiToolBar::Top );
@@ -392,37 +383,6 @@ void uiFlatViewStdControl::cancelZoomCB( CallBacker* )
     reInitZooms();
 }
 
-#define sInchToCMFac 2.54f
-
-
-class uiFlatViewSetZoomLevelDlg : public uiDialog
-{ mODTextTranslationClass(uiFlatViewSetZoomLevelDlg)
-public:
-
-uiFlatViewSetZoomLevelDlg( uiParent* p, float& x1pospercm, float& x2pospercm,
-			   bool isvert )
-    : uiDialog(p,uiDialog::Setup(tr("Set zoom level"),uiStrings::sEmptyString(),
-				 mNoHelpKey))
-{
-    zommlvlgrp_ = new uiFlatViewZoomLevelGrp( this, x1pospercm,
-					      x2pospercm, isvert );
-}
-
-
-bool saveGlobal()
-{ return zommlvlgrp_->saveGlobal(); }
-
-
-protected:
-bool acceptOK( CallBacker* )
-{
-    zommlvlgrp_->commitInput();
-    return true;
-}
-
-    uiFlatViewZoomLevelGrp*	zommlvlgrp_;
-};
-
 
 void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
 {
@@ -438,23 +398,23 @@ void uiFlatViewStdControl::homeZoomOptSelCB( CallBacker* cb )
 	gotohomezoombut_->setSensitive( true );
     }
     else if ( itmid == sGlobalHZIdx )
-	setGlobalZoomLevel( x1pospercm, x2pospercm );
+	setGlobalZoomLevel( x1pospercm, x2pospercm, setup_.isvertical_ );
     else
     {
-	uiFlatViewSetZoomLevelDlg zoomlvldlg( this, x1pospercm, x2pospercm,
-					      setup_.isvertical_ );
+	uiFlatViewZoomLevelDlg zoomlvldlg( this, x1pospercm, x2pospercm,
+					   setup_.isvertical_ );
 	if ( zoomlvldlg.go() )
 	{
 	    defx1pospercm_ = x1pospercm;
 	    defx2pospercm_ = x2pospercm;
-	    if ( zoomlvldlg.saveGlobal() )
-		setGlobalZoomLevel( x1pospercm, x2pospercm );
 	    setViewToCustomZoomLevel( *vwrs_[0] );
 	    gotohomezoombut_->setSensitive( true );
 	}
     }
 }
 
+
+#define sInchToCMFac 2.54f
 
 float uiFlatViewStdControl::getCurrentPosPerCM( bool forx1 ) const
 {
@@ -470,14 +430,25 @@ float uiFlatViewStdControl::getCurrentPosPerCM( bool forx1 ) const
 }
 
 
-void uiFlatViewStdControl::setGlobalZoomLevel( float x1pospercm,
-					       float x2pospercm ) const
+void uiFlatViewStdControl::setGlobalZoomLevel(
+		float x1pospercm, float x2pospercm, bool isvertical )
 {
     Settings::common().set( sKeyVW2DTrcsPerCM(), x1pospercm );
-    if ( setup_.isvertical_ )
+    if ( isvertical )
 	Settings::common().set( sKeyVW2DZPerCM(), x2pospercm );
 
     mSettWrite();
+}
+
+
+void uiFlatViewStdControl::getGlobalZoomLevel(
+		float& x1pospercm, float& x2pospercm, bool isvertical )
+{
+    Settings::common().get( sKeyVW2DTrcsPerCM(), x1pospercm );
+    if ( isvertical )
+	Settings::common().get( sKeyVW2DZPerCM(), x2pospercm );
+    else
+	x2pospercm = x1pospercm;
 }
 
 
@@ -524,11 +495,7 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
     if ( !meh || meh->event().rightButton() ) return;
 
-    const int vwridx = getViewerIdx( meh, false );
-    if ( vwridx<0 ) return;
-    const uiFlatViewer* vwr = vwrs_[vwridx];
     mousedownpt_ = meh->event().pos();
-    mousedownwr_ = vwr->curView();
     mousepressed_ = true;
 }
 
@@ -544,11 +511,12 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     if ( vwr->rgbCanvas().dragMode() != uiGraphicsViewBase::ScrollHandDrag )
 	return;
 
-    const uiWorld2Ui w2ui( mousedownwr_, vwr->getViewRect().size() );
+    const uiWorld2Ui& w2ui = vwr->getWorld2Ui();
     const uiWorldPoint startwpt = w2ui.transform( mousedownpt_ );
     const uiWorldPoint curwpt = w2ui.transform( meh->event().pos() );
+    mousedownpt_ = meh->event().pos();
 
-    uiWorldRect newwr( mousedownwr_ );
+    uiWorldRect newwr( vwr->curView() );
     newwr.translate( startwpt-curwpt );
 
     newwr = getZoomOrPanRect( newwr.centre(), newwr.size(), newwr,
