@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uidialog.h"
 #include "segyhdr.h"
 class uiLabel;
@@ -29,7 +29,7 @@ class od_istream;
 
 /*!\brief UI for SEG-Y file manipulation */
 
-mExpClass(uiSeis) uiSEGYFileManip : public uiDialog
+mExpClass(uiSEGY) uiSEGYFileManip : public uiDialog
 { mODTextTranslationClass(uiSEGYFileManip);
 public:
 

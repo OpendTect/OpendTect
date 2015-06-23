@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uidialog.h"
 #include "iopar.h"
 #include "seistype.h"
@@ -30,7 +30,7 @@ class uiSeisTransfer;
 /*\brief SEG-Y exporting dialog */
 
 
-mExpClass(uiSeis) uiSEGYExp : public uiDialog
+mExpClass(uiSEGY) uiSEGYExp : public uiDialog
 { mODTextTranslationClass(uiSEGYExp);
 public:
 

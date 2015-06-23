@@ -10,7 +10,10 @@ _______________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 
-void uiSEGTool::uiSEGTool( uiParent* p, IOPar* previop, int choice )
+#include "uisegytool.h"
+
+
+void uiSEGYTool::uiSEGYTool( uiParent* p, IOPar* previop, int choice )
     : parent_(p)
     , choice_(choice)
     , isnext_(false)
@@ -23,7 +26,7 @@ void uiSEGTool::uiSEGTool( uiParent* p, IOPar* previop, int choice )
 }
 
 
-void uiSEGTool::doDlg()
+void uiSEGYTool::doDlg()
 {
     if ( choice_ < 0 )
     {
@@ -61,7 +64,7 @@ void uiSEGTool::doDlg()
 }
 
 
-void uiSEGTool::doVSPTool()
+void uiSEGYTool::doVSPTool()
 {
     if ( choice_ < 0 )
     {
@@ -97,7 +100,7 @@ void uiSEGTool::doVSPTool()
 }
 
 
-bool uiSEGTool::launchSEGYWiz()
+bool uiSEGYTool::launchSEGYWiz()
 {
     if ( segyread_ )
     {
@@ -122,12 +125,12 @@ bool uiSEGTool::launchSEGYWiz()
     }
 
     segyread_->pars().merge( pars_ );
-    segyread_->processEnded.notify( mCB(this,uiSEGTool,toolEnded) );
+    segyread_->processEnded.notify( mCB(this,uiSEGYTool,toolEnded) );
     return true;
 }
 
 
-void uiSEGTool::toolEnded( CallBacker* )
+void uiSEGYTool::toolEnded( CallBacker* )
 {
     if ( !segyread_ || segyread_->state() == uiVarWizard::cCancelled() )
 	{ segyread_ = 0; return; }

@@ -11,14 +11,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uisip.h"
 #include "iopar.h"
 #include "uistring.h"
 
 /* uiSurvInfoProvider taking it's source in (a) SEG-Y file(s) */
 
-mExpClass(uiSeis) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
+mExpClass(uiSEGY) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
 { mODTextTranslationClass(uiSEGYSurvInfoProvider);
 public:
 

@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uisegymod.h"
+#include "uisegycommon.h"
 
 
 mExpClass(uiSEGY) uiSEGYTool : public CallBacker

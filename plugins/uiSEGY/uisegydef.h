@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "seistype.h"
 #include "uigroup.h"
 #include "uisegyread.h"
@@ -30,7 +30,7 @@ namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
 
 /*!\brief base class for specification of SEG-Y file stuff */
 
-mExpClass(uiSeis) uiSEGYDefGroup : public uiGroup
+mExpClass(uiSEGY) uiSEGYDefGroup : public uiGroup
 { mODTextTranslationClass(uiSEGYDefGroup);
 public:
 			uiSEGYDefGroup( uiParent* p, const char* grpnm,
@@ -53,10 +53,10 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y in- or output file(s) */
 
-mExpClass(uiSeis) uiSEGYFileSpec : public uiSEGYDefGroup
+mExpClass(uiSEGY) uiSEGYFileSpec : public uiSEGYDefGroup
 { mODTextTranslationClass(uiSEGYFileSpec);
 public:
-    mExpClass(uiSeis) Setup
+    mExpClass(uiSEGY) Setup
     { 
     public:
 			Setup( bool needmulti )
@@ -113,7 +113,7 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y information needed to examine */
 
-mExpClass(uiSeis) uiSEGYFilePars : public uiSEGYDefGroup
+mExpClass(uiSEGY) uiSEGYFilePars : public uiSEGYDefGroup
 { mODTextTranslationClass(uiSEGYFilePars);
 public:
 			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0,
@@ -152,11 +152,11 @@ protected:
  */
 class uiSEGYFOByteSpec;
 
-mExpClass(uiSeis) uiSEGYFileOpts : public uiSEGYDefGroup
+mExpClass(uiSEGY) uiSEGYFileOpts : public uiSEGYDefGroup
 { mODTextTranslationClass(uiSEGYFileOpts);
 public:
 
-    mExpClass(uiSeis) Setup
+    mExpClass(uiSEGY) Setup
     {
     public:
 				Setup( Seis::GeomType gt,

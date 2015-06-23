@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uivarwizard.h"
 #include "seistype.h"
 #include "multiid.h"
@@ -30,7 +30,7 @@ class uiSEGYReadRev1Question;
 
 /*!\brief 'Server' for SEG-Y Reading */
 
-mExpClass(uiSeis) uiSEGYRead : public uiVarWizard
+mExpClass(uiSEGY) uiSEGYRead : public uiVarWizard
 { mODTextTranslationClass(uiSEGYRead);
 public:
 
@@ -38,7 +38,7 @@ public:
     enum RevType	{ Rev0, WeakRev1, Rev1 };
     enum State		{ BasicOpts=10, SetupImport=11, SetupScan=12 };
 
-    mExpClass(uiSeis) Setup
+    mExpClass(uiSEGY) Setup
     {
     public:
 			Setup( Purpose pp=Import )

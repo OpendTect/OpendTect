@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uidialog.h"
 #include "seistype.h"
 class uiIOObjSel;
@@ -24,7 +24,7 @@ class uiComboBox;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mExpClass(uiSeis) uiResortSEGYDlg : public uiDialog
+mExpClass(uiSEGY) uiResortSEGYDlg : public uiDialog
 { mODTextTranslationClass(uiResortSEGYDlg);
 public :
 

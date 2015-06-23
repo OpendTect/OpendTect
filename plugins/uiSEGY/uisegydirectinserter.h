@@ -11,14 +11,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uiioobjinserter.h"
 #include "uistring.h"
 
 class uiSEGYRead;
 
 
-mExpClass(uiSeis) uiSEGYDirectVolInserter : public uiIOObjInserter
+mExpClass(uiSEGY) uiSEGYDirectVolInserter : public uiIOObjInserter
 { mODTextTranslationClass(uiSEGYDirectVolInserter);
 public:
 
@@ -40,7 +40,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSEGYDirect2DInserter : public uiIOObjInserter
+mExpClass(uiSEGY) uiSEGYDirect2DInserter : public uiIOObjInserter
 { mODTextTranslationClass(uiSEGYDirect2DInserter);
 public:
 
@@ -62,7 +62,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSEGYDirectPS3DInserter : public uiIOObjInserter
+mExpClass(uiSEGY) uiSEGYDirectPS3DInserter : public uiIOObjInserter
 { mODTextTranslationClass(uiSEGYDirectPS3DInserter);
 public:
 
