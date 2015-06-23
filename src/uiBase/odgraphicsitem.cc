@@ -557,9 +557,15 @@ void ODGraphicsPixmapItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 
 void ODGraphicsPixmapItem::hoverEnterEvent( QGraphicsSceneHoverEvent* event )
 {
+    setScale( 1.1 );
     QGraphicsItem::hoverEnterEvent( event );
+}
 
-    //snapToSceneRect ( this );
+
+void ODGraphicsPixmapItem::hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
+{
+    setScale( 1.0 );
+    QGraphicsItem::hoverLeaveEvent( event );
 }
 
 
@@ -632,6 +638,24 @@ void ODGraphicsPolyLineItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
     QGraphicsItem::mouseMoveEvent( event );
 
     snapToSceneRect ( this );
+}
+
+
+void ODGraphicsPolyLineItem::hoverEnterEvent( QGraphicsSceneHoverEvent* event )
+{
+    QPen highlighted( pen() );
+    highlighted.setWidth( highlighted.width() + 2 );
+    setPen( highlighted );
+    QGraphicsItem::hoverEnterEvent( event );
+}
+
+
+void ODGraphicsPolyLineItem::hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
+{
+    QPen unhighlighted( pen() );
+    unhighlighted.setWidth( unhighlighted.width() - 2 );
+    setPen( unhighlighted );
+    QGraphicsItem::hoverLeaveEvent( event );
 }
 
 
