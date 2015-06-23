@@ -47,10 +47,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uimergeseis.h"
 #include "uimsg.h"
-#include "uisegyexp.h"
-#include "uisegyread.h"
-#include "uisegyresortdlg.h"
-#include "uisegysip.h"
 #include "uiseisimportcbvs.h"
 #include "uiseiscbvsimpfromothersurv.h"
 #include "uiseisfileman.h"
@@ -82,8 +78,6 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     , man3dprestkdlg_(0)
     , manwvltdlg_(0)
 {
-    uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
-    uiSurveyInfoEditor::addInfoProvider( sip );
     SeisIOObjInfo::initDefault( sKey::Steering() );
     IOM().surveyChanged.notify( mCB(this,uiSeisPartServer,survChangedCB) );
 }
@@ -116,28 +110,12 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	dlg = new uiSeisImportCBVS( parent() );
     else if ( opt == 9 )
 	dlg = new uiSeisImpCBVSFromOtherSurveyDlg( parent() );
-    else if ( opt < 5 )
-    {
-	if ( !forread )
-	    dlg = new uiSEGYExp( parent(),
-				 Seis::geomTypeOf( !(opt%2), opt > 2 ) );
-	else
-	{
-	    const bool isdirect = !(opt % 2);
-	    uiSEGYRead::Setup su( isdirect ? uiSEGYRead::DirectDef
-					   : uiSEGYRead::Import );
-	    if ( isdirect )
-		su.geoms_ -= Seis::Line;
-	    new uiSEGYRead( parent(), su );
-	}
-    }
     else
     {
 	const Seis::GeomType gt( Seis::geomTypeOf( !(opt%2), opt > 6 ) );
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
 	dlg = new uiSeisIOSimple( parent(), gt, forread );
     }
-
 
     return dlg ? dlg->go() : true;
 }
@@ -295,13 +273,6 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
 void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
 {
     uiSeisRandTo2DLineDlg dlg( parent(), &rln );
-    dlg.go();
-}
-
-
-void uiSeisPartServer::resortSEGY() const
-{
-    uiResortSEGYDlg dlg( parent() );
     dlg.go();
 }
 

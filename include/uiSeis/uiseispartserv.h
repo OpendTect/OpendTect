@@ -42,9 +42,7 @@ public:
     const char*		name() const			{ return "Seismics"; }
 
     bool		importSeis(int opt);
-			//!< opt == (int)uiSeisSEGYEntry::DataType or 3 == CBVS
     bool		exportSeis(int opt);
-			//!< opt == (int)uiSeisSEGYEntry::DataType
 
     bool		select2DSeis(MultiID&);
     bool		select2DLines(TypeSet<Pos::GeomID>&,int& action);
@@ -59,7 +57,6 @@ public:
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
 
     void		processTime2Depth() const;
-    void		resortSEGY() const;
     void		processVelConv() const;
     void		createMultiCubeDataStore() const;
 

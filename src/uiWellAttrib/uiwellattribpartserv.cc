@@ -17,9 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicreateattriblogdlg.h"
 #include "uicreatelogcubedlg.h"
 #include "uimsg.h"
-#include "uisegyread.h"
 #include "uiwellattribxplot.h"
-#include "uiwellimpsegyvsp.h"
 #include "uiwelltiemgrdlg.h"
 #include "uiwellto2dlinedlg.h"
 
@@ -50,7 +48,6 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , dpsdispmgr_(0)
     , welltiedlg_(0)
     , wellto2ddlg_(0)
-    , cursegyread_(0)
     , welltiedlgopened_(false)
 {
     IOM().surveyChanged.notify(
@@ -172,125 +169,6 @@ void uiWellAttribPartServer::doXPlot()
 
     xplotwin->setDisplayMgr( dpsdispmgr_ );
     xplotwin->show();
-}
-
-
-void uiWellAttribPartServer::doSEGYTool( IOPar* previop, int choice )
-{
-    if ( choice < 0 )
-    {
-	uiDialog dlg( parent(), uiDialog::Setup(tr("SEG-Y Tool"),
-	    previop ? tr("Import more data?") : tr("What do you want to do?"),
-	    mTODOHelpKey) );
-	uiCheckList* choicefld = new uiCheckList( &dlg, uiCheckList::OneOnly );
-	choicefld->addItem( tr("Import SEG-Y file(s) to OpendTect data") )
-	    .addItem( tr("Scan SEG-Y file(s) to use in-place") )
-	    .addItem( tr("Import VSP data from SEG-Y file") )
-	    .addItem( previop ? tr("Quit SEG-Y import")
-			      : tr("Cancel the operation") )
-	    .setChecked( 3, true );
-	if ( !dlg.go() )
-	    return;
-	choice = choicefld->firstChecked();
-    }
-
-    switch ( choice )
-    {
-    case 0: case 1:
-	if ( cursegyread_ )
-	    { cursegyread_->raiseCurrent(); return; }
-	cursegyread_ = 0;
-	if ( !launchSEGYWiz(previop,choice) )
-	    return;
-    break;
-    case 2:
-	doVSPTool( previop );
-	return;
-    break;
-    default:
-    return;
-    }
-}
-
-
-void uiWellAttribPartServer::doVSPTool( IOPar* previop, int choice )
-{
-    if ( choice < 0 )
-    {
-	uiDialog dlg( parent(), uiDialog::Setup(tr("VSP Import"),
-					mNoDlgTitle,mTODOHelpKey) );
-	uiCheckList* choicefld = new uiCheckList( &dlg, uiCheckList::OneOnly );
-	choicefld->addItem(tr("2-D VSP (will be imported as 2-D seismic line)"))
-	    .addItem( tr("3-D VSP (can only be imported as 3D cube)") )
-	    .addItem( tr("Zero-offset (single trace) VSP") )
-	    .addItem( previop ? tr("Quit import") : tr("Cancel the operation") )
-	    .setChecked( 3, true );
-	if ( !dlg.go() )
-	    return;
-	choice = choicefld->firstChecked();
-    }
-
-    switch ( choice )
-    {
-	case 0: case 1: {
-	    const Seis::GeomType gt( choice == 0 ? Seis::Line : Seis::Vol );
-	    IOPar iop; if ( previop ) iop = *previop;
-	    putInPar( gt, iop );
-	    if ( !launchSEGYWiz(&iop,0) )
-		return;
-	break; }
-	case 2: {
-	    uiWellImportSEGYVSP dlg( parent() );
-	    if ( !dlg.go() )
-		return;
-	break; }
-	default:
-	    return;
-    }
-}
-
-
-bool uiWellAttribPartServer::launchSEGYWiz( IOPar* previop, int choice )
-{
-    if ( cursegyread_ )
-    {
-	uiMSG().error( tr("Please finish your current SEG-Y import first") );
-	cursegyread_->raiseCurrent();
-	return false;
-    }
-
-    switch ( choice )
-    {
-	case 0:
-	    cursegyread_ = new uiSEGYRead( parent(),
-				uiSEGYRead::Setup(uiSEGYRead::Import) );
-	break;
-	case 1: {
-	    uiSEGYRead::Setup su( uiSEGYRead::DirectDef );
-	    su.geoms_ -= Seis::Line;
-	    cursegyread_ = new uiSEGYRead( parent(), su );
-	break; }
-	default:
-	    return false;
-    }
-
-    if ( previop )
-	cursegyread_->pars().merge( *previop );
-    cursegyread_->processEnded.notify(
-			mCB(this,uiWellAttribPartServer,segyToolEnded) );
-    return true;
-}
-
-
-void uiWellAttribPartServer::segyToolEnded( CallBacker* )
-{
-    if ( !cursegyread_ || cursegyread_->state() == uiVarWizard::cCancelled() )
-    { cursegyread_ = 0; return; }
-
-    IOPar previop( cursegyread_->pars() );
-    cursegyread_ = 0;
-
-    doSEGYTool( &previop );
 }
 
 

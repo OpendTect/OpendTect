@@ -24,6 +24,22 @@ public:
 
     bool		is2D() const		{ return is2d_; }
 
+    mExpClass(uiSeis) BrowserDef
+    {
+    public:
+
+			BrowserDef( const char* nm )
+			    : name_(nm)
+			    , for2d_(false)	{}
+
+	BufferString	name_;		// translator name for 3D
+	uiString	tooltip_;	// %1 will be filled by object name
+	CallBack	cb_;		// this will be passed
+	bool		for2d_;		// only 3D supported yet
+
+    };
+    static int		addBrowser(BrowserDef*);
+
     mDeclInstanceCreatedNotifierAccess(uiSeisFileMan);
 
 protected:
@@ -46,6 +62,7 @@ protected:
     virtual void	ownSelChg();
     od_int64		getFileSize(const char*,int&) const;
     void		setToolButtonProperties();
+    const BrowserDef*	getBrowserDef() const;
 
 };
 

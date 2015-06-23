@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2dlineio.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
-#include "segydirecttr.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "zdomain.h"
@@ -37,7 +36,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uimergeseis.h"
-#include "uisegydefdlg.h"
 #include "uiseispsman.h"
 #include "uiseisbrowser.h"
 #include "uiseiscopy.h"
@@ -49,6 +47,31 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
+
+class uiSeisCBVSBrowerMgr : public CallBacker
+{
+public:
+
+uiSeisCBVSBrowerMgr()
+{
+    uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
+			    CBVSSeisTrcTranslator::translKey() );
+    bdef->tooltip_ = uiString( "Browse/Edit CBVS file '%1'" );
+    bdef->cb_ = mCB(this,uiSeisCBVSBrowerMgr,doBrowse);
+    uiSeisFileMan::addBrowser( bdef );
+}
+
+void doBrowse( CallBacker* cb )
+{
+    mDynamicCastGet(uiSeisFileMan*,sfm,cb)
+    if ( sfm && sfm->curIOObj() )
+	uiSeisBrowser::doBrowse( sfm, *sfm->curIOObj(), false );
+}
+
+};
+
+static uiSeisCBVSBrowerMgr* cbvsbrowsermgr_ = 0;
+
 
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
                        mODHelpKey(mSeisFileMan3DHelpID)
@@ -63,6 +86,9 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     , man2dlinesbut_(0)
     , mergecubesbut_(0)
 {
+    if ( !cbvsbrowsermgr_ )
+	cbvsbrowsermgr_ = new uiSeisCBVSBrowerMgr;
+
     IOObjContext* freshctxt = Seis::getIOObjContext(
 					is2d_ ? Seis::Line : Seis::Vol, true );
     ctxt_ = *freshctxt;
@@ -105,8 +131,20 @@ uiSeisFileMan::~uiSeisFileMan()
 {
 }
 
+
+static ObjectSet<uiSeisFileMan::BrowserDef> browserdefs_;
+
+
+int uiSeisFileMan::addBrowser( uiSeisFileMan::BrowserDef* bd )
+{
+    browserdefs_ += bd;
+    return browserdefs_.size() - 1;
+}
+
+
+#define mIsOfTranslName(nm) (FixedString(curioobj_->translator()) == nm)
 #define mIsOfTranslType(typ) \
-(FixedString(curioobj_->translator()) == typ##SeisTrcTranslator::translKey())
+    	mIsOfTranslName(typ##SeisTrcTranslator::translKey())
 
 
 void uiSeisFileMan::ownSelChg()
@@ -115,7 +153,7 @@ void uiSeisFileMan::ownSelChg()
 }
 
 
-#define mSetButToolTip(but,str1,curattribnms,str2,deftt) \
+#define mSetButToolTip(but,str1,curattribnms,str2,deftt) { \
     if ( but ) \
     { \
 	if ( but->sensitive() ) \
@@ -126,7 +164,7 @@ void uiSeisFileMan::ownSelChg()
 	} \
 	else \
 	    but->setToolTip( deftt ); \
-    }
+    } }
 
 void uiSeisFileMan::setToolButtonProperties()
 {
@@ -140,18 +178,16 @@ void uiSeisFileMan::setToolButtonProperties()
 		   is2d_ ? "Copy dataset" : "Copy cube");
     if ( browsebut_ )
     {
-	const bool enabbrowse = curimplexists_ && mIsOfTranslType(CBVS);
-	const bool issegydirect = curimplexists_ && mIsOfTranslType(SEGYDirect);
-	browsebut_->setSensitive( enabbrowse || issegydirect );
-	if ( enabbrowse )
+	const BrowserDef* bdef = getBrowserDef();
+	const bool enabbrowse = curimplexists_ && bdef;
+	browsebut_->setSensitive( enabbrowse );
+	if ( !enabbrowse )
+	    mSetButToolTip( browsebut_, "No browser for '",cursel,"'",
+		    		"Browse/edit selected cube" )
+	else
 	{
-	    mSetButToolTip(browsebut_,"Browse/edit '",cursel,"'",
-			   "Browse/edit selected cube");
-	}
-	else if ( issegydirect )
-	{
-	    mSetButToolTip(browsebut_,"Change location/name of SEGY files in '",
-			   cursel,"'", "Change SEGY file for selected cube");
+	    uiString bdeftt( bdef->tooltip_ );
+	    browsebut_->setToolTip( bdeftt.arg(curioobj_->name()) );
 	}
     }
 
@@ -160,10 +196,8 @@ void uiSeisFileMan::setToolButtonProperties()
 	BufferStringSet selcubenms;
 	selgrp_->getChosen( selcubenms );
 	if ( selcubenms.size() > 1 )
-	{
 	    mSetButToolTip(mergecubesbut_,"Merge ",
-			   selcubenms.getDispString(2),"", "Merge cubes");
-	}
+			   selcubenms.getDispString(2),"", "Merge cubes")
 	else
 	    mergecubesbut_->setToolTip( "Merge cubes" );
     }
@@ -172,7 +206,7 @@ void uiSeisFileMan::setToolButtonProperties()
     {
 	man2dlinesbut_->setSensitive( !cursel.isEmpty() );
 	mSetButToolTip(man2dlinesbut_,"Manage 2D lines in '",cursel,"'",
-		       "Manage lines");
+		       "Manage lines")
     }
 
     if ( attribbut_ )
@@ -184,11 +218,27 @@ void uiSeisFileMan::setToolButtonProperties()
 	     fp.setExtension( "proc" );
 	     attribbut_->setSensitive( File::exists(fp.fullPath()) );
 	     mSetButToolTip(attribbut_,"Show AttributeSet for ",cursel,"",
-			    "Show AttributeSet");
+			    "Show AttributeSet")
 	}
 	else
 	    attribbut_->setToolTip( "Show AttributeSet" );
     }
+}
+
+
+const uiSeisFileMan::BrowserDef* uiSeisFileMan::getBrowserDef() const
+{
+    if ( curioobj_ )
+    {
+	for ( int idx=0; idx<browserdefs_.size(); idx++ )
+	{
+	    const BrowserDef* bdef = browserdefs_[idx];
+	    if ( bdef->name_ == curioobj_->translator() )
+		return bdef;
+	}
+    }
+
+    return 0;
 }
 
 
@@ -370,15 +420,11 @@ void uiSeisFileMan::mergePush( CallBacker* )
 
 void uiSeisFileMan::browsePush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
-    const bool enabbrowse = curimplexists_ && mIsOfTranslType(CBVS);
-    const bool issegydirect = curimplexists_ && mIsOfTranslType(SEGYDirect);
-    if ( enabbrowse )
-	uiSeisBrowser::doBrowse( this, *curioobj_, false );
-    else if ( issegydirect )
+    const BrowserDef* bdef = getBrowserDef();
+    if ( bdef )
     {
-	uiEditSEGYFileDataDlg dlg( this, *curioobj_ );
-	dlg.go();
+	CallBack cb( bdef->cb_ );
+	cb.doCall( this );
     }
 }
 

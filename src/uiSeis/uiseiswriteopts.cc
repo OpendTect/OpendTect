@@ -13,17 +13,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "datachar.h"
 #include "iopar.h"
-#include "segydirecttr.h"
 #include "seiscbvs.h"
+#include "seiscbvsps.h"
+#include "seispsioprov.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
-#include "uisegydef.h"
 
 #define mCBVSVolTranslInstance mTranslTemplInstance(SeisTrc,CBVS)
 #define mCBVSPS3DTranslInstance mTranslTemplInstance(SeisPS3D,CBVS)
-#define mSEGYDirectVolTranslInstance mTranslTemplInstance(SeisTrc,SEGYDirect)
-#define mSEGYDirectPS3DTranslInstance mTranslTemplInstance(SeisPS3D,SEGYDirect)
 
 
 uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
@@ -100,72 +98,4 @@ bool uiCBVSPS3DOpts::fill( IOPar& iop ) const
 void uiCBVSPS3DOpts::initClass()
 {
     factory().addCreator( create, mCBVSPS3DTranslInstance.getDisplayName() );
-}
-
-
-uiSEGYDirectVolOpts::uiSEGYDirectVolOpts( uiParent* p )
-    : uiIOObjTranslatorWriteOpts(p,mSEGYDirectVolTranslInstance)
-{
-    parsfld_ = new uiSEGYFilePars( this, false, 0, false );
-
-    setHAlignObj( parsfld_ );
-}
-
-
-void uiSEGYDirectVolOpts::use( const IOPar& iop )
-{
-    parsfld_->usePar( iop );
-}
-
-
-bool uiSEGYDirectVolOpts::fill( IOPar& iop ) const
-{
-    parsfld_->fillPar( iop );
-    return true;
-}
-
-
-void uiSEGYDirectVolOpts::initClass()
-{
-    factory().addCreator( create,
-			  mSEGYDirectVolTranslInstance.getDisplayName() );
-}
-
-
-#define mNrInlKey SEGYDirectSeisPS3DTranslator::sKeyNrInlPerFile()
-
-uiSEGYDirectPS3DOpts::uiSEGYDirectPS3DOpts( uiParent* p )
-    : uiIOObjTranslatorWriteOpts(p,mSEGYDirectPS3DTranslInstance)
-{
-    parsfld_ = new uiSEGYFilePars( this, false, 0, false );
-
-    nrinlpfilefld_ = new uiGenInput( this, mNrInlKey, IntInpSpec(100,1) );
-    nrinlpfilefld_->attach( alignedBelow, parsfld_ );
-
-    setHAlignObj( parsfld_ );
-}
-
-
-
-void uiSEGYDirectPS3DOpts::use( const IOPar& iop )
-{
-    parsfld_->usePar( iop );
-    int nrinl = nrinlpfilefld_->getIntValue();
-    iop.get( mNrInlKey, nrinl );
-    nrinlpfilefld_->setValue( nrinl );
-}
-
-
-bool uiSEGYDirectPS3DOpts::fill( IOPar& iop ) const
-{
-    parsfld_->fillPar( iop );
-    iop.set( mNrInlKey, nrinlpfilefld_->getIntValue() );
-    return true;
-}
-
-
-void uiSEGYDirectPS3DOpts::initClass()
-{
-    factory().addCreator( create,
-			  mSEGYDirectPS3DTranslInstance.getDisplayName() );
 }

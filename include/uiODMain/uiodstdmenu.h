@@ -49,8 +49,6 @@ ________________________________________________________________________
 #define mImpColTabMnuItm	(mFileImpMnu + 7)
 
 #define mImpSeisCBVSMnuItm	(mFileImpMnu + 10)
-#define mImpSeisSEGYMnuItm	(mFileImpMnu + 11)
-#define mImpSeisSEGYDirectMnuItm (mFileImpMnu + 12)
 #define mImpSeisSimple3DMnuItm	(mFileImpMnu + 15)
 #define mImpSeisSimple2DMnuItm	(mFileImpMnu + 16)
 #define mImpSeisSimplePS3DMnuItm (mFileImpMnu + 17)
@@ -64,7 +62,6 @@ ________________________________________________________________________
 #define mImpWellAsciiTrackMnuItm (mFileImpMnu + 40)
 #define mImpWellAsciiLogsMnuItm	(mFileImpMnu + 41)
 #define mImpWellAsciiMarkersMnuItm (mFileImpMnu + 42)
-#define mImpWellSEGYVSPMnuItm	(mFileImpMnu + 43)
 #define mImpWellSimpleMnuItm	(mFileImpMnu + 44)
 #define mImpBulkWellTrackItm	(mFileImpMnu + 45)
 #define mImpBulkWellLogsItm	(mFileImpMnu + 46)
@@ -87,10 +84,6 @@ ________________________________________________________________________
 #define mImpPVDSMnuItm		(mFileImpMnu + 110)
 #define mImpPVDSAsciiMnuItm	(mFileImpMnu + 111)
 
-#define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 11)
-#define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 12)
-#define mExpSeisSEGYPS3DMnuItm	(mFileExpMnu + 13)
-#define mExpSeisSEGYPS2DMnuItm	(mFileExpMnu + 14)
 #define mExpSeisSimple3DMnuItm	(mFileExpMnu + 15)
 #define mExpSeisSimple2DMnuItm	(mFileExpMnu + 16)
 #define mExpSeisSimplePS3DMnuItm (mFileExpMnu + 17)

@@ -154,12 +154,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	mCase(Exp):	am_.seisserv_->exportSeis( opt );	break;
 	mCase(Man):	am_.seisserv_->manageSeismics( opt );	break;
-	mCase(Imp):
-	    if ( opt > 0 && opt < 5 )
-		am_.wellattrserv_->doSEGYTool( 0, opt%2?0:1 );
-	    else
-		am_.seisserv_->importSeis( opt );
-	break;
+	mCase(Imp):	am_.seisserv_->importSeis( opt );	break;
 	}
     break;
     mCase(Hor):
@@ -226,8 +221,6 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.wellserv_->importLogs();
 	    else if ( opt == 2 )
 		am_.wellserv_->importMarkers();
-	    else if ( opt == 3 )
-		am_.wellattrserv_->doVSPTool(0,2);
 	    else if ( opt == 4 )
 		am_.wellserv_->createSimpleWells();
 	    else if ( opt == 5 )
@@ -501,8 +494,6 @@ void uiODApplMgrDispatcher::pluginMan()
 { uiPluginMan dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::manageShortcuts()
 { uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
-void uiODApplMgrDispatcher::resortSEGY()
-{ am_.seisserv_->resortSEGY(); }
 void uiODApplMgrDispatcher::createCubeFromWells()
 { uiCreateLogCubeDlg dlg( par_, 0 ); dlg.go(); }
 

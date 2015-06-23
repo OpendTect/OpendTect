@@ -272,9 +272,6 @@ void uiODMenuMgr::fillImportMenu()
     mInsertPixmapItem( imppdf, tr("RokDoc ASCII ..."),
 	    				mImpPDFAsciiMnuItm, ascic );
 
-    mInsertPixmapItem( impseis, tr("SEG-Y ..."), mImpSeisSEGYMnuItm, "segy" );
-    mInsertPixmapItem( impseis, tr("SEG-Y Data Link ..."),
-	    				mImpSeisSEGYDirectMnuItm, "segy_link" );
     uiMenu* impseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
     mInsertItem( impseissimple, uiStrings::s2D(false), mImpSeisSimple2DMnuItm );
     mInsertItem( impseissimple, uiStrings::s3D(false), mImpSeisSimple3DMnuItm );
@@ -309,7 +306,6 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impwellasc, uiStrings::sMarkers(false),
                  mImpWellAsciiMarkersMnuItm );
     impwell->insertItem( impwellasc );
-    mInsertItem( impwell, tr("VSP (SEG-Y) ..."), mImpWellSEGYVSPMnuItm );
     mInsertItem( impwell, tr("Simple Multi-Well ..."), mImpWellSimpleMnuItm );
 
     uiMenu* impwellbulk = new uiMenu( &appl_, tr("Bulk") );
@@ -365,12 +361,6 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( expwvlt );
     expmnu_->insertSeparator();
 
-    uiMenu* expseissgy = new uiMenu( &appl_, uiStrings::sSEGY() );
-    mInsertItem( expseissgy, uiStrings::s2D(false), mExpSeisSEGY2DMnuItm );
-    mInsertItem( expseissgy, uiStrings::s3D(false), mExpSeisSEGY3DMnuItm );
-    mInsertItem( expseissgy, tr("Prestack 3D ..."),
-                 mExpSeisSEGYPS3DMnuItm );
-    expseis->insertItem( expseissgy );
     uiMenu* expseissimple = new uiMenu( &appl_, tr("Simple File") );
     mInsertItem( expseissimple, uiStrings::s2D(false), mExpSeisSimple2DMnuItm );
     mInsertItem( expseissimple, uiStrings::s3D(false), mExpSeisSimple3DMnuItm );
@@ -461,11 +451,11 @@ void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
 
-    uiMenu* csoitm = new uiMenu( &appl_, tr("Create Seismic Output") );
+    csoitm_ = new uiMenu( &appl_, tr("Create Seismic Output") );
 
 // Attributes
     uiMenu* attritm = new uiMenu( uiStrings::sAttributes(true) );
-    csoitm->insertItem( attritm );
+    csoitm_->insertItem( attritm );
 
     add2D3DMenuItem( *attritm, "seisout", tr("Single Attribute"),
 		     mSeisOut2DMnuItm, mSeisOut3DMnuItm );
@@ -487,7 +477,7 @@ void uiODMenuMgr::fillProcMenu()
 
 // 2D <-> 3D
     uiMenu* itm2d3d = new uiMenu( "2D <=> 3D" );
-    csoitm->insertItem( itm2d3d );
+    csoitm_->insertItem( itm2d3d );
     if ( SI().has3D() )
     {
 	mInsertItem( itm2d3d, tr("Create 2D from 3D ..."),
@@ -505,28 +495,25 @@ void uiODMenuMgr::fillProcMenu()
     if ( SI().has3D() )
     {
 // Other 3D items
-	csoitm->insertItem(
+	csoitm_->insertItem(
 	    new uiAction(tr("Angle Mute Function ..."),
 			mCB(&applMgr(),uiODApplMgr,genAngleMuteFunction) ));
-	csoitm->insertItem(
+	csoitm_->insertItem(
 	    new uiAction(tr("Bayesian Classification ..."),
 			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes"));
-	csoitm->insertItem(
+	csoitm_->insertItem(
 	    new uiAction(tr("From Well Logs ..."),
 			mCB(&applMgr(),uiODApplMgr,createCubeFromWells) ));
     }
 
-    add2D3DMenuItem( *csoitm, "empty", tr("Prestack Processing"),
+    add2D3DMenuItem( *csoitm_, "empty", tr("Prestack Processing"),
 		     mPSProc2DMnuItm, mPSProc3DMnuItm );
-
-    csoitm->insertItem( new uiAction(tr("Re-sort Scanned SEG-Y ..."),
-		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
 
     if ( SI().has3D() )
     {
 // Velocity
 	uiMenu* velitm = new uiMenu( tr("Velocity") );
-	csoitm->insertItem( velitm );
+	csoitm_->insertItem( velitm );
 	velitm->insertItem(
 	    new uiAction(tr("Time - Depth Conversion ..."),
 			 mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
@@ -534,12 +521,12 @@ void uiODMenuMgr::fillProcMenu()
 	    new uiAction(tr("Velocity Conversion ..."),
 			 mCB(&applMgr(),uiODApplMgr,processVelConv)) );
 
-	csoitm->insertItem(
+	csoitm_->insertItem(
 	    new uiAction(tr("Volume Builder ..."),
 			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
     }
 
-    procmnu_->insertItem( csoitm );
+    procmnu_->insertItem( csoitm_ );
 
     uiMenu* grditm = new uiMenu( &appl_, tr("Create Horizon Output") );
     add2D3DMenuItem( *grditm, "ongrid", uiStrings::sAttributes(true),
@@ -1182,17 +1169,11 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpAttrOthSurvMnuItm:		mDoOp(Imp,Attr,1); break;
     case mImpColTabMnuItm:		mDoOp(Imp,ColTab,0); break;
     case mImpSeisCBVSMnuItm:		mDoOp(Imp,Seis,0); break;
-    case mImpSeisSEGYMnuItm:		mDoOp(Imp,Seis,1); break;
-    case mImpSeisSEGYDirectMnuItm:	mDoOp(Imp,Seis,2); break;
     case mImpSeisSimple3DMnuItm:	mDoOp(Imp,Seis,5); break;
     case mImpSeisSimple2DMnuItm:	mDoOp(Imp,Seis,6); break;
     case mImpSeisSimplePS3DMnuItm:	mDoOp(Imp,Seis,7); break;
     case mImpSeisSimplePS2DMnuItm:	mDoOp(Imp,Seis,8); break;
     case mImpSeisCBVSOtherSurvMnuItm:	mDoOp(Imp,Seis,9); break;
-    case mExpSeisSEGY3DMnuItm:		mDoOp(Exp,Seis,1); break;
-    case mExpSeisSEGY2DMnuItm:		mDoOp(Exp,Seis,2); break;
-    case mExpSeisSEGYPS3DMnuItm:	mDoOp(Exp,Seis,3); break;
-    case mExpSeisSEGYPS2DMnuItm:	mDoOp(Exp,Seis,4); break;
     case mExpSeisSimple3DMnuItm:	mDoOp(Exp,Seis,5); break;
     case mExpSeisSimple2DMnuItm:	mDoOp(Exp,Seis,6); break;
     case mExpSeisSimplePS3DMnuItm:	mDoOp(Exp,Seis,7); break;
@@ -1208,7 +1189,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpWellAsciiTrackMnuItm:	mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm:	mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;
-    case mImpWellSEGYVSPMnuItm:		mDoOp(Imp,Wll,3); break;
     case mImpWellSimpleMnuItm:		mDoOp(Imp,Wll,4); break;
     case mImpBulkWellTrackItm:		mDoOp(Imp,Wll,5); break;
     case mImpBulkWellLogsItm:		mDoOp(Imp,Wll,6); break;

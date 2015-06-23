@@ -20,7 +20,6 @@ class BufferStringSet;
 class DataPointSet;
 class DataPointSetDisplayMgr;
 class NLAModel;
-class uiSEGYRead;
 class uiWellAttribCrossPlot;
 class uiWellTo2DLineDlg;
 
@@ -51,8 +50,6 @@ public:
     bool			create2DFromWells(MultiID& newseisid,
 						  Pos::GeomID& newlinegid);
     void			doXPlot();
-    void			doSEGYTool(IOPar* prevpars=0,int choice=-1);
-    void			doVSPTool(IOPar* prevpars=0,int choice=-1);
 
     void 			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )
 				{ dpsdispmgr_ = dispmgr; }
@@ -73,7 +70,6 @@ protected:
     Attrib::DescSet*		attrset_;
     const NLAModel*		nlamodel_;
     bool			welltiedlgopened_;
-    uiSEGYRead*			cursegyread_;
 
     WellTie::uiTieWinMGRDlg*	welltiedlg_;
     uiWellAttribCrossPlot*	xplotwin2d_;
@@ -83,13 +79,13 @@ protected:
 
     void			closeWellTieDlg(CallBacker*);
     void			surveyChangedCB(CallBacker*);
-    void			segyToolEnded(CallBacker*);
     void			previewWellto2DLine(CallBacker*);
     void			wellTo2DDlgClosed(CallBacker*);
-    bool			launchSEGYWiz(IOPar*,int);
 
 private:
+
     void			cleanUp();
+
 };
 
 #endif
