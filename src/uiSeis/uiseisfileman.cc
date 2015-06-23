@@ -56,7 +56,7 @@ uiSeisCBVSBrowerMgr()
 {
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 			    CBVSSeisTrcTranslator::translKey() );
-    bdef->tooltip_ = uiString( "Browse/Edit CBVS file '%1'" );
+    bdef->tooltip_ = uiString( "Browse/Edit CBVS cube '%1'" );
     bdef->cb_ = mCB(this,uiSeisCBVSBrowerMgr,doBrowse);
     uiSeisFileMan::addBrowser( bdef );
 }
@@ -144,7 +144,7 @@ int uiSeisFileMan::addBrowser( uiSeisFileMan::BrowserDef* bd )
 
 #define mIsOfTranslName(nm) (FixedString(curioobj_->translator()) == nm)
 #define mIsOfTranslType(typ) \
-    	mIsOfTranslName(typ##SeisTrcTranslator::translKey())
+	mIsOfTranslName(typ##SeisTrcTranslator::translKey())
 
 
 void uiSeisFileMan::ownSelChg()
@@ -183,7 +183,7 @@ void uiSeisFileMan::setToolButtonProperties()
 	browsebut_->setSensitive( enabbrowse );
 	if ( !enabbrowse )
 	    mSetButToolTip( browsebut_, "No browser for '",cursel,"'",
-		    		"Browse/edit selected cube" )
+				"Browse/edit selected cube" )
 	else
 	{
 	    uiString bdeftt( bdef->tooltip_ );

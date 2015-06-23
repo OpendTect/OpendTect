@@ -11,9 +11,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uisegytool.h"
+#include "uisegyread.h"
+#include "uiwellimpsegyvsp.h"
+#include "uidialog.h"
+#include "uichecklist.h"
+#include "uimsg.h"
 
 
-void uiSEGYTool::uiSEGYTool( uiParent* p, IOPar* previop, int choice )
+uiSEGYTool::uiSEGYTool( uiParent* p, IOPar* previop, int choice )
     : parent_(p)
     , choice_(choice)
     , isnext_(false)
@@ -26,7 +31,7 @@ void uiSEGYTool::uiSEGYTool( uiParent* p, IOPar* previop, int choice )
 }
 
 
-void uiSEGYTool::doDlg()
+void uiSEGYTool::go()
 {
     if ( choice_ < 0 )
     {
@@ -45,7 +50,7 @@ void uiSEGYTool::doDlg()
 	choice_ = choicefld->firstChecked();
     }
 
-    switch ( choice )
+    switch ( choice_ )
     {
     case 0: case 1:
 	if ( segyread_ )
@@ -138,5 +143,6 @@ void uiSEGYTool::toolEnded( CallBacker* )
     pars_ = segyread_->pars();
     segyread_ = 0;
 
-    doSEGYTool( &pars_ );
+    isnext_ = true;
+    go();
 }

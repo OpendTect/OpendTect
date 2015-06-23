@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uiodmenumgr.h"
 #include "uitoolbar.h"
+#include "uimsg.h"
 
 #include "odplugin.h"
 
@@ -34,7 +35,7 @@ mDefODPluginInfo(uiSEGY)
 	"OpendTect",
 	"dGB (Bert)",
 	"1.0",
-    	"Supports the SEG-Y format") )
+	"Supports the SEG-Y format") )
     return &retpi;
 }
 
@@ -63,7 +64,7 @@ public:
 
     static uiSEGYMgr*		theinst_;
     static const uiString	sSEGYString( bool imm )
-    				{ return imm ? tr("SEG-Y") : tr("SEG-Y ..."); }
+				{ return imm ? tr("SEG-Y") : tr("SEG-Y ..."); }
 
 };
 
@@ -84,7 +85,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain& a )
     uiSEGYDirectPS3DInserter::initClass();
 
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
-	    			SEGYDirectSeisTrcTranslator::translKey() );
+				SEGYDirectSeisTrcTranslator::translKey() );
     bdef->tooltip_ = uiString( "Change file/directory names in SEG-Y file" );
     bdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisFileMan::addBrowser( bdef );
@@ -104,14 +105,14 @@ uiSEGYMgr::uiSEGYMgr( uiODMain& a )
 void uiSEGYMgr::updateToolBar( CallBacker* )
 {
     mnumgr.dtectTB()->addButton( "segy", tr("SEG-Y import"),
-	    			 mCB(this,uiSEGYMgr,fullWizCB) );
+				 mCB(this,uiSEGYMgr,fullWizCB) );
 }
 
 
 void uiSEGYMgr::updateMenu( CallBacker* )
 {
     uiAction* impact = new uiAction( sSEGYString(false),
-	    			     muiSEGYMgrCB(genImpCB), "segy" );
+				     muiSEGYMgrCB(genImpCB), "segy" );
     uiAction* linkact = new uiAction( tr("SEG-Y Data Link ..."),
 				      muiSEGYMgrCB(linkImpCB), "segy_link" );
 
@@ -128,15 +129,15 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 
     if ( have2d )
 	expsgymnu->insertItem( new uiAction( only2d ? sSEGYString(false)
-		    				    : uiStrings::s2D(false),
+						    : uiStrings::s2D(false),
 				muiSEGYMgrCB(exp2DCB), "" ) );
     if ( !only2d )
     {
         expsgymnu->insertItem( new uiAction( have2d ? uiStrings::s3D(false)
-		    				    : tr("Cube"),
+						: tr("Cube ..."),
 				muiSEGYMgrCB(exp3DCB), "" ) );
-        expsgymnu->insertItem( new uiAction( have2d ? tr("PreStack 3D")
-		    				    : tr("Pre-Stack volume"),
+        expsgymnu->insertItem( new uiAction( have2d ? tr("PreStack 3D ...")
+						: tr("Pre-Stack volume ..."),
 				muiSEGYMgrCB(exp3DPSCB), "" ) );
     }
 
@@ -149,31 +150,37 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 
 void uiSEGYMgr::genImpCB( CallBacker* )
 {
+    uiMSG().error( "TODO: reinstate general import" );
 }
 
 
 void uiSEGYMgr::linkImpCB( CallBacker* )
 {
+    uiMSG().error( "TODO: reinstate linked import" );
 }
 
 
 void uiSEGYMgr::exp2DCB( CallBacker* )
 {
+    uiMSG().error( "TODO: reinstate export 2D" );
 }
 
 
 void uiSEGYMgr::exp3DCB( CallBacker* )
 {
+    uiMSG().error( "TODO: reinstate export 3D" );
 }
 
 
 void uiSEGYMgr::exp3DPSCB( CallBacker* )
 {
+    uiMSG().error( "TODO: reinstate export 3D PS" );
 }
 
 
 void uiSEGYMgr::expVSPCB( CallBacker* )
 {
+    uiMSG().error( "TODO: reinstate export VSP" );
 }
 
 
@@ -184,6 +191,7 @@ void uiSEGYMgr::survChg( CallBacker* )
 
 void uiSEGYMgr::reSortCB( CallBacker* )
 {
+    uiMSG().error( "TODO: reinstate resort" );
 }
 
 
@@ -200,6 +208,7 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 
 void uiSEGYMgr::fullWizCB( CallBacker* )
 {
+    uiMSG().error( "TODO: implement intelligent import" );
 }
 
 

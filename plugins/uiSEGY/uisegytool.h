@@ -12,14 +12,18 @@ ________________________________________________________________________
 -*/
 
 #include "uisegycommon.h"
+#include "iopar.h"
+#include "uistring.h"
+class uiParent;
+class uiSEGYRead;
 
 
 mExpClass(uiSEGY) uiSEGYTool : public CallBacker
-{
+{ mODTextTranslationClass(uiSEGYTool);
 
 			uiSEGYTool(uiParent*,IOPar* previop=0,int choice=-1);
 
-    bool		go();
+    void		go();
 
 protected:
 
@@ -30,8 +34,8 @@ protected:
 
     uiSEGYRead*		segyread_;
 
-    bool		doVSPTool(IOPar*,int);
-    bool		launchSEGYWiz(IOPar*,int);
+    bool		launchSEGYWiz();
+    void		doVSPTool();
 
     void		toolEnded(CallBacker*);
 
