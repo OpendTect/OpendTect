@@ -170,6 +170,11 @@ bool uiViewer3DShapeTab::acceptOK( )
 	}
     }
 
+    initialside_ = viewer_.displayOnPositiveSide();
+    initialautowidth_ = viewer_.displayAutoWidth();
+    initialfactor_ = viewer_.getFactor();
+    initialwidth_ = viewer_.getWidth();
+
     return true;
 }
 
