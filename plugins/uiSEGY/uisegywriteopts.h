@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uiioobjselwritetransl.h"
 #include "uistring.h"
 
@@ -19,7 +19,7 @@ class uiGenInput;
 class uiSEGYFilePars;
 
 
-mExpClass(uiSeis) uiSEGYDirectVolOpts : public uiIOObjTranslatorWriteOpts
+mExpClass(uiSEGY) uiSEGYDirectVolOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiSEGYDirectVolOpts);
 public:
 
@@ -34,7 +34,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiCBVSPS3DOpts : public uiIOObjTranslatorWriteOpts
+mExpClass(uiSEGY) uiCBVSPS3DOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiCBVSPS3DOpts);
 public:
 
@@ -49,7 +49,7 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSEGYDirectPS3DOpts : public uiIOObjTranslatorWriteOpts
+mExpClass(uiSEGY) uiSEGYDirectPS3DOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiSEGYDirectPS3DOpts);
 public:
 
