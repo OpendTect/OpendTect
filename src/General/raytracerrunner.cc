@@ -70,8 +70,6 @@ bool RayTracerRunner::prepareRayTracers()
 	    mErrRet( errmsg.buf() );
 	}
 
-	rt1d = RayTracer1D::factory().create(
-		*RayTracer1D::factory().getNames()[0] );
 	rt1d->usePar( raypar_ );
 
 	if ( !rt1d->setNewModel(aimodels_[idx]) )
