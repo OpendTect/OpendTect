@@ -54,7 +54,8 @@ mExpClass(uiSeis) uiSeisCopy2DDataSet : public uiDialog
 {
 public:
 
-			uiSeisCopy2DDataSet(uiParent*,const IOObj*);
+			uiSeisCopy2DDataSet(uiParent*,const IOObj*,
+					    const char* fixedouttransl=0);
 protected:
 
     uiSeisSel*		inpfld_;

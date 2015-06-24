@@ -129,7 +129,8 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 }
 
 
-uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj )
+uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
+					  const char* fixedoutputtransl )
     : uiDialog(p,Setup("Copy 2D Seismic Data",uiStrings::sEmptyString(),
                        mODHelpKey(mSeisCopyLineSetHelpID) ))
 {
@@ -149,6 +150,9 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj )
     scalefld_->attach( alignedBelow, subselfld_ );
 
     ioctxt.forread = false;
+    if ( fixedoutputtransl )
+	ioctxt.fixTranslator( fixedoutputtransl );
+
     outpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
     outpfld_->attach( alignedBelow, scalefld_ );
 
