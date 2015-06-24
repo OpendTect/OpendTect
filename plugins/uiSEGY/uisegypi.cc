@@ -35,7 +35,7 @@ mDefODPluginInfo(uiSEGY)
 	"OpendTect",
 	"dGB (Bert)",
 	"1.0",
-	"Supports the SEG-Y format") )
+	"Supports the SEG-Y format") );
     return &retpi;
 }
 
