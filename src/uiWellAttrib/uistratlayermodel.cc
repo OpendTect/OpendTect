@@ -533,7 +533,6 @@ void uiStratLayerModel::initWin( CallBacker* cb )
 void uiStratLayerModel::dispEachChg( CallBacker* )
 {
     synthdisp_->setDispEach( modtools_->dispEach() );
-    updateGenDesc();
 }
 
 
@@ -1171,7 +1170,7 @@ bool uiStratLayerModel::useSyntheticsPars( const IOPar& par )
 
 void uiStratLayerModel::fillSyntheticsPars( IOPar& par ) const
 {
-    synthdisp_->fillPar( par );
+    synthdisp_->fillPar( par, false );
 }
 
 
@@ -1188,7 +1187,7 @@ void uiStratLayerModel::helpCB( CallBacker* )
 
 void uiStratLayerModel::syntheticsChangedCB( CallBacker* )
 {
-    fillSyntheticsPars( desc_.getWorkBenchParams() );
+    synthdisp_->fillPar( desc_.getWorkBenchParams() );
 }
 
 
