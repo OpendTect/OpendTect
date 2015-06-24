@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uiseiswriteopts.h"
+#include "uisegywriteopts.h"
 
 #include "iopar.h"
 #include "segydirecttr.h"
