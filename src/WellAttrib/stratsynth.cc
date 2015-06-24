@@ -1343,7 +1343,6 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
     ElasticModelAdjuster emadjuster( lm, aimodels );
     const bool res = TaskRunner::execute( taskr_, emadjuster );
     infomsg_ = emadjuster.infoMsg().getFullString();
-    errmsg_ = emadjuster.errMsg();
     return res;
 }
 
