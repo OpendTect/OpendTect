@@ -1633,8 +1633,6 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     if ( useed_ && GetEnvVarYN("USE_FR_DIFF",false) )
 	setDiffData();
 
-    synthsChanged.trigger();
-
     if ( stratsynthpar )
     {
 	int snaplvl = 0;
