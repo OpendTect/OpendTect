@@ -160,7 +160,7 @@ void uiSeisFileMan::ownSelChg()
 	{ \
 	    tt.setEmpty(); \
 	    tt.add( str1 ).add( curattribnms ).add( str2 ); \
-	    but->setToolTip( tr(tt) ); \
+	    but->setToolTip( uiString(tt) ); \
 	} \
 	else \
 	    but->setToolTip( deftt ); \

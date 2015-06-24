@@ -10,13 +10,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegycommon.h"
 
 #include "segydirecttr.h"
-#include "ioman.h"
 #include "survinfo.h"
 
 #include "uisegydirectinserter.h"
 #include "uisegywriteopts.h"
 #include "uisegysip.h"
 #include "uisegydefdlg.h"
+#include "uisegyexp.h"
+#include "uisegyread.h"
+#include "uisegyresortdlg.h"
+#include "uiwellimpsegyvsp.h"
 
 #include "uiseisfileman.h"
 #include "uisurvinfoed.h"
@@ -44,10 +47,10 @@ class uiSEGYMgr	: public CallBacker
 { mODTextTranslationClass(uiSEGYMgr);
 public:
 
-			uiSEGYMgr(uiODMain&);
+			uiSEGYMgr(uiODMain*);
 
-    uiODMain&		appl_;
-    uiODMenuMgr&	mnumgr;
+    uiODMain*		appl_;
+    uiODMenuMgr&	mnumgr_;
 
     void		updateToolBar(CallBacker*);
     void		updateMenu(CallBacker*);
@@ -58,7 +61,7 @@ public:
     void		exp2DCB(CallBacker*);
     void		exp3DCB(CallBacker*);
     void		exp3DPSCB(CallBacker*);
-    void		expVSPCB(CallBacker*);
+    void		impVSPCB(CallBacker*);
     void		reSortCB(CallBacker*);
     void		fullWizCB(CallBacker*);
 
@@ -74,8 +77,8 @@ uiSEGYMgr* uiSEGYMgr::theinst_ = 0;
 #define muiSEGYMgrCB(fn) mCB(this,uiSEGYMgr,fn)
 
 
-uiSEGYMgr::uiSEGYMgr( uiODMain& a )
-    : mnumgr(a.menuMgr())
+uiSEGYMgr::uiSEGYMgr( uiODMain* a )
+    : mnumgr_(a->menuMgr())
     , appl_(a)
 {
     uiSEGYDirectVolOpts::initClass();
@@ -93,9 +96,8 @@ uiSEGYMgr::uiSEGYMgr( uiODMain& a )
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
 
-    mnumgr.dTectTBChanged.notify( muiSEGYMgrCB(updateToolBar) );
-    mnumgr.dTectMnuChanged.notify( muiSEGYMgrCB(updateMenu) );
-    IOM().surveyToBeChanged.notify( muiSEGYMgrCB(survChg) );
+    mnumgr_.dTectTBChanged.notify( muiSEGYMgrCB(updateToolBar) );
+    mnumgr_.dTectMnuChanged.notify( muiSEGYMgrCB(updateMenu) );
 
     updateToolBar(0);
     updateMenu(0);
@@ -104,7 +106,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain& a )
 
 void uiSEGYMgr::updateToolBar( CallBacker* )
 {
-    mnumgr.dtectTB()->addButton( "segy", tr("SEG-Y import"),
+    mnumgr_.dtectTB()->addButton( "segy", tr("SEG-Y import"),
 				 mCB(this,uiSEGYMgr,fullWizCB) );
 }
 
@@ -116,13 +118,13 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     uiAction* linkact = new uiAction( tr("SEG-Y Data Link ..."),
 				      muiSEGYMgrCB(linkImpCB), "segy_link" );
 
-    uiMenu* impseismnu = mnumgr.getMnu( true, uiODApplMgr::Seis );
+    uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
     impseismnu->insertItem( impact );
     impseismnu->insertItem( linkact );
 
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
-    uiMenu* expseismnu = mnumgr.getMnu( false, uiODApplMgr::Seis );
-    uiMenu* expsgymnu = !only2d ? new uiMenu( &appl_, sSEGYString(true), "segy")
+    uiMenu* expseismnu = mnumgr_.getMnu( false, uiODApplMgr::Seis );
+    uiMenu* expsgymnu = !only2d ? new uiMenu( appl_, sSEGYString(true), "segy")
 				: expseismnu;
     if ( expsgymnu != expseismnu )
 	expseismnu->insertItem( expsgymnu );
@@ -141,57 +143,59 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 				muiSEGYMgrCB(exp3DPSCB), "" ) );
     }
 
-    mnumgr.getMnu( true, uiODApplMgr::Wll )->insertItem(
-	new uiAction( tr("VSP (SEG-Y) ..."), muiSEGYMgrCB(expVSPCB), "" ) );
-    mnumgr.createSeisOutputMenu()->insertItem(
+    mnumgr_.getMnu( true, uiODApplMgr::Wll )->insertItem(
+	new uiAction( tr("VSP (SEG-Y) ..."), muiSEGYMgrCB(impVSPCB), "" ) );
+    mnumgr_.createSeisOutputMenu()->insertItem(
 	new uiAction(tr("Re-sort Scanned SEG-Y ..."), muiSEGYMgrCB(reSortCB)) );
 }
 
 
 void uiSEGYMgr::genImpCB( CallBacker* )
 {
-    uiMSG().error( "TODO: reinstate general import" );
+    new uiSEGYRead( appl_, uiSEGYRead::Setup(uiSEGYRead::Import) );
 }
 
 
 void uiSEGYMgr::linkImpCB( CallBacker* )
 {
-    uiMSG().error( "TODO: reinstate linked import" );
+    uiSEGYRead::Setup su( uiSEGYRead::DirectDef );
+    su.geoms_ -= Seis::Line;
+    new uiSEGYRead( appl_, su );
 }
 
 
 void uiSEGYMgr::exp2DCB( CallBacker* )
 {
-    uiMSG().error( "TODO: reinstate export 2D" );
+    uiSEGYExp dlg( appl_, Seis::Line );
+    dlg.go();
 }
 
 
 void uiSEGYMgr::exp3DCB( CallBacker* )
 {
-    uiMSG().error( "TODO: reinstate export 3D" );
+    uiSEGYExp dlg( appl_, Seis::Vol );
+    dlg.go();
 }
 
 
 void uiSEGYMgr::exp3DPSCB( CallBacker* )
 {
-    uiMSG().error( "TODO: reinstate export 3D PS" );
+    uiSEGYExp dlg( appl_, Seis::VolPS );
+    dlg.go();
 }
 
 
-void uiSEGYMgr::expVSPCB( CallBacker* )
+void uiSEGYMgr::impVSPCB( CallBacker* )
 {
-    uiMSG().error( "TODO: reinstate export VSP" );
-}
-
-
-void uiSEGYMgr::survChg( CallBacker* )
-{
+    uiWellImportSEGYVSP dlg( appl_ );
+    dlg.go();
 }
 
 
 void uiSEGYMgr::reSortCB( CallBacker* )
 {
-    uiMSG().error( "TODO: reinstate resort" );
+    uiResortSEGYDlg dlg( appl_ );
+    dlg.go();
 }
 
 
@@ -215,6 +219,6 @@ void uiSEGYMgr::fullWizCB( CallBacker* )
 mDefODInitPlugin(uiSEGY)
 {
     if ( !uiSEGYMgr::theinst_ )
-	uiSEGYMgr::theinst_ = new uiSEGYMgr( *ODMainWin() );
+	uiSEGYMgr::theinst_ = new uiSEGYMgr( ODMainWin() );
     return 0;
 }
