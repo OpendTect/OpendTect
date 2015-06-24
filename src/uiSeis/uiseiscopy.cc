@@ -129,13 +129,13 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 }
 
 
-uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
+uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj )
     : uiDialog(p,Setup("Copy 2D Seismic Data",uiStrings::sEmptyString(),
                        mODHelpKey(mSeisCopyLineSetHelpID) ))
 {
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
     inpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
-    inpfld_->selectionDone.notify( mCB(this,uiSeisCopyLineSet,inpSel) );
+    inpfld_->selectionDone.notify( mCB(this,uiSeisCopy2DDataSet,inpSel) );
 
     subselfld_ = new uiSeis2DMultiLineSel( this, "Select Lines to copy", true );
     subselfld_->attach( alignedBelow, inpfld_ );
@@ -159,14 +159,14 @@ uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
 }
 
 
-void uiSeisCopyLineSet::inpSel( CallBacker* )
+void uiSeisCopy2DDataSet::inpSel( CallBacker* )
 {
     if ( inpfld_->ioobj(true) )
 	subselfld_->setInput( inpfld_->key() );
 }
 
 
-bool uiSeisCopyLineSet::acceptOK( CallBacker* )
+bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
 {
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )
