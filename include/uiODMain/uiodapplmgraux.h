@@ -65,7 +65,6 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		process2D3D(int opt);
     void		genAngleMuteFunction();
     void		bayesClass(bool is2d);
-    void		resortSEGY();
     void		startBatchJob();
     void		setupBatchHosts();
     void		batchProgs();

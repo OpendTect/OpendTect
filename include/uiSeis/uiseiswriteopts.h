@@ -36,21 +36,6 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiSEGYDirectVolOpts : public uiIOObjTranslatorWriteOpts
-{ mODTextTranslationClass(uiSEGYDirectVolOpts);
-public:
-
-			uiSEGYDirectVolOpts(uiParent*);
-
-    mDecluiIOObjTranslatorWriteOptsStdFns(uiSEGYDirectVolOpts);
-
-protected:
-
-    uiSEGYFilePars*	parsfld_;
-
-};
-
-
 mExpClass(uiSeis) uiCBVSPS3DOpts : public uiIOObjTranslatorWriteOpts
 { mODTextTranslationClass(uiCBVSPS3DOpts);
 public:
@@ -62,22 +47,6 @@ public:
 protected:
 
     uiGenInput*		stortypfld_;
-
-};
-
-
-mExpClass(uiSeis) uiSEGYDirectPS3DOpts : public uiIOObjTranslatorWriteOpts
-{ mODTextTranslationClass(uiSEGYDirectPS3DOpts);
-public:
-
-			uiSEGYDirectPS3DOpts(uiParent*);
-
-    mDecluiIOObjTranslatorWriteOptsStdFns(uiSEGYDirectPS3DOpts);
-
-protected:
-
-    uiSEGYFilePars*	parsfld_;
-    uiGenInput*		nrinlpfilefld_;
 
 };
 

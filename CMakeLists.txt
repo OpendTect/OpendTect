@@ -87,7 +87,7 @@ set( OD_PLUGINS
 	uiGLCM
 	uiGMT
 	uiGoogleIO
-	uiGrav
+	uiSEGY
 	uiHello
 	uiHorizonAttrib
 	uiImpGPR

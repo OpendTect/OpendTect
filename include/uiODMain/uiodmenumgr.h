@@ -57,6 +57,7 @@ public:
     uiMenu*		toolsMnu()		{ return toolsmnu_; }
     uiMenu*		installMnu()		{ return installmnu_; }
     uiMenu*		preLoadMenu()		{ return preloadmnu_; }
+    uiMenu*		createSeisOutputMenu()	{ return csoitm_; }
 
     uiMenu*		getBaseMnu(uiODApplMgr::ActType);
 			//! < Within Survey menu
@@ -118,6 +119,7 @@ protected:
     uiMenu*		langmnu_;
     uiMenu*		toolsmnu_;
     uiMenu*		installmnu_;
+    uiMenu*		csoitm_;
     ObjectSet<uiMenu>	impmnus_;
     ObjectSet<uiMenu>	expmnus_;
 

@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uisegyreaddlg.h"
 namespace SEGY { class Scanner; class FileIndexer; }
 class uiSeisSel;
@@ -22,7 +22,7 @@ class uiBatchJobDispatcherSel;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mExpClass(uiSeis) uiSEGYScanDlg : public uiSEGYReadDlg
+mExpClass(uiSEGY) uiSEGYScanDlg : public uiSEGYReadDlg
 { mODTextTranslationClass(uiSEGYScanDlg);
 public :
 

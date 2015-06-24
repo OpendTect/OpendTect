@@ -104,7 +104,6 @@ public:
     void			genAngleMuteFunction(CallBacker* =0);
     void			bayesClass2D(CallBacker* =0);
     void			bayesClass3D(CallBacker* =0);
-    void			resortSEGY(CallBacker* =0);
     void			createCubeFromWells(CallBacker* =0);
     void			create2DGrid()		{ process2D3D(0); }
     void			create2DFrom3D()	{ process2D3D(1); }

@@ -12,8 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uivarwizarddlg.h"
 #include "seistype.h"
 
@@ -30,11 +29,11 @@ class IOObj;
 
 /*!\brief Initial dialog for SEG-Y I/O. */
 
-mExpClass(uiSeis) uiSEGYDefDlg : public uiVarWizardDlg
+mExpClass(uiSEGY) uiSEGYDefDlg : public uiVarWizardDlg
 { mODTextTranslationClass(uiSEGYDefDlg);
 public:
 
-    mStruct(uiSeis) Setup : public uiDialog::Setup
+    mStruct(uiSEGY) Setup : public uiDialog::Setup
     {
 					Setup();
 
@@ -80,7 +79,7 @@ protected:
 
 /*!\brief UI for manipulating fille names/paths for a SEGYDirect data-store */
 
-mExpClass(uiSeis) uiEditSEGYFileDataDlg : public uiDialog
+mExpClass(uiSEGY) uiEditSEGYFileDataDlg : public uiDialog
 { mODTextTranslationClass(uiEditSEGYFileDataDlg)
 public:
 			uiEditSEGYFileDataDlg(uiParent* p,const IOObj&);

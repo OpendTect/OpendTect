@@ -1898,8 +1898,6 @@ void uiODApplMgr::bayesClass2D( CallBacker* )
 { dispatcher_.bayesClass(true); }
 void uiODApplMgr::bayesClass3D( CallBacker* )
 { dispatcher_.bayesClass(false); }
-void uiODApplMgr::resortSEGY( CallBacker* )
-{ dispatcher_.resortSEGY(); }
 void uiODApplMgr::startBatchJob()
 { dispatcher_.startBatchJob(); }
 void uiODApplMgr::setupBatchHosts()

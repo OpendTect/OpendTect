@@ -18,19 +18,6 @@ SET(OD_MODULE_SOURCES
 	uimultcomputils.cc
 	uiprestkmergedlg.cc
 	uiprestacksel.cc
-	uisegydef.cc
-	uisegydefdlg.cc
-	uisegydirectinserter.cc
-	uisegyexamine.cc
-	uisegyexp.cc
-	uisegyimpdlg.cc
-	uisegymanip.cc
-	uisegyread.cc
-	uisegyreaddlg.cc
-	uisegyresortdlg.cc
-	uisegyscandlg.cc
-	uisegysip.cc
-	uisegytrchdrvalplot.cc
 	uiseis2dfileman.cc
 	uiseis2dfrom3d.cc
 	uiseis2dgeom.cc
@@ -72,6 +59,5 @@ SET(OD_MODULE_SOURCES
 )
 
 SET( OD_MODULE_PROGS od_ClusterProc.cc od_SeisMMBatch.cc )
-SET( OD_MODULE_GUI_PROGS od_SEGYExaminer.cc )
 
 OD_INIT_MODULE()

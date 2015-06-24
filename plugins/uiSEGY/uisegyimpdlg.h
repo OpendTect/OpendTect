@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uisegyreaddlg.h"
 #include "uistring.h"
 class uiSeisSel;
@@ -24,7 +24,7 @@ class uiBatchJobDispatcherSel;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-mExpClass(uiSeis) uiSEGYImpDlg : public uiSEGYReadDlg
+mExpClass(uiSEGY) uiSEGYImpDlg : public uiSEGYReadDlg
 { mODTextTranslationClass(uiSEGYImpDlg);
 public :
 

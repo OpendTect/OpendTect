@@ -11,8 +11,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiseismod.h"
-#include "uiseismod.h"
+#include "uisegycommon.h"
 #include "uidialog.h"
 #include "segyfiledef.h"
 #include "uistring.h"
@@ -29,11 +28,11 @@ class SEGYSeisTrcTranslator;
 
 /* The dialog for examining SEG-Y files */
 
-mExpClass(uiSeis) uiSEGYExamine : public uiDialog
+mExpClass(uiSEGY) uiSEGYExamine : public uiDialog
 { mODTextTranslationClass(uiSEGYExamine);
 public:
 
-    mStruct(uiSeis) Setup : public uiDialog::Setup
+    mStruct(uiSEGY) Setup : public uiDialog::Setup
     {
 				Setup(int nrtraces=100);
 

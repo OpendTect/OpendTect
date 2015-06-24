@@ -12,6 +12,7 @@
       -*/
 
 
+#include "uisegycommon.h"
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "iopar.h"
@@ -27,7 +28,7 @@ class SeisTrc;
 class CtxtIOObj;
 
 
-mExpClass(uiWellAttrib) uiWellImportSEGYVSP : public uiDialog
+mExpClass(uiSEGY) uiWellImportSEGYVSP : public uiDialog
 { mODTextTranslationClass(uiWellImportSEGYVSP);
 public:
 			uiWellImportSEGYVSP(uiParent*);
