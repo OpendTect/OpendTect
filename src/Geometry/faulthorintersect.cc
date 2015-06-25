@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "isocontourtracer.h"
 
 
+#define mDistLimitation 10.0f
 namespace Geometry
 {
 
@@ -34,7 +35,7 @@ FBIntersectionCalculator( const BinIDSurface& surf, float surfshift,
 
 ~FBIntersectionCalculator()		{ stickintersections_.erase(); }
 od_int64 nrIterations() const   	{ return shape_.getGeometry().size(); }
-TypeSet<Coord3>& result()		{ return finalres_; }
+TypeSet<Coord3>& result() 		{ return finalres_; }
 
 bool doPrepare( int )
 {
@@ -70,9 +71,75 @@ bool doFinish( bool )
 {
     finalres_.erase();
     for ( int idx=0; idx<stickintersections_.size(); idx++ )
-	addAndSortToResult( finalres_, stickintersections_[idx] );
+    {
+	if ( stickintersections_[idx].size()>0 )
+		finalres_.append( stickintersections_[idx] );
+    }
 
+    if ( finalres_.size()==0 )
+	return false;
+
+    int minidx = -1;
+    if ( !findMin(finalres_, minidx, true) )
+    {
+	if ( !findMin(finalres_,minidx,false) )
+	    return false;
+    }
+
+    if ( minidx> 1 )
+    {
+	const Coord3 mincrd = finalres_[minidx];
+	finalres_.removeSingle( minidx );
+	finalres_.insert( 0, mincrd );
+    }
+  
     return true;
+ }
+
+
+bool findMin( TypeSet<Coord3>& res, int& minidx, bool isx )
+{
+    if ( res.size()==0 ) return false;
+ 
+    double minval = isx ? res[0].x : res[0].y;
+    minidx = 0;
+    Coord3 mincrd;
+    double deltaval = 0;
+    
+    for ( int idx = 1; idx<res.size(); idx++ )
+    {
+	const double val = isx ? res[idx].x : res[idx].y;
+	if ( val < minval )
+	{
+	    minval = val;
+	    minidx = idx;
+	}
+    }
+
+    bool side1 = false;
+    bool side2 = false;
+
+    for ( int idx = 0; idx<res.size(); idx++ )
+    {
+	const double val = isx ? res[idx].x : res[idx].y;
+	deltaval += val - minval;
+
+	if ( side1 && side2 )
+	    break;
+		
+	const double anotherval = isx ? res[idx].y : res[idx].x;
+	const double minpairval = isx ? res[minidx].y : res[minidx].x;
+	
+	bool diff = anotherval - minpairval>0 ? true : false;
+	
+	if ( !side1 && diff )
+	    side1 =  true;
+	else if ( !side2 && !diff )
+	    side2 = true;
+    }
+
+    return (side1 && side2) ? false : ( (deltaval-mDistLimitation)>0 ? true : 
+	false );
 }
 
 
@@ -212,8 +279,8 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		if ( isclosed && !mIsUdf(firstpos.z) )
 		    tmp += firstpos; 
 	    }
-
-	    addAndSortToResult( res, tmp );
+	    if ( tmp.size()>0 )
+		res.append( tmp );
 	    deepErase( isocontours );
 	}
     }
@@ -270,62 +337,6 @@ bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
 }
 
 
-void addAndSortToResult( TypeSet<Coord3>& res, TypeSet<Coord3> ni )
-{
-    const int nilastidx = ni.size() - 1;
-    if ( nilastidx<0 )
-	return;
-
-    const int lastidx = res.size() - 1;
-    if ( lastidx<0 )
-    {
-	for ( int k=0; k<=nilastidx; k++ )
-	    res += ni[k];
-    }
-    else if ( !lastidx )
-    {
-	const float d0 = (float) res[0].sqDistTo( ni[0] );
-	const float d1 = (float) res[0].sqDistTo( ni[nilastidx] );
-	const Coord3 pos = res[0];
-	res.erase();
-
-	for ( int k=0; k<=nilastidx; k++ )
-	    res += ni[k];
-
-	if ( d0 <= d1 )
-	    res.insert( 0, pos );
-	else
-	    res += pos;
-    }
-    else
-    {
-	const float d00 = (float) res[0].sqDistTo( ni[0] );
-	const float d01 = (float) res[0].sqDistTo( ni[nilastidx] );
-	const float d10 = (float) res[lastidx].sqDistTo( ni[0] );
-	const float d11 = (float) res[lastidx].sqDistTo( ni[nilastidx] );
-	if ( d10 <= d00 && d10 <= d11 && d10 <= d01 )
-	{
-	    for ( int k=0; k<=nilastidx; k++ )
-    		res += ni[k];
-	}
-	else if ( d11 <= d10 && d11 <= d01 && d11 <=d00 )
-	{
-	    for ( int k=nilastidx; k>=0; k-- )
-    		res += ni[k];
-	}
-	else if ( d01 <= d11 && d01 <= d00 && d01 <= d10 )
-	{
-	    for ( int k=nilastidx; k>=0; k-- )
-    		res.insert(0,ni[k]);
-	}
-	else
-	{
-	    for ( int k=0; k<=nilastidx; k++ )
-    		res.insert(0,ni[k]);
-	}
-    }
-}
-
 const ExplFaultStickSurface&	shape_;
 const BinIDSurface&		surf_;
 Interval<float>			surfzrg_;
@@ -342,7 +353,7 @@ FaultBinIDSurfaceIntersector::FaultBinIDSurfaceIntersector( float horshift,
     , crdlist_( cl )
     , output_( 0 )
     , zshift_( horshift )
-    , eshape_( eshape )						      
+    , eshape_( eshape )		
 {}
 
 
@@ -366,16 +377,14 @@ void FaultBinIDSurfaceIntersector::compute()
 	return;
 
     TypeSet<Coord3>& calcres = calculator.result();
-    const int possize = calcres.size();
-    if ( !possize )
-	return;
-
     TypeSet<Coord3> res;
     sortPointsToLine( calcres, res );
-
+    
     if ( res.size()==0 )
 	return;
-    
+
+    const int possize = optimizeOrder( res );
+
     IndexedGeometry* geo = !output_ || !output_->getGeometry().size() ? 0 :
 	const_cast<IndexedGeometry*>(output_->getGeometry()[0]);
 
@@ -388,12 +397,46 @@ void FaultBinIDSurfaceIntersector::compute()
     
     geo->removeAll( false );
     Geometry::PrimitiveSet* idxps = geo->getCoordsPrimitiveSet();
+    idxps->setEmpty();
 
     for ( int idx=0; idx<possize; idx++ )
 	idxps->append( crdlist_.add( res[idx] ) );
 
     geo->ischanged_ = true;
 }
+
+
+ int FaultBinIDSurfaceIntersector::optimizeOrder( TypeSet<Coord3>& res )
+ {
+     IntervalND<float> bbox(2);
+     bbox.setRange( Coord(res[0].x,res[0].y) );
+     int detectnr = 0;
+
+     TypeSet<int> idxs;
+     for ( int idx = 1; idx<res.size(); idx++ )
+     {
+	 const Coord xy( res[idx].x,res[idx].y );
+	 if ( bbox.getRange(0).start<xy.x && bbox.getRange(0).stop>xy.x &&
+	      bbox.getRange(1).start<xy.y && bbox.getRange(1).stop>xy.y )
+	 {
+	     detectnr ++;
+	     idxs += idx;
+	 }
+	 else
+	 {
+	     bbox.include( xy );
+	 }
+     }
+
+     if ( idxs.size()>0 )
+     {
+	 for ( int idx = idxs.size()-1; idx>=0; idx-- )
+	     res.removeSingle( idxs[idx] );
+     }
+
+     return res.size();
+ }
+
 
 void FaultBinIDSurfaceIntersector::sortPointsToLine( 
     TypeSet<Coord3>& in, TypeSet<Coord3>& out )
@@ -404,10 +447,14 @@ void FaultBinIDSurfaceIntersector::sortPointsToLine(
 
     while ( pnt.isDefined() )
     {
-	out += pnt;
-	pnt = findNearestPoint( out[out.size()-1], in );
-    }
+	Coord3 lastpnt;
+	if ( out.size()>0 )
+	    lastpnt = out[out.size()-1];
 
+	if ( lastpnt.sqDistTo(pnt) >mDistLimitation || out.size()==0 )
+	    out += pnt;
+        pnt = findNearestPoint( out[out.size()-1], in );
+    }
 }
 
 
