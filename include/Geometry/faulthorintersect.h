@@ -53,6 +53,9 @@ private:
 						 TypeSet<Coord3>&);
     const Coord3	        findNearestPoint(const Coord3&,
 						 TypeSet<Coord3>&);
+    bool			findMin(TypeSet<Coord3>&,int&,bool);
+    int				optimizeOrder(TypeSet<Coord3>&);
+
 };
 
 
