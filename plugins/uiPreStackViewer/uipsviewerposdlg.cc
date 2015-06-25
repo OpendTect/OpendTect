@@ -62,8 +62,12 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
 
     postFinalise().notify( mCB(this,uiViewer3DPositionDlg,atStart) );
-    mAttachCB( viewer_.getSectionDisplay()->getMovementNotifier(),
-	       uiViewer3DPositionDlg::sectionChangedCB );
+    if ( viewer_.getSectionDisplay() )
+    {
+	mAttachCB( viewer_.getSectionDisplay()->getMovementNotifier(),
+		   uiViewer3DPositionDlg::sectionChangedCB );
+    }
+
     mAttachCB( viewer_.draggermoving, uiViewer3DPositionDlg::renewFld );
 }
 
