@@ -21,21 +21,19 @@ ________________________________________________________________________
 mClass(Basic) ArrayNDWrapper
 {
 public:
-    void		setDimMap(int srcdim,int targetdim);
+    void		setDimMap(int srcdim,int targetdim)
+			{ dimmap_[srcdim] = targetdim; }
+
     virtual void	init()		= 0;
     virtual bool	isOK() const	= 0;
 
 protected:
-    			ArrayNDWrapper(const ArrayNDInfo&);
+			ArrayNDWrapper(const ArrayNDInfo& info)
+			{ dimmap_.setSize( info.getNDim(), 0 ); }
+
     TypeSet<int>	dimmap_;
 };
 
-
-ArrayNDWrapper::ArrayNDWrapper( const ArrayNDInfo& info )
-{ dimmap_.setSize( info.getNDim(), 0 ); }
-
-void ArrayNDWrapper::setDimMap( int srcdim, int targetdim )
-{ dimmap_[srcdim] = targetdim; }
 
 
 /*!
@@ -46,7 +44,7 @@ template <class T>
 mClass(Basic) Array3DWrapper : public Array3D<T>, public ArrayNDWrapper
 {
 public:
-    			Array3DWrapper(ArrayND<T>&);
+			Array3DWrapper(ArrayND<T>&);
 			~Array3DWrapper();
 
     void		init();
