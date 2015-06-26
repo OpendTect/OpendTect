@@ -38,6 +38,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiviscoltabed.h"
 #include "uiwindowgrabber.h"
 
+#include "emfaultstickset.h"
+#include "emfault3d.h"
+#include "emhorizon2d.h"
+#include "emhorizon3d.h"
+#include "emmarchingcubessurface.h"
+#include "emrandomposbody.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "pickset.h"
@@ -1054,17 +1060,17 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 
     FixedString type = applMgr().EMServer()->getType( emid );
     uiODDisplayTreeItem* itm;
-    if ( type=="Horizon" )
+    if ( type==EM::Horizon3D::typeStr() )
 	itm = new uiODHorizonTreeItem(emid,false,false);
-    else if ( type=="2D Horizon" )
+    else if ( type==EM::Horizon2D::typeStr() )
 	itm = new uiODHorizon2DTreeItem(emid);
-    else if ( type=="Fault" )
+    else if ( type==EM::Fault3D::typeStr() )
 	itm = new uiODFaultTreeItem(emid);
-    else if ( type=="FaultStickSet" )
+    else if ( type==EM::FaultStickSet::typeStr() )
 	itm = new uiODFaultStickSetTreeItem(emid);
-    else if ( type=="RandomPosBody" )
+    else if ( type==EM::RandomPosBody::typeStr() )
 	itm = new uiODBodyDisplayTreeItem(emid);
-    else if ( type=="MCBody" )
+    else if ( type==EM::MarchingCubesSurface::typeStr() )
 	itm = new uiODBodyDisplayTreeItem(emid);
     else
 	return -1;
