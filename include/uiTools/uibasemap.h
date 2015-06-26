@@ -66,7 +66,6 @@ public:
     void			setView(const uiWorldRect&);
 
     virtual void		addObject(BaseMapObject*);
-    void			addStaticObject(BaseMapObject*);
     BaseMapObject*		getObject(int id);
 
     bool			hasChanged();
@@ -77,8 +76,6 @@ public:
     void			show(const BaseMapObject&,bool yn);
 
     void			addObject(uiBaseMapObject*);
-				//! object becomes mine, obviously.
-    void			addStaticObject(uiBaseMapObject*);
 
     const char*			nameOfItemAt(const Geom::Point2D<int>&) const;
 
@@ -96,7 +93,6 @@ protected:
 
     uiGraphicsView&		view_;
     uiGraphicsItemGroup&	worlditemgrp_;
-    uiGraphicsItemGroup&	staticitemgrp_;
     ObjectSet<uiBaseMapObject>	objects_;
     bool			changed_;
 
