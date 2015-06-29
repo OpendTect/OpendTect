@@ -20,7 +20,6 @@ ________________________________________________________________________
 class uiVisPartServer;
 class uiFlatViewMainWin;
 class uiMenuHandler;
-class uiViewer3DPositionDlg;
 namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
@@ -28,6 +27,7 @@ namespace PreStackView
 
 class uiStoredViewer2DMainWin;
 class uiViewer3DPositionDlg;
+class uiViewer3DSettingDlg;
 
 /*!Manages prestack data displays in 2D (panel) and 3D (visualization). The
    data itself can be from either lines or volumes. */
@@ -93,6 +93,7 @@ protected:
     ObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
     ObjectSet<uiFlatViewMainWin>	viewers2d_;
+    ObjectSet<uiViewer3DSettingDlg>	settingdlgs_;
 };
 
 } // namespace

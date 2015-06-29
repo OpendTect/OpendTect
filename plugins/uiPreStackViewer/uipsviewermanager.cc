@@ -63,6 +63,7 @@ uiViewer3DMgr::uiViewer3DMgr()
     removemenuitem_.iconfnm = "trashcan";
 
     posdialogs_.allowNull();
+    settingdlgs_.allowNull();
     visserv_->removeAllNotifier().notify( mCB(this,uiViewer3DMgr,removeAllCB) );
     visserv_->objectaddedremoved.notify( mCB(this,uiViewer3DMgr,sceneChangeCB));
     RefMan<MenuHandler> menuhandler = visserv_->getMenuHandler();
@@ -214,13 +215,19 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	const int idx = viewers3d_.indexOf( psv );
 	delete posdialogs_.removeSingle( idx );
 	viewers3d_.removeSingle( idx )->unRef();
+	delete settingdlgs_.removeSingle( idx );
     }
     else if ( mnuid==proptymenuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiViewer3DSettingDlg* dlg =
-	    new uiViewer3DSettingDlg( menu->getParent(), *psv, *this );
-	dlg->setDeleteOnClose( true );
+	const int sdidx = viewers3d_.indexOf( psv );
+	uiViewer3DSettingDlg* dlg = settingdlgs_[sdidx];
+	if ( !dlg )
+	{
+	    dlg = new uiViewer3DSettingDlg( menu->getParent(),*psv, *this );
+	    settingdlgs_.replace( sdidx, dlg );
+	}
+
 	dlg->go();
     }
     else if ( mnuid==positionmenuitem_.id )
@@ -400,6 +407,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     viewers3d_ += viewer;
     posdialogs_ += 0;
     mkNewPosDialog( menu, *viewer );
+    settingdlgs_ += 0;
     return true;
 }
 
@@ -562,6 +570,7 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 	    removeViewWin( dpid );
 	    viewers3d_.removeSingle( idx );
 	    delete posdialogs_.removeSingle( idx );
+	    delete settingdlgs_.removeSingle( idx );
 	    if ( scene ) visserv_->removeObject( psv, scene->id() );
 	    psv->unRef();
 	    idx--;
@@ -572,6 +581,7 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 	    removeViewWin( dpid );
 	    viewers3d_.removeSingle( idx );
 	    delete posdialogs_.removeSingle( idx );
+	    delete settingdlgs_.removeSingle( idx );
 	    if ( scene ) visserv_->removeObject( psv, scene->id() );
 	    psv->unRef();
 	    idx--;
@@ -745,6 +755,7 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
 void  uiViewer3DMgr::removeAllCB( CallBacker* )
 {
     deepErase( posdialogs_ );
+    deepErase( settingdlgs_ );
     deepErase( viewers2d_ );
     deepUnRef( viewers3d_ );
 }
@@ -752,6 +763,7 @@ void  uiViewer3DMgr::removeAllCB( CallBacker* )
 
 void uiViewer3DMgr::surveyToBeChangedCB( CallBacker* )
 {
+    deepErase( settingdlgs_ );
     deepErase( posdialogs_ );
     deepErase( viewers2d_ );
     deepUnRef( viewers3d_ );
