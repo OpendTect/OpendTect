@@ -1,6 +1,44 @@
 OpendTect V5.0.x : Release info
 
 ----
+v5.0.8: June 30, 2015
+ * Added tool for editing SEGY file names in SEGYDirect data store
+ * Fix for displaying of Pre-stack gathers when no data available
+ * Fix for creating command driver script on Windows platform
+ * Fix for creating random line from well(s) using 'Start at' Bottom option on
+   'Create Random line' window
+ * Fix for crash while merging 2D lines
+ * Fix for crash in 2D GLCM attribute computation
+ * Fix for crash in Mathematics attribute
+ * Fix for crash when specified log fill was not available
+ * Fix for crash in synthetic seismic export
+ * Fix for wrong error message popup while pressing 'OK' button on
+   'Position dialog' of color blended Horizon in the tree
+ * Fix for horizon shifting while changing Z scale after applying shift
+   to horizon
+ * Fix for displaying of X, Y and Z of the cursor position on Pre-stack 2D
+   viewer
+ * Fix for import of prestack SEGY when offset is separately specified
+ * Fix for setting of default window values in Spectral decomposition
+   attribute
+ * Fix for recording of listbox selections via mouse clicks, mouse drags,
+   right-click menus and keyboard in CmdDriver
+ * Fix for unit conversion for MD in bulk well ascii import
+ * Fixed  unnecessary 'Please select Well' warning message when select the Log
+   attribute in the attribute set window
+ * Fix for displaying of wrong center sample in message while importing
+   wavelet with header
+ * Fix for displaying of contour values cutting through the horizon
+ * Fix for displaying of horizon on scene after aborting the
+   horizon creation
+ * Fix for unit conversion of MD in bulk well ascii import
+ * Fix for merging of 2D lines
+ * Fix for export of seismics using a pickset/polygon filter
+ * Fix for displaying of existed bodies while saving body from tree
+ * Fix in  'Create Random Line' (from wells) the well deviation options will
+   only be shown when necessary
+ * Fix for display of timeslices outside true sample positions
+
 v5.0.7: May 7, 2015
  * Horizon reading speed much improved
  * Fix for crash while creating a flattened scene from a 2D horizon if
