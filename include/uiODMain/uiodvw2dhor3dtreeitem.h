@@ -28,6 +28,11 @@ public:
 				~uiODVw2DHor3DParentTreeItem();
 
     bool			showSubMenu();
+    void			getLoadedHorizon3Ds(
+					TypeSet<EM::ObjectID>&) const;
+    void			removeHorizon3D(EM::ObjectID emid);
+    void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
+    void			addNewTrackingHorizon3D(EM::ObjectID emid);
 
 protected:
 
@@ -35,7 +40,6 @@ protected:
     bool                        handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    void			tempObjAddedCB(CallBacker*);
 };
 
 
@@ -51,7 +55,7 @@ public:
 
 
 mExpClass(uiODMain) uiODVw2DHor3DTreeItem : public uiODVw2DTreeItem
-{
+{ mODTextTranslationClass(uiODVw2DHor3DTreeItem)
 public:
     			uiODVw2DHor3DTreeItem(const EM::ObjectID&);
     			uiODVw2DHor3DTreeItem(int id,bool dummy);
@@ -59,6 +63,7 @@ public:
 
     bool		select();
     bool		showSubMenu();
+    EM::ObjectID	emObjectID() const	{ return emid_; }
 
 protected:
 

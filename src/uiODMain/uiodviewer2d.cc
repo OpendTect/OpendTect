@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmain.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvw2dtreeitem.h"
+#include "uiodvw2dhor3dtreeitem.h"
+#include "uiodvw2dhor2dtreeitem.h"
 #include "uipixmap.h"
 #include "uistrings.h"
 #include "uitoolbar.h"
@@ -486,8 +488,14 @@ void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 
 void uiODViewer2D::posChg( CallBacker* )
 {
-    setPos( slicepos_->getTrcKeyZSampling() );
-    setTrcKeyZSampling( tkzs_ );
+    setNewPosition( slicepos_->getTrcKeyZSampling() );
+}
+
+
+void uiODViewer2D::setNewPosition( const TrcKeyZSampling& tkzs )
+{
+    setPos( tkzs );
+    setTrcKeyZSampling( tkzs );
 }
 
 
@@ -840,5 +848,101 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
     {
 	MouseCursorExchange::Info info( mousepos );
 	mousecursorexchange_->notifier.trigger( info, this );
+    }
+}
+
+
+void uiODViewer2D::removeHorizon3D( EM::ObjectID emid )
+{
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+			treetp_->getChild(idx))
+	if ( hor3dpitem )
+	    hor3dpitem->removeHorizon3D( emid );
+    }
+}
+
+
+void uiODViewer2D::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
+{
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+			treetp_->getChild(idx))
+	if ( hor3dpitem )
+	    hor3dpitem->getLoadedHorizon3Ds( emids );
+    }
+}
+
+
+void uiODViewer2D::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
+{
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+			treetp_->getChild(idx))
+	if ( hor3dpitem )
+	    hor3dpitem->addHorizon3Ds( emids );
+    }
+}
+
+
+void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
+{
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
+			treetp_->getChild(idx))
+	if ( hor3dpitem )
+	    hor3dpitem->addNewTrackingHorizon3D( emid );
+    }
+}
+
+
+void uiODViewer2D::removeHorizon2D( EM::ObjectID emid )
+{
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+			treetp_->getChild(idx))
+	if ( hor2dpitem )
+	    hor2dpitem->removeHorizon2D( emid );
+    }
+}
+
+
+void uiODViewer2D::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
+{
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+			treetp_->getChild(idx))
+	if ( hor2dpitem )
+	    hor2dpitem->getLoadedHorizon2Ds( emids );
+    }
+}
+
+
+void uiODViewer2D::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
+{
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+			treetp_->getChild(idx))
+	if ( hor2dpitem )
+	    hor2dpitem->addHorizon2Ds( emids );
+    }
+}
+
+
+void uiODViewer2D::addNewTrackingHorizon2D( EM::ObjectID emid )
+{
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
+			treetp_->getChild(idx))
+	if ( hor2dpitem )
+	    hor2dpitem->addNewTrackingHorizon2D( emid );
     }
 }

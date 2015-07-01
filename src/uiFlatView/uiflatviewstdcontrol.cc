@@ -495,6 +495,12 @@ void uiFlatViewStdControl::handDragStarted( CallBacker* cb )
     mDynamicCastGet( const MouseEventHandler*, meh, cb );
     if ( !meh || meh->event().rightButton() ) return;
 
+    const int vwridx = getViewerIdx( meh, false );
+    if ( vwridx<0 ) return;
+    uiFlatViewer* vwr = vwrs_[vwridx];
+    if ( vwr->rgbCanvas().dragMode() != uiGraphicsViewBase::ScrollHandDrag )
+	return;
+
     mousedownpt_ = meh->event().pos();
     mousepressed_ = true;
 }
@@ -508,8 +514,6 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     const int vwridx = getViewerIdx( meh, false );
     if ( vwridx<0 ) return;
     uiFlatViewer* vwr = vwrs_[vwridx];
-    if ( vwr->rgbCanvas().dragMode() != uiGraphicsViewBase::ScrollHandDrag )
-	return;
 
     const uiWorld2Ui& w2ui = vwr->getWorld2Ui();
     const uiWorldPoint startwpt = w2ui.transform( mousedownpt_ );
