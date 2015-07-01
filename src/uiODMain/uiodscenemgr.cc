@@ -1054,6 +1054,75 @@ int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
 }
 
 
+void uiODSceneMgr::getLoadedEMIDs( TypeSet<int>& emids, const char* type,
+				   int sceneid ) const
+{
+    if ( sceneid>=0 )
+    {
+	const Scene* scene = getScene( sceneid );
+	if ( !scene ) return;
+	gtLoadedEMIDs( scene, emids, type );
+	return;
+    }
+
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+	gtLoadedEMIDs( scenes_[idx], emids, type );
+}
+
+
+void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
+				  const char* type ) const
+{
+    for ( int chidx=0; chidx<topitm->nrChildren(); chidx++ )
+    {
+	const uiTreeItem* chlditm = topitm->getChild( chidx );
+	mDynamicCastGet(const uiODEarthModelSurfaceTreeItem*,emtreeitem,chlditm)
+	if ( !emtreeitem )
+	    continue;
+
+	EM::ObjectID emid = emtreeitem->emObjectID();
+	if ( !type )
+	    emids.addIfNew( emid );
+	else if ( EM::Horizon3D::typeStr()==type )
+	{
+	    mDynamicCastGet(const uiODHorizonTreeItem*,hor3dtreeitm,chlditm)
+	    if ( hor3dtreeitm )
+		emids.addIfNew( emid );
+	}
+	else if ( EM::Horizon2D::typeStr()==type )
+	{
+	    mDynamicCastGet(const uiODHorizon2DTreeItem*,hor2dtreeitm,chlditm)
+	    if ( hor2dtreeitm )
+		emids.addIfNew( emid );
+	}
+	else if ( EM::Fault3D::typeStr()==type )
+	{
+	    mDynamicCastGet(const uiODFaultTreeItem*,faulttreeitm,chlditm)
+	    if ( faulttreeitm )
+		emids.addIfNew( emid );
+	}
+	else if ( EM::FaultStickSet::typeStr()==type )
+	{
+	    mDynamicCastGet(const uiODFaultStickSetTreeItem*,fltstickreeitm,
+		    	    chlditm)
+	    if ( fltstickreeitm )
+		emids.addIfNew( emid );
+	}
+    }
+}
+
+
+void uiODSceneMgr::gtLoadedEMIDs( const Scene* scene, TypeSet<int>& emids,
+				  const char* type ) const
+{
+    for ( int chidx=0; chidx<scene->itemmanager_->nrChildren(); chidx++ )
+    {
+	const uiTreeItem* chlditm = scene->itemmanager_->getChild( chidx );
+	gtLoadedEMIDs( chlditm, emids, type );
+    }
+}
+
+
 int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 {
     mGetOrAskForScene

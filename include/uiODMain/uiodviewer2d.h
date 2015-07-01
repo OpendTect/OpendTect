@@ -32,9 +32,9 @@ class MouseCursorExchange;
 class Vw2DDataManager;
 class ZAxisTransform;
 
-namespace Attrib { class SelSpec; }
-namespace FlatView { class AuxData; }
-namespace ZDomain { class Def; }
+namespace Attrib	{ class SelSpec; }
+namespace FlatView 	{ class AuxData; }
+namespace ZDomain 	{ class Def; }
 
 /*!
 \brief A 2D Viewer.
@@ -96,6 +96,7 @@ public:
     bool			setZAxisTransform(ZAxisTransform*);
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
+    void			setNewPosition(const TrcKeyZSampling&);
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	getTrcKeyZSampling() const
 				{ return tkzs_; }
@@ -133,6 +134,18 @@ public:
     Notifier<uiODViewer2D>	viewWinAvailable;
     Notifier<uiODViewer2D>	viewWinClosed;
     Notifier<uiODViewer2D>	dataChanged;
+
+    void			removeHorizon3D(EM::ObjectID emid);
+    void			getLoadedHorizon3Ds(
+					TypeSet<EM::ObjectID>&) const;
+    void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
+    void			addNewTrackingHorizon3D(EM::ObjectID);
+    
+    void			removeHorizon2D(EM::ObjectID emid);
+    void			getLoadedHorizon2Ds(
+					TypeSet<EM::ObjectID>&) const;
+    void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
+    void			addNewTrackingHorizon2D(EM::ObjectID emid);
 
 protected:
 

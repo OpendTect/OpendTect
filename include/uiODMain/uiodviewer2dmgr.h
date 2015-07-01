@@ -15,8 +15,10 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 #include "callback.h"
 #include "datapack.h"
+#include "emposid.h"
 #include "geom2dintersections.h"
 #include "uigeom.h"
+#include "uigraphicsviewbase.h"
 #include "uiodapplmgr.h"
 
 class uiFlatViewer;
@@ -24,12 +26,26 @@ class uiODViewer2D;
 class uiTreeFactorySet;
 class MouseEventHandler;
 class TrcKeyZSampling;
-namespace Attrib { class SelSpec; }
-
+namespace Attrib 	{ class SelSpec; }
 
 mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
 { mODTextTranslationClass(uiODViewer2DMgr);
 public:
+
+    struct SelectedAuxPos
+    {
+				SelectedAuxPos(int auxposidx=-1,bool isx1=true,
+					       bool selected=false)
+				    : auxposidx_(auxposidx)
+				    , isx1_(isx1)
+				    , oldauxpos_(mUdf(float))
+				    , isselected_(selected)	{}
+	int			auxposidx_;
+	bool			isx1_;
+	bool			isselected_;
+	float			oldauxpos_;
+	bool			isValid() const		{ return auxposidx_>=0;}
+    };
 
     uiODViewer2D*		find2DViewer(int id,bool byvisid);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
@@ -46,6 +62,16 @@ public:
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
+    void			removeHorizon3D(EM::ObjectID emid);
+    void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
+    void			addNewTrackingHorizon3D(EM::ObjectID mid);
+    void			getLoadedHorizon3Ds(
+					TypeSet<EM::ObjectID>&) const;
+    void			removeHorizon2D(EM::ObjectID emid);
+    void			getLoadedHorizon2Ds(
+					TypeSet<EM::ObjectID>&) const;
+    void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
+    void			addNewTrackingHorizon2D(EM::ObjectID mid);
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
@@ -62,6 +88,8 @@ protected:
     uiODViewer2D&		addViewer2D(int visid);
     ObjectSet<uiODViewer2D>     viewers2d_;
     Line2DInterSectionSet*	l2dintersections_;
+    SelectedAuxPos		selauxpos_;
+    uiGraphicsViewBase::ODDragMode prevdragmode_;
 
     uiTreeFactorySet*		tifs2d_;
     uiTreeFactorySet*		tifs3d_;
@@ -75,6 +103,7 @@ protected:
     void			vw2DPosChangedCB(CallBacker*);
     void			homeZoomChangedCB(CallBacker*);
     void			mouseClickCB(CallBacker*);
+    void			mouseClickedCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
 
     void			create2DViewer(const uiODViewer2D& curvwr2d,
@@ -92,8 +121,10 @@ protected:
     void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
     void			setAllIntersectionPositions();
     void			setVWR2DIntersectionPositions(uiODViewer2D*);
-    void			handleLeftClick(uiODViewer2D*,int x1auxposidx,
-	    					int x2auxposidx);
+    void			handleLeftClick(uiODViewer2D*);
+    void			setAuxPosLineStyles(uiFlatViewer&);
+    void			setupHorizon3Ds(uiODViewer2D*);
+    void			setupHorizon2Ds(uiODViewer2D*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);

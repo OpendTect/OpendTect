@@ -151,6 +151,7 @@ public:
     // Work. Don't use unless expert.
     uiVisDataPointSetDisplayMgr* visDPSDispMgr()
 				{ return visdpsdispmgr_; }
+    inline uiODViewer2DMgr&	viewer2DMgr()	{ return appl_.viewer2DMgr(); }
     bool			getNewData(int visid,int attrib);
     bool			evaluateAttribute(int visid,int attrib);
     bool			evaluate2DAttribute(int visid, int attrib);
