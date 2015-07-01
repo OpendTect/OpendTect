@@ -392,6 +392,14 @@ bool IOObjInfo::getBodyRange( CubeSampling& cs ) const
 
 int IOObjInfo::nrSticks() const
 {
+    if ( !ioobj_ )
+	return false;
+
+    PtrMan<Translator> trans = ioobj_->createTranslator();
+    mDynamicCastGet(dgbEMFaultStickSetTranslator*,fsstr,trans.ptr());
+    if ( !fsstr )
+	return -1;
+
     mGetReaderRet
     if ( !reader_->pars() )
 	return 0;

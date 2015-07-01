@@ -577,7 +577,12 @@ void uiSurfaceMan::mkFileInfo()
     {
 	txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: ";
 	if ( isCurFault() )
-	    txt += eminfo.nrSticks();
+	{
+	    if ( eminfo.nrSticks() < 0 )
+		txt += "Cannot determine number of sticks for this object type";
+	    else
+		txt += eminfo.nrSticks();
+	}
 	else
 	{
 	    BufferStringSet linenames;
