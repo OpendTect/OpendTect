@@ -283,7 +283,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     datagrp->attach( ensureRightOf, horsep );
 
     uiLabeledListBox* datalcb =
-	new uiLabeledListBox( datagrp, tr("Datas to merge"), 
+	new uiLabeledListBox( datagrp, tr("Data Sets to merge"),
 			      OD::ChooseAtLeastOne,
 			      uiLabeledListBox::LeftMid );
     data2mergefld_ = datalcb->box();
