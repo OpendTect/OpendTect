@@ -130,7 +130,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 
     FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
     RegularSeisDataPack* regsdp = new RegularSeisDataPack(
-	    				SeisDataPack::categoryStr(true,true) );
+					SeisDataPack::categoryStr(true,true) );
     regsdp->setSampling( d2dh.getTrcKeyZSampling() );
     regsdp->addComponent( "autocorrelation" );
     mDeclareAndTryAlloc(
@@ -154,7 +154,7 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
     //we now have to go back to the user specified sampling
     TrcKeyZSampling tkzs = csmatchessurv ? output->cubeSampling() : tkzs_;
     RegularSeisDataPack* regsdp = new RegularSeisDataPack(
-	    			SeisDataPack::categoryStr(true,false) );
+				SeisDataPack::categoryStr(true,false) );
     regsdp->setSampling( tkzs );
     regsdp->addComponent( "autocorrelation" );
     regsdp->data( 0 ) = output->getCube( 0 );
@@ -165,11 +165,13 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 }
 
 
-void GapDeconACorrView::setUpViewWin( bool isqc )
+bool GapDeconACorrView::setUpViewWin( bool isqc )
 {
     FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
+    if ( !dp ) return false;
     const StepInterval<double> newrg(
 	    0, tkzs_.zsamp_.stop-tkzs_.zsamp_.start, tkzs_.zsamp_.step );
+
     dp->posData().setRange( false, newrg );
 
     uiFlatViewMainWin*& fvwin = isqc ? qcwin_ : examwin_;
@@ -193,13 +195,19 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
 	fvwin->addControl(
 		new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
     }
+
+    return true;
 }
 
 
 void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 {
-    setUpViewWin( isqc );
-    isqc ? qcwin_->show() : examwin_->show();
+    if ( setUpViewWin( isqc ) )
+	isqc ? qcwin_->show() : examwin_->show();
+    else
+	uiMSG().error( tr( "The window start and stop should be different;\n"
+			   "Please correct the window parameters before"
+			   " restarting the computation" ) );
 }
 
 
