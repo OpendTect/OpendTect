@@ -351,7 +351,9 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     OS::CommandExecPars execpars( true );
     execpars.launchtype( OS::RunInBG )
 	    .needmonitor( bpi.uitype_ == BatchProgInfo::NoUI )
-	    .isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI );
+	    .isconsoleuiprog( bpi.uitype_ == BatchProgInfo::TxtUI )
+	    .createstreams( bpi.uitype_ == BatchProgInfo::NoUI );
+
     OS::MachineCommand mc( BufferString(prognm," ",args) );
     OS::CommandLauncher cl( mc );
     if ( !cl.execute( execpars ) )

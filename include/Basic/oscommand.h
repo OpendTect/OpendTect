@@ -143,6 +143,7 @@ protected:
 				  bool incosole = false,
 				  bool createstreams=false );
     int			catchError();
+    bool		startDetached(const char*,bool incosole = false);
 
     MachineCommand	machcmd_;
     BufferString	monitorfnm_;
@@ -153,6 +154,7 @@ protected:
     const BufferString	odprogressviewer_;
 
     QProcess*		process_;
+    od_int64		pid_;
 
     od_istream*		stdoutput_;
     od_istream*		stderror_;
