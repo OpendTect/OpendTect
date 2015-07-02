@@ -390,6 +390,7 @@ OS::CommandLauncher::CommandLauncher( const OS::MachineCommand& mc)
     , stderrorbuf_( 0 )
     , stdoutputbuf_( 0 )
     , stdinputbuf_( 0 )
+    , pid_( 0 )
 {
     set( mc );
 }
@@ -601,14 +602,19 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 
     if ( createstreams )
     {
-	stdinputbuf_ = new qstreambuf( *process_, false, false );
-	stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
+	if ( !monitorfnm_.isEmpty() )
+	    process_->setStandardOutputFile( monitorfnm_.buf() );
+	else
+	{
+	    stdinputbuf_ = new qstreambuf( *process_, false, false );
+	    stdinput_ = new od_ostream( new oqstream( stdinputbuf_ ) );
 
-	stdoutputbuf_ = new qstreambuf( *process_, false, false  );
-	stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
+	    stdoutputbuf_ = new qstreambuf( *process_, false, false  );
+	    stdoutput_ = new od_istream( new iqstream( stdoutputbuf_ ) );
 
-	stderrorbuf_ = new qstreambuf( *process_, true, false  );
-	stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
+	    stderrorbuf_ = new qstreambuf( *process_, true, false  );
+	    stderror_ = new od_istream( new iqstream( stderrorbuf_ ) );
+	}
     }
 
     if ( process_ )
@@ -702,7 +708,7 @@ static QStringList parseCompleteCommand( const QString& comm )
 bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 {
 #ifdef __win__
-    //if ( !inconsole )
+    if ( !inconsole )
     {
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
@@ -711,17 +717,12 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 	ZeroMemory( &pi, sizeof(pi) );
 	si.cb = sizeof( STARTUPINFO );
 
-	si.dwFlags |= STARTF_USESTDHANDLES;
-	si.hStdInput = NULL;
-	si.hStdError = stderr;
-	si.hStdOutput = stdout;
-	DWORD FLAG = inconsole ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW;
 	const bool res = CreateProcess( NULL,
 				const_cast<char*>(comm),
 				NULL,   // Process handle not inheritable.
 				NULL,   // Thread handle not inheritable.
-				TRUE,   // Set handle inheritance.
-				FLAG,   // Creation flags.
+				FALSE,  // Set handle inheritance.
+				CREATE_NO_WINDOW,   // Creation flags.
 				NULL,   // Use parent's environment block.
 				NULL,   // Use parent's starting directory.
 				&si, &pi );
@@ -735,7 +736,7 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 
 	return res;
     }
-#else
+#endif
 
     QStringList args = parseCompleteCommand( QString(comm) );
     if ( args.isEmpty() )
@@ -744,7 +745,6 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
     QString prog = args.first();
     args.removeFirst();
     return QProcess::startDetached( prog, args, "", mCast(qint64*,&pid_) );
-#endif
 }
 
 
