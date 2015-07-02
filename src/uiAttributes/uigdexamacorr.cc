@@ -190,8 +190,9 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
 {
     FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
     StepInterval<double> newrg( 0, cs_.zrg.stop-cs_.zrg.start, cs_.zrg.step );
-    dp->posData().setRange( false, newrg );
+    if ( !dp ) return;
 
+    dp->posData().setRange( false, newrg );
     uiFlatViewMainWin*& fvwin = isqc ? qcwin_ : examwin_;
     if ( fvwin )
 	fvwin->viewer().setPack( false, dp->id(), false );
@@ -219,6 +220,14 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
 void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 {
     setUpViewWin( isqc );
+    if ( (isqc && !qcwin_) || (!isqc && !examwin_) )
+    {
+	uiMSG().error( "The window start and stop should be different;\n"
+			"Please correct the window parameters before"
+			" restarting the computation" );
+	return;
+    }
+
     isqc ? qcwin_->show() : examwin_->show();
 }
 
