@@ -78,8 +78,11 @@ bool SearchKey::isMatch( const char* keyptr, const char* nameptr,
 	{
 	    if ( *keyptr == *scriptedwildcard )
 		nrwildcards++;
-	    else if ( !iswspace(*keyptr) && *keyptr!='.' )
-		return false;
+	    else if ( *keyptr != *programmedwildcard )
+	    {
+		if ( !iswspace(*keyptr) && *keyptr!='.' )
+		    return false;
+	    }
 
 	    keyptr++;
 	}
