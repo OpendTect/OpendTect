@@ -120,10 +120,6 @@ final class TextLinter extends ArcanistLinter {
     if ( !$isphp ) {
       $this->lintSpaceAlignment($path);
     }
-
-    if ($this->getEngine()->getCommitHookMode()) {
-      $this->lintNoCommit($path);
-    }
   }
 
   protected function lintNewlines($path) {
