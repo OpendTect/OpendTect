@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 class BufferStringSet;
+class uiMdiArea;
 class uiMdiAreaBody;
 
 mFDQtclass(QMdiArea)
@@ -26,7 +27,9 @@ mFDQtclass(QMdiSubWindow)
 mExpClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
 public:
-	    uiMdiAreaWindow(const uiString& title=uiStrings::sEmptyString());
+	    uiMdiAreaWindow(uiMdiArea&,
+			    const uiString& title=uiStrings::sEmptyString());
+
 				~uiMdiAreaWindow()	{}
 
     void			setTitle(const uiString&);
@@ -41,6 +44,8 @@ public:
     bool			isMinimized() const;
     bool			isMaximized() const;
 
+    uiMdiArea&			getMdiArea()		{ return mdiarea_; }
+
     NotifierAccess&		closed();
     Notifier<uiMdiAreaWindow>	changed;
 
@@ -51,7 +56,7 @@ public:
 
 private:
     uiString				title_;
-
+    uiMdiArea&				mdiarea_;
     mQtclass(QMdiSubWindow*)		qmdisubwindow_;
 
 };

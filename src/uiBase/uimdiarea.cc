@@ -162,9 +162,10 @@ void uiMdiArea::addWindow( uiMdiAreaWindow* grp )
 
 uiMdiAreaWindow* uiMdiArea::getWindow( const char* nm )
 {
+    const BufferString nmbufstr( nm );
     for ( int idx=0; idx<grps_.size(); idx++ )
     {
-	if ( !strcmp(nm,grps_[idx]->getTitle().getFullString()) )
+	if ( !strcmp(nmbufstr.buf(),grps_[idx]->getTitle().getFullString()) )
 	    return grps_[idx];
     }
 
@@ -265,13 +266,21 @@ bool uiMdiArea::paralyse( bool yn )
 class ODMdiSubWindow : public QMdiSubWindow
 {
 public:
-ODMdiSubWindow( QWidget* par=0, Qt::WindowFlags flgs=0 )
+ODMdiSubWindow( uiMdiAreaWindow& mdiareawin,
+		QWidget* par=0, Qt::WindowFlags flgs=0 )
     : QMdiSubWindow( par, flgs )
+    , mdiareawin_( mdiareawin )
 {}
 
 protected:
 void closeEvent( QCloseEvent* ev )
 {
+    const int closedsubwinidx =
+	mdiArea()->subWindowList(QMdiArea::CreationOrder).indexOf( this );
+
+    BufferString cmdrecmsg( "Close " ); cmdrecmsg += closedsubwinidx;
+    const int refnr = mdiareawin_.getMdiArea().beginCmdRecEvent( cmdrecmsg );
+
     BufferString msg( "Do you want to close " );
     msg.add( windowTitle() ).add( "?" );
     if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
@@ -281,16 +290,21 @@ void closeEvent( QCloseEvent* ev )
     }
     else
 	ev->ignore();
+
+    mdiareawin_.getMdiArea().endCmdRecEvent( refnr, cmdrecmsg );
 }
 
+    uiMdiAreaWindow&	mdiareawin_;
 };
 
+
 // uiMdiAreaWindow
-uiMdiAreaWindow::uiMdiAreaWindow( const uiString& title )
+uiMdiAreaWindow::uiMdiAreaWindow( uiMdiArea& mdiarea, const uiString& title )
     : uiGroup(0,title.getFullString())
+    , mdiarea_(mdiarea)
     , changed(this)
 {
-    qmdisubwindow_ = new ODMdiSubWindow();
+    qmdisubwindow_ = new ODMdiSubWindow( *this );
     qmdisubwindow_->setWidget( attachObj()->body()->qwidget() );
     setTitle( title );
 }
