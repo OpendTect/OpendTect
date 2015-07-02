@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uimatlablinkmod.h"
 #include "uivolprocstepdlg.h"
+#include "filepath.h"
 #include "matlabstep.h"
 
 class uiFileInput;
@@ -43,6 +44,7 @@ protected:
     void		fillParTable(const BufferStringSet&,
 				     const BufferStringSet&);
     bool		readTable(BufferStringSet&,BufferStringSet&) const;
+    static FilePath	getSODefaultDir();
 
     uiFileInput*	filefld_;
     uiPushButton*	loadbut_;
