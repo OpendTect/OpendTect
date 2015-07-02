@@ -1310,7 +1310,7 @@ uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
 {
     if ( !mdiarea ) return;
 
-    mdiwin_ = new uiMdiAreaWindow();
+    mdiwin_ = new uiMdiAreaWindow( *mdiarea );
     mdiwin_->setIcon( scene_xpm_data );
     vwr3d_ = new ui3DViewer( mdiwin_, true );
     vwr3d_->setPrefWidth( 400 );
