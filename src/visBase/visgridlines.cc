@@ -149,10 +149,10 @@ void GridLines::adjustGridCS()
 	while ( planecs_.zsamp_.start > gridcs_.zsamp_.start )
 	    gridcs_.zsamp_.start += gridcs_.zsamp_.step;
 
-	while ( planecs_.zsamp_.start < gridcs_.zsamp_.start - gridcs_.zsamp_.step )
+	while (planecs_.zsamp_.start<gridcs_.zsamp_.start-gridcs_.zsamp_.step)
 	    gridcs_.zsamp_.start -= gridcs_.zsamp_.step;
 	
-	while ( planecs_.zsamp_.stop > gridcs_.zsamp_.stop + gridcs_.zsamp_.step )
+	while ( planecs_.zsamp_.stop>gridcs_.zsamp_.stop+gridcs_.zsamp_.step )
 	    gridcs_.zsamp_.stop += gridcs_.zsamp_.step;
 
 	while ( planecs_.zsamp_.stop < gridcs_.zsamp_.stop )
@@ -328,6 +328,11 @@ void GridLines::setDisplayTransformation( const mVisTrans* tf )
     if ( transformation_ )
 	transformation_->ref();
 
+    for ( int idx=0; idx<polylineset_.size(); idx++ )
+    {
+	if ( polylineset_[idx] )
+	    polylineset_[idx]->setDisplayTransformation( transformation_ );
+    }
 }
 
 
