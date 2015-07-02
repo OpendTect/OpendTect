@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "trckeyzsampling.h"
 #include "linekey.h"
+#include "uistring.h"
 
 namespace Attrib { class EngineMan; class DescSet;
 		   class Data2DHolder; class Processor; }
@@ -27,14 +28,15 @@ class FlatDataPack;
 /*! \brief GapDecon Attribute autocorrelation preview in a 2d viewer */
 
 mClass(uiAttributes) GapDeconACorrView
-{
+{ mODTextTranslationClass(GapDeconACorrView)
 public:
 			GapDeconACorrView(uiParent*);
 			~GapDeconACorrView();
 
     bool                computeAutocorr(bool);
     void                createAndDisplay2DViewer(bool);
-    void		setTrcKeyZSampling( TrcKeyZSampling cs )	{ tkzs_ = cs; }
+    void		setTrcKeyZSampling( TrcKeyZSampling cs )
+			{ tkzs_ = cs; }
     void		setGeomID( const Pos::GeomID& geomid )
 			{ geomid_ = geomid; }
     void		setAttribID( Attrib::DescID id )	{ attribid_=id;}
@@ -48,7 +50,7 @@ protected:
     void		createFD3DDataPack(bool,Attrib::EngineMan*,
 					   Attrib::Processor*);
     void		displayWiggles(bool,bool);
-    void		setUpViewWin(bool);
+    bool		setUpViewWin(bool);
 
     uiFlatViewMainWin*		examwin_;
     uiFlatViewMainWin*		qcwin_;

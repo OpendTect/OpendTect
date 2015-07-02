@@ -165,11 +165,13 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 }
 
 
-void GapDeconACorrView::setUpViewWin( bool isqc )
+bool GapDeconACorrView::setUpViewWin( bool isqc )
 {
     FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
+    if ( !dp ) return false;
     const StepInterval<double> newrg(
 	    0, tkzs_.zsamp_.stop-tkzs_.zsamp_.start, tkzs_.zsamp_.step );
+
     dp->posData().setRange( false, newrg );
 
     uiFlatViewMainWin*& fvwin = isqc ? qcwin_ : examwin_;
@@ -193,13 +195,19 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
 	fvwin->addControl(
 		new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
     }
+
+    return true;
 }
 
 
 void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 {
-    setUpViewWin( isqc );
-    isqc ? qcwin_->show() : examwin_->show();
+    if ( setUpViewWin( isqc ) )
+	isqc ? qcwin_->show() : examwin_->show();
+    else
+	uiMSG().error( tr( "The window start and stop should be different;\n"
+			   "Please correct the window parameters before"
+			   " restarting the computation" ) );
 }
 
 
