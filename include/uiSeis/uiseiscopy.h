@@ -48,13 +48,14 @@ protected:
 };
 
 
-/*!\brief UI for copying line sets */
+/*!\brief UI for copying 2d Datasets */
 
-mExpClass(uiSeis) uiSeisCopyLineSet : public uiDialog
+mExpClass(uiSeis) uiSeisCopy2DDataSet : public uiDialog
 {
 public:
 
-			uiSeisCopyLineSet(uiParent*,const IOObj*);
+			uiSeisCopy2DDataSet(uiParent*,const IOObj*,
+					    const char* fixedouttransl=0);
 protected:
 
     uiSeisSel*		inpfld_;

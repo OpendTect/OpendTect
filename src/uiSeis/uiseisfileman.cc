@@ -450,7 +450,7 @@ void uiSeisFileMan::copyPush( CallBacker* )
     bool needrefresh = false;
     if ( is2d_ )
     {
-	uiSeisCopyLineSet dlg2d( this, curioobj_ );
+	uiSeisCopy2DDataSet dlg2d( this, curioobj_ );
 	needrefresh = dlg2d.go();
     }
     else
