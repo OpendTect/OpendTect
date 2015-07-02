@@ -57,15 +57,14 @@ extern "C" {
 };
 
 
-HiddenParam<SharedLibAccess,BufferString> errmsgs( "" );
+static HiddenParam<SharedLibAccess,BufferString*> errmsgs( 0 );
 
 SharedLibAccess::SharedLibAccess( const char* lnm )
 	: handle_(0)
 {
+    errmsgs.setParam( this, new BufferString() );
     if ( !lnm || !*lnm  )
 	return;
-
-    errmsgs.setParam( this, "" );
 
 #ifdef __win__
 
@@ -82,7 +81,8 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 	    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			   FORMAT_MESSAGE_FROM_SYSTEM, NULL,
 			   GetLastError(), 0, (char* )&ptr, 1024, NULL );
-	    errmsgs.setParam( this, ptr );
+	    BufferString error( ptr );
+	    errmsgs.getParam( this )->set( error );
 	}
     }
 
@@ -91,9 +91,12 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
     if ( File::exists(lnm) )
     {
 	handle_ = dlopen( lnm, RTLD_GLOBAL | RTLD_NOW );
+	BufferString error( dlerror() );
 
 	if ( !handle_ )
-	    errmsgs.setParam( this, dlerror() );
+	    errmsgs.getParam( this )->set( error );
+
+	dlerror();    /* Clear any existing error */
     }
 
 #endif
@@ -107,9 +110,21 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 }
 
 
+SharedLibAccess::~SharedLibAccess()
+{
+    BufferString* errmsg = errmsgs.getParam(this);
+    errmsgs.removeParam( this );
+    delete errmsg;
+}
+
+
+const char* SharedLibAccess::errMsg() const
+{ return errmsgs.getParam(this)->str(); }
+
+
 void SharedLibAccess::close()
 {
-    errmsgs.setParam( this, "" );
+    errmsgs.getParam( this )->setEmpty();
     if ( !handle_ ) return;
 #ifdef __win__
     FreeLibrary( handle_ );

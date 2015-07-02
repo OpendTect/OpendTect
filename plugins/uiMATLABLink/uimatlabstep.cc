@@ -19,10 +19,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uitable.h"
 
-#include "file.h"
-#include "filepath.h"
+#include "envvars.h"
 #include "matlabstep.h"
 #include "matlablibmgr.h"
+
+#ifdef __win__
+    static const char* sofileflt = "Shared-Objects files (*.dll)";
+#else
+    static const char* sofileflt = "Shared-Objects files (*.so *.SO)";
+#endif
 
 namespace VolProc
 {
@@ -37,7 +42,11 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
     : uiStepDialog(p,MatlabStep::sFactoryDisplayName(), step )
     , fileloaded_(false)
 {
-    filefld_ = new uiFileInput( this, "Select shared object file" );
+    const FilePath sofiledir = getSODefaultDir();
+    filefld_ = new uiFileInput( this, "Select shared object file",
+				uiFileInput::Setup(uiFileDialog::Gen)
+				.filter(sofileflt)
+				.defseldir(sofiledir.fullPath()) );
     filefld_->valuechanged.notify( mCB(this,uiMatlabStep,fileSelCB) );
 
     loadbut_ = new uiPushButton( this, "Load",
@@ -67,7 +76,6 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
 
     filefld_->setFileName( fnm );
     fileSelCB( 0 );
-    loadCB( 0 );
 
     BufferStringSet parnames, parvalues;
     step->getParameters( parnames, parvalues );
@@ -89,6 +97,7 @@ void uiMatlabStep::fileSelCB( CallBacker* )
     {
 	const FilePath fp( fnm );
 	namefld_->setText( BufferString("MATLAB - ",fp.baseName()) );
+	loadCB( 0 );
     }
 }
 
@@ -179,6 +188,16 @@ bool uiMatlabStep::acceptOK( CallBacker* cb )
 
     step->setParameters( parnames, parvalues );
     return true;
+}
+
+
+FilePath uiMatlabStep::getSODefaultDir()
+{
+    FixedString matlabdir( GetEnvVar( "MATLAB_BUILDDIR" ) );
+    if ( matlabdir.isEmpty() )
+	matlabdir = GetEnvVar( "MATLAB_DIR" );
+
+    return FilePath( matlabdir );
 }
 
 } // namespace VolProc

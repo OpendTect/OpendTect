@@ -31,6 +31,7 @@ mExpClass(Basic) SharedLibAccess
 public:
 
 		SharedLibAccess(const char* file_name);
+		~SharedLibAccess();
 		//!< handle is only closed if you do it explicitly.
     bool	isOK() const		{ return handle_; }
     const char* errMsg() const;
