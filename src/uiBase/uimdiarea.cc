@@ -56,11 +56,16 @@ void uiMdiAreaBody::resizeEvent( QResizeEvent* ev )
 }
 
 
+static uiMdiArea* oneandonlymdiarea_ = 0;
+
+
 uiMdiArea::uiMdiArea( uiParent* p, const char* nm )
     : uiObject(p,nm,mkbody(p,nm))
     , windowActivated(this)
 {
     setStretch( 2, 2 );
+    if ( !oneandonlymdiarea_ )
+	oneandonlymdiarea_ = this;
 }
 
 
@@ -72,7 +77,11 @@ uiMdiAreaBody& uiMdiArea::mkbody( uiParent* p, const char* nm )
 
 
 uiMdiArea::~uiMdiArea()
-{ delete body_; }
+{
+    delete body_;
+    if ( oneandonlymdiarea_ == this )
+	oneandonlymdiarea_ = 0;
+}
 
 
 void uiMdiArea::tile()		{ body_->tileSubWindows(); }
@@ -162,9 +171,10 @@ void uiMdiArea::addWindow( uiMdiAreaWindow* grp )
 
 uiMdiAreaWindow* uiMdiArea::getWindow( const char* nm )
 {
+    const BufferString nmbufstr( nm );
     for ( int idx=0; idx<grps_.size(); idx++ )
     {
-	if ( !strcmp(nm,grps_[idx]->getTitle().getFullString()) )
+	if ( !strcmp(nmbufstr.buf(),grps_[idx]->getTitle().getFullString()) )
 	    return grps_[idx];
     }
 
@@ -272,6 +282,15 @@ ODMdiSubWindow( QWidget* par=0, Qt::WindowFlags flgs=0 )
 protected:
 void closeEvent( QCloseEvent* ev )
 {
+    const int closedsubwinidx =
+	mdiArea()->subWindowList(QMdiArea::CreationOrder).indexOf(this);
+
+    BufferString cmdrecmsg( "Close " ); cmdrecmsg += closedsubwinidx;
+
+    int refnr = -1;
+    if ( oneandonlymdiarea_ )
+	refnr = oneandonlymdiarea_->beginCmdRecEvent( cmdrecmsg );
+
     BufferString msg( "Do you want to close " );
     msg.add( windowTitle() ).add( "?" );
     if ( sNoCloseMessage || uiMSG().askGoOn(msg) )
@@ -281,6 +300,9 @@ void closeEvent( QCloseEvent* ev )
     }
     else
 	ev->ignore();
+
+    if ( oneandonlymdiarea_ )
+	oneandonlymdiarea_->endCmdRecEvent( refnr, cmdrecmsg );
 }
 
 };
