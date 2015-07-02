@@ -328,6 +328,12 @@ void GridLines::setDisplayTransformation( const mVisTrans* tf )
     if ( transformation_ )
 	transformation_->ref();
 
+    for ( int idx=0; idx<polylineset_.size(); idx++ )
+    {
+	if ( polylineset_[idx] )
+	    polylineset_[idx]->setDisplayTransformation( transformation_ );
+    }
+
 }
 
 
