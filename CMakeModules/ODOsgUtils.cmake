@@ -52,6 +52,12 @@ macro( OD_ADD_OSGGEO )
 
     get_property( osgGeo_DEBUG_LOCATION TARGET osgGeo PROPERTY LOCATION_DEBUG )
     get_property( osgGeo_RELEASE_LOCATION TARGET osgGeo PROPERTY LOCATION_RELEASE )
+    install( PROGRAMS ${osgGeo_DEBUG_LOCATION}
+		DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
+		CONFIGURATIONS "Debug" )
+    install( PROGRAMS ${osgGeo_RELEASE_LOCATION}
+		DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
+		CONFIGURATIONS Release )
 endmacro()
 
 macro(OD_SETUP_OSG)
@@ -128,23 +134,13 @@ macro(OD_SETUP_OSG)
 			list( GET ARGS 0 FILENM )
 			if( ${ISOSGGEO} EQUAL -1 )
 			    OD_INSTALL_LIBRARY( ${FILENM} ${BUILD_TYPE} )
-			else()
-			    if ( ${BUILD_TYPE} STREQUAL "Release" )
-				OD_INSTALL_LIBRARY( ${osgGeo_RELEASE_LOCATION} "Release" )
-			    else()
-				OD_INSTALL_LIBRARY( ${osgGeo_DEBUG_LOCATION} "Debug" )
-			    endif()
 			endif()
-
 			list( REMOVE_ITEM ARGS ${ARGS} )
 			set( ALLLIBS "" )
 		    elseif( WIN32 )
 			if( NOT ${ISOSGGEO} EQUAL -1 )
-			    if( ${BUILD_TYPE} STREQUAL "Debug" )
-				set( DLLFILE ${osgGeo_DEBUG_LOCATION} )
-			    else()
-				set( DLLFILE ${osgGeo_RELEASE_LOCATION} )
-			    endif()
+			    get_filename_component( OSGLIBPATH ${LIB} PATH )
+			    set( DLLFILE ${OSGLIBPATH}/${OSGLIBNAME}.dll )
 			else()
 			    file ( GLOB DLLFILE "${OSG_DIR}/bin/*${OSGLIBNAME}.dll" )
 			endif()
