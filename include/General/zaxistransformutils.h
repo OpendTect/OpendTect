@@ -13,58 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "datapackbase.h"
 #include "trckeyzsampling.h"
 #include "paralleltask.h"
-#include "datapackbase.h"
 
-template <class T> class Array2DSlice;
 class ZAxisTransform;
 class DataPointSet;
 class BinIDValueSet;
-
-/*!
-\brief DataPack for ZAxis transformed data.
-*/
-
-mExpClass(General) ZAxisTransformDataPack : public FlatDataPack
-{
-public:
-				ZAxisTransformDataPack(const FlatDataPack&,
-					       const TrcKeyZSampling& inputcs,
-					       ZAxisTransform&);
-				~ZAxisTransformDataPack();
-
-    void			setOutputCS(const TrcKeyZSampling&);
-
-    bool			transform();
-
-    void			setInterpolate( bool yn ) { interpolate_ = yn; }
-    bool			getInterpolate() const	 { return interpolate_;}
-
-    const ZAxisTransform&	getTransform() const	{ return transform_; }
-    const TrcKeyZSampling& 	inputCS() const 	{ return inputcs_; }
-
-    Array2D<float>&		data();
-    const Array2D<float>&	data() const;
-    virtual void		dumpInfo(IOPar&) const;
-
-    virtual const char* 	dimName(bool) const;
-
-protected:
-
-    const FlatDataPack& 	inputdp_;
-    TrcKeyZSampling		inputcs_;
-    TrcKeyZSampling*		outputcs_;
-
-    ZAxisTransform&		transform_;
-    bool			interpolate_;
-    int 			voiid_;
-
-    const Array3D<float>*	array3d_;
-    Array2DSlice<float>*	array2dsl_;
-};
-
 
 /*!
 \brief Generates a DataPointSet with untransformed z-values corresponding to

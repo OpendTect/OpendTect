@@ -144,6 +144,7 @@ SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source,int comp)
     : FlatDataPack(source.category())
     , source_(source)
     , comp_(comp)
+    , zsamp_(source.getZRange())
 {
     DPM(DataPackMgr::SeisID()).addAndObtain(const_cast<SeisDataPack*>(&source));
     setName( source_.getComponentName(comp_) );
@@ -159,7 +160,8 @@ SeisFlatDataPack::~SeisFlatDataPack()
 bool SeisFlatDataPack::dimValuesInInt( const char* keystr ) const
 {
     const FixedString key( keystr );
-    return key==mKeyInl || key==mKeyCrl || key==mKeyTrcNr;
+    return key==mKeyInl || key==mKeyCrl || key==mKeyTrcNr ||
+	   key==sKey::Series();
 }
 
 
@@ -196,8 +198,9 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 
     if ( is2D() )
     {
-	iop.set( mKeyTrcNr, getPath()[i0].trcNr() );
-	iop.set( mKeyRefNr, source_.getRefNr(i0) );
+	const int trcidx = nrTrcs()==1 ? 0 : i0;
+	iop.set( mKeyTrcNr, getTrcKey(trcidx).trcNr() );
+	iop.set( mKeyRefNr, source_.getRefNr(trcidx) );
     }
     else
     {
@@ -214,6 +217,34 @@ float SeisFlatDataPack::nrKBytes() const
 }
 
 
+#define mStepIntvD( rg ) \
+    StepInterval<double>( rg.start, rg.stop, rg.step )
+
+void SeisFlatDataPack::setPosData()
+{
+    const TrcKeyPath& path = getPath();
+    const int nrtrcs = path.size();
+    float* pos = new float[nrtrcs];
+    pos[0] = 0;
+
+    TrcKey prevtk = path[0];
+    for ( int idx=1; idx<nrtrcs; idx++ )
+    {
+	const TrcKey& trckey = path[idx];
+	if ( trckey.isUdf() )
+	    pos[idx] = mCast(float,(pos[idx-1]));
+	else
+	{
+	    pos[idx] = mCast(float,(pos[idx-1] + prevtk.distTo(trckey)));
+	    prevtk = trckey;
+	}
+    }
+
+    posData().setX1Pos( pos, nrtrcs, 0 );
+    posData().setRange( false, mStepIntvD(zsamp_) );
+}
+
+
 
 #define mIsStraight ((getTrcKey(0).distTo(getTrcKey(nrTrcs()-1))/ \
 	posdata_.position(true,nrTrcs()-1))>0.99)
@@ -223,16 +254,21 @@ RegularFlatDataPack::RegularFlatDataPack(
     : SeisFlatDataPack(source,comp)
     , sampling_(source.sampling())
     , dir_(sampling_.defaultDir())
+    , usemulticomps_(comp_==-1)
+    , hassingletrace_(sampling_.nrTrcs()==1)
 {
-    setSourceData();
-    setTrcInfoFlds();
+    if ( usemulticomps_ )
+	setSourceDataFromMultiCubes();
+    else
+	setSourceData();
 }
 
 
 Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
 {
     const bool isvertical = dir_ != TrcKeyZSampling::Z;
-    const int trcidx = isvertical ? i0 : i0*sampling_.nrTrcs()+i1;
+    const int trcidx = isvertical ? (hassingletrace_ ? 0 : i0)
+				  : i0*sampling_.nrTrcs()+i1;
     const Coord c = Survey::GM().toCoord( getTrcKey(trcidx) );
     return Coord3( c.x, c.y, sampling_.zsamp_.atIndex(isvertical ? i1 : 0) );
 }
@@ -263,14 +299,26 @@ void RegularFlatDataPack::setTrcInfoFlds()
 
 const char* RegularFlatDataPack::dimName( bool dim0 ) const
 {
+    if ( dim0 && hassingletrace_ ) return sKey::Series();
     if ( is2D() ) return dim0 ? "Distance" : "Z";
     return dim0 ? (dir_==TrcKeyZSampling::Inl ? mKeyCrl : mKeyInl)
 		: (dir_==TrcKeyZSampling::Z ? mKeyCrl : "Z");
 }
 
 
-#define mStepIntvD( rg ) \
-    StepInterval<double>( rg.start, rg.stop, rg.step )
+void RegularFlatDataPack::setSourceDataFromMultiCubes()
+{
+    const int nrcomps = source_.nrComponents();
+    const int nrz = sampling_.zsamp_.nrSteps() + 1;
+    posdata_.setRange( true, StepInterval<double>(0,nrcomps-1,1) );
+    posdata_.setRange( false, mStepIntvD(sampling_.zsamp_) );
+
+    arr2d_ = new Array2DImpl<float>( nrcomps, nrz );
+    for ( int idx=0; idx<nrcomps; idx++ )
+	for ( int idy=0; idy<nrz; idy++ )
+	    arr2d_->set( idx, idy, source_.data(idx).get(0,0,idy) );
+}
+
 
 void RegularFlatDataPack::setSourceData()
 {
@@ -290,27 +338,7 @@ void RegularFlatDataPack::setSourceData()
 				      : mStepIntvD(sampling_.zsamp_) );
     }
     else
-    {
-	const int nrtrcs = sampling_.nrTrcs();
-	float* pos = new float[nrtrcs];
-	pos[0] = 0;
-
-	TrcKey prevtk = source_.getTrcKey( 0 );
-	for ( int idx=1; idx<nrtrcs; idx++ )
-	{
-	    const TrcKey trckey = source_.getTrcKey( idx );
-	    if ( trckey.isUdf() )
-		pos[idx] = mCast(float,(pos[idx-1]));
-	    else
-	    {
-		pos[idx] = mCast(float,(pos[idx-1] + prevtk.distTo(trckey)));
-		prevtk = trckey;
-	    }
-	}
-
-	posData().setX1Pos( pos, nrtrcs, 0 );
-	posData().setRange( false, mStepIntvD(sampling_.zsamp_) );
-    }
+	setPosData();
 
     const int dim0 = dir_==TrcKeyZSampling::Inl ? 1 : 0;
     const int dim1 = dir_==TrcKeyZSampling::Z ? 1 : 2;
@@ -320,6 +348,7 @@ void RegularFlatDataPack::setSourceData()
     slice2d->setPos( dir_, 0 );
     slice2d->init();
     arr2d_ = slice2d;
+    setTrcInfoFlds();
 }
 
 
@@ -328,10 +357,8 @@ RandomFlatDataPack::RandomFlatDataPack(
 		const RandomSeisDataPack& source, int comp )
     : SeisFlatDataPack(source,comp)
     , path_(source.getPath())
-    , zsamp_(source.getZRange())
 {
     setSourceData();
-    setTrcInfoFlds();
 }
 
 
@@ -357,31 +384,13 @@ void RandomFlatDataPack::setTrcInfoFlds()
 
 void RandomFlatDataPack::setSourceData()
 {
-    const int nrtrcs = path_.size();
-    float* pos = new float[nrtrcs];
-    pos[0] = 0;
-
-    TrcKey prevtk = path_[0];
-    for ( int idx=1; idx<nrtrcs; idx++ )
-    {
-	const TrcKey& trckey = path_[idx];
-	if ( trckey.isUdf() )
-	    pos[idx] = mCast(float,(pos[idx-1]));
-	else
-	{
-	    pos[idx] = mCast(float,(pos[idx-1] + prevtk.distTo(trckey)));
-	    prevtk = trckey;
-	}
-    }
-
-    posData().setX1Pos( pos, nrtrcs, 0 );
-    posData().setRange( false, mStepIntvD(zsamp_) );
-
+    setPosData();
     Array2DSlice<float>* slice2d = new Array2DSlice<float>(source_.data(comp_));
     slice2d->setDimMap( 0, 1 );
     slice2d->setDimMap( 1, 2 );
     slice2d->setPos( 0, 0 );
     slice2d->init();
     arr2d_ = slice2d;
+    setTrcInfoFlds();
 }
 

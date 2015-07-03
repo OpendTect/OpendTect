@@ -11,8 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "externalattrib.h"
 
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
 #include "attribdesc.h"
 #include "attribsel.h"
 
@@ -37,7 +35,7 @@ bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf,
 { return false; }
 
 
-DataPack::ID ExtAttribCalc::createAttrib( const TrcKeyZSampling&, const LineKey&,
+DataPack::ID ExtAttribCalc::createAttrib( const TrcKeyZSampling&,const LineKey&,
 					  TaskRunner* )
 { return DataPack::cNoID(); }
 

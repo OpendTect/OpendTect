@@ -11,7 +11,6 @@ SET(OD_MODULE_SOURCES
 		attribdatacubeswriter.cc
 		attribdataholder.cc
 		attribdataholderarray.cc
-		attribdatapack.cc
 		attribdesc.cc
 		attribdescset.cc
 		attribdescsetman.cc

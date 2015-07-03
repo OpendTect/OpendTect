@@ -785,7 +785,7 @@ TrcKeyZSampling::Dir TrcKeyZSampling::defaultDir() const
     if ( nrz < nrinl && nrz < nrcrl )
 	return Z;
 
-    return nrinl < nrcrl ? Inl : Crl;
+    return nrinl<=nrcrl ? Inl : Crl;
 }
 
 

@@ -630,19 +630,9 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 	}
     }
 
-    const DataCubes* output = createOutput( tkzs, cache );
-    if ( !output || !output->nrCubes() )  return DataPack::cNoID();
-
-    const char* category = SeisDataPack::categoryStr(
-					tkzs.isFlat() && tkzs.nrZ()!=1, false );
-    RegularSeisDataPack* newpack = new RegularSeisDataPack( category );
-    newpack->setSampling( output->cubeSampling() );
-    for ( int idx=0; idx<output->nrCubes(); idx++ )
-    {
-	newpack->addComponent( targetspecs_[idx].userRef() );
-	newpack->data( idx ) = output->getCube( idx );
-    }
-
+    RegularSeisDataPack* newpack =
+	const_cast<RegularSeisDataPack*>( createOutput(tkzs,cache) );
+    if ( !newpack ) return DataPack::cNoID();
     newpack->setZDomain(
 	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
     newpack->setName( targetspecs_[0].userRef() );
@@ -657,7 +647,7 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     return 0;\
 }
 
-const Attrib::DataCubes* uiAttribPartServer::createOutput(
+const RegularSeisDataPack* uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const DataCubes* cache )
 {
@@ -697,7 +687,7 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 
     bool success = true;
     Processor* process = 0;
-    DataCubes* output = 0;
+    RegularSeisDataPack* output = 0;
     if ( !atsamplepos )//note: 1 attrib computed at a time
     {
 	if ( !targetdesc ) return 0;
@@ -721,8 +711,11 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	    mCleanReturn();
 	}
 
-	output = new DataCubes;
-	output->setSizeAndPos( tkzs );
+	const char* category = SeisDataPack::categoryStr(
+			tkzs.defaultDir()!=TrcKeyZSampling::Z,
+			tkzs.hsamp_.survid_==Survey::GM().get2DSurvID() );
+	output = new RegularSeisDataPack( category );
+	output->setSampling( tkzs );
 	TypeSet<float> values;
 	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, values,
 				    true );
@@ -731,7 +724,8 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	Array3DImpl<float>* arr3d =
 		new Array3DImpl<float>( tkzs.nrInl(), tkzs.nrCrl(), 1 );
 	arr3d->setStorage( avs );
-	output->addCube( *arr3d, true );
+	output->addComponent( targetspecs_[0].userRef() );
+	output->data( 0 ) = *arr3d;
 	dtcoldefset.erase();
     }
     else
@@ -751,8 +745,8 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 
 		ObjectSet<const DataCubes> cubeset;
 		cubeset += dc;
-		output =
-		    const_cast<DataCubes*>(aem->getDataCubesOutput(cubeset));
+		output = const_cast<RegularSeisDataPack*>(
+					aem->getOutput(cubeset) );
 		dc->unRef();
 		return output;
 	    }
@@ -799,29 +793,20 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	    }
 	}
 
-	output = const_cast<DataCubes*>(aem->getDataCubesOutput( *process ));
+	output = const_cast<RegularSeisDataPack*>( aem->getOutput(*process) );
     }
 
-    if ( !output )
-    {
-	delete process;
-	return 0;
-    }
-    output->ref();
     delete process;
 
-    if ( !success )
+    if ( output && !success )
     {
 	if ( !uiMSG().askGoOn(tr("Attribute loading/calculation aborted.\n"
 	    "Do you want to use the partially loaded/computed data?"), true ) )
 	{
-	    output->unRef();
+	    delete output;
 	    output = 0;
 	}
     }
-
-    if ( output )
-	output->unRefNoDelete();
 
     return output;
 }

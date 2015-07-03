@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdataholderarray.h"
 #include "arraynd.h"
 #include "arrayndslice.h"
-#include "attribdatacubes.h"
 #include "trckeyzsampling.h"
 #include "genericnumer.h"
 #include "interpol1d.h"
@@ -254,67 +253,13 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
     res.hsamp_.start_ = BinID( 0, trcrange.start );
     res.hsamp_.stop_ = BinID( 0, trcrange.stop );
     res.hsamp_.step_ = BinID( 1, trcrange.step );
+    res.hsamp_.survid_ = Survey::GM().get2DSurvID();
 
     res.zsamp_.start = zrange.start*zstep;
     res.zsamp_.stop = zrange.stop*zstep;
     res.zsamp_.step = zstep;
 
     return res;
-}
-
-
-
-bool Data2DHolder::fillDataCube( DataCubes& res ) const
-{
-    if ( dataset_.isEmpty() )
-	return false;
-
-    const TrcKeyZSampling cs = getTrcKeyZSampling();
-    const StepInterval<int> trcrange( cs.hsamp_.start_.crl(),
-				      cs.hsamp_.stop_.crl(),
-				      cs.hsamp_.step_.crl() );
-    res.setSizeAndPos( getTrcKeyZSampling() );
-    if ( res.nrCubes() == 0 )
-	res.addCube( mUdf(float) );
-    else
-	res.setValue( 0, mUdf(float) );
-
-    Array3D<float>& array = res.getCube( 0 );
-    float* arrptr = array.getData();
-
-    for ( int idx=0; idx<trcinfoset_.size(); idx++ )
-    {
-	const float* srcptr = 0;
-	const int nrseries = dataset_[idx]->nrSeries();
-	for ( int idy=0; idy<nrseries; idy++ )
-	{
-	    if ( dataset_[idx]->series(idy) )
-	    {
-		srcptr = dataset_[idx]->series(idy)->arr();
-		break;
-	    }
-	}
-	if ( !srcptr )
-	    continue;
-
-	const int trcidx = trcrange.nearestIndex( trcinfoset_[idx]->nr );
-	const int zpos = 
-	    dataset_[idx]->z0_ - mNINT32(cs.zsamp_.start/cs.zsamp_.step);
-	if ( arrptr )
-	{
-	    const od_int64 offset = array.info().getOffset( 0, trcidx, zpos );
-	    OD::memCopy( arrptr+offset, srcptr,
-		    dataset_[idx]->nrsamples_*sizeof(float) );
-	}
-	else
-	{
-	    const int ns = dataset_[idx]->nrsamples_;
-	    for ( int isamp=0; isamp<ns; isamp++ )
-		array.set( 0, trcidx, isamp+zpos, srcptr[isamp] );
-	}
-    }
-
-    return true;
 }
 
 

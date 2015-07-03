@@ -61,7 +61,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     if ( showdisplayfield_ )
 	useclipfld_->attach( alignedBelow, lcb );
 
-    symclipratiofld_ = new uiGenInput( this, 
+    symclipratiofld_ = new uiGenInput( this,
 				       tr("Percentage clip"),FloatInpSpec() );
     symclipratiofld_->setElemSzPol(uiObject::Small);
     symclipratiofld_->attach( alignedBelow, useclipfld_ );
@@ -76,7 +76,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     usemidvalfld_->valuechanged.notify(
 	    mCB(this,uiFlatViewDataDispPropTab,useMidValSel) );
 
-    symmidvalfld_ = new uiGenInput( this, 
+    symmidvalfld_ = new uiGenInput( this,
 				    tr("Mid value"), FloatInpSpec() );
     symmidvalfld_->setElemSzPol(uiObject::Small);
     symmidvalfld_->attach( alignedBelow, usemidvalfld_ );
@@ -98,7 +98,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     rgfld_->attach( alignedBelow, useclipfld_ );
     rgfld_->display( !useclipfld_->getBoolValue() );
 
-    blockyfld_ = new uiGenInput( this, tr("Display blocky (no interpolation)"), 
+    blockyfld_ = new uiGenInput( this, tr("Display blocky (no interpolation)"),
 				 BoolInpSpec(true) );
     blockyfld_->attach( alignedBelow, symmidvalfld_ );
 
@@ -354,7 +354,7 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     reflinefld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,reflineSel) );
     reflinefld_->attach( alignedBelow, wigcolsel_ );
 
-    refvalfld_ = new uiGenInput( this, tr("Reference line value"), 
+    refvalfld_ = new uiGenInput( this, tr("Reference line value"),
 				 FloatInpSpec() );
     refvalfld_->setElemSzPol(uiObject::Small);
     refvalfld_->attach( alignedBelow, reflinefld_ );
@@ -626,20 +626,13 @@ void uiFVAnnotPropTab::AxesGroup::getFromScreen()
 
 int uiFVAnnotPropTab::AxesGroup::getSelAnnot() const
 {
-    if ( annotselfld_ )
-    {
-	const int res = annotselfld_->getIntValue();
-	return res==-1 ? mUdf(int) : res;
-    }
-
-    return mUdf(int);
+    return annotselfld_ ? annotselfld_->getIntValue() : -1;
 }
 
 
 void uiFVAnnotPropTab::AxesGroup::setSelAnnot( int selannot )
 {
-    if ( annotselfld_ )
-	annotselfld_->setValue( mIsUdf(selannot) ? -1 : selannot );
+    if ( annotselfld_ ) annotselfld_->setValue( selannot );
 }
 
 
@@ -695,11 +688,11 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     auxnamefld_->valuechanged.notify( mCB( this, uiFVAnnotPropTab, auxNmFldCB));
     auxnamefld_->attach( alignedBelow, x2_ );
 
-    linestylefld_ = new uiSelLineStyle( this, linestyles_[0], 
+    linestylefld_ = new uiSelLineStyle( this, linestyles_[0],
 					tr("Line style") );
     linestylefld_->attach( alignedBelow, auxnamefld_ );
 
-    uiSelLineStyle::Setup su( tr("Line style") ); 
+    uiSelLineStyle::Setup su( tr("Line style") );
 			  su.color( false );
     linestylenocolorfld_ = new uiSelLineStyle( this, linestyles_[0], su );
     linestylenocolorfld_->attach( alignedBelow, auxnamefld_ );

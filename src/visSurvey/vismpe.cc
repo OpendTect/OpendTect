@@ -19,9 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannel2rgba.h"
 
 #include "arrayndsubsel.h"
-#include "binidvalue.h"
-#include "attribdatapack.h"
-#include "keystrs.h"
 #include "mpeengine.h"
 #include "seisdatapack.h"
 #include "settings.h"
@@ -177,7 +174,7 @@ TrcKeyZSampling MPEDisplay::getBoxPosition() const
 			   mNINT32(center.y+width.y/2) );
     cube.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
     cube.zsamp_.start = (float) ( center.z - width.z / 2 );
-    cube.zsamp_.stop= (float) ( center.z + width.z / 2 );
+    cube.zsamp_.stop = (float) ( center.z + width.z / 2 );
     cube.zsamp_.step = SI().zStep();
     cube.hsamp_.snapToSurvey();
     SI().snapZ( cube.zsamp_.start, 0 );
@@ -589,9 +586,10 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
     boxdragger_->setWidth( newwidth );
 
-    const Coord3 newcenter( 0.5*(cube.hsamp_.stop_.inl()+cube.hsamp_.start_.inl()),
-			    0.5*(cube.hsamp_.stop_.crl()+cube.hsamp_.start_.crl()),
-			    cube.zsamp_.center());
+    const Coord3 newcenter(
+	0.5*(cube.hsamp_.stop_.inl()+cube.hsamp_.start_.inl()),
+	0.5*(cube.hsamp_.stop_.crl()+cube.hsamp_.start_.crl()),
+	cube.zsamp_.center());
 
     boxdragger_->setCenter( newcenter );
 
@@ -638,12 +636,14 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     float zdiff = 0;
 
     inlcrldist.inl() =
-	binid.inl()>=cs.hsamp_.start_.inl() && binid.inl()<=cs.hsamp_.stop_.inl()
+	binid.inl()>=cs.hsamp_.start_.inl() &&
+	binid.inl()<=cs.hsamp_.stop_.inl()
 	     ? 0
 	     : mMIN( abs(binid.inl()-cs.hsamp_.start_.inl()),
 		     abs( binid.inl()-cs.hsamp_.stop_.inl()) );
     inlcrldist.crl() =
-        binid.crl()>=cs.hsamp_.start_.crl() && binid.crl()<=cs.hsamp_.stop_.crl()
+	binid.crl()>=cs.hsamp_.start_.crl() &&
+	binid.crl()<=cs.hsamp_.stop_.crl()
              ? 0
 	     : mMIN( abs(binid.crl()-cs.hsamp_.start_.crl()),
 		     abs( binid.crl()-cs.hsamp_.stop_.crl()) );
@@ -860,10 +860,12 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 
 	const StepInterval<int> inlrg( attrcs.hsamp_.inlRange() );
 	const StepInterval<int> crlrg( attrcs.hsamp_.crlRange() );
-	const Interval<int> dispinlrg(inlrg.getIndex(displaycs.hsamp_.start_.inl()),
-				      inlrg.getIndex(displaycs.hsamp_.stop_.inl()));
-	const Interval<int> dispcrlrg(crlrg.getIndex(displaycs.hsamp_.start_.crl()),
-				      crlrg.getIndex(displaycs.hsamp_.stop_.crl()));
+	const Interval<int> dispinlrg(
+		inlrg.getIndex(displaycs.hsamp_.start_.inl()),
+		inlrg.getIndex(displaycs.hsamp_.stop_.inl()));
+	const Interval<int> dispcrlrg(
+		crlrg.getIndex(displaycs.hsamp_.start_.crl()),
+		crlrg.getIndex(displaycs.hsamp_.stop_.crl()));
 
 	const StepInterval<float>& zrg( displaycs.zsamp_ );
 	const Interval<int> dispzrg( attrcs.zsamp_.nearestIndex( zrg.start ),

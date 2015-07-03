@@ -239,11 +239,7 @@ void uiMultiFlatViewControl::wheelMoveCB( CallBacker* cb )
     if ( vwridx<0 ) return;
     activevwr_ = vwrs_[vwridx];
 
-    const MouseEvent& ev = meh->event();
-    if ( mIsZero(ev.angle(),0.01) )
-	return;
-
-    zoomCB( ev.angle()<0 ? zoominbut_ : zoomoutbut_ );
+    uiFlatViewStdControl::wheelMoveCB( cb );
 }
 
 

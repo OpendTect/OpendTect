@@ -223,12 +223,11 @@ void uiFlatViewControl::updateZoomManager()
 void uiFlatViewControl::doPropertiesDialog( int vieweridx )
 {
     uiFlatViewer& vwr = *vwrs_[vieweridx];
-    BufferStringSet annots;
-    const int selannot = vwr.getAnnotChoices( annots ); 
-
     if ( !propdlg_ || &propdlg_->viewer()!=&vwr )
     {
 	delete propdlg_;
+	BufferStringSet annots;
+	const int selannot = vwr.getAnnotChoices( annots );
     	propdlg_ = new uiFlatViewPropDlg( 0, vwr,
 				mCB(this,uiFlatViewControl,applyProperties),
 				annots.size() ? &annots : 0, selannot );

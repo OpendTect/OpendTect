@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posvecdataset.h"
 #include "ptrman.h"
 #include "seis2ddata.h"
+#include "seisdatapack.h"
 #include "seistrc.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -291,10 +292,26 @@ const char* EngineMan::getCurUserRef() const
 }
 
 
-const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
+const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
 {
+    RegularSeisDataPack* output = 0;
     if ( proc.outputs_.size()==1 && !cache_ )
-	return proc.outputs_[0]->getDataCubes();
+    {
+	const DataCubes* datacubes = proc.outputs_[0]->getDataCubes();
+	if ( !datacubes ) return 0;
+	output = new RegularSeisDataPack( SeisDataPack::categoryStr(
+			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
+			tkzs_.hsamp_.survid_==Survey::GM().get2DSurvID()) );
+	output->setSampling( datacubes->cubeSampling() );
+	for ( int idx=0; idx<datacubes->nrCubes(); idx++ )
+	{
+	    const int attrspecidx = attrspecs_.validIdx(idx) ? idx : 0;
+	    output->addComponent( attrspecs_[attrspecidx].userRef() );
+	    output->data( idx ) = datacubes->getCube( idx );
+	}
+
+	return output;
+    }
 
     ObjectSet<const DataCubes> cubeset;
     for ( int idx=0; idx<proc.outputs_.size(); idx++ )
@@ -319,73 +336,75 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
 	cache_->ref();
     }
 
-    const DataCubes* output =
-	!cubeset.isEmpty() ? getDataCubesOutput( cubeset ) : 0;
+    if ( !cubeset.isEmpty() )
+	output = const_cast<RegularSeisDataPack*>( getOutput(cubeset) );
+
     deepUnRef( cubeset );
     return output;
 }
 
 
-const DataCubes* EngineMan::getDataCubesOutput(
+const RegularSeisDataPack* EngineMan::getOutput(
 				const ObjectSet<const DataCubes>& cubeset )
 {
-    DataCubes* output = new DataCubes;
-    output->ref();
+    const char* category = SeisDataPack::categoryStr(
+			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
+			tkzs_.hsamp_.survid_==Survey::GM().get2DSurvID() );
+    RegularSeisDataPack* output = new RegularSeisDataPack( category );
     if ( cache_ && cache_->cubeSampling().zsamp_.step != tkzs_.zsamp_.step )
     {
 	TrcKeyZSampling cswithcachestep = tkzs_;
 	cswithcachestep.zsamp_.step = cache_->cubeSampling().zsamp_.step;
-	output->setSizeAndPos(cswithcachestep);
+	output->setSampling( cswithcachestep );
     }
     else
-	output->setSizeAndPos(tkzs_);
+	output->setSampling( tkzs_ );
 
     for ( int idx=0; idx<cubeset[0]->nrCubes(); idx++ )
-	output->addCube(mUdf(float));
+	output->addComponent( attrspecs_[idx].userRef() );
 
+    const TrcKeyZSampling& sampling = output->sampling();
     for ( int iset=0; iset<cubeset.size(); iset++ )
     {
 	const DataCubes& cubedata = *cubeset[iset];
 	for ( int iinl=cubedata.getInlSz()-1; iinl>=0; iinl-- )
 	{
 	    const int inl = cubedata.inlsampling_.atIndex(iinl);
-	    const int inlidx = output->inlsampling_.nearestIndex(inl);
-	    if ( inlidx<0 || inlidx>=output->getInlSz() )
+	    const int inlidx = sampling.hsamp_.lineRange().nearestIndex(inl);
+	    if ( inlidx<0 || inlidx>sampling.nrLines()-1 )
 		continue;
 
 	    for ( int icrl=cubedata.getCrlSz()-1; icrl>=0; icrl-- )
 	    {
 		const int crl = cubedata.crlsampling_.atIndex(icrl);
-		const int crlidx = output->crlsampling_.nearestIndex(crl);
-		if ( crlidx<0 || crlidx>=output->getCrlSz() )
+		const int crlidx = sampling.hsamp_.trcRange().nearestIndex(crl);
+		if ( crlidx<0 || crlidx>sampling.nrTrcs()-1 )
 		    continue;
 
+		const StepInterval<float>& zsamp = sampling.zsamp_;
 		for ( int iz=cubedata.getZSz()-1; iz>=0; iz-- )
 		{
 		    const float inpfidx = cubedata.z0_ + iz;
-		    const float outfidx = inpfidx - output->z0_;
-
-		    if ( outfidx<0 || outfidx>output->getZSz()-1 )
+		    const float outfidx = inpfidx - zsamp.start/zsamp.step;
+		    if ( outfidx<0 || outfidx>sampling.nrZ()-1 )
 			continue;
 
-		    for ( int cubeidx=output->nrCubes()-1;cubeidx>=0;cubeidx--)
+		    for ( int idx=0; idx<output->nrComponents(); idx++ )
 		    {
 			const float val =
-			    cubedata.getCube(cubeidx).get( iinl, icrl, iz );
+			    cubedata.getCube(idx).get( iinl, icrl, iz );
 
 			if ( Values::isUdf( val ) )
 			    continue;
 
-			const int outzsampidx = (int)Math::Floor( outfidx );
-			output->setValue( cubeidx, inlidx, crlidx,
-					  outzsampidx, val );
+			const int zidx = (int)Math::Floor( outfidx );
+			output->data(idx).set( inlidx, crlidx, zidx, val );
 		    }
 		}
 	    }
 	}
     }
 
-    output->unRefNoDelete();
     return output;
 }
 
@@ -587,10 +606,10 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 	cache_->ref();
 	const TrcKeyZSampling cachecs = cache_->cubeSampling();
 	if ( mRg(h).step_ != tkzs_.hsamp_.step_
-	  || (mRg(h).start_.inl()-tkzs_.hsamp_.start_.inl())
-		% tkzs_.hsamp_.step_.inl()
-	  || (mRg(h).start_.crl()-tkzs_.hsamp_.start_.crl())
-		% tkzs_.hsamp_.step_.crl()
+	  || (mRg(h).start_.inl() - tkzs_.hsamp_.start_.inl()) %
+		tkzs_.hsamp_.step_.inl()
+	  || (mRg(h).start_.crl() - tkzs_.hsamp_.start_.crl()) %
+		tkzs_.hsamp_.step_.crl()
 	  || mRg(h).start_.inl() > tkzs_.hsamp_.stop_.inl()
 	  || mRg(h).stop_.inl() < tkzs_.hsamp_.start_.inl()
 	  || mRg(h).start_.crl() > tkzs_.hsamp_.stop_.crl()
@@ -639,8 +658,7 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 
 	const int startinl =
 		mMAX(tkzs_.hsamp_.start_.inl(), mRg(h).start_.inl() );
-	const int stopinl =
-		mMIN( tkzs_.hsamp_.stop_.inl(), mRg(h).stop_.inl() );
+	const int stopinl = mMIN( tkzs_.hsamp_.stop_.inl(), mRg(h).stop_.inl());
 
 	if ( mRg(h).start_.crl() > tkzs_.hsamp_.start_.crl() )
 	{
@@ -664,7 +682,7 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 
 	todocs = tkzs_;
 	todocs.hsamp_.start_.inl() = startinl;
-		todocs.hsamp_.stop_.inl() = stopinl;
+	todocs.hsamp_.stop_.inl() = stopinl;
 	todocs.hsamp_.start_.crl() =
 		mMAX( tkzs_.hsamp_.start_.crl(), mRg(h).start_.crl() );
 	todocs.hsamp_.stop_.crl() =
