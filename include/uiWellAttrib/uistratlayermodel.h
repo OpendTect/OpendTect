@@ -119,7 +119,6 @@ protected:
     bool			saveGenDesc() const;
     bool			saveGenDescIfNecessary(
 					bool allowcancel=true) const;
-    void			updateGenDesc();
     void			doGenModels(bool forceupdsynth,
 	    				    bool overridedispeach=false);
     void			calcAndSetDisplayEach(bool overridepar);
