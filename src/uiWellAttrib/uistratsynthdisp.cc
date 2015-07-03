@@ -1580,11 +1580,9 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     curSS().clearSynthetics();
     mDelD2TM
     par.get( sKeyDecimation(), dispeach_);
-    if ( !stratsynthpar )
-	curSS().addDefaultSynthetic();
-    else
+    int nrsynths = 0;
+    if ( stratsynthpar )
     {
-	int nrsynths;
 	stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
 	currentvdsynthetic_ = 0;
 	currentwvasynthetic_ = 0;
@@ -1611,13 +1609,17 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		if ( nonfrsd )
 		    nonfrsd->fillDispPar( synthdisppar );
 		sd->useDispPar( synthdisppar );
+		continue;
 	    }
-	    else
-		sd->useDispPar( *synthpar );
-	}
 
-	if ( !nrsynths )
-	    curSS().addDefaultSynthetic();
+	    sd->useDispPar( *synthpar );
+	}
+    }
+
+    if ( !nrsynths )
+    {
+	if ( curSS().addDefaultSynthetic() ) //par file not ok, add default
+	    synthsChanged.trigger(); //update synthetic WorkBenchPar
     }
 
     if ( !curSS().nrSynthetics() )
