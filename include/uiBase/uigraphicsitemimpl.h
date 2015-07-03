@@ -257,6 +257,7 @@ public:
 
     void 		setFont(const uiFont&);
     void		setFontData(const FontData&);
+    const uiString	getText() const;
     uiSize		getTextSize() const;
     void 		setAlignment(const Alignment&);
     void		setText(const uiString&);

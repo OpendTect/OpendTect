@@ -567,6 +567,10 @@ ODGraphicsTextItem* uiTextItem::mkODObj()
 
 #define mExtraSpace 10
 
+const uiString uiTextItem::getText() const
+{ return text_; }
+
+
 uiSize uiTextItem::getTextSize() const
 {
     QFontMetrics qfm( qtextitem_->getFont() );
