@@ -41,18 +41,24 @@ macro ( create_package PACKAGE_NAME )
    endif()
 
         copy_thirdpartylibs()
-        set( LIBLIST ${LIBLIST};${PLUGINS} )
+	set( LIBLIST ${LIBLIST};${PLUGINS};osgGeo )
     endif()
 
     set( COPYTODIR ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release )
     message( "Copying ${OD_PLFSUBDIR} libraries" )
     foreach( FILE ${LIBLIST} )
+	string( FIND ${FILE} "osgGeo" ISOSGGEO )
 	if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
 		set(LIB "lib${FILE}.so")
 	elseif( APPLE )
 		set( LIB "lib${FILE}.dylib" )
 	elseif( WIN32 )
 		set( LIB "${FILE}.dll" )
+	endif()
+
+	if (  NOT ${ISOSGGEO} EQUAL -1 )
+	   #Added osgGeo lib to OD_THIRD_PARTY_LIBS. Will use create devel package
+	    set( OD_THIRD_PARTY_LIBS ${OD_THIRD_PARTY_LIBS} ${LIB} )
 	endif()
 
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
