@@ -394,6 +394,7 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* curvwr2d )
 	clickedvwr2d = find2DViewer( clickedtkzs );
 	if ( clickedvwr2d )
 	    clickedvwr2d->setNewPosition( newposkzs );
+	setAllIntersectionPositions();
     }
     
     selauxpos_.isselected_ = false;
@@ -446,9 +447,9 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 		selauxpos_.oldauxpos_ =
 		    curvwr.appearance().annot_.x2_.auxposs_[x2auxposidx].pos_;
 	    }
-
-	    return;
 	}
+
+	return;
     }
 
     uiMenu menu( "Menu" );
