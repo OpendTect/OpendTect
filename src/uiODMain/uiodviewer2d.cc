@@ -494,8 +494,13 @@ void uiODViewer2D::posChg( CallBacker* )
 
 void uiODViewer2D::setNewPosition( const TrcKeyZSampling& tkzs )
 {
-    setPos( tkzs );
+    if ( tkzs_ == tkzs ) return;
     setTrcKeyZSampling( tkzs );
+    const uiFlatViewer& vwr = viewwin()->viewer(0);
+    if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
+	setUpView( createDataPack(false), false );
+    else if ( vwr.isVisible(true) && wvaselspec_.id().isValid() )
+	setUpView( createDataPack(true), true );
 }
 
 
