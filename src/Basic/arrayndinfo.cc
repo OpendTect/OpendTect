@@ -243,6 +243,17 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
 }
 
 
+// To avoid using default copy constructor created by compiler.
+ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfoImpl& nsz )
+	: ArrayNDInfo(nsz)
+	, ndim_(nsz.getNDim())
+	, dimsz_(ndim_<1 ? 0 : new int[ndim_])
+{
+    for ( int idx=0; idx<ndim_; idx++ )
+	setSize( idx, nsz.getSize(idx) );
+}
+
+
 ArrayNDInfoImpl::~ArrayNDInfoImpl()
 {
     delete [] dimsz_;

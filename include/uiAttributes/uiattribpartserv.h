@@ -43,6 +43,7 @@ class RandomSeisDataPack;
 class IOObj;
 class NLAModel;
 class DataPointSet;
+class RegularSeisDataPack;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class TaskRunner;
@@ -115,7 +116,7 @@ public:
 			    { return targetspecs_; }
 
     DataPack::ID	createOutput(const TrcKeyZSampling&,DataPack::ID);
-    const Attrib::DataCubes* createOutput(const TrcKeyZSampling&,
+    const RegularSeisDataPack*	createOutput(const TrcKeyZSampling&,
 				          const Attrib::DataCubes* prevslcs=0);
     bool		createOutput(DataPointSet&,int firstcol =0);
     bool		createOutput(ObjectSet<DataPointSet>&,

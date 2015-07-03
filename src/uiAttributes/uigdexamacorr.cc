@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribengman.h"
 #include "attribprocessor.h"
 #include "attribfactory.h"
-#include "attribdatacubes.h"
 #include "attribdataholder.h"
 #include "flatposdata.h"
 #include "seisdatapack.h"
@@ -128,15 +127,25 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 			= mNINT32(tkzs_.zsamp_.start/zstep);
     }
 
-    FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
+    TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
+    sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
+
     RegularSeisDataPack* regsdp = new RegularSeisDataPack(
 					SeisDataPack::categoryStr(true,true) );
-    regsdp->setSampling( d2dh.getTrcKeyZSampling() );
+    regsdp->setSampling( sampling );
     regsdp->addComponent( "autocorrelation" );
     mDeclareAndTryAlloc(
 	    ConstRefMan<Data2DArray>,d2darr,Data2DArray(*correctd2dh));
     if ( d2darr )
 	regsdp->data( 0 ) = *d2darr->dataset_;
+
+    TypeSet<float> refnrs;
+    refnrs.setCapacity( d2darr->trcinfoset_.size(), false );
+    for ( int idx=0; idx<d2darr->trcinfoset_.size(); idx++ )
+	refnrs += d2darr->trcinfoset_[idx]->refnr;
+    regsdp->setRefNrs( refnrs );
+
+    FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
     fdp = new RegularFlatDataPack( *regsdp, 0 );
     DPM(DataPackMgr::FlatID()).add( fdp );
 }
@@ -145,22 +154,18 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 					    Processor* proc )
 {
-    ConstRefMan<Attrib::DataCubes> output = aem->getDataCubesOutput( *proc );
+    RegularSeisDataPack* output = const_cast<RegularSeisDataPack*>(
+						aem->getOutput(*proc) );
     if ( !output ) return;
 
     bool csmatchessurv = SI().zRange(0).includes(tkzs_.zsamp_.start, false )
 			&& SI().zRange(0).includes(tkzs_.zsamp_.stop, false );
     //if we previously 'faked' a 'normal' cubesampling for the attribute engine
     //we now have to go back to the user specified sampling
-    TrcKeyZSampling tkzs = csmatchessurv ? output->cubeSampling() : tkzs_;
-    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
-				SeisDataPack::categoryStr(true,false) );
-    regsdp->setSampling( tkzs );
-    regsdp->addComponent( "autocorrelation" );
-    regsdp->data( 0 ) = output->getCube( 0 );
+    if ( !csmatchessurv ) output->setSampling( tkzs_ );
 
     FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
-    fdp = new RegularFlatDataPack( *regsdp, 0 );
+    fdp = new RegularFlatDataPack( *output, 0 );
     DPM(DataPackMgr::FlatID()).add( fdp );
 }
 
@@ -192,8 +197,8 @@ bool GapDeconACorrView::setUpViewWin( bool isqc )
 	    ColTab::MapperSetup::Fixed;
 	vwr.appearance().ddpars_.vd_.mappersetup_.range_ =Interval<float>(-1,1);
 	vwr.setInitialSize( uiSize(600,400) );
-	fvwin->addControl(
-		new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
+	fvwin->addControl( new uiFlatViewStdControl(vwr,
+			uiFlatViewStdControl::Setup(0).isvertical(true)) );
     }
 
     return true;

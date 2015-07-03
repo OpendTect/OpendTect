@@ -225,6 +225,7 @@ public:
 
 			ArrayNDInfoImpl(int ndim);
 			ArrayNDInfoImpl(const ArrayNDInfo&);
+			ArrayNDInfoImpl(const ArrayNDInfoImpl&);
 			~ArrayNDInfoImpl();
     virtual bool	isOK() const		{ return cachedtotalsz_ > 0; }
 

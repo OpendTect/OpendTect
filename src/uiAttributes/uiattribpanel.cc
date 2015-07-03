@@ -17,19 +17,18 @@ ________________________________________________________________________
 #include "attribprocessor.h"
 #include "attribprovider.h"
 #include "attribfactory.h"
-#include "attribdatacubes.h"
 #include "attribdataholder.h"
-#include "attribdatapack.h"
 #include "arrayndimpl.h"
+#include "arrayndslice.h"
+#include "arrayndwrapper.h"
 #include "flatposdata.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "uitaskrunner.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
 #include "uimsg.h"
-
-using namespace Attrib;
 
 
 uiAttribPanel::uiAttribPanel( uiParent* p )
@@ -99,24 +98,45 @@ EngineMan* uiAttribPanel::createEngineMan()
 }
 
 
-FlatDataPack* uiAttribPanel::createFDPack( 
-					    const Data2DHolder& d2dh ) const
+FlatDataPack* uiAttribPanel::createFDPack( const Data2DHolder& d2dh ) const
 {
-    return new Attrib::Flat2DDHDataPack( attribid_, d2dh, geomid_, true );
+    mDeclareAndTryAlloc(ConstRefMan<Data2DArray>,d2darr,Data2DArray(d2dh));
+    if ( !d2darr ) return 0;
+
+    Array1DSlice<float> arr1dslice( *d2darr->dataset_ );
+    arr1dslice.setDimMap( 0, 2 );
+    arr1dslice.setPos( 1, 0 );
+
+    Array3DWrapper<float> arr3d( arr1dslice );
+    arr3d.setDimMap( 0, 2 );
+
+    TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
+    sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
+
+    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
+					SeisDataPack::categoryStr(true,true) );
+    regsdp->setSampling( sampling );
+    regsdp->setRefNrs( TypeSet<float>(1,d2darr->trcinfoset_[0]->refnr) );
+    for ( int idx=0; idx<d2darr->dataset_->info().getSize(0); idx++ )
+    {
+	arr1dslice.setPos( 0, idx );
+	if ( !arr1dslice.init() )
+	    continue;
+
+	arr3d.init();
+	regsdp->addComponent( sKey::EmptyString() );
+	regsdp->data( idx ) = arr3d;
+    }
+
+    return new RegularFlatDataPack( *regsdp, -1 );
 }
 
 
 FlatDataPack* uiAttribPanel::createFDPack( EngineMan* aem,
 						     Processor* proc ) const
 {
-    const Attrib::DataCubes* output = aem->getDataCubesOutput( *proc );
-    if ( !output ) return 0;
-    
-    output->ref();
-    FlatDataPack* fdpack = new Attrib::Flat3DDataPack( attribid_, *output, -1 );
-	    
-    output->unRef();
-    return fdpack;
+    const RegularSeisDataPack* output = aem->getOutput( *proc );
+    return output ? new RegularFlatDataPack(*output,-1) : 0;
 }
 
 
@@ -138,8 +158,8 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
 	vwr.setPack( false, fdpack->id() );
-	flatvwin_->addControl( new uiFlatViewStdControl( flatvwin_->viewer(),
-			       uiFlatViewStdControl::Setup(0) ) );
+	flatvwin_->addControl( new uiFlatViewStdControl(vwr,
+			uiFlatViewStdControl::Setup(0).isvertical(true)) );
 	flatvwin_->setDeleteOnClose( false );
     }
     

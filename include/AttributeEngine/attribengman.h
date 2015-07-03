@@ -26,6 +26,7 @@ class DataPointSet;
 class Executor;
 class LineKey;
 class NLAModel;
+class RegularSeisDataPack;
 class SeisTrcBuf;
 class SeisTrcInfo;
 
@@ -84,8 +85,9 @@ public:
 				      	      const DataCubes* cached_data = 0);
 			//!< Give the previous calculated data in cached data
 			//!< and some parts may not be recalculated.
-    const DataCubes*	getDataCubesOutput(const Processor&);
-    const DataCubes*	getDataCubesOutput(const ObjectSet<const DataCubes>&);
+
+    const RegularSeisDataPack*	getOutput(const Processor&);
+    const RegularSeisDataPack*	getOutput(const ObjectSet<const DataCubes>&);
 
     Executor*		createFeatureOutput(const BufferStringSet& inputs,
 					    const ObjectSet<BinIDValueSet>&);
@@ -140,9 +142,6 @@ private:
 
     friend class		AEMFeatureExtracter;//TODO will soon be removed
     friend class		AEMTableExtractor;
-
-    void			clearZPtrs();
-
 };
 
 };//namespace

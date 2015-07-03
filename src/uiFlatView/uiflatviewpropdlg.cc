@@ -626,20 +626,13 @@ void uiFVAnnotPropTab::AxesGroup::getFromScreen()
 
 int uiFVAnnotPropTab::AxesGroup::getSelAnnot() const
 {
-    if ( annotselfld_ )
-    {
-	const int res = annotselfld_->getIntValue();
-	return res==-1 ? mUdf(int) : res;
-    }
-
-    return mUdf(int);
+    return annotselfld_ ? annotselfld_->getIntValue() : -1;
 }
 
 
 void uiFVAnnotPropTab::AxesGroup::setSelAnnot( int selannot )
 {
-    if ( annotselfld_ )
-	annotselfld_->setValue( mIsUdf(selannot) ? -1 : selannot );
+    if ( annotselfld_ ) annotselfld_->setValue( selannot );
 }
 
 

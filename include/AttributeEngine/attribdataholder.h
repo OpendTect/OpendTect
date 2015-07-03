@@ -24,7 +24,6 @@ class SeisTrcInfo;
 
 namespace Attrib
 {
-class DataCubes;
 
 /*!
 \brief Holds the attribute data.
@@ -69,12 +68,10 @@ public:
 				       // -1 Unknown
 				       //  0 Interpolate
 				       //  1 Classification
-
 protected:
 
     ObjectSet< ValueSeries<float> >	data_;
     ValueSeries<float>*	gtSer(int idx) const;
-
 };
 
 
@@ -87,7 +84,6 @@ mExpClass(AttributeEngine) Data2DHolder
 public:
 
     inline int			size() const	{ return dataset_.size(); }
-    bool			fillDataCube(DataCubes&) const;
     TrcKeyZSampling		getTrcKeyZSampling() const;
     int				getDataHolderIndex(int) const;
     ObjectSet<DataHolder>	dataset_;
@@ -98,7 +94,6 @@ public:
 					  for all traces. */
 
     inline bool			isEmpty() const	{ return size() == 0; }
-
 };
 
 

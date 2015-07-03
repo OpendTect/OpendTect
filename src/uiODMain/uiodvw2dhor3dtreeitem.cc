@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
-#include "attribdatapack.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"

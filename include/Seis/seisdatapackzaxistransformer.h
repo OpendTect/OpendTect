@@ -32,6 +32,8 @@ public:
 				{ inputdp_ = dp ? dpm_.obtain(dp->id()) : 0; }
     void			setOutput( DataPack::ID& dpid )
 				{ outputid_ = &dpid; dpid = DataPack::cNoID(); }
+    void			setOutputZRange( const StepInterval<float>& zrg)
+				{ zrange_ = zrg; }
     void			setInterpolate( bool yn )
 				{ interpolate_ = yn; }
 

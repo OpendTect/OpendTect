@@ -19,9 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannel2rgba.h"
 
 #include "arrayndsubsel.h"
-#include "binidvalue.h"
-#include "attribdatapack.h"
-#include "keystrs.h"
 #include "mpeengine.h"
 #include "seisdatapack.h"
 #include "settings.h"

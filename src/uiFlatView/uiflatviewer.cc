@@ -346,8 +346,7 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
     if ( !bss.isEmpty() )
 	bss.addIfNew( fdp->dimName(true) );
 
-    const int res = bss.indexOf( appearance().annot_.x1_.name_ );
-    return res<0 ? mUdf(int) : res;
+    return bss.indexOf( appearance().annot_.x1_.name_ );
 }
 
 

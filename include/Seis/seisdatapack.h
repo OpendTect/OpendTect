@@ -125,8 +125,10 @@ public:
 
     virtual bool		isVertical() const			= 0;
     virtual const TrcKeyPath&	getPath() const				= 0;
-				//!< Will be empty if isVertical() is false.
-				//!< Example: Timeslices.
+				//!< Will be empty if isVertical() is false 
+    				//!< Eg: Z-slices. Or if the data corresponds
+				//!< to a single trace.
+    const StepInterval<float>&	getZRange() const	{ return zsamp_; }
 
     bool			dimValuesInInt(const char* keystr) const;
     void			getAltDim0Keys(BufferStringSet&) const;
@@ -143,9 +145,14 @@ protected:
 
     virtual void		setSourceData()				= 0;
     virtual void		setTrcInfoFlds()			= 0;
+    void			setPosData();
+				/*!< Sets distances from start and Z-values
+				 as X1 and X2 posData. Assumes getPath() is
+				 not empty. */
 
     const SeisDataPack&		source_;
     int				comp_;
+    const StepInterval<float>&	zsamp_;
 
     TypeSet<SeisTrcInfo::Fld>	tiflds_;
 };
@@ -158,8 +165,8 @@ protected:
 mExpClass(Seis) RegularFlatDataPack : public SeisFlatDataPack
 {
 public:
-				RegularFlatDataPack(
-					const RegularSeisDataPack&,int comp);
+				RegularFlatDataPack(const RegularSeisDataPack&,
+						    int component);
 
     bool			isVertical() const
 				{ return dir_ != TrcKeyZSampling::Z; }
@@ -172,12 +179,15 @@ public:
 
 protected:
 
+    void			setSourceDataFromMultiCubes();
     void			setSourceData();
     void			setTrcInfoFlds();
 
     TrcKeyPath			path_;
     const TrcKeyZSampling&	sampling_;
     TrcKeyZSampling::Dir	dir_;
+    bool			usemulticomps_;
+    bool			hassingletrace_;
 };
 
 
@@ -188,13 +198,11 @@ protected:
 mExpClass(Seis) RandomFlatDataPack : public SeisFlatDataPack
 {
 public:
-				RandomFlatDataPack(
-					const RandomSeisDataPack&,int comp);
+				RandomFlatDataPack(const RandomSeisDataPack&,
+						   int component);
 
     bool			isVertical() const	{ return true; }
     const TrcKeyPath&		getPath() const		{ return path_; }
-
-    const StepInterval<float>&	getZRange() const	{ return zsamp_; }
     Coord3			getCoord(int i0,int i1) const;
 
     const char*			dimName( bool dim0 ) const
@@ -204,9 +212,7 @@ protected:
 
     void			setSourceData();
     void			setTrcInfoFlds();
-
     const TrcKeyPath&		path_;
-    const StepInterval<float>&	zsamp_;
 };
 
 #endif
