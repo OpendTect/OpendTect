@@ -1295,10 +1295,10 @@ void uiStratSynthDisp::doModelChange()
 
 void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 {
-    BufferString curwvasdnm( currentwvasynthetic_ ? currentwvasynthetic_->name().buf()
-	    					  : "" );
-    BufferString curvdsdnm( currentvdsynthetic_ ? currentvdsynthetic_->name().buf()
-	    					: "" );
+    const BufferString curwvasdnm( currentwvasynthetic_ ?
+			currentwvasynthetic_->name().buf() : "" );
+    const BufferString curvdsdnm( currentvdsynthetic_ ?
+			currentvdsynthetic_->name().buf() : "" );
     FixedString syntheticnm( synthnm );
     uiComboBox* datalist = wva ? wvadatalist_ : vddatalist_;
     if ( !datalist->isPresent(syntheticnm) || syntheticnm == sKeyNone() )
@@ -1341,10 +1341,10 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
     else
 	syntheticnm = wvadatalist_->text();
 
-    const BufferString curvdsynthnm(
-	    currentvdsynthetic_ ? currentvdsynthetic_->name().buf() : "" );
-    const BufferString curwvasynthnm(
-	    currentwvasynthetic_ ? currentwvasynthetic_->name().buf() : "" );
+    const BufferString curvdsynthnm( currentvdsynthetic_ ?
+			currentvdsynthetic_->name().buf() : "" );
+    const BufferString curwvasynthnm( currentwvasynthetic_ ?
+			currentwvasynthetic_->name().buf() : "" );
     SyntheticData* cursd = curSS().getSynthetic( syntheticnm );
     if ( !cursd ) return;
     SynthGenParams curgp;
@@ -1374,10 +1374,11 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 
 void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
-    BufferString curwvasdnm( currentwvasynthetic_ ? currentwvasynthetic_->name().buf()
-	    					  : "" );
-    BufferString curvdsdnm( currentvdsynthetic_ ? currentvdsynthetic_->name().buf()
-	    					: "" );
+    const BufferString curwvasdnm( currentwvasynthetic_ ?
+			currentwvasynthetic_->name().buf() : "" );
+    const BufferString curvdsdnm( currentvdsynthetic_ ?
+			currentvdsynthetic_->name().buf() : "" );
+
     mCBCapsuleUnpack(BufferString,synthname,cb);
     if ( !curSS().removeSynthetic(synthname) )
 	return;
@@ -1579,11 +1580,9 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     curSS().clearSynthetics();
     mDelD2TM
     par.get( sKeyDecimation(), dispeach_);
-    if ( !stratsynthpar )
-	curSS().addDefaultSynthetic();
-    else
+    int nrsynths = 0;
+    if ( stratsynthpar )
     {
-	int nrsynths;
 	stratsynthpar->get( sKeyNrSynthetics(), nrsynths );
 	currentvdsynthetic_ = 0;
 	currentwvasynthetic_ = 0;
@@ -1610,13 +1609,17 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		if ( nonfrsd )
 		    nonfrsd->fillDispPar( synthdisppar );
 		sd->useDispPar( synthdisppar );
+		continue;
 	    }
-	    else
-		sd->useDispPar( *synthpar );
-	}
 
-	if ( !nrsynths )
-	    curSS().addDefaultSynthetic();
+	    sd->useDispPar( *synthpar );
+	}
+    }
+
+    if ( !nrsynths )
+    {
+	if ( curSS().addDefaultSynthetic() ) //par file not ok, add default
+	    synthsChanged.trigger(); //update synthetic WorkBenchPar
     }
 
     if ( !curSS().nrSynthetics() )
