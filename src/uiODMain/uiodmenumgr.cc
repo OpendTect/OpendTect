@@ -326,6 +326,7 @@ void uiODMenuMgr::fillImportMenu()
     mAddImpMnu( Seis, impseis );
     mAddImpMnu( Hor, imphor );
     mAddImpMnu( Flt, impfault );
+    mAddImpMnu( Fltss, impfaultstick );
     mAddImpMnu( Wll, impwell );
     mAddImpMnu( Attr, impattr );
     mAddImpMnu( Pick, imppick );
@@ -390,6 +391,7 @@ void uiODMenuMgr::fillExportMenu()
     mAddExpMnu( Seis, expseis );
     mAddExpMnu( Hor, exphor );
     mAddExpMnu( Flt, expflt );
+    mAddExpMnu( Fltss, expfltss );
     mAddExpMnu( Pick, exppick );
     mAddExpMnu( Wvlt, expwvlt );
     mAddExpMnu( MDef, expmute );
@@ -1185,7 +1187,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpHorAscii3DMnuItm:		mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:		mDoOp(Exp,Hor,1); break;
     case mExpFltAsciiMnuItm:		mDoOp(Exp,Flt,0); break;
-    case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Flt,1); break;
+    case mExpFltSSAsciiMnuItm:		mDoOp(Exp,Fltss,0); break;
     case mImpWellAsciiTrackMnuItm:	mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm:	mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm:	mDoOp(Imp,Wll,2); break;
@@ -1199,8 +1201,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpWvltAsciiMnuItm:		mDoOp(Exp,Wvlt,0); break;
     case mImpWvltAsciiMnuItm:		mDoOp(Imp,Wvlt,0); break;
     case mImpFaultMnuItm:		mDoOp(Imp,Flt,0); break;
-    case mImpFaultSSAscii3DMnuItm:	mDoOp(Imp,Flt,1); break;
-    case mImpFaultSSAscii2DMnuItm:	mDoOp(Imp,Flt,2); break;
+    case mImpFaultSSAscii3DMnuItm:	mDoOp(Imp,Fltss,0); break;
+    case mImpFaultSSAscii2DMnuItm:	mDoOp(Imp,Fltss,1); break;
     case mImpMuteDefAsciiMnuItm:	mDoOp(Imp,MDef,0); break;
     case mExpMuteDefAsciiMnuItm:	mDoOp(Exp,MDef,0); break;
     case mImpPVDSAsciiMnuItm:		mDoOp(Imp,PVDS,0); break;

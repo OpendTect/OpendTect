@@ -189,18 +189,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	switch( at )
 	{
 	mCase(Imp):
-	    if ( opt == 0 )
-		am_.emserv_->importFault();
-	    else if ( opt == 1 )
-		am_.emserv_->importFaultStickSet();
-	    else if ( opt == 2 )
-		am_.emserv_->import2DFaultStickset();
+	    am_.emserv_->importFault();
 	    break;
 	mCase(Exp):
-	    if ( opt == 0 )
-		am_.emserv_->exportFault();
-	    else if ( opt == 1 )
-		am_.emserv_->exportFaultStickSet();
+	    am_.emserv_->exportFault();
 	    break;
 	mCase(Man):
 	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
@@ -208,6 +200,20 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->manageFaultStickSets();
 	    else if ( opt == 2 )
 		am_.emserv_->manage3DFaults();
+	    break;
+	}
+    break;
+    mCase(Fltss):
+	switch ( at )
+	{
+	    mCase(Imp):
+	    if ( opt == 0 )
+		am_.emserv_->importFaultStickSet();
+	    else if ( opt == 1 )
+		am_.emserv_->import2DFaultStickset();
+	    break;
+	    mCase(Exp):
+		am_.emserv_->exportFaultStickSet();
 	    break;
 	}
     break;
