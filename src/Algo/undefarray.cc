@@ -40,7 +40,7 @@ bool UndefArrayHandler::set(const BinDataDesc& desc)
     setudf_ = 0;
     limitrange_ = 0;
 
-    mSetFunc( true, true, N1, UChar )
+    mSetFunc( true, false, N1, UChar )
     else mSetFunc( true, true, N1, Char )
     else mSetFunc( true, false, N2, UShort )
     else mSetFunc( true, true, N2, Short )
