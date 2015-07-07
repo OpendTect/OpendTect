@@ -332,6 +332,9 @@ bool ChainExecutor::Epoch::doPrepare()
 
 	CubeSampling csamp;
 	csamp.hrg = stepoutputhrg;
+	csamp.zrg.start = SI().zStep()*stepoutputzrg.start;
+	csamp.zrg.stop = SI().zStep()*stepoutputzrg.stop;
+
 	Attrib::DataCubes* outcube = new Attrib::DataCubes;
 	outcube->ref();
 	outcube->setSizeAndPos( csamp );
