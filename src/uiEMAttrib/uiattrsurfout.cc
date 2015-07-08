@@ -146,7 +146,9 @@ bool uiAttrSurfaceOut::prepareProcessing()
 
 bool uiAttrSurfaceOut::fillPar()
 {
-    uiAttrEMOut::fillPar();
+    if( !uiAttrEMOut::fillPar() )
+	return false;
+
     IOPar& iopar = batchfld_->jobSpec().pars_;
 
     const IOObj* ioobj = objfld_->ioobj();
