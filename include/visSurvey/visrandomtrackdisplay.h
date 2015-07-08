@@ -198,6 +198,7 @@ protected:
     void			updatePanelStripPath();
     void			setPanelStripZRange(const Interval<float>&);
     float			appliedZRangeStep() const;
+    void			draggerMoveFinished(CallBacker*);
 
     visBase::TexturePanelStrip*	panelstrip_;
 

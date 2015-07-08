@@ -35,6 +35,7 @@ namespace visBase
 RandomTrackDragger::RandomTrackDragger()
     : VisualObjectImpl( true )
     , motion( this )
+    , movefinished( this )
     , rightclicknotifier_( this )
     , rightclickeventinfo_( 0 )
     , displaytrans_( 0 )
@@ -192,6 +193,7 @@ void RandomTrackDragger::finishCB( CallBacker* cb )
 
 	    followActiveDragger( idx );
 	    draggers_[idx-2*(idx%2)+1]->turnOn( true );
+	    movefinished.trigger();
 	    return;
 	}
     }
