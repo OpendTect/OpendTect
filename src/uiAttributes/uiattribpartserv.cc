@@ -861,42 +861,68 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 				TypeSet<BinID>* path,
 				TypeSet<BinID>* trueknotspos )
 {
-    BinIDValueSet bidset( 2, false );
-    for ( int idx=0; idx<path->size(); idx++ )
-	bidset.add( (*path)[idx], zrg.start, zrg.stop );
-
-    SeisTrcBuf output( true );
-    if ( !createOutput( bidset, output, trueknotspos, path ) )
+    RandomSeisDataPack* newpack = 
+	createRdmSeisDataPack( zrg, path, trueknotspos );
+    if ( !newpack )
 	return DataPack::cNoID();
+
+    DPM( DataPackMgr::SeisID() ).add( newpack );
+
+    return newpack->id();
+}
+
+
+RandomSeisDataPack* uiAttribPartServer::createRdmSeisDataPack(
+					const Interval<float>& zrg,
+					TypeSet<BinID>* path,
+					TypeSet<BinID>* trueknotspos )
+{
+    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
+    const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
+    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
+	: attrds->getDesc(targetspecs_[0].id());
 
     TrcKeyPath trckeys;
     for ( int idx=0; idx<path->size(); idx++ )
 	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
 				       (*path)[idx].inl(), (*path)[idx].crl() );
-    RandomSeisDataPack* newpack = new RandomSeisDataPack(
-					SeisDataPack::categoryStr(true,false) );
-    newpack->setPath( trckeys );
-    newpack->setZRange( output.get(0)->zRange() );
-    for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
+
+    RandomSeisDataPack* newpack = new RandomSeisDataPack( "" );
+    bool dataseted = false;
+    const MultiID mid( targetdesc->getStoredID() );
+    mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
+
+    if ( sdp )
     {
-	newpack->addComponent( targetspecs_[idx].userRef() );
-	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
+	dataseted = newpack->setDataFrom( sdp, trckeys );
+    }
+    else
+    {
+	BinIDValueSet bidset( 2, false );
+	for ( int idx = 0; idx<path->size(); idx++ )
+	    bidset.add( ( *path )[idx],zrg.start,zrg.stop );
+
+	SeisTrcBuf output( true );
+	dataseted = createOutput( bidset, output, trueknotspos, path );
+	if ( dataseted )
 	{
-	     const int trcidx = path ? output.find( (*path)[idy] ) : idy;
-	     const SeisTrc* trc = trcidx<0 ? 0 : output.get( trcidx );
-	     for ( int idz=0; idz<newpack->data(idx).info().getSize(2); idz++ )
-		 newpack->data(idx).set( 0, idy, idz,
-			 !trc ? mUdf(float) : trc->get(idz,idx) );
+	    BufferStringSet cmpnms;
+	    for ( int idx = 0; idx<output.get(0)->nrComponents(); idx++ )
+		cmpnms.add( targetspecs_[idx].userRef() );
+
+	    dataseted = newpack->setDataFrom( output, trckeys, *path, cmpnms, 
+		targetspecs_[0].zDomainKey(), targetspecs_[0].userRef() );
 	}
     }
 
-    newpack->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
-    newpack->setName( targetspecs_[0].userRef() );
-    DPM(DataPackMgr::SeisID()).add( newpack );
-    return newpack->id();
-}
+    if ( !dataseted )
+    {
+	delete newpack;
+	newpack = 0;
+    }
 
+    return newpack;
+}
 
 bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 				       SeisTrcBuf& output,

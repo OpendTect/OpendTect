@@ -39,6 +39,7 @@ class BinIDValueSet;
 class BufferStringSet;
 class TrcKeyZSampling;
 class DataPointSetDisplayMgr;
+class RandomSeisDataPack;
 class IOObj;
 class NLAModel;
 class DataPointSet;
@@ -246,9 +247,14 @@ protected:
     DataPointSetDisplayMgr*	dpsdispmgr_;
 
     ColTab::MapperSetup*	evalmapperbackup_;
+ 
+private:
+    RandomSeisDataPack*	      createRdmSeisDataPack(const Interval<float>& zrg,
+		              TypeSet<BinID>* path,
+			      TypeSet<BinID>* trueknotspos);
 
-    DataPack::ID		create2DOutput(const TrcKeyZSampling&,
-					       const Pos::GeomID&,TaskRunner&);
+    DataPack::ID	      create2DOutput(const TrcKeyZSampling&,
+					     const Pos::GeomID&,TaskRunner&);
 				//!< To be removed. Use createOutput() instead.
 };
 
