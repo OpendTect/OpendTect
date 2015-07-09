@@ -225,6 +225,9 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
 			      .arg( Well::Info::sKeykbelev() )
 			      .arg( depthunit ) );
 
+    if ( track_.size() > 1 )
+	wd_.info().surfacecoord = track_.pos(0);
+
     Coord wellhead = wd_.info().surfacecoord;
     if ( mIsZero(wellhead.x,0.001) )
 	{ wellhead.x = wellhead.y = mUdf(float); }
@@ -477,7 +480,6 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 
     if ( track_.size() > 1 )
     {
-	wd_.info().surfacecoord = track_.pos(0);
 	fillSetFields();
 	wd_.trackchanged.trigger();
     }
