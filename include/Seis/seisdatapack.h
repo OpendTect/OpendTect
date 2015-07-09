@@ -89,7 +89,8 @@ public:
     const TrcKeyPath&		getPath() const		{ return path_; }
 
     bool			setDataFrom(const RegularSeisDataPack* rgldp,
-					    const TrcKeyPath& path);
+					    const TrcKeyPath& path,
+					    const Interval<float>& zrg);
 
     bool			setDataFrom(const SeisTrcBuf&,const TrcKeyPath&,
 					    const TypeSet<BinID>& pathbid,

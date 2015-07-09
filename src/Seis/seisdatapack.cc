@@ -135,14 +135,18 @@ int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 
 
 bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
-				      const TrcKeyPath& path )
+				      const TrcKeyPath& path,
+				      const Interval<float>& zrg )
 {
     if ( !rgldp || path.isEmpty()  || 
 	 rgldp->nrComponents() ==0 ||
 	 rgldp->sampling().totalNr()==0 ) 
 	return false;
+
     setPath( path );
-    setZRange( rgldp->getZRange() );
+    setZRange(StepInterval<float>(zrg.start,zrg.stop,rgldp->getZRange().step));
+
+    const int idzoffset = rgldp->getZRange().nearestIndex( getZRange().start );
 
     for ( int idx=0; idx<rgldp->nrComponents(); idx++ )
     {
@@ -154,12 +158,13 @@ bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
 	    const int crlidx = 
 		rgldp->sampling().hsamp_.crlIdx( path[idy].trcNr() );
 
-	    for ( int idz=0; idz<getZRange().nrfSteps()+1; idz++ )
+	    for ( int newidz=0; newidz<=getZRange().nrSteps(); newidz++ )
 	    {
+		const int oldidz = newidz + idzoffset;
 		const float val = 
-		    rgldp->data(idx).info().validPos( inlidx, crlidx, idz ) ?
-		    rgldp->data(idx).get(inlidx,crlidx,idz) : mUdf(float);
-		data(idx).set( 0, idy, idz, val );
+		    rgldp->data(idx).info().validPos(inlidx,crlidx,oldidz) ?
+		    rgldp->data(idx).get(inlidx,crlidx,oldidz) : mUdf(float);
+		data(idx).set( 0, idy, newidz, val );
 	    }
 	}
     }

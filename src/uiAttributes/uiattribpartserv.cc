@@ -894,7 +894,7 @@ RandomSeisDataPack* uiAttribPartServer::createRdmSeisDataPack(
 
     if ( sdp )
     {
-	dataseted = newpack->setDataFrom( sdp, trckeys );
+	dataseted = newpack->setDataFrom( sdp, trckeys, zrg );
     }
     else
     {
