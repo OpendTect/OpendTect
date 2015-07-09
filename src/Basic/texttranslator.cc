@@ -61,7 +61,7 @@ const QTranslator*
 #ifndef OD_NO_QT
 static FilePath GetLocalizationDir()
 {
-    return FilePath( GetSoftwareDir(false), "data", "localizations" );
+    return FilePath( mGetSWDirDataDir(), "localizations" );
 }
 #endif
 
@@ -209,7 +209,7 @@ const QLocale* TextTranslateMgr::getQLocale() const
 
 void TextTranslateMgr::loadInfo()
 {
-    FilePath basedir( GetSoftwareDir(false), "data", "localizations" );
+    FilePath basedir( GetLocalizationDir() );
     DirList dl( basedir.fullPath(), DirList::FilesOnly, "*.qm");
 
     BufferStringSet applications;

@@ -729,7 +729,7 @@ void uiSurvey::newButPushed( CallBacker* )
 {
     if ( !rootDirWritable() ) return;
 
-    FilePath fp( GetSoftwareDir(0), "data", SurveyInfo::sKeyBasicSurveyName());
+    const FilePath fp( mGetSWDirDataDir(), SurveyInfo::sKeyBasicSurveyName());
     SurveyInfo* newsurvinfo = SurveyInfo::read( fp.fullPath() );
     if ( !newsurvinfo )
     {

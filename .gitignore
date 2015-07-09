@@ -17,8 +17,11 @@ data/SequenceModels
 data/dgbAttribs/
 data/localizations/*.qm
 test/
+Contents/
 plugins/lux64
 moc*.cxx
+lib*.dylib
+Info.plist
 Testing/
 bin/lux64/Debug/
 bin/lux64/Release/

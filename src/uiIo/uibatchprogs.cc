@@ -102,17 +102,18 @@ BatchProgInfoList::BatchProgInfoList()
 	getEntries( fromenv );
     else
     {
+	const char* searchkey = "BatchPrograms*";
+
 	BufferString dirnm = mGetApplSetupDataDir();
 	if ( !dirnm.isEmpty() )
 	{
-	    DirList dlsite( FilePath(dirnm,"data").fullPath(),
-			    DirList::FilesOnly,"BatchPrograms*");
+	    const DirList dlsite( dirnm, DirList::FilesOnly,searchkey);
 	    for ( int idx=0; idx<dlsite.size(); idx++ )
 		getEntries( dlsite.fullPath(idx) );
 	}
 
 	dirnm = mGetSWDirDataDir();
-	DirList dlrel( dirnm, DirList::FilesOnly, "BatchPrograms*" );
+	DirList dlrel( dirnm, DirList::FilesOnly, searchkey );
 	for ( int idx=0; idx<dlrel.size(); idx++ )
 	    getEntries( dlrel.fullPath(idx) );
     }

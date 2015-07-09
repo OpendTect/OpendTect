@@ -22,13 +22,13 @@ class BufferStringSet;
 
 namespace ODInst
 {
-
     mGlobal(Basic) BufferString	GetInstallerDir();
+    mGlobal(Basic) BufferString GetRelInfoDir();
     mGlobal(Basic) bool		canInstall();
     mGlobal(Basic) void		startInstManagement();
     mGlobal(Basic) bool		updatesAvailable();
     mGlobal(Basic) bool		runInstMgrForUpdt();
-    mGlobal(Basic) const char*		getPkgVersion(const char* file_pkg_basenm);
+    mGlobal(Basic) const char*	getPkgVersion(const char* file_pkg_basenm);
     				//!< For example, the Base pkg has "base" 
     inline bool			isErrPkgVersion( const char* s )
 				{ return !s || !*s || *s == '['; }

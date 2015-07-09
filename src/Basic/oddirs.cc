@@ -206,7 +206,12 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 	const FilePath filepath = GetFullExecutablePath();
 	for ( int idx=filepath.nrLevels()-1; idx>=0; idx-- )
 	{
-	    const FilePath datapath( filepath.dirUpTo(idx).buf(),"relinfo");
+#ifdef __mac__
+	    const FilePath datapath( filepath.dirUpTo(idx).buf(), "Resources",
+				     "relinfo" );
+#else
+	    const FilePath datapath( filepath.dirUpTo(idx).buf(), "relinfo" );
+#endif
 	    if ( File::isDirectory( datapath.fullPath()) )
 	    {
 		res = filepath.dirUpTo(idx);
@@ -247,20 +252,51 @@ mExternC(Basic) const char* GetApplSetupDir()
     return bs.str();
 }
 
+static const char* sData = "data";
+
+static const char* GetSoftwareDataDir( bool acceptnone )
+{
+    FilePath basedir = GetSoftwareDir( acceptnone );
+    if ( basedir.isEmpty() )
+	return 0;
+
+#ifdef __mac__
+    basedir.add( "Resources" );
+#endif
+
+    basedir.add( sData );
+
+    mDeclStaticString( dirnm );
+    dirnm = basedir.fullPath();
+    return dirnm.str();
+}
+
 
 mExternC(Basic) const char* GetSetupDataFileDir( ODSetupLocType lt,
 						 bool acceptnone )
 {
-    const char* basedir;
-    if ( lt > ODSetupLoc_ApplSetupPref )
-	basedir = GetSoftwareDir( acceptnone );
-    else
-	basedir = GetApplSetupDir();
-    if ( !basedir )
-	return 0;
 
+    if ( lt>ODSetupLoc_ApplSetupPref )
+    {
+	const char* res = GetSoftwareDataDir( acceptnone ||
+					lt==ODSetupLoc_ApplSetupPref );
+	if ( res || lt==ODSetupLoc_SWDirOnly )
+	    return res;
+    }
+
+    FilePath basedir = GetApplSetupDir();
+
+    if ( basedir.isEmpty() )
+    {
+	if ( lt==ODSetupLoc_ApplSetupOnly )
+	    return 0;
+
+	return GetSoftwareDataDir( acceptnone );
+    }
+
+    basedir.add( sData );
     mDeclStaticString( dirnm );
-    dirnm = FilePath( basedir, "data" ).fullPath();
+    dirnm = basedir.fullPath();
     return dirnm.buf();
 }
 

@@ -11,9 +11,15 @@ configure_file ( ${CMAKE_SOURCE_DIR}/include/Basic/odversion.h.in
 
  if ( NOT (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR ) )
     if ( UNIX )
+	if ( APPLE )
+	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+			    ${CMAKE_SOURCE_DIR}/relinfo
+			    ${CMAKE_BINARY_DIR}/Contents/Resources/relinfo )
+	else()
 	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
                             ${CMAKE_SOURCE_DIR}/relinfo
 			    ${CMAKE_BINARY_DIR}/relinfo )
+	endif()
     else()
 	    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory
                             ${CMAKE_SOURCE_DIR}/relinfo
@@ -24,8 +30,19 @@ configure_file ( ${CMAKE_SOURCE_DIR}/include/Basic/odversion.h.in
     #be in the source-dir
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory
 		    ${CMAKE_SOURCE_DIR}/data
-		    ${CMAKE_BINARY_DIR}/data )
+		    ${CMAKE_BINARY_DIR}/${OD_DATA_INSTALL_RELPATH} )
+elseif( APPLE )
+    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory
+		    ${MISC_INSTALL_PREFIX} )
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+		    ${CMAKE_SOURCE_DIR}/data
+		    ${MISC_INSTALL_PREFIX}/data )
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+		    ${CMAKE_SOURCE_DIR}/relinfo
+		    ${MISC_INSTALL_PREFIX}/relinfo )
 endif()
+
+
 
 file(GLOB CMAKE_FILES CMakeModules/*.cmake )
 file(GLOB TEMPLATE_FILES CMakeModules/templates/*.in )
@@ -34,8 +51,8 @@ OD_ADD_SOURCE_FILES( ${CMAKE_FILES} )
 
 #Install cmake things.
 install ( FILES ${CMAKE_BINARY_DIR}/CMakeModules/FindOpendTect.cmake
-	  DESTINATION CMakeModules )
-install ( DIRECTORY CMakeModules DESTINATION .
+	  DESTINATION ${MISC_INSTALL_PREFIX}/CMakeModules )
+install ( DIRECTORY CMakeModules DESTINATION ${MISC_INSTALL_PREFIX}
 	  PATTERN ".svn" EXCLUDE
 	  PATTERN "*.swp" EXCLUDE
 	  PATTERN "*.cmake~" EXCLUDE
@@ -45,21 +62,21 @@ install ( DIRECTORY CMakeModules DESTINATION .
 file( GLOB TUTHFILES plugins/Tut/*.h )
 file( GLOB TUTCCFILES plugins/Tut/*.cc )
 set( TUTFILES ${TUTHFILES} ${TUTCCFILES} plugins/Tut/CMakeLists.txt )
-install( FILES ${TUTFILES} DESTINATION doc/Programmer/pluginexample/plugins/Tut )
+install( FILES ${TUTFILES} DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/pluginexample/plugins/Tut )
 
 file( GLOB UITUTHFILES plugins/uiTut/*.h )
 file( GLOB UITUTCCFILES plugins/uiTut/*.cc )
 set( UITUTFILES ${UITUTHFILES} ${UITUTCCFILES} plugins/uiTut/CMakeLists.txt )
-install( FILES ${UITUTFILES} DESTINATION doc/Programmer/pluginexample/plugins/uiTut )
+install( FILES ${UITUTFILES} DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/pluginexample/plugins/uiTut )
 install( FILES doc/Programmer/pluginexample/CMakeLists.txt
-	 DESTINATION doc/Programmer/pluginexample )
+	 DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/pluginexample )
 
 install( DIRECTORY doc/Programmer/batchprogexample
-	 DESTINATION doc/Programmer
+	 DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer
 	 PATTERN ".svn" EXCLUDE )
 
 install( DIRECTORY doc/Credits/base
-	 DESTINATION doc/Credits
+	 DESTINATION ${MISC_INSTALL_PREFIX}/doc/Credits
 	 PATTERN ".svn" EXCLUDE )
 
 OD_CURRENT_MONTH( MONTH )
@@ -70,27 +87,38 @@ configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in
 
 file( GLOB FLEXNETFILES doc/*.html )
 foreach( FLEXNETFILE ${FLEXNETFILES} )
-    install( FILES ${FLEXNETFILE} DESTINATION doc )
+    install( FILES ${FLEXNETFILE} DESTINATION ${MISC_INSTALL_PREFIX}/doc )
 endforeach()
 
 install( DIRECTORY doc/Scripts
-	 DESTINATION doc
+	 DESTINATION ${MISC_INSTALL_PREFIX}/doc
 	 PATTERN ".svn" EXCLUDE )
 
 #Install data
-install ( DIRECTORY "data" DESTINATION .
+if ( APPLE )
+    install ( DIRECTORY "data" DESTINATION ${MISC_INSTALL_PREFIX}/
 	  PATTERN "install_files" EXCLUDE
 	  PATTERN "icons.Classic" EXCLUDE
 	  PATTERN ".svn" EXCLUDE )
+else()
+    install ( DIRECTORY "data" DESTINATION .
+	  PATTERN "install_files" EXCLUDE
+	  PATTERN "icons.Classic" EXCLUDE
+	  PATTERN ".svn" EXCLUDE )
+endif()
 
 file( GLOB RELINFOFILES ${CMAKE_SOURCE_DIR}/relinfo/*.txt )
-install ( FILES ${RELINFOFILES} DESTINATION relinfo )
+if ( APPLE )
+    install ( FILES ${RELINFOFILES} DESTINATION Contents/Resources/relinfo )
+else()
+    install ( FILES ${RELINFOFILES} DESTINATION ./relinfo )
+endif()
 
-install( FILES CMakeLists.txt DESTINATION . )
+install( FILES CMakeLists.txt DESTINATION ${MISC_INSTALL_PREFIX} )
 
 if( WIN32 )
     install( DIRECTORY bin/win32/rsm
-	     DESTINATION .
+	     DESTINATION ${MISC_INSTALL_PREFIX}
 	     PATTERN ".svn" EXCLUDE )
 endif()
 
@@ -105,9 +133,9 @@ if( UNIX OR APPLE )
         list( REMOVE_ITEM PROGRAMS ${TEXTFILE} )
     endforeach()
 
-    install ( PROGRAMS ${PROGRAMS} DESTINATION . )
+    install ( PROGRAMS ${PROGRAMS} DESTINATION ${MISC_INSTALL_PREFIX} )
 endif()
-install ( FILES ${TEXTFILES} DESTINATION . )
+install ( FILES ${TEXTFILES} DESTINATION ${MISC_INSTALL_PREFIX} )
 
 if( APPLE )
     install( DIRECTORY data/install_files/macscripts/Contents
@@ -160,7 +188,7 @@ if( WIN32 )
     set( LMHOSTID "lmhostid.exe" )
 endif()
 
-install( PROGRAMS ${QJPEG} DESTINATION imageformats )
+install( PROGRAMS ${QJPEG} DESTINATION ${OD_EXEC_RELPATH_RELEASE} )
 if ( WIN32 )
     install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/${OD_PLFSUBDIR}/${LMHOSTID}
 	     DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
@@ -183,9 +211,9 @@ if( EXISTS ${MSVCPATH} )
 endif()
 
 FILE( GLOB SCRIPTS ${CMAKE_SOURCE_DIR}/bin/od_* )
-install( PROGRAMS ${SCRIPTS} DESTINATION bin )
-install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mksethdir DESTINATION bin )
-install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION bin )
+install( PROGRAMS ${SCRIPTS} DESTINATION ${MISC_INSTALL_PREFIX}/bin )
+install( PROGRAMS ${CMAKE_SOURCE_DIR}/bin/mksethdir DESTINATION ${MISC_INSTALL_PREFIX}/bin )
+install( FILES ${CMAKE_SOURCE_DIR}/bin/macterm.in DESTINATION ${MISC_INSTALL_PREFIX}/bin )
 
 #Installing unix syatem libraries
 if ( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
@@ -204,7 +232,7 @@ configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in
 
 #Installing source
 install( DIRECTORY ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include
-		   ${CMAKE_SOURCE_DIR}/plugins DESTINATION ${CMAKE_INSTALL_PREFIX}
+		   ${CMAKE_SOURCE_DIR}/plugins DESTINATION ${MISC_INSTALL_PREFIX}/
 	 FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 	 FILES_MATCHING PATTERN "*.h" PATTERN "*.c" PATTERN "*.cc" PATTERN "*.xpm"
 			PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
@@ -212,8 +240,8 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include
 
 #Installing cmake genetated files from CMAKE_BINARY_DIR directory
 if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
-    install( DIRECTORY ${CMAKE_BINARY_DIR}/src ${CMAKE_BINARY_DIR}/include
-		       ${CMAKE_BINARY_DIR}/plugins DESTINATION ${CMAKE_INSTALL_PREFIX}
+    install( DIRECTORY ${CMAKE_BINARY_DIR}/src ${MISC_INSTALL_PREFIX}/include
+		       ${CMAKE_BINARY_DIR}/plugins DESTINATION ${MISC_INSTALL_PREFIX}/
 	     FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 	     FILES_MATCHING PATTERN "*.h" PATTERN "*.c" PATTERN "*.cc" PATTERN "*.xpm"
 			    PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
