@@ -245,6 +245,8 @@ void SynthFVSpecificDispPars::usePar( const IOPar& par )
 }
 
 
+static HiddenParam<StratSynth,BoolTypeSetType> swavewarnmsgshown( false );
+
 
 StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
     : lmp_(lmp)
@@ -254,11 +256,13 @@ StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
     , wvlt_(0)
     , lastsyntheticid_(0)
 {
+    swavewarnmsgshown.setParam( this, false );
 }
 
 
 StratSynth::~StratSynth()
 {
+    swavewarnmsgshown.removeParam( this );
     deepErase( synthetics_ );
     setLevel( 0 );
 }
@@ -597,6 +601,107 @@ SyntheticData* StratSynth::createAngleStack( SyntheticData* sd,
 }
 
 
+class PSAngleDataCreator : public Executor
+{ mODTextTranslationClass(PSAngleDataCreator)
+public:
+
+PSAngleDataCreator( const PreStackSyntheticData& pssd,
+		    const ObjectSet<RayTracer1D>& rts )
+    : Executor("Creating Angle Gather" )
+    , gathers_(pssd.preStackPack().getGathers())
+    , rts_(rts)
+    , nrdone_(0)
+    , pssd_(pssd)
+{
+    anglecomputer_ = new PreStack::ModelBasedAngleComputer;
+    anglecomputer_->setFFTSmoother( 10.f, 15.f );
+}
+
+~PSAngleDataCreator()
+{
+    delete anglecomputer_;
+}
+
+od_int64 totalNr() const
+{ return rts_.size(); }
+
+od_int64 nrDone() const
+{ return nrdone_; }
+
+uiString uiMessage() const
+{
+    return tr("Calculating Angle Gathers");
+}
+
+uiString uiNrDoneText() const
+{
+    return tr( "Models done" );
+}
+
+ObjectSet<PreStack::Gather>& angleGathers()	{ return anglegathers_; }
+
+protected:
+
+void convertAngleDataToDegrees( PreStack::Gather* ag ) const
+{
+    Array2D<float>& agdata = ag->data();
+    const int dim0sz = agdata.info().getSize(0);
+    const int dim1sz = agdata.info().getSize(1);
+    for ( int idx=0; idx<dim0sz; idx++ )
+    {
+	for ( int idy=0; idy<dim1sz; idy++ )
+	{
+	    const float radval = agdata.get( idx, idy );
+	    if ( mIsUdf(radval) ) continue;
+	    const float dval =	Math::toDegrees( radval );
+	    agdata.set( idx, idy, dval );
+	}
+    }
+}
+
+
+int nextStep()
+{
+    if ( !gathers_.validIdx(nrdone_) )
+	return Finished();
+    const PreStack::Gather* gather = gathers_[nrdone_];
+    anglecomputer_->setOutputSampling( gather->posData() );
+    const TrcKey trckey( gather->getBinID() );
+    anglecomputer_->setRayTracer( rts_[nrdone_], trckey );
+    anglecomputer_->setTrcKey( trckey );
+    PreStack::Gather* anglegather = anglecomputer_->computeAngles();
+    convertAngleDataToDegrees( anglegather );
+    TypeSet<float> azimuths;
+    gather->getAzimuths( azimuths );
+    anglegather->setAzimuths( azimuths );
+    BufferString angledpnm( pssd_.name(), "(Angle Gather)" );
+    anglegather->setName( angledpnm );
+    anglegather->setBinID( gather->getBinID() );
+    anglegathers_ += anglegather;
+    DPM(DataPackMgr::FlatID()).addAndObtain( anglegather );
+    nrdone_++;
+    return MoreToDo();
+}
+
+    const ObjectSet<RayTracer1D>&	rts_;
+    const ObjectSet<PreStack::Gather>&	gathers_;
+    const PreStackSyntheticData&	pssd_;
+    ObjectSet<PreStack::Gather>		anglegathers_;
+    PreStack::ModelBasedAngleComputer*	anglecomputer_;
+    od_int64				nrdone_;
+
+};
+
+
+void StratSynth::createAngleData( PreStackSyntheticData& pssd,
+				  const ObjectSet<RayTracer1D>& rts )
+{
+    PSAngleDataCreator angledatacr( pssd, rts );
+    TaskRunner::execute( tr_, angledatacr );
+    pssd.setAngleData( angledatacr.angleGathers() );
+}
+
+
 class ElasticModelCreator : public ParallelTask
 {
 public:
@@ -681,10 +786,8 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
 	float dval =mUdf(float), pval = mUdf(float), sval = mUdf(float);
 	TypeSet<float> layervals; lay->getValues( layervals );
 	elpgen.getVals( dval, pval, sval, layervals.arr(), layervals.size() );
-
-	// Detect water - reset Vs
-	if ( pval < cMaximumVpWaterVel() )
-	    sval = 0;
+	/*if ( pval < cMaximumVpWaterVel() )
+	    sval = 0;TODO disabled for now*/
 
 	aimodel += ElasticLayer( thickness, pval, sval, dval );
     }
@@ -758,6 +861,132 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
 }
 
 
+class ElasticModelAdjuster : public ParallelTask
+{ mODTextTranslationClass(ElasticModelAdjuster)
+public:
+
+#define mAddValToMsg( doprint, propnm, var, isdens ) \
+{ \
+    if ( doprint && infomsg_.isEmpty() ) \
+    { \
+	BufferString varstr( toString(var) ); \
+	BufferString unitstr( isdens ? "kg/m3" : "m/s" ); \
+	msg.append( tr("'%1' ( sample value: %2 %3 )").arg(propnm) \
+			.arg(varstr).arg(unitstr) ); \
+    } \
+}
+
+
+ElasticModelAdjuster( const Strat::LayerModel& lm,
+		      TypeSet<ElasticModel>& aimodels, bool checksvel )
+    : ParallelTask("Checking & adjusting elastic models")
+    , lm_(lm)
+    , aimodels_(aimodels)
+    , checksvel_(checksvel)
+{
+}
+
+od_int64 nrIterations() const
+{
+    return aimodels_.size();
+}
+
+const char* message() const
+{
+    return !errmsg_.isEmpty() ? errmsg_.getFullString().buf()
+			      : "Checking Models";
+}
+
+const char* nrDoneText() const
+{
+    return "Models done";
+}
+uiString infoMsg() const			{ return infomsg_; }
+uiString errMsg() const				{ return errmsg_; }
+
+protected:
+
+bool doWork( od_int64 start , od_int64 stop , int )
+{
+    for ( int midx=mCast(int,start); midx<=mCast(int,stop); midx++ )
+    {
+	addToNrDone( 1 );
+	const Strat::LayerSequence& seq = lm_.sequence( midx );
+	ElasticModel& aimodel = aimodels_[midx];
+	if ( aimodel.isEmpty() ) continue;
+
+	ElasticModel tmpmodel( aimodel );
+	int erroridx = -1;
+	tmpmodel.checkAndClean( erroridx, !checksvel_, checksvel_, false );
+	if ( tmpmodel.isEmpty() )
+	{
+	    uiString startstr(
+		checksvel_ ? tr("Could not generate prestack synthetics as all")
+			   : tr("All") );
+	    uiString propstr( checksvel_ ? tr("Swave velocity")
+					 : tr("Pwave velocity/Density") );
+	    errmsg_ = tr( "%1 the values of %2 in elastic model are invalid. "
+			  "Probably units are not set correctly." )
+				.arg(startstr).arg(propstr);
+	    return false;
+	}
+	else if ( erroridx != -1 )
+	{
+	    bool needinterpolatedvel = false;
+	    bool needinterpoltedden = false;
+	    bool needinterpolatedsvel = false;
+	    uiString msg;
+	    for ( int idx=erroridx; idx<aimodel.size(); idx++ )
+	    {
+		const ElasticLayer& layer = aimodel[idx];
+		const bool needinfo = msg.isEmpty();
+		if ( !layer.isValidVel() )
+		{
+		    needinterpolatedvel = true;
+		    mAddValToMsg( needinfo, "P-wave", layer.vel_, false );
+		}
+		if ( !layer.isValidDen() && !checksvel_ )
+		{
+		    needinterpoltedden = true;
+		    mAddValToMsg( needinfo, "Density", layer.den_, true );
+		}
+		if ( !layer.isValidVs() && checksvel_ )
+		{
+		    needinterpolatedsvel = true;
+		    mAddValToMsg( needinfo, "S-wave", layer.svel_, false );
+		}
+	    }
+
+	    if ( infomsg_.isEmpty() )
+	    {
+		infomsg_ = tr( "Layer model contains invalid values of the "
+			       "following properties: %1. First occurence "
+			       "found in layer '%2' of pseudo well number '%3'."
+			       "Invalid values will be interpolated. "
+			       "The resulting synthetics may be incorrect" )
+		    .arg( msg ).arg(seq.layers()[erroridx]->name()).arg(midx+1);
+	    }
+
+	    aimodel.interpolate( needinterpolatedvel, needinterpoltedden,
+				 needinterpolatedsvel );
+	}
+
+	aimodel.mergeSameLayers();
+	aimodel.upscale( 5.0f );
+    }
+
+    return true;
+}
+
+
+    const Strat::LayerModel&	lm_;
+    TypeSet<ElasticModel>&	aimodels_;
+    uiString			infomsg_;
+    uiString			errmsg_;
+    bool			checksvel_;
+};
+
+
 SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 {
     errmsg_.setEmpty();
@@ -771,6 +1000,17 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     const bool ispsbased =
 	synthgenpar.synthtype_ == SynthGenParams::AngleStack ||
 	synthgenpar.synthtype_ == SynthGenParams::AVOGradient;
+
+    if ( synthgenpar.synthtype_ == SynthGenParams::PreStack &&
+	 !swavewarnmsgshown.getParam(this) )
+    {
+	ElasticModelAdjuster emadjuster( layMod(), aimodels_, true );
+	const bool res = TaskRunner::execute( tr_, emadjuster );
+	infomsg_ = emadjuster.infoMsg().getFullString();
+	swavewarnmsgshown.setParam( this, true );
+	if ( !res )
+	    return 0;
+    }
 
     Seis::RaySynthGenerator synthgen( aimodels_ );
     if ( !ispsbased )
@@ -801,8 +1041,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
 	    sd = new PreStackSyntheticData( synthgenpar, *dp );
 	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
-	    presd->createAngleData( synthgen.rayTracers(),
-				    aimodels_ );
+	    createAngleData( *presd, synthgen.rayTracers() );
 	}
 	else
 	{
@@ -1157,132 +1396,13 @@ const char* StratSynth::infoMsg() const
 }
 
 
-
-class ElasticModelAdjuster : public ParallelTask
-{ mODTextTranslationClass(ElasticModelAdjuster)
-public:
-
-#define mAddValToMsg( doprint, propnm, var, isdens ) \
-{ \
-    if ( doprint && infomsg_.isEmpty() ) \
-    { \
-	BufferString varstr( toString(var) ); \
-	BufferString unitstr( isdens ? "kg/m3" : "m/s" ); \
-	msg.append( tr("'%1' ( sample value: %2 %3 )").arg(propnm) \
-			.arg(varstr).arg(unitstr) ); \
-    } \
-}
-
-
-ElasticModelAdjuster( const Strat::LayerModel& lm,
-		      TypeSet<ElasticModel>& aimodels )
-    : ParallelTask("Checking & adjusting elastic models")
-    , lm_(lm)
-    , aimodels_(aimodels)
-{
-}
-
-od_int64 nrIterations() const
-{
-    return aimodels_.size();
-}
-
-const char* message() const
-{
-    return !errmsg_.isEmpty() ? errmsg_.getFullString().buf()
-			      : "Checking Models";
-}
-
-const char* nrDoneText() const
-{
-    return "Models done";
-}
-uiString infoMsg() const			{ return infomsg_; }
-uiString errMsg() const				{ return errmsg_; }
-
-protected:
-
-bool doWork( od_int64 start , od_int64 stop , int )
-{
-    for ( int midx=mCast(int,start); midx<=mCast(int,stop); midx++ )
-    {
-	addToNrDone( 1 );
-	const Strat::LayerSequence& seq = lm_.sequence( midx );
-	ElasticModel& aimodel = aimodels_[midx];
-	if ( aimodel.isEmpty() ) continue;
-
-	ElasticModel tmpmodel( aimodel );
-	int erroridx = -1;
-	tmpmodel.checkAndClean( erroridx, true, true, false );
-	if ( tmpmodel.isEmpty() )
-	{
-	    errmsg_ = tr( "Cannot generate elastic model as the "
-			  "Pwave velocity values are invalid."
-			  " Probably units are not set correctly." );
-	    return false;
-	}
-	else if ( erroridx != -1 )
-	{
-	    bool needinterpolatedvel = false;
-	    bool needinterpoltedden = false;
-	    bool needinterpolatedsvel = false;
-	    uiString msg;
-	    for ( int idx=erroridx; idx<aimodel.size(); idx++ )
-	    {
-		const ElasticLayer& layer = aimodel[idx];
-		const bool needinfo = msg.isEmpty();
-		if ( !layer.isValidVel() )
-		{
-		    needinterpolatedvel = true;
-		    mAddValToMsg( needinfo, "P-wave", layer.vel_, false );
-		}
-		if ( !layer.isValidDen() )
-		{
-		    needinterpoltedden = true;
-		    mAddValToMsg( needinfo, "Density", layer.den_, true );
-		}
-		if ( !layer.isValidVs() )
-		{
-		    needinterpolatedsvel = true;
-		    mAddValToMsg( needinfo, "S-wave", layer.svel_, false );
-		}
-	    }
-
-	    if ( infomsg_.isEmpty() )
-	    {
-		infomsg_ = tr( "Layer model contains invalid values of the "
-			       "following properties: %1. First occurence "
-			       "found in layer '%2' of pseudo well number '%3'."
-			       "Invalid values will be interpolated. "
-			       "The resulting synthetics may be incorrect" )
-		    .arg( msg ).arg(seq.layers()[erroridx]->name()).arg(midx+1);
-	    }
-
-	    aimodel.interpolate( needinterpolatedvel, needinterpoltedden,
-				 needinterpolatedsvel );
-	}
-
-	aimodel.mergeSameLayers();
-	aimodel.upscale( 5.0f );
-    }
-
-    return true;
-}
-
-
-    const Strat::LayerModel&	lm_;
-    TypeSet<ElasticModel>&	aimodels_;
-    uiString			infomsg_;
-    uiString			errmsg_;
-};
-
-
 bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 				     TypeSet<ElasticModel>& aimodels )
 {
-    ElasticModelAdjuster emadjuster( lm, aimodels );
+    ElasticModelAdjuster emadjuster( lm, aimodels, false );
     const bool res = TaskRunner::execute( tr_, emadjuster );
     infomsg_ = emadjuster.infoMsg().getFullString();
+    swavewarnmsgshown.setParam( this, false );
     return res;
 }
 
@@ -1551,6 +1671,7 @@ const SeisTrcBufDataPack& PostStackSyntheticData::postStackPack() const
 }
 
 
+
 PreStackSyntheticData::PreStackSyntheticData( const SynthGenParams& sgp,
 					     PreStack::GatherSetDataPack& dp)
     : SyntheticData(sgp,dp)
@@ -1613,6 +1734,13 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 	    agdata.set( idx, idy, dval );
 	}
     }
+}
+
+void PreStackSyntheticData::setAngleData( ObjectSet<PreStack::Gather>& ags )
+{
+    if ( angledp_ ) DPM( DataPackMgr::CubeID() ).release( angledp_->id() );
+    angledp_ = new PreStack::GatherSetDataPack( name(), ags );
+    DPM( DataPackMgr::CubeID() ).addAndObtain( angledp_ );
 }
 
 

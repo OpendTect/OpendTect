@@ -22,8 +22,10 @@ class SeisTrcBuf;
 class TaskRunner;
 class Wavelet;
 class CubeSampling;
+class RayTracer1D;
 class StratSynthLevel;
 class PostStackSyntheticData;
+class PreStackSyntheticData;
 
 namespace Strat
 {
@@ -142,6 +144,8 @@ protected:
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
 public:
     static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
+    void		createAngleData(PreStackSyntheticData&,
+					const ObjectSet<RayTracer1D>&);
 };
 
 #endif

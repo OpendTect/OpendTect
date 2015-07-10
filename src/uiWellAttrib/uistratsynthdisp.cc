@@ -1330,15 +1330,29 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
     mDelD2TM
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
-	mErrRet(curSS().errMsg(), return );
+	mErrRet(curSS().errMsg(), return )
+    else if ( curSS().infoMsg() )
+    {
+	uiMsgMainWinSetter mws( mainwin() );
+	uiMSG().warning( curSS().infoMsg() );
+	curSS().clearInfoMsg();
+    }
+
     if ( altSS().hasElasticModels() )
     {
 	altSS().removeSynthetic( syntheticnm );
 	altSS().genParams() = curSS().genParams();
 	SyntheticData* altsd = altSS().addSynthetic();
 	if ( !altsd )
-	    mErrRet(altSS().errMsg(), return );
+	    mErrRet(altSS().errMsg(), return )
+	else if ( curSS().infoMsg() )
+	{
+	    uiMsgMainWinSetter mws( mainwin() );
+	    uiMSG().warning( curSS().infoMsg() );
+	    curSS().clearInfoMsg();
+	}
     }
+
     updateSyntheticList( wva );
     synthsChanged.trigger();
 
@@ -1505,13 +1519,27 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return )
+    else if ( curSS().infoMsg() )
+    {
+	uiMsgMainWinSetter mws( mainwin() );
+	uiMSG().warning( curSS().infoMsg() );
+	curSS().clearInfoMsg();
+    }
+
     if ( altSS().hasElasticModels() )
     {
 	altSS().genParams() = curSS().genParams();
 	SyntheticData* altsd = altSS().addSynthetic();
 	if ( !altsd )
-	    mErrRet(altSS().errMsg(), return );
+	    mErrRet(altSS().errMsg(), return )
+	else if ( curSS().infoMsg() )
+	{
+	    uiMsgMainWinSetter mws( mainwin() );
+	    uiMSG().warning( curSS().infoMsg() );
+	    curSS().clearInfoMsg();
+	}
     }
+
     updateSyntheticList( true );
     updateSyntheticList( false );
     synthsChanged.trigger();
@@ -1622,6 +1650,12 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	    {
 		mErrRet(curSS().errMsg(),);
 		continue;
+	    }
+	    else if ( curSS().infoMsg() )
+	    {
+		uiMsgMainWinSetter mws( mainwin() );
+		uiMSG().warning( curSS().infoMsg() );
+		curSS().clearInfoMsg();
 	    }
 
 	    if ( useed_ )
