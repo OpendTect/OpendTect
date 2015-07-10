@@ -432,6 +432,8 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
     uiLabeledComboBox* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
     propnm##fld_ = lblbox##propnm->box(); \
     PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
+    if ( prop == PropertyRef::Volum ) \
+	propnm##fld_->addItem( "" ); \
     for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
 	if ( subsel##propnm[idx] )\
 	    propnm##fld_->addItem( subsel##propnm[idx]->name() );\
@@ -481,7 +483,8 @@ bool uiStratLayModFRPropSelector::needsDisplay() const
 	&& sat1fld_->size() == 1 )
 	return false;
 
-    return vpfld_->size()>1 || vsfld_->size()>1 || denfld_->size()>1;
+    return vpfld_->size()>1 || vsfld_->size()>1 || denfld_->size()>1
+	|| sat1fld_->size()>1;
 }
 
 
