@@ -28,6 +28,6 @@ if ( QT_RELEASE_EXECUTABLE AND (EXISTS ${QT_RELEASE_EXECUTABLE} ) )
 		COMMENT "Releasing localizations" )
 
      install( DIRECTORY ${CMAKE_BINARY_DIR}/data/localizations
-	      DESTINATION data/localizations
+	      DESTINATION ${MISC_INSTALL_PREFIX}/data/localizations
 	      FILES_MATCHING PATTERN "*.qm")
 endif()

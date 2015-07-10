@@ -66,9 +66,19 @@ DefineNameSpaceEnumNames(ODInst,RelType,0,"Release type")
 };
 
 
+BufferString ODInst::GetRelInfoDir()
+{
+#ifdef __mac__
+    return FilePath( GetSoftwareDir(true), "Resources", "relinfo" ).fullPath();
+#else
+    return FilePath( GetSoftwareDir(true), "relinfo" ).fullPath();
+#endif
+}
+
+
 ODInst::RelType ODInst::getRelType()
 {
-    FilePath relinfofp( GetSoftwareDir(true), "relinfo", "README.txt" );
+    FilePath relinfofp( GetRelInfoDir(), "README.txt" );
     const BufferString reltxtfnm( relinfofp.fullPath() );
     od_istream strm( reltxtfnm );
     if ( !strm.isOK() )
@@ -209,7 +219,7 @@ const char* ODInst::getPkgVersion( const char* file_pkg_basenm )
     const BufferString part1( "ver.", file_pkg_basenm );
     BufferString fnm = part1;
     fnm.add( "_" ).add( OD::Platform::local().shortName() );
-    FilePath fp( GetSoftwareDir(1), "relinfo", fnm );
+    FilePath fp( GetRelInfoDir(), fnm );
     fp.setExtension( "txt", false );
 
     fnm = fp.fullPath();

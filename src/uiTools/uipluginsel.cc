@@ -142,7 +142,7 @@ uiPluginSel::~uiPluginSel()
 
 void uiPluginSel::readVendorList()
 {
-    const FilePath vendfp( GetSoftwareDir(false), "data", "Vendors" );
+    const FilePath vendfp( mGetSWDirDataDir(), "Vendors" );
     IOPar vendorpars;
     if ( !vendorpars.read(vendfp.fullPath(),".par") )
 	return;
@@ -173,7 +173,7 @@ int uiPluginSel::getVendorIndex( const char* vendornm ) const
 
 void uiPluginSel::readPackageList()
 {
-    const FilePath prodlistfp( GetSoftwareDir(true), "data", "prodlist.txt" );
+    const FilePath prodlistfp( mGetSWDirDataDir(), "prodlist.txt" );
     od_istream prodstrm( prodlistfp.fullPath() ) ;
     while ( prodstrm.isOK() )
     {

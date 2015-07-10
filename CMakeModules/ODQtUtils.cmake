@@ -166,7 +166,7 @@ macro ( SETUP_QT_TRANSLATION )
 	    VERBATIM
 	COMMENT "Compiling translations" )
     
-	install(DIRECTORY data/localizations/ DESTINATION data/localizations
+	install(DIRECTORY data/localizations/ DESTINATION ${MISC_INSTALL_PREFIX}/data/localizations
           FILES_MATCHING PATTERN "*.qm")
 	
     endif()

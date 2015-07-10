@@ -55,7 +55,7 @@ macro( OD_BUILD_DOCUMENTATION )
     add_custom_target ( doc
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			SOURCES ${OD_DOXYGEN_FILE} )
-    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION doc/Programmer/Generated )
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION ${MISC_INSTALL_PREFIX}/doc/Programmer/Generated )
 endmacro()
 
 IF ( BUILD_DOCUMENTATION )
@@ -98,7 +98,7 @@ if ( BUILD_USERDOC )
 			    -project "${USERDOC_PROJECT}"
 			    -target ${USERDOC_TARGET}
 			    COMMENT "Building user documentation" )
-	install( DIRECTORY ${USERDOC_OUTPUT_DIR}/ DESTINATION doc/${USERDOC_NAME} )
+	install( DIRECTORY ${USERDOC_OUTPUT_DIR}/ DESTINATION ${MISC_INSTALL_PREFIX}doc/${USERDOC_NAME} )
     endif( WIN32 )
 
 endif( BUILD_USERDOC )

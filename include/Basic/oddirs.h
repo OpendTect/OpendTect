@@ -35,7 +35,7 @@ mGlobal(Basic) const char* GetProcFileName(const char*);
 /*!< Returns file name in GetDataDir()/Proc. Pass null for directory. */
 
 
-    /* Functions delivering files/directies in the 'sytem' scope */
+/* Functions delivering files/directies in the 'sytem' scope */
 
 mGlobal(Basic) const char* GetSoftwareDir(bool acceptnone);
 /*!< Directory of the installed software = $DTECT_[WIN]APPL
@@ -46,6 +46,7 @@ mGlobal(Basic) const char* GetSoftwareDir(bool acceptnone);
 
  If acceptnone is false, program will terminate if none is found.
 */
+
 
 mGlobal(Basic) const char* GetBinSubDir(void);
 /*!< Directory for the release-type, i.e. Debug, Release, ... */
@@ -86,6 +87,7 @@ mGlobal(Basic) const char* GetSetupDataFileName(ODSetupLocType,const char*,
 */
 #define mGetSetupFileName(x) GetSetupDataFileName(ODSetupLoc_ApplSetupPref,x,0)
 /*!< Usual choice: first look in ApplSetup, if not there, look in release */
+
 
 mGlobal(Basic) const char* GetPlfSubDir(void);
 /*!< Platform subdirectory for platforms

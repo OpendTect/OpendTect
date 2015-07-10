@@ -16,9 +16,12 @@ data/ModDeps.od
 data/ModDeps.dgb
 data/dgbAttribs
 test/
+Contents/
 plugins/lux64
 data/localizations/*.qm
 moc*.cxx
+lib*.dylib
+Info.plist
 Testing/
 bin/lux64/Debug/
 bin/lux64/Release/

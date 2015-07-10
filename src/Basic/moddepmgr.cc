@@ -33,7 +33,7 @@ OD::ModDepMgr::ModDepMgr( const char* mdfnm )
     if ( !mdfnm || !*mdfnm )
 	mdfnm = "ModDeps.od";
 
-    const FilePath moddepfp( GetSoftwareDir(0), "data", mdfnm );
+    const FilePath moddepfp( mGetSWDirDataDir(), mdfnm );
     const BufferString moddepfnm = moddepfp.fullPath();
     od_istream strm( moddepfnm );
     if ( !strm.isOK() )

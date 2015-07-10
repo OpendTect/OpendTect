@@ -17,7 +17,7 @@
 macro( OD_WRITE_MODDEPS BASEDIR )
 
 set( OD_MODDEPS_FILE ${BASEDIR}/ModDeps.${OD_SUBSYSTEM} )
-install( FILES ${OD_MODDEPS_FILE} DESTINATION data )
+install( FILES ${OD_MODDEPS_FILE} DESTINATION ${MISC_INSTALL_PREFIX}/data )
 
 list( APPEND OD_CORE_MODULE_NAMES_${OD_SUBSYSTEM} "AllNonUi" )
 set( OD_AllNonUi_DEPS MPEEngine WellAttrib VolumeProcessing )
@@ -58,7 +58,7 @@ macro( OD_WRITE_FINDFILE )
 
 set( OD_FIND_OD_FILE ${CMAKE_BINARY_DIR}/CMakeModules/FindOpendTect.cmake )
 
-install( FILES ${OD_FIND_OD_FILE} DESTINATION data )
+install( FILES ${OD_FIND_OD_FILE} DESTINATION ${MISC_INSTALL_PREFIX}/data )
 
 foreach ( MODULE ${OD_MODULE_NAMES_${OD_SUBSYSTEM}} )
     if ( OD_${MODULE}_DEPS )
