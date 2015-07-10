@@ -320,7 +320,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	else
 	    anglevals[ofsidx]->add( 0.f, 0.f );
 
-	float depth = mCast( float, -1.0 * SI().seismicReferenceDatum() );
+	float depth = 0.0f;
 	for ( int layeridx=0; layeridx<curem.size(); layeridx++ )
 	{
 	    depth += curem[layeridx].thickness_;
