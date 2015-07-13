@@ -769,7 +769,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     trcrange.widen( 0.001f * trc->info().sampling.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
-	const float curt = refz0_ +(float)(z0+idx)*refstep_ + extrazfromsamppos;
+	const float curt = (float)(z0+idx)*refstep_ + extrazfromsamppos;
 	int compidx = -1;
 	for ( int idy=0; idy<outputinterest_.size(); idy++ )
 	{
