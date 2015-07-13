@@ -59,6 +59,7 @@ public:
 			uiODRandomLineTreeItem(const Geometry::RandomLineSet&,
 					       Type=Empty);
     bool		init();
+    bool		displayDefaultData();
 
 protected:
 

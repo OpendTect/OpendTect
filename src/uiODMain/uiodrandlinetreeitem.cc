@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodrandlinetreeitem.h"
 
+#include "attribdescsetsholder.h"
+#include "attribsel.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "mousecursor.h"
@@ -440,6 +442,24 @@ bool uiODRandomLineTreeItem::init()
     }
 
     return uiODDisplayTreeItem::init();
+}
+
+
+bool uiODRandomLineTreeItem::displayDefaultData()
+{
+    Attrib::DescID descid;
+    if ( !applMgr()->getDefaultDescID(descid) )
+	return false;
+
+    const Attrib::DescSet* ads =
+	Attrib::DSHolder().getDescSet( false, true );
+    Attrib::SelSpec as( 0, descid, false, "" );
+    as.setRefFromID( *ads );
+    visserv_->setSelSpec( displayid_, 0, as );
+    const bool res = visserv_->calculateAttrib( displayid_, 0, false );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+    return res;
 }
 
 

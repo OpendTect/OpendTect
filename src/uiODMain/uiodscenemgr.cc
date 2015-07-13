@@ -1175,6 +1175,7 @@ int uiODSceneMgr::addRandomLineItem( const Geometry::RandomLineSet& rl,
 
     uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( rl );
     scene->itemmanager_->addChild( itm, false );
+    itm->displayDefaultData();
     return itm->displayID();
 }
 
