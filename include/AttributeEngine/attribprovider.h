@@ -13,17 +13,13 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "bufstringset.h"
 #include "linekey.h"
-#include "binid.h"
 #include "ranges.h"
-#include "refcount.h"
-#include "sets.h"
 #include "posinfo2dsurv.h"
 #include "uistring.h"
 
 class BinDataDesc;
-class TrcKeyZSampling;
+class RegularSeisDataPack;
 class SeisMSCProvider;
 class SeisTrcInfo;
 namespace Seis { class SelData; }
@@ -37,7 +33,6 @@ namespace Attrib
 {
 
 class DataHolder;
-class DataCubes;
 class DataHolderLineBuffer;
 class Desc;
 class ProviderTask;
@@ -166,7 +161,8 @@ public:
     static uiString		prepare(Desc&);
     				//!< Must be called before getting
     				//!< inputs/outputs etc. from a Desc
-    virtual void                fillDataCubesWithTrc(DataCubes*) const	{}
+    virtual void		fillDataPackWithTrc(RegularSeisDataPack*) const
+				{}
 
     virtual void		setRdmPaths(TypeSet<BinID>* truepath,
 	    				    TypeSet<BinID>* snappedpath);

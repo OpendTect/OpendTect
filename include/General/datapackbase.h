@@ -218,6 +218,7 @@ public:
 				{ return arrays_.isEmpty(); }
     bool			validComp( int comp ) const
 				{ return arrays_.validIdx( comp ); }
+    void			setComponentName(const char*,int comp=0);
     const char*			getComponentName(int comp=0) const;
 
     static const char*		categoryStr(bool isvertical,bool is2d);

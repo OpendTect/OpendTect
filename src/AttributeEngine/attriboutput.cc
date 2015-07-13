@@ -9,31 +9,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attriboutput.h"
 
-#include "arraynd.h"
-#include "attribdatacubes.h"
 #include "attribdataholder.h"
-#include "bufstringset.h"
-#include "binidvalset.h"
 #include "convmemvalseries.h"
 #include "datapointset.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "iopar.h"
-#include "keystrs.h"
-#include "linekey.h"
-#include "ptrman.h"
-#include "scaler.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
+#include "seisdatapack.h"
 #include "seistrc.h"
 #include "seisselectionimpl.h"
-#include "seistrctr.h"
 #include "seistype.h"
 #include "seiswrite.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "uistrings.h"
 
 namespace Attrib
 {
@@ -120,42 +109,38 @@ Pos::GeomID Output::curGeomID() const
 { return seldata_->geomID(); }
 
 
-DataCubesOutput::DataCubesOutput( const TrcKeyZSampling& cs )
+DataPackOutput::DataPackOutput( const TrcKeyZSampling& cs )
     : desiredvolume_(cs)
     , dcsampling_(cs)
-    , datacubes_(0)
+    , output_(0)
     , udfval_(mUdf(float))
 {
 }
 
 
-DataCubesOutput::~DataCubesOutput()
-{ if ( datacubes_ ) datacubes_->unRef(); }
-
-
-bool DataCubesOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
+bool DataPackOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 { cs=desiredvolume_; return true; }
 
 
-bool DataCubesOutput::wantsOutput( const BinID& bid ) const
+bool DataPackOutput::wantsOutput( const BinID& bid ) const
 { return desiredvolume_.hsamp_.includes(bid); }
 
 
-TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
-							   float zstep,
-							   TypeSet<float>&)const
+TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
+							 float zstep,
+							 TypeSet<float>& ) const
 {
     if ( sampleinterval_.size() ==0 )
     {
 	Interval<int> interval( mNINT32( desiredvolume_.zsamp_.start / zstep ),
 				mNINT32( desiredvolume_.zsamp_.stop / zstep ) );
-	const_cast<DataCubesOutput*>(this)->sampleinterval_ += interval;
+	const_cast<DataPackOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
 }
 
 
-void DataCubesOutput::adjustInlCrlStep( const TrcKeyZSampling& cs )
+void DataPackOutput::adjustInlCrlStep( const TrcKeyZSampling& cs )
 {
     if ( cs.hsamp_.step_.inl() > desiredvolume_.hsamp_.step_.inl() )
     {
@@ -172,64 +157,47 @@ void DataCubesOutput::adjustInlCrlStep( const TrcKeyZSampling& cs )
 }
 
 
-#define mGetSz(dir)\
-	dir##sz = (dcsampling_.hsamp_.stop_.dir() - \
-		   dcsampling_.hsamp_.start_.dir())\
-		  /dcsampling_.hsamp_.step_.dir() + 1;\
-
-#define mGetZSz()\
-	zsz = mNINT32( ( dcsampling_.zsamp_.stop - dcsampling_.zsamp_.start )\
-	      /refstep + 1 );
-
-void DataCubesOutput::collectData( const DataHolder& data, float refstep,
+void DataPackOutput::collectData( const DataHolder& data, float refstep,
 				  const SeisTrcInfo& info )
 {
-    if ( !datacubes_ )
-	init( refstep );
+    if ( !output_ )
+    {
+	BinDataDesc bdd( false, true, sizeof(float) );
+	if ( data.nrSeries() > 0 )
+	{
+	    mDynamicCastGet(ConvMemValueSeries<float>*,cmvs,data.series(0));
+	    if ( cmvs && cmvs->handlesUndef() )
+		bdd = cmvs->dataDesc();
+	}
 
-    if ( !datacubes_->includes(info.binid) )
+	init( refstep, &bdd );
+    }
+
+    const TrcKeyZSampling& tkzs = output_->sampling();
+    if ( !tkzs.hsamp_.includes(info.binid) )
 	return;
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
-    {
-	if ( desout<datacubes_->nrCubes() )
-	    continue;
-
-	mDynamicCastGet( ConvMemValueSeries<float>*, cmvs,
-			 data.series(desoutputs_[desout]) );
-
-	if ( cmvs && cmvs->handlesUndef() )
-	{
-	    const BinDataDesc desc = cmvs->dataDesc();
-	    datacubes_->addCube(mUdf(float), &desc );
-	}
-	else
-	    datacubes_->addCube(mUdf(float));
-    }
+	if ( desout >= output_->nrComponents() )
+	    output_->addComponent( sKey::EmptyString() );
 
     //something went wrong during memory allocation
-    if ( datacubes_->nrCubes()< desoutputs_.size() )
+    if ( output_->nrComponents() < desoutputs_.size() )
 	return;
 
-    int zsz;
-    mGetZSz();
-
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
-    const int outz0samp = (int)Math::Floor( datacubes_->z0_ );
-    const float extrazsamp = datacubes_->z0_ - mCast(float,outz0samp);
+    const float z0 = tkzs.zsamp_.start / tkzs.zsamp_.step;
+    const int outz0samp = (int)Math::Floor( z0 );
+    const float extrazsamp = z0 - mCast(float,outz0samp);
     const bool needinterp = extrazsamp >= 1e3;
-    const Interval<int> outrg( outz0samp, outz0samp+zsz-1 );
-
+    const Interval<int> outrg( outz0samp, outz0samp+tkzs.zsamp_.nrSteps() );
     if ( !inputrg.overlaps(outrg,false) )
 	return;
 
     const Interval<int> transrg( mMAX(inputrg.start, outrg.start),
 				 mMIN(inputrg.stop, outrg.stop ) );
-
-    const int inlidx =
-	datacubes_->inlsampling_.nearestIndex(info.binid.inl());
-    const int crlidx =
-	datacubes_->crlsampling_.nearestIndex(info.binid.crl());
+    const int lineidx = tkzs.hsamp_.lineRange().nearestIndex( info.binid.inl());
+    const int trcidx = tkzs.hsamp_.trcRange().nearestIndex( info.binid.crl() );
 
     for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
@@ -248,19 +216,19 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 			    	     idx-data.z0_+extrazsamp, refstep )
 		    : data.series(desoutputs_[desout])->value(idx-data.z0_);
 
-		const int zoutidx = (int)Math::Floor( idx-datacubes_->z0_ );
-		datacubes_->setValue( desout, inlidx, crlidx, zoutidx, val);
+		const int zoutidx = (int)Math::Floor( idx-z0 );
+		output_->data(desout).set( lineidx, trcidx, zoutidx, val );
 	    }
 	}
 	else
 	{
 	    mDynamicCastGet( ConvMemValueSeries<float>*, deststor,
-			     datacubes_->getCube(desout).getStorage() );
+			     output_->data(desout).getStorage() );
 	    const char elemsz = mCast(char,cmvs->dataDesc().nrBytes());
 
-	    const int idxz0 = (int)Math::Floor( datacubes_->z0_ );
+	    const int idxz0 = (int)Math::Floor( z0 );
 	    const od_int64 destoffset = transrg.start - idxz0 +
-		datacubes_->getCube(desout).info().getOffset(inlidx,crlidx,0);
+		output_->data(desout).info().getOffset(lineidx,trcidx,0);
 
 	    char* dest = deststor->storArr() + destoffset * elemsz;
 	    char* src = cmvs->storArr() +
@@ -271,34 +239,24 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 }
 
 
-const DataCubes* DataCubesOutput::getDataCubes() const
-{ return datacubes_; }
+const RegularSeisDataPack* DataPackOutput::getDataPack() const
+{ return output_; }
 
 
-DataCubes* DataCubesOutput::getDataCubes( float refstep )
+RegularSeisDataPack* DataPackOutput::getDataPack( float refstep )
 {
-    if ( !datacubes_ )
+    if ( !output_ )
 	init( refstep );
 
-    return datacubes_;
+    return output_;
 }
 
 
-void DataCubesOutput::init( float refstep )
+void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 {
-    datacubes_ = new Attrib::DataCubes;
-    datacubes_->ref();
-    datacubes_->inlsampling_= StepInterval<int>(dcsampling_.hsamp_.start_.inl(),
-						dcsampling_.hsamp_.stop_.inl(),
-						dcsampling_.hsamp_.step_.inl());
-    datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hsamp_.start_.crl(),
-						dcsampling_.hsamp_.stop_.crl(),
-						dcsampling_.hsamp_.step_.crl());
-    datacubes_->z0_ = dcsampling_.zsamp_.start / refstep;
-    datacubes_->zstep_ = refstep;
-    int inlsz, crlsz, zsz;
-    mGetSz(inl); mGetSz(crl); mGetZSz();
-    datacubes_->setSize( inlsz, crlsz, zsz );
+    output_ = new RegularSeisDataPack( sKey::EmptyString(), bdd );
+    output_->setSampling( dcsampling_ );
+    const_cast<StepInterval<float>& >(output_->sampling().zsamp_).step=refstep;
 }
 
 
@@ -646,13 +604,14 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 }
 
 
-bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
+bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
 {
     const Interval<int> rg( seldata_->crlRange() );
-    cs.hsamp_.start_.crl() = rg.start; cs.hsamp_.stop_.crl() = rg.stop;
+    tkzs.hsamp_.start_.crl() = rg.start; tkzs.hsamp_.stop_.crl() = rg.stop;
     const Interval<float> zrg( seldata_->zRange() );
-    cs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
-    cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl() = 0;
+    tkzs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
+    tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = seldata_->geomID();
+    tkzs.hsamp_.survid_ = Survey::GM().get2DSurvID();
     return true;
 }
 

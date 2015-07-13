@@ -59,8 +59,8 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
     PtrMan<EngineMan> aem = createEngineMan();
 
     PtrMan<Processor> proc = dset_->is2D() ?
-			    aem->createScreenOutput2D( errmsg, *d2dh )
-			    : aem->createDataCubesOutput( errmsg, 0  );
+			    aem->createScreenOutput2D( errmsg, *d2dh ) :
+			    aem->createDataPackOutput( errmsg, 0  );
     if ( !proc )
     {
 	uiMSG().error( errmsg );

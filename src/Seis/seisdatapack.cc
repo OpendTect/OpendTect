@@ -333,7 +333,7 @@ RegularFlatDataPack::RegularFlatDataPack(
     , sampling_(source.sampling())
     , dir_(sampling_.defaultDir())
     , usemulticomps_(comp_==-1)
-    , hassingletrace_(sampling_.nrTrcs()==1)
+    , hassingletrace_(nrTrcs()==1)
 {
     if ( usemulticomps_ )
 	setSourceDataFromMultiCubes();
@@ -354,6 +354,9 @@ Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
 
 void RegularFlatDataPack::setTrcInfoFlds()
 {
+    if ( hassingletrace_ )
+	{ pErrMsg( "Trace info fields set for single trace display." ); return;}
+
     if ( is2D() )
     {
 	tiflds_ += SeisTrcInfo::TrcNr;
@@ -403,6 +406,7 @@ void RegularFlatDataPack::setSourceData()
     const bool isz = dir_==TrcKeyZSampling::Z;
     if ( !isz )
     {
+	path_.setCapacity( source_.nrTrcs(), false );
 	for ( int idx=0; idx<source_.nrTrcs(); idx++ )
 	    path_ += source_.getTrcKey( idx );
     }

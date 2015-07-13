@@ -18,12 +18,12 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "refcount.h"
 #include "seistype.h"
-#include "typeset.h"
 #include "uistring.h"
 
+class BinDataDesc;
 class BinIDValueSet;
 class DataPointSet;
-class LineKey;
+class RegularSeisDataPack;
 class SeisTrc;
 class SeisTrcInfo;
 class SeisTrcBuf;
@@ -34,7 +34,6 @@ namespace Seis { class SelData; }
 namespace Attrib
 {
 class DataHolder;
-class DataCubes;
 class Data2DHolder;
 
 /*!
@@ -51,8 +50,9 @@ public:
     virtual bool		useCoords() const		{ return false;}
     virtual bool		wantsOutput(const BinID&) const; // overrule it
     virtual bool		wantsOutput(const Coord&) const; // or this one
-    virtual const DataCubes*	getDataCubes() const	{ return 0; }
-    virtual DataCubes*		getDataCubes(float)	{ return 0; }
+
+    virtual const RegularSeisDataPack*	getDataPack() const	{ return 0; }
+    virtual RegularSeisDataPack*	getDataPack(float)	{ return 0; }
 
     virtual void		getDesiredOutputs( TypeSet<int>& outputs ) const
 				{ outputs = desoutputs_; }
@@ -70,7 +70,7 @@ public:
     virtual void		deleteTrc()		{}
     const Seis::SelData&	getSelData()		{ return *seldata_; }
     Pos::GeomID			curGeomID() const;
-    virtual void		adjustInlCrlStep(const TrcKeyZSampling&)	{}
+    virtual void		adjustInlCrlStep(const TrcKeyZSampling&) {}
     virtual bool		finishWrite()		{ return false; }
 
     static const char*		outputstr();
@@ -99,17 +99,16 @@ protected:
 				{ return Output::getLocalZRanges(t,f,ts); }
 
 /*!
-\brief Attribute DataCubes Output.
+\brief Attribute DataPack Output.
 */
 
-mExpClass(AttributeEngine) DataCubesOutput : public Output
+mExpClass(AttributeEngine) DataPackOutput : public Output
 {
 public:
-				DataCubesOutput(const TrcKeyZSampling&);
-				~DataCubesOutput();
+				DataPackOutput(const TrcKeyZSampling&);
 
-    const DataCubes*		getDataCubes() const;
-    virtual DataCubes*		getDataCubes(float);
+    const RegularSeisDataPack*	getDataPack() const;
+    virtual RegularSeisDataPack*getDataPack(float);
 
     bool			getDesiredVolume(TrcKeyZSampling&) const;
     void			setGeometry( const TrcKeyZSampling& cs )
@@ -130,10 +129,10 @@ protected:
 				//(special cases with decimated cubes smaller
 				//than desired display)
     TypeSet< Interval<int> >	sampleinterval_;
-    DataCubes*			datacubes_;
+    RegularSeisDataPack*	output_;
     float			udfval_;
 
-    void			init(float);
+    void			init(float refstep,const BinDataDesc* bdd=0);
 };
 
 

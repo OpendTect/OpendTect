@@ -14,10 +14,10 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "attribprovider.h"
-#include "trckeyzsampling.h"
-#include "datachar.h"
 #include "datapack.h"
+
 class BufferStringSet;
+class RegularSeisDataPack;
 class SeisMSCProvider;
 class SeisTrc;
 
@@ -48,7 +48,7 @@ public:
     void		adjust2DLineStoredVolume();
     Pos::GeomID		getGeomID() const;
 
-    void		fillDataCubesWithTrc(DataCubes*) const;
+    void		fillDataPackWithTrc(RegularSeisDataPack*) const;
     bool		needStoredInput() const	{ return true; }
     virtual void	getCompNames(BufferStringSet&) const;
     virtual float	getDistBetwTrcs(bool,const char* linenm =0) const;

@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimpepartserv.h"
 
 #include "attribdataholder.h"
-#include "attribdatacubes.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
 #include "attribdescsetsholder.h"
