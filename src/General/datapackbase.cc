@@ -476,10 +476,10 @@ const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
 }
 
 
-void SeisDataPack::setComponentName( const char* name, int component )
+void SeisDataPack::setComponentName( const char* nm, int component )
 {
     if ( componentnames_.validIdx(component) )
-	componentnames_[component]->set( name );
+	componentnames_[component]->set( nm );
 }
 
 
