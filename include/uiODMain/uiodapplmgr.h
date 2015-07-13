@@ -37,7 +37,7 @@ class uiVisDataPointSetDisplayMgr;
 
 class DataPointSet;
 class ODSession;
-namespace Attrib { class SelSpec; }
+namespace Attrib { class DescID; class SelSpec; }
 namespace Pick { class Set; }
 
 /*!\brief Application level manager - ties part servers together
@@ -68,6 +68,20 @@ public:
     uiWellAttribPartServer*	wellAttribServer()	{ return wellattrserv_;}
     uiMPEPartServer*		mpeServer()		{ return mpeserv_; }
     uiNLAPartServer*		nlaServer()		{ return nlaserv_; }
+
+    const uiPickPartServer*	pickServer() const	{ return pickserv_; }
+    const uiVisPartServer*	visServer() const	{ return visserv_; }
+    const uiSeisPartServer*	seisServer() const	{ return seisserv_; }
+    const uiAttribPartServer*	attrServer() const	{ return attrserv_; }
+    const uiVolProcPartServer*	volprocServer() const	{ return volprocserv_; }
+    const uiEMPartServer*	EMServer() const	{ return emserv_; }
+    const uiEMAttribPartServer*	EMAttribServer() const	{ return emattrserv_; }
+    const uiWellPartServer*	wellServer() const	{ return wellserv_; }
+    const uiWellAttribPartServer* wellAttribServer() const
+							{ return wellattrserv_;}
+    const uiMPEPartServer*	mpeServer() const	{ return mpeserv_; }
+    const uiNLAPartServer*	nlaServer() const	{ return nlaserv_; }
+
     void			setNlaServer(uiNLAPartServer* s);
     uiApplService&		applService()
 				{ return (uiApplService&)applservice_; }
@@ -75,7 +89,7 @@ public:
 
     // Survey menu operations
     static int			manageSurvey(uiParent* p=0);
-    enum ObjType		{ Seis, Hor, Flt, Fltss, Wll, Attr, NLA, Pick, 
+    enum ObjType		{ Seis, Hor, Flt, Fltss, Wll, Attr, NLA, Pick,
 				  Sess, Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
 				  Body, Props, ColTab, NrObjTypes };
     enum ActType		{ Imp, Exp, Man };
@@ -159,8 +173,9 @@ public:
     void			resetServers();
     void			updateColorTable(int visid,int attrib);
     void			saveDefColTab(int visid,int attrib);
-    void			calShiftAttribute(int attrib,
-	                                        const Attrib::SelSpec& as );
+    bool			getDefaultDescID(Attrib::DescID&) const;
+    void			calcShiftAttribute(int attrib,
+						   const Attrib::SelSpec&);
     bool			calcRandomPosAttrib(int visid,int attrib);
     bool			calcMultipleAttribs(Attrib::SelSpec&);
     NotifierAccess*		colorTableSeqChange();
@@ -233,10 +248,10 @@ protected:
     {
 				MiscSurvInfo()
 				: xyunit_(1)
-			        , zunit_(0)
+				, zunit_(0)
 				, zstep_(0.004) {}
 
-	void                    refresh();
+	void			refresh();
 
 	int			xyunit_;
 	int			zunit_;

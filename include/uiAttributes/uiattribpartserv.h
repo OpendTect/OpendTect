@@ -117,7 +117,8 @@ public:
 					    TypeSet<BinID>* path,
 					    TypeSet<BinID>* trueknotspos);
 
-    Attrib::DescID	getStoredID(const MultiID&,bool is2d,int selout=-1);
+    Attrib::DescID	getStoredID(const MultiID&,bool is2d,
+				    int selout=-1) const;
     IOObj*		getIOObj(const Attrib::SelSpec&) const;
 
     bool		extractData(ObjectSet<DataPointSet>&);

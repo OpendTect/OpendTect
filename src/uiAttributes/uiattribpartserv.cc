@@ -861,7 +861,7 @@ RandomSeisDataPack* uiAttribPartServer::createRdmSeisDataPack(
 	    for ( int idx = 0; idx<output.get(0)->nrComponents(); idx++ )
 		cmpnms.add( targetspecs_[idx].userRef() );
 
-	    dataseted = newpack->setDataFrom( output, trckeys, *path, cmpnms, 
+	    dataseted = newpack->setDataFrom( output, trckeys, *path, cmpnms,
 		targetspecs_[0].zDomainKey(), targetspecs_[0].userRef() );
 	}
     }
@@ -1021,7 +1021,7 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 
 
 Attrib::DescID uiAttribPartServer::getStoredID( const MultiID& multiid,
-						bool is2d, int selout )
+						bool is2d, int selout ) const
 {
     DescSet* ds = eDSHolder().getDescSet( is2d, true );
     return ds ? ds->getStoredID( multiid, selout ) : DescID::undef();
