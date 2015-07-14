@@ -51,7 +51,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinegeom.h"
 #include "sorting.h"
 #include "settings.h"
-#include "visrandomtrackdisplay.h"
 #include "vissurvscene.h"
 #include "vissurvobj.h"
 #include "welltransl.h"
