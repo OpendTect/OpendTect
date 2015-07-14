@@ -65,6 +65,8 @@ protected:
     virtual bool	laygenEditReq()			= 0;
     virtual bool	laygenRemoveReq()		= 0;
 
+    void		wheelMoveCB(CallBacker*);
+
 };
 
 
