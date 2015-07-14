@@ -315,7 +315,7 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* )
 void uiODPlaneDataTreeItem::selChg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-    visserv_->getObject(displayid_))
+		    visserv_->getObject(displayid_))
 
     if ( pdd && pdd->isSelected() )
 	visserv_->getUiSlicePos()->setDisplay( displayid_ );
