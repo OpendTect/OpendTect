@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 					const TrcKeyZSampling& outcs,
 					ZAxisTransform& ztf,
-       					bool forward,
+					bool forward,
 					bool stretchz )
     : seisreader_( 0 )
     , seisreadertdmodel_( 0 )
@@ -54,7 +54,7 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
 {
     if ( !ztransform_ )
 	return;
-    
+
     SeisIOObjInfo info( in );
     is2d_ = info.is2D();
 
@@ -129,10 +129,10 @@ bool SeisZAxisStretcher::isOK() const
 }
 
 
-void SeisZAxisStretcher::setLineKey( const char* lnm )
+void SeisZAxisStretcher::setGeomID( Pos::GeomID geomid )
 {
     Seis::RangeSelData sd; sd.copyFrom( *seisreader_->selData() );
-    sd.setGeomID( Survey::GM().getGeomID(lnm) );
+    sd.setGeomID( geomid );
     seisreader_->setSelData( sd.clone() );
     if ( !seisreader_->prepareWork() )
     {
@@ -153,8 +153,8 @@ void SeisZAxisStretcher::setLineKey( const char* lnm )
     }
 
     sd.copyFrom( seiswriter_->selData() ? *seiswriter_->selData()
-	    				: *new Seis::RangeSelData(true) );
-    sd.setGeomID( Survey::GM().getGeomID(lnm) );
+					: *new Seis::RangeSelData(true) );
+    sd.setGeomID( geomid );
     seiswriter_->setSelData( sd.clone() );
 }
 
@@ -162,7 +162,7 @@ void SeisZAxisStretcher::setLineKey( const char* lnm )
 #define mOpInverse(val,inv) \
   ( inv ? 1.0/val : val )
 
-bool SeisZAxisStretcher::doWork( od_int64, od_int64, int ) 
+bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 {
     StepInterval<float> trcrg = outcs_.zsamp_;
     SamplingData<float> sd( trcrg );
@@ -196,14 +196,14 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	if ( stretchz_ )
 	{
 	    bool usevint = isvint_;
-	    
-	    if ( isvrms_ )                                                      
-	    {                                                                   
+
+	    if ( isvrms_ )
+	    {
 		SeisTrcValueSeries tmpseistrcvsin( intrc, 0 );
-		SamplingData<double> inputsd( intrc.info().sampling );          
+		SamplingData<double> inputsd( intrc.info().sampling );
 		mAllocVarLenArr( float, vintarr, insz );
 		if ( !mIsVarLenArrOK(vintarr) ) return false;
-		
+
 		float* vrmsarr = tmpseistrcvsin.arr();
 		PtrMan<Array1DImpl<float> > inparr = 0;
 		if ( !vrmsarr )
@@ -224,14 +224,14 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 	    //Computed from the input trace, not the model
 	    mAllocVarLenArr(float, twt, insz);
 	    mAllocVarLenArr(float, depths, insz);
-	    
+
 	    SamplingData<float> inputsd( intrc.info().sampling );
 	    SeisTrcValueSeries inputvs( intrc, 0 );
-	    
-	    
+
+
 	    ztransform_->transformTrc( curtrckey, inputsd, insz,
 				       ist2d_ ? depths : twt );
-	    
+
 	    if ( ist2d_ )
 	    {
 		int idx=0;
@@ -241,17 +241,17 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 			break;
 		    twt[idx] = mUdf(float);
 		}
-		
+
 		//Fill twt using depth array and input-values
-	    	if ( usevint )
+		if ( usevint )
 		{
 		    if ( idx!=insz )
 		    {
 			float prevdepth = depths[idx];
-		    	float prevtwt = twt[idx] = 2*prevdepth/inputvs[idx];
-		    	idx++;
-		    	for ( ; idx<insz; idx++)
-		    	{
+			float prevtwt = twt[idx] = 2*prevdepth/inputvs[idx];
+			idx++;
+			for ( ; idx<insz; idx++)
+			{
 			    if ( mIsUdf(depths[idx]) || mIsUdf(inputvs[idx]) )
 				twt[idx] = mUdf(float);
 			    else
@@ -272,7 +272,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 			else
 			    twt[idx] = depths[idx]*2/inputvs[idx];
 		    }
-		    
+
 		}
 	    }
 	    else
@@ -291,19 +291,19 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		    if ( idx!=insz )
 		    {
 			float prevtwt = twt[idx];
-		    	float prevdepth = depths[idx] = prevtwt*inputvs[idx]/2;
+			float prevdepth = depths[idx] = prevtwt*inputvs[idx]/2;
 			idx++;
-		    	for ( ; idx<insz; idx++ )
-		    	{
+			for ( ; idx<insz; idx++ )
+			{
 			    if ( mIsUdf(twt[idx]) || mIsUdf(inputvs[idx] ) )
 				depths[idx] = mUdf(float);
 			    else
 			    {
-			    	prevdepth = depths[idx] = prevdepth +
-		    		    (twt[idx]-prevtwt) * inputvs[idx]/2;
+				prevdepth = depths[idx] = prevdepth +
+				    (twt[idx]-prevtwt) * inputvs[idx]/2;
 				prevtwt = twt[idx];
 			    }
-		    	}
+			}
 		    }
 		}
 		else //Vavg
@@ -317,7 +317,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		    }
 		}
 	    }
-	    
+
 	    PointBasedMathFunction dtfunc( PointBasedMathFunction::Linear,
 				PointBasedMathFunction::ExtraPolGradient );
 	    PointBasedMathFunction tdfunc( PointBasedMathFunction::Linear,
@@ -327,18 +327,18 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 
 	    if ( ist2d_ )
 	    {
-	    	for ( int idx=0; idx<insz; idx++ )
+		for ( int idx=0; idx<insz; idx++ )
 		{
 		    if ( mIsUdf(depths[idx]) || mIsUdf(twt[idx]) )
 			continue;
-				
+
 		    dtfunc.add( depths[idx], twt[idx] );
 		}
-		
+
 		prevdepth = sd.atIndex( 0 );
 		prevtwt = dtfunc.size()
 		    ? dtfunc.getValue( prevdepth )
-		    : mUdf(float); 
+		    : mUdf(float);
 	    }
 	    else
 	    {
@@ -346,21 +346,21 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 		{
 		    if ( mIsUdf(depths[idx]) || mIsUdf(twt[idx]) )
 			continue;
-		    
+
 		    tdfunc.add( twt[idx], depths[idx] );
 		}
-		
+
 		prevtwt = sd.atIndex( 0 );
 		prevdepth = tdfunc.size()
 		    ? tdfunc.getValue( prevtwt )
 		    : mUdf(float);
 	    }
-		
+
 	    const bool alludf = ist2d_ ? dtfunc.isEmpty() : tdfunc.isEmpty();
 	    for ( int idx=1; idx<outsz; idx++ )
 	    {
 		float vel;
-		
+
 		if ( alludf )
 		    vel = mUdf(float);
 		else
@@ -370,31 +370,31 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
 
 		    if ( ist2d_ )
 		    {
-		    	curdepth = sd.atIndex( idx );
-		    	curtwt = dtfunc.getValue( curdepth );
+			curdepth = sd.atIndex( idx );
+			curtwt = dtfunc.getValue( curdepth );
 		    }
 		    else
 		    {
-		    	curtwt = sd.atIndex( idx );
-		    	curdepth = tdfunc.getValue( curtwt );
+			curtwt = sd.atIndex( idx );
+			curdepth = tdfunc.getValue( curtwt );
 		    }
-		
-	    	
+
+
 		    if ( usevint )
 		    {
-		    	vel = (curdepth-prevdepth)/(curtwt-prevtwt) * 2;
-		    	prevtwt = curtwt;
-		    	prevdepth = curdepth;
+			vel = (curdepth-prevdepth)/(curtwt-prevtwt) * 2;
+			prevtwt = curtwt;
+			prevdepth = curdepth;
 		    }
 		    else
 		    {
-		    	vel = curdepth/curtwt * 2;
+			vel = curdepth/curtwt * 2;
 		    }
 		}
-		    
+
 		outtrc->set( idx, vel, 0 );
 	    }
-	    	    
+
 	    outtrc->set( 0, outtrc->get( 1, 0 ), 0 );
 	}
 	else
@@ -442,9 +442,9 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
     }
 
     if ( !seisreader_ )
-    	return false;
+	return false;
 
-    while ( shouldContinue() ) 
+    while ( shouldContinue() )
     {
 	if ( !seisreader_->get(trc) )
 	{
@@ -506,9 +506,9 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
     }
 
     if ( !seisreadertdmodel_ )
-    	return false;
+	return false;
 
-    while ( shouldContinue() ) 
+    while ( shouldContinue() )
     {
 	if ( !seisreadertdmodel_->get(trc) )
 	{

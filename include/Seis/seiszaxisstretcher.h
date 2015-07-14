@@ -43,7 +43,7 @@ public:
 
     bool		isOK() const;
 
-    void		setLineKey(const char*);
+    void		setGeomID(Pos::GeomID);
     uiString		uiMessage() const { return tr("Stretching data"); }
 
     void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
