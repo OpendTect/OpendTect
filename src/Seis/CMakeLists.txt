@@ -33,6 +33,7 @@ SET(OD_MODULE_SOURCES
 	seisbuf.cc
 	seiscbvs.cc
 	seiscbvs2d.cc
+	seiscbvsimpfromothersurv.cc
 	seiscbvsps.cc
 	seiscopy.cc
 	seiscubeprov.cc
