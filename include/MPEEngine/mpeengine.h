@@ -109,23 +109,6 @@ public:
     ObjectEditor*	getEditor(const EM::ObjectID&,bool create);
     void		removeEditor(const EM::ObjectID&);
 
-			/*Fault(StickSet)s workaround, until
-			  2DViewer tree is not in place */
-    Notifier<Engine>    activefaultchanged_;
-    void		setActiveFaultObjID(EM::ObjectID objid)
-			{
-			    activefaultid_ = objid;
-			    activefaultchanged_.trigger();
-			}
-    EM::ObjectID	getActiveFaultObjID()	{ return activefaultid_; }
-    Notifier<Engine>	activefsschanged_;
-    void		setActiveFSSObjID(EM::ObjectID objid)
-			{
-			    activefssid_ = objid;
-			    activefsschanged_.trigger();
-			}
-    EM::ObjectID	getActiveFSSObjID()	{ return activefssid_; }
-
     const char*		errMsg() const;
 
     BufferString	setupFileName( const MultiID& ) const;
@@ -177,11 +160,6 @@ protected:
     };
 
     ObjectSet<ObjectSet<FlatCubeInfo> >	flatcubescontainer_;
-
-    				/*Fault(StickSet)s workaround, untill
-				  2DViewer tree is not in place */
-    EM::ObjectID		activefaultid_;
-    EM::ObjectID		activefssid_;
 
     static const char*		sKeyNrTrackers(){ return "Nr Trackers"; }
     static const char*		sKeyObjectID()	{ return "ObjectID"; }

@@ -49,10 +49,6 @@ Engine::Engine()
     , oneactivetracker_( 0 )
     , activetracker_( 0 )
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
-    , activefaultid_( -1 )
-    , activefssid_( -1 )
-    , activefaultchanged_( this )
-    , activefsschanged_( this )
     , dpm_(DPM(DataPackMgr::SeisID()))
 {
     trackers_.allowNull();
