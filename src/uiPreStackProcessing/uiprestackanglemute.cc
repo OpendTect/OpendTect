@@ -23,10 +23,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uiveldesc.h"
 #include "od_helpids.h"
+#include "hiddenparam.h"
 
+
+static HiddenParam<PreStack::uiAngleCompGrp,BoolTypeSetType> dooffset_( false );
 
 namespace PreStack
 {
+
 
 uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 				bool dooffset, bool isformute )
@@ -34,7 +38,9 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     , params_(pars)
     , isformute_(isformute)
     , anglelbl_(0)
+    , advpardlg_(0)
 {
+    dooffset_.setParam( this, dooffset );
     velfuncsel_ = new uiVelSel( this, uiVelSel::ioContext(),
 	    			uiSeisSel::Setup(Seis::Vol), false);
     velfuncsel_->setLabelText( "Input velocity volume" );
@@ -61,8 +67,14 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     advpushbut_->activated.notify( mCB(this, uiAngleCompGrp, advPushButCB) );
     advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
 
-    advpardlg_ = new uiAngleCompAdvParsDlg(this, params_, dooffset, isformute);
+   
     setHAlignObj( velfuncsel_ );
+} 
+
+
+uiAngleCompGrp::~uiAngleCompGrp()
+{
+    dooffset_.removeParam(this);
 }
 
 
@@ -113,6 +125,10 @@ bool uiAngleCompGrp::acceptOK()
 
 void uiAngleCompGrp::advPushButCB( CallBacker* )
 {
+    const bool dooffset = dooffset_.getParam( this );
+    if ( !advpardlg_ )
+	advpardlg_ = new uiAngleCompAdvParsDlg( this, params_, dooffset,
+					        isformute_ );
     advpardlg_->updateFromParams();
     advpardlg_->go();
 }

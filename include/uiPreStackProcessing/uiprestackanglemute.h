@@ -37,6 +37,7 @@ public:
 					       PreStack::AngleCompParams&,
 					       bool dooffset=false,
 					       bool isformute=true);
+				~uiAngleCompGrp();
 
     void			updateFromParams();
 
@@ -54,6 +55,7 @@ protected:
     uiAngleCompAdvParsDlg*	advpardlg_;
 
     bool			isformute_;
+   
 };
 
 
