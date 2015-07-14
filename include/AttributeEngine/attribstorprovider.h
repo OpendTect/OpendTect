@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "attribprovider.h"
+#include "bindatadesc.h"
 #include "datapack.h"
 
 class BufferStringSet;
