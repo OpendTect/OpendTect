@@ -480,6 +480,9 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
     if ( overwrite )
     {
 	if ( dataidx<0 ) dataidx = 0;
+	if ( !sels_.sd.valnames.validIdx(dataidx) )
+	    return 0;
+
 	fnm = getFileName( *ioobj_, sels_.sd.valnames.get(dataidx) );
 	if ( !fnm.isEmpty() )
 	    return new EM::dgbSurfDataWriter(*hor3d,dataidx,0,isbinary,
