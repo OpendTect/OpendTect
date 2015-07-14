@@ -7,8 +7,6 @@
 
 SET(OD_MODULE_DEPS NLA Seis )
 SET(OD_MODULE_SOURCES
-		attribdatacubes.cc
-		attribdatacubeswriter.cc
 		attribdataholder.cc
 		attribdataholderarray.cc
 		attribdesc.cc

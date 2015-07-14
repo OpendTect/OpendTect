@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivisisosurface.h"
 
-#include "attribdatacubes.h"
 #include "coltabmapper.h"
 #include "marchingcubes.h"
 #include "mousecursor.h"

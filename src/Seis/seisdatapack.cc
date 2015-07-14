@@ -128,17 +128,10 @@ bool RandomSeisDataPack::addComponent( const char* nm )
     return true;
 }
 
-
-int RandomSeisDataPack::getGlobalIdx( const TrcKey& tk ) const
-{ return path_.indexOf( tk ); }
-
-
-#define mKeyInl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl)
-#define mKeyCrl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl)
-#define mKeyCoordX	SeisTrcInfo::getFldString(SeisTrcInfo::CoordX)
-#define mKeyCoordY	SeisTrcInfo::getFldString(SeisTrcInfo::CoordY)
-#define mKeyTrcNr	SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr)
-#define mKeyRefNr	SeisTrcInfo::getFldString(SeisTrcInfo::RefNr)
+int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
+{
+    return path_.indexOf(tk);
+}
 
 
 bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
@@ -168,9 +161,8 @@ bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
 	    for ( int newidz=0; newidz<=getZRange().nrSteps(); newidz++ )
 	    {
 		const int oldidz = newidz + idzoffset;
-
 		const float val = 
-		    rgldp->data(idx).info().validPos(inlidx,crlidx,oldidz ) ?
+		    rgldp->data(idx).info().validPos(inlidx,crlidx,oldidz) ?
 		    rgldp->data(idx).get(inlidx,crlidx,oldidz) : mUdf(float);
 		data(idx).set( 0, idy, newidz, val );
 	    }
@@ -217,6 +209,13 @@ bool RandomSeisDataPack::setDataFrom( const SeisTrcBuf& sbuf,
     return true;
 }
 
+
+#define mKeyInl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDInl)
+#define mKeyCrl		SeisTrcInfo::getFldString(SeisTrcInfo::BinIDCrl)
+#define mKeyCoordX	SeisTrcInfo::getFldString(SeisTrcInfo::CoordX)
+#define mKeyCoordY	SeisTrcInfo::getFldString(SeisTrcInfo::CoordY)
+#define mKeyTrcNr	SeisTrcInfo::getFldString(SeisTrcInfo::TrcNr)
+#define mKeyRefNr	SeisTrcInfo::getFldString(SeisTrcInfo::RefNr)
 
 // SeisFlatDataPack
 SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source,int comp)
@@ -334,7 +333,7 @@ RegularFlatDataPack::RegularFlatDataPack(
     , sampling_(source.sampling())
     , dir_(sampling_.defaultDir())
     , usemulticomps_(comp_==-1)
-    , hassingletrace_(sampling_.nrTrcs()==1)
+    , hassingletrace_(nrTrcs()==1)
 {
     if ( usemulticomps_ )
 	setSourceDataFromMultiCubes();
@@ -355,6 +354,9 @@ Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
 
 void RegularFlatDataPack::setTrcInfoFlds()
 {
+    if ( hassingletrace_ )
+	{ pErrMsg( "Trace info fields set for single trace display." ); return;}
+
     if ( is2D() )
     {
 	tiflds_ += SeisTrcInfo::TrcNr;
@@ -404,6 +406,7 @@ void RegularFlatDataPack::setSourceData()
     const bool isz = dir_==TrcKeyZSampling::Z;
     if ( !isz )
     {
+	path_.setCapacity( source_.nrTrcs(), false );
 	for ( int idx=0; idx<source_.nrTrcs(); idx++ )
 	    path_ += source_.getTrcKey( idx );
     }

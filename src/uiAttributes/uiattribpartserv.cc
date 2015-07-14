@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattribpartserv.h"
 
-#include "attribdatacubes.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -30,28 +29,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arraynd.h"
 #include "arrayndslice.h"
 #include "arrayndwrapper.h"
-#include "binidvalset.h"
 #include "coltabmapper.h"
-#include "ctxtioobj.h"
-#include "trckeyzsampling.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
-#include "iodir.h"
-#include "iopar.h"
-#include "ioobj.h"
 #include "ioman.h"
-#include "keystrs.h"
-#include "nlacrdesc.h"
 #include "nlamodel.h"
-#include "posvecdataset.h"
 #include "datapointset.h"
-#include "ptrman.h"
-#include "randcolor.h"
 #include "rangeposprovider.h"
 #include "seisbuf.h"
 #include "seisdatapack.h"
-#include "seisinfo.h"
 #include "seistrc.h"
 #include "seispreload.h"
 #include "survinfo.h"
@@ -612,31 +599,16 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
 	uiTaskRunner taskrunner( parent() );
-	const Pos::GeomID& geomid = tkzs.hsamp_.trcKeyAt( 0, 0 ).geomID();
+	const Pos::GeomID& geomid = tkzs.hsamp_.trcKeyAt(0).geomID();
 	return create2DOutput( tkzs, geomid, taskrunner );
     }
 
-    RefMan<Attrib::DataCubes> cache = 0;
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstDataPackRef<RegularSeisDataPack> cachedp = dpm.obtain( cacheid );
-    if ( cachedp )
-    {
-    	cache = new Attrib::DataCubes();
-    	cache->setSizeAndPos( cachedp->sampling() );
-	for ( int idx=0; idx<cachedp->nrComponents(); idx++ )
-	{
-    	    cache->addCube();
-    	    cache->setCube( idx, cachedp->data(idx) );
-	}
-    }
+    ConstDataPackRef<RegularSeisDataPack> cache = dpm.obtain( cacheid );
+    const RegularSeisDataPack* newpack = createOutput( tkzs, cache.ptr() );
+    if ( !newpack ) DataPack::cNoID();
 
-    RegularSeisDataPack* newpack =
-	const_cast<RegularSeisDataPack*>( createOutput(tkzs,cache) );
-    if ( !newpack ) return DataPack::cNoID();
-    newpack->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
-    newpack->setName( targetspecs_[0].userRef() );
-    dpm.add( newpack );
+    dpm.add( const_cast<RegularSeisDataPack*>(newpack) );
     return newpack->id();
 }
 
@@ -649,7 +621,7 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 
 const RegularSeisDataPack* uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
-				const DataCubes* cache )
+				const RegularSeisDataPack* cache )
 {
     PtrMan<EngineMan> aem = createEngMan( &tkzs, 0 );
     if ( !aem ) return 0;
@@ -686,7 +658,7 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
     }
 
     bool success = true;
-    Processor* process = 0;
+    PtrMan<Processor> process = 0;
     RegularSeisDataPack* output = 0;
     if ( !atsamplepos )//note: 1 attrib computed at a time
     {
@@ -706,26 +678,18 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 
 	uiTaskRunner taskrunner( parent() );
 	if ( !TaskRunner::execute( &taskrunner, *process ) )
-	{
-	    delete process;
 	    mCleanReturn();
-	}
 
-	const char* category = SeisDataPack::categoryStr(
-			tkzs.defaultDir()!=TrcKeyZSampling::Z,
-			tkzs.hsamp_.survid_==Survey::GM().get2DSurvID() );
-	output = new RegularSeisDataPack( category );
+	output = new RegularSeisDataPack(
+			SeisDataPack::categoryStr(false,false) );
 	output->setSampling( tkzs );
+	output->addComponent( targetspecs_[0].userRef() );
 	TypeSet<float> values;
 	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, values,
 				    true );
 	ArrayValueSeries<float, float>* avs =
 	    new ArrayValueSeries<float,float>(values.arr(),true, values.size());
-	Array3DImpl<float>* arr3d =
-		new Array3DImpl<float>( tkzs.nrInl(), tkzs.nrCrl(), 1 );
-	arr3d->setStorage( avs );
-	output->addComponent( targetspecs_[0].userRef() );
-	output->data( 0 ) = *arr3d;
+	output->data(0).setStorage( avs );
 	dtcoldefset.erase();
     }
     else
@@ -736,24 +700,14 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
 	    if ( sdp )
 	    {
-		DataCubes* dc = new DataCubes();
-		dc->ref();
-		dc->setSizeAndPos( sdp->sampling() );
-		mDynamicCastGet(Array3DImpl<float>*,arr3dimpl,&sdp->data())
-		if ( arr3dimpl )
-		    dc->addCube( *arr3dimpl );
-
-		ObjectSet<const DataCubes> cubeset;
-		cubeset += dc;
-		output = const_cast<RegularSeisDataPack*>(
-					aem->getOutput(cubeset) );
-		dc->unRef();
-		return output;
+		ObjectSet<const RegularSeisDataPack> cubeset;
+		cubeset += sdp;
+		return aem->getOutput( cubeset );
 	    }
 	}
 
 	uiString errmsg;
-	process = aem->createDataCubesOutput( errmsg, cache );
+	process = aem->createDataPackOutput( errmsg, cache );
 	if ( !process )
 	    { uiMSG().error(errmsg); return 0; }
 	bool showinlprogress = true;
@@ -787,7 +741,6 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 		    const uiString msg( process->uiMessage() );
 		    if ( !msg.isEmpty() )
 			uiMSG().error( msg );
-		    delete process;
 		    return 0;
 		}
 	    }
@@ -795,8 +748,6 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 
 	output = const_cast<RegularSeisDataPack*>( aem->getOutput(*process) );
     }
-
-    delete process;
 
     if ( output && !success )
     {
@@ -861,12 +812,11 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 				TypeSet<BinID>* path,
 				TypeSet<BinID>* trueknotspos )
 {
-    RandomSeisDataPack* newpack = 
-	createRdmSeisDataPack( zrg, path, trueknotspos );
+    RandomSeisDataPack* newpack = createRdmSeisDataPack(zrg,path,trueknotspos);
     if ( !newpack )
 	return DataPack::cNoID();
 
-    DPM( DataPackMgr::SeisID() ).add( newpack );
+    DPM(DataPackMgr::SeisID()).add( newpack );
 
     return newpack->id();
 }
@@ -887,7 +837,8 @@ RandomSeisDataPack* uiAttribPartServer::createRdmSeisDataPack(
 	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
 				       (*path)[idx].inl(), (*path)[idx].crl() );
 
-    RandomSeisDataPack* newpack = new RandomSeisDataPack( "" );
+    RandomSeisDataPack* newpack = new RandomSeisDataPack(
+					SeisDataPack::categoryStr(true,false) );
     bool dataseted = false;
     const MultiID mid( targetdesc->getStoredID() );
     mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
@@ -923,6 +874,7 @@ RandomSeisDataPack* uiAttribPartServer::createRdmSeisDataPack(
 
     return newpack;
 }
+
 
 bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 				       SeisTrcBuf& output,
@@ -1027,30 +979,6 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     newpack->setName( targetspecs_[0].userRef() );
     DPM(DataPackMgr::SeisID()).add( newpack );
     return newpack->id();
-}
-
-
-bool uiAttribPartServer::isDataClassified( const Array3D<float>& array ) const
-{
-    const int sz0 = array.info().getSize( 0 );
-    const int sz1 = array.info().getSize( 1 );
-    const int sz2 = array.info().getSize( 2 );
-//    int nrint = 0;
-    for ( int x0=0; x0<sz0; x0++ )
-	for ( int x1=0; x1<sz1; x1++ )
-	    for ( int x2=0; x2<sz2; x2++ )
-	    {
-		const float val = array.get( x0, x1, x2 );
-		if ( mIsUdf(val) ) continue;
-		const int ival = mNINT32(val);
-		if ( !mIsEqual(val,ival,mDefEps) || abs(ival)>cMaxNrClasses )
-		    return false;
-//		nrint++;
-//		if ( nrint > sMaxNrVals )
-//		    break;
-	    }
-
-    return true;
 }
 
 

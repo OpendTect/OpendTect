@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "visobject.h"
 
-#include "attribdatacubes.h"
 #include "attribsel.h"
 #include "attribdataholder.h"
 #include "trckeyzsampling.h"
@@ -30,12 +29,11 @@ namespace EM { class EdgeLineSet; }
 namespace Attrib { class SelSpec; }
 namespace visBase { class Dragger; }
 
+class RegularSeisDataPack;
 
 namespace visSurvey
 {
 
-/*!\brief
-*/
 class EMObjectDisplay;
 class MPEEditor;
 
@@ -48,15 +46,15 @@ public:
 
     bool			isLegalClick() const;
 
-    bool                        isCtrlClicked() const; 
-    bool                        isShiftClicked() const;
-    bool                        isAltClicked() const;
+    bool			isCtrlClicked() const;
+    bool			isShiftClicked() const;
+    bool			isAltClicked() const;
     const EM::PosID&		getNode() const;
     const Coord3&		getPos() const;
     int				getObjID() const;
     const TrcKeyZSampling&		getObjCS() const;
     DataPack::ID		getObjDataPackID() const;
-    const Attrib::DataCubes*	getObjData() const;
+    const RegularSeisDataPack*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
     Pos::GeomID 		getGeomID() const;
@@ -77,7 +75,7 @@ protected:
     void			setObjID(int);
     void			setObjCS(const TrcKeyZSampling&);
     void			setObjDataPackID(DataPack::ID);
-    void			setObjData(const Attrib::DataCubes*);
+    void			setObjData(const RegularSeisDataPack*);
     void			setObjDataSelSpec(const Attrib::SelSpec&);
 
     void			setObjLineSet(const MultiID&);
@@ -93,7 +91,7 @@ protected:
     Coord3				clickedpos_;
     int					clickedobjid_;
     TrcKeyZSampling			clickedcs_;
-    ConstRefMan<Attrib::DataCubes>	attrdata_;
+    const RegularSeisDataPack*		attrdata_;
     Attrib::SelSpec			attrsel_;
 
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
@@ -152,9 +150,7 @@ protected:
     const char*			trackertype_;
 };
 
-
-
-};
+} // namespace visSurvey
 
 #endif
 

@@ -12,40 +12,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "attriblinebuffer.h"
 #include "attribdataholder.h"
-#include "attribdatacubes.h"
 #include "datainpspec.h"
-#include "datapack.h"
-#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "iopar.h"
-#include "keystrs.h"
-#include "linekey.h"
 #include "linesetposinfo.h"
-#include "multiid.h"
-#include "ptrman.h"
 #include "seis2ddata.h"
 #include "seisbounds.h"
 #include "seisbufadapters.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
 #include "seiscubeprov.h"
+#include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seisread.h"
 #include "seistrc.h"
 #include "seisselectionimpl.h"
-#include "seistrctr.h"
-#include "simpnumer.h"
-#include "statruncalc.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "posinfo2dsurv.h"
-#include "threadwork.h"
-#include "task.h"
-#include <math.h>
 
 
 namespace Attrib
@@ -371,14 +357,14 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
 #define mAdjustToAvailStep( dir )\
 {\
-    if ( res.hrg.step.dir>1 )\
+    if ( res.hsamp_.step_.dir>1 )\
     {\
 	float remain =\
-		( possiblevolume_->hsamp_.start_.dir - res.hsamp_.start_.dir ) %\
-			res.hrg.step.dir;\
+	   ( possiblevolume_->hsamp_.start_.dir - res.hsamp_.start_.dir ) %\
+			res.hsamp_.step_.dir;\
 	if ( !mIsZero( remain, 1e-3 ) )\
 	    res.hsamp_.start_.dir = possiblevolume_->hsamp_.start_.dir + \
-				mNINT32(remain +0.5) *res.hrg.step.dir;\
+				mNINT32(remain +0.5) *res.hsamp_.step_.dir;\
     }\
 }
 
@@ -499,7 +485,7 @@ bool StorageProvider::setMSCProvSelData()
 
     TrcKeyZSampling cs;
     cs.hsamp_.start_.inl() =
-	desiredvolume_->hsamp_.start_.inl() < storedvolume_.hsamp_.start_.inl() ?
+	desiredvolume_->hsamp_.start_.inl()<storedvolume_.hsamp_.start_.inl() ?
 	storedvolume_.hsamp_.start_.inl() : desiredvolume_->hsamp_.start_.inl();
     cs.hsamp_.stop_.inl() =
 	desiredvolume_->hsamp_.stop_.inl() > storedvolume_.hsamp_.stop_.inl() ?
@@ -508,10 +494,10 @@ bool StorageProvider::setMSCProvSelData()
 	desiredvolume_->hsamp_.stop_.crl() > storedvolume_.hsamp_.stop_.crl() ?
 	storedvolume_.hsamp_.stop_.crl() : desiredvolume_->hsamp_.stop_.crl();
     cs.hsamp_.start_.crl() =
-	desiredvolume_->hsamp_.start_.crl() < storedvolume_.hsamp_.start_.crl() ?
+	desiredvolume_->hsamp_.start_.crl()<storedvolume_.hsamp_.start_.crl() ?
 	storedvolume_.hsamp_.start_.crl() : desiredvolume_->hsamp_.start_.crl();
-    cs.zsamp_.start = desiredvolume_->zsamp_.start < storedvolume_.zsamp_.start ?
-		    storedvolume_.zsamp_.start : desiredvolume_->zsamp_.start;
+    cs.zsamp_.start = desiredvolume_->zsamp_.start < storedvolume_.zsamp_.start
+		? storedvolume_.zsamp_.start : desiredvolume_->zsamp_.start;
     cs.zsamp_.stop = desiredvolume_->zsamp_.stop > storedvolume_.zsamp_.stop ?
 		     storedvolume_.zsamp_.stop : desiredvolume_->zsamp_.stop;
 
@@ -537,7 +523,7 @@ bool StorageProvider::setTableSelData()
     seldata->extendZ( extraz_ );
     SeisTrcReader& reader = mscprov_->reader();
     if ( reader.is2D() )
-	seldata->setGeomID( Survey::GM().cUndefGeomID() );
+	seldata->setGeomID( geomid_ );
 
     reader.setSelData( seldata );
     SeisTrcTranslator* transl = reader.seisTranslator();
@@ -847,7 +833,7 @@ Pos::GeomID StorageProvider::getGeomID() const
 { return geomid_; }
 
 
-void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
+void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
 {
     if ( !mscprov_ ) return;
     const SeisTrc* trc = mscprov_->get(0,0);
@@ -856,14 +842,15 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
     trcrange.widen( 0.001f * trc->info().sampling.step );
     const BinID bid = trc->info().binid;
-    if ( !dc->includes(bid) )
+    if ( !dc->sampling().hsamp_.includes(bid) )
 	return;
 
-    const int inlidx = dc->inlsampling_.nearestIndex( bid.inl() );
-    const int crlidx = dc->crlsampling_.nearestIndex( bid.crl() );
-    for ( int idz=0; idz<dc->getZSz(); idz++ )
+    const TrcKeyZSampling& sampling = dc->sampling();
+    const int inlidx = sampling.hsamp_.lineRange().nearestIndex( bid.inl() );
+    const int crlidx = sampling.hsamp_.trcRange().nearestIndex( bid.crl() );
+    for ( int zidx=0; zidx<sampling.nrZ(); zidx++ )
     {
-	const float curt = (float)((dc->z0_+ (float)(idz)) * dc->zstep_);
+	const float curt = sampling.zsamp_.atIndex( zidx );
 	int cubeidx = -1;
 	for ( int idx=0; idx<outputinterest_.size(); idx++ )
 	{
@@ -871,7 +858,8 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 		continue;
 
 	    cubeidx++;
-	    if ( cubeidx >= dc->nrCubes() && !dc->addCube(mUdf(float)) )
+	    if ( cubeidx >= dc->nrComponents() &&
+		    !dc->addComponent(sKey::EmptyString()) )
 		continue;
 
 	    if ( !trcrange.includes(curt,false) )
@@ -880,7 +868,7 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 	    //the component index inthe trace is depending on outputinterest_,
 	    //thus is the same as cubeidx
 	    const float val = trc->getValue( curt, cubeidx );
-	    dc->setValue( cubeidx, inlidx, crlidx, idz, val );
+	    dc->data(cubeidx).set( inlidx, crlidx, zidx, val );
 	}
     }
 }

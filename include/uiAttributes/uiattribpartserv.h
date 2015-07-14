@@ -15,28 +15,21 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "uiapplserv.h"
 
-#include "attribdescid.h"
 #include "attribsel.h"
 #include "datapack.h"
 #include "menuhandler.h"
-#include "multiid.h"
-#include "position.h"
 #include "survgeom.h"
 #include "timer.h"
 
-
 namespace Attrib
 {
-    class DataCubes;
     class Desc;
     class DescSet;
     class EngineMan;
-    class SelInfo;
     class SelSpec;
 };
 
 class BinIDValueSet;
-class BufferStringSet;
 class TrcKeyZSampling;
 class DataPointSetDisplayMgr;
 class RandomSeisDataPack;
@@ -45,7 +38,6 @@ class NLAModel;
 class DataPointSet;
 class RegularSeisDataPack;
 class SeisTrcBuf;
-class SeisTrcInfo;
 class TaskRunner;
 class uiAttribDescSetEd;
 class uiAttribCrossPlot;
@@ -53,8 +45,6 @@ class uiAttrSetMan;
 namespace ColTab { class MapperSetup; }
 namespace Pick { class Set; }
 namespace ZDomain { class Info; }
-template <class T> class Array3D;
-
 
 /*!
 \brief Service provider for application level - Attributes
@@ -117,7 +107,7 @@ public:
 
     DataPack::ID	createOutput(const TrcKeyZSampling&,DataPack::ID);
     const RegularSeisDataPack*	createOutput(const TrcKeyZSampling&,
-				          const Attrib::DataCubes* prevslcs=0);
+					 const RegularSeisDataPack* prevslcs=0);
     bool		createOutput(DataPointSet&,int firstcol =0);
     bool		createOutput(ObjectSet<DataPointSet>&,
 				     int firstcol =0);
@@ -126,8 +116,6 @@ public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TypeSet<BinID>* path,
 					    TypeSet<BinID>* trueknotspos);
-
-    bool		isDataClassified(const Array3D<float>&) const;
 
     Attrib::DescID	getStoredID(const MultiID&,bool is2d,int selout=-1);
     IOObj*		getIOObj(const Attrib::SelSpec&) const;
@@ -247,14 +235,14 @@ protected:
     DataPointSetDisplayMgr*	dpsdispmgr_;
 
     ColTab::MapperSetup*	evalmapperbackup_;
- 
-private:
-    RandomSeisDataPack*	      createRdmSeisDataPack(const Interval<float>& zrg,
-		              TypeSet<BinID>* path,
-			      TypeSet<BinID>* trueknotspos);
 
-    DataPack::ID	      create2DOutput(const TrcKeyZSampling&,
-					     const Pos::GeomID&,TaskRunner&);
+private:
+    RandomSeisDataPack* createRdmSeisDataPack(const Interval<float>& zrg,
+					      TypeSet<BinID>* path,
+					      TypeSet<BinID>* trueknotspos);
+
+    DataPack::ID		create2DOutput(const TrcKeyZSampling&,
+					       const Pos::GeomID&,TaskRunner&);
 				//!< To be removed. Use createOutput() instead.
 };
 

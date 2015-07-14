@@ -461,7 +461,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	if ( !trkplanecs.isEmpty() && trkplanecs.defaultDir()==cs.defaultDir() )
 	    continue;
 
-	if ( cs.hsamp_.includes(nodebid) && cs.zsamp_.includes(nodepos.z,false) )
+	if ( cs.hsamp_.includes(nodebid) && cs.zsamp_.includes(nodepos.z,false))
 	{
 	    info().setLegalClick( legalclick );
 	    info().setObjID( plane->id() );
@@ -576,7 +576,7 @@ DataPack::ID MPEClickInfo::getObjDataPackID() const
 { return datapackid_; }
 
 
-const Attrib::DataCubes* MPEClickInfo::getObjData() const
+const RegularSeisDataPack* MPEClickInfo::getObjData() const
 { return attrdata_; }
 
 
@@ -658,7 +658,7 @@ void MPEClickInfo::setObjDataPackID( DataPack::ID datapackid )
 { datapackid_ = datapackid; }
 
 
-void MPEClickInfo::setObjData( const Attrib::DataCubes* ad )
+void MPEClickInfo::setObjData( const RegularSeisDataPack* ad )
 { attrdata_ = ad; }
 
 

@@ -59,8 +59,8 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
     PtrMan<EngineMan> aem = createEngineMan();
 
     PtrMan<Processor> proc = dset_->is2D() ?
-			    aem->createScreenOutput2D( errmsg, *d2dh )
-			    : aem->createDataCubesOutput( errmsg, 0  );
+			    aem->createScreenOutput2D( errmsg, *d2dh ) :
+			    aem->createDataPackOutput( errmsg, 0  );
     if ( !proc )
     {
 	uiMSG().error( errmsg );
@@ -131,7 +131,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
     sampling.hsamp_.start_.inl() = sampling.hsamp_.stop_.inl() = geomid_;
 
     RegularSeisDataPack* regsdp = new RegularSeisDataPack(
-	    				SeisDataPack::categoryStr(true,true) );
+					SeisDataPack::categoryStr(true,true) );
     regsdp->setSampling( sampling );
     regsdp->addComponent( "autocorrelation" );
     mDeclareAndTryAlloc(

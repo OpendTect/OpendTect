@@ -56,7 +56,7 @@ FlatDataPack* uiAttribPanel::computeAttrib()
 
     const bool is2d = dset_->is2D();
     PtrMan<Processor> proc = is2d ? aem->createScreenOutput2D( errmsg, *d2dh )
-				  : aem->createDataCubesOutput( errmsg, 0  );
+				  : aem->createDataPackOutput( errmsg, 0  );
     if ( !proc )
     {
 	uiMSG().error( errmsg );

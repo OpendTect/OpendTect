@@ -13,8 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attriboutput.h"
 #include "attribprovider.h"
-#include "trckeyzsampling.h"
-#include "linekey.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
 #include "survgeom2d.h"
@@ -131,9 +129,9 @@ void Processor::useFullProcess( int& res )
 	    firstpos.inl() = step.inl()/abs(step.inl())>0 ? 
 			   provider_->getDesiredVolume()->hsamp_.start_.inl() :	
 			   provider_->getDesiredVolume()->hsamp_.stop_.inl();
-	    firstpos.crl() = step.crl()/abs(step.crl())>0 ?
-			   provider_->getDesiredVolume()->hsamp_.start_.crl() :
-			   provider_->getDesiredVolume()->hsamp_.stop_.crl();
+	    firstpos.crl() = step.crl()/abs(step.crl())>0
+		? provider_->getDesiredVolume()->hsamp_.start_.crl()
+		: provider_->getDesiredVolume()->hsamp_.stop_.crl();
 	}
 	provider_->resetMoved();
 	res = provider_->moveToNextTrace( firstpos, true );
@@ -242,8 +240,8 @@ void Processor::useSCProcess( int& res )
     if ( res == 0 ) return;
 
     for ( int idx=0; idx<outputs_.size(); idx++ )
-	provider_->fillDataCubesWithTrc( 
-			outputs_[idx]->getDataCubes(provider_->getRefStep() ) );
+	provider_->fillDataPackWithTrc(
+			outputs_[idx]->getDataPack(provider_->getRefStep()) );
 
     nrdone_++;
 }
@@ -284,8 +282,8 @@ void Processor::init()
     for ( int idx=0; idx<outputs_.size(); idx++ )
 	outputs_[idx]->adjustInlCrlStep( *provider_->getPossibleVolume() );
 
-    mDynamicCastGet( DataCubesOutput*, dcoutp, outputs_[0] );
-    if ( dcoutp && provider_->getDesc().isStored() )
+    mDynamicCastGet(const DataPackOutput*,dpoutput,outputs_[0]);
+    if ( dpoutput && provider_->getDesc().isStored() )
     	useshortcuts_ = true;
     else
 	provider_->prepareForComputeData();
@@ -420,7 +418,8 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 	{
 	    possvol.hsamp_.stop_.inl() = possvol.hsamp_.start_.inl() = 0;
 	    possvol.hsamp_.start_.crl() = 0;
-	    possvol.hsamp_.stop_.crl() = INT_MAX/3*2;//unlikely;still, a limitation.
+	    possvol.hsamp_.stop_.crl() = INT_MAX/3*2;
+			//unlikely;still, a limitation.
 	    globalcs = possvol;
 	}
 

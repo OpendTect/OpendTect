@@ -476,6 +476,13 @@ const float* SeisDataPack::getTrcData( int comp, int globaltrcidx ) const
 }
 
 
+void SeisDataPack::setComponentName( const char* name, int component )
+{
+    if ( componentnames_.validIdx(component) )
+	componentnames_[component]->set( name );
+}
+
+
 const char* SeisDataPack::getComponentName( int component ) const
 {
     return componentnames_.validIdx(component)

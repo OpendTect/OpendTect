@@ -14,19 +14,18 @@ ________________________________________________________________________
 -*/
 
 #include "volumeprocessingmod.h"
-#include "attribdatacubes.h"
 #include "multiid.h"
 #include "executor.h"
 #include "factory.h"
 #include "refcount.h"
 #include "samplingdata.h"
 #include "threadlock.h"
+#include "trckeysampling.h"
 #include "uistrings.h"
 
 class RegularSeisDataPack;
 class VelocityDesc;
 class Executor;
-class TrcKeySampling;
 template <class T> class ValueSeries;
 
 namespace VolProc

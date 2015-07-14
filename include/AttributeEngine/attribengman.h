@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class BufferStringSet;
+class DataPackMgr;
 class TrcKeyZSampling;
 class DataPointSet;
 class Executor;
@@ -30,13 +31,11 @@ class RegularSeisDataPack;
 class SeisTrcBuf;
 class SeisTrcInfo;
 
-
 namespace Attrib
 {
 class SeisTrcStorOutput;
 class Desc;
 class DescSet;
-class DataCubes;
 class Processor;
 class Data2DHolder;
 
@@ -81,13 +80,14 @@ public:
     static DescID	createEvaluateADS(DescSet&, const TypeSet<DescID>&,
 					  uiString&);
 
-    Processor*		createDataCubesOutput(uiString& errmsg,
-				      	      const DataCubes* cached_data = 0);
+    Processor*		createDataPackOutput(uiString& errmsg,
+				      const RegularSeisDataPack* cached_data=0);
 			//!< Give the previous calculated data in cached data
 			//!< and some parts may not be recalculated.
 
     const RegularSeisDataPack*	getOutput(const Processor&);
-    const RegularSeisDataPack*	getOutput(const ObjectSet<const DataCubes>&);
+    const RegularSeisDataPack*	getOutput(
+				   const ObjectSet<const RegularSeisDataPack>&);
 
     Executor*		createFeatureOutput(const BufferStringSet& inputs,
 					    const ObjectSet<BinIDValueSet>&);
@@ -127,9 +127,11 @@ protected:
     const DescSet*	inpattrset_;
     const NLAModel*	nlamodel_;
     TrcKeyZSampling&	tkzs_;
-    const DataCubes*	cache_;
     float		udfval_;
     Pos::GeomID		geomid_;
+    DataPackMgr&	dpm_;
+
+    const RegularSeisDataPack*	cache_;
 
     DescSet*		procattrset_;
     int			curattridx_;

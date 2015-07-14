@@ -353,10 +353,11 @@ void uiFlatViewer::setAnnotChoice( int sel )
 
     FlatView::Annotation::AxisData& x1axisdata = appearance().annot_.x1_;
     BufferStringSet altdim0keys; fdp->getAltDim0Keys( altdim0keys );
-    x1axisdata.name_ = altdim0keys.validIdx(sel) ? altdim0keys.get(sel).buf()
-						 : fdp->dimName(true);
+    const int altdim0 = altdim0keys.validIdx(sel) ? sel : -1;
+    x1axisdata.name_ = altdim0>=0 ? altdim0keys.get(altdim0).buf()
+				  : fdp->dimName(true);
     x1axisdata.annotinint_ = fdp->dimValuesInInt( x1axisdata.name_ );
-    axesdrawer_.altdim0_ = sel;
+    axesdrawer_.altdim0_ = altdim0;
 }
 
 

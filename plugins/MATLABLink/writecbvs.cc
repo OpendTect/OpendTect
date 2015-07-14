@@ -12,8 +12,6 @@ ________________________________________________________________________
 #include "mex.h"
 
 #include "arraynd.h"
-#include "attribdatacubes.h"
-#include "attribdatacubeswriter.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
@@ -23,6 +21,8 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "oddirs.h"
 #include "ranges.h"
+#include "seisdatapack.h"
+#include "seisdatapackwriter.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "threadwork.h"
@@ -109,9 +109,12 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
     mexPrintf( tkzsinfo.buf() ); mexPrintf( "\n" );
     mexPrintf( "Nr of traces: %d\n", tkzs.hsamp_.totalNr() );
 
-    Attrib::DataCubes* output = new Attrib::DataCubes;
-    output->ref();
-    output->setSizeAndPos( tkzs );
+    const char* category = SeisDataPack::categoryStr(
+				tkzs.defaultDir()!=TrcKeyZSampling::Z, false );
+    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    DataPackRef<RegularSeisDataPack> output =
+	dpm.addAndObtain( new RegularSeisDataPack(category) );
+    output->setSampling( tkzs );
 
     TypeSet<int> cubeidxs;
     for ( int idx=1; idx<nrhs; idx++ )
@@ -121,13 +124,13 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] )
 
 	const int cubeidx = idx-1;
 	cubeidxs += cubeidx;
-	output->addCube();
-	mxArrayCopier copier( *mxarr, output->getCube(cubeidx) );
+	output->addComponent( sKey::EmptyString() );
+	mxArrayCopier copier( *mxarr, output->data(cubeidx) );
 	copier.init();
 	copier.execute();
     }
 
-    Attrib::DataCubesWriter writer( ioobj->key(), *output, cubeidxs );
+    SeisDataPackWriter writer( ioobj->key(), *output, cubeidxs );
     if ( !writer.execute() )
 	mErrRet( "Error in writing data" );
 
