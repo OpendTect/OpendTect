@@ -11,7 +11,7 @@ ________________________________________________________________________
 
 #include "mex.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
