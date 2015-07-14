@@ -62,7 +62,7 @@ void BaseHorizon3DExtender::preallocExtArea()
 {
     const TrcKeySampling hrg = getExtBoundary().hsamp_;
     Geometry::BinIDSurface* bidsurf = horizon_.geometry().sectionGeometry(sid_);
-    if ( bidsurf ) bidsurf->expandWithUdf(hrg.start_,hrg.stop_);
+    if ( bidsurf ) bidsurf->expandWithUdf( hrg.start_,hrg.stop_ );
 }
 
 
