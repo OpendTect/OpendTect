@@ -11,16 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseiscbvsimpfromothersurv.h"
 
-//#include "arrayndalgo.h"
-//#include "cbvsreadmgr.h"
 #include "ctxtioobj.h"
-//#include "seistrc.h"
-//#include "seiscbvs.h"
-//#include "seistrctr.h"
-//#include "seiswrite.h"
-//#include "survinfo.h"
-//#include "odcomplex.h"
-#include "seiscbvsimpfromothersurv.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -39,7 +30,7 @@ static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube from other survey"),
 		       tr("Specify import parameters"),
-                       mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID) ))
+		       mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID)))
     , import_(0)
 {
     setCtrlStyle( RunAndClose );
@@ -48,7 +39,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     finpfld_->setReadOnly();
     CallBack cb = mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,cubeSel);
     uiPushButton* selbut = new uiPushButton( this, uiStrings::sSelect(false),
-                                             cb, true );
+					     cb, true );
     selbut->attach( rightOf, finpfld_ );
 
     subselfld_ = new uiSeis3DSubSel( this, Seis::SelSetup( false ) );
