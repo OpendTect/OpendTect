@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "emioobjinfo.h"
 #include "emundo.h"
 #include "executor.h"
@@ -32,6 +33,21 @@ EM::EMManager& EM::EMM()
     return *emm;
 }
 
+bool EM::canOverwrite( const MultiID& mid )
+{
+    const IOObj* ioobj = IOM().get( mid );
+    if ( !ioobj )
+	return true;
+    PtrMan<Translator> trans = ioobj->createTranslator();
+    if ( !trans )
+	return false;
+    
+    mDynamicCastGet(dgbEMHorizon3DTranslator*,dgbem3dtr,trans.ptr());
+    if ( !dgbem3dtr  )
+	return false;
+    
+    return true;
+}
 
 namespace EM
 {

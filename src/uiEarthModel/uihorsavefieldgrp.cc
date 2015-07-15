@@ -41,7 +41,10 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     if ( horizon_ ) horizon_->ref();
 
     savefld_ = new uiGenInput( this, "Save horizon",
-			       BoolInpSpec(true,"As new","Overwrite") );
+	    		       BoolInpSpec(true,"As new","Overwrite") );
+    savefld_->setSensitive( horizon_ ? EM::canOverwrite(horizon_->multiID())
+				     : false );
+
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
     IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
