@@ -19,6 +19,7 @@ ValSeriesTracker::ValSeriesTracker()
     , targetvs_(0)
     , targetdepth_(mUdf(float))
     , targetsize_(0)
+    , targetvalue_(mUdf(float))
 {}
 
 
@@ -41,6 +42,7 @@ void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz,
     targetvs_ = vs;
     targetdepth_ = depth;
     targetsize_ = sz;
+    targetvalue_ = mUdf(float);
 }
 
 
@@ -300,8 +302,8 @@ bool EventTracker::track()
 	{
 	    const SampledFunctionImpl<float,ValueSeries<float> >
 				sampfunc( *targetvs_, targetsize_);
-	    const float resamp = sampfunc.getValue( targetdepth_ );
-	    quality_ = (resamp-threshold)/(refampl-threshold);
+	    targetvalue_ = sampfunc.getValue( targetdepth_ );
+	    quality_ = (targetvalue_-threshold)/(refampl-threshold);
 	    if ( quality_>1 ) quality_ = 1;
 	    else if ( quality_<0 ) quality_ = 0;
 	}
@@ -506,6 +508,8 @@ bool EventTracker::snap( float threshold )
 		? upevent.pos : dnevent.pos;
 	else
 	    eventpos = upfound ? upevent.pos : dnevent.pos;
+
+	targetvalue_ = 0;
     }
     else if ( evtype_==VSEvent::Max || evtype_==VSEvent::Min )
     {
@@ -577,6 +581,9 @@ bool EventTracker::snap( float threshold )
 	return false;
 
     targetdepth_ = eventpos;
+    const SampledFunctionImpl<float,ValueSeries<float> >
+			sampfunc( *targetvs_, targetsize_);
+    targetvalue_ = sampfunc.getValue( targetdepth_ );
     return true;
 }
 

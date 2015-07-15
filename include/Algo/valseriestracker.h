@@ -40,6 +40,7 @@ public:
     virtual bool	track()				= 0;
 			/*!<Calculates a new value for targetdepth_. */
 
+    virtual float	targetValue() const		{ return targetvalue_; }
     virtual float	targetDepth() const		{ return targetdepth_; }
     virtual float	quality() const			{ return 1; }
 
@@ -54,6 +55,7 @@ protected:
     const ValueSeries<float>*	targetvs_;
     float			targetdepth_;
     int				targetsize_;
+    float			targetvalue_;
 };
 
 
