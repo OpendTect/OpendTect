@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QImage>
 #include <QColor>
 #include <QColormap>
-#include <QImageWriter>
 
 mUseQtnamespace
 
@@ -54,7 +53,7 @@ uiRGBArray::uiRGBArray( const char* fnm )
 
 
 uiRGBArray::~uiRGBArray()
-{ 
+{
     delete qimg_;
 }
 
@@ -65,7 +64,7 @@ bool uiRGBArray::setSize( int d0, int d1 )
 	return true;
 
     delete qimg_;
-    qimg_ = new QImage( d0, d1,withalpha_ ? QImage::Format_ARGB32 
+    qimg_ = new QImage( d0, d1,withalpha_ ? QImage::Format_ARGB32
 	    				  : QImage::Format_RGB32 );
 
     return true;
@@ -85,7 +84,7 @@ Color uiRGBArray::get( int i0, int i1 ) const
 {
     if ( qimg_->width()<=i0 || qimg_->height()<=i1 )
 	return Color::NoColor();
-    
+
     Color c; c.rgb() = qimg_->pixel( i0, i1 );
     return c;
 }
@@ -127,14 +126,6 @@ bool uiRGBArray::save(const char* fnm,const char* fmt,
 		      int quality ) const
 {
     return qimg_->save( fnm, fmt, quality );
-}
-
-
-void uiRGBArray::supportedImageFormats( BufferStringSet& list )
-{
-    QList<QByteArray> qlist = QImageWriter::supportedImageFormats();
-    for ( int idx=0; idx<qlist.size(); idx++ )
-	list.add( qlist[idx].constData() );
 }
 
 

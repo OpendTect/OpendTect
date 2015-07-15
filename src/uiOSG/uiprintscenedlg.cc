@@ -58,7 +58,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	    scenenms.add( viewers_[idx]->getScene()->name() );
 
 	scenefld_ = new uiLabeledComboBox( this, scenenms,
-                    tr("Make snapshot of") );
+					   tr("Make snapshot of") );
 	scenefld_->box()->selectionChanged.notify(
 					mCB(this,uiPrintSceneDlg,sceneSel) );
 	mAttachToAbove( scenefld_->attachObj() );
@@ -98,7 +98,7 @@ void uiPrintSceneDlg::getSupportedFormats( const char** imagefrmt,
 					   BufferString& filters )
 {
     BufferStringSet supportedimageformats;
-    uiPixmap::supportedImageFormats( supportedimageformats );
+    supportedImageFormats( supportedimageformats );
 
     int idx = 0;
     while ( imagefrmt[idx] )
@@ -167,7 +167,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 		  or resolution" );
 	return false;
     }
-    
+
     if ( !filenameOK() )
 	return false;
 
@@ -177,8 +177,8 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
     ui3DViewer* vwr = const_cast<ui3DViewer*>(viewers_[vwridx]);
 
-    const float scenesDPI =  vwr->getScenesPixelDensity();
-    const float renderDPI =  dpifld_->box()->getValue();
+    const float scenesDPI = vwr->getScenesPixelDensity();
+    const float renderDPI = dpifld_->box()->getFValue();
 
     const bool changedpi = scenesDPI != renderDPI;
 
@@ -193,11 +193,11 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     ui3DViewer::WheelMode curmode = vwr->getWheelDisplayMode();
     vwr->setWheelDisplayMode( ui3DViewer::Never );
-    osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage( 
+    osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage(
 	hudview, FOREGROUND_TRANSPARENCY );
     vwr->setWheelDisplayMode( curmode );
 
-    osg::ref_ptr<osg::Image> mainviewimage = offScreenRenderViewToImage( 
+    osg::ref_ptr<osg::Image> mainviewimage = offScreenRenderViewToImage(
 	mainview,BACKGROUND_TRANSPARENCY );
 
     if ( changedpi )

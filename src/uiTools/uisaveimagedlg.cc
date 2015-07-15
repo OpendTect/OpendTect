@@ -37,14 +37,13 @@ static const char* sKeySnapshot = "snapshot";
 BufferString uiSaveImageDlg::dirname_;
 
 static const char* imageformats[] =
-{ "jpg", "png", "bmp", "xbm", "xpm", "ps", "eps", 0 };
+{ "jpg", "png", "bmp", "xpm", "ps", "eps", 0 };
 
 static const char* imageformatdescs[] =
 {
     "JPEG (*.jpg *.jpeg)",
     "PNG (*.png)",
     "Bitmap (*.bmp)",
-    "XBM (*.xbm)",
     "XPM (*.xpm)",
     "Postscript (*.ps)",
     "EPS (*.eps)",
@@ -59,8 +58,8 @@ static StepInterval<int> maximum_dpi_range(1,9999,1);
 
 uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
     : uiDialog(p,uiDialog::Setup(tr("Create snapshot"),mNoDlgTitle,
-                                 mODHelpKey(mPrintSceneDlgHelpID) )
-         .savebutton(true))
+				 mODHelpKey(mPrintSceneDlgHelpID))
+		 .savebutton(true))
     , sizesChanged(this)
     , heightfld_(0)
     , screendpi_(0)
@@ -71,8 +70,8 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
 {
     if ( withclipbrd )
     {
-	cliboardselfld_ = new uiCheckBox( this,
-                                          tr("Copy to Clipboard (Ctrl-C)") );
+	cliboardselfld_ =
+		new uiCheckBox( this, tr("Copy to Clipboard (Ctrl-C)") );
 	cliboardselfld_->setChecked( false );
 	cliboardselfld_->activated.notify(
 		mCB(this,uiSaveImageDlg,copyToClipBoardClicked) );
@@ -155,9 +154,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     if ( withuseparsfld_ )
     {
 	useparsfld_ = new uiGenInput( this, tr("Get size from"),
-				      BoolInpSpec(true,
-                                                  uiStrings::sSettings(true),
-                                                  tr("Screen")) );
+		BoolInpSpec(true,uiStrings::sSettings(true),tr("Screen")) );
 	useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
 	if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
     }
@@ -205,7 +202,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     lockfld_->attach( alignedBelow, unitfld_ );
 
     dpifld_ = new uiLabeledSpinBox( this, tr("Resolution (dpi)"),
-                                    (int)screendpi_ );
+				    (int)screendpi_ );
     dpifld_->box()->setNrDecimals( 0 );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
@@ -391,7 +388,7 @@ bool uiSaveImageDlg::filenameOK() const
     {
 	uiString msg = tr("The file %1 is not writable").arg(filename);
 	    uiMSG().error(msg);
-	    return false;	
+	    return false;
     }
 
     return true;

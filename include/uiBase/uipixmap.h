@@ -63,7 +63,6 @@ public:
 			     int quality=-1) const;
 
     static bool		isPresent(const char*);
-    static void		supportedImageFormats(BufferStringSet&);
 
 protected:
 
