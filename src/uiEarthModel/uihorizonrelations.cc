@@ -132,6 +132,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 			       BoolInpSpec(true,"As new","Overwrite") );
     savefld_->valuechanged.notify( mCB(this,HorizonModifyDlg,saveCB) );
     savefld_->attach( alignedBelow, modefld_ );
+    savefld_->setSensitive( EM::canOverwrite(mid1) );
 
     ctio_->ctxt.forread = false;
     objfld_ = new uiIOObjSel( this, *ctio_, "Horizon" );
@@ -159,9 +160,14 @@ void saveCB( CallBacker* )
 void horSel( CallBacker* )
 {
     const bool topisstatic = horizonfld_->getIntValue() == 1;
-    BufferString hornm = EM::EMM().objectName( topisstatic ? mid2_ : mid1_ );
+    const MultiID& targetmid = topisstatic ? mid2_ : mid1_;
+    BufferString hornm = EM::EMM().objectName( targetmid );
     hornm += "_edited";
     objfld_->setInputText( hornm );
+    const bool canoverwrite = EM::canOverwrite( targetmid );
+    if ( !canoverwrite ) savefld_->setValue( true );;
+    savefld_->setSensitive( canoverwrite );
+    saveCB( 0 );
 }
 
 
