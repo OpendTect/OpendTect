@@ -366,10 +366,7 @@ void uiSeisPartServer::fillPar( IOPar& par ) const
 
 bool uiSeisPartServer::usePar( const IOPar& par )
 {
-    TypeSet<MultiID> mids;
-    Seis::PLDM().getIDs( mids );
-    for ( int idx=0; idx<mids.size(); idx++ )
-	Seis::PLDM().remove( mids[idx] );
+    Seis::PLDM().removeAll();
 
     PtrMan<IOPar> plpar = par.subselect( sKeyPreLoad() );
     if ( !plpar ) return true;

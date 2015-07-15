@@ -310,6 +310,14 @@ void Seis::PreLoadDataManager::remove( int dpid )
 }
 
 
+void Seis::PreLoadDataManager::removeAll()
+{
+    TypeSet<MultiID> mids = mids_;
+    for ( int idx=0; idx<mids.size(); idx++ )
+	remove( mids[idx] );
+}
+
+
 DataPack* Seis::PreLoadDataManager::get( const MultiID& mid )
 {
     const int idx = mids_.indexOf( mid );
