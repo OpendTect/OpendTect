@@ -1599,7 +1599,7 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 		msg.addNewLine().add( warnmsg );
 
 	    msg.addNewLine().add( "Auto-correct?" ).addNewLine();
-	    msg.add( "(New model will only by saved on disk on successful "
+	    msg.add( "(New model will only be saved on disk on successful "
 		     "exit of the editor" );
 	    needrestore = !uiMSG().askGoOn( msg );
 	    if ( !needrestore )
