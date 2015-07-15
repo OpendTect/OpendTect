@@ -81,6 +81,8 @@ public:
     void		add(const MultiID&,DataPack*);
     void		remove(const MultiID&);
     void		remove(int dpid);
+    void		removeAll();
+
     DataPack*		get(const MultiID&);
     DataPack*		get(int dpid);
     const DataPack*	get(const MultiID&) const;
