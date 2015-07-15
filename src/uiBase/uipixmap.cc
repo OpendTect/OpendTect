@@ -92,7 +92,7 @@ void uiPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
 {
     if ( !qpixmap_ ) qpixmap_ = new QPixmap;
     *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(),
-                                    Qt::OrderedAlphaDither );
+				    Qt::OrderedAlphaDither );
 }
 
 
@@ -116,7 +116,7 @@ void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
     const bool validsz = width()>=2 && height()>=2;
     if ( seq.isEmpty() || !validsz )
     {
-        qpixmap_->fill( QColor(0,0,0,0) );
+	qpixmap_->fill( QColor(0,0,0,0) );
 	return;
     }
 
@@ -154,12 +154,6 @@ bool uiPixmap::save( const char* fnm, const char* fmt, int quality ) const
 bool uiPixmap::isPresent( const char* icnm )
 {
     return OD::IconFile::isPresent( icnm );
-}
-
-
-void uiPixmap::supportedImageFormats( BufferStringSet& list )
-{
-    return uiRGBArray::supportedImageFormats( list );
 }
 
 

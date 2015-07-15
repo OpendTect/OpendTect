@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 BufferString uiWindowGrabDlg::dirname_ = "";
 
 static const char* imageformats[] =
-{ "jpg", "png", "bmp", "ppm", "xpm", "xbm", 0 };
+{ "jpg", "png", "bmp", "ppm", "xpm", 0 };
 
 static const char* filters[] =
 {
@@ -38,7 +38,6 @@ static const char* filters[] =
     "Bitmap (*.bmp)",
     "PPM (*.ppm)",
     "XPM (*.xpm)",
-    "XBM (*.xbm)",
     0
 };
 

@@ -19,33 +19,33 @@ mFDQtclass(QImage)
 
 
 mExpClass(uiBase) uiRGBArray : public OD::RGBImage
-{ mODTextTranslationClass(uiRGBArray);
+{ mODTextTranslationClass(uiRGBArray)
 public:
 
-                        uiRGBArray(bool withalpha);
+			uiRGBArray(bool withalpha);
 			uiRGBArray(const OD::RGBImage&);
-                        uiRGBArray(const char* filename);
+			uiRGBArray(const char* filename);
     virtual		~uiRGBArray();
 
     virtual Color	get(int,int) const;
     virtual bool	set(int,int,const Color&);
 
-    virtual unsigned char*	    getData();
-    virtual const unsigned char*    getData() const;
+    virtual unsigned char*		getData();
+    virtual const unsigned char*	getData() const;
 
     virtual char	nrComponents() const	{ return withalpha_ ? 4 : 3; }
     virtual int		getSize(bool xdir) const;
     virtual bool	setSize(int,int);	//!< destroys whatever is there
 
-    bool                reSize(int,int);	//!< inter/extrapolates
+    bool		reSize(int,int);	//!< inter/extrapolates
     void		clear(const Color&);
+    void		enableAlpha( bool yn )	{ withalpha_ = yn; }
 
     bool		save(const char* fnm,const char* fmt=0,
 			     int quality=-1) const;
-    static void 	supportedImageFormats(BufferStringSet&);
 
-    const mQtclass(QImage&) qImage() const	{ return *qimg_; } ;
-    mQtclass(QImage&)	qImage()		{ return *qimg_; } ;
+    const mQtclass(QImage&) qImage() const	{ return *qimg_; }
+    mQtclass(QImage&)	qImage()		{ return *qimg_; }
 
 protected:
 
@@ -56,14 +56,14 @@ protected:
 
 
 mExpClass(uiBase) uiRGBImageLoader : public OD::RGBImageLoader
-{ mODTextTranslationClass(uiRGBImageLoader);
+{ mODTextTranslationClass(uiRGBImageLoader)
 public:
-			    
-    static void		    initClass();
+
+    static void		initClass();
 
 private:
-			    uiRGBImageLoader();
-    OD::RGBImage*	    loadImage(const char*, uiString&) const;
+			uiRGBImageLoader();
+    OD::RGBImage*	loadImage(const char*,uiString&) const;
 };
 
 #endif
