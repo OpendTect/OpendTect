@@ -18,26 +18,30 @@ ________________________________________________________________________
 
 class IOObj;
 class uiRandomLinePolyLineDlg;
+namespace Geometry { class RandomLineSet; }
 
 mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
     bool load(const IOObj&,int); \
-    const IOObj* selRandomLine(); \
+    bool addStored(int); \
     void genRandLine(int); \
-    void genRandLineFromWell();\
-    void genRandLineFromTable();\
-    void loadRandLineFromWell(CallBacker*);\
-    void genRandomLineFromPickPolygon();\
-    void rdlPolyLineDlgCloseCB(CallBacker*);\
+    void genFromContours(); \
+    void genFromExisting(); \
+    void genFromPolygon(); \
+    void genFromTable(); \
+    void genFromWell(); \
+    void loadRandLineFromWell(CallBacker*); \
+    void genFromPicks(); \
+    void rdlPolyLineDlgCloseCB(CallBacker*); \
     void removeChild(uiTreeItem*);\
     uiRandomLinePolyLineDlg* rdlpolylinedlg_;
     mMenuOnAnyButton
-);
+)
 
-namespace visSurvey { class RandomTrackDisplay; };
+namespace visSurvey { class RandomTrackDisplay; }
 
 
 mExpClass(uiODMain) uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODRandomLineTreeItemFactory);
+{ mODTextTranslationClass(uiODRandomLineTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -47,17 +51,21 @@ public:
 
 
 mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODRandomLineTreeItem);
+{ mODTextTranslationClass(uiODRandomLineTreeItem)
 public:
-    enum Type		{ Default, Empty, RGBA };
-    			uiODRandomLineTreeItem(int displayid,Type tp=Empty);
+    enum Type		{ Empty, Select, Default, RGBA };
+
+			uiODRandomLineTreeItem(int displayid,Type tp=Empty);
+			uiODRandomLineTreeItem(const Geometry::RandomLineSet&,
+					       Type=Empty);
     bool		init();
+    bool		displayDefaultData();
 
 protected:
 
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
-    void                changeColTabCB(CallBacker*);
+    void		changeColTabCB(CallBacker*);
     void		remove2DViewerCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODRandomLineParentTreeItem).name(); }
@@ -71,6 +79,8 @@ protected:
     MenuItem		saveas2dmnuitem_;
     MenuItem		create2dgridmnuitem_;
     Type		type_;
+
+    const Geometry::RandomLineSet* rdlgeom_;
 };
 
 

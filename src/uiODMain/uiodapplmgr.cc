@@ -696,7 +696,18 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 }
 
 
-void uiODApplMgr::calShiftAttribute( int attrib, const Attrib::SelSpec& as )
+bool uiODApplMgr::getDefaultDescID( Attrib::DescID& descid ) const
+{
+    const MultiID mid = seisServer()->getDefaultDataID( false );
+    if ( mid.isUdf() )
+	return false;
+
+    descid = attrServer()->getStoredID( mid, false );
+    return descid.isValid();
+}
+
+
+void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
 {
     uiTreeItem* parent = sceneMgr().findItem( visserv_->getEventObjId() );
     if ( !parent ) return;
@@ -1222,7 +1233,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
     {
 	const Attrib::SelSpec as( emattrserv_->getAttribBaseNm(),
 				  emattrserv_->attribID() );
-	calShiftAttribute( attribidx, as );
+	calcShiftAttribute( attribidx, as );
     }
     else if ( evid == uiEMAttribPartServer::evHorizonShift() )
     {

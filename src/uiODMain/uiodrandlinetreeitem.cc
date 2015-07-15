@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodrandlinetreeitem.h"
 
+#include "attribdescsetsholder.h"
+#include "attribsel.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "mousecursor.h"
@@ -49,7 +51,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiRandomLinePolyLineDlg : public uiDialog
-{ mODTextTranslationClass(uiRandomLinePolyLineDlg);
+{ mODTextTranslationClass(uiRandomLinePolyLineDlg)
 public:
 uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
     : uiDialog(p,Setup("Create Random Line from Polyline",
@@ -101,6 +103,18 @@ protected:
 };
 
 
+static uiODRandomLineTreeItem::Type getType( int mnuid )
+{
+    switch ( mnuid )
+    {
+	case 0: return uiODRandomLineTreeItem::Empty; break;
+	case 2: return uiODRandomLineTreeItem::Select; break;
+	case 1: case 3: return uiODRandomLineTreeItem::RGBA; break;
+	default: return uiODRandomLineTreeItem::Empty;
+    }
+}
+
+
 // Tree Items
 uiTreeItem*
     uiODRandomLineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
@@ -112,7 +126,7 @@ uiTreeItem*
 
 
 uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
-    : uiODTreeItem( "Random line" )
+    : uiODTreeItem( "Random Line" )
     , rdlpolylinedlg_(0)
 {}
 
@@ -121,64 +135,60 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(tr("Add Empty")), 0 );
-    mnu.insertItem( new uiAction(tr("Add Stored ...")), 7 );
+    mnu.insertItem( new uiAction(tr("Add Stored ...")), 2 );
 
     uiMenu* rgbmnu =
 	new uiMenu( getUiParent(), uiStrings::sAddColBlend() );
-    rgbmnu->insertItem( new uiAction(tr("Empty")), 8 );
-    rgbmnu->insertItem( new uiAction(uiStrings::sStored(false)), 9 );
+    rgbmnu->insertItem( new uiAction(tr("Empty")), 1 );
+    rgbmnu->insertItem( new uiAction(uiStrings::sStored(false)), 3 );
     mnu.insertItem( rgbmnu );
 
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew(true) );
-    newmnu->insertItem( new uiAction(tr("Interactive  ...")), 6 );
-    newmnu->insertItem( new uiAction(tr("Along Contours ...")), 2 );
-    newmnu->insertItem( new uiAction(tr("From Existing ...")), 1 );
-    newmnu->insertItem( new uiAction(tr("From Polygon ...")), 3 );
-    newmnu->insertItem( new uiAction(tr("From Table ...")), 5 );
-    newmnu->insertItem( new uiAction(tr("From Wells ...")), 4 );
+    newmnu->insertItem( new uiAction(tr("Interactive  ...")), 4 );
+    newmnu->insertItem( new uiAction(tr("Along Contours ...")), 5 );
+    newmnu->insertItem( new uiAction(tr("From Existing ...")), 6 );
+    newmnu->insertItem( new uiAction(tr("From Polygon ...")), 7 );
+    newmnu->insertItem( new uiAction(tr("From Table ...")), 8 );
+    newmnu->insertItem( new uiAction(tr("From Wells ...")), 9 );
     mnu.insertItem( newmnu );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
 
-    if ( mnuid==0 )
-	addChild( new uiODRandomLineTreeItem(-1), false );
-    else if ( mnuid==8 )
-	addChild( new uiODRandomLineTreeItem(-1,uiODRandomLineTreeItem::RGBA),
-		  false );
-    if ( mnuid>=1 && mnuid<4 )
-	genRandLine( mnuid-1 );
+    if ( mnuid==0 || mnuid==1 )
+	addChild( new uiODRandomLineTreeItem(-1,getType(mnuid)), false );
+    else if ( mnuid==2 || mnuid==3 )
+	addStored( mnuid );
     else if ( mnuid == 4 )
-	genRandLineFromWell();
-    else if ( mnuid == 5 )
-	genRandLineFromTable();
-    else if ( mnuid == 6 )
-	genRandomLineFromPickPolygon();
-    else if ( mnuid==7 || mnuid==9 )
-    {
-	const IOObj* ioobj = selRandomLine();
-	if ( ioobj )
-	{
-	    uiODRandomLineTreeItem::Type tp = mnuid==7
-		? uiODRandomLineTreeItem::Empty : uiODRandomLineTreeItem::RGBA;
-	    load( *ioobj, (int)tp );
-	}
-    }
+	genFromPicks();
+    else if ( mnuid==5 )
+	genFromContours();
+    else if ( mnuid==6 )
+	genFromExisting();
+    else if ( mnuid==7 )
+	genFromPolygon();
+    else if ( mnuid == 8 )
+	genFromTable();
+    else if ( mnuid == 9 )
+	genFromWell();
 
     handleStandardItems( mnuid );
     return true;
 }
 
 
-const IOObj* uiODRandomLineParentTreeItem::selRandomLine()
+bool uiODRandomLineParentTreeItem::addStored( int mnuid )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
     ctio->ctxt.forread = true;
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
-    return dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
+    if ( !dlg.go() || !dlg.ioObj() ) return false;
+
+    const IOObj* ioobj = dlg.ioObj();
+    return load( *ioobj, mnuid );
 }
 
 
-bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int tp )
+bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
 {
     Geometry::RandomLineSet lset;
     BufferString errmsg;
@@ -214,7 +224,7 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int tp )
     for ( int idx=0; idx<selitms.size(); idx++ )
     {
 	uiODRandomLineTreeItem* itm =
-	    new uiODRandomLineTreeItem( -1, (uiODRandomLineTreeItem::Type)tp );
+		new uiODRandomLineTreeItem( -1, getType(mnuid) );
 	addChild( itm, false );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
@@ -248,7 +258,17 @@ void uiODRandomLineParentTreeItem::genRandLine( int opt )
 }
 
 
-void uiODRandomLineParentTreeItem::genRandLineFromWell()
+void uiODRandomLineParentTreeItem::genFromExisting()
+{ genRandLine( 0 ); }
+
+void uiODRandomLineParentTreeItem::genFromContours()
+{ genRandLine( 1 ); }
+
+void uiODRandomLineParentTreeItem::genFromPolygon()
+{ genRandLine( 2 ); }
+
+
+void uiODRandomLineParentTreeItem::genFromWell()
 {
     applMgr()->wellServer()->selectWellCoordsForRdmLine();
     applMgr()->wellServer()->randLineDlgClosed.notify(
@@ -256,11 +276,11 @@ void uiODRandomLineParentTreeItem::genRandLineFromWell()
 }
 
 
-void uiODRandomLineParentTreeItem::genRandLineFromTable()
+void uiODRandomLineParentTreeItem::genFromTable()
 {
     uiDialog dlg( getUiParent(),
 		  uiDialog::Setup(tr("Random lines"),
-                                  tr("Specify node positions"),
+				  tr("Specify node positions"),
 				  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     Interval<float> zrg = SI().zRange(true);
@@ -300,7 +320,7 @@ void uiODRandomLineParentTreeItem::removeChild( uiTreeItem* item )
 }
 
 
-void uiODRandomLineParentTreeItem::genRandomLineFromPickPolygon()
+void uiODRandomLineParentTreeItem::genFromPicks()
 {
     if ( rdlpolylinedlg_ )
 	return;
@@ -348,6 +368,7 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
+    , rdlgeom_(0)
     , editnodesmnuitem_(tr("Position ..."))
     , insertnodemnuitem_(tr("Insert Node"))
     , saveasmnuitem_(uiStrings::sSaveAs(false))
@@ -357,6 +378,22 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     editnodesmnuitem_.iconfnm = "orientation64";
     saveasmnuitem_.iconfnm = "saveas";
     displayid_ = id;
+}
+
+
+uiODRandomLineTreeItem::uiODRandomLineTreeItem(
+			const Geometry::RandomLineSet& rlset, Type tp )
+    : type_(tp)
+    , rdlgeom_(&rlset)
+    , editnodesmnuitem_(tr("Position ..."))
+    , insertnodemnuitem_(tr("Insert Node"))
+    , saveasmnuitem_(uiStrings::sSaveAs(false))
+    , saveas2dmnuitem_(tr("Save as 2D ..."))
+    , create2dgridmnuitem_(tr("Create 2D Grid ..."))
+{
+    editnodesmnuitem_.iconfnm = "orientation64";
+    saveasmnuitem_.iconfnm = "saveas";
+    displayid_ = -1;
 }
 
 
@@ -372,6 +409,17 @@ bool uiODRandomLineTreeItem::init()
 	    rtd->addAttrib();
 	    rtd->addAttrib();
 	    rtd->addAttrib();
+	}
+
+	if ( rdlgeom_ )
+	{
+	    ObjectSet<visSurvey::RandomTrackDisplay> rltdset;
+	    for ( int idx=0; idx<rdlgeom_->size(); idx++ )
+	    {
+		TypeSet<BinID> bids;
+		rdlgeom_->getRandomLine(idx)->allNodePositions( bids );
+		rtd->setKnotPositions( bids );
+	    }
 	}
 
 	displayid_ = rtd->id();
@@ -394,6 +442,24 @@ bool uiODRandomLineTreeItem::init()
     }
 
     return uiODDisplayTreeItem::init();
+}
+
+
+bool uiODRandomLineTreeItem::displayDefaultData()
+{
+    Attrib::DescID descid;
+    if ( !applMgr()->getDefaultDescID(descid) )
+	return false;
+
+    const Attrib::DescSet* ads =
+	Attrib::DSHolder().getDescSet( false, true );
+    Attrib::SelSpec as( 0, descid, false, "" );
+    as.setRefFromID( *ads );
+    visserv_->setSelSpec( displayid_, 0, as );
+    const bool res = visserv_->calculateAttrib( displayid_, 0, false );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+    return res;
 }
 
 

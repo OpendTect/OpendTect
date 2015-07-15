@@ -44,6 +44,7 @@ public:
     bool		importSeis(int opt);
     bool		exportSeis(int opt);
 
+    MultiID		getDefaultDataID(bool is2d) const;
     bool		select2DSeis(MultiID&);
     bool		select2DLines(TypeSet<Pos::GeomID>&,int& action);
     static void		get2DStoredAttribs(const char* linenm,

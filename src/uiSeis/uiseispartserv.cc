@@ -127,6 +127,49 @@ bool uiSeisPartServer::exportSeis( int opt )
 { return ioSeis( opt, false ); }
 
 
+MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
+{
+    if ( is2d ) // not impl yet
+	return MultiID::udf();
+
+    BufferString key( IOPar::compKey(sKey::Default(),
+		      SeisTrcTranslatorGroup::sKeyDefault3D()) );
+    BufferString midstr( SI().pars().find(key) );
+    if ( !midstr.isEmpty() )
+	return MultiID( midstr.buf() );
+
+    const IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
+    const IODir iodir ( ctxt.getSelKey() );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    int nrod3d = 0;
+    int def3didx = 0;
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	SeisIOObjInfo seisinfo( ioobjs[idx] );
+	if ( seisinfo.isOK() && !seisinfo.is2D() )
+	{
+	    nrod3d++;
+	    def3didx = idx;
+	}
+    }
+
+    if ( nrod3d == 1 )
+	return ioobjs[def3didx]->key();
+
+    uiString msg = tr("No or no valid default volume found."
+		      "You can set a default volume in the 'Manage Seismics' "
+		      "window. Do you want to go there now? "
+		      "On 'No' an empty plane will be added");
+    const bool tomanage = uiMSG().askGoOn( msg );
+    if ( !tomanage )
+	return false;
+
+    uiSeisPartServer* myself = const_cast<uiSeisPartServer*>(this);
+    myself->manageSeismics( 0, true );
+    return getDefaultDataID( false );
+}
+
+
 #define mManageSeisDlg( dlgobj, dlgclss ) \
     delete dlgobj; \
     dlgobj = new dlgclss( parent(), is2d ); \
@@ -309,14 +352,13 @@ void uiSeisPartServer::get2DZdomainAttribs( const char* linenm,
 
 void uiSeisPartServer::fillPar( IOPar& par ) const
 {
-    BufferStringSet ids;
-    StreamProvider::getPreLoadedIDs( ids );
-    for ( int iobj=0; iobj<ids.size(); iobj++ )
+    TypeSet<MultiID> mids;
+    Seis::PLDM().getIDs( mids );
+    for ( int idx=0; idx<mids.size(); idx++ )
     {
-	const MultiID id( ids.get(iobj).buf() );
 	IOPar iop;
-	Seis::PreLoader spl( id ); spl.fillPar( iop );
-	const BufferString parkey = IOPar::compKey( sKeyPreLoad(), iobj );
+	Seis::PreLoader spl( mids[idx] ); spl.fillPar( iop );
+	const BufferString parkey = IOPar::compKey( sKeyPreLoad(), idx );
 	par.mergeComp( iop, parkey );
     }
 }
@@ -324,7 +366,8 @@ void uiSeisPartServer::fillPar( IOPar& par ) const
 
 bool uiSeisPartServer::usePar( const IOPar& par )
 {
-    StreamProvider::unLoadAll();
+    Seis::PLDM().removeAll();
+
     PtrMan<IOPar> plpar = par.subselect( sKeyPreLoad() );
     if ( !plpar ) return true;
 

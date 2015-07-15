@@ -27,6 +27,7 @@ RandomLine::RandomLine( const char* nm )
     , nodeAdded(this)
     , nodeInserted(this)
     , nodeRemoved(this)
+    , nodeMoved(this)
     , zrangeChanged(this)
     , lset_(0)
 {
@@ -46,7 +47,10 @@ void RandomLine::insertNode( int idx, const BinID& bid )
 { nodes_.insert( idx, bid ); nodeInserted.trigger(); }
 
 void RandomLine::setNodePosition( int idx, const BinID& bid )
-{ nodes_[idx] = bid; }
+{
+    nodes_[idx] = bid;
+    nodeMoved.trigger( idx );
+}
 
 void RandomLine::removeNode( int idx )
 { nodes_.removeSingle( idx ); nodeRemoved.trigger(); }
@@ -199,6 +203,18 @@ void RandomLineSet::setEmpty()
 {
     deepErase( lines_ );
     pars_.setEmpty();
+}
+
+
+RandomLine* RandomLineSet::getRandomLine( int idx )
+{
+    return lines_.validIdx(idx) ? lines_[idx] : 0;
+}
+
+
+const RandomLine* RandomLineSet::getRandomLine( int idx ) const
+{
+    return lines_.validIdx(idx) ? lines_[idx] : 0;
 }
 
 

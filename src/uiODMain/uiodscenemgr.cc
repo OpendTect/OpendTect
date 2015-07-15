@@ -48,6 +48,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "pickset.h"
 #include "ptrman.h"
+#include "randomlinegeom.h"
 #include "sorting.h"
 #include "settings.h"
 #include "vissurvscene.h"
@@ -1164,12 +1165,14 @@ int uiODSceneMgr::addPickSetItem( Pick::Set& ps, int sceneid )
 }
 
 
-int uiODSceneMgr::addRandomLineItem( int visid, int sceneid )
+int uiODSceneMgr::addRandomLineItem( const Geometry::RandomLineSet& rl,
+				     int sceneid )
 {
     mGetOrAskForScene
 
-    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( visid );
+    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( rl );
     scene->itemmanager_->addChild( itm, false );
+    itm->displayDefaultData();
     return itm->displayID();
 }
 
