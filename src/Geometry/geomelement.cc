@@ -96,7 +96,10 @@ void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
 	return;
 
     if ( blockcbs_ )
+    {
+	Threads::Locker locker( movementlock_ );
 	movementbuffer_.append( gpids );
+    }
     else
 	movementnotifier.trigger( &gpids, this );
 
@@ -128,7 +131,7 @@ void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
 
     if ( blockcbs_ )
     {
-	Threads::Locker locker( lock_ );
+	Threads::Locker locker( poschglock_ );
 	nrposchbuffer_.append( gpids );
     }
     else

@@ -86,7 +86,8 @@ protected:
 
 private:
 
-    Threads::Lock		lock_;
+    Threads::Lock		poschglock_;
+    Threads::Lock		movementlock_;
     uiString*			errmsg_;
 };
 
