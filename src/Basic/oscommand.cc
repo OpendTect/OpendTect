@@ -402,6 +402,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 
     if ( !monitorfnm_.isEmpty() )
     {
+	monitorfnm_.quote( '\"' );
 	progvwrcmd_.set( "\"" ).add( odprogressviewer_ )
 	    .add( "\" --inpfile " ).add( monitorfnm_ )
 	    .add( " --pid " ).add( processID() );
