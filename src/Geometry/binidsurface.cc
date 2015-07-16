@@ -190,7 +190,9 @@ void BinIDSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 	if ( !remudf || !mIsUdf(zvals[idx]) )
 	{
 	    const RowCol rc = origin_ + RowCol( idx/nrcols, idx%nrcols )*step_;
-	    pids += rc.toInt64();
+	    const GeomPosID posid = rc.toInt64();
+	    if ( posid != 0 )
+		pids += posid;
 	}
     }
 }

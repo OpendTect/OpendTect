@@ -316,18 +316,20 @@ const TrcKey HorizonAdjuster::getTrcKey( const BinID& bid ) const
 
 void HorizonAdjuster::setHorizonPick( const BinID& bid, float val )
 {
-    Threads::Locker locker( setposlock_ );
-
     Coord3 pos = horizon_.getPos( sectionid_, bid.toInt64() );
     pos.z = val;
+
+    Threads::Locker locker( setposlock_ );
     horizon_.setPos( sectionid_, bid.toInt64(), pos, setundo_ );
+    locker.unlockNow();
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_);
     if ( !hor3d ) return;
 
     EM::PosID posid( horizon_.id(), sectionid_, bid.toInt64() );
-    hor3d->auxdata.setAuxDataVal( 0, posid, (float)seedtk_.pos().toInt64() );
+    hor3d->auxdata.setAuxDataVal( 0, posid, evtracker_.targetValue() );
     hor3d->auxdata.setAuxDataVal( 1, posid, evtracker_.quality() );
+    hor3d->auxdata.setAuxDataVal( 2, posid, (float)seedtk_.trcNr() );
 }
 
 

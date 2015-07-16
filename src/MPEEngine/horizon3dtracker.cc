@@ -50,10 +50,9 @@ EMTracker* Horizon3DTracker::create( EM::EMObject* emobj )
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) return 0;
 
-    hor->auxdata.addAuxData( "Seed Index" );
+    hor->auxdata.addAuxData( "Amplitude" );
     hor->auxdata.addAuxData( "Correlation" );
-    hor->auxdata.init( 0 );
-    hor->auxdata.init( 1 );
+    hor->auxdata.addAuxData( "Seed Index" );
 
     return new Horizon3DTracker( hor );
 }

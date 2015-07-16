@@ -382,13 +382,13 @@ bool uiODHorizonTreeItem::init()
     mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
     if ( hor3d )
     {
+	hd->setDepthAsAttrib( 0 );
 	const int nrauxdata = hor3d->auxdata.nrAuxData();
 	for ( int idx=0; idx<nrauxdata; idx++ )
 	{
 	    DataPointSet vals( false, true );
 	    float shift;
 	    applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
-	    if ( vals.isEmpty() ) continue;
 
 	    uiODDataTreeItem* itm = addAttribItem();
 	    mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);

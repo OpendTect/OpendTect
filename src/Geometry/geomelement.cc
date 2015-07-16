@@ -92,7 +92,8 @@ void Element::blockCallBacks( bool yn, bool flush )
 
 void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
 {
-    if ( gpids.isEmpty() ) return;
+    if ( gpids.isEmpty() )
+	return;
 
     if ( blockcbs_ )
 	movementbuffer_.append( gpids );

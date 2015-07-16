@@ -218,9 +218,16 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 
 void Horizon3DSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
 {
-    for ( int idx=0; idx<seedlist_.size(); idx++ )
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    if ( !emobj ) return;
+
+    const TypeSet<EM::PosID>* seednodelist =
+			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
+    if ( !seednodelist ) return;
+
+    for ( int idx=0; idx<seednodelist->size(); idx++ )
     {
-	const BinID bid = BinID::fromInt64( seedlist_[idx].subID() );
+	const BinID bid = BinID::fromInt64( (*seednodelist)[idx].subID() );
 	seeds += TrcKey( bid );
     }
 }
