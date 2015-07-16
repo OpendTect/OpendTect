@@ -565,7 +565,13 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     table_->setSelectionBehavior( uiTable::SelectRows );
     table_->valueChanged.notify( mCB(this,uiWellLogEditor,valChgCB) );
 
-    BufferStringSet colnms; colnms.add("MD").add(log_.name());
+    BufferString mdlbl( "MD" );
+    mdlbl.add( getDistUnitString(SI().depthsInFeet(), true) );
+    BufferString loglbl( log_.name() );
+    if ( log_.unitMeasLabel() && *log_.unitMeasLabel() )
+	loglbl.add( "(" ).add( log_.unitMeasLabel() ).add( ")" );
+
+    BufferStringSet colnms; colnms.add(mdlbl).add(loglbl);
     table_->setColumnLabels( colnms );
 
     fillTable();
@@ -581,9 +587,12 @@ void uiWellLogEditor::fillTable()
 {
     NotifyStopper ns( table_->valueChanged );
     const int sz = log_.size();
+    const UnitOfMeasure* depthunit = UnitOfMeasure::surveyDefDepthUnit();
+
     for ( int idx=0; idx<sz; idx++ )
     {
-	table_->setValue( RowCol(idx,0), log_.dah(idx) );
+	const float val = depthunit->getUserValueFromSI( log_.dah(idx) );
+	table_->setValue( RowCol(idx,0), val );
 	table_->setValue( RowCol(idx,1), log_.value(idx) );
     }
 }
