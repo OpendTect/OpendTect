@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
+#include "autotracker.h"
 #include "draw.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -82,6 +83,7 @@ uiBaseHorizonSetupGroup::uiBaseHorizonSetupGroup( uiParent* p,
 
 uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     : uiSetupGroup(p,"")
+    , trackmgr_(0)
     , sectiontracker_(0)
     , horadj_(0)
     , is2d_(FixedString(typestr)==EM::Horizon2D::typeStr())
@@ -152,29 +154,22 @@ void uiHorizonSetupGroup::horizonSelCB( CallBacker* )
 
 void uiHorizonSetupGroup::startCB( CallBacker* )
 {
-    if ( state_ != Started )
-    {
-	if ( !trackInVolume() )
-	    return;
+    if ( state_ == Started )
+	return;
 
-	state_ = Started;
-	toolbar_->setToolTip( startbutid_, "Pause tracking [t]" );
-	toolbar_->setIcon( startbutid_, "pause" );
-    }
-    else
+    if ( trackInVolume() )
     {
-	state_ = Paused;
-	toolbar_->setToolTip( startbutid_, "Start tracking [t]" );
-	toolbar_->setIcon( startbutid_, "autotrack" );
+	state_ = Started;
+	toolbar_->setSensitive( startbutid_, false );
     }
 }
 
 
 void uiHorizonSetupGroup::stopCB( CallBacker* )
 {
+    engine().stopTracking();
     state_ = Stopped;
-    toolbar_->setToolTip( startbutid_, "Start tracking [t]" );
-    toolbar_->setIcon( startbutid_, "autotrack" );
+    toolbar_->setSensitive( startbutid_, true );
 }
 
 
@@ -255,8 +250,25 @@ bool uiHorizonSetupGroup::trackInVolume()
 
     engine().setAttribData( *as, sdp->id() );
     engine().setActiveVolume( sdp->sampling() );
-    engine().trackInVolume();
+    if ( trackmgr_ )
+    {
+	trackmgr_->finished.remove(
+		mCB(this,uiHorizonSetupGroup,trackingFinishedCB) );
+    }
+
+    trackmgr_ = engine().trackInVolume( trackeridx );
+    if ( !trackmgr_ ) return false;
+
+    trackmgr_->finished.notify(
+		mCB(this,uiHorizonSetupGroup,trackingFinishedCB) );
     return true;
+}
+
+
+void uiHorizonSetupGroup::trackingFinishedCB( CallBacker* )
+{
+    state_ = Stopped;
+    toolbar_->setSensitive( startbutid_, true );
 }
 
 

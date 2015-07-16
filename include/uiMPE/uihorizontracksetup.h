@@ -35,6 +35,7 @@ namespace MPE
 {
 
 class HorizonAdjuster;
+class HorizonTrackerMgr;
 class SectionTracker;
 class uiCorrelationGroup;
 class uiEventGroup;
@@ -97,6 +98,7 @@ protected:
     void			saveCB(CallBacker*);
     void			retrackCB(CallBacker*);
     void			horizonSelCB(CallBacker*);
+    void			trackingFinishedCB(CallBacker*);
 
 // Mode Group
     uiGroup*			createModeGroup();
@@ -139,6 +141,7 @@ protected:
     EMSeedPicker::SeedModeOrder	mode_;
     MarkerStyle3D		markerstyle_;
 
+    HorizonTrackerMgr*		trackmgr_;
     SectionTracker*		sectiontracker_;
     HorizonAdjuster*		horadj_;
 
