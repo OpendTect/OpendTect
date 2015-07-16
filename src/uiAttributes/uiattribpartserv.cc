@@ -107,6 +107,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , evalmapperbackup_( 0 )
     , attrsneedupdt_(true)
     , manattribsetdlg_(0)
+    , impattrsetdlg_(0)
 {
     attrsetclosetim_.tick.notify(
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -132,6 +133,7 @@ uiAttribPartServer::~uiAttribPartServer()
     deepErase( attrxplotset_ );
     delete &eDSHolder();
     delete manattribsetdlg_;
+    delete impattrsetdlg_;
     detachAllNotifiers();
 }
 
@@ -1038,8 +1040,9 @@ bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 
 void uiAttribPartServer::importAttrSetFromFile()
 {
-    uiImpAttrSet dlg( parent() );
-    dlg.go();
+    delete impattrsetdlg_;
+    impattrsetdlg_ = new uiImpAttrSet( parent() );
+    impattrsetdlg_->go();
 }
 
 
@@ -1736,4 +1739,5 @@ const ColTab::MapperSetup* uiAttribPartServer::getEvalBackupColTabMapper() const
 void uiAttribPartServer::survChangedCB( CallBacker* )
 {
     delete manattribsetdlg_; manattribsetdlg_ = 0;
+    delete impattrsetdlg_; impattrsetdlg_ = 0;
 }
