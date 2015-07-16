@@ -60,6 +60,8 @@ public:
 
     void		updateSeedOnlyPropagation(bool);
     Executor*		trackInVolume();
+    HorizonTrackerMgr*	trackInVolume(int idx);
+    void		stopTracking();
     void		removeSelectionInPolygon(const Selector<Coord3>&,
 	    					 TaskRunner*);
     void		getAvailableTrackerTypes(BufferStringSet&)const;

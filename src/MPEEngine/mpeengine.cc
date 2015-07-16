@@ -114,6 +114,18 @@ void Engine::updateSeedOnlyPropagation( bool yn )
 }
 
 
+void Engine::stopTracking()
+{
+    for ( int idx=0; idx<trackermgrs_.size(); idx++ )
+    {
+	HorizonTrackerMgr* htm = trackermgrs_[idx];
+	if ( !htm ) continue;
+
+	htm->stop();
+    }
+}
+
+
 Executor* Engine::trackInVolume()
 {
     ExecutorGroup* res = 0;
@@ -148,6 +160,37 @@ Executor* Engine::trackInVolume()
     }
 
     return res;
+}
+
+
+HorizonTrackerMgr* Engine::trackInVolume( int idx )
+{
+    EMTracker* tracker = trackers_[idx];
+    if ( !tracker || !tracker->isEnabled() )
+	return 0;
+
+    EM::ObjectID oid = tracker->objectID();
+    EM::EMObject* emobj = EM::EMM().getObject( oid );
+    if ( !emobj || emobj->isLocked() )
+	return 0;
+
+    emobj->setBurstAlert( true );
+    emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
+    EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
+    if ( !seedpicker ) return 0;
+
+    TypeSet<TrcKey> seeds;
+    seedpicker->getSeeds( seeds );
+    HorizonTrackerMgr* htm = trackermgrs_[idx];
+    if ( !htm )
+    {
+	htm = new HorizonTrackerMgr( *tracker );
+	trackermgrs_.replace( idx, htm );
+    }
+
+    htm->setSeeds( seeds );
+    htm->startFromSeeds();
+    return htm;
 }
 
 
@@ -564,10 +607,11 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     const int zidx0 = zsamp.getIndex( z + zintv.start );
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
-	const float* trc = sdp->getTrcData( 0, trcidx0+tidx );
+	const OffsetValueSeries<float> ovs =
+			    sdp->getTrcStorage( 0, trcidx0+tidx );
 	for ( int zidx=0; zidx<nrz; zidx++ )
 	{
-	    const float val = trc ? trc[zidx0+zidx] : 0;
+	    const float val = ovs[zidx0+zidx];
 	    seeddata->set( tidx, zidx, val );
 	}
     }
