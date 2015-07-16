@@ -35,7 +35,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "binidvalue.h"
 
-#include <iostream>
 #include <math.h>
 
 #define mLocalEps 1e-2f;
@@ -96,67 +95,71 @@ Well::InfoCollector::~InfoCollector()
 int Well::InfoCollector::nextStep()
 {
     if ( curidx_ >= totalnr_ )
-	return ErrorOccurred();
+	return Finished();
 
     const IOObj* ioobj = (*direntries_)[curidx_]->ioobj_;
     const MultiID wmid( ioobj->key() );
-    ids_ += new MultiID( wmid );
     const bool isloaded = Well::MGR().isLoaded( wmid );
 
-    if ( dotracks_ || dologs_ || domrkrs_ )
+    BufferStringSet lognms;
+    Well::Data* wd = 0;
+    if ( isloaded )
     {
-	Well::Data* wd = isloaded ? Well::MGR().get( wmid ) : new Well::Data;
-	BufferStringSet* newlognms = new BufferStringSet;
-	if ( isloaded )
-	{
-	    if ( !wd )
-		return ErrorOccurred();
-
-	    wd->logs().getNames( *newlognms );
-	}
-	else if ( !isloaded )
-	{
-	    Well::Reader wrdr( wmid, *wd );
-	    if ( !wrdr.getInfo() ||
-		 ( dotracks_ && !wrdr.getTrack() ) ||
-		 ( domrkrs_ && !wrdr.getMarkers() ) )
-	    {
-		delete wd;
-		return ErrorOccurred();
-	    }
-
-	    if ( dologs_ ) wrdr.getLogInfo( *newlognms );
-	}
-
-	infos_ += new Well::Info( wd->info() );
-
-	if ( dotracks_ )
-	{
-	    const Well::Track& trk = wd->track();
-	    if ( mIsUdf(trackstvdrg_.start) )
-		trackstvdrg_.setFrom( trk.zRange() );
-	    else
-	    {
-		Interval<float> tvdrg( trk.zRange() );
-		if ( !mIsUdf( tvdrg.start ) )
-		    trackstvdrg_.include( tvdrg );
-	    }
-	}
-
-	if ( dologs_ )
-	    logs_ += newlognms;
-
-	if ( domrkrs_ )
-	{
-	    Well::MarkerSet* newset = new Well::MarkerSet;
-	    markers_ += newset;
-	    deepCopy( *newset, wd->markers() );
-	}
-
-	if ( !isloaded )
-	    delete wd;
+	wd = Well::MGR().get( wmid );
+	if ( wd && dologs_ )
+	    wd->logs().getNames( lognms );
     }
 
+    bool res = true;
+    if ( !wd )
+    {
+	wd = new Well::Data;
+	Well::Reader rdr( wmid, *wd );
+	res = rdr.getInfo();
+	if ( dotracks_ )
+	    res = res && rdr.getTrack();
+	if ( domrkrs_ )
+	    res = res && rdr.getMarkers();
+	if ( dologs_ )
+	    rdr.getLogInfo( lognms );
+    }
+
+    if ( !res )
+    {
+	if ( !isloaded ) delete wd;
+	return ++curidx_ >= totalnr_ ? Finished() : MoreToDo();
+    }
+
+    ids_ += new MultiID( wmid );
+    infos_ += new Well::Info( wd->info() );
+    if ( dotracks_ )
+    {
+	const Well::Track& trk = wd->track();
+	if ( mIsUdf(trackstvdrg_.start) )
+	    trackstvdrg_.setFrom( trk.zRange() );
+	else
+	{
+	    Interval<float> tvdrg( trk.zRange() );
+	    if ( !mIsUdf( tvdrg.start ) )
+		trackstvdrg_.include( tvdrg );
+	}
+    }
+
+    if ( domrkrs_ )
+    {
+	Well::MarkerSet* newset = new Well::MarkerSet;
+	*newset = wd->markers();
+	markers_ += newset;
+    }
+
+    if ( dologs_ )
+    {
+	BufferStringSet* newlognms = new BufferStringSet;
+	*newlognms = lognms;
+	logs_ += newlognms;
+    }
+
+    if ( !isloaded ) delete wd;
     return ++curidx_ >= totalnr_ ? Finished() : MoreToDo();
 }
 
