@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 #include "trckeyvalue.h"
 
-
 namespace MPE
 {
 
@@ -98,7 +97,9 @@ bool execute()
 HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
     : twm_(Threads::WorkManager::twm())
     , tracker_(emt)
+    , finished(this)
     , nrdone_(0)
+    , nrtodo_(0)
 {
     queueid_ = twm_.addQueue(
 	Threads::WorkManager::MultiThread, "Horizon Tracker" );
@@ -108,6 +109,14 @@ HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
 HorizonTrackerMgr::~HorizonTrackerMgr()
 {
     twm_.removeQueue( queueid_, false );
+}
+
+
+void HorizonTrackerMgr::stop()
+{
+    twm_.removeQueue( queueid_, false );
+    queueid_ = twm_.addQueue(
+	Threads::WorkManager::MultiThread, "Horizon Tracker" );
 }
 
 
@@ -124,6 +133,7 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
     if ( !hor || !hor->hasZ(source.tk_) )
 	return;
 
+    nrtodo_++;
     CallBack cb( mCB(this,HorizonTrackerMgr,taskFinished) );
     Task* task = new HorizonTracker( *this, seed, source );
     twm_.addWork( Threads::Work(*task,true), &cb, queueid_,
@@ -131,15 +141,21 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
 }
 
 
-void HorizonTrackerMgr::taskFinished( CallBacker* )
+void HorizonTrackerMgr::taskFinished( CallBacker* cb )
 {
+    Threads::Locker locker( finishlock_ );
+
+    nrtodo_--;
     nrdone_++;
-    if ( nrdone_%500 == 0 )
+    if ( nrdone_%500 == 0 || nrtodo_==0 )
     {
 	mDynamicCastGet(EM::Horizon*,hor,tracker_.emObject())
 	if ( hor )
 	    hor->sectionGeometry( hor->sectionID(0) )->blockCallBacks(true);
     }
+
+    if ( nrtodo_ == 0 )
+	finished.trigger();
 }
 
 
@@ -153,7 +169,11 @@ void HorizonTrackerMgr::startFromSeeds()
 	return;
 
     st->extender()->preallocExtArea();
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    if ( hor3d && nrdone_==0 )
+	hor3d->initAllAuxData();
 
+    nrtodo_ = 0;
     for ( int idx=0; idx<seeds_.size(); idx++ )
 	addTask( seeds_[idx], seeds_[idx] );
 }

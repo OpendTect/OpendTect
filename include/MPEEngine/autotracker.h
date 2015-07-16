@@ -51,6 +51,9 @@ public:
 
     void		setSeeds(const TypeSet<TrcKey>&);
     void		startFromSeeds();
+    void		stop();
+
+    Notifier<HorizonTrackerMgr>		finished;
 
 protected:
     void		addTask(const TrcKeyValue&,const TrcKeyValue&);
@@ -61,8 +64,11 @@ protected:
     TypeSet<TrcKey>		seeds_;
     Threads::WorkManager&	twm_;
 
-    int				nrdone_;
+    Threads::Atomic<int>	nrdone_;
+    Threads::Atomic<int>	nrtodo_;
+
     Threads::Lock		addlock_;
+    Threads::Lock		finishlock_;
     Threads::Lock		updatelock_;
 };
 
