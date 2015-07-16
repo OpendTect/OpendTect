@@ -104,13 +104,6 @@ bool uiIsopachMakerGrp::chkInputFlds()
     horsel_->commitInput();
     if ( !horsel_->ioobj() ) return false;
 
-    if ( !EM::canOverwrite(horsel_->ioobj()->key()) )
-    {
-	uiMSG().message( tr("Cannot save attribute on the selected horizon"
-			    "\n.Please select a different horizon") );
-	return false;
-    }
-
     BufferString attrnm =  attrnmfld_->text();
     if ( attrnm.isEmpty() )
     {
