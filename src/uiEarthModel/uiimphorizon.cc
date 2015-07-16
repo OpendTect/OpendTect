@@ -637,17 +637,16 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setMultiID( ctio_.ioobj->key() );
-    Executor* loader = emobj->loader();
+    PtrMan<Executor> loader = emobj->loader();
     if ( !loader ) mErrRet( "Cannot load horizon");
 
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, *loader ) )
+    if ( !TaskRunner::execute(&taskrunner,*loader) )
 	return 0;
 
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
     if ( !horizon ) mErrRet( "Error loading horizon");
 
-    delete loader;
     horizon->ref();
     return horizon;
 }
