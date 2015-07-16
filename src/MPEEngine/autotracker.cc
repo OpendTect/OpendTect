@@ -145,17 +145,20 @@ void HorizonTrackerMgr::taskFinished( CallBacker* cb )
 {
     Threads::Locker locker( finishlock_ );
 
+    mDynamicCastGet(EM::Horizon3D*,hor3d,tracker_.emObject())
     nrtodo_--;
     nrdone_++;
     if ( nrdone_%500 == 0 || nrtodo_==0 )
     {
-	mDynamicCastGet(EM::Horizon*,hor,tracker_.emObject())
-	if ( hor )
-	    hor->sectionGeometry( hor->sectionID(0) )->blockCallBacks(true);
+	if ( hor3d )
+	    hor3d->sectionGeometry( hor3d->sectionID(0) )->blockCallBacks(true);
     }
 
     if ( nrtodo_ == 0 )
+    {
+	if ( hor3d ) hor3d->setBurstAlert( false );
 	finished.trigger();
+    }
 }
 
 
@@ -174,6 +177,7 @@ void HorizonTrackerMgr::startFromSeeds()
 	hor3d->initAllAuxData();
 
     nrtodo_ = 0;
+    hor3d->setBurstAlert( true );
     for ( int idx=0; idx<seeds_.size(); idx++ )
 	addTask( seeds_[idx], seeds_[idx] );
 }
