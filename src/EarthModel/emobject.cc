@@ -251,8 +251,13 @@ void EMObject::setPreferredColor( const Color& col, bool addtoundo )
 
 void EMObject::setBurstAlert( bool yn )
 {
-    if ( !yn ) burstalertcount_--;
-    if ( !burstalertcount_ )
+    if ( !yn && burstalertcount_==0 )
+	return;
+
+    if ( !yn )
+	burstalertcount_--;
+
+    if ( burstalertcount_==0 )
     {
 	if ( yn ) burstalertcount_++;
 	EMObjectCallbackData cbdata;
