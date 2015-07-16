@@ -87,7 +87,7 @@ int ParametricSurface::getKnotIndex( const RowCol& rc ) const
 	return -1;
 
     relbid /= step_;
-    
+
     if ( relbid.row()>=nrRows() || relbid.col()>=nrCols() )
 	return -1;
 
@@ -147,7 +147,7 @@ bool ParametricSurface::setKnot( const RowCol& rc, const Coord3& np )
 		return false;
 	    rowindex = rowIndex( rc.row() );
 	}
- 
+
 	int colindex = colIndex( rc.col() );
 	while ( colindex<0 )
 	{
@@ -357,7 +357,7 @@ bool ParametricSurface::isAtEdge( const RowCol& rc ) const
 }
 
 
-bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2, 
+bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2,
        TypeSet<RowCol>* path ) const
 {
     if ( !isAtEdge(rc1)  || !isAtEdge(rc2) )
@@ -446,5 +446,5 @@ void ParametricSurface::trimUndefParts()
 
 
 
-}; 
+};
 
