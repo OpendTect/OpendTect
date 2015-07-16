@@ -145,6 +145,7 @@ public:
     static uiString		userTypeStr()
 				{ return tr("3D Horizon"); }
 
+    void			initAllAuxData(float val=mUdf(float));
     SurfaceAuxData&		auxdata;
 
 protected:

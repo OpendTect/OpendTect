@@ -546,6 +546,12 @@ Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 }
 
 
+void Horizon3D::initAllAuxData( float val )
+{
+    auxdata.init( -1, val );
+}
+
+
 
 Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
     : HorizonGeometry( surf )
