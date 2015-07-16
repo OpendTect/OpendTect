@@ -319,9 +319,7 @@ void HorizonAdjuster::setHorizonPick( const BinID& bid, float val )
     Coord3 pos = horizon_.getPos( sectionid_, bid.toInt64() );
     pos.z = val;
 
-    Threads::Locker locker( setposlock_ );
     horizon_.setPos( sectionid_, bid.toInt64(), pos, setundo_ );
-    locker.unlockNow();
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_);
     if ( !hor3d ) return;
