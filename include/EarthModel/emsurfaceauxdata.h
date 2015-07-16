@@ -86,6 +86,8 @@ public:
     bool		removeFile(const char* attrnm) const;
 
     void		init(int dataidx,float val=mUdf(float));
+			/*!<dataidx==-1: init all*/
+
     Array2D<float>*	createArray2D(int dataidx,SectionID) const;
     void		setArray2D(int dataidx,SectionID,const Array2D<float>&);
 

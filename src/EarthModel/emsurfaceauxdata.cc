@@ -367,7 +367,13 @@ void SurfaceAuxData::init( int dataidx, float val )
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
 	    posid.setSubID( RowCol(row,col).toInt64() );
-	    setAuxDataVal( dataidx, posid, val );
+	    if ( dataidx<0 )
+	    {
+		for ( int aidx=0; aidx<nrAuxData(); aidx++ )
+		    setAuxDataVal( aidx, posid, val );
+	    }
+	    else
+		setAuxDataVal( dataidx, posid, val );
 	}
     }
 }
