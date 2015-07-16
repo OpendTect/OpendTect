@@ -435,6 +435,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
     for ( int idx=0; idx<seedlist_.size(); idx++ )
 	addedpos += seedlist_[idx].subID();
 
+    hor->setBurstAlert( true );
     while ( addedpos.size() )
     {
 	extender->reset();
@@ -455,6 +456,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 	}
     }
 
+    hor->setBurstAlert( false );
     extender->unsetExtBoundary();
 
     return true;

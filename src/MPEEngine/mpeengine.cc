@@ -141,7 +141,6 @@ Executor* Engine::trackInVolume()
 	if ( !emobj || emobj->isLocked() )
 	    continue;
 
-	emobj->setBurstAlert( true );
 	emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
 	EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
 	if ( !seedpicker ) continue;
@@ -174,7 +173,6 @@ HorizonTrackerMgr* Engine::trackInVolume( int idx )
     if ( !emobj || emobj->isLocked() )
 	return 0;
 
-    emobj->setBurstAlert( true );
     emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
     EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
     if ( !seedpicker ) return 0;
