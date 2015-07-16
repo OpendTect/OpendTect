@@ -211,6 +211,7 @@ void uiHorizonSetupGroup::retrackCB( CallBacker* )
     if ( !seedpicker ) return;
 
     seedpicker->reTrack();
+    trackInVolume();
     emobj.setBurstAlert( false );
 }
 
