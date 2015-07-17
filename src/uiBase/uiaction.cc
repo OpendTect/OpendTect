@@ -183,7 +183,7 @@ const uiString& uiAction::toolTip() const
 }
 
 
-void uiAction::updateToolTip(CallBacker*)
+void uiAction::updateToolTip( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiAction::updateToolTip );
 
@@ -250,7 +250,7 @@ int uiAction::getID() const
 }
 
 
-void uiAction::trigger(bool checked)
+void uiAction::trigger( bool checked )
 {
     checked_ = checked;
     triggered.trigger();
@@ -302,18 +302,24 @@ void uiAction::setPixmap( const uiPixmap& pm )
 }
 
 
-#define mSetGet(setfn,getfn) \
+#define mSetGet(setfn,getfn,updatefn,var) \
+void uiAction::updatefn( CallBacker* ) \
+{ \
+    mEnsureExecutedInMainThread( uiAction::updatefn ); \
+    qaction_->setfn( var ); \
+} \
+\
 void uiAction::setfn( bool yn ) \
-{ qaction_->setfn( yn ); } \
+{ var = yn; updatefn(); } \
 \
 bool uiAction::getfn() const \
 { return qaction_->getfn(); }
 
 
-mSetGet( setCheckable, isCheckable )
-mSetGet( setChecked, isChecked )
-mSetGet( setEnabled, isEnabled )
-mSetGet( setVisible, isVisible )
+mSetGet( setCheckable, isCheckable, updateCheckable, checkable_ )
+mSetGet( setChecked, isChecked, updateChecked, ischecked_ )
+mSetGet( setEnabled, isEnabled, updateEnabled, enabled_ )
+mSetGet( setVisible, isVisible, updateVisible, visible_ )
 
 static CallBackSet& cmdrecorders_ = *new CallBackSet;
 
@@ -358,7 +364,6 @@ void uiAction::addCmdRecorder( const CallBack& cb )
 
 uiActionContainer::uiActionContainer()
 {
-
 }
 
 
