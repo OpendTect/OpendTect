@@ -77,9 +77,7 @@ public:
 
     virtual const char*	errMsg() const				{ return 0; }
 
-    enum SeedModeOrder  { TrackFromSeeds,
-			TrackBetweenSeeds,
-			DrawBetweenSeeds   };
+    enum SeedModeOrder  { TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
 
     virtual void	setSowerMode(bool)			{}
     virtual void	setSeedPickArea(const TrcKeySampling&)	{}
@@ -90,4 +88,3 @@ public:
 } // namespace MPE
 
 #endif
-
