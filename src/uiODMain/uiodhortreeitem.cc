@@ -89,6 +89,8 @@ void uiODHorizonParentTreeItem::keyPressCB( CallBacker* cb )
 
 	    itm->visEMObject()->setOnlyAtSectionsDisplay( !atsections );
 	}
+
+	keh->setHandled( true );
     }
 }
 
