@@ -15,15 +15,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivelocitygridder.h"
 #include "uivolprocattrib.h"
-#include "uivolproclateralsmoother.h"
 #include "uivolprocbodyfiller.h"
 #include "uivolprochorinterfiller.h"
+#include "uivolproclateralsmoother.h"
 #include "uivolprocregionfiller.h"
 #include "uivolprocsmoother.h"
 #include "uivolprocsurfacelimitedfiller.h"
 #include "uivolprocvolreader.h"
-#include "uiwellloginterpolator.h"
 #include "uivolprocbatchsetup.h"
+#include "uiwellloginterpolator.h"
 
 
 
