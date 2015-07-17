@@ -1040,9 +1040,10 @@ bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 
 void uiAttribPartServer::importAttrSetFromFile()
 {
-    delete impattrsetdlg_;
-    impattrsetdlg_ = new uiImpAttrSet( parent() );
-    impattrsetdlg_->go();
+    if ( !impattrsetdlg_ )
+	impattrsetdlg_ = new uiImpAttrSet( parent() );
+
+    impattrsetdlg_->show();
 }
 
 
