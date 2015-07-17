@@ -36,7 +36,8 @@ namespace PreStack
 
 uiImportMute::uiImportMute( uiParent* p )
     : uiDialog( p,uiDialog::Setup(tr("Import Mute Function"),mNoDlgTitle,
-                                  mODHelpKey(mPreStackImportMuteHelpID) ))
+				  mODHelpKey(mPreStackImportMuteHelpID))
+			    .modal(false))
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {

@@ -37,8 +37,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     : uiDialog(p,uiDialog::Setup(tr("Import Cross-plot Data"),
-				 mNoDlgTitle,
-				 mODHelpKey(mImpPVDSHelpID) ))
+				 mNoDlgTitle, mODHelpKey(mImpPVDSHelpID))
+			   .modal(false))
     , fd_(*new Table::FormatDesc("Cross-plot data"))
     , is2d_(is2d)
 {

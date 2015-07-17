@@ -22,12 +22,14 @@ class uiConvertPos;
 class uiDataPointSet;
 class uiDataPointSetMan;
 class uiDialog;
+class uiImpPVDS;
 class uiODApplMgr;
 class uiProbDenFuncMan;
 class uiSessionMan;
 class uiVelSel;
 class ui2DGeomManageDlg;
 namespace Attrib { class SelSpec; }
+namespace PreStack { class uiImportMute; }
 
 
 /*!\brief uiApplService for OD */
@@ -82,6 +84,8 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     ui2DGeomManageDlg*	man2dgeomdlg_;
     uiProbDenFuncMan*	manpdfdlg_;
     uiSessionMan*	mansessiondlg_;
+    uiImpPVDS*		impcrossplotdlg_;
+    PreStack::uiImportMute*	impmutedlg_;
     uiODApplMgr&	am_;
     uiParent*		par_;
     ObjectSet<uiDataPointSet> uidpsset_;

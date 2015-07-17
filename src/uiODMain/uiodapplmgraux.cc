@@ -110,6 +110,8 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , man2dgeomdlg_(0)
     , manpdfdlg_(0)
     , mansessiondlg_(0)
+    , impcrossplotdlg_(0)
+    , impmutedlg_(0)
 {}
 
 
@@ -136,6 +138,8 @@ void uiODApplMgrDispatcher::deleteDlgs()
 	delete man2dgeomdlg_; man2dgeomdlg_ = 0;
 	delete manpdfdlg_; manpdfdlg_ = 0;
 	delete mansessiondlg_; mansessiondlg_ = 0;
+	delete impcrossplotdlg_; impcrossplotdlg_ = 0;
+	delete impmutedlg_; impmutedlg_ = 0;
 }
 
 
@@ -277,8 +281,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(MDef):
         if ( at == uiODApplMgr::Imp )
 	{
-	    PreStack:: uiImportMute dlgimp( par_ );
-	    dlgimp.go();
+	    if ( !impmutedlg_ )
+		impmutedlg_ = new PreStack::uiImportMute( par_ );
+
+	    impmutedlg_->go();
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
@@ -330,8 +336,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(PVDS):
         if ( at == uiODApplMgr::Imp )
 	{
-	    uiImpPVDS dlg( par_ );
-	    dlg.go();
+	    if ( !impcrossplotdlg_ )
+		impcrossplotdlg_ = new uiImpPVDS( par_ );
+
+	    impcrossplotdlg_->show();
 	}
 	else if ( at == uiODApplMgr::Man )
 	{
