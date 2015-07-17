@@ -218,7 +218,7 @@ void uiHorizonSetupGroup::retrackCB( CallBacker* )
 
 bool uiHorizonSetupGroup::trackInVolume()
 {
-    if ( !sectiontracker_ )
+    if ( !sectiontracker_ || mode_!=EMSeedPicker::TrackFromSeeds )
 	return false;
 
     EM::EMObject& emobj = sectiontracker_->emObject();
@@ -343,7 +343,6 @@ uiGroup* uiHorizonSetupGroup::createVarianceGroup()
 
     grp->setHAlignObj( usevarfld_ );
     return grp;
-
 }
 
 
@@ -403,11 +402,18 @@ void uiHorizonSetupGroup::selUseVariance( CallBacker* )
 }
 
 
-
 void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 {
     mode_ = (EMSeedPicker::SeedModeOrder) modeselgrp_->selectedId();
     modeChanged_.trigger();
+
+    const bool usedata = mode_ != EMSeedPicker::DrawBetweenSeeds;
+    tabgrp_->setTabEnabled( eventgrp_, usedata );
+    tabgrp_->setTabEnabled( correlationgrp_, usedata );
+
+    toolbar_->setSensitive( startbutid_, usedata );
+    toolbar_->setSensitive( stopbutid_, usedata );
+    toolbar_->setSensitive( retrackbutid_, usedata );
 }
 
 
