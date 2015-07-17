@@ -697,18 +697,26 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	    mCleanReturn();
 	}
 
-	output = new DataCubes;
-	output->setSizeAndPos( cs );
-	TypeSet<float> values;
-	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, values,
+	TypeSet<float> vals;
+	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, vals,
 				    true );
-	ArrayValueSeries<float, float>* avs =
-	    new ArrayValueSeries<float,float>(values.arr(),true, values.size());
-	Array3DImpl<float>* arr3d =
-			new Array3DImpl<float>( cs.nrInl(), cs.nrCrl(), 1 );
-	arr3d->setStorage( avs );
-	output->addCube( *arr3d );
-	dtcoldefset.erase();
+	ArrayValueSeries<float, float> avs( vals.arr(), false, vals.size());
+	if ( !vals.isEmpty() )
+	{
+	    Array3DImpl<float>* arr3d =
+			    new Array3DImpl<float>( cs.nrInl(), cs.nrCrl(), 1 );
+	    ValueSeries<float>* arr3dvs = arr3d->getStorage();
+	    if ( !arr3dvs )
+		delete arr3d;
+	    else
+	    {
+		output = new DataCubes;
+		output->setSizeAndPos( cs );
+		ValueSeriesGetAll<float> copier( avs, *arr3dvs, vals.size() );
+		copier.execute();
+		output->addCube( *arr3d );
+	    }
+	}
     }
     else
     {
