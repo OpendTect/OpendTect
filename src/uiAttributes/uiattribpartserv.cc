@@ -615,12 +615,6 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 }
 
 
-#define mCleanReturn()\
-{\
-    dtcoldefset.erase();\
-    return 0;\
-}
-
 const RegularSeisDataPack* uiAttribPartServer::createOutput(
 				const TrcKeyZSampling& tkzs,
 				const RegularSeisDataPack* cache )
@@ -676,23 +670,34 @@ const RegularSeisDataPack* uiAttribPartServer::createOutput(
 	uiString errmsg;
 	process = aem->getTableOutExecutor( posvals, errmsg, firstcolidx );
 	if ( !process )
-	    { uiMSG().error(errmsg); mCleanReturn(); }
+	    { uiMSG().error(errmsg); return 0; }
 
 	uiTaskRunner taskrunner( parent() );
 	if ( !TaskRunner::execute( &taskrunner, *process ) )
-	    mCleanReturn();
+	    return 0;
 
-	output = new RegularSeisDataPack(
-			SeisDataPack::categoryStr(false,false) );
-	output->setSampling( tkzs );
-	output->addComponent( targetspecs_[0].userRef() );
-	TypeSet<float> values;
-	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, values,
+	TypeSet<float> vals;
+	posvals.bivSet().getColumn( posvals.nrFixedCols()+firstcolidx, vals,
 				    true );
-	ArrayValueSeries<float, float>* avs =
-	    new ArrayValueSeries<float,float>(values.arr(),true, values.size());
-	output->data(0).setStorage( avs );
-	dtcoldefset.erase();
+	if ( !vals.isEmpty() )
+	{
+	    ArrayValueSeries<float, float> avs( vals.arr(), false, vals.size());
+	    output = new RegularSeisDataPack(
+				SeisDataPack::categoryStr(false,false) );
+	    output->setSampling( tkzs );
+	    output->addComponent( targetspecs_[0].userRef() );
+	    ValueSeries<float>* arr3dvs = output->data(0).getStorage();
+	    if ( !arr3dvs )
+	    {
+		delete output;
+		output = 0;
+	    }
+	    else
+	    {
+		ValueSeriesGetAll<float> copier( avs, *arr3dvs, vals.size() );
+		copier.execute();
+	    }
+	}
     }
     else
     {
