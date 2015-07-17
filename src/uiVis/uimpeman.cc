@@ -102,15 +102,15 @@ void uiMPEMan::addButtons()
     trackinvolidx_ = mAddButton( "autotrack", trackFromSeedsAndEdges,
 				tr("Auto-track"), false );
 
-    trackwithseedonlyidx_ = mAddButton( "trackfromseeds", trackFromSeedsOnly,
-				       tr("Track From Seeds Only"), false );
+//    trackwithseedonlyidx_ = mAddButton( "trackfromseeds", trackFromSeedsOnly,
+//				       tr("Track From Seeds Only"), false );
 
     retrackallidx_ = mAddButton( "retrackhorizon", retrackAllCB,
 				tr("Retrack All"), false );
     toolbar_->addSeparator();
 
-    displayatsectionidx_ = mAddButton( "sectiononly", displayAtSectionCB,
-				      tr("Display at section only"), true );
+//    displayatsectionidx_ = mAddButton( "sectiononly", displayAtSectionCB,
+//				      tr("Display at section only"), true );
 
     toolbar_->addSeparator();
 
@@ -926,19 +926,22 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
 {
     const Selector<Coord3>* sel =
 	visserv_->getCoordSelector( clickablesceneid_ );
+    if ( !sel || !sel->isOK() )
+	return;
 
-    if ( sel && sel->isOK() )
-    {
-	const int currentevent = EM::EMM().undo().currentEventID();
-//	uiTaskRunner taskrunner( toolbar_ );
-//	for ( int idx=0; idx<displays.size(); idx++ )
-//	    displays[idx]->removeSelectionInPolygon( *sel, &taskrunner );
+    const int currentevent = EM::EMM().undo().currentEventID();
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
+	return;
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,
+		    emod,visserv_->getObject(selectedids[0]) );
 
-	toolbar_->turnOn( polyselectidx_, false );
-	selectionMode( cb );
+    uiTaskRunner taskrunner( toolbar_ );
+    emod->removeSelection( *sel, &taskrunner );
+    toolbar_->turnOn( polyselectidx_, false );
+    selectionMode( cb );
 
-	setUndoLevel( currentevent );
-    }
+    setUndoLevel( currentevent );
 }
 
 
@@ -959,6 +962,7 @@ void uiMPEMan::showSettingsCB( CallBacker* )
 
 void uiMPEMan::displayAtSectionCB( CallBacker* )
 {
+/*
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker ) return;
 
@@ -976,6 +980,7 @@ void uiMPEMan::displayAtSectionCB( CallBacker* )
 
     toolbar_->setToolTip( displayatsectionidx_,
 	ison ? tr("Display full") : tr("Display at section only") );
+*/
 }
 
 
@@ -1070,9 +1075,6 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
     toolbar_->setSensitive( trackinvolidx_,
 	    !is2d && isinvolumemode && seedpicker );
-    toolbar_->setSensitive( trackwithseedonlyidx_,
-	    !is2d && isinvolumemode && seedpicker );
-    toolbar_->setSensitive( displayatsectionidx_, seedpicker );
 
     toolbar_->setSensitive( removeinpolygonidx_,
 			    toolbar_->isOn(polyselectidx_) );

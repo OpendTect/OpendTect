@@ -99,11 +99,9 @@ protected:
 
     int				seedidx_;
     int				undoidx_, redoidx_;
-    int				trackwithseedonlyidx_;
     int				trackinvolidx_;
     int 			polyselectidx_;
     int				removeinpolygonidx_;
-    int				displayatsectionidx_;
     int				retrackallidx_;
     int				saveidx_;
 
