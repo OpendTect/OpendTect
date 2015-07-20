@@ -78,8 +78,6 @@ void uiODTreeTop::keyPressCB( CallBacker* cb )
 
 	    itm->setOnlyAtSectionsDisplay( !itm->isOnlyAtSections() );
 	}
-
-	keh->setHandled( true );
     }
 }
 
