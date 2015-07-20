@@ -80,8 +80,8 @@ int main( int argc, char ** argv )
     uiMain app( argc, argv );
 
 #ifdef __win__
-    if ( File::isLink( su.fs_.fname_.buf() ) )
-	su.fs_.fname_ = File::linkTarget( su.fs_.fname_.buf() );
+    if ( File::isLink( su.fs_.fileName(0) ) )
+	su.fs_.setFileName( File::linkTarget( su.fs_.fileName(0) ) );
 #endif
 
     uiSEGYExamine* sgyex = new uiSEGYExamine( 0, su );
