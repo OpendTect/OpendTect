@@ -1320,12 +1320,8 @@ void RandomTrackDisplay::setPixelDensity( float dpi )
 
 void RandomTrackDisplay::draggerMoveFinished( CallBacker* )
 {
-    if ( nrAttribs()==1 && getSelSpec(0) )
-    {
-	deSelect();
-	select();
-    }
+    deSelect();
+    select();
 }
-
 
 } // namespace visSurvey
