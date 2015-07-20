@@ -38,6 +38,15 @@ Alignment BaseMapObject::getAlignment( int shapeidx ) const
 }
 
 
+Color BaseMapObject::getColor() const
+{
+    if ( getFillColor(0) != Color::NoColor() )
+	return getFillColor( 0 );
+    else
+	return getLineStyle(0)->color_;
+}
+
+
 const OD::RGBImage* BaseMapObject::createImage( Coord& origin,Coord& p11 ) const
 { return 0; }
 
