@@ -82,7 +82,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 				      const char* prefgrp, bool attrsneedupdt )
     : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? tr("Attribute Set 2D")
 					: tr("Attribute Set 3D"),mNoDlgTitle,
-                                        mODHelpKey(mAttribDescSetEdHelpID) )
+					mODHelpKey(mAttribDescSetEdHelpID) )
 	.savebutton(true).savetext("Save on Close")
 	.menubar(true).modal(false))
     , inoutadsman_(adsm)
@@ -131,7 +131,7 @@ void uiAttribDescSetEd::createMenuBar()
 {
     uiMenuBar* menu = menuBar();
     if( !menu )
-        { pErrMsg("huh?"); return; }
+	{ pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
     mInsertItem( tr("New set ..."), newSet, "new" );
@@ -168,8 +168,6 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "save", savePush, tr("Save attribute set") );
     mAddButton( "saveas", saveAsPush, tr("Save attribute set as") );
     toolbar_->addSeparator();
-    mAddButton( "showattrnow", directShow,
-		tr("Redisplay element with current attribute"));
     mAddButton( "evalattr", evalAttribute, tr("Evaluate attribute") );
     mAddButton( "evalcrossattr",crossEvalAttrs,tr("Cross attributes evaluate"));
     mAddButton( "xplot", crossPlot, tr("Cross-Plot attributes") );
@@ -190,12 +188,12 @@ void uiAttribDescSetEd::createGroups()
     attrlistfld_->attach( leftAlignedBelow, attrsetfld_ );
 
     moveupbut_ = new uiToolButton( leftgrp, uiToolButton::UpArrow,
-                                   uiStrings::sUp(),
-				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
+				   uiStrings::sUp(),
+				   mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     moveupbut_->attach( centeredRightOf, attrlistfld_ );
     movedownbut_ = new uiToolButton( leftgrp, uiToolButton::DownArrow,
-                                     uiStrings::sDown(),
-				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
+				     uiStrings::sDown(),
+				     mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     movedownbut_->attach( alignedBelow, moveupbut_ );
     sortbut_ = new uiToolButton( leftgrp, "sort", tr("Sort attributes"),
 				 mCB(this,uiAttribDescSetEd,sortPush) );
@@ -251,6 +249,11 @@ void uiAttribDescSetEd::createGroups()
     addbut_->attach( rightTo, attrnmfld_ );
     addbut_->activated.notify( mCB(this,uiAttribDescSetEd,addPush) );
 
+    dispbut_ = new uiToolButton( rightgrp, "showattrnow",
+	tr("Recalculate this attribute on selected element"),
+	mCB(this,uiAttribDescSetEd,directShow) );
+    dispbut_->attach( rightTo, addbut_ );
+
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
@@ -280,10 +283,10 @@ void uiAttribDescSetEd::init()
 				   : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
     if ( autoset && SI().pars().get(autoidkey,autoid) && autoid != setid_ )
     {
-        uiString msg = tr("The Attribute-set selected for Auto-load"
-                          " is no longer valid.\n Load another now?");
+	uiString msg = tr("The Attribute-set selected for Auto-load"
+			  " is no longer valid.\n Load another now?");
 
-        if ( uiMSG().askGoOn( msg ) )
+	if ( uiMSG().askGoOn( msg ) )
 	{
 	    BufferStringSet attribfiles;
 	    BufferStringSet attribnames;
@@ -719,17 +722,17 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     if ( oldattr != newattr )
     {
        uiString msg = tr("This will change the type of "
-                         " existing attribute '%1'.\n"
-                         "This will remove previous"
-                         " definition of the attribute.\n"
-                         "If you want to avoid this please use"
-                         " 'Cancel' and 'Add as new'."
-                         "\nAre you sure you want"
-                         " to change the attribute type?")
-                        .arg(usedesc->userRef());
+			 " existing attribute '%1'.\n"
+			 "This will remove previous"
+			 " definition of the attribute.\n"
+			 "If you want to avoid this please use"
+			 " 'Cancel' and 'Add as new'."
+			 "\nAre you sure you want"
+			 " to change the attribute type?")
+			.arg(usedesc->userRef());
 
-        bool res = uiMSG().askGoOn(msg, tr("Change"),
-                                   uiStrings::sCancel());
+	bool res = uiMSG().askGoOn(msg, tr("Change"),
+				   uiStrings::sCancel());
 	if ( res )
 	{
 	    checkusrref = false;
@@ -907,9 +910,9 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	if ( attrset.is2D() != is2D() )
 	{
 	    bs = tr("Attribute Set %1 is of type %2")
-               .arg(setctio_.ioobj->name())
+	       .arg(setctio_.ioobj->name())
 	       .arg(attrset.is2D() ? uiStrings::s2D(true)
-                                   : uiStrings::s3D(true));
+				   : uiStrings::s3D(true));
 	    mErrRetFalse(bs)
 	}
 
@@ -979,10 +982,10 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 	    if ( !ad ) continue;
 	    if ( ad->isStored() && ad->isSatisfied()==2 )
 	    {
-                uiString msg = tr("The attribute: '%1'"
-                                  "will be removed\n"
-                                  "Storage ID is no longer valid")
-                               .arg(ad->userRef());
+		uiString msg = tr("The attribute: '%1'"
+				  "will be removed\n"
+				  "Storage ID is no longer valid")
+			       .arg(ad->userRef());
 
 
 		uiMSG().message( msg );
