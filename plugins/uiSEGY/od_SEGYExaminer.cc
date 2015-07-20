@@ -73,8 +73,9 @@ int main( int argc, char ** argv )
     if ( dofork )
 	ForkProcess();
 
-    su.fs_.fname_ = argv[argidx];
-    su.fs_.fname_.replace( "+x+", "*" );
+    BufferString fnm( argv[argidx] );
+    fnm.replace( "+x+", "*" );
+    su.fs_.setFileName( fnm );
 
     uiMain app( argc, argv );
 

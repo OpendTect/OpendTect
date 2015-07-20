@@ -117,7 +117,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     hsplit->addGroup( txtgrp );
     hsplit->addGroup( logrp );
 
-    toStatusBar( setup_.fs_.fname_, 1 );
+    toStatusBar( setup_.fs_.dispName(), 1 );
     outInfo( "Opening input" );
     rdr_ = getReader( setup_, txtinfo_ );
     txtfld_->setText( txtinfo_ );
@@ -162,7 +162,7 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 
 
 #define mGetWinTile() \
-    const BufferString fnm( FilePath(setup_.fs_.fname_).fileName() ); \
+    const BufferString fnm( FilePath(setup_.fs_.dispName()).fileName() ); \
     BufferString wintitle( "First ", tbuf_.size(), " traces from " ); \
     wintitle.add( fnm )
 
@@ -194,7 +194,7 @@ void uiSEGYExamine::updateInput( CallBacker* )
 {
     display( true );
     updateInp();
-    setName( setup_.fs_.fname_ );
+    setName( setup_.fs_.dispName() );
 }
 
 
@@ -272,7 +272,7 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 	{ cmd += " --fmt "; cmd += su.fp_.fmt_; }
     if ( su.fp_.byteswap_ )
 	{ cmd += " --swapbytes "; cmd += su.fp_.byteswap_; }
-    if ( su.fs_.isMultiFile() )
+    if ( su.fs_.isMulti() )
     {
 	FileMultiString fms;
 	fms += su.fs_.nrs_.start;
@@ -283,7 +283,7 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 	cmd += " --filenrs '"; cmd += fms; cmd += "'";
     }
 
-    BufferString fnm( su.fs_.fname_ );
+    BufferString fnm( su.fs_.fileName() );
     fnm.replace( "*", "+x+" );
     return ExecODProgram( cmd, fnm );
 }

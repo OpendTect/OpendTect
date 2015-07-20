@@ -127,7 +127,7 @@ bool uiSEGYReadDlg::acceptOK( CallBacker* )
 	return false;
 
     SEGY::FileSpec fs; fs.usePar( pars_ );
-    PtrMan<IOObj> inioobj = fs.getIOObj();
+    PtrMan<IOObj> inioobj = fs.getIOObj( true );
     if ( !inioobj )
     {
 	uiMSG().error( tr("Internal: cannot create SEG-Y object") );

@@ -462,7 +462,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     fileopts_.usePar( iopar );
     fileopts_.setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
 
-    iopar.getYN( SEGY::FileDef::sKeyForceRev0(), forcerev0_ );
+    iopar.getYN( SEGY::FilePars::sKeyForceRev0(), forcerev0_ );
     othdomain_ = !ZDomain::isSI( iopar );
 }
 

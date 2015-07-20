@@ -143,7 +143,7 @@ void uiSEGYRead::fillPar( IOPar& iop ) const
 {
     iop.merge( pars_ );
     if ( rev_ == Rev0 )
-	iop.setYN( SEGY::FileDef::sKeyForceRev0(), true );
+	iop.setYN( SEGY::FilePars::sKeyForceRev0(), true );
 }
 
 
@@ -151,7 +151,7 @@ void uiSEGYRead::usePar( const IOPar& iop )
 {
     SEGY::FileReadOpts::shallowClear( pars_ );
     pars_.merge( iop );
-    rev_ = iop.isTrue( SEGY::FileDef::sKeyForceRev0() ) ? Rev0 : Rev1;
+    rev_ = iop.isTrue( SEGY::FilePars::sKeyForceRev0() ) ? Rev0 : Rev1;
 }
 
 
@@ -232,7 +232,7 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     nrtrcsfld_->setChecked( true );
 
     SEGY::FileSpec fs; fs.usePar( pars );
-    BufferString fnm( fs.fname_ );
+    BufferString fnm( fs.fileName() );
     fnm.replace( '*', 'x' );
     FilePath fp( fnm ); fp.setExtension( "txt" );
     uiFileInput::Setup fisu( GetProcFileName(fp.fileName()) );

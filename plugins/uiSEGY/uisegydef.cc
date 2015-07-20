@@ -118,25 +118,27 @@ SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
 {
     SEGY::FileSpec spec( getSpec() );
+    const BufferString fnm( spec.fileName(0) );
 
     if ( !perm )
     {
-	if ( spec.fname_.isEmpty() )
+	if ( spec.isEmpty() )
 	    mErrRet(tr("No file name specified"))
 
 	if ( forread_ )
 	{
-	    if ( spec.isMultiFile() )
+	    if ( spec.isRangeMulti() )
 	    {
-		if ( !spec.fname_.contains('*') )
+		BufferString inpstr = spec.fnames_.get(0);
+		if ( !inpstr.contains('*') )
 		    mErrRet(tr("Please put a wildcard ('*') in the file name"))
 	    }
-	    else if ( !File::exists(spec.fname_) )
+	    else if ( !File::exists(fnm) )
 		mErrRet(tr("Selected input file does not exist"))
 	}
     }
 
-    (forread_ ? lastreaddir : lastwritedir) = FilePath(spec.fname_).pathOnly();
+    (forread_ ? lastreaddir : lastwritedir) = FilePath(fnm).pathOnly();
     spec.fillPar( iop );
     return true;
 }
@@ -186,7 +188,7 @@ void uiSEGYFileSpec::setFileName( const char* fnm )
 
 void uiSEGYFileSpec::setSpec( const SEGY::FileSpec& spec )
 {
-    setFileName( spec.fname_ );
+    setFileName( spec.fileName(0) );
     setMultiInput( spec.nrs_, spec.zeropad_ );
     fileSel( 0 );
 }
@@ -242,7 +244,7 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
 	return;
 
     const SEGY::FileSpec spec( getSpec() );
-    const char* fnm = spec.getFileName();
+    const char* fnm = spec.fileName();
     StreamData sd( StreamProvider(fnm).makeIStream() );
     const bool doesexist = sd.usable();
     manipbut_->setSensitive( doesexist );
@@ -257,7 +259,8 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
     bh.guessIsSwapped();
     swpd_ = bh.isSwapped();
     isieee_ = bh.format() == 5;
-    issw_ = false; //TODO: find out how we can detect SeisWare SEG-Y files
+    issw_ = false;
+    //TODO: find out how we can detect SeisWare SEG-Y files
     // The problem is they write IEEE native PC little-endian
     // the Rev. 1 standard says it needs to be big-endian, i.e. byte-swapped)
 
@@ -268,7 +271,7 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
 void uiSEGYFileSpec::manipFile( CallBacker* )
 {
     const SEGY::FileSpec spec( getSpec() );
-    uiSEGYFileManip dlg( this, spec.getFileName() );
+    uiSEGYFileManip dlg( this, spec.fileName() );
     if ( dlg.go() )
 	setFileName( dlg.fileName() );
 }
@@ -1166,7 +1169,7 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
     }
 
     if ( setup_.revtype_ == uiSEGYRead::Rev0 )
-	iop.setYN( SEGY::FileDef::sKeyForceRev0(), true );
+	iop.setYN( SEGY::FilePars::sKeyForceRev0(), true );
 
     return true;
 }

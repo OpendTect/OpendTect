@@ -14,49 +14,44 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "ranges.h"
-#include "bufstring.h"
 #include "coord.h"
 #include "samplingdata.h"
+#include "bufstringset.h"
 #include "seistype.h"
 #include "segythdef.h"
 class IOObj;
 class Scaler;
- 
+
 
 namespace SEGY
 {
 
 
-/*\brief Base class for SEG-Y parameter classes  */
-
-mExpClass(Seis) FileDef
-{
-public:
-    static const char*	sKeySEGYRev();
-    static const char*	sKeyForceRev0();
-
-};
-
-
-/*\brief Definition of input and output file(s)  */
+/*\brief Definition of input / output file(s)  */
 
 mExpClass(Seis) FileSpec
 {
 public:
-    			FileSpec( const char* fnm=0 )
-			    : fname_(fnm)
-			    , nrs_(mUdf(int),0,1)
-			    , zeropad_(0)	{}
 
-    BufferString	fname_;
+			FileSpec(const char* fnm=0);
+			FileSpec(const IOPar&);
+
+    BufferStringSet	fnames_;
     StepInterval<int>	nrs_;
     int			zeropad_;	//!< pad zeros to this length
 
-    bool		isMultiFile() const	{ return !mIsUdf(nrs_.start); }
-    int			nrFiles() const	
-    			{ return isMultiFile() ? nrs_.nrSteps()+1 : 1; }
-    const char*		getFileName(int nr=0) const;
-    IOObj*		getIOObj(bool temporary=true) const;
+    bool		isEmpty() const
+			{ return fnames_.isEmpty() || fnames_.get(0).isEmpty();}
+    bool		isMulti() const		{ return nrFiles() > 1; }
+    bool		isRangeMulti() const;
+    int			nrFiles() const	;
+    const char*		fileName(int nr=0) const;
+    const char*		dispName() const;	//!< for titles etc
+    const char*		usrStr() const;		//!< the typed filename
+
+    void		setFileName( const char* nm )
+			{ fnames_.setEmpty(); if ( nm && *nm ) fnames_.add(nm);}
+    IOObj*		getIOObj(bool temporary,int nr=0) const;
 
     void		getMultiFromString(const char*);
     static const char*	sKeyFileNrs();
@@ -64,9 +59,12 @@ public:
     static void		ensureWellDefined(IOObj&);
     static void		fillParFromIOObj(const IOObj&,IOPar&);
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
-    virtual void	getReport(IOPar&,bool) const;
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    void		getReport(IOPar&,bool) const;
+
+    static void		makePathsRelative(IOPar&,const char* todir=0);
+			//< default is survey directory
 
 };
 
@@ -76,7 +74,7 @@ public:
 mExpClass(Seis) FilePars
 {
 public:
-    			FilePars( bool forread=true )
+			FilePars( bool forread=true )
 			    : ns_(0)
 			    , fmt_(forread?0:1)
 			    , byteswap_(0)
@@ -91,15 +89,16 @@ public:
     static const char*	nameOfFmt(int fmt,bool forread);
     static int		fmtOf(const char*,bool forread);
 
+    static const char*	sKeyForceRev0();
     static const char*	sKeyNrSamples();
     static const char*	sKeyNumberFormat();
     static const char*	sKeyByteSwap();
 
     void		setForRead(bool);
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
-    virtual void	getReport(IOPar&,bool) const;
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    void		getReport(IOPar&,bool) const;
 
 protected:
 
@@ -113,7 +112,7 @@ protected:
 mExpClass(Seis) FileReadOpts
 {
 public:
-    			FileReadOpts( Seis::GeomType gt=Seis::Vol )
+			FileReadOpts( Seis::GeomType gt=Seis::Vol )
 			    : forread_(true)
 			    , offsdef_(0,1)
 			    , coordscale_(mUdf(float))
@@ -159,9 +158,9 @@ public:
     static const char*	sKeyCoordStep();
     static const char*	sKeyCoordFileName();
 
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
-    virtual void	getReport(IOPar&,bool) const;
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    void		getReport(IOPar&,bool) const;
     static void		shallowClear(IOPar&);
 
 protected:
@@ -174,4 +173,3 @@ protected:
 
 
 #endif
-

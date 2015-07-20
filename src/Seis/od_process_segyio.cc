@@ -96,27 +96,7 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
 	strm << "Missing or invalid file name in parameter file\n";
 	return false;
     }
-
-    FilePath fp ( filespec.fname_ );
-    if ( fp.isSubDirOf(GetDataDir()) )
-    {
-	BufferString relpath = File::getRelativePath( GetDataDir(),
-						      fp.pathOnly() );
-	if ( !relpath.isEmpty() )
-	{
-	    relpath += "/";
-	    relpath += fp.fileName();
-#ifdef __win__
-	    relpath.replace( '/', '\\' );
-#endif
-	    if ( relpath != filespec.fname_ )
-	    {
-		relpath.replace( '\\', '/' );
-		filespec.fname_ = relpath;
-	    }
-	    iop.set( sKey::FileName(), filespec.fname_ );
-	}
-    }
+    SEGY::FileSpec::makePathsRelative( iop );
 
     SEGY::FileIndexer indexer( mid, !isps, filespec, is2d, iop );
     if ( !indexer.go(strm) )
