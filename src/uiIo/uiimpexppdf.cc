@@ -43,7 +43,8 @@ static const char* filefilter = "Text (*.txt *.dat)";
 
 uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Probability Density Function"),
-				 mNoDlgTitle, mODHelpKey(mImpRokDocPDFHelpID) ))
+				 mNoDlgTitle, mODHelpKey(mImpRokDocPDFHelpID))
+			   .modal(false))
 {
     setOkText( uiStrings::sImport() );
 

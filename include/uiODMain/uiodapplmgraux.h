@@ -23,6 +23,7 @@ class uiDataPointSet;
 class uiDataPointSetMan;
 class uiDialog;
 class uiImpPVDS;
+class uiImpRokDocPDF;
 class uiODApplMgr;
 class uiProbDenFuncMan;
 class uiSessionMan;
@@ -85,6 +86,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiProbDenFuncMan*	manpdfdlg_;
     uiSessionMan*	mansessiondlg_;
     uiImpPVDS*		impcrossplotdlg_;
+    uiImpRokDocPDF*	imppdfdlg_;
     PreStack::uiImportMute*	impmutedlg_;
     uiODApplMgr&	am_;
     uiParent*		par_;

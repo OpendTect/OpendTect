@@ -112,6 +112,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , mansessiondlg_(0)
     , impcrossplotdlg_(0)
     , impmutedlg_(0)
+    , imppdfdlg_(0)
 {}
 
 
@@ -140,6 +141,7 @@ void uiODApplMgrDispatcher::deleteDlgs()
 	delete mansessiondlg_; mansessiondlg_ = 0;
 	delete impcrossplotdlg_; impcrossplotdlg_ = 0;
 	delete impmutedlg_; impmutedlg_ = 0;
+	delete imppdfdlg_; imppdfdlg_ = 0;
 }
 
 
@@ -284,7 +286,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    if ( !impmutedlg_ )
 		impmutedlg_ = new PreStack::uiImportMute( par_ );
 
-	    impmutedlg_->go();
+	    impmutedlg_->show();
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
@@ -305,8 +307,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(PDF):
         if ( at == uiODApplMgr::Imp )
 	{
-	    uiImpRokDocPDF dlg( par_ );
-	    dlg.go();
+	    if ( !imppdfdlg_ )
+		imppdfdlg_ = new uiImpRokDocPDF( par_ );
+
+	    imppdfdlg_->show();
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
