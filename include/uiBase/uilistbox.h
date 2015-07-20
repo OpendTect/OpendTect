@@ -57,13 +57,13 @@ mFDQtclass(QListWidgetItem)
 */
 
 mExpClass(uiBase) uiListBox : public uiObject
-{ mODTextTranslationClass(uiListBox);
+{ mODTextTranslationClass(uiListBox)
 friend class i_listMessenger;
 friend class uiListBoxBody;
 public:
 
-                        uiListBox(uiParent*,const char* nm=0); //!< OnlyOne
-                        uiListBox(uiParent*,const char* nm,OD::ChoiceMode cm,
+			uiListBox(uiParent*,const char* nm=0); //!< OnlyOne
+			uiListBox(uiParent*,const char* nm,OD::ChoiceMode cm,
 				  int prefNrLines=0,int prefFieldWidth=0);
 			uiListBox(uiParent*,const BufferStringSet&,
 				  const char* nm=0);
@@ -128,8 +128,8 @@ public:
 
     int			currentItem() const;
     const char*		getText() const	 { return textOfItem(currentItem()); }
-    void                setCurrentItem(int);
-    void                setCurrentItem(const char*);	//!< First match
+    void		setCurrentItem(int);
+    void		setCurrentItem(const char*);	//!< First match
     void		setCurrentItem( const FixedString& fs )
 						{ setCurrentItem( fs.str() ); }
     void		setItemSelectable(int,bool);
