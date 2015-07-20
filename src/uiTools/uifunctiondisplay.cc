@@ -644,6 +644,13 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
 
     mousedown_ = false;
     mGetMousePos();
+
+    if ( isnorm && selpt_<=0 )
+    {
+	addPoint( ev.pos() );
+	return;
+    }
+
     if ( !isctrl || selpt_ <= 0 || selpt_ >= xvals_.size()-1
 	 || xvals_.size() < 3 ) return;
 
@@ -690,12 +697,13 @@ void uiFunctionDisplay::mouseMove( CallBacker* )
 
 void uiFunctionDisplay::mouseDClick( CallBacker* )
 {
-    mousedown_ = false;
-    mGetMousePos();
-    if ( !isnorm ) return;
+}
 
-    float xval = xax_->getVal(ev.pos().x);
-    float yval = yax_->getVal(ev.pos().y);
+
+void uiFunctionDisplay::addPoint( const uiPoint& pt )
+{
+    float xval = xax_->getVal( pt.x );
+    float yval = yax_->getVal( pt.y );
 
     if ( xval > xax_->range().stop )
 	xval = xax_->range().stop;
@@ -731,6 +739,7 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
 	    break;
 	}
     }
+
 
     pointSelected.trigger();
     draw();
