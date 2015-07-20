@@ -440,6 +440,7 @@ void uiStratSynthDisp::handleFlattenChange()
 void uiStratSynthDisp::setFlattened( bool flattened, bool trigger )
 {
     dispflattened_ = flattened;
+    control_->setFlattened( flattened );
     if ( trigger )
 	handleFlattenChange();
 }
@@ -1281,19 +1282,25 @@ void uiStratSynthDisp::showFRResults()
 }
 
 
+void uiStratSynthDisp::showInfoMsg( bool foralt )
+{
+    StratSynth& ss = foralt ? altSS() : curSS();
+    if ( ss.infoMsg() )
+    {
+	uiMsgMainWinSetter mws( mainwin() );
+	uiMSG().warning( ss.infoMsg() );
+	ss.clearInfoMsg();
+    }
+}
+
+
 void uiStratSynthDisp::doModelChange()
 {
     MouseCursorChanger mcs( MouseCursor::Busy );
 
     if ( !autoupdate_ && !forceupdate_ ) return;
 
-    if ( curSS().infoMsg() )
-    {
-	uiMsgMainWinSetter mws( mainwin() );
-	uiMSG().warning( curSS().infoMsg() );
-    }
-
-    curSS().clearInfoMsg();
+    showInfoMsg( false );
     updateSyntheticList( true );
     updateSyntheticList( false );
     if ( wvadatalist_->size() <= 1 )
@@ -1331,13 +1338,8 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return )
-    else if ( curSS().infoMsg() )
-    {
-	uiMsgMainWinSetter mws( mainwin() );
-	uiMSG().warning( curSS().infoMsg() );
-	curSS().clearInfoMsg();
-    }
 
+    showInfoMsg( false );
     if ( altSS().hasElasticModels() )
     {
 	altSS().removeSynthetic( syntheticnm );
@@ -1345,12 +1347,8 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	SyntheticData* altsd = altSS().addSynthetic();
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return )
-	else if ( curSS().infoMsg() )
-	{
-	    uiMsgMainWinSetter mws( mainwin() );
-	    uiMSG().warning( curSS().infoMsg() );
-	    curSS().clearInfoMsg();
-	}
+
+	showInfoMsg( true );
     }
 
     updateSyntheticList( wva );
@@ -1519,12 +1517,8 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return )
-    else if ( curSS().infoMsg() )
-    {
-	uiMsgMainWinSetter mws( mainwin() );
-	uiMSG().warning( curSS().infoMsg() );
-	curSS().clearInfoMsg();
-    }
+
+   showInfoMsg( false );
 
     if ( altSS().hasElasticModels() )
     {
@@ -1532,12 +1526,8 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 	SyntheticData* altsd = altSS().addSynthetic();
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return )
-	else if ( curSS().infoMsg() )
-	{
-	    uiMsgMainWinSetter mws( mainwin() );
-	    uiMSG().warning( curSS().infoMsg() );
-	    curSS().clearInfoMsg();
-	}
+
+	showInfoMsg( true );
     }
 
     updateSyntheticList( true );
@@ -1651,13 +1641,8 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		mErrRet(curSS().errMsg(),);
 		continue;
 	    }
-	    else if ( curSS().infoMsg() )
-	    {
-		uiMsgMainWinSetter mws( mainwin() );
-		uiMSG().warning( curSS().infoMsg() );
-		curSS().clearInfoMsg();
-	    }
 
+	    showInfoMsg( false );
 	    if ( useed_ )
 	    {
 		SyntheticData* nonfrsd = stratsynth_->getSyntheticByIdx( idx );

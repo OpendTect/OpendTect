@@ -35,6 +35,9 @@ protected:
 
 public:
 			~MFVCViewManager();
+			MFVCViewManager();
+    void		setFlattened(bool flattened);
+    bool		isFlattened() const;
 };
 
 
@@ -81,6 +84,7 @@ protected:
     void		pinchZoomCB(CallBacker*);
 public:
     uiToolButton*	parsButton(const uiFlatViewer*);
+    void		setFlattened(bool flattened);
 
 };
 

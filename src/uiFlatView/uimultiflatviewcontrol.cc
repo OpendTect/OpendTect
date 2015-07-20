@@ -24,11 +24,34 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "mouseevent.h"
 #include "pixmap.h"
+#include "survinfo.h"
+
+
+static HiddenParam< MFVCViewManager, BoolTypeSetType > isflattened_( false );
+
+
+MFVCViewManager::MFVCViewManager()
+{
+    isflattened_.setParam( this, false );
+}
 
 
 MFVCViewManager::~MFVCViewManager()
 {
+    isflattened_.removeParam( this );
     deepErase( d2tmodels_ );
+}
+
+
+void MFVCViewManager::setFlattened( bool flattened )
+{
+    isflattened_.setParam( this, flattened );
+}
+
+
+bool MFVCViewManager::isFlattened() const
+{
+    return isflattened_.getParam( this );
 }
 
 
@@ -103,6 +126,8 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 		    depthrg.include( curdepthrg );
 	    }
 
+	    if ( isFlattened() )
+		depthrg.shift( SI().seismicReferenceDatum() );
 	    viewwr.setTop( depthrg.start );
 	    viewwr.setBottom( depthrg.stop );
 	}
@@ -110,6 +135,8 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	{
 	    Interval<float> depthrg( mCast(float,wr.top()),
 				     mCast(float,wr.bottom()) );
+	    if ( isFlattened() )
+		depthrg.shift( -SI().seismicReferenceDatum() );
 	    Interval<double> timerg( d2tmodels_[0]->getTime(depthrg.start),
 				      d2tmodels_[0]->getTime(depthrg.stop) );
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
@@ -429,4 +456,10 @@ uiToolButton* uiMultiFlatViewControl::parsButton( const uiFlatViewer* vwr )
 {
     const int vwridx = vwrs_.indexOf( vwr );
     return vwridx >=0 && parsbuts_.validIdx(vwridx) ? parsbuts_[ vwridx ] : 0;
+}
+
+
+void uiMultiFlatViewControl::setFlattened( bool flattened )
+{
+    viewmgrs.getParam(this)->setFlattened( flattened );
 }
