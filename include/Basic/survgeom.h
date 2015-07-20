@@ -38,7 +38,7 @@ will end up in the lineNr() of the TrcKey.
 */
 
 mExpClass(Basic) Geometry
-{ mRefCountImpl(Geometry);
+{ mRefCountImpl(Geometry)
 public:
 
     typedef Pos::GeomID	ID;
@@ -97,7 +97,7 @@ private:
 /*!\brief Makes geometries accessible from a geometry ID, or a MultiID.  */
 
 mExpClass(Basic) GeometryManager
-{mODTextTranslationClass(GeometryManager);
+{ mODTextTranslationClass(GeometryManager)
 public:
 
 				GeometryManager();
@@ -109,7 +109,7 @@ public:
 
     const Geometry3D*		getGeometry3D(Pos::SurvID) const;
 
-    int			nrGeometries() const;
+    int				nrGeometries() const;
 
     Geometry::ID		getGeomID(const char* linenm) const;
     const char*			getName(Geometry::ID) const;
@@ -147,7 +147,7 @@ protected:
     ObjectSet<Geometry>		geometries_;
     static const TrcKey::SurvID	surv2did_;
 
-    bool                        hasduplnms_;
+    bool			hasduplnms_;
 
 public:
 
@@ -180,8 +180,8 @@ mExpClass(Basic) GeometryReader
 {
 public:
 
-    virtual		~GeometryReader()		{};
-			mDefineFactoryInClass(GeometryReader,factory);
+    virtual		~GeometryReader()		{}
+			mDefineFactoryInClass(GeometryReader,factory)
 
     virtual bool	read(ObjectSet<Geometry>&,TaskRunner*) const
 							{ return true; }
@@ -195,8 +195,8 @@ mExpClass(Basic) GeometryWriter
 {
 public:
 
-    virtual		~GeometryWriter()		{};
-			mDefineFactoryInClass(GeometryWriter,factory);
+    virtual		~GeometryWriter()		{}
+			mDefineFactoryInClass(GeometryWriter,factory)
 
     virtual bool	write(Geometry&,uiString&,
 			      const char* crfromstr=0) const { return true; }

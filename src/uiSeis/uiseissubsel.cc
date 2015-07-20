@@ -328,11 +328,11 @@ void uiSeis2DSubSel::setSelectedLines( const BufferStringSet& lnms )
 }
 
 
-StepInterval<int> uiSeis2DSubSel::getTrcRange( int lidx ) const
+StepInterval<int> uiSeis2DSubSel::getTrcRange( Pos::GeomID geomid ) const
 {
     StepInterval<int> trcrg = StepInterval<int>::udf();
     if ( multilnmsel_ )
-	trcrg = multilnmsel_->getTrcRange( lidx );
+	trcrg = multilnmsel_->getTrcRange( geomid );
     else
 	trcrg = selfld_->envelope().hsamp_.crlRange();
 
@@ -340,11 +340,11 @@ StepInterval<int> uiSeis2DSubSel::getTrcRange( int lidx ) const
 }
 
 
-StepInterval<float> uiSeis2DSubSel::getZRange(int lidx) const
+StepInterval<float> uiSeis2DSubSel::getZRange( Pos::GeomID geomid ) const
 {
     StepInterval<float> zrg = StepInterval<float>::udf();
     if ( multilnmsel_ )
-	zrg = multilnmsel_->getZRange( lidx );
+	zrg = multilnmsel_->getZRange( geomid );
     else
 	zrg.setFrom( selfld_->envelope().zsamp_ );
 
@@ -353,13 +353,17 @@ StepInterval<float> uiSeis2DSubSel::getZRange(int lidx) const
 }
 
 
-void uiSeis2DSubSel::getSampling( TrcKeyZSampling& tkzs, int lidx ) const
+void uiSeis2DSubSel::getSampling( TrcKeyZSampling& tkzs,
+				  Pos::GeomID geomid ) const
 {
+    if ( singlelnmsel_ && geomid==-1 )
+	geomid = singlelnmsel_->getInputGeomID();
+
     tkzs.set2DDef();
-    const Pos::GeomID geomid = singlelnmsel_->getInputGeomID();
     tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
-    tkzs.hsamp_.setTrcRange( getTrcRange(lidx) );
-    tkzs.zsamp_.setFrom( getZRange(lidx) );
+    tkzs.hsamp_.setTrcRange( getTrcRange(geomid) );
+    tkzs.zsamp_.setFrom( getZRange(geomid) );
+
 }
 
 

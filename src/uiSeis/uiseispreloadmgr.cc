@@ -41,6 +41,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "od_helpids.h"
 
+using namespace Seis;
+
 const char* cannotloadstr = "Cannot load ";
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
@@ -49,7 +51,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 {
     setCtrlStyle( CloseOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
-    listfld_ = new uiListBox( topgrp, "Loaded entries" );
+    listfld_ = new uiListBox( topgrp, "Loaded entries", OD::ChooseZeroOrMore );
     listfld_->selectionChanged.notify( mCB(this,uiSeisPreLoadMgr,selChg) );
     topgrp->setHAlignObj( listfld_ );
 
@@ -89,7 +91,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 	    mAddBut(tr("Add Prestack data"),ps2DPush);
     }
 */
-    mAddBut(tr("Unload Selected"),unloadPush);
+    mAddBut(tr("Unload Checked"),unloadPush);
 
     uiToolButton* savetb = new uiToolButton( topgrp, "save",
 	    tr("Save pre-loads"), mCB(this,uiSeisPreLoadMgr,savePush) );
@@ -119,21 +121,11 @@ void uiSeisPreLoadMgr::fullUpd( CallBacker* )
 void uiSeisPreLoadMgr::fillList()
 {
     listfld_->setEmpty();
-    Seis::PLDM().getIDs( ids_ );
-    if ( ids_.isEmpty() ) return;
+    const ObjectSet<PreLoadDataEntry>& entries = PLDM().getEntries();
+    if ( entries.isEmpty() ) return;
 
-    for ( int idx=0; idx<ids_.size(); idx++ )
-    {
-	const MultiID ky( ids_[idx] );
-	PtrMan<IOObj> ioobj = IOM().get( ky );
-	if ( !ioobj )
-	{
-	    Seis::PreLoader(ky).unLoad();
-	    ids_.removeSingle( idx ); idx--;
-	    continue;
-	}
-	listfld_->addItem( ioobj->name() );
-    }
+    for ( int idx=0; idx<entries.size(); idx++ )
+	listfld_->addItem( entries[idx]->name_ );
 
     listfld_->setCurrentItem( 0 );
 }
@@ -142,20 +134,17 @@ void uiSeisPreLoadMgr::fillList()
 void uiSeisPreLoadMgr::selChg( CallBacker* )
 {
     const int selidx = listfld_->currentItem();
-    if ( !ids_.validIdx(selidx) )
+    const ObjectSet<PreLoadDataEntry>& entries = PLDM().getEntries();
+    if ( !entries.validIdx(selidx) )
     { infofld_->setText(""); return; }
 
-    Seis::PreLoader spl( ids_[selidx] );
-    PtrMan<IOObj> ioobj = spl.getIOObj();
-    if ( !ioobj )
-    { infofld_->setText( spl.errMsg() ); return; }
-
-    SeisIOObjInfo ioinf( *ioobj );
+    const MultiID mid = entries[selidx]->mid_;
+    SeisIOObjInfo ioinf( mid );
     if ( !ioinf.isOK() )
 	{ infofld_->setText(tr("Internal error: IOObj not OK")); return; }
 
     BufferString disptxt;
-    Seis::PLDM().getInfo( ids_[selidx], disptxt );
+    PLDM().getInfo( mid, entries[selidx]->geomid_, disptxt );
     infofld_->setText( disptxt );
 }
 
@@ -173,10 +162,10 @@ class uiSeisPreLoadSel : public uiDialog
 { mODTextTranslationClass(uiSeisPreLoadSel)
 public:
 
-uiSeisPreLoadSel( uiParent* p, Seis::GeomType geom )
+uiSeisPreLoadSel( uiParent* p, GeomType geom )
     : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey).nrstatusflds(1))
 {
-    setCaption( geom==Seis::Vol ? tr("Pre-load 3D Data")
+    setCaption( geom==Vol ? tr("Pre-load 3D Data")
 				: tr("Pre-load 2D Data") );
     IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
     uiSeisSel::Setup sssu( geom );
@@ -184,7 +173,7 @@ uiSeisPreLoadSel( uiParent* p, Seis::GeomType geom )
     seissel_ = new uiSeisSel( this, ctxt, sssu );
     seissel_->selectionDone.notify( mCB(this,uiSeisPreLoadSel,seisSel) );
 
-    Seis::SelSetup selsu( geom ); selsu.multiline(true);
+    SelSetup selsu( geom ); selsu.multiline(true);
     subselfld_ = uiSeisSubSel::get( this, selsu );
     subselfld_->selChange.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     subselfld_->attach( alignedBelow, seissel_ );
@@ -259,21 +248,21 @@ bool acceptOK( CallBacker* )
 
 void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 {
-    uiSeisPreLoadSel dlg( this, Seis::Vol );
+    uiSeisPreLoadSel dlg( this, Vol );
     if ( !dlg.go() ) return;
 
     const IOObj* ioobj = dlg.seissel_->ioobj();
     mCheckIOObjExistance( ioobj );
-    if ( Seis::PLDM().isPresent(ioobj->key()) )
+    if ( PLDM().isPresent(ioobj->key()) )
     {
 	uiMSG().message( ioobj->name(), " is already preloaded" );
 	return;
     }
 
-    TrcKeyZSampling cs; dlg.subselfld_->getSampling( cs );
-    Seis::PreLoader spl( ioobj->key() );
+    TrcKeyZSampling tkzs; dlg.subselfld_->getSampling( tkzs );
+    PreLoader spl( ioobj->key() );
     uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
-    if ( !spl.loadVol(cs) )
+    if ( !spl.load(tkzs) )
     {
 	const uiString emsg = spl.errMsg();
 	if ( !emsg.isEmpty() )
@@ -286,26 +275,26 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 
 void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 {
-    uiSeisPreLoadSel dlg( this, Seis::Line );
+    uiSeisPreLoadSel dlg( this, Line );
     if ( !dlg.go() ) return;
 
     mCheckIOObjExistance( dlg.seissel_->ioobj() );
 
-    Seis::PreLoader spl( dlg.seissel_->key() );
-    uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
-
     mDynamicCastGet(uiSeis2DSubSel*,ss2d,dlg.subselfld_)
     if ( !ss2d ) return;
 
+    uiTaskRunner taskrunner( this );
+    TrcKeyZSampling tkzs;
     TypeSet<Pos::GeomID> geomids;
     ss2d->selectedGeomIDs( geomids );
-    TrcKeyZSampling tkzs;
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
 	const Pos::GeomID& geomid = geomids[idx];
-	ss2d->getSampling( tkzs, idx );
+	ss2d->getSampling( tkzs, geomid );
 	tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
-	if ( !spl.loadLine(geomid,tkzs) )
+
+	PreLoader spl( dlg.seissel_->key(), geomid, &taskrunner );
+	if ( !spl.load(tkzs) )
 	{
 	    const uiString emsg = spl.errMsg();
 	    if ( !emsg.isEmpty() )
@@ -330,7 +319,7 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 
     mCheckIOObjExistance( dlg.ioObj() );
 
-    Seis::PreLoader spl( dlg.ioObj()->key() );
+    PreLoader spl( dlg.ioObj()->key() );
     Interval<int> inlrg; assign(inlrg,inlrgfld->getRange());
     uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
     if ( !spl.loadPS3D(&inlrg) )
@@ -345,7 +334,7 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 
 
 class uiSeisPreLoadMgrPS2DSel : public uiIOObjSelDlg
-{ mODTextTranslationClass(uiSeisPreLoadMgrPS2DSel);
+{ mODTextTranslationClass(uiSeisPreLoadMgrPS2DSel)
 public:
 
 uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
@@ -407,7 +396,7 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
 
     mCheckIOObjExistance( dlg.ioObj() );
 
-    Seis::PreLoader spl( dlg.ioObj()->key() );
+    PreLoader spl( dlg.ioObj()->key() );
     uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
     if ( !spl.loadPS2D(dlg.lnms_) )
     {
@@ -422,26 +411,23 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
 
 void uiSeisPreLoadMgr::unloadPush( CallBacker* )
 {
-    const int selidx = listfld_->currentItem();
-    if ( selidx < 0 ) return;
+    const ObjectSet<PreLoadDataEntry>& entries = PLDM().getEntries();
+    TypeSet<int> selitms; listfld_->getChosen( selitms );
 
-    uiString msg = tr("Unload '%1'?\n(This will not delete "
-		      "the object from disk)")
-		 .arg(listfld_->textOfItem( selidx ));
+    uiString msg = tr("Unload checked items?\n(This will not delete "
+		      "the data from disk)");
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 
-    Seis::PreLoader spl( ids_[selidx] );
-    spl.unLoad();
+    for ( int idx=0; idx<selitms.size(); idx++ )
+    {
+	const int selidx = selitms[idx];
+	PreLoader spl( entries[selidx]->mid_, entries[selidx]->geomid_ );
+	spl.unLoad();
+    }
 
     fillList();
-    int newselidx = selidx;
-    if ( newselidx >= ids_.size() )
-	newselidx = ids_.size() - 1;
-    if ( newselidx >= 0 )
-	listfld_->setCurrentItem( newselidx );
-    else
-	selChg( 0 );
+    selChg( 0 );
 }
 
 
@@ -467,14 +453,15 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
 	mErrRet( tr("No valid objects found") )
 
     uiTaskRunner taskrunner( this );
-    Seis::PreLoader::load( iop, &taskrunner );
+    PreLoader::load( iop, &taskrunner );
     fullUpd( 0 );
 }
 
 
 void uiSeisPreLoadMgr::savePush( CallBacker* )
 {
-    if ( ids_.isEmpty() ) return;
+    const ObjectSet<PreLoadDataEntry>& entries = PLDM().getEntries();
+    if ( entries.isEmpty() ) return;
 
     CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext() );
     ctio.ctxt.forread = false;
@@ -488,10 +475,11 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 	mErrRet( tr("Cannot open output file:\n%1").arg(fnm) )
 
     IOPar alliop;
-    for ( int idx=0; idx<ids_.size(); idx++ )
+    for ( int idx=0; idx<entries.size(); idx++ )
     {
 	IOPar iop;
-	Seis::PreLoader spl( ids_[idx] ); spl.fillPar( iop );
+	PreLoader spl( entries[idx]->mid_, entries[idx]->geomid_ );
+	spl.fillPar( iop );
 	alliop.mergeComp( iop, IOPar::compKey("Seis",idx) );
     }
 

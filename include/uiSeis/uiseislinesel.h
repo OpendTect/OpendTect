@@ -159,8 +159,8 @@ public:
 
     void		getZRanges(TypeSet<StepInterval<float> >&) const;
     void		getTrcRanges(TypeSet<StepInterval<int> >&) const;
-    StepInterval<float> getZRange(int lidx) const;
-    StepInterval<int>	getTrcRange(int lidx) const;
+    StepInterval<float> getZRange(Pos::GeomID) const;
+    StepInterval<int>	getTrcRange(Pos::GeomID) const;
 
     void		setInput(const MultiID&);
     void		setInput(const BufferStringSet& lnms);

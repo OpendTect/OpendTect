@@ -100,6 +100,8 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     delete man2dprestkdlg_; man2dprestkdlg_ = 0;
     delete man3dprestkdlg_; man3dprestkdlg_ = 0;
     delete manwvltdlg_; manwvltdlg_ = 0;
+
+    Seis::PLDM().removeAll();
 }
 
 

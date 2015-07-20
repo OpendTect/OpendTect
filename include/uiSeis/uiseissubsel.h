@@ -108,9 +108,9 @@ public:
     void		selectedLines(BufferStringSet&) const;
     void		setSelectedLines(const BufferStringSet&);
 
-    void		getSampling(TrcKeyZSampling&,int lidx=-1) const;
-    StepInterval<int>	getTrcRange(int lidx=-1) const;
-    StepInterval<float> getZRange(int lidx=-1) const;
+    void		getSampling(TrcKeyZSampling&,Pos::GeomID =-1) const;
+    StepInterval<int>	getTrcRange(Pos::GeomID =-1) const;
+    StepInterval<float> getZRange(Pos::GeomID =-1) const;
 
 protected:
 

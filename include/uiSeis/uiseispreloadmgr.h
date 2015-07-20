@@ -21,7 +21,7 @@ class uiListBox;
 class uiTextEdit;
 
 
-/*!\brief Shows loaded plugins and allows adding */
+/*!\brief Manager for pre-loading Seismic Data */
 
 mExpClass(uiSeis) uiSeisPreLoadMgr : public uiDialog
 { mODTextTranslationClass(uiSeisPreLoadMgr)
@@ -32,7 +32,6 @@ protected:
 
     uiListBox*		listfld_;
     uiTextEdit*		infofld_;
-    TypeSet<MultiID>	ids_;
 
     void		fillList();
     void		fullUpd(CallBacker*);

@@ -921,21 +921,23 @@ void uiSeis2DMultiLineSel::getTrcRanges(
 }
 
 
-StepInterval<float> uiSeis2DMultiLineSel::getZRange( int lidx ) const
+StepInterval<float> uiSeis2DMultiLineSel::getZRange( Pos::GeomID geomid ) const
 {
     StepInterval<float> zrg = StepInterval<float>::udf();
-    if ( selidxs_.validIdx(lidx) )
-	zrg = zrgs_[selidxs_[lidx]];
+    const int idx = geomids_.indexOf( geomid );
+    if ( zrgs_.validIdx(idx) )
+	zrg = zrgs_[idx];
 
     return zrg;
 }
 
 
-StepInterval<int> uiSeis2DMultiLineSel::getTrcRange( int lidx ) const
+StepInterval<int> uiSeis2DMultiLineSel::getTrcRange( Pos::GeomID geomid ) const
 {
     StepInterval<int> trcrg = StepInterval<int>::udf();
-    if ( selidxs_.validIdx(lidx) )
-	trcrg = trcrgs_[selidxs_[lidx]];
+    const int idx = geomids_.indexOf( geomid );
+    if ( zrgs_.validIdx(idx) )
+	trcrg = trcrgs_[idx];
 
     return trcrg;
 }

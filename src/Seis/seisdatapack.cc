@@ -58,11 +58,19 @@ void RegularSeisDataPack::dumpInfo( IOPar& par ) const
     DataPack::dumpInfo( par );
 
     const TrcKeySampling& tks = sampling_.hsamp_;
-    // TODO: Change for 2D
-    par.set( sKey::InlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
-			       tks.step_.lineNr() );
-    par.set( sKey::CrlRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
-			       tks.step_.trcNr() );
+    if ( is2D() )
+    {
+	par.set( sKey::TrcRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
+				   tks.step_.trcNr() );
+    }
+    else
+    {
+	par.set( sKey::InlRange(), tks.start_.lineNr(), tks.stop_.lineNr(),
+				   tks.step_.lineNr() );
+	par.set( sKey::CrlRange(), tks.start_.trcNr(), tks.stop_.trcNr(),
+				   tks.step_.trcNr() );
+    }
+
     par.set( sKey::ZRange(), sampling_.zsamp_.start, sampling_.zsamp_.stop,
 			     sampling_.zsamp_.step );
 }
@@ -138,9 +146,9 @@ bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
 				      const TrcKeyPath& path,
 				      const Interval<float>& zrg )
 {
-    if ( !rgldp || path.isEmpty()  || 
+    if ( !rgldp || path.isEmpty()  ||
 	 rgldp->nrComponents() ==0 ||
-	 rgldp->sampling().totalNr()==0 ) 
+	 rgldp->sampling().totalNr()==0 )
 	return false;
 
     setPath( path );
@@ -153,15 +161,15 @@ bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
 	addComponent( rgldp->getComponentName(idx) );
 	for ( int idy=0; idy<path.size(); idy++ )
 	{
-	    const int inlidx = 
+	    const int inlidx =
 		rgldp->sampling().hsamp_.inlIdx( path[idy].lineNr() );
-	    const int crlidx = 
+	    const int crlidx =
 		rgldp->sampling().hsamp_.crlIdx( path[idy].trcNr() );
 
 	    for ( int newidz=0; newidz<=getZRange().nrSteps(); newidz++ )
 	    {
 		const int oldidz = newidz + idzoffset;
-		const float val = 
+		const float val =
 		    rgldp->data(idx).info().validPos(inlidx,crlidx,oldidz) ?
 		    rgldp->data(idx).get(inlidx,crlidx,oldidz) : mUdf(float);
 		data(idx).set( 0, idy, newidz, val );
@@ -176,13 +184,13 @@ bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
 }
 
 
-bool RandomSeisDataPack::setDataFrom( const SeisTrcBuf& sbuf, 
-			const TrcKeyPath& path, const TypeSet<BinID>& pathbid, 
+bool RandomSeisDataPack::setDataFrom( const SeisTrcBuf& sbuf,
+			const TrcKeyPath& path, const TypeSet<BinID>& pathbid,
 			const BufferStringSet& cmpnms,
 			const char* zdmkey, const char* nm )
 {
-    if ( path.isEmpty() || sbuf.isEmpty() || 
-	sbuf.get(0)->nrComponents() == 0  || 
+    if ( path.isEmpty() || sbuf.isEmpty() ||
+	sbuf.get(0)->nrComponents() == 0  ||
 	cmpnms.isEmpty() )
 	return false;
 
@@ -194,11 +202,11 @@ bool RandomSeisDataPack::setDataFrom( const SeisTrcBuf& sbuf,
 	addComponent( cmpnms.get(idx) );
 	for ( int idy = 0; idy<data(idx).info().getSize(1); idy++ )
 	{
-	    const int trcidx = pathbid.isEmpty() ? idy : 
+	    const int trcidx = pathbid.isEmpty() ? idy :
 		sbuf.find( (pathbid)[idy] );
 	    const SeisTrc* trc = trcidx<0 ? 0 : sbuf.get( trcidx );
 	    for ( int idz = 0; idz<data(idx).info().getSize(2);	idz++ )
-		data(idx).set( 0,idy,idz, 
+		data(idx).set( 0,idy,idz,
 		!trc ? mUdf(float) : trc->get(idz,idx) );
 	}
     }
