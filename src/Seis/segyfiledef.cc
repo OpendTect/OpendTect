@@ -9,6 +9,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segyfiledef.h"
 #include "iopar.h"
 #include "iostrm.h"
+#include "oddirs.h"
+#include "file.h"
+#include "filepath.h"
 #include "keystrs.h"
 #include "separstr.h"
 #include "ctxtioobj.h"
@@ -17,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace SEGY
 {
-const char* FileDef::sKeyForceRev0()	   { return "Force Rev0"; }
+const char* FilePars::sKeyForceRev0()	   { return "Force Rev0"; }
 const char* FilePars::sKeyNrSamples()	   { return "Nr samples overrule"; }
 const char* FilePars::sKeyNumberFormat()   { return "Number format"; }
 const char* FilePars::sKeyByteSwap()	   { return "Byte swapping"; }
@@ -47,30 +50,84 @@ static const char* allsegyfmtoptions[] = {
 };
 
 
-const char* SEGY::FileSpec::getFileName( int nr ) const
+SEGY::FileSpec::FileSpec( const char* fnm )
+    : nrs_(mUdf(int),0,1)
+    , zeropad_(0)
 {
-    if ( !isMultiFile() )
-	return fname_.buf();
+    if ( fnm && *fnm )
+	fnames_.add( fnm );
+}
 
-    BufferString numbstr( "", nrs_.atIndex(nr) );
+
+int SEGY::FileSpec::nrFiles() const
+{
+    const int nrfnms = fnames_.size();
+    if ( nrfnms > 1 )
+	return nrfnms;
+    return mIsUdf(nrs_.start) ? nrfnms : nrs_.nrSteps()+1;
+}
+
+
+bool SEGY::FileSpec::isRangeMulti() const
+{
+    const int nrfnms = fnames_.size();
+    return nrfnms == 1 && !mIsUdf(nrs_.start);
+}
+
+
+const char* SEGY::FileSpec::usrStr() const
+{
+    return fnames_.isEmpty() ? "" : fnames_.get(0).buf();
+}
+
+
+const char* SEGY::FileSpec::fileName( int fidx ) const
+{
+    if ( fidx < 0 )
+	return "";
+
+    const int nrfnms = fnames_.size();
+    if ( nrfnms > 1 )
+	return fidx < nrfnms ? fnames_.get( fidx ).buf() : "";
+
+    const int nrfiles = nrFiles();
+    if ( fidx >= nrfiles )
+	return "";
+    else if ( mIsUdf(nrs_.start) )
+	return usrStr();
+
+    const int nr = nrs_.atIndex( fidx );
     BufferString replstr;
     if ( zeropad_ < 2 )
-	replstr = numbstr;
+	replstr.set( nr );
     else
     {
+	BufferString numbstr; numbstr.set( nr );
 	const int numblen = numbstr.size();
 	while ( numblen + replstr.size() < zeropad_ )
-	    replstr += "0";
-	replstr += numbstr;
+	    replstr.add( "0" );
+	replstr.add( numbstr );
     }
 
-    mDeclStaticString(ret); ret = fname_;
+    mDeclStaticString(ret); ret = fnames_.get( 0 );
     ret.replace( "*", replstr.buf() );
     return ret.str();
 }
 
 
-IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
+const char* SEGY::FileSpec::dispName() const
+{
+    const int nrfnms = fnames_.size();
+    if ( nrfnms < 2 )
+	return usrStr();
+
+    mDeclStaticString(ret); ret = fileName( 0 );
+    ret.add( " (+more)" );
+    return ret.str();
+}
+
+
+IOObj* SEGY::FileSpec::getIOObj( bool tmp, int nr ) const
 {
     IOStream* iostrm;
     const BufferString seisdirky( mIOObjContext(SeisTrc).getSelKey() );
@@ -78,65 +135,114 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     {
 	MultiID idstr( seisdirky );
 	idstr.add( IOObj::tmpID() );
-	iostrm = new IOStream( fname_, idstr );
+	iostrm = new IOStream( usrStr(), idstr );
     }
     else
     {
-	iostrm = new IOStream( fname_ );
+	iostrm = new IOStream( usrStr() );
 	iostrm->acquireNewKeyIn( MultiID(seisdirky) );
     }
-    iostrm->setFileName( fname_ );
-    iostrm->setGroup( "Seismic Data" );
-    iostrm->setTranslator( "SEG-Y" );
-    iostrm->setDirName( "Seismics" );
-    const bool ismulti = !mIsUdf(nrs_.start);
-    if ( ismulti )
+
+    iostrm->setFileName( nr == 0 ? usrStr() : fileName(nr) );
+    if ( isRangeMulti() )
     {
 	iostrm->fileNumbers() = nrs_;
 	iostrm->setZeroPadding( zeropad_ );
     }
+    iostrm->setGroup( "Seismic Data" );
+    iostrm->setTranslator( "SEG-Y" );
+    iostrm->setDirName( "Seismics" );
 
+    ensureWellDefined( *iostrm );
     return iostrm;
 }
 
 
 void SEGY::FileSpec::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::FileName(), fname_ );
-    if ( mIsUdf(nrs_.start) )
-	iop.removeWithKey( sKeyFileNrs() );
+    iop.removeWithKey( sKeyFileNrs() );
+    const int nrfnms = fnames_.size();
+    iop.set( sKey::FileName(), nrfnms > 0 ? fnames_.get(0).buf() : "" );
+    if ( nrfnms > 1 )
+    {
+	for ( int ifile=1; ifile<nrfnms; ifile++ )
+	    iop.set( IOPar::compKey(sKey::FileName(),ifile),
+		      fileName(ifile) );
+    }
     else
     {
-	FileMultiString fms;
-	fms += nrs_.start; fms += nrs_.stop; fms += nrs_.step;
-	if ( zeropad_ )
-	    fms += zeropad_;
-	iop.set( sKeyFileNrs(), fms );
+	if ( !mIsUdf(nrs_.start) )
+	{
+	    FileMultiString fms;
+	    fms += nrs_.start; fms += nrs_.stop; fms += nrs_.step;
+	    if ( zeropad_ )
+		fms += zeropad_;
+	    iop.set( sKeyFileNrs(), fms );
+	}
     }
 }
 
 
 bool SEGY::FileSpec::usePar( const IOPar& iop )
 {
-    if ( !iop.get( sKey::FileName(), fname_ ) )
-	return false;
+    BufferString fnm;
+    bool havemultifnames = false;
+    if ( !iop.get(sKey::FileName(),fnm) )
+    {
+	const char* res = iop.find( IOPar::compKey(sKey::FileName(),0) );
+	if ( !res || !*res )
+	    return false;
+	fnm = res;
+    }
 
-    getMultiFromString( iop.find(sKeyFileNrs()) );
+    fnames_.setEmpty();
+    fnames_.add( fnm );
+    havemultifnames = iop.find( IOPar::compKey(sKey::FileName(),1) );
+
+    if ( !havemultifnames )
+	getMultiFromString( iop.find(sKeyFileNrs()) );
+    else
+    {
+	for ( int ifile=1; ; ifile++ )
+	{
+	    const char* res = iop.find( IOPar::compKey(sKey::FileName(),ifile));
+	    if ( !res || !*res )
+		break;
+	    fnames_.add( res );
+	}
+    }
     return true;
 }
 
 
 void SEGY::FileSpec::getReport( IOPar& iop, bool ) const
 {
-    iop.set( sKey::FileName(), fname_ );
-    if ( mIsUdf(nrs_.start) ) return;
+    iop.set( sKey::FileName(), usrStr() );
+    const int nrfnms = fnames_.size();
+    const bool hasmultinrs = !mIsUdf(nrs_.start);
+    if ( nrfnms < 2 && !hasmultinrs )
+	return;
 
-    BufferString str;
-    str += nrs_.start; str += "-"; str += nrs_.stop;
-    str += " step "; str += nrs_.step;
-    if ( zeropad_ )
-	{ str += "(pad to "; str += zeropad_; str += " zeros)"; }
-    iop.set( "Replace '*' with", str );
+    if ( nrfnms > 1 )
+    {
+	iop.set( "Number of additional files: ", nrfnms-1 );
+	if ( nrfnms == 2 )
+	    iop.set( "Additional file: ", fileName(1) );
+	else
+	{
+	    iop.set( "First additional file: ", fileName(1) );
+	    iop.set( "Last additional file: ", fileName(nrfnms-1) );
+	}
+    }
+    else
+    {
+	BufferString str;
+	str += nrs_.start; str += "-"; str += nrs_.stop;
+	str += " step "; str += nrs_.step;
+	if ( zeropad_ )
+	    { str += "(pad to "; str += zeropad_; str += " zeros)"; }
+	iop.set( "Replace '*' with", str );
+    }
 }
 
 
@@ -160,19 +266,29 @@ void SEGY::FileSpec::ensureWellDefined( IOObj& ioobj )
     if ( !iostrm ) return;
     iostrm->setTranslator( "SEG-Y" );
     IOPar& iop = ioobj.pars();
-    if ( !iop.find( sKey::FileName() ) ) return;
 
+    iop.set( sKey::FileName(), iostrm->fileName() );
     SEGY::FileSpec fs; fs.usePar( iop );
+    fs.nrs_ = iostrm->fileNumbers();
     iop.removeWithKey( sKey::FileName() );
     iop.removeWithKey( sKeyFileNrs() );
 
-    iostrm->setFileName( fs.fname_ );
-    if ( !fs.isMultiFile() )
-	iostrm->fileNumbers().start = iostrm->fileNumbers().stop = 1;
-    else
+    const int nrfiles = fs.nrFiles();
+    if ( nrfiles > 0 )
     {
-	iostrm->fileNumbers() = fs.nrs_;
-	iostrm->setZeroPadding( fs.zeropad_ );
+	const bool isrg = fs.fnames_.size() < 2 && !mIsUdf(fs.nrs_.start);
+	if ( isrg )
+	{
+	    iostrm->fileNumbers() = fs.nrs_;
+	    iostrm->setZeroPadding( fs.zeropad_ );
+	}
+	else if ( nrfiles > 1 )
+	{
+	    IOPar& pars = iostrm->pars();
+	    for ( int ifile=1; ifile<nrfiles; ifile++ )
+		pars.set( IOPar::compKey(sKey::FileName(),ifile),
+			  fs.fileName(ifile) );
+	}
     }
 }
 
@@ -182,7 +298,7 @@ void SEGY::FileSpec::fillParFromIOObj( const IOObj& ioobj, IOPar& iop )
     mDynamicCastGet(const IOStream*,iostrm,&ioobj)
     if ( !iostrm ) return;
 
-    SEGY::FileSpec fs; fs.fname_ = iostrm->fileName();
+    SEGY::FileSpec fs; fs.setFileName( iostrm->fileName() );
     if ( iostrm->isMulti() )
     {
 	fs.nrs_ = iostrm->fileNumbers();
@@ -191,6 +307,42 @@ void SEGY::FileSpec::fillParFromIOObj( const IOObj& ioobj, IOPar& iop )
 
     fs.fillPar( iop );
 }
+
+
+void SEGY::FileSpec::makePathsRelative( IOPar& iop, const char* dir )
+{
+    FileSpec fs; fs.usePar( iop );
+    const int nrfnms = fs.fnames_.size();
+    if ( nrfnms < 1 )
+	return;
+
+    if ( !dir || !*dir )
+	dir = GetDataDir();
+
+    const FilePath relfp( dir );
+    for ( int ifile=0; ifile<nrfnms; ifile++ )
+    {
+	const BufferString fnm( fs.fileName(ifile) );
+	if ( fnm.isEmpty() )
+	    continue;
+
+	FilePath fp( fnm );
+	if ( fp.isSubDirOf(relfp) )
+	{
+	    BufferString relpath = File::getRelativePath( relfp.fullPath(),
+							  fp.pathOnly() );
+	    if ( !relpath.isEmpty() )
+	    {
+		FilePath newrelfp( relpath, fp.fileName() );
+		relpath = newrelfp.fullPath();
+		if ( relpath != fnm )
+		    fs.fnames_.get(ifile).set( relpath );
+	    }
+	}
+    }
+    fs.fillPar( iop );
+}
+
 
 
 const char** SEGY::FilePars::getFmts( bool fr )

@@ -61,8 +61,8 @@ void SEGY::Scanner::init( const FileSpec& fs )
 {
     const int nrfiles = fs.nrFiles();
     for ( int idx=0; idx<nrfiles; idx++ )
-	fnms_.add( fs.getFileName(idx) );
-    pars_.getYN( FileDef::sKeyForceRev0(), forcerev0_ );
+	fnms_.add( fs.fileName(idx) );
+    pars_.getYN( FilePars::sKeyForceRev0(), forcerev0_ );
 }
 
 

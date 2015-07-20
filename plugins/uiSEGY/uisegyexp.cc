@@ -397,7 +397,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     if ( !inioobj )
 	mErrRet( tr("Please select the data to export") )
     const SEGY::FileSpec sfs( fsfld_->getSpec() );
-    if ( sfs.fname_.isEmpty() )
+    if ( sfs.isEmpty() )
 	mErrRet( tr("Please select the output file") )
 
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
@@ -445,7 +445,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     }
 
     if ( needinfo )
-	uiMSG().message( tr("Successful export of:\n%1").arg(sfs.fname_) );
+	uiMSG().message( tr("Successful export of:\n%1").arg(sfs.dispName()) );
 
     selcomp_ = -1;
     return false;

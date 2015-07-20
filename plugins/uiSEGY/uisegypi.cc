@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyread.h"
 #include "uisegyresortdlg.h"
 #include "uiwellimpsegyvsp.h"
+#include "uisegyreadstarter.h"
 
 #include "uiseisfileman.h"
 #include "uisurvinfoed.h"
@@ -211,7 +212,8 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 
 void uiSEGYMgr::fullWizCB( CallBacker* )
 {
-    uiMSG().error( "TODO: implement intelligent import" );
+    uiSEGYReadStarter dlg( ODMainWin() );
+    dlg.go();
 }
 
 

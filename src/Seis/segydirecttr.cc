@@ -82,7 +82,7 @@ SEGYSeisTrcTranslator* SEGYDirectSeisTrcTranslator::createTranslator(
 	return 0;
 
     SEGY::FileSpec fs( filename );
-    PtrMan<IOObj> ioobj = fs.getIOObj();
+    PtrMan<IOObj> ioobj = fs.getIOObj( true );
     if ( !ioobj ) return 0;
     ioobj->pars() = *def.segyPars();
 
