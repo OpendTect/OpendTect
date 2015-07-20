@@ -659,6 +659,91 @@ void ODGraphicsPolyLineItem::hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
 }
 
 
+// ODGraphicsItemGroup
+ODGraphicsItemGroup::ODGraphicsItemGroup()
+    : QGraphicsItemGroup()
+    , itempenwidth_(0)
+    , entereventhappened_( false )
+{}
+
+
+QRectF ODGraphicsItemGroup::boundingRect() const
+{
+    return QGraphicsItemGroup::boundingRect();
+}
+
+
+void ODGraphicsItemGroup::paint(QPainter* painter,
+				const QStyleOptionGraphicsItem* option,
+				QWidget* widget)
+{
+    QGraphicsItemGroup::paint( painter, option, widget );
+}
+
+
+void ODGraphicsItemGroup::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect ( this );
+}
+
+
+void ODGraphicsItemGroup::hoverEnterEvent( QGraphicsSceneHoverEvent* event )
+{
+    if ( entereventhappened_ ) return;
+
+    QList<QGraphicsItem*> itms = childItems();
+    for ( int idx=0; idx<itms.size(); idx++ )
+    {
+	mDynamicCastGet(ODGraphicsItemGroup*,grpitm,itms[idx])
+	if ( grpitm )
+	{
+	    grpitm->hoverEnterEvent( event );
+	    continue;
+	}
+
+	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
+	if ( !shpitm ) continue;
+
+	QPen highlighted = shpitm->pen();
+	itempenwidth_ = highlighted.width();
+	highlighted.setWidth( itempenwidth_ + 2 );
+	shpitm->setPen( highlighted );
+    }
+
+    QGraphicsItemGroup::hoverEnterEvent( event );
+    entereventhappened_ = true;
+}
+
+
+void ODGraphicsItemGroup::hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
+{
+    if ( !entereventhappened_ ) return;
+
+    QList<QGraphicsItem*> itms = childItems();
+    for ( int idx=0; idx<itms.size(); idx++ )
+    {
+	mDynamicCastGet(ODGraphicsItemGroup*,grpitm,itms[idx])
+	if ( grpitm )
+	{
+	    grpitm->hoverLeaveEvent( event );
+	    continue;
+	}
+
+	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
+	if ( !shpitm ) continue;
+
+	QPen unhighlighted = shpitm->pen();
+	unhighlighted.setWidth( itempenwidth_ );
+	shpitm->setPen( unhighlighted );
+    }
+
+    QGraphicsItemGroup::hoverLeaveEvent( event );
+    entereventhappened_ = false;
+}
+
+
 // ODGraphicsDynamicImageItem
 ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     : wantsData( this )
@@ -670,9 +755,6 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     baserev_[0] = baserev_[1] = dynamicrev_[0] = dynamicrev_[1] = false;
 }
 
-
-ODGraphicsDynamicImageItem::~ODGraphicsDynamicImageItem()
-{}
 
 #if QT_VERSION>=0x040700
 # define mImage2PixmapImpl( image, pixmap ) pixmap->convertFromImage( image )

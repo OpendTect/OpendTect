@@ -188,11 +188,29 @@ protected:
 };
 
 
+class ODGraphicsItemGroup : public QGraphicsItemGroup
+{
+public:
+				ODGraphicsItemGroup();
+
+    QRectF			boundingRect() const;
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
+protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    virtual void		hoverEnterEvent(QGraphicsSceneHoverEvent*);
+    virtual void		hoverLeaveEvent(QGraphicsSceneHoverEvent*);
+
+    int				itempenwidth_;
+    bool			entereventhappened_;
+
+};
+
+
 class ODGraphicsDynamicImageItem : public QGraphicsItem, public CallBacker
 {
 public:
 				ODGraphicsDynamicImageItem();
-				~ODGraphicsDynamicImageItem();
 
     QRectF			boundingRect() const { return bbox_; }
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
