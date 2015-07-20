@@ -20,6 +20,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "draw.h"
 
+#include "odgraphicsitem.h"
+
 #include <QBrush>
 #include <QCursor>
 #include <QGraphicsItemGroup>
@@ -391,13 +393,15 @@ uiGraphicsItemGroup::~uiGraphicsItemGroup()
 
 QGraphicsItem* uiGraphicsItemGroup::mkQtObj()
 {
-    qgraphicsitemgrp_ = new QGraphicsItemGroup;
+    qgraphicsitemgrp_ = new ODGraphicsItemGroup;
     return qgraphicsitemgrp_;
 }
 
 
 void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
 {
+    if ( !itm ) return;
+
     if ( !isMainThreadCurrent() )
     {
 	scene_->addUpdateToQueue(
