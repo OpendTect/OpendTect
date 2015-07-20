@@ -35,7 +35,6 @@ protected:
 			{ return typeid(uiODTreeTop).name(); }
 
     void		sort();
-    void		keyPressCB(CallBacker*);
 };
 
 

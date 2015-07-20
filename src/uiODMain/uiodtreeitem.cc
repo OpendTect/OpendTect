@@ -12,8 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
 
+#include "keyboardevent.h"
 #include "settings.h"
 #include "ui3dviewer.h"
+#include "uimain.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -42,6 +44,9 @@ uiODTreeTop::uiODTreeTop( ui3DViewer* sovwr, uiTreeView* lv, uiODApplMgr* am,
 
     tfs->addnotifier.notify( mCB(this,uiODTreeTop,addFactoryCB) );
     tfs->removenotifier.notify( mCB(this,uiODTreeTop,removeFactoryCB) );
+
+    uiMain::theMain().keyboardEventHandler().keyPressed.notify(
+		mCB(this,uiODTreeTop,keyPressCB) );
 }
 
 
@@ -49,6 +54,33 @@ uiODTreeTop::~uiODTreeTop()
 {
     tfs->addnotifier.remove( mCB(this,uiODTreeTop,addFactoryCB) );
     tfs->removenotifier.remove( mCB(this,uiODTreeTop,removeFactoryCB) );
+
+    uiMain::theMain().keyboardEventHandler().keyPressed.remove(
+		mCB(this,uiODTreeTop,keyPressCB) );
+}
+
+
+void uiODTreeTop::keyPressCB( CallBacker* cb )
+{
+    mDynamicCastGet(KeyboardEventHandler*,keh,cb)
+    if ( !keh || !keh->hasEvent() ) return;
+
+    int selid = -1;
+    TypeSet<int> dispids = getDisplayIds( selid, false );
+    if ( selid==-1 || dispids.isEmpty() ) return;
+
+    if ( keh->event().key_==OD::R && keh->event().modifier_==OD::NoButton )
+    {
+	for ( int idx=0; idx<dispids.size(); idx++ )
+	{
+	    mDynamicCastGet(uiODDisplayTreeItem*,itm,findChild(dispids[idx]))
+	    if ( !itm || !itm->isSelected() ) continue;
+
+	    itm->setOnlyAtSectionsDisplay( !itm->isOnlyAtSections() );
+	}
+
+	keh->setHandled( true );
+    }
 }
 
 

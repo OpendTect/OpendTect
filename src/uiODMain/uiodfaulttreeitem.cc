@@ -19,12 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mpeengine.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "keyboardevent.h"
 #include "mousecursor.h"
 #include "randcolor.h"
 
 #include "uiempartserv.h"
-#include "uimain.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
@@ -41,36 +39,11 @@ static const char* rcsID mUsedVar = "$Id$";
 uiODFaultParentTreeItem::uiODFaultParentTreeItem()
    : uiODTreeItem( "Fault" )
 {
-    uiMain::theMain().keyboardEventHandler().keyPressed.notify(
-		mCB(this,uiODFaultParentTreeItem,keyPressCB) );
 }
 
 
 uiODFaultParentTreeItem::~uiODFaultParentTreeItem()
 {
-    uiMain::theMain().keyboardEventHandler().keyPressed.remove(
-		mCB(this,uiODFaultParentTreeItem,keyPressCB) );
-}
-
-
-void uiODFaultParentTreeItem::keyPressCB( CallBacker* cb )
-{
-    mDynamicCastGet(KeyboardEventHandler*,keh,cb)
-    if ( !keh || !keh->hasEvent() || children_.isEmpty() ) return;
-
-    if ( keh->event().key_==OD::R && keh->event().modifier_==OD::NoButton )
-    {
-	mDynamicCastGet(uiODFaultTreeItem*,itm0,children_[0])
-	const bool atsections = itm0 && itm0->isOnlyAtSections();
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    mDynamicCastGet(uiODFaultTreeItem*,itm,children_[idx])
-	    if ( !itm )
-		continue;
-
-	    itm->setOnlyAtSectionsDisplay( !atsections );
-	}
-    }
 }
 
 

@@ -37,8 +37,6 @@ protected:
     bool		showSubMenu();
     const char* 	parentType() const
 			{ return typeid(uiODTreeTop).name(); }
-
-    void		keyPressCB(CallBacker*);
 };
 
 

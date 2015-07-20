@@ -42,6 +42,9 @@ public:
     void		prepareForShutdown();
     void		handleAddAttrib();
 
+    virtual void	setOnlyAtSectionsDisplay(bool)	{}
+    virtual bool	isOnlyAtSections() const	{ return false; }
+
 protected:
 
     virtual uiODDataTreeItem* createAttribItem(const Attrib::SelSpec*) const;
