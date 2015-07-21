@@ -54,6 +54,7 @@ protected:
     void		getTopDepthFromScreen();
     void		putTopDepthToScreen();
     void		reDraw(CallBacker*);
+    void		wheelMoveCB(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }
     void		dblClckCB( CallBacker* cb )	{ hndlClick(cb,true); }
     void		hndlClick(CallBacker*,bool);
