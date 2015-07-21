@@ -294,7 +294,7 @@ void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
     const float relscnposy = mCast(float,(prevmousescnpos.y-scenerect.top()))/
 			     mCast(float,scenerect.height());
 
-    const float dheight = scnrectsz.height() * 0.2;
+    const double dheight = scnrectsz.height() * 0.2;
     uiSize dsize( 0, mNINT32(dheight) );
     if ( mev.angle() < 0 )
 	scenerect += dsize;
