@@ -199,8 +199,6 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 
     displayPostStackSynthetic( currentwvasynthetic_, true );
     displayPostStackSynthetic( currentvdsynthetic_, false );
-
-    //mTriggerInstanceCreatedNotifier();
 }
 
 
@@ -429,6 +427,7 @@ void uiStratSynthDisp::handleFlattenChange()
 void uiStratSynthDisp::setFlattened( bool flattened, bool trigger )
 {
     dispflattened_ = flattened;
+    control_->setFlattened( flattened );
     if ( trigger )
 	handleFlattenChange();
 }
@@ -1271,13 +1270,8 @@ void uiStratSynthDisp::doModelChange()
 
     if ( !curSS().errMsg().isEmpty() )
 	mErrRet( curSS().errMsg(), return )
-    if ( curSS().infoMsg().isSet() )
-    {
-	uiMsgMainWinSetter mws( mainwin() );
-	uiMSG().warning( curSS().infoMsg() );
-    }
-
-    curSS().clearInfoMsg();
+    
+    showInfoMsg( false );
     updateSyntheticList( true );
     updateSyntheticList( false );
     if ( wvadatalist_->size() <= 1 )
@@ -1314,6 +1308,9 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return );
+
+    showInfoMsg( false );
+        
     if ( altSS().hasElasticModels() )
     {
 	altSS().removeSynthetic( syntheticnm );
@@ -1321,10 +1318,12 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	SyntheticData* altsd = altSS().addSynthetic();
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return );
+
+	showInfoMsg( true );
     }
+
     updateSyntheticList( wva );
     synthsChanged.trigger();
-
     datalist->setCurrentItem( sd->name() );
     setCurrentSynthetic( wva );
 }
@@ -1488,18 +1487,34 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
     SyntheticData* sd = curSS().addSynthetic();
     if ( !sd )
 	mErrRet(curSS().errMsg(), return )
+
+    showInfoMsg( false );
     if ( altSS().hasElasticModels() )
     {
 	altSS().genParams() = curSS().genParams();
 	SyntheticData* altsd = altSS().addSynthetic();
 	if ( !altsd )
-	    mErrRet(altSS().errMsg(), return );
+	    mErrRet(altSS().errMsg(), return )
+	
+	showInfoMsg( true );
     }
     updateSyntheticList( true );
     updateSyntheticList( false );
     synthsChanged.trigger();
     synthgendlg_->putToScreen();
     synthgendlg_->updateSynthNames();
+}
+
+
+void uiStratSynthDisp::showInfoMsg( bool foralt )
+{
+    StratSynth& ss = foralt ? altSS() : curSS();
+    if ( ss.infoMsg().isSet() )
+    {
+	uiMsgMainWinSetter mws( mainwin() );
+	uiMSG().warning( ss.infoMsg() );
+	ss.clearInfoMsg();
+    }
 }
 
 
@@ -1601,6 +1616,8 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 		mErrRet(curSS().errMsg(),);
 		continue;
 	    }
+
+	    showInfoMsg( false );
 
 	    if ( useed_ )
 	    {

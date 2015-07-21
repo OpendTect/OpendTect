@@ -109,10 +109,7 @@ public:
 					{ return SynthGenParams::PreStack; }
 
     void				setAngleData(
-	    				    const PreStack::GatherSetDataPack&);
-    void				createAngleData(
-						const ObjectSet<RayTracer1D>&,
-						const TypeSet<ElasticModel>&);
+	    				    const ObjectSet<PreStack::Gather>&);
     const SeisTrc*			getTrace(int seqnr) const
     					{ return getTrace(seqnr,0); }
     const SeisTrc*			getTrace(int seqnr,int* offset) const;
