@@ -562,7 +562,7 @@ void uiMainWinBody::addToolBar( uiToolBar* tb )
 
 uiToolBar* uiMainWinBody::removeToolBar( uiToolBar* tb )
 {
-    if ( !toolbars_.indexOf(tb) )
+    if ( !toolbars_.isPresent(tb) )
 	return 0;
 
     QMainWindow::removeToolBar( tb->qwidget() );
