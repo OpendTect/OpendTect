@@ -1085,8 +1085,7 @@ void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
 	    return;
     }
 
-    if ( !isManipulatorShown() )
-	val = getValue( attribpos );
+    val = getValue( attribpos );
 }
 
 
