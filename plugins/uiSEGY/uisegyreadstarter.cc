@@ -13,9 +13,13 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "uisegydef.h"
 #include "uifileinput.h"
+#include "uitable.h"
+#include "uiseparator.h"
 #include "uimsg.h"
 #include "survinfo.h"
 #include "seistype.h"
+
+#define mNrInfoRows 2
 
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const char* fnm )
@@ -26,7 +30,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const char* fnm )
 {
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true );
-    inpfld_ = new uiFileInput( this, "Input file (multiple use wildcard)", fisu );
+    inpfld_ = new uiFileInput( this, "Input file (multiple use wildcard)",
+				fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpSel) );
 
     uiStringSet inps;
@@ -42,8 +47,22 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const char* fnm )
     }
     addTyp( inps, -1 );
     typfld_ = new uiGenInput( this, tr("Data contained"),
-	    			StringListInpSpec(inps) );
+				StringListInpSpec(inps) );
     typfld_->attach( alignedBelow, inpfld_ );
+
+    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    sep->attach( stretchedBelow, typfld_ );
+
+    infotbl_ = new uiTable( this, uiTable::Setup(mNrInfoRows,2)
+				  .manualresize(true), "Info table" );
+    infotbl_->attach( ensureBelow, sep );
+    infotbl_->setColumnLabel( 0, "" );
+    infotbl_->setColumnLabel( 1, "Detected" );
+    for ( int idx=0; idx<mNrInfoRows; idx++ )
+	infotbl_->setRowLabel( idx, "" );
+#   define mSetFirstColTxt(row,txt) infotbl_->setText( RowCol(row,0), txt )
+    mSetFirstColTxt( 0, "SEG-Y Revision" );
+    mSetFirstColTxt( 1, "Byte order (headers, data)" );
 }
 
 

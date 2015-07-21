@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiFileInput;
+class uiTable;
 
 
 /*!\brief Starts reading process of 'any SEG-Y file'. */
@@ -25,8 +26,8 @@ mExpClass(uiSEGY) uiSEGYReadStarter : public uiDialog
 { mODTextTranslationClass(uiSEGYReadStarter);
 public:
 
-    			uiSEGYReadStarter(uiParent*,const char* filenm=0);
-    			~uiSEGYReadStarter();
+			uiSEGYReadStarter(uiParent*,const char* filenm=0);
+			~uiSEGYReadStarter();
 
     Seis::GeomType	geomType() const	{ return geomtype_; }
     bool		isVSP() const		{ return isvsp_; }
@@ -43,6 +44,7 @@ protected:
 
     uiFileInput*	inpfld_;
     uiGenInput*		typfld_;
+    uiTable*		infotbl_;
     TypeSet<int>	inptyps_; // Seis::GeomType, or -1 for VSP
 
     void		addTyp(uiStringSet&,int);
