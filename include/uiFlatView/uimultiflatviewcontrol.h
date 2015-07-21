@@ -23,16 +23,22 @@ ________________________________________________________________________
 mExpClass(uiFlatView) MFVCViewManager
 {
 public:
+    			MFVCViewManager()
+			    : isflattened_(false)	{};
     			~MFVCViewManager();
     void		setD2TModels(const ObjectSet<const TimeDepthModel>&);
     void		setViewerType(const uiFlatViewer* vwr,bool isintime);
     bool		getViewRect(const uiFlatViewer* activevwr,
 	    			    const uiFlatViewer* curvwr,
 				    uiWorldRect&) const;
+    void		setFlattened( bool flattened )	
+			{ isflattened_ = flattened; }
+    bool		isFlattened() const	{ return isflattened_; }
 protected:
     BoolTypeSet					zintimeflags_;
     ObjectSet<const TimeDepthModel>		d2tmodels_;
     ObjectSet<const uiFlatViewer>		vwrs_;
+    bool					isflattened_;
 };
 
 
@@ -56,6 +62,8 @@ public:
 			{ viewmgr_.setViewerType( vwr, isintime ); }
     void		setD2TModels(const ObjectSet<const TimeDepthModel>& d2t)
 			{ viewmgr_.setD2TModels( d2t ); }
+    void		setFlattened( bool flattened )
+			{ viewmgr_.setFlattened( flattened ); }
 
     uiToolButton*	parsButton(const uiFlatViewer*);
 

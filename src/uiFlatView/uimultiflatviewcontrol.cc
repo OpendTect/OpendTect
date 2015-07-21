@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uirgbarraycanvas.h"
+#include "survinfo.h"
 
 #include "scaler.h"
 
@@ -98,6 +99,8 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 		    depthrg.include( curdepthrg );
 	    }
 
+	    if ( isFlattened() )
+		depthrg.shift( SI().seismicReferenceDatum() );
 	    viewwr.setTop( depthrg.start );
 	    viewwr.setBottom( depthrg.stop );
 	}
@@ -105,6 +108,8 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	{
 	    Interval<float> depthrg( mCast(float,wr.top()),
 		    		     mCast(float,wr.bottom()) );
+	    if ( isFlattened() )
+		depthrg.shift( -SI().seismicReferenceDatum() );
 	    Interval<double> timerg( d2tmodels_[0]->getTime(depthrg.start),
 				      d2tmodels_[0]->getTime(depthrg.stop) );
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
