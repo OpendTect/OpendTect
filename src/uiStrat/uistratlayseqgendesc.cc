@@ -170,12 +170,16 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     , editdesc_(*new Strat::LayerSequenceGenDesc(dsc))
     , zinft_(SI().depthsInFeet())
 {
+    setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAsNeeded );
     border_.setTop( border_.top() + 25 );
+    border_.setRight( border_.right() + 10 );
     setPrefWidth( 180 );
     setPrefHeight( 500 );
     reSize.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
     reDrawNeeded.notify( mCB(this,uiExtLayerSequenceGenDesc,reDraw) );
 
+    getNavigationMouseEventHandler().wheelMove.notify(
+			    mCB(this,uiExtLayerSequenceGenDesc,wheelMoveCB) );
     getMouseEventHandler().buttonReleased.notify(
 			    mCB(this,uiExtLayerSequenceGenDesc,singClckCB) );
     getMouseEventHandler().doubleClick.notify(
@@ -203,7 +207,9 @@ void uiExtLayerSequenceGenDesc::setEditDesc()
 
 void uiExtLayerSequenceGenDesc::setFromEditDesc()
 {
+    const IOPar descworkbencpars = desc_.getWorkBenchParams();
     desc_ = editdesc_;
+    desc_.getWorkBenchParams() = descworkbencpars;
 }
 
 
@@ -225,11 +231,12 @@ bool uiExtLayerSequenceGenDesc::selProps()
 
 void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 {
+    const uiRect scenerect = getSceneRect();
     uiRect& wr = const_cast<uiRect&>( workrect_ );
     wr.setLeft( border_.left() );
-    wr.setRight( (int)(width() - border_.right() + .5) );
+    wr.setRight( (int)(scenerect.width() - border_.right() + .5) );
     wr.setTop( border_.top() );
-    wr.setBottom( (int)(height() - border_.bottom() + .5) );
+    wr.setBottom( (int)(scenerect.height() - border_.bottom() + .5) );
 
     if ( !outeritm_ )
     {
@@ -272,6 +279,34 @@ void uiExtLayerSequenceGenDesc::getTopDepthFromScreen()
     float topz = topdepthfld_->getfValue();
     if ( zinft_ ) topz *= mFromFeetFactorF;
     editdesc_.setStartDepth( topz );
+}
+
+
+void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
+{
+    MouseEventHandler& mevh = getNavigationMouseEventHandler();
+    if ( !mevh.hasEvent() || mevh.isHandled() )
+	return;
+    uiRect scenerect = getSceneRect();
+    const uiSize scnrectsz = scenerect.size();
+    const MouseEvent& mev = mevh.event();
+    uiPoint prevmousescnpos = mev.pos();
+    const float relscnposy = mCast(float,(prevmousescnpos.y-scenerect.top()))/
+			     mCast(float,scenerect.height());
+
+    const float dheight = scnrectsz.height() * 0.2;
+    uiSize dsize( 0, dheight );
+    if ( mev.angle() < 0 )
+	scenerect += dsize;
+    else
+	scenerect -= dsize;
+    setSceneRect( scenerect );
+    const int newmousescnposy =
+	scenerect.top()+(mNINT32(relscnposy*scenerect.height()));
+    const int translate = newmousescnposy - prevmousescnpos.y;
+    const int newcentery = scenerect.centre().y + translate;
+    reDraw( 0 );
+    centreOn( uiPoint(scenerect.centre().x,newcentery) );
 }
 
 

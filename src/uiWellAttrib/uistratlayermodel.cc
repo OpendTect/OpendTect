@@ -929,11 +929,12 @@ void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
 
     MouseCursorChanger mcs( MouseCursor::Wait );
 
+    seqdisp_->prepareDesc();
     seqdisp_->setFromEditDesc();
     Strat::LayerModel* newmodl = new Strat::LayerModel;
     newmodl->propertyRefs() = desc_.propSelection();
     newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
-    seqdisp_->prepareDesc();
+
     mcs.restore();
 
     Strat::LayerModelGenerator ex( desc_, *newmodl, nrmods );
