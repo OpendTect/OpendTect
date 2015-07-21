@@ -636,8 +636,9 @@ float VolumeDisplay::getValue( int attrib, const Coord3& pos ) const
     const int crlidx = samp.crlIdx( bid.crl() );
     const int zidx = samp.zsamp_.getIndex( pos.z );
 
-    const float val =
-	attribs_[attrib]->cache_->data().get( inlidx, crlidx, zidx );
+    const Array3DImpl<float>& array = attribs_[attrib]->cache_->data();
+    const float val = array.info().validPos(inlidx,crlidx,zidx) ?
+	array.get( inlidx, crlidx, zidx ) : mUdf(float);
     return val;
 }
 
@@ -1147,8 +1148,7 @@ void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
 	    return;
     }
 
-    if ( !isManipulatorShown() )
-	val = getValue( 0, attribpos ); // TODO: adapt to multi-attrib
+    val = getValue( 0, attribpos ); // TODO: adapt to multi-attrib
 }
 
 
