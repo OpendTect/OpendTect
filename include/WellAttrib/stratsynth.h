@@ -25,8 +25,10 @@ class SeisTrcBuf;
 class TaskRunner;
 class Wavelet;
 class TrcKeyZSampling;
+class RayTracer1D;
 class StratSynthLevel;
 class PostStackSyntheticData;
+class PreStackSyntheticData;
 
 namespace Strat
 {
@@ -138,6 +140,7 @@ protected:
     ObjectSet<SyntheticData> 	synthetics_;
     TypeSet<ElasticModel>	aimodels_;
     int				lastsyntheticid_;
+    bool			swaveinfomsgshown_;
     const Wavelet*		wvlt_;
 
     uiString			errmsg_;
@@ -150,7 +153,7 @@ protected:
     bool		fillElasticModel(const Strat::LayerModel&,
 					 ElasticModel&,int seqidx);
     bool		adjustElasticModel(const Strat::LayerModel&,
-					   TypeSet<ElasticModel>&);
+					   TypeSet<ElasticModel>&,bool chksvel);
     void		generateOtherQuantities( 
 	    			const PostStackSyntheticData& sd,
 	    			const Strat::LayerModel&);
@@ -164,6 +167,9 @@ protected:
     SyntheticData*	createAVOGradient(const SyntheticData& sd,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
+    void		createAngleData(PreStackSyntheticData&,
+					const ObjectSet<RayTracer1D>&);
+
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
     void		putD2TModelsInSD(SyntheticData&,
 	    				 ObjectSet<SynthRayModel>&);

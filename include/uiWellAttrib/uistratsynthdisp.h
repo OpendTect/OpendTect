@@ -163,6 +163,7 @@ protected:
     PtrMan<TaskRunner>	taskrunner_;
     PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
 
+    void		showInfoMsg(bool foralt);
     void		handleFlattenChange();
     void		setCurrentWavelet();
     void		fillPar(IOPar&,const StratSynth*) const;

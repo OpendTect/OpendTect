@@ -251,6 +251,7 @@ StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
     , taskr_(0)
     , wvlt_(0)
     , lastsyntheticid_(0)
+    , swaveinfomsgshown_(0)
 {
 }
 
@@ -717,8 +718,9 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticModel& aimodel )
 	elpgen.getVals( dval, pval, sval, layervals.arr(), layervals.size() );
 
 	// Detect water - reset Vs
+	/* TODO disabled for now
 	if ( pval < cMaximumVpWaterVel() )
-	    sval = 0;
+	    sval = 0;*/
 
 	aimodel += ElasticLayer( thickness, pval, sval, dval );
     }
@@ -773,7 +775,108 @@ bool StratSynth::createElasticModels()
     if ( !modelsvalid )
 	return false;
 
-    return adjustElasticModel( layMod(), aimodels_ );
+    return adjustElasticModel( layMod(), aimodels_, false );
+}
+
+
+class PSAngleDataCreator : public Executor
+{ mODTextTranslationClass(PSAngleDataCreator)
+public:
+
+PSAngleDataCreator( const PreStackSyntheticData& pssd,
+		    const ObjectSet<RayTracer1D>& rts )
+    : Executor("Creating Angle Gather" )
+    , gathers_(pssd.preStackPack().getGathers())
+    , rts_(rts)
+    , nrdone_(0)
+    , pssd_(pssd)
+    , anglecomputer_(new PreStack::ModelBasedAngleComputer)
+{
+    anglecomputer_->setFFTSmoother( 10.f, 15.f );
+}
+
+~PSAngleDataCreator()
+{
+    delete anglecomputer_;
+}
+
+od_int64 totalNr() const
+{ return rts_.size(); }
+
+od_int64 nrDone() const
+{ return nrdone_; }
+
+uiString uiMessage() const
+{
+    return tr("Calculating Angle Gathers");
+}
+
+uiString uiNrDoneText() const
+{
+    return tr( "Models done" );
+}
+
+ObjectSet<PreStack::Gather>& angleGathers()	{ return anglegathers_; }
+
+protected:
+
+void convertAngleDataToDegrees( PreStack::Gather* ag ) const
+{
+    Array2D<float>& agdata = ag->data();
+    const int dim0sz = agdata.info().getSize(0);
+    const int dim1sz = agdata.info().getSize(1);
+    for ( int idx=0; idx<dim0sz; idx++ )
+    {
+	for ( int idy=0; idy<dim1sz; idy++ )
+	{
+	    const float radval = agdata.get( idx, idy );
+	    if ( mIsUdf(radval) ) continue;
+	    const float dval =	Math::toDegrees( radval );
+	    agdata.set( idx, idy, dval );
+	}
+    }
+}
+
+
+int nextStep()
+{
+    if ( !gathers_.validIdx(nrdone_) )
+	return Finished();
+    const PreStack::Gather* gather = gathers_[nrdone_];
+    anglecomputer_->setOutputSampling( gather->posData() );
+    const TrcKey trckey( gather->getBinID() );
+    anglecomputer_->setRayTracer( rts_[nrdone_], trckey );
+    anglecomputer_->setTrcKey( trckey );
+    PreStack::Gather* anglegather = anglecomputer_->computeAngles();
+    convertAngleDataToDegrees( anglegather );
+    TypeSet<float> azimuths;
+    gather->getAzimuths( azimuths );
+    anglegather->setAzimuths( azimuths );
+    const BufferString angledpnm( pssd_.name(), "(Angle Gather)" );
+    anglegather->setName( angledpnm );
+    anglegather->setBinID( gather->getBinID() );
+    anglegathers_ += anglegather;
+    DPM(DataPackMgr::FlatID()).addAndObtain( anglegather );
+    nrdone_++;
+    return MoreToDo();
+}
+
+    const ObjectSet<RayTracer1D>&	rts_;
+    const ObjectSet<PreStack::Gather>&	gathers_;
+    const PreStackSyntheticData&	pssd_;
+    ObjectSet<PreStack::Gather>		anglegathers_;
+    PreStack::ModelBasedAngleComputer*	anglecomputer_;
+    od_int64				nrdone_;
+
+};
+
+
+void StratSynth::createAngleData( PreStackSyntheticData& pssd,
+				  const ObjectSet<RayTracer1D>& rts )
+{
+    PSAngleDataCreator angledatacr( pssd, rts );
+    TaskRunner::execute( taskr_, angledatacr );
+    pssd.setAngleData( angledatacr.angleGathers() );
 }
 
 
@@ -805,6 +908,13 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     const bool ispsbased =
 	synthgenpar.synthtype_ == SynthGenParams::AngleStack ||
 	synthgenpar.synthtype_ == SynthGenParams::AVOGradient;
+
+    if ( synthgenpar.synthtype_ == SynthGenParams::PreStack &&
+	 !swaveinfomsgshown_ )
+    {
+	if ( !adjustElasticModel(layMod(),aimodels_,true) )
+	    return 0;
+    }
 
     ObjectSet<SynthRayModel>* rms =
 	synthrmmgr_.getRayModelSet( synthgenpar.raypars_ );
@@ -846,10 +956,10 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		const PreStack::GatherSetDataPack* anglegather =
 		    getRelevantAngleData( synthgenpar.raypars_ );
 		if ( anglegather )
-		    presd->setAngleData( *anglegather );
+		    presd->setAngleData( anglegather->getGathers() );
 	    }
 	    else
-		presd->createAngleData( synthgen->rayTracers(), aimodels_ );
+		createAngleData( *presd, synthgen->rayTracers() );
 	}
 	else
 	{
@@ -1218,10 +1328,11 @@ class ElasticModelAdjuster : public ParallelTask
 public:
 
 ElasticModelAdjuster( const Strat::LayerModel& lm,
-		      TypeSet<ElasticModel>& aimodels )
+		      TypeSet<ElasticModel>& aimodels, bool checksvel )
     : ParallelTask("Checking & adjusting elastic models")
     , lm_(lm)
     , aimodels_(aimodels)
+    , checksvel_(checksvel)
 {
 }
 
@@ -1257,12 +1368,17 @@ bool doWork( od_int64 start , od_int64 stop , int )
 
 	ElasticModel tmpmodel( aimodel );
 	int erroridx = -1;
-	tmpmodel.checkAndClean( erroridx, true, true, false );
+	tmpmodel.checkAndClean( erroridx, !checksvel_, checksvel_, false );
 	if ( tmpmodel.isEmpty() )
 	{
-	    errmsg_ = tr( "Cannot generate elastic model as the "
-			  "Pwave velocity values are invalid."
-			  " Probably units are not set correctly." );
+	    uiString startstr(
+		checksvel_ ? tr("Could not generate prestack synthetics as all")
+			   : tr("All") );
+	    uiString propstr( checksvel_ ? tr("Swave velocity")
+					 : tr("Pwave velocity/Density") );
+	    errmsg_ = tr( "%1 the values of %2 in elastic model are invalid. "
+			  "Probably units are not set correctly." )
+				.arg(startstr).arg(propstr);
 	    return false;
 	}
 	else if ( erroridx != -1 )
@@ -1334,15 +1450,18 @@ bool doWork( od_int64 start , od_int64 stop , int )
     TypeSet<ElasticModel>&	aimodels_;
     uiString			infomsg_;
     uiString			errmsg_;
+    bool			checksvel_;
 };
 
 
 bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
-				     TypeSet<ElasticModel>& aimodels )
+				     TypeSet<ElasticModel>& aimodels,
+				     bool checksvel )
 {
-    ElasticModelAdjuster emadjuster( lm, aimodels );
+    ElasticModelAdjuster emadjuster( lm, aimodels, checksvel );
     const bool res = TaskRunner::execute( taskr_, emadjuster );
-    infomsg_ = emadjuster.infoMsg().getFullString();
+    infomsg_ = emadjuster.infoMsg();
+    swaveinfomsgshown_ = checksvel;
     return res;
 }
 
@@ -1643,45 +1762,13 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 
 
 void PreStackSyntheticData::setAngleData(
-	const PreStack::GatherSetDataPack& angledp )
+	const ObjectSet<PreStack::Gather>& ags )
 {
     if ( angledp_ )
 	DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
 
-    angledp_ = new PreStack::GatherSetDataPack( name(), angledp.getGathers() );
-    DPM( DataPackMgr::SeisID() ).addAndObtain( angledp_ );
-}
-
-
-void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
-					     const TypeSet<ElasticModel>& ems )
-{
-    if ( angledp_ ) DPM( DataPackMgr::SeisID() ).release( angledp_->id() );
-    ObjectSet<PreStack::Gather> anglegathers;
-    const ObjectSet<PreStack::Gather>& gathers = preStackPack().getGathers();
-    PreStack::ModelBasedAngleComputer anglecomp;
-    anglecomp.setFFTSmoother( 10.f, 15.f );
-    for ( int idx=0; idx<rts.size(); idx++ )
-    {
-	if ( !gathers.validIdx(idx) )
-	    continue;
-	const PreStack::Gather* gather = gathers[idx];
-	anglecomp.setOutputSampling( gather->posData() );
-	const TrcKey trckey( gather->getBinID() );
-	anglecomp.setRayTracer( rts[idx], trckey );
-	anglecomp.setTrcKey( trckey );
-	PreStack::Gather* anglegather = anglecomp.computeAngles();
-	convertAngleDataToDegrees( anglegather );
-	TypeSet<float> azimuths;
-	gather->getAzimuths( azimuths );
-	anglegather->setAzimuths( azimuths );
-	BufferString angledpnm( name(), "(Angle Data)" );
-	anglegather->setName( angledpnm );
-	anglegather->setBinID( gather->getBinID() );
-	anglegathers += anglegather;
-    }
-
-    angledp_ = new PreStack::GatherSetDataPack( name(), anglegathers );
+    BufferString angledpnm( name().buf(), " (Angle Gather)" );
+    angledp_ = new PreStack::GatherSetDataPack( angledpnm, ags );
     DPM( DataPackMgr::SeisID() ).addAndObtain( angledp_ );
 }
 
