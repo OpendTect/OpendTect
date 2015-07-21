@@ -398,6 +398,9 @@ void selectPropCB( CallBacker* )
     ObjectSet<uiFlatViewer> vwrs;
     for ( int idx=0; idx<activevwridxs_.size(); idx++ )
 	vwrs += vwrs_[activevwridxs_[idx]];
+    if ( vwrs.isEmpty() )
+	return;
+
     uiFlatViewPropDlg propdlg( this, *vwrs[0], cb_ );
     if ( propdlg.go() )
     {
@@ -472,7 +475,9 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
     gd->updateViewRange();
     uiFlatViewer* fv = gd->getUiFlatViewer();
     gd->displayAnnotation( false );
+    fv->appearance().annot_.x2_.name_ = "TWT";
     fv->appearance().annot_.x2_.showannot_ = false;
+    fv->appearance().annot_.allowuserchangereversedaxis_ = false;
 
     vwrs_ += fv;
     addGroup( gd, gdi );
@@ -673,8 +678,9 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 void uiStoredViewer2DMainWin::setUpNewSlicePositions()
 {
     const bool isinl = is2d_ || tkzs_.defaultDir()==TrcKeyZSampling::Inl;
-    const int newpos = isinl ? tkzs_.hsamp_.start_.inl()
-			     : tkzs_.hsamp_.start_.crl();
+    const int newpos = isinl
+	? tkzs_.hsamp_.start_.inl()
+	: tkzs_.hsamp_.start_.crl();
 
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
     {
