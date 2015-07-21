@@ -842,10 +842,10 @@ int nextStep()
 {
     if ( !gathers_.validIdx(nrdone_) )
 	return Finished();
-    const PreStack::Gather* gather = gathers_[nrdone_];
+    const PreStack::Gather* gather = gathers_[(int)nrdone_];
     anglecomputer_->setOutputSampling( gather->posData() );
     const TrcKey trckey( gather->getBinID() );
-    anglecomputer_->setRayTracer( rts_[nrdone_], trckey );
+    anglecomputer_->setRayTracer( rts_[(int)nrdone_], trckey );
     anglecomputer_->setTrcKey( trckey );
     PreStack::Gather* anglegather = anglecomputer_->computeAngles();
     convertAngleDataToDegrees( anglegather );
@@ -968,7 +968,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		inputsdnm += sKeyFRNameSuffix();
 	    sd = getSynthetic( inputsdnm );
 	    if ( !sd )
-		mErrRet( tr(" input prestack synthetic data not found."), 
+		mErrRet( tr(" input prestack synthetic data not found."),
 			 return 0 )
 	    CubeSampling cs( false );
 	    for ( int idx=0; idx<sd->zerooffsd2tmodels_.size(); idx++ )
@@ -1375,9 +1375,9 @@ bool doWork( od_int64 start , od_int64 stop , int )
 		checksvel_ ? tr("Could not generate prestack synthetics as all")
 			   : tr("All") );
 	    uiString propstr( checksvel_ ? tr("Swave velocity")
-		    			 : tr("Pwave velocity/Density") );
+					 : tr("Pwave velocity/Density") );
 	    errmsg_ = tr( "%1 the values of %2 in elastic model are invalid. "
-		    	  "Probably units are not set correctly." )
+			  "Probably units are not set correctly." )
 				.arg(startstr).arg(propstr);
 	    return false;
 	}
@@ -1927,7 +1927,7 @@ void SynthRayModelManager::removeRayModelSet( const IOPar& raypar )
 
 
 ObjectSet<SynthRayModel>* SynthRayModelManager::getRayModelSet(
-				const IOPar& raypar ) 
+				const IOPar& raypar )
 {
     for ( int sidx=0; sidx<synthraypars_.size(); sidx++ )
     {
