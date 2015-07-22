@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "segyfiledef.h"
 
-class uiGenInput;
+class uiComboBox;
 class uiFileInput;
 class uiTable;
 
@@ -51,17 +51,20 @@ protected:
     FilePars		filepars_;
     FileReadOpts*	filereadopts_;
 
+    uiComboBox*		typfld_;
     uiFileInput*	inpfld_;
-    uiGenInput*		typfld_;
     uiTable*		infotbl_;
 
     BufferString	curusrfname_;
     TypeSet<int>	inptyps_; // Seis::GeomType, or -1 for VSP
 
-    void		addTyp(uiStringSet&,int);
+    void		addTyp(int);
     void		setCellTxt(int col,int row,const char*);
     void		scanInput();
+    bool		getMultipleFileNames();
+    bool		checkExist(BufferString& fnm,bool emiterr=true);
 
+    void		initWin(CallBacker*);
     void		inpChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
