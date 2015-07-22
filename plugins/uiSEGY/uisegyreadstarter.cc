@@ -12,12 +12,16 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uisegyreadstarter.h"
 
 #include "uisegydef.h"
+#include "uicombobox.h"
 #include "uifileinput.h"
 #include "uitable.h"
 #include "uiseparator.h"
 #include "uimsg.h"
 #include "survinfo.h"
 #include "seistype.h"
+#include "filepath.h"
+#include "dirlist.h"
+#include "oddirs.h"
 
 #define mNrInfoRows 9
 #define mRevRow 0
@@ -40,39 +44,41 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     , filereadopts_(0)
     , curusrfname_("x") // any non-empty
 {
-    uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true );
-    inpfld_ = new uiFileInput( this, "Input file (multiple use wildcard)",
-				fisu );
-    inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
-
-    uiStringSet inps;
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Data type") );
+    typfld_ = lcb->box();
+    typfld_->selectionChanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
     if ( SI().has3D() )
     {
-	addTyp( inps, (int)Seis::Vol );
-	addTyp( inps, (int)Seis::VolPS );
+	addTyp( (int)Seis::Vol );
+	addTyp( (int)Seis::VolPS );
     }
     if ( SI().has2D() )
     {
-	addTyp( inps, (int)Seis::Line );
-	addTyp( inps, (int)Seis::LinePS );
+	addTyp( (int)Seis::Line );
+	addTyp( (int)Seis::LinePS );
     }
-    addTyp( inps, -1 );
+    addTyp( -1 );
     filereadopts_ = new FileReadOpts( (Seis::GeomType)inptyps_[0] );
 
-    typfld_ = new uiGenInput( this, tr("Data contained"),
-				StringListInpSpec(inps) );
-    typfld_->attach( alignedBelow, inpfld_ );
-    typfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
+    uiFileInput::Setup fisu( uiFileDialog::Gen );
+    fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true );
+    inpfld_ = new uiFileInput( this, "Input file(s) (*=wildcard)",
+				fisu );
+    inpfld_->attach( alignedBelow, lcb );
+    inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, typfld_ );
+    sep->attach( stretchedBelow, inpfld_ );
 
     infotbl_ = new uiTable( this, uiTable::Setup(mNrInfoRows,2)
 				  .manualresize(true), "Info table" );
     infotbl_->attach( ensureBelow, sep );
     infotbl_->setColumnLabel( 0, "" );
     infotbl_->setColumnLabel( 1, "Detected" );
+    infotbl_->setRowResizeMode( uiTable::Stretch );
+    infotbl_->setPrefWidthInChar( 80 );
+    infotbl_->setPrefHeightInChar( mNrInfoRows+3 ); // this works for my font
+    infotbl_->setTableReadOnly( true );
     for ( int idx=0; idx<mNrInfoRows; idx++ )
 	infotbl_->setRowLabel( idx, "" );
     setCellTxt( 0, mRevRow, "SEG-Y Revision" );
@@ -80,7 +86,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     setCellTxt( 0, mNrSamplesRow, "Samples per trace" );
     setCellTxt( 0, mZRangeRow, "Z Range" );
 
-    postFinalise().notify( mCB(this,uiSEGYReadStarter,inpChg) );
+    postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
 }
 
 
@@ -90,19 +96,24 @@ void uiSEGYReadStarter::setCellTxt( int col, int row, const char* txt )
 }
 
 
-void uiSEGYReadStarter::addTyp( uiStringSet& inps, int typ )
+void uiSEGYReadStarter::addTyp( int typ )
 {
     inptyps_ += typ;
+
+#    define mAddItem(txt,ic) { \
+    typfld_->addItem( tr(txt) ); \
+    typfld_->setIcon( typfld_->size()-1, ic ); }
+
     if ( typ < 0 )
-	inps += tr( "Zero-offset VSP" );
+        mAddItem( "Zero-offset VSP", "vsp0" )
     else if ( typ == (int)Seis::Vol )
-	inps += tr( "3D seismic data" );
+	mAddItem( "3D seismic data", "seismiccube" )
     else if ( typ == (int)Seis::VolPS )
-	inps += tr( "3D PreStack data" );
+	mAddItem( "3D PreStack data", "prestackdataset" )
     else if ( typ == (int)Seis::Line )
-	inps += tr( "2D Seismic data" );
+	mAddItem( "2D Seismic data", "seismicline2d" )
     else if ( typ == (int)Seis::LinePS )
-	inps += tr( "2D PreStack data" );
+	mAddItem( "2D PreStack data", "prestackdataset2d" )
     else
 	{ pErrMsg( "Huh" ); }
 }
@@ -111,6 +122,12 @@ void uiSEGYReadStarter::addTyp( uiStringSet& inps, int typ )
 uiSEGYReadStarter::~uiSEGYReadStarter()
 {
     delete filereadopts_;
+}
+
+
+void uiSEGYReadStarter::initWin( CallBacker* )
+{
+    inpChg( 0 );
 }
 
 
@@ -168,7 +185,83 @@ void uiSEGYReadStarter::scanInput()
     if ( curusrfname_.isEmpty() )
 	return;
 
-    uiMSG().error( BufferString("TODO: scan ",curusrfname_) );
+    filespec_.setEmpty();
+    if ( curusrfname_.find('*') )
+    {
+	if ( !getMultipleFileNames() )
+	    return;
+    }
+    else
+    {
+	if ( !checkExist(curusrfname_) )
+	    return;
+	filespec_.setFileName( curusrfname_ );
+    }
+
+    BufferString msg( "TODO: scan:\n" );
+    const int nrfiles = filespec_.nrFiles();
+    for ( int idx=0; idx<nrfiles; idx++ )
+	msg.add( filespec_.fileName(idx) ).add( "\n" );
+    uiMSG().error( msg );
+}
+
+
+bool uiSEGYReadStarter::getMultipleFileNames()
+{
+    FilePath fp( curusrfname_ );
+    if ( !fp.isAbsolute() )
+    {
+	uiMSG().error(
+	   tr("Please specify the absolute file name when using a wildcard.") );
+	return false;
+    }
+
+    DirList dl( fp.pathOnly(), DirList::FilesOnly, fp.fileName() );
+    for ( int idx=0; idx<dl.size(); idx++ )
+	filespec_.fnames_.add( dl.fullPath(idx) );
+
+    if ( filespec_.isEmpty() )
+    {
+	uiMSG().error(
+	   tr("No file names matching your wildcard(s).") );
+	return false;
+    }
+
+    return true;
+}
+
+
+bool uiSEGYReadStarter::checkExist( BufferString& fnm, bool emiterr )
+{
+    FilePath fp( fnm );
+    if ( fp.isAbsolute() )
+    {
+	if ( !File::exists(fnm) )
+	{
+	    if ( emiterr )
+		uiMSG().error( uiString(
+			    "SEG-Y file does not exist:\n%1").arg(fnm) );
+	    return false;
+	}
+    }
+    else
+    {
+	FilePath newfp( GetDataDir(), fnm );
+	if ( !File::exists(newfp.fullPath()) )
+	{
+	    newfp.set( GetDataDir() ).add( "Seismics" );
+	    if ( !File::exists(newfp.fullPath()) )
+	    {
+		if ( emiterr )
+		    uiMSG().error(
+			    tr("SEG-Y file not found in survey directory") );
+		return false;
+	    }
+	}
+	fnm = newfp.fullPath();
+    }
+
+    return true;
 }
 
 

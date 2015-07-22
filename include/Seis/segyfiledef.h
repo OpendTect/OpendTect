@@ -49,6 +49,8 @@ public:
     const char*		dispName() const;	//!< for titles etc
     const char*		usrStr() const;		//!< the typed filename
 
+    void		setEmpty()
+			{ fnames_.setEmpty(); mSetUdf(nrs_.start); }
     void		setFileName( const char* nm )
 			{ fnames_.setEmpty(); if ( nm && *nm ) fnames_.add(nm);}
     IOObj*		getIOObj(bool temporary,int nr=0) const;
