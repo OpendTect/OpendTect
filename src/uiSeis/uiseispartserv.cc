@@ -77,6 +77,15 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     , man2dprestkdlg_(0)
     , man3dprestkdlg_(0)
     , manwvltdlg_(0)
+    , impcbvsdlg_(0)
+    , impcbvsothsurvdlg_(0)
+    , imp3dseisdlg_(0)
+    , exp3dseisdlg_(0)
+    , imp2dseisdlg_(0)
+    , exp2dseisdlg_(0)
+    , impps3dseisdlg_(0)
+    , expps3dseisdlg_(0)
+    , impps2dseisdlg_(0)
 {
     SeisIOObjInfo::initDefault( sKey::Steering() );
     IOM().surveyChanged.notify( mCB(this,uiSeisPartServer,survChangedCB) );
@@ -90,6 +99,15 @@ uiSeisPartServer::~uiSeisPartServer()
     delete man2dprestkdlg_;
     delete man3dprestkdlg_;
     delete manwvltdlg_;
+    delete impcbvsdlg_;
+    delete impcbvsothsurvdlg_;
+    delete imp3dseisdlg_;
+    delete exp3dseisdlg_;
+    delete imp2dseisdlg_;
+    delete exp2dseisdlg_;
+    delete impps3dseisdlg_;
+    delete expps3dseisdlg_;
+    delete impps2dseisdlg_;
 }
 
 
@@ -100,26 +118,90 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     delete man2dprestkdlg_; man2dprestkdlg_ = 0;
     delete man3dprestkdlg_; man3dprestkdlg_ = 0;
     delete manwvltdlg_; manwvltdlg_ = 0;
-
+    
     Seis::PLDM().removeAll();
+    
+    delete impcbvsdlg_; impcbvsdlg_ = 0;
+    delete impcbvsothsurvdlg_; impcbvsothsurvdlg_ = 0;
+    delete impcbvsdlg_; impcbvsdlg_ = 0;
+    delete impcbvsothsurvdlg_; impcbvsothsurvdlg_ = 0;
+    delete imp3dseisdlg_; imp3dseisdlg_ = 0;
+    delete exp3dseisdlg_; exp3dseisdlg_ = 0;
+    delete imp2dseisdlg_; imp2dseisdlg_ = 0;
+    delete exp2dseisdlg_; exp2dseisdlg_ = 0;
+    delete impps3dseisdlg_; impps3dseisdlg_ = 0;
+    delete expps3dseisdlg_; expps3dseisdlg_ = 0;
+    delete impps2dseisdlg_; impps2dseisdlg_ = 0;
 }
 
+#define mSeisImpExpDlg(dlgobj,is2d,isps) \
+    if ( !dlgobj ) \
+    { \
+	const Seis::GeomType gt( Seis::geomTypeOf( is2d, isps ) ); \
+	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true; \
+	dlgobj = new uiSeisIOSimple( parent(), gt, forread ); \
+	BufferString caption( forread ? "Import " : "Export " ); \
+	caption.add( is2d ? "2D " : "3D " ); \
+	if ( isps ) \
+	    caption.add( "prestack " ); \
+	caption.add( "seismics ").add( forread ? "from ": "to " ) \
+	       .add( "simple flat file" ); \
+	dlgobj->setCaption( caption ); \
+    }\
+    dlgobj->show();
 
 bool uiSeisPartServer::ioSeis( int opt, bool forread )
 {
-    PtrMan<uiDialog> dlg = 0;
-    if ( opt == 0 )
-	dlg = new uiSeisImportCBVS( parent() );
-    else if ( opt == 9 )
-	dlg = new uiSeisImpCBVSFromOtherSurveyDlg( parent() );
-    else
+    switch ( opt )
     {
-	const Seis::GeomType gt( Seis::geomTypeOf( !(opt%2), opt > 6 ) );
-	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
-	dlg = new uiSeisIOSimple( parent(), gt, forread );
+	case 0:
+	    {
+		if ( !impcbvsdlg_ )
+		    impcbvsdlg_ = new uiSeisImportCBVS( parent() );
+
+		impcbvsdlg_->show();
+		break;
+	    }
+	case 9:
+	    {
+		if ( !impcbvsothsurvdlg_ )
+		    impcbvsothsurvdlg_ =
+				new uiSeisImpCBVSFromOtherSurveyDlg( parent() );
+
+		impcbvsothsurvdlg_->show();
+	    }
+	case 5:
+	    {
+		if ( forread )
+		{ mSeisImpExpDlg(imp3dseisdlg_,false,false) }
+		else
+		{ mSeisImpExpDlg(exp3dseisdlg_,false,false) }
+		break;
+	    }
+	case 6:
+	    {
+		if ( forread )
+		{ mSeisImpExpDlg(imp2dseisdlg_,true,false) }
+		else
+		{ mSeisImpExpDlg(exp2dseisdlg_,true,false) }
+		break;
+	    }
+	case 7:
+	    {
+		if ( forread )
+		{ mSeisImpExpDlg(impps3dseisdlg_,false,true) }
+		else
+		{ mSeisImpExpDlg(expps3dseisdlg_,false,true) }
+		break;
+	    }
+	case 8:
+	    {
+		mSeisImpExpDlg(impps2dseisdlg_,true,true)
+		break;
+	    }
     }
 
-    return dlg ? dlg->go() : true;
+    return true;
 }
 
 

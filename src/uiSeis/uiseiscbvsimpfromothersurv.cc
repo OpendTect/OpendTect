@@ -30,7 +30,8 @@ static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube from other survey"),
 		       tr("Specify import parameters"),
-		       mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID)))
+		       mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID))
+		 .modal(false))
     , import_(0)
 {
     setCtrlStyle( RunAndClose );

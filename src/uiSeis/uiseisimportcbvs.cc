@@ -42,7 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube"),mNoDlgTitle,
-		       mODHelpKey(mSeisImpCBVSHelpID) ))
+		       mODHelpKey(mSeisImpCBVSHelpID)).modal(false))
     , outioobj_(0)
     , tmpid_("100010.",IOObj::tmpID())
 {

@@ -23,6 +23,9 @@ class IOPar;
 class SeisTrcBuf;
 class uiFlatViewWin;
 class uiSeisFileMan;
+class uiSeisImportCBVS;
+class uiSeisIOSimple;
+class uiSeisImpCBVSFromOtherSurveyDlg;
 class uiSeisPreStackMan;
 class uiSeisWvltMan;
 
@@ -80,6 +83,16 @@ protected:
     uiSeisPreStackMan*	man2dprestkdlg_;
     uiSeisPreStackMan*	man3dprestkdlg_;
     uiSeisWvltMan*	manwvltdlg_;
+
+    uiSeisIOSimple*	imp3dseisdlg_;
+    uiSeisIOSimple*	exp3dseisdlg_;
+    uiSeisIOSimple*	imp2dseisdlg_;
+    uiSeisIOSimple*	exp2dseisdlg_;
+    uiSeisIOSimple*	impps3dseisdlg_;
+    uiSeisIOSimple*	expps3dseisdlg_;
+    uiSeisIOSimple*	impps2dseisdlg_;
+    uiSeisImportCBVS*	impcbvsdlg_;
+    uiSeisImpCBVSFromOtherSurveyDlg* impcbvsothsurvdlg_;
 };
 
 #endif
