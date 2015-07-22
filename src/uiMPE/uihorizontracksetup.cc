@@ -408,11 +408,12 @@ void uiHorizonSetupGroup::seedModeChange( CallBacker* )
     modeChanged_.trigger();
 
     const bool usedata = mode_ != EMSeedPicker::DrawBetweenSeeds;
+    const bool invol = mode_ == EMSeedPicker::TrackFromSeeds;
     tabgrp_->setTabEnabled( eventgrp_, usedata );
     tabgrp_->setTabEnabled( correlationgrp_, usedata );
 
-    toolbar_->setSensitive( startbutid_, usedata );
-    toolbar_->setSensitive( stopbutid_, usedata );
+    toolbar_->setSensitive( startbutid_, invol );
+    toolbar_->setSensitive( stopbutid_, invol );
     toolbar_->setSensitive( retrackbutid_, usedata );
 }
 
