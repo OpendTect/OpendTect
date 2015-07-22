@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QBrush>
 #include <QCursor>
+#include <QGraphicsItem>
 #include <QGraphicsItemGroup>
 #include <QGraphicsScene>
 #include <QPen>
@@ -31,6 +32,30 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 mUseQtnamespace
+
+class ODGraphicsItem : public QGraphicsItem
+{
+
+QRectF boundingRect() const
+{ return QRectF(); }
+
+void paint( QPainter* painter, const QStyleOptionGraphicsItem* option,
+	    QWidget* widget )
+{
+}
+
+};
+
+uiGraphicsItem::uiGraphicsItem()
+    : qgraphicsitem_(new ODGraphicsItem)
+    , scene_(0)
+    , id_(getNewID())
+    , selected_(false)
+    , translation_( 0, 0 )
+    , scale_( 1, 1 )
+    , angle_( 0 )
+{
+}
 
 
 uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )

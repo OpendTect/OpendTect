@@ -29,6 +29,7 @@ mFDQtclass(QGraphicsItemGroup)
 mExpClass(uiBase) uiGraphicsItem : public CallBacker
 {
 public:
+			uiGraphicsItem();
 			~uiGraphicsItem();
 
     mQtclass(QGraphicsItem*)	qGraphicsItem()	{ return qgraphicsitem_; }
@@ -103,7 +104,6 @@ protected:
 
 private:
 
-    			uiGraphicsItem() : id_(0)	{}
     void		updateTransform();
 
     static int		getNewID();
