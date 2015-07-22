@@ -26,7 +26,11 @@ mExpClass(uiSEGY) uiSEGYReadStarter : public uiDialog
 { mODTextTranslationClass(uiSEGYReadStarter);
 public:
 
-			uiSEGYReadStarter(uiParent*,const char* filenm=0);
+    typedef SEGY::FileSpec FileSpec;
+    typedef SEGY::FilePars FilePars;
+    typedef SEGY::FileReadOpts FileReadOpts;
+
+			uiSEGYReadStarter(uiParent*,const FileSpec* fs=0);
 			~uiSEGYReadStarter();
 
     Seis::GeomType	geomType() const	{ return geomtype_; }
@@ -34,22 +38,31 @@ public:
     bool		isMulti() const		{ return filespec_.isMulti(); }
     const char*		fileName( int nr=0 ) const
 			{ return filespec_.fileName(nr); }
-    const SEGY::FileSpec& fileSpec() const	{ return filespec_; }
+
+    FileSpec&		fileSpec()		{ return filespec_; }
+    FilePars&		filePars()		{ return filepars_; }
+    FileReadOpts&	fileReadOpts()		{ return *filereadopts_; }
 
 protected:
 
     Seis::GeomType	geomtype_;
     bool		isvsp_;
-    SEGY::FileSpec	filespec_;
+    FileSpec		filespec_;
+    FilePars		filepars_;
+    FileReadOpts*	filereadopts_;
 
     uiFileInput*	inpfld_;
     uiGenInput*		typfld_;
     uiTable*		infotbl_;
+
+    BufferString	curusrfname_;
     TypeSet<int>	inptyps_; // Seis::GeomType, or -1 for VSP
 
     void		addTyp(uiStringSet&,int);
-    void		inpSel(CallBacker*);
+    void		setCellTxt(int col,int row,const char*);
+    void		scanInput();
 
+    void		inpChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
