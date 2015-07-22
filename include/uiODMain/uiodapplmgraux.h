@@ -31,6 +31,7 @@ class uiVelSel;
 class ui2DGeomManageDlg;
 namespace Attrib { class SelSpec; }
 namespace PreStack { class uiImportMute; }
+namespace Vel { class uiImportVelFunc; }
 
 
 /*!\brief uiApplService for OD */
@@ -88,6 +89,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiImpPVDS*		impcrossplotdlg_;
     uiImpRokDocPDF*	imppdfdlg_;
     PreStack::uiImportMute*	impmutedlg_;
+    Vel::uiImportVelFunc*	impvelfunc_;
     uiODApplMgr&	am_;
     uiParent*		par_;
     ObjectSet<uiDataPointSet> uidpsset_;

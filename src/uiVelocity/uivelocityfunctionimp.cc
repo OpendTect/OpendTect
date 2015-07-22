@@ -39,7 +39,8 @@ namespace Vel
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
     : uiDialog( p,uiDialog::Setup(tr("Import Velocity Function"),
 				  mNoDlgTitle, 
-                                  mODHelpKey(mImportVelFuncHelpID) ) )
+				  mODHelpKey(mImportVelFuncHelpID) )
+			    .modal(false))
     , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
     , fd_( *FunctionAscIO::getDesc() )
 {

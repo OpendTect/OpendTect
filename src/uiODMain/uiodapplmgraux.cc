@@ -113,6 +113,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , impcrossplotdlg_(0)
     , impmutedlg_(0)
     , imppdfdlg_(0)
+    , impvelfunc_(0)
 {}
 
 
@@ -142,6 +143,7 @@ void uiODApplMgrDispatcher::deleteDlgs()
 	delete impcrossplotdlg_; impcrossplotdlg_ = 0;
 	delete impmutedlg_; impmutedlg_ = 0;
 	delete imppdfdlg_; imppdfdlg_ = 0;
+	delete impvelfunc_; impvelfunc_ = 0;
 }
 
 
@@ -297,8 +299,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Vel):
         if ( at == uiODApplMgr::Imp)
 	{
-	    Vel::uiImportVelFunc dlgvimp( par_ );
-	    dlgvimp.go();
+	    if ( !impvelfunc_ )
+		impvelfunc_ = new Vel::uiImportVelFunc( par_ );
+
+	    impvelfunc_->show();
 	}
     break;
     mCase(Strat):
