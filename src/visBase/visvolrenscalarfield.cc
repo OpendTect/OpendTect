@@ -200,6 +200,9 @@ void VolumeRenderScalarField::useShading( bool yn )
 
 void VolumeRenderScalarField::allowShading( bool yn )
 {
+    if ( osgvoldata_->data() )	// ignore calls after initialization
+	return;
+
     if ( yn && !isShadingSupported() )
 	yn = false;
 
