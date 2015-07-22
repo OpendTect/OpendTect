@@ -216,6 +216,7 @@ protected:
     void			mouseRelease(CallBacker*);
     void			mouseMove(CallBacker*);
     void			mouseDClick(CallBacker*);
+    void			addPoint(const uiPoint&);
 
     void			cleanUp();
     void			setUpAxis(bool y2);
@@ -225,7 +226,7 @@ protected:
     void			drawMarker(const TypeSet<uiPoint>&,
 					   bool y2=false);
     void			drawMarkLine(uiAxisHandler*,float,Color,
-	                                      uiLineItem*&);
+					     uiLineItem*&);
     void			drawBorder();
     void			drawMarkLines();
     bool			setSelPt();

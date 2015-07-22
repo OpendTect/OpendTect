@@ -53,7 +53,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     setStretch( 2, 2 );
     gatherInfo();
     uiAxisHandler::Setup asu( uiRect::Bottom, setup_.canvaswidth_,
-	    		      setup_.canvasheight_ );
+			      setup_.canvasheight_ );
     asu.noaxisline( setup_.noxaxis_ );
     asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annotx_ );
     asu.nogridline( asu.noaxisline_ ? true : setup_.noxgridline_ );
@@ -572,7 +572,7 @@ void uiFunctionDisplay::drawMarkLines()
 
 
 void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val, Color col,
-       				  uiLineItem*& itm )
+				      uiLineItem*& itm )
 {
     delete itm;
     itm = ah->getFullLine( ah->getPix(val) );
@@ -642,6 +642,13 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
 
     mousedown_ = false;
     mGetMousePos();
+
+    if ( isnorm && selpt_<=0 )
+    {
+	addPoint( ev.pos() );
+	return;
+    }
+
     if ( !isctrl || selpt_ <= 0 || selpt_ >= xvals_.size()-1
 	 || xvals_.size() < 3 ) return;
 
@@ -688,12 +695,13 @@ void uiFunctionDisplay::mouseMove( CallBacker* )
 
 void uiFunctionDisplay::mouseDClick( CallBacker* )
 {
-    mousedown_ = false;
-    mGetMousePos();
-    if ( !isnorm ) return;
+}
 
-    float xval = xax_->getVal(ev.pos().x);
-    float yval = yax_->getVal(ev.pos().y);
+
+void uiFunctionDisplay::addPoint( const uiPoint& pt )
+{
+    float xval = xax_->getVal( pt.x );
+    float yval = yax_->getVal( pt.y );
 
     if ( xval > xax_->range().stop )
 	xval = xax_->range().stop;
