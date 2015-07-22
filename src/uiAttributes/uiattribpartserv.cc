@@ -606,7 +606,7 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     ConstDataPackRef<RegularSeisDataPack> cache = dpm.obtain( cacheid );
     const RegularSeisDataPack* newpack = createOutput( tkzs, cache.ptr() );
-    if ( !newpack ) DataPack::cNoID();
+    if ( !newpack ) return DataPack::cNoID();
 
     dpm.add( const_cast<RegularSeisDataPack*>(newpack) );
     return newpack->id();
