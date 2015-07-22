@@ -136,10 +136,10 @@ bool uiLayerSequenceGenDesc::isValidSelection(
 
     PropertyRefSelection densityprops = props.subselect( PropertyRef::Den );
     if ( densityprops.isEmpty() )
-	mErrRet( "No property of type 'Density' selected" ) 
+	mErrRet( "No property of type 'Density' selected" )
     PropertyRefSelection velocityprops = props.subselect( PropertyRef::Vel );
     if ( velocityprops.isEmpty() )
-	mErrRet( "No property of type 'Velocity' selected" ) 
+	mErrRet( "No property of type 'Velocity' selected" )
     return true;
 }
 
@@ -294,8 +294,8 @@ void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
     const float relscnposy = mCast(float,(prevmousescnpos.y-scenerect.top()))/
 			     mCast(float,scenerect.height());
 
-    const float dheight = scnrectsz.height() * 0.2;
-    uiSize dsize( 0, dheight );
+    const double dheight = scnrectsz.height() * 0.2;
+    uiSize dsize( 0, mNINT32(dheight) );
     if ( mev.angle() < 0 )
 	scenerect += dsize;
     else
@@ -575,7 +575,7 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     typfld_->setHSzPol( uiObject::Small );
     prelbl_ = new uiLabel( this, pr.name(), typfld_ );
     valfld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec() );
-    rgfld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec(), 
+    rgfld_ = new uiGenInput( this, uiStrings::sEmptyString(), FloatInpSpec(),
                              FloatInpSpec() );
     uiUnitSel::Setup ussu( pr.stdType() ); ussu.withnone( true );
     unfld_ = new uiUnitSel( this, ussu );
@@ -854,7 +854,7 @@ bool uiBasicLayerSequenceGenDesc::laygenEditReq()
     if ( curidx < 0 ) return false;
 
     uiSingleLayerGeneratorEd dlg( parent(), editdesc_[curidx],
-	    			  editdesc_.refTree(),
+				  editdesc_.refTree(),
 				  editdesc_.propSelection() );
     if ( !dlg.go() )
 	return false;

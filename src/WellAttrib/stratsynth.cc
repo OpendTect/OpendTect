@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Bruno
- Date:		July 2011
+ Author:        Bruno
+ Date:          July 2011
 ________________________________________________________________________
 
 -*/
@@ -842,10 +842,10 @@ int nextStep()
 {
     if ( !gathers_.validIdx(nrdone_) )
 	return Finished();
-    const PreStack::Gather* gather = gathers_[nrdone_];
+    const PreStack::Gather* gather = gathers_[(int)nrdone_];
     anglecomputer_->setOutputSampling( gather->posData() );
     const TrcKey trckey( gather->getBinID() );
-    anglecomputer_->setRayTracer( rts_[nrdone_], trckey );
+    anglecomputer_->setRayTracer( rts_[(int)nrdone_], trckey );
     anglecomputer_->setTrcKey( trckey );
     PreStack::Gather* anglegather = anglecomputer_->computeAngles();
     convertAngleDataToDegrees( anglegather );
@@ -1460,7 +1460,7 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 {
     ElasticModelAdjuster emadjuster( lm, aimodels, checksvel );
     const bool res = TaskRunner::execute( taskr_, emadjuster );
-    infomsg_ = emadjuster.infoMsg();
+    infomsg_ = emadjuster.infoMsg().getFullString();
     swaveinfomsgshown_ = checksvel;
     return res;
 }
