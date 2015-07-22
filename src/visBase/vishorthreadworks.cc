@@ -19,15 +19,15 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace visBase;
 
 
-HorizonTileRenderPreparer::HorizonTileRenderPreparer( 
+HorizonTileRenderPreparer::HorizonTileRenderPreparer(
     HorizonSection& hrsection, const osg::CullStack* cs, char res )
     : hrsection_( hrsection )
     , tkzs_( cs )
     , hrsectiontiles_( hrsection.tiles_.getData() )
     , nrtiles_( hrsection.tiles_.info().getTotalSz() )
     , nrcoltiles_( hrsection.tiles_.info().getSize(1) )
-    , resolution_( res )						
-    , permutation_( 0 )    
+    , resolution_( res )
+    , permutation_( 0 )
 {
 
 }
@@ -56,7 +56,7 @@ bool HorizonTileRenderPreparer::doWork( od_int64 start, od_int64 stop, int )
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const int realidx = permutation_[idx];
-	if ( hrsectiontiles_[realidx] ) 
+	if ( hrsectiontiles_[realidx] )
 	    hrsectiontiles_[realidx]->updateAutoResolution( tkzs_ );
     }
 
@@ -76,7 +76,7 @@ bool HorizonTileRenderPreparer::doWork( od_int64 start, od_int64 stop, int )
 	}
 
 	addToNrDone( 1 );
-    }	
+    }
 
     barrier_.waitForAll();
     if ( !shouldContinue() )
@@ -85,7 +85,7 @@ bool HorizonTileRenderPreparer::doWork( od_int64 start, od_int64 stop, int )
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const int realidx = permutation_[idx];
-	if ( hrsectiontiles_[realidx] ) 
+	if ( hrsectiontiles_[realidx] )
 	    hrsectiontiles_[realidx]->ensureGlueTesselated();
 
 	addToNrDone( 1 );
@@ -123,7 +123,7 @@ int TileGlueTesselator::nextStep()
 
 
 
-HorizonSectionTilePosSetup::HorizonSectionTilePosSetup( 
+HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
     ObjectSet<HorizonSectionTile> tiles, HorizonSection* horsection,
     StepInterval<int>rrg,StepInterval<int>crg )
     : hrtiles_( tiles )
@@ -140,7 +140,7 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 	lowestresidx_ = horsection_->lowestresidx_;
 	geo_ = new Geometry::BinIDSurface( *horsection_->geometry_ );
     }
-    
+
     if ( zaxistransform_ ) zaxistransform_->ref();
     setName( BufferString( "Creating horizon surface..." ) );
 }
@@ -151,16 +151,16 @@ HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
     if ( zaxistransform_ ) zaxistransform_->unRef();
     if ( geo_ )
 	delete geo_;
-    
+
 }
 
 
-bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop, 
+bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 					 int threadid )
 {
     if ( !geo_ )
 	return false;
-    
+
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	if ( !hrtiles_[idx] )
@@ -174,18 +174,19 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
 	{
 	    const int row = origin.row() + rowidx*rrg_.step;
 	    const bool rowok = rrg_.includes(row, false);
-	    const StepInterval<int> colrg( 
-		mMAX(geo_->colRange(row).start, crg_.start),
-		mMIN(geo_->colRange(row).stop, crg_.stop), crg_.step );
+	    const StepInterval<int> geocolrg = geo_->colRange( row );
+	    const StepInterval<int> colrg(
+		mMAX(geocolrg.start,crg_.start),
+		mMIN(geocolrg.stop,crg_.stop), crg_.step );
 
 	    for ( int colidx=0; colidx<nrcrdspertileside_ ; colidx++ )
 	    {
 		const int col = origin.col() + colidx*colrg.step;
 		Coord3 pos = rowok && colrg.includes(col, false)
-		    ? geo_->getKnot(RowCol(row,col),false) 
+		    ? geo_->getKnot(RowCol(row,col),false)
 		    : Coord3::udf();
-		if ( zaxistransform_ ) 
-		    pos.z = zaxistransform_->transform( pos );		
+		if ( zaxistransform_ )
+		    pos.z = zaxistransform_->transform( pos );
 		positions += pos;
 	    }
 	}
@@ -205,7 +206,7 @@ bool HorizonSectionTilePosSetup::doFinish( bool sucess )
     {
 	horsection_->forceupdate_ =  true;
     }
-    
+
     return sucess;
 }
 
