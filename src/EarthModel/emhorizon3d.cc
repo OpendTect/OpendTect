@@ -690,18 +690,12 @@ bool Horizon3DGeometry::isAtEdge( const PosID& pid ) const
 PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
 				      const RowCol& dir ) const
 {
-    const RowCol rc = posid.getRowCol();
-    const SectionID sid = posid.sectionID();
-
-    const StepInterval<int> rowrg = rowRange( sid );
-    const StepInterval<int> colrg = colRange( sid, rc.row() );
-
     RowCol diff(0,0);
-    if ( dir.row()>0 ) diff.row() = rowrg.step;
-    else if ( dir.row()<0 ) diff.row() = -rowrg.step;
+    if ( dir.row()>0 ) diff.row() = step_.row();
+    else if ( dir.row()<0 ) diff.row() = -step_.row();
 
-    if ( dir.col()>0 ) diff.col() = colrg.step;
-    else if ( dir.col()<0 ) diff.col() = -colrg.step;
+    if ( dir.col()>0 ) diff.col() = step_.col();
+    else if ( dir.col()<0 ) diff.col() = -step_.col();
 
     TypeSet<PosID> aliases;
     getLinkedPos( posid, aliases );
