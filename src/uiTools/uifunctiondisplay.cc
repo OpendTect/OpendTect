@@ -740,7 +740,6 @@ void uiFunctionDisplay::addPoint( const uiPoint& pt )
 	}
     }
 
-
     pointSelected.trigger();
     draw();
 }
