@@ -5,9 +5,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        A.H. Lammertink
- Date:          12/02/2003
- RCS:           $Id$
+ Author:	A.H. Lammertink
+ Date:		12/02/2003
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiTableBody;
 
 
 mExpClass(uiBase) uiTable : public uiObject
-{ mODTextTranslationClass(uiTable);
+{ mODTextTranslationClass(uiTable)
 friend class		i_tableMessenger;
 friend class		uiTableBody;
 public:
@@ -80,9 +80,9 @@ public:
 			, manualresize_(false)
 					//!< if not, adapt size of cells auto
 			, defrowstartidx_(1)
-				    //!< default row label: start counting at 1
+				//!< default row label: start counting at 1
 			, rightclickdisabled_(false)
-		       		   //!<default enables right click popup
+				//!<default enables right click popup
 			, enablecopytext_(false)
 				{}
 
@@ -119,7 +119,7 @@ public:
 	}
     };
 
-                        uiTable(uiParent*,const Setup&,const char* nm);
+			uiTable(uiParent*,const Setup&,const char* nm);
     virtual 		~uiTable();
 
     const char*		text(const RowCol&) const;
@@ -130,13 +130,13 @@ public:
     bool		gridShown() const;
     void		setCurrentCell(const RowCol&,bool noselection=false);
     void		setCellObject(const RowCol&,uiObject*);
-    			/*!<\note The uiObject should be given a NULL pointer
+			/*!<\note The uiObject should be given a NULL pointer
 			     as uiParent* at construction. */
     uiObject*		getCellObject(const RowCol&) const;
     void		clearCellObject(const RowCol&);
     RowCol		getCell(uiObject*);
     void		setCellGroup(const RowCol&,uiGroup*);
-    			/*!<\note The uiObject should be given a NULL pointer
+			/*!<\note The uiObject should be given a NULL pointer
 			     as uiParent* at construction. */
     uiGroup*		getCellGroup(const RowCol&) const;
     RowCol		getCell(uiGroup*);
@@ -145,6 +145,7 @@ public:
     int			nrCols() const;
     void		setNrRows(int);
     void		setNrCols(int);
+    void		setPrefHeightInRows(int);
 
     int			columnWidth(int) const;
     int			rowHeight(int) const;
@@ -163,7 +164,7 @@ public:
     void		resizeRowToContents(int);
     void		resizeRowsToContents();
     void		setColumnResizeMode(ResizeMode);
-    			//!<Default is Stretch
+			//!<Default is Stretch
     void		setRowResizeMode(ResizeMode);
     			//!<Default is ResizeToContents
     void		setColumnStretchable(int,bool);
@@ -200,24 +201,24 @@ public:
 			    { insertColumns( rc.col(), count ); }
     void		removeRow(int);
     void		removeRow( const RowCol& rc )
-    				{ removeRow( rc.row() ); }
+				{ removeRow( rc.row() ); }
     void		removeRows(const TypeSet<int>&);
     void		removeColumn(int);
     void		removeColumn( const RowCol& rc )
-    				{ removeColumn( rc.col() ); }
+				{ removeColumn( rc.col() ); }
     void		removeColumns(const TypeSet<int>&);
 
     bool		isSelected(const RowCol&) const;
     bool		isRowSelected(int) const;
     bool		isColumnSelected(int) const;
-    			// next 3 return in selected order
+			// next 3 return in selected order
     bool		getSelectedRows(TypeSet<int>&) const;
     bool		getSelectedCols(TypeSet<int>&) const;
     bool		getSelectedCells(TypeSet<RowCol>&) const;
     int			currentRow() const;
     int			currentCol() const;
     RowCol		currentCell() const
-    			{ return RowCol( currentRow(), currentCol() ); }
+			{ return RowCol( currentRow(), currentCol() ); }
     void		setSelected(const RowCol&,bool yn=true);
     void		selectRow(int row);
     void 		selectColumn(int col);
