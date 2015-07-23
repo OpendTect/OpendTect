@@ -275,6 +275,34 @@ protected:
 };
 
 
+mExpClass(uiBase) uiAdvancedTextItem : public uiGraphicsItem
+{
+public:
+			uiAdvancedTextItem();
+			uiAdvancedTextItem(const uiString&);
+			~uiAdvancedTextItem();
+
+    Color		getDefaultTextColor() const;
+    uiFont&		getFont() const;
+    uiString		getPlainText() const;
+    float		getTextWidth() const;
+
+    void		setDefaultTextColor(const Color&);
+    void		setFont(const uiFont&);
+    void		setPlainText(const uiString&);
+    void		setTextWidth(float);
+
+    void		setTextIteraction(bool);
+
+protected:
+
+    QGraphicsItem*	mkQtObj();
+    QGraphicsTextItem*	qtextitem_;
+
+    virtual void	stPos(float,float);
+};
+
+
 mExpClass(uiBase) uiMarkerItem : public uiGraphicsItem
 {
 public:
