@@ -61,6 +61,7 @@ public:
     void		setRotation(float angle);
     void		setScale(float sx,float sy);
     void		setZValue(int); //<! z value decides the stacking order
+    int			nrChildren() const;
 
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;
     void		setItemIgnoresTransformations(bool);

@@ -218,6 +218,13 @@ void uiGraphicsItem::setZValue( int zval )
 { qgraphicsitem_->setZValue( zval ); }
 
 
+int uiGraphicsItem::nrChildren() const
+{
+    QList<QGraphicsItem*> qlist = qgraphicsitem_->childItems();
+    return qlist.size();
+}
+
+
 uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
 {
     QPointF qpt = qgraphicsitem_->mapToScene( pt.x, pt.y );
