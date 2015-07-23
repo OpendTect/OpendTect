@@ -46,6 +46,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Data type") );
     typfld_ = lcb->box();
+    typfld_->setHSzPol( uiObject::MedVar );
     typfld_->selectionChanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
     if ( SI().has3D() )
     {
@@ -75,12 +76,12 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     infotbl_->attach( ensureBelow, sep );
     infotbl_->setColumnLabel( 0, "" );
     infotbl_->setColumnLabel( 1, "Detected" );
-    infotbl_->setRowResizeMode( uiTable::Stretch );
+    infotbl_->setColumnStretchable( 0, false );
+    infotbl_->setColumnStretchable( 1, true );
     infotbl_->setPrefWidthInChar( 80 );
-    infotbl_->setPrefHeightInChar( mNrInfoRows+3 ); // this works for my font
+    infotbl_->setPrefHeightInRows( mNrInfoRows );
     infotbl_->setTableReadOnly( true );
-    for ( int idx=0; idx<mNrInfoRows; idx++ )
-	infotbl_->setRowLabel( idx, "" );
+    infotbl_->setLeftHeaderHidden( true );
     setCellTxt( 0, mRevRow, "SEG-Y Revision" );
     setCellTxt( 0, mByteOrderRow, "Byte order (headers, data)" );
     setCellTxt( 0, mNrSamplesRow, "Samples per trace" );
@@ -93,6 +94,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
 void uiSEGYReadStarter::setCellTxt( int col, int row, const char* txt )
 {
     infotbl_->setText( RowCol(row,col), txt );
+    if ( col==0 )
+	infotbl_->resizeColumnToContents( col );
 }
 
 
