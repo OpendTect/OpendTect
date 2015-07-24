@@ -138,6 +138,7 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 	zaxistransform_ = horsection_->getZAxisTransform();
 	nrcrdspertileside_ = horsection_->nrcoordspertileside_;
 	lowestresidx_ = horsection_->lowestresidx_;
+	geo_ = horsection_->geometry_;
     }
 
     if ( zaxistransform_ ) zaxistransform_->ref();
