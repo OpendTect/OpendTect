@@ -257,7 +257,7 @@ void Engine::removeTracker( int idx )
 	return;
 
     trackers_.replace( idx, 0 );
-    trackermgrs_.replace( idx, 0 );
+    delete trackermgrs_.replace( idx, 0 );
 
     deepErase( *flatcubescontainer_[idx] );
     flatcubescontainer_.replace( idx, 0 );
