@@ -211,6 +211,9 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
     const OffsetValueSeries<float> tovs = sdp->getTrcStorage( 0, totrcidx );
     const float startz = (float) horizon_.getPos( sectionid_, to.toInt64() ).z;
+    if ( mIsUdf(startz) )
+	return false;
+
     const StepInterval<float>& zsamp = sdp->getZRange();
     const int nrz = zsamp.nrSteps() + 1;
     const SamplingData<float> sd( zsamp.start, zsamp.step );
