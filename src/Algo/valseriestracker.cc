@@ -427,8 +427,39 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 
     const int nrsamples = actualsimilaritywin.width(false)+1;
 
+// Similarity part - Rework!!!
+
+    bool normalize = nrsamples > 1;
     ValSeriesMathFunc reffunc( *refvs, refsize );
     ValSeriesMathFunc targetfunc( *targetvs_, targetsize_ );
+
+    MathFunctionSampler<float,float> refsamp( reffunc );
+    refsamp.sd.start = (float)firstrefsample;
+    refsamp.sd.step = 1;
+
+    MathFunctionSampler<float,float> targetsamp( targetfunc );
+    targetsamp.sd.step = 1;
+
+    double meana = mUdf(double), stddeva = mUdf(double);
+    double meanb = mUdf(double), stddevb = mUdf(double);
+
+    double asum = 0;
+    mAllocVarLenArr( double, avals, nrsamples );
+    mAllocVarLenArr( double, bvals, nrsamples );
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	avals[idx] = refsamp[idx];
+	asum += avals[idx];
+    }
+
+    meana = asum / nrsamples;
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	const double adiff = avals[idx]-meana;
+	asum += adiff*adiff;
+    }
+
+    stddeva = Math::Sqrt(asum/(nrsamples-1));
 
     const int subsize = 8;
     const float fstep = (float)step / (float)subsize;
@@ -439,9 +470,54 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	if ( targetstart<0 )
 	    break;
 
+	targetsamp.sd.start = targetstart;
+
+	double bsum = 0;
+	for ( int sidx=0; sidx<nrsamples; sidx++ )
+	{
+	    bvals[sidx] = targetsamp[sidx];
+	    bsum += bvals[sidx];
+	}
+
+	meanb = bsum / nrsamples;
+	bsum = 0;
+	for ( int sidx=0; sidx<nrsamples; sidx++ )
+	{
+	    const double bdiff = bvals[sidx]-meanb;
+	    bsum += bdiff*bdiff;
+	}
+
+	stddevb = Math::Sqrt(bsum/(nrsamples-1));
+	if ( mIsZero(stddeva,mDefEps) || mIsZero(stddevb,mDefEps) )
+		normalize=false;
+/*
 	const float sim = similarity( reffunc, targetfunc,
 		(float)firstrefsample, targetstart, 1,
 		nrsamples, normalizesimi_ );
+*/
+    float val1, val2;
+    double sqdist = 0, sq1 = 0, sq2 = 0;
+    for ( int sidx=0; sidx<nrsamples; sidx++ )
+    {
+	val1 = normalize ? float( (avals[sidx]-meana)/stddeva ) : avals[sidx];
+	val2 = normalize ? float( (bvals[sidx]-meanb)/stddevb ) : bvals[sidx];
+	if ( mIsUdf(val1) || mIsUdf(val2) )
+	    return mUdf(float);
+
+	sq1 += val1 * val1;
+	sq2 += val2 * val2;
+	sqdist += (val1-val2) * (val1-val2);
+    }
+
+    if ( mIsZero(sq1,mDefEps) && mIsZero(sq2,mDefEps) )
+	return 1;
+
+    if ( mIsZero(sq1,mDefEps) || mIsZero(sq2,mDefEps) )
+	return 0;
+
+    const float rt =
+	   (float) ( Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)) );
+    float sim = 1 - rt;
 
 	if ( idx && sim<maxsim )
 	{
