@@ -114,15 +114,19 @@ if ( UNIX )
 endif()
 
 if ( NOT (CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) )
-    execute_process( 
+    execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${CMAKE_SOURCE_DIR}/testscripts/script with space.cmd"
                     "${PROJECT_BINARY_DIR}/testscripts/script with space.cmd" )
-    execute_process( 
+    execute_process(
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${CMAKE_SOURCE_DIR}/testscripts/script with space.sh"
                     "${PROJECT_BINARY_DIR}/testscripts/script with space.sh" )
-    
+    execute_process(
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${CMAKE_SOURCE_DIR}/testscripts/count_to_1000.csh"
+                    "${PROJECT_BINARY_DIR}/testscripts/count_to_1000.csh" )
+
 endif()
 
 
