@@ -179,8 +179,6 @@ public:
 
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    virtual void		hoverEnterEvent(QGraphicsSceneHoverEvent*);
-    virtual void		hoverLeaveEvent(QGraphicsSceneHoverEvent*);
 
     bool			closed_;
     QPolygonF			qpolygon_;
@@ -198,8 +196,6 @@ public:
 				      QWidget*);
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    virtual void		hoverEnterEvent(QGraphicsSceneHoverEvent*);
-    virtual void		hoverLeaveEvent(QGraphicsSceneHoverEvent*);
 
     int				itempenwidth_;
     bool			entereventhappened_;

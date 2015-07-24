@@ -641,24 +641,6 @@ void ODGraphicsPolyLineItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 }
 
 
-void ODGraphicsPolyLineItem::hoverEnterEvent( QGraphicsSceneHoverEvent* event )
-{
-    QPen highlighted( pen() );
-    highlighted.setWidth( highlighted.width() + 2 );
-    setPen( highlighted );
-    QGraphicsItem::hoverEnterEvent( event );
-}
-
-
-void ODGraphicsPolyLineItem::hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
-{
-    QPen unhighlighted( pen() );
-    unhighlighted.setWidth( unhighlighted.width() - 2 );
-    setPen( unhighlighted );
-    QGraphicsItem::hoverLeaveEvent( event );
-}
-
-
 // ODGraphicsItemGroup
 ODGraphicsItemGroup::ODGraphicsItemGroup()
     : QGraphicsItemGroup()
@@ -686,61 +668,6 @@ void ODGraphicsItemGroup::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
     QGraphicsItem::mouseMoveEvent( event );
 
     snapToSceneRect ( this );
-}
-
-
-void ODGraphicsItemGroup::hoverEnterEvent( QGraphicsSceneHoverEvent* event )
-{
-    if ( entereventhappened_ ) return;
-
-    QList<QGraphicsItem*> itms = childItems();
-    for ( int idx=0; idx<itms.size(); idx++ )
-    {
-	mDynamicCastGet(ODGraphicsItemGroup*,grpitm,itms[idx])
-	if ( grpitm )
-	{
-	    grpitm->hoverEnterEvent( event );
-	    continue;
-	}
-
-	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
-	if ( !shpitm ) continue;
-
-	QPen highlighted = shpitm->pen();
-	itempenwidth_ = highlighted.width();
-	highlighted.setWidth( itempenwidth_ + 2 );
-	shpitm->setPen( highlighted );
-    }
-
-    QGraphicsItemGroup::hoverEnterEvent( event );
-    entereventhappened_ = true;
-}
-
-
-void ODGraphicsItemGroup::hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
-{
-    if ( !entereventhappened_ ) return;
-
-    QList<QGraphicsItem*> itms = childItems();
-    for ( int idx=0; idx<itms.size(); idx++ )
-    {
-	mDynamicCastGet(ODGraphicsItemGroup*,grpitm,itms[idx])
-	if ( grpitm )
-	{
-	    grpitm->hoverLeaveEvent( event );
-	    continue;
-	}
-
-	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
-	if ( !shpitm ) continue;
-
-	QPen unhighlighted = shpitm->pen();
-	unhighlighted.setWidth( itempenwidth_ );
-	shpitm->setPen( unhighlighted );
-    }
-
-    QGraphicsItemGroup::hoverLeaveEvent( event );
-    entereventhappened_ = false;
 }
 
 
