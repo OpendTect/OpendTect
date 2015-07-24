@@ -495,12 +495,12 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 		(float)firstrefsample, targetstart, 1,
 		nrsamples, normalizesimi_ );
 */
-    float val1, val2;
+    double val1, val2;
     double sqdist = 0, sq1 = 0, sq2 = 0;
     for ( int sidx=0; sidx<nrsamples; sidx++ )
     {
-	val1 = normalize ? float( (avals[sidx]-meana)/stddeva ) : avals[sidx];
-	val2 = normalize ? float( (bvals[sidx]-meanb)/stddevb ) : bvals[sidx];
+	val1 = normalize ? (avals[sidx]-meana)/stddeva : avals[sidx];
+	val2 = normalize ? (bvals[sidx]-meanb)/stddevb : bvals[sidx];
 	if ( mIsUdf(val1) || mIsUdf(val2) )
 	    return mUdf(float);
 
