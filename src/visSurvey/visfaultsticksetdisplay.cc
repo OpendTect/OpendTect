@@ -241,6 +241,11 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 				   false );
     sticks_->setPickable( false );
     sticks_->enableTraversal( visBase::cDraggerIntersecTraversalMask(), false );
+
+    ObjectSet<SectionKnotsStatus>* sectknotsstatus =
+	new ObjectSet<SectionKnotsStatus>;
+    sectionknotsstatus_.setParam( this,sectknotsstatus );
+
 }
 
 
@@ -286,12 +291,12 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     secionid_.removeParam( this );
     ObjectSet<SectionKnotsStatus>* secknotsstatus =
 	sectionknotsstatus_.getParam( this );
-    deepErase( *secknotsstatus );
+    
     sectionknotsstatus_.removeParam( this );
+    deepErase( *secknotsstatus );
     delete secknotsstatus;
-
+    
     hideallknots_.removeParam( this );
-
 }
 
 
@@ -409,7 +414,7 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
     viseditor_->setMarkerSize( mDefaultMarkerSize );
 
     ObjectSet<SectionKnotsStatus>* sectknotsstatus = 
-	new ObjectSet<SectionKnotsStatus>;
+	sectionknotsstatus_.getParam( this );
 
     for( int sidx = 0; sidx<emfss_->nrSections(); sidx++ )
     {
@@ -432,10 +437,10 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
 		sksts->addUdfRow( firstrow, firstcol, fss->nrKnots(idy) );
 	    }
 	}
-	*sectknotsstatus += sksts;
+	if ( sectknotsstatus )
+	    *sectknotsstatus += sksts;
     }
 
-    sectionknotsstatus_.setParam( this, sectknotsstatus );
     updateSticks();
     updateKnotMarkers();
     return true;
