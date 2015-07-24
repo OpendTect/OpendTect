@@ -42,8 +42,11 @@ Color BaseMapObject::getColor() const
 {
     if ( getFillColor(0) != Color::NoColor() )
 	return getFillColor( 0 );
-    else
+    else if ( getLineStyle(0) )
 	return getLineStyle(0)->color_;
+    else if ( getMarkerStyle(0) )
+	return getMarkerStyle(0)->color_;
+    return Color::NoColor();
 }
 
 
