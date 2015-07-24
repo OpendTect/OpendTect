@@ -65,7 +65,8 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
     RayTracer1D* raytracer = factory().create( type );
     if ( !raytracer )
     {
-	errm = tr("Raytracer not found. Perhaps all plugins are not loaded");
+	errm = tr("Raytracer %1 not found. Perhaps all plugins are not loaded")
+		.arg(type);
 	return 0;
     }
 
@@ -109,7 +110,7 @@ bool RayTracer1D::hasSameParams( const RayTracer1D& rt ) const
     BufferString rtkeyword = rt.factoryKeyword();
     return rtkeyword==factoryKeyword() && setup().pdown_==rt.setup().pdown_ &&
 	   setup().pup_==rt.setup().pup_ &&
-	   setup().doreflectivity_==rt.setup().doreflectivity_ && 
+	   setup().doreflectivity_==rt.setup().doreflectivity_ &&
 	   offsets_==rtoffsets;
 }
 
