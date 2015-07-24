@@ -53,14 +53,21 @@ public:
     void		startFromSeeds();
     void		stop();
 
+    SectionTracker*	getFreeSectionTracker();
+    void		freeSectionTracker(const SectionTracker*);
+
     Notifier<HorizonTrackerMgr>		finished;
 
 protected:
     void		addTask(const TrcKeyValue&,const TrcKeyValue&);
     void		taskFinished(CallBacker*);
+    void		updateCB(CallBacker*);
     int			queueid_;
 
     EMTracker&			tracker_;
+    ObjectSet<SectionTracker>	sectiontrackers_;
+    BoolTypeSet			trackerinuse_;
+
     TypeSet<TrcKey>		seeds_;
     Threads::WorkManager&	twm_;
 
@@ -69,7 +76,7 @@ protected:
 
     Threads::Lock		addlock_;
     Threads::Lock		finishlock_;
-    Threads::Lock		updatelock_;
+    Threads::Lock		getfreestlock_;
 };
 
 

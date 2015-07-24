@@ -41,24 +41,25 @@ HorizonTracker( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
     : mgr_(mgr)
     , seed_(seed)
     , srcpos_(srcpos)
+    , sectiontracker_(0)
 {
-    sectiontracker_ = mgr_.tracker_.cloneSectionTracker();
-    isok_ = sectiontracker_ && sectiontracker_->extender() &&
-	    sectiontracker_->adjuster();
 }
 
 
 ~HorizonTracker()
 {
-    delete sectiontracker_;
 }
 
 
 bool execute()
 {
-    if ( !isok_ )
+    sectiontracker_ = mgr_.getFreeSectionTracker();
+    const bool isok = sectiontracker_ && sectiontracker_->extender() &&
+			sectiontracker_->adjuster();
+    if ( !isok )
 	return false;
 
+    sectiontracker_->reset();
     SectionExtender* ext = sectiontracker_->extender();
     SectionAdjuster* adj = sectiontracker_->adjuster();
 
@@ -75,6 +76,8 @@ bool execute()
     while ( (res=adj->nextStep())>0 )
 	;
 
+    mgr_.freeSectionTracker( sectiontracker_ );
+
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
 	TrcKey src( BinID::fromInt64(addedpos[idx]) );
@@ -89,7 +92,6 @@ bool execute()
 
     TrcKeyValue		seed_;
     TrcKeyValue		srcpos_;
-    bool		isok_;
 };
 
 
@@ -127,12 +129,11 @@ void HorizonTrackerMgr::setSeeds( const TypeSet<TrcKey>& seeds )
 void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
 				 const TrcKeyValue& source )
 {
-    Threads::Locker locker( addlock_ );
-
     mDynamicCastGet(EM::Horizon*,hor,tracker_.emObject())
     if ( !hor || !hor->hasZ(source.tk_) )
 	return;
 
+    Threads::Locker locker( addlock_ );
     nrtodo_++;
     CallBack cb( mCB(this,HorizonTrackerMgr,taskFinished) );
     Task* task = new HorizonTracker( *this, seed, source );
@@ -144,10 +145,10 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
 void HorizonTrackerMgr::taskFinished( CallBacker* cb )
 {
     Threads::Locker locker( finishlock_ );
-
-    mDynamicCastGet(EM::Horizon3D*,hor3d,tracker_.emObject())
     nrtodo_--;
     nrdone_++;
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,tracker_.emObject())
     if ( nrdone_%500 == 0 || nrtodo_==0 )
     {
 	if ( hor3d )
@@ -159,6 +160,29 @@ void HorizonTrackerMgr::taskFinished( CallBacker* cb )
 	if ( hor3d ) hor3d->setBurstAlert( false );
 	finished.trigger();
     }
+}
+
+
+SectionTracker* HorizonTrackerMgr::getFreeSectionTracker()
+{
+    Threads::Locker locker( getfreestlock_  );
+    for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
+    {
+	if ( trackerinuse_[idx] )
+	    continue;
+
+	trackerinuse_[idx] = true;
+	return sectiontrackers_[idx];
+    }
+
+    return 0;
+}
+
+
+void HorizonTrackerMgr::freeSectionTracker( const SectionTracker* st )
+{
+    const int stidx = sectiontrackers_.indexOf( st );
+    trackerinuse_[stidx] = false;
 }
 
 
@@ -175,6 +199,14 @@ void HorizonTrackerMgr::startFromSeeds()
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     if ( hor3d && nrdone_==0 )
 	hor3d->initAllAuxData();
+
+    deepErase( sectiontrackers_ );
+    trackerinuse_.erase();
+    for ( int idx=0; idx<twm_.nrThreads(); idx++ )
+    {
+	sectiontrackers_ += tracker_.cloneSectionTracker();
+	trackerinuse_ += false;
+    }
 
     nrtodo_ = 0;
     hor3d->setBurstAlert( true );
