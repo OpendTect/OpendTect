@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
     : bmobject_( bmo )
-    , itemgrp_(*new uiGraphicsItemGroup(true))
+    , graphitem_(*new uiGraphicsItem)
     , changed_(false)
     , transform_(0)
 {
@@ -32,14 +32,15 @@ uiBaseMapObject::uiBaseMapObject( BaseMapObject* bmo )
 	bmobject_->changed.notify( mCB(this,uiBaseMapObject,changedCB) );
 	bmobject_->stylechanged.notify(
 		    mCB(this,uiBaseMapObject,changedStyleCB) );
-	itemgrp_.setZValue( bmobject_->getDepth() );
+	graphitem_.setZValue( bmobject_->getDepth() );
     }
+    graphitem_.setAcceptHoverEvents( true );
 }
 
 
 uiBaseMapObject::~uiBaseMapObject()
 {
-    delete &itemgrp_;
+    delete &graphitem_;
 }
 
 
@@ -51,10 +52,10 @@ const char* uiBaseMapObject::name() const
 { return bmobject_ ? bmobject_->name().buf() : 0; }
 
 void uiBaseMapObject::show( bool yn )
-{ itemgrp_.setVisible( yn ); }
+{ graphitem_.setVisible( yn ); }
 
 bool uiBaseMapObject::isShown() const
-{ return itemgrp_.isVisible(); }
+{ return graphitem_.isVisible(); }
 
 
 void uiBaseMapObject::changedCB( CallBacker* )
@@ -96,46 +97,58 @@ void uiBaseMapObject::update()
 	{
 	    if ( !bmobject_->close(idx) )
 	    {
-		while ( itemgrp_.size()>itemnr )
+		while ( graphitem_.nrChildren()>itemnr )
 		{
 		    mDynamicCastGet(uiPolyLineItem*,itm,
-				    itemgrp_.getUiItem(itemnr));
+				    graphitem_.getChild(itemnr));
 		    if ( !itm )
-			itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
+			graphitem_.removeChild( graphitem_.getChild(itemnr),
+						true );
 		    else break;
 		}
 
-		if ( itemgrp_.size()<=itemnr )
-		    itemgrp_.add( new uiPolyLineItem() );
+		if ( graphitem_.nrChildren()<=itemnr )
+		{
+		    uiPolyLineItem* itm = new uiPolyLineItem();
+		    if ( !itm ) return;
+		    itm->setParent( &graphitem_ );
+		}
 
-		mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
-		if ( !li ) return;
+		mDynamicCastGet(uiPolyLineItem*,itm,graphitem_.getChild(itemnr))
+		if ( !itm ) return;
 
-		li->setPenStyle( *bmobject_->getLineStyle(idx) );
-		li->setPolyLine( worldpts );
+		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
+		itm->setPolyLine( worldpts );
+		itm->setAcceptHoverEvents( true );
 		itemnr++;
 	    }
 	    else
 	    {
-		while ( itemgrp_.size()>itemnr )
+		while ( graphitem_.nrChildren()>itemnr )
 		{
 		    mDynamicCastGet(uiPolygonItem*,itm,
-				    itemgrp_.getUiItem(itemnr));
+				    graphitem_.getChild(itemnr));
 		    if ( !itm )
-			itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
+			graphitem_.removeChild( graphitem_.getChild(itemnr),
+						true );
 		    else break;
 		}
 
-		if ( itemgrp_.size()<=itemnr )
-		    itemgrp_.add( new uiPolygonItem() );
+		if ( graphitem_.nrChildren()<=itemnr )
+		{
+		    uiPolygonItem* itm = new uiPolygonItem();
+		    if ( !itm ) return;
+		    itm->setParent( &graphitem_ );
+		}
 
-		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
+		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
 		if ( !itm ) return;
 
 		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
 		itm->setPolygon( worldpts );
 		itm->setFillColor( bmobject_->getFillColor(idx), true );
 		itm->fill();
+		itm->setAcceptHoverEvents( true );
 		itemnr++;
 	    }
 	}
@@ -145,23 +158,29 @@ void uiBaseMapObject::update()
 	{
 	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
 	    {
-		while ( itemgrp_.size()>itemnr )
+		while ( graphitem_.nrChildren()>itemnr )
 		{
 		    mDynamicCastGet(uiMarkerItem*,itm,
-				    itemgrp_.getUiItem(itemnr));
+				    graphitem_.getChild(itemnr));
 		    if ( !itm )
-			itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
+			graphitem_.removeChild( graphitem_.getChild(itemnr),
+						true );
 		    else break;
 		}
 
-		if ( itemgrp_.size()<=itemnr )
-		    itemgrp_.add( new uiMarkerItem() );
+		if ( graphitem_.nrChildren()<=itemnr )
+		{
+		    uiMarkerItem* itm = new uiMarkerItem();
+		    if ( !itm ) return;
+		    itm->setParent( &graphitem_ );
+		}
 
-		mDynamicCastGet(uiMarkerItem*,itm,itemgrp_.getUiItem(itemnr));
+		mDynamicCastGet(uiMarkerItem*,itm,graphitem_.getChild(itemnr));
 		itm->setMarkerStyle( *ms2d );
 		itm->setPenColor( ms2d->color_ );
 		itm->setFillColor( ms2d->color_ );
 		itm->setPos( crds[ptidx] );
+		itm->setAcceptHoverEvents( true );
 		itemnr++;
 	    }
 	}
@@ -169,19 +188,24 @@ void uiBaseMapObject::update()
 	const char* shapenm = bmobject_->getShapeName( idx );
 	if ( shapenm && !crds.isEmpty() )
 	{
-	    while ( itemgrp_.size()>itemnr )
+	    while ( graphitem_.nrChildren()>itemnr )
 	    {
 		mDynamicCastGet(uiTextItem*,itm,
-				itemgrp_.getUiItem(itemnr));
+				graphitem_.getChild(itemnr));
 		if ( !itm )
-		    itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
+		    graphitem_.removeChild( graphitem_.getChild(itemnr), true );
 		else break;
 	    }
 
-	    if ( itemgrp_.size()<=itemnr )
-		itemgrp_.add( new uiTextItem() );
+	    if ( graphitem_.nrChildren()<=itemnr )
+	    {
+		uiTextItem* itm = new uiTextItem();
+		if ( !itm ) return;
+		itm->setParent( &graphitem_ );
+	    }
 
-	    mDynamicCastGet(uiTextItem*,itm,itemgrp_.getUiItem(itemnr));
+	    mDynamicCastGet(uiTextItem*,itm,graphitem_.getChild(itemnr));
+	    if ( !itm ) return;
 	    itm->setText( shapenm );
 	    itm->setPos( crds[0] );
 	    const Alignment al = bmobject_->getAlignment( idx );
@@ -194,8 +218,8 @@ void uiBaseMapObject::update()
 	}
     }
 
-    while ( itemgrp_.size()>itemnr )
-	itemgrp_.remove( itemgrp_.getUiItem(itemnr), true );
+    while ( graphitem_.nrChildren()>itemnr )
+	graphitem_.removeChild( graphitem_.getChild(itemnr), true );
 }
 
 
@@ -213,7 +237,7 @@ void uiBaseMapObject::updateStyle()
 	{
 	    if ( !bmobject_->close(idx) )
 	    {
-		mDynamicCastGet(uiPolyLineItem*,li,itemgrp_.getUiItem(itemnr))
+		mDynamicCastGet(uiPolyLineItem*,li,graphitem_.getChild(itemnr))
 		if ( !li ) return;
 
 		li->setPenStyle( *bmobject_->getLineStyle(idx) );
@@ -221,7 +245,7 @@ void uiBaseMapObject::updateStyle()
 	    }
 	    else
 	    {
-		mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
+		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
 		if ( !itm ) return;
 
 		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
@@ -233,7 +257,7 @@ void uiBaseMapObject::updateStyle()
 
 	if ( bmobject_->fill(idx) )
 	{
-	    mDynamicCastGet(uiPolygonItem*,itm,itemgrp_.getUiItem(itemnr))
+	    mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
 	    if ( !itm ) return;
 
 	    itm->fill();
@@ -253,12 +277,12 @@ uiBaseMap::uiBaseMap( uiParent* p )
     : uiGroup(p,"Basemap")
     , view_(*new uiGraphicsView(this,"Basemap"))
     , w2ui_(*new uiWorld2Ui)
-    , worlditemgrp_(*new uiGraphicsItemGroup(true))
+    , worlditem_(*new uiGraphicsItem())
     , changed_(false)
     , objectAdded(this)
     , objectRemoved(this)
 {
-    view_.scene().addItem( &worlditemgrp_ );
+    view_.scene().addItem( &worlditem_ );
     view_.reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
 }
 
@@ -266,7 +290,7 @@ uiBaseMap::uiBaseMap( uiParent* p )
 uiBaseMap::~uiBaseMap()
 {
     deepErase( objects_ );
-    view_.scene().removeItem( &worlditemgrp_ );
+    view_.scene().removeItem( &worlditem_ );
     delete &view_;
     delete &w2ui_;
 }
@@ -313,8 +337,8 @@ void uiBaseMap::updateTransform()
     const double xpos = viewrect.left() - xscale*wr_.left() + xshift;
     const double ypos = viewrect.top() - yscale*wr_.top() + yshift;
 
-    worlditemgrp_.setPos( uiWorldPoint(xpos,ypos) );
-    worlditemgrp_.setScale( (float)xscale, (float)yscale );
+    worlditem_.setPos( uiWorldPoint(xpos,ypos) );
+    worlditem_.setScale( (float)xscale, (float)yscale );
     reDraw();
 }
 
@@ -371,7 +395,7 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
 {
     if ( !uiobj ) return;
 
-    worlditemgrp_.add( &uiobj->itemGrp() );
+    uiobj->graphItem().setParent( &worlditem_ );
     objects_ += uiobj;
     changed_ = true;
     if ( uiobj->getObject() )
@@ -408,7 +432,6 @@ void uiBaseMap::removeObject( const BaseMapObject* obj )
     if ( index==-1 )
 	return;
 
-    worlditemgrp_.remove( &objects_[index]->itemGrp(), true );
     delete objects_.removeSingle( index );
     changed_ = true;
     objectRemoved.trigger( obj->ID() );
@@ -429,7 +452,7 @@ const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<int>& pt )  const
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	const uiGraphicsItemGroup& itmgrp = objects_[idx]->itemGrp();
+	const uiGraphicsItem& itmgrp = objects_[idx]->graphItem();
 	if ( !itmgrp.isPresent(*itm) )
 	    continue;
 

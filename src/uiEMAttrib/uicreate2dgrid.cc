@@ -78,12 +78,12 @@ void setBaseLine( const Grid2D::Line* baseline )
     item->setLine( start, stop ); \
     item->setPenStyle( ls ); \
     item->setZValue( graphicszval ); \
-    itemgrp_.add( item ); \
+    item->setParent( &graphitem_ ); \
 }
 
 void update()
 {
-    itemgrp_.removeAll( true );
+    graphitem_.removeAll( true );
     lines_.erase();
 
     if ( !grid_ ) return;
@@ -562,7 +562,7 @@ uiGroup* uiCreate2DGrid::createPreviewGroup()
     uiGroup* grp = new uiGroup( this, "Preview Group" );
     previewmap_ = new uiSurveyMap( grp, false );
     preview_ = new uiGrid2DMapObject;
-    preview_->itemGrp().setZValue( 1 );
+    preview_->graphItem().setZValue( 1 );
     previewmap_->addObject( preview_ );
     previewmap_->setStretch( 0, 0 );
     previewmap_->setPrefWidth( 300 );
