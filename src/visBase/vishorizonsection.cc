@@ -150,6 +150,8 @@ HorizonSection::NodeCallbackHandler::NodeCallbackHandler(
 void HorizonSection::NodeCallbackHandler::operator()( osg::Node* node,
 						      osg::NodeVisitor* nv )
 {
+    hrsection_->executePendingUpdates();
+
     if( nv->getVisitorType()==osg::NodeVisitor::UPDATE_VISITOR )
     {
 	hrsection_->forceRedraw( false );
@@ -268,6 +270,9 @@ HorizonSection::HorizonSection()
     addChild( hortexturehandler_->getOsgNode() );
     hordatahandler_->ref();
     hortilescreatorandupdator_->ref();
+
+    queueid_ = Threads::WorkManager::twm().addQueue(
+		Threads::WorkManager::Manual, "HorizonSection" );
 }
 
 
@@ -302,6 +307,8 @@ HorizonSection::~HorizonSection()
 
     hordatahandler_->unRef();
     hortilescreatorandupdator_->unRef();
+
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
 
@@ -313,6 +320,12 @@ void HorizonSection::forceRedraw( bool yn )
 	isredrawing_ = yn;
 	osghorizon_->setUpdateCallback( yn ? nodecallbackhandler_ : 0 );
     }
+}
+
+
+bool HorizonSection::executePendingUpdates()
+{
+    return Threads::WorkManager::twm().executeQueue( queueid_ );
 }
 
 
@@ -553,6 +566,23 @@ void HorizonSection::turnOsgOn( bool yn )
 {  turnOn( yn ); }
 
 
+class HorizonSectionUpdater : public Task
+{
+public:
+HorizonSectionUpdater( HorTilesCreatorAndUpdator& upd,
+		       const TypeSet<GeomPosID>& gpids )
+    : gpids_(gpids)
+    , updater_(upd)
+{}
+
+bool execute()
+{ updater_.updateTiles( &gpids_, 0 ); return true; }
+
+    TypeSet<GeomPosID> gpids_;
+    HorTilesCreatorAndUpdator& updater_;
+};
+
+
 void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
 				    TaskRunner* tr )
 {
@@ -571,8 +601,19 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
     if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
 	hortilescreatorandupdator_->createAllTiles( tr );
     else
-	hortilescreatorandupdator_->updateTiles( gpids, tr );
+    {
+	if ( isVisualizationThread() )
+	    hortilescreatorandupdator_->updateTiles( gpids, tr );
+	else
+	{
+	    HorizonSectionUpdater* updtask =
+		new HorizonSectionUpdater(*hortilescreatorandupdator_,*gpids);
+	    Threads::WorkManager::twm().addWork(
+		Threads::Work(*updtask,true), 0, queueid_ );
+	}
+    }
 }
+
 
 void HorizonSection::setZAxisTransform( ZAxisTransform* zt, TaskRunner* )
 {
@@ -812,6 +853,5 @@ bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps,
     return tiles_.getData()[titleidx]->getResolutionPrimitiveSet( ps, type );
 }
 
-
-}; // namespace visBase
+} // namespace visBase
 
