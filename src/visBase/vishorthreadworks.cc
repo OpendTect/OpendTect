@@ -138,7 +138,6 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 	zaxistransform_ = horsection_->getZAxisTransform();
 	nrcrdspertileside_ = horsection_->nrcoordspertileside_;
 	lowestresidx_ = horsection_->lowestresidx_;
-	geo_ = new Geometry::BinIDSurface( *horsection_->geometry_ );
     }
 
     if ( zaxistransform_ ) zaxistransform_->ref();
@@ -149,8 +148,6 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
 {
     if ( zaxistransform_ ) zaxistransform_->unRef();
-    if ( geo_ )
-	delete geo_;
 
 }
 
