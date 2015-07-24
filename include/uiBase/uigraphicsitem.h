@@ -61,7 +61,14 @@ public:
     void		setRotation(float angle);
     void		setScale(float sx,float sy);
     void		setZValue(int); //<! z value decides the stacking order
+
+
+    uiGraphicsItem*	getChild(int);
+    bool		isPresent(const uiGraphicsItem&) const;
     int			nrChildren() const;
+    void		removeChild(uiGraphicsItem*,bool withdelete);
+    void		removeAll(bool withdelete);
+    void		addChild(uiGraphicsItem*);
 
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;
     void		setItemIgnoresTransformations(bool);
@@ -102,6 +109,7 @@ protected:
     virtual mQtclass(QGraphicsItem*) mkQtObj()                  { return 0; }
     bool		selected_; // Remove when things in Qt works
     mQtclass(uiGraphicsScene*)	scene_;
+    ObjectSet<uiGraphicsItem> children_;
 
 private:
 

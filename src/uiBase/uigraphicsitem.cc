@@ -35,6 +35,11 @@ mUseQtnamespace
 
 class ODGraphicsItem : public QGraphicsItem
 {
+public:
+ODGraphicsItem()
+    : QGraphicsItem()
+    , itempenwidth_( 1 )
+{}
 
 QRectF boundingRect() const
 { return QRectF(); }
@@ -43,6 +48,43 @@ void paint( QPainter* painter, const QStyleOptionGraphicsItem* option,
 	    QWidget* widget )
 {
 }
+
+void setItemPenWidth( int width )
+{ itempenwidth_ = width; }
+
+void hoverEnterEvent( QGraphicsSceneHoverEvent* event )
+{
+    QList<QGraphicsItem*> itms = childItems();
+    for ( int idx=0; idx<itms.size(); idx++ )
+    {
+	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
+	if ( !shpitm ) continue;
+
+	QPen highlighted = shpitm->pen();
+	highlighted.setWidth( itempenwidth_ + 2 );
+	shpitm->setPen( highlighted );
+    }
+
+    QGraphicsItem::hoverEnterEvent( event );
+}
+
+void hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
+{
+    QList<QGraphicsItem*> itms = childItems();
+    for ( int idx=0; idx<itms.size(); idx++ )
+    {
+	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
+	if ( !shpitm ) continue;
+
+	QPen unhighlighted = shpitm->pen();
+	unhighlighted.setWidth( itempenwidth_ );
+	shpitm->setPen( unhighlighted );
+    }
+
+    QGraphicsItem::hoverLeaveEvent( event );
+}
+
+int itempenwidth_;
 
 };
 
@@ -72,6 +114,7 @@ uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
 
 uiGraphicsItem::~uiGraphicsItem()
 {
+    removeAll( true );
     if ( scene_ )
     {
 	scene_->removeItem( this );
@@ -218,10 +261,47 @@ void uiGraphicsItem::setZValue( int zval )
 { qgraphicsitem_->setZValue( zval ); }
 
 
+uiGraphicsItem* uiGraphicsItem::getChild( int idx )
+{ return children_.validIdx(idx) ? children_[idx] : 0; }
+
+
+bool uiGraphicsItem::isPresent( const uiGraphicsItem& itm ) const
+{ return children_.isPresent( &itm ); }
+
+
 int uiGraphicsItem::nrChildren() const
+{ return children_.size(); }
+
+
+void uiGraphicsItem::removeChild( uiGraphicsItem* itm, bool withdelete )
 {
-    QList<QGraphicsItem*> qlist = qgraphicsitem_->childItems();
-    return qlist.size();
+    if ( !itm ) return;
+
+    children_ -= itm;
+    itm->qGraphicsItem()->setParentItem( 0 );
+
+    if ( withdelete )
+    {
+	itm->setVisible( false );
+	delete itm;
+    }
+}
+
+
+void uiGraphicsItem::removeAll( bool withdelete )
+{
+    while ( !children_.isEmpty() )
+	removeChild( children_[0], withdelete );
+}
+
+
+void uiGraphicsItem::addChild( uiGraphicsItem* itm )
+{
+    if ( children_.isPresent(itm) )
+	return;
+
+    children_ += itm;
+    itm->qGraphicsItem()->setParentItem( qGraphicsItem() );
 }
 
 
@@ -270,7 +350,10 @@ void uiGraphicsItem::setSelectable( bool yn )
 
 void uiGraphicsItem::setParent( uiGraphicsItem* item )
 {
-    qgraphicsitem_->setParentItem( item ? item->qgraphicsitem_ : 0 );
+    if ( item )
+	item->addChild( this );
+    else
+	qgraphicsitem_->setParentItem( 0 );
 }
 
 
@@ -286,6 +369,11 @@ void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool usetransparency )
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
     qpen.setCosmetic( true );
     agsitm->setPen( qpen );
+
+    //needed for hoverEvents
+    mDynamicCastGet(ODGraphicsItem*,oditm,qgraphicsitem_)
+    if ( !oditm ) return;
+    oditm->setItemPenWidth( ls.width_ );
 }
 
 
