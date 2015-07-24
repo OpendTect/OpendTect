@@ -293,6 +293,9 @@ const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
     {
 	RegularSeisDataPack* output =
 	    const_cast<RegularSeisDataPack*>( proc.outputs_[0]->getDataPack() );
+	if ( !output )
+	    return 0;
+
 	for ( int idx=0; idx<attrspecs_.size(); idx++ )
 	    output->setComponentName( attrspecs_[idx].userRef(), idx );
 
@@ -305,10 +308,11 @@ const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
     ObjectSet<const RegularSeisDataPack> packset;
     for ( int idx=0; idx<proc.outputs_.size(); idx++ )
     {
-	if ( !proc.outputs_[idx] || !proc.outputs_[idx]->getDataPack() )
+	const RegularSeisDataPack* dp =
+		proc.outputs_[idx] ? proc.outputs_[idx]->getDataPack() : 0;
+	if ( !dp )
 	    continue;
 
-	const RegularSeisDataPack* dp = proc.outputs_[idx]->getDataPack();
 	if ( !packset.size() || packset[0]->nrComponents()==dp->nrComponents() )
 	    packset += dp;
     }
