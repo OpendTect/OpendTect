@@ -531,7 +531,7 @@ void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
     {
 	items_ += itm;
 	itm->setScene( scene_ );
-	itm->setParent( this );
+	itm->qGraphicsItem()->setParentItem( qGraphicsItem() );
 	qgraphicsitemgrp_->addToGroup( itm->qGraphicsItem() );
     }
 }
@@ -543,7 +543,7 @@ void uiGraphicsItemGroup::remove( uiGraphicsItem* itm, bool withdelete )
 
     items_ -= itm;
     itm->setScene( 0 );
-    itm->setParent( 0 );
+    itm->qGraphicsItem()->setParentItem( 0 );
 
     QGraphicsItem* qitm = itm->qGraphicsItem();
     qgraphicsitemgrp_->removeFromGroup( qitm );
