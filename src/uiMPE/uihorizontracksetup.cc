@@ -141,6 +141,15 @@ void uiHorizonSetupGroup::initToolBar()
 }
 
 
+void uiHorizonSetupGroup::updateButtonSensitivity()
+{
+    const bool enable = state_ == Stopped;
+    toolbar_->setSensitive( startbutid_, enable );
+    toolbar_->setSensitive( savebutid_, enable );
+    toolbar_->setSensitive( retrackbutid_, enable );
+}
+
+
 void uiHorizonSetupGroup::horizonSelCB( CallBacker* )
 {
     const IOObj* ioobj = horizonfld_->ioobj( true );
@@ -160,7 +169,7 @@ void uiHorizonSetupGroup::startCB( CallBacker* )
     if ( trackInVolume() )
     {
 	state_ = Started;
-	toolbar_->setSensitive( startbutid_, false );
+	updateButtonSensitivity();
     }
 }
 
@@ -169,7 +178,7 @@ void uiHorizonSetupGroup::stopCB( CallBacker* )
 {
     engine().stopTracking();
     state_ = Stopped;
-    toolbar_->setSensitive( startbutid_, true );
+    updateButtonSensitivity();
 }
 
 
@@ -211,7 +220,12 @@ void uiHorizonSetupGroup::retrackCB( CallBacker* )
     if ( !seedpicker ) return;
 
     seedpicker->reTrack();
-    trackInVolume();
+    if ( trackInVolume() )
+    {
+	state_ = Started;
+	updateButtonSensitivity();
+    }
+
     emobj.setBurstAlert( false );
 }
 
@@ -269,7 +283,7 @@ bool uiHorizonSetupGroup::trackInVolume()
 void uiHorizonSetupGroup::trackingFinishedCB( CallBacker* )
 {
     state_ = Stopped;
-    toolbar_->setSensitive( startbutid_, true );
+    updateButtonSensitivity();
 }
 
 

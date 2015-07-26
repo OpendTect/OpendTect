@@ -92,6 +92,7 @@ protected:
     State			state_;
 
     void			initToolBar();
+    void			updateButtonSensitivity();
     bool			trackInVolume();
     void			startCB(CallBacker*);
     void			stopCB(CallBacker*);
