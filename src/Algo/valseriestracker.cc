@@ -495,29 +495,31 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 		(float)firstrefsample, targetstart, 1,
 		nrsamples, normalizesimi_ );
 */
-    double val1, val2;
-    double sqdist = 0, sq1 = 0, sq2 = 0;
-    for ( int sidx=0; sidx<nrsamples; sidx++ )
-    {
-	val1 = normalize ? (avals[sidx]-meana)/stddeva : avals[sidx];
-	val2 = normalize ? (bvals[sidx]-meanb)/stddevb : bvals[sidx];
-	if ( mIsUdf(val1) || mIsUdf(val2) )
-	    return mUdf(float);
+	double val1, val2;
+	double sqdist = 0, sq1 = 0, sq2 = 0;
+	for ( int sidx=0; sidx<nrsamples; sidx++ )
+	{
+	    val1 = normalize ? (avals[sidx]-meana)/stddeva : avals[sidx];
+	    val2 = normalize ? (bvals[sidx]-meanb)/stddevb : bvals[sidx];
+	    if ( mIsUdf(val1) || mIsUdf(val2) )
+		return mUdf(float);
 
-	sq1 += val1 * val1;
-	sq2 += val2 * val2;
-	sqdist += (val1-val2) * (val1-val2);
-    }
+	    sq1 += val1 * val1;
+	    sq2 += val2 * val2;
+	    sqdist += (val1-val2) * (val1-val2);
+	}
 
-    if ( mIsZero(sq1,mDefEps) && mIsZero(sq2,mDefEps) )
-	return 1;
-
-    if ( mIsZero(sq1,mDefEps) || mIsZero(sq2,mDefEps) )
-	return 0;
-
-    const float rt =
-	   (float) ( Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)) );
-    float sim = 1 - rt;
+	float sim;
+	if ( mIsZero(sq1,mDefEps) && mIsZero(sq2,mDefEps) )
+	    sim = 1.f;
+	else if ( mIsZero(sq1,mDefEps) || mIsZero(sq2,mDefEps) )
+	    sim = 0.f;
+	else
+	{
+	    const float rt = (float) ( Math::Sqrt(sqdist) /
+					(Math::Sqrt(sq1) + Math::Sqrt(sq2)) );
+	    sim = 1 - rt;
+	}
 
 	if ( idx && sim<maxsim )
 	{
