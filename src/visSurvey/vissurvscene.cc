@@ -875,16 +875,7 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
 	displaypos = Coord3::udf();
 
     if ( datatransform_ && coord.isDefined() )
-    {
-	BufferString linenm; int trcnr = -1;
-	infopar_.get( sKey::LineKey(), linenm );
-	infopar_.get( sKey::TraceNr(), trcnr );
-	if ( !linenm.isEmpty() && trcnr>=0 )
-	    displaypos.z = datatransform_->transform2D( linenm, trcnr,
-							(float)coord.z );
-	else
-	    displaypos.z = datatransform_->transform( coord );
-    }
+	displaypos.z = datatransform_->transform( coord );
 
     const bool defined = displaypos.isDefined();
     if ( !defined )
