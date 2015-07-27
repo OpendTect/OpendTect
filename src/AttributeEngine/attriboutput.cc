@@ -510,6 +510,24 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	    }
 	}
     }
+
+    if ( !mIsEqual(desiredvolume_.zrg.step,trc_->info().sampling.step,1e-6) )
+    {
+	StepInterval<float> reqzrg = desiredvolume_.zrg;
+	reqzrg.limitTo( trc_->zRange() );
+	const int nrsamps = mCast( int, reqzrg.nrfSteps() + 1 );
+	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
+	{
+	    SeisTrc temptrc( *trc_ );
+	    trc_->info().sampling.step = desiredvolume_.zrg.step;
+	    trc_->data().getComponent(icomp)->reSize( nrsamps );
+	    for ( int isamp=0; isamp<nrsamps; isamp++ )
+	    {
+		float t = reqzrg.start + isamp * reqzrg.step;
+		trc_->set( isamp, temptrc.getValue(t,icomp), icomp );
+	    }
+	}
+    }
 }
 
 
