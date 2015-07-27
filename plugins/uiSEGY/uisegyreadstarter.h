@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uidialog.h"
 #include "segyfiledef.h"
+#include "segyuiscandata.h"
 
 class uiComboBox;
 class uiFileInput;
@@ -57,11 +58,17 @@ protected:
 
     BufferString	curusrfname_;
     TypeSet<int>	inptyps_; // Seis::GeomType, or -1 for VSP
+    ObjectSet<SEGY::uiScanData> scandata_;
+    int			goodns_;
+    SEGY::TrcHeaderDef&	thdef_;
 
     void		addTyp(int);
     void		setCellTxt(int col,int row,const char*);
     void		scanInput();
-    bool		getMultipleFileNames();
+    bool		getFileSpec();
+    bool		doScan(SEGY::uiScanData&,od_istream&,short,bool);
+    bool		scanFile(const char*);
+    bool		scanTraceHeader(SEGY::uiScanData&,od_istream&,bool);
     bool		checkExist(BufferString& fnm,bool emiterr=true);
 
     void		initWin(CallBacker*);

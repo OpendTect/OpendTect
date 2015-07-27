@@ -18,10 +18,12 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uiseparator.h"
 #include "uimsg.h"
 #include "survinfo.h"
+#include "segyhdr.h"
 #include "seistype.h"
 #include "filepath.h"
 #include "dirlist.h"
 #include "oddirs.h"
+#include "od_istream.h"
 
 #define mNrInfoRows 9
 #define mRevRow 0
@@ -43,6 +45,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     , filespec_(fs?*fs:FileSpec())
     , filereadopts_(0)
     , curusrfname_("x") // any non-empty
+    , thdef_(*new SEGY::TrcHeaderDef)
+    , goodns_(-1)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Data type") );
     typfld_ = lcb->box();
@@ -125,6 +129,7 @@ void uiSEGYReadStarter::addTyp( int typ )
 uiSEGYReadStarter::~uiSEGYReadStarter()
 {
     delete filereadopts_;
+    delete &thdef_;
 }
 
 
@@ -176,60 +181,149 @@ void uiSEGYReadStarter::inpChg( CallBacker* )
     setCellTxt( 0, mYRow, ystr );
     setCellTxt( 0, mPSRow, psstr );
 
-    scanInput();
+    if ( getFileSpec() )
+	scanInput();
 }
+
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
+bool uiSEGYReadStarter::getFileSpec()
+{
+    for ( int idx=0; idx<mNrInfoRows; idx++ )
+	setCellTxt( 1, idx, "" );
+    if ( curusrfname_.isEmpty() )
+	return false;
+
+    filespec_.setEmpty();
+    if ( !curusrfname_.find('*') )
+    {
+	if ( !checkExist(curusrfname_) )
+	    return false;
+	filespec_.setFileName( curusrfname_ );
+    }
+    else
+    {
+	FilePath fp( curusrfname_ );
+	if ( !fp.isAbsolute() )
+	    mErrRet(
+	    tr("Please specify the absolute file name when using a wildcard.") )
+
+	DirList dl( fp.pathOnly(), DirList::FilesOnly, fp.fileName() );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    filespec_.fnames_.add( dl.fullPath(idx) );
+
+	if ( filespec_.isEmpty() )
+	    mErrRet( tr("No file names matching your wildcard(s).") )
+    }
+
+    return true;
+}
+
+
 
 
 void uiSEGYReadStarter::scanInput()
 {
-    for ( int idx=0; idx<mNrInfoRows; idx++ )
-	setCellTxt( 1, idx, "" );
+    deepErase( scandata_ );
+    goodns_ = -1;
 
-    if ( curusrfname_.isEmpty() )
+    MouseCursorChanger chgr( MouseCursor::Wait );
+    if ( !scanFile(filespec_.fileName(0)) )
 	return;
 
-    filespec_.setEmpty();
-    if ( curusrfname_.find('*') )
-    {
-	if ( !getMultipleFileNames() )
-	    return;
-    }
-    else
-    {
-	if ( !checkExist(curusrfname_) )
-	    return;
-	filespec_.setFileName( curusrfname_ );
-    }
-
-    BufferString msg( "TODO: scan:\n" );
     const int nrfiles = filespec_.nrFiles();
-    for ( int idx=0; idx<nrfiles; idx++ )
-	msg.add( filespec_.fileName(idx) ).add( "\n" );
-    uiMSG().error( msg );
+    for ( int idx=1; idx<nrfiles; idx++ )
+	scanFile( filespec_.fileName(idx) );
+
+    // handle discrepancies in multi files
+    // display results
 }
 
 
-bool uiSEGYReadStarter::getMultipleFileNames()
+#define mErrRetFileName(s) \
+{ \
+    if ( isfirst ) \
+	uiMSG().error(uiString(s).arg(strm.fileName()); \
+    return false; \
+}
+
+bool uiSEGYReadStarter::scanFile( const char* fnm )
 {
-    FilePath fp( curusrfname_ );
-    if ( !fp.isAbsolute() )
+    const bool isfirst = scandata_.isEmpty();
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	mErrRet( "Cannot open file: %1" )
+
+    SEGY::TxtHeader txthdr; SEGY::BinHeader binhdr;
+    strm.getC( (char*)txthdr.txt_, SegyTxtHeaderLength );
+    if ( !strm.isOK() )
+	mErrRet( "File:\n%1\nhas no textual header" )
+    strm.getC( (char*)binhdr.buf(), SegyBinHeaderLength );
+    if ( strm.isBad() )
+	mErrRet( "File:\n%1\nhas no binary header" )
+
+    binhdr.guessIsSwapped();
+    SEGY::uiScanData* sd = new SEGY::uiScanData( fnm );
+    sd->hdrsswapped_ = sd->dataswapped_ = binhdr.isSwapped();
+    if ( binhdr.isSwapped() )
+	binhdr.unSwap();
+    sd->revision_ = binhdr.isRev1() ? 1 : 0;
+    sd->ns_ = binhdr.nrSamples();
+    if ( goodns_ > 0 || sd->ns_ < 0 || sd->ns_ > 30000 )
+	sd->ns_ = goodns_;
+    if ( !doScan(*sd,strm,binhdr.format(),isfirst) )
+	{ delete sd; return false; }
+
+    scandata_ += sd;
+    return true;
+}
+
+
+bool uiSEGYReadStarter::doScan( SEGY::uiScanData& sd, od_istream& strm,
+				short fmt, bool isfirst )
+{
+    if ( !scanTraceHeader(sd,strm,isfirst) )
+	return !isfirst;
+
+    uiMSG().error( "TODO: scan on after first trace header" );
+    return false;
+}
+
+
+bool uiSEGYReadStarter::scanTraceHeader( SEGY::uiScanData& sd, od_istream& strm,
+					 bool isfirst )
+{
+    unsigned char thbuf[SegyTrcHeaderLength];
+    strm.getC( (char*)thbuf, SegyTrcHeaderLength );
+    if ( !strm.isOK() )
     {
-	uiMSG().error(
-	   tr("Please specify the absolute file name when using a wildcard.") );
-	return false;
+	sd.usable_ = false;
+	if ( isfirst )
+	    mErrRet( "File:\n%1\nNo traces found" )
+	return true;
     }
 
-    DirList dl( fp.pathOnly(), DirList::FilesOnly, fp.fileName() );
-    for ( int idx=0; idx<dl.size(); idx++ )
-	filespec_.fnames_.add( dl.fullPath(idx) );
-
-    if ( filespec_.isEmpty() )
+    SEGY::TrcHeader th( thbuf, sd.revision_==1, thdef_ );
+    if ( sd.ns_ < 0 )
     {
-	uiMSG().error(
-	   tr("No file names matching your wildcard(s).") );
-	return false;
+	sd.ns_ = (int)th.nrSamples();
+	if ( sd.ns_ > 30000 )
+	    sd.ns_ = goodns_;
+	if ( sd.ns_ < 0 )
+	{
+	    sd.usable_ = false;
+	    if ( isfirst )
+		mErrRet( "File:\n%1\nNo traces found" )
+	    return true;
+	}
     }
 
+    goodns_ = sd.ns_;
+
+
+    //TODO set scandata
     return true;
 }
 
