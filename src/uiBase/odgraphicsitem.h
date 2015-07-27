@@ -197,9 +197,6 @@ public:
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
 
-    int				itempenwidth_;
-    bool			entereventhappened_;
-
 };
 
 

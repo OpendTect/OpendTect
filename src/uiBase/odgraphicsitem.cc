@@ -644,8 +644,6 @@ void ODGraphicsPolyLineItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 // ODGraphicsItemGroup
 ODGraphicsItemGroup::ODGraphicsItemGroup()
     : QGraphicsItemGroup()
-    , itempenwidth_(0)
-    , entereventhappened_( false )
 {}
 
 
