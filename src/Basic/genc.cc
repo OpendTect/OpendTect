@@ -390,7 +390,7 @@ mExtern(Basic) float GetEnvVarFVal( const char* env, float defltval )
 
 mExtern(Basic) void SetEnvVar( const char* env, const char* val )
 {
-    if ( !env || !*env )
+    if ( !env || !*env || !val )
 	return;
 
     Threads::Locker lock( getEnvVarLock() );
