@@ -98,6 +98,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , selectedrg_(false)
     , imphorattrdlg_(0)
     , imphorgeomdlg_(0)
+    , impbulkhordlg_(0)
     , impfltdlg_(0)
     , impfss2ddlg_(0)
     , exphordlg_(0)
@@ -132,6 +133,7 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete imphorattrdlg_; imphorattrdlg_ = 0;
     delete imphorgeomdlg_; imphorgeomdlg_ = 0;
     delete impfltdlg_; impfltdlg_ = 0;
+    delete impbulkhordlg_; impbulkhordlg_ = 0;
     delete exphordlg_; exphordlg_ = 0;
     delete expfltdlg_; expfltdlg_ = 0;
     delete man3dhordlg_; man3dhordlg_ = 0;
@@ -216,8 +218,10 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 {
     if ( bulk )
     {
-	uiBulkHorizonImport dlg( parent() );
-	return dlg.go();
+	if ( !impbulkhordlg_ )
+	    impbulkhordlg_ = new uiBulkHorizonImport( parent() );
+
+	return impbulkhordlg_->go();
     }
 
     if ( imphorgeomdlg_ )
