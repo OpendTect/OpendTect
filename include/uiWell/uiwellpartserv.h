@@ -19,8 +19,13 @@ ________________________________________________________________________
 
 namespace Well { class Data; class LogDisplayParSet; }
 
+class uiBulkD2TModelImport;
+class uiBulkLogImport;
+class uiBulkMarkerImport;
+class uiBulkTrackImport;
 class uiD2TMLogSelDlg;
 class uiD2TModelGen;
+class uiSimpleMultiWellCreate;
 class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
 class uiWellImportAsc;
@@ -92,6 +97,11 @@ protected:
     uiWellDispPropDlg*		uiwellpropdlg_;
     uiD2TModelGen*		uid2tmgen_;
     uiD2TMLogSelDlg*		uid2tmlogseldlg_;
+    uiSimpleMultiWellCreate*	impsimpledlg_;
+    uiBulkTrackImport*		impbulktrackdlg_;
+    uiBulkLogImport*		impbulklogdlg_;
+    uiBulkMarkerImport*		impbulkmrkrdlg_;
+    uiBulkD2TModelImport*	impbulkd2tdlg_;
     uiWellMan*			manwelldlg_;
     TypeSet<int>		previewids_;
 
