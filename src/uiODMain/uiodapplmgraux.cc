@@ -114,6 +114,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , impmutedlg_(0)
     , imppdfdlg_(0)
     , impvelfunc_(0)
+    , exp2dgeomdlg_(0)
 {}
 
 
@@ -144,6 +145,7 @@ void uiODApplMgrDispatcher::deleteDlgs()
 	delete impmutedlg_; impmutedlg_ = 0;
 	delete imppdfdlg_; imppdfdlg_ = 0;
 	delete impvelfunc_; impvelfunc_ = 0;
+	delete exp2dgeomdlg_; exp2dgeomdlg_ = 0;
 }
 
 
@@ -337,8 +339,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
-	    uiExp2DGeom dlg( par_ );
-	    dlg.go();
+	    if ( !exp2dgeomdlg_ )
+		exp2dgeomdlg_ = new uiExp2DGeom( par_ );
+
+	    exp2dgeomdlg_->show();
 	}
     break;
     mCase(PVDS):

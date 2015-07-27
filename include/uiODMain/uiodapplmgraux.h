@@ -22,6 +22,7 @@ class uiConvertPos;
 class uiDataPointSet;
 class uiDataPointSetMan;
 class uiDialog;
+class uiExp2DGeom;
 class uiImpPVDS;
 class uiImpRokDocPDF;
 class uiODApplMgr;
@@ -88,6 +89,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiSessionMan*	mansessiondlg_;
     uiImpPVDS*		impcrossplotdlg_;
     uiImpRokDocPDF*	imppdfdlg_;
+    uiExp2DGeom*	exp2dgeomdlg_;
     PreStack::uiImportMute*	impmutedlg_;
     Vel::uiImportVelFunc*	impvelfunc_;
     uiODApplMgr&	am_;
