@@ -44,7 +44,7 @@ static const char* sKeyPriorityLevel = "PriorityLevel";
 class QProcessManager
 {
 public:
-    		~QProcessManager()
+		~QProcessManager()
 		{
 		    deleteProcesses();
 		}
@@ -188,7 +188,7 @@ bool OS::MachineCommand::setFromSingleStringRep( const char* inp,
 }
 
 
- 
+
 const char* OS::MachineCommand::getSingleStringRep() const
 {
     mDeclStaticString( ret );
@@ -490,7 +490,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	    redirectoutput_ = true;
 	}
 #endif
-	
+
 	if ( File::exists(monitorfnm_) )
 	    File::remove(monitorfnm_);
 
@@ -506,7 +506,7 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	return doExecute( launchercmd, pars.launchtype_==Wait4Finish, false,
 			  pars.createstreams_ );
 #endif
-    
+
     }
 
     ret = doExecute( localcmd, pars.launchtype_==Wait4Finish, false,
@@ -745,7 +745,8 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
 
     QString prog = args.first();
     args.removeFirst();
-    return QProcess::startDetached( prog, args, "", mCast(qint64*,&pid_) );
+    qint64 qpid = pid_;
+    return QProcess::startDetached( prog, args, "", &qpid );
 }
 
 
