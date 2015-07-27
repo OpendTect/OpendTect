@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "iopar.h"
 #include "ioman.h"
+#include "iostrm.h"
 #include "ptrman.h"
 #include "selector.h"
 #include "stratlevel.h"
@@ -38,15 +39,9 @@ bool EM::canOverwrite( const MultiID& mid )
     const IOObj* ioobj = IOM().get( mid );
     if ( !ioobj )
 	return true;
-    PtrMan<Translator> trans = ioobj->createTranslator();
-    if ( !trans )
-	return false;
-    
-    mDynamicCastGet(dgbEMHorizon3DTranslator*,dgbem3dtr,trans.ptr());
-    if ( !dgbem3dtr  )
-	return false;
-    
-    return true;
+
+    mDynamicCastGet(const IOStream*,iostream,ioobj)
+    return iostream;
 }
 
 namespace EM
