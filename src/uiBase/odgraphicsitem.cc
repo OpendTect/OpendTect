@@ -641,6 +641,28 @@ void ODGraphicsPolyLineItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 }
 
 
+// ODGraphicsPathItem
+ODGraphicsPathItem::ODGraphicsPathItem()
+    : QGraphicsPathItem()
+{
+}
+
+
+void ODGraphicsPathItem::set( const QPainterPath& ppath )
+{
+    setPath( ppath );
+
+    const QPolygonF poly = mapFromScene( 0, 0, 5, 5 );
+    QPainterPathStroker pps;
+    pps.setWidth( poly.boundingRect().width() );
+    path_ = pps.createStroke( ppath );
+}
+
+
+QPainterPath ODGraphicsPathItem::shape() const
+{ return path_; }
+
+
 // ODGraphicsItemGroup
 ODGraphicsItemGroup::ODGraphicsItemGroup()
     : QGraphicsItemGroup()

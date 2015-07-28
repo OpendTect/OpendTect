@@ -475,7 +475,7 @@ void uiPolyLineItem::setPolyLine( type ptlist ) \
 	    path.lineTo( ptlist[idx].x, ptlist[idx].y ); \
     } \
  \
-    qgraphicspath_->setPath( path ); \
+    odgraphicspath_->set( path ); \
 }
 
 mImpSetPolyline( const TypeSet<uiPoint>& )
@@ -484,8 +484,8 @@ mImpSetPolyline( const TypeSet<uiWorldPoint>& )
 
 QGraphicsItem* uiPolyLineItem::mkQtObj()
 {
-    qgraphicspath_ = new QGraphicsPathItem();
-    return qgraphicspath_;
+    odgraphicspath_ = new ODGraphicsPathItem();
+    return odgraphicspath_;
 }
 
 

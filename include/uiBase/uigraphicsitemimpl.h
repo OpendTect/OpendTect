@@ -39,6 +39,7 @@ class QSize;
 
 class ODGraphicsArrowItem;
 class ODGraphicsMarkerItem;
+class ODGraphicsPathItem;
 class ODGraphicsPixmapItem;
 class ODGraphicsPointItem;
 class ODGraphicsPolyLineItem;
@@ -108,10 +109,10 @@ public:
 mExpClass(uiBase) uiLineItem : public uiGraphicsItem
 {
 public:
-    			uiLineItem();
-    			uiLineItem(int x1,int y1,int x2,int y2);
+			uiLineItem();
+			uiLineItem(int x1,int y1,int x2,int y2);
 			uiLineItem(float x1,float y1,float x2,float y2);
-    			uiLineItem(const uiPoint& start,const uiPoint& stop);
+			uiLineItem(const uiPoint& start,const uiPoint& stop);
 			uiLineItem(const uiPoint&,float angle,float len);
 			~uiLineItem();
 
@@ -145,12 +146,12 @@ protected:
 mExpClass(uiBase) uiDynamicImageItem : public uiGraphicsItem
 {
 public:
-    				uiDynamicImageItem();
+				uiDynamicImageItem();
 				~uiDynamicImageItem();
 
     void			setImage(bool dynamic,const uiRGBArray&,
 					 const uiWorldRect&);
-    				/*!<If dynamic==false, worldrect will define
+				/*!<If dynamic==false, worldrect will define
 				    the bounding box of the item. */
     NotifierAccess&		wantsData();
     bool			isSnapshot() const;
@@ -170,7 +171,7 @@ protected:
 mExpClass(uiBase) uiPixmapItem : public uiGraphicsItem
 {
 public:
-    				uiPixmapItem();
+				uiPixmapItem();
 				uiPixmapItem(const uiPixmap&);
 				uiPixmapItem(const uiPoint&,const uiPixmap&);
 				~uiPixmapItem();
@@ -189,11 +190,11 @@ protected:
 mExpClass(uiBase) uiPolygonItem : public uiGraphicsItem
 {
 public:
-    			uiPolygonItem();
-    			uiPolygonItem(const TypeSet<uiPoint>&,bool fill);
-    			uiPolygonItem(const TypeSet<uiWorldPoint>&,
+			uiPolygonItem();
+			uiPolygonItem(const TypeSet<uiPoint>&,bool fill);
+			uiPolygonItem(const TypeSet<uiWorldPoint>&,
 				      bool fill);
-    			uiPolygonItem(const ODPolygon<int>&,bool fill);
+			uiPolygonItem(const ODPolygon<int>&,bool fill);
 			~uiPolygonItem();
 
     void		fill();
@@ -222,7 +223,7 @@ public:
 protected:
 
     QGraphicsItem*		mkQtObj();
-    QGraphicsPathItem*		qgraphicspath_;
+    ODGraphicsPathItem*		odgraphicspath_;
 };
 
 
@@ -309,12 +310,12 @@ public:
     				uiMarkerItem(bool fill=true);
 				uiMarkerItem(const MarkerStyle2D&,
 					     bool fill=true);
-    				uiMarkerItem(const uiPoint&,
+				uiMarkerItem(const uiPoint&,
 					     const MarkerStyle2D&,
 					     bool fill=true);
 				~uiMarkerItem();
 
-    ODGraphicsMarkerItem*  	qMarkerItem()	{ return qmarkeritem_; }
+    ODGraphicsMarkerItem*	qMarkerItem()	{ return qmarkeritem_; }
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill(bool);
     void			setFillColor(const Color&,bool withalpha=false);
@@ -355,8 +356,8 @@ public:
     void			setHeadPos(const uiPoint&);
     void			setTailPos(const uiPoint&);
     void			setTailHeadPos(const uiPoint& tail,
-	    				       const uiPoint& head);
-    void                        setArrowStyle(const ArrowStyle&);
+					       const uiPoint& head);
+    void			setArrowStyle(const ArrowStyle&);
     void 			setArrowSize(int);
 
     ODGraphicsArrowItem*  	qArrowItem()	{ return qarrowitem_; }
