@@ -77,7 +77,7 @@ public:
 
     void			addObject(uiBaseMapObject*);
 
-    const char*			nameOfItemAt(const Geom::Point2D<int>&) const;
+    const char*			nameOfItemAt(const Geom::Point2D<float>&) const;
 
     uiGraphicsItem&		worldItem()		{ return worlditem_;}
     inline uiGraphicsView&	view()			{ return view_; }

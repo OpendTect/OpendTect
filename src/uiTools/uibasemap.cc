@@ -445,7 +445,7 @@ void uiBaseMap::reDraw( bool )
 }
 
 
-const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<int>& pt )  const
+const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
 {
     const uiGraphicsItem* itm = view_.scene().itemAt( pt );
     if ( !itm ) return 0;

@@ -546,7 +546,7 @@ const uiGraphicsItem* uiGraphicsScene::getItem( int id ) const
 { return const_cast<uiGraphicsScene*>(this)->getItem(id); }
 
 
-uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<int>& pos )
+uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<float>& pos )
 {
     QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x, pos.y );
     if ( !qitm ) return 0;
@@ -562,7 +562,7 @@ uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<int>& pos )
 
 
 const uiGraphicsItem*
-	uiGraphicsScene::itemAt( const Geom::Point2D<int>& pos ) const
+	uiGraphicsScene::itemAt( const Geom::Point2D<float>& pos ) const
 { return const_cast<uiGraphicsScene*>(this)->itemAt( pos ); }
 
 
