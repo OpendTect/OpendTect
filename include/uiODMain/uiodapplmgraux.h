@@ -25,6 +25,7 @@ class uiDialog;
 class uiExp2DGeom;
 class uiImpPVDS;
 class uiImpRokDocPDF;
+class uiExpRokDocPDF;
 class uiODApplMgr;
 class uiProbDenFuncMan;
 class uiSessionMan;
@@ -89,7 +90,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiSessionMan*	mansessiondlg_;
     uiImpPVDS*		impcrossplotdlg_;
     uiImpRokDocPDF*	imppdfdlg_;
-    uiExp2DGeom*	exp2dgeomdlg_;
+    uiExpRokDocPDF*	exppdfdlg_;
     PreStack::uiImportMute*	impmutedlg_;
     Vel::uiImportVelFunc*	impvelfunc_;
     uiODApplMgr&	am_;

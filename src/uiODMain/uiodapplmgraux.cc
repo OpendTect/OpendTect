@@ -113,6 +113,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , impcrossplotdlg_(0)
     , impmutedlg_(0)
     , imppdfdlg_(0)
+    , exppdfdlg_(0)
     , impvelfunc_(0)
     , exp2dgeomdlg_(0)
 {}
@@ -144,6 +145,7 @@ void uiODApplMgrDispatcher::deleteDlgs()
 	delete impcrossplotdlg_; impcrossplotdlg_ = 0;
 	delete impmutedlg_; impmutedlg_ = 0;
 	delete imppdfdlg_; imppdfdlg_ = 0;
+	delete exppdfdlg_; exppdfdlg_ = 0;
 	delete impvelfunc_; impvelfunc_ = 0;
 	delete exp2dgeomdlg_; exp2dgeomdlg_ = 0;
 }
@@ -320,8 +322,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
-	    uiExpRokDocPDF dlg( par_ );
-	    dlg.go();
+	    if ( !exppdfdlg_ )
+		exppdfdlg_ = new uiExpRokDocPDF( par_ );
+
+	    exppdfdlg_->show();
 	}
 	else if ( at == uiODApplMgr::Man )
 	{
