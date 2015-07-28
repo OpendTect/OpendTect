@@ -66,7 +66,7 @@ bool testPipeInput()
 
     BufferString streaminput;
     mRunStandardTest( istream->getAll( streaminput ) , "Read from pipe" );
-    mRunStandardTest( streaminput==message, "Pipe content check" );
+    mRunStandardTest( streaminput==message, "Pipe content check (Input)" );
 
     return true;
 }
@@ -103,7 +103,7 @@ bool testPipeOutput()
     istream.close();
     File::remove( tmpfnm );
 
-    mRunStandardTest( streaminput==message, "Pipe content check" );
+    mRunStandardTest( streaminput==message, "Pipe content check (Output)" );
 
     return true;
 }
