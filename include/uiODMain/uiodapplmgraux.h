@@ -89,6 +89,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiProbDenFuncMan*	manpdfdlg_;
     uiSessionMan*	mansessiondlg_;
     uiImpPVDS*		impcrossplotdlg_;
+    uiExp2DGeom*		exp2dgeomdlg_;
     uiImpRokDocPDF*	imppdfdlg_;
     uiExpRokDocPDF*	exppdfdlg_;
     PreStack::uiImportMute*	impmutedlg_;
