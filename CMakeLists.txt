@@ -118,7 +118,7 @@ if ( EXISTS ${PLUGIN_DIR}/CMakeLists.txt )
     include ( ${PLUGIN_DIR}/CMakeLists.txt )
 endif()
 
-OD_WRITE_ALOFILES( ${OD_BINARY_BASEDIR}/plugins/${OD_PLFSUBDIR} )
+OD_WRITE_ALOFILES( ${MISC_INSTALL_PREFIX}/plugins/${OD_PLFSUBDIR} )
 
 #OD_ADD_KEYWORD_TEST( strcmp strcmp )
 OD_ADD_KEYWORD_TEST( "sqrt(" sqrt "Use Math::Sqrt() instead of sqrt" )

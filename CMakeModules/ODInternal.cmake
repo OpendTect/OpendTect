@@ -33,13 +33,16 @@ configure_file ( ${CMAKE_SOURCE_DIR}/include/Basic/odversion.h.in
 		    ${CMAKE_BINARY_DIR}/${OD_DATA_INSTALL_RELPATH} )
 elseif( APPLE )
     execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory
-		    ${MISC_INSTALL_PREFIX} )
+		    ${MISC_INSTALL_PREFIX}
+		    WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
     execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
 		    ${CMAKE_SOURCE_DIR}/data
-		    ${MISC_INSTALL_PREFIX}/data )
+		    ${MISC_INSTALL_PREFIX}/data
+		    WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
     execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
 		    ${CMAKE_SOURCE_DIR}/relinfo
-		    ${MISC_INSTALL_PREFIX}/relinfo )
+		    ${MISC_INSTALL_PREFIX}/relinfo
+		    WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 endif()
 
 

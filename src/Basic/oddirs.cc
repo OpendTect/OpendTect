@@ -206,11 +206,12 @@ mExternC(Basic) const char* GetSoftwareDir( bool acceptnone )
 	const FilePath filepath = GetFullExecutablePath();
 	for ( int idx=filepath.nrLevels()-1; idx>=0; idx-- )
 	{
+	    const char* relinfostr = "relinfo";
 #ifdef __mac__
 	    const FilePath datapath( filepath.dirUpTo(idx).buf(), "Resources",
-				     "relinfo" );
+				     relinfostr );
 #else
-	    const FilePath datapath( filepath.dirUpTo(idx).buf(), "relinfo" );
+	    const FilePath datapath( filepath.dirUpTo(idx).buf(), relinfostr );
 #endif
 	    if ( File::isDirectory( datapath.fullPath()) )
 	    {

@@ -206,21 +206,26 @@ void PluginManager::getDefDirs()
 {
     BufferString dnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
     if ( dnm.isEmpty() )
-	dnm = GetSoftwareDir(0);
+    {
+	appdir_ = GetSoftwareDir(0);
+	applibdir_ = GetBinPlfDir();
+    }
+    else
+    {
+	FilePath fp( dnm );
+	appdir_ = fp.fullPath();
+	fp.add( sPluginBinDir );
+	fp.add( GetPlfSubDir() );
+	fp.add( GetBinSubDir() );
 
-    FilePath fp( dnm );
-    appdir_ = fp.fullPath();
-    fp.add( sPluginBinDir );
-    fp.add( GetPlfSubDir() );
-    fp.add( GetBinSubDir() );
-
-    applibdir_ = fp.fullPath();
+	applibdir_ = fp.fullPath();
+    }
 
     dnm = GetEnvVar( "OD_USER_PLUGIN_DIR" );
     if ( dnm.isEmpty() )
 	dnm = GetSettingsDir();
 
-    fp.set( dnm );
+    FilePath fp( dnm );
     userdir_ = fp.fullPath();
     fp.add( sPluginBinDir );
     fp.add( GetPlfSubDir() );
@@ -425,7 +430,11 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 void PluginManager::mkALOList()
 {
     getALOEntries( userdir_, true );
+#ifdef __mac__
+    getALOEntries( FilePath(appdir_,"Resources").fullPath(), false );
+#else
     getALOEntries( appdir_, false );
+#endif
     openALOEntries();
 }
 
