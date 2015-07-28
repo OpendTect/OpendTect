@@ -34,8 +34,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "survinfo.h"
 
-static const int cPSMnuIdx = -999;
-static const int cRLMnuIdx = -999;
+static const int cPSMnuIdx = -995;
+static const int cRLMnuIdx = -995;
 
 
 mDefODPluginInfo(uiGoogleIO)
@@ -46,7 +46,7 @@ mDefODPluginInfo(uiGoogleIO)
 	"dGB",
 	"=od",
 	"Export to Google programs (Maps,Earth)."
-    	    "\nThis plugin adds functionality to generate KML files "
+	    "\nThis plugin adds functionality to generate KML files "
 	    "from Opendtect."));
     return &retpi;
 }
@@ -56,7 +56,7 @@ class uiGoogleIOMgr : public CallBacker
 { mODTextTranslationClass(uiGoogleIOMgr);
 public:
 
-    			uiGoogleIOMgr(uiODMain&);
+			uiGoogleIOMgr(uiODMain&);
 
     uiODMain&		appl_;
     uiSeis2DFileMan*	cur2dfm_;
@@ -76,11 +76,11 @@ public:
 uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     : appl_(a)
     , psmnuitmhandler_(visSurvey::PickSetDisplay::sFactoryKeyword(),
-	    		*a.applMgr().visServer(),"Export to Google KML ...",
-    			mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
+			*a.applMgr().visServer(),"Export to Google KML ...",
+			mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
     , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::sFactoryKeyword(),
-	    		*a.applMgr().visServer(),"Export to Google KML ...",
-    			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
+			*a.applMgr().visServer(),"Export to Google KML ...",
+			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
 {
     psmnuitmhandler_.setIcon( "google" );
     rlmnuitmhandler_.setIcon( "google" );
@@ -135,8 +135,8 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
     if ( !cur2dfm_ ) return;
 
     fm->getButGroup(false)->addButton( "google",
-	    			       "Export selected lines to Google KML",
-	    			       mCB(this,uiGoogleIOMgr,exportLines) );
+				       "Export selected lines to Google KML",
+				       mCB(this,uiGoogleIOMgr,exportLines) );
 }
 
 
