@@ -25,9 +25,12 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "oddirs.h"
 #include "od_istream.h"
 
+static const int cMaxReasonableNS = 25000;
+// Time: 50 (2ms) or 100 seconds (4ms); Depth: 25 km
+
 #define mNrInfoRows 9
 #define mRevRow 0
-#define mByteOrderRow 1
+#define mDataFormatRow 1
 #define mNrSamplesRow 2
 #define mZRangeRow 3
 #define mKey1Row 4
@@ -45,11 +48,10 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     , filespec_(fs?*fs:FileSpec())
     , filereadopts_(0)
     , curusrfname_("x") // any non-empty
-    , thdef_(*new SEGY::TrcHeaderDef)
-    , goodns_(-1)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Data type") );
     typfld_ = lcb->box();
+    typfld_->setHSzPol( uiObject::MedVar );
     typfld_->selectionChanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
     if ( SI().has3D() )
     {
@@ -79,14 +81,14 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     infotbl_->attach( ensureBelow, sep );
     infotbl_->setColumnLabel( 0, "" );
     infotbl_->setColumnLabel( 1, "Detected" );
-    infotbl_->setRowResizeMode( uiTable::Stretch );
+    infotbl_->setColumnStretchable( 0, false );
+    infotbl_->setColumnStretchable( 1, true );
     infotbl_->setPrefWidthInChar( 80 );
-    infotbl_->setPrefHeightInChar( mNrInfoRows+3 ); // this works for my font
+    infotbl_->setPrefHeightInChar( mNrInfoRows+3 );
     infotbl_->setTableReadOnly( true );
-    for ( int idx=0; idx<mNrInfoRows; idx++ )
-	infotbl_->setRowLabel( idx, "" );
+    infotbl_->setLeftHeaderHidden( true );
     setCellTxt( 0, mRevRow, "SEG-Y Revision" );
-    setCellTxt( 0, mByteOrderRow, "Byte order (headers, data)" );
+    setCellTxt( 0, mDataFormatRow, "Data format" );
     setCellTxt( 0, mNrSamplesRow, "Samples per trace" );
     setCellTxt( 0, mZRangeRow, "Z Range" );
 
@@ -97,6 +99,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
 void uiSEGYReadStarter::setCellTxt( int col, int row, const char* txt )
 {
     infotbl_->setText( RowCol(row,col), txt );
+    if ( col==0 )
+	infotbl_->resizeColumnToContents( col );
 }
 
 
@@ -126,7 +130,6 @@ void uiSEGYReadStarter::addTyp( int typ )
 uiSEGYReadStarter::~uiSEGYReadStarter()
 {
     delete filereadopts_;
-    delete &thdef_;
 }
 
 
@@ -196,7 +199,7 @@ bool uiSEGYReadStarter::getFileSpec()
     filespec_.setEmpty();
     if ( !curusrfname_.find('*') )
     {
-	if ( !checkExist(curusrfname_) )
+	if ( !getExistingFileName(curusrfname_) )
 	    return false;
 	filespec_.setFileName( curusrfname_ );
     }
@@ -219,113 +222,7 @@ bool uiSEGYReadStarter::getFileSpec()
 }
 
 
-
-
-void uiSEGYReadStarter::scanInput()
-{
-    deepErase( scandata_ );
-    goodns_ = -1;
-
-    MouseCursorChanger chgr( MouseCursor::Wait );
-    if ( !scanFile(filespec_.fileName(0)) )
-	return;
-
-    const int nrfiles = filespec_.nrFiles();
-    for ( int idx=1; idx<nrfiles; idx++ )
-	scanFile( filespec_.fileName(idx) );
-
-    // handle discrepancies in multi files
-    // display results
-}
-
-
-#define mErrRetFileName(s) \
-{ \
-    if ( isfirst ) \
-	uiMSG().error(uiString(s).arg(strm.fileName()); \
-    return false; \
-}
-
-bool uiSEGYReadStarter::scanFile( const char* fnm )
-{
-    const bool isfirst = scandata_.isEmpty();
-    od_istream strm( fnm );
-    if ( !strm.isOK() )
-	mErrRet( "Cannot open file: %1" )
-
-    SEGY::TxtHeader txthdr; SEGY::BinHeader binhdr;
-    strm.getC( (char*)txthdr.txt_, SegyTxtHeaderLength );
-    if ( !strm.isOK() )
-	mErrRet( "File:\n%1\nhas no textual header" )
-    strm.getC( (char*)binhdr.buf(), SegyBinHeaderLength );
-    if ( strm.isBad() )
-	mErrRet( "File:\n%1\nhas no binary header" )
-
-    binhdr.guessIsSwapped();
-    SEGY::uiScanData* sd = new SEGY::uiScanData( fnm );
-    sd->hdrsswapped_ = sd->dataswapped_ = binhdr.isSwapped();
-    if ( binhdr.isSwapped() )
-	binhdr.unSwap();
-    sd->revision_ = binhdr.isRev1() ? 1 : 0;
-    sd->ns_ = binhdr.nrSamples();
-    if ( goodns_ > 0 || sd->ns_ < 0 || sd->ns_ > 30000 )
-	sd->ns_ = goodns_;
-    if ( !doScan(*sd,strm,binhdr.format(),isfirst) )
-	{ delete sd; return false; }
-
-    scandata_ += sd;
-    return true;
-}
-
-
-bool uiSEGYReadStarter::doScan( SEGY::uiScanData& sd, od_istream& strm,
-				short fmt, bool isfirst )
-{
-    if ( !scanTraceHeader(sd,strm,isfirst) )
-	return !isfirst;
-
-    uiMSG().error( "TODO: scan on after first trace header" );
-    return false;
-}
-
-
-bool uiSEGYReadStarter::scanTraceHeader( SEGY::uiScanData& sd, od_istream& strm,
-					 bool isfirst )
-{
-    unsigned char thbuf[SegyTrcHeaderLength];
-    strm.getC( (char*)thbuf, SegyTrcHeaderLength );
-    if ( !strm.isOK() )
-    {
-	sd.usable_ = false;
-	if ( isfirst )
-	    mErrRet( "File:\n%1\nNo traces found" )
-	return true;
-    }
-
-    SEGY::TrcHeader th( thbuf, sd.revision_==1, thdef_ );
-    if ( sd.ns_ < 0 )
-    {
-	sd.ns_ = (int)th.nrSamples();
-	if ( sd.ns_ > 30000 )
-	    sd.ns_ = goodns_;
-	if ( sd.ns_ < 0 )
-	{
-	    sd.usable_ = false;
-	    if ( isfirst )
-		mErrRet( "File:\n%1\nNo traces found" )
-	    return true;
-	}
-    }
-
-    goodns_ = sd.ns_;
-
-
-    //TODO set scandata
-    return true;
-}
-
-
-bool uiSEGYReadStarter::checkExist( BufferString& fnm, bool emiterr )
+bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 {
     FilePath fp( fnm );
     if ( fp.isAbsolute() )
@@ -359,8 +256,169 @@ bool uiSEGYReadStarter::checkExist( BufferString& fnm, bool emiterr )
 }
 
 
+void uiSEGYReadStarter::scanInput()
+{
+    deepErase( scandata_ );
+    scandef_.reInit();
+
+    MouseCursorChanger chgr( MouseCursor::Wait );
+    if ( !scanFile(filespec_.fileName(0)) )
+	return;
+
+    const int nrfiles = filespec_.nrFiles();
+    for ( int idx=1; idx<nrfiles; idx++ )
+	scanFile( filespec_.fileName(idx) );
+
+    displayScanResults();
+}
+
+
+#define mErrRetFileName(s) \
+{ \
+    if ( isfirst ) \
+	uiMSG().error( uiString(s).arg(strm.fileName()) ); \
+    return false; \
+}
+
+bool uiSEGYReadStarter::scanFile( const char* fnm )
+{
+    const bool isfirst = scandata_.isEmpty();
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+	mErrRetFileName( "Cannot open file: %1" )
+
+    SEGY::TxtHeader txthdr; SEGY::BinHeader binhdr;
+    strm.getBin( txthdr.txt_, SegyTxtHeaderLength );
+    if ( !strm.isOK() )
+	mErrRetFileName( "File:\n%1\nhas no textual header" )
+    strm.getBin( binhdr.buf(), SegyBinHeaderLength );
+    if ( strm.isBad() )
+	mErrRetFileName( "File:\n%1\nhas no binary header" )
+
+    if ( isfirst )
+    {
+	binhdr.guessIsSwapped();
+	scandef_.hdrsswapped_ = scandef_.dataswapped_ = binhdr.isSwapped();
+	if ( binhdr.isSwapped() )
+	    binhdr.unSwap();
+	if ( scandef_.ns_ < 1 )
+	{
+	    scandef_.ns_ = binhdr.nrSamples();
+	    if ( scandef_.ns_ < 1 || scandef_.ns_ > cMaxReasonableNS )
+		scandef_.ns_ = -1;
+	}
+
+	scandef_.revision_ = binhdr.isRev1() ? 1 : 0;
+	short fmt = binhdr.format();
+	if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
+	    fmt = 1;
+	scandef_.format_ = fmt;
+    }
+
+    SEGY::uiScanData* sd = new SEGY::uiScanData( fnm );
+    if ( !obtainScanData(*sd,strm,isfirst) )
+	{ delete sd; return false; }
+
+    scandata_ += sd;
+    return true;
+}
+
+
+bool uiSEGYReadStarter::obtainScanData( SEGY::uiScanData& sd, od_istream& strm,
+					bool isfirst )
+{
+    if ( isfirst )
+    {
+	if ( !guessScanDef(strm) )
+	    return false;
+    }
+
+    uiMSG().error( "TODO: obtain scan data" );
+    return true;
+}
+
+
+bool uiSEGYReadStarter::getHeaderBufData( od_istream& strm, char* buf )
+{
+    strm.getBin( buf, SegyTrcHeaderLength );
+    return strm.isOK();
+}
+
+
+bool uiSEGYReadStarter::guessScanDef( od_istream& strm )
+{
+    const bool isfirst = true; // for mErrRetFileName
+    const od_stream::Pos firsttrcpos = strm.position();
+
+    char thbuf[SegyTrcHeaderLength];
+    if ( !getHeaderBufData(strm,thbuf) )
+	mErrRetFileName( "File:\n%1\nNo traces found" )
+
+    SEGY::TrcHeader th( (unsigned char*)thbuf, scandef_.revision_==1,
+	    		*scandef_.hdrdef_ );
+    if ( scandef_.ns_ < 1 )
+    {
+	scandef_.ns_ = (int)th.nrSamples();
+	if ( scandef_.ns_ > cMaxReasonableNS )
+	    mErrRetFileName(
+		    "File:\n%1\nCannot determine number of samples per trace" )
+    }
+
+    //TODO do the magic
+
+    strm.setPosition( firsttrcpos );
+    return true;
+}
+
+
+void uiSEGYReadStarter::displayScanResults()
+{
+    if ( scandata_.isEmpty() )
+	return;
+
+    SEGY::uiScanData sd( *scandata_[0] );
+    for ( int idx=1; idx<scandata_.size(); idx++ )
+	sd.merge( *scandata_[idx] );
+
+    BufferString txt;
+
+    txt.set( scandef_.revision_ );
+    setCellTxt( 1, mRevRow, txt );
+
+    const char** fmts = SEGY::FilePars::getFmts(false);
+    txt.set( scandef_.format_ < 4 ? fmts[scandef_.format_-1]
+	    : (scandef_.format_==8 ? fmts[4] : fmts[3]) );
+    if ( scandef_.hdrsswapped_ && scandef_.dataswapped_ )
+	txt.add( " (all bytes swapped)" );
+    else if ( scandef_.hdrsswapped_ )
+	txt.add( " (header bytes swapped)" );
+    else if ( scandef_.dataswapped_ )
+	txt.add( " (data bytes swapped)" );
+    setCellTxt( 1, mDataFormatRow, txt );
+
+    txt.set( scandef_.ns_ );
+    setCellTxt( 1, mNrSamplesRow, txt );
+
+    /* TODO: finish
+    txt.set( scandef_.ns_ );
+    setCellTxt( 1, mZRangeRow, txt );
+
+    setCellTxt( 1, mKey1Row, txt );
+
+    setCellTxt( 1, mKey2Row, txt );
+
+    setCellTxt( 1, mXRow, txt );
+
+    setCellTxt( 1, mYRow, txt );
+
+    setCellTxt( 1, mPSRow, txt );
+    */
+}
+
+
 bool uiSEGYReadStarter::acceptOK( CallBacker* )
 {
     uiMSG().error( "TODO: implement" );
+    // transfer scandef to filepars_ and filereadopts_
     return false;
 }

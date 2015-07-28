@@ -58,18 +58,19 @@ protected:
 
     BufferString	curusrfname_;
     TypeSet<int>	inptyps_; // Seis::GeomType, or -1 for VSP
+    SEGY::uiScanDef	scandef_;
     ObjectSet<SEGY::uiScanData> scandata_;
-    int			goodns_;
-    SEGY::TrcHeaderDef&	thdef_;
 
     void		addTyp(int);
     void		setCellTxt(int col,int row,const char*);
-    void		scanInput();
+    bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();
-    bool		doScan(SEGY::uiScanData&,od_istream&,short,bool);
+    void		scanInput();
     bool		scanFile(const char*);
-    bool		scanTraceHeader(SEGY::uiScanData&,od_istream&,bool);
-    bool		checkExist(BufferString& fnm,bool emiterr=true);
+    bool		obtainScanData(SEGY::uiScanData&,od_istream&,bool);
+    bool		guessScanDef(od_istream&);
+    static bool		getHeaderBufData(od_istream&,char*);
+    void		displayScanResults();
 
     void		initWin(CallBacker*);
     void		inpChg(CallBacker*);

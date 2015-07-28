@@ -20,33 +20,56 @@ ________________________________________________________________________
 namespace SEGY
 {
 
+class TrcHeader;
+class TrcHeaderDef;
+
+
+/*!\brief definition for SEG-Y scanning in UI */
+
+mExpClass(uiSEGY) uiScanDef
+{
+public:
+
+			uiScanDef();
+			~uiScanDef();
+
+    int			revision_;
+    bool		hdrsswapped_;
+    bool		dataswapped_;
+    int			ns_;
+    short		format_;
+    float		coordscale_;
+    SamplingData<float>	sampling_;
+    TrcHeaderDef*	hdrdef_;
+
+    void		reInit();
+
+};
+
+
 /*!\brief info to collect for SEG-Y scanning in UI */
 
 mExpClass(uiSEGY) uiScanData
 {
 public:
 
-				uiScanData(const char* fnm);
+			uiScanData(const char* fnm);
 
-	const BufferString	filenm_;
-	bool			usable_;
-	int			revision_;
-	bool			hdrsswapped_;
-	bool			dataswapped_;
-	int			ns_;
-	int			nrtrcs_;
-	StepInterval<float>	zrg_;
-	Interval<double>	xrg_;
-	Interval<double>	yrg_;
-	Interval<float>		offsrg_;
-	StepInterval<int>	inls_;
-	StepInterval<int>	crls_;
-	StepInterval<int>&	trcnrs_; //!< ref to crls_
-	Interval<float>		refnrs_;
-	int			bytenrkey1_;
-	int			bytenrkey2_;
+    const BufferString	filenm_;
+    bool		usable_;
 
-protected:
+    int			nrtrcs_;
+    StepInterval<float>	zrg_;
+    Interval<double>	xrg_;
+    Interval<double>	yrg_;
+    Interval<float>	offsrg_;
+    StepInterval<int>	inls_;
+    StepInterval<int>	crls_;
+    Interval<float>	refnrs_;
+
+    void		merge(const uiScanData&);
+    StepInterval<int>&	trcNrs()		{ return crls_; }
+    const StepInterval<int>& trcNrs() const	{ return crls_; }
 
 };
 
