@@ -55,6 +55,7 @@ const char* PlaneDataDisplayBaseMapObject::getType() const
 
 void PlaneDataDisplayBaseMapObject::updateGeometry()
 {
+    setName( pdd_->getManipulationString().buf() );
     changed.trigger();
 }
 
