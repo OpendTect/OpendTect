@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segyuiscandata.h"
 #include "segyhdr.h"
 #include "segyhdrdef.h"
+#include "od_istream.h"
 
 
 SEGY::uiScanDef::uiScanDef()
@@ -37,18 +38,45 @@ SEGY::uiScanDef::~uiScanDef()
 }
 
 
+SEGY::TrcHeader* SEGY::uiScanDef::getTrcHdr( od_istream& strm ) const
+{
+    char thbuf[SegyTrcHeaderLength];
+    strm.getBin( thbuf, SegyTrcHeaderLength );
+    if ( !strm.isOK() )
+	return 0;
+
+    return new SEGY::TrcHeader( (unsigned char*)thbuf, revision_==1, *hdrdef_ );
+}
+
+
+
 SEGY::uiScanData::uiScanData( const char* fnm )
     : filenm_(fnm)
     , usable_(true)
     , nrtrcs_(0)
     , inls_(mUdf(int),0,1)
     , crls_(mUdf(int),0,1)
-    , zrg_(mUdf(float),0.f,1.f)
     , xrg_(mUdf(double),0.)
     , yrg_(mUdf(double),0.)
     , refnrs_(mUdf(float),0.f)
     , offsrg_(mUdf(float),0.f)
 {
+}
+
+
+void SEGY::uiScanData::getFromSEGYBody( od_istream& strm, const uiScanDef& def,
+					DataClipSampler* cs )
+{
+    int nrtrcs = 0;
+    while ( true )
+    {
+	PtrMan<TrcHeader> thdr = def.getTrcHdr( strm );
+	if ( !thdr )
+	    return;
+
+	if ( nrtrcs++ == 10 )
+	    return;
+    }
 }
 
 

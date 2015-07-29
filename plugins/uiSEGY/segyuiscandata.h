@@ -16,6 +16,9 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "bufstring.h"
 
+class od_istream;
+class DataClipSampler;
+
 
 namespace SEGY
 {
@@ -44,6 +47,8 @@ public:
 
     void		reInit();
 
+    TrcHeader*		getTrcHdr(od_istream&) const;
+
 };
 
 
@@ -59,7 +64,6 @@ public:
     bool		usable_;
 
     int			nrtrcs_;
-    StepInterval<float>	zrg_;
     Interval<double>	xrg_;
     Interval<double>	yrg_;
     Interval<float>	offsrg_;
@@ -67,9 +71,14 @@ public:
     StepInterval<int>	crls_;
     Interval<float>	refnrs_;
 
-    void		merge(const uiScanData&);
     StepInterval<int>&	trcNrs()		{ return crls_; }
     const StepInterval<int>& trcNrs() const	{ return crls_; }
+
+    void		getFromSEGYBody(od_istream&,const uiScanDef&,
+					DataClipSampler* cs=0);
+			//!< if clipsampler is passed, will scan a lot of traces
+			//!< otherwise, only a few (1st, 2nd and last)
+    void		merge(const uiScanData&);
 
 };
 

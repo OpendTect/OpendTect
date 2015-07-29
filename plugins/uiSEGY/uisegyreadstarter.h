@@ -16,9 +16,11 @@ ________________________________________________________________________
 #include "segyfiledef.h"
 #include "segyuiscandata.h"
 
+class DataClipSampler;
+class uiTable;
 class uiComboBox;
 class uiFileInput;
-class uiTable;
+class uiHistogramDisplay;
 
 
 /*!\brief Starts reading process of 'any SEG-Y file'. */
@@ -55,11 +57,14 @@ protected:
     uiComboBox*		typfld_;
     uiFileInput*	inpfld_;
     uiTable*		infotbl_;
+    uiHistogramDisplay*	ampldisp_;
 
     BufferString	curusrfname_;
     TypeSet<int>	inptyps_; // Seis::GeomType, or -1 for VSP
     SEGY::uiScanDef	scandef_;
     ObjectSet<SEGY::uiScanData> scandata_;
+    DataClipSampler&	clipsampler_;
+    bool		infeet_;
 
     void		addTyp(int);
     void		setCellTxt(int col,int row,const char*);
