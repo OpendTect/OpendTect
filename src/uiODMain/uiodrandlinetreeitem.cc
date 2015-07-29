@@ -459,6 +459,12 @@ bool uiODRandomLineTreeItem::displayDefaultData()
     const bool res = visserv_->calculateAttrib( displayid_, 0, false );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
+    if ( !children_.isEmpty() )
+    {
+	children_[0]->select();
+	children_[0]->select(); // hack to update toolbar
+    }
+
     return res;
 }
 
