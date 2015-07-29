@@ -75,6 +75,7 @@ public:
 					}
     static uiString sCreateRandLines()	{ return tr("Create random lines"); }
     static uiString sCrossline()        { return tr("Cross-line"); }
+    static uiString sDelete()		{ return tr("Delete"); }
     static uiString sDepth()	        { return tr("Depth"); }
     static uiString sDisplay()		{ return tr("Display"); }
     static uiString sDoesntExist(uiString s)  {
