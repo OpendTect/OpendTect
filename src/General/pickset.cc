@@ -353,7 +353,7 @@ void SetMgr::set( const MultiID& ky, Set* newset )
 
 
 const MultiID& SetMgr::id( int idx ) const
-{ return ids_[idx]; }
+{ return ids_.validIdx(idx) ? ids_[idx] : MultiID::udf(); }
 
 
 void SetMgr::setID( int idx, const MultiID& mid )
