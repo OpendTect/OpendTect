@@ -34,7 +34,7 @@ namespace visBase
 class TileCoordinatesUpdator: public ParallelTask
 {
 public:
-    TileCoordinatesUpdator(HorizonSection* hrsecion, const od_int64 size, 	
+    TileCoordinatesUpdator(HorizonSection* hrsecion, const od_int64 size,
 		         const Transformation* trans, bool transback= false);
 
     od_int64	totalNr() const { return totaltiles_; }
@@ -92,7 +92,7 @@ void TileCoordinatesUpdator::updateCoordinates( HorizonSectionTile* tile )
 	if ( !transback_ )
 	{
 	    transform_->transform( pos );
-	    tile->computeNormal( 
+	    tile->computeNormal(
 		idx,(*mGetOsgVec3Arr(tile->getNormals()))[idx] );
 	}
 	else
@@ -150,6 +150,8 @@ HorizonSection::NodeCallbackHandler::NodeCallbackHandler(
 void HorizonSection::NodeCallbackHandler::operator()( osg::Node* node,
 						      osg::NodeVisitor* nv )
 {
+    hrsection_->executePendingUpdates();
+
     if( nv->getVisitorType()==osg::NodeVisitor::UPDATE_VISITOR )
     {
 	hrsection_->forceRedraw( false );
@@ -223,7 +225,7 @@ bool HorizonSection::NodeCallbackHandler::eyeChanged( const osg::Vec3 projdir )
 //===========================================================================
 
 
-HorizonSection::HorizonSection() 
+HorizonSection::HorizonSection()
     : VisualObjectImpl( false )
     , transformation_( 0 )
     , geometry_( 0 )
@@ -232,8 +234,8 @@ HorizonSection::HorizonSection()
     , displaycrg_( -1, -1, 0 )
     , texturerowrg_( 0, mUdf(int), 1 )
     , texturecolrg_( 0, mUdf(int), 1 )
-    , userchangedisplayrg_( false )			      
-    , tiles_( 0, 0 )					  
+    , userchangedisplayrg_( false )
+    , tiles_( 0, 0 )
     , desiredresolution_( cNoneResolution )
     , tesselationlock_( false )
     , nrcoordspertileside_( 0 )
@@ -268,6 +270,9 @@ HorizonSection::HorizonSection()
     addChild( hortexturehandler_->getOsgNode() );
     hordatahandler_->ref();
     hortilescreatorandupdator_->ref();
+
+    queueid_ = Threads::WorkManager::twm().addQueue(
+		Threads::WorkManager::Manual, "HorizonSection" );
 }
 
 
@@ -299,9 +304,11 @@ HorizonSection::~HorizonSection()
     }
 
     if ( transformation_ ) transformation_->unRef();
-   
+
     hordatahandler_->unRef();
     hortilescreatorandupdator_->unRef();
+
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
 
 
@@ -316,6 +323,12 @@ void HorizonSection::forceRedraw( bool yn )
 }
 
 
+bool HorizonSection::executePendingUpdates()
+{
+    return Threads::WorkManager::twm().executeQueue( queueid_ );
+}
+
+
 void HorizonSection::setUpdateVar( bool& variable, bool yn )
 {
     if ( yn )
@@ -327,7 +340,7 @@ void HorizonSection::setUpdateVar( bool& variable, bool yn )
 
 void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transformation_ == nt ) 
+    if ( transformation_ == nt )
 	return;
 
     HorizonSectionTile** tileptrs = tiles_.getData();
@@ -337,8 +350,8 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 	if ( tileptrs && tiles_.info().getTotalSz()>0 )
 	{
 	    spinlock_.lock();
-	    TileCoordinatesUpdator backupdator( 
-		this, od_int64(tiles_.info().getTotalSz()), 
+	    TileCoordinatesUpdator backupdator(
+		this, od_int64(tiles_.info().getTotalSz()),
 		transformation_,true);
 	    backupdator.execute();
 	    spinlock_.unLock();
@@ -430,7 +443,7 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
     if ( connect )
     {
 	geometry_ = surf;
-	mAttachCB( geometry_->movementnotifier, 
+	mAttachCB( geometry_->movementnotifier,
 					    HorizonSection::surfaceChangeCB );
 	mAttachCB( geometry_->nrpositionnotifier,
 					    HorizonSection::surfaceChangeCB );
@@ -518,7 +531,7 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
 	surfaceChange( gpids, 0 );
 	updatelock_.unLock();
     }
-    
+
 }
 
 char HorizonSection::currentResolution() const
@@ -542,8 +555,8 @@ void HorizonSection::enableGeometryTypeDisplay( GeometryType type, bool yn )
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->enableGeometryTypeDisplay(
 	    type, yn );
- 
-    wireframedisplayed_ = ( ( type == WireFrame ) && yn ) ? 
+
+    wireframedisplayed_ = ( ( type == WireFrame ) && yn ) ?
 			    true : false;
 
 }
@@ -551,6 +564,23 @@ void HorizonSection::enableGeometryTypeDisplay( GeometryType type, bool yn )
 
 void HorizonSection::turnOsgOn( bool yn )
 {  turnOn( yn ); }
+
+
+class HorizonSectionUpdater : public Task
+{
+public:
+HorizonSectionUpdater( HorTilesCreatorAndUpdator& upd,
+		       const TypeSet<GeomPosID>& gpids )
+    : gpids_(gpids)
+    , updater_(upd)
+{}
+
+bool execute()
+{ updater_.updateTiles( &gpids_, 0 ); return true; }
+
+    TypeSet<GeomPosID> gpids_;
+    HorTilesCreatorAndUpdator& updater_;
+};
 
 
 void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
@@ -569,13 +599,21 @@ void HorizonSection::surfaceChange( const TypeSet<GeomPosID>* gpids,
     }
 
     if ( !gpids || !tiles_.info().getSize(0) || !tiles_.info().getSize(1) )
-
 	hortilescreatorandupdator_->createAllTiles( tr );
     else
     {
-	hortilescreatorandupdator_->updateTiles( gpids, tr );
+	if ( isVisualizationThread() )
+	    hortilescreatorandupdator_->updateTiles( gpids, tr );
+	else
+	{
+	    HorizonSectionUpdater* updtask =
+		new HorizonSectionUpdater(*hortilescreatorandupdator_,*gpids);
+	    Threads::WorkManager::twm().addWork(
+		Threads::Work(*updtask,true), 0, queueid_ );
+	}
     }
 }
+
 
 void HorizonSection::setZAxisTransform( ZAxisTransform* zt, TaskRunner* )
 {
@@ -664,8 +702,8 @@ const TextureChannel2RGBA* HorizonSection::getChannels2RGBA() const
 
 
 void HorizonSection::useChannel( bool yn )
-{ 
-    hortexturehandler_->useChannel( yn ); 
+{
+    hortexturehandler_->useChannel( yn );
 }
 
 
@@ -742,13 +780,13 @@ HorizonTextureHandler& HorizonSection::getTextureHandler()
 { return *hortexturehandler_; }
 
 
-int HorizonSection::getNrTitles() const 
+int HorizonSection::getNrTitles() const
 {
     return tiles_.info().getTotalSz();
 }
 
 
-bool HorizonSection::getTitleCoordinates( 
+bool HorizonSection::getTitleCoordinates(
     int titleidx, TypeSet<Coord3>& coords ) const
 {
     if ( tiles_.getData() && titleidx<tiles_.info().getTotalSz() )
@@ -757,7 +795,7 @@ bool HorizonSection::getTitleCoordinates(
 }
 
 
-const unsigned char* HorizonSection::getTextureData( 
+const unsigned char* HorizonSection::getTextureData(
     int titleidx, int& width, int& height ) const
 {
     osgGeo::LayeredTexture* texture = getOsgTexture();
@@ -808,13 +846,12 @@ bool HorizonSection::getTitleTextureCoordinates(
 }
 
 
-bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps, 
+bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps,
     GeometryType type ) const
 {
     mCheckTileSz
     return tiles_.getData()[titleidx]->getResolutionPrimitiveSet( ps, type );
 }
 
-
-}; // namespace visBase
+} // namespace visBase
 
