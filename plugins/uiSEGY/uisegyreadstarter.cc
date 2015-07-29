@@ -16,10 +16,13 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uifileinput.h"
 #include "uitable.h"
 #include "uiseparator.h"
+#include "uihistogramdisplay.h"
 #include "uimsg.h"
 #include "survinfo.h"
 #include "segyhdr.h"
 #include "seistype.h"
+#include "seisinfo.h"
+#include "dataclipper.h"
 #include "filepath.h"
 #include "dirlist.h"
 #include "oddirs.h"
@@ -48,6 +51,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     , filespec_(fs?*fs:FileSpec())
     , filereadopts_(0)
     , curusrfname_("x") // any non-empty
+    , clipsampler_(*new DataClipSampler(100000))
+    , infeet_(false)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Data type") );
     typfld_ = lcb->box();
@@ -92,15 +97,22 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     setCellTxt( 0, mNrSamplesRow, "Samples per trace" );
     setCellTxt( 0, mZRangeRow, "Z Range" );
 
+    uiHistogramDisplay::Setup hdsu;
+    hdsu.noyaxis( false ).noygridline(true).annoty( false );
+    ampldisp_ = new uiHistogramDisplay( this, hdsu );
+    ampldisp_->setTitle( tr("Amplitude values") );
+    ampldisp_->setStretch( 2, 1 );
+    ampldisp_->setPrefHeight( 250 );
+    ampldisp_->attach( stretchedBelow, infotbl_ );
+
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
 }
 
 
-void uiSEGYReadStarter::setCellTxt( int col, int row, const char* txt )
+uiSEGYReadStarter::~uiSEGYReadStarter()
 {
-    infotbl_->setText( RowCol(row,col), txt );
-    if ( col==0 )
-	infotbl_->resizeColumnToContents( col );
+    delete filereadopts_;
+    delete &clipsampler_;
 }
 
 
@@ -127,9 +139,11 @@ void uiSEGYReadStarter::addTyp( int typ )
 }
 
 
-uiSEGYReadStarter::~uiSEGYReadStarter()
+void uiSEGYReadStarter::setCellTxt( int col, int row, const char* txt )
 {
-    delete filereadopts_;
+    infotbl_->setText( RowCol(row,col), txt );
+    if ( col==0 )
+	infotbl_->resizeColumnToContents( col );
 }
 
 
@@ -313,6 +327,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm )
 	if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
 	    fmt = 1;
 	scandef_.format_ = fmt;
+	infeet_ = binhdr.isInFeet();
     }
 
     SEGY::uiScanData* sd = new SEGY::uiScanData( fnm );
@@ -333,15 +348,13 @@ bool uiSEGYReadStarter::obtainScanData( SEGY::uiScanData& sd, od_istream& strm,
 	    return false;
     }
 
-    uiMSG().error( "TODO: obtain scan data" );
+    sd.getFromSEGYBody( strm, scandef_, isfirst ? &clipsampler_ : 0 );
     return true;
 }
 
 
 bool uiSEGYReadStarter::getHeaderBufData( od_istream& strm, char* buf )
 {
-    strm.getBin( buf, SegyTrcHeaderLength );
-    return strm.isOK();
 }
 
 
@@ -350,21 +363,22 @@ bool uiSEGYReadStarter::guessScanDef( od_istream& strm )
     const bool isfirst = true; // for mErrRetFileName
     const od_stream::Pos firsttrcpos = strm.position();
 
-    char thbuf[SegyTrcHeaderLength];
-    if ( !getHeaderBufData(strm,thbuf) )
+    PtrMan<SEGY::TrcHeader> thdr = scandef_.getTrcHdr( strm );
+    if ( !thdr )
 	mErrRetFileName( "File:\n%1\nNo traces found" )
 
-    SEGY::TrcHeader th( (unsigned char*)thbuf, scandef_.revision_==1,
-	    		*scandef_.hdrdef_ );
     if ( scandef_.ns_ < 1 )
     {
-	scandef_.ns_ = (int)th.nrSamples();
+	scandef_.ns_ = (int)thdr->nrSamples();
 	if ( scandef_.ns_ > cMaxReasonableNS )
 	    mErrRetFileName(
-		    "File:\n%1\nCannot determine number of samples per trace" )
+		    "File:\n%1\nNo proper 'number of samples per trace' found" )
     }
 
-    //TODO do the magic
+    SeisTrcInfo ti; thdr->fill( ti, scandef_.coordscale_ );
+    scandef_.sampling_ = ti.sampling;
+
+    //TODO do magic things to find byte positions
 
     strm.setPosition( firsttrcpos );
     return true;
@@ -399,10 +413,14 @@ void uiSEGYReadStarter::displayScanResults()
     txt.set( scandef_.ns_ );
     setCellTxt( 1, mNrSamplesRow, txt );
 
-    /* TODO: finish
-    txt.set( scandef_.ns_ );
+    const float endz = scandef_.sampling_.start
+		     + (scandef_.ns_-1) * scandef_.sampling_.step;
+    txt.set( scandef_.sampling_.start ).add( " to " ).add( endz )
+	.add( " step " ).add( scandef_.sampling_.step )
+	.add( " (seconds or " ).add( infeet_ ? "feet)" : "meter)" );
     setCellTxt( 1, mZRangeRow, txt );
 
+    /* TODO: finish
     setCellTxt( 1, mKey1Row, txt );
 
     setCellTxt( 1, mKey2Row, txt );
