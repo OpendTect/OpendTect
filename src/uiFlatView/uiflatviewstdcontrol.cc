@@ -308,7 +308,7 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* cb )
     if ( mIsZero(ev.angle(),0.01) )
 	return;
 
-    uiToolButton* but = ev.angle()<0 ?
+    uiToolButton* but = ev.angle()>0 ?
 	(ev.shiftStatus() ? vertzoominbut_ : zoominbut_) :
 	(ev.shiftStatus() ? vertzoomoutbut_ : zoomoutbut_);
 
