@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-// this header file only be used in the classes related to Horzonsection . 
+// this header file only be used in the classes related to Horzonsection .
 // don't include it in somewhere else !!!
 
 #include "callback.h"
@@ -42,11 +42,12 @@ namespace osg
 namespace visBase
 {
     class HorizonSectionTilePosSetup;
-    class HorizonSection;  
+    class HorizonSection;
     class TileResolutionData;
     class HorizonSectionTileGlue;
     class Coordinates;
 //A tile with 65x65 nodes.
+
 class HorizonSectionTile : CallBacker
 {
 public:
@@ -64,12 +65,12 @@ public:
 				//!<Should be called from rendering thread
     void			ensureGlueTesselated();
     void			setWireframeColor(Color& color);
-    void			setTexture( const Coord& origin, 
+    void			setTexture( const Coord& origin,
 					    const Coord& opposite );
 				//!<Sets origin and opposite in global texture
     void			addTileTesselator( int res );
     void			addTileGlueTesselator();
-    ObjectSet<TileResolutionData>& getResolutionData() 
+    ObjectSet<TileResolutionData>& getResolutionData()
 				   { return tileresolutiondata_; }
 
 protected:
@@ -81,15 +82,15 @@ protected:
 				/*!<Resolution -1 means it is automatic. */
 
     bool			hasDefinedCoordinates(int idx) const;
-				/*!<idx is the index of coordinates 
+				/*!<idx is the index of coordinates
 				in the highest resolution vertices. */
 
     const HorizonSectionTile*	getNeighborTile(int idx) const;
 				//!<idx is bewteen 0 and 8
 
-    void			enableGeometryTypeDisplay(GeometryType type, 
+    void			enableGeometryTypeDisplay(GeometryType type,
 							  bool yn);
-				/*!<type 0 is triangle,1 is line, 
+				/*!<type 0 is triangle,1 is line,
 				2 is point, 3 is wire frame */
 
     void			updatePrimitiveSets();
@@ -101,17 +102,17 @@ protected:
     bool			getResolutionCoordinates(TypeSet<Coord3>&)const;
 
     void			dirtyGeometry();
-   
+
     void			setNrTexCoordLayers(int nrlayers);
     void			initTexCoordLayers();
-    osg::Array*			getNormals() { return normals_; };
+    osg::Array*			getNormals() { return normals_; }
     osg::Array*			getOsgVertexArray(){ return osgvertices_; }
 
 protected:
 
     friend class		HorizonSectionTilePosSetup;
-    friend class		TileTesselator;		
-    friend class		HorizonSection;  
+    friend class		TileTesselator;
+    friend class		HorizonSection;
     friend class		TileResolutionData;
     friend class		HorTilesCreatorAndUpdator;
     friend class		HorizonSectionTileGlue;
@@ -161,6 +162,8 @@ protected:
     std::vector<osg::Array*>	txcoords_;
     osg::Array*			normals_;
     osg::Array*			osgvertices_;
+
+    const double		cosanglexinl_, sinanglexinl_;
 
 };
 

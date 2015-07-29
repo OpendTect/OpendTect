@@ -50,7 +50,9 @@ HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
     , normals_( new osg::Vec3Array )
     , osgvertices_( new osg::Vec3Array )
     , tesselationqueueid_( Threads::WorkManager::twm().addQueue(
-    Threads::WorkManager::MultiThread, "Tessalation" ) )
+	Threads::WorkManager::MultiThread, "Tessalation" ) )
+    , cosanglexinl_( cos(SI().angleXInl()) )
+    , sinanglexinl_( sin(SI().angleXInl()) )
 {
     normals_->ref();
     osgvertices_->ref();
@@ -60,6 +62,7 @@ HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
     buildOsgGeometries();
     bbox_.init();
 }
+
 
 void HorizonSectionTile::buildOsgGeometries()
 {
@@ -109,8 +112,8 @@ HorizonSectionTile::~HorizonSectionTile()
 
 
 void HorizonSectionTile::setResolution( char res )
-{ 
-    desiredresolution_ = res; 
+{
+    desiredresolution_ = res;
 }
 
 
@@ -138,19 +141,19 @@ void HorizonSectionTile::updateAutoResolution( const osg::CullStack* cs )
 	{
 	    const char wantedres = getAutoResolution( cs );
 
-	    if ( !tileresolutiondata_.validIdx( wantedres ) ) 
+	    if ( !tileresolutiondata_.validIdx( wantedres ) )
 		return;
 	    newres = wantedres;
 	    datalock_.lock();
 	    for ( ; newres<hrsection_.nrhorsectnrres_-1; newres++ )
 	    {
-		if ( tileresolutiondata_[newres]->needsretesselation_ < 
+		if ( tileresolutiondata_[newres]->needsretesselation_ <
 		    cMustRetesselate )
 		    break;
 	    }
 	    datalock_.unLock();
 
-	    if ( !hrsection_.tesselationlock_ && ( wantedres!=newres || 
+	    if ( !hrsection_.tesselationlock_ && ( wantedres!=newres ||
 		tileresolutiondata_[newres]->needsretesselation_ ) )
 	    {
 		addTileTesselator( wantedres );
@@ -188,7 +191,7 @@ void HorizonSectionTile::updateBBox()
 {
     if ( !needsupdatebbox_ )
 	return;
-    
+
     bbox_.init();
     osg::Vec3Array* osgvertices = mGetOsgVec3Arr( osgvertices_ );
     for ( int idx =0; idx<osgvertices->size(); idx++ )
@@ -202,8 +205,8 @@ void HorizonSectionTile::updateBBox()
 
 
 void HorizonSectionTile::enableGeometryTypeDisplay( GeometryType type, bool yn )
-{ 
-    wireframedisplayed_ = ( ( type== WireFrame ) && yn ) ? true : false; 
+{
+    wireframedisplayed_ = ( ( type== WireFrame ) && yn ) ? true : false;
     for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
 	tileresolutiondata_[res]->enableGeometryTypeDisplay( type, yn );
 }
@@ -219,24 +222,24 @@ void HorizonSectionTile::ensureGlueTesselated()
 {
     bool needgluetesselation =
 	glueneedsretesselation_ || resolutionhaschanged_ ||
-	(neighbors_[RIGHTTILE] && 
+	(neighbors_[RIGHTTILE] &&
 	neighbors_[RIGHTTILE]->resolutionhaschanged_) ||
-	(neighbors_[BOTTOMTILE] && 
+	(neighbors_[BOTTOMTILE] &&
 	neighbors_[BOTTOMTILE]->resolutionhaschanged_);
-    
+
     if ( !needgluetesselation )
 	return;
 
     const char res = getActualResolution();
-    if( res==cNoneResolution || 
-	( !neighbors_[RIGHTTILE] && !neighbors_[BOTTOMTILE] ) ) 
+    if( res==cNoneResolution ||
+	( !neighbors_[RIGHTTILE] && !neighbors_[BOTTOMTILE] ) )
 	return;
 
     for ( int nb=RIGHTTILE; nb<RIGHTBOTTOMTILE; nb += 2 )
     {
 	bool isright = nb == RIGHTTILE ? true : false;
 
-	HorizonSectionTileGlue* tileglue = 
+	HorizonSectionTileGlue* tileglue =
 	    isright ? righttileglue_ : bottomtileglue_;
 	if ( tileglue )
 	{
@@ -253,7 +256,7 @@ void HorizonSectionTile::ensureGlueTesselated()
 }
 
 
-char HorizonSectionTile::getAutoResolution( const osg::CullStack* cs ) 
+char HorizonSectionTile::getAutoResolution( const osg::CullStack* cs )
 {
     const int cIdealNrPixelsPerCell = 32;
 
@@ -267,7 +270,7 @@ char HorizonSectionTile::getAutoResolution( const osg::CullStack* cs )
     screensize[0] = cs->clampedPixelSize( bbox_.center(),boxwidth );
     screensize[1] = cs->clampedPixelSize( bbox_.center(),boxheight );
 
-    const int wantednumcells = 
+    const int wantednumcells =
 	(int)( screensize[0]*screensize[1]/cIdealNrPixelsPerCell );
 
     if ( !wantednumcells )
@@ -293,7 +296,7 @@ void HorizonSectionTile::setActualResolution( char resolution )
 {
     if ( resolution != getActualResolution() )
     {
-	if ( resolution == cNoneResolution ) 
+	if ( resolution == cNoneResolution )
 	    resolution = hrsection_.lowestresidx_;
 	osgswitchnode_->setAllChildrenOff();
 	osgswitchnode_->setValue( resolution, true );
@@ -311,24 +314,24 @@ void HorizonSectionTile::setActualResolution( char resolution )
 
 	resolutionhaschanged_ = true;
     }
-    
+
 }
 
 
 void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 {
-    if ( !tileresolutiondata_.validIdx( res ) )  
+    if ( !tileresolutiondata_.validIdx( res ) )
 	return;
 
     datalock_.lock();
-  
+
     if ( updatenewpoint_ )
     {
 	for ( int idx=0; idx<=hrsection_.lowestresidx_; idx++ )
 	    tileresolutiondata_[idx]->tesselateResolution( false );
 	updatenewpoint_ =  false;
     }
-    else 
+    else
         tileresolutiondata_[res]->tesselateResolution( onlyifabsness );
 
     datalock_.unLock();
@@ -337,7 +340,7 @@ void HorizonSectionTile::tesselateResolution( char res, bool onlyifabsness )
 
 void HorizonSectionTile::applyTesselation( char res )
 {
-    if ( !tileresolutiondata_.validIdx( res ) ) 
+    if ( !tileresolutiondata_.validIdx( res ) )
 	return;
     osgswitchnode_->setChildValue( osgswitchnode_->getChild( res ), true );
     resolutionhaschanged_ = false;
@@ -373,7 +376,7 @@ void HorizonSectionTile::setPositions( const TypeSet<Coord3>& pos )
 	for ( int col=0; col<nrcoords; col++ )
 	{
 	    int coordidx = col + row*nrcoords;
-	    Coord3 vertex = pos[coordidx]; 
+	    Coord3 vertex = pos[coordidx];
 	    const int size = pos.size();
 	    if ( coordidx >= size || !vertex.isDefined() )
 	    {
@@ -414,7 +417,7 @@ void HorizonSectionTile::updatePrimitiveSets()
 
 
 void HorizonSectionTile::setNeighbor( int nbidx, HorizonSectionTile* nb )
-{ 
+{
     neighbors_[nbidx] = nb;
     glueneedsretesselation_ = true;
 }
@@ -434,7 +437,7 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 
 	const bool olddefined = mIsOsgVec3Def((*arr)[coordidx]);
 	const bool newdefined = pos.isDefined();
-	
+
 	if ( !newdefined && olddefined )
 	    nrdefinedvertices_--;
 	else if ( newdefined && !olddefined )
@@ -442,8 +445,8 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 
 	if ( !newdefined )
 	{
-	    //it is going to assign a undefined point to vertex,first we should 
-	    // hide osg render. 
+	    //it is going to assign a undefined point to vertex,first we should
+	    // hide osg render.
 	    char curres = getActualResolution();
 	    tileresolutiondata_[curres]->hideFromDisplay();
 	    (*arr)[coordidx][2] = mUdf(float);
@@ -470,11 +473,11 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 }
 
 
-void HorizonSectionTile::setTexture( const Coord& origincrd, 
+void HorizonSectionTile::setTexture( const Coord& origincrd,
     const Coord& oppositecrd )
 {
-    txorigin_ = Conv::to<osg::Vec2f>( origincrd );  
-    txoppsite_ = Conv::to<osg::Vec2f>( oppositecrd ); 
+    txorigin_ = Conv::to<osg::Vec2f>( origincrd );
+    txoppsite_ = Conv::to<osg::Vec2f>( oppositecrd );
 
     if ( (txoppsite_-txorigin_)==osg::Vec2f(0.0, 0.0) )
 	return;
@@ -551,7 +554,7 @@ void HorizonSectionTile::setNrTexCoordLayers( int nrlayers )
 
 void HorizonSectionTile::initTexCoordLayers()
 {
-    const int coordsize = 
+    const int coordsize =
 	hrsection_.nrcoordspertileside_*hrsection_.nrcoordspertileside_;
 
     for ( int idx = 0; idx<txcoords_.size(); idx++ )
@@ -567,7 +570,7 @@ bool HorizonSectionTile::hasDefinedCoordinates( int idx ) const
 
     return false;
 }
- 
+
 
 #define mExtractPosition(flag,location) \
 { \
@@ -586,35 +589,35 @@ bool HorizonSectionTile::hasDefinedCoordinates( int idx ) const
 double HorizonSectionTile::calcGradient( int row, int col,
     const StepInterval<int>& rcrange, bool isrow )
 {
-    const float rcdist = 
+    const float rcdist =
 	isrow ? hrsection_.rowdistance_ : hrsection_.coldistance_;
     const int rc = isrow ? row : col;
     bool beforefound = false; bool afterfound = false;
     Coord beforepos, afterpos;
 
-    for ( int idx=hrsection_.spacing_[0]; idx>=0; idx-- ) 
-    { 
-	if ( !beforefound ) 
-	{ 
+    for ( int idx=hrsection_.spacing_[0]; idx>=0; idx-- )
+    {
+	if ( !beforefound )
+	{
 	    const int currc = rc - idx*rcrange.step;
 	    if ( currc >= rcrange.start )
 	    {
-		const RowCol arrpos = isrow ? 
+		const RowCol arrpos = isrow ?
 		    RowCol( currc, col ) : RowCol( row, currc );
 		mExtractPosition( true, before );
 	    }
-	} 
+	}
 
-	if ( idx>0 && !afterfound ) 
-	{ 
-	    const int currc = rc + idx*rcrange.step; 
+	if ( idx>0 && !afterfound )
+	{
+	    const int currc = rc + idx*rcrange.step;
 	    if ( currc <= rcrange.stop )
 	    {
-		const RowCol arrpos = isrow ? 
+		const RowCol arrpos = isrow ?
 		    RowCol( currc, col ) : RowCol( row, currc );
 		mExtractPosition( false, after );
 	    }
-	} 
+	}
 
 	if ( afterfound && beforefound )
 	    break;
@@ -625,7 +628,7 @@ double HorizonSectionTile::calcGradient( int row, int col,
 }
 
 
-void HorizonSectionTile::computeNormal( int nmidx,osg::Vec3& normal ) 
+void HorizonSectionTile::computeNormal( int nmidx,osg::Vec3& normal )
 {
     if ( !hrsection_.geometry_ )
 	return;
@@ -635,7 +638,7 @@ void HorizonSectionTile::computeNormal( int nmidx,osg::Vec3& normal )
 	step = RowCol(hrsection_.displayrrg_.step,hrsection_.displaycrg_.step);
     else
 	step = RowCol( hrsection_.geometry_->rowRange().step,
-	hrsection_.geometry_->colRange().step );
+		       hrsection_.geometry_->colRange().step );
 
     const int normalrow = (nmidx-hrsection_.normalstartidx_[0])/
 	hrsection_.normalsidesize_[0];
@@ -653,13 +656,12 @@ void HorizonSectionTile::computeNormal( int nmidx,osg::Vec3& normal )
 	calcGradient( row, col, hrsection_.geometry_->colRange(), false );
 
     osg::Vec3 osgnormal;
-    osgnormal[0] = drow*cos(SI().angleXInl())+dcol*sin(SI().angleXInl());
-    osgnormal[1] = dcol*cos(SI().angleXInl())-drow*sin(SI().angleXInl());
-    osgnormal[2] = -1; 
+    osgnormal[0] = drow*cosanglexinl_+dcol*sinanglexinl_;
+    osgnormal[1] = dcol*cosanglexinl_-drow*sinanglexinl_;
+    osgnormal[2] = -1;
 
     if ( mIsOsgVec3Def( osgnormal ) )
 	normal = osgnormal;
-
 }
 
 
@@ -705,7 +707,7 @@ bool HorizonSectionTile::getResolutionTextureCoordinates(
     if ( txunits_.size()==0 ) return false;
 
     coords.setEmpty();
-   
+
     osgGeo::LayeredTexture* entiretxture = hrsection_.getOsgTexture();
     const osg::Image*	entireimg = entiretxture->getCompositeTextureImage();
 
@@ -736,7 +738,7 @@ bool HorizonSectionTile::getResolutionPrimitiveSet(
     char res = getActualResolution();
     if ( res==-1 ) res = 0;
 
-    const osg::PrimitiveSet* osgps = 
+    const osg::PrimitiveSet* osgps =
 	tileresolutiondata_[res]->getPrimitiveSet( type );
 
     if ( !osgps ) return false;
