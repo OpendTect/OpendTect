@@ -47,7 +47,7 @@ protected:
     const EM::Horizon3D*	getHorizon() const;
 
     SectionTracker*		createSectionTracker(EM::SectionID);
-    Horizon3DSeedPicker*	seedpicker;
+    Horizon3DSeedPicker*	seedpicker_;
 };
 
 } // namespace MPE
