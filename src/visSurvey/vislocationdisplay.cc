@@ -61,13 +61,14 @@ LocationDisplay::LocationDisplay()
     , datatransform_( 0 )
     , pickedsobjid_(-1)
     , voiidx_(-1)
+    , storedmid_(MultiID::udf())
 {
     setSetMgr( &Pick::Mgr() );
 
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
 }
-    
+
 
 LocationDisplay::~LocationDisplay()
 {
@@ -103,8 +104,16 @@ void LocationDisplay::setSet( Pick::Set* ps )
 	return;
     }
 
-    set_ = ps; 
+    set_ = ps;
     setName( set_->name() );
+
+    if ( picksetmgr_ )
+    {
+	const int setidx = picksetmgr_->indexOf( *set_ );
+	storedmid_ =  picksetmgr_->id( setidx );
+    }
+    else
+	storedmid_.setUdf();
 
     fullRedraw();
 
@@ -148,15 +157,15 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	    cs.hsamp_.include( bid );
 	    cs.zsamp_.include( zval, false );
 	}
-	
+
 	if ( voiidx_<0 )
 	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
 	else
 	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
-	
+
 	datatransform_->loadDataIfMissing( voiidx_ );
     }
-    
+
     getMaterial()->setColor( set_->disp_.color_ );
     invalidpicks_.erase();
 
@@ -538,7 +547,7 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
     int locidx = -1;
     bool insertpick = false;
     if ( set_->disp_.connect_ == Pick::Set::Disp::Close )
-    { 
+    {
 	sower_->alternateSowingOrder( true );
 	Coord3 displaypos = world2Display( pos );
 	if ( sower_->mode() == Sower::FirstSowing )
@@ -646,7 +655,7 @@ void LocationDisplay::setPosition(int idx, const Pick::Location& nl )
 {
     if ( !set_ || idx<0 || idx>=(*set_).size() )
 	return;
-    
+
     (*set_)[idx] = nl;
 }
 
@@ -670,7 +679,7 @@ void LocationDisplay::setDisplayTransformation( const mVisTrans* newtr )
 
     if ( transformation_ )
 	transformation_->ref();
-    
+
     sower_->setDisplayTransformation( newtr );
 }
 
@@ -737,9 +746,9 @@ bool LocationDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 	datatransform_->ref();
     }
 
-    
+
     fullRedraw();
-    showAll( datatransform_ && datatransform_->needsVolumeOfInterest() ); 
+    showAll( datatransform_ && datatransform_->needsVolumeOfInterest() );
     return true;
 }
 
@@ -757,7 +766,7 @@ int LocationDisplay::clickedMarkerIndex(const visBase::EventInfo& evi) const
 
 
 bool LocationDisplay::isMarkerClick(const visBase::EventInfo& evi) const
-{ 
+{
     return false;
 }
 
