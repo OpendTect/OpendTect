@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 
 #include "algomod.h"
-#include "mathfunc.h"
 #include "interpol1d.h"
 #include "ptrman.h"
 #include "samplingdata.h"
@@ -26,6 +25,7 @@ ________________________________________________________________________
 #include <math.h>
 
 template <class T> class LineParameters;
+template <class T> class ValueSeries;
 
 
 /*!
@@ -352,6 +352,22 @@ public:
 
     float		a, b, c, d;
 };
+
+
+
+mExpClass(Algo) ValSeriesMathFunc : public FloatMathFunction
+{
+public:
+			ValSeriesMathFunc(const ValueSeries<float>&,int sz);
+
+    float		getValue(float) const;
+
+protected:
+    const ValueSeries<float>&	vs_;
+    int				sz_;
+};
+
+
 
 template <class mXT, class mYT> inline
 int BendPointBasedMathFunction<mXT,mYT>::baseIdx( mXT x ) const
