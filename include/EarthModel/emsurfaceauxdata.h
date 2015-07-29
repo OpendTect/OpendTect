@@ -48,9 +48,9 @@ public:
     void		removeSection(const SectionID&);
 
     int			nrAuxData() const;
-    			/*!<\return	The number of data per node.
+			/*!<\return	The number of data per node.
 			    \note	Some of the data might have been
-			    		removed, so the result might be
+					removed, so the result might be
 					misleading. Query by doing:
 					\code
 					for ( int idx=0; idx<nrAuxData(); idx++)
@@ -58,18 +58,19 @@ public:
 					\endcode
 			*/
     const char*		auxDataName(int dataidx) const;
-    			/*!<\return The name of aux-data or 0 if the data
+			/*!<\return The name of aux-data or 0 if the data
 				    is removed; */
     int			auxDataIndex(const char*) const;
-    			/*!<\return The dataidx of this aux data name, or -1 */
+			/*!<\return The dataidx of this aux data name, or -1 */
     int			addAuxData(const char* name);
-    			/*!<\return The dataidx of the new data.
+			/*!<\return The dataidx of the new data.
 				    The index is persistent in runtime.  */
 
     void		setAuxDataName(int dataidx,const char*);
     void		removeAuxData(int dataidx);
     float		getAuxDataVal(int dataidx,const PosID& posid) const;
     void		setAuxDataVal(int dataidx,const PosID& posid,float val);
+    void		setAuxDataVal(int dataidx,const TrcKey&,float val);
 
     void		setAuxDataShift(int,float);
     float		auxDataShift(int) const;
@@ -97,11 +98,11 @@ public:
 protected:
     Horizon3D&		horizon_;
 
-    			//One entry per auxdata
+			//One entry per auxdata
     BufferStringSet	auxdatanames_;
     BufferStringSet	auxdatainfo_;
     TypeSet<float>	auxdatashift_;
-        			//One entry per section
+			//One entry per section
     ObjectSet<BinIDValueSet>	auxdata_;
     bool		changed_;
 };
