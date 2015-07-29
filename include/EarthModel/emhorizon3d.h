@@ -148,6 +148,16 @@ public:
     void			initAllAuxData(float val=mUdf(float));
     SurfaceAuxData&		auxdata;
 
+    void			initTrackingArrays();
+    void			setParent(const TrcKey&,const TrcKey& parent);
+    TrcKey			getParent(const TrcKey&) const;
+    void			getParents(const TrcKey&,
+					   TypeSet<TrcKey>&) const;
+    void			getChildren(const TrcKey&,
+					    TypeSet<TrcKey>&) const;
+    void			setNodeLocked(const TrcKey&,bool locked);
+    bool			isNodeLocked(const TrcKey&) const;
+
 protected:
     void			fillPar(IOPar&) const;
     bool			usePar( const IOPar& );
@@ -156,6 +166,10 @@ protected:
     friend class		EMManager;
     friend class		EMObject;
     Horizon3DGeometry		geometry_;
+
+    TrcKeySampling		trackingsamp_;
+    Array2D<char>*		lockednodes_;
+    Array2D<od_int64>*		parents_;
 
 public:
     /*mDeprecated*/ float	getZ(const BinID&) const;
