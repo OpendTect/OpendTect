@@ -528,23 +528,9 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 }
 
 
-void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const TrcKeyZSampling& cs )
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
-
-    pdd->annotateNextUpdateStage( true );
-    pdd->setTrcKeyZSampling( cs );
-    pdd->resetManipulation();
-    pdd->annotateNextUpdateStage( true );
-    for ( int attrib=0; attrib<visserv_->getNrAttribs(displayid_); attrib++ )
-	visserv_->calculateAttrib( displayid_, attrib, false );
-    pdd->annotateNextUpdateStage( false );
-
-    updateColumnText( uiODSceneMgr::cNameColumn() );
-    updateColumnText( uiODSceneMgr::cColorColumn() );
-}
+void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs(
+	const TrcKeyZSampling& tkzs )
+{ visserv_->movePlaneAndCalcAttribs( displayid_, tkzs ); }
 
 
 void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
