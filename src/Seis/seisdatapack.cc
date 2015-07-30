@@ -128,7 +128,7 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 {
     unsigned char* dstptr = dstptr_ + start * dsttrcbytes_;
 
-    for ( od_int64 idx=start; idx<=stop; idx++ )
+    for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
 	const int inlidx =
 	    regsdp_.sampling().hsamp_.inlIdx( path_[idx].lineNr() );
