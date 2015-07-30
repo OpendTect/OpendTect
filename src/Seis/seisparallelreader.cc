@@ -27,6 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 #include "trckeyzsampling.h"
 
+#include <string.h>
+
 namespace Seis
 {
 
@@ -413,13 +415,26 @@ int nextStep()
 	    const DataBuffer* databuf = trc_.data().getComponent( cidx );
 	    const int bytespersamp = databuf->bytesPerSample();
 	    const od_int64 offset = arr.info().getOffset( idx0, idx1, 0 );
-	    char* storoff = storarr + offset * bytespersamp;
-	    const unsigned char* trc = databuf->data();
-	    OD::sysMemCopy( storoff, trc, trc_.size() * bytespersamp );
+
+	    const od_int64 blocksize = trc_.size() * bytespersamp;
+	    const unsigned char* srcptr = databuf->data() + blocksize;
+	    char* dstptr = storarr + offset*bytespersamp + blocksize;
+
+	    for ( int zidx=trc_.size()-1; zidx>=0; zidx-- )
+	    {
+		srcptr -= bytespersamp;
+		dstptr -= bytespersamp;
+		// Check if amplitude equals undef value of underlying data
+		// type knowing that array has been initialized with undefs
+		if ( memcmp(dstptr, srcptr, bytespersamp) )
+		    OD::sysMemCopy( dstptr, srcptr, bytespersamp );
+		else
+		    arr.set( idx0, idx1, zidx, trc_.get(zidx,cidx) );
+	    }
 	}
 	else
 	{
-	    for ( int zidx=0; zidx<trc_.size(); zidx++ )
+	    for ( int zidx=trc_.size()-1; zidx>=0; zidx-- )
 		arr.set( idx0, idx1, zidx, trc_.get(zidx,cidx) );
 	}
 
@@ -533,6 +548,10 @@ bool SequentialReader::init()
 
 int SequentialReader::nextStep()
 {
+    if ( Threads::WorkManager::twm().queueSize(queueid_) >
+	 100*Threads::WorkManager::twm().nrThreads() )
+	return MoreToDo();
+
     SeisTrc* trc = new SeisTrc;
     const int res = rdr_.get( trc->info() );
     if ( res==-1 )
