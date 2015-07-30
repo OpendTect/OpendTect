@@ -58,6 +58,13 @@ bool uiBaseMapObject::isShown() const
 { return graphitem_.isVisible(); }
 
 
+void uiBaseMapObject::selCB( CallBacker* )
+{
+    if ( bmobject_ )
+	bmobject_->clicked.trigger();
+}
+
+
 void uiBaseMapObject::changedCB( CallBacker* )
 {
     changed_ = true;
@@ -112,6 +119,7 @@ void uiBaseMapObject::update()
 		    uiPolyLineItem* itm = new uiPolyLineItem();
 		    if ( !itm ) return;
 		    itm->setParent( &graphitem_ );
+		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
 		}
 
 		mDynamicCastGet(uiPolyLineItem*,itm,graphitem_.getChild(itemnr))
@@ -139,6 +147,7 @@ void uiBaseMapObject::update()
 		    uiPolygonItem* itm = new uiPolygonItem();
 		    if ( !itm ) return;
 		    itm->setParent( &graphitem_ );
+		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
 		}
 
 		mDynamicCastGet(uiPolygonItem*,itm,graphitem_.getChild(itemnr))
@@ -173,6 +182,7 @@ void uiBaseMapObject::update()
 		    uiMarkerItem* itm = new uiMarkerItem();
 		    if ( !itm ) return;
 		    itm->setParent( &graphitem_ );
+		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
 		}
 
 		mDynamicCastGet(uiMarkerItem*,itm,graphitem_.getChild(itemnr));
@@ -202,6 +212,7 @@ void uiBaseMapObject::update()
 		uiTextItem* itm = new uiTextItem();
 		if ( !itm ) return;
 		itm->setParent( &graphitem_ );
+		itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
 	    }
 
 	    mDynamicCastGet(uiTextItem*,itm,graphitem_.getChild(itemnr));
@@ -284,6 +295,7 @@ uiBaseMap::uiBaseMap( uiParent* p )
 {
     view_.scene().addItem( &worlditem_ );
     view_.reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
+    worlditem_.setZValue( 10 );
 }
 
 

@@ -77,6 +77,7 @@ public:
     virtual bool		allowHoverEvent() const		{ return true; }
 
     Notifier<BaseMapObject>	changed;
+    Notifier<BaseMapObject>	clicked;
     Notifier<BaseMapObject>	stylechanged;
 
 protected:

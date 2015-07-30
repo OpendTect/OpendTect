@@ -40,11 +40,15 @@ public:
     void		hide();
 
     virtual void	setAcceptHoverEvents(bool);
+    virtual void	setAcceptedMouseButtons(bool);
+    virtual void	setFiltersChildEvents(bool);
     virtual void	setMovable(bool);
     virtual void	setSelectable(bool);
     virtual void	setSelected(bool);
     virtual void	setVisible(bool);
 
+    virtual bool	isAcceptedMouseButtonsEnabled();
+    virtual bool	isFiltersChildEventsEnabled() const;
     virtual bool	isHoverEventsAccepted() const;
     virtual bool	isMovable() const;
     virtual bool	isSelectable() const;
@@ -100,6 +104,8 @@ public:
     void		scale(float sx,float sy) { setScale( sx, sy ); }
 
     virtual void	translateText();
+
+    Notifier<uiGraphicsItem> clicked;
 protected:
 
     			uiGraphicsItem(QGraphicsItem*);

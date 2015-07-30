@@ -90,6 +90,7 @@ int itempenwidth_;
 
 uiGraphicsItem::uiGraphicsItem()
     : qgraphicsitem_(new ODGraphicsItem)
+    , clicked(this)
     , scene_(0)
     , id_(getNewID())
     , selected_(false)
@@ -102,6 +103,7 @@ uiGraphicsItem::uiGraphicsItem()
 
 uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
     : qgraphicsitem_(itm)
+    , clicked(this)
     , scene_(0)
     , id_(getNewID())
     , selected_(false)
@@ -146,26 +148,45 @@ void uiGraphicsItem::setAcceptHoverEvents( bool yn )
 }
 
 
-bool uiGraphicsItem::isHoverEventsAccepted() const
+void uiGraphicsItem::setAcceptedMouseButtons( bool yn )
 {
-    return qgraphicsitem_->acceptHoverEvents();
+    if ( yn )
+	qgraphicsitem_->setAcceptedMouseButtons( Qt::LeftButton );
+    else
+	qgraphicsitem_->setAcceptedMouseButtons( Qt::NoButton );
 }
 
 
-bool uiGraphicsItem::isMovable() const
-{ return qgraphicsitem_->flags().testFlag( QGraphicsItem::ItemIsMovable ); }
+void uiGraphicsItem::setFiltersChildEvents( bool yn )
+{ qgraphicsitem_->setFiltersChildEvents( yn ); }
 
 
 void uiGraphicsItem::setMovable( bool yn )
 { qgraphicsitem_->setFlag( QGraphicsItem::ItemIsMovable, yn ); }
 
 
-bool uiGraphicsItem::isVisible() const
-{ return qgraphicsitem_->isVisible(); }
-
-
 void uiGraphicsItem::setVisible( bool yn )
 { qgraphicsitem_->setVisible( yn ); }
+
+
+bool uiGraphicsItem::isAcceptedMouseButtonsEnabled()
+{ return Qt::NoButton != qgraphicsitem_->acceptedMouseButtons(); }
+
+
+bool uiGraphicsItem::isFiltersChildEventsEnabled() const
+{ return qgraphicsitem_->filtersChildEvents(); }
+
+
+bool uiGraphicsItem::isHoverEventsAccepted() const
+{ return qgraphicsitem_->acceptHoverEvents(); }
+
+
+bool uiGraphicsItem::isMovable() const
+{ return qgraphicsitem_->flags().testFlag( QGraphicsItem::ItemIsMovable ); }
+
+
+bool uiGraphicsItem::isVisible() const
+{ return qgraphicsitem_->isVisible(); }
 
 
 Geom::Point2D<float> uiGraphicsItem::getPos() const
@@ -470,7 +491,18 @@ void uiGraphicsItem::translateText()
 
 
 uiGraphicsItem* uiGraphicsItem::findItem( QGraphicsItem* qitm )
-{ return qitm == qgraphicsitem_ ? this : 0; }
+{
+    if ( qitm == qgraphicsitem_ )
+	return this;
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	uiGraphicsItem* itm = children_[idx]->findItem( qitm );
+	if ( itm ) return itm;
+    }
+
+    return 0;
+}
 
 
 

@@ -48,6 +48,7 @@ protected:
 
     void			changedCB(CallBacker*);
     void			changedStyleCB(CallBacker*);
+    void			selCB(CallBacker*);
 
     uiGraphicsItem&		graphitem_;
     const uiWorld2Ui*		transform_;
