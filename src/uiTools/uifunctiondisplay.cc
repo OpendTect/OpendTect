@@ -285,15 +285,23 @@ void uiFunctionDisplay::gatherInfo( bool fory2 )
     if ( !xax_ || ( !usey2 && !yax_ ) || ( usey2 && !y2ax_ ) )
 	return;
 
-    uiAxisHandler* yaxis = usey2 ? y2ax_ : yax_;
     Interval<float> xrg, yrg;
-    getAxisRanges( xvals_.isEmpty() && usey2 ? y2xvals_ : xvals_, setup_.xrg_,
-		   xrg );
-    getAxisRanges( usey2 ? y2yvals_ : yvals_,
-		   usey2 ? setup_.y2rg_ : setup_.yrg_, yrg );
+    if ( xvals_.isEmpty() )
+    {
+	xrg.start = mUdf(float); xrg.stop = -mUdf(float);
+	yrg = xrg;
+    }
+    else
+    {
+	getAxisRanges( xvals_, setup_.xrg_, xrg );
+	getAxisRanges( usey2 ? y2yvals_ : yvals_,
+		       usey2 ? setup_.y2rg_ : setup_.yrg_, yrg );
+    }
 
+    uiAxisHandler* yaxis = usey2 ? y2ax_ : yax_;
     xax_->setBounds( xrg );
     yaxis->setBounds( yrg );
+
     if ( xax_ && y2ax_ )
     {
 	xax_->setEnd( y2ax_ );
