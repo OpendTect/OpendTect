@@ -837,11 +837,13 @@ RandomSeisDataPack* uiAttribPartServer::createRdmSeisDataPack(
 	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
 				       (*path)[idx].inl(), (*path)[idx].crl() );
 
-    RandomSeisDataPack* newpack = new RandomSeisDataPack(
-					SeisDataPack::categoryStr(true,false) );
     bool dataseted = false;
     const MultiID mid( targetdesc->getStoredID() );
     mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
+    const BinDataDesc* bdd = sdp ? &sdp->getDataDesc() : 0;
+
+    RandomSeisDataPack* newpack = new RandomSeisDataPack(
+				SeisDataPack::categoryStr(true,false), bdd );
 
     if ( sdp )
     {

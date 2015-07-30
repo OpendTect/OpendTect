@@ -104,6 +104,10 @@ public:
     void			deSelect() const;
     				/*<! Is here for convenience. Will rewire to
 				     SelectionManager.	*/
+    void			updateSel() const;
+				/*<! Is here for convenience. Will rewire to
+				     SelectionManager.	*/
+
     virtual bool		isSelected() const;
     virtual NotifierAccess*	selection() 		{ return 0; }
     virtual NotifierAccess*	deSelection() 		{ return 0; }

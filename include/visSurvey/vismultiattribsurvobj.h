@@ -97,6 +97,8 @@ public:
     virtual bool                canBDispOn2DViewer() const	{ return true; }
     bool			canEnableTextureInterpolation() const
 				{ return channels_; }
+    bool			canDisplayInteractively(
+						Pos::GeomID geomid=-1) const;
 
     const char*			errMsg() const { return errmsg_.str(); }
 

@@ -9,17 +9,159 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id: seisdatapack.cc 38551 2015-03-18 05:38:02Z mahant.mothey@dgbes.com $";
 
+
 #include "seisdatapack.h"
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "binidvalset.h"
+#include "convmemvalseries.h"
 #include "flatposdata.h"
+#include "paralleltask.h"
 #include "seistrc.h"
 #include "survinfo.h"
 
 #include <limits.h>
 
+
+class Regular2RandomDataCopier : public ParallelTask
+{
+public:
+		Regular2RandomDataCopier( RandomSeisDataPack& ransdp,
+					  const RegularSeisDataPack& regsdp,
+					  const TrcKeyPath& path,
+					  int compidx )
+		    : ransdp_( ransdp )
+		    , regsdp_( regsdp )
+		    , path_( path )
+		    , compidx_( compidx )
+		    , domemcopy_( false )
+		    , samplebytes_( sizeof(float) )
+		    , srcptr_( 0 )
+		    , dstptr_( 0 )
+		    , srctrcbytes_( 0 )
+		    , dsttrcbytes_( 0 )
+		    , srclnbytes_( 0 )
+		    , bytestocopy_( 0 )
+		    , idzoffset_( 0 )
+		{}
+
+    od_int64	nrIterations() const			{ return path_.size(); }
+
+    bool	doPrepare(int nrthreads);
+    bool	doWork(od_int64 start,od_int64 stop,int thread);
+
+
+protected:
+
+    RandomSeisDataPack&		ransdp_;
+    const RegularSeisDataPack&	regsdp_;
+    const TrcKeyPath&		path_;
+    int				compidx_;
+    bool			domemcopy_;
+    int				samplebytes_;
+    const unsigned char*	srcptr_;
+    unsigned char*		dstptr_;
+    od_int64			srctrcbytes_;
+    od_int64			dsttrcbytes_;
+    od_int64			srclnbytes_;
+    od_int64			bytestocopy_;
+    int				idzoffset_;
+};
+
+
+bool Regular2RandomDataCopier::doPrepare( int nrthreads )
+{
+    idzoffset_ = regsdp_.getZRange().nearestIndex( ransdp_.getZRange().start );
+
+    if ( regsdp_.getDataDesc() != ransdp_.getDataDesc() )
+	return true;
+
+    srcptr_ = mCast( const unsigned char*, regsdp_.data().getData() );
+    mDynamicCastGet( const ConvMemValueSeries<float>*, regstorage,
+		     regsdp_.data().getStorage() );
+    if ( regstorage )
+    {
+	srcptr_ = mCast( const unsigned char*, regstorage->storArr() );
+	samplebytes_ = regsdp_.getDataDesc().nrBytes();
+    }
+
+    dstptr_ = mCast( unsigned char*, ransdp_.data().getData() );
+    mDynamicCastGet( const ConvMemValueSeries<float>*, ranstorage,
+		     ransdp_.data().getStorage() );
+    if ( ranstorage )
+	dstptr_ = mCast( unsigned char*, ranstorage->storArr() );
+
+    if ( !srcptr_ || !dstptr_ )
+	return true;
+
+    srctrcbytes_ = samplebytes_ * regsdp_.sampling().size(TrcKeyZSampling::Z);
+    srclnbytes_ = srctrcbytes_ * regsdp_.sampling().size(TrcKeyZSampling::Crl);
+    dsttrcbytes_ = samplebytes_ * (ransdp_.getZRange().nrSteps()+1);
+
+    srcptr_ += compidx_ * samplebytes_ * regsdp_.sampling().totalNr();
+    dstptr_ += compidx_ * ransdp_.nrTrcs() * dsttrcbytes_;
+
+    bytestocopy_ = dsttrcbytes_;
+
+    if ( idzoffset_ < 0 )
+    {
+	dstptr_ -= samplebytes_ * idzoffset_;
+	bytestocopy_ += samplebytes_ * idzoffset_;
+    }
+    else
+	srcptr_ += samplebytes_ * idzoffset_;
+
+    const int stopoffset = regsdp_.getZRange().nrSteps() -
+		regsdp_.getZRange().nearestIndex( ransdp_.getZRange().stop );
+
+    if ( stopoffset < 0 )
+	bytestocopy_ += samplebytes_ * stopoffset;
+
+    domemcopy_ = true;
+    return true;
+}
+
+
+bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
+				       int thread )
+{
+    unsigned char* dstptr = dstptr_ + start * dsttrcbytes_;
+
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	const int inlidx =
+	    regsdp_.sampling().hsamp_.inlIdx( path_[idx].lineNr() );
+	const int crlidx =
+	    regsdp_.sampling().hsamp_.crlIdx( path_[idx].trcNr() );
+
+	if ( domemcopy_ )
+	{
+	    const unsigned char* srcptr = srcptr_ + inlidx*srclnbytes_
+						  + crlidx*srctrcbytes_;
+
+	    OD::sysMemCopy( dstptr, srcptr, bytestocopy_ );
+
+	    dstptr += dsttrcbytes_;
+	    continue;
+	}
+
+	for ( int newidz=0; newidz<=regsdp_.getZRange().nrfSteps(); newidz++ )
+	{
+	    const int oldidz = newidz + idzoffset_;
+	    const float val =
+		regsdp_.data(compidx_).info().validPos(inlidx,crlidx,oldidz) ?
+		regsdp_.data(compidx_).get(inlidx,crlidx,oldidz) : mUdf(float);
+
+	    ransdp_.data(compidx_).set( 0, idx, newidz, val );
+	}
+    }
+
+    return true;
+}
+
+
+//=============================================================================
 
 // RegularSeisDataPack
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
@@ -146,27 +288,11 @@ bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
     setPath( path );
     setZRange(StepInterval<float>(zrg.start,zrg.stop,rgldp->getZRange().step));
 
-    const int idzoffset = rgldp->getZRange().nearestIndex( getZRange().start );
-
     for ( int idx=0; idx<rgldp->nrComponents(); idx++ )
     {
 	addComponent( rgldp->getComponentName(idx) );
-	for ( int idy=0; idy<path.size(); idy++ )
-	{
-	    const int inlidx = 
-		rgldp->sampling().hsamp_.inlIdx( path[idy].lineNr() );
-	    const int crlidx = 
-		rgldp->sampling().hsamp_.crlIdx( path[idy].trcNr() );
-
-	    for ( int newidz=0; newidz<=getZRange().nrSteps(); newidz++ )
-	    {
-		const int oldidz = newidz + idzoffset;
-		const float val = 
-		    rgldp->data(idx).info().validPos(inlidx,crlidx,oldidz) ?
-		    rgldp->data(idx).get(inlidx,crlidx,oldidz) : mUdf(float);
-		data(idx).set( 0, idy, newidz, val );
-	    }
-	}
+	Regular2RandomDataCopier copier( *this, *rgldp, path, idx );
+	copier.execute();
     }
 
     setZDomain( rgldp->zDomain() );

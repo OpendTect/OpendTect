@@ -224,6 +224,7 @@ protected:
     bool			ismanip_;
     int				namenr_;
     bool			polylinemode_;
+    bool			interactivetexturedisplay_;
     static const char*		sKeyTrack();
     static const char*		sKeyNrKnots();
     static const char*		sKeyKnotPrefix();

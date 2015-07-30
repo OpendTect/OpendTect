@@ -135,6 +135,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 	mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifier.notify(
 	mCB(this,uiVisPartServer,deselectObjCB) );
+    visBase::DM().selMan().updateselnotifier.notify(
+	mCB(this,uiVisPartServer,updateSelObjCB) );
 
     vismgr_ = new uiVisModeMgr(this);
     pickretriever_->ref();
@@ -152,6 +154,8 @@ uiVisPartServer::~uiVisPartServer()
 	    mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifier.remove(
 	    mCB(this,uiVisPartServer,deselectObjCB) );
+    visBase::DM().selMan().updateselnotifier.remove(
+	    mCB(this,uiVisPartServer,updateSelObjCB) );
 
     deleteAllObjects();
     delete vismgr_;
@@ -1933,18 +1937,20 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 }
 
 
-void uiVisPartServer::deselectObjCB( CallBacker* cb )
-{
-    mCBCapsuleUnpack(int,oldsel,cb);
-    visBase::DataObject* dobj = visBase::DM().getObject( oldsel );
-    mDynamicCastGet(visSurvey::SurveyObject*,so,dobj)
-    if ( so )
-    {
-	if ( so->isManipulated() && !calcManipulatedAttribs(oldsel) )
-	    resetManipulation( oldsel );
+#define mUpdateSelObj( cb, id, dataobj ) \
+    mCBCapsuleUnpack( int, id, cb ); \
+    visBase::DataObject* dataobj = visBase::DM().getObject( id ); \
+    mDynamicCastGet( visSurvey::SurveyObject*, so, dataobj ) \
+    if ( so ) \
+    { \
+	if ( so->isManipulated() && !calcManipulatedAttribs(id) ) \
+	    resetManipulation( id ); \
     }
 
-    updateManipulatorStatus( dobj, false );
+void uiVisPartServer::deselectObjCB( CallBacker* cb )
+{
+    mUpdateSelObj( cb, oldsel, dataobj );
+    updateManipulatorStatus( dataobj, false );
 
     eventmutex_.lock();
     eventobjid_ = oldsel;
@@ -1954,6 +1960,10 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     eventmutex_.lock();
     sendEvent( evPickingStatusChange() );
 }
+
+
+void uiVisPartServer::updateSelObjCB( CallBacker* cb )
+{ mUpdateSelObj( cb, id, dataobj ); }
 
 
 void uiVisPartServer::interactionCB( CallBacker* cb )
