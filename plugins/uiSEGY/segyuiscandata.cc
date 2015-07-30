@@ -159,8 +159,8 @@ void SEGY::uiScanData::getFromSEGYBody( od_istream& strm, const uiScanDef& def,
     if ( !def.isValid() )
 	return;
 
-    ArrPtrMan<char> buf = new char[ def.traceDataBytes() ];
-    ArrPtrMan<float> vals = new float[ def.ns_ ];
+    mAllocLargeVarLenArr( char, buf, def.traceDataBytes() );
+    mAllocLargeVarLenArr( float, vals, def.ns_ );
 
     PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
     if ( !thdr )
