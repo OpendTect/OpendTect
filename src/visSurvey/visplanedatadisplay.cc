@@ -39,7 +39,7 @@ PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
     , pdd_( pdd )
 {
     lst_.color_ = pdd_->getOrientation()== OD::InlineSlice ?
-						Color::Red : Color::Blue;
+						Color::Red() : Color::Blue();
 }
 
 
