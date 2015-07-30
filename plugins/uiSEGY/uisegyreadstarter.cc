@@ -355,6 +355,7 @@ bool uiSEGYReadStarter::obtainScanData( SEGY::uiScanData& sd, od_istream& strm,
 
 bool uiSEGYReadStarter::getHeaderBufData( od_istream& strm, char* buf )
 {
+    return true;
 }
 
 
