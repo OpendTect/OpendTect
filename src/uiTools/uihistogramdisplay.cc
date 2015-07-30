@@ -68,6 +68,7 @@ static int getNrIntervals( int nrpts )
 
 void uiHistogramDisplay::setEmpty()
 {
+    uiFunctionDisplay::setEmpty();
     rc_.setEmpty();
     updateAndDraw();
 }
