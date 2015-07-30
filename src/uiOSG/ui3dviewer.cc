@@ -377,6 +377,11 @@ void ui3DViewerBody::setupView()
     manip->setIntersectTraversalMask( visBase::cIntersectionTraversalMask() );
     manip->setAnimationTime( 0.5 );
 
+    bool reversezoom = false;
+    Settings::common().getYN("What setting",reversezoom);
+    if ( !reversezoom )
+	manip->setWheelZoomFactor( -manip->getWheelZoomFactor() );
+
     manip->enableDragging( isViewMode() );
 
     manip->setAutoComputeHomePosition( false );
@@ -625,7 +630,12 @@ void ui3DViewerBody::thumbWheelRotationCB( CallBacker* cb )
         osg::ref_ptr<osgGeo::TrackballManipulator> manip =
 	static_cast<osgGeo::TrackballManipulator*>(
                                                 view_->getCameraManipulator() );
-	manip->changeDistance( -deltaangle/M_PI );
+	float change = -deltaangle/M_PI;
+
+	if ( manip && manip->getWheelZoomFactor()<0 )
+	    change *= -1;
+
+	manip->changeDistance( change );
     }
 }
 
@@ -1149,7 +1159,12 @@ void ui3DViewerBody::notifyManipulatorMovement( float dh, float dv, float df )
 						view_->getCameraManipulator() );
 
     const float rotationtime = manip && manip->isDiscreteZooming() ? 0.2 : 0.0;
-    distancethumbwheel_->setAngle( df*M_PI + distancethumbwheel_->getAngle(),
+
+    float distancediff = df*M_PI;
+    if ( manip && manip->getWheelZoomFactor()<0 )
+	distancediff *= -1;
+
+    distancethumbwheel_->setAngle( distancethumbwheel_->getAngle()+distancediff,
 				   rotationtime );
 
     horthumbwheel_->setAngle( dh + horthumbwheel_->getAngle() );
