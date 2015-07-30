@@ -100,7 +100,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
     ampldisp_ = new uiHistogramDisplay( this, hdsu );
-    ampldisp_->setTitle( tr("Amplitude values") );
+    ampldisp_->setTitle( tr("Amplitudes") );
     ampldisp_->setStretch( 2, 1 );
     ampldisp_->setPrefHeight( 250 );
     ampldisp_->attach( stretchedBelow, infotbl_ );
@@ -178,13 +178,13 @@ void uiSEGYReadStarter::inpChg( CallBacker* )
 	ystr = "Y-Coordinate range";
 	if ( is2d )
 	{
-	    k1str = "Trace numbers";
-	    k2str = "Ref/SP numbers";
+	    k1str = "Trace number range";
+	    k2str = "Ref/SP number range";
 	}
 	else
 	{
-	    k1str = "Inline numbers";
-	    k2str = "Crossline numbers";
+	    k1str = "Inline range";
+	    k2str = "Crossline range";
 	}
 	if ( isps )
 	    psstr = "Offset range";
@@ -273,6 +273,7 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
 void uiSEGYReadStarter::scanInput()
 {
     deepErase( scandata_ );
+    clipsampler_.reset();
     scandef_.reInit();
 
     MouseCursorChanger chgr( MouseCursor::Wait );
@@ -315,18 +316,21 @@ bool uiSEGYReadStarter::scanFile( const char* fnm )
 	scandef_.hdrsswapped_ = scandef_.dataswapped_ = binhdr.isSwapped();
 	if ( binhdr.isSwapped() )
 	    binhdr.unSwap();
+	if ( binhdr.isRev1() )
+	    binhdr.skipRev1Stanzas( strm );
+
 	if ( scandef_.ns_ < 1 )
 	{
 	    scandef_.ns_ = binhdr.nrSamples();
 	    if ( scandef_.ns_ < 1 || scandef_.ns_ > cMaxReasonableNS )
 		scandef_.ns_ = -1;
 	}
-
 	scandef_.revision_ = binhdr.isRev1() ? 1 : 0;
 	short fmt = binhdr.format();
 	if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
 	    fmt = 1;
 	scandef_.format_ = fmt;
+
 	infeet_ = binhdr.isInFeet();
     }
 
@@ -348,13 +352,7 @@ bool uiSEGYReadStarter::obtainScanData( SEGY::uiScanData& sd, od_istream& strm,
 	    return false;
     }
 
-    sd.getFromSEGYBody( strm, scandef_, isfirst ? &clipsampler_ : 0 );
-    return true;
-}
-
-
-bool uiSEGYReadStarter::getHeaderBufData( od_istream& strm, char* buf )
-{
+    sd.getFromSEGYBody( strm, scandef_, isfirst, &clipsampler_ );
     return true;
 }
 
@@ -388,6 +386,12 @@ bool uiSEGYReadStarter::guessScanDef( od_istream& strm )
 
 void uiSEGYReadStarter::displayScanResults()
 {
+    od_int64 nrvals = clipsampler_.nrVals();
+    if ( nrvals < 1 )
+	ampldisp_->setEmpty();
+    else
+	ampldisp_->setData( clipsampler_.vals(), nrvals );
+
     if ( scandata_.isEmpty() )
 	return;
 
@@ -416,22 +420,37 @@ void uiSEGYReadStarter::displayScanResults()
 
     const float endz = scandef_.sampling_.start
 		     + (scandef_.ns_-1) * scandef_.sampling_.step;
-    txt.set( scandef_.sampling_.start ).add( " to " ).add( endz )
+    txt.set( scandef_.sampling_.start ).add( " - " ).add( endz )
 	.add( " step " ).add( scandef_.sampling_.step )
 	.add( " (seconds or " ).add( infeet_ ? "feet)" : "meter)" );
     setCellTxt( 1, mZRangeRow, txt );
 
-    /* TODO: finish
+    if ( isvsp_ )
+	return;
+
+    if ( Seis::is2D(geomtype_) )
+	txt.set( sd.trcnrs_.start ).add( " - " ).add( sd.trcnrs_.stop );
+    else
+	txt.set( sd.inls_.start ).add( " - " ).add( sd.inls_.stop );
     setCellTxt( 1, mKey1Row, txt );
 
+    if ( Seis::is2D(geomtype_) )
+	txt.set( sd.refnrs_.start ).add( " - " ).add( sd.refnrs_.stop );
+    else
+	txt.set( sd.crls_.start ).add( " - " ).add( sd.crls_.stop );
     setCellTxt( 1, mKey2Row, txt );
 
+    txt.set( sd.xrg_.start ).add( " - " ).add( sd.xrg_.stop );
     setCellTxt( 1, mXRow, txt );
 
+    txt.set( sd.yrg_.start ).add( " - " ).add( sd.yrg_.stop );
     setCellTxt( 1, mYRow, txt );
 
-    setCellTxt( 1, mPSRow, txt );
-    */
+    if ( Seis::isPS(geomtype_) )
+    {
+	txt.set( sd.offsrg_.start ).add( " - " ).add( sd.offsrg_.stop );
+	setCellTxt( 1, mPSRow, txt );
+    }
 }
 
 

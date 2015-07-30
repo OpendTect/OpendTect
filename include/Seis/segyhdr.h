@@ -11,11 +11,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "seismod.h"
 #include "segythdef.h"
 #include "coord.h"
 #include "samplingdata.h"
+#include "datachar.h"
 class SeisTrcInfo;
 class od_ostream;
 
@@ -32,24 +33,24 @@ class Hdrdef;
 
   On construction, the 'txt' buffer is filled with data for writing the header.
   If used for reading, fill the buffer yourself and use getFrom.
- 
+
 */
 
 mExpClass(Seis) TxtHeader
 {
 public:
 
-    		TxtHeader() : rev1_(true) { clearText(); }
-    		TxtHeader(bool rev1); //!< rev1 only relevant when writing
+		TxtHeader() : rev1_(true) { clearText(); }
+		TxtHeader(bool rev1); //!< rev1 only relevant when writing
     void	clear()			{ clearText(); setLineStarts(); }
- 
+
     void	setUserInfo(const char*);
     void	setPosInfo(const TrcHeaderDef&);
     void	setStartPos(float);
 
     void	getText(BufferString&) const;
     void	setText(const char*);
- 
+
     bool	isAscii() const;
     void        setAscii();
     void        setEbcdic();
@@ -74,8 +75,6 @@ protected:
 
 /*!\brief 400 byte SEG-Y binary header  */
 
-class X;
-
 mExpClass(Seis) BinHeader
 {
 public:
@@ -90,6 +89,7 @@ public:
 		{ return frmt == 3 ? 2 : (frmt == 8 ? 1 : 4); }
     static bool	isValidFormat( int f )
 		{ return f==1 || f==2 || f==3 || f==5 || f==8; }
+    static DataCharacteristics	getDataChar(int frmt,bool dataswapped);
 
     int		valueAt(int bytenr);
     void	setValueAt(int bytenr,int);
@@ -103,6 +103,7 @@ public:
     float	sampleRate(bool isdpth) const;
     bool	isInFeet() const	{ return entryVal(EntryMFeet()) == 2; }
     bool	isRev1() const;
+    int		skipRev1Stanzas(od_istream&); //!< returns number skipped
 
     void	setIsSwapped( bool yn )	{ needswap_ = yn; }
     bool	isSwapped() const	{ return needswap_; }
@@ -144,8 +145,14 @@ mExpClass(Seis) TrcHeader
 {
 public:
 
-			TrcHeader(unsigned char*,bool rev1,const TrcHeaderDef&);
+			TrcHeader(unsigned char*,bool rev1,const TrcHeaderDef&,
+				  bool manbuf=false);
+			TrcHeader( const TrcHeader& oth )
+			    : buf_(0), mybuf_(false), hdef_(oth.hdef_)
+			{ *this = oth; }
     void		initRead(); //!< must call once before first usage
+			~TrcHeader();
+    TrcHeader&		operator =(const TrcHeader&);
 
     static const HdrDef& hdrDef();
 
@@ -170,6 +177,7 @@ public:
 
 protected:
 
+    bool		mybuf_;
     bool		needswap_;
     int			previnl_;
     int			seqnr_;

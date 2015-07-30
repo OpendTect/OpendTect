@@ -74,7 +74,6 @@ protected:
     bool		scanFile(const char*);
     bool		obtainScanData(SEGY::uiScanData&,od_istream&,bool);
     bool		guessScanDef(od_istream&);
-    static bool		getHeaderBufData(od_istream&,char*);
     void		displayScanResults();
 
     void		initWin(CallBacker*);

@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "ranges.h"
 #include "bufstring.h"
+#include "datachar.h"
 
-class od_istream;
 class DataClipSampler;
 
 
@@ -45,9 +45,18 @@ public:
     SamplingData<float>	sampling_;
     TrcHeaderDef*	hdrdef_;
 
-    void		reInit();
+    bool		isValid() const			{ return ns_ > 0; }
+    int			bytesPerSample() const;
+    int			traceDataBytes() const;
+    DataCharacteristics	getDataChar() const;
 
+    int			nrTracesIn(const od_istream&,od_stream_Pos p=-1) const;
+    void		goToTrace(od_istream&,od_stream_Pos,int) const;
     TrcHeader*		getTrcHdr(od_istream&) const;
+    bool		getData(od_istream&,char*,float* vals=0) const;
+    TrcHeader*		getTrace(od_istream&,char*,float*) const;
+
+    void		reInit();
 
 };
 
@@ -69,16 +78,22 @@ public:
     Interval<float>	offsrg_;
     StepInterval<int>	inls_;
     StepInterval<int>	crls_;
+    StepInterval<int>	trcnrs_;
     Interval<float>	refnrs_;
 
-    StepInterval<int>&	trcNrs()		{ return crls_; }
-    const StepInterval<int>& trcNrs() const	{ return crls_; }
-
     void		getFromSEGYBody(od_istream&,const uiScanDef&,
-					DataClipSampler* cs=0);
+					bool isfirst,DataClipSampler* cs=0);
 			//!< if clipsampler is passed, will scan a lot of traces
 			//!< otherwise, only a few (1st, 2nd and last)
     void		merge(const uiScanData&);
+
+    void		reInit();
+
+protected:
+
+    bool		addTrace(od_istream&,bool,char*,float*,const uiScanDef&,
+				 DataClipSampler*);
+    void		addValues(DataClipSampler*,const float*, int);
 
 };
 
