@@ -66,8 +66,16 @@ static int getNrIntervals( int nrpts )
 }
 
 
+void uiHistogramDisplay::setEmpty()
+{
+    rc_.setEmpty();
+    updateAndDraw();
+}
+
+
 bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 {
+    rc_.setEmpty();
     ConstDataPackRef<DataPack> dp = DPM(dmid).obtain( dpid );
     if ( !dp ) return false;
 
@@ -134,7 +142,8 @@ void uiHistogramDisplay::setData( const DataPointSet& dpset )
 
 void uiHistogramDisplay::setData( const Array2D<float>* array )
 {
-    if ( !array ) return;
+    if ( !array )
+	{ rc_.setEmpty(); return; }
 
     if ( array->getData() )
     {
@@ -162,7 +171,8 @@ void uiHistogramDisplay::setData( const Array2D<float>* array )
 
 void uiHistogramDisplay::setData( const float* array, int sz )
 {
-    if ( !array ) return;
+    if ( !array || sz < 1 )
+	{ rc_.setEmpty(); return; }
 
     if ( array != originaldata_.arr() )
     {

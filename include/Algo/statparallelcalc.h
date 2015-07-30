@@ -35,14 +35,15 @@ mClass(Algo) ParallelCalc : public ParallelTask, public BaseCalc<T>
 public:
 				ParallelCalc(const CalcSetup& s,const T* data,
 					     int sz,const T* weights = 0)
-				    : BaseCalc<T>(s){setValues(data,sz,weights);}
-
+				    : BaseCalc<T>(s)
+						{ setValues(data,sz,weights); }
 				ParallelCalc( const CalcSetup& s )
 				    : BaseCalc<T>(s) { setValues(0,0,0); }
 
-    inline void		setValues(const T* inp,int sz,const T* wght=0);
+    inline void			setValues(const T* inp,int sz,const T* wght=0);
+    inline void			setEmpty();
 
-    const char*                 errMsg() const
+    inline const char*		errMsg() const
 				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
     virtual inline double	variance() const;
@@ -86,6 +87,13 @@ protected:
     using BaseCalc<T>::medwts_;
 };
 
+
+template <class T>
+inline void ParallelCalc<T>::setEmpty()
+{
+    this->clear();
+    nradded_ = 0; data_ = 0; weights_ = 0;
+}
 
 
 template <class T>
@@ -313,4 +321,3 @@ inline double ParallelCalc<T>::variance() const
 
 }
 #endif
-
