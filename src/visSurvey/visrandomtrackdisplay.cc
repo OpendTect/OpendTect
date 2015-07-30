@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "array2dresample.h"
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
+#include "convmemvalseries.h"
 #include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "randomlinegeom.h"
@@ -51,6 +52,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , moving_(this)
     , selknotidx_(-1)
     , ismanip_(false)
+    , interactivetexturedisplay_( false )
     , datatransform_(0)
     , lockgeometry_(false)
     , eventcatcher_(0)
@@ -586,6 +588,19 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	const float* arr = array.getData();
 	OD::PtrPolicy cp = OD::UsePtr;
 
+	if ( interactivetexturedisplay_ )
+	{
+	    mDynamicCastGet( const ConvMemValueSeries<float>*, storage,
+			     randsdp->data().getStorage() );
+	    if ( storage )
+	    {
+		channels_->setSize( attrib, 1, sz0, sz1 );
+		channels_->setMappedData( attrib, idx,
+				mCast(unsigned char*,storage->storArr()), cp );
+		continue;
+	    }
+	}
+
 	if ( !arr || resolution_>0 )
 	{
 	    mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
@@ -874,6 +889,14 @@ void RandomTrackDisplay::knotMoved( CallBacker* cb )
     dragger_->showAllPanels( getDepthInterval()!=dragger_->getDepthRange());
 
     knotmoving_.trigger();
+
+    if ( canDisplayInteractively() )
+    {
+	interactivetexturedisplay_ = true;
+	acceptManipulation();
+	ismanip_ = true;
+	updateSel();
+    }
 }
 
 
@@ -1320,8 +1343,9 @@ void RandomTrackDisplay::setPixelDensity( float dpi )
 
 void RandomTrackDisplay::draggerMoveFinished( CallBacker* )
 {
-    deSelect();
-    select();
+    interactivetexturedisplay_ = false;
+    ismanip_ = true;
+    updateSel();
 }
 
 } // namespace visSurvey

@@ -229,10 +229,12 @@ void ColTabTextureChannel2RGBA::update()
 	{
 	    const int layerid = (*channels_->getOsgIDs(channel))[0];
 	    int procidx = layerids.indexOf(layerid);
+
+	    mDynamicCastGet( osgGeo::ColTabLayerProcess*, proc,
+			     laytex_->getProcess(procidx) );
+
 	    if ( procidx != channel )
 	    {
-		mDynamicCastGet( osgGeo::ColTabLayerProcess*, proc,
-				 laytex_->getProcess(procidx) );
 		if ( !proc )
 		{
 		    procidx = laytex_->nrProcesses();
@@ -265,6 +267,17 @@ void ColTabTextureChannel2RGBA::update()
 		}
 
 		layerids.insert( channel, layerid );
+	    }
+	    else
+	    {
+		for ( int idx=channels_->nrDataBands()-1; idx>=0; idx-- )
+		{
+		    int newid = layerid;
+		    if ( idx && channels_->isCurrentDataPremapped(channel) )
+			newid = -1;
+
+		    proc->setDataLayerID( idx, newid, idx );
+		}
 	    }
 	}
     }

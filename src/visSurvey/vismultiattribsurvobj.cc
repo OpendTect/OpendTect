@@ -9,6 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismultiattribsurvobj.h"
 
 #include "attribsel.h"
+#include "bindatadesc.h"
 #include "visdataman.h"
 #include "vismaterial.h"
 #include "coltabsequence.h"
@@ -307,6 +308,33 @@ void MultiTextureSurveyObject::enableAttrib( int attrib, bool yn )
 {
     channels_->getChannels2RGBA()->setEnabled( attrib, yn );
     updateMainSwitch();
+}
+
+
+bool MultiTextureSurveyObject::canDisplayInteractively(
+						    Pos::GeomID geomid ) const
+{
+    if ( !channels_->getChannels2RGBA() ||
+			    !channels_->getChannels2RGBA()->usesShading() )
+	return false;
+
+    bool interactivedisplay = false;
+    for ( int attrib=0; attrib<nrAttribs(); attrib++ )
+    {
+	if ( isAttribEnabled(attrib) )
+	{
+	    const BinDataDesc* bdd = as_[attrib]->getPreloadDataDesc();
+	    if ( !bdd )
+		return false;
+
+	    if ( bdd->nrBytes()!=1 || bdd->isSigned() ) // for the time being
+		return false;
+
+	    interactivedisplay = true;
+	}
+    }
+
+    return interactivedisplay;
 }
 
 

@@ -47,32 +47,35 @@ public:
     virtual			~SelectionManager();
 
     void			setAllowMultiple(bool yn);
-    bool			allowMultiple() const { return allowmultiple; }
+    bool			allowMultiple() const { return allowmultiple_; }
 
-    void			select( int id, bool keepoldsel = false )
+    void			select(int id,bool keepoldsel=false)
 				{ select( id, keepoldsel, true ); }
-    void			deSelect( int id ) { deSelect( id, true ); }
-    void			deSelectAll() { deSelectAll( true ); }
+    void			deSelect(int id)  { deSelect( id, true ); }
+    void			deSelectAll()	  { deSelectAll( true ); }
+    void			updateSel(int id) { updateSel( id, true ); }
 
-    const TypeSet<int>&		selected() const { return selectedids; }
+    const TypeSet<int>&		selected() const  { return selectedids_; }
 
     CNotifier<SelectionManager,int>	selnotifier;
     CNotifier<SelectionManager,int>	deselnotifier;
+    CNotifier<SelectionManager,int>	updateselnotifier;
 
     				// for implementing pick-based reselection
     CNotifier<SelectionManager,int>	reselnotifier;
 
-    void			fillPar( IOPar&, TypeSet<int>& ) const {};
-    void			usePar( const IOPar& ) {};
+    void			fillPar(IOPar&,TypeSet<int>&) const {};
+    void			usePar(const IOPar&) {};
 
 protected:
-    void			select( int id, bool keep, bool lock );
-    void			deSelect( int id, bool lock );
+    void			select(int id,bool keep,bool lock);
+    void			deSelect(int id,bool lock);
     void			deSelectAll(bool lock);
+    void			updateSel(int id,bool lock);
 
-    TypeSet<int>		selectedids;
-    bool			allowmultiple;
-    Threads::Mutex&		mutex;
+    TypeSet<int>		selectedids_;
+    bool			allowmultiple_;
+    Threads::Mutex&		mutex_;
 };
 
 };

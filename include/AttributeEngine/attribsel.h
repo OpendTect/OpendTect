@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "typeset.h"
 
 class NLAModel;
+class BinDataDesc;
 
 namespace ZDomain { class Info; }
 
@@ -94,6 +95,8 @@ public:
 
     bool		isStored() const;
     bool		isZTransformed() const;
+
+    const BinDataDesc*	getPreloadDataDesc(Pos::GeomID geomid=-1) const;
 
     static const DescID& cNoAttrib();
     static const DescID& cAttribNotSel();

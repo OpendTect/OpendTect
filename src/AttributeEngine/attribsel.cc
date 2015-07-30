@@ -13,7 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "attribstorprovider.h"
+#include "bindatadesc.h"
 #include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "globexpr.h"
@@ -26,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "nlamodel.h"
 #include "ptrman.h"
 #include "seisioobjinfo.h"
+#include "seispreload.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
 #include "survinfo.h"
@@ -226,6 +229,22 @@ bool SelSpec::isStored() const
     return id_.isValid() && id_.isStored();
 }
 
+
+const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
+{
+    const DescSet* descset = DSHolder().getDescSet( false, isStored() );
+    if ( !descset || descset->isEmpty() )
+	return 0;
+
+    const Desc* desc = descset->getDesc( id() );
+    if ( !desc )
+	return 0;
+
+    const MultiID mid( desc->getStoredID() );
+    mDynamicCastGet(const SeisDataPack*, sdp, Seis::PLDM().get(mid,geomid) );
+
+    return sdp ? &sdp->getDataDesc() : 0;
+}
 
 
 // Attrib::SelInfo

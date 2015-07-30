@@ -437,6 +437,7 @@ protected:
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);
     void			deselectObjCB(CallBacker*);
+    void			updateSelObjCB(CallBacker*);
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
     void			vwAll(CallBacker*);

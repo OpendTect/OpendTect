@@ -291,6 +291,10 @@ void DataObject::deSelect() const
 { DM().selMan().deSelect( id() ); }
 
 
+void DataObject::updateSel() const
+{ DM().selMan().updateSel( id() ); }
+
+
 bool DataObject::isSelected() const
 { return selectable() && DM().selMan().selected().isPresent( id()); }
 

@@ -73,6 +73,8 @@ public:
 
     void			updateOsgImages();
 
+    bool			isCurrentDataPremapped() const;
+
     ObjectSet<unsigned char>			mappeddata_;
     BoolTypeSet					ownsmappeddata_;
     ObjectSet<const ValueSeries<float> >	unmappeddata_;
@@ -489,7 +491,9 @@ void ChannelInfo::updateOsgImages()
 	return;
     }
 
-    const unsigned char nrbands = texturechannels_.nrTextureBands();
+    const unsigned char nrbands = isCurrentDataPremapped() ? 1 :
+					    texturechannels_.nrTextureBands();
+
     const GLenum imageformat = nrbands>=4 ? GL_RGBA :
 			       nrbands==3 ? GL_RGB :
 			       nrbands==2 ? GL_LUMINANCE_ALPHA : GL_LUMINANCE;
@@ -512,6 +516,11 @@ void ChannelInfo::updateOsgImages()
 			    osg::Image::NO_DELETE, 1 );
     }
 }
+
+
+bool ChannelInfo::isCurrentDataPremapped() const
+{ return !unmappeddata_[currentversion_]; }
+
 
 
 class TextureChannels::TextureCallbackHandler :
@@ -791,6 +800,15 @@ void TextureChannels::setCurrentVersion( int channel, int version )
 }
 
 
+bool TextureChannels::isCurrentDataPremapped( int channel ) const
+{
+    if ( !channelinfo_.validIdx(channel) )
+	return false;
+
+    return channelinfo_[channel]->isCurrentDataPremapped();
+}
+
+
 #define mErrRet \
 { \
     if ( managedata ) delete [] data; \
@@ -846,6 +864,8 @@ bool TextureChannels::setMappedData( int channel, int version,
 				     unsigned char* data,
 				     OD::PtrPolicy cp )
 {
+    setUnMappedData( channel, version, 0, OD::UsePtr, 0 );
+
     if ( channel<0 || channel>=channelinfo_.size() )
     {
 	if ( cp==OD::TakeOverPtr ) delete [] data;
@@ -931,15 +951,27 @@ void TextureChannels::update( int channel, bool freezeifnodata )
     {
 	const int osgid = channelinfo_[channel]->osgids_[component];
 
-	osgtexture_->setDataLayerImage( osgid,
-		channelinfo_[channel]->osgimages_[component],
-		freezeifnodata, nrDataBands()-1 );
+	if ( isCurrentDataPremapped(channel) )
+	{
+	    osgtexture_->setDataLayerImage( osgid,
+		channelinfo_[channel]->osgimages_[component], freezeifnodata );
+	    osgtexture_->setDataLayerUndefLayerID( osgid, -1 );
+	}
+	else
+	{
+	    osgtexture_->setDataLayerImage( osgid,
+		    channelinfo_[channel]->osgimages_[component],
+		    freezeifnodata, nrDataBands()-1 );
 
-	const int udflayerid = nrUdfBands() ? osgid : -1;
-	osgtexture_->setDataLayerUndefLayerID( osgid, udflayerid );
-	const int udfchannel = nrTextureBands()==3 ? 2 : 3;
-	osgtexture_->setDataLayerUndefChannel( osgid, udfchannel );
+	    const int udflayerid = nrUdfBands() ? osgid : -1;
+	    osgtexture_->setDataLayerUndefLayerID( osgid, udflayerid );
+	    const int udfchannel = nrTextureBands()==3 ? 2 : 3;
+	    osgtexture_->setDataLayerUndefChannel( osgid, udfchannel );
+	}
     }
+
+    if ( getChannels2RGBA() )
+	getChannels2RGBA()->setChannels( this );
 }
 
 

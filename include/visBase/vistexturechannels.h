@@ -85,6 +85,8 @@ public:
     int				currentVersion(int channel) const;
     void			setCurrentVersion(int channel,int version);
 
+    bool			isCurrentDataPremapped(int channel) const;
+
     bool			setUnMappedVSData(int channel,int version,
 				    const ValueSeries<float>*, OD::PtrPolicy,
 				    TaskRunner*);
