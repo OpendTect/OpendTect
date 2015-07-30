@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "timefun.h"
 #include "linekey.h"
-#include "od_ostream.h"
+#include "od_iostream.h"
 #include "posimpexppars.h"
 
 
@@ -350,6 +350,36 @@ void SEGY::BinHeader::unSwap()
 }
 
 
+DataCharacteristics SEGY::BinHeader::getDataChar( int nf, bool swpd )
+{
+    DataCharacteristics dc( true, true, BinDataDesc::N4,
+			DataCharacteristics::Ibm,
+			swpd ? !__islittle__ : __islittle__ );
+
+    switch ( nf )
+    {
+    case 3:
+        dc.setNrBytes( 2 );
+    case 2:
+    break;
+    case 8:
+        dc.setNrBytes( 1 );
+    break;
+    case 5:
+	dc.fmt_ = DataCharacteristics::Ieee;
+	dc.setInteger( false );
+	dc.littleendian_ = swpd;
+    break;
+    default:
+	dc.setInteger( false );
+    break;
+    }
+
+    return dc;
+}
+
+
+
 const SEGY::HdrDef& SEGY::BinHeader::hdrDef()
 {
     mDefineStaticLocalObject( SEGY::HdrDef, def, (true) );
@@ -370,6 +400,25 @@ bool SEGY::BinHeader::isRev1() const
 {
     const int nr = entryVal( EntryRevCode() );
     return nr == 1 || nr == 256;
+}
+
+
+int SEGY::BinHeader::skipRev1Stanzas( od_istream& strm )
+{
+    // Never seen any file with these abominations, so we'll only support
+    // them if a user explicitly tells us to.
+    mDefineStaticLocalObject( bool, support_stanzas,
+			= GetEnvVarYN("OD_SEIS_SEGY_REV1_STANZAS") );
+    if ( !support_stanzas )
+	return 0;
+
+    int nrstzs = entryVal( EntryRevCode() + 2 );
+    if ( nrstzs > 0 && nrstzs < 100 )
+	strm.ignore( nrstzs * SegyTxtHeaderLength );
+    else
+	nrstzs = 0;
+
+    return nrstzs;
 }
 
 
@@ -400,8 +449,9 @@ void SEGY::BinHeader::dump( od_ostream& strm ) const
 
 
 SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
-			    const SEGY::TrcHeaderDef& hd )
+			    const SEGY::TrcHeaderDef& hd, bool ismine )
     : buf_(b)
+    , mybuf_(ismine)
     , hdef_(hd)
     , needswap_(false)
     , isrev1_(rev1)
@@ -411,6 +461,41 @@ SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
     , isusable(true)
     , nonrectcoords(false)
 {
+}
+
+
+SEGY::TrcHeader::~TrcHeader()
+{
+    if ( mybuf_ )
+	delete [] buf_;
+}
+
+
+SEGY::TrcHeader& SEGY::TrcHeader::operator =( const SEGY::TrcHeader& oth )
+{
+    if ( this != &oth )
+    {
+	needswap_ = oth.needswap_;
+	isrev1_ = oth.isrev1_;
+	seqnr_ = oth.seqnr_;
+	lineseqnr_ = oth.lineseqnr_;
+	previnl_ = oth.previnl_;
+	isusable = oth.isusable;
+	nonrectcoords = oth.nonrectcoords;
+
+	if ( mybuf_ )
+	    { delete [] buf_; buf_ = 0; }
+	mybuf_ = oth.mybuf_;
+	if ( !mybuf_ )
+	    buf_ = oth.buf_;
+	else if ( oth.buf_ )
+	{
+
+	    buf_ = new unsigned char [ SegyTrcHeaderLength ];
+	    OD::memCopy( buf_, oth.buf_, SegyTrcHeaderLength );
+	}
+    }
+    return *this;
 }
 
 

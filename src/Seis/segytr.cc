@@ -138,41 +138,23 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	mErrRet( tr("Cannot read SEG-Y Text header") )
     txthead_->setAscii();
 
+    const int revcodeentry = SEGY::BinHeader::EntryRevCode();
     unsigned char binheaderbuf[400];
     if ( !strm.getBin( binheaderbuf, SegyBinHeaderLength ) )
 	mErrRet( tr("Cannot read SEG-Y Text header") )
     binhead_.setInput( binheaderbuf, filepars_.byteswap_ > 1 );
+    if ( binhead_.isSwapped() )
+	binhead_.unSwap();
     if ( forcerev0_ )
-	binhead_.setEntryVal( SEGY::BinHeader::EntryRevCode(), 0 );
+	binhead_.setEntryVal( revcodeentry, 0 );
 
     trchead_.setNeedSwap( filepars_.byteswap_ > 1 );
     trchead_.isrev1_ = binhead_.isRev1();
     if ( trchead_.isrev1_ )
     {
-	const int revcodeentry = SEGY::BinHeader::EntryRevCode();
-	int nrstzs = binhead_.entryVal( revcodeentry + 2 );
-	if ( nrstzs > 100 || nrstzs < 0 ) // protect against wild values
-	{
-	    binhead_.setEntryVal( revcodeentry+2, 0 );
-	    nrstzs = 0;
-	}
-	if ( nrstzs )
-	{
-	    // Never seen any file with stanzas, so we'll mistrust it
-	    mDefineStaticLocalObject( bool, indeed_wants,
-				= GetEnvVarYN("OD_SEIS_SEGY_REV1_STANZAS") );
-	    if ( !indeed_wants )
-		addWarn( cSEGYFoundStanzas, toString(nrstzs) );
-	    else
-	    {
-		for ( int idx=0; idx<nrstzs; idx++ )
-		{
-		    char tmpbuf[SegyTxtHeaderLength];
-		    if ( !strm.getBin(tmpbuf,SegyTxtHeaderLength) )
-			mErrRet( tr("No traces found in the SEG-Y file") )
-		}
-	    }
-	}
+	const int nrstzs = binhead_.skipRev1Stanzas( strm );
+	if ( nrstzs > 0 )
+	    addWarn( cSEGYFoundStanzas, toString(nrstzs) );
 	const int fixedtrcflag = binhead_.entryVal( revcodeentry + 1 );
 	if ( fixedtrcflag == 0 )
 	    addWarn( cSEGYWarnNonFixedLength, "" );
@@ -509,30 +491,7 @@ int SEGYSeisTrcTranslator::nrFormatFor( const DataCharacteristics& dc ) const
 
 DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
 {
-    DataCharacteristics dc( true, true, BinDataDesc::N4,
-			DataCharacteristics::Ibm,
-			filepars_.byteswap_ ? !__islittle__ : __islittle__ );
-
-    switch ( nf )
-    {
-    case 3:
-        dc.setNrBytes( 2 );
-    case 2:
-    break;
-    case 8:
-        dc.setNrBytes( 1 );
-    break;
-    case 5:
-	dc.fmt_ = DataCharacteristics::Ieee;
-	dc.setInteger( false );
-	dc.littleendian_ = filepars_.byteswap_;
-    break;
-    default:
-	dc.setInteger( false );
-    break;
-    }
-
-    return dc;
+    return SEGY::BinHeader::getDataChar( nf, filepars_.byteswap_ );
 }
 
 

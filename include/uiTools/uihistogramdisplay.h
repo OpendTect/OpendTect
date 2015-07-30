@@ -26,10 +26,11 @@ mExpClass(uiTools) uiHistogramDisplay : public uiFunctionDisplay
 { mODTextTranslationClass(uiHistogramDisplay);
 public:
 
-    				uiHistogramDisplay(uiParent*,Setup&,
+				uiHistogramDisplay(uiParent*,Setup&,
 						   bool withheader=false);
 				~uiHistogramDisplay();
 
+    void			setEmpty();
     bool			setDataPackID(DataPack::ID,DataPackMgr::ID);
     void			setData(const float*,int sz);
     void			setData(const Array2D<float>*);
@@ -41,16 +42,16 @@ public:
     Notifier<uiHistogramDisplay> drawRangeChanged;
 
     void			setHistogram(const TypeSet<float>&,
-	    				     Interval<float>,int N=-1);
+					     Interval<float>,int N=-1);
 
     const Stats::ParallelCalc<float>&	getStatCalc()	{ return rc_; }
     int                         nrInpVals() const       { return nrinpvals_; }
     int				nrClasses() const       { return nrclasses_; }
-    void			putN(); 
+    void			putN();
 
 protected:
 
-    Stats::ParallelCalc<float>&	rc_;	
+    Stats::ParallelCalc<float>&	rc_;
     int                         nrinpvals_;
     int                         nrclasses_;
     bool			withheader_;
@@ -61,7 +62,7 @@ protected:
     bool			usemydrawrg_;
     TypeSet<float>		mydisplaydata_;
     TypeSet<float>		originaldata_;
-    
+
     void			updateAndDraw();
     void			updateHistogram();
 };
