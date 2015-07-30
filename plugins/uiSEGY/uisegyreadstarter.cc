@@ -386,7 +386,7 @@ bool uiSEGYReadStarter::guessScanDef( od_istream& strm )
 
 void uiSEGYReadStarter::displayScanResults()
 {
-    od_int64 nrvals = clipsampler_.nrVals();
+    int nrvals = (int)clipsampler_.nrVals();
     if ( nrvals < 1 )
 	ampldisp_->setEmpty();
     else
