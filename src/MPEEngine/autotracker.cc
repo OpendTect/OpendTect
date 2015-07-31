@@ -83,7 +83,8 @@ bool execute()
     {
 	const TrcKey src( BinID::fromInt64(addedpos[idx]) );
 	mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
-	if ( hor3d ) hor3d->auxdata.setAuxDataVal( 3, src, mgr_.tasknr_ );
+	if ( hor3d )
+	    hor3d->auxdata.setAuxDataVal( 3, src, (float)mgr_.tasknr_ );
 	mgr_.addTask( seed_, src );
     }
 
