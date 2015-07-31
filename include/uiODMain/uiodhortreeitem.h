@@ -81,6 +81,11 @@ protected:
     MenuItem		positionmnuitem_;
     MenuItem		snapeventmnuitem_;
     MenuItem		shiftmnuitem_;
+
+    MenuItem		parentsmnuitem_;
+    MenuItem		parentsrdlmnuitem_;
+    MenuItem		childrenmnuitem_;
+
     bool		rgba_;
     bool		atsections_;
 };
