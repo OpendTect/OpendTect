@@ -376,7 +376,8 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 	    desiredvolume_->zsamp_.start =
 		desiredvolume_->zsamp_.start < ndv.zsamp_.start?
 		desiredvolume_->zsamp_.start : ndv.zsamp_.start;
-	    desiredvolume_->zsamp_.stop = desiredvolume_->zsamp_.stop >ndv.zsamp_.stop
+	    desiredvolume_->zsamp_.stop =
+		desiredvolume_->zsamp_.stop >ndv.zsamp_.stop
 				    ? desiredvolume_->zsamp_.stop
 				    : ndv.zsamp_.stop;
 	}
@@ -466,10 +467,14 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 		{
 		    int inlstepoutfact = desiredvolume_->hsamp_.step_.inl();
 		    int crlstepoutfact = desiredvolume_->hsamp_.step_.crl();
-		    inputcs.hsamp_.start_.inl() += stepout->inl() * inlstepoutfact;
-		    inputcs.hsamp_.start_.crl() += stepout->crl() * crlstepoutfact;
-		    inputcs.hsamp_.stop_.inl() -= stepout->inl() * inlstepoutfact;
-		    inputcs.hsamp_.stop_.crl() -= stepout->crl() * crlstepoutfact;
+		    inputcs.hsamp_.start_.inl() +=
+			stepout->inl() * inlstepoutfact;
+		    inputcs.hsamp_.start_.crl() +=
+			stepout->crl() * crlstepoutfact;
+		    inputcs.hsamp_.stop_.inl() -=
+			stepout->inl() * inlstepoutfact;
+		    inputcs.hsamp_.stop_.crl() -=
+			stepout->crl() * crlstepoutfact;
 		}
 
 		const Interval<float>* zrg = reqZMargin(inp,out);
