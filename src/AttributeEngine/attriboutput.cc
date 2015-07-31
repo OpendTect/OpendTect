@@ -213,7 +213,7 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 	    {
 		const float val = needinterp
 		    ? data.getValue( desoutputs_[desout],
-			    	     idx-data.z0_+extrazsamp, refstep )
+				     idx-data.z0_+extrazsamp, refstep )
 		    : data.series(desoutputs_[desout])->value(idx-data.z0_);
 
 		const int zoutidx = (int)Math::Floor( idx-z0 );
@@ -472,6 +472,24 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 		float val = trc_->get( idx, icomp );
 		val = (float) scaler_->scale( val );
 		trc_->set( idx, val, icomp );
+	    }
+	}
+    }
+
+    if ( !mIsEqual(desiredvolume_.zsamp_.step,trc_->info().sampling.step,1e-6) )
+    {
+	StepInterval<float> reqzrg = desiredvolume_.zsamp_;
+	reqzrg.limitTo( trc_->zRange() );
+	const int nrsamps = mCast( int, reqzrg.nrfSteps() + 1 );
+	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
+	{
+	    SeisTrc temptrc( *trc_ );
+	    trc_->info().sampling.step = desiredvolume_.zsamp_.step;
+	    trc_->data().getComponent(icomp)->reSize( nrsamps );
+	    for ( int isamp=0; isamp<nrsamps; isamp++ )
+	    {
+		float t = reqzrg.start + isamp * reqzrg.step;
+		trc_->set( isamp, temptrc.getValue(t,icomp), icomp );
 	    }
 	}
     }
