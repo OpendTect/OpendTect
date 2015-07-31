@@ -184,6 +184,13 @@ bool BatchProgram::go( od_ostream& strm )
     wvlts += realwav;
     initTest( singlespike, nrmodels==1, start_depth, models );
 
+    PtrMan<IOPar> raypar = pars().subselect( "Ray Tracer" );
+    if ( !raypar )
+    {
+	strm << "Input RayTracer could not be found." << od_newline;
+	return false;
+    }
+
     // Run
     for ( int iwav=0; iwav<wvlts.size(); iwav++ )
     {
@@ -195,6 +202,7 @@ bool BatchProgram::go( od_ostream& strm )
 	Seis::RaySynthGenerator synthgen( &models );
 	synthgen.setWavelet( wav, OD::UsePtr );
 	synthgen.enableFourierDomain( true );
+	synthgen.usePar( *raypar );
 
 	TaskRunner* taskr = new TaskRunner;
 	if ( !testSynthGeneration(strm,TaskRunner::execute(taskr,synthgen),
