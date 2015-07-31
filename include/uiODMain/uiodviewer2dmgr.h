@@ -62,17 +62,32 @@ public:
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
+
+    //3D Horizons
     void			removeHorizon3D(EM::ObjectID emid);
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon3D(EM::ObjectID mid);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
+    // 2D Horizons
     void			removeHorizon2D(EM::ObjectID emid);
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon2D(EM::ObjectID mid);
 
+    //Faults
+    void			removeFault(EM::ObjectID emid);
+    void			addFaults(const TypeSet<EM::ObjectID>&);
+    void			addNewTempFault(EM::ObjectID mid);
+    void			getLoadedFaults( TypeSet<EM::ObjectID>&) const;
+
+    //FaultStickSet
+    void			removeFaultSS(EM::ObjectID emid);
+    void			addFaultSSs(const TypeSet<EM::ObjectID>&);
+    void			addNewTempFaultSS(EM::ObjectID mid);
+    void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
+    
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
 

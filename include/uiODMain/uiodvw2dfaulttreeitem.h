@@ -28,6 +28,11 @@ public:
 				~uiODVw2DFaultParentTreeItem();
 
     bool			showSubMenu();
+    void			getLoadedFaults(
+	    				TypeSet<EM::ObjectID>& emids) const;
+    void			removeFault(EM::ObjectID);
+    void			addFaults(const TypeSet<EM::ObjectID>&);
+    void			addNewTempFault(EM::ObjectID emid);
 
 protected:
 
@@ -35,7 +40,6 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    void			tempObjAddedCB(CallBacker*);
 };
 
 
@@ -51,7 +55,7 @@ public:
 
 
 mExpClass(uiODMain) uiODVw2DFaultTreeItem : public uiODVw2DTreeItem
-{
+{ mODTextTranslationClass(uiODVw2DFaultTreeItem);
 public:
     			uiODVw2DFaultTreeItem(const EM::ObjectID&);
     			uiODVw2DFaultTreeItem(int dispid,bool dummy);
@@ -59,6 +63,7 @@ public:
 
     bool		showSubMenu();
     bool		select();
+    EM::ObjectID	emObjectID() const      { return emid_; }
 
 protected:
 
