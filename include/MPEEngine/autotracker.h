@@ -44,7 +44,7 @@ class EMTracker;
 
 mExpClass(MPEEngine) HorizonTrackerMgr : public CallBacker
 {
-friend class HorizonTracker;
+friend class TrackerTask;
 public:
 			HorizonTrackerMgr(EMTracker&);
 			~HorizonTrackerMgr();
@@ -52,6 +52,7 @@ public:
     void		setSeeds(const TypeSet<TrcKey>&);
     void		startFromSeeds();
     void		stop();
+    bool		hasTasks() const;
 
     SectionTracker*	getFreeSectionTracker();
     void		freeSectionTracker(const SectionTracker*);
@@ -73,6 +74,7 @@ protected:
 
     Threads::Atomic<int>	nrdone_;
     Threads::Atomic<int>	nrtodo_;
+    Threads::Atomic<int>	tasknr_;
 
     Threads::Lock		addlock_;
     Threads::Lock		finishlock_;

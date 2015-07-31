@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emtracker.h"
 #include "emundo.h"
+#include "emsurfaceauxdata.h"
 #include "horizonadjuster.h"
 #include "mpeengine.h"
 #include "progressmeter.h"
@@ -33,10 +34,10 @@ namespace MPE
 {
 
 
-class HorizonTracker : public Task
+class TrackerTask : public Task
 {
 public:
-HorizonTracker( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
+TrackerTask( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
 		const TrcKeyValue& srcpos )
     : mgr_(mgr)
     , seed_(seed)
@@ -46,7 +47,7 @@ HorizonTracker( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
 }
 
 
-~HorizonTracker()
+~TrackerTask()
 {
 }
 
@@ -80,7 +81,9 @@ bool execute()
 
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
-	TrcKey src( BinID::fromInt64(addedpos[idx]) );
+	const TrcKey src( BinID::fromInt64(addedpos[idx]) );
+	mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
+	if ( hor3d ) hor3d->auxdata.setAuxDataVal( 3, src, mgr_.tasknr_ );
 	mgr_.addTask( seed_, src );
     }
 
@@ -102,6 +105,7 @@ HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
     , finished(this)
     , nrdone_(0)
     , nrtodo_(0)
+    , tasknr_(0)
 {
     queueid_ = twm_.addQueue(
 	Threads::WorkManager::MultiThread, "Horizon Tracker" );
@@ -122,6 +126,10 @@ void HorizonTrackerMgr::stop()
 }
 
 
+bool HorizonTrackerMgr::hasTasks() const
+{ return nrtodo_ > 0; }
+
+
 void HorizonTrackerMgr::setSeeds( const TypeSet<TrcKey>& seeds )
 { seeds_ = seeds; }
 
@@ -135,14 +143,15 @@ void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
 
     Threads::Locker locker( addlock_ );
     nrtodo_++;
+    tasknr_++;
     CallBack cb( mCB(this,HorizonTrackerMgr,taskFinished) );
-    Task* task = new HorizonTracker( *this, seed, source );
+    Task* task = new TrackerTask( *this, seed, source );
     twm_.addWork( Threads::Work(*task,true), &cb, queueid_,
 		  false, false, true );
 }
 
 
-void HorizonTrackerMgr::taskFinished( CallBacker* cb )
+void HorizonTrackerMgr::taskFinished( CallBacker* )
 {
     Threads::Locker locker( finishlock_ );
     nrtodo_--;
@@ -198,7 +207,10 @@ void HorizonTrackerMgr::startFromSeeds()
     st->extender()->preallocExtArea();
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
     if ( hor3d && nrdone_==0 )
+    {
 	hor3d->initAllAuxData();
+	hor3d->initTrackingArrays();
+    }
 
     deepErase( sectiontrackers_ );
     trackerinuse_.erase();
