@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "wellmod.h"
 
 #include "callback.h"
+#include "enums.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "position.h"
@@ -45,7 +46,12 @@ public:
 			Info( const char* nm )
 			    : ::NamedObject(nm)
 			    , replvel(Well::getDefaultVelocity())
-			    , groundelev(mUdf(float))	{}
+			    , groundelev(mUdf(float))
+			    , welltype_(None)
+			{}
+
+    enum WellType	{ None, Oil, Gas, OilGas, Dry }; //TODO: Add more type
+			DeclareEnumUtils(WellType);
 
     void                fillPar(IOPar&) const;
     void                usePar(const IOPar&);
@@ -55,6 +61,7 @@ public:
     BufferString	state;
     BufferString	county;
     BufferString	source_; //!< filename for OD storage
+    WellType		welltype_;
 
     Coord		surfacecoord;
     float		replvel;
@@ -69,8 +76,8 @@ public:
     static const char*	sKeyTD();
     static const char*	sKeyreplvel();
     static const char*	sKeygroundelev();
+    static const char*  sKeywelltype();
     static int		legacyLogWidthFactor();
-
 };
 
 
