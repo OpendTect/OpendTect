@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QApplication>
 #include <QClipboard>
 #include <QCursor>
+#include <QDesktopWidget>
 #include <QHeaderView>
 #include <QMouseEvent>
 
@@ -69,7 +70,8 @@ public:
 			~uiTableBody();
 
     void		setNrLines(int);
-    virtual int	nrTxtLines() const;
+    void		setPrefHeightInRows(int nrrows,int maxheight);
+    virtual int		nrTxtLines() const;
 
     QTableWidgetItem*	getItem(const RowCol&,bool createnew=true);
 
@@ -273,15 +275,22 @@ void uiTableBody::cut()
 
 void uiTableBody::setNrLines( int prefnrlines )
 {
+    const int maxheight = 200; // should be about 5 rows
     setRowCount( prefnrlines );
-    if ( !finalised() && prefnrlines > 0 )
-    {
-	QHeaderView* vhdr = verticalHeader();
-	const QSize qsz = vhdr->sizeHint();
-	const int rowh = rowHeight(0) + 1;
-	const int prefh = rowh*prefnrlines + qsz.height();
-	setPrefHeight( mMIN(prefh,200) );
-    }
+    setPrefHeightInRows( prefnrlines, maxheight );
+}
+
+
+void uiTableBody::setPrefHeightInRows( int nrrows, int maxheight )
+{
+    if ( finalised() || nrrows<=0 )
+	return;
+
+    QHeaderView* vhdr = verticalHeader();
+    const QSize qsz = vhdr->sizeHint();
+    const int rowh = rowHeight(0) + 1;
+    const int prefh = rowh*nrrows + qsz.height();
+    setPrefHeight( mMIN(prefh,maxheight) );
 }
 
 
@@ -624,6 +633,15 @@ void uiTable::setNrCols( int nr )
 
 int uiTable::nrRows() const		{ return body_->rowCount(); }
 int uiTable::nrCols() const		{ return body_->columnCount(); }
+
+
+void uiTable::setPrefHeightInRows( int nrrows )
+{
+    const QDesktopWidget* qdesktop = QApplication::desktop();
+    const QRect geom = qdesktop->availableGeometry();
+    body_->setPrefHeightInRows( nrrows, int(geom.height()*0.9) );
+}
+
 
 void uiTable::clearCell( const RowCol& rc )
 {
@@ -1054,7 +1072,7 @@ int uiTable::getIntValue( const RowCol& rc ) const
 }
 
 
-double uiTable::getdValue( const RowCol& rc ) const
+double uiTable::getDValue( const RowCol& rc ) const
 {
     const char* str = text( rc );
     if ( !str || !*str ) return mUdf(double);
@@ -1063,7 +1081,7 @@ double uiTable::getdValue( const RowCol& rc ) const
 }
 
 
-float uiTable::getfValue( const RowCol& rc ) const
+float uiTable::getFValue( const RowCol& rc ) const
 {
     const char* str = text( rc );
     if ( !str || !*str ) return mUdf(float);
