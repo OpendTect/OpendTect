@@ -48,6 +48,8 @@ public:
     bool		removeSeed(const EM::PosID&,
 	    			   bool environment,
 	    			   bool retrack);
+    EM::PosID		replaceSeed(const EM::PosID& oldpos,
+	    			    const Coord3& newpos);
     bool		canAddSeed() const		{ return true; }
     bool		canRemoveSeed() const		{ return true; }
 
@@ -99,6 +101,8 @@ protected:
 
     bool		interpolateSeeds();
     TrcKeyZSampling	getTrackBox() const;
+    bool		getNextSeed(BinID seedbid,const BinID& dir,
+	    			    BinID& nextseedbid) const;
 
     TypeSet<EM::PosID>	propagatelist_;
     TypeSet<EM::PosID>	seedlist_;

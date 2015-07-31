@@ -47,6 +47,7 @@ public:
     bool		removeSeed(const EM::PosID&,
 				   bool environment,
 				   bool retrack);
+    EM::PosID		replaceSeed(const EM::PosID& old,const Coord3& newpos);
     bool		canRemoveSeed() const		{ return true; }
 
     void		setSelSpec(const Attrib::SelSpec* selspec)
@@ -89,6 +90,8 @@ protected:
     int				nrLineNeighbors(int colnr) const;
     bool			interpolateSeeds();
     TrcKeyZSampling		getTrackBox() const;
+    bool			getNextSeedPos(int seedpos,int dirstep,
+	    				       int& nextseedpos ) const;
 
     TypeSet<EM::PosID>		seedlist_;
     TypeSet<EM::PosID>		trackbounds_;

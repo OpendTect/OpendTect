@@ -105,12 +105,6 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	tba = (uiToolBar::ToolBarArea)setup.tba_;
     tb_ = new uiToolBar( mainwin(), tr("Flat Viewer Tools"), tba );
 
-    if ( setup.withedit_ )
-    {
-	mDefBut(editbut_,"seedpickmode",dragModeCB,tr("Edit mode"));
-	editbut_->setToggleButton( true );
-    }
-
     if ( setup.withzoombut_ || setup.isvertical_ )
     {
 	mDefBut(rubbandzoombut_,"rubbandzoom",dragModeCB,tr("Rubberband zoom"));
@@ -184,6 +178,12 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     {
 	uiToolButton* mDefBut(helpbut,"contexthelp",helpCB,uiStrings::sHelp());
 	helpkey_ = setup.helpkey_;
+    }
+
+    if ( setup.withedit_ )
+    {
+	mDefBut(editbut_,"seedpickmode",dragModeCB,tr("Edit mode"));
+	editbut_->setToggleButton( true );
     }
 
     menu_.ref();

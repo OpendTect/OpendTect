@@ -54,6 +54,8 @@ public:
     virtual bool	removeSeed(const EM::PosID&,
 	    			   bool enviromment=true,
 	    			   bool retrack=true)		{ return false;}
+    virtual EM::PosID	replaceSeed(const EM::PosID&,const Coord3&)
+    			{ return EM::PosID::udf(); }
     virtual void	getSeeds(TypeSet<TrcKey>&) const	{}
 
     virtual void	setSelSpec(const Attrib::SelSpec*) {}

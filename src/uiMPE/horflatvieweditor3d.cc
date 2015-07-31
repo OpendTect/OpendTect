@@ -39,9 +39,10 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
     , mehandler_(0)
     , vdselspec_(0)
     , wvaselspec_(0)
-    , seedpickingon_(false)
     , trackersetupactive_(false)
     , updseedpkingstatus_(this)
+    , dodropnext_(false)
+    , pickedpid_(EM::PosID::udf())
 {
     curcs_.setEmpty();
     horpainter_->abouttorepaint_.notify(
@@ -63,6 +64,8 @@ HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 		mCB(this,HorizonFlatViewEditor3D,mousePressCB) );
 	mehandler_->buttonReleased.remove(
 		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
+	mehandler_->doubleClick.remove(
+		mCB(this,HorizonFlatViewEditor3D,doubleClickedCB) );
     }
 //	setMouseEventHandler( 0 );
     cleanAuxInfoContainer();
@@ -111,6 +114,8 @@ void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,HorizonFlatViewEditor3D,mousePressCB) );
 	mehandler_->buttonReleased.remove(
 		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
+	mehandler_->doubleClick.remove(
+		mCB(this,HorizonFlatViewEditor3D,doubleClickedCB) );
     }
 
     mehandler_ = meh;
@@ -125,6 +130,8 @@ void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 		mCB(this,HorizonFlatViewEditor3D,mousePressCB) );
 	mehandler_->buttonReleased.notify(
 		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
+	mehandler_->doubleClick.notify(
+		mCB(this,HorizonFlatViewEditor3D,doubleClickedCB) );
 
 	if ( MPE::engine().getTrackerByObject(emid_) != -1 )
 	{
@@ -161,13 +168,29 @@ void HorizonFlatViewEditor3D::paint()
 }
 
 
-void HorizonFlatViewEditor3D::setSeedPicking( bool yn )
-{ seedpickingon_ = yn; }
-
-
 void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 {
     const MouseEvent& mouseevent = mehandler_->event();
+    if ( !pickedpid_.isUdf() )
+    {
+	const Geom::Point2D<int>& mousepos = mouseevent.pos();
+	mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+	if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
+	    return;
+	const Geom::Point2D<double>* markerpos = editor_->markerPosAt(mousepos);
+	const uiWorldPoint wp =
+	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
+	const Coord3 coord = vwr->getCoord( wp );
+	MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+	if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
+	    return;
+	MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
+	if ( !seedpicker || !seedpicker->canAddSeed() )
+	    return;
+	pickedpid_ = seedpicker->replaceSeed( pickedpid_, coord );
+	return;
+    }
+
     if ( editor_ && editor_->sower().accept(mouseevent, false) )
 	return;
 
@@ -212,6 +235,23 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 	return;
 
     const MouseEvent& mouseevent = mehandler_->event();
+    const Geom::Point2D<int>& mousepos = mouseevent.pos();
+    const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
+    const bool ctrlorshifclicked =
+	mouseevent.shiftStatus() || mouseevent.ctrlStatus();
+    if ( seedpicker->getSeedConnectMode()==EMSeedPicker::DrawBetweenSeeds &&
+	 markerpos && !ctrlorshifclicked )
+    {
+	mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+	if ( !vwr || !editor_->getMouseArea().isInside(mousepos) )
+	    return;
+
+	const uiWorldPoint wp =
+	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
+	getPosID( vwr->getCoord(wp), pickedpid_ );
+	return;
+    }
+
     const Color& prefcol = emobj->preferredColor();
 
     if ( editor_ )
@@ -225,18 +265,21 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 }
 
 
-void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
+void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 {
     if ( curcs_.isEmpty() || !editor_->viewer().appearance().annot_.editable_
-	    || editor_->isSelActive() )
+	 || editor_->isSelActive() )
 	return;
 
+    if ( !dbl && !pickedpid_.isUdf() )
+    {
+	pickedpid_ = EM::PosID::udf();
+	return;
+    }
+
     MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !tracker ) return;
-
-    if ( tracker->objectID() != emid_ ) return;
-
-    if ( tracker->is2D() ) return;
+    if ( !tracker || tracker->is2D() || tracker->objectID() != emid_ )
+	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     if ( !emobj ) return;
@@ -251,7 +294,7 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 
     const MouseEvent& mouseevent = mehandler_->event();
 
-    if ( editor_ )
+    if ( !dbl && editor_ )
     {
 	const bool sequentsowing = editor_->sower().mode() ==
 				   FlatView::Sower::SequentSowing;
@@ -277,7 +320,7 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
 
     const Geom::Point2D<double>* markerpos = editor_->markerPosAt( mousepos );
     const uiWorldPoint wp = markerpos ? *markerpos :
-			vwr->getWorld2Ui().transform(mousepos);
+			vwr->getWorld2Ui().transform( mousepos );
     const bool action = doTheSeed( *seedpicker, vwr->getCoord(wp), mouseevent );
     const int trackerid = MPE::engine().getTrackerByObject( emid_ );
     engine().updateFlatCubesContainer( curcs_, trackerid, action );
@@ -285,14 +328,29 @@ void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() )
 	emobj->setBurstAlert( false );
 
-    MouseCursorManager::restoreOverride();
+    if ( dbl &&
+	 seedpicker->getSeedConnectMode()==EMSeedPicker::DrawBetweenSeeds )
+	dodropnext_ = true;
 
+    MouseCursorManager::restoreOverride();
     const int currentevent = EM::EMM().undo().currentEventID();
-    if ( currentevent != prevevent )
+    if ( !dbl && currentevent != prevevent )
     {
 	if ( !editor_ || !editor_->sower().moreToSow() )
 	    EM::EMM().undo().setUserInteractionEnd(currentevent);
     }
+}
+
+
+void HorizonFlatViewEditor3D::doubleClickedCB( CallBacker* )
+{
+    handleMouseClicked( true );
+}
+
+
+void HorizonFlatViewEditor3D::mouseReleaseCB( CallBacker* )
+{
+    handleMouseClicked( false );
 }
 
 
@@ -433,32 +491,24 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
     EM::PosID pid;
     getPosID( crd, pid );
 
-    const bool ctrlshiftclicked = mev.ctrlStatus() && mev.shiftStatus();
     const bool ismarker = editor_->markerPosAt( mev.pos() );
 
-    if ( !ismarker || (ismarker && !mev.ctrlStatus() && !mev.shiftStatus()) )
+    if ( !ismarker )
     {
-	const bool drop = ismarker ? false : ctrlshiftclicked;
+	bool drop = ismarker ? false : mev.shiftStatus();
+	if ( dodropnext_ )
+	{
+	    drop = dodropnext_;
+	    dodropnext_ = false;
+	}
+
 	if ( spk.addSeed(crd, drop, Coord3(mev.x(),mev.y(),0)) )
 	    return true;
     }
-    else
+    else if ( mev.shiftStatus() || mev.ctrlStatus() )
     {
-	bool env = false;
-	bool retrack = false;
-
-	if ( !ctrlshiftclicked )
-	{
-	    if ( mev.ctrlStatus() )
-	    {
-		env = true;
-		retrack = true;
-	    }
-	    else if ( mev.shiftStatus() )
-		env = true;
-	}
-
-	if ( spk.removeSeed(pid,env,retrack) )
+	const bool ctrlshifclicked = mev.shiftStatus() && mev.ctrlStatus();
+	if ( spk.removeSeed(pid,true,!ctrlshifclicked) )
 	    return false;
     }
 
