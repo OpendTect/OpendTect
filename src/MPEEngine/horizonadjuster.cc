@@ -153,6 +153,7 @@ int HorizonAdjuster::nextStep()
     if ( !sdp || sdp->isEmpty() )
 	return ErrorOccurred();
 
+    mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_)
     for ( int idx=0; idx<pids_.size(); idx++ )
     {
 	BinID targetbid = BinID::fromInt64( pids_[idx] );
@@ -162,6 +163,8 @@ int HorizonAdjuster::nextStep()
 	{
 	    BinID refbid = BinID::fromInt64( pidsrc_[idx] );
 	    res = track( refbid, targetbid, targetz );
+	    if ( res && hor3d )
+		hor3d->setParent( targetbid, refbid );
 	}
 	else // adjust picked seed
 	{
@@ -319,10 +322,7 @@ const TrcKey HorizonAdjuster::getTrcKey( const BinID& bid ) const
 
 void HorizonAdjuster::setHorizonPick( const BinID& bid, float val )
 {
-    Coord3 pos = horizon_.getPos( sectionid_, bid.toInt64() );
-    pos.z = val;
-
-    horizon_.setPos( sectionid_, bid.toInt64(), pos, setundo_ );
+    horizon_.setZ( bid, val, setundo_ );
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_);
     if ( !hor3d ) return;
