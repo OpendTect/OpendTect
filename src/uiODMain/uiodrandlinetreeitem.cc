@@ -55,8 +55,8 @@ class uiRandomLinePolyLineDlg : public uiDialog
 public:
 uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
     : uiDialog(p,Setup("Create Random Line from Polyline",
-                       uiStrings::sEmptyString(),
-                       mODHelpKey(mRandomLinePolyLineDlgHelpID) )
+			uiStrings::sEmptyString(),
+			mODHelpKey(mRandomLinePolyLineDlgHelpID) )
 		 .modal(false))
     , rtd_(rtd)
 {
@@ -134,7 +134,7 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
 bool uiODRandomLineParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(tr("Add Empty")), 0 );
+    mnu.insertItem( new uiAction(tr("Add Default Data")), 0 );
     mnu.insertItem( new uiAction(tr("Add Stored ...")), 2 );
 
     uiMenu* rgbmnu =
@@ -155,7 +155,13 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
 
     if ( mnuid==0 || mnuid==1 )
-	addChild( new uiODRandomLineTreeItem(-1,getType(mnuid)), false );
+    {
+	uiODRandomLineTreeItem* itm =
+		new uiODRandomLineTreeItem(-1, getType(mnuid) );
+	addChild( itm, false );
+	if ( mnuid==0 )
+	    itm->displayDefaultData();
+    }
     else if ( mnuid==2 || mnuid==3 )
 	addStored( mnuid );
     else if ( mnuid == 4 )
@@ -240,6 +246,7 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
 	{ rlnm += ": "; rlnm += rln.name(); }
 	rtd->setName( rlnm );
 	rtd->lockGeometry( lockgeom );
+	itm->displayDefaultData();
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -302,6 +309,7 @@ void uiODRandomLineParentTreeItem::genFromTable()
 	table->getZRange( zrg );
 	zrg.scale( 1.f/SI().zDomain().userFactor() );
 	rtd->setDepthInterval( zrg );
+	itm->displayDefaultData();
     }
 }
 
@@ -341,12 +349,15 @@ void uiODRandomLineParentTreeItem::genFromPicks()
 
 void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
 {
+    const int id = rdlpolylinedlg_->getDisplayID();
+    mDynamicCastGet(uiODRandomLineTreeItem*,itm,findChild(id))
     if ( !rdlpolylinedlg_->uiResult() )
     {
-	const int id = rdlpolylinedlg_->getDisplayID();
-	removeChild( findChild(id) );
+	removeChild( itm );
 	ODMainWin()->applMgr().visServer()->removeObject( id, sceneID() );
     }
+    else
+	itm->displayDefaultData();
 
     rdlpolylinedlg_ = 0;
 }
