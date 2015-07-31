@@ -15,12 +15,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uilabel.h"
 #include "uilineedit.h"
+#include "uispinbox.h"
+
 #include "datainpspec.h"
 #include "ranges.h"
 #include "scaler.h"
 
 #include <QString>
-
 #include <math.h>
 
 mUseQtnamespace
@@ -75,6 +76,7 @@ uiSlider::uiSlider( uiParent* p, const Setup& setup, const char* nm )
     : uiGroup(p,nm)
     , lbl_(0)
     , editfld_(0)
+    , inteditfld_(0)
     , logscale_(setup.logscale_)
     , valueChanged(this)
     , sliderMoved(this)
