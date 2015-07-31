@@ -20,8 +20,9 @@ ________________________________________________________________________
 
 /*!
 \brief TrcKey and a value.
-
 */
+
+class BinIDValue;
 
 mExpClass(Basic) TrcKeyValue
 {
@@ -33,6 +34,10 @@ public:
 			    , val_(v)					{}
 			TrcKeyValue(const BinIDValue&);
 
+    Pos::LineID&	lineNr()		{ return tk_.lineNr(); }
+    Pos::LineID		lineNr() const		{ return tk_.lineNr(); }
+    Pos::TraceID&	trcNr()			{ return tk_.trcNr(); }
+    Pos::TraceID	trcNr() const		{ return tk_.trcNr(); }
 
     inline bool		operator==( const TrcKeyValue& oth ) const
 			{ return oth.tk_==tk_ && mIsEqual(oth.val_,val_,1e-5); }

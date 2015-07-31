@@ -739,13 +739,18 @@ bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
     }
 #endif
 
+#ifndef OD_NO_QT
     QStringList args = parseCompleteCommand( QString(comm) );
     if ( args.isEmpty() )
 	return false;
 
     QString prog = args.first();
     args.removeFirst();
-    return QProcess::startDetached( prog, args, "", mCast(qint64*,&pid_) );
+    qint64 qpid = pid_;
+    return QProcess::startDetached( prog, args, "", &qpid );
+#else
+    return false;
+#endif
 }
 
 

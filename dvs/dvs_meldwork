@@ -23,13 +23,13 @@ foreach fnm ( $* )
     set srcinc=$srcincpth:t
     set reldirpth=$srcincpth:h
     set reldir=$reldirpth:t
-    set wrkdir=`echo $reldir|sed 's/[45].*$//'`
+    set wrkdir=`echo $reldir|sed 's/[456].*$//'`
     set goback="../../.."
     if ( $wrkdir != "dgb" && $wrkdir != "od" ) then
 	    set srcinc=plugins/$wrkdir/$srcinc
 	    set reldirpth=$reldirpth:h:h
 	    set reldir=$reldirpth:t
-	    set wrkdir=`echo $reldir|sed 's/[45].*$//'`
+	    set wrkdir=`echo $reldir|sed 's/[456].*$//'`
 	    set goback="../../../../.."
     endif
 

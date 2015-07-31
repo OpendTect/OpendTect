@@ -32,8 +32,8 @@ set( OD_MODULE_SOURCES
 	bodyvolumecalc.cc
 	checksum.cc
 	conncomponents.cc
-	convolve2d.cc
 	contcurvinterpol.cc
+	convolve2d.cc
 	curvature.cc
 	dataclipper.cc
 	delaunay.cc

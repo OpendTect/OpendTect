@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "bendpoints2coords.h"
+#include "positionlist.h"
 
 #include "testprog.h"
 #include "file.h"
@@ -24,6 +25,26 @@ else \
 { \
     od_ostream::logStream() << testname << ": Failed\n"; \
     return false; \
+}
+
+
+static bool testCoordList2D()
+{
+    Coord2ListImpl clist;
+    clist.add( Coord(100,100) );
+    clist.add( Coord(200,300) );
+    const Coord center( clist.center() );
+    return mIsZero(center.x-150,0.01) && mIsZero(center.y-200,0.01);
+}
+
+static bool testCoordList3D()
+{
+    Coord3ListImpl clist;
+    clist.add( Coord3(100,100,500) );
+    clist.add( Coord3(200,300,700) );
+    const Coord3 center( clist.center() );
+    return mIsZero(center.x-150,0.01) && mIsZero(center.y-200,0.01)
+	&& mIsZero(center.z-600,0.01);
 }
 
 
@@ -58,6 +79,11 @@ int main( int argc, char** argv )
     BufferStringSet normalargs;
     clparser.getNormalArguments(normalargs);
 
+    if ( !testCoordList2D() )
+	ExitProgram( 1 );
+    if ( !testCoordList3D() )
+	ExitProgram( 1 );
+
     if ( normalargs.isEmpty() )
     {
 	od_ostream::logStream() << "No input file specified";
@@ -69,4 +95,3 @@ int main( int argc, char** argv )
 
     ExitProgram( 0 );
 }
-

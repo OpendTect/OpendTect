@@ -291,7 +291,14 @@ bool uiString::isEmpty() const
 {
     Threads::Locker datalocker( datalock_ );
     Threads::Locker contentlocker( data_->contentlock_ );
-    return data_->originalstring_.isEmpty() && !data_->qstring_.size();
+    if ( !data_->originalstring_.isEmpty() )
+	return false;
+
+#ifndef OD_NO_QT
+    return !data_->qstring_.size();
+#else
+    return true;
+#endif
 }
 
 

@@ -31,11 +31,12 @@ ________________________________________________________________________
 #define snprintf	_snprintf
 #define isnan		_isnan
 
-#define strncasecmp	strnicmp
+#define strncasecmp	_strnicmp
 #define strcasecmp	stricmp
 
 #define strtoll		_strtoi64
 #define strtoull	_strtoui64
+#define strdup		_strdup
 #define strtof		strtod
 
 #define finite		_finite
