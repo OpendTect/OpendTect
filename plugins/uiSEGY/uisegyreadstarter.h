@@ -59,14 +59,18 @@ protected:
     uiTable*		infotbl_;
     uiHistogramDisplay*	ampldisp_;
 
-    BufferString	curusrfname_;
+    uiComboBox*		revfld_;
+
+    BufferString	userfilename_;
     TypeSet<int>	inptyps_; // Seis::GeomType, or -1 for VSP
     SEGY::uiScanDef	scandef_;
     ObjectSet<SEGY::uiScanData> scandata_;
     DataClipSampler&	clipsampler_;
     bool		infeet_;
+    bool		scandefguessed_;
 
     void		addTyp(int);
+    void		buildTable();
     void		setCellTxt(int col,int row,const char*);
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();
@@ -74,10 +78,12 @@ protected:
     bool		scanFile(const char*);
     bool		obtainScanData(SEGY::uiScanData&,od_istream&,bool);
     bool		guessScanDef(od_istream&);
-    static bool		getHeaderBufData(od_istream&,char*);
     void		displayScanResults();
+    void		setTableFromScanDef();
+    void		setScanDefFromTable();
 
     void		initWin(CallBacker*);
+    void		parChg(CallBacker*);
     void		inpChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 

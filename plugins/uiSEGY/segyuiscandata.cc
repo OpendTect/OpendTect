@@ -141,9 +141,9 @@ void SEGY::uiScanData::reInit()
 {
     usable_ = false;
     nrtrcs_ = 0;
-    inls_ = StepInterval<int>( mUdf(int), 0, 1 );
-    crls_ = StepInterval<int>( mUdf(int), 0, 1 );
-    trcnrs_ = StepInterval<int>( mUdf(int), 0, 1 );
+    inls_ = Interval<int>( mUdf(int), 0 );
+    crls_ = Interval<int>( mUdf(int), 0 );
+    trcnrs_ = Interval<int>( mUdf(int), 0 );
     xrg_ = Interval<double>( mUdf(double), 0. );
     yrg_ = Interval<double>( mUdf(double), 0. );
     refnrs_ = Interval<float>( mUdf(float), 0.f );
@@ -152,7 +152,7 @@ void SEGY::uiScanData::reInit()
 
 
 void SEGY::uiScanData::getFromSEGYBody( od_istream& strm, const uiScanDef& def,
-					bool isfirst, DataClipSampler* cs )
+				bool isfirst, bool is2d, DataClipSampler& cs )
 {
     const od_istream::Pos startpos = strm.position();
     nrtrcs_ = def.nrTracesIn( strm, startpos );
@@ -185,15 +185,25 @@ void SEGY::uiScanData::getFromSEGYBody( od_istream& strm, const uiScanDef& def,
 
     if ( isfirst )
     {
-	while ( inls_.start == inls_.stop )
+	while ( true )
 	{
 	    if ( !addTrace(strm,true,buf,vals,def,cs) )
+		break;
+
+	    const bool foundranges = is2d ? trcnrs_.start != trcnrs_.stop
+				   : (inls_.start != inls_.stop && 
+				      crls_.start != crls_.stop);
+	    const bool founddata = cs.nrVals() > 1000;
+	    if ( foundranges && founddata )
 		break;
 	}
     }
 
     def.goToTrace( strm, startpos, nrtrcs_ / 2 );
-    addTrace( strm, false, buf, vals, def, cs );
+    for ( int idx=0; idx<10; idx++ )
+	if ( !addTrace(strm,false,buf,vals,def,cs) )
+	    break;
+
     def.goToTrace( strm, startpos, nrtrcs_ - 1 );
     addTrace( strm, false, buf, vals, def, cs );
 }
@@ -201,7 +211,7 @@ void SEGY::uiScanData::getFromSEGYBody( od_istream& strm, const uiScanDef& def,
 
 bool SEGY::uiScanData::addTrace( od_istream& strm, bool wstep,
 				 char* buf, float* vals,
-				 const uiScanDef& def, DataClipSampler* cs )
+				 const uiScanDef& def, DataClipSampler& cs )
 {
     PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
     if ( !thdr || !thdr->isusable )
@@ -217,25 +227,24 @@ bool SEGY::uiScanData::addTrace( od_istream& strm, bool wstep,
     refnrs_.include( ti.refnr, false );
     offsrg_.include( ti.offset, false );
 
-    //TODO handle steps. Not easy.
-
     addValues( cs, vals, def.ns_ );
 
     return true;
 }
 
 
-void SEGY::uiScanData::addValues( DataClipSampler* cs,
-				  const float* vals, int ns)
+void SEGY::uiScanData::addValues( DataClipSampler& cs,
+				  const float* vals, int ns )
 {
-    if ( !cs )
+    if ( !vals || ns < 1 )
 	return;
 
+    // avoid null traces
     for ( int idx=0; idx<ns; idx++ )
     {
 	if ( vals[idx] != 0.f )
 	{
-	    cs->add( vals, ns );
+	    cs.add( vals, ns );
 	    break;
 	}
     }
@@ -244,5 +253,15 @@ void SEGY::uiScanData::addValues( DataClipSampler* cs,
 
 void SEGY::uiScanData::merge( const SEGY::uiScanData& sd )
 {
-    //TODO implement
+    if ( sd.nrtrcs_ < 1 )
+	return;
+
+    nrtrcs_ += sd.nrtrcs_;
+    inls_.include( sd.inls_, false );
+    crls_.include( sd.crls_, false );
+    trcnrs_.include( sd.trcnrs_, false );
+    xrg_.include( sd.xrg_, false );
+    yrg_.include( sd.yrg_, false );
+    refnrs_.include( sd.refnrs_, false );
+    offsrg_.include( sd.offsrg_, false );
 }
