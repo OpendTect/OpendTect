@@ -178,10 +178,9 @@ public:
 			// Standard mgr IDs take the low integer numbers
     static ID		BufID();	//!< Simple data buffer: 1
     static ID		PointID();	//!< Sets of 'unconnected' points: 2
-    static ID		CubeID();	//!< Cube/Block (N1xN2xN3) data: 3
+    static ID		SeisID();	//!< Cube/Block (N1xN2xN3) data: 3
     static ID		FlatID();	//!< Flat (N1xN2) data: 4
     static ID		SurfID();	//!< Surface (triangulated) data: 5
-    static ID		SeisID();	//!< SeisDataPack : 6
 
     			// Convenience to get info without any obtain()
     const char*		nameOf(DataPack::ID) const;

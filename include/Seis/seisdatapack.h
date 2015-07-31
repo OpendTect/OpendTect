@@ -88,15 +88,11 @@ public:
 				{ path_ = path; }
     const TrcKeyPath&		getPath() const		{ return path_; }
 
-    bool			setDataFrom(const RegularSeisDataPack* rgldp,
-					    const TrcKeyPath& path,
-					    const Interval<float>& zrg);
-
-    bool			setDataFrom(const SeisTrcBuf&,const TrcKeyPath&,
-					    const TypeSet<BinID>& pathbid,
-					    const BufferStringSet& cmpnms, 
-					    const char* zdmkey,const char* nm);
     bool			addComponent(const char* nm);
+
+    static DataPack::ID		createDataPackFrom(const RegularSeisDataPack&,
+						   const TrcKeyPath& path,
+						   const Interval<float>& zrg);
 
 protected:
 

@@ -240,13 +240,10 @@ protected:
     ColTab::MapperSetup*	evalmapperbackup_;
 
 private:
-    RandomSeisDataPack*	createRdmSeisDataPack(const Interval<float>& zrg,
-					      TypeSet<BinID>* path,
-					      TypeSet<BinID>* trueknotspos);
 
     DataPack::ID		create2DOutput(const TrcKeyZSampling&,
 					       const Pos::GeomID&,TaskRunner&);
-				//!< To be removed. Use createOutput() instead.
+				//!< Use createOutput() instead.
 };
 
 #endif

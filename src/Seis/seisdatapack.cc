@@ -163,7 +163,6 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 
 //=============================================================================
 
-
 // RegularSeisDataPack
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
@@ -279,69 +278,38 @@ bool RandomSeisDataPack::addComponent( const char* nm )
     return true;
 }
 
+
 int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 {
     return path_.indexOf(tk);
 }
 
 
-bool RandomSeisDataPack::setDataFrom( const RegularSeisDataPack* rgldp,
-				      const TrcKeyPath& path,
-				      const Interval<float>& zrg )
+DataPack::ID RandomSeisDataPack::createDataPackFrom(
+					const RegularSeisDataPack& regsdp,
+					const TrcKeyPath& path,
+					const Interval<float>& zrg )
 {
-    if ( !rgldp || path.isEmpty()  ||
-	 rgldp->nrComponents() ==0 ||
-	 rgldp->sampling().totalNr()==0 )
-	return false;
+    if ( path.isEmpty()  || regsdp.isEmpty() )
+	return DataPack::cNoID();
 
-    setPath( path );
-    setZRange(StepInterval<float>(zrg.start,zrg.stop,rgldp->getZRange().step));
+    RandomSeisDataPack* randsdp = new RandomSeisDataPack(
+		SeisDataPack::categoryStr(true,false),&regsdp.getDataDesc() );
+    randsdp->setPath( path );
+    randsdp->setZRange(
+	    StepInterval<float>(zrg.start,zrg.stop,regsdp.getZRange().step) );
 
-    for ( int idx=0; idx<rgldp->nrComponents(); idx++ )
+    for ( int idx=0; idx<regsdp.nrComponents(); idx++ )
     {
-	addComponent( rgldp->getComponentName(idx) );
-	Regular2RandomDataCopier copier( *this, *rgldp, path, idx );
+	randsdp->addComponent( regsdp.getComponentName(idx) );
+	Regular2RandomDataCopier copier( *randsdp, regsdp, path, idx );
 	copier.execute();
     }
 
-    setZDomain( rgldp->zDomain() );
-    setName( rgldp->name() );
-
-    return true;
-}
-
-
-bool RandomSeisDataPack::setDataFrom( const SeisTrcBuf& sbuf,
-			const TrcKeyPath& path, const TypeSet<BinID>& pathbid,
-			const BufferStringSet& cmpnms,
-			const char* zdmkey, const char* nm )
-{
-    if ( path.isEmpty() || sbuf.isEmpty() ||
-	sbuf.get(0)->nrComponents() == 0  ||
-	cmpnms.isEmpty() )
-	return false;
-
-    setPath( path );
-    setZRange( sbuf.get(0)->zRange() );
-
-    for ( int idx = 0; idx<sbuf.get(0)->nrComponents(); idx++ )
-    {
-	addComponent( cmpnms.get(idx) );
-	for ( int idy = 0; idy<data(idx).info().getSize(1); idy++ )
-	{
-	    const int trcidx = pathbid.isEmpty() ? idy :
-		sbuf.find( (pathbid)[idy] );
-	    const SeisTrc* trc = trcidx<0 ? 0 : sbuf.get( trcidx );
-	    for ( int idz = 0; idz<data(idx).info().getSize(2);	idz++ )
-		data(idx).set( 0,idy,idz,
-		!trc ? mUdf(float) : trc->get(idz,idx) );
-	}
-    }
-
-    setZDomain( ZDomain::Info(ZDomain::Def::get(zdmkey)) );
-    setName( nm );
-
-    return true;
+    randsdp->setZDomain( regsdp.zDomain() );
+    randsdp->setName( regsdp.name() );
+    DPM(DataPackMgr::SeisID()).add( randsdp );
+    return randsdp->id();
 }
 
 
@@ -353,7 +321,7 @@ bool RandomSeisDataPack::setDataFrom( const SeisTrcBuf& sbuf,
 #define mKeyRefNr	SeisTrcInfo::getFldString(SeisTrcInfo::RefNr)
 
 // SeisFlatDataPack
-SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source,int comp)
+SeisFlatDataPack::SeisFlatDataPack( const SeisDataPack& source, int comp )
     : FlatDataPack(source.category())
     , source_(source)
     , comp_(comp)
@@ -448,8 +416,14 @@ void SeisFlatDataPack::setPosData()
 	    pos[idx] = mCast(float,(pos[idx-1]));
 	else
 	{
-	    pos[idx] = mCast(float,(pos[idx-1] + prevtk.distTo(trckey)));
-	    prevtk = trckey;
+	    const Coord::DistType dist = prevtk.distTo( trckey );
+	    if ( mIsUdf(dist) )
+		pos[idx] = mCast(float,(pos[idx-1]));
+	    else
+	    {
+		pos[idx] = mCast(float,(pos[idx-1] + dist));
+		prevtk = trckey;
+	    }
 	}
     }
 
