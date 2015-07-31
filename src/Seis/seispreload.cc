@@ -24,27 +24,30 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 
 
-const char* Seis::PreLoader::sKeyLines()	{ return "Lines"; }
+namespace Seis
+{
 
-Seis::PreLoader::PreLoader( const MultiID& mid, TaskRunner* trn )
-    : id_(mid), tr_(trn)
+const char* PreLoader::sKeyLines()	{ return "Lines"; }
+
+PreLoader::PreLoader( const MultiID& mid, Pos::GeomID geomid, TaskRunner* trn )
+    : mid_(mid), geomid_(geomid), tr_(trn)
 {}
 
 
-IOObj* Seis::PreLoader::getIOObj() const
+IOObj* PreLoader::getIOObj() const
 {
-    IOObj* ret = IOM().get( id_ );
+    IOObj* ret = IOM().get( mid_ );
     if ( !ret )
 	errmsg_ = tr("Cannot find ID in object manager");
     return ret;
 }
 
 
-Interval<int> Seis::PreLoader::inlRange() const
+Interval<int> PreLoader::inlRange() const
 {
     Interval<int> ret( mUdf(int), -mUdf(int) );
     BufferStringSet fnms;
-    StreamProvider::getPreLoadedFileNames( id_.buf(), fnms );
+    StreamProvider::getPreLoadedFileNames( mid_.buf(), fnms );
     for ( int idx=0; idx<fnms.size(); idx++ )
 	ret.include( SeisCBVSPSIO::getInlNr( fnms.get(idx) ), false );
 
@@ -53,13 +56,13 @@ Interval<int> Seis::PreLoader::inlRange() const
 }
 
 
-void Seis::PreLoader::getLineNames( BufferStringSet& lks ) const
+void PreLoader::getLineNames( BufferStringSet& lks ) const
 {
     lks.erase(); PtrMan<IOObj> ioobj = getIOObj();
     if ( !ioobj ) return;
 
     BufferStringSet fnms;
-    StreamProvider::getPreLoadedFileNames( id_.buf(), fnms );
+    StreamProvider::getPreLoadedFileNames( mid_.buf(), fnms );
     if ( fnms.isEmpty() ) return;
 
     BufferStringSet nms;
@@ -88,45 +91,49 @@ void Seis::PreLoader::getLineNames( BufferStringSet& lks ) const
     TaskRunner& trunnr mUnusedVar = getTr()
 
 
-bool Seis::PreLoader::loadVol( const TrcKeyZSampling& tkzs,
-			       DataCharacteristics::UserType type,
-			       Scaler* scaler ) const
+bool PreLoader::load( const TrcKeyZSampling& tkzs,
+			 DataCharacteristics::UserType type,
+			 Scaler* scaler ) const
 {
     mPrepIOObj();
 
-    Seis::SequentialReader rdr( *ioobj, &tkzs );
-    rdr.setScaler( scaler );
-    rdr.setDataChar( type );
-    if ( !rdr.init() || !trunnr.execute(rdr) )
+    const SeisIOObjInfo info( mid_ );
+    if ( info.is2D() )
     {
-	errmsg_ = rdr.uiMessage();
-	return false;
+        ParallelReader2D rdr( *ioobj, geomid_, &tkzs );
+	if ( !trunnr.execute(rdr) )
+	{
+	    errmsg_ = rdr.uiMessage();
+	    return false;
+	}
+
+	RegularSeisDataPack* dp = rdr.getDataPack();
+	if ( !dp ) return false;
+
+	PLDM().add( mid_, geomid_, dp );
+    }
+    else
+    {
+	SequentialReader rdr( *ioobj, &tkzs );
+	rdr.setScaler( scaler );
+	rdr.setDataChar( type );
+	if ( !rdr.init() || !trunnr.execute(rdr) )
+	{
+	    errmsg_ = rdr.uiMessage();
+	    return false;
+	}
+
+	RegularSeisDataPack* dp = rdr.getDataPack();
+	if ( !dp ) return false;
+
+	PLDM().add( mid_, geomid_, dp );
     }
 
-    RegularSeisDataPack* dp = rdr.getDataPack();
-    Seis::PLDM().add( ioobj->key(), dp );
     return true;
 }
 
 
-bool Seis::PreLoader::loadLine( Pos::GeomID geomid,
-				const TrcKeyZSampling& tkzs ) const
-{
-    mPrepIOObj();
-
-    Seis::ParallelReader2D rdr( *ioobj, geomid, &tkzs );
-    if ( !trunnr.execute(rdr) )
-    {
-	errmsg_ = rdr.uiMessage();
-	return false;
-    }
-
-    Seis::PLDM().add( ioobj->key(), rdr.getDataPack() );
-    return true;
-}
-
-
-bool Seis::PreLoader::loadPS3D( const Interval<int>* inlrg ) const
+bool PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 {
     mPrepIOObj();
 
@@ -136,11 +143,11 @@ bool Seis::PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 	{ errmsg_ = psio.errMsg(); return false; }
 
     return fnms.isEmpty() ? true
-	 : StreamProvider::preLoad( fnms, trunnr, id_.buf() );
+	 : StreamProvider::preLoad( fnms, trunnr, mid_.buf() );
 }
 
 
-bool Seis::PreLoader::loadPS2D( const char* lnm ) const
+bool PreLoader::loadPS2D( const char* lnm ) const
 {
     mPrepIOObj();
     BufferStringSet lnms;
@@ -153,7 +160,7 @@ bool Seis::PreLoader::loadPS2D( const char* lnm ) const
 }
 
 
-bool Seis::PreLoader::loadPS2D( const BufferStringSet& lnms ) const
+bool PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 {
     if ( lnms.isEmpty() )
 	return true;
@@ -166,17 +173,17 @@ bool Seis::PreLoader::loadPS2D( const BufferStringSet& lnms ) const
 	fnms.add( psio.get2DFileName(lnms.get(idx)) );
 
     return fnms.isEmpty() ? true
-	: StreamProvider::preLoad( fnms, trunnr, id_.buf() );
+	: StreamProvider::preLoad( fnms, trunnr, mid_.buf() );
 }
 
 
-void Seis::PreLoader::unLoad() const
+void PreLoader::unLoad() const
 {
-    Seis::PLDM().remove( id_ );
+    PLDM().remove( mid_, geomid_ );
 }
 
 
-void Seis::PreLoader::load( const IOPar& iniop, TaskRunner* tr )
+void PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 {
     PtrMan<IOPar> iop = iniop.subselect( "Seis" );
     if ( !iop || iop->isEmpty() ) return;
@@ -191,35 +198,39 @@ void Seis::PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 }
 
 
-void Seis::PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
+void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 {
-    const char* id = iop.find( sKey::ID() );
-    if ( !id || !*id ) return;
+    MultiID mid = MultiID::udf();
+    iop.get( sKey::ID(), mid );
+    if ( mid.isUdf() )
+	return;
 
-    const MultiID ky( id );
-    SeisIOObjInfo oinf( ky );
+    Pos::GeomID geomid = -1;
+    iop.get( sKey::GeomID(), geomid );
+
+    SeisIOObjInfo oinf( mid );
     if ( !oinf.isOK() ) return;
 
-    Seis::PreLoader spl( ky, tr );
-    const Seis::GeomType gt = oinf.geomType();
+    PreLoader spl( mid, geomid, tr );
+    const GeomType gt = oinf.geomType();
     switch ( gt )
     {
-	case Seis::Vol: {
+	case Vol: {
 	    TrcKeyZSampling tkzs(true);
 	    tkzs.usePar( iop );
-	    spl.loadVol( tkzs );
+	    spl.load( tkzs );
 	} break;
-	case Seis::Line: {
+	case Line: {
 	    BufferStringSet lnms;
 	    iop.get( sKeyLines(), lnms );
 	} break;
-	case Seis::VolPS: {
+	case VolPS: {
 	    Interval<int> nrrg; Interval<int>* toload = 0;
 	    if ( iop.get(sKey::Range(),nrrg) )
 		toload = &nrrg;
 	    spl.loadPS3D( toload );
 	} break;
-	case Seis::LinePS: {
+	case LinePS: {
 	    BufferStringSet lnms; iop.get( sKeyLines(), lnms );
 	    if ( lnms.isEmpty() )
 		spl.loadPS2D();
@@ -230,28 +241,31 @@ void Seis::PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 }
 
 
-void Seis::PreLoader::fillPar( IOPar& iop ) const
+void PreLoader::fillPar( IOPar& iop ) const
 {
-    SeisIOObjInfo oinf( id_ );
+    SeisIOObjInfo oinf( mid_ );
     if ( !oinf.isOK() ) return;
-    iop.set( sKey::ID(), id_.buf() );
-    const Seis::GeomType gt = oinf.geomType();
+
+    iop.set( sKey::ID(), mid_ );
+    iop.set( sKey::GeomID(), geomid_ );
+
+    const GeomType gt = oinf.geomType();
 
     switch ( gt )
     {
-	case Seis::Vol:
+	case Vol:
 	break;
-	case Seis::Line: {
+	case Line: {
 	    BufferStringSet lnms; getLineNames( lnms );
 	    if ( !lnms.isEmpty() )
 		iop.set( sKeyLines(), lnms );
 	} break;
-	case Seis::VolPS: {
+	case VolPS: {
 	    iop.set( sKey::Range(), inlRange() );
 	} break;
-	case Seis::LinePS: {
+	case LinePS: {
 	    BufferStringSet fnms;
-	    StreamProvider::getPreLoadedFileNames( id_.buf(), fnms );
+	    StreamProvider::getPreLoadedFileNames( mid_.buf(), fnms );
 	    if ( fnms.isEmpty() ) break;
 	    BufferStringSet lnms;
 	    for ( int idx=0; idx<fnms.size(); idx++ )
@@ -266,87 +280,122 @@ void Seis::PreLoader::fillPar( IOPar& iop ) const
 }
 
 
+// PreLoadDataEntry
+PreLoadDataEntry::PreLoadDataEntry( const MultiID& mid, Pos::GeomID geomid,
+				    int dpid )
+    : mid_(mid), geomid_(geomid), dpid_(dpid), is2d_(geomid!=-1)
+{
+    name_ = IOM().nameOf( mid );
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    is2d_ = geom && geom->is2D();
+    if ( is2d_ )
+    {
+	name_.add( " - " );
+	name_.add( geom->getName() );
+    }
+}
 
-Seis::PreLoadDataManager::PreLoadDataManager()
+
+bool PreLoadDataEntry::equals( const MultiID& mid, Pos::GeomID geomid ) const
+{
+    return mid_==mid && geomid_==geomid;
+}
+
+
+
+// PreLoadDataManager
+PreLoadDataManager::PreLoadDataManager()
     : dpmgr_(DPM(DataPackMgr::SeisID()))
 {
 }
 
 
-Seis::PreLoadDataManager::~PreLoadDataManager()
+PreLoadDataManager::~PreLoadDataManager()
 {
     dpmgr_.releaseAll( true );
 }
 
 
-void Seis::PreLoadDataManager::add( const MultiID& mid, DataPack* dp )
+void PreLoadDataManager::add( const MultiID& mid, DataPack* dp )
+{ add( mid, -1, dp ); }
+
+
+void PreLoadDataManager::add( const MultiID& mid, Pos::GeomID geomid,
+			      DataPack* dp )
 {
     if ( !dp ) return;
 
-    mids_ += mid;
-    dpids_ += dp->id();
+    entries_ += new PreLoadDataEntry( mid, geomid, dp->id() );
     dpmgr_.addAndObtain( dp );
+
 }
 
 
-void Seis::PreLoadDataManager::remove( const MultiID& mid )
+void PreLoadDataManager::remove( const MultiID& mid, Pos::GeomID geomid )
 {
-    const int idx = mids_.indexOf( mid );
-    if ( idx<0 ) return;
-
-    const int dpid = dpids_[idx];
-    remove( dpid );
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( entries_[idx]->equals(mid,geomid) )
+	    return remove( entries_[idx]->dpid_ );
+    }
 }
 
 
-void Seis::PreLoadDataManager::remove( int dpid )
+void PreLoadDataManager::remove( int dpid )
 {
-    const int idx = dpids_.indexOf( dpid );
-    if ( idx<0 ) return;
-
-    mids_.removeSingle( idx );
-    dpids_.removeSingle( idx );
-    dpmgr_.release( dpid );
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( entries_[idx]->dpid_ == dpid )
+	{
+	    entries_.removeSingle( idx );
+	    dpmgr_.release( dpid );
+	    return;
+	}
+    }
 }
 
 
-void Seis::PreLoadDataManager::removeAll()
+void PreLoadDataManager::removeAll()
 {
-    TypeSet<MultiID> mids = mids_;
-    for ( int idx=0; idx<mids.size(); idx++ )
-	remove( mids[idx] );
+    while ( entries_.size() )
+    {
+	dpmgr_.release( entries_[0]->dpid_ );
+	entries_.removeSingle( 0 );
+    }
 }
 
 
-DataPack* Seis::PreLoadDataManager::get( const MultiID& mid )
+DataPack* PreLoadDataManager::get( const MultiID& mid, Pos::GeomID geomid )
 {
-    const int idx = mids_.indexOf( mid );
-    if ( idx<0 ) return 0;
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( entries_[idx]->equals(mid,geomid) )
+	    return get( entries_[idx]->dpid_ );
+    }
 
-    const int dpid = dpids_[idx];
-    return get( dpid );
+    return 0;
 }
 
 
-const DataPack* Seis::PreLoadDataManager::get( const MultiID& mid ) const
-{ return const_cast<Seis::PreLoadDataManager*>(this)->get( mid ); }
+const DataPack* PreLoadDataManager::get( const MultiID& mid,
+					 Pos::GeomID geomid ) const
+{ return const_cast<PreLoadDataManager*>(this)->get( mid, geomid ); }
 
 
-DataPack* Seis::PreLoadDataManager::get( int dpid )
+DataPack* PreLoadDataManager::get( int dpid )
 {
-    const int idx = dpids_.indexOf( dpid );
-    return idx<0 ? 0 : dpmgr_.observe( dpid );
+    return dpmgr_.haveID(dpid) ? dpmgr_.observe( dpid ) : 0;
 }
 
 
-const DataPack* Seis::PreLoadDataManager::get( int dpid ) const
-{ return const_cast<Seis::PreLoadDataManager*>(this)->get( dpid ); }
+const DataPack* PreLoadDataManager::get( int dpid ) const
+{ return const_cast<PreLoadDataManager*>(this)->get( dpid ); }
 
 
-void Seis::PreLoadDataManager::getInfo( const MultiID& mid,
-					BufferString& info ) const
+void PreLoadDataManager::getInfo( const MultiID& mid, Pos::GeomID geomid,
+				  BufferString& info ) const
 {
-    const DataPack* dp = get( mid );
+    const DataPack* dp = get( mid, geomid );
     if ( !dp ) return;
 
     IOPar par; dp->dumpInfo( par );
@@ -354,17 +403,36 @@ void Seis::PreLoadDataManager::getInfo( const MultiID& mid,
 }
 
 
-void Seis::PreLoadDataManager::getIDs( TypeSet<MultiID>& ids ) const
-{ ids = mids_; }
-
-
-bool Seis::PreLoadDataManager::isPresent( const MultiID& mid ) const
-{ return mids_.isPresent( mid ); }
-
-
-Seis::PreLoadDataManager& Seis::PLDM()
+void PreLoadDataManager::getIDs( TypeSet<MultiID>& ids ) const
 {
-    mDefineStaticLocalObject(PtrMan<Seis::PreLoadDataManager>,pldm,
-			     (new Seis::PreLoadDataManager));
+    for ( int idx=0; idx<entries_.size(); idx++ )
+	ids += entries_[idx]->mid_;
+}
+
+
+bool PreLoadDataManager::isPresent( const MultiID& mid,
+				    Pos::GeomID geomid ) const
+{
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( entries_[idx]->equals(mid,geomid) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+const ObjectSet<PreLoadDataEntry>& PreLoadDataManager::getEntries() const
+{ return entries_; }
+
+
+PreLoadDataManager& PLDM()
+{
+    mDefineStaticLocalObject(PtrMan<PreLoadDataManager>,pldm,
+			     (new PreLoadDataManager));
     return *pldm;
 }
+
+} // namespace Seis
+

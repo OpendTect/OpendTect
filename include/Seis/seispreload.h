@@ -30,10 +30,11 @@ namespace Seis
 mExpClass(Seis) PreLoader
 { mODTextTranslationClass(PreLoader);
 public:
-			PreLoader(const MultiID&,TaskRunner* tr=0);
+			PreLoader(const MultiID&,Pos::GeomID =-1,
+				  TaskRunner* =0);
 
-    void		setID( const MultiID& ky )	{ id_ = ky; }
-    const MultiID&	id() const			{ return id_; }
+    const MultiID&	id() const			{ return mid_; }
+    Pos::GeomID		geomID() const			{ return geomid_; }
     void		setTaskRunner( TaskRunner& t )	{ tr_ = &t; }
 
     IOObj*		getIOObj() const;
@@ -42,11 +43,10 @@ public:
     void		getLineNames(BufferStringSet&) const;
     			//!< Line 2D only.
 
-    bool		loadVol(const TrcKeyZSampling&,
+    bool		load(const TrcKeyZSampling&,
 				DataCharacteristics::UserType=
 					DataCharacteristics::Auto,
 				Scaler* =0) const;
-    bool		loadLine(Pos::GeomID,const TrcKeyZSampling&) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
     bool		loadPS2D(const char* lnm=0) const;	//!< null => all
     bool		loadPS2D(const BufferStringSet&) const;
@@ -64,7 +64,8 @@ public:
 
 protected:
 
-    MultiID		id_;
+    MultiID		mid_;
+    Pos::GeomID		geomid_;
     TaskRunner*		tr_;
     TaskRunner		deftr_;
     mutable uiString	errmsg_;
@@ -74,30 +75,46 @@ protected:
 };
 
 
+mExpClass(Seis) PreLoadDataEntry
+{
+public:
+			PreLoadDataEntry(const MultiID&,Pos::GeomID,int dpid);
+
+    bool		equals(const MultiID&,Pos::GeomID) const;
+
+    MultiID		mid_;
+    Pos::GeomID		geomid_;
+    int			dpid_;
+    bool		is2d_;
+    BufferString	name_;
+};
+
 
 mExpClass(Seis) PreLoadDataManager
 {
 public:
     void		add(const MultiID&,DataPack*);
-    void		remove(const MultiID&);
+    void		add(const MultiID&,Pos::GeomID,DataPack*);
+    void		remove(const MultiID&,Pos::GeomID =-1);
     void		remove(int dpid);
     void		removeAll();
 
-    DataPack*		get(const MultiID&);
+    DataPack*		get(const MultiID&,Pos::GeomID =-1);
     DataPack*		get(int dpid);
-    const DataPack*	get(const MultiID&) const;
+    const DataPack*	get(const MultiID&,Pos::GeomID =-1) const;
     const DataPack*	get(int dpid) const;
-    void		getInfo(const MultiID&,BufferString&) const;
+    void		getInfo(const MultiID&,Pos::GeomID,
+				BufferString&) const;
 
     void		getIDs(TypeSet<MultiID>&) const;
-    bool		isPresent(const MultiID&) const;
+    bool		isPresent(const MultiID&,Pos::GeomID =-1) const;
+
+    const ObjectSet<PreLoadDataEntry>& getEntries() const;
 
 protected:
 
     DataPackMgr&	dpmgr_;
-    TypeSet<MultiID>	mids_;
-    TypeSet<Pos::GeomID> geomids_;
-    TypeSet<int>	dpids_;
+    ManagedObjectSet<PreLoadDataEntry> entries_;
 
 public:
 			PreLoadDataManager();
