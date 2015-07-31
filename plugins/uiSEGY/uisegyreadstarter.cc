@@ -138,7 +138,7 @@ void uiSEGYReadStarter::buildTable()
     infotbl_->setColumnStretchable( 0, false );
     infotbl_->setColumnStretchable( 1, true );
     infotbl_->setPrefWidthInChar( 80 );
-    infotbl_->setPrefHeightInChar( mNrInfoRows );
+    infotbl_->setPrefHeightInRows( mNrInfoRows );
     infotbl_->setTableReadOnly( true );
     infotbl_->setLeftHeaderHidden( true );
     setCellTxt( 0, mRevRow, "SEG-Y Revision" );
