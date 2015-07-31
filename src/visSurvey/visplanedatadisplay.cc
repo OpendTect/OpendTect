@@ -445,6 +445,9 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 
     dragger_->showPlane( showplane );
     dragger_->showDraggerBorder( !showplane );
+
+    if ( canDisplayInteractively() )
+	updateSel();
 }
 
 
@@ -456,8 +459,7 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
     if ( cs!=snappedcs )
 	setDraggerPos( snappedcs );
 
-    deSelect();
-    select();
+    updateSel();
 }
 
 
