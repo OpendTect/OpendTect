@@ -277,10 +277,6 @@ uiIOObjSel::~uiIOObjSel()
 
 void uiIOObjSel::preFinaliseCB( CallBacker* )
 {
-    {
-	NotifyStopper ns( selectionDone );
-	fillEntries();
-    }
     fillDefault();
     updateInput();
     selDone( 0 );
