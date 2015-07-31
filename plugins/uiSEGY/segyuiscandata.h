@@ -69,22 +69,20 @@ public:
 
 			uiScanData(const char* fnm);
 
-    const BufferString	filenm_;
+    BufferString	filenm_;
     bool		usable_;
 
     int			nrtrcs_;
     Interval<double>	xrg_;
     Interval<double>	yrg_;
     Interval<float>	offsrg_;
-    StepInterval<int>	inls_;
-    StepInterval<int>	crls_;
-    StepInterval<int>	trcnrs_;
+    Interval<int>	inls_;
+    Interval<int>	crls_;
+    Interval<int>	trcnrs_;
     Interval<float>	refnrs_;
 
     void		getFromSEGYBody(od_istream&,const uiScanDef&,
-					bool isfirst,DataClipSampler* cs=0);
-			//!< if clipsampler is passed, will scan a lot of traces
-			//!< otherwise, only a few (1st, 2nd and last)
+				    bool isfirst,bool is2d,DataClipSampler&);
     void		merge(const uiScanData&);
 
     void		reInit();
@@ -92,8 +90,8 @@ public:
 protected:
 
     bool		addTrace(od_istream&,bool,char*,float*,const uiScanDef&,
-				 DataClipSampler*);
-    void		addValues(DataClipSampler*,const float*, int);
+				 DataClipSampler&);
+    void		addValues(DataClipSampler&,const float*, int);
 
 };
 
