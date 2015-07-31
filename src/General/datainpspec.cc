@@ -82,7 +82,7 @@ int DataInpSpec::getIntValue( int idx ) const
 }
 
 
-double DataInpSpec::getdValue( int idx ) const
+double DataInpSpec::getDValue( int idx ) const
 {
     double res;
     const char* valstr = text(idx);
@@ -90,7 +90,7 @@ double DataInpSpec::getdValue( int idx ) const
 }
 
 
-float DataInpSpec::getfValue( int idx ) const
+float DataInpSpec::getFValue( int idx ) const
 {
     float res;
     const char* valstr = text(idx);
@@ -408,11 +408,11 @@ int StringListInpSpec::getIntValue( int idx ) const
 { return cur_; }
 
 
-double StringListInpSpec::getdValue( int idx ) const
+double StringListInpSpec::getDValue( int idx ) const
 { return cur_; }
 
 
-float StringListInpSpec::getfValue( int idx ) const
+float StringListInpSpec::getFValue( int idx ) const
 { return (float) cur_; }
 
 

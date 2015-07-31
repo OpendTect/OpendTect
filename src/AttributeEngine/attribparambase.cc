@@ -103,9 +103,9 @@ void ValParam::setValue( type val, int idx ) \
 { spec_->setValue( val, idx ); }
 
 mSetGet(int,getIntValue)
-mSetGet(float,getfValue)
+mSetGet(float,getFValue)
 mSetGet(bool,getBoolValue)
-mSetGet(double,getdValue)
+mSetGet(double,getDValue)
     
 #define mSetGetDefault(type,getfunc,dataspecgetfunc) \
 type ValParam::getfunc( int idx ) const \
