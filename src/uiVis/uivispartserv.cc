@@ -475,9 +475,7 @@ NotifierAccess& uiVisPartServer::removeAllNotifier()
 MultiID uiVisPartServer::getMultiID( int id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) return so->getMultiID();
-
-    return MultiID(-1);
+    return so ? so->getMultiID() : MultiID::udf();
 }
 
 
@@ -735,7 +733,6 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
     if ( !so )
 	return false;
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     const bool res = so->setDataPackID( attrib, dpid, 0 );
 
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
@@ -842,7 +839,6 @@ void uiVisPartServer::setRandomPosData( int id, int attrib,
 
 void uiVisPartServer::getDataTraceBids( int id, TypeSet<BinID>& bids ) const
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
 	so->getDataTraceBids( bids );

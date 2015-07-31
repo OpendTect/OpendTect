@@ -78,8 +78,9 @@ protected:
     MenuItem		addattribmnuitem_;
     MenuItem		addvolprocmnuitem_;
     MenuItem		duplicatemnuitem_;
+    MenuItem		deletemnuitem_;
     MenuItem		removemnuitem_;
-    MenuItem            lockmnuitem_;
+    MenuItem		lockmnuitem_;
     MenuItem		hidemnuitem_;
     MenuItem		histogrammnuitem_;
 };
