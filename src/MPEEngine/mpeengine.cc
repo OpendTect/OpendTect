@@ -114,6 +114,18 @@ void Engine::updateSeedOnlyPropagation( bool yn )
 }
 
 
+bool Engine::trackingInProgress() const
+{
+    for ( int idx=0; idx<trackermgrs_.size(); idx++ )
+    {
+	const HorizonTrackerMgr* htm = trackermgrs_[idx];
+	if ( htm && htm->hasTasks() ) return true;
+    }
+
+    return false;
+}
+
+
 void Engine::stopTracking()
 {
     for ( int idx=0; idx<trackermgrs_.size(); idx++ )
