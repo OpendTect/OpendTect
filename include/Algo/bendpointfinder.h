@@ -63,15 +63,49 @@ protected:
 \brief Used to find bendpoints in two dimensional datasets.
 */
 
-mExpClass(Algo) BendPointFinder2D : public BendPointFinderBase
+mExpClass(Algo) BendPointFinder2DBase : public BendPointFinderBase
+{
+public:
+protected:
+		BendPointFinder2DBase(int size,float eps);
+
+    virtual const Coord&	coord(int idx) const		= 0;
+
+    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
+};
+
+
+/*!
+\brief Used to find bendpoints in set of XY Coordinates
+*/
+
+mExpClass(Algo) BendPointFinder2D : public BendPointFinder2DBase
 {
 public:
 		BendPointFinder2D(const TypeSet<Coord>&,float eps);
 		BendPointFinder2D(const Coord*,int size,float eps);
-protected:
-    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
 
-    const Coord*	coords_;
+protected:
+
+    const Coord&		coord(int idx) const;
+    const Coord*		coords_;
+};
+
+
+/*!
+\brief Used to find bendpoints in set of TrcKeys
+*/
+
+mExpClass(Algo) BendPointFinderTrcKey : public BendPointFinder2DBase
+{
+public:
+		BendPointFinderTrcKey(const TypeSet<TrcKey>&,float eps);
+
+protected:
+
+    const Coord&		coord(int idx) const;
+    const TypeSet<TrcKey>&	tks_;
+    TypeSet<Coord>		coords_;
 };
 
 
@@ -79,13 +113,12 @@ protected:
 \brief Used to find bendpoints in Line 2D Geometry
 */
 
-mExpClass(Algo) BendPointFinder2DGeom : public BendPointFinderBase
+mExpClass(Algo) BendPointFinder2DGeom : public BendPointFinder2DBase
 {
 public:
 		BendPointFinder2DGeom(const TypeSet<PosInfo::Line2DPos>&,
 				      float eps);
 protected:
-    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
 
     const Coord&			coord(int idx) const;
     const TypeSet<PosInfo::Line2DPos>&	positions_;

@@ -7,6 +7,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bendpointfinder.h"
 #include "sorting.h"
+#include "survgeom.h"
 #include "trigonometry.h"
 
 
@@ -121,57 +122,14 @@ void BendPointFinderBase::findInSegment( int idx0, int idx1 )
 }
 
 
-// BendPointFinder2D
-BendPointFinder2D::BendPointFinder2D( const TypeSet<Coord>& crd, float eps )
-    : BendPointFinderBase( crd.size(), eps )
-    , coords_( crd.arr() )
-{}
-
-
-BendPointFinder2D::BendPointFinder2D( const Coord* crd, int sz, float eps )
-    : BendPointFinderBase( sz, eps )
-    , coords_( crd )
-{}
-
-
-float BendPointFinder2D::getMaxSqDistToLine( int& idx, int start,
-					     int stop ) const
+// BendPointFinder2DBase
+BendPointFinder2DBase::BendPointFinder2DBase( int sz, float eps )
+    : BendPointFinderBase(sz,eps)
 {
-    if ( stop-start==2 )
-    {
-	idx = start+1;
-	return (float)(((coords_[start]+coords_[stop])/2).sqDistTo(coords_[idx]));
-    }
-
-    const Line2 line( coords_[start], coords_[stop] );
-    Coord nearestpt;
-    double dsqmax = 0;
-
-    for ( int ipt=start+1; ipt<stop; ipt++ )
-    {
-	const Coord crd( coords_[ipt] );
-	nearestpt = line.closestPoint( crd );
-	const double dsq = nearestpt.sqDistTo( crd );
-	if ( dsq>dsqmax ) { dsqmax = dsq; idx = ipt; }
-    }
-
-    return (float) dsqmax;
 }
 
 
-// BendPointFinder2DGeom
-BendPointFinder2DGeom::BendPointFinder2DGeom(
-	const TypeSet<PosInfo::Line2DPos>& pos, float eps )
-    : BendPointFinderBase( pos.size(), eps )
-    , positions_(pos)
-{}
-
-
-const Coord& BendPointFinder2DGeom::coord( int idx ) const
-{ return positions_[idx].coord_; }
-
-
-float BendPointFinder2DGeom::getMaxSqDistToLine( int& idx, int start,
+float BendPointFinder2DBase::getMaxSqDistToLine( int& idx, int start,
 						 int stop ) const
 {
     if ( stop-start==2 )
@@ -197,6 +155,54 @@ float BendPointFinder2DGeom::getMaxSqDistToLine( int& idx, int start,
 
 
 
+// BendPointFinder2D
+BendPointFinder2D::BendPointFinder2D( const TypeSet<Coord>& crd, float eps )
+    : BendPointFinder2DBase( crd.size(), eps )
+    , coords_( crd.arr() )
+{}
+
+
+BendPointFinder2D::BendPointFinder2D( const Coord* crd, int sz, float eps )
+    : BendPointFinder2DBase( sz, eps )
+    , coords_( crd )
+{}
+
+
+const Coord& BendPointFinder2D::coord( int idx ) const
+{ return coords_[idx]; }
+
+
+
+// BendPointFinderTrcKey
+BendPointFinderTrcKey::BendPointFinderTrcKey( const TypeSet<TrcKey>& tks,
+					      float eps )
+    : BendPointFinder2DBase( tks.size(), eps )
+    , tks_(tks)
+{
+    for ( int idx=0; idx<tks_.size(); idx++ )
+	coords_ += Survey::GM().toCoord( tks_[idx] );
+}
+
+
+const Coord& BendPointFinderTrcKey::coord( int idx ) const
+{ return coords_[idx]; }
+
+
+
+// BendPointFinder2DGeom
+BendPointFinder2DGeom::BendPointFinder2DGeom(
+	const TypeSet<PosInfo::Line2DPos>& pos, float eps )
+    : BendPointFinder2DBase( pos.size(), eps )
+    , positions_(pos)
+{}
+
+
+const Coord& BendPointFinder2DGeom::coord( int idx ) const
+{ return positions_[idx].coord_; }
+
+
+
+
 // BendPointFinder3D
 BendPointFinder3D::BendPointFinder3D( const TypeSet<Coord3>& crd,
 				      const Coord3& scale, float eps )
@@ -213,11 +219,11 @@ float BendPointFinder3D::getMaxSqDistToLine( int& idx, int start,
     {
 	idx = start+1;
 	return (float)((coords_[start]+coords_[stop]).scaleBy(scale_)/2).
-	    	sqDistTo( coords_[idx].scaleBy(scale_) );
+		sqDistTo( coords_[idx].scaleBy(scale_) );
     }
 
     const Line3 line( coords_[start].scaleBy(scale_),
-	    	      (coords_[stop]-coords_[start]).scaleBy(scale_) );
+		      (coords_[stop]-coords_[start]).scaleBy(scale_) );
     double dsqmax = 0;
 
     for ( int ipt=start+1; ipt<stop; ipt++ )
