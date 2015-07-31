@@ -387,7 +387,7 @@ RegularSeisDataPack* ParallelReader2D::getDataPack()
 
 
 // SequentialReader
-class ArrayFiller : public SequentialTask
+class ArrayFiller : public Task
 {
 public:
 ArrayFiller( RegularSeisDataPack& dp, SeisTrc& trc )
@@ -399,10 +399,14 @@ ArrayFiller( RegularSeisDataPack& dp, SeisTrc& trc )
 ~ArrayFiller()
 { delete &trc_; }
 
-int nextStep()
+bool execute()
 {
     const int idx0 = dp_.sampling().hsamp_.lineIdx( trc_.info().binid.inl() );
     const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().binid.crl() );
+
+    const int zstartidx = trc_.nearestSample( dp_.sampling().zsamp_.start );
+    const int zstopidx = trc_.nearestSample( dp_.sampling().zsamp_.stop );
+
     for ( int cidx=0; cidx<trc_.nrComponents(); cidx++ )
     {
 	Array3D<float>& arr = dp_.data( cidx );
@@ -416,31 +420,32 @@ int nextStep()
 	    const int bytespersamp = databuf->bytesPerSample();
 	    const od_int64 offset = arr.info().getOffset( idx0, idx1, 0 );
 
-	    const od_int64 blocksize = trc_.size() * bytespersamp;
-	    const unsigned char* srcptr = databuf->data() + blocksize;
-	    char* dstptr = storarr + offset*bytespersamp + blocksize;
+	    const unsigned char* srcptr =
+			databuf->data() + zstartidx*bytespersamp;
+	    char* dstptr = storarr + offset*bytespersamp;
 
-	    for ( int zidx=trc_.size()-1; zidx>=0; zidx-- )
+	    for ( int zidx=zstartidx; zidx<=zstopidx; zidx++ )
 	    {
-		srcptr -= bytespersamp;
-		dstptr -= bytespersamp;
 		// Check if amplitude equals undef value of underlying data
 		// type knowing that array has been initialized with undefs
-		if ( memcmp(dstptr, srcptr, bytespersamp) )
-		    OD::sysMemCopy( dstptr, srcptr, bytespersamp );
+		if ( memcmp(dstptr,srcptr,bytespersamp) )
+		    OD::sysMemCopy(dstptr,srcptr,bytespersamp );
 		else
-		    arr.set( idx0, idx1, zidx, trc_.get(zidx,cidx) );
+		    arr.set( idx0, idx1, zidx-zstartidx, trc_.get(zidx,cidx) );
+
+		srcptr += bytespersamp;
+		dstptr += bytespersamp;
 	    }
 	}
 	else
 	{
-	    for ( int zidx=trc_.size()-1; zidx>=0; zidx-- )
-		arr.set( idx0, idx1, zidx, trc_.get(zidx,cidx) );
+	    for ( int zidx=zstartidx; zidx<=zstopidx; zidx++ )
+		arr.set( idx0, idx1, zidx-zstartidx, trc_.get(zidx,cidx) );
 	}
 
     }
 
-    return Finished();
+    return true;
 }
 
 protected:
