@@ -180,6 +180,9 @@ void uiMPEMan::seedClick( CallBacker* )
 {
     EM::EMObject* emobj = 0;
     MPE::Engine& engine = MPE::engine();
+    if ( engine.trackingInProgress() )
+	mSeedClickReturn();
+
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker )
 	mSeedClickReturn();
