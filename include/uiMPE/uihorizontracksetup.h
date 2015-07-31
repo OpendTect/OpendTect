@@ -56,6 +56,8 @@ public:
     void			setSeedPos(const Coord3&);
     void			setColor(const Color&);
     const Color&		getColor();
+    int				getLineWidth() const;
+    void			setLineWidth(int);
     void			setMarkerStyle(const MarkerStyle3D&);
     const MarkerStyle3D&	getMarkerStyle();
 
@@ -133,6 +135,7 @@ protected:
     void			seedSliderMove(CallBacker*);
 
     uiColorInput*		colorfld_;
+    uiSlider*			linewidthfld_;
     uiGenInput*			seedtypefld_;
     uiColorInput*		seedcolselfld_;
     uiSlider*			seedsliderfld_;

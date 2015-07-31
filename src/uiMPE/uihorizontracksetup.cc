@@ -370,11 +370,19 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
     grp->setHAlignObj( colorfld_ );
 
+    linewidthfld_ = new uiSlider( grp, uiSlider::Setup(tr("Line Width"))
+					.withedit(true),
+				  "Line Width" );
+    linewidthfld_->setInterval( 1, 15, 1 );
+    linewidthfld_->valueChanged.notify(
+			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
+    linewidthfld_->attach( alignedBelow, colorfld_ );
+
     seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
 			StringListInpSpec(MarkerStyle3D::TypeNames()) );
     seedtypefld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
-    seedtypefld_->attach( alignedBelow, colorfld_ );
+    seedtypefld_->attach( alignedBelow, linewidthfld_ );
 
     seedcolselfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(Color::White())
@@ -388,7 +396,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 				withedit(true),	"Seed Size" );
     seedsliderfld_->setInterval( 1, 15 );
     seedsliderfld_->valueChanged.notify(
-			mCB(this,uiHorizonSetupGroup,seedSliderMove));
+			mCB(this,uiHorizonSetupGroup,seedSliderMove) );
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );
 
     return grp;
@@ -541,15 +549,16 @@ void uiHorizonSetupGroup::setSeedPos( const Coord3& crd )
 
 
 void uiHorizonSetupGroup::setColor( const Color& col )
-{
-    colorfld_->setColor( col );
-}
-
+{ colorfld_->setColor( col ); }
 
 const Color& uiHorizonSetupGroup::getColor()
-{
-    return colorfld_->color();
-}
+{ return colorfld_->color(); }
+
+void uiHorizonSetupGroup::setLineWidth( int w )
+{ linewidthfld_->setValue( w ); }
+
+int uiHorizonSetupGroup::getLineWidth() const
+{ return linewidthfld_->getIntValue(); }
 
 
 void uiHorizonSetupGroup::setMarkerStyle( const MarkerStyle3D& markerstyle )

@@ -311,6 +311,10 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 	sendEvent( uiMPEPartServer::evUpdateTrees() );
 	emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(),
 				      setupgrp_->getMarkerStyle() );
+
+	LineStyle ls = emobj->preferredLineStyle();
+	ls.width_ = setupgrp_->getLineWidth();
+	emobj->setPreferredLineStyle( ls );
     }
 }
 
@@ -965,6 +969,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
 				seedpicker->getSeedConnectMode() );
     setupgrp_->setColor( emobj->preferredColor() );
+    setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 						EM::EMObject::sSeedNode()) );
     setupgrp_->setSectionTracker( sectracker );
