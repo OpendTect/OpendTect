@@ -400,70 +400,48 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
     {
 	PtrMan<Array3DImpl<float> > tmparr = 0;
 	Array3D<float>* usedarr = &seisdp->data( idx );
-	if ( alreadyTransformed(attrib) || !datatransform_ )
+	const int nrsamples = seisdp->getZRange().nrSteps()+1;
+	const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
+	const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
+	if ( seisdp->nrTrcs()!=nrdisplaytraces ||
+	     nrsamples!=nrdisplaysamples ||
+	     seisdp->getTrcKey(0).trcNr()!=trcdisplayinfo_.alltrcnrs_[0] )
 	{
-	    const int nrsamples = seisdp->getZRange().nrSteps()+1;
-	    const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
-	    const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
-	    if ( seisdp->nrTrcs()!=nrdisplaytraces ||
-		 nrsamples!=nrdisplaysamples ||
-		 seisdp->getTrcKey(0).trcNr()!=trcdisplayinfo_.alltrcnrs_[0] )
-	    {
-		mTryAlloc( tmparr,
+	    mTryAlloc( tmparr,
 		    Array3DImpl<float>( 1, nrdisplaytraces, nrdisplaysamples) );
-		usedarr = tmparr;
-		const int startidx = trcdisplayinfo_.rg_.start;
-		float* sampleptr = tmparr->getData();
-		for ( int crlidx=0; crlidx<trcdisplayinfo_.size_; crlidx++ )
+	    tmparr->setAll( mUdf(float) );
+	    usedarr = tmparr;
+	    const int start = trcdisplayinfo_.rg_.start;
+	    for ( int trcidx=0; trcidx<trcdisplayinfo_.size_; trcidx++ )
+	    {
+		const int trcnr = trcdisplayinfo_.alltrcnrs_[trcidx+start];
+		const TrcKey trckey = Survey::GM().traceKey( geomid_, trcnr );
+		const int globalidx = seisdp->getGlobalIdx( trckey );
+		if ( globalidx < 0 )
+		    continue;
+
+		const float* trcptr = seisdp->getTrcData( idx, globalidx );
+		const OffsetValueSeries<float> trcstor =
+				seisdp->getTrcStorage( idx, globalidx );
+		float* dataptr = tmparr->getData() ?
+				tmparr->getData() + trcidx*nrdisplaysamples : 0;
+
+		for ( int zidx=0; zidx<nrdisplaysamples; zidx++ )
 		{
-		    const int trcnr =
-			trcdisplayinfo_.alltrcnrs_[crlidx+startidx];
-		    const TrcKey trckey = Survey::GM().traceKey(geomid_,trcnr);
-		    const int trcidx = seisdp->getGlobalIdx( trckey );
-		    if ( trcidx < 0 )
-			continue;
+		    const float z = trcdisplayinfo_.zrg_.atIndex( zidx );
+		    const float sample = seisdp->getZRange().getfIndex( z );
+		    float val = mUdf(float);
+		    if ( trcptr )
+			IdxAble::interpolateReg( trcptr, nrsamples, sample,
+						 val, false );
+		    else
+			IdxAble::interpolateReg( trcstor, nrsamples, sample,
+						 val, false );
 
-		    const float* trcptr = seisdp->getTrcData( idx, trcidx );
-		    OffsetValueSeries<float> trcstor =
-				seisdp->getTrcStorage( idx, trcidx );
-
-		    for ( int zidx=0; zidx<nrdisplaysamples; zidx++ )
-		    {
-			if ( trcidx < 0 )
-			{
-			    if ( sampleptr )
-			    {
-				*sampleptr = mUdf(float);
-				sampleptr++;
-			    }
-			    else
-				tmparr->set( 0, crlidx, zidx, mUdf(float) );
-
-			    continue;
-			}
-
-			const float z = trcdisplayinfo_.zrg_.atIndex( zidx );
-			const float sample = seisdp->getZRange().getfIndex( z );
-			float val = mUdf(float);
-			if ( trcptr )
-			{
-			    IdxAble::interpolateReg( trcptr, nrsamples, sample,
-						     val, false );
-			}
-			else
-			{
-			    IdxAble::interpolateReg( trcstor, nrsamples, sample,
-						     val, false );
-			}
-
-			if ( sampleptr )
-			{
-			    *sampleptr = val;
-			    sampleptr++;
-			}
-			else
-			    tmparr->set( 0, crlidx, zidx, val );
-		    }
+		    if ( dataptr )
+			*(dataptr + zidx) = val;
+		    else
+			tmparr->set( 0, trcidx, zidx, val );
 		}
 	    }
 	}

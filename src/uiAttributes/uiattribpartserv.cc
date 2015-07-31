@@ -812,21 +812,6 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 				TypeSet<BinID>* path,
 				TypeSet<BinID>* trueknotspos )
 {
-    RandomSeisDataPack* newpack = createRdmSeisDataPack(zrg,path,trueknotspos);
-    if ( !newpack )
-	return DataPack::cNoID();
-
-    DPM(DataPackMgr::SeisID()).add( newpack );
-
-    return newpack->id();
-}
-
-
-RandomSeisDataPack* uiAttribPartServer::createRdmSeisDataPack(
-					const Interval<float>& zrg,
-					TypeSet<BinID>* path,
-					TypeSet<BinID>* trueknotspos )
-{
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
@@ -837,44 +822,41 @@ RandomSeisDataPack* uiAttribPartServer::createRdmSeisDataPack(
 	trckeys += Survey::GM().traceKey( Survey::GM().default3DSurvID(),
 				       (*path)[idx].inl(), (*path)[idx].crl() );
 
-    bool dataseted = false;
     const MultiID mid( targetdesc->getStoredID() );
     mDynamicCastGet( RegularSeisDataPack*,sdp,Seis::PLDM().get(mid) );
-    const BinDataDesc* bdd = sdp ? &sdp->getDataDesc() : 0;
+    if ( sdp )
+	return RandomSeisDataPack::createDataPackFrom( *sdp, trckeys, zrg );
+
+    BinIDValueSet bidset( 2, false );
+    for ( int idx = 0; idx<path->size(); idx++ )
+	bidset.add( ( *path )[idx],zrg.start,zrg.stop );
+
+    SeisTrcBuf output( true );
+    if ( !createOutput(bidset,output,trueknotspos,path) )
+	return DataPack::cNoID();
 
     RandomSeisDataPack* newpack = new RandomSeisDataPack(
-				SeisDataPack::categoryStr(true,false), bdd );
-
-    if ( sdp )
+				SeisDataPack::categoryStr(true,false) );
+    newpack->setPath( trckeys );
+    newpack->setZRange( output.get(0)->zRange() );
+    for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
     {
-	dataseted = newpack->setDataFrom( sdp, trckeys, zrg );
-    }
-    else
-    {
-	BinIDValueSet bidset( 2, false );
-	for ( int idx = 0; idx<path->size(); idx++ )
-	    bidset.add( ( *path )[idx],zrg.start,zrg.stop );
-
-	SeisTrcBuf output( true );
-	dataseted = createOutput( bidset, output, trueknotspos, path );
-	if ( dataseted )
+	newpack->addComponent( targetspecs_[idx].userRef() );
+	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
 	{
-	    BufferStringSet cmpnms;
-	    for ( int idx = 0; idx<output.get(0)->nrComponents(); idx++ )
-		cmpnms.add( targetspecs_[idx].userRef() );
-
-	    dataseted = newpack->setDataFrom( output, trckeys, *path, cmpnms,
-		targetspecs_[0].zDomainKey(), targetspecs_[0].userRef() );
+	    const int trcidx = output.find( (*path)[idy] );
+	    const SeisTrc* trc = trcidx<0 ? 0 : output.get( trcidx );
+	    if ( !trc ) continue;
+	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
+		newpack->data(idx).set( 0, idy, idz, trc->get(idz,idx) );
 	}
     }
 
-    if ( !dataseted )
-    {
-	delete newpack;
-	newpack = 0;
-    }
-
-    return newpack;
+    newpack->setZDomain(
+	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())) );
+    newpack->setName( targetspecs_[0].userRef() );
+    DPM(DataPackMgr::SeisID()).add( newpack );
+    return newpack->id();
 }
 
 
@@ -934,17 +916,6 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     if ( !TaskRunner::execute( &taskrunner, *process ) )
 	return DataPack::cNoID();
 
-/*    int component = 0;
-    const bool isstored = targetspecs_[0].isStored();
-    DescID adid = targetID(true);
-    const DescSet* curds = DSHolder().getDescSet( true, isstored );
-    if ( curds )
-    {
-	const Desc* targetdesc = curds->getDesc( adid );
-	if ( targetdesc )
-	    component = targetdesc->selectedOutput();
-    }*/
-
     mDeclareAndTryAlloc( ConstRefMan<Data2DArray>,
 			 data2darr, Data2DArray(*data2d) );
     TrcKeyZSampling sampling = data2darr->cubesampling_;
@@ -954,26 +925,29 @@ DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 					SeisDataPack::categoryStr(true,true) );
     newpack->setSampling( sampling );
 
-    Array2DSlice<float> arr2dslice( *data2darr->dataset_ );
-    arr2dslice.setDimMap( 0, 1 );
-    arr2dslice.setDimMap( 1, 2 );
-    for ( int idx=0; idx<data2darr->dataset_->info().getSize(0); idx++ )
+    TypeSet<float> refnrs( newpack->nrTrcs(), mUdf(float) );
+    const ObjectSet<SeisTrcInfo>& trcinfoset = data2darr->trcinfoset_;
+    const Array3DImpl<float>* dataset = data2darr->dataset_;
+    for ( int icomp=0; icomp<dataset->info().getSize(0); icomp++ )
     {
-	arr2dslice.setPos( 0, idx );
-	arr2dslice.init();
+	newpack->addComponent( targetspecs_[icomp].userRef() );
+	Array3DImpl<float>& data = newpack->data( icomp );
+	// Running a loop instead of directly assigning the array as
+	// sampling.nrTrcs() and trcinfoset.size() might differ if data has
+	// missing or duplicate trace numbers.
+	for ( int tidx=0; tidx<trcinfoset.size(); tidx++ )
+	{
+	    const int trcidx = sampling.hsamp_.trcIdx( trcinfoset[tidx]->nr );
+	    if ( trcidx < 0 )
+		continue;
 
-	Array3DWrapper<float> arr3d( arr2dslice );
-	arr3d.setDimMap( 0, 1 );
-	arr3d.setDimMap( 1, 2 );
-	arr3d.init();
+	    for ( int zidx=0; zidx<dataset->info().getSize(2); zidx++ )
+		data.set( 0, trcidx, zidx , dataset->get(icomp,tidx,zidx) );
 
-	newpack->addComponent( targetspecs_[idx].userRef() );
-	newpack->data( idx ) = arr3d;
+	    if ( icomp == 0 )
+		refnrs[trcidx] = trcinfoset[tidx]->refnr;
+	}
     }
-
-    TypeSet<float> refnrs;
-    for ( int idx=0; idx<data2darr->trcinfoset_.size(); idx++ )
-	refnrs += data2darr->trcinfoset_[idx]->refnr;
 
     newpack->setRefNrs( refnrs );
     newpack->setZDomain(

@@ -390,8 +390,9 @@ TrcKey::SurvID TrcKey::cUndefSurvID()
 
 double TrcKey::distTo( const TrcKey& trckey ) const
 {
-    const Coord coord = Survey::GM().toCoord( trckey );
-    return Survey::GM().toCoord(*this).distTo( coord );
+    const Coord from = Survey::GM().toCoord( *this );
+    const Coord to = Survey::GM().toCoord( trckey );
+    return from.isUdf() || to.isUdf() ? mUdf(double) : from.distTo(to);
 }
 
 

@@ -464,8 +464,8 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	    intpoint2d = intersectingLineID( curvwr2d, (float) wp.x );
 	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
 	       return;	
-	    const uiString show2dtxt =
-		tr("Show '%1'...").arg( Survey::GM().getName(intpoint2d.line) );
+	    const uiString show2dtxt = tr("Show Line '%1'...").arg(
+					Survey::GM().getName(intpoint2d.line) );
 	    menu.insertAction( new uiAction(show2dtxt), 0 );
 	}
     }
