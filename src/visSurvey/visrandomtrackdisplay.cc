@@ -579,7 +579,6 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
     const int nrversions = randsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     for ( int idx=0; idx<nrversions; idx++ )
     {
 	const Array3DImpl<float>& array = randsdp->data( idx );
@@ -592,7 +591,8 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	{
 	    mDynamicCastGet( const ConvMemValueSeries<float>*, storage,
 			     randsdp->data().getStorage() );
-	    if ( storage )
+	    if ( storage && !storage->dataDesc().isSigned() &&
+		 storage->dataDesc().nrBytes()==BinDataDesc::N1 )
 	    {
 		channels_->setSize( attrib, 1, sz0, sz1 );
 		channels_->setMappedData( attrib, idx,
@@ -886,7 +886,7 @@ void RandomTrackDisplay::knotMoved( CallBacker* cb )
     const Coord crd = dragger_->getKnot( sel );
     dragger_->showAdjacentPanels( sel,
 		getKnotPos(sel)!=BinID(mNINT32(crd.x),mNINT32(crd.y)) );
-    dragger_->showAllPanels( getDepthInterval()!=dragger_->getDepthRange());
+    dragger_->showAllPanels( getDepthInterval()!=dragger_->getDepthRange() );
 
     knotmoving_.trigger();
 
@@ -1213,7 +1213,7 @@ void RandomTrackDisplay::pickCB( CallBacker* cb )
     if ( !polylinemode_ ) return;
 
      mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-     
+
      if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick &&
 			    OD::leftMouseButton( eventinfo.buttonstate_ ) )
     {
