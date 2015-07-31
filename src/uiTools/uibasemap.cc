@@ -162,6 +162,34 @@ void uiBaseMapObject::update()
 	    }
 	}
 
+	if ( !bmobject_->getImageFileName().isEmpty() )
+	{
+	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
+	    {
+		while ( graphitem_.nrChildren()>itemnr )
+		{
+		    mDynamicCastGet(uiPixmapItem*,itm,
+				    graphitem_.getChild(itemnr));
+		    if ( !itm )
+			graphitem_.removeChild( graphitem_.getChild(itemnr),
+						true );
+		    else break;
+		}
+
+		if ( graphitem_.nrChildren()<=itemnr )
+		{
+		    uiPixmapItem* itm =	new uiPixmapItem(
+				      uiPixmap(bmobject_->getImageFileName()) );
+		    itm->setParent( &graphitem_ );
+		}
+
+		mDynamicCastGet(uiPixmapItem*,itm,graphitem_.getChild(itemnr));
+		if ( !itm ) return;
+		itm->setPos( crds[ptidx] );
+		itemnr++;
+	    }
+	}
+
 	const MarkerStyle2D* ms2d = bmobject_->getMarkerStyle( idx );
 	if ( ms2d && ms2d->type_!=MarkerStyle2D::None )
 	{
