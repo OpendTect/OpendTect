@@ -135,17 +135,33 @@ public:
     Notifier<uiODViewer2D>	viewWinClosed;
     Notifier<uiODViewer2D>	dataChanged;
 
+    //Horizon 3D
     void			removeHorizon3D(EM::ObjectID emid);
     void			getLoadedHorizon3Ds(
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon3D(EM::ObjectID);
 
+    //Horizon2D
     void			removeHorizon2D(EM::ObjectID emid);
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon2D(EM::ObjectID emid);
+
+    //Fault
+    void			removeFault(EM::ObjectID emid);
+    void			getLoadedFaults(
+					TypeSet<EM::ObjectID>&) const;
+    void			addFaults(const TypeSet<EM::ObjectID>&);
+    void			addNewTempFault(EM::ObjectID emid);
+
+    //FaultStickeSet
+    void			removeFaultSS(EM::ObjectID emid);
+    void			getLoadedFaultSSs(
+					TypeSet<EM::ObjectID>&) const;
+    void			addFaultSSs(const TypeSet<EM::ObjectID>&);
+    void			addNewTempFaultSS(EM::ObjectID emid);
 
 protected:
 
@@ -171,6 +187,7 @@ protected:
     float			initialx1pospercm_;
     float			initialx2pospercm_;
 
+    int				edittbid_;
     int				polyseltbid_;
     bool			ispolyselect_;
     bool			isvertical_;

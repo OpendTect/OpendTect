@@ -998,3 +998,59 @@ void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid )
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTrackingHorizon2D( emid );
 }
+
+
+void uiODViewer2DMgr::removeFault( EM::ObjectID emid )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->removeFault( emid );
+}
+
+
+void uiODViewer2DMgr::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getLoadedFaults( emids );
+}
+
+
+void uiODViewer2DMgr::addFaults( const TypeSet<EM::ObjectID>& emids )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->addFaults( emids );
+}
+
+
+void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->addNewTempFault( emid );
+}
+
+
+void uiODViewer2DMgr::removeFaultSS( EM::ObjectID emid )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->removeFaultSS( emid );
+}
+
+
+void uiODViewer2DMgr::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getLoadedFaultSSs( emids );
+}
+
+
+void uiODViewer2DMgr::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->addFaultSSs( emids );
+}
+
+
+void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->addNewTempFaultSS( emid );
+}

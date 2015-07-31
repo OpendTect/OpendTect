@@ -47,7 +47,10 @@ bool uiODVw2DFaultSSParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sNew(true)), 0 );
-    mnu.insertItem( new uiAction(uiStrings::sLoad(false)), 1 );
+    uiMenu* loadmenu = new uiMenu( uiStrings::sLoad(false) );
+    loadmenu->insertItem( new uiAction(tr("In all 2D Viewers")), 1 );
+    loadmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), 2 );
+    mnu.insertItem( loadmenu );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
@@ -73,13 +76,18 @@ bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 	viewer2D()->viewControl()->setEditMode( true );
 	treeitem->select();
     }
-    else if ( mnuid == 1 )
+    else if ( mnuid == 1 || mnuid==2 )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectFaultStickSets( objs );
-
+	TypeSet<EM::ObjectID> emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
-	    addChld( new uiODVw2DFaultSSTreeItem(objs[idx]->id()),false,false);
+	    emids += objs[idx]->id();
+
+	if ( mnuid==1 )
+	    applMgr()->viewer2DMgr().addFaultSSs( emids );
+	else
+	    addFaultSSs( emids );
 
 	deepUnRef( objs );
     }
@@ -94,20 +102,46 @@ bool uiODVw2DFaultSSParentTreeItem::init()
 }
 
 
-void uiODVw2DFaultSSParentTreeItem::tempObjAddedCB( CallBacker* cb )
+void uiODVw2DFaultSSParentTreeItem::getLoadedFaultSSs(
+	TypeSet<EM::ObjectID>& emids ) const
 {
-    mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
-
-    EM::EMObject* emobj = EM::EMM().getObject( emid );
-    mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
-    if ( !fss ) return;
-
-    if ( findChild(applMgr()->EMServer()->getName(emid)) )
-	return;
-
-    addChld( new uiODVw2DFaultSSTreeItem(emid),false,false);
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DFaultSSTreeItem*,faultitem,getChild(idx))
+	if ( !faultitem )
+	    continue;
+	emids.addIfNew( faultitem->emObjectID() );
+    }
 }
 
+
+void uiODVw2DFaultSSParentTreeItem::removeFaultSS( EM::ObjectID emid )
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DFaultSSTreeItem*,faultitem,getChild(idx))
+	if ( !faultitem || emid!=faultitem->emObjectID() )
+	    continue;
+	removeChild( faultitem );
+    }
+}
+
+
+void uiODVw2DFaultSSParentTreeItem::addFaultSSs(
+					const TypeSet<EM::ObjectID>& emids )
+{
+    for ( int idx=0; idx<emids.size(); idx++ )
+	addChld( new uiODVw2DFaultSSTreeItem(emids[idx]), false, false);
+}
+
+
+void uiODVw2DFaultSSParentTreeItem::addNewTempFaultSS( EM::ObjectID emid )
+{
+    uiODVw2DFaultSSTreeItem* faulttreeitem = new uiODVw2DFaultSSTreeItem(emid);
+    addChld( faulttreeitem,false, false );
+    viewer2D()->viewControl()->setEditMode( true );
+    faulttreeitem->select();
+}
 
 
 uiODVw2DFaultSSTreeItem::uiODVw2DFaultSSTreeItem( const EM::ObjectID& emid )
@@ -236,7 +270,10 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 			 applMgr()->EMServer()->isFullyLoaded(emid_) );
     mnu.insertItem( new uiAction(uiStrings::sSaveAs(true)), 1 );
-    mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 2 );
+    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(true) );
+    removemenu->insertItem( new uiAction(tr("From all 2D Viewers")), 2 );
+    removemenu->insertItem( new uiAction(tr("Only from this 2D Viewer")), 3 );
+    mnu.insertItem( removemenu );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 || mnuid == 1 )
@@ -254,6 +291,8 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 	uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
     }
     else if ( mnuid == 2 )
+	applMgr()->viewer2DMgr().removeFaultSS( emid_ );
+    else if ( mnuid == 3 )
 	parent_->removeChild( this );
 
     return true;
