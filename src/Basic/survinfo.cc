@@ -105,7 +105,8 @@ float Survey::Geometry3D::averageTrcDist() const
 
 BinID Survey::Geometry3D::transform( const Coord& c ) const
 {
-    return b2c_.transformBack( c, sampling_.hsamp_.start_, sampling_.hsamp_.step_ );
+    return b2c_.transformBack( c, sampling_.hsamp_.start_,
+				  sampling_.hsamp_.step_ );
 }
 
 
@@ -693,10 +694,14 @@ void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
     intv.sort();
-    if ( intv.start < cs.hsamp_.start_.inl() ) intv.start = cs.hsamp_.start_.inl();
-    if ( intv.start > cs.hsamp_.stop_.inl() )  intv.start = cs.hsamp_.stop_.inl();
-    if ( intv.stop > cs.hsamp_.stop_.inl() )   intv.stop = cs.hsamp_.stop_.inl();
-    if ( intv.stop < cs.hsamp_.start_.inl() )  intv.stop = cs.hsamp_.start_.inl();
+    if ( intv.start < cs.hsamp_.start_.inl() )
+	intv.start = cs.hsamp_.start_.inl();
+    if ( intv.start > cs.hsamp_.stop_.inl() )
+	intv.start = cs.hsamp_.stop_.inl();
+    if ( intv.stop > cs.hsamp_.stop_.inl() )
+	intv.stop = cs.hsamp_.stop_.inl();
+    if ( intv.stop < cs.hsamp_.start_.inl() )
+	intv.stop = cs.hsamp_.start_.inl();
     BinID bid( intv.start, 0 );
     snap( bid, BinID(1,1) ); intv.start = bid.inl();
     bid.inl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.inl();
@@ -706,10 +711,14 @@ void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
     intv.sort();
-    if ( intv.start < cs.hsamp_.start_.crl() ) intv.start = cs.hsamp_.start_.crl();
-    if ( intv.start > cs.hsamp_.stop_.crl() )  intv.start = cs.hsamp_.stop_.crl();
-    if ( intv.stop > cs.hsamp_.stop_.crl() )   intv.stop = cs.hsamp_.stop_.crl();
-    if ( intv.stop < cs.hsamp_.start_.crl() )  intv.stop = cs.hsamp_.start_.crl();
+    if ( intv.start < cs.hsamp_.start_.crl() )
+	intv.start = cs.hsamp_.start_.crl();
+    if ( intv.start > cs.hsamp_.stop_.crl() )
+	intv.start = cs.hsamp_.stop_.crl();
+    if ( intv.stop > cs.hsamp_.stop_.crl() )
+	intv.stop = cs.hsamp_.stop_.crl();
+    if ( intv.stop < cs.hsamp_.start_.crl() )
+	intv.stop = cs.hsamp_.start_.crl();
     BinID bid( 0, intv.start );
     snap( bid, BinID(1,1) ); intv.start = bid.crl();
     bid.crl() = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.crl();
@@ -856,7 +865,8 @@ void SurveyInfo::gen3Pts()
 {
     set3binids_[0] = tkzs_.hsamp_.start_;
     set3binids_[1] = tkzs_.hsamp_.stop_;
-    set3binids_[2] = BinID( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.crl() );
+    set3binids_[2] = BinID( tkzs_.hsamp_.start_.inl(),
+			    tkzs_.hsamp_.stop_.crl() );
     set3coords_[0] = transform( set3binids_[0] );
     set3coords_[1] = transform( set3binids_[1] );
     set3coords_[2] = transform( set3binids_[2] );

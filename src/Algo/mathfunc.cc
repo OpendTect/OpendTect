@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2003
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 

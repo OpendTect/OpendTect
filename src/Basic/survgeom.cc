@@ -278,7 +278,7 @@ bool GeometryManager::fetchFrom2DGeom( uiString& errmsg )
 	S2DPOS().setCurLineSet( lsnames.get(lsidx).buf() );
 	for ( int lidx=0; lidx<lnames.size(); lidx++ )
 	{
-	    Pos::GeomID geomid = GM().getGeomID( lsnames.get(lsidx), 
+	    Pos::GeomID geomid = GM().getGeomID( lsnames.get(lsidx),
 						 lnames.get(lidx) );
 	    if ( geomid != GM().cUndefGeomID() )
 		continue;

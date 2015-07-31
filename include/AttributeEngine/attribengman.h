@@ -146,8 +146,7 @@ private:
     friend class		AEMTableExtractor;
 };
 
-};//namespace
-
+} // namespace Attrib
 
 #endif
 

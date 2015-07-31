@@ -133,7 +133,7 @@ public:
     virtual void	set(int id,const Coord3&);
     virtual int		add(const Coord3&);
     virtual bool	isDefined(int) const;
-    virtual void	       remove(int id);
+    virtual void	remove(int id);
     virtual void	addValue(int id,const Coord3&);
     virtual void	remove(const TypeSet<int>&);
     virtual int		size() const

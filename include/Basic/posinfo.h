@@ -59,7 +59,7 @@ public:
     int				segmentOf(int) const;
     Interval<int>		range() const;
     void			merge(const LineData&,bool incl);
-    				//!< incl=union, !incl=intersection
+				//!< incl=union, !incl=intersection
 
     int				nearestSegment(double) const;
 
@@ -73,7 +73,7 @@ public:
 mExpClass(Basic) CubeDataPos
 {
 public:
-    		CubeDataPos( int iln=0, int isn=0, int sidx=-1 )
+		CubeDataPos( int iln=0, int isn=0, int sidx=-1 )
 		    : lidx_(iln), segnr_(isn), sidx_(sidx)	{}
 
     int		lidx_;
@@ -96,25 +96,26 @@ mExpClass(Basic) CubeData : public ManagedObjectSet<LineData>
 {
 public:
 
-    			CubeData()		{}
-    			CubeData( BinID start, BinID stop, BinID step )
+			CubeData()		{}
+			CubeData( BinID start, BinID stop, BinID step )
 						{ generate(start,stop,step); }
-    			CubeData( const CubeData& cd )
+			CubeData( const CubeData& cd )
+			    : ManagedObjectSet<LineData>()
 						{ *this = cd; }
     CubeData&		operator =( const CubeData& cd )
 			{ copyContents(cd); return *this; }
 
     int			totalSize() const;
     int			totalSizeInside(const TrcKeySampling& hrg) const;
-    			/*!<Only take positions that are inside hrg. */
+			/*!<Only take positions that are inside hrg. */
 
     virtual int		indexOf(int inl,int* newidx=0) const;
-    			//!< newidx only filled if not null and -1 is returned
+			//!< newidx only filled if not null and -1 is returned
     bool		includes(int inl,int crl) const;
     bool		getInlRange(StepInterval<int>&,bool sorted=true) const;
-    			//!< Returns whether fully regular.
+			//!< Returns whether fully regular.
     bool		getCrlRange(StepInterval<int>&,bool sorted=true) const;
-    			//!< Returns whether fully regular.
+			//!< Returns whether fully regular.
 
     bool		isValid(const CubeDataPos&) const;
     bool		toNext(CubeDataPos&) const;
@@ -128,7 +129,7 @@ public:
 
     void		limitTo(const TrcKeySampling&);
     void		merge(const CubeData&,bool incl);
-    				//!< incl=union, !incl=intersection
+				//!< incl=union, !incl=intersection
     void		generate(BinID start,BinID stop,BinID step,
 				 bool allowreversed=false);
 
@@ -136,7 +137,7 @@ public:
     bool		write(od_ostream&,bool asc) const;
 
     virtual int		indexOf( const LineData* l ) const
-    			{ return ObjectSet<LineData>::indexOf( l ); }
+			{ return ObjectSet<LineData>::indexOf( l ); }
 
 protected:
 
@@ -153,27 +154,27 @@ The LineData's are sorted.
 mExpClass(Basic) SortedCubeData : public CubeData
 {
 public:
-    			SortedCubeData()				{}
-    			SortedCubeData( const BinID& start, const BinID& stop,
+			SortedCubeData()				{}
+			SortedCubeData( const BinID& start, const BinID& stop,
 				  const BinID& step )
 			    : CubeData(start,stop,step)		{}
-    			SortedCubeData( const SortedCubeData& cd )
+			SortedCubeData( const SortedCubeData& cd )
 			    : CubeData( cd )
 								{ *this = cd; }
-    			SortedCubeData( const CubeData& cd )	{ *this = cd; }
+			SortedCubeData( const CubeData& cd )	{ *this = cd; }
     SortedCubeData&	operator =( const SortedCubeData& scd )
 			{ copyContents(scd); return *this; }
     SortedCubeData&	operator =( const CubeData& cd )
 			{ copyContents(cd); return *this; }
 
     virtual int		indexOf(int inl,int* newidx=0) const;
-    			//!< newidx only filled if not null and -1 is returned
+			//!< newidx only filled if not null and -1 is returned
 
     virtual CubeData&	operator +=( LineData* ld )	{ return add( ld ); }
     SortedCubeData&	add(LineData*);
 
     virtual int		indexOf( const LineData* l ) const
-    			{ return CubeData::indexOf( l ); }
+			{ return CubeData::indexOf( l ); }
 
 };
 
@@ -185,8 +186,8 @@ public:
 mExpClass(Basic) CubeDataFiller
 {
 public:
-    			CubeDataFiller(CubeData&);
-    			~CubeDataFiller();
+			CubeDataFiller(CubeData&);
+			~CubeDataFiller();
 
     void		add(const BinID&);
     void		finish(); // automatically called on delete
@@ -206,14 +207,14 @@ protected:
 
 
 /*!
-\brief Iterates through CubeData. 
+\brief Iterates through CubeData.
 */
 
 mExpClass(Basic) CubeDataIterator
 {
 public:
 
-    			CubeDataIterator( const CubeData& cd )
+			CubeDataIterator( const CubeData& cd )
 			    : cd_(cd)	{}
 
     inline bool		next( BinID& bid )
