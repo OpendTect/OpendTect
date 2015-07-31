@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 
 /*!ValueSeries that holds data in memory, but the memory may be of a different
-format than T. I.e. a ValueSeries<float> can have it's values stored as 
+format than T. I.e. a ValueSeries<float> can have it's values stored as
 chars. */
 
 
@@ -68,7 +68,7 @@ protected:
 
 template <class T> inline
 ConvMemValueSeries<T>::ConvMemValueSeries( od_int64 sz,
-					   const BinDataDesc& stortype, 
+					   const BinDataDesc& stortype,
 					   bool doundef)
     : ptr_( 0 )
     , size_( -1 )
@@ -131,7 +131,7 @@ bool ConvMemValueSeries<T>::setSize( od_int64 sz )
     if ( sz==size_ ) return true;
 
     delete [] ptr_;
-    ptr_ = new char[(int) sz*interpreter_.nrBytes()];
+    mTryAlloc( ptr_, char[sz*interpreter_.nrBytes()] );
     return ptr_;
 }
 
