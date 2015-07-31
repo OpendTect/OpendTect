@@ -299,6 +299,13 @@ void Horizon3DSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
 }
 
 
+int Horizon3DSeedPicker::indexOf( const TrcKey& tk ) const
+{
+    TypeSet<TrcKey> seeds; getSeeds( seeds );
+    return seeds.indexOf( tk );
+}
+
+
 bool Horizon3DSeedPicker::reTrack()
 {
     propagatelist_.erase(); seedlist_.erase(); seedpos_.erase();

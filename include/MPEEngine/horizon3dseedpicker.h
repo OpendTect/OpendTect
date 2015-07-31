@@ -86,6 +86,7 @@ public:
 			{ fltdataprov_ = data; }
 
     void		getSeeds(TypeSet<TrcKey>&) const;
+    int			indexOf(const TrcKey&) const;
 
 protected:
     bool		retrackOnActiveLine(const BinID& startbid,
@@ -138,8 +139,7 @@ private:
 			    bool startwasdefined,const BinID& dir );
 };
 
-
-};
+} // namespace MPE
 
 #endif
 
