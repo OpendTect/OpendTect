@@ -62,7 +62,7 @@ bool ZAxisTransformer::doPrepare(int)
 {
     delete output_;
     output_ = new Array3DImpl<float>( outputcs_.hsamp_.nrInl(),
-	    			      outputcs_.hsamp_.nrCrl(),
+				      outputcs_.hsamp_.nrCrl(),
 				      outputcs_.zsamp_.nrSteps()+1 );
     if ( !output_ || !output_->isOK() )
 	return false;

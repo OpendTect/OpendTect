@@ -437,7 +437,7 @@ bool GeometryManager::updateGeometries( TaskRunner* taskrunner )
     PtrMan<GeometryReader> geomreader = GeometryReader::factory()
 					.create(sKey::TwoD());
     return geomreader ? geomreader->updateGeometries( geometries_, taskrunner )
-		   : false;
+		      : false;
 }
 
 

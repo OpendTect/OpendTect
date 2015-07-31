@@ -21,9 +21,9 @@ class uiLineEditBody;
 mExpClass(uiBase) uiIntValidator
 {
 public:
-    		uiIntValidator()
+		uiIntValidator()
 		    : bottom_(-mUdf(int)), top_(mUdf(int))	{}
-    		uiIntValidator( int bot, int top )
+		uiIntValidator( int bot, int top )
 		    : bottom_(bot), top_(top)			{}
 
     int		bottom_;
@@ -34,10 +34,10 @@ public:
 mExpClass(uiBase) uiFloatValidator
 {
 public:
-    		uiFloatValidator()
+		uiFloatValidator()
 		    : bottom_(-mUdf(float)), top_(mUdf(float))
 		    , nrdecimals_(1000), scnotation_(true)	{}
-    		uiFloatValidator( float bot, float top )
+		uiFloatValidator( float bot, float top )
 		    : bottom_(bot), top_(top)
 		    , nrdecimals_(1000), scnotation_(true)	{}
 
@@ -54,14 +54,14 @@ mExpClass(uiBase) uiLineEdit : public UserInputObjImpl<const char*>,
 public:
 			//! pref_empty : return empty string/ null value
 			//  insted of undefined value, when line edit is empty.
-                        uiLineEdit(uiParent*,const char* nm);
-                        uiLineEdit(uiParent*,const DataInpSpec&,const char* nm);
+			uiLineEdit(uiParent*,const char* nm);
+			uiLineEdit(uiParent*,const DataInpSpec&,const char* nm);
 
     void		setEdited(bool=true);
     bool		isEdited() const;
 
     void		setCompleter(const BufferStringSet& bs,
-	    			     bool casesensitive=false);
+				     bool casesensitive=false);
 
     virtual void	setReadOnly(bool=true);
     virtual bool	isReadOnly() const;
@@ -75,9 +75,9 @@ public:
     int			maxLength() const;
     void		setNrDecimals( int nrdec )	{ nrdecimals_ = nrdec; }
 
-			//! Moves the text cursor to the beginning of the line. 
+			//! Moves the text cursor to the beginning of the line.
     void		home();
-			//! Moves the text cursor to the end of the line. 
+			//! Moves the text cursor to the end of the line.
     void		end();
 
     void		backspace();
@@ -94,10 +94,10 @@ public:
     bool		handleLongTabletPress();
     void		popupVirtualKeyboard(int globalx=-1,int globaly=-1);
 
-    Notifier<uiLineEdit> editingFinished;	
-    Notifier<uiLineEdit> returnPressed;	
-    Notifier<uiLineEdit> textChanged;	
-    Notifier<uiLineEdit> selectionChanged;	
+    Notifier<uiLineEdit> editingFinished;
+    Notifier<uiLineEdit> returnPressed;
+    Notifier<uiLineEdit> textChanged;
+    Notifier<uiLineEdit> selectionChanged;
 
 
     virtual const char*	getvalue_() const;
@@ -107,10 +107,10 @@ public:
     			{ uiObject::setToolTip(tt); }
 
 protected:
-    
+
     virtual bool	notifyValueChanging_( const CallBack& cb )
 			{ textChanged.notify( cb ); return true;}
-    virtual bool	notifyValueChanged_( const CallBack& cb ) 
+    virtual bool	notifyValueChanged_( const CallBack& cb )
 			{ editingFinished.notify( cb ); return true;}
     virtual bool	notifyUpdateRequested_( const CallBack& cb )
     			{ returnPressed.notify( cb ); return true; }
@@ -124,5 +124,6 @@ private:
     int			nrdecimals_;
 
 };
+
 #endif
 

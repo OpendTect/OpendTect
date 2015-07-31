@@ -167,7 +167,7 @@ bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
 {
     delete [] depths_; depths_ = 0;
     delete [] times_; times_ = 0;
-    
+
     PointBasedMathFunction func;
     for ( int idx=0; idx<sz; idx++ )
 	func.add( times[idx], dpths[idx] );

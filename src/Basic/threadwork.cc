@@ -130,7 +130,7 @@ Threads::WorkThread::WorkThread( WorkManager& man )
     controlcond_.lock();
     const BufferString name( "TWM ", toString( man.twmid_ ) );
     thread_ = new Thread( mCB( this, WorkThread, doWork), name.buf() );
-    
+
     controlcond_.unLock();
 
     SignalHandling::startNotify( SignalHandling::Kill,
