@@ -27,7 +27,7 @@ namespace MPE
 */
 
 mExpClass(MPEEngine) Horizon2DSeedPicker : public EMSeedPicker
-{ mODTextTranslationClass(Horizon2DSeedPicker);
+{ mODTextTranslationClass(Horizon2DSeedPicker)
 public:
     			Horizon2DSeedPicker(MPE::EMTracker&);
     			~Horizon2DSeedPicker()		{}
@@ -44,12 +44,13 @@ public:
 				const Coord3& seedkey);
     bool		canAddSeed() const		{ return true; }
     bool		canAddSeed( const Attrib::SelSpec& );
-    bool		removeSeed(const EM::PosID&, 
-	    			   bool environment,
-	    			   bool retrack);
+    bool		removeSeed(const EM::PosID&,
+				   bool environment,
+				   bool retrack);
+    EM::PosID		replaceSeed(const EM::PosID& old,const Coord3& newpos);
     bool		canRemoveSeed() const		{ return true; }
 
-    void		setSelSpec(const Attrib::SelSpec* selspec) 
+    void		setSelSpec(const Attrib::SelSpec* selspec)
 			{ selspec_ = selspec; }
     const Attrib::SelSpec* getSelSpec()			{ return selspec_; }
 
@@ -58,13 +59,12 @@ public:
     int			minSeedsToLeaveInitStage() const;
     bool		stopSeedPick(bool iscancel=false);
 
-    NotifierAccess*     aboutToAddRmSeedNotifier()      { return &addrmseed_; }
-    NotifierAccess*     madeSurfChangeNotifier()        { return &surfchange_; }
+    NotifierAccess*	aboutToAddRmSeedNotifier()	{ return &addrmseed_; }
+    NotifierAccess*	madeSurfChangeNotifier()	{ return &surfchange_; }
 
     static int		nrSeedConnectModes()		{ return 3; }
     static int		defaultSeedConMode()		{return TrackFromSeeds;}
-    static uiString	seedConModeText(int mode,
-				    bool abbrev=false);
+    static uiString	seedConModeText(int mode,bool abbrev=false);
 
     int			getSeedConnectMode() const;
     void		setSeedConnectMode(int scm);
@@ -72,8 +72,7 @@ public:
     bool		isSeedPickBlocked() const;
     bool		doesModeUseVolume() const;
     bool		doesModeUseSetup() const;
-    int                 defaultSeedConMode(
-				    bool gotsetup) const;
+    int			defaultSeedConMode(bool gotsetup) const;
 
     void		setSowerMode(bool yn)		{ sowermode_ = yn; }
 
@@ -91,6 +90,8 @@ protected:
     int				nrLineNeighbors(int colnr) const;
     bool			interpolateSeeds();
     TrcKeyZSampling		getTrackBox() const;
+    bool			getNextSeedPos(int seedpos,int dirstep,
+					       int& nextseedpos ) const;
 
     TypeSet<EM::PosID>		seedlist_;
     TypeSet<EM::PosID>		trackbounds_;
@@ -111,15 +112,14 @@ protected:
     int				seedconmode_;
     bool			blockpicking_;
 
-    Notifier<Horizon2DSeedPicker> 
+    Notifier<Horizon2DSeedPicker>
 				addrmseed_;
-    Notifier<Horizon2DSeedPicker> 
+    Notifier<Horizon2DSeedPicker>
 				surfchange_;
 
 };
 
-
-};
+} // namespace MPE
 
 #endif
 

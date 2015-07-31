@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mpeengine.h"
 #include "sorting.h"
 #include "posinfo2dsurv.h"
+#include "survgeom2d.h"
 
 
 namespace MPE
@@ -143,6 +144,7 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop )
     const StepInterval<int> colrg = \
 	hor->geometry().colRange( sectionid_, geomid_ );
 
+
 bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 				   const Coord3& seedkey )
 {
@@ -153,30 +155,12 @@ bool Horizon2DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	return true;
 
     mGetHorAndColrg(hor,colrg,false);
-
-    if ( colrg.start==colrg.stop )
+    const Survey::Geometry2D* geom2d =Survey::GM().getGeometry(geomid_)->as2D();
+    if ( !geom2d )
 	return false;
 
-    float maxdist = mUdf(float);
-    int closestcol = 0;
-    int col = 0;
-    for ( col=colrg.start; col<=colrg.stop; col+=colrg.step )
-    {
-	const Coord coord = hor->getPos( sectionid_, geomid_, col );
-	if ( !coord.isDefined() )
-	    continue;
-
-	float sqdist = (float) coord.sqDistTo( seedcrd );
-	if ( sqdist < maxdist )
-	{
-	    closestcol = col;
-	    maxdist = sqdist;
-	}
-    }
-
-    col = closestcol;
-    RowCol rc( hor->geometry().lineIndex(geomid_), col );
-
+    TrcKey trckey = geom2d->nearestTrace( seedcrd, 0 );
+    RowCol rc( hor->geometry().lineIndex(geomid_), trckey.pos().crl() );
     const EM::PosID pid( hor->id(), sectionid_, rc.toInt64() );
     bool res = true;
 
@@ -272,6 +256,68 @@ bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 
     surfchange_.trigger();
     return res;
+}
+
+
+bool Horizon2DSeedPicker::getNextSeedPos( int seedpos, int dirstep,
+					  int& nextseedpos ) const
+{
+    mGetHorAndColrg(hor,colrg,false);
+    RowCol currc( hor->geometry().lineIndex(geomid_), seedpos );
+    while ( true )
+    {
+	currc.col() += dirstep;
+	if ( !colrg.includes(currc.col(),false) )
+	    return false;
+	const EM::PosID pid( hor->id(), sectionid_, currc.toInt64() );
+	if ( hor->isPosAttrib( pid, EM::EMObject::sSeedNode() ) )
+	{
+	    nextseedpos = currc.col();
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+EM::PosID Horizon2DSeedPicker::replaceSeed( const EM::PosID& oldpid,
+					    const Coord3& newpos )
+{
+    EM::PosID newpospid = EM::PosID::udf();
+    if ( seedconmode_ != DrawBetweenSeeds )
+	return newpospid;
+
+    sowermode_ = false;
+    mGetHorAndColrg(hor,colrg,EM::PosID::udf());
+    hor->setBurstAlert( true );
+    RowCol oldseedrc = RowCol::fromInt64( oldpid.subID() );
+    int prevseedpos = mUdf(int);
+    int nextseedpos = mUdf(int);
+    getNextSeedPos( oldseedrc.col(), -colrg.step, prevseedpos );
+    getNextSeedPos( oldseedrc.col(), colrg.step, nextseedpos );
+    if ( mIsUdf(prevseedpos) && mIsUdf(nextseedpos) )
+	return newpospid;
+
+    const Survey::Geometry2D* geom2d =Survey::GM().getGeometry(geomid_)->as2D();
+    if ( !geom2d )
+	return newpospid;
+
+    TrcKey trckey = geom2d->nearestTrace( newpos, 0 );
+    RowCol newseedrc( hor->geometry().lineIndex(geomid_), trckey.pos().crl() );
+    if ( !mIsUdf(prevseedpos) && newseedrc.col()<=prevseedpos )
+	newseedrc.col() = prevseedpos + colrg.step;
+    else if ( !mIsUdf(nextseedpos) && newseedrc.col()>=nextseedpos )
+	newseedrc.col() = nextseedpos - colrg.step;
+
+    removeSeed( oldpid, true, false );
+    const Coord3 adjustednewposcrd( geom2d->toCoord(geomid_,newseedrc.col()),
+				    newpos.z );
+    addSeed( adjustednewposcrd, false );
+    newpospid = EM::PosID( hor->id(), sectionid_, newseedrc.toInt64() );
+    hor->setBurstAlert( false );
+    surfchange_.trigger();
+    return newpospid;
 }
 
 

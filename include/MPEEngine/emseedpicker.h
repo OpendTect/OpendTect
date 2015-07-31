@@ -54,6 +54,9 @@ public:
     virtual bool	removeSeed(const EM::PosID&,
 	    			   bool enviromment=true,
 	    			   bool retrack=true)		{ return false;}
+    virtual EM::PosID	replaceSeed(const EM::PosID&,const Coord3&)
+			{ return EM::PosID::udf(); }
+
     virtual void	setSelSpec(const Attrib::SelSpec*) {}
     virtual const Attrib::SelSpec*
 			getSelSpec()				{ return 0; }
@@ -74,9 +77,7 @@ public:
 
     virtual const char*	errMsg() const				{ return 0; }
 
-    enum SeedModeOrder  { TrackFromSeeds,
-			TrackBetweenSeeds,
-			DrawBetweenSeeds   };
+    enum SeedModeOrder	{ TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
 
     virtual void	setSowerMode(bool)			{}
     virtual void	setSeedPickArea(const TrcKeySampling&)	{}
@@ -87,4 +88,3 @@ public:
 } // namespace MPE
 
 #endif
-

@@ -52,7 +52,7 @@ public:
     void		enableSeed(bool);
     void		paint();
 
-    void		setSeedPicking(bool);
+    void		setSeedPicking( bool yn )	{}
     void		setTrackerSetupActive(bool yn)
 			{ trackersetupactive_ = yn; }
 
@@ -66,9 +66,11 @@ protected:
     void		mouseMoveCB(CallBacker*);
     void		mousePressCB(CallBacker*);
     void		mouseReleaseCB(CallBacker*);
+    void		doubleClickedCB(CallBacker*);
     void		movementEndCB(CallBacker*);
     void		removePosCB(CallBacker*);
 
+    void		handleMouseClicked(bool dbl);
     bool		checkSanity(EMTracker&,const EMSeedPicker&,
 	    			    bool& pickinvd) const;
     bool		prepareTracking(bool pickinvd,const EMTracker&,
@@ -99,8 +101,9 @@ protected:
     const Attrib::SelSpec*	vdselspec_;
     const Attrib::SelSpec*	wvaselspec_;
 
-    bool			seedpickingon_;
     bool			trackersetupactive_;
+    EM::PosID			pickedpid_;
+    mutable bool		dodropnext_;
 };
 
 } //namespace MPE

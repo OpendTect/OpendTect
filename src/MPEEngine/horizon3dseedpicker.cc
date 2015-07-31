@@ -212,6 +212,72 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 }
 
 
+bool Horizon3DSeedPicker::getNextSeed( BinID seedbid,
+				       const BinID& dir,
+				       BinID& nextseedbid ) const
+{
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    while ( true )
+    {
+	seedbid += dir;
+	if ( !engine().activeVolume().hsamp_.includes(seedbid) )
+	    return false;
+	EM::PosID pid = EM::PosID( emobj->id(), sectionid_, seedbid.toInt64() );
+	if ( emobj->isPosAttrib( pid, EM::EMObject::sSeedNode() ) )
+	{
+	    nextseedbid = seedbid;
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+EM::PosID Horizon3DSeedPicker::replaceSeed( const EM::PosID& oldpid,
+					    const Coord3& newpos )
+{
+    EM::PosID newpospid = EM::PosID::udf();
+    if ( seedconmode_ != DrawBetweenSeeds )
+	return newpospid;
+
+    sowermode_ = false;
+    BinID dir;
+    if ( !lineTrackDirection(dir) )
+	return newpospid; //TODO implement for RandomLine
+
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    emobj->setBurstAlert( true );
+    const Coord3 oldpos = emobj->getPos( oldpid );
+    const BinID oldseedbid = SI().transform( oldpos );
+    BinID newseedbid = SI().transform( newpos );
+    BinID prevseedbid = BinID::udf();
+    BinID nextseedbid = BinID::udf();
+    getNextSeed( oldseedbid, -dir, prevseedbid );
+    getNextSeed( oldseedbid, dir, nextseedbid );
+    if ( prevseedbid.isUdf() && nextseedbid.isUdf() )
+	return newpospid;
+
+    const bool inltracking = dir.inl()==0;
+    const int dirlength = inltracking ? dir.crl() : dir.inl();
+    int& adjustednewpos = inltracking ? newseedbid.crl() : newseedbid.inl();
+    const int prevseedpos = inltracking ? prevseedbid.crl() : prevseedbid.inl();
+    const int nextseedpos = inltracking ? nextseedbid.crl() : nextseedbid.inl();
+    if ( !mIsUdf(prevseedpos) && adjustednewpos<=prevseedpos )
+	adjustednewpos = prevseedpos + dirlength;
+    else if ( !mIsUdf(nextseedpos) && adjustednewpos>=nextseedpos )
+	adjustednewpos = nextseedpos - dirlength;
+
+    removeSeed( oldpid, true, false );
+    const Coord3 adjustednewposcrd( SI().transform(newseedbid), newpos.z );;
+    addSeed( adjustednewposcrd, false );
+    emobj->setBurstAlert( false );
+    newpospid = EM::PosID( emobj->id(), sectionid_, newseedbid.toInt64() );
+    surfchange_.trigger();
+    return newpospid;
+}
+
+
 bool Horizon3DSeedPicker::reTrack()
 {
     propagatelist_.erase(); seedlist_.erase(); seedpos_.erase();

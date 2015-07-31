@@ -30,7 +30,7 @@ namespace MPE
 */
 
 mExpClass(MPEEngine) Horizon3DSeedPicker : public EMSeedPicker
-{ mODTextTranslationClass(Horizon3DSeedPicker);
+{ mODTextTranslationClass(Horizon3DSeedPicker)
 public:
     			Horizon3DSeedPicker(MPE::EMTracker&);
 
@@ -48,6 +48,8 @@ public:
     bool		removeSeed(const EM::PosID&,
 	    			   bool environment,
 	    			   bool retrack);
+    EM::PosID		replaceSeed(const EM::PosID& oldpos,
+				    const Coord3& newpos);
     bool		canAddSeed() const		{ return true; }
     bool		canRemoveSeed() const		{ return true; }
 
@@ -83,9 +85,9 @@ public:
 			{ fltdataprov_ = data; }
 
 protected:
-    bool		retrackOnActiveLine( const BinID& startbid,
-					     bool startwasdefined,
-					     bool eraseonly=false);
+    bool		retrackOnActiveLine(const BinID& startbid,
+					    bool startwasdefined,
+					    bool eraseonly=false);
     bool		retrackFromSeedList();
     void		processJunctions();
     bool		lineTrackDirection(BinID& dir,
@@ -96,6 +98,8 @@ protected:
 
     bool		interpolateSeeds();
     TrcKeyZSampling	getTrackBox() const;
+    bool		getNextSeed(BinID seedbid,const BinID& dir,
+				    BinID& nextseedbid) const;
 
     TypeSet<EM::PosID>	propagatelist_;
     TypeSet<EM::PosID>	seedlist_;

@@ -70,7 +70,9 @@ protected:
     void		mouseReleaseCB(CallBacker*);
     void		movementEndCB(CallBacker*);
     void		removePosCB(CallBacker*);
+    void		doubleClickedCB(CallBacker*);
 
+    void		handleMouseClicked(bool dbl);
     bool                checkSanity(EMTracker&,const EMSeedPicker&,
 	    			    bool& pickinvd) const;
     bool		prepareTracking(bool pickinvd,const EMTracker&,
@@ -105,6 +107,8 @@ protected:
 
     bool			seedpickingon_;
     bool			trackersetupactive_;    
+    EM::PosID			pickedpid_;
+    mutable bool		dodropnext_;	
 };
 
 }; // namepace 
