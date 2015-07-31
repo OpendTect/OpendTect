@@ -135,7 +135,7 @@ FlatDataPack* uiAttribPanel::createFDPack( const Data2DHolder& d2dh ) const
 FlatDataPack* uiAttribPanel::createFDPack( EngineMan* aem,
 						     Processor* proc ) const
 {
-    const RegularSeisDataPack* output = aem->getOutput( *proc );
+    const RegularSeisDataPack* output = aem->getDataPackOutput( *proc );
     return output ? new RegularFlatDataPack(*output,-1) : 0;
 }
 

@@ -85,8 +85,8 @@ public:
 			//!< Give the previous calculated data in cached data
 			//!< and some parts may not be recalculated.
 
-    const RegularSeisDataPack*	getOutput(const Processor&);
-    const RegularSeisDataPack*	getOutput(
+    const RegularSeisDataPack*	getDataPackOutput(const Processor&);
+    const RegularSeisDataPack*	getDataPackOutput(
 				   const ObjectSet<const RegularSeisDataPack>&);
 
     Executor*		createFeatureOutput(const BufferStringSet& inputs,

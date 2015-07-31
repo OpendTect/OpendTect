@@ -287,7 +287,7 @@ const char* EngineMan::getCurUserRef() const
 }
 
 
-const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
+const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
 {
     if ( proc.outputs_.size()==1 && !cache_ )
     {
@@ -323,11 +323,11 @@ const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
 	dpm_.obtain( cache_->id() );
     }
 
-    return !packset.isEmpty() ? getOutput(packset) : 0;
+    return !packset.isEmpty() ? getDataPackOutput(packset) : 0;
 }
 
 
-const RegularSeisDataPack* EngineMan::getOutput(
+const RegularSeisDataPack* EngineMan::getDataPackOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
     const char* category = SeisDataPack::categoryStr(

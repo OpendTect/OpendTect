@@ -155,7 +155,7 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 					    Processor* proc )
 {
     RegularSeisDataPack* output = const_cast<RegularSeisDataPack*>(
-						aem->getOutput(*proc) );
+						aem->getDataPackOutput(*proc) );
     if ( !output ) return;
 
     bool csmatchessurv = SI().zRange(0).includes(tkzs_.zsamp_.start, false )
