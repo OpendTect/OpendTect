@@ -390,11 +390,6 @@ void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool usetransparency )
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
     qpen.setCosmetic( true );
     agsitm->setPen( qpen );
-
-    //needed for hoverEvents
-    mDynamicCastGet(ODGraphicsItem*,oditm,qgraphicsitem_)
-    if ( !oditm ) return;
-    oditm->setItemPenWidth( ls.width_ );
 }
 
 
