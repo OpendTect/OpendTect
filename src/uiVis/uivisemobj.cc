@@ -219,8 +219,6 @@ void uiVisEMObject::setUpConnections()
     showseedsmnuitem_.text = uiStrings::sShow();
     seedpropmnuitem_.text = uiStrings::sProperties(false);
     lockseedsmnuitem_.text = uiStrings::sLock();
-    removesectionmnuitem_.text = tr("Remove section");
-    changesectionnamemnuitem_.text = tr("Change section's name");
     showonlyatsectionsmnuitem_.text = tr("Only at sections");
     showfullmnuitem_.text = tr("In full");
     showbothmnuitem_.text = tr("At sections and in full");
@@ -388,20 +386,6 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	mAddMenuItem( trackmnu, &seedsmenuitem_,
 		      seedsmenuitem_.nrItems(), false );
     }
-
-#ifdef __debug__
-    const EM::SectionID sid = emod->getSectionID(menu->getPath());
-    MenuItemHolder* toolsmnuitem = menu->findItem( "Tools" );
-    if ( !toolsmnuitem ) toolsmnuitem = menu;
-    mAddMenuItem( toolsmnuitem, &changesectionnamemnuitem_,
-	          emobj->canSetSectionName() && sid!=-1, false );
-    mAddMenuItem( toolsmnuitem, &removesectionmnuitem_, false, false );
-    if ( emobj->nrSections()>1 && sid!=-1 )
-	removesectionmnuitem_.enabled = true;
-#else
-    mResetMenuItem( &changesectionnamemnuitem_ );
-    mResetMenuItem( &removesectionmnuitem_ );
-#endif
 }
 
 
@@ -414,7 +398,6 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(MenuHandler*,menu,caller);
-    mDynamicCastGet(uiMenuHandler*,uimenu,caller);
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod || mnuid==-1 || !menu ||
 	 menu->isHandled() || menu->menuID()!=displayid_ )
@@ -423,9 +406,6 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     const EM::ObjectID emid = emod->getObjectID();
     EM::EMObject* emobj = EM::EMM().getObject(emid);
-    EM::SectionID sid = -1;
-    if ( uimenu && uimenu->getPath() )
-	sid = emod->getSectionID( uimenu->getPath() );
 
     if ( mnuid==singlecolmnuitem_.id )
     {
@@ -459,24 +439,6 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	}
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==changesectionnamemnuitem_.id )
-    {
-	StringInpSpec* spec = new StringInpSpec( emobj->sectionName(sid) );
-	uiGenInputDlg dlg(uiparent_,tr("Change section-name"),
-			  uiStrings::sName(), spec);
-	while ( dlg.go() )
-	{
-	    if ( emobj->setSectionName(sid,dlg.text(), true ) )
-	    {
-		Undo& undo = EM::EMM().undo();
-		const int currentevent = undo.currentEventID();
-		undo.setUserInteractionEnd(currentevent);
-		break;
-	    }
-	}
-
-	menu->setIsHandled( true );
-    }
     else if ( mnuid==showseedsmnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -485,7 +447,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==seedpropmnuitem_.id )
     {
-	if ( !visserv_->showSetupGroupOnTop("Properties") )
+	if ( emobj && !visserv_->showSetupGroupOnTop("Properties") )
 	{
 	    uiSeedPropDlg dlg( uiparent_, emobj );
 	    dlg.go();
@@ -494,20 +456,10 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==lockseedsmnuitem_.id )
     {
-	emobj->lockPosAttrib( EM::EMObject::sSeedNode(),
+	if ( emobj )
+	    emobj->lockPosAttrib( EM::EMObject::sSeedNode(),
 			!emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) );
 	menu->setIsHandled( true );
-    }
-    else if ( mnuid==removesectionmnuitem_.id )
-    {
-	if ( !emobj )
-	    return;
-
-	emobj->removeSection(sid, true );
-
-	Undo& undo = EM::EMM().undo();
-	const int currentevent = undo.currentEventID();
-	undo.setUserInteractionEnd(currentevent);
     }
 }
 
