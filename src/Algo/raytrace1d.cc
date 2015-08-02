@@ -201,7 +201,7 @@ bool RayTracer1D::doPrepare( int nrthreads )
     for ( int idx=0; idx<layersize; idx++ )
     {
 	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_
-	               : model_[idx].thickness_;
+		       : model_[idx].thickness_;
 	velmax_ += model_[idx].vel_;
     }
 
@@ -317,7 +317,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	}
 
 	mAllocLargeVarLenArr( ZoeppritzCoeff, coefs, nrinterfaces );
-        for ( int iidx=0; iidx<nrinterfaces; iidx++ )
+	for ( int iidx=0; iidx<nrinterfaces; iidx++ )
 	    coefs[iidx].setInterface( rayparam, model_[iidx], model_[iidx+1] );
 
 	reflectivity = coefs[0].getCoeff( true, layer!=0, setup().pdown_,
@@ -350,7 +350,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	const float ai1 = ail1.vel_ * ail1.den_;
 	const float real =
 	   mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF) ? mUdf(float)
-						          : (ai1-ai0)/(ai1+ai0);
+							  : (ai1-ai0)/(ai1+ai0);
 	reflectivity = float_complex( real, 0 );
     }
 
