@@ -141,6 +141,7 @@ void SEGY::uiScanData::reInit()
 {
     usable_ = false;
     nrtrcs_ = 0;
+    infeet_ = false;
     inls_ = Interval<int>( mUdf(int), 0 );
     crls_ = Interval<int>( mUdf(int), 0 );
     trcnrs_ = Interval<int>( mUdf(int), 0 );
@@ -191,7 +192,7 @@ void SEGY::uiScanData::getFromSEGYBody( od_istream& strm, const uiScanDef& def,
 		break;
 
 	    const bool foundranges = is2d ? trcnrs_.start != trcnrs_.stop
-				   : (inls_.start != inls_.stop && 
+				   : (inls_.start != inls_.stop &&
 				      crls_.start != crls_.stop);
 	    const bool founddata = cs.nrVals() > 1000;
 	    if ( foundranges && founddata )

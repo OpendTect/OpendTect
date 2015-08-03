@@ -17,11 +17,10 @@ ________________________________________________________________________
 #include "segyuiscandata.h"
 
 class DataClipSampler;
-class uiTable;
-class uiComboBox;
 class uiFileInput;
-class uiSEGYImpType;
 class uiHistogramDisplay;
+class uiSEGYImpType;
+class uiSEGYReadStartInfo;
 namespace SEGY { class ImpType; }
 
 
@@ -51,17 +50,14 @@ public:
 
 protected:
 
-    bool		isvsp_;
     FileSpec		filespec_;
     FilePars		filepars_;
     FileReadOpts*	filereadopts_;
 
     uiSEGYImpType*	typfld_;
     uiFileInput*	inpfld_;
-    uiTable*		infotbl_;
+    uiSEGYReadStartInfo* infofld_;
     uiHistogramDisplay*	ampldisp_;
-
-    uiComboBox*		revfld_;
 
     BufferString	userfilename_;
     SEGY::uiScanDef	scandef_;
@@ -69,23 +65,20 @@ protected:
     DataClipSampler&	clipsampler_;
     bool		infeet_;
     bool		scandefguessed_;
-    bool		parsbeingset_;
 
     void		buildTable();
     void		setCellTxt(int col,int row,const char*);
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
-    void		handleChange();
     bool		getFileSpec();
+    void		execNewScan();
     void		scanInput();
     bool		scanFile(const char*);
     bool		obtainScanData(SEGY::uiScanData&,od_istream&,bool);
     bool		guessScanDef(od_istream&);
     void		displayScanResults();
-    void		setTableFromScanDef();
-    void		setScanDefFromTable();
 
-    void		parChg(CallBacker*);
     void		inpChg(CallBacker*);
+    void		defChg( CallBacker* )		{ execNewScan(); }
     bool		acceptOK(CallBacker*);
 
 };

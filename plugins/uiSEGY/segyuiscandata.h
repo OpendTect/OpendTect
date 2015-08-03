@@ -71,6 +71,8 @@ public:
 
     BufferString	filenm_;
     bool		usable_;
+    bool		isEmpty() const		{ return nrtrcs_ < 1; }
+    bool		isUsable() const	{ return usable_ && !isEmpty();}
 
     int			nrtrcs_;
     Interval<double>	xrg_;
@@ -80,6 +82,7 @@ public:
     Interval<int>	crls_;
     Interval<int>	trcnrs_;
     Interval<float>	refnrs_;
+    bool		infeet_;
 
     void		getFromSEGYBody(od_istream&,const uiScanDef&,
 				    bool isfirst,bool is2d,DataClipSampler&);
