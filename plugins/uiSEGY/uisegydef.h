@@ -12,7 +12,6 @@ ________________________________________________________________________
 -*/
 
 #include "uisegycommon.h"
-#include "seistype.h"
 #include "uigroup.h"
 #include "uisegyread.h"
 #include "segyfiledef.h"
@@ -57,7 +56,7 @@ mExpClass(uiSEGY) uiSEGYFileSpec : public uiSEGYDefGroup
 { mODTextTranslationClass(uiSEGYFileSpec);
 public:
     mExpClass(uiSEGY) Setup
-    { 
+    {
     public:
 			Setup( bool needmulti )
 			    : forread_(true)

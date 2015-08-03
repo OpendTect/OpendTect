@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uidialog.h"
-#include "seistype.h"
 class uiIOObjSel;
 class uiGenInput;
 class uiPosSubSel;
