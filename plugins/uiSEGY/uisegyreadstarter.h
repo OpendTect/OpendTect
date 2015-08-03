@@ -20,7 +20,9 @@ class DataClipSampler;
 class uiTable;
 class uiComboBox;
 class uiFileInput;
+class uiSEGYImpType;
 class uiHistogramDisplay;
+namespace SEGY { class ImpType; }
 
 
 /*!\brief Starts reading process of 'any SEG-Y file'. */
@@ -36,8 +38,7 @@ public:
 			uiSEGYReadStarter(uiParent*,const FileSpec* fs=0);
 			~uiSEGYReadStarter();
 
-    Seis::GeomType	geomType() const	{ return geomtype_; }
-    bool		isVSP() const		{ return isvsp_; }
+    const SEGY::ImpType& impType() const;
     bool		isMulti() const		{ return filespec_.isMulti(); }
     const char*		fileName( int nr=0 ) const
 			{ return filespec_.fileName(nr); }
@@ -46,15 +47,16 @@ public:
     FilePars&		filePars()		{ return filepars_; }
     FileReadOpts&	fileReadOpts()		{ return *filereadopts_; }
 
+    void		setImpTypIdx(int);
+
 protected:
 
-    Seis::GeomType	geomtype_;
     bool		isvsp_;
     FileSpec		filespec_;
     FilePars		filepars_;
     FileReadOpts*	filereadopts_;
 
-    uiComboBox*		typfld_;
+    uiSEGYImpType*	typfld_;
     uiFileInput*	inpfld_;
     uiTable*		infotbl_;
     uiHistogramDisplay*	ampldisp_;
@@ -62,17 +64,17 @@ protected:
     uiComboBox*		revfld_;
 
     BufferString	userfilename_;
-    TypeSet<int>	inptyps_; // Seis::GeomType, or -1 for VSP
     SEGY::uiScanDef	scandef_;
     ObjectSet<SEGY::uiScanData> scandata_;
     DataClipSampler&	clipsampler_;
     bool		infeet_;
     bool		scandefguessed_;
+    bool		parsbeingset_;
 
-    void		addTyp(int);
     void		buildTable();
     void		setCellTxt(int col,int row,const char*);
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
+    void		handleChange();
     bool		getFileSpec();
     void		scanInput();
     bool		scanFile(const char*);
@@ -82,7 +84,6 @@ protected:
     void		setTableFromScanDef();
     void		setScanDefFromTable();
 
-    void		initWin(CallBacker*);
     void		parChg(CallBacker*);
     void		inpChg(CallBacker*);
     bool		acceptOK(CallBacker*);

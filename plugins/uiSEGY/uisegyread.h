@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uivarwizard.h"
-#include "seistype.h"
 #include "multiid.h"
 #include "uistring.h"
 

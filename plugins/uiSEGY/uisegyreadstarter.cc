@@ -12,15 +12,14 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uisegyreadstarter.h"
 
 #include "uisegydef.h"
+#include "uisegyimptype.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
 #include "uitable.h"
 #include "uiseparator.h"
 #include "uihistogramdisplay.h"
 #include "uimsg.h"
-#include "survinfo.h"
 #include "segyhdr.h"
-#include "seistype.h"
 #include "seisinfo.h"
 #include "dataclipper.h"
 #include "filepath.h"
@@ -46,38 +45,24 @@ static const int cMaxReasonableNS = 25000;
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),mNoDlgTitle,
 				  mTODOHelpKey ) )
-    , geomtype_(Seis::Vol)
-    , isvsp_(false)
     , filespec_(fs?*fs:FileSpec())
     , filereadopts_(0)
     , scandefguessed_(false)
     , userfilename_("x") // any non-empty
     , clipsampler_(*new DataClipSampler(100000))
     , infeet_(false)
+    , parsbeingset_(false)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Data type") );
-    typfld_ = lcb->box();
-    typfld_->setHSzPol( uiObject::MedVar );
-    typfld_->selectionChanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
-    if ( SI().has3D() )
-    {
-	addTyp( (int)Seis::Vol );
-	addTyp( (int)Seis::VolPS );
-    }
-    if ( SI().has2D() )
-    {
-	addTyp( (int)Seis::Line );
-	addTyp( (int)Seis::LinePS );
-    }
-    addTyp( -1 );
-    filereadopts_ = new FileReadOpts( (Seis::GeomType)inptyps_[0] );
+    const CallBack inpchgcb( mCB(this,uiSEGYReadStarter,inpChg) );
+    typfld_ = new uiSEGYImpType( this );
+    typfld_->typeChanged.notify( inpchgcb );
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true );
     inpfld_ = new uiFileInput( this, "Input file(s) (*=wildcard)",
 				fisu );
-    inpfld_->attach( alignedBelow, lcb );
-    inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
+    inpfld_->attach( alignedBelow, typfld_ );
+    inpfld_->valuechanged.notify( inpchgcb );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, inpfld_ );
@@ -94,7 +79,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     ampldisp_->setPrefHeight( 250 );
     ampldisp_->attach( stretchedBelow, infotbl_ );
 
-    postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
+    filereadopts_ = new FileReadOpts( typfld_->impType().geomType() );
+    postFinalise().notify( inpchgcb );
 }
 
 
@@ -102,29 +88,6 @@ uiSEGYReadStarter::~uiSEGYReadStarter()
 {
     delete filereadopts_;
     delete &clipsampler_;
-}
-
-
-void uiSEGYReadStarter::addTyp( int typ )
-{
-    inptyps_ += typ;
-
-#    define mAddItem(txt,ic) { \
-    typfld_->addItem( tr(txt) ); \
-    typfld_->setIcon( typfld_->size()-1, ic ); }
-
-    if ( typ < 0 )
-        mAddItem( "Zero-offset VSP", "vsp0" )
-    else if ( typ == (int)Seis::Vol )
-	mAddItem( "3D seismic data", "seismiccube" )
-    else if ( typ == (int)Seis::VolPS )
-	mAddItem( "3D PreStack data", "prestackdataset" )
-    else if ( typ == (int)Seis::Line )
-	mAddItem( "2D Seismic data", "seismicline2d" )
-    else if ( typ == (int)Seis::LinePS )
-	mAddItem( "2D PreStack data", "prestackdataset2d" )
-    else
-	{ pErrMsg( "Huh" ); }
 }
 
 
@@ -165,39 +128,46 @@ void uiSEGYReadStarter::setCellTxt( int col, int row, const char* txt )
 }
 
 
-void uiSEGYReadStarter::initWin( CallBacker* )
+void uiSEGYReadStarter::setImpTypIdx( int tidx )
 {
-    inpChg( 0 );
+    typfld_->setTypIdx( tidx );
 }
 
 
 void uiSEGYReadStarter::parChg( CallBacker* )
 {
-    setScanDefFromTable();
-    inpChg( 0 );
+    if ( !parsbeingset_ )
+    {
+	setScanDefFromTable();
+	handleChange();
+    }
 }
 
 
-void uiSEGYReadStarter::inpChg( CallBacker* )
+void uiSEGYReadStarter::inpChg( CallBacker* cb )
 {
     const BufferString newusrfnm = inpfld_->fileName();
-    const int newtype = inptyps_[ typfld_->getIntValue() ];
-    const int oldtype = isvsp_ ? -1 : (int)geomtype_;
     const bool isnewfile = newusrfnm != userfilename_;
-    const bool isnewtype = newtype != oldtype;
+    const bool isnewtype = cb == typfld_;
     if ( !isnewfile && !isnewtype )
 	return;
 
-    userfilename_ = newusrfnm;
-    isvsp_ = newtype < 0;
-    geomtype_ = (Seis::GeomType)(isvsp_ ? inptyps_[0] : newtype);
+    handleChange();
+}
 
-    const bool is2d = Seis::is2D(geomtype_);
-    const bool isps = Seis::isPS(geomtype_);
+
+void uiSEGYReadStarter::handleChange()
+{
+    userfilename_ = inpfld_->fileName();
+    const SEGY::ImpType& imptyp = typfld_->impType();
+    const Seis::GeomType gt = imptyp.geomType();
+    const bool is2d = Seis::is2D( gt );
+    const bool isps = Seis::isPS( gt );
     const char* k1str; const char* k2str; const char* psstr;
     const char* xstr; const char* ystr;
     k1str = k2str = psstr = xstr = ystr = "";
-    if ( !isvsp_ )
+
+    if ( !imptyp.isVSP() )
     {
 	xstr = "X-Coordinate range";
 	ystr = "Y-Coordinate range";
@@ -377,8 +347,9 @@ bool uiSEGYReadStarter::obtainScanData( SEGY::uiScanData& sd, od_istream& strm,
 	    return false;
     }
 
-    sd.getFromSEGYBody( strm, scandef_, isfirst, Seis::is2D(geomtype_),
-	    		clipsampler_ );
+    sd.getFromSEGYBody( strm, scandef_, isfirst,
+			Seis::is2D(typfld_->impType().geomType()),
+			clipsampler_ );
     return true;
 }
 
@@ -455,16 +426,18 @@ void uiSEGYReadStarter::displayScanResults()
 	.add( " (s or " ).add( infeet_ ? "ft)" : "m)" );
     setCellTxt( 1, mZRangeRow, txt );
 
-    if ( isvsp_ )
+    const SEGY::ImpType& imptyp = typfld_->impType();
+    if ( imptyp.isVSP() )
 	return;
 
-    if ( Seis::is2D(geomtype_) )
+    const Seis::GeomType gt = imptyp.geomType();
+    if ( Seis::is2D(gt) )
 	txt.set( sd.trcnrs_.start ).add( " - " ).add( sd.trcnrs_.stop );
     else
 	txt.set( sd.inls_.start ).add( " - " ).add( sd.inls_.stop );
     setCellTxt( 1, mKey1Row, txt );
 
-    if ( Seis::is2D(geomtype_) )
+    if ( Seis::is2D(gt) )
 	txt.set( sd.refnrs_.start ).add( " - " ).add( sd.refnrs_.stop );
     else
 	txt.set( sd.crls_.start ).add( " - " ).add( sd.crls_.stop );
@@ -476,7 +449,7 @@ void uiSEGYReadStarter::displayScanResults()
     txt.set( sd.yrg_.start ).add( " - " ).add( sd.yrg_.stop );
     setCellTxt( 1, mYRow, txt );
 
-    if ( Seis::isPS(geomtype_) )
+    if ( Seis::isPS(gt) )
     {
 	txt.set( sd.offsrg_.start ).add( " - " ).add( sd.offsrg_.stop );
 	setCellTxt( 1, mPSRow, txt );
@@ -486,7 +459,9 @@ void uiSEGYReadStarter::displayScanResults()
 
 void uiSEGYReadStarter::setTableFromScanDef()
 {
+    parsbeingset_ = true;
     revfld_->setCurrentItem( scandef_.revision_ );
+    parsbeingset_ = false;
 }
 
 

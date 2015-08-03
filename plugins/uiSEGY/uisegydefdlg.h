@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uivarwizarddlg.h"
-#include "seistype.h"
 
 class uiSEGYFileSpec;
 class uiSEGYFilePars;

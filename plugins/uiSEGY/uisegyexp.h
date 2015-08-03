@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uidialog.h"
 #include "iopar.h"
-#include "seistype.h"
 #include "uistring.h"
 
 class IOObj;
