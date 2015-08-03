@@ -355,34 +355,35 @@ const RegularSeisDataPack* EngineMan::getOutput(
     {
 	const RegularSeisDataPack& regsdp = *packset[iset];
 	const TrcKeyZSampling& tkzs = regsdp.sampling();
-	for ( int idx=0; idx<tkzs.nrLines(); idx++ )
+	for ( int idx=0; idx<sampling.nrLines(); idx++ )
 	{
-	    const int inl = tkzs.hsamp_.lineRange().atIndex( idx );
-	    const int inlidx = sampling.hsamp_.lineRange().nearestIndex(inl);
-	    if ( inlidx<0 || inlidx>sampling.nrLines()-1 )
+	    const int inl = sampling.hsamp_.lineRange().atIndex( idx );
+	    const int inlidx = tkzs.hsamp_.lineRange().nearestIndex(inl);
+	    if ( inlidx<0 || inlidx>tkzs.nrLines()-1 )
 		continue;
 
-	    for ( int idy=0; idy<tkzs.nrTrcs(); idy++ )
+	    for ( int idy=0; idy<sampling.nrTrcs(); idy++ )
 	    {
-		const int crl = tkzs.hsamp_.trcRange().atIndex( idy );
-		const int crlidx = sampling.hsamp_.trcRange().nearestIndex(crl);
-		if ( crlidx<0 || crlidx>sampling.nrTrcs()-1 )
+		const int crl = sampling.hsamp_.trcRange().atIndex( idy );
+		const int crlidx = tkzs.hsamp_.trcRange().nearestIndex(crl);
+		if ( crlidx<0 || crlidx>tkzs.nrTrcs()-1 )
 		    continue;
 
-		for ( int idz=0; idz<tkzs.nrZ(); idz++ )
+		for ( int idz=0; idz<sampling.nrZ(); idz++ )
 		{
-		    const float zval = tkzs.zsamp_.atIndex( idz );
-		    const int zidx = sampling.zsamp_.nearestIndex( zval );
-		    if ( zidx<0 || zidx>sampling.nrZ()-1 )
+		    const float zval = sampling.zsamp_.atIndex( idz );
+		    const int zidx = tkzs.zsamp_.nearestIndex( zval );
+		    if ( zidx<0 || zidx>tkzs.nrZ()-1 )
 			continue;
 
 		    for ( int idc=0; idc<output->nrComponents(); idc++ )
 		    {
-			const float val = regsdp.data(idc).get( idx, idy, idz );
+			const float val = regsdp.data(idc).get( inlidx, crlidx,
+								zidx );
 			if ( Values::isUdf( val ) )
 			    continue;
 
-			output->data(idc).set( inlidx, crlidx, zidx, val );
+			output->data(idc).set( idx, idy, idz, val );
 		    }
 		}
 	    }
