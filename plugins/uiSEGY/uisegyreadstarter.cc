@@ -11,11 +11,10 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "uisegyreadstarter.h"
 
-#include "uisegydef.h"
+#include "uisegyreadstartinfo.h"
 #include "uisegyimptype.h"
-#include "uicombobox.h"
+#include "uisegydef.h"
 #include "uifileinput.h"
-#include "uitable.h"
 #include "uiseparator.h"
 #include "uihistogramdisplay.h"
 #include "uimsg.h"
@@ -27,20 +26,6 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "oddirs.h"
 #include "od_istream.h"
 
-static const int cMaxReasonableNS = 25000;
-// Time: 50 (2ms) or 100 seconds (4ms); Depth: 25 km
-
-#define mNrInfoRows 9
-#define mRevRow 0
-#define mDataFormatRow 1
-#define mNrSamplesRow 2
-#define mZRangeRow 3
-#define mKey1Row 4
-#define mKey2Row 5
-#define mXRow 6
-#define mYRow 7
-#define mPSRow 8
-
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),mNoDlgTitle,
@@ -50,8 +35,6 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     , scandefguessed_(false)
     , userfilename_("x") // any non-empty
     , clipsampler_(*new DataClipSampler(100000))
-    , infeet_(false)
-    , parsbeingset_(false)
 {
     const CallBack inpchgcb( mCB(this,uiSEGYReadStarter,inpChg) );
     typfld_ = new uiSEGYImpType( this );
@@ -67,9 +50,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, inpfld_ );
 
-    buildTable();
-    setTableFromScanDef();
-    infotbl_->attach( ensureBelow, sep );
+    infofld_ = new uiSEGYReadStartInfo( this, scandef_ );
+    infofld_->attach( ensureBelow, sep );
+    infofld_->scandefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
 
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
@@ -77,7 +60,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     ampldisp_->setTitle( tr("Amplitudes") );
     ampldisp_->setStretch( 2, 1 );
     ampldisp_->setPrefHeight( 250 );
-    ampldisp_->attach( stretchedBelow, infotbl_ );
+    ampldisp_->attach( stretchedBelow, infofld_ );
 
     filereadopts_ = new FileReadOpts( typfld_->impType().geomType() );
     postFinalise().notify( inpchgcb );
@@ -91,56 +74,20 @@ uiSEGYReadStarter::~uiSEGYReadStarter()
 }
 
 
-void uiSEGYReadStarter::buildTable()
-{
-    infotbl_ = new uiTable( this, uiTable::Setup(mNrInfoRows,3)
-				  .manualresize(true), "Info table" );
-    infotbl_->setColumnLabel( 0, "" );
-    infotbl_->setColumnLabel( 1, "Quick scan result" );
-    infotbl_->setColumnLabel( 2, "Use" );
-    infotbl_->setColumnStretchable( 0, false );
-    infotbl_->setColumnStretchable( 1, true );
-    infotbl_->setPrefWidthInChar( 80 );
-    infotbl_->setPrefHeightInRows( mNrInfoRows );
-    infotbl_->setTableReadOnly( true );
-    infotbl_->setLeftHeaderHidden( true );
-    setCellTxt( 0, mRevRow, "SEG-Y Revision" );
-    setCellTxt( 0, mDataFormatRow, "Data format" );
-    setCellTxt( 0, mNrSamplesRow, "Number of samples" );
-    setCellTxt( 0, mZRangeRow, "Z Range" );
-
-    const CallBack cb( mCB(this,uiSEGYReadStarter,parChg) );
-
-    uiGroup* grp = new uiGroup( 0, "rev group" );
-    const char* revstrs[] = { "0", "1", 0 };
-    revfld_ = new uiComboBox( grp, revstrs, "Revision" );
-    revfld_->selectionChanged.notify( cb );
-    revfld_->setStretch( 2, 1 );
-    infotbl_->setCellGroup( RowCol(mRevRow,2), grp );
-}
-
-
-void uiSEGYReadStarter::setCellTxt( int col, int row, const char* txt )
-{
-    infotbl_->setText( RowCol(row,col), txt );
-    if ( col==0 )
-	infotbl_->resizeColumnToContents( col );
-}
-
-
 void uiSEGYReadStarter::setImpTypIdx( int tidx )
 {
-    typfld_->setTypIdx( tidx );
+    typfld_->setTypIdx( tidx ); // should trigger its callback
 }
 
 
-void uiSEGYReadStarter::parChg( CallBacker* )
+void uiSEGYReadStarter::execNewScan()
 {
-    if ( !parsbeingset_ )
-    {
-	setScanDefFromTable();
-	handleChange();
-    }
+    userfilename_ = inpfld_->fileName();
+
+    if ( getFileSpec() )
+	scanInput();
+    else
+	infofld_->clearInfo();
 }
 
 
@@ -149,49 +96,12 @@ void uiSEGYReadStarter::inpChg( CallBacker* cb )
     const BufferString newusrfnm = inpfld_->fileName();
     const bool isnewfile = newusrfnm != userfilename_;
     const bool isnewtype = cb == typfld_;
-    if ( !isnewfile && !isnewtype )
-	return;
-
-    handleChange();
-}
-
-
-void uiSEGYReadStarter::handleChange()
-{
-    userfilename_ = inpfld_->fileName();
-    const SEGY::ImpType& imptyp = typfld_->impType();
-    const Seis::GeomType gt = imptyp.geomType();
-    const bool is2d = Seis::is2D( gt );
-    const bool isps = Seis::isPS( gt );
-    const char* k1str; const char* k2str; const char* psstr;
-    const char* xstr; const char* ystr;
-    k1str = k2str = psstr = xstr = ystr = "";
-
-    if ( !imptyp.isVSP() )
+    if ( isnewfile || isnewtype )
     {
-	xstr = "X-Coordinate range";
-	ystr = "Y-Coordinate range";
-	if ( is2d )
-	{
-	    k1str = "Trace number range";
-	    k2str = "Ref/SP number range";
-	}
-	else
-	{
-	    k1str = "Inline range";
-	    k2str = "Crossline range";
-	}
-	if ( isps )
-	    psstr = "Offset range";
+	userfilename_ = inpfld_->fileName();
+	infofld_->setImpTypIdx( typfld_->impType().tidx_ );
+	execNewScan();
     }
-    setCellTxt( 0, mKey1Row, k1str );
-    setCellTxt( 0, mKey2Row, k2str );
-    setCellTxt( 0, mXRow, xstr );
-    setCellTxt( 0, mYRow, ystr );
-    setCellTxt( 0, mPSRow, psstr );
-
-    if ( getFileSpec() )
-	scanInput();
 }
 
 
@@ -200,8 +110,6 @@ void uiSEGYReadStarter::handleChange()
 
 bool uiSEGYReadStarter::getFileSpec()
 {
-    for ( int idx=0; idx<mNrInfoRows; idx++ )
-	setCellTxt( 1, idx, "" );
     if ( userfilename_.isEmpty() )
 	return false;
 
@@ -269,7 +177,6 @@ void uiSEGYReadStarter::scanInput()
 {
     deepErase( scandata_ );
     clipsampler_.reset();
-    scandef_.reInit();
 
     MouseCursorChanger chgr( MouseCursor::Wait );
     if ( !scanFile(filespec_.fileName(0)) )
@@ -305,6 +212,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm )
     if ( strm.isBad() )
 	mErrRetFileName( "File:\n%1\nhas no binary header" )
 
+    bool infeet = false;
     if ( isfirst )
     {
 	binhdr.guessIsSwapped();
@@ -317,7 +225,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm )
 	if ( scandef_.ns_ < 1 )
 	{
 	    scandef_.ns_ = binhdr.nrSamples();
-	    if ( scandef_.ns_ < 1 || scandef_.ns_ > cMaxReasonableNS )
+	    if ( scandef_.ns_ < 1 || scandef_.ns_ > mMaxReasonableNS )
 		scandef_.ns_ = -1;
 	}
 	scandef_.revision_ = binhdr.isRev1() ? 1 : 0;
@@ -326,13 +234,14 @@ bool uiSEGYReadStarter::scanFile( const char* fnm )
 	    fmt = 1;
 	scandef_.format_ = fmt;
 
-	infeet_ = binhdr.isInFeet();
+	infeet = binhdr.isInFeet();
     }
 
     SEGY::uiScanData* sd = new SEGY::uiScanData( fnm );
     if ( !obtainScanData(*sd,strm,isfirst) )
 	{ delete sd; return false; }
 
+    sd->infeet_ = infeet;
     scandata_ += sd;
     return true;
 }
@@ -366,7 +275,7 @@ bool uiSEGYReadStarter::guessScanDef( od_istream& strm )
     if ( scandef_.ns_ < 1 )
     {
 	scandef_.ns_ = (int)thdr->nrSamples();
-	if ( scandef_.ns_ > cMaxReasonableNS )
+	if ( scandef_.ns_ > mMaxReasonableNS )
 	    mErrRetFileName(
 		    "File:\n%1\nNo proper 'number of samples per trace' found" )
     }
@@ -378,7 +287,7 @@ bool uiSEGYReadStarter::guessScanDef( od_istream& strm )
 
     strm.setPosition( firsttrcpos );
     scandefguessed_ = true;
-    setTableFromScanDef();
+    infofld_->useScanDef();
     return true;
 }
 
@@ -399,75 +308,7 @@ void uiSEGYReadStarter::displayScanResults()
     for ( int idx=1; idx<scandata_.size(); idx++ )
 	sd.merge( *scandata_[idx] );
 
-    BufferString txt;
-
-    txt.set( scandef_.revision_ );
-    setCellTxt( 1, mRevRow, txt );
-
-    const char** fmts = SEGY::FilePars::getFmts(false);
-    txt.set( scandef_.format_ < 4 ? fmts[scandef_.format_-1]
-	    : (scandef_.format_==8 ? fmts[4] : fmts[3]) );
-    if ( scandef_.hdrsswapped_ && scandef_.dataswapped_ )
-	txt.add( " (all bytes swapped)" );
-    else if ( scandef_.hdrsswapped_ )
-	txt.add( " (header bytes swapped)" );
-    else if ( scandef_.dataswapped_ )
-	txt.add( " (data bytes swapped)" );
-    setCellTxt( 1, mDataFormatRow, txt );
-
-    txt.set( scandef_.ns_ ).add( " (" ).add( sd.nrtrcs_ )
-	.add( sd.nrtrcs_ == 1 ? " trace)" : " traces)" );
-    setCellTxt( 1, mNrSamplesRow, txt );
-
-    const float endz = scandef_.sampling_.start
-		     + (scandef_.ns_-1) * scandef_.sampling_.step;
-    txt.set( scandef_.sampling_.start ).add( " - " ).add( endz )
-	.add( " step " ).add( scandef_.sampling_.step )
-	.add( " (s or " ).add( infeet_ ? "ft)" : "m)" );
-    setCellTxt( 1, mZRangeRow, txt );
-
-    const SEGY::ImpType& imptyp = typfld_->impType();
-    if ( imptyp.isVSP() )
-	return;
-
-    const Seis::GeomType gt = imptyp.geomType();
-    if ( Seis::is2D(gt) )
-	txt.set( sd.trcnrs_.start ).add( " - " ).add( sd.trcnrs_.stop );
-    else
-	txt.set( sd.inls_.start ).add( " - " ).add( sd.inls_.stop );
-    setCellTxt( 1, mKey1Row, txt );
-
-    if ( Seis::is2D(gt) )
-	txt.set( sd.refnrs_.start ).add( " - " ).add( sd.refnrs_.stop );
-    else
-	txt.set( sd.crls_.start ).add( " - " ).add( sd.crls_.stop );
-    setCellTxt( 1, mKey2Row, txt );
-
-    txt.set( sd.xrg_.start ).add( " - " ).add( sd.xrg_.stop );
-    setCellTxt( 1, mXRow, txt );
-
-    txt.set( sd.yrg_.start ).add( " - " ).add( sd.yrg_.stop );
-    setCellTxt( 1, mYRow, txt );
-
-    if ( Seis::isPS(gt) )
-    {
-	txt.set( sd.offsrg_.start ).add( " - " ).add( sd.offsrg_.stop );
-	setCellTxt( 1, mPSRow, txt );
-    }
-}
-
-
-void uiSEGYReadStarter::setTableFromScanDef()
-{
-    parsbeingset_ = true;
-    revfld_->setCurrentItem( scandef_.revision_ );
-    parsbeingset_ = false;
-}
-
-
-void uiSEGYReadStarter::setScanDefFromTable()
-{
-    scandef_.revision_ = revfld_->currentItem();
+    infofld_->setScanData( sd );
 }
 
 

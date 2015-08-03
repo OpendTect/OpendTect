@@ -21,6 +21,7 @@ SET(OD_MODULE_SOURCES
     uisegyread.cc
     uisegyreaddlg.cc
     uisegyreadstarter.cc
+    uisegyreadstartinfo.cc
     uisegyresortdlg.cc
     uisegyscandlg.cc
     uisegysip.cc
