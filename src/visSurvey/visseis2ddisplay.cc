@@ -429,92 +429,63 @@ void Seis2DDisplay::setData( int attrib,
     const int nrseries = dpids.size();
     channels_->setNrVersions( attrib, nrseries );
 
-    const SamplingData<float>& sd = data2dh.trcinfoset_[0]->sampling;
-
-    Array2DSlice<float> slice2d( *data2dh.dataset_ );
-    slice2d.setDimMap( 0, 1 );
-    slice2d.setDimMap( 1, 2 );
-
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     int sz0=mUdf(int), sz1=mUdf(int);
     for ( int seriesidx=0; seriesidx<nrseries; seriesidx++ )
     {
-	slice2d.setPos( 0, seriesidx );
-	slice2d.init();
-
 	DataPackRef<Flat2DDHDataPack> dp2ddh =
 	    DPM(DataPackMgr::FlatID()).obtain( dpids[seriesidx] );
 
 	PtrMan<Array2D<float> > tmparr = 0;
 	Array2D<float>* usedarr = &dp2ddh->data();
+	const StepInterval<int>& trcrange = dp2ddh->getTraceRange();
+	const CubeSampling tkzs = dp2ddh->getCubeSampling();
+	const SamplingData<float> sd( tkzs.zrg.start, tkzs.zrg.step );
 
-	if ( alreadyTransformed(attrib) || !datatransform_ )
+	const int nrsamples = dp2ddh->data().info().getSize(1);
+	const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
+	const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
+	if ( dp2ddh->data().info().getSize(0)!=nrdisplaytraces ||
+	     nrsamples!=nrdisplaysamples ||
+	     trcrange.start!=trcdisplayinfo_.alltrcnrs_[0] )
 	{
-	    const int nrsamples = slice2d.info().getSize(1);
-	    const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
-	    const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
-	    if ( slice2d.info().getSize(0)==nrdisplaytraces &&
-		 nrsamples==nrdisplaysamples &&
-		 data2dh.trcinfoset_[0]->nr==trcdisplayinfo_.alltrcnrs_[0] )
-	    {
-		usedarr = &slice2d;
-	    }
-	    else
-	    {
-		mTryAlloc( tmparr,
+	    mTryAlloc( tmparr,
 		    Array2DImpl<float>( nrdisplaytraces, nrdisplaysamples) );
-		usedarr = tmparr;
-		const int startidx = trcdisplayinfo_.rg_.start;
-		float* sampleptr = tmparr->getData();
-		for ( int crlidx=0; crlidx<trcdisplayinfo_.size_; crlidx++ )
+	    tmparr->setAll( mUdf(float) );
+	    usedarr = tmparr;
+	    const int startidx = trcdisplayinfo_.rg_.start;
+	    const int nrtrcs = tkzs.hrg.nrCrl();
+	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size_; crlidx++ )
+	    {
+		const int trcnr = trcdisplayinfo_.alltrcnrs_[crlidx+startidx];
+		const int trcidx = tkzs.crlIdx( trcnr );
+		if ( trcidx<0 || trcidx>nrtrcs-1 )
+		    continue;
+
+		const float* trcptr = dp2ddh->data().getData();
+		const ValueSeries<float>* stor = dp2ddh->data().getStorage();
+		od_int64 offset = dp2ddh->data().info().getOffset( trcidx, 0 );
+		if ( trcptr ) trcptr += offset;
+		OffsetValueSeries<float> trcstor( *stor, offset );
+		float* dataptr = tmparr->getData() ?
+			tmparr->getData() + crlidx*nrdisplaysamples : 0;
+
+		for ( int zidx=0; zidx<nrdisplaysamples; zidx++ )
 		{
-		    const int trcnr =
-			trcdisplayinfo_.alltrcnrs_[crlidx+startidx];
-		    const int trcidx = data2dh.indexOf( trcnr );
-		    const float* trcptr = slice2d.getData();
-		    const ValueSeries<float>* stor = slice2d.getStorage();
-		    od_int64 offset = slice2d.info().getOffset( trcidx, 0 );
+		    const float z = trcdisplayinfo_.zrg_.atIndex( zidx );
+		    const float sample = sd.getfIndex( z );
+		    float val = mUdf(float);
+		    if ( trcptr )
+			IdxAble::interpolateReg( trcptr, nrsamples, sample,
+						 val, false );
+		    else
+			IdxAble::interpolateReg( trcstor, nrsamples, sample,
+						 val, false );
 
-		    if ( trcptr ) trcptr += offset;
-		    OffsetValueSeries<float> trcstor( *stor, offset );
-
-		    for ( int zidx=0; zidx<nrdisplaysamples; zidx++ )
-		    {
-			if ( trcidx==-1 )
-			{
-			    if ( sampleptr )
-			    {
-				*sampleptr = mUdf(float);
-				sampleptr++;
-			    }
-			    else
-				tmparr->set( crlidx, zidx, mUdf(float) );
-
-			    continue;
-			}
-
-			const float z = trcdisplayinfo_.zrg_.atIndex( zidx );
-			const float sample = sd.getfIndex( z );
-			float val = mUdf(float);
-			if ( trcptr )
-			{
-			    IdxAble::interpolateReg( trcptr, nrsamples, sample,
-						     val, false );
-			}
-			else
-			{
-			    IdxAble::interpolateReg( trcstor, nrsamples, sample,
-						     val, false );
-			}
-
-			if ( sampleptr )
-			{
-			    *sampleptr = val;
-			    sampleptr++;
-			}
-			else
-			    tmparr->set( crlidx, zidx, val );
-		    }
+		    if ( dataptr )
+			*(dataptr + zidx) = val;
+		    else
+			tmparr->set( crlidx, zidx, val );
 		}
 	    }
 	}
@@ -537,7 +508,7 @@ void Seis2DDisplay::setData( int attrib,
 	bool ownsstor = false;
 
 	//We are only interested in the global, permanent storage
-	if ( stor && stor!=data2dh.dataset_->getStorage() )
+	if ( stor && stor!=dp2ddh->data().getStorage() )
 	    stor = 0;
 
 	if ( !stor )

@@ -341,13 +341,33 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
 {
     dh.ref();
 
-    const DataHolderArray array3d( dh.dataset_ );
-    mTryAlloc( dataset_, Array3DImpl<float>( array3d ) );
-    
+    cubesampling_ = dh.getCubeSampling();
+
+    const DataHolderArray arr3d( dh.dataset_ );
+    mTryAlloc( dataset_, Array3DImpl<float>(arr3d.info().getSize(0),
+					    cubesampling_.nrCrl(),
+					    cubesampling_.nrZ()) );
     if ( !dataset_ || !dataset_->isOK() )
     {
 	delete dataset_;
 	dataset_ = 0;
+    }
+    else
+    {
+	dataset_->setAll( mUdf(float) );
+	for ( int icomp=0; icomp<dataset_->info().getSize(0); icomp++ )
+	{
+	    for ( int tidx=0; tidx<dh.trcinfoset_.size(); tidx++ )
+	    {
+		const int trcidx = cubesampling_.hrg.crlIdx(
+					dh.trcinfoset_[tidx]->nr );
+		if ( trcidx < 0 )
+		    continue;
+
+		for ( int zidx=0; zidx<dataset_->info().getSize(2); zidx++ )
+		    dataset_->set(icomp,trcidx,zidx,arr3d.get(icomp,tidx,zidx));
+	    }
+	}
     }
 
     for ( int idx=0; idx<dh.trcinfoset_.size(); idx++ )
@@ -356,8 +376,6 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
 	ni->sampling.start = dh.dataset_[idx]->z0_ * ni->sampling.step;
 	trcinfoset_ += ni;
     }
-
-    cubesampling_ = dh.getCubeSampling();
 
     dh.unRef();
 }
