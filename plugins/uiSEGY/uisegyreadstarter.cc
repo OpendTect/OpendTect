@@ -80,10 +80,11 @@ void uiSEGYReadStarter::setImpTypIdx( int tidx )
 }
 
 
-void uiSEGYReadStarter::execNewScan()
+void uiSEGYReadStarter::execNewScan( bool reinit )
 {
     userfilename_ = inpfld_->fileName();
-    scandef_.reInit();
+    if ( reinit )
+	scandef_.reInit();
 
     if ( getFileSpec() )
 	scanInput();
@@ -99,6 +100,8 @@ void uiSEGYReadStarter::inpChg( CallBacker* cb )
     const bool isnewtype = cb == typfld_;
     if ( isnewfile || isnewtype )
     {
+	if ( scandefguessed_ && isnewfile )
+	    scandefguessed_ = false;
 	userfilename_ = inpfld_->fileName();
 	infofld_->setImpTypIdx( typfld_->impType().tidx_ );
 	execNewScan();
@@ -214,7 +217,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm )
 	mErrRetFileName( "File:\n%1\nhas no binary header" )
 
     bool infeet = false;
-    if ( isfirst )
+    if ( isfirst && !scandefguessed_ )
     {
 	binhdr.guessIsSwapped();
 	scandef_.hdrsswapped_ = scandef_.dataswapped_ = binhdr.isSwapped();

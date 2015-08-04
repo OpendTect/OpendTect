@@ -38,6 +38,8 @@ static const char* rcsID mUsedVar = "$Id: $";
 #define mUseTxtCol 2
 #define mUseCol 3
 
+static const char* sBytePos = "at header";
+
 
 class uiSEGYByteNr : public uiComboBox
 {
@@ -110,57 +112,57 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::uiScanDef& scd )
     tbl_->setTableReadOnly( true );
     tbl_->setLeftHeaderHidden( true );
     setCellTxt( mItemCol, mRevRow, "SEG-Y Revision" );
-    setCellTxt( mUseTxtCol, mRevRow, "select" );
+    setCellTxt( mUseTxtCol, mRevRow, "" );
     setCellTxt( mItemCol, mDataFormatRow, "Data format" );
-    setCellTxt( mUseTxtCol, mDataFormatRow, "select" );
+    setCellTxt( mUseTxtCol, mDataFormatRow, "" );
     setCellTxt( mItemCol, mNrSamplesRow, "Number of samples" );
-    setCellTxt( mUseTxtCol, mNrSamplesRow, "actual" );
+    setCellTxt( mUseTxtCol, mNrSamplesRow, "" );
     setCellTxt( mItemCol, mZRangeRow, "Z Range" );
-    setCellTxt( mUseTxtCol, mZRangeRow, "Start / Interval" );
+    setCellTxt( mUseTxtCol, mZRangeRow, "start / interval" );
 
-    const CallBack cb( mCB(this,uiSEGYReadStartInfo,parChg) );
+    const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
 #   define mAddToTbl(fld,row) \
     fld->setStretch( 2, 1 ); \
     tbl_->setCellObject( RowCol(row,mUseCol), fld );
 
     const char* revstrs[] = { "0", "1", 0 };
     revfld_ = new uiComboBox( 0, revstrs, "Revision" );
-    revfld_->selectionChanged.notify( cb );
+    revfld_->selectionChanged.notify( parchgcb );
     mAddToTbl( revfld_, mRevRow );
 
     fmtfld_ = new uiComboBox( 0, SEGY::FilePars::getFmts(false), "Format" );
-    fmtfld_->selectionChanged.notify( cb );
+    fmtfld_->selectionChanged.notify( parchgcb );
     mAddToTbl( fmtfld_, mDataFormatRow );
 
     nsfld_ = new uiSpinBox( 0, 0, "Samples" );
     nsfld_->setInterval( 1, mMaxReasonableNS, 1 );
-    nsfld_->valueChanged.notify( cb );
+    nsfld_->valueChanged.notify( parchgcb );
     mAddToTbl( nsfld_, mNrSamplesRow );
 
     uiGroup* grp = new uiGroup( 0, "Z Range" );
     zstartfld_ = new uiLineEdit( grp, FloatInpSpec(0.f), "Z Start" );
-    zstartfld_->editingFinished.notify( cb );
+    zstartfld_->editingFinished.notify( parchgcb );
     zstartfld_->setStretch( 2, 1 );
     srfld_ = new uiLineEdit( grp, FloatInpSpec(0.f,0.f), "Z Interval" );
-    srfld_->editingFinished.notify( cb );
+    srfld_->editingFinished.notify( parchgcb );
     srfld_->setStretch( 2, 1 );
     srfld_->attach( rightOf, zstartfld_ );
     tbl_->setCellGroup( RowCol(mZRangeRow,mUseCol), grp );
 
     xcoordbytefld_ = new uiSEGYByteNr( 0, "X-coord byte" );
-    xcoordbytefld_->selectionChanged.notify( cb );
+    xcoordbytefld_->selectionChanged.notify( parchgcb );
     mAddToTbl( xcoordbytefld_, mXRow );
     ycoordbytefld_ = new uiSEGYByteNr( 0, "Y-coord byte" );
-    ycoordbytefld_->selectionChanged.notify( cb );
+    ycoordbytefld_->selectionChanged.notify( parchgcb );
     mAddToTbl( ycoordbytefld_, mYRow );
     key1bytefld_ = new uiSEGYByteNr( 0, "Key1 byte" );
-    key1bytefld_->selectionChanged.notify( cb );
+    key1bytefld_->selectionChanged.notify( parchgcb );
     mAddToTbl( key1bytefld_, mKey1Row );
     key2bytefld_ = new uiSEGYByteNr( 0, "Key2 byte" );
-    key2bytefld_->selectionChanged.notify( cb );
+    key2bytefld_->selectionChanged.notify( parchgcb );
     mAddToTbl( key2bytefld_, mKey2Row );
     offsetbytefld_ = new uiSEGYByteNr( 0, "Offset byte" );
-    offsetbytefld_->selectionChanged.notify( cb );
+    offsetbytefld_->selectionChanged.notify( parchgcb );
     mAddToTbl( offsetbytefld_, mPSRow );
 
     useScanDef();
@@ -180,6 +182,7 @@ void uiSEGYReadStartInfo::parChg( CallBacker* )
     if ( parsbeingset_ )
 	return;
 
+    fillScanDef();
     scandefChanged.trigger();
 }
 
@@ -189,54 +192,53 @@ void uiSEGYReadStartInfo::setImpTypIdx( int idx )
     imptype_.tidx_ = idx;
 
     const Seis::GeomType gt = imptype_.geomType();
+    const bool isvsp = imptype_.isVSP();
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
-    const bool isvsp = imptype_.isVSP();
-    const char* k1ittxt; const char* k2ittxt; const char* psittxt;
     const char* xittxt; const char* yittxt;
-    const char* k1hdrtxt; const char* k2hdrtxt; const char* pshdrtxt;
-    const char* xhdrtxt; const char* yhdrtxt;
-    k1ittxt = k2ittxt = psittxt = xittxt = yittxt = "";
-    k1hdrtxt = k2hdrtxt = pshdrtxt = xhdrtxt = yhdrtxt = "";
-    static const char* bytepostxt = "At header";
+    const char* ky1ittxt; const char* ky2ittxt; const char* offsittxt;
+    const char* xustxt; const char* yustxt;
+    const char* ky1ustxt; const char* ky2ustxt; const char* offsustxt;
+    xittxt = yittxt = ky1ittxt = ky2ittxt = offsittxt =
+    xustxt = yustxt = ky1ustxt = ky2ustxt = offsustxt = "";
 
-    if ( !isvsp )
+    if ( isvsp )
     {
-	xhdrtxt = yhdrtxt = k1hdrtxt = k2hdrtxt = bytepostxt;
-	xittxt = "X-Coordinate range";
-	yittxt = "Y-Coordinate range";
-	if ( is2d )
+	xcoordbytefld_->display( false );
+	ycoordbytefld_->display( false );
+	key1bytefld_->display( false );
+	key2bytefld_->display( false );
+	offsetbytefld_->display( false );
+    }
+    else
+    {
+	const bool isrev0 = scandef_.revision_ < 1;
+	xcoordbytefld_->display( isrev0 );
+	ycoordbytefld_->display( isrev0 );
+	key1bytefld_->display( isrev0 || is2d );
+	key2bytefld_->display( isrev0 );
+	offsetbytefld_->display( isps );
+
+	ky1ittxt = is2d ? "Trace number range" : "Inline range";
+	if ( isrev0 )
 	{
-	    k1ittxt = "Trace number range";
-	    k2ittxt = "Ref/SP number range";
-	}
-	else
-	{
-	    k1ittxt = "Inline range";
-	    k2ittxt = "Crossline range";
-	}
-	if ( isps )
-	{
-	    psittxt = "Offset range";
-	    pshdrtxt = bytepostxt;
+	    xittxt = "X-Coordinate range"; yittxt = "Y-Coordinate range";
+	    ky2ittxt = is2d ? "Ref/SP number range" : "Crossline range";
+	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
+	    if ( isps )
+		{ offsittxt = "Offset range"; offsustxt = sBytePos; }
 	}
     }
-    setCellTxt( mItemCol, mKey1Row, k1ittxt );
-    setCellTxt( mItemCol, mKey2Row, k2ittxt );
     setCellTxt( mItemCol, mXRow, xittxt );
     setCellTxt( mItemCol, mYRow, yittxt );
-    setCellTxt( mItemCol, mPSRow, psittxt );
-    setCellTxt( mUseTxtCol, mKey1Row, k1hdrtxt );
-    setCellTxt( mUseTxtCol, mKey2Row, k2hdrtxt );
-    setCellTxt( mUseTxtCol, mXRow, xhdrtxt );
-    setCellTxt( mUseTxtCol, mYRow, yhdrtxt );
-    setCellTxt( mUseTxtCol, mPSRow, pshdrtxt );
-
-    xcoordbytefld_->display( !isvsp );
-    ycoordbytefld_->display( !isvsp );
-    key1bytefld_->display( !isvsp );
-    key2bytefld_->display( !isvsp );
-    offsetbytefld_->display( !isvsp && isps );
+    setCellTxt( mItemCol, mKey1Row, ky1ittxt );
+    setCellTxt( mItemCol, mKey2Row, ky2ittxt );
+    setCellTxt( mItemCol, mPSRow, offsittxt );
+    setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
+    setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
+    setCellTxt( mUseTxtCol, mXRow, xustxt );
+    setCellTxt( mUseTxtCol, mYRow, yustxt );
+    setCellTxt( mUseTxtCol, mPSRow, offsustxt );
 }
 
 
