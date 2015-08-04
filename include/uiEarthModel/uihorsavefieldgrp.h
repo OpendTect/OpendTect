@@ -37,6 +37,7 @@ public:
     void			setSaveFieldName(const char*);
     bool			displayNewHorizon() const;
     bool			overwriteHorizon() const;
+    void			allowOverWrite(bool);
     EM::Horizon*		getNewHorizon() const	{ return newhorizon_; }
 
     EM::Horizon*		readHorizon(const MultiID&);

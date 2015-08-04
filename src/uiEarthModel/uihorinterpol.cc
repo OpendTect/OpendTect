@@ -62,6 +62,10 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 				 : EMHorizon3DTranslatorGroup::ioContext();
 	ctxt.forread = true;
 	inputhorsel_ = new uiIOObjSel( this, ctxt );
+	mAttachCB( inputhorsel_->selectionDone,
+		    uiHorizonInterpolDlg::selChangeCB );
+	mAttachCB( inputhorsel_->preFinalise(),
+		    uiHorizonInterpolDlg::selChangeCB );
     }
 
     if ( !is2d )
@@ -107,6 +111,17 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 uiHorizonInterpolDlg::~uiHorizonInterpolDlg()
 {
     if ( horizon_ ) horizon_->unRef();
+    detachAllNotifiers();
+}
+
+
+void uiHorizonInterpolDlg::selChangeCB( CallBacker* cb )
+{
+    if ( !inputhorsel_ || !inputhorsel_->ioobj(true) || !savefldgrp_ )
+	return;
+    
+    const bool canoverwrt = EM::canOverwrite( inputhorsel_->ioobj()->key() );
+    savefldgrp_->allowOverWrite( canoverwrt );
 }
 
 

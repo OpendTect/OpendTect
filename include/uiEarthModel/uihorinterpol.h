@@ -45,6 +45,8 @@ protected:
 
     bool			interpolate3D(const IOPar&);
     bool			interpolate2D();
+    void			selChangeCB(CallBacker*);
+    
     bool			is2d_;
     uiIOObjSel*			inputhorsel_;
     uiHor3DInterpolSel*		interpolhor3dsel_;
