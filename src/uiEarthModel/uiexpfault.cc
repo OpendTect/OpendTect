@@ -241,6 +241,8 @@ bool uiExportFault::acceptOK( CallBacker* )
 	return false;
 
     const bool res = writeAscii();
+
+    if ( !res )	return false;
     
     const IOObj* ioobj = ctio_.ioobj;
     
