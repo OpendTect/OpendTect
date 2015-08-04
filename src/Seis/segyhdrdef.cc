@@ -101,12 +101,15 @@ static const unsigned char* getBytes( const void* inpbuf, bool swapped,
 }
 
 
-#define mGetBytes() getBytes(buf,swapped,bytepos_,byteSize())
+#define mGetBytes() getBytes(buf,swapped,byteposition,byteSize())
 
 int SEGY::HdrEntry::getValue( const void* buf, bool swapped ) const
 {
     if ( bytepos_ < 0 )
 	return 0;
+    short byteposition = bytepos_;
+    if ( !isInternal() )
+	byteposition--;
 
     if ( small_ )
 	return type_ == UInt ? IbmFormat::asUnsignedShort( mGetBytes() )
@@ -126,8 +129,11 @@ void SEGY::HdrEntry::putValue( void* buf, int val ) const
 {
     if ( bytepos_ < 0 )
 	return;
+    short byteposition = bytepos_;
+    if ( !isInternal() )
+	byteposition--;
 
-    unsigned char* ptr = ((unsigned char*)buf) + bytepos_;
+    unsigned char* ptr = ((unsigned char*)buf) + byteposition;
     if ( small_ )
     {
 	if ( type_ == UInt )
@@ -153,7 +159,9 @@ void SEGY::HdrEntry::fillPar( IOPar& iop, const char* ky ) const
 	removeFromPar( iop, ky );
     else
     {
-	iop.set( ky, bytepos_ );
+	short byteposition = bytepos_;
+	byteposition -= byteposition % 2; // make sure we are 'internal'
+	iop.set( ky, byteposition );
 	iop.set( BufferString(sKeyBytesFor,ky), small_ ? 2 : 4 );
     }
 }
@@ -161,9 +169,9 @@ void SEGY::HdrEntry::fillPar( IOPar& iop, const char* ky ) const
 
 void SEGY::HdrEntry::usePar( const IOPar& iop, const char* ky )
 {
-    int byt = bytepos_; iop.get( ky, byt );
-    byt -= byt % 2; // to support old stuff storing this in 'user' byte numbers
-    bytepos_ = (HdrEntry::BytePos)byt;
+    int byteposition = bytepos_; iop.get( ky, byteposition );
+    byteposition -= byteposition % 2; // make sure we are 'internal'
+    bytepos_ = (HdrEntry::BytePos)byteposition;
     int nb = small_ ? 2 : 4;
     iop.get( BufferString(sKeyBytesFor,ky), nb );
     small_ = nb < 4;
@@ -408,6 +416,7 @@ int SEGY::HdrDef::idxOfBytePos( SEGY::HdrEntry::BytePos bp,
 				unsigned char& offs ) const
 {
     offs = 0;
+    bp -= bp % 2; // HdrDef's are always 'internal'
     for ( int idx=bp/4; idx<size(); idx++ )
     {
 	const HdrEntry& he = *(*this)[idx];

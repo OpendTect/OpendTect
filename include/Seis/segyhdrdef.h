@@ -14,12 +14,19 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "objectset.h"
- 
+
 
 namespace SEGY
 {
 
-/*!\brief describes one tape or trace header field */
+/*!\brief describes one tape or trace header field,
+
+Note: it is important to know whether your HdrEntry is in 'internal' or in
+'user' format. The difference is 1 byte. For example, tracr is at byte 4 of
+the trace header, but users need to see 5.
+The reasone we don't always use internal entries is that some things have to
+be directly stored in user settings.
+ */
 
 mExpClass(Seis) HdrEntry
 {
@@ -27,7 +34,7 @@ public:
 
     typedef short	BytePos;
     enum DataType	{ SInt, UInt, Float };
-    			//!< Note that Float is against the standard
+			//!< Note that Float is against the standard
 
 			HdrEntry( BytePos bp=udfBP(), bool issmall=false,
 				  DataType dt=SInt )
@@ -47,6 +54,7 @@ public:
     bool		small_;
     DataType		type_;
 
+    bool		isInternal() const	{ return bytepos_%2 == 0; }
     int			byteSize() const	{ return small_ ? 2 : 4; }
     inline bool		isUdf() const		{ return bytepos_ < 0; }
     inline void		setUdf()		{ bytepos_ = udfBP(); }
@@ -65,7 +73,7 @@ protected:
     char*		desc_;
     char*		name_;
 
-    inline static 	BytePos udfBP()		{ return -32768; }
+    inline static	BytePos udfBP()		{ return -32768; }
 
 };
 
@@ -74,12 +82,12 @@ mExpClass(Seis) HdrDef : public ObjectSet<const HdrEntry>
 {
 public:
 
-    			HdrDef(bool binhead);
+			HdrDef(bool binhead);
     bool		isBin() const		{ return isbin_; }
 
     int			indexOf(const char* nm) const;
     int			idxOfBytePos(HdrEntry::BytePos,
-	    			     unsigned char& offs) const;
+				     unsigned char& offs) const;
 
     void		swapValues(unsigned char*) const;
 

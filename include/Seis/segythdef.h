@@ -11,7 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "seismod.h"
 #include "segyhdrdef.h"
 #include "bufstring.h"
@@ -20,7 +20,12 @@ class SeisPacketInfo;
 namespace SEGY
 {
 
-/*!\brief stores HdrEntry info of the needed fields from the trace header.  */
+/*!\brief stores HdrEntry info of the needed fields from the trace header.
+
+Note: the HdrEntry values are in 'user' bytes (i.e. subtract 1 for byte
+offsets).
+
+ */
 
 mExpClass(Seis) TrcHeaderDef
 {
@@ -72,4 +77,3 @@ public:
 } // namespace
 
 #endif
-

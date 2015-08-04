@@ -35,6 +35,7 @@ public:
 
 			uiScanDef();
 			~uiScanDef();
+    void		reInit();
 
     int			revision_;
     bool		hdrsswapped_;
@@ -55,8 +56,6 @@ public:
     TrcHeader*		getTrcHdr(od_istream&) const;
     bool		getData(od_istream&,char*,float* vals=0) const;
     TrcHeader*		getTrace(od_istream&,char*,float*) const;
-
-    void		reInit();
 
 };
 
