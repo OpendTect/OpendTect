@@ -450,19 +450,20 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 	 ( pdf2d && !ProbDenFuncTranslator::write(*pdf2d,*pdfioobj,&errmsg) ) )
     { uiMSG().error(errmsg); delete pdf; return false; }
 
-    uiString msg( tr("Imported %1x%2 PDF." ) );
+    uiString msg( tr("Imported %1x%2 PDF. Do you want to import more PDFs" ) );
     msg.arg( pdf->size(0) ).arg( pdf2d ? pdf2d->size(1) : 1 );
-    uiMSG().message( msg );
-
     delete pdf;
-    return false;
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
 
 
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Probability Density Function",
-				 mNoDlgTitle, mODHelpKey(mExpRokDocPDFHelpID) ))
+				 mNoDlgTitle, mODHelpKey(mExpRokDocPDFHelpID) )
+				 .modal(false))
 {
     setOkText( uiStrings::sExport() );
 

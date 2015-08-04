@@ -126,7 +126,11 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( !wvlt->put(ctio_.ioobj) )
 	mErrRet( tr("Cannot store wavelet on disk") )
 
-    return true;
+    uiString msg = tr("Wavelet successfully imported\n"
+		      "Do you want to import more Wavelets");
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
 
 
@@ -188,7 +192,12 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     }
 
     if ( !strm.isOK() )
-	mErrRet( tr("Possible error during write") );
+    {
+	mErrRet(tr("Possible error during write."));
+	return false;
+    }
 
-    return true;
+    uiString msg = tr("Wavelet successfully exported."
+	              "\nDo you want to export more Wavelets?");
+    return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
 }

@@ -261,9 +261,15 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 	return false;
 
     const bool res = doExport();
-    if ( res )
-	uiMSG().message( tr("Horizon successfully exported") );
-    return false;
+    if (!res)
+    {
+	uiMSG().error("Export failed");
+	return false;
+    }
+
+    uiString msg = tr("2D Horizon successfully exported."
+		      "\nDo you want to export more horizons?");
+    return !uiMSG().askGoOn(msg, uiStrings::sYes(), tr("No, close window"));
 }
 
 

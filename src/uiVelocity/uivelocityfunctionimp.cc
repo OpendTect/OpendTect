@@ -142,8 +142,11 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !functions->store( ctio_.ioobj->key() ) )
 	mErrRet( "Cannot store velocity functions" );
 
-    uiMSG().message( uiStrings::sImpSuccess() );
-    return false;
+    uiString msg = tr("Velocity Function successfully imported\n"
+		      "Do you want to import more Velocity Functions");
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
 
 } // namespace Vel

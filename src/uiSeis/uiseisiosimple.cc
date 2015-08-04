@@ -572,7 +572,14 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     uiTaskRunner dlg( this );
     const bool res = TaskRunner::execute( &dlg, sios ) && !ismulticomp;
     if ( res )
-	uiMSG().message(tr("Data successfully %1")
-		      .arg(isimp_ ? tr("imported.") : tr("exported.")));
-    return false;
+    {
+	uiMSG().error( tr("Error while Data transfer.") );
+	return false;
+    }
+
+    const uiString msg = tr("Data successfully %1. Do you want to %1 more.")
+			    .arg(isimp_ ? tr("Imported") : tr("Exported"));
+    const bool ret = uiMSG().askGoOn(msg, uiStrings::sYes(),
+		     tr("No, close window"));
+    return !ret;
 }
