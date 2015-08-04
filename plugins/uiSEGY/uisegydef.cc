@@ -438,11 +438,11 @@ void uiSEGYFilePars::setBytesSwapped( bool full, bool data )
 
 //--- class for building the file opts UI ----
 
-class uiSEGYFOByteSpec : public uiGroup
-{ mODTextTranslationClass(uiSEGYFOByteSpec);
+class uiSEGYByteSpec : public uiGroup
+{ mODTextTranslationClass(uiSEGYByteSpec);
 public:
 
-uiSEGYFOByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
+uiSEGYByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
 		  bool isopt, const char* ky, bool wfr )
     : uiGroup(p,he.name())
     , he_(he)
@@ -463,7 +463,7 @@ uiSEGYFOByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
 	isselbox_ = new uiCheckBox( this, fldnm );
 	bytefld_->attach( rightOf, isselbox_ );
 	isselbox_->setChecked( true );
-	isselbox_->activated.notify( mCB(this,uiSEGYFOByteSpec,byteChck) );
+	isselbox_->activated.notify( mCB(this,uiSEGYByteSpec,byteChck) );
     }
     bytefld_->setInterval( StepInterval<int>(1,239,2) );
     bytefld_->setValue( he_.isUdf() ? 1 : (int)he_.bytepos_+1 );
@@ -482,7 +482,7 @@ bool fillPar( IOPar& iop ) const
 {
     if ( !isChecked() )
 	he_.removeFromPar( iop, key_ );
-    else if ( !const_cast<uiSEGYFOByteSpec*>(this)->getVals() )
+    else if ( !const_cast<uiSEGYByteSpec*>(this)->getVals() )
 	return false;
     else
 	he_.fillPar( iop, key_ );
@@ -580,9 +580,9 @@ bool getVals()
     uiSpinBox*			bytefld_;
     uiCheckBox*			isselbox_;
     uiCheckBox*			issmallfld_;
-    Notifier<uiSEGYFOByteSpec>	checked;
+    Notifier<uiSEGYByteSpec>	checked;
 
-}; // end class uiSEGYFOByteSpec
+}; // end class uiSEGYByteSpec
 
 
 //--- uiSEGYFileOpts ----
@@ -769,7 +769,7 @@ void uiSEGYFileOpts::getReport( IOPar& iop ) const
 void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar& iop )
 {
 #define mMkDefFld(p,fldnm,kystr,wsz,opt,wfr) \
-    fldnm##deffld_ = new uiSEGYFOByteSpec( p, thdef_.fldnm##_, wsz, iop, opt, \
+    fldnm##deffld_ = new uiSEGYByteSpec( p, thdef_.fldnm##_, wsz, iop, opt, \
 			 SEGY::TrcHeaderDef::s##kystr##Byte(), wfr )
 
     mMkDefFld( grp, inl, Inl, true, false, true );

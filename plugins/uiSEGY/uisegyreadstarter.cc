@@ -83,6 +83,7 @@ void uiSEGYReadStarter::setImpTypIdx( int tidx )
 void uiSEGYReadStarter::execNewScan()
 {
     userfilename_ = inpfld_->fileName();
+    scandef_.reInit();
 
     if ( getFileSpec() )
 	scanInput();

@@ -17,8 +17,11 @@ ________________________________________________________________________
 class DataClipSampler;
 namespace SEGY { class ImpType; class uiScanData; class uiScanDef; }
 class uiTable;
+class uiSpinBox;
+class uiLineEdit;
 class uiComboBox;
 class uiFileInput;
+class uiSEGYByteNr;
 class uiSEGYImpType;
 class uiHistogramDisplay;
 
@@ -45,6 +48,15 @@ protected:
 
     uiTable*		tbl_;
     uiComboBox*		revfld_;
+    uiComboBox*		fmtfld_;
+    uiSpinBox*		nsfld_;
+    uiLineEdit*		zstartfld_;
+    uiLineEdit*		srfld_;
+    uiSEGYByteNr*	xcoordbytefld_;
+    uiSEGYByteNr*	ycoordbytefld_;
+    uiSEGYByteNr*	key1bytefld_;
+    uiSEGYByteNr*	key2bytefld_;
+    uiSEGYByteNr*	offsetbytefld_;
 
     SEGY::uiScanDef&	scandef_;
     SEGY::ImpType	imptype_;

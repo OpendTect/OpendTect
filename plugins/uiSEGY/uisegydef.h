@@ -18,13 +18,14 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
+namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
 class uiLabel;
 class uiButton;
 class uiCheckBox;
 class uiGenInput;
 class uiTabStack;
 class uiFileInput;
-namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
+class uiSEGYByteSpec;
 
 
 /*!\brief base class for specification of SEG-Y file stuff */
@@ -149,7 +150,6 @@ protected:
   If it's Rev. 1, the positioning part will not be present.
 
  */
-class uiSEGYFOByteSpec;
 
 mExpClass(uiSEGY) uiSEGYFileOpts : public uiSEGYDefGroup
 { mODTextTranslationClass(uiSEGYFileOpts);
@@ -201,14 +201,14 @@ protected:
 
     uiGenInput*		posfld_;
     uiGenInput*		psposfld_;
-    uiSEGYFOByteSpec*	inldeffld_;
-    uiSEGYFOByteSpec*	crldeffld_;
-    uiSEGYFOByteSpec*	trnrdeffld_;
-    uiSEGYFOByteSpec*	refnrdeffld_;
-    uiSEGYFOByteSpec*	offsdeffld_;
-    uiSEGYFOByteSpec*	azimdeffld_;
-    uiSEGYFOByteSpec*	xcoorddeffld_;
-    uiSEGYFOByteSpec*	ycoorddeffld_;
+    uiSEGYByteSpec*	inldeffld_;
+    uiSEGYByteSpec*	crldeffld_;
+    uiSEGYByteSpec*	trnrdeffld_;
+    uiSEGYByteSpec*	refnrdeffld_;
+    uiSEGYByteSpec*	offsdeffld_;
+    uiSEGYByteSpec*	azimdeffld_;
+    uiSEGYByteSpec*	xcoorddeffld_;
+    uiSEGYByteSpec*	ycoorddeffld_;
     uiGenInput*		regoffsfld_;
     uiGenInput*		readcoordsfld_;
     uiGenInput*		coordsstartfld_;
