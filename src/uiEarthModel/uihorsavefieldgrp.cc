@@ -44,9 +44,9 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     savefld_ = new uiGenInput( this, tr("Save horizon"),
 	    		       BoolInpSpec(true,"As new",
                                uiStrings::sOverwrite()) );
-    savefld_->setSensitive( horizon_ ? EM::canOverwrite(horizon_->multiID())
-				     : false );
-
+    const bool allowovrwrt = horizon_ ? EM::canOverwrite(horizon_->multiID())
+				      : false ;
+    allowOverWrite( allowovrwrt );
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
     IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
@@ -87,6 +87,17 @@ bool uiHorSaveFieldGrp::displayNewHorizon() const
 
 bool uiHorSaveFieldGrp::overwriteHorizon() const
 { return !savefld_->getBoolValue(); }
+
+
+void uiHorSaveFieldGrp::allowOverWrite( bool yn )
+{
+    if ( !savefld_ || !outputfld_ || !addnewfld_ )
+	return;
+
+    if ( !yn ) savefld_->setValue( true );
+    savefld_->setSensitive( yn );
+    saveCB( 0 );
+}
 
 
 void uiHorSaveFieldGrp::setFullSurveyArray( bool yn )
