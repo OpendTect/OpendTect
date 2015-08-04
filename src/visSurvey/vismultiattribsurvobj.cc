@@ -321,17 +321,14 @@ bool MultiTextureSurveyObject::canDisplayInteractively(
     bool interactivedisplay = false;
     for ( int attrib=0; attrib<nrAttribs(); attrib++ )
     {
-	if ( isAttribEnabled(attrib) )
-	{
-	    const BinDataDesc* bdd = as_[attrib]->getPreloadDataDesc();
-	    if ( !bdd )
-		return false;
+	const BinDataDesc* bdd = as_[attrib]->getPreloadDataDesc();
+	if ( !bdd )
+	    return false;
 
 //	    if ( bdd->nrBytes()!=1 || bdd->isSigned() ) // for the time being
 //		return false;
 
-	    interactivedisplay = true;
-	}
+	interactivedisplay = true;
     }
 
     return interactivedisplay;
