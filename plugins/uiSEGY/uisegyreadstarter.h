@@ -70,7 +70,7 @@ protected:
     void		setCellTxt(int col,int row,const char*);
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();
-    void		execNewScan();
+    void		execNewScan(bool reinitscandef=true);
     void		scanInput();
     bool		scanFile(const char*);
     bool		obtainScanData(SEGY::uiScanData&,od_istream&,bool);
@@ -78,7 +78,7 @@ protected:
     void		displayScanResults();
 
     void		inpChg(CallBacker*);
-    void		defChg( CallBacker* )		{ execNewScan(); }
+    void		defChg( CallBacker* )		{ execNewScan(false); }
     bool		acceptOK(CallBacker*);
 
 };
