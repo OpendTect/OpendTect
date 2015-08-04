@@ -359,9 +359,9 @@ void uiSEGYReadStartInfo::fillScanDef()
 {
     scandef_.revision_ = revfld_->currentItem();
     scandef_.format_ = (short)(*fmtfld_->text() - '0');
-    scandef_.ns_ = nsfld_->getIntValue();
-    scandef_.sampling_.start = zstartfld_->getFValue();
-    scandef_.sampling_.step = srfld_->getFValue();
+    scandef_.ns_ = nsfld_->getValue();
+    scandef_.sampling_.start = zstartfld_->getfValue();
+    scandef_.sampling_.step = srfld_->getfValue();
 
     if ( imptype_.isVSP() )
 	return;
