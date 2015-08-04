@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uinlapartserv.h"
 #include "uiodemsurftreeitem.h"
 #include "uiodviewer2dposdlg.h"
+#include "uiodviewer2dmgr.h"
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
@@ -54,6 +55,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "datacoldef.h"
 #include "datapointset.h"
+#include "emmanager.h"
+#include "emobject.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emseedpicker.h"
@@ -977,6 +980,11 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const int sdid = sceneMgr().addEMItem( emid, sceneid );
 	if ( sdid==-1 )
 	    return false;
+	const EM::EMObject* emobj = EM::EMM().getObject( emid );
+	if ( EM::Horizon3D::typeStr()==emobj->getTypeStr() )
+	    viewer2DMgr().addNewTrackingHorizon3D( emid );
+	else
+	    viewer2DMgr().addNewTrackingHorizon2D( emid );
 
 	sceneMgr().updateTrees();
 	return true;

@@ -218,6 +218,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     {
 	treetp_->updSelSpec( &wvaselspec_, true );
 	treetp_->updSelSpec( &vdselspec_, false );
+	treetp_->updSampling( tkzs_, true );
     }
 
     viewwin()->start();
@@ -303,8 +304,6 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
     }
 
     if ( tkzs.isFlat() ) setWinTitle( true );
-
-    if ( treetp_ ) treetp_->updSampling( tkzs, true );
 }
 
 

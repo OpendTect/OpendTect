@@ -38,6 +38,8 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emfault3d.h"
+#include "emfaultstickset.h"
 #include "mouseevent.h"
 #include "posinfo2d.h"
 #include "seisioobjinfo.h"
@@ -100,6 +102,24 @@ void uiODViewer2DMgr::setupHorizon2Ds( uiODViewer2D* vwr2d )
 }
 
 
+void uiODViewer2DMgr::setupFaults( uiODViewer2D* vwr2d )
+{
+    TypeSet<EM::ObjectID> emids;
+    getLoadedFaults( emids );
+    appl_.sceneMgr().getLoadedEMIDs(emids,EM::Fault3D::typeStr());
+    vwr2d->addFaults( emids );
+}
+
+
+void uiODViewer2DMgr::setupFaultSSs( uiODViewer2D* vwr2d )
+{
+    TypeSet<EM::ObjectID> emids;
+    getLoadedFaultSSs( emids );
+    appl_.sceneMgr().getLoadedEMIDs(emids,EM::FaultStickSet::typeStr());
+    vwr2d->addFaultSSs( emids );
+}
+
+
 int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
 			const Attrib::SelSpec& as, bool dowva,
 			float initialx1pospercm, float initialx2pospercm )
@@ -123,6 +143,8 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
 
     setupHorizon3Ds( vwr2d );
     setupHorizon2Ds( vwr2d );
+    setupFaults( vwr2d );
+    setupFaultSSs( vwr2d );
     return vwr2d->id_;
 }
 
@@ -171,6 +193,8 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     setAllIntersectionPositions();
     setupHorizon3Ds( vwr2d );
     setupHorizon2Ds( vwr2d );
+    setupFaults( vwr2d );
+    setupFaultSSs( vwr2d );
 }
 
 #define mGetCurViewer \
@@ -570,6 +594,8 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     setAllIntersectionPositions();
     setupHorizon3Ds( vwr2d );
     setupHorizon2Ds( vwr2d );
+    setupFaults( vwr2d );
+    setupFaultSSs( vwr2d );
 }
 
 
@@ -969,6 +995,11 @@ void uiODViewer2DMgr::addNewTrackingHorizon3D( EM::ObjectID emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTrackingHorizon3D( emid );
+    TypeSet<EM::ObjectID> emids;
+    appl_.sceneMgr().getLoadedEMIDs(emids,EM::Horizon3D::typeStr());
+    if ( emids.isPresent(emid) )
+	return;
+    appl_.sceneMgr().addEMItem( emid );
 }
 
 
@@ -997,6 +1028,11 @@ void uiODViewer2DMgr::addNewTrackingHorizon2D( EM::ObjectID emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTrackingHorizon2D( emid );
+    TypeSet<EM::ObjectID> emids;
+    appl_.sceneMgr().getLoadedEMIDs(emids,EM::Horizon2D::typeStr());
+    if ( emids.isPresent(emid) )
+	return;
+    appl_.sceneMgr().addEMItem( emid );
 }
 
 
@@ -1025,6 +1061,11 @@ void uiODViewer2DMgr::addNewTempFault( EM::ObjectID emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTempFault( emid );
+    TypeSet<EM::ObjectID> emids;
+    appl_.sceneMgr().getLoadedEMIDs(emids,EM::Fault3D::typeStr());
+    if ( emids.isPresent(emid) )
+	return;
+    appl_.sceneMgr().addEMItem( emid );
 }
 
 
@@ -1053,4 +1094,9 @@ void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid )
 {
     for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
 	viewers2d_[vwridx]->addNewTempFaultSS( emid );
+    TypeSet<EM::ObjectID> emids;
+    appl_.sceneMgr().getLoadedEMIDs(emids,EM::FaultStickSet::typeStr());
+    if ( emids.isPresent(emid) )
+	return;
+    appl_.sceneMgr().addEMItem( emid );
 }

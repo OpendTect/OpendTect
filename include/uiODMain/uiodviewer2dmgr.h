@@ -140,6 +140,8 @@ protected:
     void			setAuxPosLineStyles(uiFlatViewer&);
     void			setupHorizon3Ds(uiODViewer2D*);
     void			setupHorizon2Ds(uiODViewer2D*);
+    void			setupFaults(uiODViewer2D*);
+    void			setupFaultSSs(uiODViewer2D*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
