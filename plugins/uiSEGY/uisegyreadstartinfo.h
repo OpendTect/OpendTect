@@ -26,7 +26,7 @@ class uiSEGYImpType;
 class uiHistogramDisplay;
 
 
-/*!\brief Starts reading process of 'any SEG-Y file'. */
+/*!\brief Displays and edits info for the read start process. */
 
 mExpClass(uiSEGY) uiSEGYReadStartInfo : public uiGroup
 { mODTextTranslationClass(uiSEGYReadStartInfo);
@@ -37,10 +37,10 @@ public:
     void		setImpTypIdx(int);
     void		setScanData(const SEGY::uiScanData&);
 
-    void		useScanDef();
+    void		useScanDef(); //!< when you have changed the scandef
     void		fillScanDef();
 
-    Notifier<uiSEGYReadStartInfo> scandefChanged;
+    Notifier<uiSEGYReadStartInfo> scandefChanged; //!< when I have changed it
 
     void		clearInfo();
 

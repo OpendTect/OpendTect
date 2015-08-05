@@ -35,15 +35,16 @@ public:
 
 			uiScanDef();
 			~uiScanDef();
-    void		reInit();
+    void		reInit(bool alsohdef=true);
 
     int			revision_;
     bool		hdrsswapped_;
     bool		dataswapped_;
     int			ns_;
     short		format_;
-    float		coordscale_;
     SamplingData<float>	sampling_;
+    float		coordscale_;
+
     TrcHeaderDef*	hdrdef_;
 
     bool		isValid() const			{ return ns_ > 0; }
