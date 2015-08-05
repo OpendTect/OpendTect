@@ -64,21 +64,23 @@ protected:
     ObjectSet<SEGY::uiScanData> scandata_;
     DataClipSampler&	clipsampler_;
     bool		infeet_;
-    bool		scandefguessed_;
+    bool		veryfirstscan_;
 
-    void		buildTable();
-    void		setCellTxt(int col,int row,const char*);
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();
-    void		execNewScan(bool reinitscandef=true);
+    void		execNewScan(bool);
     void		scanInput();
-    bool		scanFile(const char*);
+    bool		scanFile(const char*,bool);
     bool		obtainScanData(SEGY::uiScanData&,od_istream&,bool);
-    bool		guessScanDef(od_istream&);
+    bool		completeScanDef(od_istream&);
+
+    void		clearDisplay();
     void		displayScanResults();
 
+    void		initWin(CallBacker*);
+    void		typChg(CallBacker*);
     void		inpChg(CallBacker*);
-    void		defChg( CallBacker* )		{ execNewScan(false); }
+    void		defChg( CallBacker* )		{ execNewScan(true); }
     bool		acceptOK(CallBacker*);
 
 };

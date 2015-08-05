@@ -25,13 +25,14 @@ SEGY::uiScanDef::uiScanDef()
 }
 
 
-void SEGY::uiScanDef::reInit()
+void SEGY::uiScanDef::reInit( bool alsohdef )
 {
     revision_ = ns_ = -1;
     format_ = 5;
     hdrsswapped_ = dataswapped_ = false;
     coordscale_ = sampling_.start = sampling_.step = 1.0f;
-    delete hdrdef_; hdrdef_ = new TrcHeaderDef;
+    if ( alsohdef )
+	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
 }
 
 
