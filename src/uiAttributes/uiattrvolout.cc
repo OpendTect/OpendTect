@@ -56,7 +56,7 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* n, const MultiID& id )
-    : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,mNoHelpKey))
+    : uiBatchProcDlg(p,uiStrings::sEmptyString(),false, Batch::JobSpec::Attrib)
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)
     , ads_(*new Attrib::DescSet(ad))
@@ -82,18 +82,21 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiSeparator* sep1 = 0;
     if ( !multioutput )
     {
-	todofld_ = new uiAttrSel( this, "Quantity to output", attrdata );
+	todofld_ = new uiAttrSel( pargroup_, "Quantity to output", attrdata );
 	todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
     }
     else
     {
-	attrselfld_ = new uiMultiAttribSel( this, attrdata.attrSet() );
-	sep1 = new uiSeparator( this, "Attribute Selection Separator" );
+	attrselfld_ = new uiMultiAttribSel( pargroup_, &attrdata.attrSet() );
+	sep1 = new uiSeparator( pargroup_, "Attribute Selection Separator" );
 	sep1->attach( stretchedBelow, attrselfld_ );
     }
 
-    transffld_ = new uiSeisTransfer( this, uiSeisTransfer::Setup(is2d,false)
-			.fornewentry(true).withstep(!is2d).multiline(true) );
+    transffld_ = new uiSeisTransfer( pargroup_,
+				     uiSeisTransfer::Setup(is2d,false)
+						     .fornewentry(true)
+						     .withstep(!is2d)
+						     .multiline(true) );
     if ( todofld_ )
 	transffld_->attach( alignedBelow, todofld_ );
     else
@@ -101,7 +104,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
     if ( sep1 ) transffld_->attach( ensureBelow, sep1 );
 
-    objfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,false),
+    objfld_ = new uiSeisSel( pargroup_, uiSeisSel::ioContext(gt,false),
 				uiSeisSel::Setup(is2d,false) );
     objfld_->selectionDone.notify( mCB(this,uiAttrVolOut,outSelCB) );
     objfld_->attach( alignedBelow, transffld_ );
@@ -111,10 +114,10 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiSeparator* sep3 = 0;
     if ( multioutput && !is2d )
     {
-	uiSeparator* sep2 = new uiSeparator( this, "PS Start Separator" );
+	uiSeparator* sep2 = new uiSeparator( pargroup_, "PS Start Separator" );
 	sep2->attach( stretchedBelow, objfld_ );
 
-	uiCheckBox* cb = new uiCheckBox( this, "Enable Prestack Analysis" );
+	uiCheckBox* cb = new uiCheckBox( pargroup_,"Enable Prestack Analysis" );
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
 	cb->attach( ensureBelow, sep2 );
@@ -122,30 +125,25 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
 	ctxt.forread = false;
 	ctxt.fixTranslator( "MultiCube" );
-	datastorefld_ = new uiIOObjSel( this, ctxt,
+	datastorefld_ = new uiIOObjSel( pargroup_, ctxt,
 					"Output Prestack DataStore" );
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 0, 100 );
 	const uiString lbl = tr( "Offset (start/step) %1" )
 					.arg( SI().getXYUnitString() );
-	offsetfld_ = new uiGenInput( this, lbl,
+	offsetfld_ = new uiGenInput( pargroup_, lbl,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );
 
-	sep3 = new uiSeparator( this, "PS End Separator" );
+	sep3 = new uiSeparator( pargroup_, "PS End Separator" );
 	sep3->attach( stretchedBelow, offsetfld_ );
 
 	psSelCB( cb );
 	botgrp = offsetfld_;
     }
 
-    batchfld_ = new uiBatchJobDispatcherSel( this, false,
-					     Batch::JobSpec::Attrib );
-    IOPar& iop = jobSpec().pars_;
-    iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
-    batchfld_->attach( alignedBelow, botgrp );
-    if ( sep3 ) batchfld_->attach( ensureBelow, sep3 );
+    pargroup_->setHAlignObj( botgrp );
 }
 
 
@@ -157,11 +155,23 @@ uiAttrVolOut::~uiAttrVolOut()
 }
 
 
-Batch::JobSpec& uiAttrVolOut::jobSpec()
+void uiAttrVolOut::updateAttributes( const Attrib::DescSet& descset,
+				     const NLAModel* nlamodel,
+				     const MultiID& nlaid )
 {
-    return batchfld_->jobSpec();
-}
+    ads_ = *new Attrib::DescSet( descset );
+    if ( todofld_ )
+    {
+	todofld_->setDescSet( &ads_ );
+	todofld_->setNLAModel( nlamodel );
+    }
 
+    if ( attrselfld_ )
+	attrselfld_->setDescSet( &ads_ );
+
+    nlamodel_ = nlamodel;
+    nlaid_ = nlaid;
+}
 
 void uiAttrVolOut::psSelCB( CallBacker* cb )
 {
@@ -411,13 +421,12 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 }
 
 
-bool uiAttrVolOut::fillPar()
+bool uiAttrVolOut::fillPar( IOPar& iop )
 {
+    iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     const IOObj* outioobj = objfld_->ioobj();
     if ( !outioobj )
 	return false;
-
-    IOPar& iop = jobSpec().pars_;
 
     Attrib::DescSet* clonedset = 0;
     TypeSet<Attrib::DescID> outdescids;
@@ -515,11 +524,7 @@ void uiAttrVolOut::addNLA( Attrib::DescID& id )
 }
 
 
-bool uiAttrVolOut::acceptOK( CallBacker* )
+const char* uiAttrVolOut::jobName() const
 {
-    if ( !prepareProcessing() || !fillPar() )
-	return false;
-
-    batchfld_->setJobName( objfld_->getInput() );
-    return batchfld_->start();
+    return objfld_->getInput();
 }
