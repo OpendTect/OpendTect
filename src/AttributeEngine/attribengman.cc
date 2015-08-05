@@ -335,8 +335,9 @@ DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
     : in_(in), out_(out)
     , domemcopy_(false)
 {
-    nrtrcs_ = out.sampling().nrTrcs();
-    totalnr_ = out.sampling().hsamp_.totalNr();
+    worktkzs_ = out.sampling();
+    worktkzs_.limitTo( in.sampling() );
+    totalnr_ = worktkzs_.hsamp_.totalNr();
 }
 
 od_int64 nrIterations() const		{ return totalnr_; }
@@ -354,28 +355,26 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 {
     const TrcKeySampling& intks = in_.sampling().hsamp_;
     const TrcKeySampling& outtks = out_.sampling().hsamp_;
-    const int nrz = in_.sampling().nrZ();
+    const int nrz = worktkzs_.nrZ();
     for ( od_int64 gidx=start; gidx<=stop; gidx++ )
     {
-	const int outinlidx = (int)(gidx/nrtrcs_);
-	const int outcrlidx = (int)(gidx%nrtrcs_);
-	const BinID bid = outtks.atIndex( outinlidx, outcrlidx );
+	const BinID bid = worktkzs_.hsamp_.atIndex( gidx );
+	const int outinlidx = outtks.lineIdx( bid.inl() );
+	const int outcrlidx = outtks.trcIdx( bid.crl() );
 	const int ininlidx = intks.lineIdx( bid.inl() );
 	const int incrlidx = intks.trcIdx( bid.crl() );
 
-	for ( int idz=0; idz<out_.sampling().nrZ(); idz++ )
+	for ( int idz=0; idz<nrz; idz++ )
 	{
-	    const float zval = out_.sampling().zsamp_.atIndex( idz );
-	    const int zidx = in_.sampling().zsamp_.nearestIndex( zval );
-	    if ( zidx<0 || zidx>nrz-1 )
-		continue;
-
+	    const float zval = worktkzs_.zsamp_.atIndex( idz );
+	    const int inzidx = in_.sampling().zsamp_.nearestIndex( zval );
+	    const int outzidx = out_.sampling().zsamp_.nearestIndex( zval );
 	    for ( int idc=0; idc<out_.nrComponents(); idc++ )
 	    {
-		const float val = in_.data(idc).get( ininlidx, incrlidx, zidx );
-		if ( Values::isUdf( val ) )
-		    continue;
-		out_.data(idc).set( outinlidx, outcrlidx, idz, val );
+		const float val = in_.data(idc).get( ininlidx, incrlidx,
+						     inzidx );
+		if ( !Values::isUdf( val ) )
+		    out_.data(idc).set( outinlidx, outcrlidx, outzidx, val );
 	    }
 	}
     }
@@ -387,9 +386,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx )
 protected:
     const RegularSeisDataPack&	in_;
     RegularSeisDataPack&	out_;
+    TrcKeyZSampling		worktkzs_;
+
 
     od_int64			totalnr_;
-    int				nrtrcs_;
     bool			domemcopy_;
 };
 
