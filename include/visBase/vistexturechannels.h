@@ -89,10 +89,10 @@ public:
 
     bool			setUnMappedVSData(int channel,int version,
 				    const ValueSeries<float>*, OD::PtrPolicy,
-				    TaskRunner*);
+				    TaskRunner*,bool skipclip=false);
     bool			setUnMappedData(int channel,int version,
-	    				        const float*, OD::PtrPolicy,
-						TaskRunner*);
+				    const float*, OD::PtrPolicy,
+				    TaskRunner*,bool skipclip=false);
     bool			setMappedData(int channel,int version,
 	    				      unsigned char*, OD::PtrPolicy);
     void			unfreezeOldData(int channel);
