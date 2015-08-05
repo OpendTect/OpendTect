@@ -109,6 +109,19 @@ bool ArrayNDSliceBase::init()
 
     if ( !ismemorder )
     {
+	bool hasonlyoneslice = true;
+	for ( int dimidx=0; dimidx<ndim; dimidx++ )
+	{
+	    if ( position_[dimidx] != -1 && getDimSize(dimidx) != 1 )
+		hasonlyoneslice = false;
+	}
+
+	if ( hasonlyoneslice )
+	    ismemorder = true;
+    }
+
+    if ( !ismemorder )
+    {
 	offset_ = -1;
     }
     else
