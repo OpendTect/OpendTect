@@ -635,6 +635,7 @@ void ui3DViewerBody::thumbWheelRotationCB( CallBacker* cb )
 	if ( manip && manip->getWheelZoomFactor()<0 )
 	    change *= -1;
 
+	manip->stopThrow();
 	manip->changeDistance( change );
     }
 }
@@ -791,6 +792,7 @@ void ui3DViewerBody::setViewMode( bool yn, bool trigger )
 	    static_cast<osgGeo::TrackballManipulator*>(
 						view_->getCameraManipulator() );
     manip->enableDragging( yn );
+    manip->stopThrow();
 
     if ( scene_ )
 	scene_->setPickable( !yn );
@@ -942,14 +944,17 @@ void ui3DViewerBody::setAnimationEnabled( bool yn )
 	view_->getCameraManipulator() );
 
     if ( manip )
+    {
 	manip->setAllowThrow( yn );
+	manip->stopThrow();
+    }
 } 
 
 
 bool ui3DViewerBody::isAnimationEnabled() const
 { 
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	static_cast<osgGeo::TrackballManipulator*>(
+    osg::ref_ptr<osgGA::StandardManipulator> manip =
+	static_cast<osgGA::StandardManipulator*>(
 	view_->getCameraManipulator() );
     
     if ( manip )
@@ -1009,6 +1014,7 @@ void ui3DViewerBody::setCameraPos( const osg::Vec3f& updir,
     }
 
     manip->viewAll( view_, trueviewdir, updir, true );
+    manip->stopThrow();
     requestRedraw();
 }
 
@@ -1118,6 +1124,7 @@ void ui3DViewerBody::toggleCameraType()
     if ( !manip ) return;
 
     manip->setProjectionAsPerspective( !manip->isCameraPerspective() );
+    manip->stopThrow();
 
     requestRedraw();
 }
@@ -1129,14 +1136,9 @@ void ui3DViewerBody::setHomePos(const IOPar& homepos)
 }
 
 
-void ui3DViewerBody::resetToHomePosition()
-{
-}
-
-
 void ui3DViewerBody::uiRotate( float angle, bool horizontal )
 {
-    mDynamicCastGet( osgGA::StandardManipulator*, manip,
+    mDynamicCastGet( osgGeo::TrackballManipulator*, manip,
 		     view_->getCameraManipulator() );
     if ( !manip )
 	return;
@@ -1148,6 +1150,7 @@ void ui3DViewerBody::uiRotate( float angle, bool horizontal )
     mat.makeRotate( angle, axis );
     mat.preMultTranslate( -center );
     mat.postMultTranslate( center );
+    manip->stopThrow();
     manip->setTransformation( eye*mat, center, up );
 }
 
@@ -1174,7 +1177,7 @@ void ui3DViewerBody::notifyManipulatorMovement( float dh, float dv, float df )
 
 void ui3DViewerBody::uiZoom( float rel, const osg::Vec3f* dir )
 {
-    mDynamicCastGet( osgGA::StandardManipulator*, manip,
+    mDynamicCastGet( osgGeo::TrackballManipulator*, manip,
 		     view_->getCameraManipulator() );
 
     osg::ref_ptr<const osg::Camera> cam = getOsgCamera();
@@ -1219,6 +1222,7 @@ void ui3DViewerBody::uiZoom( float rel, const osg::Vec3f* dir )
 	// TODO
     }
 
+    manip->stopThrow();
     manip->setTransformation( eye, center, up );
 }
 
@@ -1289,6 +1293,7 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
     manip->setCenter( Conv::to<osg::Vec3d>( center ) );
     manip->setRotation( osg::Quat( x, y, z, w ) );
     manip->setDistance( distance );
+    manip->stopThrow();
 
     requestRedraw();
     return true;
