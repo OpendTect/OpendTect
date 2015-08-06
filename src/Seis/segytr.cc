@@ -53,7 +53,7 @@ static const od_int64 cTraceHeaderBytes = 240;
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	: SeisTrcTranslator(nm,unm)
-	, trchead_(*new SEGY::TrcHeader(headerbuf_,true,fileopts_.thdef_))
+	, trchead_(*new SEGY::TrcHeader(headerbuf_,fileopts_.thdef_,false))
 	, txthead_(0)
 	, binhead_(*new SEGY::BinHeader)
 	, trcscale_(0)
@@ -149,8 +149,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	binhead_.setEntryVal( revcodeentry, 0 );
 
     trchead_.setNeedSwap( filepars_.byteswap_ > 1 );
-    trchead_.isrev1_ = binhead_.isRev1();
-    if ( trchead_.isrev1_ )
+    trchead_.isrev0_ = binhead_.revision() < 1;
+    if ( !trchead_.isrev0_ )
     {
 	const int nrstzs = binhead_.skipRev1Stanzas( strm );
 	if ( nrstzs > 0 )
@@ -380,11 +380,11 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     if ( filepars_.fmt_ == 0 ) // Auto-detect
 	filepars_.fmt_ = nrFormatFor( storinterp_->dataChar() );
 
-    trchead_.isrev1_ = true;
+    trchead_.isrev0_ = false;
 
     if ( !txthead_ )
     {
-	txthead_ = new SEGY::TxtHeader( trchead_.isrev1_ );
+	txthead_ = new SEGY::TxtHeader( trchead_.isrev0_ ? 0 : 1);
 	txthead_->setUserInfo( pinfo_.usrinfo );
 	fileopts_.thdef_.linename = curlinekey_;
 	fileopts_.thdef_.pinfo = &pinfo_;
@@ -449,9 +449,9 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
 }
 
 
-bool SEGYSeisTrcTranslator::isRev1() const
+bool SEGYSeisTrcTranslator::isRev0() const
 {
-    return trchead_.isrev1_;
+    return trchead_.isrev0_;
 }
 
 

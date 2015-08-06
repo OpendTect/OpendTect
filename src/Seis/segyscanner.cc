@@ -87,12 +87,12 @@ void SEGY::Scanner::closeTr()
 
 void SEGY::Scanner::getReport( IOPar& iop ) const
 {
-    const bool isrev1 = !forcerev0_ && (fds_.isEmpty() || fds_.isRev1() );
+    const bool isrev0 = forcerev0_ || fds_.isEmpty() || fds_.isRev0();
 
     iop.add( IOPar::sKeyHdr(), "Provided information" );
-    FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop, isrev1 );
-    FilePars fp(true); fp.usePar( pars_ ); fp.getReport( iop, isrev1 );
-    FileReadOpts fro(geom_); fro.usePar( pars_ ); fro.getReport( iop, isrev1 );
+    FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop, isrev0 );
+    FilePars fp(true); fp.usePar( pars_ ); fp.getReport( iop, isrev0 );
+    FileReadOpts fro(geom_); fro.usePar( pars_ ); fro.getReport( iop, isrev0 );
 
     if ( fds_.isEmpty() )
     {

@@ -74,7 +74,7 @@ SEGY::TrcHeader* SEGY::uiScanDef::getTrcHdr( od_istream& strm ) const
 	return 0;
 
     SEGY::TrcHeader* th = new SEGY::TrcHeader(
-			 (unsigned char*)thbuf, revision_==1, *hdrdef_, true );
+			 (unsigned char*)thbuf, *hdrdef_, !isRev0(), true );
     th->initRead();
     return th;
 }

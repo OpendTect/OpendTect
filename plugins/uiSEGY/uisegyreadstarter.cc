@@ -237,7 +237,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedscandef )
 	}
 	if ( scandef_.hdrsswapped_ )
 	    binhdr.unSwap();
-	if ( binhdr.isRev1() )
+	if ( !binhdr.isRev0() )
 	    binhdr.skipRev1Stanzas( strm );
 	infeet = binhdr.isInFeet();
 
@@ -246,7 +246,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedscandef )
 	    scandef_.ns_ = binhdr.nrSamples();
 	    if ( scandef_.ns_ < 1 || scandef_.ns_ > mMaxReasonableNS )
 		scandef_.ns_ = -1;
-	    scandef_.revision_ = binhdr.isRev1() ? 1 : 0;
+	    scandef_.revision_ = binhdr.revision();
 	    short fmt = binhdr.format();
 	    if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
 		fmt = 1;

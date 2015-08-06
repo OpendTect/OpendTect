@@ -61,8 +61,17 @@ protected:
     SEGY::uiScanDef&	scandef_;
     SEGY::ImpType	imptype_;
     bool		parsbeingset_;
+    BufferString	xinfotxt_;
+    BufferString	yinfotxt_;
+    BufferString	inlinfotxt_;
+    BufferString	crlinfotxt_;
+    BufferString	trcnrinfotxt_;
+    BufferString	refnrinfotxt_;
+    BufferString	offsetinfotxt_;
 
+    void		revChg(CallBacker*);
     void		parChg(CallBacker*);
+    void		showRelevantInfo();
     void		setCellTxt(int col,int row,const char*);
 
 };

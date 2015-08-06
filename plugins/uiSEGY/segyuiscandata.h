@@ -48,6 +48,7 @@ public:
     TrcHeaderDef*	hdrdef_;
 
     bool		isValid() const			{ return ns_ > 0; }
+    bool		isRev0() const			{ return revision_ < 1;}
     int			bytesPerSample() const;
     int			traceDataBytes() const;
     DataCharacteristics	getDataChar() const;

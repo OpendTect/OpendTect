@@ -209,7 +209,9 @@ bool SEGY::FileDataSet::usePar( const IOPar& par )
 
     Seis::getFromPar(par,geom_);
 
-    par.getYN( sKeyRev1Marked, isrev1_ );
+    bool isnotrev0 = !isrev0_;
+    par.getYN( sKeyRev1Marked, isnotrev0 );
+    isrev0_ = !isnotrev0;
     par.get( sKeySampling, sampling_ );
     par.get( sKeyTraceSize, trcsz_ );
     par.get( sKeyNrStanzas, nrstanzas_ );
@@ -224,7 +226,7 @@ void SEGY::FileDataSet::fillPar( IOPar& par ) const
 {
     const int nrfiles = nrFiles();
     par.set( sKeyNrFiles, nrfiles );
-    par.setYN( sKeyRev1Marked, isrev1_ );
+    par.setYN( sKeyRev1Marked, !isrev0_ );
     par.set( sKeySampling, sampling_ );
     par.set( sKeyTraceSize, trcsz_ );
     par.set( sKeyNrStanzas, nrstanzas_ );
@@ -498,7 +500,7 @@ void SEGY::FileDataSet::setAuxData( const Seis::GeomType& gt,
 
     trcsz_ = tr.inpNrSamples();
     sampling_ = tr.inpSD();
-    isrev1_ = tr.isRev1();
+    isrev0_ = tr.isRev0();
     nrstanzas_ = tr.binHeader().entryVal( SEGY::BinHeader::EntryRevCode() + 2 );
 }
 
@@ -520,8 +522,8 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
     const Interval<float> zrg( sampling_.interval(trcsz_) );
     iop.add( "Z range in file", zrg.start, zrg.stop );
     iop.add( "Z step in file", sampling_.step );
-    iop.addYN( "File marked as REV. 1", isrev1_ );
-    if ( isrev1_ && nrstanzas_ > 0 )
+    iop.addYN( "File marked as REV. 1 or higher", !isrev0_ );
+    if ( !isrev0_ && nrstanzas_ > 0 )
 	iop.add( "Number of REV.1 extra stanzas", nrstanzas_ );
 
     TrcKeySampling hs( false );

@@ -29,7 +29,7 @@ class DataCharacteristics;
 template <class T> class DataInterpreter;
 class SEGYSeisTrcTranslator;
 namespace Seis { class PosIndexer; }
- 
+
 
 namespace SEGY
 {
@@ -51,54 +51,54 @@ public:
 	od_int64	trcidx_;
     };
 
-    			FileDataSet(const IOPar& iop, ascistream& );
+			FileDataSet(const IOPar& iop, ascistream& );
 			//!<Reads old version of file into memory
-    			FileDataSet(const IOPar& iop);
+			FileDataSet(const IOPar& iop);
 			/*!<Creates empty set, can later be filled from
 			    scanning. */
-    			~FileDataSet();
+			~FileDataSet();
 
 			FileDataSet(const IOPar&,const char* filename,
 				od_stream_Pos start,
 				const DataCharacteristics& int32 );
 			/*!<Reads new version of file, only auxdata is read
 			    in, the bulk of the data remains on disk. */
-    			FileDataSet(const FileDataSet& fd);
+			FileDataSet(const FileDataSet& fd);
 			//!<Not implemented, just to make linker complain.
 
     void		save2DCoords(bool yn);
 
     bool		setOutputStream(od_ostream&);
-    			/*!<Will store all information to the stream, rather 
+			/*!<Will store all information to the stream, rather
 			    than in memory. */
     void		setAuxData(const Seis::GeomType&,
-	    			   const SEGYSeisTrcTranslator&);
+				   const SEGYSeisTrcTranslator&);
 
     void		addFile(const char* fnm);
     bool		addTrace(int fileidx,const Seis::PosKey&,const Coord&,
-	    			 bool usable);
+				 bool usable);
 
     const SamplingData<float>&	getSampling() const { return sampling_; }
     int				getTrcSz() const { return trcsz_; }
 
-    				//Auxdata
+				//Auxdata
     int				nrFiles() const;
     FixedString			fileName(int) const;
     bool			isEmpty() const		{ return totalsz_<2; }
     od_int64			size() const		{ return totalsz_; }
-    bool			isRev1() const		{ return isrev1_; }
+    bool			isRev0() const		{ return isrev0_; }
     Seis::GeomType		geomType() const	{ return geom_; }
     const IOPar&		segyPars() const	{ return segypars_;}
 
-    				//TraceData
+				//TraceData
     bool			getDetails(od_int64,Seis::PosKey&,
-	    				   bool& usable) const;
+					   bool& usable) const;
     Coord			get2DCoord(int trcnr) const;
     TrcIdx			getFileIndex(od_int64) const;
 
 
     //bool		toNext(TrcIdx&,bool allownull=true,
-	    			//bool allownotusable=false) const;
+				//bool allownotusable=false) const;
 
     void			setIndexer(Seis::PosIndexer* n);
 				/*!<addTrace will send the trace info to the
@@ -109,9 +109,9 @@ public:
     void			dump(od_ostream&) const;
 
     bool			usePar(const IOPar& iop);
-    				//!<Read auxdata from storage
+				//!<Read auxdata from storage
     void			fillPar(IOPar& iop) const;
-    				//!<Write auxdata
+				//!<Write auxdata
 
 protected:
 
@@ -139,10 +139,10 @@ protected:
     bool			readVersion1( ascistream& );
     bool			readVersion1File( ascistream& );
 
-    				//Auxdata
+				//Auxdata
     IOPar			segypars_;
     Seis::GeomType		geom_;
-    bool			isrev1_;
+    bool			isrev0_;
     SamplingData<float>		sampling_;
     int				trcsz_;
     int				nrstanzas_;
@@ -151,7 +151,7 @@ protected:
     od_int64			totalsz_;
     int				nrusable_;
 
-    				//TraceData
+				//TraceData
     TypeSet<Seis::PosKey>	keys_;
     BoolTypeSet			usable_;
     StoredData*			storeddata_;
