@@ -118,12 +118,21 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 
 void uiAxisHandler::setBounds( Interval<float> rg )
 {
-    const bool isrev = rg.start > rg.stop;
-    AxisLayout<float> al( rg, setup_.annotinint_ );
-    if ( (!isrev && (al.sd_.start < rg.start))
-      || ( isrev && (al.sd_.start > rg.start)) )
-	al.sd_.start += al.sd_.step;
-    setRange( StepInterval<float>(rg.start,rg.stop,al.sd_.step),&al.sd_.start);
+    const bool haveudf = mIsUdf(rg.start) || mIsUdf(rg.stop)
+			|| mIsUdf(-rg.start) || mIsUdf(-rg.stop);
+    if ( haveudf )
+	setRange( StepInterval<float>(0.f,1.f,1.f) );
+    else
+    {
+	const bool isrev = rg.start > rg.stop;
+	AxisLayout<float> al( rg, setup_.annotinint_ );
+	if ( (!isrev && (al.sd_.start < rg.start))
+	  || ( isrev && (al.sd_.start > rg.start)) )
+	    al.sd_.start += al.sd_.step;
+
+	setRange( StepInterval<float>(rg.start,rg.stop,al.sd_.step),
+		  &al.sd_.start );
+    }
 }
 
 #define sDefNrDecimalPlaces 3
