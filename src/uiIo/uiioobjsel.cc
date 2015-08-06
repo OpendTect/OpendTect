@@ -102,17 +102,16 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 }
 
 
-#define mConstructorInitListStart \
-	uiIOObjRetDlg(p, uiDialog::Setup(ctio.ctxt.forread \
-		? tr("Input selection") : tr("Output selection"), \
+#define mConstructorInitListStart(titletxt) \
+	uiIOObjRetDlg(p, uiDialog::Setup(titletxt, \
 		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
     , selgrp_( 0 )
 
-
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 				const uiString& ttxt )
-    : mConstructorInitListStart
+    : mConstructorInitListStart( ctio.ctxt.forread ? tr("Input selection")
+						   : tr("Output selection") )
     , setup_( ttxt )
 {
     init( ctio );
@@ -121,7 +120,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 				const CtxtIOObj& ctio )
-    : mConstructorInitListStart
+    : mConstructorInitListStart( ctio.ctxt.forread ? tr("Input selection")
+						   : tr("Output selection") )
     , setup_( su )
 {
     init( ctio );
@@ -281,6 +281,7 @@ void uiIOObjSel::preFinaliseCB( CallBacker* )
 	NotifyStopper ns( selectionDone );
 	fillEntries();
     }
+
     fillDefault();
     updateInput();
     selDone( 0 );
@@ -311,17 +312,23 @@ void uiIOObjSel::fillEntries()
 
     const IODir iodir ( inctio_.ctxt.getSelKey() );
     IODirEntryList del( iodir, inctio_.ctxt );
-    BufferStringSet keys;
+    BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
+    {
 	keys.add( "" );
+	names.add( "" );
+    }
+
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* obj = del[idx]->ioobj_;
-	if ( obj ) keys.add( obj->key().buf() );
+	if ( !obj ) continue;
+
+	keys.add( obj->key().buf() );
+	names.add( obj->name().buf() );
     }
 
-    addToHistory( keys );
-
+    setEntries( keys, names );
     if ( !hadselioobj )
 	workctio_.setObj( 0 );
 }
