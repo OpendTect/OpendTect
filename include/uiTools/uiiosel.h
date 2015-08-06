@@ -61,6 +61,8 @@ public:
 			//!< Will fetch user name using userNameFromKey
     void		setInputText(const char*);
 			//!< As if user typed it manually
+    void		setEntries(const BufferStringSet& keys,
+				   const BufferStringSet& names);
 
     int			nrItems() const;
     int			getCurrentItem() const;

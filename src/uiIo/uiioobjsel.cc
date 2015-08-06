@@ -277,6 +277,11 @@ uiIOObjSel::~uiIOObjSel()
 
 void uiIOObjSel::preFinaliseCB( CallBacker* )
 {
+    {
+	NotifyStopper ns( selectionDone );
+	fillEntries();
+    }
+
     fillDefault();
     updateInput();
     selDone( 0 );
@@ -307,17 +312,23 @@ void uiIOObjSel::fillEntries()
 
     const IODir iodir ( inctio_.ctxt.getSelKey() );
     IODirEntryList del( iodir, inctio_.ctxt );
-    BufferStringSet keys;
+    BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
+    {
 	keys.add( "" );
+	names.add( "" );
+    }
+
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* obj = del[idx]->ioobj_;
-	if ( obj ) keys.add( obj->key().buf() );
+	if ( !obj ) continue;
+
+	keys.add( obj->key().buf() );
+	names.add( obj->name().buf() );
     }
 
-    addToHistory( keys );
-
+    setEntries( keys, names );
     if ( !hadselioobj )
 	workctio_.setObj( 0 );
 }

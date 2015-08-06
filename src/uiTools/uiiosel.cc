@@ -128,8 +128,15 @@ void uiIOSelect::doFinalise( CallBacker* cb )
     }
     if ( optbox_ )
 	optbox_->attach( leftOf, leftmost );
+}
 
-    updateFromEntries();
+
+void uiIOSelect::setEntries( const BufferStringSet& keys,
+			     const BufferStringSet& names )
+{
+    entries_ = keys;
+    inp_->setEmpty();
+    inp_->addItems( names );
 }
 
 
