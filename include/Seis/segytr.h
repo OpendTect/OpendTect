@@ -43,7 +43,7 @@ public:
     int			traceSizeOnDisk() const;
     bool		getFullTrcAsBuf(unsigned char*);
 
-    bool		isRev1() const;
+    bool		isRev0() const;
     int			numberFormat() const	{ return filepars_.fmt_; }
     int			estimatedNrTraces() const { return estnrtrcs_; }
 

@@ -86,8 +86,8 @@ static void Ascii2Ebcdic( unsigned char *chbuf, int len )
 }
 
 
-SEGY::TxtHeader::TxtHeader( bool rev1 )
-    : rev1_(rev1)
+SEGY::TxtHeader::TxtHeader( int rev )
+    : revision_(rev)
 {
     clear();
 
@@ -146,7 +146,7 @@ void SEGY::TxtHeader::setLineStarts()
     }
 
     BufferString rvstr( "SEG Y REV" );
-    rvstr += rev1_ ? 1 : 0;
+    rvstr += revision_;
     putAt( cTxtHeadNrLines-1, 6, 75, rvstr.buf() );
     putAt( cTxtHeadNrLines, 6, 75, "END TEXTUAL HEADER" );
 }
@@ -396,10 +396,14 @@ float SEGY::BinHeader::sampleRate( bool isdepth ) const
 }
 
 
-bool SEGY::BinHeader::isRev1() const
+int SEGY::BinHeader::revision() const
 {
     const int nr = entryVal( EntryRevCode() );
-    return nr == 1 || nr == 256;
+    if ( nr == 1 || nr == 256 )
+	return 1;
+    else if ( nr == 2 || nr == 512 )
+	return 2;
+    return 0;
 }
 
 
@@ -448,13 +452,13 @@ void SEGY::BinHeader::dump( od_ostream& strm ) const
 }
 
 
-SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
-			    const SEGY::TrcHeaderDef& hd, bool ismine )
+SEGY::TrcHeader::TrcHeader( unsigned char* b, const SEGY::TrcHeaderDef& hd,
+				bool isrev0, bool ismine )
     : buf_(b)
     , mybuf_(ismine)
     , hdef_(hd)
     , needswap_(false)
-    , isrev1_(rev1)
+    , isrev0_(isrev0)
     , seqnr_(1)
     , lineseqnr_(1)
     , previnl_(-1)
@@ -476,7 +480,7 @@ SEGY::TrcHeader& SEGY::TrcHeader::operator =( const SEGY::TrcHeader& oth )
     if ( this != &oth )
     {
 	needswap_ = oth.needswap_;
-	isrev1_ = oth.isrev1_;
+	isrev0_ = oth.isrev0_;
 	seqnr_ = oth.seqnr_;
 	lineseqnr_ = oth.lineseqnr_;
 	previnl_ = oth.previnl_;
@@ -562,7 +566,7 @@ void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
 
 void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 {
-    if ( !isrev1_ ) // starting default
+    if ( isrev0_ ) // For rev0, we initially fill with Rev 1 defaults
 	putRev1Flds( ti );
 
     setEntryVal( EntryTrid(), 1 );
@@ -618,7 +622,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     // Absolute priority, therefore possibly overwriting previous
     putSampling( ti.sampling, 0 ); // 0=ns must be set elsewhere
 
-    if ( isrev1_ ) // Now this overrules everything
+    if ( !isrev0_ ) // Now this overrules everything
 	putRev1Flds( ti );
 }
 
@@ -682,8 +686,8 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	extcoordsc = 1;
     }
 
-    if ( !isrev1_ )
-	getRev1Flds( ti );
+    if ( isrev0_ )
+	getRev1Flds( ti ); // if rev 0, start with rev 1 as default
 
     const float zfac = 1.0f / SI().zDomain().userFactor();
     short delrt = mCast( short, entryVal( EntryDelRt() ) );
@@ -747,10 +751,10 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     }
     mPIEPAdj(TrcNr,ti.nr,true);
 
-    if ( isrev1_ )
+    if ( !isrev0_ )
     {
 	const int oldnr = ti.nr;
-	getRev1Flds( ti );
+	getRev1Flds( ti ); // if >= rev 1, then those fields are holy
 	if ( oldnr ) ti.nr = oldnr;
     }
 

@@ -40,8 +40,8 @@ mExpClass(Seis) TxtHeader
 {
 public:
 
-		TxtHeader() : rev1_(true) { clearText(); }
-		TxtHeader(bool rev1); //!< rev1 only relevant when writing
+		TxtHeader() : revision_(1) { clearText(); }
+		TxtHeader(int rev);	//!< rev only relevant when writing
     void	clear()			{ clearText(); setLineStarts(); }
 
     void	setUserInfo(const char*);
@@ -64,7 +64,7 @@ public:
 
 protected:
 
-    bool	rev1_;
+    int		revision_;
 
     void	putAt(int,int,int,const char*);
     void	getFrom(int,int,int,char*) const;
@@ -102,7 +102,8 @@ public:
     int		nrSamples() const	{ return entryVal(EntryNs()); }
     float	sampleRate(bool isdpth) const;
     bool	isInFeet() const	{ return entryVal(EntryMFeet()) == 2; }
-    bool	isRev1() const;
+    int		revision() const;
+    bool	isRev0() const		{ return revision() < 1; }
     int		skipRev1Stanzas(od_istream&); //!< returns number skipped
 
     void	setIsSwapped( bool yn )	{ needswap_ = yn; }
@@ -145,7 +146,7 @@ mExpClass(Seis) TrcHeader
 {
 public:
 
-			TrcHeader(unsigned char*,bool rev1,const TrcHeaderDef&,
+			TrcHeader(unsigned char*,const TrcHeaderDef&,bool rev0,
 				  bool manbuf=false);
 			TrcHeader( const TrcHeader& oth )
 			    : buf_(0), mybuf_(false), hdef_(oth.hdef_)
@@ -168,7 +169,7 @@ public:
 
     unsigned char*	buf_;
     const TrcHeaderDef&	hdef_;
-    bool		isrev1_;
+    bool		isrev0_;
 
     bool		isusable; // trid < 2 ; mostly ignored but not always
     bool		nonrectcoords; // counit == 1, 2 or 3

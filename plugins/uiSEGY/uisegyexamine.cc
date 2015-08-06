@@ -258,7 +258,7 @@ int uiSEGYExamine::getRev( const SeisTrcReader& rdr )
 {
     mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr.translator());
     if ( !trans ) return -1;
-    return trans->isRev1() ? 1 : 0;
+    return trans->isRev0() ? 0 : 1;
 }
 
 

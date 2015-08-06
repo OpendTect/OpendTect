@@ -163,8 +163,8 @@ BufferString getSummary() const
     BufferString ret;
     if ( hdr_.isSwapped() )
 	ret.add( "[Swapped] " );
-    if ( hdr_.isRev1() )
-	ret.add( "[Rev 1] " );
+    if ( hdr_.isRev0() )
+	ret.add( "[Rev 0] " );
     if ( hdr_.isInFeet() )
 	ret.add( "[feet] " );
     ret.add( hdr_.nrSamples() ).add( " samples (" )
@@ -331,15 +331,15 @@ bool uiSEGYFileManip::openInpFile()
 	{ errmsg_ = "Cannot open input file"; return false; }
 
     if ( !strm().getBin( txthdr_.txt_, SegyTxtHeaderLength ) )
-	{ 
+	{
 	errmsg_ = "Input file is too small to be a SEG-Y file:\n"
 	          "Cannot fully read the text header"; return false;
 	}
     char buf[SegyBinHeaderLength];
     if ( !strm().getBin( buf, SegyBinHeaderLength ) )
-	{ 
+	{
 	errmsg_ = "Input file is too small to be a SEG-Y file:\n"
-		  "Cannot read full binary header"; return false; 
+		  "Cannot read full binary header"; return false;
     }
 
     txthdr_.setAscii();

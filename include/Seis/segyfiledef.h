@@ -63,7 +63,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    void		getReport(IOPar&,bool) const;
+    void		getReport(IOPar&,bool isrev0) const;
 
     static void		makePathsRelative(IOPar&,const char* todir=0);
 			//< default is survey directory
@@ -100,7 +100,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    void		getReport(IOPar&,bool) const;
+    void		getReport(IOPar&,bool isrev0) const;
 
 protected:
 
@@ -162,7 +162,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    void		getReport(IOPar&,bool) const;
+    void		getReport(IOPar&,bool isrev0) const;
     static void		shallowClear(IOPar&);
 
 protected:
