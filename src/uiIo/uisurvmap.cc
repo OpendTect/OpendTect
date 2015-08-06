@@ -50,7 +50,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
 	labels_ += textitem;
     }
 
-    graphitem_.setZValue( 2 );
+    graphitem_.setZValue( -1 );
 }
 
 
