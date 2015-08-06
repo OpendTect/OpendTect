@@ -118,12 +118,21 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 
 void uiAxisHandler::setBounds( Interval<float> rg )
 {
-    const bool isrev = rg.start > rg.stop;
-    AxisLayout<float> al( rg, setup_.annotinint_ );
-    if ( (!isrev && (al.sd_.start < rg.start))
-      || ( isrev && (al.sd_.start > rg.start)) )
-	al.sd_.start += al.sd_.step;
-    setRange( StepInterval<float>(rg.start,rg.stop,al.sd_.step),&al.sd_.start);
+    const bool haveudf = mIsUdf(rg.start) || mIsUdf(rg.stop)
+			|| mIsUdf(-rg.start) || mIsUdf(-rg.stop);
+    if ( haveudf )
+	setRange( StepInterval<float>(0.f,1.f,1.f) );
+    else
+    {
+	const bool isrev = rg.start > rg.stop;
+	AxisLayout<float> al( rg, setup_.annotinint_ );
+	if ( (!isrev && (al.sd_.start < rg.start))
+	  || ( isrev && (al.sd_.start > rg.start)) )
+	    al.sd_.start += al.sd_.step;
+
+	setRange( StepInterval<float>(rg.start,rg.stop,al.sd_.step),
+		  &al.sd_.start );
+    }
 }
 
 #define sDefNrDecimalPlaces 3
@@ -157,7 +166,7 @@ int uiAxisHandler::getNrAnnotCharsForDisp() const
 
 void uiAxisHandler::reCalc()
 {
-    pos_.erase(); strs_.erase(); 
+    pos_.erase(); strs_.erase();
     calcwdth_ = 0;
 
     StepInterval<float> annotrg( rg_ );
@@ -401,9 +410,9 @@ void uiAxisHandler::updateAnnotations()
 	const float relpos = pos_[idx] / endpos_;
 	drawAnnotAtPos( getRelPosPix(relpos), strs_[idx] );
     }
-    
+
     if ( !setup_.showauxpos_ ) return;
-    
+
     for ( int idx=0; idx<auxpos_.size(); idx++ )
     {
 	const float auxpos = auxpos_[idx].pos_;
@@ -451,7 +460,7 @@ void uiAxisHandler::updateGridLines()
     }
     else if ( gridlineitmgrp_ )
 	gridlineitmgrp_->removeAll( true );
-    
+
     if ( setup_.showauxpos_ && setup_.showauxline_)
     {
 	if ( !auxposgridlineitmgrp_ )
@@ -462,7 +471,7 @@ void uiAxisHandler::updateGridLines()
 	}
 	else
 	    auxposgridlineitmgrp_->removeAll( true );
-	
+
 	for ( int idx=0; idx<auxpos_.size(); idx++ )
 	{
 	    const float auxpos = auxpos_[idx].pos_;
@@ -653,7 +662,7 @@ void uiAxisHandler::drawAnnotAtPos( int pix, const uiString& txt,
 				    bool aux, int linetype)
 {
     const LineStyle& ls = aux ? (linetype==(int)AuxPosData::HighLighted
-	    				? setup_.auxhllinestyle_
+					? setup_.auxhllinestyle_
 					: setup_.auxlinestyle_)
 			      : setup_.style_;
     if ( aux && !setup_.showauxpos_ ) return;
@@ -741,7 +750,7 @@ void uiAxisHandler::drawGridLine( int pix, bool isaux, int linetype )
     if ( setup_.nogridline_ ) return;
     uiLineItem* lineitem = getFullLine( pix );
     LineStyle ls( isaux ? (linetype==(int)AuxPosData::HighLighted
-	    				? setup_.auxhllinestyle_
+					? setup_.auxhllinestyle_
 					: setup_.auxlinestyle_)
 			      : setup_.style_ );
     if ( isaux && linetype>0 )
@@ -751,7 +760,7 @@ void uiAxisHandler::drawGridLine( int pix, bool isaux, int linetype )
 	!isaux ? gridlineitmgrp_ : auxposgridlineitmgrp_;
     gridlineitmgrp->add( lineitem );
     gridlineitmgrp->setVisible( !isaux ? setup_.style_.isVisible()
-	   			       : setup_.auxlinestyle_.isVisible() );
+				       : setup_.auxlinestyle_.isVisible() );
 }
 
 
