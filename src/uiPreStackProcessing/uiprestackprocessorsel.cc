@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStack
 {
 
-uiProcSel::uiProcSel( uiParent* p, const char* lbl, const MultiID* mid,
+uiProcSel::uiProcSel( uiParent* p, const uiString& lbl, const MultiID* mid,
 		      bool withedit )
     : uiGroup( p )
     , editbut_(0)

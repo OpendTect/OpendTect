@@ -103,8 +103,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 
 
 #define mConstructorInitListStart \
-	uiIOObjRetDlg(p, uiDialog::Setup(ctio.ctxt.forread \
-		? tr("Input selection") : tr("Output selection"), \
+	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(ctio.ctxt.forread), \
 		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
     , selgrp_( 0 )
@@ -125,6 +124,12 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
     , setup_( su )
 {
     init( ctio );
+}
+
+
+uiString uiIOObjSelDlg::selTxt( bool forread )
+{
+    return forread ? tr("Input selection") : tr("Output selection");
 }
 
 
@@ -203,10 +208,12 @@ void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
 
 
 #define mSelTxt(txt,ct) \
-    txt ? txt \
-        : (ct.name().isEmpty() ? ct.trgroup->userName().buf() : ct.name().buf())
+    !txt.isEmpty() ? txt \
+	: toUiString(ct.name().isEmpty() \
+	    ? ct.trgroup->userName().buf() \
+	    : ct.name().buf())
 
-uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const char* txt )
+uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const uiString& txt)
     : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c)),
 		 mCB(this,uiIOObjSel,doObjSel))
     , inctio_(*new CtxtIOObj(c))
@@ -226,7 +233,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
 { init(); }
 
 
-uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
+uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiString& txt )
     : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c.ctxt)),
 		 mCB(this,uiIOObjSel,doObjSel))
     , inctio_(c)

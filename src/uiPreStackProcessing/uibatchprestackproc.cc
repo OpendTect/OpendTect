@@ -30,7 +30,7 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
                         mODHelpKey(mPreStackBatchProcSetupHelpID)))
     , is2d_( is2d )
 {
-    chainsel_ = new uiProcSel( this, "Setup", 0 );
+    chainsel_ = new uiProcSel( this, uiStrings::sSetup(), 0 );
     chainsel_->selectionDone.notify( mCB(this,uiBatchProcSetup,setupSelCB) );
 
     const Seis::GeomType gt = is2d_ ? Seis::LinePS : Seis::VolPS;
