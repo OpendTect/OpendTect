@@ -118,7 +118,6 @@ int SurfaceAuxData::addAuxData( const char* name )
 
 void SurfaceAuxData::removeAuxData( int dataidx )
 {
-    delete auxdatanames_[dataidx];
     auxdatanames_.replace( dataidx, 0 );
     auxdatashift_[dataidx] = 0.0;
 
