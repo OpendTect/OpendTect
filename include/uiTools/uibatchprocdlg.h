@@ -31,7 +31,7 @@ protected:
     virtual bool		fillPar(IOPar&)		=0;
     bool			acceptOK(CallBacker*);
 
-    uiGroup*			pargroup_;
+    uiGroup*			pargrp_;
     uiGroup*			batchgrp_;
     uiBatchJobDispatcherSel*	batchjobfld_;
 };

@@ -82,17 +82,17 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiSeparator* sep1 = 0;
     if ( !multioutput )
     {
-	todofld_ = new uiAttrSel( pargroup_, "Quantity to output", attrdata );
+	todofld_ = new uiAttrSel( pargrp_, "Quantity to output", attrdata );
 	todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
     }
     else
     {
-	attrselfld_ = new uiMultiAttribSel( pargroup_, &attrdata.attrSet() );
-	sep1 = new uiSeparator( pargroup_, "Attribute Selection Separator" );
+	attrselfld_ = new uiMultiAttribSel( pargrp_, &attrdata.attrSet() );
+	sep1 = new uiSeparator( pargrp_, "Attribute Selection Separator" );
 	sep1->attach( stretchedBelow, attrselfld_ );
     }
 
-    transffld_ = new uiSeisTransfer( pargroup_,
+    transffld_ = new uiSeisTransfer( pargrp_,
 				     uiSeisTransfer::Setup(is2d,false)
 						     .fornewentry(true)
 						     .withstep(!is2d)
@@ -104,7 +104,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
     if ( sep1 ) transffld_->attach( ensureBelow, sep1 );
 
-    objfld_ = new uiSeisSel( pargroup_, uiSeisSel::ioContext(gt,false),
+    objfld_ = new uiSeisSel( pargrp_, uiSeisSel::ioContext(gt,false),
 				uiSeisSel::Setup(is2d,false) );
     objfld_->selectionDone.notify( mCB(this,uiAttrVolOut,outSelCB) );
     objfld_->attach( alignedBelow, transffld_ );
@@ -114,10 +114,10 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiSeparator* sep3 = 0;
     if ( multioutput && !is2d )
     {
-	uiSeparator* sep2 = new uiSeparator( pargroup_, "PS Start Separator" );
+	uiSeparator* sep2 = new uiSeparator( pargrp_, "PS Start Separator" );
 	sep2->attach( stretchedBelow, objfld_ );
 
-	uiCheckBox* cb = new uiCheckBox( pargroup_,"Enable Prestack Analysis" );
+	uiCheckBox* cb = new uiCheckBox( pargrp_,"Enable Prestack Analysis" );
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
 	cb->attach( ensureBelow, sep2 );
@@ -125,25 +125,25 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
 	ctxt.forread = false;
 	ctxt.fixTranslator( "MultiCube" );
-	datastorefld_ = new uiIOObjSel( pargroup_, ctxt,
+	datastorefld_ = new uiIOObjSel( pargrp_, ctxt,
 					"Output Prestack DataStore" );
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 0, 100 );
 	const uiString lbl = tr( "Offset (start/step) %1" )
 					.arg( SI().getXYUnitString() );
-	offsetfld_ = new uiGenInput( pargroup_, lbl,
+	offsetfld_ = new uiGenInput( pargrp_, lbl,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );
 
-	sep3 = new uiSeparator( pargroup_, "PS End Separator" );
+	sep3 = new uiSeparator( pargrp_, "PS End Separator" );
 	sep3->attach( stretchedBelow, offsetfld_ );
 
 	psSelCB( cb );
 	botgrp = offsetfld_;
     }
 
-    pargroup_->setHAlignObj( botgrp );
+    pargrp_->setHAlignObj( botgrp );
 }
 
 

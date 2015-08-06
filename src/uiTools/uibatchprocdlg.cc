@@ -19,9 +19,9 @@ uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
 				const Batch::JobSpec::ProcType& pt )
     : uiDialog(p,Setup(dlgnm, mNoDlgTitle, mNoHelpKey).modal(false))
 {
-    pargroup_ = new uiGroup( this, "Parmeters group" );
+    pargrp_ = new uiGroup( this, "Parmeters group" );
     batchgrp_ = new uiGroup( this, "Batch group" );
-    batchgrp_->attach( alignedBelow, pargroup_ );
+    batchgrp_->attach( alignedBelow, pargrp_ );
     batchjobfld_ = new uiBatchJobDispatcherSel( batchgrp_, optional, pt );
     batchgrp_->setHAlignObj( batchjobfld_ );
 }
@@ -35,10 +35,10 @@ const char* uiBatchProcDlg::jobName() const
 
 bool uiBatchProcDlg::acceptOK( CallBacker* )
 {
-    batchjobfld_->setJobName( jobName() );
     if ( !prepareProcessing() )
 	return false;
 
+    batchjobfld_->setJobName( jobName() );
     IOPar& par = batchjobfld_->jobSpec().pars_;
     if ( !fillPar(par) )
 	return false;
