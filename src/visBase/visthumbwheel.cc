@@ -85,6 +85,7 @@ void ThumbWheel::setPosition(bool horizontal, float x, float y, float len,
 void ThumbWheel::enableFadeInOut( bool yn )
 { thumbwheel_->enableFadeInOut( yn ); }
 
+
 bool ThumbWheel::isFadeInOutEnabled() const
 { return thumbwheel_->isFadeInOutEnabled(); }
 

@@ -260,7 +260,7 @@ inline void ReferenceCounter::ref()
 	    newcount = oldcount+1;
 	}
 	
-    } while ( !count_.setIfValueIs( oldcount, newcount ) );
+    } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
 }
 
 
@@ -285,7 +285,7 @@ inline bool ReferenceCounter::unRef()
 	else
 	    newcount = oldcount-1;
 	
-    } while ( !count_.setIfValueIs(oldcount,newcount ) );
+    } while ( !count_.setIfValueIs(oldcount,newcount, &oldcount ) );
     
     return newcount==mInvalidRefCount;
 }
@@ -311,7 +311,7 @@ inline bool ReferenceCounter::refIfReffed()
 	
 	newcount = oldcount+1;
 	
-    } while ( !count_.setIfValueIs( oldcount, newcount ) );
+    } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
     
     return true;
 }
@@ -336,7 +336,7 @@ inline void ReferenceCounter::unRefDontInvalidate()
 	else
 	    newcount = oldcount-1;
 	
-    } while ( !count_.setIfValueIs( oldcount, newcount ) );
+    } while ( !count_.setIfValueIs( oldcount, newcount, &oldcount ) );
 }
 
 #undef mDeclareCounters

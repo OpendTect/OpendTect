@@ -73,11 +73,11 @@ bool testAtomic( const char* valtype )
     }
 
     T curval = 2;
-    mRunTest( !atomic.setIfValueIs( curval, 1 ) && curval==0, 0 ); //0
+    mRunTest( !atomic.setIfValueIs( 2, 1, &curval ) && curval==0, 0 ); //0
     curval = 2;
-    mRunTest( !atomic.setIfValueIs( curval, 1 ) && curval==0, 0 ); //0
+    mRunTest( !atomic.setIfValueIs( 2, 1, &curval ) && curval==0, 0 ); //0
     curval = 0;
-    mRunTest( atomic.setIfValueIs( curval, 1 ) && curval==0, 1 );  //1
+    mRunTest( atomic.setIfValueIs( 0, 1 , &curval) && curval==0, 1 );  //1
     mRunTest( ++atomic==2, 2 ); //2
     mRunTest( atomic++==2, 3 ); //3
     mRunTest( atomic--==3, 2 ); //2
@@ -98,7 +98,7 @@ bool testAtomic( const char* valtype )
     curval = atomic.get();
     for ( int idx=0; idx<count; idx++ )
     {
-	if ( atomic.setIfValueIs( curval, mTestVal ) )
+	if ( atomic.setIfValueIs( curval, mTestVal, 0 ) )
 	    successfound = true;
 	else
 	    failurefound = true;
@@ -117,7 +117,7 @@ bool testAtomic( const char* valtype )
     for ( idx=0; idx<count; idx++ )
     {
 	curval = atomic.get();
-	if ( atomic.setIfValueIs(curval,mTestVal) )
+	if ( atomic.setIfValueIs(curval,mTestVal,0) )
 	    successfound = true;
 	else
 	    failurefound = true;
@@ -173,11 +173,13 @@ bool testAtomicSetIfValueIs()
 
     int curval = 1;
     mRunTest( "atomicSetIfValueIs failure",
-              !Threads::atomicSetIfValueIs( val, curval, 1 ) && curval == 0 )
+	      !Threads::atomicSetIfValueIs( val, curval, 1, &curval )
+	      && curval == 0 )
 
     curval = 0;
     mRunTest( "atomicSetIfValueIs success",
-              Threads::atomicSetIfValueIs( val, curval, 1 ) && curval == 0 )
+	      Threads::atomicSetIfValueIs( val, curval, 1, &curval )
+	      && curval == 0 )
 
     return true;
 }
