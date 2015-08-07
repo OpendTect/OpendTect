@@ -13,10 +13,12 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "uisegyreadstartinfo.h"
 #include "uisegyimptype.h"
+#include "uisegyexamine.h"
 #include "uisegydef.h"
 #include "uifileinput.h"
 #include "uiseparator.h"
 #include "uihistogramdisplay.h"
+#include "uitoolbutton.h"
 #include "uimsg.h"
 #include "segyhdr.h"
 #include "seisinfo.h"
@@ -53,6 +55,11 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     infofld_->attach( ensureBelow, sep );
     infofld_->scandefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
 
+    examinebut_ = new uiToolButton( this, "examine", uiString::emptyString(),
+			mCB(this,uiSEGYReadStarter,examineCB) );
+    setExamineStatus();
+    examinebut_->attach( rightOf, infofld_ );
+
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
     ampldisp_ = new uiHistogramDisplay( this, hdsu );
@@ -77,6 +84,7 @@ void uiSEGYReadStarter::clearDisplay()
 {
     infofld_->clearInfo();
     ampldisp_->setEmpty();
+    setExamineStatus();
 }
 
 
@@ -91,8 +99,9 @@ void uiSEGYReadStarter::execNewScan( bool fixedscandef )
     userfilename_ = inpfld_->fileName();
     deepErase( scandata_ );
     clipsampler_.reset();
+    clearDisplay();
     if ( !getFileSpec() )
-	{ clearDisplay(); return; }
+	return;
 
     MouseCursorChanger chgr( MouseCursor::Wait );
     if ( !scanFile(filespec_.fileName(0),fixedscandef) )
@@ -103,6 +112,15 @@ void uiSEGYReadStarter::execNewScan( bool fixedscandef )
 	scanFile( filespec_.fileName(idx), true );
 
     displayScanResults();
+}
+
+
+void uiSEGYReadStarter::setExamineStatus()
+{
+    int nrfiles = scandata_.size();
+    examinebut_->setSensitive( nrfiles > 0 );
+    examinebut_->setToolTip( nrfiles > 1 ? tr("Examine first input file")
+					 : tr("Examine input file") );
 }
 
 
@@ -134,6 +152,20 @@ void uiSEGYReadStarter::inpChg( CallBacker* cb )
 	userfilename_ = inpfld_->fileName();
 	execNewScan( false );
     }
+}
+
+
+void uiSEGYReadStarter::examineCB( CallBacker* )
+{
+    if ( !commit() )
+	return;
+
+    MouseCursorChanger chgr( MouseCursor::Wait );
+    uiSEGYExamine::Setup su( 5000 );
+    su.fs_ = filespec_; su.fp_ = filepars_;
+    uiSEGYExamine* dlg = new uiSEGYExamine( this, su );
+    dlg->setDeleteOnClose( true );
+    dlg->go();
 }
 
 
@@ -317,6 +349,8 @@ void uiSEGYReadStarter::displayScanResults()
     if ( scandata_.isEmpty() )
 	{ clearDisplay(); return; }
 
+    setExamineStatus();
+
     int nrvals = (int)clipsampler_.nrVals();
     if ( nrvals < 1 )
 	ampldisp_->setEmpty();
@@ -332,9 +366,22 @@ void uiSEGYReadStarter::displayScanResults()
 }
 
 
+bool uiSEGYReadStarter::commit()
+{
+    if ( filespec_.isEmpty() )
+	return false;
+
+    // fill filepars_, filereadopts_
+    pErrMsg( "TODO: finish commit" );
+    return true;
+}
+
+
 bool uiSEGYReadStarter::acceptOK( CallBacker* )
 {
-    uiMSG().error( "TODO: implement" );
-    // transfer scandef to filepars_ and filereadopts_
+    if ( !commit() )
+	return false;
+
+    uiMSG().error( "TODO: omplement actual import" );
     return false;
 }

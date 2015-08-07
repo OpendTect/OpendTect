@@ -71,6 +71,8 @@ protected:
 
     void		revChg(CallBacker*);
     void		parChg(CallBacker*);
+
+    void		mkScanDefFields();
     void		showRelevantInfo();
     void		setCellTxt(int col,int row,const char*);
 

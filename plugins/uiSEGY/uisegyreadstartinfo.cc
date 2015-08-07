@@ -120,6 +120,12 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::uiScanDef& scd )
     setCellTxt( mItemCol, mZRangeRow, "Z Range" );
     setCellTxt( mUseTxtCol, mZRangeRow, "start / interval" );
 
+    mkScanDefFields();
+}
+
+
+void uiSEGYReadStartInfo::mkScanDefFields()
+{
     const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
 #   define mAddToTbl(fld,row) \
     fld->setStretch( 2, 1 ); \
