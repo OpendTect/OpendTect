@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "segyuiscandata.h"
 
 class DataClipSampler;
+class uiButton;
 class uiFileInput;
 class uiHistogramDisplay;
 class uiSEGYImpType;
@@ -58,6 +59,7 @@ protected:
     uiFileInput*	inpfld_;
     uiSEGYReadStartInfo* infofld_;
     uiHistogramDisplay*	ampldisp_;
+    uiButton*		examinebut_;
 
     BufferString	userfilename_;
     SEGY::uiScanDef	scandef_;
@@ -75,13 +77,17 @@ protected:
     bool		completeScanDef(od_istream&);
 
     void		clearDisplay();
+    void		setExamineStatus();
     void		displayScanResults();
 
     void		initWin(CallBacker*);
     void		typChg(CallBacker*);
     void		inpChg(CallBacker*);
     void		defChg( CallBacker* )		{ execNewScan(true); }
+    void		examineCB(CallBacker*);
     bool		acceptOK(CallBacker*);
+
+    bool		commit();
 
 };
 
