@@ -84,6 +84,7 @@ protected:
 private:
 
     void		init(const CtxtIOObj&);
+    static uiString	selTxt(bool forread);
 
 };
 

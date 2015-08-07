@@ -55,7 +55,7 @@ public:
     };
 
 			uiIOObjSel(uiParent*,const IOObjContext&,
-					const char* seltxt=0);
+			       const uiString& seltxt=uiString::emptyString());
 			uiIOObjSel(uiParent*,const IOObjContext&,const Setup&);
 			~uiIOObjSel();
 
@@ -134,7 +134,8 @@ the new style, this is done if the setup.optional_ flag is false (this is the
 default).
 */
 
-			uiIOObjSel(uiParent*,CtxtIOObj&,const char* seltxt=0);
+			uiIOObjSel(uiParent*,CtxtIOObj&,
+				const uiString& seltxt=uiString::emptyString());
 			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
     bool		commitInput();
     bool		doCommitInput(bool&);

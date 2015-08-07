@@ -25,7 +25,7 @@ namespace PreStack
 mExpClass(uiPreStackProcessing) uiProcSel : public uiGroup
 { mODTextTranslationClass(uiProcSel);
 public:
-			uiProcSel(uiParent*,const char* label,
+			uiProcSel(uiParent*,const uiString& label,
 				  const MultiID*,bool withedit=true);
     void		setSel(const MultiID&);
     bool		getSel(MultiID&) const;

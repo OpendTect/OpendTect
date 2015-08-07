@@ -55,7 +55,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     dopreprocessfld_->attach( alignedBelow, prestackinpfld_ );
     dopreprocessfld_->valuechanged.notify(
 	    mCB(this,uiPreStackAttrib,doPreProcSel) );
-    preprocsel_ = new PreStack::uiProcSel( this, "Preprocessing setup", 0 );
+    preprocsel_ = new PreStack::uiProcSel( this, tr("Preprocessing setup"), 0 );
     preprocsel_->attach( alignedBelow, dopreprocessfld_ );
 
     calctypefld_ = new uiGenInput( this, tr("Calculation type"),
