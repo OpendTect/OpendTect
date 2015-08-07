@@ -49,6 +49,8 @@ public:
     static FixedString		sLeft();
     static FixedString		sMiddle();
     static FixedString		sNone();
+
+    static FixedString		sSettingsKey();
 };
 
 
@@ -79,7 +81,7 @@ public:
     void			setTrackballManipulator(
 						osgGeo::TrackballManipulator*);
 
-    void                        setKeyBindings(const char*,bool saveinsett);
+    void			setKeyBindings(const char*);
     void                        getAllKeyBindings(BufferStringSet&);
     const char*			getCurrentKeyBindings() const
 				{ return curkeybinding_; }

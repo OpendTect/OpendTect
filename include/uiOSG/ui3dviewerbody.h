@@ -77,6 +77,12 @@ public:
     Color			getBackgroundColor() const;
     Geom::Size2D<int>		getViewportSizePixels() const;
 
+    void			setReversedMouseWheelDirection(bool);
+    bool			getReversedMouseWheelDirection() const;
+
+    void			setHomePos(const IOPar&);
+    void			resetToHomePosition();
+
     void			toggleCameraType();
     bool			isCameraPerspective() const;
     bool			isCameraOrthographic() const;
@@ -118,7 +124,6 @@ public:
     visBase::PolygonSelection*	getPolygonSelector();
     visBase::SceneColTab*	getSceneColTab();
 
-    void			setHomePos(const IOPar&);
     void			toHomePos();
     void			saveHomePos();
     bool			isHomePosEmpty() { return homepos_.isEmpty(); }

@@ -555,7 +555,8 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
     showgridlinesfld_->attach( rightOf, showannotfld_ );
 
     if ( dorevertaxis )
-    { reversedfld_ = new uiCheckBox( this, tr("Reversed") );
+    {
+	reversedfld_ = new uiCheckBox( this, uiStrings::sReversed() );
 	reversedfld_->attach( rightOf, showgridlinesfld_ );
     }
 

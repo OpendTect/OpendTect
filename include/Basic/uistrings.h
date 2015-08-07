@@ -134,6 +134,7 @@ public:
 					  return tr("No object to store "
 						    "set in data base");
 					}
+    static uiString sNormal()		{ return tr("Normal"); }
     static uiString sNoValidData()	{ return tr("No valid data found"); }
     static uiString sOk()		{ return tr("OK"); }
     static uiString sOk(bool)		{ return sOk(); }
@@ -157,6 +158,7 @@ public:
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sReload()		{ return tr("Reload"); }
     static uiString sRemove(bool immediate);
+    static uiString sReversed()		{ return tr("Reversed"); }
     static uiString sSave(bool immediate);
     static uiString sSaveAs(bool immediate);
     static uiString sSaveAsDefault()    { return tr("Save as Default"); }

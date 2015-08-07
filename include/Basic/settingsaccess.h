@@ -45,6 +45,7 @@ public:
     static const char*	sKeyUseVolShaders();
     static const char*	sKeyEnableMipmapping();
     static const char*	sKeyAnisotropicPower();
+    static const char*	sKeyMouseWheelReversal();
 
 protected:
     Settings&			settings_;

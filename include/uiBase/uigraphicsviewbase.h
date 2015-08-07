@@ -48,6 +48,9 @@ public:
     void			setMouseTracking(bool);
     bool			hasMouseTracking() const;
 
+    void			setMouseWheelReversal(bool);
+    bool			getMouseWheelReversal() const;
+
     int				width() const;
     int				height() const;
 
@@ -105,6 +108,8 @@ public:
     Notifier<uiGraphicsViewBase> preDraw;
     Notifier<uiGraphicsViewBase> scrollBarUsed;
 
+
+    static const ObjectSet<uiGraphicsViewBase>& allInstances();
 
 protected:
 

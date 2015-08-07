@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "draw.h"
 #include "mouseevent.h"
+#include "settingsaccess.h"
 #include "uigraphicsscene.h"
 #include "uimouseeventblockerbygesture.h"
 #include "uiobjbody.h"
@@ -31,6 +32,8 @@ mUseQtnamespace
 
 static const int cDefaultWidth  = 1;
 static const int cDefaultHeight = 1;
+
+static ObjectSet<uiGraphicsViewBase> allviewers;
 
 
 class TouchSceneEventFilter : public QObject
@@ -67,7 +70,11 @@ uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
     , handle_(hndle)
     , currentpinchscale_(0)
     , mouseeventblocker_(*new uiMouseEventBlockerByGestures(1000))
+    , reversemousewheel_(false)
 {
+    Settings::common().getYN( SettingsAccess::sKeyMouseWheelReversal(),
+			      reversemousewheel_ );
+
     mouseeventblocker_.attachToQObj( this );
     setStretch( 2, 2 );
     setPrefWidth( cDefaultWidth );
@@ -94,6 +101,10 @@ KeyboardEventHandler& keyboardEventHandler()
 GestureEventHandler& gestureEventHandler()
 { return gestureeventhandler_; }
 
+void setMouseWheelReversal(bool yn) { reversemousewheel_ = yn; }
+
+bool getMouseWheelReversal() const { return reversemousewheel_; }
+
 
 const uiPoint& getStartPos() const	{ return startpos_; }
 
@@ -106,6 +117,7 @@ protected:
     GestureEventHandler&	gestureeventhandler_;
     uiGraphicsViewBase&		handle_;
     float			currentpinchscale_;
+    bool			reversemousewheel_;
 
     uiMouseEventBlockerByGestures&   mouseeventblocker_;
 
@@ -261,9 +273,12 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 
 void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 {
+    const int delta = reversemousewheel_ ? -ev->delta() : ev->delta();
+
+
     if ( ev && handle_.scrollZoomEnabled() )
     {
-	const int numsteps = ( ev->delta() / 8 ) / 15;
+	const int numsteps = ( delta / 8 ) / 15;
 
 	QMatrix mat = matrix();
 	const QPointF& mousepos = ev->pos();
@@ -288,7 +303,7 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
     }
 
     MouseEvent me( OD::ButtonState(ev->modifiers() | ev->buttons()),
-		   ev->pos().x(), ev->pos().y(), ev->delta() );
+		   ev->pos().x(), ev->pos().y(), delta );
     mousehandler_.triggerWheel( me );
 /*
   uncomment this conditional to have the default wheel event behaviour, that is,
@@ -376,6 +391,8 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     getMouseEventHandler().buttonReleased.notify(
 	    mCB(this,uiGraphicsViewBase,rubberBandCB) );
     setBackgroundColor( Color::White() );
+
+    allviewers += this;
 }
 
 
@@ -388,6 +405,7 @@ uiGraphicsViewBody& uiGraphicsViewBase::mkbody( uiParent* p, const char* nm )
 
 uiGraphicsViewBase::~uiGraphicsViewBase()
 {
+    allviewers -= this;
     delete body_;
     delete scene_;
 }
@@ -407,6 +425,10 @@ GestureEventHandler& uiGraphicsViewBase::gestureEventHandler()
 
 void uiGraphicsViewBase::rePaint()
 { body_->viewport()->repaint(); }
+
+
+const ObjectSet<uiGraphicsViewBase>& uiGraphicsViewBase::allInstances()
+{ return allviewers; }
 
 
 void uiGraphicsViewBase::enableScrollZoom( bool yn )
@@ -459,6 +481,16 @@ void uiGraphicsViewBase::setMouseTracking( bool yn )
 
 bool uiGraphicsViewBase::hasMouseTracking() const
 { return body_->hasMouseTracking(); }
+
+
+void uiGraphicsViewBase::setMouseWheelReversal( bool yn )
+{
+    body_->setMouseWheelReversal( yn );
+}
+
+
+bool uiGraphicsViewBase::getMouseWheelReversal() const
+{ return body_->getMouseWheelReversal(); }
 
 
 int uiGraphicsViewBase::width() const

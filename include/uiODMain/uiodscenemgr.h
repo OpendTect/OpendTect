@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiodapplmgr.h"
+#include "uisettings.h"
 
 #include "datapack.h"
 #include "emposid.h"
@@ -70,7 +71,6 @@ public:
     void			pageUpDownPressed(CallBacker*);
 
     void			updateStatusBar();
-    void			setKeyBindings();
     void			setStereoType(int);
     int				getStereoType() const;
 
@@ -209,6 +209,30 @@ protected:
     void			tileTimerCB(CallBacker*);
 
     friend class		uiODMain;
+};
+
+/*! Settings Tab for mouse interaction. */
+
+mExpClass(uiODMain) uiKeyBindingSettingsGroup : public uiSettingsGroup
+{ mODTextTranslationClass(uiKeyBindingSettingsGroup);
+public:
+    mDefaultFactoryInstantiation2Param( uiSettingsGroup,
+				       uiKeyBindingSettingsGroup,
+				       uiParent*,Settings&,
+				       "Mouse interaction",
+				       sFactoryKeyword());
+
+    uiKeyBindingSettingsGroup(uiParent*,Settings&);
+
+private:
+    bool		acceptOK();
+    virtual HelpKey	helpKey() const;
+
+    uiGenInput*		keybindingfld_;
+    uiGenInput*		wheeldirectionfld_;
+
+    BufferString	initialkeybinding_;
+    bool		initialmousewheelreversal_;
 };
 
 #endif
