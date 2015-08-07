@@ -30,14 +30,14 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     for ( int idx=0; idx<4; idx++ )
     {
         uiMarkerItem* markeritem = new uiMarkerItem( MarkerStyle2D::Square );
-	markeritem->setParent( &graphitem_ );
+	graphitem_.addChild( markeritem );
 	vertices_ += markeritem;
     }
 
     frame_ = new uiPolygonItem;
     frame_->setPenColor( ls_.color_ );
     frame_->setPenStyle( ls_ );
-    frame_->setParent( &graphitem_ );
+    graphitem_.addChild( frame_ );
 
     const mDeclAlignment( postxtalign, HCenter, VCenter );
     for ( int idx=0; idx<4; idx++ )
@@ -46,7 +46,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
 	textitem->setTextColor( Color::Black() );
 	textitem->setAlignment( postxtalign );
 	textitem->setFont( FontList().get(FontData::Graphics2DSmall) );
-	textitem->setParent( &graphitem_ );
+	graphitem_.addChild( textitem );
 	labels_ += textitem;
     }
 
@@ -130,19 +130,19 @@ uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
     arrowstyle.linestyle_.width_ = 3;
     arrow_ = new uiArrowItem;
     arrow_->setArrowStyle( arrowstyle );
-    arrow_->setParent( &graphitem_ );
+    graphitem_.addChild( arrow_ );
 
     if ( !withangle )
 	return;
 
     angleline_ = new uiLineItem;
     angleline_->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
-    angleline_->setParent( &graphitem_ );
+    graphitem_.addChild( angleline_ );
 
     mDeclAlignment( txtalign, Right, Bottom );
     anglelabel_ = new uiTextItem();
     anglelabel_->setAlignment( txtalign );
-    anglelabel_->setParent( &graphitem_ );
+    graphitem_.addChild( anglelabel_ );
 }
 
 

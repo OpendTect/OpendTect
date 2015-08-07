@@ -56,29 +56,29 @@ void uiLegendItem::buildLayout()
     uiRectItem* rec9 = new uiRectItem( 0, 0, 100, 30 );
     uiRectItem* rec10 = new uiRectItem( 0, 0, 100, 30 );
 
-    country->setParent( this );
-    block->setParent( this );
-    license->setParent( this );
-    modelname->setParent( this );
-    horizonname->setParent( this );
-    mapscale->setParent( this );
-    contourinc->setParent( this );
-    username->setParent( this );
-    date->setParent( this );
-    sign->setParent( this );
+    addChild( country );
+    addChild( block );
+    addChild( license );
+    addChild( modelname );
+    addChild( horizonname );
+    addChild( mapscale );
+    addChild( contourinc );
+    addChild( username );
+    addChild( date );
+    addChild( sign );
 
-    rec0->setParent( this );
-    separator->setParent( this );
-    rec1->setParent( this );
-    rec2->setParent( this );
-    rec3->setParent( this );
-    rec4->setParent( this );
-    rec5->setParent( this );
-    rec6->setParent( this );
-    rec7->setParent( this );
-    rec8->setParent( this );
-    rec9->setParent( this );
-    rec10->setParent( this );
+    addChild( rec0 );
+    addChild( separator );
+    addChild( rec1 );
+    addChild( rec2 );
+    addChild( rec3 );
+    addChild( rec4 );
+    addChild( rec5 );
+    addChild( rec6 );
+    addChild( rec7 );
+    addChild( rec8 );
+    addChild( rec9 );
+    addChild( rec10 );
 
 // setting position
     rec0->setPos(0,0);
@@ -126,17 +126,17 @@ void uiLegendItem::init()
     date_ = new uiAdvancedTextItem( "Date" );
     sign_ = new uiAdvancedTextItem( "Signature" );
 
-    title_->setParent( this );
-    country_->setParent( this );
-    block_->setParent( this );
-    license_->setParent( this );
-    modelname_->setParent( this );
-    horizonname_->setParent( this );
-    mapscale_->setParent( this );
-    contourinc_->setParent( this );
-    username_->setParent( this );
-    date_->setParent( this );
-    sign_->setParent( this );
+    addChild( title_ );
+    addChild( country_ );
+    addChild( block_ );
+    addChild( license_ );
+    addChild( modelname_ );
+    addChild( horizonname_ );
+    addChild( mapscale_ );
+    addChild( contourinc_ );
+    addChild( username_ );
+    addChild( date_ );
+    addChild( sign_ );
 
     title_->setTextIteraction( true );
     country_->setTextIteraction( true );
