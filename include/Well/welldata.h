@@ -50,7 +50,9 @@ public:
 			    , welltype_(None)
 			{}
 
-    enum WellType	{ None, Oil, Gas, OilGas, Dry }; //TODO: Add more type
+    enum WellType	{ None, Oil, Gas, OilGas, Dry, PluggedOil,
+	   		  PluggedGas, PluggedOilGas, PermLoc, CancLoc, 
+			  InjectDispose }; 
 			DeclareEnumUtils(WellType);
 
     void                fillPar(IOPar&) const;

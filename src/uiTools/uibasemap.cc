@@ -162,6 +162,7 @@ void uiBaseMapObject::update()
 	    }
 	}
 
+	const MarkerStyle2D* ms2d = bmobject_->getMarkerStyle( idx );
 	if ( !bmobject_->getImageFileName().isEmpty() )
 	{
 	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
@@ -185,12 +186,15 @@ void uiBaseMapObject::update()
 
 		mDynamicCastGet(uiPixmapItem*,itm,graphitem_.getChild(itemnr));
 		if ( !itm ) return;
+		itm->setPixmap( uiPixmap(bmobject_->getImageFileName()) ); 
 		itm->setPos( crds[ptidx] );
+		if ( ms2d )
+		    itm->setScale( mCast(float,ms2d->size_),
+				   mCast(float,ms2d->size_));
 		itemnr++;
 	    }
 	}
 
-	const MarkerStyle2D* ms2d = bmobject_->getMarkerStyle( idx );
 	if ( ms2d && ms2d->type_!=MarkerStyle2D::None )
 	{
 	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )

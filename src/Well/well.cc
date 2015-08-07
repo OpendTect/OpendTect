@@ -32,7 +32,9 @@ const char* Well::Info::sKeyTD()	{ return "Total Depth [TD]"; }
 const char* Well::Info::sKeywelltype()	{ return "WellType"; }
 
 DefineEnumNames( Well::Info, WellType, 0, "Well Type" )
-{ "none", "oilwell", "gaswell", "oilgaswell", "dryhole", 0 };
+{ "none", "oilwell", "gaswell", "oilgaswell", "dryhole", "pluggedoilwell",
+  "pluggedgaswell", "pluggedoilgaswell", "permittedlocation",
+  "canceledlocation", "injectiondisposalwell", 0 };
 
 int Well::Info::legacyLogWidthFactor()
 {
