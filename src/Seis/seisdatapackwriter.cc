@@ -26,7 +26,6 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     : Executor( "Attribute volume writer" )
     , nrdone_( 0 )
     , tks_( dp.sampling().hsamp_ )
-    , zrg_( 0, dp.sampling().nrZ()-1 )
     , totalnr_( (int) dp.sampling().hsamp_.totalNr() )
     , cube_( dp )
     , iterator_( dp.sampling().hsamp_ )
@@ -34,7 +33,10 @@ SeisDataPackWriter::SeisDataPackWriter( const MultiID& mid,
     , writer_( 0 )
     , trc_( 0 )
     , cubeindices_( cubeindices )
-{ 
+{
+    const int startz =
+	mNINT32(dp.sampling().zsamp_.start/dp.sampling().zsamp_.step);
+    zrg_ = Interval<int>( startz, startz+dp.sampling().nrZ()-1 );
 }
 
 
@@ -42,11 +44,11 @@ SeisDataPackWriter::~SeisDataPackWriter()
 {
     delete trc_;
     delete writer_;
-}    
+}
 
 
 od_int64 SeisDataPackWriter::nrDone() const
-{ return nrdone_; }    
+{ return nrdone_; }
 
 
 void SeisDataPackWriter::setSelection( const TrcKeySampling& hrg,
@@ -69,11 +71,13 @@ int SeisDataPackWriter::nextStep()
     if ( !writer_ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid_ );
-	if ( !ioobj ) return ErrorOccurred(); 
+	if ( !ioobj ) return ErrorOccurred();
 
 	writer_ = new SeisTrcWriter( ioobj );
 
-	const Interval<int> cubezrg( 0, cube_.sampling().nrZ()-1 );
+	const int startz =
+	    mNINT32(cube_.sampling().zsamp_.start/cube_.sampling().zsamp_.step);
+	const Interval<int> cubezrg( startz, startz+cube_.sampling().nrZ()-1 );
 	if ( !cubezrg.includes( zrg_.start,false ) ||
 	     !cubezrg.includes( zrg_.stop,false ) )
 	    zrg_ = cubezrg;
@@ -106,18 +110,17 @@ int SeisDataPackWriter::nextStep()
     {
 	for ( int zidx=0; zidx<=zrg_.width(); zidx++ )
 	{
-	    const int zpos = zrg_.start+zidx;
-	    const float value = 
-		cube_.data(cubeindices_[idx]).get(inlidx, crlidx, zpos );
+	    const float value =
+		cube_.data(cubeindices_[idx]).get(inlidx, crlidx, zidx );
 	    trc_->set( zidx, value, idx );
 	}
     }
-    
+
     if ( !writer_->put( *trc_ ) )
 	return ErrorOccurred();
 
     nrdone_++;
     trc_->info().nr++;
     return MoreToDo();
-}  
+}
 
