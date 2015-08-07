@@ -137,10 +137,13 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 
 	if ( domemcopy_ )
 	{
-	    const unsigned char* srcptr = srcptr_ + inlidx*srclnbytes_
-						  + crlidx*srctrcbytes_;
+	    if ( regsdp_.sampling().hsamp_.includes(path_[idx]) )
+	    {
+		const unsigned char* srcptr = srcptr_ + inlidx*srclnbytes_
+						      + crlidx*srctrcbytes_;
 
-	    OD::sysMemCopy( dstptr, srcptr, bytestocopy_ );
+		OD::sysMemCopy( dstptr, srcptr, bytestocopy_ );
+	    }
 
 	    dstptr += dsttrcbytes_;
 	    continue;

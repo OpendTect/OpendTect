@@ -61,7 +61,8 @@ public:
 
     bool			setUnMappedData(int version,
 					        const ValueSeries<float>*,
-						OD::PtrPolicy, TaskRunner*);
+						OD::PtrPolicy, TaskRunner*,
+						bool skipclip);
     bool			setMappedData(int version,unsigned char*,
 					      OD::PtrPolicy);
 
@@ -306,8 +307,8 @@ void ChannelInfo::setOsgIDs( const TypeSet<int>& osgids )
 }
 
 
-bool ChannelInfo::setUnMappedData(int version, const ValueSeries<float>* data,
-				  OD::PtrPolicy policy, TaskRunner* tr )
+bool ChannelInfo::setUnMappedData( int version, const ValueSeries<float>* data,
+			  OD::PtrPolicy policy, TaskRunner* tr, bool skipclip )
 {
     if ( version<0 || version>=nrVersions() )
     {
@@ -348,7 +349,8 @@ bool ChannelInfo::setUnMappedData(int version, const ValueSeries<float>* data,
 	ownsunmappeddata_[version] = true;
     }
 
-    if ( mappers_[version]->setup_.type_!=ColTab::MapperSetup::Fixed )
+    if ( !skipclip &&
+	 mappers_[version]->setup_.type_!=ColTab::MapperSetup::Fixed )
 	clipData( version, tr );
 
     return mapData( version, tr );
@@ -815,7 +817,8 @@ bool TextureChannels::isCurrentDataPremapped( int channel ) const
 }
 
 bool TextureChannels::setUnMappedVSData( int channel, int version,
-	const ValueSeries<float>* data, OD::PtrPolicy cp, TaskRunner* tr )
+			    const ValueSeries<float>* data, OD::PtrPolicy cp,
+			    TaskRunner* tr, bool skipclip )
 {
     if ( channel<0 || channel>=channelinfo_.size() )
     {
@@ -823,12 +826,13 @@ bool TextureChannels::setUnMappedVSData( int channel, int version,
 	return false;
     }
 
-    return channelinfo_[channel]->setUnMappedData( version, data, cp, tr );
+    return channelinfo_[channel]->setUnMappedData( version, data, cp,
+						   tr, skipclip );
 }
 
 
 bool TextureChannels::setUnMappedData( int channel, int version,
-	const float* data, OD::PtrPolicy cp, TaskRunner* tr )
+	const float* data, OD::PtrPolicy cp, TaskRunner* tr, bool skipclip )
 {
     if ( !channelinfo_.validIdx(channel) )
     {
@@ -854,8 +858,8 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 	    const_cast<float*>(useddata), cp==OD::TakeOverPtr )
 	: 0;
 
-    return channelinfo_[channel]->setUnMappedData( version, vs,
-						   OD::TakeOverPtr, tr );
+    return channelinfo_[channel]->setUnMappedData( version, vs, OD::TakeOverPtr,
+						   tr, skipclip );
 }
 
 

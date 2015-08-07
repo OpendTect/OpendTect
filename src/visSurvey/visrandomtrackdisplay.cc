@@ -131,7 +131,10 @@ RandomTrackDisplay::RandomTrackDisplay()
 	    Coord3( inlrange.start, crlrange.start, survinterval.start ),
 	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
 	    Coord3( inlrange.step, crlrange.step, survinterval.step ) );
-    init();
+
+    init();		// sets default resolution -> update texture mapping
+    updatePanelStripPath();
+    setPanelStripZRange( panelstrip_->getZRange() );
 }
 
 
@@ -586,19 +589,6 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	const float* arr = array.getData();
 	OD::PtrPolicy cp = OD::UsePtr;
 
-	if ( interactivetexturedisplay_ )
-	{
-	    mDynamicCastGet( const ConvMemValueSeries<float>*, storage,
-			     randsdp->data().getStorage() );
-	    if ( storage )
-	    {
-		channels_->setSize( attrib, 1, sz0, sz1 );
-		channels_->setMappedData( attrib, idx,
-				mCast(unsigned char*,storage->storArr()), cp );
-		continue;
-	    }
-	}
-
 	if ( !arr || resolution_>0 )
 	{
 	    mDeclareAndTryAlloc( float*, tmparr, float[sz0*sz1] );
@@ -625,7 +615,8 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedData( attrib, idx, arr, cp, taskr );
+	channels_->setUnMappedData( attrib, idx, arr, cp, taskr,
+				    interactivetexturedisplay_ );
     }
 
     channels_->turnOn( true );
@@ -694,10 +685,13 @@ void RandomTrackDisplay::updatePanelStripPath()
 	}
     }
 
-    if ( mapping.size()!=knots_.size() ||
-	 mNINT64(mapping.last())!=(trcspath_.size()-1)*(resolution_+1) )
+    if ( !trcspath_.isEmpty() )
     {
-	pErrMsg( "Unexpected state while texture mapping" );
+	if ( mapping.size()!=knots_.size() ||
+	     mNINT64(mapping.last())!=(trcspath_.size()-1)*(resolution_+1) )
+	{
+	    pErrMsg( "Unexpected state while texture mapping" );
+	}
     }
 
     panelstrip_->setPath( pathcrds );
