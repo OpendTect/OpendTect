@@ -97,6 +97,7 @@ uiGraphicsItem::uiGraphicsItem()
     , translation_( 0, 0 )
     , scale_( 1, 1 )
     , angle_( 0 )
+    , parent_( 0 )
 {
 }
 
@@ -110,6 +111,7 @@ uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
     , translation_( 0, 0 )
     , scale_( 1, 1 )
     , angle_( 0 )
+    , parent_( 0 )
 {
 }
 
@@ -117,6 +119,8 @@ uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
 uiGraphicsItem::~uiGraphicsItem()
 {
     removeAll( true );
+    if ( parent_ )
+	parent_->removeChild( this, false );
     if ( scene_ )
     {
 	scene_->removeItem( this );
@@ -298,6 +302,7 @@ void uiGraphicsItem::removeChild( uiGraphicsItem* itm, bool withdelete )
 {
     if ( !itm ) return;
 
+    itm->parent_ = 0;
     children_ -= itm;
     itm->qGraphicsItem()->setParentItem( 0 );
 
@@ -321,6 +326,7 @@ void uiGraphicsItem::addChild( uiGraphicsItem* itm )
     if ( children_.isPresent(itm) )
 	return;
 
+    itm->parent_ = this;
     children_ += itm;
     itm->qGraphicsItem()->setParentItem( qGraphicsItem() );
 }
@@ -366,15 +372,6 @@ void uiGraphicsItem::setSelected( bool yn )
 void uiGraphicsItem::setSelectable( bool yn )
 {
     qgraphicsitem_->setFlag( QGraphicsItem::ItemIsSelectable, yn );
-}
-
-
-void uiGraphicsItem::setParent( uiGraphicsItem* item )
-{
-    if ( item )
-	item->addChild( this );
-    else
-	qgraphicsitem_->setParentItem( 0 );
 }
 
 

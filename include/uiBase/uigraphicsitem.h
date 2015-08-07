@@ -93,7 +93,6 @@ public:
     void		setToolTip(const uiString&);
 
     virtual void	setScene(uiGraphicsScene*);
-    void		setParent(uiGraphicsItem*);
     virtual uiGraphicsItem*	findItem(QGraphicsItem*);
 
     int			id() const			{ return id_; }
@@ -116,6 +115,7 @@ protected:
     bool		selected_; // Remove when things in Qt works
     mQtclass(uiGraphicsScene*)	scene_;
     ObjectSet<uiGraphicsItem> children_;
+    uiGraphicsItem*	parent_;
 
 private:
 
