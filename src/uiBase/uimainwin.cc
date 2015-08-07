@@ -960,8 +960,8 @@ uiRect uiMainWin::geometry( bool frame ) const
 void uiMainWin::setIcon( const uiPixmap& pm )
 { body_->setWindowIcon( *pm.qpixmap() ); }
 
-void uiMainWin::setIconText( const char* txt)
-{ body_->setWindowIconText( txt ); }
+void uiMainWin::setIconText( const uiString& txt)
+{ body_->setWindowIconText( txt.getQtString() ); }
 
 void uiMainWin::saveSettings()
 { body_->saveSettings(); }

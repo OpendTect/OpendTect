@@ -38,17 +38,15 @@ class uiNotSavedDlg : public uiDialog
 { mODTextTranslationClass(uiNotSavedDlg);
 public:
     uiNotSavedDlg(uiParent* p, NotSavedPrompter& prompter, bool withcancel,
-	          const char* actiontype )
-	: uiDialog( p, uiDialog::Setup( "Not Saved",
-		    "The following objects are not saved", mNoHelpKey ) )
+		  const uiString& actiontype )
+	: uiDialog( p, uiDialog::Setup( tr("Not Saved"),
+		    tr("The following objects are not saved"), mNoHelpKey ) )
 	, prompter_( prompter )
     {
-	BufferString action( actiontype );
 	if ( !withcancel ) setCancelText( 0 );
 
-	action[0] = mCast( char, toupper( action[0] ) );
-	const BufferString txt( action.buf(), " now" );
-	setOkText( txt.buf() );
+	const uiString txt( tr("%1 now").arg( actiontype ) );
+	setOkText( txt );
 
 	for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
 	{
@@ -125,7 +123,7 @@ void NotSavedPrompter::closeQueueCB( CallBacker* cb )
 
 
 bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,
-				  const char* actiontype )
+				  const uiString& actiontype )
 {
     promptSaving.trigger();
     if ( !objects_.size() )

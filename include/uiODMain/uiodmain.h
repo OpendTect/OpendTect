@@ -63,7 +63,8 @@ public:
 
     Notifier<uiODMain>	justBeforeGo;	//!< Scenes inited, auto-plugins loaded
 
-    bool		askStore(bool& askedanything,const char* actiontype);
+    bool		askStore(bool& askedanything,
+				 const uiString& actiontype);
 			/*!< Asks user if session, picksets or attributesets
 			     need to be stored. */
     bool		askStoreAttribs(bool,bool& askedanything);
@@ -75,6 +76,8 @@ public:
     void		restoreSession(); //!< pops up the restore session dlg
     void		autoSession(); //!< pops up the auto session dlg
     bool		isRestoringSession()	{ return restoringsess_; }
+    void		setProgramName(const char*);
+			//Default is "OpendTect"
 
 protected:
 
@@ -89,6 +92,7 @@ protected:
     ODSession&		lastsession_;
     bool		restoringsess_;
     uiDockWin*		ctabwin_;
+    BufferString	programname_;
 
     MultiID		cursessid_;
     bool		failed_;
@@ -115,6 +119,8 @@ private:
     Timer&		memtimer_;
     void		timerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
+
+    uiString		getProgramString() const;
 
 public:
 

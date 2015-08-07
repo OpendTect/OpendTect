@@ -118,7 +118,7 @@ int ODMain( int argc, char** argv )
 static BufferString cputxt_;
 
 uiODMain::uiODMain( uiMain& a )
-    : uiMainWin(0,tr("OpendTect Main Window"),5,true)
+    : uiMainWin(0,uiString::emptyString(),5,true)
     , uiapp_(a)
     , failed_(true)
     , applmgr_(0)
@@ -136,9 +136,9 @@ uiODMain::uiODMain( uiMain& a )
     , sessionRestoreEarly(this)
     , sessionRestore(this)
     , justBeforeGo(this)
+    , programname_( "OpendTect" )
 {
-    BufferString icntxt( "OpendTect V", GetFullODVersion() );
-    setIconText( icntxt.buf() );
+    setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
 
     if ( !ensureGoodDataDir()
@@ -197,8 +197,9 @@ bool uiODMain::ensureGoodDataDir()
 	uiSetDataDir dlg( this );
 	if ( !dlg.go() )
 	{
-	    if ( uiMSG().askGoOn( tr("Without a valid data root, OpendTect "
-				     "cannot start.\nDo you wish to exit?") ) )
+	    if ( uiMSG().askGoOn( tr("Without a valid data root, %1 "
+				     "cannot start.\nDo you wish to exit?")
+					.arg(programname_) ) )
 		return false;
 	}
 	else if ( uiSetDataDir::setRootDataDir(this,dlg.selectedDir()) )
@@ -222,8 +223,9 @@ bool uiODMain::ensureGoodSurveySetup()
     {
 	while ( !uiODApplMgr::manageSurvey() )
 	{
-	    if ( uiMSG().askGoOn( tr("Without a valid survey, OpendTect "
-				     "cannot start.\nDo you wish to exit?") ) )
+	    if ( uiMSG().askGoOn( tr("Without a valid survey, %1 "
+				     "cannot start.\nDo you wish to exit?")
+				     .arg( programname_ )) )
 		return false;
 	}
     }
@@ -566,7 +568,15 @@ bool uiODMain::go()
 }
 
 
-bool uiODMain::askStore( bool& askedanything, const char* actiontype )
+void uiODMain::setProgramName( const char* nm )
+{
+    programname_ = nm;
+    setIconText( getProgramString() );
+    updateCaption();
+}
+
+
+bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 {
     if ( !applmgr_->attrServer() ) return false;
 
@@ -625,19 +635,22 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 
 void uiODMain::updateCaption()
 {
-    BufferString capt( "OpendTect V", GetFullODVersion() );
-    capt.add( "/" ).add( OD::Platform::local().shortName() );
+    uiString capt = uiString( "%1/%2" )
+	.arg( getProgramString() )
+	.arg( OD::Platform::local().shortName() );
 
     if ( ODInst::getAutoInstType() == ODInst::InformOnly
 	&& ODInst::updatesAvailable() )
-	capt.add( " *UPDATE AVAILABLE*" );
+	capt.append( tr(" *UPDATE AVAILABLE*") );
 
     const char* usr = GetSoftwareUser();
     if ( usr && *usr )
-	capt.add( " [" ).add( usr ).add( "]" );
+    {
+	capt.append( tr(" [%1] ").arg( usr ) );
+    }
 
     if ( !SI().name().isEmpty() )
-	capt.add( ": " ).add( SI().name() );
+	capt.append( ": %1" ).arg( SI().name() );
 
     setCaption( capt );
 }
@@ -649,7 +662,8 @@ bool uiODMain::closeOK()
     saveSettings();
 
     bool askedanything = false;
-    if ( !askStore(askedanything,"Close OpendTect") )
+    if ( !askStore(askedanything,uiString( "%1 %2")
+		   .arg( uiStrings::sClose() ).arg( programname_ ) ) )
     {
 	uiMSG().message(tr("Closing cancelled"));
 	return false;
@@ -661,7 +675,8 @@ bool uiODMain::closeOK()
     {
 	bool doask = true;
 	Settings::common().getYN( "dTect.Ask close", doask );
-	if ( doask && !uiMSG().askGoOn( tr("Do you want to close OpendTect?") ))
+	if ( doask && !uiMSG().askGoOn( tr("Do you want to close %1?")
+				       .arg(programname_)) )
 	    return false;
     }
 
@@ -673,6 +688,12 @@ bool uiODMain::closeOK()
     delete scenemgr_; scenemgr_ = 0;
 
     return true;
+}
+
+
+uiString uiODMain::getProgramString() const
+{
+    return uiString( "%1 V%2" ).arg( programname_ ).arg( GetFullODVersion() );
 }
 
 
