@@ -118,7 +118,7 @@ public:
     		
 		NotSavedPrompter();
 		~NotSavedPrompter() { detachAllNotifiers(); }
-    bool	doTrigger(uiParent*,bool withcancel,const char* actiontype);
+    bool	doTrigger(uiParent*,bool withcancel,const uiString& actiontype);
     		//!<Invoke the system. Returns false if cancel has been pressed.
 
 protected:

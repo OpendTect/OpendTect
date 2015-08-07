@@ -88,7 +88,7 @@ public:
     const uiString&	caption(bool unique=false) const;
     void		setIcon(const uiPixmap&);
 			//!< Default icon is set in uiMain
-    void		setIconText(const char*);
+    void		setIconText(const uiString&);
 
     virtual void	show();
     void                close();
