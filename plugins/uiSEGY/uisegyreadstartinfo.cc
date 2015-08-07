@@ -238,12 +238,12 @@ void uiSEGYReadStartInfo::showRelevantInfo()
     setCellTxt( mItemCol, mKey2Row, ky2ittxt );
     setCellTxt( mItemCol, mPSRow, offsittxt );
     setCellTxt( mQSResCol, mKey1Row,
-		isvsp ? "" : (is2d ? trcnrinfotxt_ : inlinfotxt_) );
+		isvsp ? "" : (is2d ? trcnrinfotxt_ : inlinfotxt_).buf() );
     setCellTxt( mQSResCol, mKey2Row,
-		isvsp ? "" : (is2d ? refnrinfotxt_ : crlinfotxt_) );
+		isvsp ? "" : (is2d ? refnrinfotxt_ : crlinfotxt_).buf() );
     setCellTxt( mQSResCol, mXRow, isvsp ? "" : xinfotxt_ );
     setCellTxt( mQSResCol, mYRow, isvsp ? "" : yinfotxt_ );
-    setCellTxt( mQSResCol, mPSRow, isvsp || !isps ? "" : offsetinfotxt_ );
+    setCellTxt( mQSResCol, mPSRow, isvsp || !isps ? "" : offsetinfotxt_.buf() );
     setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
     setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
     setCellTxt( mUseTxtCol, mXRow, xustxt );
@@ -260,14 +260,15 @@ void uiSEGYReadStartInfo::showRelevantInfo()
 
 void uiSEGYReadStartInfo::clearInfo()
 {
-    for ( int idx=mKey1Row; idx<mNrInfoRows; idx++ )
-	setCellTxt( 1, idx, "" );
     xinfotxt_.setEmpty(); yinfotxt_.setEmpty();
     inlinfotxt_.setEmpty(); crlinfotxt_.setEmpty();
     trcnrinfotxt_.setEmpty(); refnrinfotxt_.setEmpty();
     offsetinfotxt_.setEmpty();
 
     showRelevantInfo();
+
+    for ( int irow=0; irow<mKey1Row; irow++ )
+	setCellTxt( mQSResCol, irow, "" );
 }
 
 
