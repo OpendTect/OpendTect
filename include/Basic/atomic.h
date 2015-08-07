@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "commondefs.h"
 #include "plftypes.h"
+#include "odversion.h"
 
 #ifdef __cpp11__
 # define __STDATOMICS__
@@ -55,13 +56,20 @@ public:
     inline T	exchange(T newval);
     		/*!<Returns old value. */
 
-    inline bool	setIfValueIs(T& curval,T newval);
+#if mODVersion < 700
+    //Force developers to adapt code in od6
+    inline bool setIfValueIs(T curval,T newval,T* actualvalptr);
+#else
+    inline bool setIfValueIs(T curval,T newval,T* actualvalptr = 0);
+#endif
     /*!<Sets the 'val_' only if its value is currently the value of 'curval'.
      If the value in 'val_' is identical to the value of 'curval', function will
      change 'val_' and return true. Otherwise, it will not change 'val_', it
-     will return false, and update 'curval' to the current value of 'val_'.
+     will return false, and update set the content of 'actualvalptr' to the
+     current	value of 'val_'.
     */
-      
+
+
 private:
     			Atomic( const Atomic<T>& )	{}
     
@@ -84,18 +92,25 @@ private:
  Atomically sets the 'val' only if its value is currently the value of 'curval'.
  If the value in 'val' is identical to the value of 'curval', function will
  change 'val' and return true. Otherwise, it will not change 'val', it
- will return false, and update 'curval' to the current value of 'val'.
+ will return false, and update the value at 'actualvalptr' to the current
+ value of 'val'.
  */
 
-
-inline bool atomicSetIfValueIs( volatile int& val, int& curval, int newval )
+#if mODVersion < 700
+inline bool atomicSetIfValueIs( volatile int& val, int curval, int newval,
+				int* actualvalptr )
+//Force developers to adapt code in od6
+#else
+inline bool atomicSetIfValueIs( volatile int& val, int curval, int newval,
+			       int* actualvalptr = 0 )
+#endif
 {
 # ifdef __win__
     const int oldval =InterlockedCompareExchange( (volatile long*) &val, newval,
                                                  curval );
     if ( oldval!=curval )
     {
-        curval = oldval;
+	if ( actualvalptr ) *actualvalptr = oldval;
         return false;
     }
 
@@ -105,7 +120,7 @@ inline bool atomicSetIfValueIs( volatile int& val, int& curval, int newval )
     const int old = __sync_val_compare_and_swap( &val, curval, newval );
     if ( old!=curval )
     {
-        curval = old;
+	if ( actualvalptr ) *actualvalptr = old;
         return false;
     }
 
@@ -262,9 +277,16 @@ T Atomic<T>::operator -- (int)
 
 
 template <class T> inline
-bool Atomic<T>::setIfValueIs( T& curval, T newval )
+bool Atomic<T>::setIfValueIs( T curval, T newval, T* actualvalptr )
 {
-    return val_.compare_exchange_strong( curval, newval );
+    T presumedval = curval;
+    if ( !val_.compare_exchange_strong( presumedval, newval ) && actualvalptr )
+    {
+	*actualvalptr = presumedval;
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -345,14 +367,13 @@ T Atomic<T>::operator -- (int)
     return __sync_fetch_and_sub(&val_, 1);
 }
 
-
 template <class T> inline
-bool Atomic<T>::setIfValueIs(T& curval, T newval )
+bool Atomic<T>::setIfValueIs(T curval, T newval, T* actualvalptr )
 {
     const T old = __sync_val_compare_and_swap( &val_, curval, newval );
     if ( old!=curval )
     {
-        curval = old;
+	if ( actualvalptr ) *actualvalptr = old;
         return false;
     }
 
@@ -361,9 +382,9 @@ bool Atomic<T>::setIfValueIs(T& curval, T newval )
 
 
 template <> inline
-bool Atomic<int>::setIfValueIs( int& curval, int newval )
+bool Atomic<int>::setIfValueIs( int curval, int newval, int* actualvalptr )
 {
-    return atomicSetIfValueIs( val_, curval, newval );
+    return atomicSetIfValueIs( val_, curval, newval, actualvalptr );
 }
 
 
@@ -406,7 +427,7 @@ template <class T> inline
 T Atomic<T>::exchange( T newval )
 {
     T curval = *valptr_;
-    while ( !setIfValueIs( curval, newval ) )
+    while ( !setIfValueIs( curval, newval, &curval ) )
     {}
 
     return curval;
@@ -471,14 +492,13 @@ T Atomic<T>::operator -- (int)
 
 
 template <class T> inline
-bool Atomic<T>::setIfValueIs(T& curval, T newval )
+bool Atomic<T>::setIfValueIs(T curval, T newval, T* actualvalptr )
 {
     MutexLocker lock( *lock_ );
     const bool res = (*valptr_)==curval;
     if ( res )
         (*valptr_) = newval;
-    else
-        curval = (*valptr_);
+    else if ( actualvalptr ) *actualvalptr = (*valptr_);
     
     return res;
 }
@@ -499,13 +519,14 @@ Atomic<long long>::Atomic( long long val )
 
 	 
 template <> inline
-bool Atomic<long long>::setIfValueIs(long long& curval, long long newval )
+bool Atomic<long long>::setIfValueIs(long long curval, long long newval,
+				     long long* actualvalptr )
 {
     const long long prevval =
     	InterlockedCompareExchange64(valptr_,newval,curval);
     if ( prevval==curval )
 	return true;
-    curval = prevval;
+    if ( actualvalptr ) *actualvalptr = prevval;
     return false; 
 }
 	 
@@ -574,13 +595,14 @@ Atomic<int>::Atomic( int val )
 	 
 
 template <> inline
-bool Atomic<int>::setIfValueIs( int& curval, int newval )
+bool Atomic<int>::setIfValueIs( int curval, int newval, int* actualvalptr )
 {
     const int prevval =
     	InterlockedCompareExchange((volatile long*) valptr_,newval,curval);
     if ( prevval==curval )
         return true;
-    curval = prevval;
+    if ( actualvalptr ) *actualvalptr = prevval;
+
     return false;
 }
 	 
@@ -647,13 +669,13 @@ Atomic<long>::Atomic( long val )
 
 
 template <> inline
-bool Atomic<long>::setIfValueIs( long& curval, long newval )
+bool Atomic<long>::setIfValueIs( long curval, long newval, long* actualvalptr )
 {
     const long prevval =
 		InterlockedCompareExchange( valptr_,  newval,  curval );
     if ( prevval==curval  )
         return true;
-    curval = prevval;
+    if ( actualvalptr ) *actualvalptr = prevval;
     return false;
 }
 
@@ -720,7 +742,7 @@ template <class T> inline
 bool AtomicPointer<T>::setIfEqual( const T* oldptr, T* newptr )
 {
     mAtomicPointerType curval = (mAtomicPointerType) oldptr;
-    return ptr_.setIfValueIs( curval, (mAtomicPointerType) newptr );
+    return ptr_.setIfValueIs( curval, (mAtomicPointerType) newptr, 0 );
 }
 
 
@@ -735,7 +757,7 @@ template <class T> inline
 T* AtomicPointer<T>::setToNull()
 {
     mAtomicPointerType oldptr = (mAtomicPointerType) ptr_.get();
-    while ( oldptr && !ptr_.setIfValueIs( oldptr, 0 ) )
+    while ( oldptr && !ptr_.setIfValueIs( oldptr, 0, &oldptr ) )
     {}
     
     return (T*) oldptr;
@@ -771,7 +793,7 @@ T* AtomicPointer<T>::func \
 { \
     mAtomicPointerType old = (mAtomicPointerType) ptr_.get(); \
  \
-    while ( !ptr_.setIfValueIs( old, (mAtomicPointerType) (op) ) ) \
+    while ( !ptr_.setIfValueIs( old, (mAtomicPointerType) (op), &old ) ) \
 	{} \
  \
     return ret; \

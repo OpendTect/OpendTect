@@ -199,7 +199,12 @@ mUnlockStaticInitLock( static##var##lck__ )
 
 namespace Threads
 {
-    mGlobal(Basic) bool atomicSetIfValueIs(volatile int&,int&,int);
+#if mODVersion < 700
+    mGlobal(Basic) bool atomicSetIfValueIs(volatile int&,int,int,int* );
+    //Force developer to use three arguments
+#else
+    mGlobal(Basic) bool atomicSetIfValueIs(volatile int&,int,int,int* = 0 );
+#endif
 }
 
 //! Macro that does something except the very first time reached
@@ -207,9 +212,8 @@ namespace Threads
 #define mIfNotFirstTime(act) \
 { \
     static volatile int _already_visited_ = 0; \
-    int _already_visited_oldval_ = 0; \
     if ( !Threads::atomicSetIfValueIs( _already_visited_, \
-                                       _already_visited_oldval_, 1 ) ) \
+				       0, 1, 0 ) ) \
 	act; \
 }
 

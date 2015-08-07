@@ -172,18 +172,15 @@ void Threads::unlockSimpleSpinLock(volatile int& lock)
 bool Threads::lockSimpleSpinLock( volatile int& lock,
                                   Threads::Locker::WaitType wt )
 {
-    int curval = 0;
     if ( wt==Threads::Locker::WaitIfLocked )
     {
-        while ( !Threads::atomicSetIfValueIs( lock, curval, 1 ) )
-        {
-            curval = 0;
-        }
+	while ( !Threads::atomicSetIfValueIs( lock, 0, 1, 0 ) )
+	{}
 
         return true;
     }
 
-    return Threads::atomicSetIfValueIs( lock, curval, 1 );
+    return Threads::atomicSetIfValueIs( lock, 0, 1, 0 );
 }
 
 

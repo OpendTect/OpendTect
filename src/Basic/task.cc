@@ -340,8 +340,7 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
 
 void ParallelTask::addToNrDone( int nr )
 {
-    od_int64 notset = -1;
-    if ( nrdone_.get()!=-1 || !nrdone_.setIfValueIs( notset,  nr ) )
+    if ( nrdone_.get()!=-1 || !nrdone_.setIfValueIs( -1,  nr, 0 ) )
 	nrdone_ += nr;
 
     if ( progressmeter_ )
