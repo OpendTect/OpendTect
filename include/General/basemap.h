@@ -20,6 +20,7 @@ ________________________________________________________________________
 namespace OD { class RGBImage; }
 
 class MarkerStyle2D;
+class MouseEvent;
 class LineStyle;
 
 /*!Object that can be painted in a basemap. */
@@ -77,8 +78,8 @@ public:
 				    diagonal. */
     virtual bool		allowHoverEvent() const		{ return true; }
 
+    CNotifier<BaseMapObject,const MouseEvent&>	clicked;
     Notifier<BaseMapObject>	changed;
-    Notifier<BaseMapObject>	clicked;
     Notifier<BaseMapObject>	stylechanged;
 
 protected:

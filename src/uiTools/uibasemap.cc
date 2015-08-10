@@ -58,10 +58,11 @@ bool uiBaseMapObject::isShown() const
 { return graphitem_.isVisible(); }
 
 
-void uiBaseMapObject::selCB( CallBacker* )
+void uiBaseMapObject::selCB( CallBacker* cb )
 {
+    mCBCapsuleUnpack(const MouseEvent&,ev,cb);
     if ( bmobject_ )
-	bmobject_->clicked.trigger();
+	bmobject_->clicked.trigger( ev );
 }
 
 

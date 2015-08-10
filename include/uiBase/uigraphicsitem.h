@@ -22,6 +22,7 @@ ________________________________________________________________________
 class LineStyle;
 class FillPattern;
 class MouseCursor;
+class MouseEvent;
 class uiGraphicsScene;
 
 mFDQtclass(QGraphicsItem)
@@ -105,7 +106,7 @@ public:
 
     virtual void	translateText();
 
-    Notifier<uiGraphicsItem> clicked;
+    CNotifier<uiGraphicsItem,const MouseEvent&> clicked;
 protected:
 
     			uiGraphicsItem(QGraphicsItem*);
