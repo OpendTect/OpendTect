@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uiseparator.h"
 #include "uihistogramdisplay.h"
 #include "uitoolbutton.h"
+#include "uispinbox.h"
 #include "uimsg.h"
 #include "segyhdr.h"
 #include "seisinfo.h"
@@ -27,6 +28,8 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "dirlist.h"
 #include "oddirs.h"
 #include "od_istream.h"
+#include "settings.h"
+#include "timer.h"
 
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
@@ -37,36 +40,58 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     , veryfirstscan_(false)
     , userfilename_("x") // any non-empty
     , clipsampler_(*new DataClipSampler(100000))
+    , filenamepopuptimer_(0)
 {
-    typfld_ = new uiSEGYImpType( this );
-    typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
 
-    uiFileInput::Setup fisu( uiFileDialog::Gen );
+    uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true );
     inpfld_ = new uiFileInput( this, "Input file(s) (*=wildcard)",
 				fisu );
-    inpfld_->attach( alignedBelow, typfld_ );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
 
+    typfld_ = new uiSEGYImpType( this );
+    typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
+    typfld_->attach( alignedBelow, inpfld_ );
+
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, inpfld_ );
+    sep->attach( stretchedBelow, typfld_ );
 
     infofld_ = new uiSEGYReadStartInfo( this, scandef_ );
     infofld_->attach( ensureBelow, sep );
     infofld_->scandefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
 
-    examinebut_ = new uiToolButton( this, "examine", uiString::emptyString(),
-			mCB(this,uiSEGYReadStarter,examineCB) );
+    uiGroup* examinegrp = new uiGroup( this, "Examine group" );
+    examinebut_ = new uiToolButton( examinegrp, "examine",
+				    uiString::emptyString(),
+				    mCB(this,uiSEGYReadStarter,examineCB) );
     setExamineStatus();
-    examinebut_->attach( rightOf, infofld_ );
+    examinenrtrcsfld_ = new uiSpinBox( examinegrp, 0, "Examine traces" );
+    examinenrtrcsfld_->setInterval( 0, 1000000, 10 );
+    examinenrtrcsfld_->setHSzPol( uiObject::Small );
+    examinenrtrcsfld_->setToolTip( tr("Number of traces to examine") );
+    examinenrtrcsfld_->attach( centeredBelow, examinebut_ );
+    int nrex = 1000; Settings::common().get( sKeySettNrTrcExamine, nrex );
+    examinenrtrcsfld_->setInterval( 10, 1000000, 10 );
+    examinenrtrcsfld_->setValue( nrex );
+    examinegrp->attach( rightOf, infofld_ );
 
+    uiGroup* histgrp = new uiGroup( this, "Histogram group" );
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
-    ampldisp_ = new uiHistogramDisplay( this, hdsu );
+    ampldisp_ = new uiHistogramDisplay( histgrp, hdsu );
     ampldisp_->setTitle( tr("Amplitudes") );
-    ampldisp_->setStretch( 2, 1 );
     ampldisp_->setPrefHeight( 250 );
-    ampldisp_->attach( stretchedBelow, infofld_ );
+    clipfld_ = new uiSpinBox( histgrp, 1, "Clipping percentage" );
+    clipfld_->setInterval( 0.f, 49.9f, 0.1f );
+    clipfld_->setValue( 0.1f );
+    clipfld_->setToolTip( tr("Percentage clip for display") );
+    clipfld_->setSuffix( uiString("%") );
+    clipfld_->setHSzPol( uiObject::Small );
+    clipfld_->attach( rightOf, ampldisp_ );
+    clipfld_->valueChanging.notify(
+	    		mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
+    histgrp->setStretch( 2, 1 );
+    histgrp->attach( stretchedBelow, infofld_ );
 
     filereadopts_ = new FileReadOpts( typfld_->impType().geomType() );
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
@@ -75,6 +100,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
 
 uiSEGYReadStarter::~uiSEGYReadStarter()
 {
+    delete filenamepopuptimer_;
     delete filereadopts_;
     delete &clipsampler_;
 }
@@ -128,6 +154,13 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 {
     typChg( 0 );
     inpChg( 0 );
+
+    if ( filespec_.isEmpty() )
+    {
+	filenamepopuptimer_ = new Timer( "File selector popup timer" );
+	filenamepopuptimer_->start( 1, true );
+	filenamepopuptimer_->tick.notify( mCB(inpfld_,uiFileInput,selectFile) );
+    }
 }
 
 
@@ -161,11 +194,36 @@ void uiSEGYReadStarter::examineCB( CallBacker* )
 	return;
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    uiSEGYExamine::Setup su( 5000 );
+    uiSEGYExamine::Setup su( examinenrtrcsfld_->getIntValue() );
     su.fs_ = filespec_; su.fp_ = filepars_;
     uiSEGYExamine* dlg = new uiSEGYExamine( this, su );
     dlg->setDeleteOnClose( true );
     dlg->go();
+}
+
+
+void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
+{
+    int nrvals = (int)clipsampler_.nrVals();
+    if ( nrvals < 1 )
+	{ ampldisp_->setEmpty(); return; }
+
+    const float* samps = clipsampler_.vals();
+    ampldisp_->setData( samps, nrvals );
+
+    float clipval = clipfld_->getFValue();
+    const bool useclip = !mIsUdf(clipval) && clipval > 0.05;
+    if ( useclip )
+    {
+	clipval *= 0.01f;
+	DataClipper clipper;
+	clipper.putData( samps, nrvals );
+	Interval<float> rg;
+	clipper.calculateRange( clipval, rg );
+	ampldisp_->setDrawRange( rg );
+    }
+
+    ampldisp_->useDrawRange( useclip );
 }
 
 
@@ -350,12 +408,7 @@ void uiSEGYReadStarter::displayScanResults()
 	{ clearDisplay(); return; }
 
     setExamineStatus();
-
-    int nrvals = (int)clipsampler_.nrVals();
-    if ( nrvals < 1 )
-	ampldisp_->setEmpty();
-    else
-	ampldisp_->setData( clipsampler_.vals(), nrvals );
+    updateAmplDisplay( 0 );
 
     SEGY::uiScanData sd( *scandata_[0] );
     sd.filenm_ = userfilename_;

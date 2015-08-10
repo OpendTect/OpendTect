@@ -16,8 +16,10 @@ ________________________________________________________________________
 #include "segyfiledef.h"
 #include "segyuiscandata.h"
 
+class Timer;
 class DataClipSampler;
 class uiButton;
+class uiSpinBox;
 class uiFileInput;
 class uiHistogramDisplay;
 class uiSEGYImpType;
@@ -60,6 +62,9 @@ protected:
     uiSEGYReadStartInfo* infofld_;
     uiHistogramDisplay*	ampldisp_;
     uiButton*		examinebut_;
+    uiSpinBox*		examinenrtrcsfld_;
+    uiSpinBox*		clipfld_;
+    Timer*		filenamepopuptimer_;
 
     BufferString	userfilename_;
     SEGY::uiScanDef	scandef_;
@@ -85,6 +90,7 @@ protected:
     void		inpChg(CallBacker*);
     void		defChg( CallBacker* )		{ execNewScan(true); }
     void		examineCB(CallBacker*);
+    void		updateAmplDisplay(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     bool		commit();
