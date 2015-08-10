@@ -385,11 +385,12 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
 
 
 uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
-					const MultiID& singlewid )
+				      const MultiID& singlewid )
     : uiWellExtractParams(p,s)
     , singlewid_(&singlewid)
 {
     init();
+    update();
 }
 
 
