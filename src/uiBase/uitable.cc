@@ -1571,7 +1571,10 @@ void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
 
     mDynamicCastGet(uiComboBox*,cb,obj)
     if ( cb )
+    {
 	cb->selectionChanged.notify( mCB(this,uiTable,cellObjChangedCB) );
+	cb->setFont( FontList().get(FontData::Control) );
+    }
 }
 
 
