@@ -68,11 +68,8 @@ uiODHorizonParentTreeItem::~uiODHorizonParentTreeItem()
 }
 
 
-bool uiODHorizonParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-horizon3d" );
-    return uiODTreeItem::init();
-}
+const char* uiODHorizonParentTreeItem::iconName() const
+{ return "tree-horizon3d"; }
 
 
 void uiODHorizonParentTreeItem::removeChild( uiTreeItem* itm )
@@ -620,11 +617,8 @@ uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
 {}
 
 
-bool uiODHorizon2DParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-horizon2d" );
-    return uiODTreeItem::init();
-}
+const char* uiODHorizon2DParentTreeItem::iconName() const
+{ return "tree-horizon2d"; }
 
 
 void uiODHorizon2DParentTreeItem::removeChild( uiTreeItem* itm )

@@ -68,11 +68,8 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
 }
 
 
-bool uiODLine2DParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-geom2d" );
-    return uiODTreeItem::init();
-}
+const char* uiODLine2DParentTreeItem::iconName() const
+{ return "tree-geom2d"; }
 
 
 #define mAdd		0

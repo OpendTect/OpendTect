@@ -155,6 +155,15 @@ bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
 }
 
 
+bool uiODTreeItem::init()
+{
+    const char* iconnm = iconName();
+    if ( iconnm ) uitreeviewitem_->setIcon( 0, iconnm );
+
+    return uiTreeItem::init();
+}
+
+
 uiODApplMgr* uiODTreeItem::applMgr()
 {
     void* res = 0;

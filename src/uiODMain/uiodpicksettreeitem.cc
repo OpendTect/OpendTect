@@ -45,11 +45,8 @@ uiODPickSetParentTreeItem::~uiODPickSetParentTreeItem()
 }
 
 
-bool uiODPickSetParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-pickset" );
-    return uiODTreeItem::init();
-}
+const char* uiODPickSetParentTreeItem::iconName() const
+{ return "tree-pickset"; }
 
 
 void uiODPickSetParentTreeItem::addPickSet( Pick::Set* ps )
@@ -394,11 +391,8 @@ uiODPolygonParentTreeItem::~uiODPolygonParentTreeItem()
 }
 
 
-bool uiODPolygonParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-polygon" );
-    return uiODTreeItem::init();
-}
+const char* uiODPolygonParentTreeItem::iconName() const
+{ return "tree-polygon"; }
 
 
 void uiODPolygonParentTreeItem::addPolygon( Pick::Set* ps )

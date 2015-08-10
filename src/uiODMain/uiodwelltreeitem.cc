@@ -42,11 +42,8 @@ uiODWellParentTreeItem::uiODWellParentTreeItem()
 }
 
 
-bool uiODWellParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-well" );
-    return uiODTreeItem::init();
-}
+const char* uiODWellParentTreeItem::iconName() const
+{ return "tree-well"; }
 
 
 static const int cAddIdx	= 0;

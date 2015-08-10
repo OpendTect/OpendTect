@@ -603,11 +603,8 @@ uiODInlineParentTreeItem::uiODInlineParentTreeItem()
 {}
 
 
-bool uiODInlineParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-inl" );
-    return uiODTreeItem::init();
-}
+const char* uiODInlineParentTreeItem::iconName() const
+{ return "tree-inl"; }
 
 
 bool uiODInlineParentTreeItem::showSubMenu()
@@ -650,11 +647,8 @@ uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
 {}
 
 
-bool uiODCrosslineParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-crl" );
-    return uiODTreeItem::init();
-}
+const char* uiODCrosslineParentTreeItem::iconName() const
+{ return "tree-crl"; }
 
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
@@ -698,11 +692,8 @@ uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
 {}
 
 
-bool uiODZsliceParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-zsl" );
-    return uiODTreeItem::init();
-}
+const char* uiODZsliceParentTreeItem::iconName() const
+{ return "tree-zsl"; }
 
 
 bool uiODZsliceParentTreeItem::showSubMenu()

@@ -72,11 +72,8 @@ uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
 {}
 
 
-bool uiODBodyDisplayParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-body" );
-    return uiODTreeItem::init();
-}
+const char* uiODBodyDisplayParentTreeItem::iconName() const
+{ return "tree-body"; }
 
 
 bool uiODBodyDisplayParentTreeItem::showSubMenu()

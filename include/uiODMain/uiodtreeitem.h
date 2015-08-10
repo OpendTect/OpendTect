@@ -36,6 +36,9 @@ protected:
     uiODApplMgr*	applMgr();
     ui3DViewer*		viewer();
 
+    virtual bool	init();
+    virtual const char*	iconName() const		{ return 0; }
+
     void		addStandardItems(uiMenu&);
     void		handleStandardItems(int mnuid);
 };
@@ -99,7 +102,7 @@ public: \
     			uiOD##type##TreeItem(); \
     extrapublic;	\
 protected: \
-    virtual bool	init(); \
+    virtual const char*	iconName() const; \
     const char* 	parentType() const \
 			{ return typeid(uiOD##parentitem).name();} \
 };

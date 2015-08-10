@@ -29,7 +29,7 @@ public:
 
 protected:
 			mMenuOnAnyButton
-    bool		init();
+    const char*		iconName() const;
     bool		showSubMenu();
     virtual bool	addChld(uiTreeItem*,bool,bool);
     const char* 	parentType() const

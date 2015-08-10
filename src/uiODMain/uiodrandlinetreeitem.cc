@@ -132,11 +132,8 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
 {}
 
 
-bool uiODRandomLineParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-randomline" );
-    return uiODTreeItem::init();
-}
+const char* uiODRandomLineParentTreeItem::iconName() const
+{ return "tree-randomline"; }
 
 
 bool uiODRandomLineParentTreeItem::showSubMenu()

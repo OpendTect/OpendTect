@@ -27,15 +27,15 @@ mExpClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
     typedef uiODTreeItem	inheritedClass;
 public:
 			uiODWellParentTreeItem();
-			mMenuOnAnyButton
 
 protected:
 
-    bool		init();
+			mMenuOnAnyButton
+    const char*		iconName() const;
     bool		showSubMenu();
     bool		handleSubMenu(int);
     const char*		parentType() const
-			    { return typeid(uiODTreeTop).name(); }
+			{ return typeid(uiODTreeTop).name(); }
     bool 		constlogsize_;
 };
 

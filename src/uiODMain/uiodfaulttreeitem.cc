@@ -48,11 +48,8 @@ uiODFaultParentTreeItem::~uiODFaultParentTreeItem()
 }
 
 
-bool uiODFaultParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-flt" );
-    return uiODTreeItem::init();
-}
+const char* uiODFaultParentTreeItem::iconName() const
+{ return "tree-flt"; }
 
 
 #define mAddMnuID	0
@@ -422,11 +419,8 @@ uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
 {}
 
 
-bool uiODFaultStickSetParentTreeItem::init()
-{
-    uitreeviewitem_->setIcon( 0, "tree-fltss" );
-    return uiODTreeItem::init();
-}
+const char* uiODFaultStickSetParentTreeItem::iconName() const
+{ return "tree-fltss"; }
 
 
 bool uiODFaultStickSetParentTreeItem::showSubMenu()
