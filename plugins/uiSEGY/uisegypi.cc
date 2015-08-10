@@ -20,13 +20,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyread.h"
 #include "uisegyresortdlg.h"
 #include "uiwellimpsegyvsp.h"
-#include "uisegyreadstarter.h"
 
 #include "uiseisfileman.h"
 #include "uisurvinfoed.h"
 #include "uimenu.h"
 #include "uiodmenumgr.h"
-#include "uitoolbar.h"
 #include "uimsg.h"
 
 #include "odplugin.h"
@@ -53,7 +51,6 @@ public:
     uiODMain*		appl_;
     uiODMenuMgr&	mnumgr_;
 
-    void		updateToolBar(CallBacker*);
     void		updateMenu(CallBacker*);
     void		survChg(CallBacker*);
     void		edFiles(CallBacker*);
@@ -97,18 +94,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
 
-    mnumgr_.dTectTBChanged.notify( muiSEGYMgrCB(updateToolBar) );
-    mnumgr_.dTectMnuChanged.notify( muiSEGYMgrCB(updateMenu) );
-
-    updateToolBar(0);
     updateMenu(0);
-}
-
-
-void uiSEGYMgr::updateToolBar( CallBacker* )
-{
-    mnumgr_.dtectTB()->addButton( "segy", tr("SEG-Y import"),
-				 mCB(this,uiSEGYMgr,fullWizCB) );
 }
 
 
@@ -207,13 +193,6 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 	return;
 
     uiEditSEGYFileDataDlg dlg( sfm, *sfm->curIOObj() );
-    dlg.go();
-}
-
-
-void uiSEGYMgr::fullWizCB( CallBacker* )
-{
-    uiSEGYReadStarter dlg( ODMainWin() );
     dlg.go();
 }
 
