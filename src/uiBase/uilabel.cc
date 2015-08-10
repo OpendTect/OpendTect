@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uilabel.h"
+
+#include "bufstringset.h"
 #include "uiobjbody.h"
 #include "uipixmap.h"
 #include "uistring.h"
@@ -45,6 +47,7 @@ virtual int nrTxtLines() const
 
 uiLabel::uiLabel( uiParent* p, const uiString& txt )
     : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
+    , isrequired_(false)
 {
     init( txt, 0 );
 }
@@ -52,6 +55,7 @@ uiLabel::uiLabel( uiParent* p, const uiString& txt )
 
 uiLabel::uiLabel( uiParent* p, const uiString& txt, uiGroup* grp )
     : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
+    , isrequired_(false)
 {
     init( txt, grp ? grp->attachObj() : 0 );
 }
@@ -59,6 +63,7 @@ uiLabel::uiLabel( uiParent* p, const uiString& txt, uiGroup* grp )
 
 uiLabel::uiLabel( uiParent* p, const uiString& txt, uiObject* buddy )
     : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
+    , isrequired_(false)
 {
     init( txt, buddy );
 }
@@ -91,18 +96,54 @@ uiLabelBody& uiLabel::mkbody( uiParent* p, const uiString& txt )
 }
 
 
+static void addRequiredChar( QString& qstr )
+{
+    qstr.insert( 0, "<font color='red'><sup>*</sup></font>" );
+}
+
+
+void uiLabel::updateWidth()
+{
+    BufferStringSet strs; strs.unCat( text_.getFullString().buf() );
+    if ( strs.size() != 1 )
+	return;
+
+    int lblwidth = body_->fontWidthFor( text_.getFullString().buf() ) + 1;
+    if ( isrequired_ ) lblwidth++;
+    setPrefWidth( lblwidth );
+}
+
+
 void uiLabel::setText( const uiString& txt )
 {
     text_ = txt;
-    body_->setText( text_.getQtString() );
+    QString qstr = text_.getQtString();
+    if ( isrequired_ ) addRequiredChar( qstr );
+    body_->setText( qstr );
+    updateWidth();
     setName( text_.getOriginalString() );
+}
+
+
+void uiLabel::makeRequired( bool yn )
+{
+    isrequired_ = yn;
+    QString qstr = text_.getQtString();
+    if ( qstr.isEmpty() ) return;
+
+    if ( isrequired_ ) addRequiredChar( qstr );
+    body_->setText( qstr );
+    updateWidth();
 }
 
 
 void uiLabel::translateText()
 {
     uiObject::translateText();
-    body_->setText( text_.getQtString() );
+    QString qstr = text_.getQtString();
+    if ( isrequired_ ) addRequiredChar( qstr );
+    body_->setText( qstr );
+    updateWidth();
 }
 
 

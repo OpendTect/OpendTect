@@ -48,16 +48,20 @@ public:
     void		setAlignment(Alignment::HPos);
     Alignment::HPos	alignment() const;
 
+    void		makeRequired(bool yn=true);
+
 private:
     void		translateText();
 
     void		init(const uiString& txt,uiObject* buddy);
+    void		updateWidth();
 
     uiLabelBody*	body_;
     uiLabelBody&	mkbody(uiParent*,const uiString&);
 
     uiString		text_;
 
+    bool		isrequired_;
 };
 
 #endif
