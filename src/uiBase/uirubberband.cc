@@ -14,8 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QMouseEvent>
 #include <QRubberBand>
 
-#include <iostream>
-
 mUseQtnamespace
 
 uiRubberBand::~uiRubberBand()
@@ -38,8 +36,7 @@ void uiRubberBand::start( QMouseEvent* event )
 void uiRubberBand::handleEv( QMouseEvent* event, bool setgeom )
 {
     const QPoint qorigin( origin_.x, origin_.y );
-    const QRect geom = QRect( qorigin,
-	    					  event->pos() ).normalized();
+    const QRect geom = QRect( qorigin, event->pos() ).normalized();
     area_ = uiRect( geom.left(), geom.top(), geom.right(), geom.bottom() );
     if ( setgeom )
 	qrubberband_->setGeometry( geom );
