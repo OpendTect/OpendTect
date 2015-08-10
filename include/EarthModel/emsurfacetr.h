@@ -192,7 +192,6 @@ protected:
 
     static BufferString		createHOVName(const char* base,int idx);
     bool			setSurfaceTransform(const IOPar&);
-    bool			binary;
     void			getSels(StepInterval<int>&,StepInterval<int>&);
 
     bool			prepRead();

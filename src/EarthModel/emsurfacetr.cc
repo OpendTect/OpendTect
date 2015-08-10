@@ -473,16 +473,20 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
     mDynamicCastGet(const EM::Horizon3D*,hor3d,&surf)
     if ( !hor3d )
 	return 0;
-   
+
     bool isbinary = true;
     mSettUse(getYN,"dTect.Surface","Binary format",isbinary);
     BufferString fnm;
     if ( overwrite )
     {
 	if ( dataidx<0 ) dataidx = 0;
+	if ( !sels_.sd.valnames.validIdx(dataidx) )
+	    return 0;
+
 	fnm = getFileName( *ioobj_, sels_.sd.valnames.get(dataidx) );
 	if ( !fnm.isEmpty() )
-	    return new EM::dgbSurfDataWriter(*hor3d,dataidx,0,isbinary,fnm.buf());
+	    return new EM::dgbSurfDataWriter(*hor3d,dataidx,0,isbinary,
+					     fnm.buf());
     }
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface Data saver" );
@@ -493,10 +497,10 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
 	    continue;
 	fnm = getFreeFileName( *ioobj_ );
 	Executor* exec =
-	    new EM::dgbSurfDataWriter(*hor3d,selidx,0,binary,fnm.buf());
+	    new EM::dgbSurfDataWriter(*hor3d,selidx,0,isbinary,fnm.buf());
 	grp->add( exec );
     }
 
     return grp;
 }
-  
+
