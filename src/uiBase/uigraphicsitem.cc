@@ -152,12 +152,25 @@ void uiGraphicsItem::setAcceptHoverEvents( bool yn )
 }
 
 
-void uiGraphicsItem::setAcceptedMouseButtons( bool yn )
+void uiGraphicsItem::setAcceptedMouseButtons( OD::ButtonState bs )
 {
-    if ( yn )
-	qgraphicsitem_->setAcceptedMouseButtons( Qt::LeftButton );
-    else
-	qgraphicsitem_->setAcceptedMouseButtons( Qt::NoButton );
+    switch ( bs )
+    {
+	case OD::NoButton:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::NoButton );
+	    break;
+	case OD::LeftButton:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::LeftButton );
+	    break;
+	case OD::RightButton:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::RightButton );
+	    break;
+	case OD::MidButton:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::MidButton );
+	    break;
+	default:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::NoButton );
+    }
 }
 
 
@@ -173,8 +186,25 @@ void uiGraphicsItem::setVisible( bool yn )
 { qgraphicsitem_->setVisible( yn ); }
 
 
-bool uiGraphicsItem::isAcceptedMouseButtonsEnabled()
-{ return Qt::NoButton != qgraphicsitem_->acceptedMouseButtons(); }
+OD::ButtonState uiGraphicsItem::acceptedMouseButtonsEnabled() const
+{
+    Qt::MouseButtons qmb = qgraphicsitem_->acceptedMouseButtons();
+    switch ( qmb )
+    {
+	case Qt::NoButton:
+	    return OD::NoButton;
+	case Qt::LeftButton:
+	    return OD::LeftButton;
+	case Qt::RightButton:
+	    return OD::RightButton;
+	case Qt::MidButton:
+	    return OD::MidButton;
+	default:
+	    break;
+    }
+
+    return OD::NoButton;
+}
 
 
 bool uiGraphicsItem::isFiltersChildEventsEnabled() const

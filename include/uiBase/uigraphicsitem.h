@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "callback.h"
+#include "keyenum.h"
 #include "uigeom.h"
 #include "manobjectset.h"
 #include "uistring.h"
@@ -40,14 +41,14 @@ public:
     void		hide();
 
     virtual void	setAcceptHoverEvents(bool);
-    virtual void	setAcceptedMouseButtons(bool);
+    virtual void	setAcceptedMouseButtons(OD::ButtonState);
     virtual void	setFiltersChildEvents(bool);
     virtual void	setMovable(bool);
     virtual void	setSelectable(bool);
     virtual void	setSelected(bool);
     virtual void	setVisible(bool);
 
-    virtual bool	isAcceptedMouseButtonsEnabled();
+    virtual OD::ButtonState acceptedMouseButtonsEnabled() const;
     virtual bool	isFiltersChildEventsEnabled() const;
     virtual bool	isHoverEventsAccepted() const;
     virtual bool	isMovable() const;
