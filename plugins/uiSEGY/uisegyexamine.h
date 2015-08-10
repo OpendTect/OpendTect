@@ -87,6 +87,8 @@ protected:
 };
 
 
+#define sKeySettNrTrcExamine \
+    IOPar::compKey("SEG-Y",uiSEGYExamine::Setup::sKeyNrTrcs)
+
+
 #endif
-
-

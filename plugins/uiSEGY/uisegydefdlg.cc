@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegydef.h"
 #include "uisegyexamine.h"
-#include "uisegyexamine.h"
 #include "uitoolbar.h"
 #include "uicombobox.h"
 #include "uibutton.h"
@@ -30,9 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisioobjinfo.h"
 #include "settings.h"
 #include "od_helpids.h"
-
-#define sKeySettNrTrcExamine \
-    IOPar::compKey("SEG-Y",uiSEGYExamine::Setup::sKeyNrTrcs)
 
 
 uiSEGYDefDlg::Setup::Setup()

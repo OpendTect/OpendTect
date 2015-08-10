@@ -90,6 +90,8 @@ public:
     void		setDefaultExtension(const char* ext);
 			// only when forread is false
 
+    void		selectFile( CallBacker* cb )	{ doSelect(cb); }
+
 protected:
 
     bool		forread_;

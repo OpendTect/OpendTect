@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #define mUseCol 3
 
 static const char* sBytePos = "from header";
+static const Color qscellcolor = Color( 255, 255, 220 ); // very light yellow
 
 
 class uiSEGYByteNr : public uiComboBox
@@ -111,6 +112,8 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::uiScanDef& scd )
     tbl_->setPrefHeightInRows( mNrInfoRows );
     tbl_->setTableReadOnly( true );
     tbl_->setLeftHeaderHidden( true );
+    for ( int irow=0; irow<mNrInfoRows; irow++ )
+	tbl_->setColor( RowCol(irow,mQSResCol), qscellcolor );
     setCellTxt( mItemCol, mRevRow, "SEG-Y Revision" );
     setCellTxt( mUseTxtCol, mRevRow, "" );
     setCellTxt( mItemCol, mDataFormatRow, "Data format" );
@@ -131,7 +134,7 @@ void uiSEGYReadStartInfo::mkScanDefFields()
     fld->setStretch( 2, 1 ); \
     tbl_->setCellObject( RowCol(row,mUseCol), fld );
 
-    const char* revstrs[] = { "0", "1", 0 };
+    const char* revstrs[] = { "0", "1", "2", 0 };
     revfld_ = new uiComboBox( 0, revstrs, "Revision" );
     revfld_->selectionChanged.notify( mCB(this,uiSEGYReadStartInfo,revChg) );
     mAddToTbl( revfld_, mRevRow );
@@ -313,10 +316,13 @@ void uiSEGYReadStartInfo::setScanData( const SEGY::uiScanData& sd )
     inlinfotxt_.set( sd.inls_.start ).add( " - " ).add( sd.inls_.stop );
     crlinfotxt_.set( sd.crls_.start ).add( " - " ).add( sd.crls_.stop );
     trcnrinfotxt_.set( sd.trcnrs_.start ).add( " - " ).add( sd.trcnrs_.stop );
-    refnrinfotxt_.set( sd.refnrs_.start ).add( " - " ).add( sd.refnrs_.stop );
     xinfotxt_.set( sd.xrg_.start ).add( " - " ).add( sd.xrg_.stop );
     yinfotxt_.set( sd.yrg_.start ).add( " - " ).add( sd.yrg_.stop );
     offsetinfotxt_.set( sd.offsrg_.start ).add( " - " ).add( sd.offsrg_.stop );
+    if ( mIsUdf(sd.refnrs_.start) )
+	refnrinfotxt_.set( "<no data>" );
+    else
+	refnrinfotxt_.set(sd.refnrs_.start).add(" - ").add(sd.refnrs_.stop);
 
     useScanDef();
     showRelevantInfo();
