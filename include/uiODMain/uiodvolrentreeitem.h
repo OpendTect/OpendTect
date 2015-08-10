@@ -17,20 +17,19 @@ ________________________________________________________________________
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
 
-mExpClass(uiODMain) uiODVolrenParentTreeItem : public uiTreeItem
+mExpClass(uiODMain) uiODVolrenParentTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODVolrenParentTreeItem);
-    typedef uiTreeItem	inheritedClass;
+    typedef uiODTreeItem	inheritedClass;
 public:
 			uiODVolrenParentTreeItem();
 			~uiODVolrenParentTreeItem();
 
-			mMenuOnAnyButton;
-
-    bool		showSubMenu();
-    int			sceneID() const;
 
 protected:
-    bool		init();
+			mMenuOnAnyButton
+    bool		showSubMenu();
+
+    const char*		iconName() const;
     bool		canAddVolumeToScene();
     const char*		parentType() const;
 };
