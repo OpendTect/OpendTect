@@ -415,7 +415,6 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , istablereadonly_(false)
     , seliscols_(false)
 {
-    setFont( FontList().get(FontData::Fixed) );
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 
@@ -1571,10 +1570,7 @@ void uiTable::setCellObject( const RowCol& rc, uiObject* obj )
 
     mDynamicCastGet(uiComboBox*,cb,obj)
     if ( cb )
-    {
 	cb->selectionChanged.notify( mCB(this,uiTable,cellObjChangedCB) );
-	cb->setFont( FontList().get(FontData::Control) );
-    }
 }
 
 
