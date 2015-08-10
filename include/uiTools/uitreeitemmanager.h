@@ -70,6 +70,8 @@ public:
     int				nrChildren() const { return children_.size(); }
     const uiTreeItem*		getChild(int) const;
     uiTreeItem*			getChild(int);
+    ObjectSet<uiTreeItem>&	getChildren()	{ return children_; }
+    const ObjectSet<uiTreeItem>& getChildren() const { return children_; }
 
     virtual bool		addChild(uiTreeItem* child,bool below);
 				/*!<Adds a child. If the child does not fit
