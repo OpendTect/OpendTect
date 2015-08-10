@@ -123,7 +123,7 @@ void uiToolBar::addObject( uiObject* obj )
     {
 	pErrMsg("Not a valid object");
     }
-};
+}
 
 
 void uiToolBar::setLabel( const uiString& lbl )
