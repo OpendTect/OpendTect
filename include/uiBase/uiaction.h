@@ -106,6 +106,15 @@ protected:
     uiString		text_;
     uiString		icontext_;
 
+    void		updateEnabled(CallBacker* = 0);
+    void		updateCheckable(CallBacker* = 0);
+    void		updateChecked(CallBacker* = 0);
+    void		updateVisible(CallBacker* = 0);
+    bool		enabled_;
+    bool		checkable_;
+    bool		ischecked_;
+    bool		visible_;
+
 private:
 
     uiMenu*			menu_;
