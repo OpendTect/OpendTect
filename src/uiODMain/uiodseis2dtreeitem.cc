@@ -27,8 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislicesel.h"
 #include "uistrings.h"
 #include "uitreeview.h"
-#include "uivispartserv.h"
 #include "uitaskrunner.h"
+#include "uivispartserv.h"
 #include "visseis2ddisplay.h"
 
 #include "attribdataholder.h"
@@ -65,6 +65,13 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
     , dispattritm_(0)
     , hideattritm_(0)
 {
+}
+
+
+bool uiODLine2DParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-geom2d" );
+    return uiODTreeItem::init();
 }
 
 

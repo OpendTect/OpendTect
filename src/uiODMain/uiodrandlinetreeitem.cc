@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipositiontable.h"
 #include "uiselsimple.h"
 #include "uistrings.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellrdmlinedlg.h"
@@ -129,6 +130,13 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
     : uiODTreeItem( "Random Line" )
     , rdlpolylinedlg_(0)
 {}
+
+
+bool uiODRandomLineParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-randomline" );
+    return uiODTreeItem::init();
+}
 
 
 bool uiODRandomLineParentTreeItem::showSubMenu()

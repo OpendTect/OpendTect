@@ -11,26 +11,28 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodpicksettreeitem.h"
 
-#include "uimenu.h"
-#include "uiodapplmgr.h"
-#include "uivispartserv.h"
-
 #include "emmanager.h"
 #include "emrandomposbody.h"
+#include "pickset.h"
 #include "randcolor.h"
 #include "selector.h"
-#include "pickset.h"
 #include "survinfo.h"
+
+#include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
+#include "uiodapplmgr.h"
 #include "uiodbodydisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
-#include "visrandomposbodydisplay.h"
+#include "uitreeview.h"
+#include "uivispartserv.h"
+
 #include "vispicksetdisplay.h"
-#include "vissurvscene.h"
 #include "vispolylinedisplay.h"
+#include "visrandomposbodydisplay.h"
+#include "vissurvscene.h"
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem("PickSet")
@@ -40,6 +42,13 @@ uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
 
 uiODPickSetParentTreeItem::~uiODPickSetParentTreeItem()
 {
+}
+
+
+bool uiODPickSetParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-pickset" );
+    return uiODTreeItem::init();
 }
 
 
@@ -382,6 +391,13 @@ uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
 
 uiODPolygonParentTreeItem::~uiODPolygonParentTreeItem()
 {
+}
+
+
+bool uiODPolygonParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-polygon" );
+    return uiODTreeItem::init();
 }
 
 

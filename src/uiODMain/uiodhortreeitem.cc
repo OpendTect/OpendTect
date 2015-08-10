@@ -34,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiposprovider.h"
 #include "uitaskrunner.h"
+#include "uitreeview.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
 #include "uistrings.h"
@@ -64,6 +65,13 @@ uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
 
 uiODHorizonParentTreeItem::~uiODHorizonParentTreeItem()
 {
+}
+
+
+bool uiODHorizonParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-horizon3d" );
+    return uiODTreeItem::init();
 }
 
 
@@ -610,6 +618,13 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
     : uiODTreeItem( "2D Horizon" )
 {}
+
+
+bool uiODHorizon2DParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-horizon2d" );
+    return uiODTreeItem::init();
+}
 
 
 void uiODHorizon2DParentTreeItem::removeChild( uiTreeItem* itm )

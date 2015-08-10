@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uistrings.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "visfaultdisplay.h"
@@ -44,6 +45,13 @@ uiODFaultParentTreeItem::uiODFaultParentTreeItem()
 
 uiODFaultParentTreeItem::~uiODFaultParentTreeItem()
 {
+}
+
+
+bool uiODFaultParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-flt" );
+    return uiODTreeItem::init();
 }
 
 
@@ -412,6 +420,13 @@ bool uiODFaultTreeItem::isOnlyAtSections() const
 uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
    : uiODTreeItem( "FaultStickSet" )
 {}
+
+
+bool uiODFaultStickSetParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-fltss" );
+    return uiODTreeItem::init();
+}
 
 
 bool uiODFaultStickSetParentTreeItem::showSubMenu()

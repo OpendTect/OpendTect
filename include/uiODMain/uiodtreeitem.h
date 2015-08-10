@@ -99,6 +99,7 @@ public: \
     			uiOD##type##TreeItem(); \
     extrapublic;	\
 protected: \
+    virtual bool	init(); \
     const char* 	parentType() const \
 			{ return typeid(uiOD##parentitem).name();} \
 };

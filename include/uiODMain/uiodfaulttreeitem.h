@@ -34,6 +34,7 @@ public:
 
 protected:
 			mMenuOnAnyButton
+    bool		init();
     bool		showSubMenu();
     const char* 	parentType() const
 			{ return typeid(uiODTreeTop).name(); }

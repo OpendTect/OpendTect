@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodplanedatatreeitem.h"
 
-#include "seistrctr.h"
 #include "uiattribpartserv.h"
 #include "uigridlinesdlg.h"
 #include "uimenu.h"
@@ -38,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "linekey.h"
 #include "seisioobjinfo.h"
+#include "seistrctr.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "welldata.h"
@@ -600,7 +600,14 @@ uiTreeItem*
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
     : uiODTreeItem( "In-line" )
-{ }
+{}
+
+
+bool uiODInlineParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-inl" );
+    return uiODTreeItem::init();
+}
 
 
 bool uiODInlineParentTreeItem::showSubMenu()
@@ -640,7 +647,14 @@ uiTreeItem*
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
     : uiODTreeItem( "Cross-line" )
-{ }
+{}
+
+
+bool uiODCrosslineParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-crl" );
+    return uiODTreeItem::init();
+}
 
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
@@ -684,6 +698,13 @@ uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
 {}
 
 
+bool uiODZsliceParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-zsl" );
+    return uiODTreeItem::init();
+}
+
+
 bool uiODZsliceParentTreeItem::showSubMenu()
 {
      if ( !SI().inlRange(true).width() || !SI().crlRange(true).width() )
@@ -700,4 +721,6 @@ uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
 {
 }
+
+
 

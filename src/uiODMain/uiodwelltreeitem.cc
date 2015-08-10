@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uipixmap.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
@@ -38,6 +39,13 @@ uiODWellParentTreeItem::uiODWellParentTreeItem()
     : uiODTreeItem( "Well" )
     , constlogsize_(true)
 {
+}
+
+
+bool uiODWellParentTreeItem::init()
+{
+    uitreeviewitem_->setIcon( 0, "tree-well" );
+    return uiODTreeItem::init();
 }
 
 

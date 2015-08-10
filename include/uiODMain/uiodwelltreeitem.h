@@ -23,16 +23,17 @@ class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
 
 mExpClass(uiODMain) uiODWellParentTreeItem : public uiODTreeItem
-{ mODTextTranslationClass(uiODWellParentTreeItem);
+{ mODTextTranslationClass(uiODWellParentTreeItem)
     typedef uiODTreeItem	inheritedClass;
 public:
-    			uiODWellParentTreeItem();
-    bool		showSubMenu();
-    bool		handleSubMenu(int);
-
-			mMenuOnAnyButton;
+			uiODWellParentTreeItem();
+			mMenuOnAnyButton
 
 protected:
+
+    bool		init();
+    bool		showSubMenu();
+    bool		handleSubMenu(int);
     const char*		parentType() const
 			    { return typeid(uiODTreeTop).name(); }
     bool 		constlogsize_;
@@ -40,7 +41,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODWellTreeItemFactory);
+{ mODTextTranslationClass(uiODWellTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const { return new uiODWellParentTreeItem(); }
@@ -49,7 +50,7 @@ public:
 
 
 mExpClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODWellTreeItem);
+{ mODTextTranslationClass(uiODWellTreeItem)
 public:
     			uiODWellTreeItem( int );
     			uiODWellTreeItem( const MultiID& mid );
