@@ -30,14 +30,14 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
     for ( int idx=0; idx<4; idx++ )
     {
         uiMarkerItem* markeritem = new uiMarkerItem( MarkerStyle2D::Square );
-	itemgrp_.add( markeritem );
+	markeritem->setParent( &graphitem_ );
 	vertices_ += markeritem;
     }
 
     frame_ = new uiPolygonItem;
     frame_->setPenColor( ls_.color_ );
     frame_->setPenStyle( ls_ );
-    itemgrp_.add( frame_ );
+    frame_->setParent( &graphitem_ );
 
     const mDeclAlignment( postxtalign, HCenter, VCenter );
     for ( int idx=0; idx<4; idx++ )
@@ -46,11 +46,11 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo )
 	textitem->setTextColor( Color::Black() );
 	textitem->setAlignment( postxtalign );
 	textitem->setFont( FontList().get(FontData::Graphics2DSmall) );
-	itemgrp_.add( textitem );
+	textitem->setParent( &graphitem_ );
 	labels_ += textitem;
     }
 
-    itemgrp_.setZValue( 2 );
+    graphitem_.setZValue( -1 );
 }
 
 
@@ -82,7 +82,7 @@ void uiSurveyBoxObject::setSurveyInfo( const SurveyInfo* si )
 
 void uiSurveyBoxObject::setVisibility( bool yn )
 {
-    itemGrp().setVisible( yn );
+    graphItem().setVisible( yn );
 }
 
 
@@ -95,9 +95,11 @@ void uiSurveyBoxObject::update()
     const TrcKeyZSampling& cs = si.sampling( false );
     TypeSet<uiWorldPoint> mapcnr; mapcnr.setSize( 4 );
     mapcnr[0] = si.transform( cs.hsamp_.start_ );
-    mapcnr[1] = si.transform( BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()) );
+    mapcnr[1] = si.transform(
+	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()) );
     mapcnr[2] = si.transform( cs.hsamp_.stop_ );
-    mapcnr[3] = si.transform( BinID(cs.hsamp_.stop_.inl(),cs.hsamp_.start_.crl()) );
+    mapcnr[3] = si.transform(
+	BinID(cs.hsamp_.stop_.inl(),cs.hsamp_.start_.crl()) );
 
     for ( int idx=0; idx<vertices_.size(); idx++ )
 	vertices_[idx]->setPos( mapcnr[idx] );
@@ -128,19 +130,19 @@ uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
     arrowstyle.linestyle_.width_ = 3;
     arrow_ = new uiArrowItem;
     arrow_->setArrowStyle( arrowstyle );
-    itemgrp_.add( arrow_ );
+    arrow_->setParent( &graphitem_ );
 
     if ( !withangle )
 	return;
 
     angleline_ = new uiLineItem;
     angleline_->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
-    itemgrp_.add( angleline_ );
+    angleline_->setParent( &graphitem_ );
 
     mDeclAlignment( txtalign, Right, Bottom );
     anglelabel_ = new uiTextItem();
     anglelabel_->setAlignment( txtalign );
-    itemgrp_.add( anglelabel_ );
+    anglelabel_->setParent( &graphitem_ );
 }
 
 
@@ -158,7 +160,7 @@ void uiNorthArrowObject::setPixelPos(int x,int y)
 
 void uiNorthArrowObject::setVisibility( bool yn )
 {
-    itemGrp().setVisible( yn );
+    graphItem().setVisible( yn );
 }
 
 

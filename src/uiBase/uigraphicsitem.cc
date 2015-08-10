@@ -20,8 +20,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "draw.h"
 
+#include "odgraphicsitem.h"
+
 #include <QBrush>
 #include <QCursor>
+#include <QGraphicsItem>
 #include <QGraphicsItemGroup>
 #include <QGraphicsScene>
 #include <QPen>
@@ -30,9 +33,77 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+class ODGraphicsItem : public QGraphicsItem
+{
+public:
+ODGraphicsItem()
+    : QGraphicsItem()
+    , itempenwidth_( 1 )
+{}
+
+QRectF boundingRect() const
+{ return QRectF(); }
+
+void paint( QPainter* painter, const QStyleOptionGraphicsItem* option,
+	    QWidget* widget )
+{
+}
+
+void setItemPenWidth( int width )
+{ itempenwidth_ = width; }
+
+void hoverEnterEvent( QGraphicsSceneHoverEvent* event )
+{
+    QList<QGraphicsItem*> itms = childItems();
+    for ( int idx=0; idx<itms.size(); idx++ )
+    {
+	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
+	if ( !shpitm ) continue;
+
+	QPen highlighted = shpitm->pen();
+	highlighted.setWidth( itempenwidth_ + 2 );
+	shpitm->setPen( highlighted );
+    }
+
+    QGraphicsItem::hoverEnterEvent( event );
+}
+
+void hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
+{
+    QList<QGraphicsItem*> itms = childItems();
+    for ( int idx=0; idx<itms.size(); idx++ )
+    {
+	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
+	if ( !shpitm ) continue;
+
+	QPen unhighlighted = shpitm->pen();
+	unhighlighted.setWidth( itempenwidth_ );
+	shpitm->setPen( unhighlighted );
+    }
+
+    QGraphicsItem::hoverLeaveEvent( event );
+}
+
+int itempenwidth_;
+
+};
+
+uiGraphicsItem::uiGraphicsItem()
+    : qgraphicsitem_(new ODGraphicsItem)
+    , clicked(this)
+    , scene_(0)
+    , id_(getNewID())
+    , selected_(false)
+    , translation_( 0, 0 )
+    , scale_( 1, 1 )
+    , angle_( 0 )
+{
+}
+
 
 uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
     : qgraphicsitem_(itm)
+    , clicked(this)
     , scene_(0)
     , id_(getNewID())
     , selected_(false)
@@ -45,6 +116,7 @@ uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
 
 uiGraphicsItem::~uiGraphicsItem()
 {
+    removeAll( true );
     if ( scene_ )
     {
 	scene_->removeItem( this );
@@ -70,20 +142,51 @@ void uiGraphicsItem::show()	{ qgraphicsitem_->show(); }
 void uiGraphicsItem::hide()	{ qgraphicsitem_->hide(); }
 
 
-bool uiGraphicsItem::isMovable() const
-{ return qgraphicsitem_->flags().testFlag( QGraphicsItem::ItemIsMovable ); }
+void uiGraphicsItem::setAcceptHoverEvents( bool yn )
+{
+    qgraphicsitem_->setAcceptHoverEvents( yn );
+}
+
+
+void uiGraphicsItem::setAcceptedMouseButtons( bool yn )
+{
+    if ( yn )
+	qgraphicsitem_->setAcceptedMouseButtons( Qt::LeftButton );
+    else
+	qgraphicsitem_->setAcceptedMouseButtons( Qt::NoButton );
+}
+
+
+void uiGraphicsItem::setFiltersChildEvents( bool yn )
+{ qgraphicsitem_->setFiltersChildEvents( yn ); }
 
 
 void uiGraphicsItem::setMovable( bool yn )
 { qgraphicsitem_->setFlag( QGraphicsItem::ItemIsMovable, yn ); }
 
 
-bool uiGraphicsItem::isVisible() const
-{ return qgraphicsitem_->isVisible(); }
-
-
 void uiGraphicsItem::setVisible( bool yn )
 { qgraphicsitem_->setVisible( yn ); }
+
+
+bool uiGraphicsItem::isAcceptedMouseButtonsEnabled()
+{ return Qt::NoButton != qgraphicsitem_->acceptedMouseButtons(); }
+
+
+bool uiGraphicsItem::isFiltersChildEventsEnabled() const
+{ return qgraphicsitem_->filtersChildEvents(); }
+
+
+bool uiGraphicsItem::isHoverEventsAccepted() const
+{ return qgraphicsitem_->acceptHoverEvents(); }
+
+
+bool uiGraphicsItem::isMovable() const
+{ return qgraphicsitem_->flags().testFlag( QGraphicsItem::ItemIsMovable ); }
+
+
+bool uiGraphicsItem::isVisible() const
+{ return qgraphicsitem_->isVisible(); }
 
 
 Geom::Point2D<float> uiGraphicsItem::getPos() const
@@ -179,6 +282,50 @@ void uiGraphicsItem::setZValue( int zval )
 { qgraphicsitem_->setZValue( zval ); }
 
 
+uiGraphicsItem* uiGraphicsItem::getChild( int idx )
+{ return children_.validIdx(idx) ? children_[idx] : 0; }
+
+
+bool uiGraphicsItem::isPresent( const uiGraphicsItem& itm ) const
+{ return children_.isPresent( &itm ); }
+
+
+int uiGraphicsItem::nrChildren() const
+{ return children_.size(); }
+
+
+void uiGraphicsItem::removeChild( uiGraphicsItem* itm, bool withdelete )
+{
+    if ( !itm ) return;
+
+    children_ -= itm;
+    itm->qGraphicsItem()->setParentItem( 0 );
+
+    if ( withdelete )
+    {
+	itm->setVisible( false );
+	delete itm;
+    }
+}
+
+
+void uiGraphicsItem::removeAll( bool withdelete )
+{
+    while ( !children_.isEmpty() )
+	removeChild( children_[0], withdelete );
+}
+
+
+void uiGraphicsItem::addChild( uiGraphicsItem* itm )
+{
+    if ( children_.isPresent(itm) )
+	return;
+
+    children_ += itm;
+    itm->qGraphicsItem()->setParentItem( qGraphicsItem() );
+}
+
+
 uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
 {
     QPointF qpt = qgraphicsitem_->mapToScene( pt.x, pt.y );
@@ -190,13 +337,13 @@ void uiGraphicsItem::setItemIgnoresTransformations( bool yn )
 { qgraphicsitem_->setFlag( QGraphicsItem::ItemIgnoresTransformations, yn ); }
 
 
-void uiGraphicsItem::setPenColor( const Color& col, bool withalpha )
+void uiGraphicsItem::setPenColor( const Color& col, bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
     QColor color = QColor(QRgb(col.rgb()));
-    if ( withalpha ) color.setAlpha( 255-col.t() );
+    if ( usetransparency ) color.setAlpha( 255-col.t() );
 
     QPen qpen( color );
     qpen.setCosmetic( true );
@@ -224,17 +371,21 @@ void uiGraphicsItem::setSelectable( bool yn )
 
 void uiGraphicsItem::setParent( uiGraphicsItem* item )
 {
-    qgraphicsitem_->setParentItem( item ? item->qgraphicsitem_ : 0 );
+    if ( item )
+	item->addChild( this );
+    else
+	qgraphicsitem_->setParentItem( 0 );
 }
 
 
-void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool colorwithalpha )
+void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
     QColor color = QColor( QRgb(ls.color_.rgb()) );
-    if ( colorwithalpha ) color.setAlpha( 255-ls.color_.t() );
+    if ( usetransparency ) color.setAlpha( 255-ls.color_.t() );
+
     QBrush qbrush( color );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
     qpen.setCosmetic( true );
@@ -242,13 +393,17 @@ void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool colorwithalpha )
 }
 
 
-void uiGraphicsItem::setFillColor( const Color& col, bool withalpha )
+void uiGraphicsItem::setFillColor( const Color& col, bool usetransparency )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    QColor color = QColor( QRgb(col.rgb()) );
-    if ( withalpha ) color.setAlpha( 255 - col.t() );
+    QColor color = Qt::transparent;
+    if ( col != Color::NoColor() )
+    {
+	color = QColor( QRgb(col.rgb()) );
+	if ( usetransparency ) color.setAlpha( 255-col.t() );
+    }
 
     QBrush qbrush = agsitm->brush();
     if ( qbrush.style() == Qt::NoBrush )
@@ -331,7 +486,18 @@ void uiGraphicsItem::translateText()
 
 
 uiGraphicsItem* uiGraphicsItem::findItem( QGraphicsItem* qitm )
-{ return qitm == qgraphicsitem_ ? this : 0; }
+{
+    if ( qitm == qgraphicsitem_ )
+	return this;
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	uiGraphicsItem* itm = children_[idx]->findItem( qitm );
+	if ( itm ) return itm;
+    }
+
+    return 0;
+}
 
 
 
@@ -374,13 +540,15 @@ uiGraphicsItemGroup::~uiGraphicsItemGroup()
 
 QGraphicsItem* uiGraphicsItemGroup::mkQtObj()
 {
-    qgraphicsitemgrp_ = new QGraphicsItemGroup;
+    qgraphicsitemgrp_ = new ODGraphicsItemGroup;
     return qgraphicsitemgrp_;
 }
 
 
 void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
 {
+    if ( !itm ) return;
+
     if ( !isMainThreadCurrent() )
     {
 	scene_->addUpdateToQueue(
@@ -390,7 +558,7 @@ void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
     {
 	items_ += itm;
 	itm->setScene( scene_ );
-	itm->setParent( this );
+	itm->qGraphicsItem()->setParentItem( qGraphicsItem() );
 	qgraphicsitemgrp_->addToGroup( itm->qGraphicsItem() );
     }
 }
@@ -402,7 +570,7 @@ void uiGraphicsItemGroup::remove( uiGraphicsItem* itm, bool withdelete )
 
     items_ -= itm;
     itm->setScene( 0 );
-    itm->setParent( 0 );
+    itm->qGraphicsItem()->setParentItem( 0 );
 
     QGraphicsItem* qitm = itm->qGraphicsItem();
     qgraphicsitemgrp_->removeFromGroup( qitm );

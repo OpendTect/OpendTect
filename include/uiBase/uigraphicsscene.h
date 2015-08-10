@@ -44,18 +44,18 @@ public:
 
     void			removeAllItems();
     uiGraphicsItem*		removeItem(uiGraphicsItem*);
-    				/*!<Gives object back to caller (not deleted) */
+				/*!<Gives object back to caller (not deleted) */
     void			removeItems(uiGraphicsItemSet&);
-    				/*!<Does not delete the items*/
+				/*!<Does not delete the items*/
 
     template <class T> T*	addItem(T*);
-    				//!<Item becomes mine
+				//!<Item becomes mine
     uiGraphicsItemGroup*	addItemGrp(uiGraphicsItemGroup*);
     int				nrItems() const;
     uiGraphicsItem*		getItem(int id);
     const uiGraphicsItem*	getItem(int id) const;
-    uiGraphicsItem*		itemAt(const Geom::Point2D<int>&);
-    const uiGraphicsItem*	itemAt(const Geom::Point2D<int>&) const;
+    uiGraphicsItem*		itemAt(const Geom::Point2D<float>&);
+    const uiGraphicsItem*	itemAt(const Geom::Point2D<float>&) const;
 
     uiRectItem*			addRect(float x,float y,float w,float h);
 
@@ -63,7 +63,7 @@ public:
     uiPolyLineItem*		addPolyLine(const TypeSet<uiPoint>&);
 
     void			useBackgroundPattern(bool);
-    void 			setBackGroundColor(const Color&);
+    void			setBackGroundColor(const Color&);
     const Color			backGroundColor() const;
 
     int				getSelItemSize() const;
@@ -71,7 +71,7 @@ public:
     void			setSelectionArea(const uiRect&);
 
     MouseEventHandler&		getMouseEventHandler()
-    				{ return mousehandler_; }
+				{ return mousehandler_; }
 
     Notifier<uiGraphicsScene>	ctrlPPressed;
     Notifier<uiGraphicsScene>	ctrlCPressed;
@@ -82,16 +82,16 @@ public:
     void			saveAsPDF(const char*,int w,int h,int r);
     void			saveAsPS(const char*,int w,int h,int r);
     void			saveAsPDF_PS(const char*,bool pdf_or_ps,int w,
-	    				     int h,int r);
+					     int h,int r);
     void			setSceneRect(float x,float y,float w,float h);
     uiRect			sceneRect();
 
     bool			isMouseEventActive() const
-    				{ return ismouseeventactive_; }
+				{ return ismouseeventactive_; }
     void			setMouseEventActive( bool yn )
-    				{ ismouseeventactive_ = yn; }
+				{ ismouseeventactive_ = yn; }
     mQtclass(QGraphicsScene*)	qGraphicsScene()
-    			{return (mQtclass(QGraphicsScene*))odgraphicsscene_;}
+			{return (mQtclass(QGraphicsScene*))odgraphicsscene_;}
     void			copyToClipBoard();
 
 
@@ -134,11 +134,11 @@ mExpClass(uiBase) uiGraphicsObjectScene : public uiGraphicsScene
 public:
 				uiGraphicsObjectScene(const char*);
 
-    void                        addObjectItem(uiObjectItem*);
-    void                        insertObjectItem(int,uiObjectItem*);
-    void                        removeObjectItem(uiObjectItem*);
+    void			addObjectItem(uiObjectItem*);
+    void			insertObjectItem(int,uiObjectItem*);
+    void			removeObjectItem(uiObjectItem*);
     void			setItemStretch(uiObjectItem*,int stretch);
-    int 			stretchFactor(uiObjectItem*) const;
+    int			stretchFactor(uiObjectItem*) const;
 
     void			setLayoutPos(const uiPoint&);
     const uiPoint		layoutPos() const;
@@ -146,7 +146,7 @@ public:
 
 protected:
 
-    void 			resizeLayoutToContent();
+    void			resizeLayoutToContent();
 
     mQtclass(QGraphicsLinearLayout*)	layout_;
     mQtclass(QGraphicsWidget*)		layoutitem_;
@@ -156,20 +156,17 @@ protected:
 mClass(uiBase) uiGraphicsSceneChanger : public Task
 {
 public:
-    uiGraphicsSceneChanger( uiGraphicsScene& scene, uiGraphicsItem& itm,
-			    bool remove );
-    uiGraphicsSceneChanger( uiGraphicsItemGroup& scene, uiGraphicsItem& itm,
-			    bool remove );
+    uiGraphicsSceneChanger(uiGraphicsScene&,uiGraphicsItem&,bool remove);
+    uiGraphicsSceneChanger(uiGraphicsItemGroup&,uiGraphicsItem&,bool remove);
 
     bool execute();
 
 protected:
-    uiGraphicsScene*    	scene_;
+    uiGraphicsScene*		scene_;
     uiGraphicsItemGroup*	group_;
-    uiGraphicsItem&     	itm_;
-    bool                	remove_;
+    uiGraphicsItem&		itm_;
+    bool			remove_;
 };
-
 
 
 #endif

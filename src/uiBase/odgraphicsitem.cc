@@ -555,6 +555,20 @@ void ODGraphicsPixmapItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 }
 
 
+void ODGraphicsPixmapItem::hoverEnterEvent( QGraphicsSceneHoverEvent* event )
+{
+    setScale( 1.1 );
+    QGraphicsItem::hoverEnterEvent( event );
+}
+
+
+void ODGraphicsPixmapItem::hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
+{
+    setScale( 1.0 );
+    QGraphicsItem::hoverLeaveEvent( event );
+}
+
+
 // ODGraphicsPolyLineItem
 ODGraphicsPolyLineItem::ODGraphicsPolyLineItem()
     : QAbstractGraphicsShapeItem()
@@ -627,6 +641,56 @@ void ODGraphicsPolyLineItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 }
 
 
+// ODGraphicsPathItem
+ODGraphicsPathItem::ODGraphicsPathItem()
+    : QGraphicsPathItem()
+{
+}
+
+
+void ODGraphicsPathItem::set( const QPainterPath& ppath )
+{
+    setPath( ppath );
+
+    const QPolygonF poly = mapFromScene( 0, 0, 5, 5 );
+    QPainterPathStroker pps;
+    pps.setWidth( poly.boundingRect().width() );
+    path_ = pps.createStroke( ppath );
+}
+
+
+QPainterPath ODGraphicsPathItem::shape() const
+{ return path_; }
+
+
+// ODGraphicsItemGroup
+ODGraphicsItemGroup::ODGraphicsItemGroup()
+    : QGraphicsItemGroup()
+{}
+
+
+QRectF ODGraphicsItemGroup::boundingRect() const
+{
+    return QGraphicsItemGroup::boundingRect();
+}
+
+
+void ODGraphicsItemGroup::paint(QPainter* painter,
+				const QStyleOptionGraphicsItem* option,
+				QWidget* widget)
+{
+    QGraphicsItemGroup::paint( painter, option, widget );
+}
+
+
+void ODGraphicsItemGroup::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+    QGraphicsItem::mouseMoveEvent( event );
+
+    snapToSceneRect ( this );
+}
+
+
 // ODGraphicsDynamicImageItem
 ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     : wantsData( this )
@@ -638,9 +702,6 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     baserev_[0] = baserev_[1] = dynamicrev_[0] = dynamicrev_[1] = false;
 }
 
-
-ODGraphicsDynamicImageItem::~ODGraphicsDynamicImageItem()
-{}
 
 #if QT_VERSION>=0x040700
 # define mImage2PixmapImpl( image, pixmap ) pixmap->convertFromImage( image )

@@ -29,13 +29,13 @@ static int ODGraphicsType = 100000;
 class ODGraphicsPointItem : public QAbstractGraphicsShapeItem
 {
 public:
-    				ODGraphicsPointItem();
+				ODGraphicsPointItem();
 
     QRectF			boundingRect() const;
-    void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
-	    		              QWidget*);
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
 
-    void 			drawPoint(QPainter*);
+    void			drawPoint(QPainter*);
     void			setHighLight( bool hl )
 				{ highlight_ = hl ; }
     void			setColor( const Color& col )
@@ -55,19 +55,19 @@ protected:
 class ODGraphicsMarkerItem : public QAbstractGraphicsShapeItem
 {
 public:
-    				ODGraphicsMarkerItem();
+				ODGraphicsMarkerItem();
     virtual			~ODGraphicsMarkerItem();
 
     QRectF			boundingRect() const;
-    void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
-	    		              QWidget*);
-    static void 		drawMarker(QPainter&,MarkerStyle2D::Type,
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
+    static void			drawMarker(QPainter&,MarkerStyle2D::Type,
 					   float,float);
 
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill( bool fill )	  { fill_ = fill; }
     void			setFillColor( const Color& col )
-    				{ fillcolor_ = col; }
+				{ fillcolor_ = col; }
     void			setSideLength( int side ) { side_ = side; }
 
     virtual int			type() const	{ return ODGraphicsType+2; }
@@ -78,14 +78,14 @@ protected:
     MarkerStyle2D*		mstyle_;
     Color			fillcolor_;
     bool			fill_;
-    int 			side_;
+    int				side_;
 };
 
 
 class ODGraphicsPixmapItem : public QGraphicsPixmapItem
 {
 public:
-    				ODGraphicsPixmapItem();
+				ODGraphicsPixmapItem();
 				ODGraphicsPixmapItem(const uiPixmap&);
 
     void                        paint(QPainter*,const QStyleOptionGraphicsItem*,
@@ -95,6 +95,8 @@ public:
 
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+    virtual void		hoverEnterEvent(QGraphicsSceneHoverEvent*);
+    virtual void		hoverLeaveEvent(QGraphicsSceneHoverEvent*);
 
 };
 
@@ -102,21 +104,21 @@ protected:
 class ODGraphicsArrowItem : public QAbstractGraphicsShapeItem
 {
 public:
-    				ODGraphicsArrowItem();
+				ODGraphicsArrowItem();
 
     QRectF			boundingRect() const;
-    void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
-	    		              QWidget*);
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
 
-    void 			drawArrow(QPainter&);
-    double 			getAddedAngle(double,float);
-    QPoint 			getEndPoint(const QPoint&,double,double);
-    void 			drawArrowHead(QPainter&,const QPoint&,
-	    				      const QPoint&);
+    void			drawArrow(QPainter&);
+    double			getAddedAngle(double,float);
+    QPoint			getEndPoint(const QPoint&,double,double);
+    void			drawArrowHead(QPainter&,const QPoint&,
+					      const QPoint&);
     void			setArrowStyle( const ArrowStyle& arrowstyle )
-    				{ arrowstyle_ = arrowstyle ; }
+				{ arrowstyle_ = arrowstyle ; }
     void			setArrowSize( const int arrowsz )
-    				{ arrowsz_ = arrowsz ; }
+				{ arrowsz_ = arrowsz ; }
     void			setLineStyle(QPainter&,const LineStyle&);
 
     virtual int			type() const	{ return ODGraphicsType+4; }
@@ -135,7 +137,7 @@ public:
 				ODGraphicsTextItem();
 
     QRectF			boundingRect() const;
-    void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
 				      QWidget*);
 
     void			setText(const QString&);
@@ -159,14 +161,27 @@ protected:
 };
 
 
+class ODGraphicsPathItem : public QGraphicsPathItem
+{
+public:
+				ODGraphicsPathItem();
+
+    void			set(const QPainterPath&);
+    QPainterPath		shape() const;
+
+protected:
+    QPainterPath		path_;
+};
+
+
 class ODGraphicsPolyLineItem : public QAbstractGraphicsShapeItem
 {
 public:
 				ODGraphicsPolyLineItem();
 
     QRectF			boundingRect() const;
-    void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
-	    		              QWidget*);
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
 
     void			setPolyLine(const QPolygonF&,bool closed);
     void			setFillRule(Qt::FillRule);
@@ -180,7 +195,21 @@ protected:
 
     bool			closed_;
     QPolygonF			qpolygon_;
-    Qt::FillRule 		fillrule_;
+    Qt::FillRule		fillrule_;
+};
+
+
+class ODGraphicsItemGroup : public QGraphicsItemGroup
+{
+public:
+				ODGraphicsItemGroup();
+
+    QRectF			boundingRect() const;
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
+protected:
+    virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
+
 };
 
 
@@ -188,7 +217,6 @@ class ODGraphicsDynamicImageItem : public QGraphicsItem, public CallBacker
 {
 public:
 				ODGraphicsDynamicImageItem();
-				~ODGraphicsDynamicImageItem();
 
     QRectF			boundingRect() const { return bbox_; }
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,

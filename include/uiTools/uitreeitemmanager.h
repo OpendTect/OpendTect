@@ -82,6 +82,7 @@ public:
 				    \note child becomes mine regardless of
 					  return value.  */
     virtual void		removeChild(uiTreeItem*);
+    virtual void		removeAllChildren();
 
     virtual const uiTreeItem*	findChild(const char* name) const;
 				/*!<Finds a child in the tree below

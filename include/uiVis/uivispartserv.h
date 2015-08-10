@@ -237,9 +237,12 @@ public:
 			/*!< Get selSpec with getSelSpec */
 
     void		calculateAllAttribs();
+    void		calculateAllAttribs(int);
     bool		calculateAttrib(int id,int attrib,bool newsel,
 					bool ignorelocked=false);
     bool		calcManipulatedAttribs(int id);
+
+    void		movePlaneAndCalcAttribs(int,const TrcKeyZSampling&);
 
     bool		canHaveMultipleTextures(int) const;
     int			nrTextures(int id,int attrib) const;

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 BaseMapObject::BaseMapObject( const char* nm )
     : NamedObject(nm)
     , changed(this)
+    , clicked(this)
     , stylechanged(this)
     , depth_(100)
 {
@@ -35,6 +36,18 @@ void BaseMapObject::getPoints( int, TypeSet<Coord>& ) const
 Alignment BaseMapObject::getAlignment( int shapeidx ) const
 {
     return Alignment();
+}
+
+
+Color BaseMapObject::getColor() const
+{
+    if ( getFillColor(0) != Color::NoColor() )
+	return getFillColor( 0 );
+    else if ( getLineStyle(0) )
+	return getLineStyle(0)->color_;
+    else if ( getMarkerStyle(0) )
+	return getMarkerStyle(0)->color_;
+    return Color::NoColor();
 }
 
 

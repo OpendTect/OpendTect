@@ -475,7 +475,7 @@ void uiPolyLineItem::setPolyLine( type ptlist ) \
 	    path.lineTo( ptlist[idx].x, ptlist[idx].y ); \
     } \
  \
-    qgraphicspath_->setPath( path ); \
+    odgraphicspath_->set( path ); \
 }
 
 mImpSetPolyline( const TypeSet<uiPoint>& )
@@ -484,8 +484,8 @@ mImpSetPolyline( const TypeSet<uiWorldPoint>& )
 
 QGraphicsItem* uiPolyLineItem::mkQtObj()
 {
-    qgraphicspath_ = new QGraphicsPathItem();
-    return qgraphicspath_;
+    odgraphicspath_ = new ODGraphicsPathItem();
+    return odgraphicspath_;
 }
 
 
@@ -567,6 +567,10 @@ ODGraphicsTextItem* uiTextItem::mkODObj()
 
 #define mExtraSpace 10
 
+const uiString uiTextItem::getText() const
+{ return text_; }
+
+
 uiSize uiTextItem::getTextSize() const
 {
     QFontMetrics qfm( qtextitem_->getFont() );
@@ -645,6 +649,95 @@ void uiTextItem::stPos( float x, float y )
 void uiTextItem::setTextColor( const Color& col )
 {
     qtextitem_->setPen( QPen(QColor(col.r(),col.g(), col.b())) );
+}
+
+
+// uiAdvancedTextItem
+uiAdvancedTextItem::uiAdvancedTextItem()
+    : uiGraphicsItem( mkQtObj() )
+{
+}
+
+
+uiAdvancedTextItem::uiAdvancedTextItem( const uiString& txt )
+    : uiGraphicsItem( mkQtObj() )
+{
+    setPlainText( txt );
+}
+
+
+uiAdvancedTextItem::~uiAdvancedTextItem()
+{
+}
+
+
+Color uiAdvancedTextItem::getDefaultTextColor() const
+{
+    QColor qcol = qtextitem_->defaultTextColor();
+    return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
+}
+
+
+uiFont& uiAdvancedTextItem::getFont() const
+{
+    uiFontList fontlist;
+    QFont qfont = qtextitem_->font();
+    return fontlist.getFromQfnt( &qfont );
+}
+
+
+uiString uiAdvancedTextItem::getPlainText() const
+{
+    QString str = qtextitem_->toPlainText();
+    return uiString( str.toStdString().c_str() );
+}
+
+
+float uiAdvancedTextItem::getTextWidth() const
+{ return qtextitem_->textWidth(); }
+
+
+void uiAdvancedTextItem::setDefaultTextColor( const Color& col )
+{
+    QColor qcol( col.r(), col.g(), col.b(), 255-col.t() );
+    qtextitem_->setDefaultTextColor( qcol );
+}
+
+
+void uiAdvancedTextItem::setFont( const uiFont& font )
+{ qtextitem_->setFont( font.qFont() ); }
+
+
+void uiAdvancedTextItem::setPlainText( const uiString& txt )
+{
+    qtextitem_->setPlainText( txt.getQtString() );
+}
+
+
+void uiAdvancedTextItem::setTextWidth( float width )
+{ qtextitem_->setTextWidth( width ); }
+
+
+
+void uiAdvancedTextItem::setTextIteraction( bool yn )
+{
+    if ( yn )
+	qtextitem_->setTextInteractionFlags( Qt::TextEditorInteraction );
+    else
+	qtextitem_->setTextInteractionFlags( Qt::NoTextInteraction );
+}
+
+
+QGraphicsItem* uiAdvancedTextItem::mkQtObj()
+{
+    qtextitem_ = new QGraphicsTextItem();
+    return qtextitem_;
+}
+
+
+void uiAdvancedTextItem::stPos( float x, float y )
+{
+    qtextitem_->setPos( x, y );
 }
 
 

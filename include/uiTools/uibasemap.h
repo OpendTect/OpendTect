@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 
-class uiGraphicsItemGroup;
+class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsView;
 class uiWorld2Ui;
@@ -38,8 +38,8 @@ public:
     virtual void		show(bool yn);
     virtual bool		isShown() const;
 
-    uiGraphicsItemGroup&	itemGrp()		{ return itemgrp_; }
-    const uiGraphicsItemGroup&	itemGrp() const		{ return itemgrp_; }
+    uiGraphicsItem&		graphItem()		{ return graphitem_; }
+    const uiGraphicsItem&	graphItem() const	{ return graphitem_; }
     virtual void		update();
     virtual void		updateStyle();
 
@@ -48,8 +48,9 @@ protected:
 
     void			changedCB(CallBacker*);
     void			changedStyleCB(CallBacker*);
+    void			selCB(CallBacker*);
 
-    uiGraphicsItemGroup&	itemgrp_;
+    uiGraphicsItem&		graphitem_;
     const uiWorld2Ui*		transform_;
 
     bool			changed_;
@@ -66,7 +67,6 @@ public:
     void			setView(const uiWorldRect&);
 
     virtual void		addObject(BaseMapObject*);
-    void			addStaticObject(BaseMapObject*);
     BaseMapObject*		getObject(int id);
 
     bool			hasChanged();
@@ -77,12 +77,10 @@ public:
     void			show(const BaseMapObject&,bool yn);
 
     void			addObject(uiBaseMapObject*);
-				//! object becomes mine, obviously.
-    void			addStaticObject(uiBaseMapObject*);
 
-    const char*			nameOfItemAt(const Geom::Point2D<int>&) const;
+    const char*			nameOfItemAt(const Geom::Point2D<float>&) const;
 
-    uiGraphicsItemGroup&	worldItemGroup()	{ return worlditemgrp_;}
+    uiGraphicsItem&		worldItem()		{ return worlditem_;}
     inline uiGraphicsView&	view()			{ return view_; }
     uiGraphicsScene&		scene();
     inline const uiWorld2Ui&	getWorld2Ui() const	{ return w2ui_; }
@@ -95,8 +93,7 @@ protected:
     int				indexOf(const BaseMapObject*) const;
 
     uiGraphicsView&		view_;
-    uiGraphicsItemGroup&	worlditemgrp_;
-    uiGraphicsItemGroup&	staticitemgrp_;
+    uiGraphicsItem&		worlditem_;
     ObjectSet<uiBaseMapObject>	objects_;
     bool			changed_;
 

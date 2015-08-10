@@ -29,6 +29,7 @@ mFDQtclass(QGraphicsItemGroup)
 mExpClass(uiBase) uiGraphicsItem : public CallBacker
 {
 public:
+			uiGraphicsItem();
 			~uiGraphicsItem();
 
     mQtclass(QGraphicsItem*)	qGraphicsItem()	{ return qgraphicsitem_; }
@@ -38,17 +39,23 @@ public:
     void		show();
     void		hide();
 
+    virtual void	setAcceptHoverEvents(bool);
+    virtual void	setAcceptedMouseButtons(bool);
+    virtual void	setFiltersChildEvents(bool);
     virtual void	setMovable(bool);
     virtual void	setSelectable(bool);
     virtual void	setSelected(bool);
     virtual void	setVisible(bool);
 
+    virtual bool	isAcceptedMouseButtonsEnabled();
+    virtual bool	isFiltersChildEventsEnabled() const;
+    virtual bool	isHoverEventsAccepted() const;
     virtual bool	isMovable() const;
     virtual bool	isSelectable() const;
     virtual bool	isSelected() const		{ return selected_; }
     virtual bool	isVisible() const;
 
-    Geom::Point2D<float>getPos() const;
+    Geom::Point2D<float> getPos() const;
     void		setPos( const uiWorldPoint&);
     void		setPos( const uiPoint& p );
     void		setPos( const Geom::Point2D<float>& );
@@ -59,13 +66,21 @@ public:
     void		setScale(float sx,float sy);
     void		setZValue(int); //<! z value decides the stacking order
 
+
+    uiGraphicsItem*	getChild(int);
+    bool		isPresent(const uiGraphicsItem&) const;
+    int			nrChildren() const;
+    void		removeChild(uiGraphicsItem*,bool withdelete);
+    void		removeAll(bool withdelete);
+    void		addChild(uiGraphicsItem*);
+
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;
     void		setItemIgnoresTransformations(bool);
     virtual uiRect	boundingRect() const;
 
-    virtual void	setPenStyle(const LineStyle&,bool colwithalpha=false);
-    virtual void	setPenColor(const Color&,bool withalpha=false);
-    virtual void	setFillColor(const Color&,bool withalpha=false);
+    virtual void	setPenStyle(const LineStyle&,bool usetransp=false);
+    virtual void	setPenColor(const Color&,bool usetransp=false);
+    virtual void	setFillColor(const Color&,bool usetransp=false);
     virtual void	setFillPattern(const FillPattern&);
     virtual void	setTransparency(float);
 			/*!< To set the overall transparency of graphics item.
@@ -89,6 +104,8 @@ public:
     void		scale(float sx,float sy) { setScale( sx, sy ); }
 
     virtual void	translateText();
+
+    Notifier<uiGraphicsItem> clicked;
 protected:
 
 			uiGraphicsItem(QGraphicsItem*);
@@ -98,10 +115,10 @@ protected:
     virtual mQtclass(QGraphicsItem*) mkQtObj()                  { return 0; }
     bool		selected_; // Remove when things in Qt works
     mQtclass(uiGraphicsScene*)	scene_;
+    ObjectSet<uiGraphicsItem> children_;
 
 private:
 
-			uiGraphicsItem() : id_(0)	{}
     void		updateTransform();
 
     static int		getNewID();

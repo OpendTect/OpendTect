@@ -85,14 +85,14 @@ void ODGraphicsScene::keyPressEvent( QKeyEvent* qkeyevent )
 	uiscene_.ctrlPPressed.trigger();
     else if ( key == OD::C && modifier == OD::ControlButton )
 	uiscene_.ctrlCPressed.trigger();
+    QGraphicsScene::keyPressEvent( qkeyevent );
 }
 
 
 void ODGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent* ev )
 {
     MouseEvent me( OD::ButtonState(ev->modifiers() | ev->buttons()),
-		   mCast(int,ev->pos().x()), mCast(int,ev->pos().y()),
-		   ev->delta() );
+		   (int)ev->pos().x(), (int)ev->pos().y(), ev->delta() );
     uiscene_.getMouseEventHandler().triggerWheel( me );
     ev->accept();
 }
@@ -546,7 +546,7 @@ const uiGraphicsItem* uiGraphicsScene::getItem( int id ) const
 { return const_cast<uiGraphicsScene*>(this)->getItem(id); }
 
 
-uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<int>& pos )
+uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<float>& pos )
 {
     QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x, pos.y );
     if ( !qitm ) return 0;
@@ -562,7 +562,7 @@ uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<int>& pos )
 
 
 const uiGraphicsItem*
-	uiGraphicsScene::itemAt( const Geom::Point2D<int>& pos ) const
+	uiGraphicsScene::itemAt( const Geom::Point2D<float>& pos ) const
 { return const_cast<uiGraphicsScene*>(this)->itemAt( pos ); }
 
 

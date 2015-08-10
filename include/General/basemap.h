@@ -48,9 +48,11 @@ public:
 				    may form a be connected or filled. */
     virtual Alignment		getAlignment(int shapeidx) const;
     virtual float		getTextRotation() const { return 0; }
+    virtual Color		getColor() const;
 
     virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
     virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
+    virtual BufferString	getImageFileName() const	{ return ""; }
 
     virtual void		setLineStyle(int idx,const LineStyle&)	    {}
     virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
@@ -73,8 +75,10 @@ public:
 				/*!<Returns a preview image that has
 				    approximately the size of the specified
 				    diagonal. */
+    virtual bool		allowHoverEvent() const		{ return true; }
 
     Notifier<BaseMapObject>	changed;
+    Notifier<BaseMapObject>	clicked;
     Notifier<BaseMapObject>	stylechanged;
 
 protected:

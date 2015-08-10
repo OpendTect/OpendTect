@@ -410,6 +410,16 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
 }
 
 
+void uiTreeItem::removeAllChildren()
+{
+    mEnabSelChg( false )
+    for ( int idx=0; idx<children_.size(); idx++ )
+	removeItem( children_[idx]->getItem() );
+    deepErase( children_ );
+    mEnabSelChg( true )
+}
+
+
 void uiTreeItem::removeItem( uiTreeViewItem* itm )
 {
     if ( uitreeviewitem_ )

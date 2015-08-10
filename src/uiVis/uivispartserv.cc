@@ -51,6 +51,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismpeseedcatcher.h"
 #include "visobject.h"
 #include "visselman.h"
+#include "visplanedatadisplay.h"
 #include "vispolygonselection.h"
 #include "visscenecoltab.h"
 #include "vissurvobj.h"
@@ -474,9 +475,7 @@ NotifierAccess& uiVisPartServer::removeAllNotifier()
 MultiID uiVisPartServer::getMultiID( int id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) return so->getMultiID();
-
-    return MultiID(-1);
+    return so ? so->getMultiID() : MultiID::udf();
 }
 
 
@@ -1408,6 +1407,22 @@ bool uiVisPartServer::usePar( const IOPar& par )
 }
 
 
+void uiVisPartServer::movePlaneAndCalcAttribs( int id,
+	const TrcKeyZSampling& tkzs )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,getObject(id))
+    if ( !pdd ) return;
+
+    pdd->annotateNextUpdateStage( true );
+    pdd->setTrcKeyZSampling( tkzs );
+    pdd->resetManipulation();
+    pdd->annotateNextUpdateStage( true );
+    calculateAllAttribs( id );
+    pdd->annotateNextUpdateStage( false );
+    triggerTreeUpdate();
+}
+
+
 void uiVisPartServer::calculateAllAttribs()
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
@@ -1417,13 +1432,20 @@ void uiVisPartServer::calculateAllAttribs()
 	for ( int idy=0; idy<children.size(); idy++ )
 	{
 	    const int childid = children[idy];
-	    visBase::DataObject* dobj = visBase::DM().getObject( childid );
-	    mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
-	    if ( !so ) continue;
-	    for ( int attrib=0; attrib<so->nrAttribs(); attrib++ )
-		calculateAttrib( childid, attrib, false, true );
+	    calculateAllAttribs( childid );
 	}
     }
+}
+
+
+void uiVisPartServer::calculateAllAttribs( int id )
+{
+    visBase::DataObject* dobj = visBase::DM().getObject( id );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
+    if ( !so ) return;
+
+    for ( int attrib=0; attrib<so->nrAttribs(); attrib++ )
+	calculateAttrib( id, attrib, false, true );
 }
 
 
