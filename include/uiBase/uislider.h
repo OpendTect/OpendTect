@@ -23,6 +23,7 @@ class LinScaler;
 class uiLabel;
 class uiLineEdit;
 class uiSliderBody;
+class uiSpinBox;
 
 
 mExpClass(uiBase) uiSliderObj : public uiObject
@@ -78,7 +79,7 @@ public:
     void		setValue(int);
     void		setValue(float);
     int			getIntValue() const;
-    float		getValue() const;
+    float		getFValue() const;
     float		editValue() const;
 
     void		setMinValue(float);
@@ -128,6 +129,7 @@ private:
     uiSliderObj*	slider_;
     uiLabel*		lbl_;
     uiLineEdit*		editfld_;
+    uiSpinBox*		inteditfld_;
 
     mutable BufferString result_;
     LinScaler*		scaler_;
@@ -141,6 +143,8 @@ private:
     float		userValue(int) const;
     int			sliderValue(float) const;
 
+public:
+    /*mDeprecated*/ float	getValue() const	{ return getFValue(); }
 };
 
 #endif
