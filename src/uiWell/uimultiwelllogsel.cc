@@ -388,6 +388,7 @@ uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
     , singlewid_(&singlewid)
 {
     init();
+    update();
 }
 
 
