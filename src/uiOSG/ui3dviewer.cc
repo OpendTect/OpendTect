@@ -417,11 +417,15 @@ void ui3DViewerBody::enableThumbWheelHandling( bool yn,
     else if ( view_ && view_->getSceneData() )
     {
 	osgGeo::ThumbWheelEventHandler* handler = 0;
-	osg::NodeCallback* nodecb = view_->getSceneData()->getEventCallback();
-	while ( nodecb && !handler )
+#if OSG_MIN_VERSION_REQUIRED(3,3,2)
+	osg::Callback* cb = view_->getSceneData()->getEventCallback();
+#else
+	osg::NodeCallback* cb = view_->getSceneData()->getEventCallback();
+#endif
+	while ( cb && !handler )
 	{
-	    handler = dynamic_cast<osgGeo::ThumbWheelEventHandler*>( nodecb );
-	    nodecb = nodecb->getNestedCallback();
+	    handler = dynamic_cast<osgGeo::ThumbWheelEventHandler*>( cb );
+	    cb = nodecb->getNestedCallback();
 	}
 
 	if ( handler )

@@ -22,13 +22,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgSim/ColorRange>
 #include <osg/Version>
 
-#if OSG_MIN_VERSION_REQUIRED(3,3,1)
-# include <osgSim/ScalarBar>
-# define mScalarBarType osgSim::ScalarBar
-#else
+// TODO: Wait for OSG to accept Ranojay's submission containing the new class
+// variable osgSim::TextProperties::_font and its handling
+//
+//#if OSG_MIN_VERSION_REQUIRED(3,?,?)
+//# include <osgSim/ScalarBar>
+//# define mScalarBarType osgSim::ScalarBar
+//#else
 # include <osgGeo/ScalarBar>
 # define mScalarBarType osgGeo::ScalarBar
-#endif
+//#endif
 
 #define mScalarBar static_cast<mScalarBarType*>(osgcolorbar_)
 
