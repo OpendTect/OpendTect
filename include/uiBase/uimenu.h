@@ -133,8 +133,8 @@ public:
     void		doIntercept(bool yn,uiAction* activateitm = 0);
 
 			uiMenu(uiParent*,
-                               const uiString& txt=uiString::emptyString(),
-                               const char* iconfilenm=0);
+				const uiString& txt=uiString::emptyString(),
+				const char* iconfilenm=0);
 };
 
 #endif

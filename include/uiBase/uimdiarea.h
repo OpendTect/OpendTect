@@ -24,6 +24,7 @@ class uiMdiAreaBody;
 mFDQtclass(QMdiArea)
 mFDQtclass(QMdiSubWindow)
 
+
 mExpClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
 public:
