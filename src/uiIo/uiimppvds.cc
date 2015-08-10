@@ -148,7 +148,7 @@ bool getLine()
     if ( fd_.bodyinfos_[0]->selection_.isInFile(0)
       && fd_.bodyinfos_[0]->selection_.isInFile(1))
     {
-	coord_.x = getdValue( 0 ); coord_.y = getdValue( 1 );
+	coord_.x = getDValue( 0 ); coord_.y = getDValue( 1 );
 	if ( formOf(false,0) == 1 && coord_.isDefined() )
 	    coord_ = SI().transform(
 				BinID(mNINT32(coord_.x),mNINT32(coord_.y)) );
@@ -160,7 +160,7 @@ bool getLine()
 	coord_ = SI().binID2Coord().transform( Coord(finl,fcrl) );
     }
     if ( fd_.bodyinfos_[1]->selection_.isInFile() )
-	z_ = getfValue( 2 );
+	z_ = getFValue( 2 );
     else
 	z_ = (float) ( zgen_.start + Stats::randGen().get() * zgen_.step );
     if ( is2d_ && fd_.bodyinfos_[2]->selection_.isInFile() )

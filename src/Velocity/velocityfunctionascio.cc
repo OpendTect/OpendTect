@@ -25,7 +25,7 @@ namespace Vel
 
 FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
 			      od_istream& stm,
-       			      od_int64 nrkbytes )
+			      od_int64 nrkbytes )
     : Table::AscIO(fd)
     , strm_(stm)
     , nrdone_( 0 )
@@ -55,7 +55,7 @@ void FunctionAscIO::createDescBody( Table::FormatDesc& fd )
     fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd.bodyinfos_ += new Table::TargetInfo( "Velocity", FloatInpSpec(),
-	   				    Table::Required );
+					    Table::Required );
 }
 
 
@@ -64,7 +64,7 @@ float FunctionAscIO::getUdfVal() const
     if( !getHdrVals(strm_) )
 	return mUdf(float);
 
-    return getfValue( 0 );
+    return getFValue( 0 );
 }
 
 
@@ -98,25 +98,25 @@ int FunctionAscIO::nextStep()
     BinID binid;
     if ( isxy )
     {
-	 const Coord crd( getdValue(0), getdValue(1) );
+	 const Coord crd( getDValue(0), getDValue(1) );
 	 if ( crd == Coord::udf() )
 	     return MoreToDo();
 	binid = SI().transform( crd );
     }
     else
-    { 
+    {
 	binid.inl() = getIntValue(0); binid.crl() = getIntValue(1);
 	if ( binid == BinID::udf() )
 	    return MoreToDo();
     }
 
-    farr[0] = getfValue(2);
-    farr[1] = getfValue(3);
-    farr[2] = output_->nrVals()==3 ? getfValue( 4 ) : mUdf(float);
+    farr[0] = getFValue(2);
+    farr[1] = getFValue(3);
+    farr[2] = output_->nrVals()==3 ? getFValue( 4 ) : mUdf(float);
 
     output_->add( binid, farr );
 
     return MoreToDo();
 }
 
-} //namespace Vel
+} // namespace Vel
