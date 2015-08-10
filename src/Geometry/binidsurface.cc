@@ -416,18 +416,14 @@ bool BinIDSurface::expandWithUdf( const BinID& start, const BinID& stop )
     if ( !newdepths || !newdepths->isOK() )
 	return false;
 
-    for ( int idx=0; newdepths && idx<newnrrows; idx++ )
-    {
-	for ( int idy=0; idy<newnrcols; idy++ )
-	    newdepths->set( idx, idy, mUdf(float) );
-    }
+    newdepths->setAll( mUdf(float) );
 
-    for ( int idx=0; newdepths && idx<oldnrrows; idx++ )
+    for ( int idx=0; idx<oldnrrows; idx++ )
     {
 	for ( int idy=0; idy<oldnrcols; idy++ )
 	{
 	    newdepths->set( idx-startrowidx, idy-startcolidx,
-			    depths_->get( idx, idy ) );
+			    depths_->get(idx,idy) );
 	}
     }
 
