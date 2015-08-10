@@ -627,8 +627,8 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	if ( ret < 0 ) mErrRet(errmsg_)
 	if ( ret == 0 ) break;
 
-	const double xread = getdValue( 0 );
-	const double yread = getdValue( 1 );
+	const double xread = getDValue( 0 );
+	const double yread = getDValue( 1 );
 	if ( mIsUdf(xread) || mIsUdf(yread) ) continue;
 
 	Coord pos( xread, yread );
@@ -646,7 +646,7 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	float zread = constz;
 	if ( iszreq )
 	{
-	    zread = getfValue( 2 );
+	    zread = getFValue( 2 );
 	    if ( mIsUdf(zread) )
 		continue;
 

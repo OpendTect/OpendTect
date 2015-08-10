@@ -132,8 +132,8 @@ bool getLine()
     wcd_.nm_ = text( 0 );
     if ( isXY() )
     {
-	wcd_.coord_.x = getdValue( 1 );
-	wcd_.coord_.y = getdValue( 2 );
+	wcd_.coord_.x = getDValue( 1 );
+	wcd_.coord_.y = getDValue( 2 );
     }
     else
     {
@@ -146,9 +146,9 @@ bool getLine()
       || (wcd_.coord_.x == 0 && wcd_.coord_.y == 0) )
 	return false;
 
-    wcd_.elev_ = getfValue( 3 );
-    wcd_.td_ = getfValue( 4 );
-    wcd_.gl_ = getfValue( 5 );
+    wcd_.elev_ = getFValue( 3 );
+    wcd_.td_ = getFValue( 4 );
+    wcd_.gl_ = getFValue( 5 );
     wcd_.uwi_ = text( 6 );
     return true;
 }

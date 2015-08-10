@@ -249,8 +249,8 @@ int EventAscIO::getNextLine( BinID& bid, int& horid,
     {
 	if ( !getHdrVals(strm_) )
 	    return -1;
-	
-	udfval_ = getfValue( 0 );
+
+	udfval_ = getFValue( 0 );
 	isxy_ = isXY();
 	finishedreadingheader_ = true;
     }
@@ -259,12 +259,12 @@ int EventAscIO::getNextLine( BinID& bid, int& horid,
     if ( ret <= 0 )
 	return ret;
 
-    Coord pos( getdValue(0,udfval_), getdValue(1,udfval_) );
+    Coord pos( getDValue(0,udfval_), getDValue(1,udfval_) );
     bid = isxy_ ? SI().transform( pos )
 		: BinID( mNINT32(pos.x), mNINT32(pos.y) );
     horid = getIntValue( 2, mUdf(od_int16) );
-    offset = getfValue( 3, udfval_ );
-    zval = getfValue( 4, udfval_ );
+    offset = getFValue( 3, udfval_ );
+    zval = getFValue( 4, udfval_ );
     return ret;
 }
 

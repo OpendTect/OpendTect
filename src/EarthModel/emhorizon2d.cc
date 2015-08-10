@@ -720,7 +720,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
 	if ( !getHdrVals(strm_) )
 	    return -1;
 
-	udfval_ = getfValue( 0 );
+	udfval_ = getFValue( 0 );
 	finishedreadingheader_ = true;
     }
 
@@ -728,12 +728,12 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& trcnr,
     if ( ret <= 0 ) return ret;
 
     lnm = text( 0 );
-    crd.x = getdValue( 1 );
-    crd.y = getdValue( 2 );
+    crd.x = getDValue( 1 );
+    crd.y = getDValue( 2 );
     trcnr = getIntValue( 3 );
     const int nrhors = vals_.size() - 4;
     for ( int idx=0; idx<nrhors; idx++ )
-	data += getfValue( idx+4, udfval_ );
+	data += getFValue( idx+4, udfval_ );
 
     return ret;
 }

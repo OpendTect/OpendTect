@@ -64,8 +64,8 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	if ( ret == 0 ) break;
 
 	Coord3 curpos;
-	curpos.x = getdValue(0);
-	curpos.y = getdValue(1);
+	curpos.x = getDValue(0);
+	curpos.y = getDValue(1);
 	if ( !isxy && !mIsUdf(curpos.x) && !mIsUdf(curpos.y) )
 	{
 	    Coord wc( SI().transform(
@@ -75,8 +75,8 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	if ( mIsUdf(curpos.x) || mIsUdf(curpos.y) )
 	    continue;
 
-	curpos.z = getdValue(2);
-	const double dah = getdValue(3);
+	curpos.z = getDValue(2);
+	const double dah = getDValue(3);
 	if ( mIsUdf(curpos.z) && mIsUdf(dah) )
 	{
 	    if ( !nozptsfound )
@@ -349,7 +349,7 @@ bool MarkerSetAscIO::get( od_istream& strm, MarkerSet& ms,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	float dah = mCast( float, getdValue( 0 ) );
+	float dah = mCast( float, getDValue( 0 ) );
 	BufferString namepart = text( 1 );
 	if ( mIsUdf(dah) || namepart.isEmpty() )
 	    continue;
@@ -425,8 +425,8 @@ bool D2TModelAscIO::get( od_istream& strm, D2TModel& d2t,
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	double zval = getdValue( 0 );
-	double tval = getdValue( 1 );
+	double zval = getDValue( 0 );
+	double tval = getDValue( 1 );
 	if ( mIsUdf(zval) || mIsUdf(tval) )
 	    continue;
 	if ( dpthopt == 2 )
@@ -488,10 +488,10 @@ bool BulkTrackAscIO::get( BufferString& wellnm, Coord3& crd, float& md,
     if ( ret <= 0 ) return false;
 
     wellnm = text( 0 );
-    crd.x = getdValue( 1 );
-    crd.y = getdValue( 2 );
-    crd.z = getdValue( 3 );
-    md = getfValue( 4 );
+    crd.x = getDValue( 1 );
+    crd.y = getDValue( 2 );
+    crd.z = getDValue( 3 );
+    md = getFValue( 4 );
     uwi = text( 5 );
     return true;
 }
@@ -532,7 +532,7 @@ bool BulkMarkerAscIO::get( BufferString& wellnm,
     if ( ret <= 0 ) return false;
 
     wellnm = text( 0 );
-    md = getfValue( 1 );
+    md = getFValue( 1 );
     markernm = text( 2 );
     return true;
 }
@@ -578,8 +578,8 @@ bool BulkD2TModelAscIO::get( BufferString& wellnm,
     if ( ret <= 0 ) return false;
 
     wellnm = text( 0 );
-    md = getfValue( 1 );
-    twt = getfValue( 2 );
+    md = getFValue( 1 );
+    twt = getFValue( 2 );
     return true;
 }
 
