@@ -22,11 +22,11 @@ class uiLabel;
 
 
 mExpClass(uiBase) uiSpinBox : public uiObject
-{ mODTextTranslationClass(uiSpinBox);
+{ mODTextTranslationClass(uiSpinBox)
 friend class		uiSpinBoxBody;
 
 public:
-                        uiSpinBox(uiParent*, int nrdecimals=0,
+			uiSpinBox(uiParent*,int nrdecimals=0,
 				  const char* nm="SpinBox");
 			~uiSpinBox();
 
@@ -38,10 +38,13 @@ public:
 
     void		setValue(int);
     void		setValue(float);
-    void		setValue(double d)	{ setValue( ((float)d) ); }
-    void		setValue(const char*); 
-    int			getValue() const;
+    void		setValue(double);
+    void		setValue(const char*);
+
+    int			getIntValue() const;
+    double		getDValue() const;
     float		getFValue() const;
+    bool		getBoolValue() const;
     const char*		text() const;
 
     void		setInterval( int start, int stop, int s=1 )
@@ -68,14 +71,13 @@ public:
 
     void		setMaxValue(int);
     void		setMaxValue(float);
-    void		setMaxValue( double d )	{ setMaxValue( (float)d ); }
+    void		setMaxValue(double);
     int			maxValue() const;
     float		maxFValue() const;
 
     void		setStep(int,bool snap_cur_value=false);
     void		setStep(float,bool snap_cur_value=false);
-    void		setStep( double d, bool scv=false )
-    			{ setStep( ((float)d),scv ); }
+    void		setStep(double d,bool snap_cur_value=false );
     float		fstep() const;
     int			step() const;
 
@@ -110,22 +112,28 @@ private:
     uiSpinBoxBody*	body_;
     uiSpinBoxBody&	mkbody(uiParent*, const char*);
 
-    bool		dosnap_; /*!< If true, value in spinbox will be snapped 
+    bool		dosnap_; /*!< If true, value in spinbox will be snapped
 				  to a value equal to N*step. */
     bool		focuschgtrigger_;
     void		snapToStep(CallBacker*);
+
+public:
+// deprecated, do not use
+    /*mDeprecated*/ int	getValue() const	{ return getIntValue(); }
+    /*mDeprecated*/ float	getfValue() const	{ return getFValue(); }
+    /*mDeprecated*/ double	getdValue() const	{ return getDValue(); }
 };
 
 
 mExpClass(uiBase) uiLabeledSpinBox : public uiGroup
-{ mODTextTranslationClass(uiLabeledSpinBox);
+{ mODTextTranslationClass(uiLabeledSpinBox)
 public:
 			uiLabeledSpinBox(uiParent*,const uiString&,
 					 int nrdecimals=0,const char* nm=0);
 
     uiSpinBox*		box()			{ return sb_; }
     const uiSpinBox*	box() const		{ return sb_; }
-    uiLabel*		label() 		{ return lbl_; }
+    uiLabel*		label()			{ return lbl_; }
 
 protected:
 
