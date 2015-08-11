@@ -69,6 +69,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     , examstyle_(setup.examstyle_)
     , exameditable_(setup.exameditable_)
     , confirmoverwrite_(setup.confirmoverwrite_)
+    , objtype_(setup.objtype_)
 {
     setFileName( setup.fnm );
     setWithSelect( true );
@@ -180,9 +181,17 @@ void uiFileInput::doSelect( CallBacker* )
     const bool usegendlg = selmode_ == uiFileDialog::Directory
 			|| selmode_ == uiFileDialog::DirectoryOnly
 			|| filedlgtype_ == uiFileDialog::Gen;
+    uiString seltyp( usegendlg && selmodset_
+	    && (selmode_ == uiFileDialog::Directory
+	     || selmode_ == uiFileDialog::DirectoryOnly)
+	    ? tr("directory") : tr("file") );
+    uiString capt( forread_ ? tr("Choose input %1 %2")
+			    : tr("Specify output %1 %2" ) );
+    capt.arg( objtype_ ); capt.arg( seltyp );
+
     PtrMan<uiFileDialog> dlg = usegendlg
-	? new uiFileDialog( this, forread_, fname, filter_ )
-	: new uiFileDialog( this, filedlgtype_, fname );
+	? new uiFileDialog( this, forread_, fname, filter_, capt )
+	: new uiFileDialog( this, filedlgtype_, fname, filter_, capt );
 
     dlg->setSelectedFilter( selfltr_ );
     if ( usegendlg )
@@ -192,7 +201,6 @@ void uiFileInput::doSelect( CallBacker* )
 	    dlg->setMode( selmode_ );
     }
     dlg->setConfirmOverwrite( confirmoverwrite_ );
-
 
     if ( !dlg->go() )
 	return;
