@@ -47,7 +47,6 @@ int main( int narg, char** argv )
     {
 	uiFileDialog dlg( 0, uiFileDialog::ExistingFile, 0,
 			  "IV files (*.iv)", "Select file to view" );
-	dlg.setAllowAllExts( true );
 	if ( !dlg.go() )
 	    return 1;
 

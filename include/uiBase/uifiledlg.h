@@ -61,15 +61,16 @@ public:
     Mode		mode() const		{ return mode_; }
 
     void		setSelectedFilter(const char* fltr)
-    			{ selectedfilter_ = fltr; }
+			{ selectedfilter_ = fltr; }
     const char*		selectedFilter() const	{ return selectedfilter_; }
 
     void		setDirectory( const char* dir )
 			{ currentdir_ = dir; }
 
     void		setAllowAllExts( bool yn )	{ addallexts_ = yn; }
+			//!< default true for read, false for write
     void		setConfirmOverwrite( bool yn )
-    			{ confirmoverwrite_ = yn; }
+			{ confirmoverwrite_ = yn; }
 
     void		setDefaultExtension(const char*);
     const char*		getDefaultExtension() const;
@@ -79,17 +80,17 @@ public:
     static const char*	filesep_;
 
     static void		list2String(const BufferStringSet&,
-	    			    BufferString&);
+				    BufferString&);
     static void		string2List(const BufferString&,
-	    			    BufferStringSet&);
+				    BufferStringSet&);
 
 			// To be used by cmddriver to select filename(s)
 			// while closing the QFileDialog
     int			processExternalFilenames(const char* dir=0,
-	    					 const char* filters=0);
+						 const char* filters=0);
     static void		setExternalFilenames(const FileMultiString&);
     static const char*	getExternalFilenamesErrMsg();
-    			// Warning starts with '!'-symbol
+			// Warning starts with '!'-symbol
 
 protected:
 
@@ -106,7 +107,7 @@ protected:
     bool		forread_;
     bool		confirmoverwrite_;
     BufferString	defaultextension_;
-    
+
     static FileMultiString*	externalfilenames_;
     static BufferString		extfilenameserrmsg_;
 

@@ -270,7 +270,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertPixmapItem( impcpd, ascii, mImpPVDSAsciiMnuItm, ascic );
     mInsertPixmapItem( impvelfn, ascii, mImpVelocityAsciiMnuItm, ascic );
     mInsertPixmapItem( imppdf, tr("RokDoc ASCII ..."),
-	    				mImpPDFAsciiMnuItm, ascic );
+					mImpPDFAsciiMnuItm, ascic );
 
     uiMenu* impseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
     mInsertItem( impseissimple, uiStrings::s2D(false), mImpSeisSimple2DMnuItm );
@@ -1301,7 +1301,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mDumpDataPacksMnuItm: {
 	uiFileDialog dlg( &appl_, false, "/tmp/dpacks.txt",
 			  "*.txt", tr("Data pack dump") );
-	dlg.setAllowAllExts( true );
 	if ( dlg.go() )
 	{
 	    od_ostream strm( dlg.fileName() );

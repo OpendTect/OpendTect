@@ -44,7 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seissingtrcproc.h"
 #include "seiswrite.h"
-#include "strmprov.h"
+#include "od_istream.h"
 #include "survgeom.h"
 #include "zdomain.h"
 
@@ -95,16 +95,17 @@ void agSel( CallBacker* )
 
 void readPush( CallBacker* )
 {
-    uiFileDialog dlg( this, true, FilePath(GetDataDir(),"Seismics").fullPath());
+    FilePath fp( GetDataDir(), "Seismics" );
+    uiFileDialog dlg( this, true, fp.fullPath(), uiSEGYFileSpec::fileFilter(),
+	    tr("Read SEG-Y Textual Header from file") );
     if ( !dlg.go() ) return;
 
-    StreamData sd( StreamProvider(dlg.fileName()).makeIStream() );
-    if ( !sd.usable() )
+    od_istream strm( dlg.fileName() );
+    if ( !strm.isOK() )
 	{ uiMSG().error(tr("Cannot open file")); return; }
 
     SEGY::TxtHeader txthdr;
-    sd.istrm->read( (char*)txthdr.txt_, SegyTxtHeaderLength );
-    sd.close();
+    strm.getBin( txthdr.txt_, SegyTxtHeaderLength );
     txthdr.setAscii();
     BufferString txt; txthdr.getText( txt );
     edfld_->setText( txt );
@@ -113,7 +114,8 @@ void readPush( CallBacker* )
 void writePush( CallBacker* )
 {
     FilePath fp( GetDataDir(), "Seismics" );
-    uiFileDialog dlg( this,false, fp.fullPath());
+    uiFileDialog dlg( this,false, fp.fullPath(), 0,
+	    tr("Write SEG-Y Textual Header to a file") );
     if ( !dlg.go() ) return;
 
     fp.set( dlg.fileName() );
@@ -137,6 +139,7 @@ bool acceptOK( CallBacker* )
 
     BufferString&	hdr_;
     bool&		autogen_;
+    const uiString	fdobjtyp_;
 
     uiGenInput*		autogenfld_;
     uiTextEdit*		edfld_;
@@ -293,8 +296,9 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     BufferString txt( "Output (Line name replaces '" );
     txt += uiSEGYFileSpec::sKeyLineNmToken(); txt += "')";
 
-    fnmfld_ = new uiFileInput( this, txt,
-		    uiFileInput::Setup(fp.fullPath()).forread(false) );
+    uiFileInput::Setup fisu( fp.fullPath() );
+    fisu.forread( false ).objtype( tr("SEG-Y") );
+    fnmfld_ = new uiFileInput( this, txt, fisu );
     fnmfld_->attach( alignedBelow, llb );
 }
 

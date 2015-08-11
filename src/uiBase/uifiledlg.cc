@@ -80,7 +80,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 	: mode_(forread ? ExistingFile : AnyFile)
         , forread_( forread )
 	, filter_( fltr )
-	, addallexts_(false)
+	, addallexts_(forread)
 {  mCommon }
 
 
@@ -90,7 +90,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode md,
 	: mode_(md)
         , forread_(true)
 	, filter_(fltr)
-	, addallexts_(false)
+	, addallexts_(true)
 { mCommon }
 
 

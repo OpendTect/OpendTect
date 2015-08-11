@@ -71,7 +71,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, tr("File header information") );
     uiToolButton* savesettb = new uiToolButton( txtgrp, "save",
-					 tr("Save text header to file"),
+					 tr("Save textual header to a file"),
 				         mCB(this,uiSEGYExamine,saveHdr) );
     savesettb->attach( rightBorder );
     txtfld_ = new uiTextEdit( txtgrp, "", true );
@@ -147,7 +147,8 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 {
     if ( !rdr_ ) return;
     uiFileDialog dlg( this, false,
-			FilePath(GetDataDir(),"Seismics").fullPath() );
+		      FilePath(GetDataDir(),"Seismics").fullPath(), 0,
+		      tr("Save SEG-Y Textual Header to") );
     if ( !dlg.go() ) return;
 
     od_ostream strm( dlg.fileName() );
