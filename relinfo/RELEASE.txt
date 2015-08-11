@@ -1,6 +1,42 @@
 OpendTect V5.0.x : Release info
 
 ----
+v5.0.9: August 11, 2015
+ * Fix for crash while duplicating an already existing volume in the tree
+ * Fix for crash while creating Multicube Prestack 3D data
+ * Fix for crash while loading 2D line
+ * Fix for crash while creating new interactive random line
+ * Fix for blank progress window for batch processing if data folder has a
+   space in its name
+ * Disabled displaying duplicate volumes
+ * Displaying only dGB license fields on MAC platform
+ * Fix for reversed axis in 2D viewer
+ * 'Remove Selection' button is active only if the polygon selection
+   tool is active
+ * Fix for freezing of OpendTect after zooming volume and
+   multi-attribute inline
+ * Fix for removing pick using 'Ctrl+Left-mouse-button' while creating
+   new well track
+ * Fix for scene annotation color update
+ * Fix for latitude/longitude to coordinate calculation when survey
+   XY in feet
+ * Fix for saving properties of gather width and view side after clicking on
+  'OK' in PreStack display properties window
+ * Fix for correction of Time-Depth model import
+ * Improved displaying faults using 'on horizons only'
+ * Fix for closing PreStack display properties window(s) after removing
+   PreStack data from scene
+ * Fix for creating volume in selected region using volume builder tool
+ * Fix for updating  grid lines after changed Z-scale
+ * Fix for Random line with preloaded attribute showing wrong texture while
+   pulling down z-dragger
+ * Fix for displaying of wellhead values on 'Edit Well track' window
+ * Fix for displaying flattened 2D at non-zero Z
+ * Fixed layout issue in 'Advanced Parameters' window in Angle Mute computer
+ * Fix for 'Save as' option of stratigraphic levels in Stratigraphic Framework
+ * Fix for reverting back/reset of stratigraphic tree
+ * Fix for lock button in Stratigraphic tree
+
 v5.0.8: June 30, 2015
  * Added tool for editing SEGY file names in SEGYDirect data store
  * Fix for displaying of Pre-stack gathers when no data available
