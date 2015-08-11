@@ -289,10 +289,11 @@ const char* EngineMan::getCurUserRef() const
 
 const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
 {
+    RegularSeisDataPack* output = 0;
     if ( proc.outputs_.size()==1 && !cache_ )
     {
-	RegularSeisDataPack* output =
-	    const_cast<RegularSeisDataPack*>( proc.outputs_[0]->getDataPack() );
+	output = const_cast<RegularSeisDataPack*>(
+			proc.outputs_[0]->getDataPack() );
 	if ( !output )
 	    return 0;
 
@@ -310,11 +311,16 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
     {
 	const RegularSeisDataPack* dp =
 		proc.outputs_[idx] ? proc.outputs_[idx]->getDataPack() : 0;
-	if ( !dp )
-	    continue;
+	if ( !dp ) continue;
 
-	if ( !packset.size() || packset[0]->nrComponents()==dp->nrComponents() )
-	    packset += dp;
+	dpm_.addAndObtain( const_cast<RegularSeisDataPack*>(dp) );
+	if ( packset.size() && packset[0]->nrComponents()!=dp->nrComponents() )
+	{
+	    dpm_.release( dp->id() );
+	    continue;
+	}
+
+	packset += dp;
     }
 
     if ( cache_ )
@@ -323,7 +329,13 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput( const Processor& proc )
 	dpm_.obtain( cache_->id() );
     }
 
-    return !packset.isEmpty() ? getDataPackOutput(packset) : 0;
+    if ( !packset.isEmpty() )
+	output = const_cast<RegularSeisDataPack*>( getDataPackOutput(packset) );
+
+    for ( int idx=packset.size()-1; idx>=0; idx-- )
+	dpm_.release( packset[idx] );
+
+    return output;
 }
 
 
