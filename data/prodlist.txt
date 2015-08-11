@@ -8,7 +8,7 @@ SynthRock`dgbstrat
 Velocity Model Building`dgbvmb
 Workstation Access`arkclswsa
 PDF-3D`dgbpdf3d
-Petrel Direct`dgbpetrel
+PetrelDirect`dgbpetrel
 Seismic Coloured Inversion`arkclssciplugin
 Seismic Spectral Blueing`arkclsssbplugin
 Seismic Feature Enhancement`arkclssfe
