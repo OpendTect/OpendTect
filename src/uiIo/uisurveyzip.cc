@@ -66,12 +66,11 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
 	if ( !uiMSG().askOverwrite(errmsg) )
 	    return false;
     }
-    
+
     BufferString zipfnm( inpfnm );
     if ( zipfnm.isEmpty() || !File::exists(zipfnm) )
     {
 	uiFileDialog fd( par, true, 0, "*.zip", "Select survey zip file" );
-	fd.setAllowAllExts( true );
 	if ( !fd.go() )
 	    return false;
 	zipfnm = fd.fileName();
@@ -115,12 +114,11 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
 	    uiMSG().error( fp.pathOnly(), " is not writable" );
 	    return false;
 	}
-	    
+
     }
     if ( zipfnm.isEmpty() )
     {
 	uiFileDialog fd( par, false, 0,"*.zip","Select output survey zip file");
-	fd.setAllowAllExts( true );
 	if ( !fd.go() )
 	    return false;
 	zipfnm = fd.fileName();

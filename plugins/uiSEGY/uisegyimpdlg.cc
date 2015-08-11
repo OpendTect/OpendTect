@@ -142,8 +142,9 @@ uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
     fp.setFileName( newfnm );
     BufferString txt( "Input ('" ); txt += uiSEGYFileSpec::sKeyLineNmToken();
     txt += "' will become line name)";
-    fnmfld_ = new uiFileInput( this, txt,
-		    uiFileInput::Setup(fp.fullPath()).forread(true) );
+    uiFileInput::Setup fisu( fp.fullPath() );
+    fisu.forread( true ).objtype( tr("SEG-Y") );
+    fnmfld_ = new uiFileInput( this, txt, fisu );
 }
 
 

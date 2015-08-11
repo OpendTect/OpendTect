@@ -221,7 +221,8 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     sep->attach( stretchedBelow, spl );
 
     uiFileInput::Setup fisu( uiFileDialog::Gen );
-    fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( false );
+    fisu.forread( false ).objtype( tr("SEG-Y") )
+	.filter( uiSEGYFileSpec::fileFilter() );
     fnmfld_ = new uiFileInput( this, "Output file", fisu );
     FilePath inpfp( fname_ );
     fnmfld_->setDefaultSelectionDir( inpfp.pathOnly() );

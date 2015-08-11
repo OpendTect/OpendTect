@@ -251,6 +251,7 @@ uiEditSEGYFileDataDlg::uiEditSEGYFileDataDlg( uiParent* p, const IOObj& obj )
 
     dirsel_ = new uiFileInput( this, "New location", fp.pathOnly() );
     dirsel_->setSelectMode( uiFileDialog::Directory );
+    dirsel_->setObjType( tr("Location") );
     dirsel_->valuechanged.notify( mCB(this,uiEditSEGYFileDataDlg,dirSelCB) );
     dirsel_->attach( leftAlignedBelow, lbl );
 
@@ -349,7 +350,7 @@ void uiEditSEGYFileDataDlg::fileSelCB( CallBacker* cb )
     FilePath fp( dirsel_->fileName(), newfnm );
     const bool selexists = File::exists( fp.fullPath() );
     uiFileDialog dlg( this, true, selexists ? fp.fullPath() : 0,
-		      uiSEGYFileSpec::fileFilter() );
+		      uiSEGYFileSpec::fileFilter(), tr("SEG-Y") );
     if ( !selexists )
 	dlg.setDirectory( fp.pathOnly() );
     if ( !dlg.go() )

@@ -63,9 +63,9 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     BufferString disptxt( forread_ ? "Input" : "Output" );
     disptxt += " SEG-Y file";
     if ( needmulti_ ) disptxt += "(s)";
-    fnmfld_ = new uiFileInput( this, disptxt,
-		uiFileInput::Setup(uiFileDialog::Gen)
-		.forread(forread_).filter(fileFilter()) );
+    uiFileInput::Setup fisu( uiFileDialog::Gen );
+    fisu.forread( forread_ ).filter( fileFilter() ).objtype( tr("SEG-Y") );
+    fnmfld_ = new uiFileInput( this, disptxt, fisu );
     BufferString defdir( forread_ ? lastreaddir : lastwritedir );
     if ( defdir.isEmpty() ) defdir = GetDataDir();
     fnmfld_->setDefaultSelectionDir( defdir );
@@ -814,7 +814,7 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 					mCB(this,uiSEGYFileOpts,crdChk) );
 	    coordsfnmfld_ = new uiFileInput( grp, "Name",
 			uiFileInput::Setup(uiFileDialog::Gen)
-			.forread(forread_) );
+			.forread(forread_).objtype("Bend Points") );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsextfld_ = new uiGenInput( grp, tr("Extension"),
 					    StringInpSpec("crd") );
