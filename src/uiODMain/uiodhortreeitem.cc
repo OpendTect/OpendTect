@@ -369,6 +369,9 @@ bool uiODHorizonTreeItem::init()
 	const int nrauxdata = hor3d->auxdata.nrAuxData();
 	for ( int idx=0; idx<nrauxdata; idx++ )
 	{
+	    if ( !hor3d->auxdata.auxDataName(idx) )
+		continue;
+
 	    DataPointSet vals( false, true );
 	    float shift;
 	    applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
