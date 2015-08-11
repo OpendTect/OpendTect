@@ -55,6 +55,7 @@ public:
 	mDefSetupMemb(bool,allowallextensions)	//!< true
 	mDefSetupMemb(bool,confirmoverwrite)	//!< true
 	mDefSetupMemb(uiFileDialog::Type,filedlgtype) //!< Gen
+	mDefSetupMemb(uiString,objtype)		//!< empty
     };
 
 			uiFileInput(uiParent*,const char* seltxt,
@@ -68,6 +69,7 @@ public:
     void		setFilter( const char* fltr )	   { filter_ = fltr; }
     const char*		selectedFilter() const		   { return selfltr_; }
     void		setSelectedFilter( const char* f ) { selfltr_ = f; }
+    void		setObjType( const uiString& s )    { objtype_ = s; }
     void		setExamine( const CallBack& cb )   { excb_ = cb; }
 			//!< Overrules the simple stand-alone file browser
 
@@ -105,6 +107,7 @@ protected:
     bool		confirmoverwrite_;
     CallBack		excb_;
     BufferString	defaultext_;
+    uiString		objtype_;
 
     bool		selmodset_;
     uiFileDialog::Mode  selmode_;
