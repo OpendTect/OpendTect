@@ -633,8 +633,7 @@ void VDA2DBitMapGenerator::fillInterpPars(
 
     if ( storageptr )
     {
-	const Array2DInfo& info = inpdata.info();
-	storageptr += info.getOffset( idim0, idim1 );
+	storageptr += inpdata.info().getOffset( idim0, idim1 );
 #define mGet( i0, i1 ) \
     (idim0+i0)<szdim0_ && (idim0+i0)>=0 && (idim1+i1)<szdim1_ && (idim1+i1)>=0 \
 	? storageptr[i0*szdim1_+i1] : mUdf(float);
@@ -644,9 +643,11 @@ void VDA2DBitMapGenerator::fillInterpPars(
     }
     else if ( storage )
     {
+	const od_int64 offset =
+	    mCast(od_int64,inpdata.info().getOffset(idim0,idim1));
 #define mGet( i0, i1 ) \
     (idim0+i0)<szdim0_ && (idim0+i0)>=0 && (idim1+i1)<szdim1_ && (idim1+i1)>=0 \
-	? storage->value( i0*szdim1_+i1 ) : mUdf(float);
+	? storage->value(offset+i0*szdim1_+i1) : mUdf(float);
 	mGetAll;
 #undef mGet
     }

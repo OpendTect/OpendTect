@@ -183,6 +183,7 @@ uiSeisPreLoadSel( uiParent* p, GeomType geom )
 
     typefld_ = new uiGenInput( this, tr("Load as"),
 		StringListInpSpec(DataCharacteristics::UserTypeNames()) );
+    typefld_->valuechanged.notify( mCB(this,uiSeisPreLoadSel,selChangeCB) );
     typefld_->setValue( (int)DataCharacteristics::Auto );
     typefld_->attach( alignedBelow, scalerfld_ );
 
@@ -197,9 +198,11 @@ uiSeisPreLoadSel( uiParent* p, GeomType geom )
 
 void seisSel( CallBacker* )
 {
-    if ( !seissel_->ioobj() ) return;
+    const IOObj* ioobj = seissel_->ioobj();
+    if ( !ioobj ) return;
 
-    subselfld_->setInput( *seissel_->ioobj() );
+    typefld_->setValue( 0 );
+    subselfld_->setInput( *ioobj );
     updateEstUsage();
 }
 
@@ -210,18 +213,38 @@ void selChangeCB( CallBacker* )
 }
 
 
+void getDataChar( DataCharacteristics& dc )
+{
+    const DataCharacteristics::UserType type( (DataCharacteristics::UserType)
+					       typefld_->getIntValue() );
+    if ( type == DataCharacteristics::Auto )
+    {
+	SeisIOObjInfo info( seissel_->ioobj(true) );
+	info.getDataChar( dc );
+    }
+    else
+	dc = DataCharacteristics( type );
+}
+
+
 void updateEstUsage()
 {
     SeisIOObjInfo info(seissel_->ioobj() );
     const int nrcomp = info.nrComponents();
 
-    BufferString infotxt = "Estimated memory usage: ";
-    int bps = 4;
-    if ( info.getBPS(bps,0) )
+    BufferString infotxt = "Data format on disk: ";
+    if ( nrcomp > 0 )
     {
+	DataCharacteristics dc; info.getDataChar( dc );
+	const FixedString usertypestr =
+	    DataCharacteristics::getUserTypeString( dc.userType() );
+	if ( usertypestr.size() > 4 )
+	    infotxt += usertypestr.buf() + 4;
+
+	infotxt += ". Estimated memory usage: "; getDataChar( dc );
 	const od_int64 nrs = subselfld_->expectedNrSamples();
 	const od_int64 nrt = subselfld_->expectedNrTraces();
-	const od_int64 nrbytes = nrcomp * nrs * nrt * bps;
+	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
 	infotxt.add( File::getFileSizeString( nrbytes/1024 ) );
     }
     else
@@ -233,10 +256,7 @@ void updateEstUsage()
 
 bool acceptOK( CallBacker* )
 {
-    if ( !seissel_->ioobj() )
-	return false;
-
-    return true;
+    return seissel_->ioobj();
 }
 
     uiSeisSel*		seissel_;
@@ -253,16 +273,22 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 
     const IOObj* ioobj = dlg.seissel_->ioobj();
     mCheckIOObjExistance( ioobj );
-    if ( PLDM().isPresent(ioobj->key()) )
+    const MultiID key = ioobj->key();
+    if ( PLDM().isPresent(key) )
     {
-	uiMSG().message( ioobj->name(), " is already preloaded" );
-	return;
+	uiString msg( ioobj->name() );
+	msg.append( " is already preloaded.\nDo you want to reload the cube?" );
+	if ( !uiMSG().askGoOn(msg) ) return;
+
+	PreLoader spl( key );
+	spl.unLoad();
     }
 
     TrcKeyZSampling tkzs; dlg.subselfld_->getSampling( tkzs );
-    PreLoader spl( ioobj->key() );
+    DataCharacteristics dc; dlg.getDataChar( dc );
+    PreLoader spl( key );
     uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
-    if ( !spl.load(tkzs) )
+    if ( !spl.load(tkzs,dc.userType(),dlg.scalerfld_->getScaler()) )
     {
 	const uiString emsg = spl.errMsg();
 	if ( !emsg.isEmpty() )
@@ -278,23 +304,55 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     uiSeisPreLoadSel dlg( this, Line );
     if ( !dlg.go() ) return;
 
-    mCheckIOObjExistance( dlg.seissel_->ioobj() );
+    const IOObj* ioobj = dlg.seissel_->ioobj();
+    mCheckIOObjExistance( ioobj );
 
     mDynamicCastGet(uiSeis2DSubSel*,ss2d,dlg.subselfld_)
     if ( !ss2d ) return;
 
     uiTaskRunner taskrunner( this );
     TrcKeyZSampling tkzs;
+    DataCharacteristics dc; dlg.getDataChar( dc );
     TypeSet<Pos::GeomID> geomids;
     ss2d->selectedGeomIDs( geomids );
+    const MultiID key = dlg.seissel_->key();
+    TypeSet<Pos::GeomID> loadedgeomids;
+    for ( int idx=0; idx<geomids.size(); idx++ )
+	if ( PLDM().isPresent(key,geomids[idx]) )
+	    loadedgeomids += geomids[idx];
+
+    bool skiploadedgeomids = false;
+    if ( !loadedgeomids.isEmpty() )
+    {
+	uiString msg( IOM().nameOf(key) );
+	msg.append( " dataset for " );
+	msg.append( loadedgeomids.size()>1 ? "lines " : "line " );
+	for ( int idx=0; idx<loadedgeomids.size(); idx++ )
+	{
+	    msg.append( Survey::GM().getName(loadedgeomids[idx]) );
+	    if ( idx < loadedgeomids.size()-1 )
+		msg.append( ", " );
+	}
+
+	msg.append( " is already preloaded. Do you want to reload?" );
+	skiploadedgeomids = !uiMSG().askGoOn( msg );
+    }
+
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
 	const Pos::GeomID& geomid = geomids[idx];
+	if ( PLDM().isPresent(key,geomid) )
+	{
+	    if ( skiploadedgeomids ) continue;
+	    PreLoader spl( key, geomid );
+	    spl.unLoad();
+	}
+
 	ss2d->getSampling( tkzs, geomid );
 	tkzs.hsamp_.setLineRange( Interval<int>(geomid,geomid) );
 
-	PreLoader spl( dlg.seissel_->key(), geomid, &taskrunner );
-	if ( !spl.load(tkzs) )
+	PreLoader spl( key, geomid, &taskrunner );
+	if ( !spl.load(tkzs,dc.userType(),dlg.scalerfld_->getScaler()) )
 	{
 	    const uiString emsg = spl.errMsg();
 	    if ( !emsg.isEmpty() )
@@ -419,7 +477,7 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 
-    for ( int idx=0; idx<selitms.size(); idx++ )
+    for ( int idx=selitms.size()-1; idx>=0; idx-- )
     {
 	const int selidx = selitms[idx];
 	PreLoader spl( entries[selidx]->mid_, entries[selidx]->geomid_ );

@@ -96,37 +96,60 @@ bool SeisDataPackZAxisTransformer::doWork(
     ZAxisTransformSampler outputsampler( transform_, true,
 	    SamplingData<double>(zrange_.start, zrange_.step), false );
 
-    Array1DSlice<float> arr1dslice( seisdp->data(0) );
-    arr1dslice.setDimMap( 0, 2 );
-
     for ( int idx=0; idx<outputdp_->nrComponents(); idx++ )
     {
 	for ( int posidx=mCast(int,start); posidx<=mCast(int,stop); posidx++ )
 	{
 	    const int lineidx = posidx / nrtrcs;
 	    const int trcidx = posidx % nrtrcs;
-	    arr1dslice.setPos( 0, lineidx );
-	    arr1dslice.setPos( 1, trcidx );
-	    if ( !arr1dslice.init() )
-		continue;
-
-	    SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
-		    arr1dslice, nrinpsamp, inpzrg.start, inpzrg.step );
-	    inputfunc.setHasUdfs( true );
-	    inputfunc.setInterpolate( interpolate_ );
 
 	    outputsampler.setTrcKey( seisdp->getTrcKey(posidx) );
 	    outputsampler.computeCache( Interval<int>(0,nroutsamp-1) );
 
+	    const Array3D<float>& inputdata = seisdp->data( idx );
 	    Array3D<float>& array = outputdp_->data( idx );
-	    float* dataptr = array.getData();
-	    if ( dataptr )
+	    if ( inputdata.getData() && array.getData() )
 	    {
-		float* arrptr = dataptr + posidx * array.info().getSize(2);
+		SampledFunctionImpl<float,const float*> inputfunc(
+				seisdp->getTrcData(idx,posidx), nrinpsamp,
+				inpzrg.start, inpzrg.step );
+		inputfunc.setHasUdfs( true );
+		inputfunc.setInterpolate( interpolate_ );
+
+		float* arrptr = array.getData() + posidx*nroutsamp;
 		reSample( inputfunc, outputsampler, arrptr, nroutsamp );
+	    }
+	    else if ( inputdata.getStorage() )
+	    {
+		const OffsetValueSeries<float> trcstor(
+				seisdp->getTrcStorage(idx,posidx) );
+		SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
+				trcstor, nrinpsamp, inpzrg.start, inpzrg.step );
+		inputfunc.setHasUdfs( true );
+		inputfunc.setInterpolate( interpolate_ );
+
+		TypeSet<float> trcvals( nroutsamp, mUdf(float) );
+		float* arrptr = trcvals.arr();
+		reSample( inputfunc, outputsampler, arrptr, nroutsamp );
+
+		for ( int zidx=0; zidx<nroutsamp; zidx++ )
+		    array.set( lineidx, trcidx, zidx, trcvals[zidx] );
 	    }
 	    else
 	    {
+		Array1DSlice<float> arr1dslice( seisdp->data(idx) );
+		arr1dslice.setPos( 0, lineidx );
+		arr1dslice.setPos( 1, trcidx );
+		arr1dslice.setDimMap( 0, 2 );
+		if ( !arr1dslice.init() )
+		    continue;
+
+		SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
+				arr1dslice, nrinpsamp, inpzrg.start,
+				inpzrg.step );
+		inputfunc.setHasUdfs( true );
+		inputfunc.setInterpolate( interpolate_ );
+
 		for ( int zidx=0; zidx<nroutsamp; zidx++ )
 		{
 		    const float sampleval = outputsampler[zidx];

@@ -157,10 +157,10 @@ bool SeisTrc2DTranslator::initRead_()
     if ( seldata_ )
 	geomid_ = seldata_->geomID();
 
-    if ( dset.indexOf(geomid_) < 0 )
+    if ( geomid_!=mUdfGeomID && dset.indexOf(geomid_)<0 )
 	{ errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_); return false; }
-    TrcKeyZSampling cs( true );
 
+    TrcKeyZSampling cs( true );
     insd_.start = cs.zsamp_.start; insd_.step = cs.zsamp_.step;
     innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) /
 			  cs.zsamp_.step + 1.5);

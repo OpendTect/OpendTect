@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "datapackbase.h"
 #include "seisinfo.h"
 
+class TrcKeyZSampling;
+
 
 /*!\brief Array2D based on SeisTrcBuf. */
 

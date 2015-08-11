@@ -111,10 +111,8 @@ bool ArrayNDSliceBase::init()
     {
 	bool hasonlyoneslice = true;
 	for ( int dimidx=0; dimidx<ndim; dimidx++ )
-	{
-	    if ( position_[dimidx] != -1 && getDimSize(dimidx) != 1 )
-		hasonlyoneslice = false;
-	}
+	    if ( position_[dimidx]!=-1 && getDimSize(dimidx)!=1 )
+		{ hasonlyoneslice = false; break; }
 
 	if ( hasonlyoneslice )
 	    ismemorder = true;

@@ -133,20 +133,14 @@ void uiSeisSubSel::setInput( const TrcKeyZSampling& cs )
 int uiSeisSubSel::expectedNrSamples() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
-    if ( !pp ) return SI().zRange(false).nrSteps() + 1;
-
-    return pp->estNrZPerPos();
+    return pp ? pp->estNrZPerPos() : 0;
 }
 
 
 int uiSeisSubSel::expectedNrTraces() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
-    mDynamicCastGet( const uiSeis2DSubSel*, ss2d, this )
-    if ( !pp )
-	return ss2d ? 0 : mCast(int, SI().sampling(false).hsamp_.totalNr());
-
-    return mCast( int, pp->estNrPos() );
+    return pp ? mCast(int,pp->estNrPos()) : 0;
 }
 
 
@@ -178,7 +172,6 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	: uiSeisSubSel(p,ss)
 	, multiln_(ss.multiline_)
-	, lineSel(this)
 	, multilnmsel_(0)
 	, singlelnmsel_(0)
 {
@@ -328,6 +321,24 @@ void uiSeis2DSubSel::setSelectedLines( const BufferStringSet& lnms )
 }
 
 
+int uiSeis2DSubSel::expectedNrSamples() const
+{
+    return getZRange().nrSteps() + 1;
+}
+
+
+int uiSeis2DSubSel::expectedNrTraces() const
+{
+    int totalnrtraces = 0;
+    TypeSet<Pos::GeomID> geomids;
+    selectedGeomIDs( geomids );
+    for ( int idx=0; idx<geomids.size(); idx++ )
+	totalnrtraces += getTrcRange(geomids[idx]).nrSteps()+1;
+
+    return totalnrtraces;
+}
+
+
 StepInterval<int> uiSeis2DSubSel::getTrcRange( Pos::GeomID geomid ) const
 {
     StepInterval<int> trcrg = StepInterval<int>::udf();
@@ -386,6 +397,6 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 	}
     }
 
-    lineSel.trigger();
+    selChange.trigger();
 }
 

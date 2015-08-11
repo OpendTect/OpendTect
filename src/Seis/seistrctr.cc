@@ -77,6 +77,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     , is_2d(false)
     , enforce_regular_write( !GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION") )
     , enforce_survinfo_write( GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE") )
+    , geomid_(mUdfGeomID)
     , compnms_(0)
     , warnings_(*new BufferStringSet)
 {

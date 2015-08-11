@@ -205,7 +205,7 @@ void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 						       : (uiGroup*)obj2fld_ );
     mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
     if ( seis2dsubsel )
-	seis2dsubsel->lineSel.notify(mCB(this,uiAttrTrcSelOut,lineSel));
+	seis2dsubsel->selChange.notify(mCB(this,uiAttrTrcSelOut,lineSel));
 }
 
 
