@@ -244,8 +244,7 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 
 IOObj* uiIOSurface::selIOObj() const
 {
-    objfld_->commitInput();
-    return ctio_->ioobj;
+    return const_cast<IOObj*>( objfld_->ioobj(true) );
 }
 
 
@@ -381,14 +380,11 @@ bool uiSurfaceWrite::processInput()
     if ( sectionfld_ && sectionfld_->box()->nrChosen() < 1 )
 	{ uiMSG().error( "Horizon has no patches" ); return false; }
 
-    if ( !objfld_->commitInput() )
-    {
-	if ( objfld_->isEmpty() )
-	    uiMSG().error( "Please select Output" );
-	return false;
-    }
+    const IOObj* ioobj = objfld_->ioobj();
+    if ( ioobj )
+	objfld_->setInputText( ioobj->name() );
 
-    return true;
+    return ioobj;
 }
 
 
