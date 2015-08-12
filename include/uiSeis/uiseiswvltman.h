@@ -18,6 +18,8 @@ class uiWaveletExtraction;
 class uiWaveletDispPropDlg;
 class uiSeisSingleTraceDisplay;
 class uiToolButton;
+class uiFunctionDisplay;
+class Wavelet;
 
 
 mExpClass(uiSeis) uiSeisWvltMan : public uiObjFileMan
@@ -27,20 +29,21 @@ public:
 			~uiSeisWvltMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSeisWvltMan);
-
+    
 protected:
-
-    uiSeisSingleTraceDisplay*	trcdisp_;
+     
     uiWaveletExtraction*	wvltext_;
     uiWaveletDispPropDlg*	wvltpropdlg_;
     uiToolButton*		disppropbut_;
     uiToolButton*		revpolbut_;
     uiToolButton*		rotatephbut_;
     uiToolButton*		taperbut_;
-
+    uiFunctionDisplay*		waveletdisplay_;
+        
     void			addButtons();
     void			mkFileInfo();
     void			ownSelChg();
+    void			dispWavelet(const Wavelet*);
 
     void			closeDlg(CallBacker*);
     void			crPush(CallBacker*);
@@ -57,7 +60,6 @@ protected:
     void			taper(CallBacker*);
     void			updateCB(CallBacker*);
     void			rotUpdateCB(CallBacker*);
+    
 };
-
 #endif
-

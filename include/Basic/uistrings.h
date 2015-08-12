@@ -29,6 +29,7 @@ public:
     static uiString sAddColBlend()	{ return tr("Add Color Blended"); }
     static uiString sAdvanced()		{ return tr("Advanced"); }
     static uiString sAll()		{ return tr("All"); }
+    static uiString sAmplitude()	{ return tr("Amplitude"); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sApply()		{ return tr("Apply"); }
     static uiString sApply(bool)	{ return sApply(); }

@@ -23,9 +23,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "waveletio.h"
 #include "waveletattrib.h"
 
+#include "uiaxishandler.h"
 #include "uibutton.h"
 #include "uitoolbutton.h"
-#include "uiseissingtrcdisp.h"
+#include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjmanip.h"
@@ -70,11 +71,15 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 				     mCB(this,uiSeisWvltMan,taper) );
     addButtons();
 
-    trcdisp_ = new uiSeisSingleTraceDisplay( listgrp_ );
-    trcdisp_->setPrefWidth( 100 );
-    trcdisp_->attach( ensureRightOf, selgrp_ );
-    trcdisp_->setStretch( 1, 2 );
-
+    uiFunctionDisplay::Setup fdsu;
+    fdsu.drawborder( true );
+    waveletdisplay_ = new uiFunctionDisplay(listgrp_, fdsu);
+    waveletdisplay_->setPrefWidth( 400 );
+    waveletdisplay_->attach( ensureRightOf, selgrp_ );
+    const BufferString ztxt( "Z ", SI().getZUnitString() );
+    waveletdisplay_->xAxis()->setCaption( ztxt );
+    waveletdisplay_->yAxis(false)->setCaption( uiStrings::sAmplitude() );
+     	      
     selChg( this );
     mTriggerInstanceCreatedNotifier();
     windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
@@ -218,10 +223,10 @@ void uiSeisWvltMan::mkFileInfo()
 {
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
-    trcdisp_->setData( wvlt );
-
+      
     if ( wvlt )
     {
+	dispWavelet( wvlt );
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
 	WaveletAttrib wvltattrib( *wvlt );
 
@@ -375,6 +380,16 @@ void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
     const Wavelet* wvlt = dlg->getWavelet();
     if ( !wvlt ) mErr();
 
-    trcdisp_->setData( wvlt );
+    dispWavelet( wvlt );
 }
 
+
+void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
+{
+    const int wvltsz = wvlt->size();
+    const float zfac = mCast(float,SI().zDomain().userFactor());
+    StepInterval<float> intxval; 
+    intxval.setFrom( wvlt->samplePositions() );
+    intxval.scale( zfac );
+    waveletdisplay_->setVals( intxval, wvlt->samples() , wvltsz );  
+}
