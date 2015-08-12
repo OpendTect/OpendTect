@@ -110,9 +110,9 @@ bool SeisDataPackZAxisTransformer::doWork(
 	    Array3D<float>& array = outputdp_->data( idx );
 	    if ( inputdata.getData() && array.getData() )
 	    {
+		const float* trcptr = seisdp->getTrcData( idx, posidx );
 		SampledFunctionImpl<float,const float*> inputfunc(
-				seisdp->getTrcData(idx,posidx), nrinpsamp,
-				inpzrg.start, inpzrg.step );
+				trcptr, nrinpsamp, inpzrg.start, inpzrg.step );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( interpolate_ );
 
@@ -123,7 +123,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 	    {
 		const OffsetValueSeries<float> trcstor(
 				seisdp->getTrcStorage(idx,posidx) );
-		SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
+		SampledFunctionImpl<float,const ValueSeries<float> > inputfunc(
 				trcstor, nrinpsamp, inpzrg.start, inpzrg.step );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( interpolate_ );
@@ -144,7 +144,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 		if ( !arr1dslice.init() )
 		    continue;
 
-		SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
+		SampledFunctionImpl<float,const ValueSeries<float> > inputfunc(
 				arr1dslice, nrinpsamp, inpzrg.start,
 				inpzrg.step );
 		inputfunc.setHasUdfs( true );
