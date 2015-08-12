@@ -242,10 +242,9 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 }
 
 
-IOObj* uiIOSurface::selIOObj() const
+const IOObj* uiIOSurface::selIOObj() const
 {
-    objfld_->commitInput();
-    return ctio_->ioobj;
+    return objfld_->ioobj( true );
 }
 
 
@@ -353,7 +352,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
     }
 
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
-	mkObjFld( tr("Output Stickset") );
+	mkObjFld( tr("Output FaultStickSet") );
     else
 	mkObjFld( tr("Output %1").arg( setup.typname_ ) );
 
@@ -381,14 +380,11 @@ bool uiSurfaceWrite::processInput()
     if ( sectionfld_ && sectionfld_->box()->nrChosen() < 1 )
 	{ uiMSG().error( tr("Horizon has no patches") ); return false; }
 
-    if ( !objfld_->commitInput() )
-    {
-	if ( objfld_->isEmpty() )
-	    uiMSG().error( tr("Please select Output") );
-	return false;
-    }
+    const IOObj* ioobj = objfld_->ioobj();
+    if ( ioobj )
+	objfld_->setInputText( ioobj->name() );
 
-    return true;
+    return ioobj;
 }
 
 

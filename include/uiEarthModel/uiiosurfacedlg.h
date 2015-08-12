@@ -42,7 +42,7 @@ public:
 
     void		getSelection(EM::SurfaceIODataSelection&);
     bool		replaceInTree() const;
-    IOObj*		ioObj() const;
+    const IOObj*	ioObj() const;
 
 protected:
     uiSurfaceWrite*	iogrp_;
@@ -57,7 +57,7 @@ mExpClass(uiEarthModel) uiReadSurfaceDlg : public uiDialog
 public:
 			uiReadSurfaceDlg(uiParent*,const char* type);
 
-    IOObj*		ioObj() const;
+    const IOObj*	ioObj() const;
     void		getSelection(EM::SurfaceIODataSelection&);
 
 protected:

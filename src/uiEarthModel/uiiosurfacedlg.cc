@@ -70,7 +70,7 @@ void uiWriteSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 }
 
 
-IOObj* uiWriteSurfaceDlg::ioObj() const
+const IOObj* uiWriteSurfaceDlg::ioObj() const
 {
     return iogrp_->selIOObj();
 }
@@ -97,7 +97,7 @@ bool uiReadSurfaceDlg::acceptOK( CallBacker* )
 }
 
 
-IOObj* uiReadSurfaceDlg::ioObj() const
+const IOObj* uiReadSurfaceDlg::ioObj() const
 {
     return iogrp_->selIOObj();
 }
