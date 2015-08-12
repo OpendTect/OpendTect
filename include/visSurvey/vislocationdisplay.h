@@ -34,8 +34,8 @@ class Sower;
   shapes ++.
 */
 
-mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl,
-			 public visSurvey::SurveyObject
+mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl
+				     , public visSurvey::SurveyObject
 {
     friend class Sower;
 
@@ -53,8 +53,8 @@ public:
     void			fullRedraw(CallBacker* =0);
     void			showAll(bool yn);
     bool			allShown() const	{ return showall_; }
-    
- 
+
+
     virtual BufferString	getManipulationString() const;
     void			getMousePosInfo(const visBase::EventInfo& ei,
 	    					IOPar& iop ) const
