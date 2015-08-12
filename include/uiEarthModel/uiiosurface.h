@@ -44,7 +44,7 @@ mExpClass(uiEarthModel) uiIOSurface : public uiGroup
 public:
 			~uiIOSurface();
 
-    IOObj*		selIOObj() const;
+    const IOObj*	selIOObj() const;
     void		getSelection(EM::SurfaceIODataSelection&) const;
     void		getSelAttributes( BufferStringSet&) const;
     void		setInput(const MultiID&) const;
