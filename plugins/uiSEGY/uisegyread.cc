@@ -131,7 +131,7 @@ void uiSEGYRead::use( const IOObj* ioobj, bool force )
 {
     if ( !ioobj ) return;
 
-    SEGY::FileReadOpts::shallowClear( pars_ );
+    FileReadOpts::shallowClear( pars_ );
     pars_.merge( ioobj->pars() );
     SeisIOObjInfo oinf( ioobj );
     if ( oinf.isOK() )
@@ -143,15 +143,15 @@ void uiSEGYRead::fillPar( IOPar& iop ) const
 {
     iop.merge( pars_ );
     if ( rev_ == Rev0 )
-	iop.setYN( SEGY::FilePars::sKeyForceRev0(), true );
+	iop.setYN( FilePars::sKeyForceRev0(), true );
 }
 
 
 void uiSEGYRead::usePar( const IOPar& iop )
 {
-    SEGY::FileReadOpts::shallowClear( pars_ );
+    FileReadOpts::shallowClear( pars_ );
     pars_.merge( iop );
-    rev_ = iop.isTrue( SEGY::FilePars::sKeyForceRev0() ) ? Rev0 : Rev1;
+    rev_ = iop.isTrue( FilePars::sKeyForceRev0() ) ? Rev0 : Rev1;
 }
 
 
@@ -178,7 +178,7 @@ void uiSEGYRead::writeReq( CallBacker* cb )
     fillPar( ioobj->pars() );
     ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
     ioobj->pars().removeWithKey( sKey::Geometry() );
-    SEGY::FileSpec::ensureWellDefined( *ioobj );
+    FileSpec::ensureWellDefined( *ioobj );
     IOM().commitChanges( *ioobj );
 }
 
@@ -206,7 +206,7 @@ void uiSEGYRead::readReq( CallBacker* cb )
 	rddlg->use( ioobj, false );
     else
     {
-	SEGY::FileReadOpts::shallowClear( pars_ );
+	FileReadOpts::shallowClear( pars_ );
 	pars_.merge( ioobj->pars() );
 	defdlg_->use( ioobj, false );
     }
@@ -231,7 +231,7 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     nrtrcsfld_->setWithCheck( true );
     nrtrcsfld_->setChecked( true );
 
-    SEGY::FileSpec fs; fs.usePar( pars );
+    FileSpec fs; fs.usePar( pars );
     BufferString fnm( fs.fileName() );
     fnm.replace( '*', 'x' );
     FilePath fp( fnm ); fp.setExtension( "txt" );

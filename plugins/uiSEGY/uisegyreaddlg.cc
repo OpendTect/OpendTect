@@ -126,7 +126,7 @@ bool uiSEGYReadDlg::acceptOK( CallBacker* )
     if ( !getParsFromScreen(false) )
 	return false;
 
-    SEGY::FileSpec fs; fs.usePar( pars_ );
+    FileSpec fs; fs.usePar( pars_ );
     PtrMan<IOObj> inioobj = fs.getIOObj( true );
     if ( !inioobj )
     {
@@ -134,7 +134,7 @@ bool uiSEGYReadDlg::acceptOK( CallBacker* )
 	return false;
     }
     inioobj->pars() = pars_;
-    SEGY::FileSpec::ensureWellDefined( *inioobj );
+    FileSpec::ensureWellDefined( *inioobj );
 
     return doWork( *inioobj );
 }

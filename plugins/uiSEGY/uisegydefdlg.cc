@@ -153,7 +153,7 @@ void uiSEGYDefDlg::usePar( const IOPar& iop )
 {
     if ( &iop != &pars_ )
     {
-	SEGY::FileReadOpts::shallowClear( pars_ );
+	FileReadOpts::shallowClear( pars_ );
 	pars_.merge( iop );
     }
     filespecfld_->usePar( pars_ );
