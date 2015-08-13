@@ -73,6 +73,7 @@ public:
 
     bool			canDuplicate() const		{ return true; }
     SurveyObject*		duplicate(TaskRunner*) const;
+    MultiID			getMultiID() const;
 
     bool			allowMaterialEdit() const { return true; }
 

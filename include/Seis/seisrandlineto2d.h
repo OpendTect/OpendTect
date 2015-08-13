@@ -29,7 +29,7 @@ namespace Seis { class TableSelData; }
 namespace Geometry { class RandomLine; }
 
 mExpClass(Seis) SeisRandLineTo2D : public Executor
-{ mODTextTranslationClass(SeisRandLineTo2D);
+{ mODTextTranslationClass(SeisRandLineTo2D)
 public:
     			SeisRandLineTo2D(const IOObj&,const IOObj&,
 					 const Pos::GeomID, int trcinit,
@@ -61,9 +61,10 @@ private:
 
 
 mExpClass(Seis) SeisRandLineTo2DGrid
-{ mODTextTranslationClass(SeisRandLineTo2DGrid);
+{ mODTextTranslationClass(SeisRandLineTo2DGrid)
 public:
-    			SeisRandLineTo2DGrid(const IOPar&,od_ostream&);
+			SeisRandLineTo2DGrid(const IOPar&,od_ostream&);
+			~SeisRandLineTo2DGrid();
 
     bool		isOK()			{ return isok_; }
     bool		createGrid();
@@ -90,7 +91,7 @@ protected:
     BufferString	perprefix_;
     double		gridspacing_;
 
-    Geometry::RandomLine rln_;
+    Geometry::RandomLine& rln_;
 
     bool		mk2DLines(const Geometry::RandomLineSet&,bool);
 };
