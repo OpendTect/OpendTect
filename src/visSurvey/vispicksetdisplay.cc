@@ -132,7 +132,7 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
     markerset_->setPos( idx, loc.pos_, false );
     if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow ||
 	 set_->disp_.markertype_ == MarkerStyle3D::Plane )
-	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
+    	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
 
     if ( needLine() )
 	setPolylinePos( idx, loc.pos_ );
@@ -370,7 +370,7 @@ bool PickSetDisplay::setBodyDisplay()
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	picks += (*set_)[idx].pos_;
-	if ( datatransform_ )
+    	if ( datatransform_ )
 	    picks[idx].z = datatransform_->transformBack( picks[idx] );
     }
 

@@ -44,7 +44,7 @@ MultiTextureSurveyObject::MultiTextureSurveyObject()
     channels_->setChannels2RGBA( visBase::ColTabTextureChannel2RGBA::create() );
 
     channels_->enableTextureInterpolation( enabletextureinterp_ );
-	
+
     getMaterial()->setColor( Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.8 );
@@ -65,7 +65,7 @@ bool MultiTextureSurveyObject::init()
 {
     resolution_ = SettingsAccess().getDefaultTexResFactor( nrResolutions() );
     return addAttrib();
-} 
+}
 
 
 void MultiTextureSurveyObject::allowShading( bool yn )
@@ -100,8 +100,8 @@ MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 
     return channels_->setChannels2RGBA(t);
 }
-    
-    
+
+
 visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannels2RGBA()
 {
     return channels_ ? channels_->getChannels2RGBA() : 0;
@@ -298,7 +298,7 @@ void MultiTextureSurveyObject::setAngleFlag( int attrib, bool yn )
 }
 
 
-bool MultiTextureSurveyObject::isAttribEnabled( int attrib ) const 
+bool MultiTextureSurveyObject::isAttribEnabled( int attrib ) const
 {
     return channels_->getChannels2RGBA()->isEnabled( attrib );
 }
@@ -318,14 +318,14 @@ bool MultiTextureSurveyObject::canDisplayInteractively(
 			    !channels_->getChannels2RGBA()->usesShading() )
 	return false;
 
-     for ( int attrib=0; attrib<nrAttribs(); attrib++ )
-     {
-	 const BinDataDesc* bdd = as_[attrib]->getPreloadDataDesc();
-	 if ( !bdd || resolution_>0 )
-	     return false;
-     }
+    for ( int attrib=0; attrib<nrAttribs(); attrib++ )
+    {
+	const BinDataDesc* bdd = as_[attrib]->getPreloadDataDesc();
+	if ( !bdd || resolution_>0 )
+	    return false;
+    }
 
-     return true;
+    return true;;
 }
 
 
@@ -431,7 +431,7 @@ void MultiTextureSurveyObject::selectTexture( int attrib, int idx )
 
 
 int MultiTextureSurveyObject::selectedTexture( int attrib ) const
-{ 
+{
     if ( attrib<0 || attrib>=nrAttribs() ) return 0;
 
     return channels_->currentVersion( attrib );
@@ -472,7 +472,7 @@ void MultiTextureSurveyObject::fillPar( IOPar& par ) const
 		       getAttribTransparency( attrib ) );
 	attribpar.setYN( visBase::VisualObjectImpl::sKeyIsOn(),
 			 isAttribEnabled( attrib ) );
-	    	     
+
 	BufferString key = sKeyAttribs();
 	key += attrib;
 	par.mergeComp( attribpar, key );
@@ -531,7 +531,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 
 	    islowest = false;
 	    break;
-	}    
+	}
 
 	if ( !islowest )
 	{

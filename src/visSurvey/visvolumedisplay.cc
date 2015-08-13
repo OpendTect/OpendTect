@@ -1053,9 +1053,9 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( !res )
     {
 	dpm.release( dpid );
-	return false;
+	return false; 
     }
-
+    
     dpm.release( attribs_[attrib]->cache_->id() );
     attribs_[attrib]->cache_ = cdp;
     return true;

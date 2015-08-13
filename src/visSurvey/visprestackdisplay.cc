@@ -642,9 +642,15 @@ void PreStackDisplay::sectionMovedCB( CallBacker* )
     else
     {
 	if ( section_->getOrientation() == OD::InlineSlice )
-	    newpos.inl() = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.inl();
+	{
+	    newpos.inl() =
+		section_->getTrcKeyZSampling( -1 ).hsamp_.start_.inl();
+	}
 	else if ( section_->getOrientation() == OD::CrosslineSlice )
-	    newpos.crl() = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.crl();
+	{
+	    newpos.crl() =
+		section_->getTrcKeyZSampling( -1 ).hsamp_.start_.crl();
+	}
 	else
 	    return;
     }
