@@ -357,7 +357,7 @@ void RandomLineSet::getGeometry( const MultiID& rdlsid, TypeSet<BinID>& knots,
 RandomLineManager& RLM()
 {
     mDefineStaticLocalObject( PtrMan<RandomLineManager>, mgr,
-			      (new RandomLineManager) )
+			      (new RandomLineManager) );
     return *mgr;
 }
 

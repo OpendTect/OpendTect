@@ -144,7 +144,7 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 
     for ( int iln=0; iln<nrlines; iln++ )
     {
-	Geometry::RandomLine* rl = new Geometry::RandomLine;
+	RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
 	if ( !issimple )
 	    getZRgAndName( astrm, zrg, rlnm );
 	rl->setZRange( zrg ); rl->setName( rlnm );
@@ -162,12 +162,7 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	    astrm.next();
 	}
 
-	if ( rl->nrNodes() < 2 )
-	{
-	    rl->ref();
-	    rl->unRef();
-	}
-	else
+	if ( rl->nrNodes() > 1 )
 	    rdls.addLine( *rl );
 
 	astrm.next();
