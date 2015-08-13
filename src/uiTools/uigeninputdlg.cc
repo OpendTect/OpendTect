@@ -74,10 +74,10 @@ const char* uiGenInputGrp::text( int idx )
 { return flds[idx]->text( 0 ); }
 int uiGenInputGrp::getIntValue( int idx )
 { return flds[idx]->getIntValue( 0 ); }
-float uiGenInputGrp::getfValue( int idx )
-{ return flds[idx]->getfValue( 0 ); }
-double uiGenInputGrp::getdValue( int idx )
-{ return flds[idx]->getdValue( 0 ); }
+float uiGenInputGrp::getFValue( int idx )
+{ return flds[idx]->getFValue( 0 ); }
+double uiGenInputGrp::getDValue( int idx )
+{ return flds[idx]->getDValue( 0 ); }
 bool uiGenInputGrp::getBoolValue( int idx )
 { return flds[idx]->getBoolValue( 0 ); }
 
@@ -134,10 +134,10 @@ const char* uiGenInputDlg::text( int idx )
 { return group->text(idx); }
 int uiGenInputDlg::getIntValue( int idx )
 { return group->getIntValue( idx ); }
-float uiGenInputDlg::getfValue( int idx )
-{ return group->getfValue( idx ); }
-double uiGenInputDlg::getdValue( int idx )
-{ return group->getdValue( idx ); }
+float uiGenInputDlg::getFValue( int idx )
+{ return group->getFValue( idx ); }
+double uiGenInputDlg::getDValue( int idx )
+{ return group->getDValue( idx ); }
 bool uiGenInputDlg::getBoolValue( int idx )
 { return group->getBoolValue( idx ); }
 

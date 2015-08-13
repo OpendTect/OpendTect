@@ -103,58 +103,58 @@ Returns true, if changes are accepted.
     bool		isUndef( int nr=0 ) const;
 
 #undef mDeclArgs
-#define mDeclArgs(type)	int nr=0, type undefVal=mUdf(type)
+#define mDeclArgs(type)	int nr=0, type undefval=mUdf(type)
 
     const char*		text( mDeclArgs(const char*) ) const;
-    const char*		text( const char* undefVal)  const
-			    { return text(0,undefVal); }
+    const char*		text( const char* undefval)  const
+			    { return text(0,undefval); }
 
     int			getIntValue( mDeclArgs(int) ) const;
     bool		getBoolValue( mDeclArgs(bool) ) const;
 
-    double		getdValue( mDeclArgs(double) ) const;
-    double		getdValue( double undefVal ) const
-			    { return getdValue(0,undefVal) ; }
+    double		getDValue( mDeclArgs(double) ) const;
+    double		getDValue( double undefval ) const
+			    { return getDValue(0,undefval) ; }
 
-    float		getfValue( mDeclArgs(float) ) const;
-    float		getfValue( float undefVal ) const
-			    { return getfValue(0,undefVal); }
+    float		getFValue( mDeclArgs(float) ) const;
+    float		getFValue( float undefval ) const
+			    { return getFValue(0,undefval); }
 
     inline Interval<int> getIInterval( mDeclArgs(int) ) const
-			{ return Interval<int>( getIntValue(nr*2,undefVal),
-						getIntValue(nr*2+1,undefVal) );}
+			{ return Interval<int>( getIntValue(nr*2,undefval),
+						getIntValue(nr*2+1,undefval) );}
 
     inline Interval<float> getFInterval( mDeclArgs(float) ) const
-			{ return Interval<float>( getfValue(nr*2,undefVal),
-						  getfValue(nr*2+1,undefVal) );}
-    inline Interval<float> getFInterval( float undefVal ) const
-			{ return getFInterval(0,undefVal); }
+			{ return Interval<float>( getFValue(nr*2,undefval),
+						  getFValue(nr*2+1,undefval) );}
+    inline Interval<float> getFInterval( float undefval ) const
+			{ return getFInterval(0,undefval); }
 
     inline Interval<double> getDInterval( mDeclArgs(double) ) const
-			{ return Interval<double>(getdValue(nr*2,undefVal),
-						  getdValue(nr*2+1,undefVal) );}
-    inline Interval<double> getDInterval( double undefVal ) const
-			{ return getDInterval(0,undefVal); }
+			{ return Interval<double>(getDValue(nr*2,undefval),
+						  getDValue(nr*2+1,undefval) );}
+    inline Interval<double> getDInterval( double undefval ) const
+			{ return getDInterval(0,undefval); }
 
     inline StepInterval<int> getIStepInterval( mDeclArgs(int) ) const
-			{ return StepInterval<int>(getIntValue(nr*3,undefVal),
-						   getIntValue(nr*3+1,undefVal),
-						   getIntValue(nr*3+2,undefVal)
+			{ return StepInterval<int>(getIntValue(nr*3,undefval),
+						   getIntValue(nr*3+1,undefval),
+						   getIntValue(nr*3+2,undefval)
 						   ); }
     inline StepInterval<float> getFStepInterval( mDeclArgs(float) ) const
-			{ return StepInterval<float>(getfValue(nr*3,undefVal),
-						     getfValue(nr*3+1,undefVal),
-						     getfValue(nr*3+2,undefVal)
+			{ return StepInterval<float>(getFValue(nr*3,undefval),
+						     getFValue(nr*3+1,undefval),
+						     getFValue(nr*3+2,undefval)
 						    ); }
-    inline StepInterval<float> getFStepInterval( float undefVal ) const
-			{ return getFStepInterval(0,undefVal); }
+    inline StepInterval<float> getFStepInterval( float undefval ) const
+			{ return getFStepInterval(0,undefval); }
 
     inline StepInterval<double> getDStepInterval( mDeclArgs(double) ) const
-			{ return StepInterval<double>(getdValue(nr*3,undefVal),
-						 getdValue(nr*3+1,undefVal),
-						 getdValue(nr*3+2,undefVal) ); }
-    inline StepInterval<double> getDStepInterval( double undefVal ) const
-			{ return getDStepInterval(0,undefVal); }
+			{ return StepInterval<double>(getDValue(nr*3,undefval),
+						 getDValue(nr*3+1,undefval),
+						 getDValue(nr*3+2,undefval) ); }
+    inline StepInterval<double> getDStepInterval( double undefval ) const
+			{ return getDStepInterval(0,undefval); }
 
     Coord		getCoord( mDeclArgs(double) ) const;
     BinID		getBinID( mDeclArgs(int) ) const;
@@ -217,6 +217,7 @@ Returns true, if changes are accepted.
 			{ selText_ = yn ? "&Select" : "" ; }
 
     void		setNrDecimals(int nrdec,int fldnr=0);
+    void		setRequired(bool yn=true);
 
     Notifier<uiGenInput> checked;
     Notifier<uiGenInput> valuechanging;
@@ -232,15 +233,16 @@ protected:
 
     uiString		selText_;
     bool		withchk_;
+    bool		isrequired_;
 
     uiLabel*		labl_;
     uiString		titletext_;
     uiCheckBox*		cbox_;
     uiButton*		selbut_;
 
-                        //! Select is pressed. Calls virtual doSelect
+			//! Select is pressed. Calls virtual doSelect
     void		doSelect_(CallBacker*);
-                        //! Select is pressed. Called by doSelect_
+			//! Select is pressed. Called by doSelect_
     virtual void	doSelect(CallBacker*)   {}
     void		doClear(CallBacker*);
 
@@ -269,6 +271,15 @@ private:
     DataInpSpec*	getInputSpecAndIndex(const int,int&) const;
     uiGenInputInputFld*	getInputFldAndIndex(const int,int&) const;
 
+public:
+    /*mDeprecated*/ double getdValue( int nr=0, double uv=mUdf(double) ) const
+			    { return getDValue( nr, uv ); }
+    /*mDeprecated*/ double getdValue( float undefval ) const
+			    { return getDValue(0,undefval); }
+    /*mDeprecated*/ float getfValue( int nr=0, float udfval=mUdf(float) ) const
+			    { return getFValue( nr, udfval ); }
+    /*mDeprecated*/ float getfValue( float undefval ) const
+			    { return getFValue(0,undefval); }
 };
 
 

@@ -39,7 +39,7 @@ public:
 
 
 mExpClass(uiTools) uiGenInputGrp : public uiGroup
-{ mODTextTranslationClass(uiGenInputGrp);
+{ mODTextTranslationClass(uiGenInputGrp)
 public:
 			uiGenInputGrp(uiParent*,const char* grpname,
 					uiString fldtxt,DataInpSpec* s=0);
@@ -51,8 +51,8 @@ public:
 
     const char*		text(int i=0);
     int			getIntValue(int i=0);
-    float		getfValue(int i=0);
-    double		getdValue(int i=0);
+    float		getFValue(int i=0);
+    double		getDValue(int i=0);
     bool		getBoolValue(int i=0);
 
     int			nrFlds() const		{ return flds.size(); }
@@ -74,6 +74,9 @@ private:
 
     void		build();
 
+public:
+    /*mDeprecated*/ float	getfValue(int i=0)	{ return getFValue(i); }
+    /*mDeprecated*/ double	getdValue(int i=0)	{ return getDValue(i); }
 };
 
 
@@ -81,7 +84,7 @@ private:
 /*!\brief dialog with only uiGenInputs */
 
 mExpClass(uiTools) uiGenInputDlg : public uiDialog
-{ mODTextTranslationClass(uiGenInputDlg);
+{ mODTextTranslationClass(uiGenInputDlg)
 public:
 			uiGenInputDlg(uiParent*,const uiString& dlgtitle,
 					uiString fldtxt,DataInpSpec* s=0);
@@ -93,8 +96,8 @@ public:
 
     const char*		text(int i=0);
     int			getIntValue(int i=0);
-    float		getfValue(int i=0);
-    double		getdValue(int i=0);
+    float		getFValue(int i=0);
+    double		getDValue(int i=0);
     bool		getBoolValue(int i=0);
 
     int			nrFlds() const;
@@ -104,8 +107,10 @@ protected:
     void		setEnterClose(CallBacker*);
     bool		acceptOK(CallBacker*);
     uiGenInputGrp*	group;
+
+public:
+    /*mDeprecated*/ float	getfValue(int i=0)	{ return getFValue(i); }
+    /*mDeprecated*/ double	getdValue(int i=0)	{ return getDValue(i); }
 };
 
-
 #endif
-

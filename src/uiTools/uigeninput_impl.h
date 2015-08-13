@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uispinbox.h"
 #include "userinputobj.h"
+
 class uiCheckBox;
 class uiRadioButton;
 
@@ -31,33 +32,40 @@ class uiRadioButton;
 class uiGenInputInputFld : public CallBacker
 {
 public:
-                        uiGenInputInputFld(uiGenInput*,const DataInpSpec&) ;
+			uiGenInputInputFld(uiGenInput*,const DataInpSpec&) ;
     virtual		~uiGenInputInputFld();
     virtual int		nElems() const			{ return 1; }
 
     virtual UserInputObj* element( int idx=0 )		= 0;
-    const UserInputObj*	element( int idx=0 ) const
-	    { return const_cast<uiGenInputInputFld*>(this)->element(idx); }
+    const UserInputObj* element(int idx=0) const;
     virtual uiObject*	mainObj()			= 0;
     virtual uiObject*	elemObj(int idx=0);
+    const uiObject*	elemObj(int idx=0) const;
 
     virtual bool	isUndef(int) const;
     const char*		text(int) const;
     int			getIntValue(int) const;
-    float		getfValue(int) const;
-    double		getdValue(int) const;
+    float		getFValue(int) const;
+    double		getDValue(int) const;
     bool		getBoolValue(int) const;
 
     template <class T>
     void		setValue( T t, int idx )
 			{
 			    UserInputObj* obj = element( idx );
-			    if ( !obj ) return;
+			    if ( !obj )
+			    {
+				mDynamicCastGet(uiSpinBox*,sb,elemObj(idx))
+				if ( sb ) sb->setValue( t );
+				return;
+			    }
+
 			    if ( mIsUdf(t) )
 				obj->setEmpty();
 			    else
 				obj->setValue(t);
 			}
+
     virtual void	setText(const char*,int);
     void		setValue(bool,int);
 
@@ -70,7 +78,7 @@ public:
     DataInpSpec&	spec()				{ return spec_; }
     const DataInpSpec&	spec() const			{ return spec_; }
 
-    bool                update(const DataInpSpec&);
+    bool		update(const DataInpSpec&);
     virtual void	updateSpec();
 
     void		valChangingNotify(CallBacker*);
@@ -82,7 +90,7 @@ protected:
     DataInpSpec&	spec_;
     uiGenInput*		p_;
 
-    virtual bool        update_(const DataInpSpec&);
+    virtual bool	update_(const DataInpSpec&);
     void		init();
 
 };
@@ -92,13 +100,13 @@ class uiGenInputBoolFld : public UserInputObjImpl<bool>, public uiGroup
 {
 public:
 
-                        uiGenInputBoolFld(uiParent*, 
-				    const char* truetext="", 
+			uiGenInputBoolFld(uiParent*,
+				    const char* truetext="",
 				    const char* falsetext="",
 				    bool initval = true,
 				    const char* nm="Bool Input");
 
-                        uiGenInputBoolFld(uiParent*, 
+			uiGenInputBoolFld(uiParent*,
 				    const DataInpSpec& spec,
 				    const char* nm="Bool Input");
 
@@ -125,7 +133,7 @@ protected:
     virtual void	setvalue_( bool );
 
     virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
-    virtual bool	notifyValueChanged_( const CallBack& cb )   
+    virtual bool	notifyValueChanged_( const CallBack& cb )
 			    { valueChanged.notify(cb); return true; }
     virtual bool	notifyUpdateRequested_(const CallBack&) { return false;}
 
