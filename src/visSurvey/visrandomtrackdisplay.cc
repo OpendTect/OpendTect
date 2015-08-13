@@ -1048,6 +1048,12 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 }
 
 
+MultiID RandomTrackDisplay::getMultiID() const
+{
+    return MultiID::udf();
+}
+
+
 void RandomTrackDisplay::fillPar( IOPar& par ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par );

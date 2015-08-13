@@ -553,7 +553,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	const bool hasztf = scene && scene->getZAxisTransform();
 
 	TypeSet<BinID> bids; rtd->getAllKnotPos( bids );
-	PtrMan<Geometry::RandomLine> rln = new Geometry::RandomLine;
+	RefMan<Geometry::RandomLine> rln = new Geometry::RandomLine;
 	const Interval<float> rtdzrg = rtd->getDepthInterval();
 	rln->setZRange( hasztf ? SI().zRange(false) : rtdzrg );
 	for ( int idx=0; idx<bids.size(); idx++ )
@@ -567,7 +567,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    if ( !dlg.go() ) return;
 
 	    Geometry::RandomLineSet lset;
-	    lset.addLine( rln.release() );
+	    lset.addLine( *rln );
 
 	    const IOObj* ioobj = dlg.ioObj();
 	    if ( !ioobj ) return;

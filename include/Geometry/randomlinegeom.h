@@ -14,8 +14,10 @@ ________________________________________________________________________
 
 #include "geometrymod.h"
 #include "binid.h"
-#include "ranges.h"
+#include "multiid.h"
 #include "namedobj.h"
+#include "ranges.h"
+#include "refcount.h"
 
 class TrcKeyZSampling;
 class Line2;
@@ -26,17 +28,18 @@ namespace Geometry
 class RandomLineSet;
 
 mExpClass(Geometry) RandomLine : public NamedObject
-{
+{ mRefCountImpl(RandomLine)
 public:
     			RandomLine(const char* nm=0);
-			~RandomLine()		{}
-    bool		isEmpty() const		{ return nodes_.isEmpty(); }
+
+    int			ID() const		{ return id_; }
 
     int			addNode(const BinID&);
     void		insertNode(int,const BinID&);
     void		setNodePosition(int idx,const BinID&);
     void		removeNode(int);
     void		removeNode(const BinID&);
+    bool		isEmpty() const		{ return nodes_.isEmpty(); }
     void		limitTo(const TrcKeyZSampling&); // nrNodes should be 2
 
     int			nodeIndex(const BinID&) const;
@@ -52,6 +55,9 @@ public:
     			{ zrange_ = rg; zrangeChanged.trigger(); }
     Interval<float>	zRange() const		{ return zrange_; }
 
+    void		setMultiID( const MultiID& mid )	{ mid_ = mid; }
+    MultiID		getMultiID() const			{ return mid_; }
+
     Notifier<RandomLine> nodeAdded;
     Notifier<RandomLine> nodeInserted;
     Notifier<RandomLine> nodeRemoved;
@@ -65,9 +71,13 @@ protected:
 
     TypeSet<BinID>	nodes_;
     Interval<float>	zrange_;
+    MultiID		mid_;
     RandomLineSet*	lset_;
 
     friend class	RandomLineSet;
+
+private:
+    int			id_;
 };
 
 
@@ -88,10 +98,9 @@ public:
 
     int			size() const		{ return lines_.size(); }
     const ObjectSet<RandomLine>& lines() const	{ return lines_; }
-    void		removeLine( int idx )
-			{ delete lines_.removeSingle(idx);}
-    void		addLine( RandomLine* rl )
-    			{ rl->lset_ = this; lines_ += rl; }
+    void		removeLine(int idx);
+    void		addLine(RandomLine&);
+    void		insertLine(RandomLine&,int idx);
     void		limitTo(const TrcKeyZSampling&);
 
     const IOPar&	pars() const		{ return pars_; }
@@ -103,10 +112,37 @@ protected:
     IOPar&			pars_;
 
     void		createParallelLines(const Line2& baseline,double dist);
+
 public:
     static void		getGeometry(const MultiID&,TypeSet<BinID>& knots,
 				    StepInterval<float>* zrg=0);
 };
+
+
+mExpClass(Geometry) RandomLineManager
+{
+public:
+			~RandomLineManager();
+
+    RandomLine*		get(const MultiID&,bool forcereload=false);
+    RandomLine*		get(int id);
+    const RandomLine*	get(int id) const;
+    bool		isLoaded(const MultiID&) const;
+    bool		isLoaded(int id) const;
+
+    void		remove(RandomLine*);
+
+protected:
+			RandomLineManager();
+    mGlobal(Geometry) friend RandomLineManager& RLM();
+
+    int			indexOf(const MultiID&) const;
+
+    ObjectSet<RandomLine>	lines_;
+};
+
+mGlobal(Geometry) RandomLineManager& RLM();
+
 
 } // namespace Geometry
 

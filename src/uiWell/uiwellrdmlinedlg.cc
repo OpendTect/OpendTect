@@ -479,7 +479,6 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    Geometry::RandomLine* rl = new Geometry::RandomLine;
     TypeSet<Coord> wellcoord; getCoordinates( wellcoord );
     if ( wellcoord.size() < 2 )
     {
@@ -487,6 +486,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 	return false;
     }
 
+    RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
     for ( int idx=0; idx<wellcoord.size(); idx++ )
     {
 	Coord c( wellcoord[idx] );
@@ -499,7 +499,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
     }
 
     Geometry::RandomLineSet outrls;
-    outrls.addLine( rl );
+    outrls.addLine( *rl );
     BufferString msg;
     const bool  res = RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg);
     if ( !res )

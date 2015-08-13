@@ -163,9 +163,13 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	}
 
 	if ( rl->nrNodes() < 2 )
-	    delete rl;
+	{
+	    rl->ref();
+	    rl->unRef();
+	}
 	else
-	    rdls.addLine( rl );
+	    rdls.addLine( *rl );
+
 	astrm.next();
     }
 

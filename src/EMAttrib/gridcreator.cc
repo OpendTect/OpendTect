@@ -307,10 +307,10 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	linenm.add( idx );
 	mHandleLineGeom
 
-	Geometry::RandomLine rdl;
-	rdl.addNode( line->start_ );
-	rdl.addNode( line->stop_ );
-	add( new SeisRandLineTo2D(input,output,geomid,1,rdl) );
+	RefMan<Geometry::RandomLine> rdl = new Geometry::RandomLine;
+	rdl->addNode( line->start_ );
+	rdl->addNode( line->stop_ );
+	add( new SeisRandLineTo2D(input,output,geomid,1,*rdl) );
     }
 
     FixedString perstr = par.find( sKeyCrlPrefix() );
@@ -323,10 +323,10 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	BufferString linenm( perstr.str() );
 	linenm.add( idx );
 	mHandleLineGeom
-	Geometry::RandomLine rdl;
-	rdl.addNode( line->start_ );
-	rdl.addNode( line->stop_ );
-	add( new SeisRandLineTo2D(input,output,geomid,1,rdl) );
+	RefMan<Geometry::RandomLine> rdl = new Geometry::RandomLine;
+	rdl->addNode( line->start_ );
+	rdl->addNode( line->stop_ );
+	add( new SeisRandLineTo2D(input,output,geomid,1,*rdl) );
     }
 
     return true;

@@ -47,7 +47,7 @@ uiWellTo2DLineDlg::uiWellTo2DLineDlg( uiParent* p )
 
 uiWellTo2DLineDlg::~uiWellTo2DLineDlg()
 {
-    delete rl_;
+    if ( rl_ ) rl_->unRef();
 }
 
 
@@ -72,6 +72,7 @@ void uiWellTo2DLineDlg::createFields()
     previewbutton_->attach( ensureBelow, sep );
 
     rl_ = new Geometry::RandomLine;
+    rl_->ref();
     randto2dlinefld_ = new uiSeisRandTo2DBase( this, false );
 
     linenmfld_ = new uiGenInput( this, tr("Line Name"),StringInpSpec("") );

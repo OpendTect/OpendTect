@@ -38,7 +38,7 @@ EM::RandomLineSetByContourGenerator::RandomLineSetByContourGenerator(
 			const EM::Horizon3D& hor,
 			const EM::RandomLineSetByContourGenerator::Setup& su )
 	: hor_(hor)
-    	, geom_(hor.geometry())
+	, geom_(hor.geometry())
 	, setup_(su)
 {
 }
@@ -77,12 +77,12 @@ void EM::RandomLineSetByContourGenerator::createLines(
 	    ict.getContours( polys, z );
 	    if ( polys.isEmpty() )
 		continue;
-	    
+
 	    int usrpolynr = 1;
 	    for ( int ipoly=0; ipoly<polys.size(); ipoly++ )
 	    {
 		const ODPolygon<float>& poly = *polys[ipoly];
-		Geometry::RandomLine* rl = new Geometry::RandomLine;
+		RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
 
 		prevbid = BinID( mUdf(int), mUdf(int) );
 		BinID addbid( prevbid );
@@ -99,12 +99,11 @@ void EM::RandomLineSetByContourGenerator::createLines(
 		    if ( ipt == 0 && poly.isClosed() )
 			addbid = bid;
 		}
-		if ( !mIsUdf(addbid.inl()) && addbid!=prevbid && rl->nrNodes()>2 )
+		if ( !mIsUdf(addbid.inl()) && addbid!=prevbid
+					   && rl->nrNodes()>2 )
 		    rl->addNode( addbid );
 
-		if ( rl->nrNodes() < 2 )
-		    delete rl;
-		else
+		if ( rl->nrNodes() > 1 )
 		{
 		    BufferString nm( "C" ); const float usrz = z * zfac;
 		    nm += mNINT32( usrz );
@@ -113,7 +112,7 @@ void EM::RandomLineSetByContourGenerator::createLines(
 		    usrpolynr++;
 		    rl->setName( nm.buf() );
 
-		    rls.addLine( rl );
+		    rls.addLine( *rl );
 		    Interval<float> zrg( setup_.linezrg_ );
 		    if ( setup_.isrel_ ) zrg.shift( z );
 		    rl->setZRange( zrg );
@@ -148,24 +147,25 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
     for ( int idx=0; idx<rl.nrNodes(); idx++ )
 	basecoords += SI().transform( rl.nodePosition(idx) );
 
-    const bool isclosed = rl.nrNodes()>2 && 
+    const bool isclosed = rl.nrNodes()>2 &&
 			  rl.nodePosition(0)==rl.nodePosition(rl.nrNodes()-1);
-    if ( isclosed ) 
+    if ( isclosed )
 	basecoords += basecoords[1];
 
     while ( true )
     {
 	Geometry::RandomLine* outrl = new Geometry::RandomLine( newnm.buf() );
+	outrl->ref();
 	outrl->setZRange( rl.zRange() );
 	TypeSet<int> dirflips;
 	TypeSet<Coord> fusioncrds;
 
 	int previdx = 0; int preprevidx = 0;
 	BinID prevnode( mUdf(int), 0 );
-	Coord prevnodec( Coord::udf() ); 
+	Coord prevnodec( Coord::udf() );
 
 	const int nrbasecoords = basecoords.size();
-    
+
 	for ( int idx=0; idx<nrbasecoords; idx++ )
 	{
 	    const bool atstart = idx == 0;
@@ -191,7 +191,7 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 	    if ( !atstart && dirvec.dot(nodec-prevnodec)<0 )
 	    {
 		dirflips += idx;
-		
+
 		if ( previdx < 1 )
 		    fusioncrds += c0;
 		else if ( atend )
@@ -213,18 +213,21 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 		outrl->setNodePosition( 0, prevnode );
 	    else if ( newnode != prevnode )
 		outrl->addNode( newnode );
-	    
+
 	    preprevidx = previdx; previdx = idx;
 	    prevnode = newnode; prevnodec = nodec;
 	}
 
-	if ( dirflips.isEmpty() ) 
+	if ( dirflips.isEmpty() )
 	{
 	    if ( outrl->nrNodes() <= (isclosed ? 2 : 1) )
-		delete outrl;
+		outrl->unRef();
 	    else
-		outrls.addLine( outrl );
-	    
+	    {
+		outrls.addLine( *outrl );
+		outrl->unRef();
+	    }
+
 	    break;
 	}
 
@@ -242,7 +245,7 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 	}
 
 	basecoords.removeRange( 0, nrbasecoords-1 );
-	delete outrl;
+	outrl->unRef();
     }
 }
 
@@ -265,16 +268,16 @@ bool EM::RandomLineByShiftGenerator::getShifted( Coord c1, Coord c2,
 }
 
 
-bool EM::RandomLineByShiftGenerator::getIntersection( Coord c00, Coord c01, 
+bool EM::RandomLineByShiftGenerator::getIntersection( Coord c00, Coord c01,
 						      Coord c10, Coord c11,
 						      Coord& cinter ) const
 {
-    const Coord dif0 = c00 - c01; 
+    const Coord dif0 = c00 - c01;
     const Coord dif1 = c10 - c11;
     const double det = dif0.x*dif1.y - dif0.y*dif1.x;
     if ( mIsZero(det,1e-6) )
 	return false;
-    
+
     const double det0 = c00.x*c01.y - c00.y*c01.x;
     const double det1 = c10.x*c11.y - c10.y*c11.x;
     cinter = (dif1*det0 - dif0*det1) / det;
