@@ -444,7 +444,5 @@ void ParametricSurface::trimUndefParts()
     mRemovePart( col, stop,  -=, row, removeCol );
 }
 
-
-
-};
+} // namespace Geometry
 

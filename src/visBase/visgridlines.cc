@@ -84,7 +84,7 @@ void GridLines::setGridTrcKeyZSampling( const TrcKeyZSampling& cs )
     if ( cs==gridcs_ )
 	return;
 
-    if ( cs.hsamp_.inlRange() != gridcs_.hsamp_.inlRange() || 
+    if ( cs.hsamp_.inlRange() != gridcs_.hsamp_.inlRange() ||
 	 cs.hsamp_.step_.inl() != gridcs_.hsamp_.step_.inl() )
 	csinlchanged_ = true;
     if ( cs.hsamp_.crlRange() != gridcs_.hsamp_.crlRange() ||
@@ -152,7 +152,7 @@ void GridLines::adjustGridCS()
 	while ( planecs_.zsamp_.start<gridcs_.zsamp_.start-gridcs_.zsamp_.step )
 	    gridcs_.zsamp_.start -= gridcs_.zsamp_.step;
 	
-	while ( planecs_.zsamp_.stop > gridcs_.zsamp_.stop+gridcs_.zsamp_.step )
+	while ( planecs_.zsamp_.stop>gridcs_.zsamp_.stop+gridcs_.zsamp_.step )
 	    gridcs_.zsamp_.stop += gridcs_.zsamp_.step;
 
 	while ( planecs_.zsamp_.stop<gridcs_.zsamp_.stop )
@@ -333,7 +333,6 @@ void GridLines::setDisplayTransformation( const mVisTrans* tf )
 	if ( polylineset_[idx] )
 	    polylineset_[idx]->setDisplayTransformation( transformation_ );
     }
-
 }
 
 

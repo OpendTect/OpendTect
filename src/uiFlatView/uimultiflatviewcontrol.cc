@@ -17,9 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uirgbarraycanvas.h"
-#include "survinfo.h"
 
 #include "scaler.h"
+#include "survinfo.h"
 
 
 MFVCViewManager::~MFVCViewManager()
