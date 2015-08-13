@@ -121,7 +121,7 @@ void uiPositionTable::posChgCB( CallBacker* )
 	}
     }
 
-    setRowColor( rc.row(), SI().includes(bid,SI().zRange(true).start,true) );
+    setRowColor( rc.row(), SI().includes(bid,SI().zRange(true).center(),true) );
 }
 
 
