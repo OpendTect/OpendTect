@@ -44,20 +44,20 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 
     if ( rrg.width(false)<0 || crg.width(false)<0 )
 	return;
-    
+
     horsection_->tesselationlock_ = true;
     updateTileArray( rrg, crg );
 
     const int nrrowsz = horsection_->tiles_.info().getSize(0);
     const int nrcolsz = horsection_->tiles_.info().getSize(1);
-    
+
     ObjectSet<HorizonSectionTile> fullupdatetiles;
     ObjectSet<HorizonSectionTile> oldupdatetiles;
 
     for ( int idx=(*gpids).size()-1; idx>=0; idx-- )
     {
 	const RowCol absrc = RowCol::fromInt64( (*gpids)[idx] );
-	RowCol rc = absrc - horsection_->origin_; 
+	RowCol rc = absrc - horsection_->origin_;
 	const int tilesidesize = horsection_->tilesidesize_;
 
 	rc.row() /= rrg.step; rc.col() /= crg.step;
@@ -83,11 +83,11 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	    continue;
 
 	const Coord3 pos = horsection_->geometry_->getKnot(absrc,false);
-	
+
 	bool addoldtile = false;
-	HorizonSectionTile* tile = horsection_->tiles_.get( 
+	HorizonSectionTile* tile = horsection_->tiles_.get(
 	    tilerowidx, tilecolidx );
-	if ( !tile ) 
+	if ( !tile )
 	{
 	    tile = createOneTile( tilerowidx, tilecolidx );
 	    fullupdatetiles += tile;
@@ -99,7 +99,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	    {
 		addoldtile = true;
 		if ( oldupdatetiles.indexOf(tile)==-1 )
-		    oldupdatetiles += tile;		    
+		    oldupdatetiles += tile;
 	    }
 	}
 
@@ -122,14 +122,14 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 		nbtile->setPos( tilerow-rowidx*tilesidesize,
 			tilecol-colidx*tilesidesize, pos );
 
-		if ( !addoldtile || 
-		    rowidx+colidx>=0 || 
-		    horsection_->desiredresolution_==-1  || 
+		if ( !addoldtile ||
+		    rowidx+colidx>=0 ||
+		    horsection_->desiredresolution_==-1  ||
 		    oldupdatetiles.indexOf(nbtile)!=-1 )
 		    continue;
-	    
-		if ( (!tilecol && !rowidx && colidx==-1) || 
-			(!tilerow && rowidx==-1 && 
+
+		if ( (!tilecol && !rowidx && colidx==-1) ||
+			(!tilerow && rowidx==-1 &&
 			 ((!tilecol && colidx==-1) || !colidx)) )
 		    oldupdatetiles += nbtile;
 	    }
@@ -137,7 +137,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
     }
 
     horsection_->setUpdateVar( horsection_->forceupdate_,  false );
-    
+
     HorizonSectionTilePosSetup task( fullupdatetiles, horsection_,rrg, crg );
     TaskRunner::execute( tr, task );
 
@@ -145,7 +145,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
     {
 	fullupdatetiles[idx]->addTileGlueTesselator();
     }
-    
+
 
     //Only for fixed resolutions, which won't be tesselated at render.
     if ( oldupdatetiles.size() )
@@ -153,7 +153,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	TypeSet<Threads::Work> work;
 	for ( int idx=0; idx<oldupdatetiles.size(); idx++ )
 	{
-	    TileTesselator* tt = new TileTesselator( 
+	    TileTesselator* tt = new TileTesselator(
 		oldupdatetiles[idx], horsection_->desiredresolution_ );
 	    work += Threads::Work( *tt, true );
 	}
@@ -161,10 +161,9 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	Threads::WorkManager::twm().addWork( work,
 	       Threads::WorkManager::cDefaultQueueID() );
     }
-   horsection_->tesselationlock_ = true;
-   horsection_->updatePrimitiveSets();
-   horsection_->setUpdateVar( horsection_->forceupdate_,  true );
 
+    horsection_->tesselationlock_ = true;
+    horsection_->setUpdateVar( horsection_->forceupdate_, true );
 }
 
 
@@ -181,7 +180,7 @@ void HorTilesCreatorAndUpdator::updateTileArray( const StepInterval<int>& rrg,
     int nrnewcolsbefore = 0;
 
     int diff = horsection_->origin_.row() - rrg.start;
-    if ( diff>0 ) 
+    if ( diff>0 )
     {
 	nrnewrowsbefore = diff/rowsteps + ( diff%rowsteps ? 1 : 0 );
 	newrowsize += nrnewrowsbefore;
@@ -191,7 +190,7 @@ void HorTilesCreatorAndUpdator::updateTileArray( const StepInterval<int>& rrg,
     if ( diff>0 ) newrowsize += diff/rowsteps + ( diff%rowsteps ? 1 : 0 );
 
     diff = horsection_->origin_.col() - crg.start;
-    if ( diff>0 ) 
+    if ( diff>0 )
     {
 	nrnewcolsbefore = diff/colsteps + ( diff%colsteps ? 1 : 0 );
 	newcolsize += nrnewcolsbefore;
@@ -212,7 +211,7 @@ void HorTilesCreatorAndUpdator::updateTileArray( const StepInterval<int>& rrg,
 	for ( int colidx=0; colidx<oldcolsize; colidx++ )
 	{
 	    const int targetcol = colidx+nrnewcolsbefore;
-	    newtiles.set( targetrow, targetcol, 
+	    newtiles.set( targetrow, targetcol,
 		horsection_->tiles_.get(rowidx,colidx) );
 	}
     }
@@ -225,13 +224,13 @@ void HorTilesCreatorAndUpdator::updateTileArray( const StepInterval<int>& rrg,
 }
 
 
-HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx, 
+HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx,
 							  int tilecolidx )
 {
     mDefineRCRange( horsection_,-> );
 
     const RowCol step( rrg.step, crg.step );
-    const RowCol tileorigin( horsection_->origin_.row() +  
+    const RowCol tileorigin( horsection_->origin_.row() +
 		 tilerowidx*horsection_->tilesidesize_*step.row(),
 		 horsection_->origin_.col() +
 		 tilecolidx*horsection_->tilesidesize_*step.col() );
@@ -256,35 +255,35 @@ HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx,
 		continue;
 
 	    const int neighborcol = tilecolidx+colidx;
-	    if ( neighborcol<0 || 
+	    if ( neighborcol<0 ||
 		 neighborcol>=horsection_->tiles_.info().getSize(1) )
 		continue;
-	    HorizonSectionTile* neighbor = 
+	    HorizonSectionTile* neighbor =
 		horsection_->tiles_.get(neighborrow,neighborcol);
 
 	    if ( !neighbor ) continue;
 
 	    char pos;
-	    if ( colidx==-1 ) 
-		pos = rowidx==-1 ? LEFTUPTILE : 
+	    if ( colidx==-1 )
+		pos = rowidx==-1 ? LEFTUPTILE :
 		( !rowidx ? LEFTTILE : LEFTBOTTOMTILE );
-	    else if ( colidx==0 ) 
-		pos = rowidx==-1 ? UPTILE : 
+	    else if ( colidx==0 )
+		pos = rowidx==-1 ? UPTILE :
 		( !rowidx ? THISTILE : BOTTOMTILE );
-	    else 
-		pos = rowidx==-1 ? RIGHTUPTILE : 
+	    else
+		pos = rowidx==-1 ? RIGHTUPTILE :
 		( !rowidx ? RIGHTTILE : RIGHTBOTTOMTILE );
 
 	    tile->setNeighbor( pos, neighbor );
 
-	    if ( colidx==1 ) 
-		pos = rowidx==1 ? LEFTUPTILE : 
+	    if ( colidx==1 )
+		pos = rowidx==1 ? LEFTUPTILE :
 		( !rowidx ? LEFTTILE : LEFTBOTTOMTILE);
-	    else if ( colidx==0 ) 
-		pos = rowidx==1 ? UPTILE : 
+	    else if ( colidx==0 )
+		pos = rowidx==1 ? UPTILE :
 		( !rowidx ? THISTILE : BOTTOMTILE);
-	    else 
-		pos = rowidx==1 ? RIGHTUPTILE : 
+	    else
+		pos = rowidx==1 ? RIGHTUPTILE :
 		( !rowidx ? RIGHTTILE : RIGHTBOTTOMTILE);
 
 	    neighbor->setNeighbor( pos, tile );
@@ -308,9 +307,9 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 
     horsection_->tesselationlock_ = true;
     horsection_->origin_ = RowCol( rrg.start, crg.start );
-    const int nrrows = nrBlocks( rrg.nrSteps()+1, 
+    const int nrrows = nrBlocks( rrg.nrSteps()+1,
 				 horsection_->nrcoordspertileside_, 1 );
-    const int nrcols = nrBlocks( crg.nrSteps()+1, 
+    const int nrcols = nrBlocks( crg.nrSteps()+1,
 				 horsection_->nrcoordspertileside_, 1 );
 
     horsection_->writeLock();
@@ -322,7 +321,7 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
     }
 
     horsection_->tiles_.setAll( 0 );
-    horsection_->writeUnLock();                                                 
+    horsection_->writeUnLock();
 
     ObjectSet<HorizonSectionTile> newtiles;
     for ( int tilerowidx=0; tilerowidx<nrrows; tilerowidx++ )
@@ -344,12 +343,10 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 }
 
 
-void HorTilesCreatorAndUpdator::updateTilesAutoResolution( 
+void HorTilesCreatorAndUpdator::updateTilesAutoResolution(
 						  const osg::CullStack* cs )
 {
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
-
-    HorizonTileRenderPreparer task( *horsection_, cs, 
+    HorizonTileRenderPreparer task( *horsection_, cs,
 				    horsection_->desiredresolution_ );
     task.execute();
 
@@ -363,7 +360,7 @@ void HorTilesCreatorAndUpdator::updateTilesAutoResolution(
     {
 	if ( tileptrs[idx] )
 	{
-	    tileptrs[idx]->applyTesselation( 
+	    tileptrs[idx]->applyTesselation(
 		tileptrs[idx]->getActualResolution() );
 	}
     }
