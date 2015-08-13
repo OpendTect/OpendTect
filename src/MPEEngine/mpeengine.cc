@@ -617,6 +617,10 @@ DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
     const int zidx0 = zsamp.getIndex( z + zintv.start );
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
+	const int curtrcidx = trcidx0+tidx;
+	if ( curtrcidx<0 || curtrcidx >= sdp->nrTrcs() )
+	    continue;
+
 	const OffsetValueSeries<float> ovs =
 			    sdp->getTrcStorage( 0, trcidx0+tidx );
 	for ( int zidx=0; zidx<nrz; zidx++ )
