@@ -200,8 +200,8 @@ uiLatLong2CoordDlg::uiLatLong2CoordDlg( uiParent* p, const LatLong2Coord& l,
     coordfld_ = new uiGenInput( this, "Coordinate in or near survey",
 				DoubleInpSpec(), DoubleInpSpec() );
     uiToolButton* tb = new uiToolButton( this, "xy2ll",
-			"Transform file from/to lat long",
-			mCB(this,uiLatLong2CoordDlg,transfFile) );
+			    "Transform file from/to lat long",
+			    mCB(this,uiLatLong2CoordDlg,transfFile) );
     tb->attach( rightTo, coordfld_ );
     tb->attach( rightBorder );
 

@@ -79,7 +79,7 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 	    range.start = trans->transform( BinIDValue(0,0,range.start) );
 	    range.stop = trans->transform( BinIDValue(0,0,range.stop) );
 	    if ( range.isUdf() )
-		range = StepInterval<float>::udf();
+		range.setUdf();
 	    else
 		range.step = range.width()/nrsamples;
 	}
@@ -104,11 +104,11 @@ FixedString uiLinearVelTransform::fromDomain() const
 
 ZAxisTransform*	uiLinearVelTransform::getSelection()
 {
-    const float vel = velfld_->getfValue();
+    const float vel = velfld_->getFValue();
     if ( mIsUdf(vel) )
 	return 0;
 
-    const float gradient = gradientfld_->getfValue();
+    const float gradient = gradientfld_->getFValue();
     if ( mIsUdf(gradient) )
 	return 0;
 
@@ -121,14 +121,14 @@ ZAxisTransform*	uiLinearVelTransform::getSelection()
 
 bool uiLinearVelTransform::acceptOK()
 {
-    const float vel = velfld_->getfValue();
+    const float vel = velfld_->getFValue();
     if ( mIsUdf(vel) )
     {
 	uiMSG().error(tr("Velocity is not set"));
 	return false;
     }
 
-    const float gradient = gradientfld_->getfValue();
+    const float gradient = gradientfld_->getFValue();
     if ( mIsUdf(gradient) )
     {
 	uiMSG().error(tr("Gradient is not set"));

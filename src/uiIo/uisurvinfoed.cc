@@ -665,7 +665,7 @@ bool uiSurveyInfoEditor::setRanges()
     hs.start_.inl() = irg.start; hs.start_.crl() = crg.start;
     hs.stop_.inl() = irg.atIndex( irg.getIndex(irg.stop) );
     hs.stop_.crl() = crg.atIndex( crg.getIndex(crg.stop) );
-    hs.step_.inl() = irg.step;   hs.step_.crl() = crg.step;
+    hs.step_.inl() = irg.step;	 hs.step_.crl() = crg.step;
     if ( hs.step_.inl() < 1 ) hs.step_.inl() = 1;
     if ( hs.step_.crl() < 1 ) hs.step_.crl() = 1;
 
@@ -794,8 +794,10 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
 
     si_.setRange(cs,false);
     BinID bid[2];
-    bid[0].inl() = cs.hsamp_.start_.inl(); bid[0].crl() = cs.hsamp_.start_.crl();
-    bid[1].inl() = cs.hsamp_.stop_.inl(); bid[1].crl() = cs.hsamp_.stop_.crl();
+    bid[0].inl() = cs.hsamp_.start_.inl();
+    bid[0].crl() = cs.hsamp_.start_.crl();
+    bid[1].inl() = cs.hsamp_.stop_.inl();
+    bid[1].crl() = cs.hsamp_.stop_.crl();
     si_.set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
     setValues();
     if ( !havez )
@@ -927,7 +929,8 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
     cs = survinfo->sampling( false );
     crd[0] = survinfo->transform( cs.hsamp_.start_ );
     crd[1] = survinfo->transform( cs.hsamp_.stop_ );
-    crd[2] = survinfo->transform( BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
+    crd[2] = survinfo->transform(
+	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
 
     tdinf_ = survinfo->zIsTime() ? Time
 				 : (survinfo->zInFeet() ? DepthFeet : Depth);

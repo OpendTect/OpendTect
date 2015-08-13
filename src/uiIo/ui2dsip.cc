@@ -158,7 +158,8 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
 
     cs.hsamp_.start_.inl() = cs.hsamp_.start_.crl() = 10000;
     cs.hsamp_.step_.inl() = cs.hsamp_.step_.crl() = 1;
-    cs.hsamp_.stop_.inl() = 10000 + nrinl - 1; cs.hsamp_.stop_.crl() = 10000 + nrcrl -1;
+    cs.hsamp_.stop_.inl() = 10000 + nrinl - 1;
+    cs.hsamp_.stop_.crl() = 10000 + nrcrl -1;
 
     Coord cmax( c0.x + grdsp*(nrinl-1), c0.y + grdsp*(nrcrl-1) );
     if ( cmax.x < c0.x ) Swap( cmax.x, c0.x );

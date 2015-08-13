@@ -413,4 +413,5 @@ mDefFn(bool,isAll,,,const,return)
 mDefFn(void,setToAll,,,,)
 mDefFn(void,setInputLimit,const TrcKeyZSampling&,cs,,)
 mDefFn2(void,setInput,const TrcKeyZSampling&,cs,bool,ct,)
-mDefFn2(void,setInput,const TrcKeyZSampling&,initcs,const TrcKeyZSampling&,ioparcs,)
+mDefFn2(void,setInput,const TrcKeyZSampling&,initcs,const TrcKeyZSampling&,
+	ioparcs,)

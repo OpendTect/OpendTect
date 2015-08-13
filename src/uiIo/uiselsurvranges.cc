@@ -227,11 +227,11 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	, icstopfld_(0)
 	, nrstopfld_(0)
 	, defstep_(1)
+	, checked(this)
     	, rangeChanged(this)
 	, finalised_(false)
 	, checked_(false)
 	, cbox_(0), withchk_(false)
-	, checked(this)
 	, lbltxt_("")
 {
     StepInterval<int> rg( 1, mUdf(int), 1 );
@@ -260,12 +260,12 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 	, defstep_(limitrg.step)
 	, icstopfld_(0)
 	, nrstopfld_(0)
+	, checked(this)
 	, rangeChanged(this)
 	, finalised_(false)
 	, withchk_(false)
 	, checked_(false)
 	, cbox_(0)
-	, checked(this)
 	, lbltxt_(lbltxt)
 {
     makeInpFields( limitrg, wstep, false );

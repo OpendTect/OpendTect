@@ -108,6 +108,7 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 	    .nrstatusflds(1)) \
     , selgrp_( 0 )
 
+
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 				const uiString& ttxt )
     : mConstructorInitListStart
