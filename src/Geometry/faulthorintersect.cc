@@ -406,15 +406,15 @@ void FaultBinIDSurfaceIntersector::compute()
 }
 
 
- int FaultBinIDSurfaceIntersector::optimizeOrder( TypeSet<Coord3>& res )
- {
-     IntervalND<float> bbox(2);
-     bbox.setRange( Coord(res[0].x,res[0].y) );
-     int detectnr = 0;
+int FaultBinIDSurfaceIntersector::optimizeOrder( TypeSet<Coord3>& res )
+{
+    IntervalND<float> bbox(2);
+    bbox.setRange( Coord(res[0].x,res[0].y) );
+    int detectnr = 0;
 
-     TypeSet<int> idxs;
-     for ( int idx = 1; idx<res.size(); idx++ )
-     {
+    TypeSet<int> idxs;
+    for ( int idx = 1; idx<res.size(); idx++ )
+    {
 	 const Coord xy( res[idx].x,res[idx].y );
 	 if ( bbox.getRange(0).start<xy.x && bbox.getRange(0).stop>xy.x &&
 	      bbox.getRange(1).start<xy.y && bbox.getRange(1).stop>xy.y )
@@ -426,16 +426,16 @@ void FaultBinIDSurfaceIntersector::compute()
 	 {
 	     bbox.include( xy );
 	 }
-     }
+    }
 
-     if ( idxs.size()>0 )
-     {
+    if ( idxs.size()>0 )
+    {
 	 for ( int idx = idxs.size()-1; idx>=0; idx-- )
 	     res.removeSingle( idxs[idx] );
-     }
+    }
 
-     return res.size();
- }
+    return res.size();
+}
 
 
 void FaultBinIDSurfaceIntersector::sortPointsToLine( 
