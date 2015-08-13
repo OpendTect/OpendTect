@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 class IOObj;
 class Scaler;
+class TrcKeyZSampling;
 
 namespace Seis
 {

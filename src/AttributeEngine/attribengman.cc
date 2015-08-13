@@ -289,10 +289,11 @@ const char* EngineMan::getCurUserRef() const
 
 const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
 {
+    RegularSeisDataPack* output = 0;
     if ( proc.outputs_.size()==1 && !cache_ )
     {
-	RegularSeisDataPack* output =
-	    const_cast<RegularSeisDataPack*>( proc.outputs_[0]->getDataPack() );
+	output = const_cast<RegularSeisDataPack*>(
+			proc.outputs_[0]->getDataPack() );
 	if ( !output )
 	    return 0;
 
@@ -310,11 +311,16 @@ const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
     {
 	const RegularSeisDataPack* dp =
 		proc.outputs_[idx] ? proc.outputs_[idx]->getDataPack() : 0;
-	if ( !dp )
-	    continue;
+	if ( !dp ) continue;
 
-	if ( !packset.size() || packset[0]->nrComponents()==dp->nrComponents() )
-	    packset += dp;
+	dpm_.addAndObtain( const_cast<RegularSeisDataPack*>(dp) );
+	if ( packset.size() && packset[0]->nrComponents()!=dp->nrComponents() )
+	{
+	    dpm_.release( dp->id() );
+	    continue;
+	}
+
+	packset += dp;
     }
 
     if ( cache_ )
@@ -323,7 +329,13 @@ const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
 	dpm_.obtain( cache_->id() );
     }
 
-    return !packset.isEmpty() ? getOutput(packset) : 0;
+    if ( !packset.isEmpty() )
+	output = const_cast<RegularSeisDataPack*>( getOutput(packset) );
+
+    for ( int idx=packset.size()-1; idx>=0; idx-- )
+	dpm_.release( packset[idx] );
+
+    return output;
 }
 
 
@@ -333,7 +345,9 @@ const RegularSeisDataPack* EngineMan::getOutput(
     const char* category = SeisDataPack::categoryStr(
 			tkzs_.defaultDir()!=TrcKeyZSampling::Z,
 			tkzs_.hsamp_.survid_==Survey::GM().get2DSurvID() );
-    RegularSeisDataPack* output = new RegularSeisDataPack( category );
+    RegularSeisDataPack* output =
+	new RegularSeisDataPack( category, &packset[0]->getDataDesc() );
+
     if ( cache_ && cache_->sampling().zsamp_.step != tkzs_.zsamp_.step )
     {
 	TrcKeyZSampling cswithcachestep = tkzs_;
@@ -676,7 +690,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	if ( mRg(z).start > tkzs_.zsamp_.start + mStepEps*tkzs_.zsamp_.step )
 	{
 	    todocs.zsamp_.stop = mMAX( mRg(z).start-tkzs_.zsamp_.step,
-		    		       todocs.zsamp_.start );
+				       todocs.zsamp_.start );
 	    mAddAttrOut( todocs )
 	}
 
@@ -684,7 +698,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	{
 	    todocs.zsamp_ = tkzs_.zsamp_;
 	    todocs.zsamp_.start = mMIN( mRg(z).stop+tkzs_.zsamp_.step,
-		    			todocs.zsamp_.stop );
+					todocs.zsamp_.stop );
 	    mAddAttrOut( todocs )
 	}
     }
@@ -738,7 +752,7 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 ~AEMFeatureExtracter()		{ delete proc_; }
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
-od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
+od_int64 nrDone() const		{ return proc_ ? proc_->nrDone() : 0; }
 uiString uiNrDoneText() const
 {
     return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString();
@@ -907,7 +921,7 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 ~AEMTableExtractor()		{ delete proc_; }
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
-od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
+od_int64 nrDone() const		{ return proc_ ? proc_->nrDone() : 0; }
 uiString uiNrDoneText() const
 {
     return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString();

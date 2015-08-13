@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "datapack.h"
 #include "position.h"
-#include "trckeyzsampling.h"
 #include "valseries.h"
 
 template <class T> class Array2D;
@@ -26,6 +25,7 @@ template <class T> class Array3D;
 template <class T> class Array3DImpl;
 
 class FlatPosData;
+class Scaler;
 class TaskRunner;
 namespace ZDomain { class Info; }
 
@@ -230,8 +230,8 @@ public:
     const ZDomain::Info&	zDomain() const
 				{ return *zdomaininfo_; }
 
-    void			setScale(int comp,const SamplingData<float>&);
-    const SamplingData<float>&	getScale(int comp) const;
+    void			setScaler(const Scaler&);
+    const Scaler*		getScaler() const	{ return scaler_; }
 
     void			setRefNrs( const TypeSet<float>& refnrs )
 				{ refnrs_ = refnrs; }
@@ -248,10 +248,10 @@ protected:
 
     BufferStringSet			componentnames_;
     ObjectSet<Array3DImpl<float> >	arrays_;
-    TypeSet<SamplingData<float> >	scales_;
     TypeSet<float>			refnrs_;
     ZDomain::Info*			zdomaininfo_;
     BinDataDesc				desc_;
+    const Scaler*			scaler_;
 };
 
 #endif

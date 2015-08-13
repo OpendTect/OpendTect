@@ -97,6 +97,10 @@ public:
 
 			~ParallelReader2D();
 
+    void		setDataChar(DataCharacteristics::UserType);
+    void		setScaler(Scaler*);
+    bool		init();
+
     RegularSeisDataPack* getDataPack(); // The caller now owns the datapack
 
     uiString		uiNrDoneText() const;
@@ -112,6 +116,8 @@ protected:
     TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     IOObj*			ioobj_;
+    DataCharacteristics		dc_;
+    Scaler*			scaler_;
     od_int64			totalnr_;
     uiString			msg_;
 

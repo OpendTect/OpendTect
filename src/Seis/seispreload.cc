@@ -101,7 +101,9 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
     if ( info.is2D() )
     {
         ParallelReader2D rdr( *ioobj, geomid_, &tkzs );
-	if ( !trunnr.execute(rdr) )
+	rdr.setScaler( scaler );
+	rdr.setDataChar( type );
+	if ( !rdr.init() || !trunnr.execute(rdr) )
 	{
 	    errmsg_ = rdr.uiMessage();
 	    return false;

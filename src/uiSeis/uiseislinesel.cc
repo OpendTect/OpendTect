@@ -923,12 +923,11 @@ void uiSeis2DMultiLineSel::getTrcRanges(
 
 StepInterval<float> uiSeis2DMultiLineSel::getZRange( Pos::GeomID geomid ) const
 {
-    StepInterval<float> zrg = StepInterval<float>::udf();
     const int idx = geomids_.indexOf( geomid );
     if ( zrgs_.validIdx(idx) )
-	zrg = zrgs_[idx];
+	return zrgs_[idx];
 
-    return zrg;
+    return zrgs_.isEmpty() ? StepInterval<float>::udf() : zrgs_[0];
 }
 
 

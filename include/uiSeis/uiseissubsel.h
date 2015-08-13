@@ -58,8 +58,8 @@ public:
     void		setInput(const StepInterval<float>& zrg);
     void		setInput(const TrcKeyZSampling&);
 
-    int			expectedNrSamples() const;
-    int			expectedNrTraces() const;
+    virtual int		expectedNrSamples() const;
+    virtual int		expectedNrTraces() const;
 
     virtual uiCompoundParSel*	compoundParSel();
     Notifier<uiSeisSubSel>	selChange;
@@ -99,7 +99,6 @@ public:
     void		setInput(const IOObj&);
     void		setInputLines(const TypeSet<Pos::GeomID>&);
 
-    Notifier<uiSeis2DSubSel> lineSel;
     bool		isSingLine() const;
     const char*		selectedLine() const;
     void		setSelectedLine(const char*);
@@ -107,6 +106,9 @@ public:
     void		selectedGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		selectedLines(BufferStringSet&) const;
     void		setSelectedLines(const BufferStringSet&);
+
+    int			expectedNrSamples() const;
+    int			expectedNrTraces() const;
 
     void		getSampling(TrcKeyZSampling&,Pos::GeomID =-1) const;
     StepInterval<int>	getTrcRange(Pos::GeomID =-1) const;

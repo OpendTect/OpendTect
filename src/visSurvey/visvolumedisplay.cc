@@ -1046,11 +1046,19 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( !attribs_.validIdx(attrib) )
 	return false;
 
-    DataPackMgr& dpman = DPM( DataPackMgr::SeisID() );
-    const DataPack* datapack = dpman.obtain( dpid );
+    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPack* datapack = dpm.obtain( dpid );
     mDynamicCastGet(const RegularSeisDataPack*,cdp,datapack);
     const bool res = setDataVolume( attrib, cdp ? cdp : 0, tr );
-    return res;
+    if ( !res )
+    {
+	dpm.release( dpid );
+	return false;
+    }
+
+    dpm.release( attribs_[attrib]->cache_->id() );
+    attribs_[attrib]->cache_ = cdp;
+    return true;
 }
 
 

@@ -400,10 +400,11 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
     {
 	PtrMan<Array3DImpl<float> > tmparr = 0;
 	Array3D<float>* usedarr = &seisdp->data( idx );
+	const int nrtraces = seisdp->sampling().nrTrcs();
 	const int nrsamples = seisdp->getZRange().nrSteps()+1;
 	const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
 	const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
-	if ( seisdp->nrTrcs()!=nrdisplaytraces ||
+	if ( nrtraces!=nrdisplaytraces ||
 	     nrsamples!=nrdisplaysamples ||
 	     seisdp->getTrcKey(0).trcNr()!=trcdisplayinfo_.alltrcnrs_[0] )
 	{
@@ -411,13 +412,12 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		    Array3DImpl<float>( 1, nrdisplaytraces, nrdisplaysamples) );
 	    tmparr->setAll( mUdf(float) );
 	    usedarr = tmparr;
-	    const int start = trcdisplayinfo_.rg_.start;
+	    const int startidx = trcdisplayinfo_.rg_.start;
 	    for ( int trcidx=0; trcidx<trcdisplayinfo_.size_; trcidx++ )
 	    {
-		const int trcnr = trcdisplayinfo_.alltrcnrs_[trcidx+start];
-		const TrcKey trckey = Survey::GM().traceKey( geomid_, trcnr );
-		const int globalidx = seisdp->getGlobalIdx( trckey );
-		if ( globalidx < 0 )
+		const int trcnr = trcdisplayinfo_.alltrcnrs_[startidx+trcidx];
+		const int globalidx = seisdp->sampling().trcIdx( trcnr );
+		if ( globalidx<0 || globalidx>nrtraces-1 )
 		    continue;
 
 		const float* trcptr = seisdp->getTrcData( idx, globalidx );

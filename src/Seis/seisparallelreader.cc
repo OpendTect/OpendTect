@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
+#include "seistrcprop.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
 #include "threadwork.h"
@@ -268,9 +269,12 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
 				    const TypeSet<int>* comps )
     : geomid_(geomid)
     , ioobj_(ioobj.clone())
+    , dc_(DataCharacteristics::Auto)
     , dpclaimed_(false)
+    , scaler_(0)
 {
     SeisIOObjInfo info( ioobj );
+    info.getDataChar( dc_ );
     if ( !comps )
     {
 	const int nrcomps = info.nrComponents( geomid );
@@ -290,24 +294,49 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
 	tkzs_ = *tkzs;
 
     totalnr_ = tkzs_.hsamp_.totalNr();
+}
 
-    dp_ = new RegularSeisDataPack( Seis::nameOf(info.geomType()) );
+
+bool ParallelReader2D::init()
+{
+    const SeisIOObjInfo info( *ioobj_ );
+    if ( !info.isOK() ) return false;
+
+    dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
     dp_->setSampling( tkzs_ );
+    if ( scaler_ )
+	dp_->setScaler( *scaler_ );
 
-    BufferStringSet compnames;
-    info.getComponentNames( compnames );
+    BufferStringSet cnames;
+    info.getComponentNames( cnames );
     for ( int idx=0; idx<components_.size(); idx++ )
     {
 	const int cidx = components_[idx];
-	dp_->addComponent(
-		compnames.validIdx(cidx) ? compnames.get(cidx).buf() : "" );
+	const char* cnm = cnames.validIdx(cidx) ? cnames.get(cidx).buf()
+						: sKey::EmptyString().buf();
+	if ( !dp_->addComponent(cnm) )
+	    return false;
     }
+
+    return true;
 }
 
 
 ParallelReader2D::~ParallelReader2D()
 {
     delete ioobj_;
+    delete scaler_;
+}
+
+
+void ParallelReader2D::setDataChar( DataCharacteristics::UserType type )
+{ dc_ = DataCharacteristics(type); }
+
+
+void ParallelReader2D::setScaler( Scaler* scaler )
+{
+    delete scaler_;
+    scaler_ = scaler;
 }
 
 
@@ -343,26 +372,58 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
     trl->toStart();
     curbid = trl->readMgr()->binID();
 
-    const Array3D<float>& firstarr = dp_->data( 0 );
-    const int nrz = firstarr.info().getSize( 2 );
-    for ( od_int64 idx=start; idx<=stop; idx++ )
+    const Scaler* scaler = dp_->getScaler();
+    for ( int idc=0; idc<dp_->nrComponents(); idc++ )
     {
-	curbid.crl() = trcrg.atIndex( mCast(int,idx) );
-	if ( trl->goTo(curbid) && trl->read(trc) )
+	Array3D<float>& arr = dp_->data( idc );
+	ValueSeries<float>* stor = arr.getStorage();
+	mDynamicCastGet(ConvMemValueSeries<float>*,storptr,stor);
+	char* storarr = storptr ? storptr->storArr() : (char*)stor->arr();
+
+	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
-	    const StepInterval<float> trczrg = trc.zRange();
-	    for ( int idz=nrz-1; idz>=0; idz--)
+	    curbid.crl() = trcrg.atIndex( mCast(int,idx) );
+	    if ( trl->goTo(curbid) && trl->read(trc) )
 	    {
-		float val;
-		const float z = tkzs_.zsamp_.atIndex( idz );
-		if ( trczrg.includes(z,false) )
+		if ( scaler )
 		{
-		    for ( int idc=0; idc<dp_->nrComponents(); idc++ )
+		    SeisTrcPropChg seistrcpropchg( trc, idc );
+		    seistrcpropchg.scale( *scaler );
+		}
+
+		const int zstartidx = trc.nearestSample( tkzs_.zsamp_.start );
+		const int zstopidx = trc.nearestSample( tkzs_.zsamp_.stop );
+
+		const BinDataDesc trcdatadesc =
+			trc.data().getInterpreter(idc)->dataChar();
+		if ( storarr && dp_->getDataDesc()==trcdatadesc )
+		{
+		    const DataBuffer* databuf = trc.data().getComponent( idc );
+		    const int bytespersamp = databuf->bytesPerSample();
+		    const od_int64 offset =
+			arr.info().getOffset( 0, mCast(int,idx), 0 );
+
+		    const unsigned char* srcptr =
+			databuf->data() + zstartidx*bytespersamp;
+		    char* dstptr = storarr + offset*bytespersamp;
+
+		    for ( int idz=zstartidx; idz<=zstopidx; idz++ )
 		    {
-			Array3D<float>& arr = dp_->data( idc );
-			val = trc.getValue( z, components_[idc] );
-			arr.set( 0, mCast(int,idx), idz, val );
+			// Checks if amplitude equals undef value of underlying
+			// data type as the array is initialized with undefs.
+			if ( memcmp(dstptr,srcptr,bytespersamp) )
+			    OD::sysMemCopy(dstptr,srcptr,bytespersamp );
+			else
+			    arr.set(0,(int)idx,idz-zstartidx,trc.get(idz,idc));
+
+			srcptr += bytespersamp;
+			dstptr += bytespersamp;
 		    }
+		}
+		else
+		{
+		    for ( int idz=zstartidx; idz<=zstopidx; idz++ )
+			arr.set(0,(int)idx,idz-zstartidx,trc.get(idz,idc));
 		}
 	    }
 	}
@@ -413,8 +474,15 @@ bool execute()
 	ValueSeries<float>* stor = arr.getStorage();
 	mDynamicCastGet(ConvMemValueSeries<float>*,storptr,stor);
 	char* storarr = storptr ? storptr->storArr() : (char*)stor->arr();
+	if ( dp_.getScaler() )
+	{
+	    SeisTrcPropChg seistrcpropchg( trc_, cidx );
+	    seistrcpropchg.scale( *dp_.getScaler() );
+	}
 
-	if ( storarr )
+	const BinDataDesc trcdatadesc =
+		trc_.data().getInterpreter(cidx)->dataChar();
+	if ( storarr && dp_.getDataDesc()==trcdatadesc )
 	{
 	    const DataBuffer* databuf = trc_.data().getComponent( cidx );
 	    const int bytespersamp = databuf->bytesPerSample();
@@ -442,7 +510,6 @@ bool execute()
 	    for ( int zidx=zstartidx; zidx<=zstopidx; zidx++ )
 		arr.set( idx0, idx1, zidx-zstartidx, trc_.get(zidx,cidx) );
 	}
-
     }
 
     return true;
@@ -467,6 +534,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     , dc_(DataCharacteristics::Auto)
 {
     SeisIOObjInfo info( ioobj );
+    info.getDataChar( dc_ );
     if ( !comps )
     {
 	const int nrcomps = info.nrComponents();
@@ -518,8 +586,7 @@ RegularSeisDataPack* SequentialReader::getDataPack()
 bool SequentialReader::init()
 {
     const SeisIOObjInfo info( *ioobj_ );
-    if ( !info.getDataChar(dc_) )
-	return false;
+    if ( !info.isOK() ) return false;
 
     sd_ = new Seis::RangeSelData( tkzs_ );
     rdr_.setSelData( sd_ );
@@ -529,11 +596,12 @@ bool SequentialReader::init()
 	return false;
     }
 
-    const BinDataDesc bdd( dc_ );
-    dp_ = new RegularSeisDataPack( Seis::nameOf(info.geomType()), &bdd );
+    dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false), &dc_);
     DPM( DataPackMgr::SeisID() ).addAndObtain( dp_ );
     dp_->setSampling( tkzs_ );
     dp_->setName( ioobj_->name() );
+    if ( scaler_ )
+	dp_->setScaler( *scaler_ );
 
     BufferStringSet cnames;
     info.getComponentNames( cnames );

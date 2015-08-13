@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpol2d.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "scaler.h"
 #include "separstr.h"
 #include "survinfo.h"
 
@@ -423,6 +424,7 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
+    , scaler_(0)
 {}
 
 
@@ -430,6 +432,7 @@ SeisDataPack::~SeisDataPack()
 {
     deepErase( arrays_ );
     deleteAndZeroPtr( zdomaininfo_ );
+    deleteAndZeroPtr( scaler_ );
 }
 
 
@@ -509,6 +512,13 @@ void SeisDataPack::setZDomain( const ZDomain::Info& zinf )
 {
     delete zdomaininfo_;
     zdomaininfo_ = new ZDomain::Info( zinf );
+}
+
+
+void SeisDataPack::setScaler( const Scaler& scaler )
+{
+    delete scaler_;
+    scaler_ = scaler.clone();
 }
 
 
