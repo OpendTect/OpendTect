@@ -38,6 +38,8 @@ PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
     : BaseMapObject( pdd->name() )
     , pdd_( pdd )
 {
+    lst_.color_ = pdd_->getOrientation()== OD::InlineSlice ?
+						Color::Red() : Color::Blue();
 }
 
 
@@ -55,6 +57,7 @@ const char* PlaneDataDisplayBaseMapObject::getType() const
 
 void PlaneDataDisplayBaseMapObject::updateGeometry()
 {
+    setName( pdd_->getManipulationString().buf() );
     changed.trigger();
 }
 
@@ -329,9 +332,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	     ? 0
 	     : mMIN( abs(binid.crl()-cs.hsamp_.start_.crl()),
 		     abs( binid.crl()-cs.hsamp_.stop_.crl()) );
-    const float zfactor = scene_
-	? scene_->getZScale()
-        : s3dgeom_->zScale();
+    const float zfactor = scene_ ? scene_->getZScale() : s3dgeom_->zScale();
     zdiff = cs.zsamp_.includes(xytpos.z,false)
 	? 0
 	: (float)(mMIN(fabs(xytpos.z-cs.zsamp_.start),
@@ -444,6 +445,9 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 
     dragger_->showPlane( showplane );
     dragger_->showDraggerBorder( !showplane );
+
+    if ( canDisplayInteractively() )
+	updateSel();
 }
 
 
@@ -455,11 +459,7 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
     if ( cs!=snappedcs )
 	setDraggerPos( snappedcs );
 
-    if ( nrAttribs()==1 && getSelSpec(0) && getSelSpec(0)->isStored() )
-    {
-	deSelect();
-	select();
-    }
+    updateSel();
 }
 
 
@@ -472,10 +472,10 @@ void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
     const Coord3 center( \
 		(thecs.hsamp_.start_.inl()+thecs.hsamp_.stop_.inl())/2.0, \
 		(thecs.hsamp_.start_.crl()+thecs.hsamp_.stop_.crl())/2.0, \
-		         thecs.zsamp_.center() ); \
+		 thecs.zsamp_.center() ); \
     Coord3 width( thecs.hsamp_.stop_.inl()-thecs.hsamp_.start_.inl(), \
 		  thecs.hsamp_.stop_.crl()-thecs.hsamp_.start_.crl(), \
-	          thecs.zsamp_.width() ); \
+		  thecs.zsamp_.width() ); \
     if ( width.x < 1 ) width.x = 1; \
     if ( width.y < 1 ) width.y = 1; \
     if ( width.z < thecs.zsamp_.step * 0.5 ) width.z = 1; \
@@ -920,7 +920,8 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 
     const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true, 0 );
     const DataPack::ID dpid = RegularSeisDataPack::createDataPackForZSlice(
-	    bivset, tkzs, datatransform_->toZDomainInfo(), *userrefs_[attrib] );
+	bivset, tkzs, datatransform_->toZDomainInfo(), *userrefs_[attrib] );
+
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     dpm.release( transfdatapackids_[attrib] );
     transfdatapackids_[attrib] = dpid;
