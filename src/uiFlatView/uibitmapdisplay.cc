@@ -33,9 +33,10 @@ class uiBitMapDisplayTask : public Task
 {
 public:
 uiBitMapDisplayTask( FlatView::Appearance& app,
-		     uiDynamicImageItem& display, bool isdynamic )
+		     uiDynamicImageItem& display, bool isdynamic,
+		     bool withalpha )
     : appearance_(app)
-    , image_(new uiRGBArray(true))
+    , image_(new uiRGBArray(withalpha))
     , bitmap2image_(new BitMap2RGB(app,*image_))
     , display_(display)
     , isdynamic_(isdynamic)
@@ -74,9 +75,6 @@ void reset()
 
 bool execute()
 {
-    if ( isVisible(appearance_,true) )
-	image_->enableAlpha( false );
-
     image_->setSize( sz_.width(), sz_.height() );
 
     Threads::Locker lckr( lock_ );
@@ -150,10 +148,11 @@ Interval<float> getBitmapDataRange( bool iswva ) const
 
 
 
-uiBitMapDisplay::uiBitMapDisplay( FlatView::Appearance& app )
+uiBitMapDisplay::uiBitMapDisplay( FlatView::Appearance& app, bool withalpha )
     : appearance_(app)
     , display_(new uiDynamicImageItem)
-    , basetask_(new uiBitMapDisplayTask(app,*display_,false))
+    , withalpha_(withalpha)
+    , basetask_(new uiBitMapDisplayTask(app,*display_,false,withalpha))
     , finishedcb_(mCB( this, uiBitMapDisplay, dynamicTaskFinishCB ))
     , overlap_(0.5f)
     , wvapack_(0), vdpack_(0)
@@ -309,7 +308,7 @@ Task* uiBitMapDisplay::createDynamicTask( bool issnapshot  )
 	return 0;
 
     uiBitMapDisplayTask* dynamictask =
-	new uiBitMapDisplayTask( appearance_, *display_, true );
+	new uiBitMapDisplayTask( appearance_, *display_, true, withalpha_ );
     dynamictask->setDataPack( wvapack_.ptr(), true );
     dynamictask->setDataPack( vdpack_.ptr(), false );
 

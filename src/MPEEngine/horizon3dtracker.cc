@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cubicbeziercurve.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "horizonadjuster.h"
 #include "horizon3dextender.h"
 #include "horizon3dseedpicker.h"
@@ -32,7 +33,7 @@ const char* Horizon3DTracker::keyword()			{ return "Horizon3D"; }
 
 Horizon3DTracker::Horizon3DTracker( EM::Horizon3D* hor )
     : EMTracker(hor)
-    , seedpicker( 0 )
+    , seedpicker_( 0 )
 {
     setTypeStr( Horizon3DTracker::keyword() );
 }
@@ -40,14 +41,21 @@ Horizon3DTracker::Horizon3DTracker( EM::Horizon3D* hor )
 
 Horizon3DTracker::~Horizon3DTracker()
 {
-    delete seedpicker;
+    delete seedpicker_;
 }
 
 
 EMTracker* Horizon3DTracker::create( EM::EMObject* emobj )
 {
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    return emobj && !hor ? 0 : new Horizon3DTracker( hor );
+    if ( !hor ) return 0;
+
+    hor->auxdata.addAuxData( "Amplitude" );
+    hor->auxdata.addAuxData( "Correlation" );
+    hor->auxdata.addAuxData( "Seed Index" );
+    hor->auxdata.addAuxData( "Tracking Order" );
+
+    return new Horizon3DTracker( hor );
 }
 
 
@@ -68,16 +76,16 @@ SectionTracker* Horizon3DTracker::createSectionTracker( EM::SectionID sid )
 }
 
 
-EMSeedPicker* Horizon3DTracker::getSeedPicker(bool createifnotpresent)
+EMSeedPicker* Horizon3DTracker::getSeedPicker( bool createifnotpresent )
 {
-    if ( seedpicker )
-	return seedpicker;
+    if ( seedpicker_ )
+	return seedpicker_;
 
     if ( !createifnotpresent )
 	return 0;
 
-    seedpicker = new Horizon3DSeedPicker(*this);
-    return seedpicker;
+    seedpicker_ = new Horizon3DSeedPicker(*this);
+    return seedpicker_;
 }
 
 

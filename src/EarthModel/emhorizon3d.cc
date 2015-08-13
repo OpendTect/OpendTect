@@ -285,8 +285,10 @@ protected:
 
 Horizon3D::Horizon3D( EMManager& man )
     : Horizon(man)
-    , geometry_( *this )
-    , auxdata( *new SurfaceAuxData(*this) )
+    , geometry_(*this)
+    , auxdata(*new SurfaceAuxData(*this))
+    , lockednodes_(0)
+    , parents_(0)
 {
     geometry_.addSection( "", false );
 }
@@ -352,11 +354,20 @@ Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
 }
 
 
+bool Horizon3D::setZ( const TrcKey& tk, float z, bool addtohist )
+{ return setPos( sectionID(0), tk.pos().toInt64(), Coord3(0,0,z), addtohist ); }
+
+float Horizon3D::getZ( const TrcKey& tk ) const
+{ return (float) getPos( sectionID(0), tk.pos().toInt64() ).z; }
+
 bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 { return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z), addtohist ); }
 
 float Horizon3D::getZ( const BinID& bid ) const
 { return (float) getPos( sectionID(0), bid.toInt64() ).z; }
+
+bool Horizon3D::hasZ( const TrcKey& tk ) const
+{ return isDefined( sectionID(0), tk.pos().toInt64() ); }
 
 
 float Horizon3D::getZValue( const Coord& c, bool allow_udf, int nr ) const
@@ -537,7 +548,86 @@ Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 }
 
 
+void Horizon3D::initAllAuxData( float val )
+{
+    auxdata.init( -1, val );
+}
 
+
+void Horizon3D::initTrackingArrays()
+{
+    delete parents_; delete lockednodes_;
+
+    const SectionID sid = sectionID( 0 );
+    const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
+    if ( !geom || geom->isEmpty() ) return;
+
+    trackingsamp_.setInlRange( geom->rowRange() );
+    trackingsamp_.setCrlRange( geom->colRange() );
+    const int nrrows = trackingsamp_.nrLines();
+    const int nrcols = trackingsamp_.nrTrcs();
+
+    parents_ = new Array2DImpl<od_int64>( nrrows, nrcols );
+    parents_->setAll( -1 );
+    lockednodes_ = new Array2DImpl<char>( nrrows, nrcols );
+    lockednodes_->setAll( 0 );
+}
+
+
+void Horizon3D::setParent( const TrcKey& node, const TrcKey& parent )
+{
+    if ( !parents_ ) return;
+
+    const od_int64 gidx = trackingsamp_.globalIdx( node );
+    parents_->getData()[gidx] = trackingsamp_.globalIdx( parent );
+}
+
+
+TrcKey Horizon3D::getParent( const TrcKey& node ) const
+{
+    const od_int64 gidx = trackingsamp_.globalIdx( node );
+    const od_int64 parentidx = parents_->getData()[gidx];
+    if ( parentidx==-1 )
+	return TrcKey::udf();
+
+    return trackingsamp_.atIndex( parentidx );
+}
+
+
+void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
+{
+    od_int64 gidx = trackingsamp_.globalIdx( node );
+    while ( true )
+    {
+	gidx = parents_->getData()[gidx];
+	if ( gidx==-1 ) break;
+
+	parents.add( trackingsamp_.atIndex(gidx) );
+    }
+}
+
+
+void Horizon3D::getChildren( const TrcKey& node, TypeSet<TrcKey>& child ) const
+{
+}
+
+
+void Horizon3D::setNodeLocked( const TrcKey& node, bool locked )
+{
+    if ( !lockednodes_ ) return;
+
+    lockednodes_->getData()[trackingsamp_.globalIdx(node)] = locked ? '1' : '0';
+}
+
+
+bool Horizon3D::isNodeLocked( const TrcKey& node ) const
+{
+    return lockednodes_ ?
+	lockednodes_->getData()[trackingsamp_.globalIdx(node)] == '1' : false;
+}
+
+
+// Horizon3DGeometry
 Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
     : HorizonGeometry( surf )
     , step_( SI().inlStep(), SI().crlStep() )
@@ -675,18 +765,12 @@ bool Horizon3DGeometry::isAtEdge( const PosID& pid ) const
 PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
 				      const RowCol& dir ) const
 {
-    const RowCol rc = posid.getRowCol();
-    const SectionID sid = posid.sectionID();
-
-    const StepInterval<int> rowrg = rowRange( sid );
-    const StepInterval<int> colrg = colRange( sid, rc.row() );
-
     RowCol diff(0,0);
-    if ( dir.row()>0 ) diff.row() = rowrg.step;
-    else if ( dir.row()<0 ) diff.row() = -rowrg.step;
+    if ( dir.row()>0 ) diff.row() = step_.row();
+    else if ( dir.row()<0 ) diff.row() = -step_.row();
 
-    if ( dir.col()>0 ) diff.col() = colrg.step;
-    else if ( dir.col()<0 ) diff.col() = -colrg.step;
+    if ( dir.col()>0 ) diff.col() = step_.col();
+    else if ( dir.col()<0 ) diff.col() = -step_.col();
 
     TypeSet<PosID> aliases;
     getLinkedPos( posid, aliases );

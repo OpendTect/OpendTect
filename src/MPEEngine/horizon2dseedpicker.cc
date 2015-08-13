@@ -312,7 +312,7 @@ EM::PosID Horizon2DSeedPicker::replaceSeed( const EM::PosID& oldpid,
 
     removeSeed( oldpid, true, false );
     const Coord3 adjustednewposcrd( geom2d->toCoord(geomid_,newseedrc.col()),
-				    newpos.z );
+	    			    newpos.z );
     addSeed( adjustednewposcrd, false );
     newpospid = EM::PosID( hor->id(), sectionid_, newseedrc.toInt64() );
     hor->setBurstAlert( false );
@@ -457,7 +457,7 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
     if ( !extender2d )
 	return false;
 
-    extender->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
+    extender->setDirection( TrcKeyValue(TrcKey(0,0)) );
     extender->setExtBoundary( getTrackBox() );
     extender2d->setGeomID( geomid_ );
 

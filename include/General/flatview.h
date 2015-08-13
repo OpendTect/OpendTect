@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "datapackbase.h"
 #include "draw.h"
+#include "mousecursor.h"
 #include "uistrings.h"
 
 class FlatView_CB_Rcvr;
@@ -40,7 +41,9 @@ public:
 
     mExpClass(General) EditPermissions
     {
-    public:			EditPermissions();
+    public:
+			EditPermissions();
+
 	bool		onoff_;
 	bool		namepos_;
 	bool		linestyle_;
@@ -81,6 +84,7 @@ public:
     Color			fillcolor_;
     FillPattern			fillpattern_;
     int				zvalue_; //!<overlay zvalue ( max=on top )
+    MouseCursor			cursor_;
 
     bool			close_;
 
@@ -112,10 +116,10 @@ public:
 	mStruct(General) AuxPosition
 	{
 	    enum LineType	{ Normal=0, Bold=1, HighLighted=2 };
-				AuxPosition()
+	    			AuxPosition()
 				    : pos_(mUdf(float))
-				    , name_(uiStrings::sEmptyString())
-				    , linetype_(Normal) {}
+				    , name_(uiStrings::sEmptyString())	
+				    , linetype_(Normal)	{}
 	    float		pos_;
 	    LineType		linetype_;
 	    bool		isNormal() const{ return linetype_==Normal; }
@@ -132,7 +136,7 @@ public:
 		return *this;
 	    }
 
-	    bool	operator==( const AuxPosition& from ) const
+	    bool 	operator==( const AuxPosition& from ) const
 	    { return pos_ == from.pos_ && linetype_ == from.linetype_; }
 	};
 
@@ -389,7 +393,6 @@ public:
 
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
-    			//!< Depends on show_ and availability of data
     void		setVisible(bool wva, bool visibility);
     			//!< Will also handleChange.
     			//!< So, do not use unless you want both.
@@ -464,5 +467,4 @@ private:
 } // namespace FlatView
 
 #endif
-
 

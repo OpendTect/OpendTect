@@ -14,43 +14,239 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arraynd.h"
 #include "binidvalue.h"
-#include "emmanager.h"
 #include "emhorizon3d.h"
-#include "emundo.h"
+#include "emmanager.h"
 #include "emtracker.h"
+#include "emundo.h"
+#include "emsurfaceauxdata.h"
 #include "horizonadjuster.h"
 #include "mpeengine.h"
 #include "progressmeter.h"
-#include "sectionextender.h"
 #include "sectionadjuster.h"
+#include "sectionextender.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
-#include "timefun.h"
 #include "thread.h"
+#include "threadwork.h"
+#include "trckeyvalue.h"
 
 namespace MPE
 {
 
+
+class TrackerTask : public Task
+{
+public:
+TrackerTask( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
+		const TrcKeyValue& srcpos )
+    : mgr_(mgr)
+    , seed_(seed)
+    , srcpos_(srcpos)
+    , sectiontracker_(0)
+{
+}
+
+
+~TrackerTask()
+{
+}
+
+
+bool execute()
+{
+    sectiontracker_ = mgr_.getFreeSectionTracker();
+    const bool isok = sectiontracker_ && sectiontracker_->extender() &&
+			sectiontracker_->adjuster();
+    if ( !isok )
+	return false;
+
+    sectiontracker_->reset();
+    SectionExtender* ext = sectiontracker_->extender();
+    SectionAdjuster* adj = sectiontracker_->adjuster();
+
+    ext->setDirection( TrcKeyValue(TrcKey(0,0)) );
+    ext->setStartPosition( srcpos_.tk_ );
+    int res;
+    while ( (res=ext->nextStep())>0 )
+	;
+
+    TypeSet<EM::SubID> addedpos = ext->getAddedPositions();
+    TypeSet<EM::SubID> addedpossrc = ext->getAddedPositionsSource();
+    adj->setSeedPosition( seed_.tk_ );
+    adj->setPositions( addedpos, &addedpossrc );
+    while ( (res=adj->nextStep())>0 )
+	;
+
+    mgr_.freeSectionTracker( sectiontracker_ );
+
+    for ( int idx=0; idx<addedpos.size(); idx++ )
+    {
+	const TrcKey src( BinID::fromInt64(addedpos[idx]) );
+	mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
+	if ( hor3d )
+	    hor3d->auxdata.setAuxDataVal( 3, src, (float)mgr_.tasknr_ );
+	mgr_.addTask( seed_, src );
+    }
+
+    return true;
+}
+
+    HorizonTrackerMgr&	mgr_;
+    SectionTracker*	sectiontracker_;
+
+    TrcKeyValue		seed_;
+    TrcKeyValue		srcpos_;
+};
+
+
+
+HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
+    : twm_(Threads::WorkManager::twm())
+    , tracker_(emt)
+    , finished(this)
+    , nrdone_(0)
+    , nrtodo_(0)
+    , tasknr_(0)
+{
+    queueid_ = twm_.addQueue(
+	Threads::WorkManager::MultiThread, "Horizon Tracker" );
+}
+
+
+HorizonTrackerMgr::~HorizonTrackerMgr()
+{
+    twm_.removeQueue( queueid_, false );
+}
+
+
+void HorizonTrackerMgr::stop()
+{
+    twm_.removeQueue( queueid_, false );
+    queueid_ = twm_.addQueue(
+	Threads::WorkManager::MultiThread, "Horizon Tracker" );
+}
+
+
+bool HorizonTrackerMgr::hasTasks() const
+{ return nrtodo_ > 0; }
+
+
+void HorizonTrackerMgr::setSeeds( const TypeSet<TrcKey>& seeds )
+{ seeds_ = seeds; }
+
+
+void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
+				 const TrcKeyValue& source )
+{
+    mDynamicCastGet(EM::Horizon*,hor,tracker_.emObject())
+    if ( !hor || !hor->hasZ(source.tk_) )
+	return;
+
+    Threads::Locker locker( addlock_ );
+    nrtodo_++;
+    tasknr_++;
+    CallBack cb( mCB(this,HorizonTrackerMgr,taskFinished) );
+    Task* task = new TrackerTask( *this, seed, source );
+    twm_.addWork( Threads::Work(*task,true), &cb, queueid_,
+		  false, false, true );
+}
+
+
+void HorizonTrackerMgr::taskFinished( CallBacker* )
+{
+    Threads::Locker locker( finishlock_ );
+    nrtodo_--;
+    nrdone_++;
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,tracker_.emObject())
+    if ( nrdone_%500 == 0 || nrtodo_==0 )
+    {
+	if ( hor3d )
+	    hor3d->sectionGeometry( hor3d->sectionID(0) )->blockCallBacks(true);
+    }
+
+    if ( nrtodo_ == 0 )
+    {
+	if ( hor3d ) hor3d->setBurstAlert( false );
+	finished.trigger();
+    }
+}
+
+
+SectionTracker* HorizonTrackerMgr::getFreeSectionTracker()
+{
+    Threads::Locker locker( getfreestlock_  );
+    for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
+    {
+	if ( trackerinuse_[idx] )
+	    continue;
+
+	trackerinuse_[idx] = true;
+	return sectiontrackers_[idx];
+    }
+
+    return 0;
+}
+
+
+void HorizonTrackerMgr::freeSectionTracker( const SectionTracker* st )
+{
+    const int stidx = sectiontrackers_.indexOf( st );
+    trackerinuse_[stidx] = false;
+}
+
+
+void HorizonTrackerMgr::startFromSeeds()
+{
+    EM::EMObject* emobj = tracker_.emObject();
+    if ( !emobj ) return;
+
+    SectionTracker* st = tracker_.getSectionTracker( emobj->sectionID(0) );
+    if ( !st || !st->extender() )
+	return;
+
+    st->extender()->preallocExtArea();
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    if ( hor3d && nrdone_==0 )
+    {
+	hor3d->initAllAuxData();
+	hor3d->initTrackingArrays();
+    }
+
+    deepErase( sectiontrackers_ );
+    trackerinuse_.erase();
+    for ( int idx=0; idx<twm_.nrThreads(); idx++ )
+    {
+	sectiontrackers_ += tracker_.cloneSectionTracker();
+	trackerinuse_ += false;
+    }
+
+    nrtodo_ = 0;
+    hor3d->setBurstAlert( true );
+    for ( int idx=0; idx<seeds_.size(); idx++ )
+	addTask( seeds_[idx], seeds_[idx] );
+}
+
+
+
+
 AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     : Executor("Autotracker")
-    , emobject_( *EM::EMM().getObject(et.objectID()) )
-    , sectionid_( sid )
-    , sectiontracker_( et.getSectionTracker(sid,true) )
-    , nrdone_( 0 )
-    , totalnr_( 0 )
-    , nrflushes_( 0 )
-    , flushcntr_( 0 )
+    , emobject_(*EM::EMM().getObject(et.objectID()))
+    , sectionid_(sid)
+    , sectiontracker_(et.getSectionTracker(sid,true))
+    , nrdone_(0)
+    , totalnr_(0)
+    , nrflushes_(0)
+    , flushcntr_(0)
     , stepcntallowedvar_(-1)
     , stepcntapmtthesld_(-1)
-    , trackingextriffail_(false)
     , burstalertactive_(false)
-    , horizon3dundoinfo_( 0 )
+    , horizon3dundoinfo_(0)
 {
-    geomelem_ = emobject_.sectionGeometry(sectionid_);
+    geomelem_ = emobject_.sectionGeometry( sectionid_ );
     extender_ = sectiontracker_->extender();
     adjuster_ = sectiontracker_->adjuster();
-
-    trackingextriffail_ = adjuster_->removesOnFailure();
 
     reCalculateTotalNr();
 
@@ -63,8 +259,6 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	    {
 		stepcntapmtthesld_ = 0;
 		stepcntallowedvar_ = -1;
-		if ( horadj->getAmplitudeThresholds().size() > 1 )
-		    adjuster_->removeOnFailure( true );
 		const float th =
 		    horadj->getAmplitudeThresholds()[stepcntapmtthesld_];
 		horadj->setAmplitudeThreshold( th );
@@ -75,8 +269,6 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 	{
 	    stepcntallowedvar_ = 0;
 	    stepcntapmtthesld_ = -1;
-	    if ( horadj->getAllowedVariances().size()>1 )
-		adjuster_->removeOnFailure( true );
 	    const float var = horadj->getAllowedVariances()[stepcntallowedvar_];
 	    horadj->setAllowedVariance( var );
 	    execmsg_ = tr("Step: %1%").arg(var * 100);
@@ -260,7 +452,7 @@ int AutoTracker::nextStep()
     }
 
     extender_->reset();
-    extender_->setDirection( BinIDValue(BinID(0,0),mUdf(float)) );
+    extender_->setDirection( TrcKeyValue(TrcKey(0,0),mUdf(float)) );
     extender_->setStartPositions(currentseeds_);
     int res;
     while ( (res=extender_->nextStep())>0 )
@@ -328,10 +520,6 @@ int AutoTracker::nextStep()
 
 	    stepcntapmtthesld_++;
 
-	    if( horadj->getAmplitudeThresholds().size() ==
-		(stepcntapmtthesld_+1) )
-		adjuster_->removeOnFailure( trackingextriffail_ );
-
 	    TypeSet<EM::SubID> seedsfromlaststep;
 	    if ( sectiontracker_->propagatingFromSeedOnly() )
 		seedsfromlaststep = currentseeds_;
@@ -360,9 +548,6 @@ int AutoTracker::nextStep()
 	    }
 
 	    stepcntallowedvar_++;
-
-	    if ( horadj->getAllowedVariances().size() == (stepcntallowedvar_+1))
-		adjuster_->removeOnFailure( trackingextriffail_ );
 
 	    TypeSet<EM::SubID> seedsfromlaststep;
 	    if ( sectiontracker_->propagatingFromSeedOnly() )

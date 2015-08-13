@@ -5,18 +5,20 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        K. Tingdahl
- Date:          May 2006
- RCS:           $Id$
+ Author:	K. Tingdahl
+ Date:		May 2006
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
 
 #include "mpeenginemod.h"
 #include "sectionextender.h"
+
 #include "coord.h"
 #include "posinfo2dsurv.h"
-#include "binidvalue.h"
+#include "trckeyvalue.h"
+
 
 namespace EM { class Horizon2D; }
 
@@ -33,32 +35,32 @@ public:
 				Horizon2DExtender(EM::Horizon2D&,
 						  EM::SectionID);
     static SectionExtender*	create(EM::EMObject*,EM::SectionID);
-    static void         	initClass();
+    static void			initClass();
 
     void			setAngleThreshold(float radians);
     float			getAngleThreshold() const;
 
-    void			setDirection(const BinIDValue&);
-    const BinIDValue*		getDirection() const { return &direction_; }
-    void			setGeomID( Pos::GeomID geomid )
-				{ geomid_ = geomid; }
-    Pos::GeomID 		geomID() const	{ return geomid_; }
+    void			setDirection(const TrcKeyValue&);
+    const TrcKeyValue*		getDirection() const;
+    void			setGeomID(Pos::GeomID);
+    Pos::GeomID			geomID() const;
 
     int				nextStep();
 
 protected:
 
-    void		addNeighbor(bool upwards, const EM::SubID& sourcesid );
-    virtual float	getDepth(const EM::SubID& src,
-	    			 const EM::SubID& dest) const;
-    virtual void	prepareDataIfRequired()		{}
+    void			addNeighbor(bool upwards,
+					    const EM::SubID& sourcesid);
+    virtual float		getDepth(const TrcKey& src,
+					 const TrcKey& target) const;
+    virtual void		prepareDataIfRequired()		{}
 
-    float		anglethreshold_;
-    bool		alldirs_;
-    Coord		xydirection_;
-    BinIDValue		direction_;
-    EM::Horizon2D&	surface_;
-    Pos::GeomID 	geomid_;
+    float			anglethreshold_;
+    bool			alldirs_;
+    Coord			xydirection_;
+    TrcKeyValue			direction_;
+    EM::Horizon2D&		surface_;
+    Pos::GeomID			geomid_;
 };
 
 } // namespace MPE

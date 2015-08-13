@@ -133,13 +133,13 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
     }
     else if ( clip == 1 )
     {
-	Interval<float> cliprate( symclipratiofld_->getfValue(),
-				  symclipratiofld_->getfValue() );
+	Interval<float> cliprate( symclipratiofld_->getFValue(),
+				  symclipratiofld_->getFValue() );
 	cliprate.start *= 0.01;
 	cliprate.stop *= 0.01;
 	pars.mappersetup_.cliprate_ = cliprate;
 	pars.mappersetup_.symmidval_ = usemidvalfld_->getBoolValue() ?
-	    symmidvalfld_->getfValue() : mUdf(float);
+	    symmidvalfld_->getFValue() : mUdf(float);
     }
     else if ( clip == 2 )
     {
@@ -293,11 +293,11 @@ bool uiFlatViewDataDispPropTab::acceptOK()
     }
     else if ( clip==1 )
     {
-	Interval<float> cliprate( symclipratiofld_->getfValue()*0.01f,
-				  symclipratiofld_->getfValue()*0.01f );
+	Interval<float> cliprate( symclipratiofld_->getFValue()*0.01f,
+				  symclipratiofld_->getFValue()*0.01f );
 	pars.mappersetup_.cliprate_ = cliprate;
 	pars.mappersetup_.symmidval_ = usemidvalfld_->getBoolValue() ?
-				symmidvalfld_->getfValue() : mUdf(float);
+				symmidvalfld_->getFValue() : mUdf(float);
     }
     else
     {
@@ -433,8 +433,8 @@ bool uiFVWVAPropTab::acceptOK()
 
     if ( !pars_.show_ ) return true;
 
-    pars_.overlap_ = overlapfld_->getfValue();
-    pars_.reflinevalue_ = reflinefld_->getBoolValue() ? refvalfld_->getfValue()
+    pars_.overlap_ = overlapfld_->getFValue();
+    pars_.reflinevalue_ = reflinefld_->getBoolValue() ? refvalfld_->getFValue()
 						      : mUdf(float);
 #define mSetCol(fld,memb) \
     pars_.memb = fld->doDraw() ? fld->color(): Color::NoColor()
@@ -555,7 +555,8 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
     showgridlinesfld_->attach( rightOf, showannotfld_ );
 
     if ( dorevertaxis )
-    { reversedfld_ = new uiCheckBox( this, tr("Reversed") );
+    {
+	reversedfld_ = new uiCheckBox( this, uiStrings::sReversed() );
 	reversedfld_->attach( rightOf, showgridlinesfld_ );
     }
 

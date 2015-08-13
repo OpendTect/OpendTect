@@ -55,7 +55,8 @@ public:
 	    			   bool enviromment=true,
 	    			   bool retrack=true)		{ return false;}
     virtual EM::PosID	replaceSeed(const EM::PosID&,const Coord3&)
-			{ return EM::PosID::udf(); }
+    			{ return EM::PosID::udf(); }
+    virtual void	getSeeds(TypeSet<TrcKey>&) const	{}
 
     virtual void	setSelSpec(const Attrib::SelSpec*) {}
     virtual const Attrib::SelSpec*
@@ -65,6 +66,7 @@ public:
     virtual int		minSeedsToLeaveInitStage() const	{ return 1; }
 
     virtual NotifierAccess* aboutToAddRmSeedNotifier()		{ return 0; }
+    virtual NotifierAccess* seedAddedNotifier()			{ return 0; }
     virtual NotifierAccess* madeSurfChangeNotifier()		{ return 0; }
 
     virtual void	setSeedConnectMode(int)			{ return; }
@@ -77,7 +79,7 @@ public:
 
     virtual const char*	errMsg() const				{ return 0; }
 
-    enum SeedModeOrder	{ TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
+    enum SeedModeOrder  { TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
 
     virtual void	setSowerMode(bool)			{}
     virtual void	setSeedPickArea(const TrcKeySampling&)	{}

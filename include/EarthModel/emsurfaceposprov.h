@@ -24,14 +24,14 @@ ________________________________________________________________________
 
 class DataPointSet;
 
-namespace EM { class RowColIterator; class Surface; }
+namespace EM { class RowColIterator; class Region3D; class Surface; }
 
 namespace Pos
 {
 
 /*!
 \brief Provider based on surface(s)
- 
+
   For one surface, the provider iterates through the horizon. For two horizons,
   the points between the surfaces are visited with the specified Z step.
 */
@@ -63,11 +63,11 @@ public:
 
     int			nrSurfaces() const;
     MultiID		surfaceID( int idx ) const
-    			{ return idx ? id2_ : id1_; }
+			{ return idx ? id2_ : id1_; }
     EM::Surface*	surface( int idx )
-    			{ return idx ? surf2_ : surf1_; }
+			{ return idx ? surf2_ : surf1_; }
     const EM::Surface*	surface( int idx ) const
-    			{ return idx ? surf2_ : surf1_; }
+			{ return idx ? surf2_ : surf1_; }
     float		zStep() const		{ return zstep_; }
     void		setZStep( float s )	{ zstep_ = s; }
     Interval<float>	extraZ() const		{ return extraz_; }
@@ -125,15 +125,14 @@ mExpClass(EarthModel) EMSurfaceProvider3D : public Provider3D
 { mODTextTranslationClass(EMSurfaceProvider3D);
 public:
 
-			EMSurfaceProvider3D()
-			{}
+			EMSurfaceProvider3D()			{}
 			EMSurfaceProvider3D( const EMSurfaceProvider3D& p )
-			{ *this = p; }
+			    : EMSurfaceProvider()		{ *this = p; }
     const char*		factoryKeyword() const { return type(); }
     EMSurfaceProvider3D& operator =( const EMSurfaceProvider3D& p )
 			{ copyFrom(p); return *this; }
     Provider*		clone() const
-    			{ return new EMSurfaceProvider3D(*this); }
+			{ return new EMSurfaceProvider3D(*this); }
 
     virtual BinID	curBinID() const;
     virtual bool	includes(const BinID&,float) const;
@@ -141,10 +140,10 @@ public:
 			{ return Provider3D::includes(c,z); }
     virtual void	getExtent(BinID&,BinID&) const;
     virtual Coord	curCoord() const { return Provider3D::curCoord(); }
-    virtual void	getTrcKeyZSampling( TrcKeyZSampling& cs ) const	
+    virtual void	getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 			{ return Provider3D::getTrcKeyZSampling(cs); }
-    virtual void	getZRange(Interval<float>& rg ) const 
-			{ return EMSurfaceProvider::getZRange(rg); } 
+    virtual void	getZRange(Interval<float>& rg ) const
+			{ return EMSurfaceProvider::getZRange(rg); }
 
     static void		initClass();
     static Provider3D*	create()	{ return new EMSurfaceProvider3D; }
@@ -163,15 +162,14 @@ mExpClass(EarthModel) EMSurfaceProvider2D : public Provider2D
 { mODTextTranslationClass(EMSurfaceProvider2D);
 public:
 
-			EMSurfaceProvider2D()
-			{}
+			EMSurfaceProvider2D()			{}
 			EMSurfaceProvider2D( const EMSurfaceProvider2D& p )
-			{ *this = p; }
+			    : EMSurfaceProvider()		{ *this = p; }
     EMSurfaceProvider2D& operator =( const EMSurfaceProvider2D& p )
 			{ copyFrom(p); return *this; }
     const char*		factoryKeyword() const { return type(); }
     Provider*		clone() const
-    			{ return new EMSurfaceProvider2D(*this); }
+			{ return new EMSurfaceProvider2D(*this); }
 
     virtual const char*	curLine() const;
     virtual int		curNr() const;
@@ -180,9 +178,9 @@ public:
     virtual bool	includes(const Coord&,float) const;
     virtual bool	includes(int,float,int) const;
     virtual void	getExtent(Interval<int>&,int nr = -1) const;
-    virtual void	getZRange(Interval<float>& rg, int lidx ) const 
+    virtual void	getZRange(Interval<float>& rg, int lidx ) const
 			{ return EMSurfaceProvider::getZRange(rg); }
-    virtual void	getZRange(Interval<float>& rg ) const 
+    virtual void	getZRange(Interval<float>& rg ) const
 			{ return EMSurfaceProvider::getZRange(rg); }
     int			nrLines() const			{ return 1; }
 
@@ -202,10 +200,9 @@ mExpClass(EarthModel) EMSurface2DProvider3D : public Provider3D
 			    , public EMSurfaceProvider
 { mODTextTranslationClass(EMSurface2DProvider3D);
 public:
-    				EMSurface2DProvider3D();
+				EMSurface2DProvider3D();
 				EMSurface2DProvider3D(
-					const EMSurface2DProvider3D& p );
-				//{ *this = p; }
+					const EMSurface2DProvider3D&);
 				~EMSurface2DProvider3D();
     const char*			factoryKeyword() const { return type(); }
     EMSurface2DProvider3D&	operator =( const EMSurface2DProvider3D& p );
@@ -214,15 +211,15 @@ public:
     Provider*			clone() const
 				{ return new EMSurface2DProvider3D(*this); }
 
-    virtual BinID       	curBinID() const;
+    virtual BinID		curBinID() const;
     virtual bool		includes(const BinID&,float) const;
     virtual bool		includes( const Coord& c, float z ) const
 				{ return Provider3D::includes(c,z); }
     virtual void		getExtent(BinID&,BinID&) const;
-    virtual void		getZRange(Interval<float>& rg ) const 
-				{ return EMSurfaceProvider::getZRange(rg); } 
-    virtual Coord		curCoord() const 
-    				{ return Provider3D::curCoord(); }
+    virtual void		getZRange(Interval<float>& rg ) const
+				{ return EMSurfaceProvider::getZRange(rg); }
+    virtual Coord		curCoord() const
+				{ return Provider3D::curCoord(); }
 
     const DataPointSet&		dataPointSet( bool nr1 ) const
 				{ return nr1 ? dpssurf1_ : dpssurf2_; }
@@ -251,7 +248,7 @@ public:
 				EMImplicitBodyProvider(
 					const EMImplicitBodyProvider&);
 				~EMImplicitBodyProvider();
-    
+
     static void			initClass();
     static Provider3D*		create() { return new EMImplicitBodyProvider; }
     EMImplicitBodyProvider*	clone() const
@@ -269,9 +266,9 @@ public:
 
     virtual bool		toNextPos();
     virtual bool		toNextZ();
-    virtual int			estNrZPerPos() const; 
+    virtual int			estNrZPerPos() const;
     virtual od_int64		estNrPos() const;
-    virtual void		getExtent(BinID&,BinID&) const; 
+    virtual void		getExtent(BinID&,BinID&) const;
     virtual void		getZRange(Interval<float>&) const;
     virtual bool		includes(const Coord& c,float z) const;
     virtual bool		includes(const BinID&,float) const;
@@ -307,7 +304,62 @@ protected:
 };
 
 
-} // namespace
+/*!
+\brief EM Region provider for 3D positioning.
+*/
+
+mExpClass(EarthModel) EMRegion3DProvider : public Provider3D
+{ mODTextTranslationClass(EMRegion3DProvider)
+public:
+
+				EMRegion3DProvider();
+				EMRegion3DProvider(const EMRegion3DProvider&);
+				~EMRegion3DProvider();
+
+    static void			initClass();
+    static Provider3D*		create() { return new EMRegion3DProvider; }
+    EMRegion3DProvider*	clone() const
+				{ return new EMRegion3DProvider(*this); }
+
+    EMRegion3DProvider&	operator =(const EMRegion3DProvider&);
+    const char*			type() const		{ return "Region3D"; }
+    const char*			factoryKeyword() const	{ return type(); }
+
+    virtual bool		initialize(TaskRunner* tr=0);
+    virtual void		reset()			{ initialize(); }
+
+    virtual BinID		curBinID() const	{ return curbid_; }
+    virtual float		curZ() const		{ return curz_; }
+
+    virtual bool		toNextPos();
+    virtual bool		toNextZ();
+    virtual int			estNrZPerPos() const;
+    virtual od_int64		estNrPos() const;
+    virtual void		getExtent(BinID&,BinID&) const;
+    virtual void		getZRange(Interval<float>&) const;
+    virtual bool		includes(const Coord& c,float z) const;
+    virtual bool		includes(const BinID&,float) const;
+
+    virtual void		usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    virtual void		getSummary(BufferString&) const;
+
+    virtual void		getTrcKeyZSampling(TrcKeyZSampling& cs) const;
+
+    EM::Region3D&		region()		{ return region_; }
+    const EM::Region3D&		region() const		{ return region_; }
+
+protected:
+
+
+    TrcKeyZSampling		bbox_;
+
+    EM::Region3D&		region_;
+    BinID			curbid_;
+    float			curz_;
+    bool			useinside_;
+};
+
+} // namespace Pos
 
 #endif
-

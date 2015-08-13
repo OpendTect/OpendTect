@@ -59,7 +59,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->reSize.notify( mCB(this,uiFlatViewer,reSizeCB) );
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
 
-    bitmapdisp_ = new uiBitMapDisplay( appearance() );
+    bitmapdisp_ = new uiBitMapDisplay( appearance(), false );
     bitmapdisp_->getDisplay()->setZValue( bitMapZVal() );
     worldgroup_->add( bitmapdisp_->getDisplay() );
 
@@ -83,6 +83,10 @@ uiFlatViewer::~uiFlatViewer()
 
     deepErase( auxdata_ );
 }
+
+
+MouseEventHandler& uiFlatViewer::getMouseEventHandler()
+{ return view_->getMouseEventHandler(); }
 
 
 void uiFlatViewer::reSizeCB( CallBacker* )
@@ -124,7 +128,7 @@ void uiFlatViewer::updateAnnotCB( CallBacker* cb )
     axesdrawer_.setAuxLineStyle( annot.x1_.auxlinestyle_, true );
     axesdrawer_.setAuxLineStyle( annot.x1_.auxhllinestyle_, true, true );
     axesdrawer_.showAuxPositions( true, annot.x1_.showauxpos_,
-				  annot.x1_.showauxlines_ );
+	    			  annot.x1_.showauxlines_ );
     TypeSet<uiAxisHandler::AuxPosData> x1poss;
     if ( !annot.x1_.auxposs_.isEmpty() )
     {
@@ -138,12 +142,12 @@ void uiFlatViewer::updateAnnotCB( CallBacker* cb )
 	}
     }
 
-    axesdrawer_.setAuxAnnotPositions( x1poss, true );
+    axesdrawer_.setAuxAnnotPositions( x1poss, true ); 
 
     axesdrawer_.setAuxLineStyle( annot.x2_.auxlinestyle_, false );
     axesdrawer_.setAuxLineStyle( annot.x2_.auxhllinestyle_, false, true );
     axesdrawer_.showAuxPositions( false, annot.x2_.showauxpos_,
-				  annot.x2_.showauxlines_ );
+	    			  annot.x2_.showauxlines_ );
     TypeSet<uiAxisHandler::AuxPosData> x2poss;
     if ( !annot.x2_.auxposs_.isEmpty() )
     {

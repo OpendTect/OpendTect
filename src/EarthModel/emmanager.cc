@@ -51,6 +51,8 @@ namespace EM
 {
 const char* EMManager::displayparameterstr() { return "Display Parameters"; }
 
+
+
 mImplFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager::EMManager()

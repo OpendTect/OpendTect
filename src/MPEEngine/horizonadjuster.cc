@@ -16,13 +16,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 #include "emhorizon.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
+#include "emsurfaceauxdata.h"
 #include "genericnumer.h"
 #include "iopar.h"
 #include "mpeengine.h"
 #include "samplingdata.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
-#include "valseriestracker.h"
 
 namespace MPE
 {
@@ -33,20 +34,21 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor, EM::SectionID sid )
     , attribsel_(0)
     , datapackid_(DataPack::cNoID())
     , dpm_(DPM(DataPackMgr::SeisID()))
-    , tracker_( new EventTracker )
+    , evtracker_(*new EventTracker)
 {
-    tracker_->setSimilarityWindow(
+    evtracker_.setSimilarityWindow(
 	    Interval<float>(-10*SI().zStep(), 10*SI().zStep() ) );
-    tracker_->setPermittedRange(
-	    Interval<float>(-3*SI().zStep(), 3*SI().zStep() ) );
-    tracker_->setRangeStep( SI().zStep() );
+    evtracker_.setPermittedRange(
+	    Interval<float>(-2*SI().zStep(), 2*SI().zStep() ) );
+    evtracker_.setRangeStep( SI().zStep() );
+    evtracker_.normalizeSimilarityValues( true );
 }
 
 
 HorizonAdjuster::~HorizonAdjuster()
 {
     delete attribsel_;
-    delete tracker_;
+    delete &evtracker_;
     dpm_.release( datapackid_ );
 }
 
@@ -68,92 +70,90 @@ void HorizonAdjuster::reset()
 }
 
 
-void HorizonAdjuster::setPermittedZRange( const Interval<float>& rg )
-{ tracker_->setPermittedRange( rg ); }
+void HorizonAdjuster::setCompareMethod( EventTracker::CompareMethod cm )
+{ evtracker_.setCompareMethod( cm ); }
+
+EventTracker::CompareMethod HorizonAdjuster::getCompareMethod() const
+{ return evtracker_.getCompareMethod(); }
 
 
-Interval<float> HorizonAdjuster::permittedZRange() const
-{ return tracker_->permittedRange(); }
+void HorizonAdjuster::setSearchWindow( const Interval<float>& rg )
+{ evtracker_.setPermittedRange( rg ); }
+
+Interval<float> HorizonAdjuster::searchWindow() const
+{ return evtracker_.permittedRange(); }
 
 
 void HorizonAdjuster::setTrackByValue( bool yn )
-{ tracker_->useSimilarity( !yn ); }
-
+{ evtracker_.useSimilarity( !yn ); }
 
 bool HorizonAdjuster::trackByValue() const
-{ return !tracker_->usesSimilarity(); }
+{ return !evtracker_.usesSimilarity(); }
 
 
 void HorizonAdjuster::setTrackEvent( VSEvent::Type ev )
-{ tracker_->setTrackEvent( ev ); }
-
+{ evtracker_.setTrackEvent( ev ); }
 
 VSEvent::Type HorizonAdjuster::trackEvent() const
-{ return tracker_->trackEvent(); }
+{ return evtracker_.trackEvent(); }
 
 
 void HorizonAdjuster::setAmplitudeThreshold( float th )
-{ tracker_->setAmplitudeThreshold( th ); }
-
+{ evtracker_.setAmplitudeThreshold( th ); }
 
 float HorizonAdjuster::amplitudeThreshold() const
-{ return tracker_->amplitudeThreshold(); }
+{ return evtracker_.amplitudeThreshold(); }
 
 
 void HorizonAdjuster::setAmplitudeThresholds( const TypeSet<float>& ats )
-{ tracker_->setAmplitudeThresholds( ats ); }
-
+{ evtracker_.setAmplitudeThresholds( ats ); }
 
 TypeSet<float>& HorizonAdjuster::getAmplitudeThresholds()
-{ return tracker_->getAmplitudeThresholds(); }
+{ return evtracker_.getAmplitudeThresholds(); }
 
 
 void HorizonAdjuster::setAllowedVariances( const TypeSet<float>& avs )
-{ tracker_->setAllowedVariances( avs ); }
-
+{ evtracker_.setAllowedVariances( avs ); }
 
 TypeSet<float>& HorizonAdjuster::getAllowedVariances()
-{ return tracker_->getAllowedVariances(); }
+{ return evtracker_.getAllowedVariances(); }
 
 
 void HorizonAdjuster::setAllowedVariance( float v )
-{ tracker_->setAllowedVariance( v ); }
-
+{ evtracker_.setAllowedVariance( v ); }
 
 float HorizonAdjuster::allowedVariance() const
-{ return tracker_->allowedVariance(); }
+{ return evtracker_.allowedVariance(); }
 
 
 void HorizonAdjuster::setUseAbsThreshold( bool abs )
-{ tracker_->setUseAbsThreshold( abs ); }
-
+{ evtracker_.setUseAbsThreshold( abs ); }
 
 bool HorizonAdjuster::useAbsThreshold() const
-{ return tracker_->useAbsThreshold(); }
+{ return evtracker_.useAbsThreshold(); }
 
 
 void HorizonAdjuster::setSimilarityWindow( const Interval<float>& rg )
-{ tracker_->setSimilarityWindow( rg ); }
-
+{ evtracker_.setSimilarityWindow( rg ); }
 
 Interval<float> HorizonAdjuster::similarityWindow() const
-{ return tracker_->similarityWindow(); }
+{ return evtracker_.similarityWindow(); }
 
 
 void HorizonAdjuster::setSimilarityThreshold( float th )
-{ tracker_->setSimilarityThreshold( th ); }
-
+{ evtracker_.setSimilarityThreshold( th ); }
 
 float HorizonAdjuster::similarityThreshold() const
-{ return tracker_->similarityThreshold(); }
+{ return evtracker_.similarityThreshold(); }
 
 
 int HorizonAdjuster::nextStep()
 {
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( datapackid_ );
-    if ( !regsdp || regsdp->isEmpty() )
+    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    if ( !sdp || sdp->isEmpty() )
 	return ErrorOccurred();
 
+    mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_)
     for ( int idx=0; idx<pids_.size(); idx++ )
     {
 	BinID targetbid = BinID::fromInt64( pids_[idx] );
@@ -163,19 +163,33 @@ int HorizonAdjuster::nextStep()
 	{
 	    BinID refbid = BinID::fromInt64( pidsrc_[idx] );
 	    res = track( refbid, targetbid, targetz );
+	    if ( res && hor3d )
+		hor3d->setParent( targetbid, refbid );
 	}
-	else
+	else // adjust picked seed
 	{
-	    const bool wasusingsim = tracker_->usesSimilarity();
-	    tracker_->useSimilarity( false );
+	    // get current settings and temporarily change eventtracker
+	    // for adjusting the seed
+	    const bool wasusingsim = evtracker_.usesSimilarity();
+	    evtracker_.useSimilarity( false );
+	    EventTracker::CompareMethod curmethod =
+				evtracker_.getCompareMethod();
+	    evtracker_.setCompareMethod( EventTracker::None );
+
 	    res = track( BinID(-1,-1), targetbid, targetz );
-	    tracker_->useSimilarity( wasusingsim );
+
+	    evtracker_.useSimilarity( wasusingsim );
+	    evtracker_.setCompareMethod( curmethod );
+
+	    if ( res )
+		setSeedPosition( targetbid );
 	}
 
-	if ( res )
-	    setHorizonPick( targetbid, targetz );
-	else if ( removeonfailure_ )
-	    setHorizonPick( targetbid, mUdf(float) );
+	if ( res || removeonfailure_ )
+	{
+	    const float newz = res ? targetz : mUdf(float);
+	    setHorizonPick( targetbid, newz );
+	}
     }
 
     return Finished();
@@ -183,58 +197,75 @@ int HorizonAdjuster::nextStep()
 
 
 bool HorizonAdjuster::track( const BinID& from, const BinID& to,
-			     float& targetz) const
+			     float& targetz ) const
 {
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( datapackid_ );
-    if ( !regsdp || regsdp->isEmpty() )
+    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    if ( !sdp || sdp->isEmpty() )
 	return false;
 
-    const Array3D<float>& array = regsdp->data( 0 );
+    const Array3D<float>& array = sdp->data( 0 );
     if ( !array.getStorage() ) return false;
 
     if ( !horizon_.isDefined(sectionid_,to.toInt64()) )
 	return false;
 
-    const int totrcidx = regsdp->getGlobalIdx( getTrcKey(to) );
+    const int totrcidx = sdp->getGlobalIdx( getTrcKey(to) );
     if ( totrcidx < 0 ) return false;
 
-    const OffsetValueSeries<float> tovs = regsdp->getTrcStorage( 0, totrcidx );
+    const OffsetValueSeries<float> tovs = sdp->getTrcStorage( 0, totrcidx );
     const float startz = (float) horizon_.getPos( sectionid_, to.toInt64() ).z;
-    const TrcKeyZSampling& tkzs = regsdp->sampling();
-    const SamplingData<float> sd( tkzs.zsamp_.start, tkzs.zsamp_.step );
-    tracker_->setRangeStep( sd.step );
-    tracker_->setTarget( &tovs, tkzs.nrZ(), sd.getfIndex(startz) );
+    if ( mIsUdf(startz) )
+	return false;
+
+    const StepInterval<float>& zsamp = sdp->getZRange();
+    const int nrz = zsamp.nrSteps() + 1;
+    const SamplingData<float> sd( zsamp.start, zsamp.step );
+    evtracker_.setRangeStep( sd.step );
+    evtracker_.setTarget( &tovs, nrz, sd.getfIndex(startz) );
+
     if ( from.inl()!=-1 && from.crl()!=-1 )
     {
-	if ( !horizon_.isDefined(sectionid_, from.toInt64()) )
+	if ( !horizon_.isDefined(sectionid_,from.toInt64()) )
 	    return false;
 
-	const int fromtrcidx = regsdp->getGlobalIdx( getTrcKey(from) );
+	const int seedtrcidx = sdp->getGlobalIdx( seedtk_ );
+	if ( seedtrcidx < 0 ) return false;
+
+	OffsetValueSeries<float> seedvs = sdp->getTrcStorage( 0, seedtrcidx );
+	if ( evtracker_.getCompareMethod() == EventTracker::SeedTrace )
+	{
+	    const float seedz = horizon_.getZ( seedtk_ );
+	    evtracker_.setSeed( &seedvs, nrz, sd.getfIndex(seedz) );
+	}
+	else
+	    evtracker_.setSeed( 0, -1, mUdf(float) );
+
+	const int fromtrcidx = sdp->getGlobalIdx( getTrcKey(from) );
 	if ( fromtrcidx < 0 ) return false;
 
 	const OffsetValueSeries<float> fromvs =
-			regsdp->getTrcStorage( 0, fromtrcidx );
+			sdp->getTrcStorage( 0, fromtrcidx );
 	const float fromz = (float)horizon_.getPos(sectionid_,from.toInt64()).z;
-	tracker_->setSource( &fromvs, tkzs.nrZ(), sd.getfIndex(fromz) );
-	if ( !tracker_->isOK() )
+	evtracker_.setSource( &fromvs, nrz, sd.getfIndex(fromz) );
+	if ( !evtracker_.isOK() )
 	    return false;
 
-	const bool res = tracker_->track();
-	const float resz = sd.atIndex( tracker_->targetDepth() );
-	if ( !permittedZRange().includes(resz-startz,false) )
+	const bool res = evtracker_.track();
+	const float resz = sd.atIndex( evtracker_.targetDepth() );
+	if ( !searchWindow().includes(resz-startz,false) )
 	    return false;
 
 	if ( res ) targetz = resz;
 	return res;
     }
 
-    tracker_->setSource( 0, tkzs.nrZ(), 0 );
-    if ( !tracker_->isOK() )
+    evtracker_.setSource( 0, nrz, 0 );
+    if ( !evtracker_.isOK() )
 	return false;
 
-    const bool res = tracker_->track();
-    const float resz = sd.atIndex( tracker_->targetDepth() );
-    if ( !permittedZRange().includes(resz-startz,false) )
+    const bool res = evtracker_.track();
+    const float resz = sd.atIndex( evtracker_.targetDepth() );
+    if ( !searchWindow().includes(resz-startz,false) )
 	return false;
 
     if ( res ) targetz = resz;
@@ -265,12 +296,12 @@ TrcKeyZSampling
 
     TrcKeyZSampling res = engine().activeVolume();
 
-    res.zsamp_.start += tracker_->permittedRange().start;
-    res.zsamp_.stop += tracker_->permittedRange().stop;
+    res.zsamp_.start += evtracker_.permittedRange().start;
+    res.zsamp_.stop += evtracker_.permittedRange().stop;
     if ( !trackByValue() )
     {
-	res.zsamp_.start += tracker_->similarityWindow().start;
-	res.zsamp_.stop += tracker_->similarityWindow().stop;
+	res.zsamp_.start += evtracker_.similarityWindow().start;
+	res.zsamp_.stop += evtracker_.similarityWindow().stop;
     }
 
     res.snapToSurvey();
@@ -280,20 +311,26 @@ TrcKeyZSampling
 
 const TrcKey HorizonAdjuster::getTrcKey( const BinID& bid ) const
 {
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( datapackid_ );
-    if ( !regsdp ) return TrcKey::udf();
+    ConstDataPackRef<SeisDataPack> sdp = dpm_.obtain( datapackid_ );
+    if ( !sdp ) return TrcKey::udf();
 
-    return regsdp->is2D() ?
-      Survey::GM().traceKey(regsdp->getTrcKey(0).geomID(),bid.crl()) :
+    return sdp->is2D() ?
+      Survey::GM().traceKey(sdp->getTrcKey(0).geomID(),bid.crl()) :
       Survey::GM().traceKey(Survey::GM().default3DSurvID(),bid.inl(),bid.crl());
 }
 
 
-void HorizonAdjuster::setHorizonPick(const BinID&  bid, float val )
+void HorizonAdjuster::setHorizonPick( const BinID& bid, float val )
 {
-    Coord3 pos = horizon_.getPos( sectionid_, bid.toInt64() );
-    pos.z = val;
-    horizon_.setPos( sectionid_, bid.toInt64(), pos, setundo_ );
+    horizon_.setZ( bid, val, setundo_ );
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,&horizon_);
+    if ( !hor3d ) return;
+
+    EM::PosID posid( horizon_.id(), sectionid_, bid.toInt64() );
+    hor3d->auxdata.setAuxDataVal( 0, posid, evtracker_.targetValue() );
+    hor3d->auxdata.setAuxDataVal( 1, posid, evtracker_.quality() );
+    hor3d->auxdata.setAuxDataVal( 2, posid, (float)seedtk_.trcNr() );
 }
 
 
@@ -321,7 +358,7 @@ void HorizonAdjuster::fillPar( IOPar& iopar ) const
 {
     SectionAdjuster::fillPar( iopar );
     IOPar trackerpar;
-    tracker_->fillPar( trackerpar );
+    evtracker_.fillPar( trackerpar );
     iopar.mergeComp( trackerpar, sKeyTracker() );
     if ( attribsel_ ) attribsel_->fillPar( iopar );
 }
@@ -337,7 +374,7 @@ bool HorizonAdjuster::usePar( const IOPar& iopar )
 	return false;
 
     PtrMan<IOPar> trackerpar = iopar.subselect( sKeyTracker() );
-    return trackerpar && tracker_->usePar( *trackerpar );
+    return trackerpar && evtracker_.usePar( *trackerpar );
 }
 
 } // namespace MPE

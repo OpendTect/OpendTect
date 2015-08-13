@@ -95,10 +95,13 @@ mExpClass(EarthModel) Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
 
-    float			getZ(const BinID&) const;
+    float			getZ(const TrcKey&) const;
 				//!< Fast: reads from the first section
-    bool			setZ(const BinID&,float z,bool addtohist);
+    bool			setZ(const TrcKey&,float z,bool addtohist);
 				//!< Fast: writes to the first section
+    bool			hasZ(const TrcKey&) const;
+				//!< Fast: checks only the first section
+
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;
 				//!< Slow: if you need the choices
@@ -142,7 +145,18 @@ public:
     static uiString		userTypeStr()
 				{ return tr("3D Horizon"); }
 
+    void			initAllAuxData(float val=mUdf(float));
     SurfaceAuxData&		auxdata;
+
+    void			initTrackingArrays();
+    void			setParent(const TrcKey&,const TrcKey& parent);
+    TrcKey			getParent(const TrcKey&) const;
+    void			getParents(const TrcKey&,
+					   TypeSet<TrcKey>&) const;
+    void			getChildren(const TrcKey&,
+					    TypeSet<TrcKey>&) const;
+    void			setNodeLocked(const TrcKey&,bool locked);
+    bool			isNodeLocked(const TrcKey&) const;
 
 protected:
     void			fillPar(IOPar&) const;
@@ -152,6 +166,16 @@ protected:
     friend class		EMManager;
     friend class		EMObject;
     Horizon3DGeometry		geometry_;
+
+    TrcKeySampling		trackingsamp_;
+    Array2D<char>*		lockednodes_;
+    Array2D<od_int64>*		parents_;
+
+public:
+    /*mDeprecated*/ float	getZ(const BinID&) const;
+				//!< Fast: reads from the first section
+    /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
+				//!< Fast: writes to the first section
 };
 
 } // namespace EM

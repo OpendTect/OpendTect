@@ -166,6 +166,9 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 
 bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 {
+    if ( trackercurrentobject_ != -1 && !seedswithoutattribsel_ )
+	return false;
+
     seedswithoutattribsel_ = false;
     cursceneid_ = addedtosceneid;
     //NotifyStopper notifystopper( MPE::engine().trackeraddremove );
@@ -206,6 +209,25 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 }
 
 
+void uiMPEPartServer::seedAddedCB( CallBacker* )
+{
+    const int trackerid = getTrackerID( trackercurrentobject_ );
+    if ( trackerid == -1 )
+	return;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker )
+	return;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker || !seedpicker->getSelSpec() )
+	return;
+
+    if ( setupgrp_ )
+	setupgrp_->setSeedPos( seedpicker->getAddedSeed() );
+}
+
+
 void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
 {
     const int trackerid = getTrackerID( trackercurrentobject_ );
@@ -224,10 +246,7 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
     bool isvalidsetup = false;
 
     if ( setupgrp_ )
-    {
-	setupgrp_->setSeedPos( seedpicker->getAddedSeed() );
 	isvalidsetup = setupgrp_->commitToTracker( fieldchange );
-    }
 
     seedpicker->blockSeedPick( !isvalidsetup );
     if ( !isvalidsetup )
@@ -292,6 +311,10 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 	sendEvent( uiMPEPartServer::evUpdateTrees() );
 	emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(),
 				      setupgrp_->getMarkerStyle() );
+
+	LineStyle ls = emobj->preferredLineStyle();
+	ls.width_ = setupgrp_->getLineWidth();
+	emobj->setPreferredLineStyle( ls );
     }
 }
 
@@ -386,6 +409,10 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     if ( addrmseednotifier )
 	addrmseednotifier->remove(
 			   mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
+
+    NotifierAccess* seedaddednotif = seedpicker->seedAddedNotifier();
+    if ( seedaddednotif )
+	seedaddednotif->remove( mCB(this,uiMPEPartServer,seedAddedCB) );
 
     setupgrp_ = 0;
 
@@ -909,9 +936,10 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( !seedpicker ) return false;
 
     uiDialog* setupdlg  = new uiDialog( parent(),
-				uiDialog::Setup(tr("Tracking Setup"),0,
-                                 mODHelpKey(mTrackingSetupGroupHelpID) )
+		uiDialog::Setup(tr("Horizon Tracking Setup"),0,
+				mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
+    setupdlg->showAlwaysOnTop();
     setupdlg->setCtrlStyle( uiDialog::CloseOnly );
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
 						  setupdlg,
@@ -941,6 +969,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
 				seedpicker->getSeedConnectMode() );
     setupgrp_->setColor( emobj->preferredColor() );
+    setupgrp_->setLineWidth( emobj->preferredLineStyle().width_ );
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 						EM::EMObject::sSeedNode()) );
     setupgrp_->setSectionTracker( sectracker );
@@ -971,6 +1000,10 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( addrmseednotifier )
 	addrmseednotifier->notify(
 			   mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
+
+    NotifierAccess* seedaddednotif = seedpicker->seedAddedNotifier();
+    if ( seedaddednotif )
+	seedaddednotif->notify( mCB(this,uiMPEPartServer,seedAddedCB) );
 
     setupdlg->windowClosed.notify(
 			   mCB(this,uiMPEPartServer,trackerWinClosedCB) );

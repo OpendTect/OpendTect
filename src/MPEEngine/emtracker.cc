@@ -119,19 +119,14 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
 	adjuster->reset();
 	adjuster->setPositions( subids );
 
-	const bool didremoveonfailure = adjuster->removeOnFailure(false);
-
 	while ( int res=adjuster->nextStep() )
 	{
 	    if ( res==-1 )
 	    {
 		errmsg_ = adjuster->errMsg();
-		adjuster->removeOnFailure(didremoveonfailure);
 		return false;
 	    }
 	}
-
-	adjuster->removeOnFailure(didremoveonfailure);
     }
 
     return true;
@@ -170,6 +165,30 @@ void EMTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 
 const char* EMTracker::errMsg() const
 { return errmsg_.str(); }
+
+
+SectionTracker* EMTracker::cloneSectionTracker()
+{
+    if ( sectiontrackers_.isEmpty() )
+	return 0;
+
+    const EM::SectionID sid = emobject_->sectionID( 0 );
+    SectionTracker* st = getSectionTracker( sid );
+    if ( !st ) return 0;
+
+    SectionTracker* newst = createSectionTracker( sid );
+    if ( !newst || !newst->init() )
+    {
+	delete newst;
+	return 0;
+    }
+
+    IOPar pars;
+    st->fillPar( pars );
+    newst->usePar( pars );
+    newst->reset();
+    return newst;
+}
 
 
 SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )

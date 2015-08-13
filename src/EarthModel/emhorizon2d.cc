@@ -400,6 +400,34 @@ Horizon2D::~Horizon2D()
 {}
 
 
+float Horizon2D::getZ( const TrcKey& tk ) const
+{
+    const Geometry::Horizon2DLine* line =
+		geometry().sectionGeometry( SectionID(0) );
+    const int rowidx = line ? line->getRowIndex( tk.geomID() ) : -1;
+    if ( rowidx < 0 )
+	return mUdf(float);
+
+    const Coord3 pos = line->getKnot( RowCol(rowidx,tk.trcNr()) );
+    return pos.isDefined() ? mCast(float,pos.z) : mUdf(float);
+}
+
+
+bool Horizon2D::setZ( const TrcKey& tk, float z, bool addtohist )
+{
+    Geometry::Horizon2DLine* line = geometry().sectionGeometry( SectionID(0) );
+    const int rowidx = line ? line->getRowIndex( tk.geomID() ) : -1;
+    if ( rowidx < 0 )
+	return false;
+
+    return line->setKnot( RowCol(rowidx,tk.trcNr()), Coord3(0,0,(double)z) );
+}
+
+
+bool Horizon2D::hasZ( const TrcKey& tk ) const
+{ return !mIsUdf(getZ(tk)); }
+
+
 float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 {
     const int sectionidx = nr;

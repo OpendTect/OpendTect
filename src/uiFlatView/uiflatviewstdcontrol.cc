@@ -66,8 +66,8 @@ uiFlatViewZoomLevelDlg::uiFlatViewZoomLevelDlg( uiParent* p,
 
 bool uiFlatViewZoomLevelDlg::acceptOK( CallBacker* )
 {
-    x1pospercm_ = x1fld_->getfValue();
-    x2pospercm_ = x2fld_ ? x2fld_->getfValue() : x1pospercm_;
+    x1pospercm_ = x1fld_->getFValue();
+    x2pospercm_ = x2fld_ ? x2fld_->getFValue() : x1pospercm_;
     if ( saveglobalfld_->isChecked() )
 	uiFlatViewStdControl::setGlobalZoomLevel(
 		x1pospercm_, x2pospercm_, x2fld_ );
@@ -167,7 +167,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	uiColorTableToolBar* coltabtb = new uiColorTableToolBar( mainwin() );
 	ctabed_ = new uiFlatViewColTabEd( *coltabtb );
 	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>=400 );
-	if ( setup.managescoltab_ )
+	if ( setup.managecoltab_ )
 	{
 	    mAttachCB( ctabed_->colTabChgd, uiFlatViewStdControl::coltabChg );
 	    mAttachCB( vwr.dispParsChanged, uiFlatViewStdControl::dispChgCB );

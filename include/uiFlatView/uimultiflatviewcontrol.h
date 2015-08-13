@@ -23,7 +23,7 @@ ________________________________________________________________________
 mExpClass(uiFlatView) MFVCViewManager
 {
 public:
-			MFVCViewManager()
+    			MFVCViewManager()
 			    : isflattened_(false)	{};
     			~MFVCViewManager();
     void		setD2TModels(const ObjectSet<const TimeDepthModel>&);
@@ -31,7 +31,7 @@ public:
     bool		getViewRect(const uiFlatViewer* activevwr,
 	    			    const uiFlatViewer* curvwr,
 				    uiWorldRect&) const;
-    void		setFlattened( bool flattened )
+    void		setFlattened( bool flattened )	
 			{ isflattened_ = flattened; }
     bool		isFlattened() const	{ return isflattened_; }
 protected:

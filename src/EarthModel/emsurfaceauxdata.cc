@@ -186,6 +186,16 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 }
 
 
+void SurfaceAuxData::setAuxDataVal( int dataidx, const TrcKey& tk, float val )
+{
+    const BinIDValueSet::SPos pos = auxdata_[0]->find( tk.pos() );
+    if ( pos.isValid() )
+	auxdata_[0]->getVals( pos )[dataidx] = val;
+
+    changed_ = true;
+}
+
+
 bool SurfaceAuxData::isChanged(int idx) const
 { return changed_; }
 
@@ -262,7 +272,6 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 
     return transl->getAuxdataWriter( horizon_, dataidx, overwrite );
 }
-
 
 void SurfaceAuxData::removeSection( const SectionID& sectionid )
 {
@@ -348,6 +357,34 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
     }
 
     return arr;
+}
+
+
+void SurfaceAuxData::init( int dataidx, float val )
+{
+    const SectionID sid = horizon_.sectionID( 0 );
+    const Geometry::RowColSurface* rcgeom =
+	horizon_.geometry().sectionGeometry( sid );
+    if ( !rcgeom || rcgeom->isEmpty() )
+	return;
+
+    const StepInterval<int> rowrg = rcgeom->rowRange();
+    const StepInterval<int> colrg = rcgeom->colRange();
+    PosID posid( horizon_.id(), sid );
+    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    {
+	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	{
+	    posid.setSubID( RowCol(row,col).toInt64() );
+	    if ( dataidx<0 )
+	    {
+		for ( int aidx=0; aidx<nrAuxData(); aidx++ )
+		    setAuxDataVal( aidx, posid, val );
+	    }
+	    else
+		setAuxDataVal( dataidx, posid, val );
+	}
+    }
 }
 
 

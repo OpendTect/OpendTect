@@ -60,10 +60,10 @@ DefineEnumNames(EventTracker,CompareMethod,0,"Compare Method")
 
 const char* EventTracker::sKeyPermittedRange()	{ return "Permitted range"; }
 const char* EventTracker::sKeyValueThreshold()	{ return "Value threshhold"; }
-const char* EventTracker::sKeyValueThresholds() { return "Value threshholds"; }
-const char* EventTracker::sKeyAllowedVariance() { return "Allowed variance"; }
+const char* EventTracker::sKeyValueThresholds()	{ return "Value threshholds"; }
+const char* EventTracker::sKeyAllowedVariance()	{ return "Allowed variance"; }
 const char* EventTracker::sKeyAllowedVariances(){ return "Allowed variances"; }
-const char* EventTracker::sKeyUseAbsThreshold() { return "Use abs threshhold"; }
+const char* EventTracker::sKeyUseAbsThreshold()	{ return "Use abs threshhold"; }
 const char* EventTracker::sKeySimWindow()	{ return "Similarity window"; }
 const char* EventTracker::sKeySimThreshold() { return "Similarity threshhold"; }
 const char* EventTracker::sKeyNormSimi()     { return "Normalize similarity"; }
@@ -427,8 +427,39 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 
     const int nrsamples = actualsimilaritywin.width(false)+1;
 
+// Similarity part - Rework!!!
+
+    bool normalize = nrsamples > 1;
     ValSeriesMathFunc reffunc( *refvs, refsize );
     ValSeriesMathFunc targetfunc( *targetvs_, targetsize_ );
+
+    MathFunctionSampler<float,float> refsamp( reffunc );
+    refsamp.sd.start = (float)firstrefsample;
+    refsamp.sd.step = 1;
+
+    MathFunctionSampler<float,float> targetsamp( targetfunc );
+    targetsamp.sd.step = 1;
+
+    double meana = mUdf(double), stddeva = mUdf(double);
+    double meanb = mUdf(double), stddevb = mUdf(double);
+
+    double asum = 0;
+    mAllocVarLenArr( double, avals, nrsamples );
+    mAllocVarLenArr( double, bvals, nrsamples );
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	avals[idx] = refsamp[idx];
+	asum += avals[idx];
+    }
+
+    meana = asum / nrsamples;
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	const double adiff = avals[idx]-meana;
+	asum += adiff*adiff;
+    }
+
+    stddeva = Math::Sqrt(asum/(nrsamples-1));
 
     const int subsize = 8;
     const float fstep = (float)step / (float)subsize;
@@ -439,9 +470,56 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	if ( targetstart<0 )
 	    break;
 
+	targetsamp.sd.start = targetstart;
+
+	double bsum = 0;
+	for ( int sidx=0; sidx<nrsamples; sidx++ )
+	{
+	    bvals[sidx] = targetsamp[sidx];
+	    bsum += bvals[sidx];
+	}
+
+	meanb = bsum / nrsamples;
+	bsum = 0;
+	for ( int sidx=0; sidx<nrsamples; sidx++ )
+	{
+	    const double bdiff = bvals[sidx]-meanb;
+	    bsum += bdiff*bdiff;
+	}
+
+	stddevb = Math::Sqrt(bsum/(nrsamples-1));
+	if ( mIsZero(stddeva,mDefEps) || mIsZero(stddevb,mDefEps) )
+		normalize=false;
+/*
 	const float sim = similarity( reffunc, targetfunc,
 		(float)firstrefsample, targetstart, 1,
 		nrsamples, normalizesimi_ );
+*/
+	double val1, val2;
+	double sqdist = 0, sq1 = 0, sq2 = 0;
+	for ( int sidx=0; sidx<nrsamples; sidx++ )
+	{
+	    val1 = normalize ? (avals[sidx]-meana)/stddeva : avals[sidx];
+	    val2 = normalize ? (bvals[sidx]-meanb)/stddevb : bvals[sidx];
+	    if ( mIsUdf(val1) || mIsUdf(val2) )
+		return mUdf(float);
+
+	    sq1 += val1 * val1;
+	    sq2 += val2 * val2;
+	    sqdist += (val1-val2) * (val1-val2);
+	}
+
+	float sim;
+	if ( mIsZero(sq1,mDefEps) && mIsZero(sq2,mDefEps) )
+	    sim = 1.f;
+	else if ( mIsZero(sq1,mDefEps) || mIsZero(sq2,mDefEps) )
+	    sim = 0.f;
+	else
+	{
+	    const float rt = (float) ( Math::Sqrt(sqdist) /
+					(Math::Sqrt(sq1) + Math::Sqrt(sq2)) );
+	    sim = 1 - rt;
+	}
 
 	if ( idx && sim<maxsim )
 	{

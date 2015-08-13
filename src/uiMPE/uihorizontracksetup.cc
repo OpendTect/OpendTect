@@ -7,34 +7,47 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-02 19:49:51Z nanne.hemstra@dgbes.com $";
 
 #include "uihorizontracksetup.h"
 
+#include "attribdescset.h"
+#include "attribdescsetsholder.h"
+#include "autotracker.h"
 #include "draw.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfacetr.h"
+#include "executor.h"
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
 #include "horizon2dtracker.h"
 #include "horizon3dtracker.h"
+#include "mpeengine.h"
+#include "ptrman.h"
 #include "randcolor.h"
 #include "sectiontracker.h"
-#include "separstr.h"
+#include "seisdatapack.h"
+#include "seispreload.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicolor.h"
-#include "uidialog.h"
+#include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimpecorrelationgrp.h"
+#include "uimpeeventgrp.h"
 #include "uimsg.h"
+#include "uiseissel.h"
 #include "uiseparator.h"
 #include "uislider.h"
-#include "uitable.h"
 #include "uitabstack.h"
+#include "uitoolbar.h"
+#include "uitoolbutton.h"
 #include "od_helpids.h"
 
 
@@ -68,48 +81,209 @@ uiBaseHorizonSetupGroup::uiBaseHorizonSetupGroup( uiParent* p,
 {}
 
 
-static const char* horsetup_event_names[] = { "Min", "Max", "0+-", "0-+", 0 };
-
-const char** uiHorizonSetupGroup::sKeyEventNames()
-{
-    return horsetup_event_names;
-}
-
-
-#define mComma ,
-const VSEvent::Type* uiHorizonSetupGroup::cEventTypes()
-{
-    mDefineStaticLocalObject( const VSEvent::Type, event_types, [] =
-		    { VSEvent::Min mComma VSEvent::Max mComma
-		      VSEvent::ZCPosNeg mComma VSEvent::ZCNegPos } );
-    return event_types;
-}
-
-
-uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
-					  const char* typestr )
+uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     : uiSetupGroup(p,"")
+    , trackmgr_(0)
     , sectiontracker_(0)
     , horadj_(0)
-    , addstepbut_(0)
     , is2d_(FixedString(typestr)==EM::Horizon2D::typeStr())
-    , modechanged_(this)
-    , eventchanged_(this)
-    , similaritychanged_(this)
-    , propertychanged_(this)
+    , modeChanged_(this)
+    , varianceChanged_(this)
+    , propertyChanged_(this)
+    , state_(Stopped)
 {
+    IOObjContext ctxt =
+	is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
+    ctxt.forread = false;
+    horizonfld_ = new uiIOObjSel( this, ctxt );
+    horizonfld_->selectionDone.notify(
+		mCB(this,uiHorizonSetupGroup,horizonSelCB) );
+
     tabgrp_ = new uiTabStack( this, "TabStack" );
+    tabgrp_->attach( leftAlignedBelow, horizonfld_ );
     uiGroup* modegrp = createModeGroup();
     tabgrp_->addTab( modegrp, tr("Mode") );
 
-    uiGroup* eventgrp = createEventGroup();
-    tabgrp_->addTab( eventgrp, tr("Event") );
+    eventgrp_ = new uiEventGroup( tabgrp_->tabGroup(), is2d_ );
+    tabgrp_->addTab( eventgrp_, tr("Event") );
 
-    uiGroup* simigrp = createSimiGroup();
-    tabgrp_->addTab( simigrp, tr("Correlation") );
+    correlationgrp_ = new uiCorrelationGroup( tabgrp_->tabGroup(), is2d_ );
+    tabgrp_->addTab( correlationgrp_, tr("Correlation") );
+
+//    uiGroup* vargrp = createVarianceGroup();
+//    tabgrp_->addTab( vargrp, tr("Variance") );
 
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, uiStrings::sProperties(true) );
+
+    mDynamicCastGet(uiDialog*,dlg,p)
+    toolbar_ = new uiToolBar( dlg, "Tracking tools", uiToolBar::Left );
+    initToolBar();
+}
+
+
+void uiHorizonSetupGroup::initToolBar()
+{
+    startbutid_ = toolbar_->addButton( "autotrack", "Start Tracking [T]",
+				mCB(this,uiHorizonSetupGroup,startCB) );
+    toolbar_->setShortcut( startbutid_, "t" );
+
+    stopbutid_ = toolbar_->addButton( "stop", "Stop Tracking [S]",
+				mCB(this,uiHorizonSetupGroup,stopCB) );
+    toolbar_->setShortcut( stopbutid_, "s" );
+
+    savebutid_ = toolbar_->addButton( "save", "Save Horizon [Ctrl+S]",
+				mCB(this,uiHorizonSetupGroup,saveCB) );
+    toolbar_->setShortcut( savebutid_, "ctrl+s" );
+
+    retrackbutid_ = toolbar_->addButton( "retrackhorizon", "Retrack All",
+				mCB(this,uiHorizonSetupGroup,retrackCB) );
+}
+
+
+void uiHorizonSetupGroup::updateButtonSensitivity()
+{
+    const bool enable = state_ == Stopped;
+    toolbar_->setSensitive( startbutid_, enable );
+    toolbar_->setSensitive( savebutid_, enable );
+    toolbar_->setSensitive( retrackbutid_, enable );
+}
+
+
+void uiHorizonSetupGroup::horizonSelCB( CallBacker* )
+{
+    const IOObj* ioobj = horizonfld_->ioobj( true );
+    if ( !sectiontracker_ || !ioobj )
+	return;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    emobj.setMultiID( ioobj->key() );
+}
+
+
+void uiHorizonSetupGroup::startCB( CallBacker* )
+{
+    if ( state_ == Started )
+	return;
+
+    if ( trackInVolume() )
+    {
+	state_ = Started;
+	updateButtonSensitivity();
+    }
+}
+
+
+void uiHorizonSetupGroup::stopCB( CallBacker* )
+{
+    engine().stopTracking();
+    state_ = Stopped;
+    updateButtonSensitivity();
+}
+
+
+void uiHorizonSetupGroup::saveCB( CallBacker* )
+{
+    if ( !sectiontracker_ ) return;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    if ( emobj.multiID().isUdf() )
+    {
+	horizonfld_->doSel(0);
+	emobj.setMultiID( horizonfld_->key() );
+    }
+
+    PtrMan<Executor> exec = emobj.saver();
+    if ( exec ) exec->execute();
+    mDynamicCastGet(EM::Horizon3D*,hor3d,&emobj)
+    if ( hor3d )
+    {
+	ExecutorGroup execgrp( "Saving AuxData" );
+	execgrp.add( hor3d->auxdata.auxDataSaver(0,true) );
+	execgrp.add( hor3d->auxdata.auxDataSaver(1,true) );
+	execgrp.execute();
+    }
+}
+
+
+void uiHorizonSetupGroup::retrackCB( CallBacker* )
+{
+    if ( !sectiontracker_ || !commitToTracker() )
+	return;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    emobj.setBurstAlert( true );
+    emobj.removeAllUnSeedPos();
+    const int trackeridx = MPE::engine().getTrackerByObject( emobj.id() );
+    EMTracker* emtracker = engine().getTracker( trackeridx );
+    EMSeedPicker* seedpicker = emtracker ? emtracker->getSeedPicker(false) : 0;
+    if ( !seedpicker ) return;
+
+    seedpicker->reTrack();
+    if ( trackInVolume() )
+    {
+	state_ = Started;
+	updateButtonSensitivity();
+    }
+
+    emobj.setBurstAlert( false );
+}
+
+
+bool uiHorizonSetupGroup::trackInVolume()
+{
+    if ( !sectiontracker_ || mode_!=EMSeedPicker::TrackFromSeeds )
+	return false;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    const int trackeridx = MPE::engine().getTrackerByObject( emobj.id() );
+    EMTracker* emtracker = engine().getTracker( trackeridx );
+    EMSeedPicker* seedpicker = emtracker ? emtracker->getSeedPicker(false) : 0;
+    const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
+    if ( !as ) return false;
+
+    if ( !as->isStored() )
+    {
+	uiMSG().error( "Volume tracking can only be done on stored volumes.");
+	return false;
+    }
+
+    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
+    const MultiID mid = ads ? ads->getStoredKey(as->id()) : MultiID::udf();
+    if ( mid.isUdf() )
+    {
+	uiMSG().error( "Cannot find picked data in database" );
+	return false;
+    }
+
+    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
+    if ( !sdp )
+    {
+	uiMSG().error( "Seismic data is not preloaded yet" );
+	return false;
+    }
+
+    engine().setAttribData( *as, sdp->id() );
+    engine().setActiveVolume( sdp->sampling() );
+    if ( trackmgr_ )
+    {
+	trackmgr_->finished.remove(
+		mCB(this,uiHorizonSetupGroup,trackingFinishedCB) );
+    }
+
+    trackmgr_ = engine().trackInVolume( trackeridx );
+    if ( !trackmgr_ ) return false;
+
+    trackmgr_->finished.notify(
+		mCB(this,uiHorizonSetupGroup,trackingFinishedCB) );
+    return true;
+}
+
+
+void uiHorizonSetupGroup::trackingFinishedCB( CallBacker* )
+{
+    state_ = Stopped;
+    updateButtonSensitivity();
 }
 
 
@@ -148,85 +322,40 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 	}
     }
 
-    return grp;
-}
-
-
-uiGroup* uiHorizonSetupGroup::createEventGroup()
-{
-    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Event" );
-
-    evfld_ = new uiGenInput( grp, tr("Event type"),
-			    StringListInpSpec(sKeyEventNames()) );
-    evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,selEventType) );
-    evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB) );
-    grp->setHAlignObj( evfld_ );
-
-    BufferString srchwindtxt( "Search window ", SI().getZUnitString() );
-    const StepInterval<int> intv( -10000, 10000, 1 );
-    IntInpSpec iis; iis.setLimits( intv );
-    srchgatefld_ = new uiGenInput( grp, srchwindtxt, iis, iis );
-    srchgatefld_->attach( alignedBelow, evfld_ );
-    srchgatefld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
-
-    thresholdtypefld_ = new uiGenInput( grp, tr("Threshold type"),
-		BoolInpSpec(true,tr("Cut-off amplitude"),
-				 tr("Relative difference")) );
-    thresholdtypefld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
-    thresholdtypefld_->attach( alignedBelow, srchgatefld_ );
-
-    ampthresholdfld_ = new uiGenInput ( grp, tr("Allowed difference (%)"),
-				       StringInpSpec() );
-    ampthresholdfld_->attach( alignedBelow, thresholdtypefld_ );
-    ampthresholdfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
-
-    if ( !is2d_ )
-    {
-	addstepbut_ = new uiPushButton( grp, tr("Steps"),
-		mCB(this,uiHorizonSetupGroup,addStepPushedCB), false );
-	addstepbut_->attach( rightTo, ampthresholdfld_ );
-    }
-
-    extriffailfld_ = new uiGenInput( grp, tr("If tracking fails"),
-		BoolInpSpec(true,tr("Extrapolate"),uiStrings::sStop()) );
-    extriffailfld_->attach( alignedBelow, ampthresholdfld_ );
-    extriffailfld_->valuechanged.notify(
-		mCB(this,uiHorizonSetupGroup,eventChangeCB) );
+    uiSeparator* sep = new uiSeparator( grp );
+    sep->attach( stretchedBelow, modeselgrp_ );
+    BufferStringSet strs; strs.add( "Seed Trace" ).add( "Adjacent Parent" );
+    methodfld_ = new uiGenInput( grp, tr("Method"), StringListInpSpec(strs) );
+    methodfld_->attach( alignedBelow, modeselgrp_ );
+    methodfld_->attach( ensureBelow, sep );
 
     return grp;
 }
 
 
-uiGroup* uiHorizonSetupGroup::createSimiGroup()
+uiGroup* uiHorizonSetupGroup::createVarianceGroup()
 {
-    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Correlation" );
+    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Variance" );
 
-    usesimifld_ = new uiGenInput( grp, tr("Use Correlation"),
-				  BoolInpSpec(true));
-    usesimifld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
-    usesimifld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup, similarityChangeCB) );
+    usevarfld_ = new uiGenInput( grp, tr("Use Variance"), BoolInpSpec(false) );
+    usevarfld_->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,selUseVariance) );
+    usevarfld_->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,varianceChangeCB) );
 
-    const StepInterval<int> intv( -10000, 10000, 1 );
-    IntInpSpec iis; iis.setLimits( intv );
-    BufferString compwindtxt( "Compare window ", SI().getZUnitString() );
-    compwinfld_ = new uiGenInput( grp, compwindtxt, iis, iis );
-    compwinfld_->attach( alignedBelow, usesimifld_ );
-    compwinfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup, similarityChangeCB) );
+    const IOObjContext ctxt =
+	uiSeisSel::ioContext( is2d_ ? Seis::Line : Seis::Vol, true );
+    uiSeisSel::Setup ss( is2d_, false );
+    variancefld_ = new uiSeisSel( grp, ctxt, ss );
+    variancefld_->attach( alignedBelow, usevarfld_ );
 
-    iis.setLimits( StepInterval<int>(0,100,1) );
-    simithresholdfld_ =
-	new uiGenInput( grp, tr("Correlation threshold (0-100)"), iis );
-    simithresholdfld_->attach( alignedBelow, compwinfld_ );
-    simithresholdfld_->valuechanged.notify(
-	    mCB(this,uiHorizonSetupGroup, similarityChangeCB) );
+    varthresholdfld_ =
+	new uiGenInput( grp, tr("Variance threshold"), FloatInpSpec() );
+    varthresholdfld_->attach( alignedBelow, variancefld_ );
+    varthresholdfld_->valuechanged.notify(
+	    mCB(this,uiHorizonSetupGroup,varianceChangeCB) );
 
-    grp->setHAlignObj( usesimifld_ );
+    grp->setHAlignObj( usevarfld_ );
     return grp;
 }
 
@@ -241,11 +370,19 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
     grp->setHAlignObj( colorfld_ );
 
+    linewidthfld_ = new uiSlider( grp, uiSlider::Setup(tr("Line Width"))
+					.withedit(true),
+				  "Line Width" );
+    linewidthfld_->setInterval( 1, 15, 1 );
+    linewidthfld_->valueChanged.notify(
+			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
+    linewidthfld_->attach( alignedBelow, colorfld_ );
+
     seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
 			StringListInpSpec(MarkerStyle3D::TypeNames()) );
     seedtypefld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
-    seedtypefld_->attach( alignedBelow, colorfld_ );
+    seedtypefld_->attach( alignedBelow, linewidthfld_ );
 
     seedcolselfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(Color::White())
@@ -259,7 +396,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 				withedit(true),	"Seed Size" );
     seedsliderfld_->setInterval( 1, 15 );
     seedsliderfld_->valueChanged.notify(
-			mCB(this,uiHorizonSetupGroup,seedSliderMove));
+			mCB(this,uiHorizonSetupGroup,seedSliderMove) );
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );
 
     return grp;
@@ -271,79 +408,45 @@ uiHorizonSetupGroup::~uiHorizonSetupGroup()
 }
 
 
-void uiHorizonSetupGroup::selUseSimilarity( CallBacker* )
+NotifierAccess* uiHorizonSetupGroup::eventChangeNotifier()
+{ return eventgrp_->changeNotifier(); }
+
+
+NotifierAccess*	uiHorizonSetupGroup::correlationChangeNotifier()
+{ return correlationgrp_->changeNotifier(); }
+
+
+void uiHorizonSetupGroup::selUseVariance( CallBacker* )
 {
-    const bool usesimi = usesimifld_->getBoolValue();
-    compwinfld_->setSensitive( usesimi );
-    simithresholdfld_->setSensitive( usesimi );
-}
-
-
-void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
-{
-    const bool absthreshold = thresholdtypefld_->getBoolValue();
-    ampthresholdfld_->setTitleText(absthreshold ?tr("Amplitude value")
-						:tr("Allowed difference (%)"));
-    if ( absthreshold )
-    {
-	if ( is2d_ || horadj_->getAmplitudeThresholds().isEmpty() )
-	    ampthresholdfld_->setValue( horadj_->amplitudeThreshold() );
-	else
-	{
-	    BufferString bs;
-	    bs += horadj_->getAmplitudeThresholds()[0];
-	    for (int idx=1;idx<horadj_->getAmplitudeThresholds().size();idx++)
-	    { bs += ","; bs += horadj_->getAmplitudeThresholds()[idx]; }
-	    ampthresholdfld_->setText( bs.buf() );
-	}
-    }
-    else
-    {
-	if ( is2d_ || horadj_->getAllowedVariances().isEmpty() )
-	    ampthresholdfld_->setValue( horadj_->allowedVariance()*100 );
-	else
-	{
-	    BufferString bs;
-	    bs += horadj_->getAllowedVariances()[0]*100;
-	    for ( int idx=1; idx<horadj_->getAllowedVariances().size(); idx++ )
-	    { bs += ","; bs += horadj_->getAllowedVariances()[idx]*100; }
-	    ampthresholdfld_->setText( bs.buf() );
-	}
-    }
-}
-
-
-void uiHorizonSetupGroup::selEventType( CallBacker* )
-{
-    const VSEvent::Type ev = cEventTypes()[ evfld_->getIntValue() ];
-    const bool thresholdneeded = ev==VSEvent::Min || ev==VSEvent::Max;
-    thresholdtypefld_->setSensitive( thresholdneeded );
-    ampthresholdfld_->setSensitive( thresholdneeded );
+    const bool usevar = usevarfld_->getBoolValue();
+    variancefld_->setSensitive( usevar );
+    varthresholdfld_->setSensitive( usevar );
 }
 
 
 void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 {
     mode_ = (EMSeedPicker::SeedModeOrder) modeselgrp_->selectedId();
-    modechanged_.trigger();
+    modeChanged_.trigger();
+
+    const bool usedata = mode_ != EMSeedPicker::DrawBetweenSeeds;
+    const bool invol = mode_ == EMSeedPicker::TrackFromSeeds;
+    tabgrp_->setTabEnabled( eventgrp_, usedata );
+    tabgrp_->setTabEnabled( correlationgrp_, usedata );
+
+    toolbar_->setSensitive( startbutid_, invol );
+    toolbar_->setSensitive( stopbutid_, invol );
+    toolbar_->setSensitive( retrackbutid_, usedata );
 }
 
 
-void uiHorizonSetupGroup::eventChangeCB( CallBacker* )
-{
-    eventchanged_.trigger();
-}
-
-
-void uiHorizonSetupGroup::similarityChangeCB( CallBacker* )
-{
-    similaritychanged_.trigger();
-}
+void uiHorizonSetupGroup::varianceChangeCB( CallBacker* )
+{ varianceChanged_.trigger(); }
 
 
 void uiHorizonSetupGroup::colorChangeCB( CallBacker* )
 {
-    propertychanged_.trigger();
+    propertyChanged_.trigger();
 }
 
 
@@ -354,18 +457,18 @@ void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
     if ( markerstyle_.type_ == newtype )
 	return;
     markerstyle_.type_ = newtype;
-    propertychanged_.trigger();
+    propertyChanged_.trigger();
 }
 
 
 void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
 {
-    const float sldrval = seedsliderfld_->getValue();
+    const float sldrval = seedsliderfld_->getFValue();
     const int newsize = mNINT32(sldrval);
     if ( markerstyle_.size_ == newsize )
 	return;
     markerstyle_.size_ = newsize;
-    propertychanged_.trigger();
+    propertyChanged_.trigger();
 }
 
 
@@ -375,62 +478,7 @@ void uiHorizonSetupGroup::seedColSel( CallBacker* )
     if ( markerstyle_.color_ == newcolor )
 	return;
     markerstyle_.color_ = newcolor;
-    propertychanged_.trigger();
-}
-
-
-class uiStepDialog : public uiDialog
-{
-public:
-
-uiStepDialog( uiParent* p, const char* valstr )
-    : uiDialog(p,Setup("Stepwise tracking",uiStrings::sEmptyString(),
-                       mODHelpKey(mTrackingWizardHelpID) ))
-{
-    steptable_ = new uiTable( this, uiTable::Setup(5,1).rowdesc("Step")
-						       .rowgrow(true)
-						       .defrowlbl(true)
-						       .selmode(uiTable::Multi)
-						       .defrowlbl(""),
-			      "Stepwise tracking table" );
-    steptable_->setColumnLabel( 0, "Value" );
-
-    SeparString ss( valstr, ',' );
-    if ( ss.size() > 3 )
-	steptable_->setNrRows( ss.size() + 2 );
-
-    for ( int idx=0; idx<ss.size(); idx++ )
-	steptable_->setText( RowCol(idx,0), ss[idx] );
-}
-
-
-void getValueString( BufferString& valstr )
-{
-    SeparString ss( 0, ',' );
-    for ( int idx=0; idx<steptable_->nrRows(); idx++ )
-    {
-	const char* valtxt = steptable_->text( RowCol(idx,0) );
-	if ( !valtxt || !*valtxt ) continue;
-	ss.add( valtxt );
-    }
-
-    valstr = ss.buf();
-}
-
-    uiTable*	steptable_;
-};
-
-
-void uiHorizonSetupGroup::addStepPushedCB(CallBacker*)
-{
-    uiStepDialog dlg( this, ampthresholdfld_->text() );
-    if ( dlg.go() )
-    {
-	BufferString valstr;
-	dlg.getValueString( valstr );
-	ampthresholdfld_->setText( valstr );
-	propertychanged_.trigger();
-    }
+    propertyChanged_.trigger();
 }
 
 
@@ -442,6 +490,8 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
     if ( !horadj_ ) return;
 
     initStuff();
+    correlationgrp_->setSectionTracker( st );
+    eventgrp_->setSectionTracker( st );
 }
 
 
@@ -450,51 +500,23 @@ void uiHorizonSetupGroup::initModeGroup()
     if ( (!is2d_ && Horizon3DSeedPicker::nrSeedConnectModes()>0) ||
 	 (is2d_ && Horizon2DSeedPicker::nrSeedConnectModes()>0) )
 	modeselgrp_->selectButton( mode_ );
+
+    methodfld_->setValue(
+	horadj_->getCompareMethod()==EventTracker::SeedTrace ? 0 : 1 );
 }
 
 
 void uiHorizonSetupGroup::initStuff()
 {
     initModeGroup();
-    initEventGroup();
-    selEventType(0);
-    selAmpThresholdType(0);
-    initSimiGroup();
-    selUseSimilarity(0);
+//    initVarianceGroup();
+//    selUseVariance(0);
     initPropertyGroup();
 }
 
 
-void uiHorizonSetupGroup::initEventGroup()
+void uiHorizonSetupGroup::initVarianceGroup()
 {
-    VSEvent::Type ev = horadj_->trackEvent();
-    const int fldidx = ev == VSEvent::Min ? 0
-			    : (ev == VSEvent::Max ? 1
-			    : (ev == VSEvent::ZCPosNeg ? 2 : 3) );
-    evfld_->setValue( fldidx );
-
-    Interval<float> srchintv( horadj_->permittedZRange() );
-    srchintv.scale( mCast(float,SI().zDomain().userFactor()) );
-    srchgatefld_->setValue( srchintv );
-
-    thresholdtypefld_->setValue( horadj_->useAbsThreshold() );
-    extriffailfld_->setValue( !horadj_->removesOnFailure() );
-}
-
-
-void uiHorizonSetupGroup::initSimiGroup()
-{
-    usesimifld_->setValue( !horadj_->trackByValue() );
-
-    const Interval<int> simiintv(
-	    mCast(int,horadj_->similarityWindow().start *
-		      SI().zDomain().userFactor()),
-	    mCast(int,horadj_->similarityWindow().stop *
-		      SI().zDomain().userFactor()) );
-
-    compwinfld_->setValue( simiintv );
-
-    simithresholdfld_->setValue( horadj_->similarityThreshold()*100 );
 }
 
 
@@ -521,19 +543,22 @@ int uiHorizonSetupGroup::getMode()
 
 void uiHorizonSetupGroup::setSeedPos( const Coord3& crd )
 {
+    eventgrp_->setSeedPos( crd );
+    correlationgrp_->setSeedPos( crd );
 }
 
 
-void uiHorizonSetupGroup::setColor( const Color& col)
-{
-    colorfld_->setColor( col );
-}
-
+void uiHorizonSetupGroup::setColor( const Color& col )
+{ colorfld_->setColor( col ); }
 
 const Color& uiHorizonSetupGroup::getColor()
-{
-    return colorfld_->color();
-}
+{ return colorfld_->color(); }
+
+void uiHorizonSetupGroup::setLineWidth( int w )
+{ linewidthfld_->setValue( w ); }
+
+int uiHorizonSetupGroup::getLineWidth() const
+{ return linewidthfld_->getIntValue(); }
 
 
 void uiHorizonSetupGroup::setMarkerStyle( const MarkerStyle3D& markerstyle )
@@ -551,189 +576,25 @@ const MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
 
 bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 {
+    if ( !sectiontracker_ || !horadj_ )
+	return false;
+
+    EM::EMObject& emobj = sectiontracker_->emObject();
+    if ( horizonfld_->ioobj(true) )
+	emobj.setMultiID( horizonfld_->key() );
+
     fieldchange = false;
+    correlationgrp_->commitToTracker( fieldchange );
+    eventgrp_->commitToTracker( fieldchange );
 
     if ( !horadj_ || horadj_->getNrAttributes()<1 )
-    {   uiMSG().warning( tr("Unable to apply tracking setup") );
+    {
+	uiMSG().warning( tr("Unable to apply tracking setup") );
 	return true;
     }
 
-    VSEvent::Type evtyp = cEventTypes()[ evfld_->getIntValue() ];
-    if ( horadj_->trackEvent() != evtyp )
-    {
-	fieldchange = true;
-	horadj_->setTrackEvent( evtyp );
-    }
-
-    Interval<float> intv = srchgatefld_->getFInterval();
-    if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
-	mErrRet( tr("Search window should be minus to positive, ex. -20, 20"));
-    Interval<float> relintv( (float)intv.start/SI().zDomain().userFactor(),
-			     (float)intv.stop/SI().zDomain().userFactor() );
-    if ( horadj_->permittedZRange() != relintv )
-    {
-	fieldchange = true;
-	horadj_->setPermittedZRange( relintv );
-    }
-
-    const bool usesimi = usesimifld_->getBoolValue();
-    if ( horadj_->trackByValue() == usesimi )
-    {
-	fieldchange = true;
-	horadj_->setTrackByValue( !usesimi );
-    }
-
-    if ( usesimi )
-    {
-	const Interval<int> intval = compwinfld_->getIInterval();
-	if ( intval.width()==0 || intval.isRev() )
-	    mErrRet(tr("Correlation window start value must be less than"
-                       " the stop value"));
-	Interval<float> relintval(
-		(float)intval.start/SI().zDomain().userFactor(),
-	        (float)intval.stop/SI().zDomain().userFactor() );
-	if ( horadj_->similarityWindow() != relintval )
-	{
-	    fieldchange = true;
-	    horadj_->setSimilarityWindow( relintval );
-	}
-
-	const int gate = simithresholdfld_->getIntValue();
-	if ( gate > 100 || gate < 0)
-	    mErrRet( tr("Correlation threshold must be from 0 to 100") );
-	const float newthreshold = (float)gate / 100.f;
-	if ( !mIsEqual(horadj_->similarityThreshold(),newthreshold,mDefEps) )
-	{
-	    fieldchange = true;
-	    horadj_->setSimilarityThreshold( newthreshold );
-	}
-    }
-
-    const bool useabs = thresholdtypefld_->getBoolValue();
-    if ( horadj_->useAbsThreshold() != useabs )
-    {
-	fieldchange = true;
-	horadj_->setUseAbsThreshold( useabs );
-    }
-
-    if ( useabs )
-    {
-	SeparString ss( ampthresholdfld_->text(), ',' );
-	int idx = 0;
-	if ( ss.size() < 2 )
-	{
-	    float vgate = ss.getFValue(0);
-	    if ( Values::isUdf(vgate) )
-		mErrRet( tr("Value threshold not set") );
-	    if ( horadj_->amplitudeThreshold() != vgate )
-	    {
-		fieldchange = true;
-		horadj_->setAmplitudeThreshold( vgate );
-	    }
-	}
-	else
-	{
-	    TypeSet<float> vars;
-	    for ( ; idx<ss.size(); idx++ )
-	    {
-		float varvalue = ss.getFValue(idx);
-		if ( Values::isUdf(varvalue) )
-		    mErrRet( tr("Value threshold not set properly") );
-
-		if ( horadj_->getAmplitudeThresholds().size() < idx+1 )
-		{
-		    fieldchange = true;
-		    horadj_->getAmplitudeThresholds() += varvalue;
-		    if ( idx == 0 )
-			horadj_->setAmplitudeThreshold( varvalue );
-		}
-		else if ( horadj_->getAmplitudeThresholds().size() >= idx+1 )
-		    if ( horadj_->getAmplitudeThresholds()[idx] != varvalue )
-		    {
-			fieldchange = true;
-			horadj_->getAmplitudeThresholds() += varvalue;
-			if ( idx == 0 )
-			    horadj_->setAmplitudeThreshold( varvalue );
-		    }
-	    }
-	}
-
-	if ( idx==0 && horadj_->getAmplitudeThresholds().size() > 0 )
-	{
-	    horadj_->getAmplitudeThresholds()[idx] =
-				horadj_->amplitudeThreshold();
-	    idx++;
-	}
-
-	if ( horadj_->getAmplitudeThresholds().size() > idx )
-	{
-	    int size = horadj_->getAmplitudeThresholds().size();
-	    fieldchange = true;
-	    horadj_->getAmplitudeThresholds().removeRange( idx, size-1 );
-	}
-    }
-    else
-    {
-	SeparString ss( ampthresholdfld_->text(), ',' );
-	int idx = 0;
-	if ( ss.size() < 2 )
-	{
-	    float var = ss.getFValue(0) / 100;
-	    if ( var<=0.0 || var>=1.0 )
-		mErrRet( tr("Allowed variance must be between 0-100") );
-	    if ( horadj_->allowedVariance() != var )
-	    {
-		fieldchange = true;
-		horadj_->setAllowedVariance( var );
-	    }
-	}
-	else
-	{
-	    TypeSet<float> vars;
-	    for ( ; idx<ss.size(); idx++ )
-	    {
-		float varvalue = ss.getFValue(idx) / 100;
-		if ( varvalue <=0.0 || varvalue>=1.0 )
-		    mErrRet( tr("Allowed variance must be between 0-100") );
-
-		if ( horadj_->getAllowedVariances().size() < idx+1 )
-		{
-		    fieldchange = true;
-		    horadj_->getAllowedVariances() += varvalue;
-		    if ( idx == 0 )
-			horadj_->setAllowedVariance( varvalue );
-		}
-		else if ( horadj_->getAllowedVariances().size() >= idx+1 )
-		    if ( horadj_->getAllowedVariances()[idx] != varvalue )
-		    {
-			fieldchange = true;
-			horadj_->getAllowedVariances()[idx] = varvalue;
-			if ( idx == 0 )
-			    horadj_->setAllowedVariance( varvalue );
-		    }
-	    }
-	}
-
-	if ( idx==0 && horadj_->getAllowedVariances().size()>0 )
-	{
-	    horadj_->getAllowedVariances()[idx] = horadj_->allowedVariance();
-	    idx++;
-	}
-
-	if (  horadj_->getAllowedVariances().size() > idx )
-	{
-	    int size = horadj_->getAllowedVariances().size();
-	    fieldchange = true;
-	    horadj_->getAllowedVariances().removeRange( idx, size-1 );
-	}
-    }
-
-    const bool rmonfail = !extriffailfld_->getBoolValue();
-    if ( horadj_->removesOnFailure() != rmonfail )
-    {
-	fieldchange = true;
-	horadj_->removeOnFailure( rmonfail );
-    }
+    horadj_->setCompareMethod( methodfld_->getIntValue()==0 ?
+		EventTracker::SeedTrace : EventTracker::AdjacentParent );
 
     return true;
 }
@@ -742,7 +603,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 void uiHorizonSetupGroup::showGroupOnTop( const char* grpnm )
 {
     tabgrp_->setCurrentPage( grpnm );
-    mDynamicCastGet( uiDialog*, dlg, parent() );
+    mDynamicCastGet(uiDialog*,dlg,parent())
     if ( dlg && !dlg->isHidden() )
     {
 	 dlg->showNormal();

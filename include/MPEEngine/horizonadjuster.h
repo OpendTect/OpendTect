@@ -13,10 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "datapack.h"
 #include "sectionadjuster.h"
+
+#include "datapack.h"
 #include "ranges.h"
-#include "valseriesevent.h"
+#include "valseriestracker.h"
 
 class EventTracker;
 namespace EM { class Horizon; }
@@ -43,8 +44,11 @@ public:
 				TypeSet<Attrib::SelSpec>&) const;
     TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
 
-    void		setPermittedZRange(const Interval<float>& rg);
-    Interval<float>	permittedZRange() const;
+    void		setCompareMethod(EventTracker::CompareMethod);
+    EventTracker::CompareMethod	getCompareMethod() const;
+
+    void		setSearchWindow(const Interval<float>& rg);
+    Interval<float>	searchWindow() const;
     void		setTrackByValue(bool yn);
     bool		trackByValue() const;
     void		setTrackEvent(VSEvent::Type ev);
@@ -77,9 +81,9 @@ public:
 
 protected:
 
-    Attrib::SelSpec*		attribsel_;
-    EM::Horizon&		horizon_;
-    EventTracker*		tracker_;
+    Attrib::SelSpec*	attribsel_;
+    EM::Horizon&	horizon_;
+    EventTracker&	evtracker_;
 
 private:
 

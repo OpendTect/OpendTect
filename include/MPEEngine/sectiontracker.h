@@ -38,12 +38,14 @@ class SectionAdjuster;
 mExpClass(MPEEngine) SectionTracker
 {
 public:
-    				SectionTracker( EM::EMObject&,
-						const EM::SectionID&,
-						SectionSourceSelector* = 0,
-					        SectionExtender* = 0,
-					        SectionAdjuster* = 0);
+				SectionTracker(EM::EMObject&,
+					       const EM::SectionID&,
+					       SectionSourceSelector* = 0,
+					       SectionExtender* = 0,
+					       SectionAdjuster* = 0);
     virtual			~SectionTracker();
+
+    EM::EMObject&		emObject()		{ return emobject_; }
     EM::SectionID		sectionID() const;
     virtual bool		init();
 
@@ -90,14 +92,14 @@ protected:
 	    				bool addtohistory) const;
     void			getLockedSeeds(TypeSet<EM::SubID>& lockedseeds);
 
-    EM::EMObject&		emobject;
-    EM::SectionID		sid;
+    EM::EMObject&		emobject_;
+    EM::SectionID		sid_;
 
-    BufferString		errmsg;
-    bool			useadjuster;
-    MultiID			setupid;
-    Attrib::SelSpec&		displayas;
-    bool			seedonlypropagation;
+    BufferString		errmsg_;
+    bool			useadjuster_;
+    MultiID			setupid_;
+    Attrib::SelSpec&		displayas_;
+    bool			seedonlypropagation_;
 
     SectionSourceSelector*	selector_;
     SectionExtender*		extender_;
@@ -110,7 +112,7 @@ protected:
     static const char*		seedonlypropstr;
 };
 
-};
+} // namespace MPE
 
 #endif
 

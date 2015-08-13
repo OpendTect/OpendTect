@@ -27,21 +27,28 @@ SectionAdjuster::SectionAdjuster( EM::SectionID sid )
     : sectionid_(sid)
     , removeonfailure_(true)
     , thresholdval_(0.5)
-    , refpos_(0)
-    , setundo_( true )
+    , seedtk_(TrcKey::udf())
+    , setundo_(false)
 {}
 
 
 EM::SectionID SectionAdjuster::sectionID() const { return sectionid_; }
 
 
-void SectionAdjuster::setPositions(const TypeSet<EM::SubID>& p,
-       				   const TypeSet<EM::SubID>* src )
+void SectionAdjuster::setPositions( const TypeSet<EM::SubID>& p,
+				    const TypeSet<EM::SubID>* src )
 {
-    refpos_ = 0;
     pids_ = p;
-    if ( src ) pidsrc_ = *src;
-    else pidsrc_.erase();
+    if ( src )
+	pidsrc_ = *src;
+    else
+	pidsrc_.erase();
+}
+
+
+void SectionAdjuster::setSeedPosition( const TrcKey& tk )
+{
+    seedtk_ = tk;
 }
 
 

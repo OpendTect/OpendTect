@@ -154,6 +154,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	}
 
 	item->setPenStyle( linestyle_, true );
+	item->setCursor( cursor_ );
     }
     else
     {
@@ -202,6 +203,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	item->setFillColor( style.color_ );
 	item->setPos( poly_[idx] );
 	item->setVisible( true );
+	item->setCursor( cursor_ );
     }
 
     if ( !name_.isEmpty() && !mIsUdf(namepos_) )
@@ -212,7 +214,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
 	if ( !nameitem_ )
 	{
-	    nameitem_ = new uiTextItem; 
+	    nameitem_ = new uiTextItem;
 	    display_->add( nameitem_ );
 	}
 	nameitem_->setText( name_ );
@@ -235,7 +237,7 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* cb )
     //The aux-data is sitting in the viewer's world space.
     //If we have own axises, we need to set the transform
     //so the local space transforms to the worlds.
-   
+
     double xpos = 0, ypos = 0, xscale = 1, yscale = 1;
     const uiWorldRect& curview = viewer_->curView();
 

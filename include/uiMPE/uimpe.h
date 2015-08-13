@@ -47,6 +47,8 @@ public:
     virtual void	setSeedPos(const Coord3&)		{}
     virtual void	setColor(const Color&)			{}
     virtual const Color& getColor()				=0;
+    virtual void	setLineWidth(int)			{}
+    virtual int		getLineWidth() const			=0;
     virtual void	setMarkerStyle(const MarkerStyle3D&)	{}
     virtual const MarkerStyle3D& getMarkerStyle()		=0;
 

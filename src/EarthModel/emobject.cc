@@ -42,6 +42,7 @@ EMObject::EMObject( EMManager& emm )
     : manager_( emm )
     , change( this )
     , id_( -1 )
+    , storageid_(MultiID::udf())
     , preferredcolor_( *new Color(255,0,0) )
     , changed_( false )
     , fullyloaded_( false )
@@ -51,7 +52,7 @@ EMObject::EMObject( EMManager& emm )
     , selremoving_( false )
     , preferredlinestyle_( *new LineStyle(LineStyle::Solid,3) )
     , preferredmarkerstyle_(
-      *new MarkerStyle3D( MarkerStyle3D::Cube, 4, Color::White() ) )
+	*new MarkerStyle3D(MarkerStyle3D::Cube,2,Color::White()))
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
@@ -189,7 +190,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 	EMM().undo().addEvent( undo, 0 );
     }
 
-    if ( !burstalertcount_ )
+    if ( burstalertcount_==0 )
     {
 	EMObjectCallbackData cbdata;
 	cbdata.event = EMObjectCallbackData::PositionChange;
@@ -217,9 +218,14 @@ const LineStyle& EMObject::preferredLineStyle() const
 
 void EMObject::setPreferredLineStyle( const LineStyle& lnst )
 {
-    if( preferredlinestyle_ == lnst )
+    if ( preferredlinestyle_ == lnst )
 	return;
     preferredlinestyle_ = lnst;
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PrefColorChange;
+    change.trigger( cbdata );
+
     saveDisplayPars();
 }
 
@@ -250,8 +256,13 @@ void EMObject::setPreferredColor( const Color& col, bool addtoundo )
 
 void EMObject::setBurstAlert( bool yn )
 {
-    if ( !yn ) burstalertcount_--;
-    if ( !burstalertcount_ )
+    if ( !yn && burstalertcount_==0 )
+	return;
+
+    if ( !yn )
+	burstalertcount_--;
+
+    if ( burstalertcount_==0 )
     {
 	if ( yn ) burstalertcount_++;
 	EMObjectCallbackData cbdata;
@@ -523,8 +534,8 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    const Coord3 pos = getPos( sectionID(idx), removallist[sididx] );
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
-		removebypolyposbox_.hsamp_.start_ = removebypolyposbox_.hsamp_.stop_
-					      = bid;
+		removebypolyposbox_.hsamp_.start_ =
+			removebypolyposbox_.hsamp_.stop_ = bid;
 		removebypolyposbox_.zsamp_.start =
 		    removebypolyposbox_.zsamp_.stop = (float) pos.z;
 	    }
@@ -568,14 +579,14 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    const BinID bid = SI().transform(pos);
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
-		removebypolyposbox_.hsamp_.start_ = removebypolyposbox_.hsamp_.stop_
-					      = bid;
+		removebypolyposbox_.hsamp_.start_ =
+			removebypolyposbox_.hsamp_.stop_ = bid;
 		removebypolyposbox_.zsamp_.start =
 		removebypolyposbox_.zsamp_.stop = pos.z;
 	    }
 	    else
 	    {
-		removebypolyposbox_.hrg.include(bid);
+		removebypolyposbox_.hsamp_.include(bid);
 		removebypolyposbox_.zsamp_.include(pos.z);
 	    }
 	}

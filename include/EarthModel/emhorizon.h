@@ -52,8 +52,12 @@ public:
 					{ return const_cast<Horizon*>(this)
 					    			->geometry(); }
 
+    virtual float	getZ(const TrcKey&) const			= 0;
+    virtual bool	setZ(const TrcKey&,float z,bool addtohist)	= 0;
+    virtual bool	hasZ(const TrcKey&) const			= 0;
+
     virtual float	getZValue(const Coord&,bool allow_udf=true,
-				  int nr=0) const = 0;
+				  int nr=0) const			= 0;
 
     void		setStratLevelID( int lvlid )
 			{ stratlevelid_ = lvlid; }
@@ -72,13 +76,13 @@ public:
 			    return Surface::usePar( par );
 			}
 
-    virtual TrcKey::SurvID getSurveyID() const			= 0;
+    virtual TrcKey::SurvID getSurveyID() const				= 0;
 
 protected:
     			Horizon( EMManager& emm )
 			    : Surface(emm), stratlevelid_(-1)	{}
 
-    virtual const IOObjContext&	getIOObjContext() const		= 0;
+    virtual const IOObjContext&	getIOObjContext() const			= 0;
 
     int			stratlevelid_;
 };

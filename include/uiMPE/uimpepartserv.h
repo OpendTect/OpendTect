@@ -149,6 +149,7 @@ protected:
     Attrib::SelSpec		lineselspec_;
 
     void			aboutToAddRemoveSeed(CallBacker*);
+    void			seedAddedCB(CallBacker*);
     EM::ObjectID        	trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
 

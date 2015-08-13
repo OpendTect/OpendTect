@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- * AUTHOR   : K. Tingdahl
- * DATE     : May 2006
+ * AUTHOR	: K. Tingdahl
+ * DATE		: May 2006
 ___________________________________________________________________
 
 -*/
@@ -51,15 +51,26 @@ float Horizon2DExtender::getAngleThreshold() const
 { return Math::ACos(anglethreshold_); }
 
 
-void Horizon2DExtender::setDirection( const BinIDValue& dir )
+void Horizon2DExtender::setDirection( const TrcKeyValue& dir )
 {
     direction_ = dir;
-    xydirection_ = SI().transform( BinID(0,0) ) - SI().transform( dir );
+    xydirection_ =
+	SI().transform( BinID(0,0) ) - SI().transform( dir.tk_.pos() );
     const double abs = xydirection_.abs();
     alldirs_ = mIsZero( abs, 1e-3 );
     if ( !alldirs_ )
 	xydirection_ /= abs;
 }
+
+
+const TrcKeyValue* Horizon2DExtender::getDirection() const
+{ return &direction_; }
+
+void Horizon2DExtender::setGeomID( Pos::GeomID geomid )
+{ geomid_ = geomid; }
+
+Pos::GeomID Horizon2DExtender::geomID() const
+{ return geomid_; }
 
 
 int Horizon2DExtender::nextStep()
@@ -89,8 +100,11 @@ void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
 	neighbrbid += BinID( 0, upwards ? colrange.step : -colrange.step );
 	if ( !colrange.includes(neighbrbid.crl(),false) )
 	    return;
-	if ( !boundary.isEmpty() && !boundary.hsamp_.includes(BinID(neighbrbid)) )
+
+	if ( !boundary.isEmpty() &&
+		!boundary.hsamp_.includes(BinID(neighbrbid)) )
 	    return;
+
 	neighborsubid = neighbrbid.toInt64();
 	neighborpos = surface_.getPos( sid_, neighborsubid );
     }
@@ -115,17 +129,16 @@ void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
     }
 
     Coord3 refpos = surface_.getPos( sid_, neighborsubid );
-    refpos.z = getDepth( srcsubid, neighborsubid );
+    refpos.z = getDepth( srcbid, neighbrbid );
     surface_.setPos( sid_, neighborsubid, refpos, true );
 
     addTarget( neighborsubid, srcsubid );
 }
 
 
-float Horizon2DExtender::getDepth( const EM::SubID& srcrc,
-				       const EM::SubID& destrc ) const
+float Horizon2DExtender::getDepth( const TrcKey& src, const TrcKey& ) const
 {
-    return (float) surface_.getPos( sid_, srcrc ).z;
+    return surface_.getZ( src );
 }
 
 }  // namespace MPE

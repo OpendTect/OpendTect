@@ -12,9 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "sectionextender.h"
 
-#include "binidvalue.h"
 #include "mpeengine.h"
 #include "position.h"
+#include "trckeyvalue.h"
 
 namespace MPE
 {
@@ -24,11 +24,11 @@ mImplFactory2Param( SectionExtender, EM::EMObject*, EM::SectionID,
 
 
 SectionExtender::SectionExtender( EM::SectionID sid )
-    : sid_( sid )
-    , extboundary_( false )
-    , excludedpos_( 0 )
-    , sortedaddedpos_( false )
-    , setundo_( true )
+    : sid_(sid)
+    , extboundary_(false)
+    , excludedpos_(0)
+    , sortedaddedpos_(false)
+    , setundo_(false)
 {}
 
 
@@ -44,10 +44,18 @@ void SectionExtender::reset()
 }
 
 
-void SectionExtender::setDirection( const BinIDValue& ) {}
+void SectionExtender::setDirection( const TrcKeyValue& ) {}
 
 
-const BinIDValue* SectionExtender::getDirection() const { return 0; }
+const TrcKeyValue* SectionExtender::getDirection() const { return 0; }
+
+
+void SectionExtender::setStartPosition( const TrcKey& tk )
+{
+    startpos_.erase();
+    startpos_ += tk.pos().toInt64();
+    prepareDataIfRequired();
+}
 
 
 void SectionExtender::setStartPositions( const TypeSet<EM::SubID> ns )
@@ -71,7 +79,7 @@ int SectionExtender::nextStep() { return 0; }
 
 
 #define mExtendDirection(inl,crl,z) \
-setDirection(BinIDValue(inl,crl,z)); \
+setDirection(TrcKeyValue(TrcKey(inl,crl),z)); \
 while ( (res=nextStep())>0 )\
     ;\
 \
@@ -126,6 +134,11 @@ void SectionExtender::addTarget( const EM::SubID& target,
     addedpos_ += target;
     sortedaddedpos_ += target;
 }
+
+
+float SectionExtender::getDepth( const TrcKey&, const TrcKey& ) const
+{ return mUdf(float); }
+
 
 } // namespace MPE
 

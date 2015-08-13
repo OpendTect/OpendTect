@@ -1,6 +1,6 @@
 #ifndef horizon2dseedpicker_h
 #define horizon2dseedpicker_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -91,7 +91,7 @@ protected:
     bool			interpolateSeeds();
     TrcKeyZSampling		getTrackBox() const;
     bool			getNextSeedPos(int seedpos,int dirstep,
-					       int& nextseedpos ) const;
+	    				       int& nextseedpos ) const;
 
     TypeSet<EM::PosID>		seedlist_;
     TypeSet<EM::PosID>		trackbounds_;

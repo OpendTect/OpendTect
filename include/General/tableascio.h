@@ -91,9 +91,9 @@ protected:
     int				columnOf(bool hdr,int iinf,int ielem) const;
 
 public:
-    /*mDeprecated*/ float	getfValue(int idx,float udf=mUdf(float)) const
+    mDeprecated float		getfValue(int idx,float udf=mUdf(float)) const
 				{ return getFValue( idx, udf ); }
-    /*mDeprecated*/ double	getdValue(int idx,double udf=mUdf(double)) const
+    mDeprecated double		getdValue(int idx,double udf=mUdf(double)) const
 				{ return getDValue( idx, udf ); }
 };
 

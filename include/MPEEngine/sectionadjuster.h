@@ -14,8 +14,10 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "task.h"
-#include "trckeyzsampling.h"
+
 #include "emposid.h"
+#include "trckey.h"
+#include "trckeyzsampling.h"
 
 namespace Attrib { class SelSpec; }
 
@@ -39,8 +41,7 @@ public:
 
     void			setPositions(const TypeSet<EM::SubID>& targets,
 	   				     const TypeSet<EM::SubID>* src=0 );
-    void			setReferencePosition( const EM::SubID* pos )
-    				    { refpos_ = pos; }
+    void			setSeedPosition(const TrcKey&);
 
     int				nextStep();
     const char*			errMsg() const;
@@ -83,7 +84,7 @@ protected:
     float			thresholdval_;
     bool			removeonfailure_;
 
-    const EM::SubID*		refpos_;
+    TrcKey			seedtk_;
     bool			setundo_;
 
     static const char*		sKeyAdjuster();

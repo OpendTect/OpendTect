@@ -1,6 +1,5 @@
 #ifndef horizon2dtracker_h
 #define horizon2dtracker_h
-
 /*+
 ________________________________________________________________________
 
@@ -10,14 +9,13 @@ ________________________________________________________________________
  RCS:		$Id$
 ________________________________________________________________________
 
-
 -*/
 
 #include "mpeenginemod.h"
 #include "emtracker.h"
 #include "emposid.h"
 
-namespace EM { class Horizon2D; };
+namespace EM { class Horizon2D; }
 
 namespace MPE
 {
@@ -31,27 +29,28 @@ class Horizon2DSeedPicker;
 mExpClass(MPEEngine) Horizon2DTracker : public EMTracker
 {
 public:
-    			Horizon2DTracker(EM::Horizon2D* =0);
+				Horizon2DTracker(EM::Horizon2D* =0);
 
-    static EMTracker*	create(EM::EMObject* =0);
-    static void		initClass();
+    static EMTracker*		create(EM::EMObject* =0);
+    static void			initClass();
 
-    bool		is2D() const				{ return true; }		
-    EMSeedPicker*	getSeedPicker(bool createifnotpresent=true);
+    bool			is2D() const			{ return true; }
+    EMSeedPicker*		getSeedPicker(bool createifnotpresent=true);
 
-    static const char*	keyword();
+    static const char*		keyword();
 
 protected:
 
-    			~Horizon2DTracker();
-    EM::Horizon2D*	getHorizon2D();
-    const EM::Horizon2D*getHorizon2D() const;
+				~Horizon2DTracker();
+
+    EM::Horizon2D*		getHorizon2D();
+    const EM::Horizon2D*	getHorizon2D() const;
 
     SectionTracker*		createSectionTracker(EM::SectionID);
     Horizon2DSeedPicker*	seedpicker_;
 };
 
-}; // Namespace MPE
+} // namespace MPE
 
 #endif
 

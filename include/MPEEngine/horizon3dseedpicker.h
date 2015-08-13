@@ -49,7 +49,7 @@ public:
 	    			   bool environment,
 	    			   bool retrack);
     EM::PosID		replaceSeed(const EM::PosID& oldpos,
-				    const Coord3& newpos);
+	    			    const Coord3& newpos);
     bool		canAddSeed() const		{ return true; }
     bool		canRemoveSeed() const		{ return true; }
 
@@ -60,6 +60,7 @@ public:
     int			minSeedsToLeaveInitStage() const;
 
     NotifierAccess*	aboutToAddRmSeedNotifier()	{ return &addrmseed_; }
+    NotifierAccess*	seedAddedNotifier()		{ return &seedadded_; }
     NotifierAccess*	madeSurfChangeNotifier()	{ return &surfchange_; }
 
     static int		nrSeedConnectModes()		{ return 3; }
@@ -84,6 +85,9 @@ public:
     void		setFaultData( const FaultTrcDataProvider* data )
 			{ fltdataprov_ = data; }
 
+    void		getSeeds(TypeSet<TrcKey>&) const;
+    int			indexOf(const TrcKey&) const;
+
 protected:
     bool		retrackOnActiveLine(const BinID& startbid,
 					    bool startwasdefined,
@@ -99,7 +103,7 @@ protected:
     bool		interpolateSeeds();
     TrcKeyZSampling	getTrackBox() const;
     bool		getNextSeed(BinID seedbid,const BinID& dir,
-				    BinID& nextseedbid) const;
+	    			    BinID& nextseedbid) const;
 
     TypeSet<EM::PosID>	propagatelist_;
     TypeSet<EM::PosID>	seedlist_;
@@ -126,15 +130,16 @@ protected:
     bool		blockpicking_;
 
     Notifier<Horizon3DSeedPicker>	addrmseed_;
+    Notifier<Horizon3DSeedPicker>	seedadded_;
     Notifier<Horizon3DSeedPicker>	surfchange_;
+
 private:
     void		extendSeedListEraseInBetween(
 			    bool wholeline,const BinID& startbid,
 			    bool startwasdefined,const BinID& dir );
 };
 
-
-};
+} // namespace MPE
 
 #endif
 

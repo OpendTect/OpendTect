@@ -13,17 +13,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizon3dseedpicker.h"
 
 #include "autotracker.h"
-#include "binidvalue.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "executor.h"
 #include "faulttrace.h"
+#include "mpeengine.h"
 #include "horizonadjuster.h"
 #include "sectionextender.h"
 #include "sectiontracker.h"
-#include "executor.h"
-#include "mpeengine.h"
-#include "survinfo.h"
 #include "sorting.h"
+#include "survinfo.h"
+#include "trckeyvalue.h"
 
 
 namespace MPE
@@ -32,6 +32,7 @@ namespace MPE
 Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     : tracker_(t)
     , addrmseed_(this)
+    , seedadded_(this)
     , surfchange_(this)
     , seedconmode_(defaultSeedConMode())
     , blockpicking_(false)
@@ -145,6 +146,9 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	    emobj->setPos( pid, seedcrd, true );
 	    if ( seedconmode_ != DrawBetweenSeeds )
 		tracker_.snapPositions( propagatelist_ );
+
+	    addedseed_ = emobj->getPos( pid );
+	    seedadded_.trigger();
 	}
 
 	emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
@@ -214,7 +218,7 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 
 bool Horizon3DSeedPicker::getNextSeed( BinID seedbid,
 				       const BinID& dir,
-				       BinID& nextseedbid ) const
+       				       BinID& nextseedbid ) const
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
     while ( true )
@@ -240,7 +244,7 @@ EM::PosID Horizon3DSeedPicker::replaceSeed( const EM::PosID& oldpid,
     EM::PosID newpospid = EM::PosID::udf();
     if ( seedconmode_ != DrawBetweenSeeds )
 	return newpospid;
-
+    
     sowermode_ = false;
     BinID dir;
     if ( !lineTrackDirection(dir) )
@@ -278,6 +282,30 @@ EM::PosID Horizon3DSeedPicker::replaceSeed( const EM::PosID& oldpid,
 }
 
 
+void Horizon3DSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
+{
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    if ( !emobj ) return;
+
+    const TypeSet<EM::PosID>* seednodelist =
+			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
+    if ( !seednodelist ) return;
+
+    for ( int idx=0; idx<seednodelist->size(); idx++ )
+    {
+	const BinID bid = BinID::fromInt64( (*seednodelist)[idx].subID() );
+	seeds += TrcKey( bid );
+    }
+}
+
+
+int Horizon3DSeedPicker::indexOf( const TrcKey& tk ) const
+{
+    TypeSet<TrcKey> seeds; getSeeds( seeds );
+    return seeds.indexOf( tk );
+}
+
+
 bool Horizon3DSeedPicker::reTrack()
 {
     propagatelist_.erase(); seedlist_.erase(); seedpos_.erase();
@@ -293,7 +321,8 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid,
 					     bool eraseonly )
 {
     BinID dir;
-    if ( !lineTrackDirection(dir) ) return false;
+    if ( !lineTrackDirection(dir) )
+	return retrackFromSeedList(); // track on Rdl
 
     trackbounds_.erase();
     junctions_.erase();
@@ -469,9 +498,9 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 
     extender->setExtBoundary( getTrackBox() );
     if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Inl )
-	extender->setDirection( BinIDValue(BinID(0,1), mUdf(float)) );
+	extender->setDirection( TrcKeyValue(TrcKey(0,1), mUdf(float)) );
     else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Crl )
-	extender->setDirection( BinIDValue(BinID(1,0), mUdf(float)) );
+	extender->setDirection( TrcKeyValue(TrcKey(1,0), mUdf(float)) );
 
     TypeSet<EM::SubID> addedpos;
     TypeSet<EM::SubID> addedpossrc;
@@ -479,6 +508,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
     for ( int idx=0; idx<seedlist_.size(); idx++ )
 	addedpos += seedlist_[idx].subID();
 
+    hor->setBurstAlert( true );
     while ( addedpos.size() )
     {
 	extender->reset();
@@ -499,6 +529,7 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
 	}
     }
 
+    hor->setBurstAlert( false );
     extender->unsetExtBoundary();
 
     return true;
@@ -695,6 +726,12 @@ TrcKeyZSampling Horizon3DSeedPicker::getTrackBox() const
 void Horizon3DSeedPicker::setSelSpec( const Attrib::SelSpec* as )
 {
     selspec_ = as ? *as : Attrib::SelSpec();
+
+    SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
+    mDynamicCastGet(HorizonAdjuster*,adjuster,
+		    sectracker?sectracker->adjuster():0);
+    if ( adjuster )
+	adjuster->setAttributeSel( 0, selspec_ );
 }
 
 } // namespace MPE

@@ -277,11 +277,11 @@ void uiODFaultTreeItem::colorChCB( CallBacker* )
 
 
 void uiODFaultTreeItem::selChgCB( CallBacker* )
-{ MPE::engine().setActiveFaultObjID( emid_ ); }
+{}
 
 
 void uiODFaultTreeItem::deSelChgCB( CallBacker* )
-{ MPE::engine().setActiveFaultObjID( -1 ); }
+{}
 
 
 bool uiODFaultTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
@@ -577,11 +577,11 @@ void uiODFaultStickSetTreeItem::colorChCB( CallBacker* )
 
 
 void uiODFaultStickSetTreeItem::selChgCB( CallBacker* )
-{ MPE::engine().setActiveFSSObjID( emid_ ); }
+{}
 
 
 void uiODFaultStickSetTreeItem::deSelChgCB( CallBacker* )
-{ MPE::engine().setActiveFSSObjID( -1 ); }
+{}
 
 
 bool uiODFaultStickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id$
+ RCS:           $Id: mpeengine.h 38753 2015-04-11 21:19:18Z nanne.hemstra@dgbes.com $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ namespace MPE
 {
 
 class EMTracker;
+class HorizonTrackerMgr;
 class ObjectEditor;
 
 /*!
@@ -59,6 +60,9 @@ public:
 
     void		updateSeedOnlyPropagation(bool);
     Executor*		trackInVolume();
+    HorizonTrackerMgr*	trackInVolume(int idx);
+    bool		trackingInProgress() const;
+    void		stopTracking();
     void		removeSelectionInPolygon(const Selector<Coord3>&,
 	    					 TaskRunner*);
     void		getAvailableTrackerTypes(BufferStringSet&)const;
@@ -101,27 +105,12 @@ public:
 	    					 const int idx,bool);
 			/*!< add = true, remove = false. */
     ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;
+    DataPack::ID	getSeedPosDataPack(const TrcKey&,float z,int nrtrcs,
+					const StepInterval<float>& zrg) const;
 
     			/*Editors */
     ObjectEditor*	getEditor(const EM::ObjectID&,bool create);
     void		removeEditor(const EM::ObjectID&);
-
-			/*Fault(StickSet)s workaround, until
-			  2DViewer tree is not in place */
-    Notifier<Engine>    activefaultchanged_;
-    void		setActiveFaultObjID(EM::ObjectID objid)
-			{
-			    activefaultid_ = objid;
-			    activefaultchanged_.trigger();
-			}
-    EM::ObjectID	getActiveFaultObjID()	{ return activefaultid_; }
-    Notifier<Engine>	activefsschanged_;
-    void		setActiveFSSObjID(EM::ObjectID objid)
-			{
-			    activefssid_ = objid;
-			    activefsschanged_.trigger();
-			}
-    EM::ObjectID	getActiveFSSObjID()	{ return activefssid_; }
 
     const char*		errMsg() const;
 
@@ -137,6 +126,7 @@ protected:
 
     Pos::GeomID 		activegeomid_;
 
+    ObjectSet<HorizonTrackerMgr> trackermgrs_;
     ObjectSet<EMTracker>	trackers_;
     ObjectSet<ObjectEditor>	editors_;
 
@@ -173,11 +163,6 @@ protected:
     };
 
     ObjectSet<ObjectSet<FlatCubeInfo> >	flatcubescontainer_;
-
-    				/*Fault(StickSet)s workaround, untill
-				  2DViewer tree is not in place */
-    EM::ObjectID		activefaultid_;
-    EM::ObjectID		activefssid_;
 
     static const char*		sKeyNrTrackers(){ return "Nr Trackers"; }
     static const char*		sKeyObjectID()	{ return "ObjectID"; }

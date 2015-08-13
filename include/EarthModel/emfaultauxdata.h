@@ -30,7 +30,7 @@ class Fault3D;
 \brief Fault surface data
 */
 
-mExpClass(EarthModel) FaultAuxData 
+mExpClass(EarthModel) FaultAuxData
 { mODTextTranslationClass(FaultAuxData);
 public:
 			FaultAuxData(const Fault3D&);
@@ -51,9 +51,9 @@ public:
     const BufferStringSet& selectedNames() const { return selattribnames_; }
 
     bool		storeData(int sdidx,bool binary);
-    
-    void		setDataName(int sdidx,const char* newname);    
-    void		setDataName(const char* oldname,const char* newname);   
+
+    void		setDataName(int sdidx,const char* newname);
+    void		setDataName(const char* oldname,const char* newname);
     void		removeData(const char* sdname);
     void		removeData(int sdidx);
     void		removeAllData();
@@ -65,7 +65,7 @@ public:
 protected:
 
     const char*		sKeyFaultAuxData()	{ return "Fault Aux Data"; }
-    const char*		sKeyExtension()		{ return "auxinfo"; }	
+    const char*		sKeyExtension()		{ return "auxinfo"; }
 
     bool		loadData(int sdidx);
     enum Action		{ Remove=0, SetName=1 };
@@ -88,14 +88,14 @@ protected:
 	const Array2D<float>*	data;
 	OD::PtrPolicy		policy;
     };
-    
+
     ObjectSet<DataInfo>	dataset_;
     TypeSet<int>	selected_;
-    BufferStringSet	selattribnames_;    
+    BufferStringSet	selattribnames_;
 };
 
 
-}; // namespace EM
+} // namespace EM
 
 
 #endif

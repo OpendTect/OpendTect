@@ -205,7 +205,7 @@ protected:
 	uiCheckBox*	showgridlinesfld_;
 	uiCheckBox*	showauxposfld_;
 	uiCheckBox*	showauxlinesfld_;
-	uiSelLineStyle* auxlinestylefld_;
+	uiSelLineStyle*	auxlinestylefld_;
 	uiLabel*	auxlblfld_;
 	uiCheckBox*	reversedfld_;
 	uiGenInput*	annotselfld_;

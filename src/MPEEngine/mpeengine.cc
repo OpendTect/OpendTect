@@ -8,16 +8,19 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id$";
+static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18Z nanne.hemstra@dgbes.com $";
 
 #include "mpeengine.h"
 
+#include "arrayndimpl.h"
+#include "autotracker.h"
 #include "emeditor.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
 #include "emsurface.h"
 #include "emtracker.h"
 #include "executor.h"
+#include "flatposdata.h"
 #include "geomelement.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -46,14 +49,12 @@ Engine::Engine()
     , oneactivetracker_( 0 )
     , activetracker_( 0 )
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
-    , activefaultid_( -1 )
-    , activefssid_( -1 )
-    , activefaultchanged_( this )
-    , activefsschanged_( this )
     , dpm_(DPM(DataPackMgr::SeisID()))
 {
-    trackers_.allowNull( true );
-    flatcubescontainer_.allowNull( true );
+    trackers_.allowNull();
+    trackermgrs_.allowNull();
+    flatcubescontainer_.allowNull();
+
     init();
 }
 
@@ -65,6 +66,7 @@ Engine::~Engine()
     deepErase( attribcachespecs_ );
     deepErase( attribbackupcachespecs_ );
     deepErase( flatcubescontainer_ );
+    deepErase( trackermgrs_ );
 
     for ( int idx=attribcachedatapackids_.size()-1; idx>=0; idx-- )
 	dpm_.release( attribcachedatapackids_[idx] );
@@ -112,24 +114,93 @@ void Engine::updateSeedOnlyPropagation( bool yn )
 }
 
 
+bool Engine::trackingInProgress() const
+{
+    for ( int idx=0; idx<trackermgrs_.size(); idx++ )
+    {
+	const HorizonTrackerMgr* htm = trackermgrs_[idx];
+	if ( htm && htm->hasTasks() ) return true;
+    }
+
+    return false;
+}
+
+
+void Engine::stopTracking()
+{
+    for ( int idx=0; idx<trackermgrs_.size(); idx++ )
+    {
+	HorizonTrackerMgr* htm = trackermgrs_[idx];
+	if ( !htm ) continue;
+
+	htm->stop();
+    }
+}
+
+
 Executor* Engine::trackInVolume()
 {
     ExecutorGroup* res = 0;
+
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
+	EMTracker* tracker = trackers_[idx];
+	if ( !tracker || !tracker->isEnabled() )
 	    continue;
 
-	EM::ObjectID oid = trackers_[idx]->objectID();
-	if ( EM::EMM().getObject(oid)->isLocked() )
+	EM::ObjectID oid = tracker->objectID();
+	EM::EMObject* emobj = EM::EMM().getObject( oid );
+	if ( !emobj || emobj->isLocked() )
 	    continue;
 
-	if ( !res ) res = new ExecutorGroup("Autotrack", false );
+	emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
+	EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
+	if ( !seedpicker ) continue;
 
-	res->add( trackers_[idx]->trackInVolume() );
+	TypeSet<TrcKey> seeds;
+	seedpicker->getSeeds( seeds );
+	HorizonTrackerMgr* htm = trackermgrs_[idx];
+	if ( !htm )
+	{
+	    htm = new HorizonTrackerMgr( *tracker );
+	    trackermgrs_.replace( idx, htm );
+	}
+
+	htm->setSeeds( seeds );
+	htm->startFromSeeds();
     }
 
     return res;
+}
+
+
+HorizonTrackerMgr* Engine::trackInVolume( int idx )
+{
+    EMTracker* tracker = trackers_[idx];
+    if ( !tracker || !tracker->isEnabled() )
+	return 0;
+
+    EM::ObjectID oid = tracker->objectID();
+    EM::EMObject* emobj = EM::EMM().getObject( oid );
+    if ( !emobj || emobj->isLocked() )
+	return 0;
+
+    emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
+    EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
+    if ( !seedpicker ) return 0;
+
+    TypeSet<TrcKey> seeds;
+    seedpicker->getSeeds( seeds );
+    HorizonTrackerMgr* htm = trackermgrs_[idx];
+    if ( !htm )
+    {
+	htm = new HorizonTrackerMgr( *tracker );
+	trackermgrs_.replace( idx, htm );
+    }
+
+    htm->setSeeds( seeds );
+    htm->startFromSeeds();
+    return htm;
 }
 
 
@@ -177,6 +248,7 @@ int Engine::addTracker( EM::EMObject* obj )
 
     tracker->ref();
     trackers_ += tracker;
+    trackermgrs_ += 0;
     ObjectSet<FlatCubeInfo>* flatcubes = new ObjectSet<FlatCubeInfo>;
     flatcubescontainer_ += flatcubes;
     trackeraddremove.trigger();
@@ -197,6 +269,7 @@ void Engine::removeTracker( int idx )
 	return;
 
     trackers_.replace( idx, 0 );
+    delete trackermgrs_.replace( idx, 0 );
 
     deepErase( *flatcubescontainer_[idx] );
     flatcubescontainer_.replace( idx, 0 );
@@ -365,7 +438,7 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 {
     const DataPack::ID dpid = getAttribCacheID( as );
-    ConstDataPackRef<RegularSeisDataPack> regsdp = dpm_.obtain( dpid );
+    ConstDataPackRef<SeisDataPack> regsdp = dpm_.obtain( dpid );
     return regsdp;
 }
 
@@ -373,7 +446,7 @@ bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    DataPack::ID cacheid )
 {
-    ConstDataPackRef<RegularFlatDataPack> regfdp =
+    ConstDataPackRef<SeisFlatDataPack> regfdp =
 		DPM(DataPackMgr::FlatID()).obtain( cacheid );
     if ( regfdp ) cacheid = regfdp->getSourceDataPack().id();
 
@@ -388,7 +461,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	}
 	else
 	{
-	    ConstDataPackRef<RegularSeisDataPack> newdata= dpm_.obtain(cacheid);
+	    ConstDataPackRef<SeisDataPack> newdata= dpm_.obtain(cacheid);
 	    if ( newdata )
 	    {
 		dpm_.release( attribcachedatapackids_[idx] );
@@ -399,7 +472,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
     else if ( cacheid != DataPack::cNoID() )
     {
-	ConstDataPackRef<RegularSeisDataPack> newdata = dpm_.obtain( cacheid );
+	ConstDataPackRef<SeisDataPack> newdata = dpm_.obtain( cacheid );
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
@@ -418,14 +491,17 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const TrcKeyZSampling& cs )
 {
-    ConstDataPackRef<RegularSeisDataPack> cache =
+    ConstDataPackRef<SeisDataPack> cache =
 				dpm_.obtain( getAttribCacheID(as) );
     if ( !cache ) return false;
 
+    return true;
+/*
     TrcKeyZSampling cachedcs = cache->sampling();
     const float zrgeps = 0.01f * SI().zStep();
     cachedcs.zsamp_.widen( zrgeps );
     return cachedcs.includes( cs );
+*/
 }
 
 
@@ -515,6 +591,58 @@ ObjectSet<TrcKeyZSampling>* Engine::getTrackedFlatCubes( const int idx ) const
 	flatcbs->push( cs );
     }
     return flatcbs;
+}
+
+
+DataPack::ID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
+					const StepInterval<float>& zintv ) const
+{
+    TypeSet<Attrib::SelSpec> specs; getNeededAttribs( specs );
+    if ( specs.isEmpty() ) return DataPack::cNoID();
+
+    DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
+    const DataPack::ID pldpid = getAttribCacheID( specs[0] );
+    ConstDataPackRef<SeisDataPack> sdp = dpm.obtain( pldpid );
+    if ( !sdp ) return DataPack::cNoID();
+
+    const int globidx = sdp->getNearestGlobalIdx( tk );
+    if ( globidx < 0 ) return DataPack::cNoID();
+
+    const int nrz = zintv.nrSteps() + 1;
+    Array2DImpl<float>* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
+    seeddata->setAll( mUdf(float) );
+
+    const int trcidx0 = globidx - (int)(nrtrcs/2);
+    const StepInterval<float>& zsamp = sdp->getZRange();
+    const int zidx0 = zsamp.getIndex( z + zintv.start );
+    for ( int tidx=0; tidx<nrtrcs; tidx++ )
+    {
+	const int curtrcidx = trcidx0+tidx;
+	if ( curtrcidx<0 || curtrcidx >= sdp->nrTrcs() )
+	    continue;
+
+	const OffsetValueSeries<float> ovs =
+			    sdp->getTrcStorage( 0, trcidx0+tidx );
+	for ( int zidx=0; zidx<nrz; zidx++ )
+	{
+	    const float val = ovs[zidx0+zidx];
+	    seeddata->set( tidx, zidx, val );
+	}
+    }
+
+    StepInterval<double> trcrg;
+    trcrg.start = tk.trcNr() - (nrtrcs)/2;
+    trcrg.stop = tk.trcNr() + (nrtrcs)/2;
+    StepInterval<double> zrg;
+    zrg.start = mCast(double,zsamp.atIndex(zidx0));
+    zrg.stop = mCast(double,zsamp.atIndex(zidx0+nrz-1));
+    zrg.step = mCast(double,zsamp.step);
+
+    FlatDataPack* fdp = new FlatDataPack( "Seismics", seeddata );
+    fdp->posData().setRange( true, trcrg );
+    fdp->posData().setRange( false, zrg );
+    DPM(DataPackMgr::FlatID()).add( fdp );
+    return fdp->id();
 }
 
 
@@ -674,6 +802,7 @@ void Engine::init()
     deepErase( attribcachespecs_ );
     deepErase( attribbackupcachespecs_ );
     deepErase( flatcubescontainer_ );
+    deepErase( trackermgrs_ );
 
     for ( int idx=0; idx<attribcachedatapackids_.size(); idx++ )
 	dpm_.release( attribcachedatapackids_[idx] );
