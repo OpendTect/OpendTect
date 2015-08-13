@@ -17,31 +17,36 @@
 <context>
     <name>Array1DInterpol</name>
     <message>
-        <location filename="../../../include/Algo/array1dinterpol.h" line="+46"/>
         <source>Points interpolated</source>
-        <translation>Puntos estan interpolados</translation>
+        <translation type="obsolete">Puntos estan interpolados</translation>
     </message>
 </context>
 <context>
     <name>Array2DInterpol</name>
     <message>
-        <location filename="../../../include/Algo/array2dinterpol.h" line="+89"/>
         <source>Gridding</source>
-        <translation>Haciendo cuadrículas</translation>
+        <translation type="obsolete">Haciendo cuadrículas</translation>
     </message>
 </context>
 <context>
     <name>Array2DReSampler</name>
     <message>
-        <location filename="../../../include/General/array2dresample.h" line="+80"/>
         <source>Data columns resampled</source>
-        <translation>Columnas de datos reemplazadas</translation>
+        <translation type="obsolete">Columnas de datos reemplazadas</translation>
+    </message>
+</context>
+<context>
+    <name>Attrib</name>
+    <message>
+        <location filename="../../../include/AttributeEngine/attribprocessor.h" line="+51"/>
+        <source>Positions processed</source>
+        <translation type="unfinished">Posiciones estan procesados</translation>
     </message>
 </context>
 <context>
     <name>Attrib::AEMFeatureExtracter</name>
     <message>
-        <location filename="../../../src/AttributeEngine/attribengman.cc" line="+729"/>
+        <location filename="../../../src/AttributeEngine/attribengman.cc" line="+799"/>
         <source>Cannot create output</source>
         <translation>No se puede crear salida</translation>
     </message>
@@ -57,35 +62,30 @@
 <context>
     <name>Attrib::DataCubesWriter</name>
     <message>
-        <location filename="../../../include/AttributeEngine/attribdatacubeswriter.h" line="+46"/>
         <source>Writing out data!</source>
-        <translation>¡Escribiendo datos!</translation>
+        <translation type="obsolete">¡Escribiendo datos!</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Traces written:</source>
-        <translation>Rastros que estan escritos:</translation>
+        <translation type="obsolete">Rastros que estan escritos:</translation>
     </message>
 </context>
 <context>
     <name>Attrib::Horizon</name>
     <message>
-        <location filename="../../../plugins/HorizonAttrib/horizonattrib.cc" line="+91"/>
         <source>Selected Horizon Data name does not exist</source>
-        <translation>El nombre de Datos del Horizonte no existe</translation>
+        <translation type="obsolete">El nombre de Datos del Horizonte no existe</translation>
     </message>
     <message>
-        <location line="+86"/>
         <source>Loading Horizon Data %1 failed.</source>
-        <translation>Falló en cargar los Datos de Horizonte %1</translation>
+        <translation type="obsolete">Falló en cargar los Datos de Horizonte %1</translation>
     </message>
 </context>
 <context>
     <name>Attrib::Processor</name>
     <message>
-        <location filename="../../../include/AttributeEngine/attribprocessor.h" line="+51"/>
         <source>Positions processed</source>
-        <translation>Posiciones estan procesados</translation>
+        <translation type="obsolete">Posiciones estan procesados</translation>
     </message>
 </context>
 <context>
@@ -150,14 +150,14 @@
 <context>
     <name>AutoTracker</name>
     <message>
-        <location filename="../../../src/MPEEngine/autotracker.cc" line="+71"/>
-        <location line="+277"/>
+        <location filename="../../../src/MPEEngine/autotracker.cc" line="+265"/>
+        <location line="+271"/>
         <source>Step: %1</source>
         <translation>Paso: %1</translation>
     </message>
     <message>
-        <location line="-266"/>
-        <location line="+297"/>
+        <location line="-262"/>
+        <location line="+290"/>
         <source>Step: %1%</source>
         <translation>Paso: %1</translation>
     </message>
@@ -165,9 +165,21 @@
 <context>
     <name>Basemap::ContourExtractor</name>
     <message>
-        <location filename="../../../plugins/Basemap/basemapcontour.cc" line="+52"/>
         <source>Contours Done</source>
-        <translation>Contornos estan hechos</translation>
+        <translation type="obsolete">Contornos estan hechos</translation>
+    </message>
+</context>
+<context>
+    <name>Batch</name>
+    <message>
+        <location filename="../../../include/General/batchjobdispatch.h" line="+128"/>
+        <source>Single Process</source>
+        <translation type="unfinished">Proceso síngulo</translation>
+    </message>
+    <message>
+        <location filename="../../../include/MMProc/mmbatchjobdispatch.h" line="+54"/>
+        <source>Multi-Machine</source>
+        <translation type="unfinished">Múlti-Máquina</translation>
     </message>
 </context>
 <context>
@@ -199,9 +211,8 @@ Try single-machine execution.</source>
 Prueba ejecutar una máquina síngula.</translation>
     </message>
     <message>
-        <location filename="../../../include/MMProc/mmbatchjobdispatch.h" line="+54"/>
         <source>Multi-Machine</source>
-        <translation>Múlti-Máquina</translation>
+        <translation type="obsolete">Múlti-Máquina</translation>
     </message>
 </context>
 <context>
@@ -212,9 +223,8 @@ Prueba ejecutar una máquina síngula.</translation>
         <translation>El trabajo será ejecutado solo en una computadora y solo un proceso.</translation>
     </message>
     <message>
-        <location filename="../../../include/General/batchjobdispatch.h" line="+128"/>
         <source>Single Process</source>
-        <translation>Proceso síngulo</translation>
+        <translation type="obsolete">Proceso síngulo</translation>
     </message>
 </context>
 <context>
@@ -226,11 +236,23 @@ Prueba ejecutar una máquina síngula.</translation>
     </message>
 </context>
 <context>
+    <name>BendPointFinder2DGeomSet</name>
+    <message>
+        <location filename="../../../src/Geometry/geom2dintersections.cc" line="+42"/>
+        <source>Analyzing 2D Line geometries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Lines done</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BendPointFinderBase</name>
     <message>
-        <location filename="../../../include/Algo/bendpointfinder.h" line="+34"/>
         <source>Positions done</source>
-        <translation>Posiciones estan hechos</translation>
+        <translation type="obsolete">Posiciones estan hechos</translation>
     </message>
 </context>
 <context>
@@ -244,7 +266,7 @@ Prueba ejecutar una máquina síngula.</translation>
 <context>
     <name>BinIDSurface</name>
     <message>
-        <location filename="../../../src/Geometry/binidsurface.cc" line="+204"/>
+        <location filename="../../../src/Geometry/binidsurface.cc" line="+229"/>
         <source>Row to remove does not exist</source>
         <translation>Fila para borrar no existe</translation>
     </message>
@@ -285,7 +307,7 @@ Prueba ejecutar una máquina síngula.</translation>
         <translation>Connección equivocado del Gerente de Objeto</translation>
     </message>
     <message>
-        <location line="+91"/>
+        <location line="+93"/>
         <source>Input contains no relevant data</source>
         <translation>Entrada no tiene datos pertinentes</translation>
     </message>
@@ -306,7 +328,7 @@ Prueba ejecutar una máquina síngula.</translation>
 <context>
     <name>Chain</name>
     <message>
-        <location filename="../../../src/VolumeProcessing/volprocchain.cc" line="+791"/>
+        <location filename="../../../src/VolumeProcessing/volprocchain.cc" line="+793"/>
         <source>Cannot create Volume processing step %1. Perhaps all plugins are not loaded?</source>
         <translation>No se puede crear el paso %1 procesamiento del Volumen. ¿Tal vez todos plugins no estan cargados?</translation>
     </message>
@@ -341,17 +363,24 @@ Prueba ejecutar una máquina síngula.</translation>
 <context>
     <name>CmdComposer</name>
     <message>
-        <location filename="../../../src/uiCmdDriver/cmdcomposer.cc" line="+342"/>
+        <location filename="../../../src/uiCmdDriver/cmdcomposer.cc" line="+346"/>
         <source>CmdComposer test-callback handler</source>
         <translation>CmdComponer de prueba-recuperar manejador</translation>
     </message>
 </context>
 <context>
+    <name>ColTab</name>
+    <message>
+        <location filename="../../../include/General/coltabmapper.h" line="+151"/>
+        <source>Data values mapped</source>
+        <translation type="unfinished">La mappa de valores de datos esta hecho</translation>
+    </message>
+</context>
+<context>
     <name>ColTab::MapperTask</name>
     <message>
-        <location filename="../../../include/General/coltabmapper.h" line="+155"/>
         <source>Data values mapped</source>
-        <translation>La mappa de valores de datos esta hecho</translation>
+        <translation type="obsolete">La mappa de valores de datos esta hecho</translation>
     </message>
 </context>
 <context>
@@ -427,7 +456,7 @@ Prueba ejecutar una máquina síngula.</translation>
 <context>
     <name>DataPlayer</name>
     <message>
-        <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="+80"/>
+        <location filename="../../../src/WellAttrib/welltietoseismic.cc" line="+81"/>
         <source>Cannot read well data</source>
         <translation>No se puede leer datos del pozo</translation>
     </message>
@@ -599,7 +628,7 @@ Prueba ejecutar una máquina síngula.</translation>
         <translation>Por favor considera editar sus logs.</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+39"/>
         <source>Cannot create synthetic: %1</source>
         <translation>No se puede crear sintético: %1</translation>
     </message>
@@ -627,7 +656,7 @@ Prueba ejecutar una máquina síngula.</translation>
 <context>
     <name>DataUploader</name>
     <message>
-        <location filename="../../../src/Network/odnetworkaccess.cc" line="+459"/>
+        <location filename="../../../src/Network/odnetworkaccess.cc" line="+475"/>
         <source>Oops! Something went wrong.
 </source>
         <translation>Algo salió mal</translation>
@@ -646,14 +675,12 @@ Prueba ejecutar una máquina síngula.</translation>
 <context>
     <name>DelaunayTriangulator</name>
     <message>
-        <location filename="../../../include/Algo/delaunay.h" line="+170"/>
         <source>Points triangulated</source>
-        <translation>Puntos estan triangulados</translation>
+        <translation type="obsolete">Puntos estan triangulados</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Triangulating</source>
-        <translation>Triangulando</translation>
+        <translation type="obsolete">Triangulando</translation>
     </message>
 </context>
 <context>
@@ -734,6 +761,39 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     </message>
 </context>
 <context>
+    <name>EM</name>
+    <message>
+        <location filename="../../../include/EarthModel/emhorizon2d.h" line="+161"/>
+        <source>2D Horizon</source>
+        <translation type="unfinished">Horizonte 2D</translation>
+    </message>
+    <message>
+        <location filename="../../../include/EarthModel/emhorizon3d.h" line="+146"/>
+        <source>3D Horizon</source>
+        <translation type="unfinished">Horizonte 3D</translation>
+    </message>
+    <message>
+        <location filename="../../../include/EarthModel/emhorizonztransformer.h" line="+37"/>
+        <source>Positions done</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../include/EarthModel/emmarchingcubessurface.h" line="+81"/>
+        <source>Marching Cubes Body</source>
+        <translation type="unfinished">Marchando Parte Principal de los Cubos</translation>
+    </message>
+    <message>
+        <location filename="../../../include/EarthModel/empolygonbody.h" line="+103"/>
+        <source>Polygon Body</source>
+        <translation type="unfinished">Parte Principal del Polígono</translation>
+    </message>
+    <message>
+        <location filename="../../../include/EarthModel/emrandomposbody.h" line="+80"/>
+        <source>Random Position Body</source>
+        <translation type="unfinished">Posición del Parte Principal al Azar</translation>
+    </message>
+</context>
+<context>
     <name>EM::AuxDataImporter</name>
     <message>
         <location filename="../../../src/EarthModel/emhorizon3d.cc" line="+62"/>
@@ -767,17 +827,15 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>EM::Horizon2D</name>
     <message>
-        <location filename="../../../include/EarthModel/emhorizon2d.h" line="+157"/>
         <source>2D Horizon</source>
-        <translation>Horizonte 2D</translation>
+        <translation type="obsolete">Horizonte 2D</translation>
     </message>
 </context>
 <context>
     <name>EM::Horizon3D</name>
     <message>
-        <location filename="../../../include/EarthModel/emhorizon3d.h" line="+143"/>
         <source>3D Horizon</source>
-        <translation>Horizonte 3D</translation>
+        <translation type="obsolete">Horizonte 3D</translation>
     </message>
 </context>
 <context>
@@ -791,17 +849,15 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>EM::HorizonZTransformer</name>
     <message>
-        <location filename="../../../include/EarthModel/emhorizonztransformer.h" line="+37"/>
         <source>Positions done</source>
-        <translation>Posiciones estan hechos</translation>
+        <translation type="obsolete">Posiciones estan hechos</translation>
     </message>
 </context>
 <context>
     <name>EM::MarchingCubesSurface</name>
     <message>
-        <location filename="../../../include/EarthModel/emmarchingcubessurface.h" line="+81"/>
         <source>Marching Cubes Body</source>
-        <translation>Marchando Parte Principal de los Cubos</translation>
+        <translation type="obsolete">Marchando Parte Principal de los Cubos</translation>
     </message>
 </context>
 <context>
@@ -823,33 +879,29 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>EM::PolygonBody</name>
     <message>
-        <location filename="../../../include/EarthModel/empolygonbody.h" line="+103"/>
         <source>Polygon Body</source>
-        <translation>Parte Principal del Polígono</translation>
+        <translation type="obsolete">Parte Principal del Polígono</translation>
     </message>
 </context>
 <context>
     <name>EM::RandomPosBody</name>
     <message>
-        <location filename="../../../include/EarthModel/emrandomposbody.h" line="+79"/>
         <source>Random Position Body</source>
-        <translation>Posición del Parte Principal al Azar</translation>
+        <translation type="obsolete">Posición del Parte Principal al Azar</translation>
     </message>
 </context>
 <context>
     <name>EMFault3DTranslatorGroup</name>
     <message>
-        <location filename="../../../src/EarthModel/emsurfacetr.cc" line="+83"/>
         <source>Fault</source>
-        <translation>Falla</translation>
+        <translation type="obsolete">Falla</translation>
     </message>
 </context>
 <context>
     <name>EMFaultStickSetTranslatorGroup</name>
     <message>
-        <location line="+6"/>
         <source>Fault Stick Set</source>
-        <translation>Conjunto de Fallas</translation>
+        <translation type="obsolete">Conjunto de Fallas</translation>
     </message>
 </context>
 <context>
@@ -861,9 +913,57 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     </message>
 </context>
 <context>
+    <name>ElasticModelAdjuster</name>
+    <message>
+        <location filename="../../../src/WellAttrib/stratsynth.cc" line="+1346"/>
+        <source>Checking Models</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Models done</source>
+        <translation type="unfinished">Modelos estan hechos</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Could not generate prestack synthetics as all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>All</source>
+        <translation type="unfinished">Todo</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Swave velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Pwave velocity/Density</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 the values of %2 in elastic model are invalid. Probably units are not set correctly.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <source>&apos;%1&apos; ( sample value: %2 %3 )</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Layer model contains invalid values of the following properties: %1. First occurence found in layer &apos;%2&apos; of pseudo well number &apos;%3&apos;.Invalid values will be interpolated. The resulting synthetics may be incorrect</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ElasticModelCreator</name>
     <message>
-        <location filename="../../../src/WellAttrib/stratsynth.cc" line="+647"/>
+        <location line="-779"/>
         <source>Generating elastic model</source>
         <translation>Generando modelo elastico</translation>
     </message>
@@ -876,7 +976,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>EngineMan</name>
     <message>
-        <location filename="../../../src/AttributeEngine/attribengman.cc" line="-457"/>
+        <location filename="../../../src/AttributeEngine/attribengman.cc" line="-468"/>
         <source>Invalid definition string for NLA model:
 %1</source>
         <translation>Definición de cadena para modelo NLA es inválido: %1</translation>
@@ -892,7 +992,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
         <translation>No hay salida %1.</translation>
     </message>
     <message>
-        <location line="+478"/>
+        <location line="+489"/>
         <source>No attribute set or input specs</source>
         <translation>No hay atributo o especificaciones de entrada</translation>
     </message>
@@ -962,12 +1062,12 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>EventImporter</name>
     <message>
-        <location line="+60"/>
+        <location line="+61"/>
         <source>Importing</source>
         <translation>Importando</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+10"/>
         <source>Nr bytes read</source>
         <translation>Número de bytes leídos</translation>
     </message>
@@ -1096,7 +1196,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
         <translation>Nivel de interpolación</translation>
     </message>
     <message>
-        <location line="+1458"/>
+        <location line="+1462"/>
         <source>Setting up interpolation</source>
         <translation>Ajustando interpolación</translation>
     </message>
@@ -1179,7 +1279,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>FaultTraceExtractor</name>
     <message>
-        <location filename="../../../src/EarthModel/faulttrace.cc" line="+965"/>
+        <location filename="../../../src/EarthModel/faulttrace.cc" line="+974"/>
         <source>Extracting Fault Traces</source>
         <translation>Extrayendo Rastros de Fallas</translation>
     </message>
@@ -1195,7 +1295,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>FileDownloader</name>
     <message>
-        <location filename="../../../src/Network/odnetworkaccess.cc" line="-210"/>
+        <location filename="../../../src/Network/odnetworkaccess.cc" line="-226"/>
         <source>%1 Didn&apos;t have permission to write to: %2</source>
         <translation>%1 no tenia permiso para escribir a %2</translation>
     </message>
@@ -1217,11 +1317,11 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     </message>
 </context>
 <context>
-    <name>Fourier::CC</name>
+    <name>Fourier</name>
     <message>
         <location filename="../../../include/Algo/fourier.h" line="+33"/>
         <source>FFT</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1258,7 +1358,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
         <translation>La rebanada Z seleccionada y %1 son intersectados</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+27"/>
         <source>Selected Horizon and %1 are not intersected</source>
         <translation>El Horizonte seleccionado y %1 no son intersectados</translation>
     </message>
@@ -1307,6 +1407,15 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
         <location line="+24"/>
         <source>Tension parameter missing</source>
         <translation>Falta parámetro de tensión</translation>
+    </message>
+</context>
+<context>
+    <name>GapDeconACorrView</name>
+    <message>
+        <location filename="../../../src/uiAttributes/uigdexamacorr.cc" line="+213"/>
+        <source>The window start and stop should be different;
+Please correct the window parameters before restarting the computation</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1374,6 +1483,19 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
     </message>
 </context>
 <context>
+    <name>Horizon</name>
+    <message>
+        <location filename="../../../plugins/HorizonAttrib/horizonattrib.cc" line="+91"/>
+        <source>Selected Horizon Data name does not exist</source>
+        <translation type="unfinished">El nombre de Datos del Horizonte no existe</translation>
+    </message>
+    <message>
+        <location line="+86"/>
+        <source>Loading Horizon Data %1 failed.</source>
+        <translation type="unfinished">Falló en cargar los Datos de Horizonte %1</translation>
+    </message>
+</context>
+<context>
     <name>Horizon2DGridCreator</name>
     <message>
         <location filename="../../../src/EMAttrib/gridcreator.cc" line="+369"/>
@@ -1405,7 +1527,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>Horizon2DSeedPicker</name>
     <message>
-        <location filename="../../../src/MPEEngine/horizon2dseedpicker.cc" line="+514"/>
+        <location filename="../../../src/MPEEngine/horizon2dseedpicker.cc" line="+560"/>
         <source>Track from seed(s)</source>
         <translation>Rastreo de pico(s)</translation>
     </message>
@@ -1443,7 +1565,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>Horizon3DSeedPicker</name>
     <message>
-        <location filename="../../../src/MPEEngine/horizon3dseedpicker.cc" line="+454"/>
+        <location filename="../../../src/MPEEngine/horizon3dseedpicker.cc" line="+553"/>
         <source>Tracking in volume</source>
         <translation>Rastreando en volumen</translation>
     </message>
@@ -1471,8 +1593,7 @@ Por favor checa su conjunto de atributos y selecciona datos almacenados válidos
 <context>
     <name>HorizonFlatViewEditor</name>
     <message>
-        <location filename="../../../src/uiMPE/horflatvieweditor.cc" line="+176"/>
-        <location line="+145"/>
+        <location filename="../../../src/uiMPE/horflatvieweditor.cc" line="+308"/>
         <source>No data to choose from</source>
         <translation>No hay datos para elegir</translation>
     </message>
@@ -1519,7 +1640,7 @@ cambiar los datos de entrada en la Disposición del Rastreo</translation>
 <context>
     <name>HorizonFlatViewEditor2D</name>
     <message>
-        <location filename="../../../src/uiMPE/horflatvieweditor2d.cc" line="+354"/>
+        <location filename="../../../src/uiMPE/horflatvieweditor2d.cc" line="+401"/>
         <source>VD</source>
         <translation></translation>
     </message>
@@ -1552,7 +1673,7 @@ cambiar los datos de entrada en la Disposición del Rastreo.</translation>
 <context>
     <name>HorizonFlatViewEditor3D</name>
     <message>
-        <location filename="../../../src/uiMPE/horflatvieweditor3d.cc" line="+344"/>
+        <location filename="../../../src/uiMPE/horflatvieweditor3d.cc" line="+385"/>
         <source>VD</source>
         <translation></translation>
     </message>
@@ -1658,7 +1779,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
 <context>
     <name>IOObjInfo</name>
     <message>
-        <location filename="../../../src/EarthModel/emioobjinfo.cc" line="+248"/>
+        <location filename="../../../src/EarthModel/emioobjinfo.cc" line="+289"/>
         <source>Cannot find surface in object database</source>
         <translation>No se puede encontrar la superficie en base de datos del objeto</translation>
     </message>
@@ -1684,67 +1805,72 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
 <context>
     <name>Implicit2MarchingCubes</name>
     <message>
-        <location filename="../../../include/Geometry/marchingcubes.h" line="+129"/>
         <source>Implicit body to MarchingCubes: Contouring</source>
-        <translation>Parte principal implícito a los CubosMarchandos: haciendo Contornos</translation>
+        <translation type="obsolete">Parte principal implícito a los CubosMarchandos: haciendo Contornos</translation>
     </message>
 </context>
 <context>
     <name>InverseDistanceArray2DInterpol</name>
     <message>
-        <location filename="../../../include/Algo/array2dinterpolimpl.h" line="+89"/>
         <source>Nodes gridded</source>
-        <translation>Cuadrículas de nodos esta hechas</translation>
+        <translation type="obsolete">Cuadrículas de nodos esta hechas</translation>
     </message>
 </context>
 <context>
     <name>InverseDistanceGridder2D</name>
     <message>
-        <location filename="../../../include/Algo/gridder2d.h" line="+116"/>
         <source>Inverse distance</source>
-        <translation>Distancia inversa</translation>
+        <translation type="obsolete">Distancia inversa</translation>
+    </message>
+</context>
+<context>
+    <name>IsochronMaker</name>
+    <message>
+        <location filename="../../../plugins/HorizonAttrib/isopachmaker.cc" line="+42"/>
+        <source>Creating Isochron</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+97"/>
+        <source>No thickness values collected</source>
+        <translation type="unfinished">No ha recogido valores espesos</translation>
     </message>
 </context>
 <context>
     <name>IsopachMaker</name>
     <message>
-        <location filename="../../../plugins/HorizonAttrib/isopachmaker.cc" line="+42"/>
         <source>Creating isopach</source>
-        <translation>Creando isopach</translation>
+        <translation type="obsolete">Creando isopach</translation>
     </message>
     <message>
-        <location line="+97"/>
         <source>No thickness values collected</source>
-        <translation>No ha recogido valores espesos</translation>
+        <translation type="obsolete">No ha recogido valores espesos</translation>
     </message>
     <message>
-        <location filename="../../../plugins/HorizonAttrib/isopachmaker.h" line="+35"/>
         <source>Positions handled</source>
-        <translation>Posiciones estan manejados</translation>
+        <translation type="obsolete">Posiciones estan manejados</translation>
     </message>
 </context>
 <context>
     <name>JobCommunic</name>
     <message>
-        <location filename="../../../include/Network/jobcommunic.h" line="+117"/>
+        <location filename="../../../src/Network/jobcommunic.cc" line="+232"/>
         <source>[%1]: %2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../../src/Network/jobcommunic.cc" line="+145"/>
         <source>Error writing status to Master: %1</source>
-        <translation>Error al leer estado al Maestro: %1</translation>
+        <translation type="obsolete">Error al leer estado al Maestro: %1</translation>
     </message>
     <message>
-        <location line="+17"/>
         <source>Master sent an unkown response code. %1</source>
-        <translation>Maestro ha enviado un códico de respuesta desconocido. %1</translation>
+        <translation type="obsolete">Maestro ha enviado un códico de respuesta desconocido. %1</translation>
     </message>
 </context>
 <context>
     <name>JobRunner</name>
     <message>
-        <location filename="../../../src/MMProc/jobrunner.cc" line="+147"/>
+        <location filename="../../../src/MMProc/jobrunner.cc" line="+148"/>
         <source>Failed to listen to Port %1 on %2 on </source>
         <translation>Falló de escuchar a Porta %1 en %2 en </translation>
     </message>
@@ -1760,19 +1886,30 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     </message>
 </context>
 <context>
+    <name>Line2DInterSectionFinder</name>
+    <message>
+        <location filename="../../../src/Geometry/geom2dintersections.cc" line="+107"/>
+        <source>Finding intersections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Lines done</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>LinearD2TTransform</name>
     <message>
-        <location filename="../../../include/Seis/timedepthconv.h" line="+239"/>
         <source>Linear velocity</source>
-        <translation>Velocidad lineal</translation>
+        <translation type="obsolete">Velocidad lineal</translation>
     </message>
 </context>
 <context>
     <name>LinearT2DTransform</name>
     <message>
-        <location line="-23"/>
         <source>Linear velocity</source>
-        <translation>Velocidad lineal</translation>
+        <translation type="obsolete">Velocidad lineal</translation>
     </message>
 </context>
 <context>
@@ -1894,11 +2031,168 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
     </message>
 </context>
 <context>
+    <name>MadStream</name>
+    <message>
+        <location filename="../../../plugins/Madagascar/madstream.cc" line="+80"/>
+        <source>Output parameters missing</source>
+        <translation type="unfinished">Faltan parámetros de salida</translation>
+    </message>
+    <message>
+        <location line="+100"/>
+        <source>Error reading RSF header</source>
+        <translation type="unfinished">Error al leer encabezamiento RSF</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Cannot read RSF data file</source>
+        <translation type="unfinished">No se puede leer expediente de datos RSF</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Input ID missing</source>
+        <translation type="unfinished">Falta entrada ID</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Cannot find input data</source>
+        <translation type="unfinished">No se puede encontrar datos de entrada</translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>Output data ID missing</source>
+        <translation type="unfinished">Faltan datos de salida</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Cannot find output object</source>
+        <translation type="unfinished">No se puede encontrar objeto de salida</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+9"/>
+        <source>Cannot write to output object</source>
+        <translation type="unfinished">No se puede escribir al objeto de salida</translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Cannot create Pos file</source>
+        <translation type="unfinished">No se puede crear Expediente Pos</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Cannot write to Pos file</source>
+        <translation type="unfinished">No se puede escribir al Expediente Pos</translation>
+    </message>
+    <message>
+        <location line="+36"/>
+        <source>No nput object</source>
+        <translation type="unfinished">No hay objeto de entrada</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Invalid data subselection</source>
+        <translation type="unfinished">Datos de subselección son inválidos</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>2D Line not found</source>
+        <translation type="unfinished">No ha encontrado la Línea 2D</translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Incomplete Geometry Information</source>
+        <translation type="unfinished">Información Geometría no esta completa</translation>
+    </message>
+    <message>
+        <location line="+69"/>
+        <location line="+20"/>
+        <source>No data available in the given range</source>
+        <translation type="unfinished">No hay datos en los rangos especificados</translation>
+    </message>
+    <message>
+        <location line="-14"/>
+        <location line="+27"/>
+        <location line="+11"/>
+        <source>No data to read</source>
+        <translation type="unfinished">No hay datos para leer</translation>
+    </message>
+    <message>
+        <location line="-6"/>
+        <source>First position has only one trace in the gather. 		    Please ensure regular offset throught the data</source>
+        <translation type="unfinished">Primera posición solo tiene un rastro en el conjunto. --&gt; --&gt; Por favor ensegura offset regular en entre los datos</translation>
+    </message>
+    <message>
+        <location line="+58"/>
+        <source>Empty or corrupt RSF Header</source>
+        <translation type="unfinished">Encabezamiento RSF esta vacío o corrupto</translation>
+    </message>
+    <message>
+        <location line="+34"/>
+        <source>Header parameters not found</source>
+        <translation type="unfinished">No ha encontrado parámetros del encabezamiento</translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <location line="+3"/>
+        <source>Cannot read traces</source>
+        <translation type="unfinished">No se puede leer rastros</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>No data source found</source>
+        <translation type="unfinished">No ha encontrado fuente de datos</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Cannot Open Pos File</source>
+        <translation type="unfinished">No se puede abrir Expediente Pos</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Cannot Read Pos File</source>
+        <translation type="unfinished">No se puede leer Expediente Pos</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>No positions in Pos File</source>
+        <translation type="unfinished">No hay posiciones en Expediente Pos</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Cannot initialize writing</source>
+        <translation type="unfinished">No se puede inicializar escribir</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Geometry data missing</source>
+        <translation type="unfinished">Faltan datos de geometría</translation>
+    </message>
+    <message>
+        <location line="+51"/>
+        <source>Cannot write trace</source>
+        <translation type="unfinished">No se puede escribir el rastro</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Position data not available</source>
+        <translation type="unfinished">No hay datos de posiciones</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Line geometry doesn&apos;t match with data</source>
+        <translation type="unfinished">Línea geometría no esta igual a los datos</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Error writing traces</source>
+        <translation type="unfinished">Error al escribir los rastros</translation>
+    </message>
+</context>
+<context>
     <name>MarchingCubes2Implicit</name>
     <message>
-        <location filename="../../../include/Geometry/marchingcubes.h" line="+37"/>
         <source>Processing MarchingCubes2Implicit.</source>
-        <translation>Procesando CubosMarchandos2Implícitos.</translation>
+        <translation type="obsolete">Procesando CubosMarchandos2Implícitos.</translation>
     </message>
 </context>
 <context>
@@ -1944,7 +2238,7 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
         <translation>No se puede encontrar biblioteca compartida %1</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+16"/>
         <location line="+17"/>
         <location line="+32"/>
         <location line="+49"/>
@@ -1973,6 +2267,19 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
         <location line="+99"/>
         <source>Cannot initialize MATLAB application</source>
         <translation>No se puede inicializar aplicación MATLAB</translation>
+    </message>
+</context>
+<context>
+    <name>MatlabStep</name>
+    <message>
+        <location filename="../../../plugins/MATLABLink/matlabstep.cc" line="+201"/>
+        <source>%1 not provided.</source>
+        <translation type="unfinished">%1 no esta incluído</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>No output provided.</source>
+        <translation type="unfinished">Salida no esta incluída.</translation>
     </message>
 </context>
 <context>
@@ -2026,17 +2333,17 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
 <context>
     <name>Network::Socket</name>
     <message>
-        <location filename="../../../src/Network/netsocket.cc" line="+85"/>
+        <location filename="../../../src/Network/netsocket.cc" line="+96"/>
         <source>Trying to connect already used connection.</source>
         <translation>Tratando de connectar a una connección que ya esta usada</translation>
     </message>
     <message>
-        <location line="+149"/>
+        <location line="+162"/>
         <source>Write timeout</source>
         <translation>Escribir tiempo de espera</translation>
     </message>
     <message>
-        <location line="+122"/>
+        <location line="+123"/>
         <location line="+46"/>
         <source>Out of memory</source>
         <translation>Fuera de la memoria</translation>
@@ -2106,159 +2413,124 @@ cambiar datos de entrada de la Disposición del Rastreo.</translation>
 <context>
     <name>ODMad::MadStream</name>
     <message>
-        <location filename="../../../plugins/Madagascar/madstream.cc" line="+80"/>
         <source>Output parameters missing</source>
-        <translation>Faltan parámetros de salida</translation>
+        <translation type="obsolete">Faltan parámetros de salida</translation>
     </message>
     <message>
-        <location line="+100"/>
         <source>Error reading RSF header</source>
-        <translation>Error al leer encabezamiento RSF</translation>
+        <translation type="obsolete">Error al leer encabezamiento RSF</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Cannot read RSF data file</source>
-        <translation>No se puede leer expediente de datos RSF</translation>
+        <translation type="obsolete">No se puede leer expediente de datos RSF</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Input ID missing</source>
-        <translation>Falta entrada ID</translation>
+        <translation type="obsolete">Falta entrada ID</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Cannot find input data</source>
-        <translation>No se puede encontrar datos de entrada</translation>
+        <translation type="obsolete">No se puede encontrar datos de entrada</translation>
     </message>
     <message>
-        <location line="+36"/>
         <source>Output data ID missing</source>
-        <translation>Faltan datos de salida</translation>
+        <translation type="obsolete">Faltan datos de salida</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Cannot find output object</source>
-        <translation>No se puede encontrar objeto de salida</translation>
+        <translation type="obsolete">No se puede encontrar objeto de salida</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <location line="+9"/>
         <source>Cannot write to output object</source>
-        <translation>No se puede escribir al objeto de salida</translation>
+        <translation type="obsolete">No se puede escribir al objeto de salida</translation>
     </message>
     <message>
-        <location line="+44"/>
         <source>Cannot create Pos file</source>
-        <translation>No se puede crear Expediente Pos</translation>
+        <translation type="obsolete">No se puede crear Expediente Pos</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Cannot write to Pos file</source>
-        <translation>No se puede escribir al Expediente Pos</translation>
+        <translation type="obsolete">No se puede escribir al Expediente Pos</translation>
     </message>
     <message>
-        <location line="+36"/>
         <source>No nput object</source>
-        <translation>No hay objeto de entrada</translation>
+        <translation type="obsolete">No hay objeto de entrada</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Invalid data subselection</source>
-        <translation>Datos de subselección son inválidos</translation>
+        <translation type="obsolete">Datos de subselección son inválidos</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>2D Line not found</source>
-        <translation>No ha encontrado la Línea 2D</translation>
+        <translation type="obsolete">No ha encontrado la Línea 2D</translation>
     </message>
     <message>
-        <location line="+38"/>
         <source>Incomplete Geometry Information</source>
-        <translation>Información Geometría no esta completa</translation>
+        <translation type="obsolete">Información Geometría no esta completa</translation>
     </message>
     <message>
-        <location line="+69"/>
-        <location line="+20"/>
         <source>No data available in the given range</source>
-        <translation>No hay datos en los rangos especificados</translation>
+        <translation type="obsolete">No hay datos en los rangos especificados</translation>
     </message>
     <message>
-        <location line="-14"/>
-        <location line="+27"/>
-        <location line="+11"/>
         <source>No data to read</source>
-        <translation>No hay datos para leer</translation>
+        <translation type="obsolete">No hay datos para leer</translation>
     </message>
     <message>
-        <location line="-6"/>
         <source>First position has only one trace in the gather. 		    Please ensure regular offset throught the data</source>
-        <translation>Primera posición solo tiene un rastro en el conjunto. --&gt; --&gt; Por favor ensegura offset regular en entre los datos</translation>
+        <translation type="obsolete">Primera posición solo tiene un rastro en el conjunto. --&gt; --&gt; Por favor ensegura offset regular en entre los datos</translation>
     </message>
     <message>
-        <location line="+58"/>
         <source>Empty or corrupt RSF Header</source>
-        <translation>Encabezamiento RSF esta vacío o corrupto</translation>
+        <translation type="obsolete">Encabezamiento RSF esta vacío o corrupto</translation>
     </message>
     <message>
-        <location line="+34"/>
         <source>Header parameters not found</source>
-        <translation>No ha encontrado parámetros del encabezamiento</translation>
+        <translation type="obsolete">No ha encontrado parámetros del encabezamiento</translation>
     </message>
     <message>
-        <location line="+48"/>
-        <location line="+3"/>
         <source>Cannot read traces</source>
-        <translation>No se puede leer rastros</translation>
+        <translation type="obsolete">No se puede leer rastros</translation>
     </message>
     <message>
-        <location line="+30"/>
         <source>No data source found</source>
-        <translation>No ha encontrado fuente de datos</translation>
+        <translation type="obsolete">No ha encontrado fuente de datos</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>Cannot Open Pos File</source>
-        <translation>No se puede abrir Expediente Pos</translation>
+        <translation type="obsolete">No se puede abrir Expediente Pos</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Cannot Read Pos File</source>
-        <translation>No se puede leer Expediente Pos</translation>
+        <translation type="obsolete">No se puede leer Expediente Pos</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>No positions in Pos File</source>
-        <translation>No hay posiciones en Expediente Pos</translation>
+        <translation type="obsolete">No hay posiciones en Expediente Pos</translation>
     </message>
     <message>
-        <location line="+23"/>
         <source>Cannot initialize writing</source>
-        <translation>No se puede inicializar escribir</translation>
+        <translation type="obsolete">No se puede inicializar escribir</translation>
     </message>
     <message>
-        <location line="+28"/>
         <source>Geometry data missing</source>
-        <translation>Faltan datos de geometría</translation>
+        <translation type="obsolete">Faltan datos de geometría</translation>
     </message>
     <message>
-        <location line="+51"/>
         <source>Cannot write trace</source>
-        <translation>No se puede escribir el rastro</translation>
+        <translation type="obsolete">No se puede escribir el rastro</translation>
     </message>
     <message>
-        <location line="+26"/>
         <source>Position data not available</source>
-        <translation>No hay datos de posiciones</translation>
+        <translation type="obsolete">No hay datos de posiciones</translation>
     </message>
     <message>
-        <location line="+22"/>
         <source>Line geometry doesn&apos;t match with data</source>
-        <translation>Línea geometría no esta igual a los datos</translation>
+        <translation type="obsolete">Línea geometría no esta igual a los datos</translation>
     </message>
     <message>
-        <location line="+26"/>
         <source>Error writing traces</source>
-        <translation>Error al escribir los rastros</translation>
+        <translation type="obsolete">Error al escribir los rastros</translation>
     </message>
 </context>
 <context>
@@ -2421,7 +2693,7 @@ no tiene expedientes de definición</translation>
 <context>
     <name>OS::CommandLauncher</name>
     <message>
-        <location filename="../../../src/Basic/oscommand.cc" line="+524"/>
+        <location filename="../../../src/Basic/oscommand.cc" line="+583"/>
         <source>Command is empty</source>
         <translation>Comando esta vacío</translation>
     </message>
@@ -2431,7 +2703,7 @@ no tiene expedientes de definición</translation>
         <translation>comando ya esta ejecutando</translation>
     </message>
     <message>
-        <location line="+62"/>
+        <location line="+182"/>
         <source>Cannot start process %1.</source>
         <translation>No se puede iniciar proceso %1.</translation>
     </message>
@@ -2453,9 +2725,22 @@ no tiene expedientes de definición</translation>
     </message>
 </context>
 <context>
+    <name>PSAngleDataCreator</name>
+    <message>
+        <location filename="../../../src/WellAttrib/stratsynth.cc" line="+156"/>
+        <source>Calculating Angle Gathers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Models done</source>
+        <translation type="unfinished">Modelos estan hechos</translation>
+    </message>
+</context>
+<context>
     <name>ParallelReader</name>
     <message>
-        <location filename="../../../src/Seis/seisparallelreader.cc" line="+81"/>
+        <location filename="../../../src/Seis/seisparallelreader.cc" line="+84"/>
         <source>Traces read</source>
         <translation>Rastros estan leídos</translation>
     </message>
@@ -2478,7 +2763,7 @@ no tiene expedientes de definición</translation>
 <context>
     <name>ParallelReader2D</name>
     <message>
-        <location line="+158"/>
+        <location line="+186"/>
         <source>Traces read</source>
         <translation>Rastros estan leídos</translation>
     </message>
@@ -2509,7 +2794,7 @@ no tiene expedientes de definición</translation>
         <translation>No ha encontrado posiciones</translation>
     </message>
     <message>
-        <location line="+243"/>
+        <location line="+244"/>
         <source>%1 %2%3</source>
         <translation></translation>
     </message>
@@ -2552,19 +2837,53 @@ La posición anterior era %3</translation>
     </message>
 </context>
 <context>
-    <name>PreStack::AngleMute</name>
+    <name>PreLoader</name>
+    <message>
+        <location filename="../../../src/Seis/seispreload.cc" line="+41"/>
+        <source>Cannot find ID in object manager</source>
+        <translation type="unfinished">No se puede encontrar ID en gerente de objeto</translation>
+    </message>
+</context>
+<context>
+    <name>PreStack</name>
     <message>
         <location filename="../../../include/PreStackProcessing/prestackanglemute.h" line="+84"/>
         <source>Angle Mute</source>
-        <translation>Mudo ángulo</translation>
+        <translation type="unfinished">Mudo ángulo</translation>
+    </message>
+    <message>
+        <location filename="../../../include/PreStackProcessing/prestackeventio.h" line="+62"/>
+        <source>Loading events</source>
+        <translation type="unfinished">Cargando eventos</translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <source>Storing events</source>
+        <translation type="unfinished">Almacenando eventos</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Files copied</source>
+        <translation type="unfinished">Expedientes estan copiados</translation>
+    </message>
+    <message>
+        <location filename="../../../include/PreStackProcessing/prestacklateralstack.h" line="+32"/>
+        <source>Super Gather</source>
+        <translation type="unfinished">Super Conjunto</translation>
+    </message>
+</context>
+<context>
+    <name>PreStack::AngleMute</name>
+    <message>
+        <source>Angle Mute</source>
+        <translation type="obsolete">Mudo ángulo</translation>
     </message>
 </context>
 <context>
     <name>PreStack::EventDuplicator</name>
     <message>
-        <location filename="../../../include/PreStackProcessing/prestackeventio.h" line="+144"/>
         <source>Files copied</source>
-        <translation>Expedientes estan copiados</translation>
+        <translation type="obsolete">Expedientes estan copiados</translation>
     </message>
 </context>
 <context>
@@ -2663,25 +2982,22 @@ Número de evento = %1</translation>
 <context>
     <name>PreStack::EventReader</name>
     <message>
-        <location filename="../../../include/PreStackProcessing/prestackeventio.h" line="-82"/>
         <source>Loading events</source>
-        <translation>Cargando eventos</translation>
+        <translation type="obsolete">Cargando eventos</translation>
     </message>
 </context>
 <context>
     <name>PreStack::EventWriter</name>
     <message>
-        <location line="+54"/>
         <source>Storing events</source>
-        <translation>Almacenando eventos</translation>
+        <translation type="obsolete">Almacenando eventos</translation>
     </message>
 </context>
 <context>
     <name>PreStack::LateralStack</name>
     <message>
-        <location filename="../../../include/PreStackProcessing/prestacklateralstack.h" line="+32"/>
         <source>Super Gather</source>
-        <translation>Super Conjunto</translation>
+        <translation type="obsolete">Super Conjunto</translation>
     </message>
 </context>
 <context>
@@ -2717,230 +3033,186 @@ Do you want to save them?</source>
 <context>
     <name>PreStackView::uiViewer3DAppearanceTab</name>
     <message>
-        <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="+33"/>
         <source>Appearance</source>
-        <translation>Apariencia</translation>
+        <translation type="obsolete">Apariencia</translation>
     </message>
     <message>
-        <location line="+17"/>
         <source>Z grid lines</source>
-        <translation>Líneas cuadrículas Z</translation>
+        <translation type="obsolete">Líneas cuadrículas Z</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <location line="+23"/>
         <source>Automatic sampling</source>
-        <translation>Muestreo automático</translation>
+        <translation type="obsolete">Muestreo automático</translation>
     </message>
     <message>
-        <location line="-17"/>
         <source>Z grid sampling (start/step)</source>
-        <translation>Muestreo de cuadrícula Z (inicio/paso)</translation>
+        <translation type="obsolete">Muestreo de cuadrícula Z (inicio/paso)</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>Offset grid lines</source>
-        <translation>Offset líneas cuadrículas</translation>
+        <translation type="obsolete">Offset líneas cuadrículas</translation>
     </message>
     <message>
-        <location line="+14"/>
         <source>Offset grid sampling (start/step)</source>
-        <translation>Offset muestreo de cuadrículas (inicio/paso)</translation>
+        <translation type="obsolete">Offset muestreo de cuadrículas (inicio/paso)</translation>
     </message>
     <message>
-        <location line="+105"/>
         <source>Cannot write  default settings</source>
-        <translation>No se puede escribir ajustes predeterminados</translation>
+        <translation type="obsolete">No se puede escribir ajustes predeterminados</translation>
     </message>
     <message>
-        <location line="+32"/>
         <source>Z sampling start is not defined.</source>
-        <translation>Inicio de muestreo Z no esta definido</translation>
+        <translation type="obsolete">Inicio de muestreo Z no esta definido</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Z sampling step is not defined.</source>
-        <translation>Paso de muestreo Z no esta definido</translation>
+        <translation type="obsolete">Paso de muestreo Z no esta definido</translation>
     </message>
     <message>
-        <location line="+26"/>
         <source>Offset sampling start is not defined.</source>
-        <translation>Inicio de muestreo offset no esta definido</translation>
+        <translation type="obsolete">Inicio de muestreo offset no esta definido</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Offset sampling step is not defined.</source>
-        <translation>Paso de muestreo offset no esta definido</translation>
+        <translation type="obsolete">Paso de muestreo offset no esta definido</translation>
     </message>
 </context>
 <context>
     <name>PreStackView::uiViewer3DMgr</name>
     <message>
-        <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="+50"/>
         <source>Display Prestack Data</source>
-        <translation>Mostrar Datos Antes del Apilamiento</translation>
+        <translation type="obsolete">Mostrar Datos Antes del Apilamiento</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Show position window ...</source>
-        <translation>Mostrar pantalla de posición</translation>
+        <translation type="obsolete">Mostrar pantalla de posición</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Resolution</source>
-        <translation>Resolución</translation>
+        <translation type="obsolete">Resolución</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>View in 2D panel ...</source>
-        <translation>Ver en panel 2D ...</translation>
+        <translation type="obsolete">Ver en panel 2D ...</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Amplitude spectrum ...</source>
-        <translation>Espectro amplitud ...</translation>
+        <translation type="obsolete">Espectro amplitud ...</translation>
     </message>
     <message>
-        <location line="+249"/>
         <source>No object selected</source>
-        <translation>No hay objeto seleccionado</translation>
+        <translation type="obsolete">No hay objeto seleccionado</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Display panel is not set.</source>
-        <translation>Pantalla de panel no esta ajustado</translation>
+        <translation type="obsolete">Pantalla de panel no esta ajustado</translation>
     </message>
     <message>
-        <location line="+213"/>
         <source>Can not find %1</source>
-        <translation>No se puede encontrar %1</translation>
+        <translation type="obsolete">No se puede encontrar %1</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>No data found</source>
-        <translation>No ha encontrado datos</translation>
+        <translation type="obsolete">No ha encontrado datos</translation>
     </message>
 </context>
 <context>
     <name>PreStackView::uiViewer3DPositionDlg</name>
     <message>
-        <location filename="../../../plugins/uiPreStackViewer/uipsviewerposdlg.cc" line="+56"/>
         <source>Immediate update</source>
-        <translation>Actualización inmediato</translation>
+        <translation type="obsolete">Actualización inmediato</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Update Now</source>
-        <translation>Actualizar ahora</translation>
+        <translation type="obsolete">Actualizar ahora</translation>
     </message>
     <message>
-        <location line="+101"/>
         <source>The cross-line should be between %1 and %2</source>
-        <translation>La línea-cruzada debe estar entre %1 y %2</translation>
+        <translation type="obsolete">La línea-cruzada debe estar entre %1 y %2</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>The in-line should be between %1 and %2</source>
-        <translation>La línea debe estar entre %1 y %2</translation>
+        <translation type="obsolete">La línea debe estar entre %1 y %2</translation>
     </message>
     <message>
-        <location line="+21"/>
         <source>The trace number should be between %1 and %2</source>
-        <translation>El número de rastros debe estar entre %1 y %2</translation>
+        <translation type="obsolete">El número de rastros debe estar entre %1 y %2</translation>
     </message>
 </context>
 <context>
     <name>PreStackView::uiViewer3DPreProcTab</name>
     <message>
-        <location filename="../../../plugins/uiPreStackViewer/uipsviewerpreproctab.cc" line="+24"/>
         <source>Preprocessing</source>
-        <translation>Preprocesamiento</translation>
+        <translation type="obsolete">Preprocesamiento</translation>
     </message>
     <message>
-        <location line="+59"/>
         <source>Preprocessing failed!</source>
-        <translation>¡Preprocesamiento ha fallado!</translation>
+        <translation type="obsolete">¡Preprocesamiento ha fallado!</translation>
     </message>
 </context>
 <context>
     <name>PreStackView::uiViewer3DScalingTab</name>
     <message>
-        <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="+95"/>
         <source>Cannot write  default settings</source>
-        <translation>No se puede escribir ajustes predeterminados</translation>
+        <translation type="obsolete">No se puede escribir ajustes predeterminados</translation>
     </message>
     <message>
-        <location line="+48"/>
         <source>Range is not set</source>
-        <translation>Rango no esta ajustado</translation>
+        <translation type="obsolete">Rango no esta ajustado</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <location line="+38"/>
         <source>Clipping rate is not set</source>
-        <translation>Tasa de recorte no esta ajustado</translation>
+        <translation type="obsolete">Tasa de recorte no esta ajustado</translation>
     </message>
     <message>
-        <location line="-32"/>
-        <location line="+19"/>
         <source>Clip percentage should between 0 and 100</source>
-        <translation>Porcentaje de recorte debe estar entre 0 y 100</translation>
+        <translation type="obsolete">Porcentaje de recorte debe estar entre 0 y 100</translation>
     </message>
     <message>
-        <location line="-12"/>
         <source>Midvalue is not set</source>
-        <translation>Medio valor no esta ajustado</translation>
+        <translation type="obsolete">Medio valor no esta ajustado</translation>
     </message>
     <message>
-        <location line="+18"/>
         <source>Clip percentage sum is between 0 and 100</source>
-        <translation>La suma del procentaje de recorte esta entre 0 y 100</translation>
+        <translation type="obsolete">La suma del procentaje de recorte esta entre 0 y 100</translation>
     </message>
 </context>
 <context>
     <name>PreStackView::uiViewer3DSettingDlg</name>
     <message>
-        <location filename="../../../plugins/uiPreStackViewer/uipsviewersettingdlg.cc" line="+29"/>
         <source>Prestack display properties</source>
-        <translation>Propiedades de la pantalla antes del apilamiento</translation>
+        <translation type="obsolete">Propiedades de la pantalla antes del apilamiento</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>Apply to all viewers</source>
-        <translation>Aplicar a todos espectadores</translation>
+        <translation type="obsolete">Aplicar a todos espectadores</translation>
     </message>
 </context>
 <context>
     <name>PreStackView::uiViewer3DShapeTab</name>
     <message>
-        <location filename="../../../plugins/uiPreStackViewer/uipsviewershapetab.cc" line="+34"/>
         <source>Shape</source>
-        <translation>Forma</translation>
+        <translation type="obsolete">Forma</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Width</source>
-        <translation>Anchura</translation>
+        <translation type="obsolete">Anchura</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Relative</source>
-        <translation>Relativo</translation>
+        <translation type="obsolete">Relativo</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Absolute</source>
-        <translation>Absoluto</translation>
+        <translation type="obsolete">Absoluto</translation>
     </message>
     <message>
-        <location line="+24"/>
         <source>Switch View Side</source>
-        <translation>Cambiar Lado de Vista</translation>
+        <translation type="obsolete">Cambiar Lado de Vista</translation>
     </message>
     <message>
-        <location line="+100"/>
         <source>Cannot write default settings</source>
-        <translation>No se puede escribir ajustes predeterminados</translation>
+        <translation type="obsolete">No se puede escribir ajustes predeterminados</translation>
     </message>
 </context>
 <context>
@@ -2995,13 +3267,13 @@ Are all plugins loaded?</source>
 <context>
     <name>Processor</name>
     <message>
-        <location filename="../../../src/AttributeEngine/attribprocessor.cc" line="+142"/>
-        <location line="+85"/>
+        <location filename="../../../src/AttributeEngine/attribprocessor.cc" line="+141"/>
+        <location line="+90"/>
         <source>Error during data read</source>
         <translation>Error al leer los datos</translation>
     </message>
     <message>
-        <location line="-76"/>
+        <location line="-81"/>
         <source>No trace info available</source>
         <translation>No hay información de rastro</translation>
     </message>
@@ -3015,13 +3287,13 @@ Probablemente su volumen de entrada no esta disponible en la
 área seleccionada o los pasos apretados de los rastros necesarios no estan disponibles</translation>
     </message>
     <message>
-        <location line="+75"/>
+        <location line="+80"/>
         <source>This stored cube contains no data in selected area.
 </source>
         <translation>Este cubo almacenado no tiene datos en la área seleccionada</translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+193"/>
         <source>Not possible to output required attribute in this area.
 Please confront stepouts/timegates with available data</source>
         <translation>No es possible poner el atributo nesecario en la salida de este área. 
@@ -3066,8 +3338,12 @@ Por favor selecciona datos almacenados válidos.</translation>
     </message>
     <message>
         <location line="+32"/>
+        <source>Input is not correct. One of the inputs depends on itself</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Input is not correct. One of the inputs depend on itself</source>
-        <translation>Entrada no es correcto. Una de las entrada depende de sí mísma</translation>
+        <translation type="obsolete">Entrada no es correcto. Una de las entrada depende de sí mísma</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -3080,7 +3356,7 @@ Por favor selecciona datos almacenados válidos.</translation>
         <translation>No se puede inicializar atributo &quot;%1&quot; de tipo &quot;%2&quot;</translation>
     </message>
     <message>
-        <location line="+843"/>
+        <location line="+848"/>
         <source>Failed to allocate memory. Probably the data you are loading is too big.</source>
         <translation>Falló de asignar la memoria. Probablemente los datos que usted esta cargando son demasiado grande.</translation>
     </message>
@@ -3102,12 +3378,17 @@ Por favor selecciona datos almacenados válidos.</translation>
         <translation>No ha encontrado modelo AI</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+8"/>
         <source>Raytracing</source>
         <translation>Rastreo de rayos</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+6"/>
+        <source>Preparing Reflectivity Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>Generating synthetics</source>
         <translation>Generando sintéticos</translation>
     </message>
@@ -3125,28 +3406,25 @@ Por favor selecciona datos almacenados válidos.</translation>
 <context>
     <name>RayTracer1D</name>
     <message>
-        <location filename="../../../src/Algo/raytrace1d.cc" line="+68"/>
         <source>Raytracer not found. Perhaps all plugins are not loaded</source>
-        <translation>No ha encontrado rastreo de rayos. Tal vez todos plugins on estan cargados</translation>
+        <translation type="obsolete">No ha encontrado rastreo de rayos. Tal vez todos plugins on estan cargados</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location filename="../../../src/Algo/raytrace1d.cc" line="+169"/>
         <source>Internal: Offsets must be set before the model</source>
         <translation>Interno: offsets deben ajustarse antes del modelo</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+35"/>
         <source>Cannot do raytracing.</source>
         <translation>No se puede hacer rastreo de rayos</translation>
     </message>
     <message>
-        <location line="-22"/>
         <source>Model has only one layer</source>
-        <translation>El modelo solo tiene una capa</translation>
+        <translation type="obsolete">El modelo solo tiene una capa</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+13"/>
         <source>Model is empty</source>
         <translation>Modelo esta vacío</translation>
     </message>
@@ -3159,15 +3437,80 @@ Por favor selecciona datos almacenados válidos.</translation>
 <context>
     <name>RayTracerRunner</name>
     <message>
-        <location filename="../../../src/General/raytracerrunner.cc" line="+79"/>
+        <location filename="../../../src/General/raytracerrunner.cc" line="+77"/>
         <source>Wrong input for raytracing on model: %1</source>
         <translation>Entrada equivocada para el rastreo de rayos en modelo: %1</translation>
     </message>
 </context>
 <context>
+    <name>RegionCrlBoundary</name>
+    <message>
+        <location filename="../../../src/EarthModel/emregion.cc" line="+109"/>
+        <source>Positive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Negative</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RegionHor3DBoundary</name>
+    <message>
+        <location line="+102"/>
+        <source>Above</source>
+        <translation type="unfinished">Arriba</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Below</source>
+        <translation type="unfinished">Abajo</translation>
+    </message>
+</context>
+<context>
+    <name>RegionInlBoundary</name>
+    <message>
+        <location line="-135"/>
+        <source>Positive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Negative</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RegionPolygonBoundary</name>
+    <message>
+        <location line="+293"/>
+        <source>Inside</source>
+        <translation type="unfinished">Dentro</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Outside</source>
+        <translation type="unfinished">Fuera</translation>
+    </message>
+</context>
+<context>
+    <name>RegionZBoundary</name>
+    <message>
+        <location line="-228"/>
+        <source>Above</source>
+        <translation type="unfinished">Arriba</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Below</source>
+        <translation type="unfinished">Abajo</translation>
+    </message>
+</context>
+<context>
     <name>RequestConnection</name>
     <message>
-        <location filename="../../../src/Network/netreqconnection.cc" line="+104"/>
+        <location filename="../../../src/Network/netreqconnection.cc" line="+203"/>
         <source>Error reading from socket</source>
         <translation>Error al leer del enchufe</translation>
     </message>
@@ -3180,7 +3523,7 @@ Por favor selecciona datos almacenados válidos.</translation>
 <context>
     <name>RequestServer</name>
     <message>
-        <location line="+159"/>
+        <location line="+226"/>
         <source>Cannot start listening on port %1</source>
         <translation>No se puede iniciar escuchando en porta %1</translation>
     </message>
@@ -3188,7 +3531,7 @@ Por favor selecciona datos almacenados válidos.</translation>
 <context>
     <name>RokDocImporter</name>
     <message>
-        <location filename="../../../src/uiIo/uiimpexppdf.cc" line="+120"/>
+        <location filename="../../../src/uiIo/uiimpexppdf.cc" line="+121"/>
         <source>Cannot open input file to determine nr of dimensions</source>
         <translation>No se puede abrir expediente de entrada para determinar el número de dimensiones</translation>
     </message>
@@ -3229,9 +3572,27 @@ Por favor selecciona datos almacenados válidos.</translation>
     </message>
 </context>
 <context>
+    <name>SEGY</name>
+    <message>
+        <location filename="../../../include/Seis/segyresorter.h" line="+68"/>
+        <source>Traces handled</source>
+        <translation type="unfinished">Rastros estan manejados</translation>
+    </message>
+    <message>
+        <location filename="../../../include/Seis/segyscanner.h" line="+52"/>
+        <source>Traces scanned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Opening first file</source>
+        <translation type="unfinished">Abriendo primer expediente</translation>
+    </message>
+</context>
+<context>
     <name>SEGY::FileIndexer</name>
     <message>
-        <location filename="../../../src/Seis/segydirect.cc" line="+521"/>
+        <location filename="../../../src/Seis/segydirect.cc" line="+580"/>
         <source>Cannot find output object</source>
         <translation>No se puede encontrar objeto de salida</translation>
     </message>
@@ -3411,9 +3772,8 @@ Rastro: %2</translation>
         <translation>No se puede escribir rastro a: %1</translation>
     </message>
     <message>
-        <location filename="../../../include/Seis/segyresorter.h" line="+68"/>
         <source>Traces handled</source>
-        <translation>Rastros estan manejados</translation>
+        <translation type="obsolete">Rastros estan manejados</translation>
     </message>
 </context>
 <context>
@@ -3434,14 +3794,12 @@ Rastro: %2</translation>
         <translation>#Muestras equivocadas: %1 (tiene que ser igual al primer expediente: %2)</translation>
     </message>
     <message>
-        <location filename="../../../include/Seis/segyscanner.h" line="+52"/>
         <source>Traces scanned</source>
-        <translation>Rastros estan escaneados</translation>
+        <translation type="obsolete">Rastros estan escaneados</translation>
     </message>
     <message>
-        <location line="+47"/>
         <source>Opening first file</source>
-        <translation>Abriendo primer expediente</translation>
+        <translation type="obsolete">Abriendo primer expediente</translation>
     </message>
 </context>
 <context>
@@ -3533,18 +3891,17 @@ Total: %2 disponibles en el expediente de entrada</translation>
 <context>
     <name>SEGYSeisTrcTranslator</name>
     <message>
-        <location filename="../../../src/Seis/segytr.cc" line="+137"/>
-        <location line="+5"/>
+        <location filename="../../../src/Seis/segytr.cc" line="+138"/>
+        <location line="+6"/>
         <source>Cannot read SEG-Y Text header</source>
         <translation>No se puede leer encabezamiento de Texto SEG-Y</translation>
     </message>
     <message>
-        <location line="+29"/>
         <source>No traces found in the SEG-Y file</source>
-        <translation>No ha encontrado rastros en el expediente SEG-Y</translation>
+        <translation type="obsolete">No ha encontrado rastros en el expediente SEG-Y</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+23"/>
         <source>SEG-Y format &apos;4&apos; (fixed point/gain code) not supported</source>
         <translation>SEG-Y formato &apos;4&apos; (punto fijado/ganancia dódico) no esta soportado</translation>
     </message>
@@ -3641,7 +3998,7 @@ OpendTect va a asumir que la longitud de los rastros estan fijados.</translation
         <translation>No se puede escribir encabezamiento binario de SEG-Y</translation>
     </message>
     <message>
-        <location line="+146"/>
+        <location line="+123"/>
         <source>Cannot find a reasonable number of samples.
 Found: %1.
 Please &apos;Overrule&apos; to set something usable</source>
@@ -3650,7 +4007,7 @@ Número encontrado: %1.
 Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     </message>
     <message>
-        <location line="+225"/>
+        <location line="+232"/>
         <source>Read error during trace skipping</source>
         <translation>Lee error mientras saltando rastros</translation>
     </message>
@@ -3702,6 +4059,27 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     </message>
 </context>
 <context>
+    <name>Seis</name>
+    <message>
+        <location filename="../../../include/Seis/seisparallelreader.h" line="+153"/>
+        <source>Traces read</source>
+        <translation type="unfinished">Rastros estan leídos</translation>
+    </message>
+    <message>
+        <location filename="../../../include/Seis/synthseis.h" line="+183"/>
+        <source>Generating synthetics...</source>
+        <translation type="unfinished">Generando sintéticos...</translation>
+    </message>
+</context>
+<context>
+    <name>Seis2DCopier</name>
+    <message>
+        <location filename="../../../src/Seis/seiscopy.cc" line="+201"/>
+        <source>Copying traces</source>
+        <translation type="unfinished">Copiando rastros</translation>
+    </message>
+</context>
+<context>
     <name>Seis2DFrom3DExtractor</name>
     <message>
         <location filename="../../../src/Seis/seiscube2linedata.cc" line="+84"/>
@@ -3709,9 +4087,8 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
         <translation>No hay línea geometría</translation>
     </message>
     <message>
-        <location filename="../../../include/Seis/seiscube2linedata.h" line="+36"/>
         <source>Traces written</source>
-        <translation>Rastros estan escritos</translation>
+        <translation type="obsolete">Rastros estan escritos</translation>
     </message>
 </context>
 <context>
@@ -3740,15 +4117,14 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
 <context>
     <name>Seis2DLineGetter</name>
     <message>
-        <location filename="../../../include/Seis/seis2dlineio.h" line="+66"/>
         <source>Traces read</source>
-        <translation>Rastros estan leídos</translation>
+        <translation type="obsolete">Rastros estan leídos</translation>
     </message>
 </context>
 <context>
     <name>Seis2DLineMerger</name>
     <message>
-        <location filename="../../../src/Seis/seis2dlineio.cc" line="+204"/>
+        <location filename="../../../src/Seis/seis2dlineio.cc" line="+205"/>
         <source>Opening files</source>
         <translation>Abriendo expedientes</translation>
     </message>
@@ -3769,6 +4145,11 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
     </message>
     <message>
         <location line="+3"/>
+        <source>Cannot find line in %1 dataset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Cannot create a reader for %1.</source>
         <translation>No se puede crear un lector para %1.</translation>
     </message>
@@ -3776,14 +4157,12 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
 <context>
     <name>Seis2DTo3D</name>
     <message>
-        <location filename="../../../include/Seis/seis2dto3d.h" line="+114"/>
         <source>interpolating</source>
-        <translation>Interpolando</translation>
+        <translation type="obsolete">Interpolando</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Done</source>
-        <translation>Hecho</translation>
+        <translation type="obsolete">Hecho</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seis2dto3d.cc" line="+86"/>
@@ -3833,9 +4212,8 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
 <context>
     <name>Seis::MultiTraceSynthGenerator</name>
     <message>
-        <location filename="../../../include/Seis/synthseis.h" line="+183"/>
         <source>Generating synthetics...</source>
-        <translation>Generando sintéticos...</translation>
+        <translation type="obsolete">Generando sintéticos...</translation>
     </message>
 </context>
 <context>
@@ -3854,17 +4232,15 @@ Por favor pulsa &apos;Anular&apos; para ajustar algo utilizable</translation>
 <context>
     <name>Seis::PreLoader</name>
     <message>
-        <location filename="../../../src/Seis/seispreload.cc" line="+38"/>
         <source>Cannot find ID in object manager</source>
-        <translation>No se puede encontrar ID en gerente de objeto</translation>
+        <translation type="obsolete">No se puede encontrar ID en gerente de objeto</translation>
     </message>
 </context>
 <context>
     <name>Seis::SequentialReader</name>
     <message>
-        <location filename="../../../include/Seis/seisparallelreader.h" line="+130"/>
         <source>Traces read</source>
-        <translation>Rastros estan leídos</translation>
+        <translation type="obsolete">Rastros estan leídos</translation>
     </message>
 </context>
 <context>
@@ -3953,14 +4329,13 @@ El ID que ha encontrado es %2</translation>
 <context>
     <name>SeisBufReader</name>
     <message>
-        <location filename="../../../src/Seis/seisbuf.cc" line="+618"/>
+        <location filename="../../../src/Seis/seisbuf.cc" line="+620"/>
         <source>Reading traces</source>
         <translation>Leyendo rastros</translation>
     </message>
     <message>
-        <location filename="../../../include/Seis/seisbuf.h" line="+115"/>
         <source>Traces read</source>
-        <translation>Rastros estan leídos</translation>
+        <translation type="obsolete">Rastros estan leídos</translation>
     </message>
 </context>
 <context>
@@ -4037,14 +4412,12 @@ El ID que ha encontrado es %2</translation>
 <context>
     <name>SeisDataPackWriter</name>
     <message>
-        <location filename="../../../include/Seis/seisdatapackwriter.h" line="+39"/>
         <source>Writing out data!</source>
-        <translation>¡Escribiendo datos!</translation>
+        <translation type="obsolete">¡Escribiendo datos!</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Traces written:</source>
-        <translation>Rastros que estan escritos:</translation>
+        <translation type="obsolete">Rastros que estan escritos:</translation>
     </message>
 </context>
 <context>
@@ -4076,9 +4449,8 @@ El ID que ha encontrado es %2</translation>
 <context>
     <name>SeisImpBPSIF</name>
     <message>
-        <location filename="../../../include/Seis/seisimpbpsif.h" line="+76"/>
         <source>Shots handled</source>
-        <translation>Tiros estan manejados</translation>
+        <translation type="obsolete">Tiros estan manejados</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seisimpbpsif.cc" line="+53"/>
@@ -4104,17 +4476,15 @@ El ID que ha encontrado es %2</translation>
 <context>
     <name>SeisImpCBVSFromOtherSurvey</name>
     <message>
-        <location filename="../../../include/uiSeis/uiseiscbvsimpfromothersurv.h" line="+47"/>
         <source>Importing CBVS</source>
-        <translation>Importando CBVS</translation>
+        <translation type="obsolete">Importando CBVS</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Traces handled</source>
-        <translation>Rastros estan manejados</translation>
+        <translation type="obsolete">Rastros estan manejados</translation>
     </message>
     <message>
-        <location filename="../../../src/uiSeis/uiseiscbvsimpfromothersurv.cc" line="+164"/>
+        <location filename="../../../src/Seis/seiscbvsimpfromothersurv.cc" line="+59"/>
         <source>Can not read cube</source>
         <translation>No se puede leer cubo</translation>
     </message>
@@ -4191,14 +4561,12 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeisInterpol</name>
     <message>
-        <location filename="../../../include/Seis/seis2dto3d.h" line="-70"/>
         <source>interpolating</source>
-        <translation>Interpolando</translation>
+        <translation type="obsolete">Interpolando</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Number of iterations</source>
-        <translation>Número de iteraciones</translation>
+        <translation type="obsolete">Número de iteraciones</translation>
     </message>
 </context>
 <context>
@@ -4227,9 +4595,8 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeisLineSetCopier</name>
     <message>
-        <location filename="../../../src/Seis/seiscopy.cc" line="+201"/>
         <source>Copying traces</source>
-        <translation>Copiando rastros</translation>
+        <translation type="obsolete">Copiando rastros</translation>
     </message>
 </context>
 <context>
@@ -4259,17 +4626,15 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
         <translation>Manejando rastros</translation>
     </message>
     <message>
-        <location filename="../../../include/Seis/seismerge.h" line="+42"/>
         <source>Positions handled</source>
-        <translation>Posiciones estan manejados</translation>
+        <translation type="obsolete">Posiciones estan manejados</translation>
     </message>
 </context>
 <context>
     <name>SeisPSCubeSeisTrcTranslator</name>
     <message>
-        <location filename="../../../include/Seis/seispscubetr.h" line="+59"/>
         <source>No write to PS Cube</source>
-        <translation>No se puede escribir al Cubo PS</translation>
+        <translation type="obsolete">No se puede escribir al Cubo PS</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/seispsioprov.cc" line="+311"/>
@@ -4298,7 +4663,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeisPSMerger</name>
     <message>
-        <location filename="../../../src/Seis/seispsmerge.cc" line="+29"/>
+        <location filename="../../../src/Seis/seispsmerge.cc" line="+52"/>
         <source>Handling gathers</source>
         <translation>Manejando conjuntos</translation>
     </message>
@@ -4313,9 +4678,8 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
         <translation>No se puede crear escritor de salida</translation>
     </message>
     <message>
-        <location filename="../../../include/Seis/seispsmerge.h" line="+48"/>
         <source>Gathers written</source>
-        <translation>Conjuntos estan escritos</translation>
+        <translation type="obsolete">Conjuntos estan escritos</translation>
     </message>
 </context>
 <context>
@@ -4334,7 +4698,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeisScanner</name>
     <message>
-        <location filename="../../../src/Seis/seisscanner.cc" line="+63"/>
+        <location filename="../../../src/Seis/seisscanner.cc" line="+67"/>
         <source>Traces handled</source>
         <translation>Rastros estan manejados</translation>
     </message>
@@ -4391,7 +4755,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
         <translation>Entrada y salida son iguál.</translation>
     </message>
     <message>
-        <location line="+111"/>
+        <location line="+127"/>
         <source>&apos;%1&apos;</source>
         <translation></translation>
     </message>
@@ -4409,7 +4773,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeisTrc2DTranslator</name>
     <message>
-        <location filename="../../../src/Seis/seis2dlineio.cc" line="-135"/>
+        <location filename="../../../src/Seis/seis2dlineio.cc" line="-139"/>
         <source>Cannot reconstruct 2D filename</source>
         <translation>No se puede reconstruir el nombre del expediente 2D</translation>
     </message>
@@ -4427,7 +4791,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeisTrcReader</name>
     <message>
-        <location filename="../../../src/Seis/seisread.cc" line="+99"/>
+        <location filename="../../../src/Seis/seisread.cc" line="+100"/>
         <source>Info for input seismic data not found in Object Manager</source>
         <translation>No ha encontrado información sobre datos sísmicos de entrada en Gerente de Objeto</translation>
     </message>
@@ -4457,7 +4821,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
         <translation>Ha encontrado %1 donde esperaba el cubo sísmico</translation>
     </message>
     <message>
-        <location line="+301"/>
+        <location line="+303"/>
         <source>Data not available for the selected line</source>
         <translation>No hay datos disponibles para la línea seleccionada</translation>
     </message>
@@ -4465,7 +4829,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeisTrcStorOutput</name>
     <message>
-        <location filename="../../../src/AttributeEngine/attriboutput.cc" line="+341"/>
+        <location filename="../../../src/AttributeEngine/attriboutput.cc" line="+300"/>
         <location line="+81"/>
         <source>Cannot find seismic data with ID: %1</source>
         <translation>No se puede encontrar datos sísmicos con ID: %1</translation>
@@ -4489,7 +4853,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeisTrcTranslator</name>
     <message>
-        <location filename="../../../src/Seis/seistrctr.cc" line="+161"/>
+        <location filename="../../../src/Seis/seistrctr.cc" line="+162"/>
         <source>Empty first trace</source>
         <translation>El primer rastro esta vacío</translation>
     </message>
@@ -4499,7 +4863,7 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
         <translation>No ha encontrado componentes seleccionados</translation>
     </message>
     <message>
-        <location line="+124"/>
+        <location line="+118"/>
         <source>Out of memory</source>
         <translation>Fuera de la memoria</translation>
     </message>
@@ -4560,9 +4924,8 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeisZAxisStretcher</name>
     <message>
-        <location filename="../../../include/Seis/seiszaxisstretcher.h" line="+47"/>
         <source>Stretching data</source>
-        <translation>Estrechando datos</translation>
+        <translation type="obsolete">Estrechando datos</translation>
     </message>
 </context>
 <context>
@@ -4607,20 +4970,19 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
 <context>
     <name>SeparatorItem</name>
     <message>
-        <location filename="../../../include/General/menuhandler.h" line="+119"/>
         <source>Separator</source>
-        <translation>Separador</translation>
+        <translation type="obsolete">Separador</translation>
     </message>
 </context>
 <context>
     <name>StorageProvider</name>
     <message>
-        <location filename="../../../src/AttributeEngine/attribstorprovider.cc" line="+103"/>
+        <location filename="../../../src/AttributeEngine/attribstorprovider.cc" line="+89"/>
         <source>No dataset available for &apos;%1&apos;</source>
         <translation>No hay conjunto de datos para &apos;%1&apos;</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+44"/>
         <source>No data interpreter available for &apos;%1&apos;</source>
         <translation>No hay intérprete de datos disponible para &apos;%1&apos;</translation>
     </message>
@@ -4630,12 +4992,11 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
         <translation>No ha encontrado datos sísmicos 2D/conjunto de datos</translation>
     </message>
     <message>
-        <location line="+44"/>
         <source>Cannot get needed trace range from 2D line set</source>
-        <translation>No se puede recoger el rango de rastros necesario del conjunto de líneas 2D</translation>
+        <translation type="obsolete">No se puede recoger el rango de rastros necesario del conjunto de líneas 2D</translation>
     </message>
     <message>
-        <location line="+363"/>
+        <location line="+385"/>
         <location line="+43"/>
         <source>&apos;%1&apos; contains no data in selected area:
 </source>
@@ -4679,6 +5040,19 @@ Para Expediente Simple considera re-clasificación con un instrumento de texto.<
     </message>
 </context>
 <context>
+    <name>Strat</name>
+    <message>
+        <location filename="../../../include/Strat/stratlaymodgen.h" line="+40"/>
+        <source>Sequences generated</source>
+        <translation type="unfinished">Secuencias estan generados</translation>
+    </message>
+    <message>
+        <location filename="../../../include/Strat/stratlayseqattribcalc.h" line="+82"/>
+        <source>Models handled</source>
+        <translation type="unfinished">Modelos estan manejados</translation>
+    </message>
+</context>
+<context>
     <name>Strat::FormulaLayerValue</name>
     <message>
         <location filename="../../../src/Strat/stratlayer.cc" line="+101"/>
@@ -4718,9 +5092,8 @@ No se puede encontrar &apos;%3&apos;</translation>
         <translation>No hay columna de &apos;Profundidad&apos; en los datos de entrada</translation>
     </message>
     <message>
-        <location filename="../../../include/Strat/stratlayseqattribcalc.h" line="+82"/>
         <source>Models handled</source>
-        <translation>Modelos estan manejados</translation>
+        <translation type="obsolete">Modelos estan manejados</translation>
     </message>
 </context>
 <context>
@@ -4731,15 +5104,14 @@ No se puede encontrar &apos;%3&apos;</translation>
         <translation>Generando secuencias de capas</translation>
     </message>
     <message>
-        <location filename="../../../include/Strat/stratlaymodgen.h" line="+40"/>
         <source>Sequences generated</source>
-        <translation>Secuencias estan generados</translation>
+        <translation type="obsolete">Secuencias estan generados</translation>
     </message>
 </context>
 <context>
     <name>Strat::LayerSequenceGenDesc</name>
     <message>
-        <location filename="../../../src/Strat/stratseqgen.cc" line="+105"/>
+        <location line="+105"/>
         <source>Bad header found</source>
         <translation>Ha encontrado encabezamiento malo</translation>
     </message>
@@ -4804,26 +5176,24 @@ No se puede encontrar &apos;%3&apos;</translation>
 <context>
     <name>StratSynth</name>
     <message>
-        <location filename="../../../src/WellAttrib/stratsynth.cc" line="+128"/>
+        <location filename="../../../src/WellAttrib/stratsynth.cc" line="+88"/>
         <source>Empty layer model.</source>
         <translation>Modelo de capas esta vacío</translation>
     </message>
     <message>
-        <location line="+60"/>
+        <location line="+67"/>
         <source> input prestack synthetic data not found.</source>
         <translation>No ha encontrado datos sintéticos de entrada antes del apilamiento</translation>
     </message>
     <message>
-        <location line="+379"/>
         <source>Cannot generate elastic model as the thicknesses/Pwave velocity values are invalid. Probably units are not set correctly.</source>
-        <translation>No se puede generar modelo elástico por que los valores de espesor/Pondas de velocidad son inválidos. Probablemente las unidades no estan ajustadas correctamente.</translation>
+        <translation type="obsolete">No se puede generar modelo elástico por que los valores de espesor/Pondas de velocidad son inválidos. Probablemente las unidades no estan ajustadas correctamente.</translation>
     </message>
     <message>
-        <location line="+34"/>
         <source>Layer model contains invalid values of the following properties:
 %1First occurence found in layer &apos;%2&apos; of pseudo well number %3
 Invalid values will be interpolated.The resulting synthetics may be incorrect</source>
-        <translation>Modelo de capas contiene valores inválidos de los propiedades siguientes:
+        <translation type="obsolete">Modelo de capas contiene valores inválidos de los propiedades siguientes:
 %1 Primera occurencia esta encontrada en la capa &apos;%2&apos; del pozo-falso número %3
 Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden ser incorrectos</translation>
     </message>
@@ -4831,7 +5201,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
 <context>
     <name>StratSynthExporter</name>
     <message>
-        <location filename="../../../src/WellAttrib/stratsynthexp.cc" line="+134"/>
+        <location filename="../../../src/WellAttrib/stratsynthexp.cc" line="+146"/>
         <source>Exporting syntheic data</source>
         <translation>Exportando datos sintéticos</translation>
     </message>
@@ -4839,7 +5209,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
 <context>
     <name>StreamProviderPreLoadedData</name>
     <message>
-        <location filename="../../../src/Basic/strmprov.cc" line="+148"/>
+        <location filename="../../../src/Basic/strmprov.cc" line="+149"/>
         <source>Reading &apos;</source>
         <translation>Leyendo &apos;</translation>
     </message>
@@ -4867,20 +5237,20 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
 <context>
     <name>SurfaceAuxData</name>
     <message>
-        <location filename="../../../src/EarthModel/emsurfaceauxdata.cc" line="+214"/>
+        <location filename="../../../src/EarthModel/emsurfaceauxdata.cc" line="+223"/>
+        <location line="+46"/>
         <source>Cannot find Translator</source>
         <translation>No se puede encontrar Traductor</translation>
     </message>
     <message>
-        <location line="+67"/>
         <source>Nr done</source>
-        <translation>Número esta hecho</translation>
+        <translation type="obsolete">Número esta hecho</translation>
     </message>
 </context>
 <context>
     <name>SurfaceGeometry</name>
     <message>
-        <location filename="../../../src/EarthModel/emsurfacegeometry.cc" line="+968"/>
+        <location filename="../../../src/EarthModel/emsurfacegeometry.cc" line="+970"/>
         <source>Cannot find Translator</source>
         <translation>No se puede encontrar Traductor</translation>
     </message>
@@ -4888,7 +5258,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
 <context>
     <name>SurfaceLimitedFiller</name>
     <message>
-        <location filename="../../../src/VolumeProcessing/volprocsurfacelimitedfiller.cc" line="+148"/>
+        <location filename="../../../src/VolumeProcessing/volprocsurfacelimitedfiller.cc" line="+151"/>
         <source>Object does not exist, could not find entry for ID: %1</source>
         <translation>Objeto no existe, no podía encontrar entrada para ID: %1</translation>
     </message>
@@ -4896,7 +5266,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
 <context>
     <name>SynthGenBase</name>
     <message>
-        <location filename="../../../src/Seis/synthseis.cc" line="-767"/>
+        <location filename="../../../src/Seis/synthseis.cc" line="-778"/>
         <source>No valid wavelet given</source>
         <translation>No hay onda válida</translation>
     </message>
@@ -4972,7 +5342,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
         <translation>Leer</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+88"/>
         <source>Cannot connect to %1
 %2</source>
         <translation>No se puede connectar a %1
@@ -4985,22 +5355,33 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
     </message>
 </context>
 <context>
-    <name>Table::Converter</name>
+    <name>Table</name>
     <message>
         <location filename="../../../include/General/tableconv.h" line="+91"/>
         <source>Importing</source>
-        <translation>Importando</translation>
+        <translation type="unfinished">Importando</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Records read</source>
-        <translation>Archivos estan leídos</translation>
+        <translation type="unfinished">Archivos estan leídos</translation>
+    </message>
+</context>
+<context>
+    <name>Table::Converter</name>
+    <message>
+        <source>Importing</source>
+        <translation type="obsolete">Importando</translation>
+    </message>
+    <message>
+        <source>Records read</source>
+        <translation type="obsolete">Archivos estan leídos</translation>
     </message>
 </context>
 <context>
     <name>Task</name>
     <message>
-        <location filename="../../../src/Basic/task.cc" line="+113"/>
+        <location filename="../../../src/Basic/task.cc" line="+114"/>
         <source>Working</source>
         <translation>Trabajando</translation>
     </message>
@@ -5013,7 +5394,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
 <context>
     <name>TextTranslateMgr</name>
     <message>
-        <location filename="../../../src/Basic/texttranslator.cc" line="+166"/>
+        <location filename="../../../src/Basic/texttranslator.cc" line="+182"/>
         <source>Cannot load %1</source>
         <translation>No se puede cargar %1</translation>
     </message>
@@ -5022,10 +5403,13 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
         <source>Cannot find selected language</source>
         <translation>No se puede encontrar el idioma seleccionado</translation>
     </message>
-    <message>
-        <location line="+85"/>
+    <message numerus="yes">
+        <location line="+89"/>
         <source>Language Name</source>
-        <translation>Español</translation>
+        <translation>
+            <numerusform>Español</numerusform>
+            <numerusform>Español</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -5053,7 +5437,7 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
 <context>
     <name>TimeDepthConverter</name>
     <message>
-        <location filename="../../../src/Algo/velocitycalc.cc" line="+214"/>
+        <location filename="../../../src/Algo/velocitycalc.cc" line="+220"/>
         <source>Only RMS, Avg and Interval allowed for time based models</source>
         <translation>Solo RMS, Avg y Intervalo tienen permiso para modelos basado de tiempo</translation>
     </message>
@@ -5115,14 +5499,14 @@ Los valores inválidos estarán interpolados. Los resultantes sintéticos pueden
         <translation>Imposible transformación de TVD a MD por que Z = %1%2</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+82"/>
         <source>Relative easting/northing found
 Please enter a valid surface coordinate in the advanced dialog</source>
         <translation>No ha encontrado relativo de norte/este
 Por favor entra una coordenada de superficie válida en el diálogo avanzado</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+30"/>
         <source>%1 was not provided and cannot be computed</source>
         <translation>%1 no esta previsto y no se puede computarlo</translation>
     </message>
@@ -5135,7 +5519,7 @@ Por favor entra una coordenada de superficie válida en el diálogo avanzado</tr
 <context>
     <name>Trc2DVarZStorOutput</name>
     <message>
-        <location filename="../../../src/AttributeEngine/attriboutput.cc" line="+545"/>
+        <location filename="../../../src/AttributeEngine/attriboutput.cc" line="+564"/>
         <source>Cannot find seismic data with ID: %1</source>
         <translation>No se puede encontrar datos sísmicos con ID: %1</translation>
     </message>
@@ -5168,49 +5552,66 @@ No se puede crear salida 2D</translation>
 <context>
     <name>TriangulatedGridder2D</name>
     <message>
-        <location filename="../../../include/Algo/gridder2d.h" line="+37"/>
         <source>Triangulation</source>
-        <translation>Triangulación</translation>
+        <translation type="obsolete">Triangulación</translation>
     </message>
 </context>
 <context>
     <name>TriangulationArray2DInterpol</name>
     <message>
-        <location filename="../../../include/Algo/array2dinterpolimpl.h" line="+77"/>
         <source>Nodes gridded</source>
-        <translation>Cuadrículas de nodos estan hechas</translation>
+        <translation type="obsolete">Cuadrículas de nodos estan hechas</translation>
+    </message>
+</context>
+<context>
+    <name>Tut</name>
+    <message>
+        <location filename="../../../plugins/Tut/tuthortools.h" line="+34"/>
+        <source>Positions done</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Calculating thickness</source>
+        <translation type="unfinished">Calculando espesor</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Smoothing</source>
+        <translation type="unfinished">Suavizando</translation>
+    </message>
+    <message>
+        <location filename="../../../plugins/Tut/tutseistools.h" line="+58"/>
+        <source>Traces handled</source>
+        <translation type="unfinished">Rastros estan manejados</translation>
     </message>
 </context>
 <context>
     <name>Tut::HorSmoother</name>
     <message>
-        <location filename="../../../plugins/Tut/tuthortools.h" line="+84"/>
         <source>Smoothing</source>
-        <translation>Suavizando</translation>
+        <translation type="obsolete">Suavizando</translation>
     </message>
 </context>
 <context>
     <name>Tut::HorTool</name>
     <message>
-        <location line="-50"/>
         <source>Positions done</source>
-        <translation>Posiciones estan hechos</translation>
+        <translation type="obsolete">Posiciones estan hechos</translation>
     </message>
 </context>
 <context>
     <name>Tut::SeisTools</name>
     <message>
-        <location filename="../../../plugins/Tut/tutseistools.h" line="+58"/>
         <source>Traces handled</source>
-        <translation>Rastros estan manejados</translation>
+        <translation type="obsolete">Rastros estan manejados</translation>
     </message>
 </context>
 <context>
     <name>Tut::ThicknessCalculator</name>
     <message>
-        <location filename="../../../plugins/Tut/tuthortools.h" line="+29"/>
         <source>Calculating thickness</source>
-        <translation>Calculando espesor</translation>
+        <translation type="obsolete">Calculando espesor</translation>
     </message>
 </context>
 <context>
@@ -5258,19 +5659,30 @@ No se puede crear salida 2D</translation>
     </message>
 </context>
 <context>
-    <name>Vel::FunctionAscIO</name>
+    <name>Vel</name>
     <message>
         <location filename="../../../include/Velocity/velocityfunctionascio.h" line="+44"/>
         <source>KBytes read</source>
-        <translation>KBytes estan leídos</translation>
+        <translation type="unfinished">KBytes estan leídos</translation>
+    </message>
+    <message>
+        <location filename="../../../include/Velocity/velocityvolumeconversion.h" line="+55"/>
+        <source>Traces written</source>
+        <translation type="unfinished">Rastros estan escritos</translation>
+    </message>
+</context>
+<context>
+    <name>Vel::FunctionAscIO</name>
+    <message>
+        <source>KBytes read</source>
+        <translation type="obsolete">KBytes estan leídos</translation>
     </message>
 </context>
 <context>
     <name>Vel::VolumeConverter</name>
     <message>
-        <location filename="../../../include/Velocity/velocityvolumeconversion.h" line="+55"/>
         <source>Traces written</source>
-        <translation>Rastros estan escritos</translation>
+        <translation type="obsolete">Rastros estan escritos</translation>
     </message>
 </context>
 <context>
@@ -5305,7 +5717,7 @@ No se puede crear salida 2D</translation>
 <context>
     <name>VelocityGridder</name>
     <message>
-        <location filename="../../../src/VolumeProcessing/velocitygridder.cc" line="+600"/>
+        <location filename="../../../src/VolumeProcessing/velocitygridder.cc" line="+593"/>
         <source>Cannot create a velocity source of type %1. %2</source>
         <translation>No se puede crear un fuente de velocidad de tipo %1 %2</translation>
     </message>
@@ -5318,9 +5730,8 @@ No se puede crear salida 2D</translation>
 <context>
     <name>VelocityModelScanner</name>
     <message>
-        <location filename="../../../include/Seis/timedepthconv.h" line="-56"/>
         <source>Position scanned</source>
-        <translation>Posición esta escaneado</translation>
+        <translation type="obsolete">Posición esta escaneado</translation>
     </message>
     <message>
         <location filename="../../../src/Seis/timedepthconv.cc" line="+517"/>
@@ -5354,20 +5765,18 @@ No se puede crear salida 2D</translation>
 <context>
     <name>VolProc::MatlabStep</name>
     <message>
-        <location filename="../../../plugins/MATLABLink/matlabstep.cc" line="+201"/>
         <source>%1 not provided.</source>
-        <translation>%1 no esta incluído</translation>
+        <translation type="obsolete">%1 no esta incluído</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>No output provided.</source>
-        <translation>Salida no esta incluída.</translation>
+        <translation type="obsolete">Salida no esta incluída.</translation>
     </message>
 </context>
 <context>
     <name>VolProc::MatlabTask</name>
     <message>
-        <location line="-50"/>
+        <location filename="../../../plugins/MATLABLink/matlabstep.cc" line="-50"/>
         <source>No MATLAB output generated</source>
         <translation>No hay un MATLAB de salida generado</translation>
     </message>
@@ -5379,87 +5788,84 @@ No se puede crear salida 2D</translation>
         <translation type="obsolete">No se puede leer el número de entradas del expediente de entrada</translation>
     </message>
     <message>
-        <location filename="../../../plugins/uiMATLABLink/uimatlabstep.cc" line="+149"/>
         <source>No value given for %1</source>
-        <translation>No hay valor para %1</translation>
+        <translation type="obsolete">No hay valor para %1</translation>
+    </message>
+</context>
+<context>
+    <name>VolProc::uiStatsDlg</name>
+    <message>
+        <location filename="../../../src/uiVolumeProcessing/uivolprocregionfiller.cc" line="+156"/>
+        <source>Calculate Data Statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Statistics</source>
+        <translation type="unfinished">Estadísticas</translation>
     </message>
 </context>
 <context>
     <name>VolProc::uiVoxelConnectivityFilter</name>
     <message>
-        <location filename="../../../plugins/uiVoxelConnectivityFilter/uivoxelconnectivityfilter.cc" line="+50"/>
         <source>Keep</source>
-        <translation>Mantener</translation>
+        <translation type="obsolete">Mantener</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Range</source>
-        <translation>Rango</translation>
+        <translation type="obsolete">Rango</translation>
     </message>
     <message>
-        <location line="+29"/>
         <source>Connectivity</source>
-        <translation>Connectividad</translation>
+        <translation type="obsolete">Connectividad</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Keep bodies larger than [voxels]</source>
-        <translation>Manter partes principales mas largos que [voxels]</translation>
+        <translation type="obsolete">Manter partes principales mas largos que [voxels]</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Kept output</source>
-        <translation>Ha mantenido salida</translation>
+        <translation type="obsolete">Ha mantenido salida</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Kept value</source>
-        <translation>Ha mantenido valor</translation>
+        <translation type="obsolete">Ha mantenido valor</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Rejected output</source>
-        <translation>Ha rechazado salida</translation>
+        <translation type="obsolete">Ha rechazado salida</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Undefined value</source>
-        <translation>Valor indefinido</translation>
+        <translation type="obsolete">Valor indefinido</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Rejected value</source>
-        <translation>Ha rechazado valor</translation>
+        <translation type="obsolete">Ha rechazado valor</translation>
     </message>
     <message>
-        <location line="+37"/>
         <source>Cut range not set</source>
-        <translation>El rango cortado no esta ajustado</translation>
+        <translation type="obsolete">El rango cortado no esta ajustado</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Cut range is reversed</source>
-        <translation>El rango cortado esta revertido</translation>
+        <translation type="obsolete">El rango cortado esta revertido</translation>
     </message>
     <message>
-        <location line="+12"/>
         <source>Cut value value not set</source>
-        <translation>El valor cortado no esta ajustado</translation>
+        <translation type="obsolete">El valor cortado no esta ajustado</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>Minimum size is not set or is less than 1.</source>
-        <translation>El tamaño mínimo no esta ajustado o es menor que 1.</translation>
+        <translation type="obsolete">El tamaño mínimo no esta ajustado o es menor que 1.</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>Accept-value not set</source>
-        <translation>El valor aceptado no esta ajustado</translation>
+        <translation type="obsolete">El valor aceptado no esta ajustado</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Rejection value is not set</source>
-        <translation>El valor rechazo no esta ajustado</translation>
+        <translation type="obsolete">El valor rechazo no esta ajustado</translation>
     </message>
 </context>
 <context>
@@ -5528,16 +5934,15 @@ líneas, líneas cruzadas y líneas al azar.</translation>
 <context>
     <name>VrmsRayTracer1D</name>
     <message>
-        <location filename="../../../src/Algo/raytrace1d.cc" line="+300"/>
+        <location filename="../../../src/Algo/raytrace1d.cc" line="+290"/>
         <source>Can not compute layer %1
  most probably the velocity is not correct</source>
         <translation>No se puede computar capa %1
 probablemente la velocidad no es correcto</translation>
     </message>
     <message>
-        <location filename="../../../include/Algo/raytrace1d.h" line="+131"/>
         <source>Simple RayTracer</source>
-        <translation>Rastreador de Rayos simple</translation>
+        <translation type="obsolete">Rastreador de Rayos simple</translation>
     </message>
 </context>
 <context>
@@ -5574,6 +5979,35 @@ probablemente la velocidad no es correcto</translation>
         <location line="+8"/>
         <source>Failed to generate wavelet</source>
         <translation>Falló de generar onda</translation>
+    </message>
+</context>
+<context>
+    <name>Well</name>
+    <message>
+        <location filename="../../../include/Well/wellextractdata.h" line="+157"/>
+        <location line="+58"/>
+        <source>Wells inspected</source>
+        <translation type="unfinished">Pozos estan inspeccionados</translation>
+    </message>
+    <message>
+        <location line="-1"/>
+        <source>Scanning well tracks</source>
+        <translation type="unfinished">Escaneando rastros del pozo</translation>
+    </message>
+    <message>
+        <location line="+56"/>
+        <source>Wells handled</source>
+        <translation type="unfinished">Pozos estan manejados</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Computing...</source>
+        <translation type="unfinished">Computando...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Points done</source>
+        <translation type="unfinished">Puntos estan hechos</translation>
     </message>
 </context>
 <context>
@@ -5651,7 +6085,7 @@ Valores inválidos estarán interpolados.</translation>
 <context>
     <name>Well::ExtractParams</name>
     <message>
-        <location filename="../../../src/Well/wellextractdata.cc" line="+397"/>
+        <location filename="../../../src/Well/wellextractdata.cc" line="+401"/>
         <source>Please Enter a valid step value</source>
         <translation>Por favor Entra un valor de paso válido</translation>
     </message>
@@ -5659,28 +6093,26 @@ Valores inválidos estarán interpolados.</translation>
 <context>
     <name>Well::InfoCollector</name>
     <message>
-        <location filename="../../../include/Well/wellextractdata.h" line="+157"/>
         <source>Wells inspected</source>
-        <translation>Pozos estan inspeccionados</translation>
+        <translation type="obsolete">Pozos estan inspeccionados</translation>
     </message>
 </context>
 <context>
     <name>Well::LogDataExtracter</name>
     <message>
-        <location filename="../../../src/Well/wellextractdata.cc" line="+254"/>
+        <location line="+254"/>
         <source>Extracting &apos;%1&apos;</source>
         <translation>Extrayendo &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../../../include/Well/wellextractdata.h" line="+113"/>
         <source>Wells handled</source>
-        <translation>Pozos estan manejados</translation>
+        <translation type="obsolete">Pozos estan manejados</translation>
     </message>
 </context>
 <context>
     <name>Well::LogSampler</name>
     <message>
-        <location filename="../../../src/Well/wellextractdata.cc" line="+402"/>
+        <location line="+402"/>
         <source>No log found</source>
         <translation>No ha encontrado log</translation>
     </message>
@@ -5713,38 +6145,34 @@ Valores inválidos estarán interpolados.</translation>
 <context>
     <name>Well::SimpleTrackSampler</name>
     <message>
-        <location filename="../../../include/Well/wellextractdata.h" line="+45"/>
         <source>Computing...</source>
-        <translation>Computando...</translation>
+        <translation type="obsolete">Computando...</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Points done</source>
-        <translation>Puntos estan hechos</translation>
+        <translation type="obsolete">Puntos estan hechos</translation>
     </message>
 </context>
 <context>
     <name>Well::TrackSampler</name>
     <message>
-        <location filename="../../../src/Well/wellextractdata.cc" line="-656"/>
+        <location line="-656"/>
         <source>No well logs specified</source>
         <translation>No hay logs de pozo especificados</translation>
     </message>
     <message>
-        <location filename="../../../include/Well/wellextractdata.h" line="-102"/>
         <source>Scanning well tracks</source>
-        <translation>Escaneando rastros del pozo</translation>
+        <translation type="obsolete">Escaneando rastros del pozo</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Wells inspected</source>
-        <translation>Pozos estan inspeccionados</translation>
+        <translation type="obsolete">Pozos estan inspeccionados</translation>
     </message>
 </context>
 <context>
     <name>Well::ZRangeSelector</name>
     <message>
-        <location filename="../../../src/Well/wellextractdata.cc" line="-299"/>
+        <location line="-299"/>
         <source>Top distance is equal to bottom distance</source>
         <translation>La distancia superior esta igual a la distancia inferior</translation>
     </message>
@@ -5765,7 +6193,7 @@ Valores inválidos estarán interpolados.</translation>
 <context>
     <name>WellTie::uiMrkDispDlg</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uiwelltiecontrolview.cc" line="+203"/>
+        <location filename="../../../src/uiWellAttrib/uiwelltiecontrolview.cc" line="+186"/>
         <source>Display Markers/Horizons</source>
         <translation>Mostrar Marcadores/Horizontes</translation>
     </message>
@@ -5789,9 +6217,8 @@ Valores inválidos estarán interpolados.</translation>
 <context>
     <name>ZSliceInterpolationModel</name>
     <message>
-        <location filename="../../../include/Algo/interpollayermodel.h" line="+52"/>
         <source>Z Slices</source>
-        <translation>Rebanadas Z</translation>
+        <translation type="obsolete">Rebanadas Z</translation>
     </message>
 </context>
 <context>
@@ -5878,7 +6305,7 @@ Valores inválidos estarán interpolados.</translation>
 <context>
     <name>dgbSurfaceReader</name>
     <message>
-        <location filename="../../../src/EarthModel/emsurfaceio.cc" line="+133"/>
+        <location filename="../../../src/EarthModel/emsurfaceio.cc" line="+134"/>
         <source>Nr done</source>
         <translation>Número esta hecho</translation>
     </message>
@@ -5921,7 +6348,7 @@ Valores inválidos estarán interpolados.</translation>
 <context>
     <name>dgbSurfaceWriter</name>
     <message>
-        <location line="+602"/>
+        <location line="+652"/>
         <source>Nr done</source>
         <translation>Número esta hecho</translation>
     </message>
@@ -5992,11 +6419,10 @@ Valores inválidos estarán interpolados.</translation>
 <context>
     <name>static_func_shiftTimesIfNecessary</name>
     <message>
-        <location filename="../../../src/Well/welld2tmodel.cc" line="+648"/>
         <source>
 OpendTect WILL correct for this error by applying a time shift of: %1%2
 The resulting travel-times will differ from the file</source>
-        <translation>
+        <translation type="obsolete">
 OpendTect va a corrigir este error, va a aplicar un cambio de tiempos de: %1%2
 El resultado de tiempos del viaje se difiere del expediente</translation>
     </message>
@@ -6004,10 +6430,9 @@ El resultado de tiempos del viaje se difiere del expediente</translation>
 <context>
     <name>static_func_uploadFile</name>
     <message>
-        <location filename="../../../src/Network/odnetworkaccess.cc" line="+32"/>
         <source>%1
 File not found</source>
-        <translation>%1
+        <translation type="obsolete">%1
 No ha encontrado el expediente</translation>
     </message>
 </context>
@@ -6193,7 +6618,7 @@ Esto invalidará todos otros datos asociados con este geometría</translation>
 <context>
     <name>uiAmplSpectrum</name>
     <message>
-        <location filename="../../../src/uiTools/uiamplspectrum.cc" line="+38"/>
+        <location filename="../../../src/uiTools/uiamplspectrum.cc" line="+35"/>
         <source>Amplitude Spectrum</source>
         <translation>Espectro de Amplitud</translation>
     </message>
@@ -6214,16 +6639,17 @@ Esto invalidará todos otros datos asociados con este geometría</translation>
     </message>
     <message>
         <location line="+1"/>
+        <location line="+222"/>
         <source>Power (dB)</source>
         <translation>Poder (dB)</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="-210"/>
         <source>Gridline step</source>
         <translation>Paso de cuadrícula</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+30"/>
         <source>Display cepstrum</source>
         <translation>Mostrar espectro</translation>
     </message>
@@ -6238,12 +6664,17 @@ Esto invalidará todos otros datos asociados con este geometría</translation>
         <translation>Espectro de Amplitud para %1</translation>
     </message>
     <message>
-        <location line="+65"/>
+        <location line="+56"/>
         <source>Cannot initialize FFT</source>
         <translation>No se puede inicializar FFT</translation>
     </message>
     <message>
-        <location line="+170"/>
+        <location line="+101"/>
+        <source>Amplitude</source>
+        <translation type="unfinished">Amplitud</translation>
+    </message>
+    <message>
+        <location line="+86"/>
         <source>Amplitude Cepstrum</source>
         <translation>Epsectro de Amplitud</translation>
     </message>
@@ -6463,12 +6894,16 @@ Esto invalidará todos otros datos asociados con este geometría</translation>
 <context>
     <name>uiAttr2DSelDlg</name>
     <message>
-        <location filename="../../../src/uiAttributes/uiattr2dsel.cc" line="+51"/>
         <source>Select Dataset</source>
-        <translation>Selecciona Conjunto de Datos</translation>
+        <translation type="obsolete">Selecciona Conjunto de Datos</translation>
     </message>
     <message>
-        <location line="+190"/>
+        <location filename="../../../src/uiAttributes/uiattr2dsel.cc" line="+51"/>
+        <source>Dataset</source>
+        <translation type="unfinished">Conjunto de datos</translation>
+    </message>
+    <message>
+        <location line="+191"/>
         <source>Do you want to reload the attribute %1</source>
         <translation>Quiere recargar el atributo %1</translation>
     </message>
@@ -6477,7 +6912,7 @@ Esto invalidará todos otros datos asociados con este geometría</translation>
     <name>uiAttrDescEd</name>
     <message>
         <location filename="../../../src/uiAttributes/uiattrdesced.cc" line="+49"/>
-        <location line="+72"/>
+        <location line="+80"/>
         <source>The suggested attribute for input %1 is incompatible with the input (wrong datatype)</source>
         <translation>El atributo sugerido para entrada %1 es incapaz con la entrada (datos son de tipo equivocado)</translation>
     </message>
@@ -6543,7 +6978,7 @@ Por favor selecciona datos almacenados válidos como entrada.</translation>
 <context>
     <name>uiAttrSel</name>
     <message>
-        <location filename="../../../src/uiAttributes/uiattrsel.cc" line="+768"/>
+        <location filename="../../../src/uiAttributes/uiattrsel.cc" line="+815"/>
         <source>Please select the input</source>
         <translation>Por favor selecciona la entrada</translation>
     </message>
@@ -6556,7 +6991,7 @@ Por favor selecciona datos almacenados válidos como entrada.</translation>
 <context>
     <name>uiAttrSelDlg</name>
     <message>
-        <location line="-491"/>
+        <location line="-520"/>
         <source>Filter</source>
         <translation>Filtrar</translation>
     </message>
@@ -6566,7 +7001,7 @@ Por favor selecciona datos almacenados válidos como entrada.</translation>
         <translation>Componente</translation>
     </message>
     <message>
-        <location line="+199"/>
+        <location line="+215"/>
         <source>Could not find the seismic data %1</source>
         <translation>No podía encontrar datos sísmicos %1</translation>
     </message>
@@ -6612,7 +7047,7 @@ Por favor selecciona datos almacenados válidos como entrada.</translation>
         <translation>Por favor proporciona un nombre atributo de salida</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+36"/>
         <source>Horizon data with this attribute name already exists. Do you want to overwrite?</source>
         <translation>Los datos horizontes con este atributo ya existen. ¿Quiere sobrescribir?</translation>
     </message>
@@ -6740,12 +7175,12 @@ want to continue and overwrite existing attribute?</source>
         <translation>Crear Atributo Volumen</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+59"/>
         <source>Offset (start/step) %1</source>
         <translation>Offset (inicio/pas) %1</translation>
     </message>
     <message>
-        <location line="+128"/>
+        <location line="+135"/>
         <source>Invalid charactor &apos;|&apos;  found in output name. It will be renamed to: &apos;%1&apos;
 Do you want to continue?</source>
         <translation>Ha encontrado carácter inválido &apos;|&apos; en el nombre de salida. Estará rebautizado a: &apos;%1&apos;
@@ -6930,12 +7365,11 @@ Conjunto de Atributos es %1. Definiciones actuales son %2</translation>
         <translation>Guardar conjunto de atributos como</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Redisplay element with current attribute</source>
-        <translation>Revisar elemento con atributo actual</translation>
+        <translation type="obsolete">Revisar elemento con atributo actual</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Evaluate attribute</source>
         <translation>Evaluar atributo</translation>
     </message>
@@ -6973,6 +7407,11 @@ Conjunto de Atributos es %1. Definiciones actuales son %2</translation>
         <location line="+47"/>
         <source>Add as new</source>
         <translation>Añadir como nuevo</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Recalculate this attribute on selected element</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+33"/>
@@ -7100,7 +7539,7 @@ Save now?</source>
 <context>
     <name>uiAttribPartServer</name>
     <message>
-        <location filename="../../../src/uiAttributes/uiattribpartserv.cc" line="+509"/>
+        <location filename="../../../src/uiAttributes/uiattribpartserv.cc" line="+505"/>
         <source>Which attributes do you want to use?</source>
         <translation>¿Cuales atributos quiere usar?</translation>
     </message>
@@ -7117,12 +7556,12 @@ Do you want to use the partially loaded/computed data?</source>
 ¿Quiere usar datos cargados/computados parcialmente?</translation>
     </message>
     <message>
-        <location line="+237"/>
+        <location line="+251"/>
         <source>Some data extraction failed. Do you want to continue and use the (partially) extracted data?</source>
         <translation>Falló de extrear algunos datos. ¿Quiere continuar y usar los datos extraídos parcialmente?</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+35"/>
         <source>Not implemented yet</source>
         <translation>No esta implementado todavia</translation>
     </message>
@@ -7239,22 +7678,19 @@ Do you want to use the partially loaded/computed data?</source>
 <context>
     <name>uiBarSettingsDialog</name>
     <message>
-        <location filename="../../../plugins/uiBasemap/uibasemaptbmgr.cc" line="+174"/>
         <source>Scale Properties</source>
-        <translation>Propiedades de escala</translation>
+        <translation type="obsolete">Propiedades de escala</translation>
     </message>
 </context>
 <context>
     <name>uiBaseMapTBMgr</name>
     <message>
-        <location line="-57"/>
         <source>Remove selected items</source>
-        <translation>Borrar artículos seleccionados</translation>
+        <translation type="obsolete">Borrar artículos seleccionados</translation>
     </message>
     <message>
-        <location line="+10"/>
         <source>Switch to pick mode</source>
-        <translation>Cambiar al modo pico</translation>
+        <translation type="obsolete">Cambiar al modo pico</translation>
     </message>
     <message>
         <source>save current BaseMap</source>
@@ -7269,29 +7705,24 @@ Do you want to use the partially loaded/computed data?</source>
         <translation type="obsolete">Restaurar Mapa Base anterior</translation>
     </message>
     <message>
-        <location line="-24"/>
         <source>Add Basemap Items</source>
-        <translation>Añadir artículos de mapa base</translation>
+        <translation type="obsolete">Añadir artículos de mapa base</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Item Menu</source>
-        <translation>Menu de artículos</translation>
+        <translation type="obsolete">Menu de artículos</translation>
     </message>
     <message>
-        <location line="+36"/>
         <source>Display Orientation</source>
-        <translation>Mostrar orientación</translation>
+        <translation type="obsolete">Mostrar orientación</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Display Map Scale</source>
-        <translation>Mostrar Mapa Escala</translation>
+        <translation type="obsolete">Mostrar Mapa Escala</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Map Scale Menu</source>
-        <translation>Menú de Mapa Escala</translation>
+        <translation type="obsolete">Menú de Mapa Escala</translation>
     </message>
     <message>
         <source>Are you trying to reload the same Basemap?</source>
@@ -7305,22 +7736,19 @@ Do you want to use the partially loaded/computed data?</source>
 <context>
     <name>uiBasemapIOMgr</name>
     <message>
-        <location filename="../../../plugins/uiBasemap/uibasemapiomgr.cc" line="+43"/>
         <source>Are you trying to reload the same Basemap?</source>
-        <translation>¿Esta tratando de recargar la mísma Mapa Base?</translation>
+        <translation type="obsolete">¿Esta tratando de recargar la mísma Mapa Base?</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Any unsaved changes will be lost. Are you sure you want to continue?</source>
-        <translation>Cambios que no estan guardados estarán perdidos. ¿Esta seguro de continuar?</translation>
+        <translation type="obsolete">Cambios que no estan guardados estarán perdidos. ¿Esta seguro de continuar?</translation>
     </message>
 </context>
 <context>
     <name>uiBasemapMgr</name>
     <message>
-        <location filename="../../../plugins/uiBasemap/uibasemappi.cc" line="+92"/>
         <source>Basemap ...</source>
-        <translation>Mapa base ...</translation>
+        <translation type="obsolete">Mapa base ...</translation>
     </message>
 </context>
 <context>
@@ -7469,7 +7897,7 @@ Do you want to use the partially loaded/computed data?</source>
 <context>
     <name>uiBatchProgLaunch</name>
     <message>
-        <location filename="../../../src/uiIo/uibatchprogs.cc" line="+170"/>
+        <location filename="../../../src/uiIo/uibatchprogs.cc" line="+171"/>
         <source>Run batch program</source>
         <translation>Ejecutar programa de lote</translation>
     </message>
@@ -7494,7 +7922,7 @@ Do you want to use the partially loaded/computed data?</source>
         <translation>Mostrar ejemplo de entrada</translation>
     </message>
     <message>
-        <location line="+116"/>
+        <location line="+118"/>
         <source>Could not execute command:
 %1</source>
         <translation>No podía ejecutar comando:
@@ -7754,7 +8182,7 @@ Do you wish to discard it?</source>
 <context>
     <name>uiBodyRegionDlg</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uibodyregiondlg.cc" line="+633"/>
+        <location filename="../../../src/uiEarthModel/uibodyregiondlg.cc" line="+923"/>
         <source>Region constructor</source>
         <translation>Constructor del región</translation>
     </message>
@@ -7764,69 +8192,100 @@ Do you wish to discard it?</source>
         <translation>Ajustes del límite</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>Single horizon wrapping</source>
-        <translation>Envase síngulo del horizonte</translation>
+        <translation type="obsolete">Envase síngulo del horizonte</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Multiple horizon layers</source>
-        <translation>Capas múltiples del horizonte</translation>
+        <translation type="obsolete">Capas múltiples del horizonte</translation>
     </message>
     <message>
-        <location line="+15"/>
         <source>Add horizon</source>
-        <translation>Añadir horizonte</translation>
+        <translation type="obsolete">Añadir horizonte</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Add fault</source>
-        <translation>Añadir falla</translation>
+        <translation type="obsolete">Añadir falla</translation>
     </message>
     <message>
-        <location line="+87"/>
         <source>You already picked a horizon</source>
-        <translation>Ya ha cogido un horizonte</translation>
+        <translation type="obsolete">Ya ha cogido un horizonte</translation>
     </message>
     <message>
-        <location line="+111"/>
         <source>Please select at least one boundary</source>
-        <translation>Por favor selecciona al menos un límite</translation>
+        <translation type="obsolete">Por favor selecciona al menos un límite</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Please select choose a name for the output</source>
-        <translation>Por favor selecciona un nombre para la salida</translation>
+        <translation type="obsolete">Por favor selecciona un nombre para la salida</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+29"/>
         <source>The body %1 created successfully</source>
         <translation>El parte principal %1 esta creado con éxito</translation>
     </message>
     <message>
-        <location line="+33"/>
         <source>You did not choose any horizon shift</source>
-        <translation>No ha elegido ningún cambio de horizonte</translation>
+        <translation type="obsolete">No ha elegido ningún cambio de horizonte</translation>
     </message>
     <message>
-        <location line="+38"/>
         <source>Can not allocate disk space to create region.</source>
-        <translation>No se puede asignar espacio del disco para crear región</translation>
+        <translation type="obsolete">No se puede asignar espacio del disco para crear región</translation>
     </message>
     <message>
-        <location line="+12"/>
         <source>Extracting body region failed.</source>
-        <translation>Falló de extraer región del parte principal</translation>
+        <translation type="obsolete">Falló de extraer región del parte principal</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Extracting body from horizons failed.</source>
-        <translation>Falló de extraer parte principal de los horizontes</translation>
+        <translation type="obsolete">Falló de extraer parte principal de los horizontes</translation>
     </message>
     <message>
-        <location line="+29"/>
         <source>Writing body to disk failed, no permision?</source>
-        <translation>Falló de escribir parte principal al disco. ¿No tiene permiso?</translation>
+        <translation type="obsolete">Falló de escribir parte principal al disco. ¿No tiene permiso?</translation>
+    </message>
+</context>
+<context>
+    <name>uiBodyRegionGrp</name>
+    <message>
+        <location line="-297"/>
+        <source>Single horizon wrapping</source>
+        <translation type="unfinished">Envase síngulo del horizonte</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Multiple horizon layers</source>
+        <translation type="unfinished">Capas múltiples del horizonte</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Add In-line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Add Cross-line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Add Z-slice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Add Horizon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Add Fault</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+191"/>
+        <source>Please select at least one boundary</source>
+        <translation type="unfinished">Por favor selecciona al menos un límite</translation>
     </message>
 </context>
 <context>
@@ -7878,7 +8337,7 @@ Do you wish to discard it?</source>
 <context>
     <name>uiBulkD2TModelImport</name>
     <message>
-        <location filename="../../../src/uiWell/uibulkwellimp.cc" line="+442"/>
+        <location filename="../../../src/uiWell/uibulkwellimp.cc" line="+447"/>
         <source>Multi-Well Import: D2TModel</source>
         <translation>Importar Múlti-Pozo: D2TModelo</translation>
     </message>
@@ -7914,12 +8373,12 @@ Do you wish to discard it?</source>
 <context>
     <name>uiBulkLogImport</name>
     <message>
-        <location filename="../../../src/uiWell/uibulkwellimp.cc" line="-290"/>
+        <location filename="../../../src/uiWell/uibulkwellimp.cc" line="-294"/>
         <source>Multi-Well Import: Logs</source>
         <translation>Importar Múlti-Pozo: Logs</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+8"/>
         <source>Depth values are</source>
         <translation>Valores de profundidad son</translation>
     </message>
@@ -7972,7 +8431,7 @@ Do you wish to discard it?</source>
         <translation>Importar Múlti-Pozo: Marcadores</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+50"/>
         <source>Cannot find %1 in database</source>
         <translation>No se puede encontrar %1 en base de datos</translation>
     </message>
@@ -7995,12 +8454,12 @@ Do you wish to discard it?</source>
 <context>
     <name>uiBulkTrackImport</name>
     <message>
-        <location line="-351"/>
+        <location line="-356"/>
         <source>Multi-Well Import: Well Tracks</source>
         <translation>Importar Múlti-Pozo: Rastros del Pozo</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+88"/>
         <source>Please enter a positive velocity for generating the D2T model</source>
         <translation>Por favor entra una velocidad positiva para genarar el modelo 2DT</translation>
     </message>
@@ -8028,7 +8487,7 @@ Do you wish to discard it?</source>
 <context>
     <name>uiCBVSPS3DOpts</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseiswriteopts.cc" line="+77"/>
+        <location filename="../../../src/uiSeis/uiseiswriteopts.cc" line="+75"/>
         <source>Storage</source>
         <translation>Almacenamiento</translation>
     </message>
@@ -8091,7 +8550,7 @@ Do you wish to discard it?</source>
 <context>
     <name>uiChain</name>
     <message>
-        <location filename="../../../src/uiVolumeProcessing/uivolprocchain.cc" line="+198"/>
+        <location filename="../../../src/uiVolumeProcessing/uivolprocchain.cc" line="+199"/>
         <source>Volume Builder: Setup</source>
         <translation>Creador Volumen: Configurar</translation>
     </message>
@@ -8254,7 +8713,7 @@ Do you wish to discard it?</source>
         <translation>Curva deriva definida del usador</translation>
     </message>
     <message>
-        <location line="+238"/>
+        <location line="+239"/>
         <source>Depth/time model is too small and won&apos;t be saved</source>
         <translation>Modelo de profundidad/tiempo esta demasiado pequeño y no estará guardado</translation>
     </message>
@@ -8425,6 +8884,17 @@ Overwrite?</source>
         <translation>Usar tabla de colores &apos;%1&apos; reemplazará el que existe.
 ¿Sobrescribir?</translation>
     </message>
+    <message>
+        <location line="+17"/>
+        <source>ColorTab successfully imported
+Do you want to import more ColorTabs?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
 </context>
 <context>
     <name>uiColTabMarkerCanvas</name>
@@ -8501,13 +8971,11 @@ Overwrite?</source>
 <context>
     <name>uiColorInput</name>
     <message>
-        <location filename="../../../include/uiBase/uicolor.h" line="+86"/>
-        <location filename="../../../src/uiBase/uicolor.cc" line="+74"/>
         <source>Select color</source>
-        <translation>Seleccionar color</translation>
+        <translation type="obsolete">Seleccionar color</translation>
     </message>
     <message>
-        <location filename="../../../src/uiBase/uicolor.cc" line="+82"/>
+        <location filename="../../../src/uiBase/uicolor.cc" line="+160"/>
         <source>Transp</source>
         <translation>Transparente</translation>
     </message>
@@ -8520,7 +8988,7 @@ Overwrite?</source>
 <context>
     <name>uiColorTable</name>
     <message>
-        <location filename="../../../src/uiTools/uicolortable.cc" line="+354"/>
+        <location filename="../../../src/uiTools/uicolortable.cc" line="+351"/>
         <source>Ranges/Clipping ...</source>
         <translation>Rangos/Recortar ...</translation>
     </message>
@@ -8538,7 +9006,7 @@ Overwrite?</source>
 <context>
     <name>uiColorTableMan</name>
     <message>
-        <location filename="../../../src/uiTools/uicoltabman.cc" line="+52"/>
+        <location filename="../../../src/uiTools/uicoltabman.cc" line="+53"/>
         <source>Manage Color Tables</source>
         <translation>Gestionar Tabla Colores</translation>
     </message>
@@ -8629,7 +9097,7 @@ Do you wish to continue?</source>
 <context>
     <name>uiContourParsDlg</name>
     <message>
-        <location filename="../../../plugins/uiHorizonAttrib/uicontourtreeitem.cc" line="+585"/>
+        <location filename="../../../plugins/uiHorizonAttrib/uicontourtreeitem.cc" line="+707"/>
         <source>Invalid step value</source>
         <translation>Valor de paso inválido</translation>
     </message>
@@ -8637,12 +9105,12 @@ Do you wish to continue?</source>
 <context>
     <name>uiContourTreeItem</name>
     <message>
-        <location line="+26"/>
+        <location line="+32"/>
         <source>Contour areas</source>
         <translation>Áreas de contorno</translation>
     </message>
     <message>
-        <location line="+176"/>
+        <location line="+193"/>
         <source>Countour areas</source>
         <translation>Áreas de contorno</translation>
     </message>
@@ -8660,7 +9128,7 @@ Do you wish to continue?</source>
 <context>
     <name>uiContourTreeItemContourGenerator</name>
     <message>
-        <location line="-723"/>
+        <location line="-865"/>
         <source>Contour elements added</source>
         <translation>Elementos de contorno estan añadidos</translation>
     </message>
@@ -8673,24 +9141,41 @@ Do you wish to continue?</source>
 <context>
     <name>uiControlView</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uiwelltiecontrolview.cc" line="-157"/>
+        <location filename="../../../src/uiWellAttrib/uiwelltiecontrolview.cc" line="-143"/>
         <source>Set display parameters</source>
         <translation>Ajustar pantalla de parámetros</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Zoom in</source>
-        <translation>Zoom</translation>
+        <translation type="obsolete">Zoom</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Zoom out</source>
-        <translation>Desminuir el zoom</translation>
+        <translation type="obsolete">Desminuir el zoom</translation>
+    </message>
+    <message>
+        <source>Switch view mode (Esc)</source>
+        <translation type="obsolete">Cambiar al modo de vista (Esc)</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Switch view mode (Esc)</source>
-        <translation>Cambiar al modo de vista (Esc)</translation>
+        <source>Rubberband zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Vertical zoom in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Vertical zoom out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Cancel zoom</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -8708,7 +9193,7 @@ Do you wish to continue?</source>
         <translation>Propiedades de la pantalla marcador</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+35"/>
         <source>Please select your pick inside the work area</source>
         <translation>Por favor selecciona su pico dentro la área de trabajo</translation>
     </message>
@@ -8788,6 +9273,34 @@ Do you wish to continue?</source>
         <location line="+7"/>
         <source>Shape</source>
         <translation>Forma</translation>
+    </message>
+</context>
+<context>
+    <name>uiCorrelationGroup</name>
+    <message>
+        <location filename="../../../src/uiMPE/uimpecorrelationgrp.cc" line="+38"/>
+        <source>Correlation</source>
+        <translation type="unfinished">Correlación</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Use Correlation</source>
+        <translation type="unfinished">Usar Correlación</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Correlation threshold (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+133"/>
+        <source>Correlation window&apos;s start value must be less than the stop value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Correlation threshold must be between 0 to 100</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9061,16 +9574,19 @@ Do you wish to overwrite this log?</source>
         <source>No well selected</source>
         <translation>No ha seleccionado pozo</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location line="+17"/>
         <source>Successfully created the log cube(s)</source>
-        <translation>Ha creado los cubos log con éxito</translation>
+        <translation type="unfinished">
+            <numerusform>Ha creado los cubos log con éxito</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
     <name>uiCreateLogCubeOutputSel</name>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>Duplicate trace around the track</source>
         <translation>Duplicar rastros sobre la pista</translation>
     </message>
@@ -9157,7 +9673,7 @@ Do you wish to overwrite this log?</source>
 <context>
     <name>uiD2TModelDlg</name>
     <message>
-        <location filename="../../../src/uiWell/uiwelldlgs.cc" line="+720"/>
+        <location filename="../../../src/uiWell/uiwelldlgs.cc" line="+722"/>
         <source> Time is TWT</source>
         <translation>Tiempo es TWT</translation>
     </message>
@@ -9277,8 +9793,15 @@ Pero no podia autocorrigir el modelo actual</translation>
         <source>Invalid model detected
 %1
 Auto-correct?
+(New model will only be saved on disk on successful exit of the editor)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid model detected
+%1
+Auto-correct?
 (New model will only by saved on disk on successful exit of the editor)</source>
-        <translation>Ha detectado un modelo inválido
+        <translation type="obsolete">Ha detectado un modelo inválido
 %1
 ¿Auto-corrigir?
 (El nuevo modelo solo estara guardado en disco sí el editor salió con éxito)</translation>
@@ -9854,12 +10377,12 @@ o al mantener el botón de shift pulsada mientras haciendo clic</translation>
     <message>
         <location line="+6"/>
         <location line="+148"/>
-        <location line="+311"/>
+        <location line="+309"/>
         <source>Show density plot</source>
         <translation>Mostrar parcela de densidad</translation>
     </message>
     <message>
-        <location line="-456"/>
+        <location line="-454"/>
         <source>Toggle show Y2</source>
         <translation>Palanca de mostrar Y2</translation>
     </message>
@@ -9935,17 +10458,17 @@ o al mantener el botón de shift pulsada mientras haciendo clic</translation>
     </message>
     <message>
         <location line="+69"/>
-        <location line="+311"/>
+        <location line="+309"/>
         <source>Show normal plot</source>
         <translation>Mostrar parcela normal</translation>
     </message>
     <message>
-        <location line="-306"/>
+        <location line="-304"/>
         <source>Y2 cannot be displayed in density plot</source>
         <translation>No se puede mostrar Y2 en la parcela de densidad</translation>
     </message>
     <message>
-        <location line="+257"/>
+        <location line="+255"/>
         <source>Density Plot will always display all data</source>
         <translation>Parcela de Densidad siempre mostrará todos datos</translation>
     </message>
@@ -9966,7 +10489,7 @@ Nota: no se puede tener eje Y2 con la parcela de densidad</translation>
     <name>uiDataPointSetCrossPlotter</name>
     <message>
         <location filename="../../../src/uiIo/uidatapointsetcrossplot.cc" line="+99"/>
-        <location line="+73"/>
+        <location line="+72"/>
         <source>Calculating Density</source>
         <translation>Calculando Densidad</translation>
     </message>
@@ -9984,7 +10507,7 @@ Nota: no se puede tener eje Y2 con la parcela de densidad</translation>
         <translation>Gestionar datos de traza-cruzada</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+52"/>
         <source>Cannot merge same crossplots.</source>
         <translation>No se puede fundir crossplots iguales.</translation>
     </message>
@@ -10050,9 +10573,13 @@ Nota: no se puede tener eje Y2 con la parcela de densidad</translation>
         <translation>Calendario</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+1"/>
+        <source>date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select date</source>
-        <translation>Seleccionar fecha</translation>
+        <translation type="obsolete">Seleccionar fecha</translation>
     </message>
 </context>
 <context>
@@ -10263,7 +10790,7 @@ Nota: no se puede tener eje Y2 con la parcela de densidad</translation>
 <context>
     <name>uiEMPartServer</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uiempartserv.cc" line="+546"/>
+        <location filename="../../../src/uiEarthModel/uiempartserv.cc" line="+548"/>
         <source>%1 &apos;%2&apos; has changed.
 Do you want to save it?</source>
         <translation>%1 &apos;%2&apos; ha cambiado.
@@ -10309,7 +10836,7 @@ Ensegure que el artículo del atributo esta seleccionado
 y que el puntero de la mausa esta en la escena.</translation>
     </message>
     <message>
-        <location line="+97"/>
+        <location line="+100"/>
         <source>Could not write to database</source>
         <translation>No podía escribir al base de datos</translation>
     </message>
@@ -10329,7 +10856,7 @@ y que el puntero de la mausa esta en la escena.</translation>
         <translation>No ha cargado horizonte</translation>
     </message>
     <message>
-        <location line="+249"/>
+        <location line="+248"/>
         <source>Interpolate horizon Data</source>
         <translation>Interpolar Datos del horizonte</translation>
     </message>
@@ -10344,9 +10871,8 @@ y que el puntero de la mausa esta en la escena.</translation>
         <translation>No se puede cargar &apos;%1&apos;</translation>
     </message>
     <message>
-        <location line="+58"/>
         <source>Select horizon</source>
-        <translation>Seleccionar horizonte</translation>
+        <translation type="obsolete">Seleccionar horizonte</translation>
     </message>
 </context>
 <context>
@@ -10398,6 +10924,59 @@ Do you wish to leave uncorrelated variables?</source>
         <location filename="../../../src/uiIo/uimanprops.cc" line="-95"/>
         <source>Please un-check the &apos;Fixed Definition&apos; - or provide one</source>
         <translation>Por favor desmarque la &apos;Definición Fijada&apos; - o proporciona una</translation>
+    </message>
+</context>
+<context>
+    <name>uiEditSEGYFileDataDlg</name>
+    <message>
+        <location filename="../../../plugins/uiSEGY/uisegydefdlg.cc" line="+233"/>
+        <source>SEGYDirect File Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Cannot read SEGY file info for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>No SEGY Files linked to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Old location of SEGY files:  %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+99"/>
+        <source>SEG-Y</source>
+        <translation type="unfinished">SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Please select a file from %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>No SEGY Files were found linked to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>New file name cannot be empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>File %1 does not exist</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10727,6 +11306,71 @@ el tipo modelo elegido y su fuente.</translation>
     </message>
 </context>
 <context>
+    <name>uiEventGroup</name>
+    <message>
+        <location filename="../../../src/uiMPE/uimpeeventgrp.cc" line="+65"/>
+        <source>Event</source>
+        <translation type="unfinished">Evento</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Event type</source>
+        <translation type="unfinished">Tipo de evento</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Cut-off amplitude</source>
+        <translation type="unfinished">Amplitud de recorte</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Relative difference</source>
+        <translation type="unfinished">Diferencia relativa</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Threshold type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+92"/>
+        <source>Allowed difference (%)</source>
+        <translation type="unfinished">Diferencia permitida (%)</translation>
+    </message>
+    <message>
+        <location line="-84"/>
+        <source>Steps</source>
+        <translation type="unfinished">Pasos</translation>
+    </message>
+    <message>
+        <location line="+83"/>
+        <source>Amplitude value</source>
+        <translation type="unfinished">Valor de amplitud</translation>
+    </message>
+    <message>
+        <location line="+140"/>
+        <source>Search window should be minus to positive, ex. -20, 20</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Value threshold not set</source>
+        <translation type="unfinished">Valor de umbral no esta ajustado</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Value threshold not set properly</source>
+        <translation type="unfinished">Valor de umbral no esta ajustado apropiadamente</translation>
+    </message>
+    <message>
+        <location line="+43"/>
+        <location line="+13"/>
+        <source>Allowed difference must be between 0-100</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>uiEventImport</name>
     <message>
         <location filename="../../../src/uiPreStackProcessing/uiprestackimpevent.cc" line="+35"/>
@@ -10808,14 +11452,18 @@ el tipo modelo elegido y su fuente.</translation>
     </message>
     <message>
         <location line="+10"/>
+        <source>Allowed difference must be between 0-100</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Allowed variance must be between 0-100</source>
-        <translation>Diferencia permitida tiene que estar entre 0-100</translation>
+        <translation type="obsolete">Diferencia permitida tiene que estar entre 0-100</translation>
     </message>
 </context>
 <context>
     <name>uiExp2DGeom</name>
     <message>
-        <location filename="../../../src/uiIo/uiimpexp2dgeom.cc" line="+53"/>
+        <location filename="../../../src/uiIo/uiimpexp2dgeom.cc" line="+54"/>
         <source>Please enter the output file name</source>
         <translation>Por favor entra un nombre para el expediente de salida</translation>
     </message>
@@ -10833,7 +11481,7 @@ el tipo modelo elegido y su fuente.</translation>
 <context>
     <name>uiExpRokDocPDF</name>
     <message>
-        <location filename="../../../src/uiIo/uiimpexppdf.cc" line="+356"/>
+        <location filename="../../../src/uiIo/uiimpexppdf.cc" line="+357"/>
         <source>Can only export 1D and 2D sampled PDFs</source>
         <translation>Solo puede exportar 1D y 2D de PDFs muestreados</translation>
     </message>
@@ -10859,12 +11507,16 @@ el tipo modelo elegido y su fuente.</translation>
 <context>
     <name>uiExport2DHorizon</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uiexport2dhorizon.cc" line="+48"/>
         <source>Export 2D Horizon</source>
-        <translation>Exportar Horizonte 2D</translation>
+        <translation type="obsolete">Exportar Horizonte 2D</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location filename="../../../src/uiEarthModel/uiexport2dhorizon.cc" line="+48"/>
+        <source>2D Horizon</source>
+        <translation type="unfinished">Horizonte 2D</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>Select lines</source>
         <translation>Seleccionar líneas</translation>
     </message>
@@ -10899,9 +11551,19 @@ el tipo modelo elegido y su fuente.</translation>
         <translation>Error al escribir al expediente de salida</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+68"/>
+        <source>2D Horizon successfully exported.
+Do you want to export more horizons?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
+    <message>
         <source>Horizon successfully exported</source>
-        <translation>Ha exportado el horizonte con éxito</translation>
+        <translation type="obsolete">Ha exportado el horizonte con éxito</translation>
     </message>
 </context>
 <context>
@@ -10973,20 +11635,29 @@ el tipo modelo elegido y su fuente.</translation>
         <translation>Por favor selecciona la falla de entrada</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+19"/>
+        <source>%1 successfully exported
+Do you want to export more %2?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
+    <message>
         <source>Fault successfully exported</source>
-        <translation>Ha exportado falla con éxito</translation>
+        <translation type="obsolete">Ha exportado falla con éxito</translation>
     </message>
 </context>
 <context>
     <name>uiExportHorizon</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uiexphorizon.cc" line="+54"/>
         <source>Export Horizon</source>
-        <translation>Exportar Horizonte</translation>
+        <translation type="obsolete">Exportar Horizonte</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location filename="../../../src/uiEarthModel/uiexphorizon.cc" line="+68"/>
         <source>Output type</source>
         <translation>Tipo de salida</translation>
     </message>
@@ -11066,12 +11737,21 @@ Do you wish to continue?</source>
 <context>
     <name>uiExportLogs</name>
     <message>
-        <location filename="../../../src/uiWell/uiwelllogimpexp.cc" line="+249"/>
         <source>Export Well logs</source>
-        <translation>Exportar Pozo logs</translation>
+        <translation type="obsolete">Exportar Pozo logs</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location filename="../../../src/uiWell/uiwelllogimpexp.cc" line="+253"/>
+        <source>Well logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Depth range %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Output format</source>
         <translation>Formato de salida</translation>
     </message>
@@ -11134,12 +11814,21 @@ Do you wish to continue?</source>
 <context>
     <name>uiExportMute</name>
     <message>
-        <location filename="../../../src/uiPreStackProcessing/uiprestackexpmute.cc" line="+34"/>
         <source>Export Mute Function</source>
-        <translation>Exportar Función Mudo</translation>
+        <translation type="obsolete">Exportar Función Mudo</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location filename="../../../src/uiPreStackProcessing/uiprestackexpmute.cc" line="+34"/>
+        <source>Mute Function</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Mute Definition</source>
+        <translation type="unfinished">Mudo Definición</translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Write coordinates as</source>
         <translation>Escribir coordinadas como</translation>
     </message>
@@ -11154,7 +11843,12 @@ Do you wish to continue?</source>
         <translation>Línea/Línea-cruzada</translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+3"/>
+        <source>Output ASCII file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+75"/>
         <source>Output file exists. Continue?</source>
         <translation>Expediente de salida existe. ¿Continuar?</translation>
     </message>
@@ -11167,7 +11861,7 @@ Do you wish to continue?</source>
 <context>
     <name>uiExtensionArray2DInterpol</name>
     <message>
-        <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="+247"/>
+        <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="+228"/>
         <source>Extension</source>
         <translation>Extensión</translation>
     </message>
@@ -11185,7 +11879,7 @@ Do you wish to continue?</source>
 <context>
     <name>uiExtensionHor3DInterpol</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="+606"/>
+        <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="+625"/>
         <source>Nr steps must be &gt; 0.</source>
         <translation>Número de pasos tiene que ser &gt; 0</translation>
     </message>
@@ -11193,7 +11887,7 @@ Do you wish to continue?</source>
 <context>
     <name>uiFKSpectrum</name>
     <message>
-        <location filename="../../../src/uiSeis/uifkspectrum.cc" line="+68"/>
+        <location filename="../../../src/uiSeis/uifkspectrum.cc" line="+69"/>
         <source>Vel (m/s)</source>
         <translation>Velocidad (m/s)</translation>
     </message>
@@ -11233,12 +11927,12 @@ Do you wish to continue?</source>
         <translation>Ajustar velocidad máximo</translation>
     </message>
     <message>
-        <location line="+102"/>
+        <location line="+98"/>
         <source>No data</source>
         <translation></translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+30"/>
         <source>Cannot initialize FFT</source>
         <translation>No se puede inicializar FFT</translation>
     </message>
@@ -11259,6 +11953,101 @@ los rangos estarán computados</translation>
     </message>
 </context>
 <context>
+    <name>uiFVAnnotPropTab</name>
+    <message>
+        <location filename="../../../src/uiFlatView/uiflatviewpropdlg.cc" line="+642"/>
+        <source>Annotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Annotation color</source>
+        <translation type="unfinished">Color de anotación</translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Aux data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <location line="+3"/>
+        <source>Line style</source>
+        <translation type="unfinished">Estilo Línea</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>X-Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Y-Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiFVAnnotPropTab::AxesGroup</name>
+    <message>
+        <location line="-165"/>
+        <source>Annotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Grid lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiFVWVAPropTab</name>
+    <message>
+        <location line="-232"/>
+        <source>Overlap ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Negative fill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Positive fill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Draw Wiggles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Ref line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Display reference line at</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Specified value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Median value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Reference line value</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>uiFaultDisplayOptGrp</name>
     <message>
         <location filename="../../../src/uiVis/uifltdispoptgrp.cc" line="+21"/>
@@ -11274,6 +12063,14 @@ los rangos estarán computados</translation>
         <location line="+5"/>
         <source>Update display now</source>
         <translation>Actualizar pantalla ahora</translation>
+    </message>
+</context>
+<context>
+    <name>uiFaultOptSel</name>
+    <message>
+        <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="+685"/>
+        <source>% selection</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11317,7 +12114,7 @@ los rangos estarán computados</translation>
         <translation>Nombre de expediente</translation>
     </message>
     <message>
-        <location line="+330"/>
+        <location line="+331"/>
         <source>Directory selection</source>
         <translation>Selección del directorio</translation>
     </message>
@@ -11330,7 +12127,27 @@ los rangos estarán computados</translation>
 <context>
     <name>uiFileInput</name>
     <message>
-        <location filename="../../../src/uiTools/uifileinput.cc" line="+273"/>
+        <location filename="../../../src/uiTools/uifileinput.cc" line="+190"/>
+        <source>directory</source>
+        <translation type="unfinished">Directorio</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Choose input %1 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Specify output %1 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+92"/>
         <source>Cannot launch file browser</source>
         <translation>No se puede lanzar navegador del expediente</translation>
     </message>
@@ -11412,9 +12229,53 @@ o ve al &apos;Avanzado...&apos; para hacerlo a mano</translation>
     </message>
 </context>
 <context>
+    <name>uiFlatViewDataDispPropTab</name>
+    <message>
+        <location filename="../../../src/uiFlatView/uiflatviewpropdlg.cc" line="-300"/>
+        <source>Use clipping</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <location line="+24"/>
+        <source>Percentage clip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-16"/>
+        <source>Specify mid value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Mid value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Range</source>
+        <translation type="unfinished">Rango</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Display blocky (no interpolation)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>uiFlatViewPropDlg</name>
     <message>
-        <location filename="../../../src/uiFlatView/uiflatviewpropdlg.cc" line="+892"/>
+        <location line="+755"/>
+        <source>Specify Display Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+56"/>
         <source>No data selected for Wiggle or VD display.</source>
         <translation>no ha seleccionado datos para la pantalla de Menear o VD</translation>
     </message>
@@ -11422,32 +12283,86 @@ o ve al &apos;Avanzado...&apos; para hacerlo a mano</translation>
 <context>
     <name>uiFlatViewStdControl</name>
     <message>
-        <location filename="../../../src/uiFlatView/uiflatviewstdcontrol.cc" line="+43"/>
+        <location filename="../../../src/uiFlatView/uiflatviewstdcontrol.cc" line="+86"/>
         <source>Properties...</source>
         <translation>Propiedades ...</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Switch view mode</source>
-        <translation>Cambiar modo de vista</translation>
+        <translation type="obsolete">Cambiar modo de vista</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+99"/>
         <source>Edit mode</source>
         <translation>Editar modo</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="-69"/>
         <source>Zoom in</source>
         <translation>Zoom</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-10"/>
+        <source>Flat Viewer Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Rubberband zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Zoom out</source>
         <translation>Desminuir el zoom</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+5"/>
+        <source>Vertical zoom in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Vertical zoom out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Cancel zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Set home zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Zoom level options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Set local home zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Set global home zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Manually set home zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Go to home zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Flip left/right</source>
         <translation>Girar izquierda/derecha</translation>
     </message>
@@ -11455,6 +12370,29 @@ o ve al &apos;Avanzado...&apos; para hacerlo a mano</translation>
         <location line="+11"/>
         <source>Set display parameters</source>
         <translation>Ajustar pantalla de parámetros</translation>
+    </message>
+</context>
+<context>
+    <name>uiFlatViewZoomLevelDlg</name>
+    <message>
+        <location line="-116"/>
+        <source>Set zoom level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Traces per cm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Z Samples per cm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Save globally</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12519,26 +13457,44 @@ y los campos de la pantalla de Correlación</translation>
         <translation></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Icon Size</source>
         <translation>Tamaño del Icono</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Show progress when loading stored data on:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>In-lines</source>
+        <translation type="unfinished">Líneas</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Cross-lines</source>
+        <translation type="unfinished">Líneas-cruzadas</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Random lines</source>
+        <translation type="unfinished">Líneas al azar</translation>
     </message>
     <message>
         <source>Color bar orientation</source>
         <translation type="obsolete">Orientación del bar de colores</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Show progress when loading stored data on in-lines</source>
-        <translation>Mostrar progreso al cargar datos almacenados en líneas</translation>
+        <translation type="obsolete">Mostrar progreso al cargar datos almacenados en líneas</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Show progress when loading stored data on cross-lines</source>
-        <translation>Mostrar progreso al cargar datos almacenados en líneas cruzadas</translation>
+        <translation type="obsolete">Mostrar progreso al cargar datos almacenados en líneas cruzadas</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="-20"/>
         <source>Enable Virtual Keyboard</source>
         <translation>Permitir Teclado Virtual</translation>
     </message>
@@ -12697,7 +13653,7 @@ y los campos de la pantalla de Correlación</translation>
 <context>
     <name>uiGraphicsView</name>
     <message>
-        <location filename="../../../src/uiTools/uigraphicsview.cc" line="+83"/>
+        <location filename="../../../src/uiTools/uigraphicsview.cc" line="+81"/>
         <source>Save image</source>
         <translation>Guardar imagen</translation>
     </message>
@@ -12911,7 +13867,7 @@ y los campos de la pantalla de Correlación</translation>
 <context>
     <name>uiHistogramDisplay</name>
     <message>
-        <location filename="../../../src/uiTools/uihistogramdisplay.cc" line="+48"/>
+        <location filename="../../../src/uiTools/uihistogramdisplay.cc" line="+47"/>
         <source>Count</source>
         <translation>Contar</translation>
     </message>
@@ -12975,7 +13931,7 @@ y los campos de la pantalla de Correlación</translation>
 <context>
     <name>uiHorAttribPIMgr</name>
     <message>
-        <location filename="../../../plugins/uiHorizonAttrib/uihorattribpi.cc" line="+156"/>
+        <location filename="../../../plugins/uiHorizonAttrib/uihorattribpi.cc" line="+139"/>
         <location line="+92"/>
         <source>Cannot add extra attribute layers</source>
         <translation>No se puede añadir capas extras de atributos</translation>
@@ -13077,7 +14033,7 @@ y los campos de la pantalla de Correlación</translation>
         <translation>Guardar horizonte</translation>
     </message>
     <message>
-        <location line="+102"/>
+        <location line="+116"/>
         <source>Cannot save horizon</source>
         <translation>No se puede guardar horizonte</translation>
     </message>
@@ -13113,7 +14069,7 @@ y los campos de la pantalla de Correlación</translation>
         <translation>Seleccionar Datos del Horizonte</translation>
     </message>
     <message>
-        <location line="+89"/>
+        <location line="+90"/>
         <source>Cannot read &apos;%1&apos;</source>
         <translation>No se puede leer &apos;%1&apos;</translation>
     </message>
@@ -13129,7 +14085,7 @@ y los campos de la pantalla de Correlación</translation>
 <context>
     <name>uiHorizonInterpolDlg</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="-563"/>
+        <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="-582"/>
         <source>Horizon Gridding</source>
         <translation>Hacer cuadrículos en el Horizonte</translation>
     </message>
@@ -13138,17 +14094,11 @@ y los campos de la pantalla de Correlación</translation>
         <translation type="obsolete">Parámetros de cuadrículas</translation>
     </message>
     <message>
-        <location line="+40"/>
         <source>[ft]</source>
-        <translation>[ps]</translation>
+        <translation type="obsolete">[ps]</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>[m]</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+78"/>
+        <location line="+134"/>
         <source>Not enough horizon data for section %1</source>
         <translation>No hay suficientes datos del horizonte para seleccionar %1</translation>
     </message>
@@ -13209,8 +14159,17 @@ y los campos de la pantalla de Correlación</translation>
 </context>
 <context>
     <name>uiHorizonPreLoadDlg</name>
+    <message numerus="yes">
+        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+143"/>
+        <source>Unload selected horizon(s)&apos;?
+(This will not delete the object(s) from disk)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
-        <location filename="../../../src/uiEarthModel/uiemhorizonpreloaddlg.cc" line="+201"/>
+        <location line="+60"/>
         <source>No valid objects found</source>
         <translation>No ha encontrado objetos válidos</translation>
     </message>
@@ -13257,7 +14216,7 @@ y los campos de la pantalla de Correlación</translation>
         <translation>Hacer estanco</translation>
     </message>
     <message>
-        <location line="+226"/>
+        <location line="+231"/>
         <source>No crossings found</source>
         <translation>No ha encontrado cruces</translation>
     </message>
@@ -13270,7 +14229,7 @@ y los campos de la pantalla de Correlación</translation>
 <context>
     <name>uiHorizonSettings</name>
     <message>
-        <location filename="../../../src/uiVis/uivisemobj.cc" line="+570"/>
+        <location filename="../../../src/uiVis/uivisemobj.cc" line="+528"/>
         <source>Default Resolution</source>
         <translation>Resolución Predeterminado</translation>
     </message>
@@ -13283,7 +14242,7 @@ y los campos de la pantalla de Correlación</translation>
 <context>
     <name>uiHorizonSetupGroup</name>
     <message>
-        <location filename="../../../src/uiMPE/uihorizontracksetup.cc" line="+103"/>
+        <location filename="../../../src/uiMPE/uihorizontracksetup.cc" line="+105"/>
         <source>Mode</source>
         <translation>Modo</translation>
     </message>
@@ -13293,74 +14252,91 @@ y los campos de la pantalla de Correlación</translation>
         <translation>Evento</translation>
     </message>
     <message>
+        <location line="+220"/>
+        <source>Method</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Use Variance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Variance threshold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Horizon Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Line Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Seed Shape/Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Similarity</source>
         <translation type="obsolete">Semejanza</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-270"/>
         <source>Correlation</source>
         <translation>Correlación</translation>
     </message>
     <message>
-        <location line="+50"/>
         <source>Event type</source>
-        <translation>Tipo de evento</translation>
+        <translation type="obsolete">Tipo de evento</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Threshold type</source>
-        <translation>Tipo de umbral</translation>
+        <translation type="obsolete">Tipo de umbral</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Cut-off amplitude</source>
-        <translation>Amplitud de recorte</translation>
+        <translation type="obsolete">Amplitud de recorte</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Relative difference</source>
-        <translation>Diferencia relativa</translation>
+        <translation type="obsolete">Diferencia relativa</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <location line="+110"/>
         <source>Allowed difference (%)</source>
-        <translation>Diferencia permitida (%)</translation>
+        <translation type="obsolete">Diferencia permitida (%)</translation>
     </message>
     <message>
-        <location line="-102"/>
         <source>Steps</source>
-        <translation>Pasos</translation>
+        <translation type="obsolete">Pasos</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>If tracking fails</source>
-        <translation>Sí el rastreo falla</translation>
+        <translation type="obsolete">Sí el rastreo falla</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Extrapolate</source>
-        <translation>Extrapolar</translation>
+        <translation type="obsolete">Extrapolar</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Use Correlation</source>
-        <translation>Usar Correlación</translation>
+        <translation type="obsolete">Usar Correlación</translation>
     </message>
     <message>
-        <location line="+17"/>
         <source>Correlation threshold (0-100)</source>
-        <translation>Correlación umbral (0-100)</translation>
+        <translation type="obsolete">Correlación umbral (0-100)</translation>
     </message>
     <message>
-        <location line="+364"/>
         <source>Correlation window start value must be less than the stop value</source>
-        <translation>El valor inicio de la pantalla de correlación debe ser menos que el valor de terminación</translation>
+        <translation type="obsolete">El valor inicio de la pantalla de correlación debe ser menos que el valor de terminación</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Correlation threshold must be from 0 to 100</source>
-        <translation>Correlación umbral tiene que estar entre 0 y 100</translation>
+        <translation type="obsolete">Correlación umbral tiene que estar entre 0 y 100</translation>
     </message>
     <message>
         <source>Use similarity</source>
@@ -13371,39 +14347,34 @@ y los campos de la pantalla de Correlación</translation>
         <translation type="obsolete">Umbral de semejanza (0-1)</translation>
     </message>
     <message>
-        <location line="-362"/>
         <source>Horizon color</source>
-        <translation>Color de horizonte</translation>
+        <translation type="obsolete">Color de horizonte</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Seed Shape</source>
-        <translation>Forma del Pico</translation>
+        <translation type="obsolete">Forma del Pico</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+284"/>
         <source>Seed Size</source>
         <translation>Tamaño del Pico</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Seed Color</source>
-        <translation>Color del Pico</translation>
+        <translation type="obsolete">Color del Pico</translation>
     </message>
     <message>
-        <location line="+25"/>
         <source>Amplitude value</source>
-        <translation>Valor de amplitud</translation>
+        <translation type="obsolete">Valor de amplitud</translation>
     </message>
     <message>
-        <location line="+266"/>
+        <location line="+197"/>
         <source>Unable to apply tracking setup</source>
         <translation>Incapaz de aplicar disposición del rastreo</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Search window should be minus to positive, ex. -20, 20</source>
-        <translation>Pantalla de búsqueda debe ser menor de positivo, ex. -20, 20</translation>
+        <translation type="obsolete">Pantalla de búsqueda debe ser menor de positivo, ex. -20, 20</translation>
     </message>
     <message>
         <source>Compare window should be minus to positive, ex. -20, 20</source>
@@ -13414,20 +14385,16 @@ y los campos de la pantalla de Correlación</translation>
         <translation type="obsolete">Umbral de semejanza tiene que estar entre 0 y 1</translation>
     </message>
     <message>
-        <location line="+57"/>
         <source>Value threshold not set</source>
-        <translation>Valor de umbral no esta ajustado</translation>
+        <translation type="obsolete">Valor de umbral no esta ajustado</translation>
     </message>
     <message>
-        <location line="+14"/>
         <source>Value threshold not set properly</source>
-        <translation>Valor de umbral no esta ajustado apropiadamente</translation>
+        <translation type="obsolete">Valor de umbral no esta ajustado apropiadamente</translation>
     </message>
     <message>
-        <location line="+42"/>
-        <location line="+14"/>
         <source>Allowed variance must be between 0-100</source>
-        <translation>Diferencia permitida tiene que estar entre 0-100</translation>
+        <translation type="obsolete">Diferencia permitida tiene que estar entre 0-100</translation>
     </message>
     <message>
         <source>Please select the seismic data to track on</source>
@@ -13473,9 +14440,13 @@ y los campos de la pantalla de Correlación</translation>
 <context>
     <name>uiIOObj</name>
     <message>
-        <location filename="../../../src/uiIo/uiioobj.cc" line="+37"/>
         <source>Remove &apos;%1&apos;%2</source>
-        <translation>Borrar &apos;%1&apos;%2</translation>
+        <translation type="obsolete">Borrar &apos;%1&apos;%2</translation>
+    </message>
+    <message>
+        <location filename="../../../src/uiIo/uiioobj.cc" line="+37"/>
+        <source>Delete &apos;%1&apos;%2</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
@@ -13488,42 +14459,64 @@ Especifique que quiere borrar</translation>
     </message>
     <message>
         <location line="+6"/>
+        <source>Delete &apos;%1&apos; with folder
+&apos;%2&apos;%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Delete file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Delete link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Delete data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Could not delete data file(s).
+Remove entry from list anyway?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Remove &apos;%1&apos; with folder
 &apos;%2&apos;%3</source>
-        <translation>Borrar &apos;%1&apos; con la carpeta
+        <translation type="obsolete">Borrar &apos;%1&apos; con la carpeta
 &apos;%2&apos;%3</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-29"/>
         <source>
 - and everything in it! - ?</source>
         <translation>
 ¿ - ¡y todo que hay dentro! - ?</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Remove file</source>
-        <translation>Borrar expediente</translation>
+        <translation type="obsolete">Borrar expediente</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Remove link</source>
-        <translation>Borrar enlace</translation>
+        <translation type="obsolete">Borrar enlace</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Remove data</source>
-        <translation>Borrar datos</translation>
+        <translation type="obsolete">Borrar datos</translation>
     </message>
     <message>
-        <location line="+20"/>
         <source>Could not remove data file(s).
 Remove entry from list anyway?</source>
-        <translation>No podía borrar expediente(s) de datos.
+        <translation type="obsolete">No podía borrar expediente(s) de datos.
 ¿Borrar este entrada de la lista de todos modos?</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+77"/>
         <source>Overwrite existing &apos;%1&apos;?</source>
         <translation>¿Sobrescribir &apos;%1&apos; que existe?</translation>
     </message>
@@ -13541,20 +14534,31 @@ Remove entry from list anyway?</source>
         <translation>Este nombre ya esta usado de un %1 objeto</translation>
     </message>
     <message>
-        <location line="+70"/>
         <source>&apos;%1&apos;is not writable; the actual data will not be removed.
 The entry will only disappear from the list.
 Continue?</source>
-        <translation>No se puede escribir en &apos;%1&apos;; los datos actuales no estarán borrados.
+        <translation type="obsolete">No se puede escribir en &apos;%1&apos;; los datos actuales no estarán borrados.
 Solo la entrada desaparecerá de la lista.
 ¿Continuar?</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>Remove the following objects from the database permanently?
 %1</source>
-        <translation>¿Permanentamente borrar los siguientes objetos del base de datos?
+        <translation type="obsolete">¿Permanentamente borrar los siguientes objetos del base de datos?
 %1</translation>
+    </message>
+    <message>
+        <location line="+70"/>
+        <source>&apos;%1&apos;is not writable; the actual data will not be deleted.
+The entry will only disappear from the list.
+Continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Delete the following objects from the database permanently?
+%1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+40"/>
@@ -13575,7 +14579,7 @@ Solo la entrada desaparecerá de la lista.
 <context>
     <name>uiIOObjSel</name>
     <message>
-        <location filename="../../../src/uiIo/uiioobjsel.cc" line="+469"/>
+        <location filename="../../../src/uiIo/uiioobjsel.cc" line="+483"/>
         <source>Please select the %1</source>
         <translation>Por favor selecciona el %1</translation>
     </message>
@@ -13588,7 +14592,17 @@ Solo la entrada desaparecerá de la lista.
 <context>
     <name>uiIOObjSelDlg</name>
     <message>
-        <location line="-323"/>
+        <location line="-352"/>
+        <source>Input selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Output selection</source>
+        <translation type="unfinished">Selección de salida</translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>Select input %1%2</source>
         <translation>Selecciona entrada %1%2</translation>
     </message>
@@ -13616,7 +14630,7 @@ Solo la entrada desaparecerá de la lista.
 <context>
     <name>uiIOObjSelGrp</name>
     <message>
-        <location filename="../../../src/uiIo/uiioobjselgrp.cc" line="+415"/>
+        <location filename="../../../src/uiIo/uiioobjselgrp.cc" line="+416"/>
         <source>Please select the %1 or press Cancelor press Cancel</source>
         <translation>Por favor selecciona el %1 o pulsa Cancelar</translation>
     </message>
@@ -13651,7 +14665,7 @@ Sí esta seguro, por favor borra el objeto que existe primero</translation>
 <context>
     <name>uiIOSurface</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="+79"/>
+        <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="-606"/>
         <source>Calculated attributes</source>
         <translation>Atributos calculados</translation>
     </message>
@@ -13674,7 +14688,7 @@ Sí esta seguro, por favor borra el objeto que existe primero</translation>
         <translation>Importar Conjunto de Atributos</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+14"/>
         <source>Output Attribute Set</source>
         <translation>Conjunto de Atributos de salida</translation>
     </message>
@@ -13809,12 +14823,12 @@ Do you want to %2 more PickSets?</source>
 <context>
     <name>uiImpRokDocPDF</name>
     <message>
-        <location filename="../../../src/uiIo/uiimpexppdf.cc" line="-561"/>
+        <location filename="../../../src/uiIo/uiimpexppdf.cc" line="-563"/>
         <source>Import Probability Density Function</source>
         <translation>Importar Función de Probabilidad Densidad</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
         <source>Output variable names</source>
         <translation>Nombres variables de salida</translation>
     </message>
@@ -13851,8 +14865,17 @@ Do you want to %2 more PickSets?</source>
     </message>
     <message>
         <location line="+19"/>
+        <source>Imported %1x%2 PDF. Do you want to import more PDFs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
+    <message>
         <source>Imported %1x%2 PDF.</source>
-        <translation>Ha importado PDF %1x%2.</translation>
+        <translation type="obsolete">Ha importado PDF %1x%2.</translation>
     </message>
 </context>
 <context>
@@ -13938,6 +14961,19 @@ Do you want to %2 more PickSets?</source>
         <source>Stick sorting</source>
         <translation>Clasificación de palos</translation>
     </message>
+    <message>
+        <location line="+112"/>
+        <location line="+40"/>
+        <source>%1 successfully imported
+Do you want to import more %1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-36"/>
+        <location line="+40"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
 </context>
 <context>
     <name>uiImportHorizon</name>
@@ -14022,12 +15058,12 @@ Do you want to %2 more PickSets?</source>
         <translation>Su horizonte esta fuera el rango del estudio</translation>
     </message>
     <message>
-        <location line="+73"/>
+        <location line="+79"/>
         <source>No Attributes Selected</source>
         <translation>No ha seleccionado Atributos</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+22"/>
         <source>Nothing to import</source>
         <translation>Nada para importar</translation>
     </message>
@@ -14038,6 +15074,11 @@ Do you want to %2 more PickSets?</source>
     </message>
     <message>
         <location line="+6"/>
+        <source>Cannot have &apos;0&apos; as a step value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Nr positions done</source>
         <translation>Número de posiciones que estan hechos</translation>
     </message>
@@ -14047,12 +15088,22 @@ Do you want to %2 more PickSets?</source>
         <translation>No se puede importar horizonte</translation>
     </message>
     <message>
-        <location line="+41"/>
-        <source>Horizon successfully imported</source>
-        <translation>Ha importado Horizonte con éxito</translation>
+        <location line="+44"/>
+        <source>3D Horizon successfully imported
+Do you want to import more 3D Horizons?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
+    <message>
+        <source>Horizon successfully imported</source>
+        <translation type="obsolete">Ha importado Horizonte con éxito</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Please select input file(s)</source>
         <translation>Por favor selecciona expediente(s) de entrada</translation>
     </message>
@@ -14092,7 +15143,7 @@ Do you want to %2 more PickSets?</source>
         <translation>Horizonte(s) para importar</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Add new</source>
         <translation>Añadir nuevo</translation>
     </message>
@@ -14139,12 +15190,22 @@ Por favor re-examine expedientes de entrada y su definición de formato</transla
         <translation>Algunas líneas 2D (%1) estarán sobrescritas</translation>
     </message>
     <message>
-        <location line="+38"/>
-        <source>Horizon(s) successfully imported</source>
-        <translation>Ha importado Horizonte(s) con éxito</translation>
+        <location line="+41"/>
+        <source>2D Horizon successfully imported
+Do you want to import more 2D Horizons?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
+    <message>
+        <source>Horizon(s) successfully imported</source>
+        <translation type="obsolete">Ha importado Horizonte(s) con éxito</translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>Please select input file(s)</source>
         <translation>Por favor selecciona expediente(s) de entrada</translation>
     </message>
@@ -14169,7 +15230,7 @@ Por favor re-examine expedientes de entrada y su definición de formato</transla
 <context>
     <name>uiImportLogsDlg</name>
     <message>
-        <location filename="../../../src/uiWell/uiwelllogimpexp.cc" line="-370"/>
+        <location filename="../../../src/uiWell/uiwelllogimpexp.cc" line="-375"/>
         <source>Import Well Logs</source>
         <translation>Importar Logs Pozo</translation>
     </message>
@@ -14270,6 +15331,17 @@ Por favor borra %4 de los logs que existen antes de importar.</translation>
         <source>Cannot write logs to disk</source>
         <translation>No se puede escribir logs al disco</translation>
     </message>
+    <message>
+        <location line="+2"/>
+        <source>Well Log successfully imported
+Do you want to import more Well Logs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
 </context>
 <context>
     <name>uiImportMute</name>
@@ -14279,7 +15351,7 @@ Por favor borra %4 de los logs que existen antes de importar.</translation>
         <translation>Importar Función Mudo</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+12"/>
         <source>File contains position</source>
         <translation>Expediente contiene posición</translation>
     </message>
@@ -14307,9 +15379,20 @@ Por favor borra %4 de los logs que existen antes de importar.</translation>
         <translation>Importar Función de Velocidad</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+32"/>
         <source>Output Velocity</source>
         <translation>Velocidad de salida</translation>
+    </message>
+    <message>
+        <location line="+73"/>
+        <source>Velocity Function successfully imported
+Do you want to import more Velocity Functions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
     </message>
 </context>
 <context>
@@ -14406,13 +15489,25 @@ Por favor borra %4 de los logs que existen antes de importar.</translation>
     </message>
 </context>
 <context>
+    <name>uiIntIntervalInpFld</name>
+    <message>
+        <location filename="../../../src/uiTools/uigeninput.cc" line="+473"/>
+        <source>Symmetric</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>uiInvDistHor3DInterpol</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="+182"/>
         <source>Please enter a positive value for the search radius
 (or uncheck the field)</source>
-        <translation>Por favor entra un valor positivo para el radio de búsqueda
+        <translation type="obsolete">Por favor entra un valor positivo para el radio de búsqueda
 (o desmarque el campo)</translation>
+    </message>
+    <message>
+        <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="+177"/>
+        <source>Please enter a positive value for the search radius</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14456,22 +15551,22 @@ Por favor borra %4 de los logs que existen antes de importar.</translation>
 <context>
     <name>uiInverseDistanceArray2DInterpol</name>
     <message>
-        <location line="-212"/>
+        <location line="-193"/>
         <source>Inverse distance</source>
         <translation>Distancia inversa</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+7"/>
         <source>Parameters</source>
         <translation>Parámetros</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+26"/>
         <source>Search radius %1</source>
         <translation>Radio de búsqueda %1</translation>
     </message>
     <message>
-        <location line="+195"/>
+        <location line="+192"/>
         <source>Please enter a positive value for the search radius
 (or uncheck the field)</source>
         <translation>Por favor entra un valor positivo para el radio de búsqueda
@@ -14479,57 +15574,102 @@ Por favor borra %4 de los logs que existen antes de importar.</translation>
     </message>
 </context>
 <context>
-    <name>uiIsopachMakerBatch</name>
+    <name>uiIsochronMakerBatch</name>
     <message>
         <location filename="../../../plugins/uiHorizonAttrib/uiisopachmaker.cc" line="+142"/>
-        <source>Create isopach</source>
-        <translation>Crear isopach</translation>
+        <source>Create Isochron</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+32"/>
         <source>Attribute name %1 already exists, Overwrite?</source>
-        <translation>Nombre de atributo %1 ya existe. ¿Sobrescribir?</translation>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiIsochronMakerDlg</name>
+    <message>
+        <location line="+25"/>
+        <source>Create Isochron</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+38"/>
+        <source>Cannot load selected horizon</source>
+        <translation type="unfinished">No se puede cargar el horizonte seleccionado</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Cannot find base horizon</source>
+        <translation type="unfinished">No se puede encontrar base de horizonte</translation>
+    </message>
+</context>
+<context>
+    <name>uiIsochronMakerGrp</name>
+    <message>
+        <location line="-176"/>
+        <source>Output in</source>
+        <translation type="unfinished">Salida en</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Milliseconds</source>
+        <translation type="unfinished">Milisegundos</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Seconds</source>
+        <translation type="unfinished">Segundos</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Please enter attribute name</source>
+        <translation type="unfinished">Por favor entra un nombre de atributo</translation>
+    </message>
+</context>
+<context>
+    <name>uiIsopachMakerBatch</name>
+    <message>
+        <source>Create isopach</source>
+        <translation type="obsolete">Crear isopach</translation>
+    </message>
+    <message>
+        <source>Attribute name %1 already exists, Overwrite?</source>
+        <translation type="obsolete">Nombre de atributo %1 ya existe. ¿Sobrescribir?</translation>
     </message>
 </context>
 <context>
     <name>uiIsopachMakerDlg</name>
     <message>
-        <location line="+25"/>
         <source>Create isopach</source>
-        <translation>Crear isopach</translation>
+        <translation type="obsolete">Crear isopach</translation>
     </message>
     <message>
-        <location line="+39"/>
         <source>Cannot load selected horizon</source>
-        <translation>No se puede cargar el horizonte seleccionado</translation>
+        <translation type="obsolete">No se puede cargar el horizonte seleccionado</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Cannot find base horizon</source>
-        <translation>No se puede encontrar base de horizonte</translation>
+        <translation type="obsolete">No se puede encontrar base de horizonte</translation>
     </message>
 </context>
 <context>
     <name>uiIsopachMakerGrp</name>
     <message>
-        <location line="-177"/>
         <source>Output in</source>
-        <translation>Salida en</translation>
+        <translation type="obsolete">Salida en</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Milliseconds</source>
-        <translation>Milisegundos</translation>
+        <translation type="obsolete">Milisegundos</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Seconds</source>
-        <translation>Segundos</translation>
+        <translation type="obsolete">Segundos</translation>
     </message>
     <message>
-        <location line="+40"/>
         <source>Please enter attribute name</source>
-        <translation>Por favor entra un nombre de atributo</translation>
+        <translation type="obsolete">Por favor entra un nombre de atributo</translation>
     </message>
 </context>
 <context>
@@ -14597,7 +15737,7 @@ por favor deja su dirección de correo electrónico</translation>
         <translation>Enviar Informe</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+63"/>
         <source>The report was successfully sent.
 
 Thank you for your contribution to OpendTect!</source>
@@ -14606,7 +15746,7 @@ Thank you for your contribution to OpendTect!</source>
 ¡Gracias por su contribución a OpendTect!</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+19"/>
         <source>The report could not be sent automatically.
 You can still send it manually by e-mail.
 Please send the file:
@@ -14633,9 +15773,27 @@ Would you like to retry sending the report using different proxy settings?</sour
     </message>
 </context>
 <context>
+    <name>uiKeyBindingSettingsGroup</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodscenemgr.cc" line="+1316"/>
+        <source>Mouse interaction</source>
+        <translation type="unfinished">Interacción de la mausa</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>3D Mouse Controls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Mouse wheel direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>uiLatLong2CoordDlg</name>
     <message>
-        <location filename="../../../src/uiIo/uilatlong.cc" line="+225"/>
+        <location filename="../../../src/uiIo/uilatlong.cc" line="+319"/>
         <source>Please fill all fields</source>
         <translation>Por favor llena todos campos</translation>
     </message>
@@ -14662,11 +15820,60 @@ Continue?</source>
         <translation>Perdón, su definición de Latitud/Longitud tiene un problema</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+16"/>
         <source>Could not write the definitions to your &apos;.survey&apos; file
 The definition will work this OpendTect session only</source>
         <translation>No podía escribir definiciones a su expediente de &apos;.estudio&apos;
 La definición solamente funcione en este sessión de OpendTect</translation>
+    </message>
+</context>
+<context>
+    <name>uiLatLong2CoordFileTransDlg</name>
+    <message>
+        <location line="-120"/>
+        <source>Transform file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Transform a file, Lat Long &lt;=&gt; X Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Transform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>X Y to Lat Long</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Lat Long to X Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <location line="+3"/>
+        <source>Please enter the input filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-2"/>
+        <source>Input file does not exist</source>
+        <translation type="unfinished">Expediente de entrada no existe</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Empty input file</source>
+        <translation type="unfinished">El expediente esta vacío</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Cannot open output file</source>
+        <translation type="unfinished">No se puede abrir expediente de salida</translation>
     </message>
 </context>
 <context>
@@ -14806,7 +16013,7 @@ La definición solamente funcione en este sessión de OpendTect</translation>
 <context>
     <name>uiLinePosSelDlg</name>
     <message>
-        <location filename="../../../src/uiTools/uislicesel.cc" line="+604"/>
+        <location filename="../../../src/uiTools/uislicesel.cc" line="+606"/>
         <location line="+17"/>
         <source>Select line position</source>
         <translation>Seleccionar posición de la línea</translation>
@@ -14857,7 +16064,7 @@ La definición solamente funcione en este sessión de OpendTect</translation>
 <context>
     <name>uiListBox</name>
     <message>
-        <location filename="../../../src/uiBase/uilistbox.cc" line="+521"/>
+        <location filename="../../../src/uiBase/uilistbox.cc" line="+524"/>
         <source>Check all (Ctrl-A)</source>
         <translation>Marcar todo (Ctrl-A)</translation>
     </message>
@@ -14996,7 +16203,7 @@ La definición solamente funcione en este sessión de OpendTect</translation>
 <context>
     <name>uiMPEMan</name>
     <message>
-        <location filename="../../../src/uiVis/uimpeman.cc" line="+97"/>
+        <location filename="../../../src/uiVis/uimpeman.cc" line="+92"/>
         <source>Seed connect mode</source>
         <translation>Modo connección de picos</translation>
     </message>
@@ -15011,12 +16218,11 @@ La definición solamente funcione en este sessión de OpendTect</translation>
         <translation>Rastreo-automático</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Track From Seeds Only</source>
-        <translation>Rastrar solamente de picos</translation>
+        <translation type="obsolete">Rastrar solamente de picos</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+6"/>
         <source>Retrack All</source>
         <translation>Rehacer el rastreo de todo</translation>
     </message>
@@ -15037,10 +16243,8 @@ La definición solamente funcione en este sessión de OpendTect</translation>
         <translation type="obsolete">Menú</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <location line="+861"/>
         <source>Display at section only</source>
-        <translation>Mostrar solo en la sección</translation>
+        <translation type="obsolete">Mostrar solo en la sección</translation>
     </message>
     <message>
         <source>QC plane step</source>
@@ -15059,13 +16263,13 @@ La definición solamente funcione en este sessión de OpendTect</translation>
         <translation type="obsolete">Ajustar tabla colores del plano QC</translation>
     </message>
     <message>
-        <location line="-856"/>
-        <location line="+775"/>
+        <location line="+9"/>
+        <location line="+782"/>
         <source>Polygon Selection mode</source>
         <translation>Modo de Selección del Polígono</translation>
     </message>
     <message>
-        <location line="-766"/>
+        <location line="-773"/>
         <source>Remove PolySelection</source>
         <translation>Borrar Selección del Polígono</translation>
     </message>
@@ -15080,7 +16284,12 @@ La definición solamente funcione en este sessión de OpendTect</translation>
         <translation>Rehacer (Ctrl+Y)</translation>
     </message>
     <message>
-        <location line="+72"/>
+        <location line="+5"/>
+        <source>Save (Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+74"/>
         <source>2D tracking cannot handle picks on 3D lines.</source>
         <translation>El rastreo 2D no puede manejar picos en líneas 3D</translation>
     </message>
@@ -15153,15 +16362,14 @@ cambiar los datos de entrada en la Disposición del Rastreo.</translation>
         <translation type="obsolete">Ocultar plano QC</translation>
     </message>
     <message>
-        <location line="+80"/>
         <source>Display full</source>
-        <translation>Mostrar completo</translation>
+        <translation type="obsolete">Mostrar completo</translation>
     </message>
 </context>
 <context>
     <name>uiMPEPartServer</name>
     <message>
-        <location filename="../../../src/uiMPE/uimpepartserv.cc" line="+160"/>
+        <location filename="../../../src/uiMPE/uimpepartserv.cc" line="+159"/>
         <source>Could not create tracker for this object</source>
         <translation>No podía crear rastreador para este objeto</translation>
     </message>
@@ -15170,12 +16378,12 @@ cambiar los datos de entrada en la Disposición del Rastreo.</translation>
         <translation type="obsolete">La Disposición del Rastreo tiene un atributo diferente que sus picos</translation>
     </message>
     <message>
-        <location line="+216"/>
+        <location line="+232"/>
         <source>No seeds have been picked. Do you want to continue with horizon tracking?</source>
         <translation>No ha cogido picos. ¿Quiere continuar con el rastreo del horizonte?</translation>
     </message>
     <message>
-        <location line="+401"/>
+        <location line="+408"/>
         <source>Unable to save tracking setup file 
  %1 .
 Please check whether the file is writable</source>
@@ -15185,11 +16393,15 @@ Por favor checa sí se puede escribir en el expediente</translation>
     </message>
     <message>
         <location line="+140"/>
-        <source>Tracking Setup</source>
-        <translation>Disposición de Rastreo</translation>
+        <source>Horizon Tracking Setup</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+103"/>
+        <source>Tracking Setup</source>
+        <translation type="obsolete">Disposición de Rastreo</translation>
+    </message>
+    <message>
+        <location line="+109"/>
         <source>%1 is not saved.
  Click &apos;Save&apos; to save %2 to disk or
  click &apos;Remove&apos; to remove permanently. </source>
@@ -15371,9 +16583,8 @@ haz clic en &apos;Borrar&apos; para borrarlo permanentamente. </translation>
 <context>
     <name>uiMainWin</name>
     <message>
-        <location filename="../../../include/uiBase/uimainwin.h" line="+62"/>
         <source>uiMainWin</source>
-        <translation>Pantalla principal de interfaz usario</translation>
+        <translation type="obsolete">Pantalla principal de interfaz usario</translation>
     </message>
 </context>
 <context>
@@ -15469,7 +16680,7 @@ Esto afectará los datos asociados.</translation>
         <translation>Color marcador</translation>
     </message>
     <message>
-        <location line="+172"/>
+        <location line="+173"/>
         <source>Input file exists but cannot be read</source>
         <translation>Expediente de entrada existe pero no se puede leerlo</translation>
     </message>
@@ -15692,6 +16903,14 @@ El número máximo es %2</translation>
     </message>
 </context>
 <context>
+    <name>uiMatlabStep</name>
+    <message>
+        <location filename="../../../plugins/uiMATLABLink/uimatlabstep.cc" line="+158"/>
+        <source>No value given for %1</source>
+        <translation type="unfinished">No hay valor para %1</translation>
+    </message>
+</context>
+<context>
     <name>uiMeasureDlg</name>
     <message>
         <location filename="../../../src/uiTools/uimeasuredlg.cc" line="+36"/>
@@ -15906,7 +17125,12 @@ El número máximo es %2</translation>
 <context>
     <name>uiMultiFlatViewControl</name>
     <message>
-        <location filename="../../../src/uiFlatView/uimultiflatviewcontrol.cc" line="+194"/>
+        <location filename="../../../src/uiFlatView/uimultiflatviewcontrol.cc" line="+190"/>
+        <source>Flat Viewer Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Set display parameters</source>
         <translation>Ajustar pantalla de parámetros</translation>
     </message>
@@ -16011,7 +17235,22 @@ Puede borrar pozos en &apos;Gestionar pozos&apos;</translation>
 <context>
     <name>uiNotSavedDlg</name>
     <message>
-        <location filename="../../../src/uiTools/uinotsaveddlg.cc" line="+70"/>
+        <location filename="../../../src/uiTools/uinotsaveddlg.cc" line="+42"/>
+        <source>Not Saved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The following objects are not saved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>%1 now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>Saved</source>
         <translation>Guardado</translation>
     </message>
@@ -16031,7 +17270,7 @@ Puede borrar pozos en &apos;Gestionar pozos&apos;</translation>
         <translation type="obsolete">Datos del Dominio Z de Atributo 2D</translation>
     </message>
     <message>
-        <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="+773"/>
+        <location filename="../../../src/uiODMain/uiodseis2dtreeitem.cc" line="+777"/>
         <source>Stored 2D Data</source>
         <translation>Datos almacenados 2D</translation>
     </message>
@@ -16136,7 +17375,7 @@ Do you wish to overwrite it?</source>
 <context>
     <name>uiODApplMgr</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodapplmgr.cc" line="+198"/>
+        <location filename="../../../src/uiODMain/uiodapplmgr.cc" line="+202"/>
         <source>The survey %1 appears to be too old. Please open this survey first in OpendTect 4.6 to update its database before using it in OpendTect 5.0.</source>
         <translation>El estudio %1 parece demasiado viejo. Por favor abre este estudio primero en OpendTect 4.6 para actualizar su base de datos antes de usarlo en OpendTect 5.0.</translation>
     </message>
@@ -16198,13 +17437,13 @@ Do you wish to overwrite it?</source>
         <translation>No ha encontrado transformaciones adecuados</translation>
     </message>
     <message>
-        <location line="+93"/>
-        <location line="+215"/>
+        <location line="+100"/>
+        <location line="+226"/>
         <source>Cannot calculate attribute on this object</source>
         <translation>No se puede calcular atributos en este objeto</translation>
     </message>
     <message>
-        <location line="-206"/>
+        <location line="-217"/>
         <source>Cannot find selected attribute</source>
         <translation>No se puede encontrar atributo seleccionado</translation>
     </message>
@@ -16228,7 +17467,7 @@ no esta presente en el conjunto y se puede crearlo</translation>
         <translation type="obsolete">Ahora no</translation>
     </message>
     <message>
-        <location line="+193"/>
+        <location line="+206"/>
         <source>Cannot find stored data</source>
         <translation>No se puede encontrar datos almacenados</translation>
     </message>
@@ -16238,7 +17477,7 @@ no esta presente en el conjunto y se puede crearlo</translation>
         <translation>No se puede evaluar atributos en este objeto</translation>
     </message>
     <message>
-        <location line="+592"/>
+        <location line="+618"/>
         <source>Current attribute set is not saved.
 Save now?</source>
         <translation>Conjunto de atributos actuales no esta guardado.
@@ -16274,7 +17513,7 @@ Save now?</source>
 <context>
     <name>uiODApplMgrDispatcher</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodapplmgraux.cc" line="+419"/>
+        <location filename="../../../src/uiODMain/uiodapplmgraux.cc" line="+474"/>
         <source>If you make changes to the application,
 please restart OpendTect for the changes to take effect.</source>
         <translation>Sí haga cambios a la aplicación,
@@ -16297,7 +17536,7 @@ por favor reanuda OpendTect para que los cambios surtirán efecto.</translation>
 <context>
     <name>uiODBodyDisplayParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodbodydisplaytreeitem.cc" line="+80"/>
+        <location filename="../../../src/uiODMain/uiodbodydisplaytreeitem.cc" line="+85"/>
         <source>Cannot add Bodies to this scene</source>
         <translation>No se puede añadir Partes Principales a este escena</translation>
     </message>
@@ -16307,11 +17546,26 @@ por favor reanuda OpendTect para que los cambios surtirán efecto.</translation>
         <translation>Nuevo parte principal de Polígono...</translation>
     </message>
     <message>
+        <location line="+5"/>
+        <source>Display All</source>
+        <translation type="unfinished">Mostrar todo</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only at Sections</source>
+        <translation type="unfinished">Solo a las secciones</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>In Full</source>
+        <translation type="unfinished">Completamente</translation>
+    </message>
+    <message>
         <source>New polygon body...</source>
         <translation type="obsolete">Parte principal de polígono nuevo ...</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+70"/>
         <source>The geobody &apos;%1&apos; is made in OpendTect V%2, do you want to convert it to current version?</source>
         <translation>El parte principal geológico &apos;%1&apos; esta hecho en OpendTect V%2, quiere convertirlo a la versión actual?</translation>
     </message>
@@ -16319,7 +17573,7 @@ por favor reanuda OpendTect para que los cambios surtirán efecto.</translation>
 <context>
     <name>uiODCrosslineParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="+560"/>
+        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="+659"/>
         <source>Flat survey, disabled cross-line display</source>
         <translation>Estudio plano, dishabilitó pantalla de línea-cruzada</translation>
     </message>
@@ -16382,7 +17636,7 @@ por favor reanuda OpendTect para que los cambios surtirán efecto.</translation>
 <context>
     <name>uiODDisplayTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uioddisplaytreeitem.cc" line="+72"/>
+        <location filename="../../../src/uiODMain/uioddisplaytreeitem.cc" line="+75"/>
         <source>Volume Processing Attribute</source>
         <translation>Atributo de Procesamiento Volumen</translation>
     </message>
@@ -16391,11 +17645,26 @@ por favor reanuda OpendTect para que los cambios surtirán efecto.</translation>
         <source>Duplicate</source>
         <translation>Duplicar</translation>
     </message>
+    <message>
+        <location line="+4"/>
+        <source>Delete from Database</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Remove from Tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+295"/>
+        <source>Data is read-only, can not delete</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>uiODEarthModelSurfaceDataTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodemsurftreeitem.cc" line="+431"/>
+        <location filename="../../../src/uiODMain/uiodemsurftreeitem.cc" line="+447"/>
         <source>Z values</source>
         <translation>Valores Z</translation>
     </message>
@@ -16456,7 +17725,7 @@ Por favor guarda el atributo primero</translation>
         <translation type="obsolete">Iniciar el rastreo ...</translation>
     </message>
     <message>
-        <location line="-496"/>
+        <location line="-512"/>
         <source>Create Flattened Scene</source>
         <translation>crear escena aplanada</translation>
     </message>
@@ -16476,7 +17745,7 @@ Por favor guarda el atributo primero</translation>
         <translation>Iniciar el rastreo...</translation>
     </message>
     <message>
-        <location line="+332"/>
+        <location line="+348"/>
         <source>Geometry has been changed. Saved &apos;Horizon Data&apos; is
 not valid anymore and will be removed now.
 Continue saving?</source>
@@ -16496,7 +17765,7 @@ ya no son válidos y estarán borrados ahora.
 <context>
     <name>uiODFaultParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodfaulttreeitem.cc" line="+93"/>
+        <location filename="../../../src/uiODMain/uiodfaulttreeitem.cc" line="+105"/>
         <source>Display all</source>
         <translation>Mostrar todo</translation>
     </message>
@@ -16563,7 +17832,7 @@ ya no son válidos y estarán borrados ahora.
 <context>
     <name>uiODFaultStickSetParentTreeItem</name>
     <message>
-        <location line="+313"/>
+        <location line="+315"/>
         <source>Cannot add FaultStickSets to this scene</source>
         <translation>No se puede añadir Conjunto de Fallas a este escena</translation>
     </message>
@@ -16594,7 +17863,7 @@ ya no son válidos y estarán borrados ahora.
 <context>
     <name>uiODFaultSurfaceDataTreeItem</name>
     <message>
-        <location line="+242"/>
+        <location line="+226"/>
         <source>Z values</source>
         <translation>Valores Z</translation>
     </message>
@@ -16776,7 +18045,7 @@ ya no son válidos y estarán borrados ahora.
         <translation type="obsolete">Rastrar nuevo ...</translation>
     </message>
     <message>
-        <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="+576"/>
+        <location filename="../../../src/uiODMain/uiodhortreeitem.cc" line="+642"/>
         <source>Track New ...</source>
         <translation>Rastrar nuevo...</translation>
     </message>
@@ -16862,7 +18131,7 @@ ya no son válidos y estarán borrados ahora.
         <translation type="obsolete">A las secciones y completamente</translation>
     </message>
     <message>
-        <location line="-622"/>
+        <location line="-675"/>
         <source>Add at Sections Only ...</source>
         <translation>Añadir solo a las secciones...</translation>
     </message>
@@ -16939,11 +18208,26 @@ ya no son válidos y estarán borrados ahora.
         <source>Store Z as Attribute ...</source>
         <translation>Almacenar Z como Atributo ...</translation>
     </message>
+    <message>
+        <location line="+2"/>
+        <source>Show Parents Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select Parents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select Children</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>uiODInlineParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="-39"/>
+        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="-44"/>
         <source>Flat survey, disabled inline display</source>
         <translation>Estudio plano, dishabilitó la pantalla de línea</translation>
     </message>
@@ -17048,16 +18332,15 @@ ya no son válidos y estarán borrados ahora.
 <context>
     <name>uiODMain</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodmain.cc" line="+121"/>
         <source>OpendTect Main Window</source>
-        <translation>Pantalla Principal de OpendTect</translation>
+        <translation type="obsolete">Pantalla Principal de OpendTect</translation>
     </message>
     <message>
         <source>System memory: Free/Available | CPU: Used/Available</source>
         <translation type="obsolete">Sistema de memoria: Gratis/Disponible | CPU Usado/Disponible</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location filename="../../../src/uiODMain/uiodmain.cc" line="+159"/>
         <source>System memory: Free/Available</source>
         <translation>Memoria del sistema: gratis/disponible</translation>
     </message>
@@ -17067,28 +18350,38 @@ ya no son válidos y estarán borrados ahora.
         <translation>| CPU: usado/disponible</translation>
     </message>
     <message>
-        <location line="+39"/>
         <source>Without a valid data root, OpendTect cannot start.
 Do you wish to exit?</source>
-        <translation>Sin raíz de datos válido, no se puede iniciar OpendTect.
+        <translation type="obsolete">Sin raíz de datos válido, no se puede iniciar OpendTect.
 ¿Quier salir?</translation>
     </message>
     <message>
-        <location line="+25"/>
         <source>Without a valid survey, OpendTect cannot start.
 Do you wish to exit?</source>
-        <translation>Sin estudio válido, no se puede iniciar OpendTect.
+        <translation type="obsolete">Sin estudio válido, no se puede iniciar OpendTect.
 ¿Quiere salir?</translation>
     </message>
     <message>
-        <location line="+274"/>
+        <location line="+39"/>
+        <source>Without a valid data root, %1 cannot start.
+Do you wish to exit?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Without a valid survey, %1 cannot start.
+Do you wish to exit?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+275"/>
         <source>An error occurred while reading session file.
 A new scene will be launched</source>
         <translation>Ha occurido un error al leer el expediente de sessión.
 Una nueva escena estará lanzada</translation>
     </message>
     <message>
-        <location line="+83"/>
+        <location line="+91"/>
         <source>Do you want to save this session?</source>
         <translation>¿Quiere guardar este sessión?</translation>
     </message>
@@ -17100,14 +18393,28 @@ Store the changes now?</source>
 ¿Almacenar los cambios ahora?</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+28"/>
+        <source> *UPDATE AVAILABLE*</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source> [%1] </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+19"/>
         <source>Closing cancelled</source>
         <translation>Ha cancelado el cerrar</translation>
     </message>
     <message>
         <location line="+10"/>
+        <source>Do you want to close %1?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to close OpendTect?</source>
-        <translation>¿Quiere cerrar OpendTect?</translation>
+        <translation type="obsolete">¿Quiere cerrar OpendTect?</translation>
     </message>
 </context>
 <context>
@@ -17150,12 +18457,12 @@ Store the changes now?</source>
     <message>
         <location line="+13"/>
         <location line="+107"/>
-        <location line="+626"/>
+        <location line="+618"/>
         <source>FaultStickSets</source>
         <translation>Conjuntos de Fallas</translation>
     </message>
     <message>
-        <location line="-731"/>
+        <location line="-723"/>
         <location line="+107"/>
         <source>PickSets/Polygons</source>
         <translation>Conjunto de Picos/Polígonos</translation>
@@ -17188,26 +18495,20 @@ Store the changes now?</source>
         <translation>Funciones de Probabilidad Densidad</translation>
     </message>
     <message>
-        <location line="-81"/>
+        <location line="-80"/>
         <source>RokDoc ASCII ...</source>
         <translation></translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>SEG-Y ...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>SEG-Y Data Link ...</source>
-        <translation>Enlace de datos SEG-Y ...</translation>
+        <translation type="obsolete">Enlace de datos SEG-Y ...</translation>
     </message>
     <message>
         <source>Simple file</source>
         <translation type="obsolete">Expediente simple</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+9"/>
         <source>CBVS</source>
         <translation></translation>
     </message>
@@ -17222,18 +18523,18 @@ Store the changes now?</source>
     </message>
     <message>
         <location line="-37"/>
-        <location line="+338"/>
+        <location line="+330"/>
         <source>Cross-plot Data</source>
         <translation>Datos de traza-cruzada</translation>
     </message>
     <message>
-        <location line="-307"/>
-        <location line="+96"/>
+        <location line="-299"/>
+        <location line="+90"/>
         <source>Simple File</source>
         <translation>Expediente simple</translation>
     </message>
     <message>
-        <location line="-89"/>
+        <location line="-83"/>
         <source>From File ...</source>
         <translation>Del Expediente ...</translation>
     </message>
@@ -17244,12 +18545,12 @@ Store the changes now?</source>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+135"/>
+        <location line="+130"/>
         <source>Geometry 2D ...</source>
         <translation>Geometría 2D ...</translation>
     </message>
     <message>
-        <location line="-133"/>
+        <location line="-128"/>
         <source>Geometry 3D ...</source>
         <translation>Geometría 3D ...</translation>
     </message>
@@ -17265,23 +18566,18 @@ Store the changes now?</source>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+83"/>
+        <location line="+77"/>
         <source>ASCII 2D ...</source>
         <translation></translation>
     </message>
     <message>
-        <location line="-81"/>
-        <location line="+82"/>
+        <location line="-75"/>
+        <location line="+76"/>
         <source>ASCII 3D ...</source>
         <translation></translation>
     </message>
     <message>
-        <location line="-72"/>
-        <source>VSP (SEG-Y) ...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="-66"/>
         <source>Simple Multi-Well ...</source>
         <translation>Múlti-Pozo simple ...</translation>
     </message>
@@ -17296,13 +18592,12 @@ Store the changes now?</source>
         <translation>Modelo de Profundidad/Tiempo ...</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+31"/>
         <source>Geometry 2D</source>
         <translation>Geometría 2D</translation>
     </message>
     <message>
         <location line="+21"/>
-        <location line="+6"/>
         <source>Prestack 3D ...</source>
         <translation>3D Antes del Apilamiento ...</translation>
     </message>
@@ -17312,7 +18607,7 @@ Store the changes now?</source>
         <translation></translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+24"/>
         <source>Attribute Sets ...</source>
         <translation>Conjuntos de Atributos ...</translation>
     </message>
@@ -17362,7 +18657,7 @@ Store the changes now?</source>
         <translation>De logs del pozo...</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+77"/>
         <source>Edit Logs ...</source>
         <translation>Editar logs...</translation>
     </message>
@@ -17380,6 +18675,11 @@ Store the changes now?</source>
         <location line="+1"/>
         <source>Z-Scale ...</source>
         <translation>Escala-Z...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Viewer 2D ...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -17402,9 +18702,8 @@ Store the changes now?</source>
         <translation>Ver y sentir...</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Mouse Controls ...</source>
-        <translation>Controles de la mausa...</translation>
+        <translation type="obsolete">Controles de la mausa...</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -17432,7 +18731,12 @@ Store the changes now?</source>
         <translation>Conversión de posición...</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+16"/>
+        <source>Update ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Auto-update Policy ...</source>
         <translation>Auto-actualizar poliza...</translation>
     </message>
@@ -17478,12 +18782,12 @@ Store the changes now?</source>
     </message>
     <message>
         <location line="+73"/>
-        <location line="+477"/>
+        <location line="+471"/>
         <source>Switch to View Mode</source>
         <translation>Cambiar al modo de vista</translation>
     </message>
     <message>
-        <location line="-474"/>
+        <location line="-468"/>
         <source>Save Home Position</source>
         <translation>Guardar posición del inicio</translation>
     </message>
@@ -17494,12 +18798,12 @@ Store the changes now?</source>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+158"/>
+        <location line="+160"/>
         <source>Switch to Orthographic Camera</source>
         <translation>Cambiar a cámara de ortografía</translation>
     </message>
     <message>
-        <location line="-121"/>
+        <location line="-123"/>
         <source>Display Orientation Axis</source>
         <translation>Mostrar eje de orientación</translation>
     </message>
@@ -17509,7 +18813,7 @@ Store the changes now?</source>
         <translation>Mostrar mostrador de colores</translation>
     </message>
     <message>
-        <location line="+89"/>
+        <location line="+91"/>
         <source>Polygon Selection Mode</source>
         <translation>Modo de selección del polígono</translation>
     </message>
@@ -17524,7 +18828,7 @@ Store the changes now?</source>
         <translation>Cambiar a cámara perspectiva</translation>
     </message>
     <message>
-        <location line="+177"/>
+        <location line="+169"/>
         <source>Memory Information</source>
         <translation>Información de memoria</translation>
     </message>
@@ -17538,7 +18842,7 @@ Store the changes now?</source>
         <translation type="obsolete">Datos de traza-cruzada ...</translation>
     </message>
     <message>
-        <location line="-1044"/>
+        <location line="-1035"/>
         <source>FaultStickSets ...</source>
         <translation>De Conjuntos de Fallas ...</translation>
     </message>
@@ -17573,12 +18877,12 @@ Store the changes now?</source>
     </message>
     <message>
         <location line="+12"/>
-        <location line="+439"/>
+        <location line="+436"/>
         <source>Create Seismic Output</source>
         <translation>Crear Salida Sísmica</translation>
     </message>
     <message>
-        <location line="-433"/>
+        <location line="-430"/>
         <source>Single Attribute</source>
         <translation>Atributo síngulo</translation>
     </message>
@@ -17633,9 +18937,8 @@ Store the changes now?</source>
         <translation>Procesamiento Antes del Apilamiento</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Re-sort Scanned SEG-Y ...</source>
-        <translation>Reclasificar SEG-Y escaneado ...</translation>
+        <translation type="obsolete">Reclasificar SEG-Y escaneado ...</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -17739,7 +19042,7 @@ Store the changes now?</source>
         <translation type="obsolete">Vista de estéreo</translation>
     </message>
     <message>
-        <location line="+68"/>
+        <location line="+69"/>
         <source>Off</source>
         <translation>Apagado</translation>
     </message>
@@ -17800,7 +19103,7 @@ Store the changes now?</source>
         <translation type="obsolete">Conversión de posición ...</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+28"/>
         <source>Create Plugin Devel. Env. ...</source>
         <translation>Crear Plugin Proramado. Evn. ...</translation>
     </message>
@@ -17810,16 +19113,15 @@ Store the changes now?</source>
         <translation>Instalación</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>OpendTect Installation Manager ...</source>
-        <translation>Gerente de Instalación de OpendTect ...</translation>
+        <translation type="obsolete">Gerente de Instalación de OpendTect ...</translation>
     </message>
     <message>
         <source>Auto-update policy ...</source>
         <translation type="obsolete">Póliza de actualizar-automático ...</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+17"/>
         <source>Connection Settings ...</source>
         <translation>Ajustes de conexión ...</translation>
     </message>
@@ -18062,7 +19364,7 @@ Store the changes now?</source>
         <translation type="obsolete">Cambiar a cámara perspectiva</translation>
     </message>
     <message>
-        <location line="+252"/>
+        <location line="+247"/>
         <source>Your new settings will become active
 the next time OpendTect is started.</source>
         <translation>Sus ajustes nuevos estarán activos
@@ -18100,19 +19402,26 @@ solo para los objetos nuevos que estan lanzados</translation>
 <context>
     <name>uiODPickSetParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodpicksettreeitem.cc" line="+121"/>
         <source>Add PickSet ...</source>
-        <translation>Añadir Conjunto de Picos ...</translation>
+        <translation type="obsolete">Añadir Conjunto de Picos ...</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Add Polygon...</source>
-        <translation>Añadir Polígono ...</translation>
+        <translation type="obsolete">Añadir Polígono ...</translation>
+    </message>
+    <message>
+        <source>New PickSet</source>
+        <translation type="obsolete">Nuevo Conjunto de Picos</translation>
+    </message>
+    <message>
+        <location filename="../../../src/uiODMain/uiodpicksettreeitem.cc" line="+80"/>
+        <source>Add ...</source>
+        <translation type="unfinished">Añadir ...</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>New PickSet</source>
-        <translation>Nuevo Conjunto de Picos</translation>
+        <source>New</source>
+        <translation type="unfinished">Nuevo</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -18121,31 +19430,42 @@ solo para los objetos nuevos que estan lanzados</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Generate 3D...</source>
-        <translation>Generar 3D ...</translation>
+        <source>Generate 3D ...</source>
+        <translation type="unfinished">Generar 2D ... {3D?}</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+9"/>
+        <source>Display Only at Sections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Display Always</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Generate 3D...</source>
+        <translation type="obsolete">Generar 3D ...</translation>
+    </message>
+    <message>
+        <location line="-10"/>
         <source>Generate 2D ...</source>
         <translation>Generar 2D ...</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>New Polygon ...</source>
-        <translation>Nuevo Polígono ...</translation>
+        <translation type="obsolete">Nuevo Polígono ...</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Display Picks Only at Sections</source>
-        <translation>Mostrar picos solo a las secciones</translation>
+        <translation type="obsolete">Mostrar picos solo a las secciones</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Show All picks</source>
-        <translation>Mostrar todos picos</translation>
+        <translation type="obsolete">Mostrar todos picos</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+15"/>
         <source>Save Changes</source>
         <translation>Guardar cambios</translation>
     </message>
@@ -18167,7 +19487,7 @@ solo para los objetos nuevos que estan lanzados</translation>
         <translation type="obsolete">Guardar cambios</translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+48"/>
         <source>Problem saving changes. Check write protection.</source>
         <translation>Hay un problema en cargando los cambios. Debe checar la protección del escrito</translation>
     </message>
@@ -18193,12 +19513,11 @@ solo para los objetos nuevos que estan lanzados</translation>
         <translation>Solo a las secciones</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Close Polygon</source>
-        <translation>Cerrar Polígono</translation>
+        <translation type="obsolete">Cerrar Polígono</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Convert to Body</source>
         <translation>Convertir al parte principal</translation>
     </message>
@@ -18207,7 +19526,7 @@ solo para los objetos nuevos que estan lanzados</translation>
         <translation type="obsolete">Convertir al parte principal</translation>
     </message>
     <message>
-        <location line="+197"/>
+        <location line="+181"/>
         <source>This pickset has changed since the last save.
 Do you want to save it?</source>
         <translation>Este conjunto de picos ha cambiado desde la última vez que estaba guardado.
@@ -18225,17 +19544,27 @@ Do you want to save it?</source>
         <translation type="obsolete">Añadir a la área del Pozo ...</translation>
     </message>
     <message>
-        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="-457"/>
+        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="-550"/>
+        <source>Add Empty Plane</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Add and Select Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Add Default Data</source>
         <translation>Añadir datos predeterminados</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+6"/>
         <source>Add at Well Location ...</source>
         <translation>Añadir a la área del pozo...</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+44"/>
         <source>Position ...</source>
         <translation>Posición ...</translation>
     </message>
@@ -18245,17 +19574,87 @@ Do you want to save it?</source>
         <translation>Cuadrículas ...</translation>
     </message>
     <message>
-        <location line="+136"/>
+        <location line="+1"/>
+        <source>Add Inl-line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Add Crl-line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Add Z-slice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No or no valid default volume found.You can set a default volume in the &apos;Manage Seismics&apos; window. Do you want to go there now? On &apos;No&apos; an empty plane will be added</source>
-        <translation>Ha ha encontrado volumen o volumen predeterminado válido. Puede ajustar un volumen predeterminado en la pantalla de &apos;Gestionar Sísmicas&apos;. ¿Quiere ir a la pantalla ahora? Sí elige &apos;No&apos;, un plano vacío estará añadido</translation>
+        <translation type="obsolete">Ha ha encontrado volumen o volumen predeterminado válido. Puede ajustar un volumen predeterminado en la pantalla de &apos;Gestionar Sísmicas&apos;. ¿Quiere ir a la pantalla ahora? Sí elige &apos;No&apos;, un plano vacío estará añadido</translation>
+    </message>
+</context>
+<context>
+    <name>uiODPolygonParentTreeItem</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodpicksettreeitem.cc" line="+54"/>
+        <source>Add ...</source>
+        <translation type="unfinished">Añadir ...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>New ...</source>
+        <translation type="unfinished">Nuevo ...</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Display Only at Sections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Display Always</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Save Changes</source>
+        <translation type="unfinished">Guardar cambios</translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>Problem saving changes. Check write protection.</source>
+        <translation type="unfinished">Hay un problema en cargando los cambios. Debe checar la protección del escrito</translation>
+    </message>
+</context>
+<context>
+    <name>uiODPolygonTreeItem</name>
+    <message>
+        <location line="+35"/>
+        <source>Only at Sections</source>
+        <translation type="unfinished">Solo a las secciones</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Close Polygon</source>
+        <translation type="unfinished">Cerrar Polígono</translation>
+    </message>
+    <message>
+        <location line="+157"/>
+        <source>This polygon has changed since the last save.
+Do you want to save it?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>uiODRandomLineParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodrandlinetreeitem.cc" line="+123"/>
         <source>Add Empty</source>
-        <translation>Añadir Vacío</translation>
+        <translation type="obsolete">Añadir Vacío</translation>
+    </message>
+    <message>
+        <location filename="../../../src/uiODMain/uiodrandlinetreeitem.cc" line="+142"/>
+        <source>Add Default Data</source>
+        <translation type="unfinished">Añadir datos predeterminados</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -18298,18 +19697,18 @@ Do you want to save it?</source>
         <translation>De Pozos ...</translation>
     </message>
     <message>
-        <location line="+64"/>
-        <location line="+61"/>
+        <location line="+66"/>
+        <location line="+71"/>
         <source>Random lines</source>
         <translation>Líneas al azar</translation>
     </message>
     <message>
-        <location line="-59"/>
+        <location line="-69"/>
         <source>Editable</source>
         <translation>Editable</translation>
     </message>
     <message>
-        <location line="+60"/>
+        <location line="+70"/>
         <source>Specify node positions</source>
         <translation>Especificar posiciones de nodos</translation>
     </message>
@@ -18317,17 +19716,20 @@ Do you want to save it?</source>
 <context>
     <name>uiODRandomLineTreeItem</name>
     <message>
-        <location line="+74"/>
+        <location line="+93"/>
+        <location line="+16"/>
         <source>Position ...</source>
         <translation>Posición ...</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-15"/>
+        <location line="+16"/>
         <source>Insert Node</source>
         <translation>Insertar nodo</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-14"/>
+        <location line="+16"/>
         <source>Save as 2D ...</source>
         <translation>Guardar como 2D...</translation>
     </message>
@@ -18340,7 +19742,8 @@ Do you want to save it?</source>
         <translation type="obsolete">Guardar como 2D ...</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-15"/>
+        <location line="+16"/>
         <source>Create 2D Grid ...</source>
         <translation>Crear Cuadrícula 2D ...</translation>
     </message>
@@ -18348,22 +19751,26 @@ Do you want to save it?</source>
 <context>
     <name>uiODSceneMgr</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodscenemgr.cc" line="+394"/>
+        <location filename="../../../src/uiODMain/uiodscenemgr.cc" line="-938"/>
         <source>No scenes available</source>
         <translation>No hay escenas disponibles</translation>
     </message>
     <message>
-        <location line="+144"/>
         <source>Select Mouse Controls</source>
-        <translation>Seleccionar Control de Mausa</translation>
+        <translation type="obsolete">Seleccionar Control de Mausa</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>Stereo viewing is experimental and not officially supported. Use at own risk</source>
-        <translation>La vista experimental del estereo no esta soportado oficialmente. Usala a propio riesgo.</translation>
+        <translation type="obsolete">La vista experimental del estereo no esta soportado oficialmente. Usala a propio riesgo.</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+150"/>
+        <source>Stereo viewing is not officially supported.
+It may not work well for your particular graphics setup.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
         <source>No support for this type of stereo rendering</source>
         <translation>No hay soporte para este tipo de representación de estereo</translation>
     </message>
@@ -18376,25 +19783,32 @@ Do you want to save it?</source>
 <context>
     <name>uiODSceneTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodtreeitem.cc" line="+240"/>
         <source>Top/Bottom image ...</source>
-        <translation>Superior/Inferior imagen ...</translation>
+        <translation type="obsolete">Superior/Inferior imagen ...</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Scene color bar ...</source>
-        <translation>Escena del bar de colores ...</translation>
+        <translation type="obsolete">Escena del bar de colores ...</translation>
+    </message>
+    <message>
+        <source>Export scene ...</source>
+        <translation type="obsolete">Exportar escena ...</translation>
+    </message>
+    <message>
+        <location filename="../../../src/uiODMain/uiodtreeitem.cc" line="+291"/>
+        <source>Top/Bottom Image ...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Export scene ...</source>
-        <translation>Exportar escena ...</translation>
+        <source>Scene Color Bar ...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>uiODSysAdm</name>
     <message>
-        <location filename="../../../src/uiSysAdm/uiodsysadm.cc" line="+59"/>
+        <location filename="../../../src/uiSysAdm/uiodsysadm.cc" line="+60"/>
         <source>OpendTect System Administration</source>
         <translation>Sistema de Administración de OpendTect</translation>
     </message>
@@ -18439,22 +19853,44 @@ ni a: %1</translation>
 <context>
     <name>uiODTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodtreeitem.cc" line="-85"/>
         <source>Show all items</source>
-        <translation>Mostrar todos artículos</translation>
+        <translation type="obsolete">Mostrar todos artículos</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Hide all items</source>
-        <translation>Ocultar todos artículos</translation>
+        <translation type="obsolete">Ocultar todos artículos</translation>
+    </message>
+    <message>
+        <source>Remove all items</source>
+        <translation type="obsolete">Borrar todos artículos</translation>
+    </message>
+    <message>
+        <location filename="../../../src/uiODMain/uiodtreeitem.cc" line="-96"/>
+        <source>Show All Items</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Remove all items</source>
-        <translation>Borrar todos artículos</translation>
+        <source>Hide All Items</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+1"/>
+        <source>Remove All Items from Tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Expand All Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Collapse All Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>All %1 items will be removed from the tree.
 Do you want to continue?</source>
         <translation>Todos %1 artículos estarán borrados del árbol.
@@ -18464,13 +19900,36 @@ Do you want to continue?</source>
 <context>
     <name>uiODViewer2D</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodviewer2d.cc" line="+357"/>
-        <location line="+214"/>
+        <location filename="../../../src/uiODMain/uiodviewer2d.cc" line="+157"/>
+        <location line="+11"/>
+        <source>Crossline intersections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-10"/>
+        <location line="+5"/>
+        <source>ZSlice intersections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1"/>
+        <location line="+5"/>
+        <source>Inline intersections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>2D Line intersections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+252"/>
+        <location line="+236"/>
         <source>Polygon Selection mode</source>
         <translation>Modo selección del Polígono</translation>
     </message>
     <message>
-        <location line="-212"/>
+        <location line="-234"/>
         <source>PoluMenu</source>
         <translation>Menú Polígono</translation>
     </message>
@@ -18480,15 +19939,95 @@ Do you want to continue?</source>
         <translation>Borrar Selección del Podígono</translation>
     </message>
     <message>
-        <location line="+199"/>
+        <location line="+221"/>
         <source>Rectangle Selection mode</source>
         <translation>Modo de Selección Rectángulo</translation>
     </message>
 </context>
 <context>
+    <name>uiODViewer2DMgr</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodviewer2dmgr.cc" line="+270"/>
+        <location line="+524"/>
+        <location line="+36"/>
+        <source>CRL %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-557"/>
+        <location line="+536"/>
+        <location line="+15"/>
+        <source>INL %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-548"/>
+        <location line="+524"/>
+        <location line="+15"/>
+        <source>ZSlice %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-324"/>
+        <source>Show Line &apos;%1&apos;...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Show In-line %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Show Cross-line %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Show Z-slice %1...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiODViewer2DPosDlg</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodviewer2dposdlg.cc" line="+26"/>
+        <source>2D Viewer Launcher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select Position and Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Advanced...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiODViewer2DPosGrp</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodviewer2dposgrp.cc" line="+73"/>
+        <source>Position type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Input Random line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+153"/>
+        <source>Please select a valid attribute</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>uiODVolrenAttribTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodvolrentreeitem.cc" line="+294"/>
+        <location filename="../../../src/uiODMain/uiodvolrentreeitem.cc" line="+283"/>
         <source>Amplitude Spectrum ...</source>
         <translation>Espectro de Amplitud ...</translation>
     </message>
@@ -18510,7 +20049,7 @@ Do you want to continue?</source>
 <context>
     <name>uiODVolrenParentTreeItem</name>
     <message>
-        <location line="-295"/>
+        <location line="-284"/>
         <source>Can only display one fixed-function volume per scene.
 If available, enabling OpenGL shading for volumes
 in the &apos;Look and Feel&apos; settings may help.</source>
@@ -18530,7 +20069,7 @@ en los ajustes de &apos;Ver y Sentir&apos; puede ayudar.</translation>
         <translation type="obsolete">Selección de valor iso</translation>
     </message>
     <message>
-        <location line="+315"/>
+        <location line="+304"/>
         <source>Convert to Body</source>
         <translation>Convertir al parte principal</translation>
     </message>
@@ -18549,6 +20088,110 @@ en los ajustes de &apos;Ver y Sentir&apos; puede ayudar.</translation>
     </message>
 </context>
 <context>
+    <name>uiODVw2DFaultParentTreeItem</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodvw2dfaulttreeitem.cc" line="+50"/>
+        <source>In all 2D Viewers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only in this 2D Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiODVw2DFaultSSParentTreeItem</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodvw2dfaultsstreeitem.cc" line="+51"/>
+        <source>In all 2D Viewers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only in this 2D Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiODVw2DFaultSSTreeItem</name>
+    <message>
+        <location line="+222"/>
+        <source>From all 2D Viewers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only from this 2D Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiODVw2DFaultTreeItem</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodvw2dfaulttreeitem.cc" line="+222"/>
+        <source>From all 2D Viewers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only from this 2D Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiODVw2DHor2DParentTreeItem</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodvw2dhor2dtreeitem.cc" line="+59"/>
+        <source>In all 2D Viewers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only in this 2D Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiODVw2DHor2DTreeItem</name>
+    <message>
+        <location line="+272"/>
+        <source>From all 2D Viewers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only from this 2D Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiODVw2DHor3DParentTreeItem</name>
+    <message>
+        <location filename="../../../src/uiODMain/uiodvw2dhor3dtreeitem.cc" line="+58"/>
+        <source>In all 2D Viewers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only in this 2D Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>uiODVw2DHor3DTreeItem</name>
+    <message>
+        <location line="+288"/>
+        <source>From all 2D Viewers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Only from this 2D Viewer</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>uiODVw2DPickSetTreeItem</name>
     <message>
         <location filename="../../../src/uiODMain/uiodvw2dpicksettreeitem.cc" line="+168"/>
@@ -18559,9 +20202,8 @@ en los ajustes de &apos;Ver y Sentir&apos; puede ayudar.</translation>
 <context>
     <name>uiODVw2DTreeItem</name>
     <message>
-        <location filename="../../../include/uiODMain/uiodvw2dtreeitem.h" line="+48"/>
         <source>Change setup...</source>
-        <translation>Cambiar disposición ...</translation>
+        <translation type="obsolete">Cambiar disposición ...</translation>
     </message>
     <message>
         <location filename="../../../src/uiODMain/uiodvw2dtreeitem.cc" line="+185"/>
@@ -18589,7 +20231,7 @@ Do you want to continue?</source>
 <context>
     <name>uiODWellParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodwelltreeitem.cc" line="+56"/>
+        <location filename="../../../src/uiODMain/uiodwelltreeitem.cc" line="+61"/>
         <source>Tie Well to Seismic ...</source>
         <translation>Atar Pozo a Sísmica ...</translation>
     </message>
@@ -18683,7 +20325,7 @@ Do you want to save it?</source>
 <context>
     <name>uiODZsliceParentTreeItem</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="+345"/>
+        <location filename="../../../src/uiODMain/uiodplanedatatreeitem.cc" line="+578"/>
         <source>Flat survey, disabled z display</source>
         <translation>El estudio plano inhabilitó la pantalla z</translation>
     </message>
@@ -18691,7 +20333,12 @@ Do you want to save it?</source>
 <context>
     <name>uiObjFileMan</name>
     <message>
-        <location filename="../../../src/uiIo/uiobjfileman.cc" line="+87"/>
+        <location filename="../../../src/uiIo/uiobjfileman.cc" line="+70"/>
+        <source>Refresh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Notes:</source>
         <translation>Notas:</translation>
     </message>
@@ -18709,7 +20356,7 @@ Do you want to save it?</source>
 <context>
     <name>uiObjectItemViewControl</name>
     <message>
-        <location filename="../../../src/uiTools/uiobjectitemviewwin.cc" line="+466"/>
+        <location filename="../../../src/uiTools/uiobjectitemviewwin.cc" line="+467"/>
         <source>Switch view mode (Esc)</source>
         <translation>Cambiar modo de vista (Esc)</translation>
     </message>
@@ -18717,7 +20364,7 @@ Do you want to save it?</source>
 <context>
     <name>uiObjectItemViewWin</name>
     <message>
-        <location line="-334"/>
+        <location line="-335"/>
         <source>Fit to screen</source>
         <translation>Cabar en la pantalla</translation>
     </message>
@@ -18738,7 +20385,7 @@ Do you want to save it?</source>
 <context>
     <name>uiPickPartServer</name>
     <message>
-        <location filename="../../../src/uiIo/uipickpartserv.cc" line="+256"/>
+        <location filename="../../../src/uiIo/uipickpartserv.cc" line="+253"/>
         <source>No 2D lines are available in this survey</source>
         <translation>No hay líneas 2D disponibles en este estudio</translation>
     </message>
@@ -18830,7 +20477,7 @@ Por favor usa &apos;Guardar Como&apos; para almancenar este conjunto.</translati
 <context>
     <name>uiPluginSel</name>
     <message>
-        <location filename="../../../src/uiTools/uipluginsel.cc" line="+119"/>
+        <location filename="../../../src/uiTools/uipluginsel.cc" line="+125"/>
         <source>Show this dialog at startup</source>
         <translation>Mostrar este diálogo al inicio</translation>
     </message>
@@ -18913,7 +20560,12 @@ Por favor usa &apos;Guardar Como&apos; para almancenar este conjunto.</translati
         <translation>Preprocesamiento</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+5"/>
+        <source>Preprocessing setup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Calculation type</source>
         <translation>Tipo de calculación</translation>
     </message>
@@ -18961,29 +20613,30 @@ Por favor usa &apos;Guardar Como&apos; para almancenar este conjunto.</translati
 <context>
     <name>uiPreStackCopyDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uiprestkmergedlg.cc" line="+298"/>
+        <location filename="../../../src/uiSeis/uiprestkmergedlg.cc" line="+387"/>
         <source>Copy Prestack Data</source>
         <translation>Copiar Datos Antes del Apilamiento</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+6"/>
+        <source>Input Pre-Stack Data Store</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Input Data Store</source>
-        <translation>Almacén de Datos de Entrada</translation>
+        <translation type="obsolete">Almacén de Datos de Entrada</translation>
     </message>
     <message>
-        <location line="+9"/>
         <source>Offset range %1</source>
-        <translation>Rango offset %1</translation>
+        <translation type="obsolete">Rango offset %1</translation>
     </message>
     <message>
-        <location line="+41"/>
         <source>Please select the input data store</source>
-        <translation>Por favor selecciona un almacén de datos de entrada</translation>
+        <translation type="obsolete">Por favor selecciona un almacén de datos de entrada</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Please enter an output data store name</source>
-        <translation>Por favor entra un nombre para el almacén de datos de salida</translation>
+        <translation type="obsolete">Por favor entra un nombre para el almacén de datos de salida</translation>
     </message>
 </context>
 <context>
@@ -19035,7 +20688,7 @@ Por favor usa &apos;Guardar Como&apos; para almancenar este conjunto.</translati
 <context>
     <name>uiPreStackMergeDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uiprestkmergedlg.cc" line="-317"/>
+        <location filename="../../../src/uiSeis/uiprestkmergedlg.cc" line="-347"/>
         <source>Merge Prestack Data</source>
         <translation>Fundir Datos Antes del Apilamiento</translation>
     </message>
@@ -19082,6 +20735,14 @@ Continue?</source>
         <location line="+10"/>
         <source>Please enter an output data set name</source>
         <translation>Por favor entra un nombre de conjunto de datos de salida</translation>
+    </message>
+</context>
+<context>
+    <name>uiPreStackOutputGroup</name>
+    <message>
+        <location line="+68"/>
+        <source>Offset range %1</source>
+        <translation type="unfinished">Rango offset %1</translation>
     </message>
 </context>
 <context>
@@ -19340,7 +21001,7 @@ Do you want to discard them?</source>
 <context>
     <name>uiRandomLinePolyLineDlg</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodrandlinetreeitem.cc" line="-258"/>
+        <location filename="../../../src/uiODMain/uiodrandlinetreeitem.cc" line="-321"/>
         <source>Please select at least two points on TimeSlice/Horizon</source>
         <translation>Por favor selecciona al menos dos puntos a TiempoRebanado/Horizonte</translation>
     </message>
@@ -19449,9 +21110,37 @@ por que estan fuera los rangos valores de la parcela</translation>
     </message>
 </context>
 <context>
+    <name>uiRegionFiller</name>
+    <message>
+        <location filename="../../../src/uiVolumeProcessing/uivolprocregionfiller.cc" line="-112"/>
+        <source>Constant Value</source>
+        <translation type="unfinished">Valor constante</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Start value</source>
+        <translation type="unfinished">Iniciar valor</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Start value constant</source>
+        <translation type="unfinished">Iniciar valor constante</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>From Statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Gradient</source>
+        <translation type="unfinished">Gradiente</translation>
+    </message>
+</context>
+<context>
     <name>uiResortSEGYDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegyresortdlg.cc" line="+32"/>
+        <location filename="../../../plugins/uiSEGY/uisegyresortdlg.cc" line="+32"/>
         <source>Re-sort SEG-Y scanned</source>
         <translation>Re-ordenar SEG-Y escaneado</translation>
     </message>
@@ -19466,7 +21155,12 @@ por que estan fuera los rangos valores de la parcela</translation>
         <translation>Nombre de línea</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+10"/>
+        <source>SEG-Y</source>
+        <translation type="unfinished">SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Max #inlines per file</source>
         <translation>#líneas máximas por expediente</translation>
     </message>
@@ -19518,7 +21212,7 @@ por que estan fuera los rangos valores de la parcela</translation>
 <context>
     <name>uiSEGYBinHdrEdDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegymanip.cc" line="+51"/>
+        <location filename="../../../plugins/uiSEGY/uisegymanip.cc" line="+51"/>
         <source>SEG-Y Binary Header</source>
         <translation>Encabezamiento de SEG-Y binario</translation>
     </message>
@@ -19550,9 +21244,24 @@ Ahora: formato= %4 hns= %5 =&gt;%6 b/rst
     </message>
 </context>
 <context>
+    <name>uiSEGYByteSpec</name>
+    <message>
+        <location filename="../../../plugins/uiSEGY/uisegydef.cc" line="+474"/>
+        <source> 2 bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+88"/>
+        <source>Bytes 115-118 (number of samples and sample rate)
+must never be redefined</source>
+        <translation type="unfinished">Bytes 115-118 (número de muestras y tarifa del muestreo)
+nunca debe estar redefinido</translation>
+    </message>
+</context>
+<context>
     <name>uiSEGYDefDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegydefdlg.cc" line="+73"/>
+        <location filename="../../../plugins/uiSEGY/uisegydefdlg.cc" line="-321"/>
         <source>File type</source>
         <translation>Tipo filtro</translation>
     </message>
@@ -19578,7 +21287,7 @@ Ahora: formato= %4 hns= %5 =&gt;%6 b/rst
 <context>
     <name>uiSEGYDirect2DInserter</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegydirectinserter.cc" line="+88"/>
+        <location filename="../../../plugins/uiSEGY/uisegydirectinserter.cc" line="+88"/>
         <source>Scan a SEG-Y file</source>
         <translation>Escanear un expediente SEG-Y</translation>
     </message>
@@ -19602,14 +21311,18 @@ Ahora: formato= %4 hns= %5 =&gt;%6 b/rst
 <context>
     <name>uiSEGYExamine</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegyexamine.cc" line="+72"/>
+        <location filename="../../../plugins/uiSEGY/uisegyexamine.cc" line="+72"/>
         <source>File header information</source>
         <translation>Información del encabezamiento del expediente</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Save text header to file</source>
-        <translation>Guardar encabezamiento de texto en expediente</translation>
+        <translation type="obsolete">Guardar encabezamiento de texto en expediente</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Save textual header to a file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
@@ -19627,7 +21340,12 @@ Ahora: formato= %4 hns= %5 =&gt;%6 b/rst
         <translation>Mostrar histograma de valores muestros</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+46"/>
+        <source>Save SEG-Y Textual Header to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Cannot open file for writing</source>
         <translation>No se puede abrir expediente para escribir</translation>
     </message>
@@ -19635,7 +21353,7 @@ Ahora: formato= %4 hns= %5 =&gt;%6 b/rst
 <context>
     <name>uiSEGYExamine::Setup</name>
     <message>
-        <location line="-108"/>
+        <location line="-109"/>
         <source>SEG-Y Examiner</source>
         <translation>Examinador SEG-Y</translation>
     </message>
@@ -19643,7 +21361,7 @@ Ahora: formato= %4 hns= %5 =&gt;%6 b/rst
 <context>
     <name>uiSEGYExp</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegyexp.cc" line="+178"/>
+        <location filename="../../../plugins/uiSEGY/uisegyexp.cc" line="+181"/>
         <source>SEG-Y I/O</source>
         <translation></translation>
     </message>
@@ -19663,7 +21381,7 @@ Ahora: formato= %4 hns= %5 =&gt;%6 b/rst
         <translation>Manipular expediente de salida después de la creación</translation>
     </message>
     <message>
-        <location line="+178"/>
+        <location line="+179"/>
         <source>Please select the data to export</source>
         <translation>Por favor selecciona los datos para exportar</translation>
     </message>
@@ -19688,7 +21406,7 @@ Ahora: formato= %4 hns= %5 =&gt;%6 b/rst
 <context>
     <name>uiSEGYExpMore</name>
     <message>
-        <location line="-230"/>
+        <location line="-231"/>
         <source>2D SEG-Y multi-export</source>
         <translation>Múlti-exportar SEG-Y 2D</translation>
     </message>
@@ -19703,7 +21421,12 @@ Ahora: formato= %4 hns= %5 =&gt;%6 b/rst
         <translation>Líneas para exportar</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+18"/>
+        <source>SEG-Y</source>
+        <translation type="unfinished">SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+15"/>
         <source>Directory provided not usable</source>
         <translation>Directorio previsto no es usable</translation>
     </message>
@@ -19728,7 +21451,7 @@ Eso esta reemplazado con el nombre de línea</translation>
 <context>
     <name>uiSEGYExpTxtHeaderDlg</name>
     <message>
-        <location line="-301"/>
+        <location line="-305"/>
         <source>Define SEG-Y Text Header</source>
         <translation>Definir Encabezamiento de Texto SEG-Y</translation>
     </message>
@@ -19748,12 +21471,22 @@ Eso esta reemplazado con el nombre de línea</translation>
         <translation>Leer expediente</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+26"/>
+        <source>Read SEG-Y Textual Header from file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Cannot open file</source>
         <translation>No se puede abrir el expediente</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+13"/>
+        <source>Write SEG-Y Textual Header to a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Cannot write to this directory</source>
         <translation>No se puede escribir a este directorio</translation>
     </message>
@@ -19771,22 +21504,16 @@ Eso esta reemplazado con el nombre de línea</translation>
 <context>
     <name>uiSEGYFOByteSpec</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegydef.cc" line="+471"/>
-        <source> 2 bytes</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+88"/>
         <source>Bytes 115-118 (number of samples and sample rate)
 must never be redefined</source>
-        <translation>Bytes 115-118 (número de muestras y tarifa del muestreo)
+        <translation type="obsolete">Bytes 115-118 (número de muestras y tarifa del muestreo)
 nunca debe estar redefinido</translation>
     </message>
 </context>
 <context>
     <name>uiSEGYFileManip</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegymanip.cc" line="+71"/>
+        <location filename="../../../plugins/uiSEGY/uisegymanip.cc" line="+71"/>
         <source>Manipulate SEG-Y File</source>
         <translation>Manipular expediente SEG-Y</translation>
     </message>
@@ -19796,7 +21523,12 @@ nunca debe estar redefinido</translation>
         <translation>Encabezamiento de texto</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+15"/>
+        <source>SEG-Y</source>
+        <translation type="unfinished">SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+27"/>
         <source>Trace headers</source>
         <translation>Encabezamientos de rastro</translation>
     </message>
@@ -19927,7 +21659,7 @@ nunca debe estar redefinido</translation>
 <context>
     <name>uiSEGYFileOpts</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegydef.cc" line="+221"/>
+        <location filename="../../../plugins/uiSEGY/uisegydef.cc" line="+221"/>
         <source>Base positioning on</source>
         <translation>Posicionamiento de base en</translation>
     </message>
@@ -20023,7 +21755,12 @@ contienen las coordinadas correctas</translation>
 <context>
     <name>uiSEGYFileSpec</name>
     <message>
-        <location line="-264"/>
+        <location line="-276"/>
+        <source>SEG-Y</source>
+        <translation type="unfinished">SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Manipulate</source>
         <translation>Manipular</translation>
     </message>
@@ -20033,12 +21770,12 @@ contienen las coordinadas correctas</translation>
         <translation>Expedientes múltiples; Números</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+37"/>
         <source>No file name specified</source>
         <translation>No ha especificado nombre de expediente</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Please put a wildcard (&apos;*&apos;) in the file name</source>
         <translation>Por favor pone un comodín (&apos;*&apos;) en el nombre de expediente</translation>
     </message>
@@ -20051,7 +21788,7 @@ contienen las coordinadas correctas</translation>
 <context>
     <name>uiSEGYImpDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegyimpdlg.cc" line="+95"/>
+        <location filename="../../../plugins/uiSEGY/uisegyimpdlg.cc" line="+94"/>
         <source>Import more, similar files</source>
         <translation>Importar más expedientes similares</translation>
     </message>
@@ -20061,7 +21798,7 @@ contienen las coordinadas correctas</translation>
         <translation>Pre-escanear expediente(s)</translation>
     </message>
     <message>
-        <location line="+178"/>
+        <location line="+179"/>
         <source>Linename is empty. Please enter a line name</source>
         <translation>Nombre de línea esta vacío. Por favor entra un nombre de línea</translation>
     </message>
@@ -20079,7 +21816,7 @@ contienen las coordinadas correctas</translation>
 <context>
     <name>uiSEGYImpSimilarDlg</name>
     <message>
-        <location line="-185"/>
+        <location line="-186"/>
         <source>2D SEG-Y multi-import</source>
         <translation>Múlti-importar SEG-Y 2D</translation>
     </message>
@@ -20089,7 +21826,12 @@ contienen las coordinadas correctas</translation>
         <translation>Especificar detalles del expediente</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+18"/>
+        <source>SEG-Y</source>
+        <translation type="unfinished">SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+12"/>
         <source>Directory provided not usable</source>
         <translation>El directorio previsto no esta usable</translation>
     </message>
@@ -20117,9 +21859,52 @@ Que será el nombre de la línea</translation>
     </message>
 </context>
 <context>
+    <name>uiSEGYMgr</name>
+    <message>
+        <location filename="../../../plugins/uiSEGY/uisegypi.cc" line="+68"/>
+        <source>SEG-Y</source>
+        <translation type="unfinished">SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>SEG-Y ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>SEG-Y Data Link ...</source>
+        <translation type="unfinished">Enlace de datos SEG-Y ...</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Cube ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>PreStack 3D ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Pre-Stack volume ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>VSP (SEG-Y) ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Re-sort Scanned SEG-Y ...</source>
+        <translation type="unfinished">Reclasificar SEG-Y escaneado ...</translation>
+    </message>
+</context>
+<context>
     <name>uiSEGYRead</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegyread.cc" line="+168"/>
+        <location filename="../../../plugins/uiSEGY/uisegyread.cc" line="+168"/>
         <source>New SEG-Y setup</source>
         <translation>Nueva disposición SEG-Y</translation>
     </message>
@@ -20148,7 +21933,7 @@ en la pantalla de disposición del estudio.</translation>
 <context>
     <name>uiSEGYReadDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegyreaddlg.cc" line="+102"/>
+        <location filename="../../../plugins/uiSEGY/uisegyreaddlg.cc" line="+102"/>
         <source>The operation was successful, but there %1:</source>
         <translation>La operación fue exitoso, pero %1:</translation>
     </message>
@@ -20179,7 +21964,7 @@ en la pantalla de disposición del estudio.</translation>
 <context>
     <name>uiSEGYReadPreScanner</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegyread.cc" line="-252"/>
+        <location filename="../../../plugins/uiSEGY/uisegyread.cc" line="-252"/>
         <source>SEG-Y Scan</source>
         <translation>Escanear SEG-Y</translation>
     </message>
@@ -20189,7 +21974,12 @@ en la pantalla de disposición del estudio.</translation>
         <translation>Límite de número de rastros</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+10"/>
+        <source>Report</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
         <source>No traces found</source>
         <translation>No ha encontrado rastros</translation>
     </message>
@@ -20210,7 +22000,7 @@ en la pantalla de disposición del estudio.</translation>
 <context>
     <name>uiSEGYSIPMgrDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegysip.cc" line="+41"/>
+        <location filename="../../../plugins/uiSEGY/uisegysip.cc" line="+41"/>
         <source>To be able to scan your data
 You must define the specific properties of your SEG-Y file(s)</source>
         <translation>Para ser capaz de escanear sus datos
@@ -20220,12 +22010,12 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
 <context>
     <name>uiSEGYScanDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegyscandlg.cc" line="+64"/>
+        <location filename="../../../plugins/uiSEGY/uisegyscandlg.cc" line="+64"/>
         <source>Press Go or hit enter to start SEG-Y scan</source>
         <translation>Pulsa Ir o pulsa entra para iniciar escanear SEG-Y</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+36"/>
         <source>Limited Pre-scan</source>
         <translation>Pre-escanear limitado</translation>
     </message>
@@ -20238,15 +22028,89 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
 <context>
     <name>uiSEGYSurvInfoProvider</name>
     <message>
-        <location filename="../../../src/uiSeis/uisegysip.cc" line="+27"/>
+        <location filename="../../../plugins/uiSEGY/uisegysip.cc" line="+27"/>
         <source>Survey setup (SEG-Y)</source>
         <translation>Disposición del estudio (SEG-Y)</translation>
     </message>
 </context>
 <context>
+    <name>uiSEGYTool</name>
+    <message>
+        <location filename="../../../plugins/uiSEGY/uisegytool.cc" line="+38"/>
+        <source>SEG-Y Tool</source>
+        <translation type="unfinished">Instrumento SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Import more data?</source>
+        <translation type="unfinished">¿Importar más datos?</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>What do you want to do?</source>
+        <translation type="unfinished">¿Que quiere hacer?</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Import SEG-Y file(s) to OpendTect data</source>
+        <translation type="unfinished">Importar expediente(s) SEG-Y a los datos de OpendTect</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Scan SEG-Y file(s) to use in-place</source>
+        <translation type="unfinished">Escanear expedientes SEG-Y para suar en lado</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Import VSP data from SEG-Y file</source>
+        <translation type="unfinished">Importar datos VSP del expediente SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Quit SEG-Y import</source>
+        <translation type="unfinished">Dejar de importar SEG-Y</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <location line="+36"/>
+        <source>Cancel the operation</source>
+        <translation type="unfinished">Cancelar la operación</translation>
+    </message>
+    <message>
+        <location line="-6"/>
+        <source>VSP Import</source>
+        <translation type="unfinished">Importar VSP</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>2-D VSP (will be imported as 2-D seismic line)</source>
+        <translation type="unfinished">VSP 2D (estará importado como línea sísmica 2D)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>3-D VSP (can only be imported as 3D cube)</source>
+        <translation type="unfinished">VSP 3D (solo puede importarlo como cubo 3D)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Zero-offset (single trace) VSP</source>
+        <translation type="unfinished">Cero-offset (rastro singular) VSP</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Quit import</source>
+        <translation type="unfinished">Dejar de importar</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Please finish your current SEG-Y import first</source>
+        <translation type="unfinished">Por favor termina su importación del SEG-Y primero</translation>
+    </message>
+</context>
+<context>
     <name>uiSEGYVSPBasicPars</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uiwellimpsegyvsp.cc" line="+105"/>
+        <location filename="../../../plugins/uiSEGY/uiwellimpsegyvsp.cc" line="+105"/>
         <source>Select SEG-Y setup</source>
         <translation>Selecciona una disposición SEG-Y</translation>
     </message>
@@ -20311,10 +22175,13 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
         <source>Check your permissions</source>
         <translation>Checa sus permisos</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location line="+4"/>
         <source>Cannot write log(s)</source>
-        <translation>No se puede escribir log(s)</translation>
+        <translation type="unfinished">
+            <numerusform>No se puede escribir log(s)</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <location line="+46"/>
@@ -20345,7 +22212,7 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
 <context>
     <name>uiSaveImageDlg</name>
     <message>
-        <location filename="../../../src/uiTools/uisaveimagedlg.cc" line="+61"/>
+        <location filename="../../../src/uiTools/uisaveimagedlg.cc" line="+60"/>
         <source>Create snapshot</source>
         <translation>Crear una foto</translation>
     </message>
@@ -20360,7 +22227,7 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
         <translation>Coger tamaño de</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+1"/>
         <source>Screen</source>
         <translation>Pantalla</translation>
     </message>
@@ -20405,9 +22272,13 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
 <context>
     <name>uiScaleBarDialog</name>
     <message>
-        <location filename="../../../src/uiODMain/uiodannotscalebaritem.cc" line="+49"/>
         <source>%1 properties</source>
-        <translation>%1 propiedades</translation>
+        <translation type="obsolete">%1 propiedades</translation>
+    </message>
+    <message>
+        <location filename="../../../src/uiODMain/uiodannotscalebaritem.cc" line="+49"/>
+        <source>Scale Bar Properties</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
@@ -20513,7 +22384,7 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
 <context>
     <name>uiScenePropertyDlg</name>
     <message>
-        <location filename="../../../src/uiVis/uiscenepropdlg.cc" line="+37"/>
+        <location filename="../../../src/uiVis/uiscenepropdlg.cc" line="+38"/>
         <source>Scene properties</source>
         <translation>Propiedades de la escena</translation>
     </message>
@@ -20661,21 +22532,44 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
     </message>
     <message>
         <location line="+6"/>
-        <source>Datas to merge</source>
-        <translation>Datos para fundir</translation>
+        <source>Data Sets to merge</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+55"/>
+        <source>The 2D Line &apos;%1&apos; already exists. If you overwrite its geometry, all the associated data will be affected. Do you still want to overwrite?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+58"/>
+        <source>Merge successfully completed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Done with merging</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Want to merge more lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Datas to merge</source>
+        <translation type="obsolete">Datos para fundir</translation>
+    </message>
+    <message>
+        <location line="-65"/>
         <source>Please enter a name for the merged line</source>
         <translation>Por favor entra un nombre para la línea fundida</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Geometry of same line name already present. If you want to overwrite, first remove the geometry via &apos;Manage&gt;&gt;Geometry 2D&apos;</source>
-        <translation>Geometría del mísmo nombre de la línea ya esta presente. Sí quiere sobrescribir, tiene que borrar la geomtria vía &apos;Gestionar&gt;&gt;Geometría 2D&apos;</translation>
+        <translation type="obsolete">Geometría del mísmo nombre de la línea ya esta presente. Sí quiere sobrescribir, tiene que borrar la geomtria vía &apos;Gestionar&gt;&gt;Geometría 2D&apos;</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+33"/>
         <source>No datas chosen to merge, please select a data.</source>
         <translation>No ha eligido datos para fundir, por favor selecciona unos datos.</translation>
     </message>
@@ -20690,11 +22584,10 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
         <translation>Por favor especifique una distancia válida para hacer una foto</translation>
     </message>
     <message>
-        <location line="+6"/>
         <source>Merge successfully completed.Done with merging</source>
         <comment>Want to merge more lines</comment>
         <translatorcomment>Quiere fundir más líneas</translatorcomment>
-        <translation>Ha completado la fusión con éxito.</translation>
+        <translation type="obsolete">Ha completado la fusión con éxito.</translation>
     </message>
 </context>
 <context>
@@ -20713,7 +22606,7 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
 <context>
     <name>uiSeis2DLineNameSel</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseislinesel.cc" line="+409"/>
+        <location filename="../../../src/uiSeis/uiseislinesel.cc" line="+437"/>
         <source>Line name</source>
         <translation>nombre de línea</translation>
     </message>
@@ -20739,7 +22632,7 @@ Debe definir las propiedades especificadas de sus expediente(s) SEG-Y</translati
 <context>
     <name>uiSeis2DMultiLineSelDlg</name>
     <message>
-        <location line="+179"/>
+        <location line="+180"/>
         <source>Select 2D Lines</source>
         <translation>Selecciona Líneas 2D</translation>
     </message>
@@ -20955,7 +22848,7 @@ no esta compatible con el primero</translation>
 <context>
     <name>uiSeisBrowseWriter</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseisbrowser.cc" line="+633"/>
+        <location filename="../../../src/uiSeis/uiseisbrowser.cc" line="+634"/>
         <source>Initialising</source>
         <translation>Inicializando</translation>
     </message>
@@ -20988,7 +22881,7 @@ no esta compatible con el primero</translation>
 <context>
     <name>uiSeisBrowser</name>
     <message>
-        <location line="-572"/>
+        <location line="-573"/>
         <source>Error</source>
         <translation></translation>
     </message>
@@ -20998,7 +22891,12 @@ no esta compatible con el primero</translation>
         <translation>Cubo de entrada esta vacío</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+16"/>
+        <source>Tool Bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Goto position</source>
         <translation>Ir a la posición</translation>
     </message>
@@ -21038,7 +22936,7 @@ no esta compatible con el primero</translation>
         <translation>No se puede leer datos a las áreas especificadas</translation>
     </message>
     <message>
-        <location line="+282"/>
+        <location line="+283"/>
         <source>Do you want to save the changes permanently?</source>
         <translation>¿Quiere guardar los cambios permanentamente?</translation>
     </message>
@@ -21047,11 +22945,16 @@ no esta compatible con el primero</translation>
         <source>No data at the specified position </source>
         <translation>No hay datos a las posiciones especificadas</translation>
     </message>
+    <message>
+        <location line="+39"/>
+        <source>Central Trace: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>uiSeisBrowser::Setup</name>
     <message>
-        <location line="-672"/>
+        <location line="-712"/>
         <source>Browse %1 &apos;%2&apos;</source>
         <translation>navegar %1 &apos;%2&apos;</translation>
     </message>
@@ -21069,15 +22972,49 @@ no esta compatible con el primero</translation>
         <translation>Especificar una nueva posición</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+5"/>
+        <source>New Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>Please specify a valid position</source>
         <translation>Por favor especifique una posición válida</translation>
     </message>
 </context>
 <context>
+    <name>uiSeisBrowserInfoVwr</name>
+    <message>
+        <location line="+377"/>
+        <source>Trace information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Coordinate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Minimum amplitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <location line="+12"/>
+        <source>at</source>
+        <translation type="unfinished">a</translation>
+    </message>
+    <message>
+        <location line="-5"/>
+        <source>Maximum amplitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>uiSeisCopyCube</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseiscopy.cc" line="+34"/>
+        <location filename="../../../src/uiSeis/uiseiscopy.cc" line="+35"/>
         <source>Copy cube</source>
         <translation>Copiar cubo</translation>
     </message>
@@ -21131,6 +23068,19 @@ no esta compatible con el primero</translation>
         <location line="+18"/>
         <source>Cannot read horizon</source>
         <translation>No podía leer horizonte</translation>
+    </message>
+</context>
+<context>
+    <name>uiSeisFileMan</name>
+    <message>
+        <location filename="../../../src/uiSeis/uiseisfileman.cc" line="+79"/>
+        <source>Manage 2D Seismics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Manage 3D Seismics</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -21218,7 +23168,7 @@ Disponible en disco: %2 MB</translation>
         <translation>Exportar sísmicas a expediente plano simple</translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="+47"/>
         <source>Traces start with a position</source>
         <translation>Rastros empiezan con una posición</translation>
     </message>
@@ -21360,25 +23310,47 @@ Disponible en disco: %2 MB</translation>
         <translation>Por favor define un número de líneas-cruzadas por línea</translation>
     </message>
     <message>
-        <location line="+33"/>
-        <source>Data successfully %1</source>
-        <translation>Datos %1 con éxito</translation>
+        <location line="+34"/>
+        <source>Error while Data transfer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Data successfully %1. Do you want to %1 more.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>imported.</source>
-        <translation>esta importado.</translation>
+        <source>Imported</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+0"/>
+        <source>Exported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
+    <message>
+        <source>Data successfully %1</source>
+        <translation type="obsolete">Datos %1 con éxito</translation>
+    </message>
+    <message>
+        <source>imported.</source>
+        <translation type="obsolete">esta importado.</translation>
+    </message>
+    <message>
         <source>exported.</source>
-        <translation>esta exportado.</translation>
+        <translation type="obsolete">esta exportado.</translation>
     </message>
 </context>
 <context>
     <name>uiSeisImpCBVSFromOtherSurveyDlg</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseiscbvsimpfromothersurv.cc" line="-143"/>
+        <location filename="../../../src/uiSeis/uiseiscbvsimpfromothersurv.cc" line="+31"/>
         <source>Import CBVS cube from other survey</source>
         <translation>Importar cubo CBVS de otro estudio</translation>
     </message>
@@ -21388,7 +23360,7 @@ Disponible en disco: %2 MB</translation>
         <translation>Especificar parámetros de importar</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>CBVS file name</source>
         <translation>Nombre de expediente CBVS</translation>
     </message>
@@ -21406,6 +23378,17 @@ Disponible en disco: %2 MB</translation>
         <location line="+50"/>
         <source>No valid input, please select a new input file</source>
         <translation>No hay entrada válida, por favor selecciona un expediente de entrada nuevo</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>CBVS cube successfully imported
+Do you want to import more Cubes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
     </message>
 </context>
 <context>
@@ -21451,6 +23434,17 @@ Disponible en disco: %2 MB</translation>
 See log file for details</source>
         <translation>No se puede añadir entrada al gerente de objeto
 Ve expediente log para detalles</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>CBVS cube successfully imported
+Do you want to import more Cubes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
     </message>
 </context>
 <context>
@@ -21528,7 +23522,7 @@ Puede ser que el trabajo no esta adecuado para ejecutación de Múlti-Tabajo/Maq
         <translation>Crear almacén de datos MúltiCubo Antes del Apilamiento</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+19"/>
         <source>No cubes found.
 
 Please import 3D seismic data.</source>
@@ -21557,7 +23551,7 @@ Por favor importe datos sísmicos 3D.</translation>
         <translation>Cubos usados</translation>
     </message>
     <message>
-        <location line="+243"/>
+        <location line="+250"/>
         <source>Please provide values for the offset start/step</source>
         <translation>Por favor proporciona valores para el offset inicio/paso</translation>
     </message>
@@ -21565,7 +23559,12 @@ Por favor importe datos sísmicos 3D.</translation>
 <context>
     <name>uiSeisPartServer</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseispartserv.cc" line="+230"/>
+        <location filename="../../../src/uiSeis/uiseispartserv.cc" line="+243"/>
+        <source>No or no valid default volume found.You can set a default volume in the &apos;Manage Seismics&apos; window. Do you want to go there now? On &apos;No&apos; an empty plane will be added</source>
+        <translation type="unfinished">Ha ha encontrado volumen o volumen predeterminado válido. Puede ajustar un volumen predeterminado en la pantalla de &apos;Gestionar Sísmicas&apos;. ¿Quiere ir a la pantalla ahora? Sí elige &apos;No&apos;, un plano vacío estará añadido</translation>
+    </message>
+    <message>
+        <location line="+89"/>
         <source>Select 2D Lines</source>
         <translation>Selecciona Líneas 2D</translation>
     </message>
@@ -21578,7 +23577,7 @@ Por favor importe datos sísmicos 3D.</translation>
 <context>
     <name>uiSeisPreLoadMgr</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseispreloadmgr.cc" line="+46"/>
+        <location filename="../../../src/uiSeis/uiseispreloadmgr.cc" line="+49"/>
         <source>Seismic Data Pre-load Manager</source>
         <translation>Gerente de Datos Sísmicos Precargados</translation>
     </message>
@@ -21598,12 +23597,11 @@ Por favor importe datos sísmicos 3D.</translation>
         <translation>Añadir Conjunot de Datos</translation>
     </message>
     <message>
-        <location line="+18"/>
         <source>Unload Selected</source>
-        <translation>Descargar Seleccionado</translation>
+        <translation type="obsolete">Descargar Seleccionado</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+21"/>
         <source>Save pre-loads</source>
         <translation>Guardar pre-cargados</translation>
     </message>
@@ -21613,12 +23611,12 @@ Por favor importe datos sísmicos 3D.</translation>
         <translation>Recoger pre-cargados</translation>
     </message>
     <message>
-        <location line="+57"/>
+        <location line="+44"/>
         <source>Internal error: IOObj not OK</source>
         <translation>Error interno: IOObj no es OK</translation>
     </message>
     <message>
-        <location line="+119"/>
+        <location line="+227"/>
         <source>Select data store/part to load</source>
         <translation>Seleccionar almacén de datos/parte para cargar</translation>
     </message>
@@ -21628,14 +23626,24 @@ Por favor importe datos sísmicos 3D.</translation>
         <translation>Seleccionar almacén de datos</translation>
     </message>
     <message>
-        <location line="+103"/>
         <source>Unload &apos;%1&apos;?
 (This will not delete the object from disk)</source>
-        <translation>Descargar &apos;%1&apos;?
+        <translation type="obsolete">Descargar &apos;%1&apos;?
 (Esto no borrará el objeto del disco)</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="-278"/>
+        <source>Unload Checked</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+381"/>
+        <source>Unload checked items?
+(This will not delete the data from disk)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+24"/>
         <source>Open pre-load settings</source>
         <translation>Abrir ajustes pre-cargados</translation>
     </message>
@@ -21652,7 +23660,7 @@ Por favor importe datos sísmicos 3D.</translation>
         <translation>No ha encontrado objetos válidos</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Save pre-load settings</source>
         <translation>Guardar ajustes pre-cargados</translation>
     </message>
@@ -21664,7 +23672,7 @@ Por favor importe datos sísmicos 3D.</translation>
 %1</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>Cannot write to output file:
 %1</source>
         <translation>No se puede escribir al expediente de salida:
@@ -21674,7 +23682,7 @@ Por favor importe datos sísmicos 3D.</translation>
 <context>
     <name>uiSeisPreLoadMgrPS2DSel</name>
     <message>
-        <location line="-148"/>
+        <location line="-147"/>
         <source>Select data store</source>
         <translation>Seleccionar almacén de datos</translation>
     </message>
@@ -21692,6 +23700,24 @@ Por favor importe datos sísmicos 3D.</translation>
         <location line="+7"/>
         <source>Please select one or more lines</source>
         <translation>Por favor selecciona una o más líneas</translation>
+    </message>
+</context>
+<context>
+    <name>uiSeisPreLoadSel</name>
+    <message>
+        <location line="-266"/>
+        <source>Pre-load 3D Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Pre-load 2D Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Load as</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -21831,12 +23857,11 @@ Por favor importe datos sísmicos 3D.</translation>
 <context>
     <name>uiSeisWvltExp</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseiswvltimpexp.cc" line="+140"/>
         <source>Export Wavelet</source>
-        <translation>Exportar Onda</translation>
+        <translation type="obsolete">Exportar Onda</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location filename="../../../src/uiSeis/uiseiswvltimpexp.cc" line="+170"/>
         <source>Please enter the output file name</source>
         <translation>Por favor entra el nombre del expediente de salida</translation>
     </message>
@@ -21851,9 +23876,24 @@ Por favor importe datos sísmicos 3D.</translation>
         <translation>Vaciar onda</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+21"/>
+        <source>Possible error during write.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Wavelet successfully exported.
+Do you want to export more Wavelets?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
+    <message>
         <source>Possible error during write</source>
-        <translation>Error posible al escribir</translation>
+        <translation type="obsolete">Error posible al escribir</translation>
     </message>
 </context>
 <context>
@@ -21907,7 +23947,7 @@ Por favor importe datos sísmicos 3D.</translation>
 <context>
     <name>uiSeisWvltImp</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseiswvltimpexp.cc" line="-152"/>
+        <location filename="../../../src/uiSeis/uiseiswvltimpexp.cc" line="-165"/>
         <source>Import Wavelet</source>
         <translation>Importar Onda</translation>
     </message>
@@ -21927,7 +23967,7 @@ Por favor importe datos sísmicos 3D.</translation>
         <translation>Por favor entra un nombre para la nueva onda</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+26"/>
         <source>Center of wavelet is predicted at row number: %1</source>
         <translation>El centro de la onda esta previsto a la fila número: %1</translation>
     </message>
@@ -21946,18 +23986,33 @@ Por favor importe datos sísmicos 3D.</translation>
         <source>Cannot store wavelet on disk</source>
         <translation>No se puede almacenar onda en disco</translation>
     </message>
+    <message>
+        <location line="+2"/>
+        <source>Wavelet successfully imported
+Do you want to import more Wavelets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
 </context>
 <context>
     <name>uiSeisWvltMan</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseiswvltman.cc" line="+102"/>
+        <location filename="../../../src/uiSeis/uiseiswvltman.cc" line="+107"/>
         <source>Generate</source>
         <translation>Generar</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Merge</source>
-        <translation>Fundir</translation>
+        <translation type="obsolete">Fundir</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Stack</source>
+        <translation type="unfinished">Apilar</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -21998,14 +24053,17 @@ Por favor importe datos sísmicos 3D.</translation>
 <context>
     <name>uiSeisWvltMerge</name>
     <message>
-        <location filename="../../../src/uiSeis/uiseiswvltgen.cc" line="+10"/>
         <source>Merge Wavelets</source>
-        <translation>Fundir Ondas</translation>
+        <translation type="obsolete">Fundir Ondas</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Select two ore more wavelets to be stacked</source>
-        <translation>Selecciona dos o más ondas para apilar</translation>
+        <translation type="obsolete">Selecciona dos o más ondas para apilar</translation>
+    </message>
+    <message>
+        <location filename="../../../src/uiSeis/uiseiswvltgen.cc" line="+10"/>
+        <source>Stack Wavelets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
@@ -22013,17 +24071,17 @@ Por favor importe datos sísmicos 3D.</translation>
         <translation>Normalizar ondas</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Center wavelets</source>
         <translation>Ondas del centro</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>at</source>
         <translation>a</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>Save stacked wavelet</source>
         <translation>Guardar onda apilada</translation>
     </message>
@@ -22409,7 +24467,7 @@ Probablemente no tiene permiso de escribir a:
 <context>
     <name>uiSettings</name>
     <message>
-        <location filename="../../../src/uiTools/uisettings.cc" line="-259"/>
+        <location filename="../../../src/uiTools/uisettings.cc" line="-248"/>
         <source>Set User Settings value</source>
         <translation>Ajustar valor de Ajustes del Usador</translation>
     </message>
@@ -22432,7 +24490,7 @@ Probablemente no tiene permiso de escribir a:
 <context>
     <name>uiSettingsDlg</name>
     <message>
-        <location line="+235"/>
+        <location line="+289"/>
         <source>OpendTect Settings</source>
         <translation>Ajustes de OpendTect</translation>
     </message>
@@ -22517,7 +24575,7 @@ Probablemente no tiene permiso de escribir a:
         <translation>Mostrar después de importar</translation>
     </message>
     <message>
-        <location line="+27"/>
+        <location line="+28"/>
         <source>Read file</source>
         <translation>Leer expediente</translation>
     </message>
@@ -22585,9 +24643,8 @@ Pozo no esta creado</translation>
 <context>
     <name>uiSingleBatchJobDispatcherLauncher</name>
     <message>
-        <location filename="../../../include/uiTools/uibatchjobdispatcherlauncher.h" line="+76"/>
         <source>Single Process</source>
-        <translation>Proceso síngulo</translation>
+        <translation type="obsolete">Proceso síngulo</translation>
     </message>
 </context>
 <context>
@@ -22616,7 +24673,7 @@ Pozo no esta creado</translation>
 <context>
     <name>uiSingleLayerGeneratorEd</name>
     <message>
-        <location filename="../../../src/uiStrat/uistratlayseqgendesc.cc" line="+661"/>
+        <location filename="../../../src/uiStrat/uistratlayseqgendesc.cc" line="+696"/>
         <source>Edit layer</source>
         <translation>Editar capa</translation>
     </message>
@@ -22657,7 +24714,7 @@ Pozo no esta creado</translation>
 <context>
     <name>uiSliceScroll</name>
     <message>
-        <location filename="../../../src/uiTools/uislicesel.cc" line="-485"/>
+        <location filename="../../../src/uiTools/uislicesel.cc" line="-487"/>
         <source>Scrolling</source>
         <translation>Volutar</translation>
     </message>
@@ -22703,7 +24760,7 @@ Pozo no esta creado</translation>
 <context>
     <name>uiSliceSelDlg</name>
     <message>
-        <location line="+507"/>
+        <location line="+509"/>
         <source>Positioning</source>
         <translation>Posicionamiento</translation>
     </message>
@@ -22907,7 +24964,7 @@ Por favor borralo primero o usa otro nombre de estudio</translation>
         <translation>Atributo de velocidad</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+62"/>
         <source>Statics Velocity not specified</source>
         <translation>No ha especificado estadísticas de velocidad</translation>
     </message>
@@ -22920,7 +24977,7 @@ Por favor borralo primero o usa otro nombre de estudio</translation>
 <context>
     <name>uiStatsDisplay</name>
     <message>
-        <location filename="../../../src/uiTools/uistatsdisplay.cc" line="+60"/>
+        <location filename="../../../src/uiTools/uistatsdisplay.cc" line="+59"/>
         <source>Data Name</source>
         <translation>Nombre de Datos</translation>
     </message>
@@ -22974,32 +25031,23 @@ Por favor borralo primero o usa otro nombre de estudio</translation>
 <context>
     <name>uiStepOutSel</name>
     <message>
-        <location filename="../../../include/uiTools/uistepoutsel.h" line="+51"/>
         <source>Stepout</source>
-        <translation>Paso apretado</translation>
+        <translation type="obsolete">Paso apretado</translation>
     </message>
 </context>
 <context>
     <name>uiStepOutSel::Setup</name>
     <message>
-        <location line="-15"/>
         <source>Stepout</source>
-        <translation>Paso apretado</translation>
+        <translation type="obsolete">Paso apretado</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>nr</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+0"/>
         <source>inl</source>
-        <translation>línea</translation>
+        <translation type="obsolete">línea</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>crl</source>
-        <translation>línea-cruzada</translation>
+        <translation type="obsolete">línea-cruzada</translation>
     </message>
 </context>
 <context>
@@ -23066,7 +25114,7 @@ Do you wish to overwrite this data?</source>
 <context>
     <name>uiStratAmpCalc</name>
     <message>
-        <location filename="../../../plugins/uiHorizonAttrib/uistratamp.cc" line="+35"/>
+        <location filename="../../../plugins/uiHorizonAttrib/uistratamp.cc" line="+36"/>
         <source>StratalAmplitude</source>
         <translation>Amplitud de Estratigrafía</translation>
     </message>
@@ -23115,7 +25163,7 @@ Please select the input Horizon</source>
 Por favor selecciona un Horizonte de entrada</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Missing Input
 Please Check Top / Bottom Horizon</source>
         <translation>Falta entrada
@@ -23288,7 +25336,7 @@ Por favor checa Horizonte superior/inferior</translation>
 <context>
     <name>uiStratLayModFRPropSelector</name>
     <message>
-        <location line="+270"/>
+        <location line="+272"/>
         <source>Property Selector</source>
         <translation>Selector de Propiedades</translation>
     </message>
@@ -23378,7 +25426,7 @@ Do you want to save it now?</source>
 <context>
     <name>uiStratLayerModel</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uistratlayermodel.cc" line="+351"/>
+        <location filename="../../../src/uiWellAttrib/uistratlayermodel.cc" line="+357"/>
         <source>Analysis toolbar</source>
         <translation>Mostrar de instrumentos de análisis</translation>
     </message>
@@ -23388,7 +25436,7 @@ Do you want to save it now?</source>
         <translation>Atributos vs propiadades de modelos</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+21"/>
         <source>Help toolbar</source>
         <translation>Mostrador de instrumentos de ayuda</translation>
     </message>
@@ -23396,7 +25444,7 @@ Do you want to save it now?</source>
 <context>
     <name>uiStratLayerModelDisp</name>
     <message>
-        <location filename="../../../src/uiStrat/uistratlaymoddisp.cc" line="+162"/>
+        <location filename="../../../src/uiStrat/uistratlaymoddisp.cc" line="+163"/>
         <source>&lt;---empty---&gt;</source>
         <translation>&lt;--vacío--&gt;</translation>
     </message>
@@ -23482,7 +25530,7 @@ para escribir</translation>
 <context>
     <name>uiStratLayerModelManager</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uistratlayermodel.cc" line="-241"/>
+        <location filename="../../../src/uiWellAttrib/uistratlayermodel.cc" line="-240"/>
         <source>Select modeling type</source>
         <translation>Seleccionar tipo de modelo</translation>
     </message>
@@ -23502,7 +25550,7 @@ para escribir</translation>
         <translation>Por favor salga de su otra pantalla de modelado capas primero</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+21"/>
         <source>Start layer/synthetics modeling</source>
         <translation>Iniciar modelado de capas/sintéticos</translation>
     </message>
@@ -23599,7 +25647,7 @@ para escribir</translation>
         <translation>Borrar todo</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+41"/>
         <source>Cannot change Stratigraphy because it is locked</source>
         <translation>No se puede cambiar etatigrafía por que esta bloqueado</translation>
     </message>
@@ -23632,7 +25680,7 @@ para escribir</translation>
 <context>
     <name>uiStratRefTree</name>
     <message>
-        <location filename="../../../src/uiStrat/uistratreftree.cc" line="+189"/>
+        <location filename="../../../src/uiStrat/uistratreftree.cc" line="+190"/>
         <source>Create sub-unit...</source>
         <translation>Crear sub-unidad ...</translation>
     </message>
@@ -23731,7 +25779,7 @@ Most likely, no synthetics are available.</source>
 Probablemente, no hay sintéticos disponibles.</translation>
     </message>
     <message>
-        <location line="+140"/>
+        <location line="+141"/>
         <source>No positions for data extraction</source>
         <translation>No hay posiciones para extracción de datos</translation>
     </message>
@@ -23759,7 +25807,7 @@ Probablemente, no hay sintéticos disponibles.</translation>
 <context>
     <name>uiStratSynthDisp</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uistratsynthdisp.cc" line="+103"/>
+        <location filename="../../../src/uiWellAttrib/uistratsynthdisp.cc" line="+105"/>
         <source>Wiggle View</source>
         <translation>Menear Vista</translation>
     </message>
@@ -23799,9 +25847,13 @@ Probablemente, no hay sintéticos disponibles.</translation>
         <translation>Ver dirección offset</translation>
     </message>
     <message>
-        <location line="+486"/>
+        <location line="+495"/>
+        <source>Please select a post-stack synthetic in wiggle view. The scaling tool compares the amplitudes of the synthetic data at the selected Stratigraphic Level to real amplitudes along a horizon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Please select a synthetic data in wiggle display. The scaling tool compares the amplitudes of the synthetic data at the selected Stratigraphic Level to real amplitudes along a horizon</source>
-        <translation>Por favor selecciona unos datos sintéticos en la pantalla de menear. El instrumento de escala compara los amplitudes de los datos sintéticos al nivel de Estratigrafía seleccionada a amplitudes reales al lo largo del horizonte</translation>
+        <translation type="obsolete">Por favor selecciona unos datos sintéticos en la pantalla de menear. El instrumento de escala compara los amplitudes de los datos sintéticos al nivel de Estratigrafía seleccionada a amplitudes reales al lo largo del horizonte</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -23828,7 +25880,7 @@ a amplitudes reales a lo largo del horizonte</translation>
         <translation>Especificar geometría</translation>
     </message>
     <message>
-        <location line="+708"/>
+        <location line="+728"/>
         <source>No valid layer model present</source>
         <translation>No hay modelo válido de capas</translation>
     </message>
@@ -23952,7 +26004,7 @@ todos rastros de los sintéticos. Algunos de los
 rastros estaran recortados</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+19"/>
         <source>You need to change survey type to &apos;Both 2D and 3D&apos; in survey setup to display the 2D line</source>
         <translation>Tiene que cambiar el tipo de estudio a &apos;2D y 3D&apos; en la disposición del estudio para mostrar la línea 2D</translation>
     </message>
@@ -23960,7 +26012,7 @@ rastros estaran recortados</translation>
 <context>
     <name>uiStratTreeWin</name>
     <message>
-        <location filename="../../../src/uiStrat/uistrattreewin.cc" line="+66"/>
+        <location filename="../../../src/uiStrat/uistrattreewin.cc" line="+67"/>
         <source>Manage Stratigraphy</source>
         <translation>Gestionar Estatigrafía</translation>
     </message>
@@ -24022,7 +26074,7 @@ Your work will be lost. Continue anyway ?</source>
 Su trabajo estará perdido. ¿Continuar de todos modos?</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+65"/>
         <source>Can not find tree</source>
         <translation>No se puede encontrar árbol</translation>
     </message>
@@ -24032,7 +26084,12 @@ Su trabajo estará perdido. ¿Continuar de todos modos?</translation>
         <translation>Guardar Estratigrafía</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+24"/>
+        <source>You need to set %1 to save in global level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+41"/>
         <source>Stratigraphic framework has changed
  Do you want to save it?</source>
         <translation>El marco de Estratigrafía ha cambiado
@@ -24148,6 +26205,11 @@ Por favor corrigelo.</translation>
     <name>uiStratViewControl</name>
     <message>
         <location filename="../../../src/uiStrat/uistratdisplay.cc" line="+85"/>
+        <source>Rubberband zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Zoom in</source>
         <translation>Zoom</translation>
     </message>
@@ -24158,14 +26220,18 @@ Por favor corrigelo.</translation>
     </message>
     <message>
         <location line="+1"/>
+        <source>Cancel zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Switch view mode</source>
-        <translation>Cambiar modo de vista</translation>
+        <translation type="obsolete">Cambiar modo de vista</translation>
     </message>
 </context>
 <context>
     <name>uiString</name>
     <message>
-        <location filename="../../../src/Basic/uistring.cc" line="+506"/>
+        <location filename="../../../src/Basic/uistring.cc" line="+513"/>
         <source>th</source>
         <comment>zeroth</comment>
         <translation></translation>
@@ -24294,607 +26360,599 @@ Por favor corrigelo.</translation>
 <context>
     <name>uiStrings</name>
     <message>
-        <location filename="../../../include/Basic/uistrings.h" line="+26"/>
         <source>Abort</source>
-        <translation>Abortar</translation>
+        <translation type="obsolete">Abortar</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Action</source>
-        <translation>Acción</translation>
+        <translation type="obsolete">Acción</translation>
     </message>
     <message>
         <source>Add color blended</source>
         <translation type="obsolete">Añadir color mezclado</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Advanced</source>
-        <translation>Avanzado</translation>
+        <translation type="obsolete">Avanzado</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>All</source>
-        <translation>Todo</translation>
+        <translation type="obsolete">Todo</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Analysis</source>
-        <translation>Análisis</translation>
+        <translation type="obsolete">Análisis</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Apply</source>
-        <translation>Aplicar</translation>
+        <translation type="obsolete">Aplicar</translation>
     </message>
     <message>
         <source>Attribute name</source>
         <translation type="obsolete">Nombre de atributo</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Attribute</source>
-        <translation>Atributo</translation>
+        <translation type="obsolete">Atributo</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Internal error: bad connection</source>
-        <translation>Error interno: mala connección</translation>
+        <translation type="obsolete">Error interno: mala connección</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Bottom</source>
-        <translation>Fondo</translation>
+        <translation type="obsolete">Fondo</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Bottom Horizon</source>
-        <translation>Horizonte inferior</translation>
+        <translation type="obsolete">Horizonte inferior</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Calculate</source>
-        <translation>Calcular</translation>
+        <translation type="obsolete">Calcular</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <translation type="obsolete">Cancelar</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Cannot create horizon</source>
-        <translation>No se puede crear horizonte</translation>
+        <translation type="obsolete">No se puede crear horizonte</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Cannot find attribute name</source>
-        <translation>No se puede encontrar nombre de atributo</translation>
+        <translation type="obsolete">No se puede encontrar nombre de atributo</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Cannot find object in data base</source>
-        <translation>No se puede encontrar objeto en base de datos</translation>
+        <translation type="obsolete">No se puede encontrar objeto en base de datos</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Cannot find surface</source>
-        <translation>No se puede encontrar la superficie</translation>
+        <translation type="obsolete">No se puede encontrar la superficie</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Cannot load horizon</source>
-        <translation>No se puede cargar horizonte</translation>
+        <translation type="obsolete">No se puede cargar horizonte</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Cannot open input file</source>
-        <translation>No se puede abrir expediente de entrada</translation>
+        <translation type="obsolete">No se puede abrir expediente de entrada</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Cannot open output file</source>
-        <translation>No se puede abrir expediente de salida</translation>
+        <translation type="obsolete">No se puede abrir expediente de salida</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Cannot read input</source>
-        <translation>No se puede leer entrada</translation>
+        <translation type="obsolete">No se puede leer entrada</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Cannot read input data</source>
-        <translation>No se puede leer datos de entrada</translation>
+        <translation type="obsolete">No se puede leer datos de entrada</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Cannot write settings</source>
-        <translation>No se puede escribir ajustes</translation>
+        <translation type="obsolete">No se puede escribir ajustes</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Close</source>
-        <translation>Cerrar</translation>
+        <translation type="obsolete">Cerrar</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Color</source>
-        <translation>Color</translation>
+        <translation type="obsolete">Color</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Continue</source>
-        <translation>Continuar</translation>
+        <translation type="obsolete">Continuar</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Create Probability Density Function</source>
-        <translation>Crear Función de Probabilidad Densidad</translation>
+        <translation type="obsolete">Crear Función de Probabilidad Densidad</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Create random lines</source>
-        <translation>Crear líneas al azar</translation>
+        <translation type="obsolete">Crear líneas al azar</translation>
     </message>
     <message>
         <source>Crossline</source>
         <translation type="obsolete">Línea-cruzada</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Depth</source>
-        <translation>Profundidad</translation>
+        <translation type="obsolete">Profundidad</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Display</source>
-        <translation>Mostrar</translation>
+        <translation type="obsolete">Mostrar</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Down</source>
-        <translation>Bajar</translation>
+        <translation type="obsolete">Bajar</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Please enter a valid name</source>
-        <translation>Por favor entre un nombre válido</translation>
+        <translation type="obsolete">Por favor entre un nombre válido</translation>
+    </message>
+    <message>
+        <source>Examine</source>
+        <translation type="obsolete">Examinar</translation>
+    </message>
+    <message>
+        <source>Exit OpendTect</source>
+        <translation type="obsolete">Salir de OpendTect</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="obsolete">Exportar</translation>
+    </message>
+    <message>
+        <source>Failed to convert into compatible data</source>
+        <translation type="obsolete">Falló de convertir en datos compatibles</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation type="obsolete">Expediente</translation>
+    </message>
+    <message>
+        <source>File does not exist</source>
+        <translation type="obsolete">Expediente no existe</translation>
+    </message>
+    <message>
+        <source>Go</source>
+        <translation type="obsolete">Ir</translation>
+    </message>
+    <message>
+        <location filename="../../../src/Basic/uistrings.cc" line="+34"/>
+        <source>Cannot create %1</source>
+        <translation type="unfinished">No se puede crear %1 {1?}</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Examine</source>
-        <translation>Examinar</translation>
+        <source>Cannot find %1</source>
+        <translation type="unfinished">No se puede encontrar %1</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Exit OpendTect</source>
-        <translation>Salir de OpendTect</translation>
+        <location line="+6"/>
+        <source>Cannot read %1</source>
+        <translation type="unfinished">No se puede leer %1</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Export</source>
-        <translation>Exportar</translation>
+        <location line="+3"/>
+        <source>Cannot write %1</source>
+        <translation type="unfinished">No se puede escribir %1</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Failed to convert into compatible data</source>
-        <translation>Falló de convertir en datos compatibles</translation>
+        <location line="+27"/>
+        <location line="+12"/>
+        <source>horizon</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>File</source>
-        <translation>Expediente</translation>
+        <location line="-9"/>
+        <source>attribute name</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>File does not exist</source>
-        <translation>Expediente no existe</translation>
+        <location line="+3"/>
+        <source>object in data base</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Go</source>
-        <translation>Ir</translation>
+        <location line="+3"/>
+        <source>surface</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+6"/>
+        <source>input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+3"/>
+        <source>input file</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+3"/>
+        <source>output file</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+15"/>
+        <source>Fault Stick Set</source>
+        <translation type="unfinished">
+            <numerusform>Conjunto de Fallas</numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+27"/>
+        <source>Probability Density Function</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+15"/>
+        <source>Seismic</source>
+        <translation type="unfinished">
+            <numerusform>Sísmica</numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+6"/>
+        <source>Setting</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+15"/>
+        <source>Well</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
         <source>Hide</source>
-        <translation>Ocultar</translation>
+        <translation type="obsolete">Ocultar</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Horizontal</source>
-        <translation>Horizontal</translation>
+        <translation type="obsolete">Horizontal</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Import</source>
-        <translation>Importar</translation>
+        <translation type="obsolete">Importar</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Import successful</source>
-        <translation>Importación fue exitoso</translation>
+        <translation type="obsolete">Importación fue exitoso</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>info</source>
-        <translation>Información</translation>
+        <translation type="obsolete">Información</translation>
     </message>
     <message>
         <source>Inline</source>
         <translation type="obsolete">Línea</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Input parameters missing</source>
-        <translation>Faltan parámetros de entrada</translation>
+        <translation type="obsolete">Faltan parámetros de entrada</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Input</source>
-        <translation>Entrada</translation>
+        <translation type="obsolete">Entrada</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Input Data</source>
-        <translation>Datos de entrada</translation>
+        <translation type="obsolete">Datos de entrada</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Invalid input file</source>
-        <translation>Expediente de entrada inválido</translation>
+        <translation type="obsolete">Expediente de entrada inválido</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Lock</source>
-        <translation>Bloquear</translation>
+        <translation type="obsolete">Bloquear</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Manual</source>
-        <translation>Manual</translation>
+        <translation type="obsolete">Manual</translation>
     </message>
     <message>
         <source>Manage wavelets</source>
         <translation type="obsolete">Gestionar ondas</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Name</source>
-        <translation>Nombre</translation>
+        <translation type="obsolete">Nombre</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Next &gt;</source>
-        <translation>Proximo &gt;</translation>
+        <translation type="obsolete">Proximo &gt;</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>No</source>
-        <translation>No</translation>
+        <translation type="obsolete">No</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>No log selected</source>
-        <translation>No ha seleccionado log</translation>
+        <translation type="obsolete">No ha seleccionado log</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>None</source>
-        <translation>Ningún</translation>
+        <translation type="obsolete">Ningún</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>No object to store set in data base</source>
-        <translation>No hay objecto para almacenar conjunto en base de datos</translation>
+        <translation type="obsolete">No hay objecto para almacenar conjunto en base de datos</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>No valid data found</source>
-        <translation>No ha encontrado datos válidos</translation>
+        <translation type="obsolete">No ha encontrado datos válidos</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="obsolete">OK</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Operator</source>
-        <translation>Operador</translation>
+        <translation type="obsolete">Operador</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-39"/>
         <source>Options</source>
         <translation>Opciones</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Output data store</source>
-        <translation>Almacén de datos de salida</translation>
+        <translation type="obsolete">Almacén de datos de salida</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Output file exists. Overwrite?</source>
-        <translation>Expediente de entrada existe. ¿Sobrescribir?</translation>
+        <translation type="obsolete">Expediente de entrada existe. ¿Sobrescribir?</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Output</source>
-        <translation>Salida</translation>
+        <translation type="obsolete">Salida</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Overwrite</source>
-        <translation>Sobrescribir</translation>
+        <translation type="obsolete">Sobrescribir</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Pause</source>
-        <translation>Pausa</translation>
+        <translation type="obsolete">Pausa</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Pickset</source>
-        <translation>Conjunto de picos</translation>
+        <translation type="obsolete">Conjunto de picos</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Polygon</source>
-        <translation>Polígono</translation>
+        <translation type="obsolete">Polígono</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Processing</source>
-        <translation>Procesamiento</translation>
+        <translation type="obsolete">Procesamiento</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Rectangle</source>
-        <translation>Rectángulo</translation>
+        <translation type="obsolete">Rectángulo</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Redo</source>
-        <translation>Rehacer</translation>
+        <translation type="obsolete">Rehacer</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Reload</source>
-        <translation>Recargar</translation>
+        <translation type="obsolete">Recargar</translation>
     </message>
     <message>
         <source>Save as default</source>
         <translation type="obsolete">Guardar como predeterminado</translation>
     </message>
     <message>
-        <location line="-128"/>
         <source>Add Color Blended</source>
-        <translation>Añadir color mezclado</translation>
+        <translation type="obsolete">Añadir color mezclado</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Attribute Name</source>
-        <translation>Nombre de atributo</translation>
+        <translation type="obsolete">Nombre de atributo</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="-99"/>
         <source>Cannot open %1</source>
-        <translation>No se puede abrir %1</translation>
+        <translation type="unfinished">No se puede abrir %1</translation>
     </message>
     <message>
-        <location line="+17"/>
         <source>Cross-line</source>
-        <translation>Línea-cruzada</translation>
+        <translation type="obsolete">Línea-cruzada</translation>
     </message>
-    <message>
-        <location line="+4"/>
+    <message numerus="yes">
+        <location line="-15"/>
         <source>%1 does not exist</source>
-        <translation>%1 no existe</translation>
+        <translation type="unfinished">
+            <numerusform>%1 no existe</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location line="+31"/>
         <source>In-line</source>
-        <translation>Línea</translation>
+        <translation type="obsolete">Línea</translation>
     </message>
     <message>
-        <location line="+12"/>
         <source>Manage Wavelets</source>
-        <translation>Gestionar ondas</translation>
+        <translation type="obsolete">Gestionar ondas</translation>
     </message>
     <message>
-        <location line="+37"/>
         <source>Save as Default</source>
-        <translation>Guardar como predeterminado</translation>
+        <translation type="obsolete">Guardar como predeterminado</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Save body failed</source>
-        <translation>Falló de guardar parte principal</translation>
+        <translation type="obsolete">Falló de guardar parte principal</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Scanning</source>
-        <translation>Escaneando</translation>
+        <translation type="obsolete">Escaneando</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Scenes</source>
-        <translation>Escenas</translation>
+        <translation type="obsolete">Escenas</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Which one is your seed data.</source>
-        <translation>Cuales son sus datos de picos.</translation>
+        <translation type="obsolete">Cuales son sus datos de picos.</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>SEG-Y</source>
-        <translation>SEG-Y</translation>
+        <translation type="obsolete">SEG-Y</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Select Attribute</source>
-        <translation>Seleccionar atributo</translation>
+        <translation type="obsolete">Seleccionar atributo</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Selected data set is empty</source>
-        <translation>El conjunto de datos seleccionado es vacío</translation>
+        <translation type="obsolete">El conjunto de datos seleccionado es vacío</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Selected object is not a Mute Definition</source>
-        <translation>El objecto seleccionado no es un Mudo Definicíon</translation>
+        <translation type="obsolete">El objecto seleccionado no es un Mudo Definicíon</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Please select output file</source>
-        <translation>Por favor selecciona un expediente de salida</translation>
+        <translation type="obsolete">Por favor selecciona un expediente de salida</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Setup</source>
-        <translation>Disposicíon</translation>
+        <translation type="obsolete">Disposicíon</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Show</source>
-        <translation>Mostrar</translation>
+        <translation type="obsolete">Mostrar</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Specify generation parameters</source>
-        <translation>Especificar parámetros de generación</translation>
+        <translation type="obsolete">Especificar parámetros de generación</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Please specify</source>
-        <translation>Por favor especifique</translation>
+        <translation type="obsolete">Por favor especifique</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Steering</source>
-        <translation>Manejando</translation>
+        <translation type="obsolete">Manejando</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Step</source>
-        <translation>Paso</translation>
+        <translation type="obsolete">Paso</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Stop</source>
-        <translation>Para</translation>
+        <translation type="obsolete">Para</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Survey</source>
-        <translation>Estudio</translation>
+        <translation type="obsolete">Estudio</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Take Snapshot</source>
-        <translation>Tomar foto</translation>
+        <translation type="obsolete">Tomar foto</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Tile</source>
-        <translation>Azulejo</translation>
+        <translation type="obsolete">Azulejo</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Time</source>
-        <translation>Tiempo</translation>
+        <translation type="obsolete">Tiempo</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Tools</source>
-        <translation>Instrumentos</translation>
+        <translation type="obsolete">Instrumentos</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Top Horizon</source>
-        <translation>Horizonte superior</translation>
+        <translation type="obsolete">Horizonte superior</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Transparency</source>
-        <translation>Transparencia</translation>
+        <translation type="obsolete">Transparencia</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Type</source>
-        <translation>Tipo</translation>
+        <translation type="obsolete">Tipo</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Undo</source>
-        <translation>Deshacer</translation>
+        <translation type="obsolete">Deshacer</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Up</source>
-        <translation>Subir</translation>
+        <translation type="obsolete">Subir</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Use</source>
-        <translation>Usar</translation>
+        <translation type="obsolete">Usar</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Utilities</source>
-        <translation>Utilidades</translation>
+        <translation type="obsolete">Utilidades</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Value</source>
-        <translation>Valor</translation>
+        <translation type="obsolete">Valor</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Vertical</source>
-        <translation>Vertical</translation>
+        <translation type="obsolete">Vertical</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>View</source>
-        <translation>Vista</translation>
+        <translation type="obsolete">Vista</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Wavelet</source>
-        <translation>Onda</translation>
+        <translation type="obsolete">Onda</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Wiggle</source>
-        <translation>Menear</translation>
+        <translation type="obsolete">Menear</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Yes</source>
-        <translation>Si</translation>
+        <translation type="obsolete">Si</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Set</source>
-        <translation>Ajustar</translation>
+        <translation type="obsolete">Ajustar</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+27"/>
         <source>2D</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>2D ...</source>
         <translation></translation>
     </message>
     <message>
@@ -24903,28 +26961,17 @@ Por favor corrigelo.</translation>
         <translation></translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>3D ...</source>
-        <translation></translation>
-    </message>
-    <message>
         <location line="+3"/>
         <source>Add</source>
         <translation>Añadir</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Add ...</source>
-        <translation>Añadir ...</translation>
+        <translation type="obsolete">Añadir ...</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>ASCII</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>ASCII ...</source>
         <translation></translation>
     </message>
     <message>
@@ -24933,9 +26980,8 @@ Por favor corrigelo.</translation>
         <translation>Atributos</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Attributes ...</source>
-        <translation>Atributos ...</translation>
+        <translation type="obsolete">Atributos ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -24943,9 +26989,8 @@ Por favor corrigelo.</translation>
         <translation>Tabla Colores</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>ColorTable ...</source>
-        <translation>Tabla Colores ...</translation>
+        <translation type="obsolete">Tabla Colores ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -24953,59 +26998,58 @@ Por favor corrigelo.</translation>
         <translation>Crear</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Create ...</source>
-        <translation>Crear ...</translation>
+        <translation type="obsolete">Crear ...</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+36"/>
         <source>Edit</source>
         <translation>Editar</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Edit ...</source>
-        <translation>Editar ...</translation>
+        <translation type="obsolete">Editar ...</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location line="+3"/>
         <source>Faults</source>
-        <translation>Fallas</translation>
+        <translation type="unfinished">
+            <numerusform>Fallas</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Faults ...</source>
-        <translation>Fallas ...</translation>
+        <translation type="obsolete">Fallas ...</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+9"/>
         <source>Histogram</source>
         <translation>Histograma</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Histogram ...</source>
-        <translation>Histograma ...</translation>
+        <translation type="obsolete">Histograma ...</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Horizon</source>
-        <translation>Horizonte</translation>
+        <translation type="obsolete">Horizonte</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Horizon ...</source>
-        <translation>Horizonte ...</translation>
+        <translation type="obsolete">Horizonte ...</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location line="+3"/>
         <source>Horizons</source>
-        <translation>Horizontes</translation>
+        <translation type="unfinished">
+            <numerusform>Horizontes</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Horizons ...</source>
-        <translation>Horizontes ...</translation>
+        <translation type="obsolete">Horizontes ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25013,29 +27057,25 @@ Por favor corrigelo.</translation>
         <translation>Cargar</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Load ...</source>
-        <translation>Cargar ...</translation>
+        <translation type="obsolete">Cargar ...</translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Logs</source>
         <translation></translation>
     </message>
-    <message>
-        <location line="+0"/>
-        <source>Logs ...</source>
-        <translation></translation>
-    </message>
-    <message>
+    <message numerus="yes">
         <location line="+3"/>
         <source>Markers</source>
-        <translation>Marcadores</translation>
+        <translation type="unfinished">
+            <numerusform>Marcadores</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Markers ...</source>
-        <translation>Marcadores ...</translation>
+        <translation type="obsolete">Marcadores ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25043,9 +27083,8 @@ Por favor corrigelo.</translation>
         <translation>Nuevo</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>New ...</source>
-        <translation>Nuevo ...</translation>
+        <translation type="obsolete">Nuevo ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25053,19 +27092,17 @@ Por favor corrigelo.</translation>
         <translation>Abrir</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Open ...</source>
-        <translation>Abrir ...</translation>
+        <translation type="obsolete">Abrir ...</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+9"/>
         <source>Properties</source>
         <translation>Propiedades</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Properties ...</source>
-        <translation>Propiedades ...</translation>
+        <translation type="obsolete">Propiedades ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25073,9 +27110,8 @@ Por favor corrigelo.</translation>
         <translation>Borrar</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Remove ...</source>
-        <translation>Borrar ...</translation>
+        <translation type="obsolete">Borrar ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25083,9 +27119,8 @@ Por favor corrigelo.</translation>
         <translation>Guardar</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Save ...</source>
-        <translation>Guardar ...</translation>
+        <translation type="obsolete">Guardar ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25093,49 +27128,42 @@ Por favor corrigelo.</translation>
         <translation>Guardar como</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Save as ...</source>
-        <translation>Guardar como ...</translation>
+        <translation type="obsolete">Guardar como ...</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Seismics</source>
-        <translation>Sísmicas</translation>
+        <translation type="obsolete">Sísmicas</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Seismics ...</source>
-        <translation>Sísmicas ...</translation>
+        <translation type="obsolete">Sísmicas ...</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+6"/>
         <source>Select</source>
         <translation>Seleccionar</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Select ...</source>
-        <translation>Seleccionar ...</translation>
+        <translation type="obsolete">Seleccionar ...</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Settings</source>
-        <translation>Ajustes</translation>
+        <translation type="obsolete">Ajustes</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Settings ...</source>
-        <translation>Ajustes ...</translation>
+        <translation type="obsolete">Ajustes ...</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+6"/>
         <source>Shift</source>
         <translation>Cambio</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Shift ...</source>
-        <translation>Cambio ...</translation>
+        <translation type="obsolete">Cambio ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25143,9 +27171,8 @@ Por favor corrigelo.</translation>
         <translation>Almacenado</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Stored ...</source>
-        <translation>Almacenado ...</translation>
+        <translation type="obsolete">Almacenado ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25153,9 +27180,8 @@ Por favor corrigelo.</translation>
         <translation>Estratigrafía</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Stratigraphy ...</source>
-        <translation>Estratigrafía ...</translation>
+        <translation type="obsolete">Estratigrafía ...</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -25163,19 +27189,16 @@ Por favor corrigelo.</translation>
         <translation>Pista</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Track ...</source>
-        <translation>Pista ...</translation>
+        <translation type="obsolete">Pista ...</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Wells</source>
-        <translation>Pozos</translation>
+        <translation type="obsolete">Pozos</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>Wells ...</source>
-        <translation>Pozos ...</translation>
+        <translation type="obsolete">Pozos ...</translation>
     </message>
 </context>
 <context>
@@ -25210,7 +27233,7 @@ Por favor corrigelo.</translation>
 <context>
     <name>uiSurfaceLimitedFiller</name>
     <message>
-        <location filename="../../../src/uiVolumeProcessing/uivolprocsurfacelimitedfiller.cc" line="+89"/>
+        <location filename="../../../src/uiVolumeProcessing/uivolprocsurfacelimitedfiller.cc" line="+88"/>
         <source>Start value</source>
         <translation>Iniciar valor</translation>
     </message>
@@ -25225,7 +27248,7 @@ Por favor corrigelo.</translation>
         <translation>Gradiente</translation>
     </message>
     <message>
-        <location line="+156"/>
+        <location line="+158"/>
         <source>No Horizon data available for any horizon, 			  could only use constant start value.</source>
         <translation>No hay datos del horizonte disponibles, --&gt; --&gt; --&gt; solo podía usar valor de inicio constante.</translation>
     </message>
@@ -25389,7 +27412,7 @@ estará borrado del disco.
 <context>
     <name>uiSurfaceRead</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="+356"/>
+        <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="+352"/>
         <source>Please select input</source>
         <translation>Por favor selecciona entrada</translation>
     </message>
@@ -25402,7 +27425,7 @@ estará borrado del disco.
 <context>
     <name>uiSurfaceStratDlg</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uisurfaceman.cc" line="+181"/>
+        <location filename="../../../src/uiEarthModel/uisurfaceman.cc" line="+213"/>
         <source>Cannot change color of regional marker</source>
         <translation>No se puede cambiar color de marcador regional</translation>
     </message>
@@ -25410,9 +27433,13 @@ estará borrado del disco.
 <context>
     <name>uiSurfaceWrite</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="-149"/>
         <source>Output Stickset</source>
-        <translation>Salida de Conjunto de Palos</translation>
+        <translation type="obsolete">Salida de Conjunto de Palos</translation>
+    </message>
+    <message>
+        <location filename="../../../src/uiEarthModel/uiiosurface.cc" line="-146"/>
+        <source>Output FaultStickSet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
@@ -25425,9 +27452,8 @@ estará borrado del disco.
         <translation>Horizonte no tiene parches</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Please select Output</source>
-        <translation>Por favor selecciona salida</translation>
+        <translation type="obsolete">Por favor selecciona salida</translation>
     </message>
 </context>
 <context>
@@ -25907,7 +27933,7 @@ No ha cometido cambios.</translation>
         <translation>La transformación no es válida.</translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+95"/>
         <source>Directory is not writable</source>
         <translation>Directorio no es grabable</translation>
     </message>
@@ -26065,7 +28091,7 @@ Por favor especifique un camino completo</translation>
 <context>
     <name>uiSynthSlicePos</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uistratsynthdisp.cc" line="+298"/>
+        <location filename="../../../src/uiWellAttrib/uistratsynthdisp.cc" line="+320"/>
         <source>Previous position</source>
         <translation>Posición anterior</translation>
     </message>
@@ -26078,7 +28104,7 @@ Por favor especifique un camino completo</translation>
 <context>
     <name>uiSynthToRealScale</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uisynthtorealscale.cc" line="+138"/>
+        <location filename="../../../src/uiWellAttrib/uisynthtorealscale.cc" line="+141"/>
         <source>Scale synthetics</source>
         <translation>Escala de sintéticos</translation>
     </message>
@@ -26088,7 +28114,7 @@ Por favor especifique un camino completo</translation>
         <translation>Determinar escala para sintéticos</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+30"/>
         <source>Horizon for &apos;%1&apos;</source>
         <translation>Horizonte para &apos;%1&apos;</translation>
     </message>
@@ -26113,7 +28139,12 @@ Por favor especifique un camino completo</translation>
         <translation>Guardar onda escalada como</translation>
     </message>
     <message>
-        <location line="+254"/>
+        <location line="+274"/>
+        <source>No common line names found in horizon &amp; seismic data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>Error opening input seismic data</source>
         <translation>Error al abrir datos sísmicos de entrada</translation>
     </message>
@@ -26140,7 +28171,7 @@ Por favor checa sus permisos en el expediente</translation>
 <context>
     <name>uiSynthToRealScaleRealStatCollector</name>
     <message>
-        <location line="-161"/>
+        <location line="-186"/>
         <source>Collecting</source>
         <translation>Cogiendo</translation>
     </message>
@@ -26166,7 +28197,7 @@ Por favor checa sus permisos en el expediente</translation>
 <context>
     <name>uiTableFormatDescFldsEd</name>
     <message>
-        <location filename="../../../src/uiTools/uitblimpexpdatasel.cc" line="+402"/>
+        <location filename="../../../src/uiTools/uitblimpexpdatasel.cc" line="+400"/>
         <source>Format definition</source>
         <translation>Definición del formato</translation>
     </message>
@@ -26263,7 +28294,7 @@ Por favor checa sus permisos en el expediente</translation>
 <context>
     <name>uiTableTargetInfoEd</name>
     <message>
-        <location line="-676"/>
+        <location line="-674"/>
         <source>provide</source>
         <translation>proveer</translation>
     </message>
@@ -26278,7 +28309,7 @@ Por favor checa sus permisos en el expediente</translation>
         <translation>fijado</translation>
     </message>
     <message>
-        <location line="+202"/>
+        <location line="+200"/>
         <source>Missing keyword for %1</source>
         <translation>Falta clave para %1</translation>
     </message>
@@ -26321,7 +28352,7 @@ Por favor checa sus permisos en el expediente</translation>
         <translation>Número esta hecho</translation>
     </message>
     <message>
-        <location line="+158"/>
+        <location line="+159"/>
         <source>Resume</source>
         <translation>Resumir</translation>
     </message>
@@ -26627,7 +28658,7 @@ O selecciona un nuevo conjunto de datos.</translation>
 <context>
     <name>uiTriangulationArray2DInterpol</name>
     <message>
-        <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="-172"/>
+        <location filename="../../../src/uiTools/uiarray2dinterpol.cc" line="-171"/>
         <source>Inverse distance</source>
         <translation>Distancia inversa</translation>
     </message>
@@ -26650,7 +28681,7 @@ O selecciona un nuevo conjunto de datos.</translation>
 <context>
     <name>uiTriangulationHor3DInterpol</name>
     <message>
-        <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="+74"/>
+        <location filename="../../../src/uiEarthModel/uihorinterpol.cc" line="+76"/>
         <source>Maximum distance must be &gt; 0. </source>
         <translation>La máxima distancia tiene que ser &gt; 0.</translation>
     </message>
@@ -27067,7 +29098,7 @@ Checa permisos para escribir.</translation>
 <context>
     <name>uiViewer2DControl</name>
     <message>
-        <location filename="../../../src/uiPreStackProcessing/uipsviewer2dmainwin.cc" line="+1149"/>
+        <location filename="../../../src/uiPreStackProcessing/uipsviewer2dmainwin.cc" line="+1155"/>
         <source>Set positions</source>
         <translation>Ajustar posiciones</translation>
     </message>
@@ -27090,7 +29121,7 @@ Checa permisos para escribir.</translation>
 <context>
     <name>uiViewer2DMainWin</name>
     <message>
-        <location line="-923"/>
+        <location line="-924"/>
         <source>Pre processing</source>
         <translation>Preprocesamiento</translation>
     </message>
@@ -27134,6 +29165,235 @@ Checa permisos para escribir.</translation>
     </message>
 </context>
 <context>
+    <name>uiViewer3DAppearanceTab</name>
+    <message>
+        <location filename="../../../plugins/uiPreStackViewer/uipsviewerappearancetab.cc" line="+33"/>
+        <source>Appearance</source>
+        <translation type="unfinished">Apariencia</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Z grid lines</source>
+        <translation type="unfinished">Líneas cuadrículas Z</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+23"/>
+        <source>Automatic sampling</source>
+        <translation type="unfinished">Muestreo automático</translation>
+    </message>
+    <message>
+        <location line="-17"/>
+        <source>Z grid sampling (start/step)</source>
+        <translation type="unfinished">Muestreo de cuadrícula Z (inicio/paso)</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Offset grid lines</source>
+        <translation type="unfinished">Offset líneas cuadrículas</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Offset grid sampling (start/step)</source>
+        <translation type="unfinished">Offset muestreo de cuadrículas (inicio/paso)</translation>
+    </message>
+    <message>
+        <location line="+105"/>
+        <source>Cannot write  default settings</source>
+        <translation type="unfinished">No se puede escribir ajustes predeterminados</translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>Z sampling start is not defined.</source>
+        <translation type="unfinished">Inicio de muestreo Z no esta definido</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Z sampling step is not defined.</source>
+        <translation type="unfinished">Paso de muestreo Z no esta definido</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Offset sampling start is not defined.</source>
+        <translation type="unfinished">Inicio de muestreo offset no esta definido</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Offset sampling step is not defined.</source>
+        <translation type="unfinished">Paso de muestreo offset no esta definido</translation>
+    </message>
+</context>
+<context>
+    <name>uiViewer3DMgr</name>
+    <message>
+        <location filename="../../../plugins/uiPreStackViewer/uipsviewermanager.cc" line="+50"/>
+        <source>Display Prestack Data</source>
+        <translation type="unfinished">Mostrar Datos Antes del Apilamiento</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Show position window ...</source>
+        <translation type="unfinished">Mostrar pantalla de posición</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Resolution</source>
+        <translation type="unfinished">Resolución</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>View in 2D panel ...</source>
+        <translation type="unfinished">Ver en panel 2D ...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Amplitude spectrum ...</source>
+        <translation type="unfinished">Espectro amplitud ...</translation>
+    </message>
+    <message>
+        <location line="+256"/>
+        <source>No object selected</source>
+        <translation type="unfinished">No hay objeto seleccionado</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Display panel is not set.</source>
+        <translation type="unfinished">Pantalla de panel no esta ajustado</translation>
+    </message>
+    <message>
+        <location line="+214"/>
+        <source>Can not find %1</source>
+        <translation type="unfinished">No se puede encontrar %1</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>No data found</source>
+        <translation type="unfinished">No ha encontrado datos</translation>
+    </message>
+</context>
+<context>
+    <name>uiViewer3DPositionDlg</name>
+    <message>
+        <location filename="../../../plugins/uiPreStackViewer/uipsviewerposdlg.cc" line="+57"/>
+        <source>Immediate update</source>
+        <translation type="unfinished">Actualización inmediato</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Update Now</source>
+        <translation type="unfinished">Actualizar ahora</translation>
+    </message>
+    <message>
+        <location line="+126"/>
+        <source>The cross-line should be between %1 and %2</source>
+        <translation type="unfinished">La línea-cruzada debe estar entre %1 y %2</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>The in-line should be between %1 and %2</source>
+        <translation type="unfinished">La línea debe estar entre %1 y %2</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>The trace number should be between %1 and %2</source>
+        <translation type="unfinished">El número de rastros debe estar entre %1 y %2</translation>
+    </message>
+</context>
+<context>
+    <name>uiViewer3DPreProcTab</name>
+    <message>
+        <location filename="../../../plugins/uiPreStackViewer/uipsviewerpreproctab.cc" line="+24"/>
+        <source>Preprocessing</source>
+        <translation type="unfinished">Preprocesamiento</translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>Preprocessing failed!</source>
+        <translation type="unfinished">¡Preprocesamiento ha fallado!</translation>
+    </message>
+</context>
+<context>
+    <name>uiViewer3DScalingTab</name>
+    <message>
+        <location filename="../../../plugins/uiPreStackViewer/uipsviewerscalingtab.cc" line="+95"/>
+        <source>Cannot write  default settings</source>
+        <translation type="unfinished">No se puede escribir ajustes predeterminados</translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <source>Range is not set</source>
+        <translation type="unfinished">Rango no esta ajustado</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <location line="+38"/>
+        <source>Clipping rate is not set</source>
+        <translation type="unfinished">Tasa de recorte no esta ajustado</translation>
+    </message>
+    <message>
+        <location line="-32"/>
+        <location line="+19"/>
+        <source>Clip percentage should between 0 and 100</source>
+        <translation type="unfinished">Porcentaje de recorte debe estar entre 0 y 100</translation>
+    </message>
+    <message>
+        <location line="-12"/>
+        <source>Midvalue is not set</source>
+        <translation type="unfinished">Medio valor no esta ajustado</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Clip percentage sum is between 0 and 100</source>
+        <translation type="unfinished">La suma del procentaje de recorte esta entre 0 y 100</translation>
+    </message>
+</context>
+<context>
+    <name>uiViewer3DSettingDlg</name>
+    <message>
+        <location filename="../../../plugins/uiPreStackViewer/uipsviewersettingdlg.cc" line="+29"/>
+        <source>Prestack display properties</source>
+        <translation type="unfinished">Propiedades de la pantalla antes del apilamiento</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Apply to all viewers</source>
+        <translation type="unfinished">Aplicar a todos espectadores</translation>
+    </message>
+</context>
+<context>
+    <name>uiViewer3DShapeTab</name>
+    <message>
+        <location filename="../../../plugins/uiPreStackViewer/uipsviewershapetab.cc" line="+34"/>
+        <source>Shape</source>
+        <translation type="unfinished">Forma</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Width</source>
+        <translation type="unfinished">Anchura</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Relative</source>
+        <translation type="unfinished">Relativo</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Absolute</source>
+        <translation type="unfinished">Absoluto</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Switch View Side</source>
+        <translation type="unfinished">Cambiar Lado de Vista</translation>
+    </message>
+    <message>
+        <location line="+100"/>
+        <source>Cannot write default settings</source>
+        <translation type="unfinished">No se puede escribir ajustes predeterminados</translation>
+    </message>
+</context>
+<context>
     <name>uiVirtualKeyboard</name>
     <message>
         <location filename="../../../src/uiBase/uivirtualkeyboard.cc" line="+46"/>
@@ -27162,7 +29422,7 @@ Checa permisos para escribir.</translation>
 <context>
     <name>uiVisEMObject</name>
     <message>
-        <location filename="../../../src/uiVis/uivisemobj.cc" line="-365"/>
+        <location filename="../../../src/uiVis/uivisemobj.cc" line="-322"/>
         <source>Use single color</source>
         <translation>Usar color singular</translation>
     </message>
@@ -27172,17 +29432,15 @@ Checa permisos para escribir.</translation>
         <translation>Picos</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Remove section</source>
-        <translation>Borrar sección</translation>
+        <translation type="obsolete">Borrar sección</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Change section&apos;s name</source>
-        <translation>Cambiar nombre de sección</translation>
+        <translation type="obsolete">Cambiar nombre de sección</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+5"/>
         <source>Only at sections</source>
         <translation>Solo a la secciones</translation>
     </message>
@@ -27206,15 +29464,14 @@ Checa permisos para escribir.</translation>
         <translation type="obsolete">Desbloquear</translation>
     </message>
     <message>
-        <location line="+238"/>
         <source>Change section-name</source>
-        <translation>Cambiar nombre de sección</translation>
+        <translation type="obsolete">Cambiar nombre de sección</translation>
     </message>
 </context>
 <context>
     <name>uiVisIsoSurfaceThresholdDlg</name>
     <message>
-        <location filename="../../../src/uiVis/uivisisosurface.cc" line="+38"/>
+        <location filename="../../../src/uiVis/uivisisosurface.cc" line="+37"/>
         <source>Iso surface threshold</source>
         <translation>Umbral de superficie iso</translation>
     </message>
@@ -27277,7 +29534,7 @@ Checa permisos para escribir.</translation>
 <context>
     <name>uiVisPartServer</name>
     <message>
-        <location filename="../../../src/uiVis/uivispartserv.cc" line="+98"/>
+        <location filename="../../../src/uiVis/uivispartserv.cc" line="+99"/>
         <source>Reset Manipulation</source>
         <translation>Reajustar Manipulación</translation>
     </message>
@@ -27287,21 +29544,21 @@ Checa permisos para escribir.</translation>
         <translation>Resolución</translation>
     </message>
     <message>
-        <location line="+193"/>
+        <location line="+197"/>
         <source>The scene does not yet contain any object on which seeds
 for a &apos;%1&apos; can be picked.</source>
         <translation>La escena no tiene ingún objeto en que los picos
 para &apos;%1&apos; pueden estar cogidos.</translation>
     </message>
     <message>
-        <location line="+1347"/>
+        <location line="+1366"/>
         <source>Are you sure you want to 
 remove selected part of %1?</source>
         <translation>Esta seguro que quiere 
 borrar el parte seleccionado de %1?</translation>
     </message>
     <message>
-        <location line="+522"/>
+        <location line="+530"/>
         <source>Cannot display histograms for this type of data</source>
         <translation>No se puede mostrar histogramas para este tipo de datos</translation>
     </message>
@@ -27345,7 +29602,7 @@ borrar el parte seleccionado de %1?</translation>
 <context>
     <name>uiVisSettingsGroup</name>
     <message>
-        <location filename="../../../src/uiTools/uisettings.cc" line="-52"/>
+        <location filename="../../../src/uiTools/uisettings.cc" line="-93"/>
         <source>Use OpenGL shading when available:</source>
         <translation>Usar OpenGL formar cuando esta disponible:</translation>
     </message>
@@ -27383,6 +29640,16 @@ borrar el parte seleccionado de %1?</translation>
         <location line="+3"/>
         <source>System default</source>
         <translation>Sistema predeterminada</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Mipmap anti-aliasing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Sharpen oblique textures</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -27450,6 +29717,84 @@ borrar el parte seleccionado de %1?</translation>
         <location line="+1"/>
         <source>Line</source>
         <translation>Línea</translation>
+    </message>
+</context>
+<context>
+    <name>uiVoxelConnectivityFilter</name>
+    <message>
+        <location filename="../../../plugins/uiVoxelConnectivityFilter/uivoxelconnectivityfilter.cc" line="+50"/>
+        <source>Keep</source>
+        <translation type="unfinished">Mantener</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Range</source>
+        <translation type="unfinished">Rango</translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Connectivity</source>
+        <translation type="unfinished">Connectividad</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Keep bodies larger than [voxels]</source>
+        <translation type="unfinished">Manter partes principales mas largos que [voxels]</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Kept output</source>
+        <translation type="unfinished">Ha mantenido salida</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Kept value</source>
+        <translation type="unfinished">Ha mantenido valor</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Rejected output</source>
+        <translation type="unfinished">Ha rechazado salida</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Undefined value</source>
+        <translation type="unfinished">Valor indefinido</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Rejected value</source>
+        <translation type="unfinished">Ha rechazado valor</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Cut range not set</source>
+        <translation type="unfinished">El rango cortado no esta ajustado</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Cut range is reversed</source>
+        <translation type="unfinished">El rango cortado esta revertido</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Cut value value not set</source>
+        <translation type="unfinished">El valor cortado no esta ajustado</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Minimum size is not set or is less than 1.</source>
+        <translation type="unfinished">El tamaño mínimo no esta ajustado o es menor que 1.</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Accept-value not set</source>
+        <translation type="unfinished">El valor aceptado no esta ajustado</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Rejection value is not set</source>
+        <translation type="unfinished">El valor rechazo no esta ajustado</translation>
     </message>
 </context>
 <context>
@@ -27568,7 +29913,7 @@ Por favor cambia la selección</translation>
         <translation>Extracción de la onda en/entre horizonte(s) 2D no esta implementada</translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+92"/>
         <source>Selection window size should be more than Wavelet size</source>
         <translation>Tamaño de la pantalla de selección tiene que ser más grande que el tamaño de la onda</translation>
     </message>
@@ -27647,7 +29992,7 @@ Por favor cambia la selección</translation>
 <context>
     <name>uiWell2RandomLineDlg</name>
     <message>
-        <location filename="../../../src/uiWell/uiwellrdmlinedlg.cc" line="+352"/>
+        <location filename="../../../src/uiWell/uiwellrdmlinedlg.cc" line="+351"/>
         <source>Create Random line</source>
         <translation>Crear Línea al Azar</translation>
     </message>
@@ -27718,80 +30063,75 @@ Por favor cambia la selección</translation>
 <context>
     <name>uiWellAttribPartServer</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uiwellattribpartserv.cc" line="+114"/>
         <source>SEG-Y Tool</source>
-        <translation>Instrumento SEG-Y</translation>
+        <translation type="obsolete">Instrumento SEG-Y</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Import more data?</source>
-        <translation>¿Importar más datos?</translation>
+        <translation type="obsolete">¿Importar más datos?</translation>
     </message>
     <message>
-        <location line="+0"/>
         <source>What do you want to do?</source>
-        <translation>¿Que quiere hacer?</translation>
+        <translation type="obsolete">¿Que quiere hacer?</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Import SEG-Y file(s) to OpendTect data</source>
-        <translation>Importar expediente(s) SEG-Y a los datos de OpendTect</translation>
+        <translation type="obsolete">Importar expediente(s) SEG-Y a los datos de OpendTect</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Scan SEG-Y file(s) to use in-place</source>
-        <translation>Escanear expedientes SEG-Y para suar en lado</translation>
+        <translation type="obsolete">Escanear expedientes SEG-Y para suar en lado</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Import VSP data from SEG-Y file</source>
-        <translation>Importar datos VSP del expediente SEG-Y</translation>
+        <translation type="obsolete">Importar datos VSP del expediente SEG-Y</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Quit SEG-Y import</source>
-        <translation>Dejar de importar SEG-Y</translation>
+        <translation type="obsolete">Dejar de importar SEG-Y</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <location line="+36"/>
         <source>Cancel the operation</source>
-        <translation>Cancelar la operación</translation>
+        <translation type="obsolete">Cancelar la operación</translation>
     </message>
     <message>
-        <location line="-6"/>
         <source>VSP Import</source>
-        <translation>Importar VSP</translation>
+        <translation type="obsolete">Importar VSP</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>2-D VSP (will be imported as 2-D seismic line)</source>
-        <translation>VSP 2D (estará importado como línea sísmica 2D)</translation>
+        <translation type="obsolete">VSP 2D (estará importado como línea sísmica 2D)</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>3-D VSP (can only be imported as 3D cube)</source>
-        <translation>VSP 3D (solo puede importarlo como cubo 3D)</translation>
+        <translation type="obsolete">VSP 3D (solo puede importarlo como cubo 3D)</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Zero-offset (single trace) VSP</source>
-        <translation>Cero-offset (rastro singular) VSP</translation>
+        <translation type="obsolete">Cero-offset (rastro singular) VSP</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Quit import</source>
-        <translation>Dejar de importar</translation>
+        <translation type="obsolete">Dejar de importar</translation>
     </message>
     <message>
-        <location line="+31"/>
         <source>Please finish your current SEG-Y import first</source>
-        <translation>Por favor termina su importación del SEG-Y primero</translation>
+        <translation type="obsolete">Por favor termina su importación del SEG-Y primero</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location filename="../../../src/uiWellAttrib/uiwellattribpartserv.cc" line="+180"/>
         <source>Cannot read well data</source>
         <translation>No se puede leer datos de pozo</translation>
+    </message>
+    <message>
+        <location line="+60"/>
+        <source>Cannot find log in well data.  Probably it has been deleted</source>
+        <translation type="unfinished">No se puede encontrar log en datos de pozo. Probablemente esta borrado</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Well log is empty</source>
+        <translation type="unfinished">Log de pozo esta vacío</translation>
     </message>
 </context>
 <context>
@@ -27862,7 +30202,7 @@ Do you want to save those changes? </source>
 <context>
     <name>uiWellExtractParams</name>
     <message>
-        <location filename="../../../src/uiWell/uimultiwelllogsel.cc" line="+255"/>
+        <location filename="../../../src/uiWell/uimultiwelllogsel.cc" line="+256"/>
         <source>Extract in time</source>
         <translation>Extraer en tiempo</translation>
     </message>
@@ -27875,7 +30215,7 @@ Do you want to save those changes? </source>
 <context>
     <name>uiWellImportAsc</name>
     <message>
-        <location filename="../../../src/uiWell/uiwellimpasc.cc" line="+45"/>
+        <location filename="../../../src/uiWell/uiwellimpasc.cc" line="+46"/>
         <source>Import Well Track</source>
         <translation>Importar Pista de Pozo</translation>
     </message>
@@ -27914,7 +30254,18 @@ Debe definir al menos uno.
 Como esta ahora, la pista no estará cargada.</translation>
     </message>
     <message>
-        <location line="+161"/>
+        <location line="+134"/>
+        <source>Well Track successfully imported
+Do you want to import more Well Tracks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>Cannot open track file</source>
         <translation>No se puede abrir expediente de la pista</translation>
     </message>
@@ -27945,12 +30296,11 @@ Como esta ahora, la pista no estará cargada.</translation>
 %1</translation>
     </message>
     <message>
-        <location line="+19"/>
         <source>Well import successful</source>
-        <translation>Ha importado pozo con éxito</translation>
+        <translation type="obsolete">Ha importado pozo con éxito</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+31"/>
         <source>Please specify a well track file</source>
         <translation>Por favor especifique un expediente del rastreo pozo</translation>
     </message>
@@ -27976,7 +30326,7 @@ Is this correct?</source>
 <context>
     <name>uiWellImportAscOptDlg</name>
     <message>
-        <location line="-261"/>
+        <location line="-268"/>
         <source>Import well: Advanced/Optional</source>
         <translation>Importar pozo: Avanzado/Opcional</translation>
     </message>
@@ -27995,6 +30345,17 @@ Is this correct?</source>
         <location line="+8"/>
         <source>%1 %2</source>
         <translation></translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Well Track successfully imported
+Do you want to import more Well Tracks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>No, close window</source>
+        <translation type="unfinished">No, cerrar la pantalla</translation>
     </message>
     <message>
         <source>Replacement velocity %/s</source>
@@ -28020,7 +30381,7 @@ Is this correct?</source>
 <context>
     <name>uiWellImportSEGYVSP</name>
     <message>
-        <location filename="../../../src/uiWellAttrib/uiwellimpsegyvsp.cc" line="+20"/>
+        <location filename="../../../plugins/uiSEGY/uiwellimpsegyvsp.cc" line="+20"/>
         <source>Import Zero-offset VSP</source>
         <translation>Importar Cero offset VSP</translation>
     </message>
@@ -28111,7 +30472,7 @@ Is this correct?</source>
         <translation>Seleccionar Log</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Log resampling method</source>
         <translation>Método remuestreo del log</translation>
     </message>
@@ -28237,7 +30598,7 @@ Por favor entra un nombre diferente pare el nuevo log</translation>
 <context>
     <name>uiWellLogDispProperties</name>
     <message>
-        <location filename="../../../src/uiWell/uiwelldispprop.cc" line="+323"/>
+        <location filename="../../../src/uiWell/uiwelldispprop.cc" line="+321"/>
         <source>Well log</source>
         <translation>Log de pozo</translation>
     </message>
@@ -28396,12 +30757,12 @@ Por favor entra un nombre diferente pare el nuevo log</translation>
         <translation>Extensión de log sí es nesecario</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+13"/>
         <source>Algorithm</source>
         <translation>Algoritmo</translation>
     </message>
     <message>
-        <location line="+84"/>
+        <location line="+86"/>
         <source>Please select at least one well and one log</source>
         <translation>Por favor selecciona al menos un pozo y un log</translation>
     </message>
@@ -28528,17 +30889,17 @@ Estará procesando solo para los otros pozos</translation>
         <translation>Instrumentos log</translation>
     </message>
     <message>
-        <location line="+241"/>
+        <location line="+233"/>
         <source>Cannot write new markers to disk</source>
         <translation>No se puede escribir nuevos marcadores al disco</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+28"/>
         <source>Cannot write new track to disk</source>
         <translation>No se puede escribir nueva pista al disco</translation>
     </message>
     <message>
-        <location line="+60"/>
+        <location line="+55"/>
         <source>Cannot write new model to disk</source>
         <translation>No se puede escribir nuevo modelo al disco</translation>
     </message>
@@ -28641,11 +31002,6 @@ Do you wish to continue?</source>
     </message>
     <message>
         <location line="+6"/>
-        <source>Normal</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+0"/>
         <source>Bold</source>
         <translation>Marcado</translation>
     </message>
@@ -28686,24 +31042,34 @@ Do you wish to continue?</source>
 <context>
     <name>uiWellPartServer</name>
     <message>
-        <location filename="../../../src/uiWell/uiwellpartserv.cc" line="+227"/>
+        <location filename="../../../src/uiWell/uiwellpartserv.cc" line="+169"/>
+        <source>Import Markers</source>
+        <translation type="unfinished">Importar Marcadores</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Cannot write new markers to disk</source>
+        <translation type="unfinished">No se puede escribir nuevos marcadores al disco</translation>
+    </message>
+    <message>
+        <location line="+90"/>
         <source>Could not write display properties for 
 %1</source>
         <translation>No podía escribir mostrar propiedades por 
 %1</translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+58"/>
         <source>Create multiple simple wells</source>
         <translation>Crear pozos múltiples simples</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+41"/>
         <source>Please create one or more wells first</source>
         <translation>Por favor crea uno o más pozos primero</translation>
     </message>
     <message>
-        <location line="+119"/>
+        <location line="+121"/>
         <source>Empty well track</source>
         <translation>Vaciar pista de pozo</translation>
     </message>
@@ -28713,14 +31079,12 @@ Do you wish to continue?</source>
         <translation>No se puede crear una entrada en el almacén de datos</translation>
     </message>
     <message>
-        <location line="+64"/>
         <source>Cannot find log in well data.  Probably it has been deleted</source>
-        <translation>No se puede encontrar log en datos de pozo. Probablemente esta borrado</translation>
+        <translation type="obsolete">No se puede encontrar log en datos de pozo. Probablemente esta borrado</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Well log is empty</source>
-        <translation>Log de pozo esta vacío</translation>
+        <translation type="obsolete">Log de pozo esta vacío</translation>
     </message>
 </context>
 <context>
@@ -28757,7 +31121,7 @@ Do you wish to continue?</source>
 <context>
     <name>uiWellRockPhysLauncher</name>
     <message>
-        <location filename="../../../src/uiWell/uiwellpartserv.cc" line="-222"/>
+        <location filename="../../../src/uiWell/uiwellpartserv.cc" line="-156"/>
         <source>Rock Physics - Well Logs</source>
         <translation>Rocas Físicas - Logs de Pozo</translation>
     </message>
@@ -28770,7 +31134,7 @@ Do you wish to continue?</source>
 <context>
     <name>uiWellSelGrp</name>
     <message>
-        <location filename="../../../src/uiWell/uiwellrdmlinedlg.cc" line="-406"/>
+        <location filename="../../../src/uiWell/uiwellrdmlinedlg.cc" line="-405"/>
         <source>Use only wells&apos; top position</source>
         <translation>Usar solamente la posición superior de los pozos</translation>
     </message>
@@ -28816,9 +31180,57 @@ Do you wish to continue?</source>
     </message>
 </context>
 <context>
+    <name>uiWellTo2DLineDlg</name>
+    <message>
+        <location filename="../../../src/uiWellAttrib/uiwellto2dlinedlg.cc" line="+36"/>
+        <source>Create 2D line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select wells to set up the 2D line path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Display 2D Line on creation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Preview</source>
+        <translation type="unfinished">Prevista</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Line Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+78"/>
+        <source>Please define at least two points</source>
+        <translation type="unfinished">Por favor define al menos dos puntos</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Please enter a Line Name</source>
+        <translation type="unfinished">Por favor entra un Nombre de Línea</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>The 2D Line &apos;%1&apos; already exists. If you overwrite its geometry, all the associated data will be affected. Do you still want to overwrite?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>You need to change survey type to &apos;Both 2D and 3D&apos; to display the 2D line</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>uiWellTrackDispProperties</name>
     <message>
-        <location filename="../../../src/uiWell/uiwelldispprop.cc" line="-114"/>
+        <location filename="../../../src/uiWell/uiwelldispprop.cc" line="-112"/>
         <source>Above</source>
         <translation>Arriba</translation>
     </message>
@@ -28839,11 +31251,6 @@ Do you wish to continue?</source>
     </message>
     <message>
         <location line="+5"/>
-        <source>Normal</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+0"/>
         <source>Bold</source>
         <translation>Marcado</translation>
     </message>
@@ -28865,7 +31272,7 @@ Do you wish to continue?</source>
         <translation type="obsolete">Editar Pista de Pozo</translation>
     </message>
     <message>
-        <location filename="../../../src/uiWell/uiwelldlgs.cc" line="-1638"/>
+        <location filename="../../../src/uiWell/uiwelldlgs.cc" line="-1640"/>
         <source>Z in Feet</source>
         <translation>Z en pies</translation>
     </message>
@@ -28897,7 +31304,7 @@ Do you wish to continue?</source>
         <translation type="obsolete">Evaluación de datos referidos %1</translation>
     </message>
     <message>
-        <location line="+293"/>
+        <location line="+296"/>
         <source>Please select a file</source>
         <translation>Por favor selecciona un expediente</translation>
     </message>
@@ -28907,7 +31314,7 @@ Do you wish to continue?</source>
         <translation>Ha encontrado valores indefindidos en fila %1. Por favor entra valores válidos</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+24"/>
         <source>Please define at least two points.</source>
         <translation>Por favor define al menos dos puntos.</translation>
     </message>
@@ -28921,12 +31328,12 @@ Do you wish to continue?</source>
         <translation type="obsolete">Por favor entra una evaluación válida</translation>
     </message>
     <message>
-        <location line="-296"/>
+        <location line="-298"/>
         <source>%1 %2 </source>
         <translation></translation>
     </message>
     <message>
-        <location line="+339"/>
+        <location line="+341"/>
         <source>Please enter a valid %1</source>
         <translation>Por favor entra un %1 válido</translation>
     </message>
@@ -28972,7 +31379,7 @@ Así pueden volverse inválidos.
 <context>
     <name>uiWellTrackReadDlg</name>
     <message>
-        <location line="-373"/>
+        <location line="-372"/>
         <source>Import New Well Track</source>
         <translation>Importar Nueva Pista de Pozo</translation>
     </message>
@@ -29008,7 +31415,7 @@ Como esta ahora, la pista no estará cargada.</translation>
 <context>
     <name>uiWindowFuncSelDlg</name>
     <message>
-        <location filename="../../../src/uiTools/uiwindowfuncseldlg.cc" line="+276"/>
+        <location filename="../../../src/uiTools/uiwindowfuncseldlg.cc" line="+277"/>
         <source>Window/Taper display</source>
         <translation>Pantalla/Pantalla de afilamiento</translation>
     </message>
@@ -29016,7 +31423,7 @@ Como esta ahora, la pista no estará cargada.</translation>
 <context>
     <name>uiWindowGrabDlg</name>
     <message>
-        <location filename="../../../src/uiTools/uiwindowgrabber.cc" line="+48"/>
+        <location filename="../../../src/uiTools/uiwindowgrabber.cc" line="+47"/>
         <source>Desktop grabber</source>
         <translation>Capturador del escritorio</translation>
     </message>
@@ -29064,7 +31471,7 @@ Como esta ahora, la pista no estará cargada.</translation>
 <context>
     <name>uiWorkAreaDlg</name>
     <message>
-        <location filename="../../../src/uiVis/uivispartserv.cc" line="-863"/>
+        <location filename="../../../src/uiVis/uivispartserv.cc" line="-894"/>
         <source>Set work volume</source>
         <translation>Ajustar trabajo volumen</translation>
     </message>
@@ -29077,7 +31484,7 @@ Como esta ahora, la pista no estará cargada.</translation>
 <context>
     <name>uiWriteFlattenedCube</name>
     <message>
-        <location filename="../../../plugins/uiHorizonAttrib/uiflattenedcube.cc" line="+39"/>
+        <location filename="../../../src/uiEMAttrib/uiflattenedcube.cc" line="+39"/>
         <source>Create flattened seismics</source>
         <translation>Crear sísmicas planas</translation>
     </message>
