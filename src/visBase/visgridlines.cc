@@ -146,16 +146,16 @@ void GridLines::adjustGridCS()
 
     if ( cszchanged_ )
     {
-	while ( planecs_.zsamp_.start > gridcs_.zsamp_.start )
+	while ( planecs_.zsamp_.start>gridcs_.zsamp_.start )
 	    gridcs_.zsamp_.start += gridcs_.zsamp_.step;
 
-	while (planecs_.zsamp_.start<gridcs_.zsamp_.start-gridcs_.zsamp_.step)
+	while ( planecs_.zsamp_.start<gridcs_.zsamp_.start-gridcs_.zsamp_.step )
 	    gridcs_.zsamp_.start -= gridcs_.zsamp_.step;
 	
 	while ( planecs_.zsamp_.stop>gridcs_.zsamp_.stop+gridcs_.zsamp_.step )
 	    gridcs_.zsamp_.stop += gridcs_.zsamp_.step;
 
-	while ( planecs_.zsamp_.stop < gridcs_.zsamp_.stop )
+	while ( planecs_.zsamp_.stop<gridcs_.zsamp_.stop )
 	    gridcs_.zsamp_.stop -= gridcs_.zsamp_.step;
 	cszchanged_ = false;
     }

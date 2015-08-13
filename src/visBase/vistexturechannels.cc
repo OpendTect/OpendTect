@@ -524,6 +524,7 @@ bool ChannelInfo::isCurrentDataPremapped() const
 { return !unmappeddata_[currentversion_]; }
 
 
+
 class TextureChannels::TextureCallbackHandler :
 					public osgGeo::LayeredTexture::Callback
 {

@@ -145,7 +145,6 @@ Material* VisualObjectImpl::getMaterial()
 }
 
 
-
 void VisualObjectImpl::setGroupNode( osg::Group* grpnode )
 {
     if ( !grpnode || osgroot_ == grpnode ) 
