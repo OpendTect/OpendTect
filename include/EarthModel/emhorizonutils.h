@@ -30,15 +30,15 @@ namespace EM
 class Surface;
 
 /*!
-\brief Group of utilities for horizons: here are all functions required in 
+\brief Group of utilities for horizons: here are all functions required in
 od_process_attrib_em for computing data on, along or between 2 horizons.
 */
 
 mExpClass(EarthModel) HorizonUtils
 {
 public:
-			HorizonUtils(){};
-				
+			HorizonUtils()		{}
+
     static float 	getZ(const RowCol&,const Surface*);
     static float 	getMissingZ(const RowCol&,const Surface*,int);
     static Surface* 	getSurface(const MultiID&);
@@ -61,7 +61,7 @@ public:
 	    			     float& topz,float& botz,int nrinterpsamp,
 				     int mainhoridx,float& lastzinterval,
 				     float extrawidth);
-	
+
     static bool		SolveIntersect(float& topz,float& botz,int nrinterpsamp,
 	    			       int is1main,float extrawidth,
 				       bool is1interp,bool is2interp);
@@ -72,7 +72,7 @@ protected:
 
 };
 
-};//namespace
+} // namespace EM
 
 #endif
 

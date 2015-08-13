@@ -89,8 +89,7 @@ protected:
     EM::BodyOperator*		operator_;
 };
 
-
-}; // Namespace
+} // namespace EM
 
 #endif
 

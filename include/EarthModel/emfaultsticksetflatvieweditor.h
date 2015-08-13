@@ -34,13 +34,13 @@ public:
 			~FaultStickSetFlatViewEditor() {}
 
     virtual void	setTrcKeyZSampling(const TrcKeyZSampling&);
-    virtual void	drawFault() =0;    
+    virtual void	drawFault() =0;
 
 protected:
     TrcKeyZSampling	tkzs_;
 };
-} //namespace EM
 
+} //namespace EM
 
 #endif
 

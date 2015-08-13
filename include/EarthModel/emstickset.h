@@ -48,7 +48,7 @@ public:
     StickID		stickID(int idx) const;
     StickID		addStick( bool addtohistory );
     void		removeStick(const StickID&);
-    
+
     int			nrKnots(const StickID&) const;
     KnotID		firstKnot(const StickID&) const;
 
@@ -58,14 +58,14 @@ public:
 
     Coord3		getPos(const EM::PosID&) const;
     Coord3		getPos(const StickID&, const KnotID&) const;
-    
+
     bool		isLoaded() const;
     Executor*		saver();
     Executor*		loader();
 
 protected:
     int			getStickIndex(const StickID&) const;
-    
+
     friend class		EMManager;
     friend class		EMObject;
 
@@ -80,9 +80,7 @@ protected:
     bool				isloaded;
 };
 
-
-}; // Namespace
-
+} // namespace EM
 
 #endif
 

@@ -86,9 +86,7 @@ protected:
     TypeSet<EM::SubID>		ids_;
 };
 
-
-}; // Namespace
-
+} // namespace EM
 
 #endif
 

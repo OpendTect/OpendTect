@@ -43,7 +43,7 @@ public:
     const TrcKeyZSampling& getTrcKeyZSampling() const	{ return tkzs_; }
 
     void		setPath(const TrcKeyPath&);
-    void                setFlatPosData(const FlatPosData*);
+    void		setFlatPosData(const FlatPosData*);
     void		enableLine(bool);
     void		enableKnots(bool);
 
@@ -76,7 +76,7 @@ public:
 			{ geomid_ = geomid; }
     Pos::GeomID 	getGeomID() const		{ return geomid_; }
     Coord		getNormalToTrace( int trcnr ) const;
-    Coord		getNormalInRandLine( int idx ) const; 
+    Coord		getNormalInRandLine( int idx ) const;
     			//<! idx of BinID in path_ of RandomLine
 
     Notifier<FaultStickPainter>	abouttorepaint_;
@@ -107,7 +107,7 @@ protected:
     MarkerStyle2D       markerstyle_;
 
     FlatView::Viewer&   viewer_;
-    
+
     EM::ObjectID        emid_;
 
     ObjectSet<ObjectSet<StkMarkerInfo> >	sectionmarkerlines_;
@@ -116,13 +116,13 @@ protected:
 
     bool		is2d_;
     Pos::GeomID 	geomid_;
-    
+
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;
     TypeSet<Coord>	coords_;
 
     bool		linenabled_;
-    bool		knotenabled_;   
+    bool		knotenabled_;
 };
 
 } //namespace EM

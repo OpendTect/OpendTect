@@ -37,22 +37,22 @@ public:
     int			nrKnots(const SectionID&,int sticknr) const;
 
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
-	    			    const Coord3& pos,const Coord3& editnormal,
+				    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory);
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
-	    			    const Coord3& pos,const Coord3& editnormal,
+				    const Coord3& pos,const Coord3& editnormal,
 				    const MultiID* pickedmid,
 				    const char* pickednm,bool addtohistory);
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
 				    Pos::GeomID pickedgeomid,bool addtohistory);
     bool		removeStick(const SectionID&,int sticknr,
-	    			    bool addtohistory);
+				    bool addtohistory);
     bool		insertKnot(const SectionID&,const SubID&,
-	    			   const Coord3& pos,bool addtohistory);
+				   const Coord3& pos,bool addtohistory);
     bool		removeKnot(const SectionID&,const SubID&,
-	    			   bool addtohistory);
-    
+				   bool addtohistory);
+
     bool		pickedOnPlane(const SectionID&,int sticknr) const;
     bool		pickedOn2DLine(const SectionID&,int sticknr) const;
     bool		pickedOnHorizon(const SectionID&,int sticknr) const;
@@ -113,9 +113,7 @@ protected:
     FaultStickSetGeometry		geometry_;
 };
 
-
 } // namespace EM
-
 
 #endif
 

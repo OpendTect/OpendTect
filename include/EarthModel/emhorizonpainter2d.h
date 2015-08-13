@@ -27,7 +27,7 @@ namespace EM
 mExpClass(EarthModel) HorizonPainter2D : public CallBacker
 {
 public:
-    			HorizonPainter2D(FlatView::Viewer&,const EM::ObjectID&);
+			HorizonPainter2D(FlatView::Viewer&,const EM::ObjectID&);
 			~HorizonPainter2D();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,bool upd=false);
@@ -36,12 +36,12 @@ public:
     void		enableLine(bool);
     void		enableSeed(bool);
 
-    TypeSet<int>&       getTrcNos()			{ return trcnos_; }
+    TypeSet<int>&	getTrcNos()			{ return trcnos_; }
     TypeSet<float>&	getDistances()			{ return distances_; }
 
     void		paint();
 
-    	mStruct(EarthModel)	Marker2D
+	mStruct(EarthModel)	Marker2D
 	{
 	    			Marker2D()
 				    : marker_(0)
@@ -50,7 +50,7 @@ public:
 				~Marker2D()
 				{ delete marker_; }
 
-	    FlatView::AuxData*  marker_;
+	    FlatView::AuxData*	marker_;
 	    EM::SectionID	sectionid_;
 	};
 
@@ -70,9 +70,9 @@ protected:
     EM::ObjectID	id_;
     TrcKeyZSampling	tkzs_;
 
-    LineStyle           markerlinestyle_;
-    MarkerStyle2D       markerstyle_;
-    FlatView::Viewer&   viewer_;
+    LineStyle		markerlinestyle_;
+    MarkerStyle2D	markerstyle_;
+    FlatView::Viewer&	viewer_;
 
     Pos::GeomID 	geomid_;
     TypeSet<int>	trcnos_;
@@ -86,9 +86,7 @@ protected:
     bool		seedenabled_;
 };
 
-}; //namespace EM
-
+} // namespace EM
 
 #endif
-
 
