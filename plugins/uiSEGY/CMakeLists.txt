@@ -15,12 +15,16 @@ SET(OD_MODULE_SOURCES
     uisegyexamine.cc
     uisegyexp.cc
     uisegyimpdlg.cc
+    uisegyimptype.cc
     uisegymanip.cc
     uisegypi.cc
     uisegyread.cc
     uisegyreaddlg.cc
+    uisegyreadfinisher.cc
     uisegyresortdlg.cc
     uisegyscandlg.cc
+    uisegyreadstarter.cc
+    uisegyreadstartinfo.cc
     uisegysip.cc
     uisegytrchdrvalplot.cc
     uisegywriteopts.cc
