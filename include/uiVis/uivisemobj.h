@@ -46,6 +46,7 @@ public:
     float		getShift() const;
     void		setDepthAsAttrib(int attrib);
     void		setOnlyAtSectionsDisplay(bool);
+    bool		isOnlyAtSections() const;
 
     int			nrSections() const;
     EM::SectionID	getSectionID(int idx) const;
@@ -74,7 +75,6 @@ protected:
     int			displayid_;
 
     MenuItem		singlecolmnuitem_;
-    MenuItem		removesectionmnuitem_;
     MenuItem		seedsmenuitem_;
     MenuItem		showseedsmnuitem_;
     MenuItem		seedpropmnuitem_;
@@ -85,7 +85,6 @@ protected:
     MenuItem		showfullmnuitem_;
     MenuItem		showbothmnuitem_;
     MenuItem		showsurfacegridmnuitem_;
-    MenuItem		changesectionnamemnuitem_;
 };
 
 
