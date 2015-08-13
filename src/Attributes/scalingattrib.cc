@@ -183,8 +183,8 @@ const char* Scaling::scalingTypeNamesStr( int type )
 
 #define mGetSqueezeRgs( var, varstring ) \
 {\
-    var.start = desc_.getValParam(varstring)->getfValue(0); \
-    var.stop = desc_.getValParam(varstring)->getfValue(1); \
+    var.start = desc_.getValParam(varstring)->getFValue(0); \
+    var.stop = desc_.getValParam(varstring)->getFValue(1); \
     if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
     {\
 	Attrib::ValParam* valparam##var = \
@@ -217,7 +217,7 @@ Scaling::Scaling( Desc& desc )
     for ( int idx=0; idx<gateset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*gateset)[idx];
-	Interval<float> interval( param.getfValue(0), param.getfValue(1) );
+	Interval<float> interval( param.getFValue(0), param.getFValue(1) );
 	interval.sort(); interval.scale( 1.f/zFactor() );
 	gates_ += interval;
     }
@@ -227,7 +227,7 @@ Scaling::Scaling( Desc& desc )
     {
 	mDescGetParamGroup(ValParam,factorset,desc_,factorStr())
 	for ( int idx=0; idx<factorset->size(); idx++ )
-	    factors_ += ((ValParam&)((*factorset)[idx])).getfValue( 0 );
+	    factors_ += ((ValParam&)((*factorset)[idx])).getFValue( 0 );
     }
     
     desgate_ = Interval<int>( -(1024-1), 1024-1 );
