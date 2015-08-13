@@ -48,7 +48,7 @@ static BufferString lastwritedir;
 
 
 uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
-    : uiSEGYDefGroup(p,"SEGY::FileSpec group",su.forread_)
+    : uiSEGYDefGroup(p,"FileSpec group",su.forread_)
     , multifld_(0)
     , is2d_(!su.canbe3d_)
     , manipbut_(0)
@@ -58,7 +58,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     , issw_(false)
     , fileSelected(this)
 {
-    SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
+    FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
 
     BufferString disptxt( forread_ ? "Input" : "Output" );
     disptxt += " SEG-Y file";
@@ -97,9 +97,9 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 }
 
 
-SEGY::FileSpec uiSEGYFileSpec::getSpec() const
+FileSpec uiSEGYFileSpec::getSpec() const
 {
-    SEGY::FileSpec spec( fnmfld_->fileName() );
+    FileSpec spec( fnmfld_->fileName() );
     if ( multifld_ && multifld_->isChecked() )
     {
 	spec.nrs_ = multifld_->getIStepInterval();
@@ -117,7 +117,7 @@ SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 
 bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
 {
-    SEGY::FileSpec spec( getSpec() );
+    FileSpec spec( getSpec() );
     const BufferString fnm( spec.fileName(0) );
 
     if ( !perm )
@@ -186,7 +186,7 @@ void uiSEGYFileSpec::setFileName( const char* fnm )
 }
 
 
-void uiSEGYFileSpec::setSpec( const SEGY::FileSpec& spec )
+void uiSEGYFileSpec::setSpec( const FileSpec& spec )
 {
     setFileName( spec.fileName(0) );
     setMultiInput( spec.nrs_, spec.zeropad_ );
@@ -196,7 +196,7 @@ void uiSEGYFileSpec::setSpec( const SEGY::FileSpec& spec )
 
 void uiSEGYFileSpec::usePar( const IOPar& iop )
 {
-    SEGY::FileSpec spec; spec.usePar( iop );
+    FileSpec spec; spec.usePar( iop );
     setSpec( spec );
 }
 
@@ -243,7 +243,7 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
     if ( !forread_ )
 	return;
 
-    const SEGY::FileSpec spec( getSpec() );
+    const FileSpec spec( getSpec() );
     const char* fnm = spec.fileName();
     StreamData sd( StreamProvider(fnm).makeIStream() );
     const bool doesexist = sd.usable();
@@ -270,7 +270,7 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
 
 void uiSEGYFileSpec::manipFile( CallBacker* )
 {
-    const SEGY::FileSpec spec( getSpec() );
+    const FileSpec spec( getSpec() );
     uiSEGYFileManip dlg( this, spec.fileName() );
     if ( dlg.go() )
 	setFileName( dlg.fileName() );
@@ -321,7 +321,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
 				bool withio )
-    : uiSEGYDefGroup(p,"SEGY::FilePars group",forread)
+    : uiSEGYDefGroup(p,"FilePars group",forread)
     , nrsamplesfld_(0)
     , byteswapfld_(0)
     , readParsReq(this)
@@ -337,18 +337,18 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
     uiGroup* grp = new uiGroup( this, "Main uiSEGYFilePars group" );
     if ( forread )
 	nrsamplesfld_ = mkOverruleFld( grp, "Overrule SEG-Y number of samples",
-				      iop, SEGY::FilePars::sKeyNrSamples(),
+				      iop, FilePars::sKeyNrSamples(),
 				      false, true );
 
     fmtfld_ = new uiGenInput( grp, tr("SEG-Y 'format'"),
-		StringListInpSpec(SEGY::FilePars::getFmts(forread)) );
+		StringListInpSpec(FilePars::getFmts(forread)) );
     if ( nrsamplesfld_ )
 	fmtfld_->attach( alignedBelow, nrsamplesfld_ );
 
     if ( forread || enabbyteswapwrite )
     {
 	int bs = 0;
-	if ( iop ) iop->get( SEGY::FilePars::sKeyByteSwap(), bs );
+	if ( iop ) iop->get( FilePars::sKeyByteSwap(), bs );
 	const char* strs[] = { "No", "Only data", "All", 0 };
 	const char* txt = forread ? "Bytes swapped" : "Swap bytes";
 	byteswapfld_ = new uiGenInput( grp, txt, StringListInpSpec(strs) );
@@ -377,12 +377,12 @@ void uiSEGYFilePars::writeParsPush( CallBacker* )
 }
 
 
-SEGY::FilePars uiSEGYFilePars::getPars() const
+FilePars uiSEGYFilePars::getPars() const
 {
-    SEGY::FilePars fp( forread_ );
+    FilePars fp( forread_ );
     if ( nrsamplesfld_ && nrsamplesfld_->isChecked() )
 	fp.ns_ = nrsamplesfld_->getIntValue();
-    fp.fmt_ = SEGY::FilePars::fmtOf( fmtfld_->text(), forread_ );
+    fp.fmt_ = FilePars::fmtOf( fmtfld_->text(), forread_ );
     fp.byteswap_ = byteswapfld_ ? byteswapfld_->getIntValue() : 0;
     return fp;
 }
@@ -397,12 +397,12 @@ bool uiSEGYFilePars::fillPar( IOPar& iop, bool ) const
 
 void uiSEGYFilePars::usePar( const IOPar& iop )
 {
-    SEGY::FilePars fp( forread_ ); fp.usePar( iop );
+    FilePars fp( forread_ ); fp.usePar( iop );
     setPars( fp );
 }
 
 
-void uiSEGYFilePars::setPars( const SEGY::FilePars& fp )
+void uiSEGYFilePars::setPars( const FilePars& fp )
 {
     const bool havens = fp.ns_ > 0;
     if ( nrsamplesfld_ )
@@ -411,14 +411,14 @@ void uiSEGYFilePars::setPars( const SEGY::FilePars& fp )
 	if ( havens ) nrsamplesfld_->setValue( fp.ns_ );
     }
 
-    fmtfld_->setText( SEGY::FilePars::nameOfFmt(fp.fmt_,forread_) );
+    fmtfld_->setText( FilePars::nameOfFmt(fp.fmt_,forread_) );
     if ( byteswapfld_ ) byteswapfld_->setValue( fp.byteswap_ );
 }
 
 
 void uiSEGYFilePars::use( const IOObj* ioobj, bool force )
 {
-    SEGY::FilePars fp( forread_ );
+    FilePars fp( forread_ );
     if ( !ioobj && !force )
 	return;
 
@@ -779,7 +779,7 @@ void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar& iop )
     if ( !forScan() )
     {
 	int icopt = 0;
-	iop.get( SEGY::FileReadOpts::sKeyICOpt(), icopt );
+	iop.get( FileReadOpts::sKeyICOpt(), icopt );
 	posfld_ = new uiGenInput( grp, tr("Base positioning on"),
 		    BoolInpSpec(icopt>=0,tr("Inline/Crossline"),
 				tr("Coordinates")) );
@@ -891,16 +891,15 @@ uiGroup* uiSEGYFileOpts::mkORuleGrp( const IOPar& iop )
 
     scalcofld_ = mkOverruleFld( grp,
 		    "Overrule SEG-Y coordinate scaling", &iop,
-		    SEGY::FileReadOpts::sKeyCoordScale(), false );
+		    FileReadOpts::sKeyCoordScale(), false );
     BufferString overrulestr = "Overrule SEG-Y start ";
     overrulestr += SI().zIsTime() ? "time" : "depth";
     timeshiftfld_ = mkOverruleFld( grp, overrulestr, &iop,
-			    SEGY::FileReadOpts::sKeyTimeShift(),
+			    FileReadOpts::sKeyTimeShift(),
 			    true );
     timeshiftfld_->attach( alignedBelow, scalcofld_ );
     sampleratefld_ = mkOverruleFld( grp, "Overrule SEG-Y sample rate", &iop,
-			    SEGY::FileReadOpts::sKeySampleIntv(),
-			    true );
+			    FileReadOpts::sKeySampleIntv(), true );
     sampleratefld_->attach( alignedBelow, timeshiftfld_ );
 
     grp->setHAlignObj( scalcofld_ );
@@ -973,13 +972,13 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
     if ( posfld_ )
     {
 	icopt = posfld_->getBoolValue() ? 1 : -1;
-	iop.get( SEGY::FileReadOpts::sKeyICOpt(), icopt );
+	iop.get( FileReadOpts::sKeyICOpt(), icopt );
 	posfld_->setValue( icopt >= 0 );
     }
     if ( psposfld_ )
     {
 	psopt = psposfld_->getIntValue();
-	iop.get( SEGY::FileReadOpts::sKeyPSOpt(), psopt );
+	iop.get( FileReadOpts::sKeyPSOpt(), psopt );
 	psposfld_->setValue( psopt );
     }
 
@@ -995,12 +994,11 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 
     if ( orulegrp_ )
     {
-	toggledFldFillPar( scalcofld_, iop,
-			   SEGY::FileReadOpts::sKeyCoordScale() );
+	toggledFldFillPar( scalcofld_, iop, FileReadOpts::sKeyCoordScale() );
 	toggledFldFillPar( timeshiftfld_, iop,
-			   SEGY::FileReadOpts::sKeyTimeShift(), true );
+			   FileReadOpts::sKeyTimeShift(), true );
 	toggledFldFillPar( sampleratefld_, iop,
-			   SEGY::FileReadOpts::sKeySampleIntv(), true );
+			   FileReadOpts::sKeySampleIntv(), true );
     }
 
     if ( isps_ )
@@ -1011,7 +1009,7 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	{
 	    int start = regoffsfld_->getIntValue(0);
 	    int step = regoffsfld_->getIntValue(1);
-	    iop.get( SEGY::FileReadOpts::sKeyOffsDef(), start, step );
+	    iop.get( FileReadOpts::sKeyOffsDef(), start, step );
 	    regoffsfld_->setValue( start, 0 );
 	    regoffsfld_->setValue( step, 1 );
 	}
@@ -1022,21 +1020,21 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 
     if ( havecoordsinhdrfld_ )
     {
-	const char* res = iop.find( SEGY::FileReadOpts::sKeyCoordOpt() );
+	const char* res = iop.find( FileReadOpts::sKeyCoordOpt() );
 	const int coordopt = res && *res ? toInt(res) : mCoordOptVal;
 	havecoordsinhdrfld_->setValue( coordopt < 1 || coordopt > 2 );
 	readcoordsfld_->setValue( coordopt == 1 );
 
 	Coord crd( coordsstartfld_->getCoord() );
-	iop.get( SEGY::FileReadOpts::sKeyCoordStart(), crd );
+	iop.get( FileReadOpts::sKeyCoordStart(), crd );
 	coordsstartfld_->setValue( crd );
 	crd = coordsstepfld_->getCoord();
-	iop.get( SEGY::FileReadOpts::sKeyCoordStep(), crd );
+	iop.get( FileReadOpts::sKeyCoordStep(), crd );
 	coordsstepfld_->setValue( crd );
 	BufferString fnm( coordsfnmfld_->fileName() );
 	if ( !coordsspecfnmbox_->isChecked() )
 	    { fnm = "ext="; fnm.add( coordsextfld_->text() ); }
-	iop.get( SEGY::FileReadOpts::sKeyCoordFileName(), fnm );
+	iop.get( FileReadOpts::sKeyCoordFileName(), fnm );
 	const bool isext = fnm.startsWith( "ext=" );
 	coordsspecfnmbox_->setChecked( !isext );
 	if ( isext )
@@ -1096,7 +1094,7 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
     iop.setYN( SeisTrcTranslator::sKeyIs2D(), is2d_ );
     iop.setYN( SeisTrcTranslator::sKeyIsPS(), isps_ );
 
-    iop.set( SEGY::FileReadOpts::sKeyICOpt(),
+    iop.set( FileReadOpts::sKeyICOpt(),
 	     !posfld_ ? 0 : (posfld_->getBoolValue() ? 1 : -1) );
 
 #define mFillDefPar(fldnm) \
@@ -1113,43 +1111,42 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
     if ( psgrp_ )
     {
 	const int pspostyp = psPosType();
-	iop.set( SEGY::FileReadOpts::sKeyPSOpt(), pspostyp );
+	iop.set( FileReadOpts::sKeyPSOpt(), pspostyp );
 	if ( pspostyp == 0 )
 	{
 	    mFillDefPar( offs );
 	    mFillDefPar( azim );
 	}
 	else if ( pspostyp == 2 )
-	    iop.set( SEGY::FileReadOpts::sKeyOffsDef(),
+	    iop.set( FileReadOpts::sKeyOffsDef(),
 		regoffsfld_->getIntValue(0), regoffsfld_->getIntValue(1) );
 	else
-	    iop.removeWithKey( SEGY::FileReadOpts::sKeyOffsDef() );
+	    iop.removeWithKey( FileReadOpts::sKeyOffsDef() );
     }
 
     if ( !orulegrp_ )
     {
-	iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordScale() );
-	iop.removeWithKey( SEGY::FileReadOpts::sKeyTimeShift() );
-	iop.removeWithKey( SEGY::FileReadOpts::sKeySampleIntv() );
+	iop.removeWithKey( FileReadOpts::sKeyCoordScale() );
+	iop.removeWithKey( FileReadOpts::sKeyTimeShift() );
+	iop.removeWithKey( FileReadOpts::sKeySampleIntv() );
     }
     else
     {
-	setToggled( iop, SEGY::FileReadOpts::sKeyCoordScale(), scalcofld_ );
-	setToggled( iop, SEGY::FileReadOpts::sKeyTimeShift(),
+	setToggled( iop, FileReadOpts::sKeyCoordScale(), scalcofld_ );
+	setToggled( iop, FileReadOpts::sKeyTimeShift(),
 			   timeshiftfld_, true );
-	setToggled( iop, SEGY::FileReadOpts::sKeySampleIntv(),
-			   sampleratefld_, true );
+	setToggled( iop, FileReadOpts::sKeySampleIntv(), sampleratefld_, true );
     }
 
-    iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordStart() );
-    iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordStep() );
-    iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordFileName() );
+    iop.removeWithKey( FileReadOpts::sKeyCoordStart() );
+    iop.removeWithKey( FileReadOpts::sKeyCoordStep() );
+    iop.removeWithKey( FileReadOpts::sKeyCoordFileName() );
     const int opt = havecoordsinhdrfld_ ? mCoordOptVal : 0;
     if ( opt == 0 )
-	iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordOpt() );
+	iop.removeWithKey( FileReadOpts::sKeyCoordOpt() );
     else
     {
-	iop.set( SEGY::FileReadOpts::sKeyCoordOpt(), opt );
+	iop.set( FileReadOpts::sKeyCoordOpt(), opt );
 	iop.removeWithKey( SEGY::TrcHeaderDef::sXCoordByte() );
 	iop.removeWithKey( SEGY::TrcHeaderDef::sYCoordByte() );
 	if ( opt == 1 )
@@ -1157,19 +1154,19 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 	    BufferString fnm( coordsfnmfld_->fileName() );
 	    if ( !coordsspecfnmbox_->isChecked() )
 		{ fnm = "ext="; fnm.add( coordsextfld_->text() ); }
-	    iop.set( SEGY::FileReadOpts::sKeyCoordFileName(), fnm );
+	    iop.set( FileReadOpts::sKeyCoordFileName(), fnm );
 	}
 	else if ( opt == 2 )
 	{
-	    iop.set( SEGY::FileReadOpts::sKeyCoordStart(),
+	    iop.set( FileReadOpts::sKeyCoordStart(),
 		     coordsstartfld_->getCoord() );
-	    iop.set( SEGY::FileReadOpts::sKeyCoordStep(),
+	    iop.set( FileReadOpts::sKeyCoordStep(),
 		     coordsstepfld_->getCoord() );
 	}
     }
 
     if ( setup_.revtype_ == uiSEGYRead::Rev0 )
-	iop.setYN( SEGY::FilePars::sKeyForceRev0(), true );
+	iop.setYN( FilePars::sKeyForceRev0(), true );
 
     return true;
 }

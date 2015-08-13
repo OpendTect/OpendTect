@@ -8,18 +8,23 @@
 SET(OD_MODULE_DEPS uiODMain)
 SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
+    segyuiscandata.cc
     uisegydef.cc
     uisegydefdlg.cc
     uisegydirectinserter.cc
     uisegyexamine.cc
     uisegyexp.cc
     uisegyimpdlg.cc
+    uisegyimptype.cc
     uisegymanip.cc
     uisegypi.cc
     uisegyread.cc
     uisegyreaddlg.cc
+    uisegyreadfinisher.cc
     uisegyresortdlg.cc
     uisegyscandlg.cc
+    uisegyreadstarter.cc
+    uisegyreadstartinfo.cc
     uisegysip.cc
     uisegytrchdrvalplot.cc
     uisegywriteopts.cc

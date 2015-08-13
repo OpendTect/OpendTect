@@ -20,12 +20,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyread.h"
 #include "uisegyresortdlg.h"
 #include "uiwellimpsegyvsp.h"
+#include "uisegyreadstarter.h"
 
 #include "uiseisfileman.h"
 #include "uisurvinfoed.h"
 #include "uimenu.h"
 #include "uiodmenumgr.h"
 #include "uimsg.h"
+#include "uitoolbar.h"
 
 #include "odplugin.h"
 
@@ -52,6 +54,7 @@ public:
     uiODMenuMgr&	mnumgr_;
 
     void		updateMenu(CallBacker*);
+    void		updateToolBar(CallBacker*);
     void		survChg(CallBacker*);
     void		edFiles(CallBacker*);
     void		genImpCB(CallBacker*);
@@ -93,8 +96,10 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
+    mnumgr_.dTectTBChanged.notify( muiSEGYMgrCB(updateToolBar) );
 
     updateMenu(0);
+    updateToolBar(0);
 }
 
 
@@ -134,6 +139,15 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 	new uiAction( tr("VSP (SEG-Y) ..."), muiSEGYMgrCB(impVSPCB), "" ) );
     mnumgr_.createSeisOutputMenu()->insertItem(
 	new uiAction(tr("Re-sort Scanned SEG-Y ..."), muiSEGYMgrCB(reSortCB)) );
+}
+
+
+void uiSEGYMgr::updateToolBar( CallBacker* )
+{
+    /*
+    mnumgr_.dtectTB()->addButton( "segy", tr("SEG-Y import"),
+				  mCB(this,uiSEGYMgr,fullWizCB) );
+				  */
 }
 
 
@@ -193,6 +207,13 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 	return;
 
     uiEditSEGYFileDataDlg dlg( sfm, *sfm->curIOObj() );
+    dlg.go();
+}
+
+
+void uiSEGYMgr::fullWizCB( CallBacker* )
+{
+    uiSEGYReadStarter dlg( ODMainWin() );
     dlg.go();
 }
 

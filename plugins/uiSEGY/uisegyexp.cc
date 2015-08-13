@@ -400,7 +400,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     const IOObj* inioobj = seissel_->ioobj(true);
     if ( !inioobj )
 	mErrRet( tr("Please select the data to export") )
-    const SEGY::FileSpec sfs( fsfld_->getSpec() );
+    const FileSpec sfs( fsfld_->getSpec() );
     if ( sfs.isEmpty() )
 	mErrRet( tr("Please select the output file") )
 

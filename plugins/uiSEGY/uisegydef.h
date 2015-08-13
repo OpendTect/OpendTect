@@ -78,8 +78,8 @@ public:
     void		use(const IOObj*,bool force);
     void		setFileName(const char*);
 
-    SEGY::FileSpec	getSpec() const;
-    void		setSpec(const SEGY::FileSpec&);
+    FileSpec		getSpec() const;
+    void		setSpec(const FileSpec&);
 
     void		setInp2D(bool);
     bool		isProbablySwapped() const	{ return swpd_; }
@@ -123,8 +123,8 @@ public:
     void		usePar(const IOPar&);
     void		use(const IOObj*,bool force);
 
-    SEGY::FilePars	getPars() const;
-    void		setPars(const SEGY::FilePars&);
+    FilePars		getPars() const;
+    void		setPars(const FilePars&);
 
     void		setBytesSwapped(bool fullswap,bool dataswap=false);
 			//!< dataswap only used if fullswap is false

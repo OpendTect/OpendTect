@@ -52,7 +52,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     {
 	BufferString ttl( "Scan " );
 	ttl += Seis::nameOf( setup_.geom_ );
-	SEGY::FileSpec fs; fs.usePar( iop );
+	FileSpec fs; fs.usePar( iop );
 	ttl += " "; ttl += fs.dispName();
 	setTitleText( ttl );
     }
@@ -163,7 +163,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	}
     }
 
-    SEGY::FileSpec fs;
+    FileSpec fs;
     fs.usePar( pars_ );
 
     Executor* exec = 0;
