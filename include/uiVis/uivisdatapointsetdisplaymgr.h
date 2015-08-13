@@ -30,23 +30,23 @@ datapointsets in 3d visualization scenes.
 mExpClass(uiVis) uiVisDataPointSetDisplayMgr : public DataPointSetDisplayMgr
 { mODTextTranslationClass(uiVisDataPointSetDisplayMgr);
 public:
-    		uiVisDataPointSetDisplayMgr(uiVisPartServer&);
+		uiVisDataPointSetDisplayMgr(uiVisPartServer&);
 		~uiVisDataPointSetDisplayMgr();
 
     void	lock();
     void	unLock();
 
     int		getNrViewers() const;
-    		//!<Will return the number of scenes
+		//!<Will return the number of scenes
     const char*	getViewerName(int) const;
 
-    bool	hasDisplays() const			
-    		{ return displayinfos_.size()>0; }
-    DispID	getDisplayID( const DataPointSet&) const;			
+    bool	hasDisplays() const
+		{ return displayinfos_.size()>0; }
+    DispID	getDisplayID( const DataPointSet&) const;
 
     int		addDisplay(const TypeSet<int>& parents, const DataPointSet&);
     void	updateDisplay(DispID id, const TypeSet<int>& parents,
-	    		      const DataPointSet&);
+			      const DataPointSet&);
     void	turnOn(DispID id,bool);
     void	updateDisplay(DispID id, const DataPointSet&);
     void	removeDisplay(DispID);
@@ -64,19 +64,19 @@ public:
 
 protected:
 
-    TypeSet<int>		allsceneids_;	
+    TypeSet<int>		allsceneids_;
 
     MenuItem			createbodymnuitem_;
     MenuItem			storepsmnuitem_;
     MenuItem			removemnuitem_;
     MenuItem			propmenuitem_;
-    TypeSet<int>		ids_;	
+    TypeSet<int>		ids_;
     ObjectSet<DisplayInfo>	displayinfos_; //linked with ids_
-    
+
     uiVisPartServer&		visserv_;
     MenuHandler*		vismenu_;
     Threads::Mutex		lock_;
-    
+
     void	createMenuCB(CallBacker*);
     void	handleMenuCB(CallBacker*);
 };

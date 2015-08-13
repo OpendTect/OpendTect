@@ -48,10 +48,10 @@ public:
 				FaultStickSetDisplay();
 
 				mDefaultFactoryInstantiation(
-				visSurvey::SurveyObject,
-				FaultStickSetDisplay, 
-				"FaultStickSetDisplay",
-				toUiString(sFactoryKeyword()) );
+				    visSurvey::SurveyObject,
+				    FaultStickSetDisplay,
+				    "FaultStickSetDisplay",
+				    toUiString(sFactoryKeyword()))
 
 
     MultiID			getMultiID() const;
@@ -108,9 +108,9 @@ public:
 					Coord3& xyzpos,BufferString& val,
 					BufferString& info) const;
 
-    virtual void                fillPar(IOPar&) const;
-    virtual bool                usePar(const IOPar&);
     virtual void		setPixelDensity(float dpi);
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
 protected:
     virtual			~FaultStickSetDisplay();

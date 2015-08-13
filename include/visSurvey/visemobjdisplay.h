@@ -39,8 +39,8 @@ class MPEEditor;
 class EdgeLineSetDisplay;
 
 
-mExpClass(visSurvey) EMObjectDisplay :  public  visBase::VisualObjectImpl,
-                          public visSurvey::SurveyObject
+mExpClass(visSurvey) EMObjectDisplay : public  visBase::VisualObjectImpl
+				     , public visSurvey::SurveyObject
 {
 public:
     				EMObjectDisplay();
@@ -50,7 +50,7 @@ public:
     virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
 				{ return false; }
     const ZAxisTransform*	getZAxisTransform() const
-    				{ return zaxistransform_; }	
+    				{ return zaxistransform_; }
 
     virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getObjectID() const;
@@ -58,10 +58,10 @@ public:
     virtual void		updateFromMPE();
 
     void			showPosAttrib( int attr, bool yn);
-    				/*!<Turns position attributes (as defined in
+				/*!<Turns position attributes (as defined in
 				    EM::EMObject) to be marked with a marker. */
     bool			showsPosAttrib( int attr ) const;
-    				/*!<\returns wether a position attribute (as
+				/*!<\returns wether a position attribute (as
 				     defined in EM::EMObject) to be marked
 				     with a marker. */
     const char*			errMsg() const { return errmsg_.str(); }
@@ -83,11 +83,11 @@ public:
     bool			allowsPicks() const	{ return true; }
 
     void			getMousePosInfo(const visBase::EventInfo& ei,
-	    					IOPar& iop ) const
+						IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-	    					Coord3&,
-	    					BufferString& val,
+						Coord3&,
+						BufferString& val,
 						BufferString& info) const;
     MPEEditor*			getEditor();
     void			enableEditing(bool yn);
@@ -101,8 +101,8 @@ public:
 					 const Coord3& clickeddisplaypos) const;
 
     bool			canRemoveSelection() const	{ return true; }
-    void                        removeSelection(const Selector<Coord3>&,
-	    					TaskRunner*);
+    void			removeSelection(const Selector<Coord3>&,
+						TaskRunner*);
 
     virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*);
     virtual visBase::TextureChannel2RGBA* getChannels2RGBA();
@@ -122,7 +122,7 @@ public:
 
 
 protected:
-    				~EMObjectDisplay();
+				~EMObjectDisplay();
     virtual void		removeEMStuff();
 
     virtual void		removeSectionDisplay(const EM::SectionID&) = 0;
@@ -176,10 +176,7 @@ protected:
     static const char*			sKeyPosAttrShown();
 };
 
-
-};
+} // namespace visSurvey
 
 #endif
-
-
 

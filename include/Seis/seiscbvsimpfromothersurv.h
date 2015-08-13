@@ -4,9 +4,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Nanne Hemstra
- Date:		July 2015
- RCS:		$Id$
+ Author:        Nanne Hemstra
+ Date:          July 2015
+ RCS:           $Id$
 ________________________________________________________________________
 
 -*/
@@ -38,14 +38,14 @@ public:
 			~SeisImpCBVSFromOtherSurvey();
 
     uiString		uiMessage() const	{ return tr("Importing CBVS"); }
-    od_int64		nrDone() const		{ return nrdone_; }
+    od_int64		nrDone() const          { return nrdone_; }
     uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
     od_int64		totalNr() const		{ return totnr_; }
     int			nextStep();
 
     bool		prepareRead(const char*);
     void		setPars(Interpol&,int,const TrcKeyZSampling&);
-    inline void		setOutput( IOObj& obj ) { outioobj_ = &obj; }
+    inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
 
     const TrcKeyZSampling& cubeSampling() const { return data_.tkzs_; }
 

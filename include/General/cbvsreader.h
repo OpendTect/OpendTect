@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "cbvsinfo.h"
 #include "datainterp.h"
 #include "trckeyzsampling.h"
-#include <iostream>
 
 
 
@@ -54,12 +53,12 @@ public:
 
     bool		hasAuxInfo() const	{ return auxnrbytes_; }
     bool		getAuxInfo(PosAuxInfo&);
-    			//!< Gets the aux info. Follow by
+			//!< Gets the aux info. Follow by
 			//!< fetch() to get the sample data.
     bool		fetch(void** buffers,const bool* comps=0,
 				const Interval<int>* samps=0,
 				int offs=0);
-    			//!< Gets the sample data.
+			//!< Gets the sample data.
 			//!< 'comps', if provided, selects the components.
 			//!< If 'samps' is non-null, it should hold start
 			//!< and end sample to read. offs is an offset

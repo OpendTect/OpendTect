@@ -53,6 +53,7 @@ public:
 
 template <class T> inline
 ManagedObjectSet<T>::ManagedObjectSet( const ManagedObjectSet<T>& t )
+    : ObjectSet<T>()
 { *this = t; }
 
 

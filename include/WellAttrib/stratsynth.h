@@ -168,7 +168,7 @@ protected:
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
     void		createAngleData(PreStackSyntheticData&,
-					const ObjectSet<RayTracer1D>&);
+	    				const ObjectSet<RayTracer1D>&);
 
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
     void		putD2TModelsInSD(SyntheticData&,

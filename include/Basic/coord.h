@@ -53,7 +53,7 @@ public:
     OrdType	dot(const Coord&) const;
 
     const char*	toString() const;
-    const char* toPrettyString(int nrdec=2) const;
+    const char*	toPrettyString(int nrdec=2) const;
     bool	fromString(const char*);
 
     static const Coord& udf();

@@ -31,15 +31,15 @@ namespace visSurvey
 */
 
 mExpClass(visSurvey) PickSetDisplay : public LocationDisplay
-{ mODTextTranslationClass(PickSetDisplay);
+{ mODTextTranslationClass(PickSetDisplay)
 public:
 
 				PickSetDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PickSetDisplay,
-				    "PickSetDisplay", 
-				    toUiString(sFactoryKeyword()));
-    
+				    "PickSetDisplay",
+				    toUiString(sFactoryKeyword()))
+
     void			setSet(Pick::Set*);
 
     bool			hasColor() const	{ return true; }
@@ -60,16 +60,16 @@ public:
     float			getPixelDensity() const;
 
     bool			needLine();
-    void                        createLine();
+    void			createLine();
     void			redrawLine();
-    void                        showLine(bool);
-    bool                        lineShown() const;
+    void			showLine(bool);
+    bool			lineShown() const;
 
     void			redrawAll();
-    
+
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    
+
 protected:
 				~PickSetDisplay();
 
@@ -80,8 +80,6 @@ protected:
 
     void			setPolylinePos(int,const Coord3&);
     void			removePolylinePos(int);
-    
-    
 
     ::Quaternion		getDirection(const Pick::Location&) const;
 
@@ -89,15 +87,15 @@ protected:
     void			locChg(CallBacker*);
 
     int				clickedMarkerIndex(
-					   const visBase::EventInfo& evi) const;
+					const visBase::EventInfo&) const;
     bool			isMarkerClick(
-					   const visBase::EventInfo& evi) const;
+					const visBase::EventInfo&) const;
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,int);
-    
+
     visBase::MarkerSet*		markerset_;
-    visBase::PolyLine*          polyline_;
+    visBase::PolyLine*		polyline_;
     bool			needline_;
 
     static const char*		sKeyNrPicks();

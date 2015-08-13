@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
-#include "coltabsequence.h"
 #include "emobject.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
@@ -32,13 +31,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uiselsurvranges.h"
-#include "uislider.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
-#include "uitoolbutton.h"
-#include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "visemobjdisplay.h"
 #include "visrandomtrackdisplay.h"
@@ -107,15 +102,15 @@ void uiMPEMan::addButtons()
     trackinvolidx_ = mAddButton( "autotrack", trackFromSeedsAndEdges,
 				tr("Auto-track"), false );
 
-    trackwithseedonlyidx_ = mAddButton( "trackfromseeds", trackFromSeedsOnly,
-				       tr("Track From Seeds Only"), false );
+//    trackwithseedonlyidx_ = mAddButton( "trackfromseeds", trackFromSeedsOnly,
+//				       tr("Track From Seeds Only"), false );
 
     retrackallidx_ = mAddButton( "retrackhorizon", retrackAllCB,
 				tr("Retrack All"), false );
     toolbar_->addSeparator();
 
-    displayatsectionidx_ = mAddButton( "sectiononly", displayAtSectionCB,
-				      tr("Display at section only"), true );
+//    displayatsectionidx_ = mAddButton( "sectiononly", displayAtSectionCB,
+//				      tr("Display at section only"), true );
 
     toolbar_->addSeparator();
 
@@ -138,7 +133,8 @@ void uiMPEMan::addButtons()
     toolbar_->setShortcut( redoidx_, "Ctrl+Y" );
 
     toolbar_->addSeparator();
-    saveidx_ = mAddButton( "save", savePush, uiStrings::sSave(true), false );
+    saveidx_ = mAddButton( "save", savePush, tr("Save (Ctrl+S"), false );
+    toolbar_->setShortcut( saveidx_, "Ctrl+S" );
 }
 
 
@@ -184,6 +180,9 @@ void uiMPEMan::seedClick( CallBacker* )
 {
     EM::EMObject* emobj = 0;
     MPE::Engine& engine = MPE::engine();
+    if ( engine.trackingInProgress() )
+	mSeedClickReturn();
+
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker )
 	mSeedClickReturn();
@@ -191,6 +190,9 @@ void uiMPEMan::seedClick( CallBacker* )
     emobj = EM::EMM().getObject( tracker->objectID() );
     if ( !emobj )
 	mSeedClickReturn();
+
+    while ( emobj->hasBurstAlert() )
+	emobj->setBurstAlert( false );
 
     const int trackerid =
 		MPE::engine().getTrackerByObject( tracker->objectID() );
@@ -927,19 +929,22 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
 {
     const Selector<Coord3>* sel =
 	visserv_->getCoordSelector( clickablesceneid_ );
+    if ( !sel || !sel->isOK() )
+	return;
 
-    if ( sel && sel->isOK() )
-    {
-	const int currentevent = EM::EMM().undo().currentEventID();
-//	uiTaskRunner taskrunner( toolbar_ );
-//	for ( int idx=0; idx<displays.size(); idx++ )
-//	    displays[idx]->removeSelectionInPolygon( *sel, &taskrunner );
+    const int currentevent = EM::EMM().undo().currentEventID();
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
+	return;
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,
+		    emod,visserv_->getObject(selectedids[0]) );
 
-	toolbar_->turnOn( polyselectidx_, false );
-	selectionMode( cb );
+    uiTaskRunner taskrunner( toolbar_ );
+    emod->removeSelection( *sel, &taskrunner );
+    toolbar_->turnOn( polyselectidx_, false );
+    selectionMode( cb );
 
-	setUndoLevel( currentevent );
-    }
+    setUndoLevel( currentevent );
 }
 
 
@@ -960,6 +965,7 @@ void uiMPEMan::showSettingsCB( CallBacker* )
 
 void uiMPEMan::displayAtSectionCB( CallBacker* )
 {
+/*
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker ) return;
 
@@ -977,6 +983,7 @@ void uiMPEMan::displayAtSectionCB( CallBacker* )
 
     toolbar_->setToolTip( displayatsectionidx_,
 	ison ? tr("Display full") : tr("Display at section only") );
+*/
 }
 
 
@@ -1057,16 +1064,7 @@ void uiMPEMan::setUndoLevel( int preveventnr )
 void uiMPEMan::updateButtonSensitivity( CallBacker* )
 {
     //Undo/Redo
-    BufferString tooltip("Undo ");
-    if ( EM::EMM().undo().canUnDo() )
-	tooltip += EM::EMM().undo().unDoDesc();
-    toolbar_->setToolTip( undoidx_, tooltip.buf() );
     toolbar_->setSensitive( undoidx_, EM::EMM().undo().canUnDo() );
-
-    tooltip = "Redo ";
-    if ( EM::EMM().undo().canReDo() )
-	tooltip += EM::EMM().undo().reDoDesc();
-    toolbar_->setToolTip( redoidx_, tooltip.buf() );
     toolbar_->setSensitive( redoidx_, EM::EMM().undo().canReDo() );
 
     //Seed button
@@ -1080,9 +1078,6 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
     toolbar_->setSensitive( trackinvolidx_,
 	    !is2d && isinvolumemode && seedpicker );
-    toolbar_->setSensitive( trackwithseedonlyidx_,
-	    !is2d && isinvolumemode && seedpicker );
-    toolbar_->setSensitive( displayatsectionidx_, seedpicker );
 
     toolbar_->setSensitive( removeinpolygonidx_,
 			    toolbar_->isOn(polyselectidx_) );

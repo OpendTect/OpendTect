@@ -109,7 +109,7 @@ public:
 					{ return SynthGenParams::PreStack; }
 
     void				setAngleData(
-					    const ObjectSet<PreStack::Gather>&);
+	    				    const ObjectSet<PreStack::Gather>&);
     const SeisTrc*			getTrace(int seqnr) const
     					{ return getTrace(seqnr,0); }
     const SeisTrc*			getTrace(int seqnr,int* offset) const;

@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "uistring.h"
 
+
 namespace osgText { class Font; }
 
 namespace osgGeo { class Text; }

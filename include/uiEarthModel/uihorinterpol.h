@@ -108,12 +108,12 @@ public:
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
-    const char*			factoryKeyword() const;
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
     virtual bool		canHandleFaults() const { return true; }
+    const char*			factoryKeyword() const;
 
 protected:
 
@@ -136,12 +136,12 @@ public:
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
-    const char*			factoryKeyword() const;
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
     virtual bool		canHandleFaults() const { return true; }
+    const char*			factoryKeyword() const;
 
 protected:
 
@@ -160,12 +160,12 @@ public:
 
     static void			initClass();
     static uiHor3DInterpol*	create(uiParent*);
-    const char*			factoryKeyword() const;
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
     virtual bool		canHandleFaults() const { return false; }
+    const char*			factoryKeyword() const;
 
 protected:
 

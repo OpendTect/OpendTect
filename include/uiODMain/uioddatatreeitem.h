@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "uiodtreeitem.h"
 #include "factory.h"
 
-class uiMenuHandler;
-class uiStatsDisplayWin;
-class uiSeisAmplSpectrum;
 class uiFKSpectrum;
+class uiMenuHandler;
+class uiSeisAmplSpectrum;
+class uiStatsDisplayWin;
 namespace Attrib { class SelSpec; }
 namespace ColTab { class Sequence; }
 

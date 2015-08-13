@@ -141,13 +141,13 @@ public:
     void		setYLineStyle(const LineStyle&);
     void		setGridLineStyle(const LineStyle&);
     void		setAuxLineStyle(const LineStyle&,bool forx,
-					bool forhl=false);
+	    				bool forhl=false);
     void		setAnnotInInt( bool xaxis, bool dowant )
 			{ xaxis ? xaxis_->setup().annotinint(dowant)
 				: yaxis_->setup().annotinint(dowant); }
     void		showAuxPositions(bool forx,bool showpos, bool showline);
     void		setAuxAnnotPositions(
-				const TypeSet<uiAxisHandler::AuxPosData>&,
+	    			const TypeSet<uiAxisHandler::AuxPosData>&,
 				bool forx);
 
     virtual void	updateScene()

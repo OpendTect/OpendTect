@@ -111,6 +111,7 @@ protected:
     virtual		~VisualObjectImpl();
 
     virtual void	materialChangeCB(CallBacker*);
+
     virtual void	setGroupNode(osg::Group*);
 			//!<Must be called during construction.
 

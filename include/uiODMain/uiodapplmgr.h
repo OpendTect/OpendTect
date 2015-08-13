@@ -75,7 +75,7 @@ public:
     const uiAttribPartServer*	attrServer() const	{ return attrserv_; }
     const uiVolProcPartServer*	volprocServer() const	{ return volprocserv_; }
     const uiEMPartServer*	EMServer() const	{ return emserv_; }
-    const uiEMAttribPartServer* EMAttribServer() const	{ return emattrserv_; }
+    const uiEMAttribPartServer*	EMAttribServer() const	{ return emattrserv_; }
     const uiWellPartServer*	wellServer() const	{ return wellserv_; }
     const uiWellAttribPartServer* wellAttribServer() const
 							{ return wellattrserv_;}
