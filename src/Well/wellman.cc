@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "welldata.h"
 #include "wellreader.h"
+#include "welllogset.h"
 
 
 Well::Man* Well::Man::mgr_ = 0;
@@ -108,6 +109,28 @@ int Well::Man::gtByKey( const MultiID& key ) const
 	    return idx;
     }
     return -1;
+}
+
+
+bool Well::Man::getLogNames( const MultiID& ky, BufferStringSet& nms )
+{
+    nms.setEmpty();
+    if ( MGR().isLoaded(ky) )
+    {
+	RefMan<Well::Data> wd = MGR().get( ky );
+	if ( !wd )
+	    return false;
+	wd->logs().getNames( nms );
+    }
+    else
+    {
+	RefMan<Well::Data> wd = new Well::Data;
+	Well::Reader wr( ky, *wd );
+	wr.getLogInfo( nms );
+	if ( nms.isEmpty() )
+	    return wr.getInfo(); // returning whether the well exists
+    }
+    return true;
 }
 
 

@@ -206,29 +206,10 @@ uiWellImportSEGYVSP::~uiWellImportSEGYVSP()
 
 void uiWellImportSEGYVSP::wllSel( CallBacker* )
 {
-    existinglognms_.erase();
-    const MultiID wmid = wellfld_->key();
-    RefMan<Well::Data> wd = new Well::Data;
-    if ( Well::MGR().isLoaded(wmid) )
-    {
-	wd = Well::MGR().get( wmid );
-	if ( !wd )
-	{
-	    uiMSG().error( Well::MGR().errMsg() );
-	    return;
-	}
-
-	wd->logs().getNames( existinglognms_ );
-    }
-    else
-    {
-	Well::Reader wr( wmid, *wd );
-	wr.getLogInfo( existinglognms_ );
-    }
-
+    BufferStringSet nms; Well::MGR().getLogNames( wellfld_->key(), nms );
     BufferString curlognm = lognmfld_->text();
     lognmfld_->setEmpty();
-    lognmfld_->addItems( existinglognms_ );
+    lognmfld_->addItems( nms );
     if ( curlognm.isEmpty() )
 	curlognm = "VSP";
     lognmfld_->setText( curlognm );

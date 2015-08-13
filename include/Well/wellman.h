@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class IOObj;
 class MultiID;
+class BufferStringSet;
 
 namespace Well
 {
@@ -32,19 +33,21 @@ class Data;
 mExpClass(Well) Man
 {
 public:
-    			~Man();
+			~Man();
 
     void		removeObject( const Well::Data* );
     Data*		get(const MultiID&,bool force_reload=false);
     void		add(const MultiID&,Data*);
-    			//!< Data becomes mine
+			//!< Data becomes mine
     Data*		release(const MultiID&);
-    			//!< Data becomes yours
+			//!< Data becomes yours
     bool		isLoaded(const MultiID&) const;
     bool		reload(const MultiID&);
 
     const char*		errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
+
+    static bool		getLogNames(const MultiID&,BufferStringSet&);
 
 protected:
 
