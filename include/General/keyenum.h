@@ -17,19 +17,19 @@ ________________________________________________________________________
 
 namespace OD
 {
-    enum ButtonState 
+    enum ButtonState
     { //!< Qt's mouse/keyboard state values
-			NoButton        = 0x00000000,
-			LeftButton      = 0x00000001,
-			RightButton     = 0x00000002,
-			MidButton       = 0x00000004,
-			MouseButtonMask = 0x000000ff,
-			ShiftButton     = 0x02000000,
-			ControlButton   = 0x04000000,
-			AltButton       = 0x08000000,
-			MetaButton      = 0x10000000,
-			KeyButtonMask   = 0xfe000000,
-			Keypad          = 0x20000000
+	NoButton	= 0x00000000,
+	LeftButton	= 0x00000001,
+	RightButton	= 0x00000002,
+	MidButton	= 0x00000004,
+	MouseButtonMask	= 0x000000ff,
+	ShiftButton	= 0x02000000,
+	ControlButton	= 0x04000000,
+	AltButton	= 0x08000000,
+	MetaButton	= 0x10000000,
+	KeyButtonMask	= 0xfe000000,
+	Keypad		= 0x20000000
     };
 
     enum KeyboardKey
@@ -356,16 +356,17 @@ namespace OD
 	Cancel		= 0x01020001
     };
 
-    mGlobal(General) const char*		nameOf(ButtonState);
-    mGlobal(General) ButtonState		stateOf(const char*);
+    mGlobal(General) const char*	nameOf(ButtonState);
+    mGlobal(General) ButtonState	stateOf(const char*);
 
-    mGlobal(General) bool    leftMouseButton(ButtonState);
-    mGlobal(General) bool    middleMouseButton(ButtonState);
-    mGlobal(General) bool    rightMouseButton(ButtonState);
-    mGlobal(General) bool    shiftKeyboardButton(ButtonState);
-    mGlobal(General) bool    ctrlKeyboardButton(ButtonState);
-    mGlobal(General) bool    altKeyboardButton(ButtonState);
-};
+    mGlobal(General) bool		leftMouseButton(ButtonState);
+    mGlobal(General) bool		middleMouseButton(ButtonState);
+    mGlobal(General) bool		rightMouseButton(ButtonState);
+    mGlobal(General) bool		shiftKeyboardButton(ButtonState);
+    mGlobal(General) bool		ctrlKeyboardButton(ButtonState);
+    mGlobal(General) bool		altKeyboardButton(ButtonState);
+
+} // namespace OD
 
 #endif
 

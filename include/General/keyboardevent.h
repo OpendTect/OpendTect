@@ -25,7 +25,7 @@ mExpClass(General) KeyboardEvent
 public:
  				KeyboardEvent();
 
-    OD::KeyboardKey		key_;		
+    OD::KeyboardKey		key_;
     OD::ButtonState		modifier_;	//Alt/Ctrl/Shift++
     bool			isrepeat_;
 
@@ -41,7 +41,7 @@ public:
 mExpClass(General) KeyboardEventHandler : public CallBacker
 {
 public:
-    				KeyboardEventHandler();
+				KeyboardEventHandler();
 
     void			triggerKeyPressed(const KeyboardEvent&);
     void			triggerKeyReleased(const KeyboardEvent&);
@@ -51,7 +51,7 @@ public:
 
     bool			hasEvent() const	{ return event_; }
     const KeyboardEvent&	event() const		{ return *event_; }
-    				/*!<\note only ok to call in function triggered
+				/*!<\note only ok to call in function triggered
 				     by an event from this class. */
     bool			isHandled() const	{ return ishandled_; }
     void			setHandled( bool yn )	{ ishandled_ = yn; }

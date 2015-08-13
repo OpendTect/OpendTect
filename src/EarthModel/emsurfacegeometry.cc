@@ -907,11 +907,13 @@ int SurfaceGeometry::findPos( const TrcKeyZSampling& cs,
     xinterval.include( (float) xypos.x );
     yinterval.include( (float) xypos.y );
 
-    xypos = SI().transform( BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()) );
+    xypos = SI().transform(
+	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()) );
     xinterval.include( (float) xypos.x );
     yinterval.include( (float) xypos.y );
 
-    xypos = SI().transform( BinID(cs.hsamp_.stop_.inl(),cs.hsamp_.start_.crl()) );
+    xypos = SI().transform(
+	BinID(cs.hsamp_.stop_.inl(),cs.hsamp_.start_.crl()) );
     xinterval.include( (float) xypos.x );
     yinterval.include( (float) xypos.y );
 

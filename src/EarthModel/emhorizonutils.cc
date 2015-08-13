@@ -161,8 +161,8 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
 
 
 void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
-				   Pos::GeomID geomid, const TrcKeySampling& hsamp,
-				   ObjectSet<DataPointSet>& data )
+			   Pos::GeomID geomid, const TrcKeySampling& hsamp,
+			   ObjectSet<DataPointSet>& data )
 {
     Surface* surface = getSurface(id);
     if ( !surface ) return;
@@ -254,7 +254,7 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
     float vals[2];
     for ( int idi=hs.start_.inl(); idi<=hs.stop_.inl(); idi+=SI().inlStep() )
     {
-	for ( int idc=hs.start_.crl(); idc<=hs.stop_.crl(); idc+=SI().crlStep() )
+	for ( int idc=hs.start_.crl();idc<=hs.stop_.crl();idc+=SI().crlStep() )
 	{
 	    lastzinter = meanzinter;
 	    if ( !getZInterval( idi, idc, surface1, surface2, topz, botz,

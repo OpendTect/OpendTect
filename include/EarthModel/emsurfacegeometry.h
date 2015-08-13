@@ -26,7 +26,7 @@ template <class T, class AT> class TopList;
 class RowCol;
 
 
-namespace Geometry { class RowColSurface; };
+namespace Geometry { class RowColSurface; }
 
 
 namespace EM
@@ -142,8 +142,7 @@ public:
 
 };
 
-
-}; // namespace EM
+} // namespace EM
 
 #endif
 

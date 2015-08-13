@@ -424,13 +424,13 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,
 {
     if ( selidx >= sels_.sd.valnames.size() )
 	return 0;
-        
+
     ExecutorGroup* grp = new ExecutorGroup( "Surface attributes reader" );
     for ( int idx=0; idx<sels_.sd.valnames.size(); idx++ )
     {
-	if ( selidx>=0 && selidx != idx ) 
+	if ( selidx>=0 && selidx != idx )
 	    continue;
-	
+
 	const BufferString filenm = getFileName( *ioobj_,
 					    sels_.sd.valnames[selidx]->buf() );
 	if ( filenm.isEmpty() )
