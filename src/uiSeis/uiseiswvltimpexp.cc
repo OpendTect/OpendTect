@@ -192,10 +192,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     }
 
     if ( !strm.isOK() )
-    {
-	mErrRet(tr("Possible error during write."));
-	return false;
-    }
+	mErrRet( tr("Possible error during write.") );
 
     uiString msg = tr("Wavelet successfully exported."
 	              "\nDo you want to export more Wavelets?");
