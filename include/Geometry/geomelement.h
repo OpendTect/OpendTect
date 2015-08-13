@@ -1,6 +1,6 @@
 #ifndef geomelement_h
 #define geomelement_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
@@ -19,9 +19,9 @@ ________________________________________________________________________
 #include "uistring.h"
 
 typedef od_int64 GeomPosID;
+
 namespace Geometry
 {
-
 
 /*!Iterator through all positions on an element. */
 
@@ -86,10 +86,12 @@ protected:
 
 private:
 
+    Threads::Lock		poschglock_;
+    Threads::Lock		movementlock_;
     uiString*			errmsg_;
 };
 
-};
+} // namespace Geometry
 
 #endif
 
