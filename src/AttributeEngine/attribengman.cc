@@ -339,6 +339,73 @@ const RegularSeisDataPack* EngineMan::getOutput( const Processor& proc )
 }
 
 
+
+class DataPackCopier : public ParallelTask
+{
+public:
+DataPackCopier( const RegularSeisDataPack& in, RegularSeisDataPack& out )
+    : in_(in), out_(out)
+    , domemcopy_(false)
+{
+    worktkzs_ = out.sampling();
+    worktkzs_.limitTo( in.sampling() );
+    totalnr_ = worktkzs_.hsamp_.totalNr();
+}
+
+od_int64 nrIterations() const		{ return totalnr_; }
+
+bool doPrepare( int nrthreads )
+{
+    if ( in_.getDataDesc() != out_.getDataDesc() )
+	return true;
+
+    domemcopy_ = out_.sampling().nrZ() > 10;
+    return true;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int threadidx )
+{
+    const TrcKeySampling& intks = in_.sampling().hsamp_;
+    const TrcKeySampling& outtks = out_.sampling().hsamp_;
+    const int nrz = worktkzs_.nrZ();
+    for ( od_int64 gidx=start; gidx<=stop; gidx++ )
+    {
+	const BinID bid = worktkzs_.hsamp_.atIndex( gidx );
+	const int outinlidx = outtks.lineIdx( bid.inl() );
+	const int outcrlidx = outtks.trcIdx( bid.crl() );
+	const int ininlidx = intks.lineIdx( bid.inl() );
+	const int incrlidx = intks.trcIdx( bid.crl() );
+
+	for ( int idz=0; idz<nrz; idz++ )
+	{
+	    const float zval = worktkzs_.zsamp_.atIndex( idz );
+	    const int inzidx = in_.sampling().zsamp_.nearestIndex( zval );
+	    const int outzidx = out_.sampling().zsamp_.nearestIndex( zval );
+	    for ( int idc=0; idc<out_.nrComponents(); idc++ )
+	    {
+		const float val = in_.data(idc).get( ininlidx, incrlidx,
+						     inzidx );
+		if ( !Values::isUdf( val ) )
+		    out_.data(idc).set( outinlidx, outcrlidx, outzidx, val );
+	    }
+	}
+    }
+
+    return true;
+}
+
+
+protected:
+    const RegularSeisDataPack&	in_;
+    RegularSeisDataPack&	out_;
+    TrcKeyZSampling		worktkzs_;
+
+
+    od_int64			totalnr_;
+    bool			domemcopy_;
+};
+
+
 const RegularSeisDataPack* EngineMan::getOutput(
 			const ObjectSet<const RegularSeisDataPack>& packset )
 {
@@ -364,44 +431,11 @@ const RegularSeisDataPack* EngineMan::getOutput(
 	    ZDomain::Info(ZDomain::Def::get(attrspecs_[0].zDomainKey())) );
     output->setName( attrspecs_[0].userRef() );
 
-    const TrcKeyZSampling& sampling = output->sampling();
     for ( int iset=0; iset<packset.size(); iset++ )
     {
 	const RegularSeisDataPack& regsdp = *packset[iset];
-	const TrcKeyZSampling& tkzs = regsdp.sampling();
-	for ( int idx=0; idx<sampling.nrLines(); idx++ )
-	{
-	    const int inl = sampling.hsamp_.lineRange().atIndex( idx );
-	    const int inlidx = tkzs.hsamp_.lineRange().nearestIndex(inl);
-	    if ( inlidx<0 || inlidx>tkzs.nrLines()-1 )
-		continue;
-
-	    for ( int idy=0; idy<sampling.nrTrcs(); idy++ )
-	    {
-		const int crl = sampling.hsamp_.trcRange().atIndex( idy );
-		const int crlidx = tkzs.hsamp_.trcRange().nearestIndex(crl);
-		if ( crlidx<0 || crlidx>tkzs.nrTrcs()-1 )
-		    continue;
-
-		for ( int idz=0; idz<sampling.nrZ(); idz++ )
-		{
-		    const float zval = sampling.zsamp_.atIndex( idz );
-		    const int zidx = tkzs.zsamp_.nearestIndex( zval );
-		    if ( zidx<0 || zidx>tkzs.nrZ()-1 )
-			continue;
-
-		    for ( int idc=0; idc<output->nrComponents(); idc++ )
-		    {
-			const float val = regsdp.data(idc).get( inlidx, crlidx,
-								zidx );
-			if ( Values::isUdf( val ) )
-			    continue;
-
-			output->data(idc).set( idx, idy, idz, val );
-		    }
-		}
-	    }
-	}
+	DataPackCopier copier( regsdp, *output );
+	copier.execute();
     }
 
     return output;
