@@ -17,7 +17,6 @@
 #include "uidialog.h"
 #include "iopar.h"
 #include "samplingdata.h"
-#include "bufstringset.h"
 #include "uistring.h"
 class uiSEGYVSPBasicPars;
 class uiGenInput;
@@ -52,7 +51,6 @@ protected:
 
     IOPar		sgypars_;
     SamplingData<float>	dispinpsamp_;
-    BufferStringSet	existinglognms_;
     bool		isdpth_;
 
     bool		inpIsTime() const;

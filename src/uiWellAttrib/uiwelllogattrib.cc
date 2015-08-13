@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "welllogset.h"
 #include "wellman.h"
-#include "wellreader.h"
 
 #include "uiattribfactory.h"
 #include "uigeninput.h"
@@ -65,25 +64,8 @@ void uiWellLogAttrib::selDone( CallBacker* )
     if ( wellid.isUdf() )
 	return;
 
-    RefMan<Well::Data> wd = new Well::Data;
     BufferStringSet lognms;
-    if ( Well::MGR().isLoaded(wellid) )
-    {
-	wd = Well::MGR().get( wellid );
-	if ( !wd )
-	{
-	    uiMSG().error( Well::MGR().errMsg() );
-	    return;
-	}
-
-	wd->logs().getNames( lognms );
-    }
-    else
-    {
-	Well::Reader wrdr( wellid, *wd );
-	wrdr.getLogInfo( lognms );
-    }
-
+    Well::MGR().getLogNames( wellid, lognms );
     logsfld_->addItems( lognms );
 }
 
