@@ -14,6 +14,12 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uidialog.h"
 
+class uiIOObjSel;
+class uiSeisSel;
+class uiComboBox;
+class uiBatchJobDispatcherSel;
+class uiSeisTransfer;
+
 
 /*!\brief Finishes reading process of 'any SEG-Y file'. */
 
@@ -31,7 +37,18 @@ protected:
 
     FullSpec		fs_;
 
+    uiIOObjSel*		outwllfld_;
+    uiSeisSel*		outimpfld_;
+    uiSeisSel*		outscanfld_;
+    uiSeisTransfer*	transffld_;
+    uiBatchJobDispatcherSel* batchfld_;
+    uiComboBox*		lognmfld_;
+
+    void		crVSPFields();
+    void		crSeisFields();
+
     void		initWin(CallBacker*);
+    void		wllSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     static uiString	getWinTile(const FullSpec&);
