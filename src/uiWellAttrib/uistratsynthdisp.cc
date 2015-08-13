@@ -1270,7 +1270,7 @@ void uiStratSynthDisp::doModelChange()
 
     if ( !curSS().errMsg().isEmpty() )
 	mErrRet( curSS().errMsg(), return )
-
+    
     showInfoMsg( false );
     updateSyntheticList( true );
     updateSyntheticList( false );
@@ -1310,7 +1310,7 @@ void uiStratSynthDisp::updateSynthetic( const char* synthnm, bool wva )
 	mErrRet(curSS().errMsg(), return );
 
     showInfoMsg( false );
-
+        
     if ( altSS().hasElasticModels() )
     {
 	altSS().removeSynthetic( syntheticnm );
@@ -1495,7 +1495,7 @@ void uiStratSynthDisp::genNewSynthetic( CallBacker* )
 	SyntheticData* altsd = altSS().addSynthetic();
 	if ( !altsd )
 	    mErrRet(altSS().errMsg(), return )
-
+	
 	showInfoMsg( true );
     }
     updateSyntheticList( true );
@@ -1761,7 +1761,7 @@ void uiSynthSlicePos::prevCB( CallBacker* )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getValue()-stepbox->getValue() );
+    posbox->setValue( posbox->getIntValue()-stepbox->getIntValue() );
 }
 
 
@@ -1769,7 +1769,7 @@ void uiSynthSlicePos::nextCB( CallBacker* )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getValue()+stepbox->getValue() );
+    posbox->setValue( posbox->getIntValue()+stepbox->getIntValue() );
 }
 
 
@@ -1792,5 +1792,5 @@ void uiSynthSlicePos::setValue( int val ) const
 
 int uiSynthSlicePos::getValue() const
 {
-    return sliceposbox_->getValue();
+    return sliceposbox_->getIntValue();
 }

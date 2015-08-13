@@ -366,8 +366,8 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	}
 	case StraightLine:
 	{
-	    ptlist += Coord(coord0fld_->getdValue(0), coord0fld_->getdValue(1));
-	    ptlist += Coord(coord1fld_->getdValue(0), coord1fld_->getdValue(1));
+	    ptlist += Coord(coord0fld_->getDValue(0), coord0fld_->getDValue(1));
+	    ptlist += Coord(coord1fld_->getDValue(0), coord1fld_->getDValue(1));
 	    break;
 	}
 	case Polygon:

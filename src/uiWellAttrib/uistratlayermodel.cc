@@ -934,7 +934,6 @@ void uiStratLayerModel::doGenModels( bool forceupdsynth, bool overridedispeach )
     Strat::LayerModel* newmodl = new Strat::LayerModel;
     newmodl->propertyRefs() = desc_.propSelection();
     newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
-
     mcs.restore();
 
     Strat::LayerModelGenerator ex( desc_, *newmodl, nrmods );

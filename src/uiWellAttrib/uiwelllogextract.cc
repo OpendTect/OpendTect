@@ -178,7 +178,7 @@ bool uiWellLogExtractGrp::extractWellData( const BufferStringSet& ioobjids,
 {
     Well::TrackSampler wts( ioobjids, dpss, SI().zIsTime() );
     wts.for2d_ = false; wts.lognms_ = lognms;
-    wts.locradius_ = !radiusfld_ ? 0.f : radiusfld_->getfValue();
+    wts.locradius_ = !radiusfld_ ? 0.f : radiusfld_->getFValue();
     wts.mkdahcol_ = true;
     wts.params_ = welllogselfld_->params();
     uiTaskRunner taskrunner( this );

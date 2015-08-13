@@ -249,13 +249,13 @@ bool uiSynthCorrectionsGrp::wantNMOCorr() const
 
 float uiSynthCorrectionsGrp::getStrechtMutePerc() const
 {
-    return uiscadvdlg_->stretchmutelimitfld_->getfValue();
+    return uiscadvdlg_->stretchmutelimitfld_->getFValue();
 }
 
 
 float uiSynthCorrectionsGrp::getMuteLength() const
 {
-    return uiscadvdlg_->mutelenfld_->getfValue();
+    return uiscadvdlg_->mutelenfld_->getFValue();
 }
 
 
@@ -291,11 +291,11 @@ uiSynthCorrAdvancedDlg::uiSynthCorrAdvancedDlg( uiParent* p )
 
 bool uiSynthCorrAdvancedDlg::acceptOK( CallBacker* )
 {
-    if ( mIsUdf(mutelenfld_->getfValue() ) || mutelenfld_->getfValue()<0 )
+    if ( mIsUdf(mutelenfld_->getFValue() ) || mutelenfld_->getFValue()<0 )
 	mErrRet( "The mutelength must be more than zero.", return false );
 
-    if ( mIsUdf(stretchmutelimitfld_->getfValue()) ||
-	 stretchmutelimitfld_->getfValue()<0 )
+    if ( mIsUdf(stretchmutelimitfld_->getFValue()) ||
+	 stretchmutelimitfld_->getFValue()<0 )
 	mErrRet( "The stretch mute must be more than 0%", return false );
 
     return true;
