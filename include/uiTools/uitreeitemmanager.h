@@ -162,6 +162,7 @@ protected:
 
     virtual const char*		parentType() const = 0;
 				/*!<\returns typeid(parentclass).name() */
+    virtual bool		useParentType() const	    { return true; }
     virtual bool		init() { return true; }
 
     virtual bool		rightClick(uiTreeViewItem*);
