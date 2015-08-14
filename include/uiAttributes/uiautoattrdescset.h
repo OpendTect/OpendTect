@@ -37,22 +37,22 @@ public:
     				uiAutoAttrSelDlg(uiParent* p,bool);
 				~uiAutoAttrSelDlg();
 
-	IOObj*			getObj();
-	bool			useAuto();
-	bool			loadAuto();
+    IOObj*			getObj();
+    bool			useAuto();
+    bool			loadAuto();
 
 protected:
-	
-	CtxtIOObj&          	ctio_;
-	bool			is2d_;
 
-	uiGenInput*         	usefld_;
-	uiIOObjSelGrp*      	selgrp_;
-	uiLabel*            	lbl_;
-	uiCheckBox*         	loadbutton_;
+    CtxtIOObj&		ctio_;
+    bool			is2d_;
 
-	void			useChg(CallBacker*);
-	bool			acceptOK(CallBacker*);
+    uiGenInput*		usefld_;
+    uiIOObjSelGrp*		selgrp_;
+    uiLabel*		lbl_;
+    uiCheckBox*		loadbutton_;
+
+    void			useChg(CallBacker*);
+    bool			acceptOK(CallBacker*);
 
 };
 
@@ -63,33 +63,32 @@ public:
 				uiAutoAttrSetOpen(uiParent*,BufferStringSet&,
 							BufferStringSet&);
 				~uiAutoAttrSetOpen();
-	IOObj*			getObj();
-	const char*		getAttribname();
-	const char*		getAttribfile();
-	bool			isUserDef()		{ return usrdef_; }
-	bool			isAuto()		{ return isauto_; }
-	
+    IOObj*			getObj();
+    const char*		getAttribname();
+    const char*		getAttribfile();
+    bool			isUserDef()		{ return usrdef_; }
+    bool			isAuto()		{ return isauto_; }
+
 protected:
-	
-	CtxtIOObj&              ctio_;
 
-	uiIOObjSelGrp*          selgrp_;
-	uiLabel*                lbl_;
-	uiListBox*	defattrlist_;
-	uiGenInput*		defselfld_;
-	uiGenInput*		autoloadfld_;
+    CtxtIOObj&		ctio_;
 
-	BufferStringSet		attribfiles_;
-	BufferStringSet		attribnames_;
-	int			defselid_;
-	bool			usrdef_;
-	bool			isauto_;
+    uiIOObjSelGrp*		selgrp_;
+    uiLabel*		lbl_;
+    uiListBox*		defattrlist_;
+    uiGenInput*		defselfld_;
+    uiGenInput*		autoloadfld_;
 
-	void			setChg(CallBacker*);
-	bool                    acceptOK(CallBacker*);
+    BufferStringSet		attribfiles_;
+    BufferStringSet		attribnames_;
+    int			defselid_;
+    bool			usrdef_;
+    bool			isauto_;
+
+    void			setChg(CallBacker*);
+    bool			acceptOK(CallBacker*);
 
 };
-
 
 #endif
 

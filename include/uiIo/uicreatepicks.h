@@ -48,7 +48,7 @@ public:
 };
 
 
-mExpClass(uiIo) uiCreatePicks : public uiDialog 
+mExpClass(uiIo) uiCreatePicks : public uiDialog
 { mODTextTranslationClass(uiCreatePicks);
 public:
 			uiCreatePicks(uiParent*,bool aspolygon=false,
@@ -60,7 +60,7 @@ public:
 protected:
 
     uiGenInput*		nmfld_;
-    uiColorInput*       colsel_;
+    uiColorInput*	colsel_;
     BufferString	name_;
 
     bool		aspolygon_;
@@ -96,28 +96,28 @@ public:
     			uiGenRandPicks2D(uiParent*,const BufferStringSet&,
 					 const BufferStringSet&);
 
-    const RandLocGenPars& randPars() const      { return randpars_; }
+    const RandLocGenPars& randPars() const	{ return randpars_; }
 
 protected:
 
-    RandLocGenPars              randpars_;
-    const BufferStringSet&      hornms_;
+    RandLocGenPars		randpars_;
+    const BufferStringSet&	hornms_;
 
     uiGenInput*		nrfld_;
     uiGenInput*		geomfld_;
     uiLabeledComboBox*	horselfld_;
     uiComboBox*		horsel2fld_;
-    uiListBox*	linenmfld_;
+    uiListBox*		linenmfld_;
     uiGenInput*		zfld_;
 
     BufferStringSet	linenms_;
 
-    bool                acceptOK(CallBacker*);
-    void                mkRandPars();
+    bool		acceptOK(CallBacker*);
+    void		mkRandPars();
 
-    void                geomSel(CallBacker*);
-    void                hor1Sel(CallBacker*);
-    void                hor2Sel(CallBacker*);
+    void		geomSel(CallBacker*);
+    void		hor1Sel(CallBacker*);
+    void		hor2Sel(CallBacker*);
     void		horSel(uiComboBox*,uiComboBox*);
 
 };

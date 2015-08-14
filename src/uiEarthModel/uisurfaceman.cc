@@ -168,7 +168,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	surfdatarenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
 					"Rename selected Horizon Data",
 					mCB(this,uiSurfaceMan,renameAttribCB) );
-	butgrp->attach( rightTo, attribfld_ );
+	butgrp->attach( rightTo, attribfld_->box() );
 
 	new uiPushButton( extrabutgrp_, uiStrings::sStratigraphy(true),
 		mCB(this,uiSurfaceMan,stratSel), false );

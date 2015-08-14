@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uiobjfileman.h"
-class uiListBox;
 
 mExpClass(uiIo) ui2DGeomManageDlg : public uiObjFileMan
 { mODTextTranslationClass(ui2DGeomManageDlg);

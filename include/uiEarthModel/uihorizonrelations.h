@@ -28,7 +28,7 @@ public:
 			uiHorizonRelationsDlg(uiParent*,bool is2d);
 
 protected:
-    uiListBox*	relationfld_;
+    uiListBox*		relationfld_;
     uiPushButton*	crossbut_;
     uiPushButton*	waterbut_;
 

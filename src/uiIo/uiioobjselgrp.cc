@@ -187,7 +187,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     topgrp_->setHAlignObj( listfld_ );
 
     listfld_->setName( "Objects list" );
-    listfld_->setPrefHeightInChar( 8 );
+    listfld_->box()->setPrefHeightInChar( 8 );
     listfld_->setHSzPol( uiObject::Wide );
     if ( isMultiChoice() )
     {
