@@ -101,7 +101,11 @@ bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
 
     StreamData sd( StreamProvider(inpfnm).makeIStream() );
     if ( !sd.usable() )
-	{ errmsg_ = uiStrings::sCantOpen(toUiString(inpfnm)); return false; }
+    {
+	errmsg_ = uiStrings::phrCannotOpen(toUiString(inpfnm));
+	return false;
+    }
+
     BufferString bs;
     const bool isok = StrmOper::readFile( *sd.istrm, bs );
     sd.close();

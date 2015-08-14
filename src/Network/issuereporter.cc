@@ -43,7 +43,7 @@ bool System::IssueReporter::readReport( const char* filename )
 {
     if ( !File::exists( filename ) )
     {
-	errmsg_ = uiStrings::sDoesntExist(toUiString(filename));
+	errmsg_ = uiStrings::phrDoesntExist(toUiString(filename));
 	return false;
     }
 
@@ -89,7 +89,7 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
 {
     if ( !File::exists( filename ) )
     {
-	errmsg_ = uiStrings::sDoesntExist(toUiString(filename));
+	errmsg_ = uiStrings::phrDoesntExist(toUiString(filename));
 	return false;
     }
 

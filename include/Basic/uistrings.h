@@ -21,6 +21,31 @@ ________________________________________________________________________
 mClass(Basic) uiStrings
 { mODTextTranslationClass(uiStrings);
 public:
+//Phrases
+    static uiString phrImmediate(bool immediate,const uiString& string);
+    //!<string> ...
+    static uiString phrSelect(const uiString& string);
+    //!<"Select <string>"
+    static uiString phrExport(const uiString& string);
+    //!<"Export <string>"
+    static uiString phrImport(const uiString& string);
+    //!<"Import <string>"
+    static uiString phrCannotCreate(const uiString& string);
+    //!<"Cannot create <string>
+    static uiString phrCannotFind(const uiString& string);
+    //!<"Cannot find <string>
+    static uiString phrCannotOpen(const uiString& string);
+    //!<"Cannot open <string>
+    static uiString phrCannotRead(const uiString& string);
+    //!<"Cannot read <string>
+    static uiString phrCannotWrite(const uiString& string);
+    //!<"Cannot write <string>
+    static uiString phrCreate(const uiString& string);
+    //!<"Create <string>
+    static uiString phrDoesntExist(const uiString& string,int num=1);
+    //!<"<string> does/do not exist
+
+//Words
     static uiString s2D(bool immediate);
     static uiString s3D(bool immediate);
     static uiString sAbort()		{ return tr("Abort"); }
@@ -46,42 +71,27 @@ public:
     static uiString sCalculate()	{ return tr("Calculate"); }
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sCancel(bool)	{ return sCancel(); }
-    static uiString sCantCreateHor()	{ return tr("Cannot create horizon"); }
-    static uiString sCantFindAttrName()	{
-					  return tr("Cannot find "
-						    "attribute name");
-					}
-    static uiString sCantFindODB()	{
-					  return tr("Cannot find object "
-						    "in data base");
-					}
-    static uiString sCantFindSurf()	{ return tr("Cannot find surface"); }
-    static uiString sCantLoadHor()	{ return tr("Cannot load horizon"); }
-    static uiString sCantOpen(uiString s) {
-					  return tr("Cannot open %1").arg(s);
-					  }
-    static uiString sCantOpenInpFile()	{ return tr("Cannot open input file"); }
-    static uiString sCantOpenOutpFile() { return tr("Cannot open output file");}
-    static uiString sCantReadInp()	{ return tr("Cannot read input"); }
-    static uiString sCantReadInpData()	{ return tr("Cannot read input data"); }
-    static uiString sCantWriteSet()	{ return tr("Cannot write settings"); }
+    static uiString sCantCreateHor();
+    static uiString sCantFindAttrName();
+    static uiString sCantFindODB();
+    static uiString sCantFindSurf();
+    static uiString sCantReadHor();
+    static uiString sCantReadInp();
+    static uiString sCantWriteSettings();
+    static uiString sCantOpenInpFile(int num=1);
+    static uiString sCantOpenOutpFile(int num=1);
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable(bool immediate);
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sCreate(bool immediate);
-    static uiString sCreateProbDesFunc(){
-					  return tr("Create Probability "
-						    "Density Function");
-					}
-    static uiString sCreateRandLines()	{ return tr("Create random lines"); }
-    static uiString sCrossline()        { return tr("Cross-line"); }
+    static uiString sCreateProbDesFunc();
+    static uiString sCreateRandLines();
+    static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
     static uiString sDelete()		{ return tr("Delete"); }
     static uiString sDepth()	        { return tr("Depth"); }
     static uiString sDisplay()		{ return tr("Display"); }
-    static uiString sDoesntExist(uiString s)  {
-					  return tr("%1 does not exist").arg(s);
-					      }
+
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
     static uiString sEmptyString()	{ return tr(""); }
@@ -97,21 +107,24 @@ public:
 					  return tr("Failed to convert into "
 						    "compatible data");
 					}
-    static uiString sFaults(bool immediate);
+
+    static uiString sFaultStickSets(int num=2);
+    static uiString sFaultStickSet()	{ return sFaultStickSets(1); }
+    static uiString sFault()		{ return sFaults(true,1); }
+    static uiString sFaults(bool imm=true,int num=2);
     static uiString sFile()	        { return tr("File"); }
-    static uiString sFileDoesntExist()	{ return tr("File does not exist"); }
+    static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
     static uiString sGo()	        { return tr("Go"); }
-    static uiString sHelp()		{ return tr("Help"); }
-    static uiString sHelp(bool)		{ return sHelp(); }
+    static uiString sHelp(bool imm=true);
     static uiString sHide()		{ return tr("Hide"); }
     static uiString sHistogram(bool immediate);
-    static uiString sHorizon(bool immediate);
-    static uiString sHorizons(bool immediate);
+    static uiString sHorizon()		{ return sHorizons(true,1); }
+    static uiString sHorizons(bool imm,int num=2);
     static uiString sHorizontal()	{ return tr("Horizontal"); }
     static uiString sImport()		{ return tr("Import"); }
     static uiString sImpSuccess()	{ return tr("Import successful"); }
     static uiString sInfo()		{ return tr("info"); }
-    static uiString sInline()		{ return tr("In-line"); }
+    static uiString sInline(int num=1)	{ return tr("In-line",0,num); }
     static uiString sInpParMis()	{
 					  return tr("Input parameters "
 						    "missing");
@@ -124,7 +137,8 @@ public:
     static uiString sLogs(bool immediate);
     static uiString sManual()		{ return tr("Manual"); }
     static uiString sManWav()		{ return tr("Manage Wavelets"); }
-    static uiString sMarkers(bool immediate);
+    static uiString sMarker()		{ return sMarkers(false,1); }
+    static uiString sMarkers(bool imm,int=2);
     static uiString sName()		{ return tr("Name"); }
     static uiString sNew(bool immediate);
     static uiString sNext()		{ return tr("Next >"); }
@@ -141,8 +155,7 @@ public:
     static uiString sOk(bool)		{ return sOk(); }
     static uiString sOpen(bool immediate);
     static uiString sOperator()		{ return tr("Operator"); }
-    static uiString sOptions()		{ return tr("Options"); }
-    static uiString sOptions(bool)	{ return sOptions(); }
+    static uiString sOptions(bool immediate);
     static uiString sOutpDataStore()	{ return tr("Output data store"); }
     static uiString sOutpFileOverw()	{
 					  return tr("Output file exists. "
@@ -154,7 +167,9 @@ public:
     static uiString sPickSet()		{ return tr("Pickset"); }
     static uiString sPolygon()		{ return tr("Polygon"); }
     static uiString sProcessing()	{ return tr("Processing"); }
+    static uiString sProbDensFunc();
     static uiString sProperties(bool immediate);
+    static uiString sRandomLine()	{ return tr("Random Line"); }
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sReload()		{ return tr("Reload"); }
@@ -165,13 +180,15 @@ public:
     static uiString sSaveAsDefault()    { return tr("Save as Default"); }
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
     static uiString sScanning()		{ return tr("Scanning"); }
-    static uiString sScenes()		{ return tr("Scenes"); }
+    static uiString sScene(int num=1)	{ return tr("Scenes",0,1); }
+    static uiString sScenes()		{ return sScene(2); }
     static uiString sSeedData()		{
 					  return tr("Which one is "
 						    "your seed data.");
 					}
     static uiString sSEGY()		{ return tr("SEG-Y"); }
-    static uiString sSeismics(bool immediate);
+    static uiString sSeismic(bool immediate,int num);
+    static uiString sSeismics(bool imm) { return sSeismic(imm,2); }
     static uiString sSelAttrib()	{ return tr("Select Attribute"); }
     static uiString sSelDataSetEmp()	{
 					  return tr("Selected data "
@@ -186,7 +203,8 @@ public:
 					  return tr("Please select "
 						    "output file");
 					}
-    static uiString sSettings(bool immediate);
+    static uiString sSetting(bool immediate,int num=1);
+    static uiString sSettings(bool imm) { return sSetting(imm,2); }
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift(bool immediate);
     static uiString sShow()             { return tr("Show"); }
@@ -217,100 +235,13 @@ public:
     static uiString sVertical()		{ return tr("Vertical"); }
     static uiString sView()		{ return tr("View"); }
     static uiString sWavelet()		{ return tr("Wavelet"); }
-    static uiString sWells(bool immediate);
+    static uiString sWell(bool immediate,int num=1);
+    static uiString sWells(bool imm) { return sWell(imm,2); }
     static uiString sWiggle()		{ return tr("Wiggle"); }
     static uiString sYes()		{ return tr("Yes"); }
     static uiString sSet()		{ return tr("Set"); }
 };
 
-// Implementations uiStrings
-
-inline uiString uiStrings::s2D( bool immediate )
-{ return immediate ? tr("2D") : tr("2D ..."); }
-
-inline uiString uiStrings::s3D( bool immediate )
-{ return immediate ? tr("3D") : tr("3D ..."); }
-
-inline uiString uiStrings::sAdd( bool immediate )
-{ return immediate ? tr("Add") : tr("Add ..."); }
-
-inline uiString uiStrings::sASCII( bool immediate )
-{ return immediate ? tr("ASCII") : tr("ASCII ..."); }
-
-inline uiString uiStrings::sAttributes( bool immediate )
-{ return immediate ? tr("Attributes") : tr("Attributes ..."); }
-
-inline uiString uiStrings::sColorTable( bool immediate )
-{ return immediate ? tr("ColorTable") : tr("ColorTable ..."); }
-
-inline uiString uiStrings::sCreate( bool immediate )
-{ return immediate ? tr("Create") : tr("Create ..."); }
-
-inline uiString uiStrings::sEdit( bool immediate )
-{ return immediate ? tr("Edit") : tr("Edit ..."); }
-
-inline uiString uiStrings::sFaults( bool immediate )
-{ return immediate ? tr("Faults") : tr("Faults ..."); }
-
-inline uiString uiStrings::sHistogram( bool immediate )
-{ return immediate ? tr("Histogram") : tr("Histogram ..."); }
-
-inline uiString uiStrings::sHorizon( bool immediate )
-{ return immediate ? tr("Horizon") : tr("Horizon ..."); }
-
-inline uiString uiStrings::sHorizons( bool immediate )
-{ return immediate ? tr("Horizons") : tr("Horizons ..."); }
-
-inline uiString uiStrings::sLoad( bool immediate )
-{ return immediate ? tr("Load") : tr("Load ..."); }
-
-inline uiString uiStrings::sLogs( bool immediate )
-{ return immediate ? tr("Logs") : tr("Logs ..."); }
-
-inline uiString uiStrings::sMarkers( bool immediate )
-{ return immediate ? tr("Markers") : tr("Markers ..."); }
-
-inline uiString uiStrings::sNew( bool immediate )
-{ return immediate ? tr("New") : tr("New ..."); }
-
-inline uiString uiStrings::sOpen( bool immediate )
-{ return immediate ? tr("Open") : tr("Open ..."); }
-
-inline uiString uiStrings::sProperties( bool immediate )
-{ return immediate ? tr("Properties") : tr("Properties ..."); }
-
-inline uiString uiStrings::sRemove( bool immediate )
-{ return immediate ? tr("Remove") : tr("Remove ..."); }
-
-inline uiString uiStrings::sSave( bool immediate )
-{ return immediate ? tr("Save") : tr("Save ..."); }
-
-inline uiString uiStrings::sSaveAs( bool immediate )
-{ return immediate ? tr("Save as") : tr("Save as ..."); }
-
-inline uiString uiStrings::sSeismics( bool immediate )
-{ return immediate ? tr("Seismics") : tr("Seismics ..."); }
-
-inline uiString uiStrings::sSelect(bool immediate)
-{ return immediate ? tr("Select") : tr("Select ..."); }
-
-inline uiString uiStrings::sSettings( bool immediate )
-{ return immediate ? tr("Settings") : tr("Settings ..."); }
-
-inline uiString uiStrings::sShift(bool immediate)
-{ return immediate ? tr("Shift") : tr("Shift ..."); }
-
-inline uiString uiStrings::sStored( bool immediate )
-{ return immediate ? tr("Stored") : tr("Stored ..."); }
-
-inline uiString uiStrings::sStratigraphy( bool immediate )
-{ return immediate ? tr("Stratigraphy") : tr("Stratigraphy ..."); }
-
-inline uiString uiStrings::sTrack( bool immediate )
-{ return immediate ? tr("Track") : tr("Track ..."); }
-
-inline uiString uiStrings::sWells( bool immediate )
-{ return immediate ? tr("Wells") : tr("Wells ..."); }
 
 #endif
 

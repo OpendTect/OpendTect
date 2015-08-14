@@ -110,6 +110,25 @@ mGlobal(Basic) TextTranslateMgr& TrMgr()
 }
 
 
+TextTranslateMgr::TextTranslateMgr()
+    : dirtycount_(0)
+    , currentlanguageidx_(-1)
+    , languageChange(this)
+{
+    loadInfo();
+    for ( int idx=0; idx<languages_.size(); idx++ )
+    {
+	if ( languages_[idx]->locale_.country()==QLocale::UnitedStates &&
+	     languages_[idx]->locale_.language()==QLocale::English )
+	{
+	    uiString err;
+	    setLanguage( idx, err );
+	    break;
+	}
+    }
+}
+
+
 TextTranslateMgr::~TextTranslateMgr()
 {
     deepErase( languages_ );
@@ -118,13 +137,12 @@ TextTranslateMgr::~TextTranslateMgr()
 
 int TextTranslateMgr::nrSupportedLanguages() const
 {
-    return languages_.size()+1;
+    return languages_.size();
 }
 
 
 uiString TextTranslateMgr::getLanguageUserName(int idx) const
 {
-    idx--; //Compensate for default language
     if ( languages_.validIdx(idx) )
     {
 	uiString ret;
@@ -136,14 +154,12 @@ uiString TextTranslateMgr::getLanguageUserName(int idx) const
 	return ret;
     }
 
-    return toUiString("English");
+    return toUiString("Unknown language");
 }
 
 
 BufferString TextTranslateMgr::getLanguageName(int idx) const
 {
-    idx--; //Compensate for default language
-
     if ( languages_.validIdx(idx) )
 	return languages_[idx]->name_;
 
@@ -153,7 +169,6 @@ BufferString TextTranslateMgr::getLanguageName(int idx) const
 
 bool TextTranslateMgr::setLanguage( int idx, uiString& errmsg )
 {
-    idx--; //Compensate for default language
     if ( idx==currentlanguageidx_ )
 	return true;
 
@@ -183,7 +198,7 @@ bool TextTranslateMgr::setLanguage( int idx, uiString& errmsg )
 
 
 int TextTranslateMgr::currentLanguage() const
-{ return currentlanguageidx_+1; }
+{ return currentlanguageidx_; }
 
 
 const QTranslator*
@@ -259,7 +274,8 @@ void TextTranslateMgr::loadInfo()
 	    }
 	    else
 	    {
-		tr("Language Name").translate( maintrans, tli->username_ );
+		tr("Language Name",0,1).translate( maintrans, tli->username_ );
+		//Force be a part of the plural setup
 	    }
 #endif
 	}

@@ -46,7 +46,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     if ( !baseemobj_ )
     {
 	basectio_.ctxt.forread = true;
-	basesel_ = new uiIOObjSel( this, basectio_, uiStrings::sHorizon(true) );
+	basesel_ = new uiIOObjSel( this, basectio_, uiStrings::sHorizon() );
     }
 
     ctio_.ctxt.forread = true;

@@ -31,19 +31,20 @@ namespace PreStack
 {
 
 uiExportMute::uiExportMute( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Export Mute Function"),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("Mute Function") ),
+				 mNoDlgTitle,
                                  mODHelpKey(mPreStackExportMuteHelpID) ))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
     setOkText( uiStrings::sExport() );
 
-    infld_ = new uiIOObjSel( this, ctio_, "Mute Definition" );
+    infld_ = new uiIOObjSel( this, ctio_, tr("Mute Definition") );
 
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 			        BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
 
-    outfld_ = new uiFileInput( this, "Output ASCII file",
+    outfld_ = new uiFileInput( this, tr("Output ASCII file"),
 			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, coordfld_ );
 }

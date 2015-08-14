@@ -18,7 +18,7 @@ const char* uiGMTOverlayGrp::sKeyProgName()	{ return "Program Name"; }
 const char* uiGMTOverlayGrp::sKeyUserRef()	{ return "User Ref"; }
 
 
-uiGMTOverlayGrp::uiGMTOverlayGrp( uiParent* p, const char* nm )
+uiGMTOverlayGrp::uiGMTOverlayGrp( uiParent* p, const uiString& nm )
     : uiDlgGroup(p,nm)
 {}
 

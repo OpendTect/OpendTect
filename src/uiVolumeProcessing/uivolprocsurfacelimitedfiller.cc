@@ -137,7 +137,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     labl += SI().zIsTime() ? "time" : "depth";
     userefdepthfld_ = new uiGenInput( this, labl,
 	    BoolInpSpec(surfacefiller_->usesRefZValue(),constantstr,
-            uiStrings::sHorizon(true)));
+	    uiStrings::sHorizon()));
     userefdepthfld_->valuechanged.notify(
 	    mCB(this,uiSurfaceLimitedFiller,useRefValCB) );
     userefdepthfld_->attach( alignedBelow, gradientfld_ );
@@ -153,7 +153,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = true;
-    refhorizonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon(true) );
+    refhorizonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
     refhorizonfld_->attach( alignedBelow, userefdepthfld_ );
     if ( !surfacefiller_->usesRefZValue() && surfacefiller_->getRefHorizonID() )
 	refhorizonfld_->setInput( *surfacefiller_->getRefHorizonID() );

@@ -22,7 +22,7 @@ mClass(uiGMT) uiGMTOverlayGrp : public uiDlgGroup
 {
 public:
 
-    			uiGMTOverlayGrp(uiParent*,const char*);
+			uiGMTOverlayGrp(uiParent*,const uiString&);
 
     virtual bool	fillPar(IOPar&) const			=0;
     virtual bool	usePar(const IOPar&)			=0;

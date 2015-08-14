@@ -51,8 +51,9 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 
 uiExportHorizon::uiExportHorizon( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Export Horizon"),mNoDlgTitle,
-                                 mODHelpKey(mExportHorizonHelpID) ))
+: uiDialog(p,uiDialog::Setup( uiStrings::phrExport( uiStrings::sHorizon() ),
+			      mNoDlgTitle,
+			      mODHelpKey(mExportHorizonHelpID) ))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     setModal( false );

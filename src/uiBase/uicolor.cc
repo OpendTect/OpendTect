@@ -61,6 +61,10 @@ static void endCmdRecEvent( int refnr, bool ok, const Color& col,
 }
 
 
+uiString uiColorInput::sSelColor()
+{ return uiStrings::phrSelect( uiStrings::sColor() ); }
+
+
 bool selectColor( Color& col, uiParent* parnt,
                 uiString txt, bool withtransp )
 { return uiColorInput::selectColor( col, parnt, txt, withtransp ); }
@@ -71,7 +75,7 @@ bool uiColorInput::selectColor( Color& col, uiParent* parnt,
                                 uiString txt, bool withtransp )
 {
     QWidget* qparent = parnt ? parnt->pbody()->qwidget() : 0;
-    if ( txt.isEmpty() ) txt = tr("Select color");
+    if ( txt.isEmpty() ) txt = uiColorInput::sSelColor();
 
     BufferString addendum;
     const uiString wintitle = uiMainWin::uniqueWinTitle( txt, 0, &addendum );

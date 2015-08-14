@@ -8,6 +8,9 @@
 set( QTDIR "" CACHE PATH "QT Location" )
 option ( OD_NO_QT "Turn off all QT" NO )
 
+##Create launcher for linguist
+configure_file( CMakeModules/templates/linguist.csh.in dtect/linguist.csh @ONLY )
+
 macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
     list( FIND ${LISTNAME} "${ITEMNAME}" ITMINDEX )
     if ( ${ITMINDEX} EQUAL -1 )

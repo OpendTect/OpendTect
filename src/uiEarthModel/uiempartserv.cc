@@ -1398,7 +1398,7 @@ const char* uiEMPartServer::genRandLine( int opt )
 ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
 {
     uiDialog dlg( parent(),
-		  uiDialog::Setup(tr("Select horizon"),
+		 uiDialog::Setup( uiStrings::phrSelect( uiStrings::sHorizon() ),
                                   mNoDlgTitle,mTODOHelpKey) );
     const IOObjContext ctxt = is2d
 	? EMHorizon2DTranslatorGroup::ioContext()

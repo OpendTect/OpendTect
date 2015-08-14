@@ -1,0 +1,21 @@
+#!/bin/csh
+
+set kernel=`uname -a | awk '{print $1}'`
+
+if ( "${kernel}" == "Darwin" ) then
+    if ( $?DYLD_LIBRARY_PATH ) then
+        setenv DYLD_LIBRARY_PATH ${DYLD_LIBRARY_PATH}:@QTDIR@/lib
+    else
+        setenv DYLD_LIBRARY_PATH @QTDIR@/lib
+    endif
+    @QTDIR@/bin/Linguist.app/Contents/MacOS/Linguist $*
+else
+    if ( $?LD_LIBRARY_PATH ) then
+        setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:@QTDIR@/lib
+    else
+        setenv LD_LIBRARY_PATH @QTDIR@/lib
+    endif
+
+    @QTDIR@/bin/linguist $*
+endif
+

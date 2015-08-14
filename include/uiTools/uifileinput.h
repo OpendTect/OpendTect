@@ -58,9 +58,10 @@ public:
 	mDefSetupMemb(uiString,objtype)		//!< empty
     };
 
-			uiFileInput(uiParent*,const char* seltxt,
+			uiFileInput(uiParent*,const uiString& seltxt,
 				    const char* fnm=0);
-			uiFileInput(uiParent*,const char* seltxt,const Setup&);
+			uiFileInput(uiParent*,const uiString& seltxt,
+				    const Setup&);
 			~uiFileInput();
 
     void		setFileName(const char*);
