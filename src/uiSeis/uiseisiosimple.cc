@@ -64,7 +64,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 				  : tr("Export seismics to simple flat file"),
 			      mNoDlgTitle,
 			      imp ? mODHelpKey(mSeisIOSimpleImpHelpID)
-                                  : mODHelpKey(mSeisIOSimpleExpHelpID) ) )
+				  : mODHelpKey(mSeisIOSimpleExpHelpID) )
+			.modal(false))
 	, ctxt_(*new IOObjContext(uiSeisSel::ioContext(gt,!imp)))
 	, sdfld_(0)
 	, havenrfld_(0)
