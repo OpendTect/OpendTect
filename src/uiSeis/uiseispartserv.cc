@@ -123,8 +123,6 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     
     delete impcbvsdlg_; impcbvsdlg_ = 0;
     delete impcbvsothsurvdlg_; impcbvsothsurvdlg_ = 0;
-    delete impcbvsdlg_; impcbvsdlg_ = 0;
-    delete impcbvsothsurvdlg_; impcbvsothsurvdlg_ = 0;
     delete imp3dseisdlg_; imp3dseisdlg_ = 0;
     delete exp3dseisdlg_; exp3dseisdlg_ = 0;
     delete imp2dseisdlg_; imp2dseisdlg_ = 0;
