@@ -107,6 +107,7 @@ public:
 
 protected:
 
+
     uiGraphicsView*		view_;
     AxesDrawer&			axesdrawer_; //!< Must be declared after canvas_
     uiWorldRect			wr_;
@@ -116,9 +117,9 @@ protected:
 
     uiBitMapDisplay*		bitmapdisp_;
 
-    Threads::Work		annotwork_;
-    Threads::Work		bitmapwork_;
-    Threads::Work		auxdatawork_;
+    Threads::Atomic<bool>	updateannot_;
+    Threads::Atomic<bool>	updatebitmap_;
+    Threads::Atomic<bool>	updateauxdata_;
 
     void			updateCB(CallBacker*);
     void			updateAnnotCB(CallBacker*);
@@ -129,7 +130,6 @@ protected:
     void			reSizeCB(CallBacker*);
 
     bool			updatebitmapsonresize_;
-    int				updatequeueid_;
     float			extfac_;
 
     void			updateTransforms();

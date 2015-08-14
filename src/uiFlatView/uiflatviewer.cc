@@ -27,28 +27,24 @@ static const char* rcsID mUsedVar = "$Id$";
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
     , view_( new uiGraphicsView( this, "Flatview" ) )
-    , axesdrawer_(*new AxesDrawer(*this))
-    , extfac_(0.5f)
+    , axesdrawer_( *new AxesDrawer(*this) )
+    , extfac_( 0.5f )
     , worldgroup_( new uiGraphicsItemGroup( true ) )
-    , annotwork_( mCB(this,uiFlatViewer,updateAnnotCB) )
-    , auxdatawork_( mCB(this,uiFlatViewer,updateAuxDataCB) )
-    , bitmapwork_( mCB(this,uiFlatViewer,updateBitmapCB) )
-    , control_(0)
-    , xseldatarange_(mUdf(float),mUdf(float))
-    , yseldatarange_(mUdf(float),mUdf(float))
-    , useseldataranges_(false)
-    , viewChanged(this)
-    , dataChanged(this)
-    , dispParsChanged(this)
-    , annotChanged(this)
-    , dispPropChanged(this)
-    , updatebitmapsonresize_(true)
-    , wr_(0,0,1,1)
-{
-    updatequeueid_ =
-	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual,
-		 			      "FlatViewer");
+    , control_( 0 )
+    , xseldatarange_( mUdf(float),mUdf(float) )
+    , yseldatarange_( mUdf(float),mUdf(float) )
+    , useseldataranges_( false )
+    , viewChanged( this )
+    , dataChanged( this )
+    , dispParsChanged( this )
+    , annotChanged( this )
+    , dispPropChanged( this )
+    , updatebitmapsonresize_( true )
+    , updateannot_( false )
+    , updatebitmap_( false )
+    , updateauxdata_( false )
 
+{
     view_->preDraw.notify( mCB(this,uiFlatViewer,updateCB ) );
     view_->disableScrollZoom();
     view_->scene().addItem( worldgroup_ );
@@ -72,8 +68,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
 uiFlatViewer::~uiFlatViewer()
 {
     detachAllNotifiers();
-    Threads::WorkManager::twm().removeQueue( updatequeueid_, false );
-
     delete &axesdrawer_;
 
     bitmapdisp_->removeDisplay();
@@ -298,27 +292,31 @@ void uiFlatViewer::setViewToBoundingBox()
 }
 
 
-#define mAddToQueue( work ) \
-    Threads::WorkManager::twm().addWork( work, 0, updatequeueid_, false, true )
-
 void uiFlatViewer::handleChange( unsigned int dct )
 {
     if ( Math::AreBitsSet( dct, Auxdata ) )
-	mAddToQueue( auxdatawork_ );
+	updateauxdata_ = true;
 
     if ( Math::AreBitsSet( dct, Annot ) )
-	mAddToQueue( annotwork_ );
+	updateannot_ = true;
 
     if ( Math::AreBitsSet( dct, BitmapData | DisplayPars, false ) )
-	mAddToQueue( bitmapwork_ );
+	updatebitmap_ = true;
 
     view_->rePaint();
 }
 
 
-void uiFlatViewer::updateCB( CallBacker* )
+void uiFlatViewer::updateCB(CallBacker* cb)
 {
-    Threads::WorkManager::twm().executeQueue( updatequeueid_ );
+    if ( updateannot_.setIfValueIs(true,false,0) )
+	updateAnnotCB( cb );
+
+    if ( updatebitmap_.setIfValueIs(true,false,0) )
+	updateBitmapCB( cb );
+
+    if ( updateauxdata_.setIfValueIs(true,false,0) )
+	updateAuxDataCB( cb );
 }
 
 
