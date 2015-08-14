@@ -29,6 +29,12 @@ const char* Well::Info::sKeyreplvel()
 { return "Replacement velocity [from KB to SRD]"; }
 const char* Well::Info::sKeygroundelev(){ return "Ground Level elevation [GL]";}
 const char* Well::Info::sKeyTD()	{ return "Total Depth [TD]"; }
+const char* Well::Info::sKeywelltype()	{ return "WellType"; }
+
+DefineEnumNames( Well::Info, WellType, 0, "Well Type" )
+{ "none", "oilwell", "gaswell", "oilgaswell", "dryhole", "pluggedoilwell",
+  "pluggedgaswell", "pluggedoilgaswell", "permittedlocation",
+  "canceledlocation", "injectiondisposalwell", 0 };
 
 int Well::Info::legacyLogWidthFactor()
 {
@@ -236,6 +242,7 @@ void Well::Info::fillPar(IOPar& par) const
     par.set( sKeyoper(), oper );
     par.set( sKeystate(), state );
     par.set( sKeycounty(), county );
+    par.set( sKeywelltype(), welltype_ );
 
     par.set( sKeycoord(), surfacecoord.toString() );
     par.set( sKeyreplvel(), replvel );
@@ -250,7 +257,9 @@ void Well::Info::usePar( const IOPar& par )
     par.get( sKeyoper(), oper );
     par.get( sKeystate(), state );
     par.get( sKeycounty(), county );
-
+    int welltype = 0;
+    par.get( sKeywelltype(), welltype ); welltype_ = (WellType)welltype;
+  
     surfacecoord.fromString( par.find(sKeycoord()) );
     par.get( sKeyreplvel(), replvel );
     par.get( sKeygroundelev(), groundelev );
