@@ -118,7 +118,7 @@ void uiLegendItem::init()
     country_ = new uiAdvancedTextItem( "Country" );
     block_ = new uiAdvancedTextItem( "Block" );
     license_ = new uiAdvancedTextItem( "License" );
-    modelname_ = new uiAdvancedTextItem( "Model Name" );
+    modelname_ = new uiAdvancedTextItem( "Model_Name" );
     horizonname_ = new uiAdvancedTextItem( "Horizon Name" );
     mapscale_ = new uiAdvancedTextItem( "Scale" );
     contourinc_ = new uiAdvancedTextItem( "Contour Inc" );
