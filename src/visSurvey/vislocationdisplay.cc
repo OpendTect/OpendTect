@@ -140,11 +140,8 @@ void LocationDisplay::setSetMgr( Pick::SetMgr* mgr )
 
 void LocationDisplay::fullRedraw( CallBacker* )
 {
-    if ( !set_ || set_->isEmpty() )
-    {
-	removeAll();
+    if ( !set_ )
 	return;
-    }
 
     if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
     {
@@ -168,6 +165,12 @@ void LocationDisplay::fullRedraw( CallBacker* )
 
     getMaterial()->setColor( set_->disp_.color_ );
     invalidpicks_.erase();
+    
+    if ( set_->isEmpty() )
+    {
+	removeAll();
+	return;
+    }
 
     for ( int idx=0; idx<set_->size(); idx++ )
     {
