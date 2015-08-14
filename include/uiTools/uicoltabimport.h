@@ -21,11 +21,11 @@ namespace ColTab { class Sequence; class SeqMgr; }
 class uiFileInput;
 class uiGenInput;
 class uiLabel;
-class uiLabeledListBox;
+class uiListBox;
 
 
 mExpClass(uiTools) uiColTabImport : public uiDialog
-{ mODTextTranslationClass(uiColTabImport);
+{ mODTextTranslationClass(uiColTabImport)
 public:
 				uiColTabImport(uiParent*);
 				~uiColTabImport();
@@ -35,9 +35,9 @@ public:
 protected:
 
     uiGenInput*			choicefld_;
-    uiFileInput*	        dirfld_;
-    uiGenInput*         	dtectusrfld_;
-    uiLabeledListBox*   	listfld_;
+    uiFileInput*		dirfld_;
+    uiGenInput*			dtectusrfld_;
+    uiListBox*			listfld_;
     uiLabel*			messagelbl_;
 
     ObjectSet<ColTab::Sequence> seqs_;

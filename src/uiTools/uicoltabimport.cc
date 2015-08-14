@@ -36,7 +36,7 @@ static BufferString sFilePath;
 
 uiColTabImport::uiColTabImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import Color Tables"),mNoDlgTitle,
-                                 mODHelpKey(mColTabImportHelpID)))
+				 mODHelpKey(mColTabImportHelpID)))
     , dirfld_(0)
     , dtectusrfld_(0)
 {
@@ -58,9 +58,9 @@ uiColTabImport::uiColTabImport( uiParent* p )
     dtectusrfld_->attach( alignedBelow, dirfld_ );
     dtectusrfld_->updateRequested.notify( mCB(this,uiColTabImport,usrSel) );
 
-    listfld_ = new uiLabeledListBox( this, tr("Color table(s) to add"),
-				     OD::ChooseAtLeastOne,
-				     uiLabeledListBox::LeftTop );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Color table(s) to add") );
+    su.lblpos( uiListBox::LeftTop );
+    listfld_ = new uiListBox( this, su );
     listfld_->attach( alignedBelow, dtectusrfld_ );
 
     messagelbl_ = new uiLabel( this, uiStrings::sEmptyString() );
@@ -81,7 +81,7 @@ uiColTabImport::~uiColTabImport()
 
 const char* uiColTabImport::getCurrentSelColTab() const
 {
-    return listfld_->box()->getText();
+    return listfld_->getText();
 }
 
 
@@ -103,7 +103,7 @@ void uiColTabImport::choiceSel( CallBacker* )
 void uiColTabImport::usrSel( CallBacker* )
 {
     PtrMan<IOPar> ctabiop = 0;
-    listfld_->box()->setEmpty();
+    listfld_->setEmpty();
 
     const bool fromuser = choicefld_->getBoolValue();
 
@@ -184,10 +184,10 @@ void uiColTabImport::usrSel( CallBacker* )
 	seqs_ += seq;
 	uiPixmap coltabpix( 16, 10 );
 	coltabpix.fill( *seq, true );
-	listfld_->box()->addItem( nm, coltabpix );
+	listfld_->addItem( nm, coltabpix );
     }
 
-    if ( listfld_->box()->isEmpty() )
+    if ( listfld_->isEmpty() )
 	showMessage( "Cannot read color tables from selected file" );
     else
 	showList();
@@ -199,9 +199,9 @@ bool uiColTabImport::acceptOK( CallBacker* )
     bool oneadded = false;
 
     ObjectSet<const ColTab::Sequence> tobeadded;
-    for ( int idx=0; idx<listfld_->box()->size(); idx++ )
+    for ( int idx=0; idx<listfld_->size(); idx++ )
     {
-	if ( listfld_->box()->isChosen(idx) )
+	if ( listfld_->isChosen(idx) )
 	    tobeadded += seqs_[idx];
     }
 
@@ -212,7 +212,7 @@ bool uiColTabImport::acceptOK( CallBacker* )
 	const int seqidx = ColTab::SM().indexOf( seq.name() );
 	if ( seqidx >= 0 )
 	{
-	    uiString msg = tr("User colortable '%1' " 
+	    uiString msg = tr("User colortable '%1' "
 			      "will replace the existing.\nOverwrite?")
 			 .arg(seq.name());
 	    doset = uiMSG().askOverwrite( msg );
@@ -228,7 +228,7 @@ bool uiColTabImport::acceptOK( CallBacker* )
 
     if ( oneadded )
 	ColTab::SM().write( false );
-    
+
     uiString msg = tr( "ColorTab successfully imported\n"
 		      "Do you want to import more ColorTabs?" );
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),

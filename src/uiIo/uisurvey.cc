@@ -261,17 +261,17 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 	if ( !sips_[idx]->isAvailable() )
 	    { sips_.removeSingle( idx ); idx--; }
     }
-    uiLabeledListBox* sipllb = new uiLabeledListBox(this, tr("Initial setup"));
-    sipllb->attach( alignedBelow, pol2dfld_ );
-    sipfld_ = sipllb->box();
+
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Initial setup") );
+    sipfld_ = new uiListBox( this, su );
+    sipfld_->attach( alignedBelow, pol2dfld_ );
     sipfld_->setPrefHeightInChar( sips_.size() + 1 );
 
     zistimefld_ = new uiGenInput( this, tr("Z Domain"),
-				  BoolInpSpec(true,uiStrings::sTime(),
-                                              uiStrings::sDepth()));
+		BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
     zistimefld_->valuechanged.notify(
 			mCB(this,uiStartNewSurveySetup,zdomainChg) );
-    zistimefld_->attach( alignedBelow, sipllb );
+    zistimefld_->attach( alignedBelow, sipfld_ );
 
     zinfeetfld_ = new uiGenInput( this, tr("Depth unit"),
 				BoolInpSpec(true,tr("Meter"),tr("Feet")) );

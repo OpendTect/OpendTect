@@ -203,7 +203,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 {
     chain_.ref();
 
-    uiToolBar* tb = new uiToolBar( this, tr("Load/Save toolbar"), 
+    uiToolBar* tb = new uiToolBar( this, tr("Load/Save toolbar"),
 				   uiToolBar::Right);
     tb->addButton( "open", tr("Read stored setup"), mCB(this,uiChain,readPush));
     tb->addButton( "save", tr("Save setup"), mCB(this,uiChain,savePush) );
@@ -213,9 +213,8 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 
     const CallBack addcb( mCB(this,uiChain,addStepPush) );
     uiLabel* availablelabel = new uiLabel( flowgrp, tr("Available steps") );
-    factorylist_ = new uiListBox( flowgrp,
-				  uiStepDialog::factory().getUserNames(),
-				  "Processing methods", OD::ChooseOnlyOne );
+    factorylist_ = new uiListBox( flowgrp, "Processing methods" );
+    factorylist_->addItems( uiStepDialog::factory().getUserNames() );
     factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify( mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );

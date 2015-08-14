@@ -76,14 +76,13 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
                     FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Logs to import") );
-    logsfld_ = llb->box();
-    llb->attach( alignedBelow, udffld_ );
-    logsfld_->setMultiChoice( true );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Logs to import") );
+    logsfld_ = new uiListBox( this, su );
+    logsfld_->attach( alignedBelow, udffld_ );
 
     wellfld_ = new uiWellSel( this, true, "Add to Well" );
     if ( ioobj ) wellfld_->setInput( *ioobj );
-    wellfld_->attach( alignedBelow, llb );
+    wellfld_->attach( alignedBelow, logsfld_ );
 
 }
 

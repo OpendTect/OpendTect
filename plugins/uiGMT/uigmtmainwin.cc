@@ -85,8 +85,8 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     flowgrp_ = new uiGroup( this, "Flow Group" );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( flowgrp_, tr("Map overlays"));
-    flowfld_ = llb->box();
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Map overlays") );
+    flowfld_ = new uiListBox( flowgrp_, su );
     flowfld_->selectionChanged.notify( mCB(this,uiGMTMainWin,selChg) );
 
     const CallBack butpushcb( mCB(this,uiGMTMainWin,butPush) );
@@ -98,7 +98,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 				 tr("Move current item down"), butpushcb );
     rmbut_ = new uiToolButton( bgrp, "trashcan",
 				tr("Remove current item from flow"), butpushcb);
-    bgrp->attach( centeredBelow, llb );
+    bgrp->attach( centeredBelow, flowfld_ );
 
 
     flowgrp_->setHAlignObj( flowfld_ );

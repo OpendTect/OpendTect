@@ -120,14 +120,12 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     sep->attach( stretchedBelow, specparsgroup_ );
 
     uiGroup* machgrp = new uiGroup( this, "Machine handling" );
-    uiLabeledListBox* avmachfld = 0;
     if ( multihost )
     {
-	avmachfld = new uiLabeledListBox( machgrp, tr("Available hosts"),
-					  OD::ChooseAtLeastOne,
-					  uiLabeledListBox::AboveMid );
-	machgrp->setHAlignObj( avmachfld );
-	avmachfld_ = avmachfld->box();
+	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available hosts"),
+			     uiListBox::AboveMid );
+	avmachfld_ = new uiListBox( machgrp, su );
+	machgrp->setHAlignObj( avmachfld_ );
 	for ( int idx=0; idx<hdl_.size(); idx++ )
 	{
 	    const HostData& hd = *hdl_[idx];
@@ -138,41 +136,40 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	    avmachfld_->addItem( nm );
 	}
 
-	avmachfld_->setPrefWidthInChar( mCast(float,hostnmwdth) );
-	avmachfld_->setPrefHeightInChar( mCast(float,maxhostdisp) );
+	avmachfld_->setPrefWidthInChar( hostnmwdth );
+	avmachfld_->setPrefHeightInChar( maxhostdisp );
     }
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
-    uiLabeledListBox* usedmachfld = new uiLabeledListBox( usedmachgrp,
-				multihost ? tr("Used hosts")
-                                          : uiStrings::sEmptyString(),
-				OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
-    usedmachfld_ = usedmachfld->box();
+    uiListBox::Setup su( OD::ChooseOnlyOne,
+		multihost ? tr("Used hosts") : uiStrings::sEmptyString(),
+		uiListBox::AboveMid );
+    usedmachfld_ = new uiListBox( usedmachgrp, su );
     usedmachfld_->setPrefWidthInChar( hostnmwdth );
     usedmachfld_->setPrefHeightInChar( maxhostdisp );
 
     uiButton* stopbut = new uiPushButton( usedmachgrp,
-                                          uiStrings::sStop(), true );
+					  uiStrings::sStop(), true );
     stopbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,stopPush) );
     uiButton* vwlogbut = new uiPushButton( usedmachgrp,
-                                           tr("View Log"), false );
+					   tr("View Log"), false );
     vwlogbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
-    vwlogbut->attach( rightAlignedBelow, usedmachfld );
+    vwlogbut->attach( rightAlignedBelow, usedmachfld_ );
 
     uiButton* addbut;
     if ( multihost )
     {
-	stopbut->attach( alignedBelow, usedmachfld );
+	stopbut->attach( alignedBelow, usedmachfld_ );
 	addbut = new uiPushButton( machgrp, tr( ">> Add >>" ), true );
-	if ( avmachfld )
-	    addbut->attach( centeredRightOf, avmachfld );
+	if ( avmachfld_ )
+	    addbut->attach( centeredRightOf, avmachfld_ );
 	usedmachgrp->attach( ensureRightOf, addbut );
     }
     else
     {
 	addbut = new uiPushButton( usedmachgrp, tr("Start"), true );
-	addbut->attach( alignedBelow, usedmachfld );
-	stopbut->attach( centeredBelow, usedmachfld );
+	addbut->attach( alignedBelow, usedmachfld_ );
+	stopbut->attach( centeredBelow, usedmachfld_ );
 	machgrp->setHAlignObj( stopbut );
     }
     addbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,addPush) );
@@ -203,12 +200,12 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 
     const char* envstr = GetEnvVar( "DTECT_STOP_OFFICEHOURS" );
     jrpstartfld_ = new uiGenInput( jrppolgrp, uiStrings::sEmptyString(),
-                                   envstr ? envstr : "18:00" );
+				   envstr ? envstr : "18:00" );
     jrpstartfld_->attach( rightOf, jrppolselfld_ );
 
     envstr = GetEnvVar( "DTECT_START_OFFICEHOURS" );
-    jrpstopfld_ = new uiGenInput( jrppolgrp, tr("and"), envstr ? envstr
-                                                               : "7:30" );
+    jrpstopfld_ = new uiGenInput( jrppolgrp, tr("and"),
+				  envstr ? envstr : "7:30" );
     jrpstopfld_->attach( rightOf, jrpstartfld_ );
 
     jrppolgrp->setHAlignObj( nicefld_ );

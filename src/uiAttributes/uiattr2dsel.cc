@@ -161,7 +161,8 @@ void uiAttr2DSelDlg::createSelectionFields()
     BufferStringSet nms;
     getDataNames( geomids_, o2d, nms );
 
-    storoutfld_ = new uiListBox( this, nms, "Stored cubes" );
+    storoutfld_ = new uiListBox( this, "Stored cubes" );
+    storoutfld_->addItems( nms );
     storoutfld_->setHSzPol( uiObject::Wide );
     storoutfld_->setCurrentItem( 0 );
     storoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
@@ -174,7 +175,8 @@ void uiAttr2DSelDlg::createSelectionFields()
     if ( havesteer )
     {
 	nms.sort();
-	steeroutfld_ = new uiListBox( this, nms, "Steering" );
+	steeroutfld_ = new uiListBox( this, "Steering" );
+	steeroutfld_->addItems( nms );
 	steeroutfld_->setHSzPol( uiObject::Wide );
 	steeroutfld_->setCurrentItem( 0 );
 	steeroutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
@@ -184,7 +186,8 @@ void uiAttr2DSelDlg::createSelectionFields()
     const bool haveattribs = !attrinf_->attrnms_.isEmpty();
     if ( haveattribs )
     {
-	attroutfld_ = new uiListBox( this, attrinf_->attrnms_, "Attributes" );
+	attroutfld_ = new uiListBox( this, "Attributes" );
+	attroutfld_->addItems( attrinf_->attrnms_ );
 	attroutfld_->setHSzPol( uiObject::Wide );
 	attroutfld_->setCurrentItem( 0 );
 	attroutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
@@ -193,7 +196,8 @@ void uiAttr2DSelDlg::createSelectionFields()
 
     if ( !attrinf_->nlaoutnms_.isEmpty() )
     {
-	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms_, "NLAs" );
+	nlaoutfld_ = new uiListBox( this, "NLAs" );
+	nlaoutfld_->addItems( attrinf_->nlaoutnms_ );
 	nlaoutfld_->setHSzPol( uiObject::Wide );
 	nlaoutfld_->setCurrentItem( 0 );
 	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );

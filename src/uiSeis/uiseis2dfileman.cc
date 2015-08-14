@@ -62,12 +62,12 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     dataset_ = new Seis2DDataSet( ioobj );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
-    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, tr("2D lines"),
-			    OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
-    linefld_ = lllb->box();
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("2D lines"),
+			 uiListBox::AboveMid );
+    linefld_ = new uiListBox( topgrp, su );
     linefld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,lineSel) );
 
-    linegrp_ = new uiManipButGrp( lllb );
+    linegrp_ = new uiManipButGrp( linefld_ );
     linegrp_->addButton( uiManipButGrp::Remove, "Remove line",
 			mCB(this,uiSeis2DFileMan,removeLine) );
     linegrp_->addButton( "mergelines", "Merge lines",
@@ -282,12 +282,9 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     datagrp->attach( rightTo, geomgrp );
     datagrp->attach( ensureRightOf, horsep );
 
-    uiLabeledListBox* datalcb =
-	new uiLabeledListBox( datagrp, tr("Data Sets to merge"),
-			      OD::ChooseAtLeastOne,
-			      uiLabeledListBox::LeftMid );
-    data2mergefld_ = datalcb->box();
-    datalcb->attach( alignedBelow, stckfld_ );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Data Sets to merge") );
+    data2mergefld_ = new uiListBox( datagrp, su );
+    data2mergefld_->attach( alignedBelow, stckfld_ );
 
 
     postFinalise().notify( mCB(this,uiSeis2DFileManMergeDlg,initWin) );

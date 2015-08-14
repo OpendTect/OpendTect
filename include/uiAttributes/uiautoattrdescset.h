@@ -21,7 +21,7 @@ class uiAttrDescEd;
 class uiCheckBox;
 class uiGenInput;
 class uiLabel;
-class uiLabeledListBox;
+class uiListBox;
 class uiIOObjSelGrp;
 class CtxtIOObj;
 class IOObj;
@@ -75,7 +75,7 @@ protected:
 
 	uiIOObjSelGrp*          selgrp_;
 	uiLabel*                lbl_;
-	uiLabeledListBox*	defattrlist_;
+	uiListBox*	defattrlist_;
 	uiGenInput*		defselfld_;
 	uiGenInput*		autoloadfld_;
 

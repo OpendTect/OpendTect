@@ -40,16 +40,15 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     setOkText( uiStrings::sApply() );
     setCancelText( tr("Dismiss") );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
-    uiLabeledListBox* llb =
-	new uiLabeledListBox( syntlistgrp, tr("Synthetics"), OD::ChooseOnlyOne,
-			      uiLabeledListBox::AboveMid );
-    synthnmlb_ = llb->box();
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Synthetics"),
+			 uiListBox::AboveMid );
+    synthnmlb_ = new uiListBox( syntlistgrp, su );
     synthnmlb_->selectionChanged.notify(
 	    mCB(this,uiSynthGenDlg,changeSyntheticsCB) );
     uiPushButton* rembut =
 	new uiPushButton( syntlistgrp, tr("Remove selected"),
 			  mCB(this,uiSynthGenDlg,removeSyntheticsCB), true );
-    rembut->attach( leftAlignedBelow, llb );
+    rembut->attach( leftAlignedBelow, synthnmlb_ );
 
     uiGroup* rightgrp = new uiGroup( this, "Parameter Group" );
     rightgrp->setStretch( 1, 1 );

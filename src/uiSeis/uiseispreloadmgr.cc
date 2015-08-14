@@ -399,11 +399,10 @@ uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
     : uiIOObjSelDlg( p, ctio, tr("Select data store") )
 {
     setCaption( "Pre-load data" );
-    uiLabeledListBox* llb = new uiLabeledListBox( selGrp(),
-						  tr("Line(s) to load"),
-			  OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
-    lnmsfld_ = llb->box();
-    llb->attach( rightOf, selGrp()->getTopGroup() );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Line(s) to load"),
+			 uiListBox::AboveMid );
+    lnmsfld_ = new uiListBox( selGrp(), su );
+    lnmsfld_->attach( rightOf, selGrp()->getTopGroup() );
     selGrp()->selectionChanged.notify(
 				mCB(this,uiSeisPreLoadMgrPS2DSel,dsSel) );
 }

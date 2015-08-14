@@ -30,7 +30,7 @@ class uiCheckBox;
 class uiColorInput;
 class uiFaultOptSel;
 class uiIOObjSel;
-class uiLabeledListBox;
+class uiListBox;
 class uiPosSubSel;
 class uiStratLevelSel;
 
@@ -75,8 +75,8 @@ protected:
     void		attrSel(CallBacker*);
     virtual void	ioDataSelChg(CallBacker*)			{}
 
-    uiLabeledListBox*	sectionfld_;
-    uiLabeledListBox*	attribfld_;
+    uiListBox*	sectionfld_;
+    uiListBox*	attribfld_;
     uiPosSubSel*	rgfld_;
     uiIOObjSel*		objfld_;
 

@@ -191,12 +191,10 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     samecolasmarkerfld_ = new uiCheckBox( this, tr("same as markers") );
     samecolasmarkerfld_->attach( rightOf, nmcolfld_);
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Display markers") );
-    llb->attach( alignedBelow, nmcolfld_ );
-    displaymarkersfld_ = llb->box();
+    uiListBox::Setup msu( OD::ChooseZeroOrMore, tr("Display markers") );
+    displaymarkersfld_ = new uiListBox( this, msu );
+    displaymarkersfld_->attach( alignedBelow, nmcolfld_ );
     displaymarkersfld_->addItems( allmarkernms );
-    displaymarkersfld_->setMultiChoice( true );
-    displaymarkersfld_->setAllowNoneChosen( true );
 
     doPutToScreen();
     markerFldsChged(0);

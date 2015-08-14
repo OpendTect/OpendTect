@@ -22,7 +22,7 @@ class uiColorInput;
 class uiPosSubSel;
 class uiGenInput;
 class uiLabeledComboBox;
-class uiLabeledListBox;
+class uiListBox;
 class uiPosProvider;
 class uiPosFilterSetSel;
 class DataPointSet;
@@ -107,7 +107,7 @@ protected:
     uiGenInput*		geomfld_;
     uiLabeledComboBox*	horselfld_;
     uiComboBox*		horsel2fld_;
-    uiLabeledListBox*	linenmfld_;
+    uiListBox*	linenmfld_;
     uiGenInput*		zfld_;
 
     BufferStringSet	linenms_;

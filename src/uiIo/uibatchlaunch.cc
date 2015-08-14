@@ -85,20 +85,19 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
 {
     uiGroup* topgrp = new uiGroup( this, "Top Group" );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( topgrp, "Stored Batch Job" );
-    llb->setPrefHeightInChar( 10 );
-    jobsfld_ = llb->box();
+    jobsfld_ = new uiListBox( topgrp, "Stored Batch Job" );
+    jobsfld_->box()->setPrefHeightInChar( 10 );
     jobsfld_->addItem( "Scanning Proc directory ...." );
 
     vwfilebut_ = new uiToolButton( topgrp, "info", "View/Edit job file",
 		      mCB(this,uiStartBatchJobDialog,viewFile) );
-    vwfilebut_->attach( rightOf, llb );
+    vwfilebut_->attach( rightOf, jobsfld_ );
     rmfilebut_ = new uiToolButton( topgrp, "trashcan", "Remove job file",
 		      mCB(this,uiStartBatchJobDialog,rmFile) );
-    rmfilebut_->attach( centeredRightOf, llb );
+    rmfilebut_->attach( centeredRightOf, jobsfld_ );
 
     topgrp->setFrame( true );
-    topgrp->setHAlignObj( llb );
+    topgrp->setHAlignObj( jobsfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
     invalidsellbl_ = new uiLabel( botgrp, sKeyNoParFiles );
@@ -114,7 +113,7 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     resumefld_->attach( alignedBelow, invalidsellbl_ );
 
     botgrp->setHAlignObj( batchfld_ );
-    botgrp->attach( alignedBelow, topgrp );
+    botgrp->attach( leftAlignedBelow, topgrp );
 
     afterPopup.notify( mCB(this,uiStartBatchJobDialog,fillList) );
 }

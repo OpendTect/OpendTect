@@ -571,9 +571,9 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
     , trcrgs_(maxtrcrgs), zrgs_(maxzrgs)
     , zrgfld_(0)
 {
-    uiLabeledListBox* llb = new uiLabeledListBox(this, lnms, tr("Select Lines"),
-						 OD::ChooseAtLeastOne );
-    lnmsfld_ = llb->box();
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Select Lines") );
+    lnmsfld_ = new uiListBox( this, su );
+    lnmsfld_->addItems( lnms );
     lnmsfld_->selectionChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,lineSel) );
 
@@ -581,7 +581,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 				  "Trace" );
     trcrgfld_->rangeChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,trcRgChanged) );
-    trcrgfld_->attach( alignedBelow, llb );
+    trcrgfld_->attach( alignedBelow, lnmsfld_ );
 
     if ( withz )
     {

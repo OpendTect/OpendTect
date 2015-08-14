@@ -28,8 +28,8 @@ static const char* rcsID mUsedVar = "$Id$";
 static const int cIconSz = 16;
 int uiListBox::cDefNrLines()	{ return 7; }
 
-#define mStartScrolling body_->setAutoScroll( true );
-#define mStopScrolling body_->setAutoScroll( false );
+#define mStartScrolling lb_->body().setAutoScroll( true );
+#define mStopScrolling lb_->body().setAutoScroll( false );
 
 
 mUseQtnamespace
@@ -51,14 +51,14 @@ uiListBoxItem( const QString& txt )
 };
 
 
-class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListWidget>
+class uiListBoxBody : public uiObjBodyImpl<uiListBoxObj,QListWidget>
 {
 
 public:
 
-                        uiListBoxBody(uiListBox& hndle, uiParent* parnt,
-			      const char* nm, OD::ChoiceMode cm,
-			      int preferredNrLines, int preferredFieldWidth);
+			uiListBoxBody(uiListBoxObj&,uiParent*,
+			      const char* nm,OD::ChoiceMode cm,
+			      int prefnrlines=0,int preffieldwidth=0);
 
     virtual		~uiListBoxBody()		{ delete &messenger_; }
 
@@ -123,6 +123,7 @@ private:
     i_listMessenger&	messenger_;
     uiStringSet	itemstrings_;
     Interval<int>	sliderg_;
+    uiListBox*		lb_;
 
 };
 
@@ -130,14 +131,15 @@ private:
 static bool doslidesel_ = true;
 
 
-uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
+uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
 			const char* nm, OD::ChoiceMode cm,
-			int preferrednrlines, int preferredfieldwidth )
-    : uiObjBodyImpl<uiListBox,QListWidget>( hndle, parnt, nm )
-    , messenger_(*new i_listMessenger(this,&hndle))
-    , fieldwidth_(preferredfieldwidth)
-    , prefnrlines_(preferrednrlines)
+			int prefnrlines, int preffieldwidth )
+    : uiObjBodyImpl<uiListBoxObj,QListWidget>( hndle, p, nm )
+    , messenger_(*new i_listMessenger(this,(uiListBox*)p))
+    , fieldwidth_(preffieldwidth)
+    , prefnrlines_(prefnrlines)
     , sliderg_(-1,-1)
+    , lb_((uiListBox*)p)
 {
     setObjectName( nm );
     setEditTriggers( QAbstractItemView::NoEditTriggers );
@@ -292,7 +294,7 @@ void uiListBoxBody::handleSlideChange( int newstop, bool isclear )
 void uiListBoxBody::mousePressEvent( QMouseEvent* ev )
 {
     if ( ev && doslidesel_ && ev->button() == Qt::LeftButton
-	    && handle_.isMultiChoice() )
+	    && lb_->isMultiChoice() )
 	sliderg_.start = sliderg_.stop = itemIdxAtEvPos( *ev );
     else
 	sliderg_.start = -1;
@@ -320,11 +322,11 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
     sliderg_.start = -1;
     if ( didslide )
     {
-	const int refnr = handle_.beginCmdRecEvent( "selectionChanged" );
-	handle_.selectionChanged.trigger();
-	handle_.endCmdRecEvent( refnr, "selectionChanged" );
+	const int refnr = lb_->beginCmdRecEvent( "selectionChanged" );
+	lb_->selectionChanged.trigger();
+	lb_->endCmdRecEvent( refnr, "selectionChanged" );
 
-	handle_.buttonstate_ = OD::NoButton;
+	lb_->buttonstate_ = OD::NoButton;
 	if ( ev ) ev->accept();
 	return;
     }
@@ -332,14 +334,14 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
     if ( !ev ) return;
 
     if ( ev->button() == Qt::RightButton )
-	handle_.buttonstate_ = OD::RightButton;
+	lb_->buttonstate_ = OD::RightButton;
     else if ( ev->button() == Qt::LeftButton )
-	handle_.buttonstate_ = OD::LeftButton;
+	lb_->buttonstate_ = OD::LeftButton;
     else
-	handle_.buttonstate_ = OD::NoButton;
+	lb_->buttonstate_ = OD::NoButton;
 
     QListWidget::mouseReleaseEvent( ev );
-    handle_.buttonstate_ = OD::NoButton;
+    lb_->buttonstate_ = OD::NoButton;
 }
 
 
@@ -348,15 +350,15 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
     if ( qkeyev )
     {
 	if ( qkeyev->key() == Qt::Key_Delete )
-	    handle_.deleteButtonPressed.trigger();
+	    lb_->deleteButtonPressed.trigger();
 	else if ( isCtrlPressed(*qkeyev) )
 	{
 	    if ( qkeyev->key() == Qt::Key_A )
-		handle_.usrChooseAll( true );
+		lb_->usrChooseAll( true );
 	    if ( qkeyev->key() == Qt::Key_Z )
-		handle_.usrChooseAll( false );
+		lb_->usrChooseAll( false );
 	    if ( qkeyev->key() == Qt::Key_M )
-		handle_.menuCB( 0 );
+		lb_->menuCB( 0 );
 	}
     }
 
@@ -364,7 +366,25 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
 }
 
 
-// -------------- uiListBox ---------------
+// uiListBoxObj
+uiListBoxObj::uiListBoxObj( uiParent* p, const char* nm, OD::ChoiceMode cm )
+    : uiObject(p,nm,mkbody(p,nm,cm))
+{
+}
+
+uiListBoxObj::~uiListBoxObj()
+{ delete body_; }
+
+uiListBoxBody& uiListBoxObj::mkbody( uiParent* p, const char* nm,
+				     OD::ChoiceMode cm )
+{
+    body_ = new uiListBoxBody( *this, p, nm, cm );
+    body_->setIconSize( QSize(cIconSz,cIconSz) );
+    return *body_;
+}
+
+
+// uiListBox
 
 #define mStdInit(cm) \
     , choicemode_(cm) \
@@ -381,69 +401,117 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
     , allowduplicates_(true)
 
 #define mStdConstrEnd \
-    setBackgroundColor( roBackgroundColor() ); \
+    lb_->setBackgroundColor( lb_->roBackgroundColor() ); \
     rightButtonClicked.notify( mCB(this,uiListBox,menuCB) )
 
 
-uiListBox::uiListBox( uiParent* p, const char* nm )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,OD::ChooseOnlyOne,0,0) )
-    mStdInit(OD::ChooseOnlyOne)
-{
-    mStdConstrEnd;
-}
-
-
-uiListBox::uiListBox( uiParent* p, const char* nm, OD::ChoiceMode cm,
-			int nl, int pfw )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw) )
+uiListBox::uiListBox( uiParent* p, const char* nm, OD::ChoiceMode cm )
+    : uiGroup(p,nm)
     mStdInit(cm)
 {
+    lb_ = new uiListBoxObj( this, nm, choicemode_ );
+
     mStdConstrEnd;
 }
 
 
-uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
-			const char* nm )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,OD::ChooseOnlyOne,0,0))
-    mStdInit(OD::ChooseOnlyOne)
+uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
+    : uiGroup(p,nm)
+    mStdInit(setup.cm_)
 {
-    addItems( items ); setName( "Select Data" );
+    lb_ = new uiListBoxObj( this, nm, choicemode_ );
+    lb_->body().setNrLines( setup.prefnrlines_ );
+    lb_->body().fieldwidth_ = setup.prefwidth_;
+    mkRest( setup.lbl_, setup.lblpos_ );
+
     mStdConstrEnd;
-}
-
-
-uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm,
-		      OD::ChoiceMode cm, int nl, int pfw )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw))
-    mStdInit(cm)
-{
-    addItems( items ); setName( "Select Data" );
-    mStdConstrEnd;
-}
-
-
-uiListBox::uiListBox( uiParent* p, const uiStringSet& items,
-		     const char* nm, OD::ChoiceMode cm, int nl, int pfw )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw))
-    mStdInit(cm)
-{
-    addItems( items ); setName( "Select Data" );
-    mStdConstrEnd;
-}
-
-
-uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm,
-				OD::ChoiceMode cm, int nl, int pfw )
-{
-    body_ = new uiListBoxBody(*this,p,nm,cm,nl,pfw);
-    body_->setIconSize( QSize(cIconSz,cIconSz) );
-    return *body_;
 }
 
 
 uiListBox::~uiListBox()
 {
     delete &rightclickmnu_;
+}
+
+
+void uiListBox::setLabelText( const uiString& txt, int nr )
+{
+    if ( nr >= lbls_.size() ) return;
+    lbls_[nr]->setText( txt );
+}
+
+
+void uiListBox::mkRest( const uiString& txt, LblPos pos )
+{
+    setHAlignObj( lb_ );
+
+    BufferStringSet txts;
+    BufferString s( txt.getFullString() );
+    char* ptr = s.getCStr();
+    if( !ptr || !*ptr ) return;
+    while ( 1 )
+    {
+	char* nlptr = firstOcc( ptr, '\n' );
+	if ( nlptr ) *nlptr = '\0';
+	txts += new BufferString( ptr );
+	if ( !nlptr ) break;
+
+	ptr = nlptr + 1;
+    }
+    if ( txts.size() < 1 ) return;
+
+    bool last1st = pos > RightTop && pos < BelowLeft;
+    ptr = last1st ? txts[txts.size()-1]->getCStr() : txts[0]->getCStr();
+
+    uiLabel* labl = new uiLabel( this, ptr );
+    lbls_ += labl;
+    constraintType lblct = alignedBelow;
+    switch ( pos )
+    {
+    case LeftTop:
+	lb_->attach( rightOf, labl );		lblct = rightAlignedBelow;
+    break;
+    case RightTop:
+	labl->attach( rightOf, lb_ );		lblct = alignedBelow;
+    break;
+    case LeftMid:
+	labl->attach( centeredLeftOf, lb_ );	lblct = alignedBelow;
+    break;
+    case RightMid:
+	labl->attach( centeredRightOf, lb_ );	lblct = alignedBelow;
+    break;
+    case AboveLeft:
+	lb_->attach( alignedBelow, labl );	lblct = alignedAbove;
+    break;
+    case AboveMid:
+	lb_->attach( centeredBelow, labl );	lblct = centeredAbove;
+    break;
+    case AboveRight:
+	lb_->attach( rightAlignedBelow, labl ); lblct = rightAlignedAbove;
+    break;
+    case BelowLeft:
+	labl->attach( alignedBelow, lb_ );	lblct = alignedBelow;
+    break;
+    case BelowMid:
+	labl->attach( centeredBelow, lb_ );	lblct = centeredBelow;
+    break;
+    case BelowRight:
+	labl->attach( rightAlignedBelow, lb_ ); lblct = rightAlignedBelow;
+    break;
+    }
+
+    int nrleft = txts.size() - 1;
+    while ( nrleft )
+    {
+	uiLabel* cur = new uiLabel( this, (last1st
+			? txts[nrleft-1] : txts[txts.size()-nrleft])->buf() );
+	cur->attach( lblct, labl );
+	lbls_ += cur;
+	labl = cur;
+	nrleft--;
+    }
+
+    deepErase( txts );
 }
 
 
@@ -488,13 +556,13 @@ void uiListBox::setNotSelectable()
 {
     choicemode_ = OD::ChooseNone;
     updateFields2ChoiceMode();
-    body_->setSelectionMode( QAbstractItemView::NoSelection );
+    lb_->body().setSelectionMode( QAbstractItemView::NoSelection );
 }
 
 
 #define mSetChecked(idx,yn) \
 { \
-    QListWidgetItem* item = body_->item( idx ); \
+    QListWidgetItem* item = lb_->body().item( idx ); \
     if ( item ) \
 	item->setCheckState( yn ? Qt::Checked : Qt::Unchecked ); \
 }
@@ -564,11 +632,11 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
 	return;
 
     lbitm->ischecked_ = ischecked;
-    const int itmidx = body_->indexOf( lbitm );
+    const int itmidx = lb_->body().indexOf( lbitm );
 
     NotifyStopper nsic( itemChosen );
     mBlockCmdRec;
-    body_->setCurrentRow( itmidx );
+    lb_->body().setCurrentRow( itmidx );
     nsic.restore();
 
     itemChosen.trigger( itmidx );
@@ -577,7 +645,7 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
 
 void uiListBox::setNrLines( int prefnrlines )
 {
-    body_->setNrLines( prefnrlines );
+    lb_->body().setNrLines( prefnrlines );
 }
 
 
@@ -589,13 +657,13 @@ int uiListBox::maxNrOfChoices() const
 
 int uiListBox::size() const
 {
-    return body_->count();
+    return lb_->body().count();
 }
 
 
 bool uiListBox::validIdx( int idx ) const
 {
-    return body_->validItemIndex( idx );
+    return lb_->body().validItemIndex( idx );
 }
 
 
@@ -630,7 +698,7 @@ void uiListBox::initNewItem( int newidx )
     setItemCheckable( newidx, ismulti );
     if ( ismulti )
 	mSetChecked( newidx, false );
-    body_->setItemAlignment( newidx, alignment_ );
+    lb_->body().setItemAlignment( newidx, alignment_ );
 }
 
 
@@ -642,12 +710,12 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
     mBlockCmdRec;
     if ( !scrollingblocked_ )
 	mStartScrolling;
-    body_->addItem( text, mark, id );
+    lb_->body().addItem( text, mark, id );
     const int newidx = size() - 1;
 
     if ( !scrollingblocked_ )
     {
-	body_->setCurrentRow( newidx );
+	lb_->body().setCurrentRow( newidx );
 	mStopScrolling;
     }
 
@@ -720,7 +788,7 @@ void uiListBox::insertItem( const uiString& text, int index, bool mark, int id )
 	if ( !allowduplicates_ && isPresent( text.getFullString() ) )
 	    return;
 
-	body_->insertItem( index, text, mark, id );
+	lb_->body().insertItem( index, text, mark, id );
 	initNewItem( index<0 ? 0 : index );
     }
 }
@@ -752,7 +820,7 @@ void uiListBox::setItemSelectable( int index, bool yn )
     if ( index < 0 || index >= size() )
 	return;
 
-    QListWidgetItem* itm = body_->item( index );
+    QListWidgetItem* itm = lb_->body().item( index );
     Qt::ItemFlags flags = itm->flags();
     bool issel = flags.testFlag( Qt::ItemIsEnabled );
     if ( issel == yn )
@@ -768,10 +836,10 @@ void uiListBox::setItemSelectable( int index, bool yn )
 
 void uiListBox::setPixmap( int index, const Color& col )
 {
-    if ( index<0 || index>=size() || !body_->item(index) )
+    if ( index<0 || index>=size() || !lb_->body().item(index) )
 	return;
 
-    QSize sz = body_->iconSize();
+    QSize sz = lb_->body().iconSize();
     uiPixmap pm( sz.width(), sz.height() ); pm.fill( col );
     setPixmap( index, pm );
 }
@@ -780,19 +848,19 @@ void uiListBox::setPixmap( int index, const Color& col )
 void uiListBox::setPixmap( int index, const uiPixmap& pm )
 {
     if ( index<0 || index>=size() ||
-	 !body_->item(index) || !pm.qpixmap() ) return;
+	 !lb_->body().item(index) || !pm.qpixmap() ) return;
 
-    body_->item(index)->setIcon( *pm.qpixmap() );
+    lb_->body().item(index)->setIcon( *pm.qpixmap() );
 }
 
 
 void uiListBox::setIcon( int index, const char* iconnm )
 {
-    if ( index<0 || index>=body_->count() )
+    if ( index<0 || index>=lb_->body().count() )
 	return;
 
     uiIcon icon( iconnm );
-    body_->item(index)->setIcon( icon.qicon() );
+    lb_->body().item(index)->setIcon( icon.qicon() );
 }
 
 
@@ -800,7 +868,7 @@ void uiListBox::setIcon( int index, const char* iconnm )
 void uiListBox::setColor( int index, const Color& col )
 {
     QColor qcol( col.r(), col.g(), col.b() );
-    QListWidgetItem* itm = body_->item( index );
+    QListWidgetItem* itm = lb_->body().item( index );
     if ( itm )
 	itm->setBackground( qcol );
 }
@@ -808,7 +876,7 @@ void uiListBox::setColor( int index, const Color& col )
 
 Color uiListBox::getColor( int index ) const
 {
-    QListWidgetItem* itm = body_->item( index );
+    QListWidgetItem* itm = lb_->body().item( index );
     if ( !itm ) return Color(255,255,255);
 
     const QColor qcol = itm->background().color();
@@ -819,7 +887,7 @@ Color uiListBox::getColor( int index ) const
 void uiListBox::setEmpty()
 {
     mBlockCmdRec;
-    body_->removeAll();
+    lb_->body().removeAll();
 }
 
 
@@ -864,7 +932,7 @@ void uiListBox::removeItem( const char* txt )
 void uiListBox::removeItem( int idx )
 {
     mBlockCmdRec;
-    body_->removeItem( idx );
+    lb_->body().removeItem( idx );
 }
 
 
@@ -873,7 +941,7 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	BufferString itmtxt( body_->item(idx)->text() );
+	BufferString itmtxt( lb_->body().item(idx)->text() );
 	itmtxt.trimBlanks();
 	if ( itmtxt == txt )
 	    return true;
@@ -887,28 +955,28 @@ const char* uiListBox::textOfItem( int idx ) const
     if ( !validIdx(idx) )
 	return "";
 
-    rettxt_ = body_->getItemText(idx).getFullString();
+    rettxt_ = lb_->body().getItemText(idx).getFullString();
     return rettxt_;
 }
 
 
 bool uiListBox::isMarked( int idx ) const
 {
-    return body_->getItemMark( idx );
+    return lb_->body().getItemMark( idx );
 }
 
 
 void uiListBox::setMarked( int idx, bool yn )
 {
     if ( isMarked(idx) == yn ) return;
-    body_->getItemMark( idx ) = yn;
-    body_->updateText( idx );
+    lb_->body().getItemMark( idx ) = yn;
+    lb_->body().updateText( idx );
 }
 
 
 int uiListBox::currentItem() const
 {
-    return body_->currentRow();
+    return lb_->body().currentRow();
 }
 
 
@@ -916,7 +984,7 @@ void uiListBox::setCurrentItem( const char* txt )
 {
     if ( !txt ) return;
 
-    const int sz = body_->count();
+    const int sz = lb_->body().count();
     for ( int idx=0; idx<sz; idx++ )
     {
 	const char* ptr = textOfItem( idx );
@@ -931,11 +999,11 @@ void uiListBox::setCurrentItem( int idx )
 {
     if ( !validIdx(idx) )
     {
-	const int curidx = body_->currentRow();
+	const int curidx = lb_->body().currentRow();
 	if ( validIdx(curidx) )
-	    body_->item( curidx )->setSelected( false );
+	    lb_->body().item( curidx )->setSelected( false );
 
-	body_->setCurrentRow( -1 );
+	lb_->body().setCurrentRow( -1 );
 	return;
     }
 
@@ -943,9 +1011,9 @@ void uiListBox::setCurrentItem( int idx )
 
     if ( !scrollingblocked_ )
 	mStartScrolling;
-    body_->setCurrentRow( idx );
+    lb_->body().setCurrentRow( idx );
     if ( choicemode_ == OD::ChooseOnlyOne )
-	body_->item( idx )->setSelected( true );
+	lb_->body().item( idx )->setSelected( true );
     if ( !scrollingblocked_ )
 	mStopScrolling;
 }
@@ -963,7 +1031,7 @@ int uiListBox::indexOf( const char* txt ) const
 
 void uiListBox::setItemID( int idx, int id )
 {
-    body_->setItemID( idx, id );
+    lb_->body().setItemID( idx, id );
 }
 
 
@@ -975,13 +1043,13 @@ int uiListBox::currentItemID() const
 
 int uiListBox::getItemID( int idx ) const
 {
-    return body_->getItemID( idx );
+    return lb_->body().getItemID( idx );
 }
 
 
 int uiListBox::getItemIdx( int id ) const
 {
-    return body_->getItemIdx( id );
+    return lb_->body().getItemIdx( id );
 }
 
 
@@ -989,14 +1057,26 @@ void uiListBox::setItemText( int idx, const uiString& txt )
 {
     if ( !validIdx(idx) ) return;
 
-    body_->getItemText( idx ) = txt;
-    body_->updateText( idx );
+    lb_->body().getItemText( idx ) = txt;
+    lb_->body().updateText( idx );
 }
 
 
 void uiListBox::setFieldWidth( int fw )
 {
-    body_->fieldwidth_ = fw;
+    lb_->body().fieldwidth_ = fw;
+}
+
+
+void uiListBox::setHSzPol( uiObject::SzPolicy szpol )
+{
+    lb_->setHSzPol( szpol );
+}
+
+
+void uiListBox::setVSzPol( uiObject::SzPolicy szpol )
+{
+    lb_->setVSzPol( szpol );
 }
 
 
@@ -1020,7 +1100,7 @@ void uiListBox::setAlignment( Alignment::HPos al )
 {
     alignment_ = al;
     for ( int idx=0; idx<size(); idx++ )
-	body_->setItemAlignment( idx, al );
+	lb_->body().setItemAlignment( idx, al );
 }
 
 
@@ -1045,18 +1125,18 @@ void uiListBox::disableRightClick( bool yn )
 
 
 void uiListBox::scrollToTop()
-{ body_->scrollToTop(); }
+{ lb_->body().scrollToTop(); }
 
 void uiListBox::scrollToBottom()
-{ body_->scrollToBottom(); }
+{ lb_->body().scrollToBottom(); }
 
 
 void uiListBox::translateText()
 {
-    uiObject::translateText();
+    uiGroup::translateText();
 
     for ( int idx=0; idx<size(); idx++ )
-	body_->updateText( idx );
+	lb_->body().updateText( idx );
 }
 
 
@@ -1066,19 +1146,19 @@ void uiListBox::setChoosable( int idx, bool yn )
 {
     if ( !validIdx(idx) ) return;
 
-    Qt::ItemFlags flags = body_->item(idx)->flags();
+    Qt::ItemFlags flags = lb_->body().item(idx)->flags();
     const bool isselectable = flags.testFlag( Qt::ItemIsSelectable );
     if ( isselectable == yn )
 	return;
 
-    body_->item(idx)->setFlags( flags^Qt::ItemIsSelectable );
+    lb_->body().item(idx)->setFlags( flags^Qt::ItemIsSelectable );
 }
 
 
 bool uiListBox::isChoosable( int idx ) const
 {
     return validIdx(idx) &&
-	body_->item(idx)->flags().testFlag( Qt::ItemIsSelectable );
+	lb_->body().item(idx)->flags().testFlag( Qt::ItemIsSelectable );
 }
 
 
@@ -1225,10 +1305,10 @@ void uiListBox::setItemCheckable( int idx, bool yn )
     if ( !validIdx(idx) )
 	return;
 
-    Qt::ItemFlags flags = body_->item(idx)->flags();
+    Qt::ItemFlags flags = lb_->body().item(idx)->flags();
     flags |= Qt::ItemFlags(yn ? Qt::ItemIsUserCheckable
 			      : ~Qt::ItemIsUserCheckable);
-    body_->item(idx)->setFlags( flags );
+    lb_->body().item(idx)->setFlags( flags );
 }
 
 
@@ -1245,7 +1325,7 @@ void uiListBox::setItemChecked( int idx, bool yn )
 bool uiListBox::isItemChecked( int idx ) const
 {
     return isMultiChoice() && validIdx(idx) ?
-	   body_->item(idx)->checkState() == Qt::Checked : false;
+	   lb_->body().item(idx)->checkState() == Qt::Checked : false;
 }
 
 
@@ -1267,9 +1347,9 @@ void uiListBox::setAllItemsChecked( bool yn )
 
     const int selidx = currentItem();
     int lastchg = -1;
-    for ( int idx=body_->items_.size()-1; idx>-1; idx-- )
+    for ( int idx=lb_->body().items_.size()-1; idx>-1; idx-- )
     {
-	uiListBoxItem* itm = body_->items_[idx];
+	uiListBoxItem* itm = lb_->body().items_[idx];
 	if ( itm->ischecked_ != yn )
 	    { lastchg = idx; break; }
     }
@@ -1277,10 +1357,10 @@ void uiListBox::setAllItemsChecked( bool yn )
 	return;
 
     scrollingblocked_ = true;
-    const bool blockstate = body_->blockSignals( true );
+    const bool blockstate = lb_->body().blockSignals( true );
     for ( int idx=0; idx<=lastchg; idx++ )
     {
-	uiListBoxItem* itm = body_->items_[idx];
+	uiListBoxItem* itm = lb_->body().items_[idx];
 	if ( itm->ischecked_ != yn )
 	{
 	    itm->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
@@ -1288,7 +1368,7 @@ void uiListBox::setAllItemsChecked( bool yn )
 	}
     }
 
-    body_->blockSignals( blockstate );
+    lb_->body().blockSignals( blockstate );
     selectionChanged.trigger();
     itemChosen.trigger( -1 );
 
@@ -1355,113 +1435,3 @@ void uiListBox::getCheckedItems( TypeSet<int>& items ) const
 	    items += idx;
 }
 
-
-// -------------- uiLabeledListBox ----------------
-
-
-uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt )
-    : uiGroup(p,"Labeled listbox")
-{
-    lb_ = new uiListBox( this, txt.getFullString(), OD::ChooseOnlyOne );
-    mkRest( txt, LeftMid );
-}
-
-
-uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt,
-		OD::ChoiceMode cm, uiLabeledListBox::LblPos pos )
-    : uiGroup(p,"Labeled listbox")
-{
-    lb_ = new uiListBox( this, txt.getFullString(), cm );
-    mkRest( txt, pos );
-}
-
-
-uiLabeledListBox::uiLabeledListBox( uiParent* p, const BufferStringSet& s,
-    const uiString& txt, OD::ChoiceMode cm, uiLabeledListBox::LblPos pos)
-    : uiGroup(p,"Labeled listbox")
-{
-    lb_ = new uiListBox( this, s, txt.getFullString(), cm );
-    mkRest( txt, pos );
-}
-
-
-void uiLabeledListBox::setLabelText( const uiString& txt, int nr )
-{
-    if ( nr >= lbls_.size() ) return;
-    lbls_[nr]->setText( txt );
-}
-
-
-void uiLabeledListBox::mkRest( const uiString& txt,
-			       uiLabeledListBox::LblPos pos )
-{
-    setHAlignObj( lb_ );
-
-    BufferStringSet txts;
-    BufferString s( txt.getFullString() );
-    char* ptr = s.getCStr();
-    if( !ptr || !*ptr ) return;
-    while ( 1 )
-    {
-	char* nlptr = firstOcc( ptr, '\n' );
-	if ( nlptr ) *nlptr = '\0';
-	txts += new BufferString( ptr );
-	if ( !nlptr ) break;
-
-	ptr = nlptr + 1;
-    }
-    if ( txts.size() < 1 ) return;
-
-    bool last1st = pos > RightTop && pos < BelowLeft;
-    ptr = last1st ? txts[txts.size()-1]->getCStr() : txts[0]->getCStr();
-
-    uiLabel* labl = new uiLabel( this, ptr );
-    lbls_ += labl;
-    constraintType lblct = alignedBelow;
-    switch ( pos )
-    {
-    case LeftTop:
-	lb_->attach( rightOf, labl );		lblct = rightAlignedBelow;
-    break;
-    case RightTop:
-	labl->attach( rightOf, lb_ );		lblct = alignedBelow;
-    break;
-    case LeftMid:
-	labl->attach( centeredLeftOf, lb_ );	lblct = alignedBelow;
-    break;
-    case RightMid:
-	labl->attach( centeredRightOf, lb_ );	lblct = alignedBelow;
-    break;
-    case AboveLeft:
-	lb_->attach( alignedBelow, labl );	lblct = alignedAbove;
-    break;
-    case AboveMid:
-	lb_->attach( centeredBelow, labl );	lblct = centeredAbove;
-    break;
-    case AboveRight:
-	lb_->attach( rightAlignedBelow, labl ); lblct = rightAlignedAbove;
-    break;
-    case BelowLeft:
-	labl->attach( alignedBelow, lb_ );	lblct = alignedBelow;
-    break;
-    case BelowMid:
-	labl->attach( centeredBelow, lb_ );	lblct = centeredBelow;
-    break;
-    case BelowRight:
-	labl->attach( rightAlignedBelow, lb_ ); lblct = rightAlignedBelow;
-    break;
-    }
-
-    int nrleft = txts.size() - 1;
-    while ( nrleft )
-    {
-	uiLabel* cur = new uiLabel( this, (last1st
-			? txts[nrleft-1] : txts[txts.size()-nrleft])->buf() );
-	cur->attach( lblct, labl );
-	lbls_ += cur;
-	labl = cur;
-	nrleft--;
-    }
-
-    deepErase( txts );
-}

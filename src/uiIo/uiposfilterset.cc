@@ -102,7 +102,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	selfld_->selectionChanged.notify( selcb );
 	int ph = nms.size()-1; if ( ph > 9 ) ph = 9;
 	selfld_->setPrefHeightInChar( ph );
-	attobj = selfld_;
+	attobj = selfld_->attachObj();
     }
 
     for ( int idx=0; idx<grps_.size(); idx++ )

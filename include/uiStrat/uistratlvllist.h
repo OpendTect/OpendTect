@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uilistbox.h"
 
-mExpClass(uiStrat) uiStratLvlList : public uiLabeledListBox
-{ mODTextTranslationClass(uiStratLvlList);
+mExpClass(uiStrat) uiStratLvlList : public uiListBox
+{ mODTextTranslationClass(uiStratLvlList)
 public:
 
 		uiStratLvlList(uiParent*);
@@ -34,7 +34,7 @@ protected:
     bool	anychange_;
 
     void	editLevel(bool);
-    bool        checkLocked() const;
+    bool	checkLocked() const;
 
     void	fill(CallBacker*);
     void	removeLvl(CallBacker*);
@@ -45,7 +45,6 @@ protected:
     void	removeCB(CallBacker*);
     void	removeAllCB(CallBacker*);
 };
-
 
 #endif
 

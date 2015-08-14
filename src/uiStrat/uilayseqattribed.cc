@@ -51,7 +51,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     if ( edsu.allowlocal_ && edsu.allowintegr_ )
     {
 	islocalfld_ = new uiGenInput( this, uiStrings::sType(),
-			    BoolInpSpec( false, tr("Sliding"), 
+			    BoolInpSpec( false, tr("Sliding"),
                                          tr("Integrated")) );
 	islocalfld_->valuechanged.notify( mCB(this,uiLaySeqAttribEd,slSel) );
     }
@@ -80,7 +80,8 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	integrgrp_ = new uiGroup( this, "Integrated group" );
 
 	lithofld_ = new uiListBox( integrgrp_, "Lithologies",
-			OD::ChooseAtLeastOne, reftree_.lithologies().size() );
+			OD::ChooseAtLeastOne );
+	lithofld_->setNrLines( reftree_.lithologies().size() );
 	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
 	    lithofld_->addItem( reftree_.lithologies().getLith(idx).name() );
 

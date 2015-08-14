@@ -213,20 +213,19 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     for ( int idx=0; idx<horinfos_.size(); idx++ )
 	hornms.add( horinfos_[idx]->name );
 
-    uiLabeledListBox* horbox = new uiLabeledListBox( this, hornms,
-			tr("Horizon(s) to import"), OD::ChooseAtLeastOne );
-    horbox->attach( alignedBelow, inpfld_ );
-    horselfld_ = horbox->box();
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Horizon(s) to import") );
+    horselfld_ = new uiListBox( this, su );
+    horselfld_->attach( alignedBelow, inpfld_ );
     horselfld_->setAllowDuplicates( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
     uiPushButton* addbut = new uiPushButton( this, tr("Add new"),
 				mCB(this,uiImportHorizon2D,addHor), false );
-    addbut->attach( rightTo, horbox );
+    addbut->attach( rightTo, horselfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-                              mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
-    dataselfld_->attach( alignedBelow, horbox );
+			mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
+    dataselfld_->attach( alignedBelow, horselfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon2D,descChg) );
 
     scanbut_ = new uiPushButton( this, tr("Scan Input Files"),
@@ -275,7 +274,7 @@ void uiImportHorizon2D::formatSel( CallBacker* cb )
 
 void uiImportHorizon2D::addHor( CallBacker* )
 {
-    uiGenInputDlg dlg( this, "Add Horizon", uiStrings::sName(), 
+    uiGenInputDlg dlg( this, "Add Horizon", uiStrings::sName(),
 		       new StringInpSpec() );
     if ( !dlg.go() ) return;
 

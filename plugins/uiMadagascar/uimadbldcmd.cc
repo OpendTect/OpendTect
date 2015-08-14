@@ -188,18 +188,19 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     BufferStringSet grps; grps.add( sKeyAll ); grps.add( sKeySrchRes );
     BufferStringSet madgrps( ODMad::PI().groups() );
     madgrps.sort(); grps.add( madgrps, false );
-    uiLabeledComboBox* groupfld = new uiLabeledComboBox( selgrp, grps, 
+    uiLabeledComboBox* groupfld = new uiLabeledComboBox( selgrp, grps,
                                                          tr("Group") );
     groupfld_ = groupfld->box();
     groupfld_->setToolTip( tr("Madagascar program group") );
     groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );
-    uiLabeledListBox* progfld = new uiLabeledListBox( selgrp, tr("Program") );
-    progfld->attach( alignedBelow, groupfld );
-    progfld_ = progfld->box();
+
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Program") );
+    progfld_ = new uiListBox( selgrp, su );
+    progfld_->attach( alignedBelow, groupfld );
     progfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,progChg) );
     progfld_->doubleClicked.notify( mCB(this,uiMadagascarBldCmd,dClick) );
     progfld_->setPrefHeightInChar( 12 );
-    selgrp->setHAlignObj( progfld );
+    selgrp->setHAlignObj( progfld_ );
 
     uiGroup* infogrp = new uiGroup( 0, "Prog info group" );
 
@@ -261,7 +262,7 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
     addbut->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
     addbut->attach( alignedBelow, auxcmdfld_ );
     addbut->setPrefWidthInChar( 16 );
-    uiPushButton* edbut = new uiPushButton( lowgrp, tr("Replace in flow"), 
+    uiPushButton* edbut = new uiPushButton( lowgrp, tr("Replace in flow"),
                                             true );
     edbut->setToolTip( tr("Replace current command in"
                           " flow with 'Command line'") );

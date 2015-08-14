@@ -101,8 +101,8 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
     uiGroup* procgrp = new uiGroup( grp, "Proc group" );
     const CallBack butpushcb( mCB(this,uiMadagascarMain,butPush) );
 
-    uiLabeledListBox* pfld = new uiLabeledListBox( procgrp, tr("FLOW") );
-    procsfld_ = pfld->box();
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("FLOW") );
+    procsfld_ = new uiListBox( procgrp, su );
     procsfld_->setPrefWidthInChar( 20 );
     procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
 
@@ -114,10 +114,10 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 				tr("Move current command down"), butpushcb );
     rmbut_ = new uiToolButton( bgrp, "trashcan",
 				tr("Remove current command from flow"),
-                                butpushcb );
-    bgrp->attach( centeredBelow, pfld );
+				butpushcb );
+    bgrp->attach( centeredBelow, procsfld_ );
 
-    procgrp->setHAlignObj( pfld );
+    procgrp->setHAlignObj( procsfld_ );
     return procgrp;
 }
 

@@ -183,11 +183,11 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     BufferStringSet attrnms;
     attrnms.add( uiContourTreeItem::sKeyZValue() );
     eminfo.getAttribNames( attrnms );
-    uiLabeledListBox* llb =
-	new uiLabeledListBox( this, attrnms,
-		emioobj ? emioobj->name().buf() : uiStrings::sEmptyString(),
-                OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
-    attrlb_ = llb->box();
+
+    const char* lbl = emioobj ? emioobj->name().buf() : "";
+    uiListBox::Setup su( OD::ChooseOnlyOne, lbl, uiListBox::AboveMid );
+    attrlb_ = new uiListBox( this, su );
+    attrlb_->addItems( attrnms );
 }
 
 int nrAttribs() const { return attrlb_->size(); }

@@ -25,20 +25,20 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sNoLevelTxt      = "--- None ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
-    : uiLabeledListBox(p,tr("Regional markers"),OD::ChooseOnlyOne,
-			uiLabeledListBox::AboveMid)
+    : uiListBox(p,Setup(OD::ChooseOnlyOne,tr("Regional markers"),
+			uiListBox::AboveMid))
     , islocked_(false)
     , anychange_(false)
 {
-    box()->setStretch( 2, 2 );
-    box()->setFieldWidth( 15 );
-    box()->doubleClicked.notify( mCB(this,uiStratLvlList,editCB) );
+    setStretch( 2, 2 );
+    setFieldWidth( 15 );
+    doubleClicked.notify( mCB(this,uiStratLvlList,editCB) );
 
     uiButtonGroup* grp = new uiButtonGroup( this, "Tools", OD::Vertical );
     grp->attach( rightTo, box() );
     new uiToolButton( grp, "addnew", tr("Create New"),
 		      mCB(this,uiStratLvlList,addCB) );
-    new uiToolButton( grp, "edit", uiStrings::sEdit(true), 
+    new uiToolButton( grp, "edit", uiStrings::sEdit(true),
                       mCB(this,uiStratLvlList,editCB) );
     new uiToolButton( grp, "stop", uiStrings::sRemove(true),
 		      mCB(this,uiStratLvlList,removeCB) );
@@ -75,7 +75,7 @@ uiStratLvlList::~uiStratLvlList()
 #define mCheckLocked            if ( checkLocked() ) return;
 
 #define mCheckEmptyList \
-    if ( box()->isPresent(sNoLevelTxt) ) \
+    if ( isPresent(sNoLevelTxt) ) \
 	return;
 
 
@@ -89,7 +89,7 @@ bool uiStratLvlList::checkLocked() const
 
     return false;
 }
-    
+
 
 void uiStratLvlList::editCB( CallBacker* )
 { mCheckLocked; mCheckEmptyList; editLevel( false ); }
@@ -105,7 +105,7 @@ void uiStratLvlList::removeCB( CallBacker* )
     if ( !uiMSG().askRemove(msg) ) return;
 
     Strat::LevelSet& levelset = Strat::eLVLS();
-    const char* lvlnm = box()->getText();
+    const char* lvlnm = getText();
     if ( !levelset.isPresent(lvlnm) ) return;
 
     const Strat::Level& lvl = *levelset.get( lvlnm );
@@ -143,17 +143,17 @@ void uiStratLvlList::removeLvl( CallBacker* cb )
     if ( lvlset->levels().validIdx( lvlidx ) )
     {
 	const Strat::Level* lvl = lvlset->levels()[lvlidx];
-	if ( box()->isPresent( lvl->name() ) )
-	    box()->removeItem( box()->indexOf( lvl->name() ) );
+	if ( isPresent( lvl->name() ) )
+	    removeItem( indexOf( lvl->name() ) );
     }
-    if ( box()->isEmpty() )
-	box()->addItem( sNoLevelTxt );
+    if ( isEmpty() )
+	addItem( sNoLevelTxt );
 }
 
 
 void uiStratLvlList::fill( CallBacker* )
 {
-    box()->setEmpty();
+    setEmpty();
     BufferStringSet lvlnms;
     TypeSet<Color> lvlcolors;
 
@@ -165,17 +165,17 @@ void uiStratLvlList::fill( CallBacker* )
 	lvlcolors += lvl.color();
     }
     for ( int idx=0; idx<lvlnms.size(); idx++ )
-	box()->addItem( lvlnms[idx]->buf(), lvlcolors[idx] );
+	addItem( lvlnms[idx]->buf(), lvlcolors[idx] );
 
-    if ( box()->isEmpty() )
-	box()->addItem( sNoLevelTxt );
+    if ( isEmpty() )
+	addItem( sNoLevelTxt );
 }
 
 
 void uiStratLvlList::editLevel( bool create )
 {
     Strat::LevelSet& lvls = Strat::eLVLS();
-    BufferString oldnm = create ? "" : box()->getText();
+    BufferString oldnm = create ? "" : getText();
     uiStratLevelDlg newlvldlg( this );
     newlvldlg.setCaption( create ? tr("Create level") : tr("Edit level") );
     Strat::Level* lvl = create ? 0 : lvls.get( oldnm );
@@ -185,7 +185,7 @@ void uiStratLvlList::editLevel( bool create )
 	BufferString nm; Color col;
 	newlvldlg.getLvlInfo( nm, col );
 	if ( !nm.isEmpty() && oldnm!=nm && lvls.isPresent( nm ) )
-	    { uiMSG().error(tr("Level name is empty or already exists")); 
+	    { uiMSG().error(tr("Level name is empty or already exists"));
               return; }
 	if ( create )
 	    lvl = lvls.add( nm.buf(), col );

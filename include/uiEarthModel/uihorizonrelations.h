@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "multiid.h"
 
-class uiLabeledListBox;
+class uiListBox;
 class uiPushButton;
 class BufferStringSet;
 
@@ -28,7 +28,7 @@ public:
 			uiHorizonRelationsDlg(uiParent*,bool is2d);
 
 protected:
-    uiLabeledListBox*	relationfld_;
+    uiListBox*	relationfld_;
     uiPushButton*	crossbut_;
     uiPushButton*	waterbut_;
 

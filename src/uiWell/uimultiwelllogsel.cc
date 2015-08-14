@@ -400,29 +400,26 @@ void uiMultiWellLogSel::init()
     const uiObject::SzPolicy vpol = uiObject::WideMax;
     const OD::ChoiceMode chmode =
 	singlelog_ ? OD::ChooseOnlyOne : OD::ChooseAtLeastOne;
-    uiLabeledListBox* llbl = new uiLabeledListBox( this,
-	singlelog_ ? "Log" : uiStrings::sLogs(true), chmode,
-	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
-    logsfld_ = llbl->box();
+    uiListBox::Setup su( chmode, singlelog_ ? "Log" : uiStrings::sLogs(true),
+			 singlewid_ ? uiListBox::LeftTop : uiListBox::RightTop);
+    logsfld_ = new uiListBox( this, su );
     logsfld_->setHSzPol( hpol );
     logsfld_->setVSzPol( vpol );
 
     wellsfld_ = 0; wellschoiceio_ = 0;
-    zchoicefld_->attach( ensureBelow, llbl );
+    zchoicefld_->attach( ensureBelow, logsfld_ );
 
-    uiLabeledListBox* llbw = 0;
     if ( !singlewid_ )
     {
-	llbw = new uiLabeledListBox( this, uiStrings::sWells(true),
-				     OD::ChooseAtLeastOne,
-				     uiLabeledListBox::LeftTop );
-	wellsfld_ = llbw->box();
+	uiListBox::Setup suw( OD::ChooseAtLeastOne, uiStrings::sWells(true),
+			      uiListBox::LeftTop );
+	wellsfld_ = new uiListBox( this, suw );
 	wellsfld_->setHSzPol( hpol );
 	wellsfld_->setVSzPol( vpol );
 	mAttachCB( wellsfld_->selectionChanged,
 		   uiMultiWellLogSel::updateLogsFldCB);
 	mAttachCB( wellsfld_->itemChosen, uiMultiWellLogSel::updateLogsFldCB);
-	llbl->attach( rightTo, llbw );
+	logsfld_->attach( rightTo, wellsfld_ );
 
 	wellschoiceio_ = new uiListBoxChoiceIO( *wellsfld_, "Well" );
 	mAttachCB( wellschoiceio_->readDone,
@@ -431,7 +428,7 @@ void uiMultiWellLogSel::init()
 		   uiMultiWellLogSel::writeWellChoiceReq );
     }
 
-    zchoicefld_->attach( alignedBelow, llbw ? llbw : llbl );
+    zchoicefld_->attach( alignedBelow, wellsfld_ ? wellsfld_ : logsfld_ );
 }
 
 

@@ -12,7 +12,7 @@
 #include "multiid.h"
 
 class uiGenInput;
-class uiLabeledListBox;
+class uiListBox;
 class uiLabeledSpinBox;
 namespace Tut { class LogTools; }
 namespace Well { class Data; }
@@ -26,7 +26,7 @@ public:
 			~uiTutWellTools();
 
 protected:
-    uiLabeledListBox*	inplogfld_;
+    uiListBox*	inplogfld_;
     uiGenInput*		outplogfld_;
     uiLabeledSpinBox*	gatefld_;
 
