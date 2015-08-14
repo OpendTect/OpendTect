@@ -262,7 +262,7 @@ void Sower::tieToWorkRange( const visBase::EventInfo& eventinfo )
     const BinID start = workrange_->start_;
     const BinID stop = workrange_->stop_;
 
-    const int min2 = (int)mMIN( lastbid.sqDistTo(start), 
+    const int min2 = (int)mMIN( lastbid.sqDistTo(start),
 				lastbid.sqDistTo(stop) );
     const int step = workrange_->nrCrl()==1 ? workrange_->step_.inl()
 					    : workrange_->step_.crl();
@@ -289,7 +289,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
     {
 	const EM::PosID pid = getMarkerID( eventinfo );
 	if ( pid.isUdf() )
-	    mReturnHandled( true );
+	    mReturnHandled( false );
     }
 
     if ( mode_ != Furrowing )
