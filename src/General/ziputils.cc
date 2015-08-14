@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDirCheck( dir ) \
     if ( !File::exists(dir) ) \
 { \
-    errmsg_ = uiStrings::sDoesntExist(toUiString(dir)); \
+    errmsg_ = uiStrings::phrDoesntExist(toUiString(dir)); \
     return false; \
 } \
 

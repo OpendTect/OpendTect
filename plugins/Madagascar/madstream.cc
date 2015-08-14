@@ -219,7 +219,7 @@ void MadStream::initRead( IOPar* par )
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *ioobj );
 
-	if (!psrdr_) mErrRet(uiStrings::sCantReadInpData());
+	if (!psrdr_) mErrRet(uiStrings::sCantReadInp());
 
 	fillHeaderParsFromPS( seldata );
     }
@@ -326,7 +326,7 @@ uiString MadStream::sCannotWritePosFile()
 
 void MadStream::fillHeaderParsFromSeis()
 {
-    if (!seisrdr_) mErrRet(uiStrings::sCantReadInpData());
+    if (!seisrdr_) mErrRet(uiStrings::sCantReadInp());
 
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 
@@ -431,7 +431,7 @@ void MadStream::fillHeaderParsFromSeis()
 
 void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 {
-    if (!psrdr_) mErrRet(uiStrings::sCantReadInpData());
+    if (!psrdr_) mErrRet(uiStrings::sCantReadInp());
 
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 

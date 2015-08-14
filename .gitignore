@@ -1,6 +1,7 @@
 # Known generated files
 *mod.h
 about.html
+dtect/linguist.csh
 include/Basic/svnversion.h
 include/Basic/odversion.h
 include/Basic/buildinfo.h
@@ -35,11 +36,15 @@ plugins/*/*.alo
 src/*/instantiate*export.cc
 bin/*/Debug/*
 bin/*/Release/*
+*.cbp
+*.cd
+*.user
 *.tlog
 *.log
 *.suo
 *.res
 *.obj
+ipch
 *.lib
 *.exp
 *.rc

@@ -510,7 +510,7 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
 
     if ( changed_ && !setts_.write() )
     {
-	uiMSG().error( uiStrings::sCantWriteSet() );
+	uiMSG().error( uiStrings::sCantWriteSettings() );
 	return false;
     }
 

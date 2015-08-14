@@ -55,7 +55,7 @@ uiFileInput::Setup::Setup( uiFileDialog::Type t, const char* filenm )
 }
 
 
-uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
+uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     : uiGenInput( p, txt, FileNameInpSpec(setup.fnm) )
     , forread_(setup.forread_)
     , filter_(setup.filter_)
@@ -78,8 +78,11 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
 	examinebut_ = uiButton::getStd( this,
 			exameditable_ ? uiButton::Edit : uiButton::Examine,
 			mCB(this,uiFileInput,examineFile), false );
-	examinebut_->setName(
-			BufferString(exameditable_?"Edit ":"Examine ",txt) );
+	examinebut_->setText( uiString( "%1 %2")
+			     .arg(exameditable_
+				  ? uiStrings::sEdit(true)
+				  : uiStrings::sExamine() )
+			     .arg(txt) );
     }
     if ( setup.directories_ )
     {
@@ -92,7 +95,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
 }
 
 
-uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
+uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     : uiGenInput( p, txt, FileNameInpSpec(fnm) )
     , forread_(true)
     , filter_("")

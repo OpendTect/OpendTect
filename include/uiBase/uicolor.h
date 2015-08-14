@@ -83,7 +83,7 @@ public:
     uiPushButton*		getButton()	{ return colbut_; }
     uiComboBox*			getDescCombo()	{ return descfld_; }
 
-    static uiString		sSelColor()	{ return tr("Select color"); }
+    static uiString		sSelColor();
     static bool			selectColor(Color& col,uiParent*,
                                             uiString,bool withtransp);
 

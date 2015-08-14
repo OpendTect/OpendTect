@@ -45,14 +45,15 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 				      const ObjectSet<SurfaceInfo>& hinfos )
-	: uiDialog(p,uiDialog::Setup(tr("Export 2D Horizon"), mNoDlgTitle,
-                                     mODHelpKey(mExportHorizonHelpID) ))
-	, hinfos_(hinfos)
+    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("2D Horizon") ),
+	       mNoDlgTitle, mODHelpKey(mExportHorizonHelpID) ))
+    , hinfos_(hinfos)
 {
     setOkText( uiStrings::sExport() );
 
-    uiLabeledComboBox* lcbox = new uiLabeledComboBox( this, "Select Horizon",
-						      "Select 2D Horizon" );
+    uiLabeledComboBox* lcbox = new uiLabeledComboBox( this,
+			 uiStrings::phrSelect( uiStrings::sHorizon() ),
+			 "Select 2D Horizon" );
     horselfld_ = lcbox->box();
     horselfld_->setHSzPol( uiObject::MedVar );
     horselfld_->selectionChanged.notify( mCB(this,uiExport2DHorizon,horChg) );
@@ -114,7 +115,7 @@ bool uiExport2DHorizon::doExport()
     {
 	PtrMan<Executor> exec = em.objectLoader( horid );
 	if ( !exec || !exec->execute() )
-	    mErrRet(uiStrings::sCantLoadHor())
+	    mErrRet(uiStrings::sCantReadHor())
 
 	obj = em.getObject( em.getObjectID(horid) );
 	if ( !obj ) return false;
@@ -124,7 +125,7 @@ bool uiExport2DHorizon::doExport()
 
     mDynamicCastGet(EM::Horizon2D*,hor,obj);
     if ( !hor )
-	mErrRet(uiStrings::sCantLoadHor())
+	mErrRet(uiStrings::sCantReadHor())
 
     EM::SectionID sid = hor->sectionID( 0 );
     const Geometry::Horizon2DLine* geom = hor->geometry().sectionGeometry(sid);

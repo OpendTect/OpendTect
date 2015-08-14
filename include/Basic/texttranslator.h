@@ -31,21 +31,13 @@ class TranslatorLanguageInfo;
 mExpClass(Basic) TextTranslateMgr : public CallBacker
 { mODTextTranslationClass(TextTranslateMgr);
 public:
-				TextTranslateMgr()
-				    : dirtycount_(0)
-				    , currentlanguageidx_(-1)
-				    , languageChange(this)
-				{
-				    loadInfo();
-				}
-
+				TextTranslateMgr();
 				~TextTranslateMgr();
 
     int				nrSupportedLanguages() const;
     uiString			getLanguageUserName(int) const;
     BufferString		getLanguageName(int) const;
     bool			setLanguage(int,uiString& errmsg);
-				//!<0 means Default (English)
     int				currentLanguage() const;
 
     Notifier<TextTranslateMgr>	languageChange;

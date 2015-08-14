@@ -250,14 +250,15 @@ static BufferString getDlgTitle( const ObjectSet<Well::Data>& wds,
 
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 			  const BufferStringSet& logsel )
-    : uiDialog(p,uiDialog::Setup(tr("Export Well logs"),getDlgTitle(wds,logsel),
-				 mODHelpKey(mExportLogsHelpID)))
+    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("Well logs") ),
+				  getDlgTitle(wds,logsel),
+				  mODHelpKey(mExportLogsHelpID)))
     , wds_(wds)
     , logsel_(logsel)
     , multiwellsnamefld_(0)
 {
     const bool zinft = SI().depthsInFeet();
-    BufferString lbl( "Depth range " ); lbl += zinft ? "(ft)" : "(m)";
+    const uiString lbl = tr( "Depth range %1" ).arg( zinft ? "(ft)" : "(m)" );
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
 

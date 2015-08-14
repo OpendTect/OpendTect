@@ -234,7 +234,7 @@ void uiODMenuMgr::fillImportMenu()
 
     uiMenu* impattr = new uiMenu( &appl_, uiStrings::sAttribute() );
     uiMenu* impseis = new uiMenu( &appl_, uiStrings::sSeismics(true) );
-    uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizon(true) );
+    uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizons(true) );
     uiMenu* impfault = new uiMenu( &appl_, uiStrings::sFaults(true) );
     uiMenu* impfaultstick = new uiMenu( &appl_, tr("FaultStickSets") );
     uiMenu* impwell = new uiMenu( &appl_, uiStrings::sWells(true) );

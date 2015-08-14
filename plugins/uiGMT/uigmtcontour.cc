@@ -59,7 +59,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     , lsfld_(0)
 {
     inpfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
-			      uiStrings::sHorizon(true) );
+			      uiStrings::sHorizon() );
     inpfld_->selectionDone.notify( mCB(this,uiGMTContourGrp,objSel) );
 
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );

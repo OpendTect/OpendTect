@@ -251,7 +251,8 @@ uiODSceneTreeItem::uiODSceneTreeItem( const char* nm, int id )
     , propitem_(uiStrings::sProperties( false ))
     , imageitem_(tr("Top/Bottom Image ..."))
     , coltabitem_(tr("Scene Color Bar ..."))
-    , dumpivitem_(tr("Export Scene ..."))
+    , dumpivitem_( uiStrings::phrImmediate( true,
+		   uiStrings::phrExport( uiStrings::sScene() )) )
 {
     propitem_.iconfnm = "disppars";
 }

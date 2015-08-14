@@ -38,6 +38,12 @@ set binarydir=$2
 set lupdate=$3
 set tmpoddir=${binarydir}/lupdate_tmp_$$
 
+set kernel=`uname -a | awk '{print $1}'`
+if ( "${kernel}" == "Darwin" ) then
+    set lupdate_dir=`dirname ${lupdate}`
+    setenv DYLD_LIBRARY_PATH ${lupdate_dir}/../lib
+endif
+
 if ( -e $tmpoddir ) then
     \rm -rf $tmpoddir
 endif

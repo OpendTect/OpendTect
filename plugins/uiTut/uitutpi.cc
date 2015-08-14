@@ -80,7 +80,7 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 	mnu->insertItem( new uiAction(tr("Seismic (Direct) ..."),
 					mCB(this,uiTutMgr,doSeis)) );
 
-    mnu->insertItem( new uiAction(uiStrings::sHorizon(false),
+    mnu->insertItem( new uiAction(uiStrings::sHorizons( false, 1 ),
 				    mCB(this,uiTutMgr,doHor)) );
 
     appl_->menuMgr().toolsMnu()->insertItem( mnu );

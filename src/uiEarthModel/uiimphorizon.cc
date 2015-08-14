@@ -644,7 +644,7 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setMultiID( ctio_.ioobj->key() );
     Executor* loader = emobj->loader();
-    if ( !loader ) mErrRet( uiStrings::sCantLoadHor());
+    if ( !loader ) mErrRet( uiStrings::sCantReadHor());
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) )

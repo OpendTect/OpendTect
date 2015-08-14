@@ -347,7 +347,6 @@ void uiPrintSceneDlg::flipImageVertical(osg::Image* image)
     {
 	image->flipVertical();
     }
-
 }
 
 
@@ -357,7 +356,7 @@ void uiPrintSceneDlg::writeToSettings()
     fillPar( iopar, false );
     settings_.mergeComp( iopar, "3D" );
     if ( !settings_.write() )
-	uiMSG().error( uiStrings::sCantWriteSet() );
+	uiMSG().error( uiStrings::sCantWriteSettings() );
 }
 
 

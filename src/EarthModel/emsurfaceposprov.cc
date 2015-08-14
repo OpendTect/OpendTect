@@ -357,7 +357,7 @@ void EMSurfaceProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 void EMSurfaceProvider3D::initClass()
 { Provider3D::factory().addCreator( create, sKey::Surface(), 
-				    uiStrings::sHorizon(true) ); }
+				    uiStrings::sHorizon() ); }
 
 
 // ***** EMSurfaceProvider2D ****

@@ -104,6 +104,7 @@ set( OD_MODULE_SOURCES
 	timer.cc
 	trckeyzsampling.cc
 	uistring.cc
+	uistrings.cc
 	winutils.cc
 	zdomain.cc
 )

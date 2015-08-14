@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uipixmap.h"
 #include "uimsg.h"
-#include "uistrings.h"
 #include "uitoolbutton.h"
 
 

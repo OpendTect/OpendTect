@@ -43,8 +43,8 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     horfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
-	    				 : mIOObjContext(EMHorizon3D),
-			                   uiStrings::sHorizon(true) );
+					 : mIOObjContext(EMHorizon3D),
+			      uiStrings::sHorizon() );
     horfld_->selectionDone.notify( mCB(this,uiHorizonAttrib,horSel) );
     horfld_->attach( alignedBelow, inpfld_ );
 

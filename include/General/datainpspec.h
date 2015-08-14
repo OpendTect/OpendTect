@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "keystrs.h"
 #include "uistring.h"
-#include "uistrings.h"
 
 /*!
 \brief Data type.

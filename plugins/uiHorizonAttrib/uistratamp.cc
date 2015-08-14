@@ -49,7 +49,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     winoption_->valuechanged.notify( mCB(this,uiStratAmpCalc,choiceSel) );
     winoption_->attach( alignedBelow, inpfld_ );
 
-    horfld1_ = new uiIOObjSel( this, horctio1_, uiStrings::sHorizon(true) );
+    horfld1_ = new uiIOObjSel( this, horctio1_, uiStrings::sHorizon() );
     horfld1_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld1_->attach( alignedBelow, winoption_ );
 
@@ -111,7 +111,7 @@ uiStratAmpCalc::~uiStratAmpCalc()
 void uiStratAmpCalc::choiceSel( CallBacker* )
 {
     usesingle_ = winoption_->getBoolValue();
-    horfld1_->setLabelText( usesingle_ ? uiStrings::sHorizon(true) 
+    horfld1_->setLabelText( usesingle_ ? uiStrings::sHorizon()
 				       : uiStrings::sTopHor() );
     horfld2_->display( !usesingle_ );
     selfld_->display( !usesingle_ );

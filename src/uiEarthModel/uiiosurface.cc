@@ -678,11 +678,13 @@ public:
 
 
 class uiFaultOptSel: public uiDialog
-{
+{ mODTextTranslationClass(uiFaultOptSel)
 public:
     uiFaultOptSel( uiParent* p, uiFaultParSel& fltpar )
 	: uiDialog(p,uiDialog::Setup(
-		    fltpar.is2d_ ? "FaultStickSet selection":"Fault selection",
+		    tr( "%1 selection" ).arg( fltpar.is2d_
+					    ? uiStrings::sFaultStickSet()
+					    : uiStrings::sFault() ),
 		    mNoDlgTitle,mTODOHelpKey) )
 	, fltpar_(fltpar)
     {
