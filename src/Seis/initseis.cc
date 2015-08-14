@@ -37,7 +37,7 @@ mDefSimpleTranslatorioContext(SeisTrc,Seis)
 mDefModInitFn(Seis)
 {
     mIfNotFirstTime( return );
-    
+
     SeisPacketInfo::initClass();
 
     SeisTrcTranslatorGroup::initClass();
@@ -53,11 +53,12 @@ mDefModInitFn(Seis)
     TwoDDataSeisTrcTranslator::initClass();
     SEGYSeisTrcTranslator::initClass();
     SEGYDirectSeisTrcTranslator::initClass();
+
+    CBVSSeisPS3DTranslator::initClass();
+    CBVSSeisPS2DTranslator::initClass();
     SEGYDirectSeisPS3DTranslator::initClass();
     SEGYDirectSeisPS2DTranslator::initClass();
     SeisPSCubeSeisTrcTranslator::initClass();
-    CBVSSeisPS3DTranslator::initClass();
-    CBVSSeisPS2DTranslator::initClass();
     MultiCubeSeisPS3DTranslator::initClass();
 
     LinearT2DTransform::initClass();
