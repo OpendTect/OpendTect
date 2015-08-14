@@ -29,6 +29,7 @@ class DataPointSet;
 class TrcKeySampling;
 class SurfaceInfo;
 class ZAxisTransform;
+class uiBulkHorizonImport;
 class uiCreateHorizon;
 class uiExportFault;
 class uiExportHorizon;
@@ -197,6 +198,7 @@ protected:
     EM::EMManager&	em_;
     uiImportHorizon*	imphorattrdlg_;
     uiImportHorizon*	imphorgeomdlg_;
+    uiBulkHorizonImport*	impbulkhordlg_;
     uiImportFault3D*	impfltdlg_;
     uiImportFault3D*	impfltstickdlg_;
     uiImportFaultStickSet2D*	impfss2ddlg_;
