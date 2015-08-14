@@ -69,6 +69,11 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , uiwellpropDlgClosed(this)
     , isdisppropopened_(false)
     , manwelldlg_(0)
+    , impsimpledlg_(0)
+    , impbulktrackdlg_(0)
+    , impbulklogdlg_(0)
+    , impbulkmrkrdlg_(0)
+    , impbulkd2tdlg_(0)
 {
     IOM().surveyChanged.notify( mCB(this,uiWellPartServer,survChangedCB) );
 }
@@ -78,39 +83,57 @@ uiWellPartServer::~uiWellPartServer()
 {
     delete rdmlinedlg_;
     delete manwelldlg_;
+    delete impsimpledlg_;
+    delete impbulktrackdlg_;
+    delete impbulklogdlg_;
+    delete impbulkmrkrdlg_;
+    delete impbulkd2tdlg_;
 }
 
 
 void uiWellPartServer::survChangedCB( CallBacker* )
 {
     delete manwelldlg_; manwelldlg_ = 0;
+    delete impsimpledlg_; impsimpledlg_ = 0;
+    delete impbulktrackdlg_; impbulktrackdlg_ = 0;
+    delete impbulklogdlg_; impbulklogdlg_ = 0;
+    delete impbulkmrkrdlg_; impbulkmrkrdlg_ = 0;
+    delete impbulkd2tdlg_; impbulkd2tdlg_ = 0;
 }
 
 
 void uiWellPartServer::bulkImportTrack()
 {
-    uiBulkTrackImport dlg( parent() );
-    dlg.go();
+    if ( !impbulktrackdlg_ )
+	impbulktrackdlg_ = new uiBulkTrackImport( parent() );
+
+    impbulktrackdlg_->show();
 }
 
 
 void uiWellPartServer::bulkImportLogs()
 {
-    uiBulkLogImport dlg( parent() );
-    dlg.go();
+    if ( !impbulklogdlg_ )
+	impbulklogdlg_ = new uiBulkLogImport( parent() );
+
+    impbulklogdlg_->show();
 }
 
 void uiWellPartServer::bulkImportMarkers()
 {
-    uiBulkMarkerImport dlg( parent() );
-    dlg.go();
+    if ( !impbulkmrkrdlg_ )
+	impbulkmrkrdlg_ = new uiBulkMarkerImport( parent() );
+
+    impbulkmrkrdlg_->show();
 }
 
 
 void uiWellPartServer::bulkImportD2TModel()
 {
-    uiBulkD2TModelImport dlg( parent() );
-    dlg.go();
+    if ( !impbulkd2tdlg_ )
+	impbulkd2tdlg_ = new uiBulkD2TModelImport( parent() );
+
+    impbulkd2tdlg_->show();
 }
 
 
@@ -363,14 +386,16 @@ void uiWellPartServer::launchRockPhysics()
 
 void uiWellPartServer::simpImp( CallBacker* cb )
 {
-    uiSimpleMultiWellCreate dlg( parent() );
-    if ( !dlg.go() )
+    if ( !impsimpledlg_ )
+	impsimpledlg_ = new uiSimpleMultiWellCreate( parent() );
+
+    if ( !impsimpledlg_->go() )
 	return;
 
-    crwellids_ = dlg.createdWellIDs();
+    crwellids_ = impsimpledlg_->createdWellIDs();
     if ( crwellids_.isEmpty() ) return;
 
-    if ( dlg.wantDisplay() )
+    if ( impsimpledlg_->wantDisplay() )
 	sendEvent( evDisplayWell() );
 
     mDynamicCastGet(uiToolButton*,tb,cb)
