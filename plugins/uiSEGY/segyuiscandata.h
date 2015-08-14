@@ -27,25 +27,21 @@ class TrcHeader;
 class TrcHeaderDef;
 
 
-/*!\brief definition for SEG-Y scanning in UI */
+/*!\brief Basic data from a SEG-Y fle */
 
-mExpClass(uiSEGY) uiScanDef
+mExpClass(uiSEGY) BasicFileInfo
 {
 public:
 
-			uiScanDef();
-			~uiScanDef();
-    void		reInit(bool alsohdef=true);
+			BasicFileInfo()			{ init(); }
+    void		init();
 
     int			revision_;
-    bool		hdrsswapped_;
-    bool		dataswapped_;
     int			ns_;
     short		format_;
     SamplingData<float>	sampling_;
-    float		coordscale_;
-
-    TrcHeaderDef*	hdrdef_;
+    bool		hdrsswapped_;
+    bool		dataswapped_;
 
     bool		isValid() const			{ return ns_ > 0; }
     bool		isRev0() const			{ return revision_ < 1;}
@@ -55,6 +51,24 @@ public:
 
     int			nrTracesIn(const od_istream&,od_stream_Pos p=-1) const;
     void		goToTrace(od_istream&,od_stream_Pos,int) const;
+
+};
+
+
+/*!\brief definition for SEG-Y loading */
+
+mExpClass(uiSEGY) LoadDef : public BasicFileInfo
+{
+public:
+
+			LoadDef();
+			~LoadDef();
+    void		reInit(bool alsohdef);
+
+    float		coordscale_;
+
+    TrcHeaderDef*	hdrdef_;
+
     TrcHeader*		getTrcHdr(od_istream&) const;
     bool		getData(od_istream&,char*,float* vals=0) const;
     TrcHeader*		getTrace(od_istream&,char*,float*) const;
@@ -62,13 +76,13 @@ public:
 };
 
 
-/*!\brief info to collect for SEG-Y scanning in UI */
+/*!\brief info collected by scanning SEG-Y file */
 
-mExpClass(uiSEGY) uiScanData
+mExpClass(uiSEGY) ScanInfo
 {
 public:
 
-			uiScanData(const char* fnm);
+			ScanInfo(const char* fnm);
 
     BufferString	filenm_;
     bool		usable_;
@@ -85,15 +99,17 @@ public:
     Interval<float>	refnrs_;
     bool		infeet_;
 
-    void		getFromSEGYBody(od_istream&,const uiScanDef&,
+    BasicFileInfo	basicinfo_;
+
+    void		getFromSEGYBody(od_istream&,const LoadDef&,
 				    bool isfirst,bool is2d,DataClipSampler&);
-    void		merge(const uiScanData&);
+    void		merge(const ScanInfo&);
 
     void		reInit();
 
 protected:
 
-    bool		addTrace(od_istream&,bool,char*,float*,const uiScanDef&,
+    bool		addTrace(od_istream&,bool,char*,float*,const LoadDef&,
 				 DataClipSampler&);
     void		addValues(DataClipSampler&,const float*, int);
 

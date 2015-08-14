@@ -57,9 +57,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, typfld_ );
 
-    infofld_ = new uiSEGYReadStartInfo( this, scandef_ );
+    infofld_ = new uiSEGYReadStartInfo( this, loaddef_ );
     infofld_->attach( ensureBelow, sep );
-    infofld_->scandefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
+    infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
 
     uiGroup* examinegrp = new uiGroup( this, "Examine group" );
     examinebut_ = new uiToolButton( examinegrp, "examine",
@@ -138,17 +138,17 @@ const SEGY::ImpType& uiSEGYReadStarter::impType() const
 }
 
 
-void uiSEGYReadStarter::execNewScan( bool fixedscandef )
+void uiSEGYReadStarter::execNewScan( bool fixedloaddef )
 {
     userfilename_ = inpfld_->fileName();
-    deepErase( scandata_ );
+    deepErase( scaninfo_ );
     clipsampler_.reset();
     clearDisplay();
     if ( !getFileSpec() )
 	return;
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    if ( !scanFile(filespec_.fileName(0),fixedscandef) )
+    if ( !scanFile(filespec_.fileName(0),fixedloaddef) )
 	return;
 
     const int nrfiles = filespec_.nrFiles();
@@ -161,7 +161,7 @@ void uiSEGYReadStarter::execNewScan( bool fixedscandef )
 
 void uiSEGYReadStarter::setExamineStatus()
 {
-    int nrfiles = scandata_.size();
+    int nrfiles = scaninfo_.size();
     examinebut_->setSensitive( nrfiles > 0 );
     examinebut_->setToolTip( nrfiles > 1 ? tr("Examine first input file")
 					 : tr("Examine input file") );
@@ -320,9 +320,9 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
     return false; \
 }
 
-bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedscandef )
+bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef )
 {
-    const bool isfirst = scandata_.isEmpty();
+    const bool isfirst = scaninfo_.isEmpty();
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRetFileName( "Cannot open file: %1" )
@@ -338,76 +338,76 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedscandef )
     bool infeet = false;
     if ( isfirst )
     {
-	if ( !fixedscandef )
+	if ( !fixedloaddef )
 	{
 	    binhdr.guessIsSwapped();
-	    scandef_.hdrsswapped_ = scandef_.dataswapped_ = binhdr.isSwapped();
+	    loaddef_.hdrsswapped_ = loaddef_.dataswapped_ = binhdr.isSwapped();
 	}
-	if ( scandef_.hdrsswapped_ )
+	if ( loaddef_.hdrsswapped_ )
 	    binhdr.unSwap();
 	if ( !binhdr.isRev0() )
 	    binhdr.skipRev1Stanzas( strm );
 	infeet = binhdr.isInFeet();
 
-	if ( !fixedscandef )
+	if ( !fixedloaddef )
 	{
-	    scandef_.ns_ = binhdr.nrSamples();
-	    if ( scandef_.ns_ < 1 || scandef_.ns_ > mMaxReasonableNS )
-		scandef_.ns_ = -1;
-	    scandef_.revision_ = binhdr.revision();
+	    loaddef_.ns_ = binhdr.nrSamples();
+	    if ( loaddef_.ns_ < 1 || loaddef_.ns_ > mMaxReasonableNS )
+		loaddef_.ns_ = -1;
+	    loaddef_.revision_ = binhdr.revision();
 	    short fmt = binhdr.format();
 	    if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
 		fmt = 1;
-	    scandef_.format_ = fmt;
+	    loaddef_.format_ = fmt;
 	}
     }
 
-    SEGY::uiScanData* sd = new SEGY::uiScanData( fnm );
-    if ( !obtainScanData(*sd,strm,isfirst) )
-	{ delete sd; return false; }
+    SEGY::ScanInfo* si = new SEGY::ScanInfo( fnm );
+    if ( !obtainScanInfo(*si,strm,isfirst) )
+	{ delete si; return false; }
 
-    sd->infeet_ = infeet;
-    scandata_ += sd;
+    si->infeet_ = infeet;
+    scaninfo_ += si;
     return true;
 }
 
 
-bool uiSEGYReadStarter::obtainScanData( SEGY::uiScanData& sd, od_istream& strm,
+bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
 					bool isfirst )
 {
     if ( isfirst )
     {
-	if ( !completeScanDef(strm) )
+	if ( !completeLoadDef(strm) )
 	    return false;
     }
 
-    sd.getFromSEGYBody( strm, scandef_, isfirst,
+    si.getFromSEGYBody( strm, loaddef_, isfirst,
 			Seis::is2D(typfld_->impType().geomType()),
 			clipsampler_ );
     return true;
 }
 
 
-bool uiSEGYReadStarter::completeScanDef( od_istream& strm )
+bool uiSEGYReadStarter::completeLoadDef( od_istream& strm )
 {
     const bool isfirst = true; // for mErrRetFileName
     const od_stream::Pos firsttrcpos = strm.position();
 
-    PtrMan<SEGY::TrcHeader> thdr = scandef_.getTrcHdr( strm );
+    PtrMan<SEGY::TrcHeader> thdr = loaddef_.getTrcHdr( strm );
     if ( !thdr )
 	mErrRetFileName( "File:\n%1\nNo traces found" )
 
-    if ( scandef_.ns_ < 1 )
+    if ( loaddef_.ns_ < 1 )
     {
-	scandef_.ns_ = (int)thdr->nrSamples();
-	if ( scandef_.ns_ > mMaxReasonableNS )
+	loaddef_.ns_ = (int)thdr->nrSamples();
+	if ( loaddef_.ns_ > mMaxReasonableNS )
 	    mErrRetFileName(
 		    "File:\n%1\nNo proper 'number of samples per trace' found" )
     }
 
-    SeisTrcInfo ti; thdr->fill( ti, scandef_.coordscale_ );
-    if ( mIsUdf(scandef_.sampling_.step) )
-	scandef_.sampling_ = ti.sampling;
+    SeisTrcInfo ti; thdr->fill( ti, loaddef_.coordscale_ );
+    if ( mIsUdf(loaddef_.sampling_.step) )
+	loaddef_.sampling_ = ti.sampling;
 
     if ( veryfirstscan_ )
     {
@@ -416,25 +416,25 @@ bool uiSEGYReadStarter::completeScanDef( od_istream& strm )
     }
 
     strm.setPosition( firsttrcpos );
-    infofld_->useScanDef();
+    infofld_->useLoadDef();
     return true;
 }
 
 
 void uiSEGYReadStarter::displayScanResults()
 {
-    if ( scandata_.isEmpty() )
+    if ( scaninfo_.isEmpty() )
 	{ clearDisplay(); return; }
 
     setExamineStatus();
     updateAmplDisplay( 0 );
 
-    SEGY::uiScanData sd( *scandata_[0] );
-    sd.filenm_ = userfilename_;
-    for ( int idx=1; idx<scandata_.size(); idx++ )
-	sd.merge( *scandata_[idx] );
+    SEGY::ScanInfo si( *scaninfo_[0] );
+    si.filenm_ = userfilename_;
+    for ( int idx=1; idx<scaninfo_.size(); idx++ )
+	si.merge( *scaninfo_[idx] );
 
-    infofld_->setScanData( sd );
+    infofld_->setScanInfo( si );
 }
 
 

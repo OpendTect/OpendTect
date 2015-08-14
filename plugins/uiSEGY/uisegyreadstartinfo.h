@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uisegyimptype.h"
 
 class DataClipSampler;
-namespace SEGY { class ImpType; class uiScanData; class uiScanDef; }
+namespace SEGY { class ImpType; class ScanInfo; class LoadDef; }
 class uiTable;
 class uiSpinBox;
 class uiLineEdit;
@@ -32,15 +32,15 @@ mExpClass(uiSEGY) uiSEGYReadStartInfo : public uiGroup
 { mODTextTranslationClass(uiSEGYReadStartInfo);
 public:
 
-			uiSEGYReadStartInfo(uiParent*,SEGY::uiScanDef&);
+			uiSEGYReadStartInfo(uiParent*,SEGY::LoadDef&);
 
     void		setImpTypIdx(int);
-    void		setScanData(const SEGY::uiScanData&);
+    void		setScanInfo(const SEGY::ScanInfo&);
 
-    void		useScanDef(); //!< when you have changed the scandef
-    void		fillScanDef();
+    void		useLoadDef(); //!< when you have changed the loaddef
+    void		fillLoadDef();
 
-    Notifier<uiSEGYReadStartInfo> scandefChanged; //!< when I have changed it
+    Notifier<uiSEGYReadStartInfo> loaddefChanged; //!< when I have changed it
 
     void		clearInfo();
 
@@ -58,7 +58,7 @@ protected:
     uiSEGYByteNr*	key2bytefld_;
     uiSEGYByteNr*	offsetbytefld_;
 
-    SEGY::uiScanDef&	scandef_;
+    SEGY::LoadDef&	loaddef_;
     SEGY::ImpType	imptype_;
     bool		parsbeingset_;
     BufferString	xinfotxt_;
@@ -72,7 +72,7 @@ protected:
     void		revChg(CallBacker*);
     void		parChg(CallBacker*);
 
-    void		mkScanDefFields();
+    void		mkLoadDefFields();
     void		showRelevantInfo();
     void		setCellTxt(int col,int row,const char*);
 
