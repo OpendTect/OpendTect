@@ -78,7 +78,7 @@ void setBaseLine( const Grid2D::Line* baseline )
     item->setLine( start, stop ); \
     item->setPenStyle( ls ); \
     item->setZValue( graphicszval ); \
-    item->setParent( &graphitem_ ); \
+    graphitem_.addChild( item ); \
 }
 
 void update()

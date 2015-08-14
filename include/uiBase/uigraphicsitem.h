@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "callback.h"
+#include "keyenum.h"
 #include "uigeom.h"
 #include "manobjectset.h"
 #include "uistring.h"
@@ -21,6 +22,7 @@ ________________________________________________________________________
 class LineStyle;
 class FillPattern;
 class MouseCursor;
+class MouseEvent;
 class uiGraphicsScene;
 
 mFDQtclass(QGraphicsItem)
@@ -40,14 +42,14 @@ public:
     void		hide();
 
     virtual void	setAcceptHoverEvents(bool);
-    virtual void	setAcceptedMouseButtons(bool);
+    virtual void	setAcceptedMouseButtons(OD::ButtonState);
     virtual void	setFiltersChildEvents(bool);
     virtual void	setMovable(bool);
     virtual void	setSelectable(bool);
     virtual void	setSelected(bool);
     virtual void	setVisible(bool);
 
-    virtual bool	isAcceptedMouseButtonsEnabled();
+    virtual OD::ButtonState acceptedMouseButtonsEnabled() const;
     virtual bool	isFiltersChildEventsEnabled() const;
     virtual bool	isHoverEventsAccepted() const;
     virtual bool	isMovable() const;
@@ -93,7 +95,6 @@ public:
     void		setToolTip(const uiString&);
 
     virtual void	setScene(uiGraphicsScene*);
-    void		setParent(uiGraphicsItem*);
     virtual uiGraphicsItem*	findItem(QGraphicsItem*);
 
     int			id() const			{ return id_; }
@@ -105,7 +106,7 @@ public:
 
     virtual void	translateText();
 
-    Notifier<uiGraphicsItem> clicked;
+    CNotifier<uiGraphicsItem,const MouseEvent&> clicked;
 protected:
 
 			uiGraphicsItem(QGraphicsItem*);
@@ -116,6 +117,7 @@ protected:
     bool		selected_; // Remove when things in Qt works
     mQtclass(uiGraphicsScene*)	scene_;
     ObjectSet<uiGraphicsItem> children_;
+    uiGraphicsItem*	parent_;
 
 private:
 

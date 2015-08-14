@@ -58,10 +58,11 @@ bool uiBaseMapObject::isShown() const
 { return graphitem_.isVisible(); }
 
 
-void uiBaseMapObject::selCB( CallBacker* )
+void uiBaseMapObject::selCB( CallBacker* cb )
 {
+    mCBCapsuleUnpack(const MouseEvent&,ev,cb);
     if ( bmobject_ )
-	bmobject_->clicked.trigger();
+	bmobject_->clicked.trigger( ev );
 }
 
 
@@ -118,7 +119,7 @@ void uiBaseMapObject::update()
 		{
 		    uiPolyLineItem* itm = new uiPolyLineItem();
 		    if ( !itm ) return;
-		    itm->setParent( &graphitem_ );
+		    graphitem_.addChild( itm );
 		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
 		}
 
@@ -146,7 +147,7 @@ void uiBaseMapObject::update()
 		{
 		    uiPolygonItem* itm = new uiPolygonItem();
 		    if ( !itm ) return;
-		    itm->setParent( &graphitem_ );
+		    graphitem_.addChild( itm );
 		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
 		}
 
@@ -181,7 +182,7 @@ void uiBaseMapObject::update()
 		{
 		    uiPixmapItem* itm =	new uiPixmapItem(
 				      uiPixmap(bmobject_->getImageFileName()) );
-		    itm->setParent( &graphitem_ );
+		    graphitem_.addChild( itm );
 		}
 
 		mDynamicCastGet(uiPixmapItem*,itm,graphitem_.getChild(itemnr));
@@ -213,7 +214,7 @@ void uiBaseMapObject::update()
 		{
 		    uiMarkerItem* itm = new uiMarkerItem();
 		    if ( !itm ) return;
-		    itm->setParent( &graphitem_ );
+		    graphitem_.addChild( itm );
 		    itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
 		}
 
@@ -243,7 +244,7 @@ void uiBaseMapObject::update()
 	    {
 		uiTextItem* itm = new uiTextItem();
 		if ( !itm ) return;
-		itm->setParent( &graphitem_ );
+		graphitem_.addChild( itm );
 		itm->clicked.notify( mCB(this,uiBaseMapObject,selCB) );
 	    }
 
@@ -327,7 +328,6 @@ uiBaseMap::uiBaseMap( uiParent* p )
 {
     view_.scene().addItem( &worlditem_ );
     view_.reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
-    worlditem_.setZValue( 10 );
 }
 
 
@@ -439,7 +439,7 @@ void uiBaseMap::addObject( uiBaseMapObject* uiobj )
 {
     if ( !uiobj ) return;
 
-    uiobj->graphItem().setParent( &worlditem_ );
+    worlditem_.addChild( &uiobj->graphItem() );
     objects_ += uiobj;
     changed_ = true;
     if ( uiobj->getObject() )

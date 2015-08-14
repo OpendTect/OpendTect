@@ -97,6 +97,7 @@ uiGraphicsItem::uiGraphicsItem()
     , translation_( 0, 0 )
     , scale_( 1, 1 )
     , angle_( 0 )
+    , parent_( 0 )
 {
 }
 
@@ -110,6 +111,7 @@ uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
     , translation_( 0, 0 )
     , scale_( 1, 1 )
     , angle_( 0 )
+    , parent_( 0 )
 {
 }
 
@@ -117,6 +119,8 @@ uiGraphicsItem::uiGraphicsItem( QGraphicsItem* itm )
 uiGraphicsItem::~uiGraphicsItem()
 {
     removeAll( true );
+    if ( parent_ )
+	parent_->removeChild( this, false );
     if ( scene_ )
     {
 	scene_->removeItem( this );
@@ -148,12 +152,25 @@ void uiGraphicsItem::setAcceptHoverEvents( bool yn )
 }
 
 
-void uiGraphicsItem::setAcceptedMouseButtons( bool yn )
+void uiGraphicsItem::setAcceptedMouseButtons( OD::ButtonState bs )
 {
-    if ( yn )
-	qgraphicsitem_->setAcceptedMouseButtons( Qt::LeftButton );
-    else
-	qgraphicsitem_->setAcceptedMouseButtons( Qt::NoButton );
+    switch ( bs )
+    {
+	case OD::NoButton:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::NoButton );
+	    break;
+	case OD::LeftButton:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::LeftButton );
+	    break;
+	case OD::RightButton:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::RightButton );
+	    break;
+	case OD::MidButton:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::MidButton );
+	    break;
+	default:
+	    qgraphicsitem_->setAcceptedMouseButtons( Qt::NoButton );
+    }
 }
 
 
@@ -169,8 +186,25 @@ void uiGraphicsItem::setVisible( bool yn )
 { qgraphicsitem_->setVisible( yn ); }
 
 
-bool uiGraphicsItem::isAcceptedMouseButtonsEnabled()
-{ return Qt::NoButton != qgraphicsitem_->acceptedMouseButtons(); }
+OD::ButtonState uiGraphicsItem::acceptedMouseButtonsEnabled() const
+{
+    Qt::MouseButtons qmb = qgraphicsitem_->acceptedMouseButtons();
+    switch ( qmb )
+    {
+	case Qt::NoButton:
+	    return OD::NoButton;
+	case Qt::LeftButton:
+	    return OD::LeftButton;
+	case Qt::RightButton:
+	    return OD::RightButton;
+	case Qt::MidButton:
+	    return OD::MidButton;
+	default:
+	    break;
+    }
+
+    return OD::NoButton;
+}
 
 
 bool uiGraphicsItem::isFiltersChildEventsEnabled() const
@@ -298,6 +332,7 @@ void uiGraphicsItem::removeChild( uiGraphicsItem* itm, bool withdelete )
 {
     if ( !itm ) return;
 
+    itm->parent_ = 0;
     children_ -= itm;
     itm->qGraphicsItem()->setParentItem( 0 );
 
@@ -321,6 +356,7 @@ void uiGraphicsItem::addChild( uiGraphicsItem* itm )
     if ( children_.isPresent(itm) )
 	return;
 
+    itm->parent_ = this;
     children_ += itm;
     itm->qGraphicsItem()->setParentItem( qGraphicsItem() );
 }
@@ -366,15 +402,6 @@ void uiGraphicsItem::setSelected( bool yn )
 void uiGraphicsItem::setSelectable( bool yn )
 {
     qgraphicsitem_->setFlag( QGraphicsItem::ItemIsSelectable, yn );
-}
-
-
-void uiGraphicsItem::setParent( uiGraphicsItem* item )
-{
-    if ( item )
-	item->addChild( this );
-    else
-	qgraphicsitem_->setParentItem( 0 );
 }
 
 
