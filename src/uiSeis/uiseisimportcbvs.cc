@@ -42,7 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube"),mNoDlgTitle,
-		       mODHelpKey(mSeisImpCBVSHelpID) ))
+		       mODHelpKey(mSeisImpCBVSHelpID)).modal(false))
     , outioobj_(0)
     , tmpid_("100010.",IOObj::tmpID())
 {
@@ -200,8 +200,11 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 
     if ( dolink )
     {
-	uiMSG().message( uiStrings::sImpSuccess() );
-	return false;
+	 uiString msg = tr("CBVS cube successfully imported\n"
+		      "Do you want to import more Cubes");
+	 bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+	 return !ret;
     }
 
     uiSeisIOObjInfo ioobjinfo( *outioobj_, true );
