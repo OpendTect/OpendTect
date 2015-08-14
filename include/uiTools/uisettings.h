@@ -171,4 +171,6 @@ protected:
     int			anisotropicpower_;
 };
 
+
+
 #endif

@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "math2.h"
 #include "ptrman.h"
-#include "settings.h"
+#include "settingsaccess.h"
 #include "survinfo.h"
 #include "visaxes.h"
 #include "visscenecoltab.h"
@@ -81,6 +81,10 @@ static const char* sKeyHomePos()	{ return "Home position"; }
 static const char* sKeyCameraRotation() { return "Camera Rotation"; }
 static const char* sKeyWheelDisplayMode() { return "Wheel Display Mode"; }
 
+FixedString ui3DViewer::sKeyBindingSettingsKey()
+{
+    return KeyBindings::sSettingsKey();
+}
 
 DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
 { sKey::None().str(), "RedCyan", "QuadBuffer", 0 };
@@ -336,6 +340,36 @@ void ui3DViewerBody::setupTouch()
 }
 
 
+void ui3DViewerBody::setReversedMouseWheelDirection( bool reversed )
+{
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+	dynamic_cast<osgGeo::TrackballManipulator*>(
+					view_->getCameraManipulator() );
+
+    if ( !manip )
+	return;
+
+    const float zoomfactor = fabs( manip->getWheelZoomFactor() );
+
+    if ( reversed )
+	manip->setWheelZoomFactor( zoomfactor );
+    else
+	manip->setWheelZoomFactor( -zoomfactor );
+}
+
+
+bool ui3DViewerBody::getReversedMouseWheelDirection() const
+{
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+    dynamic_cast<osgGeo::TrackballManipulator*>(view_->getCameraManipulator() );
+
+    if ( !manip )
+	return false;
+
+    return manip->getWheelZoomFactor()>0;
+}
+
+
 void ui3DViewerBody::setupView()
 {
     camera_ = visBase::Camera::create();
@@ -383,6 +417,7 @@ void ui3DViewerBody::setupView()
 
     view_->setCameraManipulator( manip.get() );
 
+
     if ( !compositeviewer_ )
     {
 	compositeviewer_ = getCompositeViewer();
@@ -399,6 +434,12 @@ void ui3DViewerBody::setupView()
 
     view_->getSceneData()->addEventCallback(new osgGeo::ThumbWheelEventHandler);
     enableThumbWheelHandling( true );
+
+    bool reversezoom = false;
+    Settings::common().getYN(SettingsAccess::sKeyMouseWheelReversal(),
+			     reversezoom);
+
+    setReversedMouseWheelDirection( reversezoom );
 
     // Camera projection must be initialized before computing home position
     reSizeEvent( 0 );
@@ -629,7 +670,12 @@ void ui3DViewerBody::thumbWheelRotationCB( CallBacker* cb )
         osg::ref_ptr<osgGeo::TrackballManipulator> manip =
 	static_cast<osgGeo::TrackballManipulator*>(
                                                 view_->getCameraManipulator() );
-	manip->changeDistance( -deltaangle/M_PI );
+	float change = -deltaangle/M_PI;
+
+	if ( manip && manip->getWheelZoomFactor()<0 )
+	    change *= -1;
+
+	manip->changeDistance( change );
     }
 }
 
@@ -1153,7 +1199,12 @@ void ui3DViewerBody::notifyManipulatorMovement( float dh, float dv, float df )
 						view_->getCameraManipulator() );
 
     const float rotationtime = manip && manip->isDiscreteZooming() ? 0.2 : 0.0;
-    distancethumbwheel_->setAngle( df*M_PI + distancethumbwheel_->getAngle(),
+
+    float distancediff = df*M_PI;
+    if ( manip && manip->getWheelZoomFactor()<0 )
+	distancediff *= -1;
+
+    distancethumbwheel_->setAngle( distancethumbwheel_->getAngle()+distancediff,
 				   rotationtime );
 
     horthumbwheel_->setAngle( dh + horthumbwheel_->getAngle() );
@@ -1506,7 +1557,7 @@ void ui3DViewer::setAnnotationFont( const FontData& fd )
 }
 
 
-void ui3DViewer::getAllKeyBindings( BufferStringSet& keys )
+void ui3DViewer::getAllKeyBindings( BufferStringSet& keys ) const
 {
     osgbody_->keyBindMan().getAllKeyBindings( keys );
 }
@@ -1514,7 +1565,7 @@ void ui3DViewer::getAllKeyBindings( BufferStringSet& keys )
 
 void ui3DViewer::setKeyBindings( const char* keybindname )
 {
-    osgbody_->keyBindMan().setKeyBindings( keybindname, true );
+    osgbody_->keyBindMan().setKeyBindings( keybindname );
 }
 
 
@@ -1568,6 +1619,16 @@ float ui3DViewer::getStereoOffset() const
 {
     return osgbody_->getStereoOffset();
 }
+
+
+void ui3DViewer::setReversedMouseWheelDirection( bool reversed )
+{
+    osgbody_->setReversedMouseWheelDirection( reversed );
+}
+
+
+bool ui3DViewer::getReversedMouseWheelDirection() const
+{ return osgbody_->getReversedMouseWheelDirection(); }
 
 
 void ui3DViewer::setSceneID( int sceneid )

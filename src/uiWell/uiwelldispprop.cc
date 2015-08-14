@@ -92,7 +92,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
 
     uiStringSet fontstyles;
-    fontstyles.add(tr("Normal")); fontstyles.add(tr("Bold"));
+    fontstyles.add( uiStrings::sNormal() ); fontstyles.add(tr("Bold"));
     fontstyles.add(tr("Italic")); fontstyles.add(tr("Bold Italic"));
 
     nmstylefld_ = new uiComboBox( this, fontstyles, "Fontstyle" );
@@ -177,7 +177,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmsizefld_->attach( alignedBelow, shapefld_ );
 
     uiStringSet styles;
-    styles.add(tr("Normal")); styles.add(tr("Bold"));
+    styles.add( uiStrings::sNormal() ); styles.add(tr("Bold"));
     styles.add(tr("Italic")); styles.add(tr("Bold Italic"));
 
     nmstylefld_ = new uiComboBox( this, styles, "Fontstyle" );

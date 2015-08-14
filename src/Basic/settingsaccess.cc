@@ -40,6 +40,9 @@ const char* SettingsAccess::sKeyEnableMipmapping()
 const char* SettingsAccess::sKeyAnisotropicPower()
 { return "dTect.Anisotropic power"; }
 
+const char* SettingsAccess::sKeyMouseWheelReversal()
+{ return "dTect.Mouse Wheel Reversal"; }
+
 
 SettingsAccess::SettingsAccess()
     : settings_( Settings::common() )

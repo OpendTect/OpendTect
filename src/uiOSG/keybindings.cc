@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <osgGeo/TrackballManipulator>
 
+FixedString KeyBindings::sSettingsKey() {return "dTect.MouseControls.Default";}
+
 FixedString KeyBindings::sName()    { return "Name"; }
 FixedString KeyBindings::sRotate()  { return "Rotate"; }
 FixedString KeyBindings::sPan()	    { return "Pan"; }
@@ -67,8 +69,8 @@ KeyBindMan::KeyBindMan()
 	keyset_ += new KeyBindings( keybind );
     }
 
-    mSettUse(get,"dTect.MouseControls","Default",curkeybinding_);
-    setKeyBindings( curkeybinding_, false );
+    Settings::common().get( KeyBindings::sSettingsKey(), curkeybinding_ );
+    setKeyBindings( curkeybinding_ );
 }
 
 
@@ -85,14 +87,9 @@ void KeyBindMan::setTrackballManipulator( osgGeo::TrackballManipulator* manip )
 }
 
 
-void KeyBindMan::setKeyBindings( const char* name, bool saveinsett )
+void KeyBindMan::setKeyBindings( const char* name )
 {
     curkeybinding_ = name;
-    if ( saveinsett )
-    {
-	mSettUse(set,"dTect.MouseControls","Default",curkeybinding_);
-	Settings::common().write();
-    }
 
     KeyBindings keys;
     for ( int idx=0; idx<keyset_.size(); idx++ )

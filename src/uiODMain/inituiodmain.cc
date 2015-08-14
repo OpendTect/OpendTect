@@ -13,11 +13,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "odsession.h"
 
+#include "uiodscenemgr.h"
+
 mDefModInitFn(uiODMain)
 {
     mIfNotFirstTime( return );
     
     ODSessionTranslatorGroup::initClass();
     dgbODSessionTranslator::initClass();
-
+    uiKeyBindingSettingsGroup::initClass();
 }

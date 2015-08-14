@@ -68,6 +68,9 @@ public:
     void		setStereoOffset(float);
     float		getStereoOffset() const;
 
+    void		setReversedMouseWheelDirection(bool);
+    bool		getReversedMouseWheelDirection() const;
+
     void		viewAll(bool animate=true);
     void		toHomePos();
     void		saveHomePos();
@@ -95,7 +98,7 @@ public:
     CallBack*		vmcb;
 
     void		setKeyBindings(const char* keybindname);
-    void		getAllKeyBindings(BufferStringSet&);
+    void		getAllKeyBindings(BufferStringSet&) const;
     const char*		getCurrentKeyBindings() const;
 
     visBase::PolygonSelection*	getPolygonSelector();
@@ -108,6 +111,8 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     void		savePropertySettings() const;
+
+    static FixedString	sKeyBindingSettingsKey();
 
 private:
 

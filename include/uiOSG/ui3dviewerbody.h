@@ -77,6 +77,9 @@ public:
     Color			getBackgroundColor() const;
     Geom::Size2D<int>		getViewportSizePixels() const;
 
+    void			setReversedMouseWheelDirection(bool);
+    bool			getReversedMouseWheelDirection() const;
+
     void			setHomePos(const IOPar&);
     void			resetToHomePosition();
 

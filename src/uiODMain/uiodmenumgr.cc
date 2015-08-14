@@ -770,7 +770,6 @@ void uiODMenuMgr::fillUtilMenu()
     }
 
     mInsertItem( settmnu_, tr("Look and Feel ..."), mSettLkNFlMnuItm );
-    mInsertItem( settmnu_, tr("Mouse Controls ..."), mSettMouseMnuItm );
     mInsertItem( settmnu_, tr("Keyboard Shortcuts ..."), mSettShortcutsMnuItm);
     uiMenu* advmnu = new uiMenu( &appl_, uiStrings::sAdvanced() );
     mInsertItem( advmnu, tr("Personal Settings ..."), mSettGeneral );
@@ -1277,7 +1276,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mInstAutoUpdPolMnuItm:	applMgr().setAutoUpdatePol(); break;
     case mCrDevEnvMnuItm:	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm:	showLogFile(); break;
-    case mSettMouseMnuItm:	sceneMgr().setKeyBindings(); break;
 
     case mAddMapSceneMnuItm: {
 	sceneMgr().tile();

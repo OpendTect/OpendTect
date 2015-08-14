@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipickpartserv.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
+#include "uisettings.h"
+#include "uigeninput.h"
 
 #include "uibuttongroup.h"
 #include "uidockwin.h"
@@ -50,7 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "randomlinegeom.h"
 #include "sorting.h"
-#include "settings.h"
+#include "settingsaccess.h"
 #include "vissurvscene.h"
 #include "vissurvobj.h"
 #include "welltransl.h"
@@ -532,23 +534,6 @@ void uiODSceneMgr::updateStatusBar()
 
     appl_.statusBar()->setBGColor( mStatusField, visServ().isPicking() ?
 	    Color(255,0,0) : appl_.statusBar()->getBGColor(mPosField) );
-}
-
-
-void uiODSceneMgr::setKeyBindings()
-{
-    if ( scenes_.isEmpty() ) return;
-
-    BufferStringSet keyset;
-    scenes_[0]->vwr3d_->getAllKeyBindings( keyset );
-
-    StringListInpSpec* inpspec = new StringListInpSpec( keyset );
-    inpspec->setText( scenes_[0]->vwr3d_->getCurrentKeyBindings(), 0 );
-    uiGenInputDlg dlg( &appl_, tr("Select Mouse Controls"),
-		       uiStrings::sSelect(true), inpspec );
-    dlg.setHelpKey(mODHelpKey(mODSceneMgrsetKeyBindingsHelpID) );
-    if ( dlg.go() )
-	mDoAllScenes(vwr3d_,setKeyBindings,dlg.text());
 }
 
 
@@ -1322,4 +1307,86 @@ uiODSceneMgr::Scene::~Scene()
     delete vwr3d_;
     delete itemmanager_;
     delete dw_;
+}
+
+
+uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
+    : uiSettingsGroup( p, tr("Mouse interaction"), s )
+    , keybindingfld_( 0 )
+    , wheeldirectionfld_( 0 )
+    , initialmousewheelreversal_( false )
+{
+    TypeSet<int> sceneids;
+    if ( ODMainWin()->applMgr().visServer() )
+	ODMainWin()->applMgr().visServer()->getSceneIds( sceneids );
+
+    const ui3DViewer* viewer = sceneids.size()
+	? ODMainWin()->sceneMgr().get3DViewer( sceneids[0] )
+	: 0;
+
+    if ( viewer )
+    {
+	BufferStringSet keyset;
+	viewer->getAllKeyBindings( keyset );
+
+	keybindingfld_ = new uiGenInput( this, tr("3D Mouse Controls"),
+					 StringListInpSpec( keyset ) );
+
+
+	setts_.get( ui3DViewer::sKeyBindingSettingsKey(), initialkeybinding_ );
+	keybindingfld_->setText( viewer->getCurrentKeyBindings() );
+
+	setts_.getYN( SettingsAccess::sKeyMouseWheelReversal(),
+		     initialmousewheelreversal_ );
+
+	wheeldirectionfld_ = new uiGenInput( this,
+	    tr("Mouse wheel direction"),
+	    BoolInpSpec( !viewer->getReversedMouseWheelDirection(),
+			uiStrings::sNormal(),
+			uiStrings::sReversed()) );
+	wheeldirectionfld_->attach( alignedBelow, keybindingfld_ );
+    }
+}
+
+
+HelpKey uiKeyBindingSettingsGroup::helpKey() const
+{
+    return mODHelpKey(mODSceneMgrsetKeyBindingsHelpID);
+}
+
+
+bool uiKeyBindingSettingsGroup::acceptOK()
+{
+    TypeSet<int> sceneids;
+    if ( ODMainWin()->applMgr().visServer() )
+	ODMainWin()->applMgr().visServer()->getSceneIds( sceneids );
+
+    const BufferString keybinding = keybindingfld_->text();
+    const bool reversedwheel = !wheeldirectionfld_->getBoolValue();
+
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+    {
+	ui3DViewer* viewer = ODMainWin()->sceneMgr().get3DViewer(sceneids[idx]);
+	viewer->setKeyBindings( keybinding );
+
+	viewer->setReversedMouseWheelDirection( reversedwheel );
+    }
+
+    const ObjectSet<uiGraphicsViewBase>& allviewers =
+					uiGraphicsViewBase::allInstances();
+
+    for ( int idx=0; idx<allviewers.size(); idx++ )
+    {
+	const_cast<uiGraphicsViewBase*>(allviewers[idx])
+			->setMouseWheelReversal( reversedwheel );
+    }
+
+
+    updateSettings( initialkeybinding_, keybinding,
+		   ui3DViewer::sKeyBindingSettingsKey() );
+
+    updateSettings( initialmousewheelreversal_, reversedwheel,
+		   SettingsAccess::sKeyMouseWheelReversal() );
+
+    return true;
 }
