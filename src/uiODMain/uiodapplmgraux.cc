@@ -110,6 +110,12 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , man2dgeomdlg_(0)
     , manpdfdlg_(0)
     , mansessiondlg_(0)
+    , impcrossplotdlg_(0)
+    , impmutedlg_(0)
+    , imppdfdlg_(0)
+    , exppdfdlg_(0)
+    , impvelfunc_(0)
+    , exp2dgeomdlg_(0)
 {}
 
 
@@ -136,6 +142,12 @@ void uiODApplMgrDispatcher::deleteDlgs()
 	delete man2dgeomdlg_; man2dgeomdlg_ = 0;
 	delete manpdfdlg_; manpdfdlg_ = 0;
 	delete mansessiondlg_; mansessiondlg_ = 0;
+	delete impcrossplotdlg_; impcrossplotdlg_ = 0;
+	delete impmutedlg_; impmutedlg_ = 0;
+	delete imppdfdlg_; imppdfdlg_ = 0;
+	delete exppdfdlg_; exppdfdlg_ = 0;
+	delete impvelfunc_; impvelfunc_ = 0;
+	delete exp2dgeomdlg_; exp2dgeomdlg_ = 0;
 }
 
 
@@ -276,8 +288,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(MDef):
         if ( at == uiODApplMgr::Imp )
 	{
-	    PreStack:: uiImportMute dlgimp( par_ );
-	    dlgimp.go();
+	    if ( !impmutedlg_ )
+		impmutedlg_ = new PreStack::uiImportMute( par_ );
+
+	    impmutedlg_->show();
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
@@ -288,8 +302,10 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(Vel):
         if ( at == uiODApplMgr::Imp)
 	{
-	    Vel::uiImportVelFunc dlgvimp( par_ );
-	    dlgvimp.go();
+	    if ( !impvelfunc_ )
+		impvelfunc_ = new Vel::uiImportVelFunc( par_ );
+
+	    impvelfunc_->show();
 	}
     break;
     mCase(Strat):
@@ -298,13 +314,17 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     mCase(PDF):
         if ( at == uiODApplMgr::Imp )
 	{
-	    uiImpRokDocPDF dlg( par_ );
-	    dlg.go();
+	    if ( !imppdfdlg_ )
+		imppdfdlg_ = new uiImpRokDocPDF( par_ );
+
+	    imppdfdlg_->show();
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
-	    uiExpRokDocPDF dlg( par_ );
-	    dlg.go();
+	    if ( !exppdfdlg_ )
+		exppdfdlg_ = new uiExpRokDocPDF( par_ );
+
+	    exppdfdlg_->show();
 	}
 	else if ( at == uiODApplMgr::Man )
 	{
@@ -322,15 +342,19 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
 	else if ( at == uiODApplMgr::Exp )
 	{
-	    uiExp2DGeom dlg( par_ );
-	    dlg.go();
+	    if ( !exp2dgeomdlg_ )
+		exp2dgeomdlg_ = new uiExp2DGeom( par_ );
+
+	    exp2dgeomdlg_->show();
 	}
     break;
     mCase(PVDS):
         if ( at == uiODApplMgr::Imp )
 	{
-	    uiImpPVDS dlg( par_ );
-	    dlg.go();
+	    if ( !impcrossplotdlg_ )
+		impcrossplotdlg_ = new uiImpPVDS( par_ );
+
+	    impcrossplotdlg_->show();
 	}
 	else if ( at == uiODApplMgr::Man )
 	{
