@@ -18,32 +18,36 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dataclipper.h"
 
 
-SEGY::uiScanDef::uiScanDef()
-    : hdrdef_(0)
-{
-    reInit();
-}
 
-
-void SEGY::uiScanDef::reInit( bool alsohdef )
+void SEGY::BasicFileInfo::init()
 {
     revision_ = ns_ = -1;
     format_ = 5;
-    hdrsswapped_ = dataswapped_ = false;
-    coordscale_ = sampling_.start = 1.0f;
+    sampling_.start = 1.0f;
     sampling_.step = mUdf(float);
-    if ( alsohdef )
-	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
+    hdrsswapped_ = dataswapped_ = false;
 }
 
 
-SEGY::uiScanDef::~uiScanDef()
+int SEGY::BasicFileInfo::bytesPerSample() const
 {
-    delete hdrdef_;
+    return SEGY::BinHeader::formatBytes( format_ );
 }
 
 
-int SEGY::uiScanDef::nrTracesIn( const od_istream& strm,
+int SEGY::BasicFileInfo::traceDataBytes() const
+{
+    return ns_ < 0 ? 0 : ns_ * bytesPerSample();
+}
+
+
+DataCharacteristics SEGY::BasicFileInfo::getDataChar() const
+{
+    return SEGY::BinHeader::getDataChar( format_, dataswapped_ );
+}
+
+
+int SEGY::BasicFileInfo::nrTracesIn( const od_istream& strm,
 				 od_stream_Pos startpos ) const
 {
     if ( startpos < 0 )
@@ -58,7 +62,7 @@ int SEGY::uiScanDef::nrTracesIn( const od_istream& strm,
 }
 
 
-void SEGY::uiScanDef::goToTrace( od_istream& strm, od_stream_Pos startpos,
+void SEGY::BasicFileInfo::goToTrace( od_istream& strm, od_stream_Pos startpos,
 				 int trcidx ) const
 {
     const int trcbytes = SegyTrcHeaderLength + traceDataBytes();
@@ -67,7 +71,30 @@ void SEGY::uiScanDef::goToTrace( od_istream& strm, od_stream_Pos startpos,
 }
 
 
-SEGY::TrcHeader* SEGY::uiScanDef::getTrcHdr( od_istream& strm ) const
+SEGY::LoadDef::LoadDef()
+    : hdrdef_(0)
+{
+    reInit(true);
+}
+
+
+void SEGY::LoadDef::reInit( bool alsohdef )
+{
+    init();
+
+    coordscale_ = 1.0f;
+    if ( alsohdef )
+	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
+}
+
+
+SEGY::LoadDef::~LoadDef()
+{
+    delete hdrdef_;
+}
+
+
+SEGY::TrcHeader* SEGY::LoadDef::getTrcHdr( od_istream& strm ) const
 {
     char* thbuf = new char[ SegyTrcHeaderLength ];
     strm.getBin( thbuf, SegyTrcHeaderLength );
@@ -81,25 +108,7 @@ SEGY::TrcHeader* SEGY::uiScanDef::getTrcHdr( od_istream& strm ) const
 }
 
 
-int SEGY::uiScanDef::bytesPerSample() const
-{
-    return SEGY::BinHeader::formatBytes( format_ );
-}
-
-
-int SEGY::uiScanDef::traceDataBytes() const
-{
-    return ns_ < 0 ? 0 : ns_ * bytesPerSample();
-}
-
-
-DataCharacteristics SEGY::uiScanDef::getDataChar() const
-{
-    return SEGY::BinHeader::getDataChar( format_, dataswapped_ );
-}
-
-
-bool SEGY::uiScanDef::getData( od_istream& strm, char* buf, float* vals ) const
+bool SEGY::LoadDef::getData( od_istream& strm, char* buf, float* vals ) const
 {
     const int trcbytes = traceDataBytes();
     if ( !strm.getBin(buf,trcbytes) )
@@ -121,7 +130,7 @@ bool SEGY::uiScanDef::getData( od_istream& strm, char* buf, float* vals ) const
 }
 
 
-SEGY::TrcHeader* SEGY::uiScanDef::getTrace( od_istream& strm,
+SEGY::TrcHeader* SEGY::LoadDef::getTrace( od_istream& strm,
 					    char* buf, float* vals ) const
 {
     TrcHeader* thdr = getTrcHdr( strm );
@@ -132,14 +141,14 @@ SEGY::TrcHeader* SEGY::uiScanDef::getTrace( od_istream& strm,
 
 
 
-SEGY::uiScanData::uiScanData( const char* fnm )
+SEGY::ScanInfo::ScanInfo( const char* fnm )
     : filenm_(fnm)
 {
     reInit();
 }
 
 
-void SEGY::uiScanData::reInit()
+void SEGY::ScanInfo::reInit()
 {
     usable_ = false;
     nrtrcs_ = 0;
@@ -154,7 +163,7 @@ void SEGY::uiScanData::reInit()
 }
 
 
-void SEGY::uiScanData::getFromSEGYBody( od_istream& strm, const uiScanDef& def,
+void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 				bool isfirst, bool is2d, DataClipSampler& cs )
 {
     const od_istream::Pos startpos = strm.position();
@@ -212,9 +221,9 @@ void SEGY::uiScanData::getFromSEGYBody( od_istream& strm, const uiScanDef& def,
 }
 
 
-bool SEGY::uiScanData::addTrace( od_istream& strm, bool wstep,
+bool SEGY::ScanInfo::addTrace( od_istream& strm, bool wstep,
 				 char* buf, float* vals,
-				 const uiScanDef& def, DataClipSampler& cs )
+				 const LoadDef& def, DataClipSampler& cs )
 {
     PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
     if ( !thdr || !thdr->isusable )
@@ -236,7 +245,7 @@ bool SEGY::uiScanData::addTrace( od_istream& strm, bool wstep,
 }
 
 
-void SEGY::uiScanData::addValues( DataClipSampler& cs,
+void SEGY::ScanInfo::addValues( DataClipSampler& cs,
 				  const float* vals, int ns )
 {
     if ( !vals || ns < 1 )
@@ -254,17 +263,17 @@ void SEGY::uiScanData::addValues( DataClipSampler& cs,
 }
 
 
-void SEGY::uiScanData::merge( const SEGY::uiScanData& sd )
+void SEGY::ScanInfo::merge( const SEGY::ScanInfo& si )
 {
-    if ( sd.nrtrcs_ < 1 )
+    if ( si.nrtrcs_ < 1 )
 	return;
 
-    nrtrcs_ += sd.nrtrcs_;
-    inls_.include( sd.inls_, false );
-    crls_.include( sd.crls_, false );
-    trcnrs_.include( sd.trcnrs_, false );
-    xrg_.include( sd.xrg_, false );
-    yrg_.include( sd.yrg_, false );
-    refnrs_.include( sd.refnrs_, false );
-    offsrg_.include( sd.offsrg_, false );
+    nrtrcs_ += si.nrtrcs_;
+    inls_.include( si.inls_, false );
+    crls_.include( si.crls_, false );
+    trcnrs_.include( si.trcnrs_, false );
+    xrg_.include( si.xrg_, false );
+    yrg_.include( si.yrg_, false );
+    refnrs_.include( si.refnrs_, false );
+    offsrg_.include( si.offsrg_, false );
 }

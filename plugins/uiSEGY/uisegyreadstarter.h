@@ -64,8 +64,8 @@ protected:
     Timer*		filenamepopuptimer_;
 
     BufferString	userfilename_;
-    SEGY::uiScanDef	scandef_;
-    ObjectSet<SEGY::uiScanData> scandata_;
+    SEGY::LoadDef	loaddef_;
+    ObjectSet<SEGY::ScanInfo> scaninfo_;
     DataClipSampler&	clipsampler_;
     bool		infeet_;
     bool		veryfirstscan_;
@@ -75,8 +75,8 @@ protected:
     void		execNewScan(bool);
     void		scanInput();
     bool		scanFile(const char*,bool);
-    bool		obtainScanData(SEGY::uiScanData&,od_istream&,bool);
-    bool		completeScanDef(od_istream&);
+    bool		obtainScanInfo(SEGY::ScanInfo&,od_istream&,bool);
+    bool		completeLoadDef(od_istream&);
 
     void		clearDisplay();
     void		setExamineStatus();

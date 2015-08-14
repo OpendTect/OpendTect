@@ -92,10 +92,10 @@ void setByteNr( short bnr )
 };
 
 
-uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::uiScanDef& scd )
+uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd )
     : uiGroup(p,"SEGY read start info")
-    , scandef_(scd)
-    , scandefChanged(this)
+    , loaddef_(scd)
+    , loaddefChanged(this)
     , parsbeingset_(false)
 {
     tbl_ = new uiTable( this, uiTable::Setup(mNrInfoRows,mNrInfoCols)
@@ -121,11 +121,11 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::uiScanDef& scd )
     setCellTxt( mItemCol, mZRangeRow, "Z Range" );
     setCellTxt( mUseTxtCol, mZRangeRow, "start / interval" );
 
-    mkScanDefFields();
+    mkLoadDefFields();
 }
 
 
-void uiSEGYReadStartInfo::mkScanDefFields()
+void uiSEGYReadStartInfo::mkLoadDefFields()
 {
     const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
 #   define mAddToTbl(fld,row) \
@@ -172,7 +172,7 @@ void uiSEGYReadStartInfo::mkScanDefFields()
     offsetbytefld_->selectionChanged.notify( parchgcb );
     mAddToTbl( offsetbytefld_, mPSRow );
 
-    useScanDef();
+    useLoadDef();
 }
 
 
@@ -199,9 +199,9 @@ void uiSEGYReadStartInfo::parChg( CallBacker* )
     if ( parsbeingset_ )
 	return;
 
-    fillScanDef();
+    fillLoadDef();
     showRelevantInfo();
-    scandefChanged.trigger();
+    loaddefChanged.trigger();
 }
 
 
@@ -218,7 +218,7 @@ void uiSEGYReadStartInfo::showRelevantInfo()
     const bool isvsp = imptype_.isVSP();
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
-    const bool isrev0 = scandef_.isRev0();
+    const bool isrev0 = loaddef_.isRev0();
 
     const char* xittxt; const char* yittxt;
     const char* ky1ittxt; const char* ky2ittxt; const char* offsittxt;
@@ -283,64 +283,64 @@ void uiSEGYReadStartInfo::clearInfo()
 }
 
 
-void uiSEGYReadStartInfo::setScanData( const SEGY::uiScanData& sd )
+void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si )
 {
     clearInfo();
-    if ( !sd.isUsable() )
+    if ( !si.isUsable() )
 	return;
 
     BufferString txt;
 
-    txt.set( scandef_.revision_ );
+    txt.set( loaddef_.revision_ );
     setCellTxt( mQSResCol, mRevRow, txt );
 
     const char** fmts = SEGY::FilePars::getFmts(false);
-    txt.set( scandef_.format_ < 4 ? fmts[scandef_.format_-1]
-	    : (scandef_.format_==8 ? fmts[4] : fmts[3]) );
-    if ( scandef_.hdrsswapped_ && scandef_.dataswapped_ )
+    txt.set( loaddef_.format_ < 4 ? fmts[loaddef_.format_-1]
+	    : (loaddef_.format_==8 ? fmts[4] : fmts[3]) );
+    if ( loaddef_.hdrsswapped_ && loaddef_.dataswapped_ )
 	txt.add( " (all bytes swapped)" );
-    else if ( scandef_.hdrsswapped_ )
+    else if ( loaddef_.hdrsswapped_ )
 	txt.add( " (header bytes swapped)" );
-    else if ( scandef_.dataswapped_ )
+    else if ( loaddef_.dataswapped_ )
 	txt.add( " (data bytes swapped)" );
     setCellTxt( mQSResCol, mDataFormatRow, txt );
 
-    txt.set( scandef_.ns_ ).add( " (" ).add( sd.nrtrcs_ )
-	.add( sd.nrtrcs_ == 1 ? " trace)" : " traces)" );
+    txt.set( loaddef_.ns_ ).add( " (" ).add( si.nrtrcs_ )
+	.add( si.nrtrcs_ == 1 ? " trace)" : " traces)" );
     setCellTxt( mQSResCol, mNrSamplesRow, txt );
 
-    if ( mIsUdf(scandef_.sampling_.step) )
+    if ( mIsUdf(loaddef_.sampling_.step) )
 	txt.set( "" );
     else
     {
-	const float endz = scandef_.sampling_.start
-			 + (scandef_.ns_-1) * scandef_.sampling_.step;
-	txt.set( scandef_.sampling_.start ).add( " - " ).add( endz )
-	    .add( " (s or " ).add( sd.infeet_ ? "ft)" : "m)" );
+	const float endz = loaddef_.sampling_.start
+			 + (loaddef_.ns_-1) * loaddef_.sampling_.step;
+	txt.set( loaddef_.sampling_.start ).add( " - " ).add( endz )
+	    .add( " (s or " ).add( si.infeet_ ? "ft)" : "m)" );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 
-    inlinfotxt_.set( sd.inls_.start ).add( " - " ).add( sd.inls_.stop );
-    crlinfotxt_.set( sd.crls_.start ).add( " - " ).add( sd.crls_.stop );
-    trcnrinfotxt_.set( sd.trcnrs_.start ).add( " - " ).add( sd.trcnrs_.stop );
-    xinfotxt_.set( sd.xrg_.start ).add( " - " ).add( sd.xrg_.stop );
-    yinfotxt_.set( sd.yrg_.start ).add( " - " ).add( sd.yrg_.stop );
-    offsetinfotxt_.set( sd.offsrg_.start ).add( " - " ).add( sd.offsrg_.stop );
-    if ( mIsUdf(sd.refnrs_.start) )
+    inlinfotxt_.set( si.inls_.start ).add( " - " ).add( si.inls_.stop );
+    crlinfotxt_.set( si.crls_.start ).add( " - " ).add( si.crls_.stop );
+    trcnrinfotxt_.set( si.trcnrs_.start ).add( " - " ).add( si.trcnrs_.stop );
+    xinfotxt_.set( si.xrg_.start ).add( " - " ).add( si.xrg_.stop );
+    yinfotxt_.set( si.yrg_.start ).add( " - " ).add( si.yrg_.stop );
+    offsetinfotxt_.set( si.offsrg_.start ).add( " - " ).add( si.offsrg_.stop );
+    if ( mIsUdf(si.refnrs_.start) )
 	refnrinfotxt_.set( "<no data>" );
     else
-	refnrinfotxt_.set(sd.refnrs_.start).add(" - ").add(sd.refnrs_.stop);
+	refnrinfotxt_.set(si.refnrs_.start).add(" - ").add(si.refnrs_.stop);
 
-    useScanDef();
+    useLoadDef();
     showRelevantInfo();
 }
 
 
-void uiSEGYReadStartInfo::useScanDef()
+void uiSEGYReadStartInfo::useLoadDef()
 {
     parsbeingset_ = true;
 
-    revfld_->setCurrentItem( scandef_.revision_ );
+    revfld_->setCurrentItem( loaddef_.revision_ );
 
     const char** fmts = SEGY::FilePars::getFmts(false);
     const char* fmt = *fmts;
@@ -349,60 +349,60 @@ void uiSEGYReadStartInfo::useScanDef()
 	fmt = fmts[idx];
 	if ( !fmt )
 	    { pErrMsg("Format not found"); break; }
-	else if ( (short)(*fmt - '0') == scandef_.format_ )
+	else if ( (short)(*fmt - '0') == loaddef_.format_ )
 	    { fmtfld_->setCurrentItem( idx ); break; }
     }
 
-    nsfld_->setValue( scandef_.ns_ );
-    zstartfld_->setValue( scandef_.sampling_.start );
-    srfld_->setValue( scandef_.sampling_.step );
+    nsfld_->setValue( loaddef_.ns_ );
+    zstartfld_->setValue( loaddef_.sampling_.start );
+    srfld_->setValue( loaddef_.sampling_.step );
     if ( imptype_.isVSP() )
 	return;
 
-    xcoordbytefld_->setByteNr( scandef_.hdrdef_->xcoord_.bytepos_ );
-    ycoordbytefld_->setByteNr( scandef_.hdrdef_->ycoord_.bytepos_ );
-    offsetbytefld_->setByteNr( scandef_.hdrdef_->offs_.bytepos_ );
+    xcoordbytefld_->setByteNr( loaddef_.hdrdef_->xcoord_.bytepos_ );
+    ycoordbytefld_->setByteNr( loaddef_.hdrdef_->ycoord_.bytepos_ );
+    offsetbytefld_->setByteNr( loaddef_.hdrdef_->offs_.bytepos_ );
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::is2D(gt) )
     {
-	key1bytefld_->setByteNr( scandef_.hdrdef_->trnr_.bytepos_ );
-	key2bytefld_->setByteNr( scandef_.hdrdef_->refnr_.bytepos_ );
+	key1bytefld_->setByteNr( loaddef_.hdrdef_->trnr_.bytepos_ );
+	key2bytefld_->setByteNr( loaddef_.hdrdef_->refnr_.bytepos_ );
     }
     else
     {
-	key1bytefld_->setByteNr( scandef_.hdrdef_->inl_.bytepos_ );
-	key2bytefld_->setByteNr( scandef_.hdrdef_->crl_.bytepos_ );
+	key1bytefld_->setByteNr( loaddef_.hdrdef_->inl_.bytepos_ );
+	key2bytefld_->setByteNr( loaddef_.hdrdef_->crl_.bytepos_ );
     }
 
     parsbeingset_ = false;
 }
 
 
-void uiSEGYReadStartInfo::fillScanDef()
+void uiSEGYReadStartInfo::fillLoadDef()
 {
-    scandef_.revision_ = revfld_->currentItem();
-    scandef_.format_ = (short)(*fmtfld_->text() - '0');
-    scandef_.ns_ = nsfld_->getIntValue();
-    scandef_.sampling_.start = zstartfld_->getFValue();
-    scandef_.sampling_.step = srfld_->getFValue();
+    loaddef_.revision_ = revfld_->currentItem();
+    loaddef_.format_ = (short)(*fmtfld_->text() - '0');
+    loaddef_.ns_ = nsfld_->getIntValue();
+    loaddef_.sampling_.start = zstartfld_->getFValue();
+    loaddef_.sampling_.step = srfld_->getFValue();
 
     if ( imptype_.isVSP() )
 	return;
 
-    scandef_.hdrdef_->xcoord_ = xcoordbytefld_->hdrEntry();
-    scandef_.hdrdef_->ycoord_ = ycoordbytefld_->hdrEntry();
+    loaddef_.hdrdef_->xcoord_ = xcoordbytefld_->hdrEntry();
+    loaddef_.hdrdef_->ycoord_ = ycoordbytefld_->hdrEntry();
 
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::isPS(gt) )
-	scandef_.hdrdef_->offs_ = offsetbytefld_->hdrEntry();
+	loaddef_.hdrdef_->offs_ = offsetbytefld_->hdrEntry();
     if ( Seis::is2D(gt) )
     {
-	scandef_.hdrdef_->trnr_ = key1bytefld_->hdrEntry();
-	scandef_.hdrdef_->refnr_ = key2bytefld_->hdrEntry();
+	loaddef_.hdrdef_->trnr_ = key1bytefld_->hdrEntry();
+	loaddef_.hdrdef_->refnr_ = key2bytefld_->hdrEntry();
     }
     else
     {
-	scandef_.hdrdef_->inl_ = key1bytefld_->hdrEntry();
-	scandef_.hdrdef_->crl_ = key2bytefld_->hdrEntry();
+	loaddef_.hdrdef_->inl_ = key1bytefld_->hdrEntry();
+	loaddef_.hdrdef_->crl_ = key2bytefld_->hdrEntry();
     }
 }
