@@ -444,12 +444,14 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
     const bool res = doImport();
     if ( !res ) return false;
 
-    uiMSG().message( tr("Horizon(s) successfully imported", 0,
-                        emobjids_.size()) );
     if ( saveButtonChecked() )
 	readyForDisplay.trigger();
 
-    return false;
+    uiString msg = tr("2D Horizon successfully imported\n"
+		      "Do you want to import more 2D Horizons?");
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
 
 
