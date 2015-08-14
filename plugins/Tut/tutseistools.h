@@ -11,7 +11,6 @@
 #include "executor.h"
 #include "trckeyzsampling.h"
 #include "samplingdata.h"
-#include "uistrings.h"
 
 class IOObj;
 class SeisTrc;

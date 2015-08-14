@@ -12,7 +12,6 @@
 #include "emposid.h"
 #include "trckeysampling.h"
 #include "ranges.h"
-#include "uistrings.h"
 
 class TrcKeySamplingIterator;
 
