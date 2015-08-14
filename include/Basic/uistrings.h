@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 //Common strings. Use these and extend when needed
 
-mClass(Basic) uiStrings
+mExpClass(Basic) uiStrings
 { mODTextTranslationClass(uiStrings);
 public:
 //Phrases

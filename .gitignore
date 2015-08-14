@@ -37,12 +37,14 @@ src/*/instantiate*export.cc
 bin/*/Debug/*
 bin/*/Release/*
 *.cbp
+*.cd
 *.user
 *.tlog
 *.log
 *.suo
 *.res
 *.obj
+ipch
 *.lib
 *.exp
 *.rc
