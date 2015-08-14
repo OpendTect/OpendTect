@@ -155,7 +155,7 @@ bool uiBatchSetup::acceptOK( CallBacker* )
     if ( !prepareProcessing() || !fillPar() )
 	return false;
 
-    batchfld_->setJobName( outputsel_->ioobj()->name() );
+    batchfld_->setJobName( outputsel_->ioobj(true)->name() );
     return batchfld_->start();
 }
 
