@@ -154,11 +154,11 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 
 	const MultiID& mid = objs[idx]->multiID();
 	PtrMan<IOObj> ioobj = IOM().get( mid );
-	Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
+	PtrMan<Conn> conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
 	if ( !conn )
 	    continue;
 
-	od_istream& strm = ((StreamConn*)conn)->iStream();
+	od_istream& strm = ((StreamConn*)conn.ptr())->iStream();
 	ascistream astream( strm );
 	const int majorversion = astream.majorVersion();
 	const int minorversion = astream.minorVersion();
