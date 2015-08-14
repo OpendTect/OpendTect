@@ -470,6 +470,7 @@ bool uiImportHorizon::doImport()
     {
 	Executor* exec = horizon->saver();
 	mSave(taskrunner);
+	horizon->setPreferredColor( colbut_->color() );
     }
     else
     {
@@ -504,11 +505,14 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 	}
     }
 
-    uiMSG().message( tr("Horizon successfully imported") );
     if ( doDisplay() )
 	importReady.trigger();
 
-    return false;
+    uiString msg = tr("3D Horizon successfully imported\n"
+		      "Do you want to import more 3D Horizons?");
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
 
 
@@ -629,7 +633,6 @@ EM::Horizon3D* uiImportHorizon::createHor() const
     horizon->change.disable();
     horizon->setMultiID( mid );
     horizon->setStratLevelID( stratlvlfld_->getID() );
-    horizon->setPreferredColor( colbut_->color() );
     horizon->ref();
     return horizon;
 }
@@ -654,4 +657,6 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     delete loader;
     return horizon;
 }
+
+
 

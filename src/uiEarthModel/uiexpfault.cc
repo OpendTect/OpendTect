@@ -241,6 +241,16 @@ bool uiExportFault::acceptOK( CallBacker* )
 	return false;
 
     const bool res = writeAscii();
-    if ( res ) uiMSG().message( tr("Fault successfully exported") );
-    return false;
+
+    if ( !res )	return false;
+    
+    const IOObj* ioobj = ctio_.ioobj;
+    
+    const char* tp = EMFaultStickSetTranslatorGroup::keyword() == ioobj->group()
+                     ? "FaultStickSet" : "Fault";
+    uiString msg = tr( "%1 successfully exported\n"
+		    "Do you want to export more %1s?" ).arg(tp);
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
