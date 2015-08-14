@@ -706,6 +706,11 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 }
 
 
+#define mIsValidTransl(transl) \
+    IOObjSelConstraints::isAllowedTranslator( \
+	    transl->userName(),ctio.ctxt.toselect.allowtransls_) \
+	    && transl->isUserSelectable(false)
+
 IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 			    int translidx ) const
 {
@@ -729,10 +734,22 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
     if ( !templtr )
     {
 	translidx = ctio.ctxt.trgroup->defTranslIdx();
+	if ( mIsValidTransl(templs[translidx]) )
 	templtr = templs[translidx];
+	else
+	{
+	    for ( int idx=0; idx<templs.size(); idx++ )
+	    {
+		if ( mIsValidTransl(templs[idx]) )
+		{
+		    templtr = templs[idx];
+		    break;
+		}
+	    }
+	}
     }
 
-    return templtr->createWriteIOObj( ctio.ctxt, newkey );
+    return templtr ? templtr->createWriteIOObj( ctio.ctxt, newkey ) : 0;
 }
 
 

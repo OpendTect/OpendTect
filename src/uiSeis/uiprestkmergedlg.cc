@@ -77,6 +77,7 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 				OD::ChooseAtLeastOne );
     selvolsbox_ = new uiListBox( topgrp, "Selected Stores" );
     outctio_.ctxt.forread = false;
+    outctio_.ctxt.deftransl = CBVSSeisPS3DTranslator::translKey();
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
 				BoolInpSpec(true,tr("Stack"),tr("Use first")) );
     stackfld_->valuechanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
@@ -314,6 +315,7 @@ uiPreStackOutputGroup::uiPreStackOutputGroup( uiParent* p )
 
     IOObjContext ctxt( mIOObjContext(SeisPS3D) );
     ctxt.forread = false;
+    ctxt.deftransl = CBVSSeisPS3DTranslator::translKey();
     outpfld_ = new uiIOObjSel( this, ctxt, uiStrings::sOutpDataStore() );
     outpfld_->attach( alignedBelow, offsrgfld_ );
 
