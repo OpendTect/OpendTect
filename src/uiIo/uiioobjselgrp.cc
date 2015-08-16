@@ -178,12 +178,14 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 {
     topgrp_ = new uiGroup( this, "Top group" );
-    filtfld_ = new uiGenInput( topgrp_, "Filter", "*" );
-    filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
 
     uiListBox::Setup su( setup_.choicemode_, seltxt );
     listfld_ = new uiListBox( topgrp_, su, "Objects" );
-    listfld_->attach( centeredBelow, filtfld_ );
+
+    filtfld_ = new uiGenInput( listfld_, "Filter", "*" );
+    filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
+    listfld_->box()->attach( centeredBelow, filtfld_ );
+
     topgrp_->setHAlignObj( listfld_ );
 
     listfld_->setName( "Objects list" );

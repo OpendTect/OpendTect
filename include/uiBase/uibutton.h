@@ -56,12 +56,12 @@ public:
 			  Help, Ok, Cancel };
 
     static uiButton*	getStd(uiParent*,StdType,const CallBack&,
-	    			bool immediate);
+				bool immediate);
     static uiButton*	getStd(uiParent*,StdType,const CallBack&,bool immediate,
 			       const uiString& nonstd_text);
     static bool		haveCommonPBIcons()	{ return havecommonpbics_; }
     static void		setHaveCommonPBIcons( bool yn=true )
-    						{ havecommonpbics_ = yn; }
+						{ havecommonpbics_ = yn; }
 
 protected:
 
@@ -96,6 +96,7 @@ public:
     void		setDefault(bool yn=true);
     void		click();
     void		setMenu(uiMenu*);
+    void		setFlat(bool);
 
 private:
 
@@ -139,6 +140,9 @@ public:
 
     bool		isChecked() const;
     void		setChecked(bool yn=true);
+    void		setTriState(bool yn=true);
+    void		setCheckState(OD::CheckState);
+    OD::CheckState	getCheckState() const;
 
     void		click();
 

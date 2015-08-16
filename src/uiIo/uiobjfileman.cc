@@ -67,7 +67,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
     uiToolButton* refreshbut =
-	new uiToolButton( selgrp_->getTopGroup(), "refresh", tr("Refresh"),
+	new uiToolButton( selgrp_->getListField(), "refresh", tr("Refresh"),
 			  mCB(this,uiObjFileMan,updateCB) );
     refreshbut->attach( rightTo, selgrp_->getFilterField() );
 

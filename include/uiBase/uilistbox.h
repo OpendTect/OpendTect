@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "draw.h"
 
 class BufferStringSet;
+class uiCheckBox;
 class uiLabel;
 class uiListBoxBody;
 class uiMenu;
@@ -250,8 +251,13 @@ private:
 
     uiListBoxObj*	lb_;
     ObjectSet<uiLabel>	lbls_;
+    uiGroup*		checkgrp_;
+    uiCheckBox*		cb_;
 
-    void		mkRest(const uiString&,LblPos);
+    void		mkLabel(const uiString&,LblPos);
+    void		mkCheckGroup();
+    void		checkCB(CallBacker*);
+    void		updateCheckState();
 
 public:
 			//!To be called by CmdDriver only, not for casual use.

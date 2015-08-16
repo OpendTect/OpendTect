@@ -137,7 +137,7 @@ void customEvent( QEvent* ev )
 
 };
 
-#define mDefButtonBodyClass(nm,reactsto,constr_code) \
+#define mDefButtonBodyClass(nm,reactsto,constr_code,extr) \
 class ui##nm##Body : public uiButtonTemplBody<Q##nm> \
 { \
 public: \
@@ -164,16 +164,29 @@ virtual void notifyHandler( notifyTp tp ) \
     if ( tp == uiButtonMessenger::reactsto ) \
 	doNotify(); \
 } \
+\
+extr; \
  \
 }
 
 
 // uiButton
 
-mDefButtonBodyClass(PushButton,clicked,);
-mDefButtonBodyClass(RadioButton,clicked,);
-mDefButtonBodyClass(CheckBox,toggled,);
-mDefButtonBodyClass(ToolButton,clicked,setFocusPolicy( Qt::ClickFocus ));
+mDefButtonBodyClass(PushButton,clicked,,);
+mDefButtonBodyClass(RadioButton,clicked,,);
+mDefButtonBodyClass(CheckBox,toggled,,void nextCheckState());
+mDefButtonBodyClass(ToolButton,clicked,setFocusPolicy( Qt::ClickFocus ),);
+
+
+void uiCheckBoxBody::nextCheckState()
+{
+    Qt::CheckState state = checkState();
+    if ( state==Qt::Unchecked )
+	setCheckState( Qt::Checked );
+    else
+	setCheckState( Qt::Unchecked );
+}
+
 
 #define muiButBody() dynamic_cast<uiButtonBody&>( *body() )
 
@@ -365,6 +378,16 @@ void uiPushButton::setMenu( uiMenu* menu )
 }
 
 
+void uiPushButton::setFlat( bool yn )
+{
+    QAbstractButton* qbut = qButton();
+    mDynamicCastGet(QPushButton*,qpushbut,qbut)
+    if ( !qpushbut ) return;
+
+    qpushbut->setFlat( yn );
+}
+
+
 void uiPushButton::updateIconSize()
 {
     const QString buttxt = text_.getQtString();
@@ -468,16 +491,38 @@ uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const uiString& txt )
 }
 
 
-bool uiCheckBox::isChecked () const
+bool uiCheckBox::isChecked() const
 {
     return cbbody_->isChecked();
 }
 
 
-void uiCheckBox::setChecked ( bool check )
+void uiCheckBox::setChecked( bool yn )
 {
     mBlockCmdRec;
-    cbbody_->setChecked( check );
+    cbbody_->setChecked( yn );
+}
+
+
+void uiCheckBox::setTriState( bool yn )
+{
+    cbbody_->setTristate( yn );
+}
+
+
+void uiCheckBox::setCheckState( OD::CheckState cs )
+{
+    Qt::CheckState qcs = cs==OD::Unchecked ? Qt::Unchecked :
+	(cs==OD::Checked ? Qt::Checked : Qt::PartiallyChecked);
+    cbbody_->setCheckState( qcs );
+}
+
+
+OD::CheckState uiCheckBox::getCheckState() const
+{
+    Qt::CheckState qcs = cbbody_->checkState();
+    return qcs==Qt::Unchecked ? OD::Unchecked :
+	(qcs==Qt::Checked ? OD::Checked : OD::PartiallyChecked);
 }
 
 
