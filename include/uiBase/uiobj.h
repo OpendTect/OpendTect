@@ -82,7 +82,7 @@ public:
     virtual void	setCursor(const MouseCursor&);
     bool		isCursorInside() const;
 
-
+    virtual void	setStyleSheet(const char*);
     virtual Color	backgroundColor() const;
     Color		roBackgroundColor() const;
     virtual void	setBackgroundColor(const Color&);
@@ -109,7 +109,7 @@ public:
 /*! \brief Sets stretch factors for object
     If stretch factor is > 1, then object will already grow at pop-up.
 */
-    void                setStretch(int hor,int ver);
+    void		setStretch(int hor,int ver);
 
 
 /*! \brief attaches object to another
@@ -169,7 +169,7 @@ public:
     static int		iconSize();
 
 protected:
-                        //! hook. Accepts/denies closing of window.
+			//! hook. Accepts/denies closing of window.
     virtual bool	closeOK()	{ closed.trigger(); return true; }
 
 			//! setGeometry should be triggered by this's layoutItem

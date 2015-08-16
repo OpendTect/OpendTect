@@ -222,10 +222,10 @@ void uiParent::translateText()
     uiBaseObject::translateText();
 
     if ( !childList() )
-        return;
+	return;
 
     for ( int idx=0; idx<childList()->size(); idx++ )
-        const_cast<uiBaseObject*>((*childList())[idx])->translateText();
+	const_cast<uiBaseObject*>((*childList())[idx])->translateText();
 }
 
 
@@ -422,6 +422,12 @@ bool uiObject::isCursorInside() const
 }
 
 
+void uiObject::setStyleSheet( const char* qss )
+{
+    body()->qwidget()->setStyleSheet( qss );
+}
+
+
 Color uiObject::backgroundColor() const
     { return mConstBody()->uibackgroundColor(); }
 
@@ -512,17 +518,17 @@ void uiObject::attach ( constraintType tp, uiParent* other, int margin,
     you should order a chain like this:
 
     \code
-        setTabOrder( a, b ); // a to b
-        setTabOrder( b, c ); // a to b to c
-        setTabOrder( c, d ); // a to b to c to d
+	setTabOrder( a, b ); // a to b
+	setTabOrder( b, c ); // a to b to c
+	setTabOrder( c, d ); // a to b to c to d
     \endcode
 
     \e not like this:
 
     \code
-        setTabOrder( c, d ); // c to d   WRONG
-        setTabOrder( a, b ); // a to b AND c to d
-        setTabOrder( b, c ); // a to b to c, but not c to d
+	setTabOrder( c, d ); // c to d   WRONG
+	setTabOrder( a, b ); // a to b AND c to d
+	setTabOrder( b, c ); // a to b to c, but not c to d
     \endcode
 
     If \a first or \a second has a focus proxy, setTabOrder()
