@@ -82,7 +82,7 @@ void SEGY::LoadDef::reInit( bool alsohdef )
 {
     init();
 
-    coordscale_ = 1.0f;
+    coordscale_ = mUdf(float);
     if ( alsohdef )
 	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
 }

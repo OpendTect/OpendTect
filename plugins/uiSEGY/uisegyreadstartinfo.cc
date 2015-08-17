@@ -290,31 +290,32 @@ void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si )
 	return;
 
     BufferString txt;
+    const SEGY::BasicFileInfo& bi = si.basicinfo_;
 
-    txt.set( loaddef_.revision_ );
+    txt.set( bi.revision_ );
     setCellTxt( mQSResCol, mRevRow, txt );
 
     const char** fmts = SEGY::FilePars::getFmts(false);
-    txt.set( loaddef_.format_ < 4 ? fmts[loaddef_.format_-1]
-	    : (loaddef_.format_==8 ? fmts[4] : fmts[3]) );
-    if ( loaddef_.hdrsswapped_ && loaddef_.dataswapped_ )
+    txt.set( bi.format_ < 4 ? fmts[bi.format_-1]
+	    : (bi.format_==8 ? fmts[4] : fmts[3]) );
+    if ( bi.hdrsswapped_ && bi.dataswapped_ )
 	txt.add( " (all bytes swapped)" );
-    else if ( loaddef_.hdrsswapped_ )
+    else if ( bi.hdrsswapped_ )
 	txt.add( " (header bytes swapped)" );
-    else if ( loaddef_.dataswapped_ )
+    else if ( bi.dataswapped_ )
 	txt.add( " (data bytes swapped)" );
     setCellTxt( mQSResCol, mDataFormatRow, txt );
 
-    txt.set( loaddef_.ns_ ).add( " (" ).add( si.nrtrcs_ )
+    txt.set( bi.ns_ ).add( " (" ).add( si.nrtrcs_ )
 	.add( si.nrtrcs_ == 1 ? " trace)" : " traces)" );
     setCellTxt( mQSResCol, mNrSamplesRow, txt );
 
-    if ( mIsUdf(loaddef_.sampling_.step) )
+    if ( mIsUdf(bi.sampling_.step) )
 	txt.set( "" );
     else
     {
 	const float endz = loaddef_.sampling_.start
-			 + (loaddef_.ns_-1) * loaddef_.sampling_.step;
+			 + (bi.ns_-1) * loaddef_.sampling_.step;
 	txt.set( loaddef_.sampling_.start ).add( " - " ).add( endz )
 	    .add( " (s or " ).add( si.infeet_ ? "ft)" : "m)" );
     }

@@ -102,6 +102,7 @@ uiSEGYReadStarter::~uiSEGYReadStarter()
 {
     delete filenamepopuptimer_;
     delete filereadopts_;
+    deepErase( scaninfo_ );
     delete &clipsampler_;
 }
 
@@ -335,34 +336,32 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef )
     if ( strm.isBad() )
 	mErrRetFileName( "File:\n%1\nhas no binary header" )
 
-    bool infeet = false;
-    if ( isfirst )
-    {
-	if ( !fixedloaddef )
-	{
-	    binhdr.guessIsSwapped();
-	    loaddef_.hdrsswapped_ = loaddef_.dataswapped_ = binhdr.isSwapped();
-	}
-	if ( loaddef_.hdrsswapped_ )
-	    binhdr.unSwap();
-	if ( !binhdr.isRev0() )
-	    binhdr.skipRev1Stanzas( strm );
-	infeet = binhdr.isInFeet();
-
-	if ( !fixedloaddef )
-	{
-	    loaddef_.ns_ = binhdr.nrSamples();
-	    if ( loaddef_.ns_ < 1 || loaddef_.ns_ > mMaxReasonableNS )
-		loaddef_.ns_ = -1;
-	    loaddef_.revision_ = binhdr.revision();
-	    short fmt = binhdr.format();
-	    if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
-		fmt = 1;
-	    loaddef_.format_ = fmt;
-	}
-    }
-
     SEGY::ScanInfo* si = new SEGY::ScanInfo( fnm );
+    SEGY::BasicFileInfo& bi = si->basicinfo_;
+    bool infeet = false;
+
+    if ( !fixedloaddef )
+	binhdr.guessIsSwapped();
+    bi.hdrsswapped_ = bi.dataswapped_ = binhdr.isSwapped();
+    if ( (fixedloaddef && loaddef_.hdrsswapped_)
+	|| (!fixedloaddef && bi.hdrsswapped_) )
+	binhdr.unSwap();
+    if ( !binhdr.isRev0() )
+	binhdr.skipRev1Stanzas( strm );
+    infeet = binhdr.isInFeet();
+
+    bi.ns_ = binhdr.nrSamples();
+    if ( bi.ns_ < 1 || bi.ns_ > mMaxReasonableNS )
+	bi.ns_ = -1;
+    bi.revision_ = binhdr.revision();
+    short fmt = binhdr.format();
+    if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
+	fmt = 1;
+    bi.format_ = fmt;
+
+    if ( isfirst && !fixedloaddef )
+	static_cast<SEGY::BasicFileInfo&>(loaddef_) = bi;
+
     if ( !obtainScanInfo(*si,strm,isfirst) )
 	{ delete si; return false; }
 
