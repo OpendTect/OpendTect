@@ -422,7 +422,7 @@ uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
     lb_ = new uiListBoxObj( this, nm, choicemode_ );
     lb_->body().setNrLines( setup.prefnrlines_ );
     lb_->body().fieldwidth_ = setup.prefwidth_;
-    mkRest( setup.lbl_, setup.lblpos_ );
+    mkLabel( setup.lbl_, setup.lblpos_ );
 
     mStdConstrEnd;
 }
@@ -441,7 +441,7 @@ void uiListBox::setLabelText( const uiString& txt, int nr )
 }
 
 
-void uiListBox::mkRest( const uiString& txt, LblPos pos )
+void uiListBox::mkLabel( const uiString& txt, LblPos pos )
 {
     setHAlignObj( lb_ );
 
