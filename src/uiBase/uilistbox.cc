@@ -361,6 +361,8 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
 	    if ( qkeyev->key() == Qt::Key_M )
 		lb_->menuCB( 0 );
 	}
+
+	lb_->updateCheckState();
     }
 
     QListWidget::keyPressEvent( qkeyev );
