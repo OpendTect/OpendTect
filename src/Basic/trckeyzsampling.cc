@@ -674,6 +674,30 @@ TrcKey TrcKeySampling::trcKeyAt( od_int64 globalidx ) const
 }
 
 
+void TrcKeySampling::neighbors( od_int64 globalidx,
+				TypeSet<od_int64>& nbs ) const
+{
+    nbs.erase();
+    const int nrtrcs = nrTrcs(); const int nrlines = nrLines();
+    if ( globalidx > nrtrcs )
+	nbs += globalidx-nrtrcs;
+    if ( globalidx < nrtrcs*(nrlines-1) )
+	nbs += globalidx+nrtrcs;
+    if ( globalidx%nrtrcs != 0 )
+	nbs += globalidx-1;
+    if ( (globalidx+1)%nrtrcs != 0 )
+	nbs += globalidx+1;
+}
+
+
+void TrcKeySampling::neighbors( const TrcKey& tk, TypeSet<TrcKey>& nbs ) const
+{
+    TypeSet<od_int64> idxs; neighbors( globalIdx(tk), idxs );
+    for ( int idx=0; idx<idxs.size(); idx++ )
+	nbs += atIndex( idxs[idx] );
+}
+
+
 void TrcKeySampling::include( const TrcKey& trckey )
 {
     if ( mIsUdf(survid_) ) survid_ = trckey.survID();
