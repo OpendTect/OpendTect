@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uilistbox.h"
 
+#include "uibutton.h"
 #include "uifont.h"
 #include "uilabel.h"
 #include "uimenu.h"
@@ -410,6 +411,7 @@ uiListBox::uiListBox( uiParent* p, const char* nm, OD::ChoiceMode cm )
     mStdInit(cm)
 {
     lb_ = new uiListBoxObj( this, nm, choicemode_ );
+    mkCheckGroup();
 
     mStdConstrEnd;
 }
@@ -422,7 +424,9 @@ uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
     lb_ = new uiListBoxObj( this, nm, choicemode_ );
     lb_->body().setNrLines( setup.prefnrlines_ );
     lb_->body().fieldwidth_ = setup.prefwidth_;
+
     mkLabel( setup.lbl_, setup.lblpos_ );
+    mkCheckGroup();
 
     mStdConstrEnd;
 }
@@ -438,6 +442,43 @@ void uiListBox::setLabelText( const uiString& txt, int nr )
 {
     if ( nr >= lbls_.size() ) return;
     lbls_[nr]->setText( txt );
+}
+
+
+void uiListBox::mkCheckGroup()
+{
+    checkgrp_ = new uiGroup( this, "CheckGroup" );
+    checkgrp_->attach( alignedAbove, lb_ );
+
+    uiPushButton* pb = new uiPushButton( checkgrp_, "",
+					 mCB(this,uiListBox,menuCB), true );
+    pb->setIcon( "menu-arrow" );
+    pb->setMaximumWidth( 40 );
+    pb->setFlat( true );
+    pb->setStyleSheet( ":pressed { background: transparent; }" );
+    cb_ = new uiCheckBox( checkgrp_, "", mCB(this,uiListBox,checkCB) );
+    cb_->setMaximumWidth( 20 );
+    checkgrp_->display( isMultiChoice(), true );
+}
+
+
+void uiListBox::checkCB( CallBacker* )
+{
+    const bool checkall = cb_->getCheckState()==OD::Checked;
+    setAllItemsChecked( checkall );
+}
+
+
+void uiListBox::updateCheckState()
+{
+    NotifyStopper ns( cb_->activated );
+    const int nrchecked = nrChecked();
+    if ( nrchecked==0 )
+	cb_->setCheckState( OD::Unchecked );
+    else if ( nrchecked==size() )
+	cb_->setCheckState( OD::Checked );
+    else
+	cb_->setCheckState( OD::PartiallyChecked );
 }
 
 
@@ -619,6 +660,8 @@ void uiListBox::menuCB( CallBacker* )
 	retrievecb_.doCall( this );
     else if ( res == 4 )
 	savecb_.doCall( this );
+
+    updateCheckState();
 }
 
 
@@ -640,6 +683,7 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
     nsic.restore();
 
     itemChosen.trigger( itmidx );
+    updateCheckState();
 }
 
 
