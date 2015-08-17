@@ -38,6 +38,9 @@ macro( OD_ADD_OSGGEO )
     set (OLD_CMAKE_DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX} )
     set (CMAKE_DEBUG_POSTFIX d)
 
+    set ( OSGGEO_INSTDIR_LIB_DEBUG ${OD_EXEC_INSTALL_PATH_DEBUG} )
+    set ( OSGGEO_INSTDIR_LIB_RELEASE ${OD_EXEC_INSTALL_PATH_RELEASE} )
+
     add_subdirectory( ${CMAKE_SOURCE_DIR}/external/osgGeo/src/osgGeo 
 		  ${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo )
 
@@ -49,15 +52,6 @@ macro( OD_ADD_OSGGEO )
 			     ${CMAKE_BINARY_DIR}/external/osgGeo/src )
     set ( OSGGEO_LIBRARY_PATH
 	${CMAKE_BINARY_DIR}/external/osgGeo/src/osgGeo/${CMAKE_BUILD_TYPE} )
-
-    get_property( osgGeo_DEBUG_LOCATION TARGET osgGeo PROPERTY LOCATION_DEBUG )
-    get_property( osgGeo_RELEASE_LOCATION TARGET osgGeo PROPERTY LOCATION_RELEASE )
-    install( PROGRAMS ${osgGeo_DEBUG_LOCATION}
-		DESTINATION ${OD_EXEC_INSTALL_PATH_DEBUG}
-		CONFIGURATIONS "Debug" )
-    install( PROGRAMS ${osgGeo_RELEASE_LOCATION}
-		DESTINATION ${OD_EXEC_INSTALL_PATH_RELEASE}
-		CONFIGURATIONS Release )
 endmacro()
 
 macro(OD_SETUP_OSG)
