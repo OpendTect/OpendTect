@@ -455,7 +455,11 @@ void uiListBox::mkCheckGroup()
     pb->setIcon( "menu-arrow" );
     pb->setMaximumWidth( 40 );
     pb->setFlat( true );
+#ifdef __win__
     pb->setStyleSheet( ":pressed { background: transparent; }" );
+#else
+    pb->setStyleSheet( ":pressed { border: 0; background: transparent }" );
+#endif
     cb_ = new uiCheckBox( checkgrp_, "", mCB(this,uiListBox,checkCB) );
     cb_->setMaximumWidth( 20 );
     checkgrp_->display( isMultiChoice(), true );
