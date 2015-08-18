@@ -34,21 +34,21 @@ public:
 
     enum Type		{ FileLocation, Rename, Remove, ReadOnly };
 
-    uiToolButton*	addButton(Type,const char* ttip,const CallBack&);
-    uiToolButton*	addButton(const char* iconfnm,const char* ttip,
+    uiToolButton*	addButton(Type,const uiString& ttip,const CallBack&);
+    uiToolButton*	addButton(const char* iconfnm,const uiString& ttip,
 				  const CallBack&);
     void		setAlternative(uiToolButton*,const char* icfnm,
-				       const char* ttip);
+				       const uiString& ttip);
     void		useAlternative(uiToolButton*,bool);
 
 protected:
 
     mStruct(uiIo) ButData
     {
-			ButData(uiToolButton*,const char*,const char*);
+			ButData(uiToolButton*,const char*,const uiString&);
 	uiToolButton*	but;
 	BufferString	pmnm;
-	BufferString	tt;
+	uiString	tt;
     };
 
     ObjectSet<ButData>	butdata;

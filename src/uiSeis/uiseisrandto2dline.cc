@@ -98,7 +98,7 @@ bool uiSeisRandTo2DBase::getRandomLineGeom( Geometry::RandomLineSet& geom) const
 uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 					      const Geometry::RandomLine* rln )
     : uiDialog(p,uiDialog::Setup(tr("Save as 2D line"),
-				 uiStrings::sEmptyString(),
+				 uiString::emptyString(),
                                  mODHelpKey(mSeisRandTo2DLineDlgHelpID) ))
     , rdlgeom_(rln)
 {

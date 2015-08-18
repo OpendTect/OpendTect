@@ -143,7 +143,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	dodrawbox_->setChecked( true );
 	dodrawbox_->activated.notify( mCB(this,uiColorInput,dodrawSel) );
     }
-    colbut_ = new uiPushButton( this,uiStrings::sEmptyString(), false );
+    colbut_ = new uiPushButton( this,uiString::emptyString(), false );
     colbut_->setName( (nm && *nm)
 	? nm
 	: (!s.lbltxt_.isEmpty() ? s.lbltxt_.getFullString().buf() : "Color" ) );

@@ -137,7 +137,8 @@ void uiCreateDPSPDF::createDefaultUI()
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
-    outputfld_->setLabelText( tr("Output PDF") );
+    outputfld_->setLabelText(
+			 uiStrings::phrOutput( uiStrings::sProbDensFunc(true)));
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
     butPush( addbuts_[1] );

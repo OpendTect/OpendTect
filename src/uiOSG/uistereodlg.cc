@@ -21,7 +21,7 @@ uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs )
 	: uiDialog(p, uiDialog::Setup(tr("Stereo viewing"),
 				      tr("Set stereo offset"),
                                       mODHelpKey(mStereoDlgHelpID) )
-		      .canceltext(uiStrings::sEmptyString()))
+		      .canceltext(uiString::emptyString()))
 	, vwrs_(vwrs)
 {
     sliderfld_ = new uiSlider( this,

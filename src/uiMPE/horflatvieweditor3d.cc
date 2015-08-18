@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
+#include "horflatvieweditor.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
@@ -27,6 +28,7 @@ ________________________________________________________________________
 #include "undo.h"
 #include "uiflatviewer.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 namespace MPE
 {
@@ -377,23 +379,8 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 
     if ( spk.nrSeeds() < 1 )
     {
-	const bool vdvisible = editor_->viewer().isVisible(false);
-	const bool wvavisible = editor_->viewer().isVisible(true);
-	if ( vdvisible && wvavisible )
-	{
-	    if ( !uiMSG().question(uiStrings::sSeedData(),
-				   tr("VD"), uiStrings::sWiggle()) )
-		pickinvd = false;
-	}
-	else if ( vdvisible )
-	    pickinvd = true;
-	else if ( wvavisible )
-	    pickinvd = false;
-	else
-	{
-	    uiMSG().error( tr("No data to choose from") );
+	if ( !HorizonFlatViewEditor::selectSeedData(editor_, pickinvd ) )
 	    return false;
-	}
 
 	atsel = pickinvd ? vdselspec_ : wvaselspec_;
 

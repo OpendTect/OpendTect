@@ -39,7 +39,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
 #define mGetTitle(tp) \
-    mGet( tp, "Export FaultStickSet", "Export Fault" )
+    mGet( tp, uiStrings::phrExport( uiStrings::sFaultStickSet() ), \
+	      uiStrings::phrExport( uiStrings::sFault() ) )
 
 uiExportFault::uiExportFault( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
@@ -237,7 +238,7 @@ bool uiExportFault::acceptOK( CallBacker* )
 	mErrRet( uiStrings::sSelOutpFile() );
 
     if ( File::exists(outfnm)
-      && !uiMSG().askOverwrite(uiStrings::sOutpFileOverw()))
+      && !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()))
 	return false;
 
     const bool res = writeAscii();

@@ -23,7 +23,7 @@ uiWellT2DTransform::uiWellT2DTransform( uiParent* p )
     , transform_( 0 )
 {
     fld_ = new uiIOObjSel( this, mIOObjContext(Well), 
-                           uiStrings::sEmptyString() );
+			   uiString::emptyString() );
     setHAlignObj( fld_ );
 }
 

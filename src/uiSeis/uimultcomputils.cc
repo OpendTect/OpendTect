@@ -120,7 +120,7 @@ BufferString uiMultCompSel::getSummary() const
 
 uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
     : uiDialog( p, uiDialog::Setup(tr("Components selection dialog"),
-				   uiStrings::sEmptyString(),mNoHelpKey) )
+				   uiString::emptyString(),mNoHelpKey) )
 {
     useallfld_ = new uiGenInput( this, tr("Components to use:"),
 				 BoolInpSpec( true, uiStrings::sAll(),

@@ -60,7 +60,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     intvfld_->attach( alignedBelow, lasfld_ );
 
     BoolInpSpec mft( !SI().depthsInFeet(), tr("Meter"), tr("Feet") );
-    intvunfld_ = new uiGenInput( this, uiStrings::sEmptyString(), mft );
+    intvunfld_ = new uiGenInput( this, uiString::emptyString(), mft );
     intvunfld_->attach( rightOf, intvfld_ );
     intvunfld_->display( false );
 
@@ -224,33 +224,32 @@ static const char* exptypes[] =
 static const float cTWTFac  = 1000.f;
 
 
-static BufferString getDlgTitle( const ObjectSet<Well::Data>& wds,
-				 const BufferStringSet& lognms )
+uiString uiExportLogs::getDlgTitle( const ObjectSet<Well::Data>& wds,
+				    const BufferStringSet& lognms )
 {
-    BufferStringSet wllnms; addNames( wds, wllnms );
+    BufferStringSet wllnms;
+    addNames( wds, wllnms );
     const int nrwells = wllnms.size();
     const int nrlogs = lognms.size();
     if ( nrwells < 1 || nrlogs < 1 )
-	return BufferString("No wells/logs selected");
+	return tr("No wells/logs selected");
 
     const BufferString wllstxt( wllnms.getDispString(3) );
     const BufferString logstxt( lognms.getDispString(3) );
 
     BufferString ret;
     if ( nrlogs == 1 )
-	ret.set( "Export " ).add( logstxt ).add( " for " ).add( wllstxt );
+	return tr("Export %1 for %2").arg( logstxt ).arg( wllstxt );
     else if ( nrwells == 1 )
-	ret.set( wllstxt ).add( ": export " ).add( logstxt );
-    else
-	ret.set( "For " ).add( wllstxt ).add( " export " ).add( logstxt );
+	return tr( "%1: export %2" ).arg( wllstxt ).arg( logstxt );
 
-    return ret;
+    return tr( "For %1 export %2" ).arg( wllstxt ).arg( logstxt );
 }
 
 
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 			  const BufferStringSet& logsel )
-    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("Well logs") ),
+    : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( uiStrings::sWellLog() ),
 				  getDlgTitle(wds,logsel),
 				  mODHelpKey(mExportLogsHelpID)))
     , wds_(wds)
@@ -258,21 +257,25 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     , multiwellsnamefld_(0)
 {
     const bool zinft = SI().depthsInFeet();
-    const uiString lbl = tr( "Depth range %1" ).arg( zinft ? "(ft)" : "(m)" );
+    const uiString lbl = tr( "Depth range %1" ).
+	arg( uiStrings::sDistUnitString( zinft, true, true) );
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
 
-    typefld_ = new uiGenInput( this, tr("Output format"),
+    typefld_ = new uiGenInput( this, uiStrings::phrASCII( uiStrings::sFile()),
 			      StringListInpSpec(exptypes) );
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
     zunitgrp_ = new uiButtonGroup( this, "Z-unit buttons", OD::Horizontal );
     zunitgrp_->attach( alignedBelow, typefld_ );
-    uiLabel* zlbl = new uiLabel( this, tr("Output Z-unit") );
+    uiLabel* zlbl = new uiLabel( this,
+				 uiStrings::phrOutput( uiStrings::sZUnit() ));
     zlbl->attach( leftOf, zunitgrp_ );
-    new uiRadioButton( zunitgrp_, tr("meter") );
-    new uiRadioButton( zunitgrp_, tr("feet") );
+    new uiRadioButton( zunitgrp_,
+		       uiStrings::sDistUnitString( false, false, false ) );
+    new uiRadioButton( zunitgrp_,
+		      uiStrings::sDistUnitString( true, false, false ) );
     bool have2dtmodel = true;
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {

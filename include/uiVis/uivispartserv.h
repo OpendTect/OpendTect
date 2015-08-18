@@ -365,7 +365,7 @@ public:
 				{ return slicepostools_; }
 
     bool			writeSceneToFile(int id,
-						 const char* dlgtitle) const;
+						const uiString& dlgtitle) const;
 
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;

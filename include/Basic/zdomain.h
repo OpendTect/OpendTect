@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstring.h"
+#include "uistring.h"
 
 
 namespace ZDomain
@@ -51,6 +52,7 @@ public:
 
     const char*		unitStr(bool withparens=false) const;
     			//In case of depth, ft or m will come from SurvInfo
+    uiString		uiUnitStr(bool withparens=false) const;
 
     bool		isSI() const;
     bool		isTime() const;

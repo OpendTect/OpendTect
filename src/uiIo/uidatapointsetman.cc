@@ -29,6 +29,11 @@ static const char* rcsID mUsedVar = "$";
 
 static const int cPrefWidth = 75;
 
+
+uiString uiDataPointSetMan::sSelDataSetEmpty()
+{ return tr("Selected data set is empty"); }
+
+
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(tr("Manage Cross-plot Data"),mNoDlgTitle,
 				     mODHelpKey(mDataPointSetManHelpID) )
@@ -90,7 +95,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     if ( !rv )
     { uiMSG().error( errmsg ); return; }
     if ( spvds.data().isEmpty() )
-    { uiMSG().error(uiStrings::sSelDataSetEmp()); return; }
+    { uiMSG().error(sSelDataSetEmpty()); return; }
 
     DataPointSet* sdps =
 	new DataPointSet( spvds, dps->is2D(), dps->isMinimal() );

@@ -604,7 +604,7 @@ void uiChain::propertiesCB( CallBacker* )
 
 uiString uiChain::getPossibleInitialStepNames()
 {
-    mDefineStaticLocalObject( uiString, names, (uiStrings::sEmptyString()) );
+    mDefineStaticLocalObject( uiString, names, (uiString::emptyString()) );
 
     if ( names.isEmpty() )
     {

@@ -62,7 +62,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     lblbox1->attach( alignedBelow, colfld_ );
 
     uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox(this,
-                                                     uiStrings::sEmptyString());
+						     uiString::emptyString());
     agestopfld_ = lblbox2->box();
     agestopfld_->setNrDecimals( 3 );
     agestopfld_->setInterval( limitrg );
@@ -444,7 +444,7 @@ bool acceptOK( CallBacker* )
     nm.clean( BufferString::NoSpecialChars );
     if ( nm.isEmpty() )
     {
-	uiMSG().error( uiStrings::sEntValidName() );
+	uiMSG().error( uiStrings::sEnterValidName() );
 	return false;
     }
     cont_.setName( nm );
@@ -775,7 +775,7 @@ bool uiStratUnitDivideDlg::acceptOK( CallBacker* )
 
 uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p,
 						Strat::LeavedUnitRef& ur )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
+    : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
 		mNoDlgTitle, mODHelpKey(mStratLinkLvlUnitDlgHelpID) ))
     , lvlid_(-1)
     , unit_(ur)

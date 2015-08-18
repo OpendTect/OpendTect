@@ -44,7 +44,7 @@ void HorizonGridder::setTrcKeySampling( const TrcKeySampling& hs )
 
 bool HorizonGridder::init( TaskRunner* taskrunner )
 {
-    infomsg_ = uiStrings::sEmptyString();
+    infomsg_ = uiString::emptyString();
     if ( !fltdataprov_ && !faultids_.isEmpty() )
 	fltdataprov_ = new FaultTrcDataProvider();
 

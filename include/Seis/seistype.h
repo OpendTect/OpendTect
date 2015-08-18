@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "gendefs.h"
+#include "uistring.h"
+
 class IOObjContext;
 
 
@@ -42,6 +44,7 @@ namespace Seis
     mGlobal(Seis) GeomType	geomTypeOf(const char*);
     mGlobal(Seis) inline GeomType geomTypeOf( bool is2d, bool isps )
 			{ return is2d ? (isps?LinePS:Line) : (isps?VolPS:Vol); }
+    mGlobal(Seis) uiString dataName(GeomType,bool both_pre_post=false);
     mGlobal(Seis) const char**	geomTypeNames();
     mGlobal(Seis) void		putInPar(GeomType,IOPar&);
     mGlobal(Seis) bool		getFromPar(const IOPar&,GeomType&);

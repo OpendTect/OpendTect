@@ -136,15 +136,21 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
 	const Seis::GeomType gt( Seis::geomTypeOf( is2d, isps ) ); \
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true; \
 	dlgobj = new uiSeisIOSimple( parent(), gt, forread ); \
-	BufferString caption( forread ? "Import " : "Export " ); \
-	caption.add( is2d ? "2D " : "3D " ); \
-	if ( isps ) \
-	    caption.add( "prestack " ); \
-	caption.add( "seismics ").add( forread ? "from ": "to " ) \
-	       .add( "simple flat file" ); \
-	dlgobj->setCaption( caption ); \
+	dlgobj->setCaption( mkDlgCaption(forread,is2d,isps) ); \
     }\
     dlgobj->show();
+
+
+uiString uiSeisPartServer::mkDlgCaption( bool forread, bool is2d, bool isps )
+{
+    const uiString tp = uiStrings::sSeismics( is2d, isps, true, 2 );
+    return tr( "%1 %2 flat simple flat file")
+	.arg( forread
+	    ? uiStrings::phrImport( tp )
+	    : uiStrings::phrExport( tp ) )
+	.arg( forread ? tr("from") : tr("to" ) );
+}
+
 
 bool uiSeisPartServer::ioSeis( int opt, bool forread )
 {

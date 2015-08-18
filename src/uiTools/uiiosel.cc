@@ -152,7 +152,7 @@ void uiIOSelect::updateFromEntries()
 
     inp_->setEmpty();
     if ( haveempty_ )
-	inp_->addItem( uiStrings::sEmptyString() );
+	inp_->addItem( uiString::emptyString() );
 
     for ( int idx=0; idx<entries_.size(); idx++ )
     {

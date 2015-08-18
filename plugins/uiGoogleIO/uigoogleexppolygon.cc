@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
-    : uiDialog(p,uiDialog::Setup(tr("Export Polygon to KML"),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Polygon to KML")),
 				 tr("Specify output parameters"),
                                  mODHelpKey(mGoogleExportPolygonHelpID) ) )
     , ps_(ps)

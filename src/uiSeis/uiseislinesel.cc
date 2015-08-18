@@ -507,7 +507,7 @@ void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
 {
     dsid_ = ky;
     fld_->setEmpty();
-    if ( !forread_ ) fld_->addItem( uiStrings::sEmptyString() );
+    if ( !forread_ ) fld_->addItem( uiString::emptyString() );
     addLineNames( ky );
     nameChanged.trigger();
 }

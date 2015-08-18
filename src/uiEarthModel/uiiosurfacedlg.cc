@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 				      float shift )
-    : uiDialog(p,uiDialog::Setup(tr("Output selection"),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup( uiStrings::sOutputSelection(),mNoDlgTitle,
                                  mODHelpKey(mWriteSurfaceDlgHelpID) ))
     , surface_(surf)
 {
@@ -84,7 +84,8 @@ bool uiWriteSurfaceDlg::replaceInTree() const
 
 //Not used anymore, keep it?
 uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup("Input selection",mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup( uiStrings::sInputSelection(),
+	       mNoDlgTitle,mNoHelpKey))
 {
     iogrp_ = new uiSurfaceRead( this,
 	    uiSurfaceRead::Setup(typ).withattribfld(false) );
@@ -109,9 +110,9 @@ void uiReadSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 }
 
 
-
 uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
-    : uiDialog(p,uiDialog::Setup("Output selection","Specify attribute name",
+    : uiDialog(p,uiDialog::Setup( uiStrings::sOutputSelection(),
+				 tr("Specify attribute name"),
 				 mODHelpKey(mStoreAuxDataHelpID) ))
     , surface_(surf)
 {

@@ -93,6 +93,9 @@ protected:
     uiSeisIOSimple*	impps2dseisdlg_;
     uiSeisImportCBVS*	impcbvsdlg_;
     uiSeisImpCBVSFromOtherSurveyDlg* impcbvsothsurvdlg_;
+
+private:
+    uiString		mkDlgCaption( bool forread, bool is2d, bool isps );
 };
 
 #endif

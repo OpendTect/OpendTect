@@ -48,6 +48,9 @@ public:
     static bool		retrieve(PreStack::MuteDef&,const IOObj*,uiString&);
     static bool		store(const PreStack::MuteDef&,const IOObj*,
 			      uiString&);
+
+private:
+    static uiString	sSelObjNotMuteDef();
 };
 
 

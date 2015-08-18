@@ -88,11 +88,12 @@ uiWellMan::uiWellMan( uiParent* p )
 		"Rename selected log", mCB(this,uiWellMan,renameLogPush) );
     logrmbut_ = butgrp->addButton( uiManipButGrp::Remove,
 		"Remove selected log(s)", mCB(this,uiWellMan,removeLogPush) );
-    logexpbut_ = butgrp->addButton( "export", "Export log(s)",
+    logexpbut_ = butgrp->addButton( "export",
+			uiStrings::phrExport( uiStrings::sWellLogs(true) ),
 			mCB(this,uiWellMan,exportLogs) );
     loguombut_ = butgrp->addButton( "unitsofmeasure",
 		"View/edit unit of measure", mCB(this,uiWellMan,logUOMPush) );
-    logedbut_ = butgrp->addButton( "edit", "Edit",
+    logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(true),
 			mCB(this,uiWellMan,editLogPush) );
     logupbut_ = butgrp->addButton( "uparrow", "Move up",
 			mCB(this,uiWellMan,moveLogsPush) );
@@ -104,20 +105,22 @@ uiWellMan::uiWellMan( uiParent* p )
     logsgrp_->attach( rightOf, selgrp_ );
 
     welltrackbut_ = new uiToolButton( extrabutgrp_, "edwelltrack",
-		tr("Edit Well Track"), mCB(this,uiWellMan, edWellTrack) );
+				     uiStrings::phrEdit(tr("Well Track")),
+				     mCB(this,uiWellMan, edWellTrack) );
 
     if ( SI().zIsTime() )
     {
 	csbut_ = new uiToolButton( extrabutgrp_, "checkshot",
-				tr("Edit Checkshot Data"),
-				mCB(this,uiWellMan,edChckSh) );
+			    uiStrings::phrEdit(tr("Checkshot Data")),
+			    mCB(this,uiWellMan,edChckSh) );
 	d2tbut_ = new uiToolButton( extrabutgrp_,
-				"z2t",tr("Edit Depth/Time Model"),
-				mCB(this,uiWellMan, edD2T) );
+			    "z2t",uiStrings::phrEdit(tr("Depth/Time Model")),
+			    mCB(this,uiWellMan, edD2T) );
     }
 
     markerbut_ = new uiToolButton( extrabutgrp_, "edmarkers",
-			tr("Edit Markers"), mCB(this,uiWellMan, edMarkers) );
+			      uiStrings::phrEdit( uiStrings::sMarkers(true)),
+			      mCB(this,uiWellMan, edMarkers) );
     markerbut_->attach( rightOf, d2tbut_ ? d2tbut_ : welltrackbut_ );
 
     new uiToolButton( extrabutgrp_, "tools",

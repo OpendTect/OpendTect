@@ -34,7 +34,7 @@ If you don't want to use the help system, simply pass null ('0').
 */
 
 
-#define mNoDlgTitle	uiStrings::sEmptyString()
+#define mNoDlgTitle	uiString::emptyString()
 #define mTODOHelpKey	HelpKey( 0, toString(-1) )
 #define mNoHelpKey	HelpKey::emptyHelpKey()
 

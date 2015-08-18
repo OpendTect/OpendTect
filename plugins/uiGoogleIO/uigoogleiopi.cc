@@ -70,22 +70,27 @@ public:
     void		exportRandLine(CallBacker*);
     void		mkExportWellsIcon(CallBacker*);
     void		mkExportLinesIcon(CallBacker*);
+
+private:
+    static uiString	sMenuTxt()
+    { return uiStrings::phrImmediate(false, tr("Export to Google KML")); }
 };
 
 
 uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     : appl_(a)
     , psmnuitmhandler_(visSurvey::PickSetDisplay::sFactoryKeyword(),
-	    		*a.applMgr().visServer(),"Export to Google KML ...",
-    			mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
+		    *a.applMgr().visServer(),
+		   sMenuTxt(),
+		    mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
     , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::sFactoryKeyword(),
-	    		*a.applMgr().visServer(),"Export to Google KML ...",
-    			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
+			*a.applMgr().visServer(),sMenuTxt(),
+			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
 {
     psmnuitmhandler_.setIcon( "google" );
     rlmnuitmhandler_.setIcon( "google" );
     uiSurvey::add( uiSurvey::Util( "google",
-				   "Export to Google Earth/Maps",
+				   tr("Export to Google Earth/Maps"),
 				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
     uiWellMan::instanceCreated().notify(
 				mCB(this,uiGoogleIOMgr,mkExportWellsIcon) );
@@ -112,7 +117,7 @@ void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
     if ( !wm ) return;
 
     new uiToolButton( wm->extraButtonGroup(), "google",
-				"Export to Google KML",
+				sMenuTxt(),
 				mCB(this,uiGoogleIOMgr,exportWells) );
 }
 
@@ -135,8 +140,8 @@ void uiGoogleIOMgr::mkExportLinesIcon( CallBacker* cb )
     if ( !cur2dfm_ ) return;
 
     fm->getButGroup(false)->addButton( "google",
-	    			       "Export selected lines to Google KML",
-	    			       mCB(this,uiGoogleIOMgr,exportLines) );
+				   tr("Export selected lines to Google KML"),
+				   mCB(this,uiGoogleIOMgr,exportLines) );
 }
 
 

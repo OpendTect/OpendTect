@@ -658,7 +658,7 @@ void uiODMenuMgr::updateSceneMenu()
 
 	if ( !itm )
 	{
-	    itm = new uiAction( uiStrings::sEmptyString(),
+	    itm = new uiAction( uiString::emptyString(),
 				mCB(this,uiODMenuMgr,handleClick) );
 	    scenemnu_->insertItem( itm, id );
 	    itm->setCheckable( true );

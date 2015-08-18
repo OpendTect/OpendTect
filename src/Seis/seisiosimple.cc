@@ -435,7 +435,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 
 int SeisIOSimple::readExpTrc()
 {
-    errmsg_ = uiStrings::sEmptyString();
+    errmsg_ = uiString::emptyString();
     rdr_->setComponent( data_.compidx_ );
     int readres = rdr_->get( trc_.info() );
     if ( readres == 0 )

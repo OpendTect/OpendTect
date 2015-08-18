@@ -70,7 +70,7 @@ MadStream::MadStream( IOPar& par )
     , stortrcbufismine_(true)
     , iter_(0),cubedata_(0),l2ddata_(0)
     , headerpars_(0)
-    , errmsg_(*new uiString(uiStrings::sEmptyString()))
+    , errmsg_(*new uiString(uiString::emptyString()))
     , iswrite_(false)
 {
     par.getYN( sKeyWrite, iswrite_ );
@@ -84,7 +84,7 @@ MadStream::MadStream( IOPar& par )
     else
     {
 	PtrMan<IOPar> inpar = par.subselect( sKeyInput );
-	if (!inpar) mErrRet(uiStrings::sInpParMis());
+	if (!inpar) mErrRet(uiStrings::sInputParamsMissing());
 
 	initRead( inpar );
     }

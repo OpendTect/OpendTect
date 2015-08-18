@@ -161,7 +161,7 @@ void impLineGeom( CallBacker* )
 	PosInfo::Line2DData geom( linenm_ );
 	Geom2dAscIO geomascio( dlg.dataselfld_->desc(), strm );
 	if ( !geomascio.getData( geom ) )
-	    uiMSG().error(uiStrings::sFailConvCompData());
+	    uiMSG().error(uiStrings::phrCannotRead( toUiString(filenm)) );
 
 	table_->clearTable();
 	fillTable( geom );

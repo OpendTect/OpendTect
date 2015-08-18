@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "gendefs.h"
 #include "uistring.h"
-#include "uistrings.h"
 class uiMainWin;
 class uiStatusBar;
 mFDQtclass(QWidget)
@@ -34,14 +33,14 @@ public:
 
     // Messages
     void	message(const uiString&,
-			const uiString& part2=uiStrings::sEmptyString(),
-			const uiString& part3=uiStrings::sEmptyString());
+			const uiString& part2=uiString::emptyString(),
+			const uiString& part3=uiString::emptyString());
     void	warning(const uiString&,
-			const uiString& part2=uiStrings::sEmptyString(),
-			const uiString& part3=uiStrings::sEmptyString());
+			const uiString& part2=uiString::emptyString(),
+			const uiString& part3=uiString::emptyString());
     void	error(const uiString&,
-		      const uiString& part2=uiStrings::sEmptyString(),
-		      const uiString& part3=uiStrings::sEmptyString());
+		      const uiString& part2=uiString::emptyString(),
+		      const uiString& part3=uiString::emptyString());
     void	errorWithDetails(const FileMultiString&);
     		/*!<If input has multiple parts, the first will be displayed
 		    directly, while the complete message is available under a
@@ -53,10 +52,10 @@ public:
 
     // Interaction
     int		question(const uiString&,
-			 const uiString& textyes=uiStrings::sEmptyString(),
-			 const uiString& textno=uiStrings::sEmptyString(),
-			 const uiString& textcncl=uiStrings::sEmptyString(),
-			 const uiString& caption=uiStrings::sEmptyString());
+			 const uiString& textyes=uiString::emptyString(),
+			 const uiString& textno=uiString::emptyString(),
+			 const uiString& textcncl=uiString::emptyString(),
+			 const uiString& caption=uiString::emptyString());
     int		askSave(const uiString&,bool cancelbutt=true);
     		//!<\retval 0=Don't save 1=Save -1=Cancel
     int		askRemove(const uiString&,bool cancelbutt=false);
@@ -71,12 +70,12 @@ public:
     bool	askGoOn(const uiString& msg,const uiString& textyes,
 			const uiString& textno);
     int		askGoOnAfter(const uiString&,
-			     const uiString& cnclmsg=uiStrings::sEmptyString(),
-			     const uiString& textyes=uiStrings::sEmptyString(),
-			     const uiString& textno=uiStrings::sEmptyString());
+			     const uiString& cnclmsg=uiString::emptyString(),
+			     const uiString& textyes=uiString::emptyString(),
+			     const uiString& textno=uiString::emptyString());
 		//!< 1=yes, 0=no, -1=cancel
     bool	showMsgNextTime(const uiString&,
-				const uiString& msg=uiStrings::sEmptyString());
+				const uiString& msg=uiString::emptyString());
     		//!< The msg must be negative, like "Don't show msg again"
     		//!< Be sure to store the ret val in the user settings
 
@@ -97,7 +96,7 @@ public:
     int		showMessageBox(Icon icon,QWidget* parent,
 			   const uiString& txt,const uiString& yestxtinp,
 			   const uiString& notxtinp,const uiString& cncltxtinp,
-			   const uiString& title=uiStrings::sEmptyString());
+			   const uiString& title=uiString::emptyString());
 
 protected:
 

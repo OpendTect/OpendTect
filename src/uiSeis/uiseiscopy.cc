@@ -131,7 +131,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 
 uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 					  const char* fixedoutputtransl )
-    : uiDialog(p,Setup("Copy 2D Seismic Data",uiStrings::sEmptyString(),
+    : uiDialog(p,Setup("Copy 2D Seismic Data",uiString::emptyString(),
                        mODHelpKey(mSeisCopyLineSetHelpID) ))
 {
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );

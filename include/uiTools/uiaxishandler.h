@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "uigeom.h"
 #include "uistring.h"
-#include "uistrings.h"
 #include "fontdata.h"
 
 #include <cfloat>
@@ -116,7 +115,7 @@ public:
 	enum LineType	    { Normal=0, Bold=1, HighLighted=2 };
 			    AuxPosData()
 				: pos_(mUdf(float))
-				, name_(uiStrings::sEmptyString())
+				, name_(uiString::emptyString())
 				, linetype_(Normal)	{}
 	float		pos_;
 	LineType	linetype_;

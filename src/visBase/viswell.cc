@@ -311,11 +311,11 @@ void Well::setWellName( const TrackParams& tp )
     transformZIfNeeded( crdbot );
 
     updateText( welltoptxt_->text(0),tp.isdispabove_ ? 
-		mkUiString( tp.name_ ) : uiStrings::sEmptyString(), &crdtop,
+		mkUiString( tp.name_ ) : uiString::emptyString(), &crdtop,
 		tp.font_ );
 
     updateText( wellbottxt_->text(0),tp.isdispbelow_ ? 
-	        mkUiString( tp.name_ ) : uiStrings::sEmptyString(), &crdbot,
+		mkUiString( tp.name_ ) : uiString::emptyString(), &crdbot,
 		tp.font_ );
 
 }

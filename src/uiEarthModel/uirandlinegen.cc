@@ -38,9 +38,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <limits.h>
 
+uiString uiGenRanLinesByContour::sSpecGenPar()
+{ return tr("Specify generation parameters"); }
+
+uiString uiGenRanLinesByContour::sDlgTitle()
+{ return uiStrings::phrCreate( uiStrings::sRandomLine() ); }
+
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
-    : uiDialog( p, Setup(uiStrings::sCreateRandLines(),
-                         uiStrings::sSpecGenPar(),
+    : uiDialog( p, Setup(uiGenRanLinesByContour::sDlgTitle(),
+			 uiGenRanLinesByContour::sSpecGenPar(),
 			 mODHelpKey(mGenRanLinesByContourHelpID) ) )
     , horctio_(*mMkCtxtIOObj(EMHorizon3D))
     , polyctio_(*mMkCtxtIOObj(PickSet))
@@ -200,8 +206,8 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 
 
 uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
-    : uiDialog( p, Setup(uiStrings::sCreateRandLines(),
-			 uiStrings::sSpecGenPar(),
+    : uiDialog( p, Setup(uiGenRanLinesByContour::sDlgTitle(),
+			 uiGenRanLinesByContour::sSpecGenPar(),
 			 mODHelpKey(mGenRanLinesByShiftHelpID) ) )
     , inctio_(*mMkCtxtIOObj(RandomLineSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
@@ -291,8 +297,8 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 
 
 uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
-    : uiDialog( p, Setup(uiStrings::sCreateRandLines(),
-			 uiStrings::sSpecGenPar(),
+    : uiDialog( p, Setup(uiGenRanLinesByContour::sDlgTitle(),
+			 uiGenRanLinesByContour::sSpecGenPar(),
 			 mODHelpKey(mGenRanLinesFromPolygonHelpID) ) )
     , inctio_(*mMkCtxtIOObj(PickSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))

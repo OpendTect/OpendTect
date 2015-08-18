@@ -64,11 +64,12 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 {
     setCtrlStyle( CloseOnly );
 
-    uiLabel* colormodelbl = new uiLabel( this, tr("Output color selection:") );
+    uiLabel* colormodelbl = new uiLabel( this,
+				uiStrings::phrOutput(tr("color selection") ) );
 
     BufferStringSet serialbss; serialbss.add( "Inherit" );
     serialbss.add( "Random" ); serialbss.add( "User-defined" );
-    serialcolormodefld_ = new uiGenInput(this,uiStrings::sEmptyString(),
+    serialcolormodefld_ = new uiGenInput(this,uiString::emptyString(),
                                          StringListInpSpec(serialbss));
     serialcolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
@@ -76,14 +77,14 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 
     BufferStringSet existsbss;
     existsbss.add( "Current" ); existsbss.add( "User-defined" );
-    existscolormodefld_ = new uiGenInput(this,uiStrings::sEmptyString(),
+    existscolormodefld_ = new uiGenInput(this,uiString::emptyString(),
                                          StringListInpSpec(existsbss));
     existscolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     existscolormodefld_->attach( alignedBelow, colormodelbl );
 
     BufferStringSet singlebss; singlebss.add( "User-defined" );
-    singlecolormodefld_ = new uiGenInput(this,uiStrings::sEmptyString(),
+    singlecolormodefld_ = new uiGenInput(this,uiString::emptyString(),
                                          StringListInpSpec(singlebss));
     singlecolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
@@ -794,7 +795,7 @@ void uiODFaultToolMan::publishOutputItems()
     outputnamecombo_->editTextChanged.disable();
     BufferString curtext = outputnamecombo_->text();
     outputnamecombo_->setEmpty();
-    outputnamecombo_->addItem( uiStrings::sEmptyString() );
+    outputnamecombo_->addItem( uiString::emptyString() );
     outputnamecombo_->addItems( getOutputItems() );
     outputnamecombo_->editTextChanged.enable();
 

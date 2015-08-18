@@ -95,8 +95,9 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
     uiGroup* outputgrp = new uiGroup( this, "Output name group" );
     outputgrp->attach( ensureBelow, sep );
 
-    uiLabel* savelbl = new uiLabel( outputgrp, tr("Output name") );
-    savepostfix_ = new uiGenInput( outputgrp, "with postfix", "log cube" );
+    uiLabel* savelbl = new uiLabel( outputgrp,
+			       uiStrings::phrOutput( uiStrings::sName() ) );
+    savepostfix_ = new uiGenInput( outputgrp, tr("with postfix"), "log cube" );
     savepostfix_->setWithCheck( true );
     savepostfix_->setChecked( true );
     savepostfix_->attach( rightOf, savelbl );

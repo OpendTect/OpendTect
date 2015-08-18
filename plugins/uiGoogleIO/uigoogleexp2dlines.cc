@@ -31,9 +31,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
-    : uiDialog(p,uiDialog::Setup(tr("Export selected 2D seismics to KML"),
-				 tr("Specify how to export"),
-                                 mODHelpKey (mGoogleExport2DSeisHelpID) ) )
+    : uiDialog(p,uiDialog::Setup(
+		uiStrings::phrExport( tr("selected 2D seismics to KML") ),
+		tr("Specify how to export"),
+		mODHelpKey (mGoogleExport2DSeisHelpID) ) )
     , s2dfm_(p)
     , putallfld_(0)
     , allsel_(false)

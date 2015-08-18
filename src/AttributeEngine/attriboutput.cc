@@ -269,7 +269,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
     , trc_(0)
     , prevpos_(-1,-1)
     , storinited_(0)
-    , errmsg_(uiStrings::sEmptyString())
+    , errmsg_(uiString::emptyString())
     , scaler_(0)
     , growtrctosi_(false)
 {
@@ -329,7 +329,7 @@ static bool isDataType( const char* reqtp )
 
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
-    errmsg_ = uiStrings::sEmptyString();
+    errmsg_ = uiString::emptyString();
     PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output(),0) );
     if ( !outppar )
 	outppar = pars.subselect( IOPar::compKey(sKey::Output(),1) );

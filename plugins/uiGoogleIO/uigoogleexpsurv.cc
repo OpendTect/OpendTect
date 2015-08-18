@@ -23,9 +23,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
-    : uiDialog(uisurv,uiDialog::Setup(tr("Export Survey boundaries to KML"),
-				      tr("Specify output parameters"),
-                                      mODHelpKey(mGoogleExportSurveyHelpID) ) )
+    : uiDialog(uisurv,
+       uiDialog::Setup(uiStrings::phrExport( tr("Survey boundaries to KML")),
+		      tr("Specify output parameters"),
+		      mODHelpKey(mGoogleExportSurveyHelpID) ) )
     , si_(uisurv->curSurvInfo())
 {
     const LineStyle ls( LineStyle::Solid, 20, Color(255,170,80,100) );

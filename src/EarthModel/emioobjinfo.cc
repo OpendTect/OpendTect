@@ -211,7 +211,7 @@ IOPar* IOObjInfo::getPars() const
 uiString IOObjInfo::getMessage() const
 {
     mGetReader;
-    return reader_ ? reader_->uiMessage() : uiStrings::sEmptyString();
+    return reader_ ? reader_->uiMessage() : uiString::emptyString();
 }
 
 

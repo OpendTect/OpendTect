@@ -255,7 +255,7 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 	offsrg_.start = offsrg_.stop = cbo.offset_;
     nrpos_ = nruniquepos_ = nroffsthispos_ = 1;
     addLine();
-    errmsg_ = uiStrings::sEmptyString();
+    errmsg_ = uiString::emptyString();
 }
 
 
@@ -266,7 +266,7 @@ uiString PosInfo::Detector::createPositionString(
         .arg( setup_.is2d_ ? tr("trace number") : tr("position") )
         .arg( cbo.binid_.toString(setup_.is2d_) )
         .arg( setup_.isps_ ? tr( " (offset %1)" ).arg( cbo.offset_ )
-                           : uiStrings::sEmptyString() );
+			   : uiString::emptyString() );
     return ret;
 }
 

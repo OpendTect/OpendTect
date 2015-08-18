@@ -63,7 +63,7 @@ void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames )
     outlistfld_ = new uiListBox( this, "Outputs", OD::ChooseAtLeastOne );
     outlistfld_->addItems( outnames );
 
-    outallfld_ = new uiCheckBox( this, tr("Output all"));
+    outallfld_ = new uiCheckBox( this, uiStrings::phrOutput(uiStrings::sAll()));
     outallfld_->activated.notify( mCB(this,uiMultOutSel,allSel) );
     outallfld_->attach( alignedBelow, outlistfld_ );
 }

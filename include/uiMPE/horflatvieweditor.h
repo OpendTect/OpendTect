@@ -90,6 +90,13 @@ protected:
     bool			is2d_;
     bool			seedpickingon_;
     bool			trackersetupactive_;
+
+public:
+    static bool			selectSeedData(const FlatView::AuxDataEditor*,
+					       bool& pickinvd);
+				/*!<Displays a dlg to select what data to pick
+				    on. Returns true if valid result. Result
+				    is stored in pickinvd */
 };
 
 } // namespace MPE

@@ -179,7 +179,7 @@ void uiColorTableMan::doFinalise( CallBacker* )
 {
     refreshColTabList( ctab_.name() );
     sequenceChange( 0 );
-    toStatusBar( uiStrings::sEmptyString(), 1 );
+    toStatusBar( uiString::emptyString(), 1 );
 }
 
 
@@ -264,7 +264,7 @@ void uiColorTableMan::removeCB( CallBacker* )
 					     : tr("Own made colortable"))
 	       .arg(ctnm).arg(selstatus_ == sKeyEdited
 					 ? tr("and replaced by the default\n")
-					 : uiStrings::sEmptyString()));
+					 : uiString::emptyString()));
     if ( !uiMSG().askRemove( msg ) )
 	return;
 

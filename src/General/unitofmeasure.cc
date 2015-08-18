@@ -163,7 +163,7 @@ uiString UnitOfMeasure::zUnitAnnot( bool time, bool symb, bool withparens )
     const UnitOfMeasure* uom = time  ? surveyDefTimeUnit()
 				     : surveyDefDepthUnit();
     if ( !uom )
-	return uiStrings::sEmptyString();
+	return uiString::emptyString();
 
     uiString lbl;
     mCreateLbl()
@@ -176,7 +176,7 @@ uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
 {
     const UnitOfMeasure* uom = surveyDefVelUnit();
     if ( !uom )
-	return uiStrings::sEmptyString();
+	return uiString::emptyString();
 
     uiString lbl;
     mCreateLbl()

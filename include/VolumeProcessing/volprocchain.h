@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "threadlock.h"
 #include "trckeysampling.h"
-#include "uistrings.h"
 
 class RegularSeisDataPack;
 class VelocityDesc;
@@ -112,7 +111,7 @@ public:
     virtual void		releaseData();
 
     virtual uiString		errMsg() const
-				{ return uiStrings::sEmptyString(); }
+				{ return uiString::emptyString(); }
 
 protected:
 				Step();

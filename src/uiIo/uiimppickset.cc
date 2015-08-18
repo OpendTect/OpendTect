@@ -48,8 +48,10 @@ static const char* zoptions[] =
 
 
 uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
-    : uiDialog(p,uiDialog::Setup(imp ? tr("Import Pickset/Polygon")
-			: tr("Export PickSet/Polygon"), mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(imp
+				     ? uiStrings::phrImport(sPicksetPolygon())
+				     : uiStrings::phrExport(sPicksetPolygon()),
+				 mNoDlgTitle,
 				 imp
 					? mODHelpKey(mImpPickSetHelpID)
 					: mODHelpKey(mExpPickSetHelpID) )
@@ -67,8 +69,11 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 		     uiStrings::sClose() );
     if ( import_ ) enableSaveButton( tr("Display after import") );
 
-    BufferString label( import_ ? "Input " : "Output " );
-    label += "ASCII file";
+    const uiString tp = uiStrings::phrASCII( uiStrings::sFile() );
+    uiString label = import_
+	? uiStrings::sInputASCIIFile()
+	: uiStrings::sOutputASCIIFile();
+
     filefld_ = new uiFileInput( this, label, uiFileInput::Setup()
 					    .withexamine(import_)
 					    .forread(import_) );
@@ -77,7 +82,10 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.forread = !import_;
-    label = import_ ? "Output " : "Input "; label += "PickSet/Polygon";
+    label = import_
+	? uiStrings::phrOutput( sPicksetPolygon() )
+	: uiStrings::phrInput( sPicksetPolygon() );
+
     objfld_ = new uiIOObjSel( this, ctxt, label );
 
     if ( import_ )
@@ -88,13 +96,14 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 				formatSel) );
 	zfld_->attach( alignedBelow, filefld_ );
 
-	BufferString constzlbl = "Specify constant Z value";
-	constzlbl += SI().getZUnitString();
+	uiString constzlbl = tr("Specify constant Z value %1")
+				.arg( SI().getZUnitString() );
 	constzfld_ = new uiGenInput( this, constzlbl, FloatInpSpec(0) );
 	constzfld_->attach( alignedBelow, zfld_ );
 	constzfld_->display( zfld_->box()->currentItem() == 1 );
 
-	horinpfld_ = new uiLabeledComboBox( this, tr("Select Horizon") );
+	horinpfld_ = new uiLabeledComboBox( this,
+			    uiStrings::phrSelect( uiStrings::sHorizon() ) );
 	serv_->fetchHors( false );
 	const ObjectSet<SurfaceInfo> hinfos = serv_->horInfos();
 	for ( int idx=0; idx<hinfos.size(); idx++ )

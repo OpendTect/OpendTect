@@ -368,7 +368,7 @@ void uiTreeView::setNrColumns( int nrcols )
 {
     uiStringSet strings;
     for ( int idx=0; idx<nrcols; idx++ )
-	strings += uiStrings::sEmptyString();
+	strings += uiString::emptyString();
 
     addColumns( strings );
 }

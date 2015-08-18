@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolor.h"
 #include "uigeninput.h"
 #include "uislider.h"
+#include "uistrings.h"
 #include "color.h"
 #include "draw.h"
 

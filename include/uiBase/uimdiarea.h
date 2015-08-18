@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uigroup.h"
 #include "uiobj.h"
-#include "uistrings.h"
 
 class BufferStringSet;
 class uiMdiArea;
@@ -29,7 +28,7 @@ mExpClass(uiBase) uiMdiAreaWindow : public uiGroup
 {
 public:
 	    uiMdiAreaWindow(uiMdiArea&,
-			    const uiString& title=uiStrings::sEmptyString());
+			    const uiString& title=uiString::emptyString());
 
 				~uiMdiAreaWindow()	{}
 

@@ -50,6 +50,9 @@ public:
 				 uiString&);
     static bool		store(const PreStack::ProcessManager&,const IOObj*,
 			      uiString&);
+
+private:
+    static uiString	sSelObjNotPreStackProc();
 };
 
 

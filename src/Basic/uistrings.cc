@@ -15,6 +15,9 @@ static const char* joinstring = "%1 %2";
 
 #define mImmediateImpl( txt ) return phrImmediate( immediate, txt );
 
+uiString uiStrings::phrASCII( const uiString& string )
+{ return uiString(joinstring).arg( sASCII(true) ).arg( string ); }
+
 uiString uiStrings::phrImmediate( bool immediate, const uiString& string )
 { return immediate ? string : uiString( "%1 ..." ).arg( string ); }
 
@@ -47,6 +50,25 @@ uiString uiStrings::phrCannotWrite( const uiString& string )
 
 uiString uiStrings::phrCreate( const uiString& string )
 { return uiString(joinstring).arg( sCreate(true) ).arg( string ); }
+
+uiString uiStrings::phrEdit( const uiString& string )
+{ return uiString(joinstring).arg( sEdit(true) ).arg( string ); }
+
+uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
+{
+    return tr( "%1 exists. %2?")
+	.arg( string )
+	.arg( overwrite ? sOverwrite() : sContinue() );
+}
+
+uiString uiStrings::phrInput( const uiString& string )
+{ return uiString(joinstring).arg( sInput() ).arg( string ); }
+
+uiString uiStrings::phrOutput( const uiString& string )
+{ return uiString(joinstring).arg( sOutput() ).arg( string ); }
+
+uiString uiStrings::phrSuccessfullyExported( const uiString& string )
+{ return tr( "Successfully exported %1").arg( string );}
 
 uiString uiStrings::s2D( bool immediate )
 { mImmediateImpl( tr("2D") ); }
@@ -99,11 +121,11 @@ uiString uiStrings::sCantOpenOutpFile( int num )
 uiString uiStrings::sCreateProbDesFunc()
 { return phrCreate( sProbDensFunc() ); }
 
-uiString uiStrings::sCreateRandLines()
-{ return phrCreate( sRandomLine() ); }
-
 uiString uiStrings::sEdit( bool immediate )
 { mImmediateImpl( tr("Edit") ); }
+
+uiString uiStrings::sEnterValidName()
+{ return tr("Please enter a valid name"); }
 
 uiString uiStrings::sFaults( bool immediate, int num )
 { mImmediateImpl( tr("Faults", 0, num ) ); }
@@ -119,6 +141,12 @@ uiString uiStrings::sHistogram( bool immediate )
 
 uiString uiStrings::sHorizons( bool immediate, int num )
 { mImmediateImpl( tr("Horizons", 0, num ) ); }
+
+uiString uiStrings::sInputASCIIFile()
+{ return phrInput( phrASCII( sFile() )); }
+
+uiString uiStrings::sInputParamsMissing()
+{ return tr("Input parameters missing"); }
 
 uiString uiStrings::sLoad( bool immediate )
 { mImmediateImpl( tr("Load") ); }
@@ -138,8 +166,18 @@ uiString uiStrings::sOpen( bool immediate )
 uiString uiStrings::sOptions( bool immediate )
 { mImmediateImpl( tr("Options") ); }
 
-uiString uiStrings::sProbDensFunc()
-{ return tr("Probability Density Function"); }
+uiString uiStrings::sOutputASCIIFile()
+{ return phrOutput( phrASCII( sFile() )); }
+
+uiString uiStrings::sOutputFileExistsOverwrite()
+{ return phrExistsConinue( tr("Output file"), true); }
+
+uiString uiStrings::sProbDensFunc( bool abbrevation )
+{
+    return abbrevation
+       ? tr( "PDF" )
+       : tr("Probability Density Function");
+}
 
 uiString uiStrings::sProperties( bool immediate )
 { mImmediateImpl( tr("Properties") ); }
@@ -156,8 +194,22 @@ uiString uiStrings::sSaveAs( bool immediate )
 uiString uiStrings::sSeismic( bool immediate, int num )
 { mImmediateImpl( tr("Seismic", 0, num ) ); }
 
+uiString uiStrings::sSeismics( bool is2d, bool isps, bool imm, int num )
+{
+    return uiString( "%1 %2%3" )
+	.arg( is2d ? s2D(true) : s3D(true) )
+	.arg( isps ? tr("prestack ") : uiString::emptyString() )
+	.arg( sSeismic( imm, num ) );
+}
+
 uiString uiStrings::sSelect(bool immediate)
 { mImmediateImpl( tr("Select") ); }
+
+uiString uiStrings::sSelOutpFile()
+{ return tr("Please select output file"); }
+
+uiString uiStrings::sSelection(bool smallletters)
+{ return smallletters ? tr("selection") : tr("Selection"); }
 
 uiString uiStrings::sSetting( bool immediate, int num )
 { mImmediateImpl( tr("Setting", 0, num) ); }
@@ -174,6 +226,73 @@ uiString uiStrings::sStratigraphy( bool immediate )
 uiString uiStrings::sTrack( bool immediate )
 { mImmediateImpl( tr("Track") ); }
 
+uiString uiStrings::sVolume( bool immediate )
+{ mImmediateImpl( tr("Volume") ); }
+
 uiString uiStrings::sWell( bool immediate, int num )
 { mImmediateImpl( tr("Well", 0, num ) ); }
 
+uiString uiStrings::sWellLog( bool immediate, int num )
+{ mImmediateImpl( tr("Well log", 0, num ) ); }
+
+uiString uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
+{
+    return withparentheses
+	? uiString("(%1)").arg( sDistUnitString( isfeet, abb, false ) )
+	: isfeet
+	    ? abb ? tr("ft") : tr("feet" )
+	    : abb ? tr("m") : tr("meter");
+}
+
+
+uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
+			     bool both_2d_3d_in_context,
+			     bool both_pre_post_in_context )
+{
+    if ( is2d )
+    {
+	if ( isprestack )
+	{
+	    if ( both_2d_3d_in_context )
+	    {
+		return tr( "Pre-Stack 2D Data" );
+	    }
+
+	    return tr( "Pre-Stack Data" );
+	}
+
+	if ( both_2d_3d_in_context )
+	{
+	    if ( both_pre_post_in_context )
+	    {
+		return tr( "Post-Stack 2D Data" );
+	    }
+
+	    return tr("2D Data");
+	}
+
+	if ( both_pre_post_in_context )
+	{
+	    return tr("Post-Stack Data");
+	}
+
+	return tr("2D Data");
+    }
+
+    if ( is3d )
+    {
+	if ( isprestack )
+	{
+	    if ( both_2d_3d_in_context )
+	    {
+		return tr( "Pre-Stack 3D Data");
+	    }
+
+	    return tr( "Pre-Stack Data" );
+	}
+
+	return tr("Cube");
+    }
+
+    return tr("Data");
+}

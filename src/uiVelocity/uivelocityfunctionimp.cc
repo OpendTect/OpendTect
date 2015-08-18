@@ -69,7 +69,8 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     sep->attach( alignedBelow, dataselfld_ );
 
     ctio_.ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctio_, tr("Output Velocity") );
+    outfld_ = new uiIOObjSel( this, ctio_,
+			      uiStrings::phrOutput( uiStrings::sVelocity() ) );
     outfld_->attach( alignedBelow, dataselfld_ );
     outfld_->attach( ensureBelow, sep );
 
@@ -132,7 +133,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 
 
     if ( !success )
-	mErrRet( uiStrings::sFailConvCompData() );
+	mErrRet( uiStrings::phrCannotRead( toUiString(inpfld_->fileName())) );
 
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0)

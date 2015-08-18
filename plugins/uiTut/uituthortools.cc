@@ -56,7 +56,8 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 
     // For smoothing
     ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctxt, tr("Output Horizon") );
+    outfld_ = new uiIOObjSel( this, ctxt,
+			    uiStrings::phrOutput( uiStrings::sHorizon() ) );
     outfld_->attach( alignedBelow, inpfld_ );
 
     strengthfld_ = new uiGenInput( this, tr("Filter Strength"),

@@ -154,7 +154,7 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
 			bool addtoundo )
 {
     if ( pid.objectID()!=id() )
-	mRetErr(uiStrings::sEmptyString());
+	mRetErr(uiString::emptyString());
 
     return setPos( pid.sectionID(), pid.subID(), newpos, addtoundo );
 }
@@ -164,7 +164,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 			const Coord3& newpos, bool addtoundo )
 {
     Geometry::Element* element = sectionGeometryInternal( sid );
-    if ( !element ) mRetErr( uiStrings::sEmptyString() );
+    if ( !element ) mRetErr( uiString::emptyString() );
 
     if ( !element->setPosition(subid,newpos) )
 	 mRetErr( element->errMsg() );

@@ -351,7 +351,8 @@ void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==coltabitem_.id )
 	visserv->manageSceneColorbar( displayid_ );
     else if( mnuid==dumpivitem_.id )
-	visserv->writeSceneToFile( displayid_, "Export Scene" );
+	visserv->writeSceneToFile( displayid_,
+			    uiStrings::phrExport( uiStrings::sScene() ));
 }
 
 

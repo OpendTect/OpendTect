@@ -1,5 +1,6 @@
 # Known generated files
 *mod.h
+*helpids.h
 about.html
 dtect/linguist.csh
 include/Basic/svnversion.h

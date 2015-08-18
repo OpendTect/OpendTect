@@ -45,7 +45,7 @@ public:
     /*!\brief 'Menu' item on window. First is always 'X,Y <-> I/C' */
     struct Util
     {
-			Util( const char* pixmap, const char* tooltip,
+			Util( const char* pixmap, const uiString& tooltip,
 				const CallBack& cb )
 			    : cb_(cb)
 			    , pixmap_(pixmap)
@@ -53,7 +53,7 @@ public:
 
 	CallBack	cb_;
 	BufferString	pixmap_;
-	BufferString	tooltip_;
+	uiString	tooltip_;
     };
     static void		add(const Util&);
 

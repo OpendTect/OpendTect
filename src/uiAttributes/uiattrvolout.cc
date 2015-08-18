@@ -56,7 +56,7 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* n, const MultiID& id )
-    : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(uiString::emptyString(),mNoDlgTitle,mNoHelpKey))
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)
     , ads_(*new Attrib::DescSet(ad))

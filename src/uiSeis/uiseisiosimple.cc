@@ -196,11 +196,11 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    stepposfld_ = new uiGenInput( this, tr("Step in X/Y/Number"),
 					 PositionInpSpec(data().steppos_) );
 	    stepposfld_->attach( alignedBelow, startposfld_ );
-	    startnrfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+	    startnrfld_ = new uiGenInput( this, uiString::emptyString(),
 					 IntInpSpec(data().nrdef_.start) );
 	    startnrfld_->setElemSzPol( uiObject::Small );
 	    startnrfld_->attach( rightOf, startposfld_ );
-	    stepnrfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+	    stepnrfld_ = new uiGenInput( this, uiString::emptyString(),
 					IntInpSpec(data().nrdef_.step) );
 	    stepnrfld_->setElemSzPol( uiObject::Small );
 	    stepnrfld_->attach( rightOf, stepposfld_ );

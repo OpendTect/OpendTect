@@ -90,7 +90,7 @@ void uiGMTSymbolPars::fillShapes()
 
 	    shapekey.getCStr()[0] = mCast( char, tolower( shapekey.buf()[0] ) );
 	    shapefld_->insertItem( uiPixmap(shapekey),
-                                   uiStrings::sEmptyString(), idx );
+				   uiString::emptyString(), idx );
 	}
     }
 }

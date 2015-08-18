@@ -83,7 +83,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     nrtrcsfld_->box()->setMinValue( 1 );
     nrtrcsfld_->attach( alignedBelow, stepoutfld_ );
 
-    outpfld_ = new uiGenInput( this, tr("Output statistic"),
+    outpfld_ = new uiGenInput( this, uiStrings::sOutputStatistic(),
 			       StringListInpSpec(outpstrs) );
     outpfld_->attach( alignedBelow, nrtrcsfld_ );
 

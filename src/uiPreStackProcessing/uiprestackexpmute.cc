@@ -44,7 +44,7 @@ uiExportMute::uiExportMute( uiParent* p )
 			        BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
 
-    outfld_ = new uiFileInput( this, tr("Output ASCII file"),
+    outfld_ = new uiFileInput( this, uiStrings::sOutputASCIIFile(),
 			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, coordfld_ );
 }
@@ -119,12 +119,13 @@ bool uiExportMute::acceptOK( CallBacker* )
 	mErrRet( uiStrings::sSelOutpFile() );
 
     if ( File::exists(outfnm)
-	    && !uiMSG().askContinue(tr("Output file exists. Continue?")) )
+	&& !uiMSG().askContinue(
+		uiStrings::phrExistsConinue( uiStrings::sOutputFile(), false )))
 	return false;
 
     if ( writeAscii() )
-	uiMSG().message( tr("Export finished successfully") );
-
+	uiMSG().message(
+		    uiStrings::phrSuccessfullyExported( uiStrings::sMute() ));
     return false;
 }
 

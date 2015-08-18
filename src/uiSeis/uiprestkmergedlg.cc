@@ -94,11 +94,11 @@ void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
     uiLabel* sellbl = new uiLabel( selbuttons, uiStrings::sSelect(true) );
     CallBack cb = mCB(this,uiPreStackMergeDlg,selButPush);
     toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow,
-                                  uiStrings::sEmptyString(), cb);
+				  uiString::emptyString(), cb);
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
     fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow,
-                                    uiStrings::sEmptyString(),cb);
+				    uiString::emptyString(),cb);
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selbuttons->setHAlignObj( toselect_ );
@@ -110,11 +110,11 @@ void uiPreStackMergeDlg::createMoveButtons( uiGroup* movebuttons )
     uiLabel* movelbl = new uiLabel( movebuttons, tr("Change \n Priority") );
     CallBack cb = mCB(this,uiPreStackMergeDlg,moveButPush);
     moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,
-                                    uiStrings::sEmptyString(),cb);
+				    uiString::emptyString(),cb);
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
     movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
-				      uiStrings::sEmptyString(), cb );
+				      uiString::emptyString(), cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );
@@ -387,7 +387,7 @@ bool uiPreStackOutputGroup::go()
 
 uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     : uiDialog(p,uiDialog::Setup(tr("Copy Prestack Data"),
-				 uiStrings::sEmptyString(),
+				 uiString::emptyString(),
                                  mODHelpKey(mPreStackCopyDlgHelpID) ))
 {
     const CallBack selcb( mCB(this,uiPreStackCopyDlg,objSel) );

@@ -149,6 +149,26 @@ const char* ZDomain::Def::unitStr( bool withparens ) const
 }
 
 
+uiString ZDomain::Def::uiUnitStr( bool withparens ) const
+{
+    if ( withparens )
+    {
+	mDeclStaticString( ret );
+	ret.setEmpty();
+	BufferString unitstr = unitStr( false );
+	if ( !unitstr.isEmpty() )
+	    ret.add( "(" ).add( unitstr ).add( ")" );
+	return ret.buf();
+    }
+
+    if ( !isDepth() )
+	return defunit_;
+
+    return getDistUnitString( ::SI().zInFeet(), false );
+}
+
+
+
 const ZDomain::Def& ZDomain::Def::get( const char* ky )
 {
     if ( !ky || !*ky )

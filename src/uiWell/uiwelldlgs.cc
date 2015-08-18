@@ -428,7 +428,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
     Well::TrackAscIO wellascio(fd_, strm );
     if ( !wellascio.getData(wd_,dlg.getKbElev(),dlg.getTD()) )
     {
-	uiMSG().error( uiStrings::sFailConvCompData() );
+	uiMSG().error( uiStrings::phrCannotRead( toUiString(dlg.fnm_) ) );
 	return;
     }
 

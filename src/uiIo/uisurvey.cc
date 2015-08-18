@@ -417,7 +417,7 @@ uiSurvey::uiSurvey( uiParent* p )
     datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
     datarootbut->attach( leftBorder );
 
-    datarootlbl_ = new uiLabel( topgrp, uiStrings::sEmptyString() );
+    datarootlbl_ = new uiLabel( topgrp, uiString::emptyString() );
     datarootlbl_->setHSzPol( uiObject::WideMax );
     datarootlbl_->attach( rightTo, datarootbut );
 
@@ -432,7 +432,7 @@ uiSurvey::uiSurvey( uiParent* p )
     leftgrp->attach( ensureBelow, sep1 );
     rightgrp->attach( rightOf, leftgrp );
 
-    uiLabel* infolbl = new uiLabel( topgrp, uiStrings::sEmptyString() );
+    uiLabel* infolbl = new uiLabel( topgrp, uiString::emptyString() );
     infolbl->setPixmap( "info" );
     infolbl->setToolTip( tr("Survey Information") );
     infolbl->attach( alignedBelow, leftgrp );
@@ -621,13 +621,13 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     // Step 1: write local changes
     if ( !writeSurvInfoFileIfCommentChanged() )
-	mErrRet(uiStrings::sEmptyString())
+	mErrRet(uiString::emptyString())
     if ( samedataroot && samesurvey && !parschanged_ )
 	mRetExitWin
 
     // Step 2: write default/current survey file
     if ( !writeSettingsSurveyFile() )
-	mErrRet(uiStrings::sEmptyString())
+	mErrRet(uiString::emptyString())
 
     // Step 3: record data root preference
     if ( !samedataroot )

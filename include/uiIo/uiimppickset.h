@@ -63,6 +63,8 @@ protected:
     Table::FormatDesc&  fd_;
 
     MultiID		storedid_;
+private:
+    static uiString	sPicksetPolygon() { return tr("Pickset/Polygon"); }
 };
 
 

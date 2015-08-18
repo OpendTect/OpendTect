@@ -46,15 +46,11 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
     if ( !setup.seltxt_.isEmpty() )
 	return setup.seltxt_;
 
-    switch ( setup.geom_ )
-    {
-    case Seis::Vol:
-	return forread ? tr("Input Cube") : tr("Output Cube");
-    case Seis::Line:
-	return forread ?  tr("Input Data Set") : tr("Output Data Set");
-    default:
-	return forread ? tr("Input Data Store") : uiStrings::sOutpDataStore();
-    }
+    uiString datatype = Seis::dataName(setup.geom_, setup.explprepost_ );
+
+    return forread
+	? uiStrings::phrInput( datatype )
+	: uiStrings::phrOutput( datatype );
 }
 
 
@@ -127,7 +123,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     else
 	titletxt = titletxt.arg( isps
                 ? tr("Data Store")
-                : (is2d ? tr("Dataset") : tr("Cube")) );
+			: (is2d ? tr("Dataset") : uiStrings::sVolume(true)) );
     setTitleText( titletxt );
 
     uiGroup* topgrp = selgrp_->getTopGroup();
@@ -140,7 +136,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
     if ( selgrp_->getCtxtIOObj().ctxt.forread && sssu.selectcomp_ )
     {
-	compfld_ = new uiLabeledComboBox( selgrp_, tr("Component"),
+	compfld_ = new uiLabeledComboBox( selgrp_, uiStrings::sComponent(),
                                           "Compfld" );
 	compfld_->attach( alignedBelow, topgrp );
 

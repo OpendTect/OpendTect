@@ -129,7 +129,9 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 
 uiString uiIOObjSelDlg::selTxt( bool forread )
 {
-    return forread ? tr("Input selection") : tr("Output selection");
+    return forread
+       ? uiStrings::sInputSelection()
+       : uiStrings::sOutputSelection();
 }
 
 
@@ -159,7 +161,7 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 	    titletext = titletext.arg( uiString( ctxt.name() ) );
 
 	titletext = titletext.arg( setup_.multisel_ ? "(s)"
-					: uiStrings::sEmptyString() );
+					: uiString::emptyString() );
     }
 
     setTitleText( titletext );

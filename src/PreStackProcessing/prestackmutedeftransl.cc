@@ -30,6 +30,10 @@ defineTranslator(dgb,MuteDef,mDGBKey);
 
 mDefSimpleTranslatorioContext(MuteDef,Misc)
 
+uiString MuteDefTranslator::sSelObjNotMuteDef()
+{
+    return tr("Selected object is not a Mute Definition");
+}
 
 int MuteDefTranslatorGroup::selector( const char* key )
 {
@@ -44,7 +48,7 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
     if ( !mdtrl )
-	{ msg = uiStrings::sSelObjNotMuteDef(); return false; }
+	{ msg = sSelObjNotMuteDef(); return false; }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -63,14 +67,14 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
 {
     if ( !ioobj )
     {
-	msg = uiStrings::sNoObjStoreSetDB();
+	msg = sNoIoobjMsg();
 	return false;
     }
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
     if ( !mdtrl )
     {
-	msg = uiStrings::sSelObjNotMuteDef();
+	msg = sSelObjNotMuteDef();
 	return false;
     }
 

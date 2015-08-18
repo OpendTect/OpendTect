@@ -19,7 +19,7 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
 	: uiDialog(p,
 		   uiDialog::Setup(title,tr("Specify marker style properties"),
 				   mNoHelpKey)
-		   .canceltext(uiStrings::sEmptyString()))
+		   .canceltext(uiString::emptyString()))
 {
     MarkerStyle3D::Type excludedtypes[] =
 				{ MarkerStyle3D::None, MarkerStyle3D::Point };

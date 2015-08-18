@@ -40,8 +40,8 @@ mExpClass(Basic) Executor : public SequentialTask
 {
 public:
 			Executor( const char* nm )
-			: SequentialTask(nm)
-			, prestep(this), poststep(this)	{}
+			    : SequentialTask(nm)
+			    , prestep(this), poststep(this)	{}
     virtual		~Executor()			{}
 
     virtual int		doStep();

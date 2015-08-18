@@ -209,15 +209,16 @@ void uiSeisWaveletSel::rebuildList()
 
 
 // uiWaveletSel
-#define mSelTxt(seltxt) !seltxt.isEmpty() ? \
-	seltxt : ( forread ? "Input Wavelet" : "Output Wavelet" )
 
 uiWaveletSel::uiWaveletSel( uiParent* p, bool forread,
 			    const uiIOObjSel::Setup& setup )
     : uiIOObjSel(p,mRWIOObjContext(Wavelet,forread),setup)
 {
+    uiString datatype = uiStrings::sWavelet();
     if ( setup.seltxt_.isEmpty() )
-	setLabelText( forread ? tr("Input Wavelet") : tr("Output Wavelet") );
+	setLabelText( forread
+		     ? uiStrings::phrInput( uiStrings::sWavelet() )
+		     : uiStrings::phrOutput( uiStrings::sWavelet() ) );
     fillEntries();
 }
 

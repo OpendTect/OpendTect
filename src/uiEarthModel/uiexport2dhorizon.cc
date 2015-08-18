@@ -258,13 +258,13 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 	mErrRet( uiStrings::sSelOutpFile() );
 
     if ( File::exists(outfnm) &&
-	!uiMSG().askOverwrite(uiStrings::sOutpFileOverw()) )
+	!uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
 	return false;
 
     const bool res = doExport();
     if (!res)
     {
-	uiMSG().error("Export failed");
+	uiMSG().error( uiStrings::phrCannotWrite( uiStrings::sHorizon() ) );
 	return false;
     }
 

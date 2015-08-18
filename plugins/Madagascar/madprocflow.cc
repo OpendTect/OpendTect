@@ -73,7 +73,7 @@ void ODMad::ProcFlow::setIOType( IOPar& iop, ODMad::ProcFlow::IOType iot )
 bool ODMad::ProcFlow::isOK(uiString& errmsg) const
 {
     if ( !inpiop_.size() )
-	mRetFalse(uiStrings::sInpParMis())
+	mRetFalse(uiStrings::sInputParamsMissing())
     if ( !outiop_.size() )
 	mRetFalse(tr("Output parameters missing"))
 

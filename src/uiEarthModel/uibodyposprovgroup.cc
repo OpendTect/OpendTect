@@ -30,7 +30,7 @@ uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(EMBody))
 {
-    inoutbut_ = new uiGenInput(this, uiStrings::sEmptyString(),
+    inoutbut_ = new uiGenInput(this, uiString::emptyString(),
                                BoolInpSpec(true,tr("Inside"),
                                 tr("Outside")) );
     inoutbut_->valuechanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );
@@ -100,8 +100,10 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
     if ( !inoutbut_->getBoolValue() )
     {
 	const TrcKeyZSampling& cs = outsidergfld_->envelope();
-	iop.set( Pos::EMImplicitBodyProvider::sKeyBBInlrg(), cs.hsamp_.inlRange());
-	iop.set( Pos::EMImplicitBodyProvider::sKeyBBCrlrg(), cs.hsamp_.crlRange());
+	iop.set( Pos::EMImplicitBodyProvider::sKeyBBInlrg(),
+		cs.hsamp_.inlRange());
+	iop.set( Pos::EMImplicitBodyProvider::sKeyBBCrlrg(),
+		cs.hsamp_.crlRange());
 	iop.set( Pos::EMImplicitBodyProvider::sKeyBBZrg(), cs.zsamp_ );
     }
     return true;

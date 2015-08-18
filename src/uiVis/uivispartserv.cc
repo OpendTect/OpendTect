@@ -1800,7 +1800,7 @@ void uiVisPartServer::setColor( int id, const Color& col )
 }
 
 
-bool uiVisPartServer::writeSceneToFile( int id, const char* dlgtitle ) const
+bool uiVisPartServer::writeSceneToFile( int id, const uiString& dlgtitle ) const
 {
     uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(),
 			"*.osg", dlgtitle );

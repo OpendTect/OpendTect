@@ -55,7 +55,7 @@ bool uiSingleAttribEd::acceptOK( CallBacker* )
     const BufferString oldnm( desc_.userRef() );
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() )
-	{ uiMSG().error( uiStrings::sEntValidName() ); return false; }
+	{ uiMSG().error( uiStrings::sEnterValidName() ); return false; }
 
     if ( oldnm != newnm )
     {
