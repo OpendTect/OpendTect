@@ -480,10 +480,11 @@ void uiODMenuMgr::fillProcMenu()
 
 
 // 2D <-> 3D
-    uiMenu* itm2d3d = new uiMenu( "2D <=> 3D" );
-    csoitm->insertItem( itm2d3d );
+    uiMenu* itm2d3d = 0;
     if ( SI().has3D() )
     {
+	itm2d3d = new uiMenu( "2D <=> 3D" );
+	csoitm->insertItem( itm2d3d );
 	mInsertItem( itm2d3d, tr("Create 2D From 3D ..."),
 		     mCreate2DFrom3DMnuItm );
 	mInsertItem( itm2d3d, tr("Extract 2D From 3D ..."),
@@ -493,6 +494,8 @@ void uiODMenuMgr::fillProcMenu()
 #ifdef __debug__
     if ( SI().has2D() )
     {
+	if ( !itm2d3d ) itm2d3d = new uiMenu( "2D <=> 3D" );
+	csoitm->insertItem( itm2d3d );
 	mInsertItem( itm2d3d, tr("Create 3D From 2D ..."), m3DFrom2DMnuItm );
     }
 #endif
