@@ -26,7 +26,7 @@ do
   basedir=$1
   #Put all files into one, and remove all defines (i.e. no #define helpid will
   # be present in file
-  cat ${basedir}/src/*/*.cc ${basedir}/include/*/*.h ${basedir}/plugins/*/* ${basedir}/plugins/*/src/*/* ${basedir}/plugins/*/include/*/* ${basedir}/spec/*/* 2> /dev/null | sed -e 's/#define.*//' >> ${tmpfile}
+  cat ${basedir}/src/*/*.cc ${basedir}/include/*/*.h ${basedir}/plugins/*/* ${basedir}/plugins/*/src/*/* ${basedir}/plugins/*/include/*/* ${basedir}/spec/*/* 2> /dev/null | sed -e 's/#define.*HelpKey//' -e 's/#define.*//' >> ${tmpfile}
 
   shift
 
