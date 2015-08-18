@@ -1191,7 +1191,8 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
     }
 
     tkzs_.hsamp_.setCrlRange( trcrg );
-    tkzs_.zsamp_.set( mUdf(float), -mUdf(float), SI().zStep() );
+    if ( !posdlg_ )
+	tkzs_.zsamp_.set( mUdf(float), -mUdf(float), SI().zStep() );
     setUpView();
     reSizeSld(0);
 }
@@ -1214,7 +1215,7 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 
     if ( !posdlg_ )
 	tkzs_.zsamp_.include( wvagather ? wvagather->zRange()
-				   : vdgather->zRange(), false );
+				        : vdgather->zRange(), false );
     DataPack::ID ppgatherid = -1;
     if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	ppgatherid = getPreProcessedID( ginfo );
