@@ -1199,7 +1199,8 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
     }
 
     cs_.hrg.setCrlRange( trcrg );
-    cs_.zrg.set( mUdf(float), -mUdf(float), SI().zStep() );
+    if ( !posdlg_ )
+	cs_.zrg.set( mUdf(float), -mUdf(float), SI().zStep() );
     setUpView();
     reSizeSld(0);
 }
