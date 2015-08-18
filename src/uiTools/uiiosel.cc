@@ -71,7 +71,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     }
 
     const CallBack selcb( mCB(this,uiIOSelect,doSel) );
-    if ( su.buttontxt_.isEqualTo( uiStrings::sSelect(true) ) )
+    if ( su.buttontxt_.isEqualTo( uiStrings::sSelect() ) )
 	selbut_ = uiButton::getStd( this, uiButton::Select, selcb, false );
     else if ( !su.buttontxt_.isEmpty() )
 	selbut_ = new uiPushButton( this, su.buttontxt_, selcb, false );
@@ -472,7 +472,7 @@ uiIOFileSelect::uiIOFileSelect( uiParent* p, const char* txt, bool frrd,
 
 void uiIOFileSelect::doFileSel( CallBacker* c )
 {
-    uiString caption = uiStrings::sSelect(false).arg( labelText() );
+    uiString caption = uiStrings::sSelect().arg( labelText() );
     uiFileDialog fd( this, forread, getInput(),
 		     filter.isEmpty() ? 0 : (const char*)filter, caption );
     if ( seldir )

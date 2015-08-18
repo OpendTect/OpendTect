@@ -87,8 +87,8 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
-    mnu.insertItem( new uiAction(tr("New Polygon Body ...")), 1 );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), 0 );
+    mnu.insertItem( new uiAction(m3Dots(tr("New Polygon Body"))), 1 );
     if ( children_.size() )
     {
 	mnu.insertSeparator();

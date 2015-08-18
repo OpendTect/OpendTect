@@ -55,7 +55,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     scalegrp_->attach( alignedBelow, actionfld_ );
     factorfld_ = new uiGenInput( scalegrp_, tr("Factor"),
 				FloatInpSpec(tst_.factor()) );
-    shiftfld_ = new uiGenInput( scalegrp_, uiStrings::sShift(true),
+    shiftfld_ = new uiGenInput( scalegrp_, uiStrings::sShift(),
 				FloatInpSpec(tst_.shift()) );
     shiftfld_->attach( alignedBelow, factorfld_ );
     scalegrp_->setHAlignObj( factorfld_ );
@@ -104,7 +104,7 @@ void uiTutSeisTools::choiceSel( CallBacker* )
 
 bool uiTutSeisTools::acceptOK( CallBacker* )
 {
-    const uiString outputtype = uiStrings::phrOutput(uiStrings::sVolume(true));
+    const uiString outputtype = uiStrings::phrOutput(uiStrings::sVolume());
     // Get cubes and check
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )

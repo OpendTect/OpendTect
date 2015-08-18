@@ -82,8 +82,8 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddMnuID );
-    mnu.insertItem( new uiAction(uiStrings::sNew(true)), mNewMnuID );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAddMnuID );
+    mnu.insertItem( new uiAction(uiStrings::sNew()), mNewMnuID );
 
     if ( children_.size() )
     {
@@ -434,8 +434,8 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddMnuID );
-    mnu.insertItem( new uiAction(uiStrings::sNew(true)), mNewMnuID );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAddMnuID );
+    mnu.insertItem( new uiAction(uiStrings::sNew()), mNewMnuID );
 
     if ( children_.size() )
     {
@@ -504,8 +504,8 @@ uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 #undef mCommonInit2
 #define mCommonInit \
     , faultsticksetdisplay_(0) \
-    , savemnuitem_(uiStrings::sSave(true)) \
-    , saveasmnuitem_(uiStrings::sSaveAs(false)) \
+    , savemnuitem_(uiStrings::sSave()) \
+    , saveasmnuitem_(m3Dots(uiStrings::sSaveAs())) \
     , onlyatsectmnuitem_("Only at Sections")
 
 #define mCommonInit2 \
@@ -668,8 +668,8 @@ uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
 	const char* parenttype )
     : uiODAttribTreeItem(parenttype)
     , depthattribmnuitem_(tr("Z values"))
-    , savesurfacedatamnuitem_(tr("Save as Fault Data ..."))
-    , loadsurfacedatamnuitem_(tr("Fault Data ..."))
+    , savesurfacedatamnuitem_(m3Dots(tr("Save as Fault Data")))
+    , loadsurfacedatamnuitem_(m3Dots(tr("Fault Data")))
     , algomnuitem_(tr("Smooth"))
     , changed_(false)
     , emid_(objid)

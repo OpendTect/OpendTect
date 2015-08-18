@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiswrite.h"
 #include "survinfo.h"
 #include "od_ostream.h"
+#include "uistrings.h"
 
 
 SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
@@ -200,7 +201,7 @@ int SeisRandLineTo2D::nextStep()
 
 
 uiString SeisRandLineTo2D::uiMessage() const
-{ return tr("Writing traces..."); }
+{ return m3Dots(tr("Writing traces")); }
 
 uiString SeisRandLineTo2D::uiNrDoneText() const
 { return tr("Traces written"); }

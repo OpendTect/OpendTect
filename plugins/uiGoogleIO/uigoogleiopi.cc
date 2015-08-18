@@ -73,7 +73,7 @@ public:
 
 private:
     static uiString	sMenuTxt()
-    { return uiStrings::phrImmediate(false, tr("Export to Google KML")); }
+    { return m3Dots(tr("Export to Google KML")); }
 };
 
 

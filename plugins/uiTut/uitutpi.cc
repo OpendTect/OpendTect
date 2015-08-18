@@ -65,22 +65,22 @@ public:
 uiTutMgr::uiTutMgr( uiODMain* a )
 	: appl_(a)
 	, wellmnuitmhandler_(visSurvey::WellDisplay::sFactoryKeyword(),
-		  	     *a->applMgr().visServer(),tr("Tut Well Tools ..."),
+		  	     *a->applMgr().visServer(),m3Dots(tr("Tut Well Tools")),
 			     mCB(this,uiTutMgr,doWells),0,cTutIdx)
 {
     uiMenu* mnu = new uiMenu( appl_, tr("Tut Tools") );
     if ( SI().has2D() && SI().has3D() ) 
     {
-	mnu->insertItem( new uiAction(tr("Seismic 2D (Direct) ..."),
+	mnu->insertItem( new uiAction(m3Dots(tr("Seismic 2D (Direct)")),
 					mCB(this,uiTutMgr,do2DSeis)) );
-	mnu->insertItem( new uiAction(tr("Seismic 3D (Direct) ..."),
+	mnu->insertItem( new uiAction(m3Dots(tr("Seismic 3D (Direct)")),
 					mCB(this,uiTutMgr,do3DSeis)) );
     }	
     else
-	mnu->insertItem( new uiAction(tr("Seismic (Direct) ..."),
+	mnu->insertItem( new uiAction(m3Dots(tr("Seismic (Direct)")),
 					mCB(this,uiTutMgr,doSeis)) );
 
-    mnu->insertItem( new uiAction(uiStrings::sHorizons( false, 1 ),
+    mnu->insertItem( new uiAction( m3Dots(uiStrings::sHorizon(1)),
 				    mCB(this,uiTutMgr,doHor)) );
 
     appl_->menuMgr().toolsMnu()->insertItem( mnu );

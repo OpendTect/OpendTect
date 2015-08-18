@@ -128,7 +128,7 @@ void uiAttr2DSelDlg::createSelectionButtons()
     BufferStringSet nms;
     getDataNames( geomids_, o2d, nms );
 
-    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored(true) );
+    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored() );
     storfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
     storfld_->setSensitive( nms.size() );
 
@@ -143,7 +143,7 @@ void uiAttr2DSelDlg::createSelectionButtons()
     }
 
     const bool haveattribs = attrinf_->attrnms_.size();
-    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttributes(true) );
+    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttributes() );
     attrfld_->setSensitive( haveattribs );
     attrfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
 

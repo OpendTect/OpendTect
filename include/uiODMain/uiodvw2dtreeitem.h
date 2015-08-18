@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uitreeitemmanager.h"
-#include "uistring.h"
+#include "uistrings.h"
 
 class TrcKeyZSampling;
 class uiTreeView;
@@ -45,7 +45,7 @@ public:
 
 protected:
 
-    static uiString	sChangeSetup() { return tr("Change setup..."); }
+    static uiString	sChangeSetup() { return m3Dots(tr("Change setup")); }
 
     int			displayid_;
     ZAxisTransform*	datatransform_;

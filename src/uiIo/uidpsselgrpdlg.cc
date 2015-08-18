@@ -70,7 +70,7 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     impgrpbut->attach( rightTo, expgrpbut );
     
     uiPushButton* scalesgbut =
-	new uiPushButton( this, tr("Selectedness..."), 
+	new uiPushButton( this, m3Dots(tr("Selectedness")),
 			  mCB(this,uiDPSSelGrpDlg,calcSelectedness), true );
     scalesgbut->attach( rightTo, impgrpbut );
     

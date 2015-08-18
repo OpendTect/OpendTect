@@ -1051,8 +1051,8 @@ void uiMPEPartServer::saveUnsaveEMObject()
 			 .arg(EM::EMM().getObject(objid)->getTypeStr())
 			 .arg(EM::EMM().getObject( objid )->name());
 
-	    if ( uiMSG().askGoOn(msg,uiStrings::sSave(true),
-				     uiStrings::sRemove(true)) )
+	    if ( uiMSG().askGoOn(msg,uiStrings::sSave(),
+				     uiStrings::sRemove()) )
 		sendEvent( uiMPEPartServer::evSaveUnsavedEMObject() );
 	    else
 		sendEvent( uiMPEPartServer::evRemoveUnsavedEMObject() );

@@ -253,8 +253,8 @@ bool uiExportFault::acceptOK( CallBacker* )
 	: uiStrings::sFault();
     const uiString tps =
      EMFaultStickSetTranslatorGroup::keyword() == ioobj->group()
-	? uiStrings::sFaultStickSets()
-	: uiStrings::sFaults(true);
+	? uiStrings::sFaultStickSet(2)
+	: uiStrings::sFault(2);
     uiString msg = tr( "%1 successfully exported\n"
 		    "Do you want to export more %2?" )
 	.arg(tp).arg(tps);

@@ -256,7 +256,7 @@ void uiTieWin::provideWinHelp( CallBacker* )
 
 void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 {
-    eventtypefld_ = new uiLabeledComboBox( taskgrp, uiStrings::sTrack(true) );
+    eventtypefld_ = new uiLabeledComboBox( taskgrp, uiStrings::sTrack() );
     BufferStringSet eventtypes;
     server_.pickMgr().getEventTypes( eventtypes );
     for ( int idx=0; idx<eventtypes.size(); idx++)
@@ -467,7 +467,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 	controlview_->loadHorizons(0);
     }
     pmgr.clearAllPicks();
-    uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(true),"",
+    uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(),"",
                                              mNoHelpKey) );
     uiGenInput* matchinpfld = new uiGenInput( &matchdlg, tr("Match same"),
 				BoolInpSpec(true,uiStrings::sName(),

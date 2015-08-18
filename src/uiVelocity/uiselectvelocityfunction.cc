@@ -41,15 +41,15 @@ uiFunctionSel::uiFunctionSel( uiParent* p,
     list_->selectionChanged.notify(
 	    mCB(this,uiFunctionSel,selChangedCB) );
 
-    addbutton_ = new uiPushButton( this, uiStrings::sAdd(true),
+    addbutton_ = new uiPushButton( this, uiStrings::sAdd(),
 	    mCB( this, uiFunctionSel, addPushedCB ), false );
     addbutton_->attach( rightOf, list_ );
 
-    removebutton_ = new uiPushButton( this, uiStrings::sRemove(true),
+    removebutton_ = new uiPushButton( this, uiStrings::sRemove(),
 	    mCB( this, uiFunctionSel, removePushedCB ), true );
     removebutton_->attach( alignedBelow, addbutton_ );
 
-    propbutton_ = new uiPushButton( this, uiStrings::sProperties(true),
+    propbutton_ = new uiPushButton( this, uiStrings::sProperties(),
 	    mCB( this, uiFunctionSel, propPushedCB ), false );
     propbutton_->attach( alignedBelow, removebutton_ );
 

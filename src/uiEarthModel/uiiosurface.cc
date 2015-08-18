@@ -701,11 +701,11 @@ public:
 	table_->setColumnStretchable( 0, true );
 	table_->setColumnStretchable( 1, true );
 
-	uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(true),
+	uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(),
 		mCB(this,uiFaultOptSel,addCB), false );
 	addbut->attach( rightOf, table_ );
 
-	removebut_ = new uiPushButton( this, uiStrings::sRemove(true),
+	removebut_ = new uiPushButton( this, uiStrings::sRemove(),
 		mCB(this,uiFaultOptSel,removeCB), true );
 	removebut_->attach( alignedBelow, addbut );
 

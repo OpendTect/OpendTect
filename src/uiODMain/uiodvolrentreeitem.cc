@@ -94,7 +94,7 @@ bool uiODVolrenParentTreeItem::canAddVolumeToScene()
 bool uiODVolrenParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(true)), mAddIdx );
+    mnu.insertItem( new uiAction(uiStrings::sAdd()), mAddIdx );
     mnu.insertItem( new uiAction(uiStrings::sAddColBlend()), mAddCBIdx );
     const int mnuid = mnu.exec();
     if ( mnuid==mAddIdx || mnuid==mAddCBIdx )
@@ -139,7 +139,7 @@ const char* uiODVolrenTreeItemFactory::getName()
 
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid, bool rgba )
     : uiODDisplayTreeItem()
-    , positionmnuitem_(tr("Position ..."))
+    , positionmnuitem_(m3Dots(tr("Position")))
     , rgba_(rgba)
 {
     positionmnuitem_.iconfnm = "orientation64";
@@ -278,9 +278,9 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 
 uiODVolrenAttribTreeItem::uiODVolrenAttribTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
-    , addmnuitem_(uiStrings::sAdd(true))
-    , statisticsmnuitem_(uiStrings::sHistogram(false))
-    , amplspectrummnuitem_( tr("Amplitude Spectrum ..."))
+    , addmnuitem_(uiStrings::sAdd())
+    , statisticsmnuitem_(m3Dots(uiStrings::sHistogram()))
+    , amplspectrummnuitem_( m3Dots(tr("Amplitude Spectrum")))
     , addisosurfacemnuitem_(tr("Iso Surface"))
 {
     statisticsmnuitem_.iconfnm = "histogram";
@@ -383,7 +383,7 @@ bool uiODVolrenAttribTreeItem::hasTransparencyMenu() const
 
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
-    : resetisosurfacemnuitem_(uiStrings::sSettings(true))
+    : resetisosurfacemnuitem_(uiStrings::sSettings())
     , convertisotobodymnuitem_(tr("Convert to Body"))
 { displayid_ = displayid; }
 

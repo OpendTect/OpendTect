@@ -199,8 +199,8 @@ int uiFileDialog::go()
     QList<QPushButton*> qpblst = fd->findChildren<QPushButton*>("");
     foreach(QPushButton* qpb,qpblst)
     {
-	if ( qpb->text() == uiStrings::sSave(true).getQtString() ||
-	     qpb->text() == uiStrings::sOpen(true).getQtString() ||
+	if ( qpb->text() == uiStrings::sSave().getQtString() ||
+	     qpb->text() == uiStrings::sOpen().getQtString() ||
 	     qpb->text() == "Choose" )
 	     qpb->setText( "OK" );
     }

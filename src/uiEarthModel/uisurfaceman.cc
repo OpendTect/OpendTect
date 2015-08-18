@@ -170,7 +170,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_->box() );
 
-	new uiPushButton( extrabutgrp_, uiStrings::sStratigraphy(true),
+	new uiPushButton( extrabutgrp_, uiStrings::sStratigraphy(),
 		mCB(this,uiSurfaceMan,stratSel), false );
 
 	new uiPushButton( extrabutgrp_, tr("Relations"),
@@ -641,7 +641,7 @@ class uiSurfaceStratDlg : public uiDialog
 { mODTextTranslationClass(uiSurfaceStratDlg);
 public:
 uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sStratigraphy(true),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(uiStrings::sStratigraphy(),mNoDlgTitle,
                                  mNoHelpKey))
     , objids_(ids)
 {

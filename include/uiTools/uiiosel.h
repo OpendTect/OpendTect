@@ -37,7 +37,7 @@ public:
 			Setup(const uiString& seltext=uiString::emptyString())
 			    : seltxt_(seltext)
 			    , withclear_(false)
-			    , buttontxt_(uiStrings::sSelect(true))
+			    , buttontxt_(uiStrings::sSelect())
 			    , optional_(false)
 			    , keepmytxt_(false)		{}
 

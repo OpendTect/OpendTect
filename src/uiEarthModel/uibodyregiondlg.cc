@@ -694,7 +694,7 @@ uiBodyRegionGrp::uiBodyRegionGrp( uiParent* p, const Setup& mysetup )
 		mCB(this,uiBodyRegionGrp,addSurfaceCB), false );
     }
 
-    removebutton_ = new uiPushButton( butgrp, uiStrings::sRemove(true),
+    removebutton_ = new uiPushButton( butgrp, uiStrings::sRemove(),
 	    mCB(this,uiBodyRegionGrp,removeSurfaceCB), false );
     removebutton_->setSensitive( false );
 

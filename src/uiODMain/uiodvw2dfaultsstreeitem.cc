@@ -46,8 +46,8 @@ uiODVw2DFaultSSParentTreeItem::~uiODVw2DFaultSSParentTreeItem()
 bool uiODVw2DFaultSSParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sNew(true)), 0 );
-    uiMenu* loadmenu = new uiMenu( uiStrings::sLoad(false) );
+    mnu.insertItem( new uiAction(uiStrings::sNew()), 0 );
+    uiMenu* loadmenu = new uiMenu( m3Dots(uiStrings::sLoad()) );
     loadmenu->insertItem( new uiAction(tr("In all 2D Viewers")), 1 );
     loadmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), 2 );
     mnu.insertItem( loadmenu );
@@ -265,12 +265,12 @@ bool uiODVw2DFaultSSTreeItem::select()
 bool uiODVw2DFaultSSTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    uiAction* savemnu = new uiAction(uiStrings::sSave(false));
+    uiAction* savemnu = new uiAction(m3Dots(uiStrings::sSave()));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 			 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiAction(uiStrings::sSaveAs(true)), 1 );
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(true) );
+    mnu.insertItem( new uiAction(uiStrings::sSaveAs()), 1 );
+    uiMenu* removemenu = new uiMenu( uiStrings::sRemove() );
     removemenu->insertItem( new uiAction(tr("From all 2D Viewers")), 2 );
     removemenu->insertItem( new uiAction(tr("Only from this 2D Viewer")), 3 );
     mnu.insertItem( removemenu );

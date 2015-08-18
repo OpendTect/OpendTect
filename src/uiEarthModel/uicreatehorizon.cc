@@ -30,7 +30,7 @@ uiCreateHorizon::uiCreateHorizon( uiParent* p, bool is2d )
     , zfld_(0)
     , ready(this)
 {
-    setOkText( uiStrings::sCreate(true) );
+    setOkText( uiStrings::sCreate() );
 
     if ( is2d )
     {

@@ -279,10 +279,10 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
     {
 	if ( selidx_ != 0 && selidx_ != ctab_.size()-1 )
 	mnu.insertItem( new uiAction(tr("Remove color")), 0 );
-	mnu.insertItem( new uiAction(tr("Change color ...")), 1 );
+	mnu.insertItem( new uiAction(m3Dots(tr("Change color"))), 1 );
     }
     
-    mnu.insertItem( new uiAction(tr("Edit Markers ...")), 2 );
+    mnu.insertItem( new uiAction(m3Dots(tr("Edit Markers"))), 2 );
 
     const int res = mnu.exec();
     if ( res==0 )

@@ -48,12 +48,12 @@ namespace PreStackView
 
 uiViewer3DMgr::uiViewer3DMgr()
     : selectpsdatamenuitem_( tr("Display Prestack Data") )
-    , positionmenuitem_( tr("Show position window ...") )
-    , proptymenuitem_( uiStrings::sProperties(false) )
+    , positionmenuitem_( m3Dots(tr("Show position window")) )
+    , proptymenuitem_( m3Dots(uiStrings::sProperties()) )
     , resolutionmenuitem_( tr("Resolution") )
-    , viewermenuitem_( tr("View in 2D panel ...") )
-    , amplspectrumitem_( tr("Amplitude spectrum ...") )
-    , removemenuitem_( uiStrings::sRemove(true) )
+    , viewermenuitem_( m3Dots(tr("View in 2D panel")) )
+    , amplspectrumitem_( m3Dots(tr("Amplitude spectrum")) )
+    , removemenuitem_( uiStrings::sRemove() )
     , visserv_( ODMainWin()->applMgr().visServer() )
 {
     positionmenuitem_.iconfnm = "orientation64";

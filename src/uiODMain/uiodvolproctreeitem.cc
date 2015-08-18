@@ -34,9 +34,9 @@ void uiDataTreeItem::initClass()
 
 uiDataTreeItem::uiDataTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
-    , selmenuitem_( tr("Select Setup ..."), true )
+    , selmenuitem_( m3Dots(tr("Select Setup")), true )
     , reloadmenuitem_( uiStrings::sReload(), true )
-    , editmenuitem_( uiStrings::sEdit(true), true )
+    , editmenuitem_( uiStrings::sEdit(), true )
 {
     editmenuitem_.iconfnm = VolProc::uiChain::pixmapFileName();
     reloadmenuitem_.iconfnm = "refresh";

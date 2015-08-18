@@ -163,7 +163,7 @@ const char* ODMad::ProcExec::getProcString()
 	pars_.write( strm_, IOPar::sKeyDumpPretty() );
 	progmeter_ = new TextStreamProgressMeter( strm_ );
 	progmeter_->setName( "Madagascar Processing:" );
-	progmeter_->setMessage( tr("Reading Traces...") );
+	progmeter_->setMessage( m3Dots(tr("Reading Traces")) );
     }
 
     const bool hasprocessing = procflow.size() && curprocidx < procflow.size();

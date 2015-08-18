@@ -70,7 +70,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     typfld_->attach( alignedBelow, infld_ );
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
 
-    settingsbutt_ = new uiPushButton( this, uiStrings::sSettings(true),
+    settingsbutt_ = new uiPushButton( this, uiStrings::sSettings(),
 				      mCB(this,uiExportHorizon,settingsCB),
 				      false);
     settingsbutt_->attach( rightOf, typfld_ );

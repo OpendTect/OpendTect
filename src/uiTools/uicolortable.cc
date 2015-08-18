@@ -409,11 +409,11 @@ void uiColorTable::canvasClick( CallBacker* )
     itm->setChecked( mapsetup_.flipseq_ );
 
     if ( enabclipdlg_ && hasmapper )
-	mnu->insertItem( new uiAction(tr("Ranges/Clipping ..."),
+	mnu->insertItem( new uiAction(m3Dots(tr("Ranges/Clipping")),
 	    mCB(this,uiColorTable,editScaling)), 1 );
     if ( enabmanage_ && hasseq )
     {
-	mnu->insertItem( new uiAction(tr("Manage ..."),
+	mnu->insertItem( new uiAction(m3Dots(tr("Manage")),
 	    mCB(this,uiColorTable,doManage)), 2 );
 	mnu->insertItem( new uiAction(tr("Set as default"),
 	    mCB(this,uiColorTable,setAsDefault)), 3 );

@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "stattype.h"
 #include "survinfo.h"
-#include "uistring.h"
+#include "uistrings.h"
 
 class DataPointSet;
 class IODirEntryList;
@@ -311,7 +311,7 @@ public:
     int                 nextStep();
     od_int64            totalNr() const         { return extrintv_.nrSteps(); }
     od_int64            nrDone() const          { return nrdone_; }
-    uiString	 uiMessage() const	   { return tr("Computing..."); }
+    uiString	 uiMessage() const	   { return m3Dots(tr("Computing")); }
     uiString	 uiNrDoneText() const	   { return tr("Points done"); }
 
     void		getBIDs(TypeSet<BinID>& bs) const { bs = bidset_; }

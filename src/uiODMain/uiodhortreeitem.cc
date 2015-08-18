@@ -100,15 +100,15 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddIdx );
-    mnu.insertItem( new uiAction(tr("Add at Sections Only ...")),mAddAtSectIdx);
-    mnu.insertItem( new uiAction(tr("Add Color Blended ...")), mAddCBIdx );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAddIdx );
+    mnu.insertItem( new uiAction(m3Dots(tr("Add at Sections Only"))),mAddAtSectIdx);
+    mnu.insertItem( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx );
 
-    uiAction* newmenu = new uiAction( tr("Track New ...") );
+    uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
     mnu.insertItem( newmenu, mNewIdx );
     newmenu->setEnabled( !hastransform );
 
-    mnu.insertItem( new uiAction(tr("Create with Constant Z ...")),
+    mnu.insertItem( new uiAction(m3Dots(tr("Create with Constant Z"))),
 		    mCreateIdx );
     if ( children_.size() )
     {
@@ -293,12 +293,12 @@ void uiODHorizonTreeItem::initMenuItems()
     hordatamnuitem_.text = tr("Horizon Data");
     algomnuitem_.text = uiStrings::sTools();
     workflowsmnuitem_.text = tr("Workflows");
-    positionmnuitem_.text = tr("Position ...");
-    shiftmnuitem_.text = uiStrings::sShift(false);
-    fillholesmnuitem_.text = tr("Gridding ...");
-    filterhormnuitem_.text = tr("Filtering ...");
-    snapeventmnuitem_.text = tr("Snapping ...");
-    geom2attrmnuitem_.text = tr("Store Z as Attribute ...");
+    positionmnuitem_.text = m3Dots(tr("Position"));
+    shiftmnuitem_.text = m3Dots(uiStrings::sShift());
+    fillholesmnuitem_.text = m3Dots(tr("Gridding"));
+    filterhormnuitem_.text = m3Dots(tr("Filtering"));
+    snapeventmnuitem_.text = m3Dots(tr("Snapping"));
+    geom2attrmnuitem_.text = m3Dots(tr("Store Z as Attribute"));
 
     parentsrdlmnuitem_.text = tr("Show Parents Path");
     parentsmnuitem_.text = tr("Select Parents");
@@ -638,10 +638,10 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction( uiStrings::sAdd(false) ), 0 );
-    uiAction* newmenu = new uiAction( tr("Track New ...") );
+    mnu.insertItem( new uiAction( m3Dots(uiStrings::sLoad()) ), 0 );
+    uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
     mnu.insertItem( newmenu, 1 );
-    mnu.insertItem( new uiAction(tr("Create from 3D ...")), 2 );
+    mnu.insertItem( new uiAction(m3Dots(tr("Create from 3D"))), 2 );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
@@ -774,9 +774,9 @@ void uiODHorizon2DTreeItem::initMenuItems()
 {
     algomnuitem_.text = uiStrings::sTools();
     workflowsmnuitem_.text = tr("Workflows");
-    derive3dhormnuitem_.text = tr("Derive 3D horizon ...");
-    snapeventmnuitem_.text = tr("Snapping ...");
-    interpolatemnuitem_.text = tr("Interpolate ...");
+    derive3dhormnuitem_.text = m3Dots(tr("Derive 3D horizon"));
+    snapeventmnuitem_.text = m3Dots(tr("Snapping"));
+    interpolatemnuitem_.text = m3Dots(tr("Interpolate"));
 }
 
 

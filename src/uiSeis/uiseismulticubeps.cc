@@ -84,7 +84,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     allcompfld_->attach( alignedBelow, cubefld_ );
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
-    new uiToolButton( bgrp, uiToolButton::RightArrow,uiStrings::sAdd(true),
+    new uiToolButton( bgrp, uiToolButton::RightArrow,uiStrings::sAdd(),
 				mCB(this,uiSeisMultiCubePS,addCube) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, tr("Don't use"),
 				mCB(this,uiSeisMultiCubePS,rmCube) );

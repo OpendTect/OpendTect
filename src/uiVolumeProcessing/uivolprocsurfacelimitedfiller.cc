@@ -62,11 +62,11 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setRowResizeMode( uiTable::Interactive );
     table_->setColumnStretchable( cNameCol, true );
-    addbutton_ = new uiPushButton( this, uiStrings::sAdd(true),
+    addbutton_ = new uiPushButton( this, uiStrings::sAdd(),
 	    mCB(this,uiSurfaceLimitedFiller,addSurfaceCB), false );
     addbutton_->attach( rightOf, table_ );
 
-    removebutton_ = new uiPushButton( this, uiStrings::sRemove(true),
+    removebutton_ = new uiPushButton( this, uiStrings::sRemove(),
 	    mCB(this,uiSurfaceLimitedFiller,removeSurfaceCB), false );
     removebutton_->attach( alignedBelow, addbutton_ );
     removebutton_->setSensitive( false );

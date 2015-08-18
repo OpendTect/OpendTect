@@ -150,7 +150,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     maniptb_.addObject( plotter_.getSaveImageButton(&maniptb_) );
 
-    maniptb_.addButton( "xplotprop", uiStrings::sProperties(true),
+    maniptb_.addButton( "xplotprop", uiStrings::sProperties(),
 			mCB(this,uiDataPointSetCrossPlotWin,editProps) );
     maniptb_.addButton( "prdfs", uiStrings::sCreateProbDesFunc(),
 			mCB(this,uiDataPointSetCrossPlotWin,exportPDF) );

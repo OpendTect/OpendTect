@@ -913,7 +913,7 @@ bool acceptOK()
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
 	: uiTabStackDlg( p->parent(),
-                         uiDialog::Setup(uiStrings::sSettings(true),0,
+			 uiDialog::Setup(uiStrings::sSettings(),0,
                          mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
 			 .modal(false) )
 	, plotter_(*p)

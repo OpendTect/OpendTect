@@ -68,7 +68,7 @@ public:
 
     static uiSEGYMgr*		theinst_;
     static const uiString	sSEGYString( bool imm )
-				{ return imm ? tr("SEG-Y") : tr("SEG-Y ..."); }
+                            { return imm ? tr("SEG-Y") : m3Dots(tr("SEG-Y")); }
 
 };
 
@@ -107,7 +107,7 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 {
     uiAction* impact = new uiAction( sSEGYString(false),
 				     muiSEGYMgrCB(genImpCB), "segy" );
-    uiAction* linkact = new uiAction( tr("SEG-Y Data Link ..."),
+    uiAction* linkact = new uiAction( m3Dots(tr("SEG-Y Data Link")),
 				      muiSEGYMgrCB(linkImpCB), "segy_link" );
 
     uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
@@ -123,22 +123,22 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 
     if ( have2d )
 	expsgymnu->insertItem( new uiAction( only2d ? sSEGYString(false)
-						    : uiStrings::s2D(false),
+						    : m3Dots(uiStrings::s2D()),
 				muiSEGYMgrCB(exp2DCB), "" ) );
     if ( !only2d )
     {
-        expsgymnu->insertItem( new uiAction( have2d ? uiStrings::s3D(false)
-					    : uiStrings::sVolume(false),
+        expsgymnu->insertItem( new uiAction( have2d ? m3Dots(uiStrings::s3D())
+					    : m3Dots(uiStrings::sVolume()),
 				muiSEGYMgrCB(exp3DCB), "" ) );
-        expsgymnu->insertItem( new uiAction( have2d ? tr("PreStack 3D ...")
-						: tr("Pre-Stack volume ..."),
+        expsgymnu->insertItem( new uiAction( have2d ? m3Dots(tr("PreStack 3D"))
+						: m3Dots(tr("Pre-Stack volume")),
 				muiSEGYMgrCB(exp3DPSCB), "" ) );
     }
 
     mnumgr_.getMnu( true, uiODApplMgr::Wll )->insertItem(
-	new uiAction( tr("VSP (SEG-Y) ..."), muiSEGYMgrCB(impVSPCB), "" ) );
+	new uiAction( m3Dots(tr("VSP (SEG-Y)")), muiSEGYMgrCB(impVSPCB), "" ) );
     mnumgr_.createSeisOutputMenu()->insertItem(
-	new uiAction(tr("Re-sort Scanned SEG-Y ..."), muiSEGYMgrCB(reSortCB)) );
+	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")), muiSEGYMgrCB(reSortCB)) );
 }
 
 

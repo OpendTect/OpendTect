@@ -262,11 +262,11 @@ static uiButton* crStd( uiParent* p, uiButton::StdType typ,
 #   define mGetDefs(typ,icnm) \
     case uiButton::typ: { \
     if ( !buttxt ) \
-	txt = uiStrings::s##typ( true ); \
+	txt = uiStrings::s##typ(); \
     else \
     { \
 	txt = *buttxt; \
-	tt = uiStrings::s##typ( immediate ); \
+	tt = uiStrings::phrThreeDots( uiStrings::s##typ(), immediate ); \
     } \
     icid = #icnm; \
     break; }

@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "odcomplex.h"
 #include "paralleltask.h"
 #include "threadlock.h"
-#include "uistring.h"
+#include "uistrings.h"
 
 class RayTracer1D;
 class SeisTrc;
@@ -180,7 +180,7 @@ public:
 					ObjectSet<const ReflectivityModel>&);
 
     uiString			uiMessage() const { 
-					return tr("Generating synthetics..."); 
+				    return m3Dots(tr("Generating synthetics"));
 						  }
 
     od_int64                    totalNr() const	{ return totalnr_; }

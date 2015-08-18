@@ -105,7 +105,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 				mCB(this,uiImportHorizon,addAttribCB) );
     addbut->attach( rightTo, attrlistfld_ );
     uiToolButton* rmbut = new uiToolButton( this, "stop",
-					    uiStrings::sRemove(true),
+					    uiStrings::sRemove(),
 				mCB(this,uiImportHorizon,rmAttribCB) );
     rmbut->attach( alignedBelow, addbut );
     uiToolButton* clearbut = new uiToolButton( this, "clear", tr("Clear list"),
@@ -152,7 +152,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	filludffld_->setValue(false);
 	filludffld_->setSensitive( false );
 	filludffld_->attach( alignedBelow, subselfld_ );
-	interpolparbut_ = new uiPushButton( this, uiStrings::sSettings(true),
+	interpolparbut_ = new uiPushButton( this, uiStrings::sSettings(),
 	       mCB(this,uiImportHorizon,interpolSettingsCB), false );
 	interpolparbut_->attach( rightOf, filludffld_ );
 

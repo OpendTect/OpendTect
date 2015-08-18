@@ -114,7 +114,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
 //    tabgrp_->addTab( vargrp, tr("Variance") );
 
     uiGroup* propertiesgrp = createPropertyGroup();
-    tabgrp_->addTab( propertiesgrp, uiStrings::sProperties(true) );
+    tabgrp_->addTab( propertiesgrp, uiStrings::sProperties() );
 
     mDynamicCastGet(uiDialog*,dlg,p)
     toolbar_ = new uiToolBar( dlg, "Tracking tools", uiToolBar::Left );

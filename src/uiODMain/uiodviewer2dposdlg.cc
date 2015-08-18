@@ -35,7 +35,7 @@ uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
 
     posgrp_  = new uiODViewer2DPosGrp( this, new Viewer2DPosDataSel(), false );
 
-    uiPushButton* zoomlevelbut = new uiPushButton( this, tr("Advanced..."),
+    uiPushButton* zoomlevelbut = new uiPushButton( this, m3Dots(tr("Advanced")),
 	    		mCB(this,uiODViewer2DPosDlg,zoomLevelCB), true );
     zoomlevelbut->attach( alignedBelow, posgrp_ );
 }

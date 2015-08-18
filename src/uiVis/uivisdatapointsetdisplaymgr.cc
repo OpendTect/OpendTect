@@ -39,9 +39,9 @@ uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     , visserv_( serv )
     , vismenu_( visserv_.getMenuHandler() )
     , createbodymnuitem_( tr("Create Body") )
-    , storepsmnuitem_( tr("Save as Pickset ...") )
+    , storepsmnuitem_( m3Dots(tr("Save as Pickset")) )
     , removemnuitem_( tr("Remove points inside polygon") )
-    , propmenuitem_( uiStrings::sProperties(false) )
+    , propmenuitem_( m3Dots(uiStrings::sProperties()) )
     , treeToBeAdded( this )
 {
     vismenu_->ref();
