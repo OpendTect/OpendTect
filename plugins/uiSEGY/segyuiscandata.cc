@@ -102,7 +102,7 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrcHdr( od_istream& strm ) const
 	return 0;
 
     SEGY::TrcHeader* th = new SEGY::TrcHeader(
-			 (unsigned char*)thbuf, *hdrdef_, !isRev0(), true );
+			 (unsigned char*)thbuf, *hdrdef_, isRev0(), true );
     th->initRead();
     return th;
 }

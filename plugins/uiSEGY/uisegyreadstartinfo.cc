@@ -190,7 +190,6 @@ void uiSEGYReadStartInfo::setCellTxt( int col, int row, const char* txt )
 void uiSEGYReadStartInfo::revChg( CallBacker* )
 {
     parChg( 0 );
-    showRelevantInfo();
 }
 
 

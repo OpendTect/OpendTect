@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uihistogramdisplay.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "segyhdr.h"
 #include "seisinfo.h"
@@ -53,6 +54,11 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     typfld_ = new uiSEGYImpType( this );
     typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
     typfld_->attach( alignedBelow, inpfld_ );
+    nrfileslbl_ = new uiLabel( this, uiString::emptyString() );
+    nrfileslbl_->setPrefWidthInChar( 10 );
+    nrfileslbl_->setAlignment( Alignment::Right );
+    nrfileslbl_->attach( rightTo, typfld_ );
+    nrfileslbl_->attach( rightBorder );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, typfld_ );
@@ -204,6 +210,12 @@ void uiSEGYReadStarter::inpChg( CallBacker* cb )
 	userfilename_ = inpfld_->fileName();
 	execNewScan( false );
     }
+
+    const int nrfiles = scaninfo_.size();
+    uiString txt;
+    if ( nrfiles > 1 )
+	{ txt = tr( "[%1 files]" ); txt.arg( nrfiles ); }
+    nrfileslbl_->setText( txt );
 }
 
 
@@ -337,30 +349,35 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef )
 	mErrRetFileName( "File:\n%1\nhas no binary header" )
 
     SEGY::ScanInfo* si = new SEGY::ScanInfo( fnm );
-    SEGY::BasicFileInfo& bi = si->basicinfo_;
+    SEGY::BasicFileInfo& bfi = si->basicinfo_;
     bool infeet = false;
 
     if ( !fixedloaddef )
 	binhdr.guessIsSwapped();
-    bi.hdrsswapped_ = bi.dataswapped_ = binhdr.isSwapped();
+    bfi.hdrsswapped_ = bfi.dataswapped_ = binhdr.isSwapped();
     if ( (fixedloaddef && loaddef_.hdrsswapped_)
-	|| (!fixedloaddef && bi.hdrsswapped_) )
+	|| (!fixedloaddef && bfi.hdrsswapped_) )
 	binhdr.unSwap();
     if ( !binhdr.isRev0() )
 	binhdr.skipRev1Stanzas( strm );
     infeet = binhdr.isInFeet();
 
-    bi.ns_ = binhdr.nrSamples();
-    if ( bi.ns_ < 1 || bi.ns_ > mMaxReasonableNS )
-	bi.ns_ = -1;
-    bi.revision_ = binhdr.revision();
+    bfi.ns_ = binhdr.nrSamples();
+    if ( bfi.ns_ < 1 || bfi.ns_ > mMaxReasonableNS )
+	bfi.ns_ = -1;
+    bfi.revision_ = binhdr.revision();
     short fmt = binhdr.format();
     if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
 	fmt = 1;
-    bi.format_ = fmt;
+    bfi.format_ = fmt;
+    if ( !completeFileInfo(strm,bfi,isfirst) )
+	return false;
 
     if ( isfirst && !fixedloaddef )
-	static_cast<SEGY::BasicFileInfo&>(loaddef_) = bi;
+    {
+	static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
+	completeLoadDef( strm );
+    }
 
     if ( !obtainScanInfo(*si,strm,isfirst) )
 	{ delete si; return false; }
@@ -374,11 +391,8 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef )
 bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
 					bool isfirst )
 {
-    if ( isfirst )
-    {
-	if ( !completeLoadDef(strm) )
-	    return false;
-    }
+    if ( !completeFileInfo(strm,si.basicinfo_,isfirst) )
+	return false;
 
     si.getFromSEGYBody( strm, loaddef_, isfirst,
 			Seis::is2D(typfld_->impType().geomType()),
@@ -387,36 +401,54 @@ bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
 }
 
 
-bool uiSEGYReadStarter::completeLoadDef( od_istream& strm )
+#define mErrRetResetStream(str) { \
+    strm.setPosition( firsttrcpos ); \
+    if ( emiterr ) \
+	mErrRetFileName( str ) \
+    return false; }
+
+bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
+				      SEGY::BasicFileInfo& bfi, bool emiterr )
 {
     const bool isfirst = true; // for mErrRetFileName
     const od_stream::Pos firsttrcpos = strm.position();
 
+    SEGY::LoadDef ld;
     PtrMan<SEGY::TrcHeader> thdr = loaddef_.getTrcHdr( strm );
     if ( !thdr )
-	mErrRetFileName( "File:\n%1\nNo traces found" )
+	mErrRetResetStream( "File:\n%1\nNo traces found" )
 
-    if ( loaddef_.ns_ < 1 )
+    if ( bfi.ns_ < 1 )
     {
-	loaddef_.ns_ = (int)thdr->nrSamples();
-	if ( loaddef_.ns_ > mMaxReasonableNS )
-	    mErrRetFileName(
+	bfi.ns_ = (int)thdr->nrSamples();
+	if ( bfi.ns_ > mMaxReasonableNS )
+	    mErrRetResetStream(
 		    "File:\n%1\nNo proper 'number of samples per trace' found" )
     }
 
-    SeisTrcInfo ti; thdr->fill( ti, loaddef_.coordscale_ );
-    if ( mIsUdf(loaddef_.sampling_.step) )
-	loaddef_.sampling_ = ti.sampling;
-
-    if ( veryfirstscan_ )
+    if ( mIsUdf(bfi.sampling_.step) )
     {
-	//TODO do magic things to find byte positions
-	veryfirstscan_ = false;
+	SeisTrcInfo ti; thdr->fill( ti, 1.0f );
+	bfi.sampling_ = ti.sampling;
     }
 
     strm.setPosition( firsttrcpos );
-    infofld_->useLoadDef();
     return true;
+}
+
+
+void uiSEGYReadStarter::completeLoadDef( od_istream& strm )
+{
+    if ( !veryfirstscan_ )
+	return;
+
+    veryfirstscan_ = false;
+    const od_stream::Pos firsttrcpos = strm.position();
+
+    //TODO do magic things to find byte positions
+
+    strm.setPosition( firsttrcpos );
+    infofld_->useLoadDef();
 }
 
 

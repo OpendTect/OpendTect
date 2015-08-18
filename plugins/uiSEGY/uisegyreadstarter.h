@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class Timer;
 class DataClipSampler;
+class uiLabel;
 class uiButton;
 class uiSpinBox;
 class uiFileInput;
@@ -61,6 +62,7 @@ protected:
     uiButton*		examinebut_;
     uiSpinBox*		examinenrtrcsfld_;
     uiSpinBox*		clipfld_;
+    uiLabel*		nrfileslbl_;
     Timer*		filenamepopuptimer_;
 
     BufferString	userfilename_;
@@ -76,7 +78,8 @@ protected:
     void		scanInput();
     bool		scanFile(const char*,bool);
     bool		obtainScanInfo(SEGY::ScanInfo&,od_istream&,bool);
-    bool		completeLoadDef(od_istream&);
+    bool		completeFileInfo(od_istream&,SEGY::BasicFileInfo&,bool);
+    void		completeLoadDef(od_istream&);
 
     void		clearDisplay();
     void		setExamineStatus();
