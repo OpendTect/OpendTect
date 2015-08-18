@@ -202,8 +202,6 @@ float PropCalc::getVal( float z ) const
 	}
     }
 
-    if ( mIsEqual(z,0.50f,mDefEps) )
-	int brk =0;
     return getVal( setup_, vals, axisvals );
 }
 
