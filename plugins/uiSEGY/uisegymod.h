@@ -58,6 +58,7 @@ ________________________________________________________________________
 #if defined ( do_import_export )
 
 
+#include "uiodmaindeps.h"
 
 #endif
 
