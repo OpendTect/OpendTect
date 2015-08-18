@@ -74,6 +74,7 @@ public:
     static const char*	rayTracerParamStr()	{ return "raytracerparam"; }
     static const char*	gathertypeStr()		{ return "gathertype"; }
     static const char*	xaxisunitStr()		{ return "xaxisunit"; }
+    static const char*	angleDPIDStr()		{ return "angleid"; }
 
     enum GatherType	{ Off, Ang };
 			DeclareEnumUtils(GatherType)
@@ -114,7 +115,7 @@ protected:
     PreStack::PropCalc*		propcalc_;
     PreStack::PropCalc::Setup	setup_;
     PreStack::AngleComputer*    anglecomp_;
-    bool			angleisset_;
+    int				anglegsdpid_;
 
     MultiID			preprocid_;
     int				dataidx_;
