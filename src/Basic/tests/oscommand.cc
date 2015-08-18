@@ -53,7 +53,7 @@ static bool testAllPipes()
     const OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars cp( false );
-    cp.launchtype( OS::RunInBG );
+    cp.launchtype( OS::RunInBG ).createstreams( true );
 
     mRunStandardTest( cl.execute( cp ), "Launching triple pipes" );
     mRunStandardTest( cl.processID(), "Launched process has valid PID" );
