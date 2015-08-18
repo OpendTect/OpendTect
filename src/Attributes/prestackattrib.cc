@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "datapackbase.h"
 #include "posinfo.h"
 #include "prestackanglecomputer.h"
 #include "prestackprocessortransl.h"
@@ -82,6 +83,7 @@ void PSAttrib::initClass()
 
     desc->addParam( new IntParam( angleStartStr(), 0, false ) );
     desc->addParam( new IntParam( angleStopStr(), mUdf(int), false ) );
+    desc->addParam( new IntParam(angleDPIDStr(),-1,true) );
 
     EnumParam* smoothtype = new EnumParam(
 				PreStack::AngleComputer::sKeySmoothType() );
@@ -161,10 +163,13 @@ PSAttrib::PSAttrib( Desc& ds )
     , preprocessor_(0)
     , propcalc_(0)
     , anglecomp_(0)
+    , anglegsdpid_(-1)
 {
     if ( !isOK() ) return;
 
-    const char* res; mGetString(res,"id") psid_ = res;
+    const char* res;
+    mGetString(res,"id")
+    psid_ = res;
 
     BufferString preprocessstr;
     mGetString( preprocessstr, preProcessStr() );
@@ -209,7 +214,8 @@ PSAttrib::PSAttrib( Desc& ds )
     bool useangle = setup_.useangle_;
     mGetBool( useangle, useangleStr() );
     setup_.useangle_ = useangle;
-    if ( setup_.useangle_ )
+    mGetInt(anglegsdpid_,angleDPIDStr());
+    if ( setup_.useangle_ && anglegsdpid_<0 )
     {
 	mGetString( velocityid_, velocityIDStr() );
 	if ( !velocityid_.isEmpty() && !velocityid_.isUdf() )
@@ -251,6 +257,25 @@ PSAttrib::PSAttrib( Desc& ds )
 	mGetEnum( xaxisunit, xaxisunitStr() );
 	setup_.xscaler_ = getXscaler( gathertype == PSAttrib::Off,
 				      xaxisunit == PSAttrib::Deg );
+	if ( gathertype == (int)(PSAttrib::Ang) && anglegsdpid_>=0 )
+	{
+	    if ( xaxisunit == (int)(PSAttrib::Rad) )
+	    {
+		setup_.anglerg_.start = mIsUdf(setup_.offsrg_.start)
+		    ? mUdf(int)
+		    : mNINT32(Math::toDegrees(setup_.offsrg_.start));
+		setup_.anglerg_.stop = mIsUdf(setup_.offsrg_.stop)
+		    ? mUdf(int)
+		    : mNINT32(Math::toDegrees(setup_.offsrg_.stop));
+	    }
+	    else
+	    {
+		setup_.anglerg_.start = mIsUdf(setup_.offsrg_.start)
+		    ? mUdf(int) : mNINT32( setup_.offsrg_.start );
+		setup_.anglerg_.stop = mIsUdf(setup_.offsrg_.stop)
+		    ? mUdf(int) : mNINT32( setup_.offsrg_.stop );
+	    }
+	}
     }
 
 }
@@ -303,7 +328,7 @@ void PSAttrib::setSmootheningPar()
 
 void PSAttrib::setAngleData( DataPack::ID angledpid )
 {
-    propcalc_->setAngleData( angledpid );
+    anglegsdpid_ = angledpid;
 }
 
 
@@ -421,25 +446,54 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
     const BinID bid = currentbid_+relpos;
 
     DataPack::ID curgatherid = -1;
+    DataPack::ID curanglegatherid = -1;
     if ( gatherset_.size() )
     {
-	PreStack::Gather* curgather = 0;
+	const PreStack::GatherSetDataPack* anglegsdp = 0;
+	if ( anglegsdpid_>= 0 )
+	{
+	    ConstDataPackRef<DataPack> angledp =
+		DPM( DataPackMgr::SeisID() ).obtain( anglegsdpid_ );
+	    mDynamicCast( const PreStack::GatherSetDataPack*,anglegsdp,
+		    	  angledp.ptr() );
+	}
+
+	const PreStack::Gather* curgather = 0;
+	const PreStack::Gather* curanglegather = 0;
 	for ( int idx=0; idx<gatherset_.size(); idx++ )
 	{
+	    const bool hasanglegather =
+		anglegsdp && anglegsdp->getGathers().validIdx( idx );
+	    const int trcnr = idx+1;
 	    //TODO full support for 2d : idx is not really my nymber of traces
-	    if ( is2D() && idx == bid.crl() )
-	       curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
-            else if ( gatherset_[idx]->getBinID() == bid )
-	       curgather = const_cast<PreStack::Gather*> (gatherset_[idx]);
+	    if ( (is2D() && trcnr == bid.crl()) ||
+		 (gatherset_[idx]->getBinID() == bid) )
+	    {
+	       curgather = gatherset_[idx];
+	       if ( hasanglegather )
+		   curanglegather = anglegsdp->getGathers()[idx];
+	       break;
+	    }
 	}
+
 	if (!curgather ) return false;
 
 	mDeclareAndTryAlloc( PreStack::Gather*, gather,
 				PreStack::Gather(*curgather ) );
+	
 	if ( !gather )
 	    return false;
+
 	DPM(DataPackMgr::FlatID()).add( gather );
 	curgatherid = gather->id();
+	
+	if ( curanglegather )
+	{
+	    mDeclareAndTryAlloc( PreStack::Gather*, anglegather,
+				 PreStack::Gather(*curanglegather ) );
+	    DPM(DataPackMgr::FlatID()).add( anglegather );
+	    curanglegatherid = anglegather->id();
+	}
     }
     else
     {
@@ -457,6 +511,8 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
     propcalc_->setGather( curgatherid );
     if ( !propcalc_->hasAngleData() && anglecomp_ && !getAngleInputData() )
 	return false;
+    else if ( curanglegatherid >= 0 )
+	propcalc_->setAngleData( curanglegatherid );
 
     return true;
 }

@@ -85,6 +85,7 @@ protected:
 						const Interval<float>&,
 						float zstep);
     Attrib::EngineMan*		createEngineMan(const Attrib::DescSet&) const;
+    void			preparePreStackDescs();
 
     bool			handleUnsaved();
     bool			rejectOK(CallBacker*);

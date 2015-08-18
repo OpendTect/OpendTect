@@ -317,19 +317,19 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     {
 	anglevals += new PointBasedMathFunction(
 				    PointBasedMathFunction::Linear,
-				    PointBasedMathFunction::ExtraPolGradient );
+				    PointBasedMathFunction::None );
 
 	if ( offsets[ofsidx] )
 	    anglevals[ofsidx]->add( 0.f, M_PI_2f );
 	else
 	    anglevals[ofsidx]->add( 0.f, 0.f );
 
-	float depth = mCast( float, -1.0 * SI().seismicReferenceDatum() );
+	float depth = 0.0f;
 	for ( int layeridx=0; layeridx<curem.size(); layeridx++ )
 	{
 	    depth += curem[layeridx].thickness_;
 	    float sinangle = rt->getSinAngle(layeridx,ofsidx);
-	    if ( mIsUdf(sinangle) || fabs(sinangle) > 1.001f )
+	    if ( mIsUdf(sinangle) )
 		continue;
 
 	    if ( fabs(sinangle) > 1.0f )
