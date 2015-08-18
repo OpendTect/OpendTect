@@ -47,6 +47,16 @@ enum ChoiceMode
     ChooseZeroOrMore=3
 };
 
+
+/*!\brief State of check objects */
+
+enum CheckState
+{
+    Unchecked=0,
+    PartiallyChecked=1,
+    Checked=2
+};
+
 } // namespace OD
 
 
