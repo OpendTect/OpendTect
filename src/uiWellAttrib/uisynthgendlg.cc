@@ -191,12 +191,13 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
     if ( selidx<0 )
 	return uiMSG().error( "No synthetic selected" );
 
-    SynthGenParams cursgp = stratsynth_.genParams();
     int nrofzerooffs = 0;
+    BufferStringSet synthstoberemoved;
+    SynthGenParams sgptorem = stratsynth_.genParams();
     for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
     {
 	SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
-	if ( !sd ) continue;
+	if ( !sd || sd->isPS() ) continue;
 	SynthGenParams sgp;
 	sd->fillGenParams( sgp );
 	if ( sgp.synthtype_ == SynthGenParams::ZeroOffset )
@@ -204,34 +205,42 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 	    nrofzerooffs++;
 	    continue;
 	}
-	if ( cursgp.isPreStack() &&
+
+	if ( sgptorem.isPreStack() &&
 	     (sgp.synthtype_ == SynthGenParams::AngleStack ||
 	      sgp.synthtype_ == SynthGenParams::AVOGradient) &&
-	     sgp.inpsynthnm_ == cursgp.name_ )
-	{
-	    BufferString msg( sgp.name_.buf(), "will also be removed as "
-					       "it is dependent on ",
-			      cursgp.name_.buf() );
-	    msg += "Do you want to remove the synthetics?";
-	    if ( !uiMSG().askGoOn(msg) )
-		return;
-	    const BufferString synthname( sgp.name_ );
-	    synthnmlb_->removeItem( synthnmlb_->indexOf(synthname) );
-	    synthRemoved.trigger( synthname );
-	    break;
-	}
+	      sgp.inpsynthnm_ == sgptorem.name_ )
+	    synthstoberemoved.add( sgp.name_ );
     }
 
-    if ( cursgp.synthtype_ == SynthGenParams::ZeroOffset && nrofzerooffs<=1 )
+    if ( sgptorem.synthtype_ == SynthGenParams::ZeroOffset && nrofzerooffs<=1 )
     {
-	BufferString msg( "Cannot remove ", cursgp.name_.buf(),
+	BufferString msg( "Cannot remove ", sgptorem.name_.buf(),
 			  " as there should be atleast one 0 offset synthetic");
 	return uiMSG().error( msg );
     }
 
-    const BufferString synthname( synthnmlb_->getText() );
-    synthnmlb_->removeItem( selidx );
-    synthRemoved.trigger( synthname );
+    if ( synthstoberemoved.isEmpty() )
+    {
+	synthnmlb_->removeItem( synthnmlb_->indexOf(sgptorem.name_) );
+	synthRemoved.trigger( sgptorem.name_ );
+	return;
+    }
+
+    BufferString msg( synthstoberemoved.getDispString(),
+		      " will also be removed as it is dependent on '",
+		      sgptorem.name_.buf() );
+    msg += "'. Do you want to remove the synthetics?";
+    synthstoberemoved.add( sgptorem.name_ );
+    if ( !uiMSG().askGoOn(msg) )
+	return;
+
+    for ( int idx=0; idx<synthstoberemoved.size(); idx++ )
+    {
+	const BufferString& synthnm = synthstoberemoved.get( idx );
+	synthnmlb_->removeItem( synthnmlb_->indexOf(synthnm) );
+	synthRemoved.trigger( synthnm );
+    }
 }
 
 
