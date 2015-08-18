@@ -153,7 +153,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     if ( type_ == Hor3D || type_ == AnyHor )
     {
 	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Horizon Data"),
-			     uiListBox::AboveLeft );
+			     uiListBox::AboveMid );
 	attribfld_ = new uiListBox( listgrp_, su );
 	attribfld_->attach( rightOf, selgrp_ );
 	attribfld_->setHSzPol( uiObject::Wide );
