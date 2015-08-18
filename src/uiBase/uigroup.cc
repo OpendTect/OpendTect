@@ -541,7 +541,7 @@ void uiGroup::setFrame( bool yn )
 	setFrameStyle( QFrame::NoFrame );
     else
     {
-	setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+	grpobj_->body_->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
 	grpobj_->body_->setLineWidth( 1 );
 	grpobj_->body_->setMidLineWidth( 0 );
     }

@@ -313,6 +313,12 @@ QTableWidgetItem* uiTableBody::getItem( const RowCol& rc, bool createnew )
 
 void uiTableBody::setCellObject( const RowCol& rc, uiObject* obj )
 {
+    if ( !obj )
+    {
+	setCellWidget( rc.row(), rc.col(), 0 );
+	return;
+    }
+
     QWidget* qw = obj->body()->qwidget();
     setCellWidget( rc.row(), rc.col(), qw );
     cellobjects_ += new CellObject( qw, obj, rc );
