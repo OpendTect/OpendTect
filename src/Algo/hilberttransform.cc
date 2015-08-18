@@ -67,7 +67,7 @@ void HilbertTransform::setCalcRange( int startidx, int convstartidx )
 
 bool HilbertTransform::init()
 {
-    errmsg_ = uiStrings::sEmptyString();
+    errmsg_ = uiString::emptyString();
     hilbwindow_ = makeHilbWindow( halflen_ );
     return true;
 }

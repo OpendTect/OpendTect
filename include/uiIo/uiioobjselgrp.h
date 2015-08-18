@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "multiid.h"
 #include "bufstringset.h"
-#include "uistrings.h"
+
 
 class IOObj;
 class CtxtIOObj;
@@ -174,7 +174,7 @@ protected:
 
 private:
 
-    void		init(const uiString& st=uiStrings::sEmptyString());
+    void		init(const uiString& st=uiString::emptyString());
     void		mkTopFlds(const uiString&);
     void		mkWriteFlds();
     void		mkManipulators();

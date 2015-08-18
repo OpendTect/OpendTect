@@ -104,6 +104,7 @@ void uiTutSeisTools::choiceSel( CallBacker* )
 
 bool uiTutSeisTools::acceptOK( CallBacker* )
 {
+    const uiString outputtype = uiStrings::phrOutput(uiStrings::sVolume(true));
     // Get cubes and check
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )
@@ -112,7 +113,8 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
     if ( !outioobj )
 	return false;
     else if ( outioobj->implExists(false)
-	   && !uiMSG().askGoOn(tr("Output cube exists. Overwrite?")) )
+	     && !uiMSG().askGoOn(
+		    uiStrings::phrExistsConinue( outputtype, true) ) )
 	return false;
 
     tst_.clear();

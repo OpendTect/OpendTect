@@ -288,7 +288,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 	const char* markernm = table_->text( rc );
 	if ( !markernm || !*markernm )
 	{
-	    uiMSG().error( uiStrings::sEntValidName() );
+	    uiMSG().error( uiStrings::sEnterValidName() );
 	    table_->clearCell( rc );
 	    return;
 	}

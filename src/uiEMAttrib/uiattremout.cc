@@ -39,7 +39,7 @@ uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
     , nlaid_(mid)
     , nladescid_( -1, true )
 {
-    setTitleText( uiStrings::sEmptyString() );
+    setTitleText( uiString::emptyString() );
 
     attrfld_ = new uiAttrSel( this, ads_, "Quantity to output" );
     attrfld_->setNLAModel( nlamodel_ );

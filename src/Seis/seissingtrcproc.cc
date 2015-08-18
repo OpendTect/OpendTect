@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mInitVars() \
 	: Executor(nm) \
 	, wrr_(0) \
-	, msg_(msg) \
 	, nrskipped_(0) \
 	, intrc_(*new SeisTrc) \
 	, nrwr_(0) \
@@ -55,7 +54,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
 					  const char* nm, const IOPar* iop,
-					  const char* msg )
+					  const uiString& msg )
     mInitVars();
 
     setInput( in, out, nm, iop, msg );
@@ -65,7 +64,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
 SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 					  const IOObj* out, const char* nm,
 					  ObjectSet<IOPar>* iopset,
-					  const char* msg )
+					  const uiString& msg )
     mInitVars();
 
     if ( objset.isEmpty() )
@@ -95,7 +94,7 @@ bool SeisSingleTraceProc::mkWriter( const IOObj* out )
 
 void SeisSingleTraceProc::setInput( const IOObj* in, const IOObj* out,
 				    const char* nm, const IOPar* iop,
-				    const char* msg )
+				    const uiString& msg )
 {
     deepErase( rdrset_ );
     if ( !in )
@@ -103,6 +102,8 @@ void SeisSingleTraceProc::setInput( const IOObj* in, const IOObj* out,
 	curmsg_ = tr("Cannot find input seismic data object");
 	return;
     }
+
+    curmsg_ = msg;
 
     nrobjs_ = 1;
 
@@ -288,7 +289,7 @@ uiString SeisSingleTraceProc::uiMessage() const
 	return tr("Handling %1").arg(ret);
     }
 
-    return uiStrings::sEmptyString();
+    return uiString::emptyString();
 }
 
 

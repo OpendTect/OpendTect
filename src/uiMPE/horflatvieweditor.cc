@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undo.h"
 #include "uiflatviewer.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 
 namespace MPE
@@ -263,6 +264,31 @@ bool HorizonFlatViewEditor::prepareTracking( bool picinvd,
     return true;
 }
 
+bool HorizonFlatViewEditor::selectSeedData(
+		const FlatView::AuxDataEditor* editor, bool& pickinvd )
+{
+    if ( !editor )
+	return false;
+
+    const bool vdvisible = editor->viewer().isVisible(false);
+    const bool wvavisible = editor->viewer().isVisible(true);
+
+    if ( vdvisible && wvavisible )
+	pickinvd = uiMSG().question( tr("Which one is your seed data?"),
+				     tr("VD"), uiStrings::sWiggle());
+    else if ( vdvisible )
+	pickinvd = true;
+    else if ( wvavisible )
+	pickinvd = false;
+    else
+    {
+	uiMSG().error( tr("No data to choose from") );
+	return false;
+    }
+
+    return true;
+}
+
 
 bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 					const EM::EMObject& emobj,
@@ -291,23 +317,8 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 
     if ( spk.nrSeeds() < 1 )
     {
-	const bool vdvisible = editor_->viewer().isVisible(false);
-	const bool wvavisible = editor_->viewer().isVisible(true);
-	if ( vdvisible && wvavisible )
-	{
-	    if ( !uiMSG().question(uiStrings::sSeedData(),
-				   tr("VD"), uiStrings::sWiggle()) )
-		pickinvd = false;
-	}
-	else if ( vdvisible )
-	    pickinvd = true;
-	else if ( wvavisible )
-	    pickinvd = false;
-	else
-	{
-	    uiMSG().error( tr("No data to choose from") );
+	if ( !selectSeedData(editor_, pickinvd ) )
 	    return false;
-	}
 
 	as = pickinvd ? vdselspec_ : wvaselspec_;
 	if ( !trackersetupactive_ && as && trackedatsel && (newatsel!=*as) &&

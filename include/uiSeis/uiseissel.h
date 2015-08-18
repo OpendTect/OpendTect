@@ -38,6 +38,7 @@ public:
 			    , enabotherdomain_(false)
 			    , survdefsubsel_( 0 )
 			    , allowsetsurvdefault_(false)
+			    , explprepost_(false)
 			    , selectcomp_(false)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
@@ -46,6 +47,7 @@ public:
 			    , enabotherdomain_(false)
 			    , survdefsubsel_( 0 )
 			    , allowsetsurvdefault_(false)
+			    , explprepost_(false)
 			    , selectcomp_(false)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
@@ -55,6 +57,7 @@ public:
 	mDefSetupMemb(BufferString,zdomkey)
 	mDefSetupMemb(const char*,survdefsubsel)
 	mDefSetupMemb(bool,allowsetsurvdefault)
+	mDefSetupMemb(bool,explprepost)		//!<Spell out if pre or post stk
 	mDefSetupMemb(bool,selectcomp)		//!< Select only one component
 
 	Setup&		wantSteering( bool yn=true )
@@ -90,7 +93,7 @@ protected:
     IOPar		dlgiopar_;
     uiCheckBox*		othdombox_;
 
-    Setup		mkSetup(const Setup&,bool);
+    Setup		mkSetup(const Setup&,bool forread);
     virtual void	fillDefault();
     virtual void	newSelection(uiIOObjRetDlg*);
     virtual void	commitSucceeded();

@@ -20,6 +20,11 @@ defineTranslator(dgb,PreStackProc,mDGBKey);
 
 mDefSimpleTranslatorioContext(PreStackProc,Misc)
 
+uiString PreStackProcTranslator::sSelObjNotPreStackProc()
+{
+    return tr("Selected object is not a Prestack Processing setup");
+}
+
 
 int PreStackProcTranslatorGroup::selector( const char* key )
 {
@@ -39,7 +44,7 @@ bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
 		 ioobj->createTranslator());
     if ( !ptrl )
     {
-	msg = uiStrings::sSelObjNotMuteDef();
+	msg = sSelObjNotPreStackProc();
 	return false;
     }
     
@@ -60,7 +65,7 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
 {
     if ( !ioobj )
     {
-	msg = uiStrings::sNoObjStoreSetDB();
+	msg = sNoIoobjMsg();
 	return false;
     }
 
@@ -68,7 +73,7 @@ bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
 		 ioobj->createTranslator());
     if ( !ptrl )
     {
-	msg = uiStrings::sSelObjNotMuteDef();
+	msg = sSelObjNotPreStackProc();
 	return false;
     }
 
@@ -91,7 +96,7 @@ uiString dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
 					  Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return uiStrings::sBadConnection();
+	return sBadConnection();
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
@@ -101,7 +106,7 @@ uiString dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
     if ( atEndOfSection(astrm) ) astrm.next();
     const IOPar par( astrm );
 
-    if ( md.usePar( par ) ) return uiStrings::sEmptyString();
+    if ( md.usePar( par ) ) return uiString::emptyString();
 
     return md.errMsg().isSet() ? md.errMsg()
 			       : tr("Could not read processing info.");
@@ -112,7 +117,7 @@ uiString dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
 					     Conn& conn)
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return uiStrings::sBadConnection();
+	return sBadConnection();
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(PreStackProc) );
@@ -123,6 +128,6 @@ uiString dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
     md.fillPar( par );
 
     par.putTo( astrm );
-    return astrm.isOK() ? uiStrings::sEmptyString()
+    return astrm.isOK() ? uiString::emptyString()
 			: tr("Error during write to process definition file");
 }

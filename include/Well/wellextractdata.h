@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "stattype.h"
 #include "survinfo.h"
 #include "uistring.h"
-#include "uistrings.h"
 
 class DataPointSet;
 class IODirEntryList;
@@ -217,7 +216,7 @@ public:
     od_int64		totalNr() const	   { return ids_.size(); }
 
     uiString		errMsg() const
-			{ return errmsg_.isEmpty() ? uiStrings::sEmptyString() 
+			{ return errmsg_.isEmpty() ? uiString::emptyString()
 						   : errmsg_; }
 
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
@@ -369,7 +368,7 @@ public:
 			//!< Vertical thickness of a sample, not along hole
 
     uiString		errMsg() const
-			{ return errmsg_.isEmpty() ? uiStrings::sEmptyString() 
+			{ return errmsg_.isEmpty() ? uiString::emptyString()
 						   : errmsg_; }
 
     int		nrZSamples() const;

@@ -77,6 +77,9 @@ protected:
 
     void		typeSel(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
+    uiString		getDlgTitle( const ObjectSet<Well::Data>& wds,
+				     const BufferStringSet& lognms );
+
 };
 
 

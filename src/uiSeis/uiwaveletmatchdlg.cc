@@ -57,7 +57,7 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     initFunctionDisplay( *wvlt1disp_ );
 
     wvltoutdisp_ = new uiFunctionDisplay( this, fds );
-    wvltoutdisp_->setTitle( tr("Output Wavelet") );
+    wvltoutdisp_->setTitle( uiStrings::phrOutput( uiStrings::sWavelet() ) );
     wvltoutdisp_->attach( alignedBelow, wvlt0disp_ );
     wvltoutdisp_->attach( heightSameAs, wvlt1disp_ );
     initFunctionDisplay( *wvltoutdisp_ );

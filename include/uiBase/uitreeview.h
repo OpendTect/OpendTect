@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "keyenum.h"
 #include "draw.h"
 #include "uistring.h"
-#include "uistrings.h"
 
 mFDQtclass(QTreeWidget)
 mFDQtclass(QTreeWidgetItem)
@@ -199,7 +198,7 @@ public:
     mExpClass(uiBase) Setup
     { mODTextTranslationClass(Setup);
     public:
-			Setup( const uiString& txt=uiStrings::sEmptyString(),
+			Setup( const uiString& txt=uiString::emptyString(),
 				       uiTreeViewItem::Type tp=
 						uiTreeViewItem::Standard,
 				       bool setchecked=true )

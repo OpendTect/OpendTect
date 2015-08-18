@@ -62,7 +62,7 @@ const WellTie::Setup& uiTieWin::Setup() const
 
 uiTieWin::uiTieWin( uiParent* p, Server& wts )
 	: uiFlatViewMainWin(p,
-                            uiFlatViewMainWin::Setup(uiStrings::sEmptyString())
+			    uiFlatViewMainWin::Setup(uiString::emptyString())
 			    .deleteonclose(false))
 	, server_(wts)
 	, stretcher_(*new EventStretch(server_.pickMgr(),server_.d2TModelMgr()))
@@ -539,7 +539,7 @@ static const char* sKeyStopMrkrName = "Stop Marker Name";
 
 uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 	: uiDialog(p,uiDialog::Setup(tr("Cross-checking parameters"),
-                                     uiStrings::sEmptyString(),
+				     uiString::emptyString(),
 				     mODHelpKey(mWellTieInfoDlgHelpID) )
                                      .modal(false))
 	, server_(server)
@@ -607,22 +607,22 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     const char* markernms[] = { "Top Marker", "Bottom Marker", 0 };
 
     zrginft_ = SI().depthsInFeet();
-    const uiString units[] = { uiStrings::sEmptyString(),
+    const uiString units[] = { uiString::emptyString(),
 		UnitOfMeasure::zUnitAnnot(true,true,false),
 		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false) };
 
-    zrangeflds_ += new uiGenInput( markergrp, uiStrings::sEmptyString(),
+    zrangeflds_ += new uiGenInput( markergrp, uiString::emptyString(),
 				   slis.setName(markernms[0]),
 				   slis.setName(markernms[1]) );
     zrangeflds_[mMarkerFldIdx]->setValue( markernames_.size()-1, 1 );
 
     const int maxtwtval = mNINT32( server_.data().getTraceRange().stop *
 				   SI().zDomain().userFactor() );
-    zrangeflds_ += new uiGenInput( markergrp, uiStrings::sEmptyString(),
+    zrangeflds_ += new uiGenInput( markergrp, uiString::emptyString(),
 	    IntInpIntervalSpec().setLimits(StepInterval<int>(0,maxtwtval,1)));
 
     const float maxdah = wd->track().dahRange().stop;
-    zrangeflds_ += new uiGenInput( markergrp, uiStrings::sEmptyString(),
+    zrangeflds_ += new uiGenInput( markergrp, uiString::emptyString(),
 	    FloatInpIntervalSpec().setLimits(Interval<float>(0,maxdah)));
     zrangeflds_[mDahFldIdx]->setNrDecimals(2,0);
     zrangeflds_[mDahFldIdx]->setNrDecimals(2,1);

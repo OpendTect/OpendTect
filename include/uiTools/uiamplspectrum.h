@@ -17,7 +17,6 @@ ______________________________________________________________________
 #include "datapack.h"
 #include "survinfo.h"
 #include "odcomplex.h"
-#include "uistrings.h"
 
 class uiCheckBox;
 class uiGenInput;
@@ -36,7 +35,7 @@ mExpClass(uiTools) uiAmplSpectrum : public uiMainWin
 public:
     struct Setup
     {
-			Setup( const uiString& t=uiStrings::sEmptyString(),
+			Setup( const uiString& t=uiString::emptyString(),
 			       bool iscep=false, float nyqst=SI().zStep() )
 			    : caption_(t)
 			    , nyqvistspspace_(nyqst)

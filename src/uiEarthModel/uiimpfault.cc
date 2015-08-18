@@ -106,7 +106,7 @@ void uiImportFault::createUI()
 	stickselfld_->attach( alignedBelow, typefld_ );
 	stickselfld_->valuechanged.notify(mCB(this,uiImportFault,stickSel));
 
-	thresholdfld_ = new uiGenInput(this, uiStrings::sEmptyString(),
+	thresholdfld_ = new uiGenInput(this, uiString::emptyString(),
 				DoubleInpSpec(1.0).setName("Threshold") );
 	thresholdfld_->attach( rightOf, stickselfld_ );
 

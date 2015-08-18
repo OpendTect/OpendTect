@@ -112,7 +112,8 @@ bool uiImportMute::acceptOK( CallBacker* )
     if ( haveInpPosData() )
     {
 	if ( !muteascio.getMuteDef(mutedef) )
-	    mErrRet( uiStrings::sFailConvCompData() );
+	    mErrRet( uiStrings::phrCannotRead(
+				    toUiString( inpfld_->fileName() ) ) );
     }
     else
     {
@@ -125,7 +126,7 @@ bool uiImportMute::acceptOK( CallBacker* )
 	    mErrRet( "Please enter Inl/Crl within survey range" )
 
 	else if ( !muteascio.getMuteDef(mutedef, inlcrlfld_->getBinID()) )
-	    mErrRet( uiStrings::sFailConvCompData() )
+	    mErrRet( uiStrings::phrCannotRead( toUiString(inpfld_->fileName())))
     }
 
     if ( !outfld_->commitInput() )

@@ -99,7 +99,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , updating_fields_(false)
     , attrsneedupdt_(attrsneedupdt)
 {
-    setOkCancelText( uiStrings::sClose(), uiStrings::sEmptyString() );
+    setOkCancelText( uiStrings::sClose(), uiString::emptyString() );
     setctio_.ctxt.toselect.dontallow_.set( sKey::Type(),
 					   adsm->is2D() ? "3D" : "2D" );
 

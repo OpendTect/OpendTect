@@ -201,7 +201,7 @@ Hor2DTo3D::~Hor2DTo3D()
 
 uiString Hor2DTo3D::uiNrDoneText() const
 {
-    return curinterp_ ? curinterp_->uiNrDoneText() : uiStrings::sEmptyString();
+    return curinterp_ ? curinterp_->uiNrDoneText() : uiString::emptyString();
 }
 
 

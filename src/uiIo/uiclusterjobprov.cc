@@ -163,7 +163,7 @@ protected:
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 				    const char* prognm, const char* parfnm )
     : uiDialog(p,uiDialog::Setup(tr("Cluster job generator"),
-                                 uiStrings::sEmptyString(),
+				 uiString::emptyString(),
                                   mODHelpKey(mClusterJobProvHelpID) )
 			   .oktext(uiStrings::sContinue()))
     , prognm_(prognm)

@@ -315,7 +315,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     if ( hasy2_ )
     {
 	selaxisfld_ =
-	    new uiGenInput( this, uiStrings::sEmptyString(),
+	    new uiGenInput( this, uiString::emptyString(),
                             BoolInpSpec( true,"Draw Y1","Draw Y2" ) );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
 	selaxisfld_->valuechanged.notify(

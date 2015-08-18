@@ -377,7 +377,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     coltablistfld_ = new uiColorTableSel( this, "Table selection" );
     coltablistfld_->attach( alignedBelow, filllogsfld_ );
 
-    colorrangefld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+    colorrangefld_ = new uiGenInput( this, uiString::emptyString(),
 			     FloatInpIntervalSpec()
 			     .setName(BufferString(" range start"),0)
 			     .setName(BufferString(" range stop"),1) );

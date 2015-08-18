@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 #include "uiioobjselgrp.h"
-#include "uistrings.h"
 
 /*!\brief Dialog letting the user select an object. It returns an IOObj* after
 	  successful go(). */
@@ -40,7 +39,7 @@ public:
     mExpClass(uiIo) Setup
     {
     public:
-		Setup(const uiString& titletxt=uiStrings::sEmptyString())
+		Setup(const uiString& titletxt=uiString::emptyString())
 			    : titletext_(titletxt)
 			    , multisel_(false)
 			    , allowsetsurvdefault_(true)
@@ -53,7 +52,7 @@ public:
     };
 
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-			const uiString& titletxt=uiStrings::sEmptyString());
+			const uiString& titletxt=uiString::emptyString());
 			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }

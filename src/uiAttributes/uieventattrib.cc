@@ -69,7 +69,7 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
 
     outampfld_ = new uiGenInput( this, tr("Compute"),
 		BoolInpSpec(true, tr("Distance between 2 consecutive events"),
-				  tr("Output Amplitude")) );
+			    uiStrings::phrOutput( uiStrings::sAmplitude() )) );
     outampfld_->valuechanged.notify( mCB(this,uiEventAttrib,outAmpSel) );
     outampfld_->attach( alignedBelow, evtypefld_ );
 

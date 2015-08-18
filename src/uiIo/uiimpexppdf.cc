@@ -48,7 +48,8 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, "Input ASCII File",
+    inpfld_ = new uiFileInput( this,
+	    uiStrings::sInputASCIIFile(),
 	    uiFileInput::Setup(uiFileDialog::Gen)
 	    .withexamine(true).forread(true).filter(filefilter) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
@@ -79,7 +80,8 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
-    outputfld_->setLabelText( tr("Output PDF") );
+    outputfld_->setLabelText(
+			uiStrings::phrOutput( uiStrings::sProbDensFunc(true)) );
     outputfld_->attach( alignedBelow, grp );
 
     setDisplayedFields( false, false );
@@ -461,8 +463,8 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Probability Density Function",
-				 mNoDlgTitle, mODHelpKey(mExpRokDocPDFHelpID) )
+: uiDialog(p,uiDialog::Setup(uiStrings::phrExport( uiStrings::sProbDensFunc() ),
+	   mNoDlgTitle, mODHelpKey(mExpRokDocPDFHelpID) )
 				 .modal(false))
 {
     setOkText( uiStrings::sExport() );
@@ -472,7 +474,7 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
     inpfld_ = new uiIOObjSel( this, ioobjctxt );
     inpfld_->setLabelText( "Input PDF" );
 
-    outfld_ = new uiFileInput( this, "Output File",
+    outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
 	    uiFileInput::Setup(uiFileDialog::Gen)
 	    .withexamine(false).forread(false).filter(filefilter) );
     outfld_->setSelectMode( uiFileDialog::AnyFile );
@@ -586,25 +588,24 @@ bool uiExpRokDocPDF::acceptOK( CallBacker* )
     const IOObj* pdfioobj = inpfld_->ioobj();
     if ( !pdfioobj ) return false;
     uiString errmsg;
-    ProbDenFunc* pdf = ProbDenFuncTranslator::read( *pdfioobj, &errmsg );
+    PtrMan<ProbDenFunc> pdf = ProbDenFuncTranslator::read( *pdfioobj, &errmsg );
     if ( !pdf )
 	{ uiMSG().error(errmsg); return false; }
 
-    mDynamicCastGet(Sampled1DProbDenFunc*,s1dpdf,pdf)
-    mDynamicCastGet(Sampled2DProbDenFunc*,s2dpdf,pdf)
+    mDynamicCastGet(Sampled1DProbDenFunc*,s1dpdf,pdf.ptr())
+    mDynamicCastGet(Sampled2DProbDenFunc*,s2dpdf,pdf.ptr())
     if ( !s1dpdf && !s2dpdf )
     {
 	uiMSG().error(tr("Can only export 1D and 2D sampled PDFs"));
-	delete pdf;
 	return false;
     }
 
     RokDocExporter exp( outfld_->fileName() );
     if ( ( s1dpdf && !exp.put1DPDF(*s1dpdf) ) ||
 	 ( s2dpdf && !exp.put2DPDF(*s2dpdf) ) )
-    { uiMSG().error(exp.errmsg_); delete pdf; return false; }
+    { uiMSG().error(exp.errmsg_); return false; }
 
-    delete pdf;
-    uiMSG().message( tr("Output file created") );
+    uiMSG().message(
+	    uiStrings::phrSuccessfullyExported( uiStrings::sProbDensFunc() ) );
     return false;
 }

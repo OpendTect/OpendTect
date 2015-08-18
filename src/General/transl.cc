@@ -16,6 +16,18 @@
 #include "keystrs.h"
 #include "perthreadrepos.h"
 
+uiString Translator::sNoIoobjMsg()
+{ return toUiString("Internal error: No object to store set in data base."); }
+
+uiString Translator::sBadConnection()
+{ return toUiString("Internal error: bad connection"); }
+
+
+uiString Translator::sSelObjectIsWrongType()
+{
+    return tr("Selected object is not a %1").arg( userName() );
+}
+
 
 static const char* rcsID mUsedVar = "$Id$";
 

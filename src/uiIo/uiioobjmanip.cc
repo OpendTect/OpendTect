@@ -32,7 +32,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 
 
-uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p, const char* t )
+uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p,
+				 const uiString& t )
 	: but(b)
 	, pmnm(p)
 	, tt(t)
@@ -40,7 +41,7 @@ uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p, const char* t )
 }
 
 
-uiToolButton* uiManipButGrp::addButton( Type tp, const char* tooltip,
+uiToolButton* uiManipButGrp::addButton( Type tp, const uiString& tooltip,
 					const CallBack& cb )
 {
     const char* pm = 0;
@@ -58,7 +59,8 @@ uiToolButton* uiManipButGrp::addButton( Type tp, const char* tooltip,
 }
 
 
-uiToolButton* uiManipButGrp::addButton( const char* pmnm, const char* tooltip,
+uiToolButton* uiManipButGrp::addButton( const char* pmnm,
+					const uiString& tooltip,
 					const CallBack& cb )
 {
     uiToolButton* button = new uiToolButton( this, pmnm, tooltip, cb );
@@ -69,7 +71,7 @@ uiToolButton* uiManipButGrp::addButton( const char* pmnm, const char* tooltip,
 
 
 void uiManipButGrp::setAlternative( uiToolButton* button, const char* pm,
-				    const char* tt )
+				    const uiString& tt )
 {
     for ( int idx=0; idx<butdata.size(); idx++ )
     {

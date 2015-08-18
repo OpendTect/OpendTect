@@ -92,7 +92,7 @@ void uiMadagascarMain::createToolBar()
     mAddButton( "new", newFlow, tr("Empty this flow") );
     mAddButton( "open", openFlow, tr("Open saved flow") );
     mAddButton( "save", saveFlow, tr("Save flow") );
-    mAddButton( "export", exportFlow, tr("Export flow") );
+    mAddButton( "export", exportFlow, uiStrings::phrExport( tr("flow")) );
 }
 
 
@@ -331,7 +331,7 @@ void uiMadagascarMain::exportFlow( CallBacker* )
     uiFileDialog dlg( this, false );
     dlg.setDirectory( IOM().curDirName() );
     if ( !dlg.go() ) return;
-    uiMSG().error( tr("Export needs implementation") );
+    uiMSG().error( toUiString("export needs implementation" ) );
 }
 
 

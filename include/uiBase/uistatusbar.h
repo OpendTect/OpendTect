@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uibaseobject.h"
 #include "draw.h"
 #include "uistring.h"
-#include "uistrings.h"
 
 mFDQtclass(QStatusBar)
 class uiStatusBarBody;
@@ -32,8 +31,8 @@ mExpClass(uiBase) uiStatusBar : public uiBaseObject
 public:
 			~uiStatusBar();
 
-    int		addMsgFld(const uiString& lbltxt=uiStrings::sEmptyString(),
-			  const uiString& tooltip =uiStrings::sEmptyString(),
+    int		addMsgFld(const uiString& lbltxt=uiString::emptyString(),
+			  const uiString& tooltip =uiString::emptyString(),
 			  Alignment::HPos al=Alignment::Left,
 			  int stretch=1);
 

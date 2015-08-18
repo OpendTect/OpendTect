@@ -249,7 +249,7 @@ bool ODSessionTranslator::store( const ODSession& session,
 				 const IOObj* ioobj, uiString& err )
 {
     if ( !ioobj ) 
-    { err = uiStrings::sNoObjStoreSetDB(); return false; }
+    { err = sNoIoobjMsg(); return false; }
     PtrMan<ODSessionTranslator> trans
 	 = dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans )

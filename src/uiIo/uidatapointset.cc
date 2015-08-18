@@ -881,7 +881,7 @@ void uiDataPointSet::showStatusMsg( CallBacker* )
 		 .arg(xplotwin_->plotter().nrYSels())
 		 .arg(xplotwin_->plotter().isY2Shown()
 		 ? tr("; Y2 Selected: %1").arg(xplotwin_->plotter().nrY2Sels())
-		 : uiStrings::sEmptyString());
+		 : uiString::emptyString());
     xplotwin_->statusBar()->message( msg, 1 );
 }
 
@@ -1328,7 +1328,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-	{ uiMSG().error(uiStrings::sSelDataSetEmp()); return; }
+    { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
 					     dps_.isMinimal() );
     if ( newdps->isEmpty() )

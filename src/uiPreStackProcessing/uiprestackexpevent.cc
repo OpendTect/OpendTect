@@ -27,14 +27,16 @@ namespace PreStack
 {
 
 uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
-    : uiDialog( p, uiDialog::Setup(tr("Export Prestack Events"),mNoDlgTitle,
-				   mODHelpKey(mPreStackEventExportHelpID) ) )
+    : uiDialog( p, uiDialog::Setup(
+			uiStrings::phrExport( uiStrings::sPreStackEvents() ),
+			mNoDlgTitle,
+			mODHelpKey(mPreStackEventExportHelpID) ) )
 {
     setOkText( uiStrings::sExport() );
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
     ctxt.forread = true;
-    eventsel_ = new uiIOObjSel( this, ctxt, tr("Prestack Events") );
+    eventsel_ = new uiIOObjSel( this, ctxt, uiStrings::sPreStackEvents()  );
     if ( mid )
 	eventsel_->setInput( *mid );
 

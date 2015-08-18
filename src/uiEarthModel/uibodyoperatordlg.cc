@@ -60,7 +60,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     tree_->setColumnWidthMode( 1, uiTreeView::ResizeToContents );
 
     uiTreeViewItem* output = new uiTreeViewItem(tree_,uiTreeViewItem::Setup());
-    output->setText( tr("Output body"), 0 );
+    output->setText( uiStrings::phrOutput( tr("body") ), 0 );
     output->setText( uiStrings::sOperator(), 1 );
     output->setOpen( true );
     BodyOperand item = BodyOperand();
@@ -203,7 +203,7 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 	    listinfo_[curidx].act_ = -1;
 	    listinfo_[curidx].defined_ = false;
 
-	    tree_->selectedItem()->setText( uiStrings::sEmptyString(), 1 );
+	    tree_->selectedItem()->setText( uiString::emptyString(), 1 );
 	    tree_->selectedItem()->setIcon( 1, "empty" );
 	}
 

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "typeset.h"
 #include "uistring.h"
-#include "uistrings.h"
 
 /*!
 \brief Base class for Factories ( Factory, Factory1Param, Factory2Param
@@ -121,7 +120,8 @@ mClass(Basic) Factory : public FactoryBase
 public:
     typedef			T* (*Creator)();
     inline void			addCreator(Creator,const char* nm,
-			const uiString& username = uiStrings::sEmptyString());
+					const uiString& username =
+					   uiString::emptyString());
 				/*!<Name may be not be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
@@ -191,7 +191,8 @@ mClass(Basic) Factory1Param : public FactoryBase
 public:
     typedef			T* (*Creator)(P);
     inline void			addCreator(Creator,const char* nm=0,
-			const uiString& usernm = uiStrings::sEmptyString());
+					   const uiString& usernm =
+						uiString::emptyString());
 				/*!<Name may be be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by

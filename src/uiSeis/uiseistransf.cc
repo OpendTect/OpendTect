@@ -163,7 +163,7 @@ SeisResampler* uiSeisTransfer::getResampler() const
 Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 				      const IOObj& outobj,
 				      const char* extxt,
-				      const char* worktxt,
+				      const uiString& worktxt,
 				      const char* linenm2d ) const
 {
     PtrMan<Seis::SelData> seldata = getSelData();

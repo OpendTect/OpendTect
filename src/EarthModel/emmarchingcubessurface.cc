@@ -115,7 +115,7 @@ public:
     od_int64	totalNr() const { return exec_ ? exec_->totalNr() : -1; }
     od_int64	nrDone() const { return exec_ ? exec_->nrDone() : -1; }
     uiString	uiNrDoneText() const {
-	return exec_ ? exec_->uiNrDoneText() : uiStrings::sEmptyString();
+	return exec_ ? exec_->uiNrDoneText() : uiString::emptyString();
 				     }
     uiString	uiMessage() const
     {
@@ -198,7 +198,7 @@ int nextStep()
 od_int64 totalNr() const { return exec_ ? exec_->totalNr() : -1; }
 od_int64 nrDone() const { return exec_ ? exec_->nrDone() : -1; }
 uiString uiNrDoneText() const { return exec_ ? exec_->uiNrDoneText()
-					     : uiStrings::sEmptyString(); }
+					     : uiString::emptyString(); }
 uiString uiMessage() const
 {
     return errmsg_.isEmpty()

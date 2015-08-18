@@ -174,7 +174,7 @@ void DPSMergerProp::setColid( int mastercolid, int slavecolid )
 uiDataPointSetMerger::uiDataPointSetMerger( uiParent* p, DataPointSet* mdps,
 					    DataPointSet* sdps )
     : uiDialog(p,uiDialog::Setup("Cross-plot data merging",
-                                 uiStrings::sEmptyString(),
+				 uiString::emptyString(),
                                  mODHelpKey(mDataPointSetMergerHelpID) ) )
     , mdps_(mdps)
     , sdps_(sdps)

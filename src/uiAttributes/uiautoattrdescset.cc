@@ -146,7 +146,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 				"Survey-defined sets", "Default sets") );
     defselfld_->valuechanged.notify( mCB(this,uiAutoAttrSetOpen, setChg) );
 
-    autoloadfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+    autoloadfld_ = new uiGenInput( this, uiString::emptyString(),
                                    BoolInpSpec(false, "Set for Auto-Load\t",
                                 "Disable Auto-load") );
     autoloadfld_->attach( alignedBelow, defselfld_ );

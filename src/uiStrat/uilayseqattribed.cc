@@ -61,7 +61,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	localgrp_ = new uiGroup( this, "Local group" );
 	uiLabel* lbl = 0;
 	if ( edsu.allowintegr_ )
-	    lbl = new uiLabel( localgrp_, uiStrings::sEmptyString() );
+	    lbl = new uiLabel( localgrp_, uiString::emptyString() );
 	uiLabeledComboBox* lupscfld = new uiLabeledComboBox( localgrp_,
 						    tr("From depth intervals"));
 	upscaletypfld_ = lupscfld->box();
@@ -271,7 +271,7 @@ bool uiLaySeqAttribEd::acceptOK( CallBacker* )
     const BufferString oldnm( attr_.name() );
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() )
-	{ uiMSG().error( uiStrings::sEntValidName() ); return false; }
+	{ uiMSG().error( uiStrings::sEnterValidName() ); return false; }
     if ( oldnm != newnm )
     {
 	const Strat::LaySeqAttribSet& lsas = attr_.attrSet();

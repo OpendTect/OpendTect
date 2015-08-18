@@ -15,7 +15,8 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "executor.h"
 #include "trckeyzsampling.h"
-#include "uistring.h"
+#include "uistrings.h"
+
 class IOObj;
 class Scaler;
 class SeisTrc;
@@ -38,13 +39,13 @@ mExpClass(Seis) SeisSingleTraceProc : public Executor
 public:
 
 			SeisSingleTraceProc(const IOObj* in,const IOObj* out,
-					    const char* nm="Trace processor",
-					    const IOPar* iniopar=0,
-					    const char* msg="Processing");
+				const char* nm="Trace processor",
+				const IOPar* iniopar=0,
+				const uiString& msg=uiStrings::sProcessing());
 			SeisSingleTraceProc(ObjectSet<IOObj>,const IOObj*,
-					    const char* nm="Trace processor",
-					    ObjectSet<IOPar>* iniopars=0,
-					    const char* msg="Processing");
+				const char* nm="Trace processor",
+				ObjectSet<IOPar>* iniopars=0,
+				const uiString& msg=uiStrings::sProcessing());
     virtual		~SeisSingleTraceProc();
 
     void		skipCurTrc()		{ skipcurtrc_ = true; }
@@ -76,7 +77,7 @@ public:
     void		fillNullTraces( bool yn=true )	{ fillnull_ = yn; }
 
     void		setInput(const IOObj*,const IOObj*,const char*,
-				 const IOPar*,const char*);
+				 const IOPar*,const uiString&);
     void		setExtTrcToSI( bool yn )	{ extendtrctosi_ = yn; }
     void		setProcPars(const IOPar&,bool is2d);
 			//!< Sets all above proc pars from IOPar
@@ -94,7 +95,6 @@ protected:
     SeisTrc&		intrc_;
     SeisTrc*		worktrc_;
     SeisResampler*	resampler_;
-    BufferString	msg_;
     uiString		curmsg_;
     bool		skipcurtrc_;
     int			nrwr_;

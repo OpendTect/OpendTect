@@ -30,6 +30,9 @@ protected:
     void			mergePush(CallBacker*);
 
     void			mkFileInfo();
+public:
+
+    static uiString		sSelDataSetEmpty();
 
 };
 

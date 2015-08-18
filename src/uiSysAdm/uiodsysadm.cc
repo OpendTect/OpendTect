@@ -70,7 +70,7 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
     if ( !swwritable_ && !aswritable_ )
     {
 	uiString addonstr = haveas_ ? tr("\nnor to:%1").arg(asdir_)
-				    : uiStrings::sEmptyString();
+				    : uiString::emptyString();
 	uiString msg = tr("You have no write access to:\n%1%2")
 		     .arg(swwritable_).arg(addonstr);
 	new uiLabel( this, msg );

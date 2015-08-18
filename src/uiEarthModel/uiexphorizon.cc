@@ -65,7 +65,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
     infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
-    typfld_ = new uiGenInput( this, tr("Output type"), 
+    typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
                               StringListInpSpec(exptyps) );
     typfld_->attach( alignedBelow, infld_ );
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
@@ -75,7 +75,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 				      false);
     settingsbutt_->attach( rightOf, typfld_ );
 
-    zfld_ = new uiGenInput( this, tr("Output Z"), StringListInpSpec(zmodes) );
+    zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
+			    StringListInpSpec(zmodes) );
     zfld_->valuechanged.notify( mCB(this,uiExportHorizon,addZChg ) );
     zfld_->attach( alignedBelow, typfld_ );
 
@@ -96,8 +97,9 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 			      StringInpSpec(sKey::FloatUdf()) );
     udffld_->attach( alignedBelow, headerfld_ );
 
-    outfld_ = new uiFileInput( this, "Output ASCII file",
-			       uiFileInput::Setup().forread(false) );
+    outfld_ = new uiFileInput( this,
+	      uiStrings::sOutputASCIIFile(),
+	      uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, udffld_ );
 
     typChg( 0 );
@@ -442,7 +444,7 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 	mErrRet( uiStrings::sSelOutpFile() );
 
     if ( File::exists(outfnm) &&
-		  !uiMSG().askOverwrite(uiStrings::sOutpFileOverw()) )
+	 !uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
 	return false;
 
     const bool res = writeAscii();

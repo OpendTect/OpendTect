@@ -61,7 +61,7 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->set2D( is2d );
     tr->setForceUseCBVSInfo( forceusecbvsinf );
-    if ( msg ) *msg = uiStrings::sEmptyString();
+    if ( msg ) *msg = uiString::emptyString();
     if ( !tr->initRead(new StreamConn(fnm,Conn::Read),
 			infoonly ? Seis::PreScan : Seis::Prod) )
     {

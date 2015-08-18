@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "stratmod.h"
 #include "property.h"
-#include "uistrings.h"
+
 
 namespace Strat
 {
@@ -54,7 +54,7 @@ public:
 			    Property::EvalOpts eo=Property::EvalOpts()) const;
 
     virtual bool	reset() const	{ return true; }
-    virtual uiString	errMsg() const	{ return uiStrings::sEmptyString(); }
+    virtual uiString	errMsg() const	{ return uiString::emptyString(); }
     virtual void	syncProps(const PropertyRefSelection&)		= 0;
     virtual void	updateUsedProps(PropertyRefSelection&) const	= 0;
 

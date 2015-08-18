@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "sets.h"
 #include "trckeysampling.h"
-#include "uistrings.h"
 
 namespace PreStack
 {
@@ -52,7 +51,7 @@ public:
 
     virtual bool		prepareWork();
     virtual uiString		errMsg() const 
-				{ return uiStrings::sEmptyString(); }
+				{ return uiString::emptyString(); }
 
     virtual void		fillPar(IOPar&) const			= 0;
     virtual bool		usePar(const IOPar&)			= 0;

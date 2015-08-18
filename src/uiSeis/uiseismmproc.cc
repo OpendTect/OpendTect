@@ -97,7 +97,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     , is2d_(false)
 {
     setOkText( tr("Dismiss") );
-    setCancelText( uiStrings::sEmptyString() );
+    setCancelText( uiString::emptyString() );
 
     if ( parfnm_.isEmpty() )
 	mRetInvJobSpec(tr("Invalid job specification file pass."

@@ -127,8 +127,8 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     prdatalblcbx->attach( leftBorder );
 
     uiToolButton* expbut = new uiToolButton( prdatalblcbx, "export",
-				tr("Export Synthetic DataSet(s)"),
-				mCB(this,uiStratSynthDisp,exportSynth) );
+			    uiStrings::phrExport( tr("Synthetic DataSet(s)")),
+			    mCB(this,uiStratSynthDisp,exportSynth) );
     expbut->attach( rightOf, vddatalist_ );
 
     datagrp_ = new uiGroup( this, "DataSet group" );

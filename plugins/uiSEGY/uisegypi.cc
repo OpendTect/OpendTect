@@ -128,7 +128,7 @@ void uiSEGYMgr::updateMenu( CallBacker* )
     if ( !only2d )
     {
         expsgymnu->insertItem( new uiAction( have2d ? uiStrings::s3D(false)
-						: tr("Cube ..."),
+					    : uiStrings::sVolume(false),
 				muiSEGYMgrCB(exp3DCB), "" ) );
         expsgymnu->insertItem( new uiAction( have2d ? tr("PreStack 3D ...")
 						: tr("Pre-Stack volume ..."),

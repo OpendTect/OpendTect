@@ -53,7 +53,7 @@ void SeisMSCProvider::init()
 {
     readstate_ = NeedStart;
     intofloats_ = workstarted_ = false;
-    errmsg_ = uiStrings::sEmptyString();
+    errmsg_ = uiString::emptyString();
     estnrtrcs_ = -2;
     reqmask_ = 0;
     bufidx_ = -1;
@@ -204,7 +204,9 @@ int SeisMSCProvider::estimatedNrTraces() const
     if ( estnrtrcs_ != -2 ) return estnrtrcs_;
     estnrtrcs_ = -1;
     if ( !rdr_.selData() )
-	return is2D() ? estnrtrcs_ : (int) SI().sampling(false).hsamp_.totalNr();
+	return is2D()
+	    ? estnrtrcs_
+	    : (int) SI().sampling(false).hsamp_.totalNr();
 
     estnrtrcs_ = rdr_.selData()->expectedNrTraces( is2D() );
     return estnrtrcs_;
@@ -616,7 +618,8 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     seisrdr->setSelData( sd );
 
     clear();
-    data_ = new Array2DImpl<SeisTrc*>( tkzs_.hsamp_.nrInl(), tkzs_.hsamp_.nrCrl() );
+    data_ = new Array2DImpl<SeisTrc*>( tkzs_.hsamp_.nrInl(),
+				       tkzs_.hsamp_.nrCrl() );
     for ( int idx=0; idx<data_->info().getSize(0); idx++ )
 	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
 	    data_->set( idx, idy, 0 );

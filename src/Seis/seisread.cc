@@ -522,7 +522,7 @@ bool SeisTrcReader::mkNextFetcher()
     else
     {
 	if ( nrfetchers > 0 )
-	{ errmsg_ = uiStrings::sEmptyString(); return false; }
+	{ errmsg_ = uiString::emptyString(); return false; }
 
 	bool found = false;
 	for ( ; curlineidx<nrlines; curlineidx++ )

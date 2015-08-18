@@ -170,7 +170,7 @@ uiBatchJobDispatcherLauncher* uiBatchJobDispatcherSel::selectedLauncher()
 uiString uiBatchJobDispatcherSel::selected() const
 {
     const int selidx = selIdx();
-    return selidx < 0 ? uiStrings::sEmptyString()
+    return selidx < 0 ? uiString::emptyString()
 		      : uidispatchers_[selidx]->name();
 }
 
@@ -198,7 +198,7 @@ int uiBatchJobDispatcherSel::selIdx() const
 const uiString uiBatchJobDispatcherSel::selectedInfo() const
 {
     const int selidx = selIdx();
-    return selidx < 0 ? uiStrings::sEmptyString()
+    return selidx < 0 ? uiString::emptyString()
 		      : uidispatchers_[selidx]->getInfo();
 }
 

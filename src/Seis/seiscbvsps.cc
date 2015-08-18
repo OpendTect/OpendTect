@@ -463,7 +463,7 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
 	return false;
     }
 
-    errmsg_ = uiStrings::sEmptyString();
+    errmsg_ = uiString::emptyString();
     trans = CBVSSeisTrcTranslator::make( filenm, false, false, &errmsg_ );
     return tr_;
 }
@@ -630,7 +630,7 @@ void SeisCBVSPS2DReader::init( Pos::GeomID geomid )
 	return;
     }
 
-    errmsg_ = uiStrings::sEmptyString();
+    errmsg_ = uiString::emptyString();
     tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg_ );
     if ( !tr_ ) return;
 

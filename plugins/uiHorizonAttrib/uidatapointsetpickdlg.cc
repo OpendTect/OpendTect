@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "vispicksetdisplay.h"
 #include "visselman.h"
+#include "uidatapointsetman.h"
 
 #include "arrayndimpl.h"
 #include "array2dinterpol.h"
@@ -170,7 +171,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-    { uiMSG().error(uiStrings::sSelDataSetEmp()); return; }
+    { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
     Pick::Set* pickset = psd_ ? psd_->getSet() : 0;
     if ( !pickset ) return;

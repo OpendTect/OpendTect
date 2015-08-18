@@ -60,6 +60,9 @@ protected:
 
     bool		acceptOK(CallBacker*);
 
+public:
+    static uiString	sSpecGenPar();
+    static uiString	sDlgTitle();
 };
 
 

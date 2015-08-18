@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seis2dlineio.h"
+#include "uistrings.h"
 
 #include <float.h>
 #include <iostream>
@@ -182,6 +183,12 @@ bool Seis::is2DGeom( const IOPar& iop )
     return is2D( gt );
 }
 
+uiString Seis::dataName( GeomType tp, bool explprepost )
+{
+    const bool both_2d_3d = SI().survDataType()==SurveyInfo::Both2DAnd3D;
+    return uiStrings::sVolDataName( is2D(tp), is3D(tp), isPS(tp),
+				    both_2d_3d, explprepost );
+}
 
 bool Seis::isPSGeom( const IOPar& iop )
 {

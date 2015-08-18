@@ -250,7 +250,7 @@ void uiMsg::message( const uiString& part1, const uiString& part2,
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
     showMessageBox( Information, popParnt(), msg, uiStrings::sOk(), 
-		    uiStrings::sEmptyString(), uiStrings::sEmptyString(),
+		    uiString::emptyString(), uiString::emptyString(),
 		    tr("Information") );
 }
 
@@ -262,7 +262,7 @@ void uiMsg::warning( const uiString& part1, const uiString& part2,
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
     showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(), 
-		    uiStrings::sEmptyString(), uiStrings::sEmptyString(),
+		    uiString::emptyString(), uiString::emptyString(),
 		    tr("Warning") );
 }
 
@@ -274,7 +274,7 @@ void uiMsg::error( const uiString& part1, const uiString& part2,
     if ( !part2.isEmpty() ) msg.append( part2 );
     if ( !part3.isEmpty() ) msg.append( part3 );
     showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(), 
-		    uiStrings::sEmptyString(), uiStrings::sEmptyString(),
+		    uiString::emptyString(), uiString::emptyString(),
 		    tr("Error") );
 }
 
@@ -320,8 +320,8 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
     const int refnr = beginCmdRecEvent( utfwintitle );
     // Use of QMessageBox::Abort enables close and escape actions by the user
     PtrMan<QMessageBox> mb = createMessageBox( Critical, popParnt(), strings[0],
-					       uiStrings::sEmptyString(), 
-					       uiStrings::sEmptyString(), 
+					       uiString::emptyString(),
+					       uiString::emptyString(),
 					       oktxt, wintitle );
     mb->setDefaultButton( QMessageBox::Abort );
 
@@ -347,7 +347,7 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 {
     const uiString dontsavetxt = tr("Don't save");
     return question( text, uiStrings::sSave(true), dontsavetxt,
-		     wcancel ? uiStrings::sCancel() : uiStrings::sEmptyString(),
+		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
 		     tr("Data not saved") );
 }
 
@@ -356,7 +356,7 @@ int uiMsg::askRemove( const uiString& text, bool wcancel )
 {
     const uiString notxt = wcancel ? tr("Don't remove") : uiStrings::sCancel();
     return question( text, uiStrings::sRemove(true), notxt,
-		     wcancel ? uiStrings::sCancel() : uiStrings::sEmptyString(),
+		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
 		     tr("Remove data") );
 }
 
@@ -364,7 +364,7 @@ int uiMsg::askRemove( const uiString& text, bool wcancel )
 int uiMsg::askContinue( const uiString& text )
 {
     return question( text, uiStrings::sContinue(), uiStrings::sAbort(), 
-		     uiStrings::sEmptyString() );
+		     uiString::emptyString() );
 }
 
 
@@ -372,7 +372,7 @@ int uiMsg::askOverwrite( const uiString& text )
 {
     const uiString yestxt = uiStrings::sOverwrite();
     return question( text, yestxt, uiStrings::sCancel(), 
-		     uiStrings::sEmptyString() );
+		     uiString::emptyString() );
 }
 
 
@@ -394,8 +394,8 @@ void uiMsg::about( const uiString& text )
     mCapt( tr("About") );
     const int refnr = beginCmdRecEvent( utfwintitle );
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
-					       oktxt, uiStrings::sEmptyString(),
-					       uiStrings::sEmptyString(), 
+					       oktxt, uiString::emptyString(),
+					       uiString::emptyString(),
 					       wintitle );
 
     mb->setIconPixmap( mb->windowIcon().pixmap(32) );
@@ -411,8 +411,8 @@ void uiMsg::aboutOpendTect( const uiString& text )
     const uiString oktxt = uiStrings::sClose();
     const int refnr = beginCmdRecEvent( utfwintitle );
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
-					       oktxt, uiStrings::sEmptyString(),
-					       uiStrings::sEmptyString(), 
+					       oktxt, uiString::emptyString(),
+					       uiString::emptyString(),
 					       wintitle );
     uiPixmap pm( sODLogo );
     if ( pm.qpixmap() )

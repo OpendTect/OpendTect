@@ -248,7 +248,7 @@ bool uiEditPropRef::acceptOK( CallBacker* )
 {
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() || !iswalpha(newnm[0]) || newnm.size() < 2 )
-	mErrRet(uiStrings::sEntValidName(),false);
+	mErrRet(uiStrings::sEnterValidName(),false);
     const BufferString definitionstr( definitionfld_->text() );
     const bool isfund = definitionfld_->isChecked();
     if ( isfund && definitionstr.isEmpty() )

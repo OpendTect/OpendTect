@@ -63,7 +63,7 @@ uiColTabImport::uiColTabImport( uiParent* p )
     listfld_ = new uiListBox( this, su );
     listfld_->attach( alignedBelow, dtectusrfld_ );
 
-    messagelbl_ = new uiLabel( this, uiStrings::sEmptyString() );
+    messagelbl_ = new uiLabel( this, uiString::emptyString() );
     messagelbl_->setTextColor( Color::Red() );
     messagelbl_->setHSzPol( uiObject::Wide );
     messagelbl_->attach( alignedBelow, dtectusrfld_ );

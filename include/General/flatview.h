@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "datapackbase.h"
 #include "draw.h"
 #include "mousecursor.h"
-#include "uistrings.h"
 
 class FlatView_CB_Rcvr;
 class ZAxisTransform;
@@ -118,7 +117,7 @@ public:
 	    enum LineType	{ Normal=0, Bold=1, HighLighted=2 };
 	    			AuxPosition()
 				    : pos_(mUdf(float))
-				    , name_(uiStrings::sEmptyString())	
+				    , name_(uiString::emptyString())
 				    , linetype_(Normal)	{}
 	    float		pos_;
 	    LineType		linetype_;

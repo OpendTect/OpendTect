@@ -873,7 +873,7 @@ void SEGYSeisTrcTranslator::fillErrMsg( const uiString& s, bool withpos )
 	    .arg( fnm.isEmpty() ? usrname_ : tr("In file '%1'").arg( fnm ) )
 	    .arg( withpos
 		? tr(" %1").arg( getTrcPosStr() )
-		: uiStrings::sEmptyString() )
+		: uiString::emptyString() )
 	    .arg( s );
 }
 

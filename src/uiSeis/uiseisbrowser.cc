@@ -74,7 +74,7 @@ protected:
 
 
 uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
-    : uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
+    : uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
                       mODHelpKey(mSeisBrowserHelpID) )
     , id_(ky)
     , geom_(gt)
@@ -663,7 +663,7 @@ bool init()
 {
     if ( !tri_ ||  !tro_ )
     {
-	uiMSG().error( uiStrings::sEmptyString() );
+	uiMSG().error( uiString::emptyString() );
 	return false;
     }
     if ( !safeio_->open(false) )
@@ -744,7 +744,7 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
 	trcbufvwr_->start();
     else
     {
-	uiSeisTrcBufViewer::Setup stbvsetup( uiStrings::sEmptyString() );
+	uiSeisTrcBufViewer::Setup stbvsetup( uiString::emptyString() );
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	trcbufvwr_->selectDispTypes( true, false );
 	trcbufvwr_->windowClosed.notify(

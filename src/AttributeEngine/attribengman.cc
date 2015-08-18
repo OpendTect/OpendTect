@@ -789,7 +789,7 @@ od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const		{ return proc_ ? proc_->nrDone() : 0; }
 uiString uiNrDoneText() const
 {
-    return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString();
+    return proc_ ? proc_->uiNrDoneText() : uiString::emptyString();
 }
 
 uiString uiMessage() const
@@ -807,7 +807,7 @@ int haveError( const uiString& msg )
 
 int nextStep()
 {
-    if ( !proc_ ) return haveError( uiStrings::sEmptyString() );
+    if ( !proc_ ) return haveError( uiString::emptyString() );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
@@ -958,7 +958,7 @@ od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const		{ return proc_ ? proc_->nrDone() : 0; }
 uiString uiNrDoneText() const
 {
-    return proc_ ? proc_->uiNrDoneText() : uiStrings::sEmptyString();
+    return proc_ ? proc_->uiNrDoneText() : uiString::emptyString();
 }
 
 uiString uiMessage() const
@@ -976,7 +976,7 @@ int haveError( const uiString& msg )
 
 int nextStep()
 {
-    if ( !proc_ ) return haveError( uiStrings::sEmptyString() );
+    if ( !proc_ ) return haveError( uiString::emptyString() );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
@@ -1043,7 +1043,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 
     DescID outid = outattribs[0];
 
-    errmsg = uiStrings::sEmptyString();
+    errmsg = uiString::emptyString();
     bool doeval = false;
     if ( !attrspecs_[0].isNLA() )
     {

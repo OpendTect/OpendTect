@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "settings.h"
+#include "uistrings.h"
 
 
 FixedString EMHorizon3DTranslatorGroup::keyword()   { return "Horizon"; }

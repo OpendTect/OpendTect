@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Export Wells to KML"),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrExport( tr("Wells to KML")),
 				 tr("Specify wells to output"),
 				 mODHelpKey(mGoogleExportWellsHelpID)))
 {

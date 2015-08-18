@@ -384,7 +384,8 @@ void uiWell2RandomLineDlg::createFields()
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, extendfld_ );
 
-    outfld_ = new uiIOObjSel( this, outctio_, tr("Output Random line(s)") );
+    outfld_ = new uiIOObjSel( this, outctio_,
+			     uiStrings::phrOutput( uiStrings::sRandomLine() ) );
     if ( wellserv_ )
     {
 	CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);

@@ -178,7 +178,8 @@ BufferString getSummary() const
 
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
-	: uiDialog(p,uiDialog::Setup(tr("SEG-Y I/O"),tr("Export to SEG-Y"),
+	: uiDialog(p,uiDialog::Setup(tr("SEG-Y I/O"),
+				     uiStrings::phrExport( "to SEG-Y"),
                                      mODHelpKey(mSEGYExpHelpID) ))
 	, geom_(gt)
 	, morebox_(0)
@@ -214,7 +215,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     if ( Seis::is2D(geom_) && !Seis::isPS(geom_) )
     {
 	morebox_ = new uiCheckBox( this,
-			tr("Export more lines from the same dataset") );
+		    uiStrings::phrExport( "more lines from the same dataset") );
 	morebox_->attach( alignedBelow, fsfld_ );
     }
     else
@@ -229,7 +230,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	batchfld_ = new uiBatchJobDispatcherSel( this, true,
 						 Batch::JobSpec::SEGY );
 	batchfld_->checked.notify( mCB(this,uiSEGYExp,batchChg) );
-	batchfld_->setJobName( "Export SEG-Y" );
+	batchfld_->setJobName( "Output SEG-Y" );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyExport() );
 	js.pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(geom_) );
@@ -474,7 +475,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 
     SEGY::TxtHeader::info2D() = is2d;
     Executor* exec = transffld_->getTrcProc( inioobj, *useoutioobj,
-				    "Export seismic data", "Putting traces",
+				    "Output seismic data", tr("Writing traces"),
 				    linenm );
     if ( !exec )
 	{ delete tmpioobj; return false; }

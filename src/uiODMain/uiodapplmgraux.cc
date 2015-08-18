@@ -454,7 +454,7 @@ void uiODApplMgrDispatcher::openXPlot()
     if ( !rv )
     { uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-    { uiMSG().error(uiStrings::sSelDataSetEmp()); return; }
+    { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
 
     DataPointSet* newdps = new DataPointSet( pvds, false );
     newdps->setName( seldlg.ioObj()->name() );

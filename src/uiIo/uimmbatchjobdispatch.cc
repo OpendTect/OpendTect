@@ -142,7 +142,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
     uiListBox::Setup su( OD::ChooseOnlyOne,
-		multihost ? tr("Used hosts") : uiStrings::sEmptyString(),
+		multihost ? tr("Used hosts") : uiString::emptyString(),
 		uiListBox::AboveMid );
     usedmachfld_ = new uiListBox( usedmachgrp, su );
     usedmachfld_->setPrefWidthInChar( hostnmwdth );
@@ -199,8 +199,10 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrpworklbl_->attach( rightOf, jrppolselfld_ );
 
     const char* envstr = GetEnvVar( "DTECT_STOP_OFFICEHOURS" );
-    jrpstartfld_ = new uiGenInput( jrppolgrp, uiStrings::sEmptyString(),
+
+    jrpstartfld_ = new uiGenInput( jrppolgrp, uiString::emptyString(),
 				   envstr ? envstr : "18:00" );
+
     jrpstartfld_->attach( rightOf, jrppolselfld_ );
 
     envstr = GetEnvVar( "DTECT_START_OFFICEHOURS" );
@@ -485,7 +487,7 @@ void uiMMBatchJobDispatcher::updateAliveDisp()
 
 void uiMMBatchJobDispatcher::clearAliveDisp()
 {
-    statusBar()->message( uiStrings::sEmptyString(), 3 );
+    statusBar()->message( uiString::emptyString(), 3 );
 }
 
 

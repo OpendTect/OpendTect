@@ -177,7 +177,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     wellfld_->selectionDone.notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-						    tr("Output log name") );
+				       uiStrings::phrOutput( tr("log name") ));
     lcb->attach( alignedBelow, wellfld_ );
     lognmfld_ = lcb->box();
     lognmfld_->setReadOnly( false );

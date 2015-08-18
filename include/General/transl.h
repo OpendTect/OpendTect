@@ -119,7 +119,7 @@ protected:
  */
 
 mExpClass(General) Translator : public CallBacker
-{
+{ mODTextTranslationClass(Translator)
 public:
 				Translator(const char* nm,const char* usr_nm);
     virtual			~Translator()		{}
@@ -159,6 +159,10 @@ protected:
     BufferString		usrname_;
     TranslatorGroup*		group_;
 
+public:
+    static uiString		sNoIoobjMsg();
+    static uiString		sBadConnection();
+    uiString			sSelObjectIsWrongType();
 };
 
 

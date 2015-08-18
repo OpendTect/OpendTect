@@ -100,12 +100,12 @@ void uiSrchProcFiles::srchDir( CallBacker* )
 	sflsu.dlgtitle( tr("Pick one of the matches") );
 	uiSelectFromList dlg( this, sflsu );
 	if ( !dlg.go() || dlg.selection() < 0 )
-	    mRet(uiStrings::sEmptyString())
+	    mRet(uiString::emptyString())
 	sel = dlg.selection();
     }
 
     fnamefld->setText( fnms.get(sel) );
-    mRet(uiStrings::sEmptyString())
+    mRet(uiString::emptyString())
 }
 
 

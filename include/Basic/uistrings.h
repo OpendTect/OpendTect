@@ -22,28 +22,41 @@ mExpClass(Basic) uiStrings
 { mODTextTranslationClass(uiStrings);
 public:
 //Phrases
-    static uiString phrImmediate(bool immediate,const uiString& string);
-    //!<string> ...
-    static uiString phrSelect(const uiString& string);
-    //!<"Select <string>"
+
+    static uiString phrASCII(const uiString& string);
+    //!<"ASCII <string>"
+    static uiString phrCannotCreate(const uiString& string);
+    //!<"Cannot create <string>"
+    static uiString phrCannotFind(const uiString& string);
+    //!<"Cannot find <string>"
+    static uiString phrCannotOpen(const uiString& string);
+    //!<"Cannot open <string>"
+    static uiString phrCannotRead(const uiString& string);
+    //!<"Cannot read <string>"
+    static uiString phrCannotWrite(const uiString& string);
+    //!<"Cannot write <string>"
+    static uiString phrCreate(const uiString& string);
+    //!<"Create <string>"
+    static uiString phrDoesntExist(const uiString& string,int num=1);
+    //!<"<string> does/do not exist"
+    static uiString phrEdit(const uiString& string);
+    //!<"Edit <string>"
+    static uiString phrExistsConinue(const uiString&,bool overwrite);
+    //!<"<string> exists. Continue?" or "<string> exists. Overwrite?
     static uiString phrExport(const uiString& string);
     //!<"Export <string>"
+    static uiString phrImmediate(bool immediate,const uiString& string);
+    //!<string> ...
     static uiString phrImport(const uiString& string);
     //!<"Import <string>"
-    static uiString phrCannotCreate(const uiString& string);
-    //!<"Cannot create <string>
-    static uiString phrCannotFind(const uiString& string);
-    //!<"Cannot find <string>
-    static uiString phrCannotOpen(const uiString& string);
-    //!<"Cannot open <string>
-    static uiString phrCannotRead(const uiString& string);
-    //!<"Cannot read <string>
-    static uiString phrCannotWrite(const uiString& string);
-    //!<"Cannot write <string>
-    static uiString phrCreate(const uiString& string);
-    //!<"Create <string>
-    static uiString phrDoesntExist(const uiString& string,int num=1);
-    //!<"<string> does/do not exist
+    static uiString phrInput(const uiString&);
+    //!<"Input <string>"
+    static uiString phrOutput(const uiString&);
+    //!<"Output <string>"
+    static uiString phrSelect(const uiString& string);
+    //!<"Select <string>"
+    static uiString phrSuccessfullyExported(const uiString&);
+    //!<"Successfully exported <string>"
 
 //Words
     static uiString s2D(bool immediate);
@@ -62,10 +75,6 @@ public:
     static uiString sAttribName()	{ return tr("Attribute Name"); }
     static uiString sAttribute()	{ return tr("Attribute"); }
     static uiString sAttributes(bool immediate);
-    static uiString sBadConnection()	{
-					  return tr("Internal error: "
-						    "bad connection");
-					}
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
     static uiString sCalculate()	{ return tr("Calculate"); }
@@ -83,10 +92,10 @@ public:
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable(bool immediate);
+    static uiString sComponent()	{ return tr("Component"); }
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sCreate(bool immediate);
     static uiString sCreateProbDesFunc();
-    static uiString sCreateRandLines();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
     static uiString sDelete()		{ return tr("Delete"); }
     static uiString sDepth()	        { return tr("Depth"); }
@@ -95,19 +104,11 @@ public:
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
     static uiString sEmptyString()	{ return tr(""); }
-    static uiString sEntValidName()	{
-					  return tr("Please enter a "
-						    "valid name");
-					}
+    static uiString sEnterValidName();
     static uiString sExamine()		{ return tr("Examine"); }
     static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sExitOD()		{ return tr("Exit OpendTect"); }
     static uiString sExport()		{ return tr("Export"); }
-    static uiString sFailConvCompData()	{
-					  return tr("Failed to convert into "
-						    "compatible data");
-					}
-
     static uiString sFaultStickSets(int num=2);
     static uiString sFaultStickSet()	{ return sFaultStickSets(1); }
     static uiString sFault()		{ return sFaults(true,1); }
@@ -125,11 +126,10 @@ public:
     static uiString sImpSuccess()	{ return tr("Import successful"); }
     static uiString sInfo()		{ return tr("info"); }
     static uiString sInline(int num=1)	{ return tr("In-line",0,num); }
-    static uiString sInpParMis()	{
-					  return tr("Input parameters "
-						    "missing");
-					}
+    static uiString sInputParamsMissing();
     static uiString sInput()		{ return tr("Input"); }
+    static uiString sInputSelection()	{ return phrInput( sSelection(true) ); }
+    static uiString sInputASCIIFile();
     static uiString sInputData()	{ return tr("Input Data"); }
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
     static uiString sLoad(bool immediate);
@@ -139,16 +139,13 @@ public:
     static uiString sManWav()		{ return tr("Manage Wavelets"); }
     static uiString sMarker()		{ return sMarkers(false,1); }
     static uiString sMarkers(bool imm,int=2);
+    static uiString sMute()		{ return tr("Mute"); }
     static uiString sName()		{ return tr("Name"); }
     static uiString sNew(bool immediate);
     static uiString sNext()		{ return tr("Next >"); }
     static uiString sNo()		{ return tr("No"); }
     static uiString sNoLogSel()		{ return tr("No log selected"); }
     static uiString sNone()		{ return tr("None"); }
-    static uiString sNoObjStoreSetDB()	{
-					  return tr("No object to store "
-						    "set in data base");
-					}
     static uiString sNormal()		{ return tr("Normal"); }
     static uiString sNoValidData()	{ return tr("No valid data found"); }
     static uiString sOk()		{ return tr("OK"); }
@@ -157,17 +154,19 @@ public:
     static uiString sOperator()		{ return tr("Operator"); }
     static uiString sOptions(bool immediate);
     static uiString sOutpDataStore()	{ return tr("Output data store"); }
-    static uiString sOutpFileOverw()	{
-					  return tr("Output file exists. "
-						    "Overwrite?");
-					}
+    static uiString sOutputFile()	{ return tr("Output file"); }
+    static uiString sOutputStatistic()	{ return phrOutput( tr("statistic") ); }
+    static uiString sOutputFileExistsOverwrite();
     static uiString sOutput()           { return tr("Output"); }
+    static uiString sOutputSelection()	{ return phrOutput(sSelection(true)); }
+    static uiString sOutputASCIIFile();
     static uiString sOverwrite()        { return tr("Overwrite"); }
     static uiString sPause()            { return tr("Pause"); }
     static uiString sPickSet()		{ return tr("Pickset"); }
     static uiString sPolygon()		{ return tr("Polygon"); }
+    static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sProcessing()	{ return tr("Processing"); }
-    static uiString sProbDensFunc();
+    static uiString sProbDensFunc(bool abbrevation=false);
     static uiString sProperties(bool immediate);
     static uiString sRandomLine()	{ return tr("Random Line"); }
     static uiString sRectangle()	{ return tr("Rectangle"); }
@@ -182,36 +181,19 @@ public:
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int num=1)	{ return tr("Scenes",0,1); }
     static uiString sScenes()		{ return sScene(2); }
-    static uiString sSeedData()		{
-					  return tr("Which one is "
-						    "your seed data.");
-					}
     static uiString sSEGY()		{ return tr("SEG-Y"); }
     static uiString sSeismic(bool immediate,int num);
     static uiString sSeismics(bool imm) { return sSeismic(imm,2); }
+    static uiString sSeismics(bool is2d,bool isps,bool imm,int num);
     static uiString sSelAttrib()	{ return tr("Select Attribute"); }
-    static uiString sSelDataSetEmp()	{
-					  return tr("Selected data "
-						    "set is empty");
-					}
+    static uiString sSelection(bool smallletters);
     static uiString sSelect(bool immediate);
-    static uiString sSelObjNotMuteDef() {
-					  return tr("Selected object is "
-						    "not a Mute Definition");
-					}
-    static uiString sSelOutpFile()	{
-					  return tr("Please select "
-						    "output file");
-					}
+    static uiString sSelOutpFile();
     static uiString sSetting(bool immediate,int num=1);
     static uiString sSettings(bool imm) { return sSetting(imm,2); }
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift(bool immediate);
     static uiString sShow()             { return tr("Show"); }
-    static uiString sSpecGenPar()	{
-					  return tr("Specify generation "
-						    "parameters");
-					}
     static uiString sSpecify()		{ return tr("Please specify"); }
     static uiString sSteering()		{ return tr("Steering"); }
     static uiString sStep()		{ return tr("Step"); }
@@ -232,14 +214,28 @@ public:
     static uiString sUse()		{ return tr("Use"); }
     static uiString sUtilities()	{ return tr("Utilities"); }
     static uiString sValue()		{ return tr("Value"); }
+    static uiString sVelocity()		{ return tr("Velocity"); }
     static uiString sVertical()		{ return tr("Vertical"); }
+    static uiString sVolume(bool imm);
     static uiString sView()		{ return tr("View"); }
     static uiString sWavelet()		{ return tr("Wavelet"); }
     static uiString sWell(bool immediate,int num=1);
     static uiString sWells(bool imm) { return sWell(imm,2); }
+    static uiString sWellLog(bool immediate=true,int num=1);
+    static uiString sWellLogs(bool imm) { return sWellLog(imm,2); }
     static uiString sWiggle()		{ return tr("Wiggle"); }
     static uiString sYes()		{ return tr("Yes"); }
     static uiString sSet()		{ return tr("Set"); }
+    static uiString sZUnit()		{ return tr("Z-unit"); }
+
+    static uiString sDistUnitString(bool isfeet,bool abbrevated,
+				    bool withparentheses);
+    /*!< returns "m", "ft", "meter", or "feet" */
+    static uiString sVolDataName(bool is2d,bool is3d,bool isprestack,
+				     bool both_2d_3d_in_context=false,
+				     bool both_pre_post_in_context=false);
+    /*!<Returns names for data volumes such as "2D Data", "Cube",
+	"Pre-stack Data", and similar */
 };
 
 

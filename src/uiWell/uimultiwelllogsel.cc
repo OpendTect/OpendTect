@@ -72,7 +72,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     setHAlignObj( zchoicefld_ );
 
     uiString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
-    const uiString units[] = { uiStrings::sEmptyString(),dptlbl,"(ms)",0 };
+    const uiString units[] = { uiString::emptyString(),dptlbl,"(ms)",0 };
 
     StringListInpSpec slis; const bool istime = SI().zIsTime();
     for ( int idx=0; idx<zchoiceset.size(); idx++ )
@@ -116,7 +116,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     abovefld_->valuechanged.notify( cb );
     abovefld_->attach( alignedBelow, zselectionflds_[0] );
 
-    belowfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+    belowfld_ = new uiGenInput( this, uiString::emptyString(),
                                 FloatInpSpec(0).setName("below") );
     belowfld_->setElemSzPol( uiObject::Medium );
     belowfld_->attach( rightOf, abovefld_ );

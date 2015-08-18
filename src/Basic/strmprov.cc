@@ -149,7 +149,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
     , msg_(tr("Reading '"))
     , fnm_(nm)
 {
-    FilePath fp(nm); msg_.append(fp.fileName()).arg(uiStrings::sEmptyString());
+    FilePath fp(nm); msg_.append(fp.fileName()).arg(uiString::emptyString());
 
     sd_ = StreamProvider(nm).makeIStream(true,false);
     if ( !sd_.usable() )
@@ -307,9 +307,9 @@ bool mkNewPLD()
 }
 
 uiString uiMessage() const
-{ return curpld_ ? curpld_->uiMessage() : uiStrings::sEmptyString(); }
+{ return curpld_ ? curpld_->uiMessage() : uiString::emptyString(); }
 uiString uiNrDoneText() const
-{ return curpld_ ? curpld_->uiNrDoneText() : uiStrings::sEmptyString(); }
+{ return curpld_ ? curpld_->uiNrDoneText() : uiString::emptyString(); }
 od_int64 totalNr() const	{ return totnr_ / 1024; }
 od_int64 nrDone() const
 { return nrdone_ + (curpld_ ? curpld_->nrDone() : 0); }

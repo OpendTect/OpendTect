@@ -26,7 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiExp2DGeom::uiExp2DGeom( uiParent* p )
-    : uiDialog(p,Setup("Export 2D Geometry",mNoDlgTitle,mTODOHelpKey)
+    : uiDialog(p,Setup(uiStrings::phrExport( tr("2D Geometry")),
+		       mNoDlgTitle,mTODOHelpKey)
 		 .modal(false))
 {
     setOkText( uiStrings::sExport() );
@@ -35,7 +36,7 @@ uiExp2DGeom::uiExp2DGeom( uiParent* p )
     geomfld_ = new uiIOObjSelGrp( this, ctxt,
 				  uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
-    outfld_ = new uiFileInput( this, "Output file",
+    outfld_ = new uiFileInput( this, uiStrings::sOutputFile(),
 			       uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, geomfld_ );
 }

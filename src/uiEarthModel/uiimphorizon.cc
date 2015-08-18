@@ -66,7 +66,7 @@ void uiImportHorizon::initClass()
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(uiString::emptyString(),mNoDlgTitle,
 				 mODHelpKey(mImportHorAttribHelpID) )
 				 .modal(false))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
@@ -134,8 +134,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     subselfld_->setSensitive( false );
 
     outputfld_ = new uiIOObjSel( this, ctio_ );
-    outputfld_->setLabelText( isgeom_ ? tr("Output Horizon")
-				      : tr("Add to Horizon") );
+    outputfld_->setLabelText( isgeom_
+			     ? uiStrings::phrOutput( uiStrings::sHorizon() )
+			     : tr("Add to Horizon") );
 
     if ( !isgeom_ )
     {

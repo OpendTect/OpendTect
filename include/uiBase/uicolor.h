@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "color.h"
 #include "uigroup.h"
-#include "uistrings.h"
 
 class uiLabel;
 class uiPushButton;
@@ -28,7 +27,7 @@ class uiSpinBox;
      \return true if new color selected
 */
 mGlobal(uiBase) bool selectColor(Color&,uiParent* parnt=0,
-				 uiString=uiStrings::sEmptyString(),
+				 uiString=uiString::emptyString(),
                                  bool withtransp=false);
 
 // To be used by cmddriver to select a color while closing the QColorDialog

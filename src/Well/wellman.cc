@@ -78,7 +78,7 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 
     if ( mustreplace )
     {
-	wells_.replace( gtByKey(key), wd );
+	wells_.replace( gtByKey(key), wd )->unRef();
 	wd->ref();
     }
     else

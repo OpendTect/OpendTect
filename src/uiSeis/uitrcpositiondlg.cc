@@ -59,7 +59,7 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
 				 mCast(float,posdatarg.step) );
     possldr_->setInterval( floatrg );
     possldr_->attach( rightOf, altdimnmflds_ );
-    posvalfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    posvalfld_ = new uiGenInput( this, uiString::emptyString(),
                                  DoubleInpSpec() );
     posvalfld_->attach( rightOf, possldr_ );
     sldrPosChangedCB( 0 );
@@ -290,7 +290,8 @@ TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
     {
 	int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )
 			       : trcnrfld_->box()->getValue();
-	cs.hsamp_.set( cs.hsamp_.inlRange(), StepInterval<int>( trcnr, trcnr, 1 ) );
+	cs.hsamp_.set( cs.hsamp_.inlRange(),
+		       StepInterval<int>( trcnr, trcnr, 1 ) );
     }
     else
     {

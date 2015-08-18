@@ -214,7 +214,7 @@ class uiStepDialog : public uiDialog
 public:
 
 uiStepDialog( uiParent* p, const char* valstr )
-    : uiDialog(p,Setup("Stepwise tracking",uiStrings::sEmptyString(),
+    : uiDialog(p,Setup("Stepwise tracking",uiString::emptyString(),
 			mODHelpKey(mTrackingWizardHelpID)))
 {
     steptable_ = new uiTable( this, uiTable::Setup(5,1).rowdesc("Step")

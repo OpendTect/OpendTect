@@ -58,10 +58,15 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 	inputdepthctxt.toselect.dontallow_.set( ZDomain::sKey(),
 						ZDomain::sKeyTime() );
     }
-    uiSeisSel::Setup sssu(Seis::Vol); sssu.seltxt(tr("Input Time Volume"));
+
+    const uiString depthvol = tr( "Depth Volume" );
+    const uiString timevol = tr( "Time Volume" );
+
+    uiSeisSel::Setup sssu(Seis::Vol);
+    sssu.seltxt( uiStrings::phrInput( timevol ) );
     inputtimesel_ = new uiSeisSel( this, inputtimectxt, sssu );
     inputtimesel_->attach( alignedBelow, t2dfld_ );
-    sssu.seltxt(tr("Input Depth Volume"));
+    sssu.seltxt( uiStrings::phrInput( depthvol ) );
     inputdepthsel_ = new uiSeisSel( this, inputdepthctxt, sssu );
     inputdepthsel_->attach( alignedBelow, t2dfld_ );
 
@@ -70,7 +75,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 
     IOObjContext outputtimectxt = inputtimectxt;
     outputtimectxt.forread = false;
-    sssu.seltxt( tr("Output Time Volume") );
+    sssu.seltxt( uiStrings::phrOutput( timevol ) );
     outputtimesel_ = new uiSeisSel( this, outputtimectxt, sssu );
     outputtimesel_->selectionDone.notify(
 			mCB(this,uiBatchTime2DepthSetup,objSelCB) );
@@ -78,7 +83,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 
     IOObjContext outputdepthctxt = inputdepthctxt;
     outputdepthctxt.forread = false;
-    sssu.seltxt( tr("Output Depth Volume") );
+    sssu.seltxt( uiStrings::phrOutput( depthvol ) );
     outputdepthsel_ = new uiSeisSel( this, outputdepthctxt, sssu );
     outputdepthsel_->selectionDone.notify(
 			mCB(this,uiBatchTime2DepthSetup,objSelCB) );

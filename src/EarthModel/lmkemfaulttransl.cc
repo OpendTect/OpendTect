@@ -120,7 +120,7 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
     }
 
     if ( !conn->forRead() || !conn->isStream() )
-	{ msg = uiStrings::sBadConnection(); error = true; return; }
+    { msg = Translator::sBadConnection(); error = true; return; }
 
     error = false;
 }

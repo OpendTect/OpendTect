@@ -257,8 +257,8 @@ static uiButton* crStd( uiParent* p, uiButton::StdType typ,
 	const CallBack& cb, bool immediate, const uiString* buttxt,
 	bool pbics=false )
 {
-    uiString txt = uiStrings::sEmptyString();
-    uiString tt = uiStrings::sEmptyString();
+    uiString txt = uiString::emptyString();
+    uiString tt = uiString::emptyString();
 #   define mGetDefs(typ,icnm) \
     case uiButton::typ: { \
     if ( !buttxt ) \
