@@ -95,6 +95,7 @@ public:
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sCreate(bool immediate);
+    static uiString sCreateGroup()	{ return tr("Create Group"); }
     static uiString sCreateProbDesFunc();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
     static uiString sDelete()		{ return tr("Delete"); }
