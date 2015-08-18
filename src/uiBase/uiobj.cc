@@ -422,6 +422,12 @@ bool uiObject::isCursorInside() const
 }
 
 
+void uiObject::setStyleSheet( const char* qss )
+{
+    body()->qwidget()->setStyleSheet( qss );
+}
+
+
 Color uiObject::backgroundColor() const
     { return mConstBody()->uibackgroundColor(); }
 
