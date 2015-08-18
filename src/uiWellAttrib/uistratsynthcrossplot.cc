@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "syntheticdata.h"
+#include "syntheticdataimpl.h"
 #include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
@@ -29,12 +30,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratlayseqattribcalc.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribparam.h"
 #include "attribengman.h"
 #include "attribprocessor.h"
 #include "commondefs.h"
 #include "datapointset.h"
 #include "posvecdataset.h"
 #include "datacoldef.h"
+#include "prestackattrib.h"
+#include "paramsetget.h"
 #include "prestackgather.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -322,12 +326,66 @@ bool uiStratSynthCrossplot::extractModelNr( DataPointSet& dps ) const
 }
 
 
+void uiStratSynthCrossplot::preparePreStackDescs()
+{
+    TypeSet<DataPack::FullID> sddpfids;
+    for ( int idx=0; idx<synthdatas_.size(); idx++ )
+    {
+	const SyntheticData* sd = synthdatas_[idx];
+	sddpfids += sd->datapackid_;
+    }
+
+    Attrib::DescSet* ds =
+	const_cast<Attrib::DescSet*>( &seisattrfld_->descSet() );
+    for ( int dscidx=0; dscidx<ds->size(); dscidx++ )
+    {
+	Attrib::Desc& desc = (*ds)[dscidx];
+	if ( !desc.isPS() )
+	    continue;
+
+	mDynamicCastGet(Attrib::EnumParam*,gathertypeparam,
+			desc.getValParam(Attrib::PSAttrib::gathertypeStr()))
+	if ( gathertypeparam->getIntValue()==(int)(Attrib::PSAttrib::Ang) )
+	{
+	    mDynamicCastGet(Attrib::BoolParam*,useangleparam,
+			    desc.getValParam(Attrib::PSAttrib::useangleStr()))
+	    useangleparam->setValue( true );
+	    uiString errmsg;
+	    Attrib::Provider* attrib = Attrib::Provider::create( desc, errmsg );
+	    mDynamicCastGet(Attrib::PSAttrib*,psattrib,attrib);
+	    if ( !psattrib )
+		continue;
+
+	    BufferString inputpsidstr( psattrib->psID() );
+	    const char* dpbuf = inputpsidstr.buf();
+	    dpbuf++;
+	    inputpsidstr = dpbuf;
+	    DataPack::FullID inputdpid( inputpsidstr );
+
+	    int inpsdidx = sddpfids.indexOf( inputdpid );
+	    if ( inpsdidx<0 || !synthdatas_.validIdx(inpsdidx) )
+		continue;
+
+	    mDynamicCastGet(const PreStackSyntheticData*,pssd,
+			    synthdatas_[inpsdidx])
+	    if ( !pssd )
+		continue;
+
+	    mDynamicCastGet(Attrib::IntParam*,angledpparam,
+			    desc.getValParam(Attrib::PSAttrib::angleDPIDStr()))
+	    angledpparam->setValue( pssd->angleData().id() );
+	}
+    }
+}
+
+
 bool uiStratSynthCrossplot::extractSeisAttribs( DataPointSet& dps,
 						const Attrib::DescSet& attrs )
 {
+    preparePreStackDescs();
+
     uiString errmsg;
     PtrMan<Attrib::EngineMan> aem = createEngineMan( attrs );
-
     PtrMan<Executor> exec = aem->getTableExtractor(dps,attrs,errmsg,2,false);
     if ( !exec )
     {

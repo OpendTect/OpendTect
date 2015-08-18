@@ -511,17 +511,16 @@ fullidstr.add( toString(gdp.id()) ); \
 dpidstring.add( fullidstr.buf() ); \
 Attrib::Desc* psdesc = \
     Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName()); \
-mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf()); \
-mSetFloat( Attrib::PSAttrib::offStartStr(), \
-	   presd->offsetRange().start ); \
-mSetFloat( Attrib::PSAttrib::offStopStr(), \
-	   presd->offsetRange().stop );
+mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf());	
 
 
 #define mSetProc() \
 mSetBool(Attrib::PSAttrib::useangleStr(), true ); \
-mSetFloat(Attrib::PSAttrib::angleStartStr(), synthgenpar.anglerg_.start ); \
-mSetFloat(Attrib::PSAttrib::angleStopStr(), synthgenpar.anglerg_.stop ); \
+mSetFloat(Attrib::PSAttrib::offStartStr(), synthgenpar.anglerg_.start ); \
+mSetFloat(Attrib::PSAttrib::offStopStr(), synthgenpar.anglerg_.stop ); \
+mSetFloat(Attrib::PSAttrib::gathertypeStr(), Attrib::PSAttrib::Ang ); \
+mSetFloat(Attrib::PSAttrib::xaxisunitStr(), Attrib::PSAttrib::Deg ); \
+mSetFloat(Attrib::PSAttrib::angleDPIDStr(), presd->angleData().id() ); \
 psdesc->setUserRef( synthgenpar.name_ ); \
 psdesc->updateParams(); \
 PtrMan<Attrib::DescSet> descset = new Attrib::DescSet( false ); \
@@ -550,8 +549,7 @@ proc->getProvider()->setDesiredVolume( cs ); \
 proc->getProvider()->setPossibleVolume( cs ); \
 mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider()); \
 if ( !psattr ) \
-    mErrRet( proc->uiMessage(), return 0 ) ; \
-psattr->setAngleData( presd->angleData().id() );
+    mErrRet( proc->uiMessage(), return 0 ) ;
 
 
 #define mCreateSeisBuf() \
@@ -1052,10 +1050,20 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    CubeSampling cs( false );
 	    for ( int idx=0; idx<sd->zerooffsd2tmodels().size(); idx++ )
 	    {
-		const TimeDepthModel* d2t = sd->zerooffsd2tmodels()[idx];
-		cs.zrg.include( d2t->getFirstTime(), false );
-		cs.zrg.include( d2t->getLastTime(), false );
+		const SeisTrc* trc = sd->getTrace( idx );
+		const SamplingData<float>& trcsd = trc->info().sampling;
+		if ( !idx )
+		{
+		    cs.zrg.start = trcsd.start;
+		    cs.zrg.stop = trcsd.atIndex( trc->size()-1 );
+		    cs.zrg.step = trcsd.step;
+		    continue;
+		}
+
+		cs.zrg.include( trcsd.start, false );
+		cs.zrg.include( trcsd.atIndex(trc->size()-1), false );
 	    }
+
 	    if ( synthgenpar.synthtype_ == SynthGenParams::AngleStack )
 		sd = createAngleStack( sd, cs, synthgenpar );
 	    else if ( synthgenpar.synthtype_ == SynthGenParams::AVOGradient )

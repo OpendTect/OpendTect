@@ -313,7 +313,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     {
 	anglevals += new PointBasedMathFunction(
 				    PointBasedMathFunction::Linear,
-				    PointBasedMathFunction::ExtraPolGradient );
+				    PointBasedMathFunction::None );
 
 	if ( offsets[ofsidx] )
 	    anglevals[ofsidx]->add( 0.f, M_PI_2f );

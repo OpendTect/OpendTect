@@ -121,6 +121,9 @@ protected:
     MultiID			velocityid_;
 
     ObjectSet<PreStack::Gather>    gatherset_;
+
+public:
+    static const char*		angleDPIDStr()	{ return "angleid"; }
 };
 
 }; // namespace Attrib

@@ -140,12 +140,17 @@ float PropCalc::getVal( float z ) const
     Interval<float> axisvalrg( setup_.offsrg_ );
     if ( useangle )
     {
-	axisvalrg.start = Math::toRadians( (float) setup_.anglerg_.start );
-	axisvalrg.stop = Math::toRadians( (float) setup_.anglerg_.stop );
+	axisvalrg.start = mIsUdf(setup_.anglerg_.start)
+	    ? mUdf(float) : Math::toRadians( (float) setup_.anglerg_.start );
+	axisvalrg.stop = mIsUdf(setup_.anglerg_.stop)
+	    ? mUdf(float) : Math::toRadians( (float) setup_.anglerg_.stop );
     }
 
     const float eps = 1e-3;
-    axisvalrg.start -= eps; axisvalrg.stop += eps;
+    if ( !mIsUdf(axisvalrg.start) )
+	axisvalrg.start -= eps;
+    if ( !mIsUdf(axisvalrg.stop) )
+	axisvalrg.stop += eps;
     axisvalrg.sort();
 
     const int nroffsets = gather_->size( !gather_->offsetDim() );
@@ -165,22 +170,32 @@ float PropCalc::getVal( float z ) const
 	for ( int ishft=-setup_.aperture_; ishft<=setup_.aperture_; ishft++ )
 	{
 	    const float cursamp = ishft+si.getfIndex( z );
-	    if ( cursamp>=innermutes_[itrc] || cursamp<=outermutes_[itrc] )
-		continue;
+	    /*if ( cursamp>=innermutes_[itrc] || cursamp<=outermutes_[itrc] )
+		continue;*/
 
 	    if ( cursamp<0 || cursamp>=nrz )
 		continue;
 
-	    const float axisval =
-			useangle ? angledata_->data().get( itrc, (int)cursamp )
-				 : gather_->getOffset(itrc);
+	    float axisval = mUdf(float);
+	    if ( !useangle )
+		axisval = gather_->getOffset( itrc );
+	    else
+	    {
+		const float* angledata =
+		    angledata_->data().getData() +
+		    angledata_->data().info().getOffset( itrc, 0 );
+		axisval =
+		    IdxAble::interpolateReg( angledata, nrz, cursamp, false );
+	    }
 
-	    if ( !axisvalrg.includes( axisval, true ) )
+	    if ( useangle && !mIsUdf(axisval) )
+		axisval *= setup_.xscaler_;
+
+	    if ( !axisvalrg.isUdf() && !axisvalrg.includes( axisval, true ) )
 		continue;
 
 	    if ( setup_.calctype_ != Stats )
-		axisvals += axisval * setup_.xscaler_;
-
+		axisvals += axisval;
 	    const float val =
 		IdxAble::interpolateReg( seisdata, nrz,cursamp, false );
 	    vals += val;
@@ -237,13 +252,13 @@ float PropCalc::getVal( const PropCalc::Setup& su,
 
     rc.addValues( axisvals.size(), axisvals.arr() );
 
-    if ( vals.size()>0 && mIsZero( rc.getValue( Stats::StdDev ), 1e-3 ) )
+    if ( vals.size()>0 && mIsZero(rc.getValue(Stats::StdDev),1e-3) )
     {
 	Stats::CalcSetup rcsvals;
 	rcsvals.require( Stats::StdDev );
 	Stats::RunCalc<float> rcvals( rcsvals );
 	rcvals.addValues( vals.size(), vals.arr() );
-	if ( mIsZero( rcvals.getValue( Stats::StdDev ), 1e-9 ) )
+	if ( mIsZero(rcvals.getValue(Stats::StdDev),1e-9) )
 	{
 	    switch ( su.lsqtype_ )
 	    {

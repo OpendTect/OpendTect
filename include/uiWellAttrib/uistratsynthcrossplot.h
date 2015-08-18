@@ -89,6 +89,7 @@ protected:
     bool			handleUnsaved();
     bool			rejectOK(CallBacker*);
     bool			acceptOK(CallBacker*);
+    void			preparePreStackDescs();
 
 };
 
