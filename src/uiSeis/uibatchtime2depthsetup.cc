@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     : uiDialog( p,Setup("Time to depth volume conversion",
-			"Time/Depth conversion", 
+			"Time/Depth conversion",
                         mODHelpKey(mBatchTime2DepthSetupHelpID) ) )
 {
     directionsel_ = new uiGenInput( this, "Direction",
@@ -41,9 +41,8 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 				      ZDomain::sKeyTime(), true );
     d2tfld_->attach( alignedBelow, directionsel_ );
 
-    IOObjContext inputtimectxt = SeisTrcTranslatorGroup::ioContext();
-    IOObjContext inputdepthctxt = SeisTrcTranslatorGroup::ioContext();
-    inputtimectxt.forread = inputdepthctxt.forread = true;
+    IOObjContext inputtimectxt = uiSeisSel::ioContext( Seis::Vol, true );
+    IOObjContext inputdepthctxt = uiSeisSel::ioContext( Seis::Vol, true );
     if ( SI().zIsTime() )
     {
 	inputdepthctxt.toselect.require_.set( ZDomain::sKey(),
@@ -144,8 +143,8 @@ bool uiBatchTime2DepthSetup::fillPar()
 {
     const bool istime2depth = directionsel_->getBoolValue();
     RefMan<ZAxisTransform> trans = istime2depth
-    	? t2dfld_->getSelection()
-    	: d2tfld_->getSelection();
+	? t2dfld_->getSelection()
+	: d2tfld_->getSelection();
 
     if ( !trans )
 	return false;

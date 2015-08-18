@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Velocity conversion",
-			"Velocity conversion", 
+			"Velocity conversion",
                         mODHelpKey(mVelBatchVolumeConversionHelpID) ) )
 {
     IOObjContext velctxt = uiVelSel::ioContext();
@@ -41,8 +41,7 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     outputveltype_ = new uiLabeledComboBox( this, "Output velocity type" );
     outputveltype_->attach( alignedBelow, possubsel_ );
 
-    IOObjContext outputctxt = SeisTrcTranslatorGroup::ioContext();
-    outputctxt.forread = false;
+    IOObjContext outputctxt = uiSeisSel::ioContext( Seis::Vol, false );
     outputsel_ = new uiSeisSel(this, outputctxt,uiSeisSel::Setup(Seis::Vol));
     outputsel_->attach( alignedBelow, outputveltype_ );
 
@@ -107,7 +106,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     const IOObj* outputioobj = outputsel_->ioobj(false);
     if ( !outputioobj )
 	return false;
-    
+
     const IOObj* velioobj = input_->ioobj( false );
     if ( !velioobj )
 	return false;
