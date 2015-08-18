@@ -37,7 +37,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigroup.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
-#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uistrings.h"
@@ -67,10 +66,9 @@ uiWellMan::uiWellMan( uiParent* p )
     setPrefWidth( 50 );
 
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
-    uiLabel* lbl = new uiLabel( logsgrp_, uiStrings::sLogs(true) );
-    logsfld_ = new uiListBox( logsgrp_, "Available logs",
-				OD::ChooseAtLeastOne );
-    logsfld_->attach( alignedBelow, lbl );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, uiStrings::sLogs(true),
+			 uiListBox::AboveMid );
+    logsfld_ = new uiListBox( logsgrp_, su );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
 						 OD::Horizontal );
