@@ -106,7 +106,6 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 bool MuteAscIO::getMuteDef( MuteDef& mutedef, const BinID& binid, bool extrapol,
 			    PointBasedMathFunction::InterpolType iptype )
 {
-
     if ( mutedef.indexOf(binid) < 0 )
     {
 	const PointBasedMathFunction::ExtrapolType et = extrapol

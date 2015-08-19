@@ -607,9 +607,9 @@ int EventWriter::nextStep()
 	{
 	    const RowCol& rc( rcols[idx] );
 	    hrg.start_.inl() = inlsampling.atIndex( rc.row() );
-	    hrg.stop_.inl() = inlsampling.atIndex( rc.row()+1 ) - hrg.step_.inl();
+	    hrg.stop_.inl() = inlsampling.atIndex(rc.row()+1) - hrg.step_.inl();
 	    hrg.start_.crl() = crlsampling.atIndex( rc.col() );
-	    hrg.stop_.crl() = crlsampling.atIndex( rc.col()+1 ) - hrg.step_.crl();
+	    hrg.stop_.crl() = crlsampling.atIndex(rc.col()+1) - hrg.step_.crl();
 
 	    SeparString filenamebase( 0, '_' );
 	    filenamebase += hrg.start_.inl();
