@@ -208,7 +208,11 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 	    const bool founddata = cs.nrVals() > 1000;
 	    if ( foundranges && founddata )
 		break;
+
 	}
+	for ( int idx=0; idx<10; idx++ )
+	    if ( !addTrace(strm,true,buf,vals,def,cs) )
+		break;
     }
 
     def.goToTrace( strm, startpos, nrtrcs_ / 2 );
@@ -216,8 +220,12 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 	if ( !addTrace(strm,false,buf,vals,def,cs) )
 	    break;
 
-    def.goToTrace( strm, startpos, nrtrcs_ - 1 );
-    addTrace( strm, false, buf, vals, def, cs );
+    for ( int idx=0; idx<10; idx++ )
+    {
+	def.goToTrace( strm, startpos, nrtrcs_ - 1 - idx );
+	if ( !addTrace(strm,false,buf,vals,def,cs) )
+	    break;
+    }
 }
 
 

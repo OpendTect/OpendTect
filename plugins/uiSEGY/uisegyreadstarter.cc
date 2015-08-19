@@ -117,6 +117,7 @@ FullSpec uiSEGYReadStarter::fullSpec() const
 {
     const SEGY::ImpType& imptyp = impType();
     FullSpec ret( imptyp.geomType(), imptyp.isVSP() );
+    ret.rev0_ = loaddef_.revision_ == 0;
     ret.spec_ = filespec_;
     ret.pars_ = filepars_;
     if ( filereadopts_ )
@@ -474,8 +475,21 @@ bool uiSEGYReadStarter::commit()
     if ( filespec_.isEmpty() )
 	return false;
 
-    // fill filepars_, filereadopts_
-    pErrMsg( "TODO: finish commit" );
+    filepars_.ns_ = loaddef_.ns_;
+    filepars_.fmt_ = loaddef_.format_;
+    filepars_.setSwap( loaddef_.hdrsswapped_, loaddef_.dataswapped_ );
+
+    filereadopts_ = new FileReadOpts( impType().geomType() );
+    filereadopts_->thdef_ = *loaddef_.hdrdef_;
+    filereadopts_->coordscale_ = loaddef_.coordscale_;
+    filereadopts_->timeshift_ = loaddef_.sampling_.start;
+    filereadopts_->sampleintv_ = loaddef_.sampling_.step;
+
+    //TODO
+    // filereadopts_->icdef_ ?
+    // filereadopts_->psdef_ ?
+    // filereadopts_->coorddef_ in next window
+
     return true;
 }
 

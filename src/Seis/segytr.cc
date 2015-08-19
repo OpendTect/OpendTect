@@ -142,13 +142,13 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     unsigned char binheaderbuf[400];
     if ( !strm.getBin( binheaderbuf, SegyBinHeaderLength ) )
 	mErrRet( tr("Cannot read SEG-Y Text header") )
-    binhead_.setInput( binheaderbuf, filepars_.byteswap_ > 1 );
+    binhead_.setInput( binheaderbuf, filepars_.swapHdrs() );
     if ( binhead_.isSwapped() )
 	binhead_.unSwap();
     if ( forcerev0_ )
 	binhead_.setEntryVal( revcodeentry, 0 );
 
-    trchead_.setNeedSwap( filepars_.byteswap_ > 1 );
+    trchead_.setNeedSwap( filepars_.swapHdrs() );
     trchead_.isrev0_ = binhead_.revision() < 1;
     if ( !trchead_.isrev0_ )
     {
@@ -491,7 +491,7 @@ int SEGYSeisTrcTranslator::nrFormatFor( const DataCharacteristics& dc ) const
 
 DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
 {
-    return SEGY::BinHeader::getDataChar( nf, filepars_.byteswap_ );
+    return SEGY::BinHeader::getDataChar( nf, filepars_.swapData() );
 }
 
 

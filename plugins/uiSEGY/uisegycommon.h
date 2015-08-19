@@ -29,8 +29,9 @@ mExpClass(uiSEGY) FullSpec
 public:
 
 			FullSpec( Seis::GeomType gt, bool isvsp=false )
-			    : readopts_(gt), isvsp_(isvsp)	{}
+			    : readopts_(gt), rev0_(false), isvsp_(isvsp) {}
 
+    bool		rev0_;
     FileSpec		spec_;
     FilePars		pars_;
     FileReadOpts	readopts_;

@@ -96,6 +96,8 @@ void uiSEGYReadFinisher::crSeisFields()
 
 void uiSEGYReadFinisher::crVSPFields()
 {
+    // const bool zist = SI().zIsTime();
+
     outwllfld_ = new uiIOObjSel( this, mIOObjContext(Well), tr("Add to Well") );
     outwllfld_->selectionDone.notify( mCB(this,uiSEGYReadFinisher,wllSel) );
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
