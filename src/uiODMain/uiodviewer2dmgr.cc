@@ -488,7 +488,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	    intpoint2d = intersectingLineID( curvwr2d, (float) wp.x );
 	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
 	       return;	
-	    const uiString show2dtxt = tr("Show Line '%1'...").arg(
+	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
 					Survey::GM().getName(intpoint2d.line) );
 	    menu.insertAction( new uiAction(show2dtxt), 0 );
 	}
@@ -496,9 +496,9 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     else
     {
 	const BinID bid = SI().transform( coord );
-	const uiString showinltxt = tr("Show In-line %1...").arg( bid.inl() );
-	const uiString showcrltxt = tr("Show Cross-line %1...").arg( bid.crl());
-	const uiString showztxt = tr("Show Z-slice %1...")
+	const uiString showinltxt = m3Dots(tr("Show In-line %1")).arg( bid.inl() );
+	const uiString showcrltxt = m3Dots(tr("Show Cross-line %1")).arg( bid.crl());
+	const uiString showztxt = m3Dots(tr("Show Z-slice %1"))
 		.arg( mNINT32(coord.z*curvwr2d->zDomain().userFactor()) );
 
 	const bool isflat = tkzs.isFlat();

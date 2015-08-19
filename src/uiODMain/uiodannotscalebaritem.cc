@@ -160,7 +160,7 @@ const char* ScaleBarSubItem::parentType() const
 
 ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem(pck,displayid)
-    , propmnuitem_(uiStrings::sProperties(false))
+    , propmnuitem_(m3Dots(uiStrings::sProperties()))
 {
     propmnuitem_.iconfnm = "disppars";
 }

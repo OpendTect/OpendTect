@@ -134,19 +134,19 @@ void uiAttribDescSetEd::createMenuBar()
 	{ pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
-    mInsertItem( tr("New set ..."), newSet, "new" );
-    mInsertItem( tr("Open set ..."), openSet, "open" );
-    mInsertItem( tr("Save set ..."), savePush, "save" );
-    mInsertItem( tr("Save set as ..."), saveAsPush, "saveas" );
-    mInsertItemNoIcon( tr("Auto Load Attribute Set ..."), autoSet );
-    mInsertItemNoIcon( tr("Change attribute input(s) ..."), changeInput );
+    mInsertItem( m3Dots(tr("New set")), newSet, "new" );
+    mInsertItem( m3Dots(tr("Open set")), openSet, "open" );
+    mInsertItem( m3Dots(tr("Save set")), savePush, "save" );
+    mInsertItem( m3Dots(tr("Save set as")), saveAsPush, "saveas" );
+    mInsertItemNoIcon( m3Dots(tr("Auto Load Attribute Set")), autoSet );
+    mInsertItemNoIcon( m3Dots(tr("Change attribute input(s)")), changeInput );
     filemnu->insertSeparator();
-    mInsertItem( tr("Open Default set ..."), defaultSet, "defset" );
+    mInsertItem( m3Dots(tr("Open Default set")), defaultSet, "defset" );
     uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
-    mInsertMnuItem( impmnu, tr("From other Survey ..."), importSet, "impset" );
-    mInsertMnuItemNoIcon( impmnu, tr("From File ..."), importFile );
-    mInsertItem( tr("Reconstruct from job file ..."), job2Set, "job2set" );
-    mInsertItemNoIcon( tr("Import set from Seismics ..."), importFromSeis );
+    mInsertMnuItem( impmnu, m3Dots(tr("From other Survey")), importSet, "impset" );
+    mInsertMnuItemNoIcon( impmnu, m3Dots(tr("From File")), importFile );
+    mInsertItem( m3Dots(tr("Reconstruct from job file")), job2Set, "job2set" );
+    mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")), importFromSeis );
 
     filemnu->insertItem( impmnu );
     menu->insertItem( filemnu );
@@ -911,8 +911,8 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	{
 	    bs = tr("Attribute Set %1 is of type %2")
 	       .arg(setctio_.ioobj->name())
-	       .arg(attrset.is2D() ? uiStrings::s2D(true)
-				   : uiStrings::s3D(true));
+	       .arg(attrset.is2D() ? uiStrings::s2D()
+				   : uiStrings::s3D());
 	    mErrRetFalse(bs)
 	}
 

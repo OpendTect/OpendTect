@@ -187,12 +187,12 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
 	    caninsertsubitem = false;
     }
     if ( caninsertsubitem )
-	mnu.insertItem( new uiAction(tr("Create sub-unit...")), 0 );
+	mnu.insertItem( new uiAction(m3Dots(tr("Create sub-unit"))), 0 );
     if ( isLeaved( lvit ) )
-	mnu.insertItem( new uiAction(tr("Subdivide unit...")), 1 );
-    mnu.insertItem( new uiAction(uiStrings::sProperties(true)), 2 );
+	mnu.insertItem( new uiAction(m3Dots(tr("Subdivide unit"))), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sProperties()), 2 );
     if ( lv_->currentItem() != lv_->firstItem() )
-	mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 3 );
+	mnu.insertItem( new uiAction(uiStrings::sRemove()), 3 );
     if ( lv_->currentItem() == lv_->firstItem() )
 	 mnu.insertItem( new uiAction(tr("Add Unit below")), 4 );
     if ( isLeaved( lvit ) )

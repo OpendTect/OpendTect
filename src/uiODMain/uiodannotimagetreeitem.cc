@@ -20,11 +20,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivispartserv.h"
 #include "uifiledlg.h"
 #include "visimagedisplay.h"
+#include "uistrings.h"
 
 
 ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem( pck, displayid )
-    , filemnuitem_( tr("Select image ...") )
+    , filemnuitem_( m3Dots(tr("Select image")) )
 {
     defscale_ = mCast(float,set_->disp_.pixsize_);
 }

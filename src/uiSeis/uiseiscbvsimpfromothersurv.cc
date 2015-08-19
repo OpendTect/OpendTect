@@ -40,7 +40,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     finpfld_ = new uiGenInput( this, tr("CBVS file name") );
     finpfld_->setReadOnly();
     CallBack cb = mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,cubeSel);
-    uiPushButton* selbut = new uiPushButton( this, uiStrings::sSelect(false),
+    uiPushButton* selbut = new uiPushButton( this, m3Dots(uiStrings::sSelect()),
                                              cb, true );
     selbut->attach( rightOf, finpfld_ );
 

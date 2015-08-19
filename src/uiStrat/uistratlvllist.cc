@@ -38,9 +38,9 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
     grp->attach( rightTo, box() );
     new uiToolButton( grp, "addnew", tr("Create New"),
 		      mCB(this,uiStratLvlList,addCB) );
-    new uiToolButton( grp, "edit", uiStrings::sEdit(true), 
+    new uiToolButton( grp, "edit", uiStrings::sEdit(),
                       mCB(this,uiStratLvlList,editCB) );
-    new uiToolButton( grp, "stop", uiStrings::sRemove(true),
+    new uiToolButton( grp, "stop", uiStrings::sRemove(),
 		      mCB(this,uiStratLvlList,removeCB) );
     new uiToolButton( grp, "clear", tr("Remove all"),
 		      mCB(this,uiStratLvlList,removeAllCB) );

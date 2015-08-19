@@ -36,7 +36,7 @@ uiHorizonAuxDataDlg( uiParent* p,
 {
     uiGroup* grp = new uiGroup( this, "Group" );
     uiLabel* horlabel = new uiLabel(grp,
-				    uiStrings::sHorizons(true));
+				    uiStrings::sHorizon(2));
     horlistfld_ = new uiListBox( grp );
     horlistfld_->addItems( auxinfo_->hornms_ );
     horlistfld_->attach( ensureBelow, horlabel );
@@ -164,7 +164,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
     , nrhorswithdata_( 0 )
 {
     horfld_ = new uiGenInput( this, uiStrings::sHorizon(), StringInpSpec());
-    selbut_ = new uiPushButton( this, uiStrings::sSelect(true),
+    selbut_ = new uiPushButton( this, uiStrings::sSelect(),
 	    mCB(this,uiHorizonAuxDataSel,selCB), false );
     selbut_->attach( rightOf, horfld_ );
 

@@ -341,8 +341,8 @@ void uiVelSel::updateEditButton()
 {
     if ( editcubebutt_ )
 	editcubebutt_->setText( ioobj(true)
-		    ? uiStrings::sEdit(false)
-		    : uiStrings::sCreate(false) );
+		   ? m3Dots(uiStrings::sEdit())
+		   : m3Dots(uiStrings::sCreate()) );
 }
 
 

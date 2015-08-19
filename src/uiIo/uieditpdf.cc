@@ -614,7 +614,7 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 	lbl->attach( centeredAbove, ccfld_ );
 
 	const CallBack cb( mCB(this,uiEditGaussianProbDenFunc,addSetPush) );
-	addsetbut_ = new uiPushButton( ccgrp, uiStrings::sAdd(true), cb, true );
+	addsetbut_ = new uiPushButton( ccgrp, uiStrings::sAdd(), cb, true );
 	addsetbut_->attach( centeredBelow, topgrp );
 	ccfld_->updateRequested.notify( cb );
     }
@@ -730,7 +730,7 @@ void uiEditGaussianProbDenFunc::varSel( CallBacker* cb )
 
     const int icorr = findCorr();
     addsetbut_->setText( var1fld_->currentItem() == var2fld_->currentItem()
-	    ? "-" : (icorr < 0 ? uiStrings::sAdd(true) : "Set") );
+		? "-" : (icorr < 0 ? uiStrings::sAdd() : uiStrings::sSet() ) );
 }
 
 

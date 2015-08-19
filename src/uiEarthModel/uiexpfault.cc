@@ -247,8 +247,14 @@ bool uiExportFault::acceptOK( CallBacker* )
     
     const IOObj* ioobj = ctio_.ioobj;
     
-    const char* tp = EMFaultStickSetTranslatorGroup::keyword() == ioobj->group()
-                     ? "FaultStickSet" : "Fault";
+    const uiString tp =
+      EMFaultStickSetTranslatorGroup::keyword() == ioobj->group()
+	? uiStrings::sFaultStickSet()
+	: uiStrings::sFault();
+    const uiString tps =
+     EMFaultStickSetTranslatorGroup::keyword() == ioobj->group()
+	? uiStrings::sFaultStickSet(2)
+	: uiStrings::sFault(2);
     uiString msg = tr( "%1 successfully exported\n"
 		    "Do you want to export more %1s?" ).arg(tp);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),

@@ -13,16 +13,15 @@ ________________________________________________________________________
 
 static const char* joinstring = "%1 %2";
 
-#define mImmediateImpl( txt ) return phrImmediate( immediate, txt );
 
 uiString uiStrings::phrASCII( const uiString& string )
-{ return uiString(joinstring).arg( sASCII(true) ).arg( string ); }
+{ return uiString(joinstring).arg( sASCII() ).arg( string ); }
 
-uiString uiStrings::phrImmediate( bool immediate, const uiString& string )
+uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
 { return immediate ? string : uiString( "%1 ..." ).arg( string ); }
 
 uiString uiStrings::phrSelect( const uiString& string )
-{ return uiString(joinstring).arg( sSelect(true) ).arg( string ); }
+{ return uiString(joinstring).arg( sSelect() ).arg( string ); }
 
 uiString uiStrings::phrDoesntExist(const uiString& string, int num )
 { return tr( "%1 does not exist", 0, num ); }
@@ -49,10 +48,10 @@ uiString uiStrings::phrCannotWrite( const uiString& string )
 { return tr("Cannot write %1").arg( string ); }
 
 uiString uiStrings::phrCreate( const uiString& string )
-{ return uiString(joinstring).arg( sCreate(true) ).arg( string ); }
+{ return uiString(joinstring).arg( sCreate() ).arg( string ); }
 
 uiString uiStrings::phrEdit( const uiString& string )
-{ return uiString(joinstring).arg( sEdit(true) ).arg( string ); }
+{ return uiString(joinstring).arg( sEdit() ).arg( string ); }
 
 uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 {
@@ -70,26 +69,26 @@ uiString uiStrings::phrOutput( const uiString& string )
 uiString uiStrings::phrSuccessfullyExported( const uiString& string )
 { return tr( "Successfully exported %1").arg( string );}
 
-uiString uiStrings::s2D( bool immediate )
-{ mImmediateImpl( tr("2D") ); }
+uiString uiStrings::s2D()
+{ return tr("2D"); }
 
-uiString uiStrings::s3D( bool immediate )
-{ mImmediateImpl( tr("3D") ); }
+uiString uiStrings::s3D()
+{ return tr("3D"); }
 
-uiString uiStrings::sAdd( bool immediate )
-{ mImmediateImpl( tr("Add") ); }
+uiString uiStrings::sAdd()
+{ return tr("Add"); }
 
-uiString uiStrings::sASCII( bool immediate )
-{ mImmediateImpl( tr("ASCII") ); }
+uiString uiStrings::sASCII()
+{ return tr("ASCII"); }
 
-uiString uiStrings::sAttributes( bool immediate )
-{ mImmediateImpl( tr("Attributes") ); }
+uiString uiStrings::sAttributes()
+{ return tr("Attributes"); }
 
-uiString uiStrings::sColorTable( bool immediate )
-{ mImmediateImpl( tr("ColorTable") ); }
+uiString uiStrings::sColorTable()
+{ return tr("ColorTable"); }
 
-uiString uiStrings::sCreate( bool immediate )
-{ mImmediateImpl( tr("Create") ); }
+uiString uiStrings::sCreate()
+{ return tr("Create"); }
 
 uiString uiStrings::sCantCreateHor()
 { return phrCannotCreate( tr("horizon") ); }
@@ -121,26 +120,26 @@ uiString uiStrings::sCantOpenOutpFile( int num )
 uiString uiStrings::sCreateProbDesFunc()
 { return phrCreate( sProbDensFunc() ); }
 
-uiString uiStrings::sEdit( bool immediate )
-{ mImmediateImpl( tr("Edit") ); }
+uiString uiStrings::sEdit()
+{ return tr("Edit"); }
 
 uiString uiStrings::sEnterValidName()
 { return tr("Please enter a valid name"); }
 
-uiString uiStrings::sFaults( bool immediate, int num )
-{ mImmediateImpl( tr("Faults", 0, num ) ); }
+uiString uiStrings::sFault( int num )
+{ return tr("Fault", 0, num ); }
 
-uiString uiStrings::sFaultStickSets( int num )
+uiString uiStrings::sFaultStickSet( int num )
 { return tr( "Fault Stick Set", 0, num ); }
 
-uiString uiStrings::sHelp( bool immediate )
-{ mImmediateImpl( tr("Help") ); }
+uiString uiStrings::sHelp()
+{ return tr("Help"); }
 
-uiString uiStrings::sHistogram( bool immediate )
-{ mImmediateImpl( tr("Histogram") ); }
+uiString uiStrings::sHistogram( )
+{ return tr("Histogram"); }
 
-uiString uiStrings::sHorizons( bool immediate, int num )
-{ mImmediateImpl( tr("Horizons", 0, num ) ); }
+uiString uiStrings::sHorizon( int num )
+{ return tr("Horizon", 0, num ); }
 
 uiString uiStrings::sInputASCIIFile()
 { return phrInput( phrASCII( sFile() )); }
@@ -148,23 +147,23 @@ uiString uiStrings::sInputASCIIFile()
 uiString uiStrings::sInputParamsMissing()
 { return tr("Input parameters missing"); }
 
-uiString uiStrings::sLoad( bool immediate )
-{ mImmediateImpl( tr("Load") ); }
+uiString uiStrings::sLoad()
+{ return tr("Load"); }
 
-uiString uiStrings::sLogs( bool immediate )
-{ mImmediateImpl( tr("Logs") ); }
+uiString uiStrings::sLogs()
+{ return tr("Logs"); }
 
-uiString uiStrings::sMarkers( bool immediate, int num )
-{ mImmediateImpl( tr("Markers", 0, num) ); }
+uiString uiStrings::sMarker( int num )
+{ return tr("Marker", 0, num); }
 
-uiString uiStrings::sNew( bool immediate )
-{ mImmediateImpl( tr("New") ); }
+uiString uiStrings::sNew()
+{ return tr("New"); }
 
-uiString uiStrings::sOpen( bool immediate )
-{ mImmediateImpl( tr("Open") ); }
+uiString uiStrings::sOpen()
+{ return tr("Open" ); }
 
-uiString uiStrings::sOptions( bool immediate )
-{ mImmediateImpl( tr("Options") ); }
+uiString uiStrings::sOptions()
+{ return tr("Options"); }
 
 uiString uiStrings::sOutputASCIIFile()
 { return phrOutput( phrASCII( sFile() )); }
@@ -179,31 +178,31 @@ uiString uiStrings::sProbDensFunc( bool abbrevation )
        : tr("Probability Density Function");
 }
 
-uiString uiStrings::sProperties( bool immediate )
-{ mImmediateImpl( tr("Properties") ); }
+uiString uiStrings::sProperties()
+{ return tr("Properties"); }
 
-uiString uiStrings::sRemove( bool immediate )
-{ mImmediateImpl( tr("Remove") ); }
+uiString uiStrings::sRemove()
+{ return tr("Remove"); }
 
-uiString uiStrings::sSave( bool immediate )
-{ mImmediateImpl( tr("Save") ); }
+uiString uiStrings::sSave()
+{ return tr("Save"); }
 
-uiString uiStrings::sSaveAs( bool immediate )
-{ mImmediateImpl( tr("Save as") ); }
+uiString uiStrings::sSaveAs()
+{ return tr("Save as"); }
 
-uiString uiStrings::sSeismic( bool immediate, int num )
-{ mImmediateImpl( tr("Seismic", 0, num ) ); }
+uiString uiStrings::sSeismic( int num )
+{ return tr("Seismic", 0, num ); }
 
-uiString uiStrings::sSeismics( bool is2d, bool isps, bool imm, int num )
+uiString uiStrings::sSeismics( bool is2d, bool isps, int num )
 {
     return uiString( "%1 %2%3" )
-	.arg( is2d ? s2D(true) : s3D(true) )
+	.arg( is2d ? s2D() : s3D() )
 	.arg( isps ? tr("prestack ") : uiString::emptyString() )
-	.arg( sSeismic( imm, num ) );
+	.arg( sSeismic( num ) );
 }
 
-uiString uiStrings::sSelect(bool immediate)
-{ mImmediateImpl( tr("Select") ); }
+uiString uiStrings::sSelect()
+{ return tr("Select"); }
 
 uiString uiStrings::sSelOutpFile()
 { return tr("Please select output file"); }
@@ -211,29 +210,32 @@ uiString uiStrings::sSelOutpFile()
 uiString uiStrings::sSelection(bool smallletters)
 { return smallletters ? tr("selection") : tr("Selection"); }
 
-uiString uiStrings::sSetting( bool immediate, int num )
-{ mImmediateImpl( tr("Setting", 0, num) ); }
+uiString uiStrings::sSetting( int num )
+{ return tr("Setting", 0, num ); }
 
-uiString uiStrings::sShift(bool immediate)
-{ mImmediateImpl( tr("Shift") ); }
+uiString uiStrings::sShift()
+{ return tr("Shift" ); }
 
-uiString uiStrings::sStored( bool immediate )
-{ mImmediateImpl( tr("Stored") ); }
+uiString uiStrings::sStored()
+{ return tr("Stored" ); }
 
-uiString uiStrings::sStratigraphy( bool immediate )
-{ mImmediateImpl( tr("Stratigraphy") ); }
+uiString uiStrings::sStratigraphy()
+{ return tr( "Stratigraphy" ); }
 
-uiString uiStrings::sTrack( bool immediate )
-{ mImmediateImpl( tr("Track") ); }
+uiString uiStrings::sTrack()
+{ return tr("Track" ); }
 
-uiString uiStrings::sVolume( bool immediate )
-{ mImmediateImpl( tr("Volume") ); }
+uiString uiStrings::sVolume()
+{ return tr("Volume"); }
 
-uiString uiStrings::sWell( bool immediate, int num )
-{ mImmediateImpl( tr("Well", 0, num ) ); }
+uiString uiStrings::sWavelet( int num )
+{ return tr("Wavelet", 0, num ); }
 
-uiString uiStrings::sWellLog( bool immediate, int num )
-{ mImmediateImpl( tr("Well log", 0, num ) ); }
+uiString uiStrings::sWell( int num )
+{ return tr("Well", 0, num ); }
+
+uiString uiStrings::sWellLog( int num )
+{ return tr("Well log", 0, num ); }
 
 uiString uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
 {
@@ -249,6 +251,9 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 			     bool both_2d_3d_in_context,
 			     bool both_pre_post_in_context )
 {
+    if ( is2d && is2d )
+	return tr( "Seismic data" );
+
     if ( is2d )
     {
 	if ( isprestack )

@@ -81,7 +81,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
 			mCB(this,uiFileInput,examineFile), false );
 	examinebut_->setText( uiString( "%1 %2")
 			     .arg(exameditable_
-				  ? uiStrings::sEdit(true)
+				  ? uiStrings::sEdit()
 				  : uiStrings::sExamine() )
 			     .arg(txt) );
     }

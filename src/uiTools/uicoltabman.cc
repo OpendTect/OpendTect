@@ -143,7 +143,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
 
-    removebut_ = new uiPushButton( this, uiStrings::sRemove(true), false );
+    removebut_ = new uiPushButton( this, uiStrings::sRemove(), false );
     removebut_->activated.notify( mCB(this,uiColorTableMan,removeCB) );
     removebut_->attach( alignedBelow, splitter );
 
@@ -152,7 +152,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     importbut_->attach( centeredRightOf, removebut_ );
 
     uiPushButton* savebut =
-	new uiPushButton( this, uiStrings::sSaveAs(true), false );
+	new uiPushButton( this, uiStrings::sSaveAs(), false );
     savebut->activated.notify( mCB(this,uiColorTableMan,saveCB) );
     savebut->attach( rightTo, importbut_ );
     savebut->attach( rightBorder, 0 );

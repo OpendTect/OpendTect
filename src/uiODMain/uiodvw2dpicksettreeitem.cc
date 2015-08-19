@@ -49,8 +49,8 @@ bool uiODVw2DPickSetParentTreeItem::init()
 bool uiODVw2DPickSetParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sNew(false)), 0 );
-    mnu.insertItem( new uiAction(uiStrings::sLoad(false)), 1 );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sNew())), 0 );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), 1 );
     insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
@@ -164,13 +164,13 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction( uiStrings::sProperties( false )), 0 );
-    mnu.insertItem( new uiAction(tr("Set &direction ...")), 1 );
-    uiAction* saveitm = new uiAction( uiStrings::sSave(false) );
+    mnu.insertItem( new uiAction( m3Dots(uiStrings::sProperties())), 0 );
+    mnu.insertItem( new uiAction(m3Dots(tr("Set &direction"))), 1 );
+    uiAction* saveitm = new uiAction( m3Dots(uiStrings::sSave()) );
     mnu.insertItem( saveitm, 2 );
     saveitm->setEnabled( changed );
-    mnu.insertItem( new uiAction( uiStrings::sSaveAs(true) ), 3 );
-    mnu.insertItem( new uiAction(uiStrings::sRemove(true) ), 4 );
+    mnu.insertItem( new uiAction( uiStrings::sSaveAs() ), 3 );
+    mnu.insertItem( new uiAction(uiStrings::sRemove() ), 4 );
 
     const int mnuid = mnu.exec();
     switch ( mnuid )

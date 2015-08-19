@@ -86,7 +86,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tools", showSettingsCB, uiStrings::sSettings(true), false );
+    mAddButton( "tools", showSettingsCB, uiStrings::sSettings(), false );
 
     seedconmodefld_ = new uiComboBox( toolbar_, "Seed connect mode" );
     seedconmodefld_->setToolTip( tr("Seed connect mode") );

@@ -50,13 +50,13 @@ static const int cLogDispSize = 4;
 bool uiODWellParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), cAddIdx );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), cAddIdx );
     if ( SI().zIsTime() )
 	mnu.insertItem(
-	    new uiAction(tr("Tie Well to Seismic ..."),"well_tie"), cTieIdx);
-    mnu.insertItem( new uiAction(tr("New WellTrack ...")), cNewWellIdx );
+	    new uiAction(m3Dots(tr("Tie Well to Seismic")),"well_tie"), cTieIdx);
+    mnu.insertItem( new uiAction(m3Dots(tr("New WellTrack"))), cNewWellIdx );
     if ( children_.size() > 1 )
-	mnu.insertItem( new uiAction(tr("Create Attribute Log ...")),
+	mnu.insertItem( new uiAction(m3Dots(tr("Create Attribute Log"))),
 			cAttribIdx);
 
     if ( children_.size() )
@@ -74,17 +74,17 @@ bool uiODWellParentTreeItem::showSubMenu()
 	uiMenu* showmnu = new uiMenu( getUiParent(), tr("Show All") );
 	showmnu->insertItem( new uiAction(tr("Well Names (Top)")), 41 );
 	showmnu->insertItem( new uiAction(tr("Well Names (Bottom)")), 42 );
-	showmnu->insertItem( new uiAction(uiStrings::sMarkers(true)), 43 );
+	showmnu->insertItem( new uiAction(uiStrings::sMarker(2)), 43 );
 	showmnu->insertItem( new uiAction(tr("Marker Names")), 44 );
-	showmnu->insertItem( new uiAction(uiStrings::sLogs(true)), 45 );
+	showmnu->insertItem( new uiAction(uiStrings::sLogs()), 45 );
 	mnu.insertItem( showmnu );
 
 	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide All") );
 	hidemnu->insertItem( new uiAction(tr("Well Names (Top)")), 51 );
 	hidemnu->insertItem( new uiAction(tr("Well Names (Bottom)")), 52 );
-	hidemnu->insertItem( new uiAction(uiStrings::sMarkers(true)), 53 );
+	hidemnu->insertItem( new uiAction(uiStrings::sMarker(2)), 53 );
 	hidemnu->insertItem( new uiAction(tr("Marker Names")), 54 );
-	hidemnu->insertItem( new uiAction(uiStrings::sLogs(true)), 55 );
+	hidemnu->insertItem( new uiAction(uiStrings::sLogs()), 55 );
 	mnu.insertItem( hidemnu );
     }
     addStandardItems( mnu );
@@ -202,21 +202,21 @@ uiODWellTreeItem::~uiODWellTreeItem()
 
 void uiODWellTreeItem::initMenuItems()
 {
-    propertiesmnuitem_.text = uiStrings::sProperties( false );
+    propertiesmnuitem_.text = m3Dots(uiStrings::sProperties());
     propertiesmnuitem_.iconfnm = "disppars";
     logviewermnuitem_.text = "2D Log Viewer ...";
     gend2tmmnuitem_.text = "Tie Well to Seismic ...";
     gend2tmmnuitem_.iconfnm = "well_tie";
     nametopmnuitem_.text = "Well Name (Top)";
     namebotmnuitem_.text = "Well Name (Bottom)";
-    markermnuitem_.text = uiStrings::sMarkers(true);
+    markermnuitem_.text = uiStrings::sMarker(2);
     markernamemnuitem_.text = "Marker Names";
-    showlogmnuitem_.text = uiStrings::sLogs(true) ;
+    showlogmnuitem_.text = uiStrings::sLogs() ;
     attrmnuitem_.text = "Create Attribute Log ...";
     logcubemnuitem_.text = "Create Log Cube ...";
     showmnuitem_.text = uiStrings::sShow() ;
     editmnuitem_.text = "Edit Welltrack" ;
-    storemnuitem_.text = uiStrings::sSave(true);
+    storemnuitem_.text = uiStrings::sSave();
     storemnuitem_.iconfnm = "save" ;
     amplspectrummnuitem_.text = "Show Amplitude Spectrum";
 

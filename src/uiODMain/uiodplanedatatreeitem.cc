@@ -74,7 +74,7 @@ uiString uiODPlaneDataTreeItem::sAddColorBlended()
 { return uiStrings::sAddColBlend(); }
 
 uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
-{ return tr("Add at Well Location ..."); }
+{ return m3Dots(tr("Add at Well Location")); }
 
 
 #define mParentShowSubMenu( treeitm, fromwell ) \
@@ -118,8 +118,8 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     : orient_(o)
     , type_(t)
     , positiondlg_(0)
-    , positionmnuitem_(tr("Position ..."),cPositionIdx)
-    , gridlinesmnuitem_(tr("Gridlines ..."),cGridLinesIdx)
+    , positionmnuitem_(m3Dots(tr("Position")),cPositionIdx)
+    , gridlinesmnuitem_(m3Dots(tr("Gridlines")),cGridLinesIdx)
     , addinlitem_(tr("Add Inl-line"),10003)
     , addcrlitem_(tr("Add Crl-line"),10002)
     , addzitem_(tr("Add Z-slice"),10001)

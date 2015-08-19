@@ -217,7 +217,7 @@ void uiVisEMObject::setUpConnections()
     seedsmenuitem_.text = tr("Seeds");
     seedsmenuitem_.checkable = false;
     showseedsmnuitem_.text = uiStrings::sShow();
-    seedpropmnuitem_.text = uiStrings::sProperties(false);
+    seedpropmnuitem_.text = m3Dots(uiStrings::sProperties());
     lockseedsmnuitem_.text = uiStrings::sLock();
     showonlyatsectionsmnuitem_.text = tr("Only at sections");
     showfullmnuitem_.text = tr("In full");
@@ -518,7 +518,7 @@ static void fillResolutionNames( BufferStringSet& nms )
 
 // uiHorizonSettings
 uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,uiStrings::sHorizons(true),setts)
+    : uiSettingsGroup(p,uiStrings::sHorizon(2),setts)
 {
     if ( sResolutionNames.isEmpty() )
 	fillResolutionNames( sResolutionNames );

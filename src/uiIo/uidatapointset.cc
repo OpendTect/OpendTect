@@ -314,7 +314,7 @@ void uiDataPointSet::mkToolBars()
     mAddButton( "axis-prev", colStepL, tr("Set Y one column left") );
     mAddButton( "axis-next", colStepR, tr("Set Y one column right") );
     mAddButton( "sortcol", setSortCol, tr("Set sorted column to current") );
-    mAddButton( "plus", addColumn, tr("Add column ...") );
+    mAddButton( "plus", addColumn, m3Dots(tr("Add column")) );
     mAddButton( "minus", removeColumn, tr("Remove column") );
 #undef mAddButton
 

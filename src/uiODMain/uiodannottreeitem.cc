@@ -222,7 +222,7 @@ bool uiODAnnotTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     BufferString addtxt = "New "; addtxt += typestr_; addtxt += " group ...";
     mnu.insertItem( new uiAction(addtxt), 0 );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 1 );
+    mnu.insertItem(new uiAction(m3Dots(uiStrings::sLoad())),1);
 
     const int mnusel = mnu.exec();
     if ( mnusel < 0 ) return false;
@@ -306,8 +306,8 @@ uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
     : set_( &set )
     , defscale_(mCast(float,set.disp_.pixsize_))
     , scalemnuitem_("Size ...")
-    , storemnuitem_(uiStrings::sSave(true))
-    , storeasmnuitem_(uiStrings::sSaveAs(false))
+    , storemnuitem_(uiStrings::sSave())
+    , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
 {
     name_ = set_->name();
     displayid_ = displayid;

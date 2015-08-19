@@ -664,7 +664,7 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addfltbutton_->attach( alignedBelow, addhorbutton_ );
 
-    removebutton_ = new uiPushButton( this, uiStrings::sRemove(true),
+    removebutton_ = new uiPushButton( this, uiStrings::sRemove(),
 	    mCB(this,uiBodyRegionDlg,removeSurfaceCB), false );
     removebutton_->attach( alignedBelow, addfltbutton_ );
     removebutton_->setSensitive( false );

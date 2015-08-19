@@ -336,7 +336,7 @@ bool acceptOK( CallBacker* )
 	    mErrRet(tr("Cannot open:\n%1\nfor write").arg(fnm_))
 
 	if ( !lm_.write(strm,0,presmathfld_->getBoolValue()) )
-	    mErrRet(tr("Unknown error during write ..."))
+	    mErrRet(m3Dots(tr("Unknown error during write")))
     }
 
     fillPar();
@@ -625,7 +625,8 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	return;
 
     uiMenu mnu( parent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sProperties(false)), 0 );
+    mnu.insertItem( new uiAction(
+		    m3Dots( uiStrings::sProperties() ), 0 ));
     mnu.insertItem( new uiAction("Remove layer ..."), 1 );
     mnu.insertItem( new uiAction("Remove this Well"), 2 );
     mnu.insertItem( new uiAction("Dump all wells to file ..."), 3 );
@@ -653,7 +654,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	uiDialog dlg( this, uiDialog::Setup( "Remove a layer",
 		                  BufferString("Remove '",lay.name(),"'"),
                                   mODHelpKey(mStratSimpleLayerModDispHelpID)));
-	uiGenInput* gi = new uiGenInput( &dlg, uiStrings::sRemove(true),
+	uiGenInput* gi = new uiGenInput( &dlg, uiStrings::sRemove(),
                                          BoolInpSpec(true,
                                          "Only this layer",
                                          "All layers with this ID") );

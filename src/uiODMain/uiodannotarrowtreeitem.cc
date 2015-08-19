@@ -26,7 +26,7 @@ const char* ArrowSubItem::parentType() const
 
 ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem( pck, displayid )
-    , propmnuitem_( uiStrings::sProperties(false) )
+    , propmnuitem_( m3Dots(uiStrings::sProperties()) )
     , arrowtype_( 2 )
 {
     defscale_ = mCast(float,set_->disp_.pixsize_);

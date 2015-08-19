@@ -67,7 +67,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 	overlaygrps_ += grp;
     }
 
-    addbut_ = new uiPushButton( rightgrp, uiStrings::sAdd(true),
+    addbut_ = new uiPushButton( rightgrp, uiStrings::sAdd(),
 				mCB(this,uiGMTMainWin,addCB), true );
     addbut_->setToolTip( tr("Add to current flow") );
     addbut_->attach( alignedBelow, tabstack_ );

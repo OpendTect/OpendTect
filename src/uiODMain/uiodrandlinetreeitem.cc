@@ -135,21 +135,21 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(tr("Add Empty")), 0 );
-    mnu.insertItem( new uiAction(tr("Add Stored ...")), 2 );
+    mnu.insertItem( new uiAction(m3Dots(tr("Add Stored"))), 2 );
 
     uiMenu* rgbmnu =
 	new uiMenu( getUiParent(), uiStrings::sAddColBlend() );
     rgbmnu->insertItem( new uiAction(tr("Empty")), 1 );
-    rgbmnu->insertItem( new uiAction(uiStrings::sStored(false)), 3 );
+    rgbmnu->insertItem( new uiAction( m3Dots(uiStrings::sStored()) ), 3 );
     mnu.insertItem( rgbmnu );
 
-    uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew(true) );
-    newmnu->insertItem( new uiAction(tr("Interactive  ...")), 4 );
-    newmnu->insertItem( new uiAction(tr("Along Contours ...")), 5 );
-    newmnu->insertItem( new uiAction(tr("From Existing ...")), 6 );
-    newmnu->insertItem( new uiAction(tr("From Polygon ...")), 7 );
-    newmnu->insertItem( new uiAction(tr("From Table ...")), 8 );
-    newmnu->insertItem( new uiAction(tr("From Wells ...")), 9 );
+    uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
+    newmnu->insertItem( new uiAction(m3Dots(tr("Interactive "))), 4 );
+    newmnu->insertItem( new uiAction(m3Dots(tr("Along Contours"))), 5 );
+    newmnu->insertItem( new uiAction(m3Dots(tr("From Existing"))), 6 );
+    newmnu->insertItem( new uiAction(m3Dots(tr("From Polygon"))), 7 );
+    newmnu->insertItem( new uiAction(m3Dots(tr("From Table"))), 8 );
+    newmnu->insertItem( new uiAction(m3Dots(tr("From Wells"))), 9 );
     mnu.insertItem( newmnu );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
@@ -369,11 +369,11 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
     , rdlgeom_(0)
-    , editnodesmnuitem_(tr("Position ..."))
+    , editnodesmnuitem_(m3Dots(tr("Position")))
     , insertnodemnuitem_(tr("Insert Node"))
-    , saveasmnuitem_(uiStrings::sSaveAs(false))
-    , saveas2dmnuitem_(tr("Save as 2D ..."))
-    , create2dgridmnuitem_(tr("Create 2D Grid ..."))
+    , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()))
+    , saveas2dmnuitem_(m3Dots(tr("Save as 2D")))
+    , create2dgridmnuitem_(m3Dots(tr("Create 2D Grid")))
 {
     editnodesmnuitem_.iconfnm = "orientation64";
     saveasmnuitem_.iconfnm = "saveas";
@@ -385,11 +385,11 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem(
 			const Geometry::RandomLineSet& rlset, Type tp )
     : type_(tp)
     , rdlgeom_(&rlset)
-    , editnodesmnuitem_(tr("Position ..."))
+    , editnodesmnuitem_(m3Dots(tr("Position")))
     , insertnodemnuitem_(tr("Insert Node"))
-    , saveasmnuitem_(uiStrings::sSaveAs(false))
-    , saveas2dmnuitem_(tr("Save as 2D ..."))
-    , create2dgridmnuitem_(tr("Create 2D Grid ..."))
+    , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()))
+    , saveas2dmnuitem_(m3Dots(tr("Save as 2D")))
+    , create2dgridmnuitem_(m3Dots(tr("Create 2D Grid")))
 {
     editnodesmnuitem_.iconfnm = "orientation64";
     saveasmnuitem_.iconfnm = "saveas";

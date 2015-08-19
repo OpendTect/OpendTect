@@ -346,7 +346,7 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
 int uiMsg::askSave( const uiString& text, bool wcancel )
 {
     const uiString dontsavetxt = tr("Don't save");
-    return question( text, uiStrings::sSave(true), dontsavetxt,
+    return question( text, uiStrings::sSave(), dontsavetxt,
 		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
 		     tr("Data not saved") );
 }
@@ -355,7 +355,7 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 int uiMsg::askRemove( const uiString& text, bool wcancel )
 {
     const uiString notxt = wcancel ? tr("Don't remove") : uiStrings::sCancel();
-    return question( text, uiStrings::sRemove(true), notxt,
+    return question( text, uiStrings::sRemove(), notxt,
 		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
 		     tr("Remove data") );
 }

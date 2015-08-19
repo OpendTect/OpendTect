@@ -126,8 +126,8 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     horizonfld_->attach( leftAlignedBelow, lbl );
 
     modefld_ = new uiGenInput( this, "Modify action",
-			       BoolInpSpec(true,uiStrings::sShift(true),
-                               uiStrings::sRemove(true)) );
+			       BoolInpSpec(true,uiStrings::sShift(),
+			       uiStrings::sRemove()) );
     modefld_->attach( alignedBelow, horizonfld_ );
 
     savefld_ = new uiGenInput( this, "Save modified horizon",

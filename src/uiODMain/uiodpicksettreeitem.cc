@@ -118,13 +118,13 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(tr("Add PickSet ...")), mLoadIdx );
-    mnu.insertItem( new uiAction(tr("Add Polygon...")), mLoadPolyIdx );
+    mnu.insertItem( new uiAction(m3Dots(tr("Add PickSet"))), mLoadIdx );
+    mnu.insertItem( new uiAction(m3Dots(tr("Add Polygon"))), mLoadPolyIdx );
     uiMenu* newmnu = new uiMenu( getUiParent(), tr("New PickSet") );
-    newmnu->insertItem( new uiAction(tr("Empty ...")), mEmptyIdx );
-    newmnu->insertItem( new uiAction(tr("Generate 3D...")), mGen3DIdx );
+    newmnu->insertItem( new uiAction(m3Dots(tr("Empty"))), mEmptyIdx );
+    newmnu->insertItem( new uiAction(m3Dots(tr("Generate 3D"))), mGen3DIdx );
     if ( SI().has2D() )
-	newmnu->insertItem( new uiAction(tr("Generate 2D ...")), mRandom2DIdx);
+	newmnu->insertItem( new uiAction(m3Dots(tr("Generate 2D"))), mRandom2DIdx);
     mnu.insertItem( newmnu );
     mnu.insertItem( new uiAction(tr("New Polygon ...")), mPolygonIdx );
 
@@ -139,7 +139,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("Merge Sets ...")), mMergeIdx );
+	mnu.insertItem( new uiAction(m3Dots(tr("Merge Sets"))), mMergeIdx );
 	mnu.insertItem( new uiAction(tr("Save Changes")), mSaveIdx );
     }
 
@@ -229,11 +229,11 @@ uiTreeItem*
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
-    , storemnuitem_(uiStrings::sSave(true))
-    , storeasmnuitem_(uiStrings::sSaveAs(true))
-    , dirmnuitem_(tr("Set Directions ..."))
+    , storemnuitem_(uiStrings::sSave())
+    , storeasmnuitem_(uiStrings::sSaveAs())
+    , dirmnuitem_(m3Dots(tr("Set Directions")))
     , onlyatsectmnuitem_(tr("Only at Sections"))
-    , propertymnuitem_(uiStrings::sProperties( false ))
+    , propertymnuitem_(m3Dots(uiStrings::sProperties() ) )
     , closepolyitem_(tr("Close Polygon"))
     , convertbodymnuitem_( tr("Convert to Body") )
 {

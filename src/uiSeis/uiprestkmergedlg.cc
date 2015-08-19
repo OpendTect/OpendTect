@@ -91,7 +91,7 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 
 void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 {
-    uiLabel* sellbl = new uiLabel( selbuttons, uiStrings::sSelect(true) );
+    uiLabel* sellbl = new uiLabel( selbuttons, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiPreStackMergeDlg,selButPush);
     toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow,
 				  uiString::emptyString(), cb);

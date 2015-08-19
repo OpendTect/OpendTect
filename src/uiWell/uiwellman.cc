@@ -67,7 +67,7 @@ uiWellMan::uiWellMan( uiParent* p )
     setPrefWidth( 50 );
 
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
-    uiLabel* lbl = new uiLabel( logsgrp_, uiStrings::sLogs(true) );
+    uiLabel* lbl = new uiLabel( logsgrp_, uiStrings::sLogs() );
     logsfld_ = new uiListBox( logsgrp_, "Available logs",
 				OD::ChooseAtLeastOne );
     logsfld_->attach( alignedBelow, lbl );
@@ -76,7 +76,7 @@ uiWellMan::uiWellMan( uiParent* p )
 						 OD::Horizontal );
     addlogsbut_ = new uiPushButton( logsbgrp, uiStrings::sImport(), false );
     addlogsbut_->activated.notify( mCB(this,uiWellMan,importLogs) );
-    calclogsbut_ = new uiPushButton( logsbgrp, uiStrings::sCreate(true), false);
+    calclogsbut_ = new uiPushButton( logsbgrp, uiStrings::sCreate(), false);
     calclogsbut_->activated.notify( mCB(this,uiWellMan,calcLogs) );
     calclogsbut_->attach( rightOf, addlogsbut_ );
     logsbgrp->attach( centeredBelow, logsgrp_ );
@@ -89,11 +89,11 @@ uiWellMan::uiWellMan( uiParent* p )
     logrmbut_ = butgrp->addButton( uiManipButGrp::Remove,
 		"Remove selected log(s)", mCB(this,uiWellMan,removeLogPush) );
     logexpbut_ = butgrp->addButton( "export",
-			uiStrings::phrExport( uiStrings::sWellLogs(true) ),
+			uiStrings::phrExport( uiStrings::sWellLog(2) ),
 			mCB(this,uiWellMan,exportLogs) );
     loguombut_ = butgrp->addButton( "unitsofmeasure",
 		"View/edit unit of measure", mCB(this,uiWellMan,logUOMPush) );
-    logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(true),
+    logedbut_ = butgrp->addButton( "edit", uiStrings::sEdit(),
 			mCB(this,uiWellMan,editLogPush) );
     logupbut_ = butgrp->addButton( "uparrow", "Move up",
 			mCB(this,uiWellMan,moveLogsPush) );
@@ -119,7 +119,7 @@ uiWellMan::uiWellMan( uiParent* p )
     }
 
     markerbut_ = new uiToolButton( extrabutgrp_, "edmarkers",
-			      uiStrings::phrEdit( uiStrings::sMarkers(true)),
+			      uiStrings::phrEdit( uiStrings::sMarker(2) ),
 			      mCB(this,uiWellMan, edMarkers) );
     markerbut_->attach( rightOf, d2tbut_ ? d2tbut_ : welltrackbut_ );
 

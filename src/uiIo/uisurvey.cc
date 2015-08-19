@@ -251,7 +251,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 
     pol2dfld_ = new uiCheckList( this, uiCheckList::OneMinimum, OD::Horizontal);
     pol2dfld_->setLabel( tr("Available data") );
-    pol2dfld_->addItem( uiStrings::s3D(true) ).addItem( uiStrings::s2D(true) );
+    pol2dfld_->addItem( uiStrings::s3D() ).addItem( uiStrings::s2D() );
     pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
     pol2dfld_->changed.notify( mCB(this,uiStartNewSurveySetup,pol2dChg) );
     pol2dfld_->attach( alignedBelow, survnmfld_ );
@@ -459,7 +459,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     putToScreen();
     updateDataRootLabel();
-    setOkText( uiStrings::sSelect(true) );
+    setOkText( uiStrings::sSelect() );
     postFinalise().notify( selchgcb );
 }
 

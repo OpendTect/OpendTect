@@ -135,9 +135,9 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     if ( dpfids_.size() )
 	replaceStoredByInMem();
 
-    setCaption( uiStrings::sSelect(true) );
+    setCaption( uiStrings::sSelect() );
 
-    uiString title = uiStrings::sSelect(true).append(" ").append( seltxt );
+    uiString title = uiStrings::sSelect().append(" ").append( seltxt );
     setTitleText( title );
     setName( title.getFullString() );
 
@@ -246,7 +246,7 @@ void uiAttrSelDlg::createSelectionButtons()
     const bool havesteered = attrinf_->steernms_.size();
 
     selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
-    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored(true) );
+    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored() );
     storfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     storfld_->setSensitive( havestored );
 
@@ -257,7 +257,7 @@ void uiAttrSelDlg::createSelectionButtons()
 	steerfld_->setSensitive( havesteered );
     }
 
-    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttributes(true) );
+    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttributes() );
     attrfld_->setSensitive( haveattribs );
     attrfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
 

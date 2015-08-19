@@ -55,7 +55,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     }
 
     if ( writeallowed )
-	setOkText( uiStrings::sSave(true) );
+	setOkText( uiStrings::sSave() );
     else
 	setCtrlStyle( CloseOnly );
 

@@ -120,11 +120,11 @@ bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
 
     if ( attrset.is2D() != is2d_ )
     {
-            bs = tr("Attribute Set %1 is fo type %2 "
-		    "Please select another attribute set")
-	       .arg(ctio_.ioobj->name())
-	       .arg(attrset.is2D() ? uiStrings::s2D(true) 
-				   : uiStrings::s3D(true));
+	bs = tr("Attribute Set %1 is fo type %2 "
+		"Please select another attribute set")
+	   .arg(ctio_.ioobj->name())
+	   .arg(attrset.is2D() ? uiStrings::s2D()
+			       : uiStrings::s3D());
 	uiMSG().error( bs );
 	return false;
     }

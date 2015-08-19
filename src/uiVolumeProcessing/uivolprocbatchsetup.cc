@@ -44,7 +44,7 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
 	setupsel_->setInput( *initialsetup );
     setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );
 
-    editsetup_ = new uiPushButton( this, uiStrings::sCreate(true),
+    editsetup_ = new uiPushButton( this, uiStrings::sCreate(),
 	    uiPixmap(uiChain::pixmapFileName()),
 	    mCB(this, uiBatchSetup, editPushCB), false );
     editsetup_->attach( rightOf, setupsel_ );
@@ -139,8 +139,9 @@ bool uiBatchSetup::fillPar()
 void uiBatchSetup::setupSelCB( CallBacker* )
 {
     const IOObj* outputioobj = setupsel_->ioobj( true );
-    editsetup_->setText( outputioobj ? uiStrings::sEdit(false)
-                                     : uiStrings::sCreate(false) );
+    editsetup_->setText( outputioobj
+			? m3Dots(uiStrings::sEdit())
+			: m3Dots(uiStrings::sCreate()) );
 
     retrieveChain();
     const bool needsfullvol = chain_ ? chain_->needsFullVolume() : true;

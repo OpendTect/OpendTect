@@ -75,7 +75,7 @@ uiDateSel::uiDateSel( uiParent* p, const uiString& label, const DateInfo* di )
     yearfld_->setMaxLength( 4 );
     yearfld_->attach( rightOf, monthfld_ );
 
-    showcalendarbut_ = new uiPushButton( this, uiStrings::sSelect(true),
+    showcalendarbut_ = new uiPushButton( this, uiStrings::sSelect(),
 	    mCB(this,uiDateSel,showCalendarCB), false );
     showcalendarbut_->attach( rightOf, yearfld_ );
 

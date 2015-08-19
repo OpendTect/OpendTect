@@ -103,7 +103,7 @@ void uiStratTreeWin::setNewRT()
     uiSelectFromList::Setup su( dlgmsg, opts );
     uiSelectFromList dlg( this, su );
     if ( nortpresent )
-	dlg.setButtonText( uiDialog::CANCEL, uiStrings::sStratigraphy(true) );
+	dlg.setButtonText( uiDialog::CANCEL, uiStrings::sStratigraphy() );
     if ( dlg.go() )
     {
 	const char* nm = opts.get( dlg.selection() );
@@ -169,7 +169,7 @@ void uiStratTreeWin::createMenu()
 	new uiAction( mEditTxt(true), mCB(this,uiStratTreeWin,editCB) );
     mnu->insertItem( editmnuitem_ );
     editmnuitem_->setIcon( "unlock" );
-    savemnuitem_ = new uiAction( uiStrings::sSave(true),
+    savemnuitem_ = new uiAction( uiStrings::sSave(),
 				 mCB(this,uiStratTreeWin,saveCB) );
     mnu->insertItem( savemnuitem_ );
     savemnuitem_->setIcon( "save" );
@@ -179,8 +179,8 @@ void uiStratTreeWin::createMenu()
     resetmnuitem_->setIcon( "undo" );
     mnu->insertSeparator();
 
-    saveasmnuitem_ = new uiAction( uiStrings::sSaveAs(false),
-				   mCB(this,uiStratTreeWin,saveAsCB) );
+    saveasmnuitem_ = new uiAction(m3Dots(uiStrings::sSaveAs()),
+				  mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
     saveasmnuitem_->setIcon( "saveas" );
     menubar->insertItem( mnu );
@@ -200,11 +200,11 @@ void uiStratTreeWin::createToolBar()
     mDefBut(moveunitupbut_,"uparrow",moveUnitCB,tr("Move unit up"));
     mDefBut(moveunitdownbut_,"downarrow",moveUnitCB,tr("Move unit down"));
     tb_->addSeparator();
-    mDefBut(newbut_,"new",newCB,uiStrings::sNew(true));
+    mDefBut(newbut_,"new",newCB,uiStrings::sNew());
     mDefBut(lockbut_,"unlock",editCB,mEditTxt(false));
     lockbut_->setToggleButton( true );
     uiToolButton* uitb;
-    mDefBut(uitb,"save",saveCB,uiStrings::sSave(true));
+    mDefBut(uitb,"save",saveCB,uiStrings::sSave());
     mDefBut(uitb,"contexthelp",helpCB,tr("Help on this window"));
     tb_->addSeparator();
     mDefBut( switchviewbut_, "strat_tree", switchViewCB, tr("Switch View") );

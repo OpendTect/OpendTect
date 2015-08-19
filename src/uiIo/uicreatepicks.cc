@@ -41,8 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "od_helpids.h"
 
-uiString selstr( uiStrings::sSelect(true) );
-
 static int defnrpicks = 500;
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
 				  "Between Horizons", 0 };
@@ -213,12 +211,12 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     if ( hornms_.size() )
     {
 	horselfld_ = new uiLabeledComboBox( this, "Horizon selection" );
-	horselfld_->box()->addItem( selstr );
+	horselfld_->box()->addItem( uiStrings::sSelect() );
 	horselfld_->box()->addItems( hornms_ );
 	horselfld_->box()->selectionChanged.notify(mCB(this,
 						    uiGenRandPicks2D,hor1Sel));
 	horsel2fld_ = new uiComboBox( this, "" );
-	horsel2fld_->addItem( selstr );
+	horsel2fld_->addItem( uiStrings::sSelect()  );
 	horsel2fld_->addItems( hornms_ );
 	horsel2fld_->selectionChanged.notify( mCB(this,
 						 uiGenRandPicks2D,hor2Sel) );
@@ -274,7 +272,7 @@ void uiGenRandPicks2D::horSel( uiComboBox* sel, uiComboBox* tosel )
     if ( idx >= 0 ) hornms.removeSingle( idx );
 
     tosel->setEmpty();
-    tosel->addItem( selstr );
+    tosel->addItem( uiStrings::sSelect()  );
     tosel->addItems( hornms );
     tosel->setCurrentItem( curnm );
 }
@@ -321,9 +319,11 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     const int choice = geomfld_ ? geomfld_->getIntValue() : 0;
     if ( choice )
     {
-	if ( selstr==horselfld_->box()->text() )
+	if ( uiStrings::sSelect().getFullString() ==
+	     horselfld_->box()->text()	)
 	    mErrRet(tr("Please Select a valid horizon"));
-	if (choice == 2 && selstr == horsel2fld_->text())
+	if (choice == 2 && uiStrings::sSelect().getFullString() ==
+	    horsel2fld_->text())
 	    mErrRet(tr("Please Select a valid second horizon"));
     }
     else

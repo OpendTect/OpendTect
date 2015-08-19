@@ -43,7 +43,7 @@ class uiMadTutMgr :  public CallBacker
 uiMadTutMgr::uiMadTutMgr( uiODMain& a )
     : mainappl( a )
 {
-    uiAction* newitem = new uiAction( tr("Display Madagascar data ..."),
+    uiAction* newitem = new uiAction( m3Dots(tr("Display Madagascar data")),
 					  mCB(this,uiMadTutMgr,dispDlg) );
     mainappl.menuMgr().utilMnu()->insertItem( newitem );
 }

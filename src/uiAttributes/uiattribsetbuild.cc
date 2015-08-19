@@ -285,8 +285,8 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	{
 	    emsg = tr("Can not load Attribute Set:\n"
 		      "Attribute Set is %1. Current definition is %2")
-		 .arg(isdesc2d ? uiStrings::s2D(true) : uiStrings::s3D(true))
-		 .arg(is2d ? uiStrings::s2D(true) : uiStrings::s3D(true));
+		 .arg(isdesc2d ? uiStrings::s2D() : uiStrings::s3D())
+		 .arg(is2d ? uiStrings::s2D() : uiStrings::s3D());
 	    res = false;
 	}
 	else if ( res )

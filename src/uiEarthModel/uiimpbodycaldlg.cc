@@ -40,7 +40,7 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
 			 FloatInpSpec( SI().depthsInFeet()?10000.0f:3000.0f) );
     }
     
-    volfld_ = new uiGenInput( this, uiStrings::sVolume(true) );
+    volfld_ = new uiGenInput( this, uiStrings::sVolume() );
     volfld_->setReadOnly( true );
     if ( velfld_ )
 	volfld_->attach( alignedBelow, velfld_ );

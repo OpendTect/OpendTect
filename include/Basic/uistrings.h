@@ -45,8 +45,6 @@ public:
     //!<"<string> exists. Continue?" or "<string> exists. Overwrite?
     static uiString phrExport(const uiString& string);
     //!<"Export <string>"
-    static uiString phrImmediate(bool immediate,const uiString& string);
-    //!<string> ...
     static uiString phrImport(const uiString& string);
     //!<"Import <string>"
     static uiString phrInput(const uiString&);
@@ -57,29 +55,29 @@ public:
     //!<"Select <string>"
     static uiString phrSuccessfullyExported(const uiString&);
     //!<"Successfully exported <string>"
+    static uiString phrThreeDots(const uiString& string,bool immediate=false);
+    //!<string> ...
 
 //Words
-    static uiString s2D(bool immediate);
-    static uiString s3D(bool immediate);
+    static uiString s2D();
+    static uiString s3D();
     static uiString sAbort()		{ return tr("Abort"); }
     static uiString sAction()		{ return tr("Action"); }
-    static uiString sAdd(bool immediate);
+    static uiString sAdd();
     static uiString sAddColBlend()	{ return tr("Add Color Blended"); }
     static uiString sAdvanced()		{ return tr("Advanced"); }
     static uiString sAll()		{ return tr("All"); }
     static uiString sAmplitude()	{ return tr("Amplitude"); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sApply()		{ return tr("Apply"); }
-    static uiString sApply(bool)	{ return sApply(); }
-    static uiString sASCII(bool immediate);
+    static uiString sASCII();
     static uiString sAttribName()	{ return tr("Attribute Name"); }
     static uiString sAttribute()	{ return tr("Attribute"); }
-    static uiString sAttributes(bool immediate);
+    static uiString sAttributes();
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
     static uiString sCalculate()	{ return tr("Calculate"); }
     static uiString sCancel()		{ return tr("Cancel"); }
-    static uiString sCancel(bool)	{ return sCancel(); }
     static uiString sCantCreateHor();
     static uiString sCantFindAttrName();
     static uiString sCantFindODB();
@@ -91,10 +89,11 @@ public:
     static uiString sCantOpenOutpFile(int num=1);
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
-    static uiString sColorTable(bool immediate);
+    static uiString sColorTable();
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sContinue()		{ return tr("Continue"); }
-    static uiString sCreate(bool immediate);
+    static uiString sCreateGroup()	{ return tr("Create Group"); }
+    static uiString sCreate();
     static uiString sCreateProbDesFunc();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
     static uiString sDelete()		{ return tr("Delete"); }
@@ -102,25 +101,22 @@ public:
     static uiString sDisplay()		{ return tr("Display"); }
 
     static uiString sDown()		{ return tr("Down"); }
-    static uiString sEdit(bool immediate);
+    static uiString sEdit();
     static uiString sEmptyString()	{ return tr(""); }
     static uiString sEnterValidName();
     static uiString sExamine()		{ return tr("Examine"); }
-    static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sExitOD()		{ return tr("Exit OpendTect"); }
+    static uiString sExit()		{ return tr("Exit"); }
     static uiString sExport()		{ return tr("Export"); }
-    static uiString sFaultStickSets(int num=2);
-    static uiString sFaultStickSet()	{ return sFaultStickSets(1); }
-    static uiString sFault()		{ return sFaults(true,1); }
-    static uiString sFaults(bool imm=true,int num=2);
+    static uiString sFaultStickSet(int num=1);
+    static uiString sFault(int num=1);
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
     static uiString sGo()	        { return tr("Go"); }
-    static uiString sHelp(bool imm=true);
+    static uiString sHelp();
     static uiString sHide()		{ return tr("Hide"); }
-    static uiString sHistogram(bool immediate);
-    static uiString sHorizon()		{ return sHorizons(true,1); }
-    static uiString sHorizons(bool imm,int num=2);
+    static uiString sHistogram();
+    static uiString sHorizon(int num=1);
     static uiString sHorizontal()	{ return tr("Horizontal"); }
     static uiString sImport()		{ return tr("Import"); }
     static uiString sImpSuccess()	{ return tr("Import successful"); }
@@ -132,16 +128,15 @@ public:
     static uiString sInputASCIIFile();
     static uiString sInputData()	{ return tr("Input Data"); }
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
-    static uiString sLoad(bool immediate);
+    static uiString sLoad();
     static uiString sLock()		{ return tr("Lock"); }
-    static uiString sLogs(bool immediate);
+    static uiString sLogs();
     static uiString sManual()		{ return tr("Manual"); }
     static uiString sManWav()		{ return tr("Manage Wavelets"); }
-    static uiString sMarker()		{ return sMarkers(false,1); }
-    static uiString sMarkers(bool imm,int=2);
+    static uiString sMarker(int num=1);
     static uiString sMute()		{ return tr("Mute"); }
     static uiString sName()		{ return tr("Name"); }
-    static uiString sNew(bool immediate);
+    static uiString sNew();
     static uiString sNext()		{ return tr("Next >"); }
     static uiString sNo()		{ return tr("No"); }
     static uiString sNoLogSel()		{ return tr("No log selected"); }
@@ -149,10 +144,9 @@ public:
     static uiString sNormal()		{ return tr("Normal"); }
     static uiString sNoValidData()	{ return tr("No valid data found"); }
     static uiString sOk()		{ return tr("OK"); }
-    static uiString sOk(bool)		{ return sOk(); }
-    static uiString sOpen(bool immediate);
+    static uiString sOpen();
     static uiString sOperator()		{ return tr("Operator"); }
-    static uiString sOptions(bool immediate);
+    static uiString sOptions();
     static uiString sOutpDataStore()	{ return tr("Output data store"); }
     static uiString sOutputFile()	{ return tr("Output file"); }
     static uiString sOutputStatistic()	{ return phrOutput( tr("statistic") ); }
@@ -167,46 +161,46 @@ public:
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sProcessing()	{ return tr("Processing"); }
     static uiString sProbDensFunc(bool abbrevation=false);
-    static uiString sProperties(bool immediate);
+    static uiString sProperties();
     static uiString sRandomLine()	{ return tr("Random Line"); }
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sReload()		{ return tr("Reload"); }
-    static uiString sRemove(bool immediate);
+    static uiString sRemove();
     static uiString sReversed()		{ return tr("Reversed"); }
-    static uiString sSave(bool immediate);
-    static uiString sSaveAs(bool immediate);
+    static uiString sSave();
+    static uiString sSaveAs();
     static uiString sSaveAsDefault()    { return tr("Save as Default"); }
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int num=1)	{ return tr("Scenes",0,1); }
     static uiString sScenes()		{ return sScene(2); }
     static uiString sSEGY()		{ return tr("SEG-Y"); }
-    static uiString sSeismic(bool immediate,int num);
-    static uiString sSeismics(bool imm) { return sSeismic(imm,2); }
-    static uiString sSeismics(bool is2d,bool isps,bool imm,int num);
+    static uiString sSeismic(int num);
+    static uiString sSeismics()		{ return sSeismic(2); }
+    static uiString sSeismics(bool is2d,bool isps,int num);
     static uiString sSelAttrib()	{ return tr("Select Attribute"); }
     static uiString sSelection(bool smallletters);
-    static uiString sSelect(bool immediate);
+    static uiString sSelect();
     static uiString sSelOutpFile();
-    static uiString sSetting(bool immediate,int num=1);
-    static uiString sSettings(bool imm) { return sSetting(imm,2); }
+    static uiString sSetting(int num=1);
+    static uiString sSettings()		{ return sSetting(2); }
     static uiString sSetup()		{ return tr("Setup"); }
-    static uiString sShift(bool immediate);
+    static uiString sShift();
     static uiString sShow()             { return tr("Show"); }
     static uiString sSpecify()		{ return tr("Please specify"); }
     static uiString sSteering()		{ return tr("Steering"); }
     static uiString sStep()		{ return tr("Step"); }
     static uiString sStop()		{ return tr("Stop"); }
-    static uiString sStored(bool immediate);
-    static uiString sStratigraphy(bool immediate);
+    static uiString sStored();
+    static uiString sStratigraphy();
     static uiString sSurvey()		{ return tr("Survey"); }
     static uiString sTakeSnapshot()	{ return tr("Take Snapshot"); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
     static uiString sTools()		{ return tr("Tools"); }
     static uiString sTopHor()		{ return tr("Top Horizon"); }
-    static uiString sTrack(bool immediate);
+    static uiString sTrack();
     static uiString sTransparency()     { return tr("Transparency"); }
     static uiString sType()             { return tr("Type"); }
     static uiString sUndo()		{ return tr("Undo"); }
@@ -216,13 +210,12 @@ public:
     static uiString sValue()		{ return tr("Value"); }
     static uiString sVelocity()		{ return tr("Velocity"); }
     static uiString sVertical()		{ return tr("Vertical"); }
-    static uiString sVolume(bool imm);
+    static uiString sVolume();
     static uiString sView()		{ return tr("View"); }
-    static uiString sWavelet()		{ return tr("Wavelet"); }
-    static uiString sWell(bool immediate,int num=1);
-    static uiString sWells(bool imm) { return sWell(imm,2); }
-    static uiString sWellLog(bool immediate=true,int num=1);
-    static uiString sWellLogs(bool imm) { return sWellLog(imm,2); }
+    static uiString sWavelet(int num=1);
+    static uiString sWell(int num=1);
+    static uiString sWells()		{ return sWell(2); }
+    static uiString sWellLog(int num=1);
     static uiString sWiggle()		{ return tr("Wiggle"); }
     static uiString sYes()		{ return tr("Yes"); }
     static uiString sSet()		{ return tr("Set"); }
@@ -238,6 +231,8 @@ public:
 	"Pre-stack Data", and similar */
 };
 
+
+#define m3Dots( txt ) uiStrings::phrThreeDots( txt, false )
 
 #endif
 

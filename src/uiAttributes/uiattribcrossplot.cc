@@ -56,7 +56,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 {
     uiGroup* attrgrp = new uiGroup( this, "Attribute group" );
     uiLabeledListBox* llb =
-	new uiLabeledListBox( attrgrp, uiStrings::sAttributes(true), 
+	new uiLabeledListBox( attrgrp, uiStrings::sAttributes(),
                               OD::ChooseZeroOrMore,
 			      uiLabeledListBox::AboveMid );
     llb->attach( leftBorder, 20 );

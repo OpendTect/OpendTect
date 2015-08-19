@@ -239,7 +239,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     uiLabeledComboBox* lcb1 =
 	new uiLabeledComboBox( geomgrp, lnms, tr("First line") );
     uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp, lnms, 
-						     uiStrings::sAdd(true) );
+						     uiStrings::sAdd() );
     lcb2->attach( alignedBelow, lcb1 );
     ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
     ln1fld_->setCurrentItem( sellns.get(0) );

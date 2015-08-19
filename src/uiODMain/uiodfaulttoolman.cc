@@ -104,7 +104,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
     displayfld_->attach( alignedBelow, aftercopymovelbl );
     displayfld_->activated.notify(mCB(this,uiFaultStickTransferDlg,displayCB));
 
-    savefld_ = new uiCheckBox( this, uiStrings::sSave(true) );
+    savefld_ = new uiCheckBox( this, uiStrings::sSave() );
     savefld_->setChecked( saveifdisplayed_ );
     savefld_->attach( rightOf, displayfld_ );
     savefld_->activated.notify( mCB(this,uiFaultStickTransferDlg,saveCB) );
@@ -299,7 +299,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     auxfsswrite_->getObjSel()->selectionDone.notify(
 				mCB(this,uiODFaultToolMan,outputSelectedCB) );
 
-    outputselbut_ = new uiPushButton( toolbar_, uiStrings::sSelect(true),
+    outputselbut_ = new uiPushButton( toolbar_, uiStrings::sSelect(),
 				mCB(this,uiODFaultToolMan,selectOutputCB),
 				false );
     outputselbut_->setToolTip( tr("Select output") );

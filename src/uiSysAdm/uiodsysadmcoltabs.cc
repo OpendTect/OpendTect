@@ -32,11 +32,11 @@ uiODSysAdmColorTabs::uiODSysAdmColorTabs( uiParent* p )
     listfld = new uiListBox( this, "Color tables" );
     fillList( true );
     
-    uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(true), false );
+    uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(), false );
     addbut->activated.notify( mCB(this,uiODSysAdmColorTabs,addPush) );
     addbut->attach( alignedBelow, listfld );
 
-    uiPushButton* rmbut = new uiPushButton( this, uiStrings::sRemove(true), 
+    uiPushButton* rmbut = new uiPushButton( this, uiStrings::sRemove(),
                                             true );
     rmbut->activated.notify( mCB(this,uiODSysAdmColorTabs,rmPush) );
     rmbut->attach( rightOf, addbut );

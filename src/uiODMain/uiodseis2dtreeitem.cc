@@ -100,16 +100,16 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
 bool uiODLine2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAdd );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAdd );
     if ( SI().has3D() )
     {
-	mnu.insertItem( new uiAction(tr("Create 2D Grid from 3D ...")),
+	mnu.insertItem( new uiAction(m3Dots(tr("Create 2D Grid from 3D"))),
 			mGridFrom3D );
-	mnu.insertItem( new uiAction(tr("Extract from 3D ...")), mFrom3D );
+	mnu.insertItem( new uiAction(m3Dots(tr("Extract from 3D"))), mFrom3D );
     }
 
 #ifdef __debug__
-    mnu.insertItem( new uiAction(tr("Generate 3D Cube ...")), mTo3D );
+    mnu.insertItem( new uiAction(m3Dots(tr("Generate 3D Cube"))), mTo3D );
 #endif
 
     BufferStringSet displayedattribs;
@@ -418,7 +418,7 @@ uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid )
     : linenmitm_(tr("Show Linename"))
     , panelitm_(tr("Show 2D Plane"))
     , polylineitm_(tr("Show Line Geometry"))
-    , positionitm_(tr("Position ..."))
+    , positionitm_(m3Dots(tr("Position")))
     , geomid_(geomid)
 {
     name_ = Survey::GM().getName( geomid );

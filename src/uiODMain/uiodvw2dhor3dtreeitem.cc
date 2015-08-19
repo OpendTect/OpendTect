@@ -53,8 +53,8 @@ uiODVw2DHor3DParentTreeItem::~uiODVw2DHor3DParentTreeItem()
 bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(uiStrings::sNew(false)), 0 );
-    uiMenu* loadmenu = new uiMenu( uiStrings::sLoad(false) );
+    mnu.insertItem( new uiAction(m3Dots(uiStrings::sNew())), 0 );
+    uiMenu* loadmenu = new uiMenu( m3Dots(uiStrings::sLoad()) );
     loadmenu->insertItem( new uiAction(tr("In all 2D Viewers")), 1 );
     loadmenu->insertItem( new uiAction(tr("Only in this 2D Viewer")), 2 );
     mnu.insertItem( loadmenu );
@@ -335,15 +335,15 @@ bool uiODVw2DHor3DTreeItem::select()
 bool uiODVw2DHor3DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    uiAction* savemnu = new uiAction(uiStrings::sSave(false));
+    uiAction* savemnu = new uiAction(m3Dots(uiStrings::sSave()));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 			 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiAction(uiStrings::sSaveAs(true)), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sSaveAs()), 1 );
     uiAction* cngsetup = new uiAction( sChangeSetup() );
     mnu.insertItem( cngsetup, 2 );
     cngsetup->setEnabled( MPE::engine().getTrackerByObject(emid_) > -1 );
-    uiMenu* removemenu = new uiMenu( uiStrings::sRemove(true) );
+    uiMenu* removemenu = new uiMenu( uiStrings::sRemove() );
     removemenu->insertItem( new uiAction(tr("From all 2D Viewers")), 3 );
     removemenu->insertItem( new uiAction(tr("Only from this 2D Viewer")), 4 );
     mnu.insertItem( removemenu );
