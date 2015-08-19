@@ -300,7 +300,7 @@ Threads::WorkManager::~WorkManager()
     if ( this==thetwm && queueids_.size() )
     {
 	pErrMsg("Default queue is not empty. "
-	        "Please call twm().shutdown() before exiting main program,"
+		"Please call twm().shutdown() before exiting main program,"
 		"or exit with ExitProgram()");
     }
 
@@ -487,7 +487,7 @@ void Threads::WorkManager::setQueueName( int queueid, const char* name )
 
     const int queueidx = queueids_.indexOf( queueid );
     if ( queueids_.validIdx(queueidx) )
-        (*queuenames_[queueidx]) = name;
+	(*queuenames_[queueidx]) = name;
 }
 
 
