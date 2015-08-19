@@ -43,13 +43,14 @@ const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
-    : panelstrip_( visBase::TexturePanelStrip::create() )
+    : MultiTextureSurveyObject()
+    , panelstrip_( visBase::TexturePanelStrip::create() )
     , dragger_( visBase::RandomTrackDragger::create())
     , polyline_( visBase::PolyLine::create())
     , polylinemode_(false)
-    , knotmoving_(this)
+    , nodemoving_(this)
     , moving_(this)
-    , selknotidx_(-1)
+    , selnodeidx_(-1)
     , ismanip_(false)
     , interactivetexturedisplay_( false )
     , datatransform_(0)
@@ -58,6 +59,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , depthrg_(SI().zRange(true))
     , voiidx_(-1)
     , markerset_( visBase::MarkerSet::create() )
+    , rl_(0)
 {
     TypeSet<int> randomlines;
     visBase::DM().getIDs( typeid(*this), randomlines );
@@ -88,11 +90,12 @@ RandomTrackDisplay::RandomTrackDisplay()
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
 
+
     dragger_->ref();
     addChild( dragger_->osgNode() );
 
-    mAttachCB( dragger_->motion, visSurvey::RandomTrackDisplay::knotMoved );
-    mAttachCB( dragger_->movefinished, 
+    mAttachCB( dragger_->motion, visSurvey::RandomTrackDisplay::nodeMoved );
+    mAttachCB( dragger_->movefinished,
 	visSurvey::RandomTrackDisplay::draggerMoveFinished );
 
     panelstrip_->ref();
@@ -122,8 +125,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
     const BinID stop(start.inl(), mNINT32(crlrange.stop) );
 
-    addKnot( start );
-    addKnot( stop );
+    addNode( start );
+    addNode( stop );
 
     setDepthInterval( Interval<float>( survinterval.start,
 				       survinterval.stop ));
@@ -157,8 +160,38 @@ RandomTrackDisplay::~RandomTrackDisplay()
     for ( int idx=0; idx<transfdatapackids_.size(); idx++ )
 	dpm.release( transfdatapackids_[idx] );
 
+    if ( rl_ )
+    {
+	rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB) );
+	rl_->unRef();
+    }
+
     setZAxisTransform( 0, 0 );
 }
+
+
+void RandomTrackDisplay::setRandomLineID( int rlid )
+{
+    if ( rl_ )
+    {
+	rl_->unRef();
+	rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB) );
+    }
+
+    rl_ = Geometry::RLM().get( rlid );
+    if ( !rl_ ) return;
+
+    rl_->ref();
+    rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
+
+    TypeSet<BinID> bids;
+    rl_->allNodePositions( bids );
+    setNodePositions( bids );
+}
+
+
+int RandomTrackDisplay::getRandomLineID() const
+{ return rl_ ? rl_->ID() : -1; }
 
 
 void RandomTrackDisplay::setDisplayTransformation( const mVisTrans* t )
@@ -193,10 +226,10 @@ float RandomTrackDisplay::appliedZRangeStep() const
 TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
 {
     TrcKeyZSampling cs( false );
-    TypeSet<BinID> knots;
-    getAllKnotPos( knots );
-    for ( int idx=0; idx<knots.size(); idx++ )
-	cs.hsamp_.include( knots[idx] );
+    TypeSet<BinID> nodes;
+    getAllNodePos( nodes );
+    for ( int idx=0; idx<nodes.size(); idx++ )
+	cs.hsamp_.include( nodes[idx] );
 
     cs.zsamp_.setFrom( getDepthInterval() );
     cs.zsamp_.step = appliedZRangeStep();
@@ -242,20 +275,20 @@ Interval<float> RandomTrackDisplay::getDataTraceRange() const
 { return depthrg_; }
 
 
-int RandomTrackDisplay::nrKnots() const
-{ return knots_.size(); }
+int RandomTrackDisplay::nrNodes() const
+{ return nodes_.size(); }
 
 
-void RandomTrackDisplay::addKnot( const BinID& bid )
+void RandomTrackDisplay::addNode( const BinID& bid )
 {
     const BinID sbid = snapPosition( bid );
     if ( checkPosition(sbid) )
     {
-	knots_ += sbid;
-	dragger_->insertKnot( knots_.size()-1, Coord(sbid.inl(),sbid.crl()) );
+	nodes_ += sbid;
+	dragger_->insertKnot( nodes_.size()-1, Coord(sbid.inl(),sbid.crl()) );
 
 	if ( ismanip_ )
-	    dragger_->showAdjacentPanels( knots_.size()-1, true );
+	    dragger_->showAdjacentPanels( nodes_.size()-1, true );
 	else
 	    updatePanelStripPath();
 
@@ -264,16 +297,16 @@ void RandomTrackDisplay::addKnot( const BinID& bid )
 }
 
 
-void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
+void RandomTrackDisplay::insertNode( int nodeidx, const BinID& bid )
 {
     const BinID sbid = snapPosition( bid );
     if ( checkPosition(sbid) )
     {
-	knots_.insert( knotidx, sbid );
-	dragger_->insertKnot( knotidx, Coord(sbid.inl(),sbid.crl()) );
+	nodes_.insert( nodeidx, sbid );
+	dragger_->insertKnot( nodeidx, Coord(sbid.inl(),sbid.crl()) );
 
 	if ( ismanip_ )
-	    dragger_->showAdjacentPanels( knotidx, true );
+	    dragger_->showAdjacentPanels( nodeidx, true );
 	else
 	{
 	    for ( int idx=0; idx<nrAttribs(); idx++ )
@@ -286,66 +319,66 @@ void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
 }
 
 
-BinID RandomTrackDisplay::getKnotPos( int knotidx ) const
+BinID RandomTrackDisplay::getNodePos( int nodeidx ) const
 {
-    return knots_[knotidx];
+    return nodes_[nodeidx];
 }
 
 
-BinID RandomTrackDisplay::getManipKnotPos( int knotidx ) const
+BinID RandomTrackDisplay::getManipNodePos( int nodeidx ) const
 {
-    const Coord crd = dragger_->getKnot( knotidx );
+    const Coord crd = dragger_->getKnot( nodeidx );
     return BinID( mNINT32(crd.x), mNINT32(crd.y) );
 }
 
 
-void RandomTrackDisplay::getAllKnotPos( TypeSet<BinID>& knots ) const
+void RandomTrackDisplay::getAllNodePos( TypeSet<BinID>& nodes ) const
 {
-    const int nrknots = nrKnots();
-    for ( int idx=0; idx<nrknots; idx++ )
-	knots += getManipKnotPos( idx );
+    const int nrnodes = nrNodes();
+    for ( int idx=0; idx<nrnodes; idx++ )
+	nodes += getManipNodePos( idx );
 }
 
 
-void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid )
-{ setKnotPos( knotidx, bid, true ); }
+void RandomTrackDisplay::setNodePos( int nodeidx, const BinID& bid )
+{ setNodePos( nodeidx, bid, true ); }
 
 
-void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid, bool check )
+void RandomTrackDisplay::setNodePos( int nodeidx, const BinID& bid, bool check )
 {
     const BinID sbid = snapPosition(bid);
     if ( !check || checkPosition(sbid) )
     {
-	knots_[knotidx] = sbid;
-	dragger_->setKnot( knotidx, Coord(sbid.inl(),sbid.crl()) );
+	nodes_[nodeidx] = sbid;
+	dragger_->setKnot( nodeidx, Coord(sbid.inl(),sbid.crl()) );
 	updatePanelStripPath();
 	moving_.trigger();
     }
 }
 
 
-static bool decoincideKnots( const TypeSet<BinID>& knots,
-			     TypeSet<BinID>& uniqueknots )
+static bool decoincideNodes( const TypeSet<BinID>& nodes,
+			     TypeSet<BinID>& uniquenodes )
 {
-    uniqueknots.erase();
-    if ( knots.isEmpty() )
+    uniquenodes.erase();
+    if ( nodes.isEmpty() )
 	return false;
-    uniqueknots += knots[0];
+    uniquenodes += nodes[0];
 
-    for ( int idx=1; idx<knots.size(); idx++ )
+    for ( int idx=1; idx<nodes.size(); idx++ )
     {
-	const BinID prev = uniqueknots[uniqueknots.size()-1];
-	const BinID biddif = prev - knots[idx];
+	const BinID prev = uniquenodes[uniquenodes.size()-1];
+	const BinID biddif = prev - nodes[idx];
 	const int nrsteps = mMAX( abs(biddif.inl())/SI().inlStep(),
 				  abs(biddif.crl())/SI().crlStep() );
-	const Coord dest = SI().transform( knots[idx] );
+	const Coord dest = SI().transform( nodes[idx] );
 	const Coord crddif = SI().transform(prev) - dest;
 	for ( int step=0; step<nrsteps; step++ )
 	{
-	    const BinID newknot = SI().transform( dest+(crddif*step)/nrsteps );
-	    if ( !uniqueknots.isPresent(newknot) )
+	    const BinID newnode = SI().transform( dest+(crddif*step)/nrsteps );
+	    if ( !uniquenodes.isPresent(newnode) )
 	    {
-		uniqueknots += newknot;
+		uniquenodes += newnode;
 		break;
 	    }
 	}
@@ -354,21 +387,21 @@ static bool decoincideKnots( const TypeSet<BinID>& knots,
 }
 
 
-bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
+bool RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& newbids )
 {
     TypeSet<BinID> uniquebids;
-   if ( !decoincideKnots( newbids, uniquebids ) ) return false;
+   if ( !decoincideNodes( newbids, uniquebids ) ) return false;
 
     if ( uniquebids.size() < 2 )
 	return false;
-    while ( nrKnots() > uniquebids.size() )
-	removeKnot( nrKnots()-1 );
+    while ( nrNodes() > uniquebids.size() )
+	removeNode( nrNodes()-1 );
 
-    if ( uniquebids.size() > 50 ) // Workaround when having a lot of knots
+    if ( uniquebids.size() > 50 ) // Workaround when having a lot of nodes
     {				  // TODO: Make better fix
-	while ( nrKnots()>0 )
+	while ( nrNodes()>0 )
 	{
-	    knots_.removeSingle( 0 );
+	    nodes_.removeSingle( 0 );
 	    dragger_->removeKnot( 0 );
 	}
 
@@ -377,8 +410,8 @@ bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 	    const BinID sbid = snapPosition( uniquebids[idx] );
 	    if ( checkPosition(sbid) )
 	    {
-		knots_ += sbid;
-		dragger_->insertKnot( knots_.size()-1,
+		nodes_ += sbid;
+		dragger_->insertKnot( nodes_.size()-1,
 				      Coord(sbid.inl(), sbid.crl()) );
 	    }
 	}
@@ -392,36 +425,36 @@ bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
     {
 	const BinID bid = uniquebids[idx];
 
-	if ( idx < nrKnots() )
-	    setKnotPos( idx, bid, false );
+	if ( idx < nrNodes() )
+	    setNodePos( idx, bid, false );
 	else
-	    addKnot( bid );
+	    addNode( bid );
     }
 
     return true;
 }
 
 
-void RandomTrackDisplay::removeKnot( int knotidx )
+void RandomTrackDisplay::removeNode( int nodeidx )
 {
-    if ( nrKnots()< 3 )
+    if ( nrNodes()< 3 )
     {
-	pErrMsg("Can't remove knot");
+	pErrMsg("Can't remove node");
 	return;
     }
 
-    knots_.removeSingle(knotidx);
-    dragger_->removeKnot( knotidx );
+    nodes_.removeSingle(nodeidx);
+    dragger_->removeKnot( nodeidx );
     updatePanelStripPath();
 }
 
 
-void RandomTrackDisplay::removeAllKnots()
+void RandomTrackDisplay::removeAllNodes()
 {
-    for ( int idx=knots_.size()-1; idx>=0; idx-- )
+    for ( int idx=nodes_.size()-1; idx>=0; idx-- )
 	dragger_->removeKnot( idx );
 
-    knots_.erase();
+    nodes_.erase();
     updatePanelStripPath();
     moving_.trigger();
 }
@@ -435,9 +468,9 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 					   TypeSet<int>* segments ) const
 {
     const_cast<RandomTrackDisplay*>(this)->trcspath_.erase();
-    TypeSet<BinID> knots;
-    getAllKnotPos( knots );
-    Geometry::RandomLine::getPathBids( knots, bids, true, segments );
+    TypeSet<BinID> nodes;
+    getAllNodePos( nodes );
+    Geometry::RandomLine::getPathBids( nodes, bids, true, segments );
     for ( int idx=0; idx<bids.size(); idx++ )
     {
 	if ( !idx || bids[idx]!=trcspath_.last() )
@@ -448,12 +481,12 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 
 TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 {
-    const int nrknots = nrKnots();
+    const int nrnodes = nrNodes();
     TypeSet<Coord> coords;
-    for ( int kidx=1; kidx<nrknots; kidx++ )
+    for ( int kidx=1; kidx<nrnodes; kidx++ )
     {
-	BinID start = getKnotPos(kidx-1);
-	BinID stop = getKnotPos(kidx);
+	BinID start = getNodePos(kidx-1);
+	BinID stop = getNodePos(kidx);
 	const int nrinl = int(abs(stop.inl()-start.inl()) / SI().inlStep() + 1);
 	const int nrcrl = int(abs(stop.crl()-start.crl()) / SI().crlStep() + 1);
 	const int nrtraces = nrinl > nrcrl ? nrinl : nrcrl;
@@ -580,7 +613,6 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
     const int nrversions = randsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     for ( int idx=0; idx<nrversions; idx++ )
     {
 	const Array3DImpl<float>& array = randsdp->data( idx );
@@ -663,7 +695,7 @@ void RandomTrackDisplay::createTransformedDataPack( int attrib )
 
 void RandomTrackDisplay::updatePanelStripPath()
 {
-    if ( knots_.size()<2 || getUpdateStageNr() )
+    if ( nodes_.size()<2 || getUpdateStageNr() )
 	return;
 
     TypeSet<BinID> trcbids;
@@ -671,23 +703,23 @@ void RandomTrackDisplay::updatePanelStripPath()
 
     TypeSet<Coord> pathcrds;
     TypeSet<float> mapping;
-    pathcrds.setCapacity( knots_.size(), false );
-    mapping.setCapacity( knots_.size(), false );
+    pathcrds.setCapacity( nodes_.size(), false );
+    mapping.setCapacity( nodes_.size(), false );
 
-    int knotidx = 0;
+    int nodeidx = 0;
     for ( int trcidx=0; trcidx<trcspath_.size(); trcidx++ )
     {
-	if ( trcspath_[trcidx] == knots_[knotidx] )
+	if ( trcspath_[trcidx] == nodes_[nodeidx] )
 	{
-	    pathcrds += Coord( knots_[knotidx].inl(), knots_[knotidx].crl() );
+	    pathcrds += Coord( nodes_[nodeidx].inl(), nodes_[nodeidx].crl() );
 	    mapping += mCast( float, trcidx*(resolution_+1) );
-	    knotidx++;
+	    nodeidx++;
 	}
     }
 
     if ( !trcspath_.isEmpty() )
     {
-	if ( mapping.size()!=knots_.size() ||
+	if ( mapping.size()!=nodes_.size() ||
 	     mNINT64(mapping.last())!=(trcspath_.size()-1)*(resolution_+1) )
 	{
 	    pErrMsg( "Unexpected state while texture mapping" );
@@ -723,7 +755,7 @@ void RandomTrackDisplay::annotateNextUpdateStage( bool yn )
 	updatePanelStripPath();
 	panelstrip_->freezeDisplay( false );
 
-	for ( int idx=0; idx<nrKnots(); idx++ )
+	for ( int idx=0; idx<nrNodes(); idx++ )
 	    dragger_->showAdjacentPanels( idx, false );
     }
     else
@@ -739,44 +771,44 @@ void RandomTrackDisplay::annotateNextUpdateStage( bool yn )
 }
 
 
-bool RandomTrackDisplay::canAddKnot( int knotnr ) const
+bool RandomTrackDisplay::canAddNode( int nodenr ) const
 {
     if ( lockgeometry_ ) return false;
-    if ( knotnr<0 ) knotnr=0;
-    if ( knotnr>nrKnots() ) knotnr=nrKnots();
+    if ( nodenr<0 ) nodenr=0;
+    if ( nodenr>nrNodes() ) nodenr=nrNodes();
 
-    const BinID newpos = proposeNewPos(knotnr);
+    const BinID newpos = proposeNewPos(nodenr);
     return checkPosition(newpos);
 }
 
 
-void RandomTrackDisplay::addKnot( int knotnr )
+void RandomTrackDisplay::addNode( int nodenr )
 {
-    if ( knotnr<0 ) knotnr=0;
-    if ( knotnr>nrKnots() ) knotnr=nrKnots();
+    if ( nodenr<0 ) nodenr=0;
+    if ( nodenr>nrNodes() ) nodenr=nrNodes();
 
-    if ( !canAddKnot(knotnr) ) return;
+    if ( !canAddNode(nodenr) ) return;
 
     ismanip_ = true;
 
-    const BinID newpos = proposeNewPos(knotnr);
-    insertKnot( knotnr, newpos );
-    if ( knotnr!=0 && knotnr!=nrKnots()-1 )
-	dragger_->showAdjacentPanels( knotnr, false );
+    const BinID newpos = proposeNewPos(nodenr);
+    insertNode( nodenr, newpos );
+    if ( nodenr!=0 && nodenr!=nrNodes()-1 )
+	dragger_->showAdjacentPanels( nodenr, false );
 }
 
 
-BinID RandomTrackDisplay::proposeNewPos(int knotnr ) const
+BinID RandomTrackDisplay::proposeNewPos(int nodenr ) const
 {
     BinID res;
-    if ( !knotnr )
-	res = getKnotPos(0)-(getKnotPos(1)-getKnotPos(0));
-    else if ( knotnr>=nrKnots() )
-	res = getKnotPos(nrKnots()-1) +
-	      (getKnotPos(nrKnots()-1)-getKnotPos(nrKnots()-2));
+    if ( !nodenr )
+	res = getNodePos(0)-(getNodePos(1)-getNodePos(0));
+    else if ( nodenr>=nrNodes() )
+	res = getNodePos(nrNodes()-1) +
+	      (getNodePos(nrNodes()-1)-getNodePos(nrNodes()-2));
     else
     {
-	res = getKnotPos(knotnr)+getKnotPos(knotnr-1);
+	res = getNodePos(nodenr)+getNodePos(nodenr-1);
 	res.inl() /= 2;
 	res.crl() /= 2;
     }
@@ -808,10 +840,10 @@ void RandomTrackDisplay::acceptManipulation()
 	moving_.trigger();
     }
 
-    for ( int idx=0; idx<nrKnots(); idx++ )
+    for ( int idx=0; idx<nrNodes(); idx++ )
     {
 	const Coord crd = dragger_->getKnot(idx);
-	setKnotPos( idx, BinID( mNINT32(crd.x), mNINT32(crd.y) ));
+	setNodePos( idx, BinID( mNINT32(crd.x), mNINT32(crd.y) ));
 	if ( !getUpdateStageNr() )
 	    dragger_->showAdjacentPanels( idx, false );
     }
@@ -827,9 +859,9 @@ void RandomTrackDisplay::resetManipulation()
     if ( !datatransform_ )
 	dragger_->setDepthRange( getDepthInterval() );
 
-    for ( int idx=0; idx<nrKnots(); idx++ )
+    for ( int idx=0; idx<nrNodes(); idx++ )
     {
-	const BinID bid = getKnotPos(idx);
+	const BinID bid = getNodePos(idx);
 	dragger_->setKnot(idx, Coord(bid.inl(),bid.crl()));
 	dragger_->showAdjacentPanels( idx, false );
     }
@@ -856,11 +888,11 @@ bool RandomTrackDisplay::isManipulatorShown() const
 BufferString RandomTrackDisplay::getManipulationString() const
 {
     BufferString str;
-    int knotidx = getSelKnotIdx();
-    if ( knotidx >= 0 )
+    int nodeidx = getSelNodeIdx();
+    if ( nodeidx >= 0 )
     {
-	BinID binid = getManipKnotPos( knotidx );
-	str = "Node "; str += knotidx;
+	BinID binid = getManipNodePos( nodeidx );
+	str = "Node "; str += nodeidx;
 	str += " Inl/Crl: ";
 	str += binid.inl(); str += "/"; str += binid.crl();
     }
@@ -869,18 +901,60 @@ BufferString RandomTrackDisplay::getManipulationString() const
 }
 
 
-void RandomTrackDisplay::knotMoved( CallBacker* cb )
+void RandomTrackDisplay::geomChangeCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const Geometry::RandomLine::ChangeData&,cd,cb);
+
+    if ( cd.ev_ == Geometry::RandomLine::ChangeData::Added )
+    {
+	addNode( rl_->nodePosition(cd.nodeidx_) );
+    }
+    else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Inserted )
+    {
+	insertNode( cd.nodeidx_, rl_->nodePosition(cd.nodeidx_) );
+    }
+    else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Moving )
+    {
+	const int nodeidx = cd.nodeidx_;
+	const BinID nodepos = rl_->nodePosition( nodeidx );
+	nodes_[nodeidx] = nodepos;
+	dragger_->setKnot( nodeidx, Coord(nodepos.inl(),nodepos.crl()) );
+	dragger_->showAllPanels( true );
+	if ( canDisplayInteractively() )
+	{
+	    interactivetexturedisplay_ = true;
+	    acceptManipulation();
+	    ismanip_ = true;
+	    updateSel();
+	}
+    }
+    else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Moved )
+    {
+	draggerMoveFinished(0);
+    }
+    else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Removed )
+    {
+	removeNode( cd.nodeidx_ );
+    }
+}
+
+
+void RandomTrackDisplay::nodeMoved( CallBacker* cb )
 {
     ismanip_ = true;
     mCBCapsuleUnpack(int,sel,cb);
-    selknotidx_ = sel;
+    selnodeidx_ = sel;
 
     const Coord crd = dragger_->getKnot( sel );
     dragger_->showAdjacentPanels( sel,
-		getKnotPos(sel)!=BinID(mNINT32(crd.x),mNINT32(crd.y)) );
-    dragger_->showAllPanels( getDepthInterval()!=dragger_->getDepthRange());
+		getNodePos(sel)!=BinID(mNINT32(crd.x),mNINT32(crd.y)) );
+    dragger_->showAllPanels( getDepthInterval()!=dragger_->getDepthRange() );
 
-    knotmoving_.trigger();
+    nodemoving_.trigger();
+
+    rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB) );
+    rl_->setNodePosition( sel, BinID(mNINT32(crd.x),mNINT32(crd.y)), true );
+    rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
 
     if ( canDisplayInteractively() )
     {
@@ -903,9 +977,9 @@ bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
     if ( snapped != binid )
 	return false;
 
-    for ( int idx=0; idx<nrKnots(); idx++ )
+    for ( int idx=0; idx<nrNodes(); idx++ )
     {
-	if ( getKnotPos(idx) == binid )
+	if ( getNodePos(idx) == binid )
 	    return false;
     }
 
@@ -1022,9 +1096,9 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
     RandomTrackDisplay* rtd = new RandomTrackDisplay;
     rtd->setDepthInterval( getDataTraceRange() );
     TypeSet<BinID> positions;
-    for ( int idx=0; idx<nrKnots(); idx++ )
-	positions += getKnotPos( idx );
-    rtd->setKnotPositions( positions );
+    for ( int idx=0; idx<nrNodes(); idx++ )
+	positions += getNodePos( idx );
+    rtd->setNodePositions( positions );
     rtd->lockGeometry( isGeometryLocked() );
     rtd->setZAxisTransform( datatransform_, taskr );
 
@@ -1047,6 +1121,12 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 }
 
 
+MultiID RandomTrackDisplay::getMultiID() const
+{
+    return MultiID::udf();
+}
+
+
 void RandomTrackDisplay::fillPar( IOPar& par ) const
 {
     visSurvey::MultiTextureSurveyObject::fillPar( par );
@@ -1054,13 +1134,13 @@ void RandomTrackDisplay::fillPar( IOPar& par ) const
     const Interval<float> depthrg = getDataTraceRange();
     par.set( sKeyDepthInterval(), depthrg );
 
-    const int nrknots = nrKnots();
-    par.set( sKeyNrKnots(), nrknots );
+    const int nrnodes = nrNodes();
+    par.set( sKeyNrKnots(), nrnodes );
 
-    for ( int idx=0; idx<nrknots; idx++ )
+    for ( int idx=0; idx<nrnodes; idx++ )
     {
 	BufferString key = sKeyKnotPrefix(); key += idx;
-	par.set( key, getKnotPos(idx) );
+	par.set( key, getNodePos(idx) );
     }
 
     par.set( sKey::Version(), 3 );
@@ -1079,21 +1159,28 @@ bool RandomTrackDisplay::usePar( const IOPar& par )
     if ( par.get( sKeyDepthInterval(), intv ) )
 	setDepthInterval( intv );
 
-    int nrknots = 0;
-    par.get( sKeyNrKnots(), nrknots );
+    int nrnodes = 0;
+    par.get( sKeyNrKnots(), nrnodes );
 
     BufferString key; BinID pos;
-    for ( int idx=0; idx<nrknots; idx++ )
+    for ( int idx=0; idx<nrnodes; idx++ )
     {
 	key = sKeyKnotPrefix(); key += idx;
 	par.get( key, pos );
 	if ( idx < 2 )
-	    setKnotPos( idx, pos );
+	    setNodePos( idx, pos );
 	else
-	    addKnot( pos );
+	    addNode( pos );
     }
 
     return true;
+}
+
+
+void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
+					  IOPar& par ) const
+{
+    MultiTextureSurveyObject::getMousePosInfo( ei, par );
 }
 
 
@@ -1197,10 +1284,9 @@ void RandomTrackDisplay::pickCB( CallBacker* cb )
 {
     if ( !polylinemode_ ) return;
 
+     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-
-    if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick &&
+     if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick &&
 			    OD::leftMouseButton( eventinfo.buttonstate_ ) )
     {
 	const Coord3 pos = eventinfo.worldpickedpos;
@@ -1311,7 +1397,7 @@ bool RandomTrackDisplay::createFromPolyLine()
 	bids += BinID( (int)pos.x, (int)pos.y );
     }
 
-    return setKnotPositions( bids );
+    return setNodePositions( bids );
 }
 
 
@@ -1333,6 +1419,5 @@ void RandomTrackDisplay::draggerMoveFinished( CallBacker* )
     ismanip_ = true;
     updateSel();
 }
-
 
 } // namespace visSurvey

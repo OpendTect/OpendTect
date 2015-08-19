@@ -181,11 +181,11 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    appl_.applMgr().visServer()->getObject(displayid))
     if ( !rtd ) return;
-    if ( rtd->nrKnots() < 2 )
+    if ( rtd->nrNodes() < 2 )
 	{ uiMSG().error(tr("Need at least 2 points")); return; }
 
     TypeSet<BinID> knots;
-    rtd->getAllKnotPos( knots );
+    rtd->getAllNodePos( knots );
 
     if ( !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
 	return;

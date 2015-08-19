@@ -24,39 +24,63 @@ namespace Geometry
 
 RandomLine::RandomLine( const char* nm )
     : NamedObject(nm)
-    , nodeAdded(this)
-    , nodeInserted(this)
-    , nodeRemoved(this)
-    , nodeMoved(this)
+    , nodeChanged(this)
     , zrangeChanged(this)
     , lset_(0)
+    , mid_(MultiID::udf())
 {
     assign( zrange_, SI().zRange(true) );
+
+    mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
+    id_ = oid++;
+
+    RLM().add( this );
+}
+
+
+RandomLine::~RandomLine()
+{
+    RLM().remove( this );
+    id_ = -2;
 }
 
 
 int RandomLine::addNode( const BinID& bid )
 {
     nodes_ += bid;
-    nodeAdded.trigger();
-    return nodes_.size()-1;
+    const int nodeidx = nodes_.size()-1;
+    ChangeData cd( ChangeData::Added, nodeidx );
+    nodeChanged.trigger( cd );
+    return nodeidx;
 }
 
 
 void RandomLine::insertNode( int idx, const BinID& bid )
-{ nodes_.insert( idx, bid ); nodeInserted.trigger(); }
-
-void RandomLine::setNodePosition( int idx, const BinID& bid )
 {
-    nodes_[idx] = bid;
-    nodeMoved.trigger( idx );
+    nodes_.insert( idx, bid );
+    ChangeData cd( ChangeData::Inserted, idx );
+    nodeChanged.trigger( cd );
 }
 
+
+void RandomLine::setNodePosition( int idx, const BinID& bid, bool moving )
+{
+    nodes_[idx] = bid;
+    ChangeData cd( moving ? ChangeData::Moving : ChangeData::Moved, idx );
+    nodeChanged.trigger( cd );
+}
+
+
 void RandomLine::removeNode( int idx )
-{ nodes_.removeSingle( idx ); nodeRemoved.trigger(); }
+{
+    nodes_.removeSingle( idx );
+    ChangeData cd( ChangeData::Removed, idx );
+    nodeChanged.trigger( cd );
+}
+
 
 void RandomLine::removeNode( const BinID& bid )
-{ nodes_ -= bid; nodeRemoved.trigger(); }
+{ removeNode( nodes_.indexOf(bid) ); }
 
 int RandomLine::nodeIndex( const BinID& bid ) const
 { return nodes_.indexOf( bid ); }
@@ -194,27 +218,43 @@ RandomLineSet::RandomLineSet( const RandomLine& baserandln, double dist,
 
 RandomLineSet::~RandomLineSet()
 {
-    deepErase(lines_);
+    deepUnRef(lines_);
     delete &pars_;
 }
 
 
 void RandomLineSet::setEmpty()
 {
-    deepErase( lines_ );
+    deepUnRef( lines_ );
     pars_.setEmpty();
 }
 
 
 RandomLine* RandomLineSet::getRandomLine( int idx )
-{
-    return lines_.validIdx(idx) ? lines_[idx] : 0;
-}
+{ return lines_.validIdx(idx) ? lines_[idx] : 0; }
 
 
 const RandomLine* RandomLineSet::getRandomLine( int idx ) const
+{ return lines_.validIdx(idx) ? lines_[idx] : 0; }
+
+
+void RandomLineSet::removeLine( int idx )
+{ lines_.removeSingle(idx)->unRef(); }
+
+
+void RandomLineSet::addLine( RandomLine& rl )
 {
-    return lines_.validIdx(idx) ? lines_[idx] : 0;
+    rl.lset_ = this;
+    lines_ += &rl;
+    rl.ref();
+}
+
+
+void RandomLineSet::insertLine( RandomLine& rl, int idx )
+{
+    rl.lset_ = this;
+    lines_.insertAt( &rl, idx );
+    rl.ref();
 }
 
 
@@ -275,7 +315,7 @@ void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
 	    RandomLine* rln = new RandomLine;
 	    rln->addNode( SI().transform(endsposline[0]) );
 	    rln->addNode( SI().transform(endsposline[1]) );
-	    addLine( rln );
+	    addLine( *rln );
 	}
 
 	if ( !idx ) continue;
@@ -286,8 +326,7 @@ void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
 	    RandomLine* rln = new RandomLine;
 	    rln->addNode( SI().transform(endsnegline[0]) );
 	    rln->addNode( SI().transform(endsnegline[1]) );
-	    rln->lset_ = this;
-	    lines_.insertAt( rln, 0 );
+	    insertLine( *rln, 0 );
 	}
     }
 }
@@ -326,6 +365,115 @@ void RandomLineSet::getGeometry( const MultiID& rdlsid, TypeSet<BinID>& knots,
     }
 }
 
+
+// RandomLineManager
+RandomLineManager& RLM()
+{
+    mDefineStaticLocalObject( PtrMan<RandomLineManager>, mgr,
+			      (new RandomLineManager) );
+    return *mgr;
+}
+
+
+RandomLineManager::RandomLineManager()
+    : added(this)
+    , removed(this)
+{
+}
+
+
+RandomLineManager::~RandomLineManager()
+{
+    deepUnRef( lines_ );
+}
+
+
+int RandomLineManager::indexOf( const MultiID& mid ) const
+{
+    for ( int idx=0; idx<lines_.size(); idx++ )
+    {
+	if ( lines_[idx]->getMultiID() == mid )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+RandomLine* RandomLineManager::get( const MultiID& mid, bool forcereload )
+{
+    const int rlidx = indexOf( mid );
+    RandomLine* rl = lines_.validIdx(rlidx) ? lines_[rlidx] : 0;
+    if ( rl && !forcereload )
+	return rl;
+
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return 0;
+
+    RandomLineSet rdlset;
+    BufferString msg;
+    const bool res = RandomLineSetTranslator::retrieve( rdlset, ioobj, msg );
+    if ( !res || rdlset.isEmpty() ) return 0;
+
+    rl = rdlset.getRandomLine( 0 );
+    rl->setMultiID( mid );
+    add( rl );
+    return rl;
+}
+
+
+RandomLine* RandomLineManager::get( int id )
+{
+    for ( int idx=0; idx<lines_.size(); idx++ )
+    {
+	if ( lines_[idx]->ID() == id )
+	    return lines_[idx];
+    }
+
+    return 0;
+}
+
+
+const RandomLine* RandomLineManager::get( int id ) const
+{ return const_cast<RandomLineManager*>(this)->get( id ); }
+
+
+bool RandomLineManager::isLoaded( const MultiID& mid ) const
+{
+    const int rlidx = indexOf( mid );
+    return lines_.validIdx( rlidx );
+}
+
+
+bool RandomLineManager::isLoaded( int id ) const
+{ return (bool)get( id ); }
+
+
+int RandomLineManager::add( RandomLine* rl )
+{
+    if ( !rl ) return -1;
+
+    const bool res = lines_.addIfNew( rl );
+    if ( res )
+    {
+	rl->ref();
+	added.trigger( rl->ID() );
+    }
+
+    return rl->ID();
+}
+
+
+void RandomLineManager::remove( RandomLine* rl )
+{
+    if ( !rl ) return;
+
+    const int rlidx = lines_.indexOf( rl );
+    if ( rlidx<0 ) return;
+
+    removed.trigger( rl->ID() );
+    lines_.removeSingle( rlidx )->unRef();
+}
 
 } //namespace Geometry
 

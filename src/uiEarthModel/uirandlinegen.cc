@@ -100,7 +100,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 
     outfld_ = new uiIOObjSel( this, rlsctio_, "Random Line set" );
     outfld_->attach( alignedBelow, relzrgfld_ );
-    
+
     dispfld_ = new uiCheckBox( this, tr("Display Random Line on creation") );
     dispfld_->attach( alignedBelow, outfld_ );
     dispfld_->setChecked( true );
@@ -164,7 +164,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 	if ( !poly )
 	   mErrRet(msg)
     }
-    
+
     uiTaskRunner taskrunner( this ); EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.loadIfNotFullyLoaded( horctio_.ioobj->key(),
 	    					   &taskrunner );
@@ -181,9 +181,9 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     EM::RandomLineSetByContourGenerator::Setup cgsu( isrel );
     cgsu.contzrg( contzrg ).linezrg( linezrg );
     if ( poly ) cgsu.selpoly_ = poly;
-    cgsu.minnrvertices_ = vtxthreshfld_->box()->getValue();
+    cgsu.minnrvertices_ = vtxthreshfld_->box()->getIntValue();
     if ( largestfld_->isChecked() )
-	cgsu.nrlargestonly_ = nrlargestfld_->getValue();
+	cgsu.nrlargestonly_ = nrlargestfld_->getIntValue();
     EM::RandomLineSetByContourGenerator gen( *hor, cgsu );
     Geometry::RandomLineSet rls;
     gen.createLines( rls );
@@ -231,7 +231,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
 
     outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
     outfld_->attach( alignedBelow, sidefld_ );
-    
+
     dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
     dispfld_->attach( alignedBelow, outfld_ );
     dispfld_->setChecked( true );
@@ -283,7 +283,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
     }
 
     const int choice = sidefld_->getIntValue();
-    EM::RandomLineByShiftGenerator gen( inprls, distfld_->getfValue(),
+    EM::RandomLineByShiftGenerator gen( inprls, distfld_->getFValue(),
 				    choice == 0 ? -1 : (choice == 1 ? 1 : 0) );
     Geometry::RandomLineSet outrls; gen.generate( outrls, lnr );
     if ( outrls.isEmpty() )
@@ -351,7 +351,7 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
     if ( !poly )
        mErrRet(msg)
 
-    Geometry::RandomLine* rl = new Geometry::RandomLine;
+    RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
     for ( int idx=0; idx<poly->size(); idx++ )
     {
 	Geom::Point2D<float> pt = poly->getVertex( idx );
@@ -359,11 +359,11 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 	rl->addNode( bid );
     }
     if ( rl->isEmpty() )
-	{ delete rl; mErrRet("Empty input polygon") }
+	{ mErrRet("Empty input polygon") }
     rl->setZRange( zrgfld_->getRange() );
 
     Geometry::RandomLineSet outrls;
-    outrls.addLine( rl );
+    outrls.addLine( *rl );
     if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg) )
 	mErrRet(msg)
 

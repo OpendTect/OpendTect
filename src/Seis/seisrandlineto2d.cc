@@ -122,9 +122,9 @@ static void addTrcToBuffer( SeisTrc* trc, SeisTrcBuf* buf )
 	{
 	    buf->insert( trc, idx );
 	    return;
-	} 
+	}
     }
-    
+
     buf->add( trc );
 }
 
@@ -219,7 +219,10 @@ od_int64 SeisRandLineTo2D::totalNr() const
 SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
     : isok_(true),strm_(s)
     , inpobj_(0),outpobj_(0)
+    , rln_(*new Geometry::RandomLine)
 {
+    rln_.ref();
+
     MultiID inpid, outpid;
     if ( !par.get(SeisRandLineTo2DGrid::sKeyInputID(),inpid) )
 	mNotOKRet("Error: Input ID is missing")
@@ -257,6 +260,12 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
 
     rln_.addNode( start );
     rln_.addNode( stop );
+}
+
+
+SeisRandLineTo2DGrid::~SeisRandLineTo2DGrid()
+{
+    rln_.unRef();
 }
 
 

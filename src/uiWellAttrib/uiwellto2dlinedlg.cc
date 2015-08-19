@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiWellTo2DLineDlg::uiWellTo2DLineDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Create 2D line"),
 				 tr("Select wells to set up the 2D line path"),
-				 mODHelpKey(mWellto2DLineDlgHelpID)) )
+				 mODHelpKey(mWellto2DLineDlgHelpID)))
     , wellselgrp_(new uiWellSelGrp(this))
     , wantspreview_(this)
     , rl_(0)
@@ -47,7 +47,7 @@ uiWellTo2DLineDlg::uiWellTo2DLineDlg( uiParent* p )
 
 uiWellTo2DLineDlg::~uiWellTo2DLineDlg()
 {
-    delete rl_;
+    if ( rl_ ) rl_->unRef();
 }
 
 
@@ -72,6 +72,7 @@ void uiWellTo2DLineDlg::createFields()
     previewbutton_->attach( ensureBelow, sep );
 
     rl_ = new Geometry::RandomLine;
+    rl_->ref();
     randto2dlinefld_ = new uiSeisRandTo2DBase( this, false );
 
     linenmfld_ = new uiGenInput( this, tr("Line Name"),StringInpSpec("") );
@@ -107,7 +108,7 @@ void uiWellTo2DLineDlg::extendLine( TypeSet<Coord>& coords )
 {
     const int nrcoords = coords.size();
     if ( nrcoords < 1 ) return;
-    float extradist = extendfld_->getfValue();
+    float extradist = extendfld_->getFValue();
     if ( extradist < 0.1 || extradist > 1e6 ) return;
     if ( SI().xyInFeet() )
 	extradist *= mFromFeetFactorF;
