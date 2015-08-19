@@ -190,9 +190,11 @@ void Seis::RangeSelData::copyFrom( const Seis::SelData& sd )
     else
     {
 	Interval<int> rg( sd.inlRange() );
-	tkzs_.hsamp_.start_.inl() = rg.start; tkzs_.hsamp_.stop_.inl() = rg.stop;
+	tkzs_.hsamp_.start_.inl() = rg.start;
+	tkzs_.hsamp_.stop_.inl() = rg.stop;
 	rg = sd.crlRange();
-	tkzs_.hsamp_.start_.crl() = rg.start; tkzs_.hsamp_.stop_.crl() = rg.stop;
+	tkzs_.hsamp_.start_.crl() = rg.start;
+	tkzs_.hsamp_.stop_.crl() = rg.stop;
 	assign( tkzs_.zsamp_, sd.zRange() );
     }
 }

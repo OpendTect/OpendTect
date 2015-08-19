@@ -526,13 +526,16 @@ StepInterval<float> Seis::Bounds3D::getZRange() const
 
 void Seis::Bounds3D::getCoordRange( Coord& mn, Coord& mx ) const
 {
-    mn = SI().transform( BinID(tkzs_.hsamp_.start_.inl(),tkzs_.hsamp_.start_.crl()) );
-    Coord c = SI().transform( BinID(tkzs_.hsamp_.stop_.inl(),
-				    tkzs_.hsamp_.start_.crl()) );
+    mn = SI().transform(
+	BinID(tkzs_.hsamp_.start_.inl(),tkzs_.hsamp_.start_.crl()) );
+    Coord c = SI().transform(
+	BinID(tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.start_.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
-    c = SI().transform( BinID(tkzs_.hsamp_.stop_.inl(),tkzs_.hsamp_.stop_.crl()) );
+    c = SI().transform(
+	BinID(tkzs_.hsamp_.stop_.inl(),tkzs_.hsamp_.stop_.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
-    c = SI().transform( BinID(tkzs_.hsamp_.start_.inl(),tkzs_.hsamp_.stop_.crl()) );
+    c = SI().transform(
+	BinID(tkzs_.hsamp_.start_.inl(),tkzs_.hsamp_.stop_.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
 }
 

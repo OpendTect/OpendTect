@@ -68,7 +68,8 @@ SeisResampler::~SeisResampler()
 SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 {
     if ( (is3d && !cs.hsamp_.includes(intrc.info().binid))
-      || (!is3d && !cs.hsamp_.includes(BinID(cs.hsamp_.start_.inl(),intrc.info().nr))) )
+      || (!is3d &&
+	  !cs.hsamp_.includes(BinID(cs.hsamp_.start_.inl(),intrc.info().nr))) )
 	return 0;
 
     if ( nrtrcs == 0 )

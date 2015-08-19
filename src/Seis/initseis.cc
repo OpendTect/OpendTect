@@ -47,7 +47,7 @@ mDefSimpleTranslatorioContext(SeisTrc2D,Seis)
 mDefModInitFn(Seis)
 {
     mIfNotFirstTime( return );
-    
+
     SeisPacketInfo::initClass();
 
     SeisTrcTranslatorGroup::initClass();

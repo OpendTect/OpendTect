@@ -590,10 +590,10 @@ bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
     if ( buf.isEmpty() )
 	return false;
 
-    cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl()
-			   = buf.first()->info().binid.inl();
-    cs.hsamp_.start_.crl() = cs.hsamp_.stop_.crl()
-			   = buf.first()->info().binid.crl();
+    cs.hsamp_.start_.inl() = cs.hsamp_.stop_.inl() =
+	buf.first()->info().binid.inl();
+    cs.hsamp_.start_.crl() = cs.hsamp_.stop_.crl() =
+	buf.first()->info().binid.crl();
     cs.hsamp_.step_.inl() = SI().inlStep();
     cs.hsamp_.step_.crl() = SI().crlStep();
 
