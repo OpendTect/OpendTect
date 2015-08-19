@@ -49,7 +49,7 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
 				.defseldir(sofiledir.fullPath()) );
     filefld_->valuechanged.notify( mCB(this,uiMatlabStep,fileSelCB) );
 
-    loadbut_ = new uiPushButton( this, uiStrings::sLoad(true),
+    loadbut_ = new uiPushButton( this, uiStrings::sLoad(),
 			mCB(this,uiMatlabStep,loadCB), true );
     loadbut_->setSensitive( false );
     loadbut_->attach( rightTo, filefld_ );
