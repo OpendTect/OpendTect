@@ -28,13 +28,13 @@ mExpClass(uiSEGY) FullSpec
 {
 public:
 
-			FullSpec( Seis::GeomType gt, bool isvsp=false )
-			    : readopts_(gt), rev0_(false), isvsp_(isvsp) {}
+			FullSpec(Seis::GeomType,bool isvsp=false);
 
     bool		rev0_;
     FileSpec		spec_;
     FilePars		pars_;
     FileReadOpts	readopts_;
+    bool		zinfeet_;
 
     bool		isVSP() const		{ return isvsp_; }
     Seis::GeomType	geomType() const	{ return readopts_.geomType(); }

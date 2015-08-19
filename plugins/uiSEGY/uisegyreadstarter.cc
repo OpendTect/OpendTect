@@ -120,6 +120,7 @@ FullSpec uiSEGYReadStarter::fullSpec() const
     ret.rev0_ = loaddef_.revision_ == 0;
     ret.spec_ = filespec_;
     ret.pars_ = filepars_;
+    ret.zinfeet_ = infeet_;
     if ( filereadopts_ )
 	ret.readopts_ = *filereadopts_;
     return ret;

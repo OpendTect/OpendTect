@@ -16,8 +16,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_istream.h"
 #include "datainterp.h"
 #include "dataclipper.h"
+#include "survinfo.h"
 
 
+SEGY::FullSpec::FullSpec( Seis::GeomType gt, bool isvsp )
+    : readopts_(gt)
+    , isvsp_(isvsp)
+    , rev0_(false)
+    , zinfeet_(SI().depthsInFeet())
+{
+}
 
 void SEGY::BasicFileInfo::init()
 {

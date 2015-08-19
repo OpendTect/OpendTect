@@ -17,6 +17,8 @@ ________________________________________________________________________
 class uiIOObjSel;
 class uiSeisSel;
 class uiComboBox;
+class uiCheckBox;
+class uiGenInput;
 class uiBatchJobDispatcherSel;
 class uiSeisTransfer;
 
@@ -36,19 +38,26 @@ public:
 protected:
 
     FullSpec		fs_;
+    BufferString	objname_;
 
     uiIOObjSel*		outwllfld_;
+    uiComboBox*		lognmfld_;
+    uiGenInput*		inpdomfld_;
+    uiCheckBox*		isfeetfld_;
+
+    uiGenInput*		docopyfld_;
     uiSeisSel*		outimpfld_;
     uiSeisSel*		outscanfld_;
     uiSeisTransfer*	transffld_;
     uiBatchJobDispatcherSel* batchfld_;
-    uiComboBox*		lognmfld_;
 
     void		crVSPFields();
     void		crSeisFields();
 
     void		initWin(CallBacker*);
     void		wllSel(CallBacker*);
+    void		inpDomChg(CallBacker*);
+    void		doScanChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     static uiString	getWinTile(const FullSpec&);
