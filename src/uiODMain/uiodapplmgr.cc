@@ -652,7 +652,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( cacheid == DataPack::cNoID() )
 		useDefColTab( visid, attrib );
 	    TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
-	    TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getKnots() : 0;
+	    TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getNodes() : 0;
 	    if ( myas.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
@@ -800,6 +800,8 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	uiMSG().error( tr("Cannot calculate attribute on this object") );
 	return false;
     }
+    else if ( as->id() == as->cNoAttrib() || as->id() == as->cAttribNotSel() )
+	return false;
 
     Attrib::SelSpec myas( *as );
     DataPackMgr& dpm = DPM(DataPackMgr::PointID());
@@ -881,7 +883,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			visserv_->getObject(visid) );
 	TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
-	TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getKnots() : 0;
+	TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getNodes() : 0;
 	const DataPack::ID dpid =
 		attrserv_->createRdmTrcsOutput( zrg, trcspath, trueknotspos);
 	visserv_->setDataPackID( visid, attrib, dpid );

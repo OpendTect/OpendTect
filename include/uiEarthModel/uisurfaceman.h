@@ -69,7 +69,7 @@ protected:
     void		renameAttribCB(CallBacker*);
 
     void		mkFileInfo();
-    void		fillAttribList(const BufferStringSet&);
+    void		fillAttribList();
     od_int64		getFileSize(const char*,int&) const;
     void		setToolButtonProperties();
     void		ownSelChg();

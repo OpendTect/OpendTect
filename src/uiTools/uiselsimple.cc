@@ -49,7 +49,7 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 
 uiObject* uiSelectFromList::bottomFld()
 {
-    return selfld_;
+    return selfld_->attachObj();
 }
 
 

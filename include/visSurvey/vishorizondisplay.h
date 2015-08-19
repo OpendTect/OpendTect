@@ -33,15 +33,14 @@ namespace visBase
 namespace visSurvey
 {
 
-
 mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
-{ mODTextTranslationClass(HorizonDisplay);
+{ mODTextTranslationClass(HorizonDisplay)
 public:
 				HorizonDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,HorizonDisplay,
-				    "HorizonDisplay", 
-				    toUiString(sFactoryKeyword()));
+				    "HorizonDisplay",
+				    toUiString(sFactoryKeyword()))
 
     void			setDisplayTransformation(const mVisTrans*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
@@ -82,7 +81,7 @@ public:
     virtual int			selectedTexture(int attrib) const;
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
-    Pol2D3D                     getAllowedDataType() const
+    Pol2D3D			getAllowedDataType() const
 				{ return Both2DAnd3D; }
 
     int				nrAttribs() const;
@@ -103,9 +102,9 @@ public:
     void			setDepthAsAttrib(int);
     void			setDisplayDataPackIDs(int attrib,
 					const TypeSet<DataPack::ID>&);
-    DataPack::ID                getDataPackID(int attrib) const;
+    DataPack::ID		getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
-    virtual DataPackMgr::ID     getDataPackMgrID() const
+    virtual DataPackMgr::ID	getDataPackMgrID() const
 				{ return DataPackMgr::FlatID(); }
 
     bool			allowMaterialEdit() const	{ return true; }
@@ -163,8 +162,8 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    bool                        canBDispOn2DViewer() const      { return true; }
-    bool                        isVerticalPlane() const		{ return false;}
+    bool			canBDispOn2DViewer() const	{ return true; }
+    bool			isVerticalPlane() const		{ return false;}
 
     void			setAttribShift(int channel,
 					       const TypeSet<float>& shifts);
@@ -185,7 +184,10 @@ public:
     virtual void		setPixelDensity(float);
 
     void			setSectionDisplayRestore(bool);
-    const BufferString		getSectionName(int secidx);
+    BufferString		getSectionName(int secidx) const;
+
+    void			selectParent(const TrcKey&);
+    void			selectChildren(const TrcKey&);
 
 protected:
 				~HorizonDisplay();
@@ -238,6 +240,8 @@ protected:
     TypeSet<int>			intersectionlinevoi_;
     visBase::Material*			intersectionlinematerial_;
 
+    visBase::VertexShape*		parentline_;
+
     StepInterval<int>			parrowrg_;
     StepInterval<int>			parcolrg_;
 
@@ -276,8 +280,7 @@ protected:
     static const char*			sKeyZValues();
 };
 
-
-};
+} // namespace visSurvey
 
 #endif
 

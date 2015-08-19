@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodhortreeitem.h"
 
+#include "bendpointfinder.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -18,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
 #include "mpeengine.h"
+#include "randomlinegeom.h"
 #include "survinfo.h"
 
 #include "uiattribpartserv.h"
@@ -32,6 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiposprovider.h"
 #include "uitaskrunner.h"
+#include "uitreeview.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
 #include "uistrings.h"
@@ -55,8 +58,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mSectFullIdx	7
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
-    : uiODTreeItem( "Horizon" )
-{}
+    : uiODTreeItem( "3D Horizon" )
+{
+}
+
+
+uiODHorizonParentTreeItem::~uiODHorizonParentTreeItem()
+{
+}
+
+
+const char* uiODHorizonParentTreeItem::iconName() const
+{ return "tree-horizon3d"; }
 
 
 void uiODHorizonParentTreeItem::removeChild( uiTreeItem* itm )
@@ -286,6 +299,10 @@ void uiODHorizonTreeItem::initMenuItems()
     filterhormnuitem_.text = m3Dots(tr("Filtering"));
     snapeventmnuitem_.text = m3Dots(tr("Snapping"));
     geom2attrmnuitem_.text = m3Dots(tr("Store Z as Attribute"));
+
+    parentsrdlmnuitem_.text = tr("Show Parents Path");
+    parentsmnuitem_.text = tr("Select Parents");
+    childrenmnuitem_.text = tr("Select Children");
 }
 
 
@@ -348,6 +365,7 @@ bool uiODHorizonTreeItem::init()
     mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
     if ( hor3d )
     {
+	hd->setDepthAsAttrib( 0 );
 	const int nrauxdata = hor3d->auxdata.nrAuxData();
 	for ( int idx=0; idx<nrauxdata; idx++ )
 	{
@@ -357,6 +375,7 @@ bool uiODHorizonTreeItem::init()
 	    DataPointSet vals( false, true );
 	    float shift;
 	    applMgr()->EMServer()->getAuxData( emid_, idx, vals, shift );
+
 	    uiODDataTreeItem* itm = addAttribItem();
 	    mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
 	    if ( emitm ) emitm->setDataPointSet( vals );
@@ -384,6 +403,7 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiODEarthModelSurfaceTreeItem::createMenu( menu, istb );
     if ( istb ) return;
 
+    mDynamicCastGet(uiMenuHandler*,uimenu,menu)
     mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
 
@@ -417,14 +437,23 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuItem( menu, &workflowsmnuitem_, true, false );
     mAddMenuItem( &workflowsmnuitem_, &createflatscenemnuitem_,true, false);
+
+    MenuItem* trackmnu = menu->findItem( uiVisEMObject::trackingmenutxt() );
+    if ( trackmnu )
+    {
+	const Coord3& crd = uimenu->getPickedPos();
+	if ( crd.isDefined() )
+	{
+	    mAddMenuItem( trackmnu, &parentsmnuitem_, true, false );
+	    mAddMenuItem( trackmnu, &childrenmnuitem_, true, false );
+	    mAddMenuItem( trackmnu, &parentsrdlmnuitem_, true, false );
+	}
+    }
 }
 
 
 #define mUpdateTexture() \
 { \
-    mDynamicCastGet( visSurvey::HorizonDisplay*, hd, \
-	    visserv_->getObject(displayid_) ); \
-    if ( !hd ) return; \
     for ( int idx=0; idx<hd->nrAttribs(); idx++ ) \
     { \
 	if ( hd->hasDepth(idx) ) hd->setDepthAsAttrib( idx ); \
@@ -437,10 +466,15 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     uiODEarthModelSurfaceTreeItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller)
+    mDynamicCastGet(uiMenuHandler*,uimenu,caller)
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
     const int visid = displayID();
+    mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
+		     visserv_->getObject(visid) );
+    if ( !hd ) return;
+
     uiEMPartServer* emserv = applMgr()->EMServer();
     uiEMAttribPartServer* emattrserv = applMgr()->EMAttribServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();
@@ -465,10 +499,6 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled(true);
-
-	mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
-			 visserv_->getObject(displayid_) );
-	if ( !hd ) return;
 
 	visBase::HorizonSection* section = hd->getHorizonSection( 0 );
 	if ( !section )
@@ -496,7 +526,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 	uiDialog dlg( getUiParent(),
 		uiDialog::Setup("Positions","Specify positions",
-                                mODHelpKey(mPosProvSelHelpID) ) );
+				mODHelpKey(mPosProvSelHelpID) ) );
 	uiPosProvider pp( &dlg, setup );
 
 	IOPar displaypar;
@@ -516,7 +546,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	else
 	    newcs.usePar( displaypar );
 
-	section->setDisplayRange( newcs.hsamp_.inlRange(), newcs.hsamp_.crlRange() );
+	section->setDisplayRange( newcs.hsamp_.inlRange(),
+				  newcs.hsamp_.crlRange() );
 	emserv->setHorizon3DDisplayRange( newcs.hsamp_ );
 
 	for ( int idx=0; idx<hd->nrAttribs(); idx++ )
@@ -547,6 +578,35 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	mDynamicCastGet(uiODEarthModelSurfaceDataTreeItem*,emitm,itm);
 	if ( emitm ) emitm->selectAndLoadAuxData();
     }
+    else if ( mnuid==parentsrdlmnuitem_.id )
+    {
+	mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
+	if ( hor3d )
+	{
+	    const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	    TypeSet<TrcKey> trcs; hor3d->getParents( tk, trcs );
+	    if ( trcs.isEmpty() ) return;
+
+	    BendPointFinderTrcKey bpf( trcs, 10 );
+	    if ( !bpf.execute() ) return;
+
+	    const TypeSet<int>& bends = bpf.bendPoints();
+	    RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
+	    Geometry::RLM().add( rl );
+	    for ( int idx=0; idx<bends.size(); idx++ )
+		rl->addNode( trcs[bends[idx]].pos() );
+
+	    ODMainWin()->sceneMgr().addRandomLineItem( rl->ID(), sceneID() );
+	}
+    }
+    else if ( mnuid==parentsmnuitem_.id )
+    {
+	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	hd->selectParent( tk );
+    }
+    else if ( mnuid==childrenmnuitem_.id )
+    {
+    }
     else
 	handled = false;
 
@@ -557,6 +617,10 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
     : uiODTreeItem( "2D Horizon" )
 {}
+
+
+const char* uiODHorizon2DParentTreeItem::iconName() const
+{ return "tree-horizon2d"; }
 
 
 void uiODHorizon2DParentTreeItem::removeChild( uiTreeItem* itm )
@@ -777,8 +841,12 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const int visid = displayID();
 	const bool isoverwrite = applMgr()->EMServer()->fillHoles( emid_, true);
-	if ( isoverwrite )
+	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+			visserv_->getObject(visid));
+	if ( hd && isoverwrite )
+	{
 	    mUpdateTexture();
+	}
     }
     else if ( mnuid==derive3dhormnuitem_.id )
 	applMgr()->EMServer()->deriveHor3DFrom2D( emid_ );

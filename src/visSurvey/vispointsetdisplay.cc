@@ -79,7 +79,7 @@ bool PointSetDisplay::setDataPack( int dpsid )
 void PointSetDisplay::update()
 {
     if ( !pointset_ ) return;
-    
+
     pointset_->removeAllPoints();
     pointset_->removeAllPrimitiveSets();
     pointset_->getMaterial()->clear();
@@ -117,19 +117,19 @@ void PointSetDisplay::update()
 
     if ( pointidxs.size()>0 )
     {
-	Geometry::PrimitiveSet* pointsetps = 
+	Geometry::PrimitiveSet* pointsetps =
 	    Geometry::IndexedPrimitiveSet::create( true );
 	pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
 	pointsetps->append( pointidxs.arr(), pointidxs.size() );
 	pointset_->addPrimitiveSet( pointsetps );
 	pointset_->materialChangeCB( 0 );
     }
-    
+
 }
 
 
 void PointSetDisplay::removeSelection( const Selector<Coord3>& selector,
-       					TaskRunner* )
+					TaskRunner* )
 {
     if ( !selector.isOK() )
 	return;
@@ -164,7 +164,7 @@ void PointSetDisplay::setDisplayTransformation( const mVisTrans* nt )
     transformation_ = nt;
     if ( transformation_ )
 	transformation_->ref();
-    
+
     if ( pointset_ )
         pointset_->setDisplayTransformation( transformation_ );
 }
@@ -194,6 +194,35 @@ void PointSetDisplay::setPixelDensity( float dpi )
 	pointset_->setPixelDensity( dpi );
 }
 
+
+void PointSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
+				       Coord3& pos,
+				       BufferString& val,
+				       BufferString& info ) const
+{
+    info = ""; val = "";
+    if ( !data_ ) return;
+
+    info = data_->name();
+    if ( !dpsdispprop_ )
+	return;
+
+    info += ": ";
+    if ( dpsdispprop_->showSelected() )
+	info += "Selection Group";
+    else
+	info += data_->colName( dpsdispprop_->dpsColID() );
+
+    BinID binid = SI().transform( pos );
+    DataPointSet::RowID rid = data_->findFirst( binid );
+    if ( rid < 0 )
+	return;
+
+    if ( dpsdispprop_->showSelected() )
+	val.add( data_->selGroup(rid) );
+    else
+	val.add( data_->value(dpsdispprop_->dpsColID(),rid) );
+}
 
 /*void PointSetDisplay::eventCB( CallBacker* cb )
 {

@@ -93,7 +93,7 @@ bool uiShiftAttrib::getParameters( Desc& desc )
 	return false;
 
     const bool dosteering = dosteerfld_->getBoolValue();
-    mSetFloat( Shift::timeStr(), timefld_->getfValue() );
+    mSetFloat( Shift::timeStr(), timefld_->getFValue() );
     mSetBool( Shift::steeringStr(), dosteering ? steerfld_->willSteer() :false);
     mSetBinID( Shift::posStr(), stepoutfld_->getBinID() );
 

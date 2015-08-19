@@ -12,33 +12,45 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodfaulttreeitem.h"
 
 #include "datapointset.h"
-#include "uimpepartserv.h"
-#include "uivisemobj.h"
-#include "visfaultdisplay.h"
-#include "visfaultsticksetdisplay.h"
-#include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emfaultauxdata.h"
+#include "emfaultstickset.h"
 #include "emmanager.h"
 #include "mpeengine.h"
 #include "ioman.h"
 #include "ioobj.h"
-
 #include "mousecursor.h"
 #include "randcolor.h"
+
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uistrings.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
+
+#include "visfaultdisplay.h"
+#include "visfaultsticksetdisplay.h"
 
 
 uiODFaultParentTreeItem::uiODFaultParentTreeItem()
    : uiODTreeItem( "Fault" )
-{}
+{
+}
+
+
+uiODFaultParentTreeItem::~uiODFaultParentTreeItem()
+{
+}
+
+
+const char* uiODFaultParentTreeItem::iconName() const
+{ return "tree-flt"; }
+
 
 #define mAddMnuID	0
 #define mNewMnuID	1
@@ -199,7 +211,6 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
 uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
     : uiODDisplayTreeItem()
     , emid_(-1)
-    , uivisemobj_(0)
     , faultdisplay_(0)
     mCommonInit
 {
@@ -214,10 +225,6 @@ uiODFaultTreeItem::~uiODFaultTreeItem()
     {
 	faultdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultTreeItem,colorChCB));
-	faultdisplay_->selection()->remove(
-		mCB(this,uiODFaultTreeItem,selChgCB) );
-	faultdisplay_->deSelection()->remove(
-		mCB(this,uiODFaultTreeItem,deSelChgCB) );
 	faultdisplay_->unRef();
     }
 }
@@ -230,7 +237,7 @@ uiODDataTreeItem* uiODFaultTreeItem::createAttribItem(
     uiODDataTreeItem* res = as
 	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
     if ( !res )
-	res = new uiODFaultSurfaceDataTreeItem( emid_, uivisemobj_, parenttype);
+	res = new uiODFaultSurfaceDataTreeItem( emid_, parenttype );
     return res;
 }
 
@@ -261,10 +268,6 @@ bool uiODFaultTreeItem::init()
 
     faultdisplay_->materialChange()->notify(
 	    mCB(this,uiODFaultTreeItem,colorChCB));
-    faultdisplay_->selection()->notify(
-	    mCB(this,uiODFaultTreeItem,selChgCB) );
-    faultdisplay_->deSelection()->notify(
-	    mCB(this,uiODFaultTreeItem,deSelChgCB) );
 
     return uiODDisplayTreeItem::init();
 }
@@ -274,14 +277,6 @@ void uiODFaultTreeItem::colorChCB( CallBacker* )
 {
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
-
-
-void uiODFaultTreeItem::selChgCB( CallBacker* )
-{}
-
-
-void uiODFaultTreeItem::deSelChgCB( CallBacker* )
-{}
 
 
 bool uiODFaultTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
@@ -403,10 +398,29 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
+void uiODFaultTreeItem::setOnlyAtSectionsDisplay( bool yn )
+{
+    if ( !faultdisplay_ ) return;
+
+    faultdisplay_->displayIntersections( yn );
+    faultdisplay_->displayHorizonIntersections( yn );
+}
+
+
+bool uiODFaultTreeItem::isOnlyAtSections() const
+{
+    return faultdisplay_ && faultdisplay_->areIntersectionsDisplayed();
+}
+
+
 
 uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
    : uiODTreeItem( "FaultStickSet" )
 {}
+
+
+const char* uiODFaultStickSetParentTreeItem::iconName() const
+{ return "tree-fltss"; }
 
 
 bool uiODFaultStickSetParentTreeItem::showSubMenu()
@@ -525,10 +539,6 @@ uiODFaultStickSetTreeItem::~uiODFaultStickSetTreeItem()
     {
 	faultsticksetdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
-	faultsticksetdisplay_->selection()->remove(
-		mCB(this,uiODFaultStickSetTreeItem,selChgCB) );
-	faultsticksetdisplay_->deSelection()->remove(
-		mCB(this,uiODFaultStickSetTreeItem,deSelChgCB) );
 	faultsticksetdisplay_->unRef();
     }
 }
@@ -561,10 +571,6 @@ bool uiODFaultStickSetTreeItem::init()
 
     faultsticksetdisplay_->materialChange()->notify(
 	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
-    faultsticksetdisplay_->selection()->notify(
-	    mCB(this,uiODFaultStickSetTreeItem,selChgCB) );
-    faultsticksetdisplay_->deSelection()->notify(
-	    mCB(this,uiODFaultStickSetTreeItem,deSelChgCB) );
 
     return uiODDisplayTreeItem::init();
 }
@@ -574,14 +580,6 @@ void uiODFaultStickSetTreeItem::colorChCB( CallBacker* )
 {
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
-
-
-void uiODFaultStickSetTreeItem::selChgCB( CallBacker* )
-{}
-
-
-void uiODFaultStickSetTreeItem::deSelChgCB( CallBacker* )
-{}
 
 
 bool uiODFaultStickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
@@ -667,7 +665,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
-	uiVisEMObject* uv, const char* parenttype )
+	const char* parenttype )
     : uiODAttribTreeItem(parenttype)
     , depthattribmnuitem_(tr("Z values"))
     , savesurfacedatamnuitem_(m3Dots(tr("Save as Fault Data")))
@@ -675,7 +673,6 @@ uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
     , algomnuitem_(tr("Smooth"))
     , changed_(false)
     , emid_(objid)
-    , uivisemobj_(uv)
 {}
 
 

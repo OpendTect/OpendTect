@@ -19,7 +19,6 @@ ________________________________________________________________________
 
 class LineKey;
 class uiGenInput;
-class uiLabeledListBox;
 class uiListBox;
 
 
@@ -52,18 +51,18 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
     bool		allowChoice() const	{ return compnms_.size()>1; }
 
     protected:
-	
-    BufferString        getSummary() const;
-    void                doDlg(CallBacker*);
+
+    BufferString	getSummary() const;
+    void		doDlg(CallBacker*);
     void		prepareDlg();
 
     mExpClass(uiSeis) MCompDlg : public uiDialog
     { mODTextTranslationClass(MCompDlg);
 	public:
-	    			MCompDlg(uiParent*,const BufferStringSet&);
+				MCompDlg(uiParent*,const BufferStringSet&);
 
 	void			selChg(CallBacker*);
-	uiLabeledListBox*	outlistfld_;
+	uiListBox*		outlistfld_;
 	uiGenInput*		useallfld_;
     };
 

@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodplanedatatreeitem.h"
 
-#include "seistrctr.h"
 #include "uiattribpartserv.h"
 #include "uigridlinesdlg.h"
 #include "uimenu.h"
@@ -38,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "linekey.h"
 #include "seisioobjinfo.h"
+#include "seistrctr.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "welldata.h"
@@ -528,23 +528,9 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 }
 
 
-void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const TrcKeyZSampling& cs )
-{
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
-
-    pdd->annotateNextUpdateStage( true );
-    pdd->setTrcKeyZSampling( cs );
-    pdd->resetManipulation();
-    pdd->annotateNextUpdateStage( true );
-    for ( int attrib=0; attrib<visserv_->getNrAttribs(displayid_); attrib++ )
-	visserv_->calculateAttrib( displayid_, attrib, false );
-    pdd->annotateNextUpdateStage( false );
-
-    updateColumnText( uiODSceneMgr::cNameColumn() );
-    updateColumnText( uiODSceneMgr::cColorColumn() );
-}
+void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs(
+	const TrcKeyZSampling& tkzs )
+{ visserv_->movePlaneAndCalcAttribs( displayid_, tkzs ); }
 
 
 void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
@@ -614,7 +600,11 @@ uiTreeItem*
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
     : uiODTreeItem( "In-line" )
-{ }
+{}
+
+
+const char* uiODInlineParentTreeItem::iconName() const
+{ return "tree-inl"; }
 
 
 bool uiODInlineParentTreeItem::showSubMenu()
@@ -654,7 +644,11 @@ uiTreeItem*
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
     : uiODTreeItem( "Cross-line" )
-{ }
+{}
+
+
+const char* uiODCrosslineParentTreeItem::iconName() const
+{ return "tree-crl"; }
 
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
@@ -698,6 +692,10 @@ uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
 {}
 
 
+const char* uiODZsliceParentTreeItem::iconName() const
+{ return "tree-zsl"; }
+
+
 bool uiODZsliceParentTreeItem::showSubMenu()
 {
      if ( !SI().inlRange(true).width() || !SI().crlRange(true).width() )
@@ -714,4 +712,6 @@ uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
     : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
 {
 }
+
+
 

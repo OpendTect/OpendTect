@@ -222,8 +222,9 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 						 uiGenRandPicks2D,hor2Sel) );
     }
 
-    linenmfld_ = new uiLabeledListBox( this, lnms, "Line(s)",
-					OD::ChooseAtLeastOne );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Line(s)") );
+    linenmfld_ = new uiListBox( this, su );
+    linenmfld_->addItems( lnms );
     linenmfld_->attach( alignedBelow, nrfld_ );
 
     if ( hornms.size() )
@@ -295,7 +296,7 @@ void uiGenRandPicks2D::mkRandPars()
     randpars_.nr_ = nrfld_->getIntValue();
     randpars_.needhor_ = geomfld_ && geomfld_->getIntValue();
 
-    linenmfld_->box()->getChosen( randpars_.linenms_ );
+    linenmfld_->getChosen( randpars_.linenms_ );
     if ( randpars_.needhor_ )
     {
 	randpars_.horidx_ = hornms_.indexOf( horselfld_->box()->text() );

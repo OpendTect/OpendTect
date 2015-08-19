@@ -129,15 +129,13 @@ public:
     void			disabTrees( bool yn );
 
     void			getLoadedEMIDs(TypeSet<EM::ObjectID>&,
-					       const char* emtypestr=0,
+	    				       const char* emtypestr=0,
 					       int sceneid=-1) const;
-				// if sceneid==-1, then all scenes
+    				// if sceneid==-1, then all scenes
     int				addEMItem(const EM::ObjectID&,int sceneid=-1);
     int				addPickSetItem(const MultiID&,int sceneid=-1);
     int				addPickSetItem(Pick::Set&,int sceneid=-1);
-    int				addRandomLineItem(
-						const Geometry::RandomLineSet&,
-						int sceneid=-1);
+    int				addRandomLineItem(int rlid,int sceneid=-1);
     int				addWellItem(const MultiID&,int sceneid=-1);
     int				add2DLineItem(Pos::GeomID,int sceneid=-1);
     int				add2DLineItem(const MultiID&,int sceneid=-1);

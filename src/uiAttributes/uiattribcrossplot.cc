@@ -55,12 +55,10 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	, attrinfo_(0)
 {
     uiGroup* attrgrp = new uiGroup( this, "Attribute group" );
-    uiLabeledListBox* llb =
-	new uiLabeledListBox( attrgrp, uiStrings::sAttributes(),
-                              OD::ChooseZeroOrMore,
-			      uiLabeledListBox::AboveMid );
-    llb->attach( leftBorder, 20 );
-    attrsfld_ = llb->box();
+    uiListBox::Setup asu( OD::ChooseZeroOrMore, uiStrings::sAttributes(),
+			  uiListBox::AboveMid );
+    attrsfld_ = new uiListBox( attrgrp, asu );
+    attrsfld_->attach( leftBorder, 20 );
 
     if ( ads_.is2D() )
     {
@@ -68,12 +66,11 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 		mCB(this,uiAttribCrossPlot,attrChecked) );
 	attrsfld_->selectionChanged.notify(
 		mCB(this,uiAttribCrossPlot,attrChanged) );
-	uiLabeledListBox* lnmlb =
-	    new uiLabeledListBox( attrgrp, tr("Line(s)"),
-			    	  OD::ChooseAtLeastOne,
-				  uiLabeledListBox::AboveMid );
-	lnmfld_ = lnmlb->box();
-	lnmlb->attach( rightTo, llb );
+
+	uiListBox::Setup lsu( OD::ChooseAtLeastOne, tr("Line(s)"),
+			      uiListBox::AboveMid );
+	lnmfld_ = new uiListBox( attrgrp, lsu );
+	lnmfld_->attach( rightTo, attrsfld_ );
 	lnmfld_->itemChosen.notify(
 		mCB(this,uiAttribCrossPlot,lineChecked) );
     }
@@ -175,7 +172,7 @@ MultiID uiAttribCrossPlot::getSelectedID() const
     else
     {
 	TypeSet<DescID>& descids = attrinfo_->attrids_;
-	Attrib::DescID descid = descids.validIdx(curitem) ? descids[curitem] 
+	Attrib::DescID descid = descids.validIdx(curitem) ? descids[curitem]
 							  : Attrib::DescID();
 	const Attrib::Desc* desc = ads_.getDesc( descid );
 	if ( !desc )

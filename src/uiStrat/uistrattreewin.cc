@@ -349,7 +349,8 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
     uiDialog savedlg( this, uiDialog::Setup( tr("Save Stratigraphy"),
 		    dlgtit, mNoHelpKey ) );
     BufferStringSet bfset( infolvltrs );
-    uiListBox saveloclist( &savedlg, bfset, "Save strat list" );
+    uiListBox saveloclist( &savedlg, "Save strat list" );
+    saveloclist.addItems( bfset );
     savedlg.go();
     if ( savedlg.uiResult() == 1 )
     {

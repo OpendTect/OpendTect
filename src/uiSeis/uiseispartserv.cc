@@ -118,7 +118,9 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     delete man2dprestkdlg_; man2dprestkdlg_ = 0;
     delete man3dprestkdlg_; man3dprestkdlg_ = 0;
     delete manwvltdlg_; manwvltdlg_ = 0;
-
+    
+    Seis::PLDM().removeAll();
+    
     delete impcbvsdlg_; impcbvsdlg_ = 0;
     delete impcbvsothsurvdlg_; impcbvsothsurvdlg_ = 0;
     delete imp3dseisdlg_; imp3dseisdlg_ = 0;

@@ -102,30 +102,32 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 		       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODCrosslineTreeItemFactory, 2000,
+    tifs_->addFactory( new uiODCrosslineTreeItemFactory, 1100,
 		       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODZsliceTreeItemFactory, 3000,
+    tifs_->addFactory( new uiODZsliceTreeItemFactory, 1200,
 		       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODVolrenTreeItemFactory, 3100, SurveyInfo::No2D );
-    tifs_->addFactory( new uiODRandomLineTreeItemFactory, 3500,
+    tifs_->addFactory( new uiODVolrenTreeItemFactory, 1500, SurveyInfo::No2D );
+    tifs_->addFactory( new uiODRandomLineTreeItemFactory, 2000,
 		       SurveyInfo::No2D );
-    tifs_->addFactory( new Line2DTreeItemFactory, 4000, SurveyInfo::Only2D );
-    tifs_->addFactory( new uiODPickSetTreeItemFactory, 5000,
+    tifs_->addFactory( new Line2DTreeItemFactory, 3000, SurveyInfo::Only2D );
+    tifs_->addFactory( new uiODHorizonTreeItemFactory, 4000,
 		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODHorizonTreeItemFactory, 6000,
-		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 6500,
+    tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 4500,
 		       SurveyInfo::Only2D );
-    tifs_->addFactory( new uiODFaultTreeItemFactory, 7000 );
-    tifs_->addFactory( new uiODFaultStickSetTreeItemFactory, 7100,
+    tifs_->addFactory( new uiODFaultTreeItemFactory, 5000 );
+    tifs_->addFactory( new uiODFaultStickSetTreeItemFactory, 5500,
 		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODBodyDisplayTreeItemFactory, 7500,
+    tifs_->addFactory( new uiODBodyDisplayTreeItemFactory, 6000,
 		       SurveyInfo::No2D );
-    tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
+    tifs_->addFactory( new uiODWellTreeItemFactory, 7000,
 		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODPSEventsTreeItemFactory, 8500,
+    tifs_->addFactory( new uiODPickSetTreeItemFactory, 8000,
 		       SurveyInfo::Both2DAnd3D );
-    tifs_->addFactory( new uiODAnnotTreeItemFactory, 9000,
+    tifs_->addFactory( new uiODPolygonTreeItemFactory, 8500,
+		       SurveyInfo::Both2DAnd3D );
+    tifs_->addFactory( new uiODPSEventsTreeItemFactory, 9000,
+		       SurveyInfo::Both2DAnd3D );
+    tifs_->addFactory( new uiODAnnotTreeItemFactory, 10000,
 		       SurveyInfo::Both2DAnd3D );
 
     mdiarea_->setPrefWidth( cWSWidth );
@@ -1086,7 +1088,7 @@ void uiODSceneMgr::gtLoadedEMIDs( const uiTreeItem* topitm, TypeSet<int>& emids,
 	else if ( EM::FaultStickSet::typeStr()==type )
 	{
 	    mDynamicCastGet(const uiODFaultStickSetTreeItem*,fltstickreeitm,
-			    chlditm)
+		    	    chlditm)
 	    if ( fltstickreeitm )
 		emids.addIfNew( emid );
 	}
@@ -1150,13 +1152,13 @@ int uiODSceneMgr::addPickSetItem( Pick::Set& ps, int sceneid )
 }
 
 
-int uiODSceneMgr::addRandomLineItem( const Geometry::RandomLineSet& rl,
-				     int sceneid )
+int uiODSceneMgr::addRandomLineItem( int rlid, int sceneid )
 {
     mGetOrAskForScene
 
-    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( rl );
+    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem();
     scene->itemmanager_->addChild( itm, false );
+    itm->setRandomLineID( rlid );
     itm->displayDefaultData();
     return itm->displayID();
 }
@@ -1378,7 +1380,7 @@ bool uiKeyBindingSettingsGroup::acceptOK()
     for ( int idx=0; idx<allviewers.size(); idx++ )
     {
 	const_cast<uiGraphicsViewBase*>(allviewers[idx])
-			->setMouseWheelReversal( reversedwheel );
+        		->setMouseWheelReversal( reversedwheel );
     }
 
 

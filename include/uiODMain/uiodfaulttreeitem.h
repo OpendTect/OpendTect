@@ -20,34 +20,48 @@ ________________________________________________________________________
 #include "emposid.h"
 
 class DataPointSet;
-class uiVisEMObject;
 
 
 namespace visSurvey { class FaultDisplay; class FaultStickSetDisplay; }
 
 
-mDefineItem( FaultParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
+mExpClass(uiODMain) uiODFaultParentTreeItem : public uiODTreeItem
+{ mODTextTranslationClass(uiODFaultParentTreeItem)
+    typedef uiODTreeItem inheritedClass;
+public:
+			uiODFaultParentTreeItem();
+			~uiODFaultParentTreeItem();
+
+protected:
+			mMenuOnAnyButton
+    const char*		iconName() const;
+    bool		showSubMenu();
+    const char* 	parentType() const
+			{ return typeid(uiODTreeTop).name(); }
+};
 
 
 mExpClass(uiODMain) uiODFaultTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODFaultTreeItemFactory);
+{ mODTextTranslationClass(uiODFaultTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODFaultParentTreeItem; }
+			{ return new uiODFaultParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODFaultTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODFaultTreeItem);
+{ mODTextTranslationClass(uiODFaultTreeItem)
 public:
-    			uiODFaultTreeItem(int,bool dummy);
-    			uiODFaultTreeItem(const EM::ObjectID&);
-    			~uiODFaultTreeItem();
+			uiODFaultTreeItem(int,bool dummy);
+			uiODFaultTreeItem(const EM::ObjectID&);
+			~uiODFaultTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
-    uiVisEMObject*	visEMObject() const	{ return uivisemobj_; }
+
+    void		setOnlyAtSectionsDisplay(bool);
+    bool		isOnlyAtSections() const;
 
 protected:
     bool		askContinueAndSaveIfNeeded(bool withcancel);
@@ -58,16 +72,11 @@ protected:
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
 
-    			/*Workaround to know which Fault is active is 3D*/
-    void		selChgCB(CallBacker*);
-    void		deSelChgCB(CallBacker*);
-
     bool		init();
     const char*		parentType() const
 			{return typeid(uiODFaultParentTreeItem).name();}
 
     EM::ObjectID		emid_;
-    uiVisEMObject*		uivisemobj_;
 
     MenuItem			savemnuitem_;
     MenuItem			saveasmnuitem_;
@@ -83,23 +92,23 @@ protected:
 mDefineItem( FaultStickSetParent, TreeItem, TreeTop,mShowMenu mMenuOnAnyButton);
 
 
-mExpClass(uiODMain) uiODFaultStickSetTreeItemFactory 
+mExpClass(uiODMain) uiODFaultStickSetTreeItemFactory
     : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODFaultStickSetTreeItemFactory);
+{ mODTextTranslationClass(uiODFaultStickSetTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODFaultStickSetParentTreeItem; }
+			{ return new uiODFaultStickSetParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODFaultStickSetTreeItem);
+{ mODTextTranslationClass(uiODFaultStickSetTreeItem)
 public:
-    			uiODFaultStickSetTreeItem(int,bool dummy);
-    			uiODFaultStickSetTreeItem(const EM::ObjectID&);
-    			~uiODFaultStickSetTreeItem();
+			uiODFaultStickSetTreeItem(int,bool dummy);
+			uiODFaultStickSetTreeItem(const EM::ObjectID&);
+			~uiODFaultStickSetTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
 
@@ -109,10 +118,6 @@ protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		colorChCB(CallBacker*);
-
-    			/*Workaround to know which fss is active in 3D*/
-    void		selChgCB(CallBacker*);
-    void		deSelChgCB(CallBacker*);
 
     bool		init();
     const char*		parentType() const
@@ -128,11 +133,11 @@ protected:
 
 
 mExpClass(uiODMain) uiODFaultSurfaceDataTreeItem : public uiODAttribTreeItem
-{ mODTextTranslationClass(uiODFaultSurfaceDataTreeItem);
+{ mODTextTranslationClass(uiODFaultSurfaceDataTreeItem)
 public:
-    			uiODFaultSurfaceDataTreeItem(EM::ObjectID,
-				uiVisEMObject*,const char* parenttype);
-			
+			uiODFaultSurfaceDataTreeItem(EM::ObjectID,
+				const char* parenttype);
+
     void		setDataPointSet(const DataPointSet&);
 
 protected:
@@ -142,15 +147,13 @@ protected:
     BufferString	createDisplayName() const;
 
     MenuItem		depthattribmnuitem_;
-    MenuItem            savesurfacedatamnuitem_;
-    MenuItem            loadsurfacedatamnuitem_;
-    MenuItem            algomnuitem_;
-    
-    bool                changed_;
-    EM::ObjectID        emid_;
-    uiVisEMObject*      uivisemobj_;
-};
+    MenuItem		savesurfacedatamnuitem_;
+    MenuItem		loadsurfacedatamnuitem_;
+    MenuItem		algomnuitem_;
 
+    bool		changed_;
+    EM::ObjectID	emid_;
+};
 
 #endif
 

@@ -333,15 +333,14 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 	range.cubeSampling().hsamp_.setInlRange( inlrg );
 
 	ObjectSet<Seis::SelData> sdset;
-	StepInterval<int> trcrg;
-
 	TypeSet<Pos::GeomID> geomids;
 	linesel2dfld_->getSelGeomIDs( geomids );
 	for ( int lidx=0; lidx<geomids.size(); lidx++ )
 	{
+	    const Pos::GeomID geomid = geomids[lidx];
 	    range.cubeSampling().hsamp_.setCrlRange(
-					linesel2dfld_->getTrcRange(lidx) );
-	    range.setGeomID( geomids[lidx] );
+					linesel2dfld_->getTrcRange(geomid) );
+	    range.setGeomID( geomid );
 	    seldata_ = range.clone();
 	    sdset += seldata_;
 	}

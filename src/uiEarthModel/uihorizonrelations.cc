@@ -45,9 +45,10 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
                        mODHelpKey(mHorizonRelationsDlgHelpID) ))
     , is2d_( is2d )
 {
-    relationfld_ = new uiLabeledListBox( this, tr("Order (top to bottom)"),
-			     OD::ChooseOnlyOne, uiLabeledListBox::AboveLeft );
-    relationfld_->box()->setHSzPol( uiObject::Wide );
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Order (top to bottom)"),
+			 uiListBox::AboveLeft );
+    relationfld_ = new uiListBox( this, su );
+    relationfld_->setHSzPol( uiObject::Wide );
 
     uiPushButton* orderbut =
 		new uiPushButton( relationfld_, tr("Read Horizons"), false );
@@ -93,14 +94,14 @@ void uiHorizonRelationsDlg::readHorizonCB( CallBacker* )
 
 void uiHorizonRelationsDlg::fillRelationField( const BufferStringSet& strs )
 {
-    relationfld_->box()->setEmpty();
-    relationfld_->box()->addItems( strs );
+    relationfld_->setEmpty();
+    relationfld_->addItems( strs );
     crossbut_->setSensitive( strs.size() > 1 );
 }
 
 
 class HorizonModifyDlg : public uiDialog
-{ mODTextTranslationClass(HorizonModifyDlg);
+{ mODTextTranslationClass(HorizonModifyDlg)
 public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  bool is2d, int nrcross )

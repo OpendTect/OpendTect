@@ -177,7 +177,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 
     Desc& srcad = *attrset_.getDesc( srcid_ );
     const int selsz = seldeschildids_.size();
-    const int nrsteps = nrstepsfld->box()->getValue();
+    const int nrsteps = nrstepsfld->box()->getIntValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	bool lbladded = false;

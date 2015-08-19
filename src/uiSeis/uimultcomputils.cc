@@ -32,7 +32,8 @@ uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
 	    " the individual attributes") );
     setTitleText( instructions );
 
-    compfld_ = new uiListBox( this, complist, "", OD::ChooseAtLeastOne );
+    compfld_ = new uiListBox( this, "", OD::ChooseAtLeastOne );
+    compfld_->addItems( complist );
     compfld_->doubleClicked.notify( mCB(this,uiMultCompDlg,accept) );
 }
 
@@ -83,8 +84,8 @@ void uiMultCompSel::prepareDlg()
 {
     if ( dlg_ )
     {
-	dlg_->outlistfld_->box()->setEmpty();
-	dlg_->outlistfld_->box()->addItems( compnms_ );
+	dlg_->outlistfld_->setEmpty();
+	dlg_->outlistfld_->addItems( compnms_ );
     }
     else
 	dlg_ = new MCompDlg( this, compnms_ );
@@ -103,13 +104,13 @@ BufferString uiMultCompSel::getSummary() const
 {
     BufferString ret;
     if ( !allowChoice() || !dlg_ || dlg_->useallfld_->getBoolValue()
-	|| dlg_->outlistfld_->box()->nrChosen() == compnms_.size() )
+	|| dlg_->outlistfld_->nrChosen() == compnms_.size() )
 	ret = "-- All components --";
     else
     {
 	BufferStringSet selnms;
 	for ( int idx=0; idx<compnms_.size(); idx++ )
-	    if ( dlg_->outlistfld_->box()->isChosen( idx) )
+	    if ( dlg_->outlistfld_->isChosen( idx) )
 		selnms.add( compnms_.get(idx) );
 	ret = selnms.getDispString();
     }
@@ -127,8 +128,10 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
                                  tr("Subselection") ) );
     useallfld_->valuechanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
 
-    outlistfld_ = new uiLabeledListBox( this, names, tr("Available components"),
-			   OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available components"),
+			 uiListBox::AboveMid );
+    outlistfld_ = new uiListBox( this, su );
+    outlistfld_->addItems( names );
     outlistfld_->attach( ensureBelow, useallfld_ );
 }
 

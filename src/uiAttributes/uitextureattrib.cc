@@ -140,8 +140,8 @@ bool uiTextureAttrib::getParameters( Desc& desc )
     if ( desc.attribName()!=Texture::attribName() )
 	return false;
 
-    const float globalmin = globalminfld_->getfValue();
-    const float globalmax = globalmaxfld_->getfValue();
+    const float globalmin = globalminfld_->getFValue();
+    const float globalmax = globalmaxfld_->getFValue();
     if ( mIsEqual( globalmin, globalmax, 1e-3 ))
     {
 	uiString errstr =

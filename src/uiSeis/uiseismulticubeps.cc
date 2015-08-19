@@ -73,35 +73,34 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
 	return;
     }
 
-    uiLabeledListBox* cubesllb =
-		new uiLabeledListBox( this, tr("Available cubes"),
-				OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
-    cubefld_ = cubesllb->box();
+    uiListBox::Setup su1( OD::ChooseOnlyOne, tr("Available cubes"),
+			 uiListBox::AboveMid );
+    cubefld_ = new uiListBox( this, su1 );
     fillBox( cubefld_ );
     cubefld_->setPrefWidthInChar( 30 );
     cubefld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,inputChg) );
     allcompfld_ = new uiCheckBox( this, tr("Use all attribute components") );
     allcompfld_->setSensitive( false );
-    allcompfld_->attach( alignedBelow, cubesllb );
+    allcompfld_->attach( alignedBelow, cubefld_ );
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     new uiToolButton( bgrp, uiToolButton::RightArrow,uiStrings::sAdd(),
 				mCB(this,uiSeisMultiCubePS,addCube) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, tr("Don't use"),
 				mCB(this,uiSeisMultiCubePS,rmCube) );
-    bgrp->attach( centeredRightOf, cubesllb );
+    bgrp->attach( centeredRightOf, cubefld_ );
 
-    uiLabeledListBox* selllb = new uiLabeledListBox( this, tr("Used cubes"),
-			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
-    selfld_ = selllb->box();
-    selllb->attach( rightTo, cubesllb );
-    selllb->attach( ensureRightOf, bgrp );
+    uiListBox::Setup su2( OD::ChooseOnlyOne, tr("Used cubes"),
+			  uiListBox::AboveMid );
+    selfld_ = new uiListBox( this, su2 );
+    selfld_->attach( rightTo, cubefld_ );
+    selfld_->attach( ensureRightOf, bgrp );
     selfld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,selChg) );
     selfld_->setPrefWidthInChar( 30 );
 
     compfld_ = new uiComboBox( this, "Component" );
     compfld_->setHSzPol( uiObject::WideMax );
-    compfld_->attach( alignedBelow, selllb );
+    compfld_->attach( alignedBelow, selfld_ );
     compfld_->setSensitive( false );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep", OD::Horizontal, false);

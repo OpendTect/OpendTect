@@ -249,7 +249,7 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
     {
 	TypeSet<FlatView::Annotation::AxisData::AuxPosition>& xauxposs =
 	    selauxpos_.isx1_ ? curvwr.appearance().annot_.x1_.auxposs_
-			     : curvwr.appearance().annot_.x2_.auxposs_;
+	    		     : curvwr.appearance().annot_.x2_.auxposs_;
 	if ( !xauxposs.validIdx(selauxpos_.auxposidx_) )
 	    return;
 

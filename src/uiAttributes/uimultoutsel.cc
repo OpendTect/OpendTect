@@ -169,10 +169,9 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     : uiGroup(p,"MultiAttrib group")
     , descset_(ds)
 {
-#define mLblPos uiLabeledListBox::AboveLeft
-    uiLabeledListBox* attrllb = new uiLabeledListBox( this,
-	    "Available attributes", OD::ChooseAtLeastOne, mLblPos );
-    attribfld_ = attrllb->box();
+    uiListBox::Setup asu( OD::ChooseAtLeastOne, tr("Available Attributes"),
+			  uiListBox::AboveLeft );
+    attribfld_ = new uiListBox( this, asu );
     attribfld_->setHSzPol( uiObject::Wide );
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", OD::Vertical );
@@ -180,24 +179,24 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
 		      mCB(this,uiMultiAttribSel,doAdd) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
 		      mCB(this,uiMultiAttribSel,doRemove) );
-    bgrp->attach( centeredRightOf, attrllb );
+    bgrp->attach( centeredRightOf, attribfld_ );
 
-    uiLabeledListBox* selllb = new uiLabeledListBox( this,
-	    "Selected attributes", OD::ChooseAtLeastOne, mLblPos );
-    selfld_ = selllb->box();
+    uiListBox::Setup ssu( OD::ChooseAtLeastOne, tr("Selected Attributes"),
+			  uiListBox::AboveLeft );
+    selfld_ = new uiListBox( this, ssu );
     selfld_->setHSzPol( uiObject::Wide );
-    selllb->attach( rightTo, attrllb );
-    selllb->attach( ensureRightOf, bgrp );
+    selfld_->attach( rightTo, attribfld_ );
+    selfld_->attach( ensureRightOf, bgrp );
 
     uiButtonGroup* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( sortgrp, uiToolButton::UpArrow,"Move up",
 		      mCB(this,uiMultiAttribSel,moveUp) );
     new uiToolButton( sortgrp, uiToolButton::DownArrow, "Move down",
 		      mCB(this,uiMultiAttribSel,moveDown) );
-    sortgrp->attach( centeredRightOf, selllb );
+    sortgrp->attach( centeredRightOf, selfld_ );
 
     fillAttribFld();
-    setHAlignObj( attrllb );
+    setHAlignObj( attribfld_ );
 }
 
 

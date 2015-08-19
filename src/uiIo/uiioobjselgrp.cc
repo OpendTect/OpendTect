@@ -46,7 +46,7 @@ class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
 public:
 
 uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
-    : uiIOObjManipGroupSubj(sg->listfld_)
+    : uiIOObjManipGroupSubj(sg->listfld_->box())
     , selgrp_(sg)
     , manipgrp_(0)
 {
@@ -178,24 +178,18 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 {
     topgrp_ = new uiGroup( this, "Top group" );
-    filtfld_ = new uiGenInput( topgrp_, "Filter", "*" );
+
+    uiListBox::Setup su( setup_.choicemode_, seltxt );
+    listfld_ = new uiListBox( topgrp_, su, "Objects" );
+
+    filtfld_ = new uiGenInput( listfld_, "Filter", "*" );
     filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
-    uiObject* lfatt;
-    if ( seltxt.isEmpty() )
-	lfatt = listfld_ = new uiListBox( topgrp_, "Objects",
-					  setup_.choicemode_ );
-    else
-    {
-	uiLabeledListBox* llb = new uiLabeledListBox( topgrp_, seltxt,
-				setup_.choicemode_, uiLabeledListBox::LeftTop );
-	listfld_ = llb->box();
-	lfatt = llb->attachObj();
-    }
-    lfatt->attach( centeredBelow, filtfld_ );
-    topgrp_->setHAlignObj( lfatt );
+    listfld_->box()->attach( centeredBelow, filtfld_ );
+
+    topgrp_->setHAlignObj( listfld_ );
 
     listfld_->setName( "Objects list" );
-    listfld_->setPrefHeightInChar( 8 );
+    listfld_->box()->setPrefHeightInChar( 8 );
     listfld_->setHSzPol( uiObject::Wide );
     if ( isMultiChoice() )
     {

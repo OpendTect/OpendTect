@@ -482,18 +482,20 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 
     uiGraphicsItemGroup* curitmgrp = isy2 ? y2markeritems_ : ymarkeritems_;
     curitmgrp->setVisible( true );
-    const MarkerStyle2D mst( MarkerStyle2D::Square, 3,
-			     isy2 ? setup_.y2col_ : setup_.ycol_ );
+    const MarkerStyle2D& mst = isy2 ? setup_.markerstyley2_
+				    : setup_.markerstyley1_;
+    const bool markerisfilled = isy2 ? setup_.markerfilly2_
+				     : setup_.markerfilly1_;
     for ( int idx=0; idx<ptlist.size(); idx++ )
     {
 	if ( idx >= curitmgrp->size() )
 	{
-	    uiMarkerItem* markeritem = new uiMarkerItem( mst, false );
+	    uiMarkerItem* markeritem = new uiMarkerItem( mst, markerisfilled );
 	    curitmgrp->add( markeritem );
 	}
 	uiGraphicsItem* itm = curitmgrp->getUiItem(idx);
 	itm->setPos( mCast(float,ptlist[idx].x), mCast(float,ptlist[idx].y) );
-	itm->setPenColor( isy2 ? setup_.y2col_ : setup_.ycol_ );
+	itm->setPenColor( mst.color_ );
     }
 
     if ( ptlist.size() < curitmgrp->size() )

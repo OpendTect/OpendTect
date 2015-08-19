@@ -74,6 +74,7 @@ HorizonDisplay::HorizonDisplay()
     , enabletextureinterp_( true )
     , displaysurfacegrid_( false )
     , translationpos_( Coord3().udf() )
+    , parentline_(0)
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
@@ -184,8 +185,12 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
     for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
 	intersectionpointsets_[idx]->setDisplayTransformation(transformation_);
 
-     if ( translationpos_.isDefined() )
+    if ( translationpos_.isDefined() )
 	setTranslation( translationpos_ );
+
+    if ( parentline_ )
+	parentline_->setDisplayTransformation( transformation_ );
+
 }
 
 
@@ -847,7 +852,6 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
      if ( !nt.isDefined() )
 	return;
 
-  
     Coord3 origin( 0, 0, 0 );
     Coord3 aftershift( nt );
     aftershift.z *= -1;
@@ -857,9 +861,8 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 
     const Coord3 shift = origin - aftershift;
 
-    translationpos_ = nt;
     translation_->setTranslation( shift );
-
+    translationpos_ = nt;
     setOnlyAtSectionsDisplay( displayonlyatsections_ );		/* retrigger */
 }
 
@@ -890,7 +893,7 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
     const int idx = sids_.indexOf( sid );
     if ( idx<0 ) return;
 
-    removeChild( sections_[idx]->osgNode() );	
+    removeChild( sections_[idx]->osgNode() );
     sections_.removeSingle( idx )->unRef();
     secnames_.removeSingle( idx );
     sids_.removeSingle( idx );
@@ -967,7 +970,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 }
 
 
-const BufferString HorizonDisplay::getSectionName( int secidx )
+BufferString HorizonDisplay::getSectionName( int secidx ) const
 {
     if ( secidx >=secnames_.size() )
 	return BufferString();
@@ -1047,7 +1050,10 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	    sections_[idx]->inValidateCache(-1);
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    {
 	nontexturecol_ = emobject_->preferredColor();
+	setLineStyle( emobject_->preferredLineStyle() );
+    }
 
     updateSingleColor();
 
@@ -1873,7 +1879,7 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 
     EMObjectDisplay::setLineStyle( lst );
 
-    const float radius = ((float) lineStyle()->width_) / 2;
+    const float radius = ((float) lineStyle()->width_) / 2.f;
 
     if ( removelines )
     {
@@ -1999,6 +2005,46 @@ void HorizonDisplay::updateSectionSeeds(
 	}
     }
 }
+
+
+void HorizonDisplay::selectParent( const TrcKey& tk )
+{
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    if ( !hor3d ) return;
+
+    if ( !parentline_ )
+    {
+	parentline_ = visBase::PolyLine3D::create();
+	addChild( parentline_->osgNode() );
+	parentline_->setDisplayTransformation( transformation_ );
+    }
+    else
+    {
+	parentline_->getCoordinates()->setEmpty();
+	parentline_->removeAllPrimitiveSets();
+    }
+
+    TypeSet<int> idxps;
+    int cii = 0;
+    TypeSet<TrcKey> parents;
+    hor3d->getParents( tk, parents );
+    for ( int idx=0; idx<parents.size(); idx++ )
+    {
+	const TrcKey& curnode = parents[idx];
+	const Coord3 crd( SI().transform(curnode.pos()), hor3d->getZ(curnode) );
+	parentline_->getCoordinates()->addPos( crd );
+	idxps.add( cii++ );
+    }
+
+    visBase::VertexShape* line = parentline_;
+    mAddLinePrimitiveSet();
+}
+
+
+void HorizonDisplay::selectChildren( const TrcKey& tk )
+{
+}
+
 
 void HorizonDisplay::doOtherObjectsMoved(
 	            const ObjectSet<const SurveyObject>& objs, int whichobj )

@@ -14,10 +14,12 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uigroup.h"
+#include "uistrings.h"
 #include "keyenum.h"
 #include "draw.h"
 
 class BufferStringSet;
+class uiCheckBox;
 class uiLabel;
 class uiListBoxBody;
 class uiMenu;
@@ -55,26 +57,60 @@ mFDQtclass(QListWidgetItem)
   affect selection/checked/chosen status.
 
 */
+mExpClass(uiBase) uiListBoxObj : public uiObject
+{
+public:
+			uiListBoxObj(uiParent*,const char* nm,OD::ChoiceMode);
+			~uiListBoxObj();
 
-mExpClass(uiBase) uiListBox : public uiObject
+    uiListBoxBody&	body()		{ return *body_; }
+
+private:
+    uiListBoxBody*	body_;
+    uiListBoxBody&	mkbody(uiParent*,const char*,OD::ChoiceMode);
+};
+
+
+
+mExpClass(uiBase) uiListBox : public uiGroup
 { mODTextTranslationClass(uiListBox)
 friend class i_listMessenger;
 friend class uiListBoxBody;
 public:
+   enum LblPos		{ LeftTop, RightTop, LeftMid, RightMid,
+			  AboveLeft, AboveMid, AboveRight,
+			  BelowLeft, BelowMid, BelowRight };
 
-			uiListBox(uiParent*,const char* nm=0); //!< OnlyOne
-			uiListBox(uiParent*,const char* nm,OD::ChoiceMode cm,
-				  int prefNrLines=0,int prefFieldWidth=0);
-			uiListBox(uiParent*,const BufferStringSet&,
-				  const char* nm=0);
-			uiListBox(uiParent*,const BufferStringSet&,
-				  const char* nm,OD::ChoiceMode cm,
-				  int prefNrLines=0,int prefFieldWidth=0);
-			uiListBox(uiParent*,const uiStringSet&,
-				  const char* nm,OD::ChoiceMode cm,
-				  int prefNrLines=0,int prefFieldWidth=0);
+    mExpClass(uiBase) Setup
+    {
+    public:
+			Setup(OD::ChoiceMode icm=OD::ChooseOnlyOne,
+			      const uiString& l=uiStrings::sEmptyString(),
+			      uiListBox::LblPos lp=uiListBox::LeftTop)
+			    : lbl_(l)
+			    , cm_(icm)
+			    , prefnrlines_(0)
+			    , prefwidth_(0)
+			    , lblpos_(lp)
+			    {}
 
+	mDefSetupMemb(uiString,lbl)
+	mDefSetupMemb(OD::ChoiceMode,cm)
+	mDefSetupMemb(int,prefnrlines)
+	mDefSetupMemb(int,prefwidth)
+	mDefSetupMemb(uiListBox::LblPos,lblpos)
+
+    };
+
+			uiListBox(uiParent*,const char* nm=0,
+				  OD::ChoiceMode cm=OD::ChooseOnlyOne);
+			uiListBox(uiParent*,const Setup&,const char* nm=0);
     virtual		~uiListBox();
+
+    uiListBoxObj*	box()				{ return lb_; }
+    int			nrLabels() const		{ return lbls_.size(); }
+    uiLabel*		label( int nr=0 )		{ return lbls_[nr]; }
+    void		setLabelText(const uiString&,int nr=0);
 
     inline OD::ChoiceMode choiceMode() const	{ return choicemode_; }
     inline bool		isMultiChoice() const
@@ -94,6 +130,8 @@ public:
     void		setAlignment(Alignment::HPos);
     void		setNrLines(int);
     void		setFieldWidth(int);
+    void		setHSzPol(uiObject::SzPolicy);
+    void		setVSzPol(uiObject::SzPolicy);
 
     void		setEmpty();
     void		removeItem(int);
@@ -192,9 +230,6 @@ private:
     void		handleCheckChange(mQtclass(QListWidgetItem*));
     void		usrChooseAll(bool yn=true);
 
-    uiListBoxBody*	body_;
-    uiListBoxBody&	mkbody(uiParent*,const char*,OD::ChoiceMode,int,int);
-
     bool		isNone() const	{ return choicemode_ == OD::ChooseNone;}
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
     static int		cDefNrLines();		//!< == 7
@@ -214,13 +249,37 @@ private:
     void		getCheckedItems(BufferStringSet&) const;
     void		getCheckedItems(TypeSet<int>&) const;
 
+protected:
+    uiListBoxObj*	lb_;
+    ObjectSet<uiLabel>	lbls_;
+    uiGroup*		checkgrp_;
+    uiCheckBox*		cb_;
+
+    void		mkLabel(const uiString&,LblPos);
+    void		mkCheckGroup();
+    void		checkCB(CallBacker*);
+    void		updateCheckState();
+
 public:
 			//!To be called by CmdDriver only, not for casual use.
     bool		isItemChecked(int) const;
+
+// Deprecated. Don't use in new code
+			uiListBox(uiParent*,const BufferStringSet&,
+				  const char* nm=0);
+			uiListBox(uiParent*,const BufferStringSet&,
+				  const char* nm,OD::ChoiceMode cm,
+				  int prefNrLines=0,int prefFieldWidth=0);
+			uiListBox(uiParent*,const uiStringSet&,
+				  const char* nm,OD::ChoiceMode cm,
+				  int prefNrLines=0,int prefFieldWidth=0);
 };
 
 
-mExpClass(uiBase) uiLabeledListBox : public uiGroup
+/*!\brief uiLabeledListBox.
+ * Deprecated. Don't use in new code
+*/
+mExpClass(uiBase) uiLabeledListBox : public uiListBox
 {
 public:
 
@@ -235,17 +294,9 @@ public:
 				     const uiString& lbltxt,
 				     OD::ChoiceMode,LblPos p=LeftMid);
 
-    uiListBox*		box()				{ return lb_; }
-    int			nrLabels() const		{ return lbls_.size(); }
-    uiLabel*		label( int nr=0 )		{ return lbls_[nr]; }
-    void		setLabelText(const uiString&,int nr=0);
+    uiListBox*		box()				{ return this; }
 
 protected:
-
-    uiListBox*		lb_;
-    ObjectSet<uiLabel>	lbls_;
-
-    void		mkRest(const uiString&,LblPos);
 
 };
 

@@ -194,15 +194,15 @@ DescID uiSteeringSel::descID()
 	    float dip, azi;
 	    mGetFloatFromDesc( desc, dip, "dip" );
 	    mGetFloatFromDesc( desc, azi, "azi" );
-	    if ( mIsEqual(dip,dipfld_->getfValue(),mDefEps) &&
-		 mIsEqual(azi,dirfld_->getfValue(),mDefEps) )
+	    if ( mIsEqual(dip,dipfld_->getFValue(),mDefEps) &&
+		 mIsEqual(azi,dirfld_->getFValue(),mDefEps) )
 		return descid;
 	}
 
 	Desc* desc = PF().createDescCopy( attribnm );
 	if ( !desc ) return DescID::undef();
-	desc->getValParam("dip")->setValue( dipfld_->getfValue() );
-	desc->getValParam("azi")->setValue( dirfld_->getfValue() );
+	desc->getValParam("dip")->setValue( dipfld_->getFValue() );
+	desc->getValParam("azi")->setValue( dirfld_->getFValue() );
 
 	DescSet* ads = const_cast<DescSet*>(descset_);
 	BufferString userref = attribnm;

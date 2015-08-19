@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodattribtreeitem.h"
 
 #include "uiicon.h"
+#include "uiioobj.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -27,6 +28,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvobj.h"
 
 #include "attribsel.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "threadwork.h"
 
 
@@ -75,6 +78,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , histogrammnuitem_(m3Dots(uiStrings::sHistogram()),cHistogramIdx)
     , lockmnuitem_(uiStrings::sLock(),cLockIdx)
     , hidemnuitem_(uiStrings::sHide(),cHideIdx )
+    , deletemnuitem_(tr("Delete from Database"), cRemoveIdx+1)
     , removemnuitem_(tr("Remove from Tree"),cRemoveIdx)
 {
     removemnuitem_.iconfnm = "trashcan";
@@ -331,7 +335,11 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	!visserv_->isSoloMode();
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
-    mAddMenuItem( menu, &removemnuitem_, !visserv_->isLocked(displayid_),false);
+    const MultiID mid = visserv_->getMultiID( displayid_ );
+    mAddMenuItemCond( menu, &deletemnuitem_, true, false, !mid.isUdf() );
+
+    mAddMenuItem( menu, &removemnuitem_, !visserv_->isLocked(displayid_),
+		  false );
 }
 
 
@@ -357,14 +365,34 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( newid!=-1 )
 	    uiODDisplayTreeItem::create( this, applMgr(), newid );
     }
-    else if ( mnuid==removemnuitem_.id )
+    else if ( mnuid==deletemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( !askContinueAndSaveIfNeeded( true ) )
+	const MultiID mid = visserv_->getMultiID( displayid_ );
+	PtrMan<IOObj> ioobj = IOM().get( mid );
+	if ( !ioobj ) return;
+
+	if ( ioobj->implReadOnly() )
+	{
+	    uiMSG().message( tr("Data is read-only, can not delete") );
+	    return;
+	}
+
+	if ( !uiIOObj(*ioobj).removeImpl(true,true) )
 	    return;
 
 	Threads::WorkManager::twm().addWork(
-	    Threads::Work( *new uiTreeItemRemover( parent_, this ), true ), 0,
+	    Threads::Work( *new uiTreeItemRemover(parent_,this), true ), 0,
+	    menu->queueID(), false );
+    }
+    else if ( mnuid==removemnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	if ( !askContinueAndSaveIfNeeded(true) )
+	    return;
+
+	Threads::WorkManager::twm().addWork(
+	    Threads::Work( *new uiTreeItemRemover(parent_,this), true ), 0,
 	    menu->queueID(), false );
     }
     else if ( mnuid==addattribmnuitem_.id )

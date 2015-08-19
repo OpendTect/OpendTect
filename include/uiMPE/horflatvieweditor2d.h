@@ -108,7 +108,7 @@ protected:
     bool			seedpickingon_;
     bool			trackersetupactive_;    
     EM::PosID			pickedpid_;
-    mutable bool		dodropnext_;	
+    mutable bool		dodropnext_;
 };
 
 }; // namepace 

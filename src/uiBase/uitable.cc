@@ -421,7 +421,6 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , istablereadonly_(false)
     , seliscols_(false)
 {
-    setFont( FontList().get(FontData::Fixed) );
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 
@@ -1553,8 +1552,8 @@ void uiTable::ensureCellVisible( const RowCol& rc )
 void uiTable::setCellGroup( const RowCol& rc, uiGroup* grp )
 {
     mBlockCmdRec;
-    if ( !grp ) return;
-    body_->setCellObject( rc, grp->attachObj() );
+    clearCellObject( rc );
+    body_->setCellObject( rc, grp ? grp->attachObj() : 0 );
 }
 
 

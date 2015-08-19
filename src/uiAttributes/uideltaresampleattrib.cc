@@ -65,7 +65,7 @@ bool uiDeltaResampleAttrib::getParameters( Attrib::Desc& desc )
     if ( desc.attribName() != DeltaResample::attribName() )
 	return false;
 
-    float val = periodfld_->isChecked() ? periodfld_->getfValue() : 0;
+    float val = periodfld_->isChecked() ? periodfld_->getFValue() : 0;
     mSetFloat( DeltaResample::periodStr(), val );
     return true;
 }

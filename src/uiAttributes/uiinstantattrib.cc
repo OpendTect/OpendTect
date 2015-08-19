@@ -101,7 +101,7 @@ bool uiInstantaneousAttrib::getParameters( Desc& desc )
     if ( desc.attribName() != Instantaneous::attribName() )
 	return false;
 
-    mSetFloat( Instantaneous::rotateAngle(), phaserotfld->box()->getValue() );
+    mSetFloat( Instantaneous::rotateAngle(), phaserotfld->box()->getFValue() );
 
     return true;
 }

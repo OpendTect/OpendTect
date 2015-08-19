@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "uiodscenemgr.h"
 #include "uitaskrunner.h"
+#include "uitreeview.h"
 #include "uivispartserv.h"
 #include "vismarchingcubessurface.h"
 #include "vismarchingcubessurfacedisplay.h"
@@ -69,6 +70,10 @@ static const char* rcsID mUsedVar = "$Id$";
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
    : uiODTreeItem( "Body" )
 {}
+
+
+const char* uiODBodyDisplayParentTreeItem::iconName() const
+{ return "tree-body"; }
 
 
 bool uiODBodyDisplayParentTreeItem::showSubMenu()
@@ -198,7 +203,7 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
     mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
     if ( mcd )
-    	return new uiODBodyDisplayTreeItem( visid, true );
+	return new uiODBodyDisplayTreeItem( visid, true );
 
     return 0;
 }
@@ -512,17 +517,17 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( mcd_ && mcd_->getMCSurface() )
 	{
 	    uiImplBodyCalDlg dlg(ODMainWin(),*mcd_->getMCSurface());
-    	    dlg.go();
+	    dlg.go();
 	}
 	else if ( plg_ && plg_->getEMPolygonBody() )
 	{
 	    uiImplBodyCalDlg dlg(ODMainWin(),*plg_->getEMPolygonBody());
-    	    dlg.go();
+	    dlg.go();
 	}
 	else if ( rpb_ && rpb_->getEMBody() )
 	{
 	    uiImplBodyCalDlg dlg(ODMainWin(),*rpb_->getEMBody());
-    	    dlg.go();
+	    dlg.go();
 	}
     }
     else if ( mnuid==displaybodymnuitem_.id )
@@ -530,8 +535,8 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	const bool bodydisplay = !displaybodymnuitem_.checked;
 	if ( plg_ )
 	{
-    	    const bool polygondisplayed = displaypolygonmnuitem_.checked;
-    	    plg_->display( polygondisplayed, bodydisplay );
+	    const bool polygondisplayed = displaypolygonmnuitem_.checked;
+	    plg_->display( polygondisplayed, bodydisplay );
 	    plg_->displayIntersections( !polygondisplayed && !bodydisplay );
 	}
 	else if ( mcd_ )

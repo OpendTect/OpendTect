@@ -24,12 +24,15 @@ class uiODDataTreeItem;
 
 
 mExpClass(uiODMain) uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODEarthModelSurfaceTreeItem);
+{ mODTextTranslationClass(uiODEarthModelSurfaceTreeItem)
 public:
 
     uiVisEMObject*	visEMObject() const	{ return uivisemobj_; }
     EM::ObjectID	emObjectID() const	{ return emid_; }
     int			reloadEMObject();	//Return new display id.
+
+    void		setOnlyAtSectionsDisplay(bool);
+    bool		isOnlyAtSections() const;
 
 protected:
 			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
@@ -53,7 +56,7 @@ protected:
 
 protected:
     bool		init();
-    virtual void	initNotify() {};
+    virtual void	initNotify() {}
     bool		createUiVisObj();
 
     virtual void	checkCB(CallBacker*);
@@ -74,7 +77,7 @@ protected:
 
 mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem
     : public uiODAttribTreeItem
-{ mODTextTranslationClass(uiODEarthModelSurfaceDataTreeItem);
+{ mODTextTranslationClass(uiODEarthModelSurfaceDataTreeItem)
 public:
 			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
 				       uiVisEMObject*,const char* parenttype);

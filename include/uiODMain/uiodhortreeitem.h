@@ -18,23 +18,40 @@ ________________________________________________________________________
 
 class uEMHorizonShiftDialog;
 
-mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
-             void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
-             virtual void removeChild(uiTreeItem*) );
+mExpClass(uiODMain) uiODHorizonParentTreeItem : public uiODTreeItem
+{ mODTextTranslationClass(uiODHorizonParentTreeItem)
+    typedef uiODTreeItem inheritedClass;
+public:
+			uiODHorizonParentTreeItem();
+			~uiODHorizonParentTreeItem();
+
+    virtual void	removeChild(uiTreeItem*);
+
+protected:
+			mMenuOnAnyButton
+    const char*		iconName() const;
+    bool		showSubMenu();
+    virtual bool	addChld(uiTreeItem*,bool,bool);
+    const char* 	parentType() const
+			{ return typeid(uiODTreeTop).name(); }
+
+    void		sort();
+};
+
 
 
 mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODHorizonTreeItemFactory);
+{ mODTextTranslationClass(uiODHorizonTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODHorizonParentTreeItem; }
+			{ return new uiODHorizonParentTreeItem; }
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
-{ mODTextTranslationClass(uiODHorizonTreeItem);
+{ mODTextTranslationClass(uiODHorizonTreeItem)
 public:
 			uiODHorizonTreeItem(int visid,bool rgba,
 					    bool atsect,bool dummy);
@@ -44,7 +61,7 @@ public:
 protected:
     bool		init();
     void		initMenuItems();
-    void                initNotify();
+    void		initNotify();
     BufferString	createDisplayName() const;
     void		dispChangeCB(CallBacker*);
     const char*		parentType() const
@@ -65,18 +82,23 @@ protected:
     MenuItem		positionmnuitem_;
     MenuItem		snapeventmnuitem_;
     MenuItem		shiftmnuitem_;
+
+    MenuItem		parentsmnuitem_;
+    MenuItem		parentsrdlmnuitem_;
+    MenuItem		childrenmnuitem_;
+
     bool		rgba_;
     bool		atsections_;
 };
 
 
 mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
-             void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
-             virtual void removeChild(uiTreeItem*) );
+		void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
+		virtual void removeChild(uiTreeItem*) )
 
 
 mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODHorizon2DTreeItemFactory);
+{ mODTextTranslationClass(uiODHorizon2DTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -86,14 +108,14 @@ public:
 
 
 mExpClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
-{ mODTextTranslationClass(uiODHorizon2DTreeItem);
+{ mODTextTranslationClass(uiODHorizon2DTreeItem)
 public:
 			uiODHorizon2DTreeItem(int visid,bool dummy);
 			uiODHorizon2DTreeItem(const EM::ObjectID&);
 
 protected:
     void		initMenuItems();
-    void                initNotify();
+    void		initNotify();
     void		dispChangeCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODHorizon2DParentTreeItem).name(); }

@@ -76,22 +76,22 @@ uiIOSurface::~uiIOSurface()
 
 void uiIOSurface::mkAttribFld( bool labelabove )
 {
-    attribfld_ = new uiLabeledListBox( this, tr("Calculated attributes"),
-		OD::ChooseZeroOrMore, labelabove ? uiLabeledListBox::AboveMid
-						 : uiLabeledListBox::LeftTop );
+    uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Calculated attributes"),
+	labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
+    attribfld_ = new uiListBox( this, su );
     attribfld_->setStretch( 2, 2 );
-    attribfld_->box()->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
+    attribfld_->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
 }
 
 
 void uiIOSurface::mkSectionFld( bool labelabove )
 {
-    sectionfld_ = new uiLabeledListBox( this, tr("Available patches"),
-	    OD::ChooseAtLeastOne, labelabove ? uiLabeledListBox::AboveMid
-					      : uiLabeledListBox::LeftTop );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available patches"),
+	labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
+    sectionfld_ = new uiListBox( this, su );
     sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
     sectionfld_->setStretch( 2, 2 );
-    sectionfld_->box()->selectionChanged.notify(
+    sectionfld_->selectionChanged.notify(
 					mCB(this,uiIOSurface,ioDataSelChg) );
 }
 
@@ -159,9 +159,9 @@ void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
 {
     if ( !attribfld_ ) return;
 
-    attribfld_->box()->setEmpty();
+    attribfld_->setEmpty();
     for ( int idx=0; idx<valnames.size(); idx++)
-	attribfld_->box()->addItem( valnames[idx]->buf() );
+	attribfld_->addItem( valnames[idx]->buf() );
 }
 
 
@@ -169,14 +169,14 @@ void uiIOSurface::getSelAttributes( BufferStringSet& names ) const
 {
     names.erase();
     if ( attribfld_ )
-	attribfld_->box()->getChosen( names );
+	attribfld_->getChosen( names );
 }
 
 
 void uiIOSurface::setSelAttributes( const BufferStringSet& attribnames ) const
 {
     if ( attribfld_ )
-	attribfld_->box()->setChosen( attribnames );
+	attribfld_->setChosen( attribnames );
 }
 
 
@@ -190,10 +190,10 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 {
     if ( !sectionfld_ ) return;
 
-    sectionfld_->box()->setEmpty();
+    sectionfld_->setEmpty();
     for ( int idx=0; idx<sections.size(); idx++ )
-	sectionfld_->box()->addItem( sections[idx]->buf() );
-    sectionfld_->box()->chooseAll( true );
+	sectionfld_->addItem( sections[idx]->buf() );
+    sectionfld_->chooseAll( true );
 }
 
 
@@ -212,7 +212,7 @@ void uiIOSurface::fillRangeFld( const TrcKeySampling& hrg )
 
 bool uiIOSurface::haveAttrSel() const
 {
-    return attribfld_->box()->nrChosen() > 0;
+    return attribfld_->nrChosen() > 0;
 }
 
 
@@ -232,13 +232,13 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 
     sels.selsections.erase();
     if ( sectionfld_ )
-	sectionfld_->box()->getChosen( sels.selsections );
+	sectionfld_->getChosen( sels.selsections );
     else
 	sels.selsections += 0;
 
     sels.selvalues.erase();
     if ( attribfld_ )
-	attribfld_->box()->getChosen( sels.selvalues );
+	attribfld_->getChosen( sels.selvalues );
 }
 
 
@@ -377,7 +377,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 
 bool uiSurfaceWrite::processInput()
 {
-    if ( sectionfld_ && sectionfld_->box()->nrChosen() < 1 )
+    if ( sectionfld_ && sectionfld_->nrChosen() < 1 )
 	{ uiMSG().error( tr("Horizon has no patches") ); return false; }
 
     const IOObj* ioobj = objfld_->ioobj();
@@ -420,7 +420,7 @@ Color uiSurfaceWrite::getColor() const
 void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 {
     bool issubsel = sectionfld_ &&
-		sectionfld_->box()->size()!=sectionfld_->box()->nrChosen();
+		sectionfld_->size()!=sectionfld_->nrChosen();
 
     if ( !issubsel && rgfld_ && !rgfld_->isAll() )
     {
@@ -467,7 +467,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 	attribfld_->attach( alignedBelow, objfld_ );
 	if ( sectionfld_ ) sectionfld_->attach( rightTo, attribfld_ );
 	attachobj = attribfld_;
-	attribfld_->box()->setMultiChoice( setup.multiattribsel_ );
+	attribfld_->setMultiChoice( setup.multiattribsel_ );
     }
     else if ( setup.withsectionfld_ )
     {
@@ -497,7 +497,7 @@ bool uiSurfaceRead::processInput()
     if ( !objfld_->commitInput() )
 	{ uiMSG().error( tr("Please select input") ); return false; }
 
-    if ( sectionfld_ && sectionfld_->box()->nrChosen()<1 )
+    if ( sectionfld_ && sectionfld_->nrChosen()<1 )
 	{ uiMSG().error( tr("Horizon has no pataches") ); return false; }
 
     return true;
@@ -651,8 +651,9 @@ public:
 	    }
 	}
 
-	fsslistfld_ = new uiListBox(this,"",OD::ChooseAtLeastOne,
-				validmids_.size()+1,20 );
+	fsslistfld_ = new uiListBox( this, "", OD::ChooseAtLeastOne );
+	fsslistfld_->setNrLines( validmids_.size()+1 );
+	fsslistfld_->setFieldWidth( 20 );
 	fsslistfld_->addItems( validfss_ );
     }
 

@@ -31,8 +31,8 @@ static bool checkIfDataDir( const char* path )
 }
 
 
-uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, 
-				      const char* survnm, const char* dataroot, 
+uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
+				      const char* survnm, const char* dataroot,
 				      bool forread, bool needvalidrootdir )
     : uiDialog(p,uiDialog::Setup(tr("Select Data Root and Survey"),
 				 mNoDlgTitle,mTODOHelpKey))
@@ -48,7 +48,8 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p,
     datarootfld_->valuechanged.notify(
 		mCB(this,uiSurveySelectDlg,rootSelCB) );
 
-    surveylistfld_ = new uiListBox( this, "Survey list", OD::ChooseOnlyOne, 10);
+    surveylistfld_ = new uiListBox( this, "Survey list", OD::ChooseOnlyOne );
+    surveylistfld_->setNrLines( 10 );
     surveylistfld_->attach( alignedBelow, datarootfld_ );
     surveylistfld_->selectionChanged.notify(
 		mCB(this,uiSurveySelectDlg,surveySelCB) );
@@ -99,8 +100,8 @@ bool uiSurveySelectDlg::continueAfterErrMsg()
 	uiMSG().error( tr("Selected directory is not a valid Data Root") );
 	return false;
     }
-    
-    const bool res = uiMSG().askGoOn( 
+
+    const bool res = uiMSG().askGoOn(
 	    tr("Selected directory is not a valid Data Root. Do you still "
 	       "want to search for OpendTect Surveys in this location") );
     return res;
@@ -140,9 +141,9 @@ bool uiSurveySelectDlg::isNewSurvey() const
 
 
 // uiSurveySelect
-uiSurveySelect::uiSurveySelect( uiParent* p, bool forread, 
+uiSurveySelect::uiSurveySelect( uiParent* p, bool forread,
 				bool needvalidrootdir, const char* lbl )
-    : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl 
+    : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl
 						  : uiStrings::sSurvey() ),
 		 mCB(this,uiSurveySelect,selectCB))
     , dataroot_(GetBaseDataDir())
@@ -158,7 +159,7 @@ uiSurveySelect::~uiSurveySelect()
 
 void uiSurveySelect::selectCB( CallBacker* )
 {
-    uiSurveySelectDlg dlg( this, GetSurveyName(), dataroot_, forread_, 
+    uiSurveySelectDlg dlg( this, GetSurveyName(), dataroot_, forread_,
 			   needvalidrootdir_ );
     if( !dlg.go() ) return;
 

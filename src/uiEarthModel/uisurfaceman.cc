@@ -152,54 +152,35 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Hor3D || type_ == AnyHor )
     {
-	uiLabeledListBox* llb =
-		new uiLabeledListBox( listgrp_, tr("Horizon Data"),
-			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
-	llb->attach( rightOf, selgrp_ );
-	attribfld_ = llb->box();
+	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Horizon Data"),
+			     uiListBox::AboveMid );
+	attribfld_ = new uiListBox( listgrp_, su );
+	attribfld_->attach( rightOf, selgrp_ );
 	attribfld_->setHSzPol( uiObject::Wide );
-	attribfld_->setToolTip(
+	attribfld_->box()->setToolTip(
 		tr("Horizon Data (Attributes stored in Horizon format)") );
 	attribfld_->selectionChanged.notify( mCB(this,uiSurfaceMan,attribSel) );
 
-	uiManipButGrp* butgrp = new uiManipButGrp( llb );
+	uiManipButGrp* butgrp = new uiManipButGrp( attribfld_ );
 	surfdataremovebut_ = butgrp->addButton( uiManipButGrp::Remove,
 					"Remove selected Horizon Data",
 					mCB(this,uiSurfaceMan,removeAttribCB) );
 	surfdatarenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
 					"Rename selected Horizon Data",
 					mCB(this,uiSurfaceMan,renameAttribCB) );
-	butgrp->attach( rightTo, attribfld_ );
+	butgrp->attach( rightTo, attribfld_->box() );
 
 	new uiPushButton( extrabutgrp_, uiStrings::sStratigraphy(),
 		mCB(this,uiSurfaceMan,stratSel), false );
 
 	new uiPushButton( extrabutgrp_, tr("Relations"),
 		mCB(this,uiSurfaceMan,setRelations), false );
-	extrabutgrp_->attach( ensureBelow, llb );
+	extrabutgrp_->attach( ensureBelow, attribfld_ );
 
 	setPrefWidth( 50 );
     }
     if ( type_ == Flt3D )
     {
-#ifdef __debug__
-	uiLabeledListBox* llb =
-		new uiLabeledListBox( listgrp_, tr("Fault Data"),
-			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
-	llb->attach( rightOf, selgrp_ );
-	attribfld_ = llb->box();
-	attribfld_->setToolTip(
-		tr("Fault Data (Attributes stored in Fault format)") );
-
-	uiManipButGrp* butgrp = new uiManipButGrp( llb );
-	surfdataremovebut_ = butgrp->addButton( uiManipButGrp::Remove,
-					"Remove selected Fault Data",
-					mCB(this,uiSurfaceMan,removeAttribCB) );
-	surfdatarenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
-					"Rename selected Fault Data",
-					mCB(this,uiSurfaceMan,renameAttribCB) );
-	butgrp->attach( rightTo, attribfld_ );
-#endif
     }
     if ( type_ == Body )
     {
@@ -515,13 +496,42 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 }
 
 
-void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
+void uiSurfaceMan::fillAttribList()
 {
     if ( !attribfld_ ) return;
 
     attribfld_->setEmpty();
-    for ( int idx=0; idx<strs.size(); idx++)
-	attribfld_->addItem( strs[idx]->buf() );
+    TypeSet<MultiID> mids;
+    selgrp_->getChosen( mids );
+    if ( mids.isEmpty() )
+	return;
+
+    const MultiID& firstmid = mids[0];
+    EM::IOObjInfo info( firstmid );
+    if ( !info.isOK() )
+	return;
+
+    BufferStringSet availableattrnms;
+    if ( !info.getAttribNames( availableattrnms ) )
+	return;
+
+    for ( int midx=1; midx<mids.size(); midx++ )
+    {
+	const MultiID& mid = mids[midx];
+	EM::IOObjInfo eminfo( mid );
+	if ( !info.isOK() )
+	    return;
+
+	BufferStringSet attrnms;
+	eminfo.getAttribNames( attrnms );
+	for ( int idx=availableattrnms.size()-1; idx>=0; idx-- )
+	{
+	    if ( !attrnms.isPresent(availableattrnms.get(idx)) )
+		availableattrnms.removeSingle( idx );
+	}
+    }
+
+    attribfld_->addItems( availableattrnms );
     attribfld_->chooseAll( false );
 }
 
@@ -538,6 +548,7 @@ void uiSurfaceMan::mkFileInfo()
 	txt += " - "; txt += range.step; txt += "\n"; \
     }
 
+    fillAttribList();
     BufferString txt;
     EM::IOObjInfo eminfo( curioobj_ );
     if ( !eminfo.isOK() )
@@ -547,9 +558,6 @@ void uiSurfaceMan::mkFileInfo()
 	return;
     }
 
-    BufferStringSet attrnms;
-    if ( eminfo.getAttribNames(attrnms) )
-	fillAttribList( attrnms );
 
     if ( man2dbut_ )
 	man2dbut_->setSensitive( isCur2D() );
@@ -750,7 +758,7 @@ void uiSurfaceMan::stratSel( CallBacker* )
 
 
 class uiSurface2DMan : public uiDialog
-{
+{ mODTextTranslationClass(uiSurface2DMan)
 public:
 
 uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
@@ -761,9 +769,9 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     setCtrlStyle( CloseOnly );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
-    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines",
-			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
-    linelist_ = lllb->box();
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("2D lines"),
+			 uiListBox::AboveMid );
+    linelist_ = new uiListBox( topgrp, su );
     BufferStringSet linenames;
     info.getLineNames( linenames );
     linelist_->addItems( linenames );

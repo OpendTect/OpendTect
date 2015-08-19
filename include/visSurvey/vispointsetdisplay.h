@@ -32,7 +32,7 @@ mExpClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl,
 {
 public:
 				PointSetDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PointSetDisplay,
 				    "PointSetDisplay", sFactoryKeyword() );
 
@@ -40,11 +40,11 @@ public:
     int				getPointSize() const;
 
     void			setDispProp(const DataPointSetDisplayProp*);
-    bool			hasColor() const 	{ return true; }
+    bool			hasColor() const	{ return true; }
 
     void			update();
     bool			setDataPack(int);
-    const DataPointSet*		getDataPack() const 	{ return data_; }
+    const DataPointSet*		getDataPack() const	{ return data_; }
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
 
@@ -52,14 +52,19 @@ public:
 
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     void			removeSelection(const Selector<Coord3>&,
-	    					TaskRunner* tr=0);
+						TaskRunner* tr=0);
     bool			selectable() const		{ return true; }
     bool			canRemoveSelection() const	{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
     virtual void		setPixelDensity(float);
 
-
-protected:
+    virtual void		getMousePosInfo(const visBase::EventInfo&,
+					    Coord3& xyzpos,
+					    BufferString& val,
+					    BufferString& info) const;
+    void			getMousePosInfo(const visBase::EventInfo& ei,
+						IOPar& iop ) const
+				{ return SurveyObject::getMousePosInfo(ei,iop);}
 
 protected:
 				~PointSetDisplay();

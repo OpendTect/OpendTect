@@ -36,6 +36,9 @@ protected:
     uiODApplMgr*	applMgr();
     ui3DViewer*		viewer();
 
+    virtual bool	init();
+    virtual const char*	iconName() const		{ return 0; }
+
     void		addStandardItems(uiMenu&);
     void		handleStandardItems(int mnuid);
 };
@@ -56,15 +59,16 @@ public:
     int			sceneID() const;
     bool		selectWithKey(int selkey);
     TypeSet<int>	getDisplayIds(int&, bool);
-    void		loopOverChildrenIds( TypeSet<int>&, int&, bool, 
-	    				     const ObjectSet<uiTreeItem>& );
+    void		loopOverChildrenIds(TypeSet<int>&,int&,bool,
+	    				    const ObjectSet<uiTreeItem>&);
 
 protected:
 
+    void		keyPressCB(CallBacker*);
     void		addFactoryCB(CallBacker*);
     void		removeFactoryCB(CallBacker*);
 
-    virtual const char*	parentType() const { return 0; } 
+    virtual const char*	parentType() const { return 0; }
     uiODApplMgr*	applMgr();
 
     uiTreeFactorySet*	tfs;
@@ -88,7 +92,7 @@ public:
     if ( lv==uitreeviewitem_ ) { select(); showSubMenu(); return true; } \
     return inheritedClass::anyButtonClick( lv ); \
 }
-    
+
 
 #define mDefineItem( type, inherited, parentitem, extrapublic ) \
 mExpClass(uiODMain) uiOD##type##TreeItem : public uiOD##inherited \
@@ -98,6 +102,7 @@ public: \
     			uiOD##type##TreeItem(); \
     extrapublic;	\
 protected: \
+    virtual const char*	iconName() const; \
     const char* 	parentType() const \
 			{ return typeid(uiOD##parentitem).name();} \
 };

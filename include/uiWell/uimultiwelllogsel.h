@@ -24,7 +24,6 @@ class uiGenInput;
 class uiLabel;
 class uiListBox;
 class uiListBoxChoiceIO;
-class uiLabeledListBox;
 
 namespace Well { class MarkerSet; }
 

@@ -271,7 +271,16 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dvditem_,
 			  hasattrib, false )
-	mResetMenuItem( &view2dwvaitem_ );
+	const bool withwva = true;
+	if ( withwva )
+	{
+	    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &view2dwvaitem_,
+			      hasattrib, false )
+	}
+	else
+	{
+	    mResetMenuItem( &view2dwvaitem_ );
+	}
     }
     else
     {
@@ -395,7 +404,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 		{
 		    delete ampspectrumwin_;
 		    ampspectrumwin_ = new uiSeisAmplSpectrum(
-					  applMgr()->applService().parent() );
+				      applMgr()->applService().parent() );
 		    ampspectrumwin_->setDataPackID( dpid, dmid );
 		    ampspectrumwin_->show();
 		}

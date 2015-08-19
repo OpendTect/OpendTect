@@ -320,9 +320,9 @@ int uiObjectBody::prefHNrPics() const
 
 void uiObjectBody::setPrefWidth( int w )
 {
-    if( itemInited() )
+    if ( itemInited() )
     {
-	if( pref_width_set != w )
+	if( pref_width_set > 0 && pref_width_set != w )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }

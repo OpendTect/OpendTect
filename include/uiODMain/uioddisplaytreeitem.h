@@ -42,6 +42,9 @@ public:
     void		prepareForShutdown();
     void		handleAddAttrib();
 
+    virtual void	setOnlyAtSectionsDisplay(bool)	{}
+    virtual bool	isOnlyAtSections() const	{ return false; }
+
 protected:
 
     virtual uiODDataTreeItem* createAttribItem(const Attrib::SelSpec*) const;
@@ -75,8 +78,9 @@ protected:
     MenuItem		addattribmnuitem_;
     MenuItem		addvolprocmnuitem_;
     MenuItem		duplicatemnuitem_;
+    MenuItem		deletemnuitem_;
     MenuItem		removemnuitem_;
-    MenuItem            lockmnuitem_;
+    MenuItem		lockmnuitem_;
     MenuItem		hidemnuitem_;
     MenuItem		histogrammnuitem_;
 };

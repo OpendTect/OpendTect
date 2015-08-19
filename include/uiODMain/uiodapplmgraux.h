@@ -28,9 +28,11 @@ class uiImpRokDocPDF;
 class uiExpRokDocPDF;
 class uiODApplMgr;
 class uiProbDenFuncMan;
+class uiRandomLineMan;
 class uiSessionMan;
 class uiVelSel;
 class ui2DGeomManageDlg;
+
 namespace Attrib { class SelSpec; }
 namespace PreStack { class uiImportMute; }
 namespace Vel { class uiImportVelFunc; }
@@ -88,6 +90,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     ui2DGeomManageDlg*	man2dgeomdlg_;
     uiProbDenFuncMan*	manpdfdlg_;
     uiSessionMan*	mansessiondlg_;
+    uiRandomLineMan*	manrldlg_;
     uiImpPVDS*		impcrossplotdlg_;
     uiExp2DGeom*		exp2dgeomdlg_;
     uiImpRokDocPDF*	imppdfdlg_;

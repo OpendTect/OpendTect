@@ -147,6 +147,19 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
 }
 
 
+void uiODEarthModelSurfaceTreeItem::setOnlyAtSectionsDisplay( bool yn )
+{
+    if ( visEMObject() )
+	visEMObject()->setOnlyAtSectionsDisplay( yn );
+}
+
+
+bool uiODEarthModelSurfaceTreeItem::isOnlyAtSections() const
+{
+    return visEMObject() ? visEMObject()->isOnlyAtSections() : false;
+}
+
+
 void uiODEarthModelSurfaceTreeItem::selChg( CallBacker* )
 {
     updateTrackingState();

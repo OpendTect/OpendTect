@@ -56,8 +56,8 @@ mStruct(uiODMain) Viewer2DPosDataSel
 
     virtual void	clean()
 			{
-			    postype_ =SI().has3D() ? Viewer2DPosDataSel::InLine
-						   : Viewer2DPosDataSel::Line2D;
+			    postype_ = SI().has3D() ? Viewer2DPosDataSel::InLine
+						    : Viewer2DPosDataSel::Line2D;
 			    selspec_ = Attrib::SelSpec();
 			    tkzs_ = TrcKeyZSampling(true);
 			    rdmlineid_ = MultiID::udf();

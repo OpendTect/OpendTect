@@ -120,6 +120,13 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
     mCheckTracker( typ, Horizon2D, legalclick, true ); \
     mCheckTracker( typ, FaultStickSet, legalclick, true );
 
+#define mCheckRdlDisplay( typ, dataobj, rdldisp, legalclick ) \
+    mDynamicCastGet(RandomTrackDisplay*,rdldisp,dataobj); \
+    if ( !rdldisp || !rdldisp->isOn() ) \
+	rdldisp = 0; \
+    bool legalclick = !rdldisp; \
+    mCheckTracker( typ, Horizon3D, legalclick, true );
+
 
 bool MPEClickCatcher::isClickable( const char* trackertype, int visid )
 {
@@ -137,6 +144,10 @@ bool MPEClickCatcher::isClickable( const char* trackertype, int visid )
 
     mCheckSeis2DDisplay( trackertype, dataobj, seis2ddisp, legalclick3 );
     if ( seis2ddisp && legalclick3 )
+	return true;
+
+    mCheckRdlDisplay( trackertype, dataobj, rdldisp, legalclick4 );
+    if ( rdldisp && legalclick4 )
 	return true;
 
     return false;
@@ -209,35 +220,55 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	     OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	    continue;
 
-	mDynamicCastGet( visSurvey::RandomTrackDisplay*, rtdisp, dataobj );
-	if ( rtdisp )
+	mCheckRdlDisplay( trackertype_, dataobj, rtd, legalclick0 )
+	if ( rtd )
 	{
-	    info().setLegalClick( false );
+	    DataPack::ID datapackid = DataPack::cNoID();
+	    int attrib = rtd->nrAttribs();
+	    while ( attrib )
+	    {
+		attrib--;
+		unsigned char transpar =
+		    rtd->getAttribTransparency( attrib );
+		datapackid = rtd->getDataPackID( attrib );
+		if ( (datapackid > DataPack::cNoID()) &&
+		     rtd->isAttribEnabled(attrib) && (transpar<198) )
+		    break;
+	    }
+
+	    info().setLegalClick( legalclick0 );
+	    info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+	    info().setObjDataPackID( datapackid );
+
+	    const Attrib::SelSpec* as = rtd->getSelSpec( attrib );
+	    if ( as )
+		info().setObjDataSelSpec( *as );
+
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
 	}
 
-	mCheckPlaneDataDisplay( trackertype_, dataobj, plane, legalclick1 );
-	if ( plane )
+	mCheckPlaneDataDisplay( trackertype_, dataobj, pdd, legalclick1 );
+	if ( pdd )
 	{
 	    info().setLegalClick( legalclick1 );
-	    info().setObjCS( plane->getTrcKeyZSampling() );
+	    info().setObjCS( pdd->getTrcKeyZSampling() );
 
 	    DataPack::ID datapackid = DataPack::cNoID();
-	    int attrib = plane->nrAttribs();
+	    int attrib = pdd->nrAttribs();
 	    while ( attrib )
 	    {
 		attrib--;
-		datapackid = plane->getDataPackID( attrib );
-		unsigned char transpar = plane->getAttribTransparency( attrib );
+		datapackid = pdd->getDataPackID( attrib );
+		unsigned char transpar = pdd->getAttribTransparency( attrib );
 		if ( (datapackid > DataPack::cNoID()) &&
-		     plane->isAttribEnabled(attrib) && (transpar<198) )
+		     pdd->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
 
 	    info().setObjDataPackID( datapackid );
-	    info().setObjDataSelSpec( *plane->getSelSpec(attrib) );
+	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 
 	    allowPickBasedReselection();
 	    click.trigger();
@@ -453,37 +484,69 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	if ( !dataobj )
 	    continue;
 
-	mCheckPlaneDataDisplay( trackertype_, dataobj, plane, legalclick );
-	if ( !plane )
+	mCheckPlaneDataDisplay( trackertype_, dataobj, pdd, legalclick );
+	if ( !pdd )
 	    continue;
 
-	const TrcKeyZSampling cs = plane->getTrcKeyZSampling();
+	const TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
 	if ( !trkplanecs.isEmpty() && trkplanecs.defaultDir()==cs.defaultDir() )
 	    continue;
 
 	if ( cs.hsamp_.includes(nodebid) && cs.zsamp_.includes(nodepos.z,false))
 	{
 	    info().setLegalClick( legalclick );
-	    info().setObjID( plane->id() );
+	    info().setObjID( pdd->id() );
 	    info().setObjCS( cs );
 
 	    DataPack::ID datapackid = DataPack::cNoID();
-	    int attrib = plane->nrAttribs();
+	    int attrib = pdd->nrAttribs();
 	    while ( attrib )
 	    {
 		attrib--;
-		unsigned char transpar = plane->getAttribTransparency( attrib );
-		datapackid = plane->getDataPackID( attrib );
+		unsigned char transpar = pdd->getAttribTransparency( attrib );
+		datapackid = pdd->getDataPackID( attrib );
 		if ( (datapackid > DataPack::cNoID()) &&
-		     plane->isAttribEnabled(attrib) && (transpar<198) )
+		     pdd->isAttribEnabled(attrib) && (transpar<198) )
 		    break;
 	    }
 
 	    info().setObjDataPackID( datapackid );
-	    info().setObjDataSelSpec( *plane->getSelSpec(attrib) );
+	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 	    allowPickBasedReselection();
 	    click.trigger();
 	}
+    }
+
+    TypeSet<int> rtdids;
+    visBase::DM().getIDs( typeid(visSurvey::RandomTrackDisplay), rtdids );
+    for ( int idx=0; idx<rtdids.size(); idx++ )
+    {
+	visBase::DataObject* dataobj = visBase::DM().getObject( rtdids[idx] );
+	if ( !dataobj ) continue;
+
+	mCheckRdlDisplay( trackertype_, dataobj, rtd, legalclick );
+	if ( !rtd ) continue;
+
+	info().setLegalClick( legalclick );
+	info().setObjID( rtd->id() );
+
+	DataPack::ID datapackid = DataPack::cNoID();
+	int attrib = rtd->nrAttribs();
+	while ( attrib )
+	{
+	    attrib--;
+	    unsigned char transpar = rtd->getAttribTransparency( attrib );
+	    datapackid = rtd->getDataPackID( attrib );
+	    if ( (datapackid > DataPack::cNoID()) &&
+		 rtd->isAttribEnabled(attrib) && (transpar<198) )
+		break;
+	}
+
+	info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+	info().setObjDataPackID( datapackid );
+	info().setObjDataSelSpec( *rtd->getSelSpec(attrib) );
+
+	click.trigger();
     }
 }
 
