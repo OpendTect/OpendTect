@@ -84,7 +84,13 @@ public:
 
     int			ns_;
     int			fmt_;
-    int			byteswap_;	//!, 0=no 1=data only 2=all
+    int			byteswap_;	//!, 0=no 1=data only 2=all 3=only hdrs
+
+    bool		swapHdrs() const	{ return byteswap_ > 1; }
+    bool		swapData() const
+			{ return byteswap_ == 1 || byteswap_ == 2; }
+    void		setSwap( bool hdr, bool data )
+			{ byteswap_ = hdr ? (data?2:3) : (data?1:0); }
 
     static int		nrFmts( bool forread )	{ return forread ? 6 : 5; }
     static const char**	getFmts(bool forread);

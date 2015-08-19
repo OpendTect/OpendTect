@@ -398,9 +398,10 @@ void SEGY::FilePars::getReport( IOPar& iop, bool ) const
 		nameOfFmt(fmt_,forread_) );
     if ( byteswap_ )
     {
-	const char* str = byteswap_ > 1
-			? (forread_ ? "All bytes are" : "All bytes will be")
-			: (forread_ ? "Data bytes are" : "Data bytes will be");
+	const char* str =
+	    byteswap_ == 2 ? (forread_?"All bytes are":"All bytes will be")
+	 : (byteswap_ == 1 ? (forread_?"Data bytes are":"Data bytes will be")
+		       : (forread_?"Header bytes are":"Header bytes will be") );
 	iop.set( str, "swapped" );
     }
 }
