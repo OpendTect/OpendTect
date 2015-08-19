@@ -30,6 +30,7 @@ public:
 protected:
     bool			init();
     const char*			parentType() const;
+    const char*			iconName() const;
     virtual bool		showSubMenu();
     bool			loadPSEvent(MultiID&,BufferString&);
     uiODPSEventsTreeItem*	child_;
@@ -41,7 +42,7 @@ mExpClass(uiODMain) uiODPSEventsTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const   { return typeid(*this).name(); }
     uiTreeItem*		create() const { return new uiODPSEventsParentTreeItem;}
-    uiTreeItem*		create(int visid,uiTreeItem*) const 
+    uiTreeItem*		create(int visid,uiTreeItem*) const
 			{ return new uiODPSEventsParentTreeItem; }
 };
 
@@ -55,7 +56,7 @@ public:
     void		updateColorMode(int mode);
 
 protected:
-    virtual const char*	parentType() const 
+    virtual const char*	parentType() const
 			{ return typeid(uiODPSEventsParentTreeItem).name();}
 
     virtual const char*	managerName() const { return "PreStackEvents"; }

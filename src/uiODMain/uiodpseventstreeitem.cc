@@ -107,6 +107,10 @@ bool uiODPSEventsParentTreeItem::init()
 }
 
 
+const char* uiODPSEventsParentTreeItem::iconName() const
+{ return "tree-psevents"; }
+
+
 const char* uiODPSEventsParentTreeItem::parentType() const
 { return typeid(uiODTreeTop).name(); }
 
