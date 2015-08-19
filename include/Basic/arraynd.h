@@ -184,6 +184,8 @@ public:
     bool			next();
     void			reset();
 
+    bool			setGlobalPos(od_int64);
+
     template <class T> void inline setPos(const T& idxabl);
     const int*			getPos() const { return position_; }
     int				operator[](int) const;
@@ -254,6 +256,13 @@ template <class T> inline void ArrayNDIter::setPos( const T& idxable )
 {
     for ( int idx=sz_.getNDim()-1; idx>=0; idx-- )
 	position_[idx] = idxable[idx];
+}
+
+
+inline
+bool ArrayNDIter::setGlobalPos( od_int64 globalidx )
+{
+    return sz_.getArrayPos(globalidx,position_);
 }
 
 
