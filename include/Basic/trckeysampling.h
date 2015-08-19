@@ -68,6 +68,7 @@ public:
     BinID		atIndex(od_int64 globalidx) const;
     TrcKey		trcKeyAt(int i0,int i1) const;
     TrcKey		trcKeyAt(od_int64 globalidx) const;
+    TrcKey		toTrcKey(const Coord&,float* distance=0) const;
     Coord		toCoord(const BinID&) const;
     int			nrLines() const;
     int			nrTrcs() const;
@@ -132,9 +133,9 @@ public:
     inline bool		inlOK( int inl ) const { return lineOK(inl); }
     inline bool		crlOK( int crl ) const { return trcOK(crl); }
 
-    mDeprecated	BinID& 	start;
-    mDeprecated	BinID& 	stop;
-    mDeprecated	BinID& 	step;
+    mDeprecated BinID&	start;
+    mDeprecated BinID&	stop;
+    mDeprecated BinID&	step;
 };
 
 
