@@ -44,12 +44,14 @@ public:
     void			setName( const char* nm )	{ name_ = nm; }
     const char*			name() const;
 
+    bool			areAllParentChecked();
+
     virtual int			selectionKey() const { return -1; }
     virtual bool		select();
 				/*!<Selects this item */
     virtual bool		isSelected() const;
     void			setChecked(bool yn,bool trigger=false);
-    bool			isChecked() const;
+    virtual bool		isChecked() const;
     NotifierAccess*		checkStatusChange();
     void			expand();
     void			collapse();
@@ -224,6 +226,7 @@ public:
     virtual void	updateSelection(int selectionkey, bool=false );
 			/*!< Does only update the display */
     virtual void	updateColumnText(int col);
+    bool		isChecked() const		{ return true; }
 
     void		disabRightClick(bool yn)	{ disabrightclick_=yn; }
     void		disabAnyClick(bool yn)		{ disabanyclick_=yn; }
