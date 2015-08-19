@@ -58,6 +58,7 @@ set( OD_MODULE_SOURCES
 	uiprobdenfuncgen.cc
 	uiprobdenfuncman.cc
 	uiprobdenfunvarsel.cc
+	uirandomlineman.cc
 	uisetdatadir.cc
 	uiselobjothersurv.cc
 	uiselsurvranges.cc

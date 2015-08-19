@@ -1,0 +1,44 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:        Nanne Hemstra
+ Date:          September 2003
+________________________________________________________________________
+
+-*/
+static const char* rcsID mUsedVar = "$Id$";
+
+#include "uirandomlineman.h"
+
+#include "ctxtioobj.h"
+#include "randomlinetr.h"
+#include "od_helpids.h"
+
+
+mDefineInstanceCreatedNotifierAccess(uiRandomLineMan)
+
+uiRandomLineMan::uiRandomLineMan( uiParent* p )
+    : uiObjFileMan(p,uiDialog::Setup(tr("Manage RandomLines"),mNoDlgTitle,
+				     mODHelpKey(mRandomLineManHelpID) )
+				     .nrstatusflds(1).modal(false),
+		   RandomLineSetTranslatorGroup::ioContext())
+{
+    createDefaultUI();
+    mTriggerInstanceCreatedNotifier();
+    selChg( this );
+}
+
+
+uiRandomLineMan::~uiRandomLineMan()
+{
+}
+
+
+void uiRandomLineMan::mkFileInfo()
+{
+    if ( !curioobj_ ) { setInfo( "" ); return; }
+
+    setInfo( getFileInfo() );
+}
+
