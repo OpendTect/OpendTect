@@ -164,7 +164,8 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
     if ( hs.start_.inl() == hs.stop_.inl() )
 	mErrRet2("The input data contains only one in-line: ",hs.start_.inl())
     else if ( hs.start_.crl() == hs.stop_.crl() )
-	mErrRet2("The input data contains only one cross-line: ",hs.start_.crl())
+	mErrRet2("The input data contains only one cross-line: ",
+		hs.start_.crl())
 
     const CrdBidOffs llnstart( userCBO(llnstart_) );
     const CrdBidOffs llnstop( userCBO(llnstop_) );

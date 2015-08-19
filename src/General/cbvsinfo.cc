@@ -60,7 +60,9 @@ bool CBVSInfo::SurvGeom::includesInline( int inl ) const
     if ( fullyrectandreg )
     {
 	inl -= start.inl();
-	return inl >= 0 && inl + start.inl() <= stop.inl() && inl % step.inl() == 0;
+	return inl >= 0 &&
+		inl + start.inl() <= stop.inl() &&
+		inl % step.inl() == 0;
     }
 
     return cubedata.indexOf(inl) >= 0;
@@ -211,8 +213,10 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 
 bool CBVSInfo::contributesTo( const TrcKeyZSampling& cs ) const
 {
-    if ( cs.hsamp_.start_.inl() > geom_.stop.inl() || cs.hsamp_.stop_.inl() < geom_.start.inl()
-      || cs.hsamp_.start_.crl() > geom_.stop.crl() || cs.hsamp_.stop_.crl() < geom_.start.crl() )
+    if ( cs.hsamp_.start_.inl() > geom_.stop.inl() ||
+	 cs.hsamp_.stop_.inl() < geom_.start.inl() ||
+	 cs.hsamp_.start_.crl() > geom_.stop.crl() ||
+	 cs.hsamp_.stop_.crl() < geom_.start.crl() )
 	return false;
 
     float zend = sd_.start + (nrsamples_-1) * sd_.step;
