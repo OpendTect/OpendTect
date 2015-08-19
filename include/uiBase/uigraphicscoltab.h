@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "draw.h"
 
 class uiPixmapItem;
+class uiRectItem;
 class uiTextItem;
 namespace ColTab { class MapperSetup; }
 
@@ -33,10 +34,10 @@ public:
 			Setup( bool h ) //!< horizontal?
 			    : hor_(h)
 			    , sz_(h?100:25,h?25:100)
-			    , startal_(h?Alignment::HCenter:Alignment::Right,
+			    , startal_(Alignment::HCenter,
 				       h?Alignment::Top:Alignment::VCenter)
-			    , stopal_( h?Alignment::HCenter:Alignment::Left,
-				       h?Alignment::Bottom:Alignment::VCenter)
+			    , stopal_(Alignment::HCenter,
+				      h?Alignment::Bottom:Alignment::VCenter)
 			    , startalong_(false)
 			    , stopalong_(false)		{}
 	mDefSetupMemb(bool,hor)
@@ -52,6 +53,7 @@ public:
     Setup&		setup()		{ return setup_; }
     const Setup&	setup() const	{ return setup_; }
 
+    void		setColTab(const char* nm);
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
@@ -67,6 +69,7 @@ protected:
     uiPoint		curpos_;
 
     uiPixmapItem*	ctseqitm_;
+    uiRectItem*		borderitm_;
     uiTextItem*		minvalitm_;
     uiTextItem*		maxvalitm_;
 
