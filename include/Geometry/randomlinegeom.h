@@ -36,7 +36,7 @@ public:
 
     int			addNode(const BinID&);
     void		insertNode(int,const BinID&);
-    void		setNodePosition(int idx,const BinID&);
+    void		setNodePosition(int idx,const BinID&,bool moving=false);
     void		removeNode(int);
     void		removeNode(const BinID&);
     bool		isEmpty() const		{ return nodes_.isEmpty(); }
@@ -58,11 +58,21 @@ public:
     void		setMultiID( const MultiID& mid )	{ mid_ = mid; }
     MultiID		getMultiID() const			{ return mid_; }
 
-    Notifier<RandomLine> nodeAdded;
-    Notifier<RandomLine> nodeInserted;
-    Notifier<RandomLine> nodeRemoved;
-    CNotifier<RandomLine,int> nodeMoved;
-    Notifier<RandomLine> zrangeChanged;
+    struct ChangeData : public CallBacker
+    {
+	enum Event	{ Undef, Added, Inserted, Moving, Moved, Removed };
+
+			ChangeData( Event ev=Undef, int nodeidx=-1 )
+			    : ev_(ev)
+			    , nodeidx_(nodeidx)
+			{}
+
+	Event		ev_;
+	int		nodeidx_;
+    };
+
+    CNotifier<RandomLine,const ChangeData&>	nodeChanged;
+    Notifier<RandomLine>	zrangeChanged;
 
     RandomLineSet*	lineSet()		{ return lset_; }
     const RandomLineSet* lineSet() const	{ return lset_; }
@@ -119,7 +129,7 @@ public:
 };
 
 
-mExpClass(Geometry) RandomLineManager
+mExpClass(Geometry) RandomLineManager : public CallBacker
 {
 public:
 			~RandomLineManager();
@@ -130,7 +140,12 @@ public:
     bool		isLoaded(const MultiID&) const;
     bool		isLoaded(int id) const;
 
+    int			add(RandomLine*);
     void		remove(RandomLine*);
+
+    CNotifier<RandomLineManager,int>	added;
+    CNotifier<RandomLineManager,int>	removed;
+
 
 protected:
 			RandomLineManager();

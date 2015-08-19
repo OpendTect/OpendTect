@@ -55,11 +55,11 @@ mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
 public:
     enum Type		{ Empty, Select, Default, RGBA };
 
-			uiODRandomLineTreeItem(int displayid,Type tp=Empty);
-			uiODRandomLineTreeItem(const Geometry::RandomLineSet&,
-					       Type=Empty);
+			uiODRandomLineTreeItem(int displayid=-1,Type tp=Empty);
+
     bool		init();
     bool		displayDefaultData();
+    void		setRandomLineID(int id);
 
 protected:
 

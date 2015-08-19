@@ -24,10 +24,7 @@ namespace Geometry
 
 RandomLine::RandomLine( const char* nm )
     : NamedObject(nm)
-    , nodeAdded(this)
-    , nodeInserted(this)
-    , nodeRemoved(this)
-    , nodeMoved(this)
+    , nodeChanged(this)
     , zrangeChanged(this)
     , lset_(0)
     , mid_(MultiID::udf())
@@ -36,6 +33,8 @@ RandomLine::RandomLine( const char* nm )
 
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_ = oid++;
+
+    RLM().add( this );
 }
 
 
@@ -49,25 +48,39 @@ RandomLine::~RandomLine()
 int RandomLine::addNode( const BinID& bid )
 {
     nodes_ += bid;
-    nodeAdded.trigger();
-    return nodes_.size()-1;
+    const int nodeidx = nodes_.size()-1;
+    ChangeData cd( ChangeData::Added, nodeidx );
+    nodeChanged.trigger( cd );
+    return nodeidx;
 }
 
 
 void RandomLine::insertNode( int idx, const BinID& bid )
-{ nodes_.insert( idx, bid ); nodeInserted.trigger(); }
-
-void RandomLine::setNodePosition( int idx, const BinID& bid )
 {
-    nodes_[idx] = bid;
-    nodeMoved.trigger( idx );
+    nodes_.insert( idx, bid );
+    ChangeData cd( ChangeData::Inserted, idx );
+    nodeChanged.trigger( cd );
 }
 
+
+void RandomLine::setNodePosition( int idx, const BinID& bid, bool moving )
+{
+    nodes_[idx] = bid;
+    ChangeData cd( moving ? ChangeData::Moving : ChangeData::Moved, idx );
+    nodeChanged.trigger( cd );
+}
+
+
 void RandomLine::removeNode( int idx )
-{ nodes_.removeSingle( idx ); nodeRemoved.trigger(); }
+{
+    nodes_.removeSingle( idx );
+    ChangeData cd( ChangeData::Removed, idx );
+    nodeChanged.trigger( cd );
+}
+
 
 void RandomLine::removeNode( const BinID& bid )
-{ nodes_ -= bid; nodeRemoved.trigger(); }
+{ removeNode( nodes_.indexOf(bid) ); }
 
 int RandomLine::nodeIndex( const BinID& bid ) const
 { return nodes_.indexOf( bid ); }
@@ -363,6 +376,8 @@ RandomLineManager& RLM()
 
 
 RandomLineManager::RandomLineManager()
+    : added(this)
+    , removed(this)
 {
 }
 
@@ -392,7 +407,18 @@ RandomLine* RandomLineManager::get( const MultiID& mid, bool forcereload )
     if ( rl && !forcereload )
 	return rl;
 
-    return 0;
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return 0;
+
+    RandomLineSet rdlset;
+    BufferString msg;
+    const bool res = RandomLineSetTranslator::retrieve( rdlset, ioobj, msg );
+    if ( !res || rdlset.isEmpty() ) return 0;
+
+    rl = rdlset.getRandomLine( 0 );
+    rl->setMultiID( mid );
+    add( rl );
+    return rl;
 }
 
 
@@ -423,6 +449,21 @@ bool RandomLineManager::isLoaded( int id ) const
 { return (bool)get( id ); }
 
 
+int RandomLineManager::add( RandomLine* rl )
+{
+    if ( !rl ) return -1;
+
+    const bool res = lines_.addIfNew( rl );
+    if ( res )
+    {
+	rl->ref();
+	added.trigger( rl->ID() );
+    }
+
+    return rl->ID();
+}
+
+
 void RandomLineManager::remove( RandomLine* rl )
 {
     if ( !rl ) return;
@@ -430,6 +471,7 @@ void RandomLineManager::remove( RandomLine* rl )
     const int rlidx = lines_.indexOf( rl );
     if ( rlidx<0 ) return;
 
+    removed.trigger( rl->ID() );
     lines_.removeSingle( rlidx )->unRef();
 }
 

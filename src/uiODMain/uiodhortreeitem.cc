@@ -591,13 +591,12 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    if ( !bpf.execute() ) return;
 
 	    const TypeSet<int>& bends = bpf.bendPoints();
-	    Geometry::RandomLineSet rls;
 	    RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
-	    rls.addLine( *rl );
+	    Geometry::RLM().add( rl );
 	    for ( int idx=0; idx<bends.size(); idx++ )
 		rl->addNode( trcs[bends[idx]].pos() );
 
-	    ODMainWin()->sceneMgr().addRandomLineItem( rls, sceneID() );
+	    ODMainWin()->sceneMgr().addRandomLineItem( rl->ID(), sceneID() );
 	}
     }
     else if ( mnuid==parentsmnuitem_.id )

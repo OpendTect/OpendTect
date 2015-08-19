@@ -29,6 +29,11 @@ namespace visBase
     class TexturePanelStrip;
 }
 
+namespace Geometry
+{
+    class RandomLine;
+}
+
 
 namespace visSurvey
 {
@@ -40,7 +45,7 @@ class Scene;
     RandomTrackDisplay is the front-end class for displaying arbitrary lines.
     The complete line consists of separate sections connected at
     inline/crossline positions, called knots or nodes. Several functions are
-    available for adding or inserting knot positions. The depth range of the
+    available for adding or inserting node positions. The depth range of the
     line can be changed by <code>setDepthInterval(const Interval<float>&)</code>
 */
 
@@ -53,6 +58,9 @@ public:
 				    visSurvey::SurveyObject,RandomTrackDisplay,
 				    "RandomTrackDisplay",
 				    toUiString(sFactoryKeyword()));
+
+    void			setRandomLineID(int id);
+    int				getRandomLineID() const;
 
     int				nameNr() const { return namenr_; }
 				/*!<\returns a number that is unique for
@@ -80,9 +88,9 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
 
     TypeSet<BinID>*		getPath()		{ return &trcspath_; }
-				//!<BinID-based coding: inner knots single
+				//!<BinID-based coding: inner nodes single
     void			getDataTraceBids(TypeSet<BinID>&) const;
-				//!<Segment-based coding: inner knots doubled
+				//!<Segment-based coding: inner nodes doubled
 
     Interval<float>		getDataTraceRange() const;
     TypeSet<Coord>		getTrueCoords() const;
@@ -94,27 +102,27 @@ public:
     virtual DataPackMgr::ID	getDataPackMgrID() const
 				{ return DataPackMgr::SeisID(); }
 
-    bool			canAddKnot(int knotnr) const;
-				/*!< If knotnr<nrKnots the function Checks if
-				     a knot can be added before the knotnr.
-				     If knotnr==nrKnots, it checks if a knot
+    bool			canAddNode(int nodenr) const;
+				/*!< If nodenr<nrNodes the function Checks if
+				     a node can be added before the nodenr.
+				     If nodenr==nrNodes, it checks if a node
 				     can be added. */
-    void			addKnot(int knotnr);
-				/*!< If knotnr<nrKnots, a knot is added before
-				     the knotnr. If knotnr==nrKnots, a knot is
+    void			addNode(int nodenr);
+				/*!< If nodenr<nrNodes, a node is added before
+				     the nodenr. If nodenr==nrNodes, a node is
 				     added at the end. */
 
-    int				nrKnots() const;
-    void			addKnot(const BinID&);
-    void			insertKnot(int,const BinID&);
-    void			setKnotPos(int,const BinID&);
-    BinID			getKnotPos(int) const;
-    BinID			getManipKnotPos(int) const;
-    void			getAllKnotPos(TypeSet<BinID>&) const;
-    TypeSet<BinID>*		getKnots()		{ return &knots_; }
-    void			removeKnot(int);
-    void			removeAllKnots();
-    bool			setKnotPositions(const TypeSet<BinID>&);
+    int				nrNodes() const;
+    void			addNode(const BinID&);
+    void			insertNode(int,const BinID&);
+    void			setNodePos(int,const BinID&);
+    BinID			getNodePos(int) const;
+    BinID			getManipNodePos(int) const;
+    void			getAllNodePos(TypeSet<BinID>&) const;
+    TypeSet<BinID>*		getNodes()		{ return &nodes_; }
+    void			removeNode(int);
+    void			removeAllNodes();
+    bool			setNodePositions(const TypeSet<BinID>&);
     void			lockGeometry(bool);
     bool			isGeometryLocked() const;
 
@@ -128,10 +136,10 @@ public:
 						Coord3&, BufferString&,
 						BufferString&) const;
 
-    int				getSelKnotIdx() const	{ return selknotidx_; }
+    int				getSelNodeIdx() const	{ return selnodeidx_; }
 
     virtual NotifierAccess*	getMovementNotifier()	{ return &moving_; }
-    NotifierAccess*		getManipulationNotifier() {return &knotmoving_;}
+    NotifierAccess*		getManipulationNotifier() {return &nodemoving_;}
 
     Coord3			getNormal(const Coord3&) const;
     virtual float		calcDist(const Coord3&) const;
@@ -145,7 +153,7 @@ public:
 
 
     Notifier<RandomTrackDisplay> moving_;
-    Notifier<RandomTrackDisplay> knotmoving_;
+    Notifier<RandomTrackDisplay> nodemoving_;
 
     const char*			errMsg() const { return errmsg_.str(); }
     void			setPolyLineMode(bool mode );
@@ -176,16 +184,17 @@ protected:
 
     void			getDataTraceBids(TypeSet<BinID>&,
 						 TypeSet<int>* segments) const;
-    BinID			proposeNewPos(int knot) const;
+    BinID			proposeNewPos(int node) const;
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib);
 
-    void			setKnotPos(int,const BinID&,bool check);
+    void			setNodePos(int,const BinID&,bool check);
 
     BinID			snapPosition(const BinID&) const;
     bool			checkPosition(const BinID&) const;
 
-    void			knotMoved(CallBacker*);
+    void			geomChangeCB(CallBacker*);
+    void			nodeMoved(CallBacker*);
     void			pickCB(CallBacker*);
     bool			checkValidPick(const visBase::EventInfo&,
 					       const Coord3& pos) const;
@@ -199,6 +208,7 @@ protected:
     float			appliedZRangeStep() const;
     void			draggerMoveFinished(CallBacker*);
 
+    Geometry::RandomLine*	rl_;
     visBase::TexturePanelStrip*	panelstrip_;
 
     visBase::RandomTrackDragger* dragger_;
@@ -207,11 +217,11 @@ protected:
     visBase::MarkerSet*		markerset_;
     visBase::EventCatcher*	eventcatcher_;
 
-    int				selknotidx_;
+    int				selnodeidx_;
     TypeSet<DataPack::ID>	datapackids_;
     TypeSet<DataPack::ID>	transfdatapackids_;
     TypeSet<BinID>		trcspath_;
-    TypeSet<BinID>		knots_;
+    TypeSet<BinID>		nodes_;
 
     ZAxisTransform*		datatransform_;
     Interval<float>		depthrg_;

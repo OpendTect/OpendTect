@@ -1152,13 +1152,13 @@ int uiODSceneMgr::addPickSetItem( Pick::Set& ps, int sceneid )
 }
 
 
-int uiODSceneMgr::addRandomLineItem( const Geometry::RandomLineSet& rl,
-				     int sceneid )
+int uiODSceneMgr::addRandomLineItem( int rlid, int sceneid )
 {
     mGetOrAskForScene
 
-    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( rl );
+    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem();
     scene->itemmanager_->addChild( itm, false );
+    itm->setRandomLineID( rlid );
     itm->displayDefaultData();
     return itm->displayID();
 }
