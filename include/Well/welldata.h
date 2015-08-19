@@ -51,8 +51,8 @@ public:
 			{}
 
     enum WellType	{ None, Oil, Gas, OilGas, Dry, PluggedOil,
-	   		  PluggedGas, PluggedOilGas, PermLoc, CancLoc, 
-			  InjectDispose }; 
+			  PluggedGas, PluggedOilGas, PermLoc, CancLoc,
+			  InjectDispose };
 			DeclareEnumUtils(WellType);
 
     void                fillPar(IOPar&) const;
@@ -95,7 +95,7 @@ public:
   when more well tracks share an upper part.
 */
 
-mExpClass(Well) Data : public CallBacker
+mExpClass(Well) Data : public NamedObject
 { mRefCountImplWithDestructor(Data, virtual ~Data(),
 {prepareForDelete(); delete this; } );
 public:
@@ -106,7 +106,8 @@ public:
     void			setMultiID( const MultiID& mid ) const
 							{ mid_ = mid; }
 
-    const char*			name() const		{ return info_.name(); }
+    virtual const OD::String&	name() const		{ return info_.name(); }
+    virtual void		setName(const char* nm) { info_.setName( nm ); }
     const Info&			info() const		{ return info_; }
     Info&			info()			{ return info_; }
     const Track&		track() const		{ return track_; }
