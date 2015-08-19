@@ -39,11 +39,12 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
 
     wd_->ref();
     const Well::LogSet& logs = wd_->logs();
-    inplogfld_ = new uiLabeledListBox( this, tr("Select Input Log") );
-    inplogfld_->box()->setHSzPol( uiObject::Wide );
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select Input Log") );
+    inplogfld_ = new uiListBox( this, su );
+    inplogfld_->setHSzPol( uiObject::Wide );
     for ( int idx=0; idx<logs.size(); idx++ )
-	inplogfld_->box()->addItem( logs.getLog(idx).name() );
-    inplogfld_->box()->selectionChanged.notify(
+	inplogfld_->addItem( logs.getLog(idx).name() );
+    inplogfld_->selectionChanged.notify(
 				mCB(this,uiTutWellTools,inpchg) );
 
     outplogfld_ = new uiGenInput( this, tr("Specify Output Log name"),
@@ -66,7 +67,7 @@ uiTutWellTools::~uiTutWellTools()
 
 void uiTutWellTools::inpchg( CallBacker* )
 {
-    BufferString lognm = inplogfld_->box()->getText();
+    BufferString lognm = inplogfld_->getText();
     lognm += "_Smooth";
     outplogfld_->setText( lognm );
 }
@@ -77,7 +78,7 @@ void uiTutWellTools::inpchg( CallBacker* )
 bool uiTutWellTools::acceptOK( CallBacker* )
 {
     if ( !wd_ ) return false;
-    const char* inplognm = inplogfld_->box()->getText();
+    const char* inplognm = inplogfld_->getText();
     Well::LogSet& logset = wd_->logs();
     const int inpidx = logset.indexOf( inplognm );
     if ( inpidx<0 || inpidx>=logset.size() )
@@ -91,7 +92,7 @@ bool uiTutWellTools::acceptOK( CallBacker* )
     if ( !lognm || !*lognm )
 	mErrRet( tr("Please enter a valid name for Output log") )
 
-    const int gate = gatefld_->box()->getValue();
+    const int gate = gatefld_->box()->getIntValue();
     Well::Log* outputlog = new Well::Log( lognm );
     Tut::LogTools logtool( logset.getLog(inpidx), *outputlog );
     if ( logtool.runSmooth(gate) )

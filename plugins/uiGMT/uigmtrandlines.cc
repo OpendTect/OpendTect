@@ -137,7 +137,7 @@ bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
     par.set( ODGMT::sKeyLineStyle(), lskey );
     const bool dolabel = labelfld_->isChecked();
     par.setYN( ODGMT::sKeyPostLabel(), dolabel );
-    par.set( ODGMT::sKeyFontSize(), labelfontfld_->getValue() );
+    par.set( ODGMT::sKeyFontSize(), labelfontfld_->getIntValue() );
 
     return true;
 }

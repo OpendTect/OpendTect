@@ -179,6 +179,7 @@ mErrRet( tr("Missing Input\nPlease select the input attribute / seismics"));
     
     if ( usesingle_ && !horfld1_->commitInput() )
 	mErrRet( tr("Missing Input\nPlease select the input Horizon") );
+
     if ( !usesingle_ )
     {
 	if ( !horfld1_->commitInput() || !horfld2_->commitInput() )
@@ -230,9 +231,9 @@ bool uiStratAmpCalc::fillPar()
     iop.set( StratAmpCalc::sKeyAmplitudeOption(), ampoptionfld_->box()->text());
     iop.setYN( StratAmpCalc::sKeyOutputFoldYN(), foldfld_->getBoolValue() );
     iop.set( StratAmpCalc::sKeyTopShift(),
-	     tophorshiftfld_->getfValue() / SI().zDomain().userFactor() );
+	     tophorshiftfld_->getFValue() / SI().zDomain().userFactor() );
     iop.set( StratAmpCalc::sKeyBottomShift(),
-	     bothorshiftfld_->getfValue() / SI().zDomain().userFactor() );
+	     bothorshiftfld_->getFValue() / SI().zDomain().userFactor() );
     iop.set( StratAmpCalc::sKeyAttribName(), attribnamefld_->text() );
     iop.setYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite_ );
 

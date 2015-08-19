@@ -564,9 +564,9 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     elevationfld_->box()->setInterval( -5, 75, 5 );
     elevationfld_->box()->doSnap( true );
     elevationfld_->box()->valueChanging.notify(
-				    mCB(this,uiContourParsDlg,elevationChg) );
+				mCB(this,uiContourParsDlg,elevationChg) );
     elevationfld_->box()->valueChanged.notify(
-				    mCB(this,uiContourParsDlg,uiDisplayCB) );
+				mCB(this,uiContourParsDlg,uiDisplayCB) );
     disableLabelElevation();
 
     intvChanged( 0 );
@@ -633,7 +633,10 @@ void disableLabelElevation()
 
 
 bool isLabelElevationDisabled() const
-{ return elevationfld_->box()->getValue()==elevationfld_->box()->minValue(); }
+{
+    return elevationfld_->box()->getIntValue() ==
+					elevationfld_->box()->minValue();
+}
 
 
 void setLabelElevation( float angle )
@@ -644,7 +647,7 @@ void setLabelElevation( float angle )
 
 
 float getLabelElevation() const
-{ return mCast( float, elevationfld_->box()->getValue()*M_PI/180.0 ); }
+{ return mCast( float, elevationfld_->box()->getIntValue()*M_PI/180.0 ); }
 
 
     Notifier<uiContourParsDlg>	propertyChanged;
@@ -684,7 +687,7 @@ void selectFontCB( CallBacker* cb )
 
 void elevationChg( CallBacker* )
 {
-    elevationfld_->box()->valueChanged.trigger();    // to call snapToStep(.)
+    elevationfld_->box()->valueChanged.trigger();     // to call snapToStep(.)
 }
 
 
@@ -1098,7 +1101,7 @@ void uiContourTreeItem::startCreateUICContours()
 	return;
 
     bool showcontours = lines_->turnOn( false );
-    bool showlabels = labels_  && labels_->turnOn( false );
+    bool showlabels = labels_ && labels_->turnOn( false );
 
     uiContourTreeItemContourGenerator ctrgtr ( this, field );
     uiTaskRunner taskrunner( ODMainWin() );
@@ -1106,7 +1109,8 @@ void uiContourTreeItem::startCreateUICContours()
     {
 	setLabels( ctrgtr.getLabels() );
 	lines_->turnOn( showcontours );
-	labels_->turnOn( showlabels );
+	if ( labels_ )
+	    labels_->turnOn( showlabels );
         areas_ = ctrgtr.getAreas();
 
         bool validfound = false;
@@ -1310,7 +1314,7 @@ void uiContourTreeItem::updateZShift()
 
     lines_->dirtyCoordinates();
 
-    for ( int idx=0; idx<labels_->nrTexts(); idx++ )
+    for ( int idx=0; labels_ && idx<labels_->nrTexts(); idx++ )
     {
 	Coord3 pos = labels_->text(idx)->getPosition();
 	pos.z += deltaz;

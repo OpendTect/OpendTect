@@ -146,7 +146,7 @@ bool uiViewer3DScalingTab::settingCheck()
     }
     else if ( clip==1 )
     {
-	const float symv =symclipratiofld_->getfValue();
+	const float symv =symclipratiofld_->getFValue();
 	if ( mIsUdf(symv) )
 	{
 	    uiMSG().error( tr("Clipping rate is not set") );
@@ -160,7 +160,7 @@ bool uiViewer3DScalingTab::settingCheck()
 	}
 
 	if ( usemidvalfld_->getBoolValue() &&
-	     mIsUdf(symmidvalfld_->getfValue()) )
+	     mIsUdf(symmidvalfld_->getFValue()) )
 	{
 	    uiMSG().error( tr("Midvalue is not set") );
 	    return false;

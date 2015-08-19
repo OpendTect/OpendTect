@@ -196,8 +196,8 @@ bool uiGLCM_attrib::getParameters( Desc& desc )
     if ( desc.attribName() != GLCM_attrib::attribName() )
 	return false;
 
-    const float minlimit=limitfld_->getfValue(0);
-    const float maxlimit=limitfld_->getfValue(1);
+    const float minlimit=limitfld_->getFValue(0);
+    const float maxlimit=limitfld_->getFValue(1);
     if ( mIsEqual( minlimit, maxlimit, 1e-3 ))
     {
 	const uiString errorLimit =
@@ -208,8 +208,8 @@ bool uiGLCM_attrib::getParameters( Desc& desc )
     }
 
     mSetInt( GLCM_attrib::sampStr(), samprangefld_->getIntValue() );
-    mSetFloat( GLCM_attrib::minlimitStr(), limitfld_->getfValue(0) );
-    mSetFloat( GLCM_attrib::maxlimitStr(), limitfld_->getfValue(1) );
+    mSetFloat( GLCM_attrib::minlimitStr(), limitfld_->getFValue(0) );
+    mSetFloat( GLCM_attrib::maxlimitStr(), limitfld_->getFValue(1) );
 
     mSetInt( GLCM_attrib::numbergreyStr(), numbergreyfld_->getIntValue() );
 

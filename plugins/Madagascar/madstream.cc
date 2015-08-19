@@ -401,9 +401,8 @@ void MadStream::fillHeaderParsFromSeis()
 
 	if ( !needposfile )
 	{
-	    StepInterval<int> inlrg = rangesel
-		? rangesel->cubeSampling().hsamp_.inlRange()
-		: pinfo.inlrg;
+	    StepInterval<int> inlrg = rangesel ?
+		rangesel->cubeSampling().hsamp_.inlRange() : pinfo.inlrg;
 	    headerpars_->set( "o3", inlrg.start );
 	    headerpars_->set( "n3", inlrg.nrSteps()+1 );
 	    headerpars_->set( "d3", inlrg.step );

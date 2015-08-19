@@ -44,9 +44,8 @@ uiGMTOverlayGrp* uiGMTWellsGrp::createInstance( uiParent* p )
 uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Wells")
 {
-    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Well(s)"),
-						  OD::ChooseAtLeastOne );
-    welllistfld_ = llb->box();
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Well(s)") );
+    welllistfld_ = new uiListBox( this, su );
     Well::InfoCollector wic( false, false );
     wic.execute();
     for ( int idx=0; idx<wic.ids().size(); idx++ )
@@ -56,9 +55,9 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
 	    welllistfld_->addItem( ioobj->name() );
     }
 
-    namefld_ = new uiGenInput( this, uiStrings::sName(), 
-                               StringInpSpec("Wells") );
-    namefld_->attach( alignedBelow, llb );
+    namefld_ = new uiGenInput( this, uiStrings::sName(),
+			       StringInpSpec("Wells") );
+    namefld_->attach( alignedBelow, welllistfld_ );
 
     symbfld_ = new uiGMTSymbolPars( this, true );
     symbfld_->attach( alignedBelow, namefld_ );
@@ -129,7 +128,7 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
     symbfld_->fillPar( par );
     par.setYN( ODGMT::sKeyPostLabel(), lebelfld_->isChecked() );
     par.set( ODGMT::sKeyLabelAlignment(), lebelalignfld_->text() );
-    par.set( ODGMT::sKeyFontSize(), labelfontszfld_->getValue() );
+    par.set( ODGMT::sKeyFontSize(), labelfontszfld_->getIntValue() );
     return true;
 }
 

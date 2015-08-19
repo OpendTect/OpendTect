@@ -167,7 +167,7 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
     }
     else 
     {
-	const float cutoffval = cutoffvalfld_->getfValue();
+	const float cutoffval = cutoffvalfld_->getFValue();
 	if ( mIsUdf(cutoffval) )
 	{
 	    uiMSG().error( tr("Cut value value not set") );
@@ -198,13 +198,13 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 	     					    output );
 
     if ( output==VoxelConnectivityFilter::Value &&
-	 mIsUdf(acceptvaluefld_->getfValue() ) )
+	 mIsUdf(acceptvaluefld_->getFValue() ) )
     {
 	uiMSG().error(tr("Accept-value not set"));
     }
 
     if ( !rejectoutputudffld_->getBoolValue() &&
-	    mIsUdf(rejectoutputvalfld_->getfValue() ) )
+	    mIsUdf(rejectoutputvalfld_->getFValue() ) )
     {
 	uiMSG().error(tr("Rejection value is not set"));
 	return false;
@@ -218,11 +218,11 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
     step->setAcceptOutput( output );
 
     if ( output==VoxelConnectivityFilter::Value )
-	 step->setAcceptValue( acceptvaluefld_->getfValue() );
+	 step->setAcceptValue( acceptvaluefld_->getFValue() );
 
     step->setRejectValue( rejectoutputudffld_->getBoolValue()
 	   ? mUdf(float)
-	   : rejectoutputvalfld_->getfValue() );
+	   : rejectoutputvalfld_->getFValue() );
 
     return true;
 }

@@ -34,8 +34,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "survinfo.h"
 
-static const int cPSMnuIdx = -999;
-static const int cRLMnuIdx = -999;
+static const int cPSMnuIdx = -995;
+static const int cRLMnuIdx = -995;
 
 
 mDefODPluginInfo(uiGoogleIO)
@@ -46,7 +46,7 @@ mDefODPluginInfo(uiGoogleIO)
 	"dGB",
 	"=od",
 	"Export to Google programs (Maps,Earth)."
-    	    "\nThis plugin adds functionality to generate KML files "
+	    "\nThis plugin adds functionality to generate KML files "
 	    "from Opendtect."));
     return &retpi;
 }
@@ -56,7 +56,7 @@ class uiGoogleIOMgr : public CallBacker
 { mODTextTranslationClass(uiGoogleIOMgr);
 public:
 
-    			uiGoogleIOMgr(uiODMain&);
+			uiGoogleIOMgr(uiODMain&);
 
     uiODMain&		appl_;
     uiSeis2DFileMan*	cur2dfm_;

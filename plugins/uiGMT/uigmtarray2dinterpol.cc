@@ -77,7 +77,7 @@ uiGMTSurfaceGrid::uiGMTSurfaceGrid( uiParent* p )
 void uiGMTSurfaceGrid::fillPar( IOPar& iop ) const
 {
     if ( tensionfld_ )
-	iop.set( "Tension", tensionfld_->getfValue() );
+	iop.set( "Tension", tensionfld_->getFValue() );
 }
 
 
@@ -89,7 +89,7 @@ bool uiGMTSurfaceGrid::acceptOK()
 	return false;
     }
 
-    if ( tensionfld_->getfValue()<=0 || tensionfld_->getfValue()>=1 )
+    if ( tensionfld_->getFValue()<=0 || tensionfld_->getFValue()>=1 )
     {
 	uiMSG().message( tr("Tension value should be in between 0 and 1") );
 	tensionfld_->setValue( 0.25 );
@@ -101,7 +101,7 @@ bool uiGMTSurfaceGrid::acceptOK()
     if ( !res )
 	return false;
 
-    res->setTension( tensionfld_->getfValue() );
+    res->setTension( tensionfld_->getFValue() );
     result_ = res;
 
     return true;
@@ -160,7 +160,7 @@ void uiGMTNearNeighborGrid::gmtPushCB( CallBacker* )
 void uiGMTNearNeighborGrid::fillPar( IOPar& iop ) const
 {
     if ( radiusfld_ )
-	iop.set( "Radius", radiusfld_->getfValue() );
+	iop.set( "Radius", radiusfld_->getFValue() );
 }
 
 
@@ -172,7 +172,7 @@ bool uiGMTNearNeighborGrid::acceptOK()
 	return false;
     }
 
-    if ( radiusfld_->getfValue() <= 0 )
+    if ( radiusfld_->getFValue() <= 0 )
     {
 	uiMSG().message( tr("Search radius should be greater than 0") );
 	radiusfld_->setValue(mMAX(SI().inlDistance(), SI().crlDistance()) );
@@ -184,7 +184,7 @@ bool uiGMTNearNeighborGrid::acceptOK()
     if ( ! res )
 	return false;
 
-    res->setRadius( radiusfld_->getfValue() );
+    res->setRadius( radiusfld_->getFValue() );
     result_ = res;
 
     return true;

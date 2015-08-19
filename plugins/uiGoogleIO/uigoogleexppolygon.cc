@@ -53,7 +53,7 @@ bool uiGoogleExportPolygon::acceptOK( CallBacker* )
 
     const float reqwdth = lsfld_->getWidth() * 0.1f;
     wrr.writePolyStyle( "polygon", lsfld_->getColor(), mNINT32(reqwdth) );
-    wrr.writePoly( "polygon", ps_.name(), coords, hghtfld_->getfValue() );
+    wrr.writePoly( "polygon", ps_.name(), coords, hghtfld_->getFValue() );
 
     return true;
 }
