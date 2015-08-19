@@ -69,7 +69,7 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
 	return 0;
     }
 
-    if ( !raytracer->usePar( par ) )
+    if ( !raytracer->usePar(par) )
     {
 	errm = raytracer->errMsg();
 	delete raytracer;
