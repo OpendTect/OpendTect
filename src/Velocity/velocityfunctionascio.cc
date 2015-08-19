@@ -25,7 +25,7 @@ namespace Vel
 
 FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
 			      od_istream& stm,
-       			      od_int64 nrkbytes )
+			      od_int64 nrkbytes )
     : Table::AscIO(fd)
     , strm_(stm)
     , nrdone_( 0 )
@@ -55,7 +55,7 @@ void FunctionAscIO::createDescBody( Table::FormatDesc& fd )
     fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
     fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd.bodyinfos_ += new Table::TargetInfo( "Velocity", FloatInpSpec(),
-	   				    Table::Required );
+					    Table::Required );
 }
 
 
@@ -119,4 +119,4 @@ int FunctionAscIO::nextStep()
     return MoreToDo();
 }
 
-} //namespace Vel
+} // namespace Vel
