@@ -34,25 +34,25 @@ class IOObj;
 mExpClass(uiAttributes) uiAutoAttrSelDlg : public uiDialog
 { mODTextTranslationClass(uiAutoAttrSelDlg);
 public:
-    				uiAutoAttrSelDlg(uiParent* p,bool);
-				~uiAutoAttrSelDlg();
+    			uiAutoAttrSelDlg(uiParent* p,bool);
+			~uiAutoAttrSelDlg();
 
-    IOObj*			getObj();
-    bool			useAuto();
-    bool			loadAuto();
+    IOObj*		getObj();
+    bool		useAuto();
+    bool		loadAuto();
 
 protected:
 
     CtxtIOObj&		ctio_;
-    bool			is2d_;
+    bool		is2d_;
 
     uiGenInput*		usefld_;
-    uiIOObjSelGrp*		selgrp_;
+    uiIOObjSelGrp*	selgrp_;
     uiLabel*		lbl_;
     uiCheckBox*		loadbutton_;
 
-    void			useChg(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    void		useChg(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
 };
 
@@ -60,33 +60,34 @@ protected:
 mExpClass(uiAttributes) uiAutoAttrSetOpen : public uiDialog
 { mODTextTranslationClass(uiAutoAttrSetOpen);
 public:
-				uiAutoAttrSetOpen(uiParent*,BufferStringSet&,
-							BufferStringSet&);
-				~uiAutoAttrSetOpen();
-    IOObj*			getObj();
+			uiAutoAttrSetOpen(uiParent*,BufferStringSet&,
+					BufferStringSet&);
+			~uiAutoAttrSetOpen();
+
+    IOObj*		getObj();
     const char*		getAttribname();
     const char*		getAttribfile();
-    bool			isUserDef()		{ return usrdef_; }
-    bool			isAuto()		{ return isauto_; }
+    bool		isUserDef()		{ return usrdef_; }
+    bool		isAuto()		{ return isauto_; }
 
 protected:
 
     CtxtIOObj&		ctio_;
 
-    uiIOObjSelGrp*		selgrp_;
+    uiIOObjSelGrp*	selgrp_;
     uiLabel*		lbl_;
     uiListBox*		defattrlist_;
     uiGenInput*		defselfld_;
     uiGenInput*		autoloadfld_;
 
-    BufferStringSet		attribfiles_;
-    BufferStringSet		attribnames_;
+    BufferStringSet	attribfiles_;
+    BufferStringSet	attribnames_;
     int			defselid_;
-    bool			usrdef_;
-    bool			isauto_;
+    bool		usrdef_;
+    bool		isauto_;
 
-    void			setChg(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    void		setChg(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
 };
 
