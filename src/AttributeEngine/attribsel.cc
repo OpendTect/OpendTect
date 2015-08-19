@@ -241,7 +241,7 @@ const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
 	return 0;
 
     const MultiID mid( desc->getStoredID() );
-    mDynamicCastGet(const SeisDataPack*, sdp,Seis::PLDM().get(mid,geomid));
+    mDynamicCastGet(const SeisDataPack*,sdp,Seis::PLDM().get(mid,geomid));
 
     return sdp ? &sdp->getDataDesc() : 0;
 }

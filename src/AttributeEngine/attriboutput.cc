@@ -213,7 +213,7 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 	    {
 		const float val = needinterp
 		    ? data.getValue( desoutputs_[desout],
-			    	     idx-data.z0_+extrazsamp, refstep )
+				     idx-data.z0_+extrazsamp, refstep )
 		    : data.series(desoutputs_[desout])->value(idx-data.z0_);
 
 		const int zoutidx = (int)Math::Floor( idx-z0 );
