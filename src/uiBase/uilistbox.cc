@@ -624,6 +624,8 @@ void uiListBox::updateFields2ChoiceMode()
 	if ( hascheck )
 	    mSetChecked( idx, false );
     }
+
+    checkgrp_->display( hascheck );
 }
 
 
@@ -983,6 +985,7 @@ void uiListBox::removeItem( int idx )
 {
     mBlockCmdRec;
     lb_->body().removeItem( idx );
+    updateCheckState();
 }
 
 
