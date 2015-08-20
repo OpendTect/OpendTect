@@ -251,7 +251,7 @@ int EventAscIO::getNextLine( BinID& bid, int& horid,
     {
 	if ( !getHdrVals(strm_) )
 	    return -1;
-	
+
 	udfval_ = getFValue( 0 );
 	isxy_ = isXY();
 	finishedreadingheader_ = true;

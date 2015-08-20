@@ -29,9 +29,9 @@ public:
 			~uiSeisWvltMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSeisWvltMan);
-    
+
 protected:
-     
+
     uiWaveletExtraction*	wvltext_;
     uiWaveletDispPropDlg*	wvltpropdlg_;
     uiToolButton*		disppropbut_;
@@ -62,4 +62,6 @@ protected:
     void			rotUpdateCB(CallBacker*);
     
 };
+
 #endif
+

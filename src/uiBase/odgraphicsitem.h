@@ -33,7 +33,7 @@ public:
 
     QRectF			boundingRect() const;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-			              QWidget*);
+				      QWidget*);
 
     void			drawPoint(QPainter*);
     void			setHighLight( bool hl )
@@ -60,7 +60,7 @@ public:
 
     QRectF			boundingRect() const;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-			              QWidget*);
+				      QWidget*);
     static void			drawMarker(QPainter&,MarkerStyle2D::Type,
 					   float,float);
 
@@ -108,7 +108,7 @@ public:
 
     QRectF			boundingRect() const;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-			              QWidget*);
+				      QWidget*);
 
     void			drawArrow(QPainter&);
     double			getAddedAngle(double,float);
@@ -181,7 +181,7 @@ public:
 
     QRectF			boundingRect() const;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
-			              QWidget*);
+				      QWidget*);
 
     void			setPolyLine(const QPolygonF&,bool closed);
     void			setFillRule(Qt::FillRule);

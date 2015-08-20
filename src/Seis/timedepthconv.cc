@@ -399,7 +399,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
 	if ( !voidata_[idx] )
 	    continue;
 
-	if ( !voivols_[idx].hsamp_.includes( bid ) ) 
+	if ( !voivols_[idx].hsamp_.includes( bid ) )
 	    continue;
 
 	const Interval<float> voirg = getTimeInterval( bid, idx );

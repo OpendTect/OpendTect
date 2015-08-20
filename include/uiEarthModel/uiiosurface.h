@@ -75,8 +75,8 @@ protected:
     void		attrSel(CallBacker*);
     virtual void	ioDataSelChg(CallBacker*)			{}
 
-    uiListBox*	sectionfld_;
-    uiListBox*	attribfld_;
+    uiListBox*		sectionfld_;
+    uiListBox*		attribfld_;
     uiPosSubSel*	rgfld_;
     uiIOObjSel*		objfld_;
 

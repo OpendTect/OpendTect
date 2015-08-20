@@ -26,7 +26,7 @@ public:
 			~uiTutWellTools();
 
 protected:
-    uiListBox*	inplogfld_;
+    uiListBox*		inplogfld_;
     uiGenInput*		outplogfld_;
     uiLabeledSpinBox*	gatefld_;
 

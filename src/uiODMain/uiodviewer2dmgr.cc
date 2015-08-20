@@ -140,7 +140,7 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
     fv.handleChange( FlatView::Viewer::DisplayPars );
     vwr2d->setUpAux();
     setAllIntersectionPositions();
-    
+
     setupHorizon3Ds( vwr2d );
     setupHorizon2Ds( vwr2d );
     setupFaults( vwr2d );
@@ -360,7 +360,7 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* curvwr2d )
 		newposkzs.hsamp_.setTrcRange(
 			Interval<int>(newauxpos,newauxpos) );
 	    }
-	    else 
+	    else
 	    {
 		const float auxpos = selauxpos_.oldauxpos_;
 		clickedtkzs.zsamp_ =
@@ -437,7 +437,7 @@ void uiODViewer2DMgr::mouseClickedCB( CallBacker* cb )
 	return;
 
     mGetCurViewer
-    
+
     handleLeftClick( curvwr2d );
 }
 
@@ -456,7 +456,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	if ( curvwr.appearance().annot_.editable_ ||
 	     curvwr2d->geomID()!=Survey::GM().cUndefGeomID() )
 	    return;
-	
+
 	if ( x1auxposidx>=0 || x2auxposidx>=0 )
 	{
 	    if ( x1auxposidx>=0 )

@@ -91,7 +91,7 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	    applMgr()->viewer2DMgr().addHorizon2Ds( emids );
 	else
 	    addHorizon2Ds( emids );
-	
+
 	deepUnRef( objs );
     }
 

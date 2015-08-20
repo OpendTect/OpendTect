@@ -29,7 +29,7 @@ public:
 
     bool			showSubMenu();
     void			getLoadedFaults(
-	    				TypeSet<EM::ObjectID>& emids) const;
+					TypeSet<EM::ObjectID>& emids) const;
     void			removeFault(EM::ObjectID);
     void			addFaults(const TypeSet<EM::ObjectID>&);
     void			addNewTempFault(EM::ObjectID emid);
@@ -63,7 +63,7 @@ public:
 
     bool		showSubMenu();
     bool		select();
-    EM::ObjectID	emObjectID() const      { return emid_; }
+    EM::ObjectID	emObjectID() const	{ return emid_; }
 
 protected:
 

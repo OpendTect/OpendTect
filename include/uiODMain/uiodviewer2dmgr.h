@@ -26,7 +26,7 @@ class uiODViewer2D;
 class uiTreeFactorySet;
 class MouseEventHandler;
 class TrcKeyZSampling;
-namespace Attrib 	{ class SelSpec; }
+namespace Attrib	{ class SelSpec; }
 
 mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
 { mODTextTranslationClass(uiODViewer2DMgr);
@@ -87,7 +87,7 @@ public:
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID mid);
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
-    
+
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
 

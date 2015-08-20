@@ -198,7 +198,7 @@ protected:
     EM::EMManager&	em_;
     uiImportHorizon*	imphorattrdlg_;
     uiImportHorizon*	imphorgeomdlg_;
-    uiBulkHorizonImport*	impbulkhordlg_;	
+    uiBulkHorizonImport*	impbulkhordlg_;
     uiImportFault3D*	impfltdlg_;
     uiImportFault3D*	impfltstickdlg_;
     uiImportFaultStickSet2D*	impfss2ddlg_;

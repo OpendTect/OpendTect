@@ -63,7 +63,7 @@ public:
 
     bool		select();
     bool		showSubMenu();
-    EM::ObjectID	emObjectID() const      { return emid_; }
+    EM::ObjectID	emObjectID() const	{ return emid_; }
 
 protected:
 

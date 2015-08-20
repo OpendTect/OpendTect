@@ -223,7 +223,7 @@ void uiSeisWvltMan::mkFileInfo()
 {
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
-      
+
     if ( wvlt )
     {
 	dispWavelet( wvlt );

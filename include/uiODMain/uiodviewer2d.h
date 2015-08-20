@@ -33,8 +33,8 @@ class Vw2DDataManager;
 class ZAxisTransform;
 
 namespace Attrib	{ class SelSpec; }
-namespace FlatView 	{ class AuxData; }
-namespace ZDomain 	{ class Def; }
+namespace FlatView	{ class AuxData; }
+namespace ZDomain	{ class Def; }
 
 /*!
 \brief A 2D Viewer.
@@ -141,21 +141,21 @@ public:
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon3D(EM::ObjectID);
-    
+
     //Horizon2D
     void			removeHorizon2D(EM::ObjectID emid);
     void			getLoadedHorizon2Ds(
 					TypeSet<EM::ObjectID>&) const;
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
     void			addNewTrackingHorizon2D(EM::ObjectID emid);
-    
+
     //Fault
     void			removeFault(EM::ObjectID emid);
     void			getLoadedFaults(
 					TypeSet<EM::ObjectID>&) const;
     void			addFaults(const TypeSet<EM::ObjectID>&);
     void			addNewTempFault(EM::ObjectID emid);
-    
+
     //FaultStickeSet
     void			removeFaultSS(EM::ObjectID emid);
     void			getLoadedFaultSSs(

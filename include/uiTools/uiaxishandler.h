@@ -132,7 +132,7 @@ public:
 	    return *this;
 	}
 
-	bool 	operator==( const AuxPosData& from ) const
+	bool	operator==( const AuxPosData& from ) const
 	{ return pos_ == from.pos_ && linetype_ == from.linetype_; }
     };
 
@@ -225,7 +225,7 @@ protected:
     void		updateAxisLine();
     void		drawGridLine(int,bool aux=false,int linetype=0);
     void		drawAnnotAtPos(int,const uiString&,
-	    			       bool aux=false,int linetype=0);
+				       bool aux=false,int linetype=0);
     void		updateName();
 
     bool		doPlotExtreme(float plottextrmval,bool isstart) const;
