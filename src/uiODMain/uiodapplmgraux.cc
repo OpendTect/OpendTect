@@ -61,6 +61,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprestackexpmute.h"
 #include "uiprestackimpmute.h"
 #include "uiprobdenfuncman.h"
+#include "uirandomlineman.h"
 #include "uiseisbayesclass.h"
 #include "uiseis2dfrom3d.h"
 #include "uiseis2dto3d.h"
@@ -109,6 +110,7 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , mandpsdlg_(0)
     , man2dgeomdlg_(0)
     , manpdfdlg_(0)
+    , manrldlg_(0)
     , mansessiondlg_(0)
     , impcrossplotdlg_(0)
     , impmutedlg_(0)
@@ -384,7 +386,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	{
 	    delete mansessiondlg_;
 	    mansessiondlg_ = new uiSessionMan( par_ );
-	    mansessiondlg_->go();
+	    mansessiondlg_->show();
 	}
     mCase(NLA):
 	    pErrMsg("NLA event occurred");
@@ -396,11 +398,20 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	    uiColorTableMan dlg( par_, ctseq, true );
 	    dlg.go();
 	}
-        else if ( at == uiODApplMgr::Imp )
+	else if ( at == uiODApplMgr::Imp )
 	{
 	    uiColTabImport dlg( par_ );
 	    dlg.go();
 	}
+    break;
+    mCase(RanL):
+	if ( at == uiODApplMgr::Man )
+	{
+	    delete manrldlg_;
+	    manrldlg_ = new uiRandomLineMan( par_ );
+	    manrldlg_->show();
+	}
+    break;
     }
 }
 

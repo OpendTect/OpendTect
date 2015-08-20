@@ -462,18 +462,21 @@ void uiODMenuMgr::fillManMenu()
 			"man_picks" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Probability Density Functions")),
 		 mManPDFMnuItm, "man_prdfs" );
+    mInsertPixmapItem( manmnu_, m3Dots(tr("Random Lines")), mManRanLMnuItm,
+			"empty" );
     add2D3DMenuItem( *manmnu_, "man_seis", uiStrings::sSeismics(),
-		     mManSeis2DMnuItm, mManSeis3DMnuItm );
+			mManSeis2DMnuItm, mManSeis3DMnuItm );
     add2D3DMenuItem( *manmnu_, "man_ps", tr("Seismics Prestack"),
-		     mManSeisPS2DMnuItm, mManSeisPS3DMnuItm );
-    mInsertPixmapItem( manmnu_, m3Dots(tr("Sessions")), mManSessMnuItm, "empty" )
+			mManSeisPS2DMnuItm, mManSeisPS3DMnuItm );
+    mInsertPixmapItem( manmnu_, m3Dots(tr("Sessions")),
+			mManSessMnuItm, "empty" )
     mInsertPixmapItem( manmnu_,
-                       m3Dots(uiStrings::sStratigraphy()),
-                       mManStratMnuItm, "man_strat" )
+			m3Dots(uiStrings::sStratigraphy()),
+			mManStratMnuItm, "man_strat" )
     mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sWavelet(2)),
-		       mManWvltMnuItm, "man_wvlt" )
+			mManWvltMnuItm, "man_wvlt" )
     mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sWell(2)),
-		       mManWellMnuItm, "man_wll" )
+			mManWellMnuItm, "man_wll" )
     manmnu_->insertSeparator();
 }
 
@@ -1260,6 +1263,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManPropsMnuItm:		mDoOp(Man,Props,0); break;
     case mManWellMnuItm:		mDoOp(Man,Wll,0); break;
     case mManPickMnuItm:		mDoOp(Man,Pick,0); break;
+    case mManRanLMnuItm:		mDoOp(Man,RanL,0); break;
     case mManWvltMnuItm:		mDoOp(Man,Wvlt,0); break;
     case mManAttrMnuItm:		mDoOp(Man,Attr,0); break;
     case mManNLAMnuItm:			mDoOp(Man,NLA,0); break;
