@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "datachar.h"
 
 class DataClipSampler;
+class uiParent;
 
 
 namespace SEGY
@@ -86,6 +87,7 @@ public:
 
     BufferString	filenm_;
     bool		usable_;
+    bool		fullscan_;
     bool		isEmpty() const		{ return nrtrcs_ < 1; }
     bool		isUsable() const	{ return usable_ && !isEmpty();}
 
@@ -102,7 +104,8 @@ public:
     BasicFileInfo	basicinfo_;
 
     void		getFromSEGYBody(od_istream&,const LoadDef&,
-				    bool isfirst,bool is2d,DataClipSampler&);
+				    bool isfirst,bool is2d,DataClipSampler&,
+				    bool full,uiParent*);
     void		merge(const ScanInfo&);
 
     void		reInit();
@@ -112,6 +115,8 @@ protected:
     bool		addTrace(od_istream&,bool,char*,float*,const LoadDef&,
 				 DataClipSampler&);
     void		addValues(DataClipSampler&,const float*, int);
+
+    friend class	FullUIScanner;
 
 };
 

@@ -284,6 +284,8 @@ void uiSEGYReadStartInfo::clearInfo()
 
 void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si )
 {
+    tbl_->setColumnLabel( mQSResCol, si.fullscan_ ? "Full scan result"
+	    					  : "Quick scan result" );
     clearInfo();
     if ( !si.isUsable() )
 	return;

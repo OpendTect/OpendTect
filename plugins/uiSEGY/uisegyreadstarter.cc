@@ -44,6 +44,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     , clipsampler_(*new DataClipSampler(100000))
     , filenamepopuptimer_(0)
 {
+    setCtrlStyle( RunAndClose );
+    setOkText( tr("Next >>") );
+
     uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
 	.objtype( tr("SEG-Y") );
@@ -67,22 +70,30 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     infofld_->attach( ensureBelow, sep );
     infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
 
+
+    fullscanbut_ = new uiToolButton( this, "fullscan",
+				    tr("Scan the entire input"),
+				    mCB(this,uiSEGYReadStarter,fullScanReq) );
+    fullscanbut_->attach( rightOf, infofld_ );
+
     uiGroup* examinegrp = new uiGroup( this, "Examine group" );
     examinebut_ = new uiToolButton( examinegrp, "examine",
 				    uiString::emptyString(),
 				    mCB(this,uiSEGYReadStarter,examineCB) );
-    setExamineStatus();
     examinenrtrcsfld_ = new uiSpinBox( examinegrp, 0, "Examine traces" );
     examinenrtrcsfld_->setInterval( 0, 1000000, 10 );
     examinenrtrcsfld_->setHSzPol( uiObject::Small );
     examinenrtrcsfld_->setToolTip( tr("Number of traces to examine") );
-    examinenrtrcsfld_->attach( centeredBelow, examinebut_ );
+    examinenrtrcsfld_->attach( alignedBelow, examinebut_ );
     int nrex = 1000; Settings::common().get( sKeySettNrTrcExamine, nrex );
     examinenrtrcsfld_->setInterval( 10, 1000000, 10 );
     examinenrtrcsfld_->setValue( nrex );
-    examinegrp->attach( rightOf, infofld_ );
+    examinegrp->attach( alignedBelow, fullscanbut_ );
+
+    setToolStatuses();
 
     uiGroup* histgrp = new uiGroup( this, "Histogram group" );
+    const CallBack histupdcb( mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
     ampldisp_ = new uiHistogramDisplay( histgrp, hdsu );
@@ -95,8 +106,12 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     clipfld_->setSuffix( uiString("%") );
     clipfld_->setHSzPol( uiObject::Small );
     clipfld_->attach( rightOf, ampldisp_ );
-    clipfld_->valueChanging.notify(
-			mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
+    clipfld_->valueChanging.notify( histupdcb );
+    inc0sbox_ = new uiCheckBox( histgrp, "Zeros" );
+    inc0sbox_->attach( alignedBelow, clipfld_ );
+    inc0sbox_->setHSzPol( uiObject::Small );
+    inc0sbox_->setToolTip( tr("Include value '0' for histogram display") );
+    inc0sbox_->activated.notify( histupdcb );
     histgrp->setStretch( 2, 1 );
     histgrp->attach( stretchedBelow, infofld_ );
 
@@ -131,7 +146,7 @@ void uiSEGYReadStarter::clearDisplay()
 {
     infofld_->clearInfo();
     ampldisp_->setEmpty();
-    setExamineStatus();
+    setToolStatuses();
 }
 
 
@@ -147,9 +162,8 @@ const SEGY::ImpType& uiSEGYReadStarter::impType() const
 }
 
 
-void uiSEGYReadStarter::execNewScan( bool fixedloaddef )
+void uiSEGYReadStarter::execNewScan( bool fixedloaddef, bool full )
 {
-    userfilename_ = inpfld_->fileName();
     deepErase( scaninfo_ );
     clipsampler_.reset();
     clearDisplay();
@@ -157,21 +171,22 @@ void uiSEGYReadStarter::execNewScan( bool fixedloaddef )
 	return;
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    if ( !scanFile(filespec_.fileName(0),fixedloaddef) )
+    if ( !scanFile(filespec_.fileName(0),fixedloaddef,full) )
 	return;
 
     const int nrfiles = filespec_.nrFiles();
     for ( int idx=1; idx<nrfiles; idx++ )
-	scanFile( filespec_.fileName(idx), true );
+	scanFile( filespec_.fileName(idx), true, full );
 
     displayScanResults();
 }
 
 
-void uiSEGYReadStarter::setExamineStatus()
+void uiSEGYReadStarter::setToolStatuses()
 {
     int nrfiles = scaninfo_.size();
     examinebut_->setSensitive( nrfiles > 0 );
+    fullscanbut_->setSensitive( nrfiles > 0 );
     examinebut_->setToolTip( nrfiles > 1 ? tr("Examine first input file")
 					 : tr("Examine input file") );
 }
@@ -199,18 +214,27 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 
 void uiSEGYReadStarter::inpChg( CallBacker* cb )
 {
+    handleNewInputSpec( false );
+}
+
+
+void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
+{
+    handleNewInputSpec( true );
+}
+
+
+
+void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
+{
     const BufferString newusrfnm = inpfld_->fileName();
     if ( newusrfnm.isEmpty() )
-    {
-	if ( cb )
-	    clearDisplay();
-	return;
-    }
+	{ clearDisplay(); return; }
 
-    if ( newusrfnm != userfilename_ )
+    if ( fullscan || newusrfnm != userfilename_ )
     {
-	userfilename_ = inpfld_->fileName();
-	execNewScan( false );
+	userfilename_ = newusrfnm;
+	execNewScan( false, fullscan );
     }
 
     const int nrfiles = scaninfo_.size();
@@ -241,22 +265,52 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
     if ( nrvals < 1 )
 	{ ampldisp_->setEmpty(); return; }
 
-    const float* samps = clipsampler_.vals();
-    ampldisp_->setData( samps, nrvals );
-
+    const float* csvals = clipsampler_.vals();
     float clipval = clipfld_->getFValue();
     const bool useclip = !mIsUdf(clipval) && clipval > 0.05;
+    const bool rm0 = !inc0sbox_->isChecked();
+    if ( !useclip && !rm0 )
+	{ ampldisp_->setData( csvals, nrvals ); return; }
+
+    TypeSet<float> vals;
+    if ( !rm0 )
+	vals.append( csvals, nrvals );
+    else
+    {
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    const float val = csvals[idx];
+	    if ( val != 0.f )
+		vals += val;
+	}
+	nrvals = vals.size();
+    }
+
+    if ( nrvals < 1 )
+	{ ampldisp_->setEmpty(); return; }
+
     if ( useclip )
     {
 	clipval *= 0.01f;
 	DataClipper clipper;
-	clipper.putData( samps, nrvals );
+	clipper.putData( vals.arr(), nrvals );
 	Interval<float> rg;
 	clipper.calculateRange( clipval, rg );
-	ampldisp_->setDrawRange( rg );
+	TypeSet<float> oldvals( vals );
+	vals.setEmpty();
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    const float val = oldvals[idx];
+	    if ( rg.includes(val,false) )
+		vals += val;
+	}
+
+	nrvals = vals.size();
+	if ( nrvals < 1 )
+	    { ampldisp_->setEmpty(); return; }
     }
 
-    ampldisp_->useDrawRange( useclip );
+    ampldisp_->setData( vals.arr(), nrvals );
 }
 
 
@@ -335,7 +389,8 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
     return false; \
 }
 
-bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef )
+bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef,
+				  bool full )
 {
     const bool isfirst = scaninfo_.isEmpty();
     od_istream strm( fnm );
@@ -381,24 +436,25 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef )
 	completeLoadDef( strm );
     }
 
-    if ( !obtainScanInfo(*si,strm,isfirst) )
+    if ( !obtainScanInfo(*si,strm,isfirst,full) )
 	{ delete si; return false; }
 
     si->infeet_ = infeet;
+    si->fullscan_ = full;
     scaninfo_ += si;
     return true;
 }
 
 
 bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
-					bool isfirst )
+					bool isfirst, bool full )
 {
     if ( !completeFileInfo(strm,si.basicinfo_,isfirst) )
 	return false;
 
     si.getFromSEGYBody( strm, loaddef_, isfirst,
 			Seis::is2D(typfld_->impType().geomType()),
-			clipsampler_ );
+			clipsampler_, full, this );
     return true;
 }
 
@@ -459,7 +515,7 @@ void uiSEGYReadStarter::displayScanResults()
     if ( scaninfo_.isEmpty() )
 	{ clearDisplay(); return; }
 
-    setExamineStatus();
+    setToolStatuses();
     updateAmplDisplay( 0 );
 
     SEGY::ScanInfo si( *scaninfo_[0] );

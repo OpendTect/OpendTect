@@ -21,6 +21,7 @@ class DataClipSampler;
 class uiLabel;
 class uiButton;
 class uiSpinBox;
+class uiCheckBox;
 class uiFileInput;
 class uiHistogramDisplay;
 class uiSEGYImpType;
@@ -60,8 +61,10 @@ protected:
     uiSEGYReadStartInfo* infofld_;
     uiHistogramDisplay*	ampldisp_;
     uiButton*		examinebut_;
+    uiButton*		fullscanbut_;
     uiSpinBox*		examinenrtrcsfld_;
     uiSpinBox*		clipfld_;
+    uiCheckBox*		inc0sbox_;
     uiLabel*		nrfileslbl_;
     Timer*		filenamepopuptimer_;
 
@@ -74,20 +77,22 @@ protected:
 
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();
-    void		execNewScan(bool);
+    void		execNewScan(bool,bool full=false);
     void		scanInput();
-    bool		scanFile(const char*,bool);
-    bool		obtainScanInfo(SEGY::ScanInfo&,od_istream&,bool);
+    bool		scanFile(const char*,bool,bool);
+    bool		obtainScanInfo(SEGY::ScanInfo&,od_istream&,bool,bool);
     bool		completeFileInfo(od_istream&,SEGY::BasicFileInfo&,bool);
     void		completeLoadDef(od_istream&);
+    void		handleNewInputSpec(bool);
 
     void		clearDisplay();
-    void		setExamineStatus();
+    void		setToolStatuses();
     void		displayScanResults();
 
     void		initWin(CallBacker*);
     void		typChg(CallBacker*);
     void		inpChg(CallBacker*);
+    void		fullScanReq(CallBacker*);
     void		defChg( CallBacker* )		{ execNewScan(true); }
     void		examineCB(CallBacker*);
     void		updateAmplDisplay(CallBacker*);
