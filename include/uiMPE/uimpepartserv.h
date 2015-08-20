@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 
 class BufferStringSet;
+class KeyboardEvent;
 
 namespace Geometry { class Element; }
 namespace MPE { class uiSetupGroup; class DataHolder; }
@@ -121,6 +122,7 @@ public:
     bool			fireAddTreeObjectEvent();
 
     void			saveUnsaveEMObject();
+    void			handleKeyboardEvent(const KeyboardEvent&);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
