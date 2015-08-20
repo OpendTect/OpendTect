@@ -100,7 +100,7 @@ int uiODPSEventsParentTreeItem::sceneID() const
 
 bool uiODPSEventsParentTreeItem::init()
 {
-    bool ret = uiTreeItem::init();
+    bool ret = uiODTreeItem::init();
     if ( !ret ) return false;
 
     return true;
