@@ -30,6 +30,8 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
 		     Batch::JobSpec::PreStack)
     , is2d_(is2d)
 {
+    setHelpKey( mODHelpKey(mPreStackBatchProcSetupHelpID) );
+
     BufferString dlgnm( "Prestack ", is2d_ ? "2D" : "3D" , " Processing" );
     setCaption( dlgnm );
     chainsel_ = new uiProcSel( pargrp_, uiStrings::sSetup(), 0 );
