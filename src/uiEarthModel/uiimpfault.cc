@@ -248,7 +248,7 @@ bool uiImportFault::handleAscii()
 
     mDynamicCastGet(EM::Fault3D*,fault3d,fault)
 
-    const char* tp = fault3d ? "fault" : "faultstickset";
+    const char* tp = fault3d ? "Fault" : "Faultstickset";
 
     const bool res = getFromAscIO( strm, *fault );
     if ( !res )
