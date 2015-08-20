@@ -1123,7 +1123,7 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 
 MultiID RandomTrackDisplay::getMultiID() const
 {
-    return MultiID::udf();
+    return rl_ ? rl_->getMultiID() : MultiID::udf();
 }
 
 
