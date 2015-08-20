@@ -302,7 +302,9 @@ bool StratSynth::canRayModelsBeRemoved( const IOPar& sdraypar ) const
     {
 	SynthGenParams sdsgp;
 	synthetics_[idx]->fillGenParams( sdsgp );
-	if ( synthrmmgr_.haveSameRM(sdraypar,sdsgp.raypars_) )
+	const bool ispsbased = sdsgp.synthtype_==SynthGenParams::AngleStack ||
+	    		       sdsgp.synthtype_==SynthGenParams::AVOGradient;
+	if ( !ispsbased && synthrmmgr_.haveSameRM(sdraypar,sdsgp.raypars_) )
 	    return false;
     }
 
@@ -324,6 +326,28 @@ const PreStack::GatherSetDataPack* StratSynth::getRelevantAngleData(
 	    return &presd->angleData();
     }
     return 0;
+}
+
+
+bool StratSynth::disableSynthetic( const char* nm )
+{
+    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    {
+	SyntheticData* sd = synthetics_[idx];
+	if ( sd->name() != nm )
+	    continue;
+	
+	SynthGenParams sgp;
+	sd->fillGenParams( sgp );
+	if ( sgp.isPSBased() )
+	{
+	    sgp.inpsynthnm_ = SynthGenParams::sKeyInvalidInputPS();
+	    sd->useGenParams( sgp );
+	    return true;
+	}
+    }
+
+    return false;
 }
 
 
@@ -1880,6 +1904,7 @@ bool SyntheticData::isAngleStack() const
 
 void SyntheticData::fillGenParams( SynthGenParams& sgp ) const
 {
+    sgp.inpsynthnm_.setEmpty();
     sgp.raypars_ = raypars_;
     sgp.wvltnm_ = wvltnm_;
     sgp.name_ = name();

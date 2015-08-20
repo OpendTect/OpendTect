@@ -68,6 +68,7 @@ public:
     SyntheticData*	addSynthetic(); 
     SyntheticData*	addSynthetic(const SynthGenParams&); 
     bool		removeSynthetic(const char*);
+    bool		disableSynthetic(const char*);
     SyntheticData*	replaceSynthetic(int id);
     SyntheticData*	addDefaultSynthetic(); 
     int			syntheticIdx(const char* nm) const;
@@ -102,6 +103,8 @@ public:
     void		setWavelet(const Wavelet*);
     const Wavelet*	wavelet() const { return wvlt_; }
     SynthGenParams&	genParams()  	{ return genparams_; }
+    const SynthGenParams& genParams() const
+    			{ return genparams_; }
 
     void		setLevel(const StratSynthLevel*);
     const StratSynthLevel* getLevel() const { return level_; }

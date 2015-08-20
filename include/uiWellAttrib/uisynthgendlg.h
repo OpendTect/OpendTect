@@ -39,6 +39,7 @@ public:
 
     Notifier<uiSynthGenDlg>	genNewReq;
     CNotifier<uiSynthGenDlg,BufferString> synthRemoved;
+    CNotifier<uiSynthGenDlg,BufferString> synthDisabled;
     CNotifier<uiSynthGenDlg,BufferString> synthChanged;
 
 protected:
@@ -57,12 +58,14 @@ protected:
     uiSynthSeisGrp*		synthseis_;
 
     void			getPSNames(BufferStringSet&);
+    bool			prepareSyntheticToBeChanged(bool toberemoved);
     void			typeChg(CallBacker*);
     bool			genNewCB(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			removeSyntheticsCB(CallBacker*);
     void			changeSyntheticsCB(CallBacker*);
     void			parsChanged(CallBacker*);
+    void			angleInpChanged(CallBacker*);
     void			nameChanged(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			finaliseDone(CallBacker*);

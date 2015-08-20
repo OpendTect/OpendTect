@@ -203,6 +203,7 @@ protected:
     void		viewChg(CallBacker*);
     void		parsChangedCB(CallBacker*);
     void		syntheticRemoved(CallBacker*);
+    void		syntheticDisabled(CallBacker*);
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
