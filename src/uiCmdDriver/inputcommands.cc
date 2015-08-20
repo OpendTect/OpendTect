@@ -312,7 +312,7 @@ bool GetSliderCmd::act( const char* parstr )
 	: (const char*) sKey::EmptyString();
 
     mParForm( answer, form, text, uislider->getLinearFraction()*100 );
-    mParExtraForm( answer, form, Value, uislider->getValue() );
+    mParExtraForm( answer, form, Value, uislider->getFValue() );
     mParExtraForm( answer, form, Minimum, uislider->minValue() );
     mParExtraForm( answer, form, Maximum, uislider->maxValue() );
     mParIdentPost( identname, answer, parnext );

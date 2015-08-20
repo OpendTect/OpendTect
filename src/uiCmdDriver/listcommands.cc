@@ -208,6 +208,7 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 	actlist_.rightButtonClicked.trigger(); \
 }
 
+
 void ListActivator::actCB( CallBacker* cb )
 {
     if ( actitmidx_>=0 && actitmidx_<actlist_.size() )
