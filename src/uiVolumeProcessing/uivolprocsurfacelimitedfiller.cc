@@ -30,12 +30,10 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-uiStepDialog* uiSurfaceLimitedFiller::createInstance( uiParent* upt, Step* ps )
+uiStepDialog* uiSurfaceLimitedFiller::createInstance( uiParent* p, Step* step )
 {
-    mDynamicCastGet( SurfaceLimitedFiller*, hp, ps );
-    if ( !hp ) return 0;
-
-    return new uiSurfaceLimitedFiller( upt, hp );
+    mDynamicCastGet(SurfaceLimitedFiller*,slf,step)
+    return slf ? new uiSurfaceLimitedFiller( p, slf ) : 0;
 }
 
 
@@ -46,9 +44,10 @@ static const int cColorCol = 2;
 
 
 uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
-					    SurfaceLimitedFiller* hp )
-    : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), hp )
-    , surfacefiller_( hp )
+						SurfaceLimitedFiller* slf )
+    : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), slf )
+    , surfacefiller_(slf)
+    , table_(0)
 {
     setHelpKey( mODHelpKey(mSurfaceLimitedFillerHelpID) );
 
@@ -100,7 +99,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     const MultiID* starthorid = surfacefiller_->getStartValueHorizonID();
     const MultiID& startmid = starthorid ? *starthorid : "-1";
     startgridfld_ = new uiHorizonAuxDataSel( this, startmid,
-	    hp->getStartAuxdataIdx(), &auxdatainfo );
+	    slf->getStartAuxdataIdx(), &auxdatainfo );
     startgridfld_->attach( alignedBelow, usestartvalfld_ );
 
     usegradientfld_ = new uiGenInput( this, tr("Gradient"),
@@ -124,7 +123,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     const MultiID* gradhorid = surfacefiller_->getGradientHorizonID();
     const MultiID& gradmid = gradhorid ? *gradhorid : "-1";
     gradgridfld_ = new uiHorizonAuxDataSel( this, gradmid,
-	    hp->getGradAuxdataIdx(), &auxdatainfo );
+	    slf->getGradAuxdataIdx(), &auxdatainfo );
     gradgridfld_->attach( alignedBelow, usegradientfld_ );
 
     StringListInpSpec str;
@@ -226,13 +225,15 @@ void uiSurfaceLimitedFiller::addSurfaceTableEntry( const IOObj& ioobj,
     surfacelist_ += ioobj.key();
 
     Color col = Color::White();
-    const EM::EMObject*  emobj = EM::EMM().getObject(
+    const EM::EMObject* emobj = EM::EMM().getObject(
 	    EM::EMM().getObjectID(ioobj.key()) );
     if ( emobj )
 	col = emobj->preferredColor();
     else
     {
-	//TODO: Get from horizon on disk
+	IOPar pars;
+	EM::EMM().readDisplayPars( ioobj.key(), pars );
+	pars.get( sKey::Color(), col );
     }
 
     table_->setColor( RowCol(row,cColorCol), col );
@@ -322,10 +323,10 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
 
     if ( usestartval )
     {
-	if ( mIsUdf(startvalfld_->getfValue()) )
+	if ( mIsUdf(startvalfld_->getFValue()) )
 	    mErrRet(tr("Please provide the start value"))
 
-	surfacefiller_->setStartValue( startvalfld_->getfValue() );
+	surfacefiller_->setStartValue( startvalfld_->getFValue() );
     }
     else
     {
@@ -340,11 +341,11 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
 
     if ( usegradient )
     {
-	if ( mIsUdf(gradientfld_->getfValue()) )
+	if ( mIsUdf(gradientfld_->getFValue()) )
 	    mErrRet(tr("Please provide the gradient"))
 
 	surfacefiller_->setGradient(
-		gradientfld_->getfValue()*SI().zDomain().userFactor() );
+		gradientfld_->getFValue()*SI().zDomain().userFactor() );
     }
     else
     {
@@ -359,11 +360,11 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
 
     if ( userefval )
     {
-	if ( mIsUdf(refdepthfld_->getfValue()) )
+	if ( mIsUdf(refdepthfld_->getFValue()) )
 	    mErrRet(tr("Please provide the reference z value"))
 
 	surfacefiller_->setRefZValue(
-		refdepthfld_->getfValue()/SI().zDomain().userFactor());
+		refdepthfld_->getFValue()/SI().zDomain().userFactor());
     }
     else
     {

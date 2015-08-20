@@ -41,6 +41,13 @@ const char* uiTreeItem::name() const
 { return name_.buf(); }
 
 
+bool uiTreeItem::areAllParentsChecked()
+{
+    return parent_ ?
+    	parent_->isChecked() &&	parent_->areAllParentChecked() : true;
+}
+
+
 bool uiTreeItem::rightClick( uiTreeViewItem* item )
 {
     if ( item==uitreeviewitem_ )

@@ -61,20 +61,20 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 					.singlelog(setup.singlelog_)
 					.prefpropnm(setup.prefpropnm_));
 
-    uiLabeledListBox* llba = 0;
-    llba = new uiLabeledListBox( this, uiStrings::sAttributes() );
-    llba->display( setup.withattrib_, true );
-    attrsfld_ = llba->box();
+    uiListBox::Setup asu( OD::ChooseOnlyOne, uiStrings::sAttributes() );
+    attrsfld_ = new uiListBox( this, asu );
+    attrsfld_->display( setup.withattrib_, true );
     attrsfld_->setChoiceMode( OD::ChooseZeroOrMore );
-    welllogselfld_->attach( ensureBelow, llba );
+    welllogselfld_->attach( ensureBelow, attrsfld_ );
+
     const float inldist = SI().inlDistance();
     const char* distunit =  SI().getXYUnitString();
     BufferString radiusbuf( "  Radius around wells ");
     radiusbuf += distunit;
     radiusfld_ = new uiGenInput( this, radiusbuf,
 				 FloatInpSpec((float)((int)(inldist+.5))) );
-    if ( llba )
-	radiusfld_->attach( alignedBelow, llba );
+    if ( attrsfld_ )
+	radiusfld_->attach( alignedBelow, attrsfld_ );
     else
 	radiusfld_->attach( alignedBelow, welllogselfld_ );
     radiusfld_->attach( ensureBelow, welllogselfld_ );

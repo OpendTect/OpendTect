@@ -1578,7 +1578,7 @@ void uiD2TModelDlg::correctD2TModelIfInvalid()
 	{
 	    uiString msg = tr("Invalid model detected\n%1\n"
 			      "Auto-correct?\n"
-		"(New model will only by saved on disk on successful exit of"
+		"(New model will only be saved on disk on successful exit of"
 		" the editor)")
 		.arg(errmsg);
 	    if ( warnmsg.isSet() )

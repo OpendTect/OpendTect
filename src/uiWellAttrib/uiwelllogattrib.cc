@@ -42,16 +42,16 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
     wellfld_ = new uiWellSel( this, true );
     wellfld_->selectionDone.notify( mCB(this,uiWellLogAttrib,selDone) );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Select Log") );
-    llb->setStretch( 1, 1 );
-    logsfld_ = llb->box();
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select Log") );
+    logsfld_ = new uiListBox( this, su );
+    logsfld_->setStretch( 1, 1 );
     logsfld_->setHSzPol( uiObject::Wide );
-    llb->attach( alignedBelow, wellfld_ );
+    logsfld_->attach( alignedBelow, wellfld_ );
 
     sampfld_ = new uiGenInput( this, tr("Log resampling method"),
 			       StringListInpSpec(Stats::UpscaleTypeNames()) );
     sampfld_->setValue( Stats::UseAvg );
-    sampfld_->attach( alignedBelow, llb );
+    sampfld_->attach( alignedBelow, logsfld_ );
 
     setHAlignObj( wellfld_ );
 }

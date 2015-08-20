@@ -362,6 +362,13 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 	    return false;
     }
 
+    if ( crwellids_.isEmpty() )
+    {
+        return !uiMSG().askGoOn( "No wells have been imported. "
+                                 "Do you want to make changes to the table?",
+                                 uiStrings::sYes(), "No, Quit" );
+    }
+
     return true;
 }
 
