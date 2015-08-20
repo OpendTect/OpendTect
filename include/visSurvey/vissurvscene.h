@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "visscene.h"
 #include "bufstring.h"
 #include "keyboardevent.h"
+#include "mouseevent.h"
 #include "trckeyzsampling.h"
 #include "position.h"
 
@@ -39,7 +40,7 @@ namespace visBase
     class TopBotImage;
     class Transformation;
     class VisualObject;
-};
+}
 
 namespace visSurvey
 {
@@ -125,6 +126,7 @@ public:
     Notifier<Scene>		mouseposchange;
     Notifier<Scene>		mousecursorchange;
     Notifier<Scene>		keypressed;
+    Notifier<Scene>		mouseclicked;
     Notifier<Scene>		sceneboundingboxupdated;
     Coord3			getMousePos(bool xyt,bool displayspace) const;
 				/*! If not xyt it is inlcrlt */
@@ -132,6 +134,7 @@ public:
     BufferString		getMousePosString() const;
     const MouseCursor*		getMouseCursor() const;
     const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
+    const MouseEvent&		getMouseEvent() const	 { return mouseevent_; }
 
     void			objectMoved(CallBacker*);
 
@@ -203,7 +206,7 @@ protected:
     void			setup();
     void			updateAnnotationText();
     void			updateTransforms(const TrcKeyZSampling&);
-    void			mouseMoveCB(CallBacker*);
+    void			mouseCB(CallBacker*);
     void			keyPressCB(CallBacker*);
     visBase::MarkerSet*		createMarkerSet() const;
     void			mouseCursorCB(CallBacker*);
@@ -243,6 +246,7 @@ protected:
     ZDomain::Info*		zdomaininfo_;
     float			zscale_;
     KeyboardEvent		kbevent_;
+    MouseEvent			mouseevent_;
     TrcKeyZSampling		tkzs_;
     TrcKeyZSampling		annotscale_;
 

@@ -71,6 +71,7 @@ Scene::Scene()
     , mouseposchange(this)
     , mousecursorchange(this)
     , keypressed(this)
+    , mouseclicked(this)
     , sceneboundingboxupdated(this)
     , mouseposval_(0)
     , mouseposstr_("")
@@ -90,7 +91,7 @@ Scene::Scene()
     , topimg_( 0 )
     , botimg_( 0 )
 {
-    mAttachCB( events_.eventhappened, Scene::mouseMoveCB );
+    mAttachCB( events_.eventhappened, Scene::mouseCB );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
     mAttachCB( events_.eventhappened, Scene::keyPressCB );
     mAttachCB( events_.nothandled, Scene::mouseCursorCB );
@@ -672,11 +673,19 @@ void Scene::keyPressCB( CallBacker* cb )
 }
 
 
-void Scene::mouseMoveCB( CallBacker* cb )
+void Scene::mouseCB( CallBacker* cb )
 {
     STM().setCurrentScene( this );
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    if ( eventinfo.type == visBase::MouseClick )
+    {
+	mouseevent_ = MouseEvent( eventinfo.buttonstate_ );
+	xytmousepos_ = eventinfo.worldpickedpos;
+	mouseclicked.trigger();
+	return;
+    }
+
     if ( eventinfo.type != visBase::MouseMovement ) return;
 
     mouseposval_ = "";
