@@ -100,11 +100,15 @@ int uiODPSEventsParentTreeItem::sceneID() const
 
 bool uiODPSEventsParentTreeItem::init()
 {
-    bool ret = uiTreeItem::init();
+    bool ret = uiODTreeItem::init();
     if ( !ret ) return false;
 
     return true;
 }
+
+
+const char* uiODPSEventsParentTreeItem::iconName() const
+{ return "tree-psevents"; }
 
 
 const char* uiODPSEventsParentTreeItem::parentType() const
