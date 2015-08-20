@@ -405,11 +405,11 @@ void uiODPolygonParentTreeItem::addPolygon( Pick::Set* ps )
 
 
 
-#define mLoadPolyIdx	101
-#define mNewPolyIdx	102
-#define mSavePolyIdx	103
-#define mOnlyAtPolyIdx	104
-#define mAlwaysPolyIdx	105
+#define mLoadPolyIdx	11
+#define mNewPolyIdx	12
+#define mSavePolyIdx	13
+#define mOnlyAtPolyIdx	14
+#define mAlwaysPolyIdx	15
 
 
 bool uiODPolygonParentTreeItem::showSubMenu()
@@ -433,7 +433,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
 	mnu.insertItem( shwallitem, mAlwaysPolyIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("Save Changes")), mSaveIdx );
+	mnu.insertItem( new uiAction(tr("Save Changes")), mSavePolyIdx );
     }
 
     addStandardItems( mnu );
