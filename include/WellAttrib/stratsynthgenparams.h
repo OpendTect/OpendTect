@@ -31,9 +31,14 @@ mStruct(WellAttrib) SynthGenParams
     IOPar		raypars_;
     BufferString	wvltnm_;
     Interval<float>	anglerg_;
+
+    static const char*	sKeyInvalidInputPS()	{ return "Invalid Input"; }
     
     bool		hasOffsets() const;
     bool		isPreStack() const 	{ return synthtype_==PreStack; }
+    bool		isPSBased() const
+			{ return synthtype_==AngleStack ||
+				 synthtype_==AVOGradient; }
     void		createName(BufferString&) const;
     			//!<Create name from wvlt and raypars
     void		fillPar(IOPar&) const;

@@ -192,7 +192,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     vwr_->viewChanged.notify( mCB(this,uiStratSynthDisp,viewChg) );
 
     uiFlatViewStdControl::Setup fvsu( this );
-    fvsu.withedit(false).withcoltabed(false).tba((int)uiToolBar::Right)
+    fvsu.withcoltabed(false).tba((int)uiToolBar::Right)
 	.withflip(false).withsnapshot(false);
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
@@ -1371,6 +1371,14 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 }
 
 
+void uiStratSynthDisp::syntheticDisabled( CallBacker* cb )
+{
+    mCBCapsuleUnpack(BufferString,synthname,cb);
+    curSS().disableSynthetic( synthname );
+    altSS().disableSynthetic( synthname );
+}
+
+
 void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
     const BufferString curwvasdnm( currentwvasynthetic_ ?
@@ -1409,6 +1417,8 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 	synthgendlg_ = new uiSynthGenDlg( this, curSS());
 	synthgendlg_->synthRemoved.notify(
 		mCB(this,uiStratSynthDisp,syntheticRemoved) );
+	synthgendlg_->synthDisabled.notify(
+		mCB(this,uiStratSynthDisp,syntheticDisabled) );
 	synthgendlg_->synthChanged.notify(
 		mCB(this,uiStratSynthDisp,syntheticChanged) );
 	synthgendlg_->genNewReq.notify(
