@@ -112,6 +112,7 @@ public:
     Disp		disp_;
     IOPar&		pars_;
 
+    bool		isPolygon() const;
     float		getXYArea() const;
     			//!<Only for closed polygons. Returns in m^2.
     static const char*	sKeyMarkerType()       { return "Marker Type"; }
