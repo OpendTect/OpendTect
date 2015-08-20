@@ -229,7 +229,7 @@ bool uiImportFault::handleLMKAscii()
 		      "Do you want to import more %1?")
 		      .arg(tp);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );     
+				tr("No, close window") );
     return !ret;
 }
 
@@ -248,7 +248,7 @@ bool uiImportFault::handleAscii()
 
     mDynamicCastGet(EM::Fault3D*,fault3d,fault)
 
-    const char* tp = fault3d ? "fault" : "faultstickset";
+    const char* tp = fault3d ? "Fault" : "Faultstickset";
 
     const bool res = getFromAscIO( strm, *fault );
     if ( !res )
