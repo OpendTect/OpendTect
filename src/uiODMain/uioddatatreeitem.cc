@@ -429,10 +429,10 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==removemnuitem_.id )
     {
 	const int attribnr = attribNr();
+	prepareForShutdown();
 	visserv->removeAttrib( displayID(), attribnr );
 	applMgr()->updateColorTable( displayID(), attribnr ? attribnr-1 : 0 );
 
-	prepareForShutdown();
 	parent_->removeChild( this );
 	menu->setIsHandled( true );
     }
