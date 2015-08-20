@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 
 
-mCreateFactoryEntry( visSurvey::Scene );
+mCreateFactoryEntry( visSurvey::Scene )
 
 namespace visSurvey {
 
@@ -70,6 +70,7 @@ Scene::Scene()
     , markerset_(0)
     , mouseposchange(this)
     , mousecursorchange(this)
+    , keypressed(this)
     , sceneboundingboxupdated(this)
     , mouseposval_(0)
     , mouseposstr_("")
@@ -91,6 +92,7 @@ Scene::Scene()
 {
     mAttachCB( events_.eventhappened, Scene::mouseMoveCB );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
+    mAttachCB( events_.eventhappened, Scene::keyPressCB );
     mAttachCB( events_.nothandled, Scene::mouseCursorCB );
 
     setCameraAmbientLight( 1 );
@@ -652,6 +654,21 @@ void Scene::objectMoved( CallBacker* cb )
 
 	if ( so ) so->otherObjectsMoved( activeobjects, movedid );
     }
+}
+
+
+void Scene::keyPressCB( CallBacker* cb )
+{
+    STM().setCurrentScene( this );
+
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    if ( eventinfo.type != visBase::Keyboard ) return;
+    if ( eventinfo.pressed ) return;
+
+    kbevent_.key_ = eventinfo.key_;
+    kbevent_.modifier_ = eventinfo.buttonstate_;
+    kbevent_.isrepeat_ = false;
+    keypressed.trigger();
 }
 
 

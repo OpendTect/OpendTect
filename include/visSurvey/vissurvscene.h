@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "visscene.h"
 #include "bufstring.h"
+#include "keyboardevent.h"
 #include "trckeyzsampling.h"
 #include "position.h"
 
@@ -88,8 +89,8 @@ public:
 				*/
 
     virtual int			size() const;
-    virtual int                 getFirstIdx(const DataObject*) const;
-    virtual int                 getFirstIdx(int did) const
+    virtual int			getFirstIdx(const DataObject*) const;
+    virtual int			getFirstIdx(int did) const
 				{ return visBase::Scene::getFirstIdx(did); }
     visBase::DataObject*	getObject(int);
     const visBase::DataObject*	getObject(int) const;
@@ -118,17 +119,19 @@ public:
     visBase::PolygonSelection*	getPolySelection() { return polyselector_; }
     void			setPolygonSelector(visBase::PolygonSelection*);
     const Selector<Coord3>*	getSelector() const;	/*! May be NULL */
-    visBase::SceneColTab*	getSceneColTab()     { return scenecoltab_; }
+    visBase::SceneColTab*	getSceneColTab()	{ return scenecoltab_; }
     void			setSceneColTab(visBase::SceneColTab*);
 
     Notifier<Scene>		mouseposchange;
     Notifier<Scene>		mousecursorchange;
+    Notifier<Scene>		keypressed;
     Notifier<Scene>		sceneboundingboxupdated;
     Coord3			getMousePos(bool xyt,bool displayspace) const;
 				/*! If not xyt it is inlcrlt */
     BufferString		getMousePosValue() const;
     BufferString		getMousePosString() const;
     const MouseCursor*		getMouseCursor() const;
+    const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
 
     void			objectMoved(CallBacker*);
 
@@ -154,7 +157,7 @@ public:
 
     float			getApparentVelocity(float zstretch) const;
 				/*<!Velocity Unit depends on display depth in
-                                    feet setting. */
+				    feet setting. */
 
     const mVisTrans*		getTempZStretchTransform() const;
     const mVisTrans*		getInlCrl2DisplayTransform() const;
@@ -201,6 +204,7 @@ protected:
     void			updateAnnotationText();
     void			updateTransforms(const TrcKeyZSampling&);
     void			mouseMoveCB(CallBacker*);
+    void			keyPressCB(CallBacker*);
     visBase::MarkerSet*		createMarkerSet() const;
     void			mouseCursorCB(CallBacker*);
     static const Color&		cDefaultMarkerColor();
@@ -226,18 +230,19 @@ protected:
     visBase::TopBotImage*	topimg_;
     visBase::TopBotImage*	botimg_;
     int				getImageFromPar(const IOPar&,const char*,
-					        visBase::TopBotImage*&);
+						visBase::TopBotImage*&);
 
     Coord3			xytmousepos_;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
     const MouseCursor*		mousecursor_;
+
     IOPar&			infopar_;
     float			curzstretch_;
 
     ZDomain::Info*		zdomaininfo_;
     float			zscale_;
-
+    KeyboardEvent		kbevent_;
     TrcKeyZSampling		tkzs_;
     TrcKeyZSampling		annotscale_;
 

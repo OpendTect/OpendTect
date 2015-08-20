@@ -1487,6 +1487,10 @@ bool uiODApplMgr::handleVisServEv( int evid )
 			  visserv_->getEventAttrib() );
     else if ( evid == uiVisPartServer::evFromMPEManStoreEMObject() )
 	storeEMObject();
+    else if ( evid == uiVisPartServer::evKeyPress() )
+    {
+	mpeserv_->handleKeyboardEvent( visserv_->getKeyboardEvent() );
+    }
     else
     {
 	pErrMsg("Unknown event from visserv");

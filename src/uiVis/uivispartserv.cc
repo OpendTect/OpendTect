@@ -63,22 +63,23 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-int uiVisPartServer::evUpdateTree()		    { return 0; }
-int uiVisPartServer::evSelection()		    { return 1; }
-int uiVisPartServer::evDeSelection()	            { return 2; }
-int uiVisPartServer::evGetNewData()		    { return 3; }
-int uiVisPartServer::evMouseMove()		    { return 4; }
-int uiVisPartServer::evInteraction()		    { return 5; }
-int uiVisPartServer::evSelectAttrib()		    { return 6; }
-int uiVisPartServer::evViewAll()		    { return 9; }
-int uiVisPartServer::evToHomePos()		    { return 10; }
-int uiVisPartServer::evPickingStatusChange()	    { return 11; }
-int uiVisPartServer::evViewModeChange()		    { return 12; }
-int uiVisPartServer::evShowSetupDlg()		    { return 13; }
-int uiVisPartServer::evDisableSelTracker()	    { return 16; }
-int uiVisPartServer::evColorTableChange()	    { return 17; }
-int uiVisPartServer::evFromMPEManStoreEMObject()    { return 20; }
-int uiVisPartServer::evShowSetupGroupOnTop()	    { return 21; }
+int uiVisPartServer::evUpdateTree()			{ return 0; }
+int uiVisPartServer::evSelection()			{ return 1; }
+int uiVisPartServer::evDeSelection()			{ return 2; }
+int uiVisPartServer::evGetNewData()			{ return 3; }
+int uiVisPartServer::evMouseMove()			{ return 4; }
+int uiVisPartServer::evInteraction()			{ return 5; }
+int uiVisPartServer::evSelectAttrib()			{ return 6; }
+int uiVisPartServer::evKeyPress()			{ return 7; }
+int uiVisPartServer::evViewAll()			{ return 9; }
+int uiVisPartServer::evToHomePos()			{ return 10; }
+int uiVisPartServer::evPickingStatusChange()		{ return 11; }
+int uiVisPartServer::evViewModeChange()			{ return 12; }
+int uiVisPartServer::evShowSetupDlg()			{ return 13; }
+int uiVisPartServer::evDisableSelTracker()		{ return 16; }
+int uiVisPartServer::evColorTableChange()		{ return 17; }
+int uiVisPartServer::evFromMPEManStoreEMObject()	{ return 20; }
+int uiVisPartServer::evShowSetupGroupOnTop()		{ return 21; }
 
 const char* uiVisPartServer::sKeyAppVel()	       { return "AppVel"; }
 const char* uiVisPartServer::sKeyWorkArea()	    { return "Work Area"; }
@@ -115,15 +116,16 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mpetools_(0)
     , slicepostools_(0)
     , pickretriever_( new uiVisPickRetriever(this) )
-    , nrsceneschange_( this )
-    , seltype_( (int) visBase::PolygonSelection::Off )
+    , nrsceneschange_(this)
+    , keyPressed(this)
+    , seltype_((int)visBase::PolygonSelection::Off)
     , multirgeditwin_(0)
     , mapperrgeditordisplayid_(-1)
     , mapperrgeditinact_(false)
     , dirlightdlg_(0)
-    , mousecursorexchange_( 0 )
+    , mousecursorexchange_(0)
     , objectaddedremoved(this)
-    , selectionmode_( Polygon )
+    , selectionmode_(Polygon)
     , selectionmodechange(this)
     , topsetupgroupname_( 0 )
 {
@@ -241,6 +243,7 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
 {
     if ( !newscene ) newscene = visSurvey::Scene::create();
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
+    newscene->keypressed.notify( mCB(this,uiVisPartServer,keyPressCB) );
     newscene->ref();
     newscene->setPixelDensity( (float) uiMain::getDPI() );
     scenes_ += newscene;
@@ -266,6 +269,7 @@ void uiVisPartServer::removeScene( int sceneid )
 	    displayids_.removeSingle( typesetidx );
 
 	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
+	scene->keypressed.remove( mCB(this,uiVisPartServer,keyPressCB) );
 	pickretriever_->removeScene( scene );
 	scene->unRef();
 	scenes_ -= scene;
@@ -2025,6 +2029,17 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     mouseposstr_ = scene->getMousePosString();
     zfactor_ = scene->zDomainUserFactor();
     sendEvent( evMouseMove() );
+}
+
+
+void uiVisPartServer::keyPressCB( CallBacker* cb )
+{
+    mDynamicCastGet(visSurvey::Scene*,scene,cb)
+    if ( !scene ) return;
+
+    eventmutex_.lock();
+    kbevent_ = scene->getKeyboardEvent();
+    sendEvent( evKeyPress() );
 }
 
 
