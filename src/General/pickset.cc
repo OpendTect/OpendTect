@@ -513,6 +513,14 @@ Set& Set::operator=( const Set& s )
 }
 
 
+bool Set::isPolygon() const
+{
+    const FixedString typ = pars_.find( sKey::Type() );
+    return typ.isEmpty() ? disp_.connect_!=Set::Disp::None
+			 : typ == sKey::Polygon();
+}
+
+
 float Set::getXYArea() const
 {
     if ( size()<3 || disp_.connect_==Set::Disp::None )

@@ -1146,7 +1146,12 @@ int uiODSceneMgr::addPickSetItem( Pick::Set& ps, int sceneid )
 {
     mGetOrAskForScene
 
-    uiODPickSetTreeItem* itm = new uiODPickSetTreeItem( -1, ps );
+    uiODDisplayTreeItem* itm = 0;
+    if ( ps.isPolygon() )
+	itm = new uiODPolygonTreeItem( -1, ps );
+    else
+	itm = new uiODPickSetTreeItem( -1, ps );
+
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }
