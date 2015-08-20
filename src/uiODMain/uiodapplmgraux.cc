@@ -116,6 +116,8 @@ uiODApplMgrDispatcher::uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
     , exppdfdlg_(0)
     , impvelfunc_(0)
     , exp2dgeomdlg_(0)
+    , batchprocps2ddlg_(0)
+    , batchprocps3ddlg_(0)
 {}
 
 
@@ -148,6 +150,8 @@ void uiODApplMgrDispatcher::deleteDlgs()
 	delete exppdfdlg_; exppdfdlg_ = 0;
 	delete impvelfunc_; impvelfunc_ = 0;
 	delete exp2dgeomdlg_; exp2dgeomdlg_ = 0;
+	delete batchprocps2ddlg_; batchprocps2ddlg_ = 0;
+	delete batchprocps3ddlg_; batchprocps3ddlg_ = 0;
 }
 
 
@@ -512,8 +516,20 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 }
 
 
+#define mPreStackBatchdlg(dlgobj) \
+	if ( !dlgobj ) \
+	    dlgobj = new PreStack::uiBatchProcSetup( par_, is2d ); \
+	dlgobj->show(); \
+
 void uiODApplMgrDispatcher::processPreStack( bool is2d )
-{ PreStack::uiBatchProcSetup dlg( par_, is2d ); dlg.go(); }
+{
+    if ( is2d )
+    { mPreStackBatchdlg(batchprocps2ddlg_) }
+    else
+    { mPreStackBatchdlg(batchprocps3ddlg_) }
+}
+
+
 void uiODApplMgrDispatcher::genAngleMuteFunction()
 { PreStack::uiAngleMuteComputer dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::bayesClass( bool is2d )

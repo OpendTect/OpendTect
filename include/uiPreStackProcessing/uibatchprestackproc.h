@@ -13,7 +13,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiprestackprocessingmod.h"
-#include "uidialog.h"
+#include "uibatchprocdlg.h"
+
 class CtxtIOObj;
 class uiSeisSel;
 class uiPosSubSel;
@@ -26,7 +27,7 @@ class uiProcSel;
 
 /*!Dialog to setup a time->depth conversion for volumes on disk. */
 
-mExpClass(uiPreStackProcessing) uiBatchProcSetup : public uiDialog
+mExpClass(uiPreStackProcessing) uiBatchProcSetup : public uiBatchProcDlg
 { mODTextTranslationClass(uiBatchProcSetup);
 public:
 
@@ -35,9 +36,9 @@ public:
 
 protected:
 
-    bool		fillPar();
+    bool		fillPar(IOPar& iop);
     bool		prepareProcessing();
-    void		outputNameChangeCB(CallBacker*);
+    void		getJobName(BufferString& jobnm) const;
     void		setupSelCB(CallBacker*);
 
     uiProcSel*		chainsel_;
@@ -47,9 +48,6 @@ protected:
     uiBatchJobDispatcherSel* batchfld_;
 
     const bool		is2d_;
-
-    bool		acceptOK(CallBacker*);
-
 };
 
 }; //namespace
