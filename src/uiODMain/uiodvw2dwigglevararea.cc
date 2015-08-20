@@ -62,6 +62,10 @@ uiODVW2DWiggleVarAreaTreeItem::~uiODVW2DWiggleVarAreaTreeItem()
 }
 
 
+const char* uiODVW2DWiggleVarAreaTreeItem::iconName() const
+{ return "tree-wva"; }
+
+
 bool uiODVW2DWiggleVarAreaTreeItem::init()
 {
     if ( !viewer2D()->viewwin()->nrViewers() )
@@ -81,7 +85,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
     dummyview_ = new VW2DSeis();
     viewer2D()->dataMgr()->addObject( dummyview_ );
 
-    return true;
+    return uiODVw2DTreeItem::init();
 }
 
 

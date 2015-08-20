@@ -88,10 +88,12 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 }
 
 
+const char* uiODVw2DFaultSS2DParentTreeItem::iconName() const
+{ return "tree-fltss"; }
+
+
 bool uiODVw2DFaultSS2DParentTreeItem::init()
-{
-    return true;
-}
+{ return uiODVw2DTreeItem::init(); }
 
 
 void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )

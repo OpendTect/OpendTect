@@ -150,10 +150,13 @@ void uiODVw2DHor3DParentTreeItem::addNewTrackingHorizon3D( EM::ObjectID emid )
 }
 
 
+const char* uiODVw2DHor3DParentTreeItem::iconName() const
+{ return "tree-horizon3d"; }
+
+
 bool uiODVw2DHor3DParentTreeItem::init()
-{
-    return true;
-}
+{ return uiODVw2DTreeItem::init(); }
+
 
 
 uiODVw2DHor3DTreeItem::uiODVw2DHor3DTreeItem( const EM::ObjectID& emid )

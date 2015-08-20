@@ -53,6 +53,10 @@ uiODVW2DVariableDensityTreeItem::~uiODVW2DVariableDensityTreeItem()
 }
 
 
+const char* uiODVW2DVariableDensityTreeItem::iconName() const
+{ return "tree-vd"; }
+
+
 bool uiODVW2DVariableDensityTreeItem::init()
 {
     if ( !viewer2D()->viewwin()->nrViewers() )
@@ -80,7 +84,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
 	displayMiniCtab( &seq );
     }
 
-    return true;
+    return uiODVw2DTreeItem::init();
 }
 
 

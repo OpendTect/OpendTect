@@ -45,6 +45,8 @@ public:
 
 protected:
 
+    virtual bool	init();
+    virtual const char*	iconName() const		{ return 0; }
     static uiString	sChangeSetup() { return m3Dots(tr("Change setup")); }
 
     int			displayid_;

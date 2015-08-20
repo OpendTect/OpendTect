@@ -26,7 +26,7 @@ namespace Pick{ class Set; class SetMgr; }
 mExpClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
 { mODTextTranslationClass(uiODVw2DPickSetParentTreeItem);
 public:
-    				uiODVw2DPickSetParentTreeItem();
+				uiODVw2DPickSetParentTreeItem();
 				~uiODVw2DPickSetParentTreeItem();
 
     bool			showSubMenu();
@@ -34,6 +34,7 @@ public:
 protected:
 
     bool			init();
+    const char*			iconName() const;
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
@@ -46,10 +47,10 @@ mExpClass(uiODMain)
 uiODVw2DPickSetTreeItemFactory : public uiODVw2DTreeItemFactory
 {
 public:
-    const char*         name() const		{ return typeid(*this).name(); }
-    uiTreeItem*         create() const
-    			{ return new uiODVw2DPickSetParentTreeItem(); }
-    uiTreeItem*         createForVis(const uiODViewer2D&,int visid) const;
+    const char*		name() const		{ return typeid(*this).name(); }
+    uiTreeItem*		create() const
+			{ return new uiODVw2DPickSetParentTreeItem(); }
+    uiTreeItem*		createForVis(const uiODViewer2D&,int visid) const;
 };
 
 

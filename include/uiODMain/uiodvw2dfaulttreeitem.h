@@ -37,6 +37,7 @@ public:
 protected:
 
     bool			init();
+    const char*			iconName() const;
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }

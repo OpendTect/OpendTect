@@ -42,8 +42,12 @@ uiODVw2DPickSetParentTreeItem::~uiODVw2DPickSetParentTreeItem()
 }
 
 
+const char* uiODVw2DPickSetParentTreeItem::iconName() const
+{ return "tree-pickset"; }
+
+
 bool uiODVw2DPickSetParentTreeItem::init()
-{ return true; }
+{ return uiODVw2DTreeItem::init(); }
 
 
 bool uiODVw2DPickSetParentTreeItem::showSubMenu()
