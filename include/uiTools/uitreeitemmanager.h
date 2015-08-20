@@ -44,7 +44,7 @@ public:
     void			setName( const char* nm )	{ name_ = nm; }
     const char*			name() const;
 
-    bool			areAllParentChecked();
+    bool			areAllParentsChecked();
 
     virtual int			selectionKey() const { return -1; }
     virtual bool		select();

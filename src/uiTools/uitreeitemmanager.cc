@@ -41,14 +41,10 @@ const char* uiTreeItem::name() const
 { return name_.buf(); }
 
 
-bool uiTreeItem::areAllParentChecked()
+bool uiTreeItem::areAllParentsChecked()
 {
-    bool areallparentchecked = true;
-    if ( parent_ )
-	areallparentchecked = parent_->isChecked() &&
-				parent_->areAllParentChecked();
-
-    return areallparentchecked;
+    return parent_ ?
+	parent_->isChecked() &&	parent_->areAllParentsChecked() : true;
 }
 
 
