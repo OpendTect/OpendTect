@@ -465,25 +465,14 @@ uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,PropertyRefSelection& prs,
     , thref_(&PropertyRef::thickness())
     , structchg_(false)
 {
-    uiLabeledListBox* llb = 0;
-    if ( !lbl || !*lbl )
-	propfld_ = new uiListBox( this, "Available properties",
-				  OD::ChooseAtLeastOne );
-    else
-    {
-	llb = new uiLabeledListBox( this, lbl, OD::ChooseAtLeastOne,
-				    uiLabeledListBox::AboveMid );
-	propfld_ = llb->box();
-    }
+    uiListBox::Setup su( OD::ChooseAtLeastOne, lbl, uiListBox::AboveMid );
+    propfld_ = new uiListBox( this, su, "Available properties" );
     fillList();
 
     uiToolButton* manpropsbut = new uiToolButton( this, "man_props",
 					"Manage available properties",
 					mCB(this,uiSelectPropRefsGrp,manPROPS));
-    if ( llb )
-	manpropsbut->attach( centeredRightOf, llb );
-    else
-	manpropsbut->attach( centeredRightOf, propfld_ );
+    manpropsbut->attach( centeredRightOf, propfld_ );
 }
 
 

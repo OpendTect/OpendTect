@@ -119,16 +119,16 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
 
-    if ( mIsUdf( topvalfld_->getfValue() ) )
+    if ( mIsUdf( topvalfld_->getFValue() ) )
 	mErrRet(tr("Please provide the Top value"))
 
     const bool usegradient = usegradientfld_->getBoolValue();
     const bool usetophor = usetophorfld_->getBoolValue();
     const bool usebothor = usebottomhorfld_->getBoolValue();
 
-    if ( usegradient && mIsUdf(gradientfld_->getfValue() ) )
+    if ( usegradient && mIsUdf(gradientfld_->getFValue() ) )
 	mErrRet(tr("Please provide the Gradient"))
-    else if ( !usegradient && mIsUdf(bottomvalfld_->getfValue()))
+    else if ( !usegradient && mIsUdf(bottomvalfld_->getFValue()))
 	mErrRet(tr("Please provide the Bottom value"))
 
     if ( (usetophor && !tophorfld_->commitInput()) )
@@ -158,10 +158,10 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
 	    mErrRet(tr("Cannot use bottom horizon"))
     }
 
-    horinterfiller_->setTopValue( topvalfld_->getfValue() );
-    horinterfiller_->setBottomValue( bottomvalfld_->getfValue() );
+    horinterfiller_->setTopValue( topvalfld_->getFValue() );
+    horinterfiller_->setBottomValue( bottomvalfld_->getFValue() );
     horinterfiller_->setGradient(
-	    gradientfld_->getfValue()*SI().zDomain().userFactor() );
+	    gradientfld_->getFValue()*SI().zDomain().userFactor() );
     horinterfiller_->useGradient( usegradientfld_->getBoolValue() );
 
     return true;

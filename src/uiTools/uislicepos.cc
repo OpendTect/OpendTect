@@ -121,12 +121,18 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
     uiSpinBox* posbox = sliceposbox_;
     curcs_ = oldcs;
     if ( orientation == OD::InlineSlice )
-	curcs_.hsamp_.start_.inl()=curcs_.hsamp_.stop_.inl()=posbox->getValue();
+    {
+	curcs_.hsamp_.start_.inl() =
+		curcs_.hsamp_.stop_.inl() = posbox->getIntValue();
+    }
     else if ( orientation == OD::CrosslineSlice )
-	curcs_.hsamp_.start_.crl()=curcs_.hsamp_.stop_.crl()=posbox->getValue();
+    {
+	curcs_.hsamp_.start_.crl() =
+		curcs_.hsamp_.stop_.crl() = posbox->getIntValue();
+    }
     else
 	curcs_.zsamp_.start = curcs_.zsamp_.stop 
-			    = (float)posbox->getValue()/zfactor_;
+			    = posbox->getFValue()/zfactor_;
 
     if ( oldcs == curcs_ )
 	return;
@@ -137,7 +143,7 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
 
 void uiSlicePos::sliceStepChanged( uiSlicePos::SliceDir orientation )
 {
-    laststeps_[(int)orientation] = slicestepbox_->getValue();
+    laststeps_[(int)orientation] = slicestepbox_->getIntValue();
 
     sliceposbox_->setStep( laststeps_[(int)orientation] );
 }
@@ -155,18 +161,18 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
     if ( orientation == OD::InlineSlice )
     {
 	posbox->setInterval( survcs.hsamp_.start_.inl(),
-			     survcs.hsamp_.stop_.inl() );
+	survcs.hsamp_.stop_.inl() );
 	stepbox->setInterval( survcs.hsamp_.step_.inl(),
-			   survcs.hsamp_.stop_.inl()-survcs.hsamp_.start_.inl(),
-			   survcs.hsamp_.step_.inl() );
+		      survcs.hsamp_.stop_.inl()-survcs.hsamp_.start_.inl(),
+		      survcs.hsamp_.step_.inl() );
     }
     else if ( orientation == OD::CrosslineSlice )
     {
 	posbox->setInterval( survcs.hsamp_.start_.crl(),
-			     survcs.hsamp_.stop_.crl() );
+		survcs.hsamp_.stop_.crl() );
 	stepbox->setInterval( survcs.hsamp_.step_.crl(),
-			  survcs.hsamp_.stop_.crl()-survcs.hsamp_.start_.crl(),
-			  survcs.hsamp_.step_.crl() );
+		survcs.hsamp_.stop_.crl()-survcs.hsamp_.start_.crl(),
+		survcs.hsamp_.step_.crl() );
     }
     else
     {
@@ -198,7 +204,7 @@ void uiSlicePos::prevCB( CallBacker* )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getValue()-stepbox->getValue() );
+    posbox->setValue( posbox->getIntValue()-stepbox->getIntValue() );
 }
 
 
@@ -206,5 +212,5 @@ void uiSlicePos::nextCB( CallBacker* )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
-    posbox->setValue( posbox->getValue()+stepbox->getValue() );
+    posbox->setValue( posbox->getIntValue()+stepbox->getIntValue() );
 }

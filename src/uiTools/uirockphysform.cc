@@ -54,7 +54,7 @@ uiRockPhysConstantFld( uiParent* p )
 
 float value() const
 {
-    return valfld_->getfValue();
+    return valfld_->getFValue();
 }
 
 

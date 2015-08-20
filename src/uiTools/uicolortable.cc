@@ -138,7 +138,7 @@ void doApply()
     const bool autosym = autosymfld->getBoolValue();
     const bool symmetry = !autosym && symfld->getBoolValue();
     ms_.autosym0_ = autosym;
-    ms_.symmidval_ = symmetry && !autosym ? midvalfld->getfValue()
+    ms_.symmidval_ = symmetry && !autosym ? midvalfld->getFValue()
 						: mUdf(float);
 }
 
@@ -402,15 +402,12 @@ void uiColorTable::canvasClick( CallBacker* )
 	return;
 
     PtrMan<uiMenu> mnu = new uiMenu( parent_, uiStrings::sAction() );
-    if ( hasseq || hasmapper )
-    {
-	uiAction* itm =
-	    new uiAction("Flipped", mCB(this,uiColorTable,doFlip));
 
-	mnu->insertItem( itm, 0 );
-	itm->setCheckable( true );
-	itm->setChecked( mapsetup_.flipseq_ );
-    }
+    uiAction* itm = new uiAction("Flipped", mCB(this,uiColorTable,doFlip) );
+    mnu->insertItem( itm, 0 );
+    itm->setCheckable( true );
+    itm->setChecked( mapsetup_.flipseq_ );
+
     if ( enabclipdlg_ && hasmapper )
 	mnu->insertItem( new uiAction(m3Dots(tr("Ranges/Clipping")),
 	    mCB(this,uiColorTable,editScaling)), 1 );
@@ -437,8 +434,8 @@ void uiColorTable::canvasDoubleClick( CallBacker* )
 
 void uiColorTable::commitInput()
 {
-    mapsetup_.range_.start = minfld_ ? minfld_->getfValue() : 0.f;
-    mapsetup_.range_.stop = maxfld_ ? maxfld_->getfValue() : 1.f;
+    mapsetup_.range_.start = minfld_ ? minfld_->getFValue() : 0.f;
+    mapsetup_.range_.stop = maxfld_ ? maxfld_->getFValue() : 1.f;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
     scaleChanged.trigger();
     if ( scalingdlg_ ) scalingdlg_->updateFields();
@@ -586,12 +583,12 @@ void uiColorTableGroup::init( OD::Orientation orient, bool nominmax )
 	    maxfld_->attach( rightOf, canvas_ );
 	    selfld_->attach( rightOf, maxfld_ );
 	}
-
-	if ( minfld_ )
-	    setHAlignObj( minfld_ );
-	else
-	    setHAlignObj( canvas_ );
     }
+
+    if ( minfld_ )
+	setHAlignObj( minfld_ );
+    else
+	setHAlignObj( canvas_ );
 }
 
 

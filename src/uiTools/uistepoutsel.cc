@@ -83,7 +83,8 @@ void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
 
 int uiStepOutSel::val( bool dir1 ) const
 {
-    return dir1 ? fld1_->getValue() : (fld2_ ? fld2_->getValue() : mUdf(int));
+    return dir1 ? fld1_->getIntValue()
+		: (fld2_ ? fld2_->getIntValue() : mUdf(int));
 }
 
 
@@ -171,7 +172,7 @@ uiStepout3DSel::uiStepout3DSel( uiParent* p, bool single, const char* seltxt )
                                                                                 
 int uiStepout3DSel::val( int dir ) const                                        
 {                                                                               
-    return dir<2 ? uiStepOutSel::val( dir == 0 ) : fld3_->getValue();           
+    return dir<2 ? uiStepOutSel::val( dir == 0 ) : fld3_->getIntValue();
 }
 
 
@@ -192,7 +193,7 @@ void uiStepout3DSel::setVals( int value )
                                                                                 
 int uiStepout3DSel::getZVal() const                                             
 {                                                                               
-    return fld3_->getValue();                                                   
+    return fld3_->getIntValue();
 }                                                                               
                                                                                 
                                                                                 

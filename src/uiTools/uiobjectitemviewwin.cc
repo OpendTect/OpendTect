@@ -156,8 +156,8 @@ void uiObjectItemViewWin::reSizeSld( CallBacker* cb )
 
     uiSlider* hsldr = horsliderfld_;
     uiSlider* vsldr = versliderfld_;
-    hslval_ = hsldr->getValue();
-    vslval_ = vsldr->getValue();
+    hslval_ = hsldr->getFValue();
+    vslval_ = vsldr->getFValue();
 
     mDynamicCastGet(uiSlider*,sld,cb);
     fittoscreen_ = !sld;
@@ -318,14 +318,16 @@ void uiObjectItemViewWin::fitToScreen( CallBacker* )
 void uiObjectItemViewWin::fillPar( IOPar& iop ) const
 {
     if ( !versliderfld_ || !horsliderfld_ ) return;
-    iop.set( sKeyVZoomVal(), versliderfld_->getValue() );
-    iop.set( sKeyHZoomVal(), horsliderfld_->getValue() );
+
+    iop.set( sKeyVZoomVal(), versliderfld_->getFValue() );
+    iop.set( sKeyHZoomVal(), horsliderfld_->getFValue() );
 }
 
 
 void uiObjectItemViewWin::usePar( const IOPar& iop )
 {
     if ( !versliderfld_ || !horsliderfld_ ) return;
+
     float hval, vval;
     iop.get( sKeyHZoomVal(), hval );
     iop.get( sKeyVZoomVal(), vval );

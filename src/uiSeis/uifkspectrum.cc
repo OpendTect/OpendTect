@@ -147,7 +147,6 @@ void uiFKSpectrum::setVelCB( CallBacker* cb )
 void uiFKSpectrum::mouseMoveCB( CallBacker* )
 {
     lineitm_->poly_.erase();
-
     const MouseEvent& ev = viewer().rgbCanvas().getMouseEventHandler().event();
     const uiWorldPoint wp = viewer().getWorld2Ui().transform( ev.pos() );
     lineitm_->poly_ += wp;

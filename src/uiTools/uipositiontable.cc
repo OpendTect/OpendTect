@@ -100,8 +100,8 @@ void uiPositionTable::posChgCB( CallBacker* )
     BinID bid;
     if ( rc.col()==0 || rc.col()==1 )
     {
-	Coord coord( table_->getdValue(RowCol(rc.row(),0)),
-		     table_->getdValue(RowCol(rc.row(),1)) );
+	Coord coord( table_->getDValue(RowCol(rc.row(),0)),
+		     table_->getDValue(RowCol(rc.row(),1)) );
 	bid = SI().transform( coord );
 	if ( withic_ )
 	{
@@ -121,7 +121,7 @@ void uiPositionTable::posChgCB( CallBacker* )
 	}
     }
 
-    setRowColor( rc.row(), SI().includes(bid,SI().zRange(true).start,true) );
+    setRowColor( rc.row(), SI().includes(bid,SI().zRange(true).center(),true) );
 }
 
 
@@ -188,8 +188,8 @@ void uiPositionTable::getBinIDs( TypeSet<BinID>& binids ) const
     {
 	if ( withic_ )
 	{
-	    if ( mIsUdf(table_->getfValue(RowCol(idx,2))) ||
-		 mIsUdf(table_->getfValue(RowCol(idx,3))) )
+	    if ( mIsUdf(table_->getFValue(RowCol(idx,2))) ||
+		 mIsUdf(table_->getFValue(RowCol(idx,3))) )
 		continue;
 
 	    binids += BinID( table_->getIntValue(RowCol(idx,2)),
@@ -197,12 +197,12 @@ void uiPositionTable::getBinIDs( TypeSet<BinID>& binids ) const
 	}
 	else
 	{
-	    if ( mIsUdf(table_->getdValue(RowCol(idx,0))) ||
-		 mIsUdf(table_->getdValue(RowCol(idx,1))) )
+	    if ( mIsUdf(table_->getDValue(RowCol(idx,0))) ||
+		 mIsUdf(table_->getDValue(RowCol(idx,1))) )
 		continue;
 
-	    Coord coord( table_->getdValue(RowCol(idx,0)),
-		    	 table_->getdValue(RowCol(idx,1)) );
+	    Coord coord( table_->getDValue(RowCol(idx,0)),
+		    	 table_->getDValue(RowCol(idx,1)) );
 	    binids += SI().transform( coord );
 	}
     }

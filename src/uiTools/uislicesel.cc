@@ -256,7 +256,7 @@ void doAdvance( bool reversed )
 {
     if ( !timer ) return;
 
-    const int step = (reversed ? -1 : 1) * stepfld_->box()->getValue();
+    const int step = (reversed ? -1 : 1) * stepfld_->box()->getIntValue();
     slcsel_->readInput();
     if ( slcsel_->isinl_ )
     {
@@ -310,7 +310,7 @@ void setTimer()
 {
     if ( !timer ) return;
 
-    float val = dtfld_->getfValue();
+    float val = dtfld_->getFValue();
     if ( mIsUdf(val) || val < 0.2 )
 	val = 200;
     else
@@ -396,14 +396,14 @@ void uiSliceSel::readInput()
     hs.get( inlrg, crlrg );
     if ( inl0fld_ )
     {
-	inlrg.start = inl0fld_->box()->getValue();
-	inlrg.stop = isinl_ ? inlrg.start : inl1fld_->getValue();
+	inlrg.start = inl0fld_->box()->getIntValue();
+	inlrg.stop = isinl_ ? inlrg.start : inl1fld_->getIntValue();
 	if ( !isinl_ && inlrg.start == inlrg.stop )
 	    inlrg.stop += hs.step_.inl();
     }
 
-    crlrg.start = crl0fld_->box()->getValue();
-    crlrg.stop = iscrl_ ? crlrg.start : crl1fld_->getValue();
+    crlrg.start = crl0fld_->box()->getIntValue();
+    crlrg.stop = iscrl_ ? crlrg.start : crl1fld_->getIntValue();
     if ( !iscrl_ && crlrg.start == crlrg.stop )
 	crlrg.stop += hs.step_.crl();
 
@@ -437,7 +437,8 @@ void uiSliceSel::updateUI()
 {
     if ( inl0fld_ )
     {
-	Interval<int> inlrg( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.inl() );
+	Interval<int> inlrg( tkzs_.hsamp_.start_.inl(),
+			     tkzs_.hsamp_.stop_.inl() );
 	StepInterval<int> maxinlrg( maxcs_.hsamp_.start_.inl(),
 				    maxcs_.hsamp_.stop_.inl(),
 				    maxcs_.hsamp_.step_.inl() );
@@ -446,7 +447,8 @@ void uiSliceSel::updateUI()
     }
 
     Interval<int> crlrg( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
-    StepInterval<int> maxcrlrg( maxcs_.hsamp_.start_.crl(), maxcs_.hsamp_.stop_.crl(),
+    StepInterval<int> maxcrlrg( maxcs_.hsamp_.start_.crl(),
+				maxcs_.hsamp_.stop_.crl(),
 				maxcs_.hsamp_.step_.crl() );
     setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start );
     setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
@@ -533,20 +535,20 @@ void uiSliceSel::enableScrollButton( bool yn )
 void uiSliceSel::fillPar( IOPar& iop )
 {
     TrcKeyZSampling cs;
-    cs.hsamp_.start_.inl() = is2d_ ? 0 : inl0fld_->box()->getValue();
+    cs.hsamp_.start_.inl() = is2d_ ? 0 : inl0fld_->box()->getIntValue();
 
     if ( isinl_ )
-	cs.hsamp_.stop_.inl() =  is2d_ ? 0 : inl0fld_->box()->getValue();
+	cs.hsamp_.stop_.inl() =  is2d_ ? 0 : inl0fld_->box()->getIntValue();
     else
-	cs.hsamp_.stop_.inl() = is2d_ ? 0 : inl1fld_->getValue();
+	cs.hsamp_.stop_.inl() = is2d_ ? 0 : inl1fld_->getIntValue();
 
-    cs.hsamp_.start_.crl() = crl0fld_->box()->getValue();
-    cs.hsamp_.stop_.crl() = iscrl_ ? crl0fld_->box()->getValue()
-			     : crl1fld_->getValue();
+    cs.hsamp_.start_.crl() = crl0fld_->box()->getIntValue();
+    cs.hsamp_.stop_.crl() = iscrl_ ? crl0fld_->box()->getIntValue()
+				   : crl1fld_->getIntValue();
 
-    cs.zsamp_.start = mCast( float, z0fld_->box()->getValue() );
-    cs.zsamp_.stop = mCast( float, istsl_ ? z0fld_->box()->getValue()
-			 : z1fld_->getValue() );
+    cs.zsamp_.start = mCast( float, z0fld_->box()->getIntValue() );
+    cs.zsamp_.stop = mCast( float, istsl_ ? z0fld_->box()->getIntValue()
+			 		  : z1fld_->getIntValue() );
 
     cs.fillPar( iop );
 }

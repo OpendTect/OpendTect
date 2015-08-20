@@ -81,8 +81,8 @@ bool uiShortcutsDlg::acceptOK( CallBacker* )
 	if ( lblspinboxes_[idx] )
 	{
 	    uiExtraIntKeyDesc* uieikd = new uiExtraIntKeyDesc( statecb->text(),
-		    			keycb->text(),
-					lblspinboxes_[idx]->box()->getValue() );
+	    			keycb->text(),
+				lblspinboxes_[idx]->box()->getIntValue() );
 	    uieikd->setIntLabel( lblspinboxes_[idx]->label()->text() );
 	    scl_.keyDescs() += uieikd;
 	}

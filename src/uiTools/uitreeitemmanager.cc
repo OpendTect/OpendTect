@@ -333,7 +333,8 @@ uiTreeItem* uiTreeItem::getChild( int idx )
 bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 			       bool below, bool downwards )
 {
-    if ( FixedString(newitem->parentType()) == typeid(*this).name() )
+    if ( !useParentType() ||
+	 FixedString(newitem->parentType()) == typeid(*this).name() )
     {
 	mEnabSelChg( false )
 	children_ += newitem;

@@ -90,7 +90,7 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
 
 float uiHandleDLSiteFail::timeout() const
 {
-    return timeoutfld_->getValue();
+    return timeoutfld_->getFValue();
 }
 
 

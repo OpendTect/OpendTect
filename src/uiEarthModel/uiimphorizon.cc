@@ -95,17 +95,15 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
     OD::ChoiceMode mode =
 	isgeom ? OD::ChooseZeroOrMore : OD::ChooseAtLeastOne;
-    uiLabeledListBox* attrllb =
-	new uiLabeledListBox( this, tr("Attribute(s) to import"), mode,
-			      uiLabeledListBox::LeftTop );
-    attrllb->attach( alignedBelow, inpfld_ );
-    attrlistfld_ = attrllb->box();
+    uiListBox::Setup su( mode, tr("Attribute(s) to import") );
+    attrlistfld_ = new uiListBox( this, su );
+    attrlistfld_->attach( alignedBelow, inpfld_ );
     attrlistfld_->setNrLines( 6 );
     attrlistfld_->itemChosen.notify( mCB(this,uiImportHorizon,inputChgd) );
 
     uiToolButton* addbut = new uiToolButton( this, "addnew", tr("Add new"),
 				mCB(this,uiImportHorizon,addAttribCB) );
-    addbut->attach( rightTo, attrllb );
+    addbut->attach( rightTo, attrlistfld_ );
     uiToolButton* rmbut = new uiToolButton( this, "stop",
 					    uiStrings::sRemove(),
 				mCB(this,uiImportHorizon,rmAttribCB) );
@@ -115,11 +113,11 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     clearbut->attach( alignedBelow, rmbut );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, attrllb );
+    sep->attach( stretchedBelow, attrlistfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 		  mODHelpKey(mTableImpDataSel3DSurfacesHelpID) );
-    dataselfld_->attach( alignedBelow, attrllb );
+    dataselfld_->attach( alignedBelow, attrlistfld_ );
     dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
 
@@ -131,7 +129,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     sep->attach( stretchedBelow, scanbut_ );
 
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
-    subselfld_->attach( alignedBelow, attrllb );
+    subselfld_->attach( alignedBelow, attrlistfld_ );
     subselfld_->attach( ensureBelow, sep );
     subselfld_->setSensitive( false );
 
@@ -471,7 +469,6 @@ bool uiImportHorizon::doImport()
     {
 	Executor* exec = horizon->saver();
 	mSave(taskrunner);
-	horizon->setPreferredColor( colbut_->color() );
     }
     else
     {
@@ -634,6 +631,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
     horizon->change.disable();
     horizon->setMultiID( mid );
     horizon->setStratLevelID( stratlvlfld_->getID() );
+    horizon->setPreferredColor( colbut_->color() );
     horizon->ref();
     return horizon;
 }
@@ -658,6 +656,4 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     delete loader;
     return horizon;
 }
-
-
 

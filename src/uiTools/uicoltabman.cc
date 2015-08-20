@@ -216,7 +216,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 }
 
 
-void uiColorTableMan::selChg( CallBacker* cb )
+void uiColorTableMan::selChg( CallBacker* )
 {
     const uiTreeViewItem* itm = coltablistfld_->selectedItem();
     if ( !itm || !ColTab::SM().get(itm->text(0),ctab_) )
@@ -449,7 +449,7 @@ void uiColorTableMan::doSegmentize()
 	ctab_.setNrSegments( 0 );
     else if ( segmentfld_->getIntValue()==1 )
     {
-	const int nrseg = nrsegbox_->getValue();
+	const int nrseg = nrsegbox_->getIntValue();
 	if ( mIsUdf(nrseg) || nrseg < 2 )
 	    return;
 

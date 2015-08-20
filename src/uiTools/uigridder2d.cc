@@ -139,7 +139,7 @@ const char* uiInverseDistanceGridder2D::errMsg() const
 
 bool uiInverseDistanceGridder2D::acceptOK()
 {
-    const float searchradius = searchradiusfld_->getfValue();
+    const float searchradius = searchradiusfld_->getFValue();
     if ( searchradius<0 )
 	return false;
 

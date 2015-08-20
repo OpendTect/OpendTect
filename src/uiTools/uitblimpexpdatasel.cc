@@ -303,11 +303,11 @@ bool commit()
 				       ? kwinps_[formnr] : 0;
 	for ( int idx=0; idx<colboxes.size(); idx++ )
 	{
-	    RowCol rc( 0, colboxes[idx]->getValue() );
+	    RowCol rc( 0, colboxes[idx]->getIntValue() );
 	    BufferString kw;
 
 	    if ( !iskw && rowboxes )
-		rc.row() = (*rowboxes)[idx]->getValue();
+		rc.row() = (*rowboxes)[idx]->getIntValue();
 	    if ( iskw && kwinps )
 		kw = (*kwinps)[idx]->text();
 	    if ( mIsUdf(rc.row()) || (!iskw && mIsUdf(rc.col())) )

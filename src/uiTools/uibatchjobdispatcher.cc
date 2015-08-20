@@ -352,7 +352,7 @@ bool acceptOK( CallBacker* )
     else
 	sjd_.remotehost_.setEmpty();
 
-    execpars_.prioritylevel_ = priofld_->getValue() / cPrioBound;
+    execpars_.prioritylevel_ = priofld_->getFValue() / cPrioBound;
 
     return true;
 }

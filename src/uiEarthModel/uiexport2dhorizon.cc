@@ -60,14 +60,13 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	horselfld_->addItem( hinfos_[idx]->name );
 
-    uiLabeledListBox* llbox = new uiLabeledListBox( this, tr("Select lines"),
-						    OD::ChooseAtLeastOne );
-    llbox->attach( alignedBelow, lcbox );
-    linenmfld_ = llbox->box();
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Select lines") );
+    linenmfld_ = new uiListBox( this, su );
+    linenmfld_->attach( alignedBelow, lcbox );
 
-    headerfld_ = new uiGenInput( this, tr("Header"), 
-                                 StringListInpSpec(hdrtyps) );
-    headerfld_->attach( alignedBelow, llbox );
+    headerfld_ = new uiGenInput( this, tr("Header"),
+				 StringListInpSpec(hdrtyps) );
+    headerfld_->attach( alignedBelow, linenmfld_ );
 
     udffld_ = new uiGenInput( this, tr("Write undefined parts? Undef value"),
 			      FloatInpSpec(sKey::FloatUdf()) );

@@ -1112,7 +1112,6 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
     }
 
     data.dataChanged();
-    hor3d->auxdata.removeAll();
     return true;
 }
 

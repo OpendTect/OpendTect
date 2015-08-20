@@ -34,7 +34,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	    uiString mess;
 	    if ( !ioobj_.isSubdir() )
 	    {
-		mess = tr("Remove '%1'%2");
+		mess = tr("Delete '%1'%2");
 		mess.arg( ioobj_.name() );
 		mess.arg( isoutside ? tr("\nFile is not in current survey.\n"
 				     "Specify what you would like to remove")
@@ -42,7 +42,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	    }
 	    else
 	    {
-		mess = tr("Remove '%1' with folder\n'%2'%3");
+		mess = tr("Delete '%1' with folder\n'%2'%3");
 		mess.arg( ioobj_.name() );
 		mess.arg( ioobj_.fullUserExpr(true) );
 		mess.arg( tr("\n- and everything in it! - ?") );
@@ -50,16 +50,17 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 
 	    if ( isoutside )
 	    {
-		const int resp = uiMSG().question( mess, tr("Remove file"),
-						   tr("Remove link"),
+		const int resp = uiMSG().question( mess, tr("Delete file"),
+						   tr("Delete link"),
 						   uiStrings::sCancel(),
-					           tr("Remove data") );
+						   tr("Delete data") );
 		if ( resp < 0 )
 		    return false;
 
 		dorm = resp;
 	    }
-	    else if ( doconfirm && !uiMSG().askRemove(mess) )
+	    else if ( doconfirm && !uiMSG().askGoOn(mess,uiStrings::sDelete(),
+							 uiStrings::sCancel()) )
 	    {
 		if ( mustrm )
 		    return false;
@@ -73,7 +74,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
     {
 	if ( !silent_ )
 	{
-	    uiString mess = tr("Could not remove data file(s).\n"
+	    uiString mess = tr("Could not delete data file(s).\n"
 			       "Remove entry from list anyway?");
 	    if ( !uiMSG().askRemove(mess) )
 		return false;

@@ -39,15 +39,15 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
     hsu.fixdrawrg(fixdrawrg);
     histogramdisp_ = new uiHistogramDisplay( this, hsu, true );
     histogramdisp_->getMouseEventHandler().buttonPressed.notify(
-	    		     mCB(this,uiMapperRangeEditor,mousePressed) );
+			     mCB(this,uiMapperRangeEditor,mousePressed) );
     histogramdisp_->getMouseEventHandler().buttonReleased.notify(
-	    		     mCB(this,uiMapperRangeEditor,mouseReleased) );
+			     mCB(this,uiMapperRangeEditor,mouseReleased) );
     histogramdisp_->getMouseEventHandler().movement.notify(
-	    		     mCB(this,uiMapperRangeEditor,mouseMoved) );
+			     mCB(this,uiMapperRangeEditor,mouseMoved) );
     histogramdisp_->reSize.notify(
-	    		     mCB(this,uiMapperRangeEditor,histogramResized));
+			     mCB(this,uiMapperRangeEditor,histogramResized));
     histogramdisp_->drawRangeChanged.notify(
-	    		     mCB(this,uiMapperRangeEditor,histDRChanged));
+			     mCB(this,uiMapperRangeEditor,histDRChanged));
     xax_ = histogramdisp_->xAxis();
 
     init();
@@ -170,7 +170,7 @@ void uiMapperRangeEditor::drawText()
 void uiMapperRangeEditor::drawPixmaps()
 {
     if ( !ctseq_ || mIsUdf(startpix_) || mIsUdf(stoppix_) )
-       	return;
+	return;
 
     const int disph = histogramdisp_->height();
     const int pmh = 20;
@@ -302,7 +302,16 @@ void uiMapperRangeEditor::mouseMoved( CallBacker* )
     if ( meh.isHandled() || !mousedown_ ) return;
 
     if ( changeLinePos() )
+    {
 	drawAgain();
+
+	ctmapper_->range_.start =
+	    ctmapper_->range_.isRev() ? cliprg_.stop : cliprg_.start;
+	ctmapper_->range_.stop =
+	    ctmapper_->range_.isRev() ? cliprg_.start : cliprg_.stop;
+	rangeChanged.trigger();
+    }
+
     meh.setHandled( true );
 }
 

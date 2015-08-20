@@ -62,18 +62,18 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     dataset_ = new Seis2DDataSet( ioobj );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
-    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, tr("2D lines"),
-			    OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
-    linefld_ = lllb->box();
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("2D lines"),
+			 uiListBox::AboveMid );
+    linefld_ = new uiListBox( topgrp, su );
     linefld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,lineSel) );
 
-    linegrp_ = new uiManipButGrp( lllb );
+    linegrp_ = new uiManipButGrp( linefld_ );
     linegrp_->addButton( uiManipButGrp::Remove, "Remove line",
 			mCB(this,uiSeis2DFileMan,removeLine) );
     linegrp_->addButton( "mergelines", "Merge lines",
 			mCB(this,uiSeis2DFileMan,mergeLines) );
     linegrp_->addButton( "browseseis", "Browse/edit this line",
-	    	        mCB(this,uiSeis2DFileMan,browsePush) );
+		        mCB(this,uiSeis2DFileMan,browsePush) );
     if ( SI().has3D() )
 	linegrp_->addButton( "extr3dinto2d", "Extract from 3D cube",
 			mCB(this,uiSeis2DFileMan,extrFrom3D) );
@@ -238,7 +238,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
     uiLabeledComboBox* lcb1 =
 	new uiLabeledComboBox( geomgrp, lnms, tr("First line") );
-    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp, lnms, 
+    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp, lnms,
 						     uiStrings::sAdd() );
     lcb2->attach( alignedBelow, lcb1 );
     ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
@@ -249,15 +249,15 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     ln2fld_->selectionChanged.notify(
 	    mCB(this,uiSeis2DFileManMergeDlg,fillData2MergeCB) );
 
-   
+
     const char* mrgopts[]
 	= { "Match trace numbers", "Match coordinates", "Bluntly append", 0 };
     mrgoptfld_ = new uiGenInput( geomgrp, "Merge method",
 				 StringListInpSpec(mrgopts) );
     mrgoptfld_->attach( alignedBelow, lcb2 );
     mrgoptfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
-    
-        
+
+
     renumbfld_ = new uiGenInput( geomgrp, tr("Renumber; Start/step numbers"),
 				 IntInpSpec(1), IntInpSpec(1) );
     renumbfld_->setWithCheck( true );
@@ -282,14 +282,11 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     datagrp->attach( rightTo, geomgrp );
     datagrp->attach( ensureRightOf, horsep );
 
-    uiLabeledListBox* datalcb =
-	new uiLabeledListBox( datagrp, tr("Data Sets to merge"),
-			      OD::ChooseAtLeastOne,
-			      uiLabeledListBox::LeftMid );
-    data2mergefld_ = datalcb->box();
-    datalcb->attach( alignedBelow, stckfld_ );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Data Sets to merge") );
+    data2mergefld_ = new uiListBox( datagrp, su );
+    data2mergefld_->attach( alignedBelow, stckfld_ );
 
-    
+
     postFinalise().notify( mCB(this,uiSeis2DFileManMergeDlg,initWin) );
 }
 
@@ -339,13 +336,13 @@ bool acceptOK( CallBacker* )
     if ( outgeomid != Survey::GeometryManager::cUndefGeomID() )
     {
 	 uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
-		 	   "its geometry, all the associated data will be "
+			   "its geometry, all the associated data will be "
 			   "affected. Do you still want to overwrite?")
-	     			.arg( outnm );
+				.arg( outnm );
 	 if ( !uiMSG().askOverwrite(msg) )
 	     return false;
 	 mDynamicCastGet( Survey::Geometry2D*, geom2d,
-		 	  Survey::GMAdmin().getGeometry(outgeomid) );
+			  Survey::GMAdmin().getGeometry(outgeomid) );
 	 if ( !geom2d )
 	     return false;
 

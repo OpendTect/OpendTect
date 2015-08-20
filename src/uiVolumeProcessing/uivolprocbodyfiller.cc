@@ -121,12 +121,12 @@ bool uiBodyFiller::acceptOK( CallBacker* cb )
     BodyFiller::ValueType vt = getValueType( *insidetypfld_ );
     bodyfiller_->setInsideValueType( vt );
     bodyfiller_->setInsideValue(
-	vt==BodyFiller::Constant ? insidevaluefld_->getfValue() : mUdf(float) );
+	vt==BodyFiller::Constant ? insidevaluefld_->getFValue() : mUdf(float) );
 
     vt = getValueType( *outsidetypfld_ );
     bodyfiller_->setOutsideValueType( vt );
     bodyfiller_->setOutsideValue(
-	vt==BodyFiller::Constant ? outsidevaluefld_->getfValue() : mUdf(float));
+	vt==BodyFiller::Constant ? outsidevaluefld_->getFValue() : mUdf(float));
 
     bodyfiller_->setSurface( ioobj->key() );
 

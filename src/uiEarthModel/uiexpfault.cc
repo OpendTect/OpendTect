@@ -256,7 +256,8 @@ bool uiExportFault::acceptOK( CallBacker* )
 	? uiStrings::sFaultStickSet(2)
 	: uiStrings::sFault(2);
     uiString msg = tr( "%1 successfully exported\n"
-		    "Do you want to export more %1s?" ).arg(tp);
+		    "Do you want to export more %2?" )
+	.arg(tp).arg(tps);
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;

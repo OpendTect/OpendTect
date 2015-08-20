@@ -101,7 +101,7 @@ bool uiProxyDlg::saveInSettings()
     BufferString host = useproxy ? hostfld_->text() : "";
     setts.set( Network::sKeyProxyHost(), host );
 
-    const int port = useproxy ? portfld_->box()->getValue() : 1;
+    const int port = useproxy ? portfld_->box()->getIntValue() : 1;
     setts.set( Network::sKeyProxyPort(), port );
 
     const bool needauth = useproxy ? authenticationfld_->isChecked() : false;

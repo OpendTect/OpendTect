@@ -35,16 +35,22 @@ const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 
 struct PluginProduct
 {
-    BufferString	    productname_;
-    BufferString	    creator_;
-    BufferStringSet	    libs_;
-    BufferString	    pckgnm_;
-    bool		    isselected_;
+			PluginProduct()
+				: isselected_(true)	{}
+
+    BufferString	productname_;
+    BufferString	creator_;
+    BufferStringSet	libs_;
+    BufferString	pckgnm_;
+    bool		isselected_;
 };
 
 
 struct PluginVendor
 {
+			PluginVendor()
+				: nrprods_(0)		{}
+
     BufferString	vendorkey_;
     BufferString	vendorname_;
     BufferStringSet	aliases_;

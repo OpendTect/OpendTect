@@ -118,7 +118,7 @@ float uiWindowFunctionSel::windowParamValue() const
 {
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
     const uiGenInput* varinpfld = getVariableFld( winidx );
-    return varinpfld ? varinpfld->getfValue( 0 )/100 : mUdf(float);
+    return varinpfld ? varinpfld->getFValue( 0 )/100 : mUdf(float);
 }
 
 

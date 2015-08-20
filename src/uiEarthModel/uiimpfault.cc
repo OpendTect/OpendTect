@@ -287,7 +287,7 @@ bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
     if ( stickselfld_ && FixedString(stickselfld_->text()) == sKeyInlCrlSep() )
 	convsu.useinlcrlslopesep_ = true;
     if ( stickselfld_ && FixedString(stickselfld_->text()) == sKeySlopeThres() )
-	convsu.stickslopethres_ = thresholdfld_->getdValue();
+	convsu.stickslopethres_ = thresholdfld_->getDValue();
 
     EM::EMObject* emobj = EM::FaultStickSet::create( EM::EMM() );
     mDynamicCastGet( EM::FaultStickSet*, interfss, emobj );
