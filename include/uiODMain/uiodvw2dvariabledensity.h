@@ -35,6 +35,7 @@ public:
 protected:
 
     bool			init();
+    const char*			iconName() const;
     void			initColTab();
     void			displayMiniCtab(const ColTab::Sequence*);
     const char*			parentType() const

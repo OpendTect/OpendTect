@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiodviewer2dmgr.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uitreeview.h"
 #include "zaxistransform.h"
 
 const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
@@ -152,6 +153,15 @@ uiODVw2DTreeItem::~uiODVw2DTreeItem()
     detachAllNotifiers();
     if ( datatransform_ )
 	datatransform_->unRef();
+}
+
+
+bool uiODVw2DTreeItem::init()
+{
+    const char* iconnm = iconName();
+    if ( iconnm ) uitreeviewitem_->setIcon( 0, iconnm );
+
+    return uiTreeItem::init();
 }
 
 

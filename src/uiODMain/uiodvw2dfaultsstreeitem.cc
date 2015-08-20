@@ -96,10 +96,12 @@ bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 }
 
 
+const char* uiODVw2DFaultSSParentTreeItem::iconName() const
+{ return "tree-fltss"; }
+
+
 bool uiODVw2DFaultSSParentTreeItem::init()
-{
-    return true;
-}
+{ return uiODVw2DTreeItem::init(); }
 
 
 void uiODVw2DFaultSSParentTreeItem::getLoadedFaultSSs(

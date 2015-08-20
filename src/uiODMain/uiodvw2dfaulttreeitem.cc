@@ -91,12 +91,12 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
 }
 
 
+const char* uiODVw2DFaultParentTreeItem::iconName() const
+{ return "tree-flt"; }
+
+
 bool uiODVw2DFaultParentTreeItem::init()
-{
-    return true;
-}
-
-
+{ return uiODVw2DTreeItem::init(); }
 
 
 
