@@ -44,7 +44,7 @@ const char* uiTreeItem::name() const
 bool uiTreeItem::areAllParentsChecked()
 {
     return parent_ ?
-    	parent_->isChecked() &&	parent_->areAllParentChecked() : true;
+	parent_->isChecked() &&	parent_->areAllParentsChecked() : true;
 }
 
 
