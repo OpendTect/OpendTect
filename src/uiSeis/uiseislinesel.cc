@@ -62,7 +62,7 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
 		    mCB(this,uiSeis2DLineChoose,objInserted) );
 	}
 
-	butgrp->attach( leftOf, listfld_ );
+	butgrp->attach( centeredLeftOf, listfld_ );
     }
 }
 
@@ -115,6 +115,8 @@ void uiSeis2DLineChoose::init( OD::ChoiceMode cm )
 	lbchoiceio_->storeRequested.notify(
 				mCB(this,uiSeis2DLineChoose,writeChoiceReq) );
     }
+
+    setHAlignObj( listfld_ );
 }
 
 
