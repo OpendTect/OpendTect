@@ -197,11 +197,11 @@ protected:
     const Scene*		getScene(int sceneid) const;
     void			newSceneUpdated(CallBacker*);
     void			gtLoadedEMIDs(const Scene*,
-	    				      TypeSet<EM::ObjectID>&,
-	    				      const char* emtypestr) const;
+					      TypeSet<EM::ObjectID>&,
+					      const char* emtypestr) const;
     void			gtLoadedEMIDs(const uiTreeItem*,
-	    				      TypeSet<EM::ObjectID>&,
-	    				      const char* emtypestr) const;
+					      TypeSet<EM::ObjectID>&,
+					      const char* emtypestr) const;
 
     Timer*			tiletimer_;
     void			tileTimerCB(CallBacker*);
