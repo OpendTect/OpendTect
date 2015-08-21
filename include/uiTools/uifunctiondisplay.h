@@ -16,8 +16,6 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "draw.h"
 
-#include <cfloat>
-
 class uiAxisHandler;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
@@ -58,7 +56,6 @@ public:
 				    , annotx_(true)
 				    , annoty_(true)
 				    , annoty2_(true)
-				    , epsaroundzero_(FLT_MIN)
 				    , noxaxis_(false)
 				    , noyaxis_(false)
 				    , noy2axis_(false)

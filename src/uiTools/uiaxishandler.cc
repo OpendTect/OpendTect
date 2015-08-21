@@ -41,6 +41,7 @@ uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
     , beghndlr_(0)
     , endhndlr_(0)
     , annotstart_(0)
+    , epsilon_(1e-5)
     , axsz_(0)
     , devsz_(0)
     , ynmtxtvertical_(false)
@@ -111,6 +112,7 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 
     rgisrev_ = rg_.start > rg_.stop;
     rgwidth_ = rg_.width();
+    epsilon_ = 1e-5 * rgwidth_;
 
     reCalc();
 }
@@ -193,34 +195,64 @@ void uiAxisHandler::reCalc()
 				rg_.start<0 ? reqnrchars+1 : reqnrchars) );
     }
 
+    if ( doPlotExtreme(annotrg.atIndex(nrsteps),false) && rgwidth_>epsilon_ )
+    {
+	pos_ += 1.0f;
+	strs_.add( toStringLim(rg_.stop,rg_.stop<0 ? reqnrchars+1:reqnrchars) );
+    }
+
+    if ( setup_.showSpecialValue() )
+    {
+	const float spval = setup_.specialvalue_;
+	if ( rg_.includes(spval,rgisrev_) && !mIsEqual(spval,rg_.start,epsilon_)
+		&& !mIsEqual(spval,rg_.stop,epsilon_) )
+	{
+	    pos_ += getRelPos( spval );
+	    strs_.add( toStringLim(spval,spval<0 ? reqnrchars+1:reqnrchars) );
+	}
+    }
+
     for ( int idx=0; idx<=nrsteps; idx++ )
     {
 	float pos = annotrg.atIndex( idx );
-	if ( !rg_.includes(pos,rgisrev_) )
+	if ( !rg_.includes(pos,rgisrev_) || isColliding(pos) )
 	    continue;
-	if ( mIsZero( pos, setup_.epsaroundzero_ ) )
-	    pos = 0;
+
 	const BufferString posstr( toStringLim(pos,pos<0 ? reqnrchars+1
 							 : reqnrchars) );
 	strs_.add( posstr );
-	float relpos = getRelPos( pos );
-	pos_ += relpos;
+	pos_ += getRelPos( pos );
 	const int wdth = font.width( posstr );
 	if ( idx == 0 || rgwdth < wdth )
 	    rgwdth = wdth;
     }
 
-    if ( doPlotExtreme(annotrg.atIndex(nrsteps),false) )
-    {
-	pos_ += 1.0f;
-	strs_.add(
-		toStringLim(rg_.stop,rg_.stop<0 ? reqnrchars+1 : reqnrchars) );
-    }
     if ( !setup_.noaxisannot_ )
 	calcwdth_ += isHor() ? font.height() : rgwdth;
 
     endpos_ = setup_.islog_ ? logof2 : 1;
     newDevSize();
+}
+
+
+bool uiAxisHandler::isColliding( float gridlineval ) const
+{
+    const uiFont& font = FontList().get();
+    const int reqnrchars = getNrAnnotCharsForDisp();
+    const int gridlinepix = getPix( gridlineval );
+    for ( int idx=0; idx<pos_.size(); idx++ )
+    {
+	const int pospix = getRelPosPix( pos_[idx] );
+	const float posval = getVal( pospix );
+	const int dist = abs( gridlinepix-pospix );
+	const int overlapdist = isHor() ? reqnrchars*font.avgWidth()/2
+					: font.height();
+	if ( rg_.includes(posval,rgisrev_) &&
+		(mIsEqual(gridlineval,posval,epsilon_) || dist<overlapdist) )
+	    return true;
+    }
+
+    return false;
 }
 
 
