@@ -260,7 +260,8 @@ void uiHorizonSetupGroup::redoCB( CallBacker* )
 
 bool uiHorizonSetupGroup::trackInVolume()
 {
-    if ( !sectiontracker_ || mode_!=EMSeedPicker::TrackFromSeeds )
+    if ( !sectiontracker_ || !commitToTracker()
+			  || mode_!=EMSeedPicker::TrackFromSeeds )
 	return false;
 
     EM::EMObject& emobj = sectiontracker_->emObject();

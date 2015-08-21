@@ -100,9 +100,10 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     }
 
     BufferString srchwindtxt( "Search window ", SI().getZUnitString() );
-    StepInterval<int> swin( -10000, 10000, 1 );
+    StepInterval<int> swin0( -10000, -1, -1 );
+    StepInterval<int> swin1( 1, 10000, 1 );
     IntInpIntervalSpec iis; iis.setSymmetric( true );
-    iis.setLimits( swin, 0 ); iis.setLimits( swin, 1 );
+    iis.setLimits( swin0, 0 ); iis.setLimits( swin1, 1 );
     srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis );
     srchgatefld_->attach( alignedBelow, ampthresholdfld_ );
     srchgatefld_->valuechanging.notify( mCB(this,uiEventGroup,changeCB) );
