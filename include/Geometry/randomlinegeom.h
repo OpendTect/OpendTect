@@ -134,7 +134,7 @@ mExpClass(Geometry) RandomLineManager : public CallBacker
 public:
 			~RandomLineManager();
 
-    RandomLine*		get(const MultiID&,bool forcereload=false);
+    RandomLine*		get(const MultiID&);
     RandomLine*		get(int id);
     const RandomLine*	get(int id) const;
     bool		isLoaded(const MultiID&) const;
