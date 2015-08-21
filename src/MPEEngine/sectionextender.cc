@@ -28,7 +28,7 @@ SectionExtender::SectionExtender( EM::SectionID sid )
     , extboundary_(false)
     , excludedpos_(0)
     , sortedaddedpos_(false)
-    , setundo_(false)
+    , setundo_(true)
 {}
 
 

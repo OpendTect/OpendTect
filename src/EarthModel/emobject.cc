@@ -166,6 +166,10 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
     Geometry::Element* element = sectionGeometryInternal( sid );
     if ( !element ) mRetErr( uiString::emptyString() );
 
+    Coord3 oldpos = Coord3::udf();
+    if ( addtoundo )
+	oldpos = element->getPosition( subid );
+
     if ( !element->setPosition(subid,newpos) )
 	 mRetErr( element->errMsg() );
 
@@ -185,7 +189,6 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 
     if ( addtoundo )
     {
-	const Coord3 oldpos = element->getPosition( subid );
 	UndoEvent* undo = new SetPosUndoEvent( oldpos, pid );
 	EMM().undo().addEvent( undo, 0 );
     }
