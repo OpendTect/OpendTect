@@ -15,11 +15,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiListBoxFilter::uiListBoxFilter( uiListBox& lb, bool above )
-    : uiGenInput(lb.parent(),"Filter",StringInpSpec("*"))
+    : uiGenInput(&lb,"Filter",StringInpSpec("*"))
     , lb_(lb)
     , newFilter(this)
 {
-    attach( above ? centeredAbove : centeredBelow, &lb_ );
+    if ( lb_.isMultiChoice() && above )
+	attach( rightOf, lb_.checkGroup() );
+    else
+	attach( above ? centeredAbove : centeredBelow, lb_.box() );
+
     valuechanged.notify( mCB(this,uiListBoxFilter,filtChg) );
 }
 
