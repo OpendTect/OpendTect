@@ -88,7 +88,7 @@ public:
     const char*		getObjectName(int) const;
     Pos::GeomID		getGeomID(int) const;
 
-    Notifier<uiVisPartServer>	objectaddedremoved;
+    CNotifier<uiVisPartServer,int>	objectaddedremoved;
 
     void		removeSelection();
 
