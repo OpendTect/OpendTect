@@ -79,7 +79,7 @@ uiWellMan::uiWellMan( uiParent* p )
     calclogsbut_->attach( rightOf, addlogsbut_ );
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
-    uiManipButGrp* butgrp = new uiManipButGrp( logsgrp_ );
+    uiManipButGrp* butgrp = new uiManipButGrp( logsfld_ );
     logvwbut_ = butgrp->addButton( "view_log", "View selected log",
 			mCB(this,uiWellMan,viewLogPush) );
     logrenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
@@ -99,7 +99,7 @@ uiWellMan::uiWellMan( uiParent* p )
 			mCB(this,uiWellMan,moveLogsPush) );
     logsfld_->selectionChanged.notify( mCB(this,uiWellMan,logSel) );
     logsfld_->itemChosen.notify( mCB(this,uiWellMan,logSel) );
-    butgrp->attach( rightOf, logsfld_ );
+    butgrp->attach( rightOf, logsfld_->box() );
     logsgrp_->attach( rightOf, selgrp_ );
 
     welltrackbut_ = new uiToolButton( extrabutgrp_, "edwelltrack",

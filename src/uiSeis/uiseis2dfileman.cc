@@ -77,7 +77,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     if ( SI().has3D() )
 	linegrp_->addButton( "extr3dinto2d", "Extract from 3D cube",
 			mCB(this,uiSeis2DFileMan,extrFrom3D) );
-    linegrp_->attach( rightOf, linefld_ );
+    linegrp_->attach( rightOf, linefld_->box() );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );
     infofld_ = new uiTextEdit( botgrp, "File Info", true );
