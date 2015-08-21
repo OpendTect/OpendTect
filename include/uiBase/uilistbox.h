@@ -108,6 +108,8 @@ public:
     virtual		~uiListBox();
 
     uiListBoxObj*	box()				{ return lb_; }
+    uiGroup*		checkGroup()			{ return checkgrp_; }
+    uiCheckBox*		masterCheckBox()		{ return cb_; }
     int			nrLabels() const		{ return lbls_.size(); }
     uiLabel*		label( int nr=0 )		{ return lbls_[nr]; }
     void		setLabelText(const uiString&,int nr=0);
