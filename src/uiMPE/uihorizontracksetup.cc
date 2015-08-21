@@ -124,11 +124,16 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
 
 void uiHorizonSetupGroup::initToolBar()
 {
-    startbutid_ = toolbar_->addButton( "autotrack", "Start Tracking [T]",
-				mCB(this,uiHorizonSetupGroup,startCB) );
-    toolbar_->setShortcut( startbutid_, "t" );
+    trackbutid_ = toolbar_->addButton( "seedpickmode",
+				"Enable/Disable Tracking",
+				mCB(this,uiHorizonSetupGroup,enabTrackCB),
+				true );
 
-    stopbutid_ = toolbar_->addButton( "stop", "Stop Tracking [S]",
+    startbutid_ = toolbar_->addButton( "autotrack", "Start Auto Tracking [K]",
+				mCB(this,uiHorizonSetupGroup,startCB) );
+    toolbar_->setShortcut( startbutid_, "k" );
+
+    stopbutid_ = toolbar_->addButton( "stop", "Stop Auto Tracking [S]",
 				mCB(this,uiHorizonSetupGroup,stopCB) );
     toolbar_->setShortcut( stopbutid_, "s" );
 
@@ -138,6 +143,14 @@ void uiHorizonSetupGroup::initToolBar()
 
     retrackbutid_ = toolbar_->addButton( "retrackhorizon", "Retrack All",
 				mCB(this,uiHorizonSetupGroup,retrackCB) );
+
+    undobutid_ = toolbar_->addButton( "undo", "Undo [Ctrl+Z]",
+				mCB(this,uiHorizonSetupGroup,undoCB) );
+    toolbar_->setShortcut( undobutid_, "ctrl+z" );
+
+    redobutid_ = toolbar_->addButton( "redo", "Redo [Ctrl+Y]",
+				mCB(this,uiHorizonSetupGroup,redoCB) );
+    toolbar_->setShortcut( redobutid_, "ctrl+y" );
 }
 
 
@@ -158,6 +171,11 @@ void uiHorizonSetupGroup::horizonSelCB( CallBacker* )
 
     EM::EMObject& emobj = sectiontracker_->emObject();
     emobj.setMultiID( ioobj->key() );
+}
+
+
+void uiHorizonSetupGroup::enabTrackCB( CallBacker* )
+{
 }
 
 
@@ -227,6 +245,16 @@ void uiHorizonSetupGroup::retrackCB( CallBacker* )
     }
 
     emobj.setBurstAlert( false );
+}
+
+
+void uiHorizonSetupGroup::undoCB( CallBacker* )
+{
+}
+
+
+void uiHorizonSetupGroup::redoCB( CallBacker* )
+{
 }
 
 

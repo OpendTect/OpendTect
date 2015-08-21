@@ -495,13 +495,13 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 				dpm_.obtain( getAttribCacheID(as) );
     if ( !cache ) return false;
 
-    return true;
-/*
-    TrcKeyZSampling cachedcs = cache->sampling();
+    mDynamicCastGet(const RegularSeisDataPack*,sdp,cache.ptr());
+    if ( !sdp ) return false;
+
+    TrcKeyZSampling cachedcs = sdp->sampling();
     const float zrgeps = 0.01f * SI().zStep();
     cachedcs.zsamp_.widen( zrgeps );
     return cachedcs.includes( cs );
-*/
 }
 
 

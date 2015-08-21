@@ -87,19 +87,25 @@ protected:
     uiTabStack*			tabgrp_;
     uiIOObjSel*			horizonfld_;
     uiToolBar*			toolbar_;
+    int				trackbutid_;
     int				startbutid_;
     int				stopbutid_;
     int				savebutid_;
     int				retrackbutid_;
+    int				undobutid_;
+    int				redobutid_;
     State			state_;
 
     void			initToolBar();
     void			updateButtonSensitivity();
     bool			trackInVolume();
+    void			enabTrackCB(CallBacker*);
     void			startCB(CallBacker*);
     void			stopCB(CallBacker*);
     void			saveCB(CallBacker*);
     void			retrackCB(CallBacker*);
+    void			undoCB(CallBacker*);
+    void			redoCB(CallBacker*);
     void			horizonSelCB(CallBacker*);
     void			trackingFinishedCB(CallBacker*);
 
