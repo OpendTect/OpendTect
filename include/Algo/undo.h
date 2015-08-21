@@ -20,13 +20,13 @@ ________________________________________________________________________
 class UndoEvent;
 
 /*!\brief Class to handle undo/redo information.
-  
+
 Events that can be undone/redone are added to the Undo. One user operation
 may involve thousands of changes added to the history, but the user does not
 want to press undo a thousand times.This is managed by setting a
 UserInteractionEnd flag on the last event in a chain that the user started.
 When doing undo, one undo step is consists of all events from the current
-event until the next event with the UserInteraction flag set. 
+event until the next event with the UserInteraction flag set.
 
   This means that after all user-driven events, the UserInteractionEnd should
   be set:
@@ -88,12 +88,14 @@ protected:
 
     void			removeOldEvents();
     void			removeStartToAndIncluding(int);
-    int				currenteventid_; 
+    int				currenteventid_;
     int				firsteventid_;
     int				maxsize_;
 
     ObjectSet<UndoEvent>	events_;
     int				userendscount_;
+
+    Threads::Lock		addlock_;
 };
 
 
