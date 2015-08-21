@@ -251,13 +251,13 @@ const char* EM::SetPosAttribUndoEvent::getStandardDesc() const
 
 bool EM::SetPosAttribUndoEvent::unDo()
 {
-    mSetPosAttribUndoEvenUndoRedo( !yn );
+    mSetPosAttribUndoEvenUndoRedo( !yn_ );
 }
 
 
 bool EM::SetPosAttribUndoEvent::reDo()
 {
-    mSetPosAttribUndoEvenUndoRedo( yn );
+    mSetPosAttribUndoEvenUndoRedo( yn_ );
 }
 
 
