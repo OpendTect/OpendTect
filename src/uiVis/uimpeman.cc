@@ -99,21 +99,21 @@ void uiMPEMan::addButtons()
 			  tr("Create seed ( key: 'Tab' )"), true );
     toolbar_->setShortcut( seedidx_, "Tab" );
 
-    trackinvolidx_ = mAddButton( "autotrack", trackFromSeedsAndEdges,
-				tr("Auto-track"), false );
+//    trackinvolidx_ = mAddButton( "autotrack", trackFromSeedsAndEdges,
+//				tr("Auto-track"), false );
 
 //    trackwithseedonlyidx_ = mAddButton( "trackfromseeds", trackFromSeedsOnly,
 //				       tr("Track From Seeds Only"), false );
 
-    retrackallidx_ = mAddButton( "retrackhorizon", retrackAllCB,
-				tr("Retrack All"), false );
+//    retrackallidx_ = mAddButton( "retrackhorizon", retrackAllCB,
+//				tr("Retrack All"), false );
     toolbar_->addSeparator();
 
 //    displayatsectionidx_ = mAddButton( "sectiononly", displayAtSectionCB,
 //				      tr("Display at section only"), true );
 
-    toolbar_->addSeparator();
-
+//    toolbar_->addSeparator();
+/*
     polyselectidx_ =  mAddButton( "polygonselect", selectionMode,
 				 tr("Polygon Selection mode"), true );
     uiMenu* polymnu = new uiMenu( toolbar_, "PolyMenu" );
@@ -126,15 +126,16 @@ void uiMPEMan::addButtons()
     removeinpolygonidx_ = mAddButton( "trashcan", removeInPolygon,
 				  tr("Remove PolySelection"), false );
     toolbar_->addSeparator();
+*/
 
     undoidx_ = mAddButton( "undo", undoPush, tr("Undo (Ctrl+Z)"), false );
     redoidx_ = mAddButton( "redo", redoPush, tr("Redo (Ctrl+Y)"), false );
     toolbar_->setShortcut( undoidx_, "Ctrl+Z" );
     toolbar_->setShortcut( redoidx_, "Ctrl+Y" );
 
-    toolbar_->addSeparator();
-    saveidx_ = mAddButton( "save", savePush, tr("Save (Ctrl+S"), false );
-    toolbar_->setShortcut( saveidx_, "Ctrl+S" );
+//    toolbar_->addSeparator();
+//    saveidx_ = mAddButton( "save", savePush, tr("Save (Ctrl+S"), false );
+//    toolbar_->setShortcut( saveidx_, "Ctrl+S" );
 }
 
 
@@ -474,7 +475,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
     if ( yn )
     {
-	toolbar_->turnOn( polyselectidx_, false );
+//	toolbar_->turnOn( polyselectidx_, false );
 	selectionMode(0);
 
 	visserv_->setViewMode(false);
@@ -724,7 +725,7 @@ void uiMPEMan::savePush( CallBacker* )
 	return;
 
     visserv_->fireFromMPEManStoreEMObject();
-    toolbar_->setSensitive( saveidx_, false );
+//    toolbar_->setSensitive( saveidx_, false );
 }
 
 
@@ -881,6 +882,7 @@ static bool sIsPolySelect = true;
 
 void uiMPEMan::selectionMode( CallBacker* cb )
 {
+    /*
     if ( cb == visserv_ )
     {
 	toolbar_->turnOn( polyselectidx_, visserv_->isSelectionModeOn() );
@@ -912,6 +914,7 @@ void uiMPEMan::selectionMode( CallBacker* cb )
 	visserv_->turnSeedPickingOn( true );
 
     updateButtonSensitivity(0);
+    */
 }
 
 
@@ -927,6 +930,7 @@ void uiMPEMan::handleToolClick( CallBacker* cb )
 
 void uiMPEMan::removeInPolygon( CallBacker* cb )
 {
+/*
     const Selector<Coord3>* sel =
 	visserv_->getCoordSelector( clickablesceneid_ );
     if ( !sel || !sel->isOK() )
@@ -945,6 +949,7 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
     selectionMode( cb );
 
     setUndoLevel( currentevent );
+*/
 }
 
 
@@ -1076,11 +1081,11 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const bool is2d = sp2d;
 
     const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
-    toolbar_->setSensitive( trackinvolidx_,
-	    !is2d && isinvolumemode && seedpicker );
+//    toolbar_->setSensitive( trackinvolidx_,
+//	    !is2d && isinvolumemode && seedpicker );
 
-    toolbar_->setSensitive( removeinpolygonidx_,
-			    toolbar_->isOn(polyselectidx_) );
+//    toolbar_->setSensitive( removeinpolygonidx_,
+//			    toolbar_->isOn(polyselectidx_) );
 
     toolbar_->setSensitive( tracker );
     if ( seedpicker &&
@@ -1088,8 +1093,8 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 	toolbar_->setSensitive( true );
 
     //Save button
-    const EM::EMObject* emobj =
-	tracker ? EM::EMM().getObject( tracker->objectID() ) : 0;
-    toolbar_->setSensitive( saveidx_, emobj && emobj->isChanged() );
+//    const EM::EMObject* emobj =
+//	tracker ? EM::EMM().getObject( tracker->objectID() ) : 0;
+//    toolbar_->setSensitive( saveidx_, emobj && emobj->isChanged() );
 }
 

@@ -99,11 +99,9 @@ protected:
 
     int				seedidx_;
     int				undoidx_, redoidx_;
-    int				trackinvolidx_;
-    int 			polyselectidx_;
-    int				removeinpolygonidx_;
-    int				retrackallidx_;
-    int				saveidx_;
+//    int 			polyselectidx_;
+//    int			removeinpolygonidx_;
+//    int			saveidx_;
 
     bool			seedpickwason_;
     bool			polyselstoppedseedpick_;
