@@ -20,8 +20,6 @@ ________________________________________________________________________
 #include "uistring.h"
 #include "fontdata.h"
 
-#include <cfloat>
-
 class uiGraphicsScene;
 class uiGraphicsItemGroup;
 class uiLineItem;
@@ -72,7 +70,7 @@ public:
 			    , width_(w)
 			    , height_(h)
 			    , maxnrchars_(0)
-			    , epsaroundzero_(FLT_MIN)
+			    , specialvalue_(0.0f)
 			    , islog_(false)
 			    , zval_(4)
 			    , nmcolor_(Color::NoColor())
@@ -100,7 +98,7 @@ public:
 	mDefSetupMemb(LineStyle,auxhllinestyle)
 	mDefSetupMemb(uiString,caption)
 	mDefSetupMemb(int,maxnrchars)
-	mDefSetupMemb(float,epsaroundzero)
+	mDefSetupMemb(float,specialvalue) //!< Will be gridlined and annotated.
 	mDefSetupMemb(int,zval)
 	mDefSetupMemb(Color,nmcolor)
 	mDefSetupMemb(FontData,fontdata)
@@ -108,6 +106,11 @@ public:
 	Setup&		noannot( bool yn )
 			{ noaxisline_ = noaxisannot_ = nogridline_ = yn;
 			  return *this; }
+	
+	void		setShowSpecialValue( bool yn, float newval=0.0f )
+			{ specialvalue_ = yn ? newval : mUdf(float); }
+	bool		showSpecialValue() const
+			{ return !mIsUdf(specialvalue_); }
     };
 
     mStruct(uiTools) AuxPosData
@@ -210,6 +213,7 @@ protected:
     uiTextItem*		endannottextitm_;
     uiTextItem*		nameitm_;
     void		reCalc();
+    bool		isColliding(float gridlineval) const;
     int			calcwdth_;
     uiStringSet		strs_;
     TypeSet<float>	pos_;
@@ -220,6 +224,7 @@ protected:
     bool		rgisrev_;
     bool		ynmtxtvertical_;
     float		rgwidth_;
+    float		epsilon_;
 
     int			ticSz() const;
     void		updateAxisLine();

@@ -47,7 +47,6 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
     uiAxisHandler::Setup asu( uiRect::Bottom, width(), height() );
     asu.style( LineStyle::None );
     asu.maxnrchars_ = 8;
-    asu.epsaroundzero_ = 1e-3;
     asu.border_ = uiBorder(10,10,10,10);
 
     float annotstart = -1;

@@ -127,11 +127,8 @@ void uiWellDahDisplay::gatherInfo()
     setAxisRanges( true );
     setAxisRanges( false );
 
-    ld1_->xax_.setup().epsaroundzero_ = 1e-5;
     ld1_->xax_.setup().maxnrchars_ = 8;
-    ld2_->xax_.setup().epsaroundzero_ = 1e-5;
     ld2_->xax_.setup().maxnrchars_ = 8;
-
     ld1_->xax_.setup().nmcolor_ = ld1_->dahobj_ ? ld1_->col_
 				: ld2_->dahobj_ ? ld2_->col_ : Color::Black();
     ld2_->xax_.setup().nmcolor_ = ld2_->dahobj_ ? ld2_->col_
