@@ -144,7 +144,7 @@ void uiPosProvider::usePar( const IOPar& iop )
 	{
 	    grps_[idx]->usePar( iop );
 	    if ( selfld_ )
-		selfld_->setText( grps_[idx]->name() );
+		selfld_->setValue( idx );
 	    return;
 	}
     }
@@ -351,6 +351,7 @@ void uiPosProvSel::doDlg( CallBacker* )
     pp->usePar( iop_ );
     if ( dlg.go() )
     {
+	iop_.setEmpty();
 	pp->fillPar( iop_ );
 	mkNewProv();
     }

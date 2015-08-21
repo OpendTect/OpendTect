@@ -47,7 +47,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 
     const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
     issingfld_ = new uiGenInput( this, uiStrings::sSelect(),
-	    		BoolInpSpec(true,tr("On Horizon"),
+			BoolInpSpec(true,tr("On Horizon"),
                                     tr("To a 2nd Horizon")) );
     issingfld_->attach( alignedBelow, surf1fld_ );
     issingfld_->valuechanged.notify( selcb );
@@ -180,5 +180,6 @@ void uiSurfacePosProvGroup::getSummary( BufferString& txt ) const
 
 void uiSurfacePosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Surface() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Surface(),
+					  uiStrings::sHorizon() );
 }
