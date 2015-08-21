@@ -28,7 +28,7 @@ SectionAdjuster::SectionAdjuster( EM::SectionID sid )
     , removeonfailure_(true)
     , thresholdval_(0.5)
     , seedtk_(TrcKey::udf())
-    , setundo_(false)
+    , setundo_(true)
 {}
 
 

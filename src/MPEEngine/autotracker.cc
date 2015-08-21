@@ -217,7 +217,10 @@ void HorizonTrackerMgr::startFromSeeds()
     trackerinuse_.erase();
     for ( int idx=0; idx<twm_.nrThreads(); idx++ )
     {
-	sectiontrackers_ += tracker_.cloneSectionTracker();
+	SectionTracker* cst = tracker_.cloneSectionTracker();
+	cst->extender()->setUndo( false );
+	cst->adjuster()->setUndo( false );
+	sectiontrackers_ += cst;
 	trackerinuse_ += false;
     }
 
