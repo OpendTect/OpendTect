@@ -387,7 +387,7 @@ void uiVisPartServer::shareObject( int sceneid, int id )
     if ( !dobj ) return;
 
     scene->addObject( dobj );
-    objectaddedremoved.trigger();
+    objectaddedremoved.trigger( id );
     eventmutex_.lock();
     sendEvent( evUpdateTree() );
 }
@@ -443,7 +443,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
     if ( !scene ) return;
 
     scene->addObject( dobj );
-    objectaddedremoved.trigger();
+    objectaddedremoved.trigger( dobj->id() );
 
     mDynamicCastGet( visSurvey::SurveyObject*, surobj, dobj );
     if ( surobj )
@@ -467,7 +467,7 @@ void uiVisPartServer::removeObject( visBase::DataObject* dobj, int sceneid )
 	return;
 
     removeObject( dobj->id(), sceneid );
-    objectaddedremoved.trigger();
+    objectaddedremoved.trigger( dobj->id() );
 }
 
 
@@ -1404,7 +1404,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
     }
 
-    objectaddedremoved.trigger();
+    objectaddedremoved.trigger( -1 );
 
     mpetools_->initFromDisplay();
 
@@ -1649,7 +1649,7 @@ void uiVisPartServer::removeObject( int id, int sceneid )
     if ( idx!=-1 )
     {
 	scene->removeObject( idx );
-	objectaddedremoved.trigger();
+	objectaddedremoved.trigger( id );
     }
 }
 
