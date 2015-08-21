@@ -1077,10 +1077,10 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    mDynamicCastGet(MPE::Horizon2DSeedPicker*,sp2d,seedpicker)
-    const bool is2d = sp2d;
+//    mDynamicCastGet(MPE::Horizon2DSeedPicker*,sp2d,seedpicker)
+//    const bool is2d = sp2d;
 
-    const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
+//    const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
 //    toolbar_->setSensitive( trackinvolidx_,
 //	    !is2d && isinvolumemode && seedpicker );
 
