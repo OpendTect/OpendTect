@@ -19,14 +19,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 
 
-const char* EM::SetPosUndoEvent::savedposstr = "Pos";
+const char* EM::SetPosUndoEvent::savedposstr_ = "Pos";
 
 EM::ObjectID EM::EMUndo::getCurrentEMObjectID( bool forredo ) const
 {
-    const int curidx = indexOf( forredo ? currenteventid_ + 1 
-                                        : currenteventid_ );
+    const int curidx = indexOf( forredo ? currenteventid_ + 1
+					: currenteventid_ );
     if ( !events_.validIdx(curidx) )
-        return -1;
+	return -1;
 
     const UndoEvent* curev = events_[curidx];
     mDynamicCastGet( const EMUndoEvent*, emundoev, curev );
@@ -34,10 +34,10 @@ EM::ObjectID EM::EMUndo::getCurrentEMObjectID( bool forredo ) const
 }
 
 
-EM::SetPosUndoEvent::SetPosUndoEvent( const Coord3& oldpos_,
-					    const EM::PosID& posid_ )
-    : posid( posid_ )
-    , savedpos( oldpos_ )
+EM::SetPosUndoEvent::SetPosUndoEvent( const Coord3& oldpos,
+				      const EM::PosID& posid )
+    : posid_(posid)
+    , savedpos_(oldpos)
 {}
 
 
@@ -49,19 +49,19 @@ bool EM::SetPosUndoEvent::unDo()
 {
     EMManager& manager = EM::EMM();
 
-    if ( !manager.getObject(posid.objectID()))
+    if ( !manager.getObject(posid_.objectID()))
 	return true;
 
-    EMObject* emobject = manager.getObject(posid.objectID());
+    EMObject* emobject = manager.getObject(posid_.objectID());
     if ( !emobject ) return false;
 
     const bool haschecks = emobject->enableGeometryChecks( false );
-    
+
     bool res = false;
-    const Coord3 proxy = emobject->getPos( posid );
-    if ( emobject->setPos( posid, savedpos, false ) )
+    const Coord3 proxy = emobject->getPos( posid_ );
+    if ( emobject->setPos(posid_,savedpos_,false) )
     {
-	savedpos = proxy;
+	savedpos_ = proxy;
 	res = true;
     }
 
@@ -74,19 +74,19 @@ bool EM::SetPosUndoEvent::reDo()
 {
     EMManager& manager = EM::EMM();
 
-    if ( !manager.getObject(posid.objectID()))
+    if ( !manager.getObject(posid_.objectID()))
 	return true;
 
-    EMObject* emobject = manager.getObject(posid.objectID());
+    EMObject* emobject = manager.getObject(posid_.objectID());
     if ( !emobject ) return false;
 
     bool res = false;
     const bool haschecks = emobject->enableGeometryChecks(false);
 
-    const Coord3 proxy = emobject->getPos( posid );
-    if ( emobject->setPos( posid, savedpos, false ) )
+    const Coord3 proxy = emobject->getPos( posid_ );
+    if ( emobject->setPos( posid_, savedpos_, false ) )
     {
-	savedpos = proxy;
+	savedpos_ = proxy;
 	res = true;
     }
 
@@ -134,7 +134,7 @@ bool EM::SetAllHor3DPosUndoEvent::unDo()
 {
     if ( !EMM().objectExists(horizon_) )
 	return false;
-    
+
     if ( !newarr_ )
     {
 	newarr_ = horizon_->createArray2D( sid_, 0 );
@@ -166,7 +166,7 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 {
     if ( !EMM().objectExists(horizon_) )
 	return false;
-    
+
     mDynamicCastGet( Geometry::ParametricSurface*, surf,
 		     horizon_->sectionGeometry( sid_ ) );
 
@@ -219,7 +219,7 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 
 	return horizon_->setArray2D( tmparr, sid_, false, 0 );
     }
-    
+
     const RowCol start( targetrowrg.start, targetcolrg.start );
     const RowCol stop( targetrowrg.stop, targetcolrg.stop );
     horizon_->geometry().sectionGeometry(sid_)->expandWithUdf( start, stop );
@@ -231,9 +231,9 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 
 EM::SetPosAttribUndoEvent::SetPosAttribUndoEvent( const EM::PosID& pid,
 						  int attr, bool yesno )
-    : posid( pid )
-    , attrib( attr )
-    , yn( yesno )
+    : posid_( pid )
+    , attrib_( attr )
+    , yn_( yesno )
 {}
 
 
@@ -243,30 +243,30 @@ const char* EM::SetPosAttribUndoEvent::getStandardDesc() const
 #define mSetPosAttribUndoEvenUndoRedo( arg ) \
     EMManager& manager = EM::EMM(); \
  \
-    EMObject* emobject = manager.getObject(posid.objectID()); \
+    EMObject* emobject = manager.getObject(posid_.objectID()); \
     if ( !emobject ) return true; \
  \
-    emobject->setPosAttrib( posid, attrib, arg, false ); \
+    emobject->setPosAttrib( posid_, attrib_, arg, false ); \
     return true
 
 bool EM::SetPosAttribUndoEvent::unDo()
 {
-    mSetPosAttribUndoEvenUndoRedo( !yn );
+    mSetPosAttribUndoEvenUndoRedo( !yn_ );
 }
 
 
 bool EM::SetPosAttribUndoEvent::reDo()
 {
-    mSetPosAttribUndoEvenUndoRedo( yn );
+    mSetPosAttribUndoEvenUndoRedo( yn_ );
 }
 
 
-EM::PosIDChangeEvent::PosIDChangeEvent( const EM::PosID& from_,
-				        const EM::PosID& to_,
-				        const Coord3& tosprevpos_ )
-    : from( from_ )
-    , to( to_ )
-    , savedpos( tosprevpos_ )
+EM::PosIDChangeEvent::PosIDChangeEvent( const EM::PosID& from,
+					const EM::PosID& to,
+					const Coord3& tosprevpos )
+    : from_(from)
+    , to_(to)
+    , savedpos_(tosprevpos)
 { }
 
 
@@ -279,14 +279,14 @@ const char* EM::PosIDChangeEvent::getStandardDesc() const
 bool EM::PosIDChangeEvent::unDo()
 {
     EM::EMManager& emm = EM::EMM();
-    EM::EMObject* emobject = emm.getObject(from.objectID());
+    EM::EMObject* emobject = emm.getObject(from_.objectID());
     if ( !emobject ) return false;
 
     const bool  geomchecks  = emobject->enableGeometryChecks(false);
-    const Coord3 frompos = emobject->getPos( from );
-    emobject->changePosID( to, from, false );
-    emobject->setPos( to, savedpos, false );
-    savedpos = frompos;
+    const Coord3 frompos = emobject->getPos( from_ );
+    emobject->changePosID( to_, from_, false );
+    emobject->setPos( to_, savedpos_, false );
+    savedpos_ = frompos;
     emobject->enableGeometryChecks( geomchecks );
     return true;
 }
@@ -295,14 +295,14 @@ bool EM::PosIDChangeEvent::unDo()
 bool EM::PosIDChangeEvent::reDo()
 {
     EM::EMManager& emm = EM::EMM();
-    EM::EMObject* emobject = emm.getObject(from.objectID());
+    EM::EMObject* emobject = emm.getObject(from_.objectID());
     if ( !emobject ) return false;
 
     const bool  geomchecks  = emobject->enableGeometryChecks(false);
-    const Coord3 topos = emobject->getPos( to );
-    emobject->changePosID( from, to, false );
-    emobject->setPos( from, savedpos, false );
-    savedpos = topos;
+    const Coord3 topos = emobject->getPos( to_ );
+    emobject->changePosID( from_, to_, false );
+    emobject->setPos( from_, savedpos_, false );
+    savedpos_ = topos;
     emobject->enableGeometryChecks( geomchecks );
     return true;
 }

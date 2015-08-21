@@ -42,26 +42,25 @@ mExpClass(EarthModel) EMUndoEvent : public UndoEvent
 {
 public:
 
-    virtual ObjectID		getObjectID() const =0;
+    virtual ObjectID	getObjectID() const =0;
 };
 
 
 mExpClass(EarthModel) SetPosUndoEvent : public EMUndoEvent
 {
 public:
-			SetPosUndoEvent( const Coord3& oldpos,
-					    const EM::PosID& );
+			SetPosUndoEvent(const Coord3& oldpos,const EM::PosID&);
 
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const { return posid.objectID(); }
+    ObjectID		getObjectID() const { return posid_.objectID(); }
 
 protected:
-    EM::PosID		posid;
-    Coord3		savedpos;
+    EM::PosID		posid_;
+    Coord3		savedpos_;
 
-    static const char*	savedposstr;
+    static const char*	savedposstr_;
 };
 
 
@@ -87,7 +86,7 @@ protected:
 			~SetAllHor3DPosUndoEvent();
 
     EM::Horizon3D*	horizon_;
-    EM::SectionID	 sid_;
+    EM::SectionID	sid_;
     RowCol		oldorigin_;
     RowCol		neworigin_;
     Array2D<float>*	oldarr_;
@@ -102,18 +101,18 @@ protected:
 mExpClass(EarthModel) SetPosAttribUndoEvent : public EMUndoEvent
 {
 public:
-			SetPosAttribUndoEvent( const EM::PosID&,
-						  int attrib, bool yn );
+			SetPosAttribUndoEvent(const EM::PosID&,int attrib,
+					      bool yn );
 
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const { return posid.objectID(); }
+    ObjectID		getObjectID() const { return posid_.objectID(); }
 
 protected:
-    EM::PosID		posid;
-    bool		yn;
-    int			attrib;
+    EM::PosID		posid_;
+    bool		yn_;
+    int			attrib_;
 };
 
 
@@ -124,18 +123,19 @@ protected:
 mExpClass(EarthModel) PosIDChangeEvent : public EMUndoEvent
 {
 public:
-    			PosIDChangeEvent( const EM::PosID& from,
-					  const EM::PosID& to,
-					  const Coord3& tosprevpos );
+    			PosIDChangeEvent(const EM::PosID& from,
+					 const EM::PosID& to,
+					 const Coord3& tosprevpos);
+
     const char*		getStandardDesc() const;
     bool		unDo();
     bool		reDo();
-    ObjectID		getObjectID() const { return to.objectID(); }
+    ObjectID		getObjectID() const { return to_.objectID(); }
 
 protected:
-    const EM::PosID	from;
-    const EM::PosID	to;
-    Coord3		savedpos;
+    const EM::PosID	from_;
+    const EM::PosID	to_;
+    Coord3		savedpos_;
 };
 
 

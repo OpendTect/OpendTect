@@ -85,7 +85,7 @@ void Undo::setUserInteractionEnd( int eventid, bool yn )
 {
     const int idx = indexOf( eventid );
     if ( idx<0 ) return;
-    mUpdateUserEndsCount(idx,yn); 
+    mUpdateUserEndsCount(idx,yn);
     events_[idx]->setUserInteractionEnd( yn );
 }
 
@@ -168,6 +168,7 @@ void Undo::setDesc( int eventid, const char* d )
 
 int Undo::addEvent( UndoEvent* event, const char* description )
 {
+    Threads::Locker locker( addlock_ );
     mStoreUndoRedoState();
     if ( canReDo() )
     {
@@ -175,7 +176,7 @@ int Undo::addEvent( UndoEvent* event, const char* description )
 	removeAllAfterCurrentEvent();
     }
 
-    event->setDesc( description );    
+    event->setDesc( description );
     events_ += event;
     currenteventid_++;
 
@@ -209,7 +210,7 @@ bool Undo::unDo( int nrtimes, bool userinteraction )
     		removeAllBeforeCurrentEvent();
 	    else
 		removeStartToAndIncluding( currenteventid_ );
-	    
+
 	    return false;
 	}
 
@@ -317,13 +318,13 @@ void Undo::removeOldEvents()
 }
 
 
-UndoEvent::UndoEvent() 
-    : desc_( 0 ) 
-    , isuserinteractionend_( false ) 
-{} 
+UndoEvent::UndoEvent()
+    : desc_( 0 )
+    , isuserinteractionend_( false )
+{}
 
 
-UndoEvent::~UndoEvent() { delete desc_; } 
+UndoEvent::~UndoEvent() { delete desc_; }
 
 
 void UndoEvent::setUserInteractionEnd( bool yn )
