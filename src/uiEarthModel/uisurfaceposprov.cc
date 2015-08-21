@@ -180,5 +180,6 @@ void uiSurfacePosProvGroup::getSummary( BufferString& txt ) const
 
 void uiSurfacePosProvGroup::initClass()
 {
-    uiPosProvGroup::factory().addCreator( create, sKey::Surface() );
+    uiPosProvGroup::factory().addCreator( create, sKey::Surface(),
+					  uiStrings::sHorizon() );
 }
