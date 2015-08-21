@@ -354,9 +354,9 @@ void SurveyObject::initAdaptiveMouseCursor( CallBacker* eventcb,
 
 	    if ( eventinfo.type==visBase::Keyboard && !eventinfo.pressed )
 	    {
-		buttonstate -= eventinfo.key==OD::Shift ? OD::ShiftButton :
-			       eventinfo.key==OD::Control ? OD::ControlButton :
-			       eventinfo.key==OD::Alt ? OD::AltButton : 0;
+		buttonstate -= eventinfo.key_==OD::Shift ? OD::ShiftButton :
+			       eventinfo.key_==OD::Control ? OD::ControlButton :
+			       eventinfo.key_==OD::Alt ? OD::AltButton : 0;
 	    }
 
 	    if ( buttonstate == inplanedragkeys )

@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "file.h"
 #include "geomelement.h"
+#include "keyboardevent.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "mpeengine.h"
@@ -1012,6 +1013,20 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     sendEvent( uiMPEPartServer::evShowToolbar() );
 
     return true;
+}
+
+
+void uiMPEPartServer::handleKeyboardEvent( const KeyboardEvent& kbev )
+{
+    switch ( kbev.key_ )
+    {
+	case OD::K:
+//	    MPE::engine().trackInVolume();
+	break;
+	default:
+	{
+	}
+    }
 }
 
 

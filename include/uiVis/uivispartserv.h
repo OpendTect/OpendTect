@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 #include "trckeyzsampling.h"
 #include "datapack.h"
+#include "keyboardevent.h"
 #include "menuhandler.h"
 #include "ranges.h"
 #include "thread.h"
@@ -257,17 +258,21 @@ public:
     BufferString	getMousePosString() const	{ return mouseposstr_; }
     void		getObjectInfo(int id,BufferString&) const;
 
+    static int			evKeyPress();
+    Notifier<uiVisPartServer>	keyPressed;
+    const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
 
-    static int		evSelectAttrib();
 
-    static int		evInteraction();
-			/*<! Get the id with getEventObjId() */
-    BufferString	getInteractionMsg(int id) const;
-			/*!< Returns dragger position or
-			     Nr positions in picksets */
+    static int			evSelectAttrib();
 
-    static int		evViewAll();
-    static int		evToHomePos();
+    static int			evInteraction();
+				/*<! Get the id with getEventObjId() */
+    BufferString		getInteractionMsg(int id) const;
+				/*!< Returns dragger position or
+				     Nr positions in picksets */
+
+    static int			evViewAll();
+    static int			evToHomePos();
 
 				// ColorTable stuff
     void			fillDispPars(int id,int attrib,
@@ -301,7 +306,7 @@ public:
     static int			evViewModeChange();
     void			setViewMode(bool yn,bool notify=true);
     void			setSoloMode(bool,TypeSet< TypeSet<int> >,int);
-    bool                        isSoloMode() const;
+    bool			isSoloMode() const;
     bool			isViewMode() const;
     typedef enum		{ View, Interactive, Pick } WorkMode;
     void			setWorkMode(WorkMode,bool notify=true);
@@ -418,6 +423,7 @@ protected:
     int				zfactor_;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
+    KeyboardEvent		kbevent_;
 
     bool			tracksetupactive_;
     const char*			topsetupgroupname_;
@@ -440,6 +446,7 @@ protected:
     void			updateSelObjCB(CallBacker*);
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
+    void			keyPressCB(CallBacker*);
     void			vwAll(CallBacker*);
     void			toHome(CallBacker*);
     void			colTabChangeCB(CallBacker*);

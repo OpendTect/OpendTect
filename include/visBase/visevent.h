@@ -69,7 +69,7 @@ public:
     bool			dragging;
     				//!< Only set if type == MouseMovement
 
-    int				key;
+    OD::KeyboardKey		key_;
     				//!< Only set if type == Keyboard
 
     TypeSet<int>		pickedobjids;

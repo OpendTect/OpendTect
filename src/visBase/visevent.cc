@@ -77,7 +77,7 @@ EventInfo& EventInfo::operator=( const EventInfo& eventinfo )
     localpickedpos = eventinfo.localpickedpos;
     worldpickedpos = eventinfo.worldpickedpos;
     pickdepth = eventinfo.pickdepth;
-    key = eventinfo.key;
+    key_ = eventinfo.key_;
     mousepos = eventinfo.mousepos;
 
     setTabletInfo( eventinfo.tabletinfo );
@@ -105,8 +105,8 @@ void EventInfo::setTabletInfo( const TabletInfo* newtabinf )
 //=============================================================================
 
 
-class EventCatchHandler : public osgGA::GUIEventHandler                  
-{      
+class EventCatchHandler : public osgGA::GUIEventHandler
+{
 public:
 		EventCatchHandler( EventCatcher& eventcatcher )
 		    : eventcatcher_( eventcatcher )
@@ -293,8 +293,9 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
     if ( eventinfo.type == Keyboard )
     {
-	KeyMap::iterator it = keymap_.find( ea.getKey() );
-	eventinfo.key = it==keymap_.end() ? ea.getKey() : it->second;
+	const int key = ea.getKey();
+	KeyMap::iterator it = keymap_.find( key );
+	eventinfo.key_ = it==keymap_.end() ? (OD::KeyboardKey)key : it->second;
     }
 
     if ( eventinfo.type==MouseMovement || eventinfo.type==MouseClick )
@@ -328,7 +329,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     eventinfo.buttonstate_ = (OD::ButtonState) buttonstate;
 
     eventinfo.mousepos.x = ea.getX();
-    eventinfo.mousepos.y = ea.getY(); 
+    eventinfo.mousepos.y = ea.getY();
 
     mDynamicCastGet( osgViewer::View*, view, &aa );
 
@@ -379,6 +380,43 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
 void EventCatchHandler::initKeyMap()
 {
+    keymap_[osgGA::GUIEventAdapter::KEY_0] = OD::Zero;
+    keymap_[osgGA::GUIEventAdapter::KEY_1] = OD::One;
+    keymap_[osgGA::GUIEventAdapter::KEY_2] = OD::Two;
+    keymap_[osgGA::GUIEventAdapter::KEY_3] = OD::Three;
+    keymap_[osgGA::GUIEventAdapter::KEY_4] = OD::Four;
+    keymap_[osgGA::GUIEventAdapter::KEY_5] = OD::Five;
+    keymap_[osgGA::GUIEventAdapter::KEY_6] = OD::Six;
+    keymap_[osgGA::GUIEventAdapter::KEY_7] = OD::Seven;
+    keymap_[osgGA::GUIEventAdapter::KEY_8] = OD::Eight;
+    keymap_[osgGA::GUIEventAdapter::KEY_9] = OD::Nine;
+    keymap_[osgGA::GUIEventAdapter::KEY_A] = OD::A;
+    keymap_[osgGA::GUIEventAdapter::KEY_B] = OD::B;
+    keymap_[osgGA::GUIEventAdapter::KEY_C] = OD::C;
+    keymap_[osgGA::GUIEventAdapter::KEY_D] = OD::D;
+    keymap_[osgGA::GUIEventAdapter::KEY_E] = OD::E;
+    keymap_[osgGA::GUIEventAdapter::KEY_F] = OD::F;
+    keymap_[osgGA::GUIEventAdapter::KEY_G] = OD::G;
+    keymap_[osgGA::GUIEventAdapter::KEY_H] = OD::H;
+    keymap_[osgGA::GUIEventAdapter::KEY_I] = OD::I;
+    keymap_[osgGA::GUIEventAdapter::KEY_J] = OD::J;
+    keymap_[osgGA::GUIEventAdapter::KEY_K] = OD::K;
+    keymap_[osgGA::GUIEventAdapter::KEY_L] = OD::L;
+    keymap_[osgGA::GUIEventAdapter::KEY_M] = OD::M;
+    keymap_[osgGA::GUIEventAdapter::KEY_N] = OD::N;
+    keymap_[osgGA::GUIEventAdapter::KEY_O] = OD::O;
+    keymap_[osgGA::GUIEventAdapter::KEY_P] = OD::P;
+    keymap_[osgGA::GUIEventAdapter::KEY_Q] = OD::Q;
+    keymap_[osgGA::GUIEventAdapter::KEY_R] = OD::R;
+    keymap_[osgGA::GUIEventAdapter::KEY_S] = OD::S;
+    keymap_[osgGA::GUIEventAdapter::KEY_T] = OD::T;
+    keymap_[osgGA::GUIEventAdapter::KEY_U] = OD::U;
+    keymap_[osgGA::GUIEventAdapter::KEY_V] = OD::V;
+    keymap_[osgGA::GUIEventAdapter::KEY_W] = OD::W;
+    keymap_[osgGA::GUIEventAdapter::KEY_X] = OD::X;
+    keymap_[osgGA::GUIEventAdapter::KEY_Y] = OD::Y;
+    keymap_[osgGA::GUIEventAdapter::KEY_Z] = OD::Z;
+
     // Cribbed from function setUpKeyMap() in osgQt/QGraphicsViewAdapter.cpp
 
     keymap_[osgGA::GUIEventAdapter::KEY_BackSpace] = OD::Backspace;
