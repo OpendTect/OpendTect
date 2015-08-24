@@ -328,7 +328,7 @@ bool uiGraphicsViewBody::event( QEvent* ev )
 
     if ( ev->type() == QEvent::Gesture )
          return gestureEvent( static_cast<QGestureEvent*>( ev ) );
-    
+
     return QGraphicsView::event( ev );
 }
 
@@ -608,23 +608,29 @@ void uiGraphicsViewBase::show()
 
 void uiGraphicsViewBase::setBackgroundColor( const Color& color )
 {
-    QBrush brush( QColor(color.r(),color.g(),color.b()) );
+    QBrush brush( QColor(color.r(),color.g(),color.b(),255-color.t()) );
     body_->setBackgroundBrush( brush );
 }
 
 
 Color uiGraphicsViewBase::backgroundColor() const
 {
-    QColor color( body_->backgroundBrush().color() );
-    return Color( color.red(), color.green(), color.blue() );
+    QColor qcol( body_->backgroundBrush().color() );
+    return Color( qcol.red(), qcol.green(), qcol.blue(), 255-qcol.alpha() );
 }
 
 
 void uiGraphicsViewBase::setNoBackGround()
 {
-    body_->setAttribute( Qt::WA_NoSystemBackground );
-    body_->uisetBackgroundColor( Color( 255, 255, 255, 255 )  );
-    scene_->setBackGroundColor( Color( 255, 255, 255, 255 )  );
+    Color col = backgroundColor();
+    col.setTransparency( 255 );
+    setBackgroundColor( col );
+    scene_->setBackGroundColor( col );
+
+    QPalette qpal( qwidget()->palette() );
+    qpal.setColor( QPalette::Base, QColor(col.r(),col.g(),col.b(),0) );
+    body_->setPalette( qpal );
+    scene_->qGraphicsScene()->setPalette( qpal );
 }
 
 
