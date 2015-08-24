@@ -55,7 +55,8 @@ mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
 public:
     enum Type		{ Empty, Select, Default, RGBA };
 
-			uiODRandomLineTreeItem(int displayid=-1,Type tp=Empty);
+			uiODRandomLineTreeItem(int displayid=-1,Type tp=Empty,
+					       int rlid_=-1);
 
     bool		init();
     bool		displayDefaultData();
@@ -79,8 +80,7 @@ protected:
     MenuItem		saveas2dmnuitem_;
     MenuItem		create2dgridmnuitem_;
     Type		type_;
-
-    const Geometry::RandomLineSet* rdlgeom_;
+    int			rlid_;
 };
 
 

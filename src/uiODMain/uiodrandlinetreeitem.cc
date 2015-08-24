@@ -204,7 +204,7 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
     RefMan<Geometry::RandomLine> rl = Geometry::RLM().get( ioobj.key() );
 
     uiODRandomLineTreeItem* itm =
-		new uiODRandomLineTreeItem( -1, getType(mnuid) );
+		new uiODRandomLineTreeItem( -1, getType(mnuid), rl->ID() );
     addChild( itm, false );
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
@@ -212,7 +212,6 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
 	return false;
 
     rtd->setName( ioobj.name() );
-    rtd->setRandomLineID( rl->ID() );
     itm->displayDefaultData();
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -343,8 +342,9 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 }
 
 
-uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
+uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp, int rlid )
     : type_(tp)
+    , rlid_(rlid)
     , editnodesmnuitem_(m3Dots(tr("Position")))
     , insertnodemnuitem_(tr("Insert Node"))
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()))
@@ -372,6 +372,8 @@ bool uiODRandomLineTreeItem::init()
 	}
 
 	displayid_ = rtd->id();
+	if ( rlid_ >= 0 )
+	    setRandomLineID( rlid_ );
 	visserv_->addObject( rtd, sceneID(), true );
     }
     else

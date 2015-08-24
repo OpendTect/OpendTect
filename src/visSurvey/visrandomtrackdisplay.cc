@@ -125,8 +125,10 @@ RandomTrackDisplay::RandomTrackDisplay()
     const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
     const BinID stop(start.inl(), mNINT32(crlrange.stop) );
 
-    addNode( start );
-    addNode( stop );
+    Geometry::RandomLine* rl = new Geometry::RandomLine( name() );
+    rl->addNode( start );
+    rl->addNode( stop );
+    setRandomLineID( rl->ID() );
 
     setDepthInterval( Interval<float>( survinterval.start,
 				       survinterval.stop ));
