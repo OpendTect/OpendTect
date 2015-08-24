@@ -45,6 +45,14 @@ RandomLine::~RandomLine()
 }
 
 
+void RandomLine::setMultiID( const MultiID& mid )
+{
+    mid_ = mid;
+    if ( !mid_.isUdf() )
+	setName( IOM().nameOf(mid) );
+}
+
+
 int RandomLine::addNode( const BinID& bid )
 {
     nodes_ += bid;

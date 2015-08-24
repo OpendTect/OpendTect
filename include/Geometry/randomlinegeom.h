@@ -55,7 +55,7 @@ public:
     			{ zrange_ = rg; zrangeChanged.trigger(); }
     Interval<float>	zRange() const		{ return zrange_; }
 
-    void		setMultiID( const MultiID& mid )	{ mid_ = mid; }
+    void		setMultiID(const MultiID&);
     MultiID		getMultiID() const			{ return mid_; }
 
     struct ChangeData : public CallBacker
