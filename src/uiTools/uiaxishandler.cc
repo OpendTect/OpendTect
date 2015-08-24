@@ -112,7 +112,7 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 
     rgisrev_ = rg_.start > rg_.stop;
     rgwidth_ = rg_.width();
-    epsilon_ = 1e-5 * rgwidth_;
+    epsilon_ = 1e-5f * rgwidth_;
 
     reCalc();
 }
