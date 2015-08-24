@@ -203,7 +203,7 @@ bool KaiserWindow::set( double width, int nrsamples )
 	alpha = 0.1102 * a;
     }
 
-    if ( !setVariable(alpha/M_PI) )
+    if ( !setVariable(mCast(float,alpha/M_PI)) )
 	return false;
 
     width_ = width;
