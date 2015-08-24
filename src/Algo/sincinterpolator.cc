@@ -72,7 +72,7 @@ void SincTableManager::makeTable( float fmax, int lmax )
 
     KaiserWindow kwin;
     kwin.set( wwin, lmax );
-    float ewin = 3.f * kwin.getError();
+    float ewin = 3.f * mCast(float,kwin.getError());
     float emax = ewin / EWIN_FRAC;
     float etabMin = 1.1f*M_PIf*fmax/(NTAB_MAX-1.0f);
     float emaxMin = etabMin/(1.0f-EWIN_FRAC);
@@ -125,9 +125,9 @@ const SincTableManager::Table* SincTableManager::makeTable(
     StepInterval<float> xvals( -lsinc2 + 1.f, -lsinc2, -dsinc );
     for ( int isinc=1; isinc<nsinc-1; ++isinc )
     {
-	double x = xvals.atIndex( isinc );
+	float x = xvals.atIndex( isinc );
 	for ( int i=0; i<lsinc; ++i,x+=1.0f )
-	    asinc.set( i, isinc, sinc(x)*kwin.getValue(x/lsinc2) );
+	    asinc.set( i, isinc, sinc(x) * kwin.getValue(x/lsinc2) );
     }
 
     return table;
