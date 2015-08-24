@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
+#include "uistrings.h"
 
 namespace PreStack
 {
@@ -82,7 +83,7 @@ bool EventTracker::setMute( bool inner, const MultiID& mid )
 	mutedef = new PreStack::MuteDef;
 
 	if ( !mutedef )
-	    mErrRet( tr("Cannot create new mute definition") );
+	    mErrRet( uiStrings::phrCannotCreate(tr("new mute definition")) );
 				     
 	if ( !MuteDefTranslator::retrieve( *mutedef, ioobj, errmsg_ ) )
 	{

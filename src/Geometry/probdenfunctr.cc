@@ -41,7 +41,10 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
     mDynamicCast(ProbDenFuncTranslator*,
 		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
-    { if (emsg) *emsg = tr("Cannot create Translator"); return 0; }
+    {
+        if (emsg) *emsg = uiStrings::phrCannotCreate(tr("Translator"));
+        return 0;
+    }
 
     const BufferString fnm( ioobj.fullUserExpr(true) );
     od_istream strm( fnm );
@@ -70,7 +73,7 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
     mDynamicCast(ProbDenFuncTranslator*,
 		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
-    { if (emsg) *emsg = tr("Cannot create Translator"); return false; }
+    { if (emsg) *emsg = uiStrings::phrCannotCreate(tr("Translator")); return false; }
 
     const BufferString fnm( ioobj.fullUserExpr(false) );
     od_ostream strm( fnm );

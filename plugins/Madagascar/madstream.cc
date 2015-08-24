@@ -298,7 +298,7 @@ BufferString MadStream::getPosFileName( bool forread ) const
 
 uiString MadStream::sCannotCreatePosFile()
 {
-    return tr("Cannot create Pos file");
+    return uiStrings::phrCannotCreate(tr("Pos file"));
 }
 
 uiString MadStream::sCannotWritePosFile()

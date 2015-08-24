@@ -181,8 +181,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 		     "Instead, a directory like 'My Documents' would be OK.") )
 #endif
 	if ( !File::createDir( datadir ) )
-	    mErrRet( tr("Cannot create the new directory.\n"
-		     "Please check if you have the required write permissions"))
+	    mErrRet( uiStrings::phrCannotCreateDirectory(datadir) )
     }
 
     while ( !IOMan::isValidDataRoot(datadir) )

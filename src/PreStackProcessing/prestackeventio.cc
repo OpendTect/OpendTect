@@ -569,7 +569,7 @@ int EventWriter::nextStep()
 
 	    if ( !File::createDir(fnm.buf()) )
 	    {
-		errmsg_ = tr("Cannot create directory %1").arg(fnm);
+		errmsg_ = uiStrings::phrCannotCreateDirectory(fnm);
 		return ErrorOccurred();
 	    }
 	}
@@ -773,7 +773,7 @@ EventDuplicator::EventDuplicator( IOObj* from, IOObj* to )
 
     if ( !File::createDir( tonm.buf() ) )
     {
-	errmsg_ = tr("Cannot create %1.").arg(tonm.buf());
+	errmsg_ = uiStrings::phrCannotCreate(tonm.buf());
 	return;
     }
 

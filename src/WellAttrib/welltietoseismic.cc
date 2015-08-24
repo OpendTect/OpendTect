@@ -492,7 +492,8 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     gen.usePar( par );
     TaskRunner* taskrunner = data_.trunner_;
     if ( !TaskRunner::execute(taskrunner,gen) )
-	mErrRet( tr("Cannot create synthetic: %1").arg (gen.errMsg() ) )
+	mErrRet( uiStrings::phrCannotCreate(
+		tr("synthetic: %1").arg(gen.errMsg())) )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
     ObjectSet<const ReflectivityModel> refmodels;

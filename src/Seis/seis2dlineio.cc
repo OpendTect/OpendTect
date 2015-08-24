@@ -283,7 +283,9 @@ bool Seis2DLineMerger::nextFetcher()
 	mErrRet( tr("Cannot find line in %1 dataset" ).arg(geom2d->getName()) )
     fetcher_ = ds_->lineFetcher( dslineidx, tbuf, 1 );
     if ( !fetcher_ )
-	mErrRet( tr("Cannot create a reader for %1.").arg(geom2d->getName()) )
+	mErrRet(
+	    uiStrings::phrCannotCreate(tr("a reader for %1.")
+				       .arg(geom2d->getName()) ) )
 
     nrdonemsg_ = "Traces read";
     return true;

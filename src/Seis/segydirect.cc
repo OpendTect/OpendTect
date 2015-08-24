@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "od_iostream.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 namespace SEGY
 {
@@ -631,8 +632,7 @@ int SEGY::FileIndexer::nextStep()
 		File::createDir(outfile);
 		if ( !File::isDirectory(outfile) )
 		{
-		    msg_ = tr("Cannot create directory for output:\n%1")
-			      .arg(outfile);
+		    msg_ = uiStrings::phrCannotCreateDirectory(outfile);
 		    return ErrorOccurred();
 		}
 	    }

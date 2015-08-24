@@ -162,8 +162,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 
     if ( !File::createDir( workdirnm ) )
-	mErrRet(tr("Cannot create the new directory.\n"
-		   "Please check if you have the required write permissions"))
+	mErrRet( uiStrings::phrCannotCreateDirectory(workdirnm) )
 
     const char* docmsg =
 	"The OpendTect window will FREEZE during this process\n"

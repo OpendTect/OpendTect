@@ -27,12 +27,20 @@ public:
     //!<"ASCII <string>"
     static uiString phrCannotCreate(const uiString& string);
     //!<"Cannot create <string>"
+    static uiString phrCannotCreateDBEntryFor(const uiString& string);
+    //!<"Cannot create database entry for <string>"
+    static uiString phrCannotCreateDirectory(const uiString& string);
+    //!<"Cannot create directory <string>"
     static uiString phrCannotFind(const uiString& string);
     //!<"Cannot find <string>"
+    static uiString phrCannotFindDBEntry(const MultiID&);
+    //!<"Cannot find database entry for
     static uiString phrCannotOpen(const uiString& string);
     //!<"Cannot open <string>"
     static uiString phrCannotRead(const uiString& string);
     //!<"Cannot read <string>"
+    static uiString phrCannotRemove(const uiString& string);
+    //!<"Cannot remove <string>"
     static uiString phrCannotWrite(const uiString& string);
     //!<"Cannot write <string>"
     static uiString phrCreate(const uiString& string);
@@ -53,6 +61,8 @@ public:
     //!<"<a> <b>
     static uiString phrOutput(const uiString&);
     //!<"Output <string>"
+    static uiString phrReading(const uiString&);
+    //!<"Reading <string>"
     static uiString phrSelect(const uiString& string);
     //!<"Select <string>"
     static uiString phrSuccessfullyExported(const uiString&);

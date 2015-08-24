@@ -796,7 +796,9 @@ uiString uiMessage() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_
-	: (proc_ ? proc_->uiMessage() : tr("Cannot create output") );
+	: (proc_
+           ? proc_->uiMessage()
+           : uiStrings::phrCannotCreate(tr("output")) );
 }
 
 int haveError( const uiString& msg )
@@ -965,7 +967,7 @@ uiString uiMessage() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_
-	: (proc_ ? proc_->Task::uiMessage() : tr("Cannot create output"));
+	: (proc_ ? proc_->Task::uiMessage() : uiStrings::phrCannotCreate(tr("output")));
 }
 
 int haveError( const uiString& msg )

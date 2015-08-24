@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "multiid.h"
 #include "namedobj.h"
+#include "uistring.h"
+
 class Conn;
 class IOObj;
 class CallBack;
@@ -56,6 +58,7 @@ fullUserExpr().
 mExpClass(General) IOObj : public NamedObject
 {
 public:
+    uiString			uiName() const { return toUiString(name()); }
 
     IOObj*			clone() const;
     virtual const MultiID&	key() const			{ return key_; }

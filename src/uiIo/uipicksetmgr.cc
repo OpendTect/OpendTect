@@ -182,7 +182,10 @@ bool acceptOK( CallBacker* )
     if ( nrsel < 2 )
     { uiMSG().error(tr("Please select at least two sets")); return false; }
     else if (!outfld->commitInput())
-    { uiMSG().error(tr("Cannot create the output set")); return false; }
+    {
+	uiMSG().error(uiStrings::phrCannotCreate( outfld->getInput() ));
+	return false;
+    }
 
     if ( ctioout_.ioobj )
 	mid_ = ctioout_.ioobj->key();

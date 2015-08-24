@@ -282,7 +282,7 @@ bool SeisTrcWriter::next2DLine()
 
     if ( !putter_ )
     {
-	errmsg_ = tr("Cannot create 2D line writer");
+	errmsg_ = toUiString("Cannot create 2D line writer");
 	return false;
     }
 

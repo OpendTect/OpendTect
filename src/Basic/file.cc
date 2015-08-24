@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "oddirs.h"
 #include "oscommand.h"
+#include "uistrings.h"
 
 #ifdef __win__
 # include <direct.h>
@@ -76,12 +77,12 @@ protected:
     BufferStringSet	filelist_;
     BufferString	src_;
     BufferString	dest_;
-    BufferString	msg_;
+    uiString		msg_;
 
 };
 
 
-#define mErrRet(s1,s2) { msg_ = s1; msg_ += s2; return ErrorOccurred(); }
+#define mErrRet(s1) { msg_ = s1; return ErrorOccurred(); }
 int RecursiveCopier::nextStep()
 {
 #ifdef OD_NO_QT
@@ -93,9 +94,9 @@ int RecursiveCopier::nextStep()
     if ( !fileidx_ )
     {
 	if ( File::exists(dest_) && !File::remove(dest_) )
-	    mErrRet("Cannot overwrite ",dest_)
+	    mErrRet(tr("Cannot overwrite %1").arg(dest_) )
 	if( !File::createDir(dest_) )
-	    mErrRet("Cannot create directory ",dest_)
+	    mErrRet( uiStrings::phrCannotCreateDirectory(dest_) )
     }
 
     const BufferString& srcfile = *filelist_[fileidx_];
@@ -106,15 +107,16 @@ int RecursiveCopier::nextStep()
     {
 	BufferString linkval = linkValue( srcfile );
 	if ( !createLink(linkval,destfile) )
-	    mErrRet("Cannot create symbolic link ",destfile)
+	    mErrRet(
+	       uiStrings::phrCannotCreate(tr("symbolic link %1").arg(destfile)))
     }
     else if ( isDirectory(srcfile) )
     {
 	if ( !File::createDir(destfile) )
-	    mErrRet("Cannot create directory ",destfile)
+	    mErrRet( uiStrings::phrCannotCreateDirectory(destfile) )
     }
     else if ( !File::copy(srcfile,destfile) )
-	    mErrRet("Cannot create file ", destfile)
+	mErrRet( uiStrings::phrCannotCreate( tr("file %1").arg(destfile)) )
 
     fileidx_++;
     nrdone_ += getFileSize( srcfile );

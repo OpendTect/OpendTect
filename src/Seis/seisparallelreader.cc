@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seis2ddata.h"
 #include "threadwork.h"
 #include "trckeyzsampling.h"
+#include "uistrings.h"
 
 #include <string.h>
 
@@ -56,7 +57,9 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
     , bidvals_( &bidvals )
     , ioobj_( ioobj.clone() )
     , totalnr_( bidvals.totalSize() )
-{}
+{
+    errmsg_ = uiStrings::phrReading( ioobj_->uiName() );
+}
 
 
 ParallelReader::~ParallelReader()
@@ -317,6 +320,8 @@ bool ParallelReader2D::init()
 	if ( !dp_->addComponent(cnm) )
 	    return false;
     }
+
+    msg_ = uiStrings::phrReading( ioobj_->uiName() );
 
     return true;
 }

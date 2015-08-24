@@ -497,7 +497,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->setObj(0); ctio->setName( wellname );
     if ( !ctio->fillObj() )
-	mErrRet(tr("Cannot create an entry in the data store"))
+	mErrRet( uiStrings::phrCannotCreateDBEntryFor( wellname ))
 
     RefMan<Well::Data> well = new Well::Data( wellname );
     Well::Track& track = well->track();

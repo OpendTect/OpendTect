@@ -499,7 +499,7 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 
     Desc* newdesc = PF().createDescCopy( attribname );
     if ( !newdesc )
-	mErrRetNull( tr("Cannot create attribdesc") )
+	mErrRetNull( toUiString("Cannot create attribdesc") )
 
     newdesc->setDescSet( attrset_ );
     newdesc->ref();

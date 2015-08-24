@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 #include "seis2ddata.h"
 #include "strmprov.h"
+#include "uistrings.h"
 
 
 namespace Seis
@@ -38,7 +39,7 @@ IOObj* PreLoader::getIOObj() const
 {
     IOObj* ret = IOM().get( mid_ );
     if ( !ret )
-	errmsg_ = tr("Cannot find ID in object manager");
+	errmsg_ = uiStrings::phrCannotFindDBEntry( mid_ );
     return ret;
 }
 

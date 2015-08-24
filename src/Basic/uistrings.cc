@@ -10,6 +10,7 @@ ________________________________________________________________________
 -*/
 
 #include "uistrings.h"
+#include "multiid.h"
 
 static const char* joinstring = "%1 %2";
 
@@ -35,11 +36,20 @@ uiString uiStrings::phrImport( const uiString& string )
 uiString uiStrings::phrCannotCreate( const uiString& string )
 { return tr("Cannot create %1").arg( string ); }
 
+uiString uiStrings::phrCannotCreateDBEntryFor(const uiString& string)
+{ return phrCannotCreate( tr("database entry for %1").arg(string) ); }
+
+uiString uiStrings::phrCannotCreateDirectory( const uiString& string )
+{ return phrCannotCreate( tr("directory %1").arg(string) ); }
+
 uiString uiStrings::phrCannotFind( const uiString& string )
 { return tr("Cannot find %1").arg( string ); }
 
 uiString uiStrings::phrCannotOpen( const uiString& string )
 { return tr("Cannot open %1").arg( string ); }
+
+uiString uiStrings::phrCannotFindDBEntry( const MultiID& mid )
+{ return phrCannotFind( tr("database entry for %1").arg( mid.buf() ) ); }
 
 uiString uiStrings::phrCannotRead( const uiString& string )
 { return tr("Cannot read %1").arg( string ); }
@@ -68,6 +78,9 @@ uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b )
 
 uiString uiStrings::phrOutput( const uiString& string )
 { return uiString(joinstring).arg( sOutput() ).arg( string ); }
+
+uiString uiStrings::phrReading( const uiString& string )
+{ return tr( "Reading %1").arg( string ); }
 
 uiString uiStrings::phrSuccessfullyExported( const uiString& string )
 { return tr( "Successfully exported %1").arg( string );}

@@ -127,9 +127,8 @@ bool createBaseDir()
     {
 	if  ( !File::createDir(basefp_.fullPath()) )
 	{
-	    uiString msg = tr("Cannot create %1 for cross-plot "
-			      "selections. Check write permissions")
-			 .arg(sKeySelGrp());
+	    const uiString msg =
+		uiStrings::phrCannotCreateDirectory(basefp_.fullPath());
 	    uiMSG().error( msg );
 	    return false;
 	}
