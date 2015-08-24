@@ -33,7 +33,8 @@ namespace PreStack
 
 uiEventImport::uiEventImport( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Import Prestack Events"),mNoDlgTitle,
-				   mODHelpKey(mPreStackEventImportHelpID) ) )
+				   mODHelpKey(mPreStackEventImportHelpID) )
+				   .modal(false) )
     , fd_(*EventAscIO::getDesc())
 {
     setOkText( uiStrings::sImport() );
@@ -69,10 +70,23 @@ bool uiEventImport::acceptOK( CallBacker* )
     EventImporter importer( filefld_->fileName(), fd_, *mgr );
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, importer ) )
+    {
+	uiMSG().error( tr("Could not import PreStack Events") );
 	return false;
+    }
 
     EventWriter writer( outputfld_->getIOObj(), *mgr );
-    return TaskRunner::execute( &taskrunner, writer );
+    if( !TaskRunner::execute( &taskrunner, writer ) )
+    {
+	uiMSG().error( tr("Could not write PreStack Events") );
+	return false;
+    }
+
+    uiString msg = tr( "PreStack Event successfully imported."
+		      "\nDo you want to import more PreStack Events?" );
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
 
 }; //namespace

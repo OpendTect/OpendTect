@@ -30,7 +30,7 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
     : uiDialog( p, uiDialog::Setup(
 			uiStrings::phrExport( uiStrings::sPreStackEvents() ),
 			mNoDlgTitle,
-			mODHelpKey(mPreStackEventExportHelpID) ) )
+			mODHelpKey(mPreStackEventExportHelpID) ).modal(false) )
 {
     setOkText( uiStrings::sExport() );
 
@@ -92,7 +92,11 @@ bool uiEventExport::acceptOK( CallBacker* )
 	return false;
     }
 
-    return true;
+    uiString msg = tr( "PreStack Event successfully exported"
+		      "\nDo you want to export more PreStack Events?" );
+    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+				tr("No, close window") );
+    return !ret;
 }
 
 }; //namespace
