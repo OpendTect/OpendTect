@@ -13,6 +13,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 mImplFactory( WindowFunction, WINFUNCS );
+
+bool WindowFunction::hasVariable( const BufferString& nm )
+{
+    WindowFunction* winfunc = WINFUNCS().create( nm );
+    const bool hastapervar = winfunc && winfunc->hasVariable();
+    delete winfunc;
+
+    return hastapervar;
+}
+
 void WindowFunction::addAllStdClasses()
 {
 #define mInitStdWFClass(nm) nm##Window::initClass()
@@ -49,54 +59,58 @@ bool WindowFunction::usePar( const IOPar& par )
 
 #define mImplClassMinimal(clss) \
 void clss##Window::initClass() \
-{ WINFUNCS().addCreator( clss##Window::create, clss##Window::sName() ); } \
+{ \
+    WINFUNCS().addCreator( clss##Window::create, clss##Window::sName() ); \
+} \
 \
 float clss##Window::getValue( float x ) const \
 { \
-    if ( x <= -1 || x >= 1 ) return 0;
+    if ( x < -1 || x > 1 ) return 0;
 #define mImplClass(clss) \
     mImplClassMinimal(clss) \
-    if ( x < 0 ) x = -x;
+    if ( x < 0 ) x = -x; \
+    double val = mCast(double,x);
 
 
 mImplClassMinimal(Box)
     return 1;
 }
 mImplClass(Bartlett)
-    return 1 - x;
+    return mCast(float, 1. - val );
 }
 mImplClass(Hanning)
-    return (float) ( .5 * (1 + cos( M_PI * x )) );
+    return mCast(float, 0.50 * (1. + cos( M_PI * val )) );
 }
 mImplClass(Hamming)
-    return (float) ( 0.54 + 0.46 * cos( M_PI * x ) );
+    return mCast(float, 0.54 + 0.46 * cos( M_PI * val ) );
 }
 mImplClass(Blackman)
-    return (float) ( 0.42 + 0.5 * cos( M_PI * x ) +
-				  0.08 * cos( 2 * M_PI * x ) );
+    return mCast(float, 0.42 + 0.50 * cos( M_PI  * val ) +
+			       0.08 * cos( M_2PI * val ) );
 }
 mImplClass(FlatTop)
-    const float pi_x = (float) ( M_PI * x );
-    return (1	+ 1.93f	 * cos(     pi_x )
-		+ 1.29f	 * cos( 2 * pi_x )
-		+ 0.388f * cos( 3 * pi_x )
-		+ 0.032f * cos( 4 * pi_x )) / 4.64f;
+    const double pi_x = M_PI * val;
+    return mCast(float, ( 1.	+ 1.93	* cos(	    pi_x )
+				+ 1.29	* cos( 2. * pi_x )
+				+ 0.388 * cos( 3. * pi_x )
+				+ 0.032 * cos( 4. * pi_x )) / 4.64 );
 }
 mImplClass(CosTaper)
-    if ( x < threshold_ )
+    if ( val < threshold_ )
        return 1;
-    x -= threshold_; x *= factor_;
-    return (float) ( (1 + cos( M_PI * x )) * .5 );
+    val -= threshold_; val *= factor_;
+    return mCast(float, (1. + cos( M_PI * val )) * 0.5 );
 }
 mImplClass(Kaiser)
-    if ( x > 0.5 )
-       return 0.f;
+    const double num = Math::BesselI0( M_PI * alpha_ * Math::Sqrt(1-val*val) );
+    return mCast(float, num / denom_ );
+}
 
-    double xx = mCast(double,nrsamp_-1) * mCast(double,x);
-    xx *= xx;
-    const double val = scale_*Math::BesselI0( alpha_*Math::Sqrt(1-xx/xxmax_) );
 
-    return mCast(float,val);
+
+CosTaperWindow::CosTaperWindow()
+{
+    setVariable( 0.05f );
 }
 
 
@@ -112,56 +126,120 @@ bool CosTaperWindow::setVariable( float threshold )
 }
 
 
-KaiserWindow::KaiserWindow()
-    : width_(mUdf(float))
+bool CosTaperWindow::isAcceptableVariable( float val ) const
 {
-    setNumberSamples( 11 );
-    setVariable( 0.4 );
+    return val >= 0.f && val <= 1.f;
 }
 
 
-bool KaiserWindow::setVariable( float width )
+bool CosTaperWindow::isLegacyTaper(const BufferString& nm )
 {
-    if ( width<0. || width>1.f )
+    return nm == BufferString( "CosTaper5" ) ||
+	   nm == BufferString( "CosTaper10" ) ||
+	   nm == BufferString( "CosTaper20" );
+}
+
+
+float CosTaperWindow::getLegacyTaperVariable( const BufferString& nm )
+{
+    if ( !isLegacyTaper(nm) )
+	return mUdf(float);
+
+    if ( nm == BufferString("CosTaper5") )
+	return 0.95;
+    else if ( nm == BufferString("CosTaper10") )
+	return 0.9f;
+    else if ( nm == BufferString("CosTaper20") )
+	return 0.8f;
+
+    return mUdf(float);
+}
+
+
+
+KaiserWindow::KaiserWindow()
+    : width_(mUdf(double))
+    , ns_(mUdf(int))
+{
+    setVariable( 1.5f );
+}
+
+
+
+KaiserWindow::KaiserWindow( double twidth, int nrsamples )
+    : width_(mUdf(double))
+    , ns_(mUdf(int))
+{
+    set( twidth, nrsamples );
+}
+
+
+bool KaiserWindow::setVariable( float alpha )
+{
+    if ( !isAcceptableVariable(alpha) )
 	return false;
 
-    width_ = width;
-    double a = 14.36 * mCast(double,width_) * mCast(double,nrsamp_) + 7.95;
-    if ( a <= 21. )
-	alpha_ = 0.;
-    else if ( a <= 50. )
-    {
-	a -= 21.;
-	alpha_ = 0.5842 * Math::PowerOf(a,0.4) + 0.07886 * a;
-    }
-    else
-    {
-	a -= 8.7;
-	alpha_ = 0.1102 * a;
-    }
-
-    scale_ = 1./ Math::BesselI0(alpha_);
+    alpha_ = mCast(double,alpha);
+    denom_ = Math::BesselI0( M_PI * alpha_ );
 
     return true;
 }
 
 
-void KaiserWindow::setNumberSamples( int ns )
+bool KaiserWindow::set( double width, int nrsamples )
 {
-    nrsamp_ = ns;
-    const double nrsampd = mCast(double,ns);
-    xxmax_ = 0.25 * nrsampd * nrsampd;
-    if ( !mIsUdf(width_) )
-	setVariable( width_ );
+    double a = 14.36 * width * mCast(double,nrsamples) + 7.95;
+    double alpha;
+    if ( a <= 21. )
+	alpha = 0.;
+    else if ( a <= 50. )
+    {
+	a -= 21.;
+	alpha = 0.5842 * Math::PowerOf(a,0.4) + 0.07886 * a;
+    }
+    else
+    {
+	a -= 8.7;
+	alpha = 0.1102 * a;
+    }
+
+    if ( !setVariable(alpha/M_PI) )
+	return false;
+
+    width_ = width;
+    ns_ = nrsamples;
+
+    return true;
 }
 
 
-float KaiserWindow::getError() const
+bool KaiserWindow::isAcceptableVariable( float val ) const
 {
-    if ( mIsUdf(width_) )
-	return mUdf(float);
-
-    const double a = 14.36 * mCast(double,width_) * mCast(double,nrsamp_) +7.95;
-    return (float)Math::PowerOf( 10, -a/20 );
+    return val >= 0.f;
 }
+
+
+double KaiserWindow::getWidth( int nrsamples ) const
+{
+    if ( mIsUdf(nrsamples) )
+	return mUdf(double);
+
+    double res = M_PI * alpha_ / 0.1102 + 8.7;
+    return ( res - 7.95 ) / ( 14.36 * mCast(double,nrsamples) );
+}
+
+
+double KaiserWindow::getError( int nrsamples ) const
+{
+    const double width = getWidth( nrsamples );
+    if ( mIsUdf(width) )
+	return mUdf(double);
+
+    const double a = 14.36 * width * mCast(double,nrsamples) + 7.95;
+    return Math::PowerOf( 10., -a/20. );
+}
+
+
+double KaiserWindow::getError() const
+{ return getError( ns_ ); }
 
