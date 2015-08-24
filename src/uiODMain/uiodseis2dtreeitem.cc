@@ -513,7 +513,7 @@ bool uiOD2DLineTreeItem::init()
 }
 
 
-BufferString uiOD2DLineTreeItem::createDisplayName() const
+uiString uiOD2DLineTreeItem::createDisplayName() const
 {
     return BufferString( visserv_->getObjectName(displayid_) );
 }

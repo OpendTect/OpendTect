@@ -667,7 +667,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
 	const char* parenttype )
     : uiODAttribTreeItem(parenttype)
-    , depthattribmnuitem_(tr("Z values"))
+    , depthattribmnuitem_( uiStrings::sZValues() )
     , savesurfacedatamnuitem_(m3Dots(tr("Save as Fault Data")))
     , loadsurfacedatamnuitem_(m3Dots(tr("Fault Data")))
     , algomnuitem_(tr("Smooth"))
@@ -808,13 +808,13 @@ void uiODFaultSurfaceDataTreeItem::setDataPointSet( const DataPointSet& vals )
 }
 
 
-BufferString uiODFaultSurfaceDataTreeItem::createDisplayName() const
+uiString uiODFaultSurfaceDataTreeItem::createDisplayName() const
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
     if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-	return BufferString("Z values");
+        return uiStrings::sZValues();
 
     return uiODAttribTreeItem::createDisplayName();
 }

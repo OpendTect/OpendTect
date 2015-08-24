@@ -71,7 +71,7 @@ protected:
     void			createMenuCB(CallBacker*);
     virtual void		handleMenuCB(CallBacker*);
     void			updateColumnText(int col);
-    virtual BufferString	createDisplayName() const		= 0;
+    virtual uiString		createDisplayName() const		= 0;
 
     void			displayMiniCtab( const ColTab::Sequence* );
 

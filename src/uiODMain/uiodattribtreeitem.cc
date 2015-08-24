@@ -223,32 +223,32 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
 }
 
 
-BufferString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
+uiString uiODAttribTreeItem::createDisplayName( int visid, int attrib )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
-    BufferString dispname( as ? as->userRef() : 0 );
+    uiString dispname( as ? as->userRef() : 0 );
     if ( as && as->isNLA() )
     {
 	dispname = as->objectRef();
-	const char* nodenm = as->userRef();
+	uiString nodenm = as->userRef();
 	if ( IOObj::isKey(as->userRef()) )
 	    nodenm = IOM().nameOf( as->userRef() );
-	dispname += " ("; dispname += nodenm; dispname += ")";
+        dispname = uiString("%1 (%2)").arg( as->objectRef() ).arg( nodenm );
     }
 
     if ( as && as->id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt() )
-	dispname = "<right-click>";
+        dispname = uiStrings::sRightClick();
     else if ( !as )
 	dispname = visserv->getObjectName( visid );
     else if ( as->id().asInt() == Attrib::SelSpec::cNoAttrib().asInt() )
-	dispname="";
+        dispname=uiString::emptyString();
 
     return dispname;
 }
 
 
-BufferString uiODAttribTreeItem::createDisplayName() const
+uiString uiODAttribTreeItem::createDisplayName() const
 {
     return createDisplayName( displayID(), attribNr() );
 }

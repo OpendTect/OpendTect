@@ -24,7 +24,7 @@ mExpClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
 public:
     			uiODAttribTreeItem( const char* parenttype );
 			~uiODAttribTreeItem();
-    static BufferString	createDisplayName( int visid, int attrib );
+    static uiString	createDisplayName( int visid, int attrib );
     static void		createSelMenu(MenuItem&,int visid,int attrib,
 	    			      int sceneid);
     static bool		handleSelMenu(int mnuid,int visid,int attrib);
@@ -37,7 +37,7 @@ protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB( CallBacker* );
     void		updateColumnText( int col );
-    BufferString	createDisplayName() const;
+    uiString		createDisplayName() const;
     
     MenuItem		selattrmnuitem_;
     MenuItem		colsettingsmnuitem_;

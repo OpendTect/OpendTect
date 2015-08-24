@@ -206,11 +206,11 @@ bool uiODVolrenTreeItem::init()
 }
 
 
-BufferString uiODVolrenTreeItem::createDisplayName() const
+uiString uiODVolrenTreeItem::createDisplayName() const
 {
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
 		     visserv_->getObject( displayid_ ) )
-    BufferString info;
+    uiString info;
     if ( vd )
 	vd->getTreeObjectInfo( info );
 

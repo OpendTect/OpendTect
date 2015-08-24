@@ -246,7 +246,7 @@ int uiODDisplayTreeItem::uiTreeViewItemType() const
 }
 
 
-BufferString uiODDisplayTreeItem::createDisplayName() const
+uiString uiODDisplayTreeItem::createDisplayName() const
 {
     const uiVisPartServer* cvisserv =
 		const_cast<uiODDisplayTreeItem*>(this)->applMgr()->visServer();

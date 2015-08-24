@@ -444,7 +444,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 							uiVisEMObject* uv,
 							const char* parenttype )
     : uiODAttribTreeItem( parenttype )
-    , depthattribmnuitem_(tr("Z values"))
+    , depthattribmnuitem_(uiStrings::sZValues())
     , savesurfacedatamnuitem_(m3Dots(tr("Save as Horizon Data")))
     , loadsurfacedatamnuitem_(m3Dots(tr("Horizon Data")))
     , algomnuitem_(uiStrings::sTools())
@@ -648,13 +648,13 @@ void uiODEarthModelSurfaceDataTreeItem::setDataPointSet(
 }
 
 
-BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
+uiString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
     if ( as && as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-	return BufferString("Z values");
+        return uiStrings::sZValues();
 
     return uiODAttribTreeItem::createDisplayName();
 }

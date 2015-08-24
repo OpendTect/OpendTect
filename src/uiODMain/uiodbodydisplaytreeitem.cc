@@ -632,13 +632,13 @@ void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-BufferString uiODBodyDisplayDataTreeItem::createDisplayName() const
+uiString uiODBodyDisplayDataTreeItem::createDisplayName() const
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
     if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-	return as->userRef();
+	return toUiString(as->userRef());
 
     return uiODAttribTreeItem::createDisplayName();
 }

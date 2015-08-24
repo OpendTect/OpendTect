@@ -59,7 +59,7 @@ protected:
     bool		isExpandable() const		{ return false; }
     const char*		getLockMenuText();
 
-    virtual BufferString createDisplayName() const;
+    virtual uiString	createDisplayName() const;
     void		updateLockPixmap(bool islocked);
 
     virtual bool	askContinueAndSaveIfNeeded(bool withcancel)

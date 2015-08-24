@@ -61,7 +61,7 @@ protected:
 			~uiOD2DLineTreeItem();
     bool		init();
     const char*		parentType() const;
-    BufferString	createDisplayName() const;
+    uiString    	createDisplayName() const;
 
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
 

@@ -170,7 +170,7 @@ public:
 	    			     		Coord3&,BufferString& val,
 	    					BufferString& info) const;
     void			getObjectInfo(BufferString&) const;
-    void			getTreeObjectInfo(BufferString&) const;
+    void			getTreeObjectInfo(uiString&) const;
 
     const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
 						     int version=0) const;
