@@ -786,8 +786,8 @@ void uiContourTreeItem::visClosingCB( CallBacker* )
 {  removeAll(); }
 
 
-BufferString uiContourTreeItem::createDisplayName() const
-{ return BufferString ( "Contours (", attrnm_, ")" ); }
+uiString uiContourTreeItem::createDisplayName() const
+{ return tr( "Contours (%1)" ).arg( attrnm_ ); }
 
 
 bool uiContourTreeItem::init()

@@ -62,7 +62,7 @@ private:
 
     virtual bool		init();
     virtual bool		hasTransparencyMenu() const { return false; }
-    virtual BufferString	createDisplayName() const;
+    virtual uiString		createDisplayName() const;
     virtual void		checkCB(CallBacker*);
     virtual void		createMenu(MenuHandler*,bool istb);
     virtual void		handleMenuCB(CallBacker*);

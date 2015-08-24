@@ -144,7 +144,7 @@ protected:
 
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
-    BufferString	createDisplayName() const;
+    uiString		createDisplayName() const;
 
     MenuItem		depthattribmnuitem_;
     MenuItem		savesurfacedatamnuitem_;

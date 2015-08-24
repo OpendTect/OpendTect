@@ -153,9 +153,9 @@ bool uiDataTreeItem::selectSetup()
 }
 
 
-BufferString uiDataTreeItem::createDisplayName() const
+uiString uiDataTreeItem::createDisplayName() const
 {
-    BufferString dispname = "<right-click>";
+    uiString dispname = uiStrings::sRightClick();
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     if ( ioobj )
 	dispname = ioobj->name();

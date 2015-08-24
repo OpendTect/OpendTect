@@ -906,7 +906,7 @@ void VolumeDisplay::getObjectInfo( BufferString& info ) const
 }
 
 
-void VolumeDisplay::getTreeObjectInfo( BufferString& info ) const
+void VolumeDisplay::getTreeObjectInfo( uiString& info ) const
 {
     TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
     cs.limitTo( texturecs_ );
@@ -917,21 +917,18 @@ void VolumeDisplay::getTreeObjectInfo( BufferString& info ) const
 
     if ( !cs.isEmpty() && canshowattrib )
     {
-	info += cs.hsamp_.start_.inl(); info += "-";
-	info += cs.hsamp_.stop_.inl(); info += ", ";
-	info += cs.hsamp_.start_.crl(); info += "-";
-	info += cs.hsamp_.stop_.crl(); info += ", ";
+	const int userfactor = scene_
+	    ? scene_->zDomainInfo().userFactor()
+	    : 1;
 
-	float zstart = cs.zsamp_.start;
-	float zstop = cs.zsamp_.stop;
+	info = uiString( "%1-%2, %3-%4, %5-%6" )
+	    .arg( cs.hsamp_.start_.inl() )
+	    .arg( cs.hsamp_.stop_.inl() )
+	    .arg( cs.hsamp_.start_.crl() )
+	    .arg( cs.hsamp_.stop_.crl() )
+	    .arg(mNINT32(cs.zsamp_.start*userfactor) )
+	    .arg(mNINT32(cs.zsamp_.stop*userfactor));
 
-	if ( scene_ )
-	{
-	    zstart *= scene_->zDomainInfo().userFactor();
-	    zstop *= scene_->zDomainInfo().userFactor();
-	}
-
-	info += mNINT32(zstart); info += "-"; info += mNINT32(zstop);
     }
     else
 	info = "<empty>";

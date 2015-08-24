@@ -322,9 +322,9 @@ void uiODPlaneDataTreeItem::selChg( CallBacker* )
 }
 
 
-BufferString uiODPlaneDataTreeItem::createDisplayName() const
+uiString uiODPlaneDataTreeItem::createDisplayName() const
 {
-    BufferString res;
+    uiString res;
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
     if ( !pdd )
@@ -334,19 +334,19 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     const OD::SliceType orientation = pdd->getOrientation();
 
     if ( orientation==OD::InlineSlice )
-	res = cs.hsamp_.start_.inl();
+	res = toUiString(cs.hsamp_.start_.inl());
     else if ( orientation==OD::CrosslineSlice )
-	res = cs.hsamp_.start_.crl();
+	res = toUiString(cs.hsamp_.start_.crl());
     else
     {
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( !scene )
-	    res = cs.zsamp_.start;
+	    res = toUiString(cs.zsamp_.start);
 	else
 	{
 	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
 	    const float zval = cs.zsamp_.start * zdef.userFactor();
-	    res = toString( zdef.isTime() || zdef.userFactor()==1000
+	    res = toUiString( zdef.isTime() || zdef.userFactor()==1000
 		    ? (float)(mNINT32(zval)) : zval );
 	}
     }

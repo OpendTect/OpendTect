@@ -169,6 +169,7 @@ public:
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sReload()		{ return tr("Reload"); }
+    static uiString sRightClick()	{ return tr("<right-click>"); }
     static uiString sRemove();
     static uiString sReversed()		{ return tr("Reversed"); }
     static uiString sSave();
@@ -224,6 +225,7 @@ public:
     static uiString sSet()		{ return tr("Set"); }
     static uiString sZUnit()		{ return tr("Z-unit"); }
     static uiString sZSlice()		{ return tr("Z-slice"); }
+    static uiString sZValues()		{ return tr("Z values"); }
 
     static uiString sDistUnitString(bool isfeet,bool abbrevated,
 				    bool withparentheses);
