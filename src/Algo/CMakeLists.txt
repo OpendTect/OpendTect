@@ -63,6 +63,7 @@ set( OD_MODULE_SOURCES
 	raytrace1d.cc
 	resizeimage.cc
 	scaler.cc
+	sincinterpolator.cc
 	spectrogram.cc
 	staticsdesc.cc
 	stats.cc
