@@ -32,8 +32,11 @@ public:
     virtual float	getVariable() const		{ return mUdf(float); }
     virtual bool	setVariable(float)		{ return true; }
     virtual const char*	variableName() const		{ return 0; }
+    virtual bool	isAcceptableVariable(float) const	{ return true; }
 
     static const char*	sKeyVariable()			{ return "Variable"; }
+    static const char*	sKeyTaperVal()			{ return "taperval"; }
+    static bool		hasVariable(const BufferString& wintyp);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -66,6 +69,12 @@ mDeclWFSimpleClass(Bartlett)
 mDeclWFSimpleClass(FlatTop)
 
 
+#define mDeclWFClassWithVariable(clss) \
+				clss##Window(); \
+    bool			hasVariable() const	{ return true; } \
+    bool			setVariable(float); \
+    bool			isAcceptableVariable(float) const; \
+
 /*!
 \brief Tapered Cosine Window Function.
 */
@@ -75,13 +84,14 @@ mExpClass(Algo) CosTaperWindow : public WindowFunction
 public:
 
     mDeclWFStdFns(CosTaper)
+    mDeclWFClassWithVariable(CosTaper)
 
-				CosTaperWindow()	{ setVariable( 0.05 ); }
-
-    bool			hasVariable() const	{ return true; }
     float			getVariable() const	{ return threshold_; }
-    bool			setVariable(float);
-    const char*			variableName() const{return "Taper length";}
+    const char*			variableName() const
+				{ return "Taper length";}
+
+    static bool			isLegacyTaper(const BufferString&);
+    static float		getLegacyTaperVariable(const BufferString&);
 
 protected:
 
@@ -99,24 +109,28 @@ mExpClass(Algo) KaiserWindow : public WindowFunction
 public:
 
     mDeclWFStdFns(Kaiser)
+    mDeclWFClassWithVariable(Kaiser)
 
-				KaiserWindow();
+				KaiserWindow(double twidth,int nrsamples);
+    bool			set(double width,int nrsamples);
+				//Alternate way of setting alpha
 
-    bool			hasVariable() const	{ return true; }
-    float			getVariable() const	{ return width_; }
-    bool			setVariable(float);
-    void			setNumberSamples(int);
-    float			getError() const;
-    const char*			variableName() const
-				{ return "Transition width"; }
+    float			getVariable() const	{ return (float)alpha_;}
+    const char*			variableName() const	{ return "alpha"; }
+
+				// Variable must be set first
+    double			getWidth() const	{ return width_; }
+    double			getError() const;
+    int				getLength() const	{ return ns_; }
+    double			getWidth(int nrsamples) const;
+    double			getError(int nrsamples) const;
 
 protected:
 
-    float			width_;
     double			alpha_;
-    double			scale_;
-    int				nrsamp_;
-    double			xxmax_;
+    double			denom_;
+    double			width_;
+    int				ns_;
 };
 
 
