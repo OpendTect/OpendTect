@@ -4,7 +4,7 @@
 <context>
     <name>TextTranslateMgr</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/texttranslator.cc" line="+278"/>
+        <location filename="../../../src/Basic/texttranslator.cc" line="+277"/>
         <source>Language Name</source>
         <translation>
             <numerusform>English</numerusform>
@@ -49,7 +49,7 @@
 <context>
     <name>uiStrings</name>
     <message numerus="yes">
-        <location filename="../../../src/Basic/uistrings.cc" line="+25"/>
+        <location filename="../../../src/Basic/uistrings.cc" line="+27"/>
         <source>%1 does not exist</source>
         <translation>
             <numerusform>%1 does not exist</numerusform>
@@ -57,7 +57,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+69"/>
+        <location line="+91"/>
         <source>input file</source>
         <translation>
             <numerusform>input file</numerusform>
@@ -74,14 +74,45 @@
     </message>
     <message numerus="yes">
         <location line="+12"/>
-        <source>Faults</source>
+        <source>Fault</source>
         <translation>
             <numerusform>Fault</numerusform>
             <numerusform>Faults</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+3"/>
+        <location line="+12"/>
+        <source>Horizon</source>
+        <translation>
+            <numerusform>Horizon</numerusform>
+            <numerusform>Horizons</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+15"/>
+        <source>Marker</source>
+        <translation>
+            <numerusform>Marker</numerusform>
+            <numerusform>Markers</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+81"/>
+        <source>Well log</source>
+        <translation>
+            <numerusform>Well log</numerusform>
+            <numerusform>Well logs</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Faults</source>
+        <translation type="obsolete">
+            <numerusform>Fault</numerusform>
+            <numerusform>Faults</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="-105"/>
         <source>Fault Stick Set</source>
         <translation>
             <numerusform>Fault Stick Set</numerusform>
@@ -89,23 +120,21 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+9"/>
         <source>Horizons</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>Horizon</numerusform>
             <numerusform>Horizons</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+9"/>
         <source>Markers</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>Marker</numerusform>
             <numerusform>Markers</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+27"/>
+        <location line="+61"/>
         <source>Seismic</source>
         <translation>
             <numerusform>Seismic</numerusform>
@@ -113,7 +142,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+6"/>
+        <location line="+20"/>
         <source>Setting</source>
         <translation>
             <numerusform>Setting</numerusform>
@@ -121,7 +150,15 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+15"/>
+        <location line="+18"/>
+        <source>Wavelet</source>
+        <translation>
+            <numerusform>Wavelet</numerusform>
+            <numerusform>Wavelets</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+3"/>
         <source>Well</source>
         <translation>
             <numerusform>Well</numerusform>
