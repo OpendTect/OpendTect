@@ -89,7 +89,7 @@ protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     uiString		createDisplayName() const;
-
+    
     MenuItem		depthattribmnuitem_;
     MenuItem		savesurfacedatamnuitem_;
     MenuItem		loadsurfacedatamnuitem_;

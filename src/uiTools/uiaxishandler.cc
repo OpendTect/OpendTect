@@ -203,11 +203,11 @@ void uiAxisHandler::reCalc()
 
     if ( setup_.showSpecialValue() )
     {
-	const float spval = setup_.specialvalue_;
-	if ( rg_.includes(spval,rgisrev_) && !mIsEqual(spval,rg_.start,epsilon_)
+    	const float spval = setup_.specialvalue_;
+    	if ( rg_.includes(spval,rgisrev_) && !mIsEqual(spval,rg_.start,epsilon_)
 		&& !mIsEqual(spval,rg_.stop,epsilon_) )
-	{
-	    pos_ += getRelPos( spval );
+    	{
+    	    pos_ += getRelPos( spval );
 	    strs_.add( toStringLim(spval,spval<0 ? reqnrchars+1:reqnrchars) );
 	}
     }
@@ -246,7 +246,7 @@ bool uiAxisHandler::isColliding( float gridlineval ) const
 	const float posval = getVal( pospix );
 	const int dist = abs( gridlinepix-pospix );
 	const int overlapdist = isHor() ? reqnrchars*font.avgWidth()/2
-					: font.height();
+	    				: font.height();
 	if ( rg_.includes(posval,rgisrev_) &&
 		(mIsEqual(gridlineval,posval,epsilon_) || dist<overlapdist) )
 	    return true;

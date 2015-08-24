@@ -45,6 +45,14 @@ RandomLine::~RandomLine()
 }
 
 
+void RandomLine::setMultiID( const MultiID& mid )
+{
+    mid_ = mid;
+    if ( !mid_.isUdf() )
+	setName( IOM().nameOf(mid) );
+}
+
+
 int RandomLine::addNode( const BinID& bid )
 {
     nodes_ += bid;
@@ -400,11 +408,11 @@ int RandomLineManager::indexOf( const MultiID& mid ) const
 }
 
 
-RandomLine* RandomLineManager::get( const MultiID& mid, bool forcereload )
+RandomLine* RandomLineManager::get( const MultiID& mid )
 {
     const int rlidx = indexOf( mid );
     RandomLine* rl = lines_.validIdx(rlidx) ? lines_[rlidx] : 0;
-    if ( rl && !forcereload )
+    if ( rl )
 	return rl;
 
     PtrMan<IOObj> ioobj = IOM().get( mid );

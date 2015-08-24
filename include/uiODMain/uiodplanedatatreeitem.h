@@ -48,7 +48,7 @@ public:
 protected:
 			uiODPlaneDataTreeItem(int displayid,OD::SliceType,Type);
 
-    uiString		createDisplayName() const;
+    uiString    	createDisplayName() const;
 
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);

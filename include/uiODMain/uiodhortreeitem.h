@@ -62,7 +62,7 @@ protected:
     bool		init();
     void		initMenuItems();
     void		initNotify();
-    uiString		createDisplayName() const;
+    uiString    	createDisplayName() const;
     void		dispChangeCB(CallBacker*);
     const char*		parentType() const
 			{ return typeid(uiODHorizonParentTreeItem).name(); }

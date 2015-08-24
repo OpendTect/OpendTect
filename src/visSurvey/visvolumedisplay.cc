@@ -917,17 +917,17 @@ void VolumeDisplay::getTreeObjectInfo( uiString& info ) const
 
     if ( !cs.isEmpty() && canshowattrib )
     {
-	const int userfactor = scene_
-	    ? scene_->zDomainInfo().userFactor()
-	    : 1;
+        const int userfactor = scene_
+            ? scene_->zDomainInfo().userFactor()
+            : 1;
 
-	info = uiString( "%1-%2, %3-%4, %5-%6" )
-	    .arg( cs.hsamp_.start_.inl() )
-	    .arg( cs.hsamp_.stop_.inl() )
-	    .arg( cs.hsamp_.start_.crl() )
-	    .arg( cs.hsamp_.stop_.crl() )
-	    .arg(mNINT32(cs.zsamp_.start*userfactor) )
-	    .arg(mNINT32(cs.zsamp_.stop*userfactor));
+        info = uiString( "%1-%2, %3-%4, %5-%6" )
+            .arg( cs.hsamp_.start_.inl() )
+            .arg( cs.hsamp_.stop_.inl() )
+            .arg( cs.hsamp_.start_.crl() )
+            .arg( cs.hsamp_.stop_.crl() )
+            .arg(mNINT32(cs.zsamp_.start*userfactor) )
+            .arg(mNINT32(cs.zsamp_.stop*userfactor));
 
     }
     else

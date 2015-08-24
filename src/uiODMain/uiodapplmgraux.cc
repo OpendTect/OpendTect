@@ -230,7 +230,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->exportFaultStickSet();
 	    break;
 	    default:
-	    break;
+		break;
 	}
     break;
     mCase(Wll):

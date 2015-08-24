@@ -39,7 +39,7 @@ protected:
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
     void			createMenu(MenuHandler* menu ,bool istoolbar);
     void			handleMenuCB(CallBacker*);
-    uiString			createDisplayName() const;
+    uiString    		createDisplayName() const;
     void			updateColumnText( int col );
 
     MenuItem			selmenuitem_;

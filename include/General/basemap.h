@@ -32,10 +32,12 @@ public:
 				BaseMapObject(const char* nm);
 
     int				ID() const		{ return id_; }
-    virtual const char*		getType() const				= 0;
 
     Threads::Lock		lock_;
     virtual void		updateGeometry()			{}
+
+    virtual void		setType(const char* tp) { factorynm_ = tp;}
+    virtual const char*		getType() const		{ return factorynm_; }
 
     virtual void		setDepth(int val)	{ depth_ = val; }
     virtual int			getDepth() const	{ return depth_; }
@@ -54,6 +56,8 @@ public:
     virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
     virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
     virtual BufferString	getImageFileName() const	{ return ""; }
+    virtual int			getScale(int) const		{ return 1; }
+    virtual void		setScale(int,int)		{}
 
     virtual void		setLineStyle(int idx,const LineStyle&)	    {}
     virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
@@ -78,15 +82,17 @@ public:
 				    diagonal. */
     virtual bool		allowHoverEvent() const		{ return true; }
 
+    virtual bool		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
+
     CNotifier<BaseMapObject,const MouseEvent&>	clicked;
     Notifier<BaseMapObject>	changed;
     Notifier<BaseMapObject>	stylechanged;
 
 protected:
-
     int				depth_;
     int				id_;
-
+    BufferString		factorynm_;
 };
 
 

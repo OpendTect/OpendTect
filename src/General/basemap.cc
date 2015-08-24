@@ -9,6 +9,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "basemapimpl.h"
 #include "coord.h"
 
+#include "uistrings.h"
+
 BaseMapObject::BaseMapObject( const char* nm )
     : NamedObject(nm)
     , changed(this)
@@ -57,6 +59,21 @@ const OD::RGBImage* BaseMapObject::createImage( Coord& origin,Coord& p11 ) const
 
 const OD::RGBImage* BaseMapObject::createPreview( int approxdiagonal ) const
 { return 0; }
+
+
+bool BaseMapObject::fillPar( IOPar& par ) const
+{
+    par.set( sKey::Name(), name() );
+    return true;
+}
+
+
+bool BaseMapObject::usePar( const IOPar& par )
+{
+    setName( par.find(sKey::Name()) );
+    return true;
+}
+
 
 
 BaseMapMarkers::BaseMapMarkers()

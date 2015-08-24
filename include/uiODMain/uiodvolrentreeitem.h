@@ -54,7 +54,7 @@ public:
 protected:
 			~uiODVolrenTreeItem();
     bool		init();
-    uiString		createDisplayName() const;
+    uiString    	createDisplayName() const;
     uiODDataTreeItem*	createAttribItem( const Attrib::SelSpec* ) const;
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);

@@ -55,7 +55,7 @@ public:
     			{ zrange_ = rg; zrangeChanged.trigger(); }
     Interval<float>	zRange() const		{ return zrange_; }
 
-    void		setMultiID( const MultiID& mid )	{ mid_ = mid; }
+    void		setMultiID(const MultiID&);
     MultiID		getMultiID() const			{ return mid_; }
 
     struct ChangeData : public CallBacker
@@ -134,7 +134,7 @@ mExpClass(Geometry) RandomLineManager : public CallBacker
 public:
 			~RandomLineManager();
 
-    RandomLine*		get(const MultiID&,bool forcereload=false);
+    RandomLine*		get(const MultiID&);
     RandomLine*		get(int id);
     const RandomLine*	get(int id) const;
     bool		isLoaded(const MultiID&) const;

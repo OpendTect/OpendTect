@@ -814,7 +814,7 @@ uiString uiODFaultSurfaceDataTreeItem::createDisplayName() const
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
     if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-	return uiStrings::sZValues();
+        return uiStrings::sZValues();
 
     return uiODAttribTreeItem::createDisplayName();
 }

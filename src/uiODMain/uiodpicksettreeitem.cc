@@ -83,7 +83,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     newmnu->insertItem( new uiAction(m3Dots(tr("Generate 3D"))), mGen3DIdx );
     if ( SI().has2D() )
 	newmnu->insertItem( new uiAction(m3Dots(tr("Generate 2D"))),
-			    mRandom2DIdx);
+                            mRandom2DIdx);
     mnu.insertItem( newmnu );
 
     if ( children_.size() > 0 )

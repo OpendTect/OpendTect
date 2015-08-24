@@ -59,7 +59,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem(
-	uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon() ) )
+        uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon() ) )
 {
 }
 
@@ -103,7 +103,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAddIdx );
     mnu.insertItem( new uiAction(m3Dots(tr("Add at Sections Only"))),
-		    mAddAtSectIdx);
+                    mAddAtSectIdx);
     mnu.insertItem( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx );
 
     uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
@@ -326,8 +326,8 @@ uiString uiODHorizonTreeItem::createDisplayName() const
 
     if (  uivisemobj_ && uivisemobj_->getShift() )
     {
-	res.append( uiString(" (%1)").arg(
-	  toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor())));
+        res.append( uiString(" (%1)").arg(
+          toUiString(uivisemobj_->getShift() * SI().zDomain().userFactor())));
     }
 
     return res;
@@ -617,7 +617,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
     : uiODTreeItem(
-	uiStrings::phrJoinStrings(uiStrings::s2D(), uiStrings::sHorizon() ) )
+        uiStrings::phrJoinStrings(uiStrings::s2D(), uiStrings::sHorizon() ) )
 {}
 
 
