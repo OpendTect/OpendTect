@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvscene.h"
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
-    : uiODTreeItem("PickSet")
+    : uiODTreeItem( uiStrings::sPickSet())
 {
 }
 
@@ -82,7 +82,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     newmnu->insertItem( new uiAction(m3Dots(tr("Empty"))), mEmptyIdx );
     newmnu->insertItem( new uiAction(m3Dots(tr("Generate 3D"))), mGen3DIdx );
     if ( SI().has2D() )
-	newmnu->insertItem( new uiAction(m3Dots(tr("Generate 2D"))), mRandom2DIdx);
+	newmnu->insertItem( new uiAction(m3Dots(tr("Generate 2D"))),
+			    mRandom2DIdx);
     mnu.insertItem( newmnu );
 
     if ( children_.size() > 0 )
@@ -381,7 +382,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 
 
 uiODPolygonParentTreeItem::uiODPolygonParentTreeItem()
-    : uiODTreeItem("Polygon")
+    : uiODTreeItem( uiStrings::sPolygon() )
 {
 }
 

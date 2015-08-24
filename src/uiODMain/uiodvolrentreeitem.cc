@@ -54,7 +54,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODVolrenParentTreeItem::uiODVolrenParentTreeItem()
-    : uiODTreeItem("Volume")
+    : uiODTreeItem( uiStrings::sVolume() )
 {
     //Check if there are any volumes already in the scene
 }

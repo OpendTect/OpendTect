@@ -31,17 +31,18 @@ class uiTreeViewItem;
 class uiTreeView;
 class uiParent;
 
-mExpClass(uiTools) uiTreeItem	: public CallBacker
+mExpClass(uiTools) uiTreeItem : public CallBacker
 {
 public:
-				uiTreeItem(const char* nm=0);
+				uiTreeItem(const uiString& nm=
+					   uiString::emptyString() );
     virtual			~uiTreeItem();
     virtual void		prepareForShutdown();
 				/*!<Override if you want to popup dlg
 				    for saving various things (or similar) */
 
     virtual bool		askContinueAndSaveIfNeeded(bool withcancel);
-    void			setName( const char* nm )	{ name_ = nm; }
+    void			setName( const uiString& nm )	{ name_ = nm; }
     const char*			name() const;
 
     bool			areAllParentsChecked();
@@ -143,6 +144,8 @@ public:
     virtual void		updateColumnText(int col);
     virtual void		updateCheckStatus();
 
+    virtual void		translateText() { updateColumnText( 0 ); }
+
 protected:
 
     virtual int			uiTreeViewItemType() const;
@@ -190,7 +193,7 @@ protected:
     IOPar			properties_;
 
     uiTreeItem*			parent_;
-    BufferString		name_;
+    uiString			name_;
 
     uiTreeViewItem*		uitreeviewitem_;
     ObjectSet<uiTreeItem>	children_;

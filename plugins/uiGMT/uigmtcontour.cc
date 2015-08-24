@@ -150,7 +150,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
     {
-	uiString msg = tr("Cannot read '%1'").arg(ioobj->name().buf());
+	uiString msg = uiStrings::phrCannotRead( ioobj->name() );
 	uiMSG().error( msg );
 	return;
     }

@@ -54,7 +54,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     //setCtrlStyle( LeaveOnly );
 
     objectfld_ = new uiGenInput( this, "Picked on",
-		BoolInpSpec(true,"Inl/Crl","Z-slice") );
+		BoolInpSpec(true,"Inl/Crl",uiStrings::sZSlice()) );
     objectfld_->setSensitive( false );
 
     const BoolInpSpec horverspec( true, uiStrings::sHorizontal(), 
@@ -174,7 +174,7 @@ bool ScaleBarSubItem::init()
 	visserv_->addObject( ad, sceneID(), true );
 	visserv_->setViewMode( false );
 	displayid_ = ad->id();
-	ad->setName( name_ );
+	ad->setName( name_.getFullString().buf() );
     }
 
     mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,

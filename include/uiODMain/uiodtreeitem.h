@@ -27,7 +27,7 @@ class ui3DViewer;
 mExpClass(uiODMain) uiODTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODTreeItem);
 public:
-    			uiODTreeItem(const char*);
+			uiODTreeItem(const uiString&);
     bool		anyButtonClick(uiTreeViewItem*);
 
     int			sceneID() const;

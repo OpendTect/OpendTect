@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODWellParentTreeItem::uiODWellParentTreeItem()
-    : uiODTreeItem( "Well" )
+    : uiODTreeItem( uiStrings::sWell() )
     , constlogsize_(true)
 {
 }
@@ -57,8 +57,10 @@ bool uiODWellParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), cAddIdx );
     if ( SI().zIsTime() )
+    {
 	mnu.insertItem(
-	    new uiAction(m3Dots(tr("Tie Well to Seismic")),"well_tie"), cTieIdx);
+	    new uiAction(m3Dots(tr("Tie Well to Seismic")),"well_tie"),cTieIdx);
+    }
     mnu.insertItem( new uiAction(m3Dots(tr("New WellTrack"))), cNewWellIdx );
     if ( children_.size() > 1 )
 	mnu.insertItem( new uiAction(m3Dots(tr("Create Attribute Log"))),

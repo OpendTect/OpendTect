@@ -20,9 +20,9 @@ static const char* rcsID mUsedVar = "$Id$";
    if ( uitreeviewitem_ && uitreeviewitem_->treeView() ) \
         uitreeviewitem_->treeView()->selectionChanged.enable( yn );
 
-uiTreeItem::uiTreeItem( const char* name__ )
+uiTreeItem::uiTreeItem( const uiString& nm )
     : parent_( 0 )
-    , name_( name__ )
+    , name_( nm )
     , uitreeviewitem_( 0 )
 {
 }
@@ -38,7 +38,7 @@ uiTreeItem::~uiTreeItem()
 
 
 const char* uiTreeItem::name() const
-{ return name_.buf(); }
+{ return name_.getFullString(); }
 
 
 bool uiTreeItem::areAllParentsChecked()

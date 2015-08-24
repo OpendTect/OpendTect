@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "sampledprobdenfunc.h"
 #include "gaussianprobdenfunc.h"
+#include "uistrings.h"
 
 defineTranslatorGroup(ProbDenFunc,ProbDenFuncTranslator::key());
 defineTranslator(od,ProbDenFunc,mdTectKey);
@@ -48,7 +49,7 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
     {
 	if ( emsg )
 	{
-	    *emsg = tr("Cannot open '%1'").arg(fnm);
+	    *emsg = uiStrings::phrCannotOpen(fnm);
 	    strm.addErrMsgTo(*emsg); 
 	}
 	return 0;
@@ -77,7 +78,7 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
     {
 	if ( emsg )
 	{
-	    *emsg = tr("Cannot write to '%1'").arg(fnm);
+	    *emsg = uiStrings::phrCannotOpen( fnm );
 	    strm.addErrMsgTo(*emsg); 
 	}
 	return false;
@@ -85,7 +86,7 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 
     const bool ret = pdftr->write( pdf, strm );
     if ( !ret && emsg )
-    { *emsg = tr("Cannot write PDF to '%1'").arg(fnm); }
+    { *emsg = uiStrings::phrCannotWrite(fnm); }
     return ret;
 }
 

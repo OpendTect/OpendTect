@@ -239,7 +239,7 @@ bool uiExportHorizon::writeAscii()
     emobj->setMultiID( ioobj->key() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
     PtrMan<Executor> loader = hor->geometry().loader( &sels );
-    if ( !loader ) mErrRet(tr("Cannot read horizon"))
+    if ( !loader ) mErrRet( uiStrings::phrCannotRead( uiStrings::sHorizon() ) )
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;

@@ -63,6 +63,9 @@ uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 uiString uiStrings::phrInput( const uiString& string )
 { return uiString(joinstring).arg( sInput() ).arg( string ); }
 
+uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b )
+{ return uiString(joinstring).arg( a ).arg( b ); }
+
 uiString uiStrings::phrOutput( const uiString& string )
 { return uiString(joinstring).arg( sOutput() ).arg( string ); }
 

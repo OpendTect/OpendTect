@@ -599,7 +599,7 @@ uiTreeItem*
 
 
 uiODInlineParentTreeItem::uiODInlineParentTreeItem()
-    : uiODTreeItem( "In-line" )
+    : uiODTreeItem( uiStrings::sInline() )
 {}
 
 
@@ -643,7 +643,7 @@ uiTreeItem*
 
 
 uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
-    : uiODTreeItem( "Cross-line" )
+    : uiODTreeItem( uiStrings::sCrossline() )
 {}
 
 
@@ -688,7 +688,7 @@ uiTreeItem*
 
 
 uiODZsliceParentTreeItem::uiODZsliceParentTreeItem()
-    : uiODTreeItem( "Z-slice" )
+    : uiODTreeItem( uiStrings::sZSlice() )
 {}
 
 

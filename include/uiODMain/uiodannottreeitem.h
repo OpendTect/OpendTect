@@ -49,7 +49,7 @@ mExpClass(uiODMain) uiODAnnotTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODAnnotTreeItem);
     typedef uiODTreeItem  inheritedClass;
 public:
-    				uiODAnnotTreeItem(const char*);
+				uiODAnnotTreeItem(const uiString&);
     				~uiODAnnotTreeItem();
 
 				mMenuOnAnyButton;

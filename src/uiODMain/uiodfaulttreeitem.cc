@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODFaultParentTreeItem::uiODFaultParentTreeItem()
-   : uiODTreeItem( "Fault" )
+    : uiODTreeItem( uiStrings::sFault() )
 {
 }
 
@@ -415,7 +415,7 @@ bool uiODFaultTreeItem::isOnlyAtSections() const
 
 
 uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
-   : uiODTreeItem( "FaultStickSet" )
+    : uiODTreeItem( uiStrings::sFaultStickSet() )
 {}
 
 

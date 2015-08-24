@@ -127,9 +127,9 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( int visid,
 
 // Base uiODAnnotTreeItem ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-uiODAnnotTreeItem::uiODAnnotTreeItem( const char* type_ )
+uiODAnnotTreeItem::uiODAnnotTreeItem( const uiString& type_ )
     : uiODTreeItem(type_)
-    , typestr_(type_)
+    , typestr_(type_.getFullString())
 { }
 
 

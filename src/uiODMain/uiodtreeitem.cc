@@ -139,9 +139,10 @@ void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
 }
 
 
-uiODTreeItem::uiODTreeItem( const char* name__ )
-    : uiTreeItem( name__ )
+uiODTreeItem::uiODTreeItem( const uiString& nm )
+    : uiTreeItem( nm )
 {}
+
 
 bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
 {

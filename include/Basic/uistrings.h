@@ -49,6 +49,8 @@ public:
     //!<"Import <string>"
     static uiString phrInput(const uiString&);
     //!<"Input <string>"
+    static uiString phrJoinStrings(const uiString& a,const uiString& b);
+    //!<"<a> <b>
     static uiString phrOutput(const uiString&);
     //!<"Output <string>"
     static uiString phrSelect(const uiString& string);
@@ -74,6 +76,7 @@ public:
     static uiString sAttribName()	{ return tr("Attribute Name"); }
     static uiString sAttribute()	{ return tr("Attribute"); }
     static uiString sAttributes();
+    static uiString sBody(int num=1)	{ return tr("Body", 0, num); }
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
     static uiString sCalculate()	{ return tr("Calculate"); }
@@ -220,6 +223,7 @@ public:
     static uiString sYes()		{ return tr("Yes"); }
     static uiString sSet()		{ return tr("Set"); }
     static uiString sZUnit()		{ return tr("Z-unit"); }
+    static uiString sZSlice()		{ return tr("Z-slice"); }
 
     static uiString sDistUnitString(bool isfeet,bool abbrevated,
 				    bool withparentheses);

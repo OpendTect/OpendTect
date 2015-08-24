@@ -58,7 +58,7 @@ const char* uiODLine2DParentTreeItem::sKeyUnselected()
 { return "<Unselected>"; }
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
-    : uiODTreeItem("2D Line" )
+    : uiODTreeItem( tr("2D Line") )
     , removeattritm_(0)
     , replaceattritm_(0)
     , editcoltabitm_(0)
