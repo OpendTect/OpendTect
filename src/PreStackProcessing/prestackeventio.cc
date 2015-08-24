@@ -451,7 +451,7 @@ bool EventReader::readAuxData(const char* fnm)
     IOPar par;
     if ( !par.read( fileio.istrm(), EventReader::sHorizonFileType(), true ) )
     {
-	errmsg_ = tr("Cannot read %1").arg(auxfilenm);
+	errmsg_ = uiStrings::phrCannotRead(auxfilenm);
 	fileio.closeFail();
 	return false;
     }
@@ -462,7 +462,7 @@ bool EventReader::readAuxData(const char* fnm)
     if ( !par.get( EventReader::sKeyNrHorizons(), nrhors ) ||
 	 !par.get( EventReader::sKeyNextHorizonID(), nexthor ) )
     {
-	errmsg_ = tr("Cannot parse %1").arg(auxfilenm);
+	errmsg_ = uiStrings::phrCannotRead(auxfilenm);
 	return false;
     }
 
@@ -474,7 +474,7 @@ bool EventReader::readAuxData(const char* fnm)
 	PtrMan<IOPar> horpar = par.subselect( key.buf() );
 	if ( !horpar || !horpar->get( EventReader::sKeyHorizonID(), id ) )
 	{
-	    errmsg_ = tr("Cannot parse horizon ").arg(key.buf());
+	    errmsg_ = uiStrings::phrCannotRead(tr("horizon %1").arg(key.buf()));
 	    return false;
 	}
 

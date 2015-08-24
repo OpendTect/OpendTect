@@ -532,6 +532,10 @@ void uiODMain::timerCB( CallBacker* )
 }
 
 
+void uiODMain::translateText()
+{ applMgr().sceneMgr().translateText(); }
+
+
 void uiODMain::memTimerCB( CallBacker* )
 {
     mDefineStaticLocalObject( Threads::Lock, memtimerlock, (true) );

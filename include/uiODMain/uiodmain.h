@@ -121,6 +121,7 @@ private:
     void		memTimerCB(CallBacker*);
 
     uiString		getProgramString() const;
+    void		translateText();
 
 public:
 

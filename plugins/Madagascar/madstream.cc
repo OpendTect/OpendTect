@@ -630,11 +630,12 @@ bool MadStream::getNextTrace( float* arr )
     else if ( seisrdr_ )
     {
 	SeisTrc trc;
+	const uiString errmsg = uiStrings::phrCannotRead( tr("traces") );
 	const int rv = seisrdr_->get( trc.info() );
-	if (rv < 0) mErrBoolRet(tr("Cannot read traces"))
+	if (rv < 0) mErrBoolRet( errmsg )
 	else if ( rv == 0 ) return false;
 
-	if (!seisrdr_->get(trc)) mErrBoolRet(tr("Cannot read traces"));
+	if (!seisrdr_->get(trc)) mErrBoolRet(errmsg);
 	for ( int idx=0; idx<trc.size(); idx++ )
 	    arr[idx] = trc.get( idx, 0 );
 

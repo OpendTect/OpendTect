@@ -58,7 +58,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mSectFullIdx	7
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
-    : uiODTreeItem( "3D Horizon" )
+    : uiODTreeItem(
+        uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon() ) )
 {
 }
 
@@ -101,7 +102,8 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(m3Dots(uiStrings::sLoad())), mAddIdx );
-    mnu.insertItem( new uiAction(m3Dots(tr("Add at Sections Only"))),mAddAtSectIdx);
+    mnu.insertItem( new uiAction(m3Dots(tr("Add at Sections Only"))),
+                    mAddAtSectIdx);
     mnu.insertItem( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx );
 
     uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
@@ -615,7 +617,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
-    : uiODTreeItem( "2D Horizon" )
+    : uiODTreeItem(
+        uiStrings::phrJoinStrings(uiStrings::s2D(), uiStrings::sHorizon() ) )
 {}
 
 

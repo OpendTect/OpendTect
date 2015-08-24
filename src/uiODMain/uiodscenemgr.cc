@@ -772,7 +772,17 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 	if ( scenes_[idx]->lv_ == lv )
 	    return scenes_[idx]->itemmanager_;
     }
+
     return 0;
+}
+
+
+void uiODSceneMgr::translateText()
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	scenes_[idx]->itemmanager_->translateText();
+    }
 }
 
 

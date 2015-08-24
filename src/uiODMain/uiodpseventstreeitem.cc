@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODPSEventsParentTreeItem::uiODPSEventsParentTreeItem()
-    : uiODTreeItem("Prestack Events")
+    : uiODTreeItem( uiStrings::sPreStackEvents() )
     , child_(0)
 {}
 

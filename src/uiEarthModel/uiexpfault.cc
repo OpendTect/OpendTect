@@ -152,7 +152,7 @@ bool uiExportFault::writeAscii()
     if ( !f3d && !fss ) return false;
 
     PtrMan<Executor> loader = emobj->loader();
-    if ( !loader ) mErrRet(tr("Cannot read fault"))
+    if ( !loader ) mErrRet( uiStrings::phrCannotRead( uiStrings::sFault() ))
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;

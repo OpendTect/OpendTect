@@ -156,6 +156,8 @@ public:
     float			getHeadOnLightIntensity(int) const;
     void			setHeadOnLightIntensity(int,float);
 
+    void			translateText();
+
 protected:
 
 				uiODSceneMgr(uiODMain*);

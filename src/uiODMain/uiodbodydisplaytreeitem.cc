@@ -68,7 +68,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
-   : uiODTreeItem( "Body" )
+    : uiODTreeItem( uiStrings::sBody() )
 {}
 
 
