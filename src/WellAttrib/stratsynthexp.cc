@@ -143,8 +143,7 @@ int StratSynthExporter::nextStep()
 
 uiString StratSynthExporter::uiMessage() const
 {
-    return errmsg_.isEmpty() ? tr("Exporting syntheic data")
-			     : errmsg_.getOriginalString();
+    return errmsg_.isEmpty() ? tr("Exporting syntheic data") : errmsg_;
 }
 
 #define mErrRetPErr( msg ) \

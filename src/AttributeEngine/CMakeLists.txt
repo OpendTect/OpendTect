@@ -5,8 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS NLA Seis )
-SET(OD_MODULE_SOURCES
+add_definitions( -DmNoAutoUiString )
+
+set(OD_MODULE_DEPS NLA Seis )
+set(OD_MODULE_SOURCES
 		attribdataholder.cc
 		attribdataholderarray.cc
 		attribdesc.cc

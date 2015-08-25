@@ -5,6 +5,9 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+
+add_definitions( -DmNoAutoUiString )
+
 SET(OD_MODULE_DEPS General)
 SET(OD_MODULE_SOURCES
 	initwell.cc

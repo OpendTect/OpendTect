@@ -39,9 +39,12 @@ using namespace PreStack;
 
 bool BatchProgram::go( od_ostream& strm )
 {
+    PtrMan<SeisPSWriter> writer = 0;
+    ProcessManager* procman = 0;
+
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
-    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
+    { mRetError("\nCannot execute pre-3.2 par files"); return false; }
 
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
@@ -61,52 +64,46 @@ bool BatchProgram::go( od_ostream& strm )
     Seis::GeomType geomtype;
     if ( !Seis::getFromPar(pars(),geomtype) )
     {
-	errorMsg("\nCannot read geometry type");
+	mRetError("\nCannot read geometry type");
 	return false;
     }
 
     if ( geomtype!=Seis::VolPS && geomtype!=Seis::LinePS )
     {
-	errorMsg("\nGeometry is not prestack");
+	mRetError("\nGeometry is not prestack");
 	return false;
     }
 
     MultiID setupmid;
     if ( !pars().get(ProcessManager::sKeySetup(),setupmid) )
     {
-	errorMsg( "\nCannot read setup" );
+	mRetError( "\nCannot read setup" );
 	return false;
     }
 
     PtrMan<IOObj> setupioobj = IOM().get( setupmid );
     if ( !setupioobj )
     {
-	errorMsg("\nCannot create setup object");
+	mRetError("\nCannot create setup object");
 	return false;
     }
 
-    ProcessManager* procman = new ProcessManager;
+    procman = new ProcessManager;
     if ( !procman )
     {
-	errorMsg( "Cannot create processor");
+	mRetError( "Cannot create processor");
 	return false;
     }
 
     uiString errmsg;
     if ( !PreStackProcTranslator::retrieve(*procman,setupioobj,errmsg) )
     {
-	errorMsg( errmsg.getOriginalString() );
-	//TODO use tr when changing errorMsg type
-	//Should be an independant revision
-	delete procman;
-	return false;
+	mRetError( errmsg );
     }
 
     if ( geomtype==Seis::LinePS && linekey.isEmpty() )
     {
-	errorMsg("\nNo linekey set" );
-	delete procman;
-	return false;
+	mRetError("\nNo linekey set" );
     }
 
     PtrMan<IOObj> inputioobj = 0;
@@ -115,34 +112,26 @@ bool BatchProgram::go( od_ostream& strm )
 	MultiID inputmid;
 	if ( !pars().get(ProcessManager::sKeyInputData(),inputmid) )
 	{
-	    errorMsg("\nCannot read input id");
-	    delete procman;
-	    return false;
+	    mRetError("\nCannot read input id");
 	}
 
 	inputioobj = IOM().get( inputmid );
 	if ( !inputioobj )
 	{
-	    errorMsg("\nCannot create input object");
-	    delete procman;
-	    return false;
+	    mRetError("\nCannot create input object");
 	}
     }
 
     MultiID outputmid;
     if ( !pars().get(ProcessManager::sKeyOutputData(),outputmid) )
     {
-	errorMsg("\nCannot read output id");
-	delete procman;
-	return false;
+	mRetError("\nCannot read output id");
     }
 
     PtrMan<IOObj> outputioobj = IOM().get( outputmid );
     if ( !outputioobj )
     {
-	errorMsg("\nCannot create output object");
-	delete procman;
-	return false;
+	mRetError("\nCannot create output object");
     }
 
     SeisPSReader* reader = 0;
@@ -196,9 +185,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( !reader )
 	{
-	    errorMsg("\nCannot create input reader");
-	    delete procman;
-	    return false;
+	    mRetError("\nCannot create input reader");
 	}
     }
     else
@@ -208,15 +195,13 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
 
-    PtrMan<SeisPSWriter> writer = geomtype==Seis::VolPS
+    writer = geomtype==Seis::VolPS
 	? SPSIOPF().get3DWriter( *outputioobj )
 	: SPSIOPF().get2DWriter( *outputioobj, linekey.buf() );
 
     if ( !writer )
     {
-	errorMsg("\nCannot create output writer");
-	delete procman;
-	return false;
+	mRetError("\nCannot create output writer");
     }
 
     BinID curbid; //inl not used if 2D
@@ -232,9 +217,7 @@ bool BatchProgram::go( od_ostream& strm )
     {
 	if ( !hiter.next(curbid) )
 	{
-	    errorMsg("\nNo CDP's to process");
-	    delete procman;
-	    return false;
+	    mRetError("\nNo CDP's to process");
 	}
 
 	step.inl() = SI().inlRange(true).step;
@@ -270,7 +253,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	if ( !procman->prepareWork() )
 	{
-	    errorMsg("\nCannot prepare processing.");
+	    mRetError(mToUiStringTodo("\nCannot prepare processing."));
 	    delete procman;
 	    return false;
 	}
@@ -375,7 +358,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 		    if ( !writer->put( trc ) )
 		    {
-			errorMsg("\nCannot write output");
+			mRetError("\nCannot write output");
 			delete procman;
 			return false;
 		    }

@@ -33,7 +33,7 @@ mExpClass(VolumeProcessing) LateralSmoother : public Step
 public:
 			mDefaultFactoryInstantiation(
 				VolProc::Step, LateralSmoother,
-				"LateralSmoother", "Lateral Smoother" )
+				"LateralSmoother", tr("Lateral Smoother") )
 
 			LateralSmoother();
 			~LateralSmoother();

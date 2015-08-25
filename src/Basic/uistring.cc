@@ -659,6 +659,7 @@ bool uiString::setFromHexEncoded( const char* str )
 
 
 uiString toUiString( const char* var ) { return uiString().set( var ); }
+uiString toUiString( const uiString& var ) { return var; }
 
 uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }
 

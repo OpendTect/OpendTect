@@ -23,27 +23,27 @@ namespace Well { class Data; }
 mExpClass(WellAttrib) LogCubeCreator : public ParallelTask
 { mODTextTranslationClass(LogCubeCreator);
 public:
-				LogCubeCreator(const BufferStringSet& lognms,
-					       const MultiID& wllid,
-					       const Well::ExtractParams& pars,
-					       int nrtrcs=1);
-				LogCubeCreator(const BufferStringSet& lognms,
-					       const TypeSet<MultiID>& wllids,
-					       const Well::ExtractParams& pars,
-					       int nrtrcs=1);
-				~LogCubeCreator();
+			LogCubeCreator(const BufferStringSet& lognms,
+				       const MultiID& wllid,
+				       const Well::ExtractParams& pars,
+				       int nrtrcs=1);
+			LogCubeCreator(const BufferStringSet& lognms,
+				       const TypeSet<MultiID>& wllids,
+				       const Well::ExtractParams& pars,
+				       int nrtrcs=1);
+			~LogCubeCreator();
 
-				//Returns false is an output already exists
-    bool			setOutputNm(const char* postfix=0,
-					    bool withwllnm=false);
+			//Returns false is an output already exists
+    bool		setOutputNm(const char* postfix=0,
+				    bool withwllnm=false);
 
-    const uiString&		errMsg() const { return errmsg_; }
-    bool			isOK() const { return errmsg_.isEmpty(); }
-    void			resetMsg() { errmsg_.setEmpty(); }
+    const uiString&	errMsg() const { return errmsg_; }
+    bool		isOK() const { return errmsg_.isEmpty(); }
+    void		resetMsg() { errmsg_.setEmpty(); }
 
-    uiString			uiNrDoneText() const { return "Wells handled"; }
-    od_int64			totalNr() const { return nrIterations(); }
-    bool			stopAllOnFailure() const { return false; }
+    uiString		uiNrDoneText() const { return tr("Wells handled"); }
+    od_int64		totalNr() const { return nrIterations(); }
+    bool		stopAllOnFailure() const { return false; }
 
 protected:
 

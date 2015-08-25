@@ -5,8 +5,11 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS AttributeEngine PreStackProcessing)
-SET(OD_MODULE_SOURCES
+
+add_definitions( -DmNoAutoUiString )
+
+set(OD_MODULE_DEPS AttributeEngine PreStackProcessing)
+set(OD_MODULE_SOURCES
 	initattributes.cc
 	convolveattrib.cc
 	deltaresampleattrib.cc
@@ -35,7 +38,7 @@ SET(OD_MODULE_SOURCES
 	volstatsattrib.cc
 )
 
-SET(OD_MODULE_BATCHPROGS od_process_attrib.cc  )
+set(OD_MODULE_BATCHPROGS od_process_attrib.cc  )
 
 OD_INIT_MODULE()
 

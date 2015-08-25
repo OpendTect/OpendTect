@@ -6,6 +6,9 @@
 #_______________________________________________________________________________
 
 
+add_definitions( -DmNoAutoUiString )
+
+
 SET(OD_MODULE_DEPS EarthModel AttributeEngine )
 SET(OD_MODULE_SOURCES
 	autotracker.cc

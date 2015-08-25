@@ -51,7 +51,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     outpar->removeWithKey( sKey::ID() );
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( inioobj, outioobj,
-				"", outpar, "" );
+				"", outpar, uiString::emptyString() );
     stp->setProcPars( pars(), false );
     int compnr = -1; // all components
     inpar->get( sKey::Component(), compnr );

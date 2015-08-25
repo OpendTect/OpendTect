@@ -36,7 +36,7 @@ public:
     od_int64				nrDone() const;
     od_int64				totalNr() const;
     uiString				uiNrDoneText() const
-					{ return "Data Sets Created"; }
+					{ return tr("Data Sets Created"); }
     uiString				uiMessage() const;
 protected:
 

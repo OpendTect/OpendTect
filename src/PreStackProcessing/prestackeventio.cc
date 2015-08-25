@@ -766,14 +766,14 @@ EventDuplicator::EventDuplicator( IOObj* from, IOObj* to )
 	File::remove( tonm.buf() );
 	if ( File::exists( tonm.buf() ) )
 	{
-	    errmsg_ = tr("Cannot overwrite %1.").arg(tonm.buf());
+	    errmsg_ = tr("Cannot overwrite %1.").arg(toUiString(tonm));
 	    return;
 	}
     }
 
     if ( !File::createDir( tonm.buf() ) )
     {
-	errmsg_ = uiStrings::phrCannotCreate(tonm.buf());
+	errmsg_ = uiStrings::phrCannotCreate(toUiString(tonm));
 	return;
     }
 

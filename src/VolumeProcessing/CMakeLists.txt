@@ -5,6 +5,9 @@
 #	RCS :		$Id: CMakeLists.txt 36818 2014-10-07 20:14:44Z nanne.hemstra@dgbes.com $
 #_______________________________________________________________________________
 
+
+add_definitions( -DmNoAutoUiString )
+
 set( OD_MODULE_DEPS Velocity Well )
 set( OD_TEST_PROGS volprocchain.cc )
 set( OD_MODULE_SOURCES

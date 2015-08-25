@@ -214,6 +214,7 @@ public:
 };
 
 
+mGlobal(Basic) uiString toUiString(const uiString&);
 mGlobal(Basic) uiString toUiString(const char*);
 mGlobal(Basic) uiString toUiString(const OD::String&);
 mGlobal(Basic) uiString toUiString(od_int32);
@@ -224,6 +225,11 @@ mGlobal(Basic) uiString toUiString(float);
 mGlobal(Basic) uiString toUiString(double);
 mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
+
+
+//User when string should be revisited later
+#define mToUiStringTodo(i) toUiString(i)
+#define mFromUiStringTodo(i) i.getFullString()
 
 //Legacy Will be removed
 mGlobal(Basic) inline uiString mkUiString(const char* var)

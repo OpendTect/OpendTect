@@ -28,11 +28,11 @@ namespace VolProc
 */
 
 mExpClass(VolumeProcessing) RegionFiller : public Step
-{
+{ mODTextTranslationClass(RegionFiller);
 public:
 				mDefaultFactoryInstantiation( VolProc::Step,
 				    RegionFiller, "RegionFiller",
-				    "Region painter" )
+				    tr("Region painter") )
 
 				RegionFiller();
 				~RegionFiller();

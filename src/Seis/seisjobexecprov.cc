@@ -158,7 +158,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     }
     else if ( !File::createDir(tmpstordir) )
     {
-	errmsg_ = uiStrings::phrCannotCreateDirectory(tmpstordir);
+	errmsg_ = uiStrings::phrCannotCreateDirectory(toUiString(tmpstordir));
 	return 0;
     }
 
@@ -304,7 +304,7 @@ Executor* SeisJobExecProv::getPostProcessor()
     PtrMan<IOObj> outioobj = IOM().get( seisoutid_ );
     return new SeisSingleTraceProc( inioobj, outioobj,
 				    "Data transfer", &iopar_,
-				    "Writing results to output cube" );
+				    tr("Writing results to output cube") );
 }
 
 

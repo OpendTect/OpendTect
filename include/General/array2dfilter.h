@@ -58,7 +58,7 @@ struct Array2DFilterPars
 
 template <class T>
 mClass(General) Array2DFilterer : public Executor
-{
+{ mODTextTranslationClass(Array2DFilterer);
 public:
 
     inline		Array2DFilterer(Array2D<T>&,const Array2DFilterPars&);
@@ -77,9 +77,9 @@ public:
     inline const Stats::RunCalc<float>& calc() const { return *calc_; }
 
     inline int		nextStep();
-    inline uiString	uiMessage() const	{ return "Filtering data"; }
+    inline uiString	uiMessage() const	{ return tr("Filtering data"); }
     inline od_int64	nrDone() const		{ return nrrowsdone_; }
-    inline uiString	uiNrDoneText() const	{ return "Columns handled";}
+    inline uiString	uiNrDoneText() const	{ return tr("Columns handled");}
     inline od_int64	totalNr() const		{return outputrowrg_.width()+1;}
 
 protected:

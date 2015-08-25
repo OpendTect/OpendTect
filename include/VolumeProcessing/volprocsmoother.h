@@ -31,7 +31,7 @@ mExpClass(VolumeProcessing) Smoother : public Step
 public:
 			mDefaultFactoryInstantiation(
 				VolProc::Step, Smoother,
-				"Smoother", sFactoryKeyword() )
+				"Smoother", mToUiStringTodo(sFactoryKeyword()))
 
     			~Smoother();
 			Smoother();

@@ -45,6 +45,7 @@ public:
 
     virtual uiString	uiMessage() const;
     virtual uiString	uiNrDoneText() const;
+    static uiString	uiStdNrDoneText() { return tr("Nr Done"); }
 
     virtual bool	execute()			= 0;
 

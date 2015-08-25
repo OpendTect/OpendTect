@@ -126,7 +126,7 @@ mGlobal(Batch) BatchProgram& BP();
 
 
 #define mRetError(s) \
-{ errorMsg(s); mDestroyWorkers; return false; }
+{ errorMsg(toUiString(s)); mDestroyWorkers; return false; }
 
 #define mRetHostErr(s) \
 {  \

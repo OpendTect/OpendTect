@@ -5,6 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+add_definitions( -DmNoAutoUiString )
+
 set ( OD_USEQT Network)
 set ( OD_MODULE_DEPS General)
 

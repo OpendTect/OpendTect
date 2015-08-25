@@ -38,7 +38,7 @@ public:
 				mDefaultFactoryInstantiation( Step,
 				    WellLogInterpolator,
 				    "WellLog Interpolator",
-				    sFactoryKeyword() )
+				    mToUiStringTodo(sFactoryKeyword()) )
 
 				WellLogInterpolator();
 				~WellLogInterpolator();

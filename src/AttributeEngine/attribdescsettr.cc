@@ -25,11 +25,11 @@ mDefSimpleTranslatorSelector(AttribDescSet, sKeyAttribDescSetTranslatorGroup)
 mDefSimpleTranslatorioContext(AttribDescSet, Attr)
 
 
-static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
-				   uiString& warningmsg )
+static uiString readFromStream( ascistream& astream, Attrib::DescSet& ads,
+			        uiString& warningmsg )
 {
     if ( mTranslGroupName(AttribDescSet) != astream.fileType() )
-	return "File has wrong file type";
+	return mToUiStringTodo("File has wrong file type");
 
     IOPar iopar( astream );
     IOPar bupar; ads.fillPar( bupar );
@@ -39,7 +39,8 @@ static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
     if ( ads.isEmpty() )
     {
 	ads.usePar( bupar );
-	return "Could not find any attribute definitions in file";
+	return
+	    mToUiStringTodo("Could not find any attribute definitions in file");
     }
 
     if ( parseerrmsgs.size() )
@@ -57,7 +58,7 @@ static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
 	}
     }
 
-    return 0;
+    return uiString::emptyString();
 }
 
 
@@ -73,11 +74,12 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
     od_istream odstrm( fnm );
     ascistream astream( odstrm );
     uiString uistr;
-    const char* res = readFromStream( astream, ads, uistr );
+    const uiString res = readFromStream( astream, ads, uistr );
     bs = uistr.getFullString();
     if (bs.isEmpty())
-	bs = uiString(res);
-    return !res;
+	bs = res;
+
+    return res.isEmpty();
 }
 
 
@@ -140,7 +142,7 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 	return "Internal error: bad connection";
 
     ascistream astream( ((StreamConn&)conn).iStream() );
-    return readFromStream( astream, ads, warningmsg_ );
+    return mFromUiStringTodo(readFromStream( astream, ads, warningmsg_ ));
 }
 
 

@@ -50,7 +50,10 @@ bool BatchProgram::go( od_ostream& strm )
 {
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
-    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
+    {
+	errorMsg(toUiString("\nCannot execute pre-3.2 par files"));
+	return false;
+    }
 
     OD::ModDeps().ensureLoaded( "Attributes" );
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
@@ -124,7 +127,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    mRetHostErr( "Cannot find provided attrib set ID" )
 	uiString msg;
 	if ( !AttribDescSetTranslator::retrieve(attribset,ioobj,msg) )
-	    mRetJobErr( msg.getFullString() );
+	    mRetJobErr( msg );
     }
     else
     {
@@ -133,7 +136,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    mRetJobErr("No Attribute Definition found")
 
 	if ( !attribset.usePar(*attribs) )
-	    mRetJobErr( attribset.errMsg().getFullString() )
+	    mRetJobErr( attribset.errMsg() )
     }
 
     PtrMan<IOPar> outputs = pars().subselect("Output");

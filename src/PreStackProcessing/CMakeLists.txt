@@ -5,6 +5,9 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+add_definitions( -DmNoAutoUiString )
+
+
 SET(OD_MODULE_DEPS Velocity)
 SET(OD_BATCH_TEST_PROGS
 	angle_computer.cc

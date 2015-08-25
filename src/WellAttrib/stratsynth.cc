@@ -289,7 +289,7 @@ void StratSynth::clearSynthetics()
 
 #define mErrRet( msg, act )\
 {\
-    errmsg_ = uiString("Can not generate synthetics %1 : %2\n") \
+    errmsg_ = toUiString("Can not generate synthetics %1 : %2\n") \
 		    .arg( synthgenpar.name_ ) \
 		    .arg( msg ); \
     act;\
@@ -671,7 +671,7 @@ uiString uiMessage() const
     if ( errmsg_.isEmpty() )
 	return tr("Generating elastic model");
     else
-	return errmsg_.buf();
+	return mToUiStringTodo(errmsg_.buf());
 }
 
 uiString uiNrDoneText() const	{ return tr("Models done"); }
@@ -1343,15 +1343,11 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 
 
 uiString StratSynth::errMsg() const
-{
-    return errmsg_.isEmpty() ? 0 : errmsg_;
-}
+{ return errmsg_; }
 
 
 uiString StratSynth::infoMsg() const
-{
-    return infomsg_.isEmpty() ? 0 : infomsg_;
-}
+{ return infomsg_; }
 
 
 
