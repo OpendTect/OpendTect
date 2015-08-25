@@ -860,6 +860,8 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 
 void uiODViewer2D::removeHorizon3D( EM::ObjectID emid )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
@@ -872,6 +874,8 @@ void uiODViewer2D::removeHorizon3D( EM::ObjectID emid )
 
 void uiODViewer2D::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
@@ -884,6 +888,8 @@ void uiODViewer2D::getLoadedHorizon3Ds( TypeSet<EM::ObjectID>& emids ) const
 
 void uiODViewer2D::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
@@ -896,6 +902,8 @@ void uiODViewer2D::addHorizon3Ds( const TypeSet<EM::ObjectID>& emids )
 
 void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DHor3DParentTreeItem*,hor3dpitem,
@@ -908,6 +916,8 @@ void uiODViewer2D::addNewTrackingHorizon3D( EM::ObjectID emid )
 
 void uiODViewer2D::removeHorizon2D( EM::ObjectID emid )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
@@ -920,6 +930,8 @@ void uiODViewer2D::removeHorizon2D( EM::ObjectID emid )
 
 void uiODViewer2D::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
@@ -932,6 +944,8 @@ void uiODViewer2D::getLoadedHorizon2Ds( TypeSet<EM::ObjectID>& emids ) const
 
 void uiODViewer2D::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
@@ -944,6 +958,8 @@ void uiODViewer2D::addHorizon2Ds( const TypeSet<EM::ObjectID>& emids )
 
 void uiODViewer2D::addNewTrackingHorizon2D( EM::ObjectID emid )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DHor2DParentTreeItem*,hor2dpitem,
@@ -956,6 +972,8 @@ void uiODViewer2D::addNewTrackingHorizon2D( EM::ObjectID emid )
 
 void uiODViewer2D::removeFault( EM::ObjectID emid )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
@@ -968,6 +986,8 @@ void uiODViewer2D::removeFault( EM::ObjectID emid )
 
 void uiODViewer2D::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
@@ -980,6 +1000,8 @@ void uiODViewer2D::getLoadedFaults( TypeSet<EM::ObjectID>& emids ) const
 
 void uiODViewer2D::addFaults( const TypeSet<EM::ObjectID>& emids )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
@@ -992,6 +1014,8 @@ void uiODViewer2D::addFaults( const TypeSet<EM::ObjectID>& emids )
 
 void uiODViewer2D::addNewTempFault( EM::ObjectID emid )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DFaultParentTreeItem*,faultpitem,
@@ -1004,6 +1028,8 @@ void uiODViewer2D::addNewTempFault( EM::ObjectID emid )
 
 void uiODViewer2D::removeFaultSS( EM::ObjectID emid )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultpitem,
@@ -1016,6 +1042,8 @@ void uiODViewer2D::removeFaultSS( EM::ObjectID emid )
 
 void uiODViewer2D::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultpitem,
@@ -1028,6 +1056,8 @@ void uiODViewer2D::getLoadedFaultSSs( TypeSet<EM::ObjectID>& emids ) const
 
 void uiODViewer2D::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultpitem,
@@ -1040,6 +1070,8 @@ void uiODViewer2D::addFaultSSs( const TypeSet<EM::ObjectID>& emids )
 
 void uiODViewer2D::addNewTempFaultSS( EM::ObjectID emid )
 {
+    if ( !treetp_ ) return;
+
     for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODVw2DFaultSSParentTreeItem*,faultpitem,
