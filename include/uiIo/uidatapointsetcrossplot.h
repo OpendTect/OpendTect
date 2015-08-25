@@ -228,13 +228,14 @@ public:
     ObjectSet<SelectionGrp>&	selectionGrps()		{ return selgrpset_; }
     const ObjectSet<SelectionGrp>& selectionGrps() const
 				{ return selgrpset_; }
-    int			selAreaSize() const;
+    int				selAreaSize() const;
+    int				curGroup() const	{ return curgrp_; }
     void			reDrawSelections();
     TypeSet<Color>		selGrpCols() const;
     void			setCurSelGrp(int grp)	{ curselgrp_ = grp; }
     int				curSelGrp() const	{ return curselgrp_; }
 
-    int			getNewSelAreaID() const;
+    int				getNewSelAreaID() const;
     bool			isSelAreaValid(int id) const;
     int				getSelGrpIdx(int selareaid) const;
     void			setTRMsg( const char* msg )

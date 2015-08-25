@@ -16,15 +16,27 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "unitofmeasure.h"
 
+DefineEnumNames(DPSDensityCalcND,CalcAreaType,1,"Calculation Area Type")
+{
+    "Whole region",
+    "Selected region",
+    "Non Selected region",
+    0
+};
+
+
 DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 				    const ObjectSet<AxisParam>& axisdatas,
-				    ArrayND<float>& freqdata )
+				    ArrayND<float>& freqdata,
+				    CalcAreaType areatype )
     : ParallelTask( "Calclulating Density" )
     , dps_( dps )
     , freqdata_( freqdata )
     , axisdatas_( axisdatas )
     , nrdims_( axisdatas_.size() )
     , nrdone_( 0 )
+    , grp_( 0 )
+    , areatype_( areatype )
 {
     freqdata_.setAll( (float)0 );
 }
@@ -85,14 +97,21 @@ bool DPSDensityCalcND::doWork( od_int64 start, od_int64 stop, int )
     for ( od_int64 rid=start; rid<=stop; rid++ )
     {
 	nrdone_++;
-	if ( dps_.isInactive(mCast(DataPointSet::RowID,rid)) )
+	if ( dps_.isInactive(mCast(DataPointSet::RowID,rid)) ||
+	     (grp_>0 && dps_.group(rid) != grp_) )
+	    continue;
+
+	const bool isselected = dps_.isSelected( rid );
+	if ( (areatype_==DPSDensityCalcND::Selected && !isselected) ||
+	     (areatype_==DPSDensityCalcND::NonSelected && isselected) )
 	    continue;
 
 	TypeSet<int> indexs;
+	if ( !getPositions(indexs,mCast(int,rid)) )
+	    continue;
 
-	if ( !getPositions(indexs,mCast(int,rid)) ) continue;
-
-	if ( !setFreqValue(indexs.arr()) ) continue;
+	setFreqValue( indexs.arr() );
     }
+
     return true;
 }
