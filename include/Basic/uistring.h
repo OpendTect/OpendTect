@@ -151,16 +151,17 @@ private:
     mutable Threads::Lock	datalock_;	//!< Protects data_ variable
     static const uiString	emptystring_;
 
-#ifndef mNoAutoUiString
 public:
-#else
-protected:
-#endif
+
 		//Only for expert users
-		uiString(const char* inp);
+#ifdef mNoAutoUiString
+    mDeprecated uiString(const char* inp);
+#else
+		uiString(const char*);
+#endif
 		/*!<Don't use. May be depreciated. Use toUiString("My text")
 		    function instead. */
-public:
+
     bool	operator==(const uiString& b) const;
 		//!<Don't use, will force crash. Only here to keep TypeSet happy
     bool	operator!=(const uiString& b) const { return !(*this==b); }
