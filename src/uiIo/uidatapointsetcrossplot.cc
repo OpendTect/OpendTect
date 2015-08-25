@@ -1358,6 +1358,9 @@ void uiDataPointSetCrossPlotter::setAnnotEndTxt( uiAxisHandler& yah )
 
 bool uiDataPointSetCrossPlotter::isSelectionValid( uiDataPointSet::DRowID rid )
 {
+    if ( (curgrp_ > 0 && dps_.group(rid) != curgrp_) )
+	return false;
+
     if ( modcolidxs_.size() && mathobj_ )
     {
 	for ( int idx=0; idx<modcolidxs_.size(); idx++ )
