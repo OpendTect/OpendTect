@@ -101,7 +101,7 @@ od_int64 totalNr() const
 uiString uiNrDoneText() const
 { return tr("Points done"); }
 
-protected : 
+protected :
 
 int nextStep()
 {
@@ -135,8 +135,9 @@ int nextStep()
 	col = dpsdispprop_.getColor( val );
     }
 
+    DataPointSet::RowID rowid( nrdone_ );
     const int ptidx = pointset_.addPoint(
-			    Coord3(data_.coord(nrdone_),data_.z(nrdone_)) );
+			    Coord3(data_.coord(rowid),data_.z(nrdone_)) );
     pointidxs_ += ptidx;
     pointset_.getMaterial()->setColor( col, ptidx );
     const float transp = (float)col.t();
