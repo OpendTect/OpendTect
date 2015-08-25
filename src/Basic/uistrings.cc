@@ -16,22 +16,22 @@ static const char* joinstring = "%1 %2";
 
 
 uiString uiStrings::phrASCII( const uiString& string )
-{ return uiString(joinstring).arg( sASCII() ).arg( string ); }
+{ return toUiString(joinstring).arg( sASCII() ).arg( string ); }
 
 uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
-{ return immediate ? string : uiString( "%1 ..." ).arg( string ); }
+{ return immediate ? string : toUiString( "%1 ..." ).arg( string ); }
 
 uiString uiStrings::phrSelect( const uiString& string )
-{ return uiString(joinstring).arg( sSelect() ).arg( string ); }
+{ return toUiString(joinstring).arg( sSelect() ).arg( string ); }
 
 uiString uiStrings::phrDoesntExist(const uiString& string, int num )
 { return tr( "%1 does not exist", 0, num ); }
 
 uiString uiStrings::phrExport( const uiString& string )
-{ return uiString(joinstring).arg( sExport() ).arg( string ); }
+{ return toUiString(joinstring).arg( sExport() ).arg( string ); }
 
 uiString uiStrings::phrImport( const uiString& string )
-{ return uiString(joinstring).arg( sImport() ).arg( string ); }
+{ return toUiString(joinstring).arg( sImport() ).arg( string ); }
 
 uiString uiStrings::phrCannotCreate( const uiString& string )
 { return tr("Cannot create %1").arg( string ); }
@@ -58,10 +58,10 @@ uiString uiStrings::phrCannotWrite( const uiString& string )
 { return tr("Cannot write %1").arg( string ); }
 
 uiString uiStrings::phrCreate( const uiString& string )
-{ return uiString(joinstring).arg( sCreate() ).arg( string ); }
+{ return toUiString(joinstring).arg( sCreate() ).arg( string ); }
 
 uiString uiStrings::phrEdit( const uiString& string )
-{ return uiString(joinstring).arg( sEdit() ).arg( string ); }
+{ return toUiString(joinstring).arg( sEdit() ).arg( string ); }
 
 uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 {
@@ -71,13 +71,13 @@ uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 }
 
 uiString uiStrings::phrInput( const uiString& string )
-{ return uiString(joinstring).arg( sInput() ).arg( string ); }
+{ return toUiString(joinstring).arg( sInput() ).arg( string ); }
 
 uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b )
-{ return uiString(joinstring).arg( a ).arg( b ); }
+{ return toUiString(joinstring).arg( a ).arg( b ); }
 
 uiString uiStrings::phrOutput( const uiString& string )
-{ return uiString(joinstring).arg( sOutput() ).arg( string ); }
+{ return toUiString(joinstring).arg( sOutput() ).arg( string ); }
 
 uiString uiStrings::phrReading( const uiString& string )
 { return tr( "Reading %1").arg( string ); }
@@ -211,7 +211,7 @@ uiString uiStrings::sSeismic( int num )
 
 uiString uiStrings::sSeismics( bool is2d, bool isps, int num )
 {
-    return uiString( "%1 %2%3" )
+    return toUiString( "%1 %2%3" )
 	.arg( is2d ? s2D() : s3D() )
 	.arg( isps ? tr("prestack ") : uiString::emptyString() )
 	.arg( sSeismic( num ) );
@@ -256,7 +256,7 @@ uiString uiStrings::sWellLog( int num )
 uiString uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
 {
     return withparentheses
-	? uiString("(%1)").arg( sDistUnitString( isfeet, abb, false ) )
+	? toUiString("(%1)").arg( sDistUnitString( isfeet, abb, false ) )
 	: isfeet
 	    ? abb ? tr("ft") : tr("feet" )
 	    : abb ? tr("m") : tr("meter");

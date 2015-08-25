@@ -10,10 +10,12 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "zdomain.h"
+
 #include "survinfo.h"
 #include "keystrs.h"
 #include "iopar.h"
 #include "perthreadrepos.h"
+#include "uistrings.h"
 
 
 const char* ZDomain::sKey()		{ return "ZDomain"; }
@@ -158,13 +160,13 @@ uiString ZDomain::Def::uiUnitStr( bool withparens ) const
 	BufferString unitstr = unitStr( false );
 	if ( !unitstr.isEmpty() )
 	    ret.add( "(" ).add( unitstr ).add( ")" );
-	return ret.buf();
+	return toUiString(unitstr);
     }
 
     if ( !isDepth() )
-	return defunit_;
+	return toUiString(defunit_);
 
-    return getDistUnitString( ::SI().zInFeet(), false );
+    return uiStrings::sDistUnitString( ::SI().zInFeet(), false, false );
 }
 
 
