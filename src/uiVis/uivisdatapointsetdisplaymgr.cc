@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipixmap.h"
 #include "uislider.h"
 #include "uivispartserv.h"
+#include "uitaskrunner.h"
 
 #include "ctxtioobj.h"
 #include "datapointset.h"
@@ -409,6 +410,8 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 	visserv_.addObject( display, parents[idx], true );
 	display->setDispProp( dispprop_ );
 	display->setDataPack( dps.id() );
+	uiTaskRunner taskrunner( visserv_.appserv().parent() );
+	display->update( &taskrunner );
 
 	displayinfo->sceneids_ += allsceneids_[idx];
 	displayinfo->visids_ += display->id();
@@ -533,6 +536,8 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( DispID id,
 
 	display->setDispProp( dispprop_ );
 	display->setDataPack( dps.id() );
+	uiTaskRunner taskrunner( visserv_.appserv().parent() );
+	display->update( &taskrunner );
     }
 }
 
