@@ -431,7 +431,7 @@ void uiSEGYReadStartInfo::useLoadDef()
     zstartfld_->setValue( loaddef_.sampling_.start );
     srfld_->setValue( loaddef_.sampling_.step );
     if ( imptype_.isVSP() )
-	return;
+	{ parsbeingset_ = false; return; }
 
 #   define mSetToByteNr(fld,memb) \
     if ( fld ) fld->setByteNr( loaddef_.hdrdef_->memb.bytepos_ )

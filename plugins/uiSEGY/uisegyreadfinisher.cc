@@ -22,6 +22,16 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "wellman.h"
 #include "segybatchio.h"
 #include "segydirecttr.h"
+#include "seistrc.h"
+#include "segytr.h"
+#include "welldata.h"
+#include "wellreader.h"
+#include "wellwriter.h"
+#include "wellman.h"
+#include "welllog.h"
+#include "welltrack.h"
+#include "welllogset.h"
+#include "welld2tmodel.h"
 #include "ioobj.h"
 #include "filepath.h"
 
@@ -150,8 +160,7 @@ void uiSEGYReadFinisher::crVSPFields()
     outwllfld_->selectionDone.notify( mCB(this,uiSEGYReadFinisher,wllSel) );
     outwllfld_->attach( alignedBelow, inpdomfld_ );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-						    tr("Output log name") );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("New log name") );
     lcb->attach( alignedBelow, outwllfld_ );
     lognmfld_ = lcb->box();
     lognmfld_->setReadOnly( false );
@@ -211,14 +220,67 @@ void uiSEGYReadFinisher::doScanChg( CallBacker* )
 
 bool uiSEGYReadFinisher::doVSP()
 {
-    const IOObj* ioobj = outwllfld_->ioobj();
-    if ( !ioobj )
+    const IOObj* wllioobj = outwllfld_->ioobj();
+    if ( !wllioobj )
 	return false;
     const BufferString lognm( lognmfld_->text() );
     if ( lognm.isEmpty() )
 	mErrRet(tr("Please enter a valid name for the new log"))
 
-    mErrRet( "TODO: VSP import" );
+    PtrMan<SEGYSeisTrcTranslator> trl = SEGYSeisTrcTranslator::getInstance();
+    trl->filePars() = fs_.pars_; trl->fileReadOpts() = fs_.readopts_;
+    PtrMan<IOObj> seisioobj = fs_.spec_.getIOObj( true );
+    SeisTrc trc;
+    if (   !trl->initRead( seisioobj->getConn(Conn::Read), Seis::Scan )
+	|| !trl->read(trc) )
+	mErrRet(trl->errMsg())
+
+    const int idom = inpdomfld_->getIntValue();
+    const bool isdpth = idom > 0;
+    const bool ismd = idom == 2;
+    const bool inft = isdpth && isfeetfld_->isChecked();
+
+    const MultiID& wllkey( wllioobj->key() );
+    const bool wasloaded = Well::MGR().isLoaded( wllkey );
+    RefMan<Well::Data> wd = Well::MGR().get( wllkey );
+    if ( !wd )
+	mErrRet(tr("Cannot load the selected well\n%1")
+			.arg(Well::MGR().errMsg()))
+    else if ( !isdpth && !wd->d2TModel() )
+	mErrRet(tr("Selected well has no Depth vs Time model"))
+
+    const Well::Track& track = wd->track();
+    int wlidx = wd->logs().indexOf( lognm );
+    if ( wlidx >= 0 )
+	delete wd->logs().remove( wlidx );
+
+    Well::Log* wl = new Well::Log( lognm );
+    wl->pars().set( sKey::FileName(), fs_.spec_.fileName() );
+    wd->logs().add( wl );
+
+    float prevdah = mUdf(float);
+    for ( int isamp=0; isamp<trc.size(); isamp++ )
+    {
+	float z = trc.samplePos( isamp );
+	if ( !isdpth )
+	    z = wd->d2TModel()->getDah( z, track );
+	else
+	{
+	    if ( inft )
+		z *= mFromFeetFactorF;
+	    if ( !ismd )
+		prevdah = z = track.getDahForTVD( z, prevdah );
+	}
+	wl->addValue( z, trc.get(isamp,0) );
+    }
+
+    Well::Writer wwr( wllkey, *wd );
+    if ( !wwr.putLog(*wl) )
+	mErrRet( wwr.errMsg() )
+    else if ( wasloaded )
+	Well::MGR().reload( wllkey );
+
+    return true;
 }
 
 
