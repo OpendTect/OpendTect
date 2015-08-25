@@ -1171,9 +1171,9 @@ int uiODSceneMgr::addRandomLineItem( int rlid, int sceneid )
 {
     mGetOrAskForScene
 
-    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem();
+    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( -1,
+		uiODRandomLineTreeItem::Empty, rlid );
     scene->itemmanager_->addChild( itm, false );
-    itm->setRandomLineID( rlid );
     itm->displayDefaultData();
     return itm->displayID();
 }
@@ -1235,6 +1235,7 @@ void uiODSceneMgr::removeTreeItem( int displayid )
     {
 	Scene& scene = *scenes_[idx];
 	uiTreeItem* itm = scene.itemmanager_->findChild( displayid );
+	itm->prepareForShutdown();
 	if ( itm ) scene.itemmanager_->removeChild( itm );
     }
 }

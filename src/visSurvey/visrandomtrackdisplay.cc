@@ -186,6 +186,7 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
     rl_->ref();
     rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
 
+    setName( rl_->name() );
     TypeSet<BinID> bids;
     rl_->allNodePositions( bids );
     setNodePositions( bids );
@@ -909,7 +910,16 @@ void RandomTrackDisplay::geomChangeCB( CallBacker* cb )
 
     if ( cd.ev_ == Geometry::RandomLine::ChangeData::Added )
     {
-	addNode( rl_->nodePosition(cd.nodeidx_) );
+	const int nodeidx = cd.nodeidx_;
+	if ( cd.nodeidx_ < nrNodes() )
+	{
+	    const BinID nodepos = rl_->nodePosition( nodeidx );
+	    nodes_[nodeidx] = nodepos;
+	    dragger_->setKnot( nodeidx, Coord(nodepos.inl(),nodepos.crl()) );
+	    dragger_->showAllPanels( true );
+	}
+	else
+	    addNode( rl_->nodePosition(nodeidx) );
     }
     else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Inserted )
     {
