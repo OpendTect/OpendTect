@@ -80,6 +80,10 @@ void PickSetDisplay::setSet( Pick::Set* newset )
 }
 
 
+bool PickSetDisplay::isPolygon() const
+{ return set_ ? set_->isPolygon() : false; }
+
+
 void PickSetDisplay::locChg( CallBacker* cb )
 {
     LocationDisplay::locChg( cb );

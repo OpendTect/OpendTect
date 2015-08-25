@@ -41,6 +41,7 @@ public:
 				    toUiString(sFactoryKeyword()))
 
     void			setSet(Pick::Set*);
+    bool			isPolygon() const;
 
     bool			hasColor() const	{ return true; }
     void			setColor(Color);
