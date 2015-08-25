@@ -117,25 +117,25 @@ int nextStep()
     }
 
     nrdone_++;
-    if ( dpsdispprop_.showSelected() && !data_.isSelected(nrdone_) )
+    DataPointSet::RowID rowid = mCast(DataPointSet::RowID,nrdone_);
+    if ( dpsdispprop_.showSelected() && !data_.isSelected(rowid) )
 	return MoreToDo();
 
     Color col;
     if ( dpsdispprop_.showSelected() )
     {
-	int selgrp = data_.selGroup(nrdone_);
+	int selgrp = data_.selGroup( rowid );
 	col = dpsdispprop_.getColor( (float)selgrp );
     }
     else
     {
-	const float val = data_.value( dpsdispprop_.dpsColID(), nrdone_ );
+	const float val = data_.value( dpsdispprop_.dpsColID(), rowid );
 	if ( mIsUdf(val) )
 	    return MoreToDo();
 
 	col = dpsdispprop_.getColor( val );
     }
 
-    DataPointSet::RowID rowid = mCast(DataPointSet::RowID,nrdone_);
     const int ptidx = pointset_.addPoint(
 			    Coord3(data_.coord(rowid),data_.z(rowid)) );
     pointidxs_ += ptidx;
