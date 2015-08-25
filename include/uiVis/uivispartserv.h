@@ -59,7 +59,7 @@ namespace ZDomain   { class Info; }
 mExpClass(uiVis) uiVisPartServer : public uiApplPartServer
 { mODTextTranslationClass(uiVisPartServer)
     friend class	uiMenuHandler;
-    friend class        uiVisModeMgr;
+    friend class	uiVisModeMgr;
 
 public:
 			uiVisPartServer(uiApplService&);
@@ -69,7 +69,7 @@ public:
 			/*<\returns the partservers name */
     NotifierAccess&	removeAllNotifier();
 			/*<\Returns a notifier that is triggered
-			            when the entire visualization is
+				    when the entire visualization is
 				    closed. All visBase::DataObjects
 				    must then be unrefed.  */
 
@@ -88,7 +88,8 @@ public:
     const char*		getObjectName(int) const;
     Pos::GeomID		getGeomID(int) const;
 
-    CNotifier<uiVisPartServer,int>	objectaddedremoved;
+    CNotifier<uiVisPartServer,int>	objectAdded;
+    CNotifier<uiVisPartServer,int>	objectRemoved;
 
     void		removeSelection();
 
@@ -97,7 +98,7 @@ public:
 			    Don't use the argument when calling from outside.
 			*/
     void		removeScene(int);
-    NotifierAccess&	nrScenesChange() { return nrsceneschange_; }
+    NotifierAccess&	nrScenesChange() { return nrscenesChange; }
     bool		clickablesInScene(const char* trackertype,
 					  int sceneid) const;
     const ObjectSet<visSurvey::Scene>& getAllScenes() const { return scenes_; }
@@ -316,7 +317,7 @@ public:
     SelectionMode		getSelectionMode() const;
     void			turnSelectionModeOn(bool);
     bool			isSelectionModeOn() const;
-    Notifier<uiVisPartServer>	selectionmodechange;
+    Notifier<uiVisPartServer>	selectionmodeChange;
     void			setZAxisTransform(int sceneid,ZAxisTransform*,
 						  TaskRunner*);
     const ZAxisTransform*	getZAxisTransform(int sceneid) const;
@@ -465,7 +466,7 @@ protected:
     uiVisModeMgr*		vismgr_;
     bool			blockmenus_;
     uiVisPickRetriever*		pickretriever_;
-    Notifier<uiVisPartServer>	nrsceneschange_;
+    Notifier<uiVisPartServer>	nrscenesChange;
 
     MouseCursorExchange*	mousecursorexchange_;
 
@@ -477,7 +478,7 @@ mClass(uiVis) uiVisModeMgr
 {
 public:
 				uiVisModeMgr(uiVisPartServer*);
-				~uiVisModeMgr() {};
+				~uiVisModeMgr() {}
 
 	bool			allowTurnOn(int,bool);
 

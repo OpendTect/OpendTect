@@ -65,7 +65,7 @@ uiViewer3DMgr::uiViewer3DMgr()
     posdialogs_.allowNull();
     settingdlgs_.allowNull();
     visserv_->removeAllNotifier().notify( mCB(this,uiViewer3DMgr,removeAllCB) );
-    visserv_->objectaddedremoved.notify( mCB(this,uiViewer3DMgr,sceneChangeCB));
+    visserv_->objectRemoved.notify( mCB(this,uiViewer3DMgr,sceneChangeCB));
     RefMan<MenuHandler> menuhandler = visserv_->getMenuHandler();
 
     IOM().surveyToBeChanged.notify(mCB(this,uiViewer3DMgr,surveyToBeChangedCB));
@@ -81,7 +81,7 @@ uiViewer3DMgr::uiViewer3DMgr()
 uiViewer3DMgr::~uiViewer3DMgr()
 {
     visserv_->removeAllNotifier().remove( mCB(this,uiViewer3DMgr,removeAllCB) );
-    visserv_->objectaddedremoved.remove( mCB(this,uiViewer3DMgr,sceneChangeCB));
+    visserv_->objectRemoved.remove( mCB(this,uiViewer3DMgr,sceneChangeCB));
     RefMan<MenuHandler> menuhandler = visserv_->getMenuHandler();
 
     IOM().surveyToBeChanged.remove(mCB(this,uiViewer3DMgr,surveyToBeChangedCB));

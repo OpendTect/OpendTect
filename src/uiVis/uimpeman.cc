@@ -78,7 +78,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
-    visserv_->selectionmodechange.notify( mCB(this,uiMPEMan,selectionMode) );
+    visserv_->selectionmodeChange.notify( mCB(this,uiMPEMan,selectionMode) );
 
     updateButtonSensitivity();
 }
@@ -154,7 +154,7 @@ uiMPEMan::~uiMPEMan()
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.remove(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
-    visserv_->selectionmodechange.remove( mCB(this,uiMPEMan,selectionMode) );
+    visserv_->selectionmodeChange.remove( mCB(this,uiMPEMan,selectionMode) );
 }
 
 

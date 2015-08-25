@@ -82,7 +82,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
-    visserv->selectionmodechange.notify(
+    visserv->selectionmodeChange.notify(
 				mCB(this,uiODMenuMgr,selectionMode) );
 }
 
