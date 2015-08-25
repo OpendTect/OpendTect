@@ -38,6 +38,13 @@ static const char* rcsID mUsedVar = "$Id:$";
 #define mUseTxtCol 2
 #define mUseCol 3
 
+#define mGetTypeVars \
+    const Seis::GeomType gt = imptype_.geomType(); \
+    const bool isvsp = imptype_.isVSP(); \
+    const bool is2d = Seis::is2D( gt ); \
+    const bool isps = Seis::isPS( gt ); \
+    const bool isrev0 = loaddef_.isRev0()
+
 static const char* sBytePos = "from header";
 static const Color qscellcolor = Color( 255, 255, 225 ); // palish yellow
 
@@ -97,6 +104,11 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd )
     , loaddef_(scd)
     , loaddefChanged(this)
     , parsbeingset_(false)
+    , xcoordbytefld_(0)
+    , ycoordbytefld_(0)
+    , key1bytefld_(0)
+    , key2bytefld_(0)
+    , offsetbytefld_(0)
 {
     tbl_ = new uiTable( this, uiTable::Setup(mNrInfoRows,mNrInfoCols)
 				  .manualresize(true), "Info table" );
@@ -121,16 +133,25 @@ uiSEGYReadStartInfo::uiSEGYReadStartInfo( uiParent* p, SEGY::LoadDef& scd )
     setCellTxt( mItemCol, mZRangeRow, "Z Range" );
     setCellTxt( mUseTxtCol, mZRangeRow, "start / interval" );
 
-    mkLoadDefFields();
+    mkCommonLoadDefFields();
 }
 
 
-void uiSEGYReadStartInfo::mkLoadDefFields()
-{
-    const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
 #   define mAddToTbl(fld,row) \
     fld->setStretch( 2, 1 ); \
     tbl_->setCellObject( RowCol(row,mUseCol), fld );
+
+#   define mRemoveFromTable(fld,row) { \
+    if ( fld ) \
+    { \
+	tbl_->clearCellObject( RowCol(row,mUseCol) ); \
+	fld = 0; \
+    } }
+
+
+void uiSEGYReadStartInfo::mkCommonLoadDefFields()
+{
+    const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
 
     const char* revstrs[] = { "0", "1", "2", 0 };
     revfld_ = new uiComboBox( 0, revstrs, "Revision" );
@@ -155,22 +176,50 @@ void uiSEGYReadStartInfo::mkLoadDefFields()
     srfld_->setStretch( 2, 1 );
     srfld_->attach( rightOf, zstartfld_ );
     tbl_->setCellGroup( RowCol(mZRangeRow,mUseCol), grp );
+}
 
-    xcoordbytefld_ = new uiSEGYByteNr( 0, "X-coord byte" );
-    xcoordbytefld_->selectionChanged.notify( parchgcb );
-    mAddToTbl( xcoordbytefld_, mXRow );
-    ycoordbytefld_ = new uiSEGYByteNr( 0, "Y-coord byte" );
-    ycoordbytefld_->selectionChanged.notify( parchgcb );
-    mAddToTbl( ycoordbytefld_, mYRow );
-    key1bytefld_ = new uiSEGYByteNr( 0, "Key1 byte" );
-    key1bytefld_->selectionChanged.notify( parchgcb );
-    mAddToTbl( key1bytefld_, mKey1Row );
-    key2bytefld_ = new uiSEGYByteNr( 0, "Key2 byte" );
-    key2bytefld_->selectionChanged.notify( parchgcb );
-    mAddToTbl( key2bytefld_, mKey2Row );
-    offsetbytefld_ = new uiSEGYByteNr( 0, "Offset byte" );
-    offsetbytefld_->selectionChanged.notify( parchgcb );
-    mAddToTbl( offsetbytefld_, mPSRow );
+
+void uiSEGYReadStartInfo::manSpecificLoadDefFields()
+{
+    mGetTypeVars;
+    const CallBack parchgcb( mCB(this,uiSEGYReadStartInfo,parChg) );
+
+    if ( isvsp || !isrev0 )
+    {
+	mRemoveFromTable( xcoordbytefld_, mXRow )
+	mRemoveFromTable( ycoordbytefld_, mYRow )
+	mRemoveFromTable( key2bytefld_, mKey2Row )
+    }
+    else if ( !xcoordbytefld_ )
+    {
+	xcoordbytefld_ = new uiSEGYByteNr( 0, "X-coord byte" );
+	xcoordbytefld_->selectionChanged.notify( parchgcb );
+	mAddToTbl( xcoordbytefld_, mXRow );
+	ycoordbytefld_ = new uiSEGYByteNr( 0, "Y-coord byte" );
+	ycoordbytefld_->selectionChanged.notify( parchgcb );
+	mAddToTbl( ycoordbytefld_, mYRow );
+	key2bytefld_ = new uiSEGYByteNr( 0, "Key2 byte" );
+	key2bytefld_->selectionChanged.notify( parchgcb );
+	mAddToTbl( key2bytefld_, mKey2Row );
+    }
+
+    if ( isvsp || (!isrev0 && !is2d) )
+	mRemoveFromTable( key1bytefld_, mKey1Row )
+    else if ( !key1bytefld_ )
+    {
+	key1bytefld_ = new uiSEGYByteNr( 0, "Key1 byte" );
+	key1bytefld_->selectionChanged.notify( parchgcb );
+	mAddToTbl( key1bytefld_, mKey1Row );
+    }
+
+    if ( isvsp || !isps )
+	mRemoveFromTable( offsetbytefld_, mPSRow )
+    else if ( !offsetbytefld_ )
+    {
+	offsetbytefld_ = new uiSEGYByteNr( 0, "Offset byte" );
+	offsetbytefld_->selectionChanged.notify( parchgcb );
+	mAddToTbl( offsetbytefld_, mPSRow );
+    }
 
     useLoadDef();
 }
@@ -213,11 +262,7 @@ void uiSEGYReadStartInfo::setImpTypIdx( int idx )
 
 void uiSEGYReadStartInfo::showRelevantInfo()
 {
-    const Seis::GeomType gt = imptype_.geomType();
-    const bool isvsp = imptype_.isVSP();
-    const bool is2d = Seis::is2D( gt );
-    const bool isps = Seis::isPS( gt );
-    const bool isrev0 = loaddef_.isRev0();
+    mGetTypeVars;
 
     const char* xittxt; const char* yittxt;
     const char* ky1ittxt; const char* ky2ittxt; const char* offsittxt;
@@ -260,11 +305,7 @@ void uiSEGYReadStartInfo::showRelevantInfo()
     setCellTxt( mUseTxtCol, mYRow, yustxt );
     setCellTxt( mUseTxtCol, mPSRow, offsustxt );
 
-    xcoordbytefld_->display( !isvsp && isrev0 );
-    ycoordbytefld_->display( !isvsp && isrev0 );
-    key1bytefld_->display( !isvsp && (isrev0 || is2d) );
-    key2bytefld_->display( !isvsp && isrev0 );
-    offsetbytefld_->display( !isvsp && isps );
+    manSpecificLoadDefFields();
 }
 
 
@@ -285,7 +326,7 @@ void uiSEGYReadStartInfo::clearInfo()
 void uiSEGYReadStartInfo::setScanInfo( const SEGY::ScanInfo& si )
 {
     tbl_->setColumnLabel( mQSResCol, si.fullscan_ ? "Full scan result"
-	    					  : "Quick scan result" );
+						  : "Quick scan result" );
     clearInfo();
     if ( !si.isUsable() )
 	return;
@@ -361,19 +402,23 @@ void uiSEGYReadStartInfo::useLoadDef()
     if ( imptype_.isVSP() )
 	return;
 
-    xcoordbytefld_->setByteNr( loaddef_.hdrdef_->xcoord_.bytepos_ );
-    ycoordbytefld_->setByteNr( loaddef_.hdrdef_->ycoord_.bytepos_ );
-    offsetbytefld_->setByteNr( loaddef_.hdrdef_->offs_.bytepos_ );
+#   define mSetToByteNr(fld,memb) \
+    if ( fld ) fld->setByteNr( loaddef_.hdrdef_->memb.bytepos_ )
+
+    mSetToByteNr( xcoordbytefld_, xcoord_  );
+    mSetToByteNr( ycoordbytefld_, ycoord_  );
+    mSetToByteNr( offsetbytefld_, offs_  );
+
     const Seis::GeomType gt = imptype_.geomType();
     if ( Seis::is2D(gt) )
     {
-	key1bytefld_->setByteNr( loaddef_.hdrdef_->trnr_.bytepos_ );
-	key2bytefld_->setByteNr( loaddef_.hdrdef_->refnr_.bytepos_ );
+	mSetToByteNr( key1bytefld_, trnr_  );
+	mSetToByteNr( key2bytefld_, refnr_  );
     }
     else
     {
-	key1bytefld_->setByteNr( loaddef_.hdrdef_->inl_.bytepos_ );
-	key2bytefld_->setByteNr( loaddef_.hdrdef_->crl_.bytepos_ );
+	mSetToByteNr( key1bytefld_, inl_  );
+	mSetToByteNr( key2bytefld_, crl_  );
     }
 
     parsbeingset_ = false;
@@ -391,20 +436,21 @@ void uiSEGYReadStartInfo::fillLoadDef()
     if ( imptype_.isVSP() )
 	return;
 
-    loaddef_.hdrdef_->xcoord_ = xcoordbytefld_->hdrEntry();
-    loaddef_.hdrdef_->ycoord_ = ycoordbytefld_->hdrEntry();
+#   define mSetByteNr(fld,memb) \
+    if ( fld ) loaddef_.hdrdef_->memb = fld->hdrEntry()
 
-    const Seis::GeomType gt = imptype_.geomType();
-    if ( Seis::isPS(gt) )
-	loaddef_.hdrdef_->offs_ = offsetbytefld_->hdrEntry();
-    if ( Seis::is2D(gt) )
+    mSetByteNr( xcoordbytefld_, xcoord_  );
+    mSetByteNr( ycoordbytefld_, ycoord_  );
+    mSetByteNr( offsetbytefld_, offs_  );
+
+    if ( Seis::is2D(imptype_.geomType()) )
     {
-	loaddef_.hdrdef_->trnr_ = key1bytefld_->hdrEntry();
-	loaddef_.hdrdef_->refnr_ = key2bytefld_->hdrEntry();
+	mSetByteNr( key1bytefld_, trnr_  );
+	mSetByteNr( key2bytefld_, refnr_  );
     }
     else
     {
-	loaddef_.hdrdef_->inl_ = key1bytefld_->hdrEntry();
-	loaddef_.hdrdef_->crl_ = key2bytefld_->hdrEntry();
+	mSetByteNr( key1bytefld_, inl_  );
+	mSetByteNr( key2bytefld_, crl_  );
     }
 }

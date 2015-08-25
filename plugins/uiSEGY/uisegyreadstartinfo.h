@@ -72,7 +72,8 @@ protected:
     void		revChg(CallBacker*);
     void		parChg(CallBacker*);
 
-    void		mkLoadDefFields();
+    void		mkCommonLoadDefFields();
+    void		manSpecificLoadDefFields();
     void		showRelevantInfo();
     void		setCellTxt(int col,int row,const char*);
 
