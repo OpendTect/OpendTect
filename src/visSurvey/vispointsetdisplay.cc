@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "vispointset.h"
 #include "vismaterial.h"
+#include "executor.h"
 
 
 namespace visSurvey {
@@ -70,66 +71,98 @@ bool PointSetDisplay::setDataPack( int dpsid )
 
     mDynamicCastGet(DataPointSet*,data,pack)
     data_ = data;
-    update();
-
     return true;
 }
 
 
-void PointSetDisplay::update()
+class PointSetDisplayUpdater : public Executor
+{ mODTextTranslationClass(PointSetDisplayUpdater)
+
+public:
+PointSetDisplayUpdater( visBase::PointSet& pointset, DataPointSet& dps,
+			DataPointSetDisplayProp& dpsdispprop )
+    : Executor("Creating Point Display in 3D Scene")
+    , pointset_(pointset)
+    , data_(dps)
+    , dpsdispprop_(dpsdispprop)
+    , nrdone_(-1)
 {
-    if ( !pointset_ ) return;
+    pointset_.removeAllPoints();
+    pointset_.removeAllPrimitiveSets();
+    pointset_.getMaterial()->clear();
+}
 
-    pointset_->removeAllPoints();
-    pointset_->removeAllPrimitiveSets();
-    pointset_->getMaterial()->clear();
+od_int64 nrDone() const
+{ return nrdone_; }
 
-    TypeSet<int> pointidxs;
-    for ( int idx=0; idx<data_->size(); idx++ )
-    {
-	if ( dpsdispprop_->showSelected() && !data_->isSelected(idx) )
-	    continue;
+od_int64 totalNr() const
+{ return data_.size(); }
 
-	Color col;
-	if ( dpsdispprop_->showSelected() )
-	{
-	    int selgrp = data_->selGroup(idx);
-	    col = dpsdispprop_->getColor( (float)selgrp );
-	}
-	else
-	{
-	    const float val = data_->value( dpsdispprop_->dpsColID(), idx );
-	    if ( mIsUdf(val) )
-		continue;
+uiString uiNrDoneText() const
+{ return tr("Points done"); }
 
-	    col = dpsdispprop_->getColor( val );
-	}
+protected :
 
-	const int ptidx = pointset_->addPoint(
-				Coord3(data_->coord(idx),data_->z(idx)) );
-	pointidxs += ptidx;
-
-	pointset_->getMaterial()->setColor( col, ptidx );
-	const float transp = (float)col.t();
-
-	pointset_->getMaterial()->setTransparency( transp/(float)255, ptidx );
-    }
-
-    if ( pointidxs.size()>0 )
+int nextStep()
+{
+    if ( nrdone_>= data_.size()-1 )
     {
 	Geometry::PrimitiveSet* pointsetps =
 	    Geometry::IndexedPrimitiveSet::create( true );
 	pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
-	pointsetps->append( pointidxs.arr(), pointidxs.size() );
-	pointset_->addPrimitiveSet( pointsetps );
-	pointset_->materialChangeCB( 0 );
+	pointsetps->append( pointidxs_.arr(), pointidxs_.size() );
+	pointset_.addPrimitiveSet( pointsetps );
+	pointset_.materialChangeCB( 0 );
+	return Finished();
     }
 
+    nrdone_++;
+    if ( dpsdispprop_.showSelected() && !data_.isSelected(nrdone_) )
+	return MoreToDo();
+
+    Color col;
+    if ( dpsdispprop_.showSelected() )
+    {
+	int selgrp = data_.selGroup(nrdone_);
+	col = dpsdispprop_.getColor( (float)selgrp );
+    }
+    else
+    {
+	const float val = data_.value( dpsdispprop_.dpsColID(), nrdone_ );
+	if ( mIsUdf(val) )
+	    return MoreToDo();
+
+	col = dpsdispprop_.getColor( val );
+    }
+
+    const int ptidx = pointset_.addPoint(
+			    Coord3(data_.coord(nrdone_),data_.z(nrdone_)) );
+    pointidxs_ += ptidx;
+    pointset_.getMaterial()->setColor( col, ptidx );
+    const float transp = (float)col.t();
+    pointset_.getMaterial()->setTransparency( transp/(float)255, ptidx );
+    return MoreToDo();
+}
+
+    visBase::PointSet&		pointset_;
+    DataPointSet&		data_;
+    DataPointSetDisplayProp&	dpsdispprop_;
+    TypeSet<int>		pointidxs_;
+    od_int64			nrdone_;
+};
+
+
+void PointSetDisplay::update( TaskRunner* tr )
+{
+    if ( !pointset_ ) return;
+
+    PointSetDisplayUpdater displayupdater( *pointset_, *data_, *dpsdispprop_ );
+    TaskRunner::execute( tr, displayupdater );
 }
 
 
 void PointSetDisplay::removeSelection( const Selector<Coord3>& selector,
-					TaskRunner* )
+					TaskRunner* tr )
 {
     if ( !selector.isOK() )
 	return;
@@ -149,7 +182,7 @@ void PointSetDisplay::removeSelection( const Selector<Coord3>& selector,
 	}
     }
 
-    update();
+    update( tr );
 }
 
 

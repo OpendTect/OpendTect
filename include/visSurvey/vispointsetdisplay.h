@@ -42,7 +42,7 @@ public:
     void			setDispProp(const DataPointSetDisplayProp*);
     bool			hasColor() const	{ return true; }
 
-    void			update();
+    void			update(TaskRunner*);
     bool			setDataPack(int);
     const DataPointSet*		getDataPack() const	{ return data_; }
     void			setDisplayTransformation(const mVisTrans*);
