@@ -154,7 +154,7 @@ private:
 #ifndef mNoAutoUiString
 public:
 #else
-private:
+protected:
 #endif
 		//Only for expert users
 		uiString(const char* inp);
