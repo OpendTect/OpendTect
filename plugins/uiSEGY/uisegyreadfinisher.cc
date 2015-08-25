@@ -83,16 +83,21 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
 
 void uiSEGYReadFinisher::crSeisFields()
 {
-    docopyfld_ = new uiGenInput( this, "Copy data",
-	    BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
-    docopyfld_->valuechanged.notify( mCB(this,uiSEGYReadFinisher,doScanChg) );
-
     const Seis::GeomType gt = fs_.geomType();
     const bool is2d = Seis::is2D( gt );
+
+    if ( gt != Seis::Line )
+    {
+	docopyfld_ = new uiGenInput( this, "Copy data",
+		BoolInpSpec(true,tr("Yes (import)"),tr("No (scan&&link)")) );
+	docopyfld_->valuechanged.notify(mCB(this,uiSEGYReadFinisher,doScanChg));
+    }
+
     uiSeisTransfer::Setup trsu( gt );
     trsu.withnullfill( false ).fornewentry( true );
     transffld_ = new uiSeisTransfer( this, trsu );
-    transffld_->attach( alignedBelow, docopyfld_ );
+    if ( docopyfld_ )
+	transffld_->attach( alignedBelow, docopyfld_ );
     if ( is2d )
 	transffld_->selFld2D()->setSelectedLine( objname_ );
 
@@ -103,7 +108,8 @@ void uiSEGYReadFinisher::crSeisFields()
     if ( !is2d )
 	outimpfld_->setInputText( objname_ );
 
-    uiSeisSel::Setup scansu( gt ); scansu.withwriteopts( false );
+    uiSeisSel::Setup scansu( gt );
+    scansu.enabotherdomain( true ).withwriteopts( false );
     ctxt.toselect.allownonuserselectable_ = true;
     ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
     outscanfld_ = new uiSeisSel( this, ctxt, scansu );
@@ -160,6 +166,7 @@ uiSEGYReadFinisher::~uiSEGYReadFinisher()
 void uiSEGYReadFinisher::initWin( CallBacker* )
 {
     inpDomChg( 0 );
+    doScanChg( 0 );
 }
 
 
@@ -199,11 +206,58 @@ void uiSEGYReadFinisher::doScanChg( CallBacker* )
 }
 
 
+bool uiSEGYReadFinisher::doVSP()
+{
+    uiMSG().error( "TODO: VSP import" );
+    return false;
+}
+
+
+bool uiSEGYReadFinisher::do3D( bool doimp )
+{
+    uiMSG().error( "TODO: 3D non-batch import" );
+    return false;
+}
+
+
+bool uiSEGYReadFinisher::do2D( bool doimp )
+{
+    uiMSG().error( "TODO: 2D non-batch import" );
+    return false;
+}
+
+
 bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 {
-    uiMSG().error( "TODO: implement actual import" );
-    // TODO
-    // batchfld_->jobSpec().pars_.set( SEGY::IO::sKeyTask(),
-    // SEGY::IO::sKeyImport() or SEGY::IO::sKeyScan() );
-    return false;
+    if ( fs_.isVSP() )
+	return doVSP();
+
+    const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
+    const bool dobatch = batchfld_ && batchfld_->wantBatch();
+    const bool is2d = Seis::is2D( fs_.geomType() );
+
+    if ( !dobatch )
+	return is2d ? do2D( doimp ) : do3D( doimp );
+
+    const IOObj* outioobj = outFld(doimp)->ioobj();
+    if ( !outioobj )
+	return false;
+
+    const bool isps = Seis::isPS( fs_.geomType() );
+    batchfld_->setJobName( doimp ? "import SEG-Y" : "scan SEG-Y" );
+
+    IOPar& jobpars = batchfld_->jobSpec().pars_;
+    jobpars.set( SEGY::IO::sKeyTask(), doimp ? SEGY::IO::sKeyImport()
+	    : (isps ? SEGY::IO::sKeyIndexPS() : SEGY::IO::sKeyIndex3DVol()) );
+    fs_.spec_.fillPar( jobpars );
+    fs_.pars_.fillPar( jobpars );
+    fs_.readopts_.fillPar( jobpars );
+
+    IOPar outpars;
+    transffld_->fillPar( outpars );
+    outFld(doimp)->fillPar( outpars );
+    jobpars.mergeComp( outpars, sKey::Output() );
+
+    return batchfld_->start();
+
 }

@@ -53,6 +53,9 @@ protected:
 
     void		crVSPFields();
     void		crSeisFields();
+    bool		doVSP();
+    bool		do3D(bool);
+    bool		do2D(bool);
 
     void		initWin(CallBacker*);
     void		wllSel(CallBacker*);
@@ -62,6 +65,9 @@ protected:
 
     static uiString	getWinTile(const FullSpec&);
     static uiString	getDlgTitle(const char*);
+
+    uiSeisSel*		outFld( bool imp )
+			{ return imp ? outimpfld_ : outscanfld_; }
 
 };
 
