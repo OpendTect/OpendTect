@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyresortdlg.h"
 #include "uiwellimpsegyvsp.h"
 #include "uisegyreadstarter.h"
+#include "uisegyimptype.h"
 
 #include "uiseisfileman.h"
 #include "uisurvinfoed.h"
@@ -186,7 +187,8 @@ void uiSEGYMgr::exp3DPSCB( CallBacker* )
 
 void uiSEGYMgr::impVSPCB( CallBacker* )
 {
-    uiWellImportSEGYVSP dlg( appl_ );
+    const SEGY::ImpType imptyp( true );
+    uiSEGYReadStarter dlg( ODMainWin(), &imptyp );
     dlg.go();
 }
 

@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "wellman.h"
 #include "segybatchio.h"
 #include "segydirecttr.h"
+#include "ioobj.h"
 #include "filepath.h"
 
 
@@ -206,10 +207,18 @@ void uiSEGYReadFinisher::doScanChg( CallBacker* )
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
 bool uiSEGYReadFinisher::doVSP()
 {
-    uiMSG().error( "TODO: VSP import" );
-    return false;
+    const IOObj* ioobj = outwllfld_->ioobj();
+    if ( !ioobj )
+	return false;
+    const BufferString lognm( lognmfld_->text() );
+    if ( lognm.isEmpty() )
+	mErrRet(tr("Please enter a valid name for the new log"))
+
+    mErrRet( "TODO: VSP import" );
 }
 
 

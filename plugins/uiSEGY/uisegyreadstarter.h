@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "segyfiledef.h"
 #include "segyuiscandata.h"
+#include "uisegyimptype.h"
 
 class Timer;
 class DataClipSampler;
@@ -39,7 +40,8 @@ public:
     typedef SEGY::FilePars FilePars;
     typedef SEGY::FileReadOpts FileReadOpts;
 
-			uiSEGYReadStarter(uiParent*,const FileSpec* fs=0);
+			uiSEGYReadStarter(uiParent*,
+					  const SEGY::ImpType* fixedtype=0);
 			~uiSEGYReadStarter();
 
     bool		isMulti() const		{ return filespec_.isMulti(); }
@@ -74,6 +76,7 @@ protected:
     DataClipSampler&	clipsampler_;
     bool		infeet_;
     bool		veryfirstscan_;
+    SEGY::ImpType	fixedimptype_;
 
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();

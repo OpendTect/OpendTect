@@ -34,11 +34,13 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "timer.h"
 
 
-uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
-    : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),mNoDlgTitle,
+uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
+    : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),
+			imptyp ? uiString("Import %1").arg(imptyp->dispText())
+				: mNoDlgTitle,
 				  mTODOHelpKey ) )
-    , filespec_(fs?*fs:FileSpec())
     , filereadopts_(0)
+    , typfld_(0)
     , veryfirstscan_(false)
     , userfilename_("x") // any non-empty
     , clipsampler_(*new DataClipSampler(100000))
@@ -54,19 +56,29 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
 				fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
 
-    typfld_ = new uiSEGYImpType( this );
-    typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
-    typfld_->attach( alignedBelow, inpfld_ );
+    if ( imptyp )
+	fixedimptype_ = *imptyp;
+    else
+    {
+	typfld_ = new uiSEGYImpType( this );
+	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
+	typfld_->attach( alignedBelow, inpfld_ );
+    }
     nrfileslbl_ = new uiLabel( this, uiString::emptyString() );
     nrfileslbl_->setPrefWidthInChar( 10 );
     nrfileslbl_->setAlignment( Alignment::Right );
-    nrfileslbl_->attach( rightTo, typfld_ );
-    nrfileslbl_->attach( rightBorder );
+    if ( !typfld_ )
+	nrfileslbl_->attach( rightTo, inpfld_ );
+    else
+    {
+	nrfileslbl_->attach( rightTo, typfld_ );
+	nrfileslbl_->attach( rightBorder );
+    }
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, typfld_ );
+    sep->attach( stretchedBelow, nrfileslbl_ );
 
-    infofld_ = new uiSEGYReadStartInfo( this, loaddef_ );
+    infofld_ = new uiSEGYReadStartInfo( this, loaddef_, imptyp );
     infofld_->attach( ensureBelow, sep );
     infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
 
@@ -152,13 +164,19 @@ void uiSEGYReadStarter::clearDisplay()
 
 void uiSEGYReadStarter::setImpTypIdx( int tidx )
 {
+    if ( !typfld_ )
+    {
+	pErrMsg( "Cannot set type if fixed" );
+	return;
+    }
+
     typfld_->setTypIdx( tidx ); // should trigger its callback
 }
 
 
 const SEGY::ImpType& uiSEGYReadStarter::impType() const
 {
-    return typfld_->impType();
+    return typfld_ ? typfld_->impType() : fixedimptype_;
 }
 
 
@@ -453,7 +471,7 @@ bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
 	return false;
 
     si.getFromSEGYBody( strm, loaddef_, isfirst,
-			Seis::is2D(typfld_->impType().geomType()),
+			Seis::is2D(impType().geomType()),
 			clipsampler_, full, this );
     return true;
 }

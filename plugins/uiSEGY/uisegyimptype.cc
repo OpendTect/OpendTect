@@ -59,6 +59,25 @@ void SEGY::ImpType::setGeomType( Seis::GeomType gt )
 }
 
 
+uiString SEGY::ImpType::dispText() const
+{
+    if ( isVSP() )
+	return tr("Zero-offset VSP");
+
+    switch ( geomType() )
+    {
+    case Seis::VolPS:
+	return tr("3D PreStack data");
+    case Seis::Line:
+	return tr("2D Seismic data");
+    case Seis::LinePS:
+	return tr("2D PreStack data");
+    default: case Seis::Vol:
+	return tr("3D seismic data");
+    }
+}
+
+
 
 uiSEGYImpType::uiSEGYImpType( uiParent* p, const uiString* lbltxt )
     : uiGroup(p,"Import Type")
@@ -74,36 +93,29 @@ uiSEGYImpType::uiSEGYImpType( uiParent* p, const uiString* lbltxt )
     fld_->addItem( tr(txt) ); \
     fld_->setIcon( fld_->size()-1, ic ); }
 
+    SEGY::ImpType imptyp;
     for ( int idx=0; idx<typ_.types_.size(); idx++ )
     {
-	const int typ = typ_.types_[idx];
-	if ( typ == (int)Seis::Vol )
-	{
-	    fld_->addItem( tr("3D seismic data") );
-	    fld_->setIcon( fld_->size()-1, "seismiccube" );
-	}
-	else if ( typ == (int)Seis::VolPS )
-	{
-	    fld_->addItem( tr("3D PreStack data") );
-	    fld_->setIcon( fld_->size()-1, "prestackdataset" );
-	}
-	else if ( typ == (int)Seis::Line )
-	{
-	    fld_->addItem( tr("2D Seismic data") );
-	    fld_->setIcon( fld_->size()-1, "seismicline2d" );
-	}
-	else if ( typ == (int)Seis::LinePS )
-	{
-	    fld_->addItem( tr("2D PreStack data") );
-	    fld_->setIcon( fld_->size()-1, "prestackdataset2d" );
-	}
+	imptyp.tidx_ = idx;
+	fld_->addItem( imptyp.dispText() );
+	const int icidx = fld_->size() - 1;
+	if ( imptyp.isVSP() )
+	    fld_->setIcon( icidx, "vsp0" );
 	else
 	{
-	    fld_->addItem( tr("Zero-offset VSP") );
-	    fld_->setIcon( fld_->size()-1, "vsp0" );
+	    switch ( imptyp.geomType() )
+	    {
+	    case Seis::Vol:
+		fld_->setIcon( icidx, "seismiccube" );		break;
+	    case Seis::VolPS:
+		fld_->setIcon( icidx, "prestackdataset" );	break;
+	    case Seis::Line:
+		fld_->setIcon( icidx, "seismicline2d" );	break;
+	    case Seis::LinePS:
+		fld_->setIcon( icidx, "prestackdataset2d" );	break;
+	    }
 	}
     }
-
 
     setHAlignObj( fld_ );
 }

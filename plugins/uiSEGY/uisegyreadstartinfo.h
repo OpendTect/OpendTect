@@ -32,7 +32,8 @@ mExpClass(uiSEGY) uiSEGYReadStartInfo : public uiGroup
 { mODTextTranslationClass(uiSEGYReadStartInfo);
 public:
 
-			uiSEGYReadStartInfo(uiParent*,SEGY::LoadDef&);
+			uiSEGYReadStartInfo(uiParent*,SEGY::LoadDef&,
+					const SEGY::ImpType* fixedimptyp=0);
 
     void		setImpTypIdx(int);
     void		setScanInfo(const SEGY::ScanInfo&);
@@ -60,6 +61,8 @@ protected:
 
     SEGY::LoadDef&	loaddef_;
     SEGY::ImpType	imptype_;
+    const bool		inptypfixed_;
+    int			nrrows_;
     bool		parsbeingset_;
     BufferString	xinfotxt_;
     BufferString	yinfotxt_;
