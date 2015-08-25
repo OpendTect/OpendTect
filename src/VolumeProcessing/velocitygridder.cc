@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"
+#include "uistrings.h"
 
 
 namespace VolProc
@@ -590,9 +591,10 @@ bool VelocityGridder::usePar( const IOPar& par )
 	    Vel::FunctionSource::factory().create( sourcetype.buf(), mid );
 	if ( !source )
 	{
-	    errmsg_ = tr("Cannot create a velocity source of type %1. %2")
+	    errmsg_ =
+		uiStrings::phrCannotCreate(tr("velocity source of type %1. %2")
 			.arg( sourcetype.buf() )
-			.arg( Vel::FunctionSource::factory().errMsg() );
+			.arg( Vel::FunctionSource::factory().errMsg() ) );
 	    return false;
 	}
 

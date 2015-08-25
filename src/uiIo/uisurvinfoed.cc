@@ -620,8 +620,9 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     {
 	if ( !File::createLink(newdir,linkpos) )
 	{
-	    uiString msg = tr("Cannot create link from \n%1 to \n%2")
-			 .arg(newdir).arg(linkpos);
+	    uiString msg =
+		uiStrings::phrCannotCreate( tr("link from \n%1 to \n%2")
+					     .arg(newdir).arg(linkpos));
 	    uiMSG().error( msg );
 	    return false;
 	}

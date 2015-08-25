@@ -158,7 +158,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     }
     else if ( !File::createDir(tmpstordir) )
     {
-	errmsg_ = tr("Cannot create data directory in Temporary storage dir");
+	errmsg_ = uiStrings::phrCannotCreateDirectory(tmpstordir);
 	return 0;
     }
 
@@ -269,7 +269,7 @@ MultiID SeisJobExecProv::tempStorID() const
     ctio_.setName( objnm );
     IOM().getEntry( ctio_ );
     if ( !ctio_.ioobj )
-	errmsg_ = tr("Cannot create temporary object for seismics");
+	errmsg_ = uiStrings::phrCannotCreateDBEntryFor(tr("temporary storage"));
     else
     {
 	ret = ctio_.ioobj->key();

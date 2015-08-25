@@ -8,7 +8,7 @@
 -*/
 
 #include "generalmod.h"
-#include "bufstring.h"
+#include "uistring.h"
 
 class LatLong;
 class SurveyInfo;
@@ -24,7 +24,7 @@ class XMLItem;
 */
 
 mExpClass(General) XMLWriter
-{
+{ mODTextTranslationClass(XMLWriter);
 public:
 
 			XMLWriter(const char* elemname,const char* fnm=0,
@@ -32,7 +32,7 @@ public:
 			~XMLWriter()		{ close(); }
 
     bool		isOK() const;
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     void		setElemName( const char* nm ) //!< before open()
 						{ elemnm_ = nm; }
@@ -67,7 +67,7 @@ protected:
     BufferString	elemnm_;
     BufferString	survnm_;
     od_ostream*		strm_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
 
 };
 

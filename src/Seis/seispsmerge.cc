@@ -98,7 +98,8 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
     writer_ = new SeisTrcWriter( &out );
     if ( !writer_ )
     {
-	deepErase(readers_); msg_ = tr("Cannot create output writer");
+	deepErase(readers_);
+	msg_ = toUiString("Cannot create output writer");
 	return;
     }
 }

@@ -98,7 +98,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     const EM::ObjectID emobjid = em.createObject( typ, ioobj->name() );
     mDynamicCastGet(EM::Horizon3D*,hor3d,em.getObject(emobjid));
     if ( !hor3d )
-	mErrRet( tr("Cannot create 3D horizon") );
+	mErrRet( toUiString("Cannot create 3D horizon") );
 
     if ( hor3d_ )
 	hor3d_->unRef();
@@ -111,7 +111,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 
     Array2DInterpol* interpolator = interpolsel_->getResult();
     if ( !interpolator )
-	mErrRet( tr("Cannot create interpolator") );
+	mErrRet( toUiString("Cannot create interpolator") );
 
     uiTaskRunner taskrunner( this );
     //Takes over interpolator

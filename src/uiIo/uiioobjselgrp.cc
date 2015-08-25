@@ -676,7 +676,8 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     }
     if ( !ioobj )
     {
-	uiMSG().error(tr("Cannot create %1 with this name").arg(mObjTypeName));
+	uiMSG().error( uiStrings::phrCannotCreate(
+				tr("%1 with this name").arg(mObjTypeName) ));
 	return false;
     }
 

@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id";
 #include "latlong.h"
 #include "color.h"
 #include "od_ostream.h"
+#include "uistrings.h"
 
 ODGoogle::XMLWriter::XMLWriter( const char* enm, const char* fnm,
 				const char* snm )
@@ -28,18 +29,18 @@ bool ODGoogle::XMLWriter::isOK() const
 }
 
 
-#define mErrRet(s,s2) { errmsg_ = s; if ( s2 ) errmsg_ += s2; return false; }
+#define mErrRet(s) { errmsg_ = s; return false; }
 
 bool ODGoogle::XMLWriter::open( const char* fnm )
 {
     close();
 
     if ( !fnm || !*fnm )
-	mErrRet("No file name provided",0)
+	mErrRet( tr("No file name provided"))
 
     strm_ = new od_ostream( fnm );
     if ( !strm_ || !strm_->isOK() )
-	mErrRet("Cannot create file: ",fnm)
+	mErrRet( uiStrings::phrCannotOpen( fnm ) )
 
     strm() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 	    "<kml xmlns=\"http://www.opengis.net/kml/2.2\" "
@@ -53,9 +54,9 @@ bool ODGoogle::XMLWriter::open( const char* fnm )
 
     if ( !strm().isOK() )
     {
-	BufferString emsg( "Error during write of XML header info" );
+	uiString emsg( tr("Error during write of XML header info") );
 	strm().addErrMsgTo( emsg );
-	mErrRet(emsg,0)
+	mErrRet(emsg)
     }
 
     return true;

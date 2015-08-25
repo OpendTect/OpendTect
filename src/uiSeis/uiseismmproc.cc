@@ -240,7 +240,7 @@ bool uiSeisMMProc::initWork( bool retry )
 		File::createDir( tmpstordir );
 	    }
 	    if ( !File::isDirectory(tmpstordir) )
-		mErrRet(tr("Cannot create temporary storage directory"))
+		mErrRet( uiStrings::phrCannotCreateDirectory(tmpstordir) )
 	}
 
 	jobprov_->pars().write( parfnm_, sKey::Pars() );

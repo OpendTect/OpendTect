@@ -75,7 +75,7 @@ bool uiPreStackMMProc::initWork( bool retry )
 
     PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *ioobj );
     if ( !rdr )
-	mErrRet(tr("Cannot create reader for input data store") )
+	mErrRet( uiStrings::phrCannotOpen( ioobj->name() ) );
 
     const PosInfo::CubeData& cd = rdr->posData();
     TypeSet<int> inlnrs; int previnl = mUdf(int);

@@ -172,16 +172,15 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	    ioobj = mkEntry( *ctio, wd->name() );
 	if ( !ioobj )
 	{
-	    errors.add(
-		tr("Cannot create Database entry for: %1").arg(wd->name()) );
+	    errors.add( uiStrings::phrCannotCreateDBEntryFor(wd->name()) );
 	    continue;
 	}
 
 	Well::Writer ww( *ioobj, *wd );
 	if ( !ww.put() )
 	{
-	    uiString msg = tr("Cannot create %1: %2").arg(wd->name())
-			 .arg(ww.errMsg());
+	    uiString msg = uiStrings::phrCannotCreate(
+		    toUiString("%1: %2").arg(wd->name()).arg(ww.errMsg()) );
 	    errors.add( msg );
 	}
     }

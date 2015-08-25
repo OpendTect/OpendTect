@@ -143,7 +143,8 @@ void uiAttribDescSetEd::createMenuBar()
     filemnu->insertSeparator();
     mInsertItem( m3Dots(tr("Open Default set")), defaultSet, "defset" );
     uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
-    mInsertMnuItem( impmnu, m3Dots(tr("From other Survey")), importSet, "impset" );
+    mInsertMnuItem( impmnu, m3Dots(tr("From other Survey")),
+		    importSet, "impset" );
     mInsertMnuItemNoIcon( impmnu, m3Dots(tr("From File")), importFile );
     mInsertItem( m3Dots(tr("Reconstruct from job file")), job2Set, "job2set" );
     mInsertItemNoIcon( m3Dots(tr("Import set from Seismics")), importFromSeis );
@@ -499,7 +500,7 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 
     Desc* newdesc = PF().createDescCopy( attribname );
     if ( !newdesc )
-	mErrRetNull( tr("Cannot create attribdesc") )
+	mErrRetNull( toUiString("Cannot create attribdesc") )
 
     newdesc->setDescSet( attrset_ );
     newdesc->ref();
