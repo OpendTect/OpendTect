@@ -441,6 +441,8 @@ int FaultBinIDSurfaceIntersector::optimizeOrder( TypeSet<Coord3>& res )
 void FaultBinIDSurfaceIntersector::sortPointsToLine( 
     TypeSet<Coord3>& in, TypeSet<Coord3>& out )
 {
+    if ( in.isEmpty() ) return;
+
     out.erase();
     const Coord3 startpoint = in[0];
     Coord3 pnt = findNearestPoint( startpoint, in );
