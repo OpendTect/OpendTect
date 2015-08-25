@@ -86,8 +86,12 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     iop.get( sKey::Output(), mid );
     if ( mid.isEmpty() )
     {
-	strm << "Parameter file lacks key '" << sKey::Output() << od_endl;
-	return false;
+	iop.get( IOPar::compKey(sKey::Output(),sKey::ID()), mid );
+	if ( mid.isEmpty() )
+	{
+	    strm << "Parameter file lacks key 'Output[.ID]'" << od_endl;
+	    return false;
+	}
     }
 
     SEGY::FileSpec filespec;
