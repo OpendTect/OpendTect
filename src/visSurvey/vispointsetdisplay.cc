@@ -135,9 +135,9 @@ int nextStep()
 	col = dpsdispprop_.getColor( val );
     }
 
-    DataPointSet::RowID rowid( nrdone_ );
+    DataPointSet::RowID rowid = mCast(DataPointSet::RowID,nrdone_);
     const int ptidx = pointset_.addPoint(
-			    Coord3(data_.coord(rowid),data_.z(nrdone_)) );
+			    Coord3(data_.coord(rowid),data_.z(rowid)) );
     pointidxs_ += ptidx;
     pointset_.getMaterial()->setColor( col, ptidx );
     const float transp = (float)col.t();
