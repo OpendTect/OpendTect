@@ -230,6 +230,8 @@ protected:
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
     void			setScene(Scene*);
     void			updateAttribEnabling();
+    void			getObjectInfoText(uiString& info,
+						  bool compact) const;
 
     visBase::BoxDragger*			boxdragger_;
     visBase::VolumeRenderScalarField*		scalarfield_;
@@ -293,6 +295,7 @@ protected:
     visBase::EventCatcher*	eventcatcher_;
 
     bool			isinited_;
+    bool			ismanip_;
     bool                        onoffstatus_;
 
     RefMan<const mVisTrans>	displaytrans_;

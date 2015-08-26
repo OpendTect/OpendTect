@@ -112,15 +112,16 @@ VolumeDisplay::AttribData::~AttribData()
 VolumeDisplay::VolumeDisplay()
     : VisualObjectImpl(true)
     , boxdragger_(visBase::BoxDragger::create())
-    , isinited_(0)
+    , isinited_(false)
     , scalarfield_(0)
 //    , volren_(0)
     , boxMoving(this)
     , datatransform_(0)
     , datatransformer_(0)
     , csfromsession_(true)
-    , eventcatcher_( 0 )
-    , onoffstatus_( true )
+    , eventcatcher_(0)
+    , onoffstatus_(true)
+    , ismanip_(false)
 {
     addChild( boxdragger_->osgNode() );
 
@@ -346,7 +347,8 @@ bool VolumeDisplay::isManipulatorShown() const
 
 bool VolumeDisplay::isManipulated() const
 {
-    return !texturecs_.includes( getTrcKeyZSampling(true,true,0) );
+    return ismanip_ &&
+	(!isinited_ || !texturecs_.includes(getTrcKeyZSampling(true,true,0)) );
 }
 
 
@@ -356,12 +358,14 @@ bool VolumeDisplay::canResetManipulation() const
 
 void VolumeDisplay::resetManipulation()
 {
+    ismanip_ = false;
 }
 
 
 void VolumeDisplay::acceptManipulation()
 {
     setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
+    ismanip_ = false;
 }
 
 
@@ -395,6 +399,7 @@ void VolumeDisplay::draggerMoveCB( CallBacker* )
 	boxdragger_->showScaleTabs( false );
     }
     boxMoving.trigger();
+    ismanip_ = true;
 }
 
 
@@ -881,58 +886,42 @@ BufferString VolumeDisplay::getManipulationString() const
 }
 
 
-void VolumeDisplay::getObjectInfo( BufferString& info ) const
+void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
 {
-    TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
-    info = "Inl: ";
-    info += cs.hsamp_.start_.inl(); info += "-"; info += cs.hsamp_.stop_.inl();
-    info += ", Crl: ";
-    info += cs.hsamp_.start_.crl(); info += "-"; info += cs.hsamp_.stop_.crl();
-    info += ", ";
-
-    float zstart = cs.zsamp_.start;
-    float zstop = cs.zsamp_.stop;
-
-    if ( scene_ )
+    BufferString formatstr = "%1-%2 / %3-%4 / %5-%6";
+    if ( !compact )
     {
-	info += scene_->zDomainInfo().userName();
-	info += ": ";
-	zstart *= scene_->zDomainInfo().userFactor();
-	zstop *= scene_->zDomainInfo().userFactor();
+	formatstr = "Inl: %1-%2, Crl: %3-%4, ";
+	formatstr += scene_ ? scene_->zDomainInfo().userName() : "Z";
+	formatstr += ": %5-%6";
     }
 
+    TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
 
-    info += mNINT32(zstart); info += "-"; info += mNINT32(zstop);
+    const int userfactor = scene_
+	? scene_->zDomainInfo().userFactor()
+	: 1;
+
+    info = uiString( formatstr )
+	.arg( cs.hsamp_.start_.inl() )
+	.arg( cs.hsamp_.stop_.inl() )
+	.arg( cs.hsamp_.start_.crl() )
+	.arg( cs.hsamp_.stop_.crl() )
+	.arg(mNINT32(cs.zsamp_.start*userfactor) )
+	.arg(mNINT32(cs.zsamp_.stop*userfactor));
+}
+
+
+void VolumeDisplay::getObjectInfo( BufferString& info ) const
+{
+    uiString uistring;
+    getObjectInfoText( uistring, false );
+    info = uistring.getFullString();
 }
 
 
 void VolumeDisplay::getTreeObjectInfo( uiString& info ) const
-{
-    TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
-    cs.limitTo( texturecs_ );
-
-    bool canshowattrib = false;
-    for ( int attrib=0; attrib<attribs_.size(); attrib++ )
-	canshowattrib = canshowattrib || attribs_[attrib]->cache_;
-
-    if ( !cs.isEmpty() && canshowattrib )
-    {
-        const int userfactor = scene_
-            ? scene_->zDomainInfo().userFactor()
-            : 1;
-
-        info = uiString( "%1-%2, %3-%4, %5-%6" )
-            .arg( cs.hsamp_.start_.inl() )
-            .arg( cs.hsamp_.stop_.inl() )
-            .arg( cs.hsamp_.start_.crl() )
-            .arg( cs.hsamp_.stop_.crl() )
-            .arg(mNINT32(cs.zsamp_.start*userfactor) )
-            .arg(mNINT32(cs.zsamp_.stop*userfactor));
-
-    }
-    else
-	info = "<empty>";
-}
+{ getObjectInfoText( info, true ); }
 
 
 void VolumeDisplay::sliceMoving( CallBacker* cb )
@@ -1113,6 +1102,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	DPM( DataPackMgr::SeisID() ).obtain( attribs_[attrib]->cache_->id() );
     }
 
+    isinited_ = true;
     updateAttribEnabling();
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
