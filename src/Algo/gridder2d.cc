@@ -103,9 +103,6 @@ bool Gridder2D::setValues( const TypeSet<float>& vl )
 
 void Gridder2D::setTrend( PolyTrend::Order order )
 {
-    if ( order == PolyTrend::None )
-	return;
-
     if ( !points_ || !values_ || points_->size() != values_->size() )
 	return;
 
@@ -118,14 +115,17 @@ void Gridder2D::setTrend( PolyTrend::Order order )
 	trend_ = 0;
     }
 
-    if ( order == PolyTrend::None )
-	return;
+    if ( order != PolyTrend::None )
+    {
+	trend_ = new PolyTrend();
+	trend_->setOrder( order );
+    }
 
-    trend_ = new PolyTrend();
-    trend_->setOrder( order );
     if ( points_ && values_ && points_->size() == values_->size() )
     {
-	trend_->set( *points_, *values_ );
+	if ( trend_ )
+	    trend_->set( *points_, *values_ );
+
 	valuesChangedCB(0);
     }
 }
