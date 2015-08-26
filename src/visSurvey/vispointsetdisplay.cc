@@ -117,18 +117,20 @@ int nextStep()
     }
 
     nrdone_++;
-    if ( dpsdispprop_.showSelected() && !data_.isSelected(nrdone_) )
+    if ( dpsdispprop_.showSelected() &&
+		!data_.isSelected(mCast(DataPointSet::RowID,nrdone_)) )
 	return MoreToDo();
 
     Color col;
     if ( dpsdispprop_.showSelected() )
     {
-	int selgrp = data_.selGroup(nrdone_);
+	int selgrp = data_.selGroup( mCast(DataPointSet::RowID,nrdone_) );
 	col = dpsdispprop_.getColor( (float)selgrp );
     }
     else
     {
-	const float val = data_.value( dpsdispprop_.dpsColID(), nrdone_ );
+	const float val = data_.value( dpsdispprop_.dpsColID(),
+				mCast(DataPointSet::RowID,nrdone_) );
 	if ( mIsUdf(val) )
 	    return MoreToDo();
 
@@ -136,7 +138,8 @@ int nextStep()
     }
 
     const int ptidx = pointset_.addPoint(
-			    Coord3(data_.coord(nrdone_),data_.z(nrdone_)) );
+     Coord3(data_.coord(mCast(DataPointSet::RowID,nrdone_)),
+	    data_.z(mCast(DataPointSet::RowID,nrdone_))) );
     pointidxs_ += ptidx;
     pointset_.getMaterial()->setColor( col, ptidx );
     const float transp = (float)col.t();
