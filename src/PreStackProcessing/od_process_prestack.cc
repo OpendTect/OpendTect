@@ -44,7 +44,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     const int odversion = pars().odVersion();
     if ( odversion < 320 )
-    { mRetError("\nCannot execute pre-3.2 par files"); return false; }
+    { mRetError("\nCannot execute pre-3.2 par files"); }
 
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
 
@@ -65,34 +65,29 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !Seis::getFromPar(pars(),geomtype) )
     {
 	mRetError("\nCannot read geometry type");
-	return false;
     }
 
     if ( geomtype!=Seis::VolPS && geomtype!=Seis::LinePS )
     {
 	mRetError("\nGeometry is not prestack");
-	return false;
     }
 
     MultiID setupmid;
     if ( !pars().get(ProcessManager::sKeySetup(),setupmid) )
     {
 	mRetError( "\nCannot read setup" );
-	return false;
     }
 
     PtrMan<IOObj> setupioobj = IOM().get( setupmid );
     if ( !setupioobj )
     {
 	mRetError("\nCannot create setup object");
-	return false;
     }
 
     procman = new ProcessManager;
     if ( !procman )
     {
 	mRetError( "Cannot create processor");
-	return false;
     }
 
     uiString errmsg;
@@ -254,8 +249,6 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( !procman->prepareWork() )
 	{
 	    mRetError(mToUiStringTodo("\nCannot prepare processing."));
-	    delete procman;
-	    return false;
 	}
 
 	const BinID stepout = procman->getInputStepout();
@@ -359,8 +352,6 @@ bool BatchProgram::go( od_ostream& strm )
 		    if ( !writer->put( trc ) )
 		    {
 			mRetError("\nCannot write output");
-			delete procman;
-			return false;
 		    }
 		}
 
