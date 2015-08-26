@@ -66,10 +66,12 @@ public:
     int			nextStep();
 
     int			nrSkipped() const	{ return nrskipped_; }
+    Reader&		reader()		{ return *rdr_; }
+    SeisTrcWriter&	writer()		{ return wrr_; }
 
 protected:
 
-    enum State		{ ReadBuf, WriteBuf, ReadWrite };
+    enum State			{ ReadBuf, WriteBuf, ReadWrite };
 
     Reader*			rdr_;
     SeisTrcWriter&		wrr_;
