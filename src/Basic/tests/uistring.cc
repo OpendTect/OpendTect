@@ -12,6 +12,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QString>
 
+
+bool testSetEmpty()
+{
+    uiString str = toUiString("Hello");
+    str.setEmpty();
+    mRunStandardTest( str.isEmpty(), "isEmpty" );
+
+    str.setFrom( QString("Hello" ) );
+    str.setEmpty();
+    mRunStandardTest( str.isEmpty(), "isEmpty after setFrom(QString)" );
+
+    return true;
+}
+
+
 bool testArg()
 {
     uiString composite = toUiString( "%1 plus %2 is %3")
@@ -170,7 +185,8 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
-	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() )
+	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
+	 !testSetEmpty() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );
