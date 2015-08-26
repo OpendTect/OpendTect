@@ -12,6 +12,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <QString>
 
+
+bool testSetEmpty()
+{
+    uiString str = uiString("Hello");
+    str.setEmpty();
+    mRunStandardTest( str.isEmpty(), "isEmpty" );
+
+    str.setFrom( QString("Hello" ) );
+    str.setEmpty();
+    mRunStandardTest( str.isEmpty(), "isEmpty after setFrom(QString)" );
+
+    return true;
+}
+
+
 bool testArg()
 {
     const char* desoutput = "Hello Dear 1";
@@ -76,7 +91,7 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testArg() || !testSharedData() )
+    if ( !testArg() || !testSharedData() || !testSetEmpty() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );

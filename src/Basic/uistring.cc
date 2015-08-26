@@ -109,6 +109,9 @@ void uiStringData::set( const char* orig )
     translationdisambiguation_ = 0;
     translationpluralnumber_ = -1;
     dirtycount_ = mDirty;
+#ifndef OD_NO_QT
+    qstring_ = sKey::EmptyString().buf();
+#endif
 }
 
 
