@@ -302,7 +302,7 @@ Executor* SeisJobExecProv::getPostProcessor()
 
     PtrMan<IOObj> inioobj = IOM().get( tmpstorid_ );
     PtrMan<IOObj> outioobj = IOM().get( seisoutid_ );
-    return new SeisSingleTraceProc( inioobj, outioobj,
+    return new SeisSingleTraceProc( *inioobj, *outioobj,
 				    "Data transfer", &iopar_,
 				    tr("Writing results to output cube") );
 }
