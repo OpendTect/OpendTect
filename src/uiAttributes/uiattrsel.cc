@@ -298,10 +298,10 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     steeroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     steeroutfld_->attach( rightOf, selgrp_ );
-    steeroutfld_->attach( heightSameAs, storoutfld_ );
 
     filtfld_ = new uiGenInput( this, tr("Filter"), "*" );
     filtfld_->attach( alignedBelow, storoutfld_ );
+    filtfld_->attach( ensureBelow, steeroutfld_ );
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
     compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld");
     compfld_->attach( rightTo, filtfld_ );
@@ -444,7 +444,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     compfld_->box()->addItem( uiStrings::sAll() );
 
     compfld_->box()->addItems( compnms );
-    compfld_->display( compnms.size()>2 );
+    compfld_->display( compnms.size()>=2 );
 }
 
 
