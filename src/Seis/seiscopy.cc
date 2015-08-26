@@ -46,7 +46,7 @@ static int getVelType( const IOPar& iop )
 SeisCubeCopier::SeisCubeCopier( const IOObj& inobj, const IOObj& outobj,
 				const IOPar& par, int compnr )
     : Executor("Copying 3D Cube")
-    , stp_(new SeisSingleTraceProc(&inobj,&outobj,"Cube copier",&par))
+    , stp_(new SeisSingleTraceProc(inobj,outobj,"Cube copier",&par))
     , compnr_(compnr)
 {
     init();
@@ -68,22 +68,15 @@ void SeisCubeCopier::init()
     if ( !stp_ )
 	return;
 
-    const SeisTrcWriter* wrr = stp_->writer();
-    if ( wrr && wrr->ioObj() )
-	veltype_ = getVelType( wrr->ioObj()->pars() );
+    const SeisTrcWriter& wrr = stp_->writer();
+    if ( wrr.ioObj() )
+	veltype_ = getVelType( wrr.ioObj()->pars() );
 
     if ( !stp_->reader(0) )
     {
 	errmsg_ = stp_->uiMessage();
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = "Input cube is unreadable";
-	delete stp_; stp_ = 0;
-    }
-    if ( !stp_->writer() )
-    {
-	errmsg_ = stp_->uiMessage();
-	if ( errmsg_.isEmpty() )
-	    errmsg_ = "Cannot write to output cube";
 	delete stp_; stp_ = 0;
     }
 

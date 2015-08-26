@@ -45,7 +45,7 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
     outpar->removeWithKey( sKey::ID() );
 	// important! otherwise reader will try to read output ID ...
 
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( inioobj, outioobj,
+    SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 				"SEG-Y importer", outpar, "Importing traces" );
     stp->setProcPars( *outpar, is2d );
     return stp->go( strm );
@@ -73,7 +73,7 @@ static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
 
     SEGY::FilePars fp; fp.usePar( *outpar );
     fp.fillPar( outioobj->pars() );
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( inioobj, outioobj,
+    SeisSingleTraceProc* stp = new SeisSingleTraceProc( *inioobj, *outioobj,
 				"SEG-Y exporter", outpar, "Exporting traces" );
     stp->setProcPars( *outpar, is2d );
     return stp->go( strm );

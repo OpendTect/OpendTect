@@ -279,7 +279,7 @@ void uiClusterProc::progressCB( CallBacker* )
 	    ques += " job(s) either failed or finished with error, ";
 	    ques += "do you still want to proceed with merging the output?";
 	    const int resp = uiMSG().question( ques.buf(), tr("Merge anyway"),
-				tr("Re-submit failed jobs"), 
+				tr("Re-submit failed jobs"),
                                 uiStrings::sAbort() );
 	    if ( resp == -1 )
 		return;
@@ -311,7 +311,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
     PtrMan<IOObj> outobj = IOM().get( key );
     if ( !inobj || !outobj )
 	mErrRet("Cannot open Output" )
-    PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( inobj, outobj,
+    PtrMan<SeisSingleTraceProc> exec = new SeisSingleTraceProc( *inobj, *outobj,
 		"Data transfer", &pars, "Writing results to output cube" );
 
     if ( !exec )

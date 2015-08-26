@@ -38,22 +38,30 @@ mExpClass(Seis) SeisSingleTraceProc : public Executor
 { mODTextTranslationClass(SeisSingleTraceProc);
 public:
 
-			SeisSingleTraceProc(const IOObj* in,const IOObj* out,
+			SeisSingleTraceProc(const IOObj& in,const IOObj& out,
 				const char* nm="Trace processor",
 				const IOPar* iniopar=0,
 				const uiString& msg=uiStrings::sProcessing());
-			SeisSingleTraceProc(ObjectSet<IOObj>,const IOObj*,
+			SeisSingleTraceProc(ObjectSet<IOObj>,const IOObj&,
 				const char* nm="Trace processor",
 				ObjectSet<IOPar>* iniopars=0,
 				const uiString& msg=uiStrings::sProcessing());
+			SeisSingleTraceProc(const IOObj& out,const char* nm,
+					    const uiString& msg);
     virtual		~SeisSingleTraceProc();
+
+    bool		addReader(const IOObj&,const IOPar* iop=0);
+			//!< Must be done before any step
+    void		setInput(const IOObj&,const IOObj&,const char*,
+				 const IOPar*,const uiString&);
+			//!< Must be done before any step
 
     void		skipCurTrc()		{ skipcurtrc_ = true; }
 			//!< will also be checked after processing CB
 
     const SeisTrcReader* reader(int idx=0) const
-			{ return rdrset_.size()>idx ? rdrset_[idx] : 0; }
-    const SeisTrcWriter* writer() const		 { return wrr_; }
+			{ return rdrs_.size()>idx ? rdrs_[idx] : 0; }
+    const SeisTrcWriter& writer() const		 { return wrr_; }
     SeisTrc&		getTrace()		 { return *worktrc_; }
     const SeisTrc&	getInputTrace()		 { return intrc_; }
 
@@ -76,8 +84,6 @@ public:
     void		skipNullTraces( bool yn=true )	{ skipnull_ = yn; }
     void		fillNullTraces( bool yn=true )	{ fillnull_ = yn; }
 
-    void		setInput(const IOObj*,const IOObj*,const char*,
-				 const IOPar*,const uiString&);
     void		setExtTrcToSI( bool yn )	{ extendtrctosi_ = yn; }
     void		setProcPars(const IOPar&,bool is2d);
 			//!< Sets all above proc pars from IOPar
@@ -87,23 +93,22 @@ public:
 
     const Scaler*	scaler() const		{ return scaler_; }
 
-
 protected:
 
-    ObjectSet<SeisTrcReader> rdrset_;
-    SeisTrcWriter*	wrr_;
+    ObjectSet<SeisTrcReader> rdrs_;
+    SeisTrcWriter&	wrr_;
     SeisTrc&		intrc_;
     SeisTrc*		worktrc_;
     SeisResampler*	resampler_;
     uiString		curmsg_;
+    bool		allszsfound_;
     bool		skipcurtrc_;
     int			nrwr_;
     int			nrskipped_;
     int			totnr_;
     MultiID&		wrrkey_;
     int			trcsperstep_;
-    int			currentobj_;
-    int			nrobjs_;
+    int			currdridx_;
     Scaler*		scaler_;
     bool		skipnull_;
     bool		is3d_;
@@ -113,9 +118,7 @@ protected:
     SeisTrc*		filltrc_;
     bool		extendtrctosi_;
 
-    bool		mkWriter(const IOObj*);
-    void		nextObj();
-    bool		init(ObjectSet<IOObj>&,ObjectSet<IOPar>&);
+    bool		nextReader();
     virtual void	wrapUp();
 
     int			getNextTrc();
@@ -127,4 +130,3 @@ protected:
 
 
 #endif
-

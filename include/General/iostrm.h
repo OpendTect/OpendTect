@@ -50,15 +50,15 @@ public:
 			{ return isMulti() && curfnr_ <= fnrs_.stop; }
     int			connNr() const
 			{ return curfnr_; }
-    bool		toNextConnNr()
+    bool		toNextConnNr() const
 			{ curfnr_ += fnrs_.step; return validNr(); }
     int			lastConnNr() const
 			{ return fnrs_.stop; }
     int			nextConnNr() const
 			{ return curfnr_+fnrs_.step; }
-    void		resetConnNr()
+    void		resetConnNr() const
 			{ curfnr_ = fnrs_.start; }
-    void		setConnNr( int nr )
+    void		setConnNr( int nr ) const
 			{ curfnr_ = nr; }
 
     const char*		fileName() const		{ return fname_; }
@@ -92,7 +92,7 @@ protected:
     int			nrfiles_;
     int			padzeros_;
     StepInterval<int>	fnrs_;
-    int			curfnr_;
+    mutable int		curfnr_;
     BufferString	extension_;
 
     StreamProvider*	getStreamProv(bool,bool f=true) const;

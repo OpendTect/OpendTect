@@ -181,7 +181,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 	iop.set( sKey::GeomID(), geomid );
     }
 
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( &inobj, &outobj,
+    SeisSingleTraceProc* stp = new SeisSingleTraceProc( inobj, outobj,
 					extxt, &iop, worktxt );
     stp->setScaler( scalefld_->getScaler() );
     stp->skipNullTraces( removeNull() );
