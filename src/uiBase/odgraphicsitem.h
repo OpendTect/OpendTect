@@ -26,6 +26,16 @@ class uiPixmap;
 
 static int ODGraphicsType = 100000;
 
+class ODGraphicsHighlightItem
+{
+public:
+    virtual void		highlight()	{}
+    virtual void		unHighlight()	{}
+
+    virtual void		setQPen(const QPen&)	{}
+};
+
+
 class ODGraphicsPointItem : public QAbstractGraphicsShapeItem
 {
 public:
@@ -88,7 +98,7 @@ public:
 				ODGraphicsPixmapItem();
 				ODGraphicsPixmapItem(const uiPixmap&);
 
-    void                        paint(QPainter*,const QStyleOptionGraphicsItem*,
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
 				      QWidget*);
 
     virtual int			type() const	{ return ODGraphicsType+3; }
@@ -162,19 +172,27 @@ protected:
 
 
 class ODGraphicsPathItem : public QGraphicsPathItem
+			 , public ODGraphicsHighlightItem
 {
 public:
 				ODGraphicsPathItem();
+				~ODGraphicsPathItem();
 
     void			set(const QPainterPath&);
     QPainterPath		shape() const;
 
+    void			setQPen(const QPen& pen);
+    void			highlight();
+    void			unHighlight();
+
 protected:
     QPainterPath		path_;
+    QPen&			mypen_;
 };
 
 
 class ODGraphicsPolyLineItem : public QAbstractGraphicsShapeItem
+			     , public ODGraphicsHighlightItem
 {
 public:
 				ODGraphicsPolyLineItem();

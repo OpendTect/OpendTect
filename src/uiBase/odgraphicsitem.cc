@@ -644,7 +644,14 @@ void ODGraphicsPolyLineItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 // ODGraphicsPathItem
 ODGraphicsPathItem::ODGraphicsPathItem()
     : QGraphicsPathItem()
+    , mypen_(*new QPen)
 {
+}
+
+
+ODGraphicsPathItem::~ODGraphicsPathItem()
+{
+    delete &mypen_;
 }
 
 
@@ -661,6 +668,26 @@ void ODGraphicsPathItem::set( const QPainterPath& ppath )
 
 QPainterPath ODGraphicsPathItem::shape() const
 { return path_; }
+
+
+void ODGraphicsPathItem::setQPen( const QPen& qpen )
+{
+    mypen_ = qpen;
+}
+
+
+void ODGraphicsPathItem::highlight()
+{
+    QPen qpen = mypen_;
+    qpen.setWidth( qpen.width() + 2 );
+    setPen( qpen );
+}
+
+
+void ODGraphicsPathItem::unHighlight()
+{
+    setPen( mypen_ );
+}
 
 
 // ODGraphicsItemGroup
