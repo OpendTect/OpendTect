@@ -50,6 +50,8 @@ public:
     bool			isShiftClicked() const;
     bool			isAltClicked() const;
     const EM::PosID&		getNode() const;
+    const EM::PosID&		getPickedNode() const;
+    void			setPickedNode(const EM::PosID&);
     const Coord3&		getPos() const;
     int				getObjID() const;
     const TrcKeyZSampling&		getObjCS() const;
@@ -87,6 +89,7 @@ protected:
     bool				ctrlclicked_;
     bool				shiftclicked_;
     bool				altclicked_;
+    EM::PosID				pickednode_;
     EM::PosID				clickednode_;
     Coord3				clickedpos_;
     int					clickedobjid_;
