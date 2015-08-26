@@ -176,10 +176,19 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     if ( editor_->sower().accept(eventinfo) )
 	return;
 
-    if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
+    if ( info().getPickedNode().isUdf() &&
+	 (eventinfo.type!=visBase::MouseClick || !eventinfo.pressed) )
 	return;
 
-    if ( !OD::leftMouseButton(eventinfo.buttonstate_) )
+    if ( !info().getPickedNode().isUdf() &&
+	 OD::leftMouseButton(eventinfo.buttonstate_) )
+    {
+	info().setPickedNode( EM::PosID::udf() ); //mouse released/end seed drag
+	return;
+    }
+
+    if ( info().getPickedNode().isUdf() &&
+	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
     if ( OD::altKeyboardButton(eventinfo.buttonstate_) )
@@ -215,10 +224,6 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    eventcatcher_->setHandled();
 	    break;
 	}
-
-	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) !=
-	     OD::shiftKeyboardButton(eventinfo.buttonstate_) )
-	    continue;
 
 	mCheckRdlDisplay( trackertype_, dataobj, rtd, legalclick0 )
 	if ( rtd )
@@ -440,12 +445,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     info().setNode( sequentSowing() ? EM::PosID(-1,-1,-1) : nodepid );
 
     if ( !nodepos.isDefined() )
-    {
-	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) !=
-	     OD::shiftKeyboardButton(eventinfo.buttonstate_) )
-	    return;
 	 nodepos = eventinfo.worldpickedpos;
-    }
 
     const BinID nodebid = SI().transform( nodepos );
 
@@ -600,6 +600,7 @@ void MPEClickCatcher::allowPickBasedReselection()
 
 
 MPEClickInfo::MPEClickInfo()
+    : pickednode_(EM::PosID(-1,-1,-1))
 { clear(); }
 
 
@@ -617,6 +618,10 @@ bool MPEClickInfo::isShiftClicked() const
 
 bool MPEClickInfo::isAltClicked() const
 { return altclicked_; }
+
+
+const EM::PosID& MPEClickInfo::getPickedNode() const
+{ return pickednode_; }
 
 
 const EM::PosID& MPEClickInfo::getNode() const
@@ -699,6 +704,10 @@ void MPEClickInfo::setShiftClicked( bool yn )
 
 void MPEClickInfo::setAltClicked( bool yn )
 { altclicked_ = yn; }
+
+
+void MPEClickInfo::setPickedNode( const EM::PosID& pid )
+{ pickednode_ = pid; }
 
 
 void MPEClickInfo::setNode( const EM::PosID& pid )

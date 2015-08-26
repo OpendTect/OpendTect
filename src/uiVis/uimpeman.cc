@@ -306,10 +306,9 @@ void uiMPEMan::seedClick( CallBacker* )
 	seedpos = emobj->getPos(pid);
     }
 
-    bool ctrlshiftclicked = clickcatcher_->info().isCtrlClicked() &&
-			    clickcatcher_->info().isShiftClicked();
+    bool shiftclicked = clickcatcher_->info().isShiftClicked();
 
-    if ( pid.objectID()==-1 && !ctrlshiftclicked &&
+    if ( pid.objectID()==-1 && !shiftclicked &&
 	 clickcatcher_->activateSower(emobj->preferredColor(),
 				     seedpicker->getSeedPickArea()) )
     {
@@ -378,25 +377,34 @@ void uiMPEMan::seedClick( CallBacker* )
 
     seedpicker->setSowerMode( clickcatcher_->sequentSowing() );
     if ( mIsUdf(cureventnr_) && clickcatcher_->moreToSow() )
-	ctrlshiftclicked = true;  // 1st seed sown is "tracking buffer" only
+	shiftclicked = true;  // 1st seed sown is "tracking buffer" only
 
     beginSeedClickEvent( emobj );
 
-    if ( pid.objectID()!=-1 )
+    if ( pid.objectID()!=-1 || !clickcatcher_->info().getPickedNode().isUdf() )
     {
-	if ( ctrlshiftclicked )
+	const bool ctrlclicked = clickcatcher_->info().isCtrlClicked();
+	if ( !clickcatcher_->info().getPickedNode().isUdf() )
 	{
-	    if ( seedpicker->removeSeed( pid, false, false ) )
-		engine.updateFlatCubesContainer( newvolume, trackerid, false );
+	    const EM::PosID nextpid =
+		seedpicker->replaceSeed( clickcatcher_->info().getPickedNode(),
+					 seedpos );
+	    clickcatcher_->info().setPickedNode( nextpid );
 	}
-	else if ( clickcatcher_->info().isCtrlClicked() )
+	if ( !shiftclicked && !ctrlclicked &&
+	     seedpicker->getSeedConnectMode()==EMSeedPicker::DrawBetweenSeeds )
 	{
-	    if ( seedpicker->removeSeed( pid, true, true ) )
-		engine.updateFlatCubesContainer( newvolume, trackerid, false );
+	    if ( clickcatcher_->info().getPickedNode().isUdf() )
+		clickcatcher_->info().setPickedNode( pid );
 	}
-	else if ( clickcatcher_->info().isShiftClicked() )
+	else if ( shiftclicked && ctrlclicked )
 	{
 	    if ( seedpicker->removeSeed( pid, true, false ) )
+		engine.updateFlatCubesContainer( newvolume, trackerid, false );
+	}
+	else if ( shiftclicked || ctrlclicked )
+	{
+	    if ( seedpicker->removeSeed( pid, true, true ) )
 		engine.updateFlatCubesContainer( newvolume, trackerid, false );
 	}
 	else
@@ -405,7 +413,7 @@ void uiMPEMan::seedClick( CallBacker* )
 		engine.updateFlatCubesContainer( newvolume, trackerid, true );
 	}
     }
-    else if ( seedpicker->addSeed(seedpos, ctrlshiftclicked) )
+    else if ( seedpicker->addSeed(seedpos,shiftclicked) )
 	engine.updateFlatCubesContainer( newvolume, trackerid, true );
 
     if ( !clickcatcher_->moreToSow() )
