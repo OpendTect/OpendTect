@@ -62,11 +62,11 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
-	    		       FloatInpIntervalSpec().setName("Z start",0)
+			       FloatInpIntervalSpec().setName("Z start",0)
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    shapefld_ = new uiGenInput( this, tr("Shape"), 
+    shapefld_ = new uiGenInput( this, tr("Shape"),
                                 StringListInpSpec(shapestrs) );
     shapefld_->valuechanged.notify(
 			    mCB(this,uiVolumeStatisticsAttrib,shapeChg));
@@ -122,14 +122,14 @@ bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetBool( VolStats::allowEdgeEffStr(), edgeeff,
-	    	edgeeffectfld_->setChecked( edgeeff ) );
+		edgeeffectfld_->setChecked( edgeeff ) );
     mIfGetEnum( VolStats::optstackdirStr(), dir,
 	        stackdirfld_->setValue(dir) );
     mIfGetInt( VolStats::optstackstepStr(), stackstep,
 	       optstackstepfld_->box()->setValue(stackstep) );
 
     mIfGetFloatInterval( VolStats::gateStr(), gate,
-	    		 gatefld_->setValue(gate) );
+			 gatefld_->setValue(gate) );
     mIfGetBinID( VolStats::stepoutStr(), stepout,
 	         stepoutfld_->setBinID(stepout) );
     mIfGetEnum( VolStats::shapeStr(), shape,
@@ -216,5 +216,10 @@ bool uiVolumeStatisticsAttrib::getOutput( Desc& desc )
 void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), VolStats::gateStr() );
-    params += EvalParam( stepoutstr(), VolStats::stepoutStr() );
+    const int shapeidx = shapefld_->getIntValue();
+    if ( shapeidx<2 )
+	params += EvalParam( stepoutstr(), VolStats::stepoutStr() );
+    else
+	params += EvalParam( "Optical stack stepout",
+			     VolStats::optstackstepStr() );
 }
