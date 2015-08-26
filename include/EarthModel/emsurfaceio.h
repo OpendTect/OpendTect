@@ -129,7 +129,7 @@ public:
     static const char*	sKeyTraceRange();
 
     static const char*	sMsgParseError();
-    static const char*	sMsgReadError();
+    static uiString	sMsgReadError();
     static const char*	sKeyUndefLineSet();
     static const char*	sKeyUndefLine();
 
@@ -363,9 +363,8 @@ protected:
     static const char*		sTab()		{ return "\t"; }
     static const char*		sEOL()		{ return "\n"; }
     static const char*		sEOLTab()	{ return "\n\t\t"; }
-    static const char*		sMsgWriteError(){return "Cannot write surface";}
 
-   void			init(const char* fulluserexp);
+    void			init(const char* fulluserexp);
 };
 
 };

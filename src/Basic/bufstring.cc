@@ -841,7 +841,7 @@ void BufferStringSet::fill( uiStringSet& res ) const
     res.erase();
 
     for ( int idx=0; idx<size(); idx++ )
-	res += uiString( get(idx) );
+	res += toUiString( get(idx) );
 }
 
 

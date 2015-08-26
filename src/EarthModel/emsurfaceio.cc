@@ -37,12 +37,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 #include <limits.h>
 
 
 namespace EM
 {
+
+static uiString sMsgWriteError()
+{ return uiStrings::phrCannotWrite( uiStrings::sSurface() ); }
+
 
 const char* dgbSurfaceReader::sKeyFloatDataChar() { return "Data char"; }
 
@@ -62,8 +67,8 @@ const char* dgbSurfaceReader::sKeyTransformX()	{ return "X transform"; }
 const char* dgbSurfaceReader::sKeyTransformY()	{ return "Y transform"; }
 
 const char* dgbSurfaceReader::sMsgParseError()  { return "Cannot parse file"; }
-const char* dgbSurfaceReader::sMsgReadError()
-{ return "Unexpected end of file"; }
+uiString dgbSurfaceReader::sMsgReadError()
+{ return tr("Unexpected end of file"); }
 const char* dgbSurfaceReader::sKeyUndefLineSet() {return "Undfined line set"; }
 const char* dgbSurfaceReader::sKeyUndefLine()	{ return "Undfined line name"; }
 
@@ -189,7 +194,7 @@ bool dgbSurfaceReader::readParData( od_istream& strm, const IOPar& toppar,
 	if ( !toppar.get( sKeyNrSections() , nrsections ) &&
 	     !toppar.get( sKeyNrSectionsV1(), nrsections ) )
 	{
-	    msg_ = sMsgParseError();
+	    msg_ = uiStrings::phrCannotRead( uiStrings::sSurface() );
 	    return false;
 	}
 
@@ -740,7 +745,7 @@ int dgbSurfaceReader::nextStep()
     if ( error_ || (!surface_ && !cube_) )
     {
 	if ( !surface_ && !cube_ )
-	    msg_ = "Internal: No Output Set";
+	    msg_ = toUiString("Internal: No Output Set");
 
 	return ErrorOccurred();
     }
@@ -803,7 +808,7 @@ int dgbSurfaceReader::nextStep()
 
     if ( !prepareRowRead(strm) )
     {
-	msg_ = strm.errMsg().getFullString();
+	msg_ = strm.errMsg();
         return ErrorOccurred();
     }
 
@@ -943,7 +948,7 @@ int dgbSurfaceReader::prepareNewSection( od_istream& strm )
     nrrows_ = readInt32( strm );
     if ( !strm.isOK() )
     {
-	msg_ = strm.errMsg().getFullString();
+	msg_ = strm.errMsg();
         return ErrorOccurred();
     }
 
@@ -1124,14 +1129,14 @@ int dgbSurfaceReader::skipRow( od_istream& strm )
     {
 	if ( !isBinary() )
 	{
-	    msg_ = "Invalid file.";
+	    msg_ = tr("Invalid file.");
 	    return ErrorOccurred();
 	}
 
 	const int nrcols = readInt32( strm );
 	if ( !strm.isOK() )
 	{
-	    msg_ = strm.errMsg().getFullString();
+	    msg_ = strm.errMsg();
 	    return ErrorOccurred();
 	}
 
@@ -1149,7 +1154,7 @@ int dgbSurfaceReader::skipRow( od_istream& strm )
 	    strm.setPosition( offset, od_stream::Rel );
 	    if ( !strm.isOK() )
 	    {
-		msg_ = strm.errMsg().getFullString();
+		msg_ = strm.errMsg();
 		return ErrorOccurred();
 	    }
 	}

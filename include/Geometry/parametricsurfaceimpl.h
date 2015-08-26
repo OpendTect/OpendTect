@@ -16,7 +16,8 @@ ________________________________________________________________________
 int idxvar = type##Index(type); \
 if ( idxvar<-nrtoinsert || idxvar>nrfunc-1+nrtoinsert ) \
 { \
-    errmsg() = "Cannot insert row or column that is not connected to existing rows."; \
+    errmsg() = toUiString( \
+      "Cannot insert row or column that is not connected to existing rows."); \
     return false; \
 } \
 const bool addedinfront = idxvar<0; \

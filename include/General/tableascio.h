@@ -40,7 +40,7 @@ mGlobal(General) FileFormatRepository& FFR();
  */
 
 mExpClass(General) AscIO
-{
+{ mODTextTranslationClass(AscIO);
 public:
 
 				AscIO( const FormatDesc& fd )

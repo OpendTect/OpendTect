@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "string2.h"
 #include "od_iostream.h"
 #include <string.h>
+#include "uistrings.h"
 
 const GlobExpr Table::RecordMatcher::emptyge_;
 
@@ -65,12 +66,12 @@ void Table::ExportHandler::finish()
 }
 
 
-const char* Table::ExportHandler::getStrmMsg() const
+uiString Table::ExportHandler::getStrmMsg() const
 {
     if ( strm_.isOK() )
-	return 0;
-    const char* ret = strm_.errMsg().getFullString();
-    return ret && *ret ? ret : "Error writing to output";
+	return uiString::emptyString();
+    uiString ret = strm_.errMsg();
+    return ret.isEmpty() ? uiStrings::phrCannotWrite(uiStrings::sOutput()) :ret;
 }
 
 
@@ -81,7 +82,7 @@ int Table::Converter::nextStep()
 
     if ( selcolnr_ == -1 && !exphndlr_.init() )
     {
-	msg_ = "Cannot write first output";
+	msg_ = tr("Cannot write first output");
 	return ErrorOccurred();
     }
 
@@ -92,7 +93,7 @@ int Table::Converter::nextStep()
 	char c = imphndlr_.readNewChar();
 	if ( !c )
 	{
-	    msg_ = "The input file is probably not ASCII";
+	    msg_ = tr("The input file is probably not ASCII");
 	    return ErrorOccurred();
 	}
 
@@ -115,7 +116,7 @@ bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 
     case Table::ImportHandler::Error:
 
-	msg_ = imphndlr_.errMsg();
+	msg_ = mToUiStringTodo( imphndlr_.errMsg() );
 
     return false;
 
@@ -147,23 +148,21 @@ bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 
 	if ( accepted )
 	{
-	    const char* msg = exphndlr_.putRow( row_ );
-	    if ( msg )
+	    const uiString msg = exphndlr_.putRow( row_ );
+	    if ( !msg.isEmpty() )
 	    {
-		if ( *msg )
-		    msg_ = msg;
-
+		msg_ = msg;
 		return false;
 	    }
-
-	    if ( !msg )
+	    else
 		rowsdone_++;
 	}
 
 	row_.erase();
 	imphndlr_.newRow();
 
-    return true; }
+    return true;
+				       }
 
     default:
     break;
@@ -268,7 +267,7 @@ void Table::WSExportHandler::addVal( int col, const char* inpval )
 }
 
 
-const char* Table::WSExportHandler::putRow( const BufferStringSet& row )
+uiString Table::WSExportHandler::putRow( const BufferStringSet& row )
 {
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
@@ -293,7 +292,7 @@ void Table::CSVExportHandler::addVal( int col, const char* val )
 }
 
 
-const char* Table::CSVExportHandler::putRow( const BufferStringSet& row )
+uiString Table::CSVExportHandler::putRow( const BufferStringSet& row )
 {
     for ( int idx=0; idx<row.size(); idx++ )
 	addVal( idx, row.get(idx) );
@@ -318,12 +317,12 @@ void Table::SQLInsertExportHandler::addVal( int col, const char* val )
 }
 
 
-const char* Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
+uiString Table::SQLInsertExportHandler::putRow( const BufferStringSet& row )
 {
     if ( nrrows_ == 0 )
     {
 	if ( tblname_.isEmpty() )
-	    return "No table name provided";
+	    return tr("No table name provided");
 
 	addindex_ = !indexcolnm_.isEmpty();
 	nrextracols_ = extracolnms_.size();

@@ -168,7 +168,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
     , hs_(hs)
     , sectionidx_(0)
     , nrvals_(-1)
-    , msg_("Adding nodes")
+    , msg_(tr("Adding nodes"))
 {
     if ( bvss_.isEmpty() ) return;
     nrvals_ = bvss_[0]->nrVals();
@@ -179,7 +179,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
     {
 	const BinIDValueSet& bvs = *bvss_[idx];
 	if ( bvs.nrVals() != nrvals_ )
-	    { msg_ = "Incompatible sections"; return; }
+	    { msg_ = tr("Incompatible sections"); return; }
 
 	totalnr_ += mCast( int, bvs.totalSize() );
 
@@ -195,7 +195,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	    horarrays_ += arr;
 	}
 	else
-	    msg_ = "No valid positions";
+	    msg_ = tr("No valid positions");
     }
 
     horizon_.enableGeometryChecks( false );
@@ -268,11 +268,11 @@ void fillHorizonArray()
 protected:
 
     const ObjectSet<BinIDValueSet>&	bvss_;
-    Horizon3D&		horizon_;
-    BinIDValueSet::SPos	pos_;
-    TrcKeySampling		hs_;
-    BufferString	msg_;
-    int			nrvals_;
+    Horizon3D&				horizon_;
+    BinIDValueSet::SPos			pos_;
+    TrcKeySampling			hs_;
+    uiString				msg_;
+    int					nrvals_;
 
     ObjectSet<Array2D<float> > horarrays_;
 

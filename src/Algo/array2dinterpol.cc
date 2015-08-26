@@ -1822,7 +1822,7 @@ int Extension2DInterpolExecutor::nextStep()
 {
     if ( !state_ )
     {
-	curmsg_ = "Memory full";
+	curmsg_ = tr("Memory full");
 	return Executor::ErrorOccurred();
     }
 
@@ -1847,7 +1847,7 @@ int Extension2DInterpolExecutor::nextStep()
 	    }
 	}
 
-	curmsg_ = "Interpolating";
+	curmsg_ = tr("Interpolating");
 	return Executor::MoreToDo();
     }
 
@@ -1868,7 +1868,7 @@ int Extension2DInterpolExecutor::nextStep()
 
     if ( !haveinterpolated )
     {
-	curmsg_ = "Finished";
+	curmsg_ = tr("Finished");
 	return Executor::Finished();
     }
 

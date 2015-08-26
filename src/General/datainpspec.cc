@@ -231,7 +231,7 @@ DataInpSpec* FileNameInpSpec::clone() const
 BoolInpSpec::BoolInpSpec( bool yesno, const uiString& truetxt,
 			  const uiString& falsetxt, bool setyn )
     : DataInpSpec( DataTypeImpl<bool>() )
-    , truetext_(!truetxt.isEmpty() ? truetxt : (const uiString) sKey::Yes() )
+    , truetext_(!truetxt.isEmpty() ? truetxt : uiStrings::sYes() )
     , yn_(yesno)
     , defaultyn_(true)
     , isset_(setyn)
@@ -324,7 +324,7 @@ StringListInpSpec::StringListInpSpec( const BufferStringSet& bss )
     , isset_(0)
 {
     for ( int idx=0; idx<bss.size(); idx++ )
-	strings_ += uiString( bss.get(idx) );
+	strings_ += toUiString( bss.get(idx) );
 }
 
 

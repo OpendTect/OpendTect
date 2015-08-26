@@ -52,7 +52,7 @@ public:
     {
 	if ( !conn_ || !conn_->forRead() )
 	{
-	    errmsg_ = "Cannot open connection";
+	    errmsg_ = uiStrings::phrCannotOpen( uiStrings::sBody() );
 	    return;
 	}
 
@@ -62,7 +62,7 @@ public:
 	     !astream.isOfFileType( sOldFileType() ) &&
 	     !astream.isOfFileType( sOldFileType2() ) )
 	{
-	    errmsg_ = "Invalid filetype";
+	    errmsg_ = toUiString("Invalid filetype");
 	    return;
 	}
 
@@ -78,7 +78,7 @@ public:
 	     !par.get( sKeyCrlSampling(),crlsampling.start,crlsampling.step) ||
 	     !par.get( sKeyZSampling(),zsampling.start,zsampling.step ) )
 	{
-	    errmsg_ = "Invalid filetype";
+	    errmsg_ = toUiString("Invalid filetype");
 	    return;
 	}
 
@@ -153,7 +153,7 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
 {
     if ( !conn_ || !conn_->forWrite() )
     {
-	errmsg_ = "Cannot open connection";
+	errmsg_ = uiStrings::phrCannotOpen( uiStrings::sBody() );
 	return;
     }
 

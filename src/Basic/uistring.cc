@@ -49,7 +49,7 @@ static char* getNewDebugStr( char* strvar, const OD::String& newstr )
 
 #endif
 
-const uiString uiString::emptystring_( sKey::EmptyString() );
+const uiString uiString::emptystring_( toUiString(sKey::EmptyString()) );
 
 class uiStringData
 { mRefCountImplNoDestructor(uiStringData)
@@ -240,7 +240,7 @@ uiString::uiString( const char* str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
     , datalock_( true )
 {
-    mInitImpl( data_, *this = str );
+    mInitImpl( data_, set(str) );
 }
 
 
@@ -267,7 +267,7 @@ uiString::uiString( const OD::String& str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
     , datalock_( true )
 {
-    mInitImpl( data_, *this = str );
+    mInitImpl( data_, set(str) );
 }
 
 
@@ -305,7 +305,7 @@ bool uiString::isEmpty() const
 
 void uiString::setEmpty()
 {
-    *this = sKey::EmptyString();
+    set( sKey::EmptyString() );
 }
 
 
@@ -402,7 +402,7 @@ void uiString::setFrom( const QString& qstr )
 
 uiString& uiString::operator=( const OD::String& str )
 {
-    return operator=( str.str() );
+    return set( str.str() );
 }
 
 
@@ -579,7 +579,7 @@ uiString uiStringSet::createOptionString( bool use_and,
     uiStringSet arguments;
     const char spacestring[] = { space, 0 };
 
-    arguments += BufferString(spacestring);
+    arguments += toUiString(spacestring);
     bool firsttime = true;
 
     int nritems = 0;
@@ -622,7 +622,8 @@ uiString uiStringSet::createOptionString( bool use_and,
     if ( glue.isEmpty() )
 	return uiString();
 
-    uiString res = glue;
+    uiString res;
+    res.set( glue );
 
     for ( int idx=0; idx<arguments.size(); idx++ )
 	res.arg( arguments[idx] );

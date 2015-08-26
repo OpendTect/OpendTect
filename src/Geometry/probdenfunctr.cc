@@ -52,7 +52,7 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
     {
 	if ( emsg )
 	{
-	    *emsg = uiStrings::phrCannotOpen(fnm);
+	    *emsg = uiStrings::phrCannotOpen(toUiString(fnm));
 	    strm.addErrMsgTo(*emsg); 
 	}
 	return 0;
@@ -73,7 +73,11 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
     mDynamicCast(ProbDenFuncTranslator*,
 		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
-    { if (emsg) *emsg = uiStrings::phrCannotCreate(tr("Translator")); return false; }
+    {
+	if (emsg)
+	    *emsg = uiStrings::phrCannotCreate(tr("Translator"));
+	return false;
+    }
 
     const BufferString fnm( ioobj.fullUserExpr(false) );
     od_ostream strm( fnm );
@@ -81,7 +85,7 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
     {
 	if ( emsg )
 	{
-	    *emsg = uiStrings::phrCannotOpen( fnm );
+	    *emsg = uiStrings::phrCannotOpen( toUiString(fnm) );
 	    strm.addErrMsgTo(*emsg); 
 	}
 	return false;
@@ -89,7 +93,7 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 
     const bool ret = pdftr->write( pdf, strm );
     if ( !ret && emsg )
-    { *emsg = uiStrings::phrCannotWrite(fnm); }
+    { *emsg = uiStrings::phrCannotWrite(toUiString(fnm)); }
     return ret;
 }
 

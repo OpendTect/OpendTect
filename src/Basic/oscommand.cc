@@ -458,11 +458,11 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 {
     reset();
     if ( machcmd_.isBad() )
-	{ errmsg_ = "Command is invalid"; return false; }
+	{ errmsg_ = toUiString("Command is invalid"); return false; }
 
     BufferString localcmd = machcmd_.getLocalCommand();
     if ( localcmd.isEmpty() )
-	{ errmsg_ = "Empty command to execute"; return false; }
+	{ errmsg_ = toUiString("Empty command to execute"); return false; }
 
     bool ret = false;
     if ( pars.isconsoleuiprog_ )
