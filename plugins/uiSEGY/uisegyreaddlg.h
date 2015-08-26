@@ -62,8 +62,6 @@ protected:
     bool		acceptOK(CallBacker*);
 
     bool		getParsFromScreen(bool);
-    bool		displayWarnings(const BufferStringSet&,
-					bool withstop=false);
     virtual bool	doWork(const IOObj&)		= 0;
 
 };

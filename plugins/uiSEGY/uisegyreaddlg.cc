@@ -94,25 +94,6 @@ bool uiSEGYReadDlg::getParsFromScreen( bool permissive )
 }
 
 
-bool uiSEGYReadDlg::displayWarnings( const BufferStringSet& warns,
-				     bool withstop )
-{
-    if ( warns.isEmpty() ) return true;
-
-    uiString msg = tr("The operation was successful, but there %1:")
-    .arg( warns.size() > 1 ? tr("were warnings") : tr("was a warning") );
-
-    for ( int idx=0; idx<warns.size(); idx++ )
-    { msg.append("\n\n%1").arg(warns.get(idx)); }
-
-    if ( !withstop )
-	{ uiMSG().warning( msg ); return true; }
-
-    msg.append("\n\nContinue?");
-    return uiMSG().askContinue( msg );
-}
-
-
 bool uiSEGYReadDlg::rejectOK( CallBacker* cb )
 {
     getParsFromScreen( true );

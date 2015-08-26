@@ -13,16 +13,24 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseistransf.h"
+#include "uiseisioobjinfo.h"
 #include "uibatchjobdispatchersel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uibutton.h"
+#include "uitaskrunner.h"
 #include "uimsg.h"
 #include "welltransl.h"
 #include "wellman.h"
 #include "segybatchio.h"
 #include "segydirecttr.h"
+#include "segydirectdef.h"
+#include "segyscanner.h"
 #include "seistrc.h"
+#include "seisread.h"
+#include "seiswrite.h"
+#include "seisimporter.h"
+#include "seisioobjinfo.h"
 #include "segytr.h"
 #include "welldata.h"
 #include "wellreader.h"
@@ -33,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "filepath.h"
 
 
@@ -284,17 +293,92 @@ bool uiSEGYReadFinisher::doVSP()
 }
 
 
-bool uiSEGYReadFinisher::do3D( bool doimp )
+SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj )
 {
-    uiMSG().error( "TODO: 3D non-batch import" );
+    SeisStdImporterReader* rdr = new SeisStdImporterReader( ioobj, "SEG-Y" );
+    rdr->removeNull( transffld_->removeNull() );
+    rdr->setResampler( transffld_->getResampler() );
+    rdr->setScaler( transffld_->getScaler() );
+    Seis::SelData* sd = transffld_->getSelData();
+    if ( sd )
+	rdr->setSelData( sd );
+    return rdr;
+}
+
+
+bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
+				bool doimp )
+{
+    Executor* exec;
+    const Seis::GeomType gt = fs_.geomType();
+    PtrMan<SeisTrcWriter> wrr; PtrMan<SeisImporter> imp;
+    PtrMan<SEGY::FileIndexer> indexer;
+    if ( doimp )
+    {
+	wrr = new SeisTrcWriter( &outioobj );
+	imp = new SeisImporter( getImpReader(inioobj), *wrr, gt );
+	exec = imp.ptr();
+    }
+    else
+    {
+	indexer = new SEGY::FileIndexer( outioobj.key(), !Seis::isPS(gt),
+			fs_.spec_, false, inioobj.pars() );
+	exec = indexer.ptr();
+    }
+
+    uiTaskRunner dlg( this );
+    if ( !dlg.execute( *exec ) )
+	return false;
+
+    BufferStringSet warns;
+    if ( indexer )
+	warns.add( indexer->scanner()->warnings(), false );
+    else
+    {
+	if ( imp->nrSkipped() > 0 )
+	    warns += new BufferString("During import, ", imp->nrSkipped(),
+				      " traces were rejected" );
+	SeisStdImporterReader& stdrdr
+		= static_cast<SeisStdImporterReader&>( imp->reader() );
+	SeisTrcTranslator* transl = stdrdr.reader().seisTranslator();
+	if ( transl && transl->haveWarnings() )
+	    warns.add( transl->warnings(), false );
+    }
+    imp.erase(); wrr.erase(); // closes output cube
+
+    if ( !uiSEGY::displayWarnings(warns,doimp) )
+    {
+	IOM().permRemove( outioobj.key() );
+	return false;
+    }
+
+    return true;
+}
+
+
+bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
+				bool doimp )
+{
+    uiMSG().error( "TODO: 2D non-batch import" );
     return false;
 }
 
 
-bool uiSEGYReadFinisher::do2D( bool doimp )
+bool uiSEGYReadFinisher::doBatch( bool doimp )
 {
-    uiMSG().error( "TODO: 2D non-batch import" );
-    return false;
+    batchfld_->setJobName( doimp ? "import SEG-Y" : "scan SEG-Y" );
+    IOPar& jobpars = batchfld_->jobSpec().pars_;
+    const bool isps = Seis::isPS( fs_.geomType() );
+    jobpars.set( SEGY::IO::sKeyTask(), doimp ? SEGY::IO::sKeyImport()
+	    : (isps ? SEGY::IO::sKeyIndexPS() : SEGY::IO::sKeyIndex3DVol()) );
+    fs_.fillPar( jobpars );
+
+    IOPar outpars;
+    transffld_->fillPar( outpars );
+    outFld(doimp)->fillPar( outpars );
+    jobpars.mergeComp( outpars, sKey::Output() );
+
+    return batchfld_->start();
 }
 
 
@@ -304,31 +388,40 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 	return doVSP();
 
     const bool doimp = docopyfld_ ? docopyfld_->getBoolValue() : true;
-    const bool dobatch = batchfld_ && batchfld_->wantBatch();
-    const bool is2d = Seis::is2D( fs_.geomType() );
-
-    if ( !dobatch )
-	return is2d ? do2D( doimp ) : do3D( doimp );
-
     const IOObj* outioobj = outFld(doimp)->ioobj();
     if ( !outioobj )
 	return false;
 
+    const bool dobatch = batchfld_ && batchfld_->wantBatch();
+    const bool is2d = Seis::is2D( fs_.geomType() );
     const bool isps = Seis::isPS( fs_.geomType() );
-    batchfld_->setJobName( doimp ? "import SEG-Y" : "scan SEG-Y" );
 
-    IOPar& jobpars = batchfld_->jobSpec().pars_;
-    jobpars.set( SEGY::IO::sKeyTask(), doimp ? SEGY::IO::sKeyImport()
-	    : (isps ? SEGY::IO::sKeyIndexPS() : SEGY::IO::sKeyIndex3DVol()) );
-    fs_.spec_.fillPar( jobpars );
-    fs_.pars_.fillPar( jobpars );
-    fs_.readopts_.fillPar( jobpars );
+    PtrMan<uiSeisIOObjInfo> ioobjinfo;
+    if ( doimp && !isps )
+    {
+	ioobjinfo = new uiSeisIOObjInfo( *outioobj, true );
+	if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
+	    return false;
+    }
 
-    IOPar outpars;
-    transffld_->fillPar( outpars );
-    outFld(doimp)->fillPar( outpars );
-    jobpars.mergeComp( outpars, sKey::Output() );
+    if ( dobatch )
+	return doBatch( doimp );
 
-    return batchfld_->start();
+    PtrMan<IOObj> inioobj = fs_.spec_.getIOObj( true );
+    const bool outissidom = ZDomain::isSI( outioobj->pars() );
+    fs_.fillPar( inioobj->pars() );
+    if ( !outissidom )
+	ZDomain::Def::get(outioobj->pars()).set( inioobj->pars() );
+    FileSpec::ensureWellDefined( *inioobj );
+    IOM().commitChanges( *inioobj );
 
+    bool isok = is2d ? do2D( *inioobj, *outioobj, doimp )
+		     : do3D( *inioobj, *outioobj, doimp );
+    if ( !isok )
+	return false;
+
+    if ( !is2d && ioobjinfo )
+	 isok = ioobjinfo->provideUserInfo();
+
+    return isok;
 }

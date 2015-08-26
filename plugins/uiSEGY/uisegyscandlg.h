@@ -31,8 +31,6 @@ public :
 			~uiSEGYScanDlg();
 
     SEGY::Scanner*	getScanner();	//!< becomes yours
-    static void		presentReport(uiParent*,const SEGY::Scanner&,
-				      const char* reportfilenm=0);
 
     virtual MultiID	outputID() const;
 
@@ -53,4 +51,3 @@ protected:
 
 
 #endif
-

@@ -21,6 +21,7 @@ class uiCheckBox;
 class uiGenInput;
 class uiBatchJobDispatcherSel;
 class uiSeisTransfer;
+class SeisStdImporterReader;
 
 
 /*!\brief Finishes reading process of 'any SEG-Y file'. */
@@ -53,9 +54,11 @@ protected:
 
     void		crVSPFields();
     void		crSeisFields();
+    SeisStdImporterReader* getImpReader(const IOObj&);
     bool		doVSP();
-    bool		do3D(bool);
-    bool		do2D(bool);
+    bool		do3D(const IOObj&,const IOObj&,bool);
+    bool		do2D(const IOObj&,const IOObj&,bool);
+    bool		doBatch(bool);
 
     void		initWin(CallBacker*);
     void		wllSel(CallBacker*);

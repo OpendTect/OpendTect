@@ -22,14 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 
 
-SEGY::FullSpec::FullSpec( Seis::GeomType gt, bool isvsp )
-    : readopts_(gt)
-    , isvsp_(isvsp)
-    , rev0_(false)
-    , zinfeet_(SI().depthsInFeet())
-{
-}
-
 void SEGY::BasicFileInfo::init()
 {
     revision_ = ns_ = -1;
@@ -227,7 +219,7 @@ virtual int nextStep()
 
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 				bool isfirst, bool is2d, DataClipSampler& cs,
-       				bool full, uiParent* uiparent )
+				bool full, uiParent* uiparent )
 {
     const od_istream::Pos startpos = strm.position();
     nrtrcs_ = def.nrTracesIn( strm, startpos );
