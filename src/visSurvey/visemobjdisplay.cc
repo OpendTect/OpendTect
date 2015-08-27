@@ -20,6 +20,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mpeengine.h"
 #include "randcolor.h"
 #include "undo.h"
+#include "callback.h"
+#include "mousecursor.h"
+#include "polygon.h"
 
 #include "visdrawstyle.h"
 #include "visevent.h"
@@ -28,9 +31,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismpeeditor.h"
 #include "vistransform.h"
 #include "vistexturechannel2rgba.h"
+#include "vispolygonselection.h"
 #include "zaxistransform.h"
 
 
+#define mSelColor Color( 0, 255, 0 )
+#define mDefaultSize 4
 
 namespace visSurvey
 {
@@ -63,6 +69,7 @@ EMObjectDisplay::EMObjectDisplay()
     , restoresessupdate_( false )
     , burstalertison_( false )
     , channel2rgba_( 0 )
+    , ctrldown_( false )
 {
     parposattrshown_.erase();
 
@@ -103,6 +110,7 @@ EMObjectDisplay::~EMObjectDisplay()
 	posattribmarkers_.removeSingle(idx)->unRef();
     }
 
+    clearSelections();
 }
 
 
@@ -165,6 +173,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
     bool onobject = getSectionID(&eventinfo.pickedobjids)!=-1;
 
@@ -352,9 +361,11 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn )
 	    posattribs_ += attr;
 	    visBase::MarkerSet* markerset = visBase::MarkerSet::create();
 	    markerset->ref();
+	    markerset->setMarkersSingleColor( Color::White() );
 	    addChild( markerset->osgNode() );
 	    posattribmarkers_ += markerset;
 	    markerset->setMaterial( 0 );
+	    markerset->setScreenSize( mDefaultSize );
 	    attribindex = posattribs_.size()-1;
 	}
 
@@ -669,6 +680,7 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
     markerset->setDisplayTransformation(transformation_);
     markerset->setMaximumScale( (float) 10*lineStyle()->width_ );
+    markerset->setScreenSize( mDefaultSize );
     markerset->clearMarkers();
 
     for ( int idx=0; idx<pids->size(); idx++ )
@@ -725,12 +737,20 @@ void EMObjectDisplay::removeSelection( const Selector<Coord3>& selector,
 	TaskRunner* tr)
 {
     const int lastid = EM::EMM().undo().currentEventID();
+    for ( int idx=0; idx<selectors_.size(); idx++ )
+    {
+	Selector<Coord3>* sel = selectors_[idx];
+	em_.removeSelected( emobject_->id(), *sel, tr );
+    }
     em_.removeSelected( emobject_->id(), selector, tr );
+
     if ( lastid!=EM::EMM().undo().currentEventID() )
     {
 	EM::EMM().undo().setUserInteractionEnd(
 					EM::EMM().undo().currentEventID() );
     }
+
+    deepErase( selectors_ );
 }
 
 
@@ -741,5 +761,127 @@ void EMObjectDisplay::setPixelDensity( float dpi )
 	posattribmarkers_[idx]->setPixelDensity( dpi );
 
 }
+
+
+void EMObjectDisplay::setSelectionMode( bool yn )
+{
+    ctrldown_ = false;
+
+    if ( scene_ && scene_->getPolySelection() )
+    {
+	if ( yn )
+	    mAttachCBIfNotAttached(
+	    scene_->getPolySelection()->polygonFinished(),
+	    EMObjectDisplay::polygonFinishedCB );
+	else
+	    mDetachCB(
+	    scene_->getPolySelection()->polygonFinished(),
+	    EMObjectDisplay::polygonFinishedCB );
+    }
+
+}
+
+
+void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
+{
+      if ( !scene_ || ! scene_->getPolySelection() ) 
+	  return;
+
+    visBase::PolygonSelection* selection =  scene_->getPolySelection();
+    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+
+    if ( (!selection->hasPolygon() && !selection->singleSelection()) ) 
+    { 	unSelectAll();  return;  }
+
+    if ( !ctrldown_ )
+	unSelectAll();
+
+    TypeSet<int> overlapselectors = findOverlapSelectors( selection );
+
+    for ( int idx=overlapselectors.size()-1; idx>=0; idx-- )
+    {
+	if ( selectors_.size()>=overlapselectors[idx] )
+	    selectors_.removeSingle( overlapselectors[idx] );
+    }
+
+    if ( selection->hasPolygon() )
+    {
+	visBase::PolygonSelection* copyselection = selection->copy();
+	copyselection->ref();
+	visBase::PolygonCoord3Selector* selector =
+	    new visBase::PolygonCoord3Selector( *copyselection );
+	if ( selector ) 
+	    selectors_ += selector;
+    }
+
+    updateSelections();
+
+    selection->clear();
+}
+
+
+const TypeSet<int> EMObjectDisplay::findOverlapSelectors( 
+    visBase::PolygonSelection* selection )
+{
+    TypeSet<int> overlapselectors;
+    for ( int idz = 0; idz<selectors_.size(); idz++ )
+    {
+	for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
+	{
+	    for ( int idy=0; idy<posattribmarkers_[idx]->size(); idy++ )
+	    {
+		visBase::MarkerSet* markerset = posattribmarkers_[idx];
+		const visBase::Coordinates* coords=markerset->getCoordinates();
+		const Coord3 pos = coords->getPos( idy );
+		if ( selectors_[idz]->includes(pos) )
+		{
+		    if ( selection->isInside(pos) )
+		    {
+		      if ( !overlapselectors.isPresent(idz) )
+			overlapselectors += idz;
+		    }
+		}
+	    }
+	}
+    }
+    return overlapselectors;
+}
+
+
+void EMObjectDisplay::updateSelections()
+{
+    for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
+    {
+	for ( int idy=0; idy<posattribmarkers_[idx]->size(); idy++ )
+	{
+	    visBase::MarkerSet* markerset = posattribmarkers_[idx];
+	    markerset->getMaterial()->setColor( Color::White(),idy );
+
+	    const visBase::Coordinates* coords = markerset->getCoordinates();
+	    const Coord3 pos = coords->getPos( idy );
+	    for ( int idz=selectors_.size()-1; idz>=0; idz-- )
+	    {
+		if ( selectors_[idz]->includes(pos) )
+			markerset->getMaterial()->setColor( mSelColor, idy );
+	    }
+	}
+    }
+}
+
+
+void EMObjectDisplay::clearSelections()
+{
+   deepErase( selectors_ );
+}
+
+
+
+void EMObjectDisplay::unSelectAll()
+{
+    for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
+	posattribmarkers_[idx]->setMarkersSingleColor( Color::White() );
+    deepErase( selectors_ );
+}
+
 
 } // namespace visSurvey

@@ -50,6 +50,7 @@ public:
 
     void			visObjectLockedCB(CallBacker*);
     void			updateButtonSensitivity(CallBacker* = 0);
+    void			keyPressedCB(CallBacker*);
 
 protected:
     void			addButtons();
@@ -106,7 +107,6 @@ protected:
     bool			seedpickwason_;
     bool			polyselstoppedseedpick_;
     bool			mpeintropending_;
-
     TrcKeyZSampling		oldactivevol_;
 };
 

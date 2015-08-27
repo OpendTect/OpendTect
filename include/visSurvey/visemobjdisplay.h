@@ -72,6 +72,8 @@ public:
     virtual void		setOnlyAtSectionsDisplay(bool yn);
     virtual bool		getOnlyAtSectionsDisplay() const;
 
+    virtual void		setSelectionMode(bool);
+
     bool			allowMaterialEdit() const { return true; }
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
@@ -132,6 +134,7 @@ protected:
     virtual void		emChangeCB(CallBacker*);
     virtual void		clickCB(CallBacker*);
     virtual void		updatePosAttrib(int attrib);
+    void			polygonFinishedCB(CallBacker*);
 
     Notifier<EMObjectDisplay>	hasmoved;
     Notifier<EMObjectDisplay>	locknotifier;
@@ -166,6 +169,8 @@ protected:
     bool				restoresessupdate_;
 
     bool				burstalertison_;
+    bool				ctrldown_;
+    ObjectSet< Selector<Coord3> >	selectors_;
 
     static const char*			sKeyEarthModelID();
     static const char*			sKeyResolution();
@@ -174,6 +179,15 @@ protected:
     static const char*			sKeyLineStyle();
     static const char*			sKeySections();
     static const char*			sKeyPosAttrShown();
+
+private:				
+    void				unSelectAll();
+    const TypeSet<int>			findOverlapSelectors(
+						    visBase::PolygonSelection*);
+    void				updateSelections();
+    void				clearSelections();
+
+
 };
 
 } // namespace visSurvey

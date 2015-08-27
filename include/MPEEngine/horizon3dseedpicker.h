@@ -70,10 +70,14 @@ public:
     static uiString	seedConModeText(int mode,
 				    bool abbrev=false);
 
-    int			getSeedConnectMode() const	{ return seedconmode_; }
+    int			getSeedConnectMode() const	{ return seedconmode_;}
     void		setSeedConnectMode(int scm)	{ seedconmode_ = scm; }
     void		blockSeedPick(bool yn)		{ blockpicking_ = yn; }
-    bool		isSeedPickBlocked() const	{ return blockpicking_;}
+    bool		isSeedPickBlocked() const	{return blockpicking_;}
+    
+    void		endSeedPick( bool yn )		{ endseedpicking_= yn;}
+    bool		isSeedPickEnded()	    { return endseedpicking_; }
+
     bool		doesModeUseVolume() const;
     bool		doesModeUseSetup() const;
 
@@ -128,6 +132,7 @@ protected:
 
     int			seedconmode_;
     bool		blockpicking_;
+    bool		endseedpicking_;
 
     Notifier<Horizon3DSeedPicker>	addrmseed_;
     Notifier<Horizon3DSeedPicker>	seedadded_;

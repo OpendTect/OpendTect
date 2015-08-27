@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispreload.h"
 #include "selector.h"
 #include "survinfo.h"
+#include "keyboardevent.h"
 
 #include "uicombobox.h"
 #include "uimenu.h"
@@ -35,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "uimain.h"
 #include "visemobjdisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "vismpe.h"
@@ -79,6 +81,9 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     visBase::DM().selMan().deselnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visserv_->selectionmodechange.notify( mCB(this,uiMPEMan,selectionMode) );
+
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+	uiMPEMan::keyPressedCB );
 
     updateButtonSensitivity();
 }
@@ -235,6 +240,12 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !seedpicker || !seedpicker->canSetSectionID() ||
 	 !seedpicker->setSectionID(emobj->sectionID(0)) )
     {
+	mSeedClickReturn();
+    }
+
+    if ( clickcatcher_->info().isDoubleClicked() )
+    {
+	seedpicker->endSeedPick( true );
 	mSeedClickReturn();
     }
 
@@ -418,6 +429,12 @@ void uiMPEMan::seedClick( CallBacker* )
 
     if ( !clickcatcher_->moreToSow() )
 	endSeedClickEvent( emobj );
+
+    // below is for double click event.
+    // after double click we do return on line 251. next click reaches here, we 
+    // need tell seedpicker to prepare to start new trick line.
+    if ( seedpicker->isSeedPickEnded() )
+	seedpicker->endSeedPick( false );
 }
 
 
@@ -1106,3 +1123,14 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 //    toolbar_->setSensitive( saveidx_, emobj && emobj->isChanged() );
 }
 
+
+void uiMPEMan::keyPressedCB(CallBacker*)
+{
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+    
+    if ( KeyboardEvent::isUnDo(kbe) )
+	undoPush( 0 );
+
+    if ( KeyboardEvent::isReDo(kbe) )
+	redoPush( 0 );
+}
