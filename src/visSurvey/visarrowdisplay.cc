@@ -120,7 +120,7 @@ visBase::VisualObject* ArrowDisplay::createLocation() const
 }
 	
 
-void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
+void ArrowDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 {
     mDynamicCastGet( visBase::Lines*, lines, group_->getObject(idx) );
 
