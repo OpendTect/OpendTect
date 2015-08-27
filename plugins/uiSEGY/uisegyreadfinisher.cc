@@ -128,27 +128,23 @@ void uiSEGYReadFinisher::crSeisFields()
     if ( !is2d )
 	outimpfld_->setInputText( objname_ );
 
-    uiSeisSel::Setup scansu( gt );
-    scansu.enabotherdomain( true ).withwriteopts( false );
-    ctxt.toselect.allownonuserselectable_ = true;
-    ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
-    outscanfld_ = new uiSeisSel( this, ctxt, scansu );
-    outscanfld_->attach( alignedBelow, transffld_ );
-    if ( !is2d )
-	outscanfld_->setInputText( objname_ );
-
-    // uiGroup* lastgrp = outimpfld_;
     if ( gt != Seis::Line )
     {
+	uiSeisSel::Setup scansu( gt );
+	scansu.enabotherdomain( true ).withwriteopts( false );
+	ctxt.toselect.allownonuserselectable_ = true;
+	ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
+	outscanfld_ = new uiSeisSel( this, ctxt, scansu );
+	outscanfld_->attach( alignedBelow, transffld_ );
+	if ( !is2d )
+	    outscanfld_->setInputText( objname_ );
+
 	batchfld_ = new uiBatchJobDispatcherSel( this, true,
 						 Batch::JobSpec::SEGY );
 	batchfld_->setJobName( "Read SEG-Y" );
 	batchfld_->jobSpec().pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(gt));
 	batchfld_->attach( alignedBelow, outimpfld_ );
-	// lastgrp = batchfld_;
     }
-
-    //TODO: Z domain handling
 }
 
 
@@ -221,7 +217,8 @@ void uiSEGYReadFinisher::doScanChg( CallBacker* )
     const bool copy = docopyfld_->getBoolValue();
     outimpfld_->display( copy );
     transffld_->display( copy );
-    outscanfld_->display( !copy );
+    if ( outscanfld_ )
+	outscanfld_->display( !copy );
 }
 
 

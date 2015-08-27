@@ -90,7 +90,7 @@ protected:
     void		handleNewInputSpec(bool);
 
     void		clearDisplay();
-    void		setToolStatuses();
+    void		setButtonStatuses();
     void		displayScanResults();
 
     void		initWin(CallBacker*);

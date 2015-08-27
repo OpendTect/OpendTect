@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "timer.h"
 
 
+
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
     : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),
 			imptyp ? uiString("Import %1").arg(imptyp->dispText())
@@ -107,7 +108,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
     examinenrtrcsfld_->setValue( nrex );
     examinegrp->attach( alignedBelow, fullscanbut_ );
 
-    setToolStatuses();
+    setButtonStatuses();
 
     uiGroup* histgrp = new uiGroup( this, "Histogram group" );
     const CallBack histupdcb( mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
@@ -163,7 +164,7 @@ void uiSEGYReadStarter::clearDisplay()
 {
     infofld_->clearInfo();
     ampldisp_->setEmpty();
-    setToolStatuses();
+    setButtonStatuses();
 }
 
 
@@ -205,11 +206,12 @@ void uiSEGYReadStarter::execNewScan( bool fixedloaddef, bool full )
 }
 
 
-void uiSEGYReadStarter::setToolStatuses()
+void uiSEGYReadStarter::setButtonStatuses()
 {
-    int nrfiles = scaninfo_.size();
+    const int nrfiles = scaninfo_.size();
     examinebut_->setSensitive( nrfiles > 0 );
     fullscanbut_->setSensitive( nrfiles > 0 );
+    editbut_->setSensitive( nrfiles > 0 );
     examinebut_->setToolTip( nrfiles > 1 ? tr("Examine first input file")
 					 : tr("Examine input file") );
 }
@@ -229,9 +231,20 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 }
 
 
+static bool unsupported_2d_warning_done = false;
+
 void uiSEGYReadStarter::typChg( CallBacker* )
 {
-    infofld_->setImpTypIdx( impType().tidx_ );
+    const SEGY::ImpType& imptyp = impType();
+    infofld_->setImpTypIdx( imptyp.tidx_ );
+    if ( Seis::is2D(imptyp.geomType()) && !unsupported_2d_warning_done )
+    {
+	uiMSG().warning( "2D import is not supported in this preview release."
+	     "\n\nWe are working hard to make it work"
+	     "\nand get it into the coming 'real' 6.0 release."
+	     "\n\nPlease use the old Survey-Import-Seismics tools for now." );
+	unsupported_2d_warning_done = true;
+    }
 }
 
 
@@ -248,14 +261,14 @@ void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
 
 
 #define mGetInpFile(varnm,what_to_do_if_not_exists) \
-    const BufferString varnm( inpfld_->fileName() ); \
-    if ( !File::exists(varnm) ) \
-	{ what_to_do_if_not_exists; }
 
 
 void uiSEGYReadStarter::editFile( CallBacker* )
 {
-    mGetInpFile( fnm, return )
+    const BufferString fnm( inpfld_->fileName() );
+    if ( !File::exists(fnm) ) \
+	return;
+
     uiSEGYFileManip dlg( this, fnm );
     if ( dlg.go() )
     {
@@ -265,15 +278,14 @@ void uiSEGYReadStarter::editFile( CallBacker* )
 }
 
 
+static bool unsupported_multi_warning_done = false;
+
 
 void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
 {
-    bool fileexists = true;
-    mGetInpFile( newusrfnm, fileexists = false )
-    editbut_->setSensitive( fileexists );
-    if ( !fileexists )
+    const BufferString newusrfnm( inpfld_->fileName() );
+    if ( newusrfnm.isEmpty() )
 	{ clearDisplay(); return; }
-    
 
     if ( fullscan || newusrfnm != userfilename_ )
     {
@@ -281,10 +293,20 @@ void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
 	execNewScan( false, fullscan );
     }
 
-    const int nrfiles = scaninfo_.size();
     uiString txt;
+    const int nrfiles = scaninfo_.size();
     if ( nrfiles > 1 )
-	{ txt = tr( "[%1 files]" ); txt.arg( nrfiles ); }
+    {
+	txt = tr( "[%1 files]" ); txt.arg( nrfiles );
+	if ( !unsupported_multi_warning_done )
+	{
+	    uiMSG().warning( "Multi-file import does not work yet in this"
+	     " preview release.\n\nWe are working hard to make it work"
+	     "\nand get it into the coming 'real' 6.0 release."
+	     "\n\nPlease use the old Survey-Import-Seismics tools for now." );
+	    unsupported_multi_warning_done = true;
+	}
+    }
     nrfileslbl_->setText( txt );
 }
 
@@ -559,7 +581,7 @@ void uiSEGYReadStarter::displayScanResults()
     if ( scaninfo_.isEmpty() )
 	{ clearDisplay(); return; }
 
-    setToolStatuses();
+    setButtonStatuses();
     updateAmplDisplay( 0 );
 
     SEGY::ScanInfo si( *scaninfo_[0] );
