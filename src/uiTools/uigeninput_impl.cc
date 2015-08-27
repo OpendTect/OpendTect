@@ -439,26 +439,8 @@ void uiGenInputIntFld::setToolTip( const uiString& tt )
 int uiGenInputIntFld::getvalue_() const
 { return uiSpinBox::getIntValue(); }
 
-
-static bool isNotSet( int val )
-{ return mIsUdf(val) || val == INT_MAX; }
-
 void uiGenInputIntFld::setvalue_( int val )
-{
-    if ( !mIsUdf(val) )
-    {
-	uiSpinBox::setValue( val );
-	return;
-    }
-
-    if ( isNotSet(-minValue()) && isNotSet(maxValue()) )
-	val = 0;
-    else if ( isNotSet(-minValue()) )
-	val = maxValue();
-    else if ( isNotSet(maxValue()) )
-	val = minValue();
-    uiSpinBox::setValue( val );
-}
+{ uiSpinBox::setValue( val ); }
 
 bool uiGenInputIntFld::notifyValueChanging_( const CallBack& cb )
 { uiSpinBox::valueChanging.notify( cb ); return true; }
