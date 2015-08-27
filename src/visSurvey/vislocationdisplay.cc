@@ -706,7 +706,7 @@ void LocationDisplay::otherObjectsMoved(
 }
 
 
-void LocationDisplay::setPosition(int idx, const Pick::Location& nl )
+void LocationDisplay::setPosition(int idx, const Pick::Location& nl, bool add )
 {
     if ( !set_ || idx<0 || idx>=(*set_).size() )
 	return;

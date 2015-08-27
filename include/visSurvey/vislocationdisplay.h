@@ -91,10 +91,8 @@ public:
 
 protected:
 				LocationDisplay();
-    virtual void		setPosition(int idx,
-	    				    const Pick::Location&);
     virtual void		setPosition(int idx,const Pick::Location&,
-					    bool add) {};
+					    bool add=false);
     virtual void		removePosition(int);
     virtual void		removeAll();
 
