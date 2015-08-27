@@ -32,7 +32,7 @@ mExpClass(VolumeProcessing) SurfaceLimitedFiller : public Step
 public:
 		mDefaultFactoryCreatorImpl( Step, SurfaceLimitedFiller );
 		mDefaultFactoryInstanciationBase( "SurfaceLimitedFiller",
-				"Horizon-based painter - Advanced" );
+				tr("Horizon-based painter - Advanced") );
 
 			~SurfaceLimitedFiller();
 			SurfaceLimitedFiller();

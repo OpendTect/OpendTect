@@ -125,7 +125,7 @@ uiString Task::uiNrDoneText() const
 	return toUiString(oldmsg);
     }
 
-    return tr("Nr Done");
+    return uiStdNrDoneText();
 }
 
 

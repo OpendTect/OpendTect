@@ -5,11 +5,14 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+
+add_definitions( -DmNoAutoUiString )
+
 ADD_DEFINITIONS( -D_CONSOLE )
-SET(OD_MODULE_DEPS Network )
-SET(OD_USEBATCH 1)
+set(OD_MODULE_DEPS Network )
+set(OD_USEBATCH 1)
 #SET(OD_USEQT Core)
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 	batchprog.cc  )
-SET(OD_MODULE_LINK_OPTIONS ${OD_SUPPRESS_UNDEF_FLAGS} )
+set(OD_MODULE_LINK_OPTIONS ${OD_SUPPRESS_UNDEF_FLAGS} )
 OD_INIT_MODULE()

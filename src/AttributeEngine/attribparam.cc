@@ -180,7 +180,7 @@ EnumParam::EnumParam( const char* nm, int defval, bool isreq )
 mParamClone( EnumParam );
 
 void EnumParam::addEnum( const char* ne )
-{ reinterpret_cast<StringListInpSpec*>(spec_)->addString(ne); }
+{ reinterpret_cast<StringListInpSpec*>(spec_)->addString(toUiString(ne)); }
 
 
 BufferString EnumParam::getDefaultValue() const

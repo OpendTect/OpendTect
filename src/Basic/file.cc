@@ -55,7 +55,7 @@ public:
 			    : Executor("Copying Directory")
 			    , src_(from),dest_(to),fileidx_(0)
 			    , totalnr_(0),nrdone_(0)
-			    , msg_("Copying files")
+			    , msg_(tr("Copying files"))
 			{
 			    makeRecursiveFileList(src_,filelist_,false);
 			    for ( int idx=0; idx<filelist_.size(); idx++ )

@@ -76,7 +76,7 @@ protected:
 
 
 class VelGriddingTask : public SequentialTask
-{
+{ mODTextTranslationClass(VelGriddingTask);
 public:
 				VelGriddingTask(VelocityGridder&);
     int				nextStep();
@@ -86,7 +86,8 @@ public:
 				//!<Returns false if process should continue
     od_int64			nrDone() const;
     od_int64			totalNr() const       { return totalnr_; }
-    uiString			uiNrDoneText() const  { return "CDPs gridded"; }
+    uiString			uiNrDoneText() const
+						{ return tr("CDPs gridded"); }
 
     VelocityGridder&		getStep()	      { return step_; }
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }

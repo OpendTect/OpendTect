@@ -260,7 +260,7 @@ private:
 */
 
 mExpClass(VolumeProcessing) ChainExecutor : public Executor
-{
+{ mODTextTranslationClass(ChainExecutor);
 public:
 				ChainExecutor(Chain&);
 				~ChainExecutor();

@@ -152,12 +152,15 @@ private:
     static const uiString	emptystring_;
 
 public:
-#ifndef mNoAutoUiString
+
 		//Only for expert users
-		uiString(const char* inp);
+#ifdef mNoAutoUiString
+    mDeprecated uiString(const char* inp);
+#else
+		uiString(const char*);
+#endif
 		/*!<Don't use. May be depreciated. Use toUiString("My text")
 		    function instead. */
-#endif
 
     bool	operator==(const uiString& b) const;
 		//!<Don't use, will force crash. Only here to keep TypeSet happy
@@ -212,6 +215,7 @@ public:
 };
 
 
+mGlobal(Basic) uiString toUiString(const uiString&);
 mGlobal(Basic) uiString toUiString(const char*);
 mGlobal(Basic) uiString toUiString(const OD::String&);
 mGlobal(Basic) uiString toUiString(od_int32);
@@ -222,6 +226,11 @@ mGlobal(Basic) uiString toUiString(float);
 mGlobal(Basic) uiString toUiString(double);
 mGlobal(Basic) uiString toUiString(float,int nrdec);
 mGlobal(Basic) uiString toUiString(double,int nrdec);
+
+
+//User when string should be revisited later
+#define mToUiStringTodo(i) toUiString(i)
+#define mFromUiStringTodo(i) i.getFullString()
 
 //Legacy Will be removed
 mGlobal(Basic) inline uiString mkUiString(const char* var)

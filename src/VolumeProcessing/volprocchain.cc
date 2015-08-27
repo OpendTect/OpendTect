@@ -25,13 +25,13 @@ mImplFactory( Step, Step::factory );
 
 
 class BinIDWiseTask : public ParallelTask
-{
+{ mODTextTranslationClass(BinIDWiseTask);
 public:
 		BinIDWiseTask( Step& ro )
 		    : step_( ro ), totalnr_( -1 )	{}
 
     uiString	uiMessage() const	{ return errmsg_; }
-    uiString	uiNrDoneText() const	{ return "Positions done"; }
+    uiString	uiNrDoneText() const	{ return tr("Positions done"); }
 
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
@@ -130,7 +130,7 @@ uiString ChainExecutor::errMsg() const
 Step* var = chain_.getStepFromID( id ); \
 if ( !var ) \
 { \
-    errmsg_ = uiString("Cannot find output step with id %1") \
+    errmsg_ = mToUiStringTodo("Cannot find output step with id %1") \
 		  .arg( toString(id) ); \
     return errret; \
 }
@@ -483,7 +483,11 @@ od_int64 ChainExecutor::nrDone() const
 
 
 uiString ChainExecutor::uiNrDoneText() const
-{ return curepoch_ ? curepoch_->getTask().uiNrDoneText() : "Positions done"; }
+{
+    return curepoch_
+	? curepoch_->getTask().uiNrDoneText()
+	: tr("Positions done");
+}
 
 
 od_int64 ChainExecutor::totalNr() const
@@ -498,7 +502,8 @@ uiString ChainExecutor::uiMessage() const
     //Threads::Locker lckr( curtasklock_ );
     if ( curepoch_ )
 	return curepoch_->getTask().uiMessage();
-    return 0;
+
+    return uiString::emptyString();
 }
 
 

@@ -297,8 +297,10 @@ bool RegionFaultBoundary::onRightSide( const TrcKey& tk, float z ) const
 
 void RegionFaultBoundary::getSideStrs( uiStringSet& strs ) const
 {
-    strs.add("Pos Inl"); strs.add("Pos Crl");
-    strs.add("Neg Inl"); strs.add("Neg Crl");
+    strs.add(tr("Pos Inl"));
+    strs.add(tr("Pos Crl"));
+    strs.add(tr("Neg Inl"));
+    strs.add(tr("Neg Crl"));
 
 /*
     strs.add("Pos Inl/Crl");

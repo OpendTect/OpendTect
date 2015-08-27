@@ -492,7 +492,7 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
     }
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface Data saver" );
-    grp->setNrDoneText( "Nr done" );
+    grp->setNrDoneText( Task::uiStdNrDoneText() );
     for ( int selidx=0; selidx<sels_.sd.valnames.size(); selidx++ )
     {
 	if ( dataidx >= 0 && dataidx != selidx )

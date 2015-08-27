@@ -50,8 +50,7 @@ public:
     void		setAsCurrent(Well::D2TModel*);
     void		setFromData(float* dah,float* time,int sz);
 
-    uiString	errMsg() const
-			{ return errmsg_.isEmpty() ? 0 : errmsg_; }
+    uiString	errMsg() const { return errmsg_; }
 
 protected:
 

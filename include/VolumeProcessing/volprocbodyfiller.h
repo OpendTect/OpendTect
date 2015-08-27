@@ -32,10 +32,11 @@ class Step;
 */
 
 mExpClass(VolumeProcessing) BodyFiller : public Step
-{
+{ mODTextTranslationClass(BodyFiller);
 public:
 	mDefaultFactoryCreatorImpl( VolProc::Step, BodyFiller );
-	mDefaultFactoryInstanciationBase( "BodyFiller", "Body shape painter" );
+	mDefaultFactoryInstanciationBase( "BodyFiller",
+					tr("Body shape painter") );
 
 				BodyFiller();
 				~BodyFiller();

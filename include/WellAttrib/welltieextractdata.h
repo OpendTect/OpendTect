@@ -36,16 +36,15 @@ public:
     int                 nextStep();
     od_int64            totalNr() const		{ return extrintv_.nrSteps(); }
     od_int64            nrDone() const          { return nrdone_; }
-    uiString		 uiMessage() const	   { return "Computing..."; }
-    uiString		uiNrDoneText() const	   { return "Points done"; }
+    uiString		uiMessage() const	{ return tr("Computing..."); }
+    uiString		uiNrDoneText() const	{ return tr("Points done"); }
     void		setBIDValues(const TypeSet<BinID>&);
     void		setInterval(const StepInterval<float>&);
     //Only 2D
     void		setLine( const BufferString& nm ) { linenm_ = nm; }
 
     const SeisTrc&	result() const		{ return *outtrc_; }
-    uiString		errMsg() const
-			{ return errmsg_.isEmpty() ? 0 : errmsg_; }
+    uiString		errMsg() const		{ return errmsg_; }
 
 protected:
 

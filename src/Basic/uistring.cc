@@ -236,14 +236,12 @@ uiString::uiString()
     mInitImpl( data_,  );
 }
 
-#ifndef mNoAutoUiString
 uiString::uiString( const char* str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
     , datalock_( true )
 {
     mInitImpl( data_, *this = str );
 }
-#endif
 
 
 uiString::uiString( const char* originaltext, const char* context,
@@ -664,6 +662,7 @@ bool uiString::setFromHexEncoded( const char* str )
 
 
 uiString toUiString( const char* var ) { return uiString().set( var ); }
+uiString toUiString( const uiString& var ) { return var; }
 
 uiString toUiString( const OD::String& str ) { return toUiString( str.str() ); }
 

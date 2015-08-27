@@ -46,7 +46,10 @@ bool BatchProgram::go( od_ostream& strm )
 {
     const int odversion = pars().odVersion();
     if ( odversion < 500 )
-    { errorMsg("\nCannot execute pre-5.0 par files"); return false; }
+    {
+	errorMsg( toUiString("\nCannot execute pre-5.0 par files") );
+	return false;
+    }
 
     OD::ModDeps().ensureLoaded( "Algo" );
     OD::ModDeps().ensureLoaded( "Seis" );

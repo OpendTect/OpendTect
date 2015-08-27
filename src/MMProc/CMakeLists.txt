@@ -6,6 +6,9 @@
 #_______________________________________________________________________________
 
 
+add_definitions( -DmNoAutoUiString )
+
+
 
 SET(OD_MODULE_DEPS Network)
 SET(OD_USEQT Core)

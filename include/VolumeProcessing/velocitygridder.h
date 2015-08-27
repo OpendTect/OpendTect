@@ -38,7 +38,7 @@ mExpClass(VolumeProcessing) VelocityGridder : public Step
 public:
 			mDefaultFactoryInstantiation(
 				Step, VelocityGridder,
-				"Gridding", "Velocity gridder" )
+				"Gridding", tr("Velocity gridder") )
 
 			VelocityGridder();
     			~VelocityGridder();

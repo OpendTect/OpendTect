@@ -5,11 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-option( NO_AUTOMATIC_UISTRING_CAST "Disable const char* to uiString casts" OFF )
 
-if ( NO_AUTOMATIC_UISTRING_CAST )
-    add_definitions( -DmNoAutoUiString )
-    endif()
+add_definitions( -DmNoAutoUiString )
 
 set( OD_USEQT Core )
 set( OD_USEBREAKPAD Yes )

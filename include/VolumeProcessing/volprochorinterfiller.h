@@ -31,11 +31,11 @@ fixed value at the bottom boundary.
 */
 
 mExpClass(VolumeProcessing) HorInterFiller : public Step
-{
+{ mODTextTranslationClass(HorInterFiller);
 public:
 				mDefaultFactoryInstantiation( VolProc::Step,
 				    HorInterFiller, "HorInterFiller",
-				    "Horizon-based painter - Simple" )
+				    tr("Horizon-based painter - Simple") )
 
 				~HorInterFiller();
 				HorInterFiller();

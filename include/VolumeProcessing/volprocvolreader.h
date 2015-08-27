@@ -29,11 +29,11 @@ the read volume.
 */
 
 mExpClass(VolumeProcessing) VolumeReader : public Step
-{
+{ mODTextTranslationClass(VolumeReader);
 public:
 			mDefaultFactoryInstantiation(
 				Step, VolumeReader,
-				"VolumeReader", "Input Volume" )
+				"VolumeReader", tr("Input Volume") )
 			~VolumeReader();
 
     bool		needsInput() const		{ return false; }
