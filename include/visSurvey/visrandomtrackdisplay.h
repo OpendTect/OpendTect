@@ -137,6 +137,7 @@ public:
 						BufferString&) const;
 
     int				getSelNodeIdx() const	{ return selnodeidx_; }
+				//!<knotidx>=0, panelidx<0
 
     virtual NotifierAccess*	getMovementNotifier()	{ return &moving_; }
     NotifierAccess*		getManipulationNotifier() {return &nodemoving_;}
