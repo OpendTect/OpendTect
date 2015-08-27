@@ -141,6 +141,9 @@ public:
 	    					IOPar& iop ) const
 				{ return MultiTextureSurveyObject
 				    	::getMousePosInfo(ei,iop); }
+        void			getMousePosInfo(const visBase::EventInfo&,
+					Coord3& xyzpos,BufferString& val,
+					BufferString& info) const;
 
     bool			allowsPicks() const		{ return true; }
     bool			isVerticalPlane() const		{return false;}
