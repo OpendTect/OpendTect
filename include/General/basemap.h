@@ -36,8 +36,8 @@ public:
     Threads::Lock		lock_;
     virtual void		updateGeometry()			{}
 
-    virtual void		setType(const char* tp) { factorynm_ = tp;}
-    virtual const char*		getType() const		{ return factorynm_; }
+    virtual void		setType(const char* tp) { typenm_ = tp;}
+    virtual const char*		getType() const		{ return typenm_; }
 
     virtual void		setDepth(int val)	{ depth_ = val; }
     virtual int			getDepth() const	{ return depth_; }
@@ -92,7 +92,7 @@ public:
 protected:
     int				depth_;
     int				id_;
-    BufferString		factorynm_;
+    BufferString		typenm_;
 };
 
 
