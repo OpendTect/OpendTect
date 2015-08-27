@@ -61,12 +61,13 @@ set( OD_MODULE_SOURCES
 	positionlist.cc
 	probdenfunc.cc
 	raytrace1d.cc
+	reflectivitysampler.cc
 	resizeimage.cc
 	scaler.cc
+	sincinterpolator.cc
 	spectrogram.cc
 	staticsdesc.cc
 	stats.cc
-	reflectivitysampler.cc
 	timeser.cc
 	transform.cc
 	trigonometry.cc
