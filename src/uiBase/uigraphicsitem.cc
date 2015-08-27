@@ -38,7 +38,6 @@ class ODGraphicsItem : public QGraphicsItem
 public:
 ODGraphicsItem()
     : QGraphicsItem()
-    , itempenwidth_( 1 )
 {}
 
 QRectF boundingRect() const
@@ -48,9 +47,6 @@ void paint( QPainter* painter, const QStyleOptionGraphicsItem* option,
 	    QWidget* widget )
 {
 }
-
-void setItemPenWidth( int width )
-{ itempenwidth_ = width; }
 
 void hoverEnterEvent( QGraphicsSceneHoverEvent* event )
 {
@@ -80,9 +76,8 @@ void hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
     QGraphicsItem::hoverLeaveEvent( event );
 }
 
-int itempenwidth_;
-
 };
+
 
 uiGraphicsItem::uiGraphicsItem()
     : qgraphicsitem_(new ODGraphicsItem)
