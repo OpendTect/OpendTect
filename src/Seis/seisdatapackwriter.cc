@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "seisdatapack.h"
 #include "seiswrite.h"
 #include "seistrc.h"
+#include "seistrctr.h"
 #include "survinfo.h"
 
 
@@ -71,7 +72,8 @@ int SeisDataPackWriter::nextStep()
     if ( !writer_ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid_ );
-	if ( !ioobj ) return ErrorOccurred();
+	if ( !ioobj || cube_.isEmpty() )
+	    return ErrorOccurred();
 
 	writer_ = new SeisTrcWriter( ioobj );
 
@@ -90,9 +92,16 @@ int SeisDataPackWriter::nextStep()
 	trc_->info().sampling.step = step;
 	trc_->info().nr = 0;
 
+	BufferStringSet compnames;
+	compnames.add( cube_.getComponentName() );
 	for ( int idx=1; idx<cubeindices_.size(); idx++ )
+	{
 	    trc_->data().addComponent( trcsz, DataCharacteristics() );
+	    compnames.add( cube_.getComponentName(idx) );
+	}
 
+	SeisTrcTranslator* transl = writer_->seisTranslator();
+	if ( transl ) transl->setComponentNames( compnames );
     }
 
     BinID currentpos;
