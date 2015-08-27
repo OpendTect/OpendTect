@@ -1362,12 +1362,12 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-#define mAddLinePrimitiveSet()\
+#define mAddLinePrimitiveSet \
 {\
     if ( idxps.size()>=2 )\
     {\
 	Geometry::IndexedPrimitiveSet* primitiveset =  \
-	Geometry::IndexedPrimitiveSet::create( false );\
+		Geometry::IndexedPrimitiveSet::create( false );\
 	primitiveset->ref();\
 	primitiveset->append( idxps.arr(), idxps.size() );\
 	line->addPrimitiveSet( primitiveset ); \
@@ -1402,7 +1402,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    line->getCoordinates()->addPos(curline[idx]);\
 	} \
 	if ( curline.size() ) \
-	mAddLinePrimitiveSet();\
+	mAddLinePrimitiveSet\
     } \
     curline.erase(); \
 }
@@ -1522,9 +1522,6 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
     int stopidx = 0;
     int jumpstart = 0;
 
-    Geometry::IndexedPrimitiveSet* primitiveset =
-	Geometry::IndexedPrimitiveSet::create( false );
-
     TypeSet<int> idxps;
     while ( true )
     {
@@ -1588,16 +1585,17 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		    continue;
 		}
 	    }
+	    else if ( idxps.size()>1 )
+	    {
+		mAddLinePrimitiveSet;
+		idxps.erase();
+	    }
 	}
 
 	jumpstart = 1;
     }
 
-    if( idxps.size()>1 )
-    {
-	primitiveset->append( idxps.arr(),idxps.size() );
-	line->addPrimitiveSet( primitiveset );
-    }
+    mAddLinePrimitiveSet;
 }
 
 
@@ -1636,7 +1634,7 @@ static void drawHorizonOnZSlice( const TrcKeyZSampling& cs, float zshift,
 	if ( ic.isClosed() )
 	    idxps.add( idxps[0] );
 
-	mAddLinePrimitiveSet();
+	mAddLinePrimitiveSet;
 	idxps.erase();
     }
 
@@ -2037,7 +2035,7 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
     }
 
     visBase::VertexShape* line = parentline_;
-    mAddLinePrimitiveSet();
+    mAddLinePrimitiveSet;
 }
 
 
