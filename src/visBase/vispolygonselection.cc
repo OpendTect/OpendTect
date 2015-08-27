@@ -76,10 +76,10 @@ PolygonSelection::~PolygonSelection()
 
 PolygonSelection* PolygonSelection::copy() const
 {
-    PolygonSelection* selection = new PolygonSelection();
-    selection->selector_ = new osgGeo::PolygonSelection( *selector_ );
-    selection->setUTMCoordinateTransform( utm2disptransform_ );
-    return selection;
+    PolygonSelection* polsel = new PolygonSelection();
+    polsel->selector_ = new osgGeo::PolygonSelection( *selector_ );
+    polsel->setUTMCoordinateTransform( utm2disptransform_ );
+    return polsel;
 }
 
 
