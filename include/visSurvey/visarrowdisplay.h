@@ -45,7 +45,8 @@ public:
 
 protected:
 
-    virtual void		setPosition(int,const Pick::Location&);
+    virtual void		setPosition(int,const Pick::Location&,
+					    bool add=false);
     virtual void		removePosition(int);
 
     virtual int			clickedMarkerIndex(
