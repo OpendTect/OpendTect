@@ -48,6 +48,9 @@ PlaneDataDisplayBaseMapObject::~PlaneDataDisplayBaseMapObject()
 }
 
 
+int PlaneDataDisplayBaseMapObject::getDepth() const
+{ return 100; } // TODO: read from basemap factory list
+
 const char* PlaneDataDisplayBaseMapObject::getType() const
 {
     return visSurvey::PlaneDataDisplay::getSliceTypeString(
