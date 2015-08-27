@@ -519,16 +519,16 @@ public:
 	Pick::SetMgr& mgr = Pick::Mgr();
 	Pick::Set& set = mgr.get(mid);
 
-	if ( type == UnDoType::Insert || type == UnDoType::PolygonClose )
+	if ( type == Insert || type == PolygonClose )
 	{
 	    if ( &set && set.size()>index_ )
 		pos_ = set[index_];
 	}
-	else if ( type == UnDoType::Remove )
+	else if ( type == Remove )
 	{
 	    pos_ = pos;
 	}
-	else if ( type == UnDoType::Move )
+	else if ( type == Move )
 	{
 	    if ( &set && set.size()>index_ )
 		pos_ = set[index_];
@@ -540,11 +540,11 @@ public:
 
     const char* getStandardDesc() const
     {
-	if ( type_ == UnDoType::Insert )
+	if ( type_ == Insert )
 	    return "Insert Knot";
-	else if ( type_ == UnDoType::Remove )
+	else if ( type_ == Remove )
 	    return "Remove";
-	else if ( type_ == UnDoType::Move )
+	else if ( type_ == Move )
 	    return "move";
 
 	return "";
@@ -558,32 +558,32 @@ public:
 	if ( !&set ) return false;
 
 	if ( set.disp_.connect_==Pick::Set::Disp::Close &&
-	    index_ == set.size()-1 && type_ != UnDoType::Move )
-	    type_ = UnDoType::PolygonClose;
+	    index_ == set.size()-1 && type_ != Move )
+	    type_ = PolygonClose;
 
-	Pick::SetMgr::ChangeData::Ev ev = type_ == UnDoType::Move ? 
+	Pick::SetMgr::ChangeData::Ev ev = type_ == Move ? 
 	    Pick::SetMgr::ChangeData::Changed : 
-	    ( type_ == UnDoType::Remove 
+	    ( type_ == Remove 
 	    ? Pick::SetMgr::ChangeData::Added
 	    : Pick::SetMgr::ChangeData::ToBeRemoved );
 
 	Pick::SetMgr::ChangeData cd( ev, &set, index_ );
 
-	if ( type_ == UnDoType::Move )
+	if ( type_ == Move )
 	{
 	   if ( &set && set.size()>index_  && pos_.pos_.isDefined() )
 	       set[index_] = pos_;
 	}
-	else if ( type_ == UnDoType::Remove )
+	else if ( type_ == Remove )
 	{
 	   if ( pos_.pos_.isDefined() )
 	     set.insert( index_, pos_ );
 	}
-	else if ( type_ == UnDoType::Insert  )
+	else if ( type_ == Insert  )
 	{
 	    set.removeSingle( index_ );
 	}
-	else if ( type_ == UnDoType::PolygonClose )
+	else if ( type_ == PolygonClose )
 	{
 	    set.disp_.connect_ = Pick::Set::Disp::Open;
 	    set.removeSingle(index_);
@@ -601,29 +601,29 @@ public:
 	Pick::Set& set = mgr.get( mid_ );
 	if ( !&set ) return false;
 
-	Pick::SetMgr::ChangeData::Ev ev = type_==UnDoType::Move ?
+	Pick::SetMgr::ChangeData::Ev ev = type_== Move ?
 	    Pick::SetMgr::ChangeData::Changed :
-	    ( type_ == UnDoType::Remove
+	    ( type_ == Remove
 	    ? Pick::SetMgr::ChangeData::ToBeRemoved
 	    : Pick::SetMgr::ChangeData::Added );
 
 	Pick::SetMgr::ChangeData cd( ev, &set, index_ );
 
-	if ( type_ == UnDoType::Move )
+	if ( type_ == Move )
 	{
 	    if ( &set && set.size()>index_ && newpos_.pos_.isDefined() )
 		set[index_] = newpos_;
 	}
-	else if ( type_ == UnDoType::Remove )
+	else if ( type_ == Remove )
 	{
 	    set.removeSingle( index_ );
 	}
-	else if ( type_ == UnDoType::Insert )
+	else if ( type_ == Insert )
 	{
 	    if ( pos_.pos_.isDefined() )
 		set.insert( index_,pos_ );
 	}
-	else if ( type_ == UnDoType::PolygonClose )
+	else if ( type_ == PolygonClose )
 	{
 	    if ( pos_.pos_.isDefined() )
 	    {
@@ -760,9 +760,7 @@ void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
 	PickSetKnotUndoEvent::UnDoType undotype = 
 	    (PickSetKnotUndoEvent::UnDoType) type; 
 
-	const Pick::Location pos = type == EventType::Insert 
-				   ? Coord3::udf()
-				   : loc;
+	const Pick::Location pos = type == Insert ? Coord3::udf() : loc;
 	PickSetKnotUndoEvent* undo = new PickSetKnotUndoEvent( 
 	undotype, mid, idx, pos );
 	Pick::Mgr().undo().addEvent( undo, 0 );
@@ -773,21 +771,21 @@ void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
 void Set::insertWithUndo( int idx, const Pick::Location& loc )
 {
     insert( idx, loc );
-    addUndoEvent( EventType::Insert, idx, loc );
+    addUndoEvent( Insert, idx, loc );
  }
 
 
 void Set::appendWithUndo( const Pick::Location& loc )
 {
     *this += loc;
-    addUndoEvent( EventType::Insert, size()-1, loc );
+    addUndoEvent( Insert, size()-1, loc );
  }
 
 
 void Set::removeSingleWithUndo( int idx )
 {
     const Pick::Location pos = (*this)[idx];
-    addUndoEvent( EventType::Remove, idx, pos );
+    addUndoEvent( Remove, idx, pos );
     removeSingle( idx );
 }
 
@@ -797,7 +795,7 @@ void Set::moveWithUndo( int idx, const Pick::Location& undoloc,
 {
     if ( size()<idx ) return;
     (*this)[idx] = undoloc;
-    addUndoEvent( EventType::Move, idx, loc );
+    addUndoEvent( Move, idx, loc );
     (*this)[idx] = loc;
 }
 
