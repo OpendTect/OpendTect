@@ -98,7 +98,7 @@ protected:
 				    const ObjectSet<const SurveyObject>&,int);
     virtual void		updateDragger();
     visBase::MarkerSet*		createOneMarker() const;
-    const Coord3		getNormal();
+    const Coord3		getPlaneDataNormal();
     
     visBase::MarkerSet*		markerset_;
     visBase::PolyLine*		polyline_;
