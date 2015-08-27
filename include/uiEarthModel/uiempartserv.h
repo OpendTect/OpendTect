@@ -175,8 +175,6 @@ public:
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
     EM::EMObject*	selEMObject();
 
-    EM::ObjectID	saveUnsavedEMObject();
-    void		removeUnsavedEMObjectFromTree();
     void		removeTreeObject(const EM::ObjectID&);
 
     void		managePreLoad();

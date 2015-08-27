@@ -487,35 +487,6 @@ void uiEMPartServer::removeTreeObject( const EM::ObjectID& emid )
 }
 
 
-void uiEMPartServer::removeUnsavedEMObjectFromTree()
-{
-    for ( int idx=em_.nrLoadedObjects()-1; idx>=0; idx-- )
-    {
-	const EM::ObjectID objid = em_.objectID( idx );
-
-	if ( em_.getMultiID(objid).isEmpty() )
-	{ removeTreeObject( objid ); return; }
-    }
-}
-
-
-EM::ObjectID uiEMPartServer::saveUnsavedEMObject()
-{
-    for ( int idx=em_.nrLoadedObjects()-1; idx>=0; idx-- )
-    {
-	const EM::ObjectID objid = em_.objectID( idx );
-
-	if ( em_.getMultiID(objid).isEmpty() )
-	{
-	    storeObject( objid, true );
-	    return objid;
-	}
-    }
-
-    return -1;
-}
-
-
 EM::EMObject* uiEMPartServer::selEMObject()
 { return em_.getObject( selemid_ ); }
 
