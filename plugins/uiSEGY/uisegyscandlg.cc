@@ -42,7 +42,6 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 			      IOPar& iop, bool ss )
     : uiSEGYReadDlg(p,su,iop,ss)
     , scanner_(0)
-    , indexer_(0)
     , forsurvsetup_(ss)
     , outfld_(0)
     , lnmfld_(0)
@@ -107,7 +106,6 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 uiSEGYScanDlg::~uiSEGYScanDlg()
 {
     delete scanner_;
-    delete indexer_;
 }
 
 
@@ -168,7 +166,6 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 
     Executor* exec = 0;
     delete scanner_; scanner_ = 0;
-    delete indexer_; indexer_ = 0;
 
     if ( outfld_ )
     {
@@ -214,20 +211,16 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	return false;
     }
 
-    if ( !displayWarnings( scanner_
-		? scanner_->warnings()
-		: indexer_->scanner()->warnings()
-	, outfld_) )
+    const bool haveoutput = (bool)outfld_;
+    if ( !uiSEGY::displayWarnings(scanner_->warnings(),haveoutput) )
     {
-	if ( outfld_ )
+	if ( haveoutput )
 	    IOM().permRemove( outfld_->key(true) );
-
 	return false;
     }
 
-    if ( indexer_ )
-	presentReport( parent(), *indexer_->scanner() );
-
+    IOPar rep( "SEG-Y scan report" ); scanner_->getReport( rep );
+    uiSEGY::displayReport( parent(), rep );
     return true;
 }
 
@@ -235,34 +228,4 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 MultiID uiSEGYScanDlg::outputID() const
 {
     return outfld_ ? outfld_->key(true) : MultiID::udf();
-}
-
-
-void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
-				   const char* fnm )
-{
-    const char* titl = "SEG-Y scan report";
-    IOPar rep( titl );
-    sc.getReport( rep );
-    if ( sc.warnings().size() == 1 )
-	rep.add( "Warning", sc.warnings().get(0) );
-    else
-    {
-	for ( int idx=0; idx<sc.warnings().size(); idx++ )
-	{
-	    if ( !idx ) rep.add( IOPar::sKeyHdr(), "Warnings" );
-	    rep.add( toString(idx+1), sc.warnings().get(idx) );
-	}
-    }
-
-    if ( fnm && *fnm && !rep.write(fnm,IOPar::sKeyDumpPretty()) )
-	uiMSG().warning( tr("Cannot write report to specified file") );
-
-    uiDialog* dlg = new uiDialog( p,
-		    uiDialog::Setup(titl,mNoDlgTitle,mNoHelpKey).modal(false) );
-    dlg->setCtrlStyle( uiDialog::CloseOnly );
-    od_ostrstream strstrm; rep.dumpPretty( strstrm );
-    uiTextEdit* te = new uiTextEdit( dlg, titl );
-    te->setText( strstrm.result() );
-    dlg->setDeleteOnClose( true ); dlg->go();
 }

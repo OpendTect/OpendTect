@@ -15,12 +15,14 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegyreadfinisher.h"
 #include "uisegyimptype.h"
 #include "uisegyexamine.h"
+#include "uisegymanip.h"
 #include "uisegydef.h"
 #include "uifileinput.h"
 #include "uiseparator.h"
 #include "uihistogramdisplay.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "segyhdr.h"
 #include "seisinfo.h"
@@ -33,50 +35,83 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "timer.h"
 
 
-uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
-    : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),mNoDlgTitle,
+
+uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
+    : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),
+			imptyp ? uiString("Import %1").arg(imptyp->dispText())
+				: mNoDlgTitle,
 				  mTODOHelpKey ) )
-    , filespec_(fs?*fs:FileSpec())
     , filereadopts_(0)
+    , typfld_(0)
     , veryfirstscan_(false)
     , userfilename_("x") // any non-empty
     , clipsampler_(*new DataClipSampler(100000))
     , filenamepopuptimer_(0)
 {
+    setCtrlStyle( RunAndClose );
+    setOkText( tr("Next >>") );
+
     uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
 	.objtype( tr("SEG-Y") );
     inpfld_ = new uiFileInput( this, "Input file(s) (*=wildcard)",
 				fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
+    editbut_ = uiButton::getStd( this, uiButton::Edit,
+			         mCB(this,uiSEGYReadStarter,editFile), false );
+    editbut_->attach( rightOf, inpfld_ );
+    editbut_->setSensitive( false );
 
-    typfld_ = new uiSEGYImpType( this );
-    typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
-    typfld_->attach( alignedBelow, inpfld_ );
+    if ( imptyp )
+	fixedimptype_ = *imptyp;
+    else
+    {
+	typfld_ = new uiSEGYImpType( this );
+	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
+	typfld_->attach( alignedBelow, inpfld_ );
+    }
+    nrfileslbl_ = new uiLabel( this, uiString::emptyString() );
+    nrfileslbl_->setPrefWidthInChar( 10 );
+    nrfileslbl_->setAlignment( Alignment::Right );
+    if ( !typfld_ )
+	nrfileslbl_->attach( rightTo, inpfld_ );
+    else
+    {
+	nrfileslbl_->attach( rightTo, typfld_ );
+	nrfileslbl_->attach( rightBorder );
+    }
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, typfld_ );
+    sep->attach( stretchedBelow, nrfileslbl_ );
 
-    infofld_ = new uiSEGYReadStartInfo( this, loaddef_ );
+    infofld_ = new uiSEGYReadStartInfo( this, loaddef_, imptyp );
     infofld_->attach( ensureBelow, sep );
     infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
+
+
+    fullscanbut_ = new uiToolButton( this, "fullscan",
+				    tr("Scan the entire input"),
+				    mCB(this,uiSEGYReadStarter,fullScanReq) );
+    fullscanbut_->attach( rightOf, infofld_ );
 
     uiGroup* examinegrp = new uiGroup( this, "Examine group" );
     examinebut_ = new uiToolButton( examinegrp, "examine",
 				    uiString::emptyString(),
 				    mCB(this,uiSEGYReadStarter,examineCB) );
-    setExamineStatus();
     examinenrtrcsfld_ = new uiSpinBox( examinegrp, 0, "Examine traces" );
     examinenrtrcsfld_->setInterval( 0, 1000000, 10 );
     examinenrtrcsfld_->setHSzPol( uiObject::Small );
     examinenrtrcsfld_->setToolTip( tr("Number of traces to examine") );
-    examinenrtrcsfld_->attach( centeredBelow, examinebut_ );
+    examinenrtrcsfld_->attach( alignedBelow, examinebut_ );
     int nrex = 1000; Settings::common().get( sKeySettNrTrcExamine, nrex );
     examinenrtrcsfld_->setInterval( 10, 1000000, 10 );
     examinenrtrcsfld_->setValue( nrex );
-    examinegrp->attach( rightOf, infofld_ );
+    examinegrp->attach( alignedBelow, fullscanbut_ );
+
+    setButtonStatuses();
 
     uiGroup* histgrp = new uiGroup( this, "Histogram group" );
+    const CallBack histupdcb( mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
     uiHistogramDisplay::Setup hdsu;
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
     ampldisp_ = new uiHistogramDisplay( histgrp, hdsu );
@@ -89,8 +124,12 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const FileSpec* fs )
     clipfld_->setSuffix( uiString("%") );
     clipfld_->setHSzPol( uiObject::Small );
     clipfld_->attach( rightOf, ampldisp_ );
-    clipfld_->valueChanging.notify(
-			mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
+    clipfld_->valueChanging.notify( histupdcb );
+    inc0sbox_ = new uiCheckBox( histgrp, "Zeros" );
+    inc0sbox_->attach( alignedBelow, clipfld_ );
+    inc0sbox_->setHSzPol( uiObject::Small );
+    inc0sbox_->setToolTip( tr("Include value '0' for histogram display") );
+    inc0sbox_->activated.notify( histupdcb );
     histgrp->setStretch( 2, 1 );
     histgrp->attach( stretchedBelow, infofld_ );
 
@@ -102,6 +141,7 @@ uiSEGYReadStarter::~uiSEGYReadStarter()
 {
     delete filenamepopuptimer_;
     delete filereadopts_;
+    deepErase( scaninfo_ );
     delete &clipsampler_;
 }
 
@@ -110,8 +150,10 @@ FullSpec uiSEGYReadStarter::fullSpec() const
 {
     const SEGY::ImpType& imptyp = impType();
     FullSpec ret( imptyp.geomType(), imptyp.isVSP() );
+    ret.rev0_ = loaddef_.revision_ == 0;
     ret.spec_ = filespec_;
     ret.pars_ = filepars_;
+    ret.zinfeet_ = infeet_;
     if ( filereadopts_ )
 	ret.readopts_ = *filereadopts_;
     return ret;
@@ -122,25 +164,30 @@ void uiSEGYReadStarter::clearDisplay()
 {
     infofld_->clearInfo();
     ampldisp_->setEmpty();
-    setExamineStatus();
+    setButtonStatuses();
 }
 
 
 void uiSEGYReadStarter::setImpTypIdx( int tidx )
 {
+    if ( !typfld_ )
+    {
+	pErrMsg( "Cannot set type if fixed" );
+	return;
+    }
+
     typfld_->setTypIdx( tidx ); // should trigger its callback
 }
 
 
 const SEGY::ImpType& uiSEGYReadStarter::impType() const
 {
-    return typfld_->impType();
+    return typfld_ ? typfld_->impType() : fixedimptype_;
 }
 
 
-void uiSEGYReadStarter::execNewScan( bool fixedloaddef )
+void uiSEGYReadStarter::execNewScan( bool fixedloaddef, bool full )
 {
-    userfilename_ = inpfld_->fileName();
     deepErase( scaninfo_ );
     clipsampler_.reset();
     clearDisplay();
@@ -148,21 +195,23 @@ void uiSEGYReadStarter::execNewScan( bool fixedloaddef )
 	return;
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    if ( !scanFile(filespec_.fileName(0),fixedloaddef) )
+    if ( !scanFile(filespec_.fileName(0),fixedloaddef,full) )
 	return;
 
     const int nrfiles = filespec_.nrFiles();
     for ( int idx=1; idx<nrfiles; idx++ )
-	scanFile( filespec_.fileName(idx), true );
+	scanFile( filespec_.fileName(idx), true, full );
 
     displayScanResults();
 }
 
 
-void uiSEGYReadStarter::setExamineStatus()
+void uiSEGYReadStarter::setButtonStatuses()
 {
-    int nrfiles = scaninfo_.size();
+    const int nrfiles = scaninfo_.size();
     examinebut_->setSensitive( nrfiles > 0 );
+    fullscanbut_->setSensitive( nrfiles > 0 );
+    editbut_->setSensitive( nrfiles > 0 );
     examinebut_->setToolTip( nrfiles > 1 ? tr("Examine first input file")
 					 : tr("Examine input file") );
 }
@@ -182,27 +231,83 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 }
 
 
+static bool unsupported_2d_warning_done = false;
+
 void uiSEGYReadStarter::typChg( CallBacker* )
 {
-    infofld_->setImpTypIdx( impType().tidx_ );
+    const SEGY::ImpType& imptyp = impType();
+    infofld_->setImpTypIdx( imptyp.tidx_ );
+    if ( Seis::is2D(imptyp.geomType()) && !unsupported_2d_warning_done )
+    {
+	uiMSG().warning( "2D import is not supported in this preview release."
+	     "\n\nWe are working hard to make it work"
+	     "\nand get it into the coming 'real' 6.0 release."
+	     "\n\nPlease use the old Survey-Import-Seismics tools for now." );
+	unsupported_2d_warning_done = true;
+    }
 }
 
 
 void uiSEGYReadStarter::inpChg( CallBacker* cb )
 {
-    const BufferString newusrfnm = inpfld_->fileName();
-    if ( newusrfnm.isEmpty() )
-    {
-	if ( cb )
-	    clearDisplay();
+    handleNewInputSpec( false );
+}
+
+
+void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
+{
+    handleNewInputSpec( true );
+}
+
+
+#define mGetInpFile(varnm,what_to_do_if_not_exists) \
+
+
+void uiSEGYReadStarter::editFile( CallBacker* )
+{
+    const BufferString fnm( inpfld_->fileName() );
+    if ( !File::exists(fnm) ) \
 	return;
+
+    uiSEGYFileManip dlg( this, fnm );
+    if ( dlg.go() )
+    {
+	inpfld_->setFileName( dlg.fileName() );
+	inpChg( 0 );
+    }
+}
+
+
+static bool unsupported_multi_warning_done = false;
+
+
+void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
+{
+    const BufferString newusrfnm( inpfld_->fileName() );
+    if ( newusrfnm.isEmpty() )
+	{ clearDisplay(); return; }
+
+    if ( fullscan || newusrfnm != userfilename_ )
+    {
+	userfilename_ = newusrfnm;
+	execNewScan( false, fullscan );
     }
 
-    if ( newusrfnm != userfilename_ )
+    uiString txt;
+    const int nrfiles = scaninfo_.size();
+    if ( nrfiles > 1 )
     {
-	userfilename_ = inpfld_->fileName();
-	execNewScan( false );
+	txt = tr( "[%1 files]" ); txt.arg( nrfiles );
+	if ( !unsupported_multi_warning_done )
+	{
+	    uiMSG().warning( "Multi-file import does not work yet in this"
+	     " preview release.\n\nWe are working hard to make it work"
+	     "\nand get it into the coming 'real' 6.0 release."
+	     "\n\nPlease use the old Survey-Import-Seismics tools for now." );
+	    unsupported_multi_warning_done = true;
+	}
     }
+    nrfileslbl_->setText( txt );
 }
 
 
@@ -226,22 +331,52 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
     if ( nrvals < 1 )
 	{ ampldisp_->setEmpty(); return; }
 
-    const float* samps = clipsampler_.vals();
-    ampldisp_->setData( samps, nrvals );
-
+    const float* csvals = clipsampler_.vals();
     float clipval = clipfld_->getFValue();
     const bool useclip = !mIsUdf(clipval) && clipval > 0.05;
+    const bool rm0 = !inc0sbox_->isChecked();
+    if ( !useclip && !rm0 )
+	{ ampldisp_->setData( csvals, nrvals ); return; }
+
+    TypeSet<float> vals;
+    if ( !rm0 )
+	vals.append( csvals, nrvals );
+    else
+    {
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    const float val = csvals[idx];
+	    if ( val != 0.f )
+		vals += val;
+	}
+	nrvals = vals.size();
+    }
+
+    if ( nrvals < 1 )
+	{ ampldisp_->setEmpty(); return; }
+
     if ( useclip )
     {
 	clipval *= 0.01f;
 	DataClipper clipper;
-	clipper.putData( samps, nrvals );
+	clipper.putData( vals.arr(), nrvals );
 	Interval<float> rg;
 	clipper.calculateRange( clipval, rg );
-	ampldisp_->setDrawRange( rg );
+	TypeSet<float> oldvals( vals );
+	vals.setEmpty();
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    const float val = oldvals[idx];
+	    if ( rg.includes(val,false) )
+		vals += val;
+	}
+
+	nrvals = vals.size();
+	if ( nrvals < 1 )
+	    { ampldisp_->setEmpty(); return; }
     }
 
-    ampldisp_->useDrawRange( useclip );
+    ampldisp_->setData( vals.arr(), nrvals );
 }
 
 
@@ -320,7 +455,8 @@ bool uiSEGYReadStarter::getExistingFileName( BufferString& fnm, bool emiterr )
     return false; \
 }
 
-bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef )
+bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef,
+				  bool full )
 {
     const bool isfirst = scaninfo_.isEmpty();
     od_istream strm( fnm );
@@ -335,89 +471,108 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, bool fixedloaddef )
     if ( strm.isBad() )
 	mErrRetFileName( "File:\n%1\nhas no binary header" )
 
+    SEGY::ScanInfo* si = new SEGY::ScanInfo( fnm );
+    SEGY::BasicFileInfo& bfi = si->basicinfo_;
     bool infeet = false;
-    if ( isfirst )
-    {
-	if ( !fixedloaddef )
-	{
-	    binhdr.guessIsSwapped();
-	    loaddef_.hdrsswapped_ = loaddef_.dataswapped_ = binhdr.isSwapped();
-	}
-	if ( loaddef_.hdrsswapped_ )
-	    binhdr.unSwap();
-	if ( !binhdr.isRev0() )
-	    binhdr.skipRev1Stanzas( strm );
-	infeet = binhdr.isInFeet();
 
-	if ( !fixedloaddef )
-	{
-	    loaddef_.ns_ = binhdr.nrSamples();
-	    if ( loaddef_.ns_ < 1 || loaddef_.ns_ > mMaxReasonableNS )
-		loaddef_.ns_ = -1;
-	    loaddef_.revision_ = binhdr.revision();
-	    short fmt = binhdr.format();
-	    if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
-		fmt = 1;
-	    loaddef_.format_ = fmt;
-	}
+    if ( !fixedloaddef )
+	binhdr.guessIsSwapped();
+    bfi.hdrsswapped_ = bfi.dataswapped_ = binhdr.isSwapped();
+    if ( (fixedloaddef && loaddef_.hdrsswapped_)
+	|| (!fixedloaddef && bfi.hdrsswapped_) )
+	binhdr.unSwap();
+    if ( !binhdr.isRev0() )
+	binhdr.skipRev1Stanzas( strm );
+    infeet = binhdr.isInFeet();
+
+    bfi.ns_ = binhdr.nrSamples();
+    if ( bfi.ns_ < 1 || bfi.ns_ > mMaxReasonableNS )
+	bfi.ns_ = -1;
+    bfi.revision_ = binhdr.revision();
+    short fmt = binhdr.format();
+    if ( fmt != 1 && fmt != 2 && fmt != 3 && fmt != 5 && fmt != 8 )
+	fmt = 1;
+    bfi.format_ = fmt;
+    if ( !completeFileInfo(strm,bfi,isfirst) )
+	return false;
+
+    if ( isfirst && !fixedloaddef )
+    {
+	static_cast<SEGY::BasicFileInfo&>(loaddef_) = bfi;
+	completeLoadDef( strm );
     }
 
-    SEGY::ScanInfo* si = new SEGY::ScanInfo( fnm );
-    if ( !obtainScanInfo(*si,strm,isfirst) )
+    if ( !obtainScanInfo(*si,strm,isfirst,full) )
 	{ delete si; return false; }
 
     si->infeet_ = infeet;
+    si->fullscan_ = full;
     scaninfo_ += si;
     return true;
 }
 
 
 bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
-					bool isfirst )
+					bool isfirst, bool full )
 {
-    if ( isfirst )
-    {
-	if ( !completeLoadDef(strm) )
-	    return false;
-    }
+    if ( !completeFileInfo(strm,si.basicinfo_,isfirst) )
+	return false;
 
     si.getFromSEGYBody( strm, loaddef_, isfirst,
-			Seis::is2D(typfld_->impType().geomType()),
-			clipsampler_ );
+			Seis::is2D(impType().geomType()),
+			clipsampler_, full, this );
     return true;
 }
 
 
-bool uiSEGYReadStarter::completeLoadDef( od_istream& strm )
+#define mErrRetResetStream(str) { \
+    strm.setPosition( firsttrcpos ); \
+    if ( emiterr ) \
+	mErrRetFileName( str ) \
+    return false; }
+
+bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
+				      SEGY::BasicFileInfo& bfi, bool emiterr )
 {
     const bool isfirst = true; // for mErrRetFileName
     const od_stream::Pos firsttrcpos = strm.position();
 
+    SEGY::LoadDef ld;
     PtrMan<SEGY::TrcHeader> thdr = loaddef_.getTrcHdr( strm );
     if ( !thdr )
-	mErrRetFileName( "File:\n%1\nNo traces found" )
+	mErrRetResetStream( "File:\n%1\nNo traces found" )
 
-    if ( loaddef_.ns_ < 1 )
+    if ( bfi.ns_ < 1 )
     {
-	loaddef_.ns_ = (int)thdr->nrSamples();
-	if ( loaddef_.ns_ > mMaxReasonableNS )
-	    mErrRetFileName(
+	bfi.ns_ = (int)thdr->nrSamples();
+	if ( bfi.ns_ > mMaxReasonableNS )
+	    mErrRetResetStream(
 		    "File:\n%1\nNo proper 'number of samples per trace' found" )
     }
 
-    SeisTrcInfo ti; thdr->fill( ti, loaddef_.coordscale_ );
-    if ( mIsUdf(loaddef_.sampling_.step) )
-	loaddef_.sampling_ = ti.sampling;
-
-    if ( veryfirstscan_ )
+    if ( mIsUdf(bfi.sampling_.step) )
     {
-	//TODO do magic things to find byte positions
-	veryfirstscan_ = false;
+	SeisTrcInfo ti; thdr->fill( ti, 1.0f );
+	bfi.sampling_ = ti.sampling;
     }
 
     strm.setPosition( firsttrcpos );
-    infofld_->useLoadDef();
     return true;
+}
+
+
+void uiSEGYReadStarter::completeLoadDef( od_istream& strm )
+{
+    if ( !veryfirstscan_ )
+	return;
+
+    veryfirstscan_ = false;
+    const od_stream::Pos firsttrcpos = strm.position();
+
+    //TODO do magic things to find byte positions
+
+    strm.setPosition( firsttrcpos );
+    infofld_->useLoadDef();
 }
 
 
@@ -426,7 +581,7 @@ void uiSEGYReadStarter::displayScanResults()
     if ( scaninfo_.isEmpty() )
 	{ clearDisplay(); return; }
 
-    setExamineStatus();
+    setButtonStatuses();
     updateAmplDisplay( 0 );
 
     SEGY::ScanInfo si( *scaninfo_[0] );
@@ -443,8 +598,21 @@ bool uiSEGYReadStarter::commit()
     if ( filespec_.isEmpty() )
 	return false;
 
-    // fill filepars_, filereadopts_
-    pErrMsg( "TODO: finish commit" );
+    filepars_.ns_ = loaddef_.ns_;
+    filepars_.fmt_ = loaddef_.format_;
+    filepars_.setSwap( loaddef_.hdrsswapped_, loaddef_.dataswapped_ );
+
+    filereadopts_ = new FileReadOpts( impType().geomType() );
+    filereadopts_->thdef_ = *loaddef_.hdrdef_;
+    filereadopts_->coordscale_ = loaddef_.coordscale_;
+    filereadopts_->timeshift_ = loaddef_.sampling_.start;
+    filereadopts_->sampleintv_ = loaddef_.sampling_.step;
+
+    //TODO
+    // filereadopts_->icdef_ ?
+    // filereadopts_->psdef_ ?
+    // filereadopts_->coorddef_ in next window
+
     return true;
 }
 

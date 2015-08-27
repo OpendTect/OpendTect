@@ -349,7 +349,7 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
     {
 	int bs = 0;
 	if ( iop ) iop->get( FilePars::sKeyByteSwap(), bs );
-	const char* strs[] = { "No", "Only data", "All", 0 };
+	const char* strs[] = { "No", "Only data", "All", "Only headers", 0 };
 	const char* txt = forread ? "Bytes swapped" : "Swap bytes";
 	byteswapfld_ = new uiGenInput( grp, txt, StringListInpSpec(strs) );
 	byteswapfld_->setValue( bs );

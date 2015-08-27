@@ -23,7 +23,7 @@ namespace SEGY
 {
 
 mExpClass(uiSEGY) ImpType
-{
+{ mODTextTranslationClass(ImpType)
 public:
 
 			ImpType(bool isvsp=false);
@@ -41,6 +41,8 @@ public:
 
     int			tidx_;
     TypeSet<int>	types_;
+
+    uiString		dispText() const;
 
 private:
 

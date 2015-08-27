@@ -266,7 +266,8 @@ bool acceptOK( CallBacker* )
     }
 
     const char* fnm = saveasfld_->isChecked() ? saveasfld_->fileName() : 0;
-    uiSEGYScanDlg::presentReport( parent(), *scanner_, fnm );
+    IOPar rep( "SEG-Y scan report" ); scanner_->getReport( rep );
+    uiSEGY::displayReport( parent(), rep, fnm );
     return true;
 }
 

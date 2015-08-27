@@ -280,9 +280,8 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     BufferString setupnm( "Exp " );
     setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Lines to export"),
-						    OD::ChooseAtLeastOne );
-    lnmsfld_ = llb->box();
+    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Lines to export") );
+    lnmsfld_ = new uiListBox( this, su );
     SeisIOObjInfo sii( inioobj_ );
     BufferStringSet lnms;
     sii.getLineNames( lnms );
@@ -300,7 +299,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     uiFileInput::Setup fisu( fp.fullPath() );
     fisu.forread( false ).objtype( tr("SEG-Y") );
     fnmfld_ = new uiFileInput( this, txt, fisu );
-    fnmfld_->attach( alignedBelow, llb );
+    fnmfld_->attach( alignedBelow, lnmsfld_ );
 }
 
 

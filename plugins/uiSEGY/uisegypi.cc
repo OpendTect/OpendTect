@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyresortdlg.h"
 #include "uiwellimpsegyvsp.h"
 #include "uisegyreadstarter.h"
+#include "uisegyimptype.h"
 
 #include "uiseisfileman.h"
 #include "uisurvinfoed.h"
@@ -90,7 +91,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
     uiSeisFileMan::BrowserDef* bdef = new uiSeisFileMan::BrowserDef(
 				SEGYDirectSeisTrcTranslator::translKey() );
-    bdef->tooltip_ = uiString( "Change file/directory names in SEG-Y file" );
+    bdef->tooltip_ = uiString( "Change file/directory names in SEG-Y file %1" );
     bdef->cb_ = muiSEGYMgrCB(edFiles);
     uiSeisFileMan::addBrowser( bdef );
 
@@ -144,10 +145,8 @@ void uiSEGYMgr::updateMenu( CallBacker* )
 
 void uiSEGYMgr::updateToolBar( CallBacker* )
 {
-    /*
     mnumgr_.dtectTB()->addButton( "segy", tr("SEG-Y import"),
 				  mCB(this,uiSEGYMgr,fullWizCB) );
-				  */
 }
 
 
@@ -188,7 +187,8 @@ void uiSEGYMgr::exp3DPSCB( CallBacker* )
 
 void uiSEGYMgr::impVSPCB( CallBacker* )
 {
-    uiWellImportSEGYVSP dlg( appl_ );
+    const SEGY::ImpType imptyp( true );
+    uiSEGYReadStarter dlg( ODMainWin(), &imptyp );
     dlg.go();
 }
 

@@ -16,7 +16,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_istream.h"
 #include "datainterp.h"
 #include "dataclipper.h"
+#include "survinfo.h"
+#include "executor.h"
 
+#include "uitaskrunner.h"
 
 
 void SEGY::BasicFileInfo::init()
@@ -82,7 +85,7 @@ void SEGY::LoadDef::reInit( bool alsohdef )
 {
     init();
 
-    coordscale_ = 1.0f;
+    coordscale_ = mUdf(float);
     if ( alsohdef )
 	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
 }
@@ -102,7 +105,7 @@ SEGY::TrcHeader* SEGY::LoadDef::getTrcHdr( od_istream& strm ) const
 	return 0;
 
     SEGY::TrcHeader* th = new SEGY::TrcHeader(
-			 (unsigned char*)thbuf, *hdrdef_, !isRev0(), true );
+			 (unsigned char*)thbuf, *hdrdef_, isRev0(), true );
     th->initRead();
     return th;
 }
@@ -150,7 +153,7 @@ SEGY::ScanInfo::ScanInfo( const char* fnm )
 
 void SEGY::ScanInfo::reInit()
 {
-    usable_ = false;
+    usable_ = fullscan_ = false;
     nrtrcs_ = 0;
     infeet_ = false;
     inls_ = Interval<int>( mUdf(int), 0 );
@@ -163,8 +166,60 @@ void SEGY::ScanInfo::reInit()
 }
 
 
+namespace SEGY
+{
+
+class FullUIScanner : public ::Executor
+{ mODTextTranslationClass(FullUIScanner)
+public:
+
+FullUIScanner( ScanInfo& si, od_istream& strm, const LoadDef& def,
+			char* buf, float* vals, DataClipSampler& cs )
+    : ::Executor("SEG-Y scanner")
+    , si_(si) , strm_(strm), def_(def) , buf_(buf) , vals_(vals) , cs_(cs)
+    , nrdone_(1)
+{
+    totalnr_ = def_.nrTracesIn( strm );
+}
+
+virtual uiString uiNrDoneText() const	{ return tr("Traces handled"); }
+virtual od_int64 nrDone() const		{ return nrdone_; }
+virtual od_int64 totalNr() const	{ return totalnr_; }
+
+virtual uiString uiMessage() const
+{
+    uiString ret( tr("Scanning traces in %1") );
+    ret.arg( strm_.fileName() );
+    return ret;
+}
+
+virtual int nextStep()
+{
+    for ( int idx=0; idx<10; idx++ )
+    {
+	if ( !si_.addTrace(strm_,true,buf_,vals_,def_,cs_) )
+	    return Finished();
+	nrdone_++;
+    }
+    return MoreToDo();
+}
+
+    ScanInfo&		si_;
+    od_istream&		strm_;
+    const LoadDef&	def_;
+    char*		buf_;
+    float*		vals_;
+    DataClipSampler&	cs_;
+    od_int64		nrdone_, totalnr_;
+
+}; // end class FullUIScanner
+
+} // namespace SEGY
+
+
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
-				bool isfirst, bool is2d, DataClipSampler& cs )
+				bool isfirst, bool is2d, DataClipSampler& cs,
+				bool full, uiParent* uiparent )
 {
     const od_istream::Pos startpos = strm.position();
     nrtrcs_ = def.nrTracesIn( strm, startpos );
@@ -195,6 +250,14 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     offsrg_.start = offsrg_.stop = ti.offset;
     addValues( cs, vals, def.ns_ );
 
+    if ( full )
+    {
+	FullUIScanner fscnnr( *this, strm, def, buf, vals, cs );
+	uiTaskRunner tr( uiparent );
+	tr.execute( fscnnr );
+	return;
+    }
+
     if ( isfirst )
     {
 	while ( true )
@@ -208,16 +271,28 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 	    const bool founddata = cs.nrVals() > 1000;
 	    if ( foundranges && founddata )
 		break;
+
 	}
     }
 
+    // first 10 traces
+    for ( int idx=0; idx<9; idx++ )
+	if ( !addTrace(strm,true,buf,vals,def,cs) )
+	    break;
+
+    // 10 in the middle
     def.goToTrace( strm, startpos, nrtrcs_ / 2 );
     for ( int idx=0; idx<10; idx++ )
 	if ( !addTrace(strm,false,buf,vals,def,cs) )
 	    break;
 
-    def.goToTrace( strm, startpos, nrtrcs_ - 1 );
-    addTrace( strm, false, buf, vals, def, cs );
+    // last 10 traces
+    for ( int idx=0; idx<10; idx++ )
+    {
+	def.goToTrace( strm, startpos, nrtrcs_ - 1 - idx );
+	if ( !addTrace(strm,false,buf,vals,def,cs) )
+	    break;
+    }
 }
 
 

@@ -294,7 +294,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     if ( !morebut_ || !morebut_->isChecked() )
     {
 	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	if ( is2d && geomid != Survey::GeometryManager::cUndefGeomID() )
 	{
 	    const bool overwrite =
 		uiMSG().askGoOn( tr("Geometry of Line '%1' is already present."
@@ -371,7 +371,8 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     SEGY::TxtHeader::info2D() = is2d;
     PtrMan<SeisTrcWriter> wrr = new SeisTrcWriter( &outioobj );
-    SeisStdImporterReader* rdr = new SeisStdImporterReader( inioobj, "SEG-Y" );
+    PtrMan<SeisStdImporterReader> rdr
+			= new SeisStdImporterReader( inioobj, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );
     rdr->setResampler( transffld_->getResampler() );
     rdr->setScaler( transffld_->getScaler() );
@@ -406,7 +407,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	warns.add( transl->warnings(), false );
     imp.erase(); wrr.erase(); // closes output cube
 
-    displayWarnings( warns );
+    uiSEGY::displayWarnings( warns );
     if ( rv && !is2d && ioobjinfo )
 	rv = ioobjinfo->provideUserInfo();
 

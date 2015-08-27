@@ -248,8 +248,8 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     const CallBack addcb( mCB(this,uiSEGYFileManip,addReq) );
     const CallBack edcb( mCB(this,uiSEGYFileManip,edReq) );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( grp, tr("Trace headers") );
-    avtrchdrsfld_ = llb->box();
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Trace headers") );
+    avtrchdrsfld_ = new uiListBox( grp, su );
     avtrchdrsfld_->setHSzPol( uiObject::Small );
     const SEGY::HdrDef&	def = calcset_.hdrDef();
     for ( int idx=0; idx<def.size(); idx++ )
@@ -259,10 +259,10 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 
     uiToolButton* addbut = new uiToolButton( grp, uiToolButton::RightArrow,
 					    tr("Add to calculated list"),
-                                            addcb );
-    addbut->attach( centeredRightOf, llb );
+					    addcb );
+    addbut->attach( centeredRightOf, avtrchdrsfld_ );
     trchdrfld_ = new uiListBox( grp, "Defined calculations" );
-    trchdrfld_->attach( rightTo, llb );
+    trchdrfld_->attach( rightTo, avtrchdrsfld_ );
     trchdrfld_->attach( ensureRightOf, addbut );
     trchdrfld_->selectionChanged.notify( mCB(this,uiSEGYFileManip,selChg) );
     trchdrfld_->doubleClicked.notify( edcb );
@@ -320,7 +320,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     trcnrfld_->setValue( 1 );
     trcnrfld_->valueChanging.notify( mCB(this,uiSEGYFileManip,trcNrChg) );
 
-    grp->setHAlignObj( llb );
+    grp->setHAlignObj( avtrchdrsfld_ );
     return grp;
 }
 
@@ -436,9 +436,9 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     , calcset_(cs)
 {
     const CallBack cb( mCB(this,uiSEGYFileManipHdrCalcEd,insTxt) );
-    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Available"),
-			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
-    hdrfld_ = llb->box();
+    uiListBox::Setup su( OD::ChooseOnlyOne, tr("Available"),
+			 uiListBox::AboveMid );
+    hdrfld_ = new uiListBox( this, su );
     hdrfld_->addItem( calcset_.trcIdxEntry().name() );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
 	hdrfld_->addItem( calcset_.hdrDef()[idx]->name() );
@@ -447,7 +447,7 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
 
     uiToolButton* addbut = new uiToolButton( this, uiToolButton::RightArrow,
 					     "Insert in formula", cb );
-    addbut->attach( centeredRightOf, llb );
+    addbut->attach( centeredRightOf, hdrfld_ );
     formfld_ = new uiLineEdit( this, "Formula" );
     formfld_->setText( hc_.def_ );
     formfld_->attach( rightOf, addbut );
