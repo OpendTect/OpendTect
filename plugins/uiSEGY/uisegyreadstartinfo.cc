@@ -306,14 +306,10 @@ void uiSEGYReadStartInfo::showRelevantInfo()
 	ky1ittxt = is2d ? "Trace number range" : "Inline range";
 	ky2ittxt = is2d ? "Ref/SP number range" : "Crossline range";
 	if ( isps )
-	    offsittxt = "Offset range";
+	    { offsittxt = "Offset range"; offsustxt = sBytePos; }
 
 	if ( isrev0 )
-	{
 	    xustxt = yustxt = ky1ustxt = ky2ustxt = sBytePos;
-	    if ( isps )
-		offsustxt = sBytePos;
-	}
     }
 
     setCellTxt( mItemCol, mXRow, xittxt );

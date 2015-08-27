@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegyreadfinisher.h"
 #include "uisegyimptype.h"
 #include "uisegyexamine.h"
+#include "uisegymanip.h"
 #include "uisegydef.h"
 #include "uifileinput.h"
 #include "uiseparator.h"
@@ -55,6 +56,10 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
     inpfld_ = new uiFileInput( this, "Input file(s) (*=wildcard)",
 				fisu );
     inpfld_->valuechanged.notify( mCB(this,uiSEGYReadStarter,inpChg) );
+    editbut_ = uiButton::getStd( this, uiButton::Edit,
+			         mCB(this,uiSEGYReadStarter,editFile), false );
+    editbut_->attach( rightOf, inpfld_ );
+    editbut_->setSensitive( false );
 
     if ( imptyp )
 	fixedimptype_ = *imptyp;
@@ -242,12 +247,33 @@ void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
 }
 
 
+#define mGetInpFile(varnm,what_to_do_if_not_exists) \
+    const BufferString varnm( inpfld_->fileName() ); \
+    if ( !File::exists(varnm) ) \
+	{ what_to_do_if_not_exists; }
+
+
+void uiSEGYReadStarter::editFile( CallBacker* )
+{
+    mGetInpFile( fnm, return )
+    uiSEGYFileManip dlg( this, fnm );
+    if ( dlg.go() )
+    {
+	inpfld_->setFileName( dlg.fileName() );
+	inpChg( 0 );
+    }
+}
+
+
 
 void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
 {
-    const BufferString newusrfnm = inpfld_->fileName();
-    if ( newusrfnm.isEmpty() )
+    bool fileexists = true;
+    mGetInpFile( newusrfnm, fileexists = false )
+    editbut_->setSensitive( fileexists );
+    if ( !fileexists )
 	{ clearDisplay(); return; }
+    
 
     if ( fullscan || newusrfnm != userfilename_ )
     {

@@ -64,6 +64,7 @@ protected:
     uiHistogramDisplay*	ampldisp_;
     uiButton*		examinebut_;
     uiButton*		fullscanbut_;
+    uiButton*		editbut_;
     uiSpinBox*		examinenrtrcsfld_;
     uiSpinBox*		clipfld_;
     uiCheckBox*		inc0sbox_;
@@ -95,6 +96,7 @@ protected:
     void		initWin(CallBacker*);
     void		typChg(CallBacker*);
     void		inpChg(CallBacker*);
+    void		editFile(CallBacker*);
     void		fullScanReq(CallBacker*);
     void		defChg( CallBacker* )		{ execNewScan(true); }
     void		examineCB(CallBacker*);
