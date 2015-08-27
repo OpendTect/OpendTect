@@ -159,6 +159,7 @@ void PointSetDisplay::update( TaskRunner* tr )
 
     PointSetDisplayUpdater displayupdater( *pointset_, *data_, *dpsdispprop_ );
     TaskRunner::execute( tr, displayupdater );
+    requestSingleRedraw();
 }
 
 
