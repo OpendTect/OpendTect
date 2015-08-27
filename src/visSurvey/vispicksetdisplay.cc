@@ -94,7 +94,7 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     dragger_->setDraggerType( visBase::Dragger::Translate2D );
 
     const Coord3 defnormal(0,0,1);
-    const Coord3 desnormal = getNormal();
+    const Coord3 desnormal = getPlaneDataNormal();
     const float dotproduct = (float)defnormal.dot( desnormal );
 
     Coord3 rotationaxis(0,0,1);
@@ -659,7 +659,7 @@ bool PickSetDisplay::usePar( const IOPar& par )
 }
 
 
-const Coord3 PickSetDisplay::getNormal()
+const Coord3 PickSetDisplay::getPlaneDataNormal()
 {
     if ( !scene_ ) return Coord3(0,0,0);
 
