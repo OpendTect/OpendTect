@@ -80,7 +80,7 @@ public:
 					       int depthidx=0) const;
     void			setMasterCamera(Camera*);
     void			setHUDCamera(Camera*);
-    PolygonSelection*		copy();
+    PolygonSelection*		copy() const;
 
 protected:
 

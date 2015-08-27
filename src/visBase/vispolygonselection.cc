@@ -74,10 +74,10 @@ PolygonSelection::~PolygonSelection()
 }
 
 
-PolygonSelection* PolygonSelection::copy()
+PolygonSelection* PolygonSelection::copy() const
 {
     PolygonSelection* selection = new PolygonSelection();
-    selection->selector_ = new osgGeo::PolygonSelection( *this->selector_ );
+    selection->selector_ = new osgGeo::PolygonSelection( *selector_ );
     selection->setUTMCoordinateTransform( utm2disptransform_ );
     return selection;
 }
