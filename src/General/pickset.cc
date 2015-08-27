@@ -318,7 +318,15 @@ SetMgr::SetMgr( const char* nm )
     , locationChanged(this), setToBeRemoved(this)
     , setAdded(this), setChanged(this)
     , setDispChanged(this)
+    , undo_( *new Undo() )
 {}
+
+
+SetMgr::~SetMgr()
+{
+    undo_.removeAll();
+    delete &undo_;
+}
 
 
 void SetMgr::add( const MultiID& ky, Set* st )
@@ -350,6 +358,11 @@ void SetMgr::set( const MultiID& ky, Set* newset )
 	    add( ky, newset );
     }
 }
+
+
+
+const Undo& SetMgr::undo() const	{ return undo_; }
+Undo& SetMgr::undo()			{ return undo_; }
 
 
 const MultiID& SetMgr::id( int idx ) const
@@ -486,6 +499,153 @@ void SetMgr::objRm( CallBacker* cb )
 }
 
 
+class PickSetKnotUndoEvent: public UndoEvent
+{
+public:
+    enum  UnDoType	    { Insert, PolygonClose, Remove, Move };
+    PickSetKnotUndoEvent( UnDoType type, const MultiID& mid, int sidx,
+	const Pick::Location& pos )
+    { init( type, mid, sidx, pos ); }
+
+    void init( UnDoType type, const MultiID& mid, int sidx,
+	const Pick::Location& pos )
+    { 
+	type_ = type;
+	newpos_ = Coord3::udf();
+	pos_ = Coord3::udf();
+
+	mid_ = mid;
+	index_ = sidx;
+	Pick::SetMgr& mgr = Pick::Mgr();
+	Pick::Set& set = mgr.get(mid);
+
+	if ( type == UnDoType::Insert || type == UnDoType::PolygonClose )
+	{
+	    if ( &set && set.size()>index_ )
+		pos_ = set[index_];
+	}
+	else if ( type == UnDoType::Remove )
+	{
+	    pos_ = pos;
+	}
+	else if ( type == UnDoType::Move )
+	{
+	    if ( &set && set.size()>index_ )
+		pos_ = set[index_];
+	    newpos_ = pos;
+	}
+
+    }
+
+
+    const char* getStandardDesc() const
+    {
+	if ( type_ == UnDoType::Insert )
+	    return "Insert Knot";
+	else if ( type_ == UnDoType::Remove )
+	    return "Remove";
+	else if ( type_ == UnDoType::Move )
+	    return "move";
+
+	return "";
+    }
+
+
+    bool unDo()
+    {
+	Pick::SetMgr& mgr = Pick::Mgr();
+	Pick::Set& set = mgr.get(mid_);
+	if ( !&set ) return false;
+
+	if ( set.disp_.connect_==Pick::Set::Disp::Close &&
+	    index_ == set.size()-1 && type_ != UnDoType::Move )
+	    type_ = UnDoType::PolygonClose;
+
+	Pick::SetMgr::ChangeData::Ev ev = type_ == UnDoType::Move ? 
+	    Pick::SetMgr::ChangeData::Changed : 
+	    ( type_ == UnDoType::Remove 
+	    ? Pick::SetMgr::ChangeData::Added
+	    : Pick::SetMgr::ChangeData::ToBeRemoved );
+
+	Pick::SetMgr::ChangeData cd( ev, &set, index_ );
+
+	if ( type_ == UnDoType::Move )
+	{
+	   if ( &set && set.size()>index_  && pos_.pos_.isDefined() )
+	       set[index_] = pos_;
+	}
+	else if ( type_ == UnDoType::Remove )
+	{
+	   if ( pos_.pos_.isDefined() )
+	     set.insert( index_, pos_ );
+	}
+	else if ( type_ == UnDoType::Insert  )
+	{
+	    set.removeSingle( index_ );
+	}
+	else if ( type_ == UnDoType::PolygonClose )
+	{
+	    set.disp_.connect_ = Pick::Set::Disp::Open;
+	    set.removeSingle(index_);
+	}
+
+	mgr.reportChange( 0, cd );
+
+	return true;
+    }
+
+
+    bool reDo()
+    {
+	Pick::SetMgr& mgr = Pick::Mgr();
+	Pick::Set& set = mgr.get( mid_ );
+	if ( !&set ) return false;
+
+	Pick::SetMgr::ChangeData::Ev ev = type_==UnDoType::Move ?
+	    Pick::SetMgr::ChangeData::Changed :
+	    ( type_ == UnDoType::Remove
+	    ? Pick::SetMgr::ChangeData::ToBeRemoved
+	    : Pick::SetMgr::ChangeData::Added );
+
+	Pick::SetMgr::ChangeData cd( ev, &set, index_ );
+
+	if ( type_ == UnDoType::Move )
+	{
+	    if ( &set && set.size()>index_ && newpos_.pos_.isDefined() )
+		set[index_] = newpos_;
+	}
+	else if ( type_ == UnDoType::Remove )
+	{
+	    set.removeSingle( index_ );
+	}
+	else if ( type_ == UnDoType::Insert )
+	{
+	    if ( pos_.pos_.isDefined() )
+		set.insert( index_,pos_ );
+	}
+	else if ( type_ == UnDoType::PolygonClose )
+	{
+	    if ( pos_.pos_.isDefined() )
+	    {
+		set.disp_.connect_=Pick::Set::Disp::Close;
+		set.insert( index_, pos_ );
+	    }
+	}
+
+	mgr.reportChange( 0, cd );
+
+	return true;
+    }
+
+protected:
+    Pick::Location  pos_;
+    Pick::Location  newpos_;
+    MultiID	    mid_;
+    int	    	    index_;
+    UnDoType	    type_;
+};
+
+
 // Pick::Set
 DefineEnumNames( Set::Disp, Connection, 0, "Connection" )
 { "None", "Open", "Close", 0 };
@@ -588,6 +748,57 @@ bool Set::usePar( const IOPar& par )
     pars_.removeWithKey( sKeyMarkerType() );
     pars_.removeWithKey( sKeyConnect );
     return true;
+}
+
+
+void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
+{
+    Pick::SetMgr& mgr = Pick::Mgr();
+    const MultiID mid = mgr.get(*this);
+    if ( !mid.isEmpty() )
+    {
+	PickSetKnotUndoEvent::UnDoType undotype = 
+	    (PickSetKnotUndoEvent::UnDoType) type; 
+
+	const Pick::Location pos = type == EventType::Insert 
+				   ? Coord3::udf()
+				   : loc;
+	PickSetKnotUndoEvent* undo = new PickSetKnotUndoEvent( 
+	undotype, mid, idx, pos );
+	Pick::Mgr().undo().addEvent( undo, 0 );
+    }
+}
+
+
+void Set::insertWithUndo( int idx, const Pick::Location& loc )
+{
+    insert( idx, loc );
+    addUndoEvent( EventType::Insert, idx, loc );
+ }
+
+
+void Set::appendWithUndo( const Pick::Location& loc )
+{
+    *this += loc;
+    addUndoEvent( EventType::Insert, size()-1, loc );
+ }
+
+
+void Set::removeSingleWithUndo( int idx )
+{
+    const Pick::Location pos = (*this)[idx];
+    addUndoEvent( EventType::Remove, idx, pos );
+    removeSingle( idx );
+}
+
+
+void Set::moveWithUndo( int idx, const Pick::Location& undoloc, 
+    const Pick::Location& loc )
+{
+    if ( size()<idx ) return;
+    (*this)[idx] = undoloc;
+    addUndoEvent( EventType::Move, idx, loc );
+    (*this)[idx] = loc;
 }
 
 
