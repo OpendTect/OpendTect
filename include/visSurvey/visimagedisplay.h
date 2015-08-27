@@ -45,7 +45,8 @@ public:
 protected:
 
      visBase::VisualObject*	createLocation() const;
-     void			setPosition(int,const Pick::Location&);
+     void			setPosition(int,const Pick::Location&,
+					    bool add=false);
      void			removePosition(int idx);
      void			setImageDataFromFile(const char* fnm);
 
