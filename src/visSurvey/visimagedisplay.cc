@@ -139,7 +139,7 @@ int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 }
 
 
-void ImageDisplay::setPosition( int idx, const Pick::Location& pick )
+void ImageDisplay::setPosition( int idx, const Pick::Location& pick, bool add )
 {
     const int size = set_ ? set_->disp_.pixsize_ : 100;
 
