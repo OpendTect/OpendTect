@@ -105,13 +105,11 @@ public:
     static int			evUpdateSeedConMode();
     static int			evShowToolbar();
     static int			evMPEDispIntro();
-    static int			evMPEStoreEMObject();
+    static int			evStoreEMObject();
     static int			evSetupLaunched();
     static int			evSetupClosed();
     static int			evInitFromSession();
     static int			evHideToolBar();
-    static int			evSaveUnsavedEMObject();
-    static int			evRemoveUnsavedEMObject();
     static int			evRetrackInVolume();
 
     void			loadTrackSetupCB(CallBacker*);
@@ -121,7 +119,6 @@ public:
     bool 			readSetup(const MultiID&);
     bool			fireAddTreeObjectEvent();
 
-    void			saveUnsaveEMObject();
     void			handleKeyboardEvent(const KeyboardEvent&);
 
     void			fillPar(IOPar&) const;

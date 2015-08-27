@@ -41,24 +41,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "od_helpids.h"
 
-int uiMPEPartServer::evGetAttribData()		    { return 0; }
-int uiMPEPartServer::evStartSeedPick()		    { return 1; }
-int uiMPEPartServer::evEndSeedPick()		    { return 2; }
-int uiMPEPartServer::evAddTreeObject()		    { return 3; }
-int uiMPEPartServer::evShowToolbar()		    { return 4; }
-int uiMPEPartServer::evInitFromSession()	    { return 5; }
-int uiMPEPartServer::evRemoveTreeObject()	    { return 6; }
-int uiMPEPartServer::evSetupLaunched()		    { return 7; }
-int uiMPEPartServer::evSetupClosed()		    { return 8; }
-int uiMPEPartServer::evCreate2DSelSpec()	    { return 9; }
-int uiMPEPartServer::evMPEDispIntro()		    { return 10; }
-int uiMPEPartServer::evUpdateTrees()		    { return 11; }
-int uiMPEPartServer::evUpdateSeedConMode()	    { return 12; }
-int uiMPEPartServer::evMPEStoreEMObject()	    { return 13; }
-int uiMPEPartServer::evHideToolBar()		    { return 14; }
-int uiMPEPartServer::evSaveUnsavedEMObject()	    { return 15; }
-int uiMPEPartServer::evRemoveUnsavedEMObject()	    { return 16; }
-int uiMPEPartServer::evRetrackInVolume()	    { return 17; }
+int uiMPEPartServer::evGetAttribData()		{ return 0; }
+int uiMPEPartServer::evStartSeedPick()		{ return 1; }
+int uiMPEPartServer::evEndSeedPick()		{ return 2; }
+int uiMPEPartServer::evAddTreeObject()		{ return 3; }
+int uiMPEPartServer::evShowToolbar()		{ return 4; }
+int uiMPEPartServer::evInitFromSession()	{ return 5; }
+int uiMPEPartServer::evRemoveTreeObject()	{ return 6; }
+int uiMPEPartServer::evSetupLaunched()		{ return 7; }
+int uiMPEPartServer::evSetupClosed()		{ return 8; }
+int uiMPEPartServer::evCreate2DSelSpec()	{ return 9; }
+int uiMPEPartServer::evMPEDispIntro()		{ return 10; }
+int uiMPEPartServer::evUpdateTrees()		{ return 11; }
+int uiMPEPartServer::evUpdateSeedConMode()	{ return 12; }
+int uiMPEPartServer::evStoreEMObject()		{ return 13; }
+int uiMPEPartServer::evHideToolBar()		{ return 14; }
+int uiMPEPartServer::evRetrackInVolume()	{ return 18; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -1049,28 +1047,4 @@ bool uiMPEPartServer::usePar( const IOPar& par )
     }
 
     return res;
-}
-
-
-void uiMPEPartServer::saveUnsaveEMObject()
-{
-    for ( int idx=EM::EMM().nrLoadedObjects()-1; idx>=0; idx-- )
-    {
-	const EM::ObjectID objid = EM::EMM().objectID( idx );
-
-	if ( EM::EMM().getMultiID(objid).isEmpty() )
-	{
-	    uiString msg = tr("%1 is not saved.\n Click 'Save' to save %2"
-			      " to disk or\n click 'Remove' to remove "
-			      "permanently. ")
-			 .arg(EM::EMM().getObject(objid)->getTypeStr())
-			 .arg(EM::EMM().getObject( objid )->name());
-
-	    if ( uiMSG().askGoOn(msg,uiStrings::sSave(),
-				     uiStrings::sRemove()) )
-		sendEvent( uiMPEPartServer::evSaveUnsavedEMObject() );
-	    else
-		sendEvent( uiMPEPartServer::evRemoveUnsavedEMObject() );
-	}
-    }
 }
