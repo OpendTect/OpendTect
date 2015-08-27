@@ -157,6 +157,20 @@ public:
 					    TypeSet<TrcKey>&) const;
     void			setNodeLocked(const TrcKey&,bool locked);
     bool			isNodeLocked(const TrcKey&) const;
+    void			lockAll();
+    void			unlockAll();
+
+    void			setParentColor(const Color&);
+    const Color&		getParentColor() const;
+    void			setChildColor(const Color&);
+    const Color&		getChildColor() const;
+    void			setLockColor(const Color&);
+    const Color&		getLockColor() const;
+
+    virtual bool		setPos(const EM::PosID&,const Coord3&,
+				       bool addtohistory);
+    virtual bool		setPos(const EM::SectionID&,const EM::SubID&,
+				       const Coord3&,bool addtohistory);
 
 protected:
     void			fillPar(IOPar&) const;
@@ -170,6 +184,10 @@ protected:
     TrcKeySampling		trackingsamp_;
     Array2D<char>*		lockednodes_;
     Array2D<od_int64>*		parents_;
+
+    Color			parentcolor_;
+    Color			childcolor_;
+    Color			lockcolor_;
 
 public:
     /*mDeprecated*/ float	getZ(const BinID&) const;
