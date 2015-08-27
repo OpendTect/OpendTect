@@ -146,6 +146,9 @@ public:
     static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
     void		createAngleData(PreStackSyntheticData&,
 					const ObjectSet<RayTracer1D>&);
+    bool		disableSynthetic(const char*);
+
+    const SynthGenParams& genParams() const	{ return genparams_; }
 };
 
 #endif

@@ -41,8 +41,23 @@ mStruct(WellAttrib) SynthGenParams
     void		setDefaultValues();
 
 bool operator==( const SynthGenParams& gp )
-{ return isPreStack()==gp.isPreStack() && wvltnm_==gp.wvltnm_ &&
-         raypars_==gp.raypars_; }
+{
+    bool hassameanglerg = true;
+    bool hassameinput = true;
+    if ( gp.isPSBased() )
+    {
+	hassameinput = inpsynthnm_==gp.inpsynthnm_;
+	hassameanglerg = anglerg_==gp.anglerg_;
+    }
+
+    return isPreStack()==gp.isPreStack() && wvltnm_==gp.wvltnm_ &&
+	   raypars_==gp.raypars_ && hassameanglerg && hassameinput;
+}
+
+    bool		isPSBased() const
+			{ return synthtype_==AngleStack ||
+				 synthtype_==AVOGradient; }
+static const char*	sKeyInvalidInputPS()	{ return "Invalid Input"; }
 
 };
 

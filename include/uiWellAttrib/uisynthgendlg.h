@@ -30,7 +30,7 @@ class uiSeisWaveletSel;
 class uiSynthCorrectionsGrp;
 
 mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSynthGenDlg);
 public:
 				uiSynthGenDlg(uiParent*,StratSynth&);
 
@@ -74,6 +74,12 @@ protected:
     void			finaliseDone(CallBacker*);
 
 				~uiSynthGenDlg();
+
+    bool			prepareSyntheticToBeChanged(bool toberemoved);
+    void			angleInpChanged(CallBacker*);
+
+public:
+    CNotifier<uiSynthGenDlg,BufferString>* synthDisabled();
 };
 
 

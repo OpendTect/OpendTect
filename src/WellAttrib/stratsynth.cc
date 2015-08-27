@@ -314,6 +314,28 @@ bool StratSynth::removeSynthetic( const char* nm )
 }
 
 
+bool StratSynth::disableSynthetic( const char* nm )
+{
+    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    {
+	SyntheticData* sd = synthetics_[idx];
+	if ( sd->name() != nm )
+	    continue;
+
+	SynthGenParams sgp;
+	sd->fillGenParams( sgp );
+	if ( sgp.isPSBased() )
+	{
+	    sgp.inpsynthnm_ = SynthGenParams::sKeyInvalidInputPS();
+	    sd->useGenParams( sgp );
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
 SyntheticData* StratSynth::addSynthetic()
 {
     SyntheticData* sd = generateSD();

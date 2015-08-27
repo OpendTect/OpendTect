@@ -28,9 +28,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 static HiddenParam<uiSynthGenDlg,uiSynthSeisGrp*> synthseisset( 0 );
+static HiddenParam<uiSynthGenDlg, CNotifier<uiSynthGenDlg,BufferString>* >
+							synthdisablednot( 0 );
 
 #define mErrRet(s,act) \
-{ uiMsgMainWinSetter mws( mainwin() ); if ( s ) uiMSG().error(s); act; }
+{ uiMsgMainWinSetter mws( mainwin() );if ( !s.isEmpty() ) uiMSG().error(s);act;}
 
 uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     : uiDialog(p,uiDialog::Setup("Specify Synthetic Parameters",mNoDlgTitle,
@@ -44,6 +46,9 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , rtsel_(0)
     , uisynthcorrgrp_(0)
 {
+    CNotifier<uiSynthGenDlg,BufferString>* synthsdisablednot =
+	new CNotifier<uiSynthGenDlg,BufferString>( this );
+    synthdisablednot.setParam( this, synthsdisablednot );
     setOkText( "&Apply" );
     setCancelText( "&Dismiss" );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
@@ -79,7 +84,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     finpspec.setDefaultValue( Interval<float>(0,30) );
     angleinpfld_ = new uiGenInput( toppargrp, "Angle Range", finpspec );
     angleinpfld_->attach( alignedBelow, psselfld_ );
-    angleinpfld_->valuechanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
+    angleinpfld_->valuechanged.notify( mCB(this,uiSynthGenDlg,angleInpChanged));
 
     uiRayTracer1D::Setup rsu;
     rsu.dooffsets(true).convertedwaves(true);
@@ -112,6 +117,13 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 uiSynthGenDlg::~uiSynthGenDlg()
 {
     synthseisset.removeParam( this );
+    synthdisablednot.removeParam( this );
+}
+
+
+CNotifier<uiSynthGenDlg,BufferString>* uiSynthGenDlg::synthDisabled()
+{
+    return synthdisablednot.getParam( this );
 }
 
 
@@ -159,6 +171,8 @@ void uiSynthGenDlg::updateSynthNames()
 
 void uiSynthGenDlg::changeSyntheticsCB( CallBacker* )
 {
+    NotifyStopper parschgstopper( synthseisset.getParam(this)->parsChanged );
+    NotifyStopper angparschgstopper( angleinpfld_->valuechanged );
     FixedString synthnm( synthnmlb_->getText() );
     if ( synthnm.isEmpty() ) return;
     SyntheticData* sd = stratsynth_.getSynthetic( synthnm.buf() );
@@ -174,6 +188,25 @@ void uiSynthGenDlg::nameChanged( CallBacker* )
 }
 
 
+void uiSynthGenDlg::angleInpChanged( CallBacker* )
+{
+    NotifyStopper angparschgstopper( angleinpfld_->valuechanged );
+    const SynthGenParams& genparams = stratsynth_.genParams();
+    if ( genparams.anglerg_ == angleinpfld_->getFInterval() )
+	return;
+
+    if ( !getFromScreen() )
+    {
+	angleinpfld_->setValue( genparams.anglerg_ );
+	return;
+    }
+
+    BufferString nm;
+    stratsynth_.genParams().createName( nm );
+    namefld_->setText( nm );
+}
+
+
 void uiSynthGenDlg::parsChanged( CallBacker* )
 {
     if ( !getFromScreen() ) return;
@@ -183,21 +216,38 @@ void uiSynthGenDlg::parsChanged( CallBacker* )
 }
 
 
-void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
+bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
 {
-    if ( synthnmlb_->size()==1 )
-	{ uiMSG().error( "Cannot remove all synthetics" ); return; }
+    if ( synthnmlb_->size()==1 && toberemoved )
+	mErrRet( tr("Cannot remove all synthetics"), return false );
+
     const int selidx = synthnmlb_->currentItem();
     if ( selidx<0 )
-	return uiMSG().error( "No synthetic selected" );
+	mErrRet( tr("No synthetic selected"), return false );
 
+    const BufferString synthtochgnm( synthnmlb_->getText() );
+    const SyntheticData* sdtochg = stratsynth_.getSynthetic( synthtochgnm );
+    if ( !sdtochg )
+	mErrRet( tr("Cannot find synthetic data '%1'").arg(synthtochgnm),
+		 return false );
+
+    SynthGenParams sdtochgsgp;
+    sdtochg->fillGenParams( sdtochgsgp );
+    if ( !toberemoved )
+    {
+	SynthGenParams& cursgp = stratsynth_.genParams();
+	if ( cursgp == sdtochgsgp )
+	    return true;
+    }
+
+    BufferStringSet synthstobedisabled;
     int nrofzerooffs = 0;
-    BufferStringSet synthstoberemoved;
-    SynthGenParams sgptorem = stratsynth_.genParams();
     for ( int idx=0; idx<stratsynth_.nrSynthetics(); idx++ )
     {
 	SyntheticData* sd = stratsynth_.getSyntheticByIdx( idx );
-	if ( !sd || sd->isPS() ) continue;
+	if ( !sd || sd->isPS() )
+	    continue;
+
 	SynthGenParams sgp;
 	sd->fillGenParams( sgp );
 	if ( sgp.synthtype_ == SynthGenParams::ZeroOffset )
@@ -206,41 +256,46 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 	    continue;
 	}
 
-	if ( sgptorem.isPreStack() &&
-	     (sgp.synthtype_ == SynthGenParams::AngleStack ||
-	      sgp.synthtype_ == SynthGenParams::AVOGradient) &&
-	      sgp.inpsynthnm_ == sgptorem.name_ )
-	    synthstoberemoved.add( sgp.name_ );
+	if ( sdtochgsgp.isPreStack() && sgp.isPSBased() &&
+	     sgp.inpsynthnm_ == synthtochgnm )
+	    synthstobedisabled.add( sgp.name_ );
     }
 
-    if ( sgptorem.synthtype_ == SynthGenParams::ZeroOffset && nrofzerooffs<=1 )
+    if ( toberemoved &&
+	 sdtochgsgp.synthtype_==SynthGenParams::ZeroOffset && nrofzerooffs<=1 )
+	mErrRet( tr("Cannot remove %1 as there should be "
+		    "at least one 0 offset synthetic")
+		 .arg(sdtochgsgp.name_.buf()), return false );
+
+    if ( !synthstobedisabled.isEmpty() )
     {
-	BufferString msg( "Cannot remove ", sgptorem.name_.buf(),
-			  " as there should be atleast one 0 offset synthetic");
-	return uiMSG().error( msg );
+	uiString chgstr = toberemoved ? tr( "remove" ) : tr( "change" );
+	uiString msg = tr("%1 will become undetiable as it is dependent on '%2'"
+			  ". Do you want to %3 the synthetics?")
+			  .arg(synthstobedisabled.getDispString())
+			  .arg(sdtochgsgp.name_.buf()).arg(chgstr);
+	if ( !uiMSG().askGoOn(msg) )
+	    return false;
+
+	for ( int idx=0; idx<synthstobedisabled.size(); idx++ )
+	{
+	    const BufferString& synthnm = synthstobedisabled.get( idx );
+	    synthdisablednot.getParam(this)->trigger( synthnm );
+	}
     }
 
-    if ( synthstoberemoved.isEmpty() )
-    {
-	synthnmlb_->removeItem( synthnmlb_->indexOf(sgptorem.name_) );
-	synthRemoved.trigger( sgptorem.name_ );
+    return true;
+}
+
+
+void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
+{
+    if ( !prepareSyntheticToBeChanged(true) )
 	return;
-    }
 
-    BufferString msg( synthstoberemoved.getDispString(),
-		      " will also be removed as it is dependent on '",
-		      sgptorem.name_.buf() );
-    msg += "'. Do you want to remove the synthetics?";
-    synthstoberemoved.add( sgptorem.name_ );
-    if ( !uiMSG().askGoOn(msg) )
-	return;
-
-    for ( int idx=0; idx<synthstoberemoved.size(); idx++ )
-    {
-	const BufferString& synthnm = synthstoberemoved.get( idx );
-	synthnmlb_->removeItem( synthnmlb_->indexOf(synthnm) );
-	synthRemoved.trigger( synthnm );
-    }
+    const SynthGenParams& sgptorem = stratsynth_.genParams();
+    synthRemoved.trigger( sgptorem.name_ );
+    synthnmlb_->removeItem( synthnmlb_->indexOf(sgptorem.name_) );
 }
 
 
@@ -280,14 +335,24 @@ void uiSynthGenDlg::putToScreen()
     namefld_->setText( genparams.name_ );
 
     typefld_->setCurrentItem( SynthGenParams::toString(genparams.synthtype_) );
-    if ( genparams.synthtype_ == SynthGenParams::AngleStack ||
-	 genparams.synthtype_ == SynthGenParams::AVOGradient )
+    if ( genparams.isPSBased() )
     {
 	BufferStringSet psnms;
 	getPSNames( psnms );
 	psselfld_->box()->setEmpty();
-	psselfld_->box()->addItems( psnms );
-	psselfld_->box()->setCurrentItem( genparams.inpsynthnm_ );
+	if ( psnms.isPresent(genparams.inpsynthnm_) ||
+	     genparams.inpsynthnm_.isEmpty() )
+	{
+	    psselfld_->box()->addItems( psnms );
+	    psselfld_->box()->setCurrentItem( genparams.inpsynthnm_ );
+	    psselfld_->box()->setSensitive( true );
+	}
+	else
+	{
+	    psselfld_->box()->addItem( genparams.inpsynthnm_ );
+	    psselfld_->box()->setSensitive( false );
+	}
+
 	angleinpfld_->setValue( genparams.anglerg_ );
 	updateFieldSensitivity();
 	return;
@@ -302,24 +367,30 @@ bool uiSynthGenDlg::getFromScreen()
 {
     const char* nm = namefld_->text();
     if ( !nm )
-	mErrRet("Please specify a valid name",return false);
+	mErrRet(tr("Please specify a valid name"),return false);
 
     stratsynth_.genParams().raypars_.setEmpty();
 
     SynthGenParams& genparams = stratsynth_.genParams();
     genparams.synthtype_ = SynthGenParams::parseEnumSynthType(typefld_->text());
 
-    if ( genparams.synthtype_ == SynthGenParams::AngleStack ||
-	 genparams.synthtype_ == SynthGenParams::AVOGradient )
+    if ( genparams.isPSBased() )
     {
 	SynthGenParams::SynthType synthtype = genparams.synthtype_;
 	if ( psselfld_->box()->isEmpty() )
-	    mErrRet( "Cannot generate an angle stack synthetics without any "
-		     "NMO corrected PreStack.", return false );
+	    mErrRet( tr("Cannot generate an angle stack synthetics without any "
+			"NMO corrected PreStack."), return false );
+
+	if ( !psselfld_->box()->sensitive() )
+	    mErrRet( tr("Cannot change synthetic data as the dependent prestack"
+			" synthetic data has already been removed"),
+		     return false );
+
 	SyntheticData* inppssd = stratsynth_.getSynthetic(
 		psselfld_->box()->textOfItem(psselfld_->box()->currentItem()) );
 	if ( !inppssd )
-	    mErrRet("Problem with Input Prestack synthetic data",return false);
+	    mErrRet(tr("Problem with Input Prestack synthetic data"),
+		    return false);
 
 	inppssd->fillGenParams( genparams );
 	genparams.name_ = nm;
@@ -355,6 +426,9 @@ bool uiSynthGenDlg::acceptOK( CallBacker* )
     if ( !getFromScreen() )
 	return false;
 
+    if ( !prepareSyntheticToBeChanged(false) )
+	return false;
+
     BufferString synthname( synthnmlb_->getText() );
     synthChanged.trigger( synthname );
 
@@ -387,13 +461,15 @@ bool uiSynthGenDlg::genNewCB( CallBacker* )
 {
     if ( !getFromScreen() ) return false;
 
+    if ( stratsynth_.genParams().name_ == SynthGenParams::sKeyInvalidInputPS() )
+	mErrRet( tr("Please enter a different name"), return false );
+
     if ( synthnmlb_->isPresent(stratsynth_.genParams().name_) )
     {
-	BufferString msg( "Synthectic data of name '" );
-	msg += stratsynth_.genParams().name_;
-	msg += "' is already present. Please choose a different name";
-	uiMSG().error( msg );
-	return false;
+	uiString msg = tr("Synthectic data of name '%1' is already present. "
+			  "Please choose a different name")
+				.arg(stratsynth_.genParams().name_);
+	mErrRet( msg, return false );
     }
 
     genNewReq.trigger();

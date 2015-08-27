@@ -1401,6 +1401,14 @@ void uiStratSynthDisp::syntheticChanged( CallBacker* cb )
 }
 
 
+void uiStratSynthDisp::syntheticDisabled( CallBacker* cb )
+{
+    mCBCapsuleUnpack(BufferString,synthname,cb);
+    curSS().disableSynthetic( synthname );
+    altSS().disableSynthetic( synthname );
+}
+
+
 void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
 {
     BufferString curwvasdnm( currentwvasynthetic_
@@ -1440,6 +1448,8 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 		mCB(this,uiStratSynthDisp,syntheticRemoved) );
 	synthgendlg_->synthChanged.notify(
 		mCB(this,uiStratSynthDisp,syntheticChanged) );
+	synthgendlg_->synthDisabled()->notify(
+		mCB(this,uiStratSynthDisp,syntheticDisabled) );
 	synthgendlg_->genNewReq.notify(
 			    mCB(this,uiStratSynthDisp,genNewSynthetic) );
     }

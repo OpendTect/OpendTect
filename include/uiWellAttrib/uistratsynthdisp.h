@@ -209,6 +209,8 @@ public:
     void		reDisplayPostStackSynthetic(bool wva=true);
     void		makeInfoMsg(BufferString& msg,IOPar&);
     void		showInfoMsg(bool foralt);
+protected:
+    void		syntheticDisabled(CallBacker*);
 };
 
 

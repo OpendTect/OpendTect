@@ -1188,6 +1188,7 @@ void uiStratLayerModel::helpCB( CallBacker* )
 void uiStratLayerModel::syntheticsChangedCB( CallBacker* )
 {
     synthdisp_->fillPar( desc_.getWorkBenchParams() );
+    seqdisp_->setNeedSave( true );
 }
 
 
