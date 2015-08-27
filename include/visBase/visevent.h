@@ -38,7 +38,8 @@ class EventCatchHandler;
 class Detail;
 
 
-enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4 };
+enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4,
+			  MouseDoubleClick=5};
 
 mExpClass(visBase) EventInfo
 {
