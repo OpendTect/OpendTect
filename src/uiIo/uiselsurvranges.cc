@@ -504,7 +504,7 @@ uiSelHRange::uiSelHRange( uiParent* p, const TrcKeySampling& hslimit,
 
 TrcKeySampling uiSelHRange::getSampling() const
 {
-    TrcKeySampling hs( false );
+    TrcKeySampling hs( true );
     hs.set( inlfld_->getRange(), crlfld_->getRange() );
     return hs;
 }
