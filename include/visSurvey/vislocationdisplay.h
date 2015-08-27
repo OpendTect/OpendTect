@@ -93,6 +93,8 @@ protected:
 				LocationDisplay();
     virtual void		setPosition(int idx,
 	    				    const Pick::Location&);
+    virtual void		setPosition(int idx,const Pick::Location&,
+					    bool add) {};
     virtual void		removePosition(int);
     virtual void		removeAll();
 
@@ -102,6 +104,7 @@ protected:
 					const visBase::EventInfo& evi)const;
     virtual bool		isMarkerClick(
 					const visBase::EventInfo& evi)const;
+    virtual void		updateDragger() const {};
 
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
     void			triggerDeSel();
@@ -109,7 +112,7 @@ protected:
     virtual			~LocationDisplay();
 
     bool			addPick(const Coord3&,const Sphere&,bool);
-    void			removePick(int);
+    void			removePick(int,bool setundo=true);
 
     bool			getPickSurface(const visBase::EventInfo&,
 					   Coord3& pos, Coord3& normal) const;
@@ -148,6 +151,8 @@ protected:
     static const char*		sKeyMarkerSize();
 
     Sower*			sower_;
+    Coord3			undoloccoord_;
+    bool			undomove_;
 };
 
 };

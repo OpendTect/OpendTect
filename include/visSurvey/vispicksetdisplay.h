@@ -18,7 +18,8 @@ ________________________________________________________________________
 #include "vislocationdisplay.h"
 
 namespace visBase { class MarkerSet; class PolyLine;
-		    class DrawStyle; class RandomPos2Body; }
+		    class DrawStyle; class RandomPos2Body; 
+		    class Dragger; }
 
 namespace visSurvey
 {
@@ -65,7 +66,7 @@ public:
     void			showLine(bool);
     bool			lineShown() const;
 
-    void			redrawAll();
+    void			redrawAll(int draggeridx=-1);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -75,6 +76,8 @@ protected:
 
     void			setPosition(int loc,const Pick::Location&);
     Coord3			getPosition(int loc) const;
+    void			setPosition(int idx,const Pick::Location&,
+					    bool add=false);
     void			removePosition(int idx);
     void			removeAll();
 
@@ -93,7 +96,10 @@ protected:
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,int);
-
+    virtual void		updateDragger();
+    visBase::MarkerSet*		createOneMarker() const;
+    const Coord3		getNormal();
+    
     visBase::MarkerSet*		markerset_;
     visBase::PolyLine*		polyline_;
     bool			needline_;
@@ -104,6 +110,9 @@ protected:
 
     visBase::RandomPos2Body*	bodydisplay_;
     bool			shoulddisplaybody_;
+    visBase::Dragger*		dragger_;
+    int				draggeridx_;
+
 };
 
 } // namespace visSurvey

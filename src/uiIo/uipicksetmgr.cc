@@ -19,10 +19,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "keystrs.h"
+#include "uimain.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "pickset.h"
 #include "picksettr.h"
+#include "keyboardevent.h"
 #include "ptrman.h"
 #include "od_helpids.h"
 
@@ -31,6 +33,8 @@ uiPickSetMgr::uiPickSetMgr( uiParent* p, Pick::SetMgr& m )
     : setmgr_(m)
     , parent_(p)
 {
+    mAttachCB(uiMain::keyboardEventHandler().keyPressed,
+	uiPickSetMgr::keyPressedCB);
 }
 
 
@@ -252,3 +256,24 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
     IOM().commitChanges( *dlg.ctioout_.ioobj );
     deepErase( pssread );
 }
+
+void uiPickSetMgr::keyPressedCB(CallBacker*)
+{
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+    const OD::ButtonState bs =
+			  OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
+
+    if ( bs==OD::ControlButton && kbe.key_==OD::Z && !kbe.isrepeat_ )
+    {
+	uiMain::keyboardEventHandler().setHandled( true );
+	setmgr_.undo().unDo( 1, true );
+    }
+
+    if ( bs==OD::ControlButton && kbe.key_==OD::Y && !kbe.isrepeat_ )
+    {
+	uiMain::keyboardEventHandler().setHandled( true );
+	setmgr_.undo().reDo( 1, true  ); 
+    }
+
+}
+

@@ -18,7 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visrandompos2body.h"
 #include "visevent.h"
 #include "vistransform.h"
+#include "visdragger.h"
+#include "visplanedatadisplay.h"
+#include "visseis2ddisplay.h"
 #include "zaxistransform.h"
+#include "callback.h"
 
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
@@ -35,6 +39,8 @@ PickSetDisplay::PickSetDisplay()
     , polyline_(0)
     , shoulddisplaybody_( false )
     , needline_(0)
+    , dragger_(0)
+    , draggeridx_( -1 )
 {
     markerset_->ref();
     markerset_->applyRotationToAllMarkers( false );
@@ -44,6 +50,12 @@ PickSetDisplay::PickSetDisplay()
 
 PickSetDisplay::~PickSetDisplay()
 {
+    if ( dragger_ )
+    {
+	dragger_->unRef();
+	dragger_ = 0;
+    }
+
     unRefAndZeroPtr( bodydisplay_ );
     removeChild( markerset_->osgNode() );
     unRefAndZeroPtr( markerset_ );
@@ -53,6 +65,9 @@ PickSetDisplay::~PickSetDisplay()
 	removeChild( polyline_->osgNode() );
 	unRefAndZeroPtr( polyline_ );
     }
+
+     Pick::SetMgr& mgr = Pick::Mgr();
+     mgr.undo().removeAll();
 }
 
 
@@ -70,13 +85,41 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     markerset_->setMarkerStyle( markerstyle );
     markerset_->setMarkersSingleColor( set_->disp_.color_ );
 
-    //   if ( scene_ ) // should do later
-    //markerset->setZStretch( scene_->getZStretch()*scene_->getZScale()/2 );
-
-    //fullRedraw();
-
     if ( !showall_ && scene_ )
 	scene_->objectMoved( 0 );
+
+    dragger_= visBase::Dragger::create();
+    dragger_->ref();
+    dragger_->setDisplayTransformation( transformation_ );
+    dragger_->setDraggerType( visBase::Dragger::Translate2D );
+
+    const Coord3 defnormal(0,0,1);
+    const Coord3 desnormal = getNormal();
+    const float dotproduct = (float)defnormal.dot( desnormal );
+
+    Coord3 rotationaxis(0,0,1);
+    float angle = 0;
+    if ( !mIsEqual(dotproduct,1,1e-3) )
+    {
+	const float zaxisangle =
+	    mCast(float,Math::Atan2( desnormal.y, desnormal.x) );
+	Quaternion rotation( defnormal, zaxisangle );
+	rotation *= Quaternion( Coord3(0,1,0), -Math::ACos(dotproduct) );
+	rotation.getRotation( rotationaxis,angle );
+    }
+
+    dragger_->setRotation( rotationaxis, angle );
+    dragger_->setSize( (float)markerstyle.size_ );
+    dragger_->setOwnShape( createOneMarker(), false );
+    addChild( dragger_->osgNode() );
+
+}
+
+
+void PickSetDisplay::updateDragger()
+{
+    if ( dragger_ )
+	dragger_->updateDragger( false );
 }
 
 
@@ -106,7 +149,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	markerset_->setScreenSize(  mCast(float,set_->disp_.pixsize_) );
     }
 
-    if( markerset_->getType() != set_->disp_.markertype_ )
+    if ( markerset_->getType() != set_->disp_.markertype_ )
     {
 	markerset_->setType( (MarkerStyle3D::Type)set_->disp_.markertype_ );
 	if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow
@@ -123,19 +166,33 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 
 void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 {
+    setPosition( idx, loc, false );
+}
+
+
+void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
+{
     if ( set_->disp_.connect_ == Pick::Set::Disp::Close )
     {
-	redrawAll();
+	redrawAll( idx );
 	return;
     }
-
-    markerset_->setPos( idx, loc.pos_, false );
+    if ( add )
+	markerset_->insertPos( idx, loc.pos_, false );
+    else
+	markerset_->setPos( idx, loc.pos_, false );
     if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow ||
 	 set_->disp_.markertype_ == MarkerStyle3D::Plane )
     	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
-
+    
     if ( needLine() )
 	setPolylinePos( idx, loc.pos_ );
+    
+    if ( loc.pos_.isDefined() && dragger_ )
+	dragger_->setPos(loc.pos_);
+
+    updateDragger();
+
 }
 
 
@@ -162,7 +219,7 @@ void PickSetDisplay::removePosition( int idx )
 {
     if ( set_->disp_.connect_ == Pick::Set::Disp::Close )
     {
-	redrawAll();
+	redrawAll( idx );
 	return;
     }
 
@@ -171,6 +228,14 @@ void PickSetDisplay::removePosition( int idx )
 
     markerset_->removeMarker( idx );
     removePolylinePos( idx );
+
+    if ( idx && dragger_ && markerset_->size()>(idx-1) )
+    {
+	const visBase::Coordinates* coords = markerset_->getCoordinates();
+	const Coord3 pos = coords->getPos( idx-1 );
+	dragger_->setPos( pos );
+	dragger_->updateDragger( false );
+    }
 }
 
 
@@ -180,11 +245,11 @@ void PickSetDisplay::removePolylinePos( int idx )
 	return;
 
     polyline_->removePoint( idx );
-    polyline_->dirtyCoordinates();
+    redrawLine();
 }
 
 
-void PickSetDisplay::redrawAll()
+void PickSetDisplay::redrawAll( int drageridx )
 {
     if ( !markerset_ )
 	return;
@@ -193,6 +258,9 @@ void PickSetDisplay::redrawAll()
 	createLine();
 
     markerset_->clearMarkers();
+    if ( drageridx==set_->size() )
+	drageridx = set_->size()-1;
+
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	Coord3 pos = (*set_)[idx].pos_;
@@ -200,6 +268,14 @@ void PickSetDisplay::redrawAll()
 	    pos.z = datatransform_->transform( pos );
 	if ( !mIsUdf(pos.z) )
 	    markerset_->addPos( pos );
+
+	if ( idx==drageridx && dragger_ )
+	{
+	    dragger_->setPos( pos );
+	    dragger_->updateDragger( false );
+	    dragger_->turnOn( true );
+	}
+
     }
 
     markerset_->forceRedraw( true );
@@ -387,6 +463,21 @@ int PickSetDisplay::clickedMarkerIndex( const visBase::EventInfo& evi ) const
 }
 
 
+visBase::MarkerSet* PickSetDisplay::createOneMarker() const
+{
+    visBase::MarkerSet* marker =  visBase::MarkerSet::create();
+    MarkerStyle3D markerstyle;
+    markerstyle.size_ = set_->disp_.pixsize_;
+    markerstyle.type_ = ( MarkerStyle3D::Type ) set_->disp_.markertype_;
+    marker->setMaterial(0);
+    marker->setMarkerStyle(markerstyle);
+    marker->setMarkersSingleColor( Color::NoColor() );
+    marker->addPos( Coord3(0,0,0) );
+    refPtr( marker );
+    return marker;
+}
+
+
 bool PickSetDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
 {
     return evi.pickedobjids.isPresent( markerset_->id() );
@@ -537,6 +628,8 @@ void PickSetDisplay::setDisplayTransformation( const mVisTrans* newtr )
 	markerset_->setDisplayTransformation( newtr );
     if ( polyline_ )
 	polyline_->setDisplayTransformation( newtr );
+    if ( dragger_ )
+	dragger_->setDisplayTransformation( newtr );
 }
 
 
@@ -564,5 +657,22 @@ bool PickSetDisplay::usePar( const IOPar& par )
 
     return true;
 }
+
+
+const Coord3 PickSetDisplay::getNormal()
+{
+    if ( !scene_ ) return Coord3(0,0,0);
+
+    for ( int idx = 0; idx<scene_->size(); idx++ )
+    {
+	visBase::DataObject* dataobj = scene_->getObject(idx);
+	mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
+	if ( plane && plane->isOn() ) 
+	    return plane->getNormal(Coord3().udf()).normalize();
+    }
+
+    return Coord3( 0, 0, 0 );
+}
+
 
 }; // namespace visSurvey

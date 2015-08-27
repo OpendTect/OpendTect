@@ -61,6 +61,8 @@ LocationDisplay::LocationDisplay()
     , datatransform_( 0 )
     , pickedsobjid_(-1)
     , voiidx_(-1)
+    , undoloccoord_( Coord3(0,0,0) )
+    , undomove_( false )
     , storedmid_(MultiID::udf())
 {
     setSetMgr( &Pick::Mgr() );
@@ -87,6 +89,7 @@ LocationDisplay::~LocationDisplay()
 
     removeChild( sower_->osgNode() );
     delete sower_;
+    sower_ = 0;
 }
 
 
@@ -211,9 +214,25 @@ void LocationDisplay::pickCB( CallBacker* cb )
 {
     if ( !isSelected() || !isOn() || isLocked() ) return;
 
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
+
+    if ( eventinfo.dragging )
+	updateDragger();
+
+    if ( eventinfo.type == visBase::MouseClick && !eventinfo.pressed )
+	updateDragger();
 
     const bool sowerenabled = set_->disp_.connect_ != Pick::Set::Disp::None;
+
+    if ( eventinfo.type == visBase::MouseDoubleClick )
+    {
+	if ( set_ && set_->disp_.connect_!=Pick::Set::Disp::None )
+	{
+	    set_->disp_.connect_ = Pick::Set::Disp::Close;
+	    dispChg( 0 );
+	    return;
+	}
+    }
 
     if ( waitsfordirectionid_!=-1 )
     {
@@ -236,12 +255,32 @@ void LocationDisplay::pickCB( CallBacker* cb )
 
 	eventcatcher_->setHandled();
     }
-    else if ( waitsforpositionid_!=-1 )
-    {
+    else if ( waitsforpositionid_!=-1 ) // dragging
+    { 
+	// when dragging it will receive multi times coords from visevent: 
+	// mouse move and mouse release. we need the last one and the begin 
+	// one for undo issue
 	Coord3 newpos, normal;
 	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
-	    (*set_)[waitsforpositionid_].pos_ = newpos;
+	    if ( eventinfo.type==visBase::MouseClick )
+	    {
+		set_->moveWithUndo( 
+		    waitsforpositionid_,Pick::Location(undoloccoord_),
+		    Pick::Location(newpos) );
+		Pick::Mgr().undo().setUserInteractionEnd(
+		    Pick::Mgr().undo().currentEventID() );
+		undomove_ = false;
+	    }
+	    else
+	    {
+		if ( !undomove_ )
+		{
+		    undoloccoord_ = (*set_)[waitsforpositionid_].pos_;
+		    undomove_ =  true;
+		}
+		(*set_)[waitsforpositionid_].pos_ = newpos;
+	    }
 	    Pick::SetMgr::ChangeData cd(
 		    Pick::SetMgr::ChangeData::Changed,
 		    set_, waitsforpositionid_ );
@@ -309,7 +348,9 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    //Only set handled if clicked on marker. Otherwise
 	    //we may interfere with draggers.
 	    if ( selfdirpickidx!=-1 || selfpickidx!=-1 )
+	    {
 		eventcatcher_->setHandled();
+	    }
 	    else
 	    {
 		const Color& color = set_->disp_.color_;
@@ -473,7 +514,7 @@ void LocationDisplay::locChg( CallBacker* cb )
 	    invalidpicks_ += cd->loc_;
 	}
 
-	setPosition( cd->loc_,loc );
+	setPosition( cd->loc_,loc, true );
     }
     else if ( cd->ev_==Pick::SetMgr::ChangeData::ToBeRemoved )
     {
@@ -589,10 +630,16 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	sower_->alternateSowingOrder( false );
 
     if ( insertpick )
-	set_->insert( locidx, Pick::Location(pos,dir) );
+    {
+	set_->insertWithUndo( locidx, Pick::Location(pos,dir) );
+	Pick::Mgr().undo().setUserInteractionEnd(
+	    Pick::Mgr().undo().currentEventID() );
+    }
     else
     {
-	*set_ += Pick::Location( pos, dir );
+	set_->appendWithUndo( Pick::Location(pos,dir) );
+	Pick::Mgr().undo().setUserInteractionEnd(
+	    Pick::Mgr().undo().currentEventID() );
 	locidx = set_->size()-1;
     }
 
@@ -618,14 +665,19 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 }
 
 
-void LocationDisplay::removePick( int removeidx )
+void LocationDisplay::removePick( int removeidx, bool setundo )
 {
     if ( !picksetmgr_ )
 	return;
 
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
 				 set_, removeidx );
-    set_->removeSingle( removeidx );
+    set_->removeSingleWithUndo( removeidx );
+    if ( setundo )
+    {
+	Pick::Mgr().undo().setUserInteractionEnd(
+	    Pick::Mgr().undo().currentEventID() );
+    }
     picksetmgr_->reportChange( 0, cd );
 }
 
@@ -801,12 +853,21 @@ void LocationDisplay::removeSelection( const Selector<Coord3>& selector,
     if ( !selector.isOK() )
 	return;
 
+    bool changed = false;
     for ( int idx=set_->size()-1; idx>=0; idx-- )
     {
 	const Pick::Location& loc = (*set_)[idx];
 	if ( selector.includes( loc.pos_ ) )
-	    removePick( idx );
+	{
+	    removePick( idx, false );
+	    changed = true;
+	}
     }
+
+    if ( changed )
+	Pick::Mgr().undo().setUserInteractionEnd(
+	    Pick::Mgr().undo().currentEventID() );
+
 }
 
 
