@@ -62,6 +62,7 @@ protected:
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);
     void		movePlaneAndCalcAttribs(const TrcKeyZSampling&);
+    void		keyUnReDoPressedCB(CallBacker*);
 
     const OD::SliceType	orient_;
     const Type		type_;

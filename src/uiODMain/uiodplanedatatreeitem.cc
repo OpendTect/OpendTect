@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivispartserv.h"
 #include "uivisslicepos3d.h"
 #include "uiwellpartserv.h"
+#include "uimain.h"
 #include "visplanedatadisplay.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "vissurvscene.h"
@@ -43,6 +44,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "wellman.h"
 #include "zaxistransform.h"
+#include "callback.h"
+#include "keyboardevent.h"
 
 
 static const int cPositionIdx = 990;
@@ -127,6 +130,9 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     displayid_ = did;
     positionmnuitem_.iconfnm = "orientation64";
     gridlinesmnuitem_.iconfnm = "gridlines";
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+	uiODPlaneDataTreeItem::keyUnReDoPressedCB );
+
 }
 
 
@@ -531,6 +537,23 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs(
 	const TrcKeyZSampling& tkzs )
 { visserv_->movePlaneAndCalcAttribs( displayid_, tkzs ); }
+
+
+void uiODPlaneDataTreeItem::keyUnReDoPressedCB( CallBacker* )
+{
+    mDynamicCastGet( visSurvey::PlaneDataDisplay*,pdd,
+	visserv_->getObject(displayid_) )
+	if ( !pdd )
+	    return;
+
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+
+    if ( KeyboardEvent::isUnDo(kbe) )
+	pdd->undo().unDo();
+
+    if ( KeyboardEvent::isReDo(kbe) )
+	pdd->undo().reDo();
+}
 
 
 void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
