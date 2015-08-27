@@ -74,6 +74,15 @@ PolygonSelection::~PolygonSelection()
 }
 
 
+PolygonSelection* PolygonSelection::copy() const
+{
+    PolygonSelection* selection = new PolygonSelection();
+    selection->selector_ = new osgGeo::PolygonSelection( *this->selector_ );
+    selection->setUTMCoordinateTransform( utm2disptransform_ );
+    return selection;
+}
+
+
 void PolygonSelection::setSelectionType( PolygonSelection::SelectionType st )
 {
     if ( st==Off )
@@ -135,6 +144,12 @@ void PolygonSelection::clear()
 bool PolygonSelection::hasPolygon() const
 {
     return selector_->getCoords()->size() > 2;
+}
+
+
+bool PolygonSelection::singleSelection() const
+{
+    return selector_->getCoords()->size()==1;
 }
 
 
