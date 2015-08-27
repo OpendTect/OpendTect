@@ -1,5 +1,6 @@
 #include "sincinterpolator.h"
 
+#include "threadlock.h"
 #include "windowfunction.h"
 
 #define EWIN_FRAC	0.9f
@@ -31,20 +32,28 @@ int SincTableManager::Table::getNumbers() const
 { return asinc_.info().getSize(1); }
 
 int SincTableManager::Table::getShift() const
-{ return -getLength() - getLength()/2 + 1; }
+{ return - getLength()/2; }
 
 
 const SincTableManager::Table* SincTableManager::getTable( float fmax,
 							   int lmax )
 {
-    if ( getTableIdx(fmax,lmax) == -1 )
-	makeTable( fmax, lmax );
+    Threads::MutexLocker lock( lock_ );
+    int tabidx = getTableIdx( fmax, lmax );
+    if ( !tables_.validIdx(tabidx) )
+    {
+	lock.unLock();
+	const Table* newtab = makeTable( fmax, lmax );
+	lock.lock();
+	tabidx = getTableIdx( fmax, lmax );
+	if ( !tables_.validIdx(tabidx) )
+	{
+	    tables_ += newtab;
+	    return newtab;
+	}
+    }
 
-    const int tblidx = getTableIdx( fmax, lmax );
-    if ( !tables_.validIdx(tblidx) )
-	return 0;
-
-    return tables_[tblidx];
+    return tables_[tabidx];
 }
 
 
@@ -66,7 +75,8 @@ int SincTableManager::getTableIdx( float fmax, int lmax ) const
 }
 
 
-void SincTableManager::makeTable( float fmax, int lmax )
+const SincTableManager::Table* SincTableManager::makeTable( float fmax,
+							    int lmax )
 {
     const float wwin = 1.0f - 2.0f * fmax;
 
@@ -90,25 +100,10 @@ void SincTableManager::makeTable( float fmax, int lmax )
 	nsinc *= 2;
 
     ++nsinc;
-    const Table* table = makeTable( kwin, nsinc, emax, fmax, lmax );
-    if ( table )
-	tables_ += table;
-}
-
-
-float SincTableManager::sinc( float x )
-{ return mIsZero(x,mDefEpsF) ? 1.f : sin(M_PIf*x)/(M_PIf*x); }
-
-
-const SincTableManager::Table* SincTableManager::makeTable(
-						const KaiserWindow& kwin,
-						int nsinc, float emax,
-						float fmax, int lmax )
-{
     const int lsinc = kwin.getLength();
-    Table* table = new Table( lsinc, nsinc, emax, fmax, lmax );
-    if ( !table )
-	return 0;
+
+    SincTableManager::Table* table =
+		new SincTableManager::Table( lsinc, nsinc, emax, fmax, lmax);
 
     Array2D<float>& asinc = table->asinc_;
     for ( int j=0; j<lsinc; ++j )
@@ -120,7 +115,7 @@ const SincTableManager::Table* SincTableManager::makeTable(
     asinc.set( lsinc/2-1, 0, 1.0f );
     asinc.set( lsinc/2-1, nsinc-1, 1.0f );
 
-    const float dsinc = 1.f / mCast(float,nsinc-1);
+    dsinc = 1.f / mCast(float,nsinc-1);
     const float lsinc2 = mCast(float,lsinc/2.0f);
     StepInterval<float> xvals( -lsinc2 + 1.f, -lsinc2, -dsinc );
     for ( int isinc=1; isinc<nsinc-1; ++isinc )
@@ -134,6 +129,10 @@ const SincTableManager::Table* SincTableManager::makeTable(
 }
 
 
+float SincTableManager::sinc( float x )
+{ return mIsZero(x,mDefEpsF) ? 1.f : sin(M_PIf*x)/(M_PIf*x); }
+
+
 SincTableManager& SincTableManager::STM()
 {
     mDefineStaticLocalObject( PtrMan<SincTableManager>, sinctables,
@@ -144,11 +143,13 @@ SincTableManager& SincTableManager::STM()
 
 
 SincInterpolator::SincInterpolator()
-    : extrap_(ZERO)
-    , table_(0)
+    : table_(0)
     , lsinc_(0)
     , ishift_(0)
 {}
+
+
+const float SincInterpolator::snapdist = 1e-4f;
 
 
 bool SincInterpolator::initTable( float fmax, int lmax )
