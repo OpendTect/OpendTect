@@ -104,7 +104,7 @@ protected:
 					const visBase::EventInfo& evi)const;
     virtual bool		isMarkerClick(
 					const visBase::EventInfo& evi)const;
-    virtual void		updateDragger() const {};
+    virtual void		updateDragger() {};
 
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
     void			triggerDeSel();

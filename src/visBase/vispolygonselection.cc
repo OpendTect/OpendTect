@@ -74,7 +74,7 @@ PolygonSelection::~PolygonSelection()
 }
 
 
-PolygonSelection* PolygonSelection::copy() const
+PolygonSelection* PolygonSelection::copy()
 {
     PolygonSelection* selection = new PolygonSelection();
     selection->selector_ = new osgGeo::PolygonSelection( *this->selector_ );
