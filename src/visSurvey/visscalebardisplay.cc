@@ -155,7 +155,8 @@ visBase::VisualObject* ScaleBarDisplay::createLocation() const
 }
 	
 
-void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc )
+void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc, 
+    bool add )
 {
     const Coord3 normal = spherical2Cartesian( loc.dir_, true );
     const bool pickedonz = mIsEqual(normal.z,1,mDefEps);
