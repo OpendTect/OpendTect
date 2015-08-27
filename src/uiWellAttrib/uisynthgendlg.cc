@@ -166,7 +166,12 @@ void uiSynthGenDlg::angleInpChanged( CallBacker* )
     if ( genparams.anglerg_ == angleinpfld_->getFInterval() )
 	return;
 
-    if ( !getFromScreen() ) return;
+    if ( !getFromScreen() )
+    {
+	angleinpfld_->setValue( genparams.anglerg_ );
+	return;
+    }
+
     BufferString nm;
     stratsynth_.genParams().createName( nm );
     namefld_->setText( nm );
@@ -190,6 +195,21 @@ bool uiSynthGenDlg::prepareSyntheticToBeChanged( bool toberemoved )
     const int selidx = synthnmlb_->currentItem();
     if ( selidx<0 )
 	mErrRet( tr("No synthetic selected"), return false );
+
+    const BufferString synthtochgnm( synthnmlb_->getText() );
+    const SyntheticData* sdtochg = stratsynth_.getSynthetic( synthtochgnm );
+    if ( !sdtochg )
+	mErrRet( tr("Cannot find synthetic data '%1'").arg(synthtochgnm),
+		 return false );
+
+    SynthGenParams sdtochgsgp;
+    sdtochg->fillGenParams( sdtochgsgp );
+    if ( !toberemoved )
+    {
+	const SynthGenParams& cursgp = stratsynth_.genParams();
+	if ( cursgp == sdtochgsgp )
+	    return true;
+    }
 
     BufferStringSet synthstobedisabled;
     const SynthGenParams& sgptorem = stratsynth_.genParams();
