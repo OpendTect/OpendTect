@@ -122,6 +122,7 @@ public:
      int		size() const;
      int		addPos(const Coord3&, bool draw = true);
     void		setPos(int, const Coord3&,bool draw = true);
+    void		insertPos(int, const Coord3&,bool draw = true);
     void		forceRedraw(bool);
     void		addPolygonOffsetNodeState();
     void		removePolygonOffsetNodeState();
