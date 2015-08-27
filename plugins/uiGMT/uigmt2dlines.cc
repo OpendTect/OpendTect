@@ -44,6 +44,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"2D Lines")
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
+    namefld_->setElemSzPol( uiObject::Wide );
     lineselfld_ = new uiSeis2DLineSel( this, true );
     lineselfld_->attach( alignedBelow, namefld_ );
 

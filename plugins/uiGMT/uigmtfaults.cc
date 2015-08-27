@@ -59,6 +59,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 
     namefld_ = new uiGenInput( this, uiStrings::sName(),
                                StringInpSpec("Faults") );
+    namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( alignedBelow, faultfld_ );
 
     optionfld_ = new uiGenInput( this, "Intersection with ",
@@ -130,7 +131,7 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 	                 .arg( mNINT32(zrg.start*SI().zDomain().userFactor()) )
 	                 .arg( mNINT32(zrg.stop*SI().zDomain().userFactor()) );
 	    uiMSG().message( msg );
-	    return false; 
+	    return false;
 	}
 
 	iop.set( ODGMT::sKeyZVals(), zvalue );

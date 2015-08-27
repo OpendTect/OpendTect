@@ -28,16 +28,18 @@ static const int cTitleBoxWidth = 36;
 uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     : uiDlgGroup(p,tr("Basemap"))
 {
-    titlefld_ = new uiGenInput( this, tr("Map title"), 
+    titlefld_ = new uiGenInput( this, tr("Map title"),
                                 StringInpSpec("Basemap") );
 
     xrgfld_ = new uiGenInput( this, "X range",
 			      IntInpIntervalSpec(false) );
+    xrgfld_->setElemSzPol( uiObject::Medium );
     xrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     xrgfld_->attach( alignedBelow, titlefld_ );
 
     yrgfld_ = new uiGenInput( this, tr("Y range"),
 			      IntInpIntervalSpec(false) );
+    yrgfld_->setElemSzPol( uiObject::Medium );
     yrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     yrgfld_->attach( alignedBelow, xrgfld_ );
 
@@ -57,7 +59,7 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
 
     scalefld_ = new uiGenInput( this, tr("Scale  1 :"), IntInpSpec() );
     scalefld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,scaleChg) );
-    scalefld_->setElemSzPol( uiObject::Small );
+    scalefld_->setElemSzPol( uiObject::Medium );
     scalefld_->attach( rightTo, ydimfld_ );
 
     lebelintvfld_ = new uiGenInput( this, tr("Label interval (X/Y)"),

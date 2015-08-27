@@ -50,6 +50,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     inpfld_->selectionDone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 
     namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
+    namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( alignedBelow, inpfld_ );
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );

@@ -57,6 +57,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
 
     namefld_ = new uiGenInput( this, uiStrings::sName(),
 			       StringInpSpec("Wells") );
+    namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( alignedBelow, welllistfld_ );
 
     symbfld_ = new uiGMTSymbolPars( this, true );
