@@ -29,10 +29,14 @@ namespace visBase
 
 class Transformation;
 class Dragger;
+class MarkerSet;
+class PlaneDragCBHandler;
+class PolyLine;
 
 
 mExpClass(visBase) RandomTrackDragger : public VisualObjectImpl
 {
+    friend class PlaneDragCBHandler;
 
 public:
     static RandomTrackDragger*	create()
@@ -59,7 +63,9 @@ public:
 	    				  const Coord3& stop,
 					  const Coord3& step); 
 
-    CNotifier<RandomTrackDragger,int> motion;
+    void			showPlaneDraggers(bool yn,int minsizeinsteps=0);
+
+    CNotifier<RandomTrackDragger,int> motion;	//!<knotidx>=0, panelidx<0
     Notifier<RandomTrackDragger> movefinished;
 
     NotifierAccess*		rightClicked() { return &rightclicknotifier_; }
@@ -68,12 +74,34 @@ public:
 
 protected:
     				~RandomTrackDragger();
+
     void			startCB(CallBacker*);
     void			moveCB(CallBacker*);
     void			finishCB(CallBacker*);
+
     void			triggerRightClick(const EventInfo* eventinfo);
+
     void			followActiveDragger(int activeidx);
     void			updatePanels();
+    void			postponePanelUpdate(bool);
+    void			turnPanelOn(int planeidx,bool yn);
+    void			setPanelsPolygonOffset(bool);
+
+    void			removePlaneDraggerCBHandler(int idx);
+    void			addPlaneDraggerCBHandler();
+
+    void			updatePlaneDraggers();
+    void			updateKnotColor(int idx,bool horoverlap);
+    bool			canShowPlaneDragger(int planeidx,
+						    bool& horoverlap) const;
+    void			snapToLimits(Coord3& pos) const;
+    Coord3			getPlaneBoundingBoxInSteps(int planeidx) const;
+
+    bool			doesKnotStickToBorder(int knotidx) const;
+    unsigned char		getOnBorderFlags(int knotidx) const;
+
+    void			showRotationAxis(bool yn,int planeidx=0,
+					    Coord normpickedpos=Coord::udf());
 
     ObjectSet<Dragger>		draggers_;
 				/* Contains four coupled draggers per knot:
@@ -81,12 +109,27 @@ protected:
 				idx%4==1: 1D vertical dragger at start depth
 				idx%4==2: 2D horizontal dragger at stop depth
 				idx%4==3: 1D vertical dragger at stop depth */
+    ObjectSet<MarkerSet>	draggermarkers_;
+
+    ObjectSet<PlaneDragCBHandler>	planedraghandlers_;
+
     osg::Switch*		panels_;
+    osg::Switch*		planedraggers_;
+    ObjectSet<PolyLine>		rotationaxis_;
+
     BoolTypeSet			showadjacents_;
     bool			showallpanels_;
 
+    bool			showplanedraggers_;
+    int				planedraggerminsizeinsteps_;
+
+    bool			postponepanelupdate_;
+
     Interval<float>		zrange_;
     StepInterval<float>		limits_[3];
+
+    Geom::Rectangle<double>	horborder_;
+    Interval<float>		zborder_;
 
     Notifier<RandomTrackDragger> rightclicknotifier_;
     const EventInfo*		rightclickeventinfo_;

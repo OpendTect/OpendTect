@@ -140,6 +140,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     init();		// sets default resolution -> update texture mapping
     updatePanelStripPath();
     setPanelStripZRange( panelstrip_->getZRange() );
+
+    showManipulator( dragger_->isOn() );
 }
 
 
@@ -711,7 +713,7 @@ void RandomTrackDisplay::updatePanelStripPath()
     int nodeidx = 0;
     for ( int trcidx=0; trcidx<trcspath_.size(); trcidx++ )
     {
-	if ( trcspath_[trcidx] == nodes_[nodeidx] )
+	while ( nodeidx<nodes_.size() && trcspath_[trcidx]==nodes_[nodeidx] )
 	{
 	    pathcrds += Coord( nodes_[nodeidx].inl(), nodes_[nodeidx].crl() );
 	    mapping += mCast( float, trcidx*(resolution_+1) );
@@ -845,7 +847,7 @@ void RandomTrackDisplay::acceptManipulation()
     for ( int idx=0; idx<nrNodes(); idx++ )
     {
 	const Coord crd = dragger_->getKnot(idx);
-	setNodePos( idx, BinID( mNINT32(crd.x), mNINT32(crd.y) ));
+	setNodePos( idx, BinID( mNINT32(crd.x), mNINT32(crd.y)), false );
 	if ( !getUpdateStageNr() )
 	    dragger_->showAdjacentPanels( idx, false );
     }
@@ -880,6 +882,7 @@ void RandomTrackDisplay::showManipulator( bool yn )
 
     if ( lockgeometry_ ) yn = false;
     dragger_->turnOn( yn );
+    panelstrip_->enableTraversal(visBase::cDraggerIntersecTraversalMask(),!yn);
 }
 
 
@@ -947,22 +950,32 @@ void RandomTrackDisplay::nodeMoved( CallBacker* cb )
     mCBCapsuleUnpack(int,sel,cb);
     selnodeidx_ = sel;
 
-    const Coord crd = dragger_->getKnot( sel );
-    dragger_->showAdjacentPanels( sel,
-		getNodePos(sel)!=BinID(mNINT32(crd.x),mNINT32(crd.y)) );
-    dragger_->showAllPanels( getDepthInterval()!=dragger_->getDepthRange() );
+    for ( int idx=abs(sel); idx>=abs(sel)-1; idx-- )
+    {
+	const Coord crd = dragger_->getKnot( idx );
+	const BinID bid( mNINT32(crd.x), mNINT32(crd.y) );
+
+	if ( rl_ )
+	{
+	    rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB));
+	    rl_->setNodePosition( idx, bid, true );
+	    rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB));
+	}
+
+	dragger_->showAdjacentPanels( idx, getNodePos(idx)!=bid );
+	if ( sel>=0 ) break;
+    }
+
+    if ( getDepthInterval().isEqual(dragger_->getDepthRange(),1e-5) )
+	dragger_->showAllPanels( false );
+    else
+	dragger_->showAllPanels( true );
 
     nodemoving_.trigger();
-
-    rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB) );
-    rl_->setNodePosition( sel, BinID(mNINT32(crd.x),mNINT32(crd.y)), true );
-    rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
 
     if ( canDisplayInteractively() )
     {
 	interactivetexturedisplay_ = true;
-	acceptManipulation();
-	ismanip_ = true;
 	updateSel();
     }
 }

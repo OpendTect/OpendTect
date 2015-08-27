@@ -31,7 +31,7 @@ namespace visBase
 {
 
 
-class PlaneDraggerCallbackHandler: public osgManipulator::DraggerCallback
+class PlaneDraggerCallbackHandler : public osgManipulator::DraggerCallback
 {
 
 public:
@@ -56,7 +56,7 @@ protected:
 bool PlaneDraggerCallbackHandler::receive(
 				    const osgManipulator::MotionCommand& cmd )
 {
-    if ( cmd.getStage()==osgManipulator::MotionCommand::START )
+    if ( cmd.getStage() == osgManipulator::MotionCommand::START )
     {
 	initialosgmatrix_ = dragger_.osgdragger_->getMatrix();
 	initialcenter_ = dragger_.center();
@@ -189,6 +189,8 @@ DepthTabPlaneDragger::DepthTabPlaneDragger()
 DepthTabPlaneDragger::~DepthTabPlaneDragger()
 {
     osgdragger_->removeDraggerCallback( osgcallbackhandler_ );
+    if ( osgcallbackhandler_ )
+	osgcallbackhandler_->unref();
 }
 
 
@@ -201,7 +203,8 @@ void DepthTabPlaneDragger::initOsgDragger()
     osgdragger_ = new osgGeo::TabPlaneDragger( 12.0 );
     osgdragger_->setIntersectionMask( cDraggerIntersecTraversalMask() );
     osgdragger_->setActivationMouseButtonMask(
-	    			osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON );
+				osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON |
+				osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON );
 #else
     osgdragger_ = new osgGeo::TabPlaneDragger();
 #endif
@@ -212,6 +215,7 @@ void DepthTabPlaneDragger::initOsgDragger()
     osgdragger_->setHandleEvents( true );
 
     osgcallbackhandler_ = new PlaneDraggerCallbackHandler( *this );
+    osgcallbackhandler_->ref();
     osgdragger_->addDraggerCallback( osgcallbackhandler_ );
 
     osgdragger_->getOrCreateStateSet()->setAttributeAndModes(
