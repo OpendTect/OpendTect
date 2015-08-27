@@ -86,6 +86,8 @@ protected:
     MenuItem		parentsmnuitem_;
     MenuItem		parentsrdlmnuitem_;
     MenuItem		childrenmnuitem_;
+    MenuItem		lockmnuitem_;
+    MenuItem		unlockmnuitem_;
 
     bool		rgba_;
     bool		atsections_;

@@ -305,6 +305,8 @@ void uiODHorizonTreeItem::initMenuItems()
     parentsrdlmnuitem_.text = tr("Show Parents Path");
     parentsmnuitem_.text = tr("Select Parents");
     childrenmnuitem_.text = tr("Select Children");
+    lockmnuitem_.text = uiStrings::sLock();
+    unlockmnuitem_.text = tr("Unlock");
 }
 
 
@@ -449,6 +451,15 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	    mAddMenuItem( trackmnu, &childrenmnuitem_, true, false );
 	    mAddMenuItem( trackmnu, &parentsrdlmnuitem_, true, false );
 	}
+	else
+	{
+	    mResetMenuItem( &parentsmnuitem_ );
+	    mResetMenuItem( &childrenmnuitem_ );
+	    mResetMenuItem( &parentsrdlmnuitem_ );
+	}
+
+	mAddMenuItem( trackmnu, &lockmnuitem_, true, false );
+	mAddMenuItem( trackmnu, &unlockmnuitem_, true, false );
     }
 }
 
@@ -474,7 +485,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     const int visid = displayID();
     mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
 		     visserv_->getObject(visid) );
-    if ( !hd ) return;
+    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
+    if ( !hd || !hor3d ) return;
 
     uiEMPartServer* emserv = applMgr()->EMServer();
     uiEMAttribPartServer* emattrserv = applMgr()->EMAttribServer();
@@ -581,24 +593,20 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==parentsrdlmnuitem_.id )
     {
-	mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
-	if ( hor3d )
-	{
-	    const TrcKey tk = SI().transform( uimenu->getPickedPos() );
-	    TypeSet<TrcKey> trcs; hor3d->getParents( tk, trcs );
-	    if ( trcs.isEmpty() ) return;
+	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	TypeSet<TrcKey> trcs; hor3d->getParents( tk, trcs );
+	if ( trcs.isEmpty() ) return;
 
-	    BendPointFinderTrcKey bpf( trcs, 10 );
-	    if ( !bpf.execute() ) return;
+	BendPointFinderTrcKey bpf( trcs, 10 );
+	if ( !bpf.execute() ) return;
 
-	    const TypeSet<int>& bends = bpf.bendPoints();
-	    RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
-	    Geometry::RLM().add( rl );
-	    for ( int idx=0; idx<bends.size(); idx++ )
-		rl->addNode( trcs[bends[idx]].pos() );
+	const TypeSet<int>& bends = bpf.bendPoints();
+	RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
+	Geometry::RLM().add( rl );
+	for ( int idx=0; idx<bends.size(); idx++ )
+	    rl->addNode( trcs[bends[idx]].pos() );
 
-	    ODMainWin()->sceneMgr().addRandomLineItem( rl->ID(), sceneID() );
-	}
+	ODMainWin()->sceneMgr().addRandomLineItem( rl->ID(), sceneID() );
     }
     else if ( mnuid==parentsmnuitem_.id )
     {
@@ -607,7 +615,13 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==childrenmnuitem_.id )
     {
+	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
+	hd->selectChildren( tk );
     }
+    else if ( mnuid==lockmnuitem_.id )
+	hor3d->lockAll();
+    else if ( mnuid==unlockmnuitem_.id )
+	hor3d->unlockAll();
     else
 	handled = false;
 
