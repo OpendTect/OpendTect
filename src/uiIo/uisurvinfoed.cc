@@ -221,8 +221,10 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     {
 	const BufferString sipnm = si_.sipName();
 	const int sipidx = sipfld_->indexOf( sipnm );
-	if ( sipidx >= 0 )
-	    sipfld_->setCurrentItem( sipidx );
+	if (sipidx >= 0)
+		sipfld_->setCurrentItem(sipidx);
+	else
+		uiMSG().error(tr("The survey setup method is not available.\nProbably, this is a license issue"));
     }
 
 }
