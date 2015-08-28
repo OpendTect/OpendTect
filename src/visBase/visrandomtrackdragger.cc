@@ -323,7 +323,7 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
     double outerdist = dragdist + extension_;
     double innerdist = 0.0;
 
-    for ( int far=1; far>=0; far-- )
+    for ( int fr=1; fr>=0; fr-- )
     {
 	LineRectangleClipper<double> clipper( horborder );
 
@@ -347,7 +347,7 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 		outerdist = avgdist;
 	}
 
-	if ( far )
+	if ( fr )
 	{
 	    fardist = innerdist;
 	    if ( fardist >= dragdist+extension_ )   // bounding edge not found
