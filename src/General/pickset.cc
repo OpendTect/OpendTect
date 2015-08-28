@@ -754,6 +754,9 @@ bool Set::usePar( const IOPar& par )
 void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
 {
     Pick::SetMgr& mgr = Pick::Mgr();
+    if ( mgr.indexOf(*this)== -1 )
+	return;
+
     const MultiID mid = mgr.get(*this);
     if ( !mid.isEmpty() )
     {
