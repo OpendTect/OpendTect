@@ -106,7 +106,7 @@ public:
 	Setup&		noannot( bool yn )
 			{ noaxisline_ = noaxisannot_ = nogridline_ = yn;
 			  return *this; }
-	
+
 	void		setShowSpecialValue( bool yn, float newval=0.0f )
 			{ specialvalue_ = yn ? newval : mUdf(float); }
 	bool		showSpecialValue() const
