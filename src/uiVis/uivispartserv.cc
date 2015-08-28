@@ -116,7 +116,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mpetools_(0)
     , slicepostools_(0)
     , pickretriever_( new uiVisPickRetriever(this) )
-    , nrsceneschange_(this)
+    , nrscenesChange(this)
     , keyPressed(this)
     , seltype_((int)visBase::PolygonSelection::Off)
     , multirgeditwin_(0)
@@ -124,9 +124,10 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mapperrgeditinact_(false)
     , dirlightdlg_(0)
     , mousecursorexchange_(0)
-    , objectaddedremoved(this)
+    , objectAdded(this)
+    , objectRemoved(this)
     , selectionmode_(Polygon)
-    , selectionmodechange(this)
+    , selectionmodeChange(this)
     , topsetupgroupname_( 0 )
 {
     changematerialmnuitem_.iconfnm = "disppars";
@@ -254,7 +255,7 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
 	displayids_ += dispids;
     }
 
-    nrsceneschange_.trigger();
+    nrscenesChange.trigger();
     return newscene->id();
 }
 
@@ -273,7 +274,7 @@ void uiVisPartServer::removeScene( int sceneid )
 	pickretriever_->removeScene( scene );
 	scene->unRef();
 	scenes_ -= scene;
-	nrsceneschange_.trigger();
+	nrscenesChange.trigger();
 	return;
     }
 }
@@ -387,7 +388,7 @@ void uiVisPartServer::shareObject( int sceneid, int id )
     if ( !dobj ) return;
 
     scene->addObject( dobj );
-    objectaddedremoved.trigger( id );
+    objectAdded.trigger( id );
     eventmutex_.lock();
     sendEvent( evUpdateTree() );
 }
@@ -443,7 +444,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
     if ( !scene ) return;
 
     scene->addObject( dobj );
-    objectaddedremoved.trigger( dobj->id() );
+    objectAdded.trigger( dobj->id() );
 
     mDynamicCastGet( visSurvey::SurveyObject*, surobj, dobj );
     if ( surobj )
@@ -467,7 +468,7 @@ void uiVisPartServer::removeObject( visBase::DataObject* dobj, int sceneid )
 	return;
 
     removeObject( dobj->id(), sceneid );
-    objectaddedremoved.trigger( dobj->id() );
+    objectRemoved.trigger( dobj->id() );
 }
 
 
@@ -845,7 +846,6 @@ void uiVisPartServer::setRandomPosData( int id, int attrib,
 
 void uiVisPartServer::getDataTraceBids( int id, TypeSet<BinID>& bids ) const
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
 	so->getDataTraceBids( bids );
@@ -1054,6 +1054,7 @@ bool uiVisPartServer::deleteAllObjects()
     while ( scenes_.size() )
 	removeScene( scenes_[0]->id() );
 
+    objectRemoved.trigger( -1 );
     if ( multirgeditwin_ )
     {
 	multirgeditwin_->close();
@@ -1062,7 +1063,7 @@ bool uiVisPartServer::deleteAllObjects()
     }
 
     scenes_.erase();
-    nrsceneschange_.trigger();
+    nrscenesChange.trigger();
     return true; //visBase::DM().removeAll();
 }
 
@@ -1135,7 +1136,7 @@ void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
     }
 
     selectionmode_ = mode;
-    selectionmodechange.trigger();
+    selectionmodeChange.trigger();
 }
 
 
@@ -1372,7 +1373,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	return false;
 
     int nrscenes( 0 );
-    if ( !par.get( sKeyNumberScenes(), nrscenes ) )
+    if ( !par.get(sKeyNumberScenes(),nrscenes) )
 	return false;
 
     for ( int idx=0; idx<nrscenes; idx++ )
@@ -1404,7 +1405,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
     }
 
-    objectaddedremoved.trigger( -1 );
+    objectAdded.trigger( -1 );
 
     mpetools_->initFromDisplay();
 
@@ -1649,7 +1650,7 @@ void uiVisPartServer::removeObject( int id, int sceneid )
     if ( idx!=-1 )
     {
 	scene->removeObject( idx );
-	objectaddedremoved.trigger( id );
+	objectRemoved.trigger( id );
     }
 }
 

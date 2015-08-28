@@ -80,7 +80,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
-    visserv_->selectionmodechange.notify( mCB(this,uiMPEMan,selectionMode) );
+    visserv_->selectionmodeChange.notify( mCB(this,uiMPEMan,selectionMode) );
 
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 	uiMPEMan::keyPressedCB );
@@ -104,43 +104,12 @@ void uiMPEMan::addButtons()
 			  tr("Create seed ( key: 'Tab' )"), true );
     toolbar_->setShortcut( seedidx_, "Tab" );
 
-//    trackinvolidx_ = mAddButton( "autotrack", trackFromSeedsAndEdges,
-//				tr("Auto-track"), false );
-
-//    trackwithseedonlyidx_ = mAddButton( "trackfromseeds", trackFromSeedsOnly,
-//				       tr("Track From Seeds Only"), false );
-
-//    retrackallidx_ = mAddButton( "retrackhorizon", retrackAllCB,
-//				tr("Retrack All"), false );
     toolbar_->addSeparator();
-
-//    displayatsectionidx_ = mAddButton( "sectiononly", displayAtSectionCB,
-//				      tr("Display at section only"), true );
-
-//    toolbar_->addSeparator();
-/*
-    polyselectidx_ =  mAddButton( "polygonselect", selectionMode,
-				 tr("Polygon Selection mode"), true );
-    uiMenu* polymnu = new uiMenu( toolbar_, "PolyMenu" );
-    mAddMnuItm( polymnu,uiStrings::sPolygon(), handleToolClick, "polygonselect",
-                0 );
-    mAddMnuItm( polymnu,uiStrings::sRectangle(),handleToolClick,
-                "rectangleselect", 1 );
-    toolbar_->setButtonMenu( polyselectidx_, polymnu );
-
-    removeinpolygonidx_ = mAddButton( "trashcan", removeInPolygon,
-				  tr("Remove PolySelection"), false );
-    toolbar_->addSeparator();
-*/
 
     undoidx_ = mAddButton( "undo", undoPush, tr("Undo (Ctrl+Z)"), false );
     redoidx_ = mAddButton( "redo", redoPush, tr("Redo (Ctrl+Y)"), false );
     toolbar_->setShortcut( undoidx_, "Ctrl+Z" );
     toolbar_->setShortcut( redoidx_, "Ctrl+Y" );
-
-//    toolbar_->addSeparator();
-//    saveidx_ = mAddButton( "save", savePush, tr("Save (Ctrl+S"), false );
-//    toolbar_->setShortcut( saveidx_, "Ctrl+S" );
 }
 
 
@@ -159,7 +128,7 @@ uiMPEMan::~uiMPEMan()
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.remove(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
-    visserv_->selectionmodechange.remove( mCB(this,uiMPEMan,selectionMode) );
+    visserv_->selectionmodeChange.remove( mCB(this,uiMPEMan,selectionMode) );
 }
 
 
@@ -431,7 +400,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	endSeedClickEvent( emobj );
 
     // below is for double click event.
-    // after double click we do return on line 251. next click reaches here, we 
+    // after double click we do return on line 251. next click reaches here, we
     // need tell seedpicker to prepare to start new trick line.
     if ( seedpicker->isSeedPickEnded() )
 	seedpicker->endSeedPick( false );
@@ -750,7 +719,6 @@ void uiMPEMan::savePush( CallBacker* )
 	return;
 
     visserv_->fireFromMPEManStoreEMObject();
-//    toolbar_->setSensitive( saveidx_, false );
 }
 
 
@@ -907,39 +875,6 @@ static bool sIsPolySelect = true;
 
 void uiMPEMan::selectionMode( CallBacker* cb )
 {
-    /*
-    if ( cb == visserv_ )
-    {
-	toolbar_->turnOn( polyselectidx_, visserv_->isSelectionModeOn() );
-	sIsPolySelect = visserv_->getSelectionMode()==uiVisPartServer::Polygon;
-    }
-    else
-    {
-	uiVisPartServer::SelectionMode mode = sIsPolySelect ?
-			 uiVisPartServer::Polygon : uiVisPartServer::Rectangle;
-	visserv_->turnSelectionModeOn( toolbar_->isOn(polyselectidx_) );
-	visserv_->setSelectionMode( mode );
-    }
-
-    toolbar_->setIcon( polyselectidx_, sIsPolySelect ?
-			"polygonselect" : "rectangleselect" );
-    toolbar_->setToolTip( polyselectidx_,
-			  sIsPolySelect ? tr("Polygon Selection mode")
-					: tr("Rectangle Selection mode") );
-
-    if ( toolbar_->isOn(polyselectidx_) )
-    {
-	if ( toolbar_->isOn(seedidx_) )
-	{
-	    visserv_->turnSeedPickingOn( false );
-	    polyselstoppedseedpick_ = true;
-	}
-    }
-    else if ( polyselstoppedseedpick_ )
-	visserv_->turnSeedPickingOn( true );
-
-    updateButtonSensitivity(0);
-    */
 }
 
 
@@ -955,26 +890,6 @@ void uiMPEMan::handleToolClick( CallBacker* cb )
 
 void uiMPEMan::removeInPolygon( CallBacker* cb )
 {
-/*
-    const Selector<Coord3>* sel =
-	visserv_->getCoordSelector( clickablesceneid_ );
-    if ( !sel || !sel->isOK() )
-	return;
-
-    const int currentevent = EM::EMM().undo().currentEventID();
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
-	return;
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,
-		    emod,visserv_->getObject(selectedids[0]) );
-
-    uiTaskRunner taskrunner( toolbar_ );
-    emod->removeSelection( *sel, &taskrunner );
-    toolbar_->turnOn( polyselectidx_, false );
-    selectionMode( cb );
-
-    setUndoLevel( currentevent );
-*/
 }
 
 
@@ -995,25 +910,6 @@ void uiMPEMan::showSettingsCB( CallBacker* )
 
 void uiMPEMan::displayAtSectionCB( CallBacker* )
 {
-/*
-    MPE::EMTracker* tracker = getSelectedTracker();
-    if ( !tracker ) return;
-
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
-	return;
-
-    mDynamicCastGet( visSurvey::EMObjectDisplay*,
-		     surface, visserv_->getObject(selectedids[0]) );
-
-    bool ison = toolbar_->isOn(displayatsectionidx_);
-
-    if ( surface && (surface->getObjectID()== tracker->objectID()) )
-	surface->setOnlyAtSectionsDisplay( ison );
-
-    toolbar_->setToolTip( displayatsectionidx_,
-	ison ? tr("Display full") : tr("Display at section only") );
-*/
 }
 
 
@@ -1102,32 +998,18 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-//    mDynamicCastGet(MPE::Horizon2DSeedPicker*,sp2d,seedpicker)
-//    const bool is2d = sp2d;
-
-//    const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
-//    toolbar_->setSensitive( trackinvolidx_,
-//	    !is2d && isinvolumemode && seedpicker );
-
-//    toolbar_->setSensitive( removeinpolygonidx_,
-//			    toolbar_->isOn(polyselectidx_) );
 
     toolbar_->setSensitive( tracker );
     if ( seedpicker &&
 	    !(visserv_->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
 	toolbar_->setSensitive( true );
-
-    //Save button
-//    const EM::EMObject* emobj =
-//	tracker ? EM::EMM().getObject( tracker->objectID() ) : 0;
-//    toolbar_->setSensitive( saveidx_, emobj && emobj->isChanged() );
 }
 
 
 void uiMPEMan::keyPressedCB(CallBacker*)
 {
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
-    
+
     if ( KeyboardEvent::isUnDo(kbe) )
 	undoPush( 0 );
 

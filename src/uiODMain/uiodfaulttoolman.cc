@@ -341,7 +341,9 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 	       uiODFaultToolMan::treeItemDeselCB );
     mAttachCB( EM::EMM().addRemove,
 	       uiODFaultToolMan::addRemoveEMObjCB );
-    mAttachCB( appl_.applMgr().visServer()->objectaddedremoved,
+    mAttachCB( appl_.applMgr().visServer()->objectAdded,
+	       uiODFaultToolMan::addRemoveVisObjCB );
+    mAttachCB( appl_.applMgr().visServer()->objectRemoved,
 	       uiODFaultToolMan::addRemoveVisObjCB );
     mAttachCB( appl_.postFinalise(),
 	       uiODFaultToolMan::finaliseDoneCB );
@@ -457,7 +459,7 @@ void uiODFaultToolMan::treeItemDeselCB( CallBacker* cber )
 }
 
 
-void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* cb )
+void uiODFaultToolMan::addRemoveEMObjCB( CallBacker* )
 {
     if ( curemid_ == -1 )
 	return;
@@ -477,7 +479,7 @@ struct DisplayCacheObj
 static ObjectSet<DisplayCacheObj> displaycache_;
 
 
-void uiODFaultToolMan::addRemoveVisObjCB( CallBacker* cb )
+void uiODFaultToolMan::addRemoveVisObjCB( CallBacker* )
 {
     deepErase( displaycache_ );
 
