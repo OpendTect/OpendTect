@@ -67,16 +67,18 @@ public:
     void		fill(BufferString&) const;
     bool		use(const char*);
 
-    static Color	NoColor()	{ return  Color(0,0,0,255); }
+    static Color	NoColor()	{ return Color(0,0,0,255); }
 
-    static Color	Black()		{ return  Color(0,0,0,0); }
-    static Color	Blue()		{ return  Color(0,0,255,0); }
-    static Color	Green()		{ return  Color(0,255,0,0); }
-    static Color	White()		{ return  Color(255,255,255,0); }
-    static Color	DgbColor()	{ return  Color(2,240,4,0); }
-    static Color	LightGrey()	{ return  Color(211,211,211,0); }
-    static Color	Peach()		{ return  Color(255,218,185,0); }
-    static Color	Red()		{ return  Color(255,0,0,0); }
+    static Color	Black()		{ return Color(0,0,0,0); }
+    static Color	Blue()		{ return Color(0,0,255,0); }
+    static Color	DgbColor()	{ return Color(2,240,4,0); }
+    static Color	Green()		{ return Color(0,255,0,0); }
+    static Color	LightGrey()	{ return Color(211,211,211,0); }
+    static Color	Orange()	{ return Color(255,170,0); }
+    static Color	Peach()		{ return Color(255,218,185,0); }
+    static Color	Red()		{ return Color(255,0,0,0); }
+    static Color	White()		{ return Color(255,255,255,0); }
+    static Color	Yellow()	{ return Color(255,255,0,0); }
 
     static unsigned char getUChar( float v );
 
