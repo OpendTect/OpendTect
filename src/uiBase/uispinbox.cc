@@ -287,12 +287,22 @@ const char* uiSpinBox::text() const
     return res;
 }
 
+static bool isNotSet( int val )
+{ return mIsUdf(val) || val == INT_MAX; }
 
 void uiSpinBox::setValue( int val )
 {
     mBlockCmdRec;
     if ( mIsUdf(val) )
-	val = maxValue();
+    {
+	if ( isNotSet(-minValue()) && isNotSet(maxValue()) )
+	    val = 0;
+	else if ( isNotSet(-minValue()) )
+	    val = maxValue();
+	else if ( isNotSet(maxValue()) )
+	    val = minValue();
+    }
+
     body_->setValue( val );
 }
 
