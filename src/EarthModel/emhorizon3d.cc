@@ -168,7 +168,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
     , hs_(hs)
     , sectionidx_(0)
     , nrvals_(-1)
-    , msg_("Adding nodes")
+    , msg_(tr("Adding nodes"))
 {
     if ( bvss_.isEmpty() ) return;
     nrvals_ = bvss_[0]->nrVals();
@@ -179,7 +179,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
     {
 	const BinIDValueSet& bvs = *bvss_[idx];
 	if ( bvs.nrVals() != nrvals_ )
-	    { msg_ = "Incompatible sections"; return; }
+	    { msg_ = tr("Incompatible sections"); return; }
 
 	totalnr_ += mCast( int, bvs.totalSize() );
 
@@ -195,7 +195,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	    horarrays_ += arr;
 	}
 	else
-	    msg_ = "No valid positions";
+	    msg_ = tr("No valid positions");
     }
 
     horizon_.enableGeometryChecks( false );
@@ -268,11 +268,11 @@ void fillHorizonArray()
 protected:
 
     const ObjectSet<BinIDValueSet>&	bvss_;
-    Horizon3D&		horizon_;
-    BinIDValueSet::SPos	pos_;
-    TrcKeySampling		hs_;
-    BufferString	msg_;
-    int			nrvals_;
+    Horizon3D&				horizon_;
+    BinIDValueSet::SPos			pos_;
+    TrcKeySampling			hs_;
+    uiString				msg_;
+    int					nrvals_;
 
     ObjectSet<Array2D<float> > horarrays_;
 
@@ -289,6 +289,9 @@ Horizon3D::Horizon3D( EMManager& man )
     , auxdata(*new SurfaceAuxData(*this))
     , lockednodes_(0)
     , parents_(0)
+    , parentcolor_(Color::Yellow())
+    , childcolor_(Color::Orange())
+    , lockcolor_(Color::Blue())
 {
     geometry_.addSection( "", false );
 }
@@ -596,7 +599,12 @@ TrcKey Horizon3D::getParent( const TrcKey& node ) const
 
 void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
 {
+    if ( !parents_ || node.isUdf() ) return;
+
     od_int64 gidx = trackingsamp_.globalIdx( node );
+    if ( gidx<0 || gidx>=parents_->info().getTotalSz() )
+	return;
+
     while ( true )
     {
 	gidx = parents_->getData()[gidx];
@@ -627,6 +635,69 @@ bool Horizon3D::isNodeLocked( const TrcKey& node ) const
 }
 
 
+void Horizon3D::lockAll()
+{
+    if ( !lockednodes_ ) return;
+
+    PtrMan<EMObjectIterator> it = createIterator( sectionID(0) );
+    if ( !it ) return;
+
+    while ( true )
+    {
+	const PosID pid = it->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	const Coord3 crd = getPos( pid );
+	if ( !crd.isDefined() ) continue;
+
+	const TrcKey tk = BinID::fromInt64( pid.subID() );
+	setNodeLocked( tk, true );
+    }
+}
+
+
+void Horizon3D::unlockAll()
+{
+    if ( !lockednodes_ ) return;
+
+    lockednodes_->setAll( '0' );
+}
+
+
+void Horizon3D::setParentColor( const Color& col )
+{ parentcolor_ = col; /*change.trigger();*/ }
+
+const Color& Horizon3D::getParentColor() const
+{ return parentcolor_; }
+
+void Horizon3D::setChildColor( const Color& col )
+{ childcolor_ = col; /*change.trigger();*/ }
+
+const Color& Horizon3D::getChildColor() const
+{ return childcolor_; }
+
+void Horizon3D::setLockColor( const Color& col )
+{ lockcolor_ = col; /*change.trigger();*/ }
+
+const Color& Horizon3D::getLockColor() const
+{ return lockcolor_; }
+
+
+bool Horizon3D::setPos( const PosID& pid, const Coord3& crd, bool addtoundo )
+{ return setPos( pid.sectionID(), pid.subID(), crd, addtoundo ); }
+
+
+bool Horizon3D::setPos( const SectionID& sid, const SubID& subid,
+			const Coord3& crd, bool addtoundo )
+{
+    const BinID bid = BinID::fromInt64( subid );
+    if ( isNodeLocked(TrcKey(bid)) ) return false;
+
+    return EMObject::setPos( sid, subid, crd, addtoundo );
+}
+
+
 // Horizon3DGeometry
 Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
     : HorizonGeometry( surf )
@@ -637,7 +708,7 @@ Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
 
 
 const Geometry::BinIDSurface*
-Horizon3DGeometry::sectionGeometry( const SectionID& sid ) const
+    Horizon3DGeometry::sectionGeometry( const SectionID& sid ) const
 {
     return (const Geometry::BinIDSurface*)
 				    SurfaceGeometry::sectionGeometry(sid);
@@ -645,7 +716,7 @@ Horizon3DGeometry::sectionGeometry( const SectionID& sid ) const
 
 
 Geometry::BinIDSurface*
-Horizon3DGeometry::sectionGeometry( const SectionID& sid )
+    Horizon3DGeometry::sectionGeometry( const SectionID& sid )
 {
     return (Geometry::BinIDSurface*) SurfaceGeometry::sectionGeometry(sid);
 }
