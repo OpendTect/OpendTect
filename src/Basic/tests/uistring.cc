@@ -87,7 +87,7 @@ bool testSharedData()
 		      BufferString(b.getFullString()), "arg on copy" );
 
     uiString c = b;
-    c = "Another message";
+    c = toUiString("Another message");
     mRunStandardTest( BufferString(c.getFullString())!=
 		      BufferString(b.getFullString()),
 		      "assignment of copy" );
@@ -167,7 +167,7 @@ bool testHexEncoding()
     BufferString msg( "Espana" );
     ((unsigned char*) msg.buf() )[4] = 241;
 
-    uiString original( msg );
+    uiString original( toUiString(msg) );
     BufferString encoding;
     original.getHexEncoded( encoding );
     

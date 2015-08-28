@@ -131,7 +131,8 @@ bool uiStaticsDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 
     if ( !IOM().commitChanges(ioobj) )
     {
-	if ( disperr ) uiMSG().error(tr("Cannot write statics information"));
+	if ( disperr )
+	    uiMSG().error(uiStrings::phrCannotWriteDBEntry(ioobj.uiName()));
 	return false;
     }
 

@@ -47,10 +47,10 @@ public:
 
     static bool		readData(const char* fnm,ObjectSet<MultiID>&,
 				  TypeSet<float>&,TypeSet<int>&,
-				  BufferString& emsg);
+				  uiString& emsg);
     static bool		writeData(const char* fnm,const ObjectSet<MultiID>&,
 				  const TypeSet<float>&,const TypeSet<int>&,
-				  BufferString& emsg);
+				  uiString& emsg);
 
 protected:
 
@@ -58,7 +58,7 @@ protected:
     ObjectSet<SeisTrcReader>	rdrs_;
     TypeSet<float>		offs_;
     TypeSet<int>		comps_;
-    mutable BufferString	errmsg_;
+    mutable uiString		errmsg_;
 
     void			getCubeData(const SeisTrcReader&,
 					    PosInfo::CubeData&) const;

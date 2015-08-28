@@ -78,7 +78,7 @@ Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     iodir_ = new IODir( ctio->ctxt.getSelKey() );
     direntries_ = new IODirEntryList( *iodir_, ctio->ctxt );
     totalnr_ = direntries_->size();
-    curmsg_ = totalnr_ ? "Gathering information" : "No wells";
+    curmsg_ = totalnr_ ? tr("Gathering information") : tr("No wells");
 }
 
 
@@ -483,7 +483,7 @@ int Well::TrackSampler::nextStep()
     RefMan<Well::Data> wd = Well::MGR().get( MultiID(ids_.get(curid_)) );
     if ( !wd )
     {
-	errmsg_ = Well::MGR().errMsg();
+	errmsg_ = mToUiStringTodo(Well::MGR().errMsg());
 	mRetNext()
     }
 
@@ -664,7 +664,7 @@ int Well::LogDataExtracter::nextStep()
     PtrMan<Well::Track> track = 0;
     if ( !wd )
     {
-	msg_ = Well::MGR().errMsg();
+	msg_ = mToUiStringTodo(Well::MGR().errMsg());
 	mRetNext()
     }
 

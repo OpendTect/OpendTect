@@ -912,7 +912,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	ioobj->pars().set( sKey::Type(), object->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
 	{
-	    uiMSG().error( tr("Could not write to database") );
+	    uiMSG().error( uiStrings::phrCannotWriteDBEntry(ioobj->uiName()) );
 	    return false;
 	}
     }

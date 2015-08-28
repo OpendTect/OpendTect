@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iostrm.h"
 #include "strmprov.h"
+#include "uistrings.h"
 
 
 namespace EM
@@ -169,7 +170,7 @@ mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
 	    iostrm->setFileName( newfp.fileName() );
 	if ( !IOM().commitChanges( ioobj ) )
 	{
-	    errmsg = "No permission to write, conversion failed!";
+	    errmsg = uiStrings::phrCannotWriteDBEntry( ioobj.uiName() );
 	    return false;
 	}
     }

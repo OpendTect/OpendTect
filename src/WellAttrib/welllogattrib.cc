@@ -85,7 +85,7 @@ void WellLog::prepareForComputeData()
 	wd = Well::MGR().get( wellid_ );
 	if ( !wd )
 	{
-	    errmsg_ = Well::MGR().errMsg();
+	    errmsg_ = mToUiStringTodo( Well::MGR().errMsg() );
 	    return;
 	}
     }
@@ -97,9 +97,10 @@ void WellLog::prepareForComputeData()
 	const bool haslog = wrdr.getLog( logname_ );
 	if ( !hastrack || ( SI().zIsTime() && !hasd2t ) || !haslog )
 	{
-	    errmsg_ = !hastrack ? "Cannot read track"
-				: !haslog ? "Cannot read log"
-					  : "Cannot read time-depth model";
+	    errmsg_ = uiStrings::phrCannotRead( !hastrack
+				    ? uiStrings::sTrack()
+				    : !haslog ? uiStrings::sWellLog()
+					      : tr("time-depth model") );
 	    if ( wd->name() )
 		errmsg_.append( " for well ").append( wd->name() );
 

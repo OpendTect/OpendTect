@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "welldahobj.h"
+#include "uistring.h"
 
 class TimeDepthModel;
 class uiString;
@@ -24,13 +25,14 @@ namespace Well
 
 class Data;
 class Track;
+class Info;
 
 /*!
 \brief Depth to time model.
 */
 
 mExpClass(Well) D2TModel : public DahObj
-{
+{ mODTextTranslationClass(D2TModel);
 public:
 
 			D2TModel( const char* nm= 0 )
@@ -106,6 +108,18 @@ protected:
 					     Interval<double>& depths,
 					     Interval<float>& times) const;
 			//!<Read legacy incorrect time-depth model.
+    static bool getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
+			  TypeSet<double>& zvals, TypeSet<double>& tvals,
+			  uiString& errmsg, uiString& warnmsg );
+    static void convertDepthsToMD( const Well::Track& track,
+				  const TypeSet<double>& zvals,
+				  TypeSet<float>& dahs );
+    static void shiftTimesIfNecessary( TypeSet<double>& tvals, double wllheadz,
+				 double vrepl, double origintwtinfile,
+				  uiString& msg );
+    static void checkReplacementVelocity( Well::Info& info,
+					 double vreplinfile,
+					 uiString& msg );
 };
 
 mGlobal(Well) float	getDefaultVelocity();

@@ -486,7 +486,10 @@ bool SEGYDirectSeisTrcTranslator::write( const SeisTrc& trc )
 	return false;
 
     if ( !tr_ || !def_ || !fds_ )
-	{ errmsg_ = "Internal: tr_, def_ or fds_ null"; return false; }
+    {
+	errmsg_ = toUiString("Internal: tr_, def_ or fds_ null");
+	return false;
+    }
 
     if ( !tr_->write(trc) )
 	{ errmsg_ = tr_->errMsg(); return false; }

@@ -600,7 +600,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 				      TaskRunner* taskr )
 {
     if ( !ioobj_ )
-	mErrRet( "Failed to find the input dataset" )
+	mErrRet( uiStrings::phrCannotFindDBEntry( uiStrings::sInput() ) )
 
     PtrMan<SeisTrcReader> seisrdr = new SeisTrcReader( ioobj_ );
     seisrdr->prepareWork();
@@ -628,7 +628,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 	new TrcDataLoader( *seisrdr, *data_, tkzs_.hsamp_, is2d );
     const bool res = TaskRunner::execute( taskr, *loader );
     if ( !res )
-	mErrRet( "Failed to read input dataset" )
+	mErrRet( uiStrings::phrCannotRead( ioobj_->uiName() ) )
 
     return true;
 }

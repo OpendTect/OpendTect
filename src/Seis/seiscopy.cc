@@ -76,14 +76,14 @@ void SeisCubeCopier::init()
     {
 	errmsg_ = stp_->uiMessage();
 	if ( errmsg_.isEmpty() )
-	    errmsg_ = "Input cube is unreadable";
+	    errmsg_ = uiStrings::phrCannotRead( uiStrings::sInput() );
 	delete stp_; stp_ = 0;
     }
     if ( !stp_->writer() )
     {
 	errmsg_ = stp_->uiMessage();
 	if ( errmsg_.isEmpty() )
-	    errmsg_ = "Cannot write to output cube";
+	    errmsg_ = uiStrings::phrCannotWrite( uiStrings::sOutput() );
 	delete stp_; stp_ = 0;
     }
 
@@ -202,7 +202,7 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 {
     PtrMan<IOPar> lspar = par.subselect( sKey::Line() );
     if ( !lspar || lspar->isEmpty() )
-	{ msg_ = "Internal: Required data missing"; return; }
+	{ msg_ = toUiString("Internal: Required data missing"); return; }
 
     for ( int idx=0; ; idx++ )
     {
@@ -236,7 +236,7 @@ Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 	totalnr_ += ( trcrgs_[idx].nrSteps() + 1 );
 
     if ( totalnr_ < 1 )
-	msg_ = "No traces to copy";
+	msg_ = tr("No traces to copy");
 }
 
 

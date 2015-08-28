@@ -346,7 +346,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    comps += idx;
 	}
 
-	BufferString errmsg;
+	uiString errmsg;
 	const bool res = MultiCubeSeisPSReader::writeData(
 		datastorefld_->ioobj()->fullUserExpr(false),
 		mids, offs, comps, errmsg );

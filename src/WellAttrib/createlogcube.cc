@@ -61,7 +61,10 @@ bool LogCubeCreator::LogCube::mkIOObj()
 	return false;
 
     if ( !IOM().commitChanges(*ctio.ioobj) )
+    {
+	errmsg_ = uiStrings::phrCannotWriteDBEntry( ctio.ioobj->uiName() );
 	return false;
+    }
 
     seisioobj_ = ctio.ioobj;
     return true;

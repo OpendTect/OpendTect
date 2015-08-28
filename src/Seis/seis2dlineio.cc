@@ -256,9 +256,9 @@ bool Seis2DLineMerger::nextAttr()
 bool Seis2DLineMerger::nextFetcher()
 {
     if ( !ds_ )
-	mErrRet("Cannot find the Data Set")
+	mErrRet(tr("Cannot find the Data Set"))
     if ( ds_->nrLines() < 2 )
-	mErrRet("Cannot find 2 lines in Line Set");
+	mErrRet(tr("Cannot find 2 lines in Line Set"));
     delete fetcher_; fetcher_ = 0;
     currentlyreading_++;
     if ( currentlyreading_ > 2 )
@@ -287,13 +287,18 @@ bool Seis2DLineMerger::nextFetcher()
 	    uiStrings::phrCannotCreate(tr("a reader for %1.")
 				       .arg(geom2d->getName()) ) )
 
-    nrdonemsg_ = "Traces read";
+    nrdonemsg_ = tr("Traces read");
     return true;
 }
 
 
 #undef mErrRet
-#define mErrRet(s) { if ( s ) msg_ = s; return Executor::ErrorOccurred(); }
+#define mErrRet(s) \
+{ \
+    if ( !s.isEmpty() ) \
+	msg_ = s; \
+    return Executor::ErrorOccurred(); \
+}
 
 int Seis2DLineMerger::nextStep()
 {
@@ -326,7 +331,7 @@ int Seis2DLineMerger::doWork()
 	{
 	    outbuf_.deepErase();
 	    if ( !putter_->close() )
-		mErrRet(putter_->errMsg().getOriginalString())
+		mErrRet(putter_->errMsg())
 	    delete putter_; putter_ = 0;
 	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry(outgeomid_);
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
@@ -338,7 +343,7 @@ int Seis2DLineMerger::doWork()
 
 	const SeisTrc& trc = *outbuf_.get( mCast(int,nrdone_) );
 	if ( !putter_->put(trc) )
-	    mErrRet(putter_->errMsg().getOriginalString())
+	    mErrRet(putter_->errMsg())
 
 	if ( !curattridx_ )
 	{
@@ -347,7 +352,7 @@ int Seis2DLineMerger::doWork()
 	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( outgeomid_);
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d )
-		mErrRet( "Output 2D Geometry not written properly" );
+		mErrRet( tr("Output 2D Geometry not written properly") );
 
 	    PosInfo::Line2DData& outl2dd = geom2d->dataAdmin();
 	    outl2dd.add( pos );
@@ -357,7 +362,7 @@ int Seis2DLineMerger::doWork()
     }
 
     if ( tbuf1_.isEmpty() && tbuf2_.isEmpty() )
-	mErrRet( "No input traces found" )
+	mErrRet( tr("No input traces found") )
 
     mergeBufs();
 
@@ -368,9 +373,9 @@ int Seis2DLineMerger::doWork()
     lineiopar->set( sKey::GeomID(), outgeomid_ );
     putter_ = ds_->linePutter( outgeomid_ );
     if ( !putter_ )
-	mErrRet("Cannot create writer for output line");
+	mErrRet(tr("Cannot create writer for output line") );
 
-    nrdonemsg_ = "Traces written";
+    nrdonemsg_ = tr("Traces written");
     return Executor::MoreToDo();
 }
 

@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "velocitypicksundo.h"
 #include "zdomain.h"
+#include "uistrings.h"
 
 #define mDepthIndex	0
 #define mVelIndex	1
@@ -427,7 +428,8 @@ bool Picks::store( const IOObj* ioobjarg )
 
     if ( !IOM().commitChanges(*ioobj) )
     {
-	errmsg_ = "Internal: Could not write the .omf";
+	errmsg_ = mFromUiStringTodo(
+		    uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) );
 	return false;
     }
 
@@ -739,7 +741,8 @@ bool Picks::interpolateVelocity(EM::ObjectID emid, float searchradius,
 	const Coord coord = SI().transform(bid);
 
 	float* vals = res.getVals( pos );
-	vals[0] = (float)horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z;
+	vals[0] =
+	    (float)horizon->getPos( horizon->sectionID(0), bid.toInt64() ).z;
 
 	float weightsum = 0;
 	float weightvalsum = 0;

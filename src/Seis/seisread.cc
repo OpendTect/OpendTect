@@ -243,7 +243,7 @@ bool SeisTrcReader::initRead( Conn* conn )
     if ( nrcomp < 1 )
     {
 	// Why didn't the translator return false?
-	errmsg_ = "Internal: no data components found";
+	errmsg_ = toUiString("Internal: no data components found");
 	cleanUp(); return false;
     }
 

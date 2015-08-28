@@ -595,7 +595,7 @@ void SeisSequentialWriter::reportWrite( const char* errmsg )
     Threads::MutexLocker lock( lock_ );
     if ( errmsg )
     {
-	errmsg_ = errmsg;
+	errmsg_ = mToUiStringTodo(errmsg);
 	Threads::WorkManager::twm().emptyQueue( queueid_, false );
 	lock_.signal( true );
 	return;

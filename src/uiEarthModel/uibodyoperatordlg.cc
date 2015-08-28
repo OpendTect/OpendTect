@@ -342,7 +342,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
-	    mRetErr(tr("Writing body to disk failed, no permision?"))
+	    mRetErr( uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) )
     }
 
     TaskRunner::execute( &taskrunner, *exec );
@@ -492,8 +492,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !IOM().commitChanges(*ioobj) )
-	    mRetErr( tr("Writing body to disk failed. "
-                        "Please check permissions.") )
+	    mRetErr( uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) )
     }
 
     if ( !TaskRunner::execute(&taskrunner,*exec) )

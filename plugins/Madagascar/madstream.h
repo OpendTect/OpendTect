@@ -50,11 +50,8 @@ public:
 
 protected:
 
-    static uiString		sCannotCreatePosFile();
-    static uiString		sCannotWritePosFile();
-    static uiString		sCannotOpenPosFile();
-    static uiString		sCannotReadPosFile();
     static uiString		sNoPositionsInPosFile();
+    static uiString		sPosFile();
 
     bool			iswrite_;
     bool			is2d_;

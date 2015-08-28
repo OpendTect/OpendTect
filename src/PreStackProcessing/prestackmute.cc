@@ -135,7 +135,7 @@ bool Mute::usePar( const IOPar& par )
     MultiID mid;
     if ( par.get(sMuteDef(),mid) && !setMuteDefID(mid) )
     {
-	errmsg_ = "No Mute definition ID found.";
+	errmsg_ = tr("No Mute definition ID found.");
 	return false;
     }
 

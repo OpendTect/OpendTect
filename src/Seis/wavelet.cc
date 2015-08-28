@@ -488,11 +488,10 @@ int Wavelet::getPos( float val, bool closetocenteronly ) const
 
 static void markWaveletScaled( const MultiID& id, const char* val )
 {
-    IOObj* ioobj = IOM().get( id );
+    PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) return;
     ioobj->pars().set( sKeyScaled, val );
     IOM().commitChanges( *ioobj );
-    delete ioobj;
 }
 
 
@@ -657,7 +656,7 @@ Table::FormatDesc* WaveletAscIO::getDesc()
 }
 
 
-#define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
+#define mErrRet(s) { if ( !s.isEmpty() ) errmsg_ = s; return 0; }
 
 Wavelet* WaveletAscIO::get( od_istream& strm ) const
 {
@@ -683,7 +682,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     while ( true )
     {
 	int ret = getNextBodyVals( strm );
-	if ( ret < 0 ) mErrRet(0)
+	if ( ret < 0 ) mErrRet(uiString::emptyString())
 	if ( ret == 0 ) break;
 
 	float val = getFValue( 0 );
@@ -691,7 +690,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
     }
 
     if ( samps.isEmpty() )
-	mErrRet( "No valid data samples found" )
+	mErrRet( tr("No valid data samples found") )
     if ( mIsUdf(centersmp) || centersmp > samps.size() )
 	centersmp = samps.size() / 2;
 
