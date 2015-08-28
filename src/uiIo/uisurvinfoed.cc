@@ -233,16 +233,19 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
 void uiSurveyInfoEditor::mkRangeGrp()
 {
     rangegrp_ = new uiGroup( this, "Survey ranges" );
-    inlfld_ = new uiGenInput( rangegrp_, tr("In-line range"),
-			     IntInpIntervalSpec(true).setName("Inl Start",0)
-						     .setName("Inl Stop",1)
-						     .setName("Inl step",2) );
+
+    const Interval<int> startstoprg( -mUdf(int), mUdf(int) );
+    const Interval<int> steprg( 1, mUdf(int) );
+    IntInpIntervalSpec iis( true );
+    iis.setLimits( startstoprg, -1 ).setLimits( steprg, 2 );
+    iis.setName("Inl Start",0).setName("Inl Stop",1).setName("Inl step",2);
+    inlfld_ = new uiGenInput( rangegrp_, tr("In-line range"), iis );
     inlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
-    crlfld_ = new uiGenInput( rangegrp_, tr("Cross-line range"),
-			     IntInpIntervalSpec(true).setName("Crl Start",0)
-						     .setName("Crl Stop",1)
-						     .setName("Crl step",2) );
+
+    iis.setName("Crl Start",0).setName("Crl Stop",1).setName("Crl step",2);
+    crlfld_ = new uiGenInput( rangegrp_, tr("Cross-line range"), iis );
     crlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
+
     zfld_ = new uiGenInput( rangegrp_, tr("Z range"),
 			   DoubleInpIntervalSpec(true).setName("Z Start",0)
 						      .setName("Z Stop",1)
