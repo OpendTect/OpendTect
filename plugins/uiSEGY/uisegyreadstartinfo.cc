@@ -299,8 +299,11 @@ void uiSEGYReadStartInfo::showRelevantInfo()
     const char* ky1ustxt; const char* ky2ustxt; const char* offsustxt;
     xittxt = yittxt = ky1ittxt = ky2ittxt = offsittxt =
     xustxt = yustxt = ky1ustxt = ky2ustxt = offsustxt = "";
+    const char* nrtrcsusrtxt = "";
 
-    if ( !isvsp )
+    if ( isvsp )
+	nrtrcsusrtxt = "(1 trace used)";
+    else
     {
 	xittxt = "X-Coordinate range"; yittxt = "Y-Coordinate range";
 	ky1ittxt = is2d ? "Trace number range" : "Inline range";
@@ -325,6 +328,7 @@ void uiSEGYReadStartInfo::showRelevantInfo()
     setCellTxt( mQSResCol, mXRow, isvsp ? "" : xinfotxt_ );
     setCellTxt( mQSResCol, mYRow, isvsp ? "" : yinfotxt_ );
     setCellTxt( mQSResCol, mPSRow, isvsp || !isps ? "" : offsetinfotxt_.buf() );
+    setCellTxt( mUseTxtCol, mNrSamplesRow, nrtrcsusrtxt );
     setCellTxt( mUseTxtCol, mKey1Row, ky1ustxt );
     setCellTxt( mUseTxtCol, mKey2Row, ky2ustxt );
     setCellTxt( mUseTxtCol, mXRow, xustxt );

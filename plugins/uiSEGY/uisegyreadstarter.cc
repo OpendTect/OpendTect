@@ -300,10 +300,11 @@ void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
 	txt = tr( "[%1 files]" ); txt.arg( nrfiles );
 	if ( !unsupported_multi_warning_done )
 	{
-	    uiMSG().warning( "Multi-file import does not work yet in this"
-	     " preview release.\n\nWe are working hard to make it work"
-	     "\nand get it into the coming 'real' 6.0 release."
-	     "\n\nPlease use the old Survey-Import-Seismics tools for now." );
+	    uiMSG().warning( "In this preview release, multi-file import only "
+	      "works for the 'link' type.\n\nWe are working hard to "
+	      "make it work for 'copy' type too\nand get it into the coming "
+	      "'real' 6.0 release.\n\nPlease use the old "
+	      "Survey-Import-Seismics tools for 'copy' import." );
 	    unsupported_multi_warning_done = true;
 	}
     }
