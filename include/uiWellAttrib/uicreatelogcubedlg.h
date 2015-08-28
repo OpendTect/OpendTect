@@ -56,7 +56,7 @@ public:
 protected:
 
     uiLabeledSpinBox*		repeatfld_;
-    uiGenInput*			savepostfix_;
+    uiGenInput*			savesuffix_;
     uiCheckBox*			savewllnmfld_;
 
 };
