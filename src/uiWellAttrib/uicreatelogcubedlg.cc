@@ -30,7 +30,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
     : uiDialog(p,uiDialog::Setup(tr("Create Log Cube"),
 				 tr("Select logs to create new cubes"),
 				 mid ? mODHelpKey(mCreateLogCubeDlgHelpID)
-	       			     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
+				     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
 {
     setCtrlStyle( RunAndClose );
 
@@ -97,17 +97,17 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
 
     uiLabel* savelbl = new uiLabel( outputgrp,
 			       uiStrings::phrOutput( uiStrings::sName() ) );
-    savepostfix_ = new uiGenInput( outputgrp, tr("with postfix"), "log cube" );
-    savepostfix_->setWithCheck( true );
-    savepostfix_->setChecked( true );
-    savepostfix_->attach( rightOf, savelbl );
+    savesuffix_ = new uiGenInput( outputgrp, tr("with suffix"), "log cube" );
+    savesuffix_->setWithCheck( true );
+    savesuffix_->setChecked( true );
+    savesuffix_->attach( rightOf, savelbl );
 
     if ( !withwllnm )
 	return;
 
     savewllnmfld_ = new uiCheckBox( outputgrp, tr("with well name") );
     savewllnmfld_->setChecked( true );
-    savewllnmfld_->attach( rightOf, savepostfix_ );
+    savewllnmfld_->attach( rightOf, savesuffix_ );
 }
 
 
@@ -119,10 +119,10 @@ int uiCreateLogCubeOutputSel::getNrRepeatTrcs() const
 
 const char* uiCreateLogCubeOutputSel::getPostFix() const
 {
-    if ( !savepostfix_->isChecked() )
+    if ( !savesuffix_->isChecked() )
 	return 0;
 
-    return savepostfix_->text();
+    return savesuffix_->text();
 }
 
 
@@ -140,7 +140,7 @@ void uiCreateLogCubeOutputSel::displayRepeatFld( bool disp )
 
 void uiCreateLogCubeOutputSel::setPostFix( const BufferString& nm )
 {
-    savepostfix_->setText( nm );
+    savesuffix_->setText( nm );
 }
 
 
@@ -159,7 +159,7 @@ bool uiCreateLogCubeOutputSel::askOverwrite( const uiString& errmsg ) const
     if ( BufferString(errmsg.getFullString()).find("as another type") )
 {
 	uiString msg( errmsg );
-	msg.append( tr( "Please choose another postfix" ), true );
+	msg.append( tr( "Please choose another suffix" ), true );
 	mErrRet( msg )
 }
 
