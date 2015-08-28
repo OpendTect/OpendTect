@@ -26,7 +26,7 @@ Compute z = x convolved with y; i.e.,
 */
 
 template <class A, class B, class C>
-inline void GenericConvolve( int lx, int ifx, const A& x, 
+inline void GenericConvolve( int lx, int ifx, const A& x,
 			     int ly, int ify, const B& y,
 			     int lz, int ifz, C& z)
 {
@@ -123,14 +123,14 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
     if ( mIsZero(sq1,mDefEps) || mIsZero(sq2,mDefEps) )
 	return 0;
 
-    const float rt = 
+    const float rt =
 	   (float) ( Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)) );
     return 1 - rt;
 }
 
 
 mGlobal(Algo) float similarity(const FloatMathFunction&,
-		 const FloatMathFunction&, 
+		 const FloatMathFunction&,
 		 float x1, float x2, float dist, int sz, bool normalize );
 
 
@@ -160,13 +160,13 @@ intervals should be used when searching for a solution. When a solution is
 found in an interval, a high precision search is started in that interval.
 */
 
-mGlobal(Algo) float findValueInAperture(const FloatMathFunction&,float startx, 
+mGlobal(Algo) float findValueInAperture(const FloatMathFunction&,float startx,
 	 	const Interval<float>& aperture,float dx,float target=0,
 		float tol=1e-5);
 
 /*!>
-findExtreme - finds a functions minimal or maximum value (specified by bool 
-minima) within the values x1 and x2. 
+findExtreme - finds a functions minimal or maximum value (specified by bool
+minima) within the values x1 and x2.
 f((x1+x2)/2) should be less than f(x1) and f(x2). If no minima can be found,
 mUdf(float) is returned;
 */
@@ -198,12 +198,12 @@ Compute z = x cross-correlated with y; i.e.,
 Cross correlation will be performed using GenericConvolve function, here is the
 method used:
 1) reverse the samples in the x array ->copy them to a temporary array,
-2) use the temporary array to call function GenericConvolve() 
+2) use the temporary array to call function GenericConvolve()
    with ifx set to 1-ifx-lx.
 */
 
 template <class A, class B, class C>
-inline void genericCrossCorrelation( int lx, int ifx, const A& x, 
+inline void genericCrossCorrelation( int lx, int ifx, const A& x,
 			     	     int ly, int ify, const B& y,
 			     	     int lz, int ifz, C& z)
 {
