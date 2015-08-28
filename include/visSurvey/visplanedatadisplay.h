@@ -46,6 +46,7 @@ public:
 			~PlaneDataDisplayBaseMapObject();
 
     const char*		getType() const;
+    int			getDepth() const;
     void		updateGeometry();
     int			nrShapes() const;
     const char*		getShapeName(int) const;
