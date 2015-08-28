@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dirlist.h"
 #include "seisselection.h"
 #include "seispacketinfo.h"
+#include "uistrings.h"
 
 
 SEGY::DirectReader::~DirectReader()
@@ -486,7 +487,7 @@ bool SEGYDirectSeisTrcTranslator::write( const SeisTrc& trc )
 	return false;
 
     if ( !tr_ || !def_ || !fds_ )
-	{ errmsg_ = "Internal: tr_, def_ or fds_ null"; return false; }
+	{ errmsg_ = uiStrings::phrCannotWrite( mToUiStringTodo("trace") ); }
 
     if ( !tr_->write(trc) )
 	{ errmsg_ = tr_->errMsg(); return false; }

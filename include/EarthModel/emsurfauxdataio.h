@@ -111,6 +111,8 @@ public:
     virtual od_int64		totalNr() const;
     virtual uiString		uiMessage() const;
 
+    static uiString		sHorizonData();
+
 protected:
 
     bool			readInt(int&);
@@ -121,7 +123,7 @@ protected:
     int				dataidx_;
     float			shift_;
     EM::Horizon3D*		surf_;
-    const TrcKeySampling*		sel_;
+    const TrcKeySampling*	sel_;
   
     int				sectionindex_;
     int				nrsections_;

@@ -236,7 +236,7 @@ public:
 			RaySynthGenerator(ObjectSet<RayModel>*);
 			~RaySynthGenerator();
 
-    void		reset() { resetNrDone(); message_ = ""; }
+    void		reset();
 
     //input
     void		fillPar(IOPar& raypars) const;

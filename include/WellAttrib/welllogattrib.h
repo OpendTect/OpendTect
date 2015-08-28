@@ -39,7 +39,7 @@ Outputs:
 */
 
 mExpClass(WellAttrib) WellLog : public Provider
-{
+{ mODTextTranslationClass(WellLog)
 public:
     static void		initClass();
 			WellLog(Desc&);
