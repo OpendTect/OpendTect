@@ -155,7 +155,7 @@ for ( int isamp=0; isamp<outnrsamples; isamp++ )
     There are 4 parameters (trc, curcomp, blockbuf_ and storinterp_) to
     pass to the executing object, thus:
 
-mDefParallelCalc4Pars( SEGYSampleInterpreter, trc.size(),
+mDefParallelCalc4Pars( SEGYSampleInterpreter,
 		   SeisTrc&,trc, int,curcomp, unsigned char*,blockbuf,
 		   const TraceDataInterpreter*,storinterp)
 mDefParallelCalcBody( \* No initializations *\,
@@ -219,6 +219,33 @@ interp.execute();
 		: sz_(_sz_) \
 		, v1##_(_##v1##_), v2##_(_##v2##_) \
 		, v3##_(_##v3##_), v4##_(_##v4##_)		{} \
+	    od_int64 nrIterations() const { return sz_; }
+
+#define mDefParallelCalc5Pars(clss,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5) \
+	class clss : public ParallelTask \
+	{ \
+	public: \
+	    od_int64	sz_; \
+	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; T5 v5##_;\
+	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_, T3 _##v3##_, \
+				 T4 _##v4##_, T5 _##v5##_ ) \
+		: sz_(_sz_) \
+		, v1##_(_##v1##_), v2##_(_##v2##_) \
+		, v3##_(_##v3##_), v4##_(_##v4##_), v5##_(_##v5##_) {} \
+	    od_int64 nrIterations() const { return sz_; }
+
+#define mDefParallelCalc6Pars(clss,T1,v1,T2,v2,T3,v3,T4,v4,T5,v5,T6,v6) \
+	class clss : public ParallelTask \
+	{ \
+	public: \
+	    od_int64	sz_; \
+	    T1 v1##_; T2 v2##_; T3 v3##_; T4 v4##_; T5 v5##_; T6 v6##_;\
+	    clss( od_int64 _sz_, T1 _##v1##_, T2 _##v2##_, T3 _##v3##_, \
+				 T4 _##v4##_, T5 _##v5##_, T6 _##v6##_ ) \
+		: sz_(_sz_) \
+		, v1##_(_##v1##_), v2##_(_##v2##_) \
+		, v3##_(_##v3##_), v4##_(_##v4##_) \
+		, v5##_(_##v5##_), v6##_(_##v6##_)	    {} \
 	    od_int64 nrIterations() const { return sz_; }
 
 #define mDefParallelCalcBody(preop,impl,postop) \
