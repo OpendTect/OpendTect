@@ -349,6 +349,11 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 	return false;
     }
 
+    if ( indexer )
+    {
+	IOPar rep( "SEG-Y scan report" ); indexer->scanner()->getReport( rep );
+	uiSEGY::displayReport( parent(), rep );
+    }
     return true;
 }
 
