@@ -1057,39 +1057,10 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	sceneMgr().updateTrees();
     else if ( evid==uiMPEPartServer::evUpdateSeedConMode() )
 	visserv_->updateSeedConnectMode();
-    else if ( evid==uiMPEPartServer::evMPEStoreEMObject() )
-    {
+    else if ( evid==uiMPEPartServer::evStoreEMObject() )
 	storeEMObject();
-    }
-    else if ( evid==uiMPEPartServer::evSaveUnsavedEMObject() )
-    {
-	const EM::ObjectID emid = emserv_->saveUnsavedEMObject();
-	const MultiID mid = emserv_->getStorageID(emid);
-	TypeSet<int> ids;
-	visserv_->findObject( mid, ids );
-
-	for ( int idx=0; idx<ids.size(); idx++ )
-	{
-	    visserv_->setObjectName( ids[idx],
-				     (const char*) emserv_->getName(emid) );
-	}
-
-	if ( FixedString(emserv_->getType(emid))==EM::Horizon3D::typeStr() ||
-	     FixedString(emserv_->getType(emid))==EM::Horizon2D::typeStr() )
-	{
-	    mpeserv_->saveSetup( mid );
-	}
-
-	sceneMgr().updateTrees();
-    }
-    else if ( evid==uiMPEPartServer::evRemoveUnsavedEMObject() )
-    {
-	emserv_->removeUnsavedEMObjectFromTree();
-    }
     else if ( evid==uiMPEPartServer::evRetrackInVolume() )
-    {
 	visserv_->trackInVolume();
-    }
     else
     {
 	pErrMsg("Unknown event from mpeserv");

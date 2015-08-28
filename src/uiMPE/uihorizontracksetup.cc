@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
-#include "emsurfacetr.h"
 #include "executor.h"
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
@@ -46,6 +45,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uiseparator.h"
 #include "uislider.h"
 #include "uitabstack.h"
+#include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "od_helpids.h"
@@ -92,15 +92,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     , propertyChanged_(this)
     , state_(Stopped)
 {
-    IOObjContext ctxt =
-	is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
-    ctxt.forread = false;
-    horizonfld_ = new uiIOObjSel( this, ctxt );
-    horizonfld_->selectionDone.notify(
-		mCB(this,uiHorizonSetupGroup,horizonSelCB) );
-
     tabgrp_ = new uiTabStack( this, "TabStack" );
-    tabgrp_->attach( leftAlignedBelow, horizonfld_ );
     uiGroup* modegrp = createModeGroup();
     tabgrp_->addTab( modegrp, tr("Mode") );
 
@@ -163,17 +155,6 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 }
 
 
-void uiHorizonSetupGroup::horizonSelCB( CallBacker* )
-{
-    const IOObj* ioobj = horizonfld_->ioobj( true );
-    if ( !sectiontracker_ || !ioobj )
-	return;
-
-    EM::EMObject& emobj = sectiontracker_->emObject();
-    emobj.setMultiID( ioobj->key() );
-}
-
-
 void uiHorizonSetupGroup::enabTrackCB( CallBacker* )
 {
 }
@@ -207,12 +188,16 @@ void uiHorizonSetupGroup::saveCB( CallBacker* )
     EM::EMObject& emobj = sectiontracker_->emObject();
     if ( emobj.multiID().isUdf() )
     {
-	horizonfld_->doSel(0);
-	emobj.setMultiID( horizonfld_->key() );
+	return;
+	// call uiMPEPartServer::evStoreEMObject()
+	//emobj.setMultiID( mid );
     }
 
+    uiTaskRunner taskrunner( this );
     PtrMan<Executor> exec = emobj.saver();
-    if ( exec ) exec->execute();
+    if ( exec )
+	TaskRunner::execute( &taskrunner, *exec );
+
     mDynamicCastGet(EM::Horizon3D*,hor3d,&emobj)
     if ( hor3d )
     {
@@ -393,7 +378,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Properties" );
     colorfld_ = new uiColorInput( grp,
-				uiColorInput::Setup(getRandStdDrawColor() )
+				uiColorInput::Setup(Color::Green())
 				.withdesc(false).lbltxt(tr("Horizon Color")) );
     colorfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
@@ -414,7 +399,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     seedtypefld_->attach( alignedBelow, linewidthfld_ );
 
     seedcolselfld_ = new uiColorInput( grp,
-				uiColorInput::Setup(Color::White())
+				uiColorInput::Setup(Color::DgbColor())
 				.withdesc(false) );
     seedcolselfld_->attach( rightTo, seedtypefld_ );
     seedcolselfld_->colorChanged.notify(
@@ -427,6 +412,27 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     seedsliderfld_->valueChanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedSliderMove) );
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );
+
+    parentcolfld_ = new uiColorInput( grp,
+				uiColorInput::Setup(Color::Yellow())
+				.withdesc(false).lbltxt(tr("Parents")) );
+    parentcolfld_->colorChanged.notify(
+				mCB(this,uiHorizonSetupGroup,seedColSel) );
+    parentcolfld_->attach( alignedBelow, seedsliderfld_ );
+
+    childcolfld_ = new uiColorInput( grp,
+				uiColorInput::Setup(Color::Yellow())
+				.withdesc(false).lbltxt(tr("Children")) );
+    childcolfld_->colorChanged.notify(
+				mCB(this,uiHorizonSetupGroup,seedColSel) );
+    childcolfld_->attach( alignedBelow, parentcolfld_ );
+
+    lockcolfld_ = new uiColorInput( grp,
+				uiColorInput::Setup(Color::Orange())
+				.withdesc(false).lbltxt(tr("Locked")) );
+    lockcolfld_->colorChanged.notify(
+				mCB(this,uiHorizonSetupGroup,seedColSel) );
+    lockcolfld_->attach( alignedBelow, childcolfld_ );
 
     return grp;
 }
@@ -607,10 +613,6 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 {
     if ( !sectiontracker_ || !horadj_ )
 	return false;
-
-    EM::EMObject& emobj = sectiontracker_->emObject();
-    if ( horizonfld_->ioobj(true) )
-	emobj.setMultiID( horizonfld_->key() );
 
     fieldchange = false;
     correlationgrp_->commitToTracker( fieldchange );

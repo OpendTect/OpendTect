@@ -23,7 +23,6 @@ ________________________________________________________________________
 class uiButtonGroup;
 class uiColorInput;
 class uiGenInput;
-class uiIOObjSel;
 class uiSeisSel;
 class uiSlider;
 class uiTabStack;
@@ -85,7 +84,6 @@ protected:
 
 // General
     uiTabStack*			tabgrp_;
-    uiIOObjSel*			horizonfld_;
     uiToolBar*			toolbar_;
     int				trackbutid_;
     int				startbutid_;
@@ -145,6 +143,9 @@ protected:
     uiGenInput*			seedtypefld_;
     uiColorInput*		seedcolselfld_;
     uiSlider*			seedsliderfld_;
+    uiColorInput*		parentcolfld_;
+    uiColorInput*		childcolfld_;
+    uiColorInput*		lockcolfld_;
 
 
     bool			is2d_;
