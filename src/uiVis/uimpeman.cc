@@ -99,43 +99,12 @@ void uiMPEMan::addButtons()
 			  tr("Create seed ( key: 'Tab' )"), true );
     toolbar_->setShortcut( seedidx_, "Tab" );
 
-//    trackinvolidx_ = mAddButton( "autotrack", trackFromSeedsAndEdges,
-//				tr("Auto-track"), false );
-
-//    trackwithseedonlyidx_ = mAddButton( "trackfromseeds", trackFromSeedsOnly,
-//				       tr("Track From Seeds Only"), false );
-
-//    retrackallidx_ = mAddButton( "retrackhorizon", retrackAllCB,
-//				tr("Retrack All"), false );
     toolbar_->addSeparator();
-
-//    displayatsectionidx_ = mAddButton( "sectiononly", displayAtSectionCB,
-//				      tr("Display at section only"), true );
-
-//    toolbar_->addSeparator();
-/*
-    polyselectidx_ =  mAddButton( "polygonselect", selectionMode,
-				 tr("Polygon Selection mode"), true );
-    uiMenu* polymnu = new uiMenu( toolbar_, "PolyMenu" );
-    mAddMnuItm( polymnu,uiStrings::sPolygon(), handleToolClick, "polygonselect",
-                0 );
-    mAddMnuItm( polymnu,uiStrings::sRectangle(),handleToolClick,
-                "rectangleselect", 1 );
-    toolbar_->setButtonMenu( polyselectidx_, polymnu );
-
-    removeinpolygonidx_ = mAddButton( "trashcan", removeInPolygon,
-				  tr("Remove PolySelection"), false );
-    toolbar_->addSeparator();
-*/
 
     undoidx_ = mAddButton( "undo", undoPush, tr("Undo (Ctrl+Z)"), false );
     redoidx_ = mAddButton( "redo", redoPush, tr("Redo (Ctrl+Y)"), false );
     toolbar_->setShortcut( undoidx_, "Ctrl+Z" );
     toolbar_->setShortcut( redoidx_, "Ctrl+Y" );
-
-//    toolbar_->addSeparator();
-//    saveidx_ = mAddButton( "save", savePush, tr("Save (Ctrl+S"), false );
-//    toolbar_->setShortcut( saveidx_, "Ctrl+S" );
 }
 
 
