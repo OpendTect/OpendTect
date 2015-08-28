@@ -38,7 +38,6 @@ class ODGraphicsItem : public QGraphicsItem
 public:
 ODGraphicsItem()
     : QGraphicsItem()
-    , itempenwidth_( 1 )
 {}
 
 QRectF boundingRect() const
@@ -49,20 +48,15 @@ void paint( QPainter* painter, const QStyleOptionGraphicsItem* option,
 {
 }
 
-void setItemPenWidth( int width )
-{ itempenwidth_ = width; }
-
 void hoverEnterEvent( QGraphicsSceneHoverEvent* event )
 {
     QList<QGraphicsItem*> itms = childItems();
     for ( int idx=0; idx<itms.size(); idx++ )
     {
-	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
-	if ( !shpitm ) continue;
+	mDynamicCastGet(ODGraphicsHighlightItem*,hlitm,itms[idx])
+	if ( !hlitm ) continue;
 
-	QPen highlighted = shpitm->pen();
-	highlighted.setWidth( itempenwidth_ + 2 );
-	shpitm->setPen( highlighted );
+	hlitm->highlight();
     }
 
     QGraphicsItem::hoverEnterEvent( event );
@@ -73,20 +67,17 @@ void hoverLeaveEvent( QGraphicsSceneHoverEvent* event )
     QList<QGraphicsItem*> itms = childItems();
     for ( int idx=0; idx<itms.size(); idx++ )
     {
-	mDynamicCastGet(QAbstractGraphicsShapeItem*,shpitm,itms[idx])
-	if ( !shpitm ) continue;
+	mDynamicCastGet(ODGraphicsHighlightItem*,hlitm,itms[idx])
+	if ( !hlitm ) continue;
 
-	QPen unhighlighted = shpitm->pen();
-	unhighlighted.setWidth( itempenwidth_ );
-	shpitm->setPen( unhighlighted );
+	hlitm->unHighlight();
     }
 
     QGraphicsItem::hoverLeaveEvent( event );
 }
 
-int itempenwidth_;
-
 };
+
 
 uiGraphicsItem::uiGraphicsItem()
     : qgraphicsitem_(new ODGraphicsItem)
@@ -417,6 +408,8 @@ void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool usetransparency )
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
     qpen.setCosmetic( true );
     agsitm->setPen( qpen );
+    mDynamicCastGet(ODGraphicsHighlightItem*,hlitm,qgraphicsitem_)
+    if ( hlitm ) hlitm->setQPen( qpen );
 }
 
 
