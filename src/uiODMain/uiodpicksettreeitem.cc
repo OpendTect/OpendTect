@@ -220,10 +220,10 @@ bool uiODPickSetTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	visserv_->addObject( psd, sceneID(), true );
 	if ( set_.disp_.pixsize_>100 )
 	    set_.disp_.pixsize_ = 3;
 	psd->setSet( &set_ );
+	visserv_->addObject( psd, sceneID(), true );
     }
     else
     {
@@ -538,10 +538,10 @@ bool uiODPolygonTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay;
 	displayid_ = psd->id();
-	visserv_->addObject( psd, sceneID(), true );
 	if ( set_.disp_.pixsize_>100 )
 	    set_.disp_.pixsize_ = 3;
 	psd->setSet( &set_ );
+	visserv_->addObject( psd, sceneID(), true );
     }
     else
     {

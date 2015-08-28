@@ -335,11 +335,10 @@ void uiODDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 	!visserv_->isSoloMode();
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
+    const bool islocked = visserv_->isLocked( displayid_ );
     const MultiID mid = visserv_->getMultiID( displayid_ );
-    mAddMenuItemCond( menu, &deletemnuitem_, true, false, !mid.isUdf() );
-
-    mAddMenuItem( menu, &removemnuitem_, !visserv_->isLocked(displayid_),
-		  false );
+    mAddMenuItemCond( menu, &deletemnuitem_, !islocked, false, !mid.isUdf() );
+    mAddMenuItem( menu, &removemnuitem_, !islocked, false );
 }
 
 
