@@ -186,7 +186,7 @@ void uiBaseMapObject::update()
 
 		mDynamicCastGet(uiPixmapItem*,itm,graphitem_.getChild(itemnr));
 		if ( !itm ) return;
-		itm->setPixmap( uiPixmap(bmobject_->getImageFileName()) ); 
+		itm->setPixmap( uiPixmap(bmobject_->getImageFileName()) );
 		itm->setPos( crds[ptidx] );
 		const int scale = bmobject_->getScale(idx);
 		itm->setScale( mCast(float,scale), mCast(float,scale) );
@@ -471,7 +471,7 @@ int uiBaseMap::indexOf( const BaseMapObject* obj ) const
 
 void uiBaseMap::removeObject( const BaseMapObject* obj )
 {
-    const int index = indexOf( obj );
+    const int index = obj ? indexOf( obj ) : -1;
     if ( index==-1 )
 	return;
 

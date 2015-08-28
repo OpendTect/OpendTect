@@ -16,7 +16,7 @@ BaseMapObject::BaseMapObject( const char* nm )
     , changed(this)
     , clicked(this)
     , stylechanged(this)
-    , depth_(100)
+    , depth_(0)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, treeitmid, (1000) );
     id_ = treeitmid++;
@@ -64,6 +64,7 @@ const OD::RGBImage* BaseMapObject::createPreview( int approxdiagonal ) const
 bool BaseMapObject::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name() );
+    par.set( sKey::Type(), getType() );
     return true;
 }
 
@@ -71,6 +72,7 @@ bool BaseMapObject::fillPar( IOPar& par ) const
 bool BaseMapObject::usePar( const IOPar& par )
 {
     setName( par.find(sKey::Name()) );
+    setType( par.find(sKey::Type()) );
     return true;
 }
 
