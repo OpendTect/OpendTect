@@ -605,8 +605,9 @@ static bool truncateToTD( TypeSet<double>& zvals,
 
 
 #define mScaledValue(s,uom) ( uom ? uom->userValue(s) : s )
-static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
-				      uiString& msg )
+void Well::D2TModel::checkReplacementVelocity( Well::Info& info,
+					       double vreplinfile,
+					       uiString& msg )
 {
     if ( mIsUdf(vreplinfile) )
 	return;
@@ -625,10 +626,10 @@ static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
 		    UnitOfMeasure::surveyDefVelUnitAnnot(true,false) );
 	    const BufferString fileval =
 			       toString(mScaledValue(vreplinfile,uomvel), 2 );
-	    msg = "Input error with the %1\n"
+	    msg = tr("Input error with the %1\n"
 		  "Your time-depth model suggests a %1 of %2%4\n "
 		  "but the %1 was set to: %3%4\n"
-		  "Velocity information from file was overruled.";
+		  "Velocity information from file was overruled.");
 	    msg.arg( replvelbl ).arg( fileval )
 	       .arg( toString(mScaledValue(info.replvel,uomvel), 2) )
 	       .arg( veluomlbl );
@@ -637,7 +638,8 @@ static void checkReplacementVelocity( Well::Info& info, double vreplinfile,
 }
 
 
-static void shiftTimesIfNecessary( TypeSet<double>& tvals, double wllheadz,
+void Well::D2TModel::shiftTimesIfNecessary( TypeSet<double>& tvals,
+				   double wllheadz,
 				   double vrepl, double origintwtinfile,
 				   uiString& msg )
 {
@@ -651,23 +653,22 @@ static void shiftTimesIfNecessary( TypeSet<double>& tvals, double wllheadz,
     if ( mIsZero(timeshift,mDefEpsT) )
 	return;
 
-    msg = "Error with the input time-depth model:\n"
-	  "It does not honour TWT(Z=SRD) = 0.";
+    msg = tr("Error with the input time-depth model:\n"
+	  "It does not honour TWT(Z=SRD) = 0.");
     const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefTimeUnit();
     msg.append(
-	od_static_tr( "shiftTimesIfNecessary",
-                  "\nOpendTect WILL correct for this error by applying a "
+	tr( "\nOpendTect WILL correct for this error by applying a "
 		  "time shift of: %1%2\n"
-		  "The resulting travel-times will differ from the file")
+		   "The resulting travel-times will differ from the file"))
 		   .arg( toString(mScaledValue(timeshift,uomz),2) )
-		   .arg(UnitOfMeasure::surveyDefTimeUnitAnnot(true,false) ) );
+		   .arg(UnitOfMeasure::surveyDefTimeUnitAnnot(true,false) );
 
     for ( int idz=0; idz<tvals.size(); idz++ )
 	tvals[idz] += timeshift;
 }
 
 
-static void convertDepthsToMD( const Well::Track& track,
+void Well::D2TModel::convertDepthsToMD( const Well::Track& track,
 			       const TypeSet<double>& zvals,
 			       TypeSet<float>& dahs )
 {
@@ -691,24 +692,24 @@ static void convertDepthsToMD( const Well::Track& track,
 #define mErrRet(s) { errmsg = s; return false; }
 #define mNewLn(s) { s.addNewLine(); }
 
-static bool getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
+bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 			    TypeSet<double>& zvals, TypeSet<double>& tvals,
 			    uiString& errmsg, uiString& warnmsg )
 {
     int inputsz = zvals.size();
     if ( inputsz < 2 || inputsz != tvals.size() )
-	mErrRet( "Input file does not contain at least two valid rows" );
+	mErrRet( tr("Input file does not contain at least two valid rows") );
 
     inputsz = sortAndEnsureUniqueTZPairs( zvals, tvals );
     if ( inputsz < 2 )
     {
-	mErrRet( "Input file does not contain at least two valid rows"
-		 "after resorting and removal of duplicated positions" );
+	mErrRet( tr("Input file does not contain at least two valid rows"
+		 "after resorting and removal of duplicated positions") );
     }
 
     const Well::Track& track = wll.track();
     if ( track.isEmpty() )
-	mErrRet( "Cannot get the time-depth model with an empty track" )
+	mErrRet( tr("Cannot get the time-depth model with an empty track") )
 
     const double zwllhead = track.getPos( 0.f ).z;
     const double vreplfile = getVreplFromFile( zvals, tvals, zwllhead );
@@ -722,11 +723,11 @@ static bool getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
     //before any data gets removed
 
     if ( !removePairsAtOrAboveDatum(zvals,tvals,zwllhead) )
-	mErrRet( "Input file has not enough data points below the datum" )
+	mErrRet( tr("Input file has not enough data points below the datum") )
 
     const Interval<double> trackrg = track.zRangeD();
     if ( !truncateToTD(zvals,tvals,trackrg.stop) )
-	mErrRet( "Input file has not enough data points above TD" )
+	mErrRet( tr("Input file has not enough data points above TD") )
 
     removeDuplicatedVelocities( zvals, tvals );
     const double replveld = mCast( double, wllinfo.replvel );

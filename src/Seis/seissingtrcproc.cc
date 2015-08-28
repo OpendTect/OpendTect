@@ -249,12 +249,12 @@ uiString SeisSingleTraceProc::uiMessage() const
 
 	uiString ret;
 	if ( !currdr->is2D() )
-	    ret  = "data";
+	    ret  = uiStrings::sData();
 	else
 	{
 	    Pos::GeomID geomid = currdr->geomID();
 	    if ( geomid < 0 )
-		ret = "data";
+		ret = uiStrings::sData();
 	    else
 		{ ret = tr("'%1'").arg( toString(geomid) ); }
 	}

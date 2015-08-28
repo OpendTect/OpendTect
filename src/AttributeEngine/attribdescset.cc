@@ -651,7 +651,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 			.arg( depattribnm.isEmpty() ? uiString::emptyString()
 						    : tr("called"))
 			.arg( depattribnm.isEmpty() ? uiString::emptyString()
-						    : depattribnm );
+					    : mToUiStringTodo(depattribnm));
 	    }
 	    else
 	    {
@@ -697,7 +697,7 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 
 	BufferString defstring = descpar->find( definitionStr() );
 	if ( defstring.isEmpty() )
-	    mHandleParseErr( "No attribute definition string specified" );
+	    mHandleParseErr( tr("No attribute definition string specified") );
 
 	BufferString attribname;
 	if ( !Desc::getAttribName( defstring.buf(), attribname ) )
@@ -763,10 +763,10 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	{
 	    const char* defstring = descpar->find( definitionStr() );
 	    if ( !defstring )
-		mHandleParseErr( "No attribute definition string specified" );
+		mHandleParseErr(tr("No attribute definition string specified"));
 	    if ( !createSteeringDesc(*steeringpar,defstring,newsteeringdescs,
 				     steeringdescid) )
-	        mHandleParseErr( "Cannot create steering desc" );
+		mHandleParseErr( tr("Cannot create steering desc"));
 
 	    Desc* dsc = getDesc( DescID(id,false) );
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
@@ -832,15 +832,13 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     RefMan<Desc> stdesc = PF().createDescCopy(attribname);
     if ( !stdesc )
     {
-	BufferString err = "Cannot find factory-entry for ";
-	err += attribname;
+	uiString err = tr("Cannot find factory-entry for %1").arg(attribname);
 	mHandleSteeringParseErr(err);
     }
 
     if ( !stdesc->parseDefStr(steeringdef) )
     {
-	BufferString err = "Cannot parse: ";
-	err += steeringdef;
+	uiString err = tr("Cannot parse: %1").arg(steeringdef);
 	mHandleSteeringParseErr(err);
     }
 

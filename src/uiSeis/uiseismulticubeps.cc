@@ -172,7 +172,7 @@ void uiSeisMultiCubePS::setInitial( CallBacker* cb )
     if ( !ctio_.ioobj )
 	return;
 
-    BufferString emsg;
+    uiString emsg;
     ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
     if ( !MultiCubeSeisPSReader::readData(ctio_.ioobj->fullUserExpr(false),
 		keys,offs,comps,emsg) )
@@ -322,7 +322,7 @@ void uiSeisMultiCubePS::fullUpdate()
 }
 
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 {
@@ -334,7 +334,9 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 
     recordEntryData();
     if ( !outfld_->commitInput() )
-	mErrRet(outfld_->isEmpty() ? "Please enter a name for the output" : 0)
+	mErrRet((outfld_->isEmpty()
+		 ? "Please enter a name for the output"
+		 : uiString::emptyString() ))
 
     SamplingData<float> offset( offsfld_->getfValue(0),
 				offsfld_->getfValue(1) );
@@ -356,7 +358,7 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	comps += entry.comp_;
     }
 
-    BufferString emsg;
+    uiString emsg;
     const bool ret = MultiCubeSeisPSReader::writeData(
 		ctio_.ioobj->fullUserExpr(false), keys, offs, comps, emsg );
     deepErase( keys );

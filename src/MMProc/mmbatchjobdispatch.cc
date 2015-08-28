@@ -114,7 +114,7 @@ bool Batch::MMJobDispatcher::launch()
 {
     const int pdidx = defIdx();
     if ( pdidx < 0 )
-	{ errmsg_ ="Internal: init() not used"; return false; }
+	{ errmsg_ = toUiString("Internal: init() not used"); return false; }
 
     if ( !writeParFile() )
 	return false;

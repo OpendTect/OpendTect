@@ -115,7 +115,7 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
     formula_ = new Math::Formula( true, Attrib::Mathematics::getSpecVars() );
     formula_->setText( form->getStringValue() );
     if ( formula_->isBad() )
-    { errmsg_ = formula_->errMsg(); return; }
+    { errmsg_ = mToUiStringTodo(formula_->errMsg()); return; }
 
     mDescGetParamGroup(DoubleParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )

@@ -165,7 +165,7 @@ int SeisPSMerger::nextStep()
 	    const SeisTrc* wrtrc = resampler_->get( gathtrc );
 	    if ( wrtrc && !writer_->put(*wrtrc) )
 	    {
-		msg_ = writer_->errMsg().getOriginalString();
+		msg_ = writer_->errMsg();
 		return ErrorOccurred();
 	    }
 	}

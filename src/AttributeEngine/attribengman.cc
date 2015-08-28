@@ -245,7 +245,11 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 				    Survey::GM().getGeomID(lkey.lineName()) );
 	outp->setGeometry(tkzs_);
 	const bool res = outp->doUsePar( pars );
-	if ( !res ) { errmsg = outp->errMsg(); delete outp; outp = 0; }
+	if ( !res )
+	{
+	    errmsg = mToUiStringTodo(outp->errMsg());
+	    delete outp; outp = 0;
+	}
 	return outp;
     }
 
@@ -967,7 +971,9 @@ uiString uiMessage() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_
-	: (proc_ ? proc_->Task::uiMessage() : uiStrings::phrCannotCreate(tr("output")));
+	: (proc_
+	    ? proc_->Task::uiMessage()
+	    : uiStrings::phrCannotCreate(uiStrings::sOutput() ));
 }
 
 int haveError( const uiString& msg )
@@ -1003,7 +1009,7 @@ Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
     AEMTableExtractor* tabex = new AEMTableExtractor( *this, datapointset,
 						      descset, firstcol );
     if ( tabex && !tabex->errmsg_.isEmpty() )
-	errmsg = tabex->errmsg_.getFullString();
+	errmsg = tabex->errmsg_;
     return tabex;
 }
 
@@ -1176,7 +1182,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    // Put the new DescID in coldef and in the refs
 	    BufferString tmpstr;
 	    const Attrib::Desc* desc = descset.getDesc( descid );
-	    if ( !desc ) mErrRet("Huh?");
+	    if ( !desc ) mErrRet(toUiString("Huh?"));
 	    desc->getDefStr( tmpstr );
 	    FileMultiString fms( tmpstr ); fms += descid.asInt();
 	    attrrefs.get(refidx) = fms;

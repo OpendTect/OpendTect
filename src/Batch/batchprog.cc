@@ -109,10 +109,8 @@ void BatchProgram::init()
 
     if ( parfilnm.isEmpty() )
     {
-	BufferString msg( clparser_->getExecutableName() );
-	msg += ": No existing parameter file name specified";
-
-	errorMsg( msg );
+	errorMsg( tr("%1: No existing parameter file name specified")
+		 .arg(clparser_->getExecutableName()) );
 	return;
     }
 
@@ -120,19 +118,19 @@ void BatchProgram::init()
     od_istream odstrm( parfilnm );
     if ( !odstrm.isOK() )
     {
-	BufferString msg( clparser_->getExecutableName(),
-		       ": Cannot open parameter file: ", parfilnm );
-	odstrm.addErrMsgTo( msg );
-	errorMsg( msg ); return;
+	errorMsg( tr("%1: Cannot open parameter file: %2")
+		    .arg( clparser_->getExecutableName() )
+		    .arg( parfilnm ));
+	return;
     }
 
     ascistream aistrm( odstrm, true );
     if ( sKey::Pars() != aistrm.fileType() )
     {
-	BufferString errmsg( clparser_->getExecutableName(),
-			    ": Input file ",parfilnm);
-	errmsg += " is not a parameter file";
-	errorMsg( errmsg );
+	errorMsg( tr("%1: Input file %2 is not a parameter file")
+		    .arg( clparser_->getExecutableName() )
+		    .arg( parfilnm ));
+
 	od_cerr() << aistrm.fileType() << od_endl;
 	return;
     }
@@ -142,8 +140,9 @@ void BatchProgram::init()
 
     if ( iopar_->size() == 0 )
     {
-	errorMsg( BufferString( clparser_->getExecutableName(),
-			       ": Invalid input file: ",parfilnm) );
+	errorMsg( tr( "%1: Invalid input file %2")
+		    .arg( clparser_->getExecutableName() )
+		    .arg( parfilnm) );
         return;
     }
 

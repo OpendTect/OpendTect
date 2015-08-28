@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "separstr.h"
 #include "ioman.h"
+#include "uistrings.h"
 
 static const char* sKeyFileType = "MultiCube Pre-Stack Seismics";
 
@@ -69,8 +70,8 @@ MultiCubeSeisPSReader::~MultiCubeSeisPSReader()
 }
 
 
-#define mRetStrmErrMsg(msg,s1,s2) \
-    { msg.set( s1 ).add( " '" ).add( fnm ).add( "' " ).add( s2 ); \
+#define mRetStrmErrMsg(msg,s1) \
+    { msg = s1; \
     strm.addErrMsgTo( msg ); return false; }
 
 
@@ -81,22 +82,20 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mRetStrmErrMsg(errmsg_,"Data store definition file","is not readable")
+	mRetStrmErrMsg(errmsg_, uiStrings::phrCannotRead( toUiString(fnm) ) )
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
-	mRetStrmErrMsg(errmsg_,"The file","is not the right file type")
+	mRetStrmErrMsg(errmsg_, uiStrings::phrCannotRead( toUiString(fnm) ))
 
 #   define mErrCont(s) { errmsg_ = s; continue; }
     while ( !atEndOfSection(astrm.next()) )
     {
 	MultiID mid( astrm.keyWord() );
-	if ( !IOObj::isKey(mid.buf()) )
-	    mErrCont(BufferString("Invalid object ID: '",mid.buf(),"'"))
 
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
-	    mErrCont(BufferString("Cannot find object: '",mid.buf(),"'"))
+	    mErrCont(uiStrings::phrCannotFindDBEntry( toUiString(mid)) )
 
 	FileMultiString fms( astrm.value() );
 	const int fmssz = fms.size();
@@ -108,11 +107,10 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 	if ( !rdr->ioObj() || !rdr->prepareWork() )
 	{
 	    if ( !rdr->errMsg().isEmpty() )
-		errmsg_ = rdr->errMsg().getFullString();
+		errmsg_ = rdr->errMsg();
 	    else
 	    {
-		errmsg_ = "Error creating reader for '";
-		errmsg_ += ioobj->name(); errmsg_ += "'";
+		errmsg_ = uiStrings::phrCannotRead( ioobj->uiName() );
 	    }
 	    delete rdr; continue;
 	}
@@ -128,7 +126,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 
     bool rv = !rdrs_.isEmpty();
     if ( !rv && errmsg_.isEmpty() )
-	errmsg_ = "No valid cubes found";
+	errmsg_ = tr("No valid cubes found");
 
     return true;
 }
@@ -146,7 +144,7 @@ bool MultiCubeSeisPSReader::putTo( const char* fnm ) const
 	comps += comps_[irdr];
     }
 
-    BufferString emsg;
+    uiString emsg;
     bool rv = writeData( fnm, keys, offs, comps, emsg );
     if ( !rv )
 	errmsg_ = emsg;
@@ -156,17 +154,15 @@ bool MultiCubeSeisPSReader::putTo( const char* fnm ) const
 
 
 bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
-		TypeSet<float>& offs, TypeSet<int>& comps, BufferString& emsg )
+		TypeSet<float>& offs, TypeSet<int>& comps, uiString& emsg )
 {
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mRetStrmErrMsg(emsg,"Cannot open file","for read")
-
+	mRetStrmErrMsg(emsg, uiStrings::phrCannotOpen( toUiString(fnm)) )
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
     {
-	emsg.set( "File:\n" ).add( fnm ).add( "\nis not of type" )
-	    .add( sKeyFileType );
+	emsg = tr( "File:\n%1\nis not of type %2").arg( fnm ).arg(sKeyFileType);
 	return false;
     }
 
@@ -191,7 +187,7 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
 
     if ( offs.isEmpty() )
     {
-	emsg.set( "File:\n" ).add( fnm ).add( "contains no valid data" );
+	emsg = tr( "File:\n%1\n contains no valid data" ).arg( fnm );
 	return false;
     }
     return true;
@@ -200,15 +196,15 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
 
 bool MultiCubeSeisPSReader::writeData( const char* fnm,
 	const ObjectSet<MultiID>& keys, const TypeSet<float>& offs,
-	const TypeSet<int>& comps, BufferString& emsg )
+	const TypeSet<int>& comps, uiString& emsg )
 {
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	mRetStrmErrMsg(emsg,"Cannot open new file","for write")
+	mRetStrmErrMsg(emsg, uiStrings::phrCannotOpen( toUiString(fnm)))
 
     ascostream astrm( strm );
     if ( !astrm.putHeader(sKeyFileType) )
-	mRetStrmErrMsg(emsg,"Cannot start writing to file","")
+	mRetStrmErrMsg(emsg, uiStrings::phrCannotWrite( toUiString(fnm)))
 
     for ( int idx=0; idx<keys.size(); idx++ )
     {
@@ -218,7 +214,7 @@ bool MultiCubeSeisPSReader::writeData( const char* fnm,
     }
 
     if ( !strm.isOK() )
-	mRetStrmErrMsg(emsg,"Error during write to file","")
+	mRetStrmErrMsg(emsg,uiStrings::phrCannotWrite( toUiString(fnm) ) )
     return true;
 }
 
@@ -230,7 +226,8 @@ void MultiCubeSeisPSReader::getCubeData( const SeisTrcReader& rdr,
     const SeisTrcTranslator* trans = rdr.seisTranslator();
     if ( !trans )
 	return;
-    const SeisPacketInfo& pi( const_cast<SeisTrcTranslator*>(trans)->packetInfo());
+    const SeisPacketInfo& pi(
+		const_cast<SeisTrcTranslator*>(trans)->packetInfo());
     if ( pi.cubedata )
 	cd = *pi.cubedata;
     else
@@ -249,7 +246,7 @@ SeisTrc* MultiCubeSeisPSReader::getTrace( const BinID& bid, int nr ) const
     if ( !rdr.seisTranslator()->goTo(bid) )
 	{ delete trc; trc = 0; }
     else if ( !rdr.get(*trc) )
-	{ errmsg_ = rdr.errMsg().getFullString(); delete trc; trc = 0; }
+	{ errmsg_ = rdr.errMsg(); delete trc; trc = 0; }
     else
 	trc->info().offset = offs_[nr];
 

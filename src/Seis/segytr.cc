@@ -214,7 +214,7 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     }
     else if ( nr == cSEGYWarnDataReadIncomplete )
     {
-	msg = detail;
+	msg = mToUiStringTodo( detail );
     }
     else if ( nr == cSEGYWarnNonrectCoord )
     {
@@ -619,8 +619,9 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
     nrbadtrcs++;
     if ( nrbadtrcs >= maxnrconsecutivebadtrcs )
     {
-	const BufferString str( "More than ", maxnrconsecutivebadtrcs,
-			        " traces with invalid position found." );
+	const uiString str =
+		tr( "More than %1 traces with invalid position found." )
+		  .arg( maxnrconsecutivebadtrcs );
 	mPosErrRet(str);
     }
 
@@ -870,7 +871,9 @@ void SEGYSeisTrcTranslator::fillErrMsg( const uiString& s, bool withpos )
     const BufferString fnm = sConn().odStream().fileName();
 
     errmsg_ = tr("%1%2:\n%3")
-	    .arg( fnm.isEmpty() ? usrname_ : tr("In file '%1'").arg( fnm ) )
+	    .arg( fnm.isEmpty()
+		 ? toUiString(usrname_)
+		 : tr("In file '%1'").arg( fnm ) )
 	    .arg( withpos
 		? tr(" %1").arg( getTrcPosStr() )
 		: uiString::emptyString() )

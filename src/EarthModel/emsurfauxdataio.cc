@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "iopar.h"
 #include "file.h"
+#include "uistrings.h"
 
 
 namespace EM
@@ -333,14 +334,18 @@ void dgbSurfDataReader::setSurface( Horizon3D& surf )
     surf_->auxdata.setAuxDataShift( dataidx_, shift_ );
 }
 
+uiString dgbSurfDataReader::sHorizonData()
+{
+    return tr("Horizon data");
+}
 
 #define mErrRetRead(msg) { \
-    if ( msg ) errmsg_ = msg; \
+    if ( !msg.isEmpty() ) errmsg_ = msg; \
     surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred(); }
 
 int dgbSurfDataReader::nextStep()
 {
-    if ( error_ ) mErrRetRead(0)
+    if ( error_ ) mErrRetRead( uiString::emptyString() )
 
     PosID posid( surf_->id() );
     for ( int idx=0; idx<chunksize_; idx++ )
@@ -356,12 +361,12 @@ int dgbSurfDataReader::nextStep()
 	    else
 	    {
 		if ( !readInt(nrsections_) )
-		    mErrRetRead( "Error in reading data information" )
+		    mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
 	    }
 
 	    int cp;
 	    if ( !readInt(cp) || !readInt(valsleftonsection_) )
-		mErrRetRead( "Error in reading data information" )
+		mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
 
 	    currentsection_ = mCast(EM::SectionID,cp);
 	    totalnr_ = 100;
@@ -376,7 +381,7 @@ int dgbSurfDataReader::nextStep()
 	SubID subid;
 	float val;
 	if ( !readInt64(subid) || !readFloat(val) )
-	    mErrRetRead( "Error in reading data values" )
+	    mErrRetRead( uiStrings::phrCannotRead( sHorizonData() ) )
 
 	posid.setSubID( subid );
 	posid.setSectionID( currentsection_ );

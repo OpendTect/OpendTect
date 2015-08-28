@@ -186,15 +186,14 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 	inioobj = getInpIOObj( fname );
 	if ( !IOM().commitChanges(*inioobj) )
 	{
-	    uiMSG().error( tr("Cannot add entry to object manager (input)") );
+	    uiMSG().error(uiStrings::phrCannotWriteDBEntry(inioobj->uiName()));
 	    return false;
 	}
     }
 
     if ( !IOM().commitChanges(*outioobj_) )
     {
-	uiMSG().error( tr("Cannot add entry to object manager"
-		          "\nSee log file for details") );
+	uiMSG().error( uiStrings::phrCannotWriteDBEntry(outioobj_->uiName()) );
 	return false;
     }
 

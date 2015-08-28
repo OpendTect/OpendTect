@@ -138,7 +138,6 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    }
 	    else
 	    {
-		errstr = desc.errMsg();
 		errstr = tr( "%1 for '%2' attribute.")
 		    	 .arg( errmsg ).arg( desc.userRef() );
 	    }

@@ -287,7 +287,7 @@ bool Seis2DTo3D::doWorkFFT()
     BinID binid;
     ObjectSet<const SeisTrc> trcs;
     if ( !outioobj_ )
-	mErrRet("Internal: No output is set")
+	mErrRet(toUiString("Internal: No output is set"))
 
     SeisTrcBuf outtrcbuf(false);
     if ( reusetrcs_ )

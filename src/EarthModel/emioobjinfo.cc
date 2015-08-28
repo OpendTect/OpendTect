@@ -294,7 +294,8 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
     if ( !isSurface() )
     {
 	pErrMsg("getSurfaceData called on non-surface");
-	mErrRet("Internal: Trying to get surface data from a non-surface")
+	mErrRet(
+	  toUiString("Internal: Trying to get surface data from a non-surface"))
     }
 
     Translator* trans = ioobj_->createTranslator();

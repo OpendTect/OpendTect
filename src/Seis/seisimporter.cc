@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "scaler.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 
 SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
@@ -188,7 +189,7 @@ public:
 	    if ( errmsg.isEmpty() )
 	    {
 		pErrMsg( "Need an error message from writer" );
-		errmsg = "Cannot write trace";
+		errmsg = uiStrings::phrCannotWrite( uiStrings::sTrace() );
 	    }
 	}
 

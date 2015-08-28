@@ -220,7 +220,10 @@ od_int64 Hor2DTo3D::totalNr() const
 int Hor2DTo3D::nextStep()
 {
     if ( sd_.isEmpty() )
-	{ msg_ = "No data in selected area"; return Executor::ErrorOccurred(); }
+    {
+	msg_ = tr( "No data in selected area");
+	return Executor::ErrorOccurred();
+    }
 
     if ( curinterp_ )
     {

@@ -451,7 +451,7 @@ bool EventReader::readAuxData(const char* fnm)
     IOPar par;
     if ( !par.read( fileio.istrm(), EventReader::sHorizonFileType(), true ) )
     {
-	errmsg_ = uiStrings::phrCannotRead(auxfilenm);
+	errmsg_ = uiStrings::phrCannotRead(toUiString(auxfilenm));
 	fileio.closeFail();
 	return false;
     }
@@ -462,7 +462,7 @@ bool EventReader::readAuxData(const char* fnm)
     if ( !par.get( EventReader::sKeyNrHorizons(), nrhors ) ||
 	 !par.get( EventReader::sKeyNextHorizonID(), nexthor ) )
     {
-	errmsg_ = uiStrings::phrCannotRead(auxfilenm);
+	errmsg_ = uiStrings::phrCannotRead(toUiString(auxfilenm));
 	return false;
     }
 
@@ -569,7 +569,7 @@ int EventWriter::nextStep()
 
 	    if ( !File::createDir(fnm.buf()) )
 	    {
-		errmsg_ = uiStrings::phrCannotCreateDirectory(fnm);
+		errmsg_ = uiStrings::phrCannotCreateDirectory(toUiString(fnm));
 		return ErrorOccurred();
 	    }
 	}

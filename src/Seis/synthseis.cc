@@ -509,7 +509,7 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz )
     Array1DImpl<float> output( outsz );
     Array1DStacker<float, Array1D<float> > stktrcs( wavelettrcs, output );
     if ( !stktrcs.execute() )
-	mErrRet( stktrcs.errMsg(), false )
+	mErrRet( mToUiStringTodo(stktrcs.errMsg()), false )
 
     output.getAll( res );
     return true;
@@ -575,7 +575,7 @@ bool SynthGenerator::computeReflectivities()
     ReflectivitySampler sampler( *refmodel_, sampling, freqreflectivities_ );
     bool isok = sampler.execute();
     if ( !isok )
-	mErrRet( sampler.uiMessage().getFullString(), false );
+	mErrRet( sampler.uiMessage(), false );
 
     if ( dosampledreflectivities_ )
 	sampler.getReflectivities( sampledrefmodel_ );
@@ -709,6 +709,13 @@ RaySynthGenerator::RaySynthGenerator( ObjectSet<RayModel>* rms )
     , aimodels_( 0 )
     , raymodels_( rms )
 {}
+
+
+void RaySynthGenerator::reset()
+{
+    resetNrDone();
+    message_ = uiString::emptyString();
+}
 
 
 RaySynthGenerator::~RaySynthGenerator()

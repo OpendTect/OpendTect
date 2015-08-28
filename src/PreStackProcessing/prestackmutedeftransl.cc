@@ -57,7 +57,7 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 	return false;
     }
 
-    msg = mdtrl->read( md, *conn );
+    msg = mToUiStringTodo( mdtrl->read( md, *conn ) );
     return msg.isEmpty();
 }
 
@@ -86,7 +86,7 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
     }
     else
     {
-	msg = mdtrl->write( md, *conn );
+	msg = mToUiStringTodo( mdtrl->write( md, *conn ) );
     }
 
     return msg.isEmpty();

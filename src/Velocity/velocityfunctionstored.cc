@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "varlenarray.h"
 #include "velocitycalc.h"
+#include "uistrings.h"
 
 namespace Vel
 {
@@ -152,7 +153,11 @@ bool StoredFunctionSource::store( const MultiID& velid )
     fillIOObjPar( ioobj->pars() );
 
     if ( !IOM().commitChanges(*ioobj) )
+    {
+	errmsg_ = mFromUiStringTodo(
+		    uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ));
 	return false;
+    }
 
     return true;
 }

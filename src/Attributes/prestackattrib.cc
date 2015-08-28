@@ -518,7 +518,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 }
 
 
-#define mErrRet(s1,s2,s3) { errmsg_ = BufferString(s1,s2,s3); return; }
+#define mErrRet(s1) { errmsg_ = s1; return; }
 
 void PSAttrib::prepPriorToBoundsCalc()
 {
@@ -534,7 +534,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 	mDynamicCastGet(PreStack::GatherSetDataPack*,psgdtp, dtp)
 	isondisc =  !psgdtp;
 	if ( isondisc )
-	    mErrRet("Cannot obtain gathers kept in memory","" , "")
+	    mErrRet(tr("Cannot obtain gathers kept in memory"))
 
 	gatherset_ = psgdtp->getGathers();
     }
@@ -542,8 +542,7 @@ void PSAttrib::prepPriorToBoundsCalc()
     {
 	psioobj_ = IOM().get( psid_ );
 	if ( !psioobj_ && isondisc )
-	    mErrRet("Cannot find prestack data store ",psid_,
-		    " in object manager")
+	    mErrRet( uiStrings::phrCannotFindDBEntry( toUiString(psid_)) )
 
 	if ( is2D() )
 	    psrdr_ = SPSIOPF().get2DReader( *psioobj_, 
@@ -552,10 +551,12 @@ void PSAttrib::prepPriorToBoundsCalc()
 	    psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
 
 	if ( !psrdr_ )
-	    mErrRet("Cannot create reader for ",psid_," prestack data store")
+	    mErrRet( uiStrings::phrCannotRead( psioobj_
+		    ? psioobj_->uiName()
+		    : uiStrings::sVolDataName(true, true, true) ) )
 
 	const uiString emsg = psrdr_->errMsg();
-	if ( emsg.isSet() ) mErrRet("PS Reader: ",emsg.getFullString(),"");
+	if ( emsg.isSet() ) mErrRet( tr("PS Reader: %1").arg(emsg) );
     }
 
     mTryAlloc( propcalc_, PreStack::PropCalc( setup_ ) );
