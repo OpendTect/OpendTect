@@ -97,7 +97,7 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
 
     uiLabel* savelbl = new uiLabel( outputgrp,
 			       uiStrings::phrOutput( uiStrings::sName() ) );
-    savesuffix_ = new uiGenInput( outputgrp, tr("with postfix"), "log cube" );
+    savesuffix_ = new uiGenInput( outputgrp, tr("with suffix"), "log cube" );
     savesuffix_->setWithCheck( true );
     savesuffix_->setChecked( true );
     savesuffix_->attach( rightOf, savelbl );
