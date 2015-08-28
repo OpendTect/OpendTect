@@ -21,8 +21,6 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "position.h"
 
-class BaseMap;
-class BaseMapMarkers;
 class MouseCursor;
 class TaskRunner;
 class FontData;
@@ -168,8 +166,6 @@ public:
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     ZAxisTransform*		getZAxisTransform();
     const ZAxisTransform*	getZAxisTransform() const;
-    void			setBaseMap(BaseMap*);
-    BaseMap*			getBaseMap();
 
     bool			isRightHandSystem() const;
 
@@ -220,9 +216,6 @@ protected:
 
     ZAxisTransform*			datatransform_;
 
-
-    BaseMap*			basemap_;
-    BaseMapMarkers*		basemapcursor_;
 
     visBase::Annotation*	annot_;
     visBase::MarkerSet*		markerset_;

@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vissurvscene.h"
 
-#include "basemapimpl.h"
 #include "binidvalue.h"
 #include "trckeyzsampling.h"
 #include "envvars.h"
@@ -82,8 +81,6 @@ Scene::Scene()
     , coordselector_( 0 )
     , zscale_( SI().zScale() )
     , infopar_(*new IOPar)
-    , basemap_( 0 )
-    , basemapcursor_( 0 )
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
     , ctshownusepar_( false )
     , usepar_( false )
@@ -170,13 +167,6 @@ deleteAndZeroPtr( coordselector_ )
 Scene::~Scene()
 {
     detachAllNotifiers();
-
-    if ( basemap_ && basemapcursor_ )
-    {
-	basemap_->removeObject( basemapcursor_ );
-	delete basemapcursor_;
-	basemapcursor_ = 0;
-    }
 
     if ( datatransform_ ) datatransform_->unRef();
 
@@ -751,28 +741,6 @@ void Scene::mouseCursorCB( CallBacker* cb )
 
 const MouseCursor* Scene::getMouseCursor() const
 { return mousecursor_; }
-
-
-void Scene::setBaseMap( BaseMap* bm )
-{
-    if ( basemap_ && basemapcursor_ )
-    {
-	basemap_->removeObject( basemapcursor_ );
-	delete basemapcursor_;
-	basemapcursor_ = 0;
-    }
-
-    basemap_ = bm;
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	mDynamicCastGet(SurveyObject*,so,getObject(idx));
-	if ( so ) so->setBaseMap( bm );
-    }
-}
-
-
-BaseMap* Scene::getBaseMap()
-{ return basemap_; }
 
 
 void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )

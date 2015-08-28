@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viswelldisplay.h"
 
 
-#include "basemap.h"
 #include "dataclipper.h"
 #include "draw.h"
 #include "iopar.h"
@@ -35,8 +34,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "zaxistransform.h"
 
-#define		mPickSz	3
-#define         mPickType	3
+#define	mPickSz	3
+#define	mPickType 3
 
 #define mGetWD(act) RefMan<Well::Data> wd = getWD(); if ( !wd ) { act; }
 #define mMeter2Feet(val) val *= mToFeetFactorF;
@@ -47,59 +46,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace visSurvey
 {
 
-class WellDisplayBaseMapObject : public BaseMapObject
-{
-public:
-			WellDisplayBaseMapObject(WellDisplay* wd);
-
-    const char*		getType() const;
-    void		updateGeometry();
-    int			nrShapes() const;
-    const char*		getShapeName(int) const;
-    void		getPoints(int,TypeSet<Coord>& res) const;
-    char		connectPoints(int) const;
-    const MarkerStyle2D* getMarkerStyle(int) const
-			{ return &markerstyle_; }
-
-protected:
-    WellDisplay*	wd_;
-    MarkerStyle2D	markerstyle_;
-};
-
-
-WellDisplayBaseMapObject::WellDisplayBaseMapObject( WellDisplay* wd )
-    : BaseMapObject( wd->name() )
-    , wd_( wd )
-{
-    markerstyle_.color_ = wd->getColor();
-}
-
-
-const char* WellDisplayBaseMapObject::getType() const
-{ return "Well"; }
-
-
-void WellDisplayBaseMapObject::updateGeometry()
-{ changed.trigger(); }
-
-
-int WellDisplayBaseMapObject::nrShapes() const
-{ return 1; }
-
-
-const char* WellDisplayBaseMapObject::getShapeName(int) const
-{ return wd_->name(); }
-
-
-void WellDisplayBaseMapObject::getPoints( int, TypeSet<Coord>& res ) const
-{
-    if ( wd_->getWD() )
-	res += wd_->getWD()->info().surfacecoord;
-}
-
-
-const char* WellDisplay::sKeyEarthModelID      = "EarthModel ID";
-const char* WellDisplay::sKeyWellID	       = "Well ID";
+const char* WellDisplay::sKeyEarthModelID = "EarthModel ID";
+const char* WellDisplay::sKeyWellID = "Well ID";
 
 WellDisplay::WellDisplay()
     : VisualObjectImpl(true)
@@ -138,14 +86,9 @@ WellDisplay::~WellDisplay()
 
     delete dispprop_;
     unRefAndZeroPtr( markerset_ );
-    setBaseMap( 0 );
     delete pseudotrack_;
     delete timetrack_;
 }
-
-
-BaseMapObject* WellDisplay::createBaseMapObject()
-{ return 0; /*new WellDisplayBaseMapObject( this );*/ }
 
 
 void WellDisplay::welldataDelNotify( CallBacker* )
@@ -316,9 +259,6 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 
     wellid_ = multiid;
     fullRedraw(0);
-
-    if ( basemapobj_ )
-	basemapobj_->updateGeometry();
 
     return true;
 }

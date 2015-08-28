@@ -26,9 +26,6 @@ ________________________________________________________________________
 #include "factory.h"
 
 
-class BaseMap;
-class BaseMapObject;
-
 class DataPointSet;
 class LineStyle;
 class NotifierAccess;
@@ -70,8 +67,6 @@ public:
     virtual const char*		get3DSurvGeomName() const;
     virtual Pos::GeomID		getGeomID() const;
 
-    virtual void		setBaseMap(BaseMap*);
-    virtual BaseMapObject*	getBasemapObject()	{ return basemapobj_; }
     virtual Coord3		getNormal(const Coord3& pos) const
 				{ return Coord3::udf(); }
 				/*!<Position and Normal are both in
@@ -369,9 +364,6 @@ protected:
     int				updatestagenr_;
     bool			locked_;
     ObjectSet<BufferStringSet>	userrefs_;
-
-    virtual BaseMapObject*	createBaseMapObject()	{ return 0; }
-    BaseMapObject*		basemapobj_;
 
     const Survey::Geometry3D*	s3dgeom_;
     BufferString		survname_; //Only from IOPar

@@ -13,8 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-
-#include "basemap.h"
 #include "vismultiattribsurvobj.h"
 
 #include "enums.h"
@@ -34,33 +32,6 @@ namespace visBase
 
 class BinIDValueSet;
 class RegularSeisDataPack;
-namespace visSurvey { class PlaneDataDisplay; }
-
-
-mExpClass(visSurvey) PlaneDataDisplayBaseMapObject : public BaseMapObject
-{
-public:
-			PlaneDataDisplayBaseMapObject(
-				visSurvey::PlaneDataDisplay* pdd);
-			~PlaneDataDisplayBaseMapObject();
-
-    const char*		getType() const;
-    int			getDepth() const;
-    void		updateGeometry();
-    int			nrShapes() const;
-    const char*		getShapeName(int) const;
-    void		getPoints(int,TypeSet<Coord>& res) const;
-    const LineStyle*	getLineStyle(int) const { return &lst_; }
-    bool		close(int) const;
-    Alignment		getAlignment(int) const;
-
-    int			visID() const;
-    OD::SliceType	orientation() const;
-
-protected:
-    LineStyle			lst_;
-    visSurvey::PlaneDataDisplay* pdd_;
-};
 
 
 namespace visSurvey
@@ -187,7 +158,6 @@ public:
 protected:
 				~PlaneDataDisplay();
 
-    BaseMapObject*		createBaseMapObject();
     void			setVolumeDataPackNoCache(int attrib,
 						const RegularSeisDataPack*);
     void			setRandomPosDataNoCache(int attrib,

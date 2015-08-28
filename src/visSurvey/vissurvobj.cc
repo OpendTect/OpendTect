@@ -9,7 +9,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissurvobj.h"
 
 #include "attribsel.h"
-#include "basemap.h"
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "coltabsequence.h"
@@ -28,7 +27,6 @@ mImplFactory( SurveyObject, SurveyObject::factory );
 SurveyObject::SurveyObject()
     : scene_(0)
     , s3dgeom_( 0 )
-    , basemapobj_(0)
     , locked_(false)
     , updatestagenr_( 0 )
     , saveinsessionsflag_( true )
@@ -100,32 +98,8 @@ BufferString SurveyObject::getResolutionName( int res ) const
 }
 
 
-void SurveyObject::setBaseMap( BaseMap* bm )
-{
-    if ( basemapobj_ )
-    {
-	if ( scene_ && scene_->getBaseMap() )
-	    scene_->getBaseMap()->removeObject( basemapobj_ );
-	else
-	    delete basemapobj_;
-
-	basemapobj_ = 0;
-    }
-
-    if ( bm )
-    {
-	basemapobj_ = createBaseMapObject();
-	if ( basemapobj_ )
-	    bm->addObject( basemapobj_ );
-    }
-}
-
-
 void SurveyObject::setScene( Scene* sc )
-{
-    setBaseMap( sc ? sc->getBaseMap() : 0 );
-    scene_ = sc;
-}
+{ scene_ = sc; }
 
 
 bool SurveyObject::alreadyTransformed( int attrib ) const
