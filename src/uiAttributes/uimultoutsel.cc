@@ -170,7 +170,7 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet* ds )
     , descset_(ds)
 {
     uiListBox::Setup asu( OD::ChooseAtLeastOne, tr("Available Attributes"),
-			  uiListBox::AboveLeft );
+			  uiListBox::AboveMid );
     attribfld_ = new uiListBox( this, asu );
     attribfld_->setHSzPol( uiObject::Wide );
 
@@ -182,7 +182,7 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet* ds )
     bgrp->attach( centeredRightOf, attribfld_ );
 
     uiListBox::Setup ssu( OD::ChooseAtLeastOne, tr("Selected Attributes"),
-			  uiListBox::AboveLeft );
+			  uiListBox::AboveMid );
     selfld_ = new uiListBox( this, ssu );
     selfld_->setHSzPol( uiObject::Wide );
     selfld_->attach( rightTo, attribfld_ );
