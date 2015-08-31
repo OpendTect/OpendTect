@@ -475,12 +475,12 @@ AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
     }
 }
 
-const char* putRow( const BufferStringSet& bss )
+uiString putRow( const BufferStringSet& bss )
 {
     return ishdr_ ? putHdrRow( bss ) : putBodyRow( bss );
 }
 
-const char* putHdrRow( const BufferStringSet& bss )
+uiString putHdrRow( const BufferStringSet& bss )
 {
     if ( aio_.fd_.needEOHToken() )
     {
@@ -501,34 +501,34 @@ const char* putHdrRow( const BufferStringSet& bss )
 
     if ( bss.size() > 0 )
     {
-    for ( int ihdr=0; ihdr<hdrinfos_.size(); ihdr++ )
-    {
-	HdrInfo& hdrinf = *hdrinfos_[ihdr];
-	if ( hdrinf.found_ )
-	    continue;
-
-	const bool hasrow = hdrinf.row_ >= 0;
-	if ( hasrow && hdrinf.row_ != rownr_ )
-	    continue;
-
-	if ( hasrow || hdrinf.keyw_ == bss.get(0) )
+	for ( int ihdr=0; ihdr<hdrinfos_.size(); ihdr++ )
 	{
-	    if ( hdrinf.col_ >= bss.size() )
-		return mkErrMsg( hdrinf, "Data not present in header" );
+	    HdrInfo& hdrinf = *hdrinfos_[ihdr];
+	    if ( hdrinf.found_ )
+		continue;
 
-	    hdrinf.found_ = true;
-	    hdrinf.val_ = bss.get( hdrinf.col_ );
+	    const bool hasrow = hdrinf.row_ >= 0;
+	    if ( hasrow && hdrinf.row_ != rownr_ )
+		continue;
+
+	    if ( hasrow || hdrinf.keyw_ == bss.get(0) )
+	    {
+		if ( hdrinf.col_ >= bss.size() )
+		    return mkErrMsg( hdrinf, "Data not present in header" );
+
+		hdrinf.found_ = true;
+		hdrinf.val_ = bss.get( hdrinf.col_ );
+	    }
 	}
-    }
     }
 
     rownr_++;
     hdrready_ = hdrready_ || rownr_ >= aio_.fd_.nrHdrLines();
-    return hdrready_ ? finishHdr() : 0;
+    return hdrready_ ? finishHdr() : uiString::emptyString();
 }
 
 
-const char* finishHdr()
+uiString finishHdr()
 {
     for ( int ihdr=0; ihdr<hdrinfos_.size(); ihdr++ )
     {
@@ -539,48 +539,48 @@ const char* finishHdr()
 	    aio_.addVal( hdrinf.val_, hdrinf.sel_.unit_ );
     }
 
-    return 0;
+    return uiString::emptyString();
 }
 
 
-const char* mkErrMsg( const HdrInfo& hdrinf, const char* msg )
+uiString mkErrMsg( const HdrInfo& hdrinf, const char* msg ) const
 {
-    errmsg_ = msg; errmsg_ += ":\n";
-    errmsg_ += hdrinf.tarinf_.name();
+    BufferString errmsg = msg; errmsg += ":\n";
+    errmsg += hdrinf.tarinf_.name();
 
     const bool diffnms = hdrinf.tarinf_.name() != hdrinf.form_.name();
     if ( diffnms )
     {
-	errmsg_ += " [";
-	errmsg_ += hdrinf.form_.name();
+	errmsg += " [";
+	errmsg += hdrinf.form_.name();
     }
     if ( hdrinf.form_.specs_.size() > 1 )
-	{ errmsg_ += " (field "; errmsg_ += hdrinf.specnr_; errmsg_ += ")"; }
+	{ errmsg += " (field "; errmsg += hdrinf.specnr_; errmsg += ")"; }
     if ( diffnms )
-	errmsg_ += "]";
+	errmsg += "]";
 
     if ( hdrinf.col_ >= 0 )
     {
-	errmsg_ += "\n\nIt was specified at ";
+	errmsg += "\n\nIt was specified at ";
 	if ( hdrinf.row_ >= 0 )
-	    { errmsg_ += "row/col "; errmsg_ += hdrinf.row_+1; errmsg_ += "/"; }
-	errmsg_ += "column ";
-	errmsg_ += hdrinf.col_+1;
+	    { errmsg += "row/col "; errmsg += hdrinf.row_+1; errmsg += "/"; }
+	errmsg += "column ";
+	errmsg += hdrinf.col_+1;
 	if ( !hdrinf.keyw_.isEmpty() )
 	{
-	    errmsg_ += "; keyword '";
-	    errmsg_ += hdrinf.keyw_; errmsg_ += "'";
+	    errmsg += "; keyword '";
+	    errmsg += hdrinf.keyw_; errmsg += "'";
 	}
     }
 
-    return errmsg_.str();
+    return toUiString(errmsg.str());
 }
 
 
-const char* putBodyRow( const BufferStringSet& bss )
+uiString putBodyRow( const BufferStringSet& bss )
 {
     aio_.emptyVals();
-    if ( bodyready_ ) return 0;
+    if ( bodyready_ ) return uiString::emptyString();
 
     if ( aio_.fd_.haveEOBToken() && !bss.isEmpty() )
     {
@@ -588,7 +588,7 @@ const char* putBodyRow( const BufferStringSet& bss )
 	  || bss.get(bss.size()-1) == aio_.fd_.eobtoken_ )
 	{
 	    bodyready_ = true;
-	    return 0;
+	    return uiString::emptyString();
 	}
     }
 
@@ -604,7 +604,7 @@ const char* putBodyRow( const BufferStringSet& bss )
     if ( aio_.needfullline_ )
 	aio_.fullline_ = bss;
     rownr_++;
-    return 0;
+    return uiString::emptyString();
 }
 
     const bool		ishdr_;
@@ -675,11 +675,11 @@ bool Table::AscIO::getHdrVals( od_istream& strm ) const
 		break;
 	}
 	if ( !hdrexphndlr.hdrready_ || !strm.isOK() )
-	    mErrRet( "File header does not comply with format description" )
+	    mErrRet( tr("File header does not comply with format description" ))
     }
 
     if ( !strm.isOK() )
-	mErrRet( "End of file reached before end of header" )
+	mErrRet( tr("End of file reached before end of header" ))
 
     hdrread_ = true;
     return true;
@@ -692,7 +692,7 @@ int Table::AscIO::getNextBodyVals( od_istream& strm ) const
     {
 	if ( !getHdrVals(strm) )
 	{
-	    errmsg_ = "Cannot read file header";
+	    errmsg_ = uiStrings::phrCannotRead(tr("file header" ));
 	    return -1;
 	}
     }
@@ -714,14 +714,14 @@ int Table::AscIO::getNextBodyVals( od_istream& strm ) const
 
 bool Table::AscIO::putHdrVals( od_ostream& strm ) const
 {
-    errmsg_ = "TODO: Table::AscIO::putHdrVals not implemented";
+    errmsg_ = toUiString("TODO: Table::AscIO::putHdrVals not implemented");
     return false;
 }
 
 
 bool Table::AscIO::putNextBodyVals( od_ostream& strm ) const
 {
-    errmsg_ = "TODO: Table::AscIO::putNextBodyVals not implemented";
+    errmsg_ = toUiString("TODO: Table::AscIO::putNextBodyVals not implemented");
     return false;
 }
 

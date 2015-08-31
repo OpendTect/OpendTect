@@ -224,7 +224,7 @@ uiString Zipper::uiNrDoneText() const
 
 uiString Zipper::uiMessage() const
 {
-    const FixedString errmsg( ziphd_.errorMsg() );
+    const uiString errmsg( mToUiStringTodo(ziphd_.errorMsg() ) );
     if ( errmsg.isEmpty() )
 	return tr("Archiving data");
     else
@@ -260,7 +260,7 @@ bool ZipUtils::unZipArchives( const BufferStringSet& archvs,
 
     if ( !(TaskRunner::execute(taskrunner,execgrp)) )
     {
-	errmsg = execgrp.uiMessage().getFullString();
+	errmsg = execgrp.uiMessage();
 	return false;
     }
 
@@ -312,7 +312,7 @@ uiString UnZipper::uiNrDoneText() const
 
 uiString UnZipper::uiMessage() const
 {
-    const FixedString errmsg( ziphd_.errorMsg() );
+    const uiString errmsg( mToUiStringTodo(ziphd_.errorMsg()));
     if ( errmsg.isEmpty() )
 	return tr("Extracting data");
     else

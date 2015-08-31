@@ -59,7 +59,7 @@ public:
 			    : strm_(strm)		{}
     virtual		~ExportHandler()		{}
 
-    virtual const char*	putRow(const BufferStringSet&)	= 0;
+    virtual uiString	putRow(const BufferStringSet&)	= 0;
 
     virtual bool	init();
     virtual void	finish();
@@ -75,7 +75,7 @@ protected:
 
     od_ostream&		strm_;
 
-    const char*		getStrmMsg() const;
+    uiString		getStrmMsg() const;
 
 };
 

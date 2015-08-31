@@ -196,7 +196,7 @@ uiString od_stream::errMsg() const
 
 void od_stream::addErrMsgTo( BufferString& msg ) const
 {
-    uiString res = msg;
+    uiString res = toUiString(msg);
     addErrMsgTo( res );
     msg = res.getFullString();
 }
@@ -424,7 +424,7 @@ static void fillNumberFmtErrMsg( od_istream& strm, uiString& errmsg )
 
 
 #define mNumberNotPresentErrRet() \
-	{ errmsg = "Number not present on last line"; \
+	{ errmsg.set("Number not present on last line"); \
 	    stdstrm.setstate(std::ios::failbit); return false; } \
 
 template <class T>

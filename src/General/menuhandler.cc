@@ -207,7 +207,7 @@ void MenuItem::createItems( const BufferStringSet& names )
     removeItems();
 
     for ( int idx=0; idx<names.size(); idx++ )
-	addItem( new MenuItem(names.get(idx)), true );
+	addItem( new MenuItem(toUiString(names.get(idx))), true );
 }
 
 

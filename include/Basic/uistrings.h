@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "fixedstring.h"
 #include "uistring.h"
 
+#define mPlural 2
+
 //Common strings. Use these and extend when needed
 
 mExpClass(Basic) uiStrings
@@ -188,17 +190,17 @@ public:
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int num=1)	{ return tr("Scenes",0,1); }
-    static uiString sScenes()		{ return sScene(2); }
+    static uiString sScenes()		{ return sScene(mPlural); }
     static uiString sSEGY()		{ return tr("SEG-Y"); }
     static uiString sSeismic(int num);
-    static uiString sSeismics()		{ return sSeismic(2); }
+    static uiString sSeismics()		{ return sSeismic(mPlural); }
     static uiString sSeismics(bool is2d,bool isps,int num);
     static uiString sSelAttrib()	{ return tr("Select Attribute"); }
     static uiString sSelection(bool smallletters);
     static uiString sSelect();
     static uiString sSelOutpFile();
     static uiString sSetting(int num=1);
-    static uiString sSettings()		{ return sSetting(2); }
+    static uiString sSettings()		{ return sSetting(mPlural); }
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift();
     static uiString sShow()             { return tr("Show"); }
@@ -208,6 +210,7 @@ public:
     static uiString sStop()		{ return tr("Stop"); }
     static uiString sStored();
     static uiString sStratigraphy();
+    static uiString sSurface()		{ return tr("Surface"); }
     static uiString sSurvey()		{ return tr("Survey"); }
     static uiString sTakeSnapshot()	{ return tr("Take Snapshot"); }
     static uiString sTile()		{ return tr("Tile"); }
@@ -228,7 +231,7 @@ public:
     static uiString sView()		{ return tr("View"); }
     static uiString sWavelet(int num=1);
     static uiString sWell(int num=1);
-    static uiString sWells()		{ return sWell(2); }
+    static uiString sWells()		{ return sWell(mPlural); }
     static uiString sWellLog(int num=1);
     static uiString sWiggle()		{ return tr("Wiggle"); }
     static uiString sYes()		{ return tr("Yes"); }

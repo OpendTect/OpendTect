@@ -688,8 +688,7 @@ bool HostDataList::isOK( uiStringSet& errors ) const
 	uiString msg;
 	if ( !(*this)[idx]->isOK(msg) )
 	{
-	    uiString fullmsg( BufferString("Host ", idx+1, ": ") );
-	    fullmsg.append( msg );
+	    uiString fullmsg = tr("Host %1: %2").arg( idx+1 ).arg( msg );
 	    errors.add( fullmsg );
 	}
     }

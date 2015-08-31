@@ -52,7 +52,7 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
     {
 	if ( emsg )
 	{
-	    *emsg = uiStrings::phrCannotOpen(fnm);
+	    *emsg = uiStrings::phrCannotOpen(toUiString(fnm));
 	    strm.addErrMsgTo(*emsg); 
 	}
 	return 0;
@@ -85,7 +85,7 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
     {
 	if ( emsg )
 	{
-	    *emsg = uiStrings::phrCannotOpen( fnm );
+	    *emsg = uiStrings::phrCannotOpen( toUiString(fnm) );
 	    strm.addErrMsgTo(*emsg); 
 	}
 	return false;
@@ -93,7 +93,7 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 
     const bool ret = pdftr->write( pdf, strm );
     if ( !ret && emsg )
-    { *emsg = uiStrings::phrCannotWrite(fnm); }
+    { *emsg = uiStrings::phrCannotWrite(toUiString(fnm)); }
     return ret;
 }
 

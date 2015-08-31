@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
+#include "uistrings.h"
 
 static bool allowTrackingAcrossCrossFaults()
 {
@@ -1342,7 +1343,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 
     const int res = TaskRunner::execute( taskrunner, loadergrp );
     if ( !res )
-	mErrRet("Failed to read the faults from disc")
+	mErrRet( uiStrings::phrCannotRead( uiStrings::sFault(mPlural) ) )
 
     if ( is2d_ )
 	return get2DTraces( faultids, taskrunner );
@@ -1354,7 +1355,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	mDynamicCastGet(EM::Fault*,flt,EM::EMM().getObject(oid))
 	if ( !flt )
 	{
-	    errmsg_ = BufferString( "Failed to load ", faultids[idx] );
+	    errmsg_ = uiStrings::phrCannotRead( toUiString(faultids[idx]) );
 	    holders_ += 0;
 	    continue;
 	}
@@ -1370,7 +1371,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 
     const bool ret = TaskRunner::execute( taskrunner, taskgrp );
     if ( !ret )
-	mErrRet("Failed to extract Fault traces")
+	mErrRet(tr("Failed to extract Fault traces"))
 
     return true;
 }

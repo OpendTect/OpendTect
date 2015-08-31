@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "globexpr.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 
 
 namespace Table
@@ -81,7 +82,7 @@ public:
 			    : ExportHandler(s)
 			    , colwshanld_(w)	{}
 
-    const char*		putRow(const BufferStringSet&);
+    uiString		putRow(const BufferStringSet&);
 
     ColWSHandl		colwshanld_;
 
@@ -98,7 +99,7 @@ public:
     			CSVExportHandler( od_ostream& s )
 			    : ExportHandler(s)		{}
 
-    const char*		putRow(const BufferStringSet&);
+    uiString		putRow(const BufferStringSet&);
 
 protected:
 
@@ -108,7 +109,7 @@ protected:
 
 
 mExpClass(General) SQLInsertExportHandler : public ExportHandler
-{
+{ mODTextTranslationClass(SQLInsertExportHandler);
 public:
 
     			SQLInsertExportHandler( od_ostream& s )
@@ -117,7 +118,7 @@ public:
 			    , stepindex_(1)
 		    	    , nrrows_(0)	    {}
 
-    const char*		putRow(const BufferStringSet&);
+    uiString		putRow(const BufferStringSet&);
 
     BufferString	tblname_;	//!< name of the table: mandatory
     BufferStringSet	colnms_;	//!< names of the columns: optional

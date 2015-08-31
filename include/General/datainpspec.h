@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "typeset.h"
 #include "keystrs.h"
-#include "uistring.h"
+#include "uistrings.h"
 
 /*!
 \brief Data type.
@@ -626,8 +626,8 @@ mExpClass(General) BoolInpSpec : public DataInpSpec
 { mODTextTranslationClass(BoolInpSpec);
 public:
 			BoolInpSpec(bool yesno,
-				    const uiString& truetxt=sKey::Yes(),
-				    const uiString& falsetxt=sKey::No(),
+				    const uiString& truetxt=uiStrings::sYes(),
+				    const uiString& falsetxt=uiStrings::sNo(),
 				    bool isset=true);
 			BoolInpSpec(const BoolInpSpec&);
 

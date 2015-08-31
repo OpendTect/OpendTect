@@ -80,7 +80,7 @@ protected:
     BinIDValueSet*	bvalset_;
     ObjectSet<BinIDValueSet> sections_;
 
-    mutable BufferString	curmsg_;
+    mutable uiString	curmsg_;
 };
 
 

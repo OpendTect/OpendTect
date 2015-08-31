@@ -35,7 +35,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , selxy_(false)
     , bvalset_(0)
     , fileidx_(0)
-    , curmsg_("Scanning")
+    , curmsg_(tr("Scanning"))
     , nrdone_(0)
 {
     filenames_ = fnms;
