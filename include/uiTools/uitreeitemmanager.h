@@ -174,7 +174,7 @@ protected:
     virtual bool		anyButtonClick(uiTreeViewItem*);
     virtual void		setTreeViewItem(uiTreeViewItem*);
     virtual void		removeItem(uiTreeViewItem*);
-    virtual void		renameItem(uiTreeViewItem*,int);
+    virtual void		renameItem(uiTreeViewItem*);
     uiTreeViewItem*		getItem()	{ return uitreeviewitem_; }
     const uiTreeViewItem*	getItem() const { return uitreeviewitem_; }
 

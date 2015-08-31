@@ -435,16 +435,16 @@ void uiTreeItem::removeItem( uiTreeViewItem* itm )
 }
 
 
-void uiTreeItem::renameItem( uiTreeViewItem* itm, int column )
+void uiTreeItem::renameItem( uiTreeViewItem* itm )
 {
     if ( itm == uitreeviewitem_ )
     {
-	name_ = uitreeviewitem_->text( column, false );
+	name_ = uitreeviewitem_->text( 0, false );
 	return;
     }
 
     for ( int idx=0; idx<children_.size(); idx++ )
-	children_[idx]->renameItem( itm, column );
+	children_[idx]->renameItem( itm );
 }
 
 
@@ -523,7 +523,8 @@ void uiTreeTopItem::itemRenamed( CallBacker* )
 {
     if ( !listview_->itemNotified() ) return;
 
-    renameItem( listview_->itemNotified(), listview_->columnNotified() );
+    if ( listview_->columnNotified()==0 )
+	renameItem( listview_->itemNotified() );
 }
 
 
