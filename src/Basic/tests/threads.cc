@@ -98,7 +98,7 @@ bool testAtomic( const char* valtype )
     curval = atomic.get();
     for ( int idx=0; idx<count; idx++ )
     {
-	if ( atomic.setIfValueIs( curval, mTestVal, 0 ) )
+	if ( atomic.setIfValueIs( curval, mTestVal, &curval ) )
 	    successfound = true;
 	else
 	    failurefound = true;
@@ -117,7 +117,7 @@ bool testAtomic( const char* valtype )
     for ( idx=0; idx<count; idx++ )
     {
 	curval = atomic.get();
-	if ( atomic.setIfValueIs(curval,mTestVal,0) )
+	if ( atomic.setIfValueIs(curval,mTestVal,&curval ) )
 	    successfound = true;
 	else
 	    failurefound = true;
