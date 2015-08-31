@@ -65,7 +65,7 @@ public:
 			//! < Within Survey - Import or Export
 
     uiToolBar*		dtectTB()		{ return dtecttb_; }
-    uiToolBar*		coinTB()		{ return cointb_; }
+    uiToolBar*		viewTB()		{ return viewtb_; }
     uiToolBar*		manTB()			{ return mantb_; }
 
 			// Probably not needed by plugins
@@ -124,7 +124,7 @@ protected:
     ObjectSet<uiMenu>	expmnus_;
 
     uiToolBar*		dtecttb_;
-    uiToolBar*		cointb_;
+    uiToolBar*		viewtb_;
     uiToolBar*		mantb_;
 
     uiODFaultToolMan*	faulttoolman_;
