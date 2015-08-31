@@ -314,6 +314,21 @@ void uiBaseMapObject::updateStyle()
 }
 
 
+bool uiBaseMapObject::canRemoveWithPolygon() const
+{
+    if ( !bmobject_ )
+	return false;
+
+    return bmobject_->canRemoveWithPolygon();
+}
+
+
+void uiBaseMapObject::removeWithPolygon( const OD::Polygon& pl )
+{
+    if ( bmobject_ )
+	bmobject_->removeWithPolygon( pl );
+}
+
 
 // uiBaseMap
 uiBaseMap::uiBaseMap( uiParent* p )

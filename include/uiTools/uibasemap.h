@@ -22,6 +22,7 @@ class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsView;
 class uiWorld2Ui;
+namespace OD{ class Polygon; }
 
 mExpClass(uiTools) uiBaseMapObject : public CallBacker
 {
@@ -42,6 +43,9 @@ public:
     const uiGraphicsItem&	graphItem() const	{ return graphitem_; }
     virtual void		update();
     virtual void		updateStyle();
+
+    bool			canRemoveWithPolygon() const;
+    void			removeWithPolygon(const OD::Polygon&);
 
 protected:
     friend			class uiBaseMap;

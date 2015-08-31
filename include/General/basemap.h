@@ -22,6 +22,7 @@ namespace OD { class RGBImage; }
 class MarkerStyle2D;
 class MouseEvent;
 class LineStyle;
+namespace OD{ class Polygon; }
 
 /*!Object that can be painted in a basemap. */
 
@@ -81,6 +82,9 @@ public:
 				    approximately the size of the specified
 				    diagonal. */
     virtual bool		allowHoverEvent() const		{ return true; }
+
+    virtual bool		canRemoveWithPolygon() const   { return false; }
+    virtual void		removeWithPolygon(const OD::Polygon&) {} 
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
