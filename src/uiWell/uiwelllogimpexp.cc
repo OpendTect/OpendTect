@@ -80,10 +80,9 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
     logsfld_ = new uiListBox( this, su );
     logsfld_->attach( alignedBelow, udffld_ );
 
-    wellfld_ = new uiWellSel( this, true, "Add to Well" );
+    wellfld_ = new uiWellSel( this, true, tr("Add to Well"), false );
     if ( ioobj ) wellfld_->setInput( *ioobj );
     wellfld_->attach( alignedBelow, logsfld_ );
-
 }
 
 

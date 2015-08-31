@@ -26,9 +26,37 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mSelTxt seltxt && *seltxt ? seltxt \
 				  : ( forread ? "Input Well" : "Output Well" )
 
+uiIOObjSel::Setup uiWellSel::getSetup( bool forread, const uiString& seltxt,
+					bool withinserters ) const
+{
+    uiString st = seltxt;
+    if ( st.isEmpty() )
+	st = forread ? tr("Input Well") : tr("Output Well");
+    uiIOObjSel::Setup su( st );
+    su.withinserters( withinserters );
+    return su;
+}
 
-uiWellSel::uiWellSel( uiParent* p, bool forread, const char* seltxt )
-    : uiIOObjSel(p,mRWIOObjContext(Well,forread),mSelTxt)
+
+IOObjContext uiWellSel::getContext( bool forread, bool withinserters ) const
+{
+    IOObjContext ret( mRWIOObjContext(Well,forread) );
+    if ( !withinserters )
+	ret.fixTranslator( "dGB" );
+    return ret;
+}
+
+
+uiWellSel::uiWellSel( uiParent* p, bool forread, const uiString& seltxt,
+			bool withinserters )
+    : uiIOObjSel(p,getContext(forread,withinserters),
+	    	 getSetup(forread,seltxt,withinserters))
+{
+}
+
+
+uiWellSel::uiWellSel( uiParent* p, bool forread, const uiIOObjSel::Setup& su )
+    : uiIOObjSel(p,getContext(forread,su.withinserters_),su)
 {
 }
 

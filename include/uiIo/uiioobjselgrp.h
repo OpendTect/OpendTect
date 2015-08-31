@@ -55,6 +55,7 @@ public:
 			    , allowreloc_(false)
 			    , allowremove_(true)
 			    , allowsetdefault_(false)
+			    , withinserters_(true)
 			    , withwriteopts_(true)
 			    , confirmoverwrite_(true)	{}
 
@@ -62,6 +63,7 @@ public:
 	mDefSetupMemb(bool,allowreloc);
 	mDefSetupMemb(bool,allowremove);
 	mDefSetupMemb(bool,allowsetdefault);
+	mDefSetupMemb(bool,withinserters);
 	mDefSetupMemb(bool,withwriteopts);
 	mDefSetupMemb(bool,confirmoverwrite);
 
