@@ -118,7 +118,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 				       : (uiObject*)dataselfld_ );
     but->attach( ensureBelow, sep );
 
-    outfld_ = new uiWellSel( this, false );
+    outfld_ = new uiWellSel( this, false, uiString::emptyString(), false );
     outfld_->attach( alignedBelow, but );
 
     postFinalise().notify( mCB(this,uiWellImportAsc,haveTrckSel) );
