@@ -392,7 +392,6 @@ RandomLineManager::RandomLineManager()
 
 RandomLineManager::~RandomLineManager()
 {
-    deepUnRef( lines_ );
 }
 
 
