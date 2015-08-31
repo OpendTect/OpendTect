@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "emhorizon.h"
 #include "binidsurface.h"
+#include "task.h"
 
 class BinIDValueSet;
 class DataPointSet;
@@ -23,9 +24,10 @@ class BufferStringSet;
 class TrcKeySampling;
 class Scaler;
 class ZAxisTransform;
-namespace Table { class FormatDesc; }
 namespace Pick { class Set; }
 namespace Pos { class Provider3D; }
+namespace Table { class FormatDesc; }
+namespace Threads { class WorkManager; }
 
 namespace EM
 {
@@ -149,12 +151,14 @@ public:
     SurfaceAuxData&		auxdata;
 
     void			initTrackingArrays();
+    TrcKeySampling		getTrackingSampling() const;
     void			setParent(const TrcKey&,const TrcKey& parent);
     TrcKey			getParent(const TrcKey&) const;
     void			getParents(const TrcKey&,
 					   TypeSet<TrcKey>&) const;
-    void			getChildren(const TrcKey&,
-					    TypeSet<TrcKey>&) const;
+    Array2D<char>*		getChildren(const TrcKey&) const;
+    void			deleteChildren();
+    void			resetChildren();
     void			setNodeLocked(const TrcKey&,bool locked);
     bool			isNodeLocked(const TrcKey&) const;
     void			lockAll();
@@ -183,6 +187,7 @@ protected:
 
     TrcKeySampling		trackingsamp_;
     Array2D<char>*		lockednodes_;
+    Array2D<char>*		children_;
     Array2D<od_int64>*		parents_;
 
     Color			parentcolor_;
@@ -194,6 +199,35 @@ public:
 				//!< Fast: reads from the first section
     /*mDeprecated*/ bool	setZ(const BinID&,float z,bool addtohist);
 				//!< Fast: writes to the first section
+};
+
+
+mExpClass(EarthModel) ChildFinder : public SequentialTask
+{
+friend class FindTask;
+friend class Horizon3D;
+protected:
+			ChildFinder(const TrcKeySampling& tks,
+				    const Array2D<od_int64>& parents,
+				    Array2D<char>& children );
+			~ChildFinder();
+
+
+    void		addTask(od_int64);
+    void		taskFinished(CallBacker*);
+    int			nextStep();
+
+    Threads::WorkManager&	twm_;
+    int				queueid_;
+    const Array2D<od_int64>&	parents_;
+    Array2D<char>&		children_;
+    TrcKeySampling		tks_;
+
+    Threads::Atomic<int>	nrtodo_;
+    Threads::Atomic<int>	nrdone_;
+
+    Threads::Lock		addlock_;
+    Threads::Lock		finishlock_;
 };
 
 } // namespace EM
