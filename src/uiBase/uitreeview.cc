@@ -810,8 +810,15 @@ void uiTreeViewItem::setBGColor( int column, const Color& color )
 }
 
 
-const char* uiTreeViewItem::text( int column ) const
+const char* uiTreeViewItem::text( int column, bool original ) const
 {
+    if ( !original )
+    {
+	mDeclStaticString( colnm );
+	colnm = qtreeitem_->text( column );
+	return colnm.buf();
+    }
+
     return texts_.validIdx(column) ? texts_[column].getFullString().buf() : 0;
 }
 

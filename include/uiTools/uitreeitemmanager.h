@@ -174,6 +174,7 @@ protected:
     virtual bool		anyButtonClick(uiTreeViewItem*);
     virtual void		setTreeViewItem(uiTreeViewItem*);
     virtual void		removeItem(uiTreeViewItem*);
+    virtual void		renameItem(uiTreeViewItem*,int);
     uiTreeViewItem*		getItem()	{ return uitreeviewitem_; }
     const uiTreeViewItem*	getItem() const { return uitreeviewitem_; }
 
@@ -243,6 +244,7 @@ protected:
     void		selectionChanged(CallBacker*);
     void		rightClickCB(CallBacker*);
     void		anyButtonClickCB(CallBacker*);
+    void		itemRenamed(CallBacker*);
     void		handleSelectionChanged(bool frmbtclk);
 
     virtual const char*	parentType() const { return 0; }
