@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegydefdlg.h"
 #include "uisegyexamine.h"
 #include "uisegyread.h"
-#include "uiioobjsel.h"
+#include "uiwellsel.h"
 #include "uiioobjseldlg.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
@@ -171,7 +171,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "hor sep", OD::Horizontal, false);
     sep->attach( stretchedBelow, inpsampfld_ );
 
-    wellfld_ = new uiIOObjSel( this, mIOObjContext(Well), tr("Add to Well") );
+    wellfld_ = new uiWellSel( this, true, tr("Add to Well"), false );
     wellfld_->attach( alignedBelow, inpsampfld_ );
     wellfld_->attach( ensureBelow, sep );
     wellfld_->selectionDone.notify( mCB(this,uiWellImportSEGYVSP,wllSel) );

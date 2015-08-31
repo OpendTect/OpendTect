@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id: $";
 
 #include "uisegyreadfinisher.h"
 #include "uiseissel.h"
+#include "uiwellsel.h"
 #include "uiseissubsel.h"
 #include "uiseistransf.h"
 #include "uiseisioobjinfo.h"
@@ -161,7 +162,7 @@ void uiSEGYReadFinisher::crVSPFields()
     isfeetfld_->attach( rightOf, inpdomfld_ );
     isfeetfld_->setChecked( fs_.zinfeet_ );
 
-    outwllfld_ = new uiIOObjSel( this, mIOObjContext(Well), tr("Add to Well") );
+    outwllfld_ = new uiWellSel( this, true, tr("Add to Well"), false );
     outwllfld_->selectionDone.notify( mCB(this,uiSEGYReadFinisher,wllSel) );
     outwllfld_->attach( alignedBelow, inpdomfld_ );
 

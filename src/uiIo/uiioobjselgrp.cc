@@ -250,7 +250,7 @@ void uiIOObjSelGrp::mkManipulators()
 	    mCB(this,uiIOObjSelGrp,makeDefaultCB) );
     }
 
-    if ( uiIOObjInserter::allDisabled() )
+    if ( !setup_.withinserters_ || uiIOObjInserter::allDisabled() )
 	return;
 
     if ( !ctio_.ctxt.forread

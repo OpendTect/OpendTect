@@ -43,12 +43,14 @@ public:
 			    : titletext_(titletxt)
 			    , multisel_(false)
 			    , allowsetsurvdefault_(true)
-			    , withwriteopts_(true)		{}
+			    , withwriteopts_(true)
+			    , withinserters_(true)		{}
 
 	mDefSetupMemb(uiString,titletext)
 	mDefSetupMemb(bool,multisel)
 	mDefSetupMemb(bool,allowsetsurvdefault)
 	mDefSetupMemb(bool,withwriteopts)
+	mDefSetupMemb(bool,withinserters)
     };
 
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,

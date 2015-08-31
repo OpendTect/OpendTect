@@ -19,11 +19,19 @@ ________________________________________________________________________
 
 
 mExpClass(uiWell) uiWellSel : public uiIOObjSel
-{
+{ mODTextTranslationClass(uiWellSel)
 public:
-			uiWellSel(uiParent*,bool forread,const char* lbltxt=0);
+
+			uiWellSel(uiParent*,bool forread,const Setup&);
+			uiWellSel(uiParent*,bool forread,
+				const uiString& seltxt=uiString::emptyString(),
+				bool withinserters=true);
 
 protected:
+
+    Setup		getSetup(bool,const uiString&,bool) const;
+    IOObjContext	getContext(bool,bool) const;
+
 };
 
 
