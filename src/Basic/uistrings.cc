@@ -48,14 +48,17 @@ uiString uiStrings::phrCannotFind( const uiString& string )
 uiString uiStrings::phrCannotOpen( const uiString& string )
 { return tr("Cannot open %1").arg( string ); }
 
-uiString uiStrings::phrCannotFindDBEntry( const MultiID& mid )
-{ return phrCannotFind( tr("database entry for %1").arg( mid.buf() ) ); }
+uiString uiStrings::phrCannotFindDBEntry( const uiString& string )
+{ return phrCannotFind( tr("database entry for %1").arg( string ) ); }
 
 uiString uiStrings::phrCannotRead( const uiString& string )
 { return tr("Cannot read %1").arg( string ); }
 
 uiString uiStrings::phrCannotWrite( const uiString& string )
 { return tr("Cannot write %1").arg( string ); }
+
+uiString uiStrings::phrCannotWriteDBEntry( const uiString& string )
+{ return phrCannotWrite( tr("database entry for %1").arg(string) ); }
 
 uiString uiStrings::phrCreate( const uiString& string )
 { return toUiString(joinstring).arg( sCreate() ).arg( string ); }

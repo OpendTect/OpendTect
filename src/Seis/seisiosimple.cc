@@ -187,7 +187,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     }
     sa->setSelData( seldata );
 
-    BufferString errmsg;
+    uiString errmsg;
     strm_ = od_stream::create( data_.fname_, isimp_, errmsg );
     if ( !strm_ )
     {
@@ -255,7 +255,7 @@ void SeisIOSimple::startImpRead()
 	binstrm.get( data_.sd_.start ).get( data_.sd_.step )
 	       .get( data_.nrsamples_ );
 	if ( !strm_->isOK() )
-	{ errmsg_ = "Input file contains no data"; return; }
+	{ errmsg_ = tr("Input file contains no data"); return; }
 	if ( zistm_ )
 	    { data_.sd_.start *= .001; data_.sd_.step *= .001; }
     }
@@ -444,7 +444,7 @@ int SeisIOSimple::readExpTrc()
 	return 0;
     else if ( readres < 0 || !rdr_->get( trc_ ) )
     {
-	errmsg_ = rdr_->errMsg().getFullString();
+	errmsg_ = rdr_->errMsg();
 	return -1;
     }
 
@@ -534,7 +534,7 @@ int SeisIOSimple::writeExpTrc()
 
     if ( !strm_->isOK() )
     {
-	errmsg_ = "Error during write";
+	errmsg_ = uiStrings::phrCannotWrite( toUiString(strm_->fileName()) );
 	strm_->addErrMsgTo( errmsg_ );
 	return ErrorOccurred();
     }

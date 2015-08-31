@@ -100,7 +100,7 @@ bool SeisImpBPSIF::readFileHeader()
     char buf[10];
     cursd_.istrm->getline( buf, 10 ); removeTrailingBlanks(buf);
     if ( FixedString(buf)!="#BPSIF#" )
-	mErrRet(" is not a BPSIF file")
+	mErrRet( toUiString(" is not a BPSIF file") )
     if ( cursd_.istrm->peek() == '\n' ) cursd_.istrm->ignore( 1 );
 
     while ( true )

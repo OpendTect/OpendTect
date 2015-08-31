@@ -235,17 +235,18 @@ void MadStream::initWrite( IOPar* par )
     isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
     istrm_ = new od_istream( &std::cin );
     MultiID outpid;
-    if (!par->get(sKey::ID(), outpid)) mErrRet(tr("Output data ID missing"));
+    if (!par->get(sKey::ID(), outpid))
+	mErrRet(uiStrings::phrCannotRead( tr("paramter file")) );
 
     PtrMan<IOObj> ioobj = IOM().get( outpid );
-    if (!ioobj) mErrRet(tr("Cannot find output object"));
+    if (!ioobj) mErrRet( uiStrings::phrCannotFindDBEntry(toUiString(outpid)) );
 
     PtrMan<IOPar> subpar = par->subselect( sKey::Subsel() );
     Seis::SelData* seldata = subpar ? Seis::SelData::get(*subpar) : 0;
     if ( !isps_ )
     {
 	seiswrr_ = new SeisTrcWriter( ioobj );
-	if (!seiswrr_) mErrRet(tr("Cannot write to output object"));
+	if ( !seiswrr_ ) mErrRet(toUiString("Internal: Cannot create writer"))
     }
     else
     {
@@ -296,22 +297,17 @@ BufferString MadStream::getPosFileName( bool forread ) const
 }
 
 
-uiString MadStream::sCannotCreatePosFile()
+uiString MadStream::sPosFile()
 {
-    return uiStrings::phrCannotCreate(tr("Pos file"));
-}
-
-uiString MadStream::sCannotWritePosFile()
-{
-    return tr("Cannot write to Pos file");
+    return tr("Pos file");
 }
 
 
 #define mWriteToPosFile( obj ) \
     od_ostream strm( posfnm ); \
-    if ( !strm.isOK() ) mErrRet( sCannotCreatePosFile() ); \
+    if ( !strm.isOK() ) mErrRet( uiStrings::phrCannotCreate(sPosFile() )); \
     if ( !obj.write(strm,false) ) \
-        	{ mErrRet( sCannotWritePosFile() ); } \
+		{ mErrRet( uiStrings::phrCannotWrite(sPosFile() )); } \
     pars_.set( sKeyPosFileName, posfnm );
 
 #ifdef __win__
@@ -682,18 +678,6 @@ void MadStream::readRSFTrace( float* arr, int nrsamps ) const
 }
 
 
-uiString MadStream::sCannotOpenPosFile()
-{
-    return tr("Cannot Open Pos File");
-}
-
-
-uiString MadStream::sCannotReadPosFile()
-{
-    return tr("Cannot Read Pos File");
-}
-
-
 uiString MadStream::sNoPositionsInPosFile()
 {
     return tr("No positions in Pos File");
@@ -706,9 +690,9 @@ uiString MadStream::sNoPositionsInPosFile()
     { \
 	haspos = true; \
 	od_istream strm( posfnm ); \
-	if ( !strm.isOK() ) mErrBoolRet( sCannotOpenPosFile() ); \
+	if ( !strm.isOK() ) mErrBoolRet(uiStrings::phrCannotOpen(sPosFile())); \
 	if ( !obj.read(strm,false) ) \
-	    mErrBoolRet( sCannotReadPosFile() ); \
+	    mErrBoolRet( uiStrings::phrCannotRead(sPosFile()) ); \
 	if ( obj.isEmpty() ) \
 	    mErrBoolRet( sNoPositionsInPosFile() ); \
 	strm.close(); \

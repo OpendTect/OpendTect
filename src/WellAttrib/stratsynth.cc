@@ -1488,7 +1488,7 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 {
     ElasticModelAdjuster emadjuster( lm, aimodels, checksvel );
     const bool res = TaskRunner::execute( taskr_, emadjuster );
-    infomsg_ = emadjuster.infoMsg().getFullString();
+    infomsg_ = emadjuster.infoMsg();
     swaveinfomsgshown_ = checksvel;
     return res;
 }

@@ -75,7 +75,7 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
     ascistream astream( odstrm );
     uiString uistr;
     const uiString res = readFromStream( astream, ads, uistr );
-    bs = uistr.getFullString();
+    bs = uistr;
     if (bs.isEmpty())
 	bs = res;
 
@@ -101,9 +101,9 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 	return false;
     }
 
-    bs = trans->read( ads, *conn );
+    bs = mToUiStringTodo(trans->read( ads, *conn ));
     bool rv = bs.isEmpty();
-    if ( rv ) bs = trans->warningMsg();
+    if ( rv ) bs = mToUiStringTodo(trans->warningMsg());
     return rv;
 }
 
@@ -129,7 +129,7 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     }
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
     IOM().commitChanges( *ioobj );
-    bs = trans->write( ads, *conn );
+    bs = mToUiStringTodo(trans->write( ads, *conn ));
     return bs.isEmpty();
 }
 

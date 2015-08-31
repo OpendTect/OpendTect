@@ -177,7 +177,7 @@ protected:
     const IODir*		iodir_;
     int				totalnr_;
     int				curidx_;
-    BufferString		curmsg_;
+    uiString			curmsg_;
     bool			domrkrs_;
     bool			dologs_;
     bool			dotracks_;

@@ -39,7 +39,7 @@ IOObj* PreLoader::getIOObj() const
 {
     IOObj* ret = IOM().get( mid_ );
     if ( !ret )
-	errmsg_ = uiStrings::phrCannotFindDBEntry( mid_ );
+	errmsg_ = uiStrings::phrCannotFindDBEntry( toUiString(mid_) );
     return ret;
 }
 

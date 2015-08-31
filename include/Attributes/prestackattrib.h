@@ -49,7 +49,7 @@ namespace Attrib
 */
 
 mExpClass(Attributes) PSAttrib : public Provider
-{
+{ mODTextTranslationClass(PSAttrib)
 public:
 
     static void		initClass();

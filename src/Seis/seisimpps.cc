@@ -181,7 +181,7 @@ bool SeisPSImpDataMgr::writeGather()
     {
 	res = wrr_->put( *gath2write->get(idx) );
 	if ( !res )
-	    { errmsg_ = wrr_->errMsg().getFullString(); break; }
+	    { errmsg_ = wrr_->errMsg(); break; }
     }
 
     if ( gathersize_ == 0 )

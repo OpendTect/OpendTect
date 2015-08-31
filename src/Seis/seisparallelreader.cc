@@ -93,7 +93,7 @@ uiString ParallelReader::uiMessage() const
 
 bool ParallelReader::doPrepare( int nrthreads )
 {
-    const char* allocprob = "Cannot allocate memory";
+    uiString allocprob = tr("Cannot allocate memory");
 
     if ( bidvals_ )
     {
@@ -148,7 +148,7 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 
     if ( !reader->prepareWork() )
     {
-	errmsg_ = reader->errMsg().getFullString();
+	errmsg_ = reader->errMsg();
 	return false;
     }
 

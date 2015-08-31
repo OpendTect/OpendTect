@@ -564,7 +564,7 @@ bool VelocityGridder::usePar( const IOPar& par )
 
     for ( int idx=0; idx<nrsources; idx++ )
     {
-	const char* parseerror = "Parse error";
+	const uiString parseerror = tr("Parse error");
 
 	const BufferString idxstr( 0, idx, 0 );
 	PtrMan<IOPar> sourcepar = par.subselect( idxstr.buf() );

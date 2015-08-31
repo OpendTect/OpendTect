@@ -221,22 +221,20 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     od_istream strm( fnm );
     if ( !strm.isOK() )
     {
-	BufferString msg("Cannot open '", fnm, "':\n");
-	msg.add(strm.errMsg().getFullString());
-	mErrRet( msg )
+	mErrRet( uiStrings::phrCannotOpen( toUiString(fnm)) )
     }
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType()) )
-	mErrRet(BufferString("Input file '", fnm, "' has wrong file type"))
+	mErrRet(tr("Input file '%1' has wrong file type").arg( fnm ) )
 
     IOPar iop1; iop1.getFrom( astrm );
     int version = 1;
     iop1.get( sKey::Version(), version );
     if ( version<1 || version>2 )
     {
-	mErrRet(BufferString("Input file '", fnm,
-			     "' is written by a later version of OpendTect"));
+	mErrRet(tr("Input file '%1' is written by a later version of OpendTect")
+		  .arg(fnm) );
     }
     if ( version==1 )
     {
@@ -252,7 +250,6 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     }
     else
     {
-	const char* readerror = "Cannot read file";
 	BufferString dc;
 
 	PtrMan<DataInterpreter<float> > floatinterp =
@@ -274,7 +271,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	const od_stream::Pos indexstart =
 	    DataInterpreter<od_int64>::get(int64interp,strm);
 	if ( !strm.isOK() )
-	    mErrRet( readerror );
+	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 
 	strm.setPosition( textpars );
 	ascistream astrm2( strm, false );
@@ -282,7 +279,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	IOPar iop2;
 	iop2.getFrom( astrm2 );
 	if ( !strm.isOK() )
-	    mErrRet( readerror );
+	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 
 	FixedString int32typestr = iop1.find( sKeyInt32DataChar() );
 	DataCharacteristics int32type;
@@ -291,7 +288,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	if ( !fds->usePar(iop2) )
 	{
 	    delete fds;
-	    mErrRet( readerror );
+	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 	}
 
 	const od_stream::Pos curpos = strm.position();
@@ -299,7 +296,10 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	    strm.setPosition( cubedatastart );
 
 	if ( !cubedata_.read(strm,false) || !linedata_.read(strm,false) )
-	    { delete fds; mErrRet( readerror ); }
+	{
+	    delete fds;
+	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
+	}
 
 	delete keylist_;
 	delete indexer_;
@@ -314,7 +314,9 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 
 	if ( !indexer_->readFrom( fnm, indexstart, false, int32interp,
 				  int64interp, floatinterp ) )
-	    mErrRet( readerror );
+	{
+	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
+	}
     }
 
     return true;
@@ -356,10 +358,8 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     outstream_ = new od_ostream( fnm );
     if ( !outstream_->isOK() )
     {
-	BufferString msg("Cannot open '", fnm, "' for write");
-	outstream_->addErrMsgTo( msg );
 	delete outstream_; outstream_ = 0;
-	mErrRet( msg );
+	mErrRet( uiStrings::phrCannotOpen(toUiString(fnm)) );
     }
 
     od_ostream& strm = *outstream_;
@@ -632,7 +632,8 @@ int SEGY::FileIndexer::nextStep()
 		File::createDir(outfile);
 		if ( !File::isDirectory(outfile) )
 		{
-		    msg_ = uiStrings::phrCannotCreateDirectory(outfile);
+		    msg_ =
+		      uiStrings::phrCannotCreateDirectory(toUiString(outfile));
 		    return ErrorOccurred();
 		}
 	    }

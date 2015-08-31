@@ -303,15 +303,15 @@ int HorizonScanner::nextStep()
     }
 
     if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
-	mErrRet("Error during initialization."
-		"\nPlease check the format definition")
+	mErrRet(tr("Error during initialization."
+		"\nPlease check the format definition"))
 
     Coord crd;
     TypeSet<float> data;
     const int ret = ascio_->getNextLine( crd, data );
     if ( ret < 0 )
-	mErrRet("Error during data interpretation."
-		"\nPlease check the format definition")
+	mErrRet(tr("Error during data interpretation."
+		"\nPlease check the format definition"))
     if ( ret == 0 )
     {
 	fileidx_++;
@@ -323,7 +323,7 @@ int HorizonScanner::nextStep()
     }
 
     if ( data.size() < 1 )
-	mErrRet("Not enough data read to analyze")
+	mErrRet(tr("Not enough data read to analyze"))
 
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size(), false );
 

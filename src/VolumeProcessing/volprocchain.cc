@@ -765,7 +765,7 @@ bool Chain::usePar( const IOPar& par )
     deepErase( steps_ );
     web_.getConnections().erase();
 
-    const char* parseerror = "Parsing error";
+    const uiString parseerror = tr("Parsing error");
 
     int nrsteps;
     if ( !par.get(sKeyNrSteps(),nrsteps) )
@@ -819,7 +819,7 @@ bool Chain::usePar( const IOPar& par )
 	if ( !par.get(sKey::Output(),outputstepid,outputslotid) ||
 	     !setOutputSlot(outputstepid,outputslotid) )
 	{
-	    errmsg_ = "Could not parse or set output slot.";
+	    errmsg_ = tr("Could not parse or set output slot.");
 	    return false;
 	}
 

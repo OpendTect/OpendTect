@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "progressmeter.h"
 #include "seisioobjinfo.h"
+#include "uistrings.h"
 
 #include "prog.h"
 
@@ -76,7 +77,7 @@ bool BatchProgram::go( od_ostream& strm )
 	veldesc.removePars( outputioobj->pars() );
 
     if ( !IOM().commitChanges(*outputioobj) )
-	mErrRet( "Cannot write velocity information" )
+	mErrRet( uiStrings::phrCannotWrite(tr("velocity information") ) )
 
     return true;
 }

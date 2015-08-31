@@ -987,7 +987,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
-	    mRetErrDelHoridx( tr("Writing body to disk failed, no permision?") )
+	    mRetErr( uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) )
     }
 
     if ( !TaskRunner::execute( &taskrunner, *exec ) )

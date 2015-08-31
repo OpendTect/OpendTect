@@ -35,7 +35,7 @@ public:
     //!<"Cannot create directory <string>"
     static uiString phrCannotFind(const uiString& string);
     //!<"Cannot find <string>"
-    static uiString phrCannotFindDBEntry(const MultiID&);
+    static uiString phrCannotFindDBEntry(const uiString&);
     //!<"Cannot find database entry for
     static uiString phrCannotOpen(const uiString& string);
     //!<"Cannot open <string>"
@@ -45,6 +45,7 @@ public:
     //!<"Cannot remove <string>"
     static uiString phrCannotWrite(const uiString& string);
     //!<"Cannot write <string>"
+    static uiString phrCannotWriteDBEntry(const uiString&);
     static uiString phrCreate(const uiString& string);
     //!<"Create <string>"
     static uiString phrDoesntExist(const uiString& string,int num=1);
@@ -111,6 +112,7 @@ public:
     static uiString sCreate();
     static uiString sCreateProbDesFunc();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
+    static uiString sData()		{ return tr("Data"); }
     static uiString sDelete()		{ return tr("Delete"); }
     static uiString sDepth()	        { return tr("Depth"); }
     static uiString sDisplay()		{ return tr("Display"); }
@@ -149,7 +151,7 @@ public:
     static uiString sManual()		{ return tr("Manual"); }
     static uiString sManWav()		{ return tr("Manage Wavelets"); }
     static uiString sMarker(int num=1);
-    static uiString sMute()		{ return tr("Mute"); }
+    static uiString sMute(int num=1)	{ return tr("Mute",0,num); }
     static uiString sName()		{ return tr("Name"); }
     static uiString sNew();
     static uiString sNext()		{ return tr("Next >"); }
@@ -217,6 +219,7 @@ public:
     static uiString sTime()		{ return tr("Time"); }
     static uiString sTools()		{ return tr("Tools"); }
     static uiString sTopHor()		{ return tr("Top Horizon"); }
+    static uiString sTrace(int num=1)	{ return tr("Trace", 0, num); }
     static uiString sTrack();
     static uiString sTransparency()     { return tr("Transparency"); }
     static uiString sType()             { return tr("Type"); }

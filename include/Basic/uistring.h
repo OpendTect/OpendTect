@@ -91,7 +91,6 @@ public:
 
 		uiString();
 		uiString(const uiString&);	//!< no copy, ref counted
-		uiString(const OD::String&);
 		~uiString();
 
     uiString&	set(const char*);
@@ -101,8 +100,6 @@ public:
     bool	operator!() const		{ return isEmpty(); }
 
     uiString&	operator=(const uiString&);	//!< no copy, ref counted
-    uiString&	operator=(const char*);
-    uiString&	operator=(const OD::String&);
     bool	operator>(const uiString& b) const;
     bool	operator<(const uiString& b) const;
 
@@ -155,9 +152,15 @@ public:
 
 		//Only for expert users
 #ifdef mNoAutoUiString
-    mDeprecated uiString(const char* inp);
+    mDeprecated			uiString(const char* inp);
+    mDeprecated			uiString(const OD::String&);
+    mDeprecated uiString&	operator=(const char*);
+    mDeprecated uiString&	operator=(const OD::String&);
 #else
-		uiString(const char*);
+				uiString(const char*);
+				uiString(const OD::String&);
+    uiString&			operator=(const char*);
+    uiString&			operator=(const OD::String&);
 #endif
 		/*!<Don't use. May be depreciated. Use toUiString("My text")
 		    function instead. */

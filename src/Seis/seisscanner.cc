@@ -91,8 +91,8 @@ od_int64 SeisScanner::totalNr() const
 
 bool SeisScanner::getSurvInfo( TrcKeyZSampling& cs, Coord crd[3] ) const
 {
-    const char* msg = dtctor_.getSurvInfo( cs.hsamp_, crd );
-    if ( msg )
+    const uiString msg = mToUiStringTodo(dtctor_.getSurvInfo( cs.hsamp_, crd ));
+    if ( !msg.isEmpty() )
 	{ curmsg_ = msg; return false; }
 
     cs.zsamp_.start = sampling_.atIndex( nonnullsamplerg_.start );
@@ -234,7 +234,7 @@ int SeisScanner::nextStep()
 			   .arg(toString(bid.crl()));
 		}
 		else
-		    { posmsg = bid.toString(); }
+		    { posmsg = toUiString(bid.toString()); }
 	    }
 
 	    curmsg_ = tr("Error during read of trace header after %1")
@@ -256,7 +256,7 @@ int SeisScanner::nextStep()
 	if ( dtctor_.is2D() )
 	{ posmsg = tr("trace number %1").arg(toString(bid.crl())); }
 	else
-	    { posmsg = bid.toString(); }
+	    { posmsg = toUiString(bid.toString()); }
 	curmsg_ = tr("Error during read of trace data at %1").arg(posmsg);
 	wrapUp();
 	return Executor::ErrorOccurred();

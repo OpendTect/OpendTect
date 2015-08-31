@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "veldesc.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
+#include "uistrings.h"
 
 
 bool BatchProgram::go( od_ostream& strm )
@@ -162,8 +163,7 @@ bool BatchProgram::go( od_ostream& strm )
     {
 	if ( !IOM().commitChanges( *outputobj ) )
 	{
-	    strm << "Warning: Could not write velocity information to database"
-	                        " for " << outputobj->name() << "\n\n";
+	    strm << uiStrings::phrCannotWriteDBEntry(outputobj->uiName());
 	}
     }
 
