@@ -497,10 +497,13 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
     adjuster->setAttributeSel( 0, selspec_ );
 
     extender->setExtBoundary( getTrackBox() );
-    if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Inl )
-	extender->setDirection( TrcKeyValue(TrcKey(0,1), mUdf(float)) );
+    BinID dir;
+    if ( !lineTrackDirection(dir) )
+	extender->setDirection( TrcKeyValue(TrcKey(1,1),mUdf(float)) );
+    else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Inl )
+	extender->setDirection( TrcKeyValue(TrcKey(0,1),mUdf(float)) );
     else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Crl )
-	extender->setDirection( TrcKeyValue(TrcKey(1,0), mUdf(float)) );
+	extender->setDirection( TrcKeyValue(TrcKey(1,0),mUdf(float)) );
 
     TypeSet<EM::SubID> addedpos;
     TypeSet<EM::SubID> addedpossrc;

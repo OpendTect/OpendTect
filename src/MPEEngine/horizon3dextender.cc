@@ -68,7 +68,8 @@ void BaseHorizon3DExtender::preallocExtArea()
 
 int BaseHorizon3DExtender::nextStep()
 {
-    const bool alldirs = direction_.lineNr()==0 && direction_.trcNr()==0;
+    const bool fourdirs = direction_.lineNr()==0 && direction_.trcNr()==0;
+    const bool eightdirs = direction_.lineNr()==1 && direction_.trcNr()==1;
 
     TypeSet<BinID> sourcenodes;
 
@@ -90,18 +91,26 @@ int BaseHorizon3DExtender::nextStep()
 	    const BinID& srcbid = sourcenodes[idx];
 
 	    TypeSet<RowCol> directions;
-	    if ( !alldirs )
-	    {
-		directions += RowCol( direction_.tk_.pos() );
-		directions += RowCol( direction_.lineNr()*-1,
-				      direction_.trcNr()*-1 );
-	    }
-	    else
+	    
+	    if ( fourdirs || eightdirs )
 	    {
 		directions += RowCol( 0, 1 );
 		directions += RowCol( 0, -1 );
 		directions += RowCol( 1, 0 );
 		directions += RowCol( -1, 0 );
+		if ( eightdirs )
+		{
+		    directions += RowCol( 1, 1 );
+		    directions += RowCol( 1, -1 );
+		    directions += RowCol( -1, 1 );
+		    directions += RowCol( -1, -1 );
+		}
+	    }
+	    else
+	    {
+		directions += RowCol( direction_.tk_.pos() );
+		directions += RowCol( direction_.lineNr()*-1,
+				      direction_.trcNr()*-1 );
 	    }
 
 	    const EM::PosID pid( horizon_.id(), sid_, srcbid.toInt64() );
@@ -167,6 +176,7 @@ float BaseHorizon3DExtender::getDepth( const TrcKey& src,
 
 
 const TrcKeyZSampling& BaseHorizon3DExtender::getExtBoundary() const
-{ return extboundary_.isEmpty() ? engine().activeVolume() : extboundary_; }
+{ return extboundary_.isEmpty() || extboundary_.hsamp_.totalNr()==1
+	? engine().activeVolume() : extboundary_; }
 
 } // namespace MPE
