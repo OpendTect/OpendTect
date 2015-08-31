@@ -64,6 +64,7 @@ protected:
     void		addToToolBarCB(CallBacker*);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
+    void		keyEventCB(CallBacker*);
 
     visSurvey::EMObjectDisplay*		getDisplay();
     const visSurvey::EMObjectDisplay*	getDisplay() const;

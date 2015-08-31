@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "file.h"
 #include "geomelement.h"
-#include "keyboardevent.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "mpeengine.h"
@@ -533,7 +532,7 @@ void uiMPEPartServer::retrack( const EM::ObjectID& oid )
     MPE::engine().setActiveVolume( oldactivevol );
 
     if ( !(MPE::engine().activeVolume().nrInl()==1) &&
-         !(MPE::engine().activeVolume().nrCrl()==1) )
+	 !(MPE::engine().activeVolume().nrCrl()==1) )
     {
 	sendEvent( uiMPEPartServer::evRetrackInVolume() );
     }
@@ -662,7 +661,7 @@ bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
 	"This object has saved tracker settings.\n" \
 	"Do you want to verify / change them?" : \
 	"This object was created by manual drawing\n" \
-        "only, or its tracker settings were not saved.\n" \
+	"only, or its tracker settings were not saved.\n" \
 	"Do you want to specify them right now?" )
 
 void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
@@ -796,7 +795,7 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     if ( !setupfilenm.isEmpty() && !iopar.write(setupfilenm,"Tracking Setup") )
     {
 	uiString errmsg( tr("Unable to save tracking setup file \n"
-	                    " %1 .\nPlease check whether the file is writable")
+			    " %1 .\nPlease check whether the file is writable")
 			    .arg(setupfilenm) );
 	uiMSG().error( errmsg );
 	return false;
@@ -920,10 +919,6 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 }
 
 
-bool uiMPEPartServer::fireAddTreeObjectEvent()
-{ return sendEvent( ::uiMPEPartServer::evAddTreeObject() ); }
-
-
 bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 				    MPE::EMTracker*& tracker,
 				    const EM::SectionID& sid,
@@ -1011,20 +1006,6 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     sendEvent( uiMPEPartServer::evShowToolbar() );
 
     return true;
-}
-
-
-void uiMPEPartServer::handleKeyboardEvent( const KeyboardEvent& kbev )
-{
-    switch ( kbev.key_ )
-    {
-	case OD::K:
-	    MPE::engine().trackInVolume();
-	break;
-	default:
-	{
-	}
-    }
 }
 
 

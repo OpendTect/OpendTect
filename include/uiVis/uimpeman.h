@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "trckeyzsampling.h"
 
-namespace EM { class EMObject; }
+namespace EM { class EMObject; class Horizon3D; }
 namespace MPE { class EMTracker; }
-namespace visSurvey { class MPEDisplay; class MPEClickCatcher; }
+namespace visSurvey { class HorizonDisplay; class MPEClickCatcher; }
 
 class uiPropertiesDialog;
 class uiComboBox;
@@ -63,19 +63,24 @@ protected:
 
     uiComboBox*			seedconmodefld_;
 
-    void			undoPush(CallBacker*);
-    void			redoPush(CallBacker*);
-    void			savePush(CallBacker*);
+    void			mouseEventCB(CallBacker*);
+    void			keyEventCB(CallBacker*);
+    int				popupMenu();
+    void			handleAction(int);
+
+    void			undo();
+    void			redo();
+    void			startPolySelection();
+    void			clearSelection();
+    void			deleteSelection();
+    void			removeInPolygon();
+
     void			trackFromSeedsOnly(CallBacker*);
     void			trackFromSeedsAndEdges(CallBacker*);
     void			trackInVolume(CallBacker*);
-    void			selectionMode(CallBacker*);
-    void			handleToolClick(CallBacker*);
-    void 			removeInPolygon(CallBacker*);
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
     void			showSettingsCB(CallBacker*);
-    void			displayAtSectionCB(CallBacker*);
     void			retrackAllCB(CallBacker*);
 
     void			updateSeedPickState();
@@ -86,8 +91,10 @@ protected:
     bool			isPickingWhileSetupUp() const;
 
     MPE::EMTracker*		getSelectedTracker();
+    visSurvey::HorizonDisplay*	getSelectedDisplay();
+    EM::Horizon3D*		getSelectedHorizon3D();
 
-    void 			finishMPEDispIntro(CallBacker*);
+    void			finishMPEDispIntro(CallBacker*);
 
     int				cureventnr_;
     void			beginSeedClickEvent(EM::EMObject*);
@@ -98,10 +105,6 @@ protected:
     void			updateClickCatcher();
 
     int				seedidx_;
-    int				undoidx_, redoidx_;
-//    int 			polyselectidx_;
-//    int			removeinpolygonidx_;
-//    int			saveidx_;
 
     bool			seedpickwason_;
     bool			polyselstoppedseedpick_;

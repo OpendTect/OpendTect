@@ -13,13 +13,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
-#include "emobject.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "emundo.h"
 #include "executor.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
+#include "keyboardevent.h"
 #include "mpeengine.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
@@ -35,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
-#include "visemobjdisplay.h"
+#include "vishorizondisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "vismpe.h"
 #include "vismpeseedcatcher.h"
@@ -78,7 +79,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
-    visserv_->selectionmodeChange.notify( mCB(this,uiMPEMan,selectionMode) );
+    visserv_->mouseEvent.notify( mCB(this,uiMPEMan,mouseEventCB) );
+    visserv_->keyEvent.notify( mCB(this,uiMPEMan,keyEventCB) );
 
     updateButtonSensitivity();
 }
@@ -98,13 +100,6 @@ void uiMPEMan::addButtons()
     seedidx_ = mAddButton( "seedpickmode", addSeedCB,
 			  tr("Create seed ( key: 'Tab' )"), true );
     toolbar_->setShortcut( seedidx_, "Tab" );
-
-    toolbar_->addSeparator();
-
-    undoidx_ = mAddButton( "undo", undoPush, tr("Undo (Ctrl+Z)"), false );
-    redoidx_ = mAddButton( "redo", redoPush, tr("Redo (Ctrl+Y)"), false );
-    toolbar_->setShortcut( undoidx_, "Ctrl+Z" );
-    toolbar_->setShortcut( redoidx_, "Ctrl+Y" );
 }
 
 
@@ -123,7 +118,181 @@ uiMPEMan::~uiMPEMan()
 	    mCB(this,uiMPEMan,treeItemSelCB) );
     visBase::DM().selMan().deselnotifier.remove(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
-    visserv_->selectionmodeChange.remove( mCB(this,uiMPEMan,selectionMode) );
+    visserv_->mouseEvent.remove( mCB(this,uiMPEMan,mouseEventCB) );
+    visserv_->keyEvent.remove( mCB(this,uiMPEMan,keyEventCB) );
+}
+
+
+static const int sStart = 0;
+static const int sRetrack = 1;
+static const int sStop = 2;
+static const int sPoly = 3;
+static const int sChild = 4;
+static const int sParent = 5;
+static const int sParPath = 6;
+static const int sClear = 7;
+static const int sDelete = 8;
+static const int sUndo = 9;
+static const int sRedo = 10;
+static const int sLock = 11;
+static const int sUnlock = 12;
+static const int sSave = 13;
+static const int sSaveAs = 14;
+static const int sRest = 15;
+static const int sFull = 16;
+static const int sSett = 17;
+
+
+void uiMPEMan::keyEventCB( CallBacker* )
+{
+    if ( MPE::engine().nrTrackersAlive() == 0 ) return;
+
+    int action = -1;
+    const KeyboardEvent& kev = visserv_->getKeyboardEvent();
+    if ( kev.key_ == OD::K )
+    {
+	if ( MPE::engine().trackingInProgress() )
+	    action = sStop;
+	else
+	{
+	    if ( OD::ctrlKeyboardButton(kev.modifier_) )
+		action = sRetrack;
+	    else if ( kev.modifier_==OD::NoButton )
+		action = sStart;
+	}
+    }
+    else if ( kev.key_ == OD::Y )
+	action = sPoly;
+    else if ( kev.key_ == OD::A )
+	action = sClear;
+    else if ( kev.key_==OD::D || kev.key_==OD::Delete )
+	action = sDelete;
+    else if ( kev.key_ == OD::L )
+	action = sLock;
+    else if ( kev.key_ == OD::U )
+	action = sUnlock;
+    else if ( kev.key_ == OD::Z && OD::ctrlKeyboardButton(kev.modifier_) )
+	action = sUndo;
+    else if ( kev.key_ == OD::Y && OD::ctrlKeyboardButton(kev.modifier_) )
+	action = sRedo;
+    else if ( kev.key_ == OD::S && OD::ctrlKeyboardButton(kev.modifier_) )
+	action = sSave;
+    else if ( kev.key_ == OD::S && OD::ctrlKeyboardButton(kev.modifier_)
+				&& OD::shiftKeyboardButton(kev.modifier_) )
+	action = sSaveAs;
+    else if ( kev.key_ == OD::A )
+    {
+    }
+
+    if ( action != -1 )
+	handleAction( action );
+}
+
+
+#define mAddAction(txt,sc,id,enab) \
+{ \
+    uiAction* action = new uiAction( txt ); \
+    mnu.insertAction( action, id ); \
+    action->setEnabled( enab ); \
+    action->setShortcut( sc ); \
+}
+void uiMPEMan::mouseEventCB( CallBacker* )
+{
+    if ( MPE::engine().nrTrackersAlive() == 0 ) return;
+
+    const MouseEvent& mev = visserv_->getMouseEvent();
+    if ( mev.ctrlStatus() && mev.rightButton() )
+    {
+	const int res = popupMenu();
+	handleAction( res );
+    }
+}
+
+
+int uiMPEMan::popupMenu()
+{
+    EM::Horizon3D* hor3d = getSelectedHorizon3D();
+    if ( !hor3d ) return -1;
+
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    visSurvey::Scene* scene = hd ? hd->getScene() : 0;
+    if ( !scene ) return -1;
+
+    uiMenu mnu( tr("Tracking Menu") );
+    const bool istracking = MPE::engine().trackingInProgress();
+    if ( istracking )
+	mAddAction( tr("Stop Tracking"), "k", sStop, true )
+    else
+    {
+	const Coord3& clickedpos = scene->getMousePos( true, true );
+	const bool haspos = !clickedpos.isUdf();
+	mAddAction( tr("Start Tracking"), "k", sStart, true )
+	mAddAction( tr("Retrack From Seeds"), "ctrl+k", sRetrack, true )
+	mAddAction( tr("Define Polygon"), "y", sPoly, true )
+	if ( haspos )
+	{
+	    mAddAction( tr("Select Children"), "", sChild, true )
+	    mAddAction( tr("Select Parents"), "", sParent, true )
+	    mAddAction( tr("Show Parents Path"), "", sParPath, true )
+	}
+	mAddAction( tr("Clear Selection"), "a", sClear, true )
+	mAddAction( tr("Delete Selected"), "d", sDelete, true )
+	mAddAction( tr("Undo"), "ctrl+z", sUndo, EM::EMM().undo().canUnDo())
+	mAddAction( tr("Redo"), "ctrl+y", sRedo, EM::EMM().undo().canReDo())
+	mAddAction( tr("Lock"), "l", sLock, true )
+	mAddAction( tr("Unlock"), "u", sUnlock, true )
+	mAddAction( tr("Save"), "ctrl+s", sSave, hor3d->isChanged() )
+	mAddAction( tr("Save As ..."), "ctrl+shift+s", sSaveAs, true )
+	if ( !hd->getOnlyAtSectionsDisplay() )
+	    mAddAction( tr("Display Only at Sections"), "r", sRest, true )
+	else
+	    mAddAction( tr("Display in Full"), "r", sFull, true )
+	mAddAction( tr("Show Settings ..."), "", sSett, true )
+    }
+
+    return mnu.exec();
+}
+
+
+void uiMPEMan::handleAction( int res )
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    EM::EMObject* emobj =
+		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    if ( !hor3d ) return;
+
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+    visSurvey::Scene* scene = hd ? hd->getScene() : 0;
+    if ( !scene ) return;
+
+
+    const Coord3& clickedpos = scene->getMousePos( true, true );
+    const TrcKey tk = SI().transform( clickedpos.coord() );
+
+    switch ( res )
+    {
+    case sStart: break;
+    case sStop: break;
+    case sPoly: startPolySelection(); break;
+    case sChild: hd->selectChildren(tk); break;
+    case sParent: hd->selectParent(tk); break;
+    case sParPath: visserv_->showMPEParentPath(); break;
+    case sClear: clearSelection(); break;
+    case sDelete: deleteSelection(); break;
+    case sUndo: undo(); break;
+    case sRedo: redo(); break;
+    case sLock: hor3d->lockAll(); break;
+    case sUnlock: hor3d->unlockAll(); break;
+    case sSave: visserv_->storeEMObject( false ); break;
+    case sSaveAs: visserv_->storeEMObject( true ); break;
+    case sRest: hd->setOnlyAtSectionsDisplay( true ); break;
+    case sFull: hd->setOnlyAtSectionsDisplay( false ); break;
+    case sSett: visserv_->showMPESetupDlg(); break;
+
+    default:
+	break;
+    }
 }
 
 
@@ -228,8 +397,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	    if ( chanceoferror )
 	    {
 		uiMSG().error(tr("Saved setup has different attribute. \n"
-			         "Either change setup attribute or change\n"
-			         "display attribute you want to track on"));
+				 "Either change setup attribute or change\n"
+				 "display attribute you want to track on"));
 		mSeedClickReturn();
 	    }
 	}
@@ -418,6 +587,46 @@ void uiMPEMan::endSeedClickEvent( EM::EMObject* emobj )
 }
 
 
+void uiMPEMan::startPolySelection()
+{
+    visserv_->setViewMode( false );
+    visserv_->setSelectionMode( uiVisPartServer::Polygon );
+    visserv_->turnSelectionModeOn( true );
+    visserv_->turnSeedPickingOn( false );
+}
+
+
+void uiMPEMan::clearSelection()
+{
+    if ( visserv_->isSelectionModeOn() )
+    {
+	visserv_->turnSelectionModeOn( false );
+	visserv_->turnSeedPickingOn( true );
+    }
+    else
+    {
+	EM::Horizon3D* hor3d = getSelectedHorizon3D();
+	if ( hor3d ) hor3d->resetChildren();
+    }
+}
+
+
+void uiMPEMan::deleteSelection()
+{
+    if ( visserv_->isSelectionModeOn() )
+    {
+	removeInPolygon();
+	visserv_->turnSelectionModeOn( false );
+	visserv_->turnSeedPickingOn( true );
+    }
+    else
+    {
+	EM::Horizon3D* hor3d = getSelectedHorizon3D();
+	if ( hor3d ) hor3d->deleteChildren();
+    }
+}
+
+
 uiToolBar* uiMPEMan::getToolBar() const
 {
     return toolbar_;
@@ -452,9 +661,6 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
     if ( yn )
     {
-//	toolbar_->turnOn( polyselectidx_, false );
-	selectionMode(0);
-
 	visserv_->setViewMode(false);
 
 	updateClickCatcher();
@@ -468,8 +674,8 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     }
     else
     {
-	MPE::EMSeedPicker* seedpicker = tracker ?
-				        tracker->getSeedPicker(true) : 0;
+	MPE::EMSeedPicker* seedpicker =
+		tracker ? tracker->getSeedPicker(true) : 0;
 	if ( seedpicker )
 	    seedpicker->stopSeedPick();
 
@@ -555,7 +761,7 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
 	const SectionTracker* sectiontracker =
 	      tracker->getSectionTracker( emobj->sectionID(0), true );
 	if ( sectiontracker && !sectiontracker->hasInitializedSetup() )
-	    visserv_->sendShowSetupDlgEvent();
+	    visserv_->showMPESetupDlg();
 	if ( !sectiontracker || !sectiontracker->hasInitializedSetup() )
 	    seedpicker->setSeedConnectMode( oldseedconmodefld_ );
     }
@@ -637,7 +843,7 @@ void uiMPEMan::finishMPEDispIntro( CallBacker* )
 }
 
 
-void uiMPEMan::undoPush( CallBacker* )
+void uiMPEMan::undo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
 
@@ -647,26 +853,24 @@ void uiMPEMan::undoPush( CallBacker* )
 	EM::ObjectID curid = emundo->getCurrentEMObjectID( false );
 	EM::EMObject* emobj = EM::EMM().getObject( curid );
 	if ( emobj )
-        {
-            emobj->ref();
+	{
+	    emobj->ref();
 	    emobj->setBurstAlert( true );
-        }
+	}
 
-        if ( !emundo->unDo(1,true) )
+	if ( !emundo->unDo(1,true) )
 	    uiMSG().error( tr("Could not undo everything.") );
 
 	if ( emobj )
-        {
+	{
 	    emobj->setBurstAlert( false );
-            emobj->unRef();
-        }
+	    emobj->unRef();
+	}
     }
-
-    updateButtonSensitivity(0);
 }
 
 
-void uiMPEMan::redoPush( CallBacker* )
+void uiMPEMan::redo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
 
@@ -675,34 +879,21 @@ void uiMPEMan::redoPush( CallBacker* )
     {
 	EM::ObjectID curid = emundo->getCurrentEMObjectID( true );
 	EM::EMObject* emobj = EM::EMM().getObject( curid );
-        if ( emobj )
-        {
-            emobj->ref();
+	if ( emobj )
+	{
+	    emobj->ref();
 	    emobj->setBurstAlert( true );
-        }
+	}
 
 	if ( !emundo->reDo(1,true) )
 	    uiMSG().error( tr("Could not redo everything.") );
 
 	if ( emobj )
-        {
+	{
 	    emobj->setBurstAlert( false );
-            emobj->unRef();
-        }
+	    emobj->unRef();
+	}
     }
-
-    updateButtonSensitivity(0);
-}
-
-
-void uiMPEMan::savePush( CallBacker* )
-{
-    MPE::EMTracker* tracker = getSelectedTracker();
-    if ( !tracker )
-	return;
-
-    visserv_->fireFromMPEManStoreEMObject();
-//    toolbar_->setSensitive( saveidx_, false );
 }
 
 
@@ -722,6 +913,28 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 	return tracker;
 
     return 0;
+}
+
+
+visSurvey::HorizonDisplay* uiMPEMan::getSelectedDisplay()
+{
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.size() != 1 )
+	return 0;
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+		    visserv_->getObject(selectedids[0]))
+    return hd;
+}
+
+
+EM::Horizon3D* uiMPEMan::getSelectedHorizon3D()
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    EM::EMObject* emobj =
+		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    return hor3d;
 }
 
 
@@ -855,59 +1068,8 @@ void uiMPEMan::trackInVolume( CallBacker* )
 }
 
 
-static bool sIsPolySelect = true;
-
-void uiMPEMan::selectionMode( CallBacker* cb )
+void uiMPEMan::removeInPolygon()
 {
-    /*
-    if ( cb == visserv_ )
-    {
-	toolbar_->turnOn( polyselectidx_, visserv_->isSelectionModeOn() );
-	sIsPolySelect = visserv_->getSelectionMode()==uiVisPartServer::Polygon;
-    }
-    else
-    {
-	uiVisPartServer::SelectionMode mode = sIsPolySelect ?
-			 uiVisPartServer::Polygon : uiVisPartServer::Rectangle;
-	visserv_->turnSelectionModeOn( toolbar_->isOn(polyselectidx_) );
-	visserv_->setSelectionMode( mode );
-    }
-
-    toolbar_->setIcon( polyselectidx_, sIsPolySelect ?
-			"polygonselect" : "rectangleselect" );
-    toolbar_->setToolTip( polyselectidx_,
-			  sIsPolySelect ? tr("Polygon Selection mode")
-					: tr("Rectangle Selection mode") );
-
-    if ( toolbar_->isOn(polyselectidx_) )
-    {
-	if ( toolbar_->isOn(seedidx_) )
-	{
-	    visserv_->turnSeedPickingOn( false );
-	    polyselstoppedseedpick_ = true;
-	}
-    }
-    else if ( polyselstoppedseedpick_ )
-	visserv_->turnSeedPickingOn( true );
-
-    updateButtonSensitivity(0);
-    */
-}
-
-
-void uiMPEMan::handleToolClick( CallBacker* cb )
-{
-    mDynamicCastGet(uiAction*,itm,cb)
-    if ( !itm ) return;
-
-    sIsPolySelect = itm->getID()==0;
-    selectionMode( cb );
-}
-
-
-void uiMPEMan::removeInPolygon( CallBacker* cb )
-{
-/*
     const Selector<Coord3>* sel =
 	visserv_->getCoordSelector( clickablesceneid_ );
     if ( !sel || !sel->isOK() )
@@ -922,11 +1084,8 @@ void uiMPEMan::removeInPolygon( CallBacker* cb )
 
     uiTaskRunner taskrunner( toolbar_ );
     emod->removeSelection( *sel, &taskrunner );
-    toolbar_->turnOn( polyselectidx_, false );
-    selectionMode( cb );
 
     setUndoLevel( currentevent );
-*/
 }
 
 
@@ -941,31 +1100,7 @@ void uiMPEMan::workAreaChgCB( CallBacker* )
 
 void uiMPEMan::showSettingsCB( CallBacker* )
 {
-    visserv_->sendShowSetupDlgEvent();
-}
-
-
-void uiMPEMan::displayAtSectionCB( CallBacker* )
-{
-/*
-    MPE::EMTracker* tracker = getSelectedTracker();
-    if ( !tracker ) return;
-
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
-	return;
-
-    mDynamicCastGet( visSurvey::EMObjectDisplay*,
-		     surface, visserv_->getObject(selectedids[0]) );
-
-    bool ison = toolbar_->isOn(displayatsectionidx_);
-
-    if ( surface && (surface->getObjectID()== tracker->objectID()) )
-	surface->setOnlyAtSectionsDisplay( ison );
-
-    toolbar_->setToolTip( displayatsectionidx_,
-	ison ? tr("Display full") : tr("Display at section only") );
-*/
+    visserv_->showMPESetupDlg();
 }
 
 
@@ -977,9 +1112,9 @@ void uiMPEMan::retrackAllCB( CallBacker* )
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     if ( !seedpicker) return;
 
-    Undo& undo = EM::EMM().undo();
-    int cureventnr = undo.currentEventID();
-    undo.setUserInteractionEnd( cureventnr, false );
+    Undo& emundo = EM::EMM().undo();
+    int cureventnr = emundo.currentEventID();
+    emundo.setUserInteractionEnd( cureventnr, false );
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
@@ -1005,7 +1140,7 @@ void uiMPEMan::retrackAllCB( CallBacker* )
 	deepErase( *trackedcubes );
 
 	MouseCursorManager::restoreOverride();
-	undo.setUserInteractionEnd( undo.currentEventID() );
+	emundo.setUserInteractionEnd( emundo.currentEventID() );
 
 	MPE::engine().setActiveVolume( realactivevol );
 
@@ -1017,7 +1152,7 @@ void uiMPEMan::retrackAllCB( CallBacker* )
 	seedpicker->reTrack();
 	emobj->setBurstAlert( false );
 	MouseCursorManager::restoreOverride();
-	undo.setUserInteractionEnd( undo.currentEventID() );
+	emundo.setUserInteractionEnd( emundo.currentEventID() );
 }
 
 
@@ -1036,42 +1171,24 @@ void uiMPEMan::trackInVolume()
 
 void uiMPEMan::setUndoLevel( int preveventnr )
 {
-    Undo& undo = EM::EMM().undo();
-    const int currentevent = undo.currentEventID();
+    Undo& emundo = EM::EMM().undo();
+    const int currentevent = emundo.currentEventID();
     if ( currentevent != preveventnr )
-	    undo.setUserInteractionEnd(currentevent);
+	    emundo.setUserInteractionEnd(currentevent);
 }
 
 
 void uiMPEMan::updateButtonSensitivity( CallBacker* )
 {
-    //Undo/Redo
-    toolbar_->setSensitive( undoidx_, EM::EMM().undo().canUnDo() );
-    toolbar_->setSensitive( redoidx_, EM::EMM().undo().canReDo() );
-
     //Seed button
     updateSeedPickState();
 
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-//    mDynamicCastGet(MPE::Horizon2DSeedPicker*,sp2d,seedpicker)
-//    const bool is2d = sp2d;
-
-//    const bool isinvolumemode = seedpicker && seedpicker->doesModeUseVolume();
-//    toolbar_->setSensitive( trackinvolidx_,
-//	    !is2d && isinvolumemode && seedpicker );
-
-//    toolbar_->setSensitive( removeinpolygonidx_,
-//			    toolbar_->isOn(polyselectidx_) );
 
     toolbar_->setSensitive( tracker );
     if ( seedpicker &&
 	    !(visserv_->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
 	toolbar_->setSensitive( true );
-
-    //Save button
-//    const EM::EMObject* emobj =
-//	tracker ? EM::EMM().getObject( tracker->objectID() ) : 0;
-//    toolbar_->setSensitive( saveidx_, emobj && emobj->isChanged() );
 }
 

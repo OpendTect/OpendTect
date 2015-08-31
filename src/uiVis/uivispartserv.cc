@@ -70,22 +70,25 @@ int uiVisPartServer::evGetNewData()			{ return 3; }
 int uiVisPartServer::evMouseMove()			{ return 4; }
 int uiVisPartServer::evInteraction()			{ return 5; }
 int uiVisPartServer::evSelectAttrib()			{ return 6; }
-int uiVisPartServer::evKeyPress()			{ return 7; }
+int uiVisPartServer::evKeyboardEvent()			{ return 7; }
+int uiVisPartServer::evMouseEvent()			{ return 8; }
 int uiVisPartServer::evViewAll()			{ return 9; }
 int uiVisPartServer::evToHomePos()			{ return 10; }
 int uiVisPartServer::evPickingStatusChange()		{ return 11; }
 int uiVisPartServer::evViewModeChange()			{ return 12; }
-int uiVisPartServer::evShowSetupDlg()			{ return 13; }
+int uiVisPartServer::evShowMPESetupDlg()		{ return 13; }
+int uiVisPartServer::evShowMPEParentPath()		{ return 14; }
 int uiVisPartServer::evDisableSelTracker()		{ return 16; }
 int uiVisPartServer::evColorTableChange()		{ return 17; }
-int uiVisPartServer::evFromMPEManStoreEMObject()	{ return 20; }
+int uiVisPartServer::evStoreEMObject()			{ return 19; }
+int uiVisPartServer::evStoreEMObjectAs()		{ return 20; }
 int uiVisPartServer::evShowSetupGroupOnTop()		{ return 21; }
 
-const char* uiVisPartServer::sKeyAppVel()	       { return "AppVel"; }
-const char* uiVisPartServer::sKeyWorkArea()	    { return "Work Area"; }
-static const char* sKeyNumberScenes()	       { return "Number of Scene";}
-static const char* sKeySceneID()	             { return "Scene ID"; }
-static const char* sceneprefix()	                { return "Scene"; }
+const char* uiVisPartServer::sKeyAppVel()	{ return "AppVel"; }
+const char* uiVisPartServer::sKeyWorkArea()	{ return "Work Area"; }
+static const char* sKeyNumberScenes()		{ return "Number of Scene";}
+static const char* sKeySceneID()		{ return "Scene ID"; }
+static const char* sceneprefix()		{ return "Scene"; }
 
 
 static const int cResetManipIdx = 800;
@@ -117,7 +120,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , slicepostools_(0)
     , pickretriever_( new uiVisPickRetriever(this) )
     , nrscenesChange(this)
-    , keyPressed(this)
+    , keyEvent(this)
+    , mouseEvent(this)
     , seltype_((int)visBase::PolygonSelection::Off)
     , multirgeditwin_(0)
     , mapperrgeditordisplayid_(-1)
@@ -244,7 +248,8 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
 {
     if ( !newscene ) newscene = visSurvey::Scene::create();
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
-    newscene->keypressed.notify( mCB(this,uiVisPartServer,keyPressCB) );
+    newscene->keypressed.notify( mCB(this,uiVisPartServer,keyEventCB) );
+    newscene->mouseclicked.notify( mCB(this,uiVisPartServer, mouseEventCB) );
     newscene->ref();
     newscene->setPixelDensity( (float) uiMain::getDPI() );
     scenes_ += newscene;
@@ -270,7 +275,8 @@ void uiVisPartServer::removeScene( int sceneid )
 	    displayids_.removeSingle( typesetidx );
 
 	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
-	scene->keypressed.remove( mCB(this,uiVisPartServer,keyPressCB) );
+	scene->keypressed.remove( mCB(this,uiVisPartServer,keyEventCB) );
+	scene->mouseclicked.remove( mCB(this,uiVisPartServer, mouseEventCB) );
 	pickretriever_->removeScene( scene );
 	scene->unRef();
 	scenes_ -= scene;
@@ -1538,10 +1544,17 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
 }
 
 
-bool uiVisPartServer::sendShowSetupDlgEvent()
+bool uiVisPartServer::showMPESetupDlg()
 {
     eventmutex_.lock();
-    return sendEvent( evShowSetupDlg() );
+    return sendEvent( evShowMPESetupDlg() );
+}
+
+
+bool uiVisPartServer::showMPEParentPath()
+{
+    eventmutex_.lock();
+    return sendEvent( evShowMPEParentPath() );
 }
 
 
@@ -2034,14 +2047,27 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 }
 
 
-void uiVisPartServer::keyPressCB( CallBacker* cb )
+void uiVisPartServer::keyEventCB( CallBacker* cb )
 {
     mDynamicCastGet(visSurvey::Scene*,scene,cb)
     if ( !scene ) return;
 
     eventmutex_.lock();
     kbevent_ = scene->getKeyboardEvent();
-    sendEvent( evKeyPress() );
+    sendEvent( evKeyboardEvent() );
+    keyEvent.trigger();
+}
+
+
+void uiVisPartServer::mouseEventCB( CallBacker* cb )
+{
+    mDynamicCastGet(visSurvey::Scene*,scene,cb)
+    if ( !scene ) return;
+
+    eventmutex_.lock();
+    mouseevent_ = scene->getMouseEvent();
+    sendEvent( evMouseEvent() );
+    mouseEvent.trigger();
 }
 
 
@@ -2174,10 +2200,10 @@ void uiVisPartServer::initMPEStuff()
 }
 
 
-void uiVisPartServer::fireFromMPEManStoreEMObject()
+void uiVisPartServer::storeEMObject( bool storeas )
 {
     eventmutex_.lock();
-    sendEvent( evFromMPEManStoreEMObject() );
+    sendEvent( storeas ? evStoreEMObjectAs() : evStoreEMObject() );
 }
 
 

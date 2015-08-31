@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "emtracker.h"
 
 class BufferStringSet;
-class KeyboardEvent;
 
 namespace Geometry { class Element; }
 namespace MPE { class uiSetupGroup; class DataHolder; }
@@ -46,12 +45,12 @@ public:
     void			getTrackerTypes(BufferStringSet&) const;
     bool			addTracker(const char* trackertype,int sceneid);
     int				addTracker(const EM::ObjectID&,
-	    				   const Coord3& pos);
-    				/*!<Creates a new tracker for the object and
+					   const Coord3& pos);
+				/*!<Creates a new tracker for the object and
 				    returns the trackerid of it or -1 if it
 				    failed.
 				    \param pos should contain the clicked
-				           position. If the activevolume is not
+					   position. If the activevolume is not
 					   set before, it will be centered
 					   pos, otherwise, it will be expanded
 					   to include pos. */
@@ -65,28 +64,28 @@ public:
 
     bool			showSetupDlg(const EM::ObjectID&,
 					     const EM::SectionID&);
-    				/*!<\returns false if cancel was pressed. */
+				/*!<\returns false if cancel was pressed. */
     bool			showSetupGroupOnTop(const EM::ObjectID&,
 						    const char* grpnm);
     void			useSavedSetupDlg(const EM::ObjectID&,
-	    					 const EM::SectionID&);
+						 const EM::SectionID&);
 
     int				activeTrackerID() const;
-    				/*!< returns the trackerid of the last event */
+				/*!< returns the trackerid of the last event */
 
     static int			evGetAttribData();
     bool			is2D() const;
-    				/*!<If attrib is 2D, check for a selspec. If
+				/*!<If attrib is 2D, check for a selspec. If
 				    selspec is returned, calculate the attrib.
 				    If no selspec is present, use getLineSet,
 				    getLineName & getAttribName. */
     TrcKeyZSampling		getAttribVolume(const Attrib::SelSpec&) const;
-    				/*!<\returns the volume needed of an
-				 	     attrib if tracking should
+				/*!<\returns the volume needed of an
+					     attrib if tracking should
 					     be possible in the activeVolume. */
     const Attrib::SelSpec*	getAttribSelSpec() const;
     void			setAttribData(const Attrib::SelSpec&,
-	    				      DataPack::ID);
+					      DataPack::ID);
 
     static int			evCreate2DSelSpec();
     Pos::GeomID 		getGeomID() const;
@@ -98,9 +97,9 @@ public:
     static int			evEndSeedPick();
 
     static int			evAddTreeObject();
-    				/*!<Get trackerid via activeTrackerID */
+				/*!<Get trackerid via activeTrackerID */
     static int			evRemoveTreeObject();
-    				/*!<Get trackerid via activeTrackerID */
+				/*!<Get trackerid via activeTrackerID */
     static int			evUpdateTrees();
     static int			evUpdateSeedConMode();
     static int			evShowToolbar();
@@ -117,9 +116,7 @@ public:
     bool 			saveSetupAs(const MultiID&);
     bool 			saveSetup(const MultiID&);
     bool 			readSetup(const MultiID&);
-    bool			fireAddTreeObjectEvent();
 
-    void			handleKeyboardEvent(const KeyboardEvent&);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -130,8 +127,8 @@ protected:
     void			mergeAttribSets(const Attrib::DescSet& newads,
 						MPE::EMTracker&);
     bool			initSetupDlg(EM::EMObject*& emobj,
-	    				     MPE::EMTracker*& tracker,
-	    				     const EM::SectionID& sid,
+					     MPE::EMTracker*& tracker,
+					     const EM::SectionID& sid,
 					     bool freshdlg=false);
 
     const Attrib::DescSet*	attrset3d_;
@@ -143,13 +140,13 @@ protected:
     int				temptrackerid_;
     int				cursceneid_;
 
-    				//2D interaction
+				//2D interaction
     Pos::GeomID 		geomid_;
     Attrib::SelSpec		lineselspec_;
 
     void			aboutToAddRemoveSeed(CallBacker*);
     void			seedAddedCB(CallBacker*);
-    EM::ObjectID        	trackercurrentobject_;
+    EM::ObjectID		trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
 
     int				initialundoid_;
@@ -172,7 +169,6 @@ protected:
 
     MPE::uiSetupGroup*		setupgrp_;
 };
-
 
 #endif
 
