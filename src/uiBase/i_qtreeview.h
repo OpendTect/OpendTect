@@ -112,6 +112,7 @@ void itemSelectionChanged()
 void itemChanged( QTreeWidgetItem* item, int column )
 {
     setNotifiedItem( item );
+    setNotifiedColumn( column );
     mTrigger( itemChanged );
 }
 

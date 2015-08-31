@@ -144,7 +144,6 @@ public:
     Notifier<uiTreeView> mouseButtonClicked;
     Notifier<uiTreeView> contextMenuRequested;
     Notifier<uiTreeView> doubleClicked;
-    Notifier<uiTreeView> itemRenamed;
     Notifier<uiTreeView> expanded;
     Notifier<uiTreeView> collapsed;
     Notifier<uiTreeView> unusedKey;
