@@ -196,15 +196,21 @@ class ODGraphicsPolyLineItem : public QAbstractGraphicsShapeItem
 {
 public:
 				ODGraphicsPolyLineItem();
+				~ODGraphicsPolyLineItem();
 
     QRectF			boundingRect() const;
     void			paint(QPainter*,const QStyleOptionGraphicsItem*,
 				      QWidget*);
+    QPainterPath		shape() const;
 
     void			setPolyLine(const QPolygonF&,bool closed);
     void			setFillRule(Qt::FillRule);
     bool			isEmpty() const;
     void			setEmpty();
+
+    void			setQPen(const QPen& pen);
+    void			highlight();
+    void			unHighlight();
 
     virtual int			type() const	{ return ODGraphicsType+6; }
 
@@ -214,6 +220,8 @@ protected:
     bool			closed_;
     QPolygonF			qpolygon_;
     Qt::FillRule		fillrule_;
+    QPainterPath		path_;
+    QPen&			mypen_;
 };
 
 

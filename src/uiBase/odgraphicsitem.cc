@@ -574,7 +574,14 @@ ODGraphicsPolyLineItem::ODGraphicsPolyLineItem()
     : QAbstractGraphicsShapeItem()
     , closed_(false)
     , fillrule_(Qt::OddEvenFill)
+    , mypen_(*new QPen)
 {}
+
+
+ODGraphicsPolyLineItem::~ODGraphicsPolyLineItem()
+{
+    delete &mypen_;
+}
 
 
 QRectF ODGraphicsPolyLineItem::boundingRect() const
@@ -613,11 +620,21 @@ void ODGraphicsPolyLineItem::paint( QPainter* painter,
 }
 
 
+QPainterPath ODGraphicsPolyLineItem::shape() const
+{ return path_; }
+
+
 void ODGraphicsPolyLineItem::setPolyLine( const QPolygonF& polygon, bool closed)
 {
     prepareGeometryChange();
     qpolygon_ = polygon;
     closed_ = closed;
+
+    const QPolygonF poly = mapFromScene( 0, 0, 5, 5 );
+    QPainterPathStroker pps;
+    pps.setWidth( poly.boundingRect().width() );
+    QPainterPath ppath; ppath.addPolygon( polygon );
+    path_ = pps.createStroke( ppath );
 }
 
 
@@ -639,6 +656,27 @@ void ODGraphicsPolyLineItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 
     snapToSceneRect ( this );
 }
+
+
+void ODGraphicsPolyLineItem::setQPen( const QPen& qpen )
+{
+    mypen_ = qpen;
+}
+
+
+void ODGraphicsPolyLineItem::highlight()
+{
+    QPen qpen = mypen_;
+    qpen.setWidth( qpen.width() + 2 );
+    setPen( qpen );
+}
+
+
+void ODGraphicsPolyLineItem::unHighlight()
+{
+    setPen( mypen_ );
+}
+
 
 
 // ODGraphicsPathItem
