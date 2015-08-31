@@ -149,7 +149,7 @@ uiString uiStrings::sFault( int num )
 { return tr("Fault", 0, num ); }
 
 uiString uiStrings::sFaultStickSet( int num )
-{ return tr( "Fault Stick Set", 0, num ); }
+{ return tr( "FaultStickSet", 0, num ); }
 
 uiString uiStrings::sHelp()
 { return tr("Help"); }

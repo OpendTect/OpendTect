@@ -173,7 +173,7 @@ public:
     static uiString sOutputASCIIFile();
     static uiString sOverwrite()        { return tr("Overwrite"); }
     static uiString sPause()            { return tr("Pause"); }
-    static uiString sPickSet()		{ return tr("Pickset"); }
+    static uiString sPickSet()		{ return tr("PickSet"); }
     static uiString sPolygon()		{ return tr("Polygon"); }
     static uiString sPreStackEvents()	{ return tr("Prestack Events"); }
     static uiString sProcessing()	{ return tr("Processing"); }
