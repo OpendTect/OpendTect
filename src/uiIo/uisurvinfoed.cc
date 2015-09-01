@@ -222,27 +222,30 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
 	const BufferString sipnm = si_.sipName();
 	const int sipidx = sipfld_->indexOf( sipnm );
 	if (sipidx >= 0)
-		sipfld_->setCurrentItem(sipidx);
+	    sipfld_->setCurrentItem(sipidx);
 	else
-		uiMSG().error(tr("The survey setup method is not available.\nProbably, this is a license issue"));
+	    uiMSG().error( tr("The survey setup method is not available.\n"
+			      "Probably, this is a license issue") );
     }
-
 }
 
 
 void uiSurveyInfoEditor::mkRangeGrp()
 {
     rangegrp_ = new uiGroup( this, "Survey ranges" );
-    inlfld_ = new uiGenInput( rangegrp_, tr("In-line range"),
-			     IntInpIntervalSpec(true).setName("Inl Start",0)
-						     .setName("Inl Stop",1)
-						     .setName("Inl step",2) );
+
+    const Interval<int> startstoprg( -mUdf(int), mUdf(int) );
+    const Interval<int> steprg( 1, mUdf(int) );
+    IntInpIntervalSpec iis( true );
+    iis.setLimits( startstoprg, -1 ).setLimits( steprg, 2 );
+    iis.setName("Inl Start",0).setName("Inl Stop",1).setName("Inl step",2);
+    inlfld_ = new uiGenInput( rangegrp_, tr("In-line range"), iis );
     inlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
-    crlfld_ = new uiGenInput( rangegrp_, tr("Cross-line range"),
-			     IntInpIntervalSpec(true).setName("Crl Start",0)
-						     .setName("Crl Stop",1)
-						     .setName("Crl step",2) );
+
+    iis.setName("Crl Start",0).setName("Crl Stop",1).setName("Crl step",2);
+    crlfld_ = new uiGenInput( rangegrp_, tr("Cross-line range"), iis );
     crlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
+
     zfld_ = new uiGenInput( rangegrp_, tr("Z range"),
 			   DoubleInpIntervalSpec(true).setName("Z Start",0)
 						      .setName("Z Stop",1)
