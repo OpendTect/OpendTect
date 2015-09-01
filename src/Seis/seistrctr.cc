@@ -544,7 +544,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
     }
 
     mDynamicCastGet(const IOStream*,iostrmptr,&ioobj)
-    if ( !iostrmptr || !iostrmptr->multiConn() )
+    if ( !iostrmptr || !iostrmptr->isMultiConn() )
     {
 	Conn* cnn = ioobj.getConn( Conn::Read );
 	if ( !cnn || !tr->initRead(cnn,Seis::PreScan) )
@@ -557,7 +557,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
     else
     {
 	IOStream& iostrm = *const_cast<IOStream*>( iostrmptr );
-	iostrm.resetConnNr();
+	iostrm.resetConnIdx();
 	cs.setEmpty();
 	do
 	{
@@ -572,7 +572,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
 	    newcs.hsamp_.set( pinf.inlrg, pinf.crlrg );
 	    newcs.zsamp_ = pinf.zrg;
 	    cs.include( newcs );
-	} while ( iostrm.toNextConnNr() );
+	} while ( iostrm.toNextConnIdx() );
     }
 
     return true;

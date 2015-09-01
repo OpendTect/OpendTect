@@ -214,7 +214,9 @@ Conn* SeisTrcWriter::crConn( int inl, bool first )
     if ( isMultiConn() )
     {
 	mDynamicCastGet(IOStream*,iostrm,ioobj_)
-	iostrm->setConnNr( inl );
+	if ( iostrm->fileSpec().isRangeMulti() )
+	    inl = iostrm->connIdxFor( inl );
+	iostrm->setConnIdx( inl );
     }
 
     return ioobj_->getConn( Conn::Write );
@@ -249,9 +251,11 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
     if ( !neednewconn && isMultiConn() )
     {
 	mDynamicCastGet(IOStream*,iostrm,ioobj_)
-	neednewconn = trc.info().new_packet
-		   || (iostrm->isMulti() &&
-			iostrm->connNr() != trc.info().binid.inl());
+	if ( iostrm->fileSpec().isRangeMulti() && trc.info().new_packet )
+	{
+	    const int connidx = iostrm->connIdxFor( trc.info().binid.inl() );
+	    neednewconn = connidx != iostrm->curConnIdx();
+	}
     }
 
     if ( neednewconn )

@@ -156,7 +156,7 @@ bool SeisSingleTraceProc::addReader( const IOObj& ioobj, const IOPar* iop )
 	TrcKeyZSampling cs( false );
 	mDynamicCastGet(const IOStream*,iostrm,&ioobj)
 	if ( iostrm )
-	    iostrm->setConnNr( iostrm->fileNumbers().start );
+	    iostrm->resetConnIdx();
 	if ( SeisTrcTranslator::getRanges(ioobj,cs) )
 	{
 	    totnr_ += cs.nrInl() * cs.nrCrl();

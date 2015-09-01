@@ -37,7 +37,7 @@ public:
 				Setup(int nrtraces=100);
 
 	mDefSetupMemb(int,nrtrcs)
-	mDefSetupMemb(FileSpec,fs)
+	mDefSetupMemb(SEGY::FileSpec,fs)
 	mDefSetupMemb(FilePars,fp)
 
 	void			usePar(const IOPar&);

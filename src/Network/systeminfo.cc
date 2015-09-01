@@ -156,14 +156,14 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses,
     {
 	QNetworkInterface& qni = allif[idx];
 	QNetworkInterface::InterfaceFlags flags = qni.flags();
-	if ( !qni.isValid() || !flags.testFlag(QNetworkInterface::CanBroadcast) 
+	if ( !qni.isValid() || !flags.testFlag(QNetworkInterface::CanBroadcast)
 			  || !flags.testFlag(QNetworkInterface::CanMulticast) )
 	    continue;
 
 	if ( onlyactive && ( !flags.testFlag(QNetworkInterface::IsUp)
 			     || !flags.testFlag(QNetworkInterface::IsRunning)) )
 	    continue;
-	
+
 	if ( qni.name().isEmpty() || qni.hardwareAddress().isEmpty() )
 	    continue;
 
@@ -213,10 +213,10 @@ int getFreeMBOnDisk( const IOObj& ioobj )
     mDynamicCastGet(const IOStream*,iostrm,&ioobj)
 
     BufferString dir;
-    if ( !iostrm || iostrm->isCommand() )
+    if ( !iostrm )
 	dir = GetDataDir();
     else
-	dir = FilePath( iostrm->getExpandedName(true) ).pathOnly();
+	dir = FilePath( iostrm->fullUserExpr() ).pathOnly();
 
     return getFreeMBOnDisk( dir );
 }

@@ -99,7 +99,7 @@ IOObj* uiSeisImportCBVS::getInpIOObj( const char* inp ) const
     iostrm->setGroup( mTranslGroupName(SeisTrc) );
     iostrm->setTranslator( CBVSSeisTrcTranslator::translKey() );
     iostrm->setDirName( "Seismics" );
-    iostrm->setFileName( inp );
+    iostrm->fileSpec().setFileName( inp );
     return iostrm;
 }
 
@@ -163,7 +163,7 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 		// Check if it's under the survey dir, then make path relative
 	    FilePath inputfile( fname );
 	    inputfile.makeCanonical();
-	    FilePath seismicsdir( iostrm->fullDirName() );
+	    FilePath seismicsdir( iostrm->fileSpec().fullDirName() );
 	    seismicsdir.makeCanonical();
 	    if ( inputfile.makeRelativeTo( seismicsdir ) )
 		fname = inputfile.fullPath();
@@ -180,7 +180,7 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
     outioobj_->setTranslator( CBVSSeisTrcTranslator::translKey() );
     PtrMan<IOObj> inioobj = 0;
     if ( dolink )
-	iostrm->setFileName( fname );
+	iostrm->fileSpec().setFileName( fname );
     else
     {
 	inioobj = getInpIOObj( fname );

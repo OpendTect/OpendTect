@@ -140,7 +140,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
     if ( ioobj && !iostrm )
     { errmsg_ = tr("Object manager provides wrong type"); return false; }
 
-    if ( !ioobj || iostrm->multiConn() )
+    if ( !ioobj || iostrm->isMultiConn() )
     {
 	mDynamicCastGet(StreamConn*,strmconn,conn_)
 	if ( !strmconn )
@@ -154,7 +154,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 
     // Catch the 'stdin' pretty name (currently "Std-IO")
     StreamProvider sp;
-    fnm = iostrm->getExpandedName(true);
+    fnm = iostrm->fullUserExpr(true);
     if ( fnm == sp.fullName() )
 	fnm = StreamProvider::sStdIO();
 
@@ -238,7 +238,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	if ( !rdmgr_->pruneReaders( cs ) )
 	    if (!rdmgr_->pruneReaders(cs))
 	    {
-	    errmsg_ = tr("Input contains no relevant data"); 
+	    errmsg_ = tr("Input contains no relevant data");
 	    return false;
 	    }
     }
@@ -259,9 +259,9 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
 	blockbufs_[iselc] = new unsigned char [ nbts * bufsz ];
 	if (!blockbufs_[iselc])
-	{ 
-	    errmsg_ = tr("Out of memory"); 
-	    return false; 
+	{
+	    errmsg_ = tr("Out of memory");
+	    return false;
 	}
     }
 
@@ -574,8 +574,8 @@ static void renameAuxFile( const IOObj* ioobj, const char* newnm,
     if ( iostrm->isMulti() ) \
 	return const_cast<IOStream*>(iostrm)->fn; \
  \
-    BufferString pathnm = iostrm->fullDirName(); \
-    BufferString basenm = iostrm->fileName()
+    BufferString pathnm = iostrm->fileSpec().fullDirName(); \
+    BufferString basenm = iostrm->fileSpec().fileName()
 
 #define mImplLoopStart \
 	StreamProvider sp( CBVSIOMgr::getFileName(basenm,nr) ); \

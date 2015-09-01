@@ -109,7 +109,7 @@ void IODir::setDirName( IOObj& ioobj, const char* dirnm )
     else
     {
 	FilePath fp( dirnm );
-	ioobj.dirnm_ = fp.fileName();
+	ioobj.setDirName( fp.fileName() );
     }
 }
 

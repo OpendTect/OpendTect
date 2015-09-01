@@ -36,10 +36,6 @@ mExpClass(uiSEGY) uiSEGYReadStarter : public uiDialog
 { mODTextTranslationClass(uiSEGYReadStarter);
 public:
 
-    typedef SEGY::FileSpec FileSpec;
-    typedef SEGY::FilePars FilePars;
-    typedef SEGY::FileReadOpts FileReadOpts;
-
 			uiSEGYReadStarter(uiParent*,
 					  const SEGY::ImpType* fixedtype=0);
 			~uiSEGYReadStarter();
@@ -54,7 +50,7 @@ public:
 
 protected:
 
-    FileSpec		filespec_;
+    SEGY::FileSpec	filespec_;
     FilePars		filepars_;
     FileReadOpts*	filereadopts_;
 

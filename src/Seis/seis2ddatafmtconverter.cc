@@ -62,7 +62,7 @@ static void convert2DPSData()
 
 	    FilePath newfp( psdir );
 	    const BufferString newfnm( newfp.fileName(), "^",
-		    		       toString(geomid) );
+				       toString(geomid) );
 	    newfp.add( newfnm );
 	    newfp.setExtension( fp.extension() );
 	    File::rename( fp.fullPath().buf(), newfp.fullPath().buf() );
@@ -84,7 +84,7 @@ static void convertSeis2DTranslators()
 	if ( ioobj->translator() == TwoDDataSeisTrcTranslator::translKey() )
 	{
 	    PtrMan<IOObj> duplobj = IOM().getLocal( ioobj->name().buf(),
-		    				mTranslGroupName(SeisTrc2D) );
+						mTranslGroupName(SeisTrc2D) );
 	    if ( duplobj )
 		continue;
 
@@ -102,7 +102,7 @@ static const char* getSurvDefAttrName()
 {
     mDefineStaticLocalObject( BufferString, ret,
 	   = SI().getPars().find(IOPar::compKey(sKey::Default(),
-		   	SeisTrcTranslatorGroup::sKeyDefaultAttrib())) );
+			SeisTrcTranslatorGroup::sKeyDefaultAttrib())) );
     if ( ret.isEmpty() ) ret = "Seis";
     return ret.buf();
 }
@@ -177,11 +177,11 @@ protected:
 						    ObjectSet<IOObj>& ioobjlist,
 						    BufferStringSet&);
     void		    removeDuplicateData(BufferStringSet&);
-    
+
 
     BufferString	    getAttrFolderPath(IOPar&) const;
 
-    	    
+
     ObjectSet<ObjectSet<IOPar> > all2dseisiopars_;
 };
 
@@ -196,16 +196,22 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
     oldctxt.fixTranslator( TwoDSeisTrcTranslator::translKey() );
     oldctxt.toselect.allownonuserselectable_ = true;
     const IODir oldiodir( oldctxt.getSelKey() );
-    const IODirEntryList olddel( oldiodir, oldctxt );
-    if ( !olddel.isEmpty() )
-	hasold2d = true;
+    if ( !oldiodir.isBad() )
+    {
+	const IODirEntryList olddel( oldiodir, oldctxt );
+	if ( !olddel.isEmpty() )
+	    hasold2d = true;
+    }
 
     IOObjContext psctxt( mIOObjContext(SeisPS2D) );
     psctxt.fixTranslator( CBVSSeisPS2DTranslator::translKey() );
     const IODir psiodir( psctxt.getSelKey() );
-    const IODirEntryList psdel( psiodir, psctxt );
-    if ( !psdel.isEmpty() )
-	has2dps = true;
+    if ( !psiodir.isBad() )
+    {
+	const IODirEntryList psdel( psiodir, psctxt );
+	if ( !psdel.isEmpty() )
+	    has2dps = true;
+    }
 
     if ( !hasold2d && !has2dps )
 	return 0;
@@ -256,7 +262,7 @@ void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg,
 }
 
 
-void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets( 
+void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
 						   ObjectSet<IOObj>& ioobjlist )
 {
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
@@ -332,7 +338,7 @@ void OD_2DLineSetTo2DDataSetConverter::fillIOParsFrom2DSFile(
 }
 
 
-BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath( 
+BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 							IOPar& iop ) const
 {
     const IOObjContext& iocontext = mIOObjContext(SeisTrc2D);
@@ -375,7 +381,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 }
 
 
-void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths( 
+void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths(
 						    BufferStringSet& filepaths )
 {
     for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )
@@ -522,7 +528,7 @@ bool OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 }
 
 
-void OD_2DLineSetTo2DDataSetConverter::removeDuplicateData( 
+void OD_2DLineSetTo2DDataSetConverter::removeDuplicateData(
 						  BufferStringSet& oldfilepath )
 {
     for ( int idx=0; idx<oldfilepath.size(); idx++ )

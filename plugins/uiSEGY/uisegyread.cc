@@ -178,7 +178,6 @@ void uiSEGYRead::writeReq( CallBacker* cb )
     fillPar( ioobj->pars() );
     ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
     ioobj->pars().removeWithKey( sKey::Geometry() );
-    FileSpec::ensureWellDefined( *ioobj );
     IOM().commitChanges( *ioobj );
 }
 
@@ -231,7 +230,7 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     nrtrcsfld_->setWithCheck( true );
     nrtrcsfld_->setChecked( true );
 
-    FileSpec fs; fs.usePar( pars );
+    SEGY::FileSpec fs; fs.usePar( pars );
     BufferString fnm( fs.fileName() );
     fnm.replace( '*', 'x' );
     FilePath fp( fnm ); fp.setExtension( "txt" );

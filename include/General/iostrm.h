@@ -15,12 +15,12 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "streamconn.h"
+#include "filespec.h"
 #include "ioobj.h"
-#include "ranges.h"
 class StreamProvider;
 
 
-/*\brief An IOStream is a file (default) or command entry in the omf. */
+/*\brief is a file entry in the omf. */
 
 
 mExpClass(General) IOStream : public IOObj
@@ -29,76 +29,51 @@ public:
 			IOStream(const char* nm=0,const char* id=0,
 				 bool =false);
     virtual bool	isBad() const;
-    bool		isCommand() const		{ return iscomm_; }
 
     virtual void	copyFrom(const IOObj*);
     virtual const char*	fullUserExpr(bool forread=true) const;
-    const char*		getExpandedName(bool forread,
-					bool fillwildcard=true) const;
-
-    virtual const char*		connType() const;
-    virtual Conn*		getConn(bool) const;
+    virtual const char*	connType() const;
+    virtual Conn*	getConn(bool) const;
 
     virtual bool	implExists(bool forread) const;
     virtual bool	implReadOnly() const;
-    virtual bool	implManagesObjects() const;
     virtual bool	implRemove() const;
     virtual bool	implSetReadOnly(bool) const;
     virtual bool	implRename(const char*,const CallBack* cb=0);
+    virtual bool	implManagesObjects() const	{ return false; }
 
-    bool		multiConn() const
-			{ return isMulti() && curfnr_ <= fnrs_.stop; }
-    int			connNr() const
-			{ return curfnr_; }
-    bool		toNextConnNr() const
-			{ curfnr_ += fnrs_.step; return validNr(); }
-    int			lastConnNr() const
-			{ return fnrs_.stop; }
-    int			nextConnNr() const
-			{ return curfnr_+fnrs_.step; }
-    void		resetConnNr() const
-			{ curfnr_ = fnrs_.start; }
-    void		setConnNr( int nr ) const
-			{ curfnr_ = nr; }
+    bool		isMultiConn() const	{ return isMulti(); }
+    int			curConnIdx() const	{ return curfidx_; }
+    void		resetConnIdx() const	{ curfidx_ = 0; }
+    int			connIdxFor(int nr) const;
+    bool		toNextConnIdx() const
+			{ curfidx_++; return curfidx_ < nrFiles(); }
+    void		setConnIdx( int idx ) const
+			{ curfidx_ = idx; }
 
-    const char*		fileName() const		{ return fname_; }
-    const char*		subDirName() const		{ return dirName(); }
-    const char*		fullDirName() const;
-    void		setFileName(const char*);
+    FileSpec&		fileSpec()			{ return fs_; }
+    const FileSpec&	fileSpec() const		{ return fs_; }
     void		setExt( const char* ext )	{ extension_ = ext; }
     void		genFileName();
 
-    const char*		reader() const			{ return fname_; }
-    const char*		writer() const			{ return writecmd_; }
-    void		setReader(const char*);
-    void		setWriter(const char*);
-
-    int			zeroPadding() const		{ return padzeros_; }
-    void		setZeroPadding( int zp )	{ padzeros_ = zp; }
-    StepInterval<int>&	fileNumbers()			{ return fnrs_; }
-    const StepInterval<int>& fileNumbers() const	{ return fnrs_; }
-
-    bool		isMulti() const
-			{ return fnrs_.start != fnrs_.stop; }
+    int			nrFiles() const			{ return fs_.nrFiles();}
+    bool		isMulti() const			{ return nrFiles()>1; }
 
 protected:
 
     virtual bool	getFrom(ascistream&);
     virtual bool	putTo(ascostream&) const;
 
-    BufferString	fname_;
-    BufferString	writecmd_;
-    bool		iscomm_;
-    int			nrfiles_;
-    int			padzeros_;
-    StepInterval<int>	fnrs_;
-    mutable int		curfnr_;
+    FileSpec		fs_;
+    mutable int		curfidx_;
     BufferString	extension_;
 
     StreamProvider*	getStreamProv(bool,bool f=true) const;
-    bool		implDo(bool,bool) const;
-    inline bool		validNr() const
-			{ return curfnr_*fnrs_.step <= fnrs_.stop*fnrs_.step; }
+    bool		implDoAll(bool,bool yn=true) const;
+
+public:
+
+    virtual void	setDirName(const char*);
 
 };
 

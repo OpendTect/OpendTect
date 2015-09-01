@@ -178,7 +178,7 @@ IOObj* getSubstIOObj( const char* fullfnm )
     IOObj* newioobj = inioobj_.clone();
     newioobj->setName( fullfnm );
     mDynamicCastGet(IOStream*,iostrm,newioobj)
-    iostrm->setFileName( fullfnm );
+    iostrm->fileSpec().setFileName( fullfnm );
     return newioobj;
 }
 
@@ -371,8 +371,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     SEGY::TxtHeader::info2D() = is2d;
     PtrMan<SeisTrcWriter> wrr = new SeisTrcWriter( &outioobj );
-    PtrMan<SeisStdImporterReader> rdr
-			= new SeisStdImporterReader( inioobj, "SEG-Y" );
+    SeisStdImporterReader* rdr = new SeisStdImporterReader( inioobj, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );
     rdr->setResampler( transffld_->getResampler() );
     rdr->setScaler( transffld_->getScaler() );

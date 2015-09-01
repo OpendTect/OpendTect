@@ -415,7 +415,6 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     fs_.fillPar( inioobj->pars() );
     if ( !outissidom )
 	ZDomain::Def::get(outioobj->pars()).set( inioobj->pars() );
-    FileSpec::ensureWellDefined( *inioobj );
     IOM().commitChanges( *inioobj );
 
     bool isok = is2d ? do2D( *inioobj, *outioobj, doimp )

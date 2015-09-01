@@ -278,9 +278,6 @@ void uiSEGYReadStarter::editFile( CallBacker* )
 }
 
 
-static bool unsupported_multi_warning_done = false;
-
-
 void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
 {
     const BufferString newusrfnm( inpfld_->fileName() );
@@ -296,18 +293,7 @@ void uiSEGYReadStarter::handleNewInputSpec( bool fullscan )
     uiString txt;
     const int nrfiles = scaninfo_.size();
     if ( nrfiles > 1 )
-    {
-	txt = tr( "[%1 files]" ); txt.arg( nrfiles );
-	if ( !unsupported_multi_warning_done )
-	{
-	    uiMSG().warning( "In this preview release, multi-file import only "
-	      "works for the 'link' type.\n\nWe are working hard to "
-	      "make it work for 'copy' type too\nand get it into the coming "
-	      "'real' 6.0 release.\n\nPlease use the old "
-	      "Survey-Import-Seismics tools for 'copy' import." );
-	    unsupported_multi_warning_done = true;
-	}
-    }
+	{ txt = tr( "[%1 files]" ); txt.arg( nrfiles ); }
     nrfileslbl_->setText( txt );
 }
 

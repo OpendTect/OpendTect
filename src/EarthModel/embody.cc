@@ -167,7 +167,7 @@ mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
 
 	mDynamicCastGet(IOStream*,iostrm,&ioobj);
 	if ( iostrm )
-	    iostrm->setFileName( newfp.fileName() );
+	    iostrm->fileSpec().setFileName( newfp.fileName() );
 	if ( !IOM().commitChanges( ioobj ) )
 	{
 	    errmsg = uiStrings::phrCannotWriteDBEntry( ioobj.uiName() );

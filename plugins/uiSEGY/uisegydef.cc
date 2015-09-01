@@ -58,7 +58,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     , issw_(false)
     , fileSelected(this)
 {
-    FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
+    SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
 
     BufferString disptxt( forread_ ? "Input" : "Output" );
     disptxt += " SEG-Y file";
@@ -97,9 +97,9 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 }
 
 
-FileSpec uiSEGYFileSpec::getSpec() const
+SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 {
-    FileSpec spec( fnmfld_->fileName() );
+    SEGY::FileSpec spec( fnmfld_->fileName() );
     if ( multifld_ && multifld_->isChecked() )
     {
 	spec.nrs_ = multifld_->getIStepInterval();
@@ -117,7 +117,7 @@ FileSpec uiSEGYFileSpec::getSpec() const
 
 bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
 {
-    FileSpec spec( getSpec() );
+    SEGY::FileSpec spec( getSpec() );
     const BufferString fnm( spec.fileName(0) );
 
     if ( !perm )
@@ -186,7 +186,7 @@ void uiSEGYFileSpec::setFileName( const char* fnm )
 }
 
 
-void uiSEGYFileSpec::setSpec( const FileSpec& spec )
+void uiSEGYFileSpec::setSpec( const SEGY::FileSpec& spec )
 {
     setFileName( spec.fileName(0) );
     setMultiInput( spec.nrs_, spec.zeropad_ );
@@ -196,7 +196,7 @@ void uiSEGYFileSpec::setSpec( const FileSpec& spec )
 
 void uiSEGYFileSpec::usePar( const IOPar& iop )
 {
-    FileSpec spec; spec.usePar( iop );
+    SEGY::FileSpec spec; spec.usePar( iop );
     setSpec( spec );
 }
 
@@ -221,11 +221,9 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
     mDynamicCastGet(const IOStream*,iostrm,ioobj)
     if ( !iostrm ) { pErrMsg("Wrong IOObj type"); return; }
 
-    BufferString dispfnm( iostrm->getExpandedName(forread_,false) );
-    dispfnm.replace( '%', '*' );
-    setFileName( dispfnm );
+    setFileName( iostrm->fileSpec().dispName() );
     if ( iostrm->isMulti() )
-	setMultiInput( iostrm->fileNumbers(), iostrm->zeroPadding() );
+	setMultiInput( iostrm->fileSpec().nrs_, iostrm->fileSpec().zeropad_ );
 
     setInp2D( SeisTrcTranslator::is2D(*iostrm) );
 }
@@ -243,7 +241,7 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
     if ( !forread_ )
 	return;
 
-    const FileSpec spec( getSpec() );
+    const SEGY::FileSpec spec( getSpec() );
     const char* fnm = spec.fileName();
     StreamData sd( StreamProvider(fnm).makeIStream() );
     const bool doesexist = sd.usable();
@@ -270,7 +268,7 @@ void uiSEGYFileSpec::fileSel( CallBacker* )
 
 void uiSEGYFileSpec::manipFile( CallBacker* )
 {
-    const FileSpec spec( getSpec() );
+    const SEGY::FileSpec spec( getSpec() );
     uiSEGYFileManip dlg( this, spec.fileName() );
     if ( dlg.go() )
 	setFileName( dlg.fileName() );

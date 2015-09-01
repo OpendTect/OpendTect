@@ -47,7 +47,6 @@ public:
 } // namespace SEGY
 
 
-typedef SEGY::FileSpec		FileSpec;
 typedef SEGY::FilePars		FilePars;
 typedef SEGY::FileReadOpts	FileReadOpts;
 typedef SEGY::FullSpec		FullSpec;

@@ -306,7 +306,7 @@ bool uiWellImportSEGYVSP::fetchTrc( SeisTrc& trc )
 {
     PtrMan<SEGYSeisTrcTranslator> trans = SEGYSeisTrcTranslator::getInstance();
     trans->usePar( sgypars_ );
-    FileSpec fs; fs.usePar( sgypars_ );
+    SEGY::FileSpec fs; fs.usePar( sgypars_ );
     PtrMan<IOObj> ioobj = fs.getIOObj( true );
     if ( !trans->initRead( ioobj->getConn(Conn::Read), Seis::Scan ) )
 	mErrRet(trans->errMsg())

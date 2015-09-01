@@ -329,9 +329,8 @@ MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
 
     StepInterval<int> fnrs;
     jobprov_->getRange( fnrs );
-    iostrm->fileNumbers() = fnrs;
-    iostrm->setFileName( fp.fullPath() );
+    iostrm->fileSpec().setFileName( fp.fullPath() );
+    iostrm->fileSpec().nrs_ = fnrs;
     IOM().commitChanges( *iostrm );
     return ret;
 }
-

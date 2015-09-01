@@ -30,8 +30,8 @@ mDefSimpleTranslatorioContext(Well,WllInf)
     mDynamicCastGet(const IOStream*,iostrm,ioobj) \
     if ( !iostrm ) return false; \
 \
-    BufferString pathnm = iostrm->fullDirName(); \
-    BufferString filenm = iostrm->fileName(); \
+    BufferString pathnm = iostrm->fileSpec().fullDirName(); \
+    BufferString filenm = iostrm->fileSpec().fileName(); \
     StreamProvider prov( filenm ); \
     prov.addPathIfNecessary( pathnm ); \
     if ( !prov.fn ) return false;
