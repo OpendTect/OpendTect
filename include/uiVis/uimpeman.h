@@ -41,9 +41,7 @@ public:
     void			deleteVisObjects();
     void			validateSeedConMode();
     void			introduceMPEDisplay();
-    void			updateSeedModeSel();
     void			initFromDisplay();
-    void			trackInVolume();
 
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
@@ -61,8 +59,6 @@ protected:
     visSurvey::MPEClickCatcher*	clickcatcher_;
     int				clickablesceneid_;
 
-    uiComboBox*			seedconmodefld_;
-
     void			mouseEventCB(CallBacker*);
     void			keyEventCB(CallBacker*);
     int				popupMenu();
@@ -74,19 +70,19 @@ protected:
     void			clearSelection();
     void			deleteSelection();
     void			removeInPolygon();
+    void			showParentsPath();
+    void			showSetupDlg();
 
-    void			trackFromSeedsOnly(CallBacker*);
-    void			trackFromSeedsAndEdges(CallBacker*);
-    void			trackInVolume(CallBacker*);
+    void			trackFromSeedsOnly();
+    void			trackFromSeedsAndEdges();
+    void			trackInVolume();
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
-    void			showSettingsCB(CallBacker*);
-    void			retrackAllCB(CallBacker*);
+    void			retrackAll();
 
     void			updateSeedPickState();
     void			trackerAddedRemovedCB(CallBacker*);
     void			addSeedCB(CallBacker*);
-    void			seedConnectModeSel(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
 

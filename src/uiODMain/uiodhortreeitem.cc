@@ -76,8 +76,6 @@ const char* uiODHorizonParentTreeItem::iconName() const
 void uiODHorizonParentTreeItem::removeChild( uiTreeItem* itm )
 {
     uiTreeItem::removeChild( itm );
-    if ( children_.isEmpty() )
-	applMgr()->visServer()->showMPEToolbar( false );
 }
 
 
@@ -642,8 +640,6 @@ const char* uiODHorizon2DParentTreeItem::iconName() const
 void uiODHorizon2DParentTreeItem::removeChild( uiTreeItem* itm )
 {
     uiTreeItem::removeChild( itm );
-    if ( children_.isEmpty() )
-	applMgr()->visServer()->showMPEToolbar( false );
 }
 
 

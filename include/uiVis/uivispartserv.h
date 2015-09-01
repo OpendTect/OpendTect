@@ -339,10 +339,9 @@ public:
 				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
     static int			evPickingStatusChange();
-    bool			sendPickingStatusChangeEvent();
     static int			evDisableSelTracker();
-    bool			sendDisableSelTrackerEvent();
-    void			trackInVolume();
+    static int			evShowMPESetupDlg();
+    static int			evShowMPEParentPath();
 
     void			reportTrackingSetupActive(bool yn);
     bool			isTrackingSetupActive() const;
@@ -354,18 +353,10 @@ public:
 				     the selman. */
     void			getPickingMessage(BufferString&) const;
 
-    static int			evShowMPESetupDlg();
-    bool			showMPESetupDlg();
-    static int			evShowMPEParentPath();
-    bool			showMPEParentPath();
-
     static int			evShowSetupGroupOnTop();
     bool			showSetupGroupOnTop(const char* grpnm);
     const char*			getTopSetupGroupName() const;
 
-    void			showMPEToolbar(bool yn=true);
-    void			updateMPEToolbar();
-    void			updateSeedConnectMode();
     void			introduceMPEDisplay();
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
@@ -387,6 +378,8 @@ public:
 
     void			lock(int id,bool yn);
     bool			isLocked(int id) const;
+
+    bool			sendVisEvent(int);
 
 protected:
 

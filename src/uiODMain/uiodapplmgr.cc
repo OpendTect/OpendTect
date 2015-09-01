@@ -1047,22 +1047,14 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     else if ( evid==uiMPEPartServer::evGetAttribData() )
     {
     }
-    else if ( evid==uiMPEPartServer::evShowToolbar() )
-	visserv_->showMPEToolbar( true );
-    else if ( evid==uiMPEPartServer::evHideToolBar() )
-	visserv_->showMPEToolbar( false );
     else if ( evid==uiMPEPartServer::evMPEDispIntro() )
 	visserv_->introduceMPEDisplay();
     else if ( evid==uiMPEPartServer::evInitFromSession() )
 	visserv_->initMPEStuff();
     else if ( evid==uiMPEPartServer::evUpdateTrees() )
 	sceneMgr().updateTrees();
-    else if ( evid==uiMPEPartServer::evUpdateSeedConMode() )
-	visserv_->updateSeedConnectMode();
     else if ( evid==uiMPEPartServer::evStoreEMObject() )
 	storeEMObject();
-    else if ( evid==uiMPEPartServer::evRetrackInVolume() )
-	visserv_->trackInVolume();
     else
     {
 	pErrMsg("Unknown event from mpeserv");
@@ -1462,7 +1454,6 @@ bool uiODApplMgr::handleVisServEv( int evid )
 					      tracker->getSeedPicker(false) : 0;
 	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
 	mpeserv_->showSetupDlg( emid, sid );
-	visserv_->updateMPEToolbar();
     }
     else if ( evid == uiVisPartServer::evShowSetupGroupOnTop() )
     {

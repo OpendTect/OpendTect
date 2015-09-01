@@ -157,6 +157,13 @@ void uiVisPartServer::unlockEvent()
 { eventmutex_.unLock(); }
 
 
+bool uiVisPartServer::sendVisEvent( int evid )
+{
+    eventmutex_.lock();
+    return sendEvent( evid );
+}
+
+
 uiVisPartServer::~uiVisPartServer()
 {
     visBase::DM().selMan().selnotifier.remove(
@@ -1544,20 +1551,6 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
 }
 
 
-bool uiVisPartServer::showMPESetupDlg()
-{
-    eventmutex_.lock();
-    return sendEvent( evShowMPESetupDlg() );
-}
-
-
-bool uiVisPartServer::showMPEParentPath()
-{
-    eventmutex_.lock();
-    return sendEvent( evShowMPEParentPath() );
-}
-
-
 bool uiVisPartServer::showSetupGroupOnTop( const char* grpnm )
 {
     eventmutex_.lock();
@@ -1568,24 +1561,6 @@ bool uiVisPartServer::showSetupGroupOnTop( const char* grpnm )
 
 const char* uiVisPartServer::getTopSetupGroupName() const
 { return topsetupgroupname_; }
-
-
-bool uiVisPartServer::sendPickingStatusChangeEvent()
-{
-   eventmutex_.lock();
-   return sendEvent( evPickingStatusChange() );
-}
-
-
-bool uiVisPartServer::sendDisableSelTrackerEvent()
-{
-   eventmutex_.lock();
-   return sendEvent( evDisableSelTracker() );
-}
-
-
-void uiVisPartServer::trackInVolume()
-{ mpetools_->trackInVolume(); }
 
 
 void uiVisPartServer::reportTrackingSetupActive( bool yn )
@@ -2151,30 +2126,6 @@ void uiVisPartServer::colTabChangeCB( CallBacker* )
 {
     triggerTreeUpdate();
 }
-
-
-void uiVisPartServer::showMPEToolbar( bool yn )
-{
-    if ( yn )
-    {
-	updateMPEToolbar();
-	if ( !getTrackTB()->isVisible() )
-	    getTrackTB()->display( true );
-    }
-    else if ( getTrackTB()->isVisible() )
-	getTrackTB()->display( false );
-}
-
-
-void uiVisPartServer::updateMPEToolbar()
-{
-    mpetools_->validateSeedConMode();
-    mpetools_->updateButtonSensitivity();
-}
-
-
-void uiVisPartServer::updateSeedConnectMode()
-{ mpetools_->updateSeedModeSel(); }
 
 
 void uiVisPartServer::introduceMPEDisplay()

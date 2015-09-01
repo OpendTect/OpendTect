@@ -78,6 +78,8 @@ public:
     enum State			{ Started, Paused, Stopped };
     State			getState() const	{ return state_; }
 
+    virtual void		setMPEPartServer(uiMPEPartServer*);
+
 protected:
 
     virtual void		initStuff();
@@ -162,6 +164,8 @@ protected:
 
     static const char**		sKeyEventNames();
     static const VSEvent::Type*	cEventTypes();
+
+    uiMPEPartServer*		mps_;
 };
 
 

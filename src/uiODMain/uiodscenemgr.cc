@@ -1235,8 +1235,11 @@ void uiODSceneMgr::removeTreeItem( int displayid )
     {
 	Scene& scene = *scenes_[idx];
 	uiTreeItem* itm = scene.itemmanager_->findChild( displayid );
-	itm->prepareForShutdown();
-	if ( itm ) scene.itemmanager_->removeChild( itm );
+	if ( itm )
+	{
+	    itm->prepareForShutdown();
+	    scene.itemmanager_->removeChild( itm );
+	}
     }
 }
 

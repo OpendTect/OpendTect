@@ -117,7 +117,6 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	addChild( new uiODBodyDisplayTreeItem( plg->id() ), false );
 
 	uiVisPartServer* visserv = applMgr()->visServer();
-	visserv->showMPEToolbar();
 	visserv->turnSeedPickingOn( false );
     }
     else if ( mnuid==2 || mnuid==3 )

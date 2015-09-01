@@ -88,15 +88,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tools", showSettingsCB, uiStrings::sSettings(), false );
-
-    seedconmodefld_ = new uiComboBox( toolbar_, "Seed connect mode" );
-    seedconmodefld_->setToolTip( tr("Seed connect mode") );
-    seedconmodefld_->selectionChanged.notify(
-				mCB(this,uiMPEMan,seedConnectModeSel) );
-    toolbar_->addObject( seedconmodefld_ );
-    toolbar_->addSeparator();
-
     seedidx_ = mAddButton( "seedpickmode", addSeedCB,
 			  tr("Create seed ( key: 'Tab' )"), true );
     toolbar_->setShortcut( seedidx_, "Tab" );
@@ -277,7 +268,7 @@ void uiMPEMan::handleAction( int res )
     case sPoly: startPolySelection(); break;
     case sChild: hd->selectChildren(tk); break;
     case sParent: hd->selectParent(tk); break;
-    case sParPath: visserv_->showMPEParentPath(); break;
+    case sParPath: showParentsPath(); break;
     case sClear: clearSelection(); break;
     case sDelete: deleteSelection(); break;
     case sUndo: undo(); break;
@@ -288,7 +279,7 @@ void uiMPEMan::handleAction( int res )
     case sSaveAs: visserv_->storeEMObject( true ); break;
     case sRest: hd->setOnlyAtSectionsDisplay( true ); break;
     case sFull: hd->setOnlyAtSectionsDisplay( false ); break;
-    case sSett: visserv_->showMPESetupDlg(); break;
+    case sSett: showSetupDlg(); break;
 
     default:
 	break;
@@ -627,6 +618,13 @@ void uiMPEMan::deleteSelection()
 }
 
 
+void uiMPEMan::showParentsPath()
+{ visserv_->sendVisEvent( uiVisPartServer::evShowMPEParentPath() ); }
+
+void uiMPEMan::showSetupDlg()
+{ visserv_->sendVisEvent( uiVisPartServer::evShowMPESetupDlg() ); }
+
+
 uiToolBar* uiMPEMan::getToolBar() const
 {
     return toolbar_;
@@ -683,7 +681,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	    clickcatcher_->turnOn( false );
     }
 
-    visserv_->sendPickingStatusChangeEvent();
+    visserv_->sendVisEvent( uiVisPartServer::evPickingStatusChange() );
 }
 
 
@@ -729,45 +727,6 @@ void uiMPEMan::updateClickCatcher()
 void uiMPEMan::addSeedCB( CallBacker* )
 {
     turnSeedPickingOn( toolbar_->isOn(seedidx_) );
-    updateButtonSensitivity(0);
-}
-
-
-void uiMPEMan::updateSeedModeSel()
-{
-    MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    if ( seedpicker )
-	seedconmodefld_->setCurrentItem( seedpicker->getSeedConnectMode() );
-}
-
-
-void uiMPEMan::seedConnectModeSel( CallBacker* )
-{
-    MPE::EMTracker* tracker = getSelectedTracker();
-    if ( !tracker )
-	return;
-
-    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    if ( !emobj || !seedpicker )
-	return;
-
-    const int oldseedconmodefld_ = seedpicker->getSeedConnectMode();
-    seedpicker->setSeedConnectMode( seedconmodefld_->currentItem() );
-
-    if ( seedpicker->doesModeUseSetup() )
-    {
-	const SectionTracker* sectiontracker =
-	      tracker->getSectionTracker( emobj->sectionID(0), true );
-	if ( sectiontracker && !sectiontracker->hasInitializedSetup() )
-	    visserv_->showMPESetupDlg();
-	if ( !sectiontracker || !sectiontracker->hasInitializedSetup() )
-	    seedpicker->setSeedConnectMode( oldseedconmodefld_ );
-    }
-
-    turnSeedPickingOn( true );
-    visserv_->setViewMode(false);
     updateButtonSensitivity(0);
 }
 
@@ -958,12 +917,9 @@ void uiMPEMan::updateSeedPickState()
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
 
     toolbar_->setSensitive( seedidx_, seedpicker );
-    seedconmodefld_->setSensitive( seedpicker );
-    seedconmodefld_->setEmpty();
 
     if ( !seedpicker )
     {
-	seedconmodefld_->addItem(tr("No seed mode"));
 	if ( isSeedPickingOn() )
 	{
 	    turnSeedPickingOn( false );
@@ -977,12 +933,6 @@ void uiMPEMan::updateSeedPickState()
 	seedpickwason_ = false;
 	turnSeedPickingOn( true );
     }
-
-    const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
-    mAddSeedConModeItems( seedconmodefld_, Horizon3D );
-    mAddSeedConModeItems( seedconmodefld_, Horizon2D );
-
-    seedconmodefld_->setCurrentItem( seedpicker->getSeedConnectMode() );
 }
 
 
@@ -1002,19 +952,19 @@ void uiMPEMan::visObjectLockedCB( CallBacker* )
 }
 
 
-void uiMPEMan::trackFromSeedsOnly( CallBacker* cb )
+void uiMPEMan::trackFromSeedsOnly()
 {
-    trackInVolume( cb );
+    trackInVolume();
 }
 
 
-void uiMPEMan::trackFromSeedsAndEdges( CallBacker* cb )
+void uiMPEMan::trackFromSeedsAndEdges()
 {
-    trackInVolume( cb );
+    trackInVolume();
 }
 
 
-void uiMPEMan::trackInVolume( CallBacker* )
+void uiMPEMan::trackInVolume()
 {
     updateButtonSensitivity();
 
@@ -1098,13 +1048,7 @@ void uiMPEMan::workAreaChgCB( CallBacker* )
 }
 
 
-void uiMPEMan::showSettingsCB( CallBacker* )
-{
-    visserv_->showMPESetupDlg();
-}
-
-
-void uiMPEMan::retrackAllCB( CallBacker* )
+void uiMPEMan::retrackAll()
 {
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker ) return;
@@ -1146,7 +1090,7 @@ void uiMPEMan::retrackAllCB( CallBacker* )
 
 	if ( !(MPE::engine().activeVolume().nrInl()==1) &&
 	     !(MPE::engine().activeVolume().nrCrl()==1) )
-	    trackInVolume(0);
+	    trackInVolume();
     }
     else
 	seedpicker->reTrack();
@@ -1163,10 +1107,6 @@ void uiMPEMan::initFromDisplay()
 
     updateButtonSensitivity(0);
 }
-
-
-void uiMPEMan::trackInVolume()
-{ trackInVolume(0); }
 
 
 void uiMPEMan::setUndoLevel( int preveventnr )

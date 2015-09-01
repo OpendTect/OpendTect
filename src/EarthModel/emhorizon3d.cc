@@ -784,13 +784,26 @@ void Horizon3D::unlockAll()
 
 
 void Horizon3D::setParentColor( const Color& col )
-{ parentcolor_ = col; /*change.trigger();*/ }
+{
+    parentcolor_ = col;
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PrefColorChange;
+    change.trigger( cbdata );
+}
+
 
 const Color& Horizon3D::getParentColor() const
 { return parentcolor_; }
 
+
 void Horizon3D::setChildColor( const Color& col )
-{ childcolor_ = col; /*change.trigger();*/ }
+{
+    childcolor_ = col;
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PrefColorChange;
+    change.trigger( cbdata );
+}
+
 
 const Color& Horizon3D::getChildColor() const
 { return childcolor_; }

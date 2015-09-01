@@ -188,8 +188,6 @@ void uiODEarthModelSurfaceTreeItem::updateTrackingState()
 
     if ( mps->isTrackingEnabled(trackerid) != enabletracking )
 	mps->enableTracking( trackerid, enabletracking );
-
-    applMgr()->visServer()->updateMPEToolbar();
 }
 
 
@@ -333,7 +331,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	    mps->useSavedSetupDlg( emid_, sectionid );
 	    uivisemobj_->checkTrackingStatus();
 	    applMgr()->visServer()->triggerTreeUpdate();
-	    applMgr()->visServer()->showMPEToolbar();
 	    applMgr()->visServer()->turnSeedPickingOn( true );
 	}
 
@@ -344,7 +341,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	mps->showSetupDlg( emid_, sectionid );
-	applMgr()->visServer()->updateMPEToolbar();
     }
     else if ( mnuid==reloadmnuitem_.id )
     {

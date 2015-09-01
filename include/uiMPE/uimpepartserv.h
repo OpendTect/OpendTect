@@ -102,14 +102,11 @@ public:
 				/*!<Get trackerid via activeTrackerID */
     static int			evUpdateTrees();
     static int			evUpdateSeedConMode();
-    static int			evShowToolbar();
     static int			evMPEDispIntro();
     static int			evStoreEMObject();
     static int			evSetupLaunched();
     static int			evSetupClosed();
     static int			evInitFromSession();
-    static int			evHideToolBar();
-    static int			evRetrackInVolume();
 
     void			loadTrackSetupCB(CallBacker*);
     bool 			prepareSaveSetupAs(const MultiID&);
@@ -117,6 +114,7 @@ public:
     bool 			saveSetup(const MultiID&);
     bool 			readSetup(const MultiID&);
 
+    bool			sendMPEEvent(int);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -158,13 +156,10 @@ protected:
     void			eventChangedCB(CallBacker*);
     void			propertyChangedCB(CallBacker*);
     void			similarityChangedCB(CallBacker*);
-    void			retrackCB(CallBacker*);
 
     void			nrHorChangeCB(CallBacker*);
 
     void			noTrackingRemoval();
-    void			retrack(const EM::ObjectID&);
-
     void			cleanSetupDependents();
 
     MPE::uiSetupGroup*		setupgrp_;

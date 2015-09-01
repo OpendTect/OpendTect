@@ -241,6 +241,7 @@ protected:
     visBase::Material*			intersectionlinematerial_;
 
     visBase::VertexShape*		parentline_;
+    visBase::VertexShape*		childline_;
 
     StepInterval<int>			parrowrg_;
     StepInterval<int>			parcolrg_;
