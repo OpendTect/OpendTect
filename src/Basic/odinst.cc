@@ -204,7 +204,7 @@ bool ODInst::updatesAvailable()
     return res == 1;
 # else
     FilePath tmp( File::getTempPath(), "od_updt" );
-    bool ret = File::exists( tmp.fullPath() );
+    mDefineStaticLocalObject(const bool,ret, = File::exists(tmp.fullPath())); 
     if ( ret )
 	File::remove( tmp.fullPath() );
     return ret;
