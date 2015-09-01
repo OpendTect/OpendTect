@@ -151,6 +151,7 @@ Well::Data::Data( const char* nm )
     , trackchanged(this)
     , disp2dparschanged(this)
     , disp3dparschanged(this)
+    , logschanged(this)
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
@@ -259,7 +260,7 @@ void Well::Info::usePar( const IOPar& par )
     par.get( sKeycounty(), county );
     int welltype = 0;
     par.get( sKeywelltype(), welltype ); welltype_ = (WellType)welltype;
-  
+
     surfacecoord.fromString( par.find(sKeycoord()) );
     par.get( sKeyreplvel(), replvel );
     par.get( sKeygroundelev(), groundelev );
