@@ -2077,7 +2077,7 @@ void HorizonDisplay::selectChildren( const TrcKey& tkin )
 
     Array2DImpl<float> field( children->info() );
     for ( od_int64 idx=0; idx<children->info().getTotalSz(); idx++ )
-	field.getData()[idx] = children->getData()[idx] == '0' ? 0 : 1;
+	field.getData()[idx] = children->getData()[idx] == '0' ? 0.f : 1.f;
 
     const TrcKeySampling tks = hor3d->getTrackingSampling();
 
