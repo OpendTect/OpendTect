@@ -70,6 +70,7 @@ public:
     TrcKey		trcKeyAt(od_int64 globalidx) const;
     TrcKey		toTrcKey(const Coord&,float* distance=0) const;
     Coord		toCoord(const BinID&) const;
+    TrcKey		center() const;
     int			nrLines() const;
     int			nrTrcs() const;
     od_int64		totalNr() const;
