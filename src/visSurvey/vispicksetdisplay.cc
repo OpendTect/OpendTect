@@ -21,6 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdragger.h"
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
+#include "vispolygonselection.h"
+#include "mousecursor.h"
 #include "zaxistransform.h"
 #include "callback.h"
 
@@ -40,11 +42,15 @@ PickSetDisplay::PickSetDisplay()
     , shoulddisplaybody_( false )
     , needline_(0)
     , dragger_(0)
-    , draggeridx_( -1 )
+    , draggeridx_(-1)
+    , unselcorlor_( Color::White() )
+    , selcolor_( Color::Green() )
+
 {
     markerset_->ref();
     markerset_->applyRotationToAllMarkers( false );
     addChild( markerset_->osgNode() );
+    pickselstatus_.setEmpty();
 }
 
 
@@ -112,6 +118,7 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     dragger_->setSize( (float)markerstyle.size_ );
     dragger_->setOwnShape( createOneMarker(), false );
     addChild( dragger_->osgNode() );
+    dragger_->turnOn( false );
 
 }
 
@@ -193,7 +200,10 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 	setPolylinePos( idx, loc.pos_ );
     
     if ( loc.pos_.isDefined() && dragger_ )
+    {
 	dragger_->setPos(loc.pos_);
+	dragger_->turnOn( true );
+    }
 
     updateDragger();
 
@@ -237,9 +247,9 @@ void PickSetDisplay::removePosition( int idx )
     {
 	const visBase::Coordinates* coords = markerset_->getCoordinates();
 	const Coord3 pos = coords->getPos( idx-1 );
-	dragger_->setPos( pos );
-	dragger_->updateDragger( false );
     }
+
+    dragger_->turnOn( false );
 }
 
 
@@ -355,6 +365,9 @@ bool PickSetDisplay::needLine()
 
 void PickSetDisplay::showLine( bool yn )
 {
+    if ( !needLine() )
+	return; 
+
     if ( !polyline_ )
 	createLine();
 
@@ -676,6 +689,139 @@ const Coord3 PickSetDisplay::getPlaneDataNormal()
     }
 
     return Coord3( 0, 0, 0 );
+}
+
+
+
+void PickSetDisplay::setSelectionMode(bool yn)
+{
+    ctrldown_ = false;
+
+    if ( scene_ && scene_->getPolySelection() )
+    {
+	if ( yn )
+	{
+	    mAttachCBIfNotAttached(
+	    scene_->getPolySelection()->polygonFinished(),
+	    PickSetDisplay::polygonFinishedCB );
+	    selectionmodel_ = true;
+	}
+	else
+	{
+	    mDetachCB(
+	    scene_->getPolySelection()->polygonFinished(),
+	    PickSetDisplay::polygonFinishedCB );
+	    selectionmodel_ = false;
+	}
+    }
+
+}
+
+
+void PickSetDisplay::polygonFinishedCB(CallBacker*)
+{
+    if ( !scene_ || ! scene_->getPolySelection() ) 
+	return;
+
+    unselcorlor_ = set_->disp_.color_;
+    if ( Math::Abs(unselcorlor_.g()-255)<10 )
+	selcolor_ = Color::Red();
+
+    const int diff = markerset_->size()-pickselstatus_.size();
+    if ( diff !=0 ) // added new pos or removed pos. reset
+    {
+	pickselstatus_.setSize( markerset_->size() );
+	pickselstatus_.setAll( false );
+    }
+
+    visBase::PolygonSelection* polysel =  scene_->getPolySelection();
+    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+
+    if ( (!polysel->hasPolygon() && !polysel->singleSelection()) ) 
+    { 	unSelectAll();  return;  }
+
+    if ( !ctrldown_ )
+	unSelectAll();
+
+    updateSelections( polysel );
+    polysel->clear();
+
+}
+
+
+void PickSetDisplay::unSelectAll()
+{
+    markerset_->setMarkersSingleColor( unselcorlor_ );
+    deepErase( selectors_ );
+    pickselstatus_.setAll( false );
+}
+
+
+void PickSetDisplay::setPickSelect( int idx, bool yn )
+{
+    Color clr = yn ? selcolor_ : unselcorlor_;
+    markerset_->getMaterial()->setColor( clr, idx );
+    pickselstatus_[idx] = yn;
+}
+
+
+void PickSetDisplay::updateSelections( 
+    const visBase::PolygonSelection* polysel )
+{
+    if ( !markerset_ || !polysel || !polysel->hasPolygon() ) 
+	return;
+
+    const visBase::Coordinates* coords = markerset_->getCoordinates();
+    if ( !coords||coords->size()==0 )
+	return;
+     
+    for ( int idx=0; idx<markerset_->size(); idx++ )
+    {
+	const Coord3 pos = coords->getPos(idx);
+	if ( !ctrldown_ )
+	{
+	    if ( !polysel->isInside(pos) )
+		setPickSelect( idx, false );
+	    else
+		setPickSelect( idx, true );
+	}
+	else 
+	{
+	    if ( polysel->isInside(pos) )
+	    {
+		if ( pickselstatus_[idx] )
+		    setPickSelect( idx, false ); 
+		else 
+		    setPickSelect( idx, true );
+	    }
+	}
+    }
+
+}
+
+
+bool PickSetDisplay::removeSelections()
+{
+    Pick::SetMgr& mgr = Pick::Mgr();
+  
+    bool change = false;
+    for ( int idx=pickselstatus_.size()-1; idx>=0; idx-- )
+    {
+	if ( pickselstatus_[idx] )
+	{
+	    Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
+		set_,idx );
+	    set_->removeSingleWithUndo( idx );
+	    mgr.reportChange( 0, cd );
+	    change = true;
+	}
+    }
+
+    Pick::Mgr().undo().setUserInteractionEnd(
+	    Pick::Mgr().undo().currentEventID() );
+
+    unSelectAll();
+    return change;
 }
 
 

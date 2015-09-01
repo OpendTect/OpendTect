@@ -101,6 +101,12 @@ protected:
     visBase::MarkerSet*		createOneMarker() const;
     const Coord3		getPlaneDataNormal();
     
+    void			setSelectionMode(bool);
+    void			polygonFinishedCB(CallBacker*);
+    void			updateSelections(
+					    const visBase::PolygonSelection*);
+    bool			removeSelections();
+
     visBase::MarkerSet*		markerset_;
     visBase::PolyLine*		polyline_;
     bool			needline_;
@@ -113,6 +119,13 @@ protected:
     bool			shoulddisplaybody_;
     visBase::Dragger*		dragger_;
     int				draggeridx_;
+
+private:
+    void			setPickSelect(int,bool);
+    void			unSelectAll();
+    Color			unselcorlor_;
+    Color			selcolor_;
+    BoolTypeSet			pickselstatus_;
 
 };
 

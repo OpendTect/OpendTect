@@ -64,6 +64,8 @@ LocationDisplay::LocationDisplay()
     , undoloccoord_( Coord3(0,0,0) )
     , undomove_( false )
     , storedmid_(MultiID::udf())
+    , selectionmodel_( false )
+    , ctrldown_( false )
 {
     setSetMgr( &Pick::Mgr() );
 
@@ -215,6 +217,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
     if ( !isSelected() || !isOn() || isLocked() ) return;
 
     mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
+    ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
     if ( eventinfo.dragging )
 	updateDragger();
@@ -586,6 +589,8 @@ bool LocationDisplay::isPicking() const
 bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 			       bool notif )
 {
+    if ( selectionmodel_ ) return false;
+
     mDefineStaticLocalObject( TypeSet<Coord3>, sowinghistory, );
 
     int locidx = -1;
@@ -850,17 +855,18 @@ const SurveyObject* LocationDisplay::getPickedSurveyObject() const
 void LocationDisplay::removeSelection( const Selector<Coord3>& selector,
 	TaskRunner* tr )
 {
-    if ( !selector.isOK() )
-	return;
+    bool changed = removeSelections();
 
-    bool changed = false;
-    for ( int idx=set_->size()-1; idx>=0; idx-- )
+    if ( selector.isOK() )
     {
-	const Pick::Location& loc = (*set_)[idx];
-	if ( selector.includes( loc.pos_ ) )
+	for ( int idx=set_->size()-1; idx>=0; idx-- )
 	{
-	    removePick( idx, false );
-	    changed = true;
+	    const Pick::Location& loc = (*set_)[idx];
+	    if ( selector.includes( loc.pos_ ) )
+	    {
+		removePick( idx, false );
+		changed = true;
+	    }
 	}
     }
 
@@ -868,6 +874,22 @@ void LocationDisplay::removeSelection( const Selector<Coord3>& selector,
 	Pick::Mgr().undo().setUserInteractionEnd(
 	    Pick::Mgr().undo().currentEventID() );
 
+}
+
+
+bool LocationDisplay::removePicks( const Selector<Coord3>& selector )
+{
+    bool changed = false;
+    for ( int idx = set_->size()-1; idx>=0; idx-- )
+    {
+	const Pick::Location& loc = ( *set_ )[idx];
+	if ( selector.includes(loc.pos_) )
+	{
+	    removePick( idx, false );
+	    changed = true;
+	}
+    }
+    return changed;
 }
 
 
@@ -932,7 +954,6 @@ bool LocationDisplay::usePar( const IOPar& par )
 
     return true;
 }
-
 
 
 }; // namespace visSurvey

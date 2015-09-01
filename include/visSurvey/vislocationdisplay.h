@@ -77,6 +77,7 @@ public:
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void                fillPar(IOPar&) const;
     virtual bool                usePar(const IOPar&);
+    virtual void		setSelectionMode(bool){};
 
     int				getPickIdx(visBase::DataObject*) const;
 
@@ -103,6 +104,7 @@ protected:
     virtual bool		isMarkerClick(
 					const visBase::EventInfo& evi)const;
     virtual void		updateDragger() {};
+    virtual bool		removeSelections() { return false; }
 
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
     void			triggerDeSel();
@@ -135,6 +137,8 @@ protected:
     int				mousepressid_;
     int				pickedsobjid_; //!< Picked SurveyObject ID
     int				voiidx_;
+    bool			ctrldown_;
+    ObjectSet< Selector<Coord3> >   selectors_;
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;
@@ -151,6 +155,11 @@ protected:
     Sower*			sower_;
     Coord3			undoloccoord_;
     bool			undomove_;
+    bool			selectionmodel_;
+
+private:
+    bool			removePicks(const Selector<Coord3>&);
+
 };
 
 };
