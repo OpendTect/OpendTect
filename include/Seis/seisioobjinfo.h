@@ -89,6 +89,7 @@ public:
     };
 
     // 2D only
+    void		getGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		getLineNames( BufferStringSet& b,
 				      Opts2D o2d=Opts2D() ) const
 				{ getNms(b,o2d); }
