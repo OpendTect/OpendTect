@@ -72,6 +72,9 @@ public:
     //!<"Successfully exported <string>"
     static uiString phrThreeDots(const uiString& string,bool immediate=false);
     //!<string> ...
+    static uiString phrWriting(const uiString&);
+    //!<"Writing <string>"
+
 
 //Words
     static uiString s2D();
@@ -237,6 +240,7 @@ public:
     static uiString sWells()		{ return sWell(mPlural); }
     static uiString sWellLog(int num=1);
     static uiString sWiggle()		{ return tr("Wiggle"); }
+    static uiString sWriting()		{ return tr("Writing"); }
     static uiString sYes()		{ return tr("Yes"); }
     static uiString sSet()		{ return tr("Set"); }
     static uiString sZUnit()		{ return tr("Z-unit"); }

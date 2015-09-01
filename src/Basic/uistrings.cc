@@ -88,6 +88,9 @@ uiString uiStrings::phrReading( const uiString& string )
 uiString uiStrings::phrSuccessfullyExported( const uiString& string )
 { return tr( "Successfully exported %1").arg( string );}
 
+uiString uiStrings::phrWriting( const uiString& string )
+{ return tr( "Writing %1").arg( string ); }
+
 uiString uiStrings::s2D()
 { return tr("2D"); }
 
