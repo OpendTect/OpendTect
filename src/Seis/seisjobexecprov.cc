@@ -259,7 +259,7 @@ MultiID SeisJobExecProv::tempStorID() const
 	mDynamicCastGet(const IOStream*,iostrm,ioobj)
 	if ( !iostrm || !iostrm->isMulti() ) continue;
 
-	if ( fnm == iostrm->fileName() )
+	if ( fnm == iostrm->fileSpec().fileName() )
 	    return iostrm->key();
     }
 
@@ -276,18 +276,15 @@ MultiID SeisJobExecProv::tempStorID() const
 	ctio_.ioobj->pars() = outioobjpars_;
 	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj)
 	fp.add( "i.*" );
-	if ( todoinls_.start != todoinls_.stop || todoinls_.start != 0 )
-	    iostrm->fileNumbers() = todoinls_;
-	else
+	StepInterval<int> inls( todoinls_ );
+	if ( inls.start == 0 && inls.stop == 0 )
 	{
-	    // That cannot be right.
-	    StepInterval<int> fnrs;
-	    fnrs.start = SI().sampling(false).hsamp_.start_.inl();
-	    fnrs.stop = SI().sampling(false).hsamp_.stop_.inl();
-	    fnrs.step = SI().sampling(false).hsamp_.step_.inl();
-	    iostrm->fileNumbers() = fnrs;
+	    inls.start = SI().sampling(false).hsamp_.start_.inl();
+	    inls.stop = SI().sampling(false).hsamp_.stop_.inl();
+	    inls.step = SI().sampling(false).hsamp_.step_.inl();
 	}
-	iostrm->setFileName( fp.fullPath() );
+	iostrm->fileSpec().nrs_ = inls;
+	iostrm->fileSpec().setFileName( fp.fullPath() );
 	IOM().commitChanges( *iostrm );
 	ctio_.setObj(0);
     }

@@ -294,21 +294,23 @@ BufferString uiObjFileMan::getFileInfo()
     {
 	int nrfiles = 0;
 	const IOStream* iostrm = getIOStream( *curioobj_ );
+	const BufferString usrnm = iostrm->fileSpec().dispName();
 	if ( iostrm->isMulti() )
-	    nrfiles = iostrm->fileNumbers().nrSteps() + 1;
+	    nrfiles = iostrm->nrFiles();
 
 	const od_int64 totsz = getFileSize( fname, nrfiles );
 	const BufferString fileszstr( File::getFileSizeString( totsz ) );
 	if ( isdir )
 	{
-	    txt.add( "\nDirectory name: " ).add( fname );
+	    txt.add( "\nDirectory name: " ).add( usrnm );
 	    txt.add( "\nTotal size on disk: " ).add( fileszstr );
 	    txt.add( "\nNumber of files: " ).add( nrfiles );
 	}
 	else
 	{
-	    FilePath fp( fname );
+	    FilePath fp( usrnm );
 	    txt.add( "\nFile name: " ).add( fp.fileName() );
+	    fp.set( fname );
 	    txt.add( "\nLocation: " ).add( fp.pathOnly() );
 	    txt.add( "\nSize: " ).add( fileszstr );
 	}

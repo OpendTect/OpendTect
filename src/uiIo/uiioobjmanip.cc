@@ -308,9 +308,9 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 	{
 	    IOStream chiostrm;
 	    chiostrm.copyFrom( iostrm );
-	    FilePath fp( iostrm->fileName() );
-	    if (trans)
-		chiostrm.setExt(trans->defExtension());
+	    FilePath fp( iostrm->fileSpec().fileName() );
+	    if ( trans )
+		chiostrm.setExt( trans->defExtension() );
 
 	    BufferString cleannm( chiostrm.name() );
 	    cleannm.clean( BufferString::NoFileSeps );
@@ -318,21 +318,22 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 	    chiostrm.genFileName();
 	    chiostrm.setName( newnm );
 
-	    FilePath deffp( chiostrm.fileName() );
+	    FilePath deffp( chiostrm.fileSpec().fileName() );
 	    fp.setFileName( deffp.fileName() );
-	    chiostrm.setFileName( fp.fullPath() );
+	    chiostrm.fileSpec().setFileName( fp.fullPath() );
 
-	    const bool newfnm = chiostrm.fileName()!=iostrm->fileName();
-	    if (newfnm && !doReloc(trans, *iostrm, chiostrm))
+	    const bool newfnm = FixedString(chiostrm.fileSpec().fileName())
+					    != iostrm->fileSpec().fileName();
+	    if ( newfnm && !doReloc(trans,*iostrm,chiostrm) )
 	    {
 		if ( newnm.contains('/') || newnm.contains('\\') )
 		{
 		    newnm.clean( BufferString::AllowDots );
 		    chiostrm.setName( newnm );
 		    chiostrm.genFileName();
-		    deffp.set( chiostrm.fileName() );
+		    deffp.set( chiostrm.fileSpec().fileName() );
 		    fp.setFileName( deffp.fileName() );
-		    chiostrm.setFileName( fp.fullPath() );
+		    chiostrm.fileSpec().setFileName( fp.fullPath() );
 		    chiostrm.setName( iostrm->name() );
 		    if (!doReloc(trans, *iostrm, chiostrm))
 			return false;
@@ -396,12 +397,12 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
 }
 
 
-bool uiIOObjManipGroup::relocEntry(IOObj& ioobj, Translator* trans)
+bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
 {
     mDynamicCastGet(IOStream&,iostrm,ioobj)
     BufferString caption( "New file location for '" );
     caption += ioobj.name(); caption += "'";
-    BufferString oldfnm( iostrm.getExpandedName(true) );
+    BufferString oldfnm( iostrm.fullUserExpr() );
     BufferString filefilt;
     BufferString defext( subj_.defExt() );
     if ( !defext.isEmpty() )
@@ -421,7 +422,7 @@ bool uiIOObjManipGroup::relocEntry(IOObj& ioobj, Translator* trans)
     { uiMSG().error(tr("Selected path is not a directory")); return false; }
 
     FilePath fp( oldfnm ); fp.setPath( newdir );
-    chiostrm.setFileName( fp.fullPath() );
+    chiostrm.fileSpec().setFileName( fp.fullPath() );
     if (!doReloc(trans, iostrm, chiostrm))
 	return false;
 
@@ -430,15 +431,15 @@ bool uiIOObjManipGroup::relocEntry(IOObj& ioobj, Translator* trans)
 }
 
 
-bool uiIOObjManipGroup::readonlyEntry(IOObj& ioobj, Translator* trans,
+bool uiIOObjManipGroup::readonlyEntry( IOObj& ioobj, Translator* trans,
 				       bool set2ro )
 {
-    const bool exists = trans ? trans->implExists(&ioobj, true)
-			      : ioobj.implExists(true);
+    const bool exists = trans ? trans->implExists( &ioobj, true )
+			      : ioobj.implExists( true );
     if ( !exists )
 	return false;
 
-    const bool oldreadonly = trans ? trans->implReadOnly(&ioobj)
+    const bool oldreadonly = trans ? trans->implReadOnly( &ioobj )
 				   : ioobj.implReadOnly();
     bool newreadonly = set2ro;
     if ( oldreadonly == newreadonly )
@@ -446,8 +447,8 @@ bool uiIOObjManipGroup::readonlyEntry(IOObj& ioobj, Translator* trans,
 
     if (trans)
     {
-	trans->implSetReadOnly(&ioobj, newreadonly);
-	newreadonly = trans->implReadOnly(&ioobj);
+	trans->implSetReadOnly( &ioobj, newreadonly );
+	newreadonly = trans->implReadOnly( &ioobj );
     }
     else
     {
@@ -466,9 +467,9 @@ bool uiIOObjManipGroup::readonlyEntry(IOObj& ioobj, Translator* trans,
 bool uiIOObjManipGroup::doReloc(Translator* trans, IOStream& iostrm,
 				 IOStream& chiostrm )
 {
-    const bool oldimplexist = trans ? trans->implExists(&iostrm, true)
-				    : iostrm.implExists(true);
-    BufferString newfname( chiostrm.getExpandedName(true) );
+    const bool oldimplexist = trans ? trans->implExists( &iostrm, true )
+				    : iostrm.implExists( true );
+    const BufferString newfname( chiostrm.fullUserExpr() );
 
     bool succeeded = true;
     if ( oldimplexist )
@@ -479,12 +480,12 @@ bool uiIOObjManipGroup::doReloc(Translator* trans, IOStream& iostrm,
 	    return false;
 
 	CallBack cb( mCB(this,uiIOObjManipGroup,relocCB) );
-	succeeded = trans ? trans->implRename(&iostrm, newfname, &cb)
+	succeeded = trans ? trans->implRename( &iostrm, newfname, &cb )
 			  : iostrm.implRename( newfname, &cb );
     }
 
     if ( succeeded )
-	iostrm.setFileName( newfname );
+	iostrm.fileSpec().setFileName( newfname );
     else
 	uiMSG().error(tr("Relocation failed"));
     return succeeded;

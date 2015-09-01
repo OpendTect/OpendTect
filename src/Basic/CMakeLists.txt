@@ -57,6 +57,7 @@ set( OD_MODULE_SOURCES
 	factory.cc
 	file.cc
 	filepath.cc
+	filespec.cc
 	genc.cc
 	globexpr.cc
 	iopar.cc

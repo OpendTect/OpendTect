@@ -56,7 +56,8 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
 	   ( is2d_ ? mTranslGroupName(SeisTrc2D) : mTranslGroupName(SeisTrc) )
 	 : ( is2d_ ? mTranslGroupName(SeisPS2D) : mTranslGroupName(SeisPS3D)) );
     iostrm.setTranslator( CBVSSeisTrcTranslator::translKey() );
-    iostrm.setFileName( fnm && *fnm ? fnm : StreamProvider::sStdIO() );
+    iostrm.fileSpec().setFileName( fnm && *fnm ? fnm
+						: StreamProvider::sStdIO() );
     setIOObj( &iostrm );
 }
 

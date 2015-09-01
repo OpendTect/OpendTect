@@ -161,7 +161,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	}
     }
 
-    FileSpec fs;
+    SEGY::FileSpec fs;
     fs.usePar( pars_ );
 
     Executor* exec = 0;

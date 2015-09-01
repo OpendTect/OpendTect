@@ -13,10 +13,9 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "ranges.h"
+#include "filespec.h"
 #include "coord.h"
 #include "samplingdata.h"
-#include "bufstringset.h"
 #include "seistype.h"
 #include "segythdef.h"
 class IOObj;
@@ -29,44 +28,18 @@ namespace SEGY
 
 /*\brief Definition of input / output file(s)  */
 
-mExpClass(Seis) FileSpec
+mExpClass(Seis) FileSpec : public ::FileSpec
 {
 public:
 
-			FileSpec(const char* fnm=0);
-			FileSpec(const IOPar&);
+			FileSpec( const char* fnm=0 )
+			    : ::FileSpec(fnm)		{}
+			FileSpec( const IOPar& iop )
+			    : ::FileSpec(iop)		{}
 
-    BufferStringSet	fnames_;
-    StepInterval<int>	nrs_;
-    int			zeropad_;	//!< pad zeros to this length
-
-    bool		isEmpty() const
-			{ return fnames_.isEmpty() || fnames_.get(0).isEmpty();}
-    bool		isMulti() const		{ return nrFiles() > 1; }
-    bool		isRangeMulti() const;
-    int			nrFiles() const	;
-    const char*		fileName(int nr=0) const;
-    const char*		dispName() const;	//!< for titles etc
-    const char*		usrStr() const;		//!< the typed filename
-
-    void		setEmpty()
-			{ fnames_.setEmpty(); mSetUdf(nrs_.start); }
-    void		setFileName( const char* nm )
-			{ fnames_.setEmpty(); if ( nm && *nm ) fnames_.add(nm);}
     IOObj*		getIOObj(bool temporary,int nr=0) const;
 
-    void		getMultiFromString(const char*);
-    static const char*	sKeyFileNrs();
-
-    static void		ensureWellDefined(IOObj&);
     static void		fillParFromIOObj(const IOObj&,IOPar&);
-
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-    void		getReport(IOPar&,bool isrev0) const;
-
-    static void		makePathsRelative(IOPar&,const char* todir=0);
-			//< default is survey directory
 
 };
 

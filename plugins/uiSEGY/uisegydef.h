@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
-namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
+namespace SEGY { class TrcHeaderDef; }
 class uiLabel;
 class uiButton;
 class uiCheckBox;
@@ -78,8 +78,8 @@ public:
     void		use(const IOObj*,bool force);
     void		setFileName(const char*);
 
-    FileSpec		getSpec() const;
-    void		setSpec(const FileSpec&);
+    SEGY::FileSpec	getSpec() const;
+    void		setSpec(const SEGY::FileSpec&);
 
     void		setInp2D(bool);
     bool		isProbablySwapped() const	{ return swpd_; }

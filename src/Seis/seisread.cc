@@ -191,7 +191,7 @@ bool SeisTrcReader::isMultiConn() const
 {
     return !psioprov_ && !is2d_ && !entryis2d
 	&& ioobj_ && ioobj_->hasConnType(StreamConn::sType())
-	&& ((IOStream*)ioobj_)->multiConn();
+	&& ((IOStream*)ioobj_)->isMultiConn();
 }
 
 
@@ -199,7 +199,7 @@ Conn* SeisTrcReader::openFirst()
 {
     mDynamicCastGet(IOStream*,iostrm,ioobj_)
     if ( iostrm )
-	iostrm->setConnNr( iostrm->fileNumbers().start );
+	iostrm->resetConnIdx();
 
     Conn* conn = ioobj_->getConn( Conn::Read );
     const char* fnm = ioobj_->fullUserExpr( Conn::Read );
@@ -211,7 +211,7 @@ Conn* SeisTrcReader::openFirst()
 	    while ( !conn || conn->isBad() )
 	    {
 		delete conn; conn = 0;
-		if ( !iostrm->toNextConnNr() ) break;
+		if ( !iostrm->toNextConnIdx() ) break;
 
 		conn = ioobj_->getConn( Conn::Read );
 	    }
@@ -635,7 +635,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     // Multiconn is only used for multi-machine data collection nowadays
     strl()->cleanUp(); setSelData( 0 );
     IOStream* iostrm = (IOStream*)ioobj_;
-    if ( !iostrm->toNextConnNr() )
+    if ( !iostrm->toNextConnIdx() )
 	return 0;
 
     Conn* conn = iostrm->getConn( Conn::Read );
@@ -643,7 +643,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     while ( !conn || conn->isBad() )
     {
 	delete conn; conn = 0;
-	if ( !iostrm->toNextConnNr() ) return 0;
+	if ( !iostrm->toNextConnIdx() ) return 0;
 
 	conn = iostrm->getConn( Conn::Read );
     }

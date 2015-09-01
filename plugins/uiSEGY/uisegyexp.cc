@@ -335,7 +335,7 @@ IOObj* getSubstIOObj( const char* fullfnm )
     IOObj* newioobj = outioobj_.clone();
     newioobj->setName( fullfnm );
     mDynamicCastGet(IOStream*,iostrm,newioobj)
-    iostrm->setFileName( fullfnm );
+    iostrm->fileSpec().setFileName( fullfnm );
     return newioobj;
 }
 
@@ -400,7 +400,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     const IOObj* inioobj = seissel_->ioobj(true);
     if ( !inioobj )
 	mErrRet( tr("Please select the data to export") )
-    const FileSpec sfs( fsfld_->getSpec() );
+    const SEGY::FileSpec sfs( fsfld_->getSpec() );
     if ( sfs.isEmpty() )
 	mErrRet( tr("Please select the output file") )
 
