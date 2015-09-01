@@ -343,6 +343,24 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 	continue
 
 
+void SeisIOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+{
+    if ( !isOK() )
+	return;
+
+    if ( isPS() )
+    {
+	SPSIOPF().getGeomIDs( *ioobj_, geomids );
+	return;
+    }
+
+    if ( !is2D() ) return;
+
+    PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj_ );
+    dset->getGeomIDs( geomids );
+}
+
+
 void SeisIOObjInfo::getNms( BufferStringSet& bss,
 			    const SeisIOObjInfo::Opts2D& o2d ) const
 {
