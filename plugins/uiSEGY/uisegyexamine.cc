@@ -173,7 +173,7 @@ void uiSEGYExamine::dispSeis( CallBacker* )
     uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this,
 				uiSeisTrcBufViewer::Setup(wintitle) );
     vwr->selectDispTypes( true, true );
-    vwr->setTrcBuf( tbuf_, Seis::Line, "SEG-Y.Examine", "SEG-Y Examiner" );
+    vwr->setTrcBuf( tbuf_, Seis::Line, "SEG-Y.Examine", "sample value" );
     vwr->start(); vwr->handleBufChange();
 }
 
