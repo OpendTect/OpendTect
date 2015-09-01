@@ -73,12 +73,13 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     addButtons();
     uiGroup* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
     wvltdispgrp->attach( rightOf, selgrp_ );
-
-    uiFunctionDisplay::Setup fdsu;
+    
+    uiFunctionDisplay::Setup fdsu;   
     fdsu.drawborder( true );
-       
+        
     waveletdisplay_ = new uiFunctionDisplay( wvltdispgrp, fdsu );
-    const BufferString ztxt( "Z ", SI().getZUnitString() );
+    const BufferString ztxt( (SI().zIsTime() ? "Time " : "Depth "), 
+			      SI().getZUnitString() );
     waveletdisplay_->xAxis()->setCaption( ztxt );
     waveletdisplay_->yAxis(false)->setCaption( uiStrings::sAmplitude() );
 
@@ -101,6 +102,13 @@ uiSeisWvltMan::~uiSeisWvltMan()
 
     if ( wvltpropdlg_ )
 	delete wvltpropdlg_;
+}
+
+
+static void reSampleWavelet( Wavelet &resampledwvlt )
+{
+    const float minstepval = 1.f/SI().zDomain().userFactor();
+    resampledwvlt.reSample(minstepval);
 }
 
 
@@ -229,7 +237,7 @@ void uiSeisWvltMan::mkFileInfo()
 {
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
-    dispWavelet( wvlt );  
+    dispWavelet( wvlt );
     if ( wvlt )
     {
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
@@ -275,9 +283,12 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
+    
     wvlt->setName( curioobj_->name().buf() );
 
-    wvltpropdlg_ = new uiWaveletDispPropDlg( this, *wvlt );
+    Wavelet resampledwvlt( *wvlt );
+    reSampleWavelet( resampledwvlt );
+    wvltpropdlg_ = new uiWaveletDispPropDlg( this, resampledwvlt );
     if ( wvltpropdlg_ ->go() )
     { delete wvltpropdlg_; wvltpropdlg_ = 0; }
 
@@ -320,7 +331,7 @@ void uiSeisWvltMan::reversePolarity( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
-
+    
     float* samps = wvlt->samples();
     for ( int idx=0; idx<wvlt->size(); idx++ )
 	samps[idx] *= -1;
@@ -361,7 +372,7 @@ void uiSeisWvltMan::taper( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
-
+    
     uiSeisWvltTaperDlg dlg( this, *wvlt );
     BufferString title( "Taper '", curioobj_->name(), "'" );
     dlg.setCaption( title.buf() );
@@ -381,7 +392,7 @@ void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 {
     mDynamicCastGet(uiSeisWvltRotDlg*,dlg,cb);
     if ( !dlg ) mErr();
-
+    
     const Wavelet* wvlt = dlg->getWavelet();
     if ( !wvlt ) mErr();
 
@@ -398,11 +409,12 @@ void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 	waveletdisplay_->setEmpty();
 	return;
     }	
-    
-    const int wvltsz = wvlt->size();
-    const float zfac = mCast(float,SI().zDomain().userFactor());
+    Wavelet resampledwvlt( *wvlt );
+    reSampleWavelet( resampledwvlt );
+    const int wvltsz = resampledwvlt.size();
     StepInterval<float> intxval;
-    intxval.setFrom( wvlt->samplePositions() );
+    intxval.setFrom( resampledwvlt.samplePositions() );
+    const float zfac = mCast(float,SI().zDomain().userFactor());
     intxval.scale( zfac );
-    waveletdisplay_->setVals( intxval, wvlt->samples() , wvltsz );
+    waveletdisplay_->setVals( intxval, resampledwvlt.samples() , wvltsz );
 } 
