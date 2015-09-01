@@ -102,7 +102,11 @@ public:
         KeyMap::iterator itr = mKeyMap.find(event->key());
         if (itr == mKeyMap.end())
         {
-            return int(*(event->text().toLatin1().data()));
+	    int res = int(*(event->text().toLatin1().data()));
+	    if ( res>=1 && res<=26 )	// In case of Ctrl + a-z
+		res += 96;
+
+            return res;
         }
         else
             return itr->second;
