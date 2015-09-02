@@ -192,7 +192,7 @@ Threads::unlockSimpleSpinLock( nm )
 #define mDefineStaticLocalObject( type, var, init ) \
 mLockStaticInitLock( static##var##lck__ ); \
 static type var init; \
-mUnlockStaticInitLock( static##var##lck__ )
+mUnlockStaticInitLock( static##var##lck__ );
 
 
 //--- Single-shot initialization support
