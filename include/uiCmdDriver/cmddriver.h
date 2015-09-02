@@ -101,7 +101,7 @@ enum WinStateType { NoState=0, Existent, Inexistent, Accessible, Inaccessible };
 
 
 mExpClass(uiCmdDriver) CmdDriver : public CallBacker
-{
+{ mODTextTranslationClass(CmdDriver)
 public:
     friend class 	Command;
     friend class 	ExprInterpreter;

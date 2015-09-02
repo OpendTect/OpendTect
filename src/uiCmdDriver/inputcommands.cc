@@ -166,7 +166,7 @@ void ComboInputActivator::actCB( CallBacker* cb )
 	{
 	    const char* txt = actobj_.text();
 	    if ( !actobj_.isPresent(txt) )
-		actobj_.addItem( txt );
+		actobj_.addItem( toUiString(txt) );
 
 	    actobj_.setCurrentItem( txt );
 	    actobj_.selectionChanged.trigger();

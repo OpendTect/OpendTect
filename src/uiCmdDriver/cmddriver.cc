@@ -535,7 +535,8 @@ void CmdDriver::prepareForResume()
 		if ( winstatetype_ == NoState )
 		{
 		    InteractSpec ispec( false );
-		    ispec.dlgtitle_= "Waiting for OpendTect to become inactive";
+		    ispec.dlgtitle_= 
+			tr("Waiting for OpendTect to become inactive");
 		    ispec.cancelbuttext_ = uiStrings::sHide();
 		    interact( &ispec );
 		}

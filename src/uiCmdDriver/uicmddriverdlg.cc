@@ -93,7 +93,8 @@ const char* optstrs[] = { "Run", "Record", 0 };
 
 uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			    const char* defscriptsdir, const char* deflogdir )
-        : uiDialog( 0, Setup( controllerTitle(), "Specify your command script",
+        : uiDialog( 0, Setup( mToUiStringTodo(controllerTitle()),
+			      tr("Specify your command script"),
 			      mODHelpKey(mmcmddriverimpsHelpID) ).modal(false))
 	, drv_(d), rec_(r)
 	, inpfldsurveycheck_(false)
@@ -106,17 +107,21 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
     setCtrlStyle( CloseOnly );
     setCancelText( uiStrings::sHide() );
 
-    cmdoptionfld_ = new uiLabeledComboBox( this, optstrs, "Select script to" );
+    cmdoptionfld_ = new uiLabeledComboBox( this, optstrs, 
+						      tr("Select script to") );
     cmdoptionfld_->box()->selectionChanged.notify(
 					  mCB(this,uiCmdDriverDlg,selChgCB) );
 
-    tooltipfld_ = new uiCheckBox( this, "ToolTipNameGuide",
+    tooltipfld_ = new uiCheckBox( this, tr("ToolTipNameGuide"),
 				  mCB(this,uiCmdDriverDlg,toolTipChangeCB) );
     tooltipfld_->attach( rightOf, cmdoptionfld_ );
     tooltipfld_->setChecked( GetEnvVarYN("DTECT_USE_TOOLTIP_NAMEGUIDE") );
     toolTipChangeCB(0);
 
-    inpfld_ = new uiFileInput( this, "Input command file",
+    const uiString commandfile = tr( "command file" );
+
+    inpfld_ = new uiFileInput( this, 
+			uiStrings::phrInput(commandfile),
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.filter("Script files (*.odcmd *.cmd)")
 			.forread(true)
@@ -125,7 +130,8 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.displaylocalpath(true) );
     inpfld_->attach( alignedBelow, cmdoptionfld_ );
 
-    logfld_ = new uiFileInput( this, "Output log file",
+    logfld_ = new uiFileInput( this, 
+			uiStrings::phrOutput(uiStrings::sLogFile()),
 			uiFileInput::Setup()
 			.forread(false)
 			.withexamine(true)
@@ -133,7 +139,8 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.displaylocalpath(true) );
     logfld_->attach( alignedBelow, inpfld_ );
 
-    outfld_ = new uiFileInput( this, "Output command file",
+    outfld_ = new uiFileInput( this, 
+			uiStrings::phrOutput(commandfile),
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.filter("Script files (*.odcmd)")
 			.forread(false)
@@ -155,7 +162,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			mCB(this,uiCmdDriverDlg,selectAbortCB), true );
     abortbut_->attach( rightOf, pausebut_ );
 
-    startbut_ = new uiPushButton( this, "Start",
+    startbut_ = new uiPushButton( this, uiStrings::sStart(),
 			mCB(this,uiCmdDriverDlg,selectStartRecordCB), true );
     startbut_->attach( alignedBelow, logfld_ );
 
@@ -292,10 +299,12 @@ static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
     int res = 1;
     if ( isRefToDataDir(fld,true) && !isRefToDataDir(fld,false) )
     {
-	BufferString msg = fld.titleText().getFullString();
-	msg += "-path is referring to previous survey!";
-	res = uiMSG().question(msg, uiStrings::sContinue(), "Reset",
-				uiStrings::sCancel(), "Warning" );
+	uiString msg =
+	    od_static_tr( "passSurveyCheck" , 
+			  "%1 - path is referring to previous survey!" )
+			.arg( fld.titleText().getFullString() );
+	res = uiMSG().question(msg, uiStrings::sContinue(), uiStrings::sReset(),
+				  uiStrings::sCancel(), uiStrings::sWarning() );
 	surveycheck = res<0;
 
 	if ( !res )
@@ -339,9 +348,9 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
 
     if ( !drv_.getActionsFromFile(fnm) )
     {
-	uiMSG().error( drv_.errMsg() );
+	uiMSG().error( mToUiStringTodo(drv_.errMsg()) );
 	return false;
-    }
+    }	   
 
     logfld_->setFileName( fp.fullPath() );
     inpfld_->setFileName( fnm );
@@ -356,14 +365,14 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
 void uiCmdDriverDlg::selectPauseCB( CallBacker* )
 {
     BufferString buttext = pausebut_->text().getFullString();
-    if ( buttext == "Resume" )
+    if ( buttext == uiStrings::sResume().getFullString()  )
     {
 	pausebut_->setText( uiStrings::sPause() );
 	drv_.pause( false );
     }
     else
     {
-	pausebut_->setText( "-Interrupting-" );
+	pausebut_->setText( sInterupting() );
 	drv_.pause( true );
     }
 }
@@ -381,9 +390,9 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
     }
 
     BufferString buttext = pausebut_->text().getFullString();
-    if ( buttext=="-Interrupting-" && ispec->dlgtitle_.isEmpty() )
+    if ( buttext==sInterupting().getFullString() && ispec->dlgtitle_.isEmpty() )
     {
-	pausebut_->setText( "Resume" );
+	pausebut_->setText( uiStrings::sResume() );
 	return;
     }
 
@@ -407,7 +416,7 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
 void uiCmdDriverDlg::selectAbortCB( CallBacker* )
 {
     drv_.abort();
-    abortbut_->setText( "-Interrupting-" );
+    abortbut_->setText( sInterupting() );
 
     pausebut_->setText( uiStrings::sPause() );
     pausebut_->setSensitive( false );
@@ -490,11 +499,12 @@ void uiCmdDriverDlg::afterSurveyChg()
 void uiCmdDriverDlg::setDefaultSelDirs()
 {
     const char* dir = defaultscriptsdir_.isEmpty() ? GetScriptsDir(0)
-						   : defaultscriptsdir_.buf();
+				: defaultscriptsdir_.buf();
     inpfld_->setDefaultSelectionDir( dir );
     outfld_->setDefaultSelectionDir( dir );
 
-    dir = defaultlogdir_.isEmpty() ? GetProcFileName(0) : defaultlogdir_.buf();
+    dir = defaultlogdir_.isEmpty() ? GetProcFileName(0) 
+		      : defaultlogdir_.buf();
     logfld_->setDefaultSelectionDir( dir );
 }
 
