@@ -108,6 +108,13 @@ Coord TrcKeySampling::toCoord( const BinID& bid ) const
 }
 
 
+TrcKey TrcKeySampling::center() const
+{
+    const BinID bid( inlRange().snappedCenter(), crlRange().snappedCenter() );
+    return TrcKey( survid_, bid );
+}
+
+
 void TrcKeySampling::set2DDef()
 {
     start_.lineNr() = start_.trcNr() = 0;
