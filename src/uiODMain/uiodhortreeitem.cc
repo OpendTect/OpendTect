@@ -303,6 +303,7 @@ void uiODHorizonTreeItem::initMenuItems()
     parentsrdlmnuitem_.text = tr("Show Parents Path");
     parentsmnuitem_.text = tr("Select Parents");
     childrenmnuitem_.text = tr("Select Children");
+    delchildrenmnuitem_.text = tr("Delete Selected Children");
     lockmnuitem_.text = uiStrings::sLock();
     unlockmnuitem_.text = tr("Unlock");
 }
@@ -446,13 +447,15 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	if ( crd.isDefined() )
 	{
 	    mAddMenuItem( trackmnu, &parentsmnuitem_, true, false );
-	    mAddMenuItem( trackmnu, &childrenmnuitem_, true, false );
 	    mAddMenuItem( trackmnu, &parentsrdlmnuitem_, true, false );
+	    mAddMenuItem( trackmnu, &childrenmnuitem_, true, false );
+	    mAddMenuItem( trackmnu, &delchildrenmnuitem_, true, false );
 	}
 	else
 	{
 	    mResetMenuItem( &parentsmnuitem_ );
 	    mResetMenuItem( &childrenmnuitem_ );
+	    mResetMenuItem( &delchildrenmnuitem_ );
 	    mResetMenuItem( &parentsrdlmnuitem_ );
 	}
 
@@ -615,6 +618,11 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
 	hd->selectChildren( tk );
+    }
+    else if ( mnuid==delchildrenmnuitem_.id )
+    {
+	hor3d->deleteChildren();
+	hd->showChildLine( false );
     }
     else if ( mnuid==lockmnuitem_.id )
 	hor3d->lockAll();
