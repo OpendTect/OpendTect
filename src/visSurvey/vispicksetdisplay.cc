@@ -243,12 +243,6 @@ void PickSetDisplay::removePosition( int idx )
     markerset_->removeMarker( idx );
     removePolylinePos( idx );
 
-    if ( idx && dragger_ && markerset_->size()>(idx-1) )
-    {
-	const visBase::Coordinates* coords = markerset_->getCoordinates();
-	const Coord3 pos = coords->getPos( idx-1 );
-    }
-
     dragger_->turnOn( false );
 }
 
