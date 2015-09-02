@@ -153,7 +153,12 @@ void uiMPEMan::keyEventCB( CallBacker* )
 	}
     }
     else if ( kev.key_ == OD::Y )
-	action = sPoly;
+    {
+	if ( OD::ctrlKeyboardButton(kev.modifier_) )
+	    action = sRedo;
+	else
+	    action = sPoly;
+    }
     else if ( kev.key_ == OD::A )
 	action = sClear;
     else if ( kev.key_==OD::D || kev.key_==OD::Delete )
@@ -164,8 +169,6 @@ void uiMPEMan::keyEventCB( CallBacker* )
 	action = sUnlock;
     else if ( kev.key_ == OD::Z && OD::ctrlKeyboardButton(kev.modifier_) )
 	action = sUndo;
-    else if ( kev.key_ == OD::Y && OD::ctrlKeyboardButton(kev.modifier_) )
-	action = sRedo;
     else if ( kev.key_ == OD::S && OD::ctrlKeyboardButton(kev.modifier_) )
 	action = sSave;
     else if ( kev.key_ == OD::S && OD::ctrlKeyboardButton(kev.modifier_)
@@ -185,8 +188,8 @@ void uiMPEMan::keyEventCB( CallBacker* )
     uiAction* action = new uiAction( txt ); \
     mnu.insertAction( action, id ); \
     action->setEnabled( enab ); \
-    action->setShortcut( sc ); \
 }
+
 void uiMPEMan::mouseEventCB( CallBacker* )
 {
     if ( MPE::engine().nrTrackersAlive() == 0 ) return;
@@ -598,6 +601,13 @@ void uiMPEMan::clearSelection()
     {
 	EM::Horizon3D* hor3d = getSelectedHorizon3D();
 	if ( hor3d ) hor3d->resetChildren();
+
+	visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+	if ( hd )
+	{
+	    hd->showChildLine( false );
+	    hd->showParentLine( false );
+	}
     }
 }
 
@@ -966,6 +976,7 @@ void uiMPEMan::trackFromSeedsAndEdges()
 
 void uiMPEMan::trackInVolume()
 {
+    /*
     updateButtonSensitivity();
 
     MPE::EMTracker* tracker = getSelectedTracker();
@@ -1015,6 +1026,7 @@ void uiMPEMan::trackInVolume()
 
     MouseCursorManager::restoreOverride();
     updateButtonSensitivity();
+    */
 }
 
 

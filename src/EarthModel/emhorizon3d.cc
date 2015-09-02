@@ -724,6 +724,9 @@ void Horizon3D::deleteChildren()
 {
     if ( !children_ ) return;
 
+    Geometry::Element* ge = sectionGeometry( sectionID(0) );
+    setBurstAlert( true );
+    if ( ge ) ge->blockCallBacks( true, false );
     const od_int64 totalnr = trackingsamp_.totalNr();
     for ( od_int64 idx=0; idx<totalnr; idx++ )
     {
@@ -733,6 +736,8 @@ void Horizon3D::deleteChildren()
 	const TrcKey& tk = trackingsamp_.atIndex( idx );
 	setZ( tk, mUdf(float), true );
     }
+    if ( ge ) ge->blockCallBacks( false, true );
+    setBurstAlert( false );
 
     resetChildren();
 }

@@ -2050,6 +2050,7 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
 
     visBase::VertexShape* line = parentline_;
     mAddLinePrimitiveSet;
+    showParentLine( true );
 }
 
 
@@ -2116,7 +2117,7 @@ void HorizonDisplay::selectChildren( const TrcKey& tkin )
 	    idxps.add( cii++ );
 	}
 
-	if ( ic.isClosed() )
+	if ( ic.isClosed() && !idxps.isEmpty() )
 	    idxps.add( idxps[0] );
 
 	mAddLinePrimitiveSet;
@@ -2124,6 +2125,19 @@ void HorizonDisplay::selectChildren( const TrcKey& tkin )
 //    }
 
     deepErase( isocontours );
+    showChildLine( true );
+}
+
+
+void HorizonDisplay::showParentLine( bool yn )
+{
+    if ( parentline_ ) parentline_->turnOn( yn );
+}
+
+
+void HorizonDisplay::showChildLine( bool yn )
+{
+    if ( childline_ ) childline_->turnOn( yn );
 }
 
 

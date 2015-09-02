@@ -42,6 +42,7 @@ public:
     void			validateSeedConMode();
     void			introduceMPEDisplay();
     void			initFromDisplay();
+    void			trackInVolume();
 
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
@@ -75,7 +76,6 @@ protected:
 
     void			trackFromSeedsOnly();
     void			trackFromSeedsAndEdges();
-    void			trackInVolume();
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
     void			retrackAll();
