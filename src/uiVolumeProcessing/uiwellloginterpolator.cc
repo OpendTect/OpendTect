@@ -96,6 +96,7 @@ uiWellLogInterpolator::~uiWellLogInterpolator()
 
 void uiWellLogInterpolator::finaliseCB( CallBacker* )
 {
+    layermodelfld_->setModel( hwinterpolator_.getLayerModel() );
     initWellLogSel();
 }
 
