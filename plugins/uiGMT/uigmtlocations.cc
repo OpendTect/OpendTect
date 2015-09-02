@@ -47,6 +47,7 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
     inpfld_->selectionDone.notify( mCB(this,uiGMTLocationsGrp,objSel) );
 
     namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
+    namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( alignedBelow, inpfld_ );
 
     symbfld_ = new uiGMTSymbolPars( this, false );

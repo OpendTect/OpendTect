@@ -43,10 +43,12 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
 	    			tr("UTM zone / CM") );
     utmfld_ = lsb->box();
+    utmfld_->setHSzPol( uiObject::Medium );
     utmfld_->setInterval( 1, 60 );
     utmfld_->setPrefix( tr("Zone ") );
     utmfld_->valueChanging.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
     cmfld_ = new uiSpinBox( this );
+    cmfld_->setHSzPol( uiObject::Medium );
     cmfld_->setInterval( 3, 177 );
     cmfld_->setStep( 6, true );
     cmfld_->attach( rightTo, lsb );
