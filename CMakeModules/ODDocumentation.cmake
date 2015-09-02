@@ -103,7 +103,7 @@ if ( BUILD_USERDOC )
 			    -project "${USERDOC_PROJECT}"
 			    -target ${USERDOC_TARGET}
 			    COMMENT "Building user documentation" )
-	install( DIRECTORY ${USERDOC_OUTPUT_DIR}/ DESTINATION ${MISC_INSTALL_PREFIX}doc/${USERDOC_NAME} )
+	install( DIRECTORY ${USERDOC_OUTPUT_DIR}/ DESTINATION ${MISC_INSTALL_PREFIX}/doc/${USERDOC_NAME} )
     endif( WIN32 )
 
 endif( BUILD_USERDOC )
