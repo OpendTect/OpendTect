@@ -100,6 +100,10 @@ protected:
     BufferString		defaultlogdir_;
 
     uiCmdInteractDlg*		interactdlg_;
+
+private:
+
+    static uiString sInterupting() { return tr("-Interupting-"); }
 };
 
 

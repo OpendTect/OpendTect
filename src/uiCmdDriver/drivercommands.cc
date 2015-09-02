@@ -298,9 +298,9 @@ bool PauseCmd::act( const char* parstr )
     fms.setSepChar( '\n' );
 
     InteractSpec ispec;
-    ispec.dlgtitle_ = "Execution of command script has been paused";
-    ispec.infotext_ = fms.unescapedStr();
-    ispec.cancelbuttext_ = "Resume";
+    ispec.dlgtitle_ = tr("Execution of command script has been paused");
+    ispec.infotext_ = toUiString( fms.unescapedStr() );
+    ispec.cancelbuttext_ = uiStrings::sResume();
 
     interact( &ispec );
 
@@ -352,8 +352,8 @@ bool GuideCmd::act( const char* parstr )
     InteractSpec ispec;
     ispec.launchpad_ = curWin();
     ispec.cursorshape_ = MouseCursor::Arrow;
-    ispec.dlgtitle_ = "Guiding information";
-    ispec.infotext_ = fms.unescapedStr();
+    ispec.dlgtitle_ = tr("Guiding information");
+    ispec.infotext_ = toUiString( fms.unescapedStr() );
 
     if ( !userresume )
     {
@@ -364,7 +364,7 @@ bool GuideCmd::act( const char* parstr )
 	}
     }
     else
-	ispec.cancelbuttext_ = "Done";
+	ispec.cancelbuttext_ = uiStrings::sDone();
 
     interact( &ispec );
     return true;
