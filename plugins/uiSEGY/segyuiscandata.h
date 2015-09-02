@@ -26,6 +26,7 @@ namespace SEGY
 
 class TrcHeader;
 class TrcHeaderDef;
+class OffsetCalculator;
 
 
 /*!\brief Basic data from a SEG-Y fle */
@@ -67,6 +68,8 @@ public:
     void		reInit(bool alsohdef);
 
     float		coordscale_;
+    FileReadOpts::PSDefType psoffssrc_;
+    SamplingData<float>	psoffsdef_;
 
     TrcHeaderDef*	hdrdef_;
 
@@ -112,8 +115,10 @@ public:
 
 protected:
 
+    float		curoffs_;
+
     bool		addTrace(od_istream&,bool,char*,float*,const LoadDef&,
-				 DataClipSampler&);
+				 DataClipSampler&,const OffsetCalculator&);
     void		addValues(DataClipSampler&,const float*, int);
 
     friend class	FullUIScanner;

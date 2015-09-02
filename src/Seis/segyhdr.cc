@@ -772,7 +772,7 @@ double SEGY::TrcHeader::getCoordScale( float extcoordsc ) const
 }
 
 
-Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc )
+Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc ) const
 {
     double scale = getCoordScale( extcoordsc );
     Coord ret(	entryVal( rcv?EntryGx():EntrySx() ),

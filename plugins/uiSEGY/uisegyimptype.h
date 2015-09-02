@@ -34,6 +34,8 @@ public:
 							  : types_[tidx_]); }
     bool		isVSP() const
 			{ return types_[tidx_] > Seis::LinePS; }
+    bool		is2D() const	{ return Seis::is2D(geomType()); }
+    bool		isPS() const	{ return Seis::isPS(geomType()); }
 
     void		setGeomType(Seis::GeomType);
     void		setIsVSP()

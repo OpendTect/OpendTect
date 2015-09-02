@@ -69,7 +69,6 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, curoffs_(-1)
 	, curcoord_(mUdf(float),0)
 	, prevoffs_(0)
-	, offsdef_(0,1)
 	, othdomain_(false)
 	, bp2c_(0)
 {
@@ -299,13 +298,6 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
     if ( binhead_.isInFeet() ) ti.offset *= mFromFeetFactorF;
 
-    if ( is_prestack && fileopts_.psdef_ == SEGY::FileReadOpts::SrcRcvCoords )
-    {
-	Coord c1( trchead_.getCoord(true,fileopts_.coordscale_) );
-	Coord c2( trchead_.getCoord(false,fileopts_.coordscale_) );
-	ti.setPSFlds( c1, c2 );
-	ti.coord = Coord( (c1.x+c2.x)*.5, (c1.y+c2.y)*.5 );
-    }
     float scfac = trchead_.postScale( filepars_.fmt_ ? filepars_.fmt_ : 1 );
     if ( mIsEqual(scfac,1,mDefEps) )
 	curtrcscale_ = 0;
@@ -535,6 +527,7 @@ bool SEGYSeisTrcTranslator::initRead_()
 	           "\nFound: %1.\nPlease 'Overrule' to set something usable")
               .arg(innrsamples_))
 
+    offsetcalc_.set( fileopts_ );
     sConn().iStream().setPosition( cEndTapeHeader );
     return true;
 }
@@ -700,21 +693,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     if ( !useinpsd_ ) ti.sampling = outsd_;
 
-    if ( fileopts_.psdef_ == SEGY::FileReadOpts::UsrDef )
-    {
-	offsdef_ = fileopts_.offsdef_;
-	const bool is2d = Seis::is2D(fileopts_.geomType());
-	if ( (is2d && !mIsUdf(prevtrcnr_) && ti.nr != prevtrcnr_) ||
-	     (!is2d && !mIsUdf(prevbid_.inl()) && ti.binid != prevbid_) )
-	    curoffs_ = -1;
-
-	if ( curoffs_ < 0 )
-	    curoffs_ = mCast( float, offsdef_.start );
-	else
-	    curoffs_ += offsdef_.step;
-
-	ti.offset = curoffs_;
-    }
+    offsetcalc_.setOffset( ti, trchead_ );
 
     curbid_.inl() = oldcurinl;
     curtrcnr_ = oldcurtrcnr;

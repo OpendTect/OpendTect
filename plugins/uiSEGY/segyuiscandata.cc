@@ -86,6 +86,8 @@ void SEGY::LoadDef::reInit( bool alsohdef )
     init();
 
     coordscale_ = mUdf(float);
+    psoffssrc_ = FileReadOpts::InFile;
+    psoffsdef_ = SamplingData<float>( 0.f, 1.f );
     if ( alsohdef )
 	{ delete hdrdef_; hdrdef_ = new TrcHeaderDef; }
 }
@@ -174,9 +176,11 @@ class FullUIScanner : public ::Executor
 public:
 
 FullUIScanner( ScanInfo& si, od_istream& strm, const LoadDef& def,
-			char* buf, float* vals, DataClipSampler& cs )
+		char* buf, float* vals, DataClipSampler& cs,
+		const SEGY::OffsetCalculator& oc )
     : ::Executor("SEG-Y scanner")
-    , si_(si) , strm_(strm), def_(def) , buf_(buf) , vals_(vals) , cs_(cs)
+    , si_(si) , strm_(strm), def_(def) , buf_(buf) , vals_(vals)
+    , cs_(cs), offscalc_(oc)
     , nrdone_(1)
 {
     totalnr_ = def_.nrTracesIn( strm );
@@ -197,7 +201,7 @@ virtual int nextStep()
 {
     for ( int idx=0; idx<10; idx++ )
     {
-	if ( !si_.addTrace(strm_,true,buf_,vals_,def_,cs_) )
+	if ( !si_.addTrace(strm_,true,buf_,vals_,def_,cs_,offscalc_) )
 	    return Finished();
 	nrdone_++;
     }
@@ -210,11 +214,13 @@ virtual int nextStep()
     char*		buf_;
     float*		vals_;
     DataClipSampler&	cs_;
+    const SEGY::OffsetCalculator& offscalc_;
     od_int64		nrdone_, totalnr_;
 
 }; // end class FullUIScanner
 
 } // namespace SEGY
+
 
 
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
@@ -240,7 +246,14 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     }
 
     usable_ = true;
-    SeisTrcInfo ti; thdr->fill( ti, def.coordscale_ );
+    SEGY::OffsetCalculator offscalc;
+    offscalc.type_ = def.psoffssrc_; offscalc.def_ = def.psoffsdef_;
+    offscalc.is2d_ = is2d; offscalc.coordscale_ = def.coordscale_;
+
+    SeisTrcInfo ti;
+    thdr->fill( ti, def.coordscale_ );
+    offscalc.setOffset( ti, *thdr );
+
     inls_.start = inls_.stop = ti.binid.inl();
     crls_.start = crls_.stop = ti.binid.crl();
     trcnrs_.start = trcnrs_.stop = ti.nr;
@@ -252,7 +265,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 
     if ( full )
     {
-	FullUIScanner fscnnr( *this, strm, def, buf, vals, cs );
+	FullUIScanner fscnnr( *this, strm, def, buf, vals, cs, offscalc );
 	uiTaskRunner tr( uiparent );
 	tr.execute( fscnnr );
 	return;
@@ -262,7 +275,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     {
 	while ( true )
 	{
-	    if ( !addTrace(strm,true,buf,vals,def,cs) )
+	    if ( !addTrace(strm,true,buf,vals,def,cs,offscalc) )
 		break;
 
 	    const bool foundranges = is2d ? trcnrs_.start != trcnrs_.stop
@@ -277,20 +290,20 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 
     // first 10 traces
     for ( int idx=0; idx<9; idx++ )
-	if ( !addTrace(strm,true,buf,vals,def,cs) )
+	if ( !addTrace(strm,true,buf,vals,def,cs,offscalc) )
 	    break;
 
     // 10 in the middle
     def.goToTrace( strm, startpos, nrtrcs_ / 2 );
     for ( int idx=0; idx<10; idx++ )
-	if ( !addTrace(strm,false,buf,vals,def,cs) )
+	if ( !addTrace(strm,false,buf,vals,def,cs,offscalc) )
 	    break;
 
     // last 10 traces
     for ( int idx=0; idx<10; idx++ )
     {
 	def.goToTrace( strm, startpos, nrtrcs_ - 1 - idx );
-	if ( !addTrace(strm,false,buf,vals,def,cs) )
+	if ( !addTrace(strm,false,buf,vals,def,cs,offscalc) )
 	    break;
     }
 }
@@ -298,13 +311,16 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 
 bool SEGY::ScanInfo::addTrace( od_istream& strm, bool wstep,
 				 char* buf, float* vals,
-				 const LoadDef& def, DataClipSampler& cs )
+				 const LoadDef& def, DataClipSampler& cs,
+				 const SEGY::OffsetCalculator& offscalc	)
 {
     PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
     if ( !thdr || !thdr->isusable )
 	return false;
 
-    SeisTrcInfo ti; thdr->fill( ti, def.coordscale_ );
+    SeisTrcInfo ti;
+    thdr->fill( ti, def.coordscale_ );
+    offscalc.setOffset( ti, *thdr );
 
     inls_.include( ti.binid.inl(), false );
     crls_.include( ti.binid.crl(), false );
