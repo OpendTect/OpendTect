@@ -18,6 +18,9 @@ static const char* joinstring = "%1 %2";
 uiString uiStrings::phrASCII( const uiString& string )
 { return toUiString(joinstring).arg( sASCII() ).arg( string ); }
 
+uiString uiStrings::phrCalculateFrom( const uiString& string )
+{ return toUiString(joinstring).arg(sCalculateFrom()).arg(string); }
+
 uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
 { return immediate ? string : toUiString( "%1 ..." ).arg( string ); }
 
@@ -45,6 +48,9 @@ uiString uiStrings::phrCannotCreateDirectory( const uiString& string )
 uiString uiStrings::phrCannotFind( const uiString& string )
 { return tr("Cannot find %1").arg( string ); }
 
+uiString uiStrings::phrCannotImport( const uiString& string )
+{ return toUiString(joinstring).arg(sCannotImport()).arg(string); }
+
 uiString uiStrings::phrCannotOpen( const uiString& string )
 { return tr("Cannot open %1").arg( string ); }
 
@@ -60,8 +66,14 @@ uiString uiStrings::phrCannotWrite( const uiString& string )
 uiString uiStrings::phrCannotWriteDBEntry( const uiString& string )
 { return phrCannotWrite( tr("database entry for %1").arg(string) ); }
 
+uiString uiStrings::phrCannotSave( const uiString& string )
+{ return toUiString(joinstring).arg(string); }
+
 uiString uiStrings::phrCreate( const uiString& string )
 { return toUiString(joinstring).arg( sCreate() ).arg( string ); }
+
+uiString uiStrings::phrDataPointSet( const uiString& string )
+{ return tr("DataPointSet").arg(string); }
 
 uiString uiStrings::phrEdit( const uiString& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
@@ -76,8 +88,14 @@ uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 uiString uiStrings::phrInput( const uiString& string )
 { return toUiString(joinstring).arg( sInput() ).arg( string ); }
 
+uiString uiStrings::phrInvalid( const uiString& string )
+{ return uiStrings::sInvalid().arg(string); }
+
 uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b )
 { return toUiString(joinstring).arg( a ).arg( b ); }
+
+uiString uiStrings::phrModify( const uiString& string )
+{ return toUiString(joinstring).arg(sModify()).arg(string); }
 
 uiString uiStrings::phrOutput( const uiString& string )
 { return toUiString(joinstring).arg( sOutput() ).arg( string ); }
@@ -88,6 +106,8 @@ uiString uiStrings::phrReading( const uiString& string )
 uiString uiStrings::phrSuccessfullyExported( const uiString& string )
 { return tr( "Successfully exported %1").arg( string );}
 
+uiString uiStrings::phrZIn( const uiString& string )
+{ return toUiString(joinstring).arg( sZIn() ).arg( string ); }
 uiString uiStrings::phrWriting( const uiString& string )
 { return tr( "Writing %1").arg( string ); }
 
@@ -111,6 +131,12 @@ uiString uiStrings::sColorTable()
 
 uiString uiStrings::sCreate()
 { return tr("Create"); }
+
+uiString uiStrings::sCalculateFrom()
+{ return tr("Calculate From"); }  
+
+uiString uiStrings::sCannotImport()
+{ return tr("Cannot Import"); }
 
 uiString uiStrings::sCantCreateHor()
 { return phrCannotCreate( tr("horizon") ); }
@@ -136,6 +162,9 @@ uiString uiStrings::sCantWriteSettings()
 uiString uiStrings::sCantOpenInpFile( int num )
 { return phrCannotOpen( tr("input file", 0, num ) ); }
 
+uiString uiStrings::sOutput()
+{ return tr("Output"); }
+
 uiString uiStrings::sCantOpenOutpFile( int num )
 { return phrCannotOpen( tr("output file", 0, num ) ); }
 
@@ -147,6 +176,9 @@ uiString uiStrings::sEdit()
 
 uiString uiStrings::sEnterValidName()
 { return tr("Please enter a valid name"); }
+
+uiString uiStrings::sExport()
+{ return tr("Export"); }
 
 uiString uiStrings::sFault( int num )
 { return tr("Fault", 0, num ); }
@@ -163,6 +195,12 @@ uiString uiStrings::sHistogram( )
 uiString uiStrings::sHorizon( int num )
 { return tr("Horizon", 0, num ); }
 
+uiString uiStrings::sImport()
+{ return tr("Import"); }
+
+uiString uiStrings::sInput()
+{ return tr("Input"); }
+
 uiString uiStrings::sInputASCIIFile()
 { return phrInput( phrASCII( sFile() )); }
 
@@ -177,6 +215,9 @@ uiString uiStrings::sLogs()
 
 uiString uiStrings::sMarker( int num )
 { return tr("Marker", 0, num); }
+
+uiString uiStrings::sModify()
+{ return tr("Modify"); }
 
 uiString uiStrings::sNew()
 { return tr("New"); }
