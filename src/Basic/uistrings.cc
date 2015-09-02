@@ -67,13 +67,10 @@ uiString uiStrings::phrCannotWriteDBEntry( const uiString& string )
 { return phrCannotWrite( tr("database entry for %1").arg(string) ); }
 
 uiString uiStrings::phrCannotSave( const uiString& string )
-{ return toUiString(joinstring).arg(string); }
+{ return toUiString(joinstring).arg(sCannotSave()).arg(string); }
 
 uiString uiStrings::phrCreate( const uiString& string )
 { return toUiString(joinstring).arg( sCreate() ).arg( string ); }
-
-uiString uiStrings::phrDataPointSet( const uiString& string )
-{ return tr("DataPointSet").arg(string); }
 
 uiString uiStrings::phrEdit( const uiString& string )
 { return toUiString(joinstring).arg( sEdit() ).arg( string ); }
@@ -89,7 +86,7 @@ uiString uiStrings::phrInput( const uiString& string )
 { return toUiString(joinstring).arg( sInput() ).arg( string ); }
 
 uiString uiStrings::phrInvalid( const uiString& string )
-{ return uiStrings::sInvalid().arg(string); }
+{ return toUiString(joinstring).arg(sInvalid()).arg(string); }
 
 uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b )
 { return toUiString(joinstring).arg( a ).arg( b ); }
@@ -107,7 +104,8 @@ uiString uiStrings::phrSuccessfullyExported( const uiString& string )
 { return tr( "Successfully exported %1").arg( string );}
 
 uiString uiStrings::phrZIn( const uiString& string )
-{ return toUiString(joinstring).arg( sZIn() ).arg( string ); }
+{ return tr( "Z in %1" ).arg( string ); }
+
 uiString uiStrings::phrWriting( const uiString& string )
 { return tr( "Writing %1").arg( string ); }
 
@@ -137,6 +135,9 @@ uiString uiStrings::sCalculateFrom()
 
 uiString uiStrings::sCannotImport()
 { return tr("Cannot Import"); }
+
+uiString uiStrings::sCannotSave()
+{ return tr("Cannot Save"); }
 
 uiString uiStrings::sCantCreateHor()
 { return phrCannotCreate( tr("horizon") ); }
@@ -207,6 +208,8 @@ uiString uiStrings::sInputASCIIFile()
 uiString uiStrings::sInputParamsMissing()
 { return tr("Input parameters missing"); }
 
+uiString uiStrings::sInvalid()
+{ return tr("Invalid"); }
 uiString uiStrings::sLoad()
 { return tr("Load"); }
 
