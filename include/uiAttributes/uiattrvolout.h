@@ -69,7 +69,7 @@ protected:
     BufferStringSet	seloutnms_;
 
 
-    const char*		jobName() const;
+    void		getJobName(BufferString& jobnm) const;
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
     Attrib::DescSet*	getFromToDoFld(TypeSet<Attrib::DescID>&,int&);

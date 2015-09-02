@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "batchjobdispatch.h"
 
 class uiBatchJobDispatcherSel;
+namespace Attrib { class DescSet; }
+class NLAModel;
 
 mExpClass(uiTools) uiBatchProcDlg : public uiDialog
 { mODTextTranslationClass(uiBatchProcDlg);
@@ -27,7 +29,7 @@ public:
 
 protected:
     virtual bool		prepareProcessing() { return true; }
-    virtual const char*		jobName() const;
+    virtual void		getJobName(BufferString& jobnm) const;
     virtual bool		fillPar(IOPar&)		=0;
     bool			acceptOK(CallBacker*);
 

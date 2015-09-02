@@ -31,22 +31,29 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace Attrib;
 
 uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
-			  const NLAModel* n, const MultiID& mid,
+			  const NLAModel* model, const MultiID& mid,
 			  const char* dlgnm )
-    : uiDialog(p,Setup(dlgnm, mNoDlgTitle, mNoHelpKey))
-    , ads_(const_cast<DescSet&>(ad))
-    , nlamodel_(n)
+    : uiBatchProcDlg(p,uiStrings::sEmptyString(),false,
+		     Batch::JobSpec::AttribEM )
+    , ads_(new Attrib::DescSet(ad))
+    , nlamodel_(0)
     , nlaid_(mid)
     , nladescid_( -1, true )
 {
-    setTitleText( uiString::emptyString() );
+    if ( model )
+	nlamodel_ = model->clone();
 
-    attrfld_ = new uiAttrSel( this, ads_, "Quantity to output" );
+    setTitleText( uiString::emptyString() );
+    attrfld_ = new uiAttrSel( pargrp_, *ads_, "Quantity to output" );
     attrfld_->setNLAModel( nlamodel_ );
     attrfld_->selectionDone.notify( mCB(this,uiAttrEMOut,attribSel) );
+}
 
-    batchfld_ = new uiBatchJobDispatcherSel( this, false,
-					     Batch::JobSpec::AttribEM );
+
+uiAttrEMOut::~uiAttrEMOut()
+{
+    delete ads_;
+    delete nlamodel_;
 }
 
 
@@ -63,7 +70,7 @@ bool uiAttrEMOut::prepareProcessing()
 }
 
 
-bool uiAttrEMOut::fillPar()
+bool uiAttrEMOut::fillPar( IOPar& iopar )
 {
     if ( nlamodel_ && attrfld_->outputNr() >= 0 )
     {
@@ -77,13 +84,12 @@ bool uiAttrEMOut::fillPar()
 
     const DescID targetid = nladescid_.isValid() ? nladescid_
 			  : attrfld_->attribID();
-    DescSet* clonedset = ads_.optimizeClone( targetid );
+    DescSet* clonedset = ads_->optimizeClone( targetid );
     if ( !clonedset )
 	return false;
 
     IOPar attrpar( "Attribute Descriptions" );
     clonedset->fillPar( attrpar );
-    IOPar& iopar = batchfld_->jobSpec().pars_;
     iopar.mergeComp( attrpar, SeisTrcStorOutput::attribkey() );
 
     if ( attrfld_->is2D() )
@@ -99,7 +105,7 @@ bool uiAttrEMOut::fillPar()
 	    iopar.set( "Input Line Set", storedid.buf() );
     }
 
-    ads_.removeDesc( nladescid_ );
+    ads_->removeDesc( nladescid_ );
     return true;
 }
 
@@ -135,7 +141,7 @@ bool uiAttrEMOut::addNLA( DescID& id )
 
     const int outputnr = attrfld_->outputNr();
     uiString errmsg;
-    EngineMan::addNLADesc( defstr, id, ads_, outputnr, nlamodel_, errmsg );
+    EngineMan::addNLADesc( defstr, id, *ads_, outputnr, nlamodel_, errmsg );
     if ( !errmsg.isEmpty() )
 	mErrRet( errmsg );
 
@@ -143,7 +149,19 @@ bool uiAttrEMOut::addNLA( DescID& id )
 }
 
 
-bool uiAttrEMOut::acceptOK( CallBacker* )
+void uiAttrEMOut::updateAttributes( const Attrib::DescSet& descset,
+				    const NLAModel* nlamodel,
+				    const MultiID& nlaid )
 {
-    return prepareProcessing() && fillPar() ? batchfld_->start() : false;
+    delete ads_;
+    ads_ = new Attrib::DescSet( descset );
+    if ( nlamodel )
+    {
+	delete nlamodel_;
+	nlamodel_ = nlamodel->clone();
+    }
+
+    attrfld_->setDescSet( ads_ );
+    attrfld_->setNLAModel( nlamodel_ );
+    nlaid_ = nlaid;
 }

@@ -524,7 +524,7 @@ void uiAttrVolOut::addNLA( Attrib::DescID& id )
 }
 
 
-const char* uiAttrVolOut::jobName() const
+void uiAttrVolOut::getJobName( BufferString& jobnm ) const
 {
-    return objfld_->getInput();
+    jobnm = objfld_->getInput();
 }

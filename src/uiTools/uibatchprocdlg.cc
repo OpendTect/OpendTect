@@ -27,9 +27,9 @@ uiBatchProcDlg::uiBatchProcDlg( uiParent* p, const uiString& dlgnm,
 }
 
 
-const char* uiBatchProcDlg::jobName() const
+void uiBatchProcDlg::getJobName( BufferString& jobnm ) const
 {
-    return "Batch_processing";
+    jobnm = "Batch_processing";
 }
 
 
@@ -38,10 +38,13 @@ bool uiBatchProcDlg::acceptOK( CallBacker* )
     if ( !prepareProcessing() )
 	return false;
 
-    batchjobfld_->setJobName( jobName() );
+    BufferString jobnm;
+    getJobName( jobnm );
+    batchjobfld_->setJobName( jobnm );
     IOPar& par = batchjobfld_->jobSpec().pars_;
     if ( !fillPar(par) )
 	return false;
 
     return batchjobfld_->start();
 }
+

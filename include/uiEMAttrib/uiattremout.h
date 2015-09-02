@@ -14,7 +14,8 @@ ________________________________________________________________________
 
 #include "uiemattribmod.h"
 #include "attribdescid.h"
-#include "uidialog.h"
+#include "uibatchprocdlg.h"
+#include "multiid.h"
 
 class NLAModel;
 class uiAttrSel;
@@ -28,25 +29,26 @@ Used for calculating attributes in relation with surfaces
 */
 
 
-mExpClass(uiEMAttrib) uiAttrEMOut : public uiDialog
+mExpClass(uiEMAttrib) uiAttrEMOut : public uiBatchProcDlg
 { mODTextTranslationClass(uiAttrEMOut);
 public:
     			uiAttrEMOut(uiParent*,const Attrib::DescSet&,
 				    const NLAModel*,const MultiID&,const char*);
-			~uiAttrEMOut()			{};
-
+			~uiAttrEMOut();
+    void		updateAttributes(const Attrib::DescSet& descset,
+					 const NLAModel* nlamodel,
+					 const MultiID& nlaid );
 protected:
 
     virtual void	attribSel(CallBacker*)		=0;
     virtual bool	prepareProcessing();
-    virtual bool	fillPar();
+    virtual bool	fillPar(IOPar&);
     bool		addNLA(Attrib::DescID&);
     void		fillOutPar(IOPar&,const char* outtyp,
 	    			   const char* idlbl,const char* outid);
-    bool		acceptOK(CallBacker*);
 
-    Attrib::DescSet&	ads_;
-    const MultiID&	nlaid_;
+    Attrib::DescSet*	ads_;
+    MultiID		nlaid_;
     Attrib::DescID	nladescid_;
     const NLAModel*	nlamodel_;
 
