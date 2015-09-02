@@ -44,9 +44,6 @@ public:
     virtual void		update();
     virtual void		updateStyle();
 
-    bool			canRemoveWithPolygon() const;
-    void			removeWithPolygon(const OD::Polygon&);
-
 protected:
     friend			class uiBaseMap;
 

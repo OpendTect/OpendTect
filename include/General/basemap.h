@@ -22,7 +22,7 @@ namespace OD { class RGBImage; }
 class MarkerStyle2D;
 class MouseEvent;
 class LineStyle;
-namespace OD{ class Polygon; }
+template <class T> class ODPolygon;
 
 /*!Object that can be painted in a basemap. */
 
@@ -84,7 +84,7 @@ public:
     virtual bool		allowHoverEvent() const		{ return true; }
 
     virtual bool		canRemoveWithPolygon() const   { return false; }
-    virtual void		removeWithPolygon(const OD::Polygon&) {} 
+    virtual void		removeWithPolygon(const ODPolygon<double>&) {} 
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
