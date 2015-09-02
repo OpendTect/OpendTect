@@ -401,7 +401,7 @@ void uiMultiWellLogSel::init()
     const OD::ChoiceMode chmode =
 	singlelog_ ? OD::ChooseOnlyOne : OD::ChooseAtLeastOne;
     uiListBox::Setup su( chmode, singlelog_ ? "Log" : uiStrings::sLogs(),
-			 singlewid_ ? uiListBox::LeftTop : uiListBox::RightTop);
+			 singlewid_ ? uiListBox::LeftTop : uiListBox::AboveMid);
     logsfld_ = new uiListBox( this, su );
     logsfld_->setHSzPol( hpol );
     logsfld_->setVSzPol( vpol );
@@ -412,7 +412,7 @@ void uiMultiWellLogSel::init()
     if ( !singlewid_ )
     {
 	uiListBox::Setup suw( OD::ChooseAtLeastOne, uiStrings::sWells(),
-			      uiListBox::LeftTop );
+			      uiListBox::AboveMid );
 	wellsfld_ = new uiListBox( this, suw );
 	wellsfld_->setHSzPol( hpol );
 	wellsfld_->setVSzPol( vpol );

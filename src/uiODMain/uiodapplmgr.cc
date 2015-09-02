@@ -53,6 +53,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannels.h"
 
 #include "attribdescset.h"
+#include "bendpointfinder.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emmanager.h"
@@ -72,6 +73,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "posinfo2d.h"
 #include "posvecdataset.h"
+#include "randomlinegeom.h"
 #include "unitofmeasure.h"
 #include "od_helpids.h"
 
@@ -1045,22 +1047,14 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     else if ( evid==uiMPEPartServer::evGetAttribData() )
     {
     }
-    else if ( evid==uiMPEPartServer::evShowToolbar() )
-	visserv_->showMPEToolbar( true );
-    else if ( evid==uiMPEPartServer::evHideToolBar() )
-	visserv_->showMPEToolbar( false );
     else if ( evid==uiMPEPartServer::evMPEDispIntro() )
 	visserv_->introduceMPEDisplay();
     else if ( evid==uiMPEPartServer::evInitFromSession() )
 	visserv_->initMPEStuff();
     else if ( evid==uiMPEPartServer::evUpdateTrees() )
 	sceneMgr().updateTrees();
-    else if ( evid==uiMPEPartServer::evUpdateSeedConMode() )
-	visserv_->updateSeedConnectMode();
     else if ( evid==uiMPEPartServer::evStoreEMObject() )
 	storeEMObject();
-    else if ( evid==uiMPEPartServer::evRetrackInVolume() )
-	visserv_->trackInVolume();
     else
     {
 	pErrMsg("Unknown event from mpeserv");
@@ -1428,14 +1422,38 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	sceneMgr().viewAll(0);
     else if ( evid == uiVisPartServer::evToHomePos() )
 	sceneMgr().toHomePos(0);
-    else if ( evid == uiVisPartServer::evShowSetupDlg() )
+    else if ( evid == uiVisPartServer::evShowMPEParentPath() )
+    {
+	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
+			visserv_->getObject(visserv_->getSelObjectId()) );
+	mDynamicCastGet(EM::Horizon3D*,hor3d,
+			EM::EMM().getObject(hd->getObjectID()))
+	if ( !hor3d || !hd || !hd->getScene() )
+	    return false;
+
+	const TrcKey tk =
+		SI().transform( hd->getScene()->getMousePos(true,true) );
+	TypeSet<TrcKey> trcs; hor3d->getParents( tk, trcs );
+	if ( trcs.isEmpty() ) return false;
+
+	BendPointFinderTrcKey bpf( trcs, 10 );
+	if ( !bpf.execute() ) return false;
+
+	const TypeSet<int>& bends = bpf.bendPoints();
+	RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
+	Geometry::RLM().add( rl );
+	for ( int idx=0; idx<bends.size(); idx++ )
+	    rl->addNode( trcs[bends[idx]].pos() );
+
+	sceneMgr().addRandomLineItem( rl->ID(), hd->getSceneID() );
+    }
+    else if ( evid == uiVisPartServer::evShowMPESetupDlg() )
     {
 	mGetSelTracker( tracker );
 	const MPE::EMSeedPicker* seedpicker = tracker ?
 					      tracker->getSeedPicker(false) : 0;
 	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
 	mpeserv_->showSetupDlg( emid, sid );
-	visserv_->updateMPEToolbar();
     }
     else if ( evid == uiVisPartServer::evShowSetupGroupOnTop() )
     {
@@ -1456,11 +1474,13 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if ( evid == uiVisPartServer::evColorTableChange() )
 	updateColorTable( visserv_->getEventObjId(),
 			  visserv_->getEventAttrib() );
-    else if ( evid == uiVisPartServer::evFromMPEManStoreEMObject() )
+    else if ( evid == uiVisPartServer::evStoreEMObject() )
 	storeEMObject();
-    else if ( evid == uiVisPartServer::evKeyPress() )
+    else if ( evid == uiVisPartServer::evKeyboardEvent() )
     {
-	mpeserv_->handleKeyboardEvent( visserv_->getKeyboardEvent() );
+    }
+    else if ( evid == uiVisPartServer::evMouseEvent() )
+    {
     }
     else
     {

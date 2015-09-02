@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndslice.h"
 #include "array2dresample.h"
 #include "attribsel.h"
-#include "basemap.h"
 #include "binidvalue.h"
 #include "datapointset.h"
 #include "flatposdata.h"
@@ -30,97 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturerect.h"
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
-
-
-
-PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
-				visSurvey::PlaneDataDisplay* pdd )
-    : BaseMapObject( pdd->name() )
-    , pdd_( pdd )
-{
-    lst_.color_ = pdd_->getOrientation()== OD::InlineSlice ?
-						Color::Red() : Color::Blue();
-}
-
-
-PlaneDataDisplayBaseMapObject::~PlaneDataDisplayBaseMapObject()
-{
-}
-
-
-int PlaneDataDisplayBaseMapObject::getDepth() const
-{ return 100; } // TODO: read from basemap factory list
-
-const char* PlaneDataDisplayBaseMapObject::getType() const
-{
-    return visSurvey::PlaneDataDisplay::getSliceTypeString(
-						pdd_->getOrientation());
-}
-
-
-void PlaneDataDisplayBaseMapObject::updateGeometry()
-{
-    setName( pdd_->getManipulationString().buf() );
-    changed.trigger();
-}
-
-
-int PlaneDataDisplayBaseMapObject::nrShapes() const
-{ return 1; }
-
-
-const char* PlaneDataDisplayBaseMapObject::getShapeName(int) const
-{
-    mDeclStaticString( ret );
-    const TrcKeyZSampling tkzs = pdd_->getTrcKeyZSampling( true, true );
-    if ( pdd_->getOrientation()== OD::InlineSlice )
-	ret = tkzs.hsamp_.start_.inl();
-    else if ( pdd_->getOrientation()==OD::CrosslineSlice )
-	ret = tkzs.hsamp_.start_.crl();
-    else
-	ret = tkzs.zsamp_.start;
-
-    return ret;
-}
-
-
-void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
-{
-    const TrcKeySampling hrg = pdd_->getTrcKeyZSampling(true,false).hsamp_;
-    const Survey::Geometry3D& survgeom = *pdd_->get3DSurvGeom();
-    if ( pdd_->getOrientation()==OD::ZSlice )
-    {
-	res += survgeom.transform(hrg.start_);
-	res += survgeom.transform(BinID(hrg.start_.inl(), hrg.stop_.crl()) );
-	res += survgeom.transform(hrg.stop_);
-	res += survgeom.transform(BinID(hrg.stop_.inl(), hrg.start_.crl()) );
-    }
-    else
-    {
-	res += survgeom.transform(hrg.start_);
-	res += survgeom.transform(hrg.stop_);
-    }
-}
-
-
-bool PlaneDataDisplayBaseMapObject::close(int) const
-{
-    return pdd_->getOrientation()==OD::ZSlice;
-}
-
-
-Alignment PlaneDataDisplayBaseMapObject::getAlignment( int ) const
-{
-    return Alignment( Alignment::Right, Alignment::VCenter );
-}
-
-
-int PlaneDataDisplayBaseMapObject::visID() const
-{ return pdd_ ? pdd_->id() : -1; }
-
-
-OD::SliceType PlaneDataDisplayBaseMapObject::orientation() const
-{ return pdd_ ? pdd_->getOrientation() : OD::InlineSlice; }
 
 
 namespace visSurvey {
@@ -233,7 +141,6 @@ PlaneDataDisplay::~PlaneDataDisplay()
     dragger_->unRef();
     gridlines_->unRef();
 
-    setBaseMap( 0 );
     undo_.removeAll();
     delete &undo_;
 }
@@ -746,8 +653,6 @@ void PlaneDataDisplay::setTrcKeyZSampling( const TrcKeyZSampling& wantedcs )
 
     //channels_->clearAll();
     movefinished_.trigger();
-    if ( basemapobj_ )
-	basemapobj_->updateGeometry();
 }
 
 
@@ -1166,10 +1071,6 @@ void PlaneDataDisplay::setScene( Scene* sc )
 }
 
 
-BaseMapObject* PlaneDataDisplay::createBaseMapObject()
-{ return new PlaneDataDisplayBaseMapObject( this ); }
-
-
 void PlaneDataDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
 {
     if ( eventcatcher_ )
@@ -1340,8 +1241,6 @@ void PlaneDataDisplay::setUpdateStageTextureTransform()
     texturerect_->setTextureGrowth( growth );
     texturerect_->setTextureShift( -startdif - growth*0.5 );
 }
-
-
 
 
 } // namespace visSurvey

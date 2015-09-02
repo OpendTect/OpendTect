@@ -17,11 +17,10 @@ ________________________________________________________________________
 #include "visscene.h"
 #include "bufstring.h"
 #include "keyboardevent.h"
+#include "mouseevent.h"
 #include "trckeyzsampling.h"
 #include "position.h"
 
-class BaseMap;
-class BaseMapMarkers;
 class MouseCursor;
 class TaskRunner;
 class FontData;
@@ -125,6 +124,7 @@ public:
     Notifier<Scene>		mouseposchange;
     Notifier<Scene>		mousecursorchange;
     Notifier<Scene>		keypressed;
+    Notifier<Scene>		mouseclicked;
     Notifier<Scene>		sceneboundingboxupdated;
     Coord3			getMousePos(bool xyt,bool displayspace) const;
 				/*! If not xyt it is inlcrlt */
@@ -132,6 +132,7 @@ public:
     BufferString		getMousePosString() const;
     const MouseCursor*		getMouseCursor() const;
     const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
+    const MouseEvent&		getMouseEvent() const	 { return mouseevent_; }
 
     void			objectMoved(CallBacker*);
 
@@ -165,8 +166,6 @@ public:
     void			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     ZAxisTransform*		getZAxisTransform();
     const ZAxisTransform*	getZAxisTransform() const;
-    void			setBaseMap(BaseMap*);
-    BaseMap*			getBaseMap();
 
     bool			isRightHandSystem() const;
 
@@ -203,7 +202,7 @@ protected:
     void			setup();
     void			updateAnnotationText();
     void			updateTransforms(const TrcKeyZSampling&);
-    void			mouseMoveCB(CallBacker*);
+    void			mouseCB(CallBacker*);
     void			keyPressCB(CallBacker*);
     visBase::MarkerSet*		createMarkerSet() const;
     void			mouseCursorCB(CallBacker*);
@@ -217,9 +216,6 @@ protected:
 
     ZAxisTransform*			datatransform_;
 
-
-    BaseMap*			basemap_;
-    BaseMapMarkers*		basemapcursor_;
 
     visBase::Annotation*	annot_;
     visBase::MarkerSet*		markerset_;
@@ -243,6 +239,7 @@ protected:
     ZDomain::Info*		zdomaininfo_;
     float			zscale_;
     KeyboardEvent		kbevent_;
+    MouseEvent			mouseevent_;
     TrcKeyZSampling		tkzs_;
     TrcKeyZSampling		annotscale_;
 

@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "welllogdisp.h"
 #include "factory.h"
 
-class BaseMapObject;
 class LineStyle;
 
 namespace visBase
@@ -148,7 +147,6 @@ public:
 protected:
 				~WellDisplay();
 
-    BaseMapObject*		createBaseMapObject();
     void			setWell(visBase::Well*);
     void			updateMarkers(CallBacker*);
     void			fullRedraw(CallBacker*);

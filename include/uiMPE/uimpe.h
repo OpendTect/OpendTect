@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
+class uiMPEPartServer;
 class uiParent;
 
 namespace Attrib { class DescSet; }
@@ -61,6 +62,7 @@ public:
     virtual bool	commitToTracker() const;
 
     virtual void	showGroupOnTop(const char* grpnm)	{}
+    virtual void	setMPEPartServer(uiMPEPartServer*)	{}
 
     BufferString	helpref_;
 };

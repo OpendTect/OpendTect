@@ -128,7 +128,7 @@ void uiBaseMapObject::update()
 
 		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
 		itm->setPolyLine( worldpts );
-		itm->setAcceptHoverEvents( true );
+		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );
 		itemnr++;
 	    }
 	    else
@@ -158,7 +158,7 @@ void uiBaseMapObject::update()
 		itm->setPolygon( worldpts );
 		itm->setFillColor( bmobject_->getFillColor(idx), true );
 		itm->fill();
-		itm->setAcceptHoverEvents( true );
+		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );
 		itemnr++;
 	    }
 	}
@@ -222,7 +222,7 @@ void uiBaseMapObject::update()
 		itm->setPenColor( ms2d->color_ );
 		itm->setFillColor( ms2d->color_ );
 		itm->setPos( crds[ptidx] );
-		itm->setAcceptHoverEvents( true );
+		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );
 		itemnr++;
 	    }
 	}

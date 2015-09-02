@@ -227,7 +227,7 @@ void uiStratTreeWin::createGroups()
     CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
     CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
     uitree_->treeView()->selectionChanged.notify( selcb );
-    uitree_->treeView()->itemRenamed.notify( renmcb );
+    uitree_->treeView()->itemChanged.notify( renmcb );
     uitree_->treeView()->display( false );
 
     if ( !uitree_->haveTimes() )

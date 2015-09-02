@@ -253,7 +253,6 @@ uiTreeView::uiTreeView( uiParent* p, const char* nm, int nl, bool dec )
     , mouseButtonClicked(this)
     , contextMenuRequested(this)
     , doubleClicked(this)
-    , itemRenamed(this)
     , expanded(this)
     , collapsed(this)
     , unusedKey(this)
@@ -811,8 +810,15 @@ void uiTreeViewItem::setBGColor( int column, const Color& color )
 }
 
 
-const char* uiTreeViewItem::text( int column ) const
+const char* uiTreeViewItem::text( int column, bool original ) const
 {
+    if ( !original )
+    {
+	mDeclStaticString( colnm );
+	colnm = qtreeitem_->text( column );
+	return colnm.buf();
+    }
+
     return texts_.validIdx(column) ? texts_[column].getFullString().buf() : 0;
 }
 

@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "array2dinterpol.h"
 #include "arrayndimpl.h"
+#include "atomic.h"
 #include "binidsurface.h"
 #include "binidvalset.h"
 #include "datapointset.h"
@@ -31,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "threadwork.h"
 #include "trigonometry.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
@@ -574,7 +576,12 @@ void Horizon3D::initTrackingArrays()
     parents_->setAll( -1 );
     lockednodes_ = new Array2DImpl<char>( nrrows, nrcols );
     lockednodes_->setAll( 0 );
+    children_ = new Array2DImpl<char>( nrrows, nrcols );
 }
+
+
+TrcKeySampling Horizon3D::getTrackingSampling() const
+{ return trackingsamp_; }
 
 
 void Horizon3D::setParent( const TrcKey& node, const TrcKey& parent )
@@ -615,8 +622,124 @@ void Horizon3D::getParents( const TrcKey& node, TypeSet<TrcKey>& parents ) const
 }
 
 
-void Horizon3D::getChildren( const TrcKey& node, TypeSet<TrcKey>& child ) const
+class FindTask : public Task
 {
+public:
+FindTask( ChildFinder& finder, od_int64 pidx )
+    : finder_(finder)
+    , pidx_(pidx)
+{
+}
+
+
+bool execute()
+{
+    TypeSet<od_int64> nbs;
+    finder_.tks_.neighbors( pidx_, nbs );
+    for ( int idx=0; idx<nbs.size(); idx++ )
+    {
+	const od_int64 childidx = nbs[idx];
+	const od_int64 parent = finder_.parents_.getData()[childidx];
+	if ( parent == pidx_ )
+	{
+	    finder_.children_.getData()[childidx] = '1';
+	    finder_.addTask( childidx );
+	}
+    }
+
+    return true;
+}
+
+    od_int64		pidx_;
+    ChildFinder&	finder_;
+};
+
+
+ChildFinder::ChildFinder( const TrcKeySampling& tks,
+			  const Array2D<od_int64>& parents,
+			  Array2D<char>& children )
+    : SequentialTask()
+    , tks_(tks)
+    , parents_(parents)
+    , children_(children)
+    , twm_(Threads::WorkManager::twm())
+{
+    queueid_ =
+	twm_.addQueue( Threads::WorkManager::MultiThread, "Child Finder" );
+    nrdone_ = 0;
+    nrtodo_ = 0;
+}
+
+
+ChildFinder::~ChildFinder()
+{
+    twm_.removeQueue( queueid_, true );
+}
+
+
+void ChildFinder::addTask( od_int64 pidx )
+{
+    Threads::Locker locker( addlock_ );
+    nrtodo_++;
+    CallBack cb( mCB(this,ChildFinder,taskFinished) );
+    Task* task = new FindTask( *this, pidx );
+    twm_.addWork( Threads::Work(*task,true), &cb, queueid_,
+		  false, false, true );
+}
+
+
+void ChildFinder::taskFinished( CallBacker* )
+{
+    Threads::Locker locker( finishlock_ );
+    nrtodo_--;
+    nrdone_++;
+}
+
+
+int ChildFinder::nextStep()
+{
+    return nrtodo_>0 ? MoreToDo() : Finished();
+}
+
+
+Array2D<char>* Horizon3D::getChildren( const TrcKey& node ) const
+{
+    if ( !children_ ) return 0;
+
+    children_->setAll( '0' );
+    od_int64 gidx = trackingsamp_.globalIdx( node );
+    ChildFinder cf( trackingsamp_, *parents_, *children_ );
+    cf.addTask( gidx );
+    cf.execute();
+
+    return children_;
+}
+
+
+void Horizon3D::resetChildren()
+{ if ( children_ ) children_->setAll( '0' ); }
+
+
+void Horizon3D::deleteChildren()
+{
+    if ( !children_ ) return;
+
+    Geometry::Element* ge = sectionGeometry( sectionID(0) );
+    setBurstAlert( true );
+    if ( ge ) ge->blockCallBacks( true, false );
+    const od_int64 totalnr = trackingsamp_.totalNr();
+    for ( od_int64 idx=0; idx<totalnr; idx++ )
+    {
+	if ( children_->getData()[idx] == '0' )
+	    continue;
+
+	const TrcKey& tk = trackingsamp_.atIndex( idx );
+	setZ( tk, mUdf(float), true );
+    }
+    if ( ge ) ge->blockCallBacks( false, true );
+    setBurstAlert( false );
+
+    resetChildren();
 }
 
 
@@ -666,13 +789,26 @@ void Horizon3D::unlockAll()
 
 
 void Horizon3D::setParentColor( const Color& col )
-{ parentcolor_ = col; /*change.trigger();*/ }
+{
+    parentcolor_ = col;
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PrefColorChange;
+    change.trigger( cbdata );
+}
+
 
 const Color& Horizon3D::getParentColor() const
 { return parentcolor_; }
 
+
 void Horizon3D::setChildColor( const Color& col )
-{ childcolor_ = col; /*change.trigger();*/ }
+{
+    childcolor_ = col;
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PrefColorChange;
+    change.trigger( cbdata );
+}
+
 
 const Color& Horizon3D::getChildColor() const
 { return childcolor_; }
@@ -868,7 +1004,7 @@ PosID Horizon3DGeometry::getNeighbor( const PosID& posid,
 
 
 int Horizon3DGeometry::getConnectedPos( const PosID& posid,
-				        TypeSet<PosID>* res ) const
+					TypeSet<PosID>* res ) const
 {
     int rescount = 0;
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
@@ -1015,7 +1151,7 @@ EMObjectIterator* Horizon3DGeometry::createIterator(
 			const SectionID& sid, const TrcKeyZSampling* cs) const
 {
     if ( !cs )
-        return new RowColIterator( surface_, sid, cs );
+	return new RowColIterator( surface_, sid, cs );
 
     const StepInterval<int> rowrg = cs->hsamp_.inlRange();
     const StepInterval<int> colrg = cs->hsamp_.crlRange();

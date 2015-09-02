@@ -224,9 +224,9 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
 	if (sipidx >= 0)
 		sipfld_->setCurrentItem(sipidx);
 	else
-		uiMSG().error(tr("The survey setup method is not available.\nProbably, this is a license issue"));
+	    uiMSG().error( tr("The survey setup method is not available.\n"
+			      "Probably, this is a license issue") );
     }
-
 }
 
 

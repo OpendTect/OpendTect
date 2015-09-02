@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 #include "uilabel.h"
 #include "uimpecorrelationgrp.h"
 #include "uimpeeventgrp.h"
+#include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
@@ -91,6 +92,7 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     , varianceChanged_(this)
     , propertyChanged_(this)
     , state_(Stopped)
+    , mps_(0)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
     uiGroup* modegrp = createModeGroup();
@@ -146,6 +148,12 @@ void uiHorizonSetupGroup::initToolBar()
 }
 
 
+void uiHorizonSetupGroup::setMPEPartServer( uiMPEPartServer* mps )
+{
+    mps_ = mps;
+}
+
+
 void uiHorizonSetupGroup::updateButtonSensitivity()
 {
     const bool enable = state_ == Stopped;
@@ -183,29 +191,9 @@ void uiHorizonSetupGroup::stopCB( CallBacker* )
 
 void uiHorizonSetupGroup::saveCB( CallBacker* )
 {
-    if ( !sectiontracker_ ) return;
+    if ( !mps_ ) return;
 
-    EM::EMObject& emobj = sectiontracker_->emObject();
-    if ( emobj.multiID().isUdf() )
-    {
-	return;
-	// call uiMPEPartServer::evStoreEMObject()
-	//emobj.setMultiID( mid );
-    }
-
-    uiTaskRunner taskrunner( this );
-    PtrMan<Executor> exec = emobj.saver();
-    if ( exec )
-	TaskRunner::execute( &taskrunner, *exec );
-
-    mDynamicCastGet(EM::Horizon3D*,hor3d,&emobj)
-    if ( hor3d )
-    {
-	ExecutorGroup execgrp( "Saving AuxData" );
-	execgrp.add( hor3d->auxdata.auxDataSaver(0,true) );
-	execgrp.add( hor3d->auxdata.auxDataSaver(1,true) );
-	execgrp.execute();
-    }
+    mps_->sendMPEEvent( uiMPEPartServer::evStoreEMObject() );
 }
 
 
@@ -425,14 +413,14 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 				.withdesc(false).lbltxt(tr("Children")) );
     childcolfld_->colorChanged.notify(
 				mCB(this,uiHorizonSetupGroup,seedColSel) );
-    childcolfld_->attach( alignedBelow, parentcolfld_ );
+    childcolfld_->attach( rightTo, parentcolfld_ );
 
     lockcolfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(Color::Orange())
 				.withdesc(false).lbltxt(tr("Locked")) );
     lockcolfld_->colorChanged.notify(
 				mCB(this,uiHorizonSetupGroup,seedColSel) );
-    lockcolfld_->attach( alignedBelow, childcolfld_ );
+    lockcolfld_->attach( alignedBelow, parentcolfld_ );
 
     return grp;
 }

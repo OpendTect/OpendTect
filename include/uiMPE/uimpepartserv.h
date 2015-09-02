@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "emtracker.h"
 
 class BufferStringSet;
-class KeyboardEvent;
 
 namespace Geometry { class Element; }
 namespace MPE { class uiSetupGroup; class DataHolder; }
@@ -103,23 +102,19 @@ public:
     				/*!<Get trackerid via activeTrackerID */
     static int			evUpdateTrees();
     static int			evUpdateSeedConMode();
-    static int			evShowToolbar();
     static int			evMPEDispIntro();
     static int			evStoreEMObject();
     static int			evSetupLaunched();
     static int			evSetupClosed();
     static int			evInitFromSession();
-    static int			evHideToolBar();
-    static int			evRetrackInVolume();
 
     void			loadTrackSetupCB(CallBacker*);
     bool 			prepareSaveSetupAs(const MultiID&);
     bool 			saveSetupAs(const MultiID&);
     bool 			saveSetup(const MultiID&);
     bool 			readSetup(const MultiID&);
-    bool			fireAddTreeObjectEvent();
 
-    void			handleKeyboardEvent(const KeyboardEvent&);
+    bool			sendMPEEvent(int);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -161,18 +156,14 @@ protected:
     void			eventChangedCB(CallBacker*);
     void			propertyChangedCB(CallBacker*);
     void			similarityChangedCB(CallBacker*);
-    void			retrackCB(CallBacker*);
 
     void			nrHorChangeCB(CallBacker*);
 
     void			noTrackingRemoval();
-    void			retrack(const EM::ObjectID&);
-
     void			cleanSetupDependents();
 
     MPE::uiSetupGroup*		setupgrp_;
 };
-
 
 #endif
 

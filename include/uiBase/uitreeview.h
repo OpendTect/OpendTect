@@ -144,7 +144,6 @@ public:
     Notifier<uiTreeView> mouseButtonClicked;
     Notifier<uiTreeView> contextMenuRequested;
     Notifier<uiTreeView> doubleClicked;
-    Notifier<uiTreeView> itemRenamed;
     Notifier<uiTreeView> expanded;
     Notifier<uiTreeView> collapsed;
     Notifier<uiTreeView> unusedKey;
@@ -262,7 +261,7 @@ public:
     void		setText( double d, int column=0 )
 			{ setText( toUiString(d), column ); }
 
-    const char*		text( int column=0 ) const;
+    const char*		text(int column=0,bool original=true) const;
 
     void		setIcon(int column,const char* iconname);
     void		setPixmap(int column,const uiPixmap&);

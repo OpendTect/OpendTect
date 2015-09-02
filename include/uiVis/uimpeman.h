@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "trckeyzsampling.h"
 
-namespace EM { class EMObject; }
+namespace EM { class EMObject; class Horizon3D; }
 namespace MPE { class EMTracker; }
-namespace visSurvey { class MPEDisplay; class MPEClickCatcher; }
+namespace visSurvey { class HorizonDisplay; class MPEClickCatcher; }
 
 class uiPropertiesDialog;
 class uiComboBox;
@@ -41,7 +41,6 @@ public:
     void			deleteVisObjects();
     void			validateSeedConMode();
     void			introduceMPEDisplay();
-    void			updateSeedModeSel();
     void			initFromDisplay();
     void			trackInVolume();
 
@@ -50,7 +49,6 @@ public:
 
     void			visObjectLockedCB(CallBacker*);
     void			updateButtonSensitivity(CallBacker* = 0);
-    void			keyPressedCB(CallBacker*);
 
 protected:
     void			addButtons();
@@ -62,31 +60,35 @@ protected:
     visSurvey::MPEClickCatcher*	clickcatcher_;
     int				clickablesceneid_;
 
-    uiComboBox*			seedconmodefld_;
+    void			mouseEventCB(CallBacker*);
+    void			keyEventCB(CallBacker*);
+    int				popupMenu();
+    void			handleAction(int);
 
-    void			undoPush(CallBacker*);
-    void			redoPush(CallBacker*);
-    void			savePush(CallBacker*);
-    void			trackFromSeedsOnly(CallBacker*);
-    void			trackFromSeedsAndEdges(CallBacker*);
-    void			trackInVolume(CallBacker*);
-    void			selectionMode(CallBacker*);
-    void			handleToolClick(CallBacker*);
-    void 			removeInPolygon(CallBacker*);
+    void			undo();
+    void			redo();
+    void			startPolySelection();
+    void			clearSelection();
+    void			deleteSelection();
+    void			removeInPolygon();
+    void			showParentsPath();
+    void			showSetupDlg();
+
+    void			trackFromSeedsOnly();
+    void			trackFromSeedsAndEdges();
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
-    void			showSettingsCB(CallBacker*);
-    void			displayAtSectionCB(CallBacker*);
-    void			retrackAllCB(CallBacker*);
+    void			retrackAll();
 
     void			updateSeedPickState();
     void			trackerAddedRemovedCB(CallBacker*);
     void			addSeedCB(CallBacker*);
-    void			seedConnectModeSel(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
 
     MPE::EMTracker*		getSelectedTracker();
+    visSurvey::HorizonDisplay*	getSelectedDisplay();
+    EM::Horizon3D*		getSelectedHorizon3D();
 
     void 			finishMPEDispIntro(CallBacker*);
 
@@ -99,14 +101,11 @@ protected:
     void			updateClickCatcher();
 
     int				seedidx_;
-    int				undoidx_, redoidx_;
-//    int 			polyselectidx_;
-//    int			removeinpolygonidx_;
-//    int			saveidx_;
 
     bool			seedpickwason_;
     bool			polyselstoppedseedpick_;
     bool			mpeintropending_;
+
     TrcKeyZSampling		oldactivevol_;
 };
 

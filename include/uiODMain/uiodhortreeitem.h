@@ -86,6 +86,7 @@ protected:
     MenuItem		parentsmnuitem_;
     MenuItem		parentsrdlmnuitem_;
     MenuItem		childrenmnuitem_;
+    MenuItem		delchildrenmnuitem_;
     MenuItem		lockmnuitem_;
     MenuItem		unlockmnuitem_;
 

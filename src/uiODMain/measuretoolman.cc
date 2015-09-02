@@ -31,7 +31,7 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     , picksetmgr_(Pick::SetMgr::getMgr("MeasureTool"))
     , measuredlg_(0)
 {
-    butidx_ = appl.menuMgr().coinTB()->addButton( "measure",
+    butidx_ = appl.menuMgr().viewTB()->addButton( "measure",
 	    "Display Distance", mCB(this,MeasureToolMan,buttonClicked), true );
 
     TypeSet<int> sceneids;
@@ -78,7 +78,7 @@ void MeasureToolMan::objSelected( CallBacker* cb )
 	if ( displayobjs_[idx]->id() == sel )
 	    isownsel = true;
 
-    appl_.menuMgr().coinTB()->turnOn( butidx_, isownsel );
+    appl_.menuMgr().viewTB()->turnOn( butidx_, isownsel );
     if ( measuredlg_ && !isownsel )
     {
 	measuredlg_->windowClosed.remove( mCB(this,MeasureToolMan,dlgClosed) );
@@ -91,7 +91,7 @@ void MeasureToolMan::objSelected( CallBacker* cb )
 
 void MeasureToolMan::dlgClosed( CallBacker* cb )
 {
-    appl_.menuMgr().coinTB()->turnOn( butidx_, false );
+    appl_.menuMgr().viewTB()->turnOn( butidx_, false );
     appl_.sceneMgr().setToViewMode( true );
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
 	visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
@@ -140,7 +140,7 @@ void MeasureToolMan::manageDlg( bool show )
 
 void MeasureToolMan::buttonClicked( CallBacker* cb )
 {
-    const bool ison = appl_.menuMgr().coinTB()->isOn( butidx_ );
+    const bool ison = appl_.menuMgr().viewTB()->isOn( butidx_ );
     manageDlg( ison );
 }
 
@@ -228,7 +228,7 @@ void MeasureToolMan::update()
 
 void MeasureToolMan::sceneChanged( CallBacker* )
 {
-    const bool ison = appl_.menuMgr().coinTB()->isOn( butidx_ );
+    const bool ison = appl_.menuMgr().viewTB()->isOn( butidx_ );
     if ( !ison ) return;
 
     const int sceneid = getActiveSceneID();

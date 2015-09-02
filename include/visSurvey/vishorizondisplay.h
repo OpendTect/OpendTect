@@ -188,6 +188,8 @@ public:
 
     void			selectParent(const TrcKey&);
     void			selectChildren(const TrcKey&);
+    void			showParentLine(bool);
+    void			showChildLine(bool);
 
 protected:
 				~HorizonDisplay();
@@ -241,6 +243,7 @@ protected:
     visBase::Material*			intersectionlinematerial_;
 
     visBase::VertexShape*		parentline_;
+    visBase::VertexShape*		childline_;
 
     StepInterval<int>			parrowrg_;
     StepInterval<int>			parcolrg_;

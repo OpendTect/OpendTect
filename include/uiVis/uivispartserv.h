@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "keyboardevent.h"
 #include "menuhandler.h"
+#include "mouseevent.h"
 #include "ranges.h"
 #include "thread.h"
 #include <typeinfo>
@@ -259,10 +260,12 @@ public:
     BufferString	getMousePosString() const	{ return mouseposstr_; }
     void		getObjectInfo(int id,BufferString&) const;
 
-    static int			evKeyPress();
-    Notifier<uiVisPartServer>	keyPressed;
+    static int			evKeyboardEvent();
+    Notifier<uiVisPartServer>	keyEvent;
     const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
-
+    static int			evMouseEvent();
+    Notifier<uiVisPartServer>	mouseEvent;
+    const MouseEvent&		getMouseEvent() const	{ return mouseevent_; }
 
     static int			evSelectAttrib();
 
@@ -336,10 +339,9 @@ public:
 				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
     static int			evPickingStatusChange();
-    bool			sendPickingStatusChangeEvent();
     static int			evDisableSelTracker();
-    bool			sendDisableSelTrackerEvent();
-    void			trackInVolume();
+    static int			evShowMPESetupDlg();
+    static int			evShowMPEParentPath();
 
     void			reportTrackingSetupActive(bool yn);
     bool			isTrackingSetupActive() const;
@@ -351,21 +353,16 @@ public:
 				     the selman. */
     void			getPickingMessage(BufferString&) const;
 
-    static int			evShowSetupDlg();
-    bool			sendShowSetupDlgEvent();
-
     static int			evShowSetupGroupOnTop();
     bool			showSetupGroupOnTop(const char* grpnm);
     const char*			getTopSetupGroupName() const;
 
-    void			showMPEToolbar(bool yn=true);
-    void			updateMPEToolbar();
-    void			updateSeedConnectMode();
     void			introduceMPEDisplay();
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
-    static int			evFromMPEManStoreEMObject();
-    void			fireFromMPEManStoreEMObject();
+    static int			evStoreEMObject();
+    static int			evStoreEMObjectAs();
+    void			storeEMObject(bool storeas);
 
     uiSlicePos3DDisp*		getUiSlicePos() const
 				{ return slicepostools_; }
@@ -381,6 +378,8 @@ public:
 
     void			lock(int id,bool yn);
     bool			isLocked(int id) const;
+
+    bool			sendVisEvent(int);
 
 protected:
 
@@ -425,6 +424,7 @@ protected:
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
     KeyboardEvent		kbevent_;
+    MouseEvent			mouseevent_;
 
     bool			tracksetupactive_;
     const char*			topsetupgroupname_;
@@ -447,7 +447,8 @@ protected:
     void			updateSelObjCB(CallBacker*);
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
-    void			keyPressCB(CallBacker*);
+    void			keyEventCB(CallBacker*);
+    void			mouseEventCB(CallBacker*);
     void			vwAll(CallBacker*);
     void			toHome(CallBacker*);
     void			colTabChangeCB(CallBacker*);

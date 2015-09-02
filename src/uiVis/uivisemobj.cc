@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uivisemobj.h"
 
 #include "attribsel.h"
-#include "undo.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
@@ -20,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
+#include "keyboardevent.h"
 #include "mousecursor.h"
 #include "od_helpids.h"
 #include "settings.h"
@@ -201,6 +201,8 @@ uiVisEMObject::~uiVisEMObject()
 	tb->createnotifier.remove( mCB(this,uiVisEMObject,addToToolBarCB) );
 	tb->handlenotifier.remove( mCB(this,uiVisEMObject,handleMenuCB) );
     }
+
+    visserv_->keyEvent.remove( mCB(this,uiVisEMObject,keyEventCB) );
 }
 
 
@@ -236,6 +238,8 @@ void uiVisEMObject::setUpConnections()
     MenuHandler* tbmenu = visserv_->getToolBarHandler();
     tbmenu->createnotifier.notify( mCB(this,uiVisEMObject,addToToolBarCB) );
     tbmenu->handlenotifier.notify( mCB(this,uiVisEMObject,handleMenuCB) );
+
+    visserv_->keyEvent.notify( mCB(this,uiVisEMObject,keyEventCB) );
 }
 
 
@@ -391,6 +395,21 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
 void uiVisEMObject::addToToolBarCB( CallBacker* )
 {
+}
+
+
+void uiVisEMObject::keyEventCB( CallBacker* )
+{
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,getDisplay())
+    if ( !hd || !hd->isSelected() )
+	return;
+
+    const KeyboardEvent& ke = visserv_->getKeyboardEvent();
+    if ( ke.key_ == OD::R )
+    {
+	const bool oas = hd->getOnlyAtSectionsDisplay();
+	hd->setOnlyAtSectionsDisplay( !oas );
+    }
 }
 
 

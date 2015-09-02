@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vissurvscene.h"
 
-#include "basemapimpl.h"
 #include "binidvalue.h"
 #include "trckeyzsampling.h"
 #include "envvars.h"
@@ -71,6 +70,7 @@ Scene::Scene()
     , mouseposchange(this)
     , mousecursorchange(this)
     , keypressed(this)
+    , mouseclicked(this)
     , sceneboundingboxupdated(this)
     , mouseposval_(0)
     , mouseposstr_("")
@@ -81,8 +81,6 @@ Scene::Scene()
     , coordselector_( 0 )
     , zscale_( SI().zScale() )
     , infopar_(*new IOPar)
-    , basemap_( 0 )
-    , basemapcursor_( 0 )
     , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
     , ctshownusepar_( false )
     , usepar_( false )
@@ -90,7 +88,7 @@ Scene::Scene()
     , topimg_( 0 )
     , botimg_( 0 )
 {
-    mAttachCB( events_.eventhappened, Scene::mouseMoveCB );
+    mAttachCB( events_.eventhappened, Scene::mouseCB );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
     mAttachCB( events_.eventhappened, Scene::keyPressCB );
     mAttachCB( events_.nothandled, Scene::mouseCursorCB );
@@ -169,13 +167,6 @@ deleteAndZeroPtr( coordselector_ )
 Scene::~Scene()
 {
     detachAllNotifiers();
-
-    if ( basemap_ && basemapcursor_ )
-    {
-	basemap_->removeObject( basemapcursor_ );
-	delete basemapcursor_;
-	basemapcursor_ = 0;
-    }
 
     if ( datatransform_ ) datatransform_->unRef();
 
@@ -672,11 +663,19 @@ void Scene::keyPressCB( CallBacker* cb )
 }
 
 
-void Scene::mouseMoveCB( CallBacker* cb )
+void Scene::mouseCB( CallBacker* cb )
 {
     STM().setCurrentScene( this );
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    if ( eventinfo.type == visBase::MouseClick )
+    {
+	mouseevent_ = MouseEvent( eventinfo.buttonstate_ );
+	xytmousepos_ = eventinfo.worldpickedpos;
+	mouseclicked.trigger();
+	return;
+    }
+
     if ( eventinfo.type != visBase::MouseMovement ) return;
 
     mouseposval_ = "";
@@ -742,28 +741,6 @@ void Scene::mouseCursorCB( CallBacker* cb )
 
 const MouseCursor* Scene::getMouseCursor() const
 { return mousecursor_; }
-
-
-void Scene::setBaseMap( BaseMap* bm )
-{
-    if ( basemap_ && basemapcursor_ )
-    {
-	basemap_->removeObject( basemapcursor_ );
-	delete basemapcursor_;
-	basemapcursor_ = 0;
-    }
-
-    basemap_ = bm;
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	mDynamicCastGet(SurveyObject*,so,getObject(idx));
-	if ( so ) so->setBaseMap( bm );
-    }
-}
-
-
-BaseMap* Scene::getBaseMap()
-{ return basemap_; }
 
 
 void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )

@@ -25,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "file.h"
 #include "geomelement.h"
-#include "keyboardevent.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "mpeengine.h"
@@ -45,7 +44,6 @@ int uiMPEPartServer::evGetAttribData()		{ return 0; }
 int uiMPEPartServer::evStartSeedPick()		{ return 1; }
 int uiMPEPartServer::evEndSeedPick()		{ return 2; }
 int uiMPEPartServer::evAddTreeObject()		{ return 3; }
-int uiMPEPartServer::evShowToolbar()		{ return 4; }
 int uiMPEPartServer::evInitFromSession()	{ return 5; }
 int uiMPEPartServer::evRemoveTreeObject()	{ return 6; }
 int uiMPEPartServer::evSetupLaunched()		{ return 7; }
@@ -55,8 +53,6 @@ int uiMPEPartServer::evMPEDispIntro()		{ return 10; }
 int uiMPEPartServer::evUpdateTrees()		{ return 11; }
 int uiMPEPartServer::evUpdateSeedConMode()	{ return 12; }
 int uiMPEPartServer::evStoreEMObject()		{ return 13; }
-int uiMPEPartServer::evHideToolBar()		{ return 14; }
-int uiMPEPartServer::evRetrackInVolume()	{ return 18; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -100,10 +96,12 @@ uiMPEPartServer::~uiMPEPartServer()
     setupbeingupdated_ = false;
 
     sendEvent( uiMPEPartServer::evEndSeedPick() );
-    sendEvent( uiMPEPartServer::evHideToolBar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
     if ( setupgrp_ && setupgrp_->mainwin() )
+    {
+	setupgrp_->setMPEPartServer( 0 );
 	setupgrp_->mainwin()->close();
+}
 }
 
 
@@ -196,7 +194,6 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     }
 
     const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
-    emobj->setPreferredColor( getRandomColor(false) );
     trackercurrentobject_ = emobj->id();
     if ( !initSetupDlg(emobj,tracker,sid,true) )
 	return false;
@@ -250,9 +247,6 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
     seedpicker->blockSeedPick( !isvalidsetup );
     if ( !isvalidsetup )
 	return;
-
-    if ( !seedhasbeenpicked_ )
-	sendEvent( uiMPEPartServer::evShowToolbar() );
 
     seedhasbeenpicked_ = true;
 }
@@ -318,13 +312,6 @@ void uiMPEPartServer::propertyChangedCB( CallBacker* )
 }
 
 
-void uiMPEPartServer::retrackCB( CallBacker* )
-{
-    if ( trackercurrentobject_ != -1 )
-	retrack( trackercurrentobject_ );
-}
-
-
 void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
 {
     if ( trackercurrentobject_ == -1 ) return;
@@ -341,7 +328,6 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
     setupbeingupdated_ = false;
 
     sendEvent( uiMPEPartServer::evEndSeedPick() );
-    sendEvent( uiMPEPartServer::evShowToolbar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
     if ( setupgrp_ && setupgrp_->mainwin() )
 	setupgrp_->mainwin()->close();
@@ -380,7 +366,6 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 
 	trackercurrentobject_ = -1;
 	setupbeingupdated_ = false;
-	sendEvent( uiMPEPartServer::evShowToolbar() );
 	sendEvent( ::uiMPEPartServer::evSetupClosed() );
 	mCloseReturn;
     }
@@ -418,7 +403,6 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
     if ( !seedhasbeenpicked_ || !seedpicker->doesModeUseVolume() )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );
 
-    sendEvent( uiMPEPartServer::evShowToolbar() );
     if ( seedpicker->doesModeUseSetup() )
 	saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
 
@@ -475,72 +459,7 @@ void uiMPEPartServer::noTrackingRemoval()
 
     MPE::engine().trackeraddremove.enable();
     MPE::engine().trackeraddremove.trigger();
-    sendEvent( uiMPEPartServer::evShowToolbar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
-}
-
-
-void uiMPEPartServer::retrack( const EM::ObjectID& oid )
-{
-    bool fieldchange = false;
-    if ( setupgrp_ && !setupgrp_->commitToTracker(fieldchange) )
-	return;
-
-    const int trackerid = getTrackerID( oid );
-    if ( trackerid == -1 ) return;
-
-    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    if ( !tracker ) return;
-
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    if ( !seedpicker) return;
-
-    Undo& undo = EM::EMM().undo();
-    int cureventnr = undo.currentEventID();
-    undo.setUserInteractionEnd( cureventnr, false );
-
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-    EM::EMObject* emobj = EM::EMM().getObject( oid );
-    if ( !emobj ) return;
-
-    emobj->setBurstAlert( true );
-    emobj->removeAllUnSeedPos();
-
-    TrcKeyZSampling oldactivevol = MPE::engine().activeVolume();
-
-    ObjectSet<TrcKeyZSampling>* trackedcubes =
-				MPE::engine().getTrackedFlatCubes( trackerid );
-    if ( trackedcubes )
-    {
-	for ( int idx=0; idx<trackedcubes->size(); idx++ )
-	{
-	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
-	    MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
-	    notifystopper.restore();
-
-	    seedpicker->reTrack();
-	}
-
-	emobj->setBurstAlert( false );
-	deepErase( *trackedcubes );
-    }
-    else
-    {
-	seedpicker->reTrack();
-	emobj->setBurstAlert( false );
-    }
-
-    MPE::engine().setActiveVolume( oldactivevol );
-
-    if ( !(MPE::engine().activeVolume().nrInl()==1) &&
-         !(MPE::engine().activeVolume().nrCrl()==1) )
-    {
-	sendEvent( uiMPEPartServer::evRetrackInVolume() );
-    }
-
-    MouseCursorManager::restoreOverride();
-
-    undo.setUserInteractionEnd( undo.currentEventID() );
 }
 
 
@@ -920,10 +839,6 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 }
 
 
-bool uiMPEPartServer::fireAddTreeObjectEvent()
-{ return sendEvent( ::uiMPEPartServer::evAddTreeObject() ); }
-
-
 bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 				    MPE::EMTracker*& tracker,
 				    const EM::SectionID& sid,
@@ -943,9 +858,9 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( tracker->getTypeStr(),
 						  setupdlg,
 						  emobj->getTypeStr() );
-
     if ( !setupgrp_ ) return false;
 
+    setupgrp_->setMPEPartServer( this );
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
     if ( !sectracker ) return false;
 
@@ -1008,23 +923,14 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 			   mCB(this,uiMPEPartServer,trackerWinClosedCB) );
     setupdlg->go();
     sendEvent( uiMPEPartServer::evSetupLaunched() );
-    sendEvent( uiMPEPartServer::evShowToolbar() );
 
     return true;
 }
 
 
-void uiMPEPartServer::handleKeyboardEvent( const KeyboardEvent& kbev )
+bool uiMPEPartServer::sendMPEEvent( int evid )
 {
-    switch ( kbev.key_ )
-    {
-	case OD::K:
-//	    MPE::engine().trackInVolume();
-	break;
-	default:
-	{
-	}
-    }
+    return sendEvent( evid );
 }
 
 
@@ -1041,9 +947,6 @@ bool uiMPEPartServer::usePar( const IOPar& par )
     {
 	if ( !sendEvent(evInitFromSession()) )
 	    return false;
-
-	if ( MPE::engine().nrTrackersAlive() )
-	    sendEvent( evShowToolbar() );
     }
 
     return res;

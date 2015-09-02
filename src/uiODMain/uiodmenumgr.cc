@@ -72,7 +72,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     helpmnu_ = appl_.menuBar()->addMenu( new uiMenu(uiStrings::sHelp()) );
 
     dtecttb_ = new uiToolBar( &appl_, "OpendTect Tools", uiToolBar::Top );
-    cointb_ = new uiToolBar( &appl_, "Graphical Tools", uiToolBar::Left );
+    viewtb_ = new uiToolBar( &appl_, "Graphical Tools", uiToolBar::Left );
     mantb_ = new uiToolBar( &appl_, "Manage Data", uiToolBar::Right );
 
     faulttoolman_ = new uiODFaultToolMan( appl_ );
@@ -90,7 +90,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 uiODMenuMgr::~uiODMenuMgr()
 {
     delete appl_.removeToolBar( dtecttb_ );
-    delete appl_.removeToolBar( cointb_ );
+    delete appl_.removeToolBar( viewtb_ );
     delete appl_.removeToolBar( mantb_ );
     delete helpmgr_;
     delete faulttoolman_;
@@ -156,10 +156,10 @@ void uiODMenuMgr::updateViewMode( bool isview )
 
 
 void uiODMenuMgr::updateAxisMode( bool shwaxis )
-{ cointb_->turnOn( axisid_, shwaxis ); }
+{ viewtb_->turnOn( axisid_, shwaxis ); }
 
 bool uiODMenuMgr::isSoloModeOn() const
-{ return cointb_->isOn( soloid_ ); }
+{ return viewtb_->isOn( soloid_ ); }
 
 void uiODMenuMgr::enableMenuBar( bool yn )
 { appl_.menuBar()->setSensitive( yn ); }
@@ -167,11 +167,11 @@ void uiODMenuMgr::enableMenuBar( bool yn )
 void uiODMenuMgr::enableActButton( bool yn )
 {
     if ( yn )
-	{ cointb_->setSensitive( actviewid_, true ); return; }
+	{ viewtb_->setSensitive( actviewid_, true ); return; }
 
     if ( !inviewmode_ )
 	toggViewMode(0);
-    cointb_->setSensitive( actviewid_, false );
+    viewtb_->setSensitive( actviewid_, false );
 }
 
 
@@ -1019,12 +1019,12 @@ static bool sIsPolySelect = true;
 
 void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 {
-    actviewid_ = cointb_->addButton( "altpick", tr("Switch to View Mode"),
+    actviewid_ = viewtb_->addButton( "altpick", tr("Switch to View Mode"),
 			mCB(this,uiODMenuMgr,toggViewMode), false );
-    mAddTB(cointb_,"home",tr("To home position"),false,toHomePos);
-    mAddTB(cointb_,"set_home",tr("Save Home Position"),false,saveHomePos);
-    mAddTB(cointb_,"view_all",tr("View All"),false,viewAll);
-    cameraid_ = mAddTB(cointb_,"perspective",
+    mAddTB(viewtb_,"home",tr("To home position"),false,toHomePos);
+    mAddTB(viewtb_,"set_home",tr("Save Home Position"),false,saveHomePos);
+    mAddTB(viewtb_,"view_all",tr("View All"),false,viewAll);
+    cameraid_ = mAddTB(viewtb_,"perspective",
 		       tr("Switch to Orthographic Camera"),
 		       false,switchCameraType);
 
@@ -1033,7 +1033,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     Settings::common().getYN( "dTect.SeparateViewButtons", separateviewbuttons);
     if ( !separateviewbuttons )
     {
-	viewselectid_ = cointb_->addButton( "cube_inl",tr("View In-line"),
+	viewselectid_ = viewtb_->addButton( "cube_inl",tr("View In-line"),
 				mCB(this,uiODMenuMgr,handleViewClick), false );
 
 	uiMenu* vwmnu = new uiMenu( &appl_, tr("View Menu") );
@@ -1044,12 +1044,12 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 	mAddMnuItm( vwmnu, tr("View Z"), handleViewClick, "cube_z", 2 );
 	mAddMnuItm( vwmnu, tr("View North"), handleViewClick, "view_N", 3 );
 	mAddMnuItm( vwmnu, tr("View North Z"), handleViewClick, "view_NZ", 4);
-	cointb_->setButtonMenu( viewselectid_, vwmnu );
+	viewtb_->setButtonMenu( viewselectid_, vwmnu );
 	viewinlid_ = viewcrlid_ = viewzid_ = viewnid_ = viewnzid_ = -1;
     }
     else
     {
-#define mAddVB(img,txt) cointb_->addButton( img, txt, \
+#define mAddVB(img,txt) viewtb_->addButton( img, txt, \
 			mCB(this,uiODMenuMgr,handleViewClick), false );
 	viewinlid_ = mAddVB( "cube_inl", tr("View In-line") );
 	viewcrlid_ = mAddVB( "cube_crl", tr("View Cross-line") );
@@ -1059,20 +1059,20 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 	viewselectid_ = -1;
     }
 
-    mAddTB( cointb_, "dir-light", tr("Set light options"), false,
+    mAddTB( viewtb_, "dir-light", tr("Set light options"), false,
 	    doDirectionalLight);
 
-    axisid_ = mAddTB(cointb_,"axis",tr("Display Orientation Axis"),
+    axisid_ = mAddTB(viewtb_,"axis",tr("Display Orientation Axis"),
 		     true,showRotAxis);
-    coltabid_ = cointb_->addButton( "colorbar", tr("Display Color Bar"),
+    coltabid_ = viewtb_->addButton( "colorbar", tr("Display Color Bar"),
 			    mCB(this,uiODMenuMgr,dispColorBar), true );
     uiMenu* colbarmnu = new uiMenu( &appl_, tr("ColorBar Menu") );
     mAddMnuItm( colbarmnu, m3Dots(uiStrings::sSettings()), dispColorBar,
 		"disppars", 0 );
-    cointb_->setButtonMenu( coltabid_, colbarmnu );
+    viewtb_->setButtonMenu( coltabid_, colbarmnu );
 
-    mAddTB(cointb_,"snapshot",uiStrings::sTakeSnapshot(),false,mkSnapshot);
-    polyselectid_ = cointb_->addButton( "polygonselect",
+    mAddTB(viewtb_,"snapshot",uiStrings::sTakeSnapshot(),false,mkSnapshot);
+    polyselectid_ = viewtb_->addButton( "polygonselect",
 		tr("Polygon Selection mode"),
 		mCB(this,uiODMenuMgr,selectionMode), true );
     uiMenu* mnu = new uiMenu( &appl_, tr("Menu") );
@@ -1080,12 +1080,12 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 		handleToolClick, "polygonselect", 0 );
     mAddMnuItm( mnu, uiStrings::sRectangle(),
 		handleToolClick, "rectangleselect", 1 );
-    cointb_->setButtonMenu( polyselectid_, mnu );
+    viewtb_->setButtonMenu( polyselectid_, mnu );
 
-    removeselectionid_ = cointb_->addButton( "trashcan", tr("Remove selection"),
+    removeselectionid_ = viewtb_->addButton( "trashcan", tr("Remove selection"),
 		    mCB(this,uiODMenuMgr,removeSelection), false );
 
-    soloid_ = mAddTB(cointb_,"solo",tr("Display current element only"),
+    soloid_ = mAddTB(viewtb_,"solo",tr("Display current element only"),
 		     true,soloMode);
 }
 
@@ -1117,8 +1117,8 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 		curviewmode_ = ui3DViewer::YZ; break;
     }
 
-    cointb_->setIcon( viewselectid_, pm );
-    cointb_->setToolTip( viewselectid_, tt );
+    viewtb_->setIcon( viewselectid_, pm );
+    viewtb_->setToolTip( viewselectid_, tt );
     sceneMgr().setViewSelectMode( curviewmode_ );
 }
 
@@ -1139,8 +1139,8 @@ void uiODMenuMgr::selectionMode( CallBacker* cb )
     if ( cb == visserv )
     {
 	const bool ison = visserv->isSelectionModeOn();
-	cointb_->turnOn( polyselectid_, ison );
-	cointb_->setSensitive( removeselectionid_, ison );
+	viewtb_->turnOn( polyselectid_, ison );
+	viewtb_->setSensitive( removeselectionid_, ison );
 	sIsPolySelect = visserv->getSelectionMode()==uiVisPartServer::Polygon;
     }
     else
@@ -1148,13 +1148,13 @@ void uiODMenuMgr::selectionMode( CallBacker* cb )
 	uiVisPartServer::SelectionMode mode = sIsPolySelect ?
 			 uiVisPartServer::Polygon : uiVisPartServer::Rectangle;
 	visserv->turnSelectionModeOn(
-	    !inviewmode_  && cointb_->isOn(polyselectid_) );
+	    !inviewmode_  && viewtb_->isOn(polyselectid_) );
 	visserv->setSelectionMode( mode );
     }
 
-    cointb_->setIcon( polyselectid_, sIsPolySelect ?
+    viewtb_->setIcon( polyselectid_, sIsPolySelect ?
 			"polygonselect" : "rectangleselect" );
-    cointb_->setToolTip( polyselectid_,
+    viewtb_->setToolTip( polyselectid_,
 			 sIsPolySelect ? tr("Polygon Selection Mode")
 				       : tr("Rectangle Selection Mode") );
 }
@@ -1178,16 +1178,16 @@ void uiODMenuMgr::dispColorBar( CallBacker* cb )
 	return;
     }
 
-    visserv.displaySceneColorbar( cointb_->isOn(coltabid_) );
+    visserv.displaySceneColorbar( viewtb_->isOn(coltabid_) );
 }
 
 
 void uiODMenuMgr::setCameraPixmap( bool perspective )
 {
-    cointb_->setToolTip( cameraid_,
+    viewtb_->setToolTip( cameraid_,
 			 perspective ? tr("Switch to Orthographic Camera")
 				     : tr("Switch to Perspective Camera"));
-    cointb_->setIcon( cameraid_, perspective ? "perspective"
+    viewtb_->setIcon( cameraid_, perspective ? "perspective"
 					     : "orthographic" );
 }
 
@@ -1488,8 +1488,8 @@ void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 void uiODMenuMgr::toggViewMode( CallBacker* cb )
 {
     inviewmode_ = !inviewmode_;
-    cointb_->setIcon( actviewid_, inviewmode_ ? "altview" : "altpick" );
-    cointb_->setToolTip( actviewid_,
+    viewtb_->setIcon( actviewid_, inviewmode_ ? "altview" : "altpick" );
+    viewtb_->setToolTip( actviewid_,
 			 inviewmode_ ? tr("Switch to Interact Mode")
 				     : tr("Switch to View Mode") );
     if ( inviewmode_ )

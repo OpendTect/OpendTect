@@ -254,7 +254,6 @@ bool uiODMain::buildUI()
 void uiODMain::initScene()
 {
     scenemgr_->initMenuMgrDepObjs();
-    applMgr().visServer()->showMPEToolbar( false );
     readSettings();
 
     justBeforeGo.trigger();
@@ -632,7 +631,6 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 void uiODMain::afterSurveyChgCB( CallBacker* )
 {
     updateCaption();
-    applMgr().visServer()->showMPEToolbar( false );
     handleStartupSession();
 }
 
@@ -662,7 +660,6 @@ void uiODMain::updateCaption()
 
 bool uiODMain::closeOK()
 {
-    applMgr().visServer()->showMPEToolbar( false );
     saveSettings();
 
     bool askedanything = false;

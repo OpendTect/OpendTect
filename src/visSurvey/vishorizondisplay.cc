@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vishorizondisplay.h"
 
+#include "arrayndimpl.h"
 #include "attribsel.h"
 #include "bidvsetarrayadapter.h"
 #include "binidvalue.h"
@@ -75,6 +76,7 @@ HorizonDisplay::HorizonDisplay()
     , displaysurfacegrid_( false )
     , translationpos_( Coord3().udf() )
     , parentline_(0)
+    , childline_(0)
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
@@ -190,6 +192,8 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 
     if ( parentline_ )
 	parentline_->setDisplayTransformation( transformation_ );
+    if ( childline_ )
+	childline_->setDisplayTransformation( transformation_ );
 
 }
 
@@ -1053,6 +1057,15 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     {
 	nontexturecol_ = emobject_->preferredColor();
 	setLineStyle( emobject_->preferredLineStyle() );
+
+	mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
+	if ( hor3d )
+	{
+	    if ( parentline_ && parentline_->getMaterial() )
+		parentline_->getMaterial()->setColor( hor3d->getParentColor() );
+	    if ( childline_ && childline_->getMaterial() )
+		childline_->getMaterial()->setColor( hor3d->getChildColor() );
+	}
     }
 
     updateSingleColor();
@@ -1362,7 +1375,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-#define mAddLinePrimitiveSet()\
+#define mAddLinePrimitiveSet \
 {\
     if ( idxps.size()>=2 )\
     {\
@@ -1402,7 +1415,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    line->getCoordinates()->addPos(curline[idx]);\
 	} \
 	if ( curline.size() ) \
-	mAddLinePrimitiveSet();\
+	mAddLinePrimitiveSet\
     } \
     curline.erase(); \
 }
@@ -1522,9 +1535,6 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
     int stopidx = 0;
     int jumpstart = 0;
 
-    Geometry::IndexedPrimitiveSet* primitiveset =
-	Geometry::IndexedPrimitiveSet::create( false );
-
     TypeSet<int> idxps;
     while ( true )
     {
@@ -1588,16 +1598,17 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		    continue;
 		}
 	    }
+	    else if ( idxps.size()>1 )
+	    {
+		mAddLinePrimitiveSet;
+		idxps.erase();
+	    }
 	}
 
 	jumpstart = 1;
     }
 
-    if( idxps.size()>1 )
-    {
-	primitiveset->append( idxps.arr(),idxps.size() );
-	line->addPrimitiveSet( primitiveset );
-    }
+    mAddLinePrimitiveSet;
 }
 
 
@@ -1636,7 +1647,7 @@ static void drawHorizonOnZSlice( const TrcKeyZSampling& cs, float zshift,
 	if ( ic.isClosed() )
 	    idxps.add( idxps[0] );
 
-	mAddLinePrimitiveSet();
+	mAddLinePrimitiveSet;
 	idxps.erase();
     }
 
@@ -2015,6 +2026,7 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
     if ( !parentline_ )
     {
 	parentline_ = visBase::PolyLine3D::create();
+	parentline_->setMaterial( new visBase::Material() );
 	addChild( parentline_->osgNode() );
 	parentline_->setDisplayTransformation( transformation_ );
     }
@@ -2037,12 +2049,95 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
     }
 
     visBase::VertexShape* line = parentline_;
-    mAddLinePrimitiveSet();
+    mAddLinePrimitiveSet;
+    showParentLine( true );
 }
 
 
-void HorizonDisplay::selectChildren( const TrcKey& tk )
+void HorizonDisplay::selectChildren( const TrcKey& tkin )
 {
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    Array2D<char>* children = hor3d ? hor3d->getChildren( tkin ) : 0;
+    if ( !children ) return;
+
+    if ( !childline_ )
+    {
+	childline_ = visBase::PolyLine3D::create();
+	childline_->setMaterial( new visBase::Material() );
+	addChild( childline_->osgNode() );
+	childline_->setDisplayTransformation( transformation_ );
+    }
+    else
+    {
+	childline_->getCoordinates()->setEmpty();
+	childline_->removeAllPrimitiveSets();
+    }
+
+    TypeSet<int> idxps;
+    int cii = 0;
+
+    Array2DImpl<float> field( children->info() );
+    for ( od_int64 idx=0; idx<children->info().getTotalSz(); idx++ )
+	field.getData()[idx] = children->getData()[idx] == '0' ? 0.f : 1.f;
+
+    const TrcKeySampling tks = hor3d->getTrackingSampling();
+
+    IsoContourTracer ictracer( field );
+    ictracer.setSampling( tks.lineRange(), tks.trcRange() );
+    ictracer.selectRectROI( tks.lineRange(), tks.trcRange() );
+    ObjectSet<ODPolygon<float> > isocontours;
+    ictracer.getContours( isocontours, 0.9f, false );
+
+    int lidx = -1;
+    int sz = 0;
+    for ( int cidx=0; cidx<isocontours.size(); cidx++ )
+    {
+	const ODPolygon<float>& ic = *isocontours[cidx];
+	if ( ic.size() > sz )
+	{ lidx = cidx; sz = ic.size(); }
+    }
+
+    if ( lidx < 0 ) return;
+
+    visBase::VertexShape* line = childline_;
+//    for ( int cidx=0; cidx<isocontours.size(); cidx++ )
+//    {
+	const ODPolygon<float>& ic = *isocontours[lidx];
+	for ( int vidx=0; vidx<ic.size(); vidx++ )
+	{
+	    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
+	    const TrcKey tk( mNINT32(vertex.x), mNINT32(vertex.y) );
+	    Coord vrtxcoord( vertex.x, vertex.y );
+	    vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
+	    const Coord3 pos( vrtxcoord, hor3d->getZ(tk) );
+	    if ( pos.isUdf() )
+		continue;
+
+	    line->getCoordinates()->addPos( pos );
+	    idxps.add( cii++ );
+	}
+
+	if ( ic.isClosed() && !idxps.isEmpty() )
+	    idxps.add( idxps[0] );
+
+	mAddLinePrimitiveSet;
+	idxps.erase();
+//    }
+
+    deepErase( isocontours );
+    showChildLine( true );
+}
+
+
+void HorizonDisplay::showParentLine( bool yn )
+{
+    if ( parentline_ ) parentline_->turnOn( yn );
+}
+
+
+void HorizonDisplay::showChildLine( bool yn )
+{
+    if ( childline_ ) childline_->turnOn( yn );
 }
 
 
