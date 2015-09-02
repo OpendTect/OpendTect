@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "segyfiledef.h"
+#include "segyhdr.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "oddirs.h"
@@ -332,4 +333,57 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
 	if ( !thdef_.azim_.isUdf() )
 	    reportHdrEntry( iop, sKey::Azimuth(), thdef_.azim_ );
     }
+}
+
+
+void SEGY::OffsetCalculator::set( const SEGY::FileReadOpts& opts )
+{
+    type_ = opts.psdef_;
+    def_ = opts.offsdef_;
+    is2d_ = Seis::is2D( opts.geomType() );
+    coordscale_ = opts.coordscale_;
+    reset();
+}
+
+
+void SEGY::OffsetCalculator::reset()
+{
+    curoffs_ = def_.start;
+    prevbid_.inl() = prevbid_.crl() = mUdf(int);
+}
+
+
+void SEGY::OffsetCalculator::setOffset( SeisTrcInfo& ti,
+					const SEGY::TrcHeader& trchdr ) const
+{
+    if ( type_ == FileReadOpts::InFile )
+	return;
+    else if ( type_ == FileReadOpts::SrcRcvCoords )
+    {
+	Coord c1( trchdr.getCoord(true,coordscale_) );
+	Coord c2( trchdr.getCoord(false,coordscale_) );
+	ti.setPSFlds( c1, c2 );
+	return;
+    }
+
+    bool diffcrl = false;
+    bool diffinl = false;
+    if ( is2d_ )
+	diffcrl = mIsUdf(prevbid_.crl()) || prevbid_.crl() != ti.nr;
+    else
+    {
+	diffinl = mIsUdf(prevbid_.inl()) || prevbid_.inl() != ti.binid.inl();
+	diffcrl = mIsUdf(prevbid_.crl()) || prevbid_.crl() != ti.binid.crl();
+    }
+
+    if ( diffcrl || diffinl )
+	curoffs_ = def_.start;
+    else
+	curoffs_ += def_.step;
+
+    ti.offset = curoffs_;
+    if ( is2d_ )
+	prevbid_.crl() = ti.nr;
+    else
+	prevbid_ = ti.binid;
 }

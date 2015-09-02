@@ -412,7 +412,6 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 
     PtrMan<IOObj> inioobj = fs_.spec_.getIOObj( true );
     const bool outissidom = ZDomain::isSI( outioobj->pars() );
-    fs_.fillPar( inioobj->pars() );
     if ( !outissidom )
 	ZDomain::Def::get(outioobj->pars()).set( inioobj->pars() );
     IOM().commitChanges( *inioobj );

@@ -165,7 +165,7 @@ public:
     void		setNeedSwap( bool yn=true )	{ needswap_ = yn; }
 
     float		postScale(int numbfmt) const;
-    Coord		getCoord(bool rcv,float extcoordsc);
+    Coord		getCoord(bool rcv,float extcoordsc) const;
 
     unsigned char*	buf_;
     const TrcHeaderDef&	hdef_;

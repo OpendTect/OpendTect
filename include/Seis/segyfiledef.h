@@ -18,12 +18,15 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "seistype.h"
 #include "segythdef.h"
+#include "binid.h"
 class IOObj;
 class Scaler;
+class SeisTrcInfo;
 
 
 namespace SEGY
 {
+class TrcHeader;
 
 
 /*\brief Definition of input / output file(s)  */
@@ -115,7 +118,7 @@ public:
     ICvsXYType		icdef_;
     PSDefType		psdef_;
     CoordDefType	coorddef_;
-    SamplingData<int>	offsdef_;
+    SamplingData<float>	offsdef_;
     float		coordscale_;
     float		timeshift_;
     float		sampleintv_;
@@ -150,7 +153,38 @@ protected:
 
 };
 
-} // namespace
+
+/*\brief Determines offset as specified by user */
+
+mExpClass(Seis) OffsetCalculator
+{
+public:
+			OffsetCalculator()
+			    : type_(FileReadOpts::InFile)
+			    , def_(0.f,1.f)
+			    , is2d_(false)
+			    , coordscale_(1.0f)		{ reset(); }
+    void		set(const FileReadOpts&);
+
+    void		reset();
+
+    FileReadOpts::PSDefType type_;
+    SamplingData<float>	def_;
+    bool		is2d_;
+    float		coordscale_;
+
+    void		setOffset(SeisTrcInfo&,const TrcHeader&) const;
+
+protected:
+
+    mutable float	curoffs_;
+    mutable BinID	prevbid_;
+
+};
+
+
+
+} // namespace SEGY
 
 
 #endif

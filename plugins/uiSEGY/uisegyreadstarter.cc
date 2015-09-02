@@ -108,6 +108,11 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
     examinenrtrcsfld_->setValue( nrex );
     examinegrp->attach( alignedBelow, fullscanbut_ );
 
+    if ( typfld_ || fixedimptype_.isPS() )
+    {
+	//TODO make OffsetCalculator fields
+    }
+
     setButtonStatuses();
 
     uiGroup* histgrp = new uiGroup( this, "Histogram group" );
@@ -237,7 +242,8 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 {
     const SEGY::ImpType& imptyp = impType();
     infofld_->setImpTypIdx( imptyp.tidx_ );
-    if ( Seis::is2D(imptyp.geomType()) && !unsupported_2d_warning_done )
+
+    if ( !imptyp.isVSP() && imptyp.is2D() && !unsupported_2d_warning_done )
     {
 	uiMSG().warning( "2D import is not supported in this preview release."
 	     "\n\nWe are working hard to make it work"
@@ -505,8 +511,7 @@ bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
     if ( !completeFileInfo(strm,si.basicinfo_,isfirst) )
 	return false;
 
-    si.getFromSEGYBody( strm, loaddef_, isfirst,
-			Seis::is2D(impType().geomType()),
+    si.getFromSEGYBody( strm, loaddef_, isfirst, impType().is2D(),
 			clipsampler_, full, this );
     return true;
 }
@@ -594,11 +599,12 @@ bool uiSEGYReadStarter::commit()
     filereadopts_->coordscale_ = loaddef_.coordscale_;
     filereadopts_->timeshift_ = loaddef_.sampling_.start;
     filereadopts_->sampleintv_ = loaddef_.sampling_.step;
+    filereadopts_->psdef_ = loaddef_.psoffssrc_;
+    filereadopts_->offsdef_ = loaddef_.psoffsdef_;
 
-    //TODO
-    // filereadopts_->icdef_ ?
-    // filereadopts_->psdef_ ?
-    // filereadopts_->coorddef_ in next window
+    //TODO handle:
+    // filereadopts_->icdef_ ? XYOnly, ICOnly, in next window
+    // filereadopts_->coorddef_ in next window, 2D only
 
     return true;
 }

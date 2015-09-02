@@ -86,7 +86,6 @@ protected:
     unsigned char*	blockbuf_;
     ComponentData*	inpcd_;
     TargetComponentData* outcd_;
-    SamplingData<int>	offsdef_;
 
     inline StreamConn&	sConn()		{ return *(StreamConn*)conn_; }
 
@@ -118,6 +117,7 @@ protected:
     int			curtrcnr_, prevtrcnr_;
     BinID		curbid_, prevbid_;
     float		curoffs_, prevoffs_;
+    SEGY::OffsetCalculator offsetcalc_;
     Coord		curcoord_;
     BendPoints2Coords*	bp2c_;
     int			estnrtrcs_;
