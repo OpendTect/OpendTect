@@ -54,8 +54,6 @@ public:
     static uiString phrCannotWriteDBEntry(const uiString&);
     static uiString phrCreate(const uiString& string);
     //!<"Create <string>"
-    static uiString phrDataPointSet(const uiString& string);
-    //!<"DataPointSet <string>"
     static uiString phrDoesntExist(const uiString& string,int num=1);
     //!<"<string> does/do not exist"
     static uiString phrEdit(const uiString& string);
@@ -86,10 +84,8 @@ public:
     //!<string> ...
     static uiString phrWriting(const uiString&);
     //!<"Writing <string>"
-	static uiString phrZIn(const uiString&);
+    static uiString phrZIn(const uiString&);
     //!"Z in <string>"
-
-
 
 //Words
     static uiString s2D();
@@ -123,7 +119,7 @@ public:
     static uiString sCantWriteSettings();
     static uiString sCantOpenInpFile(int num=1);
     static uiString sCantOpenOutpFile(int num=1);
-    static uiString sCannotSave()	{ return tr("Cannot Save"); }
+    static uiString sCannotSave();
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable();
@@ -134,7 +130,6 @@ public:
     static uiString sCreateProbDesFunc();
     static uiString sCrossline(int num=1) { return tr("Cross-line", 0, num ); }
     static uiString sData()		{ return tr("Data"); }
-    static uiString sDataPointSet()	{ return tr("DataPointSet"); }
     static uiString sDelete()		{ return tr("Delete"); }
     static uiString sDepth()	        { return tr("Depth"); }
     static uiString sDisplay()		{ return tr("Display"); }
@@ -168,7 +163,7 @@ public:
     static uiString sInputSelection()	{ return phrInput( sSelection(true) ); }
     static uiString sInputASCIIFile();
     static uiString sInputData()	{ return tr("Input Data"); }
-    static uiString sInvalid()		{ return tr("Invalid"); }
+    static uiString sInvalid();
     static uiString sInvInpFile()	{ return tr("Invalid input file"); }
     static uiString sLoad();
     static uiString sLock()		{ return tr("Lock"); }
@@ -275,7 +270,6 @@ public:
     static uiString sWriting()		{ return tr("Writing"); }
     static uiString sYes()		{ return tr("Yes"); }
     static uiString sSet()		{ return tr("Set"); }
-    static uiString sZIn()		{ return tr("Z in"); }
     static uiString sZUnit()		{ return tr("Z-unit"); }
     static uiString sZSlice()		{ return tr("Z-slice"); }
     static uiString sZValues()		{ return tr("Z values"); }
