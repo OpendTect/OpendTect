@@ -38,7 +38,7 @@ const char* SeparString::getEscaped( const char* str, char sep ) const
     if ( !str )
 	return 0;
 
-    retstr_.setBufSize( 2*strlen(str) + 1 );
+    retstr_.setBufSize( 2*strLength(str) + 1 );
 
     char* writeptr = retstr_.getCStr();
     while ( *str )
@@ -59,7 +59,7 @@ const char* SeparString::getUnescaped( const char* startptr,
     if ( !startptr )
 	return 0;
 
-    const int len = nextsep<startptr ? strlen(startptr) :
+    const int len = nextsep<startptr ? strLength(startptr) :
 				       (int)(nextsep - startptr);
     retstr_.setBufSize( len + 1 );
 

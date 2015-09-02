@@ -28,7 +28,7 @@ bool FixedString::operator!=( const BufferString& s ) const
 unsigned int OD::String::size() const
 {
     const char* my_str = gtStr();
-    return my_str ? (unsigned int)strlen( my_str ) : 0;
+    return my_str ? (unsigned int)strLength( my_str ) : 0;
 }
 
 

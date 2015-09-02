@@ -16,7 +16,7 @@ static const char* rcsID = "$Id$";
 class Dep
 {
 public:
-    			Dep( const char* m )
+			Dep( const char* m )
 			    : name(m)	{}
     bool		operator ==( const char* s ) const
 			    { return name == s; }
@@ -58,14 +58,14 @@ int main( int argc, char** argv )
     while ( instrm.isOK() )
     {
 	instrm.getLine( line );
-	char* bufptr = linebuf; 
+	char* bufptr = linebuf;
 	mTrimBlanks(bufptr);
 	if ( ! *bufptr || *bufptr == '#' )
 	    continue;
 
 	char* nextptr = (char*)getNextWord(line.buf(),wordbuf);
 	if ( ! wordbuf[0] ) continue;
-	od_int64 l = strlen( wordbuf );
+	od_int64 l = strLength( wordbuf );
 	if ( wordbuf[l-1] == ':' ) wordbuf[l-1] = '\0';
 	if ( ! wordbuf[0] ) continue;
 
@@ -102,7 +102,7 @@ int main( int argc, char** argv )
 	    Dep* depdep = find( deps, modnm );
 	    if ( !depdep )
 		{ od_cout() << "Cannot find dep=" << modnm << od_endl;
-		    		ExitProgram(1); }
+				ExitProgram(1); }
 
 	    for ( int idep=depdep->mods.size()-1; idep>=0; idep-- )
 	    {

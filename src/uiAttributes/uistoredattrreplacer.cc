@@ -113,7 +113,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	Attrib::Desc::getAttribName( defstring, attribnm );
 	if ( attribnm != "Storage" ) continue;
 
-	const int len = strlen(defstring);
+	const int len = strLength(defstring);
 	int spacepos = 0; int equalpos = 0;
 	for ( int stridx=0; stridx<len; stridx++ )
 	{
@@ -166,7 +166,7 @@ void uiStoredAttribReplacer::usePar( const IOPar& iopar )
 
 static bool hasSpace( const char* txt )
 {
-    const int sz = strlen( txt );
+    const int sz = strLength( txt );
     for ( int idx=0; idx<sz; idx++ )
 	if ( iswspace(txt[idx]) )
 	    return true;
@@ -375,7 +375,7 @@ void uiStoredAttribReplacer::handleMultiInput()
 	BufferString prevref = storeentry.storedref_;
 	if ( stringEndsWith( "_inline_dip", prevref.buf() ) )
 	{
-	    int newsz = prevref.size() - strlen("_inline_dip");
+	    int newsz = prevref.size() - strLength("_inline_dip");
 	    mDeclareAndTryAlloc( char*, tmpbuf, char[newsz+1] );
 	    if ( tmpbuf )
 	    {

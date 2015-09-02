@@ -17,7 +17,7 @@ ________________________________________________________________________
    (1) Usually OD::String or its subclass BufferString can already do the job
    (2) toString(XX) for all simple types
    (3) toXX from const char* for most used simple types
-   (4) Replacement for strchr and strstr: firstOcc()
+   (4) Replacements for strlen, strchr and strrstr
    (5) Various construction-, manipulation- and matching functions
 
  */
@@ -108,14 +108,20 @@ mGlobal(Basic) const char* getNextWord(const char*,char*);
 	/*!< fills a buffer with the next word (delimited by whitespace).
 	     It returns a ptr just after the word. */
 
+	/*!> Replacement for strlen */
+mGlobal(Basic) int strLength(const char*);
 	/*!> Replacement for strchr: const version */
 mGlobal(Basic) const char* firstOcc(const char*,char);
+mGlobal(Basic) const char* firstOcc(const char*,int);
 	/*!> Replacement for strchr: non-const version */
 mGlobal(Basic) char* firstOcc(char*,char);
+mGlobal(Basic) char* firstOcc(char*,int);
 	/*!> Replacement for strrchr: const version */
 mGlobal(Basic) const char* lastOcc(const char*,char);
+mGlobal(Basic) const char* lastOcc(const char*,int);
 	/*!> Replacement for strrchr: non-const version */
 mGlobal(Basic) char* lastOcc(char*,char);
+mGlobal(Basic) char* lastOcc(char*,int);
 	/*!> Replacement for strstr: const version */
 mGlobal(Basic) const char* firstOcc(const char*,const char*);
 	/*!> Replacement for strstr: non-const version */
@@ -149,6 +155,5 @@ mGlobal(Basic) const char* getAreaString(float m2,bool parensonunit,
 					 char* str=0);
 	/*!<Returns a string with an area and its unit, depending on survey and
 	    area size, unit is ft^2, m^2, km^2 or mile^2. */
-
 
 #endif

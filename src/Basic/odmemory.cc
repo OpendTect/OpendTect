@@ -120,7 +120,7 @@ static od_int64 getMemFromStr( char* str, const char* ky )
 {
     char* ptr = firstOcc( str, ky );
     if ( !ptr ) return 0;
-    ptr += strlen( ky );
+    ptr += strLength( ky );
     mSkipBlanks(ptr);
     char* endptr = ptr; mSkipNonBlanks(endptr);
     *endptr = '\0';

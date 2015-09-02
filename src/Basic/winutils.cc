@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 static const char* cygdrvstr="/cygdrive/";
-static const int cygdrvstrlen=10;
+static const int cygdrvstringlen=10;
 
 const char* getCleanUnxPath( const char* path )
 {
@@ -95,7 +95,7 @@ const char* getCleanWinPath( const char* path )
     if ( cygdrv )
     {
 	char* buffer = ret.getCStr();
-	char* drv = cygdrv + cygdrvstrlen;
+	char* drv = cygdrv + cygdrvstringlen;
 	*buffer = *drv; *(buffer+1) = ':'; *(buffer+2) = '\0';
 	ret += ++drv;
     }

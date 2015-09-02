@@ -249,7 +249,7 @@ enum InfixOperator {
 \
     if ( fs##parstr.startsWith(opstr) ) \
     { \
-	parstr += strlen( opstr ); \
+	parstr += strLength( opstr ); \
 	ops += optag; \
 	opptrs += parstr; \
     }

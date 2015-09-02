@@ -511,7 +511,7 @@ protected:
     if ( FixedString(mousetagptr).startsWith(tag) ) \
     { \
 	clicktags.add( tag ); \
-	mousetagptr += strlen( tag ); \
+	mousetagptr += strLength( tag ); \
     }
 
 #define mParMouse( parstr, parnext, clicktags, defaulttag ) \

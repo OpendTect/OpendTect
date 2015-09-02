@@ -72,8 +72,9 @@ Executor* EMStickSetTranslator::reader( EM::StickSet& hor, const IOObj* ioobj,
 }
 
 
-Executor* EMStickSetTranslator::writer( const EM::StickSet& hor, const IOObj* ioobj,
-				     BufferString& errmsg )
+Executor* EMStickSetTranslator::writer( const EM::StickSet& hor,
+					const IOObj* ioobj,
+					BufferString& errmsg )
 {
     if ( !ioobj )
     {
@@ -103,7 +104,7 @@ Executor* EMStickSetTranslator::writer( const EM::StickSet& hor, const IOObj* io
     {
 	const char* deffilename = ((StreamConn*) conn)->fileName();
 	formatfilename = deffilename;
-	for ( int idx=strlen(deffilename)-1; idx>=0; idx-- )
+	for ( int idx=strLength(deffilename)-1; idx>=0; idx-- )
 	{
 	    if ( deffilename[idx]=='.' )
 	    {

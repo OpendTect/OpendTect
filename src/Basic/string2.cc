@@ -339,7 +339,7 @@ void removeTrailingBlanks( char* str )
 {
     if ( !str || ! *str ) return;
 
-    char* endptr = str + strlen(str) - 1;
+    char* endptr = str + strLength(str) - 1;
     while( iswspace(*endptr) )
     {
 	*endptr = '\0';
@@ -585,12 +585,12 @@ static const char* getLastOcc( const char* str, const char* tofind )
     if ( !tofind )
 	tofind = "";
 
-    const int slen = strlen( str );
-    const int flen = strlen( tofind );
+    const int slen = strLength( str );
+    const int flen = strLength( tofind );
     if ( flen == 0 )
 	return str + slen;
     else if ( flen == 1 )
-	return strrchr( str, *tofind );
+	return lastOcc( str, *tofind );
 
     BufferString srev( str ), frev( tofind );
     for ( int idx=0; idx<slen/2; idx++ )
@@ -604,13 +604,13 @@ static const char* getLastOcc( const char* str, const char* tofind )
 }
 
 const char* firstOcc( const char* str, char tofind )
-{ return str ? strchr(str,tofind) : 0; }
+{ return firstOcc(str,(int)tofind); }
 char* firstOcc( char* str, char tofind )
-{ return str ? strchr(str,tofind) : 0; }
+{ return firstOcc(str,(int)tofind); }
 const char* lastOcc( const char* str, char tofind )
-{ return str ? strrchr(str,tofind) : 0; }
+{ return lastOcc(str,(int)tofind); }
 char* lastOcc( char* str, char tofind )
-{ return str ? strrchr(str,tofind) : 0; }
+{ return lastOcc(str,(int)tofind); }
 const char* firstOcc( const char* str, const char* tofind )
 { return str ? strstr(str,tofind?tofind:"") : 0; }
 char* firstOcc( char* str, const char* tofind )
@@ -676,7 +676,7 @@ const char* getLimitedDisplayString( const char* inp, int nrchars,
 				     bool trimright )
 {
     if ( nrchars < 1 || !inp || !*inp ) return "";
-    const int inplen = strlen( inp );
+    const int inplen = strLength( inp );
     if ( inplen < nrchars )
 	return inp;
 
@@ -1048,4 +1048,69 @@ FixedString NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit)
 {
     const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", 0 };
     return units[(int) unit];
+}
+
+int strLength( const char* str )
+{
+    int nr = 0;
+    if ( !str )
+	return nr;
+
+    while( str[nr] && str[nr] != '\0' )
+	nr++;
+
+    return nr;
+}
+
+
+const char* firstOcc( const char* str, int character )
+{
+    if ( !str )
+	return 0;
+
+    char c = character;
+    int nr = 0;
+    while( str[nr] != '\0' && str[nr] != c )
+	nr++;
+
+    if ( !str[nr] && c != 0 )
+	return 0;
+
+    return &str[nr];
+}
+
+
+char* firstOcc( char* str, int character )
+{
+    return const_cast<char*>( firstOcc(const_cast<const char*>(str),character));
+}
+
+
+const char* lastOcc( const char* str, int character )
+{
+    if ( !str )
+	return 0;
+
+    char c = character;
+    int nr = 0, found = -1;
+    while( str[nr] != '\0' )
+    {
+	if ( str[nr] == c )
+	    found = nr;
+
+	nr++;
+    }
+
+    if ( c == '\0' )
+	return &str[nr];
+    else if ( found == -1 )
+	return 0;
+
+    return &str[found];
+}
+
+
+char* lastOcc( char* str, int character )
+{
+    return const_cast<char*>( lastOcc(const_cast<const char*>(str),character) );
 }

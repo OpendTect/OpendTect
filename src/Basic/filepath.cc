@@ -417,7 +417,7 @@ void FilePath::addPart( const char* fnm )
     if ( !fnm || !*fnm ) return;
 
     mSkipBlanks( fnm );
-    const int maxlen = strlen( fnm );
+    const int maxlen = strLength( fnm );
     char prev = ' ';
     char* buf = new char [maxlen+1]; *buf = '\0';
     char* bufptr = buf;

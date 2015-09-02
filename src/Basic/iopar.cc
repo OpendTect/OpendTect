@@ -1138,14 +1138,14 @@ void IOPar::putParsTo( BufferString& str ) const
 }
 
 #define mAdvanceSep( ptr, sep ) \
-    while ( *ptr && ( *ptr!=*sep || strncmp(ptr,sep,strlen(sep)) ) ) \
+    while ( *ptr && ( *ptr!=*sep || strncmp(ptr,sep,strLength(sep)) ) ) \
 	{ ptr++; } \
 \
-    if( *ptr && !strncmp(ptr,sep,strlen(sep) ) ) \
+    if( *ptr && !strncmp(ptr,sep,strLength(sep) ) ) \
     { \
 	*ptr++ = '\0'; \
 \
-	for ( unsigned int idx=1; idx<strlen(sep); idx++ ) \
+	for ( unsigned int idx=1; idx<strLength(sep); idx++ ) \
 	    { if( *ptr ) ptr++; } \
     }
 

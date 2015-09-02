@@ -88,7 +88,8 @@ BufferString& BufferString::setEmpty()
     if ( len_ != minlen_ )
 	{ destroy(); init(); }
     else
-	buf_[0] = 0;
+	buf_[0] = '\0';
+
     return *this;
 }
 
@@ -98,7 +99,7 @@ BufferString& BufferString::assignTo( const char* s )
     if ( buf_ == s ) return *this;
 
     if ( !s ) s = "";
-    setBufSize( (unsigned int)(strlen(s) + 1) );
+    setBufSize( (unsigned int)(strLength(s) + 1) );
     char* ptr = buf_;
     while ( *s ) *ptr++ = *s++;
     *ptr = '\0';
@@ -118,7 +119,8 @@ BufferString& BufferString::add( const char* s )
 {
     if ( s && *s )
     {
-	const unsigned int newsize = strlen(s) + (buf_ ? strlen(buf_) : 0) +1;
+	const unsigned int newsize = strLength(s) +
+				     ( buf_ ? strLength(buf_) : 0 ) +1;
 	setBufSize( newsize );
 
 	char* ptr = buf_;
@@ -227,10 +229,10 @@ bool BufferString::setBufSize( unsigned int newlen )
     if ( !buf_ )
 	{ buf_ = oldbuf; return false; }
     else if ( !oldbuf )
-	*buf_ = '\0';
+	buf_[0] = '\0';
     else
     {
-	unsigned int newsz = (oldbuf ? strlen( oldbuf ) : 0) + 1;
+	unsigned int newsz = (oldbuf ? strLength( oldbuf ) : 0) + 1;
 	if ( newsz > newlen )
 	{
 	    newsz = newlen;
@@ -274,7 +276,7 @@ BufferString& BufferString::replace( const char* from, const char* to )
     if ( isEmpty() || !from || !*from )
 	return *this;
 
-    const int fromlen = strlen( from );
+    const int fromlen = strLength( from );
 
     char* ptrfound = find( from );
     while ( ptrfound )
@@ -345,7 +347,7 @@ BufferString& BufferString::insertAt( int atidx, const char* string )
 
     if ( atidx < 0 )
     {
-	const int lenstr = strlen( string );
+	const int lenstr = strLength( string );
 	if ( atidx <= -lenstr )
 	    return *this;
 	string += -atidx;
@@ -362,7 +364,7 @@ BufferString& BufferString::insertAt( int atidx, const char* string )
 
 BufferString& BufferString::replaceAt( int atidx, const char* string, bool cut )
 {
-    const int strsz = string ? strlen(string) : 0;
+    const int strsz = string ? strLength(string) : 0;
     int cursz = size();
     const int nrtopad = atidx - cursz;
     if ( nrtopad > 0 )
@@ -491,7 +493,7 @@ void BufferString::init()
     {
 	mTryAlloc( buf_, char[len_] );
 	if ( buf_ )
-	    *buf_ ='\0';
+	    buf_[0] = '\0';
     }
 }
 

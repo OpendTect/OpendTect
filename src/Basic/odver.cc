@@ -178,7 +178,7 @@ void OD::Platform::set( const char* s, bool isshort )
     {
 	const bool islin = *s == 'l';
 	const bool iswin = *s == 'w';
-	const bool is64 = *(s+strlen(s)-1) == '4';
+	const bool is64 = *(s+strLength(s)-1) == '4';
 
 	type_ = islin ? (is64 ? Lin64 : Lin32)
 	    : (iswin ? (is64 ? Win64 : Win32)

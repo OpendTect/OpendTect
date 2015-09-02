@@ -1497,7 +1497,8 @@ void uiDialogBody::setTitleText( const uiString& txt )
 	uiObjectBody* tb = dynamic_cast<uiObjectBody*>( titlelbl_->body() );
 	if ( tb && !tb->itemInited() )
 	    titlelbl_->setPrefWidthInChar(
-	    mMAX( tb->prefWidthInCharSet(), strlen(txt.getFullString()) + 2 ));
+	    mMAX( tb->prefWidthInCharSet(),
+		  strLength(txt.getFullString()) + 2 ));
     }
 }
 

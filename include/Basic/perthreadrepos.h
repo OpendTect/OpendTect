@@ -41,7 +41,8 @@ typedef PerThreadObjectRepository<BufferString> StaticStringManager;
 
 
 #define mDeclStaticString(nm) \
-    mDefineStaticLocalObject( StaticStringManager, nm##_ssm, ); \
+    mDefineStaticLocalObject( StaticStringManager, nm##_ssm, \
+			      = StaticStringManager() ) \
     BufferString& nm = nm##_ssm.getObject()
 
 //Implementation

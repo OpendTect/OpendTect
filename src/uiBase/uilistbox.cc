@@ -1139,7 +1139,7 @@ int uiListBox::optimumFieldWidth( int minwdth, int maxwdth ) const
     int len = minwdth;
     for ( int idx=0; idx<sz; idx++ )
     {
-	int itlen = strlen( textOfItem(idx) );
+	int itlen = strLength( textOfItem(idx) );
 	if ( itlen >= maxwdth )
 	    { len = maxwdth; break; }
 	else if ( itlen > len )

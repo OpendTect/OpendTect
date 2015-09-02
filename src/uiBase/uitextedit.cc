@@ -111,7 +111,7 @@ void uiTextEditBase::readFromFile( const char* src, int wraplen )
 	}
 	else
 	{
-	    const int buflen = strlen( buf );
+	    const int buflen = strLength( buf );
 	    if ( wraplen < 1 || buflen < wraplen )
 		newcontents += buf;
 	    else
@@ -176,13 +176,13 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 		*ptr++ = '\0';
 		if ( linelen > 0 )
 		{
-		    const int lnlen = strlen( startptr );
+		    const int lnlen = strLength( startptr );
 		    if ( lnlen > linelen )
 			startptr[linelen] = '\0';
 		}
 	    }
 
-	    const int lnlen = strlen( startptr );
+	    const int lnlen = strLength( startptr );
 	    if ( linelen < 1 || lnlen==linelen )
 		*sd.ostrm << startptr;
 	    else

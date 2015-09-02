@@ -195,7 +195,7 @@ void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
     if ( !thd.trnr_.isUdf() )
     {
 	BufferString txt( "Trace number at byte: ", thd.trnr_.bytepos_+1 );
-	if ( thd.trnr_.small_ ) txt += " (2-byte)";
+	if ( thd.trnr_.issmall_ ) txt += " (2-byte)";
 	putAt( 8, 6, 6+txt.size(), txt.buf() );
     }
 
@@ -635,7 +635,7 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     HdrEntry he( *hdrDef()[EntryTrwf()] );
     mDefineStaticLocalObject( bool, postscale_byte_established, = false );
     mDefineStaticLocalObject( int, bnr, = he.bytepos_ );
-    mDefineStaticLocalObject( bool, smallbtsz, = he.small_ );
+    mDefineStaticLocalObject( bool, smallbtsz, = he.issmall_ );
     if ( !postscale_byte_established )
     {
 	postscale_byte_established = true;
@@ -645,7 +645,7 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
     }
 
     he.bytepos_ = (HdrEntry::BytePos)bnr;
-    he.small_ = smallbtsz;
+    he.issmall_ = smallbtsz;
     const short trwf = (short)he.getValue( buf_, needswap_ );
     if ( trwf == 0 || trwf > 50 || trwf < -50 ) return 1;
 

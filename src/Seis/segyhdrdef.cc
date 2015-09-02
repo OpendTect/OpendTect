@@ -36,7 +36,7 @@ SEGY::HdrEntry& SEGY::HdrEntry::operator =( const SEGY::HdrEntry& he )
     if ( this != &he )
     {
 	bytepos_ = he.bytepos_;
-	small_ = he.small_;
+	issmall_ = he.issmall_;
 	type_ = he.type_;
 	setDescription( he.desc_ );
 	setName( he.name_ );
@@ -74,7 +74,7 @@ void SEGY::HdrEntry::setName( const char* nm )
     if ( !nm )
 	name_ = 0;
     else
-	{ name_ = new char [strlen(nm)+1]; strcpy(name_,nm); }
+	{ name_ = new char [strLength(nm)+1]; strcpy(name_,nm); }
 }
 
 
@@ -84,7 +84,7 @@ void SEGY::HdrEntry::setDescription( const char* d )
     if ( !d )
 	desc_ = 0;
     else
-	{ desc_ = new char [strlen(d)+1]; strcpy(desc_,d); }
+	{ desc_ = new char [strLength(d)+1]; strcpy(desc_,d); }
 }
 
 
@@ -111,7 +111,7 @@ int SEGY::HdrEntry::getValue( const void* buf, bool swapped ) const
     if ( !isInternal() )
 	byteposition--;
 
-    if ( small_ )
+    if ( issmall_ )
 	return type_ == UInt ? IbmFormat::asUnsignedShort( mGetBytes() )
 			     : IbmFormat::asShort( mGetBytes() );
     else if ( type_ == UInt )
@@ -134,7 +134,7 @@ void SEGY::HdrEntry::putValue( void* buf, int val ) const
 	byteposition--;
 
     unsigned char* ptr = ((unsigned char*)buf) + byteposition;
-    if ( small_ )
+    if ( issmall_ )
     {
 	if ( type_ == UInt )
 	    IbmFormat::putUnsignedShort( (unsigned short)val, ptr );
@@ -162,7 +162,7 @@ void SEGY::HdrEntry::fillPar( IOPar& iop, const char* ky ) const
 	short byteposition = bytepos_;
 	byteposition -= byteposition % 2; // make sure we are 'internal'
 	iop.set( ky, byteposition );
-	iop.set( BufferString(sKeyBytesFor,ky), small_ ? 2 : 4 );
+	iop.set( BufferString(sKeyBytesFor,ky), issmall_ ? 2 : 4 );
     }
 }
 
@@ -172,9 +172,9 @@ void SEGY::HdrEntry::usePar( const IOPar& iop, const char* ky )
     int byteposition = bytepos_; iop.get( ky, byteposition );
     byteposition -= byteposition % 2; // make sure we are 'internal'
     bytepos_ = (HdrEntry::BytePos)byteposition;
-    int nb = small_ ? 2 : 4;
+    int nb = issmall_ ? 2 : 4;
     iop.get( BufferString(sKeyBytesFor,ky), nb );
-    small_ = nb < 4;
+    issmall_ = nb < 4;
 }
 
 
@@ -192,6 +192,7 @@ void SEGY::HdrEntry::removeFromPar( IOPar& iop, const char* ky ) const
 #define mAddHead(nm,desc) mAddHdr(nm,true,desc)
 #define mAddHead4(nm,desc) mAddHdr(nm,false,desc)
 
+static const char* sKeyStatic = " static ";
 
 void SEGY::HdrDef::mkTrc()
 {
@@ -237,9 +238,9 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "swevel", "subweathering velocity" );
     mAddHead( "sut", "uphole time at source" );
     mAddHead( "gut", "uphole time at receiver group" );
-    mAddHead( "sstat", "source static correction" );		// 30
-    mAddHead( "gstat", "group static correction" );
-    mAddHead( "tstat", "total static applied" );
+    mAddHead( "sstat", BufferString("source",sKeyStatic,"correction") ); // 30
+    mAddHead( "gstat", BufferString("group",sKeyStatic,"correction") );
+    mAddHead( "tstat", BufferString("total",sKeyStatic,"applied") );
     mAddHead( "laga", "lag time A, time in ms between end of 240-byte trace "
 	    "identification header and time break, positive if time break "
 	    "occurs after end of header" );
@@ -287,8 +288,10 @@ void SEGY::HdrDef::mkTrc()
     mAddHead( "timbas", "time basis code" );
     mAddHead( "trwf", "trace weighting factor" );
     mAddHead( "grnors", "geophone group number of roll switch position one" );
-    mAddHead( "grnofr", "geophone group number of trace one within original field record" );
-    mAddHead( "grnlof", "geophone group number of last trace within original field record" );
+    mAddHead( "grnofr", "geophone group number of trace one within original "
+			"field record" );
+    mAddHead( "grnlof", "geophone group number of last trace within original "
+			"field record" );
     mAddHead( "gaps", "gap size (total number of groups dropped)" );
     mAddHead( "otrav", "overtravel taper code" );		// 70
     mAddHead4( "Xcdp", "X coordinate of CDP (scalco applies)" ); // 71

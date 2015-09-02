@@ -768,7 +768,7 @@ void CmdRecorder::flush()
 	return;
 
     int sz = bufstr_.size();
-    const int nrchars = strlen( bufstream_.result() );
+    const int nrchars = strLength( bufstream_.result() );
     bufstr_.setBufSize( mMAX(sz+nrchars+1, 2*bufsize_) );
 
     for ( int idx=0; idx<nrchars; idx++ )

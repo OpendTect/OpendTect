@@ -173,7 +173,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	BufferString progfiles=GetSpecialFolderLocation(CSIDL_PROGRAM_FILES);
 
 	if ( ( !progfiles.isEmpty() &&
-	       !strncasecmp(progfiles, datadir, strlen(progfiles)) )
+	       !strncasecmp(progfiles, datadir, strLength(progfiles)) )
 	  || datadir.contains( "Program Files" )
 	  || datadir.contains( "program files" )
 	  || datadir.contains( "PROGRAM FILES" ) )
