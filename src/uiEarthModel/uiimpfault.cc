@@ -80,7 +80,8 @@ const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 
 void uiImportFault::createUI()
 {
-    infld_ = new uiFileInput( this, "Input ASCII file",
+    infld_ = new uiFileInput( this, 
+		uiStrings::phrInput(uiStrings::phrASCII(uiStrings::sFile())),
 		uiFileInput::Setup().withexamine(true)
 		.defseldir(GetDataDir()) );
     infld_->valuechanged.notify( mCB(this,uiImportFault,inputChgd) );
@@ -93,7 +94,7 @@ void uiImportFault::createUI()
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
 
-	formatfld_ = new uiFileInput( this, "Input Landmark formatfile",
+	formatfld_ = new uiFileInput( this, tr("Input Landmark formatfile"),
 				      uiFileInput::Setup(uiFileDialog::Gen)
 				      .filter("*.fault_fmt") );
 	formatfld_->attach( alignedBelow, typefld_ );
@@ -128,8 +129,7 @@ void uiImportFault::createUI()
 	dataselfld_->attach( alignedBelow, infld_ );
 
     ctio_.ctxt.forread = false;
-    BufferString labl( "Output " );
-    labl += type_;
+    uiString labl( tr("Output %1").arg(type_));
     outfld_ = new uiIOObjSel( this, ctio_, labl );
     outfld_->attach( alignedBelow, dataselfld_ );
     typeSel( 0 );
@@ -198,7 +198,7 @@ bool uiImportFault::handleLMKAscii()
     EM::Fault* fault = createFault();
     mDynamicCastGet(EM::Fault3D*,fault3d,fault)
     if ( !fault3d )
-	mErrRet( "Cannot create fault" );
+	mErrRet( uiStrings::phrCannotCreate(uiStrings::sFault()) );
 
     fault3d->ref();
 
@@ -210,7 +210,7 @@ bool uiImportFault::handleLMKAscii()
 	transl->reader( *fault3d, conn, formatfld_->fileName() );
 
     if ( !exec )
-	mErrRet( "Cannot import fault" );
+	mErrRet( uiStrings::phrCannotImport(uiStrings::sFault()));
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *exec ) )
@@ -238,7 +238,7 @@ bool uiImportFault::handleAscii()
 {
     EM::Fault* fault = createFault();
     if ( !fault )
-	mErrRet( "Cannot create fault" )
+	mErrRet( uiStrings::phrCannotCreate(uiStrings::sFault()) )
 
     fault->ref();
 
@@ -248,15 +248,15 @@ bool uiImportFault::handleAscii()
 
     mDynamicCastGet(EM::Fault3D*,fault3d,fault)
 
-    const char* tp = fault3d ? "Fault" : "Faultstickset";
+    uiString tp = fault3d ? uiStrings::sFault() : uiStrings::sFaultStickSet();
 
     const bool res = getFromAscIO( strm, *fault );
     if ( !res )
-	mErrRet( BufferString("Cannot import ",tp) );
+	mErrRet( uiStrings::phrImport(tp));
     PtrMan<Executor> exec = fault->saver();
     bool isexec = exec->execute();
     if ( !isexec )
-	mErrRet( BufferString("Cannot save ",tp) );
+	mErrRet( uiStrings::phrCannotSave(tp) );
     if ( saveButtonChecked() )
     {
 	importReady.trigger();
