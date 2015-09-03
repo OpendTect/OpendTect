@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "thread.h"
 #include "strmoper.h"
 
+#include <string.h>
+
 
 static const BufferString tmpfnm( FilePath::getTempName("txt") );
 
@@ -62,30 +64,67 @@ bool testPipeInput()
 {
     FixedString message = "OpendTect rules";
     const BufferString command( "@echo ", message );
-    StreamData streamdata = StreamProvider( command ).makeIStream();
-    mRunStandardTest( streamdata.istrm,  "Creation of standard input stream");
-    PtrMan<od_istream> istream = new od_istream(streamdata.istrm);
 
-    BufferString streaminput;
-    mRunStandardTest( istream->getAll( streaminput ) , "Read from pipe" );
-
-    //If EOF and too short message, retry ten times
-    for ( int idx=0; idx<10 && istream->atEOF() && streaminput.size()<message.size(); idx++ )
     {
-	Threads::sleep(1);
+	StreamData streamdata = StreamProvider( command ).makeIStream();
+	mRunStandardTest( streamdata.istrm,"Creation of standard input stream");
+	PtrMan<od_istream> istream = new od_istream(streamdata.istrm);
 
-	BufferString newmsg;
-	if ( istream->getAll(newmsg))
+	BufferString streaminput;
+	mRunStandardTest( istream->getAll( streaminput ) , "Read from pipe" );
+
+	//If EOF and too short message, retry ten times
+	for ( int idx=0;
+	      idx<10 && istream->atEOF() && streaminput.size()<message.size();
+	      idx++ )
 	{
-	    streaminput += newmsg;
+	    Threads::sleep(1);
+
+	    BufferString newmsg;
+	    if ( istream->getAll(newmsg))
+	    {
+		streaminput += newmsg;
+	    }
 	}
+
+	mRunStandardTest( streaminput==message, "Pipe content check (Input)" );
+
+	istream->getAll(streaminput); //Try to read beyond
+	mRunStandardTest(istream->atEOF() && streaminput.isEmpty(),
+			"Force read at end of stream");
     }
+    {
+	StreamData streamdata = StreamProvider( command ).makeIStream();
+	mRunStandardTest( streamdata.istrm,
+			  "Creation of standard input stream (binary)");
+	PtrMan<od_istream> istream = new od_istream(streamdata.istrm);
 
-    mRunStandardTest( streaminput==message, "Pipe content check (Input)" );
+#define mSize	(100)
+	char streaminput[mSize];
+	memset( streaminput, 0, mSize );
 
-    istream->getAll(streaminput); //Try to read beyond
-    mRunStandardTest(istream->atEOF() && streaminput.isEmpty(), "Force read at end of stream")
+	mRunStandardTest( !istream->getBin( streaminput, mSize-1 ) ,
+			  "Read from pipe to binary buffer should fail" );
 
+	//If EOF and too short message, retry ten times
+	for ( int idx=0;
+	      idx<10 && istream->atEOF() && strlen(streaminput)<message.size();
+	      idx++ )
+	{
+	    Threads::sleep(1);
+
+	    const int sz = strlen(streaminput);
+	    istream->getBin(streaminput+sz,mSize-sz-1);
+	}
+
+	mRunStandardTest( !strncmp(message.buf(),streaminput,message.size()),
+			  "Pipe content check (Input-binary)" );
+
+	streaminput[0] = 0; //Try to read beyond
+	istream->getBin(streaminput,mSize-1);
+	mRunStandardTest(istream->atEOF() && !strlen(streaminput),
+			"Force read at end of stream - binary");
+    }
 
     return true;
 }
