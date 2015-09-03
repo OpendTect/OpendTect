@@ -537,6 +537,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
     , scaler_(0)
     , rdr_(*new SeisTrcReader(ioobj_))
     , dc_(DataCharacteristics::Auto)
+    , initialized_(false)
 {
     SeisIOObjInfo info( ioobj );
     info.getDataChar( dc_ );
@@ -590,6 +591,10 @@ RegularSeisDataPack* SequentialReader::getDataPack()
 
 bool SequentialReader::init()
 {
+    if ( initialized_ )
+	return true;
+
+    msg_ = tr("Initializing reader");
     const SeisIOObjInfo info( *ioobj_ );
     if ( !info.isOK() ) return false;
 
@@ -620,12 +625,17 @@ bool SequentialReader::init()
 	    return false;
     }
 
+    initialized_ = true;
+    msg_ = uiStrings::phrReading( uiStrings::sData() );
     return true;
 }
 
 
 int SequentialReader::nextStep()
 {
+    if ( !initialized_ && !init() )
+	return ErrorOccurred();
+
     if ( Threads::WorkManager::twm().queueSize(queueid_) >
 	 100*Threads::WorkManager::twm().nrThreads() )
 	return MoreToDo();
