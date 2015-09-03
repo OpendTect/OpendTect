@@ -120,7 +120,7 @@ bool PreLoader::load( const TrcKeyZSampling& tkzs,
 	SequentialReader rdr( *ioobj, &tkzs );
 	rdr.setScaler( scaler );
 	rdr.setDataChar( type );
-	if ( !rdr.init() || !trunnr.execute(rdr) )
+	if ( !trunnr.execute(rdr) )
 	{
 	    errmsg_ = rdr.uiMessage();
 	    return false;

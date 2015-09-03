@@ -172,6 +172,7 @@ protected:
     od_int64			totalnr_;
     od_int64			nrdone_;
     uiString			msg_;
+    bool			initialized_;
 };
 
 } // namespace Seis
