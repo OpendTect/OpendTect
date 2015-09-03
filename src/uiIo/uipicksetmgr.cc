@@ -19,10 +19,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "keystrs.h"
+#include "uimain.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "pickset.h"
 #include "picksettr.h"
+#include "keyboardevent.h"
 #include "ptrman.h"
 #include "od_helpids.h"
 
@@ -31,6 +33,8 @@ uiPickSetMgr::uiPickSetMgr( uiParent* p, Pick::SetMgr& m )
     : setmgr_(m)
     , parent_(p)
 {
+    mAttachCB(uiMain::keyboardEventHandler().keyPressed,
+	uiPickSetMgr::keyPressedCB);
 }
 
 
@@ -251,4 +255,27 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 	    PickSetTranslatorGroup::sKeyPickSet() );
     IOM().commitChanges( *dlg.ctioout_.ioobj );
     deepErase( pssread );
+}
+
+
+
+void uiPickSetMgr::keyPressedCB( CallBacker* )
+{
+    if ( !uiMain::keyboardEventHandler().hasEvent() )
+	return;
+
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+
+    if ( KeyboardEvent::isUnDo( kbe ) )
+    {
+	uiMain::keyboardEventHandler().setHandled(true);
+	setmgr_.undo().unDo(1,true);
+    }
+
+    if ( KeyboardEvent::isReDo( kbe ) )
+    {
+	uiMain::keyboardEventHandler().setHandled(true);
+	setmgr_.undo().reDo(1,true);
+    }
+
 }

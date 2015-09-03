@@ -77,6 +77,7 @@ public:
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void                fillPar(IOPar&) const;
     virtual bool                usePar(const IOPar&);
+    virtual void		setSelectionMode(bool){};
 
     int				getPickIdx(visBase::DataObject*) const;
 
@@ -93,6 +94,8 @@ protected:
 				LocationDisplay();
     virtual void		setPosition(int idx,
 	    				    const Pick::Location&);
+    virtual void		setPosition(int idx,const Pick::Location&,
+					    bool add) {};
     virtual void		removePosition(int);
     virtual void		removeAll();
 
@@ -102,6 +105,8 @@ protected:
 					const visBase::EventInfo& evi)const;
     virtual bool		isMarkerClick(
 					const visBase::EventInfo& evi)const;
+    virtual void		updateDragger() const {};
+    virtual bool		removeSelections() { return false; }
 
     virtual int			isDirMarkerClick(const TypeSet<int>&) const;
     void			triggerDeSel();
@@ -109,7 +114,7 @@ protected:
     virtual			~LocationDisplay();
 
     bool			addPick(const Coord3&,const Sphere&,bool);
-    void			removePick(int);
+    void			removePick(int,bool setundo=true);
 
     bool			getPickSurface(const visBase::EventInfo&,
 					   Coord3& pos, Coord3& normal) const;
@@ -134,6 +139,8 @@ protected:
     int				mousepressid_;
     int				pickedsobjid_; //!< Picked SurveyObject ID
     int				voiidx_;
+    bool			ctrldown_;
+    ObjectSet< Selector<Coord3> >   selectors_;
 
     visBase::EventCatcher*	eventcatcher_;
     const mVisTrans*		transformation_;
@@ -148,6 +155,13 @@ protected:
     static const char*		sKeyMarkerSize();
 
     Sower*			sower_;
+    Coord3			undoloccoord_;
+    bool			undomove_;
+    bool			selectionmodel_;
+
+private:
+    bool			removePicks(const Selector<Coord3>&);
+
 };
 
 };

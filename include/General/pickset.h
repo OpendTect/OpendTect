@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "tableascio.h"
 #include "trigonometry.h"
+#include "undo.h"
 
 
 namespace Pick
@@ -118,6 +119,16 @@ public:
     static const char*	sKeyMarkerType()       { return "Marker Type"; }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+
+    void		removeSingleWithUndo(int idx);
+    void		insertWithUndo(int,const Pick::Location&);
+    void		appendWithUndo(const Pick::Location&);
+    void		moveWithUndo(int,const Pick::Location&,
+					const Pick::Location&);
+private:
+    enum EventType      { Insert, PolygonClose, Remove, Move };
+    void		addUndoEvent(EventType,int,const Pick::Location&);
+
 };
 
 
@@ -136,7 +147,7 @@ public:
 mExpClass(General) SetMgr : public NamedObject
 {
 public:
-
+			~SetMgr();
     int			size() const		{ return pss_.size(); }
     Set&		get( int idx )		{ return *pss_[idx]; }
     const Set&		get( int idx ) const	{ return *pss_[idx]; }
@@ -189,6 +200,9 @@ public:
     void		setUnChanged( int idx, bool yn=true )
 			{ if ( changed_.validIdx(idx) ) changed_[idx] = !yn; }
 
+    Undo&		undo();
+    const Undo&		undo() const;
+
     static SetMgr&	getMgr(const char*);
 
     			SetMgr( const char* nm );
@@ -197,6 +211,7 @@ public:
 
 protected:
 
+    Undo&		undo_;
     ObjectSet<Set>	pss_;
     TypeSet<MultiID>	ids_;
     BoolTypeSet		changed_;

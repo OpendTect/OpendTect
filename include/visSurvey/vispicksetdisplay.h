@@ -18,7 +18,8 @@ ________________________________________________________________________
 #include "vislocationdisplay.h"
 
 namespace visBase { class MarkerSet; class PolyLine;
-		    class DrawStyle; class RandomPos2Body; }
+		    class DrawStyle; class RandomPos2Body; 
+		    class Dragger; }
 
 namespace visSurvey
 {
@@ -66,7 +67,7 @@ public:
     void			showLine(bool);
     bool			lineShown() const;
 
-    void			redrawAll();
+    void			redrawAll(int draggeridx=-1);
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -75,6 +76,8 @@ protected:
 				~PickSetDisplay();
 
     void			setPosition(int loc,const Pick::Location&);
+    void			setPosition(int idx,const Pick::Location&,
+					    bool add);
     Coord3			getPosition(int loc) const;
     void			removePosition(int idx);
     void			removeAll();
@@ -94,6 +97,18 @@ protected:
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,int);
+    virtual void		updateDragger();
+
+    visBase::MarkerSet*		createOneMarker() const;
+    const Coord3		getPlaneDataNormal();
+    void			setSelectionMode(bool);
+    void			polygonFinishedCB(CallBacker*);
+    void			updateSelections(
+					    const visBase::PolygonSelection*);
+    bool			removeSelections();
+
+
+    //const Coord3		calculateDraggerRotation(float&);
 
     visBase::MarkerSet*		markerset_;
     visBase::PolyLine*		polyline_;
@@ -105,6 +120,17 @@ protected:
 
     visBase::RandomPos2Body*	bodydisplay_;
     bool			shoulddisplaybody_;
+    visBase::Dragger*		dragger_;
+    int				draggeridx_;
+
+private:
+    void			setPickSelect(int,bool);
+    void			unSelectAll();
+    Color			unselcorlor_;
+    Color			selcolor_;
+    BoolTypeSet			pickselstatus_;
+
+    //Coord3			rotationaxis_;
 };
 
 } // namespace visSurvey
