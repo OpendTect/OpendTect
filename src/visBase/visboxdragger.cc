@@ -20,8 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/Version>
-#include <osg/material>
-
+#include <osg/Material>
 #include <osgGeo/TabBoxDragger>
 
 

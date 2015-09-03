@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/LightModel>
 #include <osg/BlendFunc>
 #include <osg/Version>
-#include <osg/material>
+#include <osg/Material>
 
 mCreateFactoryEntry( visBase::DepthTabPlaneDragger );
 
