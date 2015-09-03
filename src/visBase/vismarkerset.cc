@@ -411,11 +411,21 @@ void MarkerSet::setPos( int idx, const Coord3& crd, bool draw )
 }
 
 
+void MarkerSet::insertPos( int idx, const Coord3& crd, bool draw )
+{
+    if ( coords_ ) 
+	coords_->insertPos( idx, crd );
+    if ( draw && markerset_ )
+	markerset_->forceRedraw( true );
+}
+
+
 void MarkerSet::forceRedraw( bool yn )
 {
     if ( markerset_ )
 	markerset_->forceRedraw( yn );
 }
+
 
 int MarkerSet::size() const
 {

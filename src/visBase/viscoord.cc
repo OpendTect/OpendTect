@@ -216,20 +216,27 @@ int Coordinates::addPos( const Coord3& pos )
 
 void Coordinates::insertPos( int idx, const Coord3& pos )
 {
-    pErrMsg( "Not implemented" );
-    return;
-	/*
     Threads::MutexLocker lock( mutex_ );
 
-    coords_->point.insertSpace( idx, 1 );
-    for ( int idy=unusedcoords_.size()-1; idy>=0; idy-- )
+    if ( unusedcoords_.isPresent(idx) || 
+	mGetOsgVec3Arr(osgcoords_)->size()<idx )
+	return;
+
+    Coord3 postoset = pos;
+    if ( postoset.isDefined() && transformation_ )
+	transformation_->transform(postoset);
+
+    mGetOsgVec3Arr(osgcoords_)->insert( 
+	mGetOsgVec3Arr(osgcoords_)->begin()+idx,Conv::to<osg::Vec3f>(postoset));
+
+    for ( int idy = unusedcoords_.size()-1; idy>=0; idy-- )
     {
 	if ( unusedcoords_[idy]>=idx )
 	    unusedcoords_[idy]++;
     }
 
-    setPosWithoutLock(idx,pos);
-	 */
+    osgcoords_->dirty();
+
 }
 
 
