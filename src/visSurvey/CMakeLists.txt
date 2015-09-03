@@ -10,6 +10,7 @@ SET(OD_MODULE_SOURCES
 		initvissurvey.cc
 		visarrowdisplay.cc
 		visemobjdisplay.cc
+		visemsticksetdisplay.cc
 		visfaultdisplay.cc
 		visfaultsticksetdisplay.cc
 		vishorizondisplay.cc
