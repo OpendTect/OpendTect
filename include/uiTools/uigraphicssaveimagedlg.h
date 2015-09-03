@@ -23,7 +23,6 @@ public:
 protected:
     uiGraphicsScene*	scene_;
   
-    const char*		getExtension();
     void		getSupportedFormats(const char** imagefrmt,
 					    const char** frmtdesc,
 					    BufferString& filters);

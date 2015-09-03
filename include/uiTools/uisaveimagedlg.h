@@ -44,6 +44,8 @@ public:
     void                fillPar(IOPar&,bool is2d);
     bool                usePar(const IOPar&);
 
+    static void		addPrintFmtFilters(BufferString&);
+
 protected:
     void		setDirName(const char*);
 
