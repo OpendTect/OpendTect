@@ -788,16 +788,16 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
       if ( !scene_ || ! scene_->getPolySelection() ) 
 	  return;
 
-    visBase::PolygonSelection* selection =  scene_->getPolySelection();
+    visBase::PolygonSelection* polysel =  scene_->getPolySelection();
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
-    if ( (!selection->hasPolygon() && !selection->singleSelection()) ) 
+    if ( (!polysel->hasPolygon() && !polysel->singleSelection()) ) 
     { 	unSelectAll();  return;  }
 
     if ( !ctrldown_ )
 	unSelectAll();
 
-    TypeSet<int> overlapselectors = findOverlapSelectors( selection );
+    TypeSet<int> overlapselectors = findOverlapSelectors( polysel );
 
     for ( int idx=overlapselectors.size()-1; idx>=0; idx-- )
     {
@@ -805,9 +805,9 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 	    selectors_.removeSingle( overlapselectors[idx] );
     }
 
-    if ( selection->hasPolygon() )
+    if ( polysel->hasPolygon() )
     {
-	visBase::PolygonSelection* copyselection = selection->copy();
+	visBase::PolygonSelection* copyselection = polysel->copy();
 	copyselection->ref();
 	visBase::PolygonCoord3Selector* selector =
 	    new visBase::PolygonCoord3Selector( *copyselection );
@@ -817,7 +817,7 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 
     updateSelections();
 
-    selection->clear();
+    polysel->clear();
 }
 
 
