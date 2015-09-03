@@ -605,11 +605,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	if ( inputs_.isEmpty() && !desc_.isStored() )
 	{
 	    if ( currentbid_.inl() == -1 && currentbid_.crl() == -1 )
-	    {
-		currentbid_.inl() = is2D() ? 0 
-					  : desiredvolume_->hsamp_.start_.inl();
-		currentbid_.crl() = desiredvolume_->hsamp_.start_.crl();
-	    }
+		currentbid_ = desiredvolume_->hsamp_.start_;
 	    else
 	    {
 		BinID prevbid = currentbid_;
