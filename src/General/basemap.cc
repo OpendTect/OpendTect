@@ -71,8 +71,12 @@ bool BaseMapObject::fillPar( IOPar& par ) const
 
 bool BaseMapObject::usePar( const IOPar& par )
 {
-    setName( par.find(sKey::Name()) );
-    setType( par.find(sKey::Type()) );
+    BufferString nm, type;
+    if ( par.get(sKey::Name(),nm) )
+	setName( nm );
+    if ( par.get(sKey::Type(),type) )
+	setType( type );
+
     return true;
 }
 
