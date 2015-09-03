@@ -42,7 +42,6 @@ mExpClass(visBase) PolygonSelection : public VisualObjectImpl
 public:
     static PolygonSelection*	create()
 				mCreateDataObj(PolygonSelection);
-
     enum			SelectionType { Off, Rectangle, Polygon };
     void			setSelectionType(SelectionType);
     SelectionType		getSelectionType() const;
@@ -52,6 +51,7 @@ public:
 
     void			clear();
     bool			hasPolygon() const;
+    bool			singleSelection() const;
     bool			isSelfIntersecting() const;
     bool			isInside(const Coord3&,
 	    				 bool displayspace=false) const;
@@ -80,6 +80,7 @@ public:
 					       int depthidx=0) const;
     void			setMasterCamera(Camera*);
     void			setHUDCamera(Camera*);
+    PolygonSelection*		copy() const;
 
 protected:
 
@@ -115,7 +116,7 @@ public:
     bool			canDoRange() const	{ return true; }
     char			includesRange(const Coord3& start,
 	    				      const Coord3& stop) const;
-
+  
 protected:
     bool			isEq(const Selector<Coord3>&) const;
 
