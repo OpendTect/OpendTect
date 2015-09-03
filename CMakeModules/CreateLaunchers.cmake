@@ -43,6 +43,10 @@ if(POLICY CMP0026)
     cmake_policy(SET CMP0026 OLD)
 endif()
 
+if(POLICY CMP0053)
+    cmake_policy(SET CMP0053 OLD)
+endif()
+
 if(__create_launchers)
 	return()
 endif()
