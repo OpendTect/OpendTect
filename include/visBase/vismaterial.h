@@ -20,6 +20,8 @@ namespace osg {
     class Material;
     class Array;
     class Geometry;
+    class StateSet;
+    class StateAttribute;
 };
 
 class IOPar;
@@ -53,7 +55,7 @@ public:
     void		setColorMode( ColorMode );
     ColorMode		getColorMode() const;
 
-    void		setColor(const Color&,int=0);
+    void		setColor(const Color&,int=-1);
 			/*!< set material's od colors by input colors.
 			using setColors() to instead of this calling
 			if having to setColor many times. */
@@ -61,9 +63,9 @@ public:
 
     void		removeColor(int idx);
 
-    void		setDiffIntensity(float,int=0);
+    void		setDiffIntensity(float);
 			/*!< Should be between 0 and 1 */
-    float		getDiffIntensity(int=0) const;
+    float		getDiffIntensity() const;
 
     void		setAmbience(float);
 			/*!< Should be between 0 and 1 */
@@ -81,7 +83,7 @@ public:
 			/*!< Should be between 0 and 1 */
     float		getShininess() const;
 
-    void		setTransparency(float,int idx=0);
+    void		setTransparency(float,int idx=0,bool updt=false);
 			/*!< Should be between 0 and 1 */
     void		setAllTransparencies( float n );
 			/*!< Should be between 0 and 1 */
@@ -105,21 +107,20 @@ public:
 
     void		setColorBindType(unsigned int);
     
-    const TypeSet<Color>	getColors();
+    const TypeSet<Color> getColors();
 
 private:
 			~Material();
-    void		setMinNrOfMaterials(int,bool synchronize = true,
-						    bool trigger = true );
-			//!<Assumes that object is write locked
-    void		updateOsgColor(int);
-			//!<Needs to be read or write locked
+			//!Used when no array is present
+   void		    	updateOsgMaterial();
+
     void		createOsgColorArray(int);
-    void		synchronizingOsgColorArray(bool trigger = true);
-			//!Assumes object is write-locked
+    void		setColorArray(osg::Array*);
     void		removeOsgColor(int);
 			//!Assumes object is write-locked
-    float		getRescaledTransparency(int) const;
+    float		getRescaledTransparency() const;
+    virtual void	applyAttribute(osg::StateSet*,
+				       osg::StateAttribute*);
 
     static const char*	sKeyColor();
     static const char*	sKeyAmbience();
@@ -133,18 +134,17 @@ private:
 
     osg::Material*	material_;
 
+    Color		color_;
     float		ambience_;
     float		specularintensity_;
     float		emmissiveintensity_;
     float		shininess_;
+    float		diffuseintensity_;
 
     unsigned int	colorbindtype_;
 
-    mutable Threads::Lock lock_;
+    mutable Threads::Lock	lock_;
     /*!< the lock will protect below variables */
-    TypeSet<Color>		colors_;
-    TypeSet<float>		diffuseintensity_;
-    TypeSet<float>		transparency_;
     osg::Array*			osgcolorarray_;
     ObjectSet<osg::Geometry>	attachedgeoms_;
     float			transparencybendpower_;

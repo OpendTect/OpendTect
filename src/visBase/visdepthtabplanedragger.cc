@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/LightModel>
 #include <osg/BlendFunc>
 #include <osg/Version>
+#include <osg/material>
 
 mCreateFactoryEntry( visBase::DepthTabPlaneDragger );
 
@@ -176,7 +177,6 @@ DepthTabPlaneDragger::DepthTabPlaneDragger()
     , osgdraggerplane_( 0 )
     , osgcallbackhandler_( 0 )
 {
-
     initOsgDragger();
 
     centers_ += center(); centers_ += center(); centers_ += center();
@@ -268,6 +268,9 @@ void DepthTabPlaneDragger::initOsgDragger()
     geode->getStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     geode->getStateSet()->setAttributeAndModes(
 		    new osg::PolygonOffset(1.0,1.0),
+		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
+    osgdragger_->getStateSet()->setAttributeAndModes(
+		    new osg::Material,
 		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
     geode->setNodeMask( Math::SetBits( geode->getNodeMask(),
 			    visBase::cDraggerIntersecTraversalMask(), false) );
