@@ -256,7 +256,7 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     if ( !newscene ) newscene = visSurvey::Scene::create();
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     newscene->keypressed.notify( mCB(this,uiVisPartServer,keyEventCB) );
-    newscene->mouseclicked.notify( mCB(this,uiVisPartServer, mouseEventCB) );
+    newscene->mouseclicked.notify( mCB(this,uiVisPartServer,mouseEventCB) );
     newscene->ref();
     newscene->setPixelDensity( (float) uiMain::getDPI() );
     scenes_ += newscene;
@@ -283,7 +283,7 @@ void uiVisPartServer::removeScene( int sceneid )
 
 	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
 	scene->keypressed.remove( mCB(this,uiVisPartServer,keyEventCB) );
-	scene->mouseclicked.remove( mCB(this,uiVisPartServer, mouseEventCB) );
+	scene->mouseclicked.remove( mCB(this,uiVisPartServer,mouseEventCB) );
 	pickretriever_->removeScene( scene );
 	scene->unRef();
 	scenes_ -= scene;
