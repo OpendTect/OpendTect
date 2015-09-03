@@ -33,6 +33,35 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace visSurvey {
 
+class PlaneDataMoveUndoEvent: public UndoEvent
+{
+public:
+		    PlaneDataMoveUndoEvent( PlaneDataDisplay* pdd,  
+			const TrcKeyZSampling starttkz,
+			const TrcKeyZSampling endtkz )
+			: pdd_( pdd )
+			, starttkz_( starttkz )
+			, endtkz_( endtkz )
+		    {}
+
+    const char* getStandardDesc() const
+    { return "Move plane data"; }
+
+
+    bool unDo()
+    { return pdd_->updatePlanePos( starttkz_ ); }
+
+
+    bool reDo()
+    { return pdd_->updatePlanePos( endtkz_ ); }
+
+private: 
+    RefMan<PlaneDataDisplay> pdd_;
+    const TrcKeyZSampling starttkz_;
+    const TrcKeyZSampling endtkz_;
+};
+
+
 DefineEnumNames(PlaneDataDisplay,SliceType,1,"Orientation")
 { "Inline", "Crossline", "Z-slice", 0 };
 
@@ -50,6 +79,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , csfromsession_( false )
     , eventcatcher_( 0 )
     , texturerect_( 0 )
+    , undo_( *new Undo() )
 {
     texturerect_ = visBase::TextureRectangle::create();
     addChild( texturerect_->osgNode() );
@@ -61,10 +91,10 @@ PlaneDataDisplay::PlaneDataDisplay()
     rposcache_.allowNull( true );
 
     dragger_->ref();
-    dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
-    dragger_->finished.notify( mCB(this,PlaneDataDisplay,draggerFinish) );
-    dragger_->rightClicked()->notify(
-			mCB(this,PlaneDataDisplay,draggerRightClick) );
+    mAttachCB( dragger_->started, PlaneDataDisplay::draggerStart );
+    mAttachCB( dragger_->motion, PlaneDataDisplay::draggerMotion );
+    mAttachCB( dragger_->finished, PlaneDataDisplay::draggerFinish );
+    mAttachCB( dragger_->rightClicked(), PlaneDataDisplay::draggerRightClick );
 
     dragger_->setDim( (int) 0 );
 
@@ -89,17 +119,14 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     init();
     showManipulator( dragger_->isOn() );
+    startmovepos_.setEmpty();
+
 }
 
 
 PlaneDataDisplay::~PlaneDataDisplay()
 {
     setSceneEventCatcher( 0 );
-    dragger_->motion.remove( mCB(this,PlaneDataDisplay,draggerMotion) );
-    dragger_->finished.remove( mCB(this,PlaneDataDisplay,draggerFinish) );
-    dragger_->rightClicked()->remove(
-			mCB(this,PlaneDataDisplay,draggerRightClick) );
-
     deepErase( rposcache_ );
     setZAxisTransform( 0,0 );
 
@@ -112,7 +139,13 @@ PlaneDataDisplay::~PlaneDataDisplay()
 
     dragger_->unRef();
     gridlines_->unRef();
+    undo_.removeAll();
+    delete &undo_;
 }
+
+
+const Undo& PlaneDataDisplay::undo() const	{ return undo_; }
+Undo& PlaneDataDisplay::undo()			{ return undo_; }
 
 
 void PlaneDataDisplay::setOrientation( SliceType nt )
@@ -205,7 +238,7 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition(const TrcKeyZSampling& cs) const
 }
 
 
-Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
+Coord3 PlaneDataDisplay::getNormal( const Coord3& pos  ) const
 {
     if ( orientation_==OD::ZSlice )
 	return Coord3(0,0,1);
@@ -332,6 +365,10 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
 }
 
 
+void PlaneDataDisplay::draggerStart( CallBacker* )
+{ startmovepos_ = getTrcKeyZSampling( true,true ); }
+
+
 void PlaneDataDisplay::draggerMotion( CallBacker* )
 {
     moving_.trigger();
@@ -368,6 +405,23 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
 	setDraggerPos( snappedcs );
 
     updateSel();
+    
+    PlaneDataMoveUndoEvent* undoevent =  
+	new PlaneDataMoveUndoEvent( this, startmovepos_, snappedcs );
+
+    undo_.addEvent( undoevent, 0 );
+    undo_.setUserInteractionEnd( undo_.currentEventID() );
+}
+
+
+bool PlaneDataDisplay::updatePlanePos( const TrcKeyZSampling& tkz )
+{
+    if ( !tkz.isDefined() || tkz.isEmpty() )
+	return false;
+
+    setDraggerPos( tkz );
+    updateSel();
+    return true;
 }
 
 

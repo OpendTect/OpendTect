@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "oduicommon.h"
 #include "ranges.h"
+#include "undo.h"
 
 
 template <class T> class Array2D;
@@ -154,7 +155,9 @@ public:
     float			getZScale() const;
     const mVisTrans*		getDisplayTransformation() const
 				{ return displaytrans_; }
-
+    bool			updatePlanePos(const TrcKeyZSampling&);
+    Undo&			undo();
+    const Undo&			undo() const;
 protected:
 				~PlaneDataDisplay();
 
@@ -179,6 +182,7 @@ protected:
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
     void			draggerMotion(CallBacker*);
+    void			draggerStart(CallBacker*);
     void			draggerFinish(CallBacker*);
     void			draggerRightClick(CallBacker*);
     void			setDraggerPos(const TrcKeyZSampling&);
@@ -228,6 +232,8 @@ protected:
 	Coord		oldimagesize_;
     };
     UpdateStageInfo			updatestageinfo_;
+    TrcKeyZSampling			startmovepos_;
+    Undo&				undo_;
 
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyResolution()  { return "Resolution"; }

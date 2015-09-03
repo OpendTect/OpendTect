@@ -10,7 +10,8 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "keyboardevent.h"
-
+#include "odver.h"
+#include "odplatform.h"
 
 KeyboardEvent::KeyboardEvent()
     : key_( OD::NoKey )
@@ -25,6 +26,31 @@ bool KeyboardEvent::operator ==( const KeyboardEvent& ev ) const
 
 bool KeyboardEvent::operator !=( const KeyboardEvent& ev ) const
 { return !(ev==*this); }
+
+
+bool KeyboardEvent::isUnDo( const KeyboardEvent& kbe )
+{
+    const OD::ButtonState bs =
+	OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
+    return ( bs==OD::ControlButton && kbe.key_==OD::Z && !kbe.isrepeat_ );
+}
+
+
+bool KeyboardEvent::isReDo( const KeyboardEvent& kbe )
+{
+    const OD::ButtonState bs =
+	OD::ButtonState(kbe.modifier_ & OD::KeyButtonMask);
+    
+    const OD::Platform platform = OD::Platform::local();
+
+    if ( platform.isWindows() || platform.isLinux() )
+	return (bs==OD::ControlButton && kbe.key_==OD::Y && !kbe.isrepeat_);
+    else if ( platform.isMac() )
+	return (OD::ctrlKeyboardButton(bs) && OD::shiftKeyboardButton(bs) && 
+	    kbe.key_==OD::Z && !kbe.isrepeat_);
+
+    return false;
+}
 
 
 KeyboardEventHandler::KeyboardEventHandler()
