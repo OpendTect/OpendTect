@@ -106,6 +106,9 @@ public:
     void			getMousePosInfo(const visBase::EventInfo& ei,
 						IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
+    void			getMousePosInfo(const visBase::EventInfo&,
+					Coord3& xyzpos,BufferString& val,
+					BufferString& info) const;
 
     virtual void		setPixelDensity(float dpi);
     virtual void		fillPar(IOPar&) const;

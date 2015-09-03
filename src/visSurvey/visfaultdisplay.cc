@@ -1725,6 +1725,14 @@ void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 }
 
 
+void FaultDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
+				    Coord3& pos, BufferString& val,
+				    BufferString& info ) const
+{
+    StickSetDisplay::getMousePosInfo( eventinfo, pos, val, info );
+}
+
+
 int FaultDisplay::addDataPack( const DataPointSet& dpset ) const
 {
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );

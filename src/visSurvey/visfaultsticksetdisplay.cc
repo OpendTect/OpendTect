@@ -1096,6 +1096,14 @@ void FaultStickSetDisplay::updateAll()
 }
 
 
+void FaultStickSetDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
+    Coord3& pos,BufferString& val,
+    BufferString& info) const
+{
+    StickSetDisplay::getMousePosInfo(eventinfo,pos,val,info);
+}
+
+
 void FaultStickSetDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
