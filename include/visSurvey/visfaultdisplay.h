@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
+#include "visemsticksetdisplay.h"
 
 #include "emposid.h"
 #include "explfaultsticksurface.h"
@@ -29,6 +30,7 @@ namespace visBase
     class Transformation;
     class PolyLine3D;
     class DrawStyle;
+    class PolyLine;
 }
 
 namespace EM { class Fault3D; }
@@ -51,7 +53,8 @@ class HorizonDisplay;
 
 */
 
-mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
+mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject 
+				    , public StickSetDisplay
 { mODTextTranslationClass(FaultDisplay);
 public:
 				FaultDisplay();
@@ -139,10 +142,6 @@ public:
 	    					IOPar& iop ) const
 				{ return MultiTextureSurveyObject
 				    	::getMousePosInfo(ei,iop); }
-    void			getMousePosInfo(const visBase::EventInfo&,
-					Coord3& xyzpos,BufferString& val,
-					BufferString& info) const;
-
 
     bool			allowsPicks() const		{ return true; }
     bool			isVerticalPlane() const		{return false;}
@@ -159,9 +158,9 @@ public:
 				    int whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
 
-    EM::Fault3D*		emFault()	{ return emfault_; }
+    EM::Fault3D*		emFault();
     void			showSelectedSurfaceData();
-    const BufferStringSet*	selectedSurfaceDataNames() const;
+    const BufferStringSet*	selectedSurfaceDataNames();
     const Array2D<float>*	getTextureData(int attrib);
     void			matChangeCB(CallBacker*);
     virtual void		setPixelDensity(float dpi);
@@ -222,8 +221,6 @@ protected:
     void			updateStickHiding();
     void			setLineRadius(visBase::GeomIndexedShape*);
 
-    visBase::EventCatcher*		eventcatcher_;
-    const mVisTrans*			displaytransform_;
     ZAxisTransform*			zaxistransform_;
     int					voiid_;
 
@@ -247,38 +244,24 @@ protected:
     visBase::PolyLine3D*		activestickmarker_;
     int					activestick_;
 
-    EM::Fault3D*			emfault_;
     MPE::FaultEditor*			faulteditor_;
     visSurvey::MPEEditor*		viseditor_;
 
     Coord3				mousepos_;
 
     TypeSet<DataPack::ID>		datapackids_;
-    bool				showmanipulator_;
 
     bool				validtexture_;
     Color				nontexturecol_;
     bool				usestexture_;
 
-    bool				displaysticks_;
     bool				displaypanels_;
 
-    bool				stickselectmode_;
-    bool				ctrldown_;
-    ObjectSet<visBase::MarkerSet>	knotmarkersets_;
     ObjectSet<Array2D<float> >		texuredatas_;
-
-    struct StickIntersectPoint
-    {
-	Coord3				pos_;
-	EM::SectionID		sid_;
-	int				sticknr_;
-    };
-
-    ObjectSet<StickIntersectPoint> stickintersectpoints_;
 
     visBase::DrawStyle*			drawstyle_;
     bool				otherobjects_;
+    bool				endstick_;
 
     static const char*			sKeyTriProjection();
     static const char*			sKeyEarthModelID();
@@ -289,6 +272,12 @@ protected:
     static const char*			sKeyUseTexture();
     static const char*			sKeyLineStyle();
     static const char*			sKeyZValues();
+
+    //////////////////////////////////////////////////////////////////////////
+    // temporal code
+ private:
+     ObjectSet<visBase::PolyLine>	faultpolylines_;
+     TypeSet<TypeSet<Coord3>>		intersectionlines_;
 };
 
 };

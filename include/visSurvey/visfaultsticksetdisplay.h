@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
+#include "visemsticksetdisplay.h"
 
 #include "emposid.h"
 
@@ -28,7 +29,7 @@ namespace visBase
     class Transformation;
 }
 
-namespace EM { class FaultStickSet; }
+namespace EM { class FaultStickSet; class FaultStickSetGeometry; }
 namespace Geometry { class FaultStickSet; class IndexedPrimitiveSet; }
 namespace MPE { class FaultStickSetEditor; }
 
@@ -43,6 +44,7 @@ class Seis2DDisplay;
 
 mExpClass(visSurvey) FaultStickSetDisplay : public visBase::VisualObjectImpl
 					  , public SurveyObject
+					  , public StickSetDisplay
 { mODTextTranslationClass(FaultStickSetDisplay);
 public:
 				FaultStickSetDisplay();
@@ -104,9 +106,6 @@ public:
     void			getMousePosInfo(const visBase::EventInfo& ei,
 						IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
-    void			getMousePosInfo(const visBase::EventInfo&,
-					Coord3& xyzpos,BufferString& val,
-					BufferString& info) const;
 
     virtual void		setPixelDensity(float dpi);
     virtual void		fillPar(IOPar&) const;
@@ -143,16 +142,13 @@ protected:
 					Geometry::FaultStickSet&,
 					int sticknr,
 					TypeSet<Coord3>& intersectpoints);
+    EM::FaultStickSet*		emFaultStickSet();
 
-    visBase::EventCatcher*	eventcatcher_;
-    const mVisTrans*		displaytransform_;
 
-    EM::FaultStickSet*		emfss_;
     MPE::FaultStickSetEditor*	fsseditor_;
     visSurvey::MPEEditor*	viseditor_;
 
     Coord3			mousepos_;
-    bool			showmanipulator_;
 
     int				activesticknr_;
 
@@ -164,21 +160,7 @@ protected:
     visBase::DrawStyle*		activestickdrawstyle_;
 
     bool			displayonlyatsections_;
-    bool			stickselectmode_;
-
-    bool			ctrldown_;
-
-    bool			hideallknots_;
-
-    ObjectSet<visBase::MarkerSet>  knotmarkersets_;
-    struct StickIntersectPoint
-    {
-	Coord3			pos_;
-	int			sid_;
-	int			sticknr_;
-    };
-
-    ObjectSet<StickIntersectPoint> stickintersectpoints_;
+    bool			makenewstick_;
 };
 
 } // namespace VisSurvey
