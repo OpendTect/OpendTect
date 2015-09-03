@@ -1431,9 +1431,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	if ( !hor3d || !hd || !hd->getScene() )
 	    return false;
 
-	const TrcKey tk =
-		SI().transform( hd->getScene()->getMousePos(true,true) );
-	TypeSet<TrcKey> trcs; hor3d->getParents( tk, trcs );
+	const TrcKeyValue tkv = hd->getScene()->getMousePos();
+	TypeSet<TrcKey> trcs; hor3d->getParents( tkv.tk_, trcs );
 	if ( trcs.isEmpty() ) return false;
 
 	BendPointFinderTrcKey bpf( trcs, 10 );
