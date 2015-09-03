@@ -81,10 +81,10 @@ public:
 				/*!<Returns a preview image that has
 				    approximately the size of the specified
 				    diagonal. */
-    virtual bool		allowHoverEvent() const		{ return true; }
+    virtual bool		allowHoverEvent(int) const	{ return true; }
 
     virtual bool		canRemoveWithPolygon() const   { return false; }
-    virtual void		removeWithPolygon(const ODPolygon<double>&) {} 
+    virtual void		removeWithPolygon(const ODPolygon<double>&) {}
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);

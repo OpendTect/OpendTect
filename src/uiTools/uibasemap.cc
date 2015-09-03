@@ -128,7 +128,7 @@ void uiBaseMapObject::update()
 
 		itm->setPenStyle( *bmobject_->getLineStyle(idx) );
 		itm->setPolyLine( worldpts );
-		itm->setAcceptHoverEvents( true );
+		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );
 		itemnr++;
 	    }
 	    else
@@ -158,7 +158,7 @@ void uiBaseMapObject::update()
 		itm->setPolygon( worldpts );
 		itm->setFillColor( bmobject_->getFillColor(idx), true );
 		itm->fill();
-		itm->setAcceptHoverEvents( true );
+		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );
 		itemnr++;
 	    }
 	}
@@ -222,7 +222,7 @@ void uiBaseMapObject::update()
 		itm->setPenColor( ms2d->color_ );
 		itm->setFillColor( ms2d->color_ );
 		itm->setPos( crds[ptidx] );
-		itm->setAcceptHoverEvents( true );
+		itm->setAcceptHoverEvents( bmobject_->allowHoverEvent(idx) );
 		itemnr++;
 	    }
 	}
@@ -314,6 +314,7 @@ void uiBaseMapObject::updateStyle()
 }
 
 
+
 // uiBaseMap
 uiBaseMap::uiBaseMap( uiParent* p )
     : uiGroup(p,"Basemap")
@@ -323,6 +324,7 @@ uiBaseMap::uiBaseMap( uiParent* p )
     , changed_(false)
     , objectAdded(this)
     , objectRemoved(this)
+    , centerworlditem_(false)
 {
     view_.scene().addItem( &worlditem_ );
     view_.reSize.notify( mCB(this,uiBaseMap,reSizeCB) );
@@ -361,8 +363,6 @@ void uiBaseMap::updateTransform()
     if ( mIsZero(wrwidth,mDefEps) || mIsZero(wrheight,mDefEps) )
 	return;
 
-    w2ui_.set( viewrect, wr_ );
-
     double xscale = viewrect.width() / wrwidth;
     double yscale = -xscale;
     if ( yscale*wrheight > viewrect.height() )
@@ -371,10 +371,17 @@ void uiBaseMap::updateTransform()
 	xscale = -yscale;
     }
 
+
     const int pixwidth = mNINT32( xscale * wrwidth );
     const int pixheight = mNINT32( yscale * wrheight );
-    const double xshift = (viewrect.width()-pixwidth) / 2.;
-    const double yshift = (viewrect.height()-pixheight) / 2.;
+
+    const double xshift =
+	centerworlditem_ ? (viewrect.width()-pixwidth) / 2. : 0;
+    const double yshift =
+	centerworlditem_ ? (viewrect.height()-pixheight) / 2. : 0;
+
+    const uiRect newviewrect( 0, 0, pixwidth, pixheight );
+    w2ui_.set( newviewrect, wr_ );
 
     const double xpos = viewrect.left() - xscale*wr_.left() + xshift;
     const double ypos = viewrect.top() - yscale*wr_.top() + yshift;
@@ -507,4 +514,8 @@ const char* uiBaseMap::nameOfItemAt( const Geom::Point2D<float>& pt )  const
 
 uiGraphicsScene& uiBaseMap::scene()
 { return view_.scene(); }
+
+
+void uiBaseMap::centerWorldItem( bool yn )
+{ centerworlditem_ = yn; }
 
