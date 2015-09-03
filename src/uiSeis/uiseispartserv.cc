@@ -118,9 +118,9 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     delete man2dprestkdlg_; man2dprestkdlg_ = 0;
     delete man3dprestkdlg_; man3dprestkdlg_ = 0;
     delete manwvltdlg_; manwvltdlg_ = 0;
-    
+
     Seis::PLDM().removeAll();
-    
+
     delete impcbvsdlg_; impcbvsdlg_ = 0;
     delete impcbvsothsurvdlg_; impcbvsothsurvdlg_ = 0;
     delete imp3dseisdlg_; imp3dseisdlg_ = 0;
@@ -215,10 +215,54 @@ bool uiSeisPartServer::exportSeis( int opt )
 { return ioSeis( opt, false ); }
 
 
+MultiID uiSeisPartServer::getDefault2DDataID() const
+{
+    BufferString key( IOPar::compKey(sKey::Default(),
+		      SeisTrc2DTranslatorGroup::sKeyDefault()) );
+    BufferString midstr( SI().pars().find(key) );
+    if ( !midstr.isEmpty() )
+	return MultiID( midstr.buf() );
+
+    const IOObjContext ctxt( SeisTrc2DTranslatorGroup::ioContext() );
+    const IODir iodir ( ctxt.getSelKey() );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    int nrod2d = 0;
+    int def2didx = 0;
+    int seisidx = -1;
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	SeisIOObjInfo seisinfo( ioobjs[idx] );
+	if ( seisinfo.isOK() )
+	{
+	    nrod2d++;
+	    def2didx = idx;
+	    if ( ioobjs[idx]->name() == "Seis" )
+		seisidx = idx;
+	}
+    }
+
+    if ( nrod2d == 1 )
+	return ioobjs[def2didx]->key();
+    else if ( seisidx >= 0 )
+	return ioobjs[seisidx]->key();
+
+    uiString msg = tr("No or no valid default 2D data found."
+		      "You can set a default 2d data in the 'Manage Seismics' "
+		      "window. Do you want to go there now? ");
+    const bool tomanage = uiMSG().askGoOn( msg );
+    if ( !tomanage )
+	return false;
+
+    uiSeisPartServer* myself = const_cast<uiSeisPartServer*>(this);
+    myself->manageSeismics( 0, false );
+    return getDefault2DDataID();
+}
+
+
 MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
 {
-    if ( is2d ) // not impl yet
-	return MultiID::udf();
+    if ( is2d )
+	return getDefault2DDataID();
 
     BufferString key( IOPar::compKey(sKey::Default(),
 		      SeisTrcTranslatorGroup::sKeyDefault3D()) );
