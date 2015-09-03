@@ -176,27 +176,34 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     if ( editor_->sower().accept(eventinfo) )
 	return;
 
-    if ( info().getPickedNode().isUdf() &&
-	 (eventinfo.type!=visBase::MouseClick || !eventinfo.pressed) )
-	return;
-
-    if ( !info().getPickedNode().isUdf() &&
-	 OD::leftMouseButton(eventinfo.buttonstate_) )
+    if ( eventinfo.type!=visBase::MouseDoubleClick )
     {
-	info().setPickedNode( EM::PosID::udf() ); //mouse released/end seed drag
-	return;
+	if ( info().getPickedNode().isUdf() &&
+	     (eventinfo.type!=visBase::MouseClick || !eventinfo.pressed) )
+	    return;
+
+	if ( !info().getPickedNode().isUdf() &&
+	     OD::leftMouseButton(eventinfo.buttonstate_) )
+	{
+	    //mouse released/end seed drag
+	    info().setPickedNode( EM::PosID::udf() ); 
+	    return;
+	}
+
+	if ( info().getPickedNode().isUdf() &&
+	     !OD::leftMouseButton(eventinfo.buttonstate_) )
+	    return;
+
+	if ( OD::altKeyboardButton(eventinfo.buttonstate_) )
+	    return;
     }
-
-    if ( info().getPickedNode().isUdf() &&
-	 !OD::leftMouseButton(eventinfo.buttonstate_) )
-	return;
-
-    if ( OD::altKeyboardButton(eventinfo.buttonstate_) )
-	return;
 
     info().setCtrlClicked( OD::ctrlKeyboardButton(eventinfo.buttonstate_) );
     info().setShiftClicked( OD::shiftKeyboardButton(eventinfo.buttonstate_) );
     info().setAltClicked( OD::altKeyboardButton(eventinfo.buttonstate_) );
+       const bool doubleclick = eventinfo.type==visBase::MouseDoubleClick 
+		             && eventinfo.pressed == false;
+    info().setDoubleClicked( doubleclick );
     info().setPos( eventinfo.displaypickedpos );
 
     cureventinfo_ = &eventinfo;
@@ -624,6 +631,10 @@ const EM::PosID& MPEClickInfo::getPickedNode() const
 { return pickednode_; }
 
 
+bool MPEClickInfo::isDoubleClicked() const
+{ return doubleclicked_; }
+
+
 const EM::PosID& MPEClickInfo::getNode() const
 { return clickednode_; }
 
@@ -687,6 +698,7 @@ void MPEClickInfo::clear()
     linedata_ = 0;
     lineset_ = MultiID( -1 );
     linename_ = "";
+    doubleclicked_ = false;
 }
 
 
@@ -704,6 +716,10 @@ void MPEClickInfo::setShiftClicked( bool yn )
 
 void MPEClickInfo::setAltClicked( bool yn )
 { altclicked_ = yn; }
+
+
+void MPEClickInfo::setDoubleClicked(bool yn)
+{ doubleclicked_ = yn; }
 
 
 void MPEClickInfo::setPickedNode( const EM::PosID& pid )

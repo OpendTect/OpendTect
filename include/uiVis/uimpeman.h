@@ -49,6 +49,7 @@ public:
 
     void			visObjectLockedCB(CallBacker*);
     void			updateButtonSensitivity(CallBacker* = 0);
+    void			keyPressedCB(CallBacker*);
 
 protected:
     void			addButtons();

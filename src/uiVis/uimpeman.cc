@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispreload.h"
 #include "selector.h"
 #include "survinfo.h"
+#include "keyboardevent.h"
 
 #include "uicombobox.h"
 #include "uimenu.h"
@@ -36,6 +37,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "uimain.h"
+#include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "vismpe.h"
@@ -81,6 +84,10 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visserv_->mouseEvent.notify( mCB(this,uiMPEMan,mouseEventCB) );
     visserv_->keyEvent.notify( mCB(this,uiMPEMan,keyEventCB) );
+
+ //   mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+	//uiMPEMan::keyPressedCB );
+
 
     updateButtonSensitivity();
 }
@@ -218,7 +225,7 @@ int uiMPEMan::popupMenu()
 	mAddAction( tr("Stop Tracking"), "k", sStop, true )
     else
     {
-	const Coord3& clickedpos = scene->getMousePos( true, true );
+	const Coord3& clickedpos = scene->getMousePos( true );
 	const bool haspos = !clickedpos.isUdf();
 	mAddAction( tr("Start Tracking"), "k", sStart, true )
 	mAddAction( tr("Retrack From Seeds"), "ctrl+k", sRetrack, true )
@@ -261,7 +268,7 @@ void uiMPEMan::handleAction( int res )
     if ( !scene ) return;
 
 
-    const Coord3& clickedpos = scene->getMousePos( true, true );
+    const Coord3& clickedpos = scene->getMousePos( true );
     const TrcKey tk = SI().transform( clickedpos.coord() );
 
     switch ( res )
@@ -367,6 +374,12 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !seedpicker || !seedpicker->canSetSectionID() ||
 	 !seedpicker->setSectionID(emobj->sectionID(0)) )
     {
+	mSeedClickReturn();
+    }
+
+    if ( clickcatcher_->info().isDoubleClicked() )
+    {
+	seedpicker->endSeedPick( true );
 	mSeedClickReturn();
     }
 
@@ -550,6 +563,13 @@ void uiMPEMan::seedClick( CallBacker* )
 
     if ( !clickcatcher_->moreToSow() )
 	endSeedClickEvent( emobj );
+
+    
+    // below is for double click event.
+    // after double click we do return on line 251. next click reaches here, we 
+    // need tell seedpicker to prepare to start new trick line.
+    if ( seedpicker->isSeedPickEnded() )
+	seedpicker->endSeedPick( false );
 }
 
 
@@ -692,6 +712,9 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     }
 
     visserv_->sendVisEvent( uiVisPartServer::evPickingStatusChange() );
+
+   if ( !yn )
+	visserv_->setViewMode( true, true );
 }
 
 
@@ -1144,3 +1167,13 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 	toolbar_->setSensitive( true );
 }
 
+void uiMPEMan::keyPressedCB( CallBacker* )
+{
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+    
+    if ( KeyboardEvent::isUnDo(kbe) )
+	undo();
+
+    if ( KeyboardEvent::isReDo(kbe) )
+	redo();
+}

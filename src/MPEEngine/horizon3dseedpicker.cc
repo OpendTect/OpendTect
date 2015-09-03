@@ -44,6 +44,7 @@ Horizon3DSeedPicker::Horizon3DSeedPicker( MPE::EMTracker& t )
     , seedpickarea_(false)
     , addedseed_(Coord3::udf())
     , fltdataprov_(0)
+    , endseedpicking_(false)
 {
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(tracker_.objectID()))
     if ( hor && hor->nrSections()>0 )
@@ -320,6 +321,9 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid,
 					     bool startwasdefined,
 					     bool eraseonly )
 {
+   if ( endseedpicking_ )
+	return true;
+    
     BinID dir;
     if ( !lineTrackDirection(dir) )
 	return retrackFromSeedList(); // track on Rdl

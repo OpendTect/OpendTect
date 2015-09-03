@@ -77,6 +77,9 @@ public:
     bool		doesModeUseVolume() const;
     bool		doesModeUseSetup() const;
 
+    void		endSeedPick(bool yn)		{ endseedpicking_ = yn;}
+    bool		isSeedPickEnded()	    { return endseedpicking_; }
+
     void		setSowerMode(bool yn)		{ sowermode_ = yn; }
 
     void		setSeedPickArea(const TrcKeySampling& hs)
@@ -128,6 +131,7 @@ protected:
 
     int			seedconmode_;
     bool		blockpicking_;
+    bool    		endseedpicking_;
 
     Notifier<Horizon3DSeedPicker>	addrmseed_;
     Notifier<Horizon3DSeedPicker>	seedadded_;

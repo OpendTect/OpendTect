@@ -49,6 +49,7 @@ public:
     bool			isCtrlClicked() const;
     bool			isShiftClicked() const;
     bool			isAltClicked() const;
+    bool			isDoubleClicked() const;
     const EM::PosID&		getNode() const;
     const EM::PosID&		getPickedNode() const;
     void			setPickedNode(const EM::PosID&);
@@ -72,6 +73,7 @@ protected:
     void			setCtrlClicked(bool); 
     void			setShiftClicked(bool);
     void			setAltClicked(bool);
+    void			setDoubleClicked(bool);
     void			setNode(const EM::PosID&);
     void			setPos(const Coord3&);
     void			setObjID(int);
@@ -89,6 +91,7 @@ protected:
     bool				ctrlclicked_;
     bool				shiftclicked_;
     bool				altclicked_;
+    bool				doubleclicked_;
     EM::PosID				pickednode_;
     EM::PosID				clickednode_;
     Coord3				clickedpos_;

@@ -78,6 +78,8 @@ public:
     virtual int		defaultSeedConMode(bool gotsetup) const { return -1; }
 
     virtual const char*	errMsg() const				{ return 0; }
+    virtual void	endSeedPick(bool)			{ return; }
+    virtual bool	isSeedPickEnded()			{ return false;}
 
     enum SeedModeOrder  { TrackFromSeeds, TrackBetweenSeeds, DrawBetweenSeeds };
 
