@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "prestackprop.h"
 #include "multiid.h"
+#include "datapack.h"
 
 class SeisPSReader;
 class IOObj;
@@ -106,6 +107,9 @@ protected:
     void		prepPriorToBoundsCalc();
     void		setSmootheningPar();
     float		getXscaler(bool isoffset, bool isindegrees) const;
+    DataPack::ID	getPreProcessedID(const BinID& relbid);
+    bool		getGatherData(const BinID& bid,DataPack::ID& gatherid,
+	    			      DataPack::ID& angglegid);
 
     MultiID			psid_;
     IOObj*			psioobj_;
