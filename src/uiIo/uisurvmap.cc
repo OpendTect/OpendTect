@@ -245,6 +245,7 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
 	title_->setFont( FontList().get(FontData::Graphics2DLarge) );
     }
 
+    centerWorldItem( true );
     setSurveyInfo( survinfo_ );
 }
 

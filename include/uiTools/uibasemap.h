@@ -22,7 +22,6 @@ class uiGraphicsItem;
 class uiGraphicsScene;
 class uiGraphicsView;
 class uiWorld2Ui;
-namespace OD{ class Polygon; }
 
 mExpClass(uiTools) uiBaseMapObject : public CallBacker
 {
@@ -82,6 +81,7 @@ public:
     const char*			nameOfItemAt(const Geom::Point2D<float>&) const;
 
     uiGraphicsItem&		worldItem()		{ return worlditem_;}
+    void			centerWorldItem(bool);
     inline uiGraphicsView&	view()			{ return view_; }
     uiGraphicsScene&		scene();
     inline const uiWorld2Ui&	getWorld2Ui() const	{ return w2ui_; }
@@ -97,6 +97,7 @@ protected:
     uiGraphicsItem&		worlditem_;
     ObjectSet<uiBaseMapObject>	objects_;
     bool			changed_;
+    bool			centerworlditem_;
 
     uiWorldRect			wr_;
 
