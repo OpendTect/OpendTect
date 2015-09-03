@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "bufstringset.h"
-class od_istream;
+#include "od_iosfwd.h"
 
 class SharedLibAccess;
 

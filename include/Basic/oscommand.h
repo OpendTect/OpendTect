@@ -15,10 +15,9 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "bufstring.h"
 #include "uistring.h"
+#include "od_iosfwd.h"
 
 mFDQtclass(QProcess);
-class od_istream;
-class od_ostream;
 class qstreambuf;
 
 namespace OS

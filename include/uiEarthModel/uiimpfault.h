@@ -14,9 +14,9 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
+#include "od_iosfwd.h"
 
 class CtxtIOObj;
-class od_istream;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;

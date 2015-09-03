@@ -14,6 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "strmprov.h"
 #include "thread.h"
+#include "strmoper.h"
+
 
 static const BufferString tmpfnm( FilePath::getTempName("txt") );
 
@@ -66,7 +68,24 @@ bool testPipeInput()
 
     BufferString streaminput;
     mRunStandardTest( istream->getAll( streaminput ) , "Read from pipe" );
+
+    //If EOF and too short message, retry ten times
+    for ( int idx=0; idx<10 && istream->atEOF() && streaminput.size()<message.size(); idx++ )
+    {
+	Threads::sleep(1);
+
+	BufferString newmsg;
+	if ( istream->getAll(newmsg))
+	{
+	    streaminput += newmsg;
+	}
+    }
+
     mRunStandardTest( streaminput==message, "Pipe content check (Input)" );
+
+    istream->getAll(streaminput); //Try to read beyond
+    mRunStandardTest(istream->atEOF() && streaminput.isEmpty(), "Force read at end of stream")
+
 
     return true;
 }
@@ -121,6 +140,7 @@ int doExit( int retval )
 int main( int argc, char** argv )
 {
     mInitTestProg();
+    DBG::turnOn(0); //Turn off all debug-stuff as it screwes the pipes
 
     bool isok;
 #define mDoTest(strm,content,tstfn) \
@@ -140,16 +160,16 @@ int main( int argc, char** argv )
     mDoTest(strm6,"123",testOnlyIntRead);
     mDoTest(strm7,"\n123\n \n",testOnlyIntRead);
 
-    if ( !testPipeInput() )
-	doExit( 1 );
+    if (!testPipeInput())
+        doExit(1);
 
-    if ( !testPipeOutput() )
+    if (!testPipeOutput())
     {
-	if ( File::exists( tmpfnm ) )
-	    File::remove( tmpfnm );
+	if (File::exists(tmpfnm))
+	    File::remove(tmpfnm);
 
-	doExit( 1 );
+	doExit(1);
     }
-
+ 
     return doExit( 0 );
 }

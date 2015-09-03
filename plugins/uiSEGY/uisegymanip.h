@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uidialog.h"
 #include "segyhdr.h"
+#include "od_iosfwd.h"
+
 class uiLabel;
 class uiTable;
 class uiSpinBox;
@@ -24,7 +26,6 @@ class uiFileInput;
 class uiToolButton;
 class uiSEGYBinHdrEd;
 namespace SEGY { class TxtHeader; class BinHeader; class HdrCalcSet; }
-class od_istream;
 
 
 /*!\brief UI for SEG-Y file manipulation */

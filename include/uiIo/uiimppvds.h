@@ -14,8 +14,9 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
+#include "od_iosfwd.h"
+
 class IOObj;
-class od_istream;
 class uiIOObjSel;
 class uiGenInput;
 class uiFileInput;

@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "datachar.h"
 #include "gendefs.h"
-class od_istream;
+#include "od_iosfwd.h"
 
 
 #if defined(__msvc__) && (defined(GENERAL_EXPORTS) || defined(General_EXPORTS) )
