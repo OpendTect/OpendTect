@@ -54,6 +54,9 @@ protected:
     visBase::VisualObject*	createLocation() const;
 
     virtual void		setPosition(int,const Pick::Location&);
+    virtual void		setPosition(int idx,const Pick::Location&,
+					    bool add) {};
+
     virtual void		removePosition(int);
 
     virtual int			clickedMarkerIndex(
