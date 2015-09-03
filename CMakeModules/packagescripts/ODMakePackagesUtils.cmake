@@ -395,44 +395,6 @@ macro( create_develpackages )
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
 endmacro( create_develpackages )
 
-
-macro( download_packages  )
-    message( "downloading doc pkgs" )
-#    set( DOCNAMES appman workflows user dgb )
-    set( DOCNAMES dgb )
-    foreach( DOCNAME ${DOCNAMES} )
-	set( url "http://intranet/documentations/devel" )
-	set( url "${url}/${DOCNAME}doc.zip" )
-	set( DIRNAME ${DOCNAME} )
-        if( ${DOCNAME} STREQUAL "appman" )
-	    set( DIRNAME SysAdm )
-	elseif( ${DOCNAME} STREQUAL "user")
-	    set( DIRNAME base )
-	endif()
-
-	if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME} )
-	    file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME} )
-	endif()
-
-	file( DOWNLOAD ${url} "${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip"
-	      STATUS var
-	      LOG log
-	      SHOW_PROGRESS)
-	if( NOT var EQUAL "0" )
-	    message( "***${url} Download Failed***")
-	else()
-	    execute_process( COMMAND unzip -o -q
-			     ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip
-			     -d ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}
-			     RESULT_VARIABLE STATUS )
-	    file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/doc/${DIRNAME}/${DOCNAME}doc.zip )
-	    if( NOT STATUS EQUAL "0" )
-		message( "*** unzip Failed***")
-	    endif()
-	endif()
-    endforeach()
-endmacro( download_packages )
-
 macro( create_docpackages PACKAGE_NAME )
     if( WIN32 )
 	if( ${PACKAGE_NAME} STREQUAL "doc" )
