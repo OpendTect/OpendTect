@@ -17,6 +17,8 @@ else()
     cmake_policy( SET CMP0020 OLD )
 endif()
 
+set( MAIN_GIT_BRANCH master )
+
 set( OpendTect_VERSION_MAJOR 6 )
 set( OpendTect_VERSION_MINOR 1 )
 if ( NOT DEFINED OpendTect_VERSION_PATCH OR OpendTect_VERSION_PATCH STREQUAL "" )
