@@ -225,7 +225,7 @@ void uiVisPartServer::mouseCursorCB( CallBacker* cb )
     if ( caller==this )
 	return;
 
-    setMarkerPos( info.surveypos_, -1 );
+    setMarkerPos( info.trkv_, -1 );
 }
 
 
@@ -871,8 +871,8 @@ Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 }
 
 
-Coord3 uiVisPartServer::getMousePos(bool xyt) const
-{ return xyt ? xytmousepos_ : inlcrlmousepos_; }
+Coord3 uiVisPartServer::getMousePos() const
+{ return xytmousepos_; }
 
 
 BufferString uiVisPartServer::getMousePosVal() const
@@ -1145,6 +1145,11 @@ void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
 	    scene->getPolySelection()->setSelectionType(
 	    (visBase::PolygonSelection::SelectionType) seltype_ );
 	}
+	const TypeSet<int>& sel = visBase::DM().selMan().selected();
+	if ( sel.size()!=1 ) return;
+	mDynamicCastGet( visSurvey::SurveyObject*,so,getObject(sel[0]) );
+	if ( so )
+	    so->setSelectionMode( isSelectionModeOn() );
     }
 
     selectionmode_ = mode;
@@ -1649,7 +1654,7 @@ void uiVisPartServer::removeSelection()
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	const Selector<Coord3>* sel = getCoordSelector( sceneids[idx] );
-	if ( sel && sel->isOK() )
+	if ( sel )
 	{
 	    int selobjectid = getSelObjectId();
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(selobjectid));
@@ -1993,7 +1998,8 @@ void uiVisPartServer::interactionCB( CallBacker* cb )
 }
 
 
-void uiVisPartServer::setMarkerPos( const Coord3& worldpos, int dontsetscene )
+void uiVisPartServer::setMarkerPos( const TrcKeyValue& worldpos,
+                                    int dontsetscene )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	scenes_[idx]->setMarkerPos( worldpos, dontsetscene );
@@ -2004,17 +2010,15 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCastGet(visSurvey::Scene*,scene,cb)
     if ( !scene ) return;
+    const TrcKeyValue worldpos = scene->getMousePos();
 
-    xytmousepos_ = scene->getMousePos( true, true );
-
-    const Coord3 worldpos = scene->getMousePos( true, false );
+    xytmousepos_ = scene->getMousePos( true );
     setMarkerPos( worldpos, scene->id() );
 
     MouseCursorExchange::Info info( worldpos );
     mousecursorexchange_->notifier.trigger( info, this );
 
     eventmutex_.lock();
-    inlcrlmousepos_ = scene->getMousePos( false, true );
     mouseposval_ = scene->getMousePosValue();
     mouseposstr_ = scene->getMousePosString();
     zfactor_ = scene->zDomainUserFactor();

@@ -115,6 +115,7 @@ namespace sKey
     inline FixedString Title()		{ return "Title"; }
     inline FixedString TmpStor()	{ return "Temporary storage location"; }
     inline FixedString TraceNr()	{ return "Trace number"; }
+    inline FixedString TraceKey()	{ return "Trace key"; }
     inline FixedString Type()		{ return "Type"; }
     inline FixedString TwoD()		{ return "2D"; }
     inline FixedString Thickness()	{ return "Thickness"; }

@@ -44,9 +44,16 @@ public:
     inline bool		operator!=( const TrcKeyValue& oth ) const
 			{ return !(*this==oth); }
 
+    inline bool		isDefined() const;
+
     TrcKey		tk_;
     float		val_;
 };
+
+
+inline bool TrcKeyValue::isDefined() const
+{ return !tk_.isUdf() && !mIsUdf(val_); }
+
 
 
 #endif

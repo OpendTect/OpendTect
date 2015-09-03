@@ -242,7 +242,7 @@ public:
 					    BufferString& info) const
 				{ val = mUdf(float); info = ""; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-						IOPar&) const	{}
+	    					IOPar&) const;
     virtual const MouseCursor*	getMouseCursor() const		{ return 0; }
 
 				/*!<Returns a mouse cursor that will
@@ -325,6 +325,7 @@ public:
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     virtual bool		isVerticalPlane() const		{ return true;}
     virtual bool		isInlCrl() const		{ return false;}
+    virtual void		setSelectionMode(bool) {};
 
     static float		sDefMaxDist();
 
