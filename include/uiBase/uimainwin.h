@@ -181,6 +181,10 @@ public:
     void		activateInGUIThread(const CallBack&,
 					    bool busywait=true);
     void		saveImage(const char* fnm,int w,int h,int res);
+    void		saveAsPDF(const char* fnm,int w,int h,int res)
+    			{ saveAsPDF_PS( fnm, true, w, h, res ); }
+    void		saveAsPS(const char* fnm,int w,int h,int res)
+    			{ saveAsPDF_PS( fnm, false, w, h, res ); }
     Notifier<uiMainWin> activatedone;
     Notifier<uiMainWin> ctrlCPressed;
     Notifier<uiMainWin> afterPopup;
@@ -199,6 +203,8 @@ protected:
 
     void		saveSettings();
     void		readSettings();
+    void		saveAsPDF_PS(const char* fnm,bool aspdf,int w,int h,
+	    			     int res);
 
     void		copyToClipBoardCB(CallBacker*);
     void		aftPopupCB( CallBacker* )	{ afterPopup.trigger();}

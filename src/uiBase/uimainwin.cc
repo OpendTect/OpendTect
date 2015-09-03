@@ -59,6 +59,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QPixmap>
+#include <QPainter>
+#include <QPrinter>
 #include <QSettings>
 #include <QStatusBar>
 #include <QWidget>
@@ -1332,6 +1334,28 @@ void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
     WId wid = qwin->winId();
     mDefineStaticLocalObject( ImageSaver, imagesaver, );
     imagesaver.setImageProp( wid, fnm, width, height, res );
+}
+
+
+void uiMainWin::saveAsPDF_PS( const char* filename, bool aspdf, int w,
+				    int h, int res )
+{
+    QString fileName( filename );
+    QPrinter* pdfprinter = new QPrinter();
+    pdfprinter->setOutputFormat( aspdf ? QPrinter::PdfFormat
+				       : QPrinter::PostScriptFormat );
+    pdfprinter->setPaperSize( QSizeF(w,h), QPrinter::Point );
+    pdfprinter->setFullPage( false );
+    pdfprinter->setOutputFileName( filename );
+    pdfprinter->setResolution( res );
+
+    QPainter* pdfpainter = new QPainter();
+    pdfpainter->begin( pdfprinter );
+    QWidget* qwin = qWidget();
+    qwin->render( pdfpainter, pdfprinter->pageRect().topLeft(), qwin->rect() );
+    pdfpainter->end();
+    delete pdfpainter;
+    delete pdfprinter;
 }
 
 

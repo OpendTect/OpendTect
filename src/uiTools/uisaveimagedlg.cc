@@ -36,8 +36,12 @@ static const char* sKeySnapshot = "snapshot";
 
 BufferString uiSaveImageDlg::dirname_;
 
+static int sPDFfmtIdx = 4;
+static int sPSfmtIdx = 5;
+static int sEPSfmtIdx = 6;
+
 static const char* imageformats[] =
-{ "jpg", "png", "bmp", "xpm", "ps", "eps", 0 };
+{ "jpg", "png", "bmp", "xpm", "pdf", "ps", "eps", 0 };
 
 static const char* imageformatdescs[] =
 {
@@ -45,6 +49,7 @@ static const char* imageformatdescs[] =
     "PNG (*.png)",
     "Bitmap (*.bmp)",
     "XPM (*.xpm)",
+    "Portable Doc Format (*.pdf)",
     "Postscript (*.ps)",
     "EPS (*.eps)",
     0
@@ -527,6 +532,17 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 }
 
 
+void uiSaveImageDlg::addPrintFmtFilters( BufferString& filters )
+{
+    filters += ";;";
+    filters += imageformatdescs[sPDFfmtIdx];
+    filters += ";;";
+    filters += imageformatdescs[sPSfmtIdx];
+    filters += ";;";
+    filters += imageformatdescs[sEPSfmtIdx];
+}
+
+
 uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     : uiSaveImageDlg(p,true,false)
 {
@@ -568,14 +584,15 @@ void uiSaveWinImageDlg::getSupportedFormats( const char** imagefrmt,
     int idy = 0;
     while ( imagefrmt[idy] )
     {
-	const int idx = supportedformats.indexOf( imagefrmt[idy] );
-	if ( idx>=0 )
+	if ( supportedformats.isPresent(imagefrmt[idy]) )
 	{
 	    if ( !filters.isEmpty() ) filters += ";;";
-	    filters += frmtdesc[idy++];
+	    filters += frmtdesc[idy];
 	}
 	idy++;
     }
+
+    uiSaveImageDlg::addPrintFmtFilters( filters );
 }
 
 
@@ -590,7 +607,16 @@ bool uiSaveWinImageDlg::acceptOK( CallBacker* )
     }
 
     if ( !filenameOK() ) return false;
-    mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
-		   (int)sizepix_.height(), dpifld_->box()->getIntValue());
+
+    BufferString ext( getExtension() );
+    if ( ext == "pdf" )
+	mw->saveAsPDF( fileinputfld_->fileName(),(int)sizepix_.width(),
+		       (int)sizepix_.height(),dpifld_->box()->getIntValue());
+    else if ( ext == "ps" || ext == "eps" )
+	mw->saveAsPS( fileinputfld_->fileName(),(int)sizepix_.width(),
+		      (int)sizepix_.height(),dpifld_->box()->getIntValue());
+    else
+	mw->saveImage( fileinputfld_->fileName(), (int)sizepix_.width(),
+		       (int)sizepix_.height(), dpifld_->box()->getIntValue());
     return true;
 }
