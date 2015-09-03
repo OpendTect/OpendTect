@@ -47,6 +47,7 @@ namespace StrmOper
 
     mGlobal(Basic) bool		resetSoftError(std::istream&,int& retrycount);
     mGlobal(Basic) bool		resetSoftError(std::ostream&,int& retrycount);
+    mGlobal(Basic) void		clear(std::ios&);
     mGlobal(Basic) const char*	getErrorMessage(std::ios&);
     mGlobal(Basic) const char*	getErrorMessage(const StreamData&);
 

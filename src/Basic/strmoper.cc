@@ -60,6 +60,12 @@ bool StrmOper::resetSoftError( std::ostream& strm, int& retrycount )
 }
 
 
+void StrmOper::clear( std::ios& strm )
+{
+    strm.clear();
+}
+
+
 bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 {
     if ( strm.eof() || strm.fail() || !ptr )
@@ -125,7 +131,7 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
 bool StrmOper::peekChar( std::istream& strm, char& ch )
 {
     if ( strm.eof() )
-	return false;
+       return false;
 
     if ( strm.bad() )
     {
