@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "seismod.h"
 
 #include "datapackbase.h"
-#include "seisbuf.h"
 #include "trckeyzsampling.h"
 #include "seisinfo.h"
 
