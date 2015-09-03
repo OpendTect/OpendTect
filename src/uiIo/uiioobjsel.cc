@@ -294,7 +294,6 @@ void uiIOObjSel::preFinaliseCB( CallBacker* )
 
     fillDefault();
     updateInput();
-    selDone( 0 );
 }
 
 
