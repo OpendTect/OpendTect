@@ -288,6 +288,12 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	eventinfo.type = MouseClick;
 	eventinfo.pressed = false;
     }
+    else if ( ea.getEventType() == osgGA::GUIEventAdapter::DOUBLECLICK )
+    {
+	eventinfo.type = MouseDoubleClick;
+	eventinfo.pressed = false;
+	wasdragging_ = false; 
+    }
     else
 	return false;
 
@@ -303,7 +309,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
     int buttonstate = 0;
 
-    if ( eventinfo.type == MouseClick )
+    if ( eventinfo.type == MouseClick || eventinfo.type == MouseDoubleClick )
     {
 	if ( ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON )
 	    buttonstate += OD::LeftButton;
