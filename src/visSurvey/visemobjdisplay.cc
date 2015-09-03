@@ -822,7 +822,7 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 
 
 const TypeSet<int> EMObjectDisplay::findOverlapSelectors( 
-    visBase::PolygonSelection* selection )
+    visBase::PolygonSelection* polysel )
 {
     TypeSet<int> overlapselectors;
     for ( int idz = 0; idz<selectors_.size(); idz++ )
@@ -836,7 +836,7 @@ const TypeSet<int> EMObjectDisplay::findOverlapSelectors(
 		const Coord3 pos = coords->getPos( idy );
 		if ( selectors_[idz]->includes(pos) )
 		{
-		    if ( selection->isInside(pos) )
+		    if ( polysel->isInside(pos) )
 		    {
 		      if ( !overlapselectors.isPresent(idz) )
 			overlapselectors += idz;
