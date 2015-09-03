@@ -803,19 +803,20 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
     if ( !seisfdp && !mapdp ) return;
 
-    const Coord3& coord = info.surveypos_;
+    const TrcKeyValue trkv = info.trkv_;
     FlatView::Point& pt = marker_->poly_[0];
     if ( seisfdp )
     {
 	const Survey::Geometry* geometry = Survey::GM().getGeometry(
 			seisfdp->is2D() ? geomID() : tkzs_.hsamp_.survid_ );
-	const TrcKey trckey = geometry ? geometry->nearestTrace(coord)
-				       : TrcKey::udf();
+	const TrcKey trckey = geometry ? trkv.tk_  : TrcKey::udf();
 	const int gidx = seisfdp->getSourceDataPack().getGlobalIdx( trckey );
 	if ( seisfdp->isVertical() )
 	{
 	    pt.x = fdp->posData().range(true).atIndex( gidx );
-	    pt.y = datatransform_ ? datatransform_->transform(coord) : coord.z;
+	    pt.y = datatransform_ ? 
+		   datatransform_->transformTrc( trkv.tk_, trkv.val_ ) :
+		   trkv.val_;
 	}
 	else
 	{
@@ -824,7 +825,10 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	}
     }
     else if ( mapdp )
-	pt = FlatView::Point( coord.x, coord.y );
+    {
+	const Coord pos = Survey::GM().toCoord( trkv.tk_ );
+	pt = FlatView::Point( pos.x, pos.y );
+    }
 
     vwr.handleChange( FlatView::Viewer::Auxdata );
 }
@@ -833,7 +837,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 {
     Coord3 mousepos( Coord3::udf() );
-    mCBCapsuleUnpack(IOPar,pars,cb);
+    mCBCapsuleUnpack( IOPar, pars, cb );
 
     FixedString valstr = pars.find( "X" );
     if ( valstr.isEmpty() ) valstr = pars.find( "X-coordinate" );
@@ -850,11 +854,16 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 	    mousepos.z = datatransform_->transformBack( mousepos );
     }
 
+    const TrcKey trck=TrcKey( SI().transform(Coord(mousepos.x, mousepos.y)) );
+    TrcKeyValue trckval( trck );
+    trckval.val_ = (float)mousepos.z;
+
     if ( mousecursorexchange_ && mousepos.isDefined() )
     {
-	MouseCursorExchange::Info info( mousepos );
+	MouseCursorExchange::Info info( trckval );
 	mousecursorexchange_->notifier.trigger( info, this );
     }
+
 }
 
 
