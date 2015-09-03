@@ -9,6 +9,9 @@
 configure_file ( ${CMAKE_SOURCE_DIR}/include/Basic/odversion.h.in
 		 ${CMAKE_BINARY_DIR}/include/Basic/odversion.h )
 
+configure_file (${CMAKE_SOURCE_DIR}/CMakeModules/templates/.arcconfig.in
+		${CMAKE_SOURCE_DIR}/.arcconfig @ONLY )
+
 if ( NOT (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR ) )
     if ( UNIX )
 	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink

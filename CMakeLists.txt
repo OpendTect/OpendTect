@@ -15,6 +15,7 @@ endif()
 set( OpendTect_VERSION_MAJOR 5 )
 set( OpendTect_VERSION_MINOR 0 )
 set( OpendTect_VERSION_DETAIL 0 )
+set( MAIN_GIT_BRANCH od5.0 )
 #Default patch value
 if ( NOT DEFINED OpendTect_VERSION_PATCH )
     set( OpendTect_VERSION_PATCH test )

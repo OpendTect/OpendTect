@@ -5,6 +5,7 @@ include/Basic/svnversion.h
 include/Basic/odversion.h
 include/Basic/buildinfo.h
 external/*/*
+.arcconfig
 doc/Programmer/*.html
 CMakeModules/FindOpendTect.cmake
 CMakeModules/license.txt
