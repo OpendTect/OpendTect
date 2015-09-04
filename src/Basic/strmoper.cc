@@ -66,13 +66,26 @@ void StrmOper::clear( std::ios& strm )
 }
 
 
+static void readPrep(std::istream& strm)
+{
+    if (strm.bad())
+    {
+	sleepSeconds(retrydelay);
+	strm.clear();
+    }
+    else if (strm.eof())
+    {
+	strm.clear();
+    }
+}
+
+
 bool StrmOper::readBlock( std::istream& strm, void* ptr, od_uint64 nrbytes )
 {
-    if ( strm.eof() || strm.fail() || !ptr )
+    if ( !ptr )
 	return false;
 
-    if ( strm.bad() )
-	strm.clear();
+    readPrep(strm);
 
     strm.read( (char*)ptr, nrbytes );
 
@@ -127,19 +140,11 @@ bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
     return strm.good();
 }
 
-
+    
 bool StrmOper::peekChar( std::istream& strm, char& ch )
 {
-    if (strm.bad())
-    {
-	sleepSeconds(retrydelay);
-	strm.clear();
-    }
-    else if ( strm.eof() )
-    {
-	strm.clear();
-    }
-
+    readPrep(strm);
+  
     int ich = strm.peek();
     if ( ich == 255 )
 	ich = (int)' '; // Non-breaking-space.
