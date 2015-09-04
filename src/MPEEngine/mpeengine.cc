@@ -516,7 +516,7 @@ void Engine::swapCacheAndItsBackup()
 }
 
 
-void Engine::updateFlatCubesContainer( const TrcKeyZSampling& cs, const int idx,
+void Engine::updateFlatCubesContainer( const TrcKeyZSampling& cs, int idx,
 					bool addremove )
 {
     if ( !(cs.nrInl()==1) && !(cs.nrCrl()==1) )
