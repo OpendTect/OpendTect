@@ -1146,6 +1146,12 @@ void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
 	    scene->getPolySelection()->setSelectionType(
 	    (visBase::PolygonSelection::SelectionType) seltype_ );
 	}
+
+	const TypeSet<int>& sel = visBase::DM().selMan().selected();
+	if ( sel.size()!=1 ) return;
+	mDynamicCastGet( visSurvey::SurveyObject*,so,getObject(sel[0]) );
+	if ( so )
+	    so->setSelectionMode( isSelectionModeOn() );
     }
 
     selectionmode_ = mode;
@@ -1650,7 +1656,7 @@ void uiVisPartServer::removeSelection()
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	const Selector<Coord3>* sel = getCoordSelector( sceneids[idx] );
-	if ( sel && sel->isOK() )
+	if ( sel )
 	{
 	    int selobjectid = getSelObjectId();
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(selobjectid));

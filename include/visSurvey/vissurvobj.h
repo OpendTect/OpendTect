@@ -325,6 +325,7 @@ public:
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     virtual bool		isVerticalPlane() const		{ return true;}
     virtual bool		isInlCrl() const		{ return false;}
+    virtual void		setSelectionMode(bool) {};
 
     static float		sDefMaxDist();
 
