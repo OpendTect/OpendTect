@@ -446,7 +446,7 @@ void uiTreeItem::renameItem( uiTreeViewItem* itm )
 {
     if ( itm == uitreeviewitem_ )
     {
-	name_ = uitreeviewitem_->text( 0, false );
+	name_ = uitreeviewitem_->text( 0 );
 	return;
     }
 
@@ -470,7 +470,7 @@ uiTreeTopItem::uiTreeTopItem( uiTreeView* listview, bool disab )
 			mCB(this,uiTreeTopItem,anyButtonClickCB) );
     listview_->selectionChanged.notify(
 			mCB(this,uiTreeTopItem,selectionChanged) );
-    listview_->itemChanged.notify( mCB(this,uiTreeTopItem,itemRenamed) );
+    listview_->itemRenamed.notify( mCB(this,uiTreeTopItem,itemRenamed) );
 }
 
 
@@ -482,7 +482,7 @@ uiTreeTopItem::~uiTreeTopItem()
 			mCB(this,uiTreeTopItem,anyButtonClickCB) );
     listview_->selectionChanged.remove(
 			mCB(this,uiTreeTopItem,selectionChanged) );
-    listview_->itemChanged.remove( mCB(this,uiTreeTopItem,itemRenamed) );
+    listview_->itemRenamed.remove( mCB(this,uiTreeTopItem,itemRenamed) );
 }
 
 
