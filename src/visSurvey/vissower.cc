@@ -46,6 +46,7 @@ Sower::Sower( const visBase::VisualObjectImpl* editobj )
     , curpidstamp_(mUdf(int))
     , workrange_(0)
     , underlyingobjid_(-1)
+    , sowingend(this)
 {
     sowingline_->ref();
     sowingline_->setMaterial( new visBase::Material );
@@ -421,6 +422,7 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 
     mode_ = FirstSowing;
     int count = 0;
+    const bool sow = bendpoints_.size()>1;
     while ( bendpoints_.size() )
     {
 	int eventidx = bendpoints_[0];
@@ -437,6 +439,9 @@ bool Sower::acceptMouse( const visBase::EventInfo& eventinfo )
 	if ( !intersowing || count>2 )
 	    mode_ = SequentSowing;
     }
+
+    if ( sow )
+	sowingend.trigger();
 
     reset();
     mReturnHandled( true );
