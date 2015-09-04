@@ -23,7 +23,7 @@ namespace visBase
 
 class DrawStyle;
 
-mExpClass(visBase) PointSet	: public VertexShape
+mExpClass(visBase) PointSet : public VertexShape
 {
 public:
     static PointSet*	create()
@@ -32,8 +32,8 @@ public:
     void		setPointSize(int);
     int			getPointSize() const;
 
-    int			addPoint( const Coord3& pos );
-    const Coord3	getPoint( int ) const;
+    int			addPoint(const Coord3&);
+    const Coord3	getPoint(int posidx) const;
     void		removeAllPoints();
     int			size() const ;
 
@@ -43,12 +43,12 @@ public:
 			     you will have to setTransformation again.  */
 
 protected:
-					~PointSet();
-    DrawStyle*				drawstyle_;
+			~PointSet();
+
+    DrawStyle*		drawstyle_;
 };
 
-
-}; // Namespace
+} // namespace visBase
 
 
 #endif
