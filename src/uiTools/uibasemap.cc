@@ -181,6 +181,7 @@ void uiBaseMapObject::update()
 		{
 		    uiPixmapItem* itm =	new uiPixmapItem(
 				      uiPixmap(bmobject_->getImageFileName()) );
+		    itm->setPaintInCenter( true );
 		    graphitem_.addChild( itm );
 		}
 

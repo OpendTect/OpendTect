@@ -179,6 +179,7 @@ public:
     ODGraphicsPixmapItem*	qPixmapItem()	{ return qpixmapitem_; }
     void			setOffset(int left,int top);
     void			setPixmap(const uiPixmap&);
+    void			setPaintInCenter(bool);
 
 protected:
 
