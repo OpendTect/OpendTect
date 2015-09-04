@@ -5,13 +5,13 @@
 	<key>CFBundleExecutable</key>
 	<string>@BUNDLEEXEC@</string>
 	<key>CFBundleGetInfoString</key>
-	<string>OpendTect @OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.@OpendTect_VERSION_PATCH@</string>
+	<string>@BUNDLESTRING@</string>
 	<key>CFBundleIconFile</key>
 	<string>@BUNDLEICON@</string>
 	<key>CFBundleIdentifier</key>
 	<string>@BUNDLEID@</string>
 	<key>CFBundleName</key>
-	<string>OpendTect</string>
+	<string>@BUNDLENAME@</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© @YEAR@, dGB Beheer BV</string>
 </dict>
