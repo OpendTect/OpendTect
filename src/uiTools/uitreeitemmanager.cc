@@ -48,6 +48,13 @@ bool uiTreeItem::areAllParentsChecked()
 }
 
 
+void uiTreeItem::entryInEditMode( int col )
+{
+    if ( getItem() )
+	getItem()->edit( col );
+}
+
+
 bool uiTreeItem::rightClick( uiTreeViewItem* item )
 {
     if ( item==uitreeviewitem_ )

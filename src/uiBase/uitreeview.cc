@@ -1042,6 +1042,14 @@ bool uiTreeViewItem::isSelectable() const
 { return qItem()->flags().testFlag( Qt::ItemIsSelectable ); }
 
 
+void uiTreeViewItem::edit( int col )
+{
+    if ( !qtreeitem_ && !qtreeitem_->treeWidget() ) return;
+
+    qtreeitem_->treeWidget()->editItem( qtreeitem_, col );
+}
+
+
 void uiTreeViewItem::setCheckable( bool yn )
 {
     ischeckable_ = yn;

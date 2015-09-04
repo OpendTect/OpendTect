@@ -47,6 +47,8 @@ public:
 
     bool			areAllParentsChecked();
 
+    void			entryInEditMode(int col);
+
     virtual int			selectionKey() const { return -1; }
     virtual bool		select();
 				/*!<Selects this item */
