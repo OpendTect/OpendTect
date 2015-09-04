@@ -332,7 +332,6 @@ bool uiVisPartServer::disabMenus( bool yn )
 void uiVisPartServer::createToolBars()
 {
     mpetools_ = new uiMPEMan( appserv().parent(), this );
-    getTrackTB()->display( false );
 
     toolbar_ = new uiTreeItemTBHandler( appserv().parent() );
     toolbar_->ref();
@@ -346,12 +345,6 @@ void uiVisPartServer::createToolBars()
 bool uiVisPartServer::disabToolBars( bool yn )
 {
     bool res = false;
-    if ( mpetools_ )
-    {
-	res = !getTrackTB()->sensitive();
-	getTrackTB()->setSensitive( !yn );
-    }
-
     if ( slicepostools_ )
     {
 	res = !slicepostools_->getToolBar()->sensitive();
@@ -2134,10 +2127,6 @@ void uiVisPartServer::colTabChangeCB( CallBacker* )
 
 void uiVisPartServer::introduceMPEDisplay()
 { mpetools_->introduceMPEDisplay(); }
-
-
-uiToolBar* uiVisPartServer::getTrackTB() const
-{ return mpetools_->getToolBar(); }
 
 
 void uiVisPartServer::initMPEStuff()

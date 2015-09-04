@@ -357,7 +357,6 @@ public:
     const char*			getTopSetupGroupName() const;
 
     void			introduceMPEDisplay();
-    uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
     static int			evStoreEMObject();
     static int			evStoreEMObjectAs();
