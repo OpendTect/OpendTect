@@ -28,6 +28,7 @@ FaultStickSetEditor::FaultStickSetEditor( EM::FaultStickSet& emfss )
     : ObjectEditor(emfss)
     , editpids_(0)
     , scalevector_( 0, 1, SI().zScale() )
+    , sceneidx_(-1)
     , sowingpivot_(Coord3::udf())
 {}
 
@@ -148,7 +149,7 @@ float FaultStickSetEditor::distToStick( int sticknr, const EM::SectionID& sid,
 
     const Geometry::Element* ge = emfss->sectionGeometry( sid );
     mDynamicCastGet(const Geometry::FaultStickSet*,fss,ge);
-    if ( !ge || !fss || fss->isStickHidden(sticknr) )
+    if ( !ge || !fss || fss->isStickHidden(sticknr,sceneidx_) )
 	return mUdf(float);
 
     const EM::FaultStickSetGeometry& fssg = emfss->geometry();
@@ -271,7 +272,7 @@ bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 	{
 	    const int curstick = rowrange.atIndex(stickidx);
 	    const StepInterval<int> colrange = fss->colRange( curstick );
-	    if ( fss->isStickHidden(curstick) || colrange.isUdf() )
+	    if ( fss->isStickHidden(curstick,sceneidx_) || colrange.isUdf() )
 		continue;
 
 	    for ( int knotidx=colrange.nrSteps(); knotidx>=0; knotidx-- )

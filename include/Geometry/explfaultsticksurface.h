@@ -42,6 +42,8 @@ public:
 					      float zscale=mUdf(float));
 			~ExplFaultStickSurface();
 
+    void		setSceneIdx(int idx)		{ sceneidx_ = idx; }
+
     bool		needsUpdate() const		{ return needsupdate_; }
 
     enum TriProjection	{ None=0, Inline=1, Crossline=2, ZSlice=3 };
@@ -124,6 +126,7 @@ protected:
 
     FaultStickSurface*	surface_;
     Coord3		scalefacs_;
+    int			sceneidx_;
 
     bool					needsupdate_;
     bool					needsupdatetexture_;

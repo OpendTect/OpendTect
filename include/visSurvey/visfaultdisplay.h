@@ -116,6 +116,8 @@ public:
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
 
+    void			setScene(Scene*);
+
     void			removeSelection(const Selector<Coord3>&,
 	    					TaskRunner*);
     bool			canRemoveSelection() const	{ return true; }

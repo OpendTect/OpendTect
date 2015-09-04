@@ -380,6 +380,7 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     : surface_( 0 )
     , displaysticks_( true )
     , displaypanels_( true )
+    , sceneidx_( -1 )
     , scalefacs_( 1, 1, mIsUdf(zscale) ? SI().zScale() : zscale )
     , needsupdate_( true )
     , needsupdatetexture_( false )
@@ -1603,7 +1604,8 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
 	    if ( sticks_.validIdx(stickidx) )
 	    {
 		const int sticknr = surface_->rowRange().atIndex( stickidx );
-		sticks_[stickidx]->hide( surface_->isStickHidden(sticknr) );
+		sticks_[stickidx]->hide(
+				surface_->isStickHidden(sticknr,sceneidx_) );
 
 		removeFromGeometries( sticks_[stickidx] );
 		if ( displaysticks_ )
