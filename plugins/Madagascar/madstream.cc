@@ -115,7 +115,7 @@ static bool getScriptForScons( BufferString& str )
     if ( fp.fileName() != "SConstruct" )
 	return false;
 
-    const char* rsfroot = GetEnvVar("RSFROOT");
+    const BufferString rsfroot = GetEnvVar("RSFROOT");
     const FilePath sconsfp( rsfroot, "bin", "scons" );
     if ( !File::exists(sconsfp.fullPath()) )
 	return false;
@@ -214,7 +214,7 @@ void MadStream::initRead( IOPar* par )
     {
 	const Pos::GeomID geomid = seldata->geomID();
 	if ( is2d_ )
-	    psrdr_ = SPSIOPF().get2DReader( *ioobj, 
+	    psrdr_ = SPSIOPF().get2DReader( *ioobj,
 					     Survey::GM().getName(geomid) );
 	else
 	    psrdr_ = SPSIOPF().get3DReader( *ioobj );
@@ -250,7 +250,7 @@ void MadStream::initWrite( IOPar* par )
     }
     else
     {
-	const Pos::GeomID geomid = seldata ? seldata->geomID() : 
+	const Pos::GeomID geomid = seldata ? seldata->geomID() :
 						    Survey::GM().cUndefGeomID();
 	pswrr_ = is2d_ ? SPSIOPF().get2DWriter(*ioobj,
 						Survey::GM().getName(geomid))

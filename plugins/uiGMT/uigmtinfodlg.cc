@@ -36,12 +36,12 @@ uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
     lbl->setAlignment( Alignment::HCenter );
 
     uiPushButton* gmtbut = new uiPushButton( this, tr("Download GMT"),
-	    			      mCB(this,uiGMTInfoDlg,gmtPushCB),true );
+				      mCB(this,uiGMTInfoDlg,gmtPushCB),true );
     gmtbut->setToolTip( tr("Click to go to the Download centre") );
     gmtbut->attach( centeredBelow, lbl );
 
     chkbut_ = new uiCheckBox( this, tr("Software installed already"),
-	    				 mCB(this,uiGMTInfoDlg,selCB) );
+					 mCB(this,uiGMTInfoDlg,selCB) );
     chkbut_->attach( alignedBelow, gmtbut );
 
     label_ = new uiLabel( this, tr("Please set GMT_SHAREDIR path") );
@@ -59,14 +59,14 @@ void uiGMTInfoDlg::gmtPushCB( CallBacker* )
 {
     uiDesktopServices::openUrl(
 	    __islinux__ ? "http://www.opendtect.org/index.php/download"
-	    		: "http://www.soest.hawaii.edu" );
+			: "http://www.soest.hawaii.edu" );
 }
 
 
 bool uiGMTInfoDlg::acceptOK( CallBacker* )
 {
-    const char* envvar = GetEnvVar( "GMT_SHAREDIR" );
-    if ( envvar )
+    const BufferString envvar = GetEnvVar( "GMT_SHAREDIR" );
+    if ( !envvar.isEmpty() )
 	return true;
 
     chkbut_->setChecked( true );
@@ -95,8 +95,8 @@ bool uiGMTInfoDlg::acceptOK( CallBacker* )
 
 void uiGMTInfoDlg::selCB( CallBacker* )
 {
-    const char* envvar = GetEnvVar( "GMT_SHAREDIR" );
-    if ( !envvar )
+    const BufferString envvar = GetEnvVar( "GMT_SHAREDIR" );
+    if ( envvar.isEmpty() )
     {
 	label_->display( chkbut_->isChecked() );
 	gmtpath_->display( chkbut_->isChecked() );

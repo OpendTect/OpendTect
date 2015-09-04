@@ -89,7 +89,7 @@ bool ODMad::ProcExec::init()
 	    BufferString cmd( comm + 1 );
 	    if ( inptyp == ODMad::ProcFlow::SU )
 	    {
-		const char* rsfroot = GetEnvVar( "RSFROOT" );
+		const BufferString rsfroot = GetEnvVar( "RSFROOT" );
 		cmd = FilePath( rsfroot, "bin", "sfsu2rsf" ).fullPath();
 		cmd += " "; cmd += "tape=";
 		cmd += inpar->find( sKey::FileName() );
@@ -148,7 +148,7 @@ bool ODMad::ProcExec::init()
 
 const char* ODMad::ProcExec::getProcString()
 {
-    const char* rsfroot = GetEnvVar( "RSFROOT" );
+    const BufferString rsfroot = GetEnvVar( "RSFROOT" );
     mDeclStaticString( ret );
     ret = "@";
     ODMad::ProcFlow procflow;
@@ -254,7 +254,7 @@ const char* ODMad::ProcExec::getProcString()
 
 const char* ODMad::ProcExec::getPlotString() const
 {
-    const char* rsfroot = GetEnvVar( "RSFROOT" );
+    const BufferString rsfroot = GetEnvVar( "RSFROOT" );
     mDeclStaticString( ret );
     int curprocidx = 0;
     if ( !pars_.get(sKeyCurProc(),curprocidx) || curprocidx < 1 )
