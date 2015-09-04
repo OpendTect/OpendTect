@@ -199,6 +199,10 @@ int RandomTrackDisplay::getRandomLineID() const
 { return rl_ ? rl_->ID() : -1; }
 
 
+Geometry::RandomLine* RandomTrackDisplay::getRandomLine()
+{ return rl_; }
+
+
 void RandomTrackDisplay::setDisplayTransformation( const mVisTrans* t )
 {
     panelstrip_->setDisplayTransformation( t );
@@ -458,6 +462,9 @@ void RandomTrackDisplay::removeAllNodes()
 {
     for ( int idx=nodes_.size()-1; idx>=0; idx-- )
 	dragger_->removeKnot( idx );
+
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+	setDataPackID( idx, -1, 0 );
 
     nodes_.erase();
     updatePanelStripPath();
