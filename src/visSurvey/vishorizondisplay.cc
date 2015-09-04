@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vishorizonsection.h"
 #include "vishorizonsectiondef.h"
 #include "visplanedatadisplay.h"
+#include "vispointset.h"
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
 #include "vistexturechannel2rgba.h"
@@ -76,7 +77,7 @@ HorizonDisplay::HorizonDisplay()
     , displaysurfacegrid_( false )
     , translationpos_( Coord3().udf() )
     , parentline_(0)
-    , childline_(0)
+    , selections_(0)
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
@@ -154,6 +155,8 @@ HorizonDisplay::~HorizonDisplay()
 
     deepErase( dispdatapackids_ );
     deepErase( shifts_ );
+
+    if ( selections_ ) selections_->unRef();
 }
 
 
@@ -192,8 +195,8 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 
     if ( parentline_ )
 	parentline_->setDisplayTransformation( transformation_ );
-    if ( childline_ )
-	childline_->setDisplayTransformation( transformation_ );
+    if ( selections_ )
+	selections_->setDisplayTransformation( transformation_ );
 
 }
 
@@ -1063,8 +1066,8 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	{
 	    if ( parentline_ && parentline_->getMaterial() )
 		parentline_->getMaterial()->setColor( hor3d->getParentColor() );
-	    if ( childline_ && childline_->getMaterial() )
-		childline_->getMaterial()->setColor( hor3d->getChildColor() );
+	    if ( selections_ && selections_->getMaterial() )
+		selections_->getMaterial()->setColor( hor3d->getChildColor() );
 	}
     }
 
@@ -2027,6 +2030,7 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
     {
 	parentline_ = visBase::PolyLine3D::create();
 	parentline_->setMaterial( new visBase::Material() );
+	parentline_->getMaterial()->setColor( hor3d->getParentColor() );
 	addChild( parentline_->osgNode() );
 	parentline_->setDisplayTransformation( transformation_ );
     }
@@ -2060,72 +2064,43 @@ void HorizonDisplay::selectChildren( const TrcKey& tkin )
     Array2D<char>* children = hor3d ? hor3d->getChildren( tkin ) : 0;
     if ( !children ) return;
 
-    if ( !childline_ )
+    if ( !selections_ )
     {
-	childline_ = visBase::PolyLine3D::create();
-	childline_->setMaterial( new visBase::Material() );
-	addChild( childline_->osgNode() );
-	childline_->setDisplayTransformation( transformation_ );
+	selections_ = visBase::PointSet::create();
+	selections_->ref();
+	selections_->getMaterial()->setColor( hor3d->getChildColor() );
+	addChild( selections_->osgNode() );
+	selections_->setDisplayTransformation( transformation_ );
     }
     else
     {
-	childline_->getCoordinates()->setEmpty();
-	childline_->removeAllPrimitiveSets();
+	selections_->removeAllPoints();
+	selections_->removeAllPrimitiveSets();
+	selections_->getMaterial()->clear();
     }
-
-    TypeSet<int> idxps;
-    int cii = 0;
-
-    Array2DImpl<float> field( children->info() );
-    for ( od_int64 idx=0; idx<children->info().getTotalSz(); idx++ )
-	field.getData()[idx] = children->getData()[idx] == '0' ? 0.f : 1.f;
 
     const TrcKeySampling tks = hor3d->getTrackingSampling();
-
-    IsoContourTracer ictracer( field );
-    ictracer.setSampling( tks.lineRange(), tks.trcRange() );
-    ictracer.selectRectROI( tks.lineRange(), tks.trcRange() );
-    ObjectSet<ODPolygon<float> > isocontours;
-    ictracer.getContours( isocontours, 0.9f, false );
-
-    int lidx = -1;
-    int sz = 0;
-    for ( int cidx=0; cidx<isocontours.size(); cidx++ )
+    const EM::SectionID sid = hor3d->sectionID( 0 );
+    TypeSet<int> pidxs_;
+    for ( od_int64 gidx=0; gidx<children->info().getTotalSz(); gidx++ )
     {
-	const ODPolygon<float>& ic = *isocontours[cidx];
-	if ( ic.size() > sz )
-	{ lidx = cidx; sz = ic.size(); }
+	if ( children->getData()[gidx] == '0' )
+	    continue;
+
+	const TrcKey tk = tks.atIndex( gidx );
+	const Coord3 pos = hor3d->getPos( sid, tk.pos().toInt64() );
+	const int pidx = selections_->addPoint( pos );
+	selections_->getMaterial()->setColor( hor3d->getChildColor(), pidx );
+	pidxs_ += pidx;
     }
 
-    if ( lidx < 0 ) return;
-
-    visBase::VertexShape* line = childline_;
-//    for ( int cidx=0; cidx<isocontours.size(); cidx++ )
-//    {
-	const ODPolygon<float>& ic = *isocontours[lidx];
-	for ( int vidx=0; vidx<ic.size(); vidx++ )
-	{
-	    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
-	    const TrcKey tk( mNINT32(vertex.x), mNINT32(vertex.y) );
-	    Coord vrtxcoord( vertex.x, vertex.y );
-	    vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
-	    const Coord3 pos( vrtxcoord, hor3d->getZ(tk) );
-	    if ( pos.isUdf() )
-		continue;
-
-	    line->getCoordinates()->addPos( pos );
-	    idxps.add( cii++ );
-	}
-
-	if ( ic.isClosed() && !idxps.isEmpty() )
-	    idxps.add( idxps[0] );
-
-	mAddLinePrimitiveSet;
-	idxps.erase();
-//    }
-
-    deepErase( isocontours );
-    showChildLine( true );
+    Geometry::PrimitiveSet* pointsetps =
+		Geometry::IndexedPrimitiveSet::create( true );
+    pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
+    pointsetps->append( pidxs_.arr(), pidxs_.size() );
+    selections_->addPrimitiveSet( pointsetps );
+    selections_->materialChangeCB( 0 );
+    selections_->turnOn( true );
 }
 
 
@@ -2137,7 +2112,7 @@ void HorizonDisplay::showParentLine( bool yn )
 
 void HorizonDisplay::showChildLine( bool yn )
 {
-    if ( childline_ ) childline_->turnOn( yn );
+    if ( selections_ ) selections_->turnOn( yn );
 }
 
 

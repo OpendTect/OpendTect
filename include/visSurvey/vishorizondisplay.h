@@ -25,6 +25,7 @@ namespace visBase
 {
     class HorizonSection;
     class HorizonTextureHandler;
+    class PointSet;
     class TextureChannel2RGBA;
     class VertexShape;
 }
@@ -242,8 +243,8 @@ protected:
     TypeSet<int>			intersectionlinevoi_;
     visBase::Material*			intersectionlinematerial_;
 
+    visBase::PointSet*			selections_;
     visBase::VertexShape*		parentline_;
-    visBase::VertexShape*		childline_;
 
     StepInterval<int>			parrowrg_;
     StepInterval<int>			parcolrg_;
