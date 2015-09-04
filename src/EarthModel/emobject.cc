@@ -556,43 +556,6 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	setBurstAlert( false );
     }
 
-/*#else
-    PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
-    while ( true )
-    {
-	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
-	    break;
-
-	const Coord3 pos = getPos(pid);
-	if ( selector.includes(pos) )
-	{
-	    unSetPos( pid, true );
-	    if ( !selremoving_ )
-		selremoving_ = true;
-
-	    dummypid = pid;
-
-	    if ( !pos.isDefined() ||
-		 isPosAttrib(pid, EM::EMObject::sSeedNode()) )
-		continue;
-
-	    const BinID bid = SI().transform(pos);
-	    if ( removebypolyposbox_.isEmpty() )
-	    {
-		removebypolyposbox_.hsamp_.start_ =
-			removebypolyposbox_.hsamp_.stop_ = bid;
-		removebypolyposbox_.zsamp_.start =
-		removebypolyposbox_.zsamp_.stop = pos.z;
-	    }
-	    else
-	    {
-		removebypolyposbox_.hsamp_.include(bid);
-		removebypolyposbox_.zsamp_.include(pos.z);
-	    }
-	}
-    }
-#endif */
     insideselremoval_ = false;
 }
 
