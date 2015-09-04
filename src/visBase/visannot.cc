@@ -123,7 +123,7 @@ Annotation::Annotation()
     updateTextPos();
 
     getMaterial()->change.notify( mCB(this,Annotation,updateTextColor) );
-    getMaterial()->setColor( annotcolor_, 0 );
+    getMaterial()->setColor( annotcolor_ );
 }
 
 

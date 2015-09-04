@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 #include <osg/Version>
+#include <osg/Material>
 
 #include <osgGeo/TabBoxDragger>
 
@@ -257,7 +258,10 @@ BoxDragger::BoxDragger()
     cullface->setMode( osg::CullFace::FRONT );
     geode->getStateSet()->setAttributeAndModes( cullface,
 	    					osg::StateAttribute::ON );
-
+     
+    osgboxdragger_->getOrCreateStateSet()->setAttributeAndModes(
+	new osg::Material(),
+	osg::StateAttribute::PROTECTED|osg::StateAttribute::ON);
     osgboxdragger_->addChild( geode );
 
     showDraggerBorder( true );

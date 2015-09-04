@@ -38,6 +38,10 @@ public:
     unsigned char	g() const;
     unsigned char	b() const;
     unsigned char	t() const;
+    float		rF() const { return getFloat( r() ); }
+    float		gF() const { return getFloat( g() ); }
+    float		bF() const { return getFloat( b() ); }
+    float		tF() const { return getFloat( t() ); }
 
     bool		isVisible() const;
 
@@ -81,6 +85,7 @@ public:
     static Color	Yellow()	{ return Color(255,255,0,0); }
 
     static unsigned char getUChar( float v );
+    static float	 getFloat(unsigned char);
 
     static int		nrStdDrawColors();
     static Color	stdDrawColor(int);
