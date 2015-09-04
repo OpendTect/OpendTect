@@ -208,6 +208,7 @@ public:
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sReload()		{ return tr("Reload"); }
+    static uiString sRename()		{ return tr("Rename"); }
     static uiString sReset()		{ return tr("Reset"); }
     static uiString sResume()		{ return tr("Resume"); }
     static uiString sRightClick()	{ return tr("<right-click>"); }
