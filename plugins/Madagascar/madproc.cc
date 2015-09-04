@@ -18,7 +18,7 @@
 
 bool ODMad::Proc::progExists( const char* prog )
 {
-    const char* rsfroot = GetEnvVar( "RSFROOT" );
+    const BufferString rsfroot = GetEnvVar( "RSFROOT" );
     if ( !rsfroot || !*rsfroot ) return false;
 
     FilePath fp( rsfroot, "bin", prog );
