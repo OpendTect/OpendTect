@@ -656,7 +656,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     return true;
 }
 
-
+#ifndef OD_NO_QT
 static QStringList parseCompleteCommand( const QString& comm )
 {
     QStringList args;
@@ -704,6 +704,7 @@ static QStringList parseCompleteCommand( const QString& comm )
 
     return args;
 }
+#endif
 
 
 bool OS::CommandLauncher::startDetached( const char* comm, bool inconsole )
