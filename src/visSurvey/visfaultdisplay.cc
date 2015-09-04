@@ -188,6 +188,16 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 }
 
 
+void FaultDisplay::setScene( Scene* scene )
+{
+    SurveyObject::setScene( scene );
+
+    if ( explicitsticks_ ) explicitsticks_->setSceneIdx( mSceneIdx );
+    if ( explicitpanels_ ) explicitpanels_->setSceneIdx( mSceneIdx );
+    if ( faulteditor_ ) faulteditor_->setSceneIdx( mSceneIdx );
+}
+
+
 EM::ObjectID FaultDisplay::getEMID() const
 { 
     return fault_ ? fault_->id() : -1;
@@ -292,6 +302,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	    : s3dgeom_->zScale();
 
 	mTryAlloc( explicitpanels_,Geometry::ExplFaultStickSurface(0,zscale));
+	explicitpanels_->setSceneIdx( mSceneIdx );
 	explicitpanels_->display( false, true );
 	explicitpanels_->setTexturePowerOfTwo( true );
 	explicitpanels_->setTextureSampling(
@@ -300,6 +311,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 				  s3dgeom_->zStep() ) );
 
 	mTryAlloc( explicitsticks_,Geometry::ExplFaultStickSurface(0,zscale) );
+	explicitsticks_->setSceneIdx( mSceneIdx );
 	explicitsticks_->display( true, false );
 	explicitsticks_->setTexturePowerOfTwo( true );
 	explicitsticks_->setTextureSampling(
@@ -338,7 +350,11 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
     mDynamicCastGet( MPE::FaultEditor*, fe, editor.ptr() );
     faulteditor_ = fe;
-    if ( faulteditor_ ) faulteditor_->ref();
+    if ( faulteditor_ )
+    {
+	faulteditor_->ref();
+	faulteditor_->setSceneIdx( mSceneIdx );
+    }
 
     viseditor_->setEditor( faulteditor_ );
 
@@ -1375,6 +1391,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	line->turnOn( false );
 	Geometry::ExplFaultStickSurface* shape = 0;
 	mTryAlloc( shape, Geometry::ExplFaultStickSurface(0,mZScale()) );
+	shape->setSceneIdx( mSceneIdx );
 	line->setSurface( shape );
 	shape->display( false, false );
 	shape->setSurface( fss );

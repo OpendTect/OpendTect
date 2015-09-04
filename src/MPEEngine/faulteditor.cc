@@ -27,6 +27,7 @@ namespace MPE
 FaultEditor::FaultEditor( EM::Fault3D& fault )
     : ObjectEditor(fault)
     , scalevector_( 0, 1, SI().zScale() )
+    , sceneidx_(-1)
     , sowingpivot_(Coord3::udf())
 {}
 
@@ -127,7 +128,7 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
     if ( !mousepos.isDefined() )
 	return mUdf(float);
 
-    if ( surface.isStickHidden(curstick) )
+    if ( surface.isStickHidden(curstick,sceneidx_) )
 	return mUdf(float);
 
     const StepInterval<int> colrange = surface.colRange( curstick );
@@ -372,7 +373,7 @@ bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 	{
 	    const int curstick = rowrange.atIndex(stickidx);
 	    const StepInterval<int> colrange = surface->colRange( curstick );
-	    if ( surface->isStickHidden(curstick) || colrange.isUdf() )
+	    if ( surface->isStickHidden(curstick,sceneidx_) || colrange.isUdf())
 		continue;
 
 	    for ( int knotidx=colrange.nrSteps(); knotidx>=0; knotidx-- )

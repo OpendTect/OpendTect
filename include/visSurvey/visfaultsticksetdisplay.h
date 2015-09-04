@@ -81,6 +81,8 @@ public:
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
 
+    void			setScene(Scene*);
+
     const char*			errMsg() const { return errmsg_.str(); }
 
     void			updateSticks(bool activeonly=false);

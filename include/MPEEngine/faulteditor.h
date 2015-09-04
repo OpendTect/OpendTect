@@ -35,6 +35,8 @@ public:
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 
+    void			setSceneIdx(int idx)	{ sceneidx_ = idx; }
+
     void			setLastClicked(const EM::PosID&);
     void			setSowingPivot(const Coord3);
 
@@ -68,6 +70,7 @@ protected:
 
     Geometry::ElementEditor*	createEditor(const EM::SectionID&);
     Coord3			scalevector_;
+    int				sceneidx_;
 
     int				getLastClickedStick() const;
 

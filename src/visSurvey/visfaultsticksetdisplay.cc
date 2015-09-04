@@ -150,6 +150,14 @@ void FaultStickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 }
 
 
+void FaultStickSetDisplay::setScene( Scene* scene )
+{
+    SurveyObject::setScene( scene );
+
+    if ( fsseditor_ ) fsseditor_->setSceneIdx( mSceneIdx );
+}
+
+
 EM::ObjectID FaultStickSetDisplay::getEMID() const
 { return fault_ ? fault_->id() : -1; }
 
@@ -206,10 +214,11 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
     }
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
-    fsseditor_ =  fsseditor;
+    fsseditor_ = fsseditor;
     if ( fsseditor_ )
     {
 	fsseditor_->ref();
+	fsseditor_->setSceneIdx( mSceneIdx );
 	fsseditor_->setEditIDs( &editpids_ );
     }
 

@@ -33,6 +33,8 @@ public:
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 
+    void			setSceneIdx(int idx)	{ sceneidx_ = idx; }
+
     void			setEditIDs(const TypeSet<EM::PosID>* editpids);
     void			getEditIDs(TypeSet<EM::PosID>&) const;
 
@@ -69,6 +71,7 @@ protected:
     Coord3			scalevector_;
     Coord			xtrans_;
     Coord			ytrans_;
+    int				sceneidx_;
 
     int				getLastClickedStick() const;
 
