@@ -375,6 +375,12 @@ void uiPixmapItem::setPixmap( const uiPixmap& pixmap )
 }
 
 
+void uiPixmapItem::setPaintInCenter( bool yn )
+{
+    qpixmapitem_->setPaintInCenter( yn );
+}
+
+
 // uiPolygonItem
 uiPolygonItem::uiPolygonItem()
     : uiGraphicsItem(mkQtObj())

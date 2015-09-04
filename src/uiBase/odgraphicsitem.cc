@@ -530,18 +530,28 @@ void ODGraphicsTextItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 // ODGraphicsPixmapItem
 ODGraphicsPixmapItem::ODGraphicsPixmapItem()
     : QGraphicsPixmapItem()
+    , paintincenter_(false)
 {}
 
 
 ODGraphicsPixmapItem::ODGraphicsPixmapItem( const uiPixmap& pm )
     : QGraphicsPixmapItem(*pm.qpixmap())
+    , paintincenter_(false)
 {}
+
+
+void ODGraphicsPixmapItem::setPaintInCenter( bool yn )
+{
+    paintincenter_ = yn;
+}
 
 
 void ODGraphicsPixmapItem::paint( QPainter* painter,
 			       const QStyleOptionGraphicsItem* option,
 			       QWidget* widget )
 {
+    if ( paintincenter_ )
+	setOffset( -boundingRect().width()/2., -boundingRect().height()/2. );
     painter->setClipRect( option->exposedRect );
     QGraphicsPixmapItem::paint( painter, option, widget );
 }

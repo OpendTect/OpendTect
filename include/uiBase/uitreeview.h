@@ -231,6 +231,8 @@ public:
 
     void		setBGColor(int column,const Color&);
 
+    void		edit(int col);
+
     void		setCheckable(bool);
     bool		isCheckable() const;
     bool		isChecked(bool qtstatus=true) const;

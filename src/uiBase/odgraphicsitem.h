@@ -102,11 +102,14 @@ public:
 				      QWidget*);
 
     virtual int			type() const	{ return ODGraphicsType+3; }
+    void			setPaintInCenter(bool);
 
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
     virtual void		hoverEnterEvent(QGraphicsSceneHoverEvent*);
     virtual void		hoverLeaveEvent(QGraphicsSceneHoverEvent*);
+
+    bool			paintincenter_;
 
 };
 

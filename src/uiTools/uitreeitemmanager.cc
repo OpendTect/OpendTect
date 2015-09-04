@@ -48,6 +48,13 @@ bool uiTreeItem::areAllParentsChecked()
 }
 
 
+void uiTreeItem::entryInEditMode( int col )
+{
+    if ( getItem() )
+	getItem()->edit( col );
+}
+
+
 bool uiTreeItem::rightClick( uiTreeViewItem* item )
 {
     if ( item==uitreeviewitem_ )
@@ -178,7 +185,7 @@ const uiTreeItem* uiTreeItem::findChild( int selkey ) const
 
 uiTreeItem* uiTreeItem::findChild( const char* nm )
 {
-    if ( name_ == nm )
+    if ( name_.getFullString() == nm )
 	return this;
 
     for ( int idx=0; idx<children_.size(); idx++ )
