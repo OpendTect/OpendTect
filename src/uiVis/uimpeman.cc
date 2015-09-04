@@ -49,16 +49,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace MPE;
 
-#define mAddButton(pm,func,tip,toggle) \
-    toolbar_->addButton( pm, tip, mCB(this,uiMPEMan,func), toggle )
-
-#define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
-    uiAction* itm = new uiAction( txt, mCB(this,uiMPEMan,fn) ); \
-    mnu->insertItem( itm, idx ); itm->setIcon( fnm ); }
-
-
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
-    : clickcatcher_(0)
+    : parent_(p)
+    , clickcatcher_(0)
     , clickablesceneid_(-1)
     , visserv_(ps)
     , seedpickwason_(false)
@@ -67,11 +60,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , cureventnr_(mUdf(int))
     , polyselstoppedseedpick_(false)
 {
-    toolbar_ = new uiToolBar( p, "Tracking controls", uiToolBar::Bottom );
-    addButtons();
-
-    EM::EMM().undo().undoredochange.notify(
-			mCB(this,uiMPEMan,updateButtonSensitivity) );
     engine().trackeraddremove.notify(
 			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
     MPE::engine().activevolumechange.notify(
@@ -80,31 +68,13 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     si.workRangeChg.notify( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.notify(
 	    mCB(this,uiMPEMan,treeItemSelCB) );
-    visBase::DM().selMan().deselnotifier.notify(
-	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visserv_->mouseEvent.notify( mCB(this,uiMPEMan,mouseEventCB) );
     visserv_->keyEvent.notify( mCB(this,uiMPEMan,keyEventCB) );
-
- //   mAttachCB( uiMain::keyboardEventHandler().keyPressed,
-	//uiMPEMan::keyPressedCB );
-
-
-    updateButtonSensitivity();
-}
-
-
-void uiMPEMan::addButtons()
-{
-    seedidx_ = mAddButton( "seedpickmode", addSeedCB,
-			  tr("Create seed ( key: 'Tab' )"), true );
-    toolbar_->setShortcut( seedidx_, "Tab" );
 }
 
 
 uiMPEMan::~uiMPEMan()
 {
-    EM::EMM().undo().undoredochange.remove(
-			mCB(this,uiMPEMan,updateButtonSensitivity) );
     deleteVisObjects();
     engine().trackeraddremove.remove(
 			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
@@ -114,8 +84,6 @@ uiMPEMan::~uiMPEMan()
     si.workRangeChg.remove( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiMPEMan,treeItemSelCB) );
-    visBase::DM().selMan().deselnotifier.remove(
-	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visserv_->mouseEvent.remove( mCB(this,uiMPEMan,mouseEventCB) );
     visserv_->keyEvent.remove( mCB(this,uiMPEMan,keyEventCB) );
 }
@@ -275,7 +243,7 @@ void uiMPEMan::handleAction( int res )
     {
     case sStart: break;
     case sStop: break;
-    case sPoly: startPolySelection(); break;
+    case sPoly: changePolySelectionMode(); break;
     case sChild: hd->selectChildren(tk); break;
     case sParent: hd->selectParent(tk); break;
     case sParPath: showParentsPath(); break;
@@ -564,9 +532,9 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !clickcatcher_->moreToSow() )
 	endSeedClickEvent( emobj );
 
-    
+
     // below is for double click event.
-    // after double click we do return on line 251. next click reaches here, we 
+    // after double click we do return on line 251. next click reaches here, we
     // need tell seedpicker to prepare to start new trick line.
     if ( seedpicker->isSeedPickEnded() )
 	seedpicker->endSeedPick( false );
@@ -601,12 +569,17 @@ void uiMPEMan::endSeedClickEvent( EM::EMObject* emobj )
 }
 
 
-void uiMPEMan::startPolySelection()
+void uiMPEMan::changePolySelectionMode()
 {
-    visserv_->setViewMode( false );
-    visserv_->setSelectionMode( uiVisPartServer::Polygon );
-    visserv_->turnSelectionModeOn( true );
-    visserv_->turnSeedPickingOn( false );
+    const bool topolymode = !visserv_->isSelectionModeOn();
+    if ( topolymode )
+    {
+	visserv_->setViewMode( false );
+	visserv_->setSelectionMode( uiVisPartServer::Polygon );
+    }
+
+    visserv_->turnSelectionModeOn( topolymode );
+    visserv_->turnSeedPickingOn( !topolymode );
 }
 
 
@@ -655,12 +628,6 @@ void uiMPEMan::showSetupDlg()
 { visserv_->sendVisEvent( uiVisPartServer::evShowMPESetupDlg() ); }
 
 
-uiToolBar* uiMPEMan::getToolBar() const
-{
-    return toolbar_;
-}
-
-
 bool uiMPEMan::isSeedPickingOn() const
 {
     return clickcatcher_ && clickcatcher_->isOn();
@@ -684,12 +651,11 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     if ( isSeedPickingOn() == yn )
 	return;
 
-    toolbar_->turnOn( seedidx_, yn );
     MPE::EMTracker* tracker = getSelectedTracker();
 
     if ( yn )
     {
-	visserv_->setViewMode(false);
+	visserv_->setViewMode( false );
 
 	updateClickCatcher();
 	clickcatcher_->turnOn( true );
@@ -712,9 +678,6 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     }
 
     visserv_->sendVisEvent( uiVisPartServer::evPickingStatusChange() );
-
-   if ( !yn )
-	visserv_->setViewMode( true, true );
 }
 
 
@@ -757,18 +720,10 @@ void uiMPEMan::updateClickCatcher()
 }
 
 
-void uiMPEMan::addSeedCB( CallBacker* )
-{
-    turnSeedPickingOn( toolbar_->isOn(seedidx_) );
-    updateButtonSensitivity(0);
-}
-
-
 void uiMPEMan::treeItemSelCB( CallBacker* )
 {
     validateSeedConMode();
     updateClickCatcher();
-    updateButtonSensitivity(0);
 }
 
 
@@ -794,8 +749,6 @@ void uiMPEMan::validateSeedConMode()
 
     const int defaultmode = seedpicker->defaultSeedConMode( false );
     seedpicker->setSeedConnectMode( defaultmode );
-
-    updateButtonSensitivity(0);
 }
 
 
@@ -949,8 +902,6 @@ void uiMPEMan::updateSeedPickState()
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
 
-    toolbar_->setSensitive( seedidx_, seedpicker );
-
     if ( !seedpicker )
     {
 	if ( isSeedPickingOn() )
@@ -981,7 +932,6 @@ void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
 
 void uiMPEMan::visObjectLockedCB( CallBacker* )
 {
-    updateButtonSensitivity();
 }
 
 
@@ -1000,8 +950,6 @@ void uiMPEMan::trackFromSeedsAndEdges()
 void uiMPEMan::trackInVolume()
 {
     /*
-    updateButtonSensitivity();
-
     MPE::EMTracker* tracker = getSelectedTracker();
     MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
@@ -1048,7 +996,6 @@ void uiMPEMan::trackInVolume()
     }
 
     MouseCursorManager::restoreOverride();
-    updateButtonSensitivity();
     */
 }
 
@@ -1064,10 +1011,11 @@ void uiMPEMan::removeInPolygon()
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
 	return;
+
     mDynamicCastGet(visSurvey::EMObjectDisplay*,
 		    emod,visserv_->getObject(selectedids[0]) );
 
-    uiTaskRunner taskrunner( toolbar_ );
+    uiTaskRunner taskrunner( parent_ );
     emod->removeSelection( *sel, &taskrunner );
 
     setUndoLevel( currentevent );
@@ -1139,8 +1087,6 @@ void uiMPEMan::initFromDisplay()
 {
     // compatibility for session files where box outside workarea
     workAreaChgCB(0);
-
-    updateButtonSensitivity(0);
 }
 
 
@@ -1153,24 +1099,10 @@ void uiMPEMan::setUndoLevel( int preveventnr )
 }
 
 
-void uiMPEMan::updateButtonSensitivity( CallBacker* )
-{
-    //Seed button
-    updateSeedPickState();
-
-    MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-
-    toolbar_->setSensitive( tracker );
-    if ( seedpicker &&
-	    !(visserv_->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
-	toolbar_->setSensitive( true );
-}
-
 void uiMPEMan::keyPressedCB( CallBacker* )
 {
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
-    
+
     if ( KeyboardEvent::isUnDo(kbe) )
 	undo();
 
