@@ -77,6 +77,7 @@ protected:
 
     bool		ioSeis(int,bool);
     void		survChangedCB(CallBacker*);
+    MultiID		getDefault2DDataID() const;
 
     uiSeisFileMan*	man2dseisdlg_;
     uiSeisFileMan*	man3dseisdlg_;
