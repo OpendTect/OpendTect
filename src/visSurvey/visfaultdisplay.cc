@@ -880,11 +880,11 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     {
 	EM::Fault3D* fault3d = emFault();
 	EM::SectionID sid = fault3d->sectionID(0);
-	EM::PosID pid = faulteditor_->getNearstStick( sid, pos, &editnormal );
-	if ( !pid.isUdf() )
+	EM::PosID npid = faulteditor_->getNearstStick( sid, pos, &editnormal );
+	if ( !npid.isUdf() )
 	{
-	    setActiveStick( pid );
-	    activestickid_ = pid;
+	    setActiveStick( npid );
+	    activestickid_ = npid;
 	}
     }
 
