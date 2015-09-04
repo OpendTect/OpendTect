@@ -704,6 +704,9 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     }
 
     visserv_->sendVisEvent( uiVisPartServer::evPickingStatusChange() );
+
+    if ( !yn )
+	visserv_->setViewMode( true, true );
 }
 
 
