@@ -90,6 +90,7 @@ FaultDisplay::FaultDisplay()
     , drawstyle_( new visBase::DrawStyle )
     , otherobjects_( false )
     , endstick_( false )
+    , activestickid_( EM::PosID::udf() )
 {
     activestickmarker_->ref();
     activestickmarker_->setPickable( false, false );
@@ -357,6 +358,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     }
 
     viseditor_->setEditor( faulteditor_ );
+    mAttachCB( viseditor_->sower().sowingend, FaultDisplay::sowingFinishedCB );
 
     displaysticks_ = fault_->isEmpty();
 
@@ -802,6 +804,13 @@ Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
     ( scene_ ? scene_->getZScale()*scene_->getFixedZStretch() \
 	     : s3dgeom_->zScale() )
 
+
+void FaultDisplay::sowingFinishedCB(CallBacker*)
+{
+    endstick_ = true;
+}
+
+
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
     if ( stickselectmode_ )
@@ -846,8 +855,17 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	return;
     }
 
+    if ( eventinfo.buttonstate_ == OD::ControlButton )
+    {
+	endstick_ = false;
+	if ( !activestickid_.isUdf() )
+	    faulteditor_->setLastClicked( activestickid_ );
+	return;
+    }
+
     bool makenewstick = false;
-    if ( eventinfo.type == visBase::MouseDoubleClick )
+    if ( eventinfo.type == visBase::MouseDoubleClick ||
+	eventinfo.buttonstate_==OD::ShiftButton )
     {
 	endstick_ = true;
 	return;
@@ -859,7 +877,16 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     faulteditor_->getInteractionInfo(makenewstick, insertpid, pos, &editnormal);
 
     if ( pid.isUdf() && !viseditor_->isDragging() )
-	setActiveStick( makenewstick ? EM::PosID::udf() : insertpid );
+    {
+	EM::Fault3D* fault3d = emFault();
+	EM::SectionID sid = fault3d->sectionID(0);
+	EM::PosID pid = faulteditor_->getNearstStick( sid, pos, &editnormal );
+	if ( !pid.isUdf() )
+	{
+	    setActiveStick( pid );
+	    activestickid_ = pid;
+	}
+    }
 
     if ( locked_ || !pos.isDefined() || 
 	viseditor_->isDragging() )
@@ -1062,12 +1089,18 @@ void FaultDisplay::updateActiveStickMarker()
     }
 
     RowCol rc( activestick_, 0 );
+    Geometry::PrimitiveSet* idxps = 
+	Geometry::IndexedPrimitiveSet::create( false );
+    idxps->ref();
+
     for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col() += colrg.step )
     {
 	const Coord3 pos = fss->getKnot( rc );
-	activestickmarker_->getCoordinates()->addPos( pos );
+	const int psidx = activestickmarker_->getCoordinates()->addPos( pos );
+	idxps->append( psidx );
     }
 
+    activestickmarker_->addPrimitiveSet( idxps );
     activestickmarker_->turnOn( true );
 }
 
@@ -1739,7 +1772,7 @@ void FaultDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
     if ( shape )
 	shape->setLineStyle( lnstyle );
 
-    int width = (int)mMAX(linewidth+3.5f, 1.0f);
+    int width = (int)mMAX(lnstyle.width_+6.0f, 1.0f);
     activestickmarker_->setLineStyle(LineStyle(LineStyle::Solid, width) );
 }
 

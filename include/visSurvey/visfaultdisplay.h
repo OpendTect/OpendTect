@@ -143,7 +143,7 @@ public:
 	    					IOPar& iop ) const
 				{ return MultiTextureSurveyObject
 				    	::getMousePosInfo(ei,iop); }
-        void			getMousePosInfo(const visBase::EventInfo&,
+   void				getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
 					BufferString& info) const;
 
@@ -224,6 +224,7 @@ protected:
 					TypeSet<Coord3>& intersectpoints) const;
     void			updateStickHiding();
     void			setLineRadius(visBase::GeomIndexedShape*);
+    void			sowingFinishedCB(CallBacker*);
 
     ZAxisTransform*			zaxistransform_;
     int					voiid_;
@@ -266,6 +267,7 @@ protected:
     visBase::DrawStyle*			drawstyle_;
     bool				otherobjects_;
     bool				endstick_;
+    EM::PosID				activestickid_;
 
     static const char*			sKeyTriProjection();
     static const char*			sKeyEarthModelID();
