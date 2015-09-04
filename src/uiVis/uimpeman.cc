@@ -617,6 +617,8 @@ void uiMPEMan::deleteSelection()
     {
 	EM::Horizon3D* hor3d = getSelectedHorizon3D();
 	if ( hor3d ) hor3d->deleteChildren();
+	visSurvey::HorizonDisplay* hd = getSelectedDisplay();
+	if ( hd ) hd->showChildLine( false );
     }
 }
 
