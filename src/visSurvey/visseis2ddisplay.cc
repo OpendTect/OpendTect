@@ -62,7 +62,7 @@ Seis2DDisplay::Seis2DDisplay()
     geometry_.setZRange( StepInterval<float>(mUdf(float),mUdf(float),1) );
 
     polyline_->ref();
-    polyline_->setMaterial( new visBase::Material );
+    polyline_->setMaterial( new visBase::Material(true) );
     addChild( polyline_->osgNode() );
 
     polylineds_ = polyline_->addNodeState( new visBase::DrawStyle );
