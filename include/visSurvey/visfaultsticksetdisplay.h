@@ -147,7 +147,7 @@ protected:
 					int sticknr,
 					TypeSet<Coord3>& intersectpoints);
     EM::FaultStickSet*		emFaultStickSet();
-
+    void			sowingFinishedCB(CallBacker*);
 
     MPE::FaultStickSetEditor*	fsseditor_;
     visSurvey::MPEEditor*	viseditor_;
@@ -165,6 +165,7 @@ protected:
 
     bool			displayonlyatsections_;
     bool			makenewstick_;
+    EM::PosID			activestickid_;
 };
 
 } // namespace VisSurvey

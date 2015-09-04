@@ -61,6 +61,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     , activestick_(visBase::Lines::create())
     , displayonlyatsections_(false)
     , makenewstick_( false )
+    , activestickid_( EM::PosID::udf() )
 {
     sticks_->ref();
     stickdrawstyle_ = sticks_->addNodeState( new visBase::DrawStyle );
@@ -223,6 +224,8 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
     }
 
     viseditor_->setEditor( fsseditor_ );
+    mAttachCB( viseditor_->sower().sowingend,
+	FaultStickSetDisplay::sowingFinishedCB );
 
     getMaterial()->setColor( fault_->preferredColor() );
 
@@ -505,6 +508,13 @@ static float zdragoffset = 0;
 	EM::EMM().undo().setUserInteractionEnd( \
 					EM::EMM().undo().currentEventID() );
 
+
+void FaultStickSetDisplay::sowingFinishedCB( CallBacker* )
+{
+    makenewstick_ = true;
+}
+
+
 void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 {
     if ( stickselectmode_ )
@@ -525,7 +535,16 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     EM::FaultStickSetGeometry& fssg = emFaultStickSet()->geometry();
 
-    if ( eventinfo.type == visBase::MouseDoubleClick )
+    if ( eventinfo.buttonstate_ == OD::ControlButton ) 
+    {
+	makenewstick_ =  false;
+	if ( !activestickid_.isUdf() )
+	    fsseditor_->setLastClicked( activestickid_ );
+	return;
+    }
+
+    if ( eventinfo.type == visBase::MouseDoubleClick ||
+	 eventinfo.buttonstate_ == OD::ShiftButton )
     {
 	makenewstick_ = true;
 	return;
@@ -600,7 +619,14 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 				    pickedgeomid, pos, normal);
 
     if ( mousepid.isUdf() && !viseditor_->isDragging() )
-	setActiveStick( insertpid );
+    {
+	EM::PosID pid = fsseditor_->getNearestStick( pos,pickedgeomid,normal );
+	if ( !pid.isUdf() )
+	{
+	   setActiveStick( pid );
+	   activestickid_ = pid;
+	}
+    }
 
     if ( locked_ || !pos.isDefined() ||
 	 eventinfo.type!=visBase::MouseClick || viseditor_->isDragging() )
