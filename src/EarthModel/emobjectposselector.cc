@@ -1,4 +1,3 @@
-
 /*+
 ________________________________________________________________________
 
@@ -10,22 +9,24 @@ ________________________________________________________________________
 
 -*/
 
+#include "emobjectposselector.h"
+
 #include "arraynd.h"
 #include "binidsurface.h"
-#include "emobjectselremoval.h"
 #include "emobject.h"
 #include "parametricsurface.h"
 #include "survinfo.h"
 
 namespace EM
 {
-    
-EMObjectRowColSelRemoval::EMObjectRowColSelRemoval(EMObject& emobj,
-						   const SectionID& secid,
-						   const Selector<Coord3>& sel,
-						   int nrrows, int nrcols,
-       						   int startrow, int startcol )
-    : emobj_(emobj)
+
+EMObjectPosSelector::EMObjectPosSelector( const EMObject& emobj,
+					const SectionID& secid,
+					const Selector<Coord3>& sel,
+					int nrrows, int nrcols,
+					int startrow, int startcol )
+    : ParallelTask()
+    , emobj_(emobj)
     , sectionid_(secid)
     , selector_(sel)
     , startrow_(startrow)
@@ -35,11 +36,11 @@ EMObjectRowColSelRemoval::EMObjectRowColSelRemoval(EMObject& emobj,
 { emobj_.ref(); }
 
 
-EMObjectRowColSelRemoval::~EMObjectRowColSelRemoval()
+EMObjectPosSelector::~EMObjectPosSelector()
 { emobj_.unRef(); }
 
 
-bool EMObjectRowColSelRemoval::doPrepare( int nrthreads )
+bool EMObjectPosSelector::doPrepare( int nrthreads )
 {
     removelist_.erase();
     //TODO this is temporary extraction way of z values
@@ -50,7 +51,7 @@ bool EMObjectRowColSelRemoval::doPrepare( int nrthreads )
 
     mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
     if ( !surf ) return false;
-    
+
     zvals_ = surf->getArray()->getData();
 
     starts_.erase();
@@ -68,7 +69,7 @@ bool EMObjectRowColSelRemoval::doPrepare( int nrthreads )
 }
 
 
-bool EMObjectRowColSelRemoval::doWork( od_int64, od_int64, int threadid )
+bool EMObjectPosSelector::doWork( od_int64, od_int64, int threadid )
 {
     lock_.lock();
 
@@ -112,7 +113,7 @@ bool EMObjectRowColSelRemoval::doWork( od_int64, od_int64, int threadid )
 }
 
 
-void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
+void EMObjectPosSelector::processBlock( const RowCol& start,
 					     const RowCol& stop )
 {
     const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
@@ -127,7 +128,7 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
 
     getBoundingCoords( start, stop, up, down );
 
-    const int sel = !selector_.canDoRange() ? 1 
+    const int sel = !selector_.canDoRange() ? 1
 				: selector_.includesRange( up, down );
     if ( sel==0 || sel==3 )
 	return;           // all outside or all behind projection plane
@@ -166,7 +167,7 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
     else
     {
 	lock_.lock();
-	
+
 	starts_ += start;
 	stops_ += RowCol( start.row()+rowstep*(rowlen/2),
 	    		  start.col()+colstep*(collen/2) );
@@ -187,7 +188,7 @@ void EMObjectRowColSelRemoval::processBlock( const RowCol& start,
 }
 
 
-void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
+void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
 						  const RowCol& stop,
 						  Coord3& up, Coord3& down )
 {
@@ -239,7 +240,7 @@ void EMObjectRowColSelRemoval::getBoundingCoords( const RowCol& start,
 }
 
 
-void EMObjectRowColSelRemoval::makeListGrow( const RowCol& start,
+void EMObjectPosSelector::makeListGrow( const RowCol& start,
     					     const RowCol& stop, int selresult )
 {
     const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
@@ -258,7 +259,7 @@ void EMObjectRowColSelRemoval::makeListGrow( const RowCol& start,
     TrcKeySamplingIterator iter( trcsampling );
 
     BinID bid;
-    
+
     iter.reset();
     while( iter.next(bid) )
     {
@@ -277,4 +278,4 @@ void EMObjectRowColSelRemoval::makeListGrow( const RowCol& start,
     lock_.unLock();
 }
 
-} // EM
+} // namespace EM

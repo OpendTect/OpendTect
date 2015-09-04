@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emundo.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
-#include "emobjectselremoval.h"
+#include "emobjectposselector.h"
 #include "geomelement.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -48,7 +48,6 @@ EMObject::EMObject( EMManager& emm )
     , fullyloaded_( false )
     , locked_( false )
     , burstalertcount_( 0 )
-    , insideselremoval_( false )
     , selremoving_( false )
     , preferredlinestyle_( *new LineStyle(LineStyle::Solid,3) )
     , preferredmarkerstyle_(
@@ -505,7 +504,6 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
     removebypolyposbox_.setEmpty();
 
     insideselremoval_ = true;
-//#ifdef
     for ( int idx=0; idx<nrSections(); idx++ )
     {
 	Geometry::Element* ge = sectionGeometry( sectionID(idx) );
@@ -519,22 +517,22 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	int startcol = surface->colRange().start;
 	int nrcols = surface->colRange().nrSteps() + 1 ;
 
-	EMObjectRowColSelRemoval selremoval( *this, sectionID(idx), selector,
+	EMObjectPosSelector posselector( *this, sectionID(idx), selector,
 					     nrrows, nrcols,
 					     startrow, startcol );
-	selremoval.executeParallel( tr );
+	posselector.executeParallel( tr );
 
-	TypeSet<EM::SubID> removallist = selremoval.getRemovelList();
+	const TypeSet<EM::SubID>& list = posselector.getSelected();
 
 	setBurstAlert( true );
 	int poscount = 0;
 	ge->blockCallBacks( true, false );
-	for ( int sididx = 0; sididx < removallist.size(); sididx++ )
+	for ( int sididx=0; sididx<list.size(); sididx++ )
 	{
-	    unSetPos( sectionID(idx), removallist[sididx], true );
+	    unSetPos( sectionID(idx), list[sididx], true );
 
-	    BinID bid = BinID::fromInt64( removallist[sididx] );
-	    const Coord3 pos = getPos( sectionID(idx), removallist[sididx] );
+	    BinID bid = BinID::fromInt64( list[sididx] );
+	    const Coord3 pos = getPos( sectionID(idx), list[sididx] );
 	    if ( removebypolyposbox_.isEmpty() )
 	    {
 		removebypolyposbox_.hsamp_.start_ =

@@ -1,5 +1,5 @@
-#ifndef emobjectselremoval_h
-#define emobjectselremoval_h
+#ifndef emobjectposselector_h
+#define emobjectposselector_h
 
 /*+
 ________________________________________________________________________
@@ -26,20 +26,20 @@ namespace EM
 class EMObject;
 
 /*!
-\brief EMObject RowCol selection removal.
+\brief EMObject position selector
 */
 
-mExpClass(EarthModel) EMObjectRowColSelRemoval : public ParallelTask
+mExpClass(EarthModel) EMObjectPosSelector : public ParallelTask
 {
 public:
-			EMObjectRowColSelRemoval(EMObject& emobj,
-						 const SectionID& secid,
-						 const Selector<Coord3>&,
-						 int nrrows,int nrcols,
-						 int startrow,int startcol);
-			~EMObjectRowColSelRemoval();
+			EMObjectPosSelector(const EMObject& emobj,
+						const SectionID& secid,
+						const Selector<Coord3>&,
+						int nrrows,int nrcols,
+						int startrow,int startcol);
+			~EMObjectPosSelector();
 
-    const TypeSet<EM::SubID> getRemovelList()	{ return removelist_; }
+    const TypeSet<EM::SubID>& getSelected() const	{ return removelist_; }
 
 protected:
 
@@ -54,7 +54,7 @@ protected:
 					  Coord3& up,Coord3& down);
 
 
-    EMObject&			emobj_;
+    const EMObject&		emobj_;
     const SectionID&		sectionid_;
     const Selector<Coord3>&	selector_;
     int				startrow_;
