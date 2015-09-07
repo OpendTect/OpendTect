@@ -6,6 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "ui2dgeomman.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uidialog.h"
@@ -143,30 +144,9 @@ bool acceptOK( CallBacker* )
     const BufferString lnm( lnmfld_->text() );
     if ( lnm.isEmpty() ) mErrRet(tr("Please enter the output line name"))
 
-    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
-    if (  geomid != Survey::GeometryManager::cUndefGeomID() )
-    {
-	uiString msg =
-	    tr("The 2D Line '%1' already exists. If you overwrite "
-	       "its geometry, all the associated data will be "
-	       "affected. Do you still want to overwrite?").arg(lnm);
-	if ( !uiMSG().askOverwrite(msg) )
-	    return false;
-	mDynamicCastGet( Survey::Geometry2D*, geom2d,
-			 Survey::GMAdmin().getGeometry(geomid) );
-	if ( !geom2d ) return false;
-	geom2d->dataAdmin().setEmpty();
-	geom2d->touch();
-    }
-    else
-    {
-	PosInfo::Line2DData* l2d = new PosInfo::Line2DData( lnm );
-	Survey::Geometry2D* newgeom = new Survey::Geometry2D( l2d );
-	uiString msg;
-	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
-	    mErrRet( msg );
-    }
+    Pos::GeomID geomid = Geom2DImpHandler::getGeomID( lnm );
+    if (  geomid == mUdfGeomID )
+	return false;
 
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj ) return false;

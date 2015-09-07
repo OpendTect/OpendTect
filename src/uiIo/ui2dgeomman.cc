@@ -307,3 +307,106 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     if ( !msgs.isEmpty() )
 	uiMSG().errorWithDetails(msgs);
 }
+
+
+//Geom2DImpHandler
+
+Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm )
+{
+    Pos::GeomID geomid = Survey::GM().getGeomID( nm );
+    if (  geomid == mUdfGeomID )
+	return createNewGeom( nm );
+
+    if ( confirmOverwrite(nm) )
+	setGeomEmpty( geomid );
+
+    return geomid;
+}
+
+
+bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
+				     TypeSet<Pos::GeomID>& geomids )
+{
+    geomids.erase();
+    BufferString existingidxs;
+    for ( int idx=0; idx<nms.size(); idx++ )
+    {
+	Pos::GeomID geomid = Survey::GM().getGeomID( nms.get(idx) );
+	if ( geomid != mUdfGeomID )
+	    existingidxs += idx;
+	else
+	{
+	    geomid = createNewGeom( nms.get(idx) );
+	    if ( geomid == mUdfGeomID )
+		return false;
+	}
+
+	geomids += geomid;
+    }
+
+    if ( !existingidxs.isEmpty() )
+    {
+	BufferStringSet existinglnms;
+	for ( int idx=0; idx<existingidxs.size(); idx++ )
+	    existinglnms.add( nms.get(existingidxs[idx]) );
+
+	if ( confirmOverwrite(existinglnms) )
+	{
+	    for ( int idx=0; idx<existingidxs.size(); idx++ )
+		setGeomEmpty( geomids[existingidxs[idx]] );
+	}
+    }
+
+    return true;
+}
+
+
+void Geom2DImpHandler::setGeomEmpty( Pos::GeomID geomid )
+{
+    mDynamicCastGet( Survey::Geometry2D*, geom2d,
+		     Survey::GMAdmin().getGeometry(geomid) );
+    if ( !geom2d )
+	return;
+
+    geom2d->dataAdmin().setEmpty();
+    geom2d->touch();
+}
+
+
+Pos::GeomID Geom2DImpHandler::createNewGeom( const char* nm )
+{
+    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( nm );
+    Survey::Geometry2D* newgeom = new Survey::Geometry2D( l2d );
+    uiString msg;
+    Pos::GeomID geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+    if ( geomid == mUdfGeomID )
+	uiMSG().error( msg );
+
+    return geomid;
+}
+
+
+bool Geom2DImpHandler::confirmOverwrite( const BufferStringSet& lnms )
+{
+    if ( lnms.size() == 1 )
+	return confirmOverwrite( lnms.get(0) );
+
+    uiString msg =
+	tr("The 2D Lines %1 already exist. If you overwrite "
+	   "their geometry, all the associated data will be "
+	   "affected. Do you still want to overwrite?")
+	.arg(lnms.getDispString(5));
+
+    return uiMSG().askOverwrite( msg );
+}
+
+
+bool Geom2DImpHandler::confirmOverwrite( const char* lnm )
+{
+    uiString msg =
+	tr("The 2D Line '%1' already exists. If you overwrite "
+	   "its geometry, all the associated data will be "
+	   "affected. Do you still want to overwrite?")
+	.arg(lnm);
+    return uiMSG().askOverwrite( msg );
+}

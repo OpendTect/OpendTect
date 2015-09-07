@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom2d.h"
 #include "posinfo2d.h"
 #include "uigeninput.h"
+#include "ui2dgeomman.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiseislinesel.h"
@@ -135,34 +136,9 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     if ( !rdl )
 	mErrRet( tr("Selected Random line is empty") );
 
-    Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-    if ( geomid != Survey::GeometryManager::cUndefGeomID() )
-    {
-	uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
-			  "its geometry, all the associated data will be "
-			  "affected. Do you still want to overwrite?")
-		     .arg(linenm);
-	if ( !uiMSG().askOverwrite(msg) )
-	    return false;
-
-	mDynamicCastGet( Survey::Geometry2D*, geom2d,
-			 Survey::GMAdmin().getGeometry(geomid) );
-	if ( !geom2d )
-	    return false;
-
-	geom2d->dataAdmin().setEmpty();
-	geom2d->touch();
-    }
-    else
-    {
-	Survey::Geometry2D* newgeom =
-		new Survey::Geometry2D( new PosInfo::Line2DData );
-	newgeom->dataAdmin().setLineName( linenm );
-	uiString msg;
-	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
-	    mErrRet( msg );
-    }
+    Pos::GeomID geomid = Geom2DImpHandler::getGeomID( linenm );
+    if ( geomid == mUdfGeomID )
+	return false;
 
     const IOObj* inobj = basegrp_->getInputIOObj();
     const IOObj* outobj = basegrp_->getOutputIOObj();
@@ -170,7 +146,7 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     uiTaskRunner dlg( this );
     if ( !TaskRunner::execute( &dlg, exec ) )
 	return false;
-    
+
     if ( !SI().has2D() )
 	uiMSG().warning( tr("You need to change survey type to 'Both 2D and 3D'"
 			 " in survey setup to display the 2D line") );
