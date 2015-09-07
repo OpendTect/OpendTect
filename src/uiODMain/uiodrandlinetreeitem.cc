@@ -481,6 +481,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv_->getObject(displayid_));
+    if ( !rtd ) return;
 
     if ( mnuid==editnodesmnuitem_.id )
     {

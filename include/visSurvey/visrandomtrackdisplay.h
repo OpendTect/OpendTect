@@ -61,6 +61,7 @@ public:
 
     void			setRandomLineID(int id);
     int				getRandomLineID() const;
+    Geometry::RandomLine*	getRandomLine();
 
     int				nameNr() const { return namenr_; }
 				/*!<\returns a number that is unique for

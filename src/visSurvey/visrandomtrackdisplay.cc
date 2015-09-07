@@ -188,6 +188,7 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
     rl_->ref();
     rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
 
+    setName( rl_->name() );
     TypeSet<BinID> bids;
     rl_->allNodePositions( bids );
     setNodePositions( bids );
@@ -196,6 +197,10 @@ void RandomTrackDisplay::setRandomLineID( int rlid )
 
 int RandomTrackDisplay::getRandomLineID() const
 { return rl_ ? rl_->ID() : -1; }
+
+
+Geometry::RandomLine* RandomTrackDisplay::getRandomLine()
+{ return rl_; }
 
 
 void RandomTrackDisplay::setDisplayTransformation( const mVisTrans* t )
@@ -457,6 +462,9 @@ void RandomTrackDisplay::removeAllNodes()
 {
     for ( int idx=nodes_.size()-1; idx>=0; idx-- )
 	dragger_->removeKnot( idx );
+
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+	setDataPackID( idx, -1, 0 );
 
     nodes_.erase();
     updatePanelStripPath();
@@ -847,7 +855,7 @@ void RandomTrackDisplay::acceptManipulation()
     for ( int idx=0; idx<nrNodes(); idx++ )
     {
 	const Coord crd = dragger_->getKnot(idx);
-	setNodePos( idx, BinID( mNINT32(crd.x), mNINT32(crd.y)), false );
+	setNodePos( idx, BinID(mNINT32(crd.x),mNINT32(crd.y)), false);
 	if ( !getUpdateStageNr() )
 	    dragger_->showAdjacentPanels( idx, false );
     }
@@ -912,7 +920,16 @@ void RandomTrackDisplay::geomChangeCB( CallBacker* cb )
 
     if ( cd.ev_ == Geometry::RandomLine::ChangeData::Added )
     {
-	addNode( rl_->nodePosition(cd.nodeidx_) );
+	const int nodeidx = cd.nodeidx_;
+	if ( cd.nodeidx_ < nrNodes() )
+	{
+	    const BinID nodepos = rl_->nodePosition( nodeidx );
+	    nodes_[nodeidx] = nodepos;
+	    dragger_->setKnot( nodeidx, Coord(nodepos.inl(),nodepos.crl()) );
+	    dragger_->showAllPanels( true );
+	}
+	else
+	    addNode( rl_->nodePosition(nodeidx) );
     }
     else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Inserted )
     {
@@ -1279,7 +1296,7 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
     if ( eventcatcher_ )
     {
 	eventcatcher_->eventhappened.remove(
-				     mCB(this,RandomTrackDisplay,pickCB) );
+				    mCB(this,RandomTrackDisplay,pickCB) );
 	eventcatcher_->unRef();
     }
 
@@ -1289,7 +1306,7 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
     {
 	eventcatcher_->ref();
 	eventcatcher_->eventhappened.notify(
-				     mCB(this,RandomTrackDisplay,pickCB) );
+				    mCB(this,RandomTrackDisplay,pickCB) );
     }
 
 }
