@@ -245,6 +245,13 @@ void EventCatchHandler::traverse( EventInfo& eventinfo, unsigned int mask,
     }
 }
 
+// solution for osg: Ctrl + a-z
+#define mOsgCombinedCtrlKey( key )\
+{\
+    if ( key>=1 && key<=26 )\
+	key+=96;\
+}\
+
 
 bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 				osgGA::GUIActionAdapter& aa )
@@ -299,7 +306,8 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
     if ( eventinfo.type == Keyboard )
     {
-	const int key = ea.getKey();
+	int key = ea.getKey();
+	mOsgCombinedCtrlKey( key );
 	KeyMap::iterator it = keymap_.find( key );
 	eventinfo.key_ = it==keymap_.end() ? (OD::KeyboardKey)key : it->second;
     }
