@@ -53,6 +53,7 @@ public:
     const Attrib::DescSet&	attrSet() const		{ return *attrset_; }
     void			setAttrSet( const Attrib::DescSet* ds )
 						    { if ( ds ) attrset_ = ds; }
+    void			fillSelSpec(Attrib::SelSpec&) const;
 
 protected:
 
@@ -109,6 +110,7 @@ public:
     bool		is2D() const		{ return attrdata_.is2D(); }
     const Attrib::DescSet& getAttrSet() const	{ return attrdata_.attrSet(); }
     int			selType() const;
+    void		fillSelSpec(Attrib::SelSpec&) const;
 
 protected:
 

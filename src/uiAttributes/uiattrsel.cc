@@ -89,6 +89,30 @@ bool uiAttrSelData::is2D() const
     return attrSet().is2D();
 }
 
+
+void uiAttrSelData::fillSelSpec( SelSpec& as ) const
+{
+    const bool isnla = !attribid_.isValid() && outputnr_ >= 0;
+    if ( isnla )
+	as.set( 0, DescID(outputnr_,true), true, "" );
+    else
+	as.set( 0, attribid_, false, "" );
+
+    if ( isnla && nlamodel_ )
+	as.setRefFromID( *nlamodel_ );
+    else
+    {
+	const DescSet& descset = as.id().isStored() ?
+		*eDSHolder().getDescSet( is2D(), true ) : attrSet();
+	as.setRefFromID( descset );
+    }
+
+    if ( is2D() )
+	as.set2DFlag();
+}
+
+
+
 #define mImplInitVar \
 	: uiDialog(p,uiDialog::Setup("","",mODHelpKey(mAttrSelDlgNo_NNHelpID)))\
 	, attrdata_(atd) \
@@ -441,8 +465,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferStringSet compnms;
     SeisIOObjInfo::getCompNames( key, compnms );
     compfld_->box()->setEmpty();
-    if ( !showsteerdata_ )	//trick to prevent ALL coming to the display
-	compfld_->box()->addItem( uiStrings::sAll() );
+    compfld_->box()->addItem( uiStrings::sAll() );
 
     compfld_->box()->addItems( compnms );
     compfld_->display( compnms.size()>=2 );
@@ -580,6 +603,12 @@ void uiAttrSelDlg::objInserted( CallBacker* cb )
 	insertedobjmid_ = ky;
 	accept( 0 );
     }
+}
+
+
+void uiAttrSelDlg::fillSelSpec( SelSpec& as ) const
+{
+    attrdata_.fillSelSpec( as );
 }
 
 
@@ -783,24 +812,7 @@ void uiAttrSel::processInput()
 
 void uiAttrSel::fillSelSpec( SelSpec& as ) const
 {
-    const bool isnla =
-	!attrdata_.attribid_.isValid() && attrdata_.outputnr_ >= 0;
-    if ( isnla )
-	as.set( 0, DescID(attrdata_.outputnr_,true), true, "" );
-    else
-	as.set( 0, attrdata_.attribid_, false, "" );
-
-    if ( isnla && attrdata_.nlamodel_ )
-	as.setRefFromID( *attrdata_.nlamodel_ );
-    else
-    {
-	const DescSet& descset = as.id().isStored() ?
-		*eDSHolder().getDescSet( is2D(), true ) : attrdata_.attrSet();
-	as.setRefFromID( descset );
-    }
-
-    if ( is2D() )
-	as.set2DFlag();
+    attrdata_.fillSelSpec( as );
 }
 
 
