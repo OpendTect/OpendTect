@@ -71,7 +71,7 @@ public: //Speicalized stuff
 
 /*!Holds the translation for one language. Each language has its own locale
    code, (such as en-us) */
-class TextTranslatorLanguage
+mClass(Basic) TextTranslatorLanguage
 {
     mRefCountImpl(TextTranslatorLanguage);
     mODTextTranslationClass(TextTranslatorLanguage);
