@@ -222,7 +222,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
     if ( wd_ )
 	wd_->unRef();
 
-    wd_ = Well::MGR().get( wellid, true );
+    wd_ = Well::MGR().get( wellid );
     if ( !wd_ ) mErrRet( "Canot read well data.")
 
     wd_->ref();
@@ -450,7 +450,7 @@ bool uiTieWinMGRDlg::initSetup()
     if ( wd_ )
 	wd_->unRef();
 
-    wd_ = Well::MGR().get( wellid, false );
+    wd_ = Well::MGR().get( wellid );
     if ( !wd_ )
 	mErrRet("Cannot read the well data")
 

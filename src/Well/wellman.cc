@@ -29,7 +29,6 @@ Well::Man& Well::MGR()
 
 Well::Man::~Man()
 {
-    deepUnRef( wells_ );
 }
 
 
@@ -37,12 +36,15 @@ void Well::Man::removeObject( const Well::Data* wd )
 {
     const int idx = wells_.indexOf( wd );
     if ( idx < 0 ) return;
+
     wells_.removeSingle( idx );
 }
 
 
 void Well::Man::add( const MultiID& key, Well::Data* wll )
 {
+    if ( !wll ) return;
+
     wll->setMultiID( key );
     wells_ += wll;
 }
@@ -51,39 +53,32 @@ void Well::Man::add( const MultiID& key, Well::Data* wll )
 Well::Data* Well::Man::release( const MultiID& key )
 {
     const int idx = gtByKey( key );
-    return idx < 0 ? 0 : wells_.removeSingle( idx );
+    if ( idx < 0 ) return 0;
+
+    return wells_.removeSingle( idx );
 }
 
 
-Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
+Well::Data* Well::Man::get( const MultiID& key )
 {
     msg_.setEmpty();
-    bool mustreplace = false;
-    if ( isLoaded(key) )
-    {
-	if ( !forcereload )
-	    return wells_[gtByKey(key)];
 
-	mustreplace = true;
-    }
+    const int wdidx = gtByKey( key );
+    if ( wdidx>=0 )
+	return wells_[wdidx];
 
     Well::Data* wd = new Well::Data;
     wd->ref();
+
     Well::Reader wr( key, *wd );
     if ( !wr.get() )
     {
 	msg_.set( wr.errMsg() );
+	wd->unRef();
 	return 0;
     }
 
-    if ( mustreplace )
-    {
-	wells_.replace( gtByKey(key), wd )->unRef();
-	wd->ref();
-    }
-    else
-	add( key, wd );
-
+    add( key, wd );
     wd->unRefNoDelete();
     return wd;
 }
@@ -97,7 +92,22 @@ bool Well::Man::isLoaded( const MultiID& key ) const
 
 bool Well::Man::reload( const MultiID& key )
 {
-    return get( key, true );
+    const int wdidx = gtByKey( key );
+    if ( wdidx<0 ) return false;
+
+    Well::Data* wd = wells_[wdidx];
+    wd->ref();
+    Well::Reader wr( key, *wd );
+    if ( !wr.get() )
+    {
+	msg_.set( wr.errMsg() );
+	wd->unRef();
+	return false;
+    }
+
+    wd->reloaded.trigger();
+    wd->unRef();
+    return true;
 }
 
 

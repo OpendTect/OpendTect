@@ -240,7 +240,7 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 
     mDynamicCastGet(uiWellSinglePropSel*, fld, c);
     if ( !fld ) return;
-    const Well::Data* wd = Well::MGR().get( wellid_, false );
+    const Well::Data* wd = Well::MGR().get( wellid_ );
     if  ( !wd ) return;
 
     const Well::Log* log = wd->logs().getLog( fld->logName() );
@@ -391,7 +391,7 @@ void uiWellPropSel::viewLogPushed( CallBacker* cb )
     if ( lognm == sKeyPlsSel )
 	return;
 
-    const Well::Data* wd = Well::MGR().get( wellid_, false );
+    const Well::Data* wd = Well::MGR().get( wellid_ );
     if  ( !wd ) return;
 
     const Well::LogSet& logs = wd->logs();

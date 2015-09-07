@@ -142,6 +142,8 @@ public:
     Notifier<Well::Data>	trackchanged;
     Notifier<Well::Data>	disp3dparschanged;
     Notifier<Well::Data>	disp2dparschanged;
+    CNotifier<Well::Data,int>	logschanged;
+    Notifier<Well::Data>	reloaded;
 
 protected:
     void		prepareForDelete() const;

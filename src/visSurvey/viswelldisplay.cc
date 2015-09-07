@@ -103,7 +103,7 @@ Well::Data* WellDisplay::getWD() const
     if ( !wd_ )
     {
 	WellDisplay* self = const_cast<WellDisplay*>( this );
-	RefMan<Well::Data> wd = Well::MGR().get( wellid_, false );
+	RefMan<Well::Data> wd = Well::MGR().get( wellid_ );
 	self->wd_ = wd;
 	if ( wd )
 	{

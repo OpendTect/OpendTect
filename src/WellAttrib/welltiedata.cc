@@ -267,7 +267,7 @@ Well::Data* WellDataMgr::wellData() const
     if ( !wd_ )
     {
 	WellDataMgr* self = const_cast<WellDataMgr*>( this );
-	self->wd_ = Well::MGR().get( wellid_, false );
+	self->wd_ = Well::MGR().get( wellid_ );
 	wd_->ref();
     }
     return wd_;
