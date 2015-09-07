@@ -153,6 +153,7 @@ protected:
     void			setupFaults(uiODViewer2D*);
     void			setupFaultSSs(uiODViewer2D*);
     void			setupPickSets(uiODViewer2D*);
+    void			reSetPrevDragMode(uiODViewer2D*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);

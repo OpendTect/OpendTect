@@ -274,7 +274,7 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	    curvwr.rgbCanvas().setDragMode( uiGraphicsViewBase::NoDrag );
 	    MouseCursorManager::mgr()->setOverride(
 		    x1auxposidx>=0 ? MouseCursor::SplitH
-		    		   : MouseCursor::SplitV );
+				   : MouseCursor::SplitV );
 	}
 
 	if ( x1auxposidx>=0 )
@@ -283,14 +283,7 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	    selauxpos_ = SelectedAuxPos( x2auxposidx, false, false );
 	else if ( selauxpos_.auxposidx_>=0 )
 	{
-	    uiGraphicsViewBase::ODDragMode prevdragmode =
-		uiGraphicsViewBase::ScrollHandDrag;
-	    if ( curvwr2d->viewControl()->isEditModeOn() )
-		prevdragmode = uiGraphicsViewBase::NoDrag;
-	    else if ( curvwr2d->viewControl()->isRubberBandOn() )
-		prevdragmode = uiGraphicsViewBase::RubberBandDrag;
-	    curvwr.rgbCanvas().setDragMode( prevdragmode );
-	    MouseCursorManager::mgr()->restoreOverride();
+	    reSetPrevDragMode( curvwr2d );
 	    selauxpos_.auxposidx_ = -1;
 	}
     }
@@ -327,6 +320,18 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 
     setAuxPosLineStyles( curvwr );
     curvwr.handleChange( FlatView::Viewer::Annot );
+}
+
+void uiODViewer2DMgr::reSetPrevDragMode( uiODViewer2D* curvwr2d )
+{
+    uiGraphicsViewBase::ODDragMode prevdragmode =
+    uiGraphicsViewBase::ScrollHandDrag;
+    if ( curvwr2d->viewControl()->isEditModeOn() )
+	prevdragmode = uiGraphicsViewBase::NoDrag;
+    else if ( curvwr2d->viewControl()->isRubberBandOn() )
+	prevdragmode = uiGraphicsViewBase::RubberBandDrag;
+    curvwr2d->viewwin()->viewer(0).rgbCanvas().setDragMode( prevdragmode );
+    MouseCursorManager::mgr()->restoreOverride();
 }
 
 
@@ -472,13 +477,7 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* curvwr2d )
     
     selauxpos_.isselected_ = false;
     selauxpos_.oldauxpos_ = mUdf(float);
-    uiGraphicsViewBase::ODDragMode prevdragmode =
-	uiGraphicsViewBase::ScrollHandDrag;
-    if ( curvwr2d->viewControl()->isEditModeOn() )
-	prevdragmode = uiGraphicsViewBase::NoDrag;
-    else if ( curvwr2d->viewControl()->isRubberBandOn() )
-	prevdragmode = uiGraphicsViewBase::RubberBandDrag;
-    curvwr.rgbCanvas().setDragMode( prevdragmode );
+    reSetPrevDragMode( curvwr2d );
 
     if ( clickedvwr2d )
 	clickedvwr2d->viewwin()->dockParent()->raise();
