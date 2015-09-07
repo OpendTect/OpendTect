@@ -133,7 +133,13 @@ void uiODVw2DFaultSSParentTreeItem::addFaultSSs(
 					const TypeSet<EM::ObjectID>& emids )
 {
     for ( int idx=0; idx<emids.size(); idx++ )
+    {
+	const EM::EMObject* emobj = EM::EMM().getObject( emids[idx] );
+	if ( !emobj || findChild(emobj->name()) )
+	    continue;
+
 	addChld( new uiODVw2DFaultSSTreeItem(emids[idx]), false, false);
+    }
 }
 
 
