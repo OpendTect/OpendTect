@@ -49,6 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uivispartserv.h"
+#include "uiodmenumgr.h"
 #include "od_helpids.h"
 
 
@@ -582,6 +583,9 @@ void uiODFaultToolMan::enableStickAccess( bool yn )
 
     if ( curfltd_ && curfltd_->areSticksDisplayed()!=yn )
 	curfltd_->display( yn, !yn || curfltd_->arePanelsDisplayed() );
+
+    if ( !yn )
+	appl_.menuMgr().updateViewMode( !yn );
 }
 
 
@@ -1404,7 +1408,21 @@ static void keyDown( bool yn )
 
 
 void uiODFaultToolMan::keyPressedCB( CallBacker* )
-{ keyDown( true ); }
+{ 
+    keyDown( true ); 
+    if ( !uiMain::keyboardEventHandler().hasEvent() )
+	return;
+
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+
+    if ( KeyboardEvent::isUnDo(kbe) )
+	undoCB( 0 );
+
+    if ( KeyboardEvent::isReDo(kbe) )
+	redoCB( 0 );
+
+    uiMain::keyboardEventHandler().setHandled( true );
+}
 
 
 void uiODFaultToolMan::keyReleasedCB( CallBacker* )
