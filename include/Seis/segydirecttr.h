@@ -23,6 +23,8 @@ namespace PosInfo { class CubeData; }
 class SEGYSeisTrcTranslator;
 class StreamConn;
 
+#define mSEGYDirectTranslNm "SEGYDirect"
+
 
 /*!\brief Base class for readers from SEG-Y file sets */
 

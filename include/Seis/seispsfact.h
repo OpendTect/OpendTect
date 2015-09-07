@@ -20,12 +20,12 @@ ________________________________________________________________________
 defineTranslatorGroup(SeisPS3D,sKeySeisPS3DTranslatorGroup);
 defineTranslator(CBVS,SeisPS3D,"CBVS");
 defineTranslator(MultiCube,SeisPS3D,"MultiCube");
-defineTranslator(SEGYDirect,SeisPS3D,"SEGYDirect");
+defineTranslator(SEGYDirect,SeisPS3D,mSEGYDirectTranslNm);
 
 #define sKeySeisPS2DTranslatorGroup "2D Pre-Stack Seismics"
 defineTranslatorGroup(SeisPS2D,sKeySeisPS2DTranslatorGroup);
 defineTranslator(CBVS,SeisPS2D,"CBVS");
-defineTranslator(SEGYDirect,SeisPS2D,"SEGYDirect");
+defineTranslator(SEGYDirect,SeisPS2D,mSEGYDirectTranslNm);
 
 
 #endif

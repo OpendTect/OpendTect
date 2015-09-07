@@ -30,7 +30,7 @@ class SEGYDirectPSIOProvider : public SeisPSIOProvider
 {
 public:
 			SEGYDirectPSIOProvider()
-				: SeisPSIOProvider("SEGYDirect")
+				: SeisPSIOProvider(mSEGYDirectTranslNm)
 			{}
 
     virtual bool	canHandle( bool forread, bool for2d ) const

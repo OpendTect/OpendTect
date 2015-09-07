@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "segyfiledata.h"
 #include "segyfiledef.h"
 #include "segydirectdef.h"
+#include "segydirecttr.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "threadwork.h"
@@ -37,7 +38,7 @@ extern "C" void od_Seis_initStdClasses();
 static MultiID getKey( const char* nm )
 {
     IOObjContext ctxt = mIOObjContext(SeisTrc);
-    ctxt.fixTranslator( "SEGYDirect" );
+    ctxt.fixTranslator( mSEGYDirectTranslNm );
     CtxtIOObj ctio( ctxt );
     IOM().to( ctio.ctxt.getSelKey() );
     ctio.setName( nm );

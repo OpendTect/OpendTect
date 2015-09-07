@@ -25,8 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posprovider.h"
 #include "od_helpids.h"
 
-static const char* sKeySEGYDirect = "SEGYDirect";
-
 
 uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Re-sort SEG-Y scanned"),
@@ -61,7 +59,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 
 #define mDefSeisSelFld(fldnm,geom,trtyp) \
     IOObjContext ctxt##fldnm( mIOObjContext(trtyp) ); \
-    ctxt##fldnm.fixTranslator( sKeySEGYDirect ); \
+    ctxt##fldnm.fixTranslator( mSEGYDirectTranslNm ); \
     uiIOObjSel::Setup ossu##fldnm( "Scanned input" ); \
     ossu##fldnm.filldef( false ); \
     fldnm##fld_ = new uiIOObjSel( this, ctxt##fldnm, ossu##fldnm ); \
