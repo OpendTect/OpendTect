@@ -36,7 +36,7 @@ public:
 			~Man();
 
     void		removeObject( const Well::Data* );
-    Data*		get(const MultiID&,bool force_reload=false);
+    Data*		get(const MultiID&);
     void		add(const MultiID&,Data*);
 			//!< Data becomes mine
     Data*		release(const MultiID&);

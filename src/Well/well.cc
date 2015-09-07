@@ -152,6 +152,7 @@ Well::Data::Data( const char* nm )
     , disp2dparschanged(this)
     , disp3dparschanged(this)
     , logschanged(this)
+    , reloaded(this)
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     lvlset.levelToBeRemoved.notify( mCB(this, Well::Data, levelToBeRemoved ) );
