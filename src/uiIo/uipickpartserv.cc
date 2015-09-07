@@ -218,14 +218,16 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 
 #define mHandleDlg() \
     if ( !dlg.go() ) \
-        return false; \
+        return 0; \
     Pick::Set* newps = dlg.getPickSet();
 
-bool uiPickPartServer::createEmptySet( bool aspolygon )
+const Pick::Set* uiPickPartServer::createEmptySet( bool aspolygon )
 {
     uiCreatePicks dlg( parent(), aspolygon );
     mHandleDlg();
-    return newps ? uipsmgr_.storeNewSet( newps ) : false;
+    if ( newps )
+	uipsmgr_.storeNewSet( newps );
+    return newps;
 }
 
 
