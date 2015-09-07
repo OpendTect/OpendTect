@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 #include "linesetposinfo.h"
 
+#include "ui2dgeomman.h"
 #include "uitoolbutton.h"
 #include "uigeninputdlg.h"
 #include "uiioobjmanip.h"
@@ -333,33 +334,9 @@ bool acceptOK( CallBacker* )
     if ( !outnm || !*outnm )
 	mErrRet( tr("Please enter a name for the merged line") );
 
-    Pos::GeomID outgeomid = Survey::GM().getGeomID( outnm );
-    if ( outgeomid != Survey::GeometryManager::cUndefGeomID() )
-    {
-	 uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
-			   "its geometry, all the associated data will be "
-			   "affected. Do you still want to overwrite?")
-				.arg( outnm );
-	 if ( !uiMSG().askOverwrite(msg) )
-	     return false;
-	 mDynamicCastGet( Survey::Geometry2D*, geom2d,
-			  Survey::GMAdmin().getGeometry(outgeomid) );
-	 if ( !geom2d )
-	     return false;
-
-	 geom2d->dataAdmin().setEmpty();
-	 geom2d->touch();
-    }
-    else
-    {
-	Survey::Geometry2D* newgeom =
-	    new Survey::Geometry2D( new PosInfo::Line2DData );
-	newgeom->dataAdmin().setLineName( outnm );
-	uiString msg;
-	outgeomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
-	if ( outgeomid == Survey::GeometryManager::cUndefGeomID() )
-	    mErrRet( msg );
-    }
+    Pos::GeomID outgeomid = Geom2DImpHandler::getGeomID( outnm );
+    if ( outgeomid == mUdfGeomID )
+	return false;
 
     BufferStringSet seldatanms;
     data2mergefld_->getChosen( seldatanms );

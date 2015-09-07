@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistratsynthexport.h"
 
+#include "ui2dgeomman.h"
 #include "uiseissel.h"
 #include "uiseislinesel.h"
 #include "uiselsimple.h"
@@ -420,35 +421,10 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
     }
 
     Survey::Geometry::ID newgeomid =
-	Survey::GM().getGeomID( linegeom.lineName() );
-    if ( newgeomid != Survey::GeometryManager::cUndefGeomID() )
-    {
-	uiString msg =
-	    tr("The 2D Line '%1' already exists. If you overwrite "
-	       "its geometry, all the associated data will be "
-	       "affected. Do you still want to overwrite?")
-	    .arg(linegeom.lineName());
-	if ( !uiMSG().askOverwrite(msg) )
-	    return false;
-	mDynamicCastGet( Survey::Geometry2D*, geom2d,
-			 Survey::GMAdmin().getGeometry(newgeomid) );
-	if ( !geom2d ) return false;
-	geom2d->dataAdmin().setEmpty();
-	geom2d->touch();
-    }
-    else
-    {
-	PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linegeom );
-	Survey::Geometry2D* newgeom = new Survey::Geometry2D( l2d ) ;
-	newgeom->dataAdmin().setLineName( linegeom.lineName() );
-	uiString msg;
-	newgeomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
-	if ( newgeomid == Survey::GeometryManager::cUndefGeomID() )
-	{
-	    uiMSG().error( msg );
-	    return false;
-	}
-    }
+		Geom2DImpHandler::getGeomID( linegeom.lineName() );
+    if ( newgeomid == mUdfGeomID )
+	return false;
+
     create2DGeometry( ptlist, linegeom );
     return true;
 }

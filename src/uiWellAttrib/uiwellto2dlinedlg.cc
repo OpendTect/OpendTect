@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwellto2dlinedlg.h"
 
+#include "ui2dgeomman.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -173,33 +174,9 @@ bool uiWellTo2DLineDlg::acceptOK( CallBacker* )
     if ( !randto2dlinefld_->checkInputs() )
 	return false;
 
-    Pos::GeomID geomid = Survey::GM().getGeomID( rl_->name() );
-    if ( geomid != Survey::GeometryManager::cUndefGeomID() )
-    {
-	uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
-			  "its geometry, all the associated data will be "
-			  "affected. Do you still want to overwrite?")
-				.arg(linenm);
-	if ( !uiMSG().askOverwrite(msg) )
-	    return false;
-	mDynamicCastGet( Survey::Geometry2D*, geom2d,
-			 Survey::GMAdmin().getGeometry(geomid) );
-	if ( !geom2d )
-	    return false;
-
-	geom2d->dataAdmin().setEmpty();
-	geom2d->touch();
-    }
-    else
-    {
-	Survey::Geometry2D* newgeom =
-	    new Survey::Geometry2D( new PosInfo::Line2DData );
-	newgeom->dataAdmin().setLineName( linenm );
-	uiString msg;
-	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
-	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
-	    mErrRet( msg );
-    }
+    Pos::GeomID geomid = Geom2DImpHandler::getGeomID( rl_->name() );
+    if ( geomid == mUdfGeomID )
+	return false;
 
     SeisRandLineTo2D exec( *randto2dlinefld_->getInputIOObj(),
 			   *randto2dlinefld_->getOutputIOObj(),
