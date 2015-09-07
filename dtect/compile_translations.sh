@@ -1,7 +1,7 @@
 #!/bin/sh 
 
 if [ "$#" -eq "3" ]; then
-    for file in $2/data/localizations/source/*-??.ts ; do
+    for file in $2/data/localizations/source/*.ts ; do
 	base=`basename ${file%.*}`
 	$0 ${base} $1 $2 $3
     done
