@@ -259,21 +259,17 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 
 void uiPickSetMgr::keyPressedCB(CallBacker*)
 {
+    if ( !uiMain::keyboardEventHandler().hasEvent() )
+	return;
+
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
-    const OD::ButtonState bs =
-			  OD::ButtonState( kbe.modifier_ & OD::KeyButtonMask );
 
-    if ( bs==OD::ControlButton && kbe.key_==OD::Z && !kbe.isrepeat_ )
-    {
-	uiMain::keyboardEventHandler().setHandled( true );
-	setmgr_.undo().unDo( 1, true );
-    }
+    if ( KeyboardEvent::isUnDo(kbe) )
+	setmgr_.undo().unDo( 1,true );
 
-    if ( bs==OD::ControlButton && kbe.key_==OD::Y && !kbe.isrepeat_ )
-    {
-	uiMain::keyboardEventHandler().setHandled( true );
-	setmgr_.undo().reDo( 1, true  ); 
-    }
-
+    if ( KeyboardEvent::isReDo(kbe) )
+	setmgr_.undo().reDo( 1, true );
+    
+    uiMain::keyboardEventHandler().setHandled( true );
 }
 

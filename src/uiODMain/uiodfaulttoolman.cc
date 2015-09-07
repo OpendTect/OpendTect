@@ -1415,7 +1415,22 @@ static void keyDown( bool yn )
 
 
 void uiODFaultToolMan::keyPressedCB( CallBacker* )
-{ keyDown( true ); }
+{ 
+    keyDown( true ); 
+    
+    if ( !uiMain::keyboardEventHandler().hasEvent() )
+	return;
+
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+
+    if ( KeyboardEvent::isUnDo(kbe) )
+	undoCB( 0 );
+
+    if ( KeyboardEvent::isReDo(kbe) )
+	redoCB( 0 );
+
+    uiMain::keyboardEventHandler().setHandled( true );
+}
 
 
 void uiODFaultToolMan::keyReleasedCB( CallBacker* )
