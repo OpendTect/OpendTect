@@ -18,9 +18,11 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "uibatchjobdispatchersel.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uichecklist.h"
 #include "uibutton.h"
 #include "uitaskrunner.h"
 #include "uimsg.h"
+#include "ui2dgeomman.h"
 #include "welltransl.h"
 #include "wellman.h"
 #include "segybatchio.h"
@@ -41,9 +43,13 @@ static const char* rcsID mUsedVar = "$Id: $";
 #include "welltrack.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "ioman.h"
+#include "survgeom2d.h"
+#include "posinfo2dsurv.h"
 #include "filepath.h"
+
+#define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
 
 
 uiString uiSEGYReadFinisher::getWinTile( const FullSpec& fs )
@@ -120,7 +126,11 @@ void uiSEGYReadFinisher::crSeisFields()
     if ( docopyfld_ )
 	transffld_->attach( alignedBelow, docopyfld_ );
     if ( is2d )
+    {
 	transffld_->selFld2D()->setSelectedLine( objname_ );
+	if ( fs_.spec_.nrFiles() > 1 )
+	    transffld_->selFld2D()->setSensitive( false );
+    }
 
     uiSeisSel::Setup copysu( gt ); copysu.enabotherdomain( true );
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
@@ -291,7 +301,8 @@ bool uiSEGYReadFinisher::doVSP()
 }
 
 
-SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj )
+SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj,
+			    SeisTrcWriter& wrr, Pos::GeomID geomid )
 {
     SeisStdImporterReader* rdr = new SeisStdImporterReader( ioobj, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );
@@ -299,7 +310,11 @@ SeisStdImporterReader* uiSEGYReadFinisher::getImpReader( const IOObj& ioobj )
     rdr->setScaler( transffld_->getScaler() );
     Seis::SelData* sd = transffld_->getSelData();
     if ( sd )
+    {
+	sd->setGeomID( geomid );
 	rdr->setSelData( sd );
+	wrr.setSelData( sd->clone() );
+    }
     return rdr;
 }
 
@@ -314,7 +329,8 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     if ( doimp )
     {
 	wrr = new SeisTrcWriter( &outioobj );
-	imp = new SeisImporter( getImpReader(inioobj), *wrr, gt );
+	imp = new SeisImporter( getImpReader(inioobj,*wrr,mUdfGeomID),
+				*wrr, gt );
 	exec = imp.ptr();
     }
     else
@@ -328,42 +344,47 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
     if ( !dlg.execute( *exec ) )
 	return false;
 
-    BufferStringSet warns;
-    if ( indexer )
-	warns.add( indexer->scanner()->warnings(), false );
-    else
-    {
-	if ( imp->nrSkipped() > 0 )
-	    warns += new BufferString("During import, ", imp->nrSkipped(),
-				      " traces were rejected" );
-	SeisStdImporterReader& stdrdr
-		= static_cast<SeisStdImporterReader&>( imp->reader() );
-	SeisTrcTranslator* transl = stdrdr.reader().seisTranslator();
-	if ( transl && transl->haveWarnings() )
-	    warns.add( transl->warnings(), false );
-    }
-    imp.erase(); wrr.erase(); // closes output cube
-
-    if ( !uiSEGY::displayWarnings(warns,doimp) )
-    {
-	IOM().permRemove( outioobj.key() );
-	return false;
-    }
+    wrr.erase(); // closes output
+    if ( !handleWarnings(!doimp,indexer,imp) )
+	{ IOM().permRemove( outioobj.key() ); return false; }
 
     if ( indexer )
     {
 	IOPar rep( "SEG-Y scan report" ); indexer->scanner()->getReport( rep );
 	uiSEGY::displayReport( parent(), rep );
     }
-    return true;
+
+    uiSeisIOObjInfo oinf( outioobj, true );
+    return oinf.provideUserInfo();
 }
 
 
 bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
-				bool doimp )
+				bool doimp, const char* inplnm )
 {
-    uiMSG().error( "TODO: 2D non-batch import" );
-    return false;
+    const int nrlines = fs_.spec_.nrFiles();
+    bool overwr_warn = true;
+    for ( int iln=0; iln<nrlines; iln++ )
+    {
+	const BufferString fnm( fs_.spec_.fileName(iln) );
+	BufferString lnm( inplnm );
+	if ( nrlines > 1 )
+	    lnm = FilePath( fnm ).baseName();
+
+	if ( !handleExistingGeometry(lnm,iln<nrlines-1,overwr_warn) )
+	    return false;
+
+	Pos::GeomID geomid = Geom2DImpHandler::getGeomID( lnm, true );
+	if ( geomid == mUdfGeomID )
+	    mErrRet( tr("Internal: Cannot create line geometry in database") )
+
+	if ( !exec2Dimp(inioobj,outioobj,doimp,fnm,lnm,geomid) )
+	    return false;
+    }
+
+    uiMSG().message( nrlines < 2 ? tr("Successfully loaded '%1'").arg( inplnm )
+		: tr("Successfully loaded %1 lines").arg( nrlines ) );
+    return true;
 }
 
 
@@ -385,6 +406,113 @@ bool uiSEGYReadFinisher::doBatch( bool doimp )
 }
 
 
+bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
+				bool doimp, const char* fnm, const char* lnm,
+				Pos::GeomID geomid )
+{
+    Executor* exec;
+    const Seis::GeomType gt = fs_.geomType();
+    PtrMan<SeisTrcWriter> wrr; PtrMan<SeisImporter> imp;
+    PtrMan<SEGY::FileIndexer> indexer; PtrMan<IOStream> iniostrm;
+    SEGY::FileSpec fspec( fs_.spec_ );
+    fspec.setFileName( fnm );
+    if ( doimp )
+    {
+	iniostrm = static_cast<IOStream*>( fspec.getIOObj( true ) );
+	IOM().commitChanges( *iniostrm );
+	wrr = new SeisTrcWriter( &outioobj );
+	imp = new SeisImporter( getImpReader(*iniostrm,*wrr,geomid), *wrr, gt );
+	BufferString nm( imp->name() ); nm.add( " (" ).add( lnm ).add( ")" );
+	imp->setName( nm );
+	exec = imp.ptr();
+    }
+    else
+    {
+	indexer = new SEGY::FileIndexer( outioobj.key(), !Seis::isPS(gt),
+					 fspec, false, inioobj.pars() );
+	exec = indexer.ptr();
+    }
+
+
+    uiTaskRunner dlg( this );
+    if ( !dlg.execute( *exec ) )
+	return false;
+
+    wrr.erase(); // closes output
+    handleWarnings( false, indexer, imp );
+
+    return true;
+}
+
+
+bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
+						 bool& overwr_warn )
+{
+    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+    if ( geomid == mUdfGeomID )
+	return true;
+
+    int choice = 1;
+    if ( overwr_warn )
+    {
+	uiDialog::Setup dsu( tr("Overwrite geometry?"),
+		tr("Geometry of Line '%1' is already present."
+		    "\nDo you want to overwrite it?").arg(lnm), mTODOHelpKey );
+	uiDialog dlg( this, dsu );
+	uiCheckList* optfld = new uiCheckList( &dlg, uiCheckList::OneOnly );
+	optfld->addItem( tr("Cancel: stop the import"), "cancel" );
+	optfld->addItem( tr("Yes: set the geometry from the SEG-Y file"),
+							"checkgreen" );
+	optfld->addItem( tr("No: keep the existing geometry"), "handstop" );
+	if ( morelns )
+	{
+	    optfld->addItem( tr("All: overwrite all existing geometries"),
+				"doall" );
+	    choice = 3;
+	}
+	optfld->setChecked( choice, true );
+	if ( !dlg.go() || optfld->firstChecked() == 0 )
+	    return false;
+
+	choice = optfld->firstChecked();
+	if ( choice == 3 )
+	    overwr_warn = false;
+    }
+
+    if ( choice != 2 )
+    {
+	Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
+	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
+	if ( geom2d )
+	    geom2d->dataAdmin().setEmpty();
+    }
+
+    return true;
+}
+
+
+bool uiSEGYReadFinisher::handleWarnings( bool withstop,
+				SEGY::FileIndexer* indexer, SeisImporter* imp )
+{
+    BufferStringSet warns;
+    if ( indexer )
+	warns.add( indexer->scanner()->warnings(), false );
+    else
+    {
+	if ( imp->nrSkipped() > 0 )
+	    warns += new BufferString("During import, ", imp->nrSkipped(),
+				      " traces were rejected" );
+	SeisStdImporterReader& stdrdr
+		= static_cast<SeisStdImporterReader&>( imp->reader() );
+	SeisTrcTranslator* transl = stdrdr.reader().seisTranslator();
+	if ( transl && transl->haveWarnings() )
+	    warns.add( transl->warnings(), false );
+    }
+
+    return uiSEGY::displayWarnings( warns, withstop );
+}
+
+
 bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 {
     if ( fs_.isVSP() )
@@ -395,19 +523,24 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     if ( !outioobj )
 	return false;
 
-    const bool dobatch = batchfld_ && batchfld_->wantBatch();
     const bool is2d = Seis::is2D( fs_.geomType() );
-    const bool isps = Seis::isPS( fs_.geomType() );
+    BufferString lnm;
 
-    PtrMan<uiSeisIOObjInfo> ioobjinfo;
-    if ( doimp && !isps )
+    if ( is2d )
     {
-	ioobjinfo = new uiSeisIOObjInfo( *outioobj, true );
-	if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
+	lnm = transffld_->selFld2D()->selectedLine();
+	if ( lnm.isEmpty() )
+	    mErrRet( tr("Please enter a line name") )
+    }
+
+    if ( doimp && !Seis::isPS(fs_.geomType()) )
+    {
+	uiSeisIOObjInfo oinf( *outioobj, true );
+	if ( !oinf.checkSpaceLeft(transffld_->spaceInfo()) )
 	    return false;
     }
 
-    if ( dobatch )
+    if ( batchfld_ && batchfld_->wantBatch() )
 	return doBatch( doimp );
 
     PtrMan<IOObj> inioobj = fs_.spec_.getIOObj( true );
@@ -416,13 +549,6 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 	ZDomain::Def::get(outioobj->pars()).set( inioobj->pars() );
     IOM().commitChanges( *inioobj );
 
-    bool isok = is2d ? do2D( *inioobj, *outioobj, doimp )
-		     : do3D( *inioobj, *outioobj, doimp );
-    if ( !isok )
-	return false;
-
-    if ( !is2d && ioobjinfo )
-	 isok = ioobjinfo->provideUserInfo();
-
-    return isok;
+    return is2d ? do2D( *inioobj, *outioobj, doimp, lnm )
+		: do3D( *inioobj, *outioobj, doimp );
 }

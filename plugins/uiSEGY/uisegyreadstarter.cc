@@ -236,21 +236,10 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 }
 
 
-static bool unsupported_2d_warning_done = false;
-
 void uiSEGYReadStarter::typChg( CallBacker* )
 {
     const SEGY::ImpType& imptyp = impType();
     infofld_->setImpTypIdx( imptyp.tidx_ );
-
-    if ( !imptyp.isVSP() && imptyp.is2D() && !unsupported_2d_warning_done )
-    {
-	uiMSG().warning( "2D import is not supported in this preview release."
-	     "\n\nWe are working hard to make it work"
-	     "\nand get it into the coming 'real' 6.0 release."
-	     "\n\nPlease use the old Survey-Import-Seismics tools for now." );
-	unsupported_2d_warning_done = true;
-    }
 }
 
 
