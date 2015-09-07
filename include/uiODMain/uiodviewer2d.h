@@ -163,6 +163,11 @@ public:
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID emid);
 
+    //PickSets
+    void			removePickSet(const MultiID&);
+    void			getLoadedPickSets(TypeSet<MultiID>&) const;
+    void			addPickSets(const TypeSet<MultiID>&);
+
 protected:
 
     uiSlicePos2DView*				slicepos_;

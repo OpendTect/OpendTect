@@ -173,7 +173,8 @@ public:
     void			resetServers();
     void			updateColorTable(int visid,int attrib);
     void			saveDefColTab(int visid,int attrib);
-    bool			getDefaultDescID(Attrib::DescID&) const;
+    bool			getDefaultDescID(Attrib::DescID&,
+	    					 bool is2d=false) const;
     void			calcShiftAttribute(int attrib,
 						   const Attrib::SelSpec&);
     bool			calcRandomPosAttrib(int visid,int attrib);

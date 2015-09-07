@@ -30,15 +30,11 @@ uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
     : uiODVw2DTreeItem( "PickSet" )
     , picksetmgr_(Pick::Mgr())
 {
-    picksetmgr_.setAdded.notify(
-	mCB(this,uiODVw2DPickSetParentTreeItem,pickSetAdded) );
 }
 
 
 uiODVw2DPickSetParentTreeItem::~uiODVw2DPickSetParentTreeItem()
 {
-    picksetmgr_.setAdded.remove(
-	mCB(this,uiODVw2DPickSetParentTreeItem,pickSetAdded) );
 }
 
 
@@ -64,35 +60,69 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 {
     handleStdSubMenu( menuid );
 
+    TypeSet<MultiID> pickmidstoadd;
     if ( menuid == 0  )
-	return applMgr()->pickServer()->createEmptySet( false );
-    else if ( menuid == 1 )
     {
-	TypeSet<MultiID> mids;
-	if ( !applMgr()->pickServer()->loadSets(mids,false) )
+	const Pick::Set* newps =
+	    applMgr()->pickServer()->createEmptySet( false );
+	if ( !newps )
 	    return false;
 
-	for ( int idx=0; idx<mids.size(); idx++ )
-	{
-	    const int index = picksetmgr_.indexOf( mids[idx] );
-	    if ( index < 0 ) continue;
-	    Pick::Set& ps = picksetmgr_.get( index );
-	    pickSetAdded( &ps );
-	}
+	pickmidstoadd += picksetmgr_.get( *newps );
     }
+    else if ( menuid == 1 &&
+	      !applMgr()->pickServer()->loadSets(pickmidstoadd,false) )
+	return false;
+
+    if ( !pickmidstoadd.isEmpty() )
+	addPickSets( pickmidstoadd );
 
     return true;
 }
 
 
-void uiODVw2DPickSetParentTreeItem::pickSetAdded( CallBacker* cb )
+void uiODVw2DPickSetParentTreeItem::removePickSet( const MultiID& mid )
 {
-    mDynamicCastGet(Pick::Set*,ps,cb);
-    if ( !ps || findChild(ps->name()) )
-	return;
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DPickSetTreeItem*,pickitm,getChild(idx))
+	if ( !pickitm || mid!=pickitm->pickMultiID() )
+	    continue;
 
-    const int picksetidx = picksetmgr_.indexOf(*ps);
-    addChld( new uiODVw2DPickSetTreeItem(picksetidx), false, false);
+	removeChild( pickitm );
+    }
+}
+
+
+void uiODVw2DPickSetParentTreeItem::getLoadedPickSets(
+	TypeSet<MultiID>& picks ) const
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet(const uiODVw2DPickSetTreeItem*,pickitm,getChild(idx))
+	if ( !pickitm )
+	    continue;
+
+	picks.addIfNew( pickitm->pickMultiID() );
+    }
+}
+
+
+void uiODVw2DPickSetParentTreeItem::addPickSets(
+	const TypeSet<MultiID>& pickids )
+{
+    for ( int idx=0; idx<pickids.size(); idx++ )
+    {
+	const int picksetidx = picksetmgr_.indexOf( pickids[idx] );
+	if ( picksetidx<0 )
+	    continue;
+
+	const Pick::Set& ps = picksetmgr_.get( picksetidx );
+	if ( findChild(ps.name()) )
+	    continue;
+
+	addChld( new uiODVw2DPickSetTreeItem(picksetidx), false, false);
+    }
 }
 
 
@@ -101,7 +131,6 @@ uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int picksetid )
     , pickset_(Pick::Mgr().get(picksetid))
     , picksetmgr_(Pick::Mgr())
     , vw2dpickset_(0)
-    , setidx_(-1)
 {
     mAttachCB( picksetmgr_.setToBeRemoved,
 	       uiODVw2DPickSetTreeItem::removePickSetCB );
@@ -133,6 +162,12 @@ bool uiODVw2DPickSetTreeItem::init()
 
     vw2dpickset_->drawAll();
     return true;
+}
+
+
+const MultiID& uiODVw2DPickSetTreeItem::pickMultiID() const
+{
+    return picksetmgr_.get( pickset_ );
 }
 
 
@@ -193,9 +228,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
 	    applMgr()->storePickSetAs( pickset_ );
 	    break;
 	case 4:
-	    setidx_ = picksetmgr_.indexOf( pickset_ );
-	    if ( setidx_ >= 0 )
-		picksetmgr_.set( picksetmgr_.id(setidx_), 0 );
+	    parent_->removeChild( this );
 	    break;
     }
 

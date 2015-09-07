@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodvw2dhor2dtreeitem.h"
 #include "uiodvw2dfaulttreeitem.h"
 #include "uiodvw2dfaultsstreeitem.h"
+#include "uiodvw2dpicksettreeitem.h"
 #include "uipixmap.h"
 #include "uistrings.h"
 #include "uitoolbar.h"
@@ -1087,5 +1088,47 @@ void uiODViewer2D::addNewTempFaultSS( EM::ObjectID emid )
 			treetp_->getChild(idx))
 	if ( faultpitem )
 	    faultpitem->addNewTempFaultSS( emid );
+    }
+}
+
+
+void uiODViewer2D::removePickSet( const MultiID& mid )
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
+			treetp_->getChild(idx))
+	if ( pickitem )
+	    pickitem->removePickSet( mid );
+    }
+}
+
+
+void uiODViewer2D::getLoadedPickSets( TypeSet<MultiID>& mids ) const
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
+			treetp_->getChild(idx))
+	if ( pickitem )
+	    pickitem->getLoadedPickSets( mids );
+    }
+}
+
+
+void uiODViewer2D::addPickSets( const TypeSet<MultiID>& mids )
+{
+    if ( !treetp_ ) return;
+
+    for ( int idx=0; idx<treetp_->nrChildren(); idx++ )
+    {
+	mDynamicCastGet(uiODVw2DPickSetParentTreeItem*,pickitem,
+			treetp_->getChild(idx))
+	if ( pickitem )
+	    pickitem->addPickSets( mids );
     }
 }
