@@ -311,13 +311,13 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 
 //Geom2DImpHandler
 
-Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm )
+Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm, bool ovwok )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( nm );
     if (  geomid == mUdfGeomID )
 	return createNewGeom( nm );
 
-    if ( confirmOverwrite(nm) )
+    if ( ovwok || confirmOverwrite(nm) )
 	setGeomEmpty( geomid );
 
     return geomid;
@@ -325,7 +325,7 @@ Pos::GeomID Geom2DImpHandler::getGeomID( const char* nm )
 
 
 bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
-				     TypeSet<Pos::GeomID>& geomids )
+				     TypeSet<Pos::GeomID>& geomids, bool ovwok )
 {
     geomids.erase();
     BufferString existingidxs;
@@ -350,7 +350,7 @@ bool Geom2DImpHandler::getGeomIDs( const BufferStringSet& nms,
 	for ( int idx=0; idx<existingidxs.size(); idx++ )
 	    existinglnms.add( nms.get(existingidxs[idx]) );
 
-	if ( confirmOverwrite(existinglnms) )
+	if ( ovwok || confirmOverwrite(existinglnms) )
 	{
 	    for ( int idx=0; idx<existingidxs.size(); idx++ )
 		setGeomEmpty( geomids[existingidxs[idx]] );

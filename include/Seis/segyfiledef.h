@@ -40,7 +40,7 @@ public:
 			FileSpec( const IOPar& iop )
 			    : ::FileSpec(iop)		{}
 
-    IOObj*		getIOObj(bool temporary,int nr=0) const;
+    IOObj*		getIOObj(bool temporary) const;
 
     static void		fillParFromIOObj(const IOObj&,IOPar&);
 

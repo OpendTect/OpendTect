@@ -21,7 +21,10 @@ class uiCheckBox;
 class uiGenInput;
 class uiBatchJobDispatcherSel;
 class uiSeisTransfer;
+class SeisImporter;
+class SeisTrcWriter;
 class SeisStdImporterReader;
+namespace SEGY { class FileIndexer; }
 
 
 /*!\brief Finishes reading process of 'any SEG-Y file'. */
@@ -54,11 +57,17 @@ protected:
 
     void		crVSPFields();
     void		crSeisFields();
-    SeisStdImporterReader* getImpReader(const IOObj&);
     bool		doVSP();
     bool		do3D(const IOObj&,const IOObj&,bool);
-    bool		do2D(const IOObj&,const IOObj&,bool);
+    bool		do2D(const IOObj&,const IOObj&,bool,const char*);
     bool		doBatch(bool);
+
+    SeisStdImporterReader* getImpReader(const IOObj&,SeisTrcWriter&,
+					Pos::GeomID);
+    bool		exec2Dimp(const IOObj&,const IOObj&,bool,const char*,
+				  const char*,Pos::GeomID);
+    bool		handleExistingGeometry(const char*,bool,bool&);
+    bool		handleWarnings(bool,SEGY::FileIndexer*,SeisImporter*);
 
     void		initWin(CallBacker*);
     void		wllSel(CallBacker*);

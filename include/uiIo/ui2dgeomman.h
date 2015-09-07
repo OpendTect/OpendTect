@@ -49,9 +49,10 @@ mExpClass(uiIo) Geom2DImpHandler
 { mODTextTranslationClass(Geom2DImpHandler);
 public:
 
-    static Pos::GeomID	getGeomID(const char* nm);
+    static Pos::GeomID	getGeomID(const char* nm,bool overwrpreok=false);
     static bool		getGeomIDs(const BufferStringSet& lnms,
-				   TypeSet<Pos::GeomID>& geomids);
+				   TypeSet<Pos::GeomID>& geomids,
+				   bool overwrpreok=false);
 			//!< Use while importing several lines in one go.
 
 protected:

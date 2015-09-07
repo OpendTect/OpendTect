@@ -50,7 +50,7 @@ static const char* allsegyfmtoptions[] = {
 };
 
 
-IOObj* SEGY::FileSpec::getIOObj( bool tmp, int nr ) const
+IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 {
     IOStream* iostrm;
     const BufferString seisdirky( mIOObjContext(SeisTrc).getSelKey() );
