@@ -701,13 +701,13 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 }
 
 
-bool uiODApplMgr::getDefaultDescID( Attrib::DescID& descid ) const
+bool uiODApplMgr::getDefaultDescID( Attrib::DescID& descid, bool is2d ) const
 {
-    const MultiID mid = seisServer()->getDefaultDataID( false );
+    const MultiID mid = seisServer()->getDefaultDataID( is2d );
     if ( mid.isUdf() )
 	return false;
 
-    descid = attrServer()->getStoredID( mid, false );
+    descid = attrServer()->getStoredID( mid, is2d );
     return descid.isValid();
 }
 

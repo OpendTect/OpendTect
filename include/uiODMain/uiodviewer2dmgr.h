@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "uigraphicsviewbase.h"
 #include "uiodapplmgr.h"
+#include "uiodviewer2dposgrp.h"
 
 class uiFlatViewer;
 class uiODViewer2D;
@@ -52,6 +53,10 @@ public:
     uiODViewer2D*		find2DViewer(const Pos::GeomID&);
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
 
+    int				displayIn2DViewer(
+					Viewer2DPosDataSel&,bool wva,
+					float initialx1pospercm=mUdf(float),
+					float initialx2pospercm=mUdf(float));
     int				displayIn2DViewer(DataPack::ID,
 					const Attrib::SelSpec&,bool wva,
 					float initialx1pospercm=mUdf(float),
@@ -87,6 +92,12 @@ public:
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
     void			addNewTempFaultSS(EM::ObjectID mid);
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
+
+    //PickSets
+    void			removePickSet(const MultiID&);
+    void			getLoadedPickSets(TypeSet<MultiID>&) const;
+    void			addPickSets(const TypeSet<MultiID>&);
+
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
@@ -142,6 +153,7 @@ protected:
     void			setupHorizon2Ds(uiODViewer2D*);
     void			setupFaults(uiODViewer2D*);
     void			setupFaultSSs(uiODViewer2D*);
+    void			setupPickSets(uiODViewer2D*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);

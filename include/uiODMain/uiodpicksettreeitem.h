@@ -44,6 +44,7 @@ public:
     virtual bool	actModeWhenSelected() const	{ return true; }
     void		showAllPicks(bool yn);
     Pick::Set&		getSet()			{ return set_; }
+    const Pick::Set&	getSet() const			{ return set_; }
 
 protected:
 
@@ -92,6 +93,7 @@ public:
     virtual bool	actModeWhenSelected() const	{ return true; }
     void		showAllPicks(bool yn);
     Pick::Set&		getSet()			{ return set_; }
+    const Pick::Set&	getSet() const			{ return set_; }
 
 protected:
 

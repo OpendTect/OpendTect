@@ -1048,6 +1048,66 @@ int uiODSceneMgr::addWellItem( const MultiID& mid, int sceneid )
 }
 
 
+void uiODSceneMgr::getLoadedPickSetIDs( TypeSet<MultiID>& picks, bool poly,
+					int sceneid ) const
+{
+    if ( sceneid>=0 )
+    {
+	const Scene* scene = getScene( sceneid );
+	if ( !scene ) return;
+
+	gtLoadedPickSetIDs( *scene, picks, poly );
+	return;
+    }
+
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+	gtLoadedPickSetIDs( *scenes_[idx], picks, poly );
+
+}
+
+
+void uiODSceneMgr::gtLoadedPickSetIDs( const Scene& scene,
+	TypeSet<MultiID>& picks, bool poly ) const
+{
+    for ( int chidx=0; chidx<scene.itemmanager_->nrChildren(); chidx++ )
+    {
+	const uiTreeItem* chlditm = scene.itemmanager_->getChild( chidx );
+	if ( !chlditm )
+	    continue;
+
+	gtLoadedPickSetIDs( *chlditm, picks, poly );
+    }
+}
+
+
+void uiODSceneMgr::gtLoadedPickSetIDs( const uiTreeItem& topitm,
+	TypeSet<MultiID>& picks, bool poly ) const
+{
+    for ( int chidx=0; chidx<topitm.nrChildren(); chidx++ )
+    {
+	const uiTreeItem* chlditm = topitm.getChild( chidx );
+	if ( poly )
+	{
+	    mDynamicCastGet(const uiODPolygonTreeItem*,polyitem,chlditm)
+	    if ( !polyitem )
+		continue;
+
+	    const MultiID& mid = Pick::Mgr().get( polyitem->getSet() );
+	    picks.addIfNew( mid );
+	}
+	else
+	{
+	    mDynamicCastGet(const uiODPickSetTreeItem*,pickitem,chlditm)
+	    if ( !pickitem )
+		continue;
+
+	    const MultiID& mid = Pick::Mgr().get( pickitem->getSet() );
+	    picks.addIfNew( mid );
+	}
+    }
+}
+
+
 void uiODSceneMgr::getLoadedEMIDs( TypeSet<int>& emids, const char* type,
 				   int sceneid ) const
 {

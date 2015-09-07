@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "uiodviewer2dmgr.h"
 
+#include "uiattribpartserv.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewslicepos.h"
@@ -42,6 +43,7 @@ ________________________________________________________________________
 #include "emfaultstickset.h"
 #include "mouseevent.h"
 #include "posinfo2d.h"
+#include "randomlinegeom.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -120,6 +122,41 @@ void uiODViewer2DMgr::setupFaultSSs( uiODViewer2D* vwr2d )
 }
 
 
+void uiODViewer2DMgr::setupPickSets( uiODViewer2D* vwr2d )
+{
+    TypeSet<MultiID> pickmids;
+    getLoadedPickSets( pickmids );
+    appl_.sceneMgr().getLoadedPickSetIDs( pickmids, false );
+    vwr2d->addPickSets( pickmids );
+}
+
+
+int uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
+					bool wva,
+					float initialx1pospercm,
+					float initialx2pospercm )
+{
+    DataPack::ID dpid = DataPack::cNoID();
+    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
+    attrserv->setTargetSelSpec( posdatasel.selspec_ );
+    const bool isrl = !posdatasel.rdmlineid_.isUdf();
+    if ( isrl )
+    {
+	TypeSet<BinID> knots, path;
+	Geometry::RandomLineSet::getGeometry(
+		posdatasel.rdmlineid_, knots, &posdatasel.tkzs_.zsamp_ );
+	Geometry::RandomLine::getPathBids( knots, path );
+	dpid = attrserv->createRdmTrcsOutput(
+				posdatasel.tkzs_.zsamp_, &path, &knots );
+    }
+    else
+	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
+
+    return displayIn2DViewer( dpid, posdatasel.selspec_, wva,
+			      initialx1pospercm, initialx2pospercm );
+}
+
+
 int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
 			const Attrib::SelSpec& as, bool dowva,
 			float initialx1pospercm, float initialx2pospercm )
@@ -145,6 +182,7 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
     setupHorizon2Ds( vwr2d );
     setupFaults( vwr2d );
     setupFaultSSs( vwr2d );
+    setupPickSets( vwr2d );
     return vwr2d->id_;
 }
 
@@ -195,6 +233,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     setupHorizon2Ds( vwr2d );
     setupFaults( vwr2d );
     setupFaultSSs( vwr2d );
+    setupPickSets( vwr2d );
 }
 
 #define mGetCurViewer \
@@ -496,8 +535,10 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     else
     {
 	const BinID bid = SI().transform( coord );
-	const uiString showinltxt = m3Dots(tr("Show In-line %1")).arg( bid.inl() );
-	const uiString showcrltxt = m3Dots(tr("Show Cross-line %1")).arg( bid.crl());
+	const uiString showinltxt =
+	    m3Dots(tr("Show In-line %1")).arg( bid.inl() );
+	const uiString showcrltxt =
+	    m3Dots(tr("Show Cross-line %1")).arg( bid.crl());
 	const uiString showztxt = m3Dots(tr("Show Z-slice %1"))
 		.arg( mNINT32(coord.z*curvwr2d->zDomain().userFactor()) );
 
@@ -596,6 +637,7 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
     setupHorizon2Ds( vwr2d );
     setupFaults( vwr2d );
     setupFaultSSs( vwr2d );
+    setupPickSets( vwr2d );
 }
 
 
@@ -1099,4 +1141,25 @@ void uiODViewer2DMgr::addNewTempFaultSS( EM::ObjectID emid )
     if ( emids.isPresent(emid) )
 	return;
     appl_.sceneMgr().addEMItem( emid );
+}
+
+
+void uiODViewer2DMgr::removePickSet( const MultiID& mid )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->removePickSet( mid );
+}
+
+
+void uiODViewer2DMgr::getLoadedPickSets( TypeSet<MultiID>& mids ) const
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->getLoadedPickSets( mids );
+}
+
+
+void uiODViewer2DMgr::addPickSets( const TypeSet<MultiID>& mids )
+{
+    for ( int vwridx=0; vwridx<viewers2d_.size(); vwridx++ )
+	viewers2d_[vwridx]->addPickSets( mids );
 }

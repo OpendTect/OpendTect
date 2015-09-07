@@ -30,6 +30,9 @@ public:
 				~uiODVw2DPickSetParentTreeItem();
 
     bool			showSubMenu();
+    void			getLoadedPickSets(TypeSet<MultiID>&) const;
+    void			removePickSet(const MultiID&);
+    void			addPickSets(const TypeSet<MultiID>&);
 
 protected:
 
@@ -38,7 +41,6 @@ protected:
     bool			handleSubMenu(int);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
-    void			pickSetAdded( CallBacker* );
     Pick::SetMgr&		picksetmgr_;
 };
 
@@ -62,6 +64,7 @@ public:
 
     bool		showSubMenu();
     bool		select();
+    const MultiID&	pickMultiID() const;
 
 protected:
 
@@ -79,7 +82,6 @@ protected:
     Pick::SetMgr&	picksetmgr_;
     Pick::Set&		pickset_;
     VW2DPickSet*	vw2dpickset_;
-    int			setidx_;
 };
 
 

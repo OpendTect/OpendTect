@@ -128,6 +128,8 @@ public:
     void			disabRightClick( bool yn );
     void			disabTrees( bool yn );
 
+    void			getLoadedPickSetIDs(TypeSet<MultiID>&,bool poly,
+						    int scnid=-1) const;
     void			getLoadedEMIDs(TypeSet<EM::ObjectID>&,
 	    				       const char* emtypestr=0,
 					       int sceneid=-1) const;
@@ -204,6 +206,10 @@ protected:
     void			gtLoadedEMIDs(const uiTreeItem*,
 					      TypeSet<EM::ObjectID>&,
 					      const char* emtypestr) const;
+    void			gtLoadedPickSetIDs(const Scene&,
+				    TypeSet<MultiID>&, bool poly) const;
+    void			gtLoadedPickSetIDs(const uiTreeItem&,
+				    TypeSet<MultiID>&,bool poly) const;
 
     Timer*			tiletimer_;
     void			tileTimerCB(CallBacker*);
