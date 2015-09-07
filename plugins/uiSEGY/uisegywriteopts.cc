@@ -45,8 +45,7 @@ bool uiSEGYDirectVolOpts::fill( IOPar& iop ) const
 
 void uiSEGYDirectVolOpts::initClass()
 {
-    factory().addCreator( create,
-			  mSEGYDirectVolTranslInstance.getDisplayName() );
+    factory().addCreator( create, mSEGYDirectTranslNm );
 }
 
 
@@ -84,6 +83,5 @@ bool uiSEGYDirectPS3DOpts::fill( IOPar& iop ) const
 
 void uiSEGYDirectPS3DOpts::initClass()
 {
-    factory().addCreator( create,
-			  mSEGYDirectPS3DTranslInstance.getDisplayName() );
+    factory().addCreator( create, mSEGYDirectTranslNm );
 }

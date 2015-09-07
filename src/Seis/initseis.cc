@@ -29,7 +29,7 @@ defineTranslator(CBVS,SeisTrc,"CBVS");
 defineTranslator(SEGY,SeisTrc,"SEG-Y");
 defineTranslator(TwoD,SeisTrc,"2D");
 defineTranslator(TwoDData,SeisTrc,"TwoD DataSet");
-defineTranslator(SEGYDirect,SeisTrc,"SEGYDirect");
+defineTranslator(SEGYDirect,SeisTrc,mSEGYDirectTranslNm);
 defineTranslator(SeisPSCube,SeisTrc,"PS Cube");
 
 mDefSimpleTranslatorSelector(SeisTrc,sKeySeisTrcTranslatorGroup)
@@ -38,8 +38,8 @@ mDefSimpleTranslatorioContext(SeisTrc,Seis)
 #define sKeySeisTrc2DTranslatorGroup "2D Seismic Data"
 defineTranslatorGroup(SeisTrc2D,sKeySeisTrc2DTranslatorGroup);
 defineTranslator(CBVS,SeisTrc2D,"CBVS");
-defineTranslator(SEGYDirect,SeisTrc2D,"SEGYDirect");
-defineTranslator(SEGYDirect,SurvGeom2D,"SEGYDirect");
+defineTranslator(SEGYDirect,SeisTrc2D,mSEGYDirectTranslNm);
+defineTranslator(SEGYDirect,SurvGeom2D,mSEGYDirectTranslNm);
 
 mDefSimpleTranslatorSelector(SeisTrc2D,sKeySeisTrc2DTranslatorGroup)
 mDefSimpleTranslatorioContext(SeisTrc2D,Seis)
