@@ -143,7 +143,6 @@ protected:
 
     void		addLineNames(const MultiID&);
     void		selChg( CallBacker* )	{ nameChanged.trigger(); }
-    void		fillAll(CallBacker*);
 
 };
 

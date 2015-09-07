@@ -440,15 +440,9 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     if ( !forread_ ) fld_->addItem( "" );
     setHAlignObj( lcb );
     if ( !forread_ )
-	postFinalise().notify( mCB(this,uiSeis2DLineNameSel,fillAll) );
-    fld_->selectionChanged.notify( mCB(this,uiSeis2DLineNameSel,selChg) );
-}
-
-
-void uiSeis2DLineNameSel::fillAll( CallBacker* )
-{
-    if ( dsid_.isEmpty() )
 	fillWithAll();
+
+    fld_->selectionChanged.notify( mCB(this,uiSeis2DLineNameSel,selChg) );
 }
 
 
