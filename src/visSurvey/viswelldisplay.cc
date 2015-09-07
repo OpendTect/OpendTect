@@ -34,8 +34,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "zaxistransform.h"
 
-#define		mPickSz	3
-#define         mPickType	3
+#define	mPickSz	3
+#define	mPickType 3
 
 #define mGetWD(act) RefMan<Well::Data> wd = getWD(); if ( !wd ) { act; }
 #define mMeter2Feet(val) val *= mToFeetFactorF;

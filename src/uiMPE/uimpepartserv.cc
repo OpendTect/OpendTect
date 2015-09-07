@@ -101,7 +101,7 @@ uiMPEPartServer::~uiMPEPartServer()
     {
 	setupgrp_->setMPEPartServer( 0 );
 	setupgrp_->mainwin()->close();
-}
+    }
 }
 
 
@@ -581,7 +581,7 @@ bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
 	"This object has saved tracker settings.\n" \
 	"Do you want to verify / change them?" : \
 	"This object was created by manual drawing\n" \
-        "only, or its tracker settings were not saved.\n" \
+	"only, or its tracker settings were not saved.\n" \
 	"Do you want to specify them right now?" )
 
 void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
@@ -715,7 +715,7 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     if ( !setupfilenm.isEmpty() && !iopar.write(setupfilenm,"Tracking Setup") )
     {
 	uiString errmsg( tr("Unable to save tracking setup file \n"
-	                    " %1 .\nPlease check whether the file is writable")
+			    " %1 .\nPlease check whether the file is writable")
 			    .arg(setupfilenm) );
 	uiMSG().error( errmsg );
 	return false;
