@@ -25,12 +25,14 @@ PointSetDisplay::PointSetDisplay()
     : VisualObjectImpl( true )
     , data_(0)
     , transformation_(0)
-    , eventcatcher_(0)
     , dpsdispprop_(0)
     , pointset_( visBase::PointSet::create() )
 {
-    refPtr( pointset_ );
-    addChild( pointset_->osgNode());
+   refPtr( pointset_ );
+   Geometry::RangePrimitiveSet* range =
+	    Geometry::RangePrimitiveSet::create();
+   pointset_->addPrimitiveSet( range );
+   addChild( pointset_->osgNode());
 }
 
 
@@ -81,14 +83,16 @@ class PointSetDisplayUpdater : public Executor
 public:
 PointSetDisplayUpdater( visBase::PointSet& pointset, DataPointSet& dps,
 			DataPointSetDisplayProp& dpsdispprop )
-    : Executor("Creating Point Display in 3D Scene")
+    : Executor(mFromUiStringTodo(tr("Creating Point Display in 3D Scene")))
     , pointset_(pointset)
     , data_(dps)
     , dpsdispprop_(dpsdispprop)
-    , nrdone_(-1)
+    , nrdone_(0)
+    , colid_(dpsdispprop.dpsColID())
+    , showselected_(dpsdispprop.showSelected())
+    , nrpoints_(0)
 {
     pointset_.removeAllPoints();
-    pointset_.removeAllPrimitiveSets();
     pointset_.getMaterial()->clear();
 }
 
@@ -105,32 +109,34 @@ protected :
 
 int nextStep()
 {
-    if ( nrdone_>= data_.size()-1 )
+    if ( nrdone_ >= data_.size()-1 )
     {
-	Geometry::PrimitiveSet* pointsetps =
-	    Geometry::IndexedPrimitiveSet::create( true );
-	pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
-	pointsetps->append( pointidxs_.arr(), pointidxs_.size() );
-	pointset_.addPrimitiveSet( pointsetps );
+	Geometry::RangePrimitiveSet* range =
+	    (Geometry::RangePrimitiveSet*) pointset_.getPrimitiveSet(0);
+
+	if ( range )
+	{
+	    Interval<int> rg( 0, nrpoints_-1 );
+	    range->setRange( rg );
+	}
 	pointset_.materialChangeCB( 0 );
 	return Finished();
     }
 
+    DataPointSet::RowID rowid = mCast(DataPointSet::RowID,nrdone_);
     nrdone_++;
-    if ( dpsdispprop_.showSelected() &&
-		!data_.isSelected(mCast(DataPointSet::RowID,nrdone_)) )
+    if ( showselected_ && !data_.isSelected(rowid) )
 	return MoreToDo();
 
     Color col;
-    if ( dpsdispprop_.showSelected() )
+    if ( showselected_ )
     {
-	int selgrp = data_.selGroup( mCast(DataPointSet::RowID,nrdone_) );
+	int selgrp = data_.selGroup( rowid );
 	col = dpsdispprop_.getColor( (float)selgrp );
     }
     else
     {
-	const float val = data_.value( dpsdispprop_.dpsColID(),
-				mCast(DataPointSet::RowID,nrdone_) );
+	const float val = data_.value( colid_, rowid );
 	if ( mIsUdf(val) )
 	    return MoreToDo();
 
@@ -138,20 +144,19 @@ int nextStep()
     }
 
     const int ptidx = pointset_.addPoint(
-     Coord3(data_.coord(mCast(DataPointSet::RowID,nrdone_)),
-	    data_.z(mCast(DataPointSet::RowID,nrdone_))) );
-    pointidxs_ += ptidx;
+			    Coord3(data_.coord(rowid),data_.z(rowid)) );
     pointset_.getMaterial()->setColor( col, ptidx );
-    const float transp = (float)col.t();
-    pointset_.getMaterial()->setTransparency( transp/(float)255, ptidx );
+    nrpoints_++;
     return MoreToDo();
 }
 
     visBase::PointSet&		pointset_;
     DataPointSet&		data_;
+    const int			colid_;
+    const bool			showselected_;
     DataPointSetDisplayProp&	dpsdispprop_;
-    TypeSet<int>		pointidxs_;
     od_int64			nrdone_;
+    int				nrpoints_;
 };
 
 
@@ -211,18 +216,6 @@ const mVisTrans* PointSetDisplay::getDisplayTransformation() const
 { return transformation_; }
 
 
-void PointSetDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
-{
-    if ( eventcatcher_ ) eventcatcher_->unRef();
-    eventcatcher_ = 0;
-
-    if ( !nevc ) return;
-
-    eventcatcher_ = nevc;
-    eventcatcher_->ref();
-}
-
-
 void PointSetDisplay::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
@@ -260,28 +253,5 @@ void PointSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     else
 	val.add( data_->value(dpsdispprop_->dpsColID(),rid) );
 }
-
-/*void PointSetDisplay::eventCB( CallBacker* cb )
-{
-    if ( !isOn() || isLocked() ) return;
-
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-
-    if ( eventinfo.buttonstate_ != OD::RightButton )
-	return;
-
-    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
-    {
-	const DataObject* pickedobj =
-	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
-	mDynamicCastGet(const visBase::PointSet*,pointset,pickedobj);
-	if ( !pointset ) continue;
-
-	//if ( pointset_ == pointset )
-	    selpointsetidx_ = pidx;
-    }
-
-}*/
-
 
 } //namespace visSurvey

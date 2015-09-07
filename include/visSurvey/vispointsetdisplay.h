@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 class DataPointSet;
 
-namespace visBase { class PointSet; class Transformation; class EventCatcher; }
+namespace visBase { class PointSet; class Transformation; }
 
 namespace visSurvey
 {
@@ -50,7 +50,6 @@ public:
 
     const char*			errMsg() const { return errmsg_.str(); }
 
-    virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     void			removeSelection(const Selector<Coord3>&,
 						TaskRunner* tr=0);
     bool			selectable() const		{ return true; }
@@ -72,9 +71,6 @@ protected:
     visBase::PointSet*		pointset_;
     DataPointSet*		data_;
     const mVisTrans*		transformation_;
-    visBase::EventCatcher*	eventcatcher_;
-
-    //void			eventCB(CallBacker*);
 };
 
 };
