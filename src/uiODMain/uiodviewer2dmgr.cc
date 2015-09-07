@@ -42,6 +42,7 @@ ________________________________________________________________________
 #include "emfault3d.h"
 #include "emfaultstickset.h"
 #include "mouseevent.h"
+#include "mousecursor.h"
 #include "posinfo2d.h"
 #include "randomlinegeom.h"
 #include "seisioobjinfo.h"
@@ -270,8 +271,10 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 
 	if ( selauxpos_.auxposidx_<0 )
 	{
-	    prevdragmode_ = curvwr.rgbCanvas().dragMode();
 	    curvwr.rgbCanvas().setDragMode( uiGraphicsViewBase::NoDrag );
+	    MouseCursorManager::mgr()->setOverride(
+		    x1auxposidx>=0 ? MouseCursor::SplitH
+				   : MouseCursor::SplitV );
 	}
 
 	if ( x1auxposidx>=0 )
@@ -280,7 +283,7 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	    selauxpos_ = SelectedAuxPos( x2auxposidx, false, false );
 	else if ( selauxpos_.auxposidx_>=0 )
 	{
-	    curvwr.rgbCanvas().setDragMode( prevdragmode_ );
+	    reSetPrevDragMode( curvwr2d );
 	    selauxpos_.auxposidx_ = -1;
 	}
     }
@@ -317,6 +320,18 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 
     setAuxPosLineStyles( curvwr );
     curvwr.handleChange( FlatView::Viewer::Annot );
+}
+
+void uiODViewer2DMgr::reSetPrevDragMode( uiODViewer2D* curvwr2d )
+{
+    uiGraphicsViewBase::ODDragMode prevdragmode =
+    uiGraphicsViewBase::ScrollHandDrag;
+    if ( curvwr2d->viewControl()->isEditModeOn() )
+	prevdragmode = uiGraphicsViewBase::NoDrag;
+    else if ( curvwr2d->viewControl()->isRubberBandOn() )
+	prevdragmode = uiGraphicsViewBase::RubberBandDrag;
+    curvwr2d->viewwin()->viewer(0).rgbCanvas().setDragMode( prevdragmode );
+    MouseCursorManager::mgr()->restoreOverride();
 }
 
 
@@ -462,7 +477,8 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* curvwr2d )
     
     selauxpos_.isselected_ = false;
     selauxpos_.oldauxpos_ = mUdf(float);
-    curvwr.rgbCanvas().setDragMode( prevdragmode_ );
+    reSetPrevDragMode( curvwr2d );
+
     if ( clickedvwr2d )
 	clickedvwr2d->viewwin()->dockParent()->raise();
 }

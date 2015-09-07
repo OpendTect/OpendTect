@@ -102,6 +102,8 @@ public:
 	    				   bool isvertical);
     static void		getGlobalZoomLevel(float& x1pospercm, float& x2pospercm,
 	    				   bool isvertical);
+    bool		isEditModeOn() const;
+    bool		isRubberBandOn() const;
     NotifierAccess*	editPushed();
 
 protected:

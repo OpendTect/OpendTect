@@ -556,6 +556,18 @@ void uiFlatViewStdControl::setEditMode( bool yn )
 }
 
 
+bool uiFlatViewStdControl::isEditModeOn() const
+{
+    return editbut_ && editbut_->isOn();
+}
+
+
+bool uiFlatViewStdControl::isRubberBandOn() const
+{
+    return rubbandzoombut_ && rubbandzoombut_->isOn();
+}
+
+
 void uiFlatViewStdControl::dragModeCB( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,but,cb);

@@ -115,7 +115,6 @@ protected:
     ObjectSet<uiODViewer2D>     viewers2d_;
     Line2DInterSectionSet*	l2dintersections_;
     SelectedAuxPos		selauxpos_;
-    uiGraphicsViewBase::ODDragMode prevdragmode_;
 
     uiTreeFactorySet*		tifs2d_;
     uiTreeFactorySet*		tifs3d_;
@@ -154,6 +153,7 @@ protected:
     void			setupFaults(uiODViewer2D*);
     void			setupFaultSSs(uiODViewer2D*);
     void			setupPickSets(uiODViewer2D*);
+    void			reSetPrevDragMode(uiODViewer2D*);
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
