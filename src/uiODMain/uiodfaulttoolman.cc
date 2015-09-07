@@ -1429,7 +1429,6 @@ void uiODFaultToolMan::keyPressedCB( CallBacker* )
     if ( KeyboardEvent::isReDo(kbe) )
 	redoCB( 0 );
 
-    uiMain::keyboardEventHandler().setHandled( true );
 }
 
 
