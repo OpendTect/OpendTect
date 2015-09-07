@@ -36,7 +36,7 @@ namespace visBase
 mExpClass(visBase) Material : public NodeState
 {
 public:
-    			Material();
+    			Material(bool useownclr=false);
 
     Notifier<Material>	change;
 
@@ -98,7 +98,6 @@ public:
     void		fillPar(IOPar&) const;
 
     int			nrOfMaterial() const;
-    void		setNrOfMaterials(int);
 
     void		clear();
 
@@ -148,6 +147,7 @@ private:
     osg::Array*			osgcolorarray_;
     ObjectSet<osg::Geometry>	attachedgeoms_;
     float			transparencybendpower_;
+    const bool			useowncolor_;
 };
 
 } // namespace visBase

@@ -38,7 +38,7 @@ const char* Material::sKeyTransparency()	{ return "Transparency"; }
     Threads::Locker nm( lock_, Threads::Locker::ReadLock )
 
 
-Material::Material()
+Material::Material(bool useownclr)
     : material_( addAttribute(new osg::Material) )
     , osgcolorarray_( 0 )
     , ambience_( 0.8 )
@@ -49,6 +49,7 @@ Material::Material()
     , change( this )
     , colorbindtype_( 1 )
     , transparencybendpower_ ( 1.0 )
+    , useowncolor_( useownclr )
 {
     material_->ref();
     setColorMode( Off );
@@ -234,7 +235,7 @@ float Material::getTransparency( int idx ) const
        return color_.tF();
 
    osg::Vec4Array* colarr = mGetOsgVec4Arr( osgcolorarray_ );
-   return idx< colarr->size()-1 ? (*colarr)[idx].a() : 0.0f;
+   return idx< colarr->size()-1 ? (1.0f-(*colarr)[idx].a()) : 0.0f;
 }
 
 
@@ -383,10 +384,11 @@ void Material::setColorBindType(unsigned int type)
 }
 
 
-void Material::applyAttribute( osg::StateSet* ns, osg::StateAttribute* attr)
+void Material::applyAttribute( osg::StateSet* ns, osg::StateAttribute* attr )
 {
     if ( ns )
-	ns->setAttribute( attr, osg::StateAttribute::OVERRIDE );
+	ns->setAttribute( attr, useowncolor_ ? osg::StateAttribute::PROTECTED
+					     : osg::StateAttribute::OVERRIDE );
 }
 
 
