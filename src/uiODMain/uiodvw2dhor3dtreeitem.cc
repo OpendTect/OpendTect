@@ -131,8 +131,9 @@ void uiODVw2DHor3DParentTreeItem::addHorizon3Ds(
 	if ( MPE::engine().getTrackerByObject(emids[idx]) != -1 )
 	{
 	    EM::EMObject* emobj = EM::EMM().getObject( emids[idx] );
-	    if ( !emobj )
-		return;
+	    if ( !emobj || findChild(emobj->name()) )
+		continue;
+
 	    MPE::engine().addTracker( emobj );
 	}
 

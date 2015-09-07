@@ -128,7 +128,13 @@ void uiODVw2DFaultParentTreeItem::removeFault( EM::ObjectID emid )
 void uiODVw2DFaultParentTreeItem::addFaults(const TypeSet<EM::ObjectID>& emids)
 {
     for ( int idx=0; idx<emids.size(); idx++ )
+    {
+	const EM::EMObject* emobj = EM::EMM().getObject( emids[idx] );
+	if ( !emobj || findChild(emobj->name()) )
+	    continue;
+
 	addChld( new uiODVw2DFaultTreeItem(emids[idx]), false, false);
+    }
 }
 
 
