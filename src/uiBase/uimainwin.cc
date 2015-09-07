@@ -727,7 +727,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , runScriptRequest(this)
     , caption_(setup.caption_)
     , afterpopuptimer_(0)
-    , languagedirtycount_( TrMgr().dirtyCount() )
+    , languagechangecount_( TrMgr().changeCount() )
 {
     body_ = new uiMainWinBody( *this, p, setup.caption_.getFullString(),
 			       setup.modal_ );
@@ -754,7 +754,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     , runScriptRequest(this)
     , caption_(cpt)
     , afterpopuptimer_(0)
-    , languagedirtycount_( TrMgr().dirtyCount() )
+    , languagechangecount_( TrMgr().changeCount() )
 {
     body_ = new uiMainWinBody( *this, parnt, caption_.getFullString(), modal );
     setBody( body_ );
@@ -1241,10 +1241,10 @@ void uiMainWin::copyToClipBoardCB( CallBacker* )
 
 void uiMainWin::languageChangeCB( CallBacker* )
 {
-    if ( languagedirtycount_<TrMgr().dirtyCount() )
+    if ( languagechangecount_<TrMgr().changeCount() )
     {
         translateText();
-	languagedirtycount_ = TrMgr().dirtyCount();
+	languagechangecount_ = TrMgr().changeCount();
     }
 }
 

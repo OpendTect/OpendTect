@@ -9,8 +9,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistring.h"
 #include "testprog.h"
+#include "uistrings.h"
+#include "texttranslator.h"
+#include "filepath.h"
+#include "oddirs.h"
 
 #include <QString>
+#include <QTranslator>
 
 
 bool testSetEmpty()
@@ -25,6 +30,52 @@ bool testSetEmpty()
 
     return true;
 }
+
+class TestTranslator
+{ mTextTranslationClass( TestTranslator, "test_uistring" );
+public:
+    static bool testTranslation();
+
+};
+
+
+bool TestTranslator::testTranslation()
+{
+    uiString a = tr("I am an A");
+    uiString b = tr("I am a B" );
+    uiString join = uiStrings::phrJoinStrings( a, b );
+
+    QTranslator trans;
+    FilePath path;
+    TextTranslateMgr::GetLocalizationDir( path );
+    path.add( "uistring.qm" );
+    mRunStandardTest( trans.load( QString(path.fullPath().buf())),
+		    "Load test translation");
+
+    QString qres;
+    mRunStandardTest( join.translate( trans, qres ),
+		      "Run translation" );
+
+    BufferString res( qres );
+    mRunStandardTest( res=="A B", "Translation content");
+
+    uiString hor3d =
+	uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon() );
+
+    qres = hor3d.getQtString();
+    res = qres;
+    mRunStandardTest( res=="3D Horizon", "Translation content (Horizon)");
+
+    hor3d =
+     uiStrings::phrJoinStrings(uiStrings::s3D(), uiStrings::sHorizon(mPlural) );
+
+    qres = hor3d.getQtString();
+    res = qres;
+    mRunStandardTest( res=="3D Horizons", "Translation content (Horizons)");
+
+    return true;
+}
+
 
 
 bool testArg()
@@ -174,7 +225,6 @@ bool testHexEncoding()
     mRunStandardTest( str.setFromHexEncoded( encoding ) &&
 		      original.getQtString()==str.getQtString(),
 		      "Reading encoded string" );
-    
 
     return true;
 }
@@ -186,7 +236,7 @@ int main( int argc, char** argv )
 
     if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
 	 !testOptionStrings() || !testHexEncoding() || !testIsEqual() ||
-	 !testSetEmpty() )
+	!testSetEmpty() || !TestTranslator::testTranslation() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );

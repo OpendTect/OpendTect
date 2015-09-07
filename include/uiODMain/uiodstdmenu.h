@@ -195,7 +195,6 @@ ________________________________________________________________________
 /* 'Utilities' menu */
 
 #define mUtilSettingMnu		(mUtilMnu + 100)
-#define mLanguageMnu		(mUtilMnu + 500) // until mUtilMnu+999
 
 #define mBatchProgMnuItm	(mUtilMnu + 10)
 #define mSetupBatchItm		(mUtilMnu + 15)

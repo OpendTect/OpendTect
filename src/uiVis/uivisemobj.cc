@@ -537,7 +537,7 @@ static void fillResolutionNames( BufferStringSet& nms )
 
 // uiHorizonSettings
 uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,uiStrings::sHorizon(2),setts)
+    : uiSettingsGroup(p,uiStrings::sHorizon(mPlural),setts)
 {
     if ( sResolutionNames.isEmpty() )
 	fillResolutionNames( sResolutionNames );

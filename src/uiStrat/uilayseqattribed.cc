@@ -127,7 +127,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	ltransffld->attach( ensureBelow, sep );
     }
 
-    valfld_ = new uiGenInput( this, uiStrings::sValue(), FloatInpSpec(2) );
+    valfld_ = new uiGenInput( this, uiStrings::sValue(), FloatInpSpec(mPlural));
     valfld_->setElemSzPol( uiObject::Small );
     valfld_->attach( rightOf, ltransffld );
 

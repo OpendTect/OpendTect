@@ -21,67 +21,115 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <QLocale>
 #endif
 
-class TranslatorLanguageInfo
+void TextTranslateMgr::GetLocalizationDir( FilePath& res )
 {
-public:
-				TranslatorLanguageInfo()
-				    : loaded_( false )
-				{ translators_.allowNull( true ); }
-				~TranslatorLanguageInfo()
-				{
+    res = FilePath( mGetSWDirDataDir(), "localizations" );
+}
+
+
+TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
+    : loaded_( false )
 #ifndef OD_NO_QT
-				    deepErase( translators_ );
+    , locale_( new QLocale( localename ) )
+    , languagename_( new QString )
+    , localename_( localename )
 #endif
-				}
+{
+    translators_.allowNull( true );
 
-    bool			load();
+    const BufferString filename = BufferString()
+	.add(uiString::sODLocalizationApplication())
+	.add(TextTranslateMgr::cApplicationEnd())
+	.add(localename)
+	.add(".qm");
 
-    BufferString		name_;
+    FilePath locdir;
+    TextTranslateMgr::GetLocalizationDir(locdir);
+    const FilePath odfile( locdir, filename );
+
 #ifndef OD_NO_QT
-    QString			username_;
-    QLocale			locale_;
+    QTranslator maintrans;
+    if ( !maintrans.load(odfile.fullPath().buf()) )
+    {
+	*languagename_ = localename;
+    }
+    else
+    {
+	uiString name = tr("Language Name",0,1);
+	name.addLegacyVersion( uiString(name.getOriginalString(),
+			       "TextTranslateMgr",
+			       uiString::sODLocalizationApplication(), 0, 1 ));
+	name.translate( maintrans, *languagename_ );
+	//Force be a part of the plural setup
+    }
 #endif
-    bool			loaded_;
+}
 
-    ObjectSet<QTranslator>	translators_;
-    BufferStringSet		applications_;
 
-    const QTranslator*		getTranslator(const char* appl) const;
-};
-
+TextTranslatorLanguage::~TextTranslatorLanguage()
+{
+#ifndef OD_NO_QT
+    deepErase( translators_ );
+    delete locale_;
+    delete languagename_;
+#endif
+}
 
 const QTranslator*
-    TranslatorLanguageInfo::getTranslator( const char* appl ) const
+TextTranslatorLanguage::getTranslator( const char* appl ) const
 {
     const int idx = applications_.indexOf( appl );
     return translators_.validIdx(idx) ? translators_[idx] : 0;
 }
 
-
-#ifndef OD_NO_QT
-static FilePath GetLocalizationDir()
+BufferString TextTranslatorLanguage::getLocaleName() const
 {
-    return FilePath( mGetSWDirDataDir(), "localizations" );
+    return BufferString( locale_->name() );
 }
-#endif
 
 
-bool TranslatorLanguageInfo::load()
+const mQtclass(QString)& TextTranslatorLanguage::getLanguageName() const
+{ return *languagename_; }
+
+
+const mQtclass(QLocale)& TextTranslatorLanguage::getLanguageLocale() const
+{ return *locale_; }
+
+
+bool TextTranslatorLanguage::load()
 {
+    if ( loaded_ )
+	return true;
+
+    loaded_ = true;
+
 #ifdef OD_NO_QT
     return false;
 #else
-    BufferString filenamepostfix;
-    filenamepostfix.add( TextTranslateMgr::cApplicationEnd() )
-		   .add( name_ ).add( ".qm" );
-    for ( int idx=0; idx<applications_.size(); idx++ )
+    const BufferString filenamesearch = BufferString("*")
+	.add( TextTranslateMgr::cApplicationEnd() )
+	.add( localename_ )
+	.add( ".qm" );
+
+    FilePath basedir;
+    TextTranslateMgr::GetLocalizationDir(basedir);
+    DirList dl( basedir.fullPath(), DirList::FilesOnly, filenamesearch.buf() );
+
+    for( int idx=0; idx<dl.size(); idx++ )
     {
-	if ( translators_[idx] )
+	const FilePath filepath = dl.fullPath( idx );
+	BufferString filename = filepath.baseName();
+
+	BufferString application;
+	char* applicationend =
+		filename.find(TextTranslateMgr::cApplicationEnd());
+	if ( !applicationend )
 	    continue;
 
-	const BufferString filename( applications_[idx]->buf(),
-				     filenamepostfix );
-	const FilePath filepath( GetLocalizationDir().fullPath(), filename );
+	application = filename;
+	*application.find(TextTranslateMgr::cApplicationEnd()) = 0;
+
+	BufferString language = applicationend+1;
 
 	QTranslator* trans = new QTranslator;
 	if ( !trans->load(filepath.fullPath().buf()) )
@@ -90,11 +138,9 @@ bool TranslatorLanguageInfo::load()
 	    continue;
 	}
 
-	translators_.replace( idx, trans );
+	translators_ += trans;
+	applications_.add( application );
     }
-
-    locale_ = QLocale( name_.buf() );
-    loaded_ = true;
 
     return true;
 #endif
@@ -115,23 +161,15 @@ TextTranslateMgr::TextTranslateMgr()
     , currentlanguageidx_(-1)
     , languageChange(this)
 {
-    loadInfo();
-    for ( int idx=0; idx<languages_.size(); idx++ )
-    {
-	if ( languages_[idx]->locale_.country()==QLocale::UnitedStates &&
-	     languages_[idx]->locale_.language()==QLocale::English )
-	{
-	    uiString err;
-	    setLanguage( idx, err );
-	    break;
-	}
-    }
+    loadUSEnglish();
+    uiString err;
+    setLanguage( 0, err );
 }
 
 
 TextTranslateMgr::~TextTranslateMgr()
 {
-    deepErase( languages_ );
+    deepUnRef( languages_ );
 }
 
 
@@ -141,15 +179,39 @@ int TextTranslateMgr::nrSupportedLanguages() const
 }
 
 
+void TextTranslateMgr::addLanguage( TextTranslatorLanguage* language )
+{
+    if ( !language )
+	return;
+
+    language->ref();
+
+    const BufferString newlocale = language->getLocaleName();
+
+    for ( int idx=0; idx<languages_.size(); idx++ )
+    {
+	if ( languages_[idx]->getLocaleName()==newlocale )
+	{
+	    pErrMsg("Language refused as it does already exist");
+	    language->unRef();
+	    return;
+	}
+    }
+
+    languages_ += language;
+    languageChange.trigger();
+}
+
+
 uiString TextTranslateMgr::getLanguageUserName(int idx) const
 {
     if ( languages_.validIdx(idx) )
     {
 	uiString ret;
 #ifdef OD_NO_QT
-	ret = languages_[idx]->name_;
+	ret = languages_[idx]->getLocaleName();
 #else
-	ret.setFrom( languages_[idx]->username_ );
+	ret.setFrom( languages_[idx]->getLanguageName() );
 #endif
 	return ret;
     }
@@ -158,10 +220,10 @@ uiString TextTranslateMgr::getLanguageUserName(int idx) const
 }
 
 
-BufferString TextTranslateMgr::getLanguageName(int idx) const
+BufferString TextTranslateMgr::getLocaleName(int idx) const
 {
     if ( languages_.validIdx(idx) )
-	return languages_[idx]->name_;
+	return languages_[idx]->getLocaleName();
 
     return "en_US";
 }
@@ -174,13 +236,10 @@ bool TextTranslateMgr::setLanguage( int idx, uiString& errmsg )
 
     if ( languages_.validIdx(idx) )
     {
-	if ( !languages_[idx]->loaded_ )
+	if ( !languages_[idx]->load() )
 	{
-	    if ( !languages_[idx]->load() )
-	    {
-		errmsg = tr("Cannot load %1").arg(getLanguageUserName(idx) );
-		return false;
-	    }
+	    errmsg = tr("Cannot load %1").arg(getLanguageUserName(idx) );
+	    return false;
 	}
     }
     else if ( idx>=0 )
@@ -214,7 +273,7 @@ const QLocale* TextTranslateMgr::getQLocale() const
 {
 #ifndef OD_NO_QT
     return languages_.validIdx(currentlanguageidx_)
-        ? &languages_[currentlanguageidx_]->locale_
+	? &languages_[currentlanguageidx_]->getLanguageLocale()
         : 0;
 #else
     return 0;
@@ -222,63 +281,10 @@ const QLocale* TextTranslateMgr::getQLocale() const
 }
 
 
-void TextTranslateMgr::loadInfo()
+void TextTranslateMgr::loadUSEnglish()
 {
-    FilePath basedir( GetLocalizationDir() );
-    DirList dl( basedir.fullPath(), DirList::FilesOnly, "*.qm");
-
-    BufferStringSet applications;
-
-    for( int idx=0; idx<dl.size(); idx++ )
-    {
-	const FilePath path = dl.fullPath( idx );
-	BufferString filename = path.baseName();
-
-	BufferString application;
-	char* applicationend = filename.find(cApplicationEnd());
-	if ( !applicationend )
-	    continue;
-
-	application = filename;
-	*application.find(cApplicationEnd()) = 0;
-
-	BufferString language = applicationend+1;
-
-	TranslatorLanguageInfo* tli = 0;
-	for ( int idy=0; idy<languages_.size(); idy++ )
-	{
-	    if ( languages_[idy]->name_==language )
-	    {
-		tli = languages_[idy];
-		break;
-	    }
-	}
-
-	if ( !tli )
-	{
-	    tli = new TranslatorLanguageInfo;
-	    tli->name_ = language;
-	    languages_ += tli;
-	}
-
-	tli->applications_.add( application );
-	tli->translators_ += 0;
-
-	if ( application==uiString::sODLocalizationApplication() )
-	{
-#ifndef OD_NO_QT
-	    QTranslator maintrans;
-	    if ( !maintrans.load(path.fullPath().buf()) )
-	    {
-		tli->username_ = tli->name_;
-	    }
-	    else
-	    {
-		tr("Language Name",0,1).translate( maintrans, tli->username_ );
-		//Force be a part of the plural setup
-	    }
-#endif
-	}
-    }
+    RefMan<TextTranslatorLanguage> english =
+				new TextTranslatorLanguage("en-us");
+    addLanguage( english );
 }
 

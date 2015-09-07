@@ -221,7 +221,7 @@ void uiODMenuMgr::fillSurveyMenu()
     preloadmnu_ = new uiMenu( &appl_, tr("Pre-load") );
     mInsertItem( preloadmnu_, m3Dots(uiStrings::sSeismics()),
                  mPreLoadSeisMnuItm );
-    mInsertItem( preloadmnu_, m3Dots(uiStrings::sHorizon(2)),
+    mInsertItem( preloadmnu_, m3Dots(uiStrings::sHorizon(mPlural)),
                  mPreLoadHorMnuItm );
     surveymnu_->insertItem( preloadmnu_ );
 
@@ -237,10 +237,10 @@ void uiODMenuMgr::fillImportMenu()
 
     uiMenu* impattr = new uiMenu( &appl_, uiStrings::sAttribute() );
     uiMenu* impseis = new uiMenu( &appl_, uiStrings::sSeismics() );
-    uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizon(2) );
-    uiMenu* impfault = new uiMenu( &appl_, uiStrings::sFault(2) );
+    uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
+    uiMenu* impfault = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
     uiMenu* impfaultstick = new uiMenu( &appl_, tr("FaultStickSets") );
-    uiMenu* impwell = new uiMenu( &appl_, uiStrings::sWell(2) );
+    uiMenu* impwell = new uiMenu( &appl_, uiStrings::sWell(mPlural) );
     uiMenu* imppick = new uiMenu( &appl_, tr("PickSets/Polygons") );
     uiMenu* impwvlt = new uiMenu( &appl_, tr("Wavelets") );
     uiMenu* impmute = new uiMenu( &appl_, tr("Mute Functions") );
@@ -317,7 +317,7 @@ void uiODMenuMgr::fillImportMenu()
                  mImpWellAsciiTrackMnuItm );
     mInsertItem( impwellasc, m3Dots(uiStrings::sLogs()),
                  mImpWellAsciiLogsMnuItm );
-    mInsertItem( impwellasc, m3Dots(uiStrings::sMarker(2)),
+    mInsertItem( impwellasc, m3Dots(uiStrings::sMarker(mPlural)),
                  mImpWellAsciiMarkersMnuItm );
     impwell->insertItem( impwellasc );
     mInsertItem( impwell, m3Dots(tr("Simple Multi-Well")),
@@ -328,7 +328,7 @@ void uiODMenuMgr::fillImportMenu()
                  mImpBulkWellTrackItm );
     mInsertItem( impwellbulk, m3Dots(uiStrings::sLogs()),
                  mImpBulkWellLogsItm );
-    mInsertItem( impwellbulk, m3Dots(uiStrings::sMarker(2)),
+    mInsertItem( impwellbulk, m3Dots(uiStrings::sMarker(mPlural)),
                  mImpBulkWellMarkersItm );
     mInsertItem( impwellbulk, m3Dots(tr("Depth/Time Model")),
                  mImpBulkWellD2TItm );
@@ -359,9 +359,9 @@ void uiODMenuMgr::fillExportMenu()
 {
     expmnu_->clear();
     uiMenu* expseis = new uiMenu( &appl_, uiStrings::sSeismics() );
-    uiMenu* exphor = new uiMenu( &appl_, uiStrings::sHorizon(2) );
-    uiMenu* expflt = new uiMenu( &appl_, uiStrings::sFault(2) );
-    uiMenu* expfltss = new uiMenu( &appl_, uiStrings::sFaultStickSet(2) );
+    uiMenu* exphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
+    uiMenu* expflt = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
+    uiMenu* expfltss = new uiMenu( &appl_, uiStrings::sFaultStickSet(mPlural) );
     uiMenu* expgeom2d = new uiMenu( &appl_, tr("Geometry 2D") );
     uiMenu* exppick = new uiMenu( &appl_, tr("PickSets/Polygons") );
     uiMenu* expwvlt = new uiMenu( &appl_, tr("Wavelets") );
@@ -435,20 +435,21 @@ void uiODMenuMgr::fillManMenu()
                        mManColTabMnuItm, "empty" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Cross-plot Data")),
                         mManCrossPlotItm, "manxplot" );
-    mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sFault(2)),
+    mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sFault(mPlural)),
                       mManFaultMnuItm, "man_flt" )
     mInsertPixmapItem( manmnu_, m3Dots(
-                       uiStrings::sFaultStickSet(2)), mManFaultStickMnuItm,
+		       uiStrings::sFaultStickSet(mPlural)),mManFaultStickMnuItm,
 			"man_fltss" );
     mInsertPixmapItem( manmnu_, m3Dots(tr("Geometry 2D")),
                        mManGeomItm, "man2dgeom" );
     if ( SI().survDataType() == SurveyInfo::No2D )
 	mInsertPixmapItem( manmnu_,
-                           m3Dots(uiStrings::sHorizon(2)),
+			   m3Dots(uiStrings::sHorizon(mPlural)),
 			   mManHor3DMnuItm, "man_hor" )
     else
     {
-	uiMenu* mnu = new uiMenu( &appl_, uiStrings::sHorizon(2),"man_hor");
+	uiMenu* mnu = new uiMenu( &appl_,
+				  uiStrings::sHorizon(mPlural),"man_hor");
 	mInsertItem( mnu, m3Dots(uiStrings::s2D()),
                      mManHor2DMnuItm );
 	mInsertItem( mnu, m3Dots(uiStrings::s3D()),
@@ -473,9 +474,9 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_,
 			m3Dots(uiStrings::sStratigraphy()),
 			mManStratMnuItm, "man_strat" )
-    mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sWavelet(2)),
+    mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sWavelet(mPlural)),
 			mManWvltMnuItm, "man_wvlt" )
-    mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sWell(2)),
+    mInsertPixmapItem( manmnu_, m3Dots(uiStrings::sWell(mPlural)),
 			mManWellMnuItm, "man_wll" )
     manmnu_->insertSeparator();
 }
@@ -622,8 +623,9 @@ void uiODMenuMgr::fillAnalMenu()
     analwellmnu_->insertItem( new uiAction( m3Dots(tr("Edit Logs")),
 	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
     if (  SI().zIsTime() )
-	analwellmnu_->insertItem( new uiAction( m3Dots(tr("Tie Well to Seismic")),
-	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
+	analwellmnu_->insertItem(
+	    new uiAction( m3Dots(tr("Tie Well to Seismic")),
+		    mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ));
     analwellmnu_->insertItem( new uiAction( m3Dots(tr("Rock Physics")),
 		mCB(&applMgr(),uiODApplMgr,launchRockPhysics), "rockphys"));
     analmnu_->insertItem( analwellmnu_ );
@@ -779,37 +781,14 @@ void uiODMenuMgr::mkViewIconsMnu()
 }
 
 
-static void updateTranslateMenu( uiMenu& mnu )
-{
-    for ( int idx=0; idx<mnu.actions().size(); idx++ )
-    {
-	uiAction* itm = const_cast<uiAction*>(mnu.actions()[idx]);
-	itm->setChecked( idx==TrMgr().currentLanguage() );
-    }
-}
-
-
 void uiODMenuMgr::fillUtilMenu()
 {
     settmnu_ = new uiMenu( &appl_, uiStrings::sSettings() );
     utilmnu_->insertItem( settmnu_ );
-    if ( TrMgr().nrSupportedLanguages() > 1 )
-    {
-	langmnu_ = new uiMenu( &appl_, tr("Language") );
-	settmnu_->insertItem( langmnu_ );
-	for ( int idx=0; idx<TrMgr().nrSupportedLanguages(); idx++ )
-	{
-	    uiAction* itm = new uiAction( TrMgr().getLanguageUserName(idx),
-					  mCB(this,uiODMenuMgr,handleClick) );
-	    itm->setCheckable( true );
-	    langmnu_->insertItem( itm, mLanguageMnu+idx );
-	}
-
-	updateTranslateMenu( *langmnu_ );
-    }
 
     mInsertItem( settmnu_, m3Dots(tr("Look and Feel")), mSettLkNFlMnuItm );
-    mInsertItem( settmnu_, m3Dots(tr("Keyboard Shortcuts")), mSettShortcutsMnuItm);
+    mInsertItem( settmnu_, m3Dots(tr("Keyboard Shortcuts")),
+		 mSettShortcutsMnuItm);
     uiMenu* advmnu = new uiMenu( &appl_, uiStrings::sAdvanced() );
     mInsertItem( advmnu, m3Dots(tr("Personal Settings")), mSettGeneral );
     mInsertItem( advmnu, m3Dots(tr("Survey Defaults")), mSettSurvey );
@@ -846,7 +825,8 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( installmnu_, m3Dots(tr("Connection Settings")),
 		 mInstConnSettsMnuItm );
     mInsertItem( installmnu_, m3Dots(tr("Plugins")), mPluginsMnuItm );
-    mInsertItem( installmnu_, m3Dots(tr("Setup Batch Processing")), mSetupBatchItm);
+    mInsertItem( installmnu_, m3Dots(tr("Setup Batch Processing")),
+		 mSetupBatchItm);
 
     const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )
@@ -858,7 +838,8 @@ void uiODMenuMgr::fillUtilMenu()
 #endif
     if ( enabdpdump )
     {
-	mInsertItem( toolsmnu_, m3Dots(tr("DataPack Dump")), mDumpDataPacksMnuItm);
+	mInsertItem( toolsmnu_, m3Dots(tr("DataPack Dump")),
+		     mDumpDataPacksMnuItm);
 	mInsertItem( toolsmnu_, m3Dots(tr("Display Memory Info")),
 		     mDisplayMemoryMnuItm);
     }
@@ -895,8 +876,8 @@ void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
     if ( SI().has2D() && SI().has3D() )
     {
 	uiMenu* mnu = new uiMenu( itmtxt, iconnm );
-	mnu->insertAction( new uiAction(m3Dots(uiStrings::s2D()),cb2d), itmid2d );
-	mnu->insertAction( new uiAction(m3Dots(uiStrings::s3D()),cb3d), itmid3d );
+	mnu->insertAction( new uiAction(m3Dots(uiStrings::s2D()),cb2d),itmid2d);
+	mnu->insertAction( new uiAction(m3Dots(uiStrings::s3D()),cb3d),itmid3d);
 	menu.addMenu( mnu );
     }
     else
@@ -1002,7 +983,7 @@ void uiODMenuMgr::fillManTB()
 		   tr("3D Horizons"),
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
 
-    mAddPopUp( tr("Fault Menu"), uiStrings::sFault(2),tr("FaultStickSets"),
+    mAddPopUp( tr("Fault Menu"),uiStrings::sFault(mPlural),tr("FaultStickSets"),
 	       mManFaultMnuItm, mManFaultStickMnuItm, fltid );
 }
 
@@ -1393,16 +1374,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	    const char* scenenm = itm->text().getFullString();
 	    sceneMgr().setActiveScene( scenenm );
 	    itm->setChecked( true );
-	}
-
-	if ( id>=mLanguageMnu && id<mLanguageMnu+499 )
-	{
-	    const int langidx = id - mLanguageMnu;
-	    uiString errmsg;
-	    if ( !TrMgr().setLanguage(langidx,errmsg) )
-		uiMSG().error( errmsg );
-
-	    updateTranslateMenu( *langmnu_ );
 	}
 
 	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )

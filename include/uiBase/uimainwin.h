@@ -219,7 +219,7 @@ protected:
     void		updateCaption();
     uiString		caption_;
     uiString		uniquecaption_;
-    int			languagedirtycount_;
+    int			languagechangecount_;
 
     BufferString	scripttorun_;
 

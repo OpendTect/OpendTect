@@ -142,6 +142,7 @@ private:
 #ifdef __debug__
     char*	str_;		//!< Contains getFullString() for easy debugging
 #endif
+    bool			isCacheValid() const;
 
     friend class		uiStringData;
     uiStringData*		data_;

@@ -159,15 +159,15 @@ macro(OD_SETUP_QT)
     endif( OD_NO_QT )
 endmacro( OD_SETUP_QT )
 
-macro ( SETUP_QT_TRANSLATION )
+macro ( SETUP_QT_TRANSLATION POSTFIX )
     if ( EXISTS ${QT_LRELEASE_EXECUTABLE} )
 	if ( WIN32 )
 	    set ( COMPILE_TRANSLATIONS_EXTENSION cmd )
 	else()
 	    set ( COMPILE_TRANSLATIONS_EXTENSION sh )
 	endif()
-	add_custom_target( Compile_Translations ALL 
-	    ${CMAKE_SOURCE_DIR}/dtect/compile_translations.${COMPILE_TRANSLATIONS_EXTENSION}
+	add_custom_target( Compile_Translations_${POSTFIX} ALL
+	    ${OpendTect_DIR}/dtect/compile_translations.${COMPILE_TRANSLATIONS_EXTENSION}
 	    ${QT_LRELEASE_EXECUTABLE} ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
 	    VERBATIM
 	COMMENT "Compiling translations" )
