@@ -37,7 +37,7 @@ SET(OD_MODULE_SOURCES
 		emmanager.cc
 		emmarchingcubessurface.cc
 		emobject.cc
-		emobjectselremoval.cc
+		emobjectposselector.cc
 		emrandomposbody.cc
 		empolygonbody.cc
 		emposid.cc
