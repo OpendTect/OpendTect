@@ -135,6 +135,7 @@ public:
     Notifier<uiTreeView> selectionChanged;
     Notifier<uiTreeView> currentChanged;
     Notifier<uiTreeView> itemChanged;
+    Notifier<uiTreeView> itemRenamed;
     Notifier<uiTreeView> returnPressed;
     Notifier<uiTreeView> rightButtonClicked;
     Notifier<uiTreeView> rightButtonPressed;
@@ -165,11 +166,11 @@ protected:
 
 private:
 
-    friend class		i_treeVwMessenger;
-    friend class		uiTreeViewBody;
-    friend class		uiTreeViewItem;
+    friend class	i_treeVwMessenger;
+    friend class	uiTreeViewBody;
+    friend class	uiTreeViewItem;
 
-    uiTreeViewBody*		body_;
+    uiTreeViewBody*	body_;
 
     uiStringSet		labels_;
 
@@ -191,6 +192,7 @@ public:
 mExpClass(uiBase) uiTreeViewItem : public CallBacker
 { mODTextTranslationClass(uiTreeViewItem);
 public:
+    friend class	uiTreeView;
 
     enum			Type { Standard, CheckBox };
 
@@ -263,7 +265,7 @@ public:
     void		setText( double d, int column=0 )
 			{ setText( toUiString(d), column ); }
 
-    const char*		text(int column=0,bool original=true) const;
+    const char*		text(int column=0) const;
 
     void		setIcon(int column,const char* iconname);
     void		setPixmap(int column,const uiPixmap&);

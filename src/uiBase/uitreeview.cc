@@ -244,6 +244,7 @@ uiTreeView::uiTreeView( uiParent* p, const char* nm, int nl, bool dec )
     , selectionChanged(this)
     , currentChanged(this)
     , itemChanged(this)
+    , itemRenamed(this)
     , returnPressed(this)
     , leftButtonClicked(this)
     , leftButtonPressed(this)
@@ -283,6 +284,19 @@ void uiTreeView::setEmpty()
 void uiTreeView::itemChangedCB( CallBacker* )
 {
     updateCheckStatus( lastitemnotified_ );
+
+    if ( lastitemnotified_ && lastitemnotified_->renameEnabled(0) &&
+	 column_>=0 && column_<nrColumns() )
+    {
+	const BufferString oldnm = lastitemnotified_->text( column_ );
+	const BufferString newnm =
+		lastitemnotified_->qtreeitem_->text( column_ );
+	if ( oldnm != newnm )
+	{
+	    lastitemnotified_->texts_[column_] = newnm;
+	    itemRenamed.trigger();
+	}
+    }
 }
 
 
@@ -810,15 +824,8 @@ void uiTreeViewItem::setBGColor( int column, const Color& color )
 }
 
 
-const char* uiTreeViewItem::text( int column, bool original ) const
+const char* uiTreeViewItem::text( int column ) const
 {
-    if ( !original )
-    {
-	mDeclStaticString( colnm );
-	colnm = qtreeitem_->text( column );
-	return colnm.buf();
-    }
-
     return texts_.validIdx(column) ? texts_[column].getFullString().buf() : 0;
 }
 
