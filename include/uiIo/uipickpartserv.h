@@ -58,7 +58,7 @@ public:
     Pick::Set*			loadSet(const MultiID&);
     bool			loadSets(TypeSet<MultiID>&,bool ispolygon);
     				//!< Load set(s) by user sel
-    bool			createEmptySet(bool aspolygon);
+    const Pick::Set*		createEmptySet(bool aspolygon);
     bool			create3DGenSet();
     bool			createRandom2DSet();
     void			setMisclassSet(const DataPointSet&);
