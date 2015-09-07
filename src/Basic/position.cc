@@ -415,7 +415,7 @@ bool Pos::IdxPair2Coord::isNodeOn( const Pos::IdxPair2Coord& oth,
 {
     const Coord mycrd( transform(IdxPair(i0,i1)) );
     const Coord othcrd( oth.transform(oth.transformBack(mycrd)) );
-    return mycrd.sqDistTo(othcrd) < 0.1;
+    return mycrd.sqDistTo(othcrd) < 1.;
 }
 
 
