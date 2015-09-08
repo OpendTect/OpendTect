@@ -28,6 +28,7 @@ RandomLine::RandomLine( const char* nm )
     , zrangeChanged(this)
     , lset_(0)
     , mid_(MultiID::udf())
+    , locked_(false)
 {
     assign( zrange_, SI().zRange(true) );
 
