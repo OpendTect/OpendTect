@@ -148,7 +148,7 @@ private:
 
 			UnitOfMeasureRepository();
 
-    ObjectSet<const UnitOfMeasure> entries;
+    ManagedObjectSet<const UnitOfMeasure> entries;
 
     void		addUnitsFromFile(const char*,Repos::Source);
     const UnitOfMeasure* findBest(const ObjectSet<const UnitOfMeasure>&,

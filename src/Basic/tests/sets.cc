@@ -164,6 +164,16 @@ static int testObjSetFind()
     if ( des.indexOf( des4 ) != 0 )
 	mErrRet("indexOf swapped elem3 != 0");
 
+    while ( des.size() )
+    {
+	DataElem* elem = des.removeSingle(0);
+	while ( des.isPresent(elem) )
+	{
+	    des.removeSingle( des.indexOf(elem) );
+	}
+
+	delete elem;
+    }
 
     mRetAllOK()
 }
@@ -198,6 +208,9 @@ static int testObjSetEqual()
     delete s1.replace( 0, new DataElem( 3, 0.2 ) );
     if ( equalContents(s1,s2) )
 	mErrRet("Multi-element sets equal");
+
+    deepErase( s1 );
+    deepErase( s2 );
 
     mRetAllOK()
 }

@@ -235,7 +235,7 @@ Survey::Geometry::RelationType Survey::Geometry3D::compare(
 //==============================================================================
 
 
-static ObjectSet<SurveyInfo> survinfostack;
+static ManagedObjectSet<SurveyInfo> survinfostack;
 
 const SurveyInfo& SI()
 {

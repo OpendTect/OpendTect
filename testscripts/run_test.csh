@@ -16,6 +16,7 @@ set qtdir = ""
 set expret = 0
 set valgrind = ""
 set gensuppressions="all"
+set attachdebugger="yes"
 
 parse_args:
 if ( "$1" == "--command" ) then
@@ -30,6 +31,7 @@ else if ( "$1" == "--plf" ) then
 else if ( "$1" == "--quiet" ) then
     set args="${args} --quiet"
     set gensuppressions="no"
+    set attachdebugger="no"
 else if ( "$1" == "--valgrind" ) then
     set valgrind=$2
     shift
@@ -102,10 +104,11 @@ if ( "$datadir" != "" ) then
 endif
 
 if ( "${valgrind}" != "" ) then
-    set suppression = `ls testing/suppressions/*.supp | awk '{ print "--suppressions" "=" $1 }'`
+    set suppression = `ls ${wdir}/testscripts/suppressions/*.supp | awk '{ print "--suppressions" "=" $1 }'`
     ${valgrind} \
 	${suppression} \
 	--gen-suppressions=${gensuppressions} \
+	--db-attach=${attachdebugger} \
 	"-q" \
 	"--tool=memcheck" \
 	"--leak-check=full" \
