@@ -18,7 +18,9 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegymanip.h"
 #include "uisegydef.h"
 #include "uifileinput.h"
+#include "uifiledlg.h"
 #include "uiseparator.h"
+#include "uisurvmap.h"
 #include "uihistogramdisplay.h"
 #include "uitoolbutton.h"
 #include "uispinbox.h"
@@ -36,20 +38,27 @@ static const char* rcsID mUsedVar = "$Id:$";
 
 
 
-uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
+uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
+					const SEGY::ImpType* imptyp )
     : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),
 			imptyp ? uiString("Import %1").arg(imptyp->dispText())
 				: mNoDlgTitle,
 				  mTODOHelpKey ) )
     , filereadopts_(0)
+    , survsetup_(forsurvsetup)
     , typfld_(0)
+    , ampldisp_(0)
+    , survmap_(0)
     , veryfirstscan_(false)
     , userfilename_("x") // any non-empty
     , clipsampler_(*new DataClipSampler(100000))
     , filenamepopuptimer_(0)
 {
-    setCtrlStyle( RunAndClose );
-    setOkText( tr("Next >>") );
+    if ( !survsetup_ )
+    {
+	setCtrlStyle( RunAndClose );
+	setOkText( tr("Next >>") );
+    }
 
     uiFileInput::Setup fisu( uiFileDialog::Gen, filespec_.fileName() );
     fisu.filter( uiSEGYFileSpec::fileFilter() ).forread( true )
@@ -88,7 +97,20 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
     infofld_->attach( ensureBelow, sep );
     infofld_->loaddefChanged.notify( mCB(this,uiSEGYReadStarter,defChg) );
 
+    createTools();
 
+    if ( survsetup_ )
+	createSurvMap();
+    else
+	createHist();
+
+    setButtonStatuses();
+    postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
+}
+
+
+void uiSEGYReadStarter::createTools()
+{
     fullscanbut_ = new uiToolButton( this, "fullscan",
 				    tr("Scan the entire input"),
 				    mCB(this,uiSEGYReadStarter,fullScanReq) );
@@ -107,14 +129,11 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
     examinenrtrcsfld_->setInterval( 10, 1000000, 10 );
     examinenrtrcsfld_->setValue( nrex );
     examinegrp->attach( alignedBelow, fullscanbut_ );
+}
 
-    if ( typfld_ || fixedimptype_.isPS() )
-    {
-	//TODO make OffsetCalculator fields
-    }
 
-    setButtonStatuses();
-
+void uiSEGYReadStarter::createHist()
+{
     uiGroup* histgrp = new uiGroup( this, "Histogram group" );
     const CallBack histupdcb( mCB(this,uiSEGYReadStarter,updateAmplDisplay) );
     uiHistogramDisplay::Setup hdsu;
@@ -137,8 +156,16 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, const SEGY::ImpType* imptyp )
     inc0sbox_->activated.notify( histupdcb );
     histgrp->setStretch( 2, 1 );
     histgrp->attach( stretchedBelow, infofld_ );
+}
 
-    postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
+
+void uiSEGYReadStarter::createSurvMap()
+{
+    survmap_ = new uiSurveyMap( this, false );
+    survmap_->setSurveyInfo( 0 );
+    survmap_->setPrefWidth( 350 );
+    survmap_->setPrefHeight( 350 );
+    survmap_->attach( centeredBelow, infofld_ );
 }
 
 
@@ -168,7 +195,10 @@ FullSpec uiSEGYReadStarter::fullSpec() const
 void uiSEGYReadStarter::clearDisplay()
 {
     infofld_->clearInfo();
-    ampldisp_->setEmpty();
+    if ( ampldisp_ )
+	ampldisp_->setEmpty();
+    if ( survmap_ )
+	survmap_->setSurveyInfo( 0 );
     setButtonStatuses();
 }
 
@@ -231,7 +261,23 @@ void uiSEGYReadStarter::initWin( CallBacker* )
     {
 	filenamepopuptimer_ = new Timer( "File selector popup timer" );
 	filenamepopuptimer_->start( 1, true );
-	filenamepopuptimer_->tick.notify( mCB(inpfld_,uiFileInput,selectFile) );
+	filenamepopuptimer_->tick.notify( mCB(this,uiSEGYReadStarter,firstSel));
+    }
+}
+
+
+void uiSEGYReadStarter::firstSel( CallBacker* )
+{
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0,
+	    uiSEGYFileSpec::fileFilter(),
+	    tr("Select (one of) the SEG-Y file(s)") );
+    dlg.setDirectory( GetDataDir() );
+    if ( !dlg.go() )
+	done();
+    else
+    {
+	inpfld_->setFileName( dlg.fileName() );
+	inpChg( 0 );
     }
 }
 
@@ -309,6 +355,9 @@ void uiSEGYReadStarter::examineCB( CallBacker* )
 
 void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 {
+    if ( !ampldisp_ )
+	return;
+
     int nrvals = (int)clipsampler_.nrVals();
     if ( nrvals < 1 )
 	{ ampldisp_->setEmpty(); return; }
@@ -359,6 +408,12 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
     }
 
     ampldisp_->setData( vals.arr(), nrvals );
+}
+
+
+void uiSEGYReadStarter::updateSurvMap()
+{
+    //TODO
 }
 
 
@@ -563,7 +618,8 @@ void uiSEGYReadStarter::displayScanResults()
 	{ clearDisplay(); return; }
 
     setButtonStatuses();
-    updateAmplDisplay( 0 );
+    if ( ampldisp_ )
+	updateAmplDisplay( 0 );
 
     SEGY::ScanInfo si( *scaninfo_[0] );
     si.filenm_ = userfilename_;
@@ -571,6 +627,8 @@ void uiSEGYReadStarter::displayScanResults()
 	si.merge( *scaninfo_[idx] );
 
     infofld_->setScanInfo( si );
+    if ( survmap_ )
+	updateSurvMap();
 }
 
 

@@ -363,7 +363,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 				bool doimp, const char* inplnm )
 {
     const int nrlines = fs_.spec_.nrFiles();
-    bool overwr_warn = true;
+    bool overwr_warn = true; bool overwr = true;
     for ( int iln=0; iln<nrlines; iln++ )
     {
 	const BufferString fnm( fs_.spec_.fileName(iln) );
@@ -371,7 +371,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 	if ( nrlines > 1 )
 	    lnm = FilePath( fnm ).baseName();
 
-	if ( !handleExistingGeometry(lnm,iln<nrlines-1,overwr_warn) )
+	if ( !handleExistingGeometry(lnm,iln<nrlines-1,overwr_warn,overwr) )
 	    return false;
 
 	Pos::GeomID geomid = Geom2DImpHandler::getGeomID( lnm, true );
@@ -446,13 +446,13 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 
 
 bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
-						 bool& overwr_warn )
+					     bool& overwr_warn, bool& overwr )
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
     if ( geomid == mUdfGeomID )
 	return true;
 
-    int choice = 1;
+    int choice = overwr ? 1 : 2;
     if ( overwr_warn )
     {
 	uiDialog::Setup dsu( tr("Overwrite geometry?"),
@@ -468,6 +468,8 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 	{
 	    optfld->addItem( tr("All: overwrite all existing geometries"),
 				"doall" );
+	    optfld->addItem( tr("None: keep all existing geometries"),
+				"donone" );
 	    choice = 3;
 	}
 	optfld->setChecked( choice, true );
@@ -475,11 +477,13 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
 	    return false;
 
 	choice = optfld->firstChecked();
-	if ( choice == 3 )
+	if ( choice > 2 )
 	    overwr_warn = false;
     }
+    if ( choice == 2 || choice == 4 )
+	overwr = false;
 
-    if ( choice != 2 )
+    if ( overwr )
     {
 	Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
 	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);

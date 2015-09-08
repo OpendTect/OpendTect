@@ -188,7 +188,7 @@ void uiSEGYMgr::exp3DPSCB( CallBacker* )
 void uiSEGYMgr::impVSPCB( CallBacker* )
 {
     const SEGY::ImpType imptyp( true );
-    uiSEGYReadStarter dlg( ODMainWin(), &imptyp );
+    uiSEGYReadStarter dlg( ODMainWin(), false, &imptyp );
     dlg.go();
 }
 
@@ -213,7 +213,7 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 
 void uiSEGYMgr::fullWizCB( CallBacker* )
 {
-    uiSEGYReadStarter dlg( ODMainWin() );
+    uiSEGYReadStarter dlg( ODMainWin(), false );
     dlg.go();
 }
 
