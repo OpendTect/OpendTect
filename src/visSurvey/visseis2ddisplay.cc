@@ -253,6 +253,7 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
     }
 
     updatePanelStripZRange();
+    updatePanelStripPath();
     geomchanged_.trigger();
 }
 
@@ -614,7 +615,8 @@ void Seis2DDisplay::updatePanelStripPath()
 	path += tdi.alltrcpos_[knots[idx]];
 	mapping += mCast( float, (knots[idx]-tdi.rg_.start)*(resolution_+1) );
 
-	polyline_->addPoint( Coord3(path[idx],SI().zRange(true).start) );
+	const Coord3 linepos( path[idx], tdi.zrg_.start );
+	polyline_->addPoint( linepos );
     }
 
     panelstrip_->setPath( path );
