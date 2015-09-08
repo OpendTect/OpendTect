@@ -228,7 +228,7 @@ void Seis2DTo3D::readInputCube(const int szfastx,
 	{
 	    if (runcalc.size(false) == 0)   //if
 		continue;
-	    float rms = runcalc.rms();
+	    float rms = (float) runcalc.rms();
 	    runcalc.clear();
 	    if (rms>rmsmax_)
 		rmsmax_ = rms;
@@ -360,13 +360,13 @@ void Seis2DTo3D::butterflyOperator()
 		    nearestidx = i;
 		}
 	    }
-	    double dist2d = pos2d.distTo(refpos3d[nearestidx].coord());
-	    double dist3d = pos3d.distTo(refpos3d[nearestidx]);
-	    double angle = acos(dist2d/dist3d);
+	    const float dist2d = (float) pos2d.distTo(refpos3d[nearestidx].coord());
+	    const float dist3d = (float) pos3d.distTo(refpos3d[nearestidx]);
+	    const float angle = acos(dist2d/dist3d);
 
-	    if (angle <= double(taperangle_))
+	    if (angle <= taperangle_)
 		butterfly_->set(idx,idy,idz,
-				(1. / Math::PowerOf(dist3d, (double)pow_)));
+				(1.f / Math::PowerOf(dist3d, pow_)));
 	}
     }
 }
