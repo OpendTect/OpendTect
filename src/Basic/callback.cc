@@ -143,9 +143,25 @@ void CallBacker::detachAllNotifiers()
 }
 
 
+bool CallBacker::attachCB(NotifierAccess* notif,const CallBack& cb,
+	bool onlyifnew)
+{
+    return notif
+	? attachCB(*notif,cb,onlyifnew)
+	: false;
+}
+
+
 bool CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb,
 			  bool onlyifnew )
 {
+    CallBacker* cbobj = const_cast<CallBacker*>( cb.cbObj() );
+    if ( cbobj!=this )
+    {
+	pErrMsg("You can only attach a callback to yourself" );
+	return false;
+    }
+
     if ( onlyifnew )
     {
 	if ( !notif.notifyIfNotNotified( cb ) )
@@ -156,13 +172,10 @@ bool CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb,
 	notif.notify( cb );
     }
 
-    if ( cb.cbObj()!=this )
-	return true;
-
-    if ( notif.cber_==this )
-	return true;
-
-    notif.addShutdownSubscription( this );
+    //If the notifier is belonging to me, it will only be messy if
+    // we subscribe to the shutdown messages.
+    if ( notif.cber_!=this )
+	notif.addShutdownSubscription( this );
 
     Threads::Locker lckr( attachednotifierslock_ );
     if ( !attachednotifiers_.isPresent( &notif ) )
@@ -174,10 +187,9 @@ bool CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb,
 
 void CallBacker::detachCB( NotifierAccess& notif, const CallBack& cb )
 {
-    if ( cb.cbObj()!=this || notif.cber_==this )
+    if ( cb.cbObj()!=this )
     {
-	//Lets hope notif is still alive
-	notif.remove( cb );
+	pErrMsg( "You can only detach a callback to yourself" );
 	return;
     }
 

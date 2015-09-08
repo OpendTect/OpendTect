@@ -282,8 +282,7 @@ public:
 			    deleted.
 			    \returns if it was attached. */
     bool		attachCB(NotifierAccess* notif,const CallBack& cb,
-				 bool onlyifnew=false)
-			{ return notif ? attachCB(*notif,cb,onlyifnew):false; }
+				 bool onlyifnew=false);
 			/*!<\note Attaches only if \param notif is not null.*/
 
     void		detachCB(NotifierAccess&,const CallBack&);

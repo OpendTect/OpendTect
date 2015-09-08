@@ -544,15 +544,12 @@ void uiODMain::memTimerCB( CallBacker* )
 
     od_int64 tot, free;
     OD::getSystemMemory( tot, free );
-
-    BufferString txt( "[free mem] " );
     NrBytesToStringCreator converter;
     converter.setUnitFrom( tot );
-    txt.add( converter.getString( free, 1, false ));
-    txt.add( "/" );
-    txt.add( converter.getString( tot,1,true ));
-    if ( !cputxt_.isEmpty() )
-	txt.add( " | " ).add( cputxt_ );
+    uiString txt = tr( "[free mem] %1/%2%3" )
+	.arg( converter.getString( free, 1, false ) )
+	.arg( converter.getString( tot,1,true ))
+	.arg( cputxt_.isEmpty() ? cputxt_ : toUiString(" | %1").arg(cputxt_));
 
     statusBar()->message( txt, mMemStatusFld );
 }
