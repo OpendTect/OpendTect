@@ -372,7 +372,7 @@ bool uiChain::doSaveAs()
     if ( VolProcessingTranslator::store(chain_,ioobj,errmsg) )
     {
 	chain_.setStorageID( ioobj->key() );
-	updObj( *dlg.ioObj() );
+	updObj( *ioobj );
 	return true;
     }
 
