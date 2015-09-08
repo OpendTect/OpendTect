@@ -20,7 +20,13 @@ then
 fi
 
 dtectdir=`dirname $0`
-nrcpus=`${dtectdir}/GetNrProc`
+
+if [ -e "${dtectdir}/GetNrProc" ]; then
+    nrcpus=`${dtectdir}/GetNrProc`
+else
+    nrcpus=8
+fi
+
 
 files=`cat $listfile | grep \\.ico -v | xargs -P ${nrcpus} -n 200 grep -l $'\r'`
 if [ -z "$files" ];then
