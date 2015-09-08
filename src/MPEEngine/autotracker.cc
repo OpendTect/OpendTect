@@ -122,6 +122,7 @@ HorizonTrackerMgr::~HorizonTrackerMgr()
 void HorizonTrackerMgr::stop()
 {
     twm_.removeQueue( queueid_, false );
+    nrtodo_ = 0;
     queueid_ = twm_.addQueue(
 	Threads::WorkManager::MultiThread, "Horizon Tracker" );
 }

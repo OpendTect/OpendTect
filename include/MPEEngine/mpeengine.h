@@ -39,7 +39,7 @@ class ObjectEditor;
 */
 
 mExpClass(MPEEngine) Engine : public CallBacker
-{
+{ mODTextTranslationClass(Engine)
     mGlobal(MPEEngine) friend Engine&		engine();
 
 public:
@@ -59,10 +59,18 @@ public:
     MultiID			midtoload;
 
     void			updateSeedOnlyPropagation(bool);
-    Executor*			trackInVolume();
-    HorizonTrackerMgr*		trackInVolume(int idx);
-    bool			trackingInProgress() const;
+
+    enum TrackState		{ Started, Paused, Stopped };
+    TrackState			getState() const	{ return state_; }
+    bool			startTracking(uiString&);
+    bool			startRetrack(uiString&);
     void			stopTracking();
+    bool			trackingInProgress() const;
+    void			undo(uiString& errmsg);
+    void			redo(uiString& errmsg);
+    void			enableTracking(bool yn);
+    Notifier<Engine>		actionCalled;
+
     void			removeSelectionInPolygon(
 					const Selector<Coord3>&,
 					TaskRunner*);
@@ -128,6 +136,7 @@ protected:
 
     Pos::GeomID			activegeomid_;
 
+    TrackState			state_;
     ObjectSet<HorizonTrackerMgr> trackermgrs_;
     ObjectSet<EMTracker>	trackers_;
     ObjectSet<ObjectEditor>	editors_;
@@ -135,6 +144,11 @@ protected:
     const EMTracker*		oneactivetracker_;
     EMTracker*			activetracker_;
     DataPackMgr&		dpm_;
+
+    bool			prepareForTrackInVolume(uiString&);
+    bool			prepareForRetrack();
+    bool			trackInVolume();
+    void			trackingFinishedCB(CallBacker*);
 
     struct CacheSpecs
     {

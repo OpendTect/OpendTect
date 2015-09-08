@@ -155,7 +155,7 @@ protected:
     void			modeChangedCB(CallBacker*);
     void			eventChangedCB(CallBacker*);
     void			propertyChangedCB(CallBacker*);
-    void			similarityChangedCB(CallBacker*);
+    void			correlationChangedCB(CallBacker*);
 
     void			nrHorChangeCB(CallBacker*);
 

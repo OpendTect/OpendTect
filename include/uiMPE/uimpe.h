@@ -56,7 +56,7 @@ public:
     virtual NotifierAccess*	modeChangeNotifier()		{ return 0; }
     virtual NotifierAccess*	propertyChangeNotifier()	{ return 0; }
     virtual NotifierAccess*	eventChangeNotifier()		{ return 0; }
-    virtual NotifierAccess*	similarityChangeNotifier()	{ return 0; }
+    virtual NotifierAccess*	correlationChangeNotifier()	{ return 0; }
 
     virtual bool	commitToTracker(bool& fieldchg) const   { return true; }
     virtual bool	commitToTracker() const;

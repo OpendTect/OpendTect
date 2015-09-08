@@ -236,14 +236,14 @@ void uiMPEMan::handleAction( int res )
     visSurvey::Scene* scene = hd ? hd->getScene() : 0;
     if ( !scene ) return;
 
-
     const Coord3& clickedpos = scene->getMousePos( true );
     const TrcKey tk = SI().transform( clickedpos.coord() );
 
     switch ( res )
     {
-    case sStart: break;
-    case sStop: break;
+    case sStart: startTracking(); break;
+    case sRetrack: startRetrack(); break;
+    case sStop: stopTracking(); break;
     case sPoly: changePolySelectionMode(); break;
     case sChild: hd->selectChildren(tk); break;
     case sParent: hd->selectParent(tk); break;
@@ -263,6 +263,28 @@ void uiMPEMan::handleAction( int res )
     default:
 	break;
     }
+}
+
+
+void uiMPEMan::startTracking()
+{
+    uiString errmsg;
+    if ( !MPE::engine().startTracking(errmsg) && !errmsg.isEmpty() )
+	uiMSG().error( errmsg );
+}
+
+
+void uiMPEMan::startRetrack()
+{
+    uiString errmsg;
+    if ( !MPE::engine().startRetrack(errmsg) && !errmsg.isEmpty() )
+	uiMSG().error( errmsg );
+}
+
+
+void uiMPEMan::stopTracking()
+{
+    MPE::engine().stopTracking();
 }
 
 
@@ -580,23 +602,24 @@ void uiMPEMan::changePolySelectionMode()
     }
 
     visserv_->turnSelectionModeOn( topolymode );
-    visserv_->turnSeedPickingOn( !topolymode );
+    turnSeedPickingOn( !topolymode );
 }
 
 
 void uiMPEMan::clearSelection()
 {
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
     if ( visserv_->isSelectionModeOn() )
     {
 	visserv_->turnSelectionModeOn( false );
-	visserv_->turnSeedPickingOn( true );
+	turnSeedPickingOn( true );
+	if ( hd ) hd->clearSelections();
     }
     else
     {
 	EM::Horizon3D* hor3d = getSelectedHorizon3D();
 	if ( hor3d ) hor3d->resetChildren();
 
-	visSurvey::HorizonDisplay* hd = getSelectedDisplay();
 	if ( hd )
 	{
 	    hd->showChildLine( false );
@@ -608,17 +631,18 @@ void uiMPEMan::clearSelection()
 
 void uiMPEMan::deleteSelection()
 {
+    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
     if ( visserv_->isSelectionModeOn() )
     {
 	removeInPolygon();
 	visserv_->turnSelectionModeOn( false );
-	visserv_->turnSeedPickingOn( true );
+	turnSeedPickingOn( true );
+	if ( hd ) hd->clearSelections();
     }
     else
     {
 	EM::Horizon3D* hor3d = getSelectedHorizon3D();
 	if ( hor3d ) hor3d->deleteChildren();
-	visSurvey::HorizonDisplay* hd = getSelectedDisplay();
 	if ( hd ) hd->showChildLine( false );
     }
 }
@@ -757,6 +781,7 @@ void uiMPEMan::validateSeedConMode()
 
 void uiMPEMan::introduceMPEDisplay()
 {
+/*
     EMTracker* tracker = getSelectedTracker();
     const EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
     validateSeedConMode();
@@ -767,11 +792,13 @@ void uiMPEMan::introduceMPEDisplay()
 	return;
 
     mpeintropending_ = true;
+    */
 }
 
 
 void uiMPEMan::finishMPEDispIntro( CallBacker* )
 {
+/*
     if ( !mpeintropending_ || !oldactivevol_.isEmpty() )
 	return;
 
@@ -788,60 +815,27 @@ void uiMPEMan::finishMPEDispIntro( CallBacker* )
     tracker->getNeededAttribs( attribspecs );
     if ( attribspecs.isEmpty() )
 	return;
+	*/
 }
 
 
 void uiMPEMan::undo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
-
-    mDynamicCastGet( EM::EMUndo*, emundo, &EM::EMM().undo() );
-    if ( emundo )
-    {
-	EM::ObjectID curid = emundo->getCurrentEMObjectID( false );
-	EM::EMObject* emobj = EM::EMM().getObject( curid );
-	if ( emobj )
-	{
-	    emobj->ref();
-	    emobj->setBurstAlert( true );
-	}
-
-	if ( !emundo->unDo(1,true) )
-	    uiMSG().error( tr("Could not undo everything.") );
-
-	if ( emobj )
-	{
-	    emobj->setBurstAlert( false );
-	    emobj->unRef();
-	}
-    }
+    uiString errmsg;
+    engine().undo( errmsg );
+    if ( !errmsg.isEmpty() )
+	uiMSG().message( errmsg );
 }
 
 
 void uiMPEMan::redo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
-
-    mDynamicCastGet( EM::EMUndo*, emundo, &EM::EMM().undo() );
-    if ( emundo )
-    {
-	EM::ObjectID curid = emundo->getCurrentEMObjectID( true );
-	EM::EMObject* emobj = EM::EMM().getObject( curid );
-	if ( emobj )
-	{
-	    emobj->ref();
-	    emobj->setBurstAlert( true );
-	}
-
-	if ( !emundo->reDo(1,true) )
-	    uiMSG().error( tr("Could not redo everything.") );
-
-	if ( emobj )
-	{
-	    emobj->setBurstAlert( false );
-	    emobj->unRef();
-	}
-    }
+    uiString errmsg;
+    engine().redo( errmsg );
+    if ( !errmsg.isEmpty() )
+	uiMSG().message( errmsg );
 }
 
 

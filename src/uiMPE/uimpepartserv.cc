@@ -194,7 +194,6 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     }
 
     const EM::SectionID sid = emobj->sectionID( emobj->nrSections()-1 );
-//    emobj->setPreferredColor( getRandomColor(false) );
     trackercurrentobject_ = emobj->id();
     if ( !initSetupDlg(emobj,tracker,sid,true) )
 	return false;
@@ -281,7 +280,7 @@ void uiMPEPartServer::eventChangedCB( CallBacker* )
 }
 
 
-void uiMPEPartServer::similarityChangedCB( CallBacker* )
+void uiMPEPartServer::correlationChangedCB( CallBacker* )
 {
     if ( trackercurrentobject_ == -1 )
 	return;
@@ -483,11 +482,11 @@ void uiMPEPartServer::cleanSetupDependents()
 	eventchangenotifier->remove(
 			mCB(this,uiMPEPartServer,eventChangedCB) );
 
-    NotifierAccess* similarityChangeNotifier =
-					  setupgrp_->similarityChangeNotifier();
-    if ( similarityChangeNotifier )
-	similarityChangeNotifier->remove(
-			mCB(this,uiMPEPartServer,similarityChangedCB) );
+    NotifierAccess* correlationChangeNotifier =
+					setupgrp_->correlationChangeNotifier();
+    if ( correlationChangeNotifier )
+	correlationChangeNotifier->remove(
+			mCB(this,uiMPEPartServer,correlationChangedCB) );
 }
 
 
@@ -888,6 +887,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 						EM::EMObject::sSeedNode()) );
     setupgrp_->setSectionTracker( sectracker );
+    MPE::engine().setActiveTracker( tracker );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
     if ( modechangenotifier )
@@ -903,10 +903,10 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	evchangenotifier->notify(
 			mCB(this,uiMPEPartServer,eventChangedCB) );
 
-    NotifierAccess* simichangenotifier = setupgrp_->similarityChangeNotifier();
+    NotifierAccess* simichangenotifier = setupgrp_->correlationChangeNotifier();
     if ( simichangenotifier )
 	simichangenotifier->notify(
-			mCB(this,uiMPEPartServer,similarityChangedCB));
+			mCB(this,uiMPEPartServer,correlationChangedCB));
 
     if ( cursceneid_ != -1 )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );

@@ -58,6 +58,9 @@ protected:
     int				popupMenu();
     void			handleAction(int);
 
+    void			startTracking();
+    void			startRetrack();
+    void			stopTracking();
     void			undo();
     void			redo();
     void			changePolySelectionMode();

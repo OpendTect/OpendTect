@@ -63,7 +63,7 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 	new uiLabeledSpinBox( leftgrp, tr("Correlation threshold (%)"), 1 );
     corrthresholdfld_->box()->setInterval( 0.f, 100.f, 0.1f );
     corrthresholdfld_->attach( alignedBelow, compwinfld_ );
-    corrthresholdfld_->box()->valueChanged.notify(
+    corrthresholdfld_->box()->valueChanging.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
 
     uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
