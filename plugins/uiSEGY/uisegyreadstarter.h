@@ -24,6 +24,7 @@ class uiButton;
 class uiSpinBox;
 class uiCheckBox;
 class uiFileInput;
+class uiSurveyMap;
 class uiHistogramDisplay;
 class uiSEGYImpType;
 class uiSEGYReadStartInfo;
@@ -36,7 +37,7 @@ mExpClass(uiSEGY) uiSEGYReadStarter : public uiDialog
 { mODTextTranslationClass(uiSEGYReadStarter);
 public:
 
-			uiSEGYReadStarter(uiParent*,
+			uiSEGYReadStarter(uiParent*,bool forsurvsetup,
 					  const SEGY::ImpType* fixedtype=0);
 			~uiSEGYReadStarter();
 
@@ -58,6 +59,7 @@ protected:
     uiFileInput*	inpfld_;
     uiSEGYReadStartInfo* infofld_;
     uiHistogramDisplay*	ampldisp_;
+    uiSurveyMap*	survmap_;
     uiButton*		examinebut_;
     uiButton*		fullscanbut_;
     uiButton*		editbut_;
@@ -74,6 +76,7 @@ protected:
     bool		infeet_;
     bool		veryfirstscan_;
     SEGY::ImpType	fixedimptype_;
+    bool		survsetup_;
 
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();
@@ -85,11 +88,16 @@ protected:
     void		completeLoadDef(od_istream&);
     void		handleNewInputSpec(bool);
 
+    void		createTools();
+    void		createHist();
+    void		createSurvMap();
     void		clearDisplay();
     void		setButtonStatuses();
     void		displayScanResults();
+    void		updateSurvMap();
 
     void		initWin(CallBacker*);
+    void		firstSel(CallBacker*);
     void		typChg(CallBacker*);
     void		inpChg(CallBacker*);
     void		editFile(CallBacker*);
