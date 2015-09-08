@@ -75,9 +75,6 @@ public:
 
     void			showGroupOnTop(const char* grpnm);
 
-    enum State			{ Started, Paused, Stopped };
-    State			getState() const	{ return state_; }
-
     virtual void		setMPEPartServer(uiMPEPartServer*);
 
 protected:
@@ -94,11 +91,10 @@ protected:
     int				retrackbutid_;
     int				undobutid_;
     int				redobutid_;
-    State			state_;
 
     void			initToolBar();
     void			updateButtonSensitivity();
-    bool			trackInVolume();
+    void			mpeActionCB(CallBacker*);
     void			enabTrackCB(CallBacker*);
     void			startCB(CallBacker*);
     void			stopCB(CallBacker*);
