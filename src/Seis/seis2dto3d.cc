@@ -473,7 +473,7 @@ bool Seis2DTo3D::writeOutput()
 	    trc.set(idz,val,nrdone_);
 	}
 	if ( !wrr_->put(trc) )
-	    mErrRet("Cannot write traces")
+	    mErrRet( uiStrings::phrCannotWrite( uiStrings::sTrace(mPlural)));
     }
     return true;
 }
