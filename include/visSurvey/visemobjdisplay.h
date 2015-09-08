@@ -43,7 +43,6 @@ mExpClass(visSurvey) EMObjectDisplay : public  visBase::VisualObjectImpl
 				     , public visSurvey::SurveyObject
 {
 public:
-    				EMObjectDisplay();
     const mVisTrans*		getDisplayTransformation() const;
     void			setDisplayTransformation(const mVisTrans*);
     void			setSceneEventCatcher( visBase::EventCatcher* );
@@ -123,6 +122,7 @@ public:
 
 
 protected:
+    				EMObjectDisplay();
 				~EMObjectDisplay();
     virtual void		removeEMStuff();
 
@@ -134,6 +134,9 @@ protected:
     virtual void		clickCB(CallBacker*);
     virtual void		updatePosAttrib(int attrib);
     void			polygonFinishedCB(CallBacker*);
+
+    virtual void		updateSelections();
+    virtual void		clearSelections();
 
     Notifier<EMObjectDisplay>	hasmoved;
     Notifier<EMObjectDisplay>	locknotifier;
@@ -184,8 +187,6 @@ private:
     void				unSelectAll();
     const TypeSet<int>			findOverlapSelectors(
 						    visBase::PolygonSelection*);
-    void				updateSelections();
-    void				clearSelections();
 
 };
 

@@ -191,6 +191,7 @@ public:
     void			selectChildren(const TrcKey&);
     void			showParentLine(bool);
     void			showChildLine(bool);
+    virtual void		clearSelections();
 
 protected:
 				~HorizonDisplay();
@@ -226,6 +227,9 @@ protected:
 				    const EM::SectionID&,
 				    visBase::VertexShape*, int&,
 				    visBase::DataObjectGroup*) const;
+
+    void			initSelectionDisplay(bool erase);
+    virtual void		updateSelections();
 
 
     bool				allowshading_;
