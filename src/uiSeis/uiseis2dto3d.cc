@@ -33,14 +33,29 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 			      mNoDlgTitle,
 			      mODHelpKey(mSeis2DTo3DHelpID) ) )
 {
-    inpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,true),
-			     uiSeisSel::Setup(Seis::Line) );
 
-    mkParamsGrp();
+    uiSeisSel::Setup sssu( Seis::Line );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.enabotherdomain(true);
+
+    inpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,true),
+			     sssu );
+
+    powfld_ = new uiGenInput( this, tr("Operator decay"));
+    powfld_->attach( alignedBelow , inpfld_);
+    powfld_->setValue(2);
+
+    taperfld_ = new uiGenInput( this, tr("Taper angle"));
+    taperfld_->attach( alignedBelow , powfld_);
+    taperfld_->setValue(0);
+
+    smrtscalebox_ = new uiCheckBox (this , tr("Smart scaling"));
+    smrtscalebox_->attach(alignedBelow , taperfld_);
+    smrtscalebox_->setChecked(true);
 
     outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,false),
 			     uiSeisSel::Setup(Seis::Vol) );
-    outfld_->attach( alignedBelow, velfiltfld_ );
+    outfld_->attach( alignedBelow, smrtscalebox_ );
 
     possubsel_ =  new uiPosSubSel( this, uiPosSubSel::Setup(false,true) );
     possubsel_->attach( alignedBelow, outfld_ );
@@ -50,16 +65,12 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
     IOPar& iop = jobSpec().pars_;
     iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     batchfld_->attach( alignedBelow, possubsel_ );
-
-    typeChg( 0 );
 }
-
 
 Batch::JobSpec& uiSeis2DTo3D::jobSpec()
 {
     return batchfld_->jobSpec();
 }
-
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiSeis2DTo3D::prepareProcessing()
@@ -80,29 +91,6 @@ bool uiSeis2DTo3D::prepareProcessing()
     return true;
 }
 
-
-void uiSeis2DTo3D::mkParamsGrp()
-{
-    interpoltypefld_ = new uiGenInput( this, tr("Type of interpolation"),
-			               BoolInpSpec(true,tr("Nearest trace"),
-                                       tr("FFT based")) );
-    interpoltypefld_->attach( alignedBelow, inpfld_ );
-    interpoltypefld_->valuechanged.notify(mCB(this,uiSeis2DTo3D,typeChg));
-
-    winfld_ = new uiGenInput( this,tr("Interpolation window (Inl/Crl)"),
-							IntInpIntervalSpec() );
-    winfld_->attach( alignedBelow, interpoltypefld_ );
-    winfld_->setValue( Interval<float>(100,100) );
-
-    reusetrcsbox_ = new uiCheckBox( this, tr("Re-use interpolated traces") );
-    reusetrcsbox_->attach( alignedBelow, winfld_ );
-
-    velfiltfld_ = new uiGenInput( this, tr("Maximum velocity to pass (m/s)") );
-    velfiltfld_->setValue( 2000 );
-    velfiltfld_->attach( alignedBelow, reusetrcsbox_ );
-}
-
-
 bool uiSeis2DTo3D::fillSeisPar()
 {
     IOPar& iop = jobSpec().pars_;
@@ -111,7 +99,6 @@ bool uiSeis2DTo3D::fillSeisPar()
 
     IOPar sampling;
     possubsel_->fillPar( sampling );
-
     IOPar subsel;
     subsel.mergeComp( sampling, sKey::Subsel() );
     uiSeisIOObjInfo ioobjinfo( *(outfld_->ioobj()), true );
@@ -125,35 +112,28 @@ bool uiSeis2DTo3D::fillSeisPar()
     return true;
 }
 
-
-void uiSeis2DTo3D::fillParamsPar( IOPar& par )
-{
-    const bool isnearest = interpoltypefld_->getBoolValue();
-    par.setYN( Seis2DTo3D::sKeyIsNearest(), isnearest );
-    if ( !isnearest )
-    {
-	par.set( Seis2DTo3D::sKeyStepout(), winfld_->getIInterval() );
-	par.setYN( Seis2DTo3D::sKeyReUse(), reusetrcsbox_->isChecked() );
-	par.set( Seis2DTo3D::sKeyMaxVel(), velfiltfld_->getfValue() );
-    }
-}
-
-
 bool uiSeis2DTo3D::fillPar()
 {
     if ( !fillSeisPar() )
 	return false;
 
     IOPar par;
-    fillParamsPar( par );
+    par.set(Seis2DTo3D::sKeyPow(), powfld_->getfValue() );
+    par.set(Seis2DTo3D::sKeyTaper(), taperfld_->getfValue() );
+    par.setYN(Seis2DTo3D::sKeySmrtScale(), smrtscalebox_->isChecked() );
     jobSpec().pars_.mergeComp( par, sKey::Pars() );
-
     return true;
 }
 
-
 bool uiSeis2DTo3D::acceptOK( CallBacker* )
 {
+    if ( taperfld_->getFValue() < 0 || taperfld_->getFValue() > 90 )
+    {
+	uiMSG().error( tr("Please enter a taper angle"
+			  "value between 0 and 90 degrees") );
+	return false;
+    }
+
     if ( !prepareProcessing() || !fillPar() )
 	return false;
 
@@ -167,10 +147,5 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
 }
 
 
-void uiSeis2DTo3D::typeChg( CallBacker* )
-{
-    bool isfft = !interpoltypefld_->getBoolValue();
-    winfld_->display( isfft );
-    reusetrcsbox_->display( isfft );
-    velfiltfld_->display( isfft );
-}
+
+

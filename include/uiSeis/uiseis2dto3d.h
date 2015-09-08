@@ -12,18 +12,16 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "uidialog.h"
 #include "uiseismod.h"
 
 namespace Batch		{ class JobSpec; }
 
 class uiBatchJobDispatcherSel;
-class uiCheckBox;
 class uiGenInput;
 class uiPosSubSel;
 class uiSeisSel;
-
+class uiCheckBox;
 
 /*! \brief Dialog for 2D to 3D interpolation */
 
@@ -38,22 +36,18 @@ protected:
     uiSeisSel*		inpfld_;
     uiPosSubSel*	possubsel_;
     uiSeisSel*		outfld_;
+    uiGenInput*		powfld_;
+    uiGenInput*		taperfld_;
+    uiCheckBox*		smrtscalebox_;
+
     uiBatchJobDispatcherSel*	batchfld_;
 
-    uiGenInput*		iterfld_;
-    uiGenInput*		winfld_;
-    uiGenInput*		interpoltypefld_;
-    uiCheckBox*		reusetrcsbox_;
-    uiGenInput*		velfiltfld_;
-
-    void		mkParamsGrp();
     Batch::JobSpec&	jobSpec();
     bool		prepareProcessing();
     bool		fillSeisPar();
-    void		fillParamsPar(IOPar&);
+
     bool		fillPar();
     bool		acceptOK(CallBacker*);
-    void		typeChg( CallBacker* );
 };
 
 

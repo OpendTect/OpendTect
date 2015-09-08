@@ -45,9 +45,9 @@ ________________________________________________________________________
 bool BatchProgram::go( od_ostream& strm )
 {
     const int odversion = pars().odVersion();
-    if ( odversion < 500 )
+    if ( odversion < 600 )
     {
-	errorMsg( toUiString("\nCannot execute pre-5.0 par files") );
+	errorMsg( toUiString("\nCannot execute pre-6.0 par files") );
 	return false;
     }
 
@@ -121,7 +121,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !proc->init(pars()) )
 	mRetJobErr("Invalid set of input parameters")
 
-    const FixedString partnm = proc->useNearestOnly() ? "traces" : "subcubes";
+    strm << od_newline << "Reading Data";
 
     mSetCommState(Working);
 
@@ -150,18 +150,19 @@ bool BatchProgram::go( od_ostream& strm )
 		mSetCommState(Working);
 	    }
 
-	    const int res = proc->nextStep();
-
 	    if ( nriter == 0 )
 	    {
-		strm << od_newline << "Estimated number of " << partnm;
+		strm << od_newline << "Number of components";
 		strm << " to be processed: " << proc->totalNr() << od_newline;
 		strm << "Loading data ..." << od_endl;
 		progressmeter.setTotalNr( proc->totalNr() );
 	    }
 
+	    const int res = proc->nextStep();
+
 	    if ( res > 0 )
 	    {
+		strm << "Moving to next component" << od_endl;
 		if ( comm_ && !comm_->updateProgress(nriter+1) )
 		    mRetHostErr( comm_->errMsg() )
 
@@ -185,8 +186,6 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     bool closeok = true;
-    if ( nriter )
-	closeok = proc->finishWrite();
 
     if ( !closeok )
     { mMessage( "Could not close output data." ); }
