@@ -14,6 +14,9 @@ set cmd = ""
 set args = ""
 set qtdir = ""
 set expret = 0
+set valgrind = ""
+set gensuppressions="all"
+set attachdebugger="yes"
 
 parse_args:
 if ( "$1" == "--command" ) then
@@ -27,6 +30,11 @@ else if ( "$1" == "--plf" ) then
     shift
 else if ( "$1" == "--quiet" ) then
     set args="${args} --quiet"
+    set gensuppressions="no"
+    set attachdebugger="no"
+else if ( "$1" == "--valgrind" ) then
+    set valgrind=$2
+    shift
 else if ( "$1" == "--expected-result" ) then
     set expret=$2
     shift
@@ -95,11 +103,33 @@ if ( "$datadir" != "" ) then
     set args = "${args} --datadir ${datadir}"
 endif
 
-"${wdir}/bin/${plf}/${config}/${cmd}" ${args}
-set result = ${status}
-if ( "${result}" != "${expret}" ) then
-    echo "Test program ${cmd} retured ${result}, while ${expret} was expected"
-    exit 1
+if ( "${valgrind}" != "" ) then
+    set suppression = `ls ${wdir}/testscripts/suppressions/*.supp | awk '{ print "--suppressions" "=" $1 }'`
+    ${valgrind} \
+	${suppression} \
+	--gen-suppressions=${gensuppressions} \
+	--db-attach=${attachdebugger} \
+	"-q" \
+	"--tool=memcheck" \
+	"--leak-check=full" \
+	"--show-reachable=no" \
+	"--workaround-gcc296-bugs=yes" \
+	"--num-callers=50" \
+	"--track-origins=yes" \
+	"--error-exitcode=1" \
+	"${wdir}/bin/${plf}/${config}/${cmd}" ${args} --quiet
+    set result = ${status}
+    if ( "${result}" != "${expret}" ) then
+	echo "Test program ${cmd} failed memory test".
+	exit 1
+    endif
+else
+    "${wdir}/bin/${plf}/${config}/${cmd}" ${args}
+    set result = ${status}
+    if ( "${result}" != "${expret}" ) then
+	echo "Test program ${cmd} retured ${result}, while ${expret} was expected"
+	exit 1
+    endif
 endif
 
 exit 0

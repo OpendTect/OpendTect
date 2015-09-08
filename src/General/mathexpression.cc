@@ -851,19 +851,19 @@ bool Math::ExpressionParser::findQMarkOper( char* str, int len,
 	    if ( idx == len - 1 )
 		mErrRet( "Please add a value for the 'false' condition" )
 	    str[qmarkpos] = str[idx] = '\0';
-	    Math::Expression* cond = parse( str );
+	    PtrMan<Math::Expression> cond = parse( str );
 	    if ( !cond )
 		return true;
-	    Math::Expression* trueexp = parse( str + qmarkpos + 1 );
+	    PtrMan<Math::Expression> trueexp = parse( str + qmarkpos + 1 );
 	    if ( !trueexp )
-		{ delete cond; return true; }
-	    Math::Expression* falseexp = parse( str + idx + 1 );
+		{ return true; }
+	    PtrMan<Math::Expression> falseexp = parse( str + idx + 1 );
 	    if ( !falseexp )
-		{ delete cond; delete trueexp; return 0; }
+		{ return 0; }
 	    ret = new Math::ExpressionCondition;
-	    ret->setInput( 0, cond );
-	    ret->setInput( 1, trueexp );
-	    ret->setInput( 2, falseexp );
+	    ret->setInput( 0, cond.release() );
+	    ret->setInput( 1, trueexp.release() );
+	    ret->setInput( 2, falseexp.release() );
 	    return true;
 	}
     }
@@ -890,19 +890,19 @@ bool Math::ExpressionParser::findAndOrOr( char* str, int len,
 		mErrRet( "No right-hand side for '&&' or '||' found" )
 
 	    str[idx] = '\0';
-	    Math::Expression* inp0 = parse( str );
+	    PtrMan<Math::Expression> inp0 = parse( str );
 	    if ( !inp0 )
 		return true;
-	    Math::Expression* inp1 = parse( str + idx + 2 );
+	    PtrMan<Math::Expression> inp1 = parse( str + idx + 2 );
 	    if ( !inp1 )
-		{ delete inp0; return true; }
+		return true;
 
 	    if ( isand )
 		ret = new Math::ExpressionAND;
 	    else
 		ret = new Math::ExpressionOR;
-	    ret->setInput( 0, inp0 );
-	    ret->setInput( 1, inp1 );
+	    ret->setInput( 0, inp0.release() );
+	    ret->setInput( 1, inp1.release() );
 	    return true;
 	}
     }
@@ -939,13 +939,13 @@ bool Math::ExpressionParser::findInequality( char* str, int len,
 		mErrRet( "No right-hand side for (in-)equality operator found" )
 
 	    str[idx] = '\0';
-	    Math::Expression* inp0 = parse( str );
+	    PtrMan<Math::Expression> inp0 = parse( str );
 	    if ( !inp0 )
 		return true;
 	    const int nrchars = nextch == '=' ? 2 : 1;
-	    Math::Expression* inp1 = parse( str + idx + nrchars );
+	    PtrMan<Math::Expression> inp1 = parse( str + idx + nrchars );
 	    if ( !inp1 )
-		{ delete inp0; return true; }
+		{ return true; }
 
 	    if ( islt )
 	    {
@@ -966,8 +966,8 @@ bool Math::ExpressionParser::findInequality( char* str, int len,
 	    else
 		ret = new Math::ExpressionNotEqual;
 
-	    ret->setInput( 0, inp0 );
-	    ret->setInput( 1, inp1 );
+	    ret->setInput( 0, inp0.release() );
+	    ret->setInput( 1, inp1.release() );
 	    return true;
 	}
     }
@@ -998,18 +998,18 @@ bool Math::ExpressionParser::findPlusAndMinus( char* str, int len,
 		&& !iswalpha(str[idx-2]) )
 		continue;
 
-	    Math::Expression* inp1
+	    PtrMan<Math::Expression> inp1
 			= parse( curch == '+' ? str+idx+1 : str+idx );
 	    if ( !inp1 )
 		return true;
 	    str[idx] = '\0';
-	    Math::Expression* inp0 = parse( str );
+	    PtrMan<Math::Expression> inp0 = parse( str );
 	    if ( !inp0 )
-		{ delete inp1; return true; }
+		return true;
 
 	    ret = new Math::ExpressionPlus;
-	    ret->setInput( 0, inp0 );
-	    ret->setInput( 1, inp1 );
+	    ret->setInput( 0, inp0.release() );
+	    ret->setInput( 1, inp1.release() );
 	    return true;
 	}
     }
@@ -1017,13 +1017,14 @@ bool Math::ExpressionParser::findPlusAndMinus( char* str, int len,
     // unary '-'
     if ( str[0]== '-' )
     {
-	Math::Expression* inp0 = new Math::ExpressionConstant( -1 );
-	Math::Expression* inp1 = parse( str+1 );
+	PtrMan<Math::Expression> inp0 = new Math::ExpressionConstant( -1 );
+	PtrMan<Math::Expression> inp1 = parse( str+1 );
 	if ( !inp1 )
 	    return true;
+
 	ret = new Math::ExpressionMultiply;
-	ret->setInput( 0, inp0 );
-	ret->setInput( 1, inp1 );
+	ret->setInput( 0, inp0.release() );
+	ret->setInput( 1, inp1.release() );
 	return true;
     }
 
@@ -1047,14 +1048,13 @@ bool Math::ExpressionParser::findOtherOper( BufferString& workstr, int len,
 	    if ( idx == 0 || idx == len-1 ) \
 		continue; \
 	    str[idx] = '\0'; \
-	    Math::Expression* inp0 = parse( str ); \
+	    PtrMan<Math::Expression> inp0 = parse( str ); \
 	    if ( !inp0 ) return true; \
-	    Math::Expression* inp1 = parse( str+idx+1 ); \
-	    if ( !inp1 ) \
-		{ delete inp0; return true; } \
+	    PtrMan<Math::Expression> inp1 = parse( str+idx+1 ); \
+	    if ( !inp1 ) return true; \
 	    ret = new Math::Expression##clss; \
-	    ret->setInput( 0, inp0 ); \
-	    ret->setInput( 1, inp1 ); \
+	    ret->setInput( 0, inp0.release() ); \
+	    ret->setInput( 1, inp1.release() ); \
 	    return true; \
 	} \
     }
@@ -1091,10 +1091,11 @@ bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
     if ( workstr.startsWith( #nm "(", CaseInsensitive ) ) \
     { \
 	workstr[len-1] = '\0'; \
-	Math::Expression* inp = parse( str + FixedString( #nm "(" ).size() ); \
+	PtrMan<Math::Expression> inp = \
+		parse( str + FixedString( #nm "(" ).size() ); \
 	if ( !inp ) return true; \
 	ret = new Math::Expression##clss; \
-	ret->setInput( 0, inp ); \
+	ret->setInput( 0, inp.release() ); \
 	return true; \
     } \
     }
@@ -1124,12 +1125,12 @@ bool Math::ExpressionParser::findMathFunction( BufferString& workstr, int len,
 	if ( !ptrcomma ) \
 	    mErrRet( #nm " function takes 2 arguments" ) \
 	*ptrcomma++ = '\0'; \
-	Math::Expression* inp0 = parse( str + fnnameskipsz ); \
-	Math::Expression* inp1 = parse( ptrcomma ); \
+	PtrMan<Math::Expression> inp0 = parse( str + fnnameskipsz ); \
+	PtrMan<Math::Expression> inp1 = parse( ptrcomma ); \
 	if ( !inp0 || !inp1 ) return true; \
 	ret = new Math::Expression##clss; \
-	ret->setInput( 0, inp0 ); \
-	ret->setInput( 1, inp1 ); \
+	ret->setInput( 0, inp0.release() ); \
+	ret->setInput( 1, inp1.release() ); \
 	return true; \
     } \
     }
@@ -1174,20 +1175,20 @@ bool Math::ExpressionParser::findStatsFunction( BufferString& workstr, int len,
 	    }
 	}
 
-	ObjectSet<Math::Expression> inputs_;
+	ObjectSet<Math::Expression> inputs;
 	for ( int idx=0; idx<args.size(); idx++ )
 	{
 	    Math::Expression* inp = parse( args.get(idx) );
 	    if ( !inp )
 	    {
-		deepErase( inputs_ );
+		deepErase( inputs );
 		return true;
 	    }
 
-	    inputs_ += inp;
+	    inputs += inp;
 	}
 
-	const int inpssz = inputs_.size();
+	const int inpssz = inputs.size();
 	if ( ismax )
 	    ret = new Math::ExpressionMax( inpssz );
 	else if ( ismin )
@@ -1204,7 +1205,7 @@ bool Math::ExpressionParser::findStatsFunction( BufferString& workstr, int len,
 	    return true;
 
 	for ( int idx=0; idx<inpssz; idx++ )
-	    ret->setInput( idx, inputs_[idx] );
+	    ret->setInput( idx, inputs[idx] );
 	return true;
     }
 

@@ -1,0 +1,12 @@
+{
+   Resolve library
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN15QLibraryPrivate12findOrCreateERK7QStringS2_
+   fun:_ZN8QLibrary11setFileNameERK7QString
+   fun:_ZN8QLibraryC1ERK7QStringP7QObject
+   fun:_Z14resolveLibraryv
+   fun:_ZN14QHostInfoAgent8fromNameERK7QString
+   fun:_ZN9QHostInfo8fromNameERK7QString
+}
+
