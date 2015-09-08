@@ -134,6 +134,7 @@ public:
     const MouseCursor*		getMouseCursor() const;
     const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
     const MouseEvent&		getMouseEvent() const	 { return mouseevent_; }
+    void			setEventHandled();
 
     void			objectMoved(CallBacker*);
 

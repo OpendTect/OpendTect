@@ -99,6 +99,10 @@ Scene::Scene()
 }
 
 
+void Scene::setEventHandled()
+{ events_.setHandled(); }
+
+
 void Scene::updateAnnotationText()
 {
     if ( !annot_ )
@@ -661,6 +665,7 @@ void Scene::mouseCB( CallBacker* cb )
     if ( eventinfo.type == visBase::MouseClick )
     {
 	mouseevent_ = MouseEvent( eventinfo.buttonstate_ );
+	mouseevent_.setPressed( eventinfo.pressed );
 	xytmousepos_ = eventinfo.worldpickedpos;
 	mouseclicked.trigger();
 	return;

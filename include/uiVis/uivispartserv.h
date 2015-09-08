@@ -265,6 +265,7 @@ public:
     static int			evMouseEvent();
     Notifier<uiVisPartServer>	mouseEvent;
     const MouseEvent&		getMouseEvent() const	{ return mouseevent_; }
+    void			setSceneEventHandled();
 
     static int			evSelectAttrib();
 
@@ -423,6 +424,7 @@ protected:
     BufferString		mouseposstr_;
     KeyboardEvent		kbevent_;
     MouseEvent			mouseevent_;
+    visSurvey::Scene*		sceneeventsrc_;
 
     bool			tracksetupactive_;
     const char*			topsetupgroupname_;
