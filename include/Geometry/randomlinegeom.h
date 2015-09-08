@@ -58,6 +58,9 @@ public:
     void		setMultiID(const MultiID&);
     MultiID		getMultiID() const			{ return mid_; }
 
+    void		setLocked( bool yn )		{ locked_ = yn; }
+    bool		isLocked() const		{ return locked_; }
+
     struct ChangeData : public CallBacker
     {
 	enum Event	{ Undef, Added, Inserted, Moving, Moved, Removed };
@@ -83,6 +86,7 @@ protected:
     Interval<float>	zrange_;
     MultiID		mid_;
     RandomLineSet*	lset_;
+    bool		locked_;
 
     friend class	RandomLineSet;
 
