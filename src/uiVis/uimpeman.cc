@@ -195,10 +195,11 @@ void uiMPEMan::mouseEventCB( CallBacker* )
     if ( MPE::engine().nrTrackersAlive() == 0 ) return;
 
     const MouseEvent& mev = visserv_->getMouseEvent();
-    if ( mev.ctrlStatus() && mev.rightButton() )
+    if ( mev.ctrlStatus() && mev.rightButton() && !mev.isPressed() )
     {
 	const int res = popupMenu();
 	handleAction( res );
+	visserv_->setSceneEventHandled();
     }
 }
 

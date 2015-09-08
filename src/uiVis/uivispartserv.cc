@@ -133,6 +133,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , selectionmode_(Polygon)
     , selectionmodeChange(this)
     , topsetupgroupname_( 0 )
+    , sceneeventsrc_(0)
 {
     changematerialmnuitem_.iconfnm = "disppars";
 
@@ -752,7 +753,6 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
     if ( !so )
 	return false;
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     const bool res = so->setDataPackID( attrib, dpid, 0 );
 
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
@@ -2009,47 +2009,57 @@ void uiVisPartServer::setMarkerPos( const Coord3& worldpos, int dontsetscene )
 
 void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,cb)
-    if ( !scene ) return;
+    mDynamicCast(visSurvey::Scene*,sceneeventsrc_,cb)
+    if ( !sceneeventsrc_ ) return;
 
-    xytmousepos_ = scene->getMousePos( true, true );
+    xytmousepos_ = sceneeventsrc_->getMousePos( true, true );
 
-    const Coord3 worldpos = scene->getMousePos( true, false );
-    setMarkerPos( worldpos, scene->id() );
+    const Coord3 worldpos = sceneeventsrc_->getMousePos( true, false );
+    setMarkerPos( worldpos, sceneeventsrc_->id() );
 
     MouseCursorExchange::Info info( worldpos );
     mousecursorexchange_->notifier.trigger( info, this );
 
     eventmutex_.lock();
-    inlcrlmousepos_ = scene->getMousePos( false, true );
-    mouseposval_ = scene->getMousePosValue();
-    mouseposstr_ = scene->getMousePosString();
-    zfactor_ = scene->zDomainUserFactor();
+    inlcrlmousepos_ = sceneeventsrc_->getMousePos( false, true );
+    mouseposval_ = sceneeventsrc_->getMousePosValue();
+    mouseposstr_ = sceneeventsrc_->getMousePosString();
+    zfactor_ = sceneeventsrc_->zDomainUserFactor();
     sendEvent( evMouseMove() );
+    sceneeventsrc_ = 0;
 }
 
 
 void uiVisPartServer::keyEventCB( CallBacker* cb )
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,cb)
-    if ( !scene ) return;
+    mDynamicCast(visSurvey::Scene*,sceneeventsrc_,cb)
+    if ( !sceneeventsrc_ ) return;
 
     eventmutex_.lock();
-    kbevent_ = scene->getKeyboardEvent();
+    kbevent_ = sceneeventsrc_->getKeyboardEvent();
     sendEvent( evKeyboardEvent() );
     keyEvent.trigger();
+    sceneeventsrc_ = 0;
 }
 
 
 void uiVisPartServer::mouseEventCB( CallBacker* cb )
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,cb)
-    if ( !scene ) return;
+    mDynamicCast(visSurvey::Scene*,sceneeventsrc_,cb)
+    if ( !sceneeventsrc_ ) return;
 
     eventmutex_.lock();
-    mouseevent_ = scene->getMouseEvent();
+    mouseevent_ = sceneeventsrc_->getMouseEvent();
     sendEvent( evMouseEvent() );
     mouseEvent.trigger();
+    sceneeventsrc_ = 0;
+}
+
+
+void uiVisPartServer::setSceneEventHandled()
+{
+    if ( sceneeventsrc_ )
+	sceneeventsrc_->setEventHandled();
 }
 
 

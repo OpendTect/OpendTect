@@ -76,7 +76,7 @@ public:
  				MouseEvent( OD::ButtonState st=OD::NoButton,
 					    int xx=0, int yy=0, float aa=0 )
 				    : butstate_(st), pos_(xx,yy), angle_(aa)
-				    , tabletinfo_(0)
+				    , pressed_(false), tabletinfo_(0)
 				{}
 
 				MouseEvent(const MouseEvent& me)
@@ -88,6 +88,9 @@ public:
 
     OD::ButtonState		buttonState() const	{ return butstate_; }
     void			setButtonState(const OD::ButtonState&);
+
+    bool			isPressed() const	{ return pressed_; }
+    void			setPressed(bool yn)	{ pressed_ = yn; }
 
     const Geom::Point2D<int>&	pos() const		{ return pos_; }
     int				x() const		{ return pos_.x; }
@@ -113,6 +116,7 @@ public:
 protected:
 
     OD::ButtonState		butstate_;
+    bool			pressed_;
     Geom::Point2D<int>		pos_;
     float			angle_;
     TabletInfo*			tabletinfo_;

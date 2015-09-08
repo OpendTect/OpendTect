@@ -88,6 +88,7 @@ MouseEvent& MouseEvent::operator=( const MouseEvent& mouseevent )
 	return *this;
 
      butstate_ = mouseevent.butstate_;
+     pressed_ = mouseevent.pressed_;
      pos_ = mouseevent.pos_;
      angle_ = mouseevent.angle_;
      setTabletInfo( mouseevent.tabletinfo_ );
