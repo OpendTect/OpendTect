@@ -420,11 +420,7 @@ uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
 	: uiGroup(p)
 	, data_(d)
 {
-    uiFunctionDisplay::Setup fdsu;
-    fdsu.border_.setLeft( 2 );
-    fdsu.border_.setRight( 0 );
-    fdsu.epsaroundzero_ = 1e-3;
-    disp_ = new uiFunctionDisplay( this, fdsu );
+    disp_ = new uiFunctionDisplay( this, uiFunctionDisplay::Setup() );
     disp_->xAxis()->setCaption( tr("Lags (ms)") );
     disp_->yAxis(false)->setCaption( tr("Coefficient") );
     lbl_ = new uiLabel( this,"" );

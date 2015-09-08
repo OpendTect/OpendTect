@@ -29,17 +29,17 @@ class uiLineItem;
 class uiBorder;
 
 /*!\brief To draw simple axes for a 2D coordinate system.
-  
+
   This class is designed for normal axis drawing and is not applicable to axes
   which are oblique to the X/Y axis of window. The area for drawing axis can be
   on the same canvas with the main graph area or on different canvas. Refer to
   uiCrossplot or uiDistributionMap for an example.
-  
+
   Axis values are marked at every step. Grid lines can also be drawn at each
   step. Before calling the drawing routines, make sure the proper line pattern
   and pen color are set for the 'ioDrawTool' and there is enough room in the
   window to draw the axis and number annotation.
-  
+
   USAGE:
   1) Call setupAxis() to set up the position for drawing axis and a pointer
   to uiWorld2Ui which provides the coordinate conversion functions. The axis
@@ -54,13 +54,13 @@ class uiBorder;
 mExpClass(uiTools) uiGraphicsSceneAxis
 {
 public:
-    			~uiGraphicsSceneAxis();	
-    			uiGraphicsSceneAxis(uiGraphicsScene&);
-    
+			~uiGraphicsSceneAxis();
+			uiGraphicsSceneAxis(uiGraphicsScene&);
+
     void		setPosition(bool isx,bool istoporleft,bool isinside);
     void		setWorldCoords(const Interval<double>&);
     void                setViewRect(const uiRect&);
-    
+
     void		setZValue(int nv);
     void		turnOn(bool);
 
@@ -71,27 +71,27 @@ public:
 
     void		enableMask(bool yn);
     void		setTextFactor(int n)	{ txtfactor_ = n; reDraw(); }
-    			// Values displayed along axis are multiplied by this
-    			// factor.
+			// Values displayed along axis are multiplied by this
+			// factor.
     void		setLineStyle(const LineStyle& lst) {ls_=lst; reDraw(); }
     void		setGridLineStyle(const LineStyle& gls)
 			{ gridls_ = gls; reDraw(); }
     void		setFontData(const FontData&);
-    
+
 protected:
-    
+
     void			reDraw();
     void			drawAtPos(float worldpos, bool drawgrid,
 					  int& curtextitm,int& curlineitm);
     int				getNrAnnotChars() const;
-    
+
     bool			inside_;
     bool			isx_;
     bool			istop_;
     bool			drawaxisline_;
     bool			drawgridlines_;
     bool			annotinint_;
-    
+
     uiGraphicsScene&		scene_;
     uiGraphicsItemGroup*	itmgrp_;
     uiRectItem*			mask_;
@@ -100,9 +100,9 @@ protected:
 
     ObjectSet<uiLineItem>	lines_;
     ObjectSet<uiTextItem>	texts_;
-    
+
     Interval<double>		rg_;
-    
+
     LineStyle			ls_;
     LineStyle			gridls_;
     SamplingData<double>	sampling_;
@@ -141,21 +141,20 @@ public:
     void		setYLineStyle(const LineStyle&);
     void		setGridLineStyle(const LineStyle&);
     void		setAuxLineStyle(const LineStyle&,bool forx,
-	    				bool forhl=false);
+					bool forhl=false);
     void		setAnnotInInt( bool xaxis, bool dowant )
 			{ xaxis ? xaxis_->setup().annotinint(dowant)
 				: yaxis_->setup().annotinint(dowant); }
-    void		showAuxPositions(bool forx,bool showpos, bool showline);
-    void		setAuxAnnotPositions(
-	    			const TypeSet<uiAxisHandler::AuxPosData>&,
-				bool forx);
+    void		showAuxPositions(bool forx,bool yn);
+    void		setAuxAnnotPositions(const TypeSet<PlotAnnotation>&,
+						bool forx);
 
     virtual void	updateScene()
 			{ xaxis_->updateScene(); yaxis_->updateScene(); }
     NotifierAccess&	layoutChanged();
 
 protected:
-    
+
     uiAxisHandler*		xaxis_;
     uiAxisHandler*		yaxis_;
 
@@ -170,4 +169,3 @@ protected:
 };
 
 #endif
-

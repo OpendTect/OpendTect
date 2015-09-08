@@ -33,10 +33,10 @@ mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
 { mODTextTranslationClass(uiODViewer2DMgr);
 public:
 
-    struct SelectedAuxPos
+    struct SelectedAuxAnnot
     {
-				SelectedAuxPos(int auxposidx=-1,bool isx1=true,
-					       bool selected=false)
+				SelectedAuxAnnot(int auxposidx=-1,
+					bool isx1=true,bool selected=false)
 				    : auxposidx_(auxposidx)
 				    , isx1_(isx1)
 				    , oldauxpos_(mUdf(float))
@@ -114,7 +114,7 @@ protected:
     uiODViewer2D&		addViewer2D(int visid);
     ObjectSet<uiODViewer2D>     viewers2d_;
     Line2DInterSectionSet*	l2dintersections_;
-    SelectedAuxPos		selauxpos_;
+    SelectedAuxAnnot		selauxannot_;
 
     uiTreeFactorySet*		tifs2d_;
     uiTreeFactorySet*		tifs3d_;
@@ -139,15 +139,15 @@ protected:
 				\param curvwr2d is the current 2D Viewer of
 				which the newly created 2D Viewer will inherit
 				Attrib::SelSpec and other display properties.*/
-    void			attachNotifiers(uiODViewer2D*);
+    void			attachNotifiersAndSetAuxData(uiODViewer2D*);
     Line2DInterSection::Point	intersectingLineID(const uiODViewer2D*,
-	    					   float pos) const;
+						   float pos) const;
     int				intersection2DIdx(Pos::GeomID) const;
     void			reCalc2DIntersetionIfNeeded(Pos::GeomID);
     void			setAllIntersectionPositions();
     void			setVWR2DIntersectionPositions(uiODViewer2D*);
     void			handleLeftClick(uiODViewer2D*);
-    void			setAuxPosLineStyles(uiFlatViewer&);
+    void			setAuxAnnotLineStyles(uiFlatViewer&,bool forx1);
     void			setupHorizon3Ds(uiODViewer2D*);
     void			setupHorizon2Ds(uiODViewer2D*);
     void			setupFaults(uiODViewer2D*);

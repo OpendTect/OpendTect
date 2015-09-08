@@ -96,7 +96,7 @@ public:
     bool			setZAxisTransform(ZAxisTransform*);
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
-    void			setNewPosition(const TrcKeyZSampling&);
+    virtual void		setPos(const TrcKeyZSampling&);
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	getTrcKeyZSampling() const
 				{ return tkzs_; }
@@ -205,7 +205,6 @@ protected:
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
     void			setDataPack(DataPack::ID,bool wva,bool isnew);
-    virtual void		setPos(const TrcKeyZSampling&);
     void			adjustOthrDisp(bool wva,bool isnew);
     void			removeAvailablePacks();
     void			rebuildTree();

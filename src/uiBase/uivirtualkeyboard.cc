@@ -112,8 +112,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
 
 uiVirtualKeyboard::~uiVirtualKeyboard()
 {
-    viewbase_->scene().removeItems( *leds_ );
-    delete leds_;
+    delete viewbase_->scene().removeItems( leds_ );
 
     viewbase_->scene().getMouseEventHandler().buttonReleased.remove(
 					mCB(this,uiVirtualKeyboard,clickCB) );

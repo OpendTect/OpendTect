@@ -45,11 +45,12 @@ public:
     void			removeAllItems();
     uiGraphicsItem*		removeItem(uiGraphicsItem*);
 				/*!<Gives object back to caller (not deleted) */
-    void			removeItems(uiGraphicsItemSet&);
+    uiGraphicsItemSet*		removeItems(uiGraphicsItemSet*);
 				/*!<Does not delete the items*/
 
     template <class T> T*	addItem(T*);
 				//!<Item becomes mine
+    uiGraphicsItemSet*		addItems(uiGraphicsItemSet*);
     uiGraphicsItemGroup*	addItemGrp(uiGraphicsItemGroup*);
     int				nrItems() const;
     uiGraphicsItem*		getItem(int id);

@@ -12,22 +12,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseiswvltman.h"
 
-#include "arrayndimpl.h"
-#include "color.h"
-#include "flatposdata.h"
 #include "ioman.h"
-#include "iopar.h"
-#include "iostrm.h"
+#include "ioobj.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "waveletio.h"
 #include "waveletattrib.h"
 
 #include "uiaxishandler.h"
-#include "uibutton.h"
 #include "uitoolbutton.h"
 #include "uifunctiondisplay.h"
-#include "uigeninput.h"
 #include "uilabel.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjmanip.h"
@@ -73,10 +67,10 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     addButtons();
     uiGroup* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
     wvltdispgrp->attach( rightOf, selgrp_ );
+
+    uiFunctionDisplay::Setup fdsu;
+    fdsu.noy2axis(true).noy2gridline(true);
     
-    uiFunctionDisplay::Setup fdsu;   
-    fdsu.drawborder( true );
-        
     waveletdisplay_ = new uiFunctionDisplay( wvltdispgrp, fdsu );
     const BufferString ztxt( (SI().zIsTime() ? "Time " : "Depth "), 
 			      SI().getZUnitString() );

@@ -25,7 +25,7 @@ class uiColorInput;
 class uiSelLineStyle;
 class uiColorTableGroup;
 class uiSelLineStyle;
-    
+
 /*!
 \brief uiFlatViewer properties tabs.
 */
@@ -37,7 +37,7 @@ public:
     virtual void	putToScreen()		= 0;
 
 protected:
-    			uiFlatViewPropTab(uiParent*,FlatView::Viewer&,
+			uiFlatViewPropTab(uiParent*,FlatView::Viewer&,
 					  uiString);
 
     FlatView::Viewer&	vwr_;
@@ -46,7 +46,7 @@ protected:
 
 };
 
-    
+
 /*!
 \brief uiFlatViewer data display properties tabs.
 */
@@ -60,7 +60,7 @@ public:
     bool		doDisp() const;
 
 protected:
-    			uiFlatViewDataDispPropTab(uiParent*,FlatView::Viewer&,
+			uiFlatViewDataDispPropTab(uiParent*,FlatView::Viewer&,
 				const char*,bool showdisplayfield=true);
 
     FlatView::DataDispPars&	ddpars_;
@@ -91,15 +91,15 @@ protected:
 
 };
 
-    
+
 /*!
 \brief uiFlatViewer WVA display properties tabs.
 */
-		     
+
 mExpClass(uiFlatView) uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 { mODTextTranslationClass(uiFVWVAPropTab);
 public:
-    			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
+			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
 			~uiFVWVAPropTab();
 
     virtual void	putToScreen();
@@ -134,7 +134,7 @@ protected:
 mExpClass(uiFlatView) uiFVVDPropTab : public uiFlatViewDataDispPropTab
 { mODTextTranslationClass(uiFVVDPropTab);
 public:
-    			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
+			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
 			~uiFVVDPropTab();
 
     virtual void	putToScreen();
@@ -165,7 +165,7 @@ mExpClass(uiFlatView) uiFVAnnotPropTab : public uiFlatViewPropTab
 { mODTextTranslationClass(uiFVAnnotPropTab);
 public:
 
-    			uiFVAnnotPropTab(uiParent*,FlatView::Viewer&,
+			uiFVAnnotPropTab(uiParent*,FlatView::Viewer&,
 					 const BufferStringSet* annots);
 			~uiFVAnnotPropTab();
 
@@ -182,14 +182,14 @@ protected:
     void		auxNmFldCB(CallBacker*);
     void		getFromAuxFld(int);
     void		updateAuxFlds(int);
-    
+
     FlatView::Annotation& annot_;
 
     mExpClass(uiFlatView) AxesGroup : public uiGroup
     { mODTextTranslationClass(AxesGroup);
     public:
 			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,
-				  const BufferStringSet* annots=0, 
+				  const BufferStringSet* annots=0,
 				  bool dorevert=true);
 
 	void		putToScreen();
@@ -203,8 +203,7 @@ protected:
 
 	uiCheckBox*	showannotfld_;
 	uiCheckBox*	showgridlinesfld_;
-	uiCheckBox*	showauxposfld_;
-	uiCheckBox*	showauxlinesfld_;
+	uiCheckBox*	showauxannotfld_;
 	uiSelLineStyle*	auxlinestylefld_;
 	uiLabel*	auxlblfld_;
 	uiCheckBox*	reversedfld_;

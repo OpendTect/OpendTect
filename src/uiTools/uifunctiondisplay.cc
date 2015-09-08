@@ -24,6 +24,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , setup_(su)
     , xax_(0)
     , yax_(0)
+    , y2ax_(0)
     , xmarklineval_(mUdf(float))
     , ymarklineval_(mUdf(float))
     , xmarkline2val_(mUdf(float))
@@ -51,7 +52,6 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     setPrefWidth( setup_.canvaswidth_ );
     setPrefHeight( setup_.canvasheight_ );
     setStretch( 2, 2 );
-    gatherInfo();
     uiAxisHandler::Setup asu( uiRect::Bottom, setup_.canvaswidth_,
 			      setup_.canvasheight_ );
     asu.noaxisline( setup_.noxaxis_ );
@@ -87,9 +87,6 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 
     setToolTip( tr("Press Ctrl-P to save as image") );
     reSize.notify( mCB(this,uiFunctionDisplay,reSized) );
-    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
-    draw();
 }
 
 
@@ -329,12 +326,14 @@ void uiFunctionDisplay::setUpAxis( bool havey2 )
 {
     xax_->updateDevSize();
     yax_->updateDevSize();
-    if ( havey2 ) y2ax_->updateDevSize();
 
     xax_->updateScene();
     yax_->updateScene();
-    if ( havey2 )
-	y2ax_->updateScene();
+    if ( y2ax_ )
+    {
+	y2ax_->setup().noannot( !havey2 );
+	y2ax_->updateDevSize(); y2ax_->updateScene();
+    }
 }
 
 
@@ -584,7 +583,7 @@ void uiFunctionDisplay::drawMarkLine( uiAxisHandler* ah, float val, Color col,
 				      uiLineItem*& itm )
 {
     delete itm;
-    itm = ah->getFullLine( ah->getPix(val) );
+    itm = ah->getGridLine( ah->getPix(val) );
     itm->setPenColor( col );
     itm->setZValue( 100 );
     scene().addItem( itm );

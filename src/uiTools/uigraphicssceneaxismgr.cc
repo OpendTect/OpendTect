@@ -415,46 +415,30 @@ void uiGraphicsSceneAxisMgr::enableAxisLine( bool yn )
 
 
 void uiGraphicsSceneAxisMgr::setAuxAnnotPositions(
-	const TypeSet<uiAxisHandler::AuxPosData>& auxpos, bool forx )
+	const TypeSet<PlotAnnotation>& auxannot, bool forx )
 {
     if ( forx )
-	xaxis_->setAuxPosData( auxpos );
+	xaxis_->setAuxAnnot( auxannot );
     else
-	yaxis_->setAuxPosData( auxpos );
+	yaxis_->setAuxAnnot( auxannot );
 }
 
 
 void uiGraphicsSceneAxisMgr::setAuxLineStyle( const LineStyle& ls, bool forx,
 					      bool forhl )
 {
-    if ( forx )
-    {
-	if ( forhl )
-	    xaxis_->setup().auxhllinestyle_ = ls;
-	else
-	    xaxis_->setup().auxlinestyle_ = ls;
-    }
+    uiAxisHandler* axis = forx ? xaxis_ : yaxis_;
+    if ( forhl )
+	axis->setup().auxhllinestyle_ = ls;
     else
-    {
-	if ( forhl )
-	    yaxis_->setup().auxhllinestyle_ = ls;
-	else
-	    yaxis_->setup().auxlinestyle_ = ls;
-    }
+	axis->setup().auxlinestyle_ = ls;
 }
 
 
-void uiGraphicsSceneAxisMgr::showAuxPositions( bool forx, bool showpos,
-					       bool showline )
+void uiGraphicsSceneAxisMgr::showAuxPositions( bool forx, bool yn )
 {
     if ( forx )
-    {
-	xaxis_->setup().showauxpos( showpos );
-	xaxis_->setup().showauxline( showline );
-    }
+	xaxis_->setup().showauxannot( yn );
     else
-    {
-	yaxis_->setup().showauxpos( showpos );
-	yaxis_->setup().showauxline( showline );
-    }
+	yaxis_->setup().showauxannot( yn );
 }

@@ -493,6 +493,16 @@ void uiGraphicsItemSet::setZValue( int zval )
 }
 
 
+void uiGraphicsItemSet::setVisible( bool yn )
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( (*this)[idx] )
+	    (*this)[idx]->setVisible( yn );
+    }
+}
+
+
 int uiGraphicsItem::getZValue() const
 {
     return mNINT32(qgraphicsitem_->zValue());

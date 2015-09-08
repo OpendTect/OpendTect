@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "color.h"
 #include "geometry.h"
+#include "uistring.h"
 
 
 mExpClass(General) Alignment
@@ -140,7 +141,7 @@ mExpClass(General) FillPattern
 {
 public:
 
-    			FillPattern( int typ=0, int opt=0 )
+			FillPattern( int typ=0, int opt=0 )
 			    : type_(typ), opt_(opt)		{}
 
     static void	getTypeNames(BufferStringSet&);
@@ -194,5 +195,38 @@ public:
 };
 
 
-#endif
+mClass(General) PlotAnnotation
+{
+public:
 
+    enum LineType	{ Normal=0, Bold=1, HighLighted=2 };
+
+			PlotAnnotation()
+			    : pos_(mUdf(float))
+			    , txt_(uiString::emptyString())
+			    , linetype_(Normal)			{}
+
+    float		pos_;
+    uiString		txt_;
+    LineType		linetype_;
+
+    PlotAnnotation&	operator=( const PlotAnnotation& from )
+			{
+			    pos_ = from.pos_;
+			    linetype_ = from.linetype_;
+			    txt_ = from.txt_;
+			    return *this;
+			}
+
+    bool		operator==( const PlotAnnotation& from ) const
+			{
+			    return pos_ == from.pos_
+				&& linetype_ == from.linetype_;
+			}
+
+    bool		isNormal() const
+			{ return linetype_ == Normal; }
+
+};
+
+#endif

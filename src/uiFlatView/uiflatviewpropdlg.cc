@@ -561,20 +561,15 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
     }
 
     auxlblfld_ = new uiLabel( this, ad_.auxlabel_ );
-    showauxposfld_ =
-	new uiCheckBox( this, "show annotation",
+    showauxannotfld_ =
+	new uiCheckBox( this, "Show Annotation",
 			mCB(this,uiFVAnnotPropTab::AxesGroup,showAuxCheckedCB));
-    showauxposfld_->attach( alignedBelow, showannotfld_ );
-    auxlblfld_->attach( leftTo, showauxposfld_ );
-    showauxlinesfld_ =
-	new uiCheckBox( this, "show line",
-			mCB(this,uiFVAnnotPropTab::AxesGroup,
-			    showAuxLineCheckedCB) );
-    showauxlinesfld_->attach( rightTo, showauxposfld_ );
+    showauxannotfld_->attach( alignedBelow, showannotfld_ );
+    auxlblfld_->attach( leftTo, showauxannotfld_ );
     uiSelLineStyle::Setup su;
     su.width( false );
     auxlinestylefld_ = new uiSelLineStyle( this, ad_.auxlinestyle_, su );
-    auxlinestylefld_->attach( alignedBelow, showauxposfld_ );
+    auxlinestylefld_->attach( alignedBelow, showauxannotfld_ );
 
     setHAlignObj( showannotfld_ );
 }
@@ -582,14 +577,13 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
 
 void uiFVAnnotPropTab::AxesGroup::showAuxLineCheckedCB( CallBacker* )
 {
-    auxlinestylefld_->setSensitive( showauxlinesfld_->isChecked() );
+    auxlinestylefld_->setSensitive( showauxannotfld_->isChecked() );
 }
 
 
 void uiFVAnnotPropTab::AxesGroup::showAuxCheckedCB( CallBacker* )
 {
-    showauxlinesfld_->setSensitive( showauxposfld_->isChecked() );
-    auxlinestylefld_->setSensitive( showauxposfld_->isChecked() );
+    auxlinestylefld_->setSensitive( showauxannotfld_->isChecked() );
 }
 
 
@@ -599,15 +593,13 @@ void uiFVAnnotPropTab::AxesGroup::putToScreen()
 	reversedfld_->setChecked( ad_.reversed_ );
     showannotfld_->setChecked( ad_.showannot_ );
     showgridlinesfld_->setChecked( ad_.showgridlines_ );
-    const bool hasauxdata = !ad_.auxposs_.isEmpty();
+    const bool hasauxdata = !ad_.auxannot_.isEmpty();
     auxlblfld_->display( hasauxdata );
-    showauxposfld_->display( hasauxdata );
-    showauxlinesfld_->display( hasauxdata );
+    showauxannotfld_->display( hasauxdata );
     auxlinestylefld_->display( hasauxdata, true );
     if ( hasauxdata )
     {
-	showauxposfld_->setChecked( ad_.showauxpos_ );
-	showauxlinesfld_->setChecked( ad_.showauxlines_ );
+	showauxannotfld_->setChecked( ad_.showauxannot_ );
 	auxlinestylefld_->setStyle( ad_.auxlinestyle_ );
     }
 }
@@ -619,8 +611,7 @@ void uiFVAnnotPropTab::AxesGroup::getFromScreen()
 	ad_.reversed_ = reversedfld_->isChecked();
     ad_.showannot_ = showannotfld_->isChecked();
     ad_.showgridlines_ = showgridlinesfld_->isChecked();
-    ad_.showauxpos_ = showauxposfld_->isChecked();
-    ad_.showauxlines_ = showauxlinesfld_->isChecked();
+    ad_.showauxannot_ = showauxannotfld_->isChecked();
     ad_.auxlinestyle_ = auxlinestylefld_->getStyle();
 }
 
