@@ -109,7 +109,8 @@ CallBacker::~CallBacker()
 	 */
 
 	//Remove them now.
-	detachAllNotifiers();
+	//Bert: this made od_main hang at startup
+	// detachAllNotifiers();
     }
 }
 
