@@ -36,7 +36,7 @@ namespace visBase
 mExpClass(visBase) Material : public NodeState
 {
 public:
-    			Material(bool useownclr=false);
+    			Material();
 
     Notifier<Material>	change;
 
@@ -118,8 +118,6 @@ private:
     void		removeOsgColor(int);
 			//!Assumes object is write-locked
     float		getRescaledTransparency() const;
-    virtual void	applyAttribute(osg::StateSet*,
-				       osg::StateAttribute*);
 
     static const char*	sKeyColor();
     static const char*	sKeyAmbience();
@@ -147,7 +145,6 @@ private:
     osg::Array*			osgcolorarray_;
     ObjectSet<osg::Geometry>	attachedgeoms_;
     float			transparencybendpower_;
-    const bool			useowncolor_;
 };
 
 } // namespace visBase
