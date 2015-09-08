@@ -409,7 +409,7 @@ bool Seis2DTo3D::scaleArray()
 	    runcalc.addValue( val.real() );
 	}
 
-	const float rms = runcalc.rms();
+	const float rms = (float) runcalc.rms();
 	runcalc.clear();
 	for( int idz=0; idz<nz; idz++ )
 	{
