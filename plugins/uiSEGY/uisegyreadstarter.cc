@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uimenu.h"
 #include "segyhdr.h"
 #include "seisinfo.h"
+#include "posinfodetector.h"
 #include "dataclipper.h"
 #include "filepath.h"
 #include "dirlist.h"
@@ -55,6 +56,8 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , userfilename_("x") // any non-empty
     , clipsampler_(*new DataClipSampler(100000))
     , survinfo_(0)
+    , survinfook_(false)
+    , pidetector_(0)
     , timer_(0)
 {
     if ( !forsurvsetup )
@@ -164,9 +167,9 @@ void uiSEGYReadStarter::createHist()
 
 void uiSEGYReadStarter::createSurvMap()
 {
-    survmap_ = new uiSurveyMap( this, false );
+    survmap_ = new uiSurveyMap( this, true );
     survmap_->setSurveyInfo( 0 );
-    survmap_->setPrefWidth( 350 );
+    survmap_->setPrefWidth( 500 );
     survmap_->setPrefHeight( 350 );
     survmap_->attach( centeredBelow, infofld_ );
 }
@@ -177,6 +180,7 @@ uiSEGYReadStarter::~uiSEGYReadStarter()
     delete survinfo_;
     delete timer_;
     delete filereadopts_;
+    delete pidetector_;
     deepErase( scaninfo_ );
     delete &clipsampler_;
 }
@@ -233,6 +237,15 @@ void uiSEGYReadStarter::execNewScan( bool fixedloaddef, bool full )
     if ( !getFileSpec() )
 	return;
 
+    if ( survmap_ )
+    {
+	const SEGY::ImpType& imptyp = impType();
+	PosInfo::Detector::Setup pisu( imptyp.is2D() );
+	pisu.isps( true );
+	delete pidetector_;
+	pidetector_ = new PosInfo::Detector( pisu );
+    }
+
     MouseCursorChanger chgr( MouseCursor::Wait );
     if ( !scanFile(filespec_.fileName(0),fixedloaddef,full) )
 	return;
@@ -259,7 +272,8 @@ void uiSEGYReadStarter::setButtonStatuses()
 void uiSEGYReadStarter::initWin( CallBacker* )
 {
     typChg( 0 );
-    inpChg( 0 );
+    if ( !survmap_ )
+	inpChg( 0 );
 
     if ( filespec_.isEmpty() )
     {
@@ -309,10 +323,12 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 {
     const SEGY::ImpType& imptyp = impType();
     infofld_->setImpTypIdx( imptyp.tidx_ );
+    if ( survmap_ )
+	inpChg( 0 );
 }
 
 
-void uiSEGYReadStarter::inpChg( CallBacker* cb )
+void uiSEGYReadStarter::inpChg( CallBacker* )
 {
     handleNewInputSpec( false );
 }
@@ -461,12 +477,32 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 
 void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
 {
+    survinfook_ = false;
     if ( !survmap_ )
 	return;
 
     survinfo_ = survmap_->getEmptySurvInfo();
-
-    //TODO
+    survinfo_->setName( "No valid scan available" );
+    if ( pidetector_ )
+    {
+	TrcKeyZSampling cs; Coord crd[3];
+	const char* res = pidetector_->getSurvInfo( cs.hsamp_, crd );
+	if ( res )
+	    uiMSG().error( res );
+	else
+	{
+	    cs.zsamp_ = scaninf.basicinfo_.getZRange();
+	    survinfo_->setRange( cs, false );
+	    BinID bid[2];
+	    bid[0].inl() = cs.hsamp_.start_.inl();
+	    bid[0].crl() = cs.hsamp_.start_.crl();
+	    bid[1].inl() = cs.hsamp_.stop_.inl();
+	    bid[1].crl() = cs.hsamp_.stop_.crl();
+	    survinfo_->set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
+	    survinfo_->setName( "Detected survey setup" );
+	    survinfook_ = true;
+	}
+    }
 
     survmap_->setSurveyInfo( survinfo_ );
 }
@@ -620,7 +656,7 @@ bool uiSEGYReadStarter::obtainScanInfo( SEGY::ScanInfo& si, od_istream& strm,
 	return false;
 
     si.getFromSEGYBody( strm, loaddef_, isfirst, impType().is2D(),
-			clipsampler_, full, this );
+			clipsampler_, full, pidetector_, this );
     return true;
 }
 
@@ -723,6 +759,13 @@ bool uiSEGYReadStarter::commit()
 
 bool uiSEGYReadStarter::acceptOK( CallBacker* )
 {
+    if ( survmap_ )
+    {
+	if ( !survinfook_ )
+	    mErrRet( tr("No valid survey setup found" ) )
+	return true;
+    }
+
     if ( !commit() )
 	return false;
 

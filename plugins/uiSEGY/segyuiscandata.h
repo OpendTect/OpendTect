@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class DataClipSampler;
 class uiParent;
+namespace PosInfo { class Detector; }
 
 
 namespace SEGY
@@ -50,6 +51,8 @@ public:
     int			bytesPerSample() const;
     int			traceDataBytes() const;
     DataCharacteristics	getDataChar() const;
+    StepInterval<float>	getZRange() const
+			{ return sampling_.interval(ns_); }
 
     int			nrTracesIn(const od_istream&,od_stream_Pos p=-1) const;
     void		goToTrace(od_istream&,od_stream_Pos,int) const;
@@ -108,7 +111,7 @@ public:
 
     void		getFromSEGYBody(od_istream&,const LoadDef&,
 				    bool isfirst,bool is2d,DataClipSampler&,
-				    bool full,uiParent*);
+				    bool full,PosInfo::Detector*,uiParent*);
     void		merge(const ScanInfo&);
 
     void		reInit();
@@ -118,7 +121,8 @@ protected:
     float		curoffs_;
 
     bool		addTrace(od_istream&,bool,char*,float*,const LoadDef&,
-				 DataClipSampler&,const OffsetCalculator&);
+				 DataClipSampler&,const OffsetCalculator&,
+				 PosInfo::Detector*);
     void		addValues(DataClipSampler&,const float*, int);
 
     friend class	FullUIScanner;
