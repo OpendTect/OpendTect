@@ -56,7 +56,7 @@ EMSurfaceProvider::EMSurfaceProvider()
 EMSurfaceProvider::EMSurfaceProvider( const EMSurfaceProvider& pp )
     : surf1_(0)
     , surf2_(0)
-{ 
+{
     *this = pp;
 }
 
@@ -356,7 +356,7 @@ void EMSurfaceProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 
 void EMSurfaceProvider3D::initClass()
-{ Provider3D::factory().addCreator( create, sKey::Surface(), 
+{ Provider3D::factory().addCreator( create, sKey::Surface(),
 				    uiStrings::sHorizon() ); }
 
 
@@ -423,7 +423,7 @@ bool EMSurfaceProvider2D::includes( int nr, float z, int lidx ) const
     mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
     if ( !geom2d )
 	return false;
-    
+
     const PosInfo::Line2DData& l2d = geom2d->data();
     if ( l2d.lineName().isEmpty() || l2d.indexOf(nr)<0 )
 	return false;
@@ -479,13 +479,13 @@ EMSurface2DProvider3D::EMSurface2DProvider3D()
 
 
 EMSurface2DProvider3D::~EMSurface2DProvider3D()
-{ 
-    delete &dpssurf1_; 
+{
+    delete &dpssurf1_;
     delete &dpssurf2_;
 }
 
 
-EMSurface2DProvider3D::EMSurface2DProvider3D( 
+EMSurface2DProvider3D::EMSurface2DProvider3D(
 	const EMSurface2DProvider3D& p )
     : dpssurf1_(*new DataPointSet(true,false))
     , dpssurf2_(*new DataPointSet(true,false))
@@ -520,7 +520,7 @@ void EMSurface2DProvider3D::mkDPS( const EM::Surface& s, DataPointSet& dps )
 	    const BinID bid2d = posid.getRowCol();
 	    DataPointSet::Pos pos( surf.getPos(posid) );
 	    pos.nr_ = bid2d.crl();
-	    dps.addRow( DataPointSet::DataRow( pos, 
+	    dps.addRow( DataPointSet::DataRow( pos,
 			mCast(unsigned short,bid2d.inl())) );
 	}
     }
@@ -576,31 +576,35 @@ void EMSurface2DProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 
 EMImplicitBodyProvider::EMImplicitBodyProvider()
-    : tkzs_( true )
-    , imparr_( 0 )     
-    , threshold_( 0 )		      
-    , embody_( 0 )
-    , useinside_( true )
-    , bbox_( false )	
-    , initializedbody_( false )      
+    : tkzs_(true)
+    , imparr_(0)
+    , threshold_(0)
+    , embody_(0)
+    , useinside_(true)
+    , bbox_(false)
+    , initializedbody_(false)
+    , curbid_(-1,-1)
+    , curz_(mUdf(float))
 {}
 
 
-EMImplicitBodyProvider::EMImplicitBodyProvider( 
+EMImplicitBodyProvider::EMImplicitBodyProvider(
 	const EMImplicitBodyProvider& ep )
-    : tkzs_( ep.tkzs_ )
-    , imparr_( ep.imparr_ )      
-    , threshold_( ep.threshold_ )		       
-    , embody_( ep.embody_ )						       
-    , useinside_( ep.useinside_ )
-    , bbox_( ep.bbox_ )			
-    , initializedbody_( ep.initializedbody_ )
+    : tkzs_(ep.tkzs_)
+    , imparr_(ep.imparr_)
+    , threshold_(ep.threshold_)
+    , embody_(ep.embody_)
+    , useinside_(ep.useinside_)
+    , bbox_(ep.bbox_)
+    , initializedbody_(ep.initializedbody_)
+    , curbid_(ep.curbid_)
+    , curz_(ep.curz_)
 {}
 
 
 EMImplicitBodyProvider::~EMImplicitBodyProvider()
-{ 
-    delete imparr_; 
+{
+    delete imparr_;
     if ( embody_ ) embody_->unRefBody();
 }
 
@@ -643,7 +647,7 @@ void EMImplicitBodyProvider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 
 bool EMImplicitBodyProvider::initialize( TaskRunner* taskr )
 {
-    if ( !embody_ ) 
+    if ( !embody_ )
 	return false;
 
     EM::ImplicitBody* body = embody_->createImplicitBody(taskr,false);
@@ -656,21 +660,14 @@ bool EMImplicitBodyProvider::initialize( TaskRunner* taskr )
     mCopyImpArr( body->arr_ );
     tkzs_ = body->tkzs_;
     threshold_ = body->threshold_;
-    
-    curbid_ = tkzs_.hsamp_.start_;
+
+    const TrcKeyZSampling& cs = useinside_ ? tkzs_ : bbox_;
+    curbid_ = cs.hsamp_.start_;
     curz_ = tkzs_.zsamp_.start;
 
     initializedbody_ = true;
     return imparr_;
 }
-
-
-bool EMImplicitBodyProvider::toNextPos()
-{ return true; }
-
-
-bool EMImplicitBodyProvider::toNextZ()
-{ return true; }
 
 
 #define mGetBodyKey(k) IOPar::compKey(sKey::Body(),k)
@@ -682,7 +679,7 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
 	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(mid) );
-    if ( !emobj ) 
+    if ( !emobj )
 	emobj = EM::EMM().loadIfNotFullyLoaded( mid );
     mDynamicCastGet(EM::Body*,emb,emobj);
     if ( !emb )
@@ -695,12 +692,12 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
 
     iop.getYN( sKeyUseInside(), useinside_ );
 
-    Interval<int> inlrg, crlrg; 
-    Interval<float> zrg; 
-    iop.get( sKeyBBInlrg(), inlrg ); 
-    iop.get( sKeyBBCrlrg(), crlrg ); 
-    iop.get( sKeyBBZrg(), zrg ); 
-    bbox_.hsamp_.set( inlrg, crlrg ); 
+    Interval<int> inlrg, crlrg;
+    Interval<float> zrg;
+    iop.get( sKeyBBInlrg(), inlrg );
+    iop.get( sKeyBBCrlrg(), crlrg );
+    iop.get( sKeyBBZrg(), zrg );
+    bbox_.hsamp_.set( inlrg, crlrg );
     bbox_.zsamp_.setFrom( zrg );
 
     initializedbody_ = false;
@@ -713,8 +710,8 @@ void EMImplicitBodyProvider::fillPar( IOPar& iop ) const
     iop.setYN( sKeyUseInside(), useinside_ );
     if ( !useinside_ )
     {
-	iop.set( sKeyBBInlrg(), bbox_.hsamp_.inlRange() ); 
-	iop.set( sKeyBBCrlrg(), bbox_.hsamp_.crlRange() ); 
+	iop.set( sKeyBBInlrg(), bbox_.hsamp_.inlRange() );
+	iop.set( sKeyBBCrlrg(), bbox_.hsamp_.crlRange() );
 	iop.set( sKeyBBZrg(), bbox_.zsamp_ );
     }
 }
@@ -727,14 +724,14 @@ bool EMImplicitBodyProvider::isOK() const
 	EMImplicitBodyProvider* ep = const_cast<EMImplicitBodyProvider*>(this);
 	ep->initialize( 0 );
     }
-    
+
     return imparr_;
 }
 
 
 void EMImplicitBodyProvider::getSummary( BufferString& txt ) const
 {
-    if ( !embody_ ) 
+    if ( !embody_ )
     {
 	txt += "Empty body";
 	return;
@@ -807,6 +804,45 @@ void EMImplicitBodyProvider::initClass()
 { Provider3D::factory().addCreator( create, sKey::Body() ); }
 
 
+bool EMImplicitBodyProvider::toNextPos()
+{
+    const TrcKeyZSampling& cs = useinside_ ? tkzs_ : bbox_;
+
+    curbid_.crl() += cs.hsamp_.step_.crl();
+    if ( curbid_.crl() > cs.hsamp_.stop_.crl() )
+    {
+	curbid_.inl() += cs.hsamp_.step_.inl();
+	curbid_.crl() = cs.hsamp_.start_.crl();
+    }
+
+    curz_ = cs.zsamp_.start;
+    return curbid_.inl()<=cs.hsamp_.stop_.inl();
+}
+
+
+bool EMImplicitBodyProvider::toNextZ()
+{
+    if ( mIsUdf(curz_) )
+	return toNextPos();
+
+    const TrcKeyZSampling& bb = useinside_ ? tkzs_ : bbox_;
+    curz_ += bb.zsamp_.step;
+    if ( curz_ > bb.zsamp_.stop )
+	return toNextPos();
+
+    if ( useinside_ )
+    {
+	const int idx = tkzs_.lineIdx( curbid_.inl() );
+	const int idy = tkzs_.lineIdx( curbid_.crl() );
+	const int idz = tkzs_.zIdx( curz_ );
+	const bool inbody = imparr_->info().validPos(idx,idy,idz) &&
+	    imparr_->get(idx,idy,idz)<=threshold_;
+	if ( !inbody )
+	    return toNextZ();
+    }
+
+    return true;
+}
 
 // EMRegion3DProvider
 EMRegion3DProvider::EMRegion3DProvider()
@@ -851,14 +887,6 @@ void EMRegion3DProvider::getTrcKeyZSampling( TrcKeyZSampling& tkzs ) const
 { tkzs = bbox_; }
 
 
-bool EMRegion3DProvider::toNextPos()
-{ return true; }
-
-
-bool EMRegion3DProvider::toNextZ()
-{ return true; }
-
-
 void EMRegion3DProvider::usePar( const IOPar& iop )
 {
 }
@@ -872,6 +900,14 @@ void EMRegion3DProvider::fillPar( IOPar& iop ) const
 void EMRegion3DProvider::getSummary( BufferString& txt ) const
 {
 }
+
+
+bool EMRegion3DProvider::toNextPos()
+{ return false; } //TODO
+
+
+bool EMRegion3DProvider::toNextZ()
+{ return false; } //TODO
 
 
 void EMRegion3DProvider::getExtent( BinID& start, BinID& stop ) const
