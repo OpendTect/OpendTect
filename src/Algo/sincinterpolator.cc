@@ -32,7 +32,7 @@ int SincTableManager::Table::getNumbers() const
 { return asinc_.info().getSize(1); }
 
 int SincTableManager::Table::getShift() const
-{ return - getLength()/2; }
+{ return - getLength()/2+1; }
 
 
 const SincTableManager::Table* SincTableManager::getTable( float fmax,
@@ -113,7 +113,7 @@ const SincTableManager::Table* SincTableManager::makeTable( float fmax,
     }
 
     asinc.set( lsinc/2-1, 0, 1.0f );
-    asinc.set( lsinc/2-1, nsinc-1, 1.0f );
+    asinc.set( lsinc/2, nsinc-1, 1.0f );
 
     dsinc = 1.f / mCast(float,nsinc-1);
     const float lsinc2 = mCast(float,lsinc/2.0f);
