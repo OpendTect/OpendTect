@@ -1161,6 +1161,10 @@ void uiGenInput::doClear( CallBacker* )
 }
 
 
+void uiGenInput::setWithSelect( bool yn )
+{ selText_ = yn ? "&Select" : "" ; }
+
+
 void uiGenInput::setNrDecimals( int nrdec, int fldnr )
 {
     if ( !flds_.validIdx(fldnr) ) return;
