@@ -62,6 +62,7 @@ class uiVendorTreeItem : public uiTreeViewItem
 {
 public:
 			uiVendorTreeItem(uiTreeView*,const char*,bool);
+			~uiVendorTreeItem() { detachAllNotifiers(); }
  void			checkCB(CallBacker*);
 };
 
@@ -92,6 +93,7 @@ class uiProductTreeItem : public uiTreeViewItem
 {
 public:
 			    uiProductTreeItem(uiTreeViewItem*,PluginProduct&);
+			    ~uiProductTreeItem() { detachAllNotifiers(); }
 
 protected:
 
