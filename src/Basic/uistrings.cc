@@ -148,7 +148,7 @@ uiString uiStrings::sCreate()
 { return tr("Create"); }
 
 uiString uiStrings::sCalculateFrom()
-{ return tr("Calculate From"); }  
+{ return tr("Calculate From"); }
 
 uiString uiStrings::sCannotImport()
 { return tr("Cannot Import"); }
@@ -381,7 +381,7 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 			     bool both_2d_3d_in_context,
 			     bool both_pre_post_in_context )
 {
-    if ( is2d && is2d )
+    if ( is2d && is3d )
 	return tr( "Seismic data" );
 
     if ( is2d )
@@ -403,7 +403,7 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 		return tr( "Post-Stack 2D Data" );
 	    }
 
-	    return tr("2D Data");
+	    return tr("2D Data (attribute)");
 	}
 
 	if ( both_pre_post_in_context )
@@ -411,7 +411,7 @@ uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,
 	    return tr("Post-Stack Data");
 	}
 
-	return tr("2D Data");
+	return tr("2D Data (attribute)");
     }
 
     if ( is3d )
