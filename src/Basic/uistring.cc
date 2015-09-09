@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <QLocale>
 #endif
 
-#define mDirty (-1)
+#define mForceUpdate (-1)
 
 #ifndef __debug__
 
@@ -64,7 +64,7 @@ public:
 	, translationdisambiguation_( disambiguation )
 	, application_( application )
 	, contentlock_( true )
-	, dirtycount_( mDirty )
+	, changecount_( mForceUpdate )
     {
     }
 
@@ -77,14 +77,14 @@ public:
 	translationdisambiguation_ = d.translationdisambiguation_;
 	arguments_ = d.arguments_;
 	application_ = d.application_;
-	dirtycount_ = mDirty;
+	changecount_ = mForceUpdate;
     }
 
     void addLegacyVersion( const uiString& legacy )
     {
 	Threads::Locker contentlocker( contentlock_ );
         legacyversions_.add( legacy );
-	dirtycount_ = mDirty;
+	changecount_ = mForceUpdate;
     }
 
     void setFrom( const QString& qstr )
@@ -99,7 +99,9 @@ public:
     void getFullString( BufferString& ) const;
 
     void set(const char* orig);
-    bool fillQString(QString&,const QTranslator* translator=0) const;
+    bool fillQString(QString&,const QTranslator* translator,
+		     bool nottranslation) const;
+    //If no translator is given, default will be used if needed
 
     mutable Threads::Lock	contentlock_;
     uiStringSet		arguments_;
@@ -115,7 +117,7 @@ public:
     const char*			translationdisambiguation_;
     int				translationpluralnumber_;
 
-    int				dirtycount_;
+    int				changecount_;
 };
 
 
@@ -129,7 +131,7 @@ void uiStringData::set( const char* orig )
     application_ = 0;
     translationdisambiguation_ = 0;
     translationpluralnumber_ = -1;
-    dirtycount_ = mDirty;
+    changecount_ = mForceUpdate;
 #ifndef OD_NO_QT
     qstring_ = sKey::EmptyString().buf();
 #endif
@@ -154,7 +156,7 @@ void uiStringData::getFullString( BufferString& ret ) const
     }
 
     QString qres;
-    fillQString( qres, 0 );
+    fillQString( qres, 0, true );
     ret = qres;
 #else
     ret = originalstring_;
@@ -164,7 +166,8 @@ void uiStringData::getFullString( BufferString& ret ) const
 
 
 bool uiStringData::fillQString( QString& res,
-				const QTranslator* translator ) const
+				const QTranslator* translator,
+				bool notranslation) const
 {
 #ifndef OD_NO_QT
     Threads::Locker contentlocker( contentlock_ );
@@ -173,13 +176,18 @@ bool uiStringData::fillQString( QString& res,
 
     bool translationres = false;
 
-    if ( translator )
+    const QTranslator* usedtrans = translator;
+
+    if ( !notranslation && !usedtrans )
+	usedtrans = TrMgr().getQTranslator( application_ );
+
+    if ( !notranslation && usedtrans && !translationcontext_.isEmpty() )
     {
-	res = translator->translate( translationcontext_, originalstring_,
+	res = usedtrans->translate( translationcontext_, originalstring_,
 				     translationdisambiguation_,
 				     translationpluralnumber_ );
 
-        if ( QString(originalstring_.buf())!=res )
+	if ( res.size() && QString(originalstring_.buf())!=res )
             translationres = true;
 
         if ( legacyversions_.size() && !translationres )
@@ -187,7 +195,7 @@ bool uiStringData::fillQString( QString& res,
             for ( int idx=0; idx<legacyversions_.size(); idx++ )
             {
                 QString legacytrans;
-                if ( legacyversions_[idx].translate( *translator, legacytrans) )
+		if ( legacyversions_[idx].translate( *usedtrans, legacytrans) )
                 {
                     res = legacytrans;
                     translationres = true;
@@ -207,14 +215,29 @@ bool uiStringData::fillQString( QString& res,
 	    od_cout() << info << od_endl;
 	}
     }
+    else
+    {
+	translationres = true;
+	res = originalstring_;
+    }
 
-    if ( !translator || res.isEmpty() )
+    if ( res.isEmpty() )
     {
 	res = originalstring_;
     }
 
     for ( int idx=0; idx<arguments_.size(); idx++ )
-	res = res.arg( arguments_[idx].getQtString() );
+    {
+	QString thearg;
+	if ( notranslation )
+	    thearg = arguments_[idx].getFullString().buf();
+	else if ( translator )
+	    arguments_[idx].translate( *translator, thearg );
+	else
+	    thearg = arguments_[idx].getQtString();
+
+	res = res.arg( thearg );
+    }
 
     return translationres;
 #else
@@ -329,16 +352,32 @@ const OD::String& uiString::getFullString() const
 }
 
 
+bool uiString::isCacheValid() const
+{
+    const int curchange = TrMgr().changeCount();
+    if ( data_->changecount_!=curchange || data_->qstring_.isEmpty() )
+	return false;
+
+    for ( int idx=0; idx<data_->arguments_.size(); idx++ )
+    {
+	if ( !data_->arguments_[idx].isCacheValid() )
+	    return false;
+    }
+
+    return true;
+}
+
+
 const QString& uiString::getQtString() const
 {
 #ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
     Threads::Locker contentlocker( data_->contentlock_ );
-    if ( data_->dirtycount_!=TrMgr().dirtyCount() )
+
+    if ( !isCacheValid() )
     {
-	data_->fillQString( data_->qstring_,
-			TrMgr().getQTranslator(data_->application_) );
-	data_->dirtycount_ = TrMgr().dirtyCount();
+	data_->fillQString( data_->qstring_, 0, false );
+	data_->changecount_ = TrMgr().changeCount();
     }
 
     /* This is safe as if anyone else changes any of the inputs to qstring,
@@ -358,7 +397,7 @@ wchar_t* uiString::createWCharString() const
     Threads::Locker datalocker( datalock_ );
     QString qstr;
     Threads::Locker contentlocker( data_->contentlock_ );
-    data_->fillQString( qstr, TrMgr().getQTranslator(data_->application_) );
+    data_->fillQString( qstr, 0, false );
     if ( !qstr.size() )
 	return 0;
 
@@ -453,7 +492,7 @@ uiString& uiString::arg( const uiString& newarg )
     makeIndependent();
     Threads::Locker contentlocker( data_->contentlock_ );
     data_->arguments_ += newarg;
-    data_->dirtycount_ = mDirty;
+    data_->changecount_ = mForceUpdate;
     mSetDBGStr;
     return *this;
 }
@@ -496,7 +535,7 @@ bool uiString::translate( const QTranslator& qtr , QString& res ) const
 #ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
     Threads::Locker contentlocker( data_->contentlock_ );
-    return data_->fillQString( res, &qtr );
+    return data_->fillQString( res, &qtr, false );
 #else
     return true;
 #endif

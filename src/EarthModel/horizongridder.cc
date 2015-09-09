@@ -50,7 +50,7 @@ bool HorizonGridder::init( TaskRunner* taskrunner )
 
     if ( fltdataprov_ && !fltdataprov_->init(faultids_,hs_,taskrunner) )
     {
-	infomsg_ = uiStrings::phrCannotRead( uiStrings::sFault(2) );
+	infomsg_ = uiStrings::phrCannotRead( uiStrings::sFault(mPlural) );
 	return false;
     }
 

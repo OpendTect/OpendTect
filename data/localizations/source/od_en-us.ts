@@ -125,7 +125,7 @@
     </message>
     <message numerus="yes">
         <location line="+9"/>
-        <source>Horizons</source>
+        <source>Horizon</source>
         <translation>
             <numerusform>Horizon</numerusform>
             <numerusform>Horizons</numerusform>

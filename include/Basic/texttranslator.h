@@ -25,8 +25,11 @@ mFDQtclass(QTranslator);
 mFDQtclass(QLocale);
 mFDQtclass(QString);
 
-class TranslatorLanguageInfo;
+class TextTranslatorLanguage;
+class FilePath;
 
+/*!Manager that keeps track of translations. By default, it only handles
+   English plural, but it can be extended with more languages. */
 
 mExpClass(Basic) TextTranslateMgr : public CallBacker
 { mODTextTranslationClass(TextTranslateMgr);
@@ -36,31 +39,68 @@ public:
 
     int				nrSupportedLanguages() const;
     uiString			getLanguageUserName(int) const;
-    BufferString		getLanguageName(int) const;
+    BufferString		getLocaleName(int) const;
     bool			setLanguage(int,uiString& errmsg);
     int				currentLanguage() const;
 
     Notifier<TextTranslateMgr>	languageChange;
+				/*!<Triggers both on new languages and changed
+				    languages. */
 
-    int				dirtyCount() const	{ return dirtycount_; }
+    int				changeCount() const	{ return dirtycount_; }
 				//Increased every time language is changed
 
     const mQtclass(QTranslator)* getQTranslator(const char* appl) const;
     const mQtclass(QLocale)*	getQLocale() const;
 
-    static BufferString		getLocalizationName(const char* appl,
-						    const char* lang);
-    static char			cApplicationEnd() { return '_'; }
+    void				addLanguage(TextTranslatorLanguage*);
+
+protected:
+    friend				TextTranslatorLanguage;
+
+    void				loadUSEnglish();
+
+    int					dirtycount_;
+    ObjectSet<TextTranslatorLanguage>	languages_;
+    int					currentlanguageidx_;
+public: //Speicalized stuff
+    static void				GetLocalizationDir(FilePath&);
+    static char				cApplicationEnd() { return '_'; }
+};
+
+
+/*!Holds the translation for one language. Each language has its own locale
+   code, (such as en-us) */
+mExpClass(Basic) TextTranslatorLanguage
+{
+    mRefCountImpl(TextTranslatorLanguage);
+    mODTextTranslationClass(TextTranslatorLanguage);
+public:
+					TextTranslatorLanguage(
+					    const char*vlocalename);
+
+    const mQtclass(QString)&		getLanguageName() const;
+    const mQtclass(QLocale)&		getLanguageLocale() const;
+    BufferString			getLocaleName() const;
+
+    bool				addFile(const char* filename);
+
+    bool				load();
+
+    const mQtclass(QTranslator)*	getTranslator(const char* appl) const;
 
 protected:
 
-    void			loadInfo();
+    bool				loaded_;
+    BufferString			localename_;
+    mQtclass(QString)*			languagename_;
+    mQtclass(QLocale)*			locale_;
 
-    int				dirtycount_;
-    ObjectSet<TranslatorLanguageInfo>	languages_;
-    int				currentlanguageidx_;
+    BufferStringSet			filenames_;
+
+    ObjectSet<QTranslator>		translators_;
+    BufferStringSet			applications_;
 };
-
 
 mGlobal(Basic) TextTranslateMgr& TrMgr();
 

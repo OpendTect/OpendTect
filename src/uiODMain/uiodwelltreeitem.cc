@@ -81,7 +81,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 	uiMenu* showmnu = new uiMenu( getUiParent(), tr("Show All") );
 	showmnu->insertItem( new uiAction(tr("Well Names (Top)")), 41 );
 	showmnu->insertItem( new uiAction(tr("Well Names (Bottom)")), 42 );
-	showmnu->insertItem( new uiAction(uiStrings::sMarker(2)), 43 );
+	showmnu->insertItem( new uiAction(uiStrings::sMarker(mPlural)), 43 );
 	showmnu->insertItem( new uiAction(tr("Marker Names")), 44 );
 	showmnu->insertItem( new uiAction(uiStrings::sLogs()), 45 );
 	mnu.insertItem( showmnu );
@@ -89,7 +89,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide All") );
 	hidemnu->insertItem( new uiAction(tr("Well Names (Top)")), 51 );
 	hidemnu->insertItem( new uiAction(tr("Well Names (Bottom)")), 52 );
-	hidemnu->insertItem( new uiAction(uiStrings::sMarker(2)), 53 );
+	hidemnu->insertItem( new uiAction(uiStrings::sMarker(mPlural)), 53 );
 	hidemnu->insertItem( new uiAction(tr("Marker Names")), 54 );
 	hidemnu->insertItem( new uiAction(uiStrings::sLogs()), 55 );
 	mnu.insertItem( hidemnu );
@@ -216,7 +216,7 @@ void uiODWellTreeItem::initMenuItems()
     gend2tmmnuitem_.iconfnm = "well_tie";
     nametopmnuitem_.text = "Well Name (Top)";
     namebotmnuitem_.text = "Well Name (Bottom)";
-    markermnuitem_.text = uiStrings::sMarker(2);
+    markermnuitem_.text = uiStrings::sMarker(mPlural);
     markernamemnuitem_.text = "Marker Names";
     showlogmnuitem_.text = uiStrings::sLogs() ;
     attrmnuitem_.text = "Create Attribute Log ...";

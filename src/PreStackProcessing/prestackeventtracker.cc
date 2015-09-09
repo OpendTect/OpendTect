@@ -123,7 +123,7 @@ bool EventTracker::usePar( const IOPar& par )
     if ( !par.get( sKeyInnerMute(), imid ) ||
 	 !par.get( sKeyOuterMute(), omid ) )
     {
-	mErrRet( uiStrings::phrCannotRead( uiStrings::sMute(2)) );
+	mErrRet( uiStrings::phrCannotRead( uiStrings::sMute(mPlural)) );
     }
 
     return setMute( true, imid ) && setMute( false, omid );

@@ -87,7 +87,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logrmbut_ = butgrp->addButton( uiManipButGrp::Remove,
 		"Remove selected log(s)", mCB(this,uiWellMan,removeLogPush) );
     logexpbut_ = butgrp->addButton( "export",
-			uiStrings::phrExport( uiStrings::sWellLog(2) ),
+			uiStrings::phrExport( uiStrings::sWellLog(mPlural) ),
 			mCB(this,uiWellMan,exportLogs) );
     loguombut_ = butgrp->addButton( "unitsofmeasure",
 		"View/edit unit of measure", mCB(this,uiWellMan,logUOMPush) );
@@ -117,7 +117,7 @@ uiWellMan::uiWellMan( uiParent* p )
     }
 
     markerbut_ = new uiToolButton( extrabutgrp_, "edmarkers",
-			      uiStrings::phrEdit( uiStrings::sMarker(2) ),
+			      uiStrings::phrEdit( uiStrings::sMarker(mPlural) ),
 			      mCB(this,uiWellMan, edMarkers) );
     markerbut_->attach( rightOf, d2tbut_ ? d2tbut_ : welltrackbut_ );
 
