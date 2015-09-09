@@ -190,7 +190,8 @@ public:
     void			selectParent(const TrcKey&);
     void			selectChildren(const TrcKey&);
     void			showParentLine(bool);
-    void			showChildLine(bool);
+    void			showSelections(bool);
+    void			showLocked(bool);
     virtual void		clearSelections();
 
 protected:
@@ -248,6 +249,7 @@ protected:
     visBase::Material*			intersectionlinematerial_;
 
     visBase::PointSet*			selections_;
+    visBase::PointSet*			lockedpts_;
     visBase::VertexShape*		parentline_;
 
     StepInterval<int>			parrowrg_;

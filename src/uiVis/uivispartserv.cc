@@ -2136,10 +2136,6 @@ void uiVisPartServer::colTabChangeCB( CallBacker* )
 }
 
 
-void uiVisPartServer::introduceMPEDisplay()
-{ mpetools_->introduceMPEDisplay(); }
-
-
 void uiVisPartServer::initMPEStuff()
 {
     TypeSet<int> emobjids;

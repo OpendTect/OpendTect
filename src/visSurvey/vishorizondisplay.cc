@@ -79,6 +79,7 @@ HorizonDisplay::HorizonDisplay()
     , translationpos_( Coord3().udf() )
     , parentline_(0)
     , selections_(0)
+    , lockedpts_(0)
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
@@ -1068,7 +1069,8 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	    if ( parentline_ && parentline_->getMaterial() )
 		parentline_->getMaterial()->setColor( hor3d->getParentColor() );
 	    if ( selections_ && selections_->getMaterial() )
-		selections_->getMaterial()->setColor( hor3d->getChildColor() );
+		selections_->getMaterial()->setColor(
+						hor3d->getSelectionColor() );
 	}
     }
 
@@ -2066,8 +2068,8 @@ void HorizonDisplay::initSelectionDisplay( bool erase )
     {
 	selections_ = visBase::PointSet::create();
 	selections_->ref();
-	if ( hor3d )
-	    selections_->getMaterial()->setColor( hor3d->getChildColor() );
+	if ( hor3d && selections_->getMaterial() )
+	    selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
 	addChild( selections_->osgNode() );
 	selections_->setDisplayTransformation( transformation_ );
     }
@@ -2099,7 +2101,7 @@ void HorizonDisplay::selectChildren( const TrcKey& tkin )
 	const TrcKey tk = tks.atIndex( gidx );
 	const Coord3 pos = hor3d->getPos( sid, tk.pos().toInt64() );
 	const int pidx = selections_->addPoint( pos );
-	selections_->getMaterial()->setColor( hor3d->getChildColor(), pidx );
+	selections_->getMaterial()->setColor( hor3d->getSelectionColor(), pidx);
 	pidxs += pidx;
     }
 
@@ -2108,7 +2110,6 @@ void HorizonDisplay::selectChildren( const TrcKey& tkin )
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
-    selections_->materialChangeCB( 0 );
     selections_->turnOn( true );
 }
 
@@ -2119,9 +2120,15 @@ void HorizonDisplay::showParentLine( bool yn )
 }
 
 
-void HorizonDisplay::showChildLine( bool yn )
+void HorizonDisplay::showSelections( bool yn )
 {
     if ( selections_ ) selections_->turnOn( yn );
+}
+
+
+void HorizonDisplay::showLocked( bool yn )
+{
+    if ( lockedpts_ ) lockedpts_->turnOn( yn );
 }
 
 
@@ -2151,7 +2158,7 @@ void HorizonDisplay::updateSelections()
     	if ( pos.isUdf() ) continue;
 
 	const int pidx = selections_->addPoint( pos );
-	selections_->getMaterial()->setColor( hor3d->getChildColor(), pidx );
+	selections_->getMaterial()->setColor( hor3d->getSelectionColor(), pidx);
 	pidxs += pidx;
     }
 
@@ -2160,9 +2167,7 @@ void HorizonDisplay::updateSelections()
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
-    selections_->materialChangeCB( 0 );
     selections_->turnOn( true );
-
 }
 
 

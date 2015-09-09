@@ -360,21 +360,21 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 				uiColorInput::Setup(Color::Yellow())
 				.withdesc(false).lbltxt(tr("Parents")) );
     parentcolfld_->colorChanged.notify(
-				mCB(this,uiHorizonSetupGroup,seedColSel) );
+			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     parentcolfld_->attach( alignedBelow, seedsliderfld_ );
 
-    childcolfld_ = new uiColorInput( grp,
+    selectioncolfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(Color::Yellow())
-				.withdesc(false).lbltxt(tr("Children")) );
-    childcolfld_->colorChanged.notify(
-				mCB(this,uiHorizonSetupGroup,seedColSel) );
-    childcolfld_->attach( rightTo, parentcolfld_ );
+				.withdesc(false).lbltxt(tr("Selections")) );
+    selectioncolfld_->colorChanged.notify(
+			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
+    selectioncolfld_->attach( rightTo, parentcolfld_ );
 
     lockcolfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(Color::Orange())
 				.withdesc(false).lbltxt(tr("Locked")) );
     lockcolfld_->colorChanged.notify(
-				mCB(this,uiHorizonSetupGroup,seedColSel) );
+			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     lockcolfld_->attach( alignedBelow, parentcolfld_ );
 
     return grp;
@@ -415,6 +415,22 @@ void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 
 void uiHorizonSetupGroup::varianceChangeCB( CallBacker* )
 { varianceChanged_.trigger(); }
+
+
+void uiHorizonSetupGroup::specColorChangeCB( CallBacker* cb )
+{
+    if ( !sectiontracker_ ) return;
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
+    if ( !hor3d ) return;
+
+    if ( cb == parentcolfld_ )
+	hor3d->setParentColor( parentcolfld_->color() );
+    else if ( cb==selectioncolfld_ )
+	hor3d->setSelectionColor( selectioncolfld_->color() );
+    else if ( cb==lockcolfld_ )
+	hor3d->setLockColor( lockcolfld_->color() );
+}
 
 
 void uiHorizonSetupGroup::colorChangeCB( CallBacker* )

@@ -357,7 +357,6 @@ public:
     bool			showSetupGroupOnTop(const char* grpnm);
     const char*			getTopSetupGroupName() const;
 
-    void			introduceMPEDisplay();
     void			initMPEStuff();
     static int			evStoreEMObject();
     static int			evStoreEMObjectAs();

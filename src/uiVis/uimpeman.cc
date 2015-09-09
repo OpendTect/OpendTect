@@ -62,8 +62,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 {
     engine().trackeraddremove.notify(
 			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
-    MPE::engine().activevolumechange.notify(
-			mCB(this,uiMPEMan,finishMPEDispIntro) );
     SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
     si.workRangeChg.notify( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.notify(
@@ -78,8 +76,6 @@ uiMPEMan::~uiMPEMan()
     deleteVisObjects();
     engine().trackeraddremove.remove(
 			mCB(this,uiMPEMan,trackerAddedRemovedCB) );
-    MPE::engine().activevolumechange.remove(
-			mCB(this,uiMPEMan,finishMPEDispIntro) );
     SurveyInfo& si = const_cast<SurveyInfo&>( SI() );
     si.workRangeChg.remove( mCB(this,uiMPEMan,workAreaChgCB) );
     visBase::DM().selMan().selnotifier.remove(
@@ -496,7 +492,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    engine.setActiveVolume( newvolume );
 	    notifystopper.restore();
 
-	    if ( clickedas && !engine.cacheIncludes(*clickedas,newvolume) )
+	    if ( clickedas )
 	    {
 		DataPack::ID datapackid =
 				clickcatcher_->info().getObjDataPackID();
@@ -622,7 +618,7 @@ void uiMPEMan::clearSelection()
 
 	if ( hd )
 	{
-	    hd->showChildLine( false );
+	    hd->showSelections( false );
 	    hd->showParentLine( false );
 	}
     }
@@ -643,7 +639,7 @@ void uiMPEMan::deleteSelection()
     {
 	EM::Horizon3D* hor3d = getSelectedHorizon3D();
 	if ( hor3d ) hor3d->deleteChildren();
-	if ( hd ) hd->showChildLine( false );
+	if ( hd ) hd->showSelections( false );
     }
 }
 
@@ -779,46 +775,6 @@ void uiMPEMan::validateSeedConMode()
 }
 
 
-void uiMPEMan::introduceMPEDisplay()
-{
-/*
-    EMTracker* tracker = getSelectedTracker();
-    const EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    validateSeedConMode();
-
-    if ( !SI().has3D() )
-	return;
-    if ( !seedpicker || !seedpicker->doesModeUseVolume() )
-	return;
-
-    mpeintropending_ = true;
-    */
-}
-
-
-void uiMPEMan::finishMPEDispIntro( CallBacker* )
-{
-/*
-    if ( !mpeintropending_ || !oldactivevol_.isEmpty() )
-	return;
-
-    mpeintropending_ = false;
-
-    EMTracker* tracker = getSelectedTracker();
-    if ( !tracker)
-	tracker = engine().getTracker( engine().highestTrackerID() );
-
-    if ( !tracker )
-	return;
-
-    TypeSet<Attrib::SelSpec> attribspecs;
-    tracker->getNeededAttribs( attribspecs );
-    if ( attribspecs.isEmpty() )
-	return;
-	*/
-}
-
-
 void uiMPEMan::undo()
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
@@ -933,90 +889,13 @@ void uiMPEMan::visObjectLockedCB( CallBacker* )
 
 
 void uiMPEMan::trackFromSeedsOnly()
-{
-    trackInVolume();
-}
-
+{}
 
 void uiMPEMan::trackFromSeedsAndEdges()
-{
-    trackInVolume();
-}
-
-
-void uiMPEMan::trackInVolume()
-{
-    /*
-    MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
-    if ( !as ) return;
-
-    if ( !as->isStored() )
-    {
-	uiMSG().error( "Volume tracking can only be done on stored volumes.");
-	return;
-    }
-
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
-    const MultiID mid = ads ? ads->getStoredKey(as->id()) : MultiID::udf();
-    if ( mid.isUdf() )
-    {
-	uiMSG().error( "Cannot find picked data in database" );
-	return;
-    }
-
-    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
-    if ( !sdp )
-    {
-	uiMSG().error( "Seismic data is not preloaded yet" );
-	return;
-    }
-
-    engine().setAttribData( *as, sdp->id() );
-    engine().setActiveVolume( sdp->sampling() );
-
-    NotifyStopper selstopper( EM::EMM().undo().changenotifier );
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-    Executor* exec = engine().trackInVolume();
-    if ( exec )
-    {
-	const int currentevent = EM::EMM().undo().currentEventID();
-	uiTaskRunner uitr( toolbar_ );
-	if ( !TaskRunner::execute( &uitr, *exec ) )
-	{
-	    if ( engine().errMsg() )
-		uiMSG().error( engine().errMsg() );
-	}
-	delete exec;	// AutoTracker destructor adds the undo event!
-	setUndoLevel(currentevent);
-    }
-
-    MouseCursorManager::restoreOverride();
-    */
-}
-
+{}
 
 void uiMPEMan::removeInPolygon()
-{
-    const Selector<Coord3>* sel =
-	visserv_->getCoordSelector( clickablesceneid_ );
-    if ( !sel || !sel->isOK() )
-	return;
-
-    const int currentevent = EM::EMM().undo().currentEventID();
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
-	return;
-
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,
-		    emod,visserv_->getObject(selectedids[0]) );
-
-    uiTaskRunner taskrunner( parent_ );
-    emod->removeSelection( *sel, &taskrunner );
-
-    setUndoLevel( currentevent );
-}
+{ visserv_->removeSelection(); }
 
 
 void uiMPEMan::workAreaChgCB( CallBacker* )
@@ -1025,58 +904,6 @@ void uiMPEMan::workAreaChgCB( CallBacker* )
     {
 	engine().setActiveVolume( SI().sampling(true) );
     }
-}
-
-
-void uiMPEMan::retrackAll()
-{
-    MPE::EMTracker* tracker = getSelectedTracker();
-    if ( !tracker ) return;
-
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
-    if ( !seedpicker) return;
-
-    Undo& emundo = EM::EMM().undo();
-    int cureventnr = emundo.currentEventID();
-    emundo.setUserInteractionEnd( cureventnr, false );
-
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
-    emobj->setBurstAlert( true );
-    emobj->removeAllUnSeedPos();
-
-    TrcKeyZSampling realactivevol = MPE::engine().activeVolume();
-    ObjectSet<TrcKeyZSampling>* trackedcubes =
-	MPE::engine().getTrackedFlatCubes(
-	    MPE::engine().getTrackerByObject(tracker->objectID()) );
-    if ( trackedcubes )
-    {
-	for ( int idx=0; idx<trackedcubes->size(); idx++ )
-	{
-	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
-	    MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
-	    notifystopper.restore();
-
-	    seedpicker->reTrack();
-	}
-
-	emobj->setBurstAlert( false );
-	deepErase( *trackedcubes );
-
-	MouseCursorManager::restoreOverride();
-	emundo.setUserInteractionEnd( emundo.currentEventID() );
-
-	MPE::engine().setActiveVolume( realactivevol );
-
-	if ( !(MPE::engine().activeVolume().nrInl()==1) &&
-	     !(MPE::engine().activeVolume().nrCrl()==1) )
-	    trackInVolume();
-    }
-    else
-	seedpicker->reTrack();
-	emobj->setBurstAlert( false );
-	MouseCursorManager::restoreOverride();
-	emundo.setUserInteractionEnd( emundo.currentEventID() );
 }
 
 

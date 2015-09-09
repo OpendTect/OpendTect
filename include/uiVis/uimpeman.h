@@ -35,9 +35,7 @@ public:
 
     void			deleteVisObjects();
     void			validateSeedConMode();
-    void			introduceMPEDisplay();
     void			initFromDisplay();
-    void			trackInVolume();
 
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
@@ -74,7 +72,6 @@ protected:
     void			trackFromSeedsAndEdges();
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
-    void			retrackAll();
 
     void			updateSeedPickState();
     void			trackerAddedRemovedCB(CallBacker*);
@@ -84,8 +81,6 @@ protected:
     MPE::EMTracker*		getSelectedTracker();
     visSurvey::HorizonDisplay*	getSelectedDisplay();
     EM::Horizon3D*		getSelectedHorizon3D();
-
-    void			finishMPEDispIntro(CallBacker*);
 
     int				cureventnr_;
     void			beginSeedClickEvent(EM::EMObject*);
