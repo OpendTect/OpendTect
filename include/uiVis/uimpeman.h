@@ -41,7 +41,6 @@ public:
     bool			isSeedPickingOn() const;
 
     void			visObjectLockedCB(CallBacker*);
-    void			keyPressedCB(CallBacker*);
 
 protected:
 

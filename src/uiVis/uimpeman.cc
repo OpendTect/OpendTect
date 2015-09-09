@@ -111,7 +111,12 @@ void uiMPEMan::keyEventCB( CallBacker* )
 
     int action = -1;
     const KeyboardEvent& kev = visserv_->getKeyboardEvent();
-    if ( kev.key_ == OD::K )
+
+    if ( KeyboardEvent::isUnDo(kev) )
+	undo();
+    else if ( KeyboardEvent::isReDo(kev) )
+	redo();
+    else if ( kev.key_ == OD::K )
     {
 	if ( MPE::engine().trackingInProgress() )
 	    action = sStop;
@@ -125,10 +130,7 @@ void uiMPEMan::keyEventCB( CallBacker* )
     }
     else if ( kev.key_ == OD::Y )
     {
-	if ( OD::ctrlKeyboardButton(kev.modifier_) )
-	    action = sRedo;
-	else
-	    action = sPoly;
+	action = sPoly;
     }
     else if ( kev.key_ == OD::A )
 	action = sClear;
@@ -138,16 +140,11 @@ void uiMPEMan::keyEventCB( CallBacker* )
 	action = sLock;
     else if ( kev.key_ == OD::U )
 	action = sUnlock;
-    else if ( kev.key_ == OD::Z && OD::ctrlKeyboardButton(kev.modifier_) )
-	action = sUndo;
     else if ( kev.key_ == OD::S && OD::ctrlKeyboardButton(kev.modifier_) )
 	action = sSave;
     else if ( kev.key_ == OD::S && OD::ctrlKeyboardButton(kev.modifier_)
 				&& OD::shiftKeyboardButton(kev.modifier_) )
 	action = sSaveAs;
-    else if ( kev.key_ == OD::A )
-    {
-    }
 
     if ( action != -1 )
 	handleAction( action );
@@ -922,14 +919,3 @@ void uiMPEMan::setUndoLevel( int preveventnr )
 	    emundo.setUserInteractionEnd(currentevent);
 }
 
-
-void uiMPEMan::keyPressedCB( CallBacker* )
-{
-    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
-
-    if ( KeyboardEvent::isUnDo(kbe) )
-	undo();
-
-    if ( KeyboardEvent::isReDo(kbe) )
-	redo();
-}
