@@ -107,6 +107,7 @@ HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
     , nrdone_(0)
     , nrtodo_(0)
     , tasknr_(0)
+    , horizon3dundoinfo_(0)
 {
     queueid_ = twm_.addQueue(
 	Threads::WorkManager::MultiThread, "Horizon Tracker" );
@@ -123,6 +124,7 @@ void HorizonTrackerMgr::stop()
 {
     twm_.removeQueue( queueid_, false );
     nrtodo_ = 0;
+    addUndoEvent();
     queueid_ = twm_.addQueue(
 	Threads::WorkManager::MultiThread, "Horizon Tracker" );
 }
@@ -169,6 +171,7 @@ void HorizonTrackerMgr::taskFinished( CallBacker* )
     if ( nrtodo_ == 0 )
     {
 	if ( hor3d ) hor3d->setBurstAlert( false );
+	addUndoEvent();
 	finished.trigger();
     }
 }
@@ -212,6 +215,9 @@ void HorizonTrackerMgr::startFromSeeds()
     {
 	hor3d->initAllAuxData();
 	hor3d->initTrackingArrays();
+
+	horizon3dundoinfo_ = hor3d->createArray2D( hor3d->sectionID(0) );
+	horizon3dundoorigin_ = hor3d->range().start_;
     }
 
     deepErase( sectiontrackers_ );
@@ -229,6 +235,21 @@ void HorizonTrackerMgr::startFromSeeds()
     hor3d->setBurstAlert( true );
     for ( int idx=0; idx<seeds_.size(); idx++ )
 	addTask( seeds_[idx], seeds_[idx] );
+}
+
+
+void HorizonTrackerMgr::addUndoEvent()
+{
+    if ( horizon3dundoinfo_ )
+    {
+	EM::EMObject* emobj = tracker_.emObject();
+	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+	UndoEvent* undo = new EM::SetAllHor3DPosUndoEvent(
+		hor3d, hor3d->sectionID(0),
+		horizon3dundoinfo_, horizon3dundoorigin_ );
+	EM::EMM().undo().addEvent( undo, "Auto tracking" );
+	horizon3dundoinfo_ = 0;
+    }
 }
 
 
