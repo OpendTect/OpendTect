@@ -101,7 +101,7 @@ public:
 			    , withcolorfld_(false)
 			    , withstratfld_(false)
 			    , withdisplayfld_(false)
-			    , displaytext_("Replace in tree")
+			    , displaytext_(tr("Replace in tree"))
 			{}
 
 	mDefSetupMemb(BufferString,typ)
@@ -110,7 +110,7 @@ public:
 	mDefSetupMemb(bool,withcolorfld)
 	mDefSetupMemb(bool,withstratfld)
 	mDefSetupMemb(bool,withdisplayfld)
-	mDefSetupMemb(BufferString,displaytext)
+	mDefSetupMemb(uiString,displaytext)
     };
 
 			uiSurfaceWrite(uiParent*,const EM::Surface&,

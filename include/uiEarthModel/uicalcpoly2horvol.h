@@ -24,10 +24,10 @@ namespace EM	{ class Horizon3D; }
 /*! \brief UI for calculation of volume at horizons */
 
 mExpClass(uiEarthModel) uiCalcHorVol : public uiDialog
-{ mODTextTranslationClass(uiCalcHorVol);
+{ mODTextTranslationClass(uiCalcHorVol)
 protected:
 
-			uiCalcHorVol(uiParent*,const char*);
+			uiCalcHorVol(uiParent*,const uiString&);
 
     uiCheckList*	optsfld_;
     uiGenInput*		velfld_;
@@ -49,7 +49,7 @@ protected:
 /*! \brief using polygon to calculate to different horizons */
 
 mExpClass(uiEarthModel) uiCalcPolyHorVol : public uiCalcHorVol
-{
+{ mODTextTranslationClass(uiCalcPolyHorVol)
 public:
 
 			uiCalcPolyHorVol(uiParent*,const Pick::Set&);
@@ -75,7 +75,7 @@ protected:
 /*! \brief using horizon to calculate from different levels by polygon */
 
 mExpClass(uiEarthModel) uiCalcHorPolyVol : public uiCalcHorVol
-{
+{ mODTextTranslationClass(uiCalcHorPolyVol)
 public:
 
 			uiCalcHorPolyVol(uiParent*,const EM::Horizon3D&);

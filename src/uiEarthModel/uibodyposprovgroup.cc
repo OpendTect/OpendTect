@@ -23,8 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-#define mBodyKey EMBodyTranslatorGroup::keyword()
-
 uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
@@ -34,7 +32,7 @@ uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
                                BoolInpSpec(true,tr("Inside"),
                                 tr("Outside")) );
     inoutbut_->valuechanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );
-    bodyfld_ = new uiIOObjSel( this, ctio_, mBodyKey );
+    bodyfld_ = new uiIOObjSel( this, ctio_, uiStrings::sBody() );
     bodyfld_->attach( alignedBelow, inoutbut_ );
 
     outsidergfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,true)

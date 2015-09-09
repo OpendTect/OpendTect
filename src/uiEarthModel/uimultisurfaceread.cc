@@ -25,11 +25,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type )
-    : uiDialog(p,uiDialog::Setup( BufferString( "Select Input ",type,"(s)" ),
-				  mNoDlgTitle,
-                                  mODHelpKey(mMultiSurfaceReadDlgHelpID) )
-                                  .nrstatusflds(1) )
+uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg(uiParent* p, const char* type)
+   : uiDialog(p,uiDialog::Setup( tr("Select Input %1 (s)").arg(
+				 mToUiStringTodo(type)),mNoDlgTitle,
+                                 mODHelpKey(mMultiSurfaceReadDlgHelpID) )
+                                 .nrstatusflds(1) )
 {
     surfacefld_ = new uiMultiSurfaceRead( this, type );
     surfacefld_->objselGrp()->newStatusMsg.notify(
@@ -40,8 +40,8 @@ uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type )
 
 void uiMultiSurfaceReadDlg::statusMsg( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const char*,msg,cb);
-    toStatusBar( msg );
+    mCBCapsuleUnpack(const char* ,msg,cb);
+    toStatusBar( mToUiStringTodo(msg) );
 }
 
 
@@ -143,8 +143,7 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 	    if ( !info.ioObj() )
 		continue;
 
-	    errormsgstr = uiString( "%1 :  %2\n")
-			.arg( info.ioObj()->name() )
+	    errormsgstr = tr("%1 :  %2\n").arg(info.ioObj()->uiName())
 			.arg( errmsg );
 	}
 
@@ -179,7 +178,8 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 	return;
 
     uiDialog dlg( const_cast<uiParent*>(parent()),
-	    uiDialog::Setup("Select section(s)",mNoDlgTitle,mNoHelpKey) );
+	    uiDialog::Setup(uiStrings::phrSelect(tr("section(s)"))
+			    ,mNoDlgTitle,mNoHelpKey) );
     uiListBox* lb = new uiListBox( &dlg, "Patches", OD::ChooseAtLeastOne );
     lb->addItems( sd.sections );
     lb->chooseAll( true );

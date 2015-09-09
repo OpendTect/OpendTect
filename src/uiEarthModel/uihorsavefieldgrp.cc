@@ -41,8 +41,8 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
 {
     if ( horizon_ ) horizon_->ref();
 
-    savefld_ = new uiGenInput( this, tr("Save horizon"),
-	    		       BoolInpSpec(true,"As new",
+    savefld_ = new uiGenInput( this, uiStrings::phrSave(uiStrings::sHorizon(1)),
+			       BoolInpSpec(true,tr("As new"),
                                uiStrings::sOverwrite()) );
    
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
@@ -50,10 +50,11 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
 			     : EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = false;
-    outputfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
+    outputfld_ = new uiIOObjSel( this, ctxt, 
+				 uiStrings::phrOutput(uiStrings::sHorizon(1)) );
     outputfld_->attach( alignedBelow, savefld_ );
     
-    addnewfld_ = new uiCheckBox( this, "Display after create" );
+    addnewfld_ = new uiCheckBox( this, tr("Display after create") );
     addnewfld_->attach( alignedBelow, outputfld_ );
 
     setHAlignObj( savefld_ );
@@ -116,7 +117,7 @@ bool uiHorSaveFieldGrp::needsFullSurveyArray() const
 { return  usefullsurvey_; }
 
 
-#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return 0; }
+#define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error( msg ); return 0; }
 
 EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 {
@@ -128,13 +129,13 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
     {
 	reader = EM::EMM().objectLoader( mid );
 	if ( !reader ) 
-	    mErrRet( "Could not read horizon." );
+	    mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 
 	uiTaskRunner dlg( this );
 	if ( !TaskRunner::execute( &dlg, *reader ) )
 	{
 	    delete reader;
-	    mErrRet( "Could not read horizon." );
+	     mErrRet( uiStrings::phrCannotRead(uiStrings::sHorizon(1)));
 	}
 
 	oid = EM::EMM().getObjectID( mid );

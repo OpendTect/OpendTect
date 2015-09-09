@@ -42,6 +42,11 @@ static const char* rcsID mUsedVar = "$Id$";
     mGet( tp, uiStrings::phrExport( uiStrings::sFaultStickSet() ), \
 	      uiStrings::phrExport( uiStrings::sFault() ) )
 
+#define mGetLbl(tp) \
+    mGet( tp, uiStrings::phrInput( uiStrings::sFaultStickSet() ), \
+	      uiStrings::phrInput( uiStrings::sFault() ) )
+
+
 uiExportFault::uiExportFault( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
@@ -53,9 +58,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     setDeleteOnClose( false );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
 
-    BufferString inplbl( "Input ");
-    inplbl += typ;
-    infld_ = new uiIOObjSel( this, ctio_, inplbl );
+    infld_ = new uiIOObjSel( this, ctio_, mGetLbl(typ) );
 
     coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
 				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
@@ -64,11 +67,13 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     bool setchk = true;
     if ( SI().zIsTime() )
 	zbox_ = new uiGenInput( this, tr("Z in"), 
-				BoolInpSpec(true,tr("msec"),tr("s")) );
+				BoolInpSpec(true,uiStrings::sMsec(),
+				uiStrings::sSec()) );
     else
     {
 	zbox_ = new uiGenInput( this, tr("Z in"),
-				BoolInpSpec(true,tr("feet"),tr("meter")) );
+				BoolInpSpec(true,uiStrings::sFeet(),
+				uiStrings::sMeter()) );
 	setchk = SI().depthsInFeet();
     }
     zbox_->setValue( setchk );
@@ -76,8 +81,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
 				    OD::Horizontal );
-    stickidsfld_->setLabel( "Write" );
-    stickidsfld_->addItem( "Stick index" ).addItem( "Node Index" );
+    stickidsfld_->setLabel( uiStrings::sWrite() );
+    stickidsfld_->addItem( tr("Stick index") ).addItem( tr("Node index" ));
     stickidsfld_->setChecked( 0, true ); stickidsfld_->setChecked( 1, true );
     stickidsfld_->attach( alignedBelow, coordfld_ );
 
@@ -89,7 +94,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
 
-    outfld_ = new uiFileInput( this, "Output ASCII file",
+    outfld_ = new uiFileInput( this, uiStrings::phrOutput(uiStrings::phrASCII(
+			       uiStrings::sFile())),
 			       uiFileInput::Setup().forread(false) );
     if ( linenmfld_ )
 	outfld_->attach( alignedBelow, linenmfld_ );

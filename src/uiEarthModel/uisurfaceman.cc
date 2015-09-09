@@ -86,19 +86,19 @@ static IOObjContext getIOCtxt( uiSurfaceMan::Type typ )
 }
 
 #define mCaseRetStr(enm,str) \
-    case uiSurfaceMan::enm: return BufferString( act, " ", str )
+    case uiSurfaceMan::enm: return toUiString("%1 %2").arg(act).arg(str);
 
-static BufferString getActStr( uiSurfaceMan::Type typ, const char* act )
+static uiString getActStr( uiSurfaceMan::Type typ, const uiString& act )
 {
     switch ( typ )
-    {
-	mCaseRetStr(Hor2D,"2D Horizons");
-	mCaseRetStr(Hor3D,"3D Horizons");
-	mCaseRetStr(StickSet,"FaultStickSets");
-	mCaseRetStr(Flt3D,"Faults");
-	mCaseRetStr(Body,"Bodies");
+    {			  
+	mCaseRetStr(Hor2D, od_static_tr("getActStr","2D Horizons"));
+	mCaseRetStr(Hor3D, od_static_tr("getActStr","3D Horizons"));
+	mCaseRetStr(StickSet, uiStrings::sFaultStickSet());
+	mCaseRetStr(Flt3D, uiStrings::sFault());
+	mCaseRetStr(Body, od_static_tr("getActStr","Bodies"));
 	default:
-	mCaseRetStr(AnyHor,"Horizons");
+	mCaseRetStr(AnyHor, uiStrings::sHorizon(1));
     }
 }
 
@@ -116,10 +116,9 @@ default:			return mODHelpKey(mSurfaceManHelpID);
 
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
-    : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,"Manage"),mNoDlgTitle,
-				     getHelpID(typ)).nrstatusflds(1)
-						    .modal(false),
-		   getIOCtxt(typ) )
+    : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,tr("Manage")),
+				    mNoDlgTitle, getHelpID(typ)).nrstatusflds(1)
+				    .modal(false), getIOCtxt(typ) )
     , type_(typ)
     , attribfld_(0)
     , man2dbut_(0)
@@ -136,19 +135,21 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
     if ( type_ != Body )
-	copybut_ = manipgrp->addButton( "copyobj", "Copy to new object",
+	copybut_ = manipgrp->addButton( "copyobj", tr("Copy to new object"),
 					mCB(this,uiSurfaceMan,copyCB) );
 
     if ( type_ == Hor2D || type_ == AnyHor )
     {
-	man2dbut_ = manipgrp->addButton( "man2d", "Manage 2D Horizons",
+	man2dbut_ = manipgrp->addButton( "man2d", tr("Manage 2D Horizons"),
 					 mCB(this,uiSurfaceMan,man2dCB) );
 	man2dbut_->setSensitive( false );
     }
     if ( type_ == Hor3D )
     {
-	mergehorbut_ = manipgrp->addButton( "mergehorizons","Merge 3D Horizons",
-					    mCB(this,uiSurfaceMan,merge3dCB) );
+	mergehorbut_ = manipgrp->addButton( "mergehorizons",
+		       uiStrings::phrMerge(uiStrings::phrJoinStrings(
+		       uiStrings::s3D(), uiStrings::sHorizon(2))),
+		       mCB(this,uiSurfaceMan,merge3dCB) );
     }
     if ( type_ == Hor3D || type_ == AnyHor )
     {
@@ -163,10 +164,10 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 
 	uiManipButGrp* butgrp = new uiManipButGrp( attribfld_ );
 	surfdataremovebut_ = butgrp->addButton( uiManipButGrp::Remove,
-					"Remove selected Horizon Data",
+					tr("Remove selected Horizon Data"),
 					mCB(this,uiSurfaceMan,removeAttribCB) );
 	surfdatarenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
-					"Rename selected Horizon Data",
+					tr("Rename selected Horizon Data"),
 					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_->box() );
 
@@ -185,15 +186,16 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     if ( type_ == Body )
     {
 	applybodybut_ = manipgrp->addButton( "set_union",
-					     "Apply Body operations",
+					     tr("Apply Body operations"),
 					   mCB(this,uiSurfaceMan,mergeBodyCB) );
 	createregbodybut_ = manipgrp->addButton( "set_implicit",
-						 "Create region Body",
+						 tr("Create region Body"),
 				mCB(this,uiSurfaceMan,createBodyRegionCB) );
-	volestimatebut_ = manipgrp->addButton( "bodyvolume", "Volume estimate",
+	volestimatebut_ = manipgrp->addButton( "bodyvolume", 
+					     tr("Volume estimate"),
 					     mCB(this,uiSurfaceMan,calcVolCB) );
 	switchvalbut_ = manipgrp->addButton( "switch_implicit",
-					     "Switch inside/outside value",
+					     tr("Switch inside/outside value"),
 					mCB(this,uiSurfaceMan,switchValCB) );
     }
 
@@ -232,20 +234,32 @@ void uiSurfaceMan::attribSel( CallBacker* )
 	    but->setToolTip( deftt ); \
 	} \
     }
+uiString uiSurfaceMan::sRenameSelData()
+{
+    return tr("Rename selected data");
+}
+
+
+uiString uiSurfaceMan::sRemoveSelData()
+{
+    return tr("Remove selected data");
+}
+
 
 void uiSurfaceMan::setToolButtonProperties()
 {
     const bool hasattribs = attribfld_ && !attribfld_->isEmpty();
 
     BufferString tt, cursel;
+
     if ( curioobj_ )
 	cursel.add( curioobj_->name() );
 
     if ( surfdatarenamebut_ )
     {
 	surfdatarenamebut_->setSensitive( hasattribs );
-	mSetButToolTip(surfdatarenamebut_,"Rename '",attribfld_->getText(),"'",
-		       "Rename selected Data")
+	mSetButToolTip(surfdatarenamebut_,"Rename '",attribfld_->getText(),
+		       "'", sRenameSelData())
     }
 
     if ( surfdataremovebut_ )
@@ -254,14 +268,14 @@ void uiSurfaceMan::setToolButtonProperties()
 	BufferStringSet attrnms;
 	attribfld_->getChosen( attrnms );
 	mSetButToolTip(surfdataremovebut_,"Remove ",attrnms.getDispString(2),
-		       "", "Remove selected data")
+		       "", sRemoveSelData())
     }
 
     if ( copybut_ )
     {
 	copybut_->setSensitive( curioobj_ );
 	mSetButToolTip(copybut_,"Copy '",cursel,"' to new object",
-		       "Copy to new object")
+		       uiStrings::phrCopy(tr("to new object")))
     }
 
     if ( mergehorbut_ )
@@ -271,11 +285,14 @@ void uiSurfaceMan::setToolButtonProperties()
 	selgrp_->getChosen( selhornms );
 	if ( selhornms.size() > 1 )
 	{
-	    mSetButToolTip(mergehorbut_,"Merge ",selhornms.getDispString(2),"",
-			   "Merge 3D horizons")
+	    mSetButToolTip(mergehorbut_,"Merge ",selhornms.getDispString(2),
+			   "", uiStrings::phrMerge(uiStrings::phrJoinStrings(
+			   uiStrings::s3D(),uiStrings::sHorizon(2))))
 	}
 	else
-	    mergehorbut_->setToolTip( "Merge 3D horizons" );
+	    mergehorbut_->setToolTip(  uiStrings::phrMerge(
+				    uiStrings::phrJoinStrings(uiStrings::s3D(),
+				    uiStrings::sHorizon(2))) );
     }
 
      if ( type_ == Body )
@@ -284,10 +301,10 @@ void uiSurfaceMan::setToolButtonProperties()
 	 createregbodybut_->setSensitive( curioobj_ );
 	 volestimatebut_->setSensitive( curioobj_ );
 	 switchvalbut_->setSensitive( curioobj_ );
-	 mSetButToolTip(volestimatebut_,"Estimate volume of '",cursel,"'",
-			"Volume estimate");
+	 mSetButToolTip(volestimatebut_,"Estimate volume of '",cursel,
+			"'", tr("Volume estimate"));
 	 mSetButToolTip(switchvalbut_,"Switch inside/outside value of '",
-			cursel,"'","Switch inside/outside value");
+			cursel,"'", tr("Switch inside/outside value"));
      }
 }
 
@@ -352,16 +369,15 @@ void uiSurfaceMan::calcVolCB( CallBacker* )
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
     if ( !emb )
     {
-	BufferString msg( "Body '" );
-	msg.add( curioobj_->name() ).add( "'" ).add( " is empty" );
-	uiMSG().error( tr(msg.buf()) );
+	uiString msg = tr( "Body '%1' is empty" ).arg( curioobj_->uiName() );
+	uiMSG().error(msg);
 	return;
     }
 
     uiImplBodyCalDlg dlg( this, *emb );
-    BufferString dlgtitle( "Body volume estimation for '" );
-    dlgtitle.add( curioobj_->name() ).add( "'" );
-    dlg.setTitleText( dlgtitle.buf() );
+    uiString dlgtitle = tr( "Body volume estimation for '%1'" )
+			  .arg(curioobj_->uiName() );
+    dlg.setTitleText( dlgtitle );
     dlg.go();
 }
 
@@ -431,8 +447,8 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     if ( !curioobj_ ) return;
 
     const BufferString attribnm = attribfld_->getText();
-    BufferString titl( "Rename '" ); titl += attribnm; titl += "'";
-    uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(attribnm) );
+    const uiString titl = tr("Rename '%1'").arg(attribnm);
+    uiGenInputDlg dlg( this, titl, tr("New name"), new StringInpSpec(attribnm));
     if ( !dlg.go() ) return;
 
     const char* newnm = dlg.text();
@@ -657,8 +673,8 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     tbl_->doubleClicked.notify( mCB(this,uiSurfaceStratDlg,doCol) );
 
     uiToolButton* sb = new uiToolButton( this, "man_strat",
-					"Edit Stratigraphy to define Markers",
-					mCB(this,uiSurfaceStratDlg,doStrat) );
+				      tr("Edit Stratigraphy to define Markers"),
+				      mCB(this,uiSurfaceStratDlg,doStrat) );
     sb->attach( rightOf, tbl_ );
 
     IOPar par;
@@ -704,7 +720,8 @@ void doCol( CallBacker* )
     }
 
     Color newcol = tbl_->getColor( cell );
-    if ( selectColor(newcol,this,"Horizon color") )
+    if ( selectColor(newcol,this,uiStrings::phrJoinStrings(
+	 uiStrings::sHorizon(),uiStrings::sColor())) )
 	tbl_->setColor( cell, newcol );
 
     tbl_->setSelected( cell, false );
@@ -762,7 +779,8 @@ class uiSurface2DMan : public uiDialog
 public:
 
 uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
-    :uiDialog(p,uiDialog::Setup("2D Horizons management","Manage 2D horizons",
+    :uiDialog(p,uiDialog::Setup(tr("2D Horizons management"),
+				tr("Manage 2D horizons"),
 				mODHelpKey(mSurface2DManHelpID) ))
     , eminfo_(info)
 {

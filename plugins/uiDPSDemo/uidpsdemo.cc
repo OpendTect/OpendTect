@@ -104,7 +104,8 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
     if ( !isok || !getSeisData(seisioobj,*dps_,taskrunner) )
 	return false;
 
-    BufferString wintitl( horioobj.name(), " / ", seisioobj.name() );
+    uiString wintitl( toUiString("%1/%2").arg(horioobj.name()).
+		      arg(seisioobj.uiName()) );
     uiDataPointSet::Setup su( wintitl, false );
     su.canaddrow( true );
     uiDataPointSet* uidps =

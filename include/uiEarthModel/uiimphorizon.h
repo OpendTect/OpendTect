@@ -87,6 +87,9 @@ protected:
     Table::FormatDesc&	fd_;
     HorizonScanner*	scanner_;
     bool		isgeom_;
+
+private:
+    uiString		goOnMsg();
 };
 
 #endif

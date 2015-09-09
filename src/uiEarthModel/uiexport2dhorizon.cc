@@ -58,7 +58,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     horselfld_->setHSzPol( uiObject::MedVar );
     horselfld_->selectionChanged.notify( mCB(this,uiExport2DHorizon,horChg) );
     for ( int idx=0; idx<hinfos_.size(); idx++ )
-	horselfld_->addItem( hinfos_[idx]->name );
+	horselfld_->addItem( mToUiStringTodo(hinfos_[idx]->name) );
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Select lines") );
     linenmfld_ = new uiListBox( this, su );
@@ -75,14 +75,16 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     udffld_->attach( alignedBelow, headerfld_ );
 
     optsfld_ = new uiCheckList( this, uiCheckList::Unrel, OD::Horizontal);
-    optsfld_->addItem( "Write line name" )
-	     .addItem( SI().zIsTime() ? "Z in msec" : "Z in feet" );
+    optsfld_->addItem( tr("Write line name") )
+	      .addItem( uiStrings::phrZIn( SI().zIsTime() ? uiStrings::sMsec() :
+							  uiStrings::sFeet()) );
     optsfld_->attach( alignedBelow, udffld_ );
     optsfld_->setChecked( 0, true )
 	     .setChecked( 1, !SI().zIsTime() && SI().depthsInFeet() );
 
-    outfld_ = new uiFileInput( this, "Output ASCII file",
-			      uiFileInput::Setup().forread(false) );
+    outfld_ = new uiFileInput( this, 
+		  uiStrings::phrOutput(uiStrings::phrASCII(uiStrings::sFile())),
+		  uiFileInput::Setup().forread(false) );
     outfld_->attach( alignedBelow, optsfld_ );
 
     horChg( 0 );

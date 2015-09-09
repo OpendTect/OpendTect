@@ -95,8 +95,11 @@ uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
 {
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiFileInput( this, "Input ASCII file", uiFileInput::Setup()
-		      .withexamine(true).examstyle(File::Table) );
+    inpfld_ = new uiFileInput( this, 
+		      uiStrings::phrInput(uiStrings::phrASCII(
+		      uiStrings::sFile())),
+		      uiFileInput::Setup().withexamine(true)
+		      .examstyle(File::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
                                     mODHelpKey(mTableImpDataSelwellsHelpID) );
@@ -110,16 +113,17 @@ uiBulkHorizonImport::~uiBulkHorizonImport()
 }
 
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 bool uiBulkHorizonImport::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( "Please enter the input file name" )
+	mErrRet( tr("Please enter the input file name") )
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( "Cannot open input file" )
+	mErrRet(uiStrings::phrCannotOpen(uiStrings::phrInput(
+		uiStrings::sFile())))
 
     if ( !dataselfld_->commit() )
 	return false;

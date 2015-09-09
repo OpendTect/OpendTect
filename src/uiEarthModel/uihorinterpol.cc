@@ -82,7 +82,8 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     else
     {
 	interpol1dsel_ = new uiArray1DInterpolSel( this, false, true );
-	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
+	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ? 
+			uiStrings::sFeet() : uiStrings::sMeter() );
 	if ( inputhorsel_ )
 	    interpol1dsel_->attach( alignedBelow, inputhorsel_ );
     }
@@ -128,15 +129,15 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 {
     FixedString method = par.find( HorizonGridder::sKeyMethod() );
     if ( method.isNull() )
-	mErrRet("Huh? No methods found in the paramaters")
+	mErrRet( toUiString("Huh? No methods found in the paramaters") )
 
     PtrMan<HorizonGridder> interpolator =
 				HorizonGridder::factory().create( method );
     if ( !interpolator )
-	mErrRet("Selected method not found")
+	mErrRet( toUiString("Selected method not found") )
 
     if ( !interpolator->usePar(par) )
-	mErrRet( "Incomplete parameters" )
+	mErrRet( toUiString("Incomplete parameters") )
 
     if ( interpolhor3dsel_->isFullSurvey() )
 	savefldgrp_->setFullSurveyArray( true );
@@ -295,7 +296,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
     }
 
     if ( !horizon_ )
-	mErrRet( "Missing horizon!" )
+	mErrRet( uiStrings::phrCannotFind(uiStrings::sHorizon(1)) )
 
     MouseCursorChanger mcc( MouseCursor::Wait );
 
@@ -328,24 +329,29 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
 {
     methodgrps_.allowNull( true );
 
-    const char* scopes[] = { "Full survey", "Bounding box", "Convex hull",
-			     "Only holes", 0 };
-    filltypefld_ = new uiGenInput( this, "Scope", StringListInpSpec(scopes) );
-    filltypefld_->setText( scopes[2] );
+    uiStringSet scopes;
+    scopes += tr("Full survey");
+    scopes += tr("Bounding box");
+    scopes += tr("Convex hull");
+    scopes += tr("Only holes");
+    scopes += uiStrings::sEmptyString();
+    filltypefld_ = new uiGenInput(this, tr("Scope"), StringListInpSpec(scopes));
+    filltypefld_->setText( mFromUiStringTodo(scopes[2]) );
 
     PositionInpSpec::Setup setup;
     PositionInpSpec spec( setup );
-    stepfld_ = new uiGenInput( this, "Inl/Crl Step", spec );
+    stepfld_ = new uiGenInput( this, tr("Inl/Crl Step"), spec );
     stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
     stepfld_->attach( alignedBelow, filltypefld_ );
-
-    BufferString titletext( "Keep holes larger than ", SI().getXYUnitString() );
-    maxholeszfld_ = new uiGenInput( this, titletext.buf(), FloatInpSpec() );
+     
+    uiString titletext( tr("Keep holes larger than %1")
+				    .arg(SI().getUiXYUnitString()) );
+    maxholeszfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
     maxholeszfld_->setWithCheck( true );
     maxholeszfld_->attach( alignedBelow, stepfld_ );
 
     const BufferStringSet& methods = uiHor3DInterpol::factory().getNames();
-    methodsel_ = new uiGenInput( this, "Algorithm",
+    methodsel_ = new uiGenInput( this, tr("Algorithm"),
 		StringListInpSpec(uiHor3DInterpol::factory().getUserNames() ) );
     methodsel_->attach( alignedBelow, maxholeszfld_ );
     methodsel_->valuechanged.notify( mCB(this,uiHor3DInterpolSel,methodSelCB) );
@@ -461,11 +467,12 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
 {
     fltselfld_ = new uiFaultParSel( this, false );
 
-    BufferString titletext( "Search radius ", SI().getXYUnitString() );
-    radiusfld_ = new uiGenInput( this, titletext.buf(), FloatInpSpec() );
+    uiString titletext( tr("Search radius %1")
+			    .arg(SI().getUiXYUnitString()) );
+    radiusfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
     radiusfld_->attach( alignedBelow, fltselfld_ );
 
-    parbut_ = new uiPushButton( this, "Parameters",
+    parbut_ = new uiPushButton( this, tr("Parameters"),
 			mCB(this,uiInvDistHor3DInterpol,doParamDlg),
 			false );
     parbut_->attach( rightOf, radiusfld_ );
@@ -538,14 +545,14 @@ uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol( uiParent* p )
 {
     fltselfld_ = new uiFaultParSel( this, false );
 
-    useneighborfld_ = new uiCheckBox( this, "Use nearest neighbor" );
+    useneighborfld_ = new uiCheckBox( this, tr("Use nearest neighbor") );
     useneighborfld_->setChecked( false );
     useneighborfld_->activated.notify(
 		mCB(this,uiTriangulationHor3DInterpol,useNeighborCB) );
     useneighborfld_->attach( alignedBelow, fltselfld_ );
 
-    BufferString titletext( "Max interpolate distance ",
-			    SI().getXYUnitString() );
+    uiString titletext( tr("Max interpolate distance %1")
+			.arg(SI().getUiXYUnitString()) );
     maxdistfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
     maxdistfld_->setWithCheck( true );
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
@@ -613,7 +620,7 @@ uiHor3DInterpol* uiExtensionHor3DInterpol::create( uiParent* p )
 uiExtensionHor3DInterpol::uiExtensionHor3DInterpol( uiParent* p )
     : uiHor3DInterpol(p)
 {
-    nrstepsfld_ = new uiGenInput( this, "Number of steps", IntInpSpec(20) );
+    nrstepsfld_ = new uiGenInput(this, tr("Number of steps"), IntInpSpec(20));
     setHAlignObj( nrstepsfld_ );
 }
 
@@ -643,10 +650,11 @@ uiContinuousCurvatureHor3DInterpol::uiContinuousCurvatureHor3DInterpol(
     : uiHor3DInterpol( p )
     , tensionfld_( 0 )
 {
-    tensionfld_ = new uiGenInput(this,"Tension",FloatInpSpec(0.25) );
+    tensionfld_ = new uiGenInput(this,tr("Tension"),FloatInpSpec(0.25) );
 
-    BufferString titletext( "Search radius ",SI().getXYUnitString() );
-    radiusfld_ = new uiGenInput( this,titletext.buf(),FloatInpSpec(0.0) );
+    uiString titletext( tr("Search radius %1")
+			   .arg(SI().getUiXYUnitString()) );
+    radiusfld_ = new uiGenInput( this, titletext, FloatInpSpec(0.0) );
     radiusfld_->attach( alignedBelow,tensionfld_ );
 
     setHAlignObj( radiusfld_ );

@@ -44,7 +44,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiMultiSurfaceReadDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiMultiSurfaceReadDlg)
 public:
 			uiMultiSurfaceReadDlg(uiParent*,const char* type);
 
