@@ -391,12 +391,17 @@ int Engine::addTracker( EM::EMObject* obj )
 
 void Engine::removeTracker( int idx )
 {
-    if ( idx<0 || idx>=trackers_.size() || !trackers_[idx] )
+    if ( !trackers_.validIdx(idx) )
 	return;
 
-    const int noofref = trackers_[idx]->nrRefs();
-    trackers_[idx]->unRef();
+    EMTracker* tracker = trackers_[idx];
+    if ( !tracker ) return;
 
+    if ( activetracker_ == tracker )
+	activetracker_ = 0;
+
+    const int noofref = tracker->nrRefs();
+    tracker->unRef();
     if ( noofref != 1 )
 	return;
 
