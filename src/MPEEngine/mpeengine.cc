@@ -178,10 +178,10 @@ void Engine::stopTracking()
 
 void Engine::trackingFinishedCB( CallBacker* )
 {
-    Undo& undo = EM::EMM().undo();
-    const int currentevent = undo.currentEventID();
+    Undo& emundo = EM::EMM().undo();
+    const int currentevent = emundo.currentEventID();
     if ( currentevent != undoeventid_ )
-	undo.setUserInteractionEnd( currentevent );
+	emundo.setUserInteractionEnd( currentevent );
 
     state_ = Stopped;
     actionCalled.trigger();
