@@ -36,7 +36,8 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     
     if ( SI().zIsTime() )
     {
-	velfld_ = new uiGenInput( this, VelocityDesc::getVelVolumeLabel(),
+	velfld_ = new uiGenInput( this, 
+			 mToUiStringTodo(VelocityDesc::getVelVolumeLabel()),
 			 FloatInpSpec( SI().depthsInFeet()?10000.0f:3000.0f) );
     }
     

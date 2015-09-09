@@ -55,7 +55,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     surf2fld_ = new uiIOObjSel( this, ctio2_, uiStrings::sBottomHor() );
     surf2fld_->attach( alignedBelow, issingfld_ );
 
-    BufferString txt;
+    uiString txt;
     if ( su.withstep_ )
     {
 	zstepfld_ = new uiSpinBox( this, 0, "Z step" );
@@ -64,14 +64,15 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	int v = (int)((zstep * zfac_) + .5);
 	zstepfld_->setValue( v );
 	zstepfld_->setInterval( StepInterval<int>(1,999999,1) );
-	txt = "Z step "; txt += SI().getZUnitString();
+	txt = tr("Z step %1").arg(SI().getUiZUnitString());
 	zsteplbl_ = new uiLabel( this, txt, zstepfld_ );
     }
 
     if ( su.withz_ )
     {
-	txt = "Extra Z";
-	extrazfld_ = new uiSelZRange( this, false, true, txt );
+	txt = tr("Extra Z");
+	extrazfld_ = new uiSelZRange( this, false, true, 
+						      mFromUiStringTodo(txt) );
 	if ( zstepfld_ )
 	    extrazfld_->attach( alignedBelow, zstepfld_ );
 	else

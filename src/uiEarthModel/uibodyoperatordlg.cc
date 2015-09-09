@@ -286,7 +286,7 @@ void uiBodyOperatorDlg::bodySel( CallBacker* )
     if ( !dlg.go() || !dlg.ioObj() )
 	return;
 
-    tree_->selectedItem()->setText( dlg.ioObj()->name() );
+    tree_->selectedItem()->setText( dlg.ioObj()->uiName() );
     bodyselfld_->setText( dlg.ioObj()->name() );
 
     const int curidx = listsaved_.indexOf( tree_->selectedItem() );
@@ -409,12 +409,13 @@ bool uiBodyOperatorDlg::BodyOperand::isOK() const
 //uiImplicitBodyValueSwitchDlg
 uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
 	const IOObj* ioobj )
-    : uiDialog(p,uiDialog::Setup("Body conversion - inside-out",
+    : uiDialog(p,uiDialog::Setup(tr("Body conversion - inside-out"),
 		mNoDlgTitle, mODHelpKey(mImplicitBodyValueSwitchDlgHelpID) ) )
 {
     setCtrlStyle( RunAndClose );
 
-    inputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Input body" );
+    inputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), 
+				uiStrings::phrInput(uiStrings::sBody()));
     if ( ioobj )
 	inputfld_->setInput( *ioobj );
 

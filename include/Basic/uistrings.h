@@ -24,7 +24,8 @@ mExpClass(Basic) uiStrings
 { mODTextTranslationClass(uiStrings);
 public:
 //Phrases
-
+    static uiString phrAdd(const uiString&);
+    //!<"Add <string>"
     static uiString phrASCII(const uiString& string);
     //!<"ASCII <string>"
     static uiString phrCalculateFrom(const uiString& string);
@@ -52,6 +53,8 @@ public:
     static uiString phrCannotWrite(const uiString& string);
     //!<"Cannot write <string>"
     static uiString phrCannotWriteDBEntry(const uiString&);
+    static uiString phrCopy(const uiString&);
+    //!<"Copy <string>"
     static uiString phrCreate(const uiString& string);
     //!<"Create <string>"
     static uiString phrDoesntExist(const uiString& string,int num=1);
@@ -70,12 +73,18 @@ public:
     //!<"Invalid <string>"
     static uiString phrJoinStrings(const uiString& a,const uiString& b);
     //!<"<a> <b>
+    static uiString phrLoad(const uiString&);
+    //!"Load <string>"
+    static uiString phrMerge(const uiString&);
+    //!"Merge <string>"
     static uiString phrModify(const uiString&);
     //!"Modify <string>"
     static uiString phrOutput(const uiString&);
     //!<"Output <string>"
     static uiString phrReading(const uiString&);
     //!<"Reading <string>"
+    static uiString phrSave(const uiString&);
+    //!<"Save <string>"
     static uiString phrSelect(const uiString& string);
     //!<"Select <string>"
     static uiString phrSuccessfullyExported(const uiString&);
@@ -86,9 +95,11 @@ public:
     //!<"Writing <string>"
     static uiString phrZIn(const uiString&);
     //!"Z in <string>"
+    static uiString phrZRange(const uiString&);
+    //!"Z Range <string>"
     
 
-//Words
+//Words	 
     static uiString s2D();
     static uiString s3D();
     static uiString sAbort()		{ return tr("Abort"); }
@@ -121,11 +132,13 @@ public:
     static uiString sCantOpenInpFile(int num=1);
     static uiString sCantOpenOutpFile(int num=1);
     static uiString sCannotSave();
+    static uiString sClear()		{ return tr("Clear"); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable();
     static uiString sComponent()	{ return tr("Component"); }
     static uiString sContinue()		{ return tr("Continue"); }
+    static uiString sCopy();		
     static uiString sCreateGroup()	{ return tr("Create Group"); }
     static uiString sCreate();
     static uiString sCreateProbDesFunc();
@@ -149,6 +162,7 @@ public:
     static uiString sFault(int num=1);
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
+    static uiString sFrequency(bool smallcase=false, bool plural=false);
     static uiString sGo()	        { return tr("Go"); }
     static uiString sHelp();
     static uiString sHide()		{ return tr("Hide"); }
@@ -174,6 +188,7 @@ public:
     static uiString sManWav()		{ return tr("Manage Wavelets"); }
     static uiString sMarker(int num=1);
     static uiString sMeter()		{ return tr("Meter"); }
+    static uiString sMerge();
     static uiString sModify();
     static uiString sMsec()		{ return tr("msec"); }
     static uiString sMute(int num=1)	{ return tr("Mute",0,num); }
@@ -247,6 +262,7 @@ public:
     static uiString sStart()		{ return tr("Start"); }
     static uiString sTile()		{ return tr("Tile"); }
     static uiString sTime()		{ return tr("Time"); }
+    static uiString sToolbar()		{ return tr("Toolbar"); }
     static uiString sTools()		{ return tr("Tools"); }
     static uiString sTopHor()		{ return tr("Top Horizon"); }
     static uiString sTrace(int num=1)	{ return tr("Trace", 0, num); }
@@ -264,6 +280,7 @@ public:
     static uiString sView()		{ return tr("View"); }
     static uiString sWarning()		{ return tr("Warning"); }
     static uiString sWavelet(int num=1);
+    static uiString sWaveNumber(bool smallcase=false, bool plural=false);		
     static uiString sWell(int num=1);
     static uiString sWells()		{ return sWell(mPlural); }
     static uiString sWellLog(int num=1);
@@ -277,6 +294,7 @@ public:
     static uiString sZUnit()		{ return tr("Z-unit"); }
     static uiString sZSlice()		{ return tr("Z-slice"); }
     static uiString sZValues()		{ return tr("Z values"); }
+    static uiString sZRange();
 
     static uiString sDistUnitString(bool isfeet,bool abbrevated,
 				    bool withparentheses);

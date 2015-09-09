@@ -58,7 +58,7 @@ static const char* rcsID mUsedVar = "$Id: uibodyregiondlg.cc 37872 2015-01-15 12
 #define cHorShiftDownCol 4
 
 class BodyExtractorFromHorizons : public ParallelTask
-{
+{ mODTextTranslationClass(BodyExtractorFromHorizons)
 public:
 BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
@@ -85,7 +85,7 @@ BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 
 ~BodyExtractorFromHorizons()	{ deepUnRef( hors_ ); }
 od_int64 nrIterations() const   { return tkzs_.nrInl()*tkzs_.nrCrl(); }
-uiString uiMessage() const	{ return "Extracting body from horizons"; }
+uiString uiMessage() const	{ return tr("Extracting body from horizons"); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
@@ -155,7 +155,7 @@ const ODPolygon<float>&				plg_;
 
 
 class ImplicitBodyRegionExtractor : public ParallelTask
-{
+{ mODTextTranslationClass(ImplicitBodyRegionExtractor)
 public:
 ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
@@ -237,7 +237,7 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 }
 
 od_int64 nrIterations() const	{ return tkzs_.nrZ(); }
-uiString uiMessage() const		{ return "Extracting implicit body"; }
+uiString uiMessage() const	{ return tr("Extracting implicit body"); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
@@ -823,14 +823,15 @@ void uiBodyRegionGrp::updateTable()
 	mDynamicCastGet(const EM::RegionHor3DBoundary*,horbd,bd)
 	if ( singlehormode && horbd )
 	{
-	    const BufferString unt( " ", SI().getZUnitString() );
+	    uiString unt = tr(" %1").arg( SI().zDomain().
+			   uiUnitStr(false) );
 
 	    uiSpinBox* shiftupfld = new uiSpinBox( 0, 0, "Shift up" );
-	    shiftupfld->setSuffix( unt.buf() );
+	    shiftupfld->setSuffix(unt);
 	    table_->setCellObject( RowCol(row,cHorShiftUpCol), shiftupfld );
 
 	    uiSpinBox* shiftdownfld = new uiSpinBox( 0, 0, "Shift down" );
-	    shiftdownfld->setSuffix( unt.buf() );
+	    shiftdownfld->setSuffix(unt);
 	    table_->setCellObject( RowCol(row,cHorShiftDownCol), shiftdownfld );
 
 	    continue;
@@ -843,7 +844,7 @@ void uiBodyRegionGrp::updateTable()
 	{
 	    uiSpinBox* iczbox = new uiSpinBox( 0, 0, "Inl/Crl/Z" );
 	    if ( zbd )
-		iczbox->setSuffix( SI().zDomain().unitStr() );
+		iczbox->setSuffix( (SI().zDomain().uiUnitStr(false)) );
 	    if ( inlbd )
 	    {
 		iczbox->setInterval( SI().inlRange(false) );

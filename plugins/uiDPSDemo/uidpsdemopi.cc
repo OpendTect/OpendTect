@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
+#include "uistrings.h"
 #include "uitoolbar.h"
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -48,7 +49,7 @@ mDefODPluginInfo(uiDPSDemo)
 
 
 class uiDPSDemoMgr :  public CallBacker
-{
+{ mODTextTranslationClass(uiDPSDemoMgr)
 public:
 
 			uiDPSDemoMgr(uiODMain&);
@@ -58,6 +59,10 @@ public:
     void		insertMenuItem(CallBacker* cb=0);
     void		insertIcon(CallBacker* cb=0);
     void		doIt(CallBacker*);
+    
+private:
+
+    const uiString	sDPSDemo();
 };
 
 static const char* pixmapfilename = "dpsdemo";
@@ -74,13 +79,18 @@ uiDPSDemoMgr::uiDPSDemoMgr( uiODMain& a )
     insertIcon();
 }
 
+const uiString uiDPSDemoMgr::sDPSDemo() 
+{
+    return tr("DataPointSet Demo"); 
+}
 
 void uiDPSDemoMgr::insertMenuItem( CallBacker* )
 {
     if ( SI().has3D() )
 	appl_.menuMgr().analMnu()->insertItem(
-		new uiAction("DataPointSet demo ...",
-		mCB(this,uiDPSDemoMgr,doIt),pixmapfilename) );
+	      new uiAction(
+	      uiStrings::phrThreeDots(sDPSDemo()),
+	      mCB(this,uiDPSDemoMgr,doIt),pixmapfilename) );
 }
 
 
@@ -88,7 +98,7 @@ void uiDPSDemoMgr::insertIcon( CallBacker* )
 {
     if ( SI().has3D() )
 	appl_.menuMgr().dtectTB()->addButton( pixmapfilename,
-			"DataPointSet demo", mCB(this,uiDPSDemoMgr,doIt) );
+			sDPSDemo(), mCB(this,uiDPSDemoMgr,doIt) );
 }
 
 

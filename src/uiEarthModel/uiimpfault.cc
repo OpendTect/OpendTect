@@ -306,29 +306,31 @@ bool uiImportFault::getFromAscIO( od_istream& strm, EM::Fault& flt )
 
 
 #undef mErrRet
-#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error( msg );  \
+		       return false; }
 
 bool uiImportFault::checkInpFlds()
 {
     FixedString fnm = infld_->fileName();
     if ( fnm.isEmpty() )
-	mErrRet( "Please select the input file" )
+	mErrRet( tr("Please select the input file") )
     else if ( !File::exists(fnm) )
-	mErrRet( "Input file does not exist" )
+	mErrRet( tr("Input file does not exist") )
 
     if( !isfss_ )
     {
 	if ( typefld_->getIntValue() == 1 )
 	{
 	    if ( !*formatfld_->fileName() )
-		mErrRet( "Please select the format file" )
+		mErrRet( tr("Please select the format file") )
 	    else if ( !File::exists(formatfld_->fileName()) )
-		mErrRet( "Format file does not exist" )
+		mErrRet( tr("Format file does not exist") )
 	}
     }
 
     if ( !outfld_->commitInput() )
-	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0)
+	mErrRet( (outfld_->isEmpty() ? uiStrings::phrSelect(
+		  uiStrings::sOutput()) : uiStrings::sEmptyString()) )
 
     if ( !dataselfld_->commit() )
 	return false;

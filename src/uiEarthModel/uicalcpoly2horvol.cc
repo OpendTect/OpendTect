@@ -20,12 +20,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pickset.h"
 #include "picksettr.h"
 #include "survinfo.h"
+#include "veldesc.h"
+#include "unitofmeasure.h"
 
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "uichecklist.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -34,7 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
+uiCalcHorVol::uiCalcHorVol( uiParent* p,const uiString& dlgtxt )
 	: uiDialog(p,Setup(tr("Calculate volume"),dlgtxt,
                     mODHelpKey(mCalcPoly2HorVolHelpID) ))
 	, zinft_(SI().depthsInFeet())
@@ -52,13 +55,15 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     uiGroup* grp = new uiGroup( this, "uiCalcHorVol group" );
 
     optsfld_ = new uiCheckList( grp );
-    optsfld_->addItem( "Ignore negative thicknesses" ).addItem( "Upward" );
+    optsfld_->addItem( tr("Ignore negative thicknesses") )
+	     .addItem( tr("Upward") );
     optsfld_->setChecked( 0, true ).setChecked( 1, true );
 
     uiObject* attobj = optsfld_->attachObj();
     if ( SI().zIsTime() )
     {
-	const char* txt = zinft_ ? "Velocity (ft/s)" : "Velocity (m/s)";
+	uiString txt = tr("%1%2").arg(uiStrings::sVelocity())
+		       .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true));
 	velfld_ = new uiGenInput( grp, txt, FloatInpSpec(
 					    mCast(float,zinft_?10000:3000)) );
 	velfld_->attach( alignedBelow, optsfld_ );
@@ -137,15 +142,18 @@ void uiCalcHorVol::calcReq( CallBacker* )
 
 
 uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
-	: uiCalcHorVol(p,"Volume estimation: polygon to horizon")
+	: uiCalcHorVol(p, tr("Volume estimation: polygon to horizon") )
 	, ps_(ps)
 	, hor_(0)
 {
     if ( ps_.size() < 3 )
-	{ new uiLabel( this, "Invalid polygon" ); return; }
+	{ 
+	    new uiLabel( this, uiStrings::phrInvalid(uiStrings::sPolygon()) ); 
+	    return; 
+	}
 
     horsel_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
-				"Calculate to" );
+				tr("Calculate to") );
     horsel_->selectionDone.notify( mCB(this,uiCalcPolyHorVol,horSel) );
 
     mkStdGrp()->attach( alignedBelow, horsel_ );
@@ -191,16 +199,20 @@ const EM::Horizon3D* uiCalcPolyHorVol::getHorizon()
 
 
 uiCalcHorPolyVol::uiCalcHorPolyVol( uiParent* p, const EM::Horizon3D& h )
-	: uiCalcHorVol(p,"Volume estimation from horizon part")
+	: uiCalcHorVol(p,tr("Volume estimation from horizon part") )
 	, ps_(0)
 	, hor_(h)
 {
     if ( hor_.nrSections() < 1 )
-	{ new uiLabel( this, "Invalid horizon" ); return; }
+    { 
+	new uiLabel( this, uiStrings::phrInvalid(uiStrings::sHorizon(1))); 
+	return; 
+    }
 
     IOObjContext ctxt( mIOObjContext(PickSet) );
     ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
-    pssel_ = new uiIOObjSel( this, ctxt, "Calculate from polygon" );
+    pssel_ = new uiIOObjSel( this, ctxt, uiStrings::phrCalculateFrom(
+			     uiStrings::sPolygon()));
     pssel_->selectionDone.notify( mCB(this,uiCalcHorPolyVol,psSel) );
 
     mkStdGrp()->attach( alignedBelow, pssel_ );
@@ -224,7 +236,7 @@ void uiCalcHorPolyVol::psSel( CallBacker* cb )
     ps_ = new Pick::Set; BufferString msg;
     if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,msg) )
     {
-	uiMSG().error( msg );
+	uiMSG().error( mToUiStringTodo(msg) );
 	delete ps_; ps_ = 0;
     }
 

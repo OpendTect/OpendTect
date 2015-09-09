@@ -105,7 +105,7 @@ class HorizonModifyDlg : public uiDialog
 public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  bool is2d, int nrcross )
-    : uiDialog(p,Setup("Horizon relations (Solve crossings)",
+    : uiDialog(p,Setup(tr("Horizon relations (Solve crossings)"),
 		       uiString::emptyString(),
                         mODHelpKey(HorizonModifyDlgHelpID) ))
     , mid1_(mid1)
@@ -121,19 +121,22 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
                  .arg(hornms.get(1)).arg( nrcross );
     uiLabel* lbl = new uiLabel( this, msg );
 
-    horizonfld_ = new uiGenInput( this, "Modify horizon",
+    horizonfld_ = new uiGenInput( this, 
+				  uiStrings::phrModify(uiStrings::sHorizon(1)),
 				  StringListInpSpec(hornms) );
     horizonfld_->valuechanged.notify( mCB(this,HorizonModifyDlg,horSel) );
     horizonfld_->attach( leftAlignedBelow, lbl );
 
-    modefld_ = new uiGenInput( this, "Modify action",
+    modefld_ = new uiGenInput( this, tr("Modify action"),
 			       BoolInpSpec(true,uiStrings::sShift(),
 			       uiStrings::sRemove()) );
     modefld_->attach( alignedBelow, horizonfld_ );
 
-    savefld_ = new uiGenInput( this, "Save modified horizon",
-			       BoolInpSpec(true,"As new",
-                                           uiStrings::sOverwrite()) );
+    savefld_ = new uiGenInput( this, uiStrings::phrSave(
+			       uiStrings::phrJoinStrings(tr("Modified"),
+			       uiStrings::sHorizon(1))),
+			       BoolInpSpec(true,tr("As new"),
+                               uiStrings::sOverwrite()) );
     savefld_->valuechanged.notify( mCB(this,HorizonModifyDlg,saveCB) );
     savefld_->attach( alignedBelow, modefld_ );
     savefld_->setSensitive( EM::canOverwrite(mid1) );
@@ -174,7 +177,7 @@ void horSel( CallBacker* )
 }
 
 
-#define mErrRet(msg) { if ( msg ) uiMSG().error(msg); return false; }
+#define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error(msg); return false; }
 
 bool acceptOK( CallBacker* )
 {
@@ -189,7 +192,9 @@ bool acceptOK( CallBacker* )
     if ( saveas )
     {
 	if ( !objfld_->commitInput() )
-	    mErrRet(objfld_->isEmpty() ? "Please select output surface" : 0)
+	    mErrRet((objfld_->isEmpty() ? uiStrings::phrSelect(
+		    uiStrings::phrOutput(uiStrings::sSurface())) :
+		    uiStrings::sEmptyString()))
 	outmid = ctio_->ioobj->key();
 	EM::ObjectID outemobjid =
 	    EM::EMM().createObject( emobj->getTypeStr(), ctio_->ioobj->name());
@@ -239,7 +244,7 @@ bool acceptOK( CallBacker* )
     modifier.doWork();
 
     PtrMan<Executor> exec = !saveas ? emobj->saver() : outemobj->saver();
-    if ( !exec ) mErrRet("Cannot save horizon")
+    if ( !exec ) mErrRet(uiStrings::phrCannotSave(uiStrings::sHorizon(1)));
 
     uiTaskRunner taskrunner( this );
     return TaskRunner::execute( &taskrunner, *exec );

@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 static const char* joinstring = "%1 %2";
 
+uiString uiStrings::phrAdd( const uiString& string )
+{ return toUiString(joinstring).arg( sAdd() ).arg( string ); }
 
 uiString uiStrings::phrASCII( const uiString& string )
 { return toUiString(joinstring).arg( sASCII() ).arg( string ); }
@@ -69,6 +71,9 @@ uiString uiStrings::phrCannotWriteDBEntry( const uiString& string )
 uiString uiStrings::phrCannotSave( const uiString& string )
 { return toUiString(joinstring).arg(sCannotSave()).arg(string); }
 
+uiString uiStrings::phrCopy( const uiString& string )
+{ return toUiString(joinstring).arg(sCopy()).arg(string); }
+
 uiString uiStrings::phrCreate( const uiString& string )
 { return toUiString(joinstring).arg( sCreate() ).arg( string ); }
 
@@ -94,6 +99,9 @@ uiString uiStrings::phrJoinStrings( const uiString& a, const uiString& b )
 uiString uiStrings::phrModify( const uiString& string )
 { return toUiString(joinstring).arg(sModify()).arg(string); }
 
+uiString uiStrings::phrMerge( const uiString& string )
+{ return toUiString(joinstring).arg(sMerge()).arg(string); }
+
 uiString uiStrings::phrOutput( const uiString& string )
 { return toUiString(joinstring).arg( sOutput() ).arg( string ); }
 
@@ -108,6 +116,15 @@ uiString uiStrings::phrZIn( const uiString& string )
 
 uiString uiStrings::phrWriting( const uiString& string )
 { return tr( "Writing %1").arg( string ); }
+
+uiString uiStrings::phrSave( const uiString& string )
+{ return toUiString(joinstring).arg(sSave()).arg(string); }
+
+uiString uiStrings::phrLoad( const uiString& string )
+{ return toUiString(joinstring).arg(sLoad()).arg(string); }
+
+uiString uiStrings::phrZRange( const uiString& string )
+{ return toUiString(joinstring).arg(sZRange()).arg(string); }
 
 uiString uiStrings::s2D()
 { return tr("2D"); }
@@ -169,6 +186,9 @@ uiString uiStrings::sOutput()
 uiString uiStrings::sCantOpenOutpFile( int num )
 { return phrCannotOpen( tr("output file", 0, num ) ); }
 
+uiString uiStrings::sCopy()
+{ return tr("Copy"); }
+
 uiString uiStrings::sCreateProbDesFunc()
 { return phrCreate( sProbDensFunc() ); }
 
@@ -186,6 +206,25 @@ uiString uiStrings::sFault( int num )
 
 uiString uiStrings::sFaultStickSet( int num )
 { return tr( "FaultStickSet", 0, num ); }
+
+uiString uiStrings::sFrequency(bool smallcase, bool plural)
+{ 
+    if ( smallcase )
+    {
+	if( plural )
+	    return tr("frequencies");
+	
+	else
+	    return tr("frequency");
+    }
+    else
+    {
+	if( plural )
+	    return tr("Frequencies");
+	else
+	    return tr("Frequency");
+    }
+}
 
 uiString uiStrings::sHelp()
 { return tr("Help"); }
@@ -218,6 +257,9 @@ uiString uiStrings::sLogs()
 
 uiString uiStrings::sMarker( int num )
 { return tr("Marker", 0, num); }
+
+uiString uiStrings::sMerge()
+{ return tr("Merge"); }
 
 uiString uiStrings::sModify()
 { return tr("Modify"); }
@@ -294,6 +336,25 @@ uiString uiStrings::sTrack()
 uiString uiStrings::sVolume()
 { return tr("Volume"); }
 
+uiString uiStrings::sWaveNumber(bool smallcase, bool plural)
+{ 
+    if ( smallcase )
+    {
+	if( plural )
+	    return tr("wavenumbers");
+	
+	else
+	    return tr("wavenumber");
+    }
+    else
+    {
+	if( plural )
+	    return tr("Wavenumbers");
+	else
+	    return tr("Wavenumber");
+    }
+}
+
 uiString uiStrings::sWavelet( int num )
 { return tr("Wavelet", 0, num ); }
 
@@ -311,6 +372,9 @@ uiString uiStrings::sDistUnitString(bool isfeet,bool abb, bool withparentheses)
 	    ? abb ? tr("ft") : tr("feet" )
 	    : abb ? tr("m") : tr("meter");
 }
+
+uiString uiStrings::sZRange()
+{ return tr("Z Range"); }
 
 
 uiString uiStrings::sVolDataName(bool is2d, bool is3d, bool isprestack,

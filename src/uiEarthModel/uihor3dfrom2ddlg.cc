@@ -47,7 +47,8 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = false;
 
-    outfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
+    outfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrOutput(
+						       uiStrings::sHorizon(1)));
     outfld_->attach( alignedBelow, interpolsel_ );
     if ( emserv_ )
     {

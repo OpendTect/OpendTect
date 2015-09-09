@@ -161,7 +161,7 @@ void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
 
     attribfld_->setEmpty();
     for ( int idx=0; idx<valnames.size(); idx++)
-	attribfld_->addItem( valnames[idx]->buf() );
+	attribfld_->addItem( toUiString(valnames[idx]->buf()) );
 }
 
 
@@ -192,7 +192,7 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 
     sectionfld_->setEmpty();
     for ( int idx=0; idx<sections.size(); idx++ )
-	sectionfld_->addItem( sections[idx]->buf() );
+	sectionfld_->addItem( toUiString(sections[idx]->buf()) );
     sectionfld_->chooseAll( true );
 }
 
@@ -285,9 +285,9 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     }
 
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
-	mkObjFld( "Output Stickset" );
+	mkObjFld( uiStrings::phrOutput(uiStrings::sFaultStickSet()) );
     else
-	mkObjFld( BufferString("Output ",setup.typ_) );
+	mkObjFld( uiStrings::phrOutput(uiStrings::sBody()) );
 
 
     if ( rgfld_ )
@@ -303,7 +303,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     if ( setup.withcolorfld_ )
     {
 	colbut_ = new uiColorInput( this,
-	    uiColorInput::Setup(getRandStdDrawColor()).lbltxt("Base color") );
+	   uiColorInput::Setup(getRandStdDrawColor()).lbltxt(tr("Base color")));
 	colbut_->attach( alignedBelow, objfld_ );
 	if ( stratlvlfld_ ) colbut_->attach( ensureBelow, stratlvlfld_ );
     }
@@ -447,11 +447,11 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
     , inpChange(this)
 {
     if ( setup.typ_ == EMFault3DTranslatorGroup::keyword() )
-	mkObjFld( "Input Fault" );
+	mkObjFld( uiStrings::phrInput(uiStrings::sFault()));
     else if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
-	mkObjFld( "Input Stickset" );
+	mkObjFld( uiStrings::phrInput(uiStrings::sFaultStickSet()));
     else
-	mkObjFld( BufferString("Input ",setup.typ_) );
+	mkObjFld( uiStrings::phrInput(mToUiStringTodo(setup.typ_)) );
 
     uiGroup* attachobj = objfld_;
 
@@ -506,14 +506,14 @@ bool uiSurfaceRead::processInput()
 
 // uiHorizonParSel
 uiHorizonParSel::uiHorizonParSel( uiParent* p, bool is2d, bool wclear )
-    : uiCompoundParSel(p,"Horizons")
+    : uiCompoundParSel(p,uiStrings::sHorizon())
     , is2d_(is2d)
 {
     butPush.notify( mCB(this,uiHorizonParSel,doDlg) );
 
     if ( wclear )
     {
-	uiPushButton* clearbut = new uiPushButton( this, "Clear", true );
+	uiPushButton* clearbut = new uiPushButton( this, tr("Clear"), true );
 	clearbut->activated.notify( mCB(this,uiHorizonParSel,clearPush) );
 	clearbut->attach( rightOf, selbut_ );
     }
@@ -564,7 +564,8 @@ void uiHorizonParSel::doDlg(CallBacker *)
 {
     IOObjContext ctxt =
 	is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
-    uiIOObjSelDlg::Setup sdsu( "Select Horizons" ); sdsu.multisel( true );
+    uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(uiStrings::sHorizon(2)) ); 
+			 sdsu.multisel( true );
     uiIOObjSelDlg dlg( this, sdsu, ctxt );
     dlg.selGrp()->setChosen( selids_ );
     if ( !dlg.go() ) return;
@@ -602,11 +603,11 @@ bool uiHorizonParSel::usePar( const IOPar& par )
 
 // uiFaultParSel
 class uiFSS2DLineSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiFSS2DLineSelDlg)
 public:
     uiFSS2DLineSelDlg( uiParent* p, const TypeSet<Pos::GeomID>& geomids )
-	: uiDialog(p,uiDialog::Setup("FaultStickSet selection",
-		    "Available for 2D lines",mNoHelpKey))
+	: uiDialog(p,uiDialog::Setup(tr("FaultStickSet selection"),
+		    tr("Available for 2D lines"),mNoHelpKey))
     {
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFaultStickSet);
 	const IODir iodir( ctio->ctxt.getSelKey() );
@@ -800,14 +801,14 @@ public:
 
 
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,"Faults","Select")
+    : uiCompoundParSel(p,uiStrings::sFault(),uiStrings::sSelect())
     , is2d_(is2d)
     , selChange(this)
     , useoptions_(useoptions)
     , defaultoptidx_(0)
 {
     butPush.notify( mCB(this,uiFaultParSel,doDlg) );
-    uiPushButton* clearbut = new uiPushButton( this, "Clear", true );
+    uiPushButton* clearbut = new uiPushButton(this, uiStrings::sClear(), true);
     clearbut->activated.notify( mCB(this,uiFaultParSel,clearPush) );
     clearbut->attach( rightOf, selbut_ );
     txtfld_->setElemSzPol( uiObject::Wide );
@@ -874,7 +875,8 @@ void uiFaultParSel::doDlg( CallBacker* )
     {
 	PtrMan<CtxtIOObj> ctio = is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
 				       : mMkCtxtIOObj(EMFault3D);
-	uiIOObjSelDlg::Setup sdsu( "Select Faults" ); sdsu.multisel( true );
+	uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(uiStrings::sFault()) );
+			     sdsu.multisel( true );
 	uiIOObjSelDlg dlg( this, sdsu, *ctio );
 	dlg.selGrp()->getListField()->setChosen( selfaultnms_ );
 	if ( !dlg.go() ) return;

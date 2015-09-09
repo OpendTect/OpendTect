@@ -47,19 +47,19 @@ uiEMPreLoadDlg::uiEMPreLoadDlg( uiParent* p, const Setup& s )
 
 // uiHorizonPreLoadDlg
 uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
-    : uiEMPreLoadDlg(p,uiDialog::Setup("Horizon Pre-load Manager",
-				       mNoDlgTitle,
-				       mODHelpKey(mHorizonPreLoadDlgHelpID) ))
+    : uiEMPreLoadDlg( p,uiDialog::Setup( tr("Horizon Pre-load Manager"), 
+		     mNoDlgTitle, mODHelpKey(mHorizonPreLoadDlgHelpID)) )
 {
     setCtrlStyle( CloseOnly );
     listfld_ = new uiListBox( this, "Loaded entries", OD::ChooseAtLeastOne );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
     uiToolButton* opentb = new uiToolButton( this, "open",
-	    "Retrieve pre-loads", mCB(this,uiHorizonPreLoadDlg,openPushCB) );
+    tr("Retrieve pre-loads"), mCB(this,uiHorizonPreLoadDlg,openPushCB) );
     opentb->attach( leftAlignedBelow, listfld_ );
 
-    savebut_ = new uiToolButton( this, "save", "Save pre-loads",
+    savebut_ = new uiToolButton( this, "save", uiStrings::phrSave(
+							    tr("pre-load")),
 		     mCB(this,uiHorizonPreLoadDlg,savePushCB) );
     savebut_->attach( rightAlignedBelow, listfld_ );
 
@@ -70,15 +70,15 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     if ( SI().has2D() )
     {
 	uiPushButton* add2dbut mUnusedVar =
-	    new uiPushButton( butgrp, "Load 2D",
+	    new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s2D()) ,
 			      mCB(this,uiHorizonPreLoadDlg,add2DPushCB), false);
     }
 
     uiPushButton* add3dbut mUnusedVar =
-	new uiPushButton( butgrp, "Load 3D",
+	new uiPushButton( butgrp, uiStrings::phrLoad(uiStrings::s3D()),
 			  mCB(this,uiHorizonPreLoadDlg,add3DPushCB), false );
 
-    unloadbut_ = new uiPushButton( this, "Unload selected",
+    unloadbut_ = new uiPushButton( this, tr("Unload selected"),
 		mCB(this,uiHorizonPreLoadDlg,unloadPushCB), false );
     unloadbut_->attach( alignedBelow, butgrp );
 
@@ -124,7 +124,7 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 
     uiTaskRunner taskrunner( this );
     hpl.load( selmids, &taskrunner );
-    uiMSG().message( hpl.errorMsg() );
+    uiMSG().message( mToUiStringTodo(hpl.errorMsg()) );
     listfld_->setEmpty();
     listfld_->addItems( hpl.getPreloadedNames() );
     listfld_->setCurrentItem( 0 );
@@ -191,7 +191,8 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
 {
     CtxtIOObj ctio( PreLoadSurfacesTranslatorGroup::ioContext() );
     ctio.ctxt.forread = true;
-    uiIOObjSelDlg hordlg( this, ctio, "Open pre-loaded settings" );
+    uiIOObjSelDlg hordlg( this, ctio, uiStrings::phrJoinStrings(
+				uiStrings::sOpen(),tr("pre-loaded settings")) );
     if ( !hordlg.go() || !hordlg.ioObj() )
 	return;
 
@@ -233,7 +234,7 @@ void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<MultiID>& savedmids )
     uiTaskRunner taskrunner( this );
     EM::HorizonPreLoader& hpl = EM::HPreL();
     hpl.load( savedmids, &taskrunner );
-    uiMSG().message( hpl.errorMsg() );
+    uiMSG().message( mToUiStringTodo(hpl.errorMsg()) );
     listfld_->setEmpty();
     BufferStringSet hornms = hpl.getPreloadedNames();
     if ( !hornms.isEmpty() )
@@ -245,7 +246,8 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
 {
     CtxtIOObj ctio( PreLoadSurfacesTranslatorGroup::ioContext() );
     ctio.ctxt.forread = false;
-    uiIOObjSelDlg hordlg( this, ctio, "Save pre-loadedsettings" );
+    uiIOObjSelDlg hordlg( this, ctio, uiStrings::phrJoinStrings(
+			  uiStrings::sSave(), tr("pre-loaded settings")) );
     if ( !hordlg.go() || !hordlg.ioObj() )
 	return;
 
