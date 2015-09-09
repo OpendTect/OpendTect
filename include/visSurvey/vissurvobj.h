@@ -131,6 +131,7 @@ public:
     virtual void		acceptManipulation()		{}
     virtual BufferString	getManipulationString() const	{ return ""; }
     virtual NotifierAccess*	getManipulationNotifier()	{ return 0; }
+    virtual void		enableEditor(bool yn)		{}
 
     virtual bool		allowMaterialEdit() const	{ return false;}
 				/*!\note Modification of color should be done

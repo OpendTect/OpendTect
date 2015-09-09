@@ -635,6 +635,11 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
     const bool selecting = toolbar_->isOn( selbutidx_ );
     showSettings( selecting && toolbar_->isOn(settingsbutidx_) );
     appl_.applMgr().visServer()->turnSelectionModeOn( selecting );
+
+    const bool enabeditor =
+	!toolbar_->isOn(selbutidx_) && !toolbar_->isOn(editbutidx_);
+    if ( curfssd_ )
+	curfssd_->enableEditor( enabeditor );
 }
 
 
