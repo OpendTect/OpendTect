@@ -21,8 +21,8 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 uiEMAuxDataSel::uiEMAuxDataSel( uiParent* p, const char* lbl,
-       				const MultiID* hormid, const char* auxdatanm )
-    : uiCompoundParSel( p, mToUiStringTodo(lbl) )
+				const MultiID* hormid, const char* auxdatanm )
+    : uiCompoundParSel( p, lbl )
     , hormid_(hormid ? *hormid : -1)
     , auxdatanm_(auxdatanm)
 {
@@ -35,9 +35,9 @@ bool uiEMAuxDataSel::butPushCB( CallBacker* )
     uiDialog dlg( this, uiDialog::Setup(tr("Horizon/Attributes Selection"),
                                         uiStrings::sEmptyString(),mNoHelpKey) );
     PtrMan<uiSurfaceRead> surfacefld = new uiSurfaceRead( &dlg,
-	    	  uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
-		  		 .withsectionfld(false)
-	   			 .multiattribsel(false) );
+		  uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
+				 .withsectionfld(false)
+				 .multiattribsel(false) );
     surfacefld->setInput( hormid_ );
     BufferStringSet attribname;
     attribname.add( auxdatanm_ );

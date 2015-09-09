@@ -506,7 +506,7 @@ bool uiSurfaceRead::processInput()
 
 // uiHorizonParSel
 uiHorizonParSel::uiHorizonParSel( uiParent* p, bool is2d, bool wclear )
-    : uiCompoundParSel(p,uiStrings::sHorizon())
+    : uiCompoundParSel(p,"Horizon")
     , is2d_(is2d)
 {
     butPush.notify( mCB(this,uiHorizonParSel,doDlg) );
@@ -564,7 +564,7 @@ void uiHorizonParSel::doDlg(CallBacker *)
 {
     IOObjContext ctxt =
 	is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
-    uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(uiStrings::sHorizon(2)) ); 
+    uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(uiStrings::sHorizon(2)) );
 			 sdsu.multisel( true );
     uiIOObjSelDlg dlg( this, sdsu, ctxt );
     dlg.selGrp()->setChosen( selids_ );
@@ -801,7 +801,7 @@ public:
 
 
 uiFaultParSel::uiFaultParSel( uiParent* p, bool is2d, bool useoptions )
-    : uiCompoundParSel(p,uiStrings::sFault(),uiStrings::sSelect())
+    : uiCompoundParSel(p,"Fault","Select")
     , is2d_(is2d)
     , selChange(this)
     , useoptions_(useoptions)
