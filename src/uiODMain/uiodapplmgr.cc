@@ -1047,8 +1047,6 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     else if ( evid==uiMPEPartServer::evGetAttribData() )
     {
     }
-    else if ( evid==uiMPEPartServer::evMPEDispIntro() )
-	visserv_->introduceMPEDisplay();
     else if ( evid==uiMPEPartServer::evInitFromSession() )
 	visserv_->initMPEStuff();
     else if ( evid==uiMPEPartServer::evUpdateTrees() )

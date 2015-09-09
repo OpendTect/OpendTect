@@ -49,7 +49,6 @@ int uiMPEPartServer::evRemoveTreeObject()	{ return 6; }
 int uiMPEPartServer::evSetupLaunched()		{ return 7; }
 int uiMPEPartServer::evSetupClosed()		{ return 8; }
 int uiMPEPartServer::evCreate2DSelSpec()	{ return 9; }
-int uiMPEPartServer::evMPEDispIntro()		{ return 10; }
 int uiMPEPartServer::evUpdateTrees()		{ return 11; }
 int uiMPEPartServer::evUpdateSeedConMode()	{ return 12; }
 int uiMPEPartServer::evStoreEMObject()		{ return 13; }

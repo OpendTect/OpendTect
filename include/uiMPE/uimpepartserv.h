@@ -102,7 +102,6 @@ public:
 				/*!<Get trackerid via activeTrackerID */
     static int			evUpdateTrees();
     static int			evUpdateSeedConMode();
-    static int			evMPEDispIntro();
     static int			evStoreEMObject();
     static int			evSetupLaunched();
     static int			evSetupClosed();
