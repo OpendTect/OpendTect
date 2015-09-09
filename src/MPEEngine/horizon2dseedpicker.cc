@@ -666,5 +666,16 @@ TrcKeyZSampling Horizon2DSeedPicker::getTrackBox() const
 }
 
 
+void Horizon2DSeedPicker::setSelSpec( const Attrib::SelSpec* as )
+{
+    selspec_ = as ? *as : Attrib::SelSpec();
+
+    SectionTracker* sectracker = tracker_.getSectionTracker( sectionid_, true );
+    mDynamicCastGet(HorizonAdjuster*,adjuster,
+		    sectracker?sectracker->adjuster():0);
+    if ( adjuster )
+	adjuster->setAttributeSel( 0, selspec_ );
+}
+
 }; // namespace MPE
 

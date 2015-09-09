@@ -54,7 +54,7 @@ public:
     bool		canRemoveSeed() const		{ return true; }
 
     void		setSelSpec(const Attrib::SelSpec*);
-    const Attrib::SelSpec* getSelSpec()			{ return &selspec_; }
+    const Attrib::SelSpec* getSelSpec() const		{ return &selspec_; }
     bool		reTrack();
     int			nrSeeds() const;
     int			minSeedsToLeaveInitStage() const;
