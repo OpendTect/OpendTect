@@ -576,7 +576,8 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     info = ""; val = "";
     if ( !emobject_ ) return;
 
-    info = emobject_->getTypeStr(); info += ": "; info += name();
+    info = emobject_->getTypeStr(); info += ": ";
+    info += mFromUiStringTodo(name());
 
     const EM::SectionID sid = getSectionID(&eventinfo.pickedobjids);
 
@@ -624,7 +625,7 @@ bool EMObjectDisplay::usePar( const IOPar& par )
     if ( !ioobj )
     {
 	errmsg_ = "Cannot locate object ";
-	errmsg_ += name();
+	errmsg_ += mFromUiStringTodo(name());
 	errmsg_ += " (";
 	errmsg_ += parmid_;
 	errmsg_ += ")";

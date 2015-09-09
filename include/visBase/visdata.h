@@ -75,8 +75,8 @@ public:
     void			setID(int nid);
     static int			getID(const osg::Node*);
 
-    FixedString			name() const;
-    virtual void		setName(const char*);
+    uiString			name() const;
+    virtual void		setName(const uiString&);
 
     osg::Node*			osgNode(bool skipswitch=false);
     const osg::Node*		osgNode(bool skipswitch=false) const;
@@ -198,7 +198,7 @@ private:
     osg::Switch*			osgoffswitch_;
     int					id_;
     bool				ison_;
-    BufferString*			name_;
+    uiString				name_;
     unsigned int			enabledmask_;
     static const void*			visualizationthread_;
     static osgViewer::CompositeViewer*	commonviewer_;

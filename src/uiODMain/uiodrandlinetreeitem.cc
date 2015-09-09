@@ -530,12 +530,12 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	else if ( mnuid == saveas2dmnuitem_.id )
 	{
-	    rln->setName( rtd->name() );
+	    rln->setName( mFromUiStringTodo(rtd->name()) );
 	    applMgr()->seisServer()->storeRlnAs2DLine( *rln );
 	}
 	else if ( mnuid == create2dgridmnuitem_.id )
 	{
-	    rln->setName( rtd->name() );
+	    rln->setName( mFromUiStringTodo(rtd->name()) );
 	    uiCreate2DGrid dlg( ODMainWin(), rln );
 	    dlg.go();
 	}

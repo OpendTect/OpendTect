@@ -1127,7 +1127,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,cb);
     if ( !slice ) return;
 
-    slicename_ = slice->name();
+    slicename_ = mFromUiStringTodo(slice->name());
     sliceposition_ = slicePosition( slice );
 
     if ( isSelected() ) return;

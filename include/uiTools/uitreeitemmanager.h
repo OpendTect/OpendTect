@@ -43,7 +43,7 @@ public:
 
     virtual bool		askContinueAndSaveIfNeeded(bool withcancel);
     void			setName( const uiString& nm )	{ name_ = nm; }
-    const char*			name() const;
+    uiString			name() const;
 
     bool			areAllParentsChecked();
 

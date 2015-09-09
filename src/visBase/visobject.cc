@@ -231,9 +231,9 @@ void VisualObjectImpl::fillPar( IOPar& iopar ) const
 
     iopar.setYN( sKeyIsOn(), isOn() );
 
-    const FixedString nm = name();
+  /*  const FixedString nm = name();
     if ( !nm.isEmpty() )
-	iopar.set( sKey::Name(),nm );
+	iopar.set( sKey::Name(),nm );*/
 
 }
 

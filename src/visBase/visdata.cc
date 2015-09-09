@@ -49,31 +49,23 @@ bool DataObject::isTraversalEnabled( unsigned int tt ) const
 }
 
 
-FixedString DataObject::name() const
+uiString DataObject::name() const
 {
-    if ( osgnode_ ) return osgnode_->getName().c_str();
-
-    return !name_ || name_->isEmpty() ? 0 : name_->buf();
+    return name_;
 }
 
 
-void DataObject::setName( const char* nm )
+void DataObject::setName( const uiString& nm )
 {
     if ( osgnode_ )
-	osgnode_->setName( nm );
-    else if ( nm )
-    {
-	if ( !name_ )
-	    name_ = new BufferString;
-    }
+	osgnode_->setName( nm.getFullString() );
 
-    if ( name_ ) (*name_) = nm;
+    name_ = nm;
 }
 
 
 DataObject::DataObject()
     : id_( -1 )
-    , name_( 0 )
     , enabledmask_( cAllTraversalMask() )
     , osgnode_( 0 )
     , osgoffswitch_( 0 )
@@ -89,7 +81,6 @@ DataObject::~DataObject()
     while ( nodestates_.size() )
 	removeNodeState( nodestates_[0] );
 
-    delete name_;
     if ( osgnode_ ) osgnode_->unref();
     if ( osgoffswitch_ ) osgoffswitch_->unref();
 }
@@ -275,7 +266,7 @@ void DataObject::updateOsgNodeData()
 {
     if ( osgnode_ )
     {
-	osgnode_->setName( name_ ? name_->buf() : sKey::EmptyString().str() );
+	osgnode_->setName( name_.getFullString() );
 	osgnode_->setUserValue( idstr, id() );
     }
 

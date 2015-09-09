@@ -194,10 +194,11 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
 
     scn.vwr3d_->setSceneID( sceneid );
-    BufferString title( scenestr );
-    title += vwridx_;
+    uiString title = uiStrings::phrJoinStrings( uiStrings::sScene(),
+					       toUiString(vwridx_) );
+
     scn.mdiwin_->setTitle( title );
-    visServ().setObjectName( sceneid, title );
+    visServ().setObjectName( sceneid, title.getFullString() );
     scn.vwr3d_->display( true );
     scn.vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
 					    : FontData() );
@@ -307,7 +308,7 @@ void uiODSceneMgr::removeSceneCB( CallBacker* cb )
 }
 
 
-void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
+void uiODSceneMgr::setSceneName( int sceneid, const uiString& nm )
 {
     visServ().setObjectName( sceneid, nm );
     Scene* scene = getScene( sceneid );
@@ -321,7 +322,7 @@ void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
 }
 
 
-const char* uiODSceneMgr::getSceneName( int sceneid ) const
+uiString uiODSceneMgr::getSceneName( int sceneid ) const
 { return const_cast<uiODSceneMgr*>(this)->visServ().getObjectName( sceneid ); }
 
 
@@ -725,7 +726,7 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
 
 int uiODSceneMgr::askSelectScene() const
 {
-    BufferStringSet scenenms; TypeSet<int> sceneids;
+    uiStringSet scenenms; TypeSet<int> sceneids;
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	int sceneid = scenes_[idx]->itemmanager_->sceneID();
@@ -814,7 +815,8 @@ int uiODSceneMgr::getActiveSceneID() const
 	if ( !scenes_[idx] || !scenes_[idx]->itemmanager_ )
 	    continue;
 
-	if ( scenenm == getSceneName(scenes_[idx]->itemmanager_->sceneID()) )
+	if ( scenenm ==
+	   getSceneName(scenes_[idx]->itemmanager_->sceneID()).getFullString() )
 	    return scenes_[idx]->itemmanager_->sceneID();
     }
 
@@ -854,7 +856,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
     uiODSceneTreeItem* sceneitm =
-	new uiODSceneTreeItem( scn.mdiwin_->getTitle().getFullString(),
+	new uiODSceneTreeItem( scn.mdiwin_->getTitle(),
 			       scn.vwr3d_->sceneID() );
     scn.itemmanager_->addChild( sceneitm, false );
 

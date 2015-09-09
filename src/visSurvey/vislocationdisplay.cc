@@ -688,7 +688,7 @@ void LocationDisplay::removePick( int removeidx, bool setundo )
 
 BufferString LocationDisplay::getManipulationString() const
 {
-    BufferString str = "PickSet: "; str += name();
+    BufferString str = "PickSet: "; str += mFromUiStringTodo(name());
     return str;
 }
 
@@ -925,7 +925,7 @@ bool LocationDisplay::usePar( const IOPar& par )
 	    PickSetTranslator::retrieve( *newps, ioobj, true, bs );
 
 	if ( !newps->name() || !*newps->name() )
-	    newps->setName( name() );
+	    newps->setName( mFromUiStringTodo(name()) );
 
 	newps->disp_.markertype_ = markertype;
 	newps->disp_.pixsize_ = pixsize;

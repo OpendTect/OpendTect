@@ -67,7 +67,7 @@ public:
     int			getUpdateQueueID() const	{return updatequeueid_;}
     int			fixedIdx() const		{ return fixedidx_; }
 
-    void		setName(const char*);
+    void		setName(const uiString&);
 
     Notifier<Scene>	nameChanged;
 

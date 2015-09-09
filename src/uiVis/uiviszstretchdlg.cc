@@ -49,8 +49,8 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 
     if ( sceneids_.size() > 1 )
     {
-	BufferStringSet scenenms;
-	scenenms.add( "All" );
+	uiStringSet scenenms;
+	scenenms.add( uiStrings::sAll() );
 	for ( int idx=0; idx<sceneids_.size(); idx++ )
 	{
 	    mDynamicCastGet(visSurvey::Scene*,scene,

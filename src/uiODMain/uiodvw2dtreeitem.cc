@@ -116,7 +116,7 @@ void uiODVw2DTreeTop::addFactoryCB( CallBacker* cb )
 	    continue;
 
 	PtrMan<uiTreeItem> itm = tfs_->getFactory(idx)->create();
-	itmbefore = findChild( itm->name() );
+	itmbefore = findChild( mFromUiStringTodo(itm->name()) );
 	break;
     }
 
@@ -131,7 +131,7 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs_->getFactory(idx)->create();
-    const uiTreeItem* child = findChild( dummy->name() );
+    const uiTreeItem* child = findChild( mFromUiStringTodo(dummy->name()) );
     if ( !children_.isPresent(child) ) return;
     removeChild( const_cast<uiTreeItem*>(child) );
 }

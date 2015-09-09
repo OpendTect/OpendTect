@@ -789,7 +789,7 @@ const char* PreStackDisplay::lineName() const
     if ( !seis2d_ )
 	return 0;
 
-    return seis2d_->name();
+    return mFromUiStringTodo(seis2d_->name());
 }
 
 

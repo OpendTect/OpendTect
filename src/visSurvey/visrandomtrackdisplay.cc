@@ -125,7 +125,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
     const BinID stop(start.inl(), mNINT32(crlrange.stop) );
 
-    Geometry::RandomLine* rl = new Geometry::RandomLine( name() );
+    Geometry::RandomLine* rl =
+	new Geometry::RandomLine( mFromUiStringTodo(name()) );
     rl->addNode( start );
     rl->addNode( stop );
     setRandomLineID( rl->ID() );
@@ -1224,7 +1225,7 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
 					  Coord3& pos, BufferString& val,
 					  BufferString& info ) const
 {
-    info = name();
+    info = mFromUiStringTodo(name());
     getValueString( pos, val );
 }
 

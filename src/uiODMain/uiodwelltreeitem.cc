@@ -145,7 +145,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     {
 	BufferStringSet wellnms;
 	for ( int idx = 0; idx<children_.size(); idx++ )
-	    wellnms.addIfNew( children_[idx]->name() );
+	    wellnms.addIfNew( children_[idx]->name().getFullString() );
 
 	uiWellAttribPartServer* srv = ODMainWin()->applMgr().wellAttribServer();
 	if ( srv->createAttribLog(wellnms) )
@@ -394,7 +394,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const bool res = applMgr()->wellServer()->storeWell(
-				    wd->getWellCoords(), wd->name(), mid_ );
+		    wd->getWellCoords(), mFromUiStringTodo(wd->name()), mid_ );
 	if ( res )
 	{
 	    wd->setChanged( false );
@@ -432,7 +432,7 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 	else if ( retval == -1 ) return false;
 	else
 	    applMgr()->wellServer()->storeWell( wd->getWellCoords(),
-		                                wd->name(), mid_ );
+					mFromUiStringTodo(wd->name()), mid_ );
     }
 
     return true;
