@@ -276,18 +276,30 @@ void uiODMenuMgr::fillImportMenu()
     mInsertPixmapItem( imppdf, m3Dots(tr("RokDoc ASCII)")),
                        mImpPDFAsciiMnuItm, ascic );
 
+    const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
     uiMenu* impseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
-    mInsertItem( impseissimple, m3Dots(uiStrings::s2D()),
-                 mImpSeisSimple2DMnuItm );
-    mInsertItem( impseissimple, m3Dots(uiStrings::s3D()),
-                 mImpSeisSimple3DMnuItm );
-    mInsertItem( impseissimple,
-            m3Dots(uiStrings::sVolDataName(true, false, true)),
-            mImpSeisSimplePS2DMnuItm );
-    mInsertItem( impseissimple,
-            m3Dots(uiStrings::sVolDataName(false, true, true)),
-            mImpSeisSimplePS3DMnuItm );
+    if ( have2d )
+    {
+	mInsertPixmapItem( impseissimple,
+		only2d ? m3Dots(tr("Line")) : m3Dots(uiStrings::s2D()),
+		mImpSeisSimple2DMnuItm, "seismicline2d" );
+	mInsertPixmapItem( impseissimple, only2d
+		? m3Dots(tr("Pre-Stack Data")) : m3Dots(tr("Pre-Stack 2D")),
+		mImpSeisSimplePS2DMnuItm, "prestackdataset2d" );
+    }
+    if ( !only2d )
+    {
+	mInsertPixmapItem( impseissimple,
+			   have2d ? m3Dots(uiStrings::s3D())
+				  : m3Dots(uiStrings::sVolume()),
+			   mImpSeisSimple3DMnuItm, "seismiccube" );
+	mInsertPixmapItem( impseissimple,
+			   have2d ? m3Dots(tr("PreStack 3D"))
+				  : m3Dots(tr("Pre-Stack Volume")),
+			   mImpSeisSimplePS3DMnuItm, "prestackdataset" );
+    }
     impseis->insertItem( impseissimple );
+
     uiMenu* impcbvsseis = new uiMenu( &appl_, tr("CBVS"), "od" );
     mInsertItem( impcbvsseis, m3Dots(tr("From File")),
                  mImpSeisCBVSMnuItm );
@@ -308,9 +320,9 @@ void uiODMenuMgr::fillImportMenu()
 
     mInsertPixmapItem( impfault, ascii, mImpFaultMnuItm, ascic );
     mInsertItem( impfaultstick, m3Dots(tr("ASCII 2D")),
-                mImpFaultSSAscii2DMnuItm );
+		 mImpFaultSSAscii2DMnuItm );
     mInsertItem( impfaultstick, m3Dots(tr("ASCII 3D")),
-                mImpFaultSSAscii3DMnuItm );
+		 mImpFaultSSAscii3DMnuItm );
 
     uiMenu* impwellasc = new uiMenu( &appl_, uiStrings::sASCII() );
     mInsertItem( impwellasc, m3Dots(uiStrings::sTrack()),
@@ -380,22 +392,28 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( expwvlt );
     expmnu_->insertSeparator();
 
+    const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
     uiMenu* expseissimple = new uiMenu( &appl_, tr("Simple File") );
-    mInsertItem( expseissimple, m3Dots(uiStrings::s2D()),
-                 mExpSeisSimple2DMnuItm );
-    mInsertItem( expseissimple, m3Dots(uiStrings::s3D()),
-                 mExpSeisSimple3DMnuItm );
-    mInsertItem( expseissimple,
-            m3Dots(uiStrings::sVolDataName(false, true, true)),
-                 mExpSeisSimplePS3DMnuItm );
+    if ( have2d )
+	mInsertItem( expseissimple, only2d ? m3Dots(tr("Line(s)"))
+			: m3Dots(uiStrings::s2D()), mExpSeisSimple2DMnuItm );
+    if ( !only2d )
+    {
+	mInsertItem( expseissimple, have2d ? m3Dots(uiStrings::s3D())
+		   : m3Dots(uiStrings::sVolume()), mExpSeisSimple3DMnuItm );
+	mInsertItem( expseissimple, have2d ? m3Dots(tr("PreStack 3D"))
+		   : m3Dots(tr("Pre-Stack Volume")), mExpSeisSimplePS3DMnuItm );
+    }
     expseis->insertItem( expseissimple );
 
     const uiString ascii = m3Dots(uiStrings::sASCII());
 
-    mInsertItem( exphor, m3Dots(tr("ASCII 2D")),
-                 mExpHorAscii2DMnuItm );
-    mInsertItem( exphor, m3Dots(tr("ASCII 3D")),
-                 mExpHorAscii3DMnuItm );
+    if ( have2d )
+	mInsertItem( exphor, m3Dots(tr("ASCII 2D")),
+		     mExpHorAscii2DMnuItm );
+    if ( !only2d )
+	mInsertItem( exphor, m3Dots(tr("ASCII 3D")),
+		     mExpHorAscii3DMnuItm );
     mInsertItem( expflt, ascii, mExpFltAsciiMnuItm );
     mInsertItem( expfltss, ascii, mExpFltSSAsciiMnuItm );
     mInsertItem( expgeom2d, ascii, mExpGeom2DMnuItm );

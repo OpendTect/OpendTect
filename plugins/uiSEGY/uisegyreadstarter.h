@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uisegyimptype.h"
 
 class Timer;
+class SurveyInfo;
 class DataClipSampler;
 class uiLabel;
 class uiButton;
@@ -26,6 +27,7 @@ class uiCheckBox;
 class uiFileInput;
 class uiSurveyMap;
 class uiHistogramDisplay;
+class uiSEGYRead;
 class uiSEGYImpType;
 class uiSEGYReadStartInfo;
 namespace SEGY { class ImpType; }
@@ -67,7 +69,7 @@ protected:
     uiSpinBox*		clipfld_;
     uiCheckBox*		inc0sbox_;
     uiLabel*		nrfileslbl_;
-    Timer*		filenamepopuptimer_;
+    Timer*		timer_;
 
     BufferString	userfilename_;
     SEGY::LoadDef	loaddef_;
@@ -76,7 +78,8 @@ protected:
     bool		infeet_;
     bool		veryfirstscan_;
     SEGY::ImpType	fixedimptype_;
-    bool		survsetup_;
+    SurveyInfo*		survinfo_;
+    uiSEGYRead*		classicrdr_;
 
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
     bool		getFileSpec();
@@ -87,6 +90,7 @@ protected:
     bool		completeFileInfo(od_istream&,SEGY::BasicFileInfo&,bool);
     void		completeLoadDef(od_istream&);
     void		handleNewInputSpec(bool);
+    void		runClassic(bool);
 
     void		createTools();
     void		createHist();
@@ -94,7 +98,7 @@ protected:
     void		clearDisplay();
     void		setButtonStatuses();
     void		displayScanResults();
-    void		updateSurvMap();
+    void		updateSurvMap(const SEGY::ScanInfo&);
 
     void		initWin(CallBacker*);
     void		firstSel(CallBacker*);
@@ -102,9 +106,12 @@ protected:
     void		inpChg(CallBacker*);
     void		editFile(CallBacker*);
     void		fullScanReq(CallBacker*);
-    void		defChg( CallBacker* )		{ execNewScan(true); }
+    void		runClassicImp(CallBacker*)	{ runClassic( true ); }
+    void		runClassicLink(CallBacker*)	{ runClassic( false ); }
+    void		defChg( CallBacker* )		{ execNewScan( true ); }
     void		examineCB(CallBacker*);
     void		updateAmplDisplay(CallBacker*);
+    void		initClassic(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     bool		commit();

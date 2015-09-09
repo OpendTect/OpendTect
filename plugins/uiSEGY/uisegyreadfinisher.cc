@@ -127,9 +127,14 @@ void uiSEGYReadFinisher::crSeisFields()
 	transffld_->attach( alignedBelow, docopyfld_ );
     if ( is2d )
     {
-	transffld_->selFld2D()->setSelectedLine( objname_ );
-	if ( fs_.spec_.nrFiles() > 1 )
-	    transffld_->selFld2D()->setSensitive( false );
+	uiSeis2DSubSel& selfld = *transffld_->selFld2D();
+	if ( fs_.spec_.nrFiles() < 2 )
+	    selfld.setSelectedLine( objname_ );
+	else
+	{
+	    selfld.setSelectedLine( "*" );
+	    selfld.setSensitive( false );
+	}
     }
 
     uiSeisSel::Setup copysu( gt ); copysu.enabotherdomain( true );
@@ -369,7 +374,7 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 	const BufferString fnm( fs_.spec_.fileName(iln) );
 	BufferString lnm( inplnm );
 	if ( nrlines > 1 )
-	    lnm = FilePath( fnm ).baseName();
+	    lnm = getWildcardSubstLineName( iln );
 
 	if ( !handleExistingGeometry(lnm,iln<nrlines-1,overwr_warn,overwr) )
 	    return false;
@@ -492,6 +497,19 @@ bool uiSEGYReadFinisher::handleExistingGeometry( const char* lnm, bool morelns,
     }
 
     return true;
+}
+
+
+BufferString uiSEGYReadFinisher::getWildcardSubstLineName( int iln ) const
+{
+    // objname_ holds wildcard expression
+    FilePath fp( fs_.spec_.fileName( iln ) );
+    const BufferString expandedname = fp.baseName();
+    // const BufferString dirnm = fp.pathOnly();
+
+    //TODO
+    BufferString ret = expandedname;
+    return ret;
 }
 
 

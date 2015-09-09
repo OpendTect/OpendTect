@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uisegyexamine.h"
 #include "uisegymanip.h"
 #include "uisegydef.h"
+#include "uisegyread.h"
 #include "uifileinput.h"
 #include "uifiledlg.h"
 #include "uiseparator.h"
@@ -26,12 +27,14 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "uispinbox.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uimenu.h"
 #include "segyhdr.h"
 #include "seisinfo.h"
 #include "dataclipper.h"
 #include "filepath.h"
 #include "dirlist.h"
 #include "oddirs.h"
+#include "survinfo.h"
 #include "od_istream.h"
 #include "settings.h"
 #include "timer.h"
@@ -45,16 +48,16 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 				: mNoDlgTitle,
 				  mTODOHelpKey ) )
     , filereadopts_(0)
-    , survsetup_(forsurvsetup)
     , typfld_(0)
     , ampldisp_(0)
     , survmap_(0)
     , veryfirstscan_(false)
     , userfilename_("x") // any non-empty
     , clipsampler_(*new DataClipSampler(100000))
-    , filenamepopuptimer_(0)
+    , survinfo_(0)
+    , timer_(0)
 {
-    if ( !survsetup_ )
+    if ( !forsurvsetup )
     {
 	setCtrlStyle( RunAndClose );
 	setOkText( tr("Next >>") );
@@ -99,7 +102,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
     createTools();
 
-    if ( survsetup_ )
+    if ( forsurvsetup )
 	createSurvMap();
     else
 	createHist();
@@ -171,7 +174,8 @@ void uiSEGYReadStarter::createSurvMap()
 
 uiSEGYReadStarter::~uiSEGYReadStarter()
 {
-    delete filenamepopuptimer_;
+    delete survinfo_;
+    delete timer_;
     delete filereadopts_;
     deepErase( scaninfo_ );
     delete &clipsampler_;
@@ -259,15 +263,34 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 
     if ( filespec_.isEmpty() )
     {
-	filenamepopuptimer_ = new Timer( "File selector popup timer" );
-	filenamepopuptimer_->start( 1, true );
-	filenamepopuptimer_->tick.notify( mCB(this,uiSEGYReadStarter,firstSel));
+	timer_ = new Timer( "uiSEGYReadStarter timer" );
+	timer_->tick.notify( mCB(this,uiSEGYReadStarter,firstSel));
+	timer_->start( 1, true );
     }
+
+    if ( survmap_ || (!typfld_ && fixedimptype_.isVSP()) )
+	return;
+
+    uiButton* okbut = button( OK );
+    const CallBack impcb( mCB(this,uiSEGYReadStarter,runClassicImp) );
+    const CallBack linkcb( mCB(this,uiSEGYReadStarter,runClassicLink) );
+    uiPushButton* execoldbut = new uiPushButton( okbut->parent(),
+					tr("'Classic'"), impcb, false );
+    execoldbut->setIcon( "launch" );
+    execoldbut->setToolTip( tr("Run the classic SEG-Y loader") );
+    execoldbut->attach( leftTo, okbut );
+    execoldbut->attach( leftBorder );
+    uiMenu* mnu = new uiMenu;
+    mnu->insertAction( new uiAction("Import",impcb) );
+    mnu->insertAction( new uiAction("Link",linkcb) );
+    execoldbut->setMenu( mnu );
 }
 
 
 void uiSEGYReadStarter::firstSel( CallBacker* )
 {
+    timer_->tick.remove( mCB(this,uiSEGYReadStarter,firstSel));
+
     uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0,
 	    uiSEGYFileSpec::fileFilter(),
 	    tr("Select (one of) the SEG-Y file(s)") );
@@ -298,6 +321,31 @@ void uiSEGYReadStarter::inpChg( CallBacker* cb )
 void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
 {
     handleNewInputSpec( true );
+}
+
+
+void uiSEGYReadStarter::runClassic( bool imp )
+{
+    const Seis::GeomType gt = impType().geomType();
+    uiSEGYRead::Setup su( survmap_ ? uiSEGYRead::SurvSetup
+			    : (imp ? uiSEGYRead::Import
+				   : uiSEGYRead::DirectDef) );
+    if ( !typfld_ )
+    {
+	su.geoms_.erase();
+	su.geoms_ += gt;
+    }
+    else if ( !imp )
+	su.geoms_ -= Seis::Line;
+
+    commit();
+    const FullSpec fullspec = fullSpec();
+    IOPar iop; fullspec.fillPar( iop );
+    classicrdr_ = new uiSEGYRead( this, su, &iop );
+    if ( !timer_ )
+	timer_ = new Timer( "uiSEGYReadStarter timer" );
+    timer_->tick.notify( mCB(this,uiSEGYReadStarter,initClassic));
+    timer_->start( 1, true );
 }
 
 
@@ -411,9 +459,25 @@ void uiSEGYReadStarter::updateAmplDisplay( CallBacker* )
 }
 
 
-void uiSEGYReadStarter::updateSurvMap()
+void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
 {
+    if ( !survmap_ )
+	return;
+
+    survinfo_ = survmap_->getEmptySurvInfo();
+
     //TODO
+
+    survmap_->setSurveyInfo( survinfo_ );
+}
+
+
+void uiSEGYReadStarter::initClassic( CallBacker* )
+{
+    if ( !classicrdr_ )
+	return;
+
+    classicrdr_->raiseCurrent();
 }
 
 
@@ -628,7 +692,7 @@ void uiSEGYReadStarter::displayScanResults()
 
     infofld_->setScanInfo( si );
     if ( survmap_ )
-	updateSurvMap();
+	updateSurvMap( si );
 }
 
 

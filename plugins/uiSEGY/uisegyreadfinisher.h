@@ -68,6 +68,7 @@ protected:
 				  const char*,Pos::GeomID);
     bool		handleExistingGeometry(const char*,bool,bool&,bool&);
     bool		handleWarnings(bool,SEGY::FileIndexer*,SeisImporter*);
+    BufferString	getWildcardSubstLineName(int) const;
 
     void		initWin(CallBacker*);
     void		wllSel(CallBacker*);
