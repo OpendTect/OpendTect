@@ -73,6 +73,10 @@ protected:
     od_int64		getFileSize(const char*,int&) const;
     void		setToolButtonProperties();
     void		ownSelChg();
+
+private:
+    uiString		sRenameSelData();
+    uiString		sRemoveSelData();
 };
 
 
