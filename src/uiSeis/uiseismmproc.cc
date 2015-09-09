@@ -96,7 +96,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     , lsfileemitted_(false)
     , is2d_(false)
 {
-    setOkText( tr("Dismiss") );
+    setOkText( uiStrings::sClose() );
     setCancelText( uiString::emptyString() );
 
     if ( parfnm_.isEmpty() )
