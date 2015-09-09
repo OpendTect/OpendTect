@@ -120,7 +120,7 @@ int SeisDataPackWriter::nextStep()
 	for ( int zidx=0; zidx<=zrg_.width(); zidx++ )
 	{
 	    const float value =
-		cube_.data(cubeindices_[idx]).get(inlidx, crlidx, zidx );
+	       cube_.data(cubeindices_[idx]).get(inlidx,crlidx,zidx+zrg_.start);
 	    trc_->set( zidx, value, idx );
 	}
     }
