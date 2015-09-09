@@ -52,6 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 static const char* sKeyIconSetNm = "Icon set name";
+static const char* ascic = "ascii";
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
@@ -265,7 +266,6 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertSeparator();
 
     const uiString ascii = m3Dots( uiStrings::sASCII() );
-    const char* ascic = "ascii";
 
     mInsertPixmapItem( impattr, ascii, mImpAttrMnuItm, ascic );
     mInsertPixmapItem( imppick, ascii, mImpPickAsciiMnuItm, ascic );
@@ -273,7 +273,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertPixmapItem( impmute, ascii, mImpMuteDefAsciiMnuItm, ascic );
     mInsertPixmapItem( impcpd, ascii, mImpPVDSAsciiMnuItm, ascic );
     mInsertPixmapItem( impvelfn, ascii, mImpVelocityAsciiMnuItm, ascic );
-    mInsertPixmapItem( imppdf, m3Dots(tr("RokDoc ASCII)")),
+    mInsertPixmapItem( imppdf, m3Dots(tr("ASCII (RokDoc)")),
                        mImpPDFAsciiMnuItm, ascic );
 
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
@@ -307,24 +307,30 @@ void uiODMenuMgr::fillImportMenu()
 		 mImpSeisCBVSOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
 
-    uiMenu* imphorasc = new uiMenu( &appl_, uiStrings::sASCII() );
-    mInsertItem( imphorasc, m3Dots(tr("Geometry 2D")),
-                 mImpHor2DAsciiMnuItm );
-    mInsertItem( imphorasc, m3Dots(tr("Geometry 3D")),
+    uiMenu* imphorasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
+    if ( have2d )
+	mInsertItem( imphorasc, m3Dots(tr("Geometry 2D")),
+		     mImpHor2DAsciiMnuItm );
+    mInsertItem( imphorasc, have2d ? m3Dots(tr("Geometry 3D"))
+				   : m3Dots(tr("Geometry")),
                  mImpHorAsciiMnuItm );
-    mInsertItem( imphorasc, m3Dots(tr("Attributes 3D")),
+    mInsertItem( imphorasc, have2d ? m3Dots(tr("Attributes 3D"))
+				   : m3Dots(tr("Attributes")),
                 mImpHorAsciiAttribMnuItm );
-    mInsertItem( imphorasc, m3Dots(tr("Bulk 3D")),
+    mInsertItem( imphorasc, have2d ? m3Dots(tr("Bulk 3D"))
+				   : m3Dots(tr("Bulk")),
                  mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
     mInsertPixmapItem( impfault, ascii, mImpFaultMnuItm, ascic );
-    mInsertItem( impfaultstick, m3Dots(tr("ASCII 2D")),
-		 mImpFaultSSAscii2DMnuItm );
-    mInsertItem( impfaultstick, m3Dots(tr("ASCII 3D")),
-		 mImpFaultSSAscii3DMnuItm );
+    if ( have2d )
+	mInsertPixmapItem( impfaultstick, m3Dots(tr("ASCII 2D")),
+		     mImpFaultSSAscii2DMnuItm, ascic );
+    mInsertPixmapItem( impfaultstick,
+		 have2d ? m3Dots(tr("ASCII 3D")) : m3Dots(uiStrings::sASCII()),
+		 mImpFaultSSAscii3DMnuItm, ascic );
 
-    uiMenu* impwellasc = new uiMenu( &appl_, uiStrings::sASCII() );
+    uiMenu* impwellasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
     mInsertItem( impwellasc, m3Dots(uiStrings::sTrack()),
                  mImpWellAsciiTrackMnuItm );
     mInsertItem( impwellasc, m3Dots(uiStrings::sLogs()),
@@ -393,35 +399,37 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertSeparator();
 
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
-    uiMenu* expseissimple = new uiMenu( &appl_, tr("Simple File") );
+    uiMenu* expseissimple = new uiMenu( &appl_, tr("Simple File"), ascic );
     if ( have2d )
-	mInsertItem( expseissimple, only2d ? m3Dots(tr("Line(s)"))
-			: m3Dots(uiStrings::s2D()), mExpSeisSimple2DMnuItm );
+	mInsertPixmapItem( expseissimple, only2d ? m3Dots(tr("Line"))
+			: m3Dots(uiStrings::s2D()), mExpSeisSimple2DMnuItm,
+			"seismicline2d"	);
     if ( !only2d )
     {
-	mInsertItem( expseissimple, have2d ? m3Dots(uiStrings::s3D())
-		   : m3Dots(uiStrings::sVolume()), mExpSeisSimple3DMnuItm );
-	mInsertItem( expseissimple, have2d ? m3Dots(tr("PreStack 3D"))
-		   : m3Dots(tr("Pre-Stack Volume")), mExpSeisSimplePS3DMnuItm );
+	mInsertPixmapItem( expseissimple, have2d ? m3Dots(uiStrings::s3D())
+		   : m3Dots(uiStrings::sVolume()), mExpSeisSimple3DMnuItm,
+	           "seismiccube" );
+	mInsertPixmapItem( expseissimple, have2d ? m3Dots(tr("PreStack 3D"))
+		   : m3Dots(tr("Pre-Stack Volume")), mExpSeisSimplePS3DMnuItm
+		   , "prestackdataset" );
     }
     expseis->insertItem( expseissimple );
 
-    const uiString ascii = m3Dots(uiStrings::sASCII());
+    const uiString sascii = m3Dots(uiStrings::sASCII());
 
     if ( have2d )
-	mInsertItem( exphor, m3Dots(tr("ASCII 2D")),
-		     mExpHorAscii2DMnuItm );
-    if ( !only2d )
-	mInsertItem( exphor, m3Dots(tr("ASCII 3D")),
-		     mExpHorAscii3DMnuItm );
-    mInsertItem( expflt, ascii, mExpFltAsciiMnuItm );
-    mInsertItem( expfltss, ascii, mExpFltSSAsciiMnuItm );
-    mInsertItem( expgeom2d, ascii, mExpGeom2DMnuItm );
-    mInsertItem( exppick, ascii, mExpPickAsciiMnuItm );
-    mInsertItem( expwvlt, ascii, mExpWvltAsciiMnuItm );
-    mInsertItem( expmute, ascii, mExpMuteDefAsciiMnuItm );
-    mInsertItem( exppdf, m3Dots(tr("RokDoc ASCII")),
-                 mExpPDFAsciiMnuItm );
+	mInsertPixmapItem( exphor, m3Dots(tr("ASCII 2D")),
+		     mExpHorAscii2DMnuItm, ascic );
+    mInsertPixmapItem( exphor, have2d ? m3Dots(tr("ASCII 3D")) : sascii,
+		 mExpHorAscii3DMnuItm, ascic );
+    mInsertPixmapItem( expflt, sascii, mExpFltAsciiMnuItm, ascic );
+    mInsertPixmapItem( expfltss, sascii, mExpFltSSAsciiMnuItm, ascic );
+    mInsertPixmapItem( expgeom2d, sascii, mExpGeom2DMnuItm, ascic );
+    mInsertPixmapItem( exppick, sascii, mExpPickAsciiMnuItm, ascic );
+    mInsertPixmapItem( expwvlt, sascii, mExpWvltAsciiMnuItm, ascic );
+    mInsertPixmapItem( expmute, sascii, mExpMuteDefAsciiMnuItm, ascic );
+    mInsertPixmapItem( exppdf, m3Dots(tr("ASCII (RokDoc)")),
+			 mExpPDFAsciiMnuItm, ascic );
 
 // Fill expmenus_
     expmnus_.erase();
