@@ -721,6 +721,7 @@ public:
 uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
     : uiDlgGroup(p->tabParent(),"Display Properties")
     , plotter_(p->plotter())
+    , hasy2_(p->plotter().axisHandler(2))
 {
     const MarkerStyle2D& mstyle = plotter_.setup().markerstyle_;
     sizefld_ = new uiGenInput( this, "Marker size", IntInpSpec(mstyle.size_));
@@ -747,7 +748,7 @@ uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
 						.lbltxt("Y Axis Color") );
     ycolinpfld_->attach( alignedBelow, llb );
 
-    if ( plotter_.isY2Shown() )
+    if ( hasy2_ )
     {
 	Color y2axiscol = plotter_.axisHandler(2)->setup().style_.color_;
 	y2colinpfld_ = new uiColorInput( this, uiColorInput::Setup(y2axiscol)
@@ -770,7 +771,7 @@ bool acceptOK()
     plotter_.axisHandler(1)->setup().style_.color_ = ycolinpfld_->color();
     plotter_.axisHandler(1)->setup().gridlinestyle_.color_ =
 	ycolinpfld_->color();
-    if ( plotter_.isY2Shown() )
+    if ( hasy2_ )
     {
 	plotter_.axisHandler(2)->setup().style_.color_ = y2colinpfld_->color();
 	plotter_.axisHandler(2)->setup().gridlinestyle_.color_ =
@@ -780,8 +781,8 @@ bool acceptOK()
     return true;
 }
 
-
     uiDataPointSetCrossPlotter& plotter_;
+    bool			hasy2_;
     uiGenInput*			sizefld_;
     uiComboBox*			shapefld_;
     uiColorInput*		ycolinpfld_;
