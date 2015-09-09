@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "vismpeeditor.h"
 #include "visplanedatadisplay.h"
+#include "visrandomtrackdisplay.h"
 #include "vispolygonselection.h"
 #include "vispolyline.h"
 #include "visseis2ddisplay.h"
@@ -520,8 +521,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     if ( stickselectmode_ )
 	return stickSelectCB( cb );
 
-    if ( !fault_ || !fsseditor_ || !viseditor_ || !isOn() ||
-	 eventcatcher_->isHandled() || !isSelected() )
+    if ( !fault_ || !fsseditor_ || !viseditor_ || !viseditor_->isOn() || 
+	 !isOn() || eventcatcher_->isHandled() || !isSelected() )
 	return;
 
     mCBCapsuleUnpack( const visBase::EventInfo&,eventinfo,cb);
@@ -552,6 +553,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     PlaneDataDisplay* plane = 0;
     Seis2DDisplay* s2dd = 0;
+    RandomTrackDisplay* rdtd = 0;
     HorizonDisplay* hordisp = 0;
     const MultiID* pickedmid = 0;
     Pos::GeomID pickedgeomid = Survey::GeometryManager::cUndefGeomID();
@@ -599,12 +601,20 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 		normal = new Coord3( plane->getNormal(Coord3::udf()) );
 		break;
 	    }
+	    mDynamicCast(RandomTrackDisplay*,rdtd,dataobj);
+	    if ( rdtd )
+	    {
+		normal = 
+		    new Coord3( rdtd->getNormal(eventinfo.displaypickedpos) );
+		break;
+	    }
+
 	    mDynamicCastGet(FaultStickSetDisplay*,fssd,dataobj);
 	    if ( fssd )
 		return;
 	}
 
-	if ( !s2dd && !plane && !hordisp )
+	if ( !s2dd && !plane && !hordisp && !rdtd )
 	{
 	    setActiveStick( EM::PosID::udf() );
 	    return;
@@ -675,7 +685,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     {
 	// Add stick
 	const Coord3 editnormal(
-		    plane ? plane->getNormal(Coord3()) :
+		    plane || rdtd ? *normal :
 		    hordisp ? Coord3(0,0,1) :
 		    Coord3(s2dd->getNormal(s2dd->getNearestTraceNr(pos)),0) );
 
@@ -828,6 +838,15 @@ void FaultStickSetDisplay::showManipulator( bool yn )
 
     if ( scene_ )
 	scene_->blockMouseSelection( yn );
+
+     displaymodechange.trigger();
+}
+
+
+void FaultStickSetDisplay::enableEditor( bool yn )
+{
+    if ( viseditor_ )
+	viseditor_->turnOn( yn );
 }
 
 
@@ -918,17 +937,29 @@ bool FaultStickSetDisplay::coincidesWithPlane(
     for ( int idx=0; idx<scene_->size(); idx++ )
     {
 	visBase::DataObject* dataobj = scene_->getObject( idx );
+	mDynamicCastGet( RandomTrackDisplay*, rdtd, dataobj );
 	mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
 	if ( !plane || !plane->isOn() )
-	    continue;
+	{
+	    if ( !rdtd || !rdtd->isOn() )
+		continue;
+	}
+	Coord3 nmpos = fss.getKnot( RowCol(rc.row(), rc.col()) );
+	if ( displaytransform_ )
+	    displaytransform_->transform( nmpos );
 
 	const Coord3 vec1 = fss.getEditPlaneNormal(sticknr).normalize();
-	const Coord3 vec2 = plane->getNormal(Coord3()).normalize();
+	const Coord3 vec2 = plane
+			    ? plane->getNormal(Coord3()).normalize()
+			    : rdtd->getNormal(nmpos).normalize();
 
 	const bool coincidemode = fabs(vec1.dot(vec2)) > 0.5;
+	const Coord3 planenormal = plane
+				   ? plane->getNormal(Coord3::udf())
+				   : rdtd->getNormal(nmpos);
 
 	const double onestepdist = Coord3(1,1,mZScale()).dot(
-	    s3dgeom_->oneStepTranslation(plane->getNormal(Coord3::udf())));
+	    s3dgeom_->oneStepTranslation(planenormal) );
 
 	float prevdist = -1;
 	Coord3 prevpos;
@@ -943,7 +974,9 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	    if ( displaytransform_ )
 		displaytransform_->transform( curpos );
 
-	    const float curdist = plane->calcDist( curpos );
+	    const float curdist = plane
+				  ? plane->calcDist(curpos)
+				  : rdtd->calcDist(curpos);
 	    if ( curdist <= 0.5*onestepdist )
 	    {
 		intersectpoints += curpos;
@@ -955,7 +988,11 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 		const float frac = prevdist / (prevdist+curdist);
 		Coord3 interpos = (1-frac)*prevpos + frac*curpos;
 
-		if ( plane->calcDist(interpos) <= 0.5*onestepdist )
+		const float dist = plane
+				   ? plane->calcDist( interpos )
+				   : rdtd->calcDist( interpos );
+
+		if ( dist <= 0.5*onestepdist )
 		{
 		    if ( prevdist <= 0.5*onestepdist )
 			intersectpoints.removeSingle(intersectpoints.size()-1);

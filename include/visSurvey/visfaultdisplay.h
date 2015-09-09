@@ -225,6 +225,7 @@ protected:
     void			updateStickHiding();
     void			setLineRadius(visBase::GeomIndexedShape*);
     void			sowingFinishedCB(CallBacker*);
+    bool			onSection(int sticknr);
 
     ZAxisTransform*			zaxistransform_;
     int					voiid_;

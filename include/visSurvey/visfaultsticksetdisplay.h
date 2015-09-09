@@ -72,6 +72,7 @@ public:
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
+    virtual void		enableEditor(bool yn);
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
