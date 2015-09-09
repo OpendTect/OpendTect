@@ -53,6 +53,7 @@ Engine::Engine()
     , actionCalled(this)
     , oneactivetracker_( 0 )
     , activetracker_( 0 )
+    , undoeventid_(-1)
     , state_(Stopped)
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
@@ -177,6 +178,11 @@ void Engine::stopTracking()
 
 void Engine::trackingFinishedCB( CallBacker* )
 {
+    Undo& undo = EM::EMM().undo();
+    const int currentevent = undo.currentEventID();
+    if ( currentevent != undoeventid_ )
+	undo.setUserInteractionEnd( currentevent );
+
     state_ = Stopped;
     actionCalled.trigger();
 }
@@ -330,6 +336,8 @@ bool Engine::trackInVolume()
 
     actionCalled.trigger();
 
+    EM::EMM().undo().removeAllBeforeCurrentEvent();
+    undoeventid_ = EM::EMM().undo().currentEventID();
     htm->setSeeds( seeds );
     htm->startFromSeeds();
     return true;

@@ -143,6 +143,7 @@ protected:
 
     const EMTracker*		oneactivetracker_;
     EMTracker*			activetracker_;
+    int				undoeventid_;
     DataPackMgr&		dpm_;
 
     bool			prepareForTrackInVolume(uiString&);
