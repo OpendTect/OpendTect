@@ -44,9 +44,7 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     savefld_ = new uiGenInput( this, tr("Save horizon"),
 	    		       BoolInpSpec(true,"As new",
                                uiStrings::sOverwrite()) );
-    const bool allowovrwrt = horizon_ ? EM::canOverwrite(horizon_->multiID())
-				      : false ;
-    allowOverWrite( allowovrwrt );
+   
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
     IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
@@ -58,8 +56,11 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     addnewfld_ = new uiCheckBox( this, "Display after create" );
     addnewfld_->attach( alignedBelow, outputfld_ );
 
-    setHAlignObj( savefld_ );    
-    saveCB(0);
+    setHAlignObj( savefld_ );
+    
+    const bool allowovrwrt = horizon_ ? EM::canOverwrite(horizon_->multiID())
+				      : false ;
+    allowOverWrite( allowovrwrt );
 }
 
 
