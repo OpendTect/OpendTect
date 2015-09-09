@@ -114,7 +114,7 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 
     const char* errmsg = scanner->posInfoDetector().getSurvInfo(cs.hsamp_,crd);
     if ( errmsg && *errmsg )
-    {	mShowErr( errmsg ); return false; }
+	{ mShowErr( errmsg ); return false; }
 
     cs.zsamp_ = scanner->zRange();
     const SEGYSeisTrcTranslator* trans = scanner->translator();

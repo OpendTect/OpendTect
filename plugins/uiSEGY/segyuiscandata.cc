@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_istream.h"
 #include "datainterp.h"
 #include "dataclipper.h"
+#include "posinfodetector.h"
 #include "survinfo.h"
 #include "executor.h"
 
@@ -177,10 +178,10 @@ public:
 
 FullUIScanner( ScanInfo& si, od_istream& strm, const LoadDef& def,
 		char* buf, float* vals, DataClipSampler& cs,
-		const SEGY::OffsetCalculator& oc )
+		const SEGY::OffsetCalculator& oc, PosInfo::Detector* dt )
     : ::Executor("SEG-Y scanner")
     , si_(si) , strm_(strm), def_(def) , buf_(buf) , vals_(vals)
-    , cs_(cs), offscalc_(oc)
+    , cs_(cs), offscalc_(oc), dtctr_(dt)
     , nrdone_(1)
 {
     totalnr_ = def_.nrTracesIn( strm );
@@ -201,8 +202,12 @@ virtual int nextStep()
 {
     for ( int idx=0; idx<10; idx++ )
     {
-	if ( !si_.addTrace(strm_,true,buf_,vals_,def_,cs_,offscalc_) )
+	if ( !si_.addTrace(strm_,true,buf_,vals_,def_,cs_,offscalc_,dtctr_) )
+	{
+	    if ( dtctr_ )
+		dtctr_->finish();
 	    return Finished();
+	}
 	nrdone_++;
     }
     return MoreToDo();
@@ -214,6 +219,7 @@ virtual int nextStep()
     char*		buf_;
     float*		vals_;
     DataClipSampler&	cs_;
+    PosInfo::Detector*	dtctr_;
     const SEGY::OffsetCalculator& offscalc_;
     od_int64		nrdone_, totalnr_;
 
@@ -222,10 +228,15 @@ virtual int nextStep()
 } // namespace SEGY
 
 
+#define mAdd2Dtector(dt,ti) \
+    if ( dt ) \
+	dt->add( ti.coord, ti.binid, ti.nr, ti.offset )
+
 
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 				bool isfirst, bool is2d, DataClipSampler& cs,
-				bool full, uiParent* uiparent )
+				bool full, PosInfo::Detector* dtctr,
+				uiParent* uiparent )
 {
     const od_istream::Pos startpos = strm.position();
     nrtrcs_ = def.nrTracesIn( strm, startpos );
@@ -261,11 +272,12 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     yrg_.start = yrg_.stop = ti.coord.y;
     refnrs_.start = refnrs_.stop = ti.refnr;
     offsrg_.start = offsrg_.stop = ti.offset;
+    mAdd2Dtector( dtctr, ti );
     addValues( cs, vals, def.ns_ );
 
     if ( full )
     {
-	FullUIScanner fscnnr( *this, strm, def, buf, vals, cs, offscalc );
+	FullUIScanner fscnnr( *this, strm, def, buf, vals, cs, offscalc, dtctr);
 	uiTaskRunner tr( uiparent );
 	tr.execute( fscnnr );
 	return;
@@ -275,7 +287,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
     {
 	while ( true )
 	{
-	    if ( !addTrace(strm,true,buf,vals,def,cs,offscalc) )
+	    if ( !addTrace(strm,true,buf,vals,def,cs,offscalc,dtctr) )
 		break;
 
 	    const bool foundranges = is2d ? trcnrs_.start != trcnrs_.stop
@@ -290,29 +302,32 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& def,
 
     // first 10 traces
     for ( int idx=0; idx<9; idx++ )
-	if ( !addTrace(strm,true,buf,vals,def,cs,offscalc) )
+	if ( !addTrace(strm,true,buf,vals,def,cs,offscalc,dtctr) )
 	    break;
 
     // 10 in the middle
     def.goToTrace( strm, startpos, nrtrcs_ / 2 );
     for ( int idx=0; idx<10; idx++ )
-	if ( !addTrace(strm,false,buf,vals,def,cs,offscalc) )
+	if ( !addTrace(strm,false,buf,vals,def,cs,offscalc,dtctr) )
 	    break;
 
     // last 10 traces
     for ( int idx=0; idx<10; idx++ )
     {
 	def.goToTrace( strm, startpos, nrtrcs_ - 1 - idx );
-	if ( !addTrace(strm,false,buf,vals,def,cs,offscalc) )
+	if ( !addTrace(strm,false,buf,vals,def,cs,offscalc,dtctr) )
 	    break;
     }
+    if ( dtctr )
+	dtctr->finish();
 }
 
 
 bool SEGY::ScanInfo::addTrace( od_istream& strm, bool wstep,
 				 char* buf, float* vals,
 				 const LoadDef& def, DataClipSampler& cs,
-				 const SEGY::OffsetCalculator& offscalc	)
+				 const SEGY::OffsetCalculator& offscalc,
+				 PosInfo::Detector* dtctr )
 {
     PtrMan<TrcHeader> thdr = def.getTrace( strm, buf, vals );
     if ( !thdr || !thdr->isusable )
@@ -321,6 +336,7 @@ bool SEGY::ScanInfo::addTrace( od_istream& strm, bool wstep,
     SeisTrcInfo ti;
     thdr->fill( ti, def.coordscale_ );
     offscalc.setOffset( ti, *thdr );
+    mAdd2Dtector( dtctr, ti );
 
     inls_.include( ti.binid.inl(), false );
     crls_.include( ti.binid.crl(), false );

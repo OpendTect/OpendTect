@@ -31,6 +31,7 @@ class uiSEGYRead;
 class uiSEGYImpType;
 class uiSEGYReadStartInfo;
 namespace SEGY { class ImpType; }
+namespace PosInfo { class Detector; }
 
 
 /*!\brief Starts reading process of 'any SEG-Y file'. */
@@ -46,7 +47,12 @@ public:
     bool		isMulti() const		{ return filespec_.isMulti(); }
     const char*		fileName( int nr=0 ) const
 			{ return filespec_.fileName(nr); }
+
     FullSpec		fullSpec() const;
+
+    const SurveyInfo*	survInfo() const
+			{ return survinfook_ ? survinfo_ : 0; }
+    bool		zInFeet() const		{ return infeet_; }
 
     const SEGY::ImpType& impType() const;
     void		setImpTypIdx(int);
@@ -70,6 +76,7 @@ protected:
     uiCheckBox*		inc0sbox_;
     uiLabel*		nrfileslbl_;
     Timer*		timer_;
+    PosInfo::Detector*	pidetector_;
 
     BufferString	userfilename_;
     SEGY::LoadDef	loaddef_;
@@ -79,6 +86,7 @@ protected:
     bool		veryfirstscan_;
     SEGY::ImpType	fixedimptype_;
     SurveyInfo*		survinfo_;
+    bool		survinfook_;
     uiSEGYRead*		classicrdr_;
 
     bool		getExistingFileName(BufferString& fnm,bool werr=true);
