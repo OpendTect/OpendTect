@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
     if ( SI().zIsTime() ) \
     { \
 	msfld_ = new uiGenInput( this, txt, BoolInpSpec(true, \
-                                "ms","s") ); \
+				uiStrings::sMsec(),uiStrings::sSec()) ); \
 	msfld_->attach( alignedBelow, att ); \
     }
 #define mGetZFac(valifms) \
@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiHorGeom2Attr::uiHorGeom2Attr( uiParent* p, EM::Horizon3D& hor )
-    : uiGetObjectName(p, Setup("Store Z values as attribute",
+    : uiGetObjectName( p, Setup(tr("Store Z values as attribute"),
 			       getItems(hor)).inptxt(uiStrings::sAttribName()) )
     , hor_(hor)
     , msfld_(0)
@@ -49,7 +49,7 @@ uiHorGeom2Attr::uiHorGeom2Attr( uiParent* p, EM::Horizon3D& hor )
     hor_.ref();
     setHelpKey( mODHelpKey(mHorGeom2AttrHelpID) );
 
-    mAddMSFld("Store in",inpfld_)
+    mAddMSFld(tr("Store in"),inpfld_)
 }
 
 
@@ -108,10 +108,9 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 
 uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
        				const DataPointSet& dps, int colid )
-    : uiDialog(p, Setup("Set horizon Z values",
-		  BufferString("Set Z values from '",
-		      dps.dataSet().colDef(colid).name_,"'"),
-                        mODHelpKey(mHorAttr2GeomHelpID) ))
+    : uiDialog(p, Setup(tr("Set horizon Z values"),(tr("Set Z values from '%1'")
+			.arg(toUiString(dps.dataSet().colDef(colid).name_)))
+			,mODHelpKey(mHorAttr2GeomHelpID)) )
     , hor_(hor)
     , dps_(dps)
     , colid_(colid-dps.nrFixedCols())
@@ -119,9 +118,9 @@ uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
 {
     hor_.ref();
 
-    isdeltafld_ = new uiGenInput( this, "Values are",
-			  BoolInpSpec(false,"Relative (deltas)","Absolute") );
-    mAddMSFld("Units",isdeltafld_)
+    isdeltafld_ = new uiGenInput( this, tr("Values are"),
+		    BoolInpSpec(false,tr("Relative (deltas)"),tr("Absolute")) );
+    mAddMSFld(tr("Units"),isdeltafld_)
 
     uiSeparator* sep = new uiSeparator( this, "HSep" );
     if ( msfld_ ) sep->attach( stretchedBelow, msfld_ );
@@ -141,7 +140,7 @@ uiHorAttr2Geom::~uiHorAttr2Geom()
 
 
 class uiHorAttr2GeomExec : public Executor
-{
+{ mODTextTranslationClass(uiHorAttr2GeomExec)
 public:
 
 uiHorAttr2GeomExec( EM::Horizon3D& h, const DataPointSet& dps,
@@ -163,8 +162,8 @@ uiHorAttr2GeomExec( EM::Horizon3D& h, const DataPointSet& dps,
     delete it_;
 }
 
-uiString uiMessage() const	{ return "Setting Z values"; }
-uiString uiNrDoneText() const	{ return "Nodes done"; }
+uiString uiMessage() const	{ return tr("Setting Z values"); }
+uiString uiNrDoneText() const	{ return tr("Nodes done"); }
 od_int64 nrDone() const		{ return stepnr_ * 1000; }
 od_int64 totalNr() const	{ return totnr_; }
 

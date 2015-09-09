@@ -80,16 +80,19 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , scanner_(0)
     , importReady(this)
 {
-    setCaption( isgeom ? tr("Import Horizon") : tr("Import Horizon Data") );
+    setCaption( isgeom ? uiStrings::phrJoinStrings(uiStrings::sImport(),
+			 uiStrings::sHorizon(1)) : toUiString("%1 %2 %3").
+			 arg(uiStrings::sImport()).arg(uiStrings::sHorizon(1)).
+			 arg(uiStrings::sData()) );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     setDeleteOnClose( false );
     ctio_.ctxt.forread = !isgeom_;
 
     BufferString fltr( "Text (*.txt *.dat);;XY/IC (*.*xy* *.*ic* *.*ix*)" );
-    inpfld_ = new uiFileInput( this, "Input ASCII File",
-		uiFileInput::Setup(uiFileDialog::Gen)
-		.withexamine(true).forread(true).filter(fltr)
-		.defseldir(sImportFromPath).examstyle(File::Table) );
+    inpfld_ = new uiFileInput( this, uiStrings::phrInput(uiStrings::phrASCII(
+		  uiStrings::sFile())), uiFileInput::Setup(uiFileDialog::Gen)
+		  .withexamine(true).forread(true).filter(fltr)
+		  .defseldir(sImportFromPath).examstyle(File::Table) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
 
@@ -194,7 +197,7 @@ void uiImportHorizon::descChg( CallBacker* cb )
 void uiImportHorizon::interpolSettingsCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation settings"),
-			  (const char*) 0, mNoHelpKey ) );
+			  uiStrings::sEmptyString(), mNoHelpKey ) );
 
     uiArray2DInterpolSel* arr2dinterpfld =
 	new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
@@ -246,12 +249,13 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 
 void uiImportHorizon::addAttribCB( CallBacker* )
 {
-    uiGenInputDlg dlg( this, "Add Attribute", uiStrings::sName(),
-		       new StringInpSpec() );
+    uiGenInputDlg dlg( this, uiStrings::phrAdd(uiStrings::sAttribute()), 
+			     uiStrings::sName(),
+			     new StringInpSpec() );
     if ( !dlg.go() ) return;
 
     const char* attrnm = dlg.text();
-    attrlistfld_->addItem( attrnm );
+    attrlistfld_->addItem( toUiString(attrnm) );
     attrlistfld_->setChosen( attrlistfld_->size()-1, true );
 }
 
@@ -308,11 +312,18 @@ void uiImportHorizon::scanPush( CallBacker* )
     const int df = n##ic##lnrg.start - ic##rg.start; \
     if ( df%2 && !(ic##rg.step%2) && !(n##ic##lnrg.step%2) ) \
     { \
-	uiString msg = "The horizon is not compatible with survey " \
-		       "trace, do you want to continue?"; \
+	uiString msg = goOnMsg();  \
 	if ( !uiMSG().askGoOn(msg) ) \
 	    return false; \
     }
+    
+
+uiString uiImportHorizon::goOnMsg()
+{	 
+    uiString msg(tr("The horizon is not compatible with survey " 
+		      "trace, do you want to continue?")); 
+    return msg;
+}
 
 
 bool uiImportHorizon::doScan()
@@ -344,7 +355,7 @@ bool uiImportHorizon::doScan()
 
     if ( nilnrg.step==0 || nclnrg.step==0 )
     {
-	uiMSG().error( "Cannot have '0' as a step value" );
+	uiMSG().error( tr("Cannot have '0' as a step value") );
 	return false;
     }
 
@@ -424,8 +435,8 @@ bool uiImportHorizon::doImport()
 
     if ( scanner_->nrPositions() == 0 )
     {
-	uiString msg( "No valid positions found\n"
-		      "Please re-examine input file and format definition" );
+	uiString msg( tr("No valid positions found\n"
+		      "Please re-examine input file and format definition") );
 	mErrRetUnRef( msg );
     }
 
@@ -469,6 +480,7 @@ bool uiImportHorizon::doImport()
     {
 	Executor* exec = horizon->saver();
 	mSave(taskrunner);
+	horizon->setPreferredColor( colbut_->color() );
     }
     else
     {
@@ -631,7 +643,6 @@ EM::Horizon3D* uiImportHorizon::createHor() const
     horizon->change.disable();
     horizon->setMultiID( mid );
     horizon->setStratLevelID( stratlvlfld_->getID() );
-    horizon->setPreferredColor( colbut_->color() );
     horizon->ref();
     return horizon;
 }

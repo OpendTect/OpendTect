@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
-                                        bool is2d, const char* txt )
+                                        bool is2d, const uiString& txt )
     : uiDialog (p, Setup(txt,mNoDlgTitle, 
                          mODHelpKey(mChangeSurfaceDlgHelpID) ) )
     , horizon_( hor )
@@ -48,7 +48,8 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
 	IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
 	    			 : EMHorizon3DTranslatorGroup::ioContext();
 	ctxt.forread = true;
-	inputfld_ = new uiIOObjSel( this, ctxt, "Input Horizon" );
+	inputfld_ = new uiIOObjSel( this, ctxt, uiStrings::phrInvalid(
+				    uiStrings::sHorizon(1)) );
     }
 
     savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_ );
@@ -167,10 +168,18 @@ bool uiChangeHorizonDlg::doProcessing3D()
 bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 {
     if ( inputfld_ && !inputfld_->commitInput() )
-	mErrRet( "Please select input horizon" )
+    {
+	uiMSG().error( uiStrings::phrSelect(uiStrings::phrInput(
+		       uiStrings::sHorizon(1))) );
+	return false;
+    }
+	 
 
     if ( !horizon_ && !readHorizon() )
-	mErrRet( "Cannot read horizon" )
+    {
+	uiMSG().error( uiStrings::phrCannotRead(uiStrings::sHorizon(1)) );
+	return false;
+    }
    
     if ( !savefldgrp_->acceptOK( cb ) )
 	return false;
@@ -189,7 +198,8 @@ bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 //---- uiFilterHorizonDlg
 
 uiFilterHorizonDlg::uiFilterHorizonDlg( uiParent* p, EM::Horizon* hor )
-    : uiChangeHorizonDlg(p,hor,false,"Horizon filtering")
+    : uiChangeHorizonDlg(p,hor,false,uiStrings::phrJoinStrings(
+			 uiStrings::sHorizon(1),tr("filtering")))
 {
     Array2DFilterPars filterpars( Stats::Median );
     parsgrp_ = new uiArr2DFilterPars( this, &filterpars );

@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posidxpair2coord.h"
 #include "od_istream.h"
 #include "oscommand.h"
+#include "uistrings.h"
 #include <stdio.h>
 
 
@@ -776,6 +777,12 @@ const ZDomain::Def& SurveyInfo::zDomain() const
 const char* SurveyInfo::getXYUnitString( bool wb ) const
 {
     return getDistUnitString( xyinfeet_, wb );
+}
+
+
+uiString SurveyInfo::getUiXYUnitString( bool abbrvt, bool wb ) const
+{
+    return uiStrings::sDistUnitString( xyinfeet_, abbrvt, wb );
 }
 
 

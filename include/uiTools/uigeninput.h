@@ -213,8 +213,7 @@ Returns true, if changes are accepted.
     virtual bool	isSingleLine() const		{ return true; }
 
     void		setWithCheck( bool yn=true )	{ withchk_ = yn; }
-    void		setWithSelect( bool yn=true )
-			{ selText_ = yn ? "&Select" : "" ; }
+    void		setWithSelect( bool yn=true );
 
     void		setNrDecimals(int nrdec,int fldnr=0);
     void		setRequired(bool yn=true);

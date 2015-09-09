@@ -75,6 +75,8 @@ public:
 
     inline bool		xyInFeet() const	{ return xyinfeet_;}
     const char*		getXYUnitString(bool withparens=true) const;
+    uiString		getUiXYUnitString(bool abbrviated=true, 
+						    bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
     bool		depthsInFeet() const	{ return depthsinfeet_; }
     inline float	showZ2UserFactor() const
@@ -91,6 +93,8 @@ public:
     const char*		getZUnitString(bool withparens=true) const
 			//!<Legacy, don't use
 			{ return zDomain().unitStr( withparens ); }
+    const uiString	getUiZUnitString(bool withparens=true) const
+			{ return zDomain().uiUnitStr( withparens ); }
     enum Unit		{ Second, Meter, Feet };
     Unit		xyUnit() const;
 			//!<Legacy, don't use

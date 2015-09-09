@@ -55,11 +55,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #define cHorShiftDownCol 3
 
 class BodyExtractorFromHorizons : public ParallelTask
-{
+{ mODTextTranslationClass(BodyExtractorFromHorizons)
 public:
 BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const TrcKeyZSampling& cs, Array3D<float>& res, 
+	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )
     : res_(res)
     , tkzs_(cs)
@@ -82,7 +82,7 @@ BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 
 ~BodyExtractorFromHorizons()	{ deepUnRef( hors_ ); }
 od_int64 nrIterations() const   { return tkzs_.nrInl()*tkzs_.nrCrl(); }
-uiString uiMessage() const	{ return "Extracting body from horizons"; }
+uiString uiMessage() const	{ return tr("Extracting body from horizons"); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
@@ -152,11 +152,11 @@ const ODPolygon<float>&				plg_;
 
 
 class ImplicitBodyRegionExtractor : public ParallelTask
-{
+{ mODTextTranslationClass(ImplicitBodyRegionExtractor)
 public:
 ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const TrcKeyZSampling& cs, Array3D<float>& res, 
+	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )
     : res_(res)
     , tkzs_(cs)
@@ -234,7 +234,7 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 }
 
 od_int64 nrIterations() const	{ return tkzs_.nrZ(); }
-uiString uiMessage() const		{ return "Extracting implicit body"; }
+uiString uiMessage() const	{ return tr("Extracting implicit body"); }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
@@ -793,23 +793,22 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
 
     if ( !isfault )
     {
+	uiString unt = tr(" %1").arg( SI().zDomain().uiUnitStr(false) );
+
 	if ( singlehormod )
 	{
-	    BufferString unt( " ", SI().getZUnitString() );
-
 	    uiSpinBox* shiftupfld = new uiSpinBox( 0, 0, "Shift up" );
-	    shiftupfld->setSuffix( unt.buf() );
+	    shiftupfld->setSuffix(unt);
 	    table_->setCellObject( RowCol(row,cHorShiftUpCol), shiftupfld );
 
 	    uiSpinBox* shiftdownfld = new uiSpinBox( 0, 0, "Shift down" );
-	    shiftdownfld->setSuffix( unt.buf() );
+	    shiftdownfld->setSuffix(unt);
 	    table_->setCellObject( RowCol(row,cHorShiftDownCol), shiftdownfld );
 	}
 	else
 	{
 	    uiSpinBox* shiftfld = new uiSpinBox( 0, 0, "Shift" );
-	    BufferString unt( " ", SI().getZUnitString() );
-	    shiftfld->setSuffix( unt.buf() );
+	    shiftfld->setSuffix( unt );
 	    shiftfld->setMinValue( -INT_MAX );
 	    table_->setCellObject( RowCol(row,cRelLayerCol), shiftfld );
 	}

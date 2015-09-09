@@ -180,8 +180,13 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
           mODHelpKey(mCopySurfaceFaultsHelpID) )
 
 #define mGetWinNm(ioobj) \
-    mGet( ioobj, "Copy 2D horizon", "Copy 3D horizon", "Copy faultStickSet",\
-	  "Copy fault")
+    mGet( ioobj,\
+	uiStrings::phrCopy(uiStrings::phrJoinStrings(uiStrings::s2D(),  \
+	uiStrings::sHorizon(1))), \
+	uiStrings::phrCopy(uiStrings::phrJoinStrings(uiStrings::s3D(),  \
+	uiStrings::sHorizon(1))), \
+	uiStrings::phrCopy(uiStrings::sFaultStickSet()), \
+	uiStrings::phrCopy(uiStrings::sFault())) \
 
 
 uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
@@ -196,11 +201,14 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj,
     ctio_.setObj( 0 );
 
     if ( ioobj.group() == EMFault3DTranslatorGroup::keyword() )
-	outfld = new uiIOObjSel( this, ctio_, "Output Fault" );
+	outfld = new uiIOObjSel( this, ctio_, 
+				 uiStrings::phrOutput(uiStrings::sFault()) );
     else if ( ioobj.group() != EM::FaultStickSet::typeStr() )
-	outfld = new uiIOObjSel( this, ctio_, "Output Surface" );
+	outfld = new uiIOObjSel( this, ctio_, 
+				 uiStrings::phrOutput(uiStrings::sSurface()) );
     else
-	outfld = new uiIOObjSel( this, ctio_, "Output Stickset" );
+	outfld = new uiIOObjSel( this, ctio_,  
+			    uiStrings::phrOutput(uiStrings::sFaultStickSet()) );
 
     outfld->attach( alignedBelow, inpfld );
 }
@@ -227,28 +235,29 @@ CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 }
 
 
-#define mErrRet(msg) { if ( msg ) uiMSG().error(msg); return false; }
+#define mErrRet(msg) { if ( !msg.isEmpty() ) uiMSG().error(msg); return false; }
 
 bool uiCopySurface::acceptOK( CallBacker* )
 {
     if ( !inpfld->processInput() ) return false;
     if ( !outfld->commitInput() )
-	mErrRet(outfld->isEmpty() ? "Please select output surface" : 0)
+	mErrRet( (outfld->isEmpty() ? uiStrings::phrSelect(uiStrings::phrOutput
+		 (uiStrings::sSurface())) : uiStrings::sEmptyString()) )
 
     const IOObj* ioobj = inpfld->selIOObj();
-    if ( !ioobj ) mErrRet("Cannot find surface")
+    if ( !ioobj ) mErrRet(uiStrings::phrCannotFind(uiStrings::sSurface()))
 
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sdsel( sd );
     inpfld->getSelection( sdsel );
 
     RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
-    if ( !emobj ) mErrRet("Cannot create object")
+    if ( !emobj ) mErrRet(uiStrings::phrCannotCreate(tr("Object")))
     emobj->setMultiID( ioobj->key() );
 
     mDynamicCastGet(EM::Surface*,surface,emobj.ptr())
     PtrMan<Executor> loader = surface->geometry().loader( &sdsel );
-    if ( !loader ) mErrRet("Cannot read surface")
+    if ( !loader ) mErrRet(uiStrings::phrCannotRead(uiStrings::sSurface()))
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
@@ -272,7 +281,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     const MultiID& mid = newioobj->key();
     emobj->setMultiID( mid );
     PtrMan<Executor> saver = surface->geometry().saver( &outsdsel, &mid );
-    if ( !saver ) mErrRet("Cannot save surface")
+    if ( !saver ) mErrRet(uiStrings::phrCannotSave(uiStrings::sSurface()))
 
     if ( !TaskRunner::execute( &taskrunner, *saver ) ) return false;
 

@@ -56,8 +56,9 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     rlsctio_.ctxt.forread = false;
     polyctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
 
-    infld_ = new uiIOObjSel( this, horctio_, "Input Horizon" );
-    uiIOObjSel::Setup osu( "Within polygon" ); osu.optional( true );
+    infld_ = new uiIOObjSel( this, horctio_, 
+			     uiStrings::phrInput(uiStrings::sHorizon(1)));
+    uiIOObjSel::Setup osu( tr("Within polygon") ); osu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctio_, osu );
     polyfld_->attach( alignedBelow, infld_ );
 
@@ -85,7 +86,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     vtxthreshfld_->box()->setInterval( 2, INT_MAX );
     vtxthreshfld_->attach( alignedBelow, nrlargestfld_ );
 
-    const char* fldnm = "Random line Z range";
+    uiString fldnm = tr("Random line Z range");
     const float wdth = 50 * sizrg.step;
     relzrgfld_ = new uiGenInput( this, fldnm,
 			FloatInpIntervalSpec(Interval<float>(-wdth,wdth)) );
@@ -98,7 +99,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     isrelfld_->setChecked( true );
     isrelfld_->attach( rightOf, abszrgfld_ );
 
-    outfld_ = new uiIOObjSel( this, rlsctio_, "Random Line set" );
+    outfld_ = new uiIOObjSel( this, rlsctio_, tr("Random Line set") );
     outfld_->attach( alignedBelow, relzrgfld_ );
 
     dispfld_ = new uiCheckBox( this, tr("Display Random Line on creation") );
@@ -142,15 +143,18 @@ void uiGenRanLinesByContour::isrelChg( CallBacker* )
 }
 
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 {
     if ( !infld_->commitInput() )
-	mErrRet("Please select the input horizon")
+	mErrRet(uiStrings::phrSelect(uiStrings::phrInput(
+						    uiStrings::sHorizon(1))))
     if ( !outfld_->commitInput() )
-	mErrRet(outfld_->isEmpty() ?
-		"Please select the output random line set" : 0)
+	mErrRet((outfld_->isEmpty() ?
+	    uiStrings::phrSelect(uiStrings::phrOutput(
+	    uiStrings::phrJoinStrings(uiStrings::sRandomLine(),
+	    uiStrings::sSet()))) : uiStrings::sEmptyString()))
 
     PtrMan< ODPolygon<float> > poly = 0;
     if ( polyfld_->isChecked() )
@@ -162,7 +166,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 	else
 	    msg = "Please select the polygon, or uncheck";
 	if ( !poly )
-	   mErrRet(msg)
+	   mErrRet(mToUiStringTodo(msg))
     }
 
     uiTaskRunner taskrunner( this ); EM::EMManager& em = EM::EMM();
@@ -191,12 +195,12 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 
     const int rlssz = rls.size();
     if ( rlssz < 1 )
-       mErrRet("Could not find a contour in range")
+       mErrRet(uiStrings::phrCannotFind(tr("a contour in range")))
     else
     {
 	BufferString emsg;
 	if ( !RandomLineSetTranslator::store(rls,rlsctio_.ioobj,emsg) )
-	   mErrRet(emsg)
+	   mErrRet(mToUiStringTodo(emsg))
     }
 
     uiMSG().message(tr("Created %1%2").arg(rls.size())
@@ -214,25 +218,28 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
 {
     outctio_.ctxt.forread = false;
 
-    infld_ = new uiIOObjSel( this, inctio_, "Input Random Line" );
+    infld_ = new uiIOObjSel( this, inctio_, 
+			     uiStrings::phrInput(uiStrings::sRandomLine()));
 
     const BinID bid1( 1, 1 );
     const BinID bid2( 1 + SI().sampling(false).hsamp_.step_.inl(), 1 );
     const Coord c1( SI().transform(bid1) );
     const Coord c2( SI().transform(bid2) );
-    distfld_ = new uiGenInput( this, "Distance from input",
+    distfld_ = new uiGenInput( this, tr("Distance from input"),
 				    FloatInpSpec((float)( 4*c1.distTo(c2)) ));
     distfld_->attach( alignedBelow, infld_ );
 
     const char* strs[] = { "Left", "Right", "Both", 0 };
-    sidefld_ = new uiGenInput( this, "Direction", StringListInpSpec(strs) );
+    sidefld_ = new uiGenInput(this, tr("Direction"), 
+			     StringListInpSpec(strs));
     sidefld_->setValue( 2 );
     sidefld_->attach( alignedBelow, distfld_ );
 
-    outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
+    outfld_ = new uiIOObjSel( this, outctio_, 
+			      uiStrings::phrOutput(uiStrings::sRandomLine()));
     outfld_->attach( alignedBelow, sidefld_ );
 
-    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+    dispfld_ = new uiCheckBox( this, tr("Display Random Line on creation") );
     dispfld_->attach( alignedBelow, outfld_ );
     dispfld_->setChecked( true );
 }
@@ -261,14 +268,17 @@ const char* uiGenRanLinesByShift::getNewSetID() const
 bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 {
     if ( !infld_->commitInput() )
-	mErrRet("Please select the input random line (set)")
+	mErrRet(uiStrings::phrSelect(uiStrings::phrInput(
+	uiStrings::phrJoinStrings(uiStrings::sRandomLine(),tr("(Set)")))))
     if ( !outfld_->commitInput() )
-	mErrRet(outfld_->isEmpty() ?
-		"Please select the output random line (set)" : 0)
+	mErrRet((outfld_->isEmpty() ?
+	       uiStrings::phrSelect(uiStrings::phrInput(
+	       uiStrings::phrJoinStrings(uiStrings::sRandomLine(),tr("(Set)"))))
+	       : uiStrings::sEmptyString()) )
 
     Geometry::RandomLineSet inprls; BufferString msg;
     if ( !RandomLineSetTranslator::retrieve(inprls,inctio_.ioobj,msg) )
-	mErrRet(msg)
+	mErrRet(mToUiStringTodo(msg))
 
     int lnr = 0;
     if ( inprls.size() > 1 )
@@ -277,7 +287,8 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 	for ( int idx=0; idx<inprls.size(); idx++ )
 	    lnms.add( inprls.lines()[idx]->name() );
 	uiSelectFromList dlg( this,
-			      uiSelectFromList::Setup("Select one line",lnms) );
+		    uiSelectFromList::Setup(uiStrings::phrSelect(tr("one line"))
+			      ,lnms) );
 	if ( !dlg.go() ) return false;
 	lnr = dlg.selection();
     }
@@ -287,10 +298,10 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 				    choice == 0 ? -1 : (choice == 1 ? 1 : 0) );
     Geometry::RandomLineSet outrls; gen.generate( outrls, lnr );
     if ( outrls.isEmpty() )
-	mErrRet("Not enough input points to create output")
+	mErrRet(tr("Not enough input points to create output"))
 
     if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg) )
-	mErrRet(msg)
+	mErrRet(mToUiStringTodo(msg))
 
     return true;
 }
@@ -306,12 +317,15 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     outctio_.ctxt.forread = false;
     inctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
 
-    infld_ = new uiIOObjSel( this, inctio_, "Input Polygon" );
+    infld_ = new uiIOObjSel( this, inctio_, 
+			     uiStrings::phrInput(uiStrings::sPolygon()) );
+    
     zrgfld_ = new uiSelZRange( this, true );
     zrgfld_->attach( alignedBelow, infld_ );
-    outfld_ = new uiIOObjSel( this, outctio_, "Output Random Line" );
+    outfld_ = new uiIOObjSel( this, outctio_,
+			      uiStrings::phrOutput(uiStrings::sRandomLine()));
     outfld_->attach( alignedBelow, zrgfld_ );
-    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+    dispfld_ = new uiCheckBox( this, tr("Display Random Line on creation") );
     dispfld_->attach( alignedBelow, outfld_ );
     dispfld_->setChecked( true );
 }
@@ -340,16 +354,19 @@ bool uiGenRanLineFromPolygon::dispOnCreation()
 bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 {
     if ( !infld_->commitInput() )
-	mErrRet("Please select the input polygon")
+	mErrRet(uiStrings::phrSelect(uiStrings::phrInput(
+							uiStrings::sPolygon())))
     if ( !outfld_->commitInput() )
-	mErrRet(outfld_->isEmpty() ?
-		"Please select the output random line" : 0)
+	mErrRet((outfld_->isEmpty() ?
+		uiStrings::phrSelect(uiStrings::phrOutput(
+						      uiStrings::sRandomLine()))
+		: uiStrings::sEmptyString()))
 
     PtrMan< ODPolygon<float> > poly = 0;
     BufferString msg;
     poly = PickSetTranslator::getPolygon( *inctio_.ioobj, msg );
     if ( !poly )
-       mErrRet(msg)
+       mErrRet(mToUiStringTodo(msg))
 
     RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
     for ( int idx=0; idx<poly->size(); idx++ )
@@ -359,13 +376,13 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 	rl->addNode( bid );
     }
     if ( rl->isEmpty() )
-	{ mErrRet("Empty input polygon") }
+	{ mErrRet(tr("Empty input polygon")) }
     rl->setZRange( zrgfld_->getRange() );
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );
     if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg) )
-	mErrRet(msg)
+	mErrRet(mToUiStringTodo(msg))
 
     return true;
 }
