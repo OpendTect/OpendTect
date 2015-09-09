@@ -33,6 +33,8 @@ void SEGY::FullSpec::fillPar( IOPar& iop ) const
     spec_.fillPar( iop );
     pars_.fillPar( iop );
     readopts_.fillPar( iop );
+    if ( !isVSP() )
+	iop.set( sKey::Geometry(), Seis::nameOf(geomType()) );
 }
 
 

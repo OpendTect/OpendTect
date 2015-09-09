@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "segydirecttr.h"
 #include "survinfo.h"
+#include "ioman.h"
 
 #include "uisegydirectinserter.h"
 #include "uisegywriteopts.h"
@@ -31,6 +32,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 
 #include "odplugin.h"
+
+static const char* segy_iconid = "segy";
 
 
 mDefODPluginInfo(uiSEGY)
@@ -58,18 +61,20 @@ public:
     void		updateToolBar(CallBacker*);
     void		survChg(CallBacker*);
     void		edFiles(CallBacker*);
-    void		genImpCB(CallBacker*);
-    void		linkImpCB(CallBacker*);
+    void		imp2DCB(CallBacker*);
+    void		imp2DPSCB(CallBacker*);
+    void		imp3DCB(CallBacker*);
+    void		imp3DPSCB(CallBacker*);
+    void		impVSPCB(CallBacker*);
     void		exp2DCB(CallBacker*);
     void		exp3DCB(CallBacker*);
     void		exp3DPSCB(CallBacker*);
-    void		impVSPCB(CallBacker*);
     void		reSortCB(CallBacker*);
-    void		fullWizCB(CallBacker*);
+    void		readStarterCB(CallBacker*);
 
-    static uiSEGYMgr*		theinst_;
-    static const uiString	sSEGYString( bool imm )
-                            { return imm ? tr("SEG-Y") : m3Dots(tr("SEG-Y")); }
+    static uiSEGYMgr*	theinst_;
+    static const uiString sSEGYString( bool imm )
+			 { return imm ? tr("SEG-Y") : m3Dots(tr("SEG-Y")); }
 
 };
 
@@ -98,6 +103,7 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
     mnumgr_.dTectTBChanged.notify( muiSEGYMgrCB(updateToolBar) );
+    IOM().surveyChanged.notify( muiSEGYMgrCB(updateMenu) );
 
     updateMenu(0);
     updateToolBar(0);
@@ -106,91 +112,85 @@ uiSEGYMgr::uiSEGYMgr( uiODMain* a )
 
 void uiSEGYMgr::updateMenu( CallBacker* )
 {
-    uiAction* impact = new uiAction( sSEGYString(false),
-				     muiSEGYMgrCB(genImpCB), "segy" );
-    uiAction* linkact = new uiAction( m3Dots(tr("SEG-Y Data Link")),
-				      muiSEGYMgrCB(linkImpCB), "segy_link" );
-
-    uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
-    impseismnu->insertItem( impact );
-    impseismnu->insertItem( linkact );
-
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
+    uiMenu* impseismnu = mnumgr_.getMnu( true, uiODApplMgr::Seis );
+    uiMenu* impsgymnu = new uiMenu( appl_, sSEGYString(true), segy_iconid );
+    impseismnu->insertItem( impsgymnu );
     uiMenu* expseismnu = mnumgr_.getMnu( false, uiODApplMgr::Seis );
-    uiMenu* expsgymnu = !only2d ? new uiMenu( appl_, sSEGYString(true), "segy")
-				: expseismnu;
+    uiMenu* expsgymnu = !only2d ? new uiMenu( appl_, sSEGYString(true),
+						segy_iconid ) : expseismnu;
     if ( expsgymnu != expseismnu )
 	expseismnu->insertItem( expsgymnu );
 
     if ( have2d )
+    {
+	impsgymnu->insertItem( new uiAction( only2d ? m3Dots(tr("Line(s)"))
+		    : m3Dots(uiStrings::s2D()), muiSEGYMgrCB(imp2DCB),
+			"seismicline2d" ) );
+	impsgymnu->insertItem( new uiAction( only2d ?
+		m3Dots(tr("Pre-Stack Data")) : m3Dots(tr("Pre-Stack 2D")),
+		    muiSEGYMgrCB(imp2DPSCB), "prestackdataset2d" ) );
 	expsgymnu->insertItem( new uiAction( only2d ? sSEGYString(false)
-						    : m3Dots(uiStrings::s2D()),
-				muiSEGYMgrCB(exp2DCB), "" ) );
+		    : m3Dots(uiStrings::s2D()), muiSEGYMgrCB(exp2DCB),
+		    only2d ? segy_iconid : "seismicline2d" ) );
+    }
+
     if ( !only2d )
     {
-        expsgymnu->insertItem( new uiAction( have2d ? m3Dots(uiStrings::s3D())
-					    : m3Dots(uiStrings::sVolume()),
-				muiSEGYMgrCB(exp3DCB), "" ) );
-        expsgymnu->insertItem( new uiAction( have2d ? m3Dots(tr("PreStack 3D"))
-						: m3Dots(tr("Pre-Stack volume")),
-				muiSEGYMgrCB(exp3DPSCB), "" ) );
+	uiString volstr = have2d ? m3Dots(uiStrings::s3D())
+				 : m3Dots(uiStrings::sVolume());
+	uiString psstr = have2d ? m3Dots(tr("PreStack 3D"))
+				: m3Dots(tr("Pre-Stack Volume"));
+	impsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(imp3DCB),
+					"seismiccube") );
+        impsgymnu->insertItem( new uiAction(psstr,muiSEGYMgrCB(imp3DPSCB),
+					"prestackdataset") );
+        expsgymnu->insertItem( new uiAction(volstr,muiSEGYMgrCB(exp3DCB),
+					"seismiccube") );
+        expsgymnu->insertItem( new uiAction(psstr,muiSEGYMgrCB(exp3DPSCB),
+					"prestackdataset") );
     }
 
     mnumgr_.getMnu( true, uiODApplMgr::Wll )->insertItem(
-	new uiAction( m3Dots(tr("VSP (SEG-Y)")), muiSEGYMgrCB(impVSPCB), "" ) );
+	new uiAction( m3Dots(tr("VSP (SEG-Y)")), muiSEGYMgrCB(impVSPCB),
+			"vsp0" ) );
     mnumgr_.createSeisOutputMenu()->insertItem(
-	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")), muiSEGYMgrCB(reSortCB)) );
+	new uiAction(m3Dots(tr("Re-sort Scanned SEG-Y")),
+			muiSEGYMgrCB(reSortCB)) );
 }
 
 
 void uiSEGYMgr::updateToolBar( CallBacker* )
 {
-    mnumgr_.dtectTB()->addButton( "segy", tr("SEG-Y import"),
-				  mCB(this,uiSEGYMgr,fullWizCB) );
+    mnumgr_.dtectTB()->addButton( segy_iconid, tr("SEG-Y import"),
+				  mCB(this,uiSEGYMgr,readStarterCB) );
 }
 
-
-void uiSEGYMgr::genImpCB( CallBacker* )
-{
-    new uiSEGYRead( appl_, uiSEGYRead::Setup(uiSEGYRead::Import) );
+#define mImplImpCB(typ,arg) \
+void uiSEGYMgr::imp##typ##CB( CallBacker* ) \
+{ \
+    const SEGY::ImpType imptyp( arg ); \
+    uiSEGYReadStarter dlg( appl_, false, &imptyp ); \
+    dlg.go(); \
 }
 
+mImplImpCB( 2D, Seis::Line )
+mImplImpCB( 3D, Seis::Vol )
+mImplImpCB( 2DPS, Seis::LinePS )
+mImplImpCB( 3DPS, Seis::VolPS )
+mImplImpCB( VSP, true )
 
-void uiSEGYMgr::linkImpCB( CallBacker* )
-{
-    uiSEGYRead::Setup su( uiSEGYRead::DirectDef );
-    su.geoms_ -= Seis::Line;
-    new uiSEGYRead( appl_, su );
+
+#define mImplExpCB(typ,arg) \
+void uiSEGYMgr::exp##typ##CB( CallBacker* ) \
+{ \
+    uiSEGYExp dlg( appl_, arg ); \
+    dlg.go(); \
 }
 
-
-void uiSEGYMgr::exp2DCB( CallBacker* )
-{
-    uiSEGYExp dlg( appl_, Seis::Line );
-    dlg.go();
-}
-
-
-void uiSEGYMgr::exp3DCB( CallBacker* )
-{
-    uiSEGYExp dlg( appl_, Seis::Vol );
-    dlg.go();
-}
-
-
-void uiSEGYMgr::exp3DPSCB( CallBacker* )
-{
-    uiSEGYExp dlg( appl_, Seis::VolPS );
-    dlg.go();
-}
-
-
-void uiSEGYMgr::impVSPCB( CallBacker* )
-{
-    const SEGY::ImpType imptyp( true );
-    uiSEGYReadStarter dlg( ODMainWin(), false, &imptyp );
-    dlg.go();
-}
+mImplExpCB( 2D, Seis::Line )
+mImplExpCB( 3D, Seis::Vol )
+mImplExpCB( 3DPS, Seis::VolPS )
 
 
 void uiSEGYMgr::reSortCB( CallBacker* )
@@ -211,7 +211,7 @@ void uiSEGYMgr::edFiles( CallBacker* cb )
 }
 
 
-void uiSEGYMgr::fullWizCB( CallBacker* )
+void uiSEGYMgr::readStarterCB( CallBacker* )
 {
     uiSEGYReadStarter dlg( ODMainWin(), false );
     dlg.go();

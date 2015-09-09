@@ -89,6 +89,8 @@ public:
 
     uiSurveyBoxObject*	getSurveyBox() const;
 
+    static SurveyInfo*	getEmptySurvInfo();
+
 protected:
     uiSurveyBoxObject*	survbox_;
     uiTextItem*		title_;

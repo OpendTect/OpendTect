@@ -250,7 +250,16 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle )
 }
 
 
-uiSurveyBoxObject* uiSurveyMap::getSurveyBox() const	{ return survbox_; }
+uiSurveyBoxObject* uiSurveyMap::getSurveyBox() const
+{
+    return survbox_;
+}
+
+
+SurveyInfo* uiSurveyMap::getEmptySurvInfo()
+{
+    return new SurveyInfo;
+}
 
 
 void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )

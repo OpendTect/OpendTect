@@ -184,6 +184,7 @@ private:
     // ugly, but hard to avoid:
     friend class		IOMan;
     friend class		uiSurvey;
+    friend class		uiSurveyMap;
     friend class		uiSurveyInfoEditor;
 
     Pos::IdxPair2Coord::DirTransform rdxtr_;
