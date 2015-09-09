@@ -83,19 +83,17 @@ public:
     {
     public:
 
-			Setup( const uiString& winttl=0 )
-			    : uiDialog::Setup(winttl.isSet()
-						  ? winttl
-						  : "File viewer",
-						0,mNoHelpKey)
-			    , scroll2bottom_(false)
-			    , allowopen_(false)
-			    , allowsave_(false)
-			{
-			    oktext("&Dismiss")
-				.canceltext( uiStrings::sReload() )
-			    .separator(false).modal(false).menubar(true);
-			}
+		Setup( const uiString& winttl=0 )
+		    : uiDialog::Setup(winttl.isSet() ? winttl : "File viewer",
+				      mNoDlgTitle,mNoHelpKey)
+		    , scroll2bottom_(false)
+		    , allowopen_(false)
+		    , allowsave_(false)
+		{
+		    oktext(uiStrings::sClose())
+			.canceltext( uiStrings::sReload() )
+			.separator(false).modal(false).menubar(true);
+		}
 
 	mDefSetupMemb(bool, scroll2bottom)
 	mDefSetupMemb(bool, allowopen)
