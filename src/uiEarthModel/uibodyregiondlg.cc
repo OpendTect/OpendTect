@@ -59,7 +59,7 @@ class BodyExtractorFromHorizons : public ParallelTask
 public:
 BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const TrcKeyZSampling& cs, Array3D<float>& res, 
+	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )
     : res_(res)
     , tkzs_(cs)
@@ -156,7 +156,7 @@ class ImplicitBodyRegionExtractor : public ParallelTask
 public:
 ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const TrcKeyZSampling& cs, Array3D<float>& res, 
+	const TrcKeyZSampling& cs, Array3D<float>& res,
 	const ODPolygon<float>& p )
     : res_(res)
     , tkzs_(cs)
@@ -793,11 +793,10 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
 
     if ( !isfault )
     {
+	uiString unt = tr(" %1").arg( SI().zDomain().uiUnitStr(false) );
+
 	if ( singlehormod )
 	{
-	    uiString unt = tr(" %1").arg( SI().zDomain().
-			   uiUnitStr(false) );
-
 	    uiSpinBox* shiftupfld = new uiSpinBox( 0, 0, "Shift up" );
 	    shiftupfld->setSuffix(unt);
 	    table_->setCellObject( RowCol(row,cHorShiftUpCol), shiftupfld );
@@ -809,7 +808,6 @@ void uiBodyRegionDlg::addSurfaceTableEntry( const IOObj& ioobj,	bool isfault,
 	else
 	{
 	    uiSpinBox* shiftfld = new uiSpinBox( 0, 0, "Shift" );
-	    BufferString unt( " ", SI().getUiZUnitString() );
 	    shiftfld->setSuffix( unt );
 	    shiftfld->setMinValue( -INT_MAX );
 	    table_->setCellObject( RowCol(row,cRelLayerCol), shiftfld );
