@@ -164,7 +164,6 @@ public:
 
 protected:
     virtual void		mouseMoveEvent(QGraphicsSceneMouseEvent*);
-    void			updateRect();
     QPointF			getAlignment() const;
 
     QFont			font_;
