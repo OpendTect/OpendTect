@@ -1321,6 +1321,7 @@ void FaultDisplay::displayIntersections( bool yn )
 {
     displayintersections_ = yn;
     updateDisplay();
+    showActiveStickMarker();
     displaymodechange.trigger();
 }
 
@@ -1536,6 +1537,18 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
     otherobjects_ = objs.size()>0;
     updateIntersectionDisplay();
     updateStickDisplay();
+    showActiveStickMarker();
+}
+
+
+void FaultDisplay::showActiveStickMarker()
+{
+    const bool showactivemarker =
+	displayintersections_ && onSection(activestick_);
+    if ( !showactivemarker )
+	activestickmarker_->removeAllPrimitiveSets();
+
+    activestickmarker_->turnOn( showactivemarker );
 }
 
 
