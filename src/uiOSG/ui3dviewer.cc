@@ -800,32 +800,8 @@ bool ui3DViewerBody::isViewMode() const
 }
 
 
-#define ROTATE_WIDTH 16
-#define ROTATE_HEIGHT 16
-#define ROTATE_BYTES ((ROTATE_WIDTH + 7) / 8) * ROTATE_HEIGHT
-#define ROTATE_HOT_X 6
-#define ROTATE_HOT_Y 8
-
-static unsigned char rotate_bitmap[ROTATE_BYTES] = {
-    0xf0, 0xef, 0x18, 0xb8, 0x0c, 0x90, 0xe4, 0x83,
-    0x34, 0x86, 0x1c, 0x83, 0x00, 0x81, 0x00, 0xff,
-    0xff, 0x00, 0x81, 0x00, 0xc1, 0x38, 0x61, 0x2c,
-    0xc1, 0x27, 0x09, 0x30, 0x1d, 0x18, 0xf7, 0x0f
-};
-
-static unsigned char rotate_mask_bitmap[ROTATE_BYTES] = {
-    0xf0,0xef,0xf8,0xff,0xfc,0xff,0xfc,0xff,0x3c,0xfe,0x1c,0xff,0x00,0xff,0x00,
-    0xff,0xff,0x00,0xff,0x00,0xff,0x38,0x7f,0x3c,0xff,0x3f,0xff,0x3f,0xff,0x1f,
-    0xf7,0x0f
-};
-
-
-
 void ui3DViewerBody::setViewMode( bool yn, bool trigger )
 {
-    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
-	    static_cast<osgGeo::TrackballManipulator*>(
-						view_->getCameraManipulator() );
     enableDragging( yn );
 
     if ( scene_ )
@@ -843,17 +819,7 @@ void ui3DViewerBody::setViewModeCursor( ViewModeCursor viewmodecursor )
     MouseCursor cursor;
 
     if ( viewmodecursor == RotateCursor )
-    {
-	cursor.shape_ = MouseCursor::Bitmap;
-
-	uiRGBArray* cursorimage = new uiRGBArray( true );
-	cursorimage->setSize( ROTATE_WIDTH, ROTATE_HEIGHT );
-	cursorimage->putFromBitmap( rotate_bitmap, rotate_mask_bitmap );
-
-	cursor.image_ = cursorimage;
-	cursor.hotx_ = ROTATE_HOT_X;
-	cursor.hoty_ = ROTATE_HOT_Y;
-    }
+	cursor.shape_ = MouseCursor::Rotator;
     else if ( viewmodecursor == PanCursor )
 	cursor.shape_ = MouseCursor::SizeAll;
     else if ( viewmodecursor == ZoomCursor )
