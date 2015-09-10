@@ -485,11 +485,9 @@ void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
     survinfo_->setName( "No valid scan available" );
     if ( pidetector_ )
     {
-	TrcKeyZSampling cs; Coord crd[3];
+	Coord crd[3]; TrcKeyZSampling cs;
 	const char* res = pidetector_->getSurvInfo( cs.hsamp_, crd );
-	if ( res )
-	    uiMSG().error( res );
-	else
+	if ( !res )
 	{
 	    cs.zsamp_ = scaninf.basicinfo_.getZRange();
 	    survinfo_->setRange( cs, false );
@@ -498,13 +496,30 @@ void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
 	    bid[0].crl() = cs.hsamp_.start_.crl();
 	    bid[1].inl() = cs.hsamp_.stop_.inl();
 	    bid[1].crl() = cs.hsamp_.stop_.crl();
-	    survinfo_->set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
-	    survinfo_->setName( "Detected survey setup" );
+	    res = survinfo_->set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
+	}
+	if ( res )
+	    uiMSG().error( res );
+	else
+	{
 	    survinfook_ = true;
+	    survinfo_->setName( "Detected survey setup" );
 	}
     }
 
     survmap_->setSurveyInfo( survinfo_ );
+}
+
+
+bool uiSEGYReadStarter::getInfo4SI( TrcKeyZSampling& cs, Coord crd[3] ) const
+{
+    if ( !survinfook_ )
+	return false;
+
+    BinID bids[2]; int xline;
+    survinfo_->get3Pts( crd, bids, xline );
+    cs = survinfo_->sampling( false );
+    return true;
 }
 
 

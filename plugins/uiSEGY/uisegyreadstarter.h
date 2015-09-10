@@ -20,6 +20,7 @@ ________________________________________________________________________
 class Timer;
 class SurveyInfo;
 class DataClipSampler;
+class TrcKeyZSampling;
 class uiLabel;
 class uiButton;
 class uiSpinBox;
@@ -49,9 +50,11 @@ public:
 			{ return filespec_.fileName(nr); }
 
     FullSpec		fullSpec() const;
+    const char*		userFileName() const	{ return userfilename_; }
 
     const SurveyInfo*	survInfo() const
 			{ return survinfook_ ? survinfo_ : 0; }
+    bool		getInfo4SI(TrcKeyZSampling&,Coord crd[3]) const;
     bool		zInFeet() const		{ return infeet_; }
 
     const SEGY::ImpType& impType() const;
