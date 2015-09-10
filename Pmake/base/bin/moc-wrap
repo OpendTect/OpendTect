@@ -1,7 +1,0 @@
-#!/bin/sh
-
-ARGSA=`echo $* | awk -f $PMAKE/bin/mocconv.awk` 
-ARGS="$ARGSA"
-export ARGS
-
-$OD_QTDIR/bin/moc $ARGS

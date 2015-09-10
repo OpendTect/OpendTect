@@ -1,9 +1,0 @@
-#!/bin/csh -f
-
-foreach dir ( $* )
-
-	if ( -r $dir.tag ) then
-		echo "$dir"
-	endif
-
-end
