@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisdatapackzaxistransformer.h"
 #include "randomlinegeom.h"
 #include "mousecursor.h"
+#include "settings.h"
 
 #include "visevent.h"
 #include "vishorizondisplay.h"
@@ -53,6 +54,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , selnodeidx_(-1)
     , ismanip_(false)
     , interactivetexturedisplay_( false )
+    , originalresolution_(-1)
     , datatransform_(0)
     , lockgeometry_(false)
     , eventcatcher_(0)
@@ -60,6 +62,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , voiidx_(-1)
     , markerset_( visBase::MarkerSet::create() )
     , rl_(0)
+    , nrgeomchangecbs_(0)
 {
     TypeSet<int> randomlines;
     visBase::DM().getIDs( typeid(*this), randomlines );
@@ -94,9 +97,19 @@ RandomTrackDisplay::RandomTrackDisplay()
     dragger_->ref();
     addChild( dragger_->osgNode() );
 
-    mAttachCB( dragger_->motion, visSurvey::RandomTrackDisplay::nodeMoved );
-    mAttachCB( dragger_->movefinished,
-	visSurvey::RandomTrackDisplay::draggerMoveFinished );
+    mAttachCB( dragger_->motion, RandomTrackDisplay::nodeMoved );
+    mAttachCB( dragger_->movefinished,RandomTrackDisplay::draggerMoveFinished );
+    mAttachCB( dragger_->rightClicked(),RandomTrackDisplay::draggerRightClick );
+
+    int dragkey = OD::NoButton;
+    mSettUse( get, "dTect.MouseInteraction", sKeyPanelDepthKey(), dragkey );
+    dragger_->setTransDragKeys( true, dragkey, 0 );
+    dragkey = OD::ShiftButton;
+    mSettUse( get, "dTect.MouseInteraction", sKeyPanelPlaneKey(), dragkey );
+    dragger_->setTransDragKeys( false, dragkey, 0 );
+    dragkey = OD::ControlButton;
+    mSettUse( get, "dTect.MouseInteraction", sKeyPanelRotateKey(), dragkey );
+    dragger_->setTransDragKeys( true, dragkey, 1 );
 
     panelstrip_->ref();
     addChild( panelstrip_->osgNode() );
@@ -126,9 +139,9 @@ RandomTrackDisplay::RandomTrackDisplay()
     const BinID stop(start.inl(), mNINT32(crlrange.stop) );
 
     Geometry::RandomLine* rl = new Geometry::RandomLine( name() );
-    rl->addNode( start );
-    rl->addNode( stop );
     setRandomLineID( rl->ID() );
+    addNode( start );
+    addNode( stop );
 
     setDepthInterval( Interval<float>( survinterval.start,
 				       survinterval.stop ));
@@ -288,6 +301,16 @@ int RandomTrackDisplay::nrNodes() const
 { return nodes_.size(); }
 
 
+#define mUpdateRandomLineGeometry( functioncall ) \
+{ \
+    if ( rl_ && nrgeomchangecbs_==0 ) \
+    { \
+	rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB)); \
+	rl_->functioncall; \
+	rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB)); \
+    } \
+}
+
 void RandomTrackDisplay::addNode( const BinID& bid )
 {
     const BinID sbid = snapPosition( bid );
@@ -295,6 +318,7 @@ void RandomTrackDisplay::addNode( const BinID& bid )
     {
 	nodes_ += sbid;
 	dragger_->insertKnot( nodes_.size()-1, Coord(sbid.inl(),sbid.crl()) );
+	mUpdateRandomLineGeometry( addNode(sbid) );
 
 	if ( ismanip_ )
 	    dragger_->showAdjacentPanels( nodes_.size()-1, true );
@@ -316,6 +340,7 @@ void RandomTrackDisplay::insertNode( int nodeidx, const BinID& bid )
     {
 	nodes_.insert( nodeidx, sbid );
 	dragger_->insertKnot( nodeidx, Coord(sbid.inl(),sbid.crl()) );
+	mUpdateRandomLineGeometry( insertNode(nodeidx,sbid) );
 
 	if ( ismanip_ )
 	    dragger_->showAdjacentPanels( nodeidx, true );
@@ -363,6 +388,7 @@ void RandomTrackDisplay::setNodePos( int nodeidx, const BinID& bid, bool check )
     {
 	nodes_[nodeidx] = sbid;
 	dragger_->setKnot( nodeidx, Coord(sbid.inl(),sbid.crl()) );
+	mUpdateRandomLineGeometry( setNodePosition(nodeidx,sbid) );
 	updatePanelStripPath();
 	moving_.trigger();
     }
@@ -415,6 +441,7 @@ bool RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& newbids )
 	{
 	    nodes_.removeSingle( 0 );
 	    dragger_->removeKnot( 0 );
+	    mUpdateRandomLineGeometry( removeNode(0) );
 	}
 
 	for ( int idx=0; idx<uniquebids.size(); idx++ )
@@ -425,6 +452,7 @@ bool RandomTrackDisplay::setNodePositions( const TypeSet<BinID>& newbids )
 		nodes_ += sbid;
 		dragger_->insertKnot( nodes_.size()-1,
 				      Coord(sbid.inl(), sbid.crl()) );
+		mUpdateRandomLineGeometry( addNode(sbid) );
 	    }
 	}
 
@@ -457,6 +485,7 @@ void RandomTrackDisplay::removeNode( int nodeidx )
 
     nodes_.removeSingle(nodeidx);
     dragger_->removeKnot( nodeidx );
+    mUpdateRandomLineGeometry( removeNode(nodeidx) );
     updatePanelStripPath();
 }
 
@@ -464,7 +493,10 @@ void RandomTrackDisplay::removeNode( int nodeidx )
 void RandomTrackDisplay::removeAllNodes()
 {
     for ( int idx=nodes_.size()-1; idx>=0; idx-- )
+    {
 	dragger_->removeKnot( idx );
+	mUpdateRandomLineGeometry( removeNode(idx) );
+    }
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
 	setDataPackID( idx, -1, 0 );
@@ -651,6 +683,8 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		slice2d.setDimMap( 1, 2 );
 		slice2d.setPos( 0, 0 );
 		slice2d.init();
+
+		MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
 		Array2DReSampler<float,float> resampler(
 				slice2d, tmparr, sz0, sz1, true );
@@ -920,6 +954,8 @@ BufferString RandomTrackDisplay::getManipulationString() const
 
 void RandomTrackDisplay::geomChangeCB( CallBacker* cb )
 {
+    nrgeomchangecbs_++;
+
     mCBCapsuleUnpack(const Geometry::RandomLine::ChangeData&,cd,cb);
 
     if ( cd.ev_ == Geometry::RandomLine::ChangeData::Added )
@@ -948,6 +984,10 @@ void RandomTrackDisplay::geomChangeCB( CallBacker* cb )
 	dragger_->showAllPanels( true );
 	if ( canDisplayInteractively() )
 	{
+	    if ( originalresolution_ < 0 )
+		originalresolution_ = resolution_;
+
+	    resolution_ = 0;
 	    interactivetexturedisplay_ = true;
 	    acceptManipulation();
 	    ismanip_ = true;
@@ -956,12 +996,20 @@ void RandomTrackDisplay::geomChangeCB( CallBacker* cb )
     }
     else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Moved )
     {
+	if ( canDisplayInteractively() )
+	{
+	    resolution_ = originalresolution_;
+	    originalresolution_ = -1;
+	}
+
 	draggerMoveFinished(0);
     }
     else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Removed )
     {
 	removeNode( cd.nodeidx_ );
     }
+
+    nrgeomchangecbs_--;
 }
 
 
@@ -975,15 +1023,9 @@ void RandomTrackDisplay::nodeMoved( CallBacker* cb )
     {
 	const Coord crd = dragger_->getKnot( idx );
 	const BinID bid( mNINT32(crd.x), mNINT32(crd.y) );
-
-	if ( rl_ )
-	{
-	    rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB));
-	    rl_->setNodePosition( idx, bid, true );
-	    rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB));
-	}
-
 	dragger_->showAdjacentPanels( idx, getNodePos(idx)!=bid );
+	mUpdateRandomLineGeometry( setNodePosition(idx,bid,true) );
+
 	if ( sel>=0 ) break;
     }
 
@@ -996,6 +1038,10 @@ void RandomTrackDisplay::nodeMoved( CallBacker* cb )
 
     if ( canDisplayInteractively() )
     {
+	if ( originalresolution_ < 0 )
+	    originalresolution_ = resolution_;
+
+	resolution_ = 0;
 	interactivetexturedisplay_ = true;
 	updateSel();
     }
@@ -1300,7 +1346,9 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
     if ( eventcatcher_ )
     {
 	eventcatcher_->eventhappened.remove(
-				    mCB(this,RandomTrackDisplay,pickCB) );
+			    mCB(this,RandomTrackDisplay,pickCB) );
+	eventcatcher_->eventhappened.remove(
+			    mCB(this,RandomTrackDisplay,updateMouseCursorCB) );
 	eventcatcher_->unRef();
     }
 
@@ -1310,9 +1358,31 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
     {
 	eventcatcher_->ref();
 	eventcatcher_->eventhappened.notify(
-				    mCB(this,RandomTrackDisplay,pickCB) );
+			    mCB(this,RandomTrackDisplay,pickCB) );
+	eventcatcher_->eventhappened.notify(
+			    mCB(this,RandomTrackDisplay,updateMouseCursorCB) );
     }
+}
 
+
+void RandomTrackDisplay::updateMouseCursorCB( CallBacker* cb )
+{
+    if ( !isManipulatorShown() || !isOn() || isLocked() )
+	mousecursor_.shape_ = MouseCursor::NotSet;
+    else
+    {
+	initAdaptiveMouseCursor( cb, id(), dragger_->getTransDragKeys(false,0),
+				 mousecursor_ );
+
+	if ( mousecursor_.shape_ != MouseCursor::GreenArrow )
+	    return;
+
+	initAdaptiveMouseCursor( cb, id(), dragger_->getTransDragKeys(true,1),
+				 mousecursor_ );
+
+	if ( mousecursor_.shape_ != MouseCursor::GreenArrow )
+	    mousecursor_.shape_ = MouseCursor::Rotator;
+    }
 }
 
 
@@ -1451,9 +1521,22 @@ void RandomTrackDisplay::setPixelDensity( float dpi )
 
 void RandomTrackDisplay::draggerMoveFinished( CallBacker* )
 {
+    if ( canDisplayInteractively() )
+    {
+	resolution_ = originalresolution_;
+	originalresolution_ = -1;
+    }
+
     interactivetexturedisplay_ = false;
     ismanip_ = true;
     updateSel();
 }
+
+
+void RandomTrackDisplay::draggerRightClick( CallBacker* )
+{
+    triggerRightClick( dragger_->rightClickedEventInfo() );
+}
+
 
 } // namespace visSurvey

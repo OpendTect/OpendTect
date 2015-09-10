@@ -321,7 +321,7 @@ bool MultiTextureSurveyObject::canDisplayInteractively(
     for ( int attrib=0; attrib<nrAttribs(); attrib++ )
     {
 	const BinDataDesc* bdd = as_[attrib]->getPreloadDataDesc();
-	if ( !bdd || resolution_>0 )
+	if ( !bdd )
 	    return false;
     }
 

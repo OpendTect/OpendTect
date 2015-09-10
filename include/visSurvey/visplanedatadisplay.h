@@ -225,6 +225,8 @@ protected:
     RefMan<const mVisTrans>		displaytrans_;
     RefMan<visBase::TextureRectangle>	texturerect_;
 
+    int					originalresolution_;
+
     struct UpdateStageInfo
     {
 	bool		refreeze_;

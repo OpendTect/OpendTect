@@ -27,7 +27,8 @@ mImplFactory( SurveyObject, SurveyObject::factory );
 SurveyObject::SurveyObject()
     : scene_(0)
     , s3dgeom_( 0 )
-    , locked_(false)
+    , ispicking_( false )
+    , locked_( false )
     , updatestagenr_( 0 )
     , saveinsessionsflag_( true )
 {
@@ -336,7 +337,7 @@ void SurveyObject::initAdaptiveMouseCursor( CallBacker* eventcb,
 	    if ( buttonstate == inplanedragkeys )
 		mousecursor.shape_ = MouseCursor::SizeAll;
 	    else
-		mousecursor.shape_ = MouseCursor::PointingHand;
+		mousecursor.shape_ = MouseCursor::GreenArrow;
 	}
     }
 }

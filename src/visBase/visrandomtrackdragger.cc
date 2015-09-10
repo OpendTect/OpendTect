@@ -25,6 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/PolygonOffset>
 #include <osg/Geometry>
 #include <osg/Geode>
+#include <osg/LineWidth>
+#include <osg/Material>
 #include <osgGeo/TabPlaneDragger>
 
 mCreateFactoryEntry( visBase::RandomTrackDragger );
@@ -52,6 +54,11 @@ class PlaneDragCBHandler : public osgManipulator::DraggerCallback
 
     void			showDraggerBorder(bool yn);
     void			showDraggerTabs(bool yn);
+
+    void			setTransModKeyMask(bool trans1d,int mask,
+						   int groupidx);
+    int				getTransModKeyMask(bool trans1d,
+						   int groupidx) const;
 
 protected:
 
@@ -112,9 +119,12 @@ PlaneDragCBHandler::PlaneDragCBHandler( RandomTrackDragger& rtd )
 	}
     }
 
-    // TODO: Add and retrieve from mouse control settings
-    planedragger_->set1DTranslateModKeyMask(
-				osgGA::GUIEventAdapter::MODKEY_CTRL , 1 );
+    for ( int idx=0; idx<rtdragger_.dragcontrols_.size(); idx++ )
+    {
+	setTransModKeyMask( rtdragger_.dragcontrols_[idx]->trans1d_,
+			    rtdragger_.dragcontrols_[idx]->modkeymask_,
+			    rtdragger_.dragcontrols_[idx]->groupidx_ );
+    }
 
     showDraggerBorder( true );
     showDraggerTabs( true );
@@ -296,8 +306,8 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
 	}
     }
 
-    rtdragger_.setKnot( planeidx, newtopleft );
-    rtdragger_.setKnot( planeidx+1, newbotright );
+    rtdragger_.doSetKnot( planeidx, newtopleft );
+    rtdragger_.doSetKnot( planeidx+1, newbotright );
     rtdragger_.setDepthRange( zrg );
 }
 
@@ -322,7 +332,7 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
     double outerdist = dragdist + extension_;
     double innerdist = 0.0;
 
-    for ( int ifar=1; ifar>=0; ifar-- )
+    for ( int isfar=1; isfar>=0; isfar-- )
     {
 	LineRectangleClipper<double> clipper( horborder );
 
@@ -346,7 +356,7 @@ void PlaneDragCBHandler::slowDownTrans1D( Coord3& newtopleft,
 		outerdist = avgdist;
 	}
 
-	if ( ifar )
+	if ( isfar )
 	{
 	    fardist = innerdist;
 	    if ( fardist >= dragdist+extension_ )   // bounding edge not found
@@ -496,6 +506,25 @@ void PlaneDragCBHandler::showDraggerTabs( bool yn )
 }
 
 
+void PlaneDragCBHandler::setTransModKeyMask( bool trans1d, int mask,
+					     int groupidx )
+{
+    if ( trans1d )
+	planedragger_->set1DTranslateModKeyMask( mask, groupidx );
+    else
+	planedragger_->set2DTranslateModKeyMask( mask, groupidx );
+}
+
+
+int PlaneDragCBHandler::getTransModKeyMask( bool trans1d, int groupidx ) const
+{
+    if ( trans1d )
+	return planedragger_->get1DTranslateModKeyMask( groupidx );
+
+    return planedragger_->get2DTranslateModKeyMask( groupidx );
+}
+
+
 //============================================================================
 
 #define mZValue(idx) ( (idx%4)<2 ? zrange_.start : zrange_.stop )
@@ -512,6 +541,7 @@ RandomTrackDragger::RandomTrackDragger()
     , displaytrans_( 0 )
     , panels_( new osg::Switch )
     , planedraggers_( new osg::Switch )
+    , rotationaxis_( new osg::Switch )
     , showplanedraggers_( true )
     , planedraggerminsizeinsteps_( 1 )
     , zrange_( SI().zRange(true) )
@@ -524,7 +554,6 @@ RandomTrackDragger::RandomTrackDragger()
     setMaterial( 0 );
 
     panels_->ref();
-
     panels_->getOrCreateStateSet()->setMode(GL_BLEND, osg::StateAttribute::ON);
     panels_->getStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     panels_->getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
@@ -537,35 +566,33 @@ RandomTrackDragger::RandomTrackDragger()
     planedraggers_->getStateSet()->setAttributeAndModes(
 		new osg::PolygonOffset(-1.0,-1.0),
 		osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
-
+    planedraggers_->getStateSet()->setAttributeAndModes(
+		new osg::Material,
+		osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
     addChild( planedraggers_ );
 
-    for ( int idx=0; idx<2; idx++ )
-    {
-	rotationaxis_ += new PolyLine;
-	rotationaxis_[idx]->ref();
-	osg::Node* osgnode = rotationaxis_[idx]->osgNode();
-	addChild( osgnode );
-	rotationaxis_[idx]->setMaterial( new Material );
-	rotationaxis_[idx]->setLineStyle(
-				LineStyle(LineStyle::Solid,2,Color(0,255,0)) );
-	osgnode->getOrCreateStateSet()->setAttributeAndModes(
-		    new osg::PolygonOffset(-1.0,-1.0),
-		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
-    }
+    rotationaxis_->ref();
+    rotationaxis_->getOrCreateStateSet()->setMode( GL_LIGHTING,
+						   osg::StateAttribute::OFF );
+    rotationaxis_->getStateSet()->setAttributeAndModes(
+		new osg::LineWidth(2.0),
+		osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
+    rotationaxis_->getStateSet()->setAttributeAndModes(
+		new osg::PolygonOffset(-1.0,-1.0),
+		osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
+    addChild( rotationaxis_ );
+
+    setTransDragKeys( true, OD::ControlButton, 1 );
 }
 
 
 RandomTrackDragger::~RandomTrackDragger()
 {
+    deepErase( dragcontrols_ );
+
     panels_->unref();
     planedraggers_->unref();
-
-    for ( int idx=rotationaxis_.size()-1; idx>=0; idx-- )
-    {
-	removeChild( rotationaxis_[idx]->osgNode() );
-	rotationaxis_[idx]->unRef();
-    }
+    rotationaxis_->unref();
 
     detachAllNotifiers();
     deepUnRef( draggers_ );
@@ -594,9 +621,6 @@ void RandomTrackDragger::setDisplayTransformation( const mVisTrans* trans )
 	draggers_[idx]->setDisplayTransformation( trans );
 
     updatePlaneDraggers();
-
-    for ( int idx=0; idx<rotationaxis_.size(); idx++ )
-	rotationaxis_[idx]->setDisplayTransformation( trans );
 }
 
 
@@ -733,7 +757,7 @@ Coord RandomTrackDragger::getKnot( int knotidx ) const
 }
 
 
-void RandomTrackDragger::setKnot( int knotidx, const Coord& pos )
+void RandomTrackDragger::doSetKnot( int knotidx, const Coord& pos )
 {
     if ( !draggers_.validIdx(4*knotidx) )
 	return;
@@ -742,6 +766,20 @@ void RandomTrackDragger::setKnot( int knotidx, const Coord& pos )
 	draggers_[idx]->setPos( Coord3(pos, mZValue(idx)) );
 
     updatePanels();
+}
+
+
+void RandomTrackDragger::setKnot( int knotidx, const Coord& pos )
+{
+    for ( int idx=knotidx-1; idx<=knotidx; idx++ )
+    {
+	if ( !planedraghandlers_.validIdx(idx) )
+	    continue;
+	if ( planedraghandlers_[idx]->isMoving() )
+	    return;
+    }
+
+    doSetKnot( knotidx, pos );
 }
 
 
@@ -1080,8 +1118,11 @@ void RandomTrackDragger::removePlaneDraggerCBHandler( int idx )
 
 void RandomTrackDragger::updatePlaneDraggers()
 {
-    while ( planedraghandlers_.size() > nrKnots() )
+    while ( !planedraghandlers_.isEmpty() &&
+	    planedraghandlers_.size()>=nrKnots() )
+    {
 	removePlaneDraggerCBHandler( 0 );
+    }
 
     for ( int knotidx=0; knotidx<nrKnots()-1; knotidx++ )
     {
@@ -1095,6 +1136,11 @@ void RandomTrackDragger::updatePlaneDraggers()
 	const bool show = ok && canShowPlaneDragger(knotidx,horoverlap);
 
 	planedraghandlers_[knotidx]->showDraggerTabs( show );
+	planedraghandlers_[knotidx]->showDraggerBorder(
+					show && !panels_->getValue(knotidx) );
+
+	if ( !show && knotidx<panels_->getNumChildren() )
+	    panels_->setValue( knotidx, true );
 
 	if ( !planedraghandlers_[knotidx]->isMoving() )
 	    planedraggers_->setValue( knotidx, show  );
@@ -1218,13 +1264,25 @@ Coord3 RandomTrackDragger::getPlaneBoundingBoxInSteps( int planeidx ) const
 void RandomTrackDragger::showRotationAxis( bool yn, int planeidx,
 					   Coord normpickedpos )
 {
-    for ( int idx=0; idx<rotationaxis_.size(); idx++ )
-	rotationaxis_[idx]->removeAllPoints();
+    while ( rotationaxis_->getNumChildren() )
+	rotationaxis_->removeChild( 0, 1 );
 
     setPanelsPolygonOffset( !yn );
 
     if ( !yn || !draggers_.validIdx(4*planeidx+6) || mIsUdf(normpickedpos) )
 	return;
+
+    osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    rotationaxis_->addChild( geode.get(), true );
+    osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array(4);
+    osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
+    osg::ref_ptr<osg::Geometry> geometry = new osg::Geometry;
+    colors->push_back( osg::Vec4(0.0,1.0,0.0,1.0) );
+    geometry->setVertexArray( vertices.get() );
+    geometry->setColorArray( colors.get() );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    geometry->addPrimitiveSet( new osg::DrawArrays(GL_LINES,0,4) );
+    geode->addDrawable( geometry.get() );
 
     const Coord3 topleft = draggers_[planeidx*4]->getPos();
     const Coord3 botright = draggers_[planeidx*4+6]->getPos();
@@ -1237,14 +1295,14 @@ void RandomTrackDragger::showRotationAxis( bool yn, int planeidx,
 
     Coord3 pos( pivot );
     pos.z = 1.1*topleft.z - 0.1*botright.z;
-    rotationaxis_[0]->addPoint( pos );
+    mVisTrans::transform( displaytrans_, pos, (*vertices)[0] );
     const float pivotoffset = 0.05 * (botright.z-topleft.z);
     pos.z = pivot.z - pivotoffset;
-    rotationaxis_[0]->addPoint( pos );
+    mVisTrans::transform( displaytrans_, pos, (*vertices)[1] );
     pos.z = pivot.z + pivotoffset;
-    rotationaxis_[1]->addPoint( pos );
+    mVisTrans::transform( displaytrans_, pos, (*vertices)[2] );
     pos.z = 1.1*botright.z - 0.1*topleft.z;
-    rotationaxis_[1]->addPoint( pos );
+    mVisTrans::transform( displaytrans_, pos, (*vertices)[3] );
 }
 
 
@@ -1258,6 +1316,99 @@ void RandomTrackDragger::setPanelsPolygonOffset( bool yn )
 		    new osg::PolygonOffset(-0.5,-0.5),
 		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
     }
+}
+
+
+RandomTrackDragger::DragControl::DragControl( bool trans1d, int groupidx )
+    : trans1d_( trans1d )
+    , groupidx_( groupidx )
+    , mousebutmask_( osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON )
+    , modkeymask_( osgGA::GUIEventAdapter::NONE )
+{}
+
+
+#define mRank(trans1d,groupidx) (trans1d + 2*groupidx)
+
+int RandomTrackDragger::getDragControlIdx( bool trans1d, int groupidx,
+					   bool docreate )
+{
+    const int newrank = mRank(trans1d,groupidx);
+
+    int idx = 0;
+    while ( idx<dragcontrols_.size() )
+    {
+	const int rank = mRank( dragcontrols_[idx]->trans1d_,
+				dragcontrols_[idx]->groupidx_ );
+	if ( rank >= newrank )
+	{
+	    if ( rank == newrank )
+		return idx;
+
+	    break;
+	}
+	idx++;
+    }
+
+    if ( docreate )
+    {
+	dragcontrols_.insertAt( new DragControl(trans1d,groupidx), idx );
+	return idx;
+    }
+
+    return -1;
+}
+
+
+int RandomTrackDragger::getDragControlIdx( bool trans1d, int groupidx ) const
+{
+    return const_cast<RandomTrackDragger*>(this)->getDragControlIdx(
+						    trans1d, groupidx, false );
+}
+
+
+void RandomTrackDragger::setTransDragKeys( bool trans1d,
+					   int keys, int groupidx )
+{
+    int mask = osgGA::GUIEventAdapter::NONE;
+
+    if ( keys & OD::ControlButton )
+	mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+    if ( keys & OD::ShiftButton )
+	mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    if ( keys & OD::AltButton )
+	mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+
+    const int dragcontrolidx = getDragControlIdx( trans1d, groupidx, true );
+    dragcontrols_[dragcontrolidx]->modkeymask_ = mask;
+
+    for ( int idx=0; idx<planedraghandlers_.size(); idx++ )
+	planedraghandlers_[idx]->setTransModKeyMask( trans1d, mask, groupidx );
+}
+
+
+int RandomTrackDragger::getTransDragKeys( bool trans1d, int groupidx ) const
+{
+    int mask = osgGA::GUIEventAdapter::NONE;
+
+    const int dragcontrolidx = getDragControlIdx( trans1d, groupidx );
+
+    if ( dragcontrolidx >= 0 )
+	mask = dragcontrols_[dragcontrolidx]->modkeymask_;
+    else if ( !planedraghandlers_.isEmpty() )
+	mask = planedraghandlers_[0]->getTransModKeyMask( trans1d, groupidx );
+
+    int state = OD::NoButton;
+
+    if ( mask & osgGA::GUIEventAdapter::MODKEY_CTRL )
+	state |= OD::ControlButton;
+
+    if ( mask & osgGA::GUIEventAdapter::MODKEY_SHIFT )
+	state |= OD::ShiftButton;
+
+    if ( mask & osgGA::GUIEventAdapter::MODKEY_ALT )
+	state |= OD::AltButton;
+
+    return (OD::ButtonState) state;
 }
 
 
