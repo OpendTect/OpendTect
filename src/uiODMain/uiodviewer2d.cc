@@ -148,30 +148,36 @@ void uiODViewer2D::setUpAux()
     else
     {
 	vwrannot.x1_.showauxannot_ = true;
+	uiString intersection = tr( "%1 intersection");
 	if ( is2d )
 	{
 	    vwrannot.x2_.showauxannot_ = false;
-	    vwrannot.x1_.auxlabel_ = tr( "2D Line intersections" );
+	    vwrannot.x1_.auxlabel_ = intersection;
+	    vwrannot.x1_.auxlabel_.arg( tr("2D Line" ));
 	}
 	else
 	{
 	    vwrannot.x2_.showauxannot_ = true;
 	    uiString& x1auxnm = vwrannot.x1_.auxlabel_;
 	    uiString& x2auxnm = vwrannot.x2_.auxlabel_;
+
+	    x1auxnm = intersection;
+	    x2auxnm = intersection;
+
 	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Inl )
 	    {
-		x1auxnm = tr( "Cross-line intersections" );
-		x2auxnm = tr( "Z-slice intersections" );
+		x1auxnm.arg( uiStrings::sCrossline() );
+		x2auxnm.arg( uiStrings::sZSlice() );
 	    }
 	    else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
 	    {
-		x1auxnm = tr( "In-line intersections" );
-		x2auxnm = tr( "Z-slice intersections" );
+		x1auxnm.arg( uiStrings::sInline() );
+		x2auxnm.arg( uiStrings::sZSlice() );
 	    }
 	    else
 	    {
-		x1auxnm = tr( "In-line intersections" );
-		x2auxnm = tr( "Cross-line intersections" );
+		x1auxnm.arg( uiStrings::sInline() );
+		x2auxnm.arg( uiStrings::sCrossline() );;
 	    }
 	}
     }

@@ -149,10 +149,10 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 		attachobj = isxyfld_->attachObj();
 	    else
 	    {
-		haveoffsbut_ = new uiCheckBox( this, tr("Offset") );
+		haveoffsbut_ = new uiCheckBox( this, uiStrings::sOffset() );
 		haveoffsbut_->setChecked( data().haveoffs_ );
 		haveoffsbut_->attach( alignedBelow, isxyfld_ );
-		haveazimbut_ = new uiCheckBox( this, tr("Azimuth") );
+		haveazimbut_ = new uiCheckBox( this, uiStrings::sAzimuth() );
 		haveazimbut_->setChecked( data().haveazim_ );
 		haveazimbut_->attach( rightOf, haveoffsbut_ );
 		pspposlbl_ = new uiLabel( this, tr("Include"), haveoffsbut_ );
@@ -209,11 +209,11 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	}
 	if ( isps )
 	{
-	    haveoffsbut_ = new uiCheckBox( this, tr("Offset"),
+	    haveoffsbut_ = new uiCheckBox( this, uiStrings::sOffset(),
 					 mCB(this,uiSeisIOSimple,haveoffsSel) );
 	    haveoffsbut_->attach( alignedBelow, attachobj );
 	    haveoffsbut_->setChecked( data().haveoffs_ );
-	    haveazimbut_ = new uiCheckBox( this, tr("Azimuth") );
+	    haveazimbut_ = new uiCheckBox( this, uiStrings::sAzimuth() );
 	    haveazimbut_->attach( rightOf, haveoffsbut_ );
 	    haveazimbut_->setChecked( data().haveazim_ );
 	    pspposlbl_ = new uiLabel( this, tr("Position includes"),

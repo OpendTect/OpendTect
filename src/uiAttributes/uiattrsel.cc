@@ -323,7 +323,7 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     steeroutfld_->attach( rightOf, selgrp_ );
 
-    filtfld_ = new uiGenInput( this, tr("Filter"), "*" );
+    filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
     filtfld_->attach( alignedBelow, storoutfld_ );
     filtfld_->attach( ensureBelow, steeroutfld_ );
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );

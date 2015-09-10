@@ -32,8 +32,9 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );
     stepoutgroup->setFrame( true );
 
-    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("In-line stepout"), 0,
-					"Inline_spinbox" );
+    inllenfld_ = new uiLabeledSpinBox( stepoutgroup,
+			    uiStrings::phrInline(uiStrings::sStepout()), 0,
+			    "Inline_spinbox" );
 
     const BinID step( SI().inlStep(), SI().crlStep() );
     inllenfld_->box()->setInterval( 0, 200*step.inl(), step.inl() );

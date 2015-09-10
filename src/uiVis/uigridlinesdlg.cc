@@ -74,11 +74,11 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 
     uiString allmsg = tr("Apply to all loaded %1");
     if ( OD::InlineSlice == pdd_->getOrientation() )
-	allmsg.arg(tr("In-lines"));
+	allmsg.arg(uiStrings::sInline(mPlural));
     else if ( OD::CrosslineSlice == pdd_->getOrientation() )
-	allmsg.arg(tr("Cross-lines"));
+	allmsg.arg( uiStrings::sCrossline(mPlural));
     else
-	allmsg.arg(tr("Z slices"));
+	allmsg.arg(uiStrings::sZSlice(mPlural));
     applyallfld_ = new uiCheckBox( this, allmsg );
     applyallfld_->setChecked( true );
     applyallfld_->attach( alignedBelow, lsfld_ );

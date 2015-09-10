@@ -319,18 +319,18 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     lbl->attach( leftAlignedBelow, virtualkeyboardfld_ );
 
     setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
-    showinlprogressfld_ = new uiGenInput( this, tr("In-lines"),
+    showinlprogressfld_ = new uiGenInput( this, uiStrings::sInline(mPlural),
 					  BoolInpSpec(showinlprogress_) );
     showinlprogressfld_->attach( alignedBelow, virtualkeyboardfld_ );
     showinlprogressfld_->attach( ensureBelow, lbl );
 
     setts_.getYN( SettingsAccess::sKeyShowCrlProgress(), showcrlprogress_ );
-    showcrlprogressfld_ = new uiGenInput( this, tr("Cross-lines"),
+    showcrlprogressfld_ = new uiGenInput( this, uiStrings::sInline(mPlural),
 					  BoolInpSpec(showcrlprogress_) );
     showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
 
     setts_.getYN( SettingsAccess::sKeyShowRdlProgress(), showrdlprogress_ );
-    showrdlprogressfld_ = new uiGenInput( this, tr("Random lines"),
+    showrdlprogressfld_ = new uiGenInput( this, uiStrings::sRandomLine(mPlural),
 					  BoolInpSpec(showrdlprogress_) );
     showrdlprogressfld_->attach( alignedBelow, showcrlprogressfld_ );
 }

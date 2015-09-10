@@ -105,8 +105,8 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 	newinleachfld_->attach( alignedBelow, outfld_ );
 	newinleachfld_->checked.notify( mCB(this,uiResortSEGYDlg,nrinlSel) );
 	inlnmsfld_ = new uiGenInput( this, tr("Name files using"),
-			BoolInpSpec(true,tr("Sequence number"),
-                                    tr("In-line range")) );
+		    BoolInpSpec(true,tr("Sequence number"),
+				uiStrings::phrInline(uiStrings::sRange())) );
 	inlnmsfld_->attach( alignedBelow, newinleachfld_ );
     }
 }

@@ -440,7 +440,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 							uiVisEMObject* uv,
 							const char* parenttype )
     : uiODAttribTreeItem( parenttype )
-    , depthattribmnuitem_(uiStrings::sZValues())
+    , depthattribmnuitem_(uiStrings::sZValue(mPlural))
     , savesurfacedatamnuitem_(m3Dots(tr("Save as Horizon Data")))
     , loadsurfacedatamnuitem_(m3Dots(tr("Horizon Data")))
     , algomnuitem_(uiStrings::sTools())
@@ -650,7 +650,7 @@ uiString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
     if ( as && as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-        return uiStrings::sZValues();
+        return uiStrings::sZValue(mPlural);
 
     return uiODAttribTreeItem::createDisplayName();
 }
