@@ -632,7 +632,7 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
     const bool enabeditor =
 	!toolbar_->isOn(selbutidx_) && !toolbar_->isOn(editbutidx_);
     if ( curfssd_ )
-	curfssd_->enableEditor( enabeditor );
+	curfssd_->enableEditor( !enabeditor );
 }
 
 
