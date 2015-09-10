@@ -511,12 +511,8 @@ void uiODFaultToolMan::enableToolbar( bool yn )
     if ( yn == toolbar_->isSensitive() )
 	return;
 
-    uiToolBar* tracktb_ = appl_.applMgr().visServer()->getTrackTB();
     if ( yn )
     {
-	tracktbwashidden_ = tracktb_->isHidden();
-	tracktb_->display( false );
-
 	const bool selecting = toolbar_->isOn( selbutidx_ );
 	showSettings( selecting && toolbar_->isOn(settingsbutidx_) );
     }
@@ -530,9 +526,6 @@ void uiODFaultToolMan::enableToolbar( bool yn )
     {
 	showSettings( false );
 	appl_.applMgr().visServer()->turnSelectionModeOn( false );
-
-	if ( tracktb_->isHidden() )
-	    tracktb_->display( !tracktbwashidden_ );
     }
 }
 

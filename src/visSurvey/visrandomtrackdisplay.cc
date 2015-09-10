@@ -301,6 +301,9 @@ void RandomTrackDisplay::addNode( const BinID& bid )
 	else
 	    updatePanelStripPath();
 
+	if ( nodes_.size() > 1 && !panelstrip_->isOn() )
+	    panelstrip_->turnOn( true );
+
 	moving_.trigger();
     }
 }
@@ -468,6 +471,7 @@ void RandomTrackDisplay::removeAllNodes()
 
     nodes_.erase();
     updatePanelStripPath();
+    panelstrip_->turnOn( false );
     moving_.trigger();
 }
 

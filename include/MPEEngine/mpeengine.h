@@ -39,100 +39,117 @@ class ObjectEditor;
 */
 
 mExpClass(MPEEngine) Engine : public CallBacker
-{
+{ mODTextTranslationClass(Engine)
     mGlobal(MPEEngine) friend Engine&		engine();
 
 public:
-			Engine();
-    virtual		~Engine();
+				Engine();
+    virtual			~Engine();
 
-    void		init();
+    void			init();
 
     const TrcKeyZSampling&	activeVolume() const;
-    void		setActiveVolume(const TrcKeyZSampling&);
-    Notifier<Engine>	activevolumechange;
+    void			setActiveVolume(const TrcKeyZSampling&);
+    Notifier<Engine>		activevolumechange;
 
-    void		setActive2DLine(Pos::GeomID);
-    Pos::GeomID 	activeGeomID() const;
+    void			setActive2DLine(Pos::GeomID);
+    Pos::GeomID			activeGeomID() const;
 
-    Notifier<Engine>	loadEMObject;
-    MultiID		midtoload;
+    Notifier<Engine>		loadEMObject;
+    MultiID			midtoload;
 
-    void		updateSeedOnlyPropagation(bool);
-    Executor*		trackInVolume();
-    HorizonTrackerMgr*	trackInVolume(int idx);
-    bool		trackingInProgress() const;
-    void		stopTracking();
-    void		removeSelectionInPolygon(const Selector<Coord3>&,
-	    					 TaskRunner*);
-    void		getAvailableTrackerTypes(BufferStringSet&)const;
+    void			updateSeedOnlyPropagation(bool);
 
-    int			nrTrackersAlive() const;
-    int			highestTrackerID() const;
-    const EMTracker*	getTracker(int idx) const;
-    EMTracker*		getTracker(int idx);
-    int			getTrackerByObject(const EM::ObjectID&) const;
-    int			getTrackerByObject(const char*) const;
-    int			addTracker(EM::EMObject*);
-    void		removeTracker(int idx);
-    Notifier<Engine>	trackeraddremove;
-    void		setActiveTracker(const EM::ObjectID&);
-    void		setActiveTracker(EMTracker*);
-    EMTracker*		getActiveTracker();
+    enum TrackState		{ Started, Paused, Stopped };
+    TrackState			getState() const	{ return state_; }
+    bool			startTracking(uiString&);
+    bool			startRetrack(uiString&);
+    void			stopTracking();
+    bool			trackingInProgress() const;
+    void			undo(uiString& errmsg);
+    void			redo(uiString& errmsg);
+    void			enableTracking(bool yn);
+    Notifier<Engine>		actionCalled;
 
-    			/*Attribute stuff */
-    void 		setOneActiveTracker(const EMTracker*);
-    void 		unsetOneActiveTracker();
-    void		getNeededAttribs(
+    void			removeSelectionInPolygon(
+					const Selector<Coord3>&,
+					TaskRunner*);
+    void			getAvailableTrackerTypes(BufferStringSet&)const;
+
+    int				nrTrackersAlive() const;
+    int				highestTrackerID() const;
+    const EMTracker*		getTracker(int idx) const;
+    EMTracker*			getTracker(int idx);
+    int				getTrackerByObject(const EM::ObjectID&) const;
+    int				getTrackerByObject(const char*) const;
+    int				addTracker(EM::EMObject*);
+    void			removeTracker(int idx);
+    Notifier<Engine>		trackeraddremove;
+    void			setActiveTracker(const EM::ObjectID&);
+    void			setActiveTracker(EMTracker*);
+    EMTracker*			getActiveTracker();
+
+				/*Attribute stuff */
+    void			setOneActiveTracker(const EMTracker*);
+    void			unsetOneActiveTracker();
+    void			getNeededAttribs(
 				TypeSet<Attrib::SelSpec>&) const;
-    TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
-    			/*!< Returns the cube that is needed for
-			     this attrib, given that the activearea
-			     should be tracked. */
-    int			getCacheIndexOf(const Attrib::SelSpec&) const;
-    DataPack::ID	getAttribCacheID(const Attrib::SelSpec&) const;
-    bool		hasAttribCache(const Attrib::SelSpec&) const;
-    bool		setAttribData( const Attrib::SelSpec&,
-	    			       DataPack::ID);
-    bool		cacheIncludes(const Attrib::SelSpec&,
-				      const TrcKeyZSampling&);
-    void		swapCacheAndItsBackup();
+    TrcKeyZSampling		getAttribCube(const Attrib::SelSpec&) const;
+				/*!< Returns the cube that is needed for
+				     this attrib, given that the activearea
+				     should be tracked. */
+    int				getCacheIndexOf(const Attrib::SelSpec&) const;
+    DataPack::ID		getAttribCacheID(const Attrib::SelSpec&) const;
+    bool			hasAttribCache(const Attrib::SelSpec&) const;
+    bool			setAttribData( const Attrib::SelSpec&,
+					       DataPack::ID);
+    bool			cacheIncludes(const Attrib::SelSpec&,
+					      const TrcKeyZSampling&);
+    void			swapCacheAndItsBackup();
 
-    bool		isSelSpecSame(const Attrib::SelSpec& setupss,
-	    			      const Attrib::SelSpec& clickedss) const;
+    bool			isSelSpecSame(const Attrib::SelSpec& setupss,
+				      const Attrib::SelSpec& clickedss) const;
 
-    void		updateFlatCubesContainer(const TrcKeyZSampling& tkzs,
-	    					 const int idx,bool);
-			/*!< add = true, remove = false. */
+    void			updateFlatCubesContainer(const TrcKeyZSampling&,
+							 int idx,bool);
+				/*!< add = true, remove = false. */
     ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;
-    DataPack::ID	getSeedPosDataPack(const TrcKey&,float z,int nrtrcs,
+    DataPack::ID		getSeedPosDataPack(const TrcKey&,float z,
+					int nrtrcs,
 					const StepInterval<float>& zrg) const;
 
-    			/*Editors */
-    ObjectEditor*	getEditor(const EM::ObjectID&,bool create);
-    void		removeEditor(const EM::ObjectID&);
+				/*Editors */
+    ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
+    void			removeEditor(const EM::ObjectID&);
 
-    const char*		errMsg() const;
+    const char*			errMsg() const;
 
-    BufferString	setupFileName( const MultiID& ) const;
+    BufferString		setupFileName( const MultiID& ) const;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
 
     BufferString		errmsg_;
     TrcKeyZSampling		activevolume_;
 
-    Pos::GeomID 		activegeomid_;
+    Pos::GeomID			activegeomid_;
 
+    TrackState			state_;
     ObjectSet<HorizonTrackerMgr> trackermgrs_;
     ObjectSet<EMTracker>	trackers_;
     ObjectSet<ObjectEditor>	editors_;
 
     const EMTracker*		oneactivetracker_;
     EMTracker*			activetracker_;
+    int				undoeventid_;
     DataPackMgr&		dpm_;
+
+    bool			prepareForTrackInVolume(uiString&);
+    bool			prepareForRetrack();
+    bool			trackInVolume();
+    void			trackingFinishedCB(CallBacker*);
 
     struct CacheSpecs
     {

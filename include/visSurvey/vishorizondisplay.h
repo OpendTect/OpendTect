@@ -190,7 +190,9 @@ public:
     void			selectParent(const TrcKey&);
     void			selectChildren(const TrcKey&);
     void			showParentLine(bool);
-    void			showChildLine(bool);
+    void			showSelections(bool);
+    void			showLocked(bool);
+    virtual void		clearSelections();
 
 protected:
 				~HorizonDisplay();
@@ -227,6 +229,9 @@ protected:
 				    visBase::VertexShape*, int&,
 				    visBase::DataObjectGroup*) const;
 
+    void			initSelectionDisplay(bool erase);
+    virtual void		updateSelections();
+
 
     bool				allowshading_;
     mVisTrans*				translation_;
@@ -244,6 +249,7 @@ protected:
     visBase::Material*			intersectionlinematerial_;
 
     visBase::PointSet*			selections_;
+    visBase::PointSet*			lockedpts_;
     visBase::VertexShape*		parentline_;
 
     StepInterval<int>			parrowrg_;

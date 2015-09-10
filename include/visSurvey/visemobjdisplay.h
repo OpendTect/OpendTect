@@ -43,7 +43,6 @@ mExpClass(visSurvey) EMObjectDisplay : public  visBase::VisualObjectImpl
 				     , public visSurvey::SurveyObject
 {
 public:
-    				EMObjectDisplay();
     const mVisTrans*		getDisplayTransformation() const;
     void			setDisplayTransformation(const mVisTrans*);
     void			setSceneEventCatcher( visBase::EventCatcher* );
@@ -73,7 +72,6 @@ public:
     virtual bool		getOnlyAtSectionsDisplay() const;
 
     virtual void		setSelectionMode(bool);
-
     bool			allowMaterialEdit() const { return true; }
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
@@ -124,6 +122,7 @@ public:
 
 
 protected:
+    				EMObjectDisplay();
 				~EMObjectDisplay();
     virtual void		removeEMStuff();
 
@@ -135,6 +134,9 @@ protected:
     virtual void		clickCB(CallBacker*);
     virtual void		updatePosAttrib(int attrib);
     void			polygonFinishedCB(CallBacker*);
+
+    virtual void		updateSelections();
+    virtual void		clearSelections();
 
     Notifier<EMObjectDisplay>	hasmoved;
     Notifier<EMObjectDisplay>	locknotifier;
@@ -180,13 +182,10 @@ protected:
     static const char*			sKeySections();
     static const char*			sKeyPosAttrShown();
 
-private:				
+private:
     void				unSelectAll();
     const TypeSet<int>			findOverlapSelectors(
 						    visBase::PolygonSelection*);
-    void				updateSelections();
-    void				clearSelections();
-
 
 };
 

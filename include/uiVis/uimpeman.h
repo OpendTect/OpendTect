@@ -21,9 +21,6 @@ namespace MPE { class EMTracker; }
 namespace visSurvey { class HorizonDisplay; class MPEClickCatcher; }
 
 class uiPropertiesDialog;
-class uiComboBox;
-class uiSpinBox;
-class uiToolBar;
 class uiVisPartServer;
 
 
@@ -36,25 +33,18 @@ public:
 				uiMPEMan(uiParent*,uiVisPartServer*);
 				~uiMPEMan();
 
-    uiToolBar*			getToolBar() const;
-
     void			deleteVisObjects();
     void			validateSeedConMode();
-    void			introduceMPEDisplay();
     void			initFromDisplay();
-    void			trackInVolume();
 
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;
 
     void			visObjectLockedCB(CallBacker*);
-    void			updateButtonSensitivity(CallBacker* = 0);
 
 protected:
-    void			addButtons();
 
-    uiToolBar*			toolbar_;
-
+    uiParent*			parent_;
     uiVisPartServer*		visserv_;
 
     visSurvey::MPEClickCatcher*	clickcatcher_;
@@ -65,9 +55,12 @@ protected:
     int				popupMenu();
     void			handleAction(int);
 
+    void			startTracking();
+    void			startRetrack();
+    void			stopTracking();
     void			undo();
     void			redo();
-    void			startPolySelection();
+    void			changePolySelectionMode();
     void			clearSelection();
     void			deleteSelection();
     void			removeInPolygon();
@@ -78,19 +71,15 @@ protected:
     void			trackFromSeedsAndEdges();
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
-    void			retrackAll();
 
     void			updateSeedPickState();
     void			trackerAddedRemovedCB(CallBacker*);
-    void			addSeedCB(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
 
     MPE::EMTracker*		getSelectedTracker();
     visSurvey::HorizonDisplay*	getSelectedDisplay();
     EM::Horizon3D*		getSelectedHorizon3D();
-
-    void 			finishMPEDispIntro(CallBacker*);
 
     int				cureventnr_;
     void			beginSeedClickEvent(EM::EMObject*);

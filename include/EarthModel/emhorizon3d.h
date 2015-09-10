@@ -166,8 +166,8 @@ public:
 
     void			setParentColor(const Color&);
     const Color&		getParentColor() const;
-    void			setChildColor(const Color&);
-    const Color&		getChildColor() const;
+    void			setSelectionColor(const Color&);
+    const Color&		getSelectionColor() const;
     void			setLockColor(const Color&);
     const Color&		getLockColor() const;
 
@@ -191,7 +191,7 @@ protected:
     Array2D<od_int64>*		parents_;
 
     Color			parentcolor_;
-    Color			childcolor_;
+    Color			selectioncolor_;
     Color			lockcolor_;
 
 public:

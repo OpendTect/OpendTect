@@ -68,6 +68,9 @@ protected:
     EMTracker&			tracker_;
     ObjectSet<SectionTracker>	sectiontrackers_;
     BoolTypeSet			trackerinuse_;
+    Array2D<float>*		horizon3dundoinfo_;
+    RowCol			horizon3dundoorigin_;
+    void			addUndoEvent();
 
     TypeSet<TrcKey>		seeds_;
     Threads::WorkManager&	twm_;

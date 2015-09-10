@@ -54,7 +54,7 @@ public:
     bool		canRemoveSeed() const		{ return true; }
 
     void		setSelSpec(const Attrib::SelSpec*);
-    const Attrib::SelSpec* getSelSpec()			{ return &selspec_; }
+    const Attrib::SelSpec* getSelSpec() const		{ return &selspec_; }
     bool		reTrack();
     int			nrSeeds() const;
     int			minSeedsToLeaveInitStage() const;
@@ -70,16 +70,15 @@ public:
     static uiString	seedConModeText(int mode,
 				    bool abbrev=false);
 
-    int			getSeedConnectMode() const	{ return seedconmode_;}
+    int			getSeedConnectMode() const	{ return seedconmode_; }
     void		setSeedConnectMode(int scm)	{ seedconmode_ = scm; }
     void		blockSeedPick(bool yn)		{ blockpicking_ = yn; }
-    bool		isSeedPickBlocked() const	{return blockpicking_;}
-    
-    void		endSeedPick( bool yn )		{ endseedpicking_= yn;}
-    bool		isSeedPickEnded()	    { return endseedpicking_; }
-
+    bool		isSeedPickBlocked() const	{ return blockpicking_;}
     bool		doesModeUseVolume() const;
     bool		doesModeUseSetup() const;
+
+    void		endSeedPick(bool yn)		{ endseedpicking_ = yn;}
+    bool		isSeedPickEnded()	    { return endseedpicking_; }
 
     void		setSowerMode(bool yn)		{ sowermode_ = yn; }
 

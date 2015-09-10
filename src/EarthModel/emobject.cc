@@ -512,14 +512,9 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	mDynamicCastGet(const Geometry::RowColSurface*,surface,ge);
 	if ( !surface ) continue;
 
-	int startrow = surface->rowRange().start;
-	int nrrows = surface->rowRange().nrSteps() +1 ;
-	int startcol = surface->colRange().start;
-	int nrcols = surface->colRange().nrSteps() + 1 ;
-
-	EMObjectPosSelector posselector( *this, sectionID(idx), selector,
-					     nrrows, nrcols,
-					     startrow, startcol );
+	ObjectSet<const Selector<Coord3> > selectors;
+	selectors += &selector;
+	EMObjectPosSelector posselector( *this, sectionID(idx), selectors );
 	posselector.executeParallel( tr );
 
 	const TypeSet<EM::SubID>& list = posselector.getSelected();

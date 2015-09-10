@@ -49,7 +49,6 @@ int uiMPEPartServer::evRemoveTreeObject()	{ return 6; }
 int uiMPEPartServer::evSetupLaunched()		{ return 7; }
 int uiMPEPartServer::evSetupClosed()		{ return 8; }
 int uiMPEPartServer::evCreate2DSelSpec()	{ return 9; }
-int uiMPEPartServer::evMPEDispIntro()		{ return 10; }
 int uiMPEPartServer::evUpdateTrees()		{ return 11; }
 int uiMPEPartServer::evUpdateSeedConMode()	{ return 12; }
 int uiMPEPartServer::evStoreEMObject()		{ return 13; }
@@ -280,7 +279,7 @@ void uiMPEPartServer::eventChangedCB( CallBacker* )
 }
 
 
-void uiMPEPartServer::similarityChangedCB( CallBacker* )
+void uiMPEPartServer::correlationChangedCB( CallBacker* )
 {
     if ( trackercurrentobject_ == -1 )
 	return;
@@ -482,11 +481,11 @@ void uiMPEPartServer::cleanSetupDependents()
 	eventchangenotifier->remove(
 			mCB(this,uiMPEPartServer,eventChangedCB) );
 
-    NotifierAccess* similarityChangeNotifier =
-					  setupgrp_->similarityChangeNotifier();
-    if ( similarityChangeNotifier )
-	similarityChangeNotifier->remove(
-			mCB(this,uiMPEPartServer,similarityChangedCB) );
+    NotifierAccess* correlationChangeNotifier =
+					setupgrp_->correlationChangeNotifier();
+    if ( correlationChangeNotifier )
+	correlationChangeNotifier->remove(
+			mCB(this,uiMPEPartServer,correlationChangedCB) );
 }
 
 
@@ -887,6 +886,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 						EM::EMObject::sSeedNode()) );
     setupgrp_->setSectionTracker( sectracker );
+    MPE::engine().setActiveTracker( tracker );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
     if ( modechangenotifier )
@@ -902,10 +902,10 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
 	evchangenotifier->notify(
 			mCB(this,uiMPEPartServer,eventChangedCB) );
 
-    NotifierAccess* simichangenotifier = setupgrp_->similarityChangeNotifier();
+    NotifierAccess* simichangenotifier = setupgrp_->correlationChangeNotifier();
     if ( simichangenotifier )
 	simichangenotifier->notify(
-			mCB(this,uiMPEPartServer,similarityChangedCB));
+			mCB(this,uiMPEPartServer,correlationChangedCB));
 
     if ( cursceneid_ != -1 )
 	sendEvent( uiMPEPartServer::evStartSeedPick() );

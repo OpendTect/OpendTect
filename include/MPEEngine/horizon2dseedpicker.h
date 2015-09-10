@@ -16,8 +16,7 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "emseedpicker.h"
 #include "posinfo2dsurv.h"
-
-namespace Attrib { class SelSpec; }
+#include "attribsel.h"
 
 namespace MPE
 {
@@ -50,9 +49,8 @@ public:
     EM::PosID		replaceSeed(const EM::PosID& old,const Coord3& newpos);
     bool		canRemoveSeed() const		{ return true; }
 
-    void		setSelSpec(const Attrib::SelSpec* selspec)
-			{ selspec_ = selspec; }
-    const Attrib::SelSpec* getSelSpec()			{ return selspec_; }
+    void		setSelSpec(const Attrib::SelSpec*);
+    const Attrib::SelSpec* getSelSpec() const		{ return &selspec_; }
 
     bool		reTrack();
     int			nrSeeds() const;
@@ -103,7 +101,7 @@ protected:
     Coord3			lastseedkey_;
     bool			sowermode_;
 
-    const Attrib::SelSpec* 	selspec_;
+    Attrib::SelSpec		selspec_;
 
     EM::SectionID		sectionid_;
     bool			didchecksupport_;

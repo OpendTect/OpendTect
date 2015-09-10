@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "emhorizon3d.h"
+#include "emobjectposselector.h"
 #include "emsurfaceauxdata.h"
 #include "isocontourtracer.h"
 #include "settings.h"
@@ -78,6 +79,7 @@ HorizonDisplay::HorizonDisplay()
     , translationpos_( Coord3().udf() )
     , parentline_(0)
     , selections_(0)
+    , lockedpts_(0)
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
@@ -1067,7 +1069,8 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	    if ( parentline_ && parentline_->getMaterial() )
 		parentline_->getMaterial()->setColor( hor3d->getParentColor() );
 	    if ( selections_ && selections_->getMaterial() )
-		selections_->getMaterial()->setColor( hor3d->getChildColor() );
+		selections_->getMaterial()->setColor(
+						hor3d->getSelectionColor() );
 	}
     }
 
@@ -2058,30 +2061,38 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
 }
 
 
+void HorizonDisplay::initSelectionDisplay( bool erase )
+{
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    if ( !selections_ )
+    {
+	selections_ = visBase::PointSet::create();
+	selections_->ref();
+	if ( hor3d && selections_->getMaterial() )
+	    selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
+	addChild( selections_->osgNode() );
+	selections_->setDisplayTransformation( transformation_ );
+    }
+    else if ( erase )
+    {
+	selections_->removeAllPoints();
+	selections_->removeAllPrimitiveSets();
+	selections_->getMaterial()->clear();
+    }
+}
+
+
 void HorizonDisplay::selectChildren( const TrcKey& tkin )
 {
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
     Array2D<char>* children = hor3d ? hor3d->getChildren( tkin ) : 0;
     if ( !children ) return;
 
-    if ( !selections_ )
-    {
-	selections_ = visBase::PointSet::create();
-	selections_->ref();
-	selections_->getMaterial()->setColor( hor3d->getChildColor() );
-	addChild( selections_->osgNode() );
-	selections_->setDisplayTransformation( transformation_ );
-    }
-    else
-    {
-	selections_->removeAllPoints();
-	selections_->removeAllPrimitiveSets();
-	selections_->getMaterial()->clear();
-    }
+    initSelectionDisplay( true );
 
     const TrcKeySampling tks = hor3d->getTrackingSampling();
     const EM::SectionID sid = hor3d->sectionID( 0 );
-    TypeSet<int> pidxs_;
+    TypeSet<int> pidxs;
     for ( od_int64 gidx=0; gidx<children->info().getTotalSz(); gidx++ )
     {
 	if ( children->getData()[gidx] == '0' )
@@ -2090,16 +2101,15 @@ void HorizonDisplay::selectChildren( const TrcKey& tkin )
 	const TrcKey tk = tks.atIndex( gidx );
 	const Coord3 pos = hor3d->getPos( sid, tk.pos().toInt64() );
 	const int pidx = selections_->addPoint( pos );
-	selections_->getMaterial()->setColor( hor3d->getChildColor(), pidx );
-	pidxs_ += pidx;
+	selections_->getMaterial()->setColor( hor3d->getSelectionColor(), pidx);
+	pidxs += pidx;
     }
 
     Geometry::PrimitiveSet* pointsetps =
 		Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
-    pointsetps->append( pidxs_.arr(), pidxs_.size() );
+    pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
-//    selections_->materialChangeCB( 0 );
     selections_->turnOn( true );
 }
 
@@ -2110,9 +2120,66 @@ void HorizonDisplay::showParentLine( bool yn )
 }
 
 
-void HorizonDisplay::showChildLine( bool yn )
+void HorizonDisplay::showSelections( bool yn )
 {
     if ( selections_ ) selections_->turnOn( yn );
+}
+
+
+void HorizonDisplay::showLocked( bool yn )
+{
+    if ( lockedpts_ ) lockedpts_->turnOn( yn );
+}
+
+
+void HorizonDisplay::updateSelections()
+{
+    EMObjectDisplay::updateSelections();
+    const int lastidx = selectors_.size() - 1;
+    if ( lastidx<0 ) return;
+
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    if ( !hor3d ) return;
+
+    initSelectionDisplay( lastidx==0 );
+
+    const EM::SectionID sid = hor3d->sectionID(0);
+    const Selector<Coord3>* sel = selectors_[lastidx];
+    ObjectSet<const Selector<Coord3> > selectors;
+    selectors += sel;
+    EM::EMObjectPosSelector posselector( *hor3d, sid, selectors );
+    posselector.execute();
+
+    TypeSet<int> pidxs;
+    const TypeSet<EM::SubID>& selids = posselector.getSelected();
+    for ( int idx=0; idx<selids.size(); idx++ )
+    {
+    	const Coord3 pos = hor3d->getPos( sid, selids[idx] );
+    	if ( pos.isUdf() ) continue;
+
+	const int pidx = selections_->addPoint( pos );
+	selections_->getMaterial()->setColor( hor3d->getSelectionColor(), pidx);
+	pidxs += pidx;
+    }
+
+    Geometry::PrimitiveSet* pointsetps =
+		Geometry::IndexedPrimitiveSet::create( true );
+    pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
+    pointsetps->append( pidxs.arr(), pidxs.size() );
+    selections_->addPrimitiveSet( pointsetps );
+    selections_->turnOn( true );
+}
+
+
+void HorizonDisplay::clearSelections()
+{
+    EMObjectDisplay::clearSelections();
+    if ( selections_ )
+    {
+	selections_->removeAllPoints();
+	selections_->removeAllPrimitiveSets();
+	selections_->getMaterial()->clear();
+    }
 }
 
 

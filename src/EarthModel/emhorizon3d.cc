@@ -292,7 +292,7 @@ Horizon3D::Horizon3D( EMManager& man )
     , lockednodes_(0)
     , parents_(0)
     , parentcolor_(Color::Yellow())
-    , childcolor_(Color::Orange())
+    , selectioncolor_(Color::Orange())
     , lockcolor_(Color::Blue())
 {
     geometry_.addSection( "", false );
@@ -724,6 +724,8 @@ void Horizon3D::deleteChildren()
 {
     if ( !children_ ) return;
 
+    const int prevevid = EM::EMM().undo().currentEventID();
+
     Geometry::Element* ge = sectionGeometry( sectionID(0) );
     setBurstAlert( true );
     if ( ge ) ge->blockCallBacks( true, false );
@@ -740,6 +742,10 @@ void Horizon3D::deleteChildren()
     setBurstAlert( false );
 
     resetChildren();
+
+    const int evid = EM::EMM().undo().currentEventID();
+    if ( prevevid != evid )
+	EM::EMM().undo().setUserInteractionEnd( evid );
 }
 
 
@@ -801,17 +807,17 @@ const Color& Horizon3D::getParentColor() const
 { return parentcolor_; }
 
 
-void Horizon3D::setChildColor( const Color& col )
+void Horizon3D::setSelectionColor( const Color& col )
 {
-    childcolor_ = col;
+    selectioncolor_ = col;
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::PrefColorChange;
     change.trigger( cbdata );
 }
 
 
-const Color& Horizon3D::getChildColor() const
-{ return childcolor_; }
+const Color& Horizon3D::getSelectionColor() const
+{ return selectioncolor_; }
 
 void Horizon3D::setLockColor( const Color& col )
 { lockcolor_ = col; /*change.trigger();*/ }

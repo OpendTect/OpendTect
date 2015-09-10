@@ -21,19 +21,19 @@ namespace EM
 {
 
 EMObjectPosSelector::EMObjectPosSelector( const EMObject& emobj,
-					const SectionID& secid,
-					const Selector<Coord3>& sel,
-					int nrrows, int nrcols,
-					int startrow, int startcol )
+				const SectionID& secid,
+				const ObjectSet<const Selector<Coord3> >& sel )
     : ParallelTask()
     , emobj_(emobj)
     , sectionid_(secid)
-    , selector_(sel)
-    , startrow_(startrow)
-    , nrrows_(nrrows)
-    , startcol_(startcol)
-    , nrcols_(nrcols)
-{ emobj_.ref(); }
+    , selectors_(sel)
+    , startrow_(-1)
+    , nrrows_(-1)
+    , startcol_(-1)
+    , nrcols_(-1)
+{
+    emobj_.ref();
+}
 
 
 EMObjectPosSelector::~EMObjectPosSelector()
@@ -42,15 +42,18 @@ EMObjectPosSelector::~EMObjectPosSelector()
 
 bool EMObjectPosSelector::doPrepare( int nrthreads )
 {
-    removelist_.erase();
+    poslist_.erase();
     //TODO this is temporary extraction way of z values
     //this will get replaced by well though class structue
 
     const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
-    if ( !ge ) return false;
-
     mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
     if ( !surf ) return false;
+
+    startrow_ = surf->rowRange().start;
+    nrrows_ = surf->rowRange().nrSteps() +1 ;
+    startcol_ = surf->colRange().start;
+    nrcols_ = surf->colRange().nrSteps() + 1 ;
 
     zvals_ = surf->getArray()->getData();
 
@@ -114,7 +117,7 @@ bool EMObjectPosSelector::doWork( od_int64, od_int64, int threadid )
 
 
 void EMObjectPosSelector::processBlock( const RowCol& start,
-					     const RowCol& stop )
+					const RowCol& stop )
 {
     const Geometry::Element* ge = emobj_.sectionGeometry( sectionid_ );
     mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
@@ -128,62 +131,68 @@ void EMObjectPosSelector::processBlock( const RowCol& start,
 
     getBoundingCoords( start, stop, up, down );
 
-    const int sel = !selector_.canDoRange() ? 1
-				: selector_.includesRange( up, down );
-    if ( sel==0 || sel==3 )
-	return;           // all outside or all behind projection plane
-
-    int rowlen = (stop.row()-start.row()) / rowstep;
-    int collen = (stop.col()-start.col()) / colstep;
-
-    if ( rowlen < 32 && collen < 32 )
-	makeListGrow( start, stop, sel );
-    else if ( rowlen < 32 && collen >= 32 )
+    for ( int sidx=0; sidx<selectors_.size(); sidx++ )
     {
-	lock_.lock();
+	const Selector<Coord3>* selector = selectors_[sidx];
+	const int sel = !selector->canDoRange() ? 1
+				    : selector->includesRange( up, down );
+	if ( sel==0 || sel==3 )
+	    continue; // all outside or all behind projection plane
 
-	starts_ += start;
-	stops_ += RowCol( stop.row(), start.col()+colstep*(collen/2) );
+	int rowlen = (stop.row()-start.row()) / rowstep;
+	int collen = (stop.col()-start.col()) / colstep;
 
-	lock_.signal( starts_.size()>1 );
+	if ( rowlen < 32 && collen < 32 )
+	    makeListGrow( start, stop, sel );
+	else if ( rowlen < 32 && collen >= 32 )
+	{
+	    lock_.lock();
 
-	lock_.unLock();
+	    starts_ += start;
+	    stops_ += RowCol( stop.row(), start.col()+colstep*(collen/2) );
 
-	processBlock( RowCol(start.row(),start.col()+colstep*(1+collen/2)), stop );
-    }
-    else if ( rowlen >=32 && collen < 32 )
-    {
-	lock_.lock();
+	    lock_.signal( starts_.size()>1 );
 
-	starts_ += start;
-	stops_ += RowCol( start.row()+rowstep*(rowlen/2), stop.col() );
+	    lock_.unLock();
 
-	lock_.signal( starts_.size()>1 );
+	    processBlock( RowCol(start.row(),start.col()+colstep*(1+collen/2)),
+			  stop );
+	}
+	else if ( rowlen >=32 && collen < 32 )
+	{
+	    lock_.lock();
 
-	lock_.unLock();
+	    starts_ += start;
+	    stops_ += RowCol( start.row()+rowstep*(rowlen/2), stop.col() );
 
-	processBlock( RowCol(start.row()+rowstep*(1+rowlen/2),start.col()), stop );
-    }
-    else
-    {
-	lock_.lock();
+	    lock_.signal( starts_.size()>1 );
 
-	starts_ += start;
-	stops_ += RowCol( start.row()+rowstep*(rowlen/2),
-	    		  start.col()+colstep*(collen/2) );
+	    lock_.unLock();
 
-	starts_ += RowCol( start.row(), start.col()+colstep*(1+collen/2) );
-	stops_ += RowCol( start.row()+rowstep*(rowlen/2), stop.col() );
+	    processBlock( RowCol(start.row()+rowstep*(1+rowlen/2),start.col()),
+			  stop );
+	}
+	else
+	{
+	    lock_.lock();
 
-	starts_ += RowCol( start.row()+rowstep*(1+rowlen/2), start.col() );
-	stops_ += RowCol( stop.row(), start.col()+colstep*(collen/2) );
+	    starts_ += start;
+	    stops_ += RowCol( start.row()+rowstep*(rowlen/2),
+			      start.col()+colstep*(collen/2) );
 
-	lock_.signal( starts_.size()>1 );
+	    starts_ += RowCol( start.row(), start.col()+colstep*(1+collen/2) );
+	    stops_ += RowCol( start.row()+rowstep*(rowlen/2), stop.col() );
 
-	lock_.unLock();
+	    starts_ += RowCol( start.row()+rowstep*(1+rowlen/2), start.col() );
+	    stops_ += RowCol( stop.row(), start.col()+colstep*(collen/2) );
 
-	processBlock( RowCol(start.row()+rowstep*(1+rowlen/2),
-			     start.col()+colstep*(1+collen/2) ), stop );
+	    lock_.signal( starts_.size()>1 );
+
+	    lock_.unLock();
+
+	    processBlock( RowCol(start.row()+rowstep*(1+rowlen/2),
+				 start.col()+colstep*(1+collen/2) ), stop );
+	}
     }
 }
 
@@ -265,16 +274,29 @@ void EMObjectPosSelector::makeListGrow( const RowCol& start,
     {
 	if ( selresult != 2 )     // not all inside
 	{
-	    const Coord3 crd = emobj_.getPos( sectionid_,
-		    			      bid.toInt64() );
-	    if ( !crd.isDefined() || !selector_.includes(crd) )
-		continue;
+	    const Coord3 crd =
+		emobj_.getPos( sectionid_, bid.toInt64() );
+	    if ( !crd.isDefined() ) continue;
+
+	    bool found = false;
+	    for ( int sidx=0; sidx<selectors_.size(); sidx++ )
+	    {
+		const Selector<Coord3>* sel = selectors_[sidx];
+		if ( sel && sel->includes(crd) )
+		{
+		    found = true;
+		    break;
+		}
+	    }
+
+	    if ( !found ) continue;
 	}
+
 	ids += bid.toInt64();
     }
 
     lock_.lock();
-    removelist_.append( ids );
+    poslist_.append( ids );
     lock_.unLock();
 }
 

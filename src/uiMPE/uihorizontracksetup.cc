@@ -11,13 +11,12 @@ static const char* rcsID mUsedVar = "$Id: uihorizontracksetup.cc 38749 2015-04-0
 
 #include "uihorizontracksetup.h"
 
-#include "attribdescset.h"
-#include "attribdescsetsholder.h"
-#include "autotracker.h"
 #include "draw.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emmanager.h"
 #include "emsurfaceauxdata.h"
+#include "emundo.h"
 #include "executor.h"
 #include "horizonadjuster.h"
 #include "horizon2dseedpicker.h"
@@ -91,7 +90,6 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     , modeChanged_(this)
     , varianceChanged_(this)
     , propertyChanged_(this)
-    , state_(Stopped)
     , mps_(0)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
@@ -113,6 +111,14 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     mDynamicCastGet(uiDialog*,dlg,p)
     toolbar_ = new uiToolBar( dlg, "Tracking tools", uiToolBar::Left );
     initToolBar();
+
+    engine().actionCalled.notify( mCB(this,uiHorizonSetupGroup,mpeActionCB) );
+}
+
+
+uiHorizonSetupGroup::~uiHorizonSetupGroup()
+{
+    engine().actionCalled.remove( mCB(this,uiHorizonSetupGroup,mpeActionCB) );
 }
 
 
@@ -145,6 +151,8 @@ void uiHorizonSetupGroup::initToolBar()
     redobutid_ = toolbar_->addButton( "redo", "Redo [Ctrl+Y]",
 				mCB(this,uiHorizonSetupGroup,redoCB) );
     toolbar_->setShortcut( redobutid_, "ctrl+y" );
+
+    updateButtonSensitivity();
 }
 
 
@@ -154,38 +162,45 @@ void uiHorizonSetupGroup::setMPEPartServer( uiMPEPartServer* mps )
 }
 
 
+void uiHorizonSetupGroup::mpeActionCB( CallBacker* )
+{
+    updateButtonSensitivity();
+}
+
+
 void uiHorizonSetupGroup::updateButtonSensitivity()
 {
-    const bool enable = state_ == Stopped;
+    const bool enable = engine().getState() == MPE::Engine::Stopped;
     toolbar_->setSensitive( startbutid_, enable );
+    toolbar_->setSensitive( stopbutid_, !enable );
     toolbar_->setSensitive( savebutid_, enable );
     toolbar_->setSensitive( retrackbutid_, enable );
+
+    toolbar_->setSensitive( undobutid_, EM::EMM().undo().canUnDo() );
+    toolbar_->setSensitive( redobutid_, EM::EMM().undo().canReDo() );
+
+    EMTracker* tracker = engine().getActiveTracker();
+    toolbar_->turnOn( trackbutid_, tracker ? tracker->isEnabled() : false );
 }
 
 
 void uiHorizonSetupGroup::enabTrackCB( CallBacker* )
 {
+    engine().enableTracking( toolbar_->isOn(trackbutid_) );
 }
 
 
 void uiHorizonSetupGroup::startCB( CallBacker* )
 {
-    if ( state_ == Started )
-	return;
-
-    if ( trackInVolume() )
-    {
-	state_ = Started;
-	updateButtonSensitivity();
-    }
+    uiString errmsg;
+    if ( !engine().startTracking(errmsg) && !errmsg.isEmpty() )
+	uiMSG().error( errmsg );
 }
 
 
 void uiHorizonSetupGroup::stopCB( CallBacker* )
 {
     engine().stopTracking();
-    state_ = Stopped;
-    updateButtonSensitivity();
 }
 
 
@@ -199,92 +214,32 @@ void uiHorizonSetupGroup::saveCB( CallBacker* )
 
 void uiHorizonSetupGroup::retrackCB( CallBacker* )
 {
-    if ( !sectiontracker_ || !commitToTracker() )
-	return;
-
-    EM::EMObject& emobj = sectiontracker_->emObject();
-    emobj.setBurstAlert( true );
-    emobj.removeAllUnSeedPos();
-    const int trackeridx = MPE::engine().getTrackerByObject( emobj.id() );
-    EMTracker* emtracker = engine().getTracker( trackeridx );
-    EMSeedPicker* seedpicker = emtracker ? emtracker->getSeedPicker(false) : 0;
-    if ( !seedpicker ) return;
-
-    seedpicker->reTrack();
-    if ( trackInVolume() )
-    {
-	state_ = Started;
-	updateButtonSensitivity();
-    }
-
-    emobj.setBurstAlert( false );
+    uiString errmsg;
+    if ( !engine().startRetrack(errmsg) && !errmsg.isEmpty() )
+	uiMSG().error( errmsg );
 }
 
 
 void uiHorizonSetupGroup::undoCB( CallBacker* )
 {
+    MouseCursorChanger mcc( MouseCursor::Wait );
+    uiString errmsg;
+    engine().undo( errmsg );
+    if ( !errmsg.isEmpty() )
+	uiMSG().message( errmsg );
+
+    updateButtonSensitivity();
 }
 
 
 void uiHorizonSetupGroup::redoCB( CallBacker* )
 {
-}
+    MouseCursorChanger mcc( MouseCursor::Wait );
+    uiString errmsg;
+    engine().redo( errmsg );
+    if ( !errmsg.isEmpty() )
+	uiMSG().message( errmsg );
 
-
-bool uiHorizonSetupGroup::trackInVolume()
-{
-    if ( !sectiontracker_ || !commitToTracker()
-			  || mode_!=EMSeedPicker::TrackFromSeeds )
-	return false;
-
-    EM::EMObject& emobj = sectiontracker_->emObject();
-    const int trackeridx = MPE::engine().getTrackerByObject( emobj.id() );
-    EMTracker* emtracker = engine().getTracker( trackeridx );
-    EMSeedPicker* seedpicker = emtracker ? emtracker->getSeedPicker(false) : 0;
-    const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
-    if ( !as ) return false;
-
-    if ( !as->isStored() )
-    {
-	uiMSG().error( "Volume tracking can only be done on stored volumes.");
-	return false;
-    }
-
-    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
-    const MultiID mid = ads ? ads->getStoredKey(as->id()) : MultiID::udf();
-    if ( mid.isUdf() )
-    {
-	uiMSG().error( "Cannot find picked data in database" );
-	return false;
-    }
-
-    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
-    if ( !sdp )
-    {
-	uiMSG().error( "Seismic data is not preloaded yet" );
-	return false;
-    }
-
-    engine().setAttribData( *as, sdp->id() );
-    engine().setActiveVolume( sdp->sampling() );
-    if ( trackmgr_ )
-    {
-	trackmgr_->finished.remove(
-		mCB(this,uiHorizonSetupGroup,trackingFinishedCB) );
-    }
-
-    trackmgr_ = engine().trackInVolume( trackeridx );
-    if ( !trackmgr_ ) return false;
-
-    trackmgr_->finished.notify(
-		mCB(this,uiHorizonSetupGroup,trackingFinishedCB) );
-    return true;
-}
-
-
-void uiHorizonSetupGroup::trackingFinishedCB( CallBacker* )
-{
-    state_ = Stopped;
     updateButtonSensitivity();
 }
 
@@ -405,29 +360,24 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 				uiColorInput::Setup(Color::Yellow())
 				.withdesc(false).lbltxt(tr("Parents")) );
     parentcolfld_->colorChanged.notify(
-				mCB(this,uiHorizonSetupGroup,seedColSel) );
+			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     parentcolfld_->attach( alignedBelow, seedsliderfld_ );
 
-    childcolfld_ = new uiColorInput( grp,
+    selectioncolfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(Color::Yellow())
-				.withdesc(false).lbltxt(tr("Children")) );
-    childcolfld_->colorChanged.notify(
-				mCB(this,uiHorizonSetupGroup,seedColSel) );
-    childcolfld_->attach( rightTo, parentcolfld_ );
+				.withdesc(false).lbltxt(tr("Selections")) );
+    selectioncolfld_->colorChanged.notify(
+			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
+    selectioncolfld_->attach( rightTo, parentcolfld_ );
 
     lockcolfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(Color::Orange())
 				.withdesc(false).lbltxt(tr("Locked")) );
     lockcolfld_->colorChanged.notify(
-				mCB(this,uiHorizonSetupGroup,seedColSel) );
+			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
     lockcolfld_->attach( alignedBelow, parentcolfld_ );
 
     return grp;
-}
-
-
-uiHorizonSetupGroup::~uiHorizonSetupGroup()
-{
 }
 
 
@@ -465,6 +415,22 @@ void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 
 void uiHorizonSetupGroup::varianceChangeCB( CallBacker* )
 { varianceChanged_.trigger(); }
+
+
+void uiHorizonSetupGroup::specColorChangeCB( CallBacker* cb )
+{
+    if ( !sectiontracker_ ) return;
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
+    if ( !hor3d ) return;
+
+    if ( cb == parentcolfld_ )
+	hor3d->setParentColor( parentcolfld_->color() );
+    else if ( cb==selectioncolfld_ )
+	hor3d->setSelectionColor( selectioncolfld_->color() );
+    else if ( cb==lockcolfld_ )
+	hor3d->setLockColor( lockcolfld_->color() );
+}
 
 
 void uiHorizonSetupGroup::colorChangeCB( CallBacker* )
@@ -568,6 +534,7 @@ void uiHorizonSetupGroup::setSeedPos( const Coord3& crd )
 {
     eventgrp_->setSeedPos( crd );
     correlationgrp_->setSeedPos( crd );
+    updateButtonSensitivity();
 }
 
 

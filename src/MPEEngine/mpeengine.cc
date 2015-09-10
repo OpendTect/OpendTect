@@ -13,12 +13,15 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "mpeengine.h"
 
 #include "arrayndimpl.h"
+#include "attribdescset.h"
+#include "attribdescsetsholder.h"
 #include "autotracker.h"
 #include "emeditor.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
 #include "emsurface.h"
 #include "emtracker.h"
+#include "emundo.h"
 #include "executor.h"
 #include "flatposdata.h"
 #include "geomelement.h"
@@ -27,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id: mpeengine.cc 38753 2015-04-11 21:19:18
 #include "iopar.h"
 #include "sectiontracker.h"
 #include "seisdatapack.h"
+#include "seispreload.h"
 #include "survinfo.h"
 
 #define mRetErr( msg, retval ) { errmsg_ = msg; return retval; }
@@ -43,11 +47,14 @@ namespace MPE
 
 // MPE::Engine
 Engine::Engine()
-    : activevolumechange( this )
-    , trackeraddremove( this )
-    , loadEMObject( this )
+    : activevolumechange(this)
+    , trackeraddremove(this)
+    , loadEMObject(this)
+    , actionCalled(this)
     , oneactivetracker_( 0 )
     , activetracker_( 0 )
+    , undoeventid_(-1)
+    , state_(Stopped)
     , activegeomid_(Survey::GeometryManager::cUndefGeomID())
     , dpm_(DPM(DataPackMgr::SeisID()))
 {
@@ -114,6 +121,34 @@ void Engine::updateSeedOnlyPropagation( bool yn )
 }
 
 
+bool Engine::startTracking( uiString& errmsg )
+{
+    errmsg.setEmpty();
+    if ( state_ == Started )
+	return false;
+
+    if ( !prepareForTrackInVolume(errmsg) )
+	return false;
+
+    state_ = Started;
+    actionCalled.trigger();
+    return trackInVolume();
+}
+
+
+bool Engine::startRetrack( uiString& errmsg )
+{
+    errmsg.setEmpty();
+    if ( state_ == Started )
+	return false;
+
+    if ( !prepareForRetrack() )
+	return false;
+
+    return startTracking( errmsg );
+}
+
+
 bool Engine::trackingInProgress() const
 {
     for ( int idx=0; idx<trackermgrs_.size(); idx++ )
@@ -135,77 +170,182 @@ void Engine::stopTracking()
 
 	htm->stop();
     }
+
+    state_ = Stopped;
+    actionCalled.trigger();
 }
 
 
-Executor* Engine::trackInVolume()
+void Engine::trackingFinishedCB( CallBacker* )
 {
-    ExecutorGroup* res = 0;
+    Undo& emundo = EM::EMM().undo();
+    const int currentevent = emundo.currentEventID();
+    if ( currentevent != undoeventid_ )
+	emundo.setUserInteractionEnd( currentevent );
 
-    for ( int idx=0; idx<trackers_.size(); idx++ )
+    state_ = Stopped;
+    actionCalled.trigger();
+}
+
+
+void Engine::undo( uiString& errmsg )
+{
+    mDynamicCastGet(EM::EMUndo*,emundo,&EM::EMM().undo())
+    if ( !emundo ) return;
+
+    EM::ObjectID curid = emundo->getCurrentEMObjectID( false );
+    EM::EMObject* emobj = EM::EMM().getObject( curid );
+    if ( emobj )
     {
-	EMTracker* tracker = trackers_[idx];
-	if ( !tracker || !tracker->isEnabled() )
-	    continue;
-
-	EM::ObjectID oid = tracker->objectID();
-	EM::EMObject* emobj = EM::EMM().getObject( oid );
-	if ( !emobj || emobj->isLocked() )
-	    continue;
-
-	emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
-	EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
-	if ( !seedpicker ) continue;
-
-	TypeSet<TrcKey> seeds;
-	seedpicker->getSeeds( seeds );
-	HorizonTrackerMgr* htm = trackermgrs_[idx];
-	if ( !htm )
-	{
-	    htm = new HorizonTrackerMgr( *tracker );
-	    trackermgrs_.replace( idx, htm );
-	}
-
-	htm->setSeeds( seeds );
-	htm->startFromSeeds();
+	emobj->ref();
+	emobj->setBurstAlert( true );
     }
 
-    return res;
+    if ( !emundo->unDo(1,true) )
+	errmsg = tr("Could not undo everything.");
+
+    if ( emobj )
+    {
+	emobj->setBurstAlert( false );
+	emobj->unRef();
+    }
+
+    actionCalled.trigger();
 }
 
 
-HorizonTrackerMgr* Engine::trackInVolume( int idx )
+void Engine::redo( uiString& errmsg )
 {
-    EMTracker* tracker = trackers_[idx];
+    mDynamicCastGet(EM::EMUndo*,emundo,&EM::EMM().undo())
+    if ( !emundo ) return;
+
+    EM::ObjectID curid = emundo->getCurrentEMObjectID( true );
+    EM::EMObject* emobj = EM::EMM().getObject( curid );
+    if ( emobj )
+    {
+	emobj->ref();
+	emobj->setBurstAlert( true );
+    }
+
+    if ( !emundo->reDo(1,true) )
+	errmsg = tr("Could not redo everything.");
+
+    if ( emobj )
+    {
+	emobj->setBurstAlert( false );
+	emobj->unRef();
+    }
+
+    actionCalled.trigger();
+}
+
+
+void Engine::enableTracking( bool yn )
+{
+    if ( !activetracker_ ) return;
+
+    activetracker_->enable( yn );
+    actionCalled.trigger();
+}
+
+
+bool Engine::prepareForTrackInVolume( uiString& errmsg )
+{
+    if ( !activetracker_ ) return false;
+
+    EMSeedPicker* seedpicker = activetracker_->getSeedPicker( true );
+    if ( !seedpicker ||
+	 seedpicker->getSeedConnectMode()!=EMSeedPicker::TrackFromSeeds )
+	return false;
+
+    const Attrib::SelSpec* as = seedpicker ? seedpicker->getSelSpec() : 0;
+    if ( !as ) return false;
+
+    if ( !as->isStored() )
+    {
+	errmsg = tr("Volume tracking can only be done on stored volumes.");
+	return false;
+    }
+
+    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
+    const MultiID mid = ads ? ads->getStoredKey(as->id()) : MultiID::udf();
+    if ( mid.isUdf() )
+    {
+	errmsg = tr("Cannot find picked data in database");
+	return false;
+    }
+
+    mDynamicCastGet(RegularSeisDataPack*,sdp,Seis::PLDM().get(mid));
+    if ( !sdp )
+    {
+	errmsg = tr("Seismic data is not preloaded yet");
+	return false;
+    }
+
+    setAttribData( *as, sdp->id() );
+    setActiveVolume( sdp->sampling() );
+    return true;
+}
+
+
+bool Engine::prepareForRetrack()
+{
+    if ( !activetracker_ || !activetracker_->emObject() )
+	return false;
+
+    EMSeedPicker* seedpicker = activetracker_->getSeedPicker( true );
+    if ( !seedpicker ) return false;
+
+    EM::EMObject* emobj = activetracker_->emObject();
+    emobj->setBurstAlert( true );
+    emobj->removeAllUnSeedPos();
+    seedpicker->reTrack();
+    emobj->setBurstAlert( false );
+    return true;
+}
+
+
+bool Engine::trackInVolume()
+{
+    EMTracker* tracker = activetracker_;
     if ( !tracker || !tracker->isEnabled() )
-	return 0;
+	return false;
 
     EM::ObjectID oid = tracker->objectID();
     EM::EMObject* emobj = EM::EMM().getObject( oid );
     if ( !emobj || emobj->isLocked() )
-	return 0;
+	return false;
 
     emobj->sectionGeometry( emobj->sectionID(0) )->blockCallBacks(true);
     EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
-    if ( !seedpicker ) return 0;
+    if ( !seedpicker ) return false;
 
     TypeSet<TrcKey> seeds;
     seedpicker->getSeeds( seeds );
-    HorizonTrackerMgr* htm = trackermgrs_[idx];
+    const int trackeridx = trackers_.indexOf( tracker );
+    if ( !trackermgrs_.validIdx(trackeridx) )
+	return false;
+
+    HorizonTrackerMgr* htm = trackermgrs_[trackeridx];
     if ( !htm )
     {
 	htm = new HorizonTrackerMgr( *tracker );
-	trackermgrs_.replace( idx, htm );
+	htm->finished.notify( mCB(this,Engine,trackingFinishedCB) );
+	delete trackermgrs_.replace( trackeridx, htm );
     }
 
+    actionCalled.trigger();
+
+    EM::EMM().undo().removeAllBeforeCurrentEvent();
+    undoeventid_ = EM::EMM().undo().currentEventID();
     htm->setSeeds( seeds );
     htm->startFromSeeds();
-    return htm;
+    return true;
 }
 
 
 void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
-				       TaskRunner* tr )
+				       TaskRunner* taskr )
 {
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
@@ -213,7 +353,7 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	    continue;
 
 	EM::ObjectID oid = trackers_[idx]->objectID();
-	EM::EMM().removeSelected( oid, selector, tr );
+	EM::EMM().removeSelected( oid, selector, taskr );
 
 	EM::EMObject* emobj = EM::EMM().getObject( oid );
 	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )
@@ -259,12 +399,17 @@ int Engine::addTracker( EM::EMObject* obj )
 
 void Engine::removeTracker( int idx )
 {
-    if ( idx<0 || idx>=trackers_.size() || !trackers_[idx] )
+    if ( !trackers_.validIdx(idx) )
 	return;
 
-    const int noofref = trackers_[idx]->nrRefs();
-    trackers_[idx]->unRef();
+    EMTracker* tracker = trackers_[idx];
+    if ( !tracker ) return;
 
+    if ( activetracker_ == tracker )
+	activetracker_ = 0;
+
+    const int noofref = tracker->nrRefs();
+    tracker->unRef();
     if ( noofref != 1 )
 	return;
 
@@ -516,7 +661,7 @@ void Engine::swapCacheAndItsBackup()
 }
 
 
-void Engine::updateFlatCubesContainer( const TrcKeyZSampling& cs, const int idx,
+void Engine::updateFlatCubesContainer( const TrcKeyZSampling& cs, int idx,
 					bool addremove )
 {
     if ( !(cs.nrInl()==1) && !(cs.nrCrl()==1) )

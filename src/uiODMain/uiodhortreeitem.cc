@@ -410,7 +410,7 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool hastransform = scene && scene->getZAxisTransform();
 
     if ( !menu || menu->menuID()!=displayID() )
-        return;
+	return;
 
     const bool islocked = visserv_->isLocked( displayID() );
     const bool canadd = visserv_->canAddAttrib( displayID() );
@@ -603,6 +603,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 
 	const TypeSet<int>& bends = bpf.bendPoints();
 	RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
+	rl->setName( "Parents path" );
 	Geometry::RLM().add( rl );
 	for ( int idx=0; idx<bends.size(); idx++ )
 	    rl->addNode( trcs[bends[idx]].pos() );
@@ -622,7 +623,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==delchildrenmnuitem_.id )
     {
 	hor3d->deleteChildren();
-	hd->showChildLine( false );
+	hd->showSelections( false );
     }
     else if ( mnuid==lockmnuitem_.id )
 	hor3d->lockAll();

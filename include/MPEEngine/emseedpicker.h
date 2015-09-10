@@ -58,9 +58,8 @@ public:
     			{ return EM::PosID::udf(); }
     virtual void	getSeeds(TypeSet<TrcKey>&) const	{}
 
-    virtual void	setSelSpec(const Attrib::SelSpec*) {}
-    virtual const Attrib::SelSpec*
-			getSelSpec()				{ return 0; }
+    virtual void	setSelSpec(const Attrib::SelSpec*)	{}
+    virtual const Attrib::SelSpec* getSelSpec() const		{ return 0; }
     virtual bool	reTrack()				{ return false;}
     virtual int		nrSeeds() const				{ return 0; }
     virtual int		minSeedsToLeaveInitStage() const	{ return 1; }

@@ -750,7 +750,7 @@ void EMObjectDisplay::removeSelection( const Selector<Coord3>& selector,
 					EM::EMM().undo().currentEventID() );
     }
 
-    deepErase( selectors_ );
+    clearSelections();
 }
 
 
@@ -873,7 +873,6 @@ void EMObjectDisplay::clearSelections()
 {
    deepErase( selectors_ );
 }
-
 
 
 void EMObjectDisplay::unSelectAll()

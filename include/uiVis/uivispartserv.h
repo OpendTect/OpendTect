@@ -358,8 +358,6 @@ public:
     bool			showSetupGroupOnTop(const char* grpnm);
     const char*			getTopSetupGroupName() const;
 
-    void			introduceMPEDisplay();
-    uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
     static int			evStoreEMObject();
     static int			evStoreEMObjectAs();
