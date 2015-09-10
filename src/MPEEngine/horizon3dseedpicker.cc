@@ -245,7 +245,7 @@ EM::PosID Horizon3DSeedPicker::replaceSeed( const EM::PosID& oldpid,
     EM::PosID newpospid = EM::PosID::udf();
     if ( seedconmode_ != DrawBetweenSeeds )
 	return newpospid;
-    
+
     sowermode_ = false;
     BinID dir;
     if ( !lineTrackDirection(dir) )
@@ -261,7 +261,10 @@ EM::PosID Horizon3DSeedPicker::replaceSeed( const EM::PosID& oldpid,
     getNextSeed( oldseedbid, -dir, prevseedbid );
     getNextSeed( oldseedbid, dir, nextseedbid );
     if ( prevseedbid.isUdf() && nextseedbid.isUdf() )
+    {
+	emobj->setBurstAlert( false );
 	return newpospid;
+    }
 
     const bool inltracking = dir.inl()==0;
     const int dirlength = inltracking ? dir.crl() : dir.inl();
@@ -323,7 +326,7 @@ bool Horizon3DSeedPicker::retrackOnActiveLine( const BinID& startbid,
 {
    if ( endseedpicking_ )
 	return true;
-    
+
     BinID dir;
     if ( !lineTrackDirection(dir) )
 	return retrackFromSeedList(); // track on Rdl
