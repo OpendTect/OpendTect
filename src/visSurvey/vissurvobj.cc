@@ -27,8 +27,7 @@ mImplFactory( SurveyObject, SurveyObject::factory );
 SurveyObject::SurveyObject()
     : scene_(0)
     , s3dgeom_( 0 )
-    , ispicking_( false )
-    , locked_( false )
+    , locked_(false)
     , updatestagenr_( 0 )
     , saveinsessionsflag_( true )
 {
