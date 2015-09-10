@@ -251,6 +251,24 @@ void FaultStickSetEditor::getInteractionInfo( EM::PosID& insertpid,
 }
 
 
+const EM::PosID FaultStickSetEditor::getNearestStick( const Coord3& mousepos, 
+    Pos::GeomID pickedgeomid, const Coord3* normal ) const
+{
+    EM::PosID pid = EM::PosID::udf();
+    int sticknr = getLastClickedStick();
+    EM::SectionID sid;
+    const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
+			? sowingpivot_ : mousepos;
+
+    MultiID pickedmid;
+
+    if ( getNearestStick(sticknr,sid,&pickedmid,"",pickedgeomid,pos, normal) )
+	 getPidsOnStick( pid, sticknr, sid, pos );
+    
+    return pid;
+}
+
+
 bool FaultStickSetEditor::removeSelection( const Selector<Coord3>& selector )
 {
     mDynamicCastGet(EM::FaultStickSet*,emfss,&emobject);
