@@ -59,7 +59,8 @@ mExpClass(uiSEGY) uiSEGYImpType : public uiGroup
 { mODTextTranslationClass(uiSEGYImpType)
 public:
 
-			uiSEGYImpType(uiParent*,const uiString* lbltxt=0);
+			uiSEGYImpType(uiParent*,bool withvsp,
+				      const uiString* lbltxt=0);
 
     const SEGY::ImpType& impType();
     void		setTypIdx(int);

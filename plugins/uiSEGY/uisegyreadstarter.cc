@@ -47,7 +47,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     : uiDialog(p,uiDialog::Setup(tr("Import SEG-Y Data"),
 			imptyp ? uiString("Import %1").arg(imptyp->dispText())
 				: mNoDlgTitle,
-				  mTODOHelpKey ) )
+				  mTODOHelpKey ).nrstatusflds(1) )
     , filereadopts_(0)
     , typfld_(0)
     , ampldisp_(0)
@@ -81,7 +81,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	fixedimptype_ = *imptyp;
     else
     {
-	typfld_ = new uiSEGYImpType( this );
+	typfld_ = new uiSEGYImpType( this, !forsurvsetup );
 	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
 	typfld_->attach( alignedBelow, inpfld_ );
     }
@@ -324,7 +324,10 @@ void uiSEGYReadStarter::typChg( CallBacker* )
     const SEGY::ImpType& imptyp = impType();
     infofld_->setImpTypIdx( imptyp.tidx_ );
     if ( survmap_ )
+    {
+	userfilename_.setEmpty();
 	inpChg( 0 );
+    }
 }
 
 
@@ -483,11 +486,12 @@ void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
 
     survinfo_ = survmap_->getEmptySurvInfo();
     survinfo_->setName( "No valid scan available" );
+    const char* stbarmsg = "";
     if ( pidetector_ )
     {
 	Coord crd[3]; TrcKeyZSampling cs;
-	const char* res = pidetector_->getSurvInfo( cs.hsamp_, crd );
-	if ( !res )
+	stbarmsg = pidetector_->getSurvInfo( cs.hsamp_, crd );
+	if ( !stbarmsg )
 	{
 	    cs.zsamp_ = scaninf.basicinfo_.getZRange();
 	    survinfo_->setRange( cs, false );
@@ -496,17 +500,16 @@ void uiSEGYReadStarter::updateSurvMap( const SEGY::ScanInfo& scaninf )
 	    bid[0].crl() = cs.hsamp_.start_.crl();
 	    bid[1].inl() = cs.hsamp_.stop_.inl();
 	    bid[1].crl() = cs.hsamp_.stop_.crl();
-	    res = survinfo_->set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
+	    stbarmsg = survinfo_->set3Pts( crd, bid, cs.hsamp_.stop_.crl() );
 	}
-	if ( res )
-	    uiMSG().error( res );
-	else
+	if ( !stbarmsg )
 	{
 	    survinfook_ = true;
 	    survinfo_->setName( "Detected survey setup" );
 	}
     }
 
+    toStatusBar( stbarmsg );
     survmap_->setSurveyInfo( survinfo_ );
 }
 

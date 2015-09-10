@@ -155,42 +155,74 @@ const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 {
     mDeclStaticString( errmsg );
     if ( setup_.is2d_ )
-	mErrRet( "Cannot determine survey setup from a 2D line scan" )
-    if ( nruniquepos_ < 3 )
-	mErrRet( "Not enough unique positions found" )
+    {
+	if ( nruniquepos_ < 2 )
+	    mErrRet( "Not enough unique positions found" )
 
-    hs.start_ = start_; hs.stop_ = stop_; hs.step_ = step_;
+	double grdsp = 4. * avgdist_;
+	if ( grdsp < 50 ) grdsp = 50;
 
-    if ( hs.start_.inl() == hs.stop_.inl() )
-	mErrRet2("The input data contains only one in-line: ",hs.start_.inl())
-    else if ( hs.start_.crl() == hs.stop_.crl() )
-	mErrRet2("The input data contains only one cross-line: ",
-		hs.start_.crl())
+	const Coord cmin = minCoord();
+	Coord cmax = maxCoord();
+	const Coord delta( cmax.x - cmin.x, cmax.y - cmin.y );
+	const bool xisinl = delta.x > delta.y;
+	const Coord icdelta( xisinl ? delta.x : delta.y,
+			     xisinl ? delta.y : delta.x );
+	int nrinl = (int)(icdelta.x / grdsp + 1.5);
+	if ( nrinl < 3 ) nrinl = 3;
+	int nrcrl = (int)(icdelta.y / grdsp + 1.5);
+	if ( nrcrl < 3 ) nrcrl = 3;
+	cmax = Coord( cmin.x + grdsp * ( (xisinl?nrinl:nrcrl) - 1 ),
+		      cmin.y + grdsp * ( (xisinl?nrcrl:nrinl) - 1 ) );
 
-    const CrdBidOffs llnstart( userCBO(llnstart_) );
-    const CrdBidOffs llnstop( userCBO(llnstop_) );
-    const CrdBidOffs firstcbo( userCBO(firstcbo_) );
-    const CrdBidOffs lastcbo( userCBO(lastcbo_) );
+	crd[0] = cmin;
+	crd[1] = cmax;
+	crd[2].x = xisinl ? cmin.x : cmax.x;
+	crd[2].y = xisinl ? cmax.y : cmin.y;
+	hs.start_.inl() = hs.start_.crl() = 10000;
+	hs.step_.inl() = hs.step_.crl() = 1;
+	hs.stop_.inl() = 10000 + nrinl - 1;
+	hs.stop_.crl() = 10000 + nrcrl -1;
+    }
+    else
+    {
+	if ( nruniquepos_ < 3 )
+	    mErrRet( "Not enough unique positions found" )
 
-    const CrdBidOffs& usecbo(
-	      abs(firstcbo.binid_.inl()-llnstart.binid_.inl())
-	    < abs(lastcbo.binid_.inl()-llnstart.binid_.inl())
-	    ? lastcbo : firstcbo );
-    Coord c[3]; BinID b[2];
-    c[0] = llnstart.coord_;	b[0] = llnstart.binid_;
-    c[2] = llnstop.coord_;
-    c[1] = usecbo.coord_;	b[1] = usecbo.binid_;
+	hs.start_ = start_; hs.stop_ = stop_; hs.step_ = step_;
 
-    Pos::IdxPair2Coord b2c;
-    if ( !b2c.set3Pts( c[0], c[1], c[2], b[0], b[1], llnstop.binid_.crl() ) )
-	return "The input data does not contain the required information\n"
-	    "to establish a relation between\nthe inline/crossline system\n"
-	    "and the coordinates.";
+	if ( hs.start_.inl() == hs.stop_.inl() )
+	    mErrRet2("The input data contains only one in-line: ",
+		      hs.start_.inl())
+	else if ( hs.start_.crl() == hs.stop_.crl() )
+	    mErrRet2("The input data contains only one cross-line: ",
+		    hs.start_.crl())
 
-    // what coords would have been on the corners
-    crd[0] = b2c.transform( hs.start_ );
-    crd[1] = b2c.transform( hs.stop_ );
-    crd[2] = b2c.transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+	const CrdBidOffs llnstart( userCBO(llnstart_) );
+	const CrdBidOffs llnstop( userCBO(llnstop_) );
+	const CrdBidOffs firstcbo( userCBO(firstcbo_) );
+	const CrdBidOffs lastcbo( userCBO(lastcbo_) );
+
+	const CrdBidOffs& usecbo(
+		  abs(firstcbo.binid_.inl()-llnstart.binid_.inl())
+		< abs(lastcbo.binid_.inl()-llnstart.binid_.inl())
+		? lastcbo : firstcbo );
+	Coord c[3]; BinID b[2];
+	c[0] = llnstart.coord_;	b[0] = llnstart.binid_;
+	c[2] = llnstop.coord_;
+	c[1] = usecbo.coord_;	b[1] = usecbo.binid_;
+
+	Pos::IdxPair2Coord b2c;
+	if ( !b2c.set3Pts( c[0], c[1], c[2], b[0], b[1], llnstop.binid_.crl()) )
+	    return "The input data does not contain the required information\n"
+		"to establish a relation between\nthe inline/crossline system\n"
+		"and the coordinates.";
+
+	// what coords would have been on the corners
+	crd[0] = b2c.transform( hs.start_ );
+	crd[1] = b2c.transform( hs.stop_ );
+	crd[2] = b2c.transform( BinID(hs.start_.inl(),hs.stop_.crl()) );
+    }
 
     return 0;
 }
@@ -553,7 +585,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
     if ( setup_.reqsorting_ )
     {
 	BufferString sortdesc( errmsg_.getFullString() );
- 
+
 	if ( sortdesc.isEmpty() )
 	     sortdesc = sorting_.description();
 
