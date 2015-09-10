@@ -49,7 +49,8 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 
 void uiSEGYSurvInfoProvider::startImport( uiParent* p, const IOPar& iop )
 {
-    SEGY::FullSpec fullspec( Seis::Vol );
+    Seis::GeomType gt = Seis::Vol; Seis::getFromPar( iop, gt );
+    SEGY::FullSpec fullspec( gt );
     fullspec.usePar( iop );
     uiSEGYReadFinisher dlg( p, fullspec, userfilename_ );
     if ( dlg.go() )

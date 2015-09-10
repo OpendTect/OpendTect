@@ -79,7 +79,8 @@ uiString SEGY::ImpType::dispText() const
 
 
 
-uiSEGYImpType::uiSEGYImpType( uiParent* p, const uiString* lbltxt )
+uiSEGYImpType::uiSEGYImpType( uiParent* p, bool withvsp,
+				const uiString* lbltxt )
     : uiGroup(p,"Import Type")
     , typeChanged(this)
 {
@@ -97,9 +98,13 @@ uiSEGYImpType::uiSEGYImpType( uiParent* p, const uiString* lbltxt )
     for ( int idx=0; idx<typ_.types_.size(); idx++ )
     {
 	imptyp.tidx_ = idx;
+	const bool isvsp = imptyp.isVSP();
+	if ( !withvsp && isvsp )
+	    continue;
+
 	fld_->addItem( imptyp.dispText() );
 	const int icidx = fld_->size() - 1;
-	if ( imptyp.isVSP() )
+	if ( isvsp )
 	    fld_->setIcon( icidx, "vsp0" );
 	else
 	{
