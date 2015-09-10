@@ -38,6 +38,12 @@ uiPickSetMgr::uiPickSetMgr( uiParent* p, Pick::SetMgr& m )
 }
 
 
+uiPickSetMgr::~uiPickSetMgr()
+{
+    detachAllNotifiers();
+}
+
+
 bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
