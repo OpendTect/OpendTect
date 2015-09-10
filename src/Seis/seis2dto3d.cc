@@ -115,7 +115,6 @@ bool Seis2DTo3D::setIO( const IOPar& pars )
 	mErrRet( tr("No volume processing area found") )
 
     tkzs_.usePar( *sampling );
-    tkzs_.hsamp_.survid_= -1;	  //TODO Remove line after fix by Raman
     return true;
 }
 
@@ -260,7 +259,7 @@ int Seis2DTo3D::nextStep()
     const int szfasty = fft_->getFastSize( tkzs_.nrTrcs() );
     const int szfastz = fft_->getFastSize( tkzs_.nrZ() );
     //careful here since in some cases the input might have a
-    //different sampling rate than the output
+    //different sampling rate than the selected output
     readInputCube( szfastx, szfasty, szfastz );
 
     if( nrdone_ == 0 )
@@ -304,6 +303,9 @@ void Seis2DTo3D::butterflyOperator()
     butterfly_ = new Array3DImpl<float_complex>( *trcarr_ );
     butterfly_->setAll( float_complex(0.f,0.f) );
 
+    const double taperangle =  (double) taperangle_/180*M_PIf;
+    const double pow = (double) pow_;
+    const double mindist = SI().crlDistance();
     TrcKeySampling hrg( tkzs_.hsamp_ );
     const int nx = trcarr_->info().getSize(0);
     const int ny = trcarr_->info().getSize(1);
@@ -320,8 +322,9 @@ void Seis2DTo3D::butterflyOperator()
     refbid += BinID( hrg.stop_.inl() + hrg.step_.inl(),
 		     hrg.stop_.crl() + hrg.step_.crl());
 
+    int zdiff = nz - tkzs_.nrZ();
     Interval<double> refz( tkzs_.zsamp_.start,
-			   tkzs_.zsamp_.stop + tkzs_.zsamp_.step);
+			tkzs_.zsamp_.stop + (zdiff + 1) * tkzs_.zsamp_.step);
     const float zscale = SI().zDomain().isTime() ? 2500.f : 1.f;
     refz.scale( zscale );
 
@@ -360,13 +363,21 @@ void Seis2DTo3D::butterflyOperator()
 		    nearestidx = i;
 		}
 	    }
-	    const float dist2d = (float) pos2d.distTo(refpos3d[nearestidx].coord());
-	    const float dist3d = (float) pos3d.distTo(refpos3d[nearestidx]);
-	    const float angle = acos(dist2d/dist3d);
+	    const double dist2d =
+		pos2d.distTo(refpos3d[nearestidx].coord());
 
-	    if (angle <= taperangle_)
-		butterfly_->set(idx,idy,idz,
-				(1.f / Math::PowerOf(dist3d, pow_)));
+	    const double dist3d = pos3d.distTo(refpos3d[nearestidx]);
+	    double topz = pos3d.z;
+	    double bottomz = refz.stop-pos3d.z;
+
+	    if (topz <= tan( taperangle )*dist2d ||
+		bottomz <= tan( taperangle )*dist2d)
+	    {
+		const double valreal = mIsZero(dist3d,mDefEps) ?
+			10 / (Math::PowerOf(mindist , pow)):
+			(1 / (Math::PowerOf(dist3d, pow)));
+		butterfly_->set(idx,idy,idz, (float) valreal);
+	    }
 	}
     }
 }
@@ -448,8 +459,10 @@ bool Seis2DTo3D::writeOutput()
     delete wrr_;
     wrr_ = new SeisTrcWriter( outioobj_ );
 
-    delete rdr_;
-    rdr_ = new SeisTrcReader( outioobj_ );
+    if (nrdone_ != 0)
+    {	delete rdr_;
+	rdr_ = new SeisTrcReader( outioobj_ );
+    }
 
     const TrcKeySampling& hrg = tkzs_.hsamp_;
     TrcKeySamplingIterator iter( hrg );
@@ -464,7 +477,10 @@ bool Seis2DTo3D::writeOutput()
 	const int idx = hrg.inlIdx(binid.inl());
 	const int idy = hrg.crlIdx(binid.crl());
 
+	if (nrdone_ != 0)
+	{
 	rdr_->get(trc);
+	}
 
 	for ( int idz=0; idz<tkzs_.nrZ(); idz++ )
 	{
