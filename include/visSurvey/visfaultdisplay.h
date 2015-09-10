@@ -225,6 +225,8 @@ protected:
 					TypeSet<Coord3>& intersectpoints) const;
     void			updateStickHiding();
     void			setLineRadius(visBase::GeomIndexedShape*);
+    void			sowingFinishedCB(CallBacker*);
+    bool			onSection(int sticknr);
 
     ZAxisTransform*			zaxistransform_;
     int					voiid_;
@@ -267,6 +269,7 @@ protected:
     visBase::DrawStyle*			drawstyle_;
     bool				otherobjects_;
     bool				endstick_;
+    EM::PosID				activestickid_;
 
     static const char*			sKeyTriProjection();
     static const char*			sKeyEarthModelID();
