@@ -680,7 +680,6 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
     markerset->setDisplayTransformation(transformation_);
     markerset->setMaximumScale( (float) 10*lineStyle()->width_ );
-    markerset->setScreenSize( mDefaultSize );
     markerset->clearMarkers();
 
     for ( int idx=0; idx<pids->size(); idx++ )
@@ -743,7 +742,7 @@ void EMObjectDisplay::removeSelection( const Selector<Coord3>& selector,
 	em_.removeSelected( emobject_->id(), *sel, tr );
     }
     em_.removeSelected( emobject_->id(), selector, tr );
-    
+
     if ( lastid!=EM::EMM().undo().currentEventID() )
     {
 	EM::EMM().undo().setUserInteractionEnd(
@@ -786,13 +785,13 @@ void EMObjectDisplay::setSelectionMode( bool yn )
 
 void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 {
-      if ( !scene_ || ! scene_->getPolySelection() ) 
+      if ( !scene_ || ! scene_->getPolySelection() )
 	  return;
 
     visBase::PolygonSelection* polysel =  scene_->getPolySelection();
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
-    if ( (!polysel->hasPolygon() && !polysel->singleSelection()) ) 
+    if ( (!polysel->hasPolygon() && !polysel->singleSelection()) )
     { 	unSelectAll();  return;  }
 
     if ( !ctrldown_ )
@@ -812,7 +811,7 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 	copyselection->ref();
 	visBase::PolygonCoord3Selector* selector =
 	    new visBase::PolygonCoord3Selector( *copyselection );
-	if ( selector ) 
+	if ( selector )
 	    selectors_ += selector;
     }
 
@@ -822,7 +821,7 @@ void EMObjectDisplay::polygonFinishedCB( CallBacker* cb )
 }
 
 
-const TypeSet<int> EMObjectDisplay::findOverlapSelectors( 
+const TypeSet<int> EMObjectDisplay::findOverlapSelectors(
     visBase::PolygonSelection* polysel )
 {
     TypeSet<int> overlapselectors;
