@@ -677,6 +677,12 @@ uiAdvancedTextItem::~uiAdvancedTextItem()
 }
 
 
+Alignment uiAdvancedTextItem::getAlignment() const
+{
+    return qtextitem_->getAlignment();
+}
+
+
 Color uiAdvancedTextItem::getDefaultTextColor() const
 {
     QColor qcol = qtextitem_->defaultTextColor();
@@ -701,6 +707,12 @@ uiString uiAdvancedTextItem::getPlainText() const
 
 float uiAdvancedTextItem::getTextWidth() const
 { return qtextitem_->textWidth(); }
+
+
+void uiAdvancedTextItem::setAlignment( const Alignment& al )
+{
+    qtextitem_->setAlignment( al );
+}
 
 
 void uiAdvancedTextItem::setDefaultTextColor( const Color& col )
@@ -736,7 +748,7 @@ void uiAdvancedTextItem::setTextIteraction( bool yn )
 
 QGraphicsItem* uiAdvancedTextItem::mkQtObj()
 {
-    qtextitem_ = new QGraphicsTextItem();
+    qtextitem_ = new ODGraphicsAdvancedTextItem();
     return qtextitem_;
 }
 

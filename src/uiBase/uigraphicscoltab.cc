@@ -24,11 +24,17 @@ uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
 {
     ctseqitm_ = new uiPixmapItem();
     borderitm_ = new uiRectItem();
-    minvalitm_ = new uiTextItem( toUiString("0"), mAlignment(HCenter,Top) );
-    maxvalitm_ = new uiTextItem( toUiString("1"), mAlignment(HCenter,Bottom) );
+    minvalitm_ = new uiAdvancedTextItem( toUiString("0") );
+    maxvalitm_ = new uiAdvancedTextItem( toUiString("1") );
     add( borderitm_ ); add( ctseqitm_ ); add( minvalitm_ ); add( maxvalitm_ );
 
     setColTabSequence( ColTab::Sequence("") );
+
+    uiRect boundrec = ctseqitm_->boundingRect();
+    ctseqitm_->setPos( 0, 0 );
+    borderitm_->setRect( -1, -1, boundrec.width()+1, boundrec.height()+1 );
+
+    update();
 }
 
 
@@ -38,52 +44,19 @@ uiColTabItem::~uiColTabItem()
 }
 
 
-void uiColTabItem::setColTab( const char* nm )
+void uiColTabItem::update()
 {
-    ColTab::Sequence seq( nm );
-    setColTabSequence( seq );
-}
-
-
-void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
-{
-    ctseq_ = ctseq;
-    setPixmap();
-}
-
-
-void uiColTabItem::setPixmap()
-{
-    uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
-    pm.fill( ctseq_, setup_.hor_ );
-    ctseqitm_->setPixmap( pm );
-}
-
-
-void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
-{
-    Interval<float> rg = ms.range_;
-    minvalitm_->setText( toUiString(rg.start) );
-    maxvalitm_->setText( toUiString(rg.stop) );
-}
-
-
-void uiColTabItem::setPixmapPos( const uiPoint& pt )
-{
-    curpos_ = pt;
-    setPixmapPos();
-}
-
-
-void uiColTabItem::setPixmapPos()
-{
-    ctseqitm_->setPos( curpos_ );
+    uiRect boundrec = boundingRect();
+    minvalitm_->setAlignment( Alignment(Alignment::HCenter, Alignment::Bottom));
+    minvalitm_->setPos( boundrec.width()/2, 0 );
+    maxvalitm_->setAlignment( Alignment(Alignment::HCenter, Alignment::Top) );
+    maxvalitm_->setPos( boundrec.width()/2, boundrec.height() );
+/*
+    uiPoint curpos_( 0, 0 );
     const uiRect rect( curpos_, setup_.sz_ );
-    borderitm_->setRect( rect.left()-1, rect.top()-1,
-			 rect.width()+1, rect.height()+1 );
-    const int dist = 2;
+    const int dist = -6;
     const uiRect drect( uiPoint(curpos_.x-dist,curpos_.y-dist),
-	    	 uiSize(setup_.sz_.width()+2*dist,setup_.sz_.height()+2*dist) );
+		 uiSize(setup_.sz_.width()+2*dist,setup_.sz_.height()+2*dist) );
     const uiPoint center( rect.centre() );
 #   define mSetAl(itm,h,v) itm->setAlignment( Alignment(h,v) )
 
@@ -151,20 +124,29 @@ void uiColTabItem::setPixmapPos()
 	    maxvalitm_->setPos( (float) startx, (float) drect.top() );
 	}
     }
+    */
 }
 
 
-void uiColTabItem::setupChanged()
+void uiColTabItem::setColTab( const char* nm )
 {
-    setPixmap();
-    setPixmapPos();
+    ColTab::Sequence seq( nm );
+    setColTabSequence( seq );
 }
 
 
-void uiColTabItem::stPos( float x, float y )
+void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
 {
-    setPixmapPos( uiPoint(mNINT32(x),mNINT32(y)) );
-    curpos_ += curpos_;
-    curpos_ -= boundingRect().topLeft();
-    setPixmapPos();
+    ctseq_ = ctseq;
+    uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
+    pm.fill( ctseq_, setup_.hor_ );
+    ctseqitm_->setPixmap( pm );;
+}
+
+
+void uiColTabItem::setColTabMapperSetup( const ColTab::MapperSetup& ms )
+{
+    Interval<float> rg = ms.range_;
+    minvalitm_->setPlainText( toUiString(rg.start) );
+    maxvalitm_->setPlainText( toUiString(rg.stop) );
 }
