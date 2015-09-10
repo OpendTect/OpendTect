@@ -146,6 +146,7 @@ public:
     KeyBindMan&			keyBindMan()		{ return keybindman_; }
 
 protected:
+    void				enableDragging( bool yn );
 
     enum ViewModeCursor			{ RotateCursor, PanCursor, ZoomCursor,
 					  HoverCursor };
