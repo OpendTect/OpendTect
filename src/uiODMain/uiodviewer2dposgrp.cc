@@ -242,14 +242,17 @@ bool uiODViewer2DPosGrp::commitSel( bool emiterror )
 	    subsel2dfld_->getSampling( posdatasel_->tkzs_ );
 	    break;
 	case Viewer2DPosDataSel::InLine:
+	    if ( !sliceselflds_.validIdx(0) ) return false;
 	    sliceselflds_[0]->acceptOK();
 	    posdatasel_->tkzs_ = sliceselflds_[0]->getTrcKeyZSampling();
 	    break;
 	case Viewer2DPosDataSel::CrossLine:
+	    if ( !sliceselflds_.validIdx(1) ) return false;
 	    sliceselflds_[1]->acceptOK();
 	    posdatasel_->tkzs_ = sliceselflds_[1]->getTrcKeyZSampling();
 	    break;
 	case Viewer2DPosDataSel::ZSlice:
+	    if ( !sliceselflds_.validIdx(2) ) return false;
 	    sliceselflds_[2]->acceptOK();
 	    posdatasel_->tkzs_ = sliceselflds_[2]->getTrcKeyZSampling();
 	    break;
