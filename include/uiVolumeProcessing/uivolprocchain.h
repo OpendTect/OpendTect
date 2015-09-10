@@ -38,6 +38,7 @@ public:
 				~uiChain();
 
     void			setChain(Chain&);
+    const Chain&		getChain() const	{ return chain_; }
     const MultiID&		storageID() const;
 
     static const char*		pixmapFileName()    { return "volproc"; }
