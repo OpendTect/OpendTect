@@ -428,7 +428,8 @@ const RegularSeisDataPack* EngineMan::getDataPackOutput(
     else
 	output->setSampling( tkzs_ );
 
-    for ( int idx=0; idx<packset[0]->nrComponents(); idx++ )
+    for ( int idx=0; idx<packset[0]->nrComponents() && idx<attrspecs_.size();
+									idx++ )
 	output->addComponent( attrspecs_[idx].userRef() );
 
     output->setZDomain(
