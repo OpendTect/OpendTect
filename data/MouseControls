@@ -5,7 +5,7 @@ Thu Jun 13 20:59:49 2002
 Default : Default
 !
 Name	: Default
-Rotate  : Left`None
+Rotate  : Middle`Shift
 Pan     : Middle`None
 Zoom    : Middle`Control
 !

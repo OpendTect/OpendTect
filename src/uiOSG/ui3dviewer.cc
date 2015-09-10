@@ -121,19 +121,16 @@ void TrackBallManipulatorMessenger::operator()( osg::Node* node,
 	osgGeo::TrackballEventNodeVisitor* tnv =
 				    (osgGeo::TrackballEventNodeVisitor*) nv;
 
-	if ( viewerbody_->isViewMode() )
-	{
-	    if (tnv->_eventType==osgGeo::TrackballEventNodeVisitor::RotateStart)
-		viewerbody_->setViewModeCursor( ui3DViewerBody::RotateCursor );
-	    if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::PanStart )
-		viewerbody_->setViewModeCursor( ui3DViewerBody::PanCursor );
-	    if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::ZoomStart )
-		viewerbody_->setViewModeCursor( ui3DViewerBody::ZoomCursor );
-	    if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::MoveStart )
-		viewerbody_->setViewModeCursor( ui3DViewerBody::HoverCursor );
-	    if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::MoveStop )
-		viewerbody_->setViewModeCursor( ui3DViewerBody::HoverCursor );
-	}
+	if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::RotateStart )
+	    viewerbody_->setViewModeCursor( ui3DViewerBody::RotateCursor );
+	if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::PanStart )
+	    viewerbody_->setViewModeCursor( ui3DViewerBody::PanCursor );
+	if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::ZoomStart )
+	    viewerbody_->setViewModeCursor( ui3DViewerBody::ZoomCursor );
+	if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::MoveStart )
+	    viewerbody_->setViewModeCursor( ui3DViewerBody::HoverCursor );
+	if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::MoveStop )
+	    viewerbody_->setViewModeCursor( ui3DViewerBody::HoverCursor );
 
 	if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::Moving )
 	{
@@ -411,12 +408,11 @@ void ui3DViewerBody::setupView()
     manip->setIntersectTraversalMask( visBase::cIntersectionTraversalMask() );
     manip->setAnimationTime( 0.5 );
 
-    manip->enableDragging( isViewMode() );
-
     manip->setAutoComputeHomePosition( false );
 
     view_->setCameraManipulator( manip.get() );
 
+    enableDragging( isViewMode() );
 
     if ( !compositeviewer_ )
     {
@@ -807,10 +803,11 @@ bool ui3DViewerBody::isViewMode() const
 
 void ui3DViewerBody::setViewMode( bool yn, bool trigger )
 {
+    enableDragging( yn );
+
     osg::ref_ptr<osgGeo::TrackballManipulator> manip =
 	    static_cast<osgGeo::TrackballManipulator*>(
 						view_->getCameraManipulator() );
-    manip->enableDragging( yn );
     manip->stopThrow();
 
     if ( scene_ )
@@ -827,16 +824,16 @@ void ui3DViewerBody::setViewModeCursor( ViewModeCursor viewmodecursor )
 {
     MouseCursor cursor;
 
-    if ( !isViewMode() )
-	cursor.shape_ = MouseCursor::Arrow;
-    else if ( viewmodecursor == HoverCursor )
-	cursor.shape_ = MouseCursor::PointingHand;
+    if ( viewmodecursor == RotateCursor )
+	cursor.shape_ = MouseCursor::Rotator;
     else if ( viewmodecursor == PanCursor )
 	cursor.shape_ = MouseCursor::SizeAll;
     else if ( viewmodecursor == ZoomCursor )
 	cursor.shape_ = MouseCursor::SizeVer;
+    else if ( viewmodecursor==HoverCursor && isViewMode() )
+	cursor.shape_ = MouseCursor::PointingHand;
     else
-	cursor.shape_ = MouseCursor::Rotator;
+	cursor.shape_ = MouseCursor::Arrow;
 
     mQtclass(QCursor) qcursor;
     uiCursorManager::fillQCursor( cursor, qcursor );
@@ -1408,6 +1405,21 @@ void ui3DViewerBody::setMapView( bool yn )
     mDynamicCastGet(visSurvey::Scene*,survscene,scene_.ptr())
     if ( survscene ) survscene->setAnnotColor( Color::Black() );
     requestRedraw();
+}
+
+
+void ui3DViewerBody::enableDragging( bool yn )
+{
+    osg::ref_ptr<osgGeo::TrackballManipulator> manip =
+		static_cast<osgGeo::TrackballManipulator*>(
+					    view_->getCameraManipulator() );
+    if ( !manip )
+	return;
+
+    if ( yn )
+	manip->enableDragging( true );
+    else
+	manip->enableDragging((int)osgGA::GUIEventAdapter::MIDDLE_MOUSE_BUTTON);
 }
 
 
