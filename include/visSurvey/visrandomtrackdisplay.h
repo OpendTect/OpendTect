@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 -*/
 
-
+#include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vismultiattribsurvobj.h"
 #include "ranges.h"
@@ -131,6 +131,8 @@ public:
     void			setDepthInterval(const Interval<float>&);
     Interval<float>		getDepthInterval() const;
 
+    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
+
     void			getMousePosInfo(const visBase::EventInfo&,
 						IOPar&) const;
     void			getMousePosInfo(const visBase::EventInfo&,
@@ -171,6 +173,9 @@ public:
     virtual void		annotateNextUpdateStage(bool yn);
     virtual void		setPixelDensity(float);
 
+    static const char*		sKeyPanelDepthKey()  { return "PanelDepthKey"; }
+    static const char*		sKeyPanelPlaneKey()  { return "PanelPlaneKey"; }
+    static const char*		sKeyPanelRotateKey() { return "PanelRotateKey";}
 
 protected:
 				~RandomTrackDisplay();
@@ -197,6 +202,8 @@ protected:
 
     void			geomChangeCB(CallBacker*);
     void			nodeMoved(CallBacker*);
+    void			draggerRightClick(CallBacker*);
+
     void			pickCB(CallBacker*);
     bool			checkValidPick(const visBase::EventInfo&,
 					       const Coord3& pos) const;
@@ -209,6 +216,9 @@ protected:
     void			setPanelStripZRange(const Interval<float>&);
     float			appliedZRangeStep() const;
     void			draggerMoveFinished(CallBacker*);
+    void			updateMouseCursorCB(CallBacker*);
+
+    int			nrgeomchangecbs_;
 
     Geometry::RandomLine*	rl_;
     visBase::TexturePanelStrip*	panelstrip_;
@@ -217,7 +227,9 @@ protected:
 
     visBase::PolyLine*		polyline_;
     visBase::MarkerSet*		markerset_;
+
     visBase::EventCatcher*	eventcatcher_;
+    MouseCursor			mousecursor_;
 
     int				selnodeidx_;
     TypeSet<DataPack::ID>	datapackids_;
@@ -236,6 +248,8 @@ protected:
     int				namenr_;
     bool			polylinemode_;
     bool			interactivetexturedisplay_;
+    int				originalresolution_;
+
     static const char*		sKeyTrack();
     static const char*		sKeyNrKnots();
     static const char*		sKeyKnotPrefix();

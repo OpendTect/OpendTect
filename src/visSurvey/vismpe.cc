@@ -386,7 +386,7 @@ void MPEDisplay::updateMouseCursorCB( CallBacker* cb )
 		 eventinfo.pickedobjids.isPresent(slices_[0]->id()) )
 	    {
 		if ( !slices_[0]->isPickingEnabled() )
-		    mousecursor_.shape_ = MouseCursor::PointingHand;
+		    mousecursor_.shape_ = MouseCursor::GreenArrow;
 		else
 		    mousecursor_.shape_ = MouseCursor::NotSet;
 	    }

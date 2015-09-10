@@ -79,6 +79,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , csfromsession_( false )
     , eventcatcher_( 0 )
     , texturerect_( 0 )
+    , originalresolution_( -1 )
     , undo_( *new Undo() )
 {
     texturerect_ = visBase::TextureRectangle::create();
@@ -392,7 +393,13 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
     dragger_->showDraggerBorder( !showplane );
 
     if ( canDisplayInteractively() )
+    {
+	if ( originalresolution_ < 0 )
+	    originalresolution_ = resolution_;
+
+	resolution_ = 0;
 	updateSel();
+    }
 }
 
 
@@ -403,6 +410,12 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
 
     if ( cs!=snappedcs )
 	setDraggerPos( snappedcs );
+
+    if ( canDisplayInteractively() )
+    {
+	setResolution( originalresolution_, 0 );
+	originalresolution_ = -1;
+    }
 
     updateSel();
     
@@ -991,6 +1004,7 @@ void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
 				      const Array2D<float>& inp,
 				      TaskRunner* taskr ) const
 {
+    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
     Array2DReSampler<float,float> resampler( inp, res, sz0, sz1, true );
     resampler.setInterpolate( true );
     TaskRunner::execute( taskr, resampler );

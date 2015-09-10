@@ -65,6 +65,11 @@ public:
 
     void			showPlaneDraggers(bool yn,int minsizeinsteps=0);
 
+    void			setTransDragKeys(bool trans1d,int keys,
+						 int groupidx=0);
+    int				getTransDragKeys(bool trans1d,
+						 int groupidx=0) const;
+
     CNotifier<RandomTrackDragger,int> motion;	//!<knotidx>=0, panelidx<0
     Notifier<RandomTrackDragger> movefinished;
 
@@ -80,6 +85,8 @@ protected:
     void			finishCB(CallBacker*);
 
     void			triggerRightClick(const EventInfo* eventinfo);
+
+    void			doSetKnot(int,const Coord&);
 
     void			followActiveDragger(int activeidx);
     void			updatePanels();
@@ -103,6 +110,11 @@ protected:
     void			showRotationAxis(bool yn,int planeidx=0,
 					     Coord normpickedpos=Coord::udf());
 
+    int				getDragControlIdx(bool trans1d,int groupidx,
+						  bool docreate);
+    int				getDragControlIdx(bool trans1d,
+						  int groupidx) const;
+
     ObjectSet<Dragger>		draggers_;
 				/* Contains four coupled draggers per knot:
 				idx%4==0: 2D horizontal dragger at start depth
@@ -115,7 +127,7 @@ protected:
 
     osg::Switch*		panels_;
     osg::Switch*		planedraggers_;
-    ObjectSet<PolyLine>		rotationaxis_;
+    osg::Switch*		rotationaxis_;
 
     BoolTypeSet			showadjacents_;
     bool			showallpanels_;
@@ -135,6 +147,19 @@ protected:
     const EventInfo*		rightclickeventinfo_;
 
     const mVisTrans*		displaytrans_;
+
+    struct DragControl
+    {
+				DragControl(bool trans1d,int groupidx);
+				~DragControl()				{}
+
+	bool			trans1d_;
+	int			groupidx_;
+	int			mousebutmask_;
+	int			modkeymask_;
+    };
+
+    ObjectSet<DragControl>	dragcontrols_;
 
     static const char*		sKeyDraggerScale() { return "subDraggerScale"; }
 };

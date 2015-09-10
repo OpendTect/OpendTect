@@ -58,7 +58,9 @@ public:
 			  SizeVer, SizeHor, SizeBDiag, SizeFDiag, SizeAll,
 			  Blank, SplitV, SplitH, PointingHand, Forbidden,
 			  WhatsThis, Busy, OpenHand, ClosedHand,
-			  Last = ClosedHand, Bitmap = 24, NotSet
+			  Last = ClosedHand, Bitmap = 24, NotSet,
+			  //Custom cursors
+			  GreenArrow, Rotator
 			};
 
     			MouseCursor();
