@@ -707,6 +707,9 @@ void uiSurvey::setCurrentSurvInfo( SurveyInfo* newsi, bool updscreen )
 
 void uiSurvey::rollbackNewSurvey( const char* errmsg )
 {
+    if ( !cursurvinfo_ )
+	return;
+
     FilePath fp( cursurvinfo_->datadir_, cursurvinfo_->dirname_ );
     const bool haverem = File::removeDir( fp.fullPath() );
     setCurrentSurvInfo( 0, false );
@@ -1004,12 +1007,18 @@ void uiSurvey::readSurvInfoFromFile()
 }
 
 
+// Needed because uiSurveyInfoEditor will destruct cursurvinfo_ if isnew
+#define mRetSafe(rv) { \
+    if ( isnew ) cursurvinfo_ = 0; \
+    return rv; }
+
+
 bool uiSurvey::doSurvInfoDialog( bool isnew )
 {
     delete impiop_; impiop_ = 0; impsip_ = 0;
     uiSurveyInfoEditor dlg( this, *cursurvinfo_, isnew );
     if ( !dlg.isOK() )
-	return false;
+	mRetSafe( false )
 
     dlg.survParChanged.notify( mCB(this,uiSurvey,updateInfo) );
     if ( !dlg.go() )
@@ -1017,7 +1026,7 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
 	if ( !isnew )
 	    readSurvInfoFromFile();
 
-	return false;
+	mRetSafe( false )
     }
 
     if ( initialsurveyname_ == selectedSurveyName() )
@@ -1028,7 +1037,8 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
 
     impiop_ = dlg.impiop_; dlg.impiop_ = 0;
     impsip_ = dlg.lastsip_;
-    return true;
+
+    mRetSafe( true )
 }
 
 
