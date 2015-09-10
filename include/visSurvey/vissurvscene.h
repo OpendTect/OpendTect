@@ -177,7 +177,7 @@ public:
 
     // Convenience
     const char*			zDomainKey() const;
-    const char*			zDomainUserName() const;
+    uiString			zDomainUserName() const;
     const char*			zDomainUnitStr(bool withparens=false) const;
     int				zDomainUserFactor() const;
     const char*			zDomainID() const;

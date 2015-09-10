@@ -54,7 +54,7 @@ uiButtonBody( uiButton& uibut, uiParent* p, const uiString& txt,
     , qbut_(qbut)
     , uibut_(uibut)
 {
-    qbut_.setText( txt.getQtString() );
+    qbut_.setText( txt.getQString() );
     setHSzPol( uiObject::SmallVar );
 }
 
@@ -145,7 +145,7 @@ public: \
 ui##nm##Body( uiButton& uibut, uiParent* parnt, const uiString& txt ) \
     : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
 { \
-    setText( txt.getQtString() ); \
+    setText( txt.getQString() ); \
     constr_code; \
 } \
  \
@@ -153,7 +153,7 @@ ui##nm##Body( uiButton& uibut, const uiPixmap& pm, \
 	      uiParent* parnt, const uiString& txt ) \
     : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
 { \
-    setText( txt.getQtString() ); \
+    setText( txt.getQString() ); \
     constr_code; \
 } \
  \
@@ -242,14 +242,14 @@ void uiButton::setIconScale( float val )
 void uiButton::setText( const uiString& txt )
 {
     text_ = txt;
-    qButton()->setText( text_.getQtString() );
+    qButton()->setText( text_.getQString() );
 }
 
 
 void uiButton::translateText()
 {
     uiObject::translateText();
-    qButton()->setText( text_.getQtString() );
+    qButton()->setText( text_.getQString() );
 }
 
 
@@ -390,7 +390,7 @@ void uiPushButton::setFlat( bool yn )
 
 void uiPushButton::updateIconSize()
 {
-    const QString buttxt = text_.getQtString();
+    const QString buttxt = text_.getQString();
     int butwidth = qButton()->width();
     const int butheight = qButton()->height();
     if ( !buttxt.isEmpty() )
@@ -409,7 +409,7 @@ void uiPushButton::translateText()
 
 void uiPushButton::updateText()
 {
-    QString newtext = text_.getQtString();
+    QString newtext = text_.getQString();
     if ( !newtext.isEmpty() && !immediate_ )
 	newtext.append( " ..." );
 

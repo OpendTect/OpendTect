@@ -278,7 +278,7 @@ void uiTextEdit::setText( const OD::String& txt )
 void uiTextEdit::setText( const uiString& txt )
 {
     NotifyStopper ns( textChanged );
-    qte().setText( txt.getQtString() );
+    qte().setText( txt.getQString() );
     body_->setReadOnly( true );
     setBackgroundColor( roBackgroundColor() );
 }

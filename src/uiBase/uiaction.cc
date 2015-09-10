@@ -128,7 +128,7 @@ void uiAction::init( const uiString& txt )
 {
     mAttachCB( TrMgr().languageChange, uiAction::translateCB );
     text_ = txt;
-    qaction_ = new QAction( text_.getQtString(), 0 );
+    qaction_ = new QAction( text_.getQString(), 0 );
     msgr_ = new i_ActionMessenger( qaction_, this );
     uiactionlist_ += this;
 
@@ -146,7 +146,7 @@ void uiAction::setShortcut( const char* sctxt )
 void uiAction::setText( const uiString& txt )
 {
     text_ = txt;
-    qaction_->setText( text_.getQtString() );
+    qaction_->setText( text_.getQString() );
     updateToolTip();
 }
 
@@ -160,7 +160,7 @@ const uiString& uiAction::text() const
 void uiAction::setIconText( const uiString& txt )
 {
     icontext_ = txt;
-    qaction_->setIconText( icontext_.getQtString() );
+    qaction_->setIconText( icontext_.getQString() );
 }
 
 
@@ -196,7 +196,7 @@ void uiAction::updateToolTip( CallBacker* )
     }
     else
     {
-	qaction_->setToolTip( tooltip_.getQtString() );
+	qaction_->setToolTip( tooltip_.getQString() );
     }
 }
 
@@ -272,8 +272,8 @@ void uiAction::reloadIcon()
 
 void uiAction::translateCB( CallBacker* cb )
 {
-    qaction_->setText( text_.getQtString() );
-    qaction_->setIconText( icontext_.getQtString() );
+    qaction_->setText( text_.getQString() );
+    qaction_->setIconText( icontext_.getQString() );
     updateToolTip();
 }
 

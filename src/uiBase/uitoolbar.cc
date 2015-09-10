@@ -43,9 +43,9 @@ uiToolBar::uiToolBar( uiParent* parnt, const uiString& nm, ToolBarArea tba,
     , buttonClicked(this)
     , orientationChanged(this)
     , toolbarmenuaction_(0)
-    , qtoolbar_(new QToolBar(nm.getQtString(), parnt ? parnt->getWidget() : 0))
+    , qtoolbar_(new QToolBar(nm.getQString(), parnt ? parnt->getWidget() : 0))
 {
-    qtoolbar_->setObjectName( nm.getQtString() );
+    qtoolbar_->setObjectName( nm.getQString() );
     msgr_ = new i_ToolBarMessenger( qtoolbar_, this );
 
     mDynamicCastGet(uiMainWin*,uimw,parnt)
@@ -129,7 +129,7 @@ void uiToolBar::addObject( uiObject* obj )
 void uiToolBar::setLabel( const uiString& lbl )
 {
     label_ = lbl;
-    qtoolbar_->setWindowTitle( lbl.getQtString() );
+    qtoolbar_->setWindowTitle( lbl.getQString() );
     setName( lbl.getFullString() );
 }
 
@@ -264,7 +264,7 @@ void uiToolBar::clear()
 void uiToolBar::translateText()
 {
     if ( !label_.isEmpty() )
-        qtoolbar_->setWindowTitle( label_.getQtString() );
+        qtoolbar_->setWindowTitle( label_.getQString() );
 
     for ( int idx=0; idx<addedobjects_.size(); idx++ )
 	addedobjects_[idx]->translateText();

@@ -74,7 +74,7 @@ void uiLabel::init( const uiString& txt, uiObject* buddy )
     setText( txt );
     setTextSelectable( true );
 
-    const QString& qstr = txt.getQtString();
+    const QString& qstr = txt.getQString();
     const int nrnewlines = qstr.count( "\n" );
     if ( nrnewlines>0 )
 	setPrefHeightInChar( nrnewlines+1 );
@@ -117,7 +117,7 @@ void uiLabel::updateWidth()
 void uiLabel::setText( const uiString& txt )
 {
     text_ = txt;
-    QString qstr = text_.getQtString();
+    QString qstr = text_.getQString();
     if ( isrequired_ ) addRequiredChar( qstr );
     body_->setText( qstr );
     updateWidth();
@@ -128,7 +128,7 @@ void uiLabel::setText( const uiString& txt )
 void uiLabel::makeRequired( bool yn )
 {
     isrequired_ = yn;
-    QString qstr = text_.getQtString();
+    QString qstr = text_.getQString();
     if ( qstr.isEmpty() ) return;
 
     if ( isrequired_ ) addRequiredChar( qstr );
@@ -140,7 +140,7 @@ void uiLabel::makeRequired( bool yn )
 void uiLabel::translateText()
 {
     uiObject::translateText();
-    QString qstr = text_.getQtString();
+    QString qstr = text_.getQString();
     if ( isrequired_ ) addRequiredChar( qstr );
     body_->setText( qstr );
     updateWidth();

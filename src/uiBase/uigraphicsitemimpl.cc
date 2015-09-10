@@ -590,14 +590,14 @@ uiSize uiTextItem::getTextSize() const
 void uiTextItem::setText( const uiString& txt )
 {
     text_ = txt;
-    qtextitem_->setText( text_.getQtString() );
+    qtextitem_->setText( text_.getQString() );
 }
 
 
 void uiTextItem::translateText()
 {
     uiGraphicsItem::translateText();
-    qtextitem_->setText( text_.getQtString() );
+    qtextitem_->setText( text_.getQString() );
 }
 
 
@@ -716,7 +716,7 @@ void uiAdvancedTextItem::setFont( const uiFont& font )
 
 void uiAdvancedTextItem::setPlainText( const uiString& txt )
 {
-    qtextitem_->setPlainText( txt.getQtString() );
+    qtextitem_->setPlainText( txt.getQString() );
 }
 
 

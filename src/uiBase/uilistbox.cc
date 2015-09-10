@@ -161,12 +161,12 @@ uiListBoxBody::uiListBoxBody( uiListBoxObj& hndle, uiParent* p,
 static void createQString( QString& qs, const uiString& str, bool mark )
 {
     if ( !mark )
-	qs = str.getQtString();
+	qs = str.getQString();
     else
     {
 	const char* markstr = ":";
 	qs = markstr;
-	qs += str.getQtString();
+	qs += str.getQString();
 	qs += markstr;
     }
 }

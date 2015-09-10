@@ -183,8 +183,8 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 
     QMessageBox* mb = new QMessageBox( parent );
     mb->setIcon( (QMessageBox::Icon)icon );
-    mb->setWindowTitle( title.getQtString() );
-    mb->setText( txt.getQtString() );
+    mb->setWindowTitle( title.getQString() );
+    mb->setText( txt.getQString() );
     addStayOnTopFlag( *mb );
 
     const bool withics = uiButton::haveCommonPBIcons();
@@ -193,7 +193,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( !yestxt.isEmpty() )
     {
 	QPushButton* yesbut = mb->addButton( QMessageBox::Yes );
-	yesbut->setText(yestxt.getQtString() );
+	yesbut->setText(yestxt.getQString() );
 	if ( !withics )
 	    yesbut->setIcon( qicon );
     }
@@ -201,7 +201,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( !notxt.isEmpty() )
     {
 	QPushButton* nobut = mb->addButton( QMessageBox::No );
-	nobut->setText( notxt.getQtString() );
+	nobut->setText( notxt.getQString() );
 	if ( !withics )
 	    nobut->setIcon( qicon );
     }
@@ -209,7 +209,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     if ( !cncltxt.isEmpty() )
     {
 	QPushButton* rejbut = mb->addButton( QMessageBox::Abort );
-	rejbut->setText( cncltxt.getQtString() );
+	rejbut->setText( cncltxt.getQString() );
 	if ( !withics )
 	    rejbut->setIcon( qicon );
     }
@@ -335,7 +335,7 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
 	    detailed = tr( "%1\n%2" ).arg( old ).arg( strings[idx] );
 	}
 
-	mb->setDetailedText( detailed.getQtString() );
+	mb->setDetailedText( detailed.getQString() );
     }
 
     mb->exec();
@@ -473,7 +473,7 @@ bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
     mb->button( QMessageBox::Abort )->setVisible( false );
 
     QCheckBox* cb = new QCheckBox();
-    cb->setText( notxt.getQtString() );
+    cb->setText( notxt.getQString() );
     mDynamicCastGet(QGridLayout*,grid,mb->layout())
     if ( grid )
 	grid->addWidget( cb, grid->rowCount(), 0, 1, grid->columnCount() );

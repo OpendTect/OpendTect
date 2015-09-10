@@ -183,7 +183,7 @@ int uiFileDialog::go()
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
 				: QFileDialog::AcceptSave );
     fd->setFileMode( qmodeForUiMode(mode_) );
-    fd->setWindowTitle( wintitle.getQtString() );
+    fd->setWindowTitle( wintitle.getQString() );
     fd->setConfirmOverwrite( confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );
@@ -199,8 +199,8 @@ int uiFileDialog::go()
     QList<QPushButton*> qpblst = fd->findChildren<QPushButton*>("");
     foreach(QPushButton* qpb,qpblst)
     {
-	if ( qpb->text() == uiStrings::sSave().getQtString() ||
-	     qpb->text() == uiStrings::sOpen().getQtString() ||
+	if ( qpb->text() == uiStrings::sSave().getQString() ||
+	     qpb->text() == uiStrings::sOpen().getQString() ||
 	     qpb->text() == "Choose" )
 	     qpb->setText( "OK" );
     }

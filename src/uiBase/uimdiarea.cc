@@ -312,7 +312,7 @@ uiMdiAreaWindow::uiMdiAreaWindow( uiMdiArea& mdiarea, const uiString& title )
 
 void uiMdiAreaWindow::setTitle( const uiString& title )
 {
-    qmdisubwindow_->setWindowTitle( title.getQtString() );
+    qmdisubwindow_->setWindowTitle( title.getQString() );
     title_ = title;
     changed.trigger();
 }

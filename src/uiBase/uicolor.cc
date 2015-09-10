@@ -83,7 +83,7 @@ bool uiColorInput::selectColor( Color& col, uiParent* parnt,
     const int refnr = ::beginCmdRecEvent( utfwintitle );
 
     QColorDialog qdlg( QColor(col.r(),col.g(), col.b(),col.t()), qparent );
-    qdlg.setWindowTitle( wintitle.getQtString() );
+    qdlg.setWindowTitle( wintitle.getQString() );
     if ( withtransp )
     {
         qdlg.setOption( QColorDialog::ShowAlphaChannel );
