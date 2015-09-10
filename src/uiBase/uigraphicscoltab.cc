@@ -31,7 +31,7 @@ uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     setColTabSequence( ColTab::Sequence("") );
 
     uiRect boundrec = ctseqitm_->boundingRect();
-    ctseqitm_->setPos( 0, 0 );
+    ctseqitm_->setPos( 0.f, 0.f );
     borderitm_->setRect( -1, -1, boundrec.width()+1, boundrec.height()+1 );
 
     update();
@@ -48,9 +48,10 @@ void uiColTabItem::update()
 {
     uiRect boundrec = boundingRect();
     minvalitm_->setAlignment( Alignment(Alignment::HCenter, Alignment::Bottom));
-    minvalitm_->setPos( boundrec.width()/2, 0 );
+    minvalitm_->setPos( mCast(float,boundrec.width()/2), 0.f );
     maxvalitm_->setAlignment( Alignment(Alignment::HCenter, Alignment::Top) );
-    maxvalitm_->setPos( boundrec.width()/2, boundrec.height() );
+    maxvalitm_->setPos( mCast(float,boundrec.width()/2),
+			mCast(float,boundrec.height()) );
 /*
     uiPoint curpos_( 0, 0 );
     const uiRect rect( curpos_, setup_.sz_ );
