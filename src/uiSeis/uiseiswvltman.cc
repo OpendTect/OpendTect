@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uitoolbutton.h"
 #include "uifunctiondisplay.h"
-#include "uigeninput.h"
+#include "uilabel.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjmanip.h"
 #include "uilistbox.h"
@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwaveletextraction.h"
 #include "uiwaveletmatchdlg.h"
 #include "od_helpids.h"
+#include "uilabel.h"
 
 
 #define mErrRet(s) { uiMSG().error(s); return; }
@@ -70,16 +71,22 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     taperbut_ = manipgrp->addButton( "wavelet_taper", "Taper",
 				     mCB(this,uiSeisWvltMan,taper) );
     addButtons();
+    uiGroup* wvltdispgrp = new uiGroup( listgrp_,"Wavelet Display" );
+    wvltdispgrp->attach( rightOf, selgrp_ );
 
     uiFunctionDisplay::Setup fdsu;
-    fdsu.drawborder( true );
-    waveletdisplay_ = new uiFunctionDisplay(listgrp_, fdsu);
-    waveletdisplay_->setPrefWidth( 400 );
-    waveletdisplay_->attach( ensureRightOf, selgrp_ );
-    const BufferString ztxt( "Z ", SI().getZUnitString() );
+    fdsu.noy2axis(true).noy2gridline(true);
+    
+    waveletdisplay_ = new uiFunctionDisplay( wvltdispgrp, fdsu );
+    const BufferString ztxt( (SI().zIsTime() ? "Time " : "Depth "), 
+			      SI().getZUnitString() );
     waveletdisplay_->xAxis()->setCaption( ztxt );
     waveletdisplay_->yAxis(false)->setCaption( uiStrings::sAmplitude() );
-     	      
+
+    wvnamdisp_ = new uiLabel( wvltdispgrp, "Wavelet" );
+    wvnamdisp_->attach(centeredAbove, waveletdisplay_);
+    wvnamdisp_->setAlignment( Alignment::HCenter );
+      
     selChg( this );
     mTriggerInstanceCreatedNotifier();
     windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
@@ -95,6 +102,13 @@ uiSeisWvltMan::~uiSeisWvltMan()
 
     if ( wvltpropdlg_ )
 	delete wvltpropdlg_;
+}
+
+
+static void reSampleWavelet( Wavelet &resampledwvlt )
+{
+    const float minstepval = 1.f/SI().zDomain().userFactor();
+    resampledwvlt.reSample(minstepval);
 }
 
 
@@ -223,10 +237,9 @@ void uiSeisWvltMan::mkFileInfo()
 {
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
-
+    dispWavelet( wvlt );
     if ( wvlt )
     {
-	dispWavelet( wvlt );
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
 	WaveletAttrib wvltattrib( *wvlt );
 
@@ -272,7 +285,9 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
     if ( !wvlt ) return;
     wvlt->setName( curioobj_->name().buf() );
 
-    wvltpropdlg_ = new uiWaveletDispPropDlg( this, *wvlt );
+    Wavelet resampledwvlt( *wvlt );
+    reSampleWavelet( resampledwvlt );
+    wvltpropdlg_ = new uiWaveletDispPropDlg( this, resampledwvlt );
     if ( wvltpropdlg_ ->go() )
     { delete wvltpropdlg_; wvltpropdlg_ = 0; }
 
@@ -386,10 +401,19 @@ void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 
 void uiSeisWvltMan::dispWavelet( const Wavelet* wvlt )
 {
-    const int wvltsz = wvlt->size();
+    wvnamdisp_->setText( curioobj_->name() );
+    wvnamdisp_->setPrefWidthInChar( 60 );
+    if( !wvlt )
+    {
+	waveletdisplay_->setEmpty();
+	return;
+    }	
+    Wavelet resampledwvlt( *wvlt );
+    reSampleWavelet( resampledwvlt );
+    const int wvltsz = resampledwvlt.size();
+    StepInterval<float> intxval;
+    intxval.setFrom( resampledwvlt.samplePositions() );
     const float zfac = mCast(float,SI().zDomain().userFactor());
-    StepInterval<float> intxval; 
-    intxval.setFrom( wvlt->samplePositions() );
     intxval.scale( zfac );
-    waveletdisplay_->setVals( intxval, wvlt->samples() , wvltsz );  
-}
+    waveletdisplay_->setVals( intxval, resampledwvlt.samples() , wvltsz );
+} 

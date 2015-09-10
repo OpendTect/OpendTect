@@ -19,6 +19,7 @@ class uiWaveletDispPropDlg;
 class uiSeisSingleTraceDisplay;
 class uiToolButton;
 class uiFunctionDisplay;
+class uiLabel;
 class Wavelet;
 
 
@@ -39,7 +40,7 @@ protected:
     uiToolButton*		rotatephbut_;
     uiToolButton*		taperbut_;
     uiFunctionDisplay*		waveletdisplay_;
-        
+    uiLabel*			wvnamdisp_;
     void			addButtons();
     void			mkFileInfo();
     void			ownSelChg();
