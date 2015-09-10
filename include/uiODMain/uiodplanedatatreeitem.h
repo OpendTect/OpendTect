@@ -36,7 +36,7 @@ public:
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     bool		displayDefaultData();
     bool		displayGuidance();
-    bool		displayDataFromDesc(const Attrib::DescID&);
+    bool		displayDataFromDesc(const Attrib::DescID&,bool stored);
     bool		displayDataFromOther(int visid);
 
     static uiString	sAddEmptyPlane();
@@ -48,7 +48,7 @@ public:
 protected:
 			uiODPlaneDataTreeItem(int displayid,OD::SliceType,Type);
 
-    uiString    	createDisplayName() const;
+    uiString		createDisplayName() const;
 
     virtual void	createMenu(MenuHandler*,bool istb);
     virtual void	handleMenuCB(CallBacker*);

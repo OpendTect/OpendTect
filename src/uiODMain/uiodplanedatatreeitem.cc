@@ -239,7 +239,7 @@ bool uiODPlaneDataTreeItem::displayDefaultData()
     if ( !applMgr()->getDefaultDescID(descid) )
 	return false;
 
-    return displayDataFromDesc( descid );
+    return displayDataFromDesc( descid, true );
 }
 
 
@@ -258,14 +258,15 @@ bool uiODPlaneDataTreeItem::displayGuidance()
     const bool issi = !zdinf || zdinf->def_.isSI();
     const bool selok = applMgr()->attrServer()->selectAttrib(
 			*as, issi ? 0 : zdinf, geomid, "Select first layer" );
-    return selok ? displayDataFromDesc( as->id() ) : false;
+    return selok ? displayDataFromDesc( as->id(), as->isStored() ) : false;
 }
 
 
-bool uiODPlaneDataTreeItem::displayDataFromDesc( const Attrib::DescID& descid )
+bool uiODPlaneDataTreeItem::displayDataFromDesc( const Attrib::DescID& descid,
+						 bool isstored )
 {
     const Attrib::DescSet* ads =
-	Attrib::DSHolder().getDescSet( false, true );
+	Attrib::DSHolder().getDescSet( false, isstored );
     Attrib::SelSpec as( 0, descid, false, "" );
     as.setRefFromID( *ads );
     visserv_->setSelSpec( displayid_, 0, as );
