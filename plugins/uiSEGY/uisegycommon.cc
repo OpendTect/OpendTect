@@ -16,6 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "od_strstream.h"
 
+static const char* sKeyZInFeet = "Z in feet";
+static const char* sKeyIsVSP = "Is Zero-offset VSP";
+
 
 SEGY::FullSpec::FullSpec( Seis::GeomType gt, bool isvsp )
     : readopts_(gt)
@@ -28,13 +31,25 @@ SEGY::FullSpec::FullSpec( Seis::GeomType gt, bool isvsp )
 
 void SEGY::FullSpec::fillPar( IOPar& iop ) const
 {
-    iop.setYN( FilePars::sKeyForceRev0(), rev0_ );
-    iop.setYN( "Z in feet", zinfeet_ );
     spec_.fillPar( iop );
     pars_.fillPar( iop );
     readopts_.fillPar( iop );
+    iop.setYN( FilePars::sKeyForceRev0(), rev0_ );
+    iop.setYN( sKeyIsVSP, isvsp_ );
+    iop.setYN( sKeyZInFeet, zinfeet_ );
     if ( !isVSP() )
 	iop.set( sKey::Geometry(), Seis::nameOf(geomType()) );
+}
+
+
+void SEGY::FullSpec::usePar( const IOPar& iop )
+{
+    spec_.usePar( iop );
+    pars_.usePar( iop );
+    readopts_.usePar( iop );
+    iop.getYN( FilePars::sKeyForceRev0(), rev0_ );
+    iop.getYN( sKeyIsVSP, isvsp_ );
+    iop.getYN( sKeyZInFeet, zinfeet_ );
 }
 
 

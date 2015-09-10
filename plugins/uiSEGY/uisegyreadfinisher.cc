@@ -535,8 +535,20 @@ bool uiSEGYReadFinisher::handleWarnings( bool withstop,
 }
 
 
+void uiSEGYReadFinisher::setAsDefaultObj()
+{
+    if ( fs_.isVSP() || outputid_.isEmpty() )
+	return;
+
+    PtrMan<IOObj> ioobj = IOM().get( outputid_ );
+    if ( ioobj )
+	ioobj->setSurveyDefault();
+}
+
+
 bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 {
+    outputid_.setEmpty();
     if ( fs_.isVSP() )
 	return doVSP();
 
@@ -544,6 +556,7 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     const IOObj* outioobj = outFld(doimp)->ioobj();
     if ( !outioobj )
 	return false;
+    outputid_ = outioobj->key();
 
     const bool is2d = Seis::is2D( fs_.geomType() );
     BufferString lnm;

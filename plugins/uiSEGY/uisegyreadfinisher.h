@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uisegycommon.h"
 #include "uidialog.h"
+#include "multiid.h"
 
 class uiIOObjSel;
 class uiSeisSel;
@@ -39,10 +40,13 @@ public:
 
     FullSpec&		fullSpec()		{ return fs_; }
 
+    void		setAsDefaultObj(); //!< call only after successful go()
+
 protected:
 
     FullSpec		fs_;
     BufferString	objname_;
+    MultiID		outputid_;
 
     uiIOObjSel*		outwllfld_;
     uiComboBox*		lognmfld_;

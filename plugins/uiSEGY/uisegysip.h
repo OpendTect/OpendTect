@@ -14,12 +14,11 @@ ________________________________________________________________________
 #include "uisegycommon.h"
 #include "uisip.h"
 #include "iopar.h"
-#include "uistring.h"
 
 /* uiSurvInfoProvider taking it's source in (a) SEG-Y file(s) */
 
 mExpClass(uiSEGY) uiSEGYSurvInfoProvider : public uiSurvInfoProvider
-{ mODTextTranslationClass(uiSEGYSurvInfoProvider);
+{
 public:
 
 			uiSEGYSurvInfoProvider()
@@ -36,12 +35,11 @@ public:
     void		startImport(uiParent*,const IOPar&);
     const char*		importAskQuestion() const;
 
-    friend class	uiSEGYSIPMgrDlg;
     IOPar		imppars_;
     bool		xyinft_;
+    BufferString	userfilename_;
 
 };
 
 
 #endif
-

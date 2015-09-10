@@ -40,6 +40,7 @@ public:
     bool		isVSP() const		{ return isvsp_; }
     Seis::GeomType	geomType() const	{ return readopts_.geomType(); }
     void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
     bool		isvsp_;
 };
