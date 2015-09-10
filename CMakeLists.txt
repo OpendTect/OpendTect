@@ -134,6 +134,7 @@ OD_ADD_REGEXP_TEST( "ArrPtrMan[^;]+=[^?;]*new\\\\s+" mAllocLargeVarLenArr
 OD_ADD_LOCAL_STATIC_TEST()
 OD_ADD_LINEEND_TEST()
 OD_ADD_EXIT_PROGRAM_TEST()
+OD_ADD_LINT_TEST()
 
 if ( UNIX )
     add_test( "PNGCompression" ${CMAKE_SOURCE_DIR}/dtect/FindCompactablePNGs.csh )

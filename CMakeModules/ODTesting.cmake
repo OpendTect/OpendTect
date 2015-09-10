@@ -8,6 +8,7 @@
 
 set ( OD_TESTDATA_DIR "" CACHE FILEPATH "Test data location" )
 
+
 if ( UNIX )
     set ( VALGRIND_PROGRAM "" CACHE PATH "Location of valgrind" )
 endif()
@@ -143,3 +144,12 @@ macro ( OD_ADD_EXIT_PROGRAM_TEST )
 
     add_test( test_exit_program ${CMD} )
 endmacro()
+
+macro ( OD_ADD_LINT_TEST )
+    find_program( PHP_PROGRAM "php" )
+    if ( PHP_PROGRAM )
+	add_test( NAME "PHP_linter" COMMAND ${PHP_PROGRAM} ./testscripts/test_tab_lint.php --quiet
+         	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+    endif()
+endmacro()
+
