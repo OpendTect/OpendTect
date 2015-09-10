@@ -34,7 +34,7 @@ public:
 
 ui2DDefSurvInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey setup for 2D only",
-				 dlgtitle, 
+				 dlgtitle,
                                  mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
 {
     FloatInpSpec fis;
@@ -42,13 +42,13 @@ ui2DDefSurvInfoDlg( uiParent* p )
 
     uiGroup* maingrp = new uiGroup( this, "Main parameters" );
     grdspfld_ = new uiGenInput( maingrp, "Default grid spacing for horizons",
-	    			fis );
+				fis );
     xrgfld_ = new uiGenInput( maingrp, "X-coordinate range", dis, dis );
     xrgfld_->attach( alignedBelow, grdspfld_ );
     yrgfld_ = new uiGenInput( maingrp, "Y-coordinate range", dis, dis );
     yrgfld_->attach( alignedBelow, xrgfld_ );
     ismfld_ = new uiGenInput( maingrp, "Above values are in",
-	    			      BoolInpSpec(true,"Meters","Feet") );
+				      BoolInpSpec(true,"Meters","Feet") );
     ismfld_->attach( alignedBelow, yrgfld_ );
 
     uiSeparator* optsep = new uiSeparator( this, "Optional" );
@@ -85,11 +85,11 @@ bool acceptOK( CallBacker* )
 {
     const float grdsp = grdspfld_->getfValue();
     if ( mIsUdf(grdsp) )
-	mErrRet(tr("Invalid grid spacing"))
-	if (grdsp < 0)
-	mErrRet(tr("Grid spacing should be strictly positive"))
-	    if (grdsp < 0.1)
-	mErrRet(tr("Grid spacing should be > 0.1"))
+	mErrRet( tr("Invalid grid spacing") )
+    else if ( grdsp < 0 )
+	mErrRet( tr("Grid spacing should be strictly positive") )
+    else if ( grdsp < 0.1 )
+	mErrRet( tr("Grid spacing should be > 0.1") )
 
     const Coord c0( xrgfld_->getdValue(0), yrgfld_->getdValue(0) );
     const Coord c1( xrgfld_->getdValue(1), yrgfld_->getdValue(1) );
