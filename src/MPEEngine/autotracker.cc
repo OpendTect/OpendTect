@@ -211,10 +211,13 @@ void HorizonTrackerMgr::startFromSeeds()
 
     st->extender()->preallocExtArea();
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
-    if ( hor3d && nrdone_==0 )
+    if ( hor3d )
     {
-	hor3d->initAllAuxData();
-	hor3d->initTrackingArrays();
+	if ( nrdone_==0 )
+	{
+	    hor3d->initAllAuxData();
+	    hor3d->initTrackingArrays();
+	}
 
 	horizon3dundoinfo_ = hor3d->createArray2D( hor3d->sectionID(0) );
 	horizon3dundoorigin_ = hor3d->range().start_;
