@@ -554,13 +554,13 @@ uiString uiString::getOrderString( int val )
 			tr("st", "first"), //1
 			tr("nd", "second"), //2
 			tr("rd", "third" ), //3
-			tr("th", "forth" ), //4
+			tr("th", "fourth" ), //4
 			tr("th", "fifth" ), //5
 			tr("th", "sixth" ), //6
 			tr("th", "seventh" ), //7
-			tr("th", "eights" ), //8
-			tr("th", "nineth"), //9
-			tr("th", "thenth" ), //10
+			tr("th", "eighth" ), //8
+			tr("th", "ninth"), //9
+			tr("th", "tenth" ), //10
 			tr("th", "eleventh"), //11
 			tr("th", "twelfth"), //12
 			tr("th", "thirteenth"), //13
@@ -569,7 +569,7 @@ uiString uiString::getOrderString( int val )
 			tr("th", "sixteenth"), //16
 			tr("th", "seventeenth"), //17
 			tr("th", "eighteenth"), //18
-			tr("th", "ninetheenth"), //19
+			tr("th", "nineteenth"), //19
 			tr("th", "twentieth") }; //20
     return toUiString( "%1%2" ).arg( val ).arg( rets[nr] );
 }
