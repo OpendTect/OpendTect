@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class uiPixmapItem;
 class uiRectItem;
-class uiTextItem;
+class uiAdvancedTextItem;
 namespace ColTab { class MapperSetup; }
 
 
@@ -56,26 +56,19 @@ public:
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
-    uiPoint		getPixmapPos() const	{ return curpos_; }
-    void		setPixmapPos(const uiPoint&);
-
-    void		setupChanged();
+    void		update();   // When setup changes, this function should
+				    // be called. Make a CallBacker mechanims
+				    // would be a good idea.
 
 protected:
 
     Setup		setup_;
     ColTab::Sequence	ctseq_;
-    uiPoint		curpos_;
 
     uiPixmapItem*	ctseqitm_;
     uiRectItem*		borderitm_;
-    uiTextItem*		minvalitm_;
-    uiTextItem*		maxvalitm_;
-
-    virtual void	stPos(float,float);
-    void		setPixmap();
-    void		setPixmapPos();
-
+    uiAdvancedTextItem* minvalitm_;
+    uiAdvancedTextItem* maxvalitm_;
 };
 
 #endif

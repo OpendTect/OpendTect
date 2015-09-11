@@ -32,11 +32,11 @@ class QGraphicsPathItem;
 class QGraphicsPixmapItem;
 class QGraphicsProxyWidget;
 class QGraphicsRectItem;
-class QGraphicsTextItem;
 class QPainterPath;
 class QPolygonF;
 class QSize;
 
+class ODGraphicsAdvancedTextItem;
 class ODGraphicsArrowItem;
 class ODGraphicsMarkerItem;
 class ODGraphicsPathItem;
@@ -284,11 +284,13 @@ public:
 			uiAdvancedTextItem(const uiString&);
 			~uiAdvancedTextItem();
 
+    Alignment		getAlignment() const;
     Color		getDefaultTextColor() const;
     uiFont&		getFont() const;
     uiString		getPlainText() const;
     float		getTextWidth() const;
 
+    void		setAlignment(const Alignment&);
     void		setDefaultTextColor(const Color&);
     void		setFont(const uiFont&);
     void		setPlainText(const uiString&);
@@ -299,7 +301,7 @@ public:
 protected:
 
     QGraphicsItem*	mkQtObj();
-    QGraphicsTextItem*	qtextitem_;
+    ODGraphicsAdvancedTextItem* qtextitem_;
 
     virtual void	stPos(float,float);
 };
