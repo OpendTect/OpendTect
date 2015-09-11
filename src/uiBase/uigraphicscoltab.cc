@@ -34,7 +34,7 @@ uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     ctseqitm_->setPos( 0.f, 0.f );
     borderitm_->setRect( -1, -1, boundrec.width()+1, boundrec.height()+1 );
 
-    update();
+    ajustLabel();
 }
 
 
@@ -44,88 +44,52 @@ uiColTabItem::~uiColTabItem()
 }
 
 
-void uiColTabItem::update()
+void uiColTabItem::ajustLabel()
 {
-    uiRect boundrec = boundingRect();
-    minvalitm_->setAlignment( Alignment(Alignment::HCenter, Alignment::Bottom));
-    minvalitm_->setPos( mCast(float,boundrec.width()/2), 0.f );
-    maxvalitm_->setAlignment( Alignment(Alignment::HCenter, Alignment::Top) );
-    maxvalitm_->setPos( mCast(float,boundrec.width()/2),
-			mCast(float,boundrec.height()) );
-/*
-    uiPoint curpos_( 0, 0 );
-    const uiRect rect( curpos_, setup_.sz_ );
-    const int dist = -6;
-    const uiRect drect( uiPoint(curpos_.x-dist,curpos_.y-dist),
-		 uiSize(setup_.sz_.width()+2*dist,setup_.sz_.height()+2*dist) );
-    const uiPoint center( rect.centre() );
-#   define mSetAl(itm,h,v) itm->setAlignment( Alignment(h,v) )
+    const uiRect rect = borderitm_->boundingRect();
+    Alignment al;
 
     if ( setup_.hor_ )
     {
 	const int starty =
-	    setup_.startal_.vPos() == Alignment::VCenter ? center.y
-	 : (setup_.startal_.vPos() == Alignment::Top ?     drect.top()
-						     :     drect.bottom());
-	if ( setup_.startalong_ )
-	{
-	    mSetAl( minvalitm_, Alignment::Left,
-		    Alignment::opposite(setup_.startal_.vPos()) );
-	    minvalitm_->setPos( (float) rect.left(), (float) starty );
-	}
-	else
-	{
-	    mSetAl( minvalitm_, Alignment::Right, setup_.startal_.vPos() );
-	    minvalitm_->setPos( (float) drect.left(), (float) starty );
-	}
+	    setup_.startal_.vPos() == Alignment::VCenter? rect.centre().y
+	 : (setup_.startal_.vPos() == Alignment::Top	? rect.top()
+							: rect.bottom());
+
+	al = Alignment( setup_.stopal_.hPos(),
+			Alignment::opposite(setup_.stopal_.vPos()) );
+	minvalitm_->setAlignment( al );
+	minvalitm_->setPos( mCast(float,rect.left()), mCast(float,starty) );
+
 	const int stopy =
-	    setup_.stopal_.vPos() == Alignment::VCenter ? center.y
-	 : (setup_.stopal_.vPos() == Alignment::Top ?     drect.top()
-						    :     drect.bottom());
-	if ( setup_.stopalong_ )
-	{
-	    mSetAl( maxvalitm_, Alignment::Right,
-		    Alignment::opposite(setup_.stopal_.vPos()) );
-	    maxvalitm_->setPos( (float) rect.right(), (float) stopy );
-	}
-	else
-	{
-	    mSetAl( maxvalitm_, Alignment::Left, setup_.stopal_.vPos() );
-	    maxvalitm_->setPos( (float) drect.right(), (float) stopy );
-	}
+	    setup_.stopal_.vPos() == Alignment::VCenter ? rect.centre().y
+	 : (setup_.stopal_.vPos() == Alignment::Top	? rect.top()
+							: rect.bottom());
+	al = Alignment( setup_.stopal_.hPos(),
+			Alignment::opposite(setup_.stopal_.vPos()) );
+	maxvalitm_->setAlignment( al );
+	maxvalitm_->setPos( mCast(float,rect.right()), mCast(float,stopy) );
     }
     else
     {
 	const int startx =
-	    setup_.startal_.hPos() == Alignment::HCenter ? center.x
-	 : (setup_.startal_.hPos() == Alignment::Left ?    drect.left()
-						      :    drect.right());
-	const Alignment::HPos oppal = Alignment::opposite(
-						setup_.startal_.hPos() );
+	    setup_.startal_.hPos() == Alignment::HCenter? rect.centre().x
+	 : (setup_.startal_.hPos() == Alignment::Left	? rect.left()
+							: rect.right());
+	al = Alignment( Alignment::opposite(setup_.startal_.hPos()),
+			setup_.startal_.vPos() );
+	minvalitm_->setAlignment( al );
+	minvalitm_->setPos( mCast(float,startx), mCast(float,rect.top()) );
 
-	if ( setup_.startalong_ )
-	{
-	    mSetAl( minvalitm_, oppal, Alignment::Bottom );
-	    minvalitm_->setPos( (float) startx, (float) rect.bottom() );
-	}
-	else
-	{
-	    mSetAl( minvalitm_, oppal, Alignment::Top );
-	    minvalitm_->setPos( (float) startx, (float) drect.bottom() );
-	}
-
-	if ( setup_.stopalong_ )
-	{
-	    mSetAl( maxvalitm_, oppal, Alignment::Top );
-	    maxvalitm_->setPos( (float) startx, (float) rect.top() );
-	}
-	else
-	{
-	    mSetAl( maxvalitm_, oppal, Alignment::Bottom );
-	    maxvalitm_->setPos( (float) startx, (float) drect.top() );
-	}
+	const int stopx =
+	    setup_.stopal_.hPos() == Alignment::HCenter ? rect.centre().x
+	 : (setup_.stopal_.hPos() == Alignment::Left	? rect.left()
+							: rect.right());
+	al = Alignment( Alignment::opposite(setup_.stopal_.hPos()),
+			setup_.stopal_.vPos() );
+	maxvalitm_->setAlignment( al );
+	maxvalitm_->setPos( mCast(float,stopx), mCast(float,rect.bottom()) );
     }
-    */
 }
 
 
@@ -141,7 +105,7 @@ void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
     ctseq_ = ctseq;
     uiPixmap pm( setup_.sz_.hNrPics(), setup_.sz_.vNrPics() );
     pm.fill( ctseq_, setup_.hor_ );
-    ctseqitm_->setPixmap( pm );;
+    ctseqitm_->setPixmap( pm );
 }
 
 

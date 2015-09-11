@@ -33,18 +33,12 @@ public:
 			Setup( bool h ) //!< horizontal?
 			    : hor_(h)
 			    , sz_(h?100:25,h?25:100)
-			    , startal_(Alignment::HCenter,
-				       h?Alignment::Top:Alignment::VCenter)
-			    , stopal_(Alignment::HCenter,
-				      h?Alignment::Bottom:Alignment::VCenter)
-			    , startalong_(false)
-			    , stopalong_(false)		{}
+			    , startal_(Alignment::HCenter,Alignment::Bottom)
+			    , stopal_(Alignment::HCenter,Alignment::Top) {}
 	mDefSetupMemb(bool,hor)
 	mDefSetupMemb(uiSize,sz)
 	mDefSetupMemb(Alignment,startal)
 	mDefSetupMemb(Alignment,stopal)
-	mDefSetupMemb(bool,startalong)	// put number along color bar
-	mDefSetupMemb(bool,stopalong)	// put number along color bar
     };
 
     			uiColTabItem(const Setup&);
@@ -56,9 +50,9 @@ public:
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
-    void		update();   // When setup changes, this function should
-				    // be called. Make a CallBacker mechanims
-				    // would be a good idea.
+    void		ajustLabel();// When setup changes, this function should
+				     // be called. Make a CallBacker mechanims
+				     // would be a good idea.
 
 protected:
 

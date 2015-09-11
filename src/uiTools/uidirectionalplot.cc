@@ -281,7 +281,7 @@ void uiDirectionalPlot::drawColTab()
     if ( !coltabitm_ )
     {
 	uiColTabItem::Setup su( true );
-	su.startalong( true ); su.startal_.set( Alignment::Top );
+	su.startal_.set( Alignment::Top );
 	coltabitm_ = scene().addItem( new uiColTabItem(su) );
     }
     ColTab::MapperSetup ctms;

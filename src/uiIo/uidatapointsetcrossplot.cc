@@ -661,8 +661,6 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
 
     if ( !coltabitem )
     {
-	ctsu.startalong_ = true;
-	ctsu.stopalong_ = true;
 	coltabitem = new uiColTabItem( ctsu );
 	if ( isy1 )
 	    y1overlayctitem_ = coltabitem;
