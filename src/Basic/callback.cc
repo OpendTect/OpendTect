@@ -26,14 +26,25 @@ public:
     bool event( QEvent* )
     {
 	Threads::Locker locker( receiverlock_ );
-	for ( int idx=0; idx<cbs_.size(); idx++ )
+	if ( queue_.size() )
 	{
-	    cbs_[idx].doCall( cbers_[idx] );
+	    pErrMsg("Queue should be empty");
 	}
+
+	queue_ = cbs_;
+	ObjectSet<CallBacker> cbers( cbers_ );
 
 	cbs_.erase();
 	cbers_.erase();
+	locker.unlockNow();
 
+	for ( int idx=0; idx<queue_.size(); idx++ )
+	{
+	    queue_[idx].doCall( cbers[idx] );
+	}
+
+	locker.reLock();
+	queue_.erase();
 
 	return true;
     }
@@ -60,12 +71,23 @@ public:
 	    cbs_.removeSingle( idx );
 	    cbers_.removeSingle( idx );
 	}
+
+	//Check that it is not presently running
+	while ( queue_.isPresent( cb ) )
+	{
+	    locker.unlockNow();
+	    Threads::sleep( 0.01 );
+	    locker.reLock();
+	}
     }
 
 private:
 
+    TypeSet<CallBack>		queue_;
+
     TypeSet<CallBack>		cbs_;
     ObjectSet<CallBacker>	cbers_;
+
     Threads::Lock		receiverlock_;
 };
 
