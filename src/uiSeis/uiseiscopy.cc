@@ -113,6 +113,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     {
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	IOPar inppar; inpfld_->fillPar( inppar );
+	inppar.set( sKey::Component(), compnr );
 	js.pars_.mergeComp( inppar, sKey::Input() );
 	transffld_->fillPar( js.pars_ );
 	IOPar outpar; outfld_->fillPar( outpar );
