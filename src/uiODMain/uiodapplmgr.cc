@@ -1439,6 +1439,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 
 	const TypeSet<int>& bends = bpf.bendPoints();
 	RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
+	rl->setName( "Parents path" );
 	Geometry::RLM().add( rl );
 	for ( int idx=0; idx<bends.size(); idx++ )
 	    rl->addNode( trcs[bends[idx]].pos() );
