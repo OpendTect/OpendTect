@@ -21,9 +21,9 @@ ________________________________________________________________________
 #include "fontdata.h"
 
 class uiGraphicsScene;
-class uiGraphicsItemGroup;
 class uiLineItem;
 class uiTextItem;
+class uiAHPlotAnnotSet;
 template <class T> class LineParameters;
 
 /*!
@@ -59,9 +59,7 @@ public:
 			    , noaxisline_(false)
 			    , noaxisannot_(false)
 			    , nogridline_(false)
-			    , noannotpos_(false)
-			    , showauxpos_(false)
-			    , showauxline_(false)
+			    , showauxannot_(false)
 			    , auxlinestyle_(LineStyle(LineStyle::Dot))
 			    , annotinside_(false)
 			    , annotinint_(false)
@@ -81,15 +79,13 @@ public:
 	mDefSetupMemb(int,width)
 	mDefSetupMemb(int,height)
 	mDefSetupMemb(bool,islog)
-	mDefSetupMemb(bool,noannotpos)
 	mDefSetupMemb(bool,noaxisline)
 	mDefSetupMemb(bool,noaxisannot)
 	mDefSetupMemb(bool,nogridline)
 	mDefSetupMemb(bool,annotinside)
 	mDefSetupMemb(bool,annotinint)
 	mDefSetupMemb(bool,fixedborder)
-	mDefSetupMemb(bool,showauxpos)
-	mDefSetupMemb(bool,showauxline)
+	mDefSetupMemb(bool,showauxannot)
 	mDefSetupMemb(int,ticsz)
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
@@ -113,40 +109,13 @@ public:
 			{ return !mIsUdf(specialvalue_); }
     };
 
-    mStruct(uiTools) AuxPosData
-    {
-	enum LineType	    { Normal=0, Bold=1, HighLighted=2 };
-			    AuxPosData()
-				: pos_(mUdf(float))
-				, name_(uiString::emptyString())
-				, linetype_(Normal)	{}
-	float		pos_;
-	LineType	linetype_;
-	bool		isBold() const		{ return linetype_==Bold; }
-	bool		isHighLighted() const
-			{ return linetype_==HighLighted; }
-	uiString	name_;
-
-	AuxPosData& operator=( const AuxPosData& from )
-	{
-	    pos_ = from.pos_;
-	    linetype_ = from.linetype_;
-	    name_ = from.name_;
-	    return *this;
-	}
-
-	bool	operator==( const AuxPosData& from ) const
-	{ return pos_ == from.pos_ && linetype_ == from.linetype_; }
-    };
-
 			uiAxisHandler(uiGraphicsScene*,const Setup&);
 			~uiAxisHandler();
 
     void		setCaption(const uiString&);
     uiString		getCaption() const	{ return setup_.caption_; }
-    void		setIsLog( bool yn )	{ setup_.islog_ = yn; reCalc();}
-    void		setBorder( const uiBorder& b )
-						{ setup_.border_ = b; reCalc();}
+    void		setBorder(const uiBorder&);
+    void		setIsLog(bool yn);
     void		setBegin( const uiAxisHandler* ah )
 						{ beghndlr_ = ah; newDevSize();}
     void		setEnd( const uiAxisHandler* ah )
@@ -161,15 +130,12 @@ public:
     int			getPix(double abvsval) const;
     int			getPix(int) const;
     int			getRelPosPix(float relpos) const;
-    void		setAuxPosData( const TypeSet<AuxPosData>& pos )
-			{ auxpos_ = pos; }
-
-    void		updateScene(); //!< update gridlines if appropriate
-    void		annotAtEnd(const uiString&);
+    void		setAuxAnnot( const TypeSet<PlotAnnotation>& pos )
+						{ auxannots_ = pos; }
 
     const Setup&	setup() const		{ return setup_; }
     Setup&		setup()			{ return setup_; }
-    StepInterval<float>	range() const		{ return rg_; }
+    StepInterval<float> range() const		{ return datarg_; }
     float		annotStart() const	{ return annotstart_; }
     bool		isHor() const	{ return uiRect::isHor(setup_.side_); }
     int			pixToEdge(bool withborder=true) const;
@@ -179,45 +145,38 @@ public:
 
 			//!< Call this when appropriate
     void		newDevSize();
-    void		updateDevSize(); //!< resized from sceme
+    void		updateDevSize();	//!< resized from sceme
     void		setNewDevSize(int,int); //!< resized by yourself
+    void		updateScene();
 
-    void		updateAnnotations();
-    void		updateGridLines();
-    uiLineItem*		getFullLine(int pix);
+    uiLineItem*		getTickLine(int pix);
+    uiLineItem*		getGridLine(int pix);
     int			getNrAnnotCharsForDisp() const;
     void		setVisible(bool);
+    void		annotAtEnd(const uiString&);
 
 protected:
 
-    uiGraphicsScene*	 scene_;
-    uiGraphicsItemGroup* gridlineitmgrp_;
-    uiGraphicsItemGroup* annottxtitmgrp_;
-    uiGraphicsItemGroup* annotlineitmgrp_;
-    uiGraphicsItemGroup* auxposlineitmgrp_;
-    uiGraphicsItemGroup* auxpostxtitmgrp_;
-    uiGraphicsItemGroup* auxposgridlineitmgrp_;
+    uiGraphicsScene*	scene_;
+    uiTextItem*		nameitm_;
+    uiTextItem*		endannotitm_;
+    uiLineItem*		axislineitm_;
 
     Setup		setup_;
     bool		islog_;
-    StepInterval<float>	rg_;
+    StepInterval<float> datarg_;
     float		annotstart_;
     uiBorder		border_;
     int			ticsz_;
     int			height_;
     int			width_;
+    int			reqnrchars_;
     const uiAxisHandler* beghndlr_;
     const uiAxisHandler* endhndlr_;
 
-    uiLineItem*		axislineitm_;
-    uiTextItem*		endannottextitm_;
-    uiTextItem*		nameitm_;
-    void		reCalc();
-    bool		isColliding(float gridlineval) const;
-    int			calcwdth_;
-    uiStringSet		strs_;
-    TypeSet<float>	pos_;
-    TypeSet<AuxPosData> auxpos_;
+    int			pxsizeinotherdir_;
+    uiAHPlotAnnotSet&	annots_;
+    TypeSet<PlotAnnotation> auxannots_;
     float		endpos_;
     int			devsz_;
     int			axsz_;
@@ -225,15 +184,18 @@ protected:
     bool		ynmtxtvertical_;
     float		rgwidth_;
     float		epsilon_;
+    StepInterval<float> annotrg_;
+    int			nrsteps_;
 
-    int			ticSz() const;
+    int			ticSz() const
+				{ return setup_.noaxisannot_ ? 0 : ticsz_; }
+    int			tickEndPix(bool farend) const;
     void		updateAxisLine();
-    void		drawGridLine(int,bool aux=false,int linetype=0);
-    void		drawAnnotAtPos(int,const uiString&,
-				       bool aux=false,int linetype=0);
+    bool		reCalcAnnotation();
     void		updateName();
 
-    bool		doPlotExtreme(float plottextrmval,bool isstart) const;
+    friend class	uiAHPlotAnnotSet;
+
 };
 
 //! draws line not outside box defined by X and Y value ranges

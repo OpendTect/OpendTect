@@ -12,19 +12,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseiswvltman.h"
 
-#include "arrayndimpl.h"
-#include "color.h"
-#include "flatposdata.h"
 #include "ioman.h"
-#include "iopar.h"
-#include "iostrm.h"
+#include "ioobj.h"
 #include "survinfo.h"
 #include "wavelet.h"
 #include "waveletio.h"
 #include "waveletattrib.h"
 
 #include "uiaxishandler.h"
-#include "uibutton.h"
 #include "uitoolbutton.h"
 #include "uifunctiondisplay.h"
 #include "uilabel.h"
@@ -41,7 +36,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwaveletextraction.h"
 #include "uiwaveletmatchdlg.h"
 #include "od_helpids.h"
-#include "uilabel.h"
 
 
 #define mErrRet(s) { uiMSG().error(s); return; }

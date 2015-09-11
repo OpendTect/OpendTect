@@ -44,7 +44,8 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     if ( !setup_.caption_.isEmpty() )
 	setCaption( setup_.caption_ );
     uiFunctionDisplay::Setup su;
-    su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true);
+    su.fillbelow(true).canvaswidth(600).canvasheight(400);
+    su.noy2axis(true).noy2gridline(true);
     disp_ = new uiFunctionDisplay( this, su );
     disp_->xAxis()->setCaption( SI().zIsTime() ? !setup_.iscepstrum_
 						    ? tr("Frequency (Hz)")

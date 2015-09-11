@@ -178,7 +178,7 @@ FlatView::Annotation::AxisData::AxisData()
     , factor_( 1 )
     , auxlinestyle_( LineStyle(LineStyle(LineStyle::Dot)) )
     , auxhllinestyle_( LineStyle(LineStyle(LineStyle::Dot,2,
-		    			   getRandStdDrawColor())) )
+					   getRandStdDrawColor())) )
 {}
 
 
@@ -189,10 +189,10 @@ void FlatView::Annotation::AxisData::showAll( bool yn )
 
 int FlatView::Annotation::AxisData::auxPosIdx( float atpos, float eps ) const
 {
-    for ( int auxidx=0; auxidx<auxposs_.size(); auxidx++ )
+    for ( int auxidx=0; auxidx<auxannot_.size(); auxidx++ )
     {
-	const AuxPosition& auxpos = auxposs_[auxidx];
-	if ( mIsEqual(auxpos.pos_,atpos,eps) )
+	const PlotAnnotation& annot = auxannot_[auxidx];
+	if ( mIsEqual(annot.pos_,atpos,eps) )
 	    return auxidx;
     }
 
@@ -245,14 +245,6 @@ void FlatView::Annotation::usePar( const IOPar& iop )
 		 x2_.showgridlines_);
     mIOPDoAxes2( getYN, sKeyIsRev(), x1_.reversed_, x2_.reversed_ );
     iop.getYN( sKeyShwAux(), showaux_ );
-}
-
-
-int FlatView::Annotation::auxPosIdx( bool forx, float atpos, float eps ) const
-{
-    if ( forx )
-	return x1_.auxPosIdx( atpos, eps );
-    return x2_.auxPosIdx( atpos, eps );
 }
 
 

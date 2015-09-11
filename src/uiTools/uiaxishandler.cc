@@ -18,21 +18,282 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "axislayout.h"
 
 static const float logof2 = logf(2);
+#define sDefNrDecimalPlaces 3
+#define mFillZValue	setup_.zval_ + 1
+#define mSpecialZValue	setup_.zval_ + 2
+#define mAuxZValue	setup_.zval_ + 3
+#define mAxisZValue	setup_.zval_ + 4
+#define mRemoveFromScene(itm) \
+    if ( itm ) \
+    { \
+	delete scene_->removeItem( itm ); \
+	itm = 0; \
+    }
 
-#define mDefInitList \
-      gridlineitmgrp_(0) \
-    , axislineitm_(0) \
-    , endannottextitm_(0) \
-    , annottxtitmgrp_(0) \
-    , nameitm_(0) \
-    , annotlineitmgrp_(0) \
-    , auxposlineitmgrp_(0) \
-    , auxpostxtitmgrp_(0) \
-    , auxposgridlineitmgrp_(0)
+
+class uiAHPlotAnnot : public PlotAnnotation
+{
+public:
+
+    enum Type		{ Aux, Special, Fill };
+			uiAHPlotAnnot( Type t )
+			    : type_(t), txtwdth_(0)		{}
+			uiAHPlotAnnot( const PlotAnnotation& pah )
+								{ *this = pah; }
+			uiAHPlotAnnot( const uiAHPlotAnnot& oth )
+								{ *this = oth; }
+    uiAHPlotAnnot&	operator =(const PlotAnnotation&);
+    uiAHPlotAnnot&	operator =(const uiAHPlotAnnot&);
+
+    Type		type_;
+    int			txtwdth_;
+
+    bool		isAux() const		{ return type_ == Aux; }
+};
+
+
+class uiAHPlotAnnotSet : public TypeSet<uiAHPlotAnnot>
+{
+public:
+
+			uiAHPlotAnnotSet( uiAxisHandler& ah )
+			    : axh_(ah), texts_(0), setup_(ah.setup_) {}
+
+			~uiAHPlotAnnotSet()	{ removeAllGraphicsItems(); }
+
+    uiFont&		font()			{ return FontList().get(); }
+    void		setVisible(bool);
+
+    void		add(const PlotAnnotation&);
+    void		add(float,uiAHPlotAnnot::Type);
+
+    void		allAdded();
+    void		createGraphicsItems();
+
+protected:
+
+    void		removeAllGraphicsItems();
+
+    const LineStyle&	getLineStyle(const uiAHPlotAnnot&) const;
+    int			getZValue(const uiAHPlotAnnot&) const;
+
+    void		addItems(const uiAHPlotAnnot&,bool);
+    void		addGridLineAt(int pix,const uiAHPlotAnnot&);
+    void		addAnnotationAt(int pix,const uiAHPlotAnnot&);
+
+    uiAxisHandler&	axh_;
+    uiAxisHandler::Setup& setup_;
+
+    int			maxstrwidth_;
+    TypeSet< Interval<int> > alreadyfilledpxs_;
+
+    uiGraphicsItemSet*	lines_;
+    uiGraphicsItemSet*	texts_;
+    uiGraphicsItemSet*	ticks_;
+
+    friend class	uiAxisHandler;
+
+};
+
+
+uiAHPlotAnnot& uiAHPlotAnnot::operator =( const PlotAnnotation& pah )
+{
+    PlotAnnotation::operator =( pah );
+    type_ = Aux;
+    txtwdth_ = FontList().get().width( pah.txt_ );
+    return *this;
+}
+
+
+uiAHPlotAnnot& uiAHPlotAnnot::operator =( const uiAHPlotAnnot& oth )
+{
+    PlotAnnotation::operator =( oth );
+    type_ = oth.type_;
+    txtwdth_ = oth.txtwdth_;
+    return *this;
+}
+
+
+void uiAHPlotAnnotSet::removeAllGraphicsItems()
+{
+    if ( texts_ )
+    {
+	delete axh_.scene_->removeItems( lines_ );
+	delete axh_.scene_->removeItems( texts_ );
+	delete axh_.scene_->removeItems( ticks_ );
+	texts_ = 0;
+    }
+}
+
+
+void uiAHPlotAnnotSet::setVisible( bool yn )
+{
+    if ( texts_ )
+    {
+	lines_->setVisible( yn );
+	texts_->setVisible( yn );
+	ticks_->setVisible( yn );
+    }
+}
+
+
+const LineStyle& uiAHPlotAnnotSet::getLineStyle( const uiAHPlotAnnot& pah )const
+{
+    const bool ishighlighted = pah.linetype_ == PlotAnnotation::HighLighted;
+    return !pah.isAux() ? setup_.style_ : (ishighlighted ?
+	    setup_.auxhllinestyle_ : setup_.auxlinestyle_);
+}
+
+
+int uiAHPlotAnnotSet::getZValue( const uiAHPlotAnnot& pah ) const
+{
+    if ( pah.type_ == uiAHPlotAnnot::Fill ) return mFillZValue;
+    return pah.isAux() ? mAuxZValue : mSpecialZValue;
+}
+
+
+void uiAHPlotAnnotSet::add( const PlotAnnotation& pah )
+{
+    *this += uiAHPlotAnnot( pah );
+}
+
+
+void uiAHPlotAnnotSet::add( float val, uiAHPlotAnnot::Type type )
+{
+    uiAHPlotAnnot pah( type );
+    pah.pos_ = val;
+    pah.txt_ = toStringLim( val, val < 0 ? axh_.reqnrchars_+1
+					 : axh_.reqnrchars_ );
+    pah.txtwdth_ = font().width( pah.txt_ );
+    pah.linetype_ = PlotAnnotation::Normal;
+    *this += pah;
+}
+
+
+void uiAHPlotAnnotSet::allAdded()
+{
+    maxstrwidth_ = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	int strwdth = (*this)[idx].txtwdth_;
+	if ( strwdth > maxstrwidth_ )
+	    maxstrwidth_ = strwdth;
+    }
+}
+
+
+void uiAHPlotAnnotSet::createGraphicsItems()
+{
+    removeAllGraphicsItems();
+    alreadyfilledpxs_.erase();
+
+    lines_ = new uiGraphicsItemSet();
+    texts_ = new uiGraphicsItemSet();
+    ticks_ = new uiGraphicsItemSet();
+
+    for ( int icoll=0; icoll<2; icoll++ )
+    {
+	const bool docolldet = icoll == 1;
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    const uiAHPlotAnnot& pah = (*this)[idx];
+	    if ( (pah.type_==uiAHPlotAnnot::Fill) == docolldet )
+		addItems( pah, docolldet );
+	}
+    }
+
+    axh_.scene_->addItems( lines_ );
+    axh_.scene_->addItems( texts_ );
+    axh_.scene_->addItems( ticks_ );
+}
+
+
+void uiAHPlotAnnotSet::addItems( const uiAHPlotAnnot& pah, bool docolldet )
+{
+    if ( pah.isAux() && !setup_.showauxannot_ )
+	return;
+
+    const int pix = axh_.getPix( pah.pos_ );
+    const int nrpixs = setup_.noaxisannot_ ? 0
+			: (axh_.isHor() ? pah.txtwdth_ : font().height());
+    const Interval<int> pixintv( pix-nrpixs/2, pix+nrpixs/2 );
+    if ( docolldet )
+    {
+	for ( int idx=0; idx<alreadyfilledpxs_.size(); idx++ )
+	    if ( alreadyfilledpxs_[idx].overlaps(pixintv,false) )
+		return;
+    }
+
+    const bool hasbeghndlr =
+	axh_.beghndlr_ && !axh_.beghndlr_->setup().noaxisline_;
+    const bool hasendhndlr =
+	axh_.endhndlr_ && !axh_.endhndlr_->setup().noaxisline_;
+
+    const bool overlapswithotheraxis = pah.isAux() ? false :
+		((hasbeghndlr && pix==axh_.getPix(axh_.range().start)) ||
+		(hasendhndlr && pix==axh_.getPix(axh_.range().stop)));
+    if ( (!setup_.nogridline_ && !overlapswithotheraxis) || pah.isAux() )
+	addGridLineAt( pix, pah );
+
+    if ( !setup_.noaxisannot_ || pah.isAux() )
+	addAnnotationAt( pix, pah );
+
+    alreadyfilledpxs_ += pixintv;
+}
+
+
+void uiAHPlotAnnotSet::addGridLineAt( int pix, const uiAHPlotAnnot& pah )
+{
+    uiLineItem* gridlitm = axh_.getGridLine( pix );
+    gridlitm->setPenStyle( getLineStyle(pah) );
+    gridlitm->setZValue( getZValue(pah) );
+    lines_->add( gridlitm );
+}
+
+
+void uiAHPlotAnnotSet::addAnnotationAt( int pix, const uiAHPlotAnnot& pah )
+{
+    const LineStyle& ls = getLineStyle( pah );
+    const int zvalue = getZValue( pah );
+    uiLineItem* tickitm = axh_.getTickLine( pix );
+    tickitm->setPenColor( ls.color_ );
+    tickitm->setZValue( zvalue );
+    ticks_->add( tickitm );
+
+    uiTextItem* txtitm;
+    const int p1 = axh_.tickEndPix( true );
+    if ( axh_.isHor() )
+    {
+	const Alignment al( Alignment::HCenter, setup_.side_ == uiRect::Top
+	    ? (setup_.annotinside_ ? Alignment::Top : Alignment::Bottom)
+	    : (setup_.annotinside_ ? Alignment::Bottom : Alignment::Top) );
+	txtitm = new uiTextItem( uiPoint(pix,p1), pah.txt_, al );
+    }
+    else
+    {
+	const Alignment al( setup_.side_==uiRect::Left ?
+		Alignment::Right : Alignment::Left, Alignment::VCenter );
+	txtitm = new uiTextItem( uiPoint(p1,pix), pah.txt_, al );
+    }
+
+    if ( pah.isNormal() )
+	txtitm->setFontData( setup_.fontdata_ );
+    else
+    {
+	FontData fd( setup_.fontdata_ );
+	fd.setWeight( FontData::Bold );
+	txtitm->setFontData( fd );
+    }
+
+    txtitm->setTextColor( ls.color_ );
+    txtitm->setZValue( zvalue );
+    texts_->add( txtitm );
+}
+
 
 uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
 			      const uiAxisHandler::Setup& su )
-    : mDefInitList
+    : annots_(*new uiAHPlotAnnotSet(*this))
     , scene_(scene)
     , setup_(su)
     , height_(su.height_)
@@ -41,9 +302,12 @@ uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
     , beghndlr_(0)
     , endhndlr_(0)
     , annotstart_(0)
-    , epsilon_(1e-5)
+    , epsilon_(1e-5f)
     , axsz_(0)
     , devsz_(0)
+    , nameitm_(0)
+    , endannotitm_(0)
+    , axislineitm_(0)
     , ynmtxtvertical_(false)
 {
     setRange( StepInterval<float>(0,1,1) );
@@ -52,69 +316,10 @@ uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
 
 uiAxisHandler::~uiAxisHandler()
 {
-    if ( nameitm_ ) delete scene_->removeItem( nameitm_ );
-    if ( axislineitm_ ) delete scene_->removeItem( axislineitm_ );
-    if ( endannottextitm_ ) delete scene_->removeItem( endannottextitm_ );
-    if ( annottxtitmgrp_ ) delete scene_->removeItem( annottxtitmgrp_ );
-    if ( annotlineitmgrp_ ) delete scene_->removeItem( annotlineitmgrp_ );
-    if ( gridlineitmgrp_ ) delete scene_->removeItem( gridlineitmgrp_ );
-    if ( auxpostxtitmgrp_ ) delete scene_->removeItem( auxpostxtitmgrp_ );
-    if ( auxposlineitmgrp_ ) delete scene_->removeItem( auxposlineitmgrp_ );
-    if ( auxposgridlineitmgrp_ )
-	delete scene_->removeItem( auxposgridlineitmgrp_ );
-}
-
-
-void uiAxisHandler::setCaption( const uiString& caption )
-{
-    setup_.caption_ = caption;
-    reCalc();
-}
-
-
-bool uiAxisHandler::doPlotExtreme( float plottedxtrmval, bool isstart ) const
-{
-    const float actxtrmval = isstart ? rg_.start : rg_.stop;
-    if (setup_.annotinint_ )
-	return false;
-    const uiFont& uifont = uiFontList::getInst().get(setup_.fontdata_.family());
-    const int reqnrchars = getNrAnnotCharsForDisp();
-    const int actxtrmvalpospix = getPix( actxtrmval );
-    const int plottedxtrmvalpospix = getPix( plottedxtrmval );
-    const float halftxtwidth =
-	isHor() ? ( (float)reqnrchars/2) * uifont.avgWidth()
-		: uifont.height()/2 ;
-    const bool ismin = (isstart && !rgisrev_) || (rgisrev_ && !isstart);
-    const int fac = ismin ? 1 : -1;
-    const int actxtrmvalendpix = actxtrmvalpospix + fac*mNINT32( halftxtwidth );
-    const int plottedxtrmvalendpix =
-	plottedxtrmvalpospix - fac*mNINT32( halftxtwidth );
-    const bool doesannotcoincide =
-	ismin ? actxtrmvalendpix > plottedxtrmvalendpix
-	      : actxtrmvalendpix < plottedxtrmvalendpix;
-    return !doesannotcoincide;
-}
-
-
-void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
-{
-    rg_ = rg;
-    annotstart_ = astart ? *astart : rg_.start;
-
-    float fsteps = (rg_.stop - rg_.start) / rg_.step;
-    if ( fsteps < 0 )
-	rg_.step = -rg_.step;
-    if ( mIsZero(fsteps,1e-6) )
-	{ rg_.start -= rg_.step * 1.5f; rg_.stop += rg_.step * 1.5f; }
-    fsteps = (rg_.stop - rg_.start) / rg_.step;
-    if ( fsteps > 50 )
-	rg_.step /= (fsteps / 50);
-
-    rgisrev_ = rg_.start > rg_.stop;
-    rgwidth_ = rg_.width();
-    epsilon_ = 1e-5f * rgwidth_;
-
-    reCalc();
+    mRemoveFromScene( nameitm_ )
+    mRemoveFromScene( endannotitm_ )
+    mRemoveFromScene( axislineitm_ )
+    delete &annots_;
 }
 
 
@@ -137,17 +342,59 @@ void uiAxisHandler::setBounds( Interval<float> rg )
     }
 }
 
-#define sDefNrDecimalPlaces 3
+
+void uiAxisHandler::setCaption( const uiString& caption )
+{
+    setup_.caption_ = caption;
+    updateScene();
+}
+
+
+void uiAxisHandler::setBorder( const uiBorder& b )
+{
+    setup_.border_ = b;
+    updateScene();
+}
+
+
+void uiAxisHandler::setIsLog( bool yn )
+{
+    setup_.islog_ = yn;
+    updateScene();
+}
+
+
+void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
+{
+    datarg_ = rg;
+    annotstart_ = astart ? *astart : datarg_.start;
+
+    float fsteps = (datarg_.stop - datarg_.start) / datarg_.step;
+    if ( fsteps < 0 )
+	datarg_.step = -datarg_.step;
+    if ( mIsZero(fsteps,1e-6) )
+	datarg_.widen( datarg_.step * 1.5f );
+    fsteps = (datarg_.stop - datarg_.start) / datarg_.step;
+    if ( fsteps > 50 )
+	datarg_.step /= (fsteps / 50);
+
+    rgisrev_ = datarg_.start > datarg_.stop;
+    rgwidth_ = datarg_.width();
+    epsilon_ = 1e-5f * rgwidth_;
+
+    reCalcAnnotation();
+}
+
 
 int uiAxisHandler::getNrAnnotCharsForDisp() const
 {
     if ( setup_.maxnrchars_ ) return setup_.maxnrchars_;
-    const int widthlogval = mIsZero(rg_.width(),mDefEps)
-	? 0 : mNINT32( Math::Log10(fabs(rg_.width())) );
-    const int startlogval = mIsZero(rg_.start,mDefEps)
-	? 0 : mNINT32( Math::Log10(fabs(rg_.start)) );
-    const int stoplogval = mIsZero(rg_.stop,mDefEps)
-	? 0 : mNINT32( Math::Log10(fabs(rg_.stop)) );
+    const int widthlogval = mIsZero(datarg_.width(),epsilon_)
+	? 0 : mNINT32( Math::Log10(fabs(datarg_.width())) );
+    const int startlogval = mIsZero(datarg_.start,epsilon_)
+	? 0 : mNINT32( Math::Log10(fabs(datarg_.start)) );
+    const int stoplogval = mIsZero(datarg_.stop,epsilon_)
+	? 0 : mNINT32( Math::Log10(fabs(datarg_.stop)) );
     int nrofpredecimalchars = mMAX(stoplogval,startlogval) + 1;
     // number of chars needed for pre decimal part for maximum value
     if ( nrofpredecimalchars < 1 )
@@ -163,96 +410,6 @@ int uiAxisHandler::getNrAnnotCharsForDisp() const
     const int nrannotchars = nrofpredecimalchars + nrofpostdecimalchars;
     return setup_.maxnrchars_ && nrannotchars>setup_.maxnrchars_
 		? setup_.maxnrchars_ : nrannotchars;
-}
-
-
-void uiAxisHandler::reCalc()
-{
-    pos_.erase(); strs_.erase();
-    calcwdth_ = 0;
-
-    StepInterval<float> annotrg( rg_ );
-    annotrg.start = annotstart_;
-
-    const uiFont& font = FontList().get();
-    const bool allocspaceforname = !setup_.noaxisannot_
-				&& !setup_.annotinside_
-				&& !setup_.fixedborder_
-				&& !setup_.caption_.isEmpty();
-    if ( allocspaceforname )
-	calcwdth_ += font.height();
-
-    int rgwdth = 0;
-    int nrsteps = annotrg.nrSteps();
-    if ( !rg_.includes(annotrg.atIndex(nrsteps),false) )
-	nrsteps--;
-
-    const int reqnrchars = getNrAnnotCharsForDisp();
-    if ( doPlotExtreme(annotstart_,true) )
-    {
-	pos_ += 0.0f;
-	strs_.add( toStringLim( rg_.start,
-				rg_.start<0 ? reqnrchars+1 : reqnrchars) );
-    }
-
-    if ( doPlotExtreme(annotrg.atIndex(nrsteps),false) && rgwidth_>epsilon_ )
-    {
-	pos_ += 1.0f;
-	strs_.add( toStringLim(rg_.stop,rg_.stop<0 ? reqnrchars+1:reqnrchars) );
-    }
-
-    if ( setup_.showSpecialValue() )
-    {
-    	const float spval = setup_.specialvalue_;
-    	if ( rg_.includes(spval,rgisrev_) && !mIsEqual(spval,rg_.start,epsilon_)
-		&& !mIsEqual(spval,rg_.stop,epsilon_) )
-    	{
-    	    pos_ += getRelPos( spval );
-	    strs_.add( toStringLim(spval,spval<0 ? reqnrchars+1:reqnrchars) );
-	}
-    }
-
-    for ( int idx=0; idx<=nrsteps; idx++ )
-    {
-	float pos = annotrg.atIndex( idx );
-	if ( !rg_.includes(pos,rgisrev_) || isColliding(pos) )
-	    continue;
-
-	const BufferString posstr( toStringLim(pos,pos<0 ? reqnrchars+1
-							 : reqnrchars) );
-	strs_.add( posstr );
-	pos_ += getRelPos( pos );
-	const int wdth = font.width( posstr );
-	if ( idx == 0 || rgwdth < wdth )
-	    rgwdth = wdth;
-    }
-
-    if ( !setup_.noaxisannot_ )
-	calcwdth_ += isHor() ? font.height() : rgwdth;
-
-    endpos_ = setup_.islog_ ? logof2 : 1;
-    newDevSize();
-}
-
-
-bool uiAxisHandler::isColliding( float gridlineval ) const
-{
-    const uiFont& font = FontList().get();
-    const int reqnrchars = getNrAnnotCharsForDisp();
-    const int gridlinepix = getPix( gridlineval );
-    for ( int idx=0; idx<pos_.size(); idx++ )
-    {
-	const int pospix = getRelPosPix( pos_[idx] );
-	const float posval = getVal( pospix );
-	const int dist = abs( gridlinepix-pospix );
-	const int overlapdist = isHor() ? reqnrchars*font.avgWidth()/2
-	    				: font.height();
-	if ( rg_.includes(posval,rgisrev_) &&
-		(mIsEqual(gridlineval,posval,epsilon_) || dist<overlapdist) )
-	    return true;
-    }
-
-    return false;
 }
 
 
@@ -274,8 +431,8 @@ void uiAxisHandler::setNewDevSize( int devsz, int otherdim )
 {
     devsz_ = devsz;
     axsz_ = devsz_ - pixBefore() - pixAfter();
-    ( isHor() ? width_ : height_ ) = devsz_;
-    ( isHor() ? height_ : width_ ) = otherdim ;
+    (isHor() ? width_ : height_) = devsz_;
+    (isHor() ? height_ : width_) = otherdim ;
 }
 
 
@@ -297,13 +454,13 @@ float uiAxisHandler::getVal( int pix ) const
     if ( setup_.islog_ )
 	relpix = expf( relpix * logof2 );
 
-    return rg_.start + (rgisrev_?-1:1) * rgwidth_ * relpix;
+    return datarg_.start + (rgisrev_?-1:1) * rgwidth_ * relpix;
 }
 
 
 float uiAxisHandler::getRelPos( float v ) const
 {
-    float relv = ( rgisrev_ ? rg_.start - v : v - rg_.start ) / rgwidth_;
+    float relv = (rgisrev_ ? datarg_.start - v : v - datarg_.start) / rgwidth_;
     if ( !setup_.islog_ )
 	return relv;
 
@@ -339,14 +496,13 @@ int uiAxisHandler::getPix( int pos ) const
 }
 
 
-
 int uiAxisHandler::pixToEdge( bool withborder ) const
 {
     int ret = withborder ? setup_.border_.get(setup_.side_) : 0;
     if ( setup_.noaxisannot_ || setup_.annotinside_ || setup_.fixedborder_ )
 	return ret;
 
-    ret += ticSz() + calcwdth_;
+    ret += ticSz() + pxsizeinotherdir_;
     return ret;
 }
 
@@ -396,154 +552,30 @@ Interval<int> uiAxisHandler::pixRange() const
 }
 
 
-void uiAxisHandler::updateAnnotations()
+void uiAxisHandler::setVisible( bool yn )
 {
-    if ( !annottxtitmgrp_ && setup_.noaxisannot_ ) return;
-
-    if ( !annottxtitmgrp_ && !setup_.noaxisannot_ )
-    {
-	annottxtitmgrp_ = new uiGraphicsItemGroup();
-	scene_->addItemGrp( annottxtitmgrp_ );
-	annottxtitmgrp_->setZValue( setup_.zval_ );
-    }
-    else if ( annottxtitmgrp_ )
-	annottxtitmgrp_->removeAll( true );
-    if ( !annotlineitmgrp_ && !setup_.noaxisannot_ )
-    {
-	annotlineitmgrp_ = new uiGraphicsItemGroup();
-	scene_->addItemGrp( annotlineitmgrp_ );
-	annotlineitmgrp_->setZValue( setup_.zval_ );
-    }
-    else if ( annotlineitmgrp_ )
-	annotlineitmgrp_->removeAll( true );
-
-    if ( !auxposlineitmgrp_ && setup_.showauxpos_ )
-    {
-	auxposlineitmgrp_ = new uiGraphicsItemGroup();
-	scene_->addItemGrp( auxposlineitmgrp_ );
-	auxposlineitmgrp_->setZValue( setup_.zval_ );
-    }
-    else if ( auxposlineitmgrp_ )
-	auxposlineitmgrp_->removeAll( true );
-
-    if ( !auxpostxtitmgrp_ && setup_.showauxpos_ )
-    {
-	auxpostxtitmgrp_ = new uiGraphicsItemGroup();
-	scene_->addItemGrp( auxpostxtitmgrp_ );
-	auxpostxtitmgrp_->setZValue( setup_.zval_ );
-    }
-    else if ( auxpostxtitmgrp_ )
-	auxpostxtitmgrp_->removeAll( true );
-
-    if ( setup_.noaxisannot_ ) return;
-
-    for ( int idx=0; idx<pos_.size(); idx++ )
-    {
-	const float relpos = pos_[idx] / endpos_;
-	drawAnnotAtPos( getRelPosPix(relpos), strs_[idx] );
-    }
-
-    if ( !setup_.showauxpos_ ) return;
-
-    for ( int idx=0; idx<auxpos_.size(); idx++ )
-    {
-	const float auxpos = auxpos_[idx].pos_;
-	if ( !rg_.includes(auxpos,rgisrev_) )
-	    continue;
-	drawAnnotAtPos( getPix(auxpos), auxpos_[idx].name_,
-			true, auxpos_[idx].linetype_ );
-    }
-}
-
-
-void uiAxisHandler::setVisible( bool visible )
-{
-    if ( gridlineitmgrp_ ) gridlineitmgrp_->setVisible( visible );
-    if ( annottxtitmgrp_ )annottxtitmgrp_->setVisible( visible );
-    if ( annotlineitmgrp_ )annotlineitmgrp_->setVisible( visible );
-    if ( axislineitm_ ) axislineitm_->setVisible( visible );
-    if ( endannottextitm_ ) endannottextitm_->setVisible( visible );
-    if ( nameitm_ ) nameitm_->setVisible( visible );
-}
-
-
-void uiAxisHandler::updateGridLines()
-{
-    if ( setup_.style_.isVisible() )
-    {
-	if ( !gridlineitmgrp_ && !setup_.nogridline_ )
-	{
-	    gridlineitmgrp_ = new uiGraphicsItemGroup();
-	    scene_->addItemGrp( gridlineitmgrp_ );
-	    gridlineitmgrp_->setZValue( setup_.zval_ );
-	}
-	else if ( gridlineitmgrp_ )
-	    gridlineitmgrp_->removeAll( true );
-
-	if ( setup_.nogridline_ ) return;
-
-	Interval<int> toplot( 0, pos_.size()-1 );
-	for ( int idx=0; idx<pos_.size(); idx++ )
-	{
-	    const float relpos = pos_[idx] / endpos_;
-	    if ( relpos>0.01 && relpos<1.01 && (!endhndlr_ || relpos<0.99) )
-		drawGridLine( getRelPosPix(relpos) );
-	}
-    }
-    else if ( gridlineitmgrp_ )
-	gridlineitmgrp_->removeAll( true );
-
-    if ( setup_.showauxpos_ && setup_.showauxline_)
-    {
-	if ( !auxposgridlineitmgrp_ )
-	{
-	    auxposgridlineitmgrp_ = new uiGraphicsItemGroup();
-	    scene_->addItemGrp( auxposgridlineitmgrp_ );
-	    auxposgridlineitmgrp_->setZValue( setup_.zval_ );
-	}
-	else
-	    auxposgridlineitmgrp_->removeAll( true );
-
-	for ( int idx=0; idx<auxpos_.size(); idx++ )
-	{
-	    const float auxpos = auxpos_[idx].pos_;
-	    if ( !rg_.includes(auxpos,rgisrev_) )
-		continue;
-	    drawGridLine( getPix(auxpos), true, auxpos_[idx].linetype_ );
-	}
-    }
-    else if ( auxposgridlineitmgrp_ )
-	auxposgridlineitmgrp_->removeAll( true );
+    annots_.setVisible( yn );
+    if ( nameitm_ ) nameitm_->setVisible( yn );
+    if ( endannotitm_ ) endannotitm_->setVisible( yn );
+    if ( axislineitm_ ) axislineitm_->setVisible( yn );
 }
 
 
 void uiAxisHandler::updateScene()
 {
     updateAxisLine();
+    if ( reCalcAnnotation() )
+	annots_.createGraphicsItems();
 
-    if ( setup_.nogridline_ )
-    {
-	if ( gridlineitmgrp_ )
-	    gridlineitmgrp_->removeAll( true );
-    }
-
-    updateAnnotations();
-
-    if ( !setup_.noaxisannot_ && !setup_.caption_.isEmpty() )
-	updateName();
-
-    updateGridLines();
+    updateName();
 }
 
 
 void uiAxisHandler::updateAxisLine()
 {
     if ( setup_.noaxisline_ )
-    {
-	if( axislineitm_ )
-	    axislineitm_->setVisible(false );
-	return;
-    }
+	{ mRemoveFromScene( axislineitm_ ); return; }
+
     LineStyle ls( setup_.style_ );
     ls.type_ = LineStyle::Solid;
 
@@ -551,7 +583,7 @@ void uiAxisHandler::updateAxisLine()
     if ( isHor() )
     {
 	const int startpix = pixBefore();
-	const int endpix = devsz_-pixAfter();
+	const int endpix = devsz_ - pixAfter();
 	const int pixpos = setup_.side_ == uiRect::Top
 			 ? edgepix : height_ - edgepix;
 	if ( !axislineitm_ )
@@ -559,24 +591,237 @@ void uiAxisHandler::updateAxisLine()
 		    new uiLineItem(startpix,pixpos,endpix,pixpos) );
 	else
 	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos );
-	axislineitm_->setPenStyle( ls );
-	axislineitm_->setZValue( setup_.zval_ );
     }
     else
     {
-	const int startpix = rgisrev_ ? pixBefore() : pixAfter();
-	const int endpix = devsz_ - ( rgisrev_ ? pixAfter() : pixBefore() );
+	const int startpix = pixAfter();
+	const int endpix = devsz_ - pixBefore();
 	const int pixpos = setup_.side_ == uiRect::Left
 			 ? edgepix : width_ - edgepix;
-
 	if ( !axislineitm_ )
 	    axislineitm_ = scene_->addItem(
 		    new uiLineItem(pixpos,startpix,pixpos,endpix) );
 	else
 	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix );
-	axislineitm_->setPenStyle( ls );
-	axislineitm_->setZValue( setup_.zval_ );
     }
+
+    axislineitm_->setPenStyle( ls );
+    axislineitm_->setZValue( mAxisZValue );
+}
+
+
+bool uiAxisHandler::reCalcAnnotation()
+{
+    annots_.erase();
+    if ( setup_.nogridline_ && setup_.noaxisannot_ && !setup_.showauxannot_ )
+	return false;
+
+    annotrg_ = datarg_;
+    annotrg_.start = annotstart_;
+
+    const bool allocspaceforname = !setup_.noaxisannot_
+				&& !setup_.annotinside_
+				&& !setup_.fixedborder_
+				&& !setup_.caption_.isEmpty();
+    pxsizeinotherdir_ = 0;
+    if ( allocspaceforname )
+	pxsizeinotherdir_ += annots_.font().height();
+
+    nrsteps_ = annotrg_.nrSteps();
+    if ( !datarg_.includes(annotrg_.atIndex(nrsteps_),false) )
+	nrsteps_--;
+
+    reqnrchars_ = getNrAnnotCharsForDisp();
+
+    for ( int idx=0; idx<auxannots_.size(); idx++ )
+	if ( datarg_.includes(auxannots_[idx].pos_,rgisrev_) )
+	    annots_.add( auxannots_[idx] );
+
+    const bool showsplval = setup_.showSpecialValue();
+    if ( showsplval && datarg_.includes(setup_.specialvalue_,rgisrev_) )
+	annots_.add( setup_.specialvalue_, uiAHPlotAnnot::Special );
+
+    if ( !showsplval || !mIsEqual(datarg_.start,setup_.specialvalue_,epsilon_) )
+	annots_.add( datarg_.start, uiAHPlotAnnot::Special );
+
+    if ( (!showsplval || !mIsEqual(datarg_.stop,setup_.specialvalue_,epsilon_))
+	    && rgwidth_>epsilon_ )
+	annots_.add( datarg_.stop, uiAHPlotAnnot::Special );
+
+    for ( int idx=0; idx<=nrsteps_; idx++ )
+    {
+	float val = annotrg_.atIndex( idx );
+	if ( datarg_.includes(val,rgisrev_) )
+	    annots_.add( val, uiAHPlotAnnot::Fill );
+    }
+
+    annots_.allAdded();
+    pxsizeinotherdir_ += isHor() ? annots_.font().height()
+				 : annots_.maxstrwidth_;
+    endpos_ = setup_.islog_ ? logof2 : 1;
+    newDevSize();
+    return true;
+}
+
+
+void uiAxisHandler::updateName()
+{
+    if ( setup_.noaxisannot_ || setup_.caption_.isEmpty() )
+	{ mRemoveFromScene( nameitm_ ); return; }
+
+    if ( !nameitm_ )
+	nameitm_ = scene_->addItem( new uiTextItem( setup_.caption_ ) );
+    else
+	nameitm_->setText( setup_.caption_ );
+
+    Alignment al( Alignment::HCenter, Alignment::VCenter );
+    uiPoint pt;
+    const int namepos = pixToEdge() - ticSz() - pxsizeinotherdir_;
+    if ( isHor() )
+    {
+	const bool istop = setup_.side_ == uiRect::Top;
+	pt.x = pixBefore() + axsz_/2;
+	pt.y = istop ? namepos : height_-namepos;
+	al.set( istop ? Alignment::Top : Alignment::Bottom );
+    }
+    else
+    {
+	const bool isleft = setup_.side_ == uiRect::Left;
+	pt.x = isleft ? namepos : width_-namepos;
+	pt.y = height_/2 - pixAfter();
+
+	if ( !ynmtxtvertical_ )
+	    nameitm_->setRotation( mCast( float, isleft ? -90 : 90 ) );
+	ynmtxtvertical_ = true;
+    }
+    nameitm_->setPos( pt );
+    nameitm_->setAlignment( al );
+    nameitm_->setZValue( mAxisZValue );
+    const Color col = setup_.nmcolor_ == Color::NoColor()
+		    ? setup_.style_.color_ : setup_.nmcolor_;
+    nameitm_->setTextColor( col );
+    nameitm_->setFontData( setup_.fontdata_ );
+}
+
+
+int uiAxisHandler::tickEndPix( bool farend ) const
+{
+    const int pix2edge = pixToEdge();
+    if ( isHor() )
+    {
+	const bool istop = setup_.side_ == uiRect::Top;
+	const int y0 = istop ? pix2edge : height_ - pix2edge;
+	if ( !farend )
+	    return y0;
+
+	const int y1 = istop ? (setup_.annotinside_
+				? y0 + ticSz() + pxsizeinotherdir_
+				: y0 - ticSz() )
+			     : (setup_.annotinside_
+				? y0 - ticSz() - pxsizeinotherdir_
+				: y0 + ticSz() );
+	return y1;
+    }
+    else
+    {
+	const bool isleft = setup_.side_ == uiRect::Left;
+	const int x0 = isleft ? pix2edge : width_ - pix2edge;
+	if ( !farend )
+	    return x0;
+
+	const int x1 = isleft ? (setup_.annotinside_
+				    ? x0+ticSz() + pxsizeinotherdir_
+				    : x0-ticSz() )
+			      : (setup_.annotinside_
+				    ? x0-ticSz() - pxsizeinotherdir_
+				    : x0+ticSz() );
+	return x1;
+    }
+}
+
+
+uiLineItem* uiAxisHandler::getTickLine( int pix )
+{
+    uiLineItem* litm = new uiLineItem();
+    const int p0 = tickEndPix( false );
+    const int p1 = tickEndPix( true );
+    if ( isHor() )
+	litm->setLine( pix, p0, pix, p1 );
+    else
+	litm->setLine( p0, pix, p1, pix );
+
+    return litm;
+}
+
+
+uiLineItem* uiAxisHandler::getGridLine( int pix )
+{
+    const uiAxisHandler* hndlr = beghndlr_ ? beghndlr_ : endhndlr_;
+    int endpix = setup_.border_.get( uiRect::across(setup_.side_) );
+    if ( hndlr )
+    {
+	if ( isHor() )
+	    endpix = setup_.side_==uiRect::Top ? hndlr->pixBefore()
+					       : hndlr->pixAfter();
+	else
+	    endpix = setup_.side_==uiRect::Left ? hndlr->pixAfter()
+						: hndlr->pixBefore();
+    }
+
+    const int startpix = pixToEdge();
+
+    uiLineItem* lineitem = new uiLineItem();
+    const int length = isHor() ? height_ : width_;
+    switch ( setup_.side_ )
+    {
+	case uiRect::Top:
+	    lineitem->setLine( pix, startpix, pix, length - endpix );
+	    break;
+	case uiRect::Bottom:
+	    lineitem->setLine( pix, endpix, pix, length - startpix );
+	    break;
+	case uiRect::Left:
+	    lineitem->setLine( startpix, pix, length - endpix, pix );
+	    break;
+	case uiRect::Right:
+	    lineitem->setLine( endpix, pix, length - startpix, pix );
+	    break;
+    }
+
+    return lineitem;
+}
+
+
+void uiAxisHandler::annotAtEnd( const uiString& txt )
+{
+    if ( txt.isEmpty() )
+	{ mRemoveFromScene( endannotitm_ ); return; }
+
+    const int pix2edge = pixToEdge();
+    int xpix, ypix; Alignment al;
+    if ( isHor() )
+    {
+	xpix = devsz_ - pixAfter() - 2;
+	ypix = setup_.side_ == uiRect::Top ? pix2edge  : height_ - pix2edge - 2;
+	al.set( Alignment::Left,
+		setup_.side_==uiRect::Top ? Alignment::Bottom : Alignment::Top);
+    }
+    else
+    {
+	xpix = setup_.side_ == uiRect::Left  ? pix2edge + 5
+					     : width_ - pix2edge - 5;
+	ypix = pixBefore() + 5;
+	al.set( setup_.side_==uiRect::Left ? Alignment::Left : Alignment::Right,
+		Alignment::VCenter );
+    }
+
+    if ( !endannotitm_ )
+	endannotitm_ = scene_->addItem( new uiTextItem(txt,al) );
+    else
+	endannotitm_->setText( txt );
+    endannotitm_->setPos( uiPoint(xpix,ypix) );
+    endannotitm_->setZValue( mAxisZValue );
+    endannotitm_->setFontData( setup_.fontdata_ );
 }
 
 
@@ -657,219 +902,3 @@ void setLine( uiLineItem& lineitm, const LinePars& lp,
 
     lineitm.setLine( from, to );
 }
-
-
-void uiAxisHandler::annotAtEnd( const uiString& txt )
-{
-    const int edgepix = pixToEdge();
-    int xpix, ypix; Alignment al;
-    if ( isHor() )
-    {
-	xpix = devsz_ - pixAfter() - 2;
-	ypix = setup_.side_ == uiRect::Top ? edgepix  : height_ - edgepix - 2;
-	al.set( Alignment::Left,
-		setup_.side_==uiRect::Top ? Alignment::Bottom : Alignment::Top);
-    }
-    else
-    {
-	xpix = setup_.side_ == uiRect::Left  ? edgepix + 5
-					     : width_ - edgepix - 5;
-	ypix = pixBefore() + 5;
-	al.set( setup_.side_==uiRect::Left ? Alignment::Left : Alignment::Right,
-		Alignment::VCenter );
-    }
-
-
-    if ( !endannottextitm_ )
-	endannottextitm_ = scene_->addItem( new uiTextItem(txt,al) );
-    else
-	endannottextitm_->setText( txt );
-    endannottextitm_->setPos( uiPoint(xpix,ypix) );
-    endannottextitm_->setZValue( setup_.zval_ );
-    endannottextitm_->setFontData( setup_.fontdata_ );
-}
-
-
-void uiAxisHandler::drawAnnotAtPos( int pix, const uiString& txt,
-				    bool aux, int linetype)
-{
-    const LineStyle& ls = aux ? (linetype==(int)AuxPosData::HighLighted
-					? setup_.auxhllinestyle_
-					: setup_.auxlinestyle_)
-			      : setup_.style_;
-    if ( aux && !setup_.showauxpos_ ) return;
-    if ( setup_.noaxisannot_ || setup_.noannotpos_ ) return;
-    const int edgepix = pixToEdge();
-    const bool inside = setup_.annotinside_;
-    if ( isHor() )
-    {
-	const bool istop = setup_.side_ == uiRect::Top;
-	const int y0 = istop ? edgepix : height_ - edgepix;
-	const int y1 = istop ? ( inside ? y0+ticSz()+calcwdth_ : y0-ticSz() )
-			     : ( inside ? y0-ticSz()-calcwdth_ : y0+ticSz() );
-
-	uiLineItem* annotposlineitm = new uiLineItem();
-	annotposlineitm->setLine( pix, y0, pix, y1 );
-	annotposlineitm->setPenColor( ls.color_ );
-	if ( aux )
-	    auxposlineitmgrp_->add( annotposlineitm );
-	else
-	    annotlineitmgrp_->add( annotposlineitm );
-	Alignment al( Alignment::HCenter,
-		      istop ? inside ? Alignment::Top : Alignment::Bottom
-			    : inside ? Alignment::Bottom : Alignment::Top );
-	uiTextItem* annotpostxtitem =
-	    new uiTextItem( uiPoint(pix,y1), txt, al );
-	annotpostxtitem->setTextColor( ls.color_ );
-
-	if ( linetype>0 )
-	{
-	    BufferString fms;
-	    setup_.fontdata_.putTo( fms );
-	    FontData fd;
-	    fd.getFrom( fms );
-	    fd.setWeight( FontData::Bold );
-	    annotpostxtitem->setFontData( fd );
-	}
-	else
-	    annotpostxtitem->setFontData( setup_.fontdata_ );
-
-	if ( aux )
-	    auxpostxtitmgrp_->add( annotpostxtitem );
-	else
-	    annottxtitmgrp_->add( annotpostxtitem );
-    }
-    else
-    {
-	const bool isleft = setup_.side_ == uiRect::Left;
-	const int x0 = isleft ? edgepix : width_ - edgepix;
-	const int x1 = isleft ? ( inside ? x0+ticSz()+calcwdth_ : x0-ticSz() )
-			      : ( inside ? x0-ticSz()-calcwdth_ : x0+ticSz() );
-	uiLineItem* annotposlineitm = new uiLineItem();
-	annotposlineitm->setLine( x0, pix, x1, pix );
-	annotposlineitm->setPenColor( ls.color_ );
-	if ( aux )
-	    auxposlineitmgrp_->add( annotposlineitm );
-	else
-	    annotlineitmgrp_->add( annotposlineitm );
-	Alignment al( isleft ? Alignment::Right : Alignment::Left,
-		      Alignment::VCenter );
-	uiTextItem* annotpostxtitem =
-	    new uiTextItem( uiPoint(x1,pix), txt, al );
-	annotpostxtitem->setTextColor( ls.color_ );
-	if ( linetype>0 )
-	{
-	    BufferString fms;
-	    setup_.fontdata_.putTo( fms );
-	    FontData fd;
-	    fd.getFrom( fms );
-	    fd.setWeight( FontData::Bold );
-	    annotpostxtitem->setFontData( fd );
-	}
-	else
-	    annotpostxtitem->setFontData( setup_.fontdata_ );
-
-	if ( aux )
-	    auxpostxtitmgrp_->add( annotpostxtitem );
-	else
-	    annottxtitmgrp_->add( annotpostxtitem );
-    }
-}
-
-
-void uiAxisHandler::drawGridLine( int pix, bool isaux, int linetype )
-{
-    if ( setup_.nogridline_ ) return;
-    uiLineItem* lineitem = getFullLine( pix );
-    LineStyle ls( isaux ? (linetype==(int)AuxPosData::HighLighted
-					? setup_.auxhllinestyle_
-					: setup_.auxlinestyle_)
-			      : setup_.style_ );
-    if ( isaux && linetype>0 )
-	ls.width_ = 2;
-    lineitem->setPenStyle( ls );
-    uiGraphicsItemGroup* gridlineitmgrp =
-	!isaux ? gridlineitmgrp_ : auxposgridlineitmgrp_;
-    gridlineitmgrp->add( lineitem );
-    gridlineitmgrp->setVisible( !isaux ? setup_.style_.isVisible()
-				       : setup_.auxlinestyle_.isVisible() );
-}
-
-
-uiLineItem* uiAxisHandler::getFullLine( int pix )
-{
-    const uiAxisHandler* hndlr = beghndlr_ ? beghndlr_ : endhndlr_;
-    int endpix = setup_.border_.get( uiRect::across(setup_.side_) );
-    if ( hndlr )
-    {
-	if ( isHor() )
-	    endpix = setup_.side_==uiRect::Top ? hndlr->pixBefore()
-					       : hndlr->pixAfter();
-	else
-	    endpix = setup_.side_==uiRect::Left ? hndlr->pixAfter()
-						: hndlr->pixBefore();
-    }
-
-    const int startpix = pixToEdge();
-
-    uiLineItem* lineitem = new uiLineItem();
-    const int length = isHor() ? height_ : width_ ;
-    switch ( setup_.side_ )
-    {
-    case uiRect::Top:
-	lineitem->setLine( pix, startpix, pix, length - endpix );
-	break;
-    case uiRect::Bottom:
-	lineitem->setLine( pix, endpix, pix, length - startpix );
-	break;
-    case uiRect::Left:
-	lineitem->setLine( startpix, pix, length - endpix, pix );
-	break;
-    case uiRect::Right:
-	lineitem->setLine( endpix, pix, length - startpix, pix );
-	break;
-    }
-
-    return lineitem;
-}
-
-
-void uiAxisHandler::updateName()
-{
-    if ( !nameitm_ )
-	nameitm_ = scene_->addItem( new uiTextItem( setup_.caption_ ) );
-    else
-	nameitm_->setText( setup_.caption_ );
-
-    Alignment al( Alignment::HCenter, Alignment::VCenter );
-    uiPoint pt;
-    const int namepos = pixToEdge() - ticSz() - calcwdth_;
-    if ( isHor() )
-    {
-	const bool istop = setup_.side_ == uiRect::Top;
-	pt.x = pixBefore() + axsz_/2;
-	pt.y = istop ? namepos : height_-namepos;
-	al.set( istop ? Alignment::Top : Alignment::Bottom );
-    }
-    else
-    {
-	const bool isleft = setup_.side_ == uiRect::Left;
-	pt.x = isleft ? namepos : width_-namepos;
-	pt.y = height_/2 - pixAfter();
-
-	if ( !ynmtxtvertical_ )
-	    nameitm_->setRotation( mCast( float, isleft ? -90 : 90 ) );
-	ynmtxtvertical_ = true;
-    }
-    nameitm_->setPos( pt );
-    nameitm_->setAlignment( al );
-    nameitm_->setZValue( setup_.zval_ );
-    Color col = setup_.nmcolor_ == Color::NoColor() ? setup_.style_.color_
-						    : setup_.nmcolor_;
-    nameitm_->setTextColor( col );
-    nameitm_->setFontData( setup_.fontdata_ );
-}
-
-
-int uiAxisHandler::ticSz() const
-{ return setup_.noaxisannot_ ? 0 : ticsz_; }

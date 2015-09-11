@@ -143,45 +143,37 @@ void uiODViewer2D::setUpAux()
 {
     const bool is2d = geomID() != Survey::GM().cUndefGeomID();
     FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
-    if ( is2d || tkzs_.isFlat() )
+    if ( !is2d && !tkzs_.isFlat() )
+	vwrannot.x1_.showauxannot_ = vwrannot.x2_.showauxannot_ = false;
+    else
     {
-	vwrannot.x1_.showauxpos_ = true;
-	vwrannot.x1_.showauxlines_ = true;
-	if ( !is2d )
+	vwrannot.x1_.showauxannot_ = true;
+	if ( is2d )
 	{
-	    vwrannot.x2_.showauxpos_ = true;
-	    vwrannot.x2_.showauxlines_ = true;
+	    vwrannot.x2_.showauxannot_ = false;
+	    vwrannot.x1_.auxlabel_ = tr( "2D Line intersections" );
+	}
+	else
+	{
+	    vwrannot.x2_.showauxannot_ = true;
 	    uiString& x1auxnm = vwrannot.x1_.auxlabel_;
 	    uiString& x2auxnm = vwrannot.x2_.auxlabel_;
 	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Inl )
 	    {
-		x1auxnm = tr( "Crossline intersections" );
-		x2auxnm = tr( "ZSlice intersections" );
+		x1auxnm = tr( "Cross-line intersections" );
+		x2auxnm = tr( "Z-slice intersections" );
 	    }
 	    else if ( tkzs_.defaultDir()==TrcKeyZSampling::Crl )
 	    {
-		x1auxnm = tr( "Inline intersections" );
-		x2auxnm = tr( "ZSlice intersections" );
+		x1auxnm = tr( "In-line intersections" );
+		x2auxnm = tr( "Z-slice intersections" );
 	    }
 	    else
 	    {
-		x1auxnm = tr( "Inline intersections" );
-		x2auxnm = tr( "Crossline intersections" );
+		x1auxnm = tr( "In-line intersections" );
+		x2auxnm = tr( "Cross-line intersections" );
 	    }
 	}
-	else
-	{
-	    vwrannot.x2_.showauxpos_ = false;
-	    vwrannot.x2_.showauxlines_ = false;
-	    vwrannot.x1_.auxlabel_ = tr( "2D Line intersections" );
-	}
-    }
-    else
-    {
-	vwrannot.x1_.showauxpos_ = false;
-	vwrannot.x1_.showauxlines_ = false;
-	vwrannot.x2_.showauxpos_ = false;
-	vwrannot.x2_.showauxlines_ = false;
     }
 }
 
@@ -490,25 +482,14 @@ void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 
 void uiODViewer2D::posChg( CallBacker* )
 {
-    setNewPosition( slicepos_->getTrcKeyZSampling() );
-}
-
-
-void uiODViewer2D::setNewPosition( const TrcKeyZSampling& tkzs )
-{
-    if ( tkzs_ == tkzs ) return;
-    setTrcKeyZSampling( tkzs );
-    const uiFlatViewer& vwr = viewwin()->viewer(0);
-    if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
-	setUpView( createDataPack(false), false );
-    else if ( vwr.isVisible(true) && wvaselspec_.id().isValid() )
-	setUpView( createDataPack(true), true );
+    setPos( slicepos_->getTrcKeyZSampling() );
 }
 
 
 void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
 {
     if ( tkzs == tkzs_ ) return;
+    setTrcKeyZSampling( tkzs );
     const uiFlatViewer& vwr = viewwin()->viewer(0);
     if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
 	setUpView( createDataPack(false), false );

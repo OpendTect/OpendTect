@@ -148,7 +148,6 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     uiFunctionDisplay::Setup fdsu;
     fdsu.border_.setLeft( 2 );
     fdsu.border_.setRight( 2 );
-    fdsu.epsaroundzero_ = 1e-3;
     fdsu.drawscattery1( true );
     fdsu.drawliney( true );
     fdsu.noy2axis( true );

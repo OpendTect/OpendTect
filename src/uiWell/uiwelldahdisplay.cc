@@ -58,7 +58,7 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 				    .border(s.border_)
 				    .annotinside(s.annotinside_)
 				    .noannot(s.noxannot_)
-				    .noannotpos(true));
+				    .noaxisannot(true));
 	xaxprcts_->setBounds( StepInterval<float>(0,100,25) );
 	xax_.setup().noannot( true );
     }

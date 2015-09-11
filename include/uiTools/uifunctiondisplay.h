@@ -126,7 +126,6 @@ public:
 	mDefSetupMemb(bool,useyscalefory2)
 	mDefSetupMemb(LineStyle,borderstyle)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
-	mDefSetupMemb(float,epsaroundzero)
 	mDefSetupMemb(bool,fixdrawrg)
 	mDefSetupMemb(bool,xannotinint)
 	mDefSetupMemb(bool,yannotinint)

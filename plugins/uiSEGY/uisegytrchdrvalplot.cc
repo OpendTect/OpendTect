@@ -32,7 +32,8 @@ uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh, int tnr0 )
 	tlbl2_->setStretch( 2, 0 ); tlbl2_->setAlignment( Alignment::HCenter );
     }
 
-    uiFunctionDisplay::Setup fdsu; fdsu.pointsz( 3 ).drawscatter( true );
+    uiFunctionDisplay::Setup fdsu;
+    fdsu.pointsz(3).drawscatter(true).noy2axis(true).noy2gridline(true);
     disp_ = new uiFunctionDisplay( this, fdsu );
     disp_->attach( centeredBelow, tlbl2_ ? tlbl2_ : tlbl1_ );
     tlbl1_->attach( widthSameAs, disp_ );

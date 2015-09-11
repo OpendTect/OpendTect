@@ -34,7 +34,7 @@ such as markers, lines and more.
 mExpClass(General) AuxData
 {
 public:
-    
+
     /*!\brief Explains what part of an AuxData's appearance may be edited by
     the user.*/
 
@@ -61,7 +61,7 @@ public:
 
     EditPermissions*		editpermissions_;//!<If null no editing allowed
 
-    bool			enabled_; 	//!<Turns on/off everything
+    bool			enabled_;	//!<Turns on/off everything
     BufferString		name_;
     Alignment			namealignment_;
     int				namepos_;	//!<nodraw=udf, before first=-1,
@@ -71,11 +71,11 @@ public:
 
     TypeSet<Point>		poly_;
     TypeSet<MarkerStyle2D>	markerstyles_;
-    				/*!<- No markerstyles means no markers will be
+				/*!<- No markerstyles means no markers will be
 				      displayed.
 				    - If number of markerstyles is more than
 				      zero, but less than number of points, the
-				      last markerstyle will be used for the 
+				      last markerstyle will be used for the
 				      excess points.
 				*/
 
@@ -112,33 +112,6 @@ public:
 
     mStruct(General) AxisData
     {
-	mStruct(General) AuxPosition
-	{
-	    enum LineType	{ Normal=0, Bold=1, HighLighted=2 };
-	    			AuxPosition()
-				    : pos_(mUdf(float))
-				    , name_(uiString::emptyString())
-				    , linetype_(Normal)	{}
-	    float		pos_;
-	    LineType		linetype_;
-	    bool		isNormal() const{ return linetype_==Normal; }
-	    bool		isBold() const	{ return linetype_==Bold; }
-	    bool		isHighLighted() const
-				{ return linetype_==HighLighted; }
-	    uiString		name_;
-
-	    AuxPosition& operator=( const AuxPosition& from )
-	    {
-		pos_ = from.pos_;
-		linetype_ = from.linetype_;
-		name_ = from.name_;
-		return *this;
-	    }
-
-	    bool 	operator==( const AuxPosition& from ) const
-	    { return pos_ == from.pos_ && linetype_ == from.linetype_; }
-	};
-
 				AxisData();
 
 	BufferString		name_;
@@ -148,14 +121,12 @@ public:
 	bool			reversed_;
 	bool			annotinint_;
 	int			factor_;
-	bool			showauxpos_;
-	bool			showauxlines_;
+	bool			showauxannot_;
 	uiString		auxlabel_;
 	LineStyle		auxlinestyle_;
 	LineStyle		auxhllinestyle_;
-	TypeSet<AuxPosition>	auxposs_;
+	TypeSet<PlotAnnotation> auxannot_;
 	int			auxPosIdx(float pos,float eps) const;
-
 	void			showAll(bool yn);
     };
 
@@ -167,7 +138,6 @@ public:
     Color			color_; //!< For axes
     AxisData			x1_;
     AxisData			x2_;
-    int				auxPosIdx(bool forx1,float pos,float eps) const;
 
     bool			showaux_;
     bool			editable_;
@@ -177,7 +147,7 @@ public:
     inline void		setAxesAnnot( bool yn ) //!< Convenience all or nothing
 			{ x1_.showAll(yn); x2_.showAll(yn); }
     inline bool		haveTitle() const
-    			{ return !title_.isEmpty(); }
+			{ return !title_.isEmpty(); }
     inline bool		haveAxisAnnot( bool x1dir ) const
 			{ return color_.isVisible()
 			      && ( ( x1dir && x1_.showannot_)
@@ -233,7 +203,7 @@ public:
     public:
 
 			VD()
-			: lininterp_(false) {}	
+			: lininterp_(false) {}
 
 	BufferString	ctab_;
 	bool		lininterp_; // Use bi-linear interpol, not poly
@@ -259,12 +229,12 @@ public:
 	float		reflinevalue_;
     };
 
-    			DataDispPars()		{}
+			DataDispPars()		{}
 
     VD			vd_;
     WVA			wva_;
     void		show( bool wva, bool vd )
-    			{ wva_.show_ = wva; vd_.show_ = vd; }
+			{ wva_.show_ = wva; vd_.show_ = vd; }
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -296,7 +266,7 @@ public:
 mExpClass(General) Appearance
 {
 public:
-    			Appearance( bool drkbg=true )
+			Appearance( bool drkbg=true )
 			    : darkbg_(drkbg)
 			    , annot_(drkbg)
 			    , secondsetaxes_(drkbg)
@@ -313,7 +283,7 @@ public:
     //Second set of axes, especially handy in case flat viewer is horizontal
     Annotation		secondsetaxes_;
     float		anglewithset1_;
-    
+
     void		setDarkBG(bool yn);
     bool		darkBG() const		{ return darkbg_; }
 
@@ -323,7 +293,7 @@ protected:
 
     bool		darkbg_;	//!< Two styles: dark (=black)
 					//!< and lite (=white) background
-    					//!< Impacts a lot of display choices
+					//!< Impacts a lot of display choices
 };
 
 
@@ -336,7 +306,7 @@ protected:
   The viewer works with FlatDataPacks - period. in previous versions, you could
   pass 'loose' data but DataPacks are so neat&clean we got rid of this
   possibility.
-  
+
   You can attach many datapacks to the viewer; the different modes (WVA, VD)
   can be attached to zero or one of those packs.
 
@@ -344,19 +314,19 @@ protected:
   usePack() -> sets one of the available packs for wva of vd display
   setPack() -> Combination of addPack and usePack.
   removePack() -> removes this pack from the available packs, if necessary
-  		  it also clears the wva or vd display to no display.
+		  it also clears the wva or vd display to no display.
 */
 
 mExpClass(General) Viewer
 {
 public:
 
-    			Viewer();
+			Viewer();
     virtual		~Viewer();
 
     virtual Appearance&	appearance();
     const Appearance&	appearance() const
-    			{ return const_cast<Viewer*>(this)->appearance(); }
+			{ return const_cast<Viewer*>(this)->appearance(); }
 
     ZAxisTransform*	getZAxisTransform() const
 			{ return datatransform_; }
@@ -369,7 +339,7 @@ public:
 			 use for WVA or VD. DataPack gets released in the
 			 destructor of this class. */
     void		usePack(bool wva,::DataPack::ID,bool usedefs=true );
-    			//!< Does not add new packs, just selects from added
+			//!< Does not add new packs, just selects from added
     void		removePack(::DataPack::ID);
 			//!< Releases DataPack after removing from the list.
     void		setPack(bool wva,::DataPack::ID id,bool usedefs=true)
@@ -393,8 +363,8 @@ public:
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
     void		setVisible(bool wva, bool visibility);
-    			//!< Will also handleChange.
-    			//!< So, do not use unless you want both.
+			//!< Will also handleChange.
+			//!< So, do not use unless you want both.
 
     Coord3		getCoord(const Point&) const;
 
@@ -402,12 +372,12 @@ public:
 			  Annot=0x0004, Auxdata=0x0008 };
     virtual void	handleChange(unsigned int datachangetype)	= 0;
 			/*!<\param datachangetype can be any combination of
-    				   DataChangeType. */
+				   DataChangeType. */
 
-    			//!Does not store any data, just how data is displayed
+			//!Does not store any data, just how data is displayed
     virtual void	fillAppearancePar( IOPar& iop ) const
 			{ appearance().fillPar( iop ); }
-    			/*!Does not retrieve any data, just how data is
+			/*!Does not retrieve any data, just how data is
 			  displayed */
     virtual void	useAppearancePar( const IOPar& iop )
 			{ appearance().usePar( iop ); }
@@ -420,15 +390,15 @@ public:
     virtual void	updateProperties(const AuxData&)	{}
     virtual void	reGenerate(AuxData&)		{}
     virtual void	remove(const AuxData&)		{}
-    
+
     StepInterval<double> getDataPackRange(bool forx1) const;
     virtual Interval<float> getDataRange(bool wva) const;
 
     virtual AuxData*		createAuxData(const char* nm) const	= 0;
 
     virtual int			nrAuxData() const			= 0;
-    virtual AuxData* 		getAuxData(int idx)			= 0;
-    virtual const AuxData* 	getAuxData(int idx) const		= 0;
+    virtual AuxData*		getAuxData(int idx)			= 0;
+    virtual const AuxData*	getAuxData(int idx) const		= 0;
     virtual void		addAuxData(AuxData* a)			= 0;
     virtual AuxData*		removeAuxData(AuxData* a)		= 0;
     virtual AuxData*		removeAuxData(int idx)			= 0;
@@ -438,11 +408,11 @@ public:
     virtual int			getAnnotChoice(BufferStringSet&) const
 				{ return -1; }
     void			enableStatusBarUpdate()
-    				{ needstatusbarupd_ = true; }
+				{ needstatusbarupd_ = true; }
     void			disableStatusBarUpdate()
-    				{ needstatusbarupd_ = false; }
+				{ needstatusbarupd_ = false; }
     bool			needStatusBarUpdate() const
-    				{ return needstatusbarupd_; }
+				{ return needstatusbarupd_; }
 
 protected:
 

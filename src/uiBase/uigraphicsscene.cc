@@ -259,6 +259,17 @@ uiGraphicsItem* uiGraphicsScene::doAddItem( uiGraphicsItem* itm )
 }
 
 
+uiGraphicsItemSet* uiGraphicsScene::addItems( uiGraphicsItemSet* itms )
+{
+    if ( !itms ) return 0;
+
+    for ( int idx=0; idx<itms->size(); idx++ )
+	doAddItem( itms->get(idx) );
+
+    return itms;
+}
+
+
 uiGraphicsItemGroup* uiGraphicsScene::addItemGrp( uiGraphicsItemGroup* itmgrp )
 {
     if ( !itmgrp ) return 0;
@@ -281,10 +292,14 @@ uiGraphicsItem* uiGraphicsScene::removeItem( uiGraphicsItem* itm )
 }
 
 
-void uiGraphicsScene::removeItems( uiGraphicsItemSet& itms )
+uiGraphicsItemSet* uiGraphicsScene::removeItems( uiGraphicsItemSet* itms )
 {
-    for ( int idx=0; idx<itms.size(); idx++ )
-	removeItem( itms[idx] );
+    if ( !itms ) return 0;
+
+    for ( int idx=0; idx<itms->size(); idx++ )
+	removeItem( (*itms)[idx] );
+
+    return itms;
 }
 
 

@@ -170,20 +170,12 @@ int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid,
     vwr2d->setUpView( vwdpid, dowva );
     vwr2d->useStoredDispPars( dowva );
     vwr2d->useStoredDispPars( !dowva );
-    attachNotifiers( vwr2d );
 
-    uiFlatViewer& fv = vwr2d->viewwin()->viewer();
-    FlatView::DataDispPars& ddp = fv.appearance().ddpars_;
+    uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
+    FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     (!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
-    fv.handleChange( FlatView::Viewer::DisplayPars );
-    vwr2d->setUpAux();
-    setAllIntersectionPositions();
-
-    setupHorizon3Ds( vwr2d );
-    setupHorizon2Ds( vwr2d );
-    setupFaults( vwr2d );
-    setupFaultSSs( vwr2d );
-    setupPickSets( vwr2d );
+    vwr.handleChange( FlatView::Viewer::DisplayPars );
+    attachNotifiersAndSetAuxData( vwr2d );
     return vwr2d->id_;
 }
 
@@ -220,40 +212,30 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
     if ( isnewvwr )
     {
-	attachNotifiers( vwr2d );
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 	visServ().fillDispPars( visid, attribid, ddp, dowva );
 	visServ().fillDispPars( visid, attribid, ddp, !dowva );
 	(!dowva ? ddp.wva_.show_ : ddp.vd_.show_) = false;
-	vwr2d->setUpAux();
+	attachNotifiersAndSetAuxData( vwr2d );
     }
 
     vwr.handleChange( FlatView::Viewer::DisplayPars );
-    setAllIntersectionPositions();
-    setupHorizon3Ds( vwr2d );
-    setupHorizon2Ds( vwr2d );
-    setupFaults( vwr2d );
-    setupFaultSSs( vwr2d );
-    setupPickSets( vwr2d );
 }
 
-#define mGetCurViewer \
+
+#define mGetAuxAnnotIdx \
     uiODViewer2D* curvwr2d = find2DViewer( *meh ); \
     if ( !curvwr2d ) return; \
-
-#define mGetAuxPosIdx \
-    mGetCurViewer \
     uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 ); \
     const uiWorldPoint wp = curvwr.getWorld2Ui().transform(meh->event().pos());\
     const Coord3 coord = curvwr.getCoord( wp );\
     if ( coord.isUdf() ) return;\
     const float x1eps  = ((float)curvwr.posRange(true).step)*2.f; \
     const int x1auxposidx = \
-	curvwr.appearance().annot_.auxPosIdx(true,(float)wp.x,x1eps); \
+	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x), x1eps ); \
     const float x2eps  = ((float)curvwr.posRange(false).step)*2.f; \
     const int x2auxposidx = \
-	curvwr.appearance().annot_.auxPosIdx(false,(float)wp.y,x2eps);
-
+	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y), x2eps );
 
 void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 {
@@ -261,15 +243,15 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
     if ( !meh || !meh->hasEvent() )
 	return;
 
-    mGetAuxPosIdx
-    if ( !selauxpos_.isselected_ )
+    mGetAuxAnnotIdx
+    if ( !selauxannot_.isselected_ )
     {
 	if ( curvwr.appearance().annot_.editable_ ) return;
 
-	if ( x1auxposidx<0 && x2auxposidx<0 && selauxpos_.auxposidx_<0 )
+	if ( x1auxposidx<0 && x2auxposidx<0 && selauxannot_.auxposidx_<0 )
 	    return;
 
-	if ( selauxpos_.auxposidx_<0 )
+	if ( selauxannot_.auxposidx_<0 )
 	{
 	    curvwr.rgbCanvas().setDragMode( uiGraphicsViewBase::NoDrag );
 	    MouseCursorManager::mgr()->setOverride(
@@ -278,49 +260,67 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	}
 
 	if ( x1auxposidx>=0 )
-	    selauxpos_ = SelectedAuxPos( x1auxposidx, true, false );
+	    selauxannot_ = SelectedAuxAnnot( x1auxposidx, true, false );
 	else if ( x2auxposidx>=0 )
-	    selauxpos_ = SelectedAuxPos( x2auxposidx, false, false );
-	else if ( selauxpos_.auxposidx_>=0 )
+	    selauxannot_ = SelectedAuxAnnot( x2auxposidx, false, false );
+	else if ( selauxannot_.auxposidx_>=0 )
 	{
 	    reSetPrevDragMode( curvwr2d );
-	    selauxpos_.auxposidx_ = -1;
+	    selauxannot_.auxposidx_ = -1;
 	}
     }
-    else if ( selauxpos_.isValid() && selauxpos_.isselected_ )
+    else if ( selauxannot_.isValid() && selauxannot_.isselected_ )
     {
-	TypeSet<FlatView::Annotation::AxisData::AuxPosition>& xauxposs =
-	    selauxpos_.isx1_ ? curvwr.appearance().annot_.x1_.auxposs_
-	    		     : curvwr.appearance().annot_.x2_.auxposs_;
-	if ( !xauxposs.validIdx(selauxpos_.auxposidx_) )
+	TypeSet<PlotAnnotation>& xauxannot =
+	    selauxannot_.isx1_ ? curvwr.appearance().annot_.x1_.auxannot_
+			     : curvwr.appearance().annot_.x2_.auxannot_;
+	if ( !xauxannot.validIdx(selauxannot_.auxposidx_) )
 	    return;
 
-	FlatView::Annotation::AxisData::AuxPosition& selauxpos =
-	    xauxposs[selauxpos_.auxposidx_];
-	if ( selauxpos.isNormal() )
+	PlotAnnotation& selauxannot = xauxannot[selauxannot_.auxposidx_];
+	if ( selauxannot.isNormal() )
 	    return;
 
 	const StepInterval<double> xrg =
-	    curvwr2d->viewwin()->viewer().posRange( selauxpos_.isx1_ );
-	const int newposidx = xrg.nearestIndex( selauxpos_.isx1_ ? wp.x : wp.y);
+	    curvwr2d->viewwin()->viewer().posRange( selauxannot_.isx1_ );
+	const int newposidx = xrg.nearestIndex( selauxannot_.isx1_
+						? wp.x : wp.y);
 	const float newpos = mCast(float, xrg.atIndex(newposidx) );
-	selauxpos.pos_ = newpos;
+	selauxannot.pos_ = newpos;
 	TrcKeyZSampling::Dir vwr2ddir =
 	    curvwr2d->getTrcKeyZSampling().defaultDir();
-	if ( (vwr2ddir==TrcKeyZSampling::Inl && selauxpos_.isx1_) ||
-	     (vwr2ddir==TrcKeyZSampling::Z && !selauxpos_.isx1_) )
-	    selauxpos.name_ = tr( "CRL %1" ).arg( toString(mNINT32(newpos)) );
-	else if ( (vwr2ddir==TrcKeyZSampling::Crl && selauxpos_.isx1_) ||
-		  (vwr2ddir==TrcKeyZSampling::Z && selauxpos_.isx1_) )
-	    selauxpos.name_ = tr( "INL %1" ).arg( toString(mNINT32(newpos)) );
-	else if ( (vwr2ddir==TrcKeyZSampling::Inl && !selauxpos_.isx1_) ||
-		  (vwr2ddir==TrcKeyZSampling::Crl && !selauxpos_.isx1_) )
-	    selauxpos.name_ = tr( "ZSlice %1" ).arg( toString(newpos) );
+	if ( (vwr2ddir==TrcKeyZSampling::Inl && selauxannot_.isx1_) ||
+	     (vwr2ddir==TrcKeyZSampling::Z && !selauxannot_.isx1_) )
+	    selauxannot.txt_ = tr( "CRL %1" ).arg( toString(mNINT32(newpos)) );
+	else if ( (vwr2ddir==TrcKeyZSampling::Crl && selauxannot_.isx1_) ||
+		  (vwr2ddir==TrcKeyZSampling::Z && selauxannot_.isx1_) )
+	    selauxannot.txt_ = tr( "INL %1" ).arg( toString(mNINT32(newpos)) );
+	else if ( (vwr2ddir==TrcKeyZSampling::Inl && !selauxannot_.isx1_) ||
+		  (vwr2ddir==TrcKeyZSampling::Crl && !selauxannot_.isx1_) )
+	    selauxannot.txt_ = tr( "ZSlice %1" ).arg( toString(newpos) );
     }
 
-    setAuxPosLineStyles( curvwr );
+    setAuxAnnotLineStyles( curvwr, true );
+    setAuxAnnotLineStyles( curvwr, false );
     curvwr.handleChange( FlatView::Viewer::Annot );
 }
+
+
+void uiODViewer2DMgr::setAuxAnnotLineStyles( uiFlatViewer& vwr, bool forx1 )
+{
+    FlatView::Annotation& annot = vwr.appearance().annot_;
+    TypeSet<PlotAnnotation>& auxannot = forx1 ? annot.x1_.auxannot_
+					      : annot.x2_.auxannot_;
+    for ( int idx=0; idx<auxannot.size(); idx++ )
+	if ( !auxannot[idx].isNormal() )
+	    auxannot[idx].linetype_ = PlotAnnotation::Bold;
+
+    const int selannotidx = selauxannot_.auxposidx_;
+    if ( !(forx1^selauxannot_.isx1_) && auxannot.validIdx(selannotidx) )
+	if ( !auxannot[selannotidx].isNormal() )
+	    auxannot[selannotidx].linetype_ = PlotAnnotation::HighLighted;
+}
+
 
 void uiODViewer2DMgr::reSetPrevDragMode( uiODViewer2D* curvwr2d )
 {
@@ -335,115 +335,78 @@ void uiODViewer2DMgr::reSetPrevDragMode( uiODViewer2D* curvwr2d )
 }
 
 
-void uiODViewer2DMgr::setAuxPosLineStyles(uiFlatViewer& curvwr )
+void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 {
-    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x1auxpos =
-	curvwr.appearance().annot_.x1_.auxposs_;
-    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x2auxpos =
-	curvwr.appearance().annot_.x2_.auxposs_;
-    const FlatView::Annotation::AxisData::AuxPosition::LineType boldltype =
-	FlatView::Annotation::AxisData::AuxPosition::Bold;
-    const FlatView::Annotation::AxisData::AuxPosition::LineType hlltype =
-	FlatView::Annotation::AxisData::AuxPosition::HighLighted;
-    for ( int x1idx=0; x1idx<x1auxpos.size(); x1idx++ )
-    {
-	FlatView::Annotation::AxisData::AuxPosition& idxauxpos =x1auxpos[x1idx];
-	if ( idxauxpos.isNormal() )
-	    continue;
-	const bool tobehighlighted =
-	    selauxpos_.isx1_ && x1idx==selauxpos_.auxposidx_;
-	if ( idxauxpos.isHighLighted() && !tobehighlighted )
-	    idxauxpos.linetype_ = boldltype;
-	else if ( tobehighlighted && !idxauxpos.isHighLighted() )
-	    idxauxpos.linetype_ = hlltype;
-    }
-
-    for ( int x2idx=0; x2idx<x2auxpos.size(); x2idx++ )
-    {
-	FlatView::Annotation::AxisData::AuxPosition& idxauxpos =x2auxpos[x2idx];
-	if ( idxauxpos.isNormal() )
-	    continue;
-	const bool tobehighlighted =
-	    !selauxpos_.isx1_ && x2idx==selauxpos_.auxposidx_;
-	if ( idxauxpos.isHighLighted() && !tobehighlighted )
-	    idxauxpos.linetype_ = boldltype;
-	else if ( tobehighlighted && !idxauxpos.isHighLighted() )
-	    idxauxpos.linetype_ = hlltype;
-    }
-}
-
-
-void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* curvwr2d )
-{
-    uiFlatViewer& curvwr = curvwr2d->viewwin()->viewer( 0 );
+    if ( !vwr2d ) return;
+    uiFlatViewer& vwr = vwr2d->viewwin()->viewer( 0 );
     uiODViewer2D* clickedvwr2d = 0;
-    const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
-    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& auxposs =
-	selauxpos_.isx1_ ? curvwr.appearance().annot_.x1_.auxposs_
-			 : curvwr.appearance().annot_.x2_.auxposs_;
+    const TrcKeyZSampling& tkzs = vwr2d->getTrcKeyZSampling();
+    TypeSet<PlotAnnotation>& auxannot =
+	selauxannot_.isx1_ ? vwr.appearance().annot_.x1_.auxannot_
+			   : vwr.appearance().annot_.x2_.auxannot_;
     if ( TrcKey::is2D(tkzs.hsamp_.survid_) )
     {
-	if ( selauxpos_.auxposidx_<0 ||
-	     auxposs[selauxpos_.auxposidx_].isNormal())
+	if ( selauxannot_.auxposidx_<0 ||
+	     auxannot[selauxannot_.auxposidx_].isNormal())
 	    return;
 
 	Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
 					      mUdf(int), mUdf(int) );
-	const float auxpos = auxposs[selauxpos_.auxposidx_].pos_;
-	intpoint2d = intersectingLineID( curvwr2d, auxpos );
+	const float auxpos = auxannot[selauxannot_.auxposidx_].pos_;
+	intpoint2d = intersectingLineID( vwr2d, auxpos );
 	if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
 	   return;
 	clickedvwr2d = find2DViewer( intpoint2d.line );
     }
     else
     {
-	if ( !tkzs.isFlat() || selauxpos_.auxposidx_<0 )
+	if ( !tkzs.isFlat() || selauxannot_.auxposidx_<0 )
 	    return;
 
 	TrcKeyZSampling clickedtkzs;
 	TrcKeyZSampling newposkzs;
 	if ( tkzs.defaultDir()==TrcKeyZSampling::Inl )
 	{
-	    if ( selauxpos_.isx1_ )
+	    if ( selauxannot_.isx1_ )
 	    {
-		const int auxpos = mNINT32( selauxpos_.oldauxpos_ );
+		const int auxpos = mNINT32( selauxannot_.oldauxpos_ );
 		clickedtkzs.hsamp_.setTrcRange(
 			Interval<int>(auxpos,auxpos) );
 		const int newauxpos =
-		    mNINT32( auxposs[selauxpos_.auxposidx_].pos_ );
+		    mNINT32( auxannot[selauxannot_.auxposidx_].pos_ );
 		newposkzs.hsamp_.setTrcRange(
 			Interval<int>(newauxpos,newauxpos) );
 	    }
 	    else
 	    {
-		const float auxpos = selauxpos_.oldauxpos_;
+		const float auxpos = selauxannot_.oldauxpos_;
 		clickedtkzs.zsamp_ =
-		    StepInterval<float>( auxpos, auxpos, 
+		    StepInterval<float>( auxpos, auxpos,
 					 clickedtkzs.zsamp_.step );
-		const float newauxpos = auxposs[selauxpos_.auxposidx_].pos_;
+		const float newauxpos = auxannot[selauxannot_.auxposidx_].pos_;
 		newposkzs.zsamp_ = StepInterval<float>( newauxpos, newauxpos,
 							newposkzs.zsamp_.step );
 	    }
 	}
 	else if ( tkzs.defaultDir()==TrcKeyZSampling::Crl )
 	{
-	    if ( selauxpos_.isx1_ )
+	    if ( selauxannot_.isx1_ )
 	    {
-		const int auxpos = mNINT32(selauxpos_.oldauxpos_);
+		const int auxpos = mNINT32(selauxannot_.oldauxpos_);
 		clickedtkzs.hsamp_.setLineRange(
 			Interval<int>(auxpos,auxpos) );
 		const int newauxpos =
-		    mNINT32(auxposs[selauxpos_.auxposidx_].pos_);
+		    mNINT32(auxannot[selauxannot_.auxposidx_].pos_);
 		newposkzs.hsamp_.setLineRange(
 			Interval<int>(newauxpos,newauxpos) );
 	    }
 	    else
 	    {
-		const float auxpos = selauxpos_.oldauxpos_;
+		const float auxpos = selauxannot_.oldauxpos_;
 		clickedtkzs.zsamp_ =
 		    StepInterval<float>( auxpos, auxpos,
 					 clickedtkzs.zsamp_.step );
-		const float newauxpos = auxposs[selauxpos_.auxposidx_].pos_;
+		const float newauxpos = auxannot[selauxannot_.auxposidx_].pos_;
 		newposkzs.zsamp_ = StepInterval<float>( newauxpos, newauxpos,
 							newposkzs.zsamp_.step );
 	    }
@@ -451,9 +414,10 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* curvwr2d )
 	}
 	else if ( tkzs.defaultDir()==TrcKeyZSampling::Z )
 	{
-	    const int auxpos = mNINT32(selauxpos_.oldauxpos_);
-	    const int newauxpos = mNINT32(auxposs[selauxpos_.auxposidx_].pos_);
-	    if ( selauxpos_.isx1_ )
+	    const int auxpos = mNINT32(selauxannot_.oldauxpos_);
+	    const int newauxpos =
+				mNINT32(auxannot[selauxannot_.auxposidx_].pos_);
+	    if ( selauxannot_.isx1_ )
 	    {
 		clickedtkzs.hsamp_.setLineRange(
 			Interval<int>(auxpos,auxpos) );
@@ -468,17 +432,16 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* curvwr2d )
 			Interval<int>(newauxpos,newauxpos) );
 	    }
 	}
-	
+
 	clickedvwr2d = find2DViewer( clickedtkzs );
 	if ( clickedvwr2d )
-	    clickedvwr2d->setNewPosition( newposkzs );
+	    clickedvwr2d->setPos( newposkzs );
 	setAllIntersectionPositions();
     }
-    
-    selauxpos_.isselected_ = false;
-    selauxpos_.oldauxpos_ = mUdf(float);
-    reSetPrevDragMode( curvwr2d );
 
+    selauxannot_.isselected_ = false;
+    selauxannot_.oldauxpos_ = mUdf(float);
+    reSetPrevDragMode( vwr2d );
     if ( clickedvwr2d )
 	clickedvwr2d->viewwin()->dockParent()->raise();
 }
@@ -491,9 +454,7 @@ void uiODViewer2DMgr::mouseClickedCB( CallBacker* cb )
 	 (!meh->event().rightButton() && !meh->event().leftButton()) )
 	return;
 
-    mGetCurViewer
-
-    handleLeftClick( curvwr2d );
+    handleLeftClick( find2DViewer(*meh) );
 }
 
 
@@ -504,45 +465,36 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	 (!meh->event().rightButton() && !meh->event().leftButton()) )
 	return;
 
-    mGetAuxPosIdx
- 
+    mGetAuxAnnotIdx
+
     if ( meh->event().leftButton() )
     {
 	if ( curvwr.appearance().annot_.editable_ ||
-	     curvwr2d->geomID()!=Survey::GM().cUndefGeomID() )
+	     curvwr2d->geomID()!=mUdfGeomID || (x1auxposidx<0 && x2auxposidx<0))
 	    return;
 
-	if ( x1auxposidx>=0 || x2auxposidx>=0 )
-	{
-	    if ( x1auxposidx>=0 )
-	    {
-		selauxpos_ = SelectedAuxPos( x1auxposidx, true, true );
-		selauxpos_.oldauxpos_ =
-		    curvwr.appearance().annot_.x1_.auxposs_[x1auxposidx].pos_;
-	    }
-	    else if ( x2auxposidx>=0 )
-	    {
-		selauxpos_ = SelectedAuxPos( x2auxposidx, false, true );
-		selauxpos_.oldauxpos_ =
-		    curvwr.appearance().annot_.x2_.auxposs_[x2auxposidx].pos_;
-	    }
-	}
-
+	const bool isx1auxannot = x1auxposidx>=0;
+	const int auxannotidx = isx1auxannot ? x1auxposidx : x2auxposidx;
+	const FlatView::Annotation::AxisData& axisdata =
+			isx1auxannot ? curvwr.appearance().annot_.x1_
+				     : curvwr.appearance().annot_.x2_;
+	selauxannot_ = SelectedAuxAnnot( auxannotidx, isx1auxannot, true );
+	selauxannot_.oldauxpos_ = axisdata.auxannot_[auxannotidx].pos_;
 	return;
     }
 
     uiMenu menu( "Menu" );
     Line2DInterSection::Point intpoint2d( Survey::GM().cUndefGeomID(),
-	    				  mUdf(int), mUdf(int) );
+					  mUdf(int), mUdf(int) );
     const TrcKeyZSampling& tkzs = curvwr2d->getTrcKeyZSampling();
     if ( tkzs.hsamp_.survid_ == Survey::GM().get2DSurvID() )
     {
 	if ( x1auxposidx>=0 &&
-	     curvwr.appearance().annot_.x1_.auxposs_[x1auxposidx].isNormal() )
+	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
 	{
 	    intpoint2d = intersectingLineID( curvwr2d, (float) wp.x );
 	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
-	       return;	
+	       return;
 	    const uiString show2dtxt = m3Dots(tr("Show Line '%1'")).arg(
 					Survey::GM().getName(intpoint2d.line) );
 	    menu.insertAction( new uiAction(show2dtxt), 0 );
@@ -551,10 +503,10 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     else
     {
 	const BinID bid = SI().transform( coord );
-	const uiString showinltxt =
-	    m3Dots(tr("Show In-line %1")).arg( bid.inl() );
-	const uiString showcrltxt =
-	    m3Dots(tr("Show Cross-line %1")).arg( bid.crl());
+	const uiString showinltxt
+			= m3Dots(tr("Show In-line %1")).arg( bid.inl() );
+	const uiString showcrltxt
+			= m3Dots(tr("Show Cross-line %1")).arg( bid.crl());
 	const uiString showztxt = m3Dots(tr("Show Z-slice %1"))
 		.arg( mNINT32(coord.z*curvwr2d->zDomain().userFactor()) );
 
@@ -569,7 +521,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     }
 
     menu.insertAction( new uiAction("Properties..."), 4 );
-    
+
     const int menuid = menu.exec();
     if ( menuid>=0 && menuid<4 )
     {
@@ -646,18 +598,11 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
 
-    attachNotifiers( vwr2d );
-    vwr2d->setUpAux();
-    setAllIntersectionPositions();
-    setupHorizon3Ds( vwr2d );
-    setupHorizon2Ds( vwr2d );
-    setupFaults( vwr2d );
-    setupFaultSSs( vwr2d );
-    setupPickSets( vwr2d );
+    attachNotifiersAndSetAuxData( vwr2d );
 }
 
 
-void uiODViewer2DMgr::attachNotifiers( uiODViewer2D* vwr2d )
+void uiODViewer2DMgr::attachNotifiersAndSetAuxData( uiODViewer2D* vwr2d )
 {
     mAttachCB( vwr2d->viewWinClosed, uiODViewer2DMgr::viewWinClosedCB );
     if ( vwr2d->slicePos() )
@@ -673,6 +618,14 @@ void uiODViewer2DMgr::attachNotifiers( uiODViewer2D* vwr2d )
 	mAttachCB( vwr.rgbCanvas().getMouseEventHandler().buttonReleased,
 		   uiODViewer2DMgr::mouseClickedCB );
     }
+
+    vwr2d->setUpAux();
+    setAllIntersectionPositions();
+    setupHorizon3Ds( vwr2d );
+    setupHorizon2Ds( vwr2d );
+    setupFaults( vwr2d );
+    setupFaultSSs( vwr2d );
+    setupPickSets( vwr2d );
 }
 
 
@@ -750,7 +703,7 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( const TrcKeyZSampling& tkzs )
 {
     if ( !tkzs.isFlat() )
 	return 0;
-    
+
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
 	if ( viewers2d_[idx]->getTrcKeyZSampling() == tkzs )
@@ -764,15 +717,14 @@ uiODViewer2D* uiODViewer2DMgr::find2DViewer( const TrcKeyZSampling& tkzs )
 void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 {
     TrcKeyZSampling::Dir vwr2ddir = vwr2d->getTrcKeyZSampling().defaultDir();
-    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x1intposs =
-	vwr2d->viewwin()->viewer().appearance().annot_.x1_.auxposs_;
-    TypeSet<FlatView::Annotation::AxisData::AuxPosition>& x2intposs =
-	vwr2d->viewwin()->viewer().appearance().annot_.x2_.auxposs_;
-    x1intposs.erase(); x2intposs.erase();
-    const FlatView::Annotation::AxisData::AuxPosition::LineType boldltype =
-	FlatView::Annotation::AxisData::AuxPosition::Bold;
+    TypeSet<PlotAnnotation>& x1intannots =
+	vwr2d->viewwin()->viewer().appearance().annot_.x1_.auxannot_;
+    TypeSet<PlotAnnotation>& x2intannots =
+	vwr2d->viewwin()->viewer().appearance().annot_.x2_.auxannot_;
+    x1intannots.erase(); x2intannots.erase();
+    const PlotAnnotation::LineType boldltype = PlotAnnotation::Bold;
 
-    if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() ) 
+    if ( vwr2d->geomID()!=Survey::GM().cUndefGeomID() )
     {
 	reCalc2DIntersetionIfNeeded( vwr2d->geomID() );
 	const int intscidx = intersection2DIdx( vwr2d->geomID() );
@@ -785,20 +737,20 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	Attrib::DescSet* ads2dns = Attrib::eDSHolder().getDescSet( true, true );
 	const Attrib::Desc* wvadesc =
 	    ads2d->getDesc( vwr2d->selSpec(true).id() );
-       	if ( !wvadesc )
+	if ( !wvadesc )
 	    wvadesc = ads2dns->getDesc( vwr2d->selSpec(true).id() );
 	const Attrib::Desc* vddesc =
 	    ads2d->getDesc( vwr2d->selSpec(false).id() );
-       	if ( !vddesc )
+	if ( !vddesc )
 	    vddesc = ads2dns->getDesc( vwr2d->selSpec(false).id() );
 
 	if ( !wvadesc && !vddesc )
 	    return;
 
 	const SeisIOObjInfo wvasi( wvadesc ? wvadesc->getStoredID(true)
-				     	   : vddesc->getStoredID(true) );
+					   : vddesc->getStoredID(true) );
 	const SeisIOObjInfo vdsi( vddesc ? vddesc->getStoredID(true)
-				   	 : wvadesc->getStoredID(true));
+					 : wvadesc->getStoredID(true));
 	BufferStringSet wvalnms, vdlnms;
 	wvasi.getLineNames( wvalnms );
 	vdsi.getLineNames( vdlnms );
@@ -821,14 +773,14 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		intsect->getPoint( intposidx );
 	    if ( !commongids.isPresent(intpos.line) )
 		continue;
-	    FlatView::Annotation::AxisData::AuxPosition newpos;
+	    PlotAnnotation newannot;
 	    if ( find2DViewer(intpos.line) )
-		newpos.linetype_ = boldltype;
+		newannot.linetype_ = boldltype;
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
-	    newpos.pos_ = mCast(float,x1rg.atIndex(posidx));
-	    newpos.name_ = Survey::GM().getName( intpos.line );
-	    x1intposs += newpos;
+	    newannot.pos_ = mCast(float,x1rg.atIndex(posidx));
+	    newannot.txt_ = Survey::GM().getName( intpos.line );
+	    x1intannots += newannot;
 	}
     }
     else
@@ -841,52 +793,52 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 	    if ( vwr2d == idxvwr || vwr2ddir==idxvwrdir )
 		continue;
 
-	    FlatView::Annotation::AxisData::AuxPosition newpos;
-	    newpos.linetype_ = boldltype;
+	    PlotAnnotation newannot;
+	    newannot.linetype_ = boldltype;
 
 	    if ( vwr2ddir==TrcKeyZSampling::Inl )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Crl )
 		{
-		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
-		    newpos.name_ = tr( "CRL %1" ).arg( toString(newpos.pos_) );
-		    x1intposs += newpos;
+		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
+		    newannot.txt_ = tr( "CRL %1" ).arg( newannot.pos_ );
+		    x1intannots += newannot;
 		}
 		else
 		{
-		    newpos.pos_ = idxvwrtkzs.zsamp_.start;
-		    newpos.name_ = tr( "ZSlice %1" ).arg(toString(newpos.pos_));
-		    x2intposs += newpos;
+		    newannot.pos_ = idxvwrtkzs.zsamp_.start;
+		    newannot.txt_ = tr( "ZSlice %1" ).arg(newannot.pos_);
+		    x2intannots += newannot;
 		}
 	    }
 	    else if ( vwr2ddir==TrcKeyZSampling::Crl )
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
-		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
-		    newpos.name_ = tr( "INL %1" ).arg( toString(newpos.pos_) );
-		    x1intposs += newpos;
+		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
+		    newannot.txt_ = tr( "INL %1" ).arg( newannot.pos_ );
+		    x1intannots += newannot;
 		}
 		else
 		{
-		    newpos.pos_ = idxvwrtkzs.zsamp_.start;
-		    newpos.name_ = tr( "ZSlice %1" ).arg(toString(newpos.pos_));
-		    x2intposs += newpos;
+		    newannot.pos_ = idxvwrtkzs.zsamp_.start;
+		    newannot.txt_ = tr( "ZSlice %1" ).arg(newannot.pos_);
+		    x2intannots += newannot;
 		}
 	    }
 	    else
 	    {
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
-		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
-		    newpos.name_ = tr( "INL %1" ).arg( toString(newpos.pos_) );
-		    x1intposs += newpos;
+		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.inlRange().start;
+		    newannot.txt_ = tr( "INL %1" ).arg( newannot.pos_ );
+		    x1intannots += newannot;
 		}
 		else
 		{
-		    newpos.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
-		    newpos.name_ = tr( "CRL %1" ).arg( toString(newpos.pos_) );
-		    x2intposs += newpos;
+		    newannot.pos_ = (float) idxvwrtkzs.hsamp_.crlRange().start;
+		    newannot.txt_ = tr( "CRL %1" ).arg( newannot.pos_ );
+		    x2intannots += newannot;
 		}
 	    }
 	}
@@ -925,11 +877,11 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
 	const uiODViewer2D* vwr2d, float intpos ) const
 {
     Line2DInterSection::Point udfintpoint( Survey::GM().cUndefGeomID(),
-	    				   mUdf(int), mUdf(int) );
+					   mUdf(int), mUdf(int) );
     const int intsecidx = intersection2DIdx( vwr2d->geomID() );
     if ( intsecidx<0 )
 	return udfintpoint;
-    
+
     const Line2DInterSection* int2d = (*l2dintersections_)[intsecidx];
     if ( !int2d ) return udfintpoint;
 
@@ -1025,7 +977,6 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	}
     }
 }
-
 
 
 void uiODViewer2DMgr::removeHorizon3D( EM::ObjectID emid )
