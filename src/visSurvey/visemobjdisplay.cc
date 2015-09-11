@@ -680,7 +680,6 @@ void EMObjectDisplay::updatePosAttrib( int attrib )
     markerset->setMarkerStyle( emobject_->getPosAttrMarkerStyle(attrib) );
     markerset->setDisplayTransformation(transformation_);
     markerset->setMaximumScale( (float) 10*lineStyle()->width_ );
-    markerset->setScreenSize( mDefaultSize );
     markerset->clearMarkers();
 
     for ( int idx=0; idx<pids->size(); idx++ )
