@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistopbotimage.h"
 #include "zaxistransform.h"
 #include "zdomain.h"
+#include "uistrings.h"
 
 
 mCreateFactoryEntry( visSurvey::Scene )
@@ -108,10 +109,10 @@ void Scene::updateAnnotationText()
 	return;
 
     if ( SI().inlRange(true).width() )
-	annot_->setText( 0, "In-line" );
+	annot_->setText( 0, uiStrings::sInline() );
 
     if ( SI().crlRange(true).width() )
-	annot_->setText( 1, "Cross-line" );
+	annot_->setText( 1, uiStrings::sCrossline() );
 
     if ( SI().zRange(true).width() )
 	annot_->setText( 2, zDomainUserName() );
@@ -277,8 +278,8 @@ void Scene::setZDomainInfo( const ZDomain::Info& zdinf )
 const char* Scene::zDomainKey() const
 { return zdomaininfo_->key(); }
 
-const char* Scene::zDomainUserName() const
-{ return zdomaininfo_->userName(); }
+uiString Scene::zDomainUserName() const
+{ return mToUiStringTodo(zdomaininfo_->userName()); }
 
 const char* Scene::zDomainUnitStr( bool withparens ) const
 { return zdomaininfo_->unitStr( withparens ); }

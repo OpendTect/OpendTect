@@ -479,7 +479,7 @@ void uiGraphicsItem::setCursor( const MouseCursor& cursor )
 void uiGraphicsItem::setToolTip( const uiString& tt )
 {
     tooltip_ = tt;
-    qgraphicsitem_->setToolTip( tt.getQtString() );
+    qgraphicsitem_->setToolTip( tt.getQString() );
 }
 
 
@@ -511,7 +511,7 @@ int uiGraphicsItem::getZValue() const
 
 void uiGraphicsItem::translateText()
 {
-    qgraphicsitem_->setToolTip( tooltip_.getQtString() );
+    qgraphicsitem_->setToolTip( tooltip_.getQString() );
 }
 
 

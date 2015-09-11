@@ -77,7 +77,7 @@ int uiTabBar::addTab( uiTab* tab )
     if ( !tab ) return -1;
     tabs_ += tab;
     tab->group().display( tabs_.size()==1 );
-    return body_->insertTab( tabs_.size(), tab->getCaption().getQtString() );
+    return body_->insertTab( tabs_.size(), tab->getCaption().getQString() );
 }
 
 

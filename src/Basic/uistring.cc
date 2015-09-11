@@ -172,7 +172,9 @@ bool uiStringData::fillQString( QString& res,
 #ifndef OD_NO_QT
     Threads::Locker contentlocker( contentlock_ );
     if ( !originalstring_ || !*originalstring_ )
+    {
 	return false;
+    }
 
     bool translationres = false;
 
@@ -234,7 +236,7 @@ bool uiStringData::fillQString( QString& res,
 	else if ( translator )
 	    arguments_[idx].translate( *translator, thearg );
 	else
-	    thearg = arguments_[idx].getQtString();
+	    thearg = arguments_[idx].getQString();
 
 	res = res.arg( thearg );
     }
@@ -368,12 +370,28 @@ bool uiString::isCacheValid() const
 }
 
 
-const QString& uiString::getQtString() const
+const QString& uiString::getQString() const
 {
-#ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
     Threads::Locker contentlocker( data_->contentlock_ );
 
+    return getQStringInternal();
+}
+
+
+const QString& uiString::fillQString( QString& res ) const
+{
+    Threads::Locker datalocker( datalock_ );
+    Threads::Locker contentlocker( data_->contentlock_ );
+
+    res = getQStringInternal();
+    return res;
+}
+
+
+const QString& uiString::getQStringInternal() const
+{
+#ifndef OD_NO_QT
     if ( !isCacheValid() )
     {
 	data_->fillQString( data_->qstring_, 0, false );
@@ -395,11 +413,9 @@ wchar_t* uiString::createWCharString() const
 {
 #ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
-    QString qstr;
     Threads::Locker contentlocker( data_->contentlock_ );
-    data_->fillQString( qstr, 0, false );
-    if ( !qstr.size() )
-	return 0;
+
+    const QString qstr = getQStringInternal();
 
     contentlocker.unlockNow();
     datalocker.unlockNow();
@@ -465,8 +481,8 @@ uiString& uiString::set( const char* str )
 bool uiString::operator>(const uiString& b ) const
 {
 #ifndef OD_NO_QT
-    const QString& aqstr = getQtString();
-    const QString& bqstr = b.getQtString();
+    const QString& aqstr = getQString();
+    const QString& bqstr = b.getQString();
     return aqstr > bqstr;
 #else
     return true;
@@ -477,8 +493,8 @@ bool uiString::operator>(const uiString& b ) const
 bool uiString::operator<(const uiString& b ) const
 {
 #ifndef OD_NO_QT
-    const QString& aqstr = getQtString();
-    const QString& bqstr = b.getQtString();
+    const QString& aqstr = getQString();
+    const QString& bqstr = b.getQString();
     return aqstr < bqstr;
 #else
     return true;
@@ -674,7 +690,7 @@ uiString uiStringSet::createOptionString( bool use_and,
 void uiString::getHexEncoded( BufferString& str ) const
 {
 #ifndef OD_NO_QT
-    const QString qstr = getQtString();
+    const QString qstr = getQString();
     const QString hex( qstr.toUtf8().toHex() );
 
     str = BufferString( hex );

@@ -88,7 +88,6 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 mExpClass(Basic) uiString
 { mODTextTranslationClass(uiString);
 public:
-
 		uiString();
 		uiString(const uiString&);	//!< no copy, ref counted
 		~uiString();
@@ -122,27 +121,31 @@ public:
 
 
     /*! Results: */
-    const OD::String&	getFullString() const;
+    const OD::String&		getFullString() const;
 				/*!< Full string, *without* translation
 				    result is in a thread-safe static buffer,
 				    so copy the result before calling again. */
-    wchar_t*		createWCharString() const;
+    wchar_t*			createWCharString() const;
 				/*!< The translation. Result becomes owner's and
 				    should be deleted using the [] operator. */
-    const char*		getOriginalString() const;
-    const mQtclass(QString)& getQtString() const;
+    const char*			getOriginalString() const;
+    const mQtclass(QString)&	getQString() const;
+				/*!<Returns reference, so could be unsafe */
+    const mQtclass(QString)&	fillQString(QString&) const;
+				/*!<Fully thread-safe. Returns input*/
 
-    void		getHexEncoded(BufferString&) const;
-    			/*!<Encodes translated string into a const char*
-			    buffer that can has only 0-9 A-F */
-    bool		setFromHexEncoded(const char*);
-    			//!Reads hex-data and sets the translated string.
+    void			getHexEncoded(BufferString&) const;
+				/*!<Encodes translated string into a const char*
+				    buffer that can has only 0-9 A-F */
+    bool			setFromHexEncoded(const char*);
+				//!Reads hex-data and sets the translated str.
 private:
 
 #ifdef __debug__
     char*	str_;		//!< Contains getFullString() for easy debugging
 #endif
     bool			isCacheValid() const;
+    const mQtclass(QString)&	getQStringInternal() const;
 
     friend class		uiStringData;
     uiStringData*		data_;
@@ -235,6 +238,7 @@ mGlobal(Basic) uiString toUiString(double,int nrdec);
 //User when string should be revisited later
 #define mToUiStringTodo(i) toUiString(i)
 #define mFromUiStringTodo(i) i.getFullString()
+
 
 //Legacy Will be removed
 mGlobal(Basic) inline uiString mkUiString(const char* var)

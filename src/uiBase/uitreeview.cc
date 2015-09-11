@@ -411,7 +411,7 @@ void uiTreeView::addColumns( const uiStringSet& lbls )
     for ( int idx=0; idx<lbls.size(); idx++ )
     {
 	body_->fixedColWidth() += 0;
-	qlist.append( lbls[idx].getQtString() );
+	qlist.append( lbls[idx].getQString() );
     }
 
     body_->setHeaderLabels( qlist );
@@ -432,7 +432,7 @@ void uiTreeView::setColumnText( int col, const uiString& label )
 	labels_ += uiString();
 
     labels_[col] = label;
-    body_->headerItem()->setText( col, label.getQtString() );
+    body_->headerItem()->setText( col, label.getQString() );
 }
 
 
@@ -734,7 +734,7 @@ void uiTreeView::translateText()
     {
 	if ( idx<labels_.size() )
 	{
-	    body_->headerItem()->setText( idx, labels_[idx].getQtString() );
+	    body_->headerItem()->setText( idx, labels_[idx].getQString() );
 	}
     }
 }
@@ -812,7 +812,7 @@ void uiTreeViewItem::setText( const uiString& txt, int column )
 	texts_ += uiString();
 
     texts_[column] = txt;
-    qtreeitem_->setText( column, txt.getQtString() );
+    qtreeitem_->setText( column, txt.getQString() );
     setToolTip( column, txt );
 }
 
@@ -834,7 +834,7 @@ void uiTreeViewItem::translateText()
 {
     for ( int idx=0; idx<texts_.size(); idx++ )
     {
-	qtreeitem_->setText( idx, texts_[idx].getQtString() );
+	qtreeitem_->setText( idx, texts_[idx].getQString() );
 	updateToolTip( idx );
     }
 
@@ -1122,7 +1122,7 @@ bool uiTreeViewItem::updateToolTip( int column )
     if ( uiMain::isNameToolTipUsed() )
 	qtreeitem_->setToolTip( column, "" ); // no name-tooltip for tree items
 
-    qtreeitem_->setToolTip( column, tooltips_[column].getQtString() );
+    qtreeitem_->setToolTip( column, tooltips_[column].getQString() );
 
     return true;
 }

@@ -735,7 +735,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     body_->construct( setup.nrstatusflds_, setup.withmenubar_ );
     body_->setWindowIconText( setup.caption_.isEmpty()
 		? "OpendTect"
-		: setup.caption_.getQtString() );
+		: setup.caption_.getQString() );
     body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 }
@@ -761,7 +761,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( caption_.isEmpty()
 			     ? "OpendTect"
-			     : caption_.getQtString() );
+			     : caption_.getQString() );
     ctrlCPressed.notify( mCB(this,uiMainWin,copyToClipBoardCB) );
 
     mAttachCB( TrMgr().languageChange, uiMainWin::languageChangeCB );
@@ -849,7 +849,7 @@ void uiMainWin::setCaption( const uiString& txt )
 void uiMainWin::updateCaption()
 {
     uniquecaption_ = uniqueWinTitle(caption_,body_,0);
-    body_->setWindowTitle( uniquecaption_.getQtString() );
+    body_->setWindowTitle( uniquecaption_.getQString() );
 }
 
 
@@ -963,7 +963,7 @@ void uiMainWin::setIcon( const uiPixmap& pm )
 { body_->setWindowIcon( *pm.qpixmap() ); }
 
 void uiMainWin::setIconText( const uiString& txt)
-{ body_->setWindowIconText( txt.getQtString() ); }
+{ body_->setWindowIconText( txt.getQString() ); }
 
 void uiMainWin::saveSettings()
 { body_->saveSettings(); }

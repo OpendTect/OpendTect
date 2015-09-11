@@ -375,7 +375,7 @@ void uiObject::updateToolTip(CallBacker*)
 	qwidget()->setToolTip( namestr.buf() );
     }
     else
-	qwidget()->setToolTip( tooltip_.getQtString() );
+	qwidget()->setToolTip( tooltip_.getQString() );
 }
 
 

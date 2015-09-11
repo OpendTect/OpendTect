@@ -40,9 +40,9 @@ int size() const
 void message( const uiString& msg, int idx, int msecs )
 {
     if ( msgs_.validIdx(idx) && msgs_[idx] )
-	msgs_[idx]->setText(msg.getQtString());
+	msgs_[idx]->setText(msg.getQString());
     else if ( !msg.isEmpty() )
-	qthing()->showMessage( msg.getQtString(), msecs<0?0:msecs );
+	qthing()->showMessage( msg.getQString(), msecs<0?0:msecs );
     else
 	qthing()->clearMessage();
 }
@@ -79,13 +79,13 @@ Color getBGColor( int idx )
 
 int addMsgFld( const uiString& lbltxt, int stretch )
 {
-    QLabel* lbl = new QLabel( lbltxt.getQtString() );
+    QLabel* lbl = new QLabel( lbltxt.getQString() );
     int idx = msgs_.size();
     msgs_ += lbl;
 
     if ( !lbltxt.isEmpty() )
     {
-	QLabel* txtlbl = new QLabel( lbltxt.getQtString() );
+	QLabel* txtlbl = new QLabel( lbltxt.getQString() );
 	lbl->setBuddy( txtlbl );
 
 	qthing()->addWidget( txtlbl );
@@ -224,7 +224,7 @@ void uiStatusBar::setToolTip( int idx, const uiString& tooltip )
     if ( !body_->msgs_.validIdx(idx) ) return;
 
     if ( !tooltip.isEmpty() && body_->msgs_[idx] )
-	body_->msgs_[idx]->setToolTip( tooltip.getQtString() );
+	body_->msgs_[idx]->setToolTip( tooltip.getQString() );
 }
 
 
@@ -243,5 +243,5 @@ void uiStatusBar::setLabelTxt( int idx, const uiString& lbltxt )
 
     QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs_[idx]->buddy());
 
-    if ( lbl ) lbl->setText( lbltxt.getQtString() );
+    if ( lbl ) lbl->setText( lbltxt.getQString() );
 }

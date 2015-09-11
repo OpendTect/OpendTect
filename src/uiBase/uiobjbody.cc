@@ -496,12 +496,12 @@ uiSize uiObjectBody::actualsize( bool include_border ) const
 
 void uiObjectBody::setToolTip( const uiString& txt )
 {
-    qwidget()->setToolTip( txt.getQtString() );
+    qwidget()->setToolTip( txt.getQString() );
 }
 
 
 void uiObjectBody::uisetCaption( const uiString& str )
-    { qwidget()->setWindowTitle( str.getQtString() ); }
+    { qwidget()->setWindowTitle( str.getQString() ); }
 
 i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
     { return new i_uiLayoutItem( mngr , *this ); }

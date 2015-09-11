@@ -157,7 +157,7 @@ void uiComboBox::setPixmap( int index, const uiPixmap& pixmap )
 {
     if ( index >= 0 && index < body_->count() )
     {
-	body_->setItemText( index, itemstrings_[index].getQtString() );
+	body_->setItemText( index, itemstrings_[index].getQString() );
 	body_->setItemIcon( index, *pixmap.qpixmap() );
     }
 }
@@ -220,7 +220,7 @@ const char* uiComboBox::textOfItem( int idx ) const
     if ( idx < 0 || idx >= body_->count() ) return sKey::EmptyString();
 
     if ( itemstrings_.validIdx(idx) && (isReadOnly() ||
-	 body_->itemText(idx)==itemstrings_[idx].getQtString()) )
+	 body_->itemText(idx)==itemstrings_[idx].getQString()) )
     {
 	rettxt_ = itemstrings_[idx].getFullString();
     }
@@ -266,7 +266,7 @@ void uiComboBox::setItemText( int idx, const uiString& txt )
     if ( idx >= 0 && idx < body_->count() )
     {
 	adjustWidth( txt );
-	body_->setItemText( idx, txt.getQtString() );
+	body_->setItemText( idx, txt.getQString() );
 	itemstrings_[idx] = txt;
     }
 }
@@ -305,7 +305,7 @@ void uiComboBox::addItem( const uiString& txt, int id )
 {
     mBlockCmdRec;
     adjustWidth( txt );
-    body_->addItem( txt.getQtString() );
+    body_->addItem( txt.getQString() );
     itemids_ += id;
     itemstrings_ += txt;
 }
@@ -333,7 +333,7 @@ void uiComboBox::insertItem( const uiString& txt, int index, int id )
 {
     mBlockCmdRec;
     adjustWidth( txt );
-    body_->insertItem( index, txt.getQtString() );
+    body_->insertItem( index, txt.getQString() );
     itemids_.insert( index, id );
     itemstrings_.insert( index, txt );
 }
@@ -344,7 +344,7 @@ void uiComboBox::insertItem( const uiPixmap& pm, const uiString& txt,
 {
     mBlockCmdRec;
     adjustWidth( txt );
-    body_->insertItem( index, *pm.qpixmap(), txt.getQtString() );
+    body_->insertItem( index, *pm.qpixmap(), txt.getQString() );
     itemids_.insert( index, id );
     itemstrings_.insert( index, txt );
 }
@@ -426,7 +426,7 @@ void uiComboBox::translateText()
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	body_->setItemText( idx, itemstrings_[idx].getQtString() );
+	body_->setItemText( idx, itemstrings_[idx].getQString() );
     }
 }
 

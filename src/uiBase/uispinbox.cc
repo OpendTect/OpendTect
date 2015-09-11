@@ -420,7 +420,7 @@ void uiSpinBox::setStep( double stp, bool snapcur )
 void uiSpinBox::setPrefix( const uiString& pfx )
 {
     prefix_ = pfx;
-    body_->setPrefix( pfx.getQtString() );
+    body_->setPrefix( pfx.getQString() );
 }
 
 
@@ -433,7 +433,7 @@ uiString uiSpinBox::prefix() const
 void uiSpinBox::setSuffix( const uiString& sfx )
 {
     suffix_ = sfx;
-    body_->setSuffix( sfx.getQtString() );
+    body_->setSuffix( sfx.getQString() );
 }
 
 
@@ -445,8 +445,8 @@ uiString uiSpinBox::suffix() const
 
 void uiSpinBox::translateText()
 {
-    body_->setSuffix( suffix_.getQtString() );
-    body_->setPrefix( prefix_.getQtString() );
+    body_->setSuffix( suffix_.getQString() );
+    body_->setPrefix( prefix_.getQString() );
 }
 
 

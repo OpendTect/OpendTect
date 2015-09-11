@@ -123,7 +123,7 @@ uiString uiDockWin::getDockName() const
 }
 
 void uiDockWin::setDockName( const uiString& nm )
-{ body_->qwidget()->setObjectName( nm.getQtString() ); }
+{ body_->qwidget()->setObjectName( nm.getQString() ); }
 
 uiGroup* uiDockWin::topGroup()
 { return body_->uiCentralWidg(); }

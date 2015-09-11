@@ -128,7 +128,7 @@ int uiFont::avgWidth() const
 
 int uiFont::width(const uiString& str) const
 {
-    return qfontmetrics_.width( str.getQtString() );
+    return qfontmetrics_.width( str.getQString() );
 }
 
 
@@ -379,7 +379,7 @@ static bool getFont( mQtclass(QFont)& qfontout,
     bool ok = false;
     qfontout = mQtclass(QFontDialog)::getFont( &ok, qfontin,
 			par ? par->getWidget() : 0,
-			nm.getQtString() );
+			nm.getQString() );
     return ok;
 }
 

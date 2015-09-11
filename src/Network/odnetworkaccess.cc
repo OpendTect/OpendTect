@@ -374,7 +374,7 @@ bool Network::uploadFile( const char* url, const char* localfname,
     if ( !res ) errmsg = up.uiMessage();
     else if ( retmsg )
     {
-	retmsg->setFrom( up.uiMessage().getQtString() );
+	retmsg->setFrom( up.uiMessage().getQString() );
     }
     return res;
 }
@@ -395,7 +395,7 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
     if ( !res ) errmsg = up.uiMessage();
     else if ( retmsg )
     {
-	retmsg->setFrom( up.uiMessage().getQtString() );
+	retmsg->setFrom( up.uiMessage().getQString() );
     }
     return res;
 }

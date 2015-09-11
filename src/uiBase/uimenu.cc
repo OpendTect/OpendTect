@@ -108,7 +108,7 @@ static CallBackSet& interceptors_ = *new CallBackSet;
 uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
-    , qmenu_( new mQtclass(QMenu)(txt.getQtString(),p ? p->getWidget() : 0))
+    , qmenu_( new mQtclass(QMenu)(txt.getQString(),p ? p->getWidget() : 0))
     , text_(txt)
 {
     setIcon( pmnm );
@@ -118,7 +118,7 @@ uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
 uiMenu::uiMenu( const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )
     , submenuaction_( 0 )
-    , qmenu_(new mQtclass(QMenu)(txt.getQtString()))
+    , qmenu_(new mQtclass(QMenu)(txt.getQString()))
     , text_(txt)
 {
     setIcon( pmnm );
