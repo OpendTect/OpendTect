@@ -89,17 +89,17 @@ bool HorizonPainter3D::addPolyLine()
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( !emobj ) return false;
-    
+
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
     if ( !hor3d ) return false;
-    
+
     for ( int ids=0; ids<hor3d->nrSections(); ids++ )
     {
 	EM::SectionID sid = hor3d->sectionID( ids );
 	SectionMarker3DLine* secmarkerln = new SectionMarker3DLine;
 	markerline_ += secmarkerln;
 	FlatView::AuxData* seedauxdata = viewer_.createAuxData( 0 );
-	
+
 	seedauxdata->enabled_ = seedenabled_;
 	seedauxdata->poly_.erase();
 	seedauxdata->markerstyles_ += markerstyle_;
@@ -108,10 +108,10 @@ bool HorizonPainter3D::addPolyLine()
 	markerseeds_ = new Marker3D;
 	markerseeds_->marker_ = seedauxdata;
 	markerseeds_->sectionid_ = sid;
-	
+
 	bool newmarker = true;
 	bool coorddefined = true;
-	
+
 	Marker3D* marker = 0;
 	BinID bid;
 
@@ -151,7 +151,7 @@ bool HorizonPainter3D::addPolyLine()
 	    int inlfromcs = bid.inl();
 	    const Coord3 crd = hor3d->getPos( sid, bid.toInt64() );
 	    EM::PosID posid( id_, sid, bid.toInt64() );
-	    
+
 	    if ( !crd.isDefined() )
 	    {
 		coorddefined = false;
@@ -163,7 +163,7 @@ bool HorizonPainter3D::addPolyLine()
 		coorddefined = true;
 		newmarker = true;
 	    }
-	    
+
 	    if ( newmarker )
 	    {
 		generateNewMarker( *hor3d, sid, *secmarkerln, marker );
@@ -173,7 +173,7 @@ bool HorizonPainter3D::addPolyLine()
 	    addDataToMarker( bid, crd, posid, *hor3d, *marker );
 	}
     }
-    
+
     return true;
 }
 
@@ -251,7 +251,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 	    {
 		if ( emobject->hasBurstAlert() )
 		    return;
-		
+
 		const BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
 		const TrcKey tk = Survey::GM().traceKey(
 			Survey::GM().default3DSurvID(), bid.inl(), bid.crl() );
@@ -260,7 +260,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		    changePolyLinePosition( cbdata.pid0 );
 		    viewer_.handleChange( FlatView::Viewer::Auxdata );
 		}
-		
+
 		break;
 	    }
 	case EM::EMObjectCallbackData::BurstAlert:
@@ -289,15 +289,19 @@ void HorizonPainter3D::changePolyLineColor()
 {
     EM::EMObject* emobj = EM::EMM().getObject( id_ );
     if ( !emobj ) return;
-    
+
     for ( int idx=0; idx<markerline_.size(); idx++ )
     {
 	SectionMarker3DLine* secmarkerlines = markerline_[idx];
 	Color prefcol = emobj->preferredColor();
 	prefcol.setTransparency( 0 );
+	const int width = emobj->preferredLineStyle().width_;
 
 	for ( int markidx=0; markidx<secmarkerlines->size(); markidx++ )
+	{
 	    (*secmarkerlines)[markidx]->marker_->linestyle_.color_ = prefcol;
+	    (*secmarkerlines)[markidx]->marker_->linestyle_.width_ = width;
+	}
     }
 
     viewer_.handleChange( FlatView::Viewer::Auxdata );
@@ -356,7 +360,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 		    }
 		}
 	    }
-	    
+
 	    if ( crd.isDefined() )
 	    {
 		if ( path_ )
