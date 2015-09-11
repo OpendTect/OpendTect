@@ -996,7 +996,7 @@ void RandomTrackDisplay::geomChangeCB( CallBacker* cb )
     }
     else if ( cd.ev_ == Geometry::RandomLine::ChangeData::Moved )
     {
-	if ( canDisplayInteractively() )
+	if ( originalresolution_ >= 0 )
 	{
 	    resolution_ = originalresolution_;
 	    originalresolution_ = -1;
@@ -1521,7 +1521,7 @@ void RandomTrackDisplay::setPixelDensity( float dpi )
 
 void RandomTrackDisplay::draggerMoveFinished( CallBacker* )
 {
-    if ( canDisplayInteractively() )
+    if ( originalresolution_ >= 0 )
     {
 	resolution_ = originalresolution_;
 	originalresolution_ = -1;

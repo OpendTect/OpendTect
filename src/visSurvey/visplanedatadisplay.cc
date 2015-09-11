@@ -413,7 +413,7 @@ void PlaneDataDisplay::draggerFinish( CallBacker* )
     if ( cs!=snappedcs )
 	setDraggerPos( snappedcs );
 
-    if ( canDisplayInteractively() )
+    if ( originalresolution_ >= 0 )
     {
 	setResolution( originalresolution_, 0 );
 	originalresolution_ = -1;
