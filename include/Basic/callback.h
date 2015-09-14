@@ -70,26 +70,28 @@ public:
 
     inline bool		willCall() const
 			{ return (obj_ && fn_) || sfn_; }
-    void		doCall(CallBacker*);
+    void		doCall(CallBacker*) const;
 
     inline CallBacker*			cbObj()			{ return obj_; }
     inline const CallBacker*		cbObj() const		{ return obj_; }
     inline CallBackFunction		cbFn() const		{ return fn_; }
     inline StaticCallBackFunction	scbFn() const		{ return sfn_; }
 
-    static bool				addToMainThread(CallBack,
-							CallBacker* =0);
-					/*!< Unconditionally add this to main
-					  event loop.*/
+    static bool		addToMainThread(const CallBack&, CallBacker* =0);
+                        /*!< Unconditionally add this to main event loop.
+                         For thread safety, the removeFromMainThread()
+                         must be called in the destructor. */
 
-    static bool				callInMainThread(CallBack,
-							 CallBacker* =0);
-					/*!<If in main thread or no event-loop
-					    is present, it will be called
-					    directly. Otherwise, it will be
-					    put on event loop.
-					\returns true if the callback was called
-						 directly */
+    static bool		callInMainThread(const CallBack&, CallBacker* =0);
+                        /*!<If in main thread or no event-loop is present, it
+                            will be called directly. Otherwise, it will be
+                            put on event loop.
+                            For thread safety, the removeFromMainThread()
+                            must be called in the destructor.
+                            \returns true if the callback was called directly.
+                        */
+    static void		removeFromMainThread(const CallBacker*);
+
 
     // See also mEnsureExecutedInMainThread macro
 

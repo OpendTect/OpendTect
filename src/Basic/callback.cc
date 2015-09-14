@@ -26,19 +26,30 @@ public:
     bool event( QEvent* )
     {
 	Threads::Locker locker( receiverlock_ );
-	for ( int idx=0; idx<cbs_.size(); idx++ )
+	if ( queue_.size() )
 	{
-	    cbs_[idx].doCall( cbers_[idx] );
+	    pErrMsg("Queue should be empty");
 	}
+
+	queue_ = cbs_;
+	ObjectSet<CallBacker> cbers( cbers_ );
 
 	cbs_.erase();
 	cbers_.erase();
+	locker.unlockNow();
 
+	for ( int idx=0; idx<queue_.size(); idx++ )
+	{
+	    queue_[idx].doCall( cbers[idx] );
+	}
+
+	locker.reLock();
+	queue_.erase();
 
 	return true;
     }
 
-    void add( CallBack& cb, CallBacker* cber )
+    void add( const CallBack& cb, CallBacker* cber )
     {
 	Threads::Locker locker( receiverlock_ );
 
@@ -47,25 +58,66 @@ public:
 	    QCoreApplication::postEvent( this, new QEvent(QEvent::None) );
 	}
 
+        toremove_.addIfNew( cb.cbObj() );
+
 	cbs_ += cb;
 	cbers_ += cber;
     }
 
-    void remove( CallBack& cb )
+    void removeBy( const CallBacker* cber )
     {
-	Threads::Locker locker( receiverlock_ );
-	const int idx = cbs_.indexOf( cb );
-	if ( idx>=0 )
-	{
-	    cbs_.removeSingle( idx );
-	    cbers_.removeSingle( idx );
-	}
+        Threads::Locker locker( receiverlock_ );
+
+        for ( int idx=cbs_.size()-1; idx>=0; idx-- )
+        {
+            if ( cbs_[idx].cbObj()==cber )
+            {
+                cbs_.removeSingle( idx );
+                cbers_.removeSingle( idx );
+            }
+        }
+
+        //Check that it is not presently running
+        bool found = true;
+        while ( found )
+        {
+            found = false;
+
+            for ( int idx=queue_.size()-1; idx>=0; idx-- )
+            {
+                if ( queue_[idx].cbObj()==cber )
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if ( found )
+            {
+                locker.unlockNow();
+                Threads::sleep( 0.01 );
+                locker.reLock();
+            }
+        }
+
+        toremove_ -= cber;
+    }
+
+    bool isPresent( const CallBacker* cber )
+    {
+        Threads::Locker locker( receiverlock_ );
+        return toremove_.isPresent( cber );
     }
 
 private:
 
+    TypeSet<CallBack>		queue_;
+
     TypeSet<CallBack>		cbs_;
     ObjectSet<CallBacker>	cbers_;
+
+    ObjectSet<const CallBacker>	toremove_;
+
     Threads::Lock		receiverlock_;
 };
 
@@ -111,6 +163,22 @@ CallBacker::~CallBacker()
 	//Remove them now.
 	detachAllNotifiers();
     }
+#ifndef OD_NO_QT
+# if __debug__
+    QEventLoopReceiver* rec = getQELR();
+    if ( rec->isPresent(this) )
+    {
+        CallBack::removeFromMainThread( this );
+
+        pErrMsg("Main thread execution not removed");
+        /* The inhetriting class (probably a ui-class) has called
+           the execute in main-thread functionality. If so,
+           you have to call the removeFromMainThread. */
+    }
+# else
+    CallBack::removeFromMainThread( this );		
+# endif
+#endif
 }
 
 
@@ -238,7 +306,7 @@ void CallBack::initClass()
 }
 
 
-void CallBack::doCall( CallBacker* cber )
+void CallBack::doCall( CallBacker* cber ) const
 {
     if ( obj_ && fn_ )
 	(obj_->*fn_)( cber );
@@ -247,7 +315,7 @@ void CallBack::doCall( CallBacker* cber )
 }
 
 
-bool CallBack::addToMainThread( CallBack cb, CallBacker* cber )
+bool CallBack::addToMainThread( const CallBack& cb, CallBacker* cber )
 {
 #ifdef OD_NO_QT
     return false;
@@ -275,13 +343,24 @@ bool CallBack::queueIfNotInMainThread( CallBack cb, CallBacker* cber )
 }
 
 
-bool CallBack::callInMainThread( CallBack cb, CallBacker* cber )
+bool CallBack::callInMainThread( const CallBack& cb, CallBacker* cber )
 {
     if ( addToMainThread( cb, cber ) )
 	return false;
 
     cb.doCall( cber );
     return true;
+}
+
+
+void CallBack::removeFromMainThread( const CallBacker* cber )
+{
+#ifdef OD_NO_QT
+    return false;
+#else
+    QEventLoopReceiver* rec = getQELR();
+    rec->removeBy( cber );
+#endif
 }
 
 
