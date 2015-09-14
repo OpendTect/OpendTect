@@ -336,7 +336,7 @@ bool Engine::trackInVolume()
 
     actionCalled.trigger();
 
-    EM::EMM().undo().removeAllBeforeCurrentEvent();
+//    EM::EMM().undo().removeAllBeforeCurrentEvent();
     undoeventid_ = EM::EMM().undo().currentEventID();
     htm->setSeeds( seeds );
     htm->startFromSeeds();

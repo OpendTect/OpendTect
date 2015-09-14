@@ -410,7 +410,7 @@ Interval<float> Horizon3D::getZRange() const
 
 
 Array2D<float>* Horizon3D::createArray2D(
-		    SectionID sid, const ZAxisTransform* zaxistransform ) const
+		SectionID sid, const ZAxisTransform* zaxistransform ) const
 {
     const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
@@ -464,7 +464,8 @@ bool Horizon3D::setArray2D( Array2D<float>* array, const BinID& start,
 
 
 bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
-			    bool onlyfillundefs, const char* undodesc )
+			    bool onlyfillundefs, const char* undodesc,
+			    bool trimundefs )
 {
     const Geometry::BinIDSurface* geom = geometry_.sectionGeometry( sid );
     if ( !geom || geom->isEmpty() )
@@ -521,7 +522,8 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
     setBurstAlert(false);
     geometry().sectionGeometry( sid )->blockCallBacks( false, true );
     geometry().enableChecks( didcheck );
-    geometry().sectionGeometry( sid )->trimUndefParts();
+    if ( trimundefs )
+	geometry().sectionGeometry( sid )->trimUndefParts();
 
     if ( oldarr )
     {

@@ -188,7 +188,6 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 	curcolrg.stop = newcol;
     }
 
-
     StepInterval<int> currowrg = surf->rowRange();
     const StepInterval<int> targetrowrg( origin.row(),
 	origin.row()+currowrg.step*(arr.info().getSize(0)-1), currowrg.step );
@@ -217,14 +216,14 @@ bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 	Array2DPaste( tmparr, arr, currowrg.nearestIndex( targetrowrg.start ),
 		      curcolrg.nearestIndex( targetcolrg.start ), false );
 
-	return horizon_->setArray2D( tmparr, sid_, false, 0 );
+	return horizon_->setArray2D( tmparr, sid_, false, 0, true );
     }
 
     const RowCol start( targetrowrg.start, targetcolrg.start );
     const RowCol stop( targetrowrg.stop, targetcolrg.stop );
     horizon_->geometry().sectionGeometry(sid_)->expandWithUdf( start, stop );
 
-    return horizon_->setArray2D( arr, sid_, false, 0 );
+    return horizon_->setArray2D( arr, sid_, false, 0, false );
 }
 
 
