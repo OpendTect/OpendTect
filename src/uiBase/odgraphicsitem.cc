@@ -557,10 +557,10 @@ void ODGraphicsAdvancedTextItem::paint( QPainter* painter,
 	boundrec.translate( 0., 0. );
 	break;
     case Alignment::VCenter:
-	boundrec.translate( 0., -boundingRect().height()/2. );
+	boundrec.translate( 0., -boundrec.height()/2. );
 	break;
     case Alignment::Bottom:
-	boundrec.translate( 0., -boundingRect().height() );
+	boundrec.translate( 0., -boundrec.height() );
 	break;
     }
 
