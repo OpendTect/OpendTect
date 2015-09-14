@@ -56,8 +56,8 @@ void uiColTabItem::ajustLabel()
 	 : (setup_.startal_.vPos() == Alignment::Top	? rect.top()
 							: rect.bottom());
 
-	al = Alignment( setup_.stopal_.hPos(),
-			Alignment::opposite(setup_.stopal_.vPos()) );
+	al = Alignment( setup_.startal_.hPos(),
+			Alignment::opposite(setup_.startal_.vPos()) );
 	minvalitm_->setAlignment( al );
 	minvalitm_->setPos( mCast(float,rect.left()), mCast(float,starty) );
 
