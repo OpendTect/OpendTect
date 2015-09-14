@@ -325,7 +325,7 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     showinlprogressfld_->attach( ensureBelow, lbl );
 
     setts_.getYN( SettingsAccess::sKeyShowCrlProgress(), showcrlprogress_ );
-    showcrlprogressfld_ = new uiGenInput( this, uiStrings::sInline(mPlural),
+    showcrlprogressfld_ = new uiGenInput( this, uiStrings::sCrossline(mPlural),
 					  BoolInpSpec(showcrlprogress_) );
     showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
 
