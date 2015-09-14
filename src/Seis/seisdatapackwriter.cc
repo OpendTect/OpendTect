@@ -69,6 +69,11 @@ od_int64 SeisDataPackWriter::totalNr() const
 
 int SeisDataPackWriter::nextStep()
 {
+    const int cubestartz =
+	mNINT32(cube_.sampling().zsamp_.start/cube_.sampling().zsamp_.step);
+    const Interval<int> cubezrg( cubestartz,
+				 cubestartz+cube_.sampling().nrZ()-1 );
+
     if ( !writer_ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid_ );
@@ -77,12 +82,6 @@ int SeisDataPackWriter::nextStep()
 
 	writer_ = new SeisTrcWriter( ioobj );
 
-	const int startz =
-	    mNINT32(cube_.sampling().zsamp_.start/cube_.sampling().zsamp_.step);
-	const Interval<int> cubezrg( startz, startz+cube_.sampling().nrZ()-1 );
-	if ( !cubezrg.includes( zrg_.start,false ) ||
-	     !cubezrg.includes( zrg_.stop,false ) )
-	    zrg_ = cubezrg;
 
 	const int trcsz = zrg_.width()+1;
 	trc_ = new SeisTrc( trcsz );
@@ -119,8 +118,13 @@ int SeisDataPackWriter::nextStep()
     {
 	for ( int zidx=0; zidx<=zrg_.width(); zidx++ )
 	{
-	    const float value =
-	       cube_.data(cubeindices_[idx]).get(inlidx,crlidx,zidx+zrg_.start);
+	    const int zsample = zidx+zrg_.start;
+	    const int cubesample = zsample - cubestartz;
+
+	    const float value = cubezrg.includes( zsample, false )
+		? cube_.data(cubeindices_[idx]).get(inlidx,crlidx,cubesample)
+		: mUdf(float);
+
 	    trc_->set( zidx, value, idx );
 	}
     }
