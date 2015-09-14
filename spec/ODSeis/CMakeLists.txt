@@ -5,6 +5,6 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET( OD_MODULE_DEPS Seis )
-SET( OD_MODULE_PROGS od_cbvs_browse.cc )
+set( OD_MODULE_DEPS Seis )
+set( OD_MODULE_PROGS od_cbvs_browse.cc )
 OD_INIT_MODULE()
