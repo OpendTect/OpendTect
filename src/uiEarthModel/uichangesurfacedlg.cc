@@ -147,7 +147,8 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	if ( !usedhor3d )
 	    return false;
 	const EM::SectionID usedsid = usedhor3d->geometry().sectionID( idx );
-	if ( !usedhor3d->setArray2D(*arr, usedsid, fillUdfsOnly(), undoText()) )
+	if ( !usedhor3d->setArray2D(*arr,usedsid,fillUdfsOnly(),
+				    undoText(),false) )
 	{
 	    uiString msg = tr("Cannot set new data to section %1").arg(usedsid);
 	    ErrMsg( msg.getFullString() ); continue;

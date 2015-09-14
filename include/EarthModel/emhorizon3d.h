@@ -120,7 +120,7 @@ public:
 					      const ZAxisTransform* zt=0) const;
     bool			setArray2D(const Array2D<float>&,SectionID,
 					   bool onlyfillundefs,
-					   const char* histdesc);
+					   const char* histdesc,bool trimundef);
 				/*!< Returns true on succes.  If histdesc
 				     is set, the event will be saved to
 				     history with the desc. */
