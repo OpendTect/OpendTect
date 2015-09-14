@@ -31,8 +31,10 @@ ObjectSet<ZDomain::Def>& DEFS()
     {
         ManagedObjectSet<ZDomain::Def>* newdefs =
         				new ManagedObjectSet<ZDomain::Def>;
-        *newdefs += new ZDomain::Def( ZDomain::sKeyTime(), "Time", "ms", 1000 );
-	*newdefs += new ZDomain::Def( ZDomain::sKeyDepth(), "Depth", "", 1 );
+        *newdefs += new ZDomain::Def( ZDomain::sKeyTime(),
+				      uiStrings::sTime(), "ms", 1000 );
+	*newdefs += new ZDomain::Def( ZDomain::sKeyDepth(),
+				      uiStrings::sDepth(), "", 1 );
 
         if ( !defs.setIfNull( newdefs ) )
             delete newdefs;
