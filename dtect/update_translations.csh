@@ -148,7 +148,7 @@ if ( -e ${pluralpro} ) then
 endif
 
 #Copy results back
-cp -f *.ts ${binarydir}/data/localizations/generated
+rsync --checksum *.ts ${binarydir}/data/localizations/generated
 
 #Remvoe temporary dir
 \rm -rf  ${tmpoddir}
