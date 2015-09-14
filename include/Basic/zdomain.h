@@ -47,8 +47,13 @@ public:
     void		set(IOPar&) const;	//!< Only key
 
     const char*		key() const		{ return key_; }
-    const char*		userName() const	{ return usrnm_; }
+    uiString		userName() const	{ return usrnm_; }
     int			userFactor() const	{ return usrfac_; }
+
+    uiString		getLabel() const;
+			//!<Username and unit
+    uiString		getRange() const;
+			//!< <username> Range
 
     const char*		unitStr(bool withparens=false) const;
     			//In case of depth, ft or m will come from SurvInfo
@@ -64,7 +69,7 @@ public:
 			{ return key_ == def.key_; }
 
     // For plugins:
-    			Def( const char* ky, const char* usrnm,
+			Def( const char* ky, const uiString& usrnm,
 				const char* defun, int usrfac=1 )
 			    : key_(ky), usrnm_(usrnm)
 			    , defunit_(defun), usrfac_(usrfac)	{}
@@ -73,7 +78,7 @@ public:
 protected:
 
     BufferString	key_;
-    BufferString	usrnm_;
+    uiString	usrnm_;
     BufferString	defunit_;
     int			usrfac_; // usually 1 or 1000, not FeetFac
 };
@@ -102,9 +107,10 @@ public:
 
     // Convenience
     const char*		key() const		{ return def_.key(); }
-    const char*		userName() const	{ return def_.userName(); }
+    uiString		userName() const	{ return def_.userName(); }
     const char*		unitStr(bool wp=false) const
     						{ return def_.unitStr(wp); }
+    uiString		getLabel() const	{ return def_.getLabel(); }
     int			userFactor() const	{ return def_.userFactor(); }
 
 };

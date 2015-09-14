@@ -96,6 +96,9 @@ public:
     bool	isSet() const			{ return !isEmpty(); }
     bool	isEmpty() const;
     void	setEmpty();
+    uiString&	toLower(bool yn=true);
+		/*!<Set output to lowercase, if allowed by language
+		    This is applied before eventual arguments. */
     bool	operator!() const		{ return isEmpty(); }
 
     uiString&	operator=(const uiString&);	//!< no copy, ref counted

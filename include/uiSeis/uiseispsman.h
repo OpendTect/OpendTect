@@ -25,6 +25,7 @@ public:
     mDeclInstanceCreatedNotifierAccess(uiSeisPreStackMan);
 
 protected:
+    static uiString	createCaption(bool for2d);
 
     bool		is2d_;
 

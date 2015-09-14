@@ -58,7 +58,7 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 }
 
 
-void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
+void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 				 const StepInterval<float>* inplimitrg )
 {
     const float zfac = mCast( float, zddef_.userFactor() );
@@ -79,11 +79,13 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 	    			  mNINT32(limitrg.stop), mNINT32(limitrg.step));
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
-    BufferString ltxt( lbltxt );
+    uiString ltxt( lbltxt );
     if ( ltxt.isEmpty() )
-	{ ltxt = zddef_.userName(); ltxt += " range"; }
-    ltxt.add( " " ).add( zddef_.unitStr(true) );
-    uiLabel* lbl = new uiLabel( this, ltxt, startfld_ );
+	ltxt = zddef_.getRange();
+
+    uiLabel* lbl = new uiLabel( this,
+		uiStrings::phrJoinStrings( ltxt, zddef_.unitStr(true)),
+		startfld_ );
 
     stopfld_ = new uiSpinBox( this, nrdecimals, "Z stop" );
     stopfld_->attach( rightOf, startfld_ );

@@ -239,14 +239,14 @@ public:
     const char*		columnLabel(int) const;
     const char*		columnLabel( const RowCol& rc ) const
 			    { return columnLabel(rc.col()); }
-    void		setColumnLabel(int,const char*); // also sets tooltip
+    void		setColumnLabel(int,const uiString&); //also sets tooltip
     void		setColumnLabels(const char**);
     void		setColumnLabels(const BufferStringSet&);
-    void		setColumnLabel( const RowCol& rc, const char* lbl )
+    void		setColumnLabel( const RowCol& rc, const uiString& lbl )
 			    { setColumnLabel( rc.col(), lbl ); }
-    void		setColumnToolTip(int,const char*);
+    void		setColumnToolTip(int,const uiString&);
 
-    void		setCellToolTip(const RowCol&,const char*);
+    void		setCellToolTip(const RowCol&,const uiString&);
 
     void		setDefaultRowLabels();
     void		setDefaultColLabels();

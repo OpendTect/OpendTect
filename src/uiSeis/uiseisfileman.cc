@@ -276,10 +276,11 @@ void uiSeisFileMan::mkFileInfo()
 		{ txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
 	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
 		{ txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
-	    float area = SI().getArea( cs.hsamp_.inlRange(), cs.hsamp_.crlRange() );
+	    float area = SI().getArea( cs.hsamp_.inlRange(),
+				       cs.hsamp_.crlRange() );
 	    txt.add("\nArea: ").add( getAreaString( area, true, 0 ) );
 
-	    txt.add("\n").add(zddef.userName()).add(" range ")
+	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
 		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start)
 		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
 		.add(" [") mAddZValTxt(cs.zsamp_.step) .add("]");

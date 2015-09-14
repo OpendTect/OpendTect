@@ -132,6 +132,14 @@ void ZDomain::Def::set( IOPar& iop ) const
 }
 
 
+uiString ZDomain::Def::getLabel() const
+{ return uiStrings::phrJoinStrings( userName(), uiUnitStr(true) ); }
+
+
+uiString ZDomain::Def::getRange() const
+{ return uiStrings::phrJoinStrings( userName(), uiStrings::sRange() ); }
+
+
 const char* ZDomain::Def::unitStr( bool withparens ) const
 {
     if ( withparens )

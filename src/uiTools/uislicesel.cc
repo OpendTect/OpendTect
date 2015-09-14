@@ -261,7 +261,7 @@ void doAdvance( bool reversed )
     if ( slcsel_->isinl_ )
     {
 	int newval = slcsel_->tkzs_.hsamp_.start_.inl() + step;
-	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.inlOK(newval) )
+	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.inlOK(newval))
 	    stopAuto( true );
 	else
 	    slcsel_->inl0fld_->box()->setValue( newval );
@@ -269,7 +269,7 @@ void doAdvance( bool reversed )
     else if ( slcsel_->iscrl_ )
     {
 	int newval = slcsel_->tkzs_.hsamp_.start_.crl() + step;
-	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.crlOK(newval) )
+	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hsamp_.crlOK(newval))
 	    stopAuto( true );
 	else
 	    slcsel_->crl0fld_->box()->setValue( newval );
@@ -327,18 +327,21 @@ bool rejectOK( CallBacker* )
 }
 
 
-const char* getTitle( uiSliceSel* ss )
+uiString getTitle( uiSliceSel* ss ) const
 {
-    mDeclStaticString( title );
-    title = "Control scrolling through ";
+    uiString title = tr("Control scrolling through %1");
     if ( !ss->istsl_ )
-	title += ss->isinl_ ? "Inlines" : "Crosslines";
+    {
+	title.arg( ss->isinl_ ? uiStrings::sInline(mPlural)
+			      : uiStrings::sCrossline(mPlural) );
+    }
     else
     {
-	title += SI().zIsTime() ? "Time" : "Depth";
-	title += " slices";
+	uiString slicetxt = tr( "%1 slices" )
+	    .arg( SI().zIsTime() ? uiStrings::sTime() : uiStrings::sDepth() );
+	title.arg( slicetxt );
     }
-    return title.buf();
+    return title;
 }
 
     uiSliceSel*		slcsel_;

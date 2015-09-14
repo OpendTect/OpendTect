@@ -108,7 +108,7 @@ bool GriddedFunction::fetchSources()
     velocityfunctions_ = velfuncs;
     sources_ = velfuncsource;
 
-    if ( !gridvalues_.size()!=gvs.gridsourcecoords_.size() )
+    if ( gridvalues_.size()!=gvs.gridsourcecoords_.size() )
 	gridvalues_.setSize( gvs.gridsourcecoords_.size(), mUdf(float) );
 
     return true;

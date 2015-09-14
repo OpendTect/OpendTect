@@ -943,10 +943,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 	uiTable* table = new uiTable( &dlg, uiTable::Setup(areas.size(),2),
                                       "Area table");
 
-        const BufferString zdesc( zinfo.userName(), " ", zinfo.unitStr(true) );
-        table->setColumnLabel( 0, zdesc.buf() );
-
-
+	table->setColumnLabel( 0, zinfo.getLabel() );
         table->setColumnLabel( 1, areaString() );
 
         for ( int idx=0; idx<areas.size(); idx++ )
@@ -993,7 +990,7 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
 
         const ZDomain::Info& zinfo = scene->zDomainInfo();
 
-        stream << BufferString(zinfo.userName(), " ", zinfo.unitStr(true))
+	stream << zinfo.getLabel().getFullString()
                << od_tab << areaString() << od_newline;
 
         TypeSet<float> zvals, areas;
