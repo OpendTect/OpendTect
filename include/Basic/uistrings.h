@@ -53,6 +53,8 @@ public:
     static uiString phrCannotWrite(const uiString& string);
     //!<"Cannot write <string>"
     static uiString phrCannotWriteDBEntry(const uiString&);
+    static uiString phrCrossline(const uiString&);
+    //!<"Cross-line <string>
     static uiString phrCopy(const uiString&);
     //!<"Copy <string>"
     static uiString phrCreate(const uiString& string);
@@ -67,6 +69,8 @@ public:
     //!<"Export <string>"
     static uiString phrImport(const uiString& string);
     //!<"Import <string>"
+    static uiString phrInline(const uiString&);
+    //!<"In-line <string>
     static uiString phrInput(const uiString&);
     //!<"Input <string>"
     static uiString phrInvalid(const uiString& string);
@@ -115,6 +119,7 @@ public:
     static uiString sAttribName()	{ return tr("Attribute Name"); }
     static uiString sAttribute()	{ return tr("Attribute"); }
     static uiString sAttributes();
+    static uiString sAzimuth()		{ return tr("Azimuth"); }
     static uiString sBody(int num=1)	{ return tr("Body", 0, num); }
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sBottomHor()	{ return tr("Bottom Horizon"); }
@@ -146,6 +151,7 @@ public:
     static uiString sData()		{ return tr("Data"); }
     static uiString sDelete()		{ return tr("Delete"); }
     static uiString sDepth()	        { return tr("Depth"); }
+    static uiString sDip()		{ return tr("Dip"); }
     static uiString sDisplay()		{ return tr("Display"); }
     static uiString sDone()		{ return tr("Done"); }
 
@@ -162,6 +168,7 @@ public:
     static uiString sFault(int num=1);
     static uiString sFile()	        { return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
+    static uiString sFilter()		{ return tr("Filter"); }
     static uiString sFrequency(bool smallcase=false, bool plural=false);
     static uiString sGo()	        { return tr("Go"); }
     static uiString sHelp();
@@ -200,6 +207,7 @@ public:
     static uiString sNone()		{ return tr("None"); }
     static uiString sNormal()		{ return tr("Normal"); }
     static uiString sNoValidData()	{ return tr("No valid data found"); }
+    static uiString sOffset()		{ return tr("Offset"); }
     static uiString sOk()		{ return tr("OK"); }
     static uiString sOpen();
     static uiString sOperator()		{ return tr("Operator"); }
@@ -219,7 +227,8 @@ public:
     static uiString sProcessing()	{ return tr("Processing"); }
     static uiString sProbDensFunc(bool abbrevation=false);
     static uiString sProperties();
-    static uiString sRandomLine()	{ return tr("Random Line"); }
+    static uiString sRange(int num=1)	{ return tr("Range",0,1); }
+    static uiString sRandomLine(int num=1) { return tr("Random Line",0,num); }
     static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sReload()		{ return tr("Reload"); }
@@ -253,6 +262,7 @@ public:
     static uiString sSpecify()		{ return tr("Please specify"); }
     static uiString sSteering()		{ return tr("Steering"); }
     static uiString sStep()		{ return tr("Step"); }
+    static uiString sStepout()		{ return tr("Stepout"); }
     static uiString sStop()		{ return tr("Stop"); }
     static uiString sStored();
     static uiString sStratigraphy();
@@ -290,8 +300,8 @@ public:
     static uiString sYes()		{ return tr("Yes"); }
     static uiString sSet()		{ return tr("Set"); }
     static uiString sZUnit()		{ return tr("Z-unit"); }
-    static uiString sZSlice()		{ return tr("Z-slice"); }
-    static uiString sZValues()		{ return tr("Z values"); }
+    static uiString sZSlice(int num=1)	{ return tr("Z-slice",0,num); }
+    static uiString sZValue(int num=1)	{ return tr("Z value",0,num); }
     static uiString sZRange();
 
     static uiString sDistUnitString(bool isfeet,bool abbrevated,
@@ -306,6 +316,8 @@ public:
 
 
 #define m3Dots( txt ) uiStrings::phrThreeDots( txt, false )
+#define mJoinUiStrs( txt1, txt2 )\
+   uiStrings::phrJoinStrings( uiStrings::txt1, uiStrings::txt2 )
 
 #endif
 

@@ -667,7 +667,7 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
 	const char* parenttype )
     : uiODAttribTreeItem(parenttype)
-    , depthattribmnuitem_( uiStrings::sZValues() )
+    , depthattribmnuitem_( uiStrings::sZValue(mPlural) )
     , savesurfacedatamnuitem_(m3Dots(tr("Save as Fault Data")))
     , loadsurfacedatamnuitem_(m3Dots(tr("Fault Data")))
     , algomnuitem_(tr("Smooth"))
@@ -814,7 +814,7 @@ uiString uiODFaultSurfaceDataTreeItem::createDisplayName() const
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
     if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
-        return uiStrings::sZValues();
+	return uiStrings::sZValue(mPlural);
 
     return uiODAttribTreeItem::createDisplayName();
 }

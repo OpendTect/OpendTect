@@ -23,6 +23,9 @@ uiString uiStrings::phrASCII( const uiString& string )
 uiString uiStrings::phrCalculateFrom( const uiString& string )
 { return toUiString(joinstring).arg(sCalculateFrom()).arg(string); }
 
+uiString uiStrings::phrCrossline( const uiString& string )
+{ return phrJoinStrings( sCrossline(), string ); }
+
 uiString uiStrings::phrThreeDots( const uiString& string, bool immediate )
 { return immediate ? string : toUiString( "%1 ..." ).arg( string ); }
 
@@ -86,6 +89,9 @@ uiString uiStrings::phrExistsConinue( const uiString& string, bool overwrite )
 	.arg( string )
 	.arg( overwrite ? sOverwrite() : sContinue() );
 }
+
+uiString uiStrings::phrInline( const uiString& string )
+{ return phrJoinStrings( sInline(), string ); }
 
 uiString uiStrings::phrInput( const uiString& string )
 { return toUiString(joinstring).arg( sInput() ).arg( string ); }

@@ -239,7 +239,8 @@ void uiSurveyInfoEditor::mkRangeGrp()
     IntInpIntervalSpec iis( true );
     iis.setLimits( startstoprg, -1 ).setLimits( steprg, 2 );
     iis.setName("Inl Start",0).setName("Inl Stop",1).setName("Inl step",2);
-    inlfld_ = new uiGenInput( rangegrp_, tr("In-line range"), iis );
+    inlfld_ = new uiGenInput( rangegrp_,
+			      uiStrings::phrInline(uiStrings::sRange()), iis );
     inlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
 
     iis.setName("Crl Start",0).setName("Crl Stop",1).setName("Crl step",2);
