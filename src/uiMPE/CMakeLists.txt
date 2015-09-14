@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiAttributes uiFlatView MPEEngine )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiAttributes uiFlatView MPEEngine )
+set(OD_MODULE_SOURCES
 	inituimpe.cc
 	mpef3dflatvieweditor.cc
 	mpefssflatvieweditor.cc

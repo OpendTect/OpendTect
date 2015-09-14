@@ -8,12 +8,12 @@
 
 add_definitions( -DmNoAutoUiString )
 
-SET(OD_MODULE_DEPS Geometry MMProc )
+set(OD_MODULE_DEPS Geometry MMProc )
 
 SET ( OD_TEST_PROGS seisbuf.cc )
 SET ( OD_BATCH_TEST_PROGS synthseis.cc )
 
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 	initseis.cc
 	offsetazimuth.cc
 	seisdatapackwriter.cc
@@ -79,7 +79,7 @@ SET(OD_MODULE_SOURCES
 	waveletextractor.cc
 )
 
-SET(OD_MODULE_BATCHPROGS
+set(OD_MODULE_BATCHPROGS
 	    od_copy_seis.cc
 	    od_process_2dto3d.cc
 	    od_process_time2depth.cc

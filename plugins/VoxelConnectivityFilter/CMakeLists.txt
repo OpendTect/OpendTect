@@ -5,10 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS VolumeProcessing)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS VolumeProcessing)
+set(OD_IS_PLUGIN yes)
+set(OD_MODULE_SOURCES
 	voxelconnectivityfilterpi.cc
 	voxelconnectivityfilter.cc )
-SET( OD_PLUGIN_ALO_EXEC ${OD_VOLUME_EXECS} )
+set( OD_PLUGIN_ALO_EXEC ${OD_VOLUME_EXECS} )
 OD_INIT_MODULE()

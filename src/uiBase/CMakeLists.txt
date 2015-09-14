@@ -28,7 +28,7 @@ set(QT_MOC_HEADERS
 	i_qtxtbrowser.h
 )
 
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 	i_layout.cc
 	i_layoutitem.cc
 	inituibase.cc
@@ -96,6 +96,6 @@ if ( APPLE )
     list ( APPEND OD_MODULE_SOURCES uimacinit.cc )
 endif()
 
-SET(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
+set(OD_MODULE_GUI_PROGS od_DispMsg.cc  )
 OD_ADD_SOURCE_FILES( uimainicon.xpm )
 OD_INIT_MODULE()

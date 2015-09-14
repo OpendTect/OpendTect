@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET( OD_MODULE_DEPS uiWell uiAttributes WellAttrib )
-SET( OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiWell uiAttributes WellAttrib )
+set( OD_MODULE_SOURCES
 	uicreateattriblogdlg.cc
 	uicreatelogcubedlg.cc
 	uiwellattribpartserv.cc

@@ -5,10 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS Geometry)
-SET(OD_USEOSG 1)
+set(OD_MODULE_DEPS Geometry)
+set(OD_USEOSG 1)
 
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 	   initvisbase.cc
 	   visannot.cc
 	   visaxes.cc

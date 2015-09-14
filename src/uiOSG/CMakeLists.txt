@@ -5,11 +5,11 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS visSurvey uiTools )
-SET(OD_USEQT OpenGL)
-SET(OD_USEOSG 1)
+set(OD_MODULE_DEPS visSurvey uiTools )
+set(OD_USEQT OpenGL)
+set(OD_USEOSG 1)
 
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 		inituiosg.cc
 		keybindings.cc
 		uiosgfont.cc
@@ -19,5 +19,5 @@ SET(OD_MODULE_SOURCES
 		uistereodlg.cc 
 )
 
-SET(OD_MODULE_PROGS od_osgfileviewer.cc )
+set(OD_MODULE_PROGS od_osgfileviewer.cc )
 OD_INIT_MODULE()

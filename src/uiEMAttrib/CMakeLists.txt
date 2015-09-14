@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiAttributes uiEarthModel EMAttrib )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiAttributes uiEarthModel EMAttrib )
+set(OD_MODULE_SOURCES
 	uiattremout.cc
 	uiattrsurfout.cc
 	uiattrtrcselout.cc

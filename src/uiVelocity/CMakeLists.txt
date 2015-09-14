@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiSeis Velocity )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiSeis Velocity )
+set(OD_MODULE_SOURCES
 		inituivelocity.cc
 		uilinearveltrans.cc
 		uiselectvelocityfunction.cc

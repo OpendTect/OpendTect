@@ -8,12 +8,12 @@
 add_definitions( -DmNoAutoUiString )
 
 
-SET(OD_MODULE_DEPS Velocity)
-SET(OD_BATCH_TEST_PROGS
+set(OD_MODULE_DEPS Velocity)
+set(OD_BATCH_TEST_PROGS
 	angle_computer.cc
 	mute.cc
 )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 	initprestackprocessing.cc
 	prestackagc.cc
 	prestackanglecomputer.cc
@@ -38,6 +38,6 @@ SET(OD_MODULE_SOURCES
 	prestacktrimstatics.cc
 	semblancealgo.cc
 )
-SET(OD_MODULE_BATCHPROGS od_process_prestack.cc )
+set(OD_MODULE_BATCHPROGS od_process_prestack.cc )
 OD_INIT_MODULE()
 

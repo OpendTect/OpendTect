@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiIo Strat )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiIo Strat )
+set(OD_MODULE_SOURCES
 	uistratreftree.cc uistrattreewin.cc uistratutildlgs.cc
 	uistratdisplay.cc uistratdispdata.cc
 	uistratlvllist.cc uistratselunits.cc

@@ -8,8 +8,8 @@
 add_definitions( -DmNoAutoUiString )
 
 
-SET(OD_MODULE_DEPS Geometry )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS Geometry )
+set(OD_MODULE_SOURCES
 		em2ddatafmtconverter.cc
 		embody.cc
 		embodyoperator.cc

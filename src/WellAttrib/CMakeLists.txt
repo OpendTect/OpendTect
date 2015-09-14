@@ -8,8 +8,8 @@
 
 add_definitions( -DmNoAutoUiString )
 
-SET(OD_MODULE_DEPS Well Attributes Strat )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS Well Attributes Strat )
+set(OD_MODULE_SOURCES
 		createattriblog.cc
 		createlogcube.cc
 		initwellattrib.cc

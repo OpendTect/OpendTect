@@ -9,8 +9,8 @@
 add_definitions( -DmNoAutoUiString )
 
 
-SET(OD_MODULE_DEPS EarthModel AttributeEngine )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS EarthModel AttributeEngine )
+set(OD_MODULE_SOURCES
 	autotracker.cc
 	emeditor.cc
 	emtracker.cc

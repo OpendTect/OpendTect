@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiIo Seis Velocity)
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiIo Seis Velocity)
+set(OD_MODULE_SOURCES
 	inituiseis.cc
 	uibatchtime2depthsetup.cc
 	uiclusterproc.cc
@@ -58,6 +58,6 @@ SET(OD_MODULE_SOURCES
 	uiwaveletmatchdlg.cc
 )
 
-SET( OD_MODULE_PROGS od_ClusterProc.cc od_SeisMMBatch.cc )
+set( OD_MODULE_PROGS od_ClusterProc.cc od_SeisMMBatch.cc )
 
 OD_INIT_MODULE()

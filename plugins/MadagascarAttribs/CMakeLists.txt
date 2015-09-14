@@ -5,10 +5,10 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS Attributes)
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS Attributes)
+set(OD_IS_PLUGIN yes)
+set(OD_MODULE_SOURCES
 	madagcattrib.cc
 	madattribspi.cc)
-SET( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} )
+set( OD_PLUGIN_ALO_EXEC ${OD_ATTRIB_EXECS} )
 OD_INIT_MODULE()

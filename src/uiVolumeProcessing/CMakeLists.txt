@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiVelocity uiWell uiAttributes uiEarthModel VolumeProcessing )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiVelocity uiWell uiAttributes uiEarthModel VolumeProcessing )
+set(OD_MODULE_SOURCES
 	inituivolumeprocessing.cc
 	uivelocitygridder.cc
 	uivolprocattrib.cc

@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiMPE )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiMPE )
+set(OD_MODULE_SOURCES
 	inituiviewer2d.cc
 	view2ddata.cc
 	view2ddataman.cc

@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiSeis PreStackProcessing )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiSeis PreStackProcessing )
+set(OD_MODULE_SOURCES
 	inituiprestackprocessing.cc
 	psviewer2dgatherpainter.cc
 	uibatchprestackproc.cc 
@@ -29,6 +29,6 @@ SET(OD_MODULE_SOURCES
 	uipsviewer2dposdlg.cc 
 	uisemblancealgo.cc
 )
-SET( OD_MODULE_GUI_PROGS od_PreStackMMBatch.cc )
+set( OD_MODULE_GUI_PROGS od_PreStackMMBatch.cc )
 
 OD_INIT_MODULE()

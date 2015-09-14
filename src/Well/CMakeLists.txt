@@ -8,8 +8,8 @@
 
 add_definitions( -DmNoAutoUiString )
 
-SET(OD_MODULE_DEPS General)
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS General)
+set(OD_MODULE_SOURCES
 	initwell.cc
 	wellascio.cc
 	well.cc

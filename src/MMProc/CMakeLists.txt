@@ -10,10 +10,10 @@ add_definitions( -DmNoAutoUiString )
 
 
 
-SET(OD_MODULE_DEPS Network)
-SET(OD_USEQT Core)
+set(OD_MODULE_DEPS Network)
+set(OD_USEQT Core)
 
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_SOURCES
 	jobdescprov.cc
 	jobiomgr.cc
 	jobrunner.cc
@@ -25,7 +25,7 @@ SET(OD_MODULE_SOURCES
 	remjobexec.cc
 )
 
-SET(OD_MODULE_PROGS
+set(OD_MODULE_PROGS
 	od_remoteservice.cc
 	od_remexec.cc
 )

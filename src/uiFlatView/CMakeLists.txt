@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiTools )
-SET(OD_MODULE_SOURCES
+set(OD_MODULE_DEPS uiTools )
+set(OD_MODULE_SOURCES
 	flatviewzoommgr.cc
 	flatviewaxesdrawer.cc
 	uiflatauxdatadisplay.cc
