@@ -56,7 +56,7 @@ public:
     void				addLanguage(TextTranslatorLanguage*);
 
 protected:
-    friend				TextTranslatorLanguage;
+    friend class			TextTranslatorLanguage;
 
     void				loadUSEnglish();
 
