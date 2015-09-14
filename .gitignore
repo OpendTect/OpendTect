@@ -22,6 +22,7 @@ test/
 Contents/
 plugins/lux64
 data/localizations/*.qm
+data/localizations/generated
 moc*.cxx
 lib*.dylib
 Info.plist

@@ -17,8 +17,8 @@
 # - copy the new translations into the work-directory.
 # - remove the temporary copy
 
-if (  $#argv < 3 ) then
-    echo "Usage : $0 <sourcedir> <binarydir> <lupdate>"
+if (  $#argv < 4 ) then
+    echo "Usage : $0 <sourcedir> <binarydir> <application> <lupdate>"
     exit 1
 endif
 
@@ -35,8 +35,9 @@ set nrcpu = `${scriptdir}/GetNrProc`
 
 set sourcedir=$1
 set binarydir=$2
-set lupdate=$3
-set tmpoddir=${binarydir}/lupdate_tmp_$$
+set application=$3
+set lupdate=$4
+set tmpoddir=/tmp/lupdate_tmp_$$
 
 set kernel=`uname -a | awk '{print $1}'`
 if ( "${kernel}" == "Darwin" ) then
@@ -49,14 +50,20 @@ if ( -e $tmpoddir ) then
 endif
 
 mkdir $tmpoddir
-cp -a ${sourcedir}/{CMakeModules,data,src,include,plugins} $tmpoddir/.
+if ( -e ${sourcedir}/src ) cp -a ${sourcedir}/src ${tmpoddir}/.
+if ( -e ${sourcedir}/include ) cp -a ${sourcedir}/include ${tmpoddir}/.
+if ( -e ${sourcedir}/plugins ) cp -a ${sourcedir}/plugins ${tmpoddir}/.
 
-set srcdir=$tmpoddir/data/localizations/source
-set profnm=$srcdir/normaltrans.pro
+set projectdir=${tmpoddir}/data/localizations/source
+mkdir -p ${projectdir}
 
+#Copy existing ts-files ot project dir
+cp -a ${binarydir}/data/localizations/source/*.ts ${projectdir}
+
+set profnm=${projectdir}/normaltrans.pro
 
 set olddir=`pwd`
-cd srcdir
+cd ${projectdir}
 
 set headers = `find $tmpoddir -path "*.h"`
 
@@ -85,10 +92,15 @@ end
 echo -n "TRANSLATIONS = " > ${profnm}
 
 echo " \" >> ${profnm}
-echo -n "    od_template.ts" >> ${profnm}
+echo -n "    ${application}_template.ts" >> ${profnm}
 
-foreach fnm ( *.ts )
+set nonomatch=1
+foreach fnm ( ${application}*.ts )
     if ( "${fnm}" =~ "*en-us.ts" ) then
+	continue
+    endif
+
+    if ( "${fnm}" =~ "*_template.ts" ) then
 	continue
     endif
 
@@ -98,21 +110,18 @@ end
 
 cat ${filelist} >> ${profnm}
 
+
 #Create a list of .ts files for plural operations
-set pluralpro=$srcdir/plural.pro
-echo -n "TRANSLATIONS = " > ${pluralpro}
-
-foreach fnm ( *.ts )
-    if ( ! ("${fnm}" =~ "*en-us.ts") ) then
-	continue
-    endif
-
+set pluralpro=$projectdir/plural.pro
+if ( -e ${application}_en-us.ts ) then
+    echo -n "TRANSLATIONS = " > ${pluralpro}
     echo " \" >> ${pluralpro}
-    echo -n "    $fnm" >> ${pluralpro}
-end
+    echo -n "    ${application}_en-us.ts" >> ${pluralpro}
+    cat ${filelist} >> ${pluralpro}
+endif
 
-#Merge the filelist with the list of plural ts-files
-cat ${filelist} >> ${pluralpro}
+#Remove the filelist
+\rm -rf ${filelist}
 
 #Filter the sources for patterns
 echo ${sources} | xargs -P ${nrcpu} sed -i \
@@ -135,17 +144,18 @@ echo ${headers} | xargs -P ${nrcpu} sed -i \
 
 #Run lupdate
 ${lupdate} -silent -locations relative ${profnm}
-${lupdate} -silent -locations relative -pluralonly ${pluralpro}
+if ( -e ${pluralpro} ) then
+    ${lupdate} -silent -locations relative -pluralonly ${pluralpro}
+endif
 
-#Copy the resulting ts-files back
-foreach fnm ( *.ts )
-    cp -f ${fnm} ${binarydir}/data/localizations/source/
-end
+#Copy results back
+rsync --checksum *.ts ${binarydir}/data/localizations/generated
+
+#Remvoe temporary dir
+\rm -rf  ${tmpoddir}
 
 #Go back to starting dir
 cd ${olddir}
 
-#Remvoe temporary dir
-\rm -rf  ${tmpoddir}
 
 exit 0
