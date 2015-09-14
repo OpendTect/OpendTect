@@ -9,10 +9,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "batchprog.h"
 
 #include "arrayndimpl.h"
-#include "seisdatapackwriter.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
+#include "seisdatapack.h"
+#include "seisdatapackwriter.h"
 #include "survinfo.h"
 #include "veldesc.h"
 #include "volprocchain.h"
@@ -173,7 +174,10 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    const TypeSet<int> indices( 1, 0 );
+    TypeSet<int> indices;
+    for ( int idx=0; idx<cube->nrComponents(); idx++ )
+	indices += idx;
+
     SeisDataPackWriter writer( outputid, *cube, indices );
     writer.setSelection( cs.hsamp_, outputzrg );
     if ( !writer.go(strm) )
