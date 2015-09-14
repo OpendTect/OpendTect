@@ -41,6 +41,9 @@ static const char* rcsID mUsedVar = "$Id:$";
 #include "timer.h"
 
 
+#define mForSurvSetup forsurvsetup
+#define mSurvMapHeight 350
+
 
 uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 					const SEGY::ImpType* imptyp )
@@ -60,7 +63,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
     , pidetector_(0)
     , timer_(0)
 {
-    if ( !forsurvsetup )
+    if ( !mForSurvSetup )
     {
 	setCtrlStyle( RunAndClose );
 	setOkText( tr("Next >>") );
@@ -81,7 +84,7 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 	fixedimptype_ = *imptyp;
     else
     {
-	typfld_ = new uiSEGYImpType( this, !forsurvsetup );
+	typfld_ = new uiSEGYImpType( this, !mForSurvSetup );
 	typfld_->typeChanged.notify( mCB(this,uiSEGYReadStarter,typChg) );
 	typfld_->attach( alignedBelow, inpfld_ );
     }
@@ -105,10 +108,9 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
     createTools();
 
-    if ( forsurvsetup )
+    if ( mForSurvSetup )
 	createSurvMap();
-    else
-	createHist();
+    createHist();
 
     setButtonStatuses();
     postFinalise().notify( mCB(this,uiSEGYReadStarter,initWin) );
@@ -138,6 +140,20 @@ void uiSEGYReadStarter::createTools()
 }
 
 
+void uiSEGYReadStarter::createSurvMap()
+{
+    survmap_ = new uiSurveyMap( this, true );
+    survmap_->setSurveyInfo( 0 );
+    survmap_->setPrefWidth( 400 );
+    survmap_->setPrefHeight( 350 );
+    survmap_->attach( ensureBelow, infofld_ );
+}
+
+
+#undef mForSurvSetup
+#define mForSurvSetup survmap_
+
+
 void uiSEGYReadStarter::createHist()
 {
     uiGroup* histgrp = new uiGroup( this, "Histogram group" );
@@ -146,7 +162,7 @@ void uiSEGYReadStarter::createHist()
     hdsu.noyaxis( false ).noygridline(true).annoty( false );
     ampldisp_ = new uiHistogramDisplay( histgrp, hdsu );
     ampldisp_->setTitle( tr("Amplitudes") );
-    ampldisp_->setPrefHeight( 250 );
+    ampldisp_->setPrefHeight( mForSurvSetup ? mSurvMapHeight : 250 );
     clipfld_ = new uiSpinBox( histgrp, 1, "Clipping percentage" );
     clipfld_->setInterval( 0.f, 49.9f, 0.1f );
     clipfld_->setValue( 0.1f );
@@ -161,17 +177,10 @@ void uiSEGYReadStarter::createHist()
     inc0sbox_->setToolTip( tr("Include value '0' for histogram display") );
     inc0sbox_->activated.notify( histupdcb );
     histgrp->setStretch( 2, 1 );
-    histgrp->attach( stretchedBelow, infofld_ );
-}
-
-
-void uiSEGYReadStarter::createSurvMap()
-{
-    survmap_ = new uiSurveyMap( this, true );
-    survmap_->setSurveyInfo( 0 );
-    survmap_->setPrefWidth( 500 );
-    survmap_->setPrefHeight( 350 );
-    survmap_->attach( centeredBelow, infofld_ );
+    if ( mForSurvSetup )
+	histgrp->attach( rightOf, survmap_ );
+    else
+	histgrp->attach( stretchedBelow, infofld_ );
 }
 
 
@@ -205,7 +214,7 @@ void uiSEGYReadStarter::clearDisplay()
     infofld_->clearInfo();
     if ( ampldisp_ )
 	ampldisp_->setEmpty();
-    if ( survmap_ )
+    if ( mForSurvSetup )
 	survmap_->setSurveyInfo( 0 );
     setButtonStatuses();
 }
@@ -237,7 +246,7 @@ void uiSEGYReadStarter::execNewScan( bool fixedloaddef, bool full )
     if ( !getFileSpec() )
 	return;
 
-    if ( survmap_ )
+    if ( mForSurvSetup )
     {
 	const SEGY::ImpType& imptyp = impType();
 	PosInfo::Detector::Setup pisu( imptyp.is2D() );
@@ -272,7 +281,7 @@ void uiSEGYReadStarter::setButtonStatuses()
 void uiSEGYReadStarter::initWin( CallBacker* )
 {
     typChg( 0 );
-    if ( !survmap_ )
+    if ( !mForSurvSetup )
 	inpChg( 0 );
 
     if ( filespec_.isEmpty() )
@@ -282,7 +291,7 @@ void uiSEGYReadStarter::initWin( CallBacker* )
 	timer_->start( 1, true );
     }
 
-    if ( survmap_ || (!typfld_ && fixedimptype_.isVSP()) )
+    if ( mForSurvSetup || (!typfld_ && fixedimptype_.isVSP()) )
 	return;
 
     uiButton* okbut = button( OK );
@@ -308,7 +317,11 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
     uiFileDialog dlg( this, uiFileDialog::ExistingFile, 0,
 	    uiSEGYFileSpec::fileFilter(),
 	    tr("Select (one of) the SEG-Y file(s)") );
-    dlg.setDirectory( GetDataDir() );
+    if ( mForSurvSetup )
+	dlg.setDirectory( GetBaseDataDir() );
+    else
+	dlg.setDirectory( GetDataDir() );
+
     if ( !dlg.go() )
 	done();
     else
@@ -323,7 +336,7 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 {
     const SEGY::ImpType& imptyp = impType();
     infofld_->setImpTypIdx( imptyp.tidx_ );
-    if ( survmap_ )
+    if ( mForSurvSetup )
     {
 	userfilename_.setEmpty();
 	inpChg( 0 );
@@ -346,9 +359,9 @@ void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
 void uiSEGYReadStarter::runClassic( bool imp )
 {
     const Seis::GeomType gt = impType().geomType();
-    uiSEGYRead::Setup su( survmap_ ? uiSEGYRead::SurvSetup
-			    : (imp ? uiSEGYRead::Import
-				   : uiSEGYRead::DirectDef) );
+    uiSEGYRead::Setup su( mForSurvSetup ? uiSEGYRead::SurvSetup
+				 : (imp ? uiSEGYRead::Import
+					: uiSEGYRead::DirectDef) );
     if ( !typfld_ )
     {
 	su.geoms_.erase();
@@ -745,7 +758,7 @@ void uiSEGYReadStarter::displayScanResults()
 	si.merge( *scaninfo_[idx] );
 
     infofld_->setScanInfo( si );
-    if ( survmap_ )
+    if ( mForSurvSetup )
 	updateSurvMap( si );
 }
 
@@ -768,7 +781,7 @@ bool uiSEGYReadStarter::commit()
     filereadopts_->offsdef_ = loaddef_.psoffsdef_;
 
     //TODO handle:
-    // filereadopts_->icdef_ ? XYOnly, ICOnly, in next window
+    // filereadopts_->icdef_ ? XYOnly, ICOnly, in next window, 3D only
     // filereadopts_->coorddef_ in next window, 2D only
 
     return true;
@@ -777,7 +790,7 @@ bool uiSEGYReadStarter::commit()
 
 bool uiSEGYReadStarter::acceptOK( CallBacker* )
 {
-    if ( survmap_ )
+    if ( mForSurvSetup )
     {
 	if ( !survinfook_ )
 	    mErrRet( tr("No valid survey setup found" ) )
