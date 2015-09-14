@@ -102,28 +102,47 @@ void uiIOObjInserter::addInsertersToDlg( uiParent* p,
 }
 
 
-#define mConstructorInitListStart \
-	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(ctio.ctxt.forread), \
+
+#define mConstructorInitListStart(c) \
+	uiIOObjRetDlg(p, uiDialog::Setup(selTxt(c.forread), \
 		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
 	    .nrstatusflds(1)) \
     , selgrp_( 0 )
 
 
-uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
 				const uiString& ttxt )
-    : mConstructorInitListStart
+    : mConstructorInitListStart(ctxt)
     , setup_( ttxt )
 {
-    init( ctio );
+    init( ctxt );
+}
+
+
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
+				const IOObjContext& ctxt )
+    : mConstructorInitListStart(ctxt)
+    , setup_( su )
+{
+    init( ctxt );
+}
+
+
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
+				const uiString& ttxt )
+    : mConstructorInitListStart(ctio.ctxt)
+    , setup_( ttxt )
+{
+    init( ctio.ctxt );
 }
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 				const CtxtIOObj& ctio )
-    : mConstructorInitListStart
+    : mConstructorInitListStart(ctio.ctxt)
     , setup_( su )
 {
-    init( ctio );
+    init( ctio.ctxt );
 }
 
 
@@ -135,15 +154,14 @@ uiString uiIOObjSelDlg::selTxt( bool forread )
 }
 
 
-void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
+void uiIOObjSelDlg::init( const IOObjContext& ctxt )
 {
-    const IOObjContext& ctxt = ctio.ctxt;
     uiIOObjSelGrp::Setup sgsu( ctxt.forread && setup_.multisel_
 			? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
     sgsu.allowsetdefault( setup_.allowsetsurvdefault_ );
     sgsu.withwriteopts( setup_.withwriteopts_ );
     sgsu.withinserters( setup_.withinserters_ );
-    selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
+    selgrp_ = new uiIOObjSelGrp( this, ctxt, sgsu );
     selgrp_->getListField()->setHSzPol( uiObject::WideVar );
     statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
