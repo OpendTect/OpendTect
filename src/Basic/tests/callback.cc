@@ -8,7 +8,10 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "callback.h"
+
+#include "applicationdata.h"
 #include "testprog.h"
+#include "threadwork.h"
 #include "atomic.h"
 #include "signal.h"
 #include "thread.h"
@@ -156,6 +159,64 @@ bool testAttach()
 
     return true;
 }
+
+
+/*!Start an application thread and ask a working thread to call callBackFuncCB.
+   This function is protected, so the call should be redirected to main
+   thread. Check that the call is done from main thread. If so, success. */
+
+class InMainThreadTester : public CallBacker
+{
+public:
+
+    static bool	test()
+    {
+        ApplicationData app;
+        InMainThreadTester tester;
+
+        CallBack::addToMainThread(mCB( &tester,InMainThreadTester,eventLoopCB));
+
+        mRunStandardTest( !app.exec(), "Callback - in main thread");
+        return true;
+    }
+
+    void eventLoopCB(CallBacker*)
+    {
+        if ( callingthread_ )
+        {
+            ApplicationData::exit(
+                callingthread_==Threads::currentThread() ? 0 : 1 );
+        }
+        else
+        {
+            Threads::WorkManager::twm().addWork(
+                Threads::Work( mCB(this,InMainThreadTester,callBackFuncCB)) );
+
+            CallBack::addToMainThread(mCB(this,InMainThreadTester,eventLoopCB));
+    	}
+    }
+
+    ~InMainThreadTester()
+    {
+        CallBack::removeFromMainThread( this );
+
+    }
+
+    void callBackFuncCB(CallBacker*)
+    {
+        mEnsureExecutedInMainThread(InMainThreadTester::callBackFuncCB);
+        if ( callingthread_ )
+            return;
+
+        callingthread_ = Threads::currentThread();
+    }
+
+
+    Threads::AtomicPointer<const void>	callingthread_;
+};
+
+
+
 
 
 bool testEarlyDetach()
@@ -423,7 +484,8 @@ int main( int argc, char** argv )
       || !testLateDetach()
       || !testEarlyDetach()
       || !testDetachBeforeRemoval()
-      || !testMulthThreadChaos() )
+      || !testMulthThreadChaos()
+      || !InMainThreadTester::test() )
 	ExitProgram( 1 );
 
     return ExitProgram( 0 );
