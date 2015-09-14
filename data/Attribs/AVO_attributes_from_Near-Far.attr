@@ -1,6 +1,6 @@
-dTect V4.4
+dTect V6.0
 Attribute definitions
-Wed 13 Jun 2012, 10:36:42
+Mon  June 8 2015, 10:36:42
 !
 Attribute Descriptions
 0.Definition: Storage id=100010.x output=0
@@ -33,7 +33,7 @@ Attribute Descriptions
 5.DataType: Other
 5.Input.0: 3
 5.Input.1: 4
-6.Definition: Math expression=far-near output=0
+6.Definition: Math expression=Far-Near output=0
 6.UserRef: Far-Near
 6.Hidden: No
 6.DataType: Other

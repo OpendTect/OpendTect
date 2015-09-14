@@ -1,6 +1,6 @@
-dTect V3.1
+dTect V6.0
 Attribute definitions
-Thu Apr 17 10:57:25 2008
+Mon  June 8 10:57:25 2015
 !
 Attribute Descriptions
 0.Definition: Storage id=100010.x output=0
@@ -19,71 +19,62 @@ Attribute Descriptions
 3.UserRef: Energy
 3.Hidden: No
 3.Input.0: 0
-4.Definition: Convolve kernel=Laplacian shape=Sphere size=3 output=0
-4.UserRef: Laplace (edge)
+4.Definition: DipFilter size=9 type=LowPass maxvel=2000 filterazi=no taperlen=10 output=0
+4.UserRef: Velocity fan
 4.Hidden: No
 4.Input.0: 0
-5.Definition: DipFilter size=9 type=LowPass maxvel=2000 filterazi=no taperlen=10 output=0
-5.UserRef: Velocity fan
+5.Definition: VolumeStatistics stepout=2,2 shape=Ellipse gate=[0,0] nrtrcs=1 steering=no output=2
+5.UserRef: Amplitude variance
 5.Hidden: No
 5.Input.0: 0
-6.Definition: Math expression=x0-x1 output=0
-6.UserRef: Math difference stack
+6.Definition: VolumeStatistics stepout=2,2 shape=Ellipse gate=[0,0] nrtrcs=1 steering=no output=0
+6.UserRef: Amplitude average
 6.Hidden: No
 6.Input.0: 0
-6.Input.1: 4
-7.Definition: VolumeStatistics stepout=2,2 shape=Ellipse gate=[0,0] nrtrcs=1 steering=no output=2
-7.UserRef: Amplitude variance
+7.Definition: Position stepout=2,2 gate=[0,0] oper=Min steering=no output=0
+7.UserRef: Edge Preserving filter (TLE Feb 2002)
 7.Hidden: No
-7.Input.0: 0
-8.Definition: VolumeStatistics stepout=2,2 shape=Ellipse gate=[0,0] nrtrcs=1 steering=no output=0
-8.UserRef: Amplitude average
+7.Input.0: 5
+7.Input.1: 6
+8.Definition: Frequency gate=[-28,28] normalize=no window=CosTaper paramval=0.95 dumptofile=no output=0
+8.UserRef: Dominant Frequency
 8.Hidden: No
 8.Input.0: 0
-9.Definition: Position stepout=2,2 gate=[0,0] oper=Min steering=no output=0
-9.UserRef: Edge Preserving filter (TLE Feb 2002)
+8.Input.1: 1
+9.Definition: Similarity gate=[-28,28] stepout=1,1 extension=Cross steering=no normalize=yes output=3
+9.UserRef: Similarity
 9.Hidden: No
-9.Input.0: 7
-9.Input.1: 8
-10.Definition: Frequency gate=[-28,28] normalize=no window=CosTaper paramval=0.95 dumptofile=no output=0
-10.UserRef: Frequency
+9.Input.0: 0
+10.Definition: Similarity gate=[-28,28] stepout=1,1 extension=Cube steering=no normalize=yes output=3
+10.UserRef: Cube similarity
 10.Hidden: No
 10.Input.0: 0
-10.Input.1: 1
-11.Definition: Similarity gate=[-28,28] pos0=0,1 pos1=0,-1 extension=90 steering=no normalize=yes output=3
-11.UserRef: Similarity
+11.Definition: Convolve kernel=Prewitt output=0
+11.UserRef: Prewitt (gradient)
 11.Hidden: No
 11.Input.0: 0
-12.Definition: Similarity gate=[-28,28] stepout=1,1 extension=Cube steering=no normalize=yes output=3
-12.UserRef: Cube similarity
+12.Definition: Convolve kernel=Laplacian shape=Sphere size=3 output=0
+12.UserRef: Laplace on similarity
 12.Hidden: No
-12.Input.0: 0
-13.Definition: Convolve kernel=Prewitt output=0
-13.UserRef: Prewitt (gradient)
+12.Input.0: 9
+13.Definition: Instantaneous output=3
+13.UserRef: Hilbert trace
 13.Hidden: No
 13.Input.0: 0
-14.Definition: Convolve kernel=Laplacian shape=Sphere size=3 output=0
-14.UserRef: Laplace on similarity
+13.Input.1: 1
+14.Definition: Math expression=x0*cos(c0*PI/180)-x1*sin(c0*PI/180) constant0=90  output=0
+14.UserRef: Phase rotation of angle c0 (degrees)
 14.Hidden: No
-14.Input.0: 11
-15.Definition: Instantaneous output=3
-15.UserRef: Hilbert trace
+14.Input.0: 0
+14.Input.1: 13
+15.Definition: Math expression=(1-c0)*x0+c0*THIS[-1] constant0=0.85  recstart=0 output=0
+15.UserRef: Single pole low-pass digital recursive filter
 15.Hidden: No
 15.Input.0: 0
-15.Input.1: 1
-16.Definition: Math expression=x0*cos(c0*PI/180)-x1*sin(c0*PI/180) constant0=90  output=0
-16.UserRef: Phase rotation of angle c0 (degrees)
+16.Definition: Math expression=((1+c0)/2)*x0-((1+c0)/2)*x0[-1]+c0*THIS[-1] constant0=0.86  recstart=0 output=0
+16.UserRef: Single pole high-pass digital recursive filter
 16.Hidden: No
 16.Input.0: 0
-16.Input.1: 15
-17.Definition: Math expression=(1-c0)*x0+c0*THIS[-1] constant0=0.85  recstart=0 output=0
-17.UserRef: Single pole low-pass digital recursive filter
-17.Hidden: No
-17.Input.0: 0
-18.Definition: Math expression=((1+c0)/2)*x0-((1+c0)/2)*x0[-1]+c0*THIS[-1] constant0=0.86  recstart=0 output=0
-18.UserRef: Single pole high-pass digital recursive filter
-18.Hidden: No
-18.Input.0: 0
-MaxNrKeys: 18
+MaxNrKeys: 16
 Type: 3D
 !
