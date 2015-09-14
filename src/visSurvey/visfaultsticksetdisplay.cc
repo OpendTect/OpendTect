@@ -110,7 +110,7 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
 	viseditor_->unRef();
     if ( fsseditor_ )
 	fsseditor_->unRef();
-  
+
     if ( fault_ )
     {
 	MPE::engine().removeEditor( fault_->id() );
@@ -160,7 +160,7 @@ void FaultStickSetDisplay::setScene( Scene* scene )
 }
 
 
-EM::ObjectID FaultStickSetDisplay::getEMID() const
+EM::ObjectID FaultStickSetDisplay::getEMObjectID() const
 { return fault_ ? fault_->id() : -1; }
 
 
@@ -169,7 +169,7 @@ EM::ObjectID FaultStickSetDisplay::getEMID() const
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
+bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 {
     if ( fault_ )
     {
@@ -357,7 +357,7 @@ EM::FaultStickSet* FaultStickSetDisplay::emFaultStickSet()
 
 void FaultStickSetDisplay::updateSticks( bool activeonly )
 {
-    if ( !fault_ || !viseditor_ || !&viseditor_->sower() || 
+    if ( !fault_ || !viseditor_ || !&viseditor_->sower() ||
 	viseditor_->sower().moreToSow() )
 	return;
 
@@ -535,7 +535,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     EM::FaultStickSetGeometry& fssg = emFaultStickSet()->geometry();
 
-    if ( eventinfo.buttonstate_ == OD::ControlButton ) 
+    if ( eventinfo.buttonstate_ == OD::ControlButton )
     {
 	 makenewstick_ =  false;
 	 if ( !activestickid_.isUdf() )
@@ -603,7 +603,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     	    mDynamicCast(RandomTrackDisplay*,rdtd,dataobj);
 	    if ( rdtd )
 	    {
-		normal = 
+		normal =
 		    new Coord3( rdtd->getNormal(eventinfo.displaypickedpos) );
 		break;
 	    }
@@ -1049,7 +1049,7 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 		if ( curdragger==EM::PosID(emfss->id(),sid,rc.toInt64()) )
 		    fss->hideKnot( rc, false, mSceneIdx );
 	    }
-	    
+
 	    TypeSet<Coord3> intersectpoints;
 	    fss->hideStick( rc.row(), displayonlyatsections_, mSceneIdx );
 	    if ( !displayonlyatsections_ )
@@ -1140,7 +1140,7 @@ void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 	setCurScene( scene_ );
     polygonSelectionCB();
 }
- 
+
 
 bool FaultStickSetDisplay::isInStickSelectMode() const
 { return stickselectmode_; }
@@ -1150,7 +1150,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 {
     if ( !fault_ || (viseditor_ && viseditor_->sower().moreToSow()) )
 	return;
-    
+
     if ( getCurScene() != scene_ )
 	setCurScene(scene_);
     updateStickMarkerSet();
@@ -1203,7 +1203,7 @@ bool FaultStickSetDisplay::usePar( const IOPar& par )
 	    emobject = EM::EMM().getObject( emid );
 	}
 
-	if ( emobject ) setEMID( emobject->id() );
+	if ( emobject ) setEMObjectID( emobject->id() );
     }
 
     par.getYN(  sKeyDisplayOnlyAtSections(), displayonlyatsections_ );
@@ -1224,7 +1224,7 @@ void FaultStickSetDisplay::setPixelDensity( float dpi )
 
     if ( activestick_ )
 	activestick_ ->setPixelDensity( dpi );
-    
+
     for ( int idx =0; idx<knotmarkersets_.size(); idx++ )
         knotmarkersets_[idx]->setPixelDensity( dpi );
 }

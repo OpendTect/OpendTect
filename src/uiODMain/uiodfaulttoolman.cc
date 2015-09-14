@@ -401,7 +401,8 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 
     if ( curfssd_ || curfltd_ )
     {
-	curemid_ = curfssd_ ? curfssd_->getEMID() : curfltd_->getEMID();
+	curemid_ = curfssd_ ? curfssd_->getEMObjectID()
+			    : curfltd_->getEMObjectID();
 
 	const EM::EMObject* emobj = EM::EMM().getObject( curemid_ );
 	if ( !emobj || emobj->isEmpty() )
@@ -1413,8 +1414,8 @@ static void keyDown( bool yn )
 
 
 void uiODFaultToolMan::keyPressedCB( CallBacker* )
-{ 
-    keyDown( true ); 
+{
+    keyDown( true );
     if ( !uiMain::keyboardEventHandler().hasEvent() )
 	return;
 

@@ -79,8 +79,8 @@ public:
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
-    bool			setEMID(const EM::ObjectID&);
-    EM::ObjectID		getEMID() const;
+    bool			setEMObjectID(const EM::ObjectID&);
+    EM::ObjectID		getEMObjectID() const;
 
     void			setScene(Scene*);
 

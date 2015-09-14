@@ -53,7 +53,7 @@ class HorizonDisplay;
 
 */
 
-mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject 
+mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
 				    , public StickSetDisplay
 { mODTextTranslationClass(FaultDisplay);
 public:
@@ -61,7 +61,7 @@ public:
 
 				mDefaultFactoryInstantiation(
 				visSurvey::SurveyObject,FaultDisplay,
-				"FaultDisplay", 
+				"FaultDisplay",
 				toUiString(sFactoryKeyword()));
 
 
@@ -110,11 +110,8 @@ public:
     bool			arePanelsDisplayed() const;
     bool			arePanelsDisplayedInFull() const;
 
-    virtual void                fillPar(IOPar&) const;
-    virtual bool                usePar(const IOPar&);
-
-    bool			setEMID(const EM::ObjectID&);
-    EM::ObjectID		getEMID() const;
+    bool			setEMObjectID(const EM::ObjectID&);
+    EM::ObjectID		getEMObjectID() const;
 
     void			setScene(Scene*);
 
@@ -172,6 +169,9 @@ public:
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
+
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
 protected:
 
