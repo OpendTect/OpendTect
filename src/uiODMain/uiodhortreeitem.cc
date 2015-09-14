@@ -595,20 +595,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==parentsrdlmnuitem_.id )
     {
 	const TrcKey tk = SI().transform( uimenu->getPickedPos() );
-	TypeSet<TrcKey> trcs; hor3d->getParents( tk, trcs );
-	if ( trcs.isEmpty() ) return;
-
-	BendPointFinderTrcKey bpf( trcs, 10 );
-	if ( !bpf.execute() ) return;
-
-	const TypeSet<int>& bends = bpf.bendPoints();
-	RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
-	rl->setName( "Parents path" );
-	Geometry::RLM().add( rl );
-	for ( int idx=0; idx<bends.size(); idx++ )
-	    rl->addNode( trcs[bends[idx]].pos() );
-
-	ODMainWin()->sceneMgr().addRandomLineItem( rl->ID(), sceneID() );
+	applMgr()->addMPEParentPath( hd->id(), tk );
     }
     else if ( mnuid==parentsmnuitem_.id )
     {

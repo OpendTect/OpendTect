@@ -1168,12 +1168,12 @@ bool uiODApplMgr::handleEMServEv( int evid )
 
 	    mDynamicCastGet(visSurvey::FaultDisplay*,fd,
 		    visserv_->getObject(emdisplayids[idx]));
-	    if ( fd && fd->getEMID()==emid )
+	    if ( fd && fd->getEMObjectID()==emid )
 		remove = true;
 
 	    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fsd,
 		    visserv_->getObject(emdisplayids[idx]));
-	    if ( fsd && fsd->getEMID()==emid )
+	    if ( fsd && fsd->getEMObjectID()==emid )
 		remove = true;
 
 	    if ( !remove ) continue;
@@ -1397,7 +1397,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 
 bool uiODApplMgr::handleVisServEv( int evid )
 {
-    int visid = visserv_->getEventObjId();
+    const int visid = visserv_->getEventObjId();
     visserv_->unlockEvent();
 
     if ( evid == uiVisPartServer::evUpdateTree() )
@@ -1423,27 +1423,12 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if ( evid == uiVisPartServer::evShowMPEParentPath() )
     {
 	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
-			visserv_->getObject(visserv_->getSelObjectId()) );
-	mDynamicCastGet(EM::Horizon3D*,hor3d,
-			EM::EMM().getObject(hd->getObjectID()))
-	if ( !hor3d || !hd || !hd->getScene() )
+			visserv_->getObject(visid))
+	if ( !hd || !hd->getScene() )
 	    return false;
 
 	const TrcKeyValue tkv = hd->getScene()->getMousePos();
-	TypeSet<TrcKey> trcs; hor3d->getParents( tkv.tk_, trcs );
-	if ( trcs.isEmpty() ) return false;
-
-	BendPointFinderTrcKey bpf( trcs, 10 );
-	if ( !bpf.execute() ) return false;
-
-	const TypeSet<int>& bends = bpf.bendPoints();
-	RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
-	rl->setName( "Parents path" );
-	Geometry::RLM().add( rl );
-	for ( int idx=0; idx<bends.size(); idx++ )
-	    rl->addNode( trcs[bends[idx]].pos() );
-
-	sceneMgr().addRandomLineItem( rl->ID(), hd->getSceneID() );
+	addMPEParentPath( visid, tkv.tk_ );
     }
     else if ( evid == uiVisPartServer::evShowMPESetupDlg() )
     {
@@ -1486,6 +1471,36 @@ bool uiODApplMgr::handleVisServEv( int evid )
     }
 
     return true;
+}
+
+
+void uiODApplMgr::addMPEParentPath( int visid, const TrcKey& tk )
+{
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv_->getObject(visid))
+    if ( !hd ) return;
+
+    mDynamicCastGet(EM::Horizon3D*,hor3d,
+		    EM::EMM().getObject(hd->getObjectID()))
+    if ( !hor3d )
+	return;
+
+    TypeSet<TrcKey> trcs; hor3d->getParents( tk, trcs );
+    if ( trcs.isEmpty() ) return;
+
+    BendPointFinderTrcKey bpf( trcs, 10 );
+    if ( !bpf.execute() ) return;
+
+    const TypeSet<int>& bends = bpf.bendPoints();
+    RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
+    rl->setName( "Parents path" );
+    Geometry::RLM().add( rl );
+    for ( int idx=0; idx<bends.size(); idx++ )
+	rl->addNode( trcs[bends[idx]].pos() );
+
+    const int rlvisid =
+	sceneMgr().addRandomLineItem( rl->ID(), hd->getSceneID() );
+    viewer2DMgr().displayIn2DViewer( rlvisid, 0, false );
+    visserv_->setSelObjectId( visid );
 }
 
 
@@ -1828,6 +1843,8 @@ void uiODApplMgr::storeEMObject()
     PtrMan<IOObj> ioobj = IOM().get( mid );
     const bool saveas = mid.isEmpty() || !ioobj;
     emserv_->storeObject( emid, saveas );
+    BufferString auxdatanm;
+    emserv_->storeAuxData( emid, auxdatanm );
 
     TypeSet<int> ids;
     mid = emserv_->getStorageID( emid );
