@@ -94,6 +94,7 @@ echo -n "TRANSLATIONS = " > ${profnm}
 echo " \" >> ${profnm}
 echo -n "    ${application}_template.ts" >> ${profnm}
 
+set nonomatch=1
 foreach fnm ( ${application}*.ts )
     if ( "${fnm}" =~ "*en-us.ts" ) then
 	continue
