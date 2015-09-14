@@ -184,19 +184,19 @@ int uiMPEMan::popupMenu()
     uiMenu mnu( tr("Tracking Menu") );
     const bool istracking = MPE::engine().trackingInProgress();
     if ( istracking )
-	mAddAction( tr("Stop Tracking"), "k", sStop, true )
+	mAddAction( tr("Stop Auto Tracking"), "k", sStop, true )
     else
     {
 	const Coord3& clickedpos = scene->getMousePos( true );
 	const bool haspos = !clickedpos.isUdf();
-	mAddAction( tr("Start Tracking"), "k", sStart, true )
+	mAddAction( tr("Start Auto Tracking"), "k", sStart, true )
 	mAddAction( tr("Retrack From Seeds"), "ctrl+k", sRetrack, true )
 	mAddAction( tr("Define Polygon"), "y", sPoly, true )
 	if ( haspos )
 	{
-	    mAddAction( tr("Select Children"), "", sChild, true )
 	    mAddAction( tr("Select Parents"), "", sParent, true )
 	    mAddAction( tr("Show Parents Path"), "", sParPath, true )
+	    mAddAction( tr("Select Children"), "", sChild, true )
 	}
 	mAddAction( tr("Clear Selection"), "a", sClear, true )
 	mAddAction( tr("Delete Selected"), "d", sDelete, true )
