@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "datapointset.h"
 #include "datacoldef.h"
+#include "executor.h"
 #include "posvecdataset.h"
 #include "posprovider.h"
 #include "bufstringset.h"
@@ -151,53 +152,108 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 }
 
 
-DataPointSet::DataPointSet( ::Pos::Provider& prov,
-			    const ObjectSet<DataColDef>& dcds,
-			    const ::Pos::Filter* filt, bool mini )
-	: PointDataPack(sKeyDPS)
-	, data_(*new PosVecDataSet)
-	, mAddMembs(prov.is2D(),mini)
+class DPSPointExtractor : public Executor
+{ mODTextTranslationClass(DPSPointExtractor);
+public:
+
+DPSPointExtractor( DataPointSet& dps, ::Pos::Provider& prov,
+		   const Pos::Filter* filt, int nrcols )
+    : Executor( "Extracting positions" )
+    , dps_(dps)
+    , prov_(prov)
+    , filt_(filt)
+    , nrcols_(nrcols)
+    , p3d_(0)
+    , p2d_(0)
+    , f3d_(0)
+    , f2d_(0)
 {
-    initPVDS();
+    mDynamicCast(const ::Pos::Provider3D*,p3d_,&prov)
+    mDynamicCast(const ::Pos::Provider2D*,p2d_,&prov)
+    mDynamicCast(const ::Pos::Filter3D*,f3d_,filt)
+    mDynamicCast(const ::Pos::Filter2D*,f2d_,filt)
+    nrdone_ = 0;
+    totalnr_ = prov_.estNrPos()*prov_.estNrZPerPos();
+    dr_.data_.setSize( nrcols_, mUdf(float) );
+}
+
+
+od_int64 totalNr() const	{ return totalnr_; }
+
+od_int64 nrDone() const		{ return nrdone_; }
+
+uiString uiMessage() const	{ return tr("Extracting positions"); }
+
+uiString uiNrDoneText() const	{ return tr("Positions done"); }
+
+
+protected:
+
+int nextStep()
+{
+    nrdone_++;
+    if ( !prov_.toNextZ() )
+	return Finished();
+
+    const float curz = prov_.curZ();
+    if ( mIsUdf(curz) )
+	return MoreToDo();
+
+    const Coord crd( prov_.curCoord() );
+    dr_.pos_.set( crd );
+    if ( !p3d_ )
+	dr_.pos_.nr_ = p2d_->curNr();
+    dr_.pos_.z_ = curz;
+    if ( filt_ )
+    {
+	if ( f3d_ )
+	{
+	    if ( !f3d_->includes(dr_.pos_.binid_,dr_.pos_.z_) )
+		return MoreToDo();
+	}
+	else if ( f2d_ )
+	{
+	    if ( !f2d_->includes(dr_.pos_.nr_,dr_.pos_.z_) )
+		return MoreToDo();
+	}
+	if ( filt_->hasZAdjustment() )
+	    dr_.pos_.z_ = filt_->adjustedZ( crd, (float) dr_.pos_.z_ );
+    }
+
+    dps_.addRow( dr_ );
+    return MoreToDo();
+}
+
+    DataPointSet&		dps_;
+    ::Pos::Provider&		prov_;
+    const ::Pos::Provider3D*	p3d_;
+    const ::Pos::Provider2D*	p2d_;
+    const ::Pos::Filter*	filt_;
+    const ::Pos::Filter3D*	f3d_;
+    const ::Pos::Filter2D*	f2d_;
+    DataPointSet::DataRow	dr_;
+    int				nrcols_;
+    od_int64			nrdone_;
+    od_int64			totalnr_;
+};
+
+
+bool DataPointSet::extractPositions( ::Pos::Provider& prov,
+			    const ObjectSet<DataColDef>& dcds,
+			    const ::Pos::Filter* filt,
+			    TaskRunner* tr )
+{
     for ( int idx=0; idx<dcds.size(); idx++ )
 	data_.add( new DataColDef(*dcds[idx]) );
 
-    mDynamicCastGet(const ::Pos::Provider3D*,p3d,&prov)
-    mDynamicCastGet(const ::Pos::Provider2D*,p2d,&prov)
-    mDynamicCastGet(const ::Pos::Filter3D*,f3d,filt)
-    mDynamicCastGet(const ::Pos::Filter2D*,f2d,filt)
-
     const int nrcols = dcds.size();
-    DataPointSet::DataRow dr;
-    while ( prov.toNextZ() )
-    {
-	if ( mIsUdf(prov.curZ()) )
-	    continue;
-	const Coord crd( prov.curCoord() );
-	dr.pos_.set( crd );
-	if ( !p3d )
-	    dr.pos_.nr_ = p2d->curNr();
-	dr.pos_.z_ = prov.curZ();
-	if ( filt )
-	{
-	    if ( f3d )
-	    {
-		if ( !f3d->includes(dr.pos_.binid_,dr.pos_.z_) )
-		    continue;
-	    }
-	    else if ( f2d )
-	    {
-		if ( !f2d->includes(dr.pos_.nr_,dr.pos_.z_) )
-		    continue;
-	    }
-	    if ( filt->hasZAdjustment() )
-		dr.pos_.z_ = filt->adjustedZ( crd, (float) dr.pos_.z_ );
-	}
-	dr.data_.setSize( nrcols, mUdf(float) );
-	addRow( dr );
-    }
+
+    DPSPointExtractor extracttor( *this, prov, filt, nrcols );
+    if ( !TaskRunner::execute(tr,extracttor) )
+	return false;
 
     calcIdxs();
+    return true;
 }
 
 
@@ -605,7 +661,8 @@ bool DataPointSet::setRow( const DataPointSet::DataRow& dr )
 float DataPointSet::nrKBytes() const
 {
     const int twointsz = 2 * sizeof(int);
-    const float rowsz = sKb2MbFac() * (twointsz + bivSet().nrVals()*sizeof(float));
+    const float rowsz =
+	sKb2MbFac() * (twointsz + bivSet().nrVals()*sizeof(float));
     const int nrrows = mCast( int, bivSet().totalSize() );
     return nrrows * (rowsz + twointsz);
 }

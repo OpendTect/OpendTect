@@ -239,14 +239,14 @@ void uiPosProvSel::setProvFromCS()
     if ( setup_.is2d_ )
     {
 	Pos::RangeProvider2D* rp2d = new Pos::RangeProvider2D;
-	rp2d->trcRange(0) = tkzs_.hsamp_.crlRange();
-	rp2d->zRange() = tkzs_.zsamp_;
+	rp2d->setTrcRange( tkzs_.hsamp_.crlRange(), 0 );
+	rp2d->setZRange( tkzs_.zsamp_, 0 );
 	prov_ = rp2d;
     }
     else
     {
 	Pos::RangeProvider3D* rp3d = new Pos::RangeProvider3D;
-	rp3d->sampling() = tkzs_;
+	rp3d->setSampling( tkzs_ );
 	prov_ = rp3d;
     }
     prov_->fillPar( iop_ );

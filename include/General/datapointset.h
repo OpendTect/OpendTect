@@ -21,6 +21,7 @@ class BinIDValueSet;
 class PosVecDataSet;
 class UnitOfMeasure;
 class BufferStringSet;
+class TaskRunner;
 namespace Pos { class Filter; class Provider; }
 
 
@@ -132,10 +133,6 @@ public:
     			DataPointSet(const TypeSet<DataRow>&,
 				     const BufferStringSet& valnms,
 				     bool is2d,bool minimal=false);
-    			DataPointSet(::Pos::Provider&,
-				     const ObjectSet<DataColDef>&,
-				     const ::Pos::Filter* f=0,
-				     bool minimal=false);
     			DataPointSet(const PosVecDataSet&,bool is2d,
 					bool minimal=false);
     			DataPointSet(const DataPointSet&,const ::Pos::Filter&);
@@ -223,6 +220,10 @@ public:
 
     			// Building from scratch
     			DataPointSet(bool is2d,bool minimal=false);
+    bool		extractPositions(::Pos::Provider&,
+				     const ObjectSet<DataColDef>&,
+				     const ::Pos::Filter* f=0,
+				     TaskRunner* tr=0);
     void		addCol(const char* nm,const char* ref=0,
 	    			const UnitOfMeasure* un=0);
 			//!< or use dataSet() to add columns

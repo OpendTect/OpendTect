@@ -79,7 +79,7 @@ protected:
 						     const SeisTrcInfo&,
 						     const Interval<float>&,
 						     int iseq);
-    bool			launchCrossPlot(const DataPointSet&,
+    void			launchCrossPlot(const DataPointSet&,
 						const Strat::Level&,
 						const Strat::Level*,
 						const Interval<float>&,

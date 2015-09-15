@@ -1792,6 +1792,7 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 void uiDataPointSetCrossPlotter::drawData(
     const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2, bool rempts )
 {
+    MouseCursorChanger ms( MouseCursor::Wait );
     if ( !x_.axis_ || !yad.axis_ )
 	return;
 
