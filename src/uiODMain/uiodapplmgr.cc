@@ -360,7 +360,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
     bool douse = false;
     MultiID id;
     ODSession::getStartupData( douse, id );
-    if ( !douse || id.isEmpty() )
+    if ( !douse || id.isUdf() )
 	sceneMgr().addScene( true );
 
     attrserv_ = new uiAttribPartServer( applservice_ );

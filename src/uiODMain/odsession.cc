@@ -187,10 +187,11 @@ IOPar& ODSession::attrpars( bool is2d, bool isstored )
 }
 
 
-void ODSession::getStartupData( bool& douse, MultiID& id )
+void ODSession::getStartupData( bool& douse, MultiID& mid )
 {
     Settings::common().getYN( sKeyUseStartup(), douse );
-    id = SI().pars().find( sKeyStartupID() );
+    mid.setUdf();
+    SI().pars().get( sKeyStartupID(), mid );
 }
 
 
@@ -230,11 +231,11 @@ bool ODSessionTranslator::retrieve( ODSession& session,
     if ( !ioobj ) { err = uiStrings::sCantFindODB(); return false; }
     PtrMan<ODSessionTranslator> trans =
 		dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
-    if ( !trans ) 
+    if ( !trans )
     { err = tr("Selected object is not an Session"); return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ 
+	{
 	err = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
 	return false;
 	}
@@ -248,17 +249,17 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 bool ODSessionTranslator::store( const ODSession& session,
 				 const IOObj* ioobj, uiString& err )
 {
-    if ( !ioobj ) 
+    if ( !ioobj )
     { err = sNoIoobjMsg(); return false; }
     PtrMan<ODSessionTranslator> trans
 	 = dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans )
-	{ 
+	{
 	err = tr("Selected object is not an OpendTect Session"); return false;
 	}
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    { 
+    {
        err = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
        return false;
     }
