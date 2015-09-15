@@ -62,7 +62,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , savemnuitem_(uiStrings::sSave(),-800)
     , saveasmnuitem_(uiStrings::sSaveAs(),-850)
     , enabletrackingmnuitem_(tr("Enable Tracking"))
-    , changesetupmnuitem_(m3Dots(tr("Change Setup")))
+    , changesetupmnuitem_(m3Dots(tr("Change Settings")))
     , reloadmnuitem_(uiStrings::sReload(),-750)
     , trackmenuitem_(uiVisEMObject::trackingmenutxt())
     , starttrackmnuitem_(m3Dots(tr("Start Tracking")))
@@ -71,6 +71,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     savemnuitem_.iconfnm = "save";
     saveasmnuitem_.iconfnm = "saveas";
     enabletrackingmnuitem_.checkable = true;
+    changesetupmnuitem_.iconfnm = "tools";
     NotSavedPrompter::NSP().promptSaving.notify(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
 }
