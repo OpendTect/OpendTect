@@ -49,7 +49,7 @@ uiColTabItem::~uiColTabItem()
 
 void uiColTabItem::adjustLabel()
 {
-    const uiRect rect = uiRect( 0, 0, setup_.sz_.width(), setup_.sz_.height() );
+    const uiRect rect( 0, 0, setup_.sz_.width(), setup_.sz_.height() );
     Alignment al;
 
     if ( setup_.hor_ )
