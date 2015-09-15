@@ -609,7 +609,7 @@ void uiExtensionHor3DInterpol::initClass()
 {
     uiHor3DInterpol::factory().addCreator( create,
 	    ExtensionArray2DInterpol::sFactoryKeyword(),
-	     ExtensionArray2DInterpol::sFactoryDisplayName() );
+	    ExtensionArray2DInterpol::sFactoryDisplayName() );
 }
 
 
