@@ -26,9 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace EM
 {
 
-int EMObject::sPermanentControlNode() {return PosAttrib::PermanentControlNode;}
-int EMObject::sTemporaryControlNode() {return PosAttrib::TemporaryControlNode;}
-int EMObject::sEdgeControlNode()	{ return PosAttrib::EdgeControlNode; }
 int EMObject::sTerminationNode()	{ return PosAttrib::TerminationNode; }
 int EMObject::sSeedNode()		{ return PosAttrib::SeedNode; }
 

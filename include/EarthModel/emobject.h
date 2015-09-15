@@ -235,9 +235,6 @@ public:
     virtual void		fillPar(IOPar&) const;
     void			saveDisplayPars() const;
 
-    static int			sPermanentControlNode();
-    static int			sTemporaryControlNode();
-    static int			sEdgeControlNode();
     static int			sTerminationNode();
     static int			sSeedNode();
 
