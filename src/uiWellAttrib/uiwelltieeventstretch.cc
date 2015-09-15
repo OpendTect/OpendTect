@@ -25,19 +25,19 @@ namespace WellTie
 {
 
 EventStretch::EventStretch( PickSetMgr& pmgr, D2TModelMgr& d2tmgr )
-  	: pmgr_(pmgr)
+	: pmgr_(pmgr)
 	, synthpickset_(pmgr_.synthPickSet())
 	, seispickset_(pmgr_.seisPickSet())
 	, d2tmgr_(d2tmgr)
 	, d2t_(0)
 	, track_(0)
-{} 
+{}
 
 
 void EventStretch::doWork( CallBacker* )
 {
-    pmgr_.sortByPos(); 	
-    doStretchWork();	
+    pmgr_.sortByPos();
+    doStretchWork();
 }
 
 
@@ -99,10 +99,11 @@ void EventStretch::doStretchSqueeze()
 	ctrlvals += seispickset_[idx].zpos_;
     }
     IdxAble::calibrateArray( d2tarr.arr(), d2tsz,
-	    		     ctrlvals.arr(), ctrlidxs.arr(),
+			     ctrlvals.arr(), ctrlidxs.arr(),
 			     ctrlvals.size(), false, calibratedarr.arr() );
 
     d2tmgr_.setFromData( daharr.arr(), calibratedarr.arr(), d2tsz );
 }
 
-}; //namespace WellTie
+} // namespace WellTie
+

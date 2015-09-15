@@ -28,19 +28,20 @@ class SeisTrc;
 class TaskRunner;
 class Wavelet;
 
-
 namespace Well { class Data; class Log; class LogSet; class Writer; }
 
 namespace WellTie
 {
-    class DataPlayer;
-    class Setup;
-    class PickSetMgr;
+
+class DataPlayer;
+class Setup;
+class PickSetMgr;
+
 
 mExpClass(WellAttrib) DispParams
 { mODTextTranslationClass(DispParams);
 public:
-			    DispParams()
+			DispParams()
 			    : ismarkerdisp_(true)
 			    , isvwrmarkerdisp_(true)
 			    , isvwrhordisp_(false)
@@ -48,30 +49,25 @@ public:
 			    , iszintime_(true)
 			    , dispmrkfullnames_(true)
 			    , disphorfullnames_(true)
-			    {}
+			{}
 
-    bool                    ismarkerdisp_;
-    bool                    isvwrmarkerdisp_;
-    bool                    isvwrhordisp_;
-    bool                    dispmrkfullnames_;
-    bool                    disphorfullnames_;
-    bool                    iszinft_;
-    bool                    iszintime_;
+    bool		ismarkerdisp_;
+    bool		isvwrmarkerdisp_;
+    bool		isvwrhordisp_;
+    bool		dispmrkfullnames_;
+    bool		disphorfullnames_;
+    bool		iszinft_;
+    bool		iszintime_;
     Well::DisplayProperties::Markers mrkdisp_;
-    BufferStringSet	    allmarkernms_;
+    BufferStringSet	allmarkernms_;
 
-    static const char*		sKeyIsMarkerDisp()	{ return
-					   "Display Markers on Well Display"; }
-    static const char*		sKeyVwrMarkerDisp()	{ return
-					      "Display Markers on 2D Viewer"; }
-    static const char*		sKeyVwrHorizonDisp()	{ return
-					      "Display Horizon on 2D Viewer"; }
-    static const char*		sKeyZInFeet()		{ return "Z in Feet"; }
-    static const char*		sKeyZInTime()		{ return "Z in Time"; }
-    static const char*		sKeyMarkerFullName()	{ return
-						 "Display markers full name"; }
-    static const char*		sKeyHorizonFullName()	{ return
-						 "Display horizon full name"; }
+    static const char*	sKeyIsMarkerDisp();
+    static const char*	sKeyVwrMarkerDisp();
+    static const char*	sKeyVwrHorizonDisp();
+    static const char*	sKeyZInFeet();
+    static const char*	sKeyZInTime();
+    static const char*	sKeyMarkerFullName();
+    static const char*	sKeyHorizonFullName();
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -81,19 +77,19 @@ public:
 mExpClass(WellAttrib) Marker
 { mODTextTranslationClass(Marker);
 public:
-			    Marker(float z)
-				: zpos_(z)
-				, size_(2)
-				{}
+			Marker(float z)
+			    : zpos_(z)
+			    , size_(2)
+			{}
 
-    Color			color_;
-    float			zpos_;
-    BufferString		name_;
-    int				id_;
-    int				size_;
+    Color		color_;
+    float		zpos_;
+    BufferString	name_;
+    int			id_;
+    int			size_;
 
-    bool			operator == ( const Marker& m ) const
-					{ return m.zpos_ == zpos_; }
+    bool		operator == ( const Marker& m ) const
+				{ return m.zpos_ == zpos_; }
 };
 
 
@@ -161,7 +157,7 @@ protected:
     Interval<float>		dahrg_;
     StepInterval<float>		modelrg_;
     StepInterval<float>		reflrg_;
-    const Setup&		setup_;
+    const Setup			setup_;
 };
 
 
@@ -281,7 +277,7 @@ protected :
     D2TModelMgr*		d2tmgr_;
     DataWriter*			datawriter_;
     Data*			data_;
-    const MultiID&		wellid_;
+    MultiID			wellid_;
 
     uiString			errmsg_;
     mutable uiString		warnmsg_;
@@ -290,9 +286,7 @@ protected :
     void			handleDataPlayerWarning() const;
 };
 
-}; //namespace WellTie
-
+} // namespace WellTie
 
 #endif
-
 

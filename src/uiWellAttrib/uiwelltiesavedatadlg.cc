@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 //start at 2, the first 2 are sonic and density.
 #define cLogShift	2
 #define mErrRet( msg ) { uiMSG().error(msg); return false; }
+
 namespace WellTie
 {
 
@@ -63,7 +64,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     logsfld_->attach( alignedBelow, logchk_ );
 
     saveasfld_ = new uiGenInput( loggrp, uiStrings::sSaveAs(),
-				BoolInpSpec( true, tr("Log"), 
+				BoolInpSpec( true, tr("Log"),
 					     tr("Seismic cube")) );
     saveasfld_->attach( alignedBelow, logsfld_ );
     saveasfld_->valuechanged.notify(
@@ -245,5 +246,5 @@ bool uiSaveDataDlg::acceptOK( CallBacker* )
     return false;
 }
 
-}; //namespace Well Tie
+} // namespace WellTie
 

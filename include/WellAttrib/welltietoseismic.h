@@ -25,7 +25,9 @@ namespace Well { class Data; class Log; }
 
 namespace WellTie
 {
-    class Data;
+
+class Data;
+
 
 mExpClass(WellAttrib) DataPlayer
 { mODTextTranslationClass(DataPlayer);
@@ -76,6 +78,7 @@ protected:
     uiString		warnmsg_;
 };
 
-};//namespace WellTie
+} // namespace WellTie
+
 #endif
 

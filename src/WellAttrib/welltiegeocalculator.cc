@@ -36,7 +36,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-
 #define	mLocalEps	1e-2f
 Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
 						   const char* sonlog ) const
@@ -390,4 +389,5 @@ void GeoCalculator::d2TModel2Log( const Well::D2TModel& d2t,
     log.setUnitMeasLabel( UoMR().getInternalFor(tp)->symbol() );
 }
 
-}; //namespace WellTie
+} // namespace WellTie
+

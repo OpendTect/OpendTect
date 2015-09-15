@@ -17,15 +17,17 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 namespace Well { class D2TModel; }
+
 namespace WellTie
 {
 
-mExpClass(WellAttrib) CheckShotCorr  
+mExpClass(WellAttrib) CheckShotCorr
 {
 public:
     static void		calibrate(const Well::D2TModel& cs,Well::D2TModel& d2t);
 };
 
-}; //namespace WellTie
+} // namespace WellTie
+
 #endif
 

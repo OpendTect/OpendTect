@@ -28,7 +28,8 @@ class uiIOObjSel;
 
 namespace WellTie
 {
-    class Server;
+
+class Server;
 
 mExpClass(uiWellAttrib) uiSaveDataDlg : public uiDialog
 { mODTextTranslationClass(uiSaveDataDlg);
@@ -54,8 +55,7 @@ protected :
     void			saveWvltSelCB(CallBacker*);
 };
 
-}; //namespace WellTie
+} // namespace WellTie
 
 #endif
-
 

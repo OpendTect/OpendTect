@@ -204,5 +204,5 @@ IOPar* Reader::getIOPar( const char* subsel, od_istream& strm ) const
     return subsel ? iop.subselect( subsel ) : new IOPar(iop);
 }
 
+} // namespace WellTie
 
-}; // namespace WellTie

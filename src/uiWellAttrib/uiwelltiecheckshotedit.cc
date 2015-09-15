@@ -74,18 +74,18 @@ int uiCheckShotEdit::DriftCurve::indexOfCurrentPoint(float dh,float val) const
 }
 
 
-uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server ) 
+uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     : uiDialog(p,uiDialog::Setup(tr("Apply Checkshot correction"),
 		tr("Edit depth/time model based on checkshot"),
 		mODHelpKey(mCheckShotEditHelpID) ).nrstatusflds(1))
-    , server_(server)					     
-    , wd_(*server.wd())   
-    , d2tlineitm_(0)	     
+    , server_(server)
+    , wd_(*server.wd())
+    , d2tlineitm_(0)
     , d2t_(wd_.d2TModel())
     , tkzs_(wd_.checkShotModel())
     , orgcs_(0)
     , isedit_(false)
-    , movingpointidx_(-1)  
+    , movingpointidx_(-1)
 {
     if ( !tkzs_ )
 	mErrRet( tr("No checkshot provided"), return );
@@ -96,7 +96,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     newdriftcurve_.setName( "User defined Drift Curve" );
 
     orgd2t_ = new Well::D2TModel( *d2t_ );
-    uiWellDahDisplay::Setup dsu; 
+    uiWellDahDisplay::Setup dsu;
     dsu.samexaxisrange_ = true; dsu.drawcurvenames_ = false;
     d2tdisplay_ = new uiWellDahDisplay( this, dsu );
     dsu.symetricalxaxis_ = true;
@@ -129,13 +129,13 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
 
     undobut_ = new uiToolButton( toolbar_, "undo", uiStrings::sUndo(),
 				mCB(this,uiCheckShotEdit,undoCB) );
-    toolbar_->addButton( undobut_ ); 
+    toolbar_->addButton( undobut_ );
     undobut_->setSensitive( false );
     redobut_ = new uiToolButton( toolbar_, "redo", uiStrings::sRedo(),
 				mCB(this,uiCheckShotEdit,redoCB) );
-    toolbar_->addButton( redobut_ ); 
+    toolbar_->addButton( redobut_ );
     redobut_->setSensitive( false );
-				
+
     control_ = new uiWellDisplayControl( *d2tdisplay_ );
     control_->addDahDisplay( *driftdisplay_ );
     control_->posChanged.notify( mCB(this,uiCheckShotEdit,setInfoMsg) );
@@ -148,7 +148,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     viewcorrd2t_->attach( ensureBelow, driftdisplay_ );
     viewcorrd2t_->setChecked( true );
 
-    uiLabeledComboBox* lbl = new uiLabeledComboBox( this, 
+    uiLabeledComboBox* lbl = new uiLabeledComboBox( this,
 				    tr("Compute Depth/Time model from: ") );
     driftchoicefld_ = lbl->box();
     lbl->attach( ensureBelow, viewcorrd2t_ );
@@ -209,7 +209,7 @@ void uiCheckShotEdit::mouseReleasedCB( CallBacker* )
 
 void uiCheckShotEdit::movePt()
 {
-    if ( movingpointidx_ < 0 ) 
+    if ( movingpointidx_ < 0 )
 	return;
 
     const float dah = control_->dah();
@@ -233,19 +233,19 @@ void uiCheckShotEdit::movePt()
 
 
 void uiCheckShotEdit::doInsertRemovePt()
-{ 
-    if ( isedit_ ) 
+{
+    if ( isedit_ )
     {
 	const float dah = control_->dah();
 	const float val = control_->xPos();
 
 	const bool isadd = !control_->isCtrlPressed();
-	if ( isadd ) 
+	if ( isadd )
 	{
 	    if ( newdriftcurve_.isEmpty() && !driftcurve_.isEmpty() )
 		newdriftcurve_.add( driftcurve_.dah(0), driftcurve_.value(0) );
 
-	    newdriftcurve_.insertAtDah( dah, val ); 
+	    newdriftcurve_.insertAtDah( dah, val );
 	}
 	undo_.addEvent( new DahObjUndoEvent(dah,val,newdriftcurve_,isadd) );
     }
@@ -253,7 +253,7 @@ void uiCheckShotEdit::doInsertRemovePt()
     redobut_->setSensitive( undo_.canReDo() );
     driftdisplay_->setToolTip(uiString::emptyString());
 
-    applyCB(0); 
+    applyCB(0);
 }
 
 
@@ -304,8 +304,8 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
 {
     uiWellDahDisplay* disp = left ? d2tdisplay_ : driftdisplay_;
     uiWellDahDisplay::DahObjData& dahdata = disp->dahObjData( first );
-    dahdata.col_ = d == &newdriftcurve_ ? Color::DgbColor() 
-					: Color::stdDrawColor(first ? 0 : 1); 
+    dahdata.col_ = d == &newdriftcurve_ ? Color::DgbColor()
+					: Color::stdDrawColor(first ? 0 : 1);
     dahdata.setData( d );
     dahdata.xrev_ = false;
     dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
@@ -328,7 +328,7 @@ void uiCheckShotEdit::drawDrift()
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
 	const float csval = tkzs_->getTime( dah, wd_.track() );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
-	driftcurve_.add( dah, drift ); 
+	driftcurve_.add( dah, drift );
     }
     drawDahObj( &driftcurve_, true, false );
     drawDahObj( &newdriftcurve_, false, false );
@@ -353,7 +353,7 @@ void uiCheckShotEdit::drawDrift()
 void uiCheckShotEdit::applyCB( CallBacker* )
 {
     const bool isorgdrift = driftchoicefld_->currentItem() == 0;
-    const DriftCurve& driftcurve = isorgdrift ? driftcurve_ : newdriftcurve_; 
+    const DriftCurve& driftcurve = isorgdrift ? driftcurve_ : newdriftcurve_;
     uiGraphicsScene& scene = d2tdisplay_->scene();
     scene.removeItem( d2tlineitm_ );
     delete d2tlineitm_; d2tlineitm_=0;
@@ -365,7 +365,7 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 	const float drift = driftcurve.value( idx );
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
 	const float csval = drift / SI().zDomain().userFactor() + d2tval;
-	tmpcs.add( dah, csval ); 
+	tmpcs.add( dah, csval );
     }
 
     *d2t_ = *orgd2t_;
@@ -397,22 +397,22 @@ bool uiCheckShotEdit::acceptOK( CallBacker* )
 
     server_.d2TModelMgr().setAsCurrent( new Well::D2TModel( *d2t_ ) );
 
-    return true; 
+    return true;
 }
 
 
 bool uiCheckShotEdit::rejectOK( CallBacker* )
 {
     server_.d2TModelMgr().cancel();
-    return true; 
+    return true;
 }
 
 
 
-DahObjUndoEvent::DahObjUndoEvent( float dah, float val, 
+DahObjUndoEvent::DahObjUndoEvent( float dah, float val,
 				Well::DahObj& dahobj, bool isadd )
-    : dah_(dah) 
-    , val_(val) 
+    : dah_(dah)
+    , val_(val)
     , dahobj_(dahobj)
     , isadd_(isadd)
 {}
@@ -424,15 +424,15 @@ const char* DahObjUndoEvent::getStandardDesc() const
 
 bool DahObjUndoEvent::unDo()
 {
-    if ( isadd_ ) 
+    if ( isadd_ )
     {
 	const int dahidx = dahobj_.indexOf( dah_ );
-	if ( dahidx >= 0 && dahidx < dahobj_.size() ) 
+	if ( dahidx >= 0 && dahidx < dahobj_.size() )
 	    dahobj_.remove( dahidx );
     }
     else
     {
-	dahobj_.insertAtDah( dah_, val_ ); 
+	dahobj_.insertAtDah( dah_, val_ );
     }
     return true;
 }
@@ -440,17 +440,17 @@ bool DahObjUndoEvent::unDo()
 
 bool DahObjUndoEvent::reDo()
 {
-    if ( isadd_ ) 
+    if ( isadd_ )
     {
-	dahobj_.insertAtDah( dah_, val_ ); 
+	dahobj_.insertAtDah( dah_, val_ );
     }
     else
     {
 	const int dahidx = dahobj_.indexOf( dah_ );
-	if ( dahidx >= 0 && dahidx < dahobj_.size() ) 
+	if ( dahidx >= 0 && dahidx < dahobj_.size() )
 	    dahobj_.remove( dahidx );
     }
     return true;
 }
 
-} //namespace
+} // namespace WellTie

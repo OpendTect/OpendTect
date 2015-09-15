@@ -41,12 +41,12 @@ void CheckShotCorr::calibrate( const Well::D2TModel& cs, Well::D2TModel& d2t )
     for ( int idx=0; idx<cs.size(); idx++ )
     {
 	const int dahidx = d2t.indexOf( cs.dah(idx) );
-	ctrlsamples += dahidx; 
+	ctrlsamples += dahidx;
     }
     const float* csarr = cs.valArr();
     IdxAble::calibrateArray( d2tarr, d2tsz,
-			      csarr, ctrlsamples.arr(), 
+			      csarr, ctrlsamples.arr(),
 			      cs.size(), false, d2tarr );
 }
 
-}; //namespace WellTie
+} // namespace WellTie

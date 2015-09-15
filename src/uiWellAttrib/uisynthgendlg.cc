@@ -39,7 +39,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , synthDisabled(this)
 {
     setOkText( uiStrings::sApply() );
-    setCancelText( tr("Dismiss") );
+    setCancelText( uiStrings::sClose() );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Synthetics"),
 			 uiListBox::AboveMid );
@@ -352,11 +352,11 @@ bool uiSynthGenDlg::getFromScreen()
 	SynthGenParams::SynthType synthtype = genparams.synthtype_;
 	if ( psselfld_->box()->isEmpty() )
 	    mErrRet( tr("Cannot generate an angle stack synthetics without any "
-			"NMO corrected PreStack."), return false );
+		        "NMO corrected PreStack."), return false );
 
 	if ( !psselfld_->box()->sensitive() )
 	    mErrRet( tr("Cannot change synthetic data as the dependent prestack"
-			" synthetic data has already been removed"),
+		        " synthetic data has already been removed"),
 			return false );
 
 	SyntheticData* inppssd = stratsynth_.getSynthetic(

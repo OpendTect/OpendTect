@@ -16,10 +16,10 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-const char*  UnitFactors::getStdVelLabel() 
+const char*  UnitFactors::getStdVelLabel()
 { return "m/s"; }
 
-const char*  UnitFactors::getStdTimeLabel() 
+const char*  UnitFactors::getStdTimeLabel()
 { return "s"; }
 
 const char*  UnitFactors::getStdSonLabel()
@@ -37,12 +37,13 @@ double UnitFactors::getVelFactor( const Well::Log& vellog, bool issonic ) const
 {
     const UnitOfMeasure* uom = getUOM( vellog );
     const char* s = uom ? uom->symbol() : 0;
-    return s ? issonic ? calcSonicVelFactor( s ) : calcVelFactor( s ) : mUdf(double); 
+    return s ? (issonic ? calcSonicVelFactor(s) : calcVelFactor(s))
+	     : mUdf(double);
 }
 
 
 const UnitOfMeasure* UnitFactors::getUOM( const Well::Log& log ) const
-{ 
+{
     return UnitOfMeasure::getGuessed( log.unitMeasLabel() );
 }
 
@@ -67,4 +68,4 @@ double UnitFactors::calcDensFactor( const char* densunit ) const
     return um ? um->userValue(1.0) : 1000;
 }
 
-}; //namespace WellTie
+} // namespace WellTie

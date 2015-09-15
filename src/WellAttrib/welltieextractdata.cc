@@ -162,4 +162,4 @@ int SeismicExtractor::nextStep()
     return Executor::MoreToDo();
 }
 
-}; //namespace WellTie
+} // namespace WellTie

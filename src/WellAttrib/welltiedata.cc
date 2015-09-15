@@ -43,6 +43,27 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
+const char* DispParams::sKeyIsMarkerDisp()
+{ return "Display Markers on Well Display"; }
+
+const char* DispParams::sKeyVwrMarkerDisp()
+{ return "Display Markers on 2D Viewer"; }
+
+const char* DispParams::sKeyVwrHorizonDisp()
+{ return "Display Horizon on 2D Viewer"; }
+
+const char* DispParams::sKeyZInFeet()
+{ return "Z in Feet"; }
+
+const char* DispParams::sKeyZInTime()
+{ return "Z in Time"; }
+
+const char* DispParams::sKeyMarkerFullName()
+{ return "Display markers full name"; }
+
+const char* DispParams::sKeyHorizonFullName()
+{ return "Display horizon full name"; }
+
 
 void DispParams::fillPar( IOPar& iop ) const
 {
@@ -522,5 +543,5 @@ void Server::handleDataPlayerWarning() const
     warnmsg_ = dataplayer_->warnMsg();
 }
 
-}; //namespace WellTie
+} // namespace WellTie
 

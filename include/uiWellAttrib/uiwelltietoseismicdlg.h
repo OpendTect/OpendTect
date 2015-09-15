@@ -33,16 +33,18 @@ namespace Well	 { class Data; }
 
 namespace WellTie
 {
-    class Data;
-    class DispParams;
-    class Setup;
-    class Server;
-    class EventStretch;
-    class uiControlView;
-    class uiCrossCorrView;
-    class uiInfoDlg;
-    class uiTieView;
-    class uiWaveletView;
+
+class Data;
+class DispParams;
+class Setup;
+class Server;
+class EventStretch;
+class uiControlView;
+class uiCrossCorrView;
+class uiInfoDlg;
+class uiTieView;
+class uiWaveletView;
+
 
 mExpClass(uiWellAttrib) uiTieWin : public uiFlatViewMainWin
 { mODTextTranslationClass(uiTieWin);
@@ -51,23 +53,23 @@ public:
 				uiTieWin(uiParent*,WellTie::Server&);
 				~uiTieWin();
 
-    const WellTie::Setup&	Setup() const;
+    const WellTie::Setup&	welltieSetup() const;
 
     void			fillPar(IOPar&) const;
     void			usePar(const IOPar&);
 
-    static const char*		sKeyWinPar() 	{ return "Well Tie Window"; }
-	
+    static const char*		sKeyWinPar()	{ return "Well Tie Window"; }
+
 protected:
 
     Server&			server_;
     EventStretch&		stretcher_;
     DispParams&			params_;
-    
-    uiCheckBox* 		markerfld_;
-    uiCheckBox* 		zinftfld_;
-    uiCheckBox* 		zintimefld_;
-    uiGroup*            	vwrgrp_;
+
+    uiCheckBox*			markerfld_;
+    uiCheckBox*			zinftfld_;
+    uiCheckBox*			zintimefld_;
+    uiGroup*			vwrgrp_;
     uiLabeledComboBox*		eventtypefld_;
     uiPushButton*		infobut_;
     uiPushButton*		applybut_;
@@ -75,51 +77,51 @@ protected:
     uiPushButton*		clearpicksbut_;
     uiPushButton*		clearlastpicksbut_;
     uiPushButton*		matchhormrksbut_;
-    uiToolBar*          	toolbar_;
+    uiToolBar*			toolbar_;
 
-    uiControlView* 		controlview_;
-    uiInfoDlg* 			infodlg_; 
+    uiControlView*		controlview_;
+    uiInfoDlg*			infodlg_;
     uiTieView*			drawer_;
     IOPar			par_;
-    
+
     void			addControls();
-    void 			addToolBarTools();
+    void			addToolBarTools();
     void			createViewerTaskFields(uiGroup*);
     void			createDispPropFields(uiGroup*);
-    void 			drawFields();
-    void 			getDispParams();
-    void 			initAll();
-    void 			putDispParams();
+    void			drawFields();
+    void			getDispParams();
+    void			initAll();
+    void			putDispParams();
     void			resetInfoDlg();
 
     bool			acceptOK(CallBacker*);
-    void 			applyPushed(CallBacker*);
-    void 			applyShiftPushed(CallBacker*);
+    void			applyPushed(CallBacker*);
+    void			applyShiftPushed(CallBacker*);
     bool			compute(CallBacker*);
     void			checkIfPick(CallBacker*);
     void			checkShotChg(CallBacker*);
     void			checkShotDisp(CallBacker*);
     void			clearLastPick(CallBacker*);
     void			clearPicks(CallBacker*);
-    void 			dispParPushed(CallBacker*);
-    void 			dispPropChg(CallBacker*);
+    void			dispParPushed(CallBacker*);
+    void			dispPropChg(CallBacker*);
     void			dispInfoMsg(CallBacker*);
-    void 			displayUserMsg(CallBacker*);
-    void 			doWork(CallBacker*);
+    void			displayUserMsg(CallBacker*);
+    void			doWork(CallBacker*);
     void			drawUserPick(CallBacker*);
-    void 			editD2TPushed(CallBacker*);
+    void			editD2TPushed(CallBacker*);
     void			eventTypeChg(CallBacker*);
-    void 			infoPushed(CallBacker*);
-    bool 			matchHorMrks(CallBacker*);
-    void 			provideWinHelp(CallBacker*);
+    void			infoPushed(CallBacker*);
+    bool			matchHorMrks(CallBacker*);
+    void			provideWinHelp(CallBacker*);
     void			reDrawSeisViewer(CallBacker*);
     void			reDrawAuxDatas(CallBacker*);
     void			reDrawAll(CallBacker*);
     bool			rejectOK(CallBacker*);
-    void 			setView(CallBacker*);
-    bool 			saveDataPushed(CallBacker*);
-    void 			timeChanged(CallBacker*);
-    bool 			undoPushed(CallBacker*);
+    void			setView(CallBacker*);
+    bool			saveDataPushed(CallBacker*);
+    void			timeChanged(CallBacker*);
+    bool			undoPushed(CallBacker*);
     void			userDepthsChanged(CallBacker*);
     void			snapshotCB(CallBacker*);
 };
@@ -128,16 +130,16 @@ protected:
 
 mExpClass(uiWellAttrib) uiInfoDlg : public uiDialog
 { mODTextTranslationClass(uiInfoDlg);
-public:		
-    		
+public:
+
 				uiInfoDlg(uiParent*,Server&);
 				~uiInfoDlg();
 
-    Notifier<uiInfoDlg>  	redrawNeeded;
+    Notifier<uiInfoDlg> redrawNeeded;
 
-    void 			drawData();
-    bool 			getMarkerDepths(Interval<float>& zrg );
-    void 			dtmodelChanged(CallBacker*);
+    void			drawData();
+    bool			getMarkerDepths(Interval<float>& zrg );
+    void			dtmodelChanged(CallBacker*);
     const Wavelet&		getWavelet() const;
     bool			isInitWvltActive() const;
 
@@ -145,17 +147,17 @@ public:
     void			usePar(const IOPar&);
 
 protected:
-   
+
     Server&			server_;
     ObjectSet<uiGenInput>	zrangeflds_;
     ObjectSet<uiLabel>		zlabelflds_;
-    uiGenInput*                 choicefld_;
-    uiGenInput*                 estwvltlengthfld_;
-    uiCrossCorrView*      	crosscorr_;
-    uiWaveletView*     		wvltdraw_;
+    uiGenInput*			choicefld_;
+    uiGenInput*			estwvltlengthfld_;
+    uiCrossCorrView*		crosscorr_;
+    uiWaveletView*		wvltdraw_;
     uiLabel*			wvltscaler_;
 
-    BufferStringSet             markernames_;
+    BufferStringSet		markernames_;
 
     Interval<float>		zrg_;
     bool			zrginft_;
@@ -163,22 +165,22 @@ protected:
     BufferString		startmrknm_;
     BufferString		stopmrknm_;
 
-    const Data& 		data_;
+    const Data&			data_;
 
     void			putToScreen();
     bool			updateZrg();
     bool			computeNewWavelet();
 
-    void 			applyMarkerPushed(CallBacker*);
-    void 			wvltChanged(CallBacker*);
-    void 			needNewEstimatedWvlt(CallBacker*);
-    void 			zrgChanged(CallBacker*);
-    void 			synthChanged(CallBacker*);
+    void			applyMarkerPushed(CallBacker*);
+    void			wvltChanged(CallBacker*);
+    void			needNewEstimatedWvlt(CallBacker*);
+    void			zrgChanged(CallBacker*);
+    void			synthChanged(CallBacker*);
     void			crossCorrelationChanged(CallBacker*);
-    void 			crossAttribsParsChanged(CallBacker*);
+    void			crossAttribsParsChanged(CallBacker*);
 };
 
-}; //namespace WellTie
+} // namespace WellTie
 
 #endif
 
