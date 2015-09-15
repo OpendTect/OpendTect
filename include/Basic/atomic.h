@@ -73,7 +73,7 @@ public:
 
 private:
 			Atomic(const Atomic<T>&)
-			{ pErrMsg("Should never be called"); }
+			{ }
     
 #ifdef __STDATOMICS__
     std::atomic<T>	val_;
@@ -179,9 +179,9 @@ public:
     inline T*	operator++(int);
     inline T*	operator--(int);
     
-protected:
+private:
     inline	AtomicPointer(const AtomicPointer<T>&)
-    { pErrMsg("Should never be called"); }
+    { }
     
     Atomic<mAtomicPointerType>	ptr_;
 
