@@ -661,13 +661,16 @@ void uiTextItem::setTextColor( const Color& col )
 // uiAdvancedTextItem
 uiAdvancedTextItem::uiAdvancedTextItem()
     : uiGraphicsItem( mkQtObj() )
+    , al_(Alignment::Left,Alignment::Top)
 {
+    setAlignment( al_ );
 }
 
 
-uiAdvancedTextItem::uiAdvancedTextItem( const uiString& txt )
+uiAdvancedTextItem::uiAdvancedTextItem( const uiString& txt,
+					const Alignment& al )
     : uiGraphicsItem( mkQtObj() )
-    , al_(Alignment::HCenter,Alignment::VCenter)
+    , al_(al)
 {
     setPlainText( txt );
     setAlignment( al_ );

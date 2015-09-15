@@ -281,7 +281,9 @@ mExpClass(uiBase) uiAdvancedTextItem : public uiGraphicsItem
 {
 public:
 			uiAdvancedTextItem();
-			uiAdvancedTextItem(const uiString&);
+			uiAdvancedTextItem(const uiString&,
+					   const Alignment& =
+				    Alignment(Alignment::Left,Alignment::Top));
 			~uiAdvancedTextItem();
 
     Alignment		getAlignment() const;
