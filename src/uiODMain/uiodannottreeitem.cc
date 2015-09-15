@@ -223,6 +223,7 @@ bool uiODAnnotTreeItem::showSubMenu()
     BufferString addtxt = "New "; addtxt += typestr_; addtxt += " group ...";
     mnu.insertItem( new uiAction(addtxt), 0 );
     mnu.insertItem(new uiAction(m3Dots(uiStrings::sAdd())),1);
+    addStandardItems( mnu );
 
     const int mnusel = mnu.exec();
     if ( mnusel < 0 ) return false;
@@ -266,6 +267,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 	Pick::Set* ps = new Pick::Set;
 	if ( !readPicks(*ps) ) { delete ps; return false; }
     }
+    handleStandardItems( mnusel );
 
     return true;
 }
