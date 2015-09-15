@@ -50,12 +50,11 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-
 #define mErrRetYN(msg) { uiMSG().error(msg); return false; }
 #define mErrRet(msg) { uiMSG().error(msg); return; }
 #define mGetWD(act) const Well::Data* wd = server_.wd(); if ( !wd ) act;
 
-const WellTie::Setup& uiTieWin::Setup() const
+const WellTie::Setup& uiTieWin::welltieSetup() const
 {
     return server_.data().setup();
 }
@@ -77,7 +76,7 @@ uiTieWin::uiTieWin( uiParent* p, Server& wts )
 
     mGetWD(return)
     BufferString title( "Tie ");
-    title += wd->name(); title += " to "; title += Setup().seisnm_;
+    title += wd->name(); title += " to "; title += welltieSetup().seisnm_;
     setCaption( title );
 
     initAll();
@@ -347,7 +346,7 @@ void uiTieWin::infoPushed( CallBacker* )
 	if ( !server_.hasSynthetic() || !server_.hasSeismic() )
 	{
 	    uiString errmsg = tr("No %1 data extracted\nCannot go further")
-			    .arg(server_.hasSeismic() ? tr("synthetic") 
+			    .arg(server_.hasSeismic() ? tr("synthetic")
 						      : tr("seismic"));
 	    uiMSG().error( errmsg );
 	    return;
@@ -1030,4 +1029,4 @@ bool uiInfoDlg::isInitWvltActive() const
     return wvltdraw_->isInitialWvltActive();
 }
 
-}; //namespace WellTie
+} // namespace WellTie

@@ -65,7 +65,6 @@ uiTieView::~uiTieView()
 {
     delete wellcontrol_;
     delete &trcbuf_;
-    deepErase( logsdisp_ );
 }
 
 
@@ -463,4 +462,4 @@ void uiCrossCorrView::draw()
     lbl_->setText( corrbuf );
 }
 
-}; //namespace WellTie
+} // namespace WellTie

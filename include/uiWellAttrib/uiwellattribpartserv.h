@@ -69,7 +69,6 @@ protected:
 
     Attrib::DescSet*		attrset_;
     const NLAModel*		nlamodel_;
-    bool			welltiedlgopened_;
 
     WellTie::uiTieWinMGRDlg*	welltiedlg_;
     uiWellAttribCrossPlot*	xplotwin2d_;
@@ -77,7 +76,6 @@ protected:
     uiWellTo2DLineDlg*		wellto2ddlg_;
     DataPointSetDisplayMgr*	dpsdispmgr_;
 
-    void			closeWellTieDlg(CallBacker*);
     void			surveyChangedCB(CallBacker*);
     void			previewWellto2DLine(CallBacker*);
     void			wellTo2DDlgClosed(CallBacker*);

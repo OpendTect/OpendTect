@@ -34,8 +34,9 @@ class uiWaveletExtraction;
 
 namespace WellTie
 {
-    class Setup;
-    class uiTieWin;
+
+class Setup;
+class uiTieWin;
 
 mExpClass(uiWellAttrib) uiTieWinMGRDlg : public uiDialog
 { mODTextTranslationClass(uiTieWinMGRDlg);
@@ -52,7 +53,6 @@ protected:
     ElasticPropSelection& elpropsel_;
     bool		savedefaut_;
     ObjectSet<uiTieWin> welltiedlgset_;
-    ObjectSet<uiTieWin> welltiedlgsetcpy_;
     uiWellPropSel*	logsfld_;
 
     Well::Data*		wd_;
@@ -88,6 +88,7 @@ protected:
     bool		seisIDIs3D(MultiID) const;
 };
 
-}; //namespace WellTie
+} // namespace WellTie
+
 #endif
 

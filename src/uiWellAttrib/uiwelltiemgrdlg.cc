@@ -199,7 +199,8 @@ void uiTieWinMGRDlg::onFinalise( CallBacker* )
 
 void uiTieWinMGRDlg::delWins()
 {
-    deepErase( welltiedlgsetcpy_ );
+    while ( !welltiedlgset_.isEmpty() )
+	welltiedlgset_[0]->close();
 }
 
 
@@ -458,7 +459,7 @@ bool uiTieWinMGRDlg::initSetup()
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
 	uiTieWin* win = welltiedlgset_[idx];
-	if ( win->Setup().wellid_ == wellid )
+	if ( win->welltieSetup().wellid_ == wellid )
 	    mErrRet( "A window with this well is already opened" )
     }
     wtsetup_.wellid_ = wellid;
@@ -476,6 +477,7 @@ bool uiTieWinMGRDlg::initSetup()
 	    // msg required because the seismic is optional
 
 	wtsetup_.seisid_ = seisid;
+	wtsetup_.seisnm_ = IOM().nameOf( seisid );
 	if ( is2d )
 	    wtsetup_.linenm_ = seislinefld_->getInput();
 	else
@@ -559,9 +561,8 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     }
 
     WellTie::uiTieWin* wtdlg = new WellTie::uiTieWin( this, *server );
+    wtdlg->setDeleteOnClose( true );
     welltiedlgset_ += wtdlg;
-    welltiedlgsetcpy_ += wtdlg;
-    //windows are stored in a an ObjectSet to be deleted in the destructor
     wtdlg->windowClosed.notify( mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
 
     PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
@@ -579,12 +580,13 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
 
 void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 {
-    mDynamicCastGet(WellTie::uiTieWin*,win,cb);
-    const int idx = welltiedlgset_.indexOf( win );
-    if ( !win || idx<0 ) return;
+    mDynamicCastGet(WellTie::uiTieWin*,tiewin,cb);
+    const int idx = welltiedlgset_.indexOf( tiewin );
+    if ( !tiewin || idx<0 ) return;
 
-    WellTie::Writer wtr( Well::odIO::getMainFileName(win->Setup().wellid_) );
-    IOPar par; win->fillPar( par );
+    const MultiID wellid = tiewin->welltieSetup().wellid_;
+    WellTie::Writer wtr( Well::odIO::getMainFileName(wellid) );
+    IOPar par; tiewin->fillPar( par );
     wtr.putIOPar( par, uiTieWin::sKeyWinPar() );
 
     welltiedlgset_.removeSingle( idx );
@@ -600,5 +602,5 @@ bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
     return !is2D && !islineset;
 }
 
+} // namespace WellTie
 
-}; //namespace

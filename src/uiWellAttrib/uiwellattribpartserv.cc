@@ -48,7 +48,6 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , dpsdispmgr_(0)
     , welltiedlg_(0)
     , wellto2ddlg_(0)
-    , welltiedlgopened_(false)
 {
     IOM().surveyChanged.notify(
 	    mCB(this,uiWellAttribPartServer,surveyChangedCB) );
@@ -74,13 +73,7 @@ void uiWellAttribPartServer::cleanUp()
     delete xplotwin2d_; xplotwin2d_ = 0;
     delete xplotwin3d_; xplotwin3d_ = 0;
 
-    if ( welltiedlg_ )
-    {
-	welltiedlg_->windowClosed.remove(
-		mCB(this,uiWellAttribPartServer,closeWellTieDlg) );
-	welltiedlg_->delWins();
-	delete welltiedlg_; welltiedlg_ = 0;
-    }
+    delete welltiedlg_; welltiedlg_ = 0;
 
     if ( wellto2ddlg_ )
     {
@@ -206,23 +199,12 @@ bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
 {
     WellTie::Setup* wtsetup = new WellTie::Setup();
     wtsetup->wellid_ = wid;
-    if ( !welltiedlgopened_ )
-    {
+    if ( !welltiedlg_ )
 	welltiedlg_ = new WellTie::uiTieWinMGRDlg( parent(), *wtsetup );
-	welltiedlg_->windowClosed.notify(
-		mCB(this,uiWellAttribPartServer,closeWellTieDlg));
-	welltiedlgopened_ = welltiedlg_->go();
-    }
+
+    welltiedlg_->raise();
+    welltiedlg_->show();
     return true;
-}
-
-
-void uiWellAttribPartServer::closeWellTieDlg( CallBacker* cb )
-{
-    mDynamicCastGet(WellTie::uiTieWinMGRDlg*,dlg,cb)
-    if ( !dlg ) { pErrMsg("Huh"); return; }
-    dlg->delWins();
-    welltiedlgopened_ = false;
 }
 
 
